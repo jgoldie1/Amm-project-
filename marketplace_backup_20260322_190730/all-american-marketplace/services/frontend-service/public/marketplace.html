@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Marketplace</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header>
+  <h1>Marketplace</h1>
+  <div class="nav">
+    <a href="/">Home</a>
+    <a href="/rider.html">Rider</a>
+    <a href="/driver.html">Driver</a>
+    <a href="/admin.html">Admin</a>
+  </div>
+</header>
+<main>
+  <div class="card">
+    <h3>Seller Application</h3>
+    <input id="storeName" placeholder="Store Name">
+    <select id="subscriptionTier">
+      <option value="basic">basic</option>
+      <option value="premium">premium</option>
+    </select>
+    <button onclick="applySeller()">Apply as Seller</button>
+    <pre id="sellerOut"></pre>
+  </div>
+
+  <div class="card">
+    <h3>Create Product</h3>
+    <input id="sellerId" placeholder="Seller ID">
+    <input id="productName" placeholder="Product Name">
+    <input id="productPrice" placeholder="Price">
+    <input id="productCategory" placeholder="Category">
+    <input id="productInventory" placeholder="Inventory">
+    <button onclick="createProduct()">Create Product</button>
+    <pre id="productOut"></pre>
+  </div>
+
+  <div class="card">
+    <h3>Browse Products</h3>
+    <button onclick="loadProducts()">Load Products</button>
+    <pre id="productsOut"></pre>
+  </div>
+</main>
+<script src="/app.js"></script>
+<script>
+async function applySeller() {
+  const data = await request(API.marketplace + "/seller/apply", {
+    method: "POST",
+    body: JSON.stringify({
+      storeName: storeName.value,
+      subscriptionTier: subscriptionTier.value
+    })
+  });
+  show("sellerOut", data);
+}
+
+async function createProduct() {
+  const data = await request(API.marketplace + "/products", {
+    method: "POST",
+    body: JSON.stringify({
+      sellerId: Number(sellerId.value),
+      name: productName.value,
+      price: Number(productPrice.value),
+      category: productCategory.value,
+      inventory: Number(productInventory.value || 0)
+    })
+  });
+  show("productOut", data);
+}
+
+async function loadProducts() {
+  const data = await request(API.marketplace + "/products");
+  show("productsOut", data);
+}
+</script>
+</body>
+</html>

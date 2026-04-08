@@ -1,0 +1,10 @@
+{
+ "mobile_os":"custom ecosystem mobile system",
+ "gaming_console":"holofon volcano",
+ "holographic_tv":"3D / 5D holographic streaming display",
+ "immersive_devices":[
+  "vr clients",
+  "ar clients",
+  "console"
+ ]
+}

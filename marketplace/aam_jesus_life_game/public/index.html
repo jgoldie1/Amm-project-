@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AAM Jesus Life Game</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <h1>AAM Jesus Life Game</h1>
+      <div class="badge">Open World Prototype</div>
+    </header>
+
+    <main class="grid">
+      <section class="panel">
+        <h2>World Map</h2>
+        <div id="sceneList" class="scene-list"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Hologram Stage</h2>
+        <div id="stage" class="stage">
+          <div class="holo-ring"></div>
+          <div class="holo-core" id="holoCore">Waiting for event...</div>
+        </div>
+        <div class="controls">
+          <input id="playerName" placeholder="Player name" value="James" />
+          <button id="sendMove">Send Move</button>
+          <button id="sendChat">Send Chat</button>
+        </div>
+        <input id="chatText" placeholder="Type message for multiplayer chat" />
+      </section>
+
+      <section class="panel">
+        <h2>Multiplayer Feed</h2>
+        <div id="feed" class="feed"></div>
+      </section>
+    </main>
+  </div>
+  <script src="/js/app.js"></script>
+</body>
+</html>

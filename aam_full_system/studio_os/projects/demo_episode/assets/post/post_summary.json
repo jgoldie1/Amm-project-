@@ -1,0 +1,7 @@
+{
+  "status": "music_mix_post_ready",
+  "music_files": 3,
+  "mix_chain_steps": 7,
+  "post_steps": 8,
+  "next_step": "replace placeholders with real music generation, real audio mixing, and real final export"
+}

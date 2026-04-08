@@ -1,0 +1,18 @@
+PASS F TAIL-ONLY RECOVERY REPORT
+Timestamp: 20260401_171546
+
+Recovered:
+- metaverse sdk snapshots
+- multiverse sdk snapshots
+- extension/package snapshots
+- simulation toolkit snapshots
+- release bundle snapshots
+- holographic game/world snapshots
+- world dev snapshots
+- gap summary
+- current-run scan
+
+Purpose:
+- recover interrupted pass F tail
+- preserve stable runtime
+- avoid rerunning full pass unnecessarily

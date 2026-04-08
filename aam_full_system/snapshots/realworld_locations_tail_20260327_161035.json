@@ -1,0 +1,10 @@
+[{"id":10,"location_name":"Indiana Anchor","longitude":-86.126,"latitude":39.7684,"height":1800.0,"location_type":"state_anchor","location_status":"active","created_at":"2026-03-27 21:10:36"},
+{"id":9,"location_name":"Herrin Illinois Anchor","longitude":-89.0276,"latitude":37.8031,"height":1800.0,"location_type":"city_anchor","location_status":"active","created_at":"2026-03-27 21:10:36"},
+{"id":8,"location_name":"Detroit Anchor","longitude":-83.0458,"latitude":42.3314,"height":1800.0,"location_type":"city_anchor","location_status":"active","created_at":"2026-03-27 21:10:36"},
+{"id":7,"location_name":"San Diego Anchor","longitude":-117.1611,"latitude":32.7157,"height":1800.0,"location_type":"city_anchor","location_status":"active","created_at":"2026-03-27 21:10:36"},
+{"id":6,"location_name":"Nashville Anchor","longitude":-86.7816,"latitude":36.1627,"height":1800.0,"location_type":"city_anchor","location_status":"active","created_at":"2026-03-27 21:10:36"},
+{"id":5,"location_name":"Los Angeles Anchor","longitude":-118.2437,"latitude":34.0522,"height":1800.0,"location_type":"city_anchor","location_status":"active","created_at":"2026-03-27 21:10:36"},
+{"id":4,"location_name":"Chicago Anchor","longitude":-87.6298,"latitude":41.8781,"height":1800.0,"location_type":"city_anchor","location_status":"active","created_at":"2026-03-27 21:10:36"},
+{"id":3,"location_name":"Nashville Anchor","longitude":-86.7816,"latitude":36.1627,"height":1800.0,"location_type":"city_anchor","location_status":"active","created_at":"2026-03-27 21:00:23"},
+{"id":2,"location_name":"Los Angeles Anchor","longitude":-118.2437,"latitude":34.0522,"height":1800.0,"location_type":"city_anchor","location_status":"active","created_at":"2026-03-27 21:00:23"},
+{"id":1,"location_name":"Chicago Anchor","longitude":-87.6298,"latitude":41.8781,"height":1800.0,"location_type":"city_anchor","location_status":"active","created_at":"2026-03-27 21:00:23"}]

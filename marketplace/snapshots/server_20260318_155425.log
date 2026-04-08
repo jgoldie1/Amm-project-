@@ -1,0 +1,45 @@
+ * Serving Flask app 'app'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.115:8080
+[33mPress CTRL+C to quit[0m
+127.0.0.1 - - [18/Mar/2026 15:41:28] "HEAD /app-home-2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:28] "HEAD /social-hub HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:28] "HEAD /games-pro-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:28] "HEAD /for-you HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:28] "HEAD /tv-network HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:28] "HEAD /tv-network-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:29] "HEAD /growth-center HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:29] "HEAD /safety-center HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:29] "HEAD /time-machine-2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:29] "HEAD /open-world HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:29] "HEAD /account-center-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:29] "HEAD /creator-monetization-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:29] "HEAD /gap-report-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:29] "HEAD /progress-center-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:29] "HEAD /mission-history-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:29] "HEAD /omni-cinema HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:29] "HEAD /omni-cinema-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:29] "HEAD /omni-cinema-v3 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:29] "HEAD /omni-cinema-v4 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:29] "HEAD /holofon-world HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:30] "HEAD /royal-locs-franchise HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:30] "HEAD /his-hers-brand HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:30] "HEAD /flagship-tree HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:30] "HEAD /flagship-tree-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:30] "HEAD /dynamic-feed-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:30] "HEAD /dynamic-feed-v3 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:30] "HEAD /world-map-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:30] "HEAD /world-map-v3 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:30] "HEAD /world-map-v4 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:30] "HEAD /live-channel-engine HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:30] "HEAD /channel-directory-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:30] "HEAD /channel-bundles-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:30] "HEAD /channel-subscriptions-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:30] "HEAD /show-monetization-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:31] "HEAD /holo-engine-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:31] "HEAD /holo-camera-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:31] "HEAD /lag-buster-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 15:41:31] "HEAD /holo-scene-v2 HTTP/1.1" 200 -

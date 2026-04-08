@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header>
+  <h1>Admin Dashboard</h1>
+  <div class="nav">
+    <a href="/">Home</a>
+    <a href="/rider.html">Rider</a>
+    <a href="/driver.html">Driver</a>
+    <a href="/marketplace.html">Marketplace</a>
+  </div>
+</header>
+<main>
+  <div class="grid">
+    <div class="card">
+      <h3>Register Admin</h3>
+      <input id="aregName" placeholder="Name">
+      <input id="aregEmail" placeholder="Email">
+      <input id="aregPhone" placeholder="Phone">
+      <input id="aregPassword" placeholder="Password" type="password">
+      <button onclick="registerAdmin()">Register Admin</button>
+      <pre id="aregOut"></pre>
+    </div>
+
+    <div class="card">
+      <h3>Admin Login</h3>
+      <input id="aloginEmail" placeholder="Email">
+      <input id="aloginPassword" placeholder="Password" type="password">
+      <button onclick="loginAdmin()">Login Admin</button>
+      <button onclick="logoutAdmin()">Logout</button>
+      <pre id="aloginOut"></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Driver Applications</h3>
+    <button onclick="loadApplications()">Load Applications</button>
+    <input id="approveAppId" placeholder="Application ID to approve">
+    <button onclick="approveApplication()">Approve Application</button>
+    <pre id="appsOut"></pre>
+  </div>
+
+  <div class="card">
+    <h3>Assign Booking</h3>
+    <input id="assignBookingId" placeholder="Booking ID">
+    <button onclick="assignBooking()">Assign Driver</button>
+    <pre id="assignOut"></pre>
+  </div>
+
+  <div class="card">
+    <h3>Admin Analytics</h3>
+    <button onclick="loadAnalytics()">Load Analytics</button>
+    <pre id="analyticsOut"></pre>
+  </div>
+</main>
+<script src="/app.js"></script>
+<script>
+async function registerAdmin() {
+  const data = await request(API.auth + "/register", {
+    method: "POST",
+    body: JSON.stringify({
+      name: aregName.value,
+      email: aregEmail.value,
+      phone: aregPhone.value,
+      password: aregPassword.value,
+      role: "admin"
+    })
+  });
+  show("aregOut", data);
+}
+
+async function loginAdmin() {
+  const data = await request(API.auth + "/login", {
+    method: "POST",
+    body: JSON.stringify({
+      email: aloginEmail.value,
+      password: aloginPassword.value
+    })
+  });
+  if (data.token) saveToken(data.token);
+  show("aloginOut", data);
+}
+
+function logoutAdmin() {
+  clearToken();
+  show("aloginOut", { ok: true, message: "Logged out" });
+}
+
+async function loadApplications() {
+  const data = await request(API.driver + "/drivers/applications");
+  show("appsOut", data);
+}
+
+async function approveApplication() {
+  const data = await request(API.driver + "/drivers/applications/" + approveAppId.value + "/approve", {
+    method: "POST"
+  });
+  show("appsOut", data);
+}
+
+async function assignBooking() {
+  const data = await request(API.dispatch + "/assign/" + assignBookingId.value, {
+    method: "POST"
+  });
+  show("assignOut", data);
+}
+
+async function loadAnalytics() {
+  const data = await request(API.admin + "/analytics");
+  show("analyticsOut", data);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+RENDER PLACEHOLDER
+job_id=render_003
+clip_id=3
+prompt=Creator transformation sequence, inspiring broadcast-energy visuals
+status=ready_for_provider_hookup

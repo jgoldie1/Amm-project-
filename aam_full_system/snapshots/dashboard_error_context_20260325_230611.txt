@@ -1,0 +1,32 @@
+5195: 
+5196:     if (req.method === 'GET' && pathname === '/people/add') {
+5197:       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+5198:       return res.end(renderAddPersonPage(requestURL.searchParams.get('msg') || ''));
+5199:     }
+5200: 
+5201:     if (req.method === 'POST' && pathname === '/people/add') {
+5202:       const body = await parseBody(req);
+5203:       const name = (body.name || '').trim();
+5204:       const role = (body.role || '').trim();
+5205:       if (!name || !role) return redirect(res, '/people/add?msg=Invalid%20input');
+5206:       dbRun(`INSERT INTO people (name, role) VALUES ('${q(name)}', '${q(role)}')`);
+5207:       return redirect(res, '/people/add?msg=Person%20added');
+5208:     }
+5209: 
+5210:     if (req.method === 'GET' && pathname.startsWith('/people/')) {
+5211:       const personId = Number(pathname.split('/')[2]);
+5212:       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+5213:       return res.end(renderPersonDetail(personId));
+5214:     }
+5215: 
+5216:     res.writeHead(404, { 'Content-Type': 'text/plain' });
+5217:     res.end('Not found');
+5218:   } catch (err) {
+5219:     res.writeHead(500, { 'Content-Type': 'text/plain' });
+5220:     res.end(`Server error: ${err.message}`);
+5221:   }
+5222: });
+5223: 
+5224: server.listen(PORT, () => {
+5225:   console.log(`Dashboard running on ${PORT}`);
+5226: });

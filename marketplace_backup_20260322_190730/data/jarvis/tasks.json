@@ -1,0 +1,6 @@
+[
+  {"title":"Open Daily Control", "links":["/jarvis-home","/jarvis-favorites","/master-dashboard"]},
+  {"title":"Open Profile Tools", "links":["/profile-safe","/profile-db-center","/db-role-preferences","/db-favorites"]},
+  {"title":"Open Business Tools", "links":["/payments-center","/payment-health","/clickable-map"]},
+  {"title":"Open System Tools", "links":["/platform-verify","/route-map","/boot-status"]}
+]

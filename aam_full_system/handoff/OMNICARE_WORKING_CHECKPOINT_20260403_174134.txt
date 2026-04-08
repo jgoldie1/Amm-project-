@@ -1,0 +1,9 @@
+AAM FULL SYSTEM CHECKPOINT
+Timestamp: 20260403_174134
+Status: dashboard and jarvis healthy
+Validated routes:
+  /omnicare/surety-safe
+  /omnicare/factoring-safe
+  /omnicare/automan-safe
+  /omnicare/light-safe
+Validated result: HTTP 302 redirects successful

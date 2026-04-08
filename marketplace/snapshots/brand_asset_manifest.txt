@@ -1,0 +1,4 @@
+/data/data/com.termux/files/home/marketplace/static/brand/american_flag_real.svg
+/data/data/com.termux/files/home/marketplace/static/brand/lion_real.svg
+/data/data/com.termux/files/home/marketplace/static/brand/saturn_real.svg
+/data/data/com.termux/files/home/marketplace/static/brand/stubbs_crest_real.svg

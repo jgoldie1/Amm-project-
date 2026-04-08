@@ -1,0 +1,20 @@
+.bday-banner{
+  border:1px solid rgba(245,158,11,.35);
+  background:linear-gradient(135deg, rgba(245,158,11,.18), rgba(167,139,250,.16));
+  border-radius:24px;
+  padding:20px;
+  margin-top:18px;
+  box-shadow:0 0 20px rgba(245,158,11,.12);
+}
+.bday-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:16px;
+  margin-top:18px;
+}
+.bday-card{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:22px;
+  padding:18px;
+  background:rgba(255,255,255,.05);
+}

@@ -1,0 +1,23 @@
+{
+  "verification_system": {
+    "badges": [
+      "Blue Holo Verified",
+      "Blue Saturn Verified",
+      "Creator Verified",
+      "Artist Verified",
+      "Ministry Verified",
+      "Business Verified",
+      "Gold Founder Verified",
+      "Elite Verified"
+    ],
+    "benefits": [
+      "trust_and_identity",
+      "higher_visibility",
+      "premium_status",
+      "priority_support",
+      "verification_filtering",
+      "brand_protection"
+    ],
+    "purpose": "Create a platform-native trust and status system"
+  }
+}

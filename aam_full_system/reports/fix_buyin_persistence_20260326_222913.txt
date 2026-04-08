@@ -1,0 +1,14 @@
+FIX BUY-IN PERSISTENCE + STABILIZE REPORT
+Timestamp: 20260326_222913
+
+Fixed:
+- checkout completion persistence path
+
+Verified:
+- checkout_orders writes
+- ecosystem_access_passes writes
+- unlock_events writes
+
+Goal:
+- close the monetization persistence gap
+- prepare for real payment integration

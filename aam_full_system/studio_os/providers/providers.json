@@ -1,0 +1,23 @@
+{
+  "video": {
+    "primary": "runway",
+    "backup": "kling",
+    "asia_alt": "wan",
+    "enabled": false
+  },
+  "voice": {
+    "primary": "elevenlabs",
+    "backup": "xtts",
+    "enabled": false
+  },
+  "music": {
+    "primary": "suno",
+    "backup": "udio",
+    "enabled": false
+  },
+  "translation": {
+    "primary": "gpt_translation",
+    "backup": "whisper_plus_xtts",
+    "enabled": false
+  }
+}

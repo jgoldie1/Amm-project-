@@ -1,0 +1,10 @@
+{
+  "modes": [
+    "public_home",
+    "creator_mode",
+    "world_mode",
+    "stream_mode",
+    "marketplace_mode",
+    "family_safe_mode"
+  ]
+}

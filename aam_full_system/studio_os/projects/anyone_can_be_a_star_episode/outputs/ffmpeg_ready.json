@@ -1,0 +1,7 @@
+{
+  "clips_list": "studio_os/projects/anyone_can_be_a_star_episode/assets/final/clips_list.txt",
+  "rough_cut": "/data/data/com.termux/files/home/aam_full_system/studio_os/projects/anyone_can_be_a_star_episode/assets/final/rough_cut.mp4",
+  "final_master": "/data/data/com.termux/files/home/aam_full_system/studio_os/projects/anyone_can_be_a_star_episode/assets/final/final_master.mp4",
+  "subbed_master": "/data/data/com.termux/files/home/aam_full_system/studio_os/projects/anyone_can_be_a_star_episode/assets/final/final_master_subbed.mp4",
+  "ready_for_ffmpeg": false
+}

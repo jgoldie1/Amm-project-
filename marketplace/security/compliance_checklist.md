@@ -1,0 +1,7 @@
+- PCI considerations for payments
+- Privacy policy
+- Terms of service
+- Data retention controls
+- Audit trail retention
+- Access review process
+- Incident response plan

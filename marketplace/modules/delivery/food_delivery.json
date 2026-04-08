@@ -1,0 +1,11 @@
+{
+ "system":"food_delivery",
+ "features":[
+ "restaurant onboarding",
+ "menu system",
+ "customer ordering",
+ "driver dispatch",
+ "delivery tracking",
+ "payment integration"
+ ]
+}

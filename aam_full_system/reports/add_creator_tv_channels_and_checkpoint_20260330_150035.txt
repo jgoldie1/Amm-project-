@@ -1,0 +1,12 @@
+ADD CREATOR TV CHANNELS + CHECKPOINT REPORT
+Timestamp: 20260330_150035
+
+Added:
+- /creator-tv
+- creator_tv_channels
+- creator_tv_programs
+
+Purpose:
+- extend the stable media layer
+- add channel/program visibility
+- preserve runtime stability before streaming network layer

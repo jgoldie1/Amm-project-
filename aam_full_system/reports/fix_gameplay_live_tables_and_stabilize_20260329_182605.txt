@@ -1,0 +1,12 @@
+FIX GAMEPLAY LIVE TABLES + STABILIZE REPORT
+Timestamp: 20260329_182605
+
+Fixed:
+- created missing world_interaction_events
+- repaired required gameplay live tables
+- retested live gameplay action routes
+
+Purpose:
+- stabilize gameplay live actions
+- restore real gameplay logging
+- prepare for the next dual-world expansion phase

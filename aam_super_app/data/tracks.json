@@ -1,0 +1,110 @@
+{
+  "9b25c7d4-734d-489d-809f-032ff9a96ac3": {
+    "trackId": "9b25c7d4-734d-489d-809f-032ff9a96ac3",
+    "artistId": "54148fa6-ce34-4baf-a911-c64a5afe6d25",
+    "title": "Stabilized Song",
+    "genre": "rap",
+    "rate": 0.04,
+    "remix": "open",
+    "createdAt": "2026-04-05T17:59:30.122Z"
+  },
+  "a9d31577-04c2-491f-8ae9-6352accc89f7": {
+    "trackId": "a9d31577-04c2-491f-8ae9-6352accc89f7",
+    "artistId": "54148fa6-ce34-4baf-a911-c64a5afe6d25",
+    "title": "Stabilized Song",
+    "genre": "rap",
+    "rate": 0.04,
+    "remix": "open",
+    "createdAt": "2026-04-05T17:59:36.716Z"
+  },
+  "03910e97-c06f-409c-a345-d3dd66fa8dd6": {
+    "trackId": "03910e97-c06f-409c-a345-d3dd66fa8dd6",
+    "artistId": "b35047b9-7683-494c-bb35-dab7e99bd8c5",
+    "title": "Full Test Song",
+    "genre": "rap",
+    "rate": 0.04,
+    "remix": "open",
+    "createdAt": "2026-04-05T20:42:42.340Z"
+  },
+  "842b62e6-1dc1-4c98-82f0-30404978e49d": {
+    "trackId": "842b62e6-1dc1-4c98-82f0-30404978e49d",
+    "artistId": "08012d1f-714a-45fb-827e-635bbf5d90dc",
+    "title": "Creator Portal Song",
+    "genre": "jazz",
+    "rate": 0.05,
+    "remix": "open",
+    "createdAt": "2026-04-05T21:10:47.674Z"
+  },
+  "7b5fb641-bb09-4288-b8f2-a92f8efac03a": {
+    "trackId": "7b5fb641-bb09-4288-b8f2-a92f8efac03a",
+    "artistId": "58095921-de65-4046-af47-c0c9597de9df",
+    "title": "Intel Song",
+    "genre": "rap",
+    "rate": 0.04,
+    "remix": "open",
+    "createdAt": "2026-04-05T21:23:47.856Z"
+  },
+  "6c88cced-708f-4962-834b-5b6e59b0bbe5": {
+    "trackId": "6c88cced-708f-4962-834b-5b6e59b0bbe5",
+    "artistId": "920d1cae-149f-42ae-b967-796be23c6e03",
+    "title": "Intel Song",
+    "genre": "rap",
+    "rate": 0.04,
+    "remix": "open",
+    "createdAt": "2026-04-05T21:24:17.375Z"
+  },
+  "b980472e-1523-4967-9ee6-b1ecaf9a8487": {
+    "trackId": "b980472e-1523-4967-9ee6-b1ecaf9a8487",
+    "artistId": "a9cd71b7-9b2a-4ac3-b51f-c14690a79171",
+    "title": "Intel Song",
+    "genre": "rap",
+    "rate": 0.04,
+    "remix": "open",
+    "createdAt": "2026-04-05T21:26:46.297Z"
+  },
+  "f4b5b11b-1566-474e-810d-2f6d63e6f457": {
+    "trackId": "f4b5b11b-1566-474e-810d-2f6d63e6f457",
+    "artistId": "fef4eca9-b692-4c98-b5a4-38bcb2b54241",
+    "title": "Intel Song",
+    "genre": "rap",
+    "rate": 0.04,
+    "remix": "open",
+    "createdAt": "2026-04-05T21:32:42.059Z"
+  },
+  "9e1b3717-c577-4af2-85c3-c3f56c4d1b5c": {
+    "trackId": "9e1b3717-c577-4af2-85c3-c3f56c4d1b5c",
+    "artistId": "b2f77089-ad27-4668-b9f9-b6d715b61d16",
+    "title": "Intel Song",
+    "genre": "rap",
+    "rate": 0.04,
+    "remix": "open",
+    "createdAt": "2026-04-05T21:42:33.952Z"
+  },
+  "85673bcd-909e-4164-a0cc-3fff50e31c7f": {
+    "trackId": "85673bcd-909e-4164-a0cc-3fff50e31c7f",
+    "artistId": "2604caad-11e6-4c3f-8668-a0f316f49bc7",
+    "title": "Intel Song",
+    "genre": "rap",
+    "rate": 0.04,
+    "remix": "open",
+    "createdAt": "2026-04-05T22:18:28.831Z"
+  },
+  "a6b4af71-ebb1-450c-a732-30b29558ff95": {
+    "trackId": "a6b4af71-ebb1-450c-a732-30b29558ff95",
+    "artistId": "90e37de1-2867-496d-897f-7ce5f372ca35",
+    "title": "Intel Song",
+    "genre": "rap",
+    "rate": 0.04,
+    "remix": "open",
+    "createdAt": "2026-04-05T22:25:17.273Z"
+  },
+  "63dce5ea-6c78-402e-8386-3fb511b8b0de": {
+    "trackId": "63dce5ea-6c78-402e-8386-3fb511b8b0de",
+    "artistId": "bb50e42a-2e46-49aa-b22f-8c93f841e00d",
+    "title": "Intel Song",
+    "genre": "rap",
+    "rate": 0.04,
+    "remix": "open",
+    "createdAt": "2026-04-05T22:31:21.753Z"
+  }
+}

@@ -1,0 +1,7 @@
+[
+  {"name":"Creator District","type":"creator","status":"active"},
+  {"name":"Marketplace District","type":"commerce","status":"active"},
+  {"name":"VIP Event Zone","type":"vip","status":"active"},
+  {"name":"Transport Hub","type":"transport","status":"active"},
+  {"name":"Wildlife Zone","type":"ecosystem","status":"active"}
+]

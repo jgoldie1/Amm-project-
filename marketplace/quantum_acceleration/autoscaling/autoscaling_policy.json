@@ -1,0 +1,13 @@
+{
+  "autoscaling_policy": {
+    "features": [
+      "traffic_based_scaling",
+      "stream_load_scaling",
+      "ai_job_scaling",
+      "marketplace_peak_scaling",
+      "delivery_demand_scaling",
+      "cost_aware_scaling"
+    ],
+    "purpose": "Scale services automatically based on demand while controlling cost"
+  }
+}

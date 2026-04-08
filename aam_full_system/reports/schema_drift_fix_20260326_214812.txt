@@ -1,0 +1,17 @@
+SCHEMA DRIFT FIX + STABILIZE REPORT
+Timestamp: 20260326_214812
+
+Fixed:
+- wallets.wallet_status
+- podcasts.status
+
+Added compatibility support:
+- wallets.wallet_name
+- podcasts.host_name
+
+Verified:
+- JS syntax
+- dashboard health
+- jarvis health
+- socket health
+- route scans for missing-column regressions

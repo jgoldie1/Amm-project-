@@ -1,0 +1,12 @@
+[{"id":12,"source_name":"Upload Backup Control","source_route":"/upload-backup-control","source_group":"ops","index_status":"active","created_at":"2026-03-30 04:27:45"},
+{"id":11,"source_name":"System Config","source_route":"/system-config","source_group":"ops","index_status":"active","created_at":"2026-03-30 04:27:45"},
+{"id":10,"source_name":"Scaling Control","source_route":"/scaling-control","source_group":"finance","index_status":"active","created_at":"2026-03-30 04:27:45"},
+{"id":9,"source_name":"Transaction Engine","source_route":"/transaction-engine","source_group":"finance","index_status":"active","created_at":"2026-03-30 04:27:45"},
+{"id":8,"source_name":"Holo GPT Control","source_route":"/holo-gpt-control","source_group":"assistant","index_status":"active","created_at":"2026-03-30 04:27:45"},
+{"id":7,"source_name":"Platform Analytics","source_route":"/platform-analytics","source_group":"analytics","index_status":"active","created_at":"2026-03-30 04:27:45"},
+{"id":6,"source_name":"Asset Library","source_route":"/asset-library","source_group":"assets","index_status":"active","created_at":"2026-03-30 04:27:45"},
+{"id":5,"source_name":"Creator Marketplace","source_route":"/creator-marketplace","source_group":"marketplace","index_status":"active","created_at":"2026-03-30 04:27:45"},
+{"id":4,"source_name":"World Era Mobility","source_route":"/world-era-mobility","source_group":"time_machine","index_status":"active","created_at":"2026-03-30 04:27:45"},
+{"id":3,"source_name":"Territory Bridge","source_route":"/territory-bridge","source_group":"territory","index_status":"active","created_at":"2026-03-30 04:27:45"},
+{"id":2,"source_name":"Territory Activation","source_route":"/territory-activation","source_group":"territory","index_status":"active","created_at":"2026-03-30 04:27:45"},
+{"id":1,"source_name":"World3D","source_route":"/world3d","source_group":"world","index_status":"active","created_at":"2026-03-30 04:27:45"}]

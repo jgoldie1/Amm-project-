@@ -1,0 +1,5 @@
+[{"id":5,"asset_name":"Future City Model Pack","usage_type":"world_build","linked_route":"/world3d","linked_system":"world3d","usage_status":"active","created_at":"2026-03-30 04:14:39"},
+{"id":4,"asset_name":"Creator Marketplace Guide","usage_type":"reference","linked_route":"/creator-marketplace","linked_system":"creator_marketplace","usage_status":"active","created_at":"2026-03-30 04:14:39"},
+{"id":3,"asset_name":"Holoverse Welcome Audio","usage_type":"playback","linked_route":"/holo-gpt-control","linked_system":"holo_gpt","usage_status":"active","created_at":"2026-03-30 04:14:39"},
+{"id":2,"asset_name":"Japan Premium World Trailer","usage_type":"display","linked_route":"/world-era-mobility","linked_system":"future_world","usage_status":"active","created_at":"2026-03-30 04:14:39"},
+{"id":1,"asset_name":"Georgia Launch Promo Banner","usage_type":"display","linked_route":"/territory-activation","linked_system":"territory_activation","usage_status":"active","created_at":"2026-03-30 04:14:39"}]

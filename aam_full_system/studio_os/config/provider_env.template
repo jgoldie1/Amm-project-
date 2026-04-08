@@ -1,0 +1,10 @@
+# Fill these in later with your real provider credentials
+RUNWAY_API_KEY=
+KLING_API_KEY=
+WAN_API_KEY=
+ELEVENLABS_API_KEY=
+XTTS_ENABLED=false
+SUNO_API_KEY=
+UDIO_API_KEY=
+OPENAI_API_KEY=
+FFMPEG_BIN=ffmpeg

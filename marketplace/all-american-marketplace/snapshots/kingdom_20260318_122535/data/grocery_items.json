@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "kind": "grocery",
+    "name": "Kingdom Rice",
+    "price": 6.49,
+    "inventory": 40,
+    "format": "physical",
+    "description": "grocery item",
+    "author": "",
+    "category": "food",
+    "createdAt": "2026-03-18T16:51:54.244Z"
+  }
+]

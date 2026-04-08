@@ -1,0 +1,16 @@
+TRANSACTION ENGINE + AUTO PAYOUTS + SCALING + STABILIZE REPORT
+Timestamp: 20260329_230430
+
+Added:
+- transaction_engine
+- payout_queue
+- payout_runs
+- scaling_metrics
+- transaction-engine route
+- scaling-control route
+
+Purpose:
+- create a real transaction engine
+- queue and track creator payouts
+- measure monetization growth and scaling signals
+- stabilize the money engine foundation

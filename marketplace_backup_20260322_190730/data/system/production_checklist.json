@@ -1,0 +1,20 @@
+[
+  {"area":"Recovery shell","status":"done"},
+  {"area":"Modular loader","status":"done"},
+  {"area":"City shell","status":"done"},
+  {"area":"Living city shell","status":"partial"},
+  {"area":"Property shell","status":"partial"},
+  {"area":"Safety shell","status":"partial"},
+  {"area":"OASIS shell","status":"partial"},
+  {"area":"Holoverse shell","status":"partial"},
+  {"area":"Creator shell","status":"partial"},
+  {"area":"Performance shell","status":"partial"},
+  {"area":"Profile shell","status":"partial"},
+  {"area":"Notifications/activity","status":"partial"},
+  {"area":"Real auth","status":"todo"},
+  {"area":"Payments","status":"todo"},
+  {"area":"Database hardening","status":"todo"},
+  {"area":"Production deployment","status":"todo"},
+  {"area":"Advanced simulation AI","status":"partial"},
+  {"area":"WebGL/XR hardening","status":"partial"}
+]

@@ -1,0 +1,76 @@
+=== CLEAN LIFE WORLD ===
+
+=== START LIFE WORLD CLEAN ===
+
+=== VERIFY ===
+life_world.pid: 7363
+{
+  "ok": true,
+  "service": "life-world",
+  "port": 4902
+}
+Life world running on 4902
+
+=== FULL STACK ===
+=== AAM STATUS ===
+
+Dashboard health: {
+  "ok": true,
+  "service": "aam-dashboard",
+  "port": 4900
+}
+Jarvis health:    {
+  "ok": true,
+  "service": "jarvis-core",
+  "port": 5000
+}
+=== PID FILES ===
+dashboard.pid: 7322
+jarvis.pid:    7323
+
+=== RECENT LOGS ===
+--- dashboard.log ---
+Dashboard running on 4900
+
+--- jarvis.log ---
+Jarvis running on 5000
+
+Life World health: {
+  "ok": true,
+  "service": "life-world",
+  "port": 4902
+}life_world.pid: 7363
+=== AAM SMOKE TEST ===
+
+[1] JS syntax
+=== JS SYNTAX CHECK ===
+JavaScript syntax OK
+
+[2] Services
+Dashboard: {
+  "ok": true,
+  "service": "aam-dashboard",
+  "port": 4900
+}
+Jarvis:    {
+  "ok": true,
+  "service": "jarvis-core",
+  "port": 5000
+}
+
+[3] Core pages
+http://127.0.0.1:4900/ -> 302
+http://127.0.0.1:4900/archive -> 302
+http://127.0.0.1:4900/marketplace -> 302
+http://127.0.0.1:4900/university -> 302
+
+[4] Files
+Required files OK
+
+[5] JSON validation
+JSON OK
+
+SMOKE TEST PASSED
+
+[6] Life World
+http://127.0.0.1:4902/health -> OK

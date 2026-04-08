@@ -1,0 +1,23 @@
+{
+  "name": "Codex Copilot",
+  "status": "active_build",
+  "category": "ai_developer_orchestration",
+  "purpose": "AI-assisted front-end, back-end, logic, testing, debugging, and workflow acceleration across the AAM ecosystem.",
+  "features": [
+    "frontend generation",
+    "backend route generation",
+    "database patch planning",
+    "test generation",
+    "debug assistance",
+    "refactor support",
+    "module scaffolding",
+    "world content generation"
+  ],
+  "connects_to": [
+    "system_config_registry",
+    "workflow_path_registry",
+    "tool_orchestrator_registry",
+    "service_expansion_registry",
+    "world_pipeline_flow_registry"
+  ]
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "name": "Flow Rider",
+    "email": "rider_1773837235@example.com",
+    "phone": "1112223333",
+    "passwordHash": "$2a$10$Vp.SoUC6oYLSto74w5A8g./Q0zuU6ZBbW4mAVgJE8aImNMpxVSx6K",
+    "role": "rider",
+    "createdAt": "2026-03-18T12:33:55.881Z"
+  },
+  {
+    "id": 2,
+    "name": "Flow Driver",
+    "email": "driver_1773837235@example.com",
+    "phone": "2223334444",
+    "passwordHash": "$2a$10$43d4RN4jkfjK3cs3H1r4JeKjFH9AmvFIs/enuKCUOzqDyKAe1GU.G",
+    "role": "driver",
+    "createdAt": "2026-03-18T12:33:56.817Z"
+  },
+  {
+    "id": 3,
+    "name": "Flow Admin",
+    "email": "admin_1773837235@example.com",
+    "phone": "9998887777",
+    "passwordHash": "$2a$10$8nSezu8pPh6qWYZmpdA./.HvnSMkIo/PTXgIeEz8G/wh.K3csVfTW",
+    "role": "admin",
+    "createdAt": "2026-03-18T12:33:57.871Z"
+  },
+  {
+    "id": 4,
+    "name": "Flow Rider",
+    "email": "rider_1773843461@example.com",
+    "phone": "1112223333",
+    "passwordHash": "$2a$10$BqGmSJNrdfJ8hbY5PvDldOHVkFzzZxIZI7bszJvfZpcTjF742rXHm",
+    "role": "rider",
+    "createdAt": "2026-03-18T14:17:42.045Z"
+  },
+  {
+    "id": 5,
+    "name": "Flow Driver",
+    "email": "driver_1773843461@example.com",
+    "phone": "2223334444",
+    "passwordHash": "$2a$10$tfS6OG3Pa8CzwQzpYxRtf.YKmSjITFgfGuK.dpvtxl8OHng/q8AzK",
+    "role": "driver",
+    "createdAt": "2026-03-18T14:17:42.998Z"
+  },
+  {
+    "id": 6,
+    "name": "Flow Admin",
+    "email": "admin_1773843461@example.com",
+    "phone": "9998887777",
+    "passwordHash": "$2a$10$rau5rUuKSJwABrg/xrzFeu/uHgba1bGkN2zlJEuzDyCAzkTuZ4ZOe",
+    "role": "admin",
+    "createdAt": "2026-03-18T14:17:44.053Z"
+  },
+  {
+    "id": 7,
+    "name": "Store Admin",
+    "email": "storeadmin_1773852712@example.com",
+    "phone": "9998887777",
+    "passwordHash": "$2a$10$vTmSdYZDClTy.VcpPmnvguISrIuZqC7B/9wnixr/qeSkueVctgNsO",
+    "role": "admin",
+    "createdAt": "2026-03-18T16:51:53.498Z"
+  },
+  {
+    "id": 8,
+    "name": "Store Admin",
+    "email": "storeadmin_1773852774@example.com",
+    "phone": "9998887777",
+    "passwordHash": "$2a$10$eKJYp5.efTt/RAlsG/VeTeXSENefBMUdIt3FLz98ungRC./Q8cPzq",
+    "role": "admin",
+    "createdAt": "2026-03-18T16:52:54.719Z"
+  }
+]

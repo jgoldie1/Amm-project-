@@ -1,0 +1,32 @@
+{
+  "apple": {
+    "enabled": true,
+    "status": "placeholder",
+    "notes": "Requires Apple developer credentials"
+  },
+  "google": {
+    "enabled": true,
+    "status": "placeholder",
+    "notes": "Requires Google OAuth credentials"
+  },
+  "microsoft": {
+    "enabled": true,
+    "status": "placeholder",
+    "notes": "Covers Hotmail / Outlook / Microsoft accounts"
+  },
+  "yahoo": {
+    "enabled": true,
+    "status": "placeholder",
+    "notes": "Requires Yahoo developer credentials"
+  },
+  "phone": {
+    "enabled": true,
+    "status": "placeholder",
+    "notes": "Requires SMS/OTP provider"
+  },
+  "android_device": {
+    "enabled": true,
+    "status": "placeholder",
+    "notes": "Best handled through Google/device-friendly auth"
+  }
+}

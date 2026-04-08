@@ -1,0 +1,22 @@
+{
+  "timeline": [
+    {
+      "clip_id": 1,
+      "start_sec": 0,
+      "duration_sec": 8,
+      "transition": "cut"
+    },
+    {
+      "clip_id": 2,
+      "start_sec": 8,
+      "duration_sec": 8,
+      "transition": "cut"
+    },
+    {
+      "clip_id": 3,
+      "start_sec": 16,
+      "duration_sec": 8,
+      "transition": "cut"
+    }
+  ]
+}

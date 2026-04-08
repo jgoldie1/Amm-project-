@@ -1,0 +1,14 @@
+SMOKE TEST + DEDUPE + STABILIZE REPORT
+Timestamp: 20260326_142616
+
+Completed:
+- service health checks
+- core route smoke tests
+- heirs duplicate cleanup
+- fresh code + DB backups
+- fresh snapshots
+
+Main purpose:
+- prove important pages still render
+- clean duplicate heirs/account drift
+- prepare system for next feature pass

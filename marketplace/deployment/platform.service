@@ -1,0 +1,13 @@
+[Unit]
+Description=Platform Gunicorn Service
+After=network.target
+
+[Service]
+User=www-data
+WorkingDirectory=/opt/platform
+Environment="PATH=/opt/platform/.venv/bin"
+ExecStart=/opt/platform/.venv/bin/gunicorn -c deployment/gunicorn.conf.py wsgi:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

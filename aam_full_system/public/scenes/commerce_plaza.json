@@ -1,0 +1,8 @@
+{
+  "scene": "AAM Commerce Plaza",
+  "objects": [
+    {"type": "billboard", "label": "Holographic Ad Wall"},
+    {"type": "storefront", "label": "Book Store"},
+    {"type": "portal", "label": "Podcast Rooms"}
+  ]
+}

@@ -1,0 +1,115 @@
+[
+  {
+    "id": 1,
+    "actorUserId": 6,
+    "actorRole": "admin",
+    "action": "booking_assigned",
+    "entityType": "booking",
+    "entityId": 2,
+    "payload": {
+      "bookingId": 2,
+      "driverId": 3
+    },
+    "createdAt": "2026-03-18T14:17:44.992Z"
+  },
+  {
+    "id": 2,
+    "actorUserId": 4,
+    "actorRole": "rider",
+    "action": "payment_created",
+    "entityType": "payment",
+    "entityId": 2,
+    "payload": {
+      "id": 2,
+      "userId": 4,
+      "bookingId": 2,
+      "amount": 49.99,
+      "method": "card",
+      "currency": "USD",
+      "status": "paid",
+      "createdAt": "2026-03-18T14:17:45.160Z"
+    },
+    "createdAt": "2026-03-18T14:17:45.164Z"
+  },
+  {
+    "id": 3,
+    "actorUserId": 4,
+    "actorRole": "rider",
+    "action": "seller_applied",
+    "entityType": "seller",
+    "entityId": 2,
+    "payload": {
+      "id": 2,
+      "ownerUserId": 4,
+      "storeName": "Flow Store",
+      "email": "rider_1773843461@example.com",
+      "subscriptionTier": "premium",
+      "approved": false,
+      "createdAt": "2026-03-18T14:17:45.547Z"
+    },
+    "createdAt": "2026-03-18T14:17:45.551Z"
+  },
+  {
+    "id": 4,
+    "actorUserId": 7,
+    "actorRole": "admin",
+    "action": "storehouse_item_created",
+    "entityType": "store_item",
+    "entityId": 1,
+    "payload": {
+      "id": 1,
+      "kind": "store",
+      "name": "Yahavah Oil",
+      "price": 12.99,
+      "inventory": 25,
+      "format": "physical",
+      "description": "store item",
+      "author": "",
+      "category": "anointing",
+      "createdAt": "2026-03-18T16:51:54.169Z"
+    },
+    "createdAt": "2026-03-18T16:51:54.173Z"
+  },
+  {
+    "id": 5,
+    "actorUserId": 7,
+    "actorRole": "admin",
+    "action": "storehouse_item_created",
+    "entityType": "store_item",
+    "entityId": 1,
+    "payload": {
+      "id": 1,
+      "kind": "grocery",
+      "name": "Kingdom Rice",
+      "price": 6.49,
+      "inventory": 40,
+      "format": "physical",
+      "description": "grocery item",
+      "author": "",
+      "category": "food",
+      "createdAt": "2026-03-18T16:51:54.244Z"
+    },
+    "createdAt": "2026-03-18T16:51:54.245Z"
+  },
+  {
+    "id": 6,
+    "actorUserId": 7,
+    "actorRole": "admin",
+    "action": "storehouse_item_created",
+    "entityType": "store_item",
+    "entityId": 1,
+    "payload": {
+      "id": 1,
+      "kind": "book",
+      "name": "Kingdom Book Volume 1",
+      "price": 19.99,
+      "inventory": 10,
+      "format": "paperback",
+      "description": "book item",
+      "author": "James Stubbs",
+      "category": "book",
+      "createdAt": "2026-03-18T16:51:54.314Z"
+    },
+    "createdAt": "2026-03-18T16:51:54.315Z"
+  }
+]

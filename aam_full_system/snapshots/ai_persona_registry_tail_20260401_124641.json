@@ -1,0 +1,4 @@
+[{"id":4,"persona_name":"Clawbot Operations Persona","persona_group":"operations","linked_brand":"Stubbs AI","persona_role":"ops_worker_ai","persona_scope":"multiverse","persona_status":"active","created_at":"2026-04-01 16:38:40"},
+{"id":3,"persona_name":"Stubbs Core Assistant","persona_group":"assistant","linked_brand":"Stubbs AI","persona_role":"primary_platform_ai","persona_scope":"global","persona_status":"active","created_at":"2026-04-01 16:38:40"},
+{"id":2,"persona_name":"Clawbot Operations Persona","persona_group":"operations","linked_brand":"Stubbs AI","persona_role":"ops_worker_ai","persona_scope":"multiverse","persona_status":"active","created_at":"2026-04-01 16:32:21"},
+{"id":1,"persona_name":"Stubbs Core Assistant","persona_group":"assistant","linked_brand":"Stubbs AI","persona_role":"primary_platform_ai","persona_scope":"global","persona_status":"active","created_at":"2026-04-01 16:32:21"}]

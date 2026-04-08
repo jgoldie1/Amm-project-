@@ -1,0 +1,16 @@
+{
+  "civic_roles": [
+    "judge",
+    "lawyer",
+    "prosecutor",
+    "public_defender",
+    "court_clerk",
+    "investigator",
+    "police_officer",
+    "paramedic",
+    "firefighter",
+    "teacher",
+    "city_planner",
+    "transit_operator"
+  ]
+}

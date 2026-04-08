@@ -1,0 +1,9 @@
+PASS ZA LIVE ROUTE REANCHOR REPORT
+Timestamp: 20260403_170821
+
+Fixed:
+- moved navigation workflow routes into live request handler chain
+- preserved dashboard and jarvis runtime
+
+Purpose:
+- make navigation workflow hub and help actions reachable

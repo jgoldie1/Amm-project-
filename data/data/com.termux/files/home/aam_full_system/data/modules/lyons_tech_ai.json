@@ -1,0 +1,23 @@
+{
+  "name": "Lyons Tech AI",
+  "status": "active_build",
+  "category": "technical_intelligence",
+  "purpose": "Technical intelligence layer for backend logic, platform hardening, automation support, and engineering workflows.",
+  "features": [
+    "backend intelligence",
+    "automation logic",
+    "platform hardening",
+    "debug flow support",
+    "technical orchestration",
+    "service reliability support"
+  ],
+  "connects_to": [
+    "system_config_registry",
+    "modules_index",
+    "jarvis",
+    "dashboard",
+    "life_world",
+    "audio_session_registry",
+    "creator_platform"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "safety_connectivity": {
+    "crime_risks": [
+      "identity_theft",
+      "account_takeover",
+      "payment_fraud",
+      "ticket_pass_fraud",
+      "impersonation",
+      "virtual_property_theft",
+      "creator_asset_theft",
+      "harassment",
+      "stalking",
+      "fake_land_sales",
+      "rental_fraud",
+      "business_contract_disputes",
+      "reputation_manipulation"
+    ],
+    "bluetooth_device_types": [
+      "headphones",
+      "controller",
+      "accessibility_switch",
+      "wearable_sensor",
+      "haptic_device",
+      "smart_badge"
+    ],
+    "trust_levels": [
+      "unverified",
+      "paired",
+      "trusted",
+      "restricted",
+      "blocked"
+    ]
+  }
+}

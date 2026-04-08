@@ -1,0 +1,19 @@
+SECTION 2 POST NOT-NULL FIX + STABILIZE REPORT
+Timestamp: 20260331_070020
+
+Fixed:
+- request-create route hard defaults
+- handoff route hard defaults
+- NOT NULL insert failures for section 2 pass A POST actions
+
+Verified:
+- dashboard health
+- jarvis health
+- dispatch actions route
+- POST smoke tests
+- stable runtime after NOT NULL fix
+
+Purpose:
+- repair section 2 POST insert failures
+- preserve the stable section 2 base
+- prepare for section 2 pass B

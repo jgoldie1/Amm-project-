@@ -1,0 +1,23 @@
+RECOVER MIDDLEVERSE PASS F + STABILIZE REPORT
+Timestamp: 20260331_203018
+
+Verified or created:
+- middleverse_automation_registry
+- middleverse_reward_registry
+- middleverse_progression_registry
+- middleverse_plugin_registry
+- middleverse_app_registry
+- middleverse_builder_manifest
+- safe automation/reward/progression/plugin/app/manifest actions
+
+Verified:
+- dashboard health
+- jarvis health
+- middleverse bridge route
+- safe middleverse pass F smoke
+- stable runtime after pass F recovery
+
+Purpose:
+- recover interrupted middleverse pass F
+- preserve stable runtime
+- complete automation, rewards, plugins, and builder layer

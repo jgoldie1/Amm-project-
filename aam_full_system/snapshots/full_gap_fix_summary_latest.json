@@ -1,0 +1,11 @@
+{
+  "missing_tables": [
+    "metaverse_scene_registry",
+    "studio_project_registry",
+    "audio_session_registry"
+  ],
+  "route_issues": [],
+  "dashboard_ok": true,
+  "jarvis_ok": true,
+  "overall_status": "needs_attention"
+}

@@ -1,0 +1,19 @@
+{
+  "events": [
+    {
+      "type": "new_user_signup",
+      "detail": "beta_user_002 joined with ref founding_heir",
+      "at": "2026-04-05T23:38:03.955Z"
+    },
+    {
+      "type": "new_episode",
+      "detail": "Arrival in Bethlehem published",
+      "at": "2026-04-05T23:38:04.802Z"
+    },
+    {
+      "type": "new_debate",
+      "detail": "Faith vs Culture scheduled",
+      "at": "2026-04-05T23:38:05.570Z"
+    }
+  ]
+}

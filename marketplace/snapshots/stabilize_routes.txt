@@ -1,0 +1,22 @@
+/family-launch-home                       HTTP/1.1 200 OK
+/birthday-center                          HTTP/1.1 200 OK
+/happy-birthday-aniyah                    HTTP/1.1 200 OK
+/aniyah-cross-border                      HTTP/1.1 200 OK
+/shows-demo                               HTTP/1.1 200 OK
+/music-demo                               HTTP/1.1 200 OK
+/omni-care-360                            HTTP/1.1 200 OK
+/aam-holographic-streaming-ecosystem      HTTP/1.1 200 OK
+/aam-university                           HTTP/1.1 200 OK
+/holoverse-lobby-v2                       HTTP/1.1 200 OK
+/ai-command-center                        HTTP/1.1 200 OK
+/system-status                            HTTP/1.1 200 OK
+/join-app                                 HTTP/1.1 404 NOT FOUND
+/join-requests                            HTTP/1.1 404 NOT FOUND
+/heirs                                    HTTP/1.1 404 NOT FOUND
+/heirs/aniyah                             HTTP/1.1 404 NOT FOUND
+/world-registry                           HTTP/1.1 404 NOT FOUND
+/world-guide/marketplace                  HTTP/1.1 404 NOT FOUND
+/avatar-center                            HTTP/1.1 404 NOT FOUND
+/login                                    HTTP/1.1 200 OK
+/dashboard                                HTTP/1.1 500 INTERNAL SERVER ERROR
+/admin                                    HTTP/1.1 500 INTERNAL SERVER ERROR

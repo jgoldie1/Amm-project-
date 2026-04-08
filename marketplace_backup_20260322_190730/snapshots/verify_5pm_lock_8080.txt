@@ -1,0 +1,5 @@
+=== VERIFY 5PM LOCK ===
+BASE=http://127.0.0.1:8080
+
+/app-home                     /family-launch-home           /heirs-app                    /media-demo-home              /creator-tools-home           /holoverse-lobby-v2           /holo-commerce-home           
+--- LAST LOG ---

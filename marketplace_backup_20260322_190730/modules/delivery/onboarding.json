@@ -1,0 +1,10 @@
+{
+ "system":"driver_onboarding",
+ "features":[
+ "driver registration",
+ "background check integration",
+ "vehicle verification",
+ "insurance verification",
+ "driver training"
+ ]
+}

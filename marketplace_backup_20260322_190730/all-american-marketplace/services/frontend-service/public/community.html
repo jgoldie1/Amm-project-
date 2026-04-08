@@ -1,0 +1,47 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Community</title><link rel="stylesheet" href="/styles.css"></head><body>
+<header><h1>Community / Grafted Members</h1><div class="nav"><a href="/kingdom.html">Kingdom</a></div></header>
+<main>
+<div class="card">
+<h3>Create Community Member (admin token)</h3>
+<input id="memberName" placeholder="Name">
+<input id="membershipType" placeholder="Membership Type" value="community">
+<input id="assemblyName" placeholder="Assembly">
+<textarea id="memberNotes" placeholder="Notes"></textarea>
+<button onclick="createMember()">Create Member</button>
+<pre id="memberOut"></pre>
+</div>
+<div class="card">
+<h3>Create Assembly (admin token)</h3>
+<input id="assemblyTitle" placeholder="Assembly Name">
+<input id="assemblyRegion" placeholder="Region">
+<textarea id="assemblyNotes" placeholder="Notes"></textarea>
+<button onclick="createAssembly()">Create Assembly</button>
+<pre id="assemblyOut"></pre>
+</div>
+<div class="card">
+<h3>Assign Service Role (admin token)</h3>
+<input id="roleMemberId" placeholder="Member ID">
+<input id="roleName" placeholder="Role Name">
+<input id="roleDept" placeholder="Department">
+<textarea id="roleNotes" placeholder="Notes"></textarea>
+<button onclick="assignRole()">Assign Role</button>
+<pre id="roleOut"></pre>
+</div>
+<div class="card">
+<h3>Load Community Data</h3>
+<button onclick="loadMembers()">Load Members</button>
+<button onclick="loadAssemblies()">Load Assemblies</button>
+<button onclick="loadRoles()">Load Roles</button>
+<pre id="communityOut"></pre>
+</div>
+</main>
+<script src="/app.js"></script>
+<script>
+async function createMember(){show("memberOut", await request("http://127.0.0.1:5900/members",{method:"POST",body:JSON.stringify({name:memberName.value,membershipType:membershipType.value,assembly:assemblyName.value,notes:memberNotes.value})}))}
+async function createAssembly(){show("assemblyOut", await request("http://127.0.0.1:5900/assemblies",{method:"POST",body:JSON.stringify({name:assemblyTitle.value,region:assemblyRegion.value,notes:assemblyNotes.value})}))}
+async function assignRole(){show("roleOut", await request("http://127.0.0.1:5900/service-roles",{method:"POST",body:JSON.stringify({memberId:Number(roleMemberId.value),roleName:roleName.value,department:roleDept.value,notes:roleNotes.value})}))}
+async function loadMembers(){show("communityOut", await request("http://127.0.0.1:5900/members"))}
+async function loadAssemblies(){show("communityOut", await request("http://127.0.0.1:5900/assemblies"))}
+async function loadRoles(){show("communityOut", await request("http://127.0.0.1:5900/service-roles"))}
+</script>
+</body></html>

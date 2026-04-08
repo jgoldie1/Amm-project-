@@ -1,0 +1,28 @@
+{
+  "world_builder": {
+    "world_types": [
+      "creator_world",
+      "storefront_world",
+      "battle_world",
+      "classroom_world",
+      "concert_world",
+      "ministry_world",
+      "logistics_world"
+    ],
+    "scene_types": [
+      "stage_scene",
+      "shop_scene",
+      "arena_scene",
+      "classroom_scene",
+      "promo_scene",
+      "holographic_ad_scene",
+      "avatar_scene"
+    ],
+    "quality_modes": [
+      "draft",
+      "premium",
+      "immersive",
+      "level20"
+    ]
+  }
+}

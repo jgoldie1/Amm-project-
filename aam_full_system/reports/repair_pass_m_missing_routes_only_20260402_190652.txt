@@ -1,0 +1,19 @@
+REPAIR PASS M MISSING ROUTES ONLY REPORT
+Timestamp: 20260402_190652
+
+Fixed:
+- command center GET route
+- finance hub GET route
+- streaming hub GET route
+
+Verified:
+- dashboard health
+- jarvis health
+- command center route
+- finance hub route
+- streaming hub route
+
+Purpose:
+- repair the only remaining Pass M routing gaps
+- preserve stable runtime
+- avoid rerunning the full command center build

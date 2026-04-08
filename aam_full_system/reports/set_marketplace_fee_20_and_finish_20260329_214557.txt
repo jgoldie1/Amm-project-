@@ -1,0 +1,10 @@
+SET MARKETPLACE FEE 20 + FINISH REPORT
+Timestamp: 20260329_214557
+
+Fixed:
+- creator marketplace platform fee now set to 20 percent
+
+Purpose:
+- increase platform share from marketplace sales
+- preserve current runtime stability
+- finish cleanly after interrupted script

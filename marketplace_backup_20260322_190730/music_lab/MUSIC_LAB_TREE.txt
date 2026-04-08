@@ -1,0 +1,13 @@
+music_lab/MUSIC_LAB_TREE.txt
+music_lab/ai_mastering/ai_mastering.json
+music_lab/analytics/artist_dashboard.json
+music_lab/beats/beat_library.json
+music_lab/collaboration/collaboration_sessions.json
+music_lab/distribution/distribution_connectors.json
+music_lab/docs/MUSIC_LAB_OVERVIEW.md
+music_lab/docs/WHAT_THIS_DOES.md
+music_lab/live_streaming/live_studio_streaming.json
+music_lab/lyrics/lyrics_engine.json
+music_lab/pipeline/audio_pipeline.json
+music_lab/release/release_planner.json
+music_lab/studio/studio_manager.json

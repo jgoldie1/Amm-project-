@@ -1,0 +1,13 @@
+SESSION-AWARE HOME SPLIT REPORT
+Timestamp: 20260326_204337
+
+Added:
+- public home
+- member home
+- session-aware root route behavior
+- cleaner separation between public and logged-in experiences
+
+Routes:
+- /public-home
+- /member-home
+- /

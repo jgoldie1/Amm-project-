@@ -1,0 +1,4 @@
+[{"id":4,"worker_name":"Safe Worker","worker_group":"general","task_scope":"platform","execution_mode":"tool_assisted","worker_status":"active","created_at":"2026-04-01 04:32:38"},
+{"id":3,"worker_name":"Commerce Worker","worker_group":"market_ops","task_scope":"middleverse-bridge","execution_mode":"tool_assisted","worker_status":"active","created_at":"2026-04-01 04:32:19"},
+{"id":2,"worker_name":"Creator Worker","worker_group":"creator_ops","task_scope":"studio-lab","execution_mode":"tool_assisted","worker_status":"active","created_at":"2026-04-01 04:32:19"},
+{"id":1,"worker_name":"Dispatch Worker","worker_group":"service_ops","task_scope":"dispatch-actions","execution_mode":"tool_assisted","worker_status":"active","created_at":"2026-04-01 04:32:19"}]

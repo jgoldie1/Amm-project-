@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Mon, 30 Mar 2026 20:24:37 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "ok": true,
+  "service": "aam-dashboard",
+  "port": 4900
+}

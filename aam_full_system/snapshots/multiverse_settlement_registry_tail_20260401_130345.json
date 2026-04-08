@@ -1,0 +1,2 @@
+[{"id":2,"settlement_name":"Safe Settlement","settlement_group":"sandbox","source_realm":"middleverse_core","target_realm":"multiverse_core","settlement_result":"ok","settlement_status":"complete","created_at":"2026-04-01 18:04:01"},
+{"id":1,"settlement_name":"Initial Cross Realm Settlement","settlement_group":"core","source_realm":"middleverse_core","target_realm":"multiverse_core","settlement_result":"ok","settlement_status":"complete","created_at":"2026-04-01 18:03:46"}]

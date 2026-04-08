@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+  <defs>
+    <linearGradient id="mane" x1="0" x2="1">
+      <stop offset="0%" stop-color="#7dd3fc"/>
+      <stop offset="50%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="none"/>
+  <circle cx="400" cy="400" r="205" fill="none" stroke="url(#mane)" stroke-width="28"/>
+  <circle cx="400" cy="418" r="122" fill="#0f172a" stroke="#f8fafc" stroke-width="8"/>
+  <circle cx="352" cy="388" r="10" fill="#f8fafc"/>
+  <circle cx="448" cy="388" r="10" fill="#f8fafc"/>
+  <path d="M360 455 Q400 485 440 455" fill="none" stroke="#f8fafc" stroke-width="10"/>
+  <path d="M400 405 L382 440 L418 440 Z" fill="#f59e0b"/>
+  <ellipse cx="400" cy="320" rx="175" ry="42" fill="none" stroke="#7dd3fc" stroke-width="10" opacity="0.85"/>
+</svg>

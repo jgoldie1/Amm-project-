@@ -1,0 +1,11 @@
+{
+  "lyrics_features":[
+    "lyric_editor",
+    "rhyme_suggestions",
+    "song_structure",
+    "collaboration",
+    "version_history",
+    "hook_builder",
+    "verse_bridge_outline"
+  ]
+}

@@ -1,0 +1,16 @@
+HEIR STOREFRONTS + PAYOUT CYCLES REPORT
+Timestamp: 20260326_174518
+
+Added:
+- heir_storefront_ownership
+- payout_cycles
+- payout_cycle_runs
+
+Routes:
+- /heir-storefronts
+- /payout-cycles
+
+Goal:
+- show heir commercial ownership
+- add visible payout-cycle operations
+- improve operator workflow

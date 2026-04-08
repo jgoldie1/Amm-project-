@@ -1,0 +1,9 @@
+{
+  "themes": [
+    { "name": "creator_child_theme", "inherits": "all_american_parent_theme", "focus": "creator tools + music" },
+    { "name": "world_child_theme", "inherits": "all_american_parent_theme", "focus": "life world + scenes + transport + housing" },
+    { "name": "stream_child_theme", "inherits": "all_american_parent_theme", "focus": "live + gifts + discovery" },
+    { "name": "marketplace_child_theme", "inherits": "all_american_parent_theme", "focus": "commerce + assets + payouts" },
+    { "name": "family_child_theme", "inherits": "all_american_parent_theme", "focus": "parent/child safe accounts + learning mode" }
+  ]
+}

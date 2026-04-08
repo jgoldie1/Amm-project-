@@ -1,0 +1,17 @@
+{
+  "golden_era_social_stack": {
+    "borrowed_patterns": [
+      "live_rooms",
+      "pk_battles",
+      "short_video_feed",
+      "fan_memberships",
+      "supporter_badges",
+      "creator_rankings",
+      "viral_discovery",
+      "community_groups",
+      "creator_subscriptions",
+      "gift_economy"
+    ],
+    "purpose": "Blend the strongest creator and social engagement patterns into one ecosystem"
+  }
+}

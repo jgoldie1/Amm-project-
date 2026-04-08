@@ -1,0 +1,5 @@
+RENDER PLACEHOLDER
+job_id=render_004
+clip_id=4
+prompt=Streaming wall reveal, creator becomes featured star, epic finale
+status=ready_for_provider_hookup

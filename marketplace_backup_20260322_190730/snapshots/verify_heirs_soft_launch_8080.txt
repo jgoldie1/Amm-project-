@@ -1,0 +1,7 @@
+=== VERIFY HEIRS SOFT LAUNCH ===
+BASE=http://127.0.0.1:8080
+
+/heirs-app                         /heirs-launchpad                   /heirs-access-info                 /session-login-v4                  /session-profile-v4                /files-center-v4                   /bookings-center-v4                /creator-market                    /api/heirs-directory-v1            /api/announcements-v1              /api/soft-launch-checklist-v1      
+--- LOGIN TEST ---
+
+--- LAST LOG ---

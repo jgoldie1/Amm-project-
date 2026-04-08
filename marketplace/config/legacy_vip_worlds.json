@@ -1,0 +1,37 @@
+{
+  "roles": [
+    "founder",
+    "heir",
+    "legacy_kid",
+    "founder_admin",
+    "vip_all_access",
+    "entourage_access",
+    "backstage_pass"
+  ],
+  "zone_types": [
+    "creator_district",
+    "shopping_district",
+    "concert_district",
+    "school_district",
+    "ministry_district",
+    "racing_district",
+    "wildlife_zone",
+    "logistics_zone",
+    "vip_zone",
+    "legacy_zone"
+  ],
+  "vehicle_types": [
+    "sports_car",
+    "delivery_van",
+    "luxury_vehicle",
+    "event_transport",
+    "racing_vehicle",
+    "drone_transport"
+  ],
+  "animal_types": [
+    "wildlife",
+    "pet_companion",
+    "fantasy_creature",
+    "sanctuary_animal"
+  ]
+}

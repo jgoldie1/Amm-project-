@@ -1,0 +1,26 @@
+[
+  {
+    "id": "payacct_1",
+    "owner_name": "Aniyah",
+    "provider": "stripe",
+    "account_email": "aniyah@example.com",
+    "status": "verified",
+    "created_at": "2026-03-19T01:09:53.406480"
+  },
+  {
+    "id": "payacct_2",
+    "owner_name": "Isaiah",
+    "provider": "stripe",
+    "account_email": "isaiah@example.com",
+    "status": "verified",
+    "created_at": "2026-03-19T01:09:53.408350"
+  },
+  {
+    "id": "payacct_3",
+    "owner_name": "Jacobie",
+    "provider": "stripe",
+    "account_email": "jacobie@example.com",
+    "status": "verified",
+    "created_at": "2026-03-19T01:09:53.409326"
+  }
+]

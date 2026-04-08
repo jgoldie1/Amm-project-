@@ -1,0 +1,7 @@
+[
+  {"title":"Holoverse","route":"/holoverse-center"},
+  {"title":"Marketplace","route":"/marketplace-center"},
+  {"title":"Property","route":"/property-center"},
+  {"title":"Living City","route":"/living-city-center"},
+  {"title":"Master Dashboard","route":"/master-dashboard"}
+]

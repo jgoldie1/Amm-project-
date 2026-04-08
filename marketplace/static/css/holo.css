@@ -1,0 +1,54 @@
+body {
+  background:
+    radial-gradient(circle at 10% 10%, rgba(125,211,252,.12), transparent 22%),
+    radial-gradient(circle at 90% 14%, rgba(167,139,250,.12), transparent 24%),
+    linear-gradient(180deg,#04070c 0%, #0f172a 100%);
+}
+
+.brandbar,
+.brand-row {
+  display:flex;
+  gap:16px;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-top:20px;
+}
+
+.brandbar img,
+.brand-row img,
+.brand-tile img {
+  min-height:80px;
+  max-height:140px;
+  object-fit:contain;
+  border-radius:18px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  padding:10px;
+  box-shadow:0 0 14px rgba(125,211,252,.35), 0 0 26px rgba(167,139,250,.18);
+}
+
+body::before,
+body::after {
+  content:"";
+  position:fixed;
+  top:50%;
+  transform:translateY(-50%);
+  width:240px;
+  height:320px;
+  opacity:.22;
+  pointer-events:none;
+  background-image:url('/static/img/holographic_lion_saturn.svg');
+  background-repeat:no-repeat;
+  background-size:contain;
+  background-position:center;
+  filter:drop-shadow(0 0 20px rgba(125,211,252,.45)) drop-shadow(0 0 30px rgba(167,139,250,.35));
+  z-index:0;
+}
+body::before { left:0; }
+body::after  { right:0; transform:translateY(-50%) scaleX(-1); }
+
+.shell, .wrap, .topbar, .topbar-inner {
+  position:relative;
+  z-index:1;
+}

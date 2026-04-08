@@ -1,0 +1,21 @@
+{
+  "mobile_app_stack": {
+    "apps": [
+      "creator_app",
+      "fan_app",
+      "marketplace_app",
+      "driver_app",
+      "restaurant_app",
+      "admin_app"
+    ],
+    "features": [
+      "push_notifications",
+      "mobile_streaming",
+      "mobile_checkout",
+      "creator_tools",
+      "delivery_tracking",
+      "wallet_and_support"
+    ],
+    "purpose": "Bring the ecosystem into real daily usage on phones and tablets"
+  }
+}

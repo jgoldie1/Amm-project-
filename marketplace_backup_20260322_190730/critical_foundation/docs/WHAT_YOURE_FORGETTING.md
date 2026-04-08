@@ -1,0 +1,14 @@
+Critical missing items that become detrimental if skipped:
+- backups
+- monitoring
+- alerting
+- secrets handling
+- legal policies
+- moderation
+- support center
+- billing reconciliation
+- release discipline
+- testing
+- incident response
+- DNS and rollout planning
+- audit trail

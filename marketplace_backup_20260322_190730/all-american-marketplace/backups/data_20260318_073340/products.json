@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "sellerId": 1,
+    "name": "Flow Product",
+    "price": 19.99,
+    "category": "general",
+    "inventory": 10,
+    "createdAt": "2026-03-18T12:07:43.224Z"
+  },
+  {
+    "id": 2,
+    "sellerId": 2,
+    "name": "Flow Product",
+    "price": 19.99,
+    "category": "general",
+    "inventory": 10,
+    "createdAt": "2026-03-18T12:08:40.682Z"
+  }
+]

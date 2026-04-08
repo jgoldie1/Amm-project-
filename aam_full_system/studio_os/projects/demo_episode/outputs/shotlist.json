@@ -1,0 +1,29 @@
+{
+  "title": "Episode 1: Enter the Marketplace",
+  "shots": [
+    {
+      "scene": 1,
+      "shot": 1,
+      "type": "wide",
+      "desc": "Glowing city-scale marketplace gate opens."
+    },
+    {
+      "scene": 1,
+      "shot": 2,
+      "type": "medium",
+      "desc": "Creator reacts to floating UI and portal light."
+    },
+    {
+      "scene": 2,
+      "shot": 1,
+      "type": "close",
+      "desc": "Jarvis hologram appears and welcomes the creator."
+    },
+    {
+      "scene": 3,
+      "shot": 1,
+      "type": "wide",
+      "desc": "Creator steps into Life World portal."
+    }
+  ]
+}

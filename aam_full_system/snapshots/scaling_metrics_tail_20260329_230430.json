@@ -1,0 +1,5 @@
+[{"id":5,"metric_name":"total_creator_payout_cents","metric_value":19760,"metric_scope":"global","created_at":"2026-03-30 04:04:31"},
+{"id":4,"metric_name":"total_platform_fee_cents","metric_value":4940,"metric_scope":"global","created_at":"2026-03-30 04:04:31"},
+{"id":3,"metric_name":"total_payout_runs","metric_value":1,"metric_scope":"global","created_at":"2026-03-30 04:04:31"},
+{"id":2,"metric_name":"total_payout_queue","metric_value":3,"metric_scope":"global","created_at":"2026-03-30 04:04:31"},
+{"id":1,"metric_name":"total_transactions","metric_value":3,"metric_scope":"global","created_at":"2026-03-30 04:04:31"}]

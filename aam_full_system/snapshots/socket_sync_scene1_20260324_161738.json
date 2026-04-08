@@ -1,0 +1,411 @@
+{
+  "ok": true,
+  "scene_id": 1,
+  "connections": [
+    {
+      "id": 1,
+      "socket_key": "sock-commerce-1",
+      "avatar_id": 1,
+      "connection_status": "connected",
+      "created_at": "2026-03-24 17:39:17"
+    }
+  ],
+  "shared_state": [
+    {
+      "state_key": "commerce_presence",
+      "state_value": "1",
+      "state_status": "active",
+      "created_at": "2026-03-24 17:39:17"
+    },
+    {
+      "state_key": "commerce_portals",
+      "state_value": "stable",
+      "state_status": "active",
+      "created_at": "2026-03-24 17:39:17"
+    },
+    {
+      "state_key": "scene_command_world_refresh",
+      "state_value": "{\"mode\":\"fast\"}",
+      "state_status": "active",
+      "created_at": "2026-03-24 20:36:12"
+    }
+  ],
+  "avatars": [
+    {
+      "avatar_id": 1,
+      "pos_x": 15,
+      "pos_y": 0,
+      "pos_z": 11,
+      "facing": "east",
+      "movement_status": "jump",
+      "updated_at": "2026-03-24 20:36:28"
+    }
+  ],
+  "objects": [
+    {
+      "id": 1,
+      "object_name": "Commerce Portal Crystal",
+      "object_type": "portal",
+      "pos_x": 30,
+      "pos_y": 0,
+      "pos_z": 22,
+      "object_state": "pulse",
+      "interaction_status": "ready",
+      "updated_at": "2026-03-24 20:36:47"
+    },
+    {
+      "id": 2,
+      "object_name": "Book Display Node",
+      "object_type": "display",
+      "pos_x": 18,
+      "pos_y": 0,
+      "pos_z": 10,
+      "object_state": "active",
+      "interaction_status": "ready",
+      "updated_at": "2026-03-24 18:07:35"
+    }
+  ],
+  "scene_commands": [
+    {
+      "id": 5,
+      "command_type": "world_refresh",
+      "command_payload": "{\"mode\":\"fast\"}",
+      "command_status": "processed",
+      "created_at": "2026-03-24 20:36:12"
+    },
+    {
+      "id": 4,
+      "command_type": "world_refresh",
+      "command_payload": "{\"mode\":\"fast\"}",
+      "command_status": "processed",
+      "created_at": "2026-03-24 20:30:32"
+    },
+    {
+      "id": 1,
+      "command_type": "scene_boot",
+      "command_payload": "{\"scene\":\"commerce\"}",
+      "command_status": "processed",
+      "created_at": "2026-03-24 20:28:49"
+    }
+  ],
+  "avatar_actions": [
+    {
+      "id": 5,
+      "avatar_id": 1,
+      "action_type": "jump",
+      "action_payload": "{\"height\":2}",
+      "action_status": "processed",
+      "created_at": "2026-03-24 20:36:28"
+    },
+    {
+      "id": 4,
+      "avatar_id": 1,
+      "action_type": "jump",
+      "action_payload": "{\"height\":2}",
+      "action_status": "processed",
+      "created_at": "2026-03-24 20:30:52"
+    },
+    {
+      "id": 1,
+      "avatar_id": 1,
+      "action_type": "spawn",
+      "action_payload": "{\"x\":12,\"y\":0,\"z\":8}",
+      "action_status": "processed",
+      "created_at": "2026-03-24 20:28:49"
+    }
+  ],
+  "object_commands": [
+    {
+      "id": 5,
+      "object_id": 1,
+      "command_type": "pulse",
+      "command_payload": "{\"color\":\"blue\"}",
+      "command_status": "processed",
+      "created_at": "2026-03-24 20:36:47"
+    },
+    {
+      "id": 4,
+      "object_id": 1,
+      "command_type": "pulse",
+      "command_payload": "{\"color\":\"blue\"}",
+      "command_status": "processed",
+      "created_at": "2026-03-24 20:31:14"
+    },
+    {
+      "id": 1,
+      "object_id": 1,
+      "command_type": "set_glow",
+      "command_payload": "{\"state\":\"glowing\"}",
+      "command_status": "processed",
+      "created_at": "2026-03-24 20:28:49"
+    }
+  ],
+  "sessions": [
+    {
+      "id": 1,
+      "session_name": "Commerce World Session",
+      "session_status": "active",
+      "started_at": "2026-03-24 20:41:22",
+      "ended_at": null
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": 4,
+      "checkpoint_name": "Commerce Quick Save",
+      "checkpoint_status": "saved",
+      "created_at": "2026-03-24 20:59:58"
+    },
+    {
+      "id": 1,
+      "checkpoint_name": "Commerce Initial Checkpoint",
+      "checkpoint_status": "saved",
+      "created_at": "2026-03-24 20:41:22"
+    }
+  ],
+  "recovery_snapshots": [
+    {
+      "id": 1,
+      "snapshot_name": "Commerce Recovery Snapshot",
+      "snapshot_status": "ready",
+      "created_at": "2026-03-24 20:41:22"
+    }
+  ],
+  "automation_rules": [
+    {
+      "id": 1,
+      "rule_name": "Commerce Auto Refresh",
+      "trigger_type": "scene_command",
+      "action_type": "refresh_world",
+      "rule_status": "active",
+      "created_at": "2026-03-24 21:04:04"
+    }
+  ],
+  "world_jobs": [
+    {
+      "id": 5,
+      "job_name": "Commerce Auto Refresh",
+      "job_type": "refresh_world",
+      "job_status": "processed",
+      "created_at": "2026-03-24 21:05:23",
+      "completed_at": "2026-03-24 21:05:23"
+    },
+    {
+      "id": 4,
+      "job_name": "refresh_world",
+      "job_type": "refresh_world",
+      "job_status": "processed",
+      "created_at": "2026-03-24 21:05:08",
+      "completed_at": "2026-03-24 21:05:08"
+    },
+    {
+      "id": 1,
+      "job_name": "Commerce World Refresh",
+      "job_type": "refresh_world",
+      "job_status": "processed",
+      "created_at": "2026-03-24 21:04:04",
+      "completed_at": null
+    }
+  ],
+  "orchestration_log": [
+    {
+      "id": 5,
+      "source_type": "automation_rule",
+      "source_id": 1,
+      "orchestration_event": "refresh_world",
+      "orchestration_status": "processed",
+      "created_at": "2026-03-24 21:05:23"
+    },
+    {
+      "id": 4,
+      "source_type": "world_job",
+      "source_id": 4,
+      "orchestration_event": "refresh_world",
+      "orchestration_status": "processed",
+      "created_at": "2026-03-24 21:05:08"
+    },
+    {
+      "id": 1,
+      "source_type": "seed",
+      "source_id": 1,
+      "orchestration_event": "refresh_world",
+      "orchestration_status": "processed",
+      "created_at": "2026-03-24 21:04:04"
+    }
+  ],
+  "assets": [
+    {
+      "id": 7,
+      "asset_name": "Commerce Crown",
+      "asset_type": "wearable",
+      "asset_rarity": "epic",
+      "asset_status": "active",
+      "created_at": "2026-03-24 21:13:34"
+    },
+    {
+      "id": 2,
+      "asset_name": "Book Display License",
+      "asset_type": "commerce_asset",
+      "asset_rarity": "rare",
+      "asset_status": "active",
+      "created_at": "2026-03-24 21:12:25"
+    },
+    {
+      "id": 1,
+      "asset_name": "Commerce Portal Crystal",
+      "asset_type": "portal_asset",
+      "asset_rarity": "legendary",
+      "asset_status": "active",
+      "created_at": "2026-03-24 21:12:25"
+    }
+  ],
+  "ownership": [
+    {
+      "id": 8,
+      "asset_id": 1,
+      "owner_type": "avatar",
+      "owner_id": 2,
+      "ownership_status": "owned",
+      "acquired_at": "2026-03-24 21:13:54"
+    },
+    {
+      "id": 7,
+      "asset_id": 7,
+      "owner_type": "avatar",
+      "owner_id": 1,
+      "ownership_status": "owned",
+      "acquired_at": "2026-03-24 21:13:34"
+    },
+    {
+      "id": 2,
+      "asset_id": 2,
+      "owner_type": "avatar",
+      "owner_id": 1,
+      "ownership_status": "owned",
+      "acquired_at": "2026-03-24 21:12:25"
+    },
+    {
+      "id": 1,
+      "asset_id": 1,
+      "owner_type": "avatar",
+      "owner_id": 1,
+      "ownership_status": "owned",
+      "acquired_at": "2026-03-24 21:12:25"
+    }
+  ],
+  "transfers": [
+    {
+      "id": 5,
+      "asset_id": 1,
+      "from_owner_type": "avatar",
+      "from_owner_id": 1,
+      "to_owner_type": "avatar",
+      "to_owner_id": 2,
+      "transfer_type": "transfer",
+      "transfer_status": "processed",
+      "created_at": "2026-03-24 21:13:54"
+    },
+    {
+      "id": 4,
+      "asset_id": 7,
+      "from_owner_type": null,
+      "from_owner_id": null,
+      "to_owner_type": "avatar",
+      "to_owner_id": 1,
+      "transfer_type": "mint_assign",
+      "transfer_status": "processed",
+      "created_at": "2026-03-24 21:13:34"
+    },
+    {
+      "id": 1,
+      "asset_id": 1,
+      "from_owner_type": null,
+      "from_owner_id": null,
+      "to_owner_type": "avatar",
+      "to_owner_id": 1,
+      "transfer_type": "mint_assign",
+      "transfer_status": "processed",
+      "created_at": "2026-03-24 21:12:25"
+    }
+  ],
+  "recent_events": [
+    {
+      "id": 13,
+      "event_type": "world_job",
+      "event_payload": "{\"mode\":\"fast\"}",
+      "event_status": "processed",
+      "created_at": "2026-03-24 21:05:08"
+    },
+    {
+      "id": 12,
+      "event_type": "object_command",
+      "event_payload": "{\"color\":\"blue\"}",
+      "event_status": "processed",
+      "created_at": "2026-03-24 20:36:47"
+    },
+    {
+      "id": 11,
+      "event_type": "avatar_action",
+      "event_payload": "{\"height\":2}",
+      "event_status": "processed",
+      "created_at": "2026-03-24 20:36:28"
+    },
+    {
+      "id": 10,
+      "event_type": "scene_command",
+      "event_payload": "{\"mode\":\"fast\"}",
+      "event_status": "processed",
+      "created_at": "2026-03-24 20:36:12"
+    },
+    {
+      "id": 9,
+      "event_type": "object_command",
+      "event_payload": "{\"color\":\"blue\"}",
+      "event_status": "processed",
+      "created_at": "2026-03-24 20:31:14"
+    },
+    {
+      "id": 8,
+      "event_type": "avatar_action",
+      "event_payload": "{\"height\":2}",
+      "event_status": "processed",
+      "created_at": "2026-03-24 20:30:52"
+    },
+    {
+      "id": 7,
+      "event_type": "scene_command",
+      "event_payload": "{\"mode\":\"fast\"}",
+      "event_status": "processed",
+      "created_at": "2026-03-24 20:30:32"
+    },
+    {
+      "id": 6,
+      "event_type": "object_interaction",
+      "event_payload": "{\"target\":\"portal\"}",
+      "event_status": "processed",
+      "created_at": "2026-03-24 18:09:25"
+    },
+    {
+      "id": 5,
+      "event_type": "avatar_move",
+      "event_payload": "{\"x\":15,\"y\":0,\"z\":11,\"facing\":\"east\"}",
+      "event_status": "processed",
+      "created_at": "2026-03-24 18:09:09"
+    },
+    {
+      "id": 4,
+      "event_type": "manual_test",
+      "event_payload": "{\"from\":\"live_client\"}",
+      "event_status": "processed",
+      "created_at": "2026-03-24 17:48:43"
+    },
+    {
+      "id": 1,
+      "event_type": "presence_sync",
+      "event_payload": "{\"presence\":\"online\"}",
+      "event_status": "processed",
+      "created_at": "2026-03-24 17:39:17"
+    }
+  ],
+  "timestamp": "2026-03-24T21:17:43.797Z"
+}

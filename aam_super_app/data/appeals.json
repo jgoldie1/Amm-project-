@@ -1,0 +1,26 @@
+[
+  {
+    "id": "cfef995a-6504-4694-b98a-198bed28453b",
+    "contentId": "track-001",
+    "appellant": "artist@example.com",
+    "reason": "I own this content",
+    "at": "2026-04-05T17:59:30.660Z",
+    "status": "pending"
+  },
+  {
+    "id": "0ae3dbc2-cb13-4869-88bf-ce9aed19509a",
+    "contentId": "track-001",
+    "appellant": "artist@example.com",
+    "reason": "I own this content",
+    "at": "2026-04-05T17:59:37.215Z",
+    "status": "pending"
+  },
+  {
+    "id": "620c880f-e9be-4b42-aa75-2287af223afe",
+    "contentId": "track-full-001",
+    "appellant": "artist@example.com",
+    "reason": "I own this content",
+    "at": "2026-04-05T20:42:43.035Z",
+    "status": "pending"
+  }
+]

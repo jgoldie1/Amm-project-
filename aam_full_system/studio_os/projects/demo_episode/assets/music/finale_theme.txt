@@ -1,0 +1,4 @@
+CUE=finale_theme
+SCENE=Resolution
+MOOD=inspiring, victorious, forward-moving
+DURATION_SEC=20

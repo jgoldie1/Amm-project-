@@ -1,0 +1,9 @@
+{
+  "name": "admin-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "echo \"Connect this to Vite or Next.js later\""
+  }
+}

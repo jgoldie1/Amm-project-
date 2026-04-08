@@ -1,0 +1,11 @@
+{
+  "ai_mastering_tools":[
+    "auto_eq",
+    "auto_compression",
+    "loudness_normalization",
+    "stereo_enhancement",
+    "vocal_clarity",
+    "reference_mix_compare",
+    "master_export_profiles"
+  ]
+}

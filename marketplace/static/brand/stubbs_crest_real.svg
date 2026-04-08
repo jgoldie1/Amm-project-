@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 820">
+  <defs>
+    <linearGradient id="g1" x1="0" x2="1">
+      <stop offset="0%" stop-color="#7dd3fc"/>
+      <stop offset="50%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="#08111f"/>
+  <path d="M350 40 L610 130 L565 470 Q500 670 350 770 Q200 670 135 470 L90 130 Z" fill="#0f172a" stroke="url(#g1)" stroke-width="12"/>
+  <text x="350" y="250" text-anchor="middle" fill="#f8fafc" font-size="62" font-family="Arial" font-weight="700">STUBBS</text>
+  <text x="350" y="318" text-anchor="middle" fill="#7dd3fc" font-size="30" font-family="Arial">CREST</text>
+  <circle cx="350" cy="455" r="92" fill="none" stroke="#f59e0b" stroke-width="10"/>
+  <path d="M296 490 Q350 390 404 490" fill="none" stroke="#f8fafc" stroke-width="8"/>
+  <path d="M320 435 L350 392 L380 435" fill="none" stroke="#a78bfa" stroke-width="8"/>
+</svg>

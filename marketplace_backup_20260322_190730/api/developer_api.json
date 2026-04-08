@@ -1,0 +1,8 @@
+{
+ "api_modules":[
+  "commerce-api",
+  "creator-api",
+  "education-api",
+  "finance-api"
+ ]
+}

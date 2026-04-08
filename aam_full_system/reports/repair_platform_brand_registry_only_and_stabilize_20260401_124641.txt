@@ -1,0 +1,23 @@
+REPAIR PLATFORM BRAND REGISTRY ONLY + STABILIZE REPORT
+Timestamp: 20260401_124641
+
+Fixed:
+- platform_brand_registry schema mismatch
+- recreated clean platform brand table
+- preserved ai_persona_registry
+- preserved system_layer_registry
+- reseeded brand/persona/layer architecture
+
+Verified:
+- dashboard health
+- jarvis health
+- metaverse route
+- middleverse route
+- multiverse route
+- current-run-only scan
+- stable runtime
+
+Purpose:
+- repair only the broken brand schema
+- preserve working tables
+- restore Pass D cleanly

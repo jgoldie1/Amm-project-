@@ -1,0 +1,21 @@
+-- family --
+{"message":"family","ok":true,"response":"Your family platform is ready."}
+
+-- ecosystem --
+{"message":"ecosystem","ok":true,"response":"Opening the All American Marketplace Holographic Streaming Ecosystem."}
+
+-- holoverse --
+{"message":"holoverse","ok":true,"response":"Opening the Holoverse control center."}
+
+-- business --
+{"message":"jacobie","ok":true,"response":"Opening Jacobie's business lane."}
+
+-- event --
+{"message":"event","ok":true,"response":"Opening the Event Center."}
+
+-- zone --
+{"message":"zone","ok":true,"response":"Opening the Zone Center."}
+
+-- maps --
+{"message":"maps","ok":true,"response":"Opening the Map Center."}
+

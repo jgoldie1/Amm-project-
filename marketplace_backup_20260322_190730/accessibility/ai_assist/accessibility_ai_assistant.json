@@ -1,0 +1,14 @@
+{
+  "accessibility_ai_assistant": {
+    "features": [
+      "guided_navigation",
+      "contextual_help",
+      "voice_first_support",
+      "content_summarization",
+      "step_by_step_mode",
+      "reading_assistance",
+      "task_completion_guidance"
+    ],
+    "purpose": "Help users navigate and complete tasks with less effort"
+  }
+}

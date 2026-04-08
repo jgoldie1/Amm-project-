@@ -1,0 +1,7 @@
+[{"id":7,"location_name":"Indiana Anchor","jump_label":"Open Avatar Rig Layer","destination_route":"/avatar-rig-control","jump_type":"route_jump","target_status":"active","created_at":"2026-03-27 21:10:36"},
+{"id":6,"location_name":"Herrin Illinois Anchor","jump_label":"Open Accessibility Layer","destination_route":"/accessibility","jump_type":"route_jump","target_status":"active","created_at":"2026-03-27 21:10:36"},
+{"id":5,"location_name":"Detroit Anchor","jump_label":"Open Engine Bridge","destination_route":"/engine-bridge","jump_type":"route_jump","target_status":"active","created_at":"2026-03-27 21:10:36"},
+{"id":4,"location_name":"San Diego Anchor","jump_label":"Open Connect System","destination_route":"/connect-system","jump_type":"route_jump","target_status":"active","created_at":"2026-03-27 21:10:36"},
+{"id":3,"location_name":"Nashville Anchor","jump_label":"Open World Experience","destination_route":"/world-experience-control","jump_type":"route_jump","target_status":"active","created_at":"2026-03-27 21:10:36"},
+{"id":2,"location_name":"Los Angeles Anchor","jump_label":"Open Watch / Creator Layer","destination_route":"/watch","jump_type":"route_jump","target_status":"active","created_at":"2026-03-27 21:10:36"},
+{"id":1,"location_name":"Chicago Anchor","jump_label":"Open Role Hub","destination_route":"/role-hub","jump_type":"route_jump","target_status":"active","created_at":"2026-03-27 21:10:36"}]

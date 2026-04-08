@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "userId": 1,
+    "type": "ride",
+    "serviceLevel": "premium",
+    "pickup": "Downtown",
+    "dropoff": "Airport",
+    "distanceKm": 15,
+    "notes": "premium dispatch test",
+    "items": [],
+    "estimatedFare": 60,
+    "status": "assigned",
+    "assignedDriverId": 2,
+    "createdAt": "2026-03-18T12:33:58.598Z",
+    "updatedAt": "2026-03-18T12:33:58.739Z"
+  }
+]

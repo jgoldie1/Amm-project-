@@ -1,0 +1,10 @@
+{
+ "system":"quantum_discord",
+ "features":[
+ "community channels",
+ "developer rooms",
+ "creator rooms",
+ "beta tester hub",
+ "support helpdesk"
+ ]
+}

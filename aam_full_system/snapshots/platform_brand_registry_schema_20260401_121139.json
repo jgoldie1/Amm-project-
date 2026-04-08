@@ -1,0 +1,6 @@
+[{"cid":0,"name":"id","type":"INTEGER","notnull":0,"dflt_value":null,"pk":1},
+{"cid":1,"name":"system_name","type":"TEXT","notnull":1,"dflt_value":null,"pk":0},
+{"cid":2,"name":"internal_name","type":"TEXT","notnull":1,"dflt_value":null,"pk":0},
+{"cid":3,"name":"public_name","type":"TEXT","notnull":1,"dflt_value":null,"pk":0},
+{"cid":4,"name":"brand_status","type":"TEXT","notnull":0,"dflt_value":"'active'","pk":0},
+{"cid":5,"name":"created_at","type":"TEXT","notnull":0,"dflt_value":"CURRENT_TIMESTAMP","pk":0}]

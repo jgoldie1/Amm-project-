@@ -1,0 +1,22 @@
+PAYMENT INTEGRATION PREP + CONTROL REPORT
+Timestamp: 20260327_115127
+
+Added:
+- payment_provider_profiles
+- billing_customer_profiles
+- payment_sessions
+- payment_transactions
+- payment_webhook_events
+- payment_reconciliation_log
+- /payment-control
+
+Extended:
+- checkout complete now writes payment prep records
+- sandbox payment session rows
+- sandbox transaction rows
+- webhook/reconciliation rows
+
+Purpose:
+- prepare the platform for real payment integration
+- make payment flows visible and auditable
+- create launch-ready transaction scaffolding

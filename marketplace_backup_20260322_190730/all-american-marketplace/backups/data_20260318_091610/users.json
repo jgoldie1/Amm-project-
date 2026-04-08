@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "name": "Flow Rider",
+    "email": "rider_1773837235@example.com",
+    "phone": "1112223333",
+    "passwordHash": "$2a$10$Vp.SoUC6oYLSto74w5A8g./Q0zuU6ZBbW4mAVgJE8aImNMpxVSx6K",
+    "role": "rider",
+    "createdAt": "2026-03-18T12:33:55.881Z"
+  },
+  {
+    "id": 2,
+    "name": "Flow Driver",
+    "email": "driver_1773837235@example.com",
+    "phone": "2223334444",
+    "passwordHash": "$2a$10$43d4RN4jkfjK3cs3H1r4JeKjFH9AmvFIs/enuKCUOzqDyKAe1GU.G",
+    "role": "driver",
+    "createdAt": "2026-03-18T12:33:56.817Z"
+  },
+  {
+    "id": 3,
+    "name": "Flow Admin",
+    "email": "admin_1773837235@example.com",
+    "phone": "9998887777",
+    "passwordHash": "$2a$10$8nSezu8pPh6qWYZmpdA./.HvnSMkIo/PTXgIeEz8G/wh.K3csVfTW",
+    "role": "admin",
+    "createdAt": "2026-03-18T12:33:57.871Z"
+  }
+]

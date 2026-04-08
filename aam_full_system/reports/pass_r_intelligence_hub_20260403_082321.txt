@@ -1,0 +1,12 @@
+PASS R INTELLIGENCE HUB REPORT
+Timestamp: 20260403_082321
+
+Built:
+- intelligence provider registry
+- intelligence hub registry
+- provider connection registry
+- symbolic reasoning registry
+- five sense runtime registry
+- hierarchy runtime registry
+- intelligence hub page
+- intelligence safe actions

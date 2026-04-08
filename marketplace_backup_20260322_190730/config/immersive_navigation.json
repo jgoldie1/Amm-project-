@@ -1,0 +1,23 @@
+{
+  "immersive_navigation": {
+    "map_modes": [
+      "world_map",
+      "district_map",
+      "event_map",
+      "transport_map"
+    ],
+    "movement_modes": [
+      "walk",
+      "run",
+      "teleport",
+      "ride"
+    ],
+    "presence_modes": [
+      "solo",
+      "shared_room",
+      "creator_room",
+      "event_room",
+      "vip_room"
+    ]
+  }
+}

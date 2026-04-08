@@ -1,0 +1,50 @@
+{
+  "video_requests": [
+    {
+      "clip_id": 1,
+      "prompt": "Cinematic futuristic holographic marketplace gate opening, high contrast, volumetric light, realistic CGI, smooth camera move",
+      "duration_sec": 8
+    },
+    {
+      "clip_id": 2,
+      "prompt": "AI guide hologram appears beside creator, neon interface, crisp sci-fi production design",
+      "duration_sec": 8
+    },
+    {
+      "clip_id": 3,
+      "prompt": "Creator enters portal into Life World, epic glow, dramatic cinematic atmosphere",
+      "duration_sec": 8
+    }
+  ],
+  "voice_requests": [
+    {
+      "character": "Jarvis",
+      "style": "calm, confident, cinematic"
+    },
+    {
+      "character": "Creator",
+      "style": "curious, human, ambitious"
+    }
+  ],
+  "music_requests": [
+    {
+      "cue": "opening_theme",
+      "scene": "Opening",
+      "mood": "epic, mysterious, holographic",
+      "duration_sec": 20
+    },
+    {
+      "cue": "discovery_bed",
+      "scene": "Development",
+      "mood": "curious, uplifting, technological",
+      "duration_sec": 30
+    },
+    {
+      "cue": "finale_theme",
+      "scene": "Resolution",
+      "mood": "inspiring, victorious, forward-moving",
+      "duration_sec": 20
+    }
+  ],
+  "status": "provider_requests_prepared"
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "cmd": "dashboard",
+    "target": "/master-dashboard"
+  },
+  {
+    "cmd": "dashboard",
+    "target": "/master-dashboard"
+  },
+  {
+    "cmd": "dashboard",
+    "target": "/master-dashboard"
+  }
+]

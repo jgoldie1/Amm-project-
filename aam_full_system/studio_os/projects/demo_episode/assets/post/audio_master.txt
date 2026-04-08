@@ -1,0 +1,4 @@
+AUDIO MASTER PLACEHOLDER
+music_files=3
+mix_chain_steps=7
+post_steps=8

@@ -1,0 +1,5 @@
+[{"id":5,"asset_name":"Upload model/other files","asset_type":"other","target_folder":"storage/uploads/other","ingest_status":"waiting","ingest_notes":"ready for browser/device upload","created_at":"2026-03-30 04:14:39"},
+{"id":4,"asset_name":"Upload document files","asset_type":"document","target_folder":"storage/uploads/docs","ingest_status":"waiting","ingest_notes":"ready for browser/device upload","created_at":"2026-03-30 04:14:39"},
+{"id":3,"asset_name":"Upload audio files","asset_type":"audio","target_folder":"storage/uploads/audio","ingest_status":"waiting","ingest_notes":"ready for browser/device upload","created_at":"2026-03-30 04:14:39"},
+{"id":2,"asset_name":"Upload video files","asset_type":"video","target_folder":"storage/uploads/video","ingest_status":"waiting","ingest_notes":"ready for browser/device upload","created_at":"2026-03-30 04:14:39"},
+{"id":1,"asset_name":"Upload image files","asset_type":"image","target_folder":"storage/uploads/images","ingest_status":"waiting","ingest_notes":"ready for browser/device upload","created_at":"2026-03-30 04:14:39"}]

@@ -1,0 +1,20 @@
+{
+ "xr_engine":{
+   "layers":[
+     "3D environments",
+     "4D event timelines",
+     "5D intelligent worlds",
+     "AR overlays",
+     "VR immersive worlds",
+     "Mixed reality interaction",
+     "Holographic battle arenas"
+   ],
+   "devices":[
+     "mobile",
+     "tablet",
+     "vr headset",
+     "ar glasses",
+     "future holographic display"
+   ]
+ }
+}

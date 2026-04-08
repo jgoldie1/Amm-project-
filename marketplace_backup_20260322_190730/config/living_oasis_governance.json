@@ -1,0 +1,30 @@
+{
+  "living_oasis_governance": {
+    "roles": [
+      "founder",
+      "heir",
+      "legacy_kid",
+      "founder_admin",
+      "vip_all_access",
+      "family_access",
+      "backstage_pass"
+    ],
+    "essential_services": [
+      "identity_passport",
+      "security",
+      "support",
+      "core_compliance",
+      "critical_payments_settlement",
+      "emergency_logistics",
+      "archive_memory_admin"
+    ],
+    "sabbath_closed_layers": [
+      "public_metaverse_events",
+      "middleverse_public_bridges",
+      "multiverse_entertainment_zones",
+      "battle_arenas",
+      "premium_shopping_events",
+      "nonessential_immersive_worlds"
+    ]
+  }
+}

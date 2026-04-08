@@ -1,0 +1,20 @@
+{
+  "episodes": [
+    {
+      "episode_title": "Arrival in Bethlehem",
+      "scene": "bethlehem",
+      "audio": "/audio/genesis_soundtrack.mp3",
+      "entities": ["Yahuah Maschian", "Villagers"],
+      "type": "ai_generated_episode",
+      "status": "ready"
+    },
+    {
+      "episode_title": "Witness in Nazareth",
+      "scene": "nazareth",
+      "audio": "/audio/creator_intro.mp3",
+      "entities": ["Yahuah Maschian", "Witnesses"],
+      "type": "ai_generated_episode",
+      "status": "planned"
+    }
+  ]
+}

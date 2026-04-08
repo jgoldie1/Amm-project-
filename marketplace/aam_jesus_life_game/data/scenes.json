@@ -1,0 +1,76 @@
+{
+  "scenes": [
+    {
+      "id": "birth_bethlehem",
+      "title": "Birth in Bethlehem",
+      "zone": "Bethlehem",
+      "scripture": "Luke 2:11",
+      "summary": "The Savior is born in Bethlehem.",
+      "hologramLevel": "gold-radiant"
+    },
+    {
+      "id": "baptism_jordan",
+      "title": "Baptism at the Jordan",
+      "zone": "Jordan River",
+      "scripture": "Matthew 3:16-17",
+      "summary": "Jesus is baptized and the Spirit descends like a dove.",
+      "hologramLevel": "water-light"
+    },
+    {
+      "id": "sermon_mount",
+      "title": "Sermon on the Mount",
+      "zone": "Galilee Heights",
+      "scripture": "Matthew 5:1-12",
+      "summary": "Teachings of the Beatitudes.",
+      "hologramLevel": "sky-choir"
+    },
+    {
+      "id": "walking_water",
+      "title": "Walking on Water",
+      "zone": "Sea of Galilee",
+      "scripture": "Matthew 14:25",
+      "summary": "Jesus walks on the sea in the storm.",
+      "hologramLevel": "storm-light"
+    },
+    {
+      "id": "lazarus",
+      "title": "Raising Lazarus",
+      "zone": "Bethany",
+      "scripture": "John 11:43-44",
+      "summary": "Jesus calls Lazarus out of the tomb.",
+      "hologramLevel": "resurrection-burst"
+    },
+    {
+      "id": "last_supper",
+      "title": "The Last Supper",
+      "zone": "Jerusalem Upper Room",
+      "scripture": "Luke 22:19-20",
+      "summary": "Jesus breaks bread with the disciples.",
+      "hologramLevel": "candle-glow"
+    },
+    {
+      "id": "crucifixion",
+      "title": "The Crucifixion",
+      "zone": "Golgotha",
+      "scripture": "Matthew 27:50",
+      "summary": "Jesus gives up His spirit.",
+      "hologramLevel": "dark-glory"
+    },
+    {
+      "id": "resurrection",
+      "title": "The Resurrection",
+      "zone": "Garden Tomb",
+      "scripture": "Luke 24:6",
+      "summary": "He is not here; He is risen.",
+      "hologramLevel": "sunburst"
+    },
+    {
+      "id": "ascension",
+      "title": "The Ascension",
+      "zone": "Mount of Olives",
+      "scripture": "Acts 1:9",
+      "summary": "Jesus is taken up before their eyes.",
+      "hologramLevel": "heaven-lift"
+    }
+  ]
+}

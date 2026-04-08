@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "name": "Demo Driver One",
+    "email": "driver1@example.com",
+    "vehicleType": "standard",
+    "status": "available",
+    "rating": 4.9
+  },
+  {
+    "id": 2,
+    "name": "Demo Driver Black",
+    "email": "driverblack@example.com",
+    "vehicleType": "premium",
+    "status": "busy",
+    "rating": 5,
+    "lastAssignedBookingId": 1
+  },
+  {
+    "id": 3,
+    "userId": 2,
+    "name": "Flow Driver",
+    "email": "driver_1773837235@example.com",
+    "vehicleType": "premium",
+    "carModel": "Tesla Model S",
+    "licenseNumber": "LIC12345",
+    "premiumEligible": true,
+    "status": "busy",
+    "rating": 5,
+    "lastAssignedBookingId": 2
+  },
+  {
+    "id": 4,
+    "userId": 5,
+    "name": "Flow Driver",
+    "email": "driver_1773843461@example.com",
+    "vehicleType": "premium",
+    "carModel": "Tesla Model S",
+    "licenseNumber": "LIC12345",
+    "premiumEligible": true,
+    "status": "available",
+    "rating": 5
+  }
+]

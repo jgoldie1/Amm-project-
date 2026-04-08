@@ -1,0 +1,121 @@
+version: "3.9"
+services:
+  gateway:
+    build: ./platform/gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth
+      - users
+      - payments
+      - media
+      - search
+      - ai_orchestrator
+    env_file:
+      - .env
+
+  auth:
+    build: ./platform/auth
+    env_file:
+      - .env
+
+  users:
+    build: ./platform/users
+    env_file:
+      - .env
+
+  payments:
+    build: ./platform/payments
+    env_file:
+      - .env
+
+  finance:
+    build: ./platform/finance
+    env_file:
+      - .env
+
+  media:
+    build: ./platform/media
+    env_file:
+      - .env
+
+  streaming:
+    build: ./platform/streaming
+    env_file:
+      - .env
+
+  search:
+    build: ./platform/search
+    env_file:
+      - .env
+
+  research:
+    build: ./platform/research
+    env_file:
+      - .env
+
+  ai_orchestrator:
+    build: ./platform/ai_orchestrator
+    env_file:
+      - .env
+    depends_on:
+      - vector_db
+      - redis
+
+  ai_models:
+    build: ./platform/ai_models
+    env_file:
+      - .env
+
+  creator:
+    build: ./platform/creator
+    env_file:
+      - .env
+
+  logistics:
+    build: ./platform/logistics
+    env_file:
+      - .env
+
+  notifications:
+    build: ./platform/notifications
+    env_file:
+      - .env
+
+  analytics:
+    build: ./platform/analytics
+    env_file:
+      - .env
+
+  admin:
+    build: ./platform/admin
+    env_file:
+      - .env
+
+  compliance:
+    build: ./platform/compliance
+    env_file:
+      - .env
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: aam
+      POSTGRES_PASSWORD: aam_dev_password
+      POSTGRES_DB: aam_platform
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  vector_db:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./data/vector_db:/qdrant/storage

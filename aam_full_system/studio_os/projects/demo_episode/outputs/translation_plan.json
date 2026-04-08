@@ -1,0 +1,24 @@
+{
+  "source_language": "en",
+  "targets": [
+    "es",
+    "ko",
+    "ja"
+  ],
+  "pipeline": [
+    "speech_to_text",
+    "translate_text",
+    "text_to_speech",
+    "subtitle_export"
+  ],
+  "voices": [
+    {
+      "character": "Jarvis",
+      "style": "calm, confident, cinematic"
+    },
+    {
+      "character": "Creator",
+      "style": "curious, human, ambitious"
+    }
+  ]
+}

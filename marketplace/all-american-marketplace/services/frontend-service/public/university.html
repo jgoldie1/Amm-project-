@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>All American Marketplace University</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header>
+  <h1>All American Marketplace University</h1>
+  <div class="nav"><a href="/kingdom.html">Kingdom</a></div>
+</header>
+<main>
+  <div class="card">
+    <h3>Create Course (admin token)</h3>
+    <input id="courseTitle" placeholder="Title">
+    <input id="courseCategory" placeholder="Category">
+    <input id="courseInstructor" placeholder="Instructor">
+    <input id="coursePrice" placeholder="Price">
+    <textarea id="courseDescription" placeholder="Description"></textarea>
+    <button onclick="createCourse()">Create Course</button>
+    <pre id="courseOut"></pre>
+  </div>
+
+  <div class="card">
+    <h3>Courses / Enroll</h3>
+    <button onclick="loadCourses()">Load Courses</button>
+    <input id="enrollCourseId" placeholder="Course ID">
+    <button onclick="enrollCourse()">Enroll</button>
+    <pre id="coursesOut"></pre>
+  </div>
+</main>
+<script src="/app.js"></script>
+<script>
+async function createCourse() {
+  show("courseOut", await request("http://127.0.0.1:5300/courses", {
+    method: "POST",
+    body: JSON.stringify({
+      title: courseTitle.value,
+      category: courseCategory.value,
+      instructor: courseInstructor.value,
+      price: Number(coursePrice.value || 0),
+      description: courseDescription.value
+    })
+  }));
+}
+async function loadCourses() {
+  show("coursesOut", await request("http://127.0.0.1:5300/courses"));
+}
+async function enrollCourse() {
+  show("coursesOut", await request("http://127.0.0.1:5300/enrollments", {
+    method: "POST",
+    body: JSON.stringify({ courseId: Number(enrollCourseId.value) })
+  }));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "required_count": 5,
+  "missing_count": 5,
+  "missing_tables": [
+    "navigation_surface_registry",
+    "swipe_navigation_registry",
+    "workflow_path_registry",
+    "help_assistant_registry",
+    "user_guidance_registry"
+  ],
+  "pass_x_tail_status": "needs_attention"
+}

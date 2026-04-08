@@ -1,0 +1,21 @@
+{
+  "event_types": [
+    "user.created",
+    "user.logged_in",
+    "media.uploaded",
+    "media.process.requested",
+    "ai.job.created",
+    "ai.job.completed",
+    "search.query.created",
+    "search.index.requested",
+    "payment.created",
+    "payment.completed",
+    "support.submitted",
+    "stream.started",
+    "stream.ended",
+    "comment.created",
+    "follower.added",
+    "release.scheduled",
+    "notification.requested"
+  ]
+}

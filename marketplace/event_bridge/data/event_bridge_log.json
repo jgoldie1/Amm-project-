@@ -1,0 +1,12 @@
+[
+  {
+    "id": "229f7e42-3a93-4110-a37d-e91fc48f3872",
+    "time": "2026-03-16 02:04:30.675382",
+    "event_type": "creator.track.created",
+    "source_service": "creator_app",
+    "payload": {
+      "title": "Demo Track",
+      "artist": "Aniyah"
+    }
+  }
+]

@@ -1,0 +1,41 @@
+Route Smoke Report
+Generated: Tue Mar 17 11:28:20 CDT 2026
+
+/                                      200
+/platform-home                         200
+/customer-home                         200
+/creator-home                          200
+/operator-home                         200
+/master-dashboard                      200
+/visual-preview                        200
+/route-map                             200
+/platform-verify                       200
+/auth/login                            200
+/profile                               500
+/profile-center                        200
+/profile-db-center                     500
+/db-role-preferences                   500
+/db-favorites                          500
+/payments-center                       200
+/payment-health                        200
+/checkout-preview/holo-product         200
+/checkout-preview/premium-event        200
+/checkout-preview/room-booking         200
+/checkout-payloads                     200
+/live-checkout/holo-product            404
+/live-checkout/premium-event           404
+/live-checkout/room-booking            404
+/live-checkout-attempts                404
+/boot-status                           200
+/boot-logs                             200
+/system-registry                       200
+/completion-board                      200
+/platform-summary                      200
+/clickable-map                         404
+/living-city-center                    200
+/property-center                       200
+/safety-center                         200
+/oasis-center                          200
+/holoverse-center                      200
+/holoverse-viewer                      200
+/payments-center                       200

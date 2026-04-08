@@ -1,0 +1,15 @@
+{
+  "tax_reporting": {
+    "country": "US",
+    "nonemployee_1099_nec_threshold": 600,
+    "tps_1099_k_threshold_amount": 20000,
+    "tps_1099_k_threshold_transactions": 200,
+    "e_file_required_if_returns_at_least": 10,
+    "filing_system": "IRIS",
+    "notes": [
+      "Platform should distinguish direct platform payouts from third-party settlement reporting flows",
+      "Use manual review before filing",
+      "Collect W-9 before payout when appropriate"
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "all_american_parent_theme",
+  "style": "holographic_patriotic_cosmic",
+  "colors": ["#020617", "#1d4ed8", "#b91c1c", "#facc15"],
+  "symbols": ["lion", "american_flag", "saturn", "eagle"],
+  "status": "active"
+}

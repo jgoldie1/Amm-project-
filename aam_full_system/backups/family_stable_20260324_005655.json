@@ -1,0 +1,202 @@
+{
+  "people": [
+    {
+      "name": "James Stubbs",
+      "role": "Root",
+      "businesses": [
+        "All American Marketplace",
+        "Jarvis",
+        "All American University",
+        "El Saturn FinBank International Bank",
+        "Stubbs Line of Credit Card",
+        "Lyons Line of Credit Card",
+        "Abraham Line of Credit Card"
+      ]
+    },
+    {
+      "name": "Tasha Ash",
+      "role": "Operations",
+      "businesses": [
+        "March & Lewis",
+        "Sculptify Ltd"
+      ]
+    },
+    {
+      "name": "Nekira Frances",
+      "role": "HR Logistics",
+      "businesses": [
+        "Human Resources",
+        "Freight Broker",
+        "Dispatch",
+        "Logistics"
+      ]
+    },
+    {
+      "name": "BJ",
+      "role": "Music",
+      "businesses": [
+        "Online Record Label",
+        "Online Store"
+      ]
+    },
+    {
+      "name": "Brother Game Dev",
+      "role": "Developer",
+      "businesses": [
+        "Game Studio",
+        "Online Store"
+      ]
+    },
+    {
+      "name": "Raymond Jarreau",
+      "role": "Insurance",
+      "businesses": [
+        "OmniCare 360 Insurance",
+        "Infinite Banking",
+        "Prescription Drug Coverage"
+      ]
+    },
+    {
+      "name": "Raymond Jarreau Son",
+      "role": "Insurance Builder",
+      "businesses": [
+        "OmniCare 360 Insurance"
+      ]
+    },
+    {
+      "name": "Twin A",
+      "role": "Insurance Builder",
+      "businesses": [
+        "OmniCare 360 Insurance"
+      ]
+    },
+    {
+      "name": "Twin Ray",
+      "role": "Insurance Builder",
+      "businesses": [
+        "OmniCare 360 Insurance"
+      ]
+    },
+    {
+      "name": "Deon Hamilton",
+      "role": "Builder",
+      "businesses": [
+        "Free Business Slot 1",
+        "Free Business Slot 2"
+      ]
+    },
+    {
+      "name": "Asia Watson",
+      "role": "Builder",
+      "businesses": [
+        "Free Business Slot 1",
+        "Free Business Slot 2"
+      ]
+    },
+    {
+      "name": "Pastor Kofi Ofri",
+      "role": "Spiritual Community Lead",
+      "businesses": [
+        "Servants of Christ Network",
+        "BloomNourish"
+      ]
+    },
+    {
+      "name": "Mya Ofri",
+      "role": "Herbalist Healer",
+      "businesses": [
+        "BloomNourish",
+        "Wellness Products",
+        "Healing Programs"
+      ]
+    },
+    {
+      "name": "Alton Stubbs",
+      "role": "Security and Compliance",
+      "businesses": [
+        "Alton Security",
+        "Conceal Carry Training",
+        "Compliance Services",
+        "Big Al Record",
+        "El Saturn Record"
+      ]
+    },
+    {
+      "name": "Alton Kevon Stubbs",
+      "role": "Media and Finance Builder",
+      "businesses": [
+        "Shot It Studio",
+        "Forex Education",
+        "Crypto Education",
+        "Stock Market Education",
+        "Advanced AI Training Models"
+      ]
+    },
+    {
+      "name": "Jacobie Vision",
+      "role": "Cybersecurity Lead",
+      "businesses": [
+        "Jacobie Vision Cybersecurity",
+        "Cyber Defense Training",
+        "Security Operations"
+      ]
+    },
+    {
+      "name": "Isaiah Stubbs",
+      "role": "Streaming and Media",
+      "businesses": [
+        "Anyone Can Be a Star AI TV",
+        "AI Streaming Network",
+        "Creator Promotion"
+      ]
+    },
+    {
+      "name": "Aniyah Stubbs",
+      "role": "Fintech and Education",
+      "businesses": [
+        "Aniyah Cross Border App",
+        "Youth Finance Tools",
+        "Cross Border Payments"
+      ]
+    },
+    {
+      "name": "Vocal Training Studio",
+      "role": "Creator Education Platform",
+      "businesses": [
+        "AI Vocal Training",
+        "Music Coaching",
+        "Performance Studio"
+      ]
+    },
+    {
+      "name": "AI Audio Workstation",
+      "role": "Music Software",
+      "businesses": [
+        "Easy Pro Tools Alternative",
+        "AI Mixing",
+        "AI Mastering",
+        "BandLab Style Studio",
+        "Guitar and Band Tools"
+      ]
+    },
+    {
+      "name": "El Saturn FinBank International Bank",
+      "role": "International Banking and Financial Services",
+      "businesses": [
+        "International Banking",
+        "Business Banking",
+        "Wealth Management",
+        "Cross-Border Finance",
+        "Treasury Services",
+        "Stubbs Line of Credit Card",
+        "Lyons Line of Credit Card",
+        "Abraham Line of Credit Card",
+        "Credit Services",
+        "Business Credit",
+        "Consumer Credit",
+        "Merchant Banking",
+        "Treasury Operations"
+      ]
+    }
+  ]
+}

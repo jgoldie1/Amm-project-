@@ -1,0 +1,4 @@
+[{"id":4,"presence_name":"Safe Presence","identity_name":"Demo Identity","world_name":"middleverse","avatar_mode":"avatar_live","commerce_mode":"commerce_live","presence_status":"active","created_at":"2026-04-01 00:37:26"},
+{"id":3,"presence_name":"Dispatch Ops Presence","identity_name":"Ops Desk","world_name":"service_grid","avatar_mode":"operator_avatar","commerce_mode":"service_actions","presence_status":"active","created_at":"2026-04-01 00:37:07"},
+{"id":2,"presence_name":"Anyone Star Presence","identity_name":"AAM Talent","world_name":"holo_stage","avatar_mode":"performance_avatar","commerce_mode":"fan_support","presence_status":"active","created_at":"2026-04-01 00:37:07"},
+{"id":1,"presence_name":"Jacobie Vision Presence","identity_name":"Jacobie Vision","world_name":"creator_world","avatar_mode":"host_avatar","commerce_mode":"merch_live","presence_status":"active","created_at":"2026-04-01 00:37:07"}]

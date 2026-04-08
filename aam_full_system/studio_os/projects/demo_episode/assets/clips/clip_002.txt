@@ -1,0 +1,4 @@
+PLACEHOLDER_CLIP
+clip_id=2
+duration_sec=8
+prompt=AI guide hologram appears beside creator, neon interface, crisp sci-fi production design

@@ -1,0 +1,13 @@
+HEADERS SENT FIX REPORT
+Timestamp: 20260325_230610
+
+Applied:
+- dashboard.js backup
+- DB backup
+- error context snapshot near line 5219
+- response guard inserted into Node server callback
+- clean restart attempted
+- health checks run
+
+This is a stabilization hotfix to stop the dashboard from crashing
+when a route tries to write headers twice.

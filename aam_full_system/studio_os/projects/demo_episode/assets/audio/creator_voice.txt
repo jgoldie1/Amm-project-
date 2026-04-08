@@ -1,0 +1,2 @@
+character=Creator
+style=curious, human, ambitious

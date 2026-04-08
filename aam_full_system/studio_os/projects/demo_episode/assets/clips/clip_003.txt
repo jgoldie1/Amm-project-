@@ -1,0 +1,4 @@
+PLACEHOLDER_CLIP
+clip_id=3
+duration_sec=8
+prompt=Creator enters portal into Life World, epic glow, dramatic cinematic atmosphere

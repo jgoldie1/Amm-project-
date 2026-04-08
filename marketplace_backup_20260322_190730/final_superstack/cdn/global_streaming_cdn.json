@@ -1,0 +1,13 @@
+{
+  "global_streaming_cdn": {
+    "features": [
+      "video_edge_delivery",
+      "live_stream_distribution",
+      "adaptive_bitrate_streaming",
+      "regional_media_cache",
+      "replay_delivery_optimization",
+      "global_creator_reach"
+    ],
+    "purpose": "Improve video performance and streaming quality across regions"
+  }
+}

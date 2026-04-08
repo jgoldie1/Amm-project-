@@ -1,0 +1,30 @@
+[
+  {
+    "table": "realworld_city_registry",
+    "exists": true
+  },
+  {
+    "table": "realworld_locations",
+    "exists": true
+  },
+  {
+    "table": "web3d_scene_nodes",
+    "exists": true
+  },
+  {
+    "table": "property_market_listings",
+    "exists": true
+  },
+  {
+    "table": "land_parcels",
+    "exists": true
+  },
+  {
+    "table": "building_registry",
+    "exists": true
+  },
+  {
+    "table": "blueprint_records",
+    "exists": true
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "models": {
+    "openai": {
+      "role": "orchestrator",
+      "enabled": false,
+      "notes": "tool use, planning, structured control"
+    },
+    "gemini": {
+      "role": "long_context",
+      "enabled": false,
+      "notes": "context-heavy planning and caching"
+    },
+    "grok": {
+      "role": "live_tools",
+      "enabled": false,
+      "notes": "real-time and tool-heavy tasks"
+    },
+    "deepseek": {
+      "role": "reasoning_fallback",
+      "enabled": false,
+      "notes": "comparison, fallback, alternate drafts"
+    }
+  }
+}

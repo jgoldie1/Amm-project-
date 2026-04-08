@@ -1,0 +1,5 @@
+RENDER PLACEHOLDER
+job_id=render_001
+clip_id=1
+prompt=Futuristic creator stage, holographic lights, cinematic entrance, polished sci-fi visuals
+status=ready_for_provider_hookup

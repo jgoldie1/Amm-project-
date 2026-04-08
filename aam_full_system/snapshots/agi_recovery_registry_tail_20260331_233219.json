@@ -1,0 +1,2 @@
+[{"id":2,"recovery_name":"Safe Recovery","recovery_group":"runtime","failure_type":"generic_failure","recovery_action":"retry_then_restore","recovery_status":"ready","created_at":"2026-04-01 04:32:39"},
+{"id":1,"recovery_name":"Default Runtime Recovery","recovery_group":"runtime","failure_type":"service_down","recovery_action":"restart_and_recheck","recovery_status":"ready","created_at":"2026-04-01 04:32:20"}]

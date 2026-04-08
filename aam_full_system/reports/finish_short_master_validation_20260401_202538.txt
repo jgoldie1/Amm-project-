@@ -1,0 +1,11 @@
+FINISH SHORT MASTER VALIDATION REPORT
+Timestamp: 20260401_202538
+
+Recovered:
+- short master validation summary
+- current-run scan
+- final report after interrupted long validation
+
+Purpose:
+- finish validation cleanly without rerunning giant scripts
+- preserve stable runtime

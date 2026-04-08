@@ -1,0 +1,4 @@
+[{"id":4,"sync_name":"middleverse_sync","source_system":"creator_tv","target_system":"marketplace","sync_type":"event_bridge","sync_result":"ok","sync_status":"complete","created_at":"2026-04-01 00:30:04"},
+{"id":3,"sync_name":"dispatch_to_middleverse_sync","source_system":"dispatch","target_system":"middleverse","sync_type":"service_bridge","sync_result":"ok","sync_status":"complete","created_at":"2026-04-01 00:29:46"},
+{"id":2,"sync_name":"marketplace_to_middleverse_sync","source_system":"marketplace","target_system":"middleverse","sync_type":"commerce_bridge","sync_result":"ok","sync_status":"complete","created_at":"2026-04-01 00:29:46"},
+{"id":1,"sync_name":"creator_to_middleverse_sync","source_system":"creator_tv","target_system":"middleverse","sync_type":"event_bridge","sync_result":"ok","sync_status":"complete","created_at":"2026-04-01 00:29:46"}]

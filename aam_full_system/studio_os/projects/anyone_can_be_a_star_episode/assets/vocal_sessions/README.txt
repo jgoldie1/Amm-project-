@@ -1,0 +1,1 @@
+Put raw vocal takes here: lead_vocal.wav, hook.wav, background_vocals.wav

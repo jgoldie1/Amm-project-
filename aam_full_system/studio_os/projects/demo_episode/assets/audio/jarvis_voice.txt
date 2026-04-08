@@ -1,0 +1,2 @@
+character=Jarvis
+style=calm, confident, cinematic

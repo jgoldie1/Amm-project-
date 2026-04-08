@@ -1,0 +1,15 @@
+FULL COMPATIBILITY SWEEP + STABILIZE REPORT
+Timestamp: 20260326_215208
+
+Completed:
+- wallets compatibility columns
+- podcasts compatibility columns
+- dashboard compatibility query sweep
+- fresh restart and health verify
+- fresh route sweep
+- fresh route error scan
+
+Goal:
+- remove schema/query drift
+- stabilize wallet and creator surfaces
+- prepare cleanly for buy-in and monetization phase

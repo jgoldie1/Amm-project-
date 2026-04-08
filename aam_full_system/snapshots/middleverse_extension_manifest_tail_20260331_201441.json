@@ -1,0 +1,5 @@
+[{"id":5,"extension_name":"safe-extension-pack","extension_group":"platform","target_layer":"bridge_layer","install_mode":"managed","extension_status":"active","created_at":"2026-04-01 01:15:01"},
+{"id":4,"extension_name":"middleverse-bridge-pack","extension_group":"platform","target_layer":"bridge_layer","install_mode":"managed","extension_status":"active","created_at":"2026-04-01 01:14:42"},
+{"id":3,"extension_name":"dispatch-extension-pack","extension_group":"industry","target_layer":"service_layer","install_mode":"managed","extension_status":"active","created_at":"2026-04-01 01:14:42"},
+{"id":2,"extension_name":"creator-extension-pack","extension_group":"industry","target_layer":"creator_layer","install_mode":"managed","extension_status":"active","created_at":"2026-04-01 01:14:42"},
+{"id":1,"extension_name":"retail-extension-pack","extension_group":"industry","target_layer":"commerce_layer","install_mode":"managed","extension_status":"active","created_at":"2026-04-01 01:14:42"}]

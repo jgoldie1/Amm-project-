@@ -1,0 +1,19 @@
+{
+  "clips": [
+    {
+      "clip_id": 1,
+      "file": "studio_os/projects/demo_episode/assets/clips/clip_001.txt",
+      "duration_sec": 8
+    },
+    {
+      "clip_id": 2,
+      "file": "studio_os/projects/demo_episode/assets/clips/clip_002.txt",
+      "duration_sec": 8
+    },
+    {
+      "clip_id": 3,
+      "file": "studio_os/projects/demo_episode/assets/clips/clip_003.txt",
+      "duration_sec": 8
+    }
+  ]
+}

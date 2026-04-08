@@ -1,0 +1,29 @@
+{
+  "title": "Anyone Can Be a Star - Pilot",
+  "shots": [
+    {
+      "scene": 1,
+      "shot": 1,
+      "type": "wide",
+      "desc": "A creator walks onto a futuristic stage surrounded by holographic lights."
+    },
+    {
+      "scene": 1,
+      "shot": 2,
+      "type": "medium",
+      "desc": "Jarvis appears and welcomes the creator into AI TV."
+    },
+    {
+      "scene": 2,
+      "shot": 1,
+      "type": "close",
+      "desc": "The creator transforms into a polished star persona."
+    },
+    {
+      "scene": 3,
+      "shot": 1,
+      "type": "wide",
+      "desc": "The creator is featured on a giant streaming wall as the audience watches."
+    }
+  ]
+}

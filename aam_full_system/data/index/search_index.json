@@ -1,0 +1,326 @@
+{
+  "builtAt": "2026-04-05T23:21:41.948Z",
+  "count": 33,
+  "docs": [
+    {
+      "type": "mammals",
+      "name": "Lion",
+      "tags": [
+        "lion",
+        "brand_guardian",
+        "active_build"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "mammals",
+      "name": "Wolf",
+      "tags": [
+        "wolf",
+        "community_pack",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "mammals",
+      "name": "Bull",
+      "tags": [
+        "bull",
+        "market_growth",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "mammals",
+      "name": "Horse",
+      "tags": [
+        "horse",
+        "transport_mount",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "mammals",
+      "name": "Deer",
+      "tags": [
+        "deer",
+        "nature_zone",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "birds",
+      "name": "Eagle",
+      "tags": [
+        "eagle",
+        "freedom_navigation",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "birds",
+      "name": "Hawk",
+      "tags": [
+        "hawk",
+        "scout_watch",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "birds",
+      "name": "Owl",
+      "tags": [
+        "owl",
+        "wisdom_guide",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "insects",
+      "name": "Butterfly",
+      "tags": [
+        "butterfly",
+        "transformation_visual",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "insects",
+      "name": "Bee",
+      "tags": [
+        "bee",
+        "ecosystem_productivity",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "insects",
+      "name": "Firefly",
+      "tags": [
+        "firefly",
+        "ambient_light",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "transport",
+      "name": "Creator Shuttle",
+      "tags": [
+        "creator shuttle",
+        "hover_transport",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "transport",
+      "name": "Lion Gate Portal",
+      "tags": [
+        "lion gate portal",
+        "fast_travel",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "transport",
+      "name": "Marketplace Cruiser",
+      "tags": [
+        "marketplace cruiser",
+        "city_transport",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "transport",
+      "name": "Time Machine",
+      "tags": [
+        "time machine",
+        "timeline_transport",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "housing",
+      "name": "Creator Pod",
+      "tags": [
+        "creator pod",
+        "starter_home",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "housing",
+      "name": "Saturn Loft",
+      "tags": [
+        "saturn loft",
+        "premium_home",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "housing",
+      "name": "Marketplace Villa",
+      "tags": [
+        "marketplace villa",
+        "luxury_home",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "worlds",
+      "name": "Bethlehem",
+      "tags": [
+        "bethlehem",
+        "playable_foundation"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "worlds",
+      "name": "Nazareth",
+      "tags": [
+        "nazareth",
+        "playable_foundation"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "worlds",
+      "name": "Galilee",
+      "tags": [
+        "galilee",
+        "playable_foundation"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "worlds",
+      "name": "Creator Hall",
+      "tags": [
+        "creator hall",
+        "playable_foundation"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "worlds",
+      "name": "Cosmic Sky / Saturn",
+      "tags": [
+        "cosmic sky / saturn",
+        "visual_foundation"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "gift",
+      "name": "Holographic Rose",
+      "tags": [
+        "common",
+        "100",
+        "active_build"
+      ],
+      "source": "data/world/holographic_gifts.json"
+    },
+    {
+      "type": "gift",
+      "name": "American Star",
+      "tags": [
+        "rare",
+        "500",
+        "active_build"
+      ],
+      "source": "data/world/holographic_gifts.json"
+    },
+    {
+      "type": "gift",
+      "name": "Lion Crown",
+      "tags": [
+        "epic",
+        "1000",
+        "active_build"
+      ],
+      "source": "data/world/holographic_gifts.json"
+    },
+    {
+      "type": "gift",
+      "name": "Saturn Ring",
+      "tags": [
+        "legendary",
+        "2500",
+        "active_build"
+      ],
+      "source": "data/world/holographic_gifts.json"
+    },
+    {
+      "type": "gift",
+      "name": "Freedom Eagle",
+      "tags": [
+        "legendary",
+        "5000",
+        "planned"
+      ],
+      "source": "data/world/holographic_gifts.json"
+    },
+    {
+      "type": "theme",
+      "name": "creator_child_theme",
+      "tags": [
+        "all_american_parent_theme",
+        "creator tools + music"
+      ],
+      "source": "data/themes/child_themes.json"
+    },
+    {
+      "type": "theme",
+      "name": "world_child_theme",
+      "tags": [
+        "all_american_parent_theme",
+        "life world + scenes + transport + housing"
+      ],
+      "source": "data/themes/child_themes.json"
+    },
+    {
+      "type": "theme",
+      "name": "stream_child_theme",
+      "tags": [
+        "all_american_parent_theme",
+        "live + gifts + discovery"
+      ],
+      "source": "data/themes/child_themes.json"
+    },
+    {
+      "type": "theme",
+      "name": "marketplace_child_theme",
+      "tags": [
+        "all_american_parent_theme",
+        "commerce + assets + payouts"
+      ],
+      "source": "data/themes/child_themes.json"
+    },
+    {
+      "type": "theme",
+      "name": "family_child_theme",
+      "tags": [
+        "all_american_parent_theme",
+        "parent/child safe accounts + learning mode"
+      ],
+      "source": "data/themes/child_themes.json"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "status": "render_output_layer_ready",
+  "clips_count": 3,
+  "audio_files_count": 3,
+  "timeline_items": 3,
+  "next_step": "replace placeholders with real video, voice, and ffmpeg export"
+}

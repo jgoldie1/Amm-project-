@@ -1,0 +1,260 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The Life of Yahuah Maschian: King of Kings</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#020617; color:#e2e8f0; margin:0; padding:20px; }
+    .card,.topbar { background:#111827; border:1px solid #334155; border-radius:16px; padding:16px; }
+    .topbar { margin-bottom:20px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px; }
+    .section { margin-top:24px; }
+    .pill { display:inline-block; padding:6px 10px; background:#2563eb; border-radius:999px; margin-right:8px; margin-top:6px; font-size:13px; }
+    button,select { background:#2563eb; color:white; border:none; border-radius:10px; padding:10px 14px; margin-right:8px; cursor:pointer; }
+    .muted { color:#94a3b8; }
+    .quest { background:#0f172a; border:1px solid #334155; border-radius:12px; padding:12px; margin-top:12px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>The Life of Yahuah Maschian: King of Kings</h1>
+    <p class="muted">Playable metaverse / middleverse / multiverse foundation</p>
+    <span class="pill">Port 4902</span>
+    <span class="pill">54 Scenes</span>
+    <span class="pill">54 Quests</span>
+    <span class="pill">Playable</span>
+  </div>
+
+  <div class="section">
+    <div class="grid">
+      
+        <div class="card">
+          <h3>Metaverse</h3>
+          <p>Visible world exploration, cities, missions, encounters, trade, and movement.</p>
+        </div>
+      
+        <div class="card">
+          <h3>Middleverse</h3>
+          <p>Inner trials, wisdom gates, symbolic missions, visions, and spiritual progression.</p>
+        </div>
+      
+        <div class="card">
+          <h3>Multiverse</h3>
+          <p>Expanded kingdom pathways, branching eras, alternate mission arcs, and world-scale destiny events.</p>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="card">
+      <h2>World Explorer</h2>
+      <select id="sceneSelect">
+        <option value="scene_001">scene_001 — Bethlehem — Arrival</option><option value="scene_002">scene_002 — Bethlehem — Witness</option><option value="scene_003">scene_003 — Bethlehem — Teaching</option><option value="scene_004">scene_004 — Bethlehem — Healing</option><option value="scene_005">scene_005 — Bethlehem — Challenge</option><option value="scene_006">scene_006 — Bethlehem — Passage</option><option value="scene_007">scene_007 — Nazareth — Arrival</option><option value="scene_008">scene_008 — Nazareth — Witness</option><option value="scene_009">scene_009 — Nazareth — Teaching</option><option value="scene_010">scene_010 — Nazareth — Healing</option><option value="scene_011">scene_011 — Nazareth — Challenge</option><option value="scene_012">scene_012 — Nazareth — Passage</option><option value="scene_013">scene_013 — Galilee — Arrival</option><option value="scene_014">scene_014 — Galilee — Witness</option><option value="scene_015">scene_015 — Galilee — Teaching</option><option value="scene_016">scene_016 — Galilee — Healing</option><option value="scene_017">scene_017 — Galilee — Challenge</option><option value="scene_018">scene_018 — Galilee — Passage</option><option value="scene_019">scene_019 — Sea of Galilee — Arrival</option><option value="scene_020">scene_020 — Sea of Galilee — Witness</option><option value="scene_021">scene_021 — Sea of Galilee — Teaching</option><option value="scene_022">scene_022 — Sea of Galilee — Healing</option><option value="scene_023">scene_023 — Sea of Galilee — Challenge</option><option value="scene_024">scene_024 — Sea of Galilee — Passage</option><option value="scene_025">scene_025 — Capernaum — Arrival</option><option value="scene_026">scene_026 — Capernaum — Witness</option><option value="scene_027">scene_027 — Capernaum — Teaching</option><option value="scene_028">scene_028 — Capernaum — Healing</option><option value="scene_029">scene_029 — Capernaum — Challenge</option><option value="scene_030">scene_030 — Capernaum — Passage</option><option value="scene_031">scene_031 — Samaria — Arrival</option><option value="scene_032">scene_032 — Samaria — Witness</option><option value="scene_033">scene_033 — Samaria — Teaching</option><option value="scene_034">scene_034 — Samaria — Healing</option><option value="scene_035">scene_035 — Samaria — Challenge</option><option value="scene_036">scene_036 — Samaria — Passage</option><option value="scene_037">scene_037 — Jericho — Arrival</option><option value="scene_038">scene_038 — Jericho — Witness</option><option value="scene_039">scene_039 — Jericho — Teaching</option><option value="scene_040">scene_040 — Jericho — Healing</option><option value="scene_041">scene_041 — Jericho — Challenge</option><option value="scene_042">scene_042 — Jericho — Passage</option><option value="scene_043">scene_043 — Jerusalem — Arrival</option><option value="scene_044">scene_044 — Jerusalem — Witness</option><option value="scene_045">scene_045 — Jerusalem — Teaching</option><option value="scene_046">scene_046 — Jerusalem — Healing</option><option value="scene_047">scene_047 — Jerusalem — Challenge</option><option value="scene_048">scene_048 — Jerusalem — Passage</option><option value="scene_049">scene_049 — Throne Corridor — Arrival</option><option value="scene_050">scene_050 — Throne Corridor — Witness</option><option value="scene_051">scene_051 — Throne Corridor — Teaching</option><option value="scene_052">scene_052 — Throne Corridor — Healing</option><option value="scene_053">scene_053 — Throne Corridor — Challenge</option><option value="scene_054">scene_054 — Throne Corridor — Passage</option>
+      </select>
+      <button onclick="loadScene()">Load Scene</button>
+      <button onclick="prevScene()">Prev</button>
+      <button onclick="nextScene()">Next</button>
+      <div id="sceneBox" class="quest"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="grid">
+      
+        <div class="card">
+          <h3>Bethlehem</h3>
+          <p><strong>Realm:</strong> metaverse</p>
+          <p><strong>Recommended Level:</strong> 1</p>
+        </div>
+      
+        <div class="card">
+          <h3>Nazareth</h3>
+          <p><strong>Realm:</strong> metaverse</p>
+          <p><strong>Recommended Level:</strong> 2</p>
+        </div>
+      
+        <div class="card">
+          <h3>Galilee</h3>
+          <p><strong>Realm:</strong> metaverse</p>
+          <p><strong>Recommended Level:</strong> 4</p>
+        </div>
+      
+        <div class="card">
+          <h3>Sea of Galilee</h3>
+          <p><strong>Realm:</strong> metaverse</p>
+          <p><strong>Recommended Level:</strong> 6</p>
+        </div>
+      
+        <div class="card">
+          <h3>Capernaum</h3>
+          <p><strong>Realm:</strong> metaverse</p>
+          <p><strong>Recommended Level:</strong> 8</p>
+        </div>
+      
+        <div class="card">
+          <h3>Samaria</h3>
+          <p><strong>Realm:</strong> middleverse</p>
+          <p><strong>Recommended Level:</strong> 10</p>
+        </div>
+      
+        <div class="card">
+          <h3>Jericho</h3>
+          <p><strong>Realm:</strong> middleverse</p>
+          <p><strong>Recommended Level:</strong> 12</p>
+        </div>
+      
+        <div class="card">
+          <h3>Jerusalem</h3>
+          <p><strong>Realm:</strong> multiverse</p>
+          <p><strong>Recommended Level:</strong> 15</p>
+        </div>
+      
+        <div class="card">
+          <h3>Throne Corridor</h3>
+          <p><strong>Realm:</strong> multiverse</p>
+          <p><strong>Recommended Level:</strong> 20</p>
+        </div>
+      
+    </div>
+  </div>
+
+  <script>
+    const scenes = [{"id":"scene_001","zoneId":"bethlehem","zoneName":"Bethlehem","realm":"metaverse","title":"Bethlehem — Arrival","description":"Reach the zone entry and receive the first mission.","playable":true,"questId":"quest_001","nextScene":"scene_002"},{"id":"scene_002","zoneId":"bethlehem","zoneName":"Bethlehem","realm":"metaverse","title":"Bethlehem — Witness","description":"Speak with the people and gather insight.","playable":true,"questId":"quest_002","nextScene":"scene_003"},{"id":"scene_003","zoneId":"bethlehem","zoneName":"Bethlehem","realm":"metaverse","title":"Bethlehem — Teaching","description":"Complete the teaching encounter.","playable":true,"questId":"quest_003","nextScene":"scene_004"},{"id":"scene_004","zoneId":"bethlehem","zoneName":"Bethlehem","realm":"metaverse","title":"Bethlehem — Healing","description":"Help someone in need and restore progress.","playable":true,"questId":"quest_004","nextScene":"scene_005"},{"id":"scene_005","zoneId":"bethlehem","zoneName":"Bethlehem","realm":"metaverse","title":"Bethlehem — Challenge","description":"Face a test and answer wisely.","playable":true,"questId":"quest_005","nextScene":"scene_006"},{"id":"scene_006","zoneId":"bethlehem","zoneName":"Bethlehem","realm":"metaverse","title":"Bethlehem — Passage","description":"Unlock the next stage of the journey.","playable":true,"questId":"quest_006","nextScene":"scene_007"},{"id":"scene_007","zoneId":"nazareth","zoneName":"Nazareth","realm":"metaverse","title":"Nazareth — Arrival","description":"Reach the zone entry and receive the first mission.","playable":true,"questId":"quest_007","nextScene":"scene_008"},{"id":"scene_008","zoneId":"nazareth","zoneName":"Nazareth","realm":"metaverse","title":"Nazareth — Witness","description":"Speak with the people and gather insight.","playable":true,"questId":"quest_008","nextScene":"scene_009"},{"id":"scene_009","zoneId":"nazareth","zoneName":"Nazareth","realm":"metaverse","title":"Nazareth — Teaching","description":"Complete the teaching encounter.","playable":true,"questId":"quest_009","nextScene":"scene_010"},{"id":"scene_010","zoneId":"nazareth","zoneName":"Nazareth","realm":"metaverse","title":"Nazareth — Healing","description":"Help someone in need and restore progress.","playable":true,"questId":"quest_010","nextScene":"scene_011"},{"id":"scene_011","zoneId":"nazareth","zoneName":"Nazareth","realm":"metaverse","title":"Nazareth — Challenge","description":"Face a test and answer wisely.","playable":true,"questId":"quest_011","nextScene":"scene_012"},{"id":"scene_012","zoneId":"nazareth","zoneName":"Nazareth","realm":"metaverse","title":"Nazareth — Passage","description":"Unlock the next stage of the journey.","playable":true,"questId":"quest_012","nextScene":"scene_013"},{"id":"scene_013","zoneId":"galilee","zoneName":"Galilee","realm":"metaverse","title":"Galilee — Arrival","description":"Reach the zone entry and receive the first mission.","playable":true,"questId":"quest_013","nextScene":"scene_014"},{"id":"scene_014","zoneId":"galilee","zoneName":"Galilee","realm":"metaverse","title":"Galilee — Witness","description":"Speak with the people and gather insight.","playable":true,"questId":"quest_014","nextScene":"scene_015"},{"id":"scene_015","zoneId":"galilee","zoneName":"Galilee","realm":"metaverse","title":"Galilee — Teaching","description":"Complete the teaching encounter.","playable":true,"questId":"quest_015","nextScene":"scene_016"},{"id":"scene_016","zoneId":"galilee","zoneName":"Galilee","realm":"metaverse","title":"Galilee — Healing","description":"Help someone in need and restore progress.","playable":true,"questId":"quest_016","nextScene":"scene_017"},{"id":"scene_017","zoneId":"galilee","zoneName":"Galilee","realm":"metaverse","title":"Galilee — Challenge","description":"Face a test and answer wisely.","playable":true,"questId":"quest_017","nextScene":"scene_018"},{"id":"scene_018","zoneId":"galilee","zoneName":"Galilee","realm":"metaverse","title":"Galilee — Passage","description":"Unlock the next stage of the journey.","playable":true,"questId":"quest_018","nextScene":"scene_019"},{"id":"scene_019","zoneId":"sea_of_galilee","zoneName":"Sea of Galilee","realm":"metaverse","title":"Sea of Galilee — Arrival","description":"Reach the zone entry and receive the first mission.","playable":true,"questId":"quest_019","nextScene":"scene_020"},{"id":"scene_020","zoneId":"sea_of_galilee","zoneName":"Sea of Galilee","realm":"metaverse","title":"Sea of Galilee — Witness","description":"Speak with the people and gather insight.","playable":true,"questId":"quest_020","nextScene":"scene_021"},{"id":"scene_021","zoneId":"sea_of_galilee","zoneName":"Sea of Galilee","realm":"metaverse","title":"Sea of Galilee — Teaching","description":"Complete the teaching encounter.","playable":true,"questId":"quest_021","nextScene":"scene_022"},{"id":"scene_022","zoneId":"sea_of_galilee","zoneName":"Sea of Galilee","realm":"metaverse","title":"Sea of Galilee — Healing","description":"Help someone in need and restore progress.","playable":true,"questId":"quest_022","nextScene":"scene_023"},{"id":"scene_023","zoneId":"sea_of_galilee","zoneName":"Sea of Galilee","realm":"metaverse","title":"Sea of Galilee — Challenge","description":"Face a test and answer wisely.","playable":true,"questId":"quest_023","nextScene":"scene_024"},{"id":"scene_024","zoneId":"sea_of_galilee","zoneName":"Sea of Galilee","realm":"metaverse","title":"Sea of Galilee — Passage","description":"Unlock the next stage of the journey.","playable":true,"questId":"quest_024","nextScene":"scene_025"},{"id":"scene_025","zoneId":"capernaum","zoneName":"Capernaum","realm":"metaverse","title":"Capernaum — Arrival","description":"Reach the zone entry and receive the first mission.","playable":true,"questId":"quest_025","nextScene":"scene_026"},{"id":"scene_026","zoneId":"capernaum","zoneName":"Capernaum","realm":"metaverse","title":"Capernaum — Witness","description":"Speak with the people and gather insight.","playable":true,"questId":"quest_026","nextScene":"scene_027"},{"id":"scene_027","zoneId":"capernaum","zoneName":"Capernaum","realm":"metaverse","title":"Capernaum — Teaching","description":"Complete the teaching encounter.","playable":true,"questId":"quest_027","nextScene":"scene_028"},{"id":"scene_028","zoneId":"capernaum","zoneName":"Capernaum","realm":"metaverse","title":"Capernaum — Healing","description":"Help someone in need and restore progress.","playable":true,"questId":"quest_028","nextScene":"scene_029"},{"id":"scene_029","zoneId":"capernaum","zoneName":"Capernaum","realm":"metaverse","title":"Capernaum — Challenge","description":"Face a test and answer wisely.","playable":true,"questId":"quest_029","nextScene":"scene_030"},{"id":"scene_030","zoneId":"capernaum","zoneName":"Capernaum","realm":"metaverse","title":"Capernaum — Passage","description":"Unlock the next stage of the journey.","playable":true,"questId":"quest_030","nextScene":"scene_031"},{"id":"scene_031","zoneId":"samaria","zoneName":"Samaria","realm":"middleverse","title":"Samaria — Arrival","description":"Reach the zone entry and receive the first mission.","playable":true,"questId":"quest_031","nextScene":"scene_032"},{"id":"scene_032","zoneId":"samaria","zoneName":"Samaria","realm":"middleverse","title":"Samaria — Witness","description":"Speak with the people and gather insight.","playable":true,"questId":"quest_032","nextScene":"scene_033"},{"id":"scene_033","zoneId":"samaria","zoneName":"Samaria","realm":"middleverse","title":"Samaria — Teaching","description":"Complete the teaching encounter.","playable":true,"questId":"quest_033","nextScene":"scene_034"},{"id":"scene_034","zoneId":"samaria","zoneName":"Samaria","realm":"middleverse","title":"Samaria — Healing","description":"Help someone in need and restore progress.","playable":true,"questId":"quest_034","nextScene":"scene_035"},{"id":"scene_035","zoneId":"samaria","zoneName":"Samaria","realm":"middleverse","title":"Samaria — Challenge","description":"Face a test and answer wisely.","playable":true,"questId":"quest_035","nextScene":"scene_036"},{"id":"scene_036","zoneId":"samaria","zoneName":"Samaria","realm":"middleverse","title":"Samaria — Passage","description":"Unlock the next stage of the journey.","playable":true,"questId":"quest_036","nextScene":"scene_037"},{"id":"scene_037","zoneId":"jericho","zoneName":"Jericho","realm":"middleverse","title":"Jericho — Arrival","description":"Reach the zone entry and receive the first mission.","playable":true,"questId":"quest_037","nextScene":"scene_038"},{"id":"scene_038","zoneId":"jericho","zoneName":"Jericho","realm":"middleverse","title":"Jericho — Witness","description":"Speak with the people and gather insight.","playable":true,"questId":"quest_038","nextScene":"scene_039"},{"id":"scene_039","zoneId":"jericho","zoneName":"Jericho","realm":"middleverse","title":"Jericho — Teaching","description":"Complete the teaching encounter.","playable":true,"questId":"quest_039","nextScene":"scene_040"},{"id":"scene_040","zoneId":"jericho","zoneName":"Jericho","realm":"middleverse","title":"Jericho — Healing","description":"Help someone in need and restore progress.","playable":true,"questId":"quest_040","nextScene":"scene_041"},{"id":"scene_041","zoneId":"jericho","zoneName":"Jericho","realm":"middleverse","title":"Jericho — Challenge","description":"Face a test and answer wisely.","playable":true,"questId":"quest_041","nextScene":"scene_042"},{"id":"scene_042","zoneId":"jericho","zoneName":"Jericho","realm":"middleverse","title":"Jericho — Passage","description":"Unlock the next stage of the journey.","playable":true,"questId":"quest_042","nextScene":"scene_043"},{"id":"scene_043","zoneId":"jerusalem","zoneName":"Jerusalem","realm":"multiverse","title":"Jerusalem — Arrival","description":"Reach the zone entry and receive the first mission.","playable":true,"questId":"quest_043","nextScene":"scene_044"},{"id":"scene_044","zoneId":"jerusalem","zoneName":"Jerusalem","realm":"multiverse","title":"Jerusalem — Witness","description":"Speak with the people and gather insight.","playable":true,"questId":"quest_044","nextScene":"scene_045"},{"id":"scene_045","zoneId":"jerusalem","zoneName":"Jerusalem","realm":"multiverse","title":"Jerusalem — Teaching","description":"Complete the teaching encounter.","playable":true,"questId":"quest_045","nextScene":"scene_046"},{"id":"scene_046","zoneId":"jerusalem","zoneName":"Jerusalem","realm":"multiverse","title":"Jerusalem — Healing","description":"Help someone in need and restore progress.","playable":true,"questId":"quest_046","nextScene":"scene_047"},{"id":"scene_047","zoneId":"jerusalem","zoneName":"Jerusalem","realm":"multiverse","title":"Jerusalem — Challenge","description":"Face a test and answer wisely.","playable":true,"questId":"quest_047","nextScene":"scene_048"},{"id":"scene_048","zoneId":"jerusalem","zoneName":"Jerusalem","realm":"multiverse","title":"Jerusalem — Passage","description":"Unlock the next stage of the journey.","playable":true,"questId":"quest_048","nextScene":"scene_049"},{"id":"scene_049","zoneId":"throne_corridor","zoneName":"Throne Corridor","realm":"multiverse","title":"Throne Corridor — Arrival","description":"Reach the zone entry and receive the first mission.","playable":true,"questId":"quest_049","nextScene":"scene_050"},{"id":"scene_050","zoneId":"throne_corridor","zoneName":"Throne Corridor","realm":"multiverse","title":"Throne Corridor — Witness","description":"Speak with the people and gather insight.","playable":true,"questId":"quest_050","nextScene":"scene_051"},{"id":"scene_051","zoneId":"throne_corridor","zoneName":"Throne Corridor","realm":"multiverse","title":"Throne Corridor — Teaching","description":"Complete the teaching encounter.","playable":true,"questId":"quest_051","nextScene":"scene_052"},{"id":"scene_052","zoneId":"throne_corridor","zoneName":"Throne Corridor","realm":"multiverse","title":"Throne Corridor — Healing","description":"Help someone in need and restore progress.","playable":true,"questId":"quest_052","nextScene":"scene_053"},{"id":"scene_053","zoneId":"throne_corridor","zoneName":"Throne Corridor","realm":"multiverse","title":"Throne Corridor — Challenge","description":"Face a test and answer wisely.","playable":true,"questId":"quest_053","nextScene":"scene_054"},{"id":"scene_054","zoneId":"throne_corridor","zoneName":"Throne Corridor","realm":"multiverse","title":"Throne Corridor — Passage","description":"Unlock the next stage of the journey.","playable":true,"questId":"quest_054","nextScene":null}];
+    const quests = [{"id":"quest_001","sceneId":"scene_001","title":"Bethlehem Mission 1","objective":"Reach the zone entry and receive the first mission.","xp":55,"reward":{"scroll":"Bethlehem Scroll 1","teaching":"Bethlehem Teaching 1"},"unlockScene":"scene_002"},{"id":"quest_002","sceneId":"scene_002","title":"Bethlehem Mission 2","objective":"Speak with the people and gather insight.","xp":60,"reward":{"scroll":"Bethlehem Scroll 2","teaching":"Bethlehem Teaching 2"},"unlockScene":"scene_003"},{"id":"quest_003","sceneId":"scene_003","title":"Bethlehem Mission 3","objective":"Complete the teaching encounter.","xp":65,"reward":{"scroll":"Bethlehem Scroll 3","teaching":"Bethlehem Teaching 3"},"unlockScene":"scene_004"},{"id":"quest_004","sceneId":"scene_004","title":"Bethlehem Mission 4","objective":"Help someone in need and restore progress.","xp":70,"reward":{"scroll":"Bethlehem Scroll 4","teaching":"Bethlehem Teaching 4"},"unlockScene":"scene_005"},{"id":"quest_005","sceneId":"scene_005","title":"Bethlehem Mission 5","objective":"Face a test and answer wisely.","xp":75,"reward":{"scroll":"Bethlehem Scroll 5","teaching":"Bethlehem Teaching 5"},"unlockScene":"scene_006"},{"id":"quest_006","sceneId":"scene_006","title":"Bethlehem Mission 6","objective":"Unlock the next stage of the journey.","xp":80,"reward":{"scroll":"Bethlehem Scroll 6","teaching":"Bethlehem Teaching 6"},"unlockScene":"scene_007"},{"id":"quest_007","sceneId":"scene_007","title":"Nazareth Mission 1","objective":"Reach the zone entry and receive the first mission.","xp":85,"reward":{"scroll":"Nazareth Scroll 1","teaching":"Nazareth Teaching 1"},"unlockScene":"scene_008"},{"id":"quest_008","sceneId":"scene_008","title":"Nazareth Mission 2","objective":"Speak with the people and gather insight.","xp":90,"reward":{"scroll":"Nazareth Scroll 2","teaching":"Nazareth Teaching 2"},"unlockScene":"scene_009"},{"id":"quest_009","sceneId":"scene_009","title":"Nazareth Mission 3","objective":"Complete the teaching encounter.","xp":95,"reward":{"scroll":"Nazareth Scroll 3","teaching":"Nazareth Teaching 3"},"unlockScene":"scene_010"},{"id":"quest_010","sceneId":"scene_010","title":"Nazareth Mission 4","objective":"Help someone in need and restore progress.","xp":100,"reward":{"scroll":"Nazareth Scroll 4","teaching":"Nazareth Teaching 4"},"unlockScene":"scene_011"},{"id":"quest_011","sceneId":"scene_011","title":"Nazareth Mission 5","objective":"Face a test and answer wisely.","xp":105,"reward":{"scroll":"Nazareth Scroll 5","teaching":"Nazareth Teaching 5"},"unlockScene":"scene_012"},{"id":"quest_012","sceneId":"scene_012","title":"Nazareth Mission 6","objective":"Unlock the next stage of the journey.","xp":110,"reward":{"scroll":"Nazareth Scroll 6","teaching":"Nazareth Teaching 6"},"unlockScene":"scene_013"},{"id":"quest_013","sceneId":"scene_013","title":"Galilee Mission 1","objective":"Reach the zone entry and receive the first mission.","xp":115,"reward":{"scroll":"Galilee Scroll 1","teaching":"Galilee Teaching 1"},"unlockScene":"scene_014"},{"id":"quest_014","sceneId":"scene_014","title":"Galilee Mission 2","objective":"Speak with the people and gather insight.","xp":120,"reward":{"scroll":"Galilee Scroll 2","teaching":"Galilee Teaching 2"},"unlockScene":"scene_015"},{"id":"quest_015","sceneId":"scene_015","title":"Galilee Mission 3","objective":"Complete the teaching encounter.","xp":125,"reward":{"scroll":"Galilee Scroll 3","teaching":"Galilee Teaching 3"},"unlockScene":"scene_016"},{"id":"quest_016","sceneId":"scene_016","title":"Galilee Mission 4","objective":"Help someone in need and restore progress.","xp":130,"reward":{"scroll":"Galilee Scroll 4","teaching":"Galilee Teaching 4"},"unlockScene":"scene_017"},{"id":"quest_017","sceneId":"scene_017","title":"Galilee Mission 5","objective":"Face a test and answer wisely.","xp":135,"reward":{"scroll":"Galilee Scroll 5","teaching":"Galilee Teaching 5"},"unlockScene":"scene_018"},{"id":"quest_018","sceneId":"scene_018","title":"Galilee Mission 6","objective":"Unlock the next stage of the journey.","xp":140,"reward":{"scroll":"Galilee Scroll 6","teaching":"Galilee Teaching 6"},"unlockScene":"scene_019"},{"id":"quest_019","sceneId":"scene_019","title":"Sea of Galilee Mission 1","objective":"Reach the zone entry and receive the first mission.","xp":145,"reward":{"scroll":"Sea of Galilee Scroll 1","teaching":"Sea of Galilee Teaching 1"},"unlockScene":"scene_020"},{"id":"quest_020","sceneId":"scene_020","title":"Sea of Galilee Mission 2","objective":"Speak with the people and gather insight.","xp":150,"reward":{"scroll":"Sea of Galilee Scroll 2","teaching":"Sea of Galilee Teaching 2"},"unlockScene":"scene_021"},{"id":"quest_021","sceneId":"scene_021","title":"Sea of Galilee Mission 3","objective":"Complete the teaching encounter.","xp":155,"reward":{"scroll":"Sea of Galilee Scroll 3","teaching":"Sea of Galilee Teaching 3"},"unlockScene":"scene_022"},{"id":"quest_022","sceneId":"scene_022","title":"Sea of Galilee Mission 4","objective":"Help someone in need and restore progress.","xp":160,"reward":{"scroll":"Sea of Galilee Scroll 4","teaching":"Sea of Galilee Teaching 4"},"unlockScene":"scene_023"},{"id":"quest_023","sceneId":"scene_023","title":"Sea of Galilee Mission 5","objective":"Face a test and answer wisely.","xp":165,"reward":{"scroll":"Sea of Galilee Scroll 5","teaching":"Sea of Galilee Teaching 5"},"unlockScene":"scene_024"},{"id":"quest_024","sceneId":"scene_024","title":"Sea of Galilee Mission 6","objective":"Unlock the next stage of the journey.","xp":170,"reward":{"scroll":"Sea of Galilee Scroll 6","teaching":"Sea of Galilee Teaching 6"},"unlockScene":"scene_025"},{"id":"quest_025","sceneId":"scene_025","title":"Capernaum Mission 1","objective":"Reach the zone entry and receive the first mission.","xp":175,"reward":{"scroll":"Capernaum Scroll 1","teaching":"Capernaum Teaching 1"},"unlockScene":"scene_026"},{"id":"quest_026","sceneId":"scene_026","title":"Capernaum Mission 2","objective":"Speak with the people and gather insight.","xp":180,"reward":{"scroll":"Capernaum Scroll 2","teaching":"Capernaum Teaching 2"},"unlockScene":"scene_027"},{"id":"quest_027","sceneId":"scene_027","title":"Capernaum Mission 3","objective":"Complete the teaching encounter.","xp":185,"reward":{"scroll":"Capernaum Scroll 3","teaching":"Capernaum Teaching 3"},"unlockScene":"scene_028"},{"id":"quest_028","sceneId":"scene_028","title":"Capernaum Mission 4","objective":"Help someone in need and restore progress.","xp":190,"reward":{"scroll":"Capernaum Scroll 4","teaching":"Capernaum Teaching 4"},"unlockScene":"scene_029"},{"id":"quest_029","sceneId":"scene_029","title":"Capernaum Mission 5","objective":"Face a test and answer wisely.","xp":195,"reward":{"scroll":"Capernaum Scroll 5","teaching":"Capernaum Teaching 5"},"unlockScene":"scene_030"},{"id":"quest_030","sceneId":"scene_030","title":"Capernaum Mission 6","objective":"Unlock the next stage of the journey.","xp":200,"reward":{"scroll":"Capernaum Scroll 6","teaching":"Capernaum Teaching 6"},"unlockScene":"scene_031"},{"id":"quest_031","sceneId":"scene_031","title":"Samaria Mission 1","objective":"Reach the zone entry and receive the first mission.","xp":205,"reward":{"scroll":"Samaria Scroll 1","teaching":"Samaria Teaching 1"},"unlockScene":"scene_032"},{"id":"quest_032","sceneId":"scene_032","title":"Samaria Mission 2","objective":"Speak with the people and gather insight.","xp":210,"reward":{"scroll":"Samaria Scroll 2","teaching":"Samaria Teaching 2"},"unlockScene":"scene_033"},{"id":"quest_033","sceneId":"scene_033","title":"Samaria Mission 3","objective":"Complete the teaching encounter.","xp":215,"reward":{"scroll":"Samaria Scroll 3","teaching":"Samaria Teaching 3"},"unlockScene":"scene_034"},{"id":"quest_034","sceneId":"scene_034","title":"Samaria Mission 4","objective":"Help someone in need and restore progress.","xp":220,"reward":{"scroll":"Samaria Scroll 4","teaching":"Samaria Teaching 4"},"unlockScene":"scene_035"},{"id":"quest_035","sceneId":"scene_035","title":"Samaria Mission 5","objective":"Face a test and answer wisely.","xp":225,"reward":{"scroll":"Samaria Scroll 5","teaching":"Samaria Teaching 5"},"unlockScene":"scene_036"},{"id":"quest_036","sceneId":"scene_036","title":"Samaria Mission 6","objective":"Unlock the next stage of the journey.","xp":230,"reward":{"scroll":"Samaria Scroll 6","teaching":"Samaria Teaching 6"},"unlockScene":"scene_037"},{"id":"quest_037","sceneId":"scene_037","title":"Jericho Mission 1","objective":"Reach the zone entry and receive the first mission.","xp":235,"reward":{"scroll":"Jericho Scroll 1","teaching":"Jericho Teaching 1"},"unlockScene":"scene_038"},{"id":"quest_038","sceneId":"scene_038","title":"Jericho Mission 2","objective":"Speak with the people and gather insight.","xp":240,"reward":{"scroll":"Jericho Scroll 2","teaching":"Jericho Teaching 2"},"unlockScene":"scene_039"},{"id":"quest_039","sceneId":"scene_039","title":"Jericho Mission 3","objective":"Complete the teaching encounter.","xp":245,"reward":{"scroll":"Jericho Scroll 3","teaching":"Jericho Teaching 3"},"unlockScene":"scene_040"},{"id":"quest_040","sceneId":"scene_040","title":"Jericho Mission 4","objective":"Help someone in need and restore progress.","xp":250,"reward":{"scroll":"Jericho Scroll 4","teaching":"Jericho Teaching 4"},"unlockScene":"scene_041"},{"id":"quest_041","sceneId":"scene_041","title":"Jericho Mission 5","objective":"Face a test and answer wisely.","xp":255,"reward":{"scroll":"Jericho Scroll 5","teaching":"Jericho Teaching 5"},"unlockScene":"scene_042"},{"id":"quest_042","sceneId":"scene_042","title":"Jericho Mission 6","objective":"Unlock the next stage of the journey.","xp":260,"reward":{"scroll":"Jericho Scroll 6","teaching":"Jericho Teaching 6"},"unlockScene":"scene_043"},{"id":"quest_043","sceneId":"scene_043","title":"Jerusalem Mission 1","objective":"Reach the zone entry and receive the first mission.","xp":265,"reward":{"scroll":"Jerusalem Scroll 1","teaching":"Jerusalem Teaching 1"},"unlockScene":"scene_044"},{"id":"quest_044","sceneId":"scene_044","title":"Jerusalem Mission 2","objective":"Speak with the people and gather insight.","xp":270,"reward":{"scroll":"Jerusalem Scroll 2","teaching":"Jerusalem Teaching 2"},"unlockScene":"scene_045"},{"id":"quest_045","sceneId":"scene_045","title":"Jerusalem Mission 3","objective":"Complete the teaching encounter.","xp":275,"reward":{"scroll":"Jerusalem Scroll 3","teaching":"Jerusalem Teaching 3"},"unlockScene":"scene_046"},{"id":"quest_046","sceneId":"scene_046","title":"Jerusalem Mission 4","objective":"Help someone in need and restore progress.","xp":280,"reward":{"scroll":"Jerusalem Scroll 4","teaching":"Jerusalem Teaching 4"},"unlockScene":"scene_047"},{"id":"quest_047","sceneId":"scene_047","title":"Jerusalem Mission 5","objective":"Face a test and answer wisely.","xp":285,"reward":{"scroll":"Jerusalem Scroll 5","teaching":"Jerusalem Teaching 5"},"unlockScene":"scene_048"},{"id":"quest_048","sceneId":"scene_048","title":"Jerusalem Mission 6","objective":"Unlock the next stage of the journey.","xp":290,"reward":{"scroll":"Jerusalem Scroll 6","teaching":"Jerusalem Teaching 6"},"unlockScene":"scene_049"},{"id":"quest_049","sceneId":"scene_049","title":"Throne Corridor Mission 1","objective":"Reach the zone entry and receive the first mission.","xp":295,"reward":{"scroll":"Throne Corridor Scroll 1","teaching":"Throne Corridor Teaching 1"},"unlockScene":"scene_050"},{"id":"quest_050","sceneId":"scene_050","title":"Throne Corridor Mission 2","objective":"Speak with the people and gather insight.","xp":300,"reward":{"scroll":"Throne Corridor Scroll 2","teaching":"Throne Corridor Teaching 2"},"unlockScene":"scene_051"},{"id":"quest_051","sceneId":"scene_051","title":"Throne Corridor Mission 3","objective":"Complete the teaching encounter.","xp":305,"reward":{"scroll":"Throne Corridor Scroll 3","teaching":"Throne Corridor Teaching 3"},"unlockScene":"scene_052"},{"id":"quest_052","sceneId":"scene_052","title":"Throne Corridor Mission 4","objective":"Help someone in need and restore progress.","xp":310,"reward":{"scroll":"Throne Corridor Scroll 4","teaching":"Throne Corridor Teaching 4"},"unlockScene":"scene_053"},{"id":"quest_053","sceneId":"scene_053","title":"Throne Corridor Mission 5","objective":"Face a test and answer wisely.","xp":315,"reward":{"scroll":"Throne Corridor Scroll 5","teaching":"Throne Corridor Teaching 5"},"unlockScene":"scene_054"},{"id":"quest_054","sceneId":"scene_054","title":"Throne Corridor Mission 6","objective":"Unlock the next stage of the journey.","xp":320,"reward":{"scroll":"Throne Corridor Scroll 6","teaching":"Throne Corridor Teaching 6"},"unlockScene":null}];
+    let current = 0;
+
+    function renderScene(scene) {
+      const quest = quests.find(q => q.sceneId === scene.id);
+      document.getElementById('sceneBox').innerHTML = `
+        <h3>${scene.title}</h3>
+        <p><strong>Zone:</strong> ${scene.zoneName}</p>
+        <p><strong>Realm:</strong> ${scene.realm}</p>
+        <p><strong>Description:</strong> ${scene.description}</p>
+        <div class="quest">
+          <h4>${quest.title}</h4>
+          <p><strong>Objective:</strong> ${quest.objective}</p>
+          <p><strong>XP:</strong> ${quest.xp}</p>
+          <p><strong>Reward:</strong> ${quest.reward.scroll} + ${quest.reward.teaching}</p>
+          <p><strong>Unlocks:</strong> ${quest.unlockScene || 'End of chain'}</p>
+        </div>
+      `;
+      document.getElementById('sceneSelect').value = scene.id;
+    }
+
+    function loadScene() {
+      const id = document.getElementById('sceneSelect').value;
+      const idx = scenes.findIndex(s => s.id === id);
+      if (idx >= 0) {
+        current = idx;
+        renderScene(scenes[current]);
+      }
+    }
+
+    function prevScene() {
+      if (current > 0) {
+        current -= 1;
+        renderScene(scenes[current]);
+      }
+    }
+
+    function nextScene() {
+      if (current < scenes.length - 1) {
+        current += 1;
+        renderScene(scenes[current]);
+      }
+    }
+
+    renderScene(scenes[0]);
+  </script>
+
+    <div class="section">
+      <div class="card">
+        <h2>Live World Entities</h2>
+
+        <h3>Animals</h3>
+        <ul>
+          <li>Lion (brand_guardian)</li><li>Wolf (community_pack)</li><li>Bull (market_growth)</li><li>Horse (transport_mount)</li><li>Deer (nature_zone)</li>
+          <li>Eagle (freedom_navigation)</li><li>Hawk (scout_watch)</li><li>Owl (wisdom_guide)</li>
+          <li>Butterfly (transformation_visual)</li><li>Bee (ecosystem_productivity)</li><li>Firefly (ambient_light)</li>
+        </ul>
+
+        <h3>Transport</h3>
+        <ul>
+          <li>Creator Shuttle (hover_transport)</li><li>Lion Gate Portal (fast_travel)</li><li>Marketplace Cruiser (city_transport)</li><li>Time Machine (timeline_transport)</li>
+        </ul>
+
+        <h3>Housing</h3>
+        <ul>
+          <li>Creator Pod (starter_home)</li><li>Saturn Loft (premium_home)</li><li>Marketplace Villa (luxury_home)</li>
+        </ul>
+
+        <h3>Holographic Gifts</h3>
+        <ul>
+          <li>Holographic Rose (common) - 100</li><li>American Star (rare) - 500</li><li>Lion Crown (epic) - 1000</li><li>Saturn Ring (legendary) - 2500</li><li>Freedom Eagle (legendary) - 5000</li>
+        </ul>
+      </div>
+    </div>
+  
+
+    <div class="section">
+      <div class="card">
+        <h2>Music + Gifts</h2>
+        <audio controls preload="none" style="width:100%;max-width:560px;">
+          <source src="/audio/genesis_soundtrack.mp3" type="audio/mpeg">
+        </audio>
+        <p class="muted">Starter world music player.</p>
+        <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;">
+          <button onclick="sendGift('Holographic Rose')">Send Holographic Rose</button>
+          <button onclick="sendGift('American Star')">Send American Star</button>
+          <button onclick="sendGift('Lion Crown')">Send Lion Crown</button>
+          <button onclick="sendGift('Saturn Ring')">Send Saturn Ring</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      function sendGift(name) {
+        alert("Gift sent: " + name);
+      }
+    </script>
+  
+
+    <div class="section">
+      <div class="card">
+        <h2>Memory Archive</h2>
+        <ul>
+          
+            <li>
+              <strong>Bethlehem Arrival</strong> — yahuah / past
+              <button onclick="loadMemory('memory_001')">Enter</button>
+            </li>
+          
+            <li>
+              <strong>Moon Base Alpha</strong> — moon / future
+              <button onclick="loadMemory('memory_002')">Enter</button>
+            </li>
+          
+        </ul>
+      </div>
+    </div>
+    <script>
+      function loadMemory(id) {
+        alert("Loading memory: " + id);
+      }
+    </script>
+  
+
+    <div class="section">
+      <div class="card">
+        <h2>Time Machine</h2>
+
+        <select id="worldSelect">
+          <option value="earth">Earth</option>
+          <option value="moon">Moon</option>
+          <option value="mars">Mars</option>
+          <option value="twin_earth">Twin Earth</option>
+        </select>
+
+        <select id="timelineSelect">
+          <option value="past">Past</option>

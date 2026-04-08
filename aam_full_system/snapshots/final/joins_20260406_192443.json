@@ -1,0 +1,39 @@
+{
+  "joins": [
+    {
+      "username": "beta_user_test",
+      "referrer": "all_american_creator",
+      "createdAt": "2026-04-06T22:32:35.605Z"
+    },
+    {
+      "username": "freeze_check_user",
+      "referrer": "all_american_creator",
+      "createdAt": "2026-04-06T22:38:44.388Z"
+    },
+    {
+      "username": "smoke_freeze_user",
+      "referrer": "all_american_creator",
+      "createdAt": "2026-04-06T23:06:48.293Z"
+    },
+    {
+      "username": "master_freeze_user",
+      "referrer": "all_american_creator",
+      "createdAt": "2026-04-06T23:34:16.928Z"
+    },
+    {
+      "username": "creator_stream_test",
+      "referrer": "all_american_creator",
+      "createdAt": "2026-04-07T00:19:32.355Z"
+    },
+    {
+      "username": "final_master_user",
+      "referrer": "all_american_creator",
+      "createdAt": "2026-04-07T00:22:18.383Z"
+    },
+    {
+      "username": "ultimate_check_user",
+      "referrer": "all_american_creator",
+      "createdAt": "2026-04-07T00:24:41.491Z"
+    }
+  ]
+}

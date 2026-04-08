@@ -1,0 +1,14 @@
+{
+  "payout_models": {
+    "models": [
+      "basic_per_stream",
+      "premium_per_stream",
+      "supporter_pool",
+      "direct_creator_support",
+      "membership_boost",
+      "event_stream_bonus",
+      "exclusive_release_bonus"
+    ],
+    "purpose": "Support multiple pay scales for music and creator streaming"
+  }
+}

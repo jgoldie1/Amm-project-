@@ -1,0 +1,18 @@
+{
+ "levels":[
+  "grammar-school",
+  "middle-school",
+  "high-school",
+  "ged",
+  "college",
+  "masters",
+  "phd"
+ ],
+ "programs":[
+  "cyber-security",
+  "ai-development",
+  "blockchain-engineering",
+  "music-production",
+  "logistics-management"
+ ]
+}

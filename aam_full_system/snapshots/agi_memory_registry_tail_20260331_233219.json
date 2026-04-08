@@ -1,0 +1,2 @@
+[{"id":2,"memory_key":"safe_memory_key","memory_group":"runtime","memory_value":"safe_memory_value","memory_scope":"platform","memory_status":"active","created_at":"2026-04-01 04:32:39"},
+{"id":1,"memory_key":"platform_state","memory_group":"system","memory_value":"stable","memory_scope":"global","memory_status":"active","created_at":"2026-04-01 04:32:20"}]

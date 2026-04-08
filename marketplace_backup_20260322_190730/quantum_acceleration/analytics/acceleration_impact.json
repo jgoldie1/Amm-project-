@@ -1,0 +1,14 @@
+{
+  "acceleration_impact": {
+    "targets": [
+      "days_to_hours_for_multi_step_workflows",
+      "hours_to_minutes_for_automated_jobs",
+      "seconds_level_response_for_cached_operations"
+    ],
+    "limits": [
+      "not_every_workflow_can_be_reduced_to_minutes",
+      "compute_heavy_or_human_review_tasks_still_take_time",
+      "real_speed_depends_on_infrastructure_and_integration"
+    ]
+  }
+}

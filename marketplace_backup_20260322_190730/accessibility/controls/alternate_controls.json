@@ -1,0 +1,10 @@
+{
+  "alternate_controls": [
+    "keyboard_only_navigation",
+    "switch_access_support",
+    "single_button_flow",
+    "one_hand_mode",
+    "gesture_simplification",
+    "touch_target_expansion"
+  ]
+}

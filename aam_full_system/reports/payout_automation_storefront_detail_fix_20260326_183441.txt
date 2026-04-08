@@ -1,0 +1,10 @@
+PAYOUT AUTOMATION + HEIR STOREFRONT DETAIL FIX REPORT
+Timestamp: 20260326_183441
+
+Added or fixed:
+- payout_automation_rules
+- payout_automation_runs
+- /payout-automation
+- /heir-storefronts/:id
+- manual heir payout posting
+- automation run posting

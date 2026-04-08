@@ -1,0 +1,11 @@
+{
+  "studio_features":[
+    "project_sessions",
+    "multi_track_recording",
+    "instrument_channels",
+    "vocal_layers",
+    "track_versions",
+    "session_notes",
+    "recording_workflow"
+  ]
+}

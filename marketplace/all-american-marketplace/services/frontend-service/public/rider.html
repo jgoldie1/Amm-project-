@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Rider App</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header><h1>Rider Dashboard</h1><div class="nav"><a href="/">Home</a><a href="/driver.html">Driver</a><a href="/admin.html">Admin</a><a href="/marketplace.html">Marketplace</a></div></header>
+<main>
+  <div class="grid">
+    <div class="card">
+      <h3>Register</h3>
+      <input id="regName" placeholder="Name">
+      <input id="regEmail" placeholder="Email">
+      <input id="regPhone" placeholder="Phone">
+      <input id="regPassword" type="password" placeholder="Password">
+      <button onclick="registerUser()">Register Rider</button>
+      <pre id="registerOut"></pre>
+    </div>
+    <div class="card">
+      <h3>Login</h3>
+      <input id="loginEmail" placeholder="Email">
+      <input id="loginPassword" type="password" placeholder="Password">
+      <button onclick="loginUser()">Login</button>
+      <button onclick="logoutUser()">Logout</button>
+      <pre id="loginOut"></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Create Booking</h3>
+    <select id="bookingType">
+      <option value="ride">ride</option>
+      <option value="food">food</option>
+      <option value="grocery">grocery</option>
+      <option value="courier">courier</option>
+      <option value="medical">medical</option>
+      <option value="freight">freight</option>
+    </select>
+    <select id="serviceLevel">
+      <option value="standard">standard</option>
+      <option value="premium">premium</option>
+      <option value="shared">shared</option>
+      <option value="express">express</option>
+    </select>
+    <input id="pickup" placeholder="Pickup">
+    <input id="dropoff" placeholder="Dropoff">
+    <input id="distanceKm" value="5" placeholder="Distance">
+    <textarea id="notes" placeholder="Notes"></textarea>
+    <button onclick="createBooking()">Create Booking</button>
+    <pre id="bookingOut"></pre>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>My Profile</h3>
+      <button onclick="loadMe()">Load My Profile</button>
+      <pre id="meOut"></pre>
+    </div>
+    <div class="card">
+      <h3>My Bookings</h3>
+      <button onclick="loadMyBookings()">Load My Bookings</button>
+      <pre id="myBookingsOut"></pre>
+    </div>
+  </div>
+</main>
+<script src="/app.js"></script>
+<script>
+async function registerUser() {
+  show("registerOut", await request(API.auth + "/register", {
+    method: "POST",
+    body: JSON.stringify({
+      name: regName.value, email: regEmail.value, phone: regPhone.value, password: regPassword.value, role: "rider"
+    })
+  }));
+}
+async function loginUser() {
+  const data = await request(API.auth + "/login", {
+    method: "POST",
+    body: JSON.stringify({ email: loginEmail.value, password: loginPassword.value })
+  });
+  if (data.token) saveToken(data.token);
+  show("loginOut", data);
+}
+function logoutUser() { clearToken(); show("loginOut", { ok: true, message: "Logged out" }); }
+async function loadMe() { show("meOut", await request(API.auth + "/me")); }
+async function createBooking() {
+  show("bookingOut", await request(API.booking + "/bookings", {
+    method: "POST",
+    body: JSON.stringify({
+      type: bookingType.value,
+      serviceLevel: serviceLevel.value,
+      pickup: pickup.value,
+      dropoff: dropoff.value,
+      distanceKm: Number(distanceKm.value || 5),
+      notes: notes.value
+    })
+  }));
+}
+async function loadMyBookings() { show("myBookingsOut", await request(API.booking + "/bookings/my")); }
+</script>
+</body>
+</html>

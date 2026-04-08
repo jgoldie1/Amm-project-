@@ -1,0 +1,4 @@
+[{"id":1,"tier_name":"Basic Access","tier_code":"basic_access","price_cents":1000,"tier_type":"access","tier_status":"active"},
+{"id":2,"tier_name":"Creator Access","tier_code":"creator_access","price_cents":2500,"tier_type":"creator","tier_status":"active"},
+{"id":3,"tier_name":"Storefront Access","tier_code":"storefront_access","price_cents":5000,"tier_type":"storefront","tier_status":"active"},
+{"id":4,"tier_name":"Founder Heir Access","tier_code":"founder_heir","price_cents":10000,"tier_type":"founder","tier_status":"active"}]

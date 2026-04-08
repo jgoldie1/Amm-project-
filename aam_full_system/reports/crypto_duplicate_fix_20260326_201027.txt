@@ -1,0 +1,12 @@
+CRYPTO DUPLICATE FIX REPORT
+Timestamp: 20260326_201027
+
+Fixed:
+- duplicate const crypto require
+- duplicate const fs require if present
+- duplicate const path require if present
+
+Then:
+- JS syntax checked
+- services restarted
+- health snapshots collected

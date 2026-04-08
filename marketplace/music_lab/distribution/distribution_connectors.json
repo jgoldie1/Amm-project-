@@ -1,0 +1,9 @@
+{
+  "distribution_connectors":[
+    "streaming_ecosystem_internal",
+    "label_release_prep",
+    "artist_release_staging",
+    "catalog_management",
+    "future_external_distribution_connector"
+  ]
+}

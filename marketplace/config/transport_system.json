@@ -1,0 +1,22 @@
+{
+  "transport_system": {
+    "types": [
+      "super_hydro_electric_car",
+      "flying_car",
+      "plane",
+      "helicopter",
+      "boat",
+      "drone_transport",
+      "luxury_ground_vehicle",
+      "delivery_vehicle"
+    ],
+    "use_cases": [
+      "vip_travel",
+      "world_exploration",
+      "racing",
+      "delivery",
+      "event_transport",
+      "creator_transport"
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "discord": {
+    "enabled": true,
+    "server_role": "beta_growth_hub",
+    "channels": {
+      "announcements": "#announcements",
+      "new_users": "#new-users",
+      "referrals": "#referrals",
+      "episodes": "#episodes",
+      "debates": "#debates"
+    },
+    "webhook_url": "PASTE_DISCORD_WEBHOOK_URL_HERE"
+  },
+  "zapier": {
+    "enabled": true,
+    "incoming_webhook_url": "PASTE_ZAPIER_WEBHOOK_URL_HERE",
+    "events": [
+      "new_user_signup",
+      "new_referral",
+      "new_episode",
+      "new_debate",
+      "new_gift_event"
+    ]
+  }
+}

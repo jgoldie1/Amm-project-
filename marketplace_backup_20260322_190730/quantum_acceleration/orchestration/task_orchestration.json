@@ -1,0 +1,13 @@
+{
+  "task_orchestration": {
+    "features": [
+      "job_priority_engine",
+      "task_dependency_management",
+      "workflow_routing",
+      "service_load_balancing",
+      "ai_and_media_job_coordination",
+      "event_triggered_execution"
+    ],
+    "purpose": "Coordinate complex multi-service tasks more efficiently"
+  }
+}

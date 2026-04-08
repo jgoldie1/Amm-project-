@@ -1,0 +1,14 @@
+{
+  "holographic_coupons": {
+    "features": [
+      "interactive_discount_cards",
+      "creator_flash_offers",
+      "food_delivery_promotions",
+      "battle_reward_coupons",
+      "livestream_coupon_drops",
+      "geo_targeted_offer_planning",
+      "premium_brand_coupon_panels"
+    ],
+    "purpose": "Turn discounts into immersive, high-conversion offer experiences"
+  }
+}

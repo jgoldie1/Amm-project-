@@ -1,0 +1,2 @@
+[{"id":2,"task_name":"Safe Task","task_group":"platform","assigned_planner":"Jarvis Master Planner","assigned_worker":"Safe Worker","task_input":"{\"mode\":\"safe\"}","task_priority":"medium","task_status":"queued","created_at":"2026-04-01 04:32:39"},
+{"id":1,"task_name":"Initial Platform Audit","task_group":"system","assigned_planner":"Jarvis Master Planner","assigned_worker":"Commerce Worker","task_input":"{\"scope\":\"full\"}","task_priority":"high","task_status":"queued","created_at":"2026-04-01 04:32:20"}]

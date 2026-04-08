@@ -1,0 +1,4 @@
+[{"id":4,"display_name":"Guest Explorer","mail_address":"guest@quantummail.local","account_type":"standard","account_status":"active","created_at":"2026-03-30 12:30:25"},
+{"id":3,"display_name":"Isaiah","mail_address":"isaiah@quantummail.local","account_type":"operator","account_status":"active","created_at":"2026-03-30 12:30:25"},
+{"id":2,"display_name":"Aniyah","mail_address":"aniyah@quantummail.local","account_type":"creator","account_status":"active","created_at":"2026-03-30 12:30:25"},
+{"id":1,"display_name":"Jacobie","mail_address":"jacobie@quantummail.local","account_type":"admin","account_status":"active","created_at":"2026-03-30 12:30:25"}]

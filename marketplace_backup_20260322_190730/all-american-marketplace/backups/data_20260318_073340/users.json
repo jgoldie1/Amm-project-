@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "name": "Test Rider",
+    "email": "rider_1773835464@example.com",
+    "phone": "1112223333",
+    "passwordHash": "$2a$10$rer5mdhxfO9lkFHELOvQMuZ93WQ1EUmSTOgVtwxY9fFsBd1iJlky6",
+    "role": "rider",
+    "createdAt": "2026-03-18T12:04:24.902Z"
+  },
+  {
+    "id": 2,
+    "name": "Test Admin",
+    "email": "admin_1773835464@example.com",
+    "phone": "9998887777",
+    "passwordHash": "$2a$10$l2U2xTVLMz8zK.OupG5jMO7fVzfbHb4YJhG99G2zMrp/iHlq8u/W2",
+    "role": "admin",
+    "createdAt": "2026-03-18T12:04:25.920Z"
+  },
+  {
+    "id": 3,
+    "name": "Flow Rider",
+    "email": "rider_1773835659@example.com",
+    "phone": "1112223333",
+    "passwordHash": "$2a$10$3I7wq4nhCznXC57hLZXLRePZeJu7xjX4ieRy.X6wXhEtzO8m6Vuky",
+    "role": "rider",
+    "createdAt": "2026-03-18T12:07:39.786Z"
+  },
+  {
+    "id": 4,
+    "name": "Flow Driver",
+    "email": "driver_1773835659@example.com",
+    "phone": "2223334444",
+    "passwordHash": "$2a$10$9UixcrTIiZGxbzWI4r/WwuBwJ0yKrIqonrzijdg6q94X67SjQWC1O",
+    "role": "driver",
+    "createdAt": "2026-03-18T12:07:40.719Z"
+  },
+  {
+    "id": 5,
+    "name": "Flow Admin",
+    "email": "admin_1773835659@example.com",
+    "phone": "9998887777",
+    "passwordHash": "$2a$10$SPvawGTXHXzohgH3Na19RuGHH1gZRAjiqDVTweq2OuV5RdDaLUDbe",
+    "role": "admin",
+    "createdAt": "2026-03-18T12:07:41.747Z"
+  },
+  {
+    "id": 6,
+    "name": "Flow Rider",
+    "email": "rider_1773835717@example.com",
+    "phone": "1112223333",
+    "passwordHash": "$2a$10$zjVd6iZb0JZVqUTa5i5CC.pSr.M1WQBy7hwc2LHHg2xf5fe2VyaeK",
+    "role": "rider",
+    "createdAt": "2026-03-18T12:08:37.743Z"
+  },
+  {
+    "id": 7,
+    "name": "Flow Driver",
+    "email": "driver_1773835717@example.com",
+    "phone": "2223334444",
+    "passwordHash": "$2a$10$8UM19vnehHtzSBi3eAbHseZL5caSzO6MHrmVsdmQIEsB5j9SJyuVS",
+    "role": "driver",
+    "createdAt": "2026-03-18T12:08:38.586Z"
+  },
+  {
+    "id": 8,
+    "name": "Flow Admin",
+    "email": "admin_1773835717@example.com",
+    "phone": "9998887777",
+    "passwordHash": "$2a$10$m8D0yfrppR0xcYtjsn00xuBwRcvBho21pIf5KJDOT8qO42HMdqKma",
+    "role": "admin",
+    "createdAt": "2026-03-18T12:08:39.534Z"
+  }
+]

@@ -1,0 +1,5 @@
+[{"id":5,"mobility_name":"Explorer Jet Link","mobility_type":"plane","era_scope":"future","territory_scope":"global","mobility_status":"active","created_at":"2026-03-30 03:32:05"},
+{"id":4,"mobility_name":"Historical Horse Travel","mobility_type":"horse","era_scope":"past","territory_scope":"global","mobility_status":"active","created_at":"2026-03-30 03:32:05"},
+{"id":3,"mobility_name":"Harbor Boat System","mobility_type":"boat","era_scope":"present","territory_scope":"global","mobility_status":"active","created_at":"2026-03-30 03:32:05"},
+{"id":2,"mobility_name":"Luxury Flying Car Fleet","mobility_type":"flying_vehicle","era_scope":"future","territory_scope":"global","mobility_status":"active","created_at":"2026-03-30 03:32:05"},
+{"id":1,"mobility_name":"City Car Network","mobility_type":"land_vehicle","era_scope":"present","territory_scope":"global","mobility_status":"active","created_at":"2026-03-30 03:32:05"}]

@@ -1,0 +1,15 @@
+{
+  "name": "Player One",
+  "level": 1,
+  "xp": 0,
+  "currentScene": "scene_001",
+  "currentZone": "bethlehem",
+  "inventory": [
+    "Starter Scroll"
+  ],
+  "completedQuests": [],
+  "unlockedScenes": [
+    "scene_001"
+  ],
+  "playable": true
+}

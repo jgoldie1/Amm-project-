@@ -1,0 +1,29 @@
+{
+  "policy_hub": {
+    "documents": [
+      "privacy_policy",
+      "terms_of_service",
+      "acceptable_use_policy",
+      "creator_terms",
+      "marketplace_terms",
+      "delivery_and_rideshare_terms",
+      "refund_and_dispute_policy",
+      "moderation_policy",
+      "accessibility_statement",
+      "insurance_and_claims_reference"
+    ]
+  },
+  "coverage_layer": {
+    "categories": [
+      "general_liability",
+      "cyber_and_privacy",
+      "media_and_content_liability",
+      "errors_and_omissions",
+      "directors_and_officers_planning",
+      "commercial_property_and_equipment",
+      "cargo_and_delivery_risk",
+      "rideshare_auto_fleet_planning",
+      "workers_and_contractor_risk"
+    ]
+  }
+}

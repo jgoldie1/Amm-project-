@@ -1,0 +1,17 @@
+FIX WEB3D PATHNAME SCOPE REPORT
+Timestamp: 20260327_153012
+
+Fixed:
+- removed bad early /world3d and /web3d-client route insertion
+- reinserted pathname-safe route block
+- preserved web3d helper and nav link
+
+Verified:
+- dashboard restart
+- jarvis health
+- web3d smoke tests
+
+Purpose:
+- fix dashboard crash caused by pathname scope
+- stabilize everything
+- restore web3d routes safely

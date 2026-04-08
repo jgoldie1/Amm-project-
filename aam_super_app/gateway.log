@@ -1,0 +1,5 @@
+
+> aam-super-app@1.0.0 start
+> node gateway/index.js
+
+AAM Gateway on :4000

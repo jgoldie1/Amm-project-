@@ -1,0 +1,15 @@
+WORLD ERA + MOBILITY BRIDGE + STABILIZE REPORT
+Timestamp: 20260329_223205
+
+Added:
+- world_era_registry
+- world_snapshot_registry
+- mobility_registry
+- route_network_registry
+- world_era_activation_log
+- world-era-mobility route
+
+Purpose:
+- support past, present, and future worlds
+- organize boats, land vehicles, air vehicles, and horses
+- connect the time-machine concept to real world-state and movement scaffolding

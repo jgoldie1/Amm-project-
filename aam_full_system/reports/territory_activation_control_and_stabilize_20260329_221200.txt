@@ -1,0 +1,13 @@
+TERRITORY ACTIVATION CONTROL + STABILIZE REPORT
+Timestamp: 20260329_221200
+
+Added:
+- territory_activation_log
+- rollout_control_profiles
+- territory-activation route
+- territory activation update action
+
+Purpose:
+- control future, launch, live, and archived territory phases
+- connect the time-machine layer to real rollout actions
+- stabilize territory expansion management

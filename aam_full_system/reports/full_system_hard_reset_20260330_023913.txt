@@ -1,0 +1,13 @@
+FULL SYSTEM HARD RESET + STABILIZE REPORT
+Timestamp: 20260330_023913
+
+Fixed:
+- killed stuck node/python processes
+- freed ports 4900/5000
+- restarted dashboard + jarvis clean
+- restored missing scan file
+- revalidated routes
+
+Result:
+- system stabilized
+- ready for next build phase

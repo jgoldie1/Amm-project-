@@ -1,0 +1,48 @@
+{
+  "checkpoint": "clean_stable_checkpoint",
+  "routes_in_app_py": [
+    "/",
+    "/auth-login-fallback",
+    "/dashboard",
+    "/db-favorites",
+    "/db-role-preferences",
+    "/favicon.ico",
+    "/health",
+    "/modules",
+    "/profile-db-center",
+    "/startup-diagnostics"
+  ],
+  "active_modules": [
+    "__init__.py",
+    "app_bootstrap.py",
+    "auth_system.py",
+    "boot_status.py",
+    "civic_system.py",
+    "continuity_system.py",
+    "device_system.py",
+    "final_stabilizer.py",
+    "front_shell.py",
+    "holo_commerce.py",
+    "holoverse.py",
+    "home_dashboard_polish.py",
+    "light_auth.py",
+    "live_checkout_shell.py",
+    "living_city.py",
+    "master_dashboard.py",
+    "module_loader.py",
+    "monitoring_system.py",
+    "payment_ui.py",
+    "payments_system.py",
+    "performance_system.py",
+    "recovery_core.py",
+    "recovery_shell.py",
+    "role_pages_polish.py",
+    "role_qa_admin.py",
+    "ui_unification.py",
+    "visual_polish.py"
+  ],
+  "disabled_modules": [
+    "profile_db_integration_20260317_005445.py",
+    "profile_db_safe_20260317_015354.py"
+  ]
+}

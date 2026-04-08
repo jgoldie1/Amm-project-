@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>http://127.0.0.1:4900/</loc></url>
+  <url><loc>http://127.0.0.1:4900/branches</loc></url>
+  <url><loc>http://127.0.0.1:4900/payments</loc></url>
+  <url><loc>http://127.0.0.1:4900/credit-repair</loc></url>
+  <url><loc>http://127.0.0.1:4900/search-engine</loc></url>
+  <url><loc>http://127.0.0.1:4900/blog</loc></url>
+  <url><loc>http://127.0.0.1:4900/blog/how-ai-workflow-helps-credit-repair-operations</loc></url><url><loc>http://127.0.0.1:4900/blog/how-family-branches-can-grow-businesses-together</loc></url><url><loc>http://127.0.0.1:4900/blog/how-to-start-building-credit-the-right-way</loc></url>
+</urlset>

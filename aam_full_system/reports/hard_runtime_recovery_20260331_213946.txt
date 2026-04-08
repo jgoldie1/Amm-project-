@@ -1,0 +1,16 @@
+HARD RUNTIME RECOVERY REPORT
+Timestamp: 20260331_213946
+
+Fixed:
+- killed stale dashboard/jarvis processes
+- removed stale pid files
+- restarted runtime cleanly
+
+Verified:
+- dashboard health check
+- jarvis health check
+- post-restart status
+
+Purpose:
+- recover from down runtime after pass G completion
+- restore clean working platform state

@@ -1,0 +1,2 @@
+[{"id":2,"profile_name":"Lyons Accessibility Link","interface_type":"non_invasive_bci","control_mode":"hands_free_ui","signal_source":"gaze_voice_touch","safety_mode":"consent_required","profile_status":"active","created_at":"2026-03-30 19:49:49"},
+{"id":1,"profile_name":"Stubbs Neuro Assist","interface_type":"non_invasive_bci","control_mode":"assistive","signal_source":"eeg_gaze_voice","safety_mode":"consent_required","profile_status":"active","created_at":"2026-03-30 19:49:49"}]

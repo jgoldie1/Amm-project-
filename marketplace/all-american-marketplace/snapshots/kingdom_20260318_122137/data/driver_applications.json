@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1,
+    "userId": 2,
+    "name": "Flow Driver",
+    "email": "driver_1773837235@example.com",
+    "vehicleType": "premium",
+    "carModel": "Tesla Model S",
+    "licenseNumber": "LIC12345",
+    "notes": "premium flow test",
+    "status": "approved",
+    "createdAt": "2026-03-18T12:33:57.432Z",
+    "approvedAt": "2026-03-18T12:33:58.450Z"
+  },
+  {
+    "id": 2,
+    "userId": 5,
+    "name": "Flow Driver",
+    "email": "driver_1773843461@example.com",
+    "vehicleType": "premium",
+    "carModel": "Tesla Model S",
+    "licenseNumber": "LIC12345",
+    "notes": "premium flow test",
+    "status": "approved",
+    "createdAt": "2026-03-18T14:17:43.613Z",
+    "approvedAt": "2026-03-18T14:17:44.657Z"
+  }
+]

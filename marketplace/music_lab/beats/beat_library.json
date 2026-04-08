@@ -1,0 +1,18 @@
+{
+  "beat_library":[
+    "hiphop",
+    "rnb",
+    "gospel",
+    "afrobeats",
+    "pop",
+    "instrumental",
+    "cinematic",
+    "worship"
+  ],
+  "metadata":[
+    "tempo",
+    "key",
+    "producer",
+    "license_type"
+  ]
+}

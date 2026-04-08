@@ -1,0 +1,20 @@
+[
+  {
+    "title": "Sunday Service",
+    "host": "Kofi Ofri Ministries",
+    "time": "Sunday 10:00 AM",
+    "type": "Ministry"
+  },
+  {
+    "title": "Bible Study Live",
+    "host": "Servants of Christ",
+    "time": "Wednesday 7:00 PM",
+    "type": "Teaching"
+  },
+  {
+    "title": "Creator Spotlight",
+    "host": "Streaming Ecosystem",
+    "time": "Friday 8:00 PM",
+    "type": "Creator"
+  }
+]

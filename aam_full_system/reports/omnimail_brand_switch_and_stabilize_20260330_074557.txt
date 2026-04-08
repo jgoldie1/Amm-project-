@@ -1,0 +1,12 @@
+OMNIMAIL BRAND SWITCH + STABILIZE REPORT
+Timestamp: 20260330_074557
+
+Changed:
+- public mail brand switched to OmniMail
+- internal tables remain quantum_mail_*
+- internal routes remain /quantum-mail and /quantum-mail-admin
+
+Purpose:
+- preserve stable working architecture
+- move to OmniMail as the public-facing name
+- stabilize branding and runtime after the brand switch

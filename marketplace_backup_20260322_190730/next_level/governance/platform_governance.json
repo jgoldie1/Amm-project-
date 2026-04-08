@@ -1,0 +1,15 @@
+{
+  "governance": {
+    "features": [
+      "moderation_tools",
+      "reporting_system",
+      "safety_policies",
+      "community_standards",
+      "audit_logs",
+      "trust_and_safety_review",
+      "creator_dispute_resolution",
+      "platform_compliance_support"
+    ],
+    "purpose": "Protect users, creators, and the ecosystem while supporting scale"
+  }
+}

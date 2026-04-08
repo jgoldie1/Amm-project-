@@ -1,0 +1,2 @@
+[{"id":2,"planner_name":"Safe Planner","planner_group":"orchestration","planning_mode":"goal_breakdown","target_scope":"platform","planner_status":"active","created_at":"2026-04-01 04:32:38"},
+{"id":1,"planner_name":"Jarvis Master Planner","planner_group":"orchestration","planning_mode":"goal_breakdown","target_scope":"platform","planner_status":"active","created_at":"2026-04-01 04:32:19"}]

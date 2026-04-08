@@ -1,0 +1,20 @@
+[
+  {
+    "event_type": "media.uploaded",
+    "source_service": "media",
+    "payload": {
+      "user": "creator1",
+      "asset_type": "audio",
+      "title": "Aniyah Demo Track"
+    }
+  },
+  {
+    "event_type": "payment.completed",
+    "source_service": "payments",
+    "payload": {
+      "amount": "25.00",
+      "support_type": "creator",
+      "target": "Aniyah"
+    }
+  }
+]

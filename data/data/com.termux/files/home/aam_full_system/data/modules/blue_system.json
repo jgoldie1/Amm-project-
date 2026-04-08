@@ -1,0 +1,23 @@
+{
+  "name": "Blue System",
+  "status": "planned",
+  "category": "energy_infrastructure_runtime",
+  "purpose": "Ambient energy harvesting, runtime efficiency, power awareness, device sustainability, and low-power ecosystem operation layer.",
+  "connects_to": [
+    "system_health_registry",
+    "system_layer_registry",
+    "world_deployment_registry",
+    "world_render_profiles",
+    "service_status_timeline",
+    "workflow_path_registry",
+    "world_automation_rules"
+  ],
+  "features": [
+    "ambient energy harvesting model",
+    "runtime efficiency monitoring",
+    "power-aware deployment profiles",
+    "low-power device orchestration",
+    "battery and thermal awareness",
+    "future hardware bridge"
+  ]
+}

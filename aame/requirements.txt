@@ -1,0 +1,9 @@
+flask
+requests
+jinja2
+sqlalchemy
+pytest
+python-dotenv
+pyjwt
+httpx
+websockets

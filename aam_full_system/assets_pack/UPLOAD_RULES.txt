@@ -1,0 +1,5 @@
+1. AI draft assets can be used as starter placeholders.
+2. Human-created assets can replace AI drafts after review.
+3. Public assets require moderation before publishing.
+4. Family-safe / minor accounts require guardian review.
+5. Published assets can later be listed in the marketplace.

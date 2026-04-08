@@ -1,0 +1,5 @@
+{
+  "stripe_configured": false,
+  "last_checkout_attempt": "2026-03-17 12:48:16.419828",
+  "last_status": "stripe_not_configured_for_holo-product"
+}

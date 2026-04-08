@@ -1,0 +1,17 @@
+CESIUM REAL WORLD ENGINE + STABILIZE REPORT
+Timestamp: 20260327_160022
+
+Added:
+- config/cesium.env
+- realworld_engine_profiles
+- realworld_locations
+- realworld_runtime_events
+- /realworld-token
+- /realworld
+- /realworld-client
+- public/realworld/index.html
+
+Purpose:
+- add a real geospatial world foundation
+- move beyond a custom 3d scene into Earth-scale rendering
+- stabilize everything around a true world-engine direction

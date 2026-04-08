@@ -1,0 +1,9 @@
+{
+  "auth": "partial",
+  "database": "partial",
+  "payments": "scaffolded",
+  "monitoring": "scaffolded",
+  "ssl_domain": "todo",
+  "deployment": "todo",
+  "qa": "partial"
+}

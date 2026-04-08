@@ -1,0 +1,15 @@
+{
+  "creator_os": {
+    "workspace_modules": [
+      "streaming_studio",
+      "music_lab",
+      "creator_store",
+      "fan_club",
+      "battle_arena",
+      "artist_dashboard",
+      "release_center",
+      "support_center"
+    ],
+    "purpose": "Run the creator career from one unified platform workspace"
+  }
+}

@@ -1,0 +1,15 @@
+4000 api-gateway
+4100 auth-service
+4200 booking-service
+4300 payment-service
+4400 dispatch-service
+4500 rewards-service
+4600 marketplace-service
+4700 driver-service
+4800 admin-service
+4900 frontend-service
+5000 storehouse-service
+5100 finbank-service
+5200 crossborder-service
+5300 university-service
+5400 creator-service

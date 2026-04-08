@@ -1,0 +1,16 @@
+GAMEPLAY PROGRESSION LAYER + STABILIZE REPORT
+Timestamp: 20260329_175853
+
+Added:
+- player_progress_profiles
+- mission_completion_log
+- reward_claim_log
+- world_session_saves
+- progression_unlock_registry
+- gameplay-progression route
+
+Purpose:
+- add persistent player progression
+- connect mission completion to rewards
+- add world-state save scaffolding
+- move the gameplay shell toward a real progression system

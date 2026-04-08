@@ -1,0 +1,14 @@
+PROGRESS VISIBILITY + STABILIZE REPORT
+Timestamp: 20260325_211053
+
+Added:
+- /progress route
+- visible platform metrics
+- visible milestone tracker
+- completion band summary
+- cleaner public nav link to Progress
+
+Goal:
+- make platform progress visible
+- reduce guesswork
+- show counts and milestone status in one place

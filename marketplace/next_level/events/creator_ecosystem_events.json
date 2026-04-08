@@ -1,0 +1,19 @@
+{
+  "event_types": [
+    "creator.workspace.opened",
+    "creator.track.created",
+    "creator.release.scheduled",
+    "stream.started",
+    "stream.ended",
+    "pk.battle.started",
+    "pk.battle.completed",
+    "fan.membership.created",
+    "gift.sent",
+    "support.submitted",
+    "collectible.minted",
+    "collectible.printable.generated",
+    "payout.calculated",
+    "discovery.boost.requested",
+    "community.report.created"
+  ]
+}

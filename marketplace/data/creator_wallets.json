@@ -1,0 +1,10 @@
+[
+  {
+    "id": "wallet_1",
+    "owner_name": "Jacobie",
+    "wallet_id": "AAMW-JACOBIE-1001",
+    "available_balance": 0.0,
+    "pending_balance": 350.0,
+    "total_paid_out": 0.0
+  }
+]

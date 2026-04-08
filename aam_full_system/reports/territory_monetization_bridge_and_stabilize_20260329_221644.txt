@@ -1,0 +1,12 @@
+TERRITORY MONETIZATION BRIDGE + STABILIZE REPORT
+Timestamp: 20260329_221644
+
+Added:
+- territory_monetization_bridge
+- territory_activation_summary
+- territory-bridge route
+
+Purpose:
+- connect territory rollout to monetization readiness
+- show where creator/property/premium worlds are enabled
+- stabilize the territory intelligence layer

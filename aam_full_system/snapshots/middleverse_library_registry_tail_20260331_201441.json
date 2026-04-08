@@ -1,0 +1,6 @@
+[{"id":6,"library_name":"Safe Library","library_group":"platform","module_scope":"shared modules","dependency_mode":"core","library_status":"active","created_at":"2026-04-01 01:15:01"},
+{"id":5,"library_name":"AI Operator Library","library_group":"ai","module_scope":"agents, handoffs, support","dependency_mode":"core","library_status":"active","created_at":"2026-04-01 01:14:42"},
+{"id":4,"library_name":"Middleverse Routing Library","library_group":"bridge","module_scope":"events, sessions, transitions","dependency_mode":"core","library_status":"active","created_at":"2026-04-01 01:14:42"},
+{"id":3,"library_name":"Creator Studio Library","library_group":"creator","module_scope":"projects, sessions, pipeline","dependency_mode":"core","library_status":"active","created_at":"2026-04-01 01:14:42"},
+{"id":2,"library_name":"Dispatch Workflow Library","library_group":"service","module_scope":"request, assign, resolve","dependency_mode":"core","library_status":"active","created_at":"2026-04-01 01:14:42"},
+{"id":1,"library_name":"Commerce Action Library","library_group":"commerce","module_scope":"cart, buy, tip, subscribe","dependency_mode":"core","library_status":"active","created_at":"2026-04-01 01:14:42"}]

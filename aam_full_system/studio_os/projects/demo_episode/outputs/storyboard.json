@@ -1,0 +1,24 @@
+{
+  "frames": [
+    {
+      "scene": 1,
+      "shot": 1,
+      "image_prompt": "Storyboard frame: Glowing city-scale marketplace gate opens., cinematic sci-fi, high contrast, holographic world"
+    },
+    {
+      "scene": 1,
+      "shot": 2,
+      "image_prompt": "Storyboard frame: Creator reacts to floating UI and portal light., cinematic sci-fi, high contrast, holographic world"
+    },
+    {
+      "scene": 2,
+      "shot": 1,
+      "image_prompt": "Storyboard frame: Jarvis hologram appears and welcomes the creator., cinematic sci-fi, high contrast, holographic world"
+    },
+    {
+      "scene": 3,
+      "shot": 1,
+      "image_prompt": "Storyboard frame: Creator steps into Life World portal., cinematic sci-fi, high contrast, holographic world"
+    }
+  ]
+}

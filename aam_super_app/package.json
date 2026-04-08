@@ -1,0 +1,15 @@
+{
+  "name": "aam-super-app",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node gateway/index.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "body-parser": "^1.20.3",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.3",
+    "uuid": "^9.0.1"
+  }
+}

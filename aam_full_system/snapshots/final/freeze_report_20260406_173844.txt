@@ -1,0 +1,6 @@
+checkpoint=20260406_173844
+public_url=NOT_READY
+share_link=
+dashboard=http://127.0.0.1:4900
+life_world=http://127.0.0.1:4902
+gateway=http://127.0.0.1:4000

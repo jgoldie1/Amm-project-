@@ -1,0 +1,13 @@
+{
+  "name": "Artlist AI",
+  "status": "planned",
+  "purpose": "Creative asset generation, music/video ideation, prompt routing, branding support, and media workflow support inside AAM ecosystem.",
+  "features": [
+    "prompt workspace",
+    "creative brief storage",
+    "asset idea generation",
+    "brand concept generation",
+    "music/video shotlist ideas",
+    "future API connector slot"
+  ]
+}

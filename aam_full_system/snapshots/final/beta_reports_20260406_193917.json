@@ -1,0 +1,26 @@
+{
+  "reports": [
+    {
+      "user_id": "beta_user_001",
+      "referrer": "all_american_creator",
+      "rating_overall": 8,
+      "experience": {
+        "signup": "easy",
+        "wallet": "worked",
+        "world_entry": "smooth",
+        "content": "interesting"
+      },
+      "issues": [
+        "world took long to load",
+        "unclear where to click next"
+      ],
+      "favorite_feature": "Life World scenes",
+      "feature_requests": [
+        "chat with other users",
+        "more music"
+      ],
+      "would_recommend": true,
+      "notes": "this feels like a game + app combined"
+    }
+  ]
+}

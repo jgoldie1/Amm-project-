@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Isaiah Creator Streaming</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header>
+  <h1>Isaiah / Anyone Can Be a Star</h1>
+  <div class="nav"><a href="/kingdom.html">Kingdom</a></div>
+</header>
+<main>
+  <div class="card">
+    <h3>Creator Profile</h3>
+    <input id="stageName" placeholder="Stage Name">
+    <input id="genre" placeholder="Genre">
+    <input id="projectName" value="isaiah" placeholder="Project">
+    <textarea id="creatorBio" placeholder="Bio"></textarea>
+    <button onclick="saveCreator()">Save Profile</button>
+    <pre id="creatorOut"></pre>
+  </div>
+
+  <div class="card">
+    <h3>Create Media</h3>
+    <input id="mediaTitle" placeholder="Title">
+    <select id="mediaType">
+      <option value="music">music</option>
+      <option value="tv">tv</option>
+      <option value="podcast">podcast</option>
+    </select>
+    <input id="mediaGenre" placeholder="Genre">
+    <textarea id="mediaDesc" placeholder="Description"></textarea>
+    <button onclick="createMedia()">Create Media Item</button>
+    <button onclick="loadMedia()">Load Media</button>
+    <pre id="mediaOut"></pre>
+  </div>
+</main>
+<script src="/app.js"></script>
+<script>
+async function saveCreator() {
+  show("creatorOut", await request("http://127.0.0.1:5400/creators/profile", {
+    method: "POST",
+    body: JSON.stringify({
+      stageName: stageName.value,
+      genre: genre.value,
+      bio: creatorBio.value,
+      project: projectName.value
+    })
+  }));
+}
+async function createMedia() {
+  show("mediaOut", await request("http://127.0.0.1:5400/media", {
+    method: "POST",
+    body: JSON.stringify({
+      title: mediaTitle.value,
+      mediaType: mediaType.value,
+      genre: mediaGenre.value,
+      description: mediaDesc.value,
+      monetizationType: "subscription"
+    })
+  }));
+}
+async function loadMedia() {
+  show("mediaOut", await request("http://127.0.0.1:5400/media"));
+}
+</script>
+</body>
+</html>

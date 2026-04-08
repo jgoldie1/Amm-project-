@@ -1,0 +1,5 @@
+[
+  {"route":"Creator District -> Marketplace District","mode":"ground","status":"open"},
+  {"route":"Transport Hub -> VIP Event Zone","mode":"air","status":"priority"},
+  {"route":"Marketplace District -> Wildlife Zone","mode":"ground","status":"open"}
+]

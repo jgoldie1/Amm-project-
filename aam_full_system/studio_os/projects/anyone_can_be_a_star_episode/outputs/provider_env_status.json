@@ -1,0 +1,11 @@
+{
+  "RUNWAY_API_KEY": false,
+  "KLING_API_KEY": false,
+  "WAN_API_KEY": false,
+  "ELEVENLABS_API_KEY": false,
+  "SUNO_API_KEY": false,
+  "UDIO_API_KEY": false,
+  "OPENAI_API_KEY": false,
+  "FFMPEG_BIN": "ffmpeg",
+  "ready_count": 0
+}

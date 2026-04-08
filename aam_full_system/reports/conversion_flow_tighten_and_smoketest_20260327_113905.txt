@@ -1,0 +1,26 @@
+CONVERSION FLOW TIGHTEN + NEXT-LEVEL SMOKE TEST REPORT
+Timestamp: 20260327_113905
+
+Added:
+- conversion_flow_events
+- onboarding_path_presets
+- /conversion-control
+
+Tightened:
+- onboarding steps
+- connect-system flow logging
+- checkout completion destination routing
+- simpler user path from join to destination
+
+Verified:
+- core health
+- session smoke tests
+- front-door route smoke tests
+- connect / conversion / monetization pages
+- checkout completion smoke test
+- next-level error scan
+
+Purpose:
+- tighten conversion flow
+- simplify onboarding
+- create stronger launch readiness

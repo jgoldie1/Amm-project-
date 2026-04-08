@@ -1,0 +1,49 @@
+[
+  {
+    "id": 1,
+    "userId": 1,
+    "type": "ride",
+    "serviceLevel": "standard",
+    "pickup": "Downtown",
+    "dropoff": "Airport",
+    "distanceKm": 12,
+    "notes": "test ride",
+    "items": [],
+    "estimatedFare": 40,
+    "status": "pending",
+    "assignedDriverId": null,
+    "createdAt": "2026-03-18T12:04:25.478Z"
+  },
+  {
+    "id": 2,
+    "userId": 3,
+    "type": "ride",
+    "serviceLevel": "premium",
+    "pickup": "Downtown",
+    "dropoff": "Airport",
+    "distanceKm": 15,
+    "notes": "premium dispatch test",
+    "items": [],
+    "estimatedFare": 60,
+    "status": "assigned",
+    "assignedDriverId": 2,
+    "createdAt": "2026-03-18T12:07:42.468Z",
+    "updatedAt": "2026-03-18T12:07:42.655Z"
+  },
+  {
+    "id": 3,
+    "userId": 6,
+    "type": "ride",
+    "serviceLevel": "premium",
+    "pickup": "Downtown",
+    "dropoff": "Airport",
+    "distanceKm": 15,
+    "notes": "premium dispatch test",
+    "items": [],
+    "estimatedFare": 60,
+    "status": "assigned",
+    "assignedDriverId": 3,
+    "createdAt": "2026-03-18T12:08:40.190Z",
+    "updatedAt": "2026-03-18T12:08:40.307Z"
+  }
+]

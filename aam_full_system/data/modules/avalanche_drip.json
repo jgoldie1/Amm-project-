@@ -1,0 +1,27 @@
+{
+  "name": "Avalanche Drip",
+  "status": "planned",
+  "category": "payments_rewards_distribution",
+  "purpose": "Timed distribution engine for royalties, creator payouts, unlock schedules, fan rewards, and milestone-based disbursements.",
+  "connects_to": [
+    "wallets",
+    "wallet_transactions",
+    "royalty_registry",
+    "royalty_ledger_registry",
+    "royalty_statement_registry",
+    "scheduled_payout_jobs",
+    "scheduled_payout_execution_log",
+    "world_entitlements",
+    "unlock_events",
+    "stream_subscriptions",
+    "stream_tip_events"
+  ],
+  "features": [
+    "scheduled drips",
+    "milestone release logic",
+    "creator payout routing",
+    "fan reward unlocks",
+    "royalty waterfall support",
+    "future AVAX/web3 connector slot"
+  ]
+}

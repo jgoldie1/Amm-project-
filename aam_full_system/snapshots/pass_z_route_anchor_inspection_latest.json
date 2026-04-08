@@ -1,0 +1,88 @@
+{
+  "pathname === '/command-center'": {
+    "count": 1,
+    "snippets": [
+      "'/homepage-showcase') {\n      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });\n      return res.end(renderHomepageShowcase(req, null, getQueryParam(req,'msg')||''));\n    }\n\nif (req.method === 'GET' && pathname === '/command-center') {\n      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });\n      return res.end(renderCommandCenterPage(req, null, getQueryParam(req, 'msg') || ''));\n    }\n\n    if (req.method === 'GET' && pathname === '/finance-hub') {\n      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });\n      return res.end(renderFinanceHubPage(req, null, getQueryParam(req, 'msg') || ''));\n    }\n\n    if (req."
+    ]
+  },
+  "pathname === '/homepage-showcase'": {
+    "count": 1,
+    "snippets": [
+      "','Safe Account','member_profile','platform_scope','active')`);\n      res.writeHead(302, { Location: '/account-center?msg=Safe%20profile%20created' });\n      return res.end();\n    }\n\n    \n    if (req.method === 'GET' && pathname === '/homepage-showcase') {\n      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });\n      return res.end(renderHomepageShowcase(req, null, getQueryParam(req,'msg')||''));\n    }\n\nif (req.method === 'GET' && pathname === '/command-center') {\n      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });\n      return res.end(renderCommandCenterPage(req, null, getQueryParam(req, 'msg') || ''));\n    }\n\n    if (req.me"
+    ]
+  },
+  "pathname === '/account-center'": {
+    "count": 1,
+    "snippets": [
+      ",'agents+providers+memory','layered_control','active')`);\n      res.writeHead(302, { Location: '/intelligence-hub?msg=Safe%20AGI%20hierarchy%20created' });\n      return res.end();\n    }\n\n\n    if (req.method === 'GET' && pathname === '/account-center') {\n      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });\n      return res.end(renderAccountCenterPage(req, null, getQueryParam(req, 'msg') || ''));\n    }\n\n    if (req.method === 'POST' && pathname === '/account/create-safe') {\n      dbRun(`INSERT INTO account_center_registry (account_name, account_email, account_type, account_scope, account_status)\n             VALUES ('Safe Account','safe@aam.lo"
+    ]
+  },
+  "pathname === '/archive-memory'": {
+    "count": 1,
+    "snippets": [
+      "ishing-hub') {\n      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });\n      return res.end(renderPublishingHubPage(req, null, getQueryParam(req, 'msg') || ''));\n    }\n\n\n    if (req.method === 'GET' && pathname === '/archive-memory') {\n      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });\n      return res.end(renderArchiveMemoryPage(req, null, getQueryParam(req, 'msg') || ''));\n    }\n\n    if (req.method === 'POST' && pathname === '/archive/create-safe') {\n      dbRun(`INSERT INTO archive_registry (archive_name, source_type, content_summary, storage_mode, archive_status)\n             VALUES ('Safe Archive','manual_archive','p"
+    ]
+  },
+  "pathname === '/intelligence-hub'": {
+    "count": 1,
+    "snippets": [
+      "g','Primary Continuation Task','cross_system','queued','active')`);\n      res.writeHead(302, { Location: '/archive-memory?msg=Safe%20backlog%20created' });\n      return res.end();\n    }\n\n\n    if (req.method === 'GET' && pathname === '/intelligence-hub') {\n      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });\n      return res.end(renderIntelligenceHubPage(req, null, getQueryParam(req, 'msg') || ''));\n    }\n\n    if (req.method === 'POST' && pathname === '/intelligence/provider-safe') {\n      dbRun(`INSERT INTO intelligence_provider_registry (provider_name, provider_group, provider_role, provider_scope, provider_status)\n             VALUES ('Safe "
+    ]
+  },
+  "pathname === '/navigation-workflow-hub'": {
+    "count": 1,
+    "snippets": [
+      "direct(res, '/archive');\n    }\n\n    if (req.method === 'GET' && pathname.startsWith('/payments/')) {\n      const paymentId = Number(pathname.split('/')[2]);\n      if (!paymentId) {\n      \n    if (req.method === 'GET' && pathname === '/navigation-workflow-hub') {\n      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });\n      return res.end(renderNavigationWorkflowHubPage(req, null, getQueryParam(req, 'msg') || ''));\n    }\n\n    if (req.method === 'POST' && pathname === '/help/navigation-safe') {\n      dbRun(`INSERT INTO help_assistant_registry (assistant_name, assistant_group, target_system, help_scope, assistant_status)\n             VALUES ('Safe Navigati"
+    ]
+  },
+  "pathname === '/help/navigation-safe'": {
+    "count": 1,
+    "snippets": [
+      "ub') {\n      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });\n      return res.end(renderNavigationWorkflowHubPage(req, null, getQueryParam(req, 'msg') || ''));\n    }\n\n    if (req.method === 'POST' && pathname === '/help/navigation-safe') {\n      dbRun(`INSERT INTO help_assistant_registry (assistant_name, assistant_group, target_system, help_scope, assistant_status)\n             VALUES ('Safe Navigation Help Bot','navigation_help','full_platform','manual_app_usage','active')`);\n      res.writeHead(302, { Location: '/navigation-workflow-hub?msg=Safe%20navigation%20help%20created' });\n      return res.end();\n    }\n\n    if (req.method === 'POST' && pat"
+    ]
+  },
+  "pathname === '/help/kingdom-safe'": {
+    "count": 1,
+    "snippets": [
+      ",'full_platform','manual_app_usage','active')`);\n      res.writeHead(302, { Location: '/navigation-workflow-hub?msg=Safe%20navigation%20help%20created' });\n      return res.end();\n    }\n\n    if (req.method === 'POST' && pathname === '/help/kingdom-safe') {\n      dbRun(`INSERT INTO help_assistant_registry (assistant_name, assistant_group, target_system, help_scope, assistant_status)\n             VALUES ('Safe Kingdom Help Bot','kingdom_help','Kingdom App','kingdom_usage_and_guidance','active')`);\n      res.writeHead(302, { Location: '/navigation-workflow-hub?msg=Safe%20Kingdom%20help%20created' });\n      return res.end();\n    }\n\n    if (req.method === 'POST' && path"
+    ]
+  },
+  "pathname === '/help/marketplace-safe'": {
+    "count": 1,
+    "snippets": [
+      "gdom App','kingdom_usage_and_guidance','active')`);\n      res.writeHead(302, { Location: '/navigation-workflow-hub?msg=Safe%20Kingdom%20help%20created' });\n      return res.end();\n    }\n\n    if (req.method === 'POST' && pathname === '/help/marketplace-safe') {\n      dbRun(`INSERT INTO help_assistant_registry (assistant_name, assistant_group, target_system, help_scope, assistant_status)\n             VALUES ('Safe Marketplace Help Bot','marketplace_help','All American Marketplace Holographic Streaming Ecosystem','streaming_and_navigation_guidance','active')`);\n      res.writeHead(302, { Location: '/navigation-workflow-hub?msg=Safe%20marketplace%20help%20created' });\n    "
+    ]
+  },
+  "res\\.writeHead\\(404": {
+    "count": 2,
+    "snippets": [
+      "ographic Streaming Ecosystem','streaming_and_navigation_guidance','active')`);\n      res.writeHead(302, { Location: '/navigation-workflow-hub?msg=Safe%20marketplace%20help%20created' });\n      return res.end();\n    }\n\n  res.writeHead(404, { 'Content-Type': 'text/plain' });\n        return res.end('Not found');\n      }\n      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });\n      return res.end(renderPaymentDetail(paymentId));\n    }\n\n    if (req.method === 'POST' && pathname === '/payments/mark-paid') {\n      const body = await parseBody(req);\n      const paymentId = Number(body.paymentId);\n      if (paymentId) {\n        dbRun(`UPDAT",
+      "e.startsWith('/people/')) {\n      const personId = Number(pathname.split('/')[2]);\n      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });\n      return res.end(renderPersonDetail(personId));\n    }\n\n    res.writeHead(404, { 'Content-Type': 'text/plain' });\n    res.end('Not found');\n  } catch (err) {\n    res.writeHead(500, { 'Content-Type': 'text/plain' });\n    res.end(`Server error: ${err.message}`);\n  }\n});\n\nserver.listen(PORT, () => {\n  console.log(`Dashboard running on ${PORT}`);\n});\n"
+    ]
+  },
+  "function renderCommandCenterPage": {
+    "count": 1,
+    "snippets": [
+      "form>\n        <form method=\"POST\" action=\"/help/marketplace-safe\" style=\"margin-bottom:12px;\"><button type=\"submit\">Create Marketplace Holo Streaming Help Bot</button></form>\n      </section>\n    </main>\n  `, user);\n}\n\n\nfunction renderCommandCenterPage(req, user = null, message = '') {\n  const cards = dbQuery(`SELECT id, card_name, card_group, linked_route, card_priority, card_scope, card_status, created_at\n                         FROM dashboard_card_registry ORDER BY id DESC LIMIT 100`);\n  const groups = dbQuery(`SELECT id, nav_group_name, nav_group_scope, route_list, sort_order, nav_status, created_at\n                          FROM grouped_navigation_registry O"
+    ]
+  },
+  "function renderHomepageShowcase": {
+    "count": 2,
+    "snippets": [
+      "\nfunction renderHomepageShowcase(req, user = null, message = '') {\n  return htmlPage('AAM OS LIVE', `\n    <main class=\"portal-main\">\n      <h1>\ud83d\ude80 AAM OMNI PLATFORM</h1>\n      <p>${esc(message || 'Full system online. AI + Hollywood + Music + Creator Economy active.')}</p>\n\n      <section>\n        <h2>Core Systems</h2>\n        <a href=\"/command-center\">Command Center</a>\n<a href=\"/navigation-workflow-hub\">Navigation Workflow Hub</a><br>\n        <a hre",
+      " Role Access</button></form>\n        <form method=\"POST\" action=\"/account/profile-safe\" style=\"margin-bottom:12px;\"><button type=\"submit\">Create User Profile</button></form>\n      </section>\n    </main>\n  `, user);\n}\n\n\n\nfunction renderHomepageShowcasePage(req, user = null, message = '') {\n  return htmlPage('Homepage Showcase', `\n    <main class=\"portal-main premium-main accessible-main\">\n      <section>\n        <h1>Homepage Showcase</h1>\n        <p>${esc(message || 'Premium homepage and demo layer are live.')}</p>\n      </section>\n    </main>\n  `, user);\n}\n\n\n\nfunction renderNavigationWorkflowHubPage(req, user = null, message = '') {\n  return htmlPage('Navigation "
+    ]
+  },
+  "function renderHomepageShowcasePage": {
+    "count": 1,
+    "snippets": [
+      " Role Access</button></form>\n        <form method=\"POST\" action=\"/account/profile-safe\" style=\"margin-bottom:12px;\"><button type=\"submit\">Create User Profile</button></form>\n      </section>\n    </main>\n  `, user);\n}\n\n\n\nfunction renderHomepageShowcasePage(req, user = null, message = '') {\n  return htmlPage('Homepage Showcase', `\n    <main class=\"portal-main premium-main accessible-main\">\n      <section>\n        <h1>Homepage Showcase</h1>\n        <p>${esc(message || 'Premium homepage and demo layer are live.')}</p>\n      </section>\n    </main>\n  `, user);\n}\n\n\n\nfunction renderNavigationWorkflowHubPage(req, user = null, message = '') {\n  return htmlPage('Navigation Work"
+    ]
+  },
+  "function renderNavigationWorkflowHubPage": {
+    "count": 1,
+    "snippets": [
+      "=\"portal-main premium-main accessible-main\">\n      <section>\n        <h1>Homepage Showcase</h1>\n        <p>${esc(message || 'Premium homepage and demo layer are live.')}</p>\n      </section>\n    </main>\n  `, user);\n}\n\n\n\nfunction renderNavigationWorkflowHubPage(req, user = null, message = '') {\n  return htmlPage('Navigation Workflow Hub', `\n    <main class=\"portal-main premium-main accessible-main\">\n      <section>\n        <h1>Navigation + Workflow Hub</h1>\n        <p>${esc(message || 'Swipe navigation, workflow mapping, and AI help guidance are live.')}</p>\n      </section>\n      <section>\n        <h2>Swipe Directions</h2>\n        <p><strong>Right:</strong> move into the "
+    ]
+  }
+}

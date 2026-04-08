@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "userId": 1,
+    "bookingId": 1,
+    "amount": 49.99,
+    "method": "card",
+    "currency": "USD",
+    "status": "paid",
+    "createdAt": "2026-03-18T12:33:58.892Z"
+  },
+  {
+    "id": 2,
+    "userId": 4,
+    "bookingId": 2,
+    "amount": 49.99,
+    "method": "card",
+    "currency": "USD",
+    "status": "paid",
+    "createdAt": "2026-03-18T14:17:45.160Z"
+  }
+]

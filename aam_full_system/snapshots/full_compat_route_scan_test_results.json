@@ -1,0 +1,14 @@
+[
+  {
+    "file": "app_status_20260326_143823.txt",
+    "problem": "missing_column"
+  },
+  {
+    "file": "creator-hub_20260326_213537.txt",
+    "problem": "missing_column"
+  },
+  {
+    "file": "wallet-center_20260326_213537.txt",
+    "problem": "missing_column"
+  }
+]

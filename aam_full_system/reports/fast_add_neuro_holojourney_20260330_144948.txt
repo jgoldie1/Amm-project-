@@ -1,0 +1,11 @@
+FAST ADD NEURO + HOLOJOURNEY REPORT
+Timestamp: 20260330_144948
+
+Added:
+- /neuro-control
+- /holojourney-tv
+
+Purpose:
+- speed up the rebuild
+- keep the patch small
+- preserve the stable advanced base

@@ -1,0 +1,17 @@
+{
+  "creator_revenue_network": {
+    "income_streams": [
+      "streaming_payouts",
+      "premium_streaming_payouts",
+      "fan_subscriptions",
+      "tips_and_gifts",
+      "creator_support",
+      "music_sales",
+      "collectible_sales",
+      "ticketed_events",
+      "merchandise",
+      "battle_rewards"
+    ],
+    "purpose": "Create multiple revenue channels so creators are not dependent on one model"
+  }
+}

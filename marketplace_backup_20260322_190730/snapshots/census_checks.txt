@@ -1,0 +1,7 @@
+/family-launch-home           HTTP/1.1 200 OK
+/census-center                HTTP/1.1 200 OK
+/us-census-center             HTTP/1.1 200 OK
+/global-census-center         HTTP/1.1 200 OK
+/aam-holographic-streaming-ecosystemHTTP/1.1 200 OK
+/holoverse-lobby-v2           HTTP/1.1 200 OK
+/metaverse-webgl              HTTP/1.1 500 INTERNAL SERVER ERROR

@@ -1,0 +1,11 @@
+{
+ "core":"Lyons Tech AI Command Core",
+ "agents":[
+  "commerce-ai",
+  "finance-ai",
+  "security-ai",
+  "education-ai",
+  "creator-ai",
+  "logistics-ai"
+ ]
+}

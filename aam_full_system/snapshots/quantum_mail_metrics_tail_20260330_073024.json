@@ -1,0 +1,5 @@
+[{"id":5,"metric_name":"mail_attachments","metric_value":1,"metric_scope":"global","created_at":"2026-03-30 12:30:25"},
+{"id":4,"metric_name":"mail_folders","metric_value":8,"metric_scope":"global","created_at":"2026-03-30 12:30:25"},
+{"id":3,"metric_name":"mail_drafts","metric_value":2,"metric_scope":"global","created_at":"2026-03-30 12:30:25"},
+{"id":2,"metric_name":"mail_messages","metric_value":5,"metric_scope":"global","created_at":"2026-03-30 12:30:25"},
+{"id":1,"metric_name":"mail_accounts","metric_value":4,"metric_scope":"global","created_at":"2026-03-30 12:30:25"}]

@@ -1,0 +1,90 @@
+version: "3.9"
+
+services:
+  gateway:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./gateway:/app
+    command: sh -c "pip install flask && python app.py"
+    ports:
+      - "8090:8090"
+    depends_on:
+      - auth
+      - users
+      - media
+      - payments
+      - ai_inference
+
+  auth:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./auth:/app
+    command: sh -c "pip install flask pyjwt && python app.py"
+
+  users:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./users:/app
+    command: sh -c "pip install flask psycopg2-binary && python app.py"
+
+  media:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./media:/app
+      - ./data/object_storage:/storage
+    command: sh -c "pip install flask && python app.py"
+
+  payments:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./payments:/app
+    command: sh -c "pip install flask && python app.py"
+
+  ai_inference:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./ai_inference:/app
+    command: sh -c "pip install flask && python app.py"
+
+  search:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./search:/app
+    command: sh -c "pip install flask && python app.py"
+
+  research:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./research:/app
+    command: sh -c "pip install flask && python app.py"
+
+  admin:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./admin:/app
+    command: sh -c "pip install flask && python app.py"
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: aam
+      POSTGRES_PASSWORD: aam_password
+      POSTGRES_DB: aam_platform
+    volumes:
+      - ./data/postgres_init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"

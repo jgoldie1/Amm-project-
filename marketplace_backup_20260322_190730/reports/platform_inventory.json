@@ -1,0 +1,223 @@
+{
+  "routes_in_app_py": [
+    "/",
+    "/auth-login-fallback",
+    "/dashboard",
+    "/db-favorites",
+    "/db-role-preferences",
+    "/drones",
+    "/energy",
+    "/favicon.ico",
+    "/health",
+    "/marketplace",
+    "/modules",
+    "/profile-db-center",
+    "/startup-diagnostics",
+    "/system-map",
+    "/vehicles"
+  ],
+  "active_modules": [
+    "__init__.py",
+    "app_bootstrap.py",
+    "auth_system.py",
+    "boot_status.py",
+    "civic_system.py",
+    "continuity_system.py",
+    "device_system.py",
+    "final_stabilizer.py",
+    "front_shell.py",
+    "holo_commerce.py",
+    "holoverse.py",
+    "home_dashboard_polish.py",
+    "light_auth.py",
+    "live_checkout_shell.py",
+    "living_city.py",
+    "master_dashboard.py",
+    "module_loader.py",
+    "monitoring_system.py",
+    "payment_ui.py",
+    "payments_system.py",
+    "performance_system.py",
+    "recovery_core.py",
+    "recovery_shell.py",
+    "role_pages_polish.py",
+    "role_qa_admin.py",
+    "stripe_payload_wiring.py",
+    "ui_unification.py",
+    "visual_polish.py"
+  ],
+  "disabled_modules": [
+    "profile_db_integration_20260317_005445.py",
+    "profile_db_safe_20260317_015354.py"
+  ],
+  "module_routes": {
+    "boot_status.py": [
+      "/boot-logs",
+      "/boot-status"
+    ],
+    "civic_system.py": [
+      "/civic-center",
+      "/court-cases",
+      "/jail-registry",
+      "/workforce-registry"
+    ],
+    "continuity_system.py": [
+      "/activity-feed",
+      "/continuity-center",
+      "/light-session-shell",
+      "/notifications-center",
+      "/quick-launch-dashboard",
+      "/recent-pages",
+      "/stability-center"
+    ],
+    "device_system.py": [
+      "/accessibility-center",
+      "/bluetooth-center",
+      "/device-center",
+      "/device-trust-center"
+    ],
+    "final_stabilizer.py": [
+      "/completion-board",
+      "/module-status-board",
+      "/platform-summary",
+      "/production-readiness",
+      "/stabilize-toolkit",
+      "/system-registry"
+    ],
+    "front_shell.py": [
+      "/creator-home",
+      "/customer-home",
+      "/operator-home",
+      "/platform-home",
+      "/role-hub"
+    ],
+    "holo_commerce.py": [
+      "/holo-ad-sales",
+      "/holo-commerce-center",
+      "/holo-products",
+      "/premium-events",
+      "/premium-room-bookings",
+      "/ticket-center"
+    ],
+    "holoverse.py": [
+      "/holoverse-ads",
+      "/holoverse-center",
+      "/holoverse-events",
+      "/holoverse-rooms",
+      "/holoverse-showcases",
+      "/holoverse-viewer",
+      "/holoverse-worlds"
+    ],
+    "home_dashboard_polish.py": [
+      "/master-dashboard",
+      "/platform-home"
+    ],
+    "light_auth.py": [
+      "/basic-profiles",
+      "/favorite-zones",
+      "/private-dashboard-shell",
+      "/profile-center",
+      "/role-preferences"
+    ],
+    "live_checkout_shell.py": [
+      "/book-room-live",
+      "/buy-holo-product-live",
+      "/buy-premium-event-live",
+      "/checkout-launch/<kind>",
+      "/payment-health"
+    ],
+    "living_city.py": [
+      "/economy-demand-board",
+      "/housing-demand-board",
+      "/job-system",
+      "/living-city-center",
+      "/population-ai",
+      "/presence-board"
+    ],
+    "master_dashboard.py": [
+      "/dashboard-admin",
+      "/master-dashboard"
+    ],
+    "payment_ui.py": [
+      "/checkout-records",
+      "/holo-products-store",
+      "/payments-center",
+      "/payments/demo-buy/<kind>",
+      "/premium-events-store",
+      "/room-booking-store"
+    ],
+    "performance_system.py": [
+      "/lag-buster",
+      "/performance-center",
+      "/speed-accelerator",
+      "/speed-engine"
+    ],
+    "recovery_core.py": [
+      "/auth-login-fallback",
+      "/build-status",
+      "/city-minimap",
+      "/command-center",
+      "/creator-center",
+      "/district-dashboard",
+      "/living-city-center",
+      "/oasis-center",
+      "/progress",
+      "/project-inventory",
+      "/property-center",
+      "/property-operations-center",
+      "/rebuild-map",
+      "/route-audit",
+      "/safe-ok",
+      "/safety-center",
+      "/traffic-transport-board",
+      "/verse-center"
+    ],
+    "recovery_shell.py": [
+      "/build-status",
+      "/city-minimap",
+      "/command-center",
+      "/district-dashboard",
+      "/living-city-center",
+      "/oasis-center",
+      "/progress",
+      "/project-inventory",
+      "/property-center",
+      "/property-operations-center",
+      "/rebuild-map",
+      "/route-audit",
+      "/safe-ok",
+      "/safety-center",
+      "/traffic-transport-board",
+      "/verse-center"
+    ],
+    "role_pages_polish.py": [
+      "/creator-home",
+      "/customer-home",
+      "/operator-home"
+    ],
+    "role_qa_admin.py": [
+      "/admin-center",
+      "/admin-notes",
+      "/creator-workspace",
+      "/deployment-dashboard",
+      "/qa-dashboard",
+      "/test-summary"
+    ],
+    "stripe_payload_wiring.py": [
+      "/checkout-api-preview/holo-product",
+      "/checkout-api-preview/premium-event",
+      "/checkout-api-preview/room-booking",
+      "/checkout-payloads",
+      "/checkout-preview/holo-product",
+      "/checkout-preview/premium-event",
+      "/checkout-preview/room-booking"
+    ],
+    "ui_unification.py": [
+      "/platform-verify",
+      "/route-map"
+    ],
+    "visual_polish.py": [
+      "/visual-preview"
+    ]
+  }
+}

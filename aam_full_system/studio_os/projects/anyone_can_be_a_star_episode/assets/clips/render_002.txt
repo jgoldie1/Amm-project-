@@ -1,0 +1,5 @@
+RENDER PLACEHOLDER
+job_id=render_002
+clip_id=2
+prompt=AI guide appears beside a rising creator star, premium cinematic composition
+status=ready_for_provider_hookup

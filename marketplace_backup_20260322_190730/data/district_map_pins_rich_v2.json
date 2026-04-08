@@ -1,0 +1,43 @@
+[
+  {
+    "id": "district_pin_v2_001",
+    "name": "Omni Market Hub",
+    "district": "South Loop",
+    "lat": 41.8582,
+    "lng": -87.6235,
+    "pin_type": "market",
+    "status": "open",
+    "badge": "Featured",
+    "score": 98,
+    "attached_media": [
+      {
+        "type": "image",
+        "url": "/static/img/market-hub.jpg",
+        "label": "Market hub"
+      },
+      {
+        "type": "video",
+        "url": "/static/video/market-hub.mp4",
+        "label": "Walkthrough"
+      }
+    ]
+  },
+  {
+    "id": "district_pin_v2_002",
+    "name": "Kingdom Cinema Point",
+    "district": "Bronzeville",
+    "lat": 41.8332,
+    "lng": -87.6181,
+    "pin_type": "cinema",
+    "status": "open",
+    "badge": "New",
+    "score": 95,
+    "attached_media": [
+      {
+        "type": "image",
+        "url": "/static/img/cinema-point.jpg",
+        "label": "Cinema point"
+      }
+    ]
+  }
+]

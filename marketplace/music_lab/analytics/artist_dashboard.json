@@ -1,0 +1,11 @@
+{
+  "artist_dashboard":[
+    "track_performance",
+    "stream_metrics",
+    "fan_engagement",
+    "supporter_activity",
+    "release_progress",
+    "studio_status",
+    "catalog_overview"
+  ]
+}

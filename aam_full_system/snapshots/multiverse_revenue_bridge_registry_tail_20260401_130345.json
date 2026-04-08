@@ -1,0 +1,2 @@
+[{"id":2,"bridge_name":"Safe Revenue Bridge","bridge_group":"sandbox","source_system":"creator_tv","target_system":"world_storefronts","revenue_mode":"cross_realm","bridge_status":"active","created_at":"2026-04-01 18:04:00"},
+{"id":1,"bridge_name":"Multiverse Revenue Bridge","bridge_group":"core","source_system":"creator_tv","target_system":"world_storefronts","revenue_mode":"cross_realm_revenue","bridge_status":"active","created_at":"2026-04-01 18:03:46"}]

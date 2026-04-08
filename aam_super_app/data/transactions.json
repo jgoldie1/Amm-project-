@@ -1,0 +1,86 @@
+[
+  {
+    "type": "deposit",
+    "userId": "54148fa6-ce34-4baf-a911-c64a5afe6d25",
+    "amount": 125,
+    "createdAt": "2026-04-05T17:59:30.055Z"
+  },
+  {
+    "type": "platform_split",
+    "creatorId": "54148fa6-ce34-4baf-a911-c64a5afe6d25",
+    "gross": 20,
+    "platformPct": 30,
+    "fee": 6,
+    "net": 14,
+    "createdAt": "2026-04-05T17:59:30.393Z"
+  },
+  {
+    "type": "deposit",
+    "userId": "54148fa6-ce34-4baf-a911-c64a5afe6d25",
+    "amount": 125,
+    "createdAt": "2026-04-05T17:59:36.650Z"
+  },
+  {
+    "type": "platform_split",
+    "creatorId": "54148fa6-ce34-4baf-a911-c64a5afe6d25",
+    "gross": 20,
+    "platformPct": 30,
+    "fee": 6,
+    "net": 14,
+    "createdAt": "2026-04-05T17:59:36.961Z"
+  },
+  {
+    "type": "deposit",
+    "userId": "a6f8705e-7905-49eb-9d42-3bc08401e7cc",
+    "amount": 200,
+    "createdAt": "2026-04-05T18:24:18.854Z"
+  },
+  {
+    "type": "deposit",
+    "userId": "a6f8705e-7905-49eb-9d42-3bc08401e7cc",
+    "amount": 200,
+    "createdAt": "2026-04-05T18:24:33.934Z"
+  },
+  {
+    "type": "deposit",
+    "userId": "66baedeb-be49-4c12-9f22-76f5faa35254",
+    "amount": 200,
+    "createdAt": "2026-04-05T18:26:52.619Z"
+  },
+  {
+    "type": "platform_split",
+    "creatorId": "66baedeb-be49-4c12-9f22-76f5faa35254",
+    "gross": 20,
+    "fee": 6,
+    "net": 14,
+    "platformPct": 30,
+    "createdAt": "2026-04-05T18:26:52.690Z"
+  },
+  {
+    "type": "approve_payout",
+    "userId": "66baedeb-be49-4c12-9f22-76f5faa35254",
+    "amount": 14,
+    "createdAt": "2026-04-05T18:26:52.763Z"
+  },
+  {
+    "type": "deposit",
+    "userId": "b35047b9-7683-494c-bb35-dab7e99bd8c5",
+    "amount": 300,
+    "createdAt": "2026-04-05T20:42:42.263Z"
+  },
+  {
+    "type": "platform_split",
+    "creatorId": "b35047b9-7683-494c-bb35-dab7e99bd8c5",
+    "gross": 50,
+    "fee": 15,
+    "net": 35,
+    "platformPct": 30,
+    "createdAt": "2026-04-05T20:42:42.590Z"
+  },
+  {
+    "type": "approve_payout",
+    "userId": "b35047b9-7683-494c-bb35-dab7e99bd8c5",
+    "amount": 35,
+    "createdAt": "2026-04-05T20:42:42.656Z"
+  }
+]

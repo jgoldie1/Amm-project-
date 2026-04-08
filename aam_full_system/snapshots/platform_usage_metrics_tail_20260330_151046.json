@@ -1,0 +1,4 @@
+[{"id":8,"metric_name":"analytics_layer_enabled","metric_value":1,"metric_scope":"analytics","created_at":"2026-03-30 19:34:44"},
+{"id":7,"metric_name":"search_layer_enabled","metric_value":1,"metric_scope":"search","created_at":"2026-03-30 19:34:44"},
+{"id":6,"metric_name":"mail_layer_enabled","metric_value":1,"metric_scope":"communication","created_at":"2026-03-30 19:34:44"},
+{"id":5,"metric_name":"active_routes","metric_value":4,"metric_scope":"platform","created_at":"2026-03-30 19:34:44"}]

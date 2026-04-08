@@ -1,0 +1,4 @@
+CUE=discovery_bed
+SCENE=Development
+MOOD=curious, uplifting, technological
+DURATION_SEC=30

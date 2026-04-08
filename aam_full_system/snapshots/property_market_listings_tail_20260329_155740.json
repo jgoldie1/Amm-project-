@@ -1,0 +1,4 @@
+[{"id":4,"listing_name":"Texas Innovation Center Rental Listing","listing_type":"rent","listing_category":"metaverse_real_estate","price_cents":1500000,"listing_status":"active","created_at":"2026-03-27 21:53:21"},
+{"id":3,"listing_name":"New York Commerce Hub Rental Listing","listing_type":"rent","listing_category":"metaverse_real_estate","price_cents":1500000,"listing_status":"active","created_at":"2026-03-27 21:53:21"},
+{"id":2,"listing_name":"Atlanta Creator Center Rental Listing","listing_type":"rent","listing_category":"metaverse_real_estate","price_cents":1500000,"listing_status":"active","created_at":"2026-03-27 21:53:21"},
+{"id":1,"listing_name":"Chicago Tower One Rental Listing","listing_type":"rent","listing_category":"metaverse_real_estate","price_cents":1500000,"listing_status":"active","created_at":"2026-03-27 21:53:21"}]

@@ -1,0 +1,2 @@
+[{"id":2,"realm_name":"Safe Realm","realm_group":"sandbox","source_layer":"middleverse","target_layer":"multiverse","realm_mode":"safe_bridge","realm_status":"active","created_at":"2026-04-01 05:20:22"},
+{"id":1,"realm_name":"Primary Multiverse Realm","realm_group":"core","source_layer":"middleverse","target_layer":"multiverse","realm_mode":"bridged","realm_status":"active","created_at":"2026-04-01 05:20:02"}]

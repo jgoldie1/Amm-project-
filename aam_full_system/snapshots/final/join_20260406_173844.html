@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Join All American Marketplace</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#020617; color:#e2e8f0; margin:0; padding:24px; }
+    .card { max-width:720px; margin:40px auto; background:#111827; border:1px solid #334155; border-radius:18px; padding:24px; }
+    input, button { width:100%; padding:12px; border-radius:10px; margin-top:10px; border:none; }
+    input { background:#0f172a; color:#fff; border:1px solid #334155; }
+    button { background:#2563eb; color:#fff; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Enter All American Marketplace</h1>
+    <input id="username" placeholder="Enter username" />
+    <input id="referrer" placeholder="Who invited you?" />
+    <button onclick="joinNow()">Join Now</button>
+    <p id="status"></p>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const ref = params.get('ref') || '';
+    if (ref) document.getElementById('referrer').value = ref;
+
+    async function joinNow() {
+      const username = document.getElementById('username').value.trim();
+      const referrer = document.getElementById('referrer').value.trim();
+      const status = document.getElementById('status');
+
+      if (!username) {
+        status.textContent = 'Enter a username first.';
+        return;
+      }
+
+      const res = await fetch('/join-api', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, referrer })
+      });
+
+      const data = await res.json();
+      if (!data.ok) {
+        status.textContent = data.error || 'join_failed';
+        return;
+      }
+
+      status.textContent = 'Joined. Redirecting...';
+      setTimeout(() => location.href = 'http://127.0.0.1:4902/', 1000);
+    }
+  </script>
+</body>
+</html>

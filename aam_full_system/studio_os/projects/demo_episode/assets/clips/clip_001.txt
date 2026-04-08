@@ -1,0 +1,4 @@
+PLACEHOLDER_CLIP
+clip_id=1
+duration_sec=8
+prompt=Cinematic futuristic holographic marketplace gate opening, high contrast, volumetric light, realistic CGI, smooth camera move

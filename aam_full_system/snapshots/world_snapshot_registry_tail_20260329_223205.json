@@ -1,0 +1,4 @@
+[{"id":4,"snapshot_name":"Current USA Territory Snapshot","linked_era":"present","territory_name":"USA","snapshot_status":"saved","snapshot_notes":"Current active territory registry state","created_at":"2026-03-30 03:32:05"},
+{"id":3,"snapshot_name":"Japan Premium World Snapshot","linked_era":"future","territory_name":"Japan","snapshot_status":"saved","snapshot_notes":"Premium future-world launch model","created_at":"2026-03-30 03:32:05"},
+{"id":2,"snapshot_name":"Nigeria Creator Growth Snapshot","linked_era":"future","territory_name":"Nigeria","snapshot_status":"saved","snapshot_notes":"Mobile creator expansion model","created_at":"2026-03-30 03:32:05"},
+{"id":1,"snapshot_name":"Georgia Launch Prep Snapshot","linked_era":"future","territory_name":"Georgia","snapshot_status":"saved","snapshot_notes":"Georgia launch preparation view","created_at":"2026-03-30 03:32:05"}]

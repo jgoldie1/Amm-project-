@@ -1,0 +1,41 @@
+       cid: 0
+      name: id
+      type: INTEGER
+   notnull: 0
+dflt_value: 
+        pk: 1
+
+       cid: 1
+      name: checkpoint_name
+      type: TEXT
+   notnull: 1
+dflt_value: 
+        pk: 0
+
+       cid: 2
+      name: checkpoint_scope
+      type: TEXT
+   notnull: 0
+dflt_value: 
+        pk: 0
+
+       cid: 3
+      name: checkpoint_status
+      type: TEXT
+   notnull: 0
+dflt_value: 'stable'
+        pk: 0
+
+       cid: 4
+      name: checkpoint_notes
+      type: TEXT
+   notnull: 0
+dflt_value: 
+        pk: 0
+
+       cid: 5
+      name: created_at
+      type: TEXT
+   notnull: 0
+dflt_value: CURRENT_TIMESTAMP
+        pk: 0

@@ -1,0 +1,10 @@
+{
+  "required_count": 7,
+  "missing_count": 3,
+  "missing_tables": [
+    "omnicare_insurance_registry",
+    "pharmacy_registry",
+    "auto_registry"
+  ],
+  "omnicare_table_status": "needs_attention"
+}

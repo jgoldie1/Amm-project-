@@ -1,0 +1,20 @@
+REPAIR AUDIT TABLES + RERUN FULL GAP FIX REPORT
+Timestamp: 20260331_174807
+
+Fixed:
+- recreated audit/checkpoint tables with correct schema
+- reran full stack smoke tests
+- reran full gap audit
+- wrote missing summary and tail snapshots
+
+Verified:
+- dashboard health
+- jarvis health
+- full stack smoke test
+- safe dispatch action smoke tests
+- safe section 3 action smoke tests
+
+Purpose:
+- recover from audit schema mismatch
+- preserve stable runtime
+- produce a clean all-stack checkpoint

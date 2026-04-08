@@ -1,0 +1,12 @@
+PASS V DASHBOARD SYNTAX REPAIR REPORT
+Timestamp: 20260403_121041
+
+Fixed:
+- removed invalid literal newline tokens inserted into dashboard.js
+- restored valid JavaScript syntax
+- restarted dashboard and jarvis
+- reran targeted smoke tests for previously failing surfaces
+
+Purpose:
+- recover from Pass U patch corruption
+- restore stable runtime cleanly

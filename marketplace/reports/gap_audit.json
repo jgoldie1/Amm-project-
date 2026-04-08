@@ -1,0 +1,21 @@
+{
+  "route_count": 85,
+  "duplicate_routes": [],
+  "missing_wanted_routes": [
+    "/time-machine",
+    "/memory-vault",
+    "/quantum-analysis"
+  ],
+  "checks": {
+    "has_secret_key_config": true,
+    "has_json_import": true,
+    "has_os_import": true,
+    "has_path_import": false,
+    "has_db_create_all": true,
+    "has_global_error_handler": true,
+    "has_app_shell": true,
+    "has_brand_shell": true,
+    "has_time_machine": false,
+    "has_creator_db": true
+  }
+}

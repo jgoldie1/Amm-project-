@@ -1,0 +1,86 @@
+=== PORT CHECK BEFORE RESTART ===
+=== JS CHECK ===
+=== JS SYNTAX CHECK ===
+JavaScript syntax OK
+=== SAFE RESTART ===
+=== JS SYNTAX CHECK ===
+JavaScript syntax OK
+SYSTEM STOPPED
+SYSTEM STARTED
+Dashboard PID: 17040
+Jarvis PID:    17041
+Dashboard:     http://127.0.0.1:4900
+Jarvis:        http://127.0.0.1:5000
+=== AAM STATUS ===
+
+Dashboard health: {
+  "ok": true,
+  "service": "aam-dashboard",
+  "port": 4900
+}
+Jarvis health:    {
+  "ok": true,
+  "service": "jarvis-core",
+  "port": 5000
+}
+=== PID FILES ===
+dashboard.pid: 17040
+jarvis.pid:    17041
+
+=== RECENT LOGS ===
+--- dashboard.log ---
+Dashboard running on 4900
+
+--- jarvis.log ---
+Jarvis running on 5000
+=== DIRECT HEALTH TESTS ===
+--- dashboard /health ---
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Mon, 30 Mar 2026 02:19:20 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "ok": true,
+  "service": "aam-dashboard",
+  "port": 4900
+}--- jarvis /health ---
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Mon, 30 Mar 2026 02:19:20 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "ok": true,
+  "service": "jarvis-core",
+  "port": 5000
+}--- socket /health ---
+=== STATUS AFTER RESTART ===
+=== AAM STATUS ===
+
+Dashboard health: {
+  "ok": true,
+  "service": "aam-dashboard",
+  "port": 4900
+}
+Jarvis health:    {
+  "ok": true,
+  "service": "jarvis-core",
+  "port": 5000
+}
+=== PID FILES ===
+dashboard.pid: 17040
+jarvis.pid:    17041
+
+=== RECENT LOGS ===
+--- dashboard.log ---
+Dashboard running on 4900
+
+--- jarvis.log ---
+Jarvis running on 5000
+=== DASHBOARD LOG TAIL ===
+=== JARVIS LOG TAIL ===

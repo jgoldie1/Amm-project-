@@ -1,0 +1,27 @@
+PROJECT: All American Marketplace / Holographic Streaming Ecosystem
+MODE: Heirs-Only Soft Launch
+PRIMARY FOLDER: ~/marketplace
+APP FILE: ~/marketplace/app.py
+
+MAIN PAGES:
+- /heirs-app
+- /heirs-launchpad
+- /heirs-access-info
+- /session-login-v4
+- /files-center-v4
+- /bookings-center-v4
+- /creator-market
+
+ADMIN:
+- /heirs-admin-console
+
+LOGIN:
+- admin@aame.local / admin123
+- operator@aame.local / operator123
+- creator@aame.local / creator123
+
+NOTES:
+- Invite-only launch flow
+- Finance remains sandbox-only
+- Use scripts/app_start.sh, scripts/app_stop.sh, scripts/app_status.sh, scripts/verify_heirs_soft_launch.sh
+- Backup: ~/backups/marketplace_heirs_soft_launch_20260320_080438.tar.gz

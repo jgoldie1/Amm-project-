@@ -1,0 +1,10 @@
+{
+  "appName": "AAM Super App",
+  "port": 4000,
+  "platformFeePercent": 30,
+  "qualifiedStreamMinSeconds": 30,
+  "maxRepeatCount": 5,
+  "environment": "development",
+  "adminToken": "AAM_ADMIN_2026_PRIVATE_LONG_RANDOM_VALUE",
+  "jwtSecret": "AAM_JWT_2026_PRIVATE_LONG_RANDOM_VALUE"
+}

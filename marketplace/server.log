@@ -1,0 +1,71 @@
+ * Serving Flask app 'app'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.115:8080
+[33mPress CTRL+C to quit[0m
+127.0.0.1 - - [18/Mar/2026 20:09:50] "HEAD /app-home-2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:50] "HEAD /social-hub HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:50] "HEAD /games-pro-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:50] "HEAD /for-you HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:50] "HEAD /tv-network HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:50] "HEAD /tv-network-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:51] "HEAD /growth-center HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:51] "HEAD /safety-center HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:51] "HEAD /time-machine-2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:51] "HEAD /open-world HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:51] "HEAD /account-center-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:51] "HEAD /creator-monetization-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:51] "HEAD /gap-report-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:51] "HEAD /progress-center-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:51] "HEAD /mission-history-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:51] "HEAD /omni-cinema HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:51] "HEAD /omni-cinema-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:51] "HEAD /omni-cinema-v3 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:51] "HEAD /omni-cinema-v4 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:51] "HEAD /holofon-world HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:52] "HEAD /royal-locs-franchise HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:52] "HEAD /his-hers-brand HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:52] "HEAD /flagship-tree HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:52] "HEAD /flagship-tree-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:52] "HEAD /dynamic-feed-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:52] "HEAD /dynamic-feed-v3 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:52] "HEAD /world-map-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:52] "HEAD /world-map-v3 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:52] "HEAD /world-map-v4 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:52] "HEAD /live-channel-engine HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:52] "HEAD /channel-directory-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:52] "HEAD /channel-bundles-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:52] "HEAD /channel-subscriptions-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:52] "HEAD /show-monetization-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:53] "HEAD /holo-engine-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:53] "HEAD /holo-camera-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:53] "HEAD /lag-buster-v2 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:53] "HEAD /holo-scene-v2 HTTP/1.1" 200 -
+/data/data/com.termux/files/home/marketplace/app.py:10039: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "created_at": __import__("datetime").datetime.utcnow().isoformat()
+/data/data/com.termux/files/home/marketplace/app.py:10049: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "created_at": __import__("datetime").datetime.utcnow().isoformat()
+/data/data/com.termux/files/home/marketplace/app.py:10058: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "created_at": __import__("datetime").datetime.utcnow().isoformat()
+/data/data/com.termux/files/home/marketplace/app.py:10078: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "created_at": __import__("datetime").datetime.utcnow().isoformat()
+/data/data/com.termux/files/home/marketplace/app.py:10093: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "created_at": __import__("datetime").datetime.utcnow().isoformat()
+/data/data/com.termux/files/home/marketplace/app.py:10102: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "created_at": __import__("datetime").datetime.utcnow().isoformat()
+/data/data/com.termux/files/home/marketplace/app.py:10110: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "created_at": __import__("datetime").datetime.utcnow().isoformat()
+127.0.0.1 - - [18/Mar/2026 20:09:53] "GET /seed-money-demo-v1 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:53] "GET /identity-control-v1 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:53] "GET /wallet-dashboard-v1 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:09:53] "GET /payments-control-v1 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:11:36] "GET /wallet-dashboard-v1 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:13:26] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 204 -
+127.0.0.1 - - [18/Mar/2026 20:13:51] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:13:51] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 204 -
+127.0.0.1 - - [18/Mar/2026 20:13:57] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:13:57] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 204 -
+127.0.0.1 - - [18/Mar/2026 20:13:59] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 20:13:59] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 204 -

@@ -1,0 +1,9 @@
+{
+  "gifts": [
+    {"name":"Holographic Rose","tier":"common","value":100,"status":"active_build"},
+    {"name":"American Star","tier":"rare","value":500,"status":"active_build"},
+    {"name":"Lion Crown","tier":"epic","value":1000,"status":"active_build"},
+    {"name":"Saturn Ring","tier":"legendary","value":2500,"status":"active_build"},
+    {"name":"Freedom Eagle","tier":"legendary","value":5000,"status":"planned"}
+  ]
+}

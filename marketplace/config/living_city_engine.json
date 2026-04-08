@@ -1,0 +1,76 @@
+{
+  "living_city_engine": {
+    "citizen_needs": [
+      "food",
+      "water",
+      "sleep",
+      "housing",
+      "income",
+      "health",
+      "social_connection",
+      "entertainment"
+    ],
+    "job_types": [
+      "creator",
+      "shop_owner",
+      "restaurant_worker",
+      "delivery_driver",
+      "teacher",
+      "developer",
+      "police_officer",
+      "judge",
+      "lawyer",
+      "court_clerk",
+      "paramedic",
+      "firefighter",
+      "security_guard",
+      "transit_operator",
+      "city_planner",
+      "logistics_operator"
+    ],
+    "economy_drivers": [
+      "food_demand",
+      "housing_demand",
+      "transport_demand",
+      "event_demand",
+      "creator_demand",
+      "property_demand",
+      "security_demand"
+    ],
+    "behavior_modes": [
+      "work",
+      "travel",
+      "eat",
+      "rest",
+      "shop",
+      "attend_event",
+      "socialize",
+      "seek_housing"
+    ],
+    "middleverse_roles": [
+      "business_bridge",
+      "education_bridge",
+      "logistics_bridge",
+      "finance_bridge",
+      "job_training_bridge"
+    ],
+    "device_types": [
+      "vr_headset",
+      "haptic_gloves",
+      "haptic_suit",
+      "motion_tracker",
+      "wearable_sensor",
+      "accessibility_switch",
+      "eye_tracking_device"
+    ],
+    "accessibility_modes": [
+      "voice_navigation",
+      "one_hand_mode",
+      "screen_reader_support",
+      "caption_mode",
+      "high_contrast_mode",
+      "simplified_mode",
+      "switch_control_mode"
+    ]
+  }
+}

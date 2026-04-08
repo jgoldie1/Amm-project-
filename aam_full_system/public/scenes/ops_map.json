@@ -1,0 +1,8 @@
+{
+  "scene": "Middleverse Ops Map",
+  "objects": [
+    {"type": "hub", "label": "Chicago Main Hub"},
+    {"type": "route", "label": "Active Logistics Routes"},
+    {"type": "panel", "label": "IoT Telemetry"}
+  ]
+}

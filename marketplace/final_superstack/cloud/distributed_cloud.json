@@ -1,0 +1,14 @@
+{
+  "distributed_cloud": {
+    "features": [
+      "multi_region_deployment",
+      "service_redundancy",
+      "regional_failover",
+      "object_storage",
+      "scalable_compute",
+      "backup_and_recovery",
+      "staging_and_production_separation"
+    ],
+    "purpose": "Make the platform reliable, scalable, and ready for broader deployment"
+  }
+}

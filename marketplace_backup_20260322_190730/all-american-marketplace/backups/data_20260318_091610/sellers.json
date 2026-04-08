@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "ownerUserId": 1,
+    "storeName": "Flow Store",
+    "email": "rider_1773837235@example.com",
+    "subscriptionTier": "premium",
+    "approved": false,
+    "createdAt": "2026-03-18T12:33:59.197Z"
+  }
+]

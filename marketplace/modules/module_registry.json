@@ -1,0 +1,92 @@
+{
+  "core": [
+    "dashboard",
+    "ecosystem-map",
+    "command-center",
+    "profile",
+    "feedback",
+    "activity",
+    "jarvis"
+  ],
+  "finance": [
+    "bank-of-yahavah",
+    "storefront-of-yahavah",
+    "el-saturn-finbank",
+    "el-saturn-international-bank",
+    "stubbs-lyons-abraham-card",
+    "payments-hub",
+    "cash-app-bridge",
+    "stripe-processing",
+    "trust-funding-roadmap",
+    "future-card-processor"
+  ],
+  "ai": [
+    "ai-center",
+    "lyons-tech-ai",
+    "stubbs-ai-hierarchy",
+    "agi-research-center",
+    "five-sense-interface",
+    "self-evaluation-lab",
+    "blockchain-intelligence-engine",
+    "performance-targets",
+    "kitt-automation",
+    "self-healing-system",
+    "self-repair-system",
+    "self-audit-system"
+  ],
+  "workforce": [
+    "call-center",
+    "ai-call-center",
+    "call-center/work-from-home",
+    "employment-hub",
+    "worlds-workforce-bridge"
+  ],
+  "worlds": [
+    "metaverse",
+    "middleverse",
+    "multiverse"
+  ],
+  "creator_media": [
+    "aniyah-app",
+    "aniyah-voice-coach",
+    "aniyah-crossborder",
+    "jacobie-vision",
+    "jacobie-holoverse",
+    "jacobie-cyber-security",
+    "jacobie-cyber-security-training",
+    "jacobie-employment",
+    "isaiah-ai-tv",
+    "kevon-shot-it",
+    "el-saturn-records",
+    "spectra-ent-records",
+    "artist-development",
+    "music-distribution",
+    "streaming-ecosystem",
+    "streaming-network-omni"
+  ],
+  "logistics": [
+    "food-delivery",
+    "delivery-tracking",
+    "driver-onboarding",
+    "ride-share",
+    "drone-delivery",
+    "medical-transport",
+    "freight-network",
+    "box-truck-network",
+    "semi-logistics",
+    "factoring-service",
+    "surety-bonds",
+    "holographic-menu"
+  ],
+  "security_infrastructure": [
+    "alton-security",
+    "home-security-system",
+    "blue-energy-system",
+    "ambient-energy-harvesting",
+    "auto-man-light-technology",
+    "el-saturn-robotics"
+  ],
+  "education": [
+    "university"
+  ]
+}

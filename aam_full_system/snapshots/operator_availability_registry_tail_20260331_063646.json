@@ -1,0 +1,3 @@
+[{"id":3,"operator_name":"Pharmacy Support Agent","support_channel":"voice","skill_group":"pharmacy","availability_mode":"live","availability_status":"available","created_at":"2026-03-31 11:36:47"},
+{"id":2,"operator_name":"Freight Desk Alpha","support_channel":"voice+email","skill_group":"freight","availability_mode":"live","availability_status":"available","created_at":"2026-03-31 11:36:47"},
+{"id":1,"operator_name":"Dispatch Lead One","support_channel":"voice+chat","skill_group":"rideshare","availability_mode":"live","availability_status":"available","created_at":"2026-03-31 11:36:47"}]

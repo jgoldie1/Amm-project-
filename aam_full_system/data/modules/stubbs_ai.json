@@ -1,0 +1,23 @@
+{
+  "name": "Stubbs AI",
+  "status": "active_build",
+  "category": "platform_intelligence",
+  "purpose": "Primary platform intelligence layer for orchestration, creator logic, command-center decisions, and ecosystem expansion.",
+  "features": [
+    "platform reasoning",
+    "creator economy orchestration",
+    "dashboard intelligence",
+    "task routing",
+    "module awareness",
+    "release readiness support"
+  ],
+  "connects_to": [
+    "system_config_registry",
+    "modules_index",
+    "jarvis",
+    "dashboard",
+    "creator_payouts",
+    "nft_launchpad",
+    "life_world"
+  ]
+}

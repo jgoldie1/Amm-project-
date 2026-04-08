@@ -1,0 +1,11 @@
+{
+  "voice_access": [
+    "voice_navigation",
+    "voice_commands",
+    "voice_form_entry",
+    "voice_search",
+    "voice_creator_controls",
+    "voice_stream_controls",
+    "voice_ai_assistant"
+  ]
+}

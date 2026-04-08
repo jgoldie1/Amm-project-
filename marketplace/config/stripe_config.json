@@ -1,0 +1,12 @@
+{
+  "mode": "scaffold",
+  "provider": "stripe",
+  "publishable_key": "",
+  "secret_key": "",
+  "webhook_secret": "",
+  "products": [
+    {"name": "Creator Pro", "price_monthly": 10},
+    {"name": "Creator Elite", "price_monthly": 30},
+    {"name": "Enterprise", "price_monthly": 100}
+  ]
+}

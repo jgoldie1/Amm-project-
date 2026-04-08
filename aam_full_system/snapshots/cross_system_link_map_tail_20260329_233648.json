@@ -1,0 +1,8 @@
+[{"id":8,"source_system":"holo_gpt_control","target_system":"platform_analytics","link_type":"assistant_flow","link_strength":"medium","link_status":"active","created_at":"2026-03-30 04:36:49"},
+{"id":7,"source_system":"asset_library","target_system":"creator_marketplace","link_type":"commerce_flow","link_strength":"high","link_status":"active","created_at":"2026-03-30 04:36:49"},
+{"id":6,"source_system":"asset_library","target_system":"world3d","link_type":"content_flow","link_strength":"high","link_status":"active","created_at":"2026-03-30 04:36:49"},
+{"id":5,"source_system":"transaction_engine","target_system":"scaling_control","link_type":"finance_flow","link_strength":"high","link_status":"active","created_at":"2026-03-30 04:36:49"},
+{"id":4,"source_system":"platform_analytics","target_system":"holo_search","link_type":"index_flow","link_strength":"medium","link_status":"active","created_at":"2026-03-30 04:36:49"},
+{"id":3,"source_system":"world_era_registry","target_system":"mobility_registry","link_type":"world_flow","link_strength":"high","link_status":"active","created_at":"2026-03-30 04:36:49"},
+{"id":2,"source_system":"territory_monetization_bridge","target_system":"creator_marketplace","link_type":"activation_flow","link_strength":"high","link_status":"active","created_at":"2026-03-30 04:36:49"},
+{"id":1,"source_system":"territory_registry","target_system":"territory_monetization_bridge","link_type":"data_flow","link_strength":"high","link_status":"active","created_at":"2026-03-30 04:36:49"}]

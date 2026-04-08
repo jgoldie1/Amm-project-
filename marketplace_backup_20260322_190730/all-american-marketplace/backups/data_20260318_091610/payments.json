@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "userId": 1,
+    "bookingId": 1,
+    "amount": 49.99,
+    "method": "card",
+    "currency": "USD",
+    "status": "paid",
+    "createdAt": "2026-03-18T12:33:58.892Z"
+  }
+]

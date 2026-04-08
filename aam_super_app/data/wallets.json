@@ -1,0 +1,191 @@
+{
+  "54148fa6-ce34-4baf-a911-c64a5afe6d25": {
+    "userId": "54148fa6-ce34-4baf-a911-c64a5afe6d25",
+    "balance": 250,
+    "credits": 0,
+    "pending": 28,
+    "lifetimeEarned": 28,
+    "platformFeesPaid": 12,
+    "updatedAt": "2026-04-05T17:59:36.960Z"
+  },
+  "a6f8705e-7905-49eb-9d42-3bc08401e7cc": {
+    "userId": "a6f8705e-7905-49eb-9d42-3bc08401e7cc",
+    "balance": 400,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T18:24:33.933Z"
+  },
+  "66baedeb-be49-4c12-9f22-76f5faa35254": {
+    "userId": "66baedeb-be49-4c12-9f22-76f5faa35254",
+    "balance": 214,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 14,
+    "platformFeesPaid": 6,
+    "updatedAt": "2026-04-05T18:26:52.762Z"
+  },
+  "b35047b9-7683-494c-bb35-dab7e99bd8c5": {
+    "userId": "b35047b9-7683-494c-bb35-dab7e99bd8c5",
+    "balance": 335,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 35,
+    "platformFeesPaid": 15,
+    "updatedAt": "2026-04-05T20:42:42.655Z"
+  },
+  "08012d1f-714a-45fb-827e-635bbf5d90dc": {
+    "userId": "08012d1f-714a-45fb-827e-635bbf5d90dc",
+    "balance": 0,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T21:10:46.829Z"
+  },
+  "58095921-de65-4046-af47-c0c9597de9df": {
+    "userId": "58095921-de65-4046-af47-c0c9597de9df",
+    "balance": 0,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T21:23:47.170Z"
+  },
+  "920d1cae-149f-42ae-b967-796be23c6e03": {
+    "userId": "920d1cae-149f-42ae-b967-796be23c6e03",
+    "balance": 0,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T21:24:16.815Z"
+  },
+  "a9cd71b7-9b2a-4ac3-b51f-c14690a79171": {
+    "userId": "a9cd71b7-9b2a-4ac3-b51f-c14690a79171",
+    "balance": 0,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T21:26:45.648Z"
+  },
+  "fef4eca9-b692-4c98-b5a4-38bcb2b54241": {
+    "userId": "fef4eca9-b692-4c98-b5a4-38bcb2b54241",
+    "balance": 0,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T21:32:41.390Z"
+  },
+  "b2f77089-ad27-4668-b9f9-b6d715b61d16": {
+    "userId": "b2f77089-ad27-4668-b9f9-b6d715b61d16",
+    "balance": 0,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T21:42:33.296Z"
+  },
+  "7e201f9d-c097-49f4-9245-af40fc729265": {
+    "userId": "7e201f9d-c097-49f4-9245-af40fc729265",
+    "balance": 0,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T21:42:34.698Z"
+  },
+  "ffed5ccb-a830-445e-8177-e07e7feae4e4": {
+    "userId": "ffed5ccb-a830-445e-8177-e07e7feae4e4",
+    "balance": 0,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T21:42:35.134Z"
+  },
+  "2604caad-11e6-4c3f-8668-a0f316f49bc7": {
+    "userId": "2604caad-11e6-4c3f-8668-a0f316f49bc7",
+    "balance": 0,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T22:18:28.201Z"
+  },
+  "ff29c0cf-a441-4a42-b00b-43b928a46a96": {
+    "userId": "ff29c0cf-a441-4a42-b00b-43b928a46a96",
+    "balance": 0,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T22:18:29.568Z"
+  },
+  "2189f891-9942-420b-9d63-dc17757d221b": {
+    "userId": "2189f891-9942-420b-9d63-dc17757d221b",
+    "balance": 0,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T22:18:30.005Z"
+  },
+  "90e37de1-2867-496d-897f-7ce5f372ca35": {
+    "userId": "90e37de1-2867-496d-897f-7ce5f372ca35",
+    "balance": 0,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T22:25:16.661Z"
+  },
+  "93df64e6-9a92-4ffb-b9d3-7a97da09d96d": {
+    "userId": "93df64e6-9a92-4ffb-b9d3-7a97da09d96d",
+    "balance": 0,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T22:25:18.015Z"
+  },
+  "827155f2-2641-4533-af23-6f99457cc7f7": {
+    "userId": "827155f2-2641-4533-af23-6f99457cc7f7",
+    "balance": 0,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T22:25:18.452Z"
+  },
+  "bb50e42a-2e46-49aa-b22f-8c93f841e00d": {
+    "userId": "bb50e42a-2e46-49aa-b22f-8c93f841e00d",
+    "balance": 0,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T22:31:21.172Z"
+  },
+  "bcd12663-e47b-488c-865b-670352dd3016": {
+    "userId": "bcd12663-e47b-488c-865b-670352dd3016",
+    "balance": 0,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T22:31:22.488Z"
+  },
+  "68497c04-734d-4066-9d7a-6973d23a6bd2": {
+    "userId": "68497c04-734d-4066-9d7a-6973d23a6bd2",
+    "balance": 0,
+    "credits": 0,
+    "pending": 0,
+    "lifetimeEarned": 0,
+    "platformFeesPaid": 0,
+    "updatedAt": "2026-04-05T22:31:22.923Z"
+  }
+}

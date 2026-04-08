@@ -1,0 +1,20 @@
+{
+  "score_style": "cinematic inspirational electronic",
+  "tracks": [
+    {
+      "cue": "arrival_theme",
+      "mood": "anticipation and wonder",
+      "duration_sec": 20
+    },
+    {
+      "cue": "transformation_theme",
+      "mood": "uplifting and powerful",
+      "duration_sec": 25
+    },
+    {
+      "cue": "broadcast_theme",
+      "mood": "victorious and expansive",
+      "duration_sec": 20
+    }
+  ]
+}

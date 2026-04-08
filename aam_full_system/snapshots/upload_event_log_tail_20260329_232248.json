@@ -1,0 +1,4 @@
+[{"id":4,"filename":"guide.pdf","asset_type":"document","uploader_name":"Jacobie","upload_status":"queued","upload_notes":"sample document intake","created_at":"2026-03-30 04:22:49"},
+{"id":3,"filename":"welcome_audio.mp3","asset_type":"audio","uploader_name":"Isaiah","upload_status":"queued","upload_notes":"sample audio intake","created_at":"2026-03-30 04:22:49"},
+{"id":2,"filename":"world_trailer.mp4","asset_type":"video","uploader_name":"Aniyah","upload_status":"queued","upload_notes":"sample video intake","created_at":"2026-03-30 04:22:49"},
+{"id":1,"filename":"sample_banner.png","asset_type":"image","uploader_name":"Jacobie","upload_status":"queued","upload_notes":"sample image intake","created_at":"2026-03-30 04:22:49"}]

@@ -1,0 +1,16 @@
+{
+  "missing_tables": [
+    "metaverse_sdk_registry",
+    "multiverse_sdk_registry",
+    "extension_package_registry",
+    "plugin_manifest_registry",
+    "dev_workspace_package_registry",
+    "simulation_toolkit_registry",
+    "package_install_log",
+    "release_bundle_registry",
+    "holographic_game_registry",
+    "holographic_world_registry",
+    "world_dev_registry"
+  ],
+  "gap_status": "needs_attention"
+}

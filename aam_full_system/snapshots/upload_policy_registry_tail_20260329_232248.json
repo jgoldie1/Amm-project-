@@ -1,0 +1,5 @@
+[{"id":5,"asset_type":"other","allowed_extensions":"zip,json,csv,glb,gltf","max_size_mb":250,"target_folder":"storage/uploads/other","policy_status":"active","created_at":"2026-03-30 04:22:49"},
+{"id":4,"asset_type":"document","allowed_extensions":"pdf,doc,docx,txt,md","max_size_mb":50,"target_folder":"storage/uploads/docs","policy_status":"active","created_at":"2026-03-30 04:22:49"},
+{"id":3,"asset_type":"audio","allowed_extensions":"mp3,wav,m4a,ogg","max_size_mb":100,"target_folder":"storage/uploads/audio","policy_status":"active","created_at":"2026-03-30 04:22:49"},
+{"id":2,"asset_type":"video","allowed_extensions":"mp4,webm,mov","max_size_mb":500,"target_folder":"storage/uploads/video","policy_status":"active","created_at":"2026-03-30 04:22:49"},
+{"id":1,"asset_type":"image","allowed_extensions":"png,jpg,jpeg,webp,gif","max_size_mb":25,"target_folder":"storage/uploads/images","policy_status":"active","created_at":"2026-03-30 04:22:49"}]

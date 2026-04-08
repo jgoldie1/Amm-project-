@@ -1,0 +1,10 @@
+PASS S ACCOUNT AUTH ROLE REPORT
+Timestamp: 20260403_083130
+
+Built:
+- account center registry
+- auth session registry
+- role access registry
+- user profile registry
+- account center page
+- account safe actions

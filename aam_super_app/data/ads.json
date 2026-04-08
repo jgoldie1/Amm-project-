@@ -1,0 +1,26 @@
+[
+  {
+    "id": "8e81820e-9878-49e3-8fac-e1ce91b8732d",
+    "adId": "holo-002",
+    "placement": "holo-overlay",
+    "viewerId": "viewer-456",
+    "revenue": 2.5,
+    "at": "2026-04-05T17:59:30.459Z"
+  },
+  {
+    "id": "3aed5a83-9560-4f78-a14e-d633af0c483c",
+    "adId": "holo-002",
+    "placement": "holo-overlay",
+    "viewerId": "viewer-456",
+    "revenue": 2.5,
+    "at": "2026-04-05T17:59:37.026Z"
+  },
+  {
+    "id": "829991a3-6c78-402d-8864-c27d54e33e73",
+    "adId": "holo-test-003",
+    "placement": "holo-overlay",
+    "viewerId": "viewer-test",
+    "revenue": 3.75,
+    "at": "2026-04-05T20:42:42.721Z"
+  }
+]

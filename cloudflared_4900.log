@@ -1,0 +1,199 @@
+2026-04-06T23:02:52Z INF Thank you for trying Cloudflare Tunnel. Doing so, without a Cloudflare account, is a quick way to experiment and try it out. However, be aware that these account-less Tunnels have no uptime guarantee, are subject to the Cloudflare Online Services Terms of Use (https://www.cloudflare.com/website-terms/), and Cloudflare reserves the right to investigate your use of Tunnels for violations of such terms. If you intend to use Tunnels in production you should use a pre-created named tunnel by following: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps
+2026-04-06T23:02:52Z INF Requesting new quick Tunnel on trycloudflare.com...
+2026-04-06T23:03:00Z INF +--------------------------------------------------------------------------------------------+
+2026-04-06T23:03:00Z INF |  Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):  |
+2026-04-06T23:03:00Z INF |  https://gossip-stores-connections-bridal.trycloudflare.com                                |
+2026-04-06T23:03:00Z INF +--------------------------------------------------------------------------------------------+
+2026-04-06T23:03:00Z INF Cannot determine default configuration path. No file [config.yml config.yaml] in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp /etc/cloudflared /usr/local/etc/cloudflared]
+2026-04-06T23:03:00Z INF Version 2026.3.0 (Checksum 07a894ca71bd161346dd6692b89609b3106dd3541f127f39de62cc0229d77bff)
+2026-04-06T23:03:00Z INF GOOS: android, GOVersion: go1.26.1, GoArch: arm64
+2026-04-06T23:03:00Z INF Settings: map[ha-connections:1 p:http2 protocol:http2 url:http://localhost:4900]
+2026-04-06T23:03:00Z INF Autoupdate frequency is set autoupdateFreq=86400000
+2026-04-06T23:03:01Z INF Generated Connector ID: 111dfb9f-bb54-40c2-826e-6bf38ea1b869
+2026-04-06T23:03:01Z INF Initial protocol http2
+2026-04-06T23:03:01Z INF ICMP proxy will use 192.168.1.115 as source for IPv4
+2026-04-06T23:03:01Z INF ICMP proxy will use :: as source for IPv6
+2026-04-06T23:03:01Z WRN The user running cloudflared process has a GID (group ID) that is not within ping_group_range. You might need to add that user to a group within that range, or instead update the range to encompass a group the user is already in by modifying /proc/sys/net/ipv4/ping_group_range. Otherwise cloudflared will not be able to ping this network error="open /proc/sys/net/ipv4/ping_group_range: permission denied"
+2026-04-06T23:03:01Z INF ICMP proxy will use 192.168.1.115 as source for IPv4
+2026-04-06T23:03:01Z INF ICMP proxy will use :: as source for IPv6
+2026-04-06T23:03:01Z INF Starting metrics server on 127.0.0.1:20241/metrics
+2026-04-06T23:03:16Z ERR Unable to establish connection with Cloudflare edge error="DialContext error: dial tcp 198.41.192.67:7844: i/o timeout" connIndex=0 event=0 ip=198.41.192.67
+2026-04-06T23:03:16Z ERR Serve tunnel error error="DialContext error: dial tcp 198.41.192.67:7844: i/o timeout" connIndex=0 event=0 ip=198.41.192.67
+2026-04-06T23:03:16Z INF Retrying connection in up to 2s connIndex=0 event=0 ip=198.41.192.67
+2026-04-06T23:03:18Z INF Registered tunnel connection connIndex=0 connection=edb34f27-4033-4884-bf1e-a6a1d33d48af event=0 ip=198.41.200.193 location=ord11 protocol=http2
+2026-04-06T23:10:14Z INF Lost connection with the edge connIndex=0
+2026-04-06T23:10:14Z ERR failed to serve incoming request error="Error shutting down control stream: context canceled"
+2026-04-06T23:10:14Z ERR Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:10:14Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:10:15Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-06T23:10:22Z INF Registered tunnel connection connIndex=0 connection=2fbaab55-2e77-4eee-9cad-8660ced0be71 event=0 ip=198.41.200.193 location=ord12 protocol=http2
+2026-04-06T23:12:56Z ERR failed to serve incoming request error="Error shutting down control stream: context canceled"
+2026-04-06T23:12:56Z INF Lost connection with the edge connIndex=0
+2026-04-06T23:12:56Z ERR Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:12:56Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:12:58Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-06T23:13:08Z ERR Failed to refresh DNS local resolver error="lookup region1.v2.argotunnel.com: i/o timeout"
+2026-04-06T23:13:20Z INF Registered tunnel connection connIndex=0 connection=e766ad52-90d0-493e-b4ba-d891ef15e3f0 event=0 ip=198.41.200.193 location=ord11 protocol=http2
+2026-04-06T23:15:16Z INF Lost connection with the edge connIndex=0
+2026-04-06T23:15:16Z ERR failed to serve incoming request error="Error shutting down control stream: client disconnected"
+2026-04-06T23:15:16Z ERR Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:15:16Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:15:17Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-06T23:15:23Z INF Registered tunnel connection connIndex=0 connection=9af09f0d-c501-4584-a690-5cd35d3fe424 event=0 ip=198.41.200.193 location=ord07 protocol=http2
+2026-04-06T23:16:36Z ERR failed to serve incoming request error="Error shutting down control stream: context canceled"
+2026-04-06T23:16:36Z ERR Serve tunnel error error="Error shutting down control stream: context canceled" connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:16:36Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:16:36Z ERR Connection terminated error="Error shutting down control stream: context canceled" connIndex=0
+2026-04-06T23:16:51Z INF Registered tunnel connection connIndex=0 connection=1395c95d-3b9d-414e-a4d2-6be6f4ebd552 event=0 ip=198.41.200.193 location=ord12 protocol=http2
+2026-04-06T23:18:13Z ERR Failed to refresh DNS local resolver error="lookup region1.v2.argotunnel.com: i/o timeout"
+2026-04-06T23:22:31Z INF Lost connection with the edge connIndex=0
+2026-04-06T23:22:31Z ERR Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:22:31Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:22:31Z ERR failed to serve incoming request error="Error shutting down control stream: context canceled"
+2026-04-06T23:22:32Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-06T23:22:56Z INF Registered tunnel connection connIndex=0 connection=c2756037-cf72-4795-b0f1-ad90abefefc7 event=0 ip=198.41.200.193 location=ord12 protocol=http2
+2026-04-06T23:23:18Z ERR Failed to refresh DNS local resolver error="lookup region1.v2.argotunnel.com: i/o timeout"
+2026-04-06T23:23:32Z ERR failed to serve incoming request error="Error shutting down control stream: client disconnected"
+2026-04-06T23:23:32Z ERR Serve tunnel error error="Error shutting down control stream: client disconnected" connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:23:32Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:23:34Z ERR Connection terminated error="Error shutting down control stream: client disconnected" connIndex=0
+2026-04-06T23:24:04Z ERR failed to serve incoming request error="context deadline exceeded"
+2026-04-06T23:24:10Z ERR Register tunnel error from server side error="context deadline exceeded" connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:24:10Z INF Retrying connection in up to 4s connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:24:11Z ERR Connection terminated error="context deadline exceeded" connIndex=0
+2026-04-06T23:24:40Z INF Registered tunnel connection connIndex=0 connection=0500e39b-05b8-4b53-92d3-98ecfad725a9 event=0 ip=198.41.200.193 location=ord12 protocol=http2
+2026-04-06T23:24:58Z INF Lost connection with the edge connIndex=0
+2026-04-06T23:24:58Z WRN Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:24:58Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:24:58Z ERR failed to serve incoming request error="Error shutting down control stream: context canceled"
+2026-04-06T23:24:59Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-06T23:25:42Z INF Registered tunnel connection connIndex=0 connection=129d23d4-26d8-4f42-bcf6-3d5bd0df176f event=0 ip=198.41.200.193 location=ord12 protocol=http2
+2026-04-06T23:35:54Z INF Lost connection with the edge connIndex=0
+2026-04-06T23:35:54Z ERR failed to serve incoming request error="Error shutting down control stream: client disconnected"
+2026-04-06T23:35:54Z ERR Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:35:54Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:35:54Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-06T23:36:15Z INF Registered tunnel connection connIndex=0 connection=8248b82d-c45a-4c34-98ad-62f3637a656b event=0 ip=198.41.200.193 location=ord11 protocol=http2
+2026-04-06T23:53:22Z ERR failed to serve incoming request error="Error shutting down control stream: client disconnected"
+2026-04-06T23:53:22Z INF Lost connection with the edge connIndex=0
+2026-04-06T23:53:22Z ERR Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:53:22Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:53:22Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-06T23:53:27Z ERR Failed to refresh DNS local resolver error="lookup region1.v2.argotunnel.com: i/o timeout"
+2026-04-06T23:53:50Z INF Lost connection with the edge connIndex=0
+2026-04-06T23:53:50Z ERR Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:53:50Z INF Retrying connection in up to 4s connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:53:51Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-06T23:54:13Z ERR Unable to establish connection with Cloudflare edge error="TLS handshake with edge error: read tcp 192.168.1.115:33290->198.41.200.193:7844: i/o timeout" connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:54:13Z ERR Serve tunnel error error="TLS handshake with edge error: read tcp 192.168.1.115:33290->198.41.200.193:7844: i/o timeout" connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:54:13Z INF Retrying connection in up to 8s connIndex=0 event=0 ip=198.41.200.193
+2026-04-06T23:54:19Z ERR Connection terminated error="TLS handshake with edge error: read tcp 192.168.1.115:33290->198.41.200.193:7844: i/o timeout" connIndex=0
+2026-04-06T23:55:20Z INF Lost connection with the edge connIndex=0
+2026-04-06T23:55:20Z ERR Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.43
+2026-04-06T23:55:20Z INF Retrying connection in up to 16s connIndex=0 event=0 ip=198.41.200.43
+2026-04-06T23:55:39Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-06T23:57:25Z INF Registered tunnel connection connIndex=0 connection=075a7ecf-d2e0-400a-a16e-1b06eada7fb9 event=0 ip=198.41.200.43 location=ord12 protocol=http2
+2026-04-06T23:57:47Z INF Lost connection with the edge connIndex=0
+2026-04-06T23:57:47Z WRN Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.43
+2026-04-06T23:57:47Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-04-06T23:57:47Z ERR failed to serve incoming request error="Error shutting down control stream: client disconnected"
+2026-04-06T23:57:47Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-07T00:02:06Z INF Registered tunnel connection connIndex=0 connection=85db9919-40b8-4973-8ea1-28b7d2bfc504 event=0 ip=198.41.200.43 location=ord07 protocol=http2
+2026-04-07T00:03:38Z ERR Failed to refresh DNS local resolver error="lookup region1.v2.argotunnel.com: i/o timeout"
+2026-04-07T00:03:49Z INF Lost connection with the edge connIndex=0
+2026-04-07T00:03:49Z ERR failed to serve incoming request error="Error shutting down control stream: client disconnected"
+2026-04-07T00:03:49Z WRN Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:03:49Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:03:50Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-07T00:08:20Z INF Registered tunnel connection connIndex=0 connection=e31cbc83-3ff0-4213-b97e-155dc22411de event=0 ip=198.41.200.43 location=ord12 protocol=http2
+2026-04-07T00:11:45Z INF Lost connection with the edge connIndex=0
+2026-04-07T00:11:45Z ERR Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:11:45Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:11:45Z ERR failed to serve incoming request error="Error shutting down control stream: context canceled"
+2026-04-07T00:11:45Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-07T00:11:59Z INF Registered tunnel connection connIndex=0 connection=f856588a-eef2-43e8-b1d6-cd97d7c0ca36 event=0 ip=198.41.200.43 location=ord12 protocol=http2
+2026-04-07T00:12:05Z INF Lost connection with the edge connIndex=0
+2026-04-07T00:12:05Z WRN Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:12:05Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:12:05Z ERR failed to serve incoming request error="Error shutting down control stream: context canceled"
+2026-04-07T00:12:06Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-07T00:12:30Z INF Registered tunnel connection connIndex=0 connection=b8a1346f-ba6c-43b4-b294-5d19bf118c7c event=0 ip=198.41.200.43 location=ord12 protocol=http2
+2026-04-07T00:15:31Z ERR failed to serve incoming request error="Error shutting down control stream: client disconnected"
+2026-04-07T00:15:31Z ERR Serve tunnel error error="Error shutting down control stream: client disconnected" connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:15:31Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:15:31Z ERR Connection terminated error="Error shutting down control stream: client disconnected" connIndex=0
+2026-04-07T00:15:40Z INF Registered tunnel connection connIndex=0 connection=116e1ee3-eda4-4dd8-922d-098d178d4b9a event=0 ip=198.41.200.43 location=ord11 protocol=http2
+2026-04-07T00:26:38Z INF Lost connection with the edge connIndex=0
+2026-04-07T00:26:38Z ERR failed to serve incoming request error="Error shutting down control stream: context canceled"
+2026-04-07T00:26:38Z ERR Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:26:38Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:26:38Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-07T00:26:39Z INF Registered tunnel connection connIndex=0 connection=bbf22512-7f0f-45f3-8603-dad2d9b6dc48 event=0 ip=198.41.200.43 location=ord12 protocol=http2
+2026-04-07T00:26:44Z INF Lost connection with the edge connIndex=0
+2026-04-07T00:26:44Z ERR failed to serve incoming request error="Error shutting down control stream: client disconnected"
+2026-04-07T00:26:44Z ERR Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:26:44Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:26:46Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-07T00:26:48Z INF Registered tunnel connection connIndex=0 connection=b72609ea-6146-466e-80e7-dcebce9e546b event=0 ip=198.41.200.43 location=ord12 protocol=http2
+2026-04-07T00:29:05Z INF Lost connection with the edge connIndex=0
+2026-04-07T00:29:05Z ERR failed to serve incoming request error="Error shutting down control stream: context canceled"
+2026-04-07T00:29:05Z ERR Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:29:05Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:29:06Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-07T00:29:16Z INF Registered tunnel connection connIndex=0 connection=69bce52f-3351-4d6b-8799-f65eaa8ebfe1 event=0 ip=198.41.200.43 location=ord11 protocol=http2
+2026-04-07T00:30:54Z INF Lost connection with the edge connIndex=0
+2026-04-07T00:30:54Z WRN Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:30:54Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:30:54Z ERR failed to serve incoming request error="Error shutting down control stream: client disconnected"
+2026-04-07T00:30:54Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-07T00:31:06Z INF Registered tunnel connection connIndex=0 connection=e3f13d85-748e-4059-8255-737aed870e60 event=0 ip=198.41.200.43 location=ord07 protocol=http2
+2026-04-07T00:32:31Z ERR failed to serve incoming request error="Error shutting down control stream: context canceled"
+2026-04-07T00:32:31Z ERR Serve tunnel error error="Error shutting down control stream: context canceled" connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:32:31Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:32:32Z ERR Connection terminated error="Error shutting down control stream: context canceled" connIndex=0
+2026-04-07T00:32:38Z INF Registered tunnel connection connIndex=0 connection=31a7735b-e289-493f-82e2-2afe924d71da event=0 ip=198.41.200.43 location=ord11 protocol=http2
+2026-04-07T00:40:34Z ERR Serve tunnel error error="Error shutting down control stream: client disconnected" connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:40:34Z ERR failed to serve incoming request error="Error shutting down control stream: client disconnected"
+2026-04-07T00:40:34Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:40:36Z ERR Connection terminated error="Error shutting down control stream: client disconnected" connIndex=0
+2026-04-07T00:40:38Z INF Registered tunnel connection connIndex=0 connection=1d68fa3d-0130-48cb-8b15-43a7e846e234 event=0 ip=198.41.200.43 location=ord12 protocol=http2
+2026-04-07T00:41:40Z INF Lost connection with the edge connIndex=0
+2026-04-07T00:41:40Z ERR failed to serve incoming request error="Error shutting down control stream: context canceled"
+2026-04-07T00:41:40Z ERR Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:41:40Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:41:41Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-07T00:41:54Z INF Registered tunnel connection connIndex=0 connection=a03c976d-205f-46e3-94d1-f4210f638e38 event=0 ip=198.41.200.43 location=ord11 protocol=http2
+2026-04-07T00:43:06Z INF Lost connection with the edge connIndex=0
+2026-04-07T00:43:06Z ERR failed to serve incoming request error="Error shutting down control stream: context canceled"
+2026-04-07T00:43:06Z WRN Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:43:06Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:43:07Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-07T00:43:43Z INF Registered tunnel connection connIndex=0 connection=4107c04a-69ba-447f-986c-8966dea86b20 event=0 ip=198.41.200.43 location=ord12 protocol=http2
+2026-04-07T00:47:38Z INF Lost connection with the edge connIndex=0
+2026-04-07T00:47:38Z WRN Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:47:38Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:47:38Z ERR failed to serve incoming request error="Error shutting down control stream: rpc: connection closed"
+2026-04-07T00:47:39Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-07T00:47:46Z INF Registered tunnel connection connIndex=0 connection=e3d4d045-fee3-4c3c-a4ec-37be9536e3ac event=0 ip=198.41.200.43 location=ord07 protocol=http2
+2026-04-07T00:48:32Z INF Lost connection with the edge connIndex=0
+2026-04-07T00:48:32Z ERR failed to serve incoming request error="Error shutting down control stream: client disconnected"
+2026-04-07T00:48:32Z ERR Serve tunnel error error="connection with edge closed" connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:48:32Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:48:33Z ERR Connection terminated error="connection with edge closed" connIndex=0
+2026-04-07T00:48:58Z INF Registered tunnel connection connIndex=0 connection=19c79843-30af-4f00-be3f-dbcabb96f2cd event=0 ip=198.41.200.43 location=ord11 protocol=http2
+2026-04-07T00:49:44Z ERR failed to serve incoming request error="Error shutting down control stream: context canceled"
+2026-04-07T00:49:44Z WRN Serve tunnel error error="Error shutting down control stream: context canceled" connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:49:44Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:49:45Z ERR Connection terminated error="Error shutting down control stream: context canceled" connIndex=0
+2026-04-07T00:50:19Z ERR Unable to establish connection with Cloudflare edge error="TLS handshake with edge error: read tcp 192.168.1.115:38772->198.41.200.43:7844: i/o timeout" connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:50:19Z ERR Serve tunnel error error="TLS handshake with edge error: read tcp 192.168.1.115:38772->198.41.200.43:7844: i/o timeout" connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:50:19Z INF Retrying connection in up to 4s connIndex=0 event=0 ip=198.41.200.43
+2026-04-07T00:50:20Z ERR Connection terminated error="TLS handshake with edge error: read tcp 192.168.1.115:38772->198.41.200.43:7844: i/o timeout" connIndex=0
+2026-04-07T00:51:30Z INF Registered tunnel connection connIndex=0 connection=a6c5ef15-31d8-4a39-a2ef-34f06013d34a event=0 ip=198.41.192.7 location=ord10 protocol=http2
+2026-04-07T00:52:53Z INF Initiating graceful shutdown due to signal terminated ...
+2026-04-07T00:52:54Z INF Unregistered tunnel connection connIndex=0 event=0 ip=198.41.192.7
+2026-04-07T00:52:55Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.192.7
+2026-04-07T00:52:55Z ERR Connection terminated connIndex=0
+2026-04-07T00:52:55Z ERR no more connections active and exiting
+2026-04-07T00:52:55Z INF Tunnel server stopped
+2026-04-07T00:52:55Z INF Metrics server stopped

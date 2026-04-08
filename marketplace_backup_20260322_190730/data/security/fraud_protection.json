@@ -1,0 +1,11 @@
+{
+"system":"Platform Fraud Protection",
+"modules":[
+"chargeback shield",
+"escrow payments",
+"delivery confirmation",
+"creator transaction logging",
+"fraud risk scoring",
+"vendor verification"
+]
+}

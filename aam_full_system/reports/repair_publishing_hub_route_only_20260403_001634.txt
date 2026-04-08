@@ -1,0 +1,10 @@
+REPAIR PUBLISHING HUB ROUTE ONLY REPORT
+Timestamp: 20260403_001634
+
+Fixed:
+- publishing hub helper
+- publishing hub GET route
+
+Purpose:
+- remove the last visible route gap from the Hollywood/music stack
+- preserve stable runtime

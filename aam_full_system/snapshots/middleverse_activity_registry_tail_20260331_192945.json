@@ -1,0 +1,4 @@
+[{"id":4,"activity_name":"bridge_activity","activity_group":"crossworld","linked_user":"Demo User","linked_session":"AAM Bridge Session 1","linked_world":"middleverse","activity_status":"active","created_at":"2026-04-01 00:30:04"},
+{"id":3,"activity_name":"joined_service_grid","activity_group":"service","linked_user":"Ops User","linked_session":"Dispatch Bridge Session","linked_world":"service_grid","activity_status":"active","created_at":"2026-04-01 00:29:46"},
+{"id":2,"activity_name":"opened_holo_store","activity_group":"commerce","linked_user":"Demo User","linked_session":"AAM Bridge Session 1","linked_world":"market_world","activity_status":"active","created_at":"2026-04-01 00:29:46"},
+{"id":1,"activity_name":"entered_creator_world","activity_group":"creator","linked_user":"Demo User","linked_session":"AAM Bridge Session 1","linked_world":"creator_world","activity_status":"active","created_at":"2026-04-01 00:29:46"}]

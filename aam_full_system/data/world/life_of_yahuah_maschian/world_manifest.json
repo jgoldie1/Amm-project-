@@ -1,0 +1,24 @@
+{
+  "title": "The Life of Yahuah Maschian: King of Kings",
+  "status": "playable_foundation",
+  "realms": [
+    {
+      "id": "metaverse",
+      "name": "Metaverse",
+      "purpose": "Visible world exploration, cities, missions, encounters, trade, and movement."
+    },
+    {
+      "id": "middleverse",
+      "name": "Middleverse",
+      "purpose": "Inner trials, wisdom gates, symbolic missions, visions, and spiritual progression."
+    },
+    {
+      "id": "multiverse",
+      "name": "Multiverse",
+      "purpose": "Expanded kingdom pathways, branching eras, alternate mission arcs, and world-scale destiny events."
+    }
+  ],
+  "starting_scene": "scene_001",
+  "starting_zone": "bethlehem",
+  "playable": true
+}

@@ -1,0 +1,9 @@
+{
+  "status": "tracking_enabled",
+  "policy": [
+    "Use original, licensed, or permission-cleared music only",
+    "Track provider used for each generated asset",
+    "Log creator ownership and export rights"
+  ],
+  "assets": []
+}

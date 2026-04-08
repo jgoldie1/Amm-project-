@@ -1,0 +1,9 @@
+- MFA for admins
+- JWT/session expiration
+- At-rest encryption
+- In-transit TLS
+- Role-based access control
+- Audit logging
+- Key rotation
+- Secrets management
+- Fraud detection and anomaly monitoring

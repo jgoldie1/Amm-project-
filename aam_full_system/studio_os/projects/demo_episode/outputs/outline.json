@@ -1,0 +1,19 @@
+{
+  "title": "Episode 1: Enter the Marketplace",
+  "theme": "futuristic creator economy",
+  "goal": "introduce the world and drive users into the platform",
+  "acts": [
+    {
+      "name": "Hook",
+      "summary": "A creator sees the holographic gateway open."
+    },
+    {
+      "name": "Discovery",
+      "summary": "Jarvis explains the marketplace and Life World."
+    },
+    {
+      "name": "Call To Action",
+      "summary": "The creator enters the system and invites others."
+    }
+  ]
+}

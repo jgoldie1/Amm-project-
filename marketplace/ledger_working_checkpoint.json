@@ -1,0 +1,84 @@
+{
+  "blockchain": [
+    {
+      "index": 0,
+      "time": "2026-03-13 13:16:44.394440",
+      "data": "Genesis Block"
+    }
+  ],
+  "wallets": {
+    "Marketplace": 950,
+    "Vendor": 300,
+    "Customer": 100,
+    "Jarvis": 500
+  },
+  "transactions": [
+    {
+      "from": "Marketplace",
+      "to": "Vendor",
+      "amount": 25,
+      "product": "Holographic Stream Pass",
+      "time": "2026-03-13 16:11:00.469528"
+    },
+    {
+      "from": "Marketplace",
+      "to": "Vendor",
+      "amount": 25,
+      "product": "Holographic Stream Pass",
+      "time": "2026-03-13 16:11:23.198784"
+    }
+  ],
+  "jarvis": {
+    "status": "Standby",
+    "mode": "Safe",
+    "last_command": "None",
+    "history": []
+  },
+  "activity": [
+    {
+      "time": "2026-03-13 13:52:15.961846",
+      "event": "System initialized"
+    },
+    {
+      "time": "2026-03-13 16:11:00.469905",
+      "event": "Purchased Holographic Stream Pass for 25"
+    },
+    {
+      "time": "2026-03-13 16:11:23.198888",
+      "event": "Purchased Holographic Stream Pass for 25"
+    }
+  ],
+  "streaming": {
+    "status": "Idle",
+    "channel": "AAM Live",
+    "mode": "Holographic Preview"
+  },
+  "products": [
+    {
+      "id": 1,
+      "name": "Holographic Stream Pass",
+      "price": 25,
+      "description": "Access to premium holographic stream features"
+    },
+    {
+      "id": 2,
+      "name": "Marketplace Vendor Boost",
+      "price": 40,
+      "description": "Boost vendor visibility in the marketplace"
+    },
+    {
+      "id": 3,
+      "name": "Jarvis Control Upgrade",
+      "price": 60,
+      "description": "Expanded Jarvis assistant controls"
+    }
+  ],
+  "project": "All American Marketplace",
+  "status": "running",
+  "settings": {
+    "text_size": "Large",
+    "contrast": "High",
+    "motion": "Reduced",
+    "store_mode": "Simple"
+  }
+}

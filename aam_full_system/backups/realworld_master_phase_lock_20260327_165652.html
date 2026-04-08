@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AAM Real World Engine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.115/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <style>
+    html, body, #app, #cesiumContainer {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #020617;
+      font-family: Arial, sans-serif;
+    }
+    .hud {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 10;
+      max-width: 520px;
+      background: rgba(2, 6, 23, 0.86);
+      color: #fff;
+      border: 1px solid #334155;
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 10px 28px rgba(0,0,0,.28);
+      backdrop-filter: blur(10px);
+    }
+    .hud h1 { margin: 0 0 8px 0; font-size: 1.25rem; }
+    .hud p { margin: 0 0 10px 0; line-height: 1.5; }
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    button, a.action, select {
+      min-height: 46px;
+      border-radius: 12px;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .status {
+      margin-top: 8px;
+      font-size: 0.92rem;
+      color: #cbd5e1;
+    }
+    .interaction-panel {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      z-index: 10;
+      width: min(420px, calc(100vw - 24px));
+      background: rgba(2, 6, 23, 0.86);
+      color: #fff;
+      border: 1px solid #334155;
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 10px 28px rgba(0,0,0,.28);
+      backdrop-filter: blur(10px);
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="hud">
+      <h1>AAM Real World Engine</h1>
+      <p>This geospatial layer now uses a dynamic city registry so you can keep adding more cities later.</p>
+      <div class="row">
+        <select id="citySelect" aria-label="Choose city"></select>
+        <button id="btnFly">Fly To City</button>
+      </div>
+      <div class="row">
+        <a class="action" href="/realworld-client">Real World Client</a>
+        <a class="action" href="/world3d">Web 3D</a>
+        <a class="action" href="/engine-bridge">Engine Bridge</a>
+      </div>
+      <div class="status" id="statusText">Waiting for Cesium to load...</div>
+    </div>
+
+    <div class="interaction-panel" aria-live="polite">
+      <h2 style="margin:0 0 8px 0;">City Interaction</h2>
+      <p id="interactionText">Choose a city and jump to a linked ecosystem surface.</p>
+      <div class="row">
+        <a id="interactionLink" class="action" href="/realworld-client">Open Target</a>
+      </div>
+    </div>
+
+    <div id="cesiumContainer"></div>
+  </div>
+
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.115/Build/Cesium/Cesium.js"></script>
+  <script>
+    async function loadJson(url) {
+      const res = await fetch(url);
+      return await res.json();
+    }
+
+    async function loadToken() {
+      try {
+        const res = await fetch('/realworld-token');
+        const data = await res.json();
+        return data.token || '';
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function setStatus(msg) {
+      document.getElementById('statusText').textContent = msg;
+    }
+
+    function setInteraction(label, desc, href) {
+      document.getElementById('interactionText').textContent = `${label}: ${desc}`;
+      const link = document.getElementById('interactionLink');
+      link.href = href;
+      link.textContent = `Open ${label}`;
+    }
+
+    function flyToLocation(viewer, lon, lat, height) {
+      viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(lon, lat, height)
+      });
+    }
+
+    (async () => {
+      const token = await loadToken();
+      if (!token || token === 'PASTE_YOUR_CESIUM_ION_TOKEN_HERE') {
+        setStatus('Cesium token not set yet. Add your token to config/cesium.env, then reload.');
+        return;
+      }
+
+      Cesium.Ion.defaultAccessToken = token;
+      const cities = await loadJson('/realworld-cities');
+
+      const viewer = new Cesium.Viewer('cesiumContainer', {
+        terrain: Cesium.Terrain.fromWorldTerrain(),
+        animation: false,
+        timeline: false,
+        homeButton: true,
+        geocoder: false,
+        sceneModePicker: true,
+        baseLayerPicker: true,
+        navigationHelpButton: false,
+        infoBox: false,
+        selectionIndicator: false
+      });
+
+      const citySelect = document.getElementById('citySelect');
+      cities.forEach(city => {
+        const opt = document.createElement('option');
+        opt.value = city.id;
+        opt.textContent = `${city.city_name}, ${city.state_name}`;
+        citySelect.appendChild(opt);
+
+        viewer.entities.add({
+          name: `${city.city_name}, ${city.state_name}`,
+          position: Cesium.Cartesian3.fromDegrees(city.longitude, city.latitude),
+          point: {
+            pixelSize: 12,
+            color: Cesium.Color.CYAN,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2
+          },
+          label: {
+            text: city.city_name,
+            font: '14px sans-serif',
+            fillColor: Cesium.Color.WHITE,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            outlineWidth: 2,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(0, -14)
+          },
+          properties: {
+            route: city.destination_route,
+            desc: `${city.region_name} region anchor`
+          }
+        });
+      });
+
+      function selectCity(city) {
+        flyToLocation(viewer, city.longitude, city.latitude, city.height || 1800);
+        setInteraction(`${city.city_name}, ${city.state_name}`, `${city.region_name} region anchor`, city.destination_route);
+      }
+
+      document.getElementById('btnFly').addEventListener('click', () => {
+        const city = cities.find(c => String(c.id) === String(citySelect.value));
+        if (city) selectCity(city);
+      });
+
+      const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+      handler.setInputAction(function(click) {
+        const picked = viewer.scene.pick(click.position);
+        if (Cesium.defined(picked) && picked.id && picked.id.properties) {
+          const label = picked.id.name || 'Anchor';
+          const desc = picked.id.properties.desc.getValue();
+          const route = picked.id.properties.route.getValue();
+          setInteraction(label, desc, route);
+        }
+      }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+      if (cities.length) {
+        citySelect.value = cities[0].id;
+        selectCity(cities[0]);
+      }
+
+      setStatus('Cesium loaded. Dynamic city registry active.');
+    })();
+  </script>
+</body>
+</html>

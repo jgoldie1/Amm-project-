@@ -1,0 +1,22 @@
+{
+  "collectibles": {
+    "types": [
+      "artist_cards",
+      "stream_rewards",
+      "battle_cards",
+      "music_drop_cards",
+      "limited_event_cards",
+      "ministry_cards",
+      "supporter_badges"
+    ],
+    "features": [
+      "holographic_visuals",
+      "printable_decks",
+      "resale_royalty_model",
+      "creator_branded_collections",
+      "battle_stats",
+      "rarity_tiers"
+    ],
+    "purpose": "Create a collectible economy tied to creators, battles, and platform engagement"
+  }
+}

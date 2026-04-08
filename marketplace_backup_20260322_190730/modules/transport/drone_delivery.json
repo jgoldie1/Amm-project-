@@ -1,0 +1,9 @@
+{
+ "system":"drone_delivery",
+ "features":[
+ "drone fleet management",
+ "delivery routing",
+ "landing zone mapping",
+ "package tracking"
+ ]
+}

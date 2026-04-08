@@ -1,0 +1,17 @@
+CHARACTER RIG PIPELINE + AVATAR CONTROL REPORT
+Timestamp: 20260327_123139
+
+Added:
+- avatar_characters
+- avatar_profile_uploads
+- avatar_rig_profiles
+- avatar_workflow_jobs
+- avatar_deployment_targets
+- avatar_holographic_profiles
+- /avatar-rig-control
+
+Purpose:
+- prepare user-uploaded front and side profile intake
+- prepare 3D / 5D-style holographic rig records
+- organize deployment targets for metaverse, middleverse, and multiverse play
+- make the platform more avatar-ready and disability-accessible

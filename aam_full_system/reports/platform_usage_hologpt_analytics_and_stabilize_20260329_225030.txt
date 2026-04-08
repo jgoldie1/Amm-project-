@@ -1,0 +1,18 @@
+PLATFORM USAGE + HOLO GPT ANALYTICS + STABILIZE REPORT
+Timestamp: 20260329_225030
+
+Added:
+- platform_user_sessions
+- platform_user_activity
+- platform_usage_metrics
+- holo_gpt_sessions
+- holo_gpt_events
+- holoverse_presence
+- platform-analytics route
+- holo-gpt-control route
+
+Purpose:
+- track how many users are using the platform
+- track route/world/territory activity
+- track holoverse and holo gpt usage
+- stabilize analytics visibility

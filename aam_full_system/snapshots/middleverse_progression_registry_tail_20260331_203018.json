@@ -1,0 +1,4 @@
+[{"id":4,"progression_name":"safe_progression","progression_group":"growth","level_name":"level_safe","unlock_target":"unlock_safe","progression_scope":"platform","progression_status":"active","created_at":"2026-04-01 01:30:37"},
+{"id":3,"progression_name":"operator_growth_track","progression_group":"service","level_name":"level_1","unlock_target":"advanced_dispatch_console","progression_scope":"dispatch","progression_status":"active","created_at":"2026-04-01 01:30:19"},
+{"id":2,"progression_name":"shopper_growth_track","progression_group":"commerce","level_name":"level_1","unlock_target":"premium_holo_store","progression_scope":"marketplace","progression_status":"active","created_at":"2026-04-01 01:30:19"},
+{"id":1,"progression_name":"creator_growth_track","progression_group":"creator","level_name":"level_1","unlock_target":"vip_creator_tools","progression_scope":"creator","progression_status":"active","created_at":"2026-04-01 01:30:19"}]

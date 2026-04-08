@@ -1,0 +1,4 @@
+[{"id":4,"policy_name":"Media Stack Boost","policy_scope":"creator_media","trigger_rule":"creator_route_opened","acceleration_action":"prioritize_recent_channel_data","policy_status":"active","created_at":"2026-03-31 00:18:24"},
+{"id":3,"policy_name":"Call Center Boost","policy_scope":"callcenter_ops","trigger_rule":"active_support_queue","acceleration_action":"preload_agent_views","policy_status":"active","created_at":"2026-03-31 00:18:24"},
+{"id":2,"policy_name":"Dispatch Queue Boost","policy_scope":"dispatch_ops","trigger_rule":"open_request_detected","acceleration_action":"prioritize_dispatch_records","policy_status":"active","created_at":"2026-03-31 00:18:24"},
+{"id":1,"policy_name":"Priority Route Boost","policy_scope":"dashboard_routes","trigger_rule":"high_value_route_hit","acceleration_action":"move_to_fast_lane","policy_status":"active","created_at":"2026-03-31 00:18:24"}]

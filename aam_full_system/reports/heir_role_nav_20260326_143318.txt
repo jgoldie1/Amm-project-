@@ -1,0 +1,17 @@
+HEIR ROLE NAV + PERSONALIZATION REPORT
+Timestamp: 20260326_143318
+
+Added:
+- heir_preferences
+- role-based quick actions on heir dashboards
+- PIN update page
+
+Routes:
+- /heir-login
+- /heir-dashboard/:id
+- /heir-pin/:id
+
+Goal:
+- personalize heir experience
+- reduce generic dashboard feel
+- prepare for safer heir account usage

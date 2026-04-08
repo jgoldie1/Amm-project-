@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Staffing</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header>
+  <h1>March and Lewis Staffing / Nikki Francis HR</h1>
+  <div class="nav"><a href="/kingdom.html">Kingdom</a></div>
+</header>
+<main>
+  <div class="card">
+    <h3>Create Job (admin token)</h3>
+    <input id="jobTitle" placeholder="Job Title">
+    <input id="jobDept" placeholder="Department">
+    <input id="jobCompany" value="March and Lewis Staffing" placeholder="Company">
+    <input id="jobLocation" placeholder="Location">
+    <input id="jobPay" placeholder="Pay Range">
+    <textarea id="jobDesc" placeholder="Description"></textarea>
+    <button onclick="createJob()">Create Job</button>
+    <pre id="jobOut"></pre>
+  </div>
+
+  <div class="card">
+    <h3>Jobs / Apply</h3>
+    <button onclick="loadJobs()">Load Jobs</button>
+    <input id="applyJobId" placeholder="Job ID">
+    <textarea id="resumeText" placeholder="Resume Text"></textarea>
+    <button onclick="applyJob()">Apply</button>
+    <pre id="jobsOut"></pre>
+  </div>
+</main>
+<script src="/app.js"></script>
+<script>
+async function createJob() {
+  show("jobOut", await request("http://127.0.0.1:5500/jobs", {
+    method: "POST",
+    body: JSON.stringify({
+      title: jobTitle.value,
+      department: jobDept.value,
+      company: jobCompany.value,
+      location: jobLocation.value,
+      payRange: jobPay.value,
+      description: jobDesc.value
+    })
+  }));
+}
+async function loadJobs() {
+  show("jobsOut", await request("http://127.0.0.1:5500/jobs"));
+}
+async function applyJob() {
+  show("jobsOut", await request("http://127.0.0.1:5500/candidates", {
+    method: "POST",
+    body: JSON.stringify({
+      jobId: Number(applyJobId.value),
+      resumeText: resumeText.value,
+      notes: "website apply"
+    })
+  }));
+}
+</script>
+</body>
+</html>

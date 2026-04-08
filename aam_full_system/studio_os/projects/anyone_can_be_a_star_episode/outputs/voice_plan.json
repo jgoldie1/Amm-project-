@@ -1,0 +1,17 @@
+{
+  "voices": [
+    {
+      "character": "Star Creator",
+      "style": "charismatic, inspiring, human"
+    },
+    {
+      "character": "Jarvis",
+      "style": "calm, cinematic, confident"
+    }
+  ],
+  "narration": [
+    "Anyone can enter this platform.",
+    "Anyone can create.",
+    "Anyone can become a star."
+  ]
+}

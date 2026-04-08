@@ -1,0 +1,7 @@
+BUILD MISSING 24 HOLLYWOOD MUSIC TABLES REPORT
+Timestamp: 20260402_214404
+
+Purpose:
+- create the remaining Hollywood and music production tables
+- seed the missing production stack
+- preserve stable runtime

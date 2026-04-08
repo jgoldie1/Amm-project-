@@ -1,0 +1,13 @@
+{
+  "distributed_cache": {
+    "features": [
+      "hot_data_cache",
+      "recommendation_cache",
+      "product_query_cache",
+      "stream_metadata_cache",
+      "creator_dashboard_cache",
+      "region_aware_cache"
+    ],
+    "purpose": "Speed up repeated requests and reduce unnecessary computation"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "assistant": {
+    "name": "AAM Voice Assistant",
+    "speech_enabled": true,
+    "speech_mode": "assist",
+    "voices": [
+      "calm_male",
+      "calm_female",
+      "broadcast_male",
+      "broadcast_female",
+      "warm_assistant",
+      "concise_assistant"
+    ],
+    "default_voice": "warm_assistant",
+    "talk_if_needed": true
+  }
+}

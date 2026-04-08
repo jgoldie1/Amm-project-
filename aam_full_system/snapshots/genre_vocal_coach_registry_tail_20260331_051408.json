@@ -1,0 +1,6 @@
+[{"id":6,"coach_profile_name":"Broadway Voice Coach","genre_name":"musical theater","coaching_style":"projection","vocal_focus":"articulation stamina","coach_status":"active","created_at":"2026-03-31 10:14:09"},
+{"id":5,"coach_profile_name":"Country Vocal Coach","genre_name":"country","coaching_style":"storytelling","vocal_focus":"clarity authenticity","coach_status":"active","created_at":"2026-03-31 10:14:09"},
+{"id":4,"coach_profile_name":"R&B Performance Coach","genre_name":"r&b","coaching_style":"emotion and dynamics","vocal_focus":"runs falsetto expression","coach_status":"active","created_at":"2026-03-31 10:14:09"},
+{"id":3,"coach_profile_name":"Modern Pop Coach","genre_name":"pop","coaching_style":"precision","vocal_focus":"pitch agility hooks","coach_status":"active","created_at":"2026-03-31 10:14:09"},
+{"id":2,"coach_profile_name":"Contemporary Gospel Coach","genre_name":"gospel","coaching_style":"performance intensive","vocal_focus":"power endurance runs","coach_status":"active","created_at":"2026-03-31 10:14:09"},
+{"id":1,"coach_profile_name":"Classic Soul Coach","genre_name":"soul","coaching_style":"artist development","vocal_focus":"tone phrasing control","coach_status":"active","created_at":"2026-03-31 10:14:09"}]

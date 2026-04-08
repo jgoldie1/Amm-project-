@@ -1,0 +1,15 @@
+HEIR LOGIN UNIQUE FIX + STABILIZE REPORT
+Timestamp: 20260326_141953
+
+Fixed:
+- duplicate heir username collisions
+- ensured heir account rows exist
+- ensured heir dashboard rows exist
+- ensured revenue split rules exist
+
+Routes:
+- /heir-login
+- /heir-dashboard/:id
+
+Testing:
+- sample usernames are in snapshots/heir_account_usernames_latest.json

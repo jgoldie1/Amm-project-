@@ -1,0 +1,11 @@
+{
+  "release_tools":[
+    "release_calendar",
+    "distribution_targets",
+    "promotion_tasks",
+    "analytics_tracking",
+    "rollout_checklist",
+    "cover_art_checklist",
+    "pre_save_campaign_plan"
+  ]
+}

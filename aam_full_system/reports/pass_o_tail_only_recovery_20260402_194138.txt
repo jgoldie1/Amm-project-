@@ -1,0 +1,12 @@
+PASS O TAIL-ONLY RECOVERY REPORT
+Timestamp: 20260402_194138
+
+Recovered:
+- hollywood success summary
+- current-run pass O scan
+- final report after interrupted tail
+
+Purpose:
+- finish interrupted Pass O cleanly
+- preserve stable runtime
+- avoid rerunning full Hollywood success pass

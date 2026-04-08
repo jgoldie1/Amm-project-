@@ -1,0 +1,33 @@
+{
+  "realtime_world_engine": {
+    "layers": [
+      "webgl_rendering",
+      "multiplayer_networking",
+      "physics_simulation",
+      "avatar_animation",
+      "world_streaming"
+    ],
+    "render_modes": [
+      "draft_preview",
+      "interactive_preview",
+      "immersive_preview",
+      "level20_future"
+    ],
+    "animation_states": [
+      "idle",
+      "walk",
+      "run",
+      "emote",
+      "host",
+      "merchant",
+      "battle_ready",
+      "vip_presence"
+    ],
+    "streaming_modes": [
+      "zone_streaming",
+      "district_streaming",
+      "event_streaming",
+      "world_segment_streaming"
+    ]
+  }
+}

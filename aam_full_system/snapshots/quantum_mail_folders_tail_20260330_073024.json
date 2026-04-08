@@ -1,0 +1,8 @@
+[{"id":8,"mailbox_owner":"Isaiah","folder_name":"alerts","folder_type":"custom","folder_status":"active","created_at":"2026-03-30 12:30:25"},
+{"id":7,"mailbox_owner":"Isaiah","folder_name":"inbox","folder_type":"system","folder_status":"active","created_at":"2026-03-30 12:30:25"},
+{"id":6,"mailbox_owner":"Aniyah","folder_name":"sent","folder_type":"system","folder_status":"active","created_at":"2026-03-30 12:30:25"},
+{"id":5,"mailbox_owner":"Aniyah","folder_name":"inbox","folder_type":"system","folder_status":"active","created_at":"2026-03-30 12:30:25"},
+{"id":4,"mailbox_owner":"Jacobie","folder_name":"creator","folder_type":"custom","folder_status":"active","created_at":"2026-03-30 12:30:25"},
+{"id":3,"mailbox_owner":"Jacobie","folder_name":"drafts","folder_type":"system","folder_status":"active","created_at":"2026-03-30 12:30:25"},
+{"id":2,"mailbox_owner":"Jacobie","folder_name":"sent","folder_type":"system","folder_status":"active","created_at":"2026-03-30 12:30:25"},
+{"id":1,"mailbox_owner":"Jacobie","folder_name":"inbox","folder_type":"system","folder_status":"active","created_at":"2026-03-30 12:30:25"}]

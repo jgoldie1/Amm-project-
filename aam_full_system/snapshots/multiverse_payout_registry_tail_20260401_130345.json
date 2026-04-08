@@ -1,0 +1,2 @@
+[{"id":2,"payout_name":"Safe Payout","payout_group":"sandbox","linked_creator":"Safe Creator Economy","payout_target":"wallet-root","payout_mode":"scheduled","payout_status":"active","created_at":"2026-04-01 18:04:00"},
+{"id":1,"payout_name":"Primary Creator Payout","payout_group":"core","linked_creator":"Primary Creator Economy","payout_target":"wallet-root","payout_mode":"scheduled","payout_status":"active","created_at":"2026-04-01 18:03:46"}]

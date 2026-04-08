@@ -1,0 +1,6 @@
+NEXT:
+1. test dashboard
+2. test modules
+3. add login gate
+4. add voice control
+5. import original vscode.dev files if available

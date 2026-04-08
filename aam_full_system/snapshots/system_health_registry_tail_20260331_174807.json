@@ -1,0 +1,2 @@
+[{"id":2,"health_name":"health_20260331_174807","service_name":"jarvis","health_status":"ok","health_notes":"jarvis health check","created_at":"2026-03-31 22:48:31"},
+{"id":1,"health_name":"health_20260331_174807","service_name":"dashboard","health_status":"ok","health_notes":"dashboard health check","created_at":"2026-03-31 22:48:31"}]

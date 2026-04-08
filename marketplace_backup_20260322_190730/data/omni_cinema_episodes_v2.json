@@ -1,0 +1,38 @@
+[
+  {
+    "id": "episode_v2_001",
+    "show_id": "show_v2_001",
+    "show_title": "Kingdom Rising",
+    "season": 1,
+    "episode": 1,
+    "title": "Pilot Mission",
+    "summary": "The kingdom platform comes online.",
+    "duration_minutes": 28,
+    "thumbnail": "/static/img/ep-001.jpg",
+    "attached_media": [
+      {
+        "type": "clip",
+        "url": "/static/video/ep-001-trailer.mp4",
+        "label": "Trailer"
+      }
+    ]
+  },
+  {
+    "id": "episode_v2_002",
+    "show_id": "show_v2_002",
+    "show_title": "Market Legends",
+    "season": 1,
+    "episode": 3,
+    "title": "Storehouse Expansion",
+    "summary": "The storehouse network reaches new districts.",
+    "duration_minutes": 31,
+    "thumbnail": "/static/img/ep-002.jpg",
+    "attached_media": [
+      {
+        "type": "clip",
+        "url": "/static/video/ep-002-trailer.mp4",
+        "label": "Trailer"
+      }
+    ]
+  }
+]

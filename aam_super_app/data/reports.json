@@ -1,0 +1,40 @@
+[
+  {
+    "id": "8e3ccce5-04e5-4229-9e53-3accbdb74e07",
+    "contentId": "stream-001",
+    "reason": "nudity",
+    "reporter": "viewer-123",
+    "evidenceWindow": "120s",
+    "at": "2026-04-05T17:59:30.526Z",
+    "status": "open"
+  },
+  {
+    "id": "68398e27-0b34-4372-8929-1f0ad0e685f0",
+    "contentId": "stream-001",
+    "reason": "nudity",
+    "reporter": "viewer-123",
+    "evidenceWindow": "120s",
+    "at": "2026-04-05T17:59:37.088Z",
+    "status": "open"
+  },
+  {
+    "id": "05a869bb-57c6-4444-b2e9-bf49cb0dfac7",
+    "contentId": "stream-auth-001",
+    "reason": "nudity",
+    "reporter": "viewer-auth",
+    "evidenceWindow": "120s",
+    "at": "2026-04-05T18:26:52.832Z",
+    "status": "reviewed",
+    "updatedAt": "2026-04-05T18:26:52.954Z"
+  },
+  {
+    "id": "161a7cda-f701-4d4b-a2cf-406b39c15880",
+    "contentId": "stream-full-001",
+    "reason": "nudity",
+    "reporter": "viewer-test",
+    "evidenceWindow": "120s",
+    "at": "2026-04-05T20:42:42.787Z",
+    "status": "reviewed",
+    "updatedAt": "2026-04-05T20:42:42.904Z"
+  }
+]

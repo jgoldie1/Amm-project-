@@ -1,0 +1,9 @@
+checkpoint=20260406_192219
+dashboard=http://127.0.0.1:4900
+life_world=http://127.0.0.1:4902
+gateway=http://127.0.0.1:4000
+public_url=https://gossip-stores-connections-bridal.trycloudflare.com
+share_link=https://gossip-stores-connections-bridal.trycloudflare.com/join/?ref=all_american_creator
+creator=Isaiah
+show=All American AI TV
+episode=Demo Pilot

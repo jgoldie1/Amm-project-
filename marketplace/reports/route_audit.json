@@ -1,0 +1,24 @@
+{
+  "total": 18,
+  "ok": [
+    "/",
+    "/health",
+    "/safe-ok",
+    "/build-status",
+    "/command-center",
+    "/progress",
+    "/city-minimap",
+    "/district-dashboard",
+    "/traffic-transport-board",
+    "/living-city-center",
+    "/property-center",
+    "/property-operations-center",
+    "/safety-center",
+    "/oasis-center",
+    "/verse-center",
+    "/project-inventory",
+    "/rebuild-map",
+    "/route-audit"
+  ],
+  "failed": []
+}

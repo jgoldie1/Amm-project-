@@ -1,0 +1,14 @@
+EMERGENCY RESTORE LAST STABLE REPORT
+Timestamp: 20260329_151024
+
+Action:
+- saved broken state
+- cleared stale PIDs/processes
+- restored latest stable dashboard/jarvis/db/world files
+- restarted platform
+- ran fresh targeted tests
+
+Purpose:
+- recover from interrupted paste/run
+- restore last known stable platform state
+- stabilize everything

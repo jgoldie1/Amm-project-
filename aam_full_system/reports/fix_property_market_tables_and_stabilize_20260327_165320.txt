@@ -1,0 +1,17 @@
+FIX PROPERTY MARKET TABLES + STABILIZE REPORT
+Timestamp: 20260327_165320
+
+Fixed:
+- created missing property market tables
+- seeded starter parcels, buildings, and listings
+- verified property market route
+
+Verified:
+- dashboard / jarvis / socket health
+- property market smoke tests
+- property market snapshots
+
+Purpose:
+- recover from incomplete property-market phase
+- stabilize everything
+- finish the property market infrastructure cleanly

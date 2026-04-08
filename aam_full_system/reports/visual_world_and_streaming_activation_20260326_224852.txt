@@ -1,0 +1,15 @@
+VISUAL WORLD + STREAMING ACTIVATION REPORT
+Timestamp: 20260326_224852
+
+Added:
+- visual_world_scenes
+- creator_stream_channels
+- creator_live_sessions
+- stream_subscriptions
+- stream_tip_events
+- /visual-streaming
+
+Purpose:
+- activate the visual world and streaming monetization scaffold
+- connect creator live sessions to world scenes
+- prepare the platform for a richer public-facing experience

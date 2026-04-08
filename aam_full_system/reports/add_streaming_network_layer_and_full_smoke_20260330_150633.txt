@@ -1,0 +1,24 @@
+ADD STREAMING NETWORK LAYER + FULL SMOKE REPORT
+Timestamp: 20260330_150633
+
+Added:
+- /streaming-network
+- streaming_network_registry
+- streaming_event_log
+
+Verified:
+- dashboard health
+- jarvis health
+- OmniMail OS
+- Holo Search
+- Platform Analytics
+- Neuro Control
+- HoloJourney TV
+- Creator TV
+- Streaming Network
+- world3d
+
+Purpose:
+- extend the stable media/streaming stack
+- run a broad smoke test across all major layers
+- create a clean checkpoint before the next feature layer

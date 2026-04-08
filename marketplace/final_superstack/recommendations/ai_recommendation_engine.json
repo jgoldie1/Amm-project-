@@ -1,0 +1,15 @@
+{
+  "ai_recommendation_engine": {
+    "features": [
+      "creator_recommendations",
+      "product_recommendations",
+      "music_recommendations",
+      "stream_recommendations",
+      "restaurant_recommendations",
+      "coupon_recommendations",
+      "battle_event_recommendations",
+      "discovery_feed_optimization"
+    ],
+    "purpose": "Increase retention, conversion, and discovery across the ecosystem"
+  }
+}

@@ -1,0 +1,14 @@
+Super-safe stabilization completed.
+Added:
+- unique stability hub endpoint
+- safe creator-product link table
+- safe creator-content link table
+- safe creator-owned storefront
+- super safe restart script
+
+Most important remaining next-level work:
+- upload/media layer
+- auto snapshot saving
+- era + verse tagging on creators/products/content
+- creator storefront visual polish
+- live Stripe later

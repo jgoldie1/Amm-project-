@@ -1,0 +1,4 @@
+[{"id":4,"reward_name":"safe_reward","reward_group":"engagement","reward_trigger":"safe_trigger","reward_value":"reward_value","reward_scope":"platform","reward_status":"active","created_at":"2026-04-01 01:30:37"},
+{"id":3,"reward_name":"service_completion_credit","reward_group":"service","reward_trigger":"request_resolved","reward_value":"service_credit","reward_scope":"dispatch","reward_status":"active","created_at":"2026-04-01 01:30:19"},
+{"id":2,"reward_name":"holo_buyer_badge","reward_group":"commerce","reward_trigger":"buy_now","reward_value":"badge_unlock","reward_scope":"marketplace","reward_status":"active","created_at":"2026-04-01 01:30:19"},
+{"id":1,"reward_name":"fan_support_points","reward_group":"engagement","reward_trigger":"tip_creator","reward_value":"100 points","reward_scope":"creator","reward_status":"active","created_at":"2026-04-01 01:30:19"}]

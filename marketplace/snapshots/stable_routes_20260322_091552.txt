@@ -1,0 +1,7 @@
+/family-launch-home     HTTP/1.1 200 OK
+/ask-ui                 HTTP/1.1 200 OK
+/business-lanes         HTTP/1.1 200 OK
+/event-center           HTTP/1.1 200 OK
+/zone-dashboard         HTTP/1.1 200 OK
+/metaverse-webgl        HTTP/1.1 200 OK
+/safe-diagnostics       HTTP/1.1 200 OK

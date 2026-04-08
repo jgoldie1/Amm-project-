@@ -1,0 +1,14 @@
+GAMEPLAY INVENTORY + ASSETS + STABILIZE REPORT
+Timestamp: 20260329_180329
+
+Added:
+- player_inventory
+- player_owned_assets
+- player_property_claims
+- city_progress_badges
+- gameplay-assets route
+
+Purpose:
+- strengthen player ownership loops
+- connect property and cities into gameplay
+- move the world shell toward real asset progression

@@ -1,0 +1,22 @@
+BUY-IN + JOIN + CHECKOUT + UNLOCK REPORT
+Timestamp: 20260326_221805
+
+Added:
+- membership_tiers
+- ecosystem_access_passes
+- checkout_orders
+- unlock_events
+
+Routes:
+- /watch
+- /join
+- /build
+- /learn
+- /checkout
+- /checkout/complete
+
+Goal:
+- create front-door conversion flow
+- simulate buy-in checkout
+- unlock access scopes
+- prepare real monetization integration

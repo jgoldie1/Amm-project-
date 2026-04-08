@@ -1,0 +1,13 @@
+MIN FIX FOUR ROUTES REPORT
+Timestamp: 20260330_213822
+
+Fixed:
+- /metaverse-control
+- /studio-lab
+- /dispatch-actions
+- /episode-movie-pipeline
+
+Purpose:
+- restore the missing 4 pages with simple live versions
+- stabilize runtime
+- prepare for deeper page content later

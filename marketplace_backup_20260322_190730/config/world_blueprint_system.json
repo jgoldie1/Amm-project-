@@ -1,0 +1,18 @@
+{
+  "world_blueprint_system": {
+    "sections": [
+      "mission_statement",
+      "zone_map",
+      "object_inventory",
+      "interaction_map",
+      "avatar_behavior_guide",
+      "event_timeline",
+      "commerce_logic",
+      "accessibility_map",
+      "security_risk_notes",
+      "performance_budget",
+      "mobile_fallback_mode",
+      "gesture_voice_control_plan"
+    ]
+  }
+}

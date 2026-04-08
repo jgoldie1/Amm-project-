@@ -1,0 +1,22 @@
+[
+  {
+    "name": "AAM Visual Engine Beta",
+    "stage": "beta",
+    "notes": "Creative image generation shell"
+  },
+  {
+    "name": "Holographic Visual Engine Beta",
+    "stage": "beta",
+    "notes": "Immersive holographic generation shell"
+  },
+  {
+    "name": "AAM Search Engine Beta",
+    "stage": "beta",
+    "notes": "Search and discovery shell"
+  },
+  {
+    "name": "AAM Research Engine Beta",
+    "stage": "beta",
+    "notes": "Reasoning + research shell"
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "email_provider": "scaffold",
+  "sms_provider": "scaffold",
+  "in_app_notifications": true,
+  "email_enabled": false,
+  "sms_enabled": false,
+  "templates": [
+    "welcome",
+    "creator_setup_saved",
+    "upgrade_interest_saved",
+    "verification_received",
+    "verification_approved",
+    "verification_rejected",
+    "support_payment_saved"
+  ]
+}

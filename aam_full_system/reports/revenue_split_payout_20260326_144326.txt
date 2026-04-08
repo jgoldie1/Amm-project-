@@ -1,0 +1,15 @@
+REVENUE SPLIT + PAYOUT EXECUTION REPORT
+Timestamp: 20260326_144326
+
+Added:
+- heir_payout_runs
+- heir_payout_items
+- heir_wallet_mirror_tx
+
+Route:
+- /heir-payouts
+
+Goal:
+- execute revenue split logic
+- post payouts to heirs
+- mirror payouts into heir wallet activity

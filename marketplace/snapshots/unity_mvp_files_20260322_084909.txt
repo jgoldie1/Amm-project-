@@ -1,0 +1,13 @@
+docs/unity_mvp/Plans/01_scenes.md
+docs/unity_mvp/Plans/02_scripts.md
+docs/unity_mvp/Plans/03_api_calls.md
+docs/unity_mvp/Plans/04_build_order.md
+docs/unity_mvp/Plans/05_architecture_summary.md
+docs/unity_mvp/README.md
+docs/unity_mvp/Scenes/SCENE_LIST.txt
+docs/unity_mvp/Scripts/Core/ApiClient.cs
+docs/unity_mvp/Scripts/Core/GameBootstrap.cs
+docs/unity_mvp/Scripts/Player/PlayerController.cs
+docs/unity_mvp/Scripts/Player/TouchInputController.cs
+docs/unity_mvp/Scripts/UI/HudController.cs
+docs/unity_mvp/Scripts/World/PortalTrigger.cs

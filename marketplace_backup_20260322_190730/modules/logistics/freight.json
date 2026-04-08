@@ -1,0 +1,10 @@
+{
+ "system":"freight_network",
+ "features":[
+ "load board",
+ "carrier onboarding",
+ "dispatch system",
+ "route optimization",
+ "fleet monitoring"
+ ]
+}

@@ -1,0 +1,5 @@
+=== VERIFY LAUNCH OPS ===
+BASE=http://127.0.0.1:8080
+
+/heirs-app                         /heirs-launchpad                   /launch-ops-center                 /activity-feed-center              /moderation-center                 /profiles-center                   /launch-readiness-center           /api/invite-tracking-v1            /api/join-tracking-v1              /api/activity-feed-v1              /api/notifications-v1              /api/moderation-queue-v1           /api/profile-cards-v1              /api/launch-readiness-v1           
+--- LAST LOG ---

@@ -1,0 +1,12 @@
+PASS I TAIL-ONLY RECOVERY REPORT
+Timestamp: 20260401_185548
+
+Recovered:
+- pass I gap summary
+- current-run pass I scan
+- optional pass I table count snapshots
+
+Purpose:
+- recover interrupted pass I tail
+- preserve stable runtime
+- avoid rerunning full end-to-end workflow pass

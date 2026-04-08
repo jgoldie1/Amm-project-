@@ -1,0 +1,124 @@
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/marketplace/modules/app_bootstrap.py", line 21, in create_app
+    init_auth(app)
+    ~~~~~~~~~^^^^^
+  File "/data/data/com.termux/files/home/marketplace/modules/auth_system.py", line 52, in init_auth
+    db.init_app(app)
+    ~~~~~~~~~~~^^^^^
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/flask_sqlalchemy/extension.py", line 374, in init_app
+    engines[key] = self._make_engine(key, options, app)
+                   ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/flask_sqlalchemy/extension.py", line 665, in _make_engine
+    return sa.engine_from_config(options, prefix="")
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/engine/create.py", line 844, in engine_from_config
+    return create_engine(url, **options)
+  File "<string>", line 2, in create_engine
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/util/deprecations.py", line 281, in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/engine/create.py", line 617, in create_engine
+    dbapi = dbapi_meth(**dbapi_args)
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/dialects/postgresql/psycopg2.py", line 696, in import_dbapi
+    import psycopg2
+ModuleNotFoundError: No module named 'psycopg2'
+
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/marketplace/modules/app_bootstrap.py", line 21, in create_app
+    init_auth(app)
+    ~~~~~~~~~^^^^^
+  File "/data/data/com.termux/files/home/marketplace/modules/auth_system.py", line 52, in init_auth
+    db.init_app(app)
+    ~~~~~~~~~~~^^^^^
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/flask_sqlalchemy/extension.py", line 374, in init_app
+    engines[key] = self._make_engine(key, options, app)
+                   ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/flask_sqlalchemy/extension.py", line 665, in _make_engine
+    return sa.engine_from_config(options, prefix="")
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/engine/create.py", line 844, in engine_from_config
+    return create_engine(url, **options)
+  File "<string>", line 2, in create_engine
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/util/deprecations.py", line 281, in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/engine/create.py", line 617, in create_engine
+    dbapi = dbapi_meth(**dbapi_args)
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/dialects/postgresql/psycopg2.py", line 696, in import_dbapi
+    import psycopg2
+ModuleNotFoundError: No module named 'psycopg2'
+
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/marketplace/modules/app_bootstrap.py", line 21, in create_app
+    init_auth(app)
+    ~~~~~~~~~^^^^^
+  File "/data/data/com.termux/files/home/marketplace/modules/auth_system.py", line 52, in init_auth
+    db.init_app(app)
+    ~~~~~~~~~~~^^^^^
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/flask_sqlalchemy/extension.py", line 374, in init_app
+    engines[key] = self._make_engine(key, options, app)
+                   ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/flask_sqlalchemy/extension.py", line 665, in _make_engine
+    return sa.engine_from_config(options, prefix="")
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/engine/create.py", line 844, in engine_from_config
+    return create_engine(url, **options)
+  File "<string>", line 2, in create_engine
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/util/deprecations.py", line 281, in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/engine/create.py", line 617, in create_engine
+    dbapi = dbapi_meth(**dbapi_args)
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/dialects/postgresql/psycopg2.py", line 696, in import_dbapi
+    import psycopg2
+ModuleNotFoundError: No module named 'psycopg2'
+
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/marketplace/modules/app_bootstrap.py", line 21, in create_app
+    init_auth(app)
+    ~~~~~~~~~^^^^^
+  File "/data/data/com.termux/files/home/marketplace/modules/auth_system.py", line 52, in init_auth
+    db.init_app(app)
+    ~~~~~~~~~~~^^^^^
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/flask_sqlalchemy/extension.py", line 374, in init_app
+    engines[key] = self._make_engine(key, options, app)
+                   ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/flask_sqlalchemy/extension.py", line 665, in _make_engine
+    return sa.engine_from_config(options, prefix="")
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/engine/create.py", line 844, in engine_from_config
+    return create_engine(url, **options)
+  File "<string>", line 2, in create_engine
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/util/deprecations.py", line 281, in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/engine/create.py", line 617, in create_engine
+    dbapi = dbapi_meth(**dbapi_args)
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/dialects/postgresql/psycopg2.py", line 696, in import_dbapi
+    import psycopg2
+ModuleNotFoundError: No module named 'psycopg2'
+
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/marketplace/modules/app_bootstrap.py", line 21, in create_app
+    init_auth(app)
+    ~~~~~~~~~^^^^^
+  File "/data/data/com.termux/files/home/marketplace/modules/auth_system.py", line 52, in init_auth
+    db.init_app(app)
+    ~~~~~~~~~~~^^^^^
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/flask_sqlalchemy/extension.py", line 374, in init_app
+    engines[key] = self._make_engine(key, options, app)
+                   ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/flask_sqlalchemy/extension.py", line 665, in _make_engine
+    return sa.engine_from_config(options, prefix="")
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/engine/create.py", line 844, in engine_from_config
+    return create_engine(url, **options)
+  File "<string>", line 2, in create_engine
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/util/deprecations.py", line 281, in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/engine/create.py", line 617, in create_engine
+    dbapi = dbapi_meth(**dbapi_args)
+  File "/data/data/com.termux/files/home/.local/lib/python3.13/site-packages/sqlalchemy/dialects/postgresql/psycopg2.py", line 696, in import_dbapi
+    import psycopg2
+ModuleNotFoundError: No module named 'psycopg2'
+
+SAFE PROFILE REGISTER FAILED
+SAFE PROFILE REGISTER FAILED
+SAFE PROFILE REGISTER FAILED
+SAFE PROFILE REGISTER FAILED

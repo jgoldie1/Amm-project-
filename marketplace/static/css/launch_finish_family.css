@@ -1,0 +1,36 @@
+.launch-wrap{max-width:1100px;margin:0 auto;padding:24px}
+.launch-hero{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:28px;
+  padding:28px;
+  background:rgba(255,255,255,.05);
+}
+.launch-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:16px;
+  margin-top:18px;
+}
+.launch-card{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:22px;
+  padding:18px;
+  background:rgba(255,255,255,.05);
+}
+.launch-card a{
+  display:inline-block;
+  margin-top:10px;
+  padding:10px 14px;
+  border-radius:12px;
+  background:#2563eb;
+  color:white;
+  text-decoration:none;
+}
+.link-box{
+  margin-top:12px;
+  padding:12px;
+  border-radius:14px;
+  background:rgba(255,255,255,.04);
+  border:1px dashed rgba(125,211,252,.35);
+  word-break:break-all;
+}

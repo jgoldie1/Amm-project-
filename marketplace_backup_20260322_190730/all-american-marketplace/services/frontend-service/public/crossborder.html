@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Aniyah Cross-Border</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header>
+  <h1>Aniyah Cross-Border</h1>
+  <div class="nav"><a href="/kingdom.html">Kingdom</a></div>
+</header>
+<main>
+  <div class="card">
+    <h3>FX Quote</h3>
+    <input id="fxFrom" value="USD" placeholder="From">
+    <input id="fxTo" value="EUR" placeholder="To">
+    <input id="fxAmount" value="100" placeholder="Amount">
+    <button onclick="getQuote()">Get Quote</button>
+    <pre id="fxOut"></pre>
+  </div>
+
+  <div class="card">
+    <h3>Remittance Request</h3>
+    <input id="recipientName" placeholder="Recipient Name">
+    <input id="recipientCountry" placeholder="Recipient Country">
+    <input id="remitFrom" value="USD" placeholder="From Currency">
+    <input id="remitTo" value="EUR" placeholder="To Currency">
+    <input id="remitAmount" placeholder="Amount">
+    <button onclick="requestRemit()">Request Remittance</button>
+    <pre id="remitOut"></pre>
+  </div>
+</main>
+<script src="/app.js"></script>
+<script>
+async function getQuote() {
+  show("fxOut", await request(`http://127.0.0.1:5200/fx/quote?from=${fxFrom.value}&to=${fxTo.value}&amount=${fxAmount.value}`));
+}
+async function requestRemit() {
+  show("remitOut", await request("http://127.0.0.1:5200/remittance/request", {
+    method: "POST",
+    body: JSON.stringify({
+      recipientName: recipientName.value,
+      recipientCountry: recipientCountry.value,
+      fromCurrency: remitFrom.value,
+      toCurrency: remitTo.value,
+      amount: Number(remitAmount.value)
+    })
+  }));
+}
+</script>
+</body>
+</html>

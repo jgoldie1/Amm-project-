@@ -1,0 +1,6 @@
+/map-center             HTTP/1.1 500 INTERNAL SERVER ERROR
+/satellite-center       HTTP/1.1 500 INTERNAL SERVER ERROR
+/census-center          HTTP/1.1 404 NOT FOUND
+/holoverse-lobby-v2     HTTP/1.1 200 OK
+/ask-ui                 HTTP/1.1 200 OK
+/ai-command-center      HTTP/1.1 200 OK

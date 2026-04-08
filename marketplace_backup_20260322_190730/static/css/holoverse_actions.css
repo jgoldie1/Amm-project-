@@ -1,0 +1,30 @@
+.world-hero{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:28px;
+  padding:30px 22px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.03)),
+    radial-gradient(circle at 18% 18%, rgba(125,211,252,.15), transparent 30%),
+    radial-gradient(circle at 82% 16%, rgba(167,139,250,.15), transparent 28%);
+}
+.world-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:16px;
+  margin-top:18px;
+}
+.world-card{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:22px;
+  padding:18px;
+  background:rgba(255,255,255,.05);
+}
+.world-card a{
+  display:inline-block;
+  margin-top:10px;
+  padding:10px 14px;
+  border-radius:12px;
+  background:#2563eb;
+  color:white;
+  text-decoration:none;
+}

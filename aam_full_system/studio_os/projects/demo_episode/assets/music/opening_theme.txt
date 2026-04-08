@@ -1,0 +1,4 @@
+CUE=opening_theme
+SCENE=Opening
+MOOD=epic, mysterious, holographic
+DURATION_SEC=20

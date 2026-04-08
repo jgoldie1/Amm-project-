@@ -1,0 +1,6 @@
+[{"id":6,"node_name":"Player Spawn","interaction_label":"Open Role Hub","destination_route":"/role-hub","interaction_type":"route_jump","target_status":"active","created_at":"2026-03-27 20:42:08"},
+{"id":5,"node_name":"NPC Beta","interaction_label":"Open Avatar Rig Layer","destination_route":"/avatar-rig-control","interaction_type":"route_jump","target_status":"active","created_at":"2026-03-27 20:42:08"},
+{"id":4,"node_name":"NPC Alpha","interaction_label":"Open Accessibility Layer","destination_route":"/accessibility","interaction_type":"route_jump","target_status":"active","created_at":"2026-03-27 20:42:08"},
+{"id":3,"node_name":"World Gate","interaction_label":"Open Engine + World Control","destination_route":"/engine-bridge","interaction_type":"route_jump","target_status":"active","created_at":"2026-03-27 20:42:08"},
+{"id":2,"node_name":"Creator Stage","interaction_label":"Open Creator / Streaming Layer","destination_route":"/watch","interaction_type":"route_jump","target_status":"active","created_at":"2026-03-27 20:42:08"},
+{"id":1,"node_name":"Marketplace Hub","interaction_label":"Open Marketplace Systems","destination_route":"/connect-system","interaction_type":"route_jump","target_status":"active","created_at":"2026-03-27 20:42:08"}]

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "walletid_1",
+    "owner_name": "Aniyah",
+    "wallet_id": "AAMW-ANIYAH-1001",
+    "wallet_role": "heir",
+    "status": "active",
+    "created_at": "2026-03-19T01:09:53.405834"
+  },
+  {
+    "id": "walletid_2",
+    "owner_name": "Isaiah",
+    "wallet_id": "AAMW-ISAIAH-1002",
+    "wallet_role": "heir",
+    "status": "active",
+    "created_at": "2026-03-19T01:09:53.408218"
+  },
+  {
+    "id": "walletid_3",
+    "owner_name": "Jacobie",
+    "wallet_id": "AAMW-JACOBIE-1003",
+    "wallet_role": "heir",
+    "status": "active",
+    "created_at": "2026-03-19T01:09:53.409212"
+  }
+]

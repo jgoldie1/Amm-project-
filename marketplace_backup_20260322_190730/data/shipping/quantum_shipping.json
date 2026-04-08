@@ -1,0 +1,13 @@
+{
+"carriers":[
+"FedEx",
+"UPS",
+"DHL"
+],
+"features":[
+"AI route optimization",
+"customs estimator",
+"delivery prediction",
+"quantum tariff engine"
+]
+}

@@ -1,0 +1,19 @@
+{
+  "required_count": 12,
+  "missing_count": 12,
+  "missing_tables": [
+    "hollywood_budget_registry",
+    "hollywood_schedule_registry",
+    "hollywood_callsheet_registry",
+    "hollywood_castcrew_registry",
+    "hollywood_location_permit_registry",
+    "hollywood_union_compliance_registry",
+    "hollywood_music_clearance_registry",
+    "hollywood_distribution_deal_registry",
+    "hollywood_publicity_campaign_registry",
+    "hollywood_festival_awards_registry",
+    "hollywood_delivery_qc_registry",
+    "hollywood_franchise_registry"
+  ],
+  "hollywood_success_status": "needs_attention"
+}

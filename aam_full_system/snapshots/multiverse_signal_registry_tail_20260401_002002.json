@@ -1,0 +1,2 @@
+[{"id":2,"signal_name":"Safe Signal","signal_group":"sandbox","signal_source":"middleverse","signal_target":"multiverse","signal_value":"safe_value","signal_status":"active","created_at":"2026-04-01 05:20:23"},
+{"id":1,"signal_name":"Initial Multiverse Signal","signal_group":"bootstrap","signal_source":"middleverse","signal_target":"multiverse","signal_value":"ready","signal_status":"active","created_at":"2026-04-01 05:20:02"}]

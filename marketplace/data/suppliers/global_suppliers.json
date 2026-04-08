@@ -1,0 +1,7 @@
+[
+{"region":"USA","priority":"high","verified":true},
+{"region":"Japan","priority":"medium","verified":false},
+{"region":"Taiwan","priority":"medium","verified":false},
+{"region":"South Korea","priority":"medium","verified":false},
+{"region":"China","priority":"low","verified":false}
+]

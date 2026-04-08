@@ -1,0 +1,46 @@
+[
+  {
+    "file": "ai_chat_20260402_194138.txt",
+    "problem": "http_500"
+  },
+  {
+    "file": "artist_dashboard_20260402_194138.txt",
+    "problem": "http_500"
+  },
+  {
+    "file": "cue_sheet_20260402_194138.txt",
+    "problem": "http_500"
+  },
+  {
+    "file": "executive_dashboard_20260402_194138.txt",
+    "problem": "http_500"
+  },
+  {
+    "file": "holo_journey_20260402_194138.txt",
+    "problem": "http_500"
+  },
+  {
+    "file": "publishing_hub_20260402_194138.txt",
+    "problem": "route_missing"
+  },
+  {
+    "file": "royalty_ledger_20260402_194138.txt",
+    "problem": "http_500"
+  },
+  {
+    "file": "royalty_statement_20260402_194138.txt",
+    "problem": "http_500"
+  },
+  {
+    "file": "sample_clearance_20260402_194138.txt",
+    "problem": "http_500"
+  },
+  {
+    "file": "star_creator_20260402_194138.txt",
+    "problem": "http_500"
+  },
+  {
+    "file": "sync_license_20260402_194138.txt",
+    "problem": "http_500"
+  }
+]

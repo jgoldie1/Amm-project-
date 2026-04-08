@@ -1,0 +1,4 @@
+checkpoint=20260406_195305
+new_url=https://unnecessary-depth-startup-farms.trycloudflare.com
+local_join=http://127.0.0.1:4900/join/
+gateway=http://127.0.0.1:4000/health

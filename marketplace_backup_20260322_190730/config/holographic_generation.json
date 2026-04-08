@@ -1,0 +1,20 @@
+{
+  "holographic_generation": {
+    "types": [
+      "creator_scene",
+      "product_visual",
+      "event_overlay",
+      "metaverse_space",
+      "middleverse_bridge_scene",
+      "multiverse_world_preview",
+      "collectible_card_visual",
+      "ad_promo_panel"
+    ],
+    "quality_modes": [
+      "draft",
+      "premium",
+      "immersive",
+      "level20"
+    ]
+  }
+}

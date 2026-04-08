@@ -1,0 +1,58 @@
+[
+  {
+    "id": "revenue_1",
+    "owner_name": "Aniyah",
+    "event_type": "subscription",
+    "gross_amount": 49.99,
+    "splits": {
+      "creator": 34.99,
+      "platform": 10.0,
+      "legacy": 2.5,
+      "ops": 2.5
+    },
+    "status": "recorded",
+    "created_at": "2026-03-19T01:09:53.410143"
+  },
+  {
+    "id": "revenue_2",
+    "owner_name": "Isaiah",
+    "event_type": "movie_purchase",
+    "gross_amount": 149.0,
+    "splits": {
+      "creator": 104.3,
+      "platform": 29.8,
+      "legacy": 7.45,
+      "ops": 7.45
+    },
+    "status": "recorded",
+    "created_at": "2026-03-19T01:09:53.410227"
+  },
+  {
+    "id": "revenue_3",
+    "owner_name": "Jacobie",
+    "event_type": "sponsor",
+    "gross_amount": 500.0,
+    "splits": {
+      "creator": 350.0,
+      "platform": 100.0,
+      "legacy": 25.0,
+      "ops": 25.0
+    },
+    "status": "recorded",
+    "created_at": "2026-03-19T01:09:53.410284"
+  },
+  {
+    "id": "revenue_4",
+    "owner_name": "Aniyah",
+    "event_type": "premium_holographic",
+    "gross_amount": 99.0,
+    "splits": {
+      "creator": 69.3,
+      "platform": 19.8,
+      "legacy": 4.95,
+      "ops": 4.95
+    },
+    "status": "recorded",
+    "created_at": "2026-03-19T01:09:53.410385"
+  }
+]

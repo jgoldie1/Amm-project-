@@ -1,0 +1,12 @@
+PASS H TAIL-ONLY RECOVERY REPORT
+Timestamp: 20260401_181829
+
+Recovered:
+- hollywood gap summary
+- current-run hollywood scan
+- optional hollywood table count snapshots
+
+Purpose:
+- recover interrupted pass H tail
+- preserve stable runtime
+- avoid rerunning full hollywood production pass

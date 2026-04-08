@@ -1,0 +1,4 @@
+[{"id":4,"session_name":"Safe Session","user_name":"Demo User","source_world":"marketplace","target_world":"middleverse","bridge_mode":"commerce_to_world","session_status":"active","created_at":"2026-04-01 00:30:04"},
+{"id":3,"session_name":"Dispatch Bridge Session","user_name":"Ops User","source_world":"dispatch","target_world":"middleverse","bridge_mode":"service_to_world","session_status":"active","created_at":"2026-04-01 00:29:46"},
+{"id":2,"session_name":"Creator Bridge Session","user_name":"Creator User","source_world":"creator_tv","target_world":"middleverse","bridge_mode":"creator_to_world","session_status":"active","created_at":"2026-04-01 00:29:46"},
+{"id":1,"session_name":"AAM Bridge Session 1","user_name":"Demo User","source_world":"marketplace","target_world":"middleverse","bridge_mode":"commerce_to_world","session_status":"active","created_at":"2026-04-01 00:29:46"}]

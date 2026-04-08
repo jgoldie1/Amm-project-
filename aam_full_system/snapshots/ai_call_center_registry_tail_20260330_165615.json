@@ -1,0 +1,2 @@
+[{"id":2,"center_name":"Lyons Tech AI Switchboard","service_scope":"business_onboarding,sales,support,dispatch","voice_mode":"ai_voice","chat_mode":"ai_chat","staffing_mode":"hybrid_remote","center_status":"active","created_at":"2026-03-30 21:56:15"},
+{"id":1,"center_name":"Stubbs AI Call Center","service_scope":"freight,delivery,real_estate,retail,logistics","voice_mode":"ai_voice","chat_mode":"ai_chat","staffing_mode":"work_from_home","center_status":"active","created_at":"2026-03-30 21:56:15"}]

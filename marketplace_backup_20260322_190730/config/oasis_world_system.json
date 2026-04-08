@@ -1,0 +1,39 @@
+{
+  "oasis_world_system": {
+    "layers": [
+      "avatar_model_system",
+      "oasis_hub_world",
+      "city_simulation_layer",
+      "animal_ecosystem_layer",
+      "driving_reality_layer",
+      "teleport_map_system",
+      "passport_identity_binding",
+      "creator_world_monetization_presets",
+      "world_analytics_dashboard",
+      "npc_ai_guide_roles",
+      "world_moderation_controls",
+      "reputation_and_trust_zones",
+      "event_ticketing_logic",
+      "object_permissions_system",
+      "cross_world_inventory_sync"
+    ],
+    "npc_roles": [
+      "greeter",
+      "guide",
+      "merchant_helper",
+      "event_usher",
+      "classroom_assistant",
+      "safety_moderator",
+      "quest_guide"
+    ],
+    "monetization_presets": [
+      "paid_entry",
+      "ticketed_event",
+      "premium_room",
+      "merch_zone",
+      "sponsorship_zone",
+      "collectible_drop",
+      "donation_support_zone"
+    ]
+  }
+}

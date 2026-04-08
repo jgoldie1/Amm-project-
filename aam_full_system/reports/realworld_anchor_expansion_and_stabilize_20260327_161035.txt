@@ -1,0 +1,15 @@
+REALWORLD ANCHOR EXPANSION + STABILIZE REPORT
+Timestamp: 20260327_161035
+
+Added:
+- San Diego anchor
+- Detroit anchor
+- Herrin Illinois anchor
+- Indiana anchor
+- realworld_jump_targets
+- clickable geospatial anchor routing
+
+Purpose:
+- expand the real-world engine city network
+- connect more locations into the ecosystem
+- stabilize everything around broader world coverage

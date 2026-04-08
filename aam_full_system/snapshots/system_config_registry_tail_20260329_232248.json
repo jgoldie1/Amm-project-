@@ -1,0 +1,8 @@
+[{"id":8,"config_name":"upload_mode","config_value":"prepared","config_group":"uploads","config_status":"active","created_at":"2026-03-30 04:22:49"},
+{"id":7,"config_name":"analytics_mode","config_value":"enabled","config_group":"analytics","config_status":"active","created_at":"2026-03-30 04:22:49"},
+{"id":6,"config_name":"payout_mode","config_value":"queued_auto","config_group":"finance","config_status":"active","created_at":"2026-03-30 04:22:49"},
+{"id":5,"config_name":"territory_rollout_mode","config_value":"controlled","config_group":"rollout","config_status":"active","created_at":"2026-03-30 04:22:49"},
+{"id":4,"config_name":"feature_holo_gpt","config_value":"enabled","config_group":"features","config_status":"active","created_at":"2026-03-30 04:22:49"},
+{"id":3,"config_name":"feature_world3d","config_value":"enabled","config_group":"features","config_status":"active","created_at":"2026-03-30 04:22:49"},
+{"id":2,"config_name":"feature_creator_marketplace","config_value":"enabled","config_group":"features","config_status":"active","created_at":"2026-03-30 04:22:49"},
+{"id":1,"config_name":"feature_revenue_engine","config_value":"enabled","config_group":"features","config_status":"active","created_at":"2026-03-30 04:22:49"}]

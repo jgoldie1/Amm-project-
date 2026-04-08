@@ -1,0 +1,4 @@
+[{"id":4,"username":"Guest Explorer","role_name":"explorer","role_scope":"general","role_status":"active","created_at":"2026-03-30 04:22:49"},
+{"id":3,"username":"Isaiah","role_name":"operator","role_scope":"world_operations","role_status":"active","created_at":"2026-03-30 04:22:49"},
+{"id":2,"username":"Aniyah","role_name":"creator","role_scope":"creator_marketplace","role_status":"active","created_at":"2026-03-30 04:22:49"},
+{"id":1,"username":"Jacobie","role_name":"admin","role_scope":"platform","role_status":"active","created_at":"2026-03-30 04:22:49"}]

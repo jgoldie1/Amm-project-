@@ -1,0 +1,37 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Legacy</title><link rel="stylesheet" href="/styles.css"></head><body>
+<header><h1>Heir Legacy Dashboard</h1><div class="nav"><a href="/kingdom.html">Kingdom</a></div></header>
+<main>
+<div class="card">
+<h3>Create Heir (admin token)</h3>
+<input id="heirName" placeholder="Name">
+<input id="heirTitle" placeholder="Title" value="heir">
+<input id="heirBranch" placeholder="Branch">
+<input id="heirProject" placeholder="Project">
+<input id="heirGeneration" placeholder="Generation">
+<textarea id="heirNotes" placeholder="Notes"></textarea>
+<button onclick="createHeir()">Create Heir</button>
+<pre id="heirOut"></pre>
+</div>
+<div class="card">
+<h3>Create Branch (admin token)</h3>
+<input id="branchName" placeholder="Branch Name">
+<input id="branchLead" placeholder="Lead Heir ID">
+<textarea id="branchDesc" placeholder="Description"></textarea>
+<button onclick="createBranch()">Create Branch</button>
+<pre id="branchOut"></pre>
+</div>
+<div class="card">
+<h3>Load Legacy Data</h3>
+<button onclick="loadHeirs()">Load Heirs</button>
+<button onclick="loadBranches()">Load Branches</button>
+<pre id="legacyListOut"></pre>
+</div>
+</main>
+<script src="/app.js"></script>
+<script>
+async function createHeir(){show("heirOut", await request("http://127.0.0.1:5800/heirs",{method:"POST",body:JSON.stringify({name:heirName.value,title:heirTitle.value,branch:heirBranch.value,project:heirProject.value,generation:heirGeneration.value,notes:heirNotes.value})}))}
+async function createBranch(){show("branchOut", await request("http://127.0.0.1:5800/branches",{method:"POST",body:JSON.stringify({name:branchName.value,leadHeirId:Number(branchLead.value||0),description:branchDesc.value})}))}
+async function loadHeirs(){show("legacyListOut", await request("http://127.0.0.1:5800/heirs"))}
+async function loadBranches(){show("legacyListOut", await request("http://127.0.0.1:5800/branches"))}
+</script>
+</body></html>

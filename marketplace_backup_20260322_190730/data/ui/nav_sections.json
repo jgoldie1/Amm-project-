@@ -1,0 +1,7 @@
+[
+  {"title":"Front","links":[["Platform Home","/platform-home"],["Customer","/customer-home"],["Creator","/creator-home"],["Operator","/operator-home"]]},
+  {"title":"Core","links":[["Master Dashboard","/master-dashboard"],["System Registry","/system-registry"],["Boot Status","/boot-status"],["Platform Summary","/platform-summary"]]},
+  {"title":"World","links":[["Clickable Map","/clickable-map"],["Living City","/living-city-center"],["OASIS","/oasis-center"],["Holoverse","/holoverse-center"]]},
+  {"title":"Commerce","links":[["Marketplace","/marketplace-center"],["Payments Center","/payments-center"],["Premium Events","/premium-events-store"],["Holo Products","/holo-products-store"]]},
+  {"title":"Identity","links":[["Auth Login","/auth/login"],["Profile Center","/profile-center"],["Continuity","/continuity-center"],["Quick Launch","/quick-launch-dashboard"]]}
+]

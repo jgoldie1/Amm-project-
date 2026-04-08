@@ -1,0 +1,2 @@
+[{"id":2,"verifier_name":"Safe Verifier","verifier_group":"quality","verification_mode":"post_execution_check","target_scope":"platform","verifier_status":"active","created_at":"2026-04-01 04:32:39"},
+{"id":1,"verifier_name":"Jarvis Verifier","verifier_group":"quality","verification_mode":"post_execution_check","target_scope":"platform","verifier_status":"active","created_at":"2026-04-01 04:32:20"}]

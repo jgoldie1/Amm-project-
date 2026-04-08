@@ -1,0 +1,212 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AAM Creator Portal</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#0f172a; color:#fff; margin:0; padding:16px; }
+    h1,h2 { margin:0 0 12px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
+    .card { background:#111827; border:1px solid #334155; border-radius:14px; padding:16px; box-shadow:0 8px 24px rgba(0,0,0,.25); }
+    input, button, select, textarea {
+      width:100%; box-sizing:border-box; margin:6px 0; padding:10px 12px;
+      border-radius:10px; border:1px solid #475569; background:#0b1220; color:#fff;
+    }
+    button { cursor:pointer; background:#2563eb; border:none; font-weight:600; }
+    pre {
+      white-space:pre-wrap; word-break:break-word; background:#020617; border:1px solid #334155;
+      border-radius:10px; padding:12px; min-height:120px; overflow:auto;
+    }
+    .pill { display:inline-block; padding:6px 10px; border-radius:999px; background:#1e293b; border:1px solid #334155; }
+    .topbar { display:flex; gap:8px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>AAM Creator Portal</h1>
+    <span class="pill" id="loginState">logged out</span>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Register</h2>
+      <input id="regEmail" placeholder="Email" />
+      <input id="regPassword" type="password" placeholder="Password" />
+      <input id="regAge" type="number" placeholder="Age" />
+      <button onclick="registerUser()">Register</button>
+      <pre id="registerOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>Login</h2>
+      <input id="loginEmail" placeholder="Email" />
+      <input id="loginPassword" type="password" placeholder="Password" />
+      <button onclick="loginUser()">Login</button>
+      <button onclick="logoutUser()">Logout</button>
+      <pre id="loginOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>My Profile</h2>
+      <button onclick="loadMe()">Load My Profile</button>
+      <pre id="profileOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>My Wallet</h2>
+      <button onclick="loadMyWallet()">Load My Wallet</button>
+      <pre id="walletOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>Upload Track</h2>
+      <input id="trackArtistId" placeholder="Artist/User ID" />
+      <input id="trackTitle" placeholder="Track title" />
+      <input id="trackGenre" placeholder="Genre" value="rap" />
+      <input id="trackRate" type="number" step="0.01" placeholder="Rate" value="0.04" />
+      <select id="trackRemix">
+        <option value="open">open</option>
+        <option value="restricted">restricted</option>
+        <option value="locked">locked</option>
+      </select>
+      <button onclick="uploadTrack()">Upload Track</button>
+      <pre id="trackOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>My Tracks</h2>
+      <button onclick="loadMyTracks()">Load My Tracks</button>
+      <pre id="myTracksOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>My Transactions</h2>
+      <button onclick="loadMyTransactions()">Load My Transactions</button>
+      <pre id="myTxOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>Insights</h2>
+      <button onclick="loadInsights()">Load Insights</button>
+      <pre id="insightsOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>Memory Notes</h2>
+      <textarea id="noteText" placeholder="Save a creator note or strategy memo"></textarea>
+      <button onclick="saveNote()">Save Note</button>
+      <button onclick="loadNotes()">Load Notes</button>
+      <pre id="notesOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>My Token</h2>
+      <button onclick="showToken()">Show Saved Token</button>
+      <pre id="tokenOut"></pre>
+    </div>
+  </div>
+
+  <script>
+    const tokenKey = 'aam_creator_token';
+    const userIdKey = 'aam_creator_user_id';
+
+    function setToken(token) { localStorage.setItem(tokenKey, token); }
+    function getToken() { return localStorage.getItem(tokenKey) || ''; }
+    function setUserId(userId) {
+      localStorage.setItem(userIdKey, userId);
+      document.getElementById('trackArtistId').value = userId || '';
+    }
+    function getUserId() { return localStorage.getItem(userIdKey) || ''; }
+    function clearSession() {
+      localStorage.removeItem(tokenKey);
+      localStorage.removeItem(userIdKey);
+    }
+    function updateLoginState() {
+      document.getElementById('loginState').textContent = getToken() ? 'logged in' : 'logged out';
+      document.getElementById('trackArtistId').value = getUserId();
+    }
+    function show(id, data) {
+      document.getElementById(id).textContent = JSON.stringify(data, null, 2);
+    }
+    async function authPost(url, body) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + getToken()
+        },
+        body: JSON.stringify(body)
+      });
+      return await res.json();
+    }
+    async function authGet(url) {
+      const res = await fetch(url, {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      return await res.json();
+    }
+
+    async function registerUser() {
+      const body = {
+        email: document.getElementById('regEmail').value.trim(),
+        password: document.getElementById('regPassword').value,
+        age: Number(document.getElementById('regAge').value || 0),
+        role: 'creator'
+      };
+      const res = await fetch('/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      show('registerOut', await res.json());
+    }
+
+    async function loginUser() {
+      const body = {
+        email: document.getElementById('loginEmail').value.trim(),
+        password: document.getElementById('loginPassword').value
+      };
+      const res = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (data.token) {
+        setToken(data.token);
+        setUserId(data.user.userId);
+      }
+      updateLoginState();
+      show('loginOut', data);
+    }
+
+    function logoutUser() {
+      clearSession();
+      updateLoginState();
+      show('loginOut', { ok: true, loggedOut: true });
+    }
+
+    async function loadMe() { show('profileOut', await authGet('/me')); }
+    async function loadMyWallet() { show('walletOut', await authGet('/my-wallet')); }
+    async function uploadTrack() {
+      const body = {
+        artistId: document.getElementById('trackArtistId').value.trim(),
+        title: document.getElementById('trackTitle').value.trim(),
+        genre: document.getElementById('trackGenre').value.trim(),
+        rate: Number(document.getElementById('trackRate').value || 0.04),
+        remix: document.getElementById('trackRemix').value
+      };
+      show('trackOut', await authPost('/music/upload', body));
+    }
+    async function loadMyTracks() { show('myTracksOut', await authGet('/my-tracks')); }
+    async function loadMyTransactions() { show('myTxOut', await authGet('/my-transactions')); }
+    async function loadInsights() { show('insightsOut', await authGet('/intelligence/my-insights')); }
+    async function saveNote() { show('notesOut', await authPost('/intelligence/save-note', { note: document.getElementById('noteText').value })); }
+    async function loadNotes() { show('notesOut', await authGet('/intelligence/my-notes')); }
+    function showToken() { show('tokenOut', { token: getToken(), userId: getUserId() }); }
+
+    updateLoginState();
+  </script>
+</body>
+</html>

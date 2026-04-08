@@ -1,0 +1,12 @@
+PASS J TAIL-ONLY RECOVERY REPORT
+Timestamp: 20260401_192556
+
+Recovered:
+- legal gap summary
+- current-run legal scan
+- optional legal/compliance table count snapshots
+
+Purpose:
+- recover interrupted pass J tail
+- preserve stable runtime
+- avoid rerunning full IP/AI attorney/compliance pass

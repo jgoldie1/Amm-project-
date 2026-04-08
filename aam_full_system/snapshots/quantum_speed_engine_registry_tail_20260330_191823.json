@@ -1,0 +1,4 @@
+[{"id":4,"engine_name":"Quantum Speed Media","engine_scope":"creator_media","optimization_mode":"adaptive","target_layer":"creator_tv_and_streaming","engine_status":"active","created_at":"2026-03-31 00:18:24"},
+{"id":3,"engine_name":"Quantum Speed CX","engine_scope":"callcenter_ops","optimization_mode":"adaptive","target_layer":"competitive_contact_center","engine_status":"active","created_at":"2026-03-31 00:18:24"},
+{"id":2,"engine_name":"Quantum Speed Dispatch","engine_scope":"dispatch_ops","optimization_mode":"priority_first","target_layer":"multiservice_dispatch","engine_status":"active","created_at":"2026-03-31 00:18:24"},
+{"id":1,"engine_name":"Quantum Speed Core","engine_scope":"platform_runtime","optimization_mode":"adaptive","target_layer":"dashboard_and_routes","engine_status":"active","created_at":"2026-03-31 00:18:24"}]

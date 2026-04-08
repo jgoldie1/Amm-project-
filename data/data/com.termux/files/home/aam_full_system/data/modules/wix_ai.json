@@ -1,0 +1,23 @@
+{
+  "name": "Wix AI",
+  "status": "active_build",
+  "category": "public_site_ai_layer",
+  "purpose": "Public-facing website, AI content, AI site chat, SEO, landing pages, and business growth layer for the AAM ecosystem.",
+  "features": [
+    "ai website builder",
+    "ai site content",
+    "ai image generation",
+    "ai section generation",
+    "ai site chat",
+    "seo support",
+    "marketing pages",
+    "public storefront support"
+  ],
+  "connects_to": [
+    "system_config_registry",
+    "streaming_network_registry",
+    "creator marketplace",
+    "public marketing pages",
+    "support workflows"
+  ]
+}

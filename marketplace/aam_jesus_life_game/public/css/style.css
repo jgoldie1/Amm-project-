@@ -1,0 +1,122 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: radial-gradient(circle at top, #0f172a, #020617 60%, #000);
+  color: #e2e8f0;
+}
+.shell {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.badge {
+  background: rgba(59,130,246,.2);
+  border: 1px solid rgba(147,197,253,.4);
+  padding: 8px 12px;
+  border-radius: 999px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr 1fr;
+  gap: 16px;
+}
+.panel {
+  background: rgba(15,23,42,.8);
+  border: 1px solid rgba(148,163,184,.2);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+.scene-list {
+  display: grid;
+  gap: 10px;
+}
+.scene-card {
+  border: 1px solid rgba(148,163,184,.2);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(30,41,59,.65);
+}
+.scene-card h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+.scene-card button {
+  margin-top: 8px;
+}
+.stage {
+  height: 380px;
+  position: relative;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at center, rgba(56,189,248,.22), rgba(15,23,42,.15) 35%, rgba(2,6,23,.9) 70%),
+    linear-gradient(180deg, rgba(2,132,199,.1), rgba(2,6,23,.7));
+  margin-bottom: 14px;
+}
+.holo-ring {
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  border: 2px solid rgba(125,211,252,.55);
+  border-radius: 50%;
+  box-shadow: 0 0 40px rgba(56,189,248,.35), inset 0 0 30px rgba(56,189,248,.2);
+}
+.holo-core {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 70%;
+  padding: 18px;
+  border-radius: 16px;
+  background: rgba(14,116,144,.15);
+  border: 1px solid rgba(103,232,249,.25);
+  box-shadow: 0 0 30px rgba(34,211,238,.12);
+  color: #bae6fd;
+}
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+input, button {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(148,163,184,.25);
+  background: rgba(15,23,42,.85);
+  color: #e2e8f0;
+}
+button {
+  cursor: pointer;
+  background: linear-gradient(135deg, rgba(37,99,235,.85), rgba(6,182,212,.85));
+}
+.feed {
+  min-height: 420px;
+  max-height: 420px;
+  overflow: auto;
+  display: grid;
+  gap: 8px;
+}
+.feed-item {
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(30,41,59,.7);
+  border: 1px solid rgba(148,163,184,.15);
+  font-size: 14px;
+}
+@media (max-width: 1000px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

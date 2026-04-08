@@ -1,0 +1,11 @@
+Important gaps checked and critical fixes applied:
+- secret key fallback
+- JSON/OS imports
+- DB bootstrap create_all safety
+- system gap report route
+- hardened safe launcher
+Next likely important work:
+- connect creator dashboard to edit/delete links directly
+- add snapshot saving and era tagging
+- connect favorites to saved records
+- later wire live payments

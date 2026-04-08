@@ -1,0 +1,11 @@
+=== VERIFY BRAND GALLERY ===
+BASE=http://127.0.0.1:8080
+
+/brand-gallery-real           /heirs-launchpad              /holo-commerce-home           
+--- BRAND FILES ---
+american_flag_real.svg
+lion_real.svg
+saturn_real.svg
+stubbs_crest_real.svg
+
+--- LAST LOG ---

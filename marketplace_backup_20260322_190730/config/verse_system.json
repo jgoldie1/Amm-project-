@@ -1,0 +1,34 @@
+{
+  "metaverse": {
+    "functions": [
+      "creator_rooms",
+      "immersive_storefronts",
+      "concert_spaces",
+      "classrooms",
+      "ministry_spaces",
+      "holographic_product_demos",
+      "live_event_zones"
+    ]
+  },
+  "middleverse": {
+    "functions": [
+      "app_to_immersive_bridge",
+      "dashboard_transition_layer",
+      "creator_tool_bridge",
+      "marketplace_bridge",
+      "streaming_bridge",
+      "identity_and_passport_bridge"
+    ]
+  },
+  "multiverse": {
+    "functions": [
+      "creator_world",
+      "marketplace_world",
+      "ministry_world",
+      "university_world",
+      "logistics_world",
+      "streaming_world",
+      "battle_world"
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+[
+  {
+    "file": "section2_safe_handoff_20260331_105253.txt",
+    "problem": "http_500"
+  },
+  {
+    "file": "section2_safe_request_20260331_105253.txt",
+    "problem": "http_500"
+  }
+]

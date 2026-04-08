@@ -1,0 +1,26 @@
+{
+  "injection_points": [
+    {
+      "cue": "opening_theme",
+      "placement": "intro sequence",
+      "target": "background + vocal hook"
+    },
+    {
+      "cue": "transformation_theme",
+      "placement": "star transformation",
+      "target": "full soundtrack lift"
+    },
+    {
+      "cue": "broadcast_theme",
+      "placement": "ending reveal",
+      "target": "anthem finish"
+    }
+  ],
+  "audio_flow": [
+    "record vocals",
+    "export stems",
+    "mix with score",
+    "master soundtrack",
+    "inject into final render"
+  ]
+}

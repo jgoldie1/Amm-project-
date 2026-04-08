@@ -1,0 +1,14 @@
+{
+  "gesture_navigation": {
+    "enabled": true,
+    "swipe_left": "next_panel",
+    "swipe_right": "previous_panel",
+    "swipe_up": "expand_details",
+    "swipe_down": "close_panel",
+    "button_fallback_required": true,
+    "voice_fallback_required": true,
+    "keyboard_fallback_required": true,
+    "one_hand_mode": true,
+    "reduced_motion_safe": true
+  }
+}

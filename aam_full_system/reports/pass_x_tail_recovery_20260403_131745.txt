@@ -1,0 +1,14 @@
+PASS X TAIL RECOVERY REPORT
+Timestamp: 20260403_131745
+
+Recovered:
+- navigation workflow table verification
+- navigation workflow hub smoke
+- navigation help bot smoke
+- kingdom help bot smoke
+- marketplace help bot smoke
+
+Purpose:
+- finish interrupted Pass X safely
+- preserve stable runtime
+- avoid rerunning the giant build

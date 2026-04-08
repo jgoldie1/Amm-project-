@@ -1,0 +1,29 @@
+/family-launch-home           HTTP/1.1 200 OK
+/birthday-center              HTTP/1.1 200 OK
+/happy-birthday-aniyah        HTTP/1.1 200 OK
+/aniyah-cross-border          HTTP/1.1 200 OK
+/shows-demo                   HTTP/1.1 200 OK
+/music-demo                   HTTP/1.1 200 OK
+/omni-care-360                HTTP/1.1 200 OK
+/aam-holographic-streaming-ecosystemHTTP/1.1 200 OK
+/aam-university               HTTP/1.1 200 OK
+/holoverse-lobby-v2           HTTP/1.1 200 OK
+/ask-ui                       HTTP/1.1 200 OK
+/ai-command-center            HTTP/1.1 200 OK
+/system-status                HTTP/1.1 200 OK
+/join-app                     HTTP/1.1 404 NOT FOUND
+/join-requests                HTTP/1.1 404 NOT FOUND
+/heirs                        HTTP/1.1 404 NOT FOUND
+/world-registry               HTTP/1.1 404 NOT FOUND
+/avatar-center                HTTP/1.1 404 NOT FOUND
+/avatar-select                HTTP/1.1 404 NOT FOUND
+/my-avatar                    HTTP/1.1 404 NOT FOUND
+/avatar-scan-upload           HTTP/1.1 404 NOT FOUND
+/avatar-scan-latest           HTTP/1.1 404 NOT FOUND
+/metaverse-3d                 HTTP/1.1 200 OK
+/metaverse-webgl              HTTP/1.1 500 INTERNAL SERVER ERROR
+/census-center                HTTP/1.1 200 OK
+/us-census-center             HTTP/1.1 200 OK
+/global-census-center         HTTP/1.1 200 OK
+/map-center                   HTTP/1.1 200 OK
+/satellite-center             HTTP/1.1 200 OK

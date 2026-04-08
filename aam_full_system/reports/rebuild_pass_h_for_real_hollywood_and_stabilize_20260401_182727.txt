@@ -1,0 +1,33 @@
+REBUILD PASS H FOR REAL HOLLYWOOD + STABILIZE REPORT
+Timestamp: 20260401_182727
+
+Built:
+- cgi project registry
+- vfx shot registry
+- special effects registry
+- compositing registry
+- lighting lookdev registry
+- character asset registry
+- mocap performance registry
+- previs postvis registry
+- virtual production registry
+- greenscreen led registry
+- color mastering registry
+- delivery package registry
+
+Verified:
+- dashboard health
+- jarvis health
+- metaverse route
+- middleverse route
+- multiverse route
+- studio lab
+- creator tv
+- world3d
+- current-run-only scan
+- hollywood gap summary
+
+Purpose:
+- build missing hollywood production layer for real
+- preserve stable runtime
+- finish this production section cleanly

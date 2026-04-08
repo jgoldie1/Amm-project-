@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AAM Persistent World Gameplay Shell</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    html, body { margin:0; height:100%; background:#020617; color:#fff; font-family:Arial,sans-serif; }
+    #app { position:relative; width:100vw; height:100vh; overflow:hidden; background:linear-gradient(180deg,#0b1120 0%,#111827 100%); }
+    canvas { display:block; width:100%; height:100%; }
+    .hud { position:absolute; top:12px; left:12px; right:12px; display:grid; grid-template-columns:1fr auto; gap:12px; pointer-events:none; }
+    .panel,.controls,.interaction-panel,.mission-panel,.legend {
+      pointer-events:auto; background:rgba(2,6,23,.84); border:1px solid #334155;
+      border-radius:18px; box-shadow:0 10px 28px rgba(0,0,0,.28); backdrop-filter:blur(10px);
+    }
+    .panel,.mission-panel,.interaction-panel,.legend { padding:14px 16px; }
+    .controls { padding:12px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+    .mission-panel { position:absolute; left:12px; bottom:12px; width:min(420px, calc(100vw - 24px)); }
+    .interaction-panel { position:absolute; right:12px; bottom:12px; width:min(420px, calc(100vw - 24px)); }
+    .legend { position:absolute; left:12px; top:170px; max-width:420px; line-height:1.5; }
+    button,.action-link {
+      min-height:48px; border-radius:12px; border:1px solid #475569; background:#0f172a; color:#fff;
+      padding:10px 14px; cursor:pointer; font-size:.98rem; text-decoration:none;
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    }
+    .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .badge { display:inline-block; padding:7px 10px; border-radius:999px; background:#1d4ed8; font-size:.92rem; margin-right:6px; margin-top:6px; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="hud">
+      <div class="panel">
+        <h1 style="margin:0 0 8px 0;">AAM Persistent World Gameplay Shell</h1>
+        <p style="margin:0 0 8px 0;">Click a world object, then use Complete Mission to save progress into the platform.</p>
+        <span class="badge">Missions</span>
+        <span class="badge">Progress</span>
+        <span class="badge">Unlocks</span>
+        <span class="badge">Cities</span>
+        <span class="badge">Property</span>
+      </div>
+      <div class="controls">
+        <button id="btnDay">Day</button>
+        <button id="btnNight">Night</button>
+        <button id="btnReset">Reset View</button>
+        <button id="btnLabels">Toggle Labels</button>
+      </div>
+    </div>
+
+    <div class="legend">
+      <strong>Gameplay Loop</strong><br>
+      Select an object in the world, then click Complete Mission to persist the mission and unlock.
+    </div>
+
+    <div class="mission-panel" aria-live="polite">
+      <h2 style="margin:0 0 8px 0;">Mission Control</h2>
+      <p id="missionText">Select an object to reveal a mission path.</p>
+      <div class="row">
+        <a id="missionLink" class="action-link" href="/player-progress">Open Mission Target</a>
+        <button id="completeMissionBtn" type="button">Complete Mission</button>
+      </div>
+      <p id="missionStatus" style="margin-top:10px;color:#cbd5e1;">No mission completed yet.</p>
+    </div>
+
+    <div class="interaction-panel" aria-live="polite">
+      <h2 style="margin:0 0 8px 0;">Interaction Control</h2>
+      <p id="interactionText">Select a world object to route into the platform.</p>
+      <div class="row">
+        <a id="interactionLink" class="action-link" href="/world-experience-control">Open Target</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.161.0/build/three.module.js';
+    import { OrbitControls } from 'https://unpkg.com/three@0.161.0/examples/jsm/controls/OrbitControls.js';
+
+    const app = document.getElementById('app');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x0b1120, 40, 180);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(18, 14, 26);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    app.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 2, -10);
+    controls.enableDamping = true;
+    controls.maxDistance = 120;
+    controls.minDistance = 8;
+    controls.maxPolarAngle = Math.PI / 2.1;
+
+    const hemi = new THREE.HemisphereLight(0xffffff, 0x1e293b, 1.2);
+    scene.add(hemi);
+
+    const dir = new THREE.DirectionalLight(0xffffff, 1.25);
+    dir.position.set(24, 30, 10);
+    scene.add(dir);
+
+    const groundGeo = new THREE.PlaneGeometry(220, 220, 20, 20);
+    const groundMat = new THREE.MeshStandardMaterial({ color: 0x1f3b2d, roughness: 0.95, metalness: 0.02 });
+    const ground = new THREE.Mesh(groundGeo, groundMat);
+    ground.rotation.x = -Math.PI / 2;
+    scene.add(ground);
+
+    const grid = new THREE.GridHelper(220, 44, 0x334155, 0x1e293b);
+    scene.add(grid);
+
+    function makeBox(x, y, z, sx, sy, sz, color, meta) {
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(sx, sy, sz),
+        new THREE.MeshStandardMaterial({ color, roughness: 0.75, metalness: 0.08 })
+      );
+      mesh.position.set(x, y, z);
+      mesh.userData = meta;
+      scene.add(mesh);
+      return mesh;
+    }
+
+    function makeCylinder(x, y, z, rTop, rBottom, h, color, meta) {
+      const mesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(rTop, rBottom, h, 24),
+        new THREE.MeshStandardMaterial({ color, roughness: 0.72, metalness: 0.06 })
+      );
+      mesh.position.set(x, y, z);
+      mesh.userData = meta;
+      scene.add(mesh);
+      return mesh;
+    }
+
+    const interactiveObjects = [];
+    const addInteractive = mesh => (interactiveObjects.push(mesh), mesh);
+
+    const objects = [
+      { type:'box', x:0, y:2.5, z:-20, sx:10, sy:5, sz:10, color:0x2563eb, label:'Marketplace Hub', description:'Connect brands, domains, storefronts, and commerce systems.', href:'/connect-system', mission:'Explore the Marketplace Hub' },
+      { type:'cyl', x:18, y:1, z:-10, rt:5, rb:5, h:2, color:0x7c3aed, label:'Creator Stage', description:'Enter streaming and creator surfaces.', href:'/watch', mission:'Visit the Creator Stage' },
+      { type:'box', x:-17, y:8.5, z:-12, sx:8, sy:1, sz:2, color:0xfbbf24, label:'World Gate', description:'Jump into engine bridge and world control systems.', href:'/engine-bridge', mission:'Enter the World Gate' },
+      { type:'cyl', x:0, y:1, z:0, rt:0.7, rb:0.9, h:2, color:0x22c55e, label:'Player Spawn', description:'Open the role hub and central routing.', href:'/role-hub', mission:'Claim your role path' },
+      { type:'cyl', x:8, y:1, z:-6, rt:0.6, rb:0.8, h:1.8, color:0xef4444, label:'NPC Alpha', description:'Open accessibility controls.', href:'/accessibility', mission:'Meet NPC Alpha' },
+      { type:'cyl', x:-8, y:1, z:-8, rt:0.6, rb:0.8, h:1.8, color:0xf97316, label:'NPC Beta', description:'Open avatar rig and holographic character control.', href:'/avatar-rig-control', mission:'Meet NPC Beta' },
+      { type:'box', x:30, y:2.5, z:-16, sx:8, sy:5, sz:8, color:0x14b8a6, label:'Property District', description:'Open the property market and land/building layer.', href:'/property-market', mission:'Claim Property Route' },
+      { type:'box', x:-30, y:2.5, z:-16, sx:8, sy:5, sz:8, color:0x0ea5e9, label:'City Registry', description:'Open the real-world city registry and geospatial engine.', href:'/realworld-city-registry', mission:'Expand the City Network' }
+    ];
+
+    const rotatingObjects = [];
+    const labels = [];
+
+    function createLabel(text, position) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      div.style.position = 'absolute';
+      div.style.color = '#fff';
+      div.style.background = 'rgba(2,6,23,.72)';
+      div.style.padding = '6px 8px';
+      div.style.borderRadius = '10px';
+      div.style.border = '1px solid #334155';
+      div.style.fontSize = '13px';
+      div.style.pointerEvents = 'none';
+      app.appendChild(div);
+      labels.push({ el: div, position });
+    }
+
+    objects.forEach(obj => {
+      let mesh;
+      if (obj.type === 'box') {
+        mesh = addInteractive(makeBox(obj.x, obj.y, obj.z, obj.sx, obj.sy, obj.sz, obj.color, obj));
+      } else {
+        mesh = addInteractive(makeCylinder(obj.x, obj.y, obj.z, obj.rt, obj.rb, obj.h, obj.color, obj));
+      }
+      if (obj.label.includes('NPC') || obj.label.includes('Property') || obj.label.includes('City')) {
+        rotatingObjects.push(mesh);
+      }
+      createLabel(obj.label, new THREE.Vector3(obj.x, obj.y + 3, obj.z));
+    });
+
+    let labelsVisible = true;
+    function updateLabels() {
+      labels.forEach(item => {
+        const vector = item.position.clone().project(camera);
+        const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+        const y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
+        item.el.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+        item.el.style.display = labelsVisible ? 'block' : 'none';
+      });
+    }
+
+    function setDay() {
+      renderer.setClearColor(0x87ceeb, 1);
+      scene.fog.color.set(0x87ceeb);
+      hemi.intensity = 1.25;
+      dir.intensity = 1.25;
+      ground.material.color.set(0x356b4c);
+    }
+
+    function setNight() {
+      renderer.setClearColor(0x020617, 1);
+      scene.fog.color.set(0x0b1120);
+      hemi.intensity = 0.55;
+      dir.intensity = 0.45;
+      ground.material.color.set(0x163126);
+    }
+
+    const interactionText = document.getElementById('interactionText');
+    const interactionLink = document.getElementById('interactionLink');
+    const missionText = document.getElementById('missionText');
+    const missionLink = document.getElementById('missionLink');
+    const missionStatus = document.getElementById('missionStatus');
+    const completeMissionBtn = document.getElementById('completeMissionBtn');
+
+    let currentMeta = {
+      label: 'World Ready',
+      description: 'Select an object to start a mission and route into the platform.',
+      href: '/world-experience-control',
+      mission: 'Explore the Marketplace Hub'
+    };
+
+    function setInteraction(meta) {
+      currentMeta = meta;
+      interactionText.textContent = `${meta.label}: ${meta.description}`;
+      interactionLink.href = meta.href;
+      interactionLink.textContent = `Open ${meta.label}`;
+      missionText.textContent = `Mission: ${meta.mission || 'Explore the world'}`;
+      missionLink.href = '/player-progress';
+      missionLink.textContent = `Track ${meta.mission || 'Mission'}`;
+      missionStatus.textContent = 'Ready to save mission progress.';
+    }
+
+    async function completeMission() {
+      completeMissionBtn.disabled = true;
+      missionStatus.textContent = `Saving: ${currentMeta.mission} ...`;
+      try {
+        const body = new URLSearchParams();
+        body.set('mission_name', currentMeta.mission || 'Explore the Marketplace Hub');
+
+        const res = await fetch('/api/mission-complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: body.toString()
+        });
+
+        const data = await res.json();
+        if (data.ok) {
+          missionStatus.textContent = `Completed: ${data.mission_name}. XP ${data.xp_points}. Level ${data.current_level}.`;
+          missionLink.href = '/player-progress';
+          missionLink.textContent = 'Open Player Progress';
+          if (data.unlock_route) {
+            interactionLink.href = data.unlock_route;
+          }
+        } else {
+          missionStatus.textContent = 'Mission save failed.';
+        }
+      } catch (e) {
+        missionStatus.textContent = 'Mission save failed.';
+      } finally {
+        completeMissionBtn.disabled = false;
+      }
+    }
+
+    completeMissionBtn.addEventListener('click', completeMission);
+    document.getElementById('btnDay').addEventListener('click', setDay);
+    document.getElementById('btnNight').addEventListener('click', setNight);
+    document.getElementById('btnReset').addEventListener('click', () => {
+      camera.position.set(18, 14, 26);
+      controls.target.set(0, 2, -10);
+      controls.update();
+    });
+    document.getElementById('btnLabels').addEventListener('click', () => {
+      labelsVisible = !labelsVisible;
+    });
+
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+
+    function onPointerClick(event) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects(interactiveObjects, false);
+      if (hits.length > 0) {
+        const meta = hits[0].object.userData || {};
+        if (meta && meta.href) setInteraction(meta);
+      }
+    }
+
+    renderer.domElement.addEventListener('click', onPointerClick);
+
+    setDay();
+    setInteraction(currentMeta);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      rotatingObjects.forEach((obj, i) => { obj.rotation.y += 0.004 + (i * 0.001); });
+      updateLabels();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

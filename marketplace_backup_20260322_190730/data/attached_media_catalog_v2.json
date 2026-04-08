@@ -1,0 +1,53 @@
+[
+  {
+    "id": "media_v2_001",
+    "entity_type": "feed_card",
+    "entity_id": "feed_hero_v2_001",
+    "media": [
+      {
+        "type": "image",
+        "url": "/static/img/feed-hero.jpg",
+        "label": "Feed hero"
+      },
+      {
+        "type": "video",
+        "url": "/static/video/feed-hero.mp4",
+        "label": "Feed promo"
+      }
+    ]
+  },
+  {
+    "id": "media_v2_002",
+    "entity_type": "storefront_card",
+    "entity_id": "store_card_v2_001",
+    "media": [
+      {
+        "type": "image",
+        "url": "/static/img/storefront-card.jpg",
+        "label": "Storefront"
+      },
+      {
+        "type": "audio",
+        "url": "/static/audio/storefront-theme.mp3",
+        "label": "Theme"
+      }
+    ]
+  },
+  {
+    "id": "media_v2_003",
+    "entity_type": "channel_card",
+    "entity_id": "channel_card_v2_001",
+    "media": [
+      {
+        "type": "image",
+        "url": "/static/img/channel-card.jpg",
+        "label": "Channel"
+      },
+      {
+        "type": "video",
+        "url": "/static/video/channel-preview.mp4",
+        "label": "Preview"
+      }
+    ]
+  }
+]

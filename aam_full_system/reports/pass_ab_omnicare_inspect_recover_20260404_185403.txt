@@ -1,0 +1,12 @@
+PASS AB OMNICARE INSPECT RECOVER REPORT
+Timestamp: 20260404_185403
+
+Built/recovered:
+- OmniCare vertical tables
+- OmniCare live routes
+- OmniCare hub page
+- insurance/pharmacy smoke checks
+
+Purpose:
+- recover interrupted Pass AA safely
+- preserve stable runtime

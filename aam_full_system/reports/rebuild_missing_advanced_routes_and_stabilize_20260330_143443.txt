@@ -1,0 +1,13 @@
+REBUILD MISSING ADVANCED ROUTES + STABILIZE REPORT
+Timestamp: 20260330_143443
+
+Recovered:
+- /quantum-mail
+- /quantum-mail-admin
+- /holo-search
+- /platform-analytics
+
+Purpose:
+- rebuild missing advanced routes directly into current dashboard
+- preserve stable runtime
+- restore advanced platform surface

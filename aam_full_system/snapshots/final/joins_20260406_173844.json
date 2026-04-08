@@ -1,0 +1,14 @@
+{
+  "joins": [
+    {
+      "username": "beta_user_test",
+      "referrer": "all_american_creator",
+      "createdAt": "2026-04-06T22:32:35.605Z"
+    },
+    {
+      "username": "freeze_check_user",
+      "referrer": "all_american_creator",
+      "createdAt": "2026-04-06T22:38:44.388Z"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "Omnisea Holo NFT",
+  "status": "active_build",
+  "category": "creator_nft_launchpad",
+  "purpose": "Holographic NFT collection generator and creator launchpad layer for AAM.",
+  "features": [
+    "nft collection generation",
+    "holographic nft drops",
+    "creator mint pages",
+    "metadata control",
+    "phase-based minting",
+    "royalty and revenue split hooks",
+    "world-linked collectible drops"
+  ],
+  "connects_to": [
+    "system_config_registry",
+    "modules_index",
+    "creator marketplace",
+    "royalty_registry",
+    "streaming_network_registry",
+    "life world"
+  ]
+}

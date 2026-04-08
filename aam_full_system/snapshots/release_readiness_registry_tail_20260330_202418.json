@@ -1,0 +1,4 @@
+[{"id":4,"release_name":"metaverse_release","release_scope":"future_alpha","blocker_count":7,"release_notes":"Needs scene/avatar/session/gameplay loop work","release_status":"draft","created_at":"2026-03-31 01:24:18"},
+{"id":3,"release_name":"dispatch_ops_release","release_scope":"private_beta","blocker_count":3,"release_notes":"Needs status transitions and real assignment actions","release_status":"draft","created_at":"2026-03-31 01:24:18"},
+{"id":2,"release_name":"creator_media_release","release_scope":"private_beta","blocker_count":5,"release_notes":"Needs publish, render, release, and studio action logic","release_status":"draft","created_at":"2026-03-31 01:24:18"},
+{"id":1,"release_name":"current_platform_foundation","release_scope":"internal_alpha","blocker_count":4,"release_notes":"Stable foundation but deeper actions still needed","release_status":"draft","created_at":"2026-03-31 01:24:18"}]

@@ -1,0 +1,17 @@
+{
+  "title": "Anyone Can Be a Star - Pilot",
+  "acts": [
+    {
+      "name": "Arrival",
+      "summary": "A new creator enters the AI TV system."
+    },
+    {
+      "name": "Transformation",
+      "summary": "The creator is guided into a star identity with cinematic visuals."
+    },
+    {
+      "name": "Broadcast",
+      "summary": "The creator appears on the streaming wall and invites others to join."
+    }
+  ]
+}

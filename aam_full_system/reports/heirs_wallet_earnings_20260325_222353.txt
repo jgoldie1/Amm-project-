@@ -1,0 +1,21 @@
+HEIRS WALLET + EARNINGS + CREATOR STABILIZE REPORT
+Timestamp: 20260325_222353
+
+Added:
+- heir_wallets
+- heir_earnings
+- heir_creator_profiles
+- heir_storefront_links
+- heir_permissions_matrix
+
+Routes:
+- /heirs
+- /heirs-ecosystem
+- /heir-operations
+
+Goal:
+- connect heirs to wallets
+- connect heirs to creator systems
+- connect heirs to storefronts
+- connect heirs to permissions
+- make heir progress visible

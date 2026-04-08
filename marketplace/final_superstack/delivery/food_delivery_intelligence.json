@@ -1,0 +1,14 @@
+{
+  "food_delivery_intelligence": {
+    "features": [
+      "restaurant_recommendations",
+      "smart_dispatch",
+      "eta_prediction",
+      "delivery_risk_scoring",
+      "coupon_targeting",
+      "driver_assignment_optimization",
+      "order_batching"
+    ],
+    "purpose": "Improve food delivery speed, accuracy, and profitability"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "battle_modes": [
+    "creator_vs_creator_pk",
+    "fan_vs_fan_card_battle",
+    "music_battle",
+    "team_battle",
+    "tournament_bracket",
+    "ranked_ladder",
+    "live_audience_vote_battle",
+    "seasonal_event_battle",
+    "holographic_arena_battle",
+    "printable_deck_tabletop_battle"
+  ],
+  "purpose": "Expand battles into a full engagement and competition ecosystem"
+}

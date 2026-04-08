@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Artlist AI",
+    "file": "artlist_ai.json",
+    "status": "planned",
+    "category": "creative_media"
+  },
+  {
+    "name": "Avalanche Drip",
+    "file": "avalanche_drip.json",
+    "status": "planned",
+    "category": "payments_rewards_distribution"
+  },
+  {
+    "name": "Blue System",
+    "file": "blue_system.json",
+    "status": "planned",
+    "category": "energy_infrastructure_runtime"
+  },
+  {
+    "name": "Life of Yahuah Maschian: King of Kings",
+    "file": "life_of_yahuah_maschian.json",
+    "status": "active_build",
+    "category": "open_world_game"
+  },
+  {
+    "name": "Wix AI",
+    "file": "wix_ai.json",
+    "status": "active_build",
+    "category": "public_site_ai_layer"
+  },
+  {
+    "name": "Omnisea Holo NFT",
+    "file": "omnisea_holo_nft.json",
+    "status": "active_build",
+    "category": "creator_nft_launchpad"
+  },
+  {
+    "name": "Stubbs AI",
+    "file": "stubbs_ai.json",
+    "status": "active_build",
+    "category": "platform_intelligence"
+  },
+  {
+    "name": "Lyons Tech AI",
+    "file": "lyons_tech_ai.json",
+    "status": "active_build",
+    "category": "technical_intelligence"
+  }
+]

@@ -1,0 +1,20 @@
+[
+{"region":"USA","priority":"high"},
+{"region":"Canada","priority":"high"},
+{"region":"United Kingdom","priority":"high"},
+{"region":"India","priority":"high"},
+{"region":"Africa","priority":"medium"},
+{"region":"Russia","priority":"medium"},
+{"region":"Germany","priority":"medium"},
+{"region":"Brazil","priority":"medium"},
+{"region":"Mexico","priority":"medium"},
+{"region":"Vietnam","priority":"medium"},
+{"region":"Indonesia","priority":"medium"},
+{"region":"Turkey","priority":"medium"},
+{"region":"UAE","priority":"medium"},
+{"region":"Australia","priority":"medium"},
+{"region":"Japan","priority":"medium"},
+{"region":"Taiwan","priority":"medium"},
+{"region":"South Korea","priority":"medium"},
+{"region":"China","priority":"low"}
+]

@@ -1,0 +1,14 @@
+STABILIZE LOGS + STATUS + SNAPSHOT REPORT
+Timestamp: 20260329_151541
+
+Added:
+- logs/dashboard.log
+- logs/jarvis.log
+- scripts/current_phase_status.sh
+- scripts/current_phase_snapshot.sh
+
+Purpose:
+- normalize logs
+- give one reliable status command
+- give one reliable snapshot command
+- stabilize without risky feature changes

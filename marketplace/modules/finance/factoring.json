@@ -1,0 +1,9 @@
+{
+ "system":"factoring_service",
+ "features":[
+ "invoice factoring",
+ "instant payment",
+ "carrier financing",
+ "risk management"
+ ]
+}

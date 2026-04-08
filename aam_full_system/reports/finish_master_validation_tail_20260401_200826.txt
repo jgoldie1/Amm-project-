@@ -1,0 +1,12 @@
+FINISH MASTER VALIDATION TAIL REPORT
+Timestamp: 20260401_200826
+
+Recovered:
+- master validation summary rewrite
+- current-run tail scan
+- final report after interrupted validation
+
+Purpose:
+- finish interrupted master validation cleanly
+- preserve stable runtime
+- avoid rerunning the whole master repair

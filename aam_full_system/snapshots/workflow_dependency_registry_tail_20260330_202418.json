@@ -1,0 +1,10 @@
+[{"id":10,"workflow_name":"platform_hardening","dependency_name":"upload_validation","dependency_group":"security","dependency_status":"tracked","created_at":"2026-03-31 01:24:18"},
+{"id":9,"workflow_name":"platform_hardening","dependency_name":"auth_permissions","dependency_group":"security","dependency_status":"tracked","created_at":"2026-03-31 01:24:18"},
+{"id":8,"workflow_name":"studio_audio_engine","dependency_name":"mix_export_logic","dependency_group":"studio","dependency_status":"tracked","created_at":"2026-03-31 01:24:18"},
+{"id":7,"workflow_name":"studio_audio_engine","dependency_name":"session_recording_logic","dependency_group":"studio","dependency_status":"tracked","created_at":"2026-03-31 01:24:18"},
+{"id":6,"workflow_name":"dispatch_lifecycle","dependency_name":"status_transition_actions","dependency_group":"dispatch","dependency_status":"tracked","created_at":"2026-03-31 01:24:18"},
+{"id":5,"workflow_name":"dispatch_lifecycle","dependency_name":"assignment_post_actions","dependency_group":"dispatch","dependency_status":"tracked","created_at":"2026-03-31 01:24:18"},
+{"id":4,"workflow_name":"creator_production_release","dependency_name":"publish_and_release_flow","dependency_group":"production","dependency_status":"tracked","created_at":"2026-03-31 01:24:18"},
+{"id":3,"workflow_name":"creator_production_release","dependency_name":"render_pipeline_actions","dependency_group":"production","dependency_status":"tracked","created_at":"2026-03-31 01:24:18"},
+{"id":2,"workflow_name":"metaverse_playability","dependency_name":"avatar_session_actions","dependency_group":"metaverse","dependency_status":"tracked","created_at":"2026-03-31 01:24:18"},
+{"id":1,"workflow_name":"metaverse_playability","dependency_name":"scene_interaction_logic","dependency_group":"metaverse","dependency_status":"tracked","created_at":"2026-03-31 01:24:18"}]

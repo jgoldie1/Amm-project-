@@ -1,0 +1,71 @@
+SNAPSHOT TIME: Wed Mar 18 12:21:37 CDT 2026
+
+=== Service Status ===
+[OK] api-gateway (4000)
+{"ok":true,"service":"api-gateway","port":"4000","timestamp":"2026-03-18T17:21:38.071Z"}
+
+[OK] auth-service (4100)
+{"ok":true,"service":"auth-service","port":"4100","timestamp":"2026-03-18T17:21:38.174Z"}
+
+[OK] booking-service (4200)
+{"ok":true,"service":"booking-service","port":"4200","timestamp":"2026-03-18T17:21:38.265Z"}
+
+[OK] payment-service (4300)
+{"ok":true,"service":"payment-service","port":"4300","timestamp":"2026-03-18T17:21:38.363Z"}
+
+[OK] dispatch-service (4400)
+{"ok":true,"service":"dispatch-service","port":"4400","timestamp":"2026-03-18T17:21:38.464Z"}
+
+[OK] rewards-service (4500)
+{"ok":true,"service":"rewards-service","port":"4500","timestamp":"2026-03-18T17:21:38.559Z"}
+
+[OK] marketplace-service (4600)
+{"ok":true,"service":"marketplace-service","port":"4600","timestamp":"2026-03-18T17:21:38.657Z"}
+
+[OK] driver-service (4700)
+{"ok":true,"service":"driver-service","port":4700,"timestamp":"2026-03-18T17:21:38.746Z"}
+
+[OK] admin-service (4800)
+{"ok":true,"service":"admin-service","port":4800,"timestamp":"2026-03-18T17:21:38.840Z"}
+
+[OK] frontend-service (4900)
+{"ok":true,"service":"frontend-service","port":"4900","timestamp":"2026-03-18T17:21:38.918Z"}
+
+[OK] storehouse-service (5000)
+{"ok":true,"service":"storehouse-service","port":"5000","timestamp":"2026-03-18T17:21:39.027Z"}
+
+[OK] finbank-service (5100)
+{"ok":true,"service":"finbank-service","port":"5100","timestamp":"2026-03-18T17:21:39.128Z"}
+
+[OK] crossborder-service (5200)
+{"ok":true,"service":"crossborder-service","port":"5200","timestamp":"2026-03-18T17:21:39.223Z"}
+
+[OK] university-service (5300)
+{"ok":true,"service":"university-service","port":"5300","timestamp":"2026-03-18T17:21:39.321Z"}
+
+[OK] creator-service (5400)
+{"ok":true,"service":"creator-service","port":"5400","timestamp":"2026-03-18T17:21:39.411Z"}
+
+
+Gateway:
+{"ok":true,"name":"All American Marketplace Gateway","services":{"auth":"http://127.0.0.1:4100","booking":"http://127.0.0.1:4200","payment":"http://127.0.0.1:4300","dispatch":"http://127.0.0.1:4400","rewards":"http://127.0.0.1:4500","marketplace":"http://127.0.0.1:4600","driver":"http://127.0.0.1:4700","admin":"http://127.0.0.1:4800","frontend":"http://127.0.0.1:4900","storehouse":"http://127.0.0.1:5000","finbank":"http://127.0.0.1:5100","crossborder":"http://127.0.0.1:5200","university":"http://127.0.0.1:5300","creator":"http://127.0.0.1:5400"}}
+System health:
+{"ok":true,"checks":{"auth":{"ok":true,"service":"auth-service","port":"4100","timestamp":"2026-03-18T17:21:39.589Z"},"booking":{"ok":true,"service":"booking-service","port":"4200","timestamp":"2026-03-18T17:21:39.603Z"},"payment":{"ok":true,"service":"payment-service","port":"4300","timestamp":"2026-03-18T17:21:39.615Z"},"dispatch":{"ok":true,"service":"dispatch-service","port":"4400","timestamp":"2026-03-18T17:21:39.640Z"},"rewards":{"ok":true,"service":"rewards-service","port":"4500","timestamp":"2026-03-18T17:21:39.655Z"},"marketplace":{"ok":true,"service":"marketplace-service","port":"4600","timestamp":"2026-03-18T17:21:39.670Z"},"driver":{"ok":true,"service":"driver-service","port":4700,"timestamp":"2026-03-18T17:21:39.683Z"},"admin":{"ok":true,"service":"admin-service","port":4800,"timestamp":"2026-03-18T17:21:39.698Z"},"frontend":{"ok":true,"service":"frontend-service","port":"4900","timestamp":"2026-03-18T17:21:39.713Z"},"storehouse":{"ok":true,"service":"storehouse-service","port":"5000","timestamp":"2026-03-18T17:21:39.727Z"},"finbank":{"ok":true,"service":"finbank-service","port":"5100","timestamp":"2026-03-18T17:21:39.745Z"},"crossborder":{"ok":true,"service":"crossborder-service","port":"5200","timestamp":"2026-03-18T17:21:39.758Z"},"university":{"ok":true,"service":"university-service","port":"5300","timestamp":"2026-03-18T17:21:39.771Z"},"creator":{"ok":true,"service":"creator-service","port":"5400","timestamp":"2026-03-18T17:21:39.784Z"}}}
+Features:
+{"marketplace":true,"rideshare":true,"delivery":true,"freight":true,"rewards":true,"auth":true,"booking":true,"payments":true,"dispatch":true,"driverOnboarding":true,"adminAnalytics":true,"frontend":true,"storehouse":true,"grocery":true,"bookstore":true,"finbank":true,"crossborder":true,"university":true,"creatorStreaming":true}
+
+Direct service tests:
+{"ok":true,"service":"auth-service","port":"4100","timestamp":"2026-03-18T17:21:39.905Z"}
+{"ok":true,"service":"booking-service","port":"4200","timestamp":"2026-03-18T17:21:39.966Z"}
+{"ok":true,"service":"payment-service","port":"4300","timestamp":"2026-03-18T17:21:40.027Z"}
+{"ok":true,"service":"dispatch-service","port":"4400","timestamp":"2026-03-18T17:21:40.086Z"}
+{"ok":true,"service":"rewards-service","port":"4500","timestamp":"2026-03-18T17:21:40.146Z"}
+{"ok":true,"service":"marketplace-service","port":"4600","timestamp":"2026-03-18T17:21:40.207Z"}
+{"ok":true,"service":"driver-service","port":4700,"timestamp":"2026-03-18T17:21:40.266Z"}
+{"ok":true,"service":"admin-service","port":4800,"timestamp":"2026-03-18T17:21:40.323Z"}
+{"ok":true,"service":"frontend-service","port":"4900","timestamp":"2026-03-18T17:21:40.384Z"}
+{"ok":true,"service":"storehouse-service","port":"5000","timestamp":"2026-03-18T17:21:40.444Z"}
+{"ok":true,"service":"finbank-service","port":"5100","timestamp":"2026-03-18T17:21:40.503Z"}
+{"ok":true,"service":"crossborder-service","port":"5200","timestamp":"2026-03-18T17:21:40.563Z"}
+{"ok":true,"service":"university-service","port":"5300","timestamp":"2026-03-18T17:21:40.622Z"}
+{"ok":true,"service":"creator-service","port":"5400","timestamp":"2026-03-18T17:21:40.682Z"}

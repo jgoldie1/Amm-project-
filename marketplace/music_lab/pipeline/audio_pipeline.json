@@ -1,0 +1,11 @@
+{
+  "audio_pipeline":[
+    "audio_upload",
+    "track_ingest",
+    "mix_queue",
+    "master_queue",
+    "export_profiles",
+    "archive_storage",
+    "distribution_ready_output"
+  ]
+}

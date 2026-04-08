@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "kind": "book",
+    "name": "Kingdom Book Volume 1",
+    "price": 19.99,
+    "inventory": 10,
+    "format": "paperback",
+    "description": "book item",
+    "author": "James Stubbs",
+    "category": "book",
+    "createdAt": "2026-03-18T16:51:54.314Z"
+  }
+]

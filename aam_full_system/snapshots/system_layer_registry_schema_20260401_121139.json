@@ -1,0 +1,8 @@
+[{"cid":0,"name":"id","type":"INTEGER","notnull":0,"dflt_value":null,"pk":1},
+{"cid":1,"name":"layer_name","type":"TEXT","notnull":0,"dflt_value":null,"pk":0},
+{"cid":2,"name":"layer_group","type":"TEXT","notnull":0,"dflt_value":null,"pk":0},
+{"cid":3,"name":"linked_brand","type":"TEXT","notnull":0,"dflt_value":null,"pk":0},
+{"cid":4,"name":"layer_role","type":"TEXT","notnull":0,"dflt_value":null,"pk":0},
+{"cid":5,"name":"layer_scope","type":"TEXT","notnull":0,"dflt_value":null,"pk":0},
+{"cid":6,"name":"layer_status","type":"TEXT","notnull":0,"dflt_value":null,"pk":0},
+{"cid":7,"name":"created_at","type":"DATETIME","notnull":0,"dflt_value":"CURRENT_TIMESTAMP","pk":0}]

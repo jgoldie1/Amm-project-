@@ -1,0 +1,395 @@
+{
+  "builtAt": "2026-04-05T23:30:14.016Z",
+  "approvedTargets": [
+    "http://127.0.0.1:4900/",
+    "http://127.0.0.1:5000/health",
+    "http://127.0.0.1:4902/",
+    "http://127.0.0.1:4902/api/world",
+    "http://127.0.0.1:4000/health",
+    "http://127.0.0.1:4000/health/detail"
+  ],
+  "fetchedCount": 6,
+  "count": 39,
+  "docs": [
+    {
+      "type": "mammals",
+      "name": "Lion",
+      "tags": [
+        "lion",
+        "brand_guardian",
+        "active_build"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "mammals",
+      "name": "Wolf",
+      "tags": [
+        "wolf",
+        "community_pack",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "mammals",
+      "name": "Bull",
+      "tags": [
+        "bull",
+        "market_growth",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "mammals",
+      "name": "Horse",
+      "tags": [
+        "horse",
+        "transport_mount",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "mammals",
+      "name": "Deer",
+      "tags": [
+        "deer",
+        "nature_zone",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "birds",
+      "name": "Eagle",
+      "tags": [
+        "eagle",
+        "freedom_navigation",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "birds",
+      "name": "Hawk",
+      "tags": [
+        "hawk",
+        "scout_watch",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "birds",
+      "name": "Owl",
+      "tags": [
+        "owl",
+        "wisdom_guide",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "insects",
+      "name": "Butterfly",
+      "tags": [
+        "butterfly",
+        "transformation_visual",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "insects",
+      "name": "Bee",
+      "tags": [
+        "bee",
+        "ecosystem_productivity",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "insects",
+      "name": "Firefly",
+      "tags": [
+        "firefly",
+        "ambient_light",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "transport",
+      "name": "Creator Shuttle",
+      "tags": [
+        "creator shuttle",
+        "hover_transport",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "transport",
+      "name": "Lion Gate Portal",
+      "tags": [
+        "lion gate portal",
+        "fast_travel",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "transport",
+      "name": "Marketplace Cruiser",
+      "tags": [
+        "marketplace cruiser",
+        "city_transport",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "transport",
+      "name": "Time Machine",
+      "tags": [
+        "time machine",
+        "timeline_transport",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "housing",
+      "name": "Creator Pod",
+      "tags": [
+        "creator pod",
+        "starter_home",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "housing",
+      "name": "Saturn Loft",
+      "tags": [
+        "saturn loft",
+        "premium_home",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "housing",
+      "name": "Marketplace Villa",
+      "tags": [
+        "marketplace villa",
+        "luxury_home",
+        "planned"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "worlds",
+      "name": "Bethlehem",
+      "tags": [
+        "bethlehem",
+        "playable_foundation"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "worlds",
+      "name": "Nazareth",
+      "tags": [
+        "nazareth",
+        "playable_foundation"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "worlds",
+      "name": "Galilee",
+      "tags": [
+        "galilee",
+        "playable_foundation"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "worlds",
+      "name": "Creator Hall",
+      "tags": [
+        "creator hall",
+        "playable_foundation"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "worlds",
+      "name": "Cosmic Sky / Saturn",
+      "tags": [
+        "cosmic sky / saturn",
+        "visual_foundation"
+      ],
+      "source": "data/world/ecosystem_registry.json"
+    },
+    {
+      "type": "gift",
+      "name": "Holographic Rose",
+      "tags": [
+        "common",
+        "100",
+        "active_build"
+      ],
+      "source": "data/world/holographic_gifts.json"
+    },
+    {
+      "type": "gift",
+      "name": "American Star",
+      "tags": [
+        "rare",
+        "500",
+        "active_build"
+      ],
+      "source": "data/world/holographic_gifts.json"
+    },
+    {
+      "type": "gift",
+      "name": "Lion Crown",
+      "tags": [
+        "epic",
+        "1000",
+        "active_build"
+      ],
+      "source": "data/world/holographic_gifts.json"
+    },
+    {
+      "type": "gift",
+      "name": "Saturn Ring",
+      "tags": [
+        "legendary",
+        "2500",
+        "active_build"
+      ],
+      "source": "data/world/holographic_gifts.json"
+    },
+    {
+      "type": "gift",
+      "name": "Freedom Eagle",
+      "tags": [
+        "legendary",
+        "5000",
+        "planned"
+      ],
+      "source": "data/world/holographic_gifts.json"
+    },
+    {
+      "type": "theme",
+      "name": "creator_child_theme",
+      "tags": [
+        "all_american_parent_theme",
+        "creator tools + music"
+      ],
+      "source": "data/themes/child_themes.json"
+    },
+    {
+      "type": "theme",
+      "name": "world_child_theme",
+      "tags": [
+        "all_american_parent_theme",
+        "life world + scenes + transport + housing"
+      ],
+      "source": "data/themes/child_themes.json"
+    },
+    {
+      "type": "theme",
+      "name": "stream_child_theme",
+      "tags": [
+        "all_american_parent_theme",
+        "live + gifts + discovery"
+      ],
+      "source": "data/themes/child_themes.json"
+    },
+    {
+      "type": "theme",
+      "name": "marketplace_child_theme",
+      "tags": [
+        "all_american_parent_theme",
+        "commerce + assets + payouts"
+      ],
+      "source": "data/themes/child_themes.json"
+    },
+    {
+      "type": "theme",
+      "name": "family_child_theme",
+      "tags": [
+        "all_american_parent_theme",
+        "parent/child safe accounts + learning mode"
+      ],
+      "source": "data/themes/child_themes.json"
+    },
+    {
+      "type": "page",
+      "name": "http://127.0.0.1:4900/",
+      "tags": [
+        "302",
+        "ok"
+      ],
+      "text": "",
+      "source": "http://127.0.0.1:4900/"
+    },
+    {
+      "type": "page",
+      "name": "http://127.0.0.1:5000/health",
+      "tags": [
+        "200",
+        "ok"
+      ],
+      "text": "{ \"ok\": true, \"service\": \"jarvis-core\", \"port\": 5000 }",
+      "source": "http://127.0.0.1:5000/health"
+    },
+    {
+      "type": "page",
+      "name": "http://127.0.0.1:4902/",
+      "tags": [
+        "200",
+        "ok"
+      ],
+      "text": "The Life of Yahuah Maschian: King of Kings The Life of Yahuah Maschian: King of Kings Playable metaverse / middleverse / multiverse foundation Port 4902 54 Scenes 54 Quests Playable Metaverse Visible world exploration, cities, missions, encounters, trade, and movement. Middleverse Inner trials, wisdom gates, symbolic missions, visions, and spiritual progression. Multiverse Expanded kingdom pathways, branching eras, alternate mission arcs, and world-scale destiny events. World Explorer scene_001 — Bethlehem — Arrival scene_002 — Bethlehem — Witness scene_003 — Bethlehem — Teaching scene_004 — Bethlehem — Healing scene_005 — Bethlehem — Challenge scene_006 — Bethlehem — Passage scene_007 — Nazareth — Arrival scene_008 — Nazareth — Witness scene_009 — Nazareth — Teaching scene_010 — Nazareth — Healing scene_011 — Nazareth — Challenge scene_012 — Nazareth — Passage scene_013 — Galilee — Arrival scene_014 — Galilee — Witness scene_015 — Galilee — Teaching scene_016 — Galilee — Healing scene_017 — Galilee — Challenge scene_018 — Galilee — Passage scene_019 — Sea of Galilee — Arrival scene_020 — Sea of Galilee — Witness scene_021 — Sea of Galilee — Teaching scene_022 — Sea of Galilee — Healing scene_023 — Sea of Galilee — Challenge scene_024 — Sea of Galilee — Passage scene_025 — Capernaum — Arrival scene_026 — Capernaum — Witness scene_027 — Capernaum — Teaching scene_028 — Capernaum — Healing scene_029 — Capernaum — Challenge scene_030 — Capernaum — Passage scene_031 — Samaria — Arrival scene_032 — Samaria — Witness scene_033 — Samaria — Teaching scene_034 — Samaria — Healing scene_035 — Samaria — Challenge scene_036 — Samaria — Passage scene_037 — Jericho — Arrival scene_038 — Jericho — Witness scene_039 — Jericho — Teaching scene_040 — Jericho — Healing scene_041 — Jericho — Challenge scene_042 — Jericho — Passage scene_043 — Jerusalem — Arrival scene_044 — Jerusalem — Witness scene_045 — Jerusalem — Teaching scene_046 — Jerusalem — Healing scene_047 — Jerusalem — Challenge scene_048 — Jerusalem — Passage scene_049 — Throne Corridor — Arrival scene_050 — Throne Corridor — Witness scene_051 — Throne Corridor — Teaching scene_052 — Throne Corridor — Healing scene_053 — Throne Corridor — Challenge scene_054 — Throne Corridor — Passage Load Scene Prev Next Bethlehem Realm: metaverse Recommended Level: 1 Nazareth Realm: metaverse Recommended Level: 2 Galilee Realm: metaverse Recommended Level: 4 Sea of Galilee Realm: metaverse Recommended Level: 6 Capernaum Realm: metaverse Recommended Level: 8 Samaria Realm: middleverse Recommended Level: 10 Jericho Realm: middleverse Recommended Level: 12 Jerusalem Realm: multiverse Recommended Level: 15 Throne Corridor Realm: multiverse Recommended Level: 20 const scenes = [{\"id\":\"scene_001\",\"zoneId\":\"bethlehem\",\"zoneName\":\"Bethlehem\",\"realm\":\"metaverse\",\"title\":\"Bethlehem — Arrival\",\"description\":\"Reach the zone entry and receive the first mission.\",\"playable\":true,\"questId\":\"quest_001\",\"nextScene\":\"scene_002\"},{\"id\":\"scene_002\",\"zoneId\":\"bethlehem\",\"zoneName\":\"Bethlehem\",\"realm\":\"metaverse\",\"title\":\"Bethlehem — Witness\",\"description\":\"Speak with the people and gather insight.\",\"playable\":true,\"questId\":\"quest_002\",\"nextScene\":\"scene_003\"},{\"id\":\"scene_003\",\"zoneId\":\"bethlehem\",\"zoneName\":\"Bethlehem\",\"realm\":\"metaverse\",\"title\":\"Bethlehem — Teaching\",\"description\":\"Complete the teaching encounter.\",\"playable\":true,\"questId\":\"quest_003\",\"nextScene\":\"scene_004\"},{\"id\":\"scene_004\",\"zoneId\":\"bethlehem\",\"zoneName\":\"Bethlehem\",\"realm\":\"metaverse\",\"title\":\"Bethlehem — Healing\",\"description\":\"Help someone in need and restore progress.\",\"playable\":true,\"questId\":\"quest_004\",\"nextScene\":\"scene_005\"},{\"id\":\"scene_005\",\"zoneId\":\"bethlehem\",\"zoneName\":\"Bethlehem\",\"realm\":\"metaverse\",\"title\":\"Bethlehem — Challenge\",\"description\":\"Face a test and answer wisely.\",\"playable\":true,\"questId\":\"quest_005\",\"nextScene\":\"scene_006\"},{\"id\":\"scene_006\",\"zoneId\":\"bethlehem\",\"zoneName\":\"Bethlehem\",\"realm\":\"metaverse\",\"title\"",
+      "source": "http://127.0.0.1:4902/"
+    },
+    {
+      "type": "page",
+      "name": "http://127.0.0.1:4902/api/world",
+      "tags": [
+        "200",
+        "ok"
+      ],
+      "text": "{ \"manifest\": { \"title\": \"The Life of Yahuah Maschian: King of Kings\", \"status\": \"playable_foundation\", \"realms\": [ { \"id\": \"metaverse\", \"name\": \"Metaverse\", \"purpose\": \"Visible world exploration, cities, missions, encounters, trade, and movement.\" }, { \"id\": \"middleverse\", \"name\": \"Middleverse\", \"purpose\": \"Inner trials, wisdom gates, symbolic missions, visions, and spiritual progression.\" }, { \"id\": \"multiverse\", \"name\": \"Multiverse\", \"purpose\": \"Expanded kingdom pathways, branching eras, alternate mission arcs, and world-scale destiny events.\" } ], \"starting_scene\": \"scene_001\", \"starting_zone\": \"bethlehem\", \"playable\": true }, \"zones\": [ { \"id\": \"bethlehem\", \"name\": \"Bethlehem\", \"realm\": \"metaverse\", \"recommendedLevel\": 1 }, { \"id\": \"nazareth\", \"name\": \"Nazareth\", \"realm\": \"metaverse\", \"recommendedLevel\": 2 }, { \"id\": \"galilee\", \"name\": \"Galilee\", \"realm\": \"metaverse\", \"recommendedLevel\": 4 }, { \"id\": \"sea_of_galilee\", \"name\": \"Sea of Galilee\", \"realm\": \"metaverse\", \"recommendedLevel\": 6 }, { \"id\": \"capernaum\", \"name\": \"Capernaum\", \"realm\": \"metaverse\", \"recommendedLevel\": 8 }, { \"id\": \"samaria\", \"name\": \"Samaria\", \"realm\": \"middleverse\", \"recommendedLevel\": 10 }, { \"id\": \"jericho\", \"name\": \"Jericho\", \"realm\": \"middleverse\", \"recommendedLevel\": 12 }, { \"id\": \"jerusalem\", \"name\": \"Jerusalem\", \"realm\": \"multiverse\", \"recommendedLevel\": 15 }, { \"id\": \"throne_corridor\", \"name\": \"Throne Corridor\", \"realm\": \"multiverse\", \"recommendedLevel\": 20 } ], \"scenes\": [ { \"id\": \"scene_001\", \"zoneId\": \"bethlehem\", \"zoneName\": \"Bethlehem\", \"realm\": \"metaverse\", \"title\": \"Bethlehem — Arrival\", \"description\": \"Reach the zone entry and receive the first mission.\", \"playable\": true, \"questId\": \"quest_001\", \"nextScene\": \"scene_002\" }, { \"id\": \"scene_002\", \"zoneId\": \"bethlehem\", \"zoneName\": \"Bethlehem\", \"realm\": \"metaverse\", \"title\": \"Bethlehem — Witness\", \"description\": \"Speak with the people and gather insight.\", \"playable\": true, \"questId\": \"quest_002\", \"nextScene\": \"scene_003\" }, { \"id\": \"scene_003\", \"zoneId\": \"bethlehem\", \"zoneName\": \"Bethlehem\", \"realm\": \"metaverse\", \"title\": \"Bethlehem — Teaching\", \"description\": \"Complete the teaching encounter.\", \"playable\": true, \"questId\": \"quest_003\", \"nextScene\": \"scene_004\" }, { \"id\": \"scene_004\", \"zoneId\": \"bethlehem\", \"zoneName\": \"Bethlehem\", \"realm\": \"metaverse\", \"title\": \"Bethlehem — Healing\", \"description\": \"Help someone in need and restore progress.\", \"playable\": true, \"questId\": \"quest_004\", \"nextScene\": \"scene_005\" }, { \"id\": \"scene_005\", \"zoneId\": \"bethlehem\", \"zoneName\": \"Bethlehem\", \"realm\": \"metaverse\", \"title\": \"Bethlehem — Challenge\", \"description\": \"Face a test and answer wisely.\", \"playable\": true, \"questId\": \"quest_005\", \"nextScene\": \"scene_006\" }, { \"id\": \"scene_006\", \"zoneId\": \"bethlehem\", \"zoneName\": \"Bethlehem\", \"realm\": \"metaverse\", \"title\": \"Bethlehem — Passage\", \"description\": \"Unlock the next stage of the journey.\", \"playable\": true, \"questId\": \"quest_006\", \"nextScene\": \"scene_007\" }, { \"id\": \"scene_007\", \"zoneId\": \"nazareth\", \"zoneName\": \"Nazareth\", \"realm\": \"metaverse\", \"title\": \"Nazareth — Arrival\", \"description\": \"Reach the zone entry and receive the first mission.\", \"playable\": true, \"questId\": \"quest_007\", \"nextScene\": \"scene_008\" }, { \"id\": \"scene_008\", \"zoneId\": \"nazareth\", \"zoneName\": \"Nazareth\", \"realm\": \"metaverse\", \"title\": \"Nazareth — Witness\", \"description\": \"Speak with the people and gather insight.\", \"playable\": true, \"questId\": \"quest_008\", \"nextScene\": \"scene_009\" }, { \"id\": \"scene_009\", \"zoneId\": \"nazareth\", \"zoneName\": \"Nazareth\", \"realm\": \"metaverse\", \"title\": \"Nazareth — Teaching\", \"description\": \"Complete the teaching encounter.\", \"playable\": true, \"questId\": \"quest_009\", \"nextScene\": \"scene_010\" }, { \"id\": \"scene_010\", \"zoneId\": \"nazareth\", \"zoneName\": \"Nazareth\", \"realm\": \"metaverse\", \"title\": \"Nazareth — Healing\", \"description\": \"Help someone in need and restore progress.\", \"playable\": true, \"questId\": \"quest_010\", \"nextScene\": \"scene_011\" }, { \"id\"",
+      "source": "http://127.0.0.1:4902/api/world"
+    },
+    {
+      "type": "page",
+      "name": "http://127.0.0.1:4000/health",
+      "tags": [
+        "200",
+        "ok"
+      ],
+      "text": "{\"ok\":true,\"service\":\"gateway\",\"appName\":\"AAM Super App\",\"environment\":\"development\",\"time\":\"2026-04-05T23:30:13.991Z\"}",
+      "source": "http://127.0.0.1:4000/health"
+    },
+    {
+      "type": "page",
+      "name": "http://127.0.0.1:4000/health/detail",
+      "tags": [
+        "200",
+        "ok"
+      ],
+      "text": "{\"ok\":true,\"checks\":{\"config\":true,\"gateway\":true,\"auth\":true,\"intelligence\":true,\"audit\":true},\"time\":\"2026-04-05T23:30:14.009Z\"}",
+      "source": "http://127.0.0.1:4000/health/detail"
+    }
+  ]
+}

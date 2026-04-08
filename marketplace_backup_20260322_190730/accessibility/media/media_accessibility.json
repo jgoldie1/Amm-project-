@@ -1,0 +1,11 @@
+{
+  "media_accessibility": [
+    "closed_captions",
+    "auto_transcripts",
+    "downloadable_transcripts",
+    "caption_style_controls",
+    "visual_cue_overlays",
+    "stream_caption_layer",
+    "audio_description_planning"
+  ]
+}

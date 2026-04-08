@@ -1,0 +1,14 @@
+{
+  "discovery_engine": {
+    "features": [
+      "short_video_discovery",
+      "trend_testing",
+      "featured_creator_rotation",
+      "fan_interest_mapping",
+      "music_release_boosts",
+      "battle_highlight_feed",
+      "holographic_event_discovery"
+    ],
+    "purpose": "Help creators get discovered and help fans find content they care about"
+  }
+}

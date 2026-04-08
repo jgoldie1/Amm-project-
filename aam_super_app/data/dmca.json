@@ -1,0 +1,26 @@
+[
+  {
+    "id": "136b8558-ea03-4e26-8436-f5f61edbf000",
+    "claimant": "label@example.com",
+    "contentId": "track-001",
+    "statement": "copyright owned",
+    "at": "2026-04-05T17:59:30.594Z",
+    "status": "takedown"
+  },
+  {
+    "id": "2c711f05-4d25-44f9-842c-7b12422fa55e",
+    "claimant": "label@example.com",
+    "contentId": "track-001",
+    "statement": "copyright owned",
+    "at": "2026-04-05T17:59:37.151Z",
+    "status": "takedown"
+  },
+  {
+    "id": "c42f7a89-ba54-4135-bcdf-888b87a361c1",
+    "claimant": "rights@example.com",
+    "contentId": "track-full-001",
+    "statement": "copyright owned",
+    "at": "2026-04-05T20:42:42.970Z",
+    "status": "takedown"
+  }
+]

@@ -1,0 +1,16 @@
+CONNECT DOMAIN + STORE + WALLET + ONBOARDING REPORT
+Timestamp: 20260326_231109
+
+Added:
+- connected_domains
+- connected_storefronts
+- connected_wallets
+- onboarding_profiles
+- onboarding_steps
+- brand_connection_events
+- /connect-system
+
+Purpose:
+- allow brands to connect their domain, storefront, and wallet
+- create onboarding structure for ecosystem participation
+- prepare the platform for real external business integration

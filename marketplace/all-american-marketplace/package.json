@@ -1,0 +1,8 @@
+{
+  "name": "all-american-marketplace",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "services/*"
+  ]
+}

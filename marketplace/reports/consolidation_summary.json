@@ -1,0 +1,52 @@
+{
+  "active_module_count": 28,
+  "disabled_module_count": 2,
+  "routes_in_app_py_count": 15,
+  "http_200_routes": [
+    "/",
+    "/platform-home",
+    "/customer-home",
+    "/creator-home",
+    "/operator-home",
+    "/master-dashboard",
+    "/visual-preview",
+    "/route-map",
+    "/platform-verify",
+    "/auth/login",
+    "/profile-center",
+    "/payments-center",
+    "/payment-health",
+    "/checkout-preview/holo-product",
+    "/checkout-preview/premium-event",
+    "/checkout-preview/room-booking",
+    "/checkout-payloads",
+    "/boot-status",
+    "/boot-logs",
+    "/system-registry",
+    "/completion-board",
+    "/platform-summary",
+    "/living-city-center",
+    "/property-center",
+    "/safety-center",
+    "/oasis-center",
+    "/holoverse-center",
+    "/holoverse-viewer",
+    "/payments-center"
+  ],
+  "http_302_routes": [],
+  "http_404_routes": [
+    "/live-checkout/holo-product",
+    "/live-checkout/premium-event",
+    "/live-checkout/room-booking",
+    "/live-checkout-attempts",
+    "/clickable-map"
+  ],
+  "http_500_routes": [
+    "/profile",
+    "/profile-db-center",
+    "/db-role-preferences",
+    "/db-favorites"
+  ],
+  "http_no_response_routes": [],
+  "server_log_exists": true
+}

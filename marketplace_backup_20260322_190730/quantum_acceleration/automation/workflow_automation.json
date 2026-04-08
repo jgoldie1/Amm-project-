@@ -1,0 +1,14 @@
+{
+  "workflow_automation": {
+    "features": [
+      "creator_release_automation",
+      "product_listing_automation",
+      "support_and_notification_automation",
+      "delivery_status_automation",
+      "verification_workflow_automation",
+      "moderation_queue_automation",
+      "recommendation_refresh_jobs"
+    ],
+    "purpose": "Turn repetitive multi-step flows into automated workflows"
+  }
+}

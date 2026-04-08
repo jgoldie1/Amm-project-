@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "userId": 3,
+    "points": 25,
+    "reason": "completed_flow",
+    "createdAt": "2026-03-18T12:07:42.945Z"
+  },
+  {
+    "id": 2,
+    "userId": 6,
+    "points": 25,
+    "reason": "completed_flow",
+    "createdAt": "2026-03-18T12:08:40.465Z"
+  }
+]

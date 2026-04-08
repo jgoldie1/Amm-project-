@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>El Saturn FinBank</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header>
+  <h1>El Saturn FinBank</h1>
+  <div class="nav"><a href="/kingdom.html">Kingdom</a></div>
+</header>
+<main>
+  <div class="card">
+    <h3>Open Wallet / My Wallets</h3>
+    <input id="walletCurrency" value="USD" placeholder="Currency">
+    <button onclick="openWallet()">Open Wallet</button>
+    <button onclick="loadWallets()">My Wallets</button>
+    <pre id="walletOut"></pre>
+  </div>
+
+  <div class="card">
+    <h3>Credit Wallet</h3>
+    <input id="creditCurrency" value="USD" placeholder="Currency">
+    <input id="creditAmount" placeholder="Amount">
+    <button onclick="creditWallet()">Credit</button>
+    <pre id="creditOut"></pre>
+  </div>
+
+  <div class="card">
+    <h3>Transfer</h3>
+    <input id="toUserId" placeholder="To User ID">
+    <input id="transferAmount" placeholder="Amount">
+    <input id="transferCurrency" value="USD" placeholder="Currency">
+    <input id="transferNote" placeholder="Note">
+    <button onclick="transferMoney()">Transfer</button>
+    <pre id="transferOut"></pre>
+  </div>
+</main>
+<script src="/app.js"></script>
+<script>
+async function openWallet() {
+  show("walletOut", await request("http://127.0.0.1:5100/wallets/open", {
+    method: "POST",
+    body: JSON.stringify({ currency: walletCurrency.value })
+  }));
+}
+async function loadWallets() {
+  show("walletOut", await request("http://127.0.0.1:5100/wallets/my"));
+}
+async function creditWallet() {
+  show("creditOut", await request("http://127.0.0.1:5100/wallets/credit", {
+    method: "POST",
+    body: JSON.stringify({ currency: creditCurrency.value, amount: Number(creditAmount.value) })
+  }));
+}
+async function transferMoney() {
+  show("transferOut", await request("http://127.0.0.1:5100/wallets/transfer", {
+    method: "POST",
+    body: JSON.stringify({
+      toUserId: Number(toUserId.value),
+      amount: Number(transferAmount.value),
+      currency: transferCurrency.value,
+      note: transferNote.value
+    })
+  }));
+}
+</script>
+</body>
+</html>

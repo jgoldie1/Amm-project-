@@ -1,0 +1,11 @@
+Stabilization summary
+
+Route count: 201
+Function count: 218
+Duplicate routes: 0
+Duplicate functions: 0
+
+No duplicate route paths or function names found in this audit.
+
+Use from now on:
+  ./recovery/start_final_locked.sh

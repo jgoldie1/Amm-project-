@@ -1,0 +1,15 @@
+{
+  "intelligent_creator_engine": {
+    "features": [
+      "content_guidance",
+      "release_suggestions",
+      "fan_growth_insights",
+      "auto_workflow_recommendations",
+      "music_mix_assistance",
+      "short_video_content_ideas",
+      "stream_title_suggestions",
+      "creator_growth_assistant"
+    ],
+    "purpose": "Use AI to guide creators, optimize workflows, and improve growth"
+  }
+}

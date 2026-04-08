@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>All American Marketplace</title>
+  <link rel="icon" href="/assets/favicon-american-flag.svg" type="image/svg+xml" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: #eef4ff;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(59,130,246,.22), transparent 25%),
+        radial-gradient(circle at 80% 15%, rgba(244,63,94,.18), transparent 20%),
+        radial-gradient(circle at 50% 80%, rgba(250,204,21,.12), transparent 25%),
+        linear-gradient(180deg, #020617 0%, #07111f 35%, #020617 100%);
+      overflow-x: hidden;
+    }
+    .hero {
+      min-height: 100vh;
+      padding: 28px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 18px;
+      background: rgba(8,15,30,.66);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 30px rgba(59,130,246,.12);
+    }
+    .brand {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: .4px;
+    }
+    .nav {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .nav a, .cta a {
+      text-decoration: none;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.05);
+    }
+    .main {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 28px;
+      align-items: center;
+      padding: 34px 0;
+    }
+    .headline h1 {
+      margin: 0 0 14px 0;
+      font-size: clamp(2.3rem, 6vw, 5rem);
+      line-height: .96;
+      text-shadow: 0 0 28px rgba(96,165,250,.25);
+    }
+    .headline p {
+      max-width: 680px;
+      font-size: 1.05rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+    .cta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    .cta .primary {
+      background: linear-gradient(90deg, #2563eb, #22c55e);
+      border: none;
+      box-shadow: 0 0 24px rgba(37,99,235,.35);
+    }
+    .visual {
+      position: relative;
+      min-height: 520px;
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,.12);
+      background:
+        radial-gradient(circle at 50% 50%, rgba(37,99,235,.22), transparent 32%),
+        linear-gradient(180deg, rgba(15,23,42,.95), rgba(2,6,23,.95));
+      overflow: hidden;
+      box-shadow: 0 0 40px rgba(59,130,246,.12);
+    }
+    .saturn {
+      position: absolute;
+      top: 42px;
+      right: 42px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #fef3c7, #d97706 55%, #78350f 100%);
+      box-shadow: 0 0 40px rgba(245,158,11,.35);
+    }
+    .saturn::before {
+      content: "";
+      position: absolute;
+      inset: 68px -34px;
+      border: 10px solid rgba(250,204,21,.55);
+      border-radius: 50%;
+      transform: rotate(-14deg);
+    }
+    .flag {
+      position: absolute;
+      left: 24px;
+      top: 34px;
+      width: 120px;
+      height: 78px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.2);
+      box-shadow: 0 0 20px rgba(239,68,68,.22);
+    }
+    .flag .blue { position:absolute; left:0; top:0; width:42%; height:52%; background:#1d4ed8; }
+    .flag .stripe { height: 11.11%; background:#fff; }
+    .flag .stripe.red { background:#dc2626; }
+    .lion {
+      position: absolute;
+      left: 50%;
+      top: 54%;
+      transform: translate(-50%, -50%);
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 45%, rgba(250,204,21,.95), rgba(245,158,11,.78) 38%, rgba(37,99,235,.2) 68%, transparent 72%);
+      filter: drop-shadow(0 0 30px rgba(250,204,21,.28));
+      opacity: .95;
+    }
+    .lion::before {
+      content: "🦁";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 150px;
+      text-shadow: 0 0 24px rgba(250,204,21,.55), 0 0 48px rgba(59,130,246,.25);
+    }
+    .live-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      padding: 0 28px 28px;
+    }
+    .live-card {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(15,23,42,.8);
+      border: 1px solid rgba(255,255,255,.09);
+      box-shadow: inset 0 0 18px rgba(255,255,255,.02);
+    }
+    .tag {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: .75rem;
+      background: rgba(239,68,68,.18);
+      color: #fecaca;
+      border: 1px solid rgba(239,68,68,.3);
+      margin-bottom: 8px;
+    }
+    .sections {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding: 0 28px 34px;
+    }
+    .panel {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(8,15,30,.72);
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    .panel h3 { margin-top: 0; }
+    @media (max-width: 980px) {
+      .main, .sections, .live-grid { grid-template-columns: 1fr; }
+      .visual { min-height: 420px; }
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <div class="topbar">
+      <div class="brand">All American Marketplace</div>
+      <div class="nav">
+        <a href="/feed">Feed</a>
+        <a href="/streams">Live</a>
+        <a href="/creator">Creators</a>
+        <a href="/">Enter App</a>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="headline">
+        <h1>Holographic Streaming<br>Creator Ecosystem</h1>
+        <p>
+          A bold American AI-powered marketplace for streaming, creators, music, world experiences,
+          NFTs, commerce, and live discovery — designed to feel alive the second you land on it.
+        </p>
+        <div class="cta">
+          <a class="primary" href="/">Launch App</a>
+          <a href="/streams">Watch Live</a>
+          <a href="/feed">Open Feed</a>
+        </div>
+      </div>
+
+      <div class="visual">
+        <div class="flag">
+          <div class="blue"></div>
+          <div class="stripe red"></div><div class="stripe"></div><div class="stripe red"></div>
+          <div class="stripe"></div><div class="stripe red"></div><div class="stripe"></div>
+          <div class="stripe red"></div><div class="stripe"></div><div class="stripe red"></div>
+        </div>
+        <div class="saturn"></div>
+        <div class="lion"></div>
+      </div>
+    </div>
+
+    <div class="live-grid">
+      <div class="live-card"><span class="tag">LIVE</span><h3>Creator Streams</h3><p>Short-form discovery and live creator rooms.</p></div>
+      <div class="live-card"><span class="tag">HOT</span><h3>Music + Media</h3><p>Tracks, streams, clips, drops, and audience growth.</p></div>
+      <div class="live-card"><span class="tag">NEW</span><h3>World Access</h3><p>Enter Life World and explore the playable ecosystem.</p></div>
+    </div>
+
+    <div class="sections">
+      <div class="panel"><h3>Feed</h3><p>TikTok/Clapper-style public discovery.</p></div>
+      <div class="panel"><h3>Live</h3><p>Bigo-style “who’s on now” energy and visibility.</p></div>
+      <div class="panel"><h3>Marketplace</h3><p>Commerce, creator tools, and ecosystem growth.</p></div>
+      <div class="panel"><h3>AI Layer</h3><p>Jarvis, Stubbs AI, and Lyons Tech AI working together.</p></div>
+    </div>
+  </section>
+</body>
+</html>

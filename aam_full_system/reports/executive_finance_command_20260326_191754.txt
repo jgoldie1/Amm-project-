@@ -1,0 +1,17 @@
+EXECUTIVE FINANCE COMMAND BASH REPORT
+Timestamp: 20260326_191754
+
+Added or verified:
+- heir_balance_snapshots
+- storefront_analytics
+- scheduled_payout_jobs
+- scheduled_payout_job_runs
+- /executive-dashboard
+- balance refresh action
+
+Finance routes:
+- /heir-finance
+- /heir-finance/:id
+- /storefront-analytics
+- /scheduled-payout-jobs
+- /executive-dashboard

@@ -1,0 +1,30 @@
+{
+  "database": {
+    "mode": "postgres_ready",
+    "url": "postgresql://aam:aam_password@localhost:5432/aam_platform"
+  },
+  "payments": {
+    "provider": "stripe_ready",
+    "secret_key": "",
+    "publishable_key": "",
+    "webhook_secret": ""
+  },
+  "email": {
+    "provider": "smtp_ready",
+    "host": "",
+    "port": 587,
+    "username": "",
+    "password": "",
+    "from_email": "no-reply@example.com"
+  },
+  "sms": {
+    "provider": "twilio_ready",
+    "account_sid": "",
+    "auth_token": "",
+    "from_number": ""
+  },
+  "deployment": {
+    "environment": "staging_ready",
+    "base_url": "https://your-domain.com"
+  }
+}

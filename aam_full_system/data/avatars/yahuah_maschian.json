@@ -1,0 +1,20 @@
+{
+  "name": "Yahuah Maschian",
+  "role": "open_world_guide",
+  "appearance": {
+    "ethnicity": "African American",
+    "style": "holographic guide",
+    "outfit": "dark gold robe with neon trim"
+  },
+  "world": {
+    "scene": "creator_hall",
+    "spawn_point": "center_stage",
+    "status": "active"
+  },
+  "abilities": [
+    "guide_players",
+    "deliver_messages",
+    "open_portals",
+    "trigger_live_events"
+  ]
+}

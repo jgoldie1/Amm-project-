@@ -1,0 +1,402 @@
+[
+  {
+    "file": "app_before_ai_world_builder_20260316_142812.py",
+    "score": 5
+  },
+  {
+    "file": "app_before_ai_world_builder_20260316_143417.py",
+    "score": 5
+  },
+  {
+    "file": "app_before_immersive_navigation_presence_20260316_155832.py",
+    "score": 5
+  },
+  {
+    "file": "app_before_immersive_navigation_presence_20260316_155849.py",
+    "score": 5
+  },
+  {
+    "file": "app_before_legacy_vip_world_systems_20260316_150021.py",
+    "score": 5
+  },
+  {
+    "file": "app_before_living_oasis_governance_20260316_151125.py",
+    "score": 5
+  },
+  {
+    "file": "app_before_main_nav_engine_links_20260316_161608.py",
+    "score": 5
+  },
+  {
+    "file": "app_before_main_nav_engine_links_20260316_161701.py",
+    "score": 5
+  },
+  {
+    "file": "app_before_main_nav_engine_links_20260316_161721.py",
+    "score": 5
+  },
+  {
+    "file": "app_before_oasis_world_systems_20260316_145519.py",
+    "score": 5
+  },
+  {
+    "file": "app_before_realtime_world_engine_20260316_153118.py",
+    "score": 5
+  },
+  {
+    "file": "app_before_webgl_transport_ui_20260316_154043.py",
+    "score": 5
+  },
+  {
+    "file": "app_before_webgl_transport_ui_20260316_154125.py",
+    "score": 5
+  },
+  {
+    "file": "app_before_world_blueprint_system_20260316_144435.py",
+    "score": 5
+  },
+  {
+    "file": "app_before_xr_engine_20260316_142016.py",
+    "score": 5
+  },
+  {
+    "file": "app_before_hologram_results_20260316_122108.py",
+    "score": 4
+  },
+  {
+    "file": "app_before_hologram_results_20260316_122119.py",
+    "score": 4
+  },
+  {
+    "file": "app_before_xr_engine_20260316_122725.py",
+    "score": 4
+  },
+  {
+    "file": "app_before_branding_cards_shell_20260317_153004.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_creator_content_20260317_162224.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_creator_data_20260317_162631.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_creator_sqlite_20260317_163028.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_creator_sqlite_20260317_163119.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_dashboard_integration_20260317_164119.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_ecosystem_assembly_20260317_144703.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_ecosystem_visual_assembly_20260317_145346.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_edit_delete_20260317_163637.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_history_space_rebuild_20260317_170833.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_jarvis_accessibility_20260317_123653.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_jarvis_favorites_20260317_124002.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_jarvis_home_20260317_124235.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_jarvis_personal_20260317_142504.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_jarvis_start_20260317_141509.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_jarvis_tasks_20260317_141248.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_jarvis_workflow_dashboard_20260317_140225.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_unified_app_shell_20260317_143804.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_verse_assembly_20260317_160546.py",
+    "score": 3
+  },
+  {
+    "file": "app_before_verse_content_20260317_161212.py",
+    "score": 3
+  },
+  {
+    "file": "app_final_stable_20260317_124540.py",
+    "score": 3
+  },
+  {
+    "file": "app_autobackup_restart_20260316_232154.py",
+    "score": 2
+  },
+  {
+    "file": "app_autobackup_restart_20260316_233720.py",
+    "score": 2
+  },
+  {
+    "file": "app_autobackup_restart_20260316_234124.py",
+    "score": 2
+  },
+  {
+    "file": "app_autobackup_restart_20260317_001410.py",
+    "score": 2
+  },
+  {
+    "file": "app_autobackup_restart_20260317_001539.py",
+    "score": 2
+  },
+  {
+    "file": "app_autobackup_restart_20260317_002414.py",
+    "score": 2
+  },
+  {
+    "file": "app_autobackup_restart_20260317_004413.py",
+    "score": 2
+  },
+  {
+    "file": "app_autobackup_termux_20260316_215430.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_assistant_verified_20260316_112017.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_auth_connect_20260316_215122.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_build_status_20260316_162526.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_city_control_patch_20260316_162815.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_civic_system_20260316_170720.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_command_center_20260316_121217.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_consolidation_20260317_112811.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_continuity_layer_20260316_203725.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_db_config_fix_20260316_215907.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_direct_profile_routes_20260317_013120.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_final_runtime_fix_20260317_113445.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_final_stabilizer_20260316_211721.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_final_stabilizer_20260316_211737.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_front_shell_20260316_201148.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_gesture_accessibility_20260316_120415.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_gesture_navigation_links_20260316_120649.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_history_memory_archive_holo_20260316_121754.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_holo_commerce_20260316_194039.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_holoverse_20260316_190911.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_holoverse_20260316_190922.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_holoverse_20260316_191538.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_holoverse_nav_fix_20260316_192946.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_holoverse_nav_fix_20260316_193006.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_home_dashboard_20260316_114424.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_home_dashboard_polish_20260316_231839.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_jarvis_history_20260317_123409.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_jarvis_panel_20260317_122400.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_jarvis_plus_20260317_123136.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_live_checkout_shell_20260317_014808.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_living_city_engine_20260316_171814.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_master_dashboard_20260316_200627.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_master_dashboard_repair_20260316_202604.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_mega_stabilizer_20260316_183355.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_modular_rebuild_20260316_184918.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_modular_stabilizer_20260316_182502.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_modular_stabilizer_20260316_182519.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_next_modules_20260316_190051.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_no_nano_fix_20260317_121721.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_no_nano_fix_20260317_121743.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_page_section_private_fix_20260316_113517.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_passport_wallet_20260316_112654.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_payments_marketplace_cleanup_20260316_114715.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_payments_stabilizer_20260317_002358.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_perf_auth_20260316_202211.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_perf_auth_20260316_202226.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_plain_city_pages_20260316_180002.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_plain_nav_rebuild_20260316_174036.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_plain_platform_centers_20260316_180342.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_policy_risk_insurance_20260316_115124.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_private_access_verified_20260316_111740.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_production_foundation_20260316_213027.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_profile_db_fix_20260317_004743.py",
+    "score": 2
+  },
+  {
+    "file": "app_before_profile_db_integration_20260317_001339.py",
+    "score": 2
+  }
+]

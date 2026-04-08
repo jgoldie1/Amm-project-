@@ -1,0 +1,16 @@
+{
+  "debates": [
+    {
+      "topic": "Faith vs Culture",
+      "type": "live_debate",
+      "participants": ["creator1", "creator2"],
+      "status": "live"
+    },
+    {
+      "topic": "Truth and Media",
+      "type": "panel_discussion",
+      "participants": ["host", "guest1", "guest2"],
+      "status": "planned"
+    }
+  ]
+}

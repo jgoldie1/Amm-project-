@@ -1,0 +1,2 @@
+[{"id":2,"gateway_name":"Safe Gateway","gateway_group":"sandbox","source_realm":"safe_source_realm","target_realm":"safe_target_realm","gateway_mode":"controlled","gateway_status":"active","created_at":"2026-04-01 05:20:22"},
+{"id":1,"gateway_name":"AAM Multiverse Gateway","gateway_group":"core_gateway","source_realm":"middleverse_core","target_realm":"multiverse_core","gateway_mode":"controlled","gateway_status":"active","created_at":"2026-04-01 05:20:02"}]

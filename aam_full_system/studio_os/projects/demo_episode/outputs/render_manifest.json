@@ -1,0 +1,19 @@
+{
+  "clips": [
+    {
+      "clip_id": 1,
+      "prompt": "Cinematic futuristic holographic marketplace gate opening, high contrast, volumetric light, realistic CGI, smooth camera move",
+      "duration_sec": 8
+    },
+    {
+      "clip_id": 2,
+      "prompt": "AI guide hologram appears beside creator, neon interface, crisp sci-fi production design",
+      "duration_sec": 8
+    },
+    {
+      "clip_id": 3,
+      "prompt": "Creator enters portal into Life World, epic glow, dramatic cinematic atmosphere",
+      "duration_sec": 8
+    }
+  ]
+}

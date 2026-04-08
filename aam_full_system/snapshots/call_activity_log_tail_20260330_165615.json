@@ -1,0 +1,4 @@
+[{"id":4,"caller_name":"Retail Seller","business_vertical":"holostore_retail","interaction_channel":"chat","intent_name":"join_platform","outcome_status":"handled","created_at":"2026-03-30 21:56:15"},
+{"id":3,"caller_name":"Real Estate Broker","business_vertical":"real_estate","interaction_channel":"voice","intent_name":"lead_intake","outcome_status":"handled","created_at":"2026-03-30 21:56:15"},
+{"id":2,"caller_name":"Merchant Owner","business_vertical":"food_delivery","interaction_channel":"chat","intent_name":"onboarding_help","outcome_status":"handled","created_at":"2026-03-30 21:56:15"},
+{"id":1,"caller_name":"Prospect Freight Lead","business_vertical":"freight_logistics","interaction_channel":"voice","intent_name":"pricing_request","outcome_status":"handled","created_at":"2026-03-30 21:56:15"}]

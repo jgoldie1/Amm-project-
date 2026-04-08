@@ -1,0 +1,13 @@
+EMERGENCY RESTORE BEFORE MIDDLEVERSE + STABILIZE REPORT
+Timestamp: 20260331_191505
+
+Recovered:
+- restored latest known-good dashboard backup
+- hard-stopped stuck node processes
+- restarted dashboard + jarvis
+- reran baseline smoke tests
+
+Purpose:
+- recover from interrupted middleverse patch
+- restore a clean stable baseline
+- prepare for a smaller middleverse pass

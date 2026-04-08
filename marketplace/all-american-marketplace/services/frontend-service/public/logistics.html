@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Logistics</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header>
+  <h1>Logistics / Load Bookings</h1>
+  <div class="nav"><a href="/kingdom.html">Kingdom</a></div>
+</header>
+<main>
+  <div class="card">
+    <h3>Create Load (admin token)</h3>
+    <input id="loadOrigin" placeholder="Origin">
+    <input id="loadDestination" placeholder="Destination">
+    <input id="cargoType" placeholder="Cargo Type">
+    <input id="loadRate" placeholder="Rate">
+    <input id="equipmentNeeded" placeholder="Equipment Needed">
+    <textarea id="loadNotes" placeholder="Notes"></textarea>
+    <button onclick="createLoad()">Create Load</button>
+    <pre id="loadOut"></pre>
+  </div>
+
+  <div class="card">
+    <h3>Carrier Registration</h3>
+    <input id="carrierCompany" placeholder="Company Name">
+    <input id="mcNumber" placeholder="MC Number">
+    <input id="equipmentType" placeholder="Equipment Type">
+    <textarea id="carrierNotes" placeholder="Notes"></textarea>
+    <button onclick="registerCarrier()">Register Carrier</button>
+    <button onclick="loadLoads()">Load Open Loads</button>
+    <pre id="loadsOut"></pre>
+  </div>
+</main>
+<script src="/app.js"></script>
+<script>
+async function createLoad() {
+  show("loadOut", await request("http://127.0.0.1:5600/loads", {
+    method: "POST",
+    body: JSON.stringify({
+      origin: loadOrigin.value,
+      destination: loadDestination.value,
+      cargoType: cargoType.value,
+      rate: Number(loadRate.value || 0),
+      equipmentNeeded: equipmentNeeded.value,
+      notes: loadNotes.value
+    })
+  }));
+}
+async function registerCarrier() {
+  show("loadsOut", await request("http://127.0.0.1:5600/carriers", {
+    method: "POST",
+    body: JSON.stringify({
+      companyName: carrierCompany.value,
+      mcNumber: mcNumber.value,
+      equipmentType: equipmentType.value,
+      notes: carrierNotes.value
+    })
+  }));
+}
+async function loadLoads() {
+  show("loadsOut", await request("http://127.0.0.1:5600/loads"));
+}
+</script>
+</body>
+</html>

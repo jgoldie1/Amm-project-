@@ -1,0 +1,193 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AAM Admin Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#0f172a; color:#fff; margin:0; padding:16px; }
+    h1,h2 { margin:0 0 12px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
+    .card { background:#111827; border:1px solid #334155; border-radius:14px; padding:16px; box-shadow:0 8px 24px rgba(0,0,0,.25); }
+    input, button, textarea, select {
+      width:100%; box-sizing:border-box; margin:6px 0; padding:10px 12px;
+      border-radius:10px; border:1px solid #475569; background:#0b1220; color:#fff;
+    }
+    button { cursor:pointer; background:#2563eb; border:none; font-weight:600; }
+    button.secondary { background:#334155; }
+    pre {
+      white-space:pre-wrap; word-break:break-word; background:#020617; border:1px solid #334155;
+      border-radius:10px; padding:12px; min-height:120px; overflow:auto;
+    }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .small { font-size:12px; color:#cbd5e1; }
+    .ok { color:#86efac; }
+    .warn { color:#fbbf24; }
+    .err { color:#fca5a5; }
+    .topbar { display:flex; gap:8px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
+    .pill { display:inline-block; padding:6px 10px; border-radius:999px; background:#1e293b; border:1px solid #334155; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>AAM Admin Dashboard</h1>
+    <span class="pill" id="healthBadge">checking...</span>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Admin Access</h2>
+      <input id="adminToken" type="password" placeholder="Admin token" />
+      <button onclick="saveToken()">Save Token</button>
+      <div class="small">Stored in browser localStorage for this device.</div>
+    </div>
+
+    <div class="card">
+      <h2>Health</h2>
+      <button onclick="loadHealth()">Refresh Health</button>
+      <pre id="healthOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>Metrics</h2>
+      <button onclick="loadMetrics()">Load Metrics</button>
+      <pre id="metricsOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>Users</h2>
+      <button onclick="loadUsers()">Load Users</button>
+      <pre id="usersOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>Wallet Summary</h2>
+      <button onclick="loadWalletSummary()">Load Wallet Summary</button>
+      <pre id="walletSummaryOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>Tracks</h2>
+      <button onclick="loadTracks()">Load Tracks</button>
+      <pre id="tracksOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>Stream Summary</h2>
+      <button onclick="loadStreamSummary()">Load Stream Summary</button>
+      <pre id="streamSummaryOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>Moderation Summary</h2>
+      <button onclick="loadModSummary()">Load Moderation Summary</button>
+      <pre id="modSummaryOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>Reports</h2>
+      <button onclick="loadReports()">Load Reports</button>
+      <pre id="reportsOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>Ads Summary</h2>
+      <button onclick="loadAdsSummary()">Load Ads Summary</button>
+      <pre id="adsSummaryOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>Approve Payout</h2>
+      <input id="payoutUserId" placeholder="User ID" />
+      <input id="payoutAmount" type="number" step="0.01" placeholder="Amount" />
+      <button onclick="approvePayout()">Approve Payout</button>
+      <pre id="payoutOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>Update Report Status</h2>
+      <input id="reportId" placeholder="Report ID" />
+      <select id="reportStatus">
+        <option value="open">open</option>
+        <option value="reviewed">reviewed</option>
+        <option value="dismissed">dismissed</option>
+        <option value="escalated">escalated</option>
+      </select>
+      <button onclick="updateReportStatus()">Update</button>
+      <pre id="reportStatusOut"></pre>
+    </div>
+
+    <div class="card">
+      <h2>Log Tail</h2>
+      <button onclick="loadLogTail()">Load Log Tail</button>
+      <pre id="logTailOut"></pre>
+    </div>
+  </div>
+
+  <script>
+    const tokenKey = 'aam_admin_token';
+
+    function getToken() {
+      return localStorage.getItem(tokenKey) || '';
+    }
+    function saveToken() {
+      localStorage.setItem(tokenKey, document.getElementById('adminToken').value);
+      alert('Admin token saved');
+    }
+    function loadSavedToken() {
+      document.getElementById('adminToken').value = getToken();
+    }
+    async function adminGet(url) {
+      const res = await fetch(url, {
+        headers: { 'x-admin-token': getToken() }
+      });
+      return await res.json();
+    }
+    async function adminPost(url, body) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': getToken()
+        },
+        body: JSON.stringify(body)
+      });
+      return await res.json();
+    }
+    function show(id, data) {
+      document.getElementById(id).textContent = JSON.stringify(data, null, 2);
+    }
+    async function loadHealth() {
+      const a = await fetch('/health').then(r => r.json());
+      const b = await fetch('/health/detail').then(r => r.json());
+      show('healthOut', { health: a, detail: b });
+      document.getElementById('healthBadge').textContent = a.ok ? 'healthy' : 'down';
+      document.getElementById('healthBadge').className = 'pill ' + (a.ok ? 'ok' : 'err');
+    }
+    async function loadMetrics() { show('metricsOut', await adminGet('/metrics')); }
+    async function loadUsers() { show('usersOut', await adminGet('/admin/users')); }
+    async function loadWalletSummary() { show('walletSummaryOut', await adminGet('/admin/wallet-summary')); }
+    async function loadTracks() { show('tracksOut', await adminGet('/admin/tracks')); }
+    async function loadStreamSummary() { show('streamSummaryOut', await adminGet('/admin/stream-summary')); }
+    async function loadModSummary() { show('modSummaryOut', await adminGet('/admin/mod-summary')); }
+    async function loadReports() { show('reportsOut', await adminGet('/admin/reports')); }
+    async function loadAdsSummary() { show('adsSummaryOut', await adminGet('/admin/ads-summary')); }
+    async function loadLogTail() { show('logTailOut', await adminGet('/admin/log-tail')); }
+
+    async function approvePayout() {
+      const userId = document.getElementById('payoutUserId').value.trim();
+      const amount = Number(document.getElementById('payoutAmount').value || 0);
+      show('payoutOut', await adminPost('/wallet/approve-payout', { userId, amount }));
+    }
+
+    async function updateReportStatus() {
+      const id = document.getElementById('reportId').value.trim();
+      const status = document.getElementById('reportStatus').value;
+      show('reportStatusOut', await adminPost('/admin/report-status', { id, status }));
+    }
+
+    loadSavedToken();
+    loadHealth();
+  </script>
+</body>
+</html>

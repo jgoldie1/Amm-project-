@@ -1,0 +1,14 @@
+{
+  "project": "anyone_can_be_a_star_episode",
+  "title": "Anyone Can Be a Star - Pilot",
+  "publish_targets": [
+    "public/streaming",
+    "creator profile shelf",
+    "featured episode slot"
+  ],
+  "expected_files": [
+    "assets/final/final_master.mp4",
+    "assets/final/final_master_subbed.mp4"
+  ],
+  "status": "ready_for_real_media_drop_and_render"
+}

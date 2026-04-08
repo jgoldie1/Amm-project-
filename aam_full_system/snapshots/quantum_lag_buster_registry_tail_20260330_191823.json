@@ -1,0 +1,4 @@
+[{"id":4,"component_name":"creator_media_stack","bottleneck_type":"table_render_volume","mitigation_strategy":"limit_and_prioritize_recent_records","priority_level":"medium","component_status":"active","created_at":"2026-03-31 00:18:24"},
+{"id":3,"component_name":"competitive_contact_center","bottleneck_type":"queue_aggregation_latency","mitigation_strategy":"fast_summary_cache","priority_level":"high","component_status":"active","created_at":"2026-03-31 00:18:24"},
+{"id":2,"component_name":"multiservice_dispatch","bottleneck_type":"data_lookup_latency","mitigation_strategy":"cache_hot_dispatch_tables","priority_level":"high","component_status":"active","created_at":"2026-03-31 00:18:24"},
+{"id":1,"component_name":"dashboard_routes","bottleneck_type":"route_render_latency","mitigation_strategy":"preload_priority_routes","priority_level":"high","component_status":"active","created_at":"2026-03-31 00:18:24"}]

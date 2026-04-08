@@ -1,0 +1,19 @@
+UI CLEANUP + STABILIZE REPORT
+Timestamp: 20260325_210259
+
+What changed:
+- cleaner public shell
+- reduced homepage clutter
+- improved visual hierarchy
+- separate clean public/admin nav
+- card-based world/storefront/creator presentation
+- stronger spacing, typography, and rhythm
+- preserved backend functionality
+
+Main public routes:
+- /
+- /world-explorer
+- /storefront-explorer
+- /wallet-center
+- /access-center
+- /creator-hub

@@ -1,0 +1,8 @@
+{
+  "scene": "Multiverse Creator Hall",
+  "objects": [
+    {"type": "stage", "label": "Creator Showcase"},
+    {"type": "audio_room", "label": "Live Podcast Hall"},
+    {"type": "screen", "label": "Streaming Network"}
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "profiles": [
+    {
+      "name": "mobility_support",
+      "features": [
+        "voice_navigation",
+        "one_hand_mode",
+        "large_touch_targets",
+        "keyboard_navigation",
+        "switch_access_support"
+      ]
+    },
+    {
+      "name": "vision_support",
+      "features": [
+        "high_contrast_mode",
+        "text_scaling",
+        "screen_reader_labels",
+        "focus_highlight",
+        "alt_text_support"
+      ]
+    },
+    {
+      "name": "hearing_support",
+      "features": [
+        "captions",
+        "transcripts",
+        "visual_alerts",
+        "stream_caption_overlay"
+      ]
+    },
+    {
+      "name": "cognitive_support",
+      "features": [
+        "simplified_layout",
+        "reduced_distraction_mode",
+        "clear_language_mode",
+        "guided_steps",
+        "task_focus_mode"
+      ]
+    },
+    {
+      "name": "fatigue_support",
+      "features": [
+        "reduced_motion",
+        "low_effort_navigation",
+        "save_progress_everywhere",
+        "quick_resume_mode"
+      ]
+    }
+  ]
+}

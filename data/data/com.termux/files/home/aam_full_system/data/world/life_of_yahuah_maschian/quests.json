@@ -1,0 +1,650 @@
+[
+  {
+    "id": "quest_001",
+    "sceneId": "scene_001",
+    "title": "Bethlehem Mission 1",
+    "objective": "Reach the zone entry and receive the first mission.",
+    "xp": 55,
+    "reward": {
+      "scroll": "Bethlehem Scroll 1",
+      "teaching": "Bethlehem Teaching 1"
+    },
+    "unlockScene": "scene_002"
+  },
+  {
+    "id": "quest_002",
+    "sceneId": "scene_002",
+    "title": "Bethlehem Mission 2",
+    "objective": "Speak with the people and gather insight.",
+    "xp": 60,
+    "reward": {
+      "scroll": "Bethlehem Scroll 2",
+      "teaching": "Bethlehem Teaching 2"
+    },
+    "unlockScene": "scene_003"
+  },
+  {
+    "id": "quest_003",
+    "sceneId": "scene_003",
+    "title": "Bethlehem Mission 3",
+    "objective": "Complete the teaching encounter.",
+    "xp": 65,
+    "reward": {
+      "scroll": "Bethlehem Scroll 3",
+      "teaching": "Bethlehem Teaching 3"
+    },
+    "unlockScene": "scene_004"
+  },
+  {
+    "id": "quest_004",
+    "sceneId": "scene_004",
+    "title": "Bethlehem Mission 4",
+    "objective": "Help someone in need and restore progress.",
+    "xp": 70,
+    "reward": {
+      "scroll": "Bethlehem Scroll 4",
+      "teaching": "Bethlehem Teaching 4"
+    },
+    "unlockScene": "scene_005"
+  },
+  {
+    "id": "quest_005",
+    "sceneId": "scene_005",
+    "title": "Bethlehem Mission 5",
+    "objective": "Face a test and answer wisely.",
+    "xp": 75,
+    "reward": {
+      "scroll": "Bethlehem Scroll 5",
+      "teaching": "Bethlehem Teaching 5"
+    },
+    "unlockScene": "scene_006"
+  },
+  {
+    "id": "quest_006",
+    "sceneId": "scene_006",
+    "title": "Bethlehem Mission 6",
+    "objective": "Unlock the next stage of the journey.",
+    "xp": 80,
+    "reward": {
+      "scroll": "Bethlehem Scroll 6",
+      "teaching": "Bethlehem Teaching 6"
+    },
+    "unlockScene": "scene_007"
+  },
+  {
+    "id": "quest_007",
+    "sceneId": "scene_007",
+    "title": "Nazareth Mission 1",
+    "objective": "Reach the zone entry and receive the first mission.",
+    "xp": 85,
+    "reward": {
+      "scroll": "Nazareth Scroll 1",
+      "teaching": "Nazareth Teaching 1"
+    },
+    "unlockScene": "scene_008"
+  },
+  {
+    "id": "quest_008",
+    "sceneId": "scene_008",
+    "title": "Nazareth Mission 2",
+    "objective": "Speak with the people and gather insight.",
+    "xp": 90,
+    "reward": {
+      "scroll": "Nazareth Scroll 2",
+      "teaching": "Nazareth Teaching 2"
+    },
+    "unlockScene": "scene_009"
+  },
+  {
+    "id": "quest_009",
+    "sceneId": "scene_009",
+    "title": "Nazareth Mission 3",
+    "objective": "Complete the teaching encounter.",
+    "xp": 95,
+    "reward": {
+      "scroll": "Nazareth Scroll 3",
+      "teaching": "Nazareth Teaching 3"
+    },
+    "unlockScene": "scene_010"
+  },
+  {
+    "id": "quest_010",
+    "sceneId": "scene_010",
+    "title": "Nazareth Mission 4",
+    "objective": "Help someone in need and restore progress.",
+    "xp": 100,
+    "reward": {
+      "scroll": "Nazareth Scroll 4",
+      "teaching": "Nazareth Teaching 4"
+    },
+    "unlockScene": "scene_011"
+  },
+  {
+    "id": "quest_011",
+    "sceneId": "scene_011",
+    "title": "Nazareth Mission 5",
+    "objective": "Face a test and answer wisely.",
+    "xp": 105,
+    "reward": {
+      "scroll": "Nazareth Scroll 5",
+      "teaching": "Nazareth Teaching 5"
+    },
+    "unlockScene": "scene_012"
+  },
+  {
+    "id": "quest_012",
+    "sceneId": "scene_012",
+    "title": "Nazareth Mission 6",
+    "objective": "Unlock the next stage of the journey.",
+    "xp": 110,
+    "reward": {
+      "scroll": "Nazareth Scroll 6",
+      "teaching": "Nazareth Teaching 6"
+    },
+    "unlockScene": "scene_013"
+  },
+  {
+    "id": "quest_013",
+    "sceneId": "scene_013",
+    "title": "Galilee Mission 1",
+    "objective": "Reach the zone entry and receive the first mission.",
+    "xp": 115,
+    "reward": {
+      "scroll": "Galilee Scroll 1",
+      "teaching": "Galilee Teaching 1"
+    },
+    "unlockScene": "scene_014"
+  },
+  {
+    "id": "quest_014",
+    "sceneId": "scene_014",
+    "title": "Galilee Mission 2",
+    "objective": "Speak with the people and gather insight.",
+    "xp": 120,
+    "reward": {
+      "scroll": "Galilee Scroll 2",
+      "teaching": "Galilee Teaching 2"
+    },
+    "unlockScene": "scene_015"
+  },
+  {
+    "id": "quest_015",
+    "sceneId": "scene_015",
+    "title": "Galilee Mission 3",
+    "objective": "Complete the teaching encounter.",
+    "xp": 125,
+    "reward": {
+      "scroll": "Galilee Scroll 3",
+      "teaching": "Galilee Teaching 3"
+    },
+    "unlockScene": "scene_016"
+  },
+  {
+    "id": "quest_016",
+    "sceneId": "scene_016",
+    "title": "Galilee Mission 4",
+    "objective": "Help someone in need and restore progress.",
+    "xp": 130,
+    "reward": {
+      "scroll": "Galilee Scroll 4",
+      "teaching": "Galilee Teaching 4"
+    },
+    "unlockScene": "scene_017"
+  },
+  {
+    "id": "quest_017",
+    "sceneId": "scene_017",
+    "title": "Galilee Mission 5",
+    "objective": "Face a test and answer wisely.",
+    "xp": 135,
+    "reward": {
+      "scroll": "Galilee Scroll 5",
+      "teaching": "Galilee Teaching 5"
+    },
+    "unlockScene": "scene_018"
+  },
+  {
+    "id": "quest_018",
+    "sceneId": "scene_018",
+    "title": "Galilee Mission 6",
+    "objective": "Unlock the next stage of the journey.",
+    "xp": 140,
+    "reward": {
+      "scroll": "Galilee Scroll 6",
+      "teaching": "Galilee Teaching 6"
+    },
+    "unlockScene": "scene_019"
+  },
+  {
+    "id": "quest_019",
+    "sceneId": "scene_019",
+    "title": "Sea of Galilee Mission 1",
+    "objective": "Reach the zone entry and receive the first mission.",
+    "xp": 145,
+    "reward": {
+      "scroll": "Sea of Galilee Scroll 1",
+      "teaching": "Sea of Galilee Teaching 1"
+    },
+    "unlockScene": "scene_020"
+  },
+  {
+    "id": "quest_020",
+    "sceneId": "scene_020",
+    "title": "Sea of Galilee Mission 2",
+    "objective": "Speak with the people and gather insight.",
+    "xp": 150,
+    "reward": {
+      "scroll": "Sea of Galilee Scroll 2",
+      "teaching": "Sea of Galilee Teaching 2"
+    },
+    "unlockScene": "scene_021"
+  },
+  {
+    "id": "quest_021",
+    "sceneId": "scene_021",
+    "title": "Sea of Galilee Mission 3",
+    "objective": "Complete the teaching encounter.",
+    "xp": 155,
+    "reward": {
+      "scroll": "Sea of Galilee Scroll 3",
+      "teaching": "Sea of Galilee Teaching 3"
+    },
+    "unlockScene": "scene_022"
+  },
+  {
+    "id": "quest_022",
+    "sceneId": "scene_022",
+    "title": "Sea of Galilee Mission 4",
+    "objective": "Help someone in need and restore progress.",
+    "xp": 160,
+    "reward": {
+      "scroll": "Sea of Galilee Scroll 4",
+      "teaching": "Sea of Galilee Teaching 4"
+    },
+    "unlockScene": "scene_023"
+  },
+  {
+    "id": "quest_023",
+    "sceneId": "scene_023",
+    "title": "Sea of Galilee Mission 5",
+    "objective": "Face a test and answer wisely.",
+    "xp": 165,
+    "reward": {
+      "scroll": "Sea of Galilee Scroll 5",
+      "teaching": "Sea of Galilee Teaching 5"
+    },
+    "unlockScene": "scene_024"
+  },
+  {
+    "id": "quest_024",
+    "sceneId": "scene_024",
+    "title": "Sea of Galilee Mission 6",
+    "objective": "Unlock the next stage of the journey.",
+    "xp": 170,
+    "reward": {
+      "scroll": "Sea of Galilee Scroll 6",
+      "teaching": "Sea of Galilee Teaching 6"
+    },
+    "unlockScene": "scene_025"
+  },
+  {
+    "id": "quest_025",
+    "sceneId": "scene_025",
+    "title": "Capernaum Mission 1",
+    "objective": "Reach the zone entry and receive the first mission.",
+    "xp": 175,
+    "reward": {
+      "scroll": "Capernaum Scroll 1",
+      "teaching": "Capernaum Teaching 1"
+    },
+    "unlockScene": "scene_026"
+  },
+  {
+    "id": "quest_026",
+    "sceneId": "scene_026",
+    "title": "Capernaum Mission 2",
+    "objective": "Speak with the people and gather insight.",
+    "xp": 180,
+    "reward": {
+      "scroll": "Capernaum Scroll 2",
+      "teaching": "Capernaum Teaching 2"
+    },
+    "unlockScene": "scene_027"
+  },
+  {
+    "id": "quest_027",
+    "sceneId": "scene_027",
+    "title": "Capernaum Mission 3",
+    "objective": "Complete the teaching encounter.",
+    "xp": 185,
+    "reward": {
+      "scroll": "Capernaum Scroll 3",
+      "teaching": "Capernaum Teaching 3"
+    },
+    "unlockScene": "scene_028"
+  },
+  {
+    "id": "quest_028",
+    "sceneId": "scene_028",
+    "title": "Capernaum Mission 4",
+    "objective": "Help someone in need and restore progress.",
+    "xp": 190,
+    "reward": {
+      "scroll": "Capernaum Scroll 4",
+      "teaching": "Capernaum Teaching 4"
+    },
+    "unlockScene": "scene_029"
+  },
+  {
+    "id": "quest_029",
+    "sceneId": "scene_029",
+    "title": "Capernaum Mission 5",
+    "objective": "Face a test and answer wisely.",
+    "xp": 195,
+    "reward": {
+      "scroll": "Capernaum Scroll 5",
+      "teaching": "Capernaum Teaching 5"
+    },
+    "unlockScene": "scene_030"
+  },
+  {
+    "id": "quest_030",
+    "sceneId": "scene_030",
+    "title": "Capernaum Mission 6",
+    "objective": "Unlock the next stage of the journey.",
+    "xp": 200,
+    "reward": {
+      "scroll": "Capernaum Scroll 6",
+      "teaching": "Capernaum Teaching 6"
+    },
+    "unlockScene": "scene_031"
+  },
+  {
+    "id": "quest_031",
+    "sceneId": "scene_031",
+    "title": "Samaria Mission 1",
+    "objective": "Reach the zone entry and receive the first mission.",
+    "xp": 205,
+    "reward": {
+      "scroll": "Samaria Scroll 1",
+      "teaching": "Samaria Teaching 1"
+    },
+    "unlockScene": "scene_032"
+  },
+  {
+    "id": "quest_032",
+    "sceneId": "scene_032",
+    "title": "Samaria Mission 2",
+    "objective": "Speak with the people and gather insight.",
+    "xp": 210,
+    "reward": {
+      "scroll": "Samaria Scroll 2",
+      "teaching": "Samaria Teaching 2"
+    },
+    "unlockScene": "scene_033"
+  },
+  {
+    "id": "quest_033",
+    "sceneId": "scene_033",
+    "title": "Samaria Mission 3",
+    "objective": "Complete the teaching encounter.",
+    "xp": 215,
+    "reward": {
+      "scroll": "Samaria Scroll 3",
+      "teaching": "Samaria Teaching 3"
+    },
+    "unlockScene": "scene_034"
+  },
+  {
+    "id": "quest_034",
+    "sceneId": "scene_034",
+    "title": "Samaria Mission 4",
+    "objective": "Help someone in need and restore progress.",
+    "xp": 220,
+    "reward": {
+      "scroll": "Samaria Scroll 4",
+      "teaching": "Samaria Teaching 4"
+    },
+    "unlockScene": "scene_035"
+  },
+  {
+    "id": "quest_035",
+    "sceneId": "scene_035",
+    "title": "Samaria Mission 5",
+    "objective": "Face a test and answer wisely.",
+    "xp": 225,
+    "reward": {
+      "scroll": "Samaria Scroll 5",
+      "teaching": "Samaria Teaching 5"
+    },
+    "unlockScene": "scene_036"
+  },
+  {
+    "id": "quest_036",
+    "sceneId": "scene_036",
+    "title": "Samaria Mission 6",
+    "objective": "Unlock the next stage of the journey.",
+    "xp": 230,
+    "reward": {
+      "scroll": "Samaria Scroll 6",
+      "teaching": "Samaria Teaching 6"
+    },
+    "unlockScene": "scene_037"
+  },
+  {
+    "id": "quest_037",
+    "sceneId": "scene_037",
+    "title": "Jericho Mission 1",
+    "objective": "Reach the zone entry and receive the first mission.",
+    "xp": 235,
+    "reward": {
+      "scroll": "Jericho Scroll 1",
+      "teaching": "Jericho Teaching 1"
+    },
+    "unlockScene": "scene_038"
+  },
+  {
+    "id": "quest_038",
+    "sceneId": "scene_038",
+    "title": "Jericho Mission 2",
+    "objective": "Speak with the people and gather insight.",
+    "xp": 240,
+    "reward": {
+      "scroll": "Jericho Scroll 2",
+      "teaching": "Jericho Teaching 2"
+    },
+    "unlockScene": "scene_039"
+  },
+  {
+    "id": "quest_039",
+    "sceneId": "scene_039",
+    "title": "Jericho Mission 3",
+    "objective": "Complete the teaching encounter.",
+    "xp": 245,
+    "reward": {
+      "scroll": "Jericho Scroll 3",
+      "teaching": "Jericho Teaching 3"
+    },
+    "unlockScene": "scene_040"
+  },
+  {
+    "id": "quest_040",
+    "sceneId": "scene_040",
+    "title": "Jericho Mission 4",
+    "objective": "Help someone in need and restore progress.",
+    "xp": 250,
+    "reward": {
+      "scroll": "Jericho Scroll 4",
+      "teaching": "Jericho Teaching 4"
+    },
+    "unlockScene": "scene_041"
+  },
+  {
+    "id": "quest_041",
+    "sceneId": "scene_041",
+    "title": "Jericho Mission 5",
+    "objective": "Face a test and answer wisely.",
+    "xp": 255,
+    "reward": {
+      "scroll": "Jericho Scroll 5",
+      "teaching": "Jericho Teaching 5"
+    },
+    "unlockScene": "scene_042"
+  },
+  {
+    "id": "quest_042",
+    "sceneId": "scene_042",
+    "title": "Jericho Mission 6",
+    "objective": "Unlock the next stage of the journey.",
+    "xp": 260,
+    "reward": {
+      "scroll": "Jericho Scroll 6",
+      "teaching": "Jericho Teaching 6"
+    },
+    "unlockScene": "scene_043"
+  },
+  {
+    "id": "quest_043",
+    "sceneId": "scene_043",
+    "title": "Jerusalem Mission 1",
+    "objective": "Reach the zone entry and receive the first mission.",
+    "xp": 265,
+    "reward": {
+      "scroll": "Jerusalem Scroll 1",
+      "teaching": "Jerusalem Teaching 1"
+    },
+    "unlockScene": "scene_044"
+  },
+  {
+    "id": "quest_044",
+    "sceneId": "scene_044",
+    "title": "Jerusalem Mission 2",
+    "objective": "Speak with the people and gather insight.",
+    "xp": 270,
+    "reward": {
+      "scroll": "Jerusalem Scroll 2",
+      "teaching": "Jerusalem Teaching 2"
+    },
+    "unlockScene": "scene_045"
+  },
+  {
+    "id": "quest_045",
+    "sceneId": "scene_045",
+    "title": "Jerusalem Mission 3",
+    "objective": "Complete the teaching encounter.",
+    "xp": 275,
+    "reward": {
+      "scroll": "Jerusalem Scroll 3",
+      "teaching": "Jerusalem Teaching 3"
+    },
+    "unlockScene": "scene_046"
+  },
+  {
+    "id": "quest_046",
+    "sceneId": "scene_046",
+    "title": "Jerusalem Mission 4",
+    "objective": "Help someone in need and restore progress.",
+    "xp": 280,
+    "reward": {
+      "scroll": "Jerusalem Scroll 4",
+      "teaching": "Jerusalem Teaching 4"
+    },
+    "unlockScene": "scene_047"
+  },
+  {
+    "id": "quest_047",
+    "sceneId": "scene_047",
+    "title": "Jerusalem Mission 5",
+    "objective": "Face a test and answer wisely.",
+    "xp": 285,
+    "reward": {
+      "scroll": "Jerusalem Scroll 5",
+      "teaching": "Jerusalem Teaching 5"
+    },
+    "unlockScene": "scene_048"
+  },
+  {
+    "id": "quest_048",
+    "sceneId": "scene_048",
+    "title": "Jerusalem Mission 6",
+    "objective": "Unlock the next stage of the journey.",
+    "xp": 290,
+    "reward": {
+      "scroll": "Jerusalem Scroll 6",
+      "teaching": "Jerusalem Teaching 6"
+    },
+    "unlockScene": "scene_049"
+  },
+  {
+    "id": "quest_049",
+    "sceneId": "scene_049",
+    "title": "Throne Corridor Mission 1",
+    "objective": "Reach the zone entry and receive the first mission.",
+    "xp": 295,
+    "reward": {
+      "scroll": "Throne Corridor Scroll 1",
+      "teaching": "Throne Corridor Teaching 1"
+    },
+    "unlockScene": "scene_050"
+  },
+  {
+    "id": "quest_050",
+    "sceneId": "scene_050",
+    "title": "Throne Corridor Mission 2",
+    "objective": "Speak with the people and gather insight.",
+    "xp": 300,
+    "reward": {
+      "scroll": "Throne Corridor Scroll 2",
+      "teaching": "Throne Corridor Teaching 2"
+    },
+    "unlockScene": "scene_051"
+  },
+  {
+    "id": "quest_051",
+    "sceneId": "scene_051",
+    "title": "Throne Corridor Mission 3",
+    "objective": "Complete the teaching encounter.",
+    "xp": 305,
+    "reward": {
+      "scroll": "Throne Corridor Scroll 3",
+      "teaching": "Throne Corridor Teaching 3"
+    },
+    "unlockScene": "scene_052"
+  },
+  {
+    "id": "quest_052",
+    "sceneId": "scene_052",
+    "title": "Throne Corridor Mission 4",
+    "objective": "Help someone in need and restore progress.",
+    "xp": 310,
+    "reward": {
+      "scroll": "Throne Corridor Scroll 4",
+      "teaching": "Throne Corridor Teaching 4"
+    },
+    "unlockScene": "scene_053"
+  },
+  {
+    "id": "quest_053",
+    "sceneId": "scene_053",
+    "title": "Throne Corridor Mission 5",
+    "objective": "Face a test and answer wisely.",
+    "xp": 315,
+    "reward": {
+      "scroll": "Throne Corridor Scroll 5",
+      "teaching": "Throne Corridor Teaching 5"
+    },
+    "unlockScene": "scene_054"
+  },
+  {
+    "id": "quest_054",
+    "sceneId": "scene_054",
+    "title": "Throne Corridor Mission 6",
+    "objective": "Unlock the next stage of the journey.",
+    "xp": 320,
+    "reward": {
+      "scroll": "Throne Corridor Scroll 6",
+      "teaching": "Throne Corridor Teaching 6"
+    },
+    "unlockScene": null
+  }
+]

@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Driver Dashboard</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header><h1>Driver Dashboard</h1><div class="nav"><a href="/">Home</a><a href="/rider.html">Rider</a><a href="/admin.html">Admin</a><a href="/marketplace.html">Marketplace</a></div></header>
+<main>
+  <div class="grid">
+    <div class="card">
+      <h3>Register Driver Account</h3>
+      <input id="dregName" placeholder="Name">
+      <input id="dregEmail" placeholder="Email">
+      <input id="dregPhone" placeholder="Phone">
+      <input id="dregPassword" type="password" placeholder="Password">
+      <button onclick="registerDriverUser()">Register</button>
+      <pre id="dregisterOut"></pre>
+    </div>
+    <div class="card">
+      <h3>Driver Login</h3>
+      <input id="dloginEmail" placeholder="Email">
+      <input id="dloginPassword" type="password" placeholder="Password">
+      <button onclick="loginDriver()">Login</button>
+      <button onclick="logoutDriver()">Logout</button>
+      <pre id="dloginOut"></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Apply as Driver</h3>
+    <select id="vehicleType">
+      <option value="standard">standard</option>
+      <option value="premium">premium</option>
+    </select>
+    <input id="carModel" placeholder="Car Model">
+    <input id="licenseNumber" placeholder="License Number">
+    <textarea id="driverNotes" placeholder="Notes"></textarea>
+    <button onclick="applyDriver()">Submit Application</button>
+    <pre id="driverApplyOut"></pre>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Applications</h3>
+      <button onclick="loadApplications()">Load Applications (admin token required)</button>
+      <pre id="appsOut"></pre>
+    </div>
+    <div class="card">
+      <h3>Approved Drivers</h3>
+      <button onclick="loadDrivers()">Load Drivers</button>
+      <pre id="driversOut"></pre>
+    </div>
+  </div>
+</main>
+<script src="/app.js"></script>
+<script>
+async function registerDriverUser() {
+  show("dregisterOut", await request(API.auth + "/register", {
+    method: "POST",
+    body: JSON.stringify({
+      name: dregName.value, email: dregEmail.value, phone: dregPhone.value, password: dregPassword.value, role: "driver"
+    })
+  }));
+}
+async function loginDriver() {
+  const data = await request(API.auth + "/login", {
+    method: "POST",
+    body: JSON.stringify({ email: dloginEmail.value, password: dloginPassword.value })
+  });
+  if (data.token) saveToken(data.token);
+  show("dloginOut", data);
+}
+function logoutDriver() { clearToken(); show("dloginOut", { ok: true, message: "Logged out" }); }
+async function applyDriver() {
+  show("driverApplyOut", await request(API.driver + "/drivers/apply", {
+    method: "POST",
+    body: JSON.stringify({
+      vehicleType: vehicleType.value,
+      carModel: carModel.value,
+      licenseNumber: licenseNumber.value,
+      notes: driverNotes.value
+    })
+  }));
+}
+async function loadApplications() { show("appsOut", await request(API.driver + "/drivers/applications")); }
+async function loadDrivers() { show("driversOut", await request(API.driver + "/drivers")); }
+</script>
+</body>
+</html>

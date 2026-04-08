@@ -1,0 +1,12 @@
+PASS AA REHOME NAV ROUTES REPORT
+Timestamp: 20260403_162015
+
+Fixed:
+- moved navigation workflow routes out of nested branch
+- reattached routes to top-level request handler
+
+Verified:
+- navigation workflow hub
+- navigation help
+- kingdom help
+- marketplace help

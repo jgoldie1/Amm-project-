@@ -1,0 +1,6 @@
+=== VERIFY MEDIA DEMO ===
+BASE=http://127.0.0.1:8080
+
+/media-demo-home                  /shows-demo                       /music-demo                       /music-coaching-home              /artist-signing-home              /api/media-shows-v1               /api/media-tracks-v1              /api/music-coaching-requests-v1   /api/artist-signing-intake-v1     
+--- LAST LOG ---
+nohup: ignoring input

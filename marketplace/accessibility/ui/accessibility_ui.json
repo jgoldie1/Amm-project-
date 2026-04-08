@@ -1,0 +1,13 @@
+{
+  "ui_features": [
+    "high_contrast_mode",
+    "dark_mode_accessibility",
+    "large_text_mode",
+    "font_scaling",
+    "focus_outline_mode",
+    "large_buttons",
+    "simplified_navigation",
+    "reduced_motion_mode",
+    "low_clutter_layout"
+  ]
+}

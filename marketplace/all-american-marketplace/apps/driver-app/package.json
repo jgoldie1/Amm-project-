@@ -1,0 +1,9 @@
+{
+  "name": "driver-app",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/App.js",
+  "scripts": {
+    "dev": "echo \"Connect this to Expo later\""
+  }
+}

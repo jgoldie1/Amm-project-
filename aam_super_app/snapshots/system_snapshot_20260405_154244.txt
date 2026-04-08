@@ -1,0 +1,22 @@
+=== HEALTH ===
+{"ok":true,"service":"gateway","appName":"AAM Super App","environment":"development","time":"2026-04-05T20:42:44.198Z"}
+{"ok":true,"checks":{"config":true,"gateway":true,"auth":true},"time":"2026-04-05T20:42:44.258Z"}
+=== PROCESS ===
+u0_a234  25561 54.5  2.1 11943396 60988 pts/0  S<l+  1970   0:03 node /data/data/com.termux/files/usr/bin/node gateway/index.js
+
+=== LOG TAIL ===
+AAM Gateway on :4000
+
+=== DATA FILES ===
+total 43K
+drwx------.  2 u0_a234 u0_a234 3.4K Apr  5 12:59 .
+drwx------. 13 u0_a234 u0_a234 3.4K Apr  5 15:42 ..
+-rw-------.  1 u0_a234 u0_a234  618 Apr  5 15:42 ads.json
+-rw-------.  1 u0_a234 u0_a234  685 Apr  5 15:42 appeals.json
+-rw-------.  1 u0_a234 u0_a234  683 Apr  5 15:42 dmca.json
+-rw-------.  1 u0_a234 u0_a234 1.1K Apr  5 15:42 reports.json
+-rw-------.  1 u0_a234 u0_a234 2.2K Apr  5 15:42 streams.json
+-rw-------.  1 u0_a234 u0_a234  886 Apr  5 15:42 tracks.json
+-rw-------.  1 u0_a234 u0_a234 2.0K Apr  5 15:42 transactions.json
+-rw-------.  1 u0_a234 u0_a234 1.7K Apr  5 15:42 users.json
+-rw-------.  1 u0_a234 u0_a234 1.1K Apr  5 15:42 wallets.json

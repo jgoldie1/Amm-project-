@@ -1,0 +1,15 @@
+MAIL BRAND ALIAS + STABILIZE REPORT
+Timestamp: 20260330_074133
+
+Added:
+- platform_brand_registry
+- public alias for mail layer
+
+Branding:
+- internal name stays Quantum Mail
+- public name set to LyonsMail
+
+Purpose:
+- preserve working routes and tables
+- reduce public naming risk
+- stabilize branding before full rollout

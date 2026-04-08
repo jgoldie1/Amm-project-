@@ -1,0 +1,3 @@
+[{"id":3,"audit_name":"cx_speed_baseline","audit_scope":"competitive_contact_center","result_summary":"CX acceleration baseline created","audit_status":"ok","created_at":"2026-03-31 00:18:24"},
+{"id":2,"audit_name":"dispatch_speed_baseline","audit_scope":"multiservice_dispatch","result_summary":"Dispatch acceleration baseline created","audit_status":"ok","created_at":"2026-03-31 00:18:24"},
+{"id":1,"audit_name":"runtime_speed_baseline","audit_scope":"full_platform","result_summary":"Quantum lag buster and speed engine baseline created","audit_status":"ok","created_at":"2026-03-31 00:18:24"}]

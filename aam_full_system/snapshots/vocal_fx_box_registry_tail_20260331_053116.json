@@ -1,0 +1,5 @@
+[{"id":5,"fx_name":"Cinematic Voice FX","fx_group":"fx","fx_type":"cinematic","target_use":"film dialogue","fx_status":"active","created_at":"2026-03-31 10:14:09"},
+{"id":4,"fx_name":"Crowd FX Box","fx_group":"fx","fx_type":"environment","target_use":"live performance","fx_status":"active","created_at":"2026-03-31 10:14:09"},
+{"id":3,"fx_name":"Breath Cleaner","fx_group":"cleanup","fx_type":"repair","target_use":"vocal polishing","fx_status":"active","created_at":"2026-03-31 10:14:09"},
+{"id":2,"fx_name":"Harmony Builder","fx_group":"voice","fx_type":"generator","target_use":"background harmony","fx_status":"active","created_at":"2026-03-31 10:14:09"},
+{"id":1,"fx_name":"Vocal Doubler","fx_group":"voice","fx_type":"enhancer","target_use":"lead vocals","fx_status":"active","created_at":"2026-03-31 10:14:09"}]

@@ -1,0 +1,3 @@
+[{"id":3,"agent_name":"OmniMail OS Agent","agent_role":"communication_agent","primary_channel":"chat","specialty_scope":"mail,attachments,followup","agent_status":"active","created_at":"2026-03-30 21:56:15"},
+{"id":2,"agent_name":"Lyons Tech AI","agent_role":"operations_agent","primary_channel":"voice_chat","specialty_scope":"dispatch,analytics,workflow,triage","agent_status":"active","created_at":"2026-03-30 21:56:15"},
+{"id":1,"agent_name":"Stubbs AI","agent_role":"front_door_agent","primary_channel":"voice_chat","specialty_scope":"intake,onboarding,sales,customer_support","agent_status":"active","created_at":"2026-03-30 21:56:15"}]

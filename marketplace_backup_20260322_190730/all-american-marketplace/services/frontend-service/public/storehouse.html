@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Yahavah Storehouse</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header>
+  <h1>Yahavah Storehouse / Grocery / Bookstore</h1>
+  <div class="nav">
+    <a href="/">Home</a>
+  </div>
+</header>
+<main>
+  <div class="card">
+    <h3>Create Storehouse Item (admin token)</h3>
+    <select id="itemKind">
+      <option value="store">store</option>
+      <option value="grocery">grocery</option>
+      <option value="book">book</option>
+    </select>
+    <input id="itemName" placeholder="Item name">
+    <input id="itemPrice" placeholder="Price">
+    <input id="itemInventory" placeholder="Inventory">
+    <input id="itemFormat" placeholder="Format (physical, pdf, hardcover, paperback)">
+    <input id="itemAuthor" placeholder="Author (books)">
+    <input id="itemCategory" placeholder="Category">
+    <textarea id="itemDescription" placeholder="Description"></textarea>
+    <button onclick="createStorehouseItem()">Create Item</button>
+    <pre id="createOut"></pre>
+  </div>
+
+  <div class="card">
+    <h3>Load Storehouse</h3>
+    <button onclick="loadStorehouse()">Load All Items</button>
+    <pre id="itemsOut"></pre>
+  </div>
+</main>
+
+<script src="/app.js"></script>
+<script>
+async function createStorehouseItem() {
+  const data = await request("http://127.0.0.1:5000/storehouse/items", {
+    method: "POST",
+    body: JSON.stringify({
+      kind: itemKind.value,
+      name: itemName.value,
+      price: Number(itemPrice.value),
+      inventory: Number(itemInventory.value || 0),
+      format: itemFormat.value,
+      author: itemAuthor.value,
+      category: itemCategory.value,
+      description: itemDescription.value
+    })
+  });
+  show("createOut", data);
+}
+
+async function loadStorehouse() {
+  const data = await request("http://127.0.0.1:5000/storehouse/items");
+  show("itemsOut", data);
+}
+</script>
+</body>
+</html>

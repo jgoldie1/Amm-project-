@@ -1,0 +1,50 @@
+=== VERIFY FULL SHOWCASE ===
+BASE=http://127.0.0.1:8080
+
+/full-app-showcase                 /heirs-app                         /holoverse-lobby-v2                /holo-commerce-home                /launch-ops-center-v2              /founder-command-center            
+--- LAST LOG ---
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/usr/bin/flask", line 6, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/data/data/com.termux/files/usr/lib/python3.13/site-packages/flask/cli.py", line 1131, in main
+    cli.main()
+    ~~~~~~~~^^
+  File "/data/data/com.termux/files/usr/lib/python3.13/site-packages/click/core.py", line 1406, in main
+    rv = self.invoke(ctx)
+  File "/data/data/com.termux/files/usr/lib/python3.13/site-packages/click/core.py", line 1873, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/data/data/com.termux/files/usr/lib/python3.13/site-packages/click/core.py", line 1269, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/usr/lib/python3.13/site-packages/click/core.py", line 824, in invoke
+    return callback(*args, **kwargs)
+  File "/data/data/com.termux/files/usr/lib/python3.13/site-packages/click/decorators.py", line 93, in new_func
+    return ctx.invoke(f, obj, *args, **kwargs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/usr/lib/python3.13/site-packages/click/core.py", line 824, in invoke
+    return callback(*args, **kwargs)
+  File "/data/data/com.termux/files/usr/lib/python3.13/site-packages/flask/cli.py", line 979, in run_command
+    raise e from None
+  File "/data/data/com.termux/files/usr/lib/python3.13/site-packages/flask/cli.py", line 963, in run_command
+    app: WSGIApplication = info.load_app()  # pyright: ignore
+                           ~~~~~~~~~~~~~^^
+  File "/data/data/com.termux/files/usr/lib/python3.13/site-packages/flask/cli.py", line 349, in load_app
+    app = locate_app(import_name, name)
+  File "/data/data/com.termux/files/usr/lib/python3.13/site-packages/flask/cli.py", line 245, in locate_app
+    __import__(module_name)
+    ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/home/marketplace/app.py", line 10123, in <module>
+    @app.route("/moderation-center")
+     ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/usr/lib/python3.13/site-packages/flask/sansio/scaffold.py", line 362, in decorator
+    self.add_url_rule(rule, endpoint, f, **options)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/usr/lib/python3.13/site-packages/flask/sansio/scaffold.py", line 47, in wrapper_func
+    return f(self, *args, **kwargs)
+  File "/data/data/com.termux/files/usr/lib/python3.13/site-packages/flask/sansio/app.py", line 657, in add_url_rule
+    raise AssertionError(
+    ...<2 lines>...
+    )
+AssertionError: View function mapping is overwriting an existing endpoint function: moderation_center

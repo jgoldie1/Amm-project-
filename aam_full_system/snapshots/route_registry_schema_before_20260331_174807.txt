@@ -1,0 +1,34 @@
+       cid: 0
+      name: id
+      type: INTEGER
+   notnull: 0
+dflt_value: 
+        pk: 1
+
+       cid: 1
+      name: route_path
+      type: TEXT
+   notnull: 1
+dflt_value: 
+        pk: 0
+
+       cid: 2
+      name: route_group
+      type: TEXT
+   notnull: 0
+dflt_value: 
+        pk: 0
+
+       cid: 3
+      name: route_status
+      type: TEXT
+   notnull: 0
+dflt_value: 'active'
+        pk: 0
+
+       cid: 4
+      name: created_at
+      type: TEXT
+   notnull: 0
+dflt_value: CURRENT_TIMESTAMP
+        pk: 0

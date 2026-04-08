@@ -1,0 +1,11 @@
+[
+  { "id": "bethlehem", "name": "Bethlehem", "realm": "metaverse", "recommendedLevel": 1 },
+  { "id": "nazareth", "name": "Nazareth", "realm": "metaverse", "recommendedLevel": 2 },
+  { "id": "galilee", "name": "Galilee", "realm": "metaverse", "recommendedLevel": 4 },
+  { "id": "sea_of_galilee", "name": "Sea of Galilee", "realm": "metaverse", "recommendedLevel": 6 },
+  { "id": "capernaum", "name": "Capernaum", "realm": "metaverse", "recommendedLevel": 8 },
+  { "id": "samaria", "name": "Samaria", "realm": "middleverse", "recommendedLevel": 10 },
+  { "id": "jericho", "name": "Jericho", "realm": "middleverse", "recommendedLevel": 12 },
+  { "id": "jerusalem", "name": "Jerusalem", "realm": "multiverse", "recommendedLevel": 15 },
+  { "id": "throne_corridor", "name": "Throne Corridor", "realm": "multiverse", "recommendedLevel": 20 }
+]

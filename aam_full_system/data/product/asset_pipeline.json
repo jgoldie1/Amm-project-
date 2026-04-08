@@ -1,0 +1,13 @@
+{
+  "pipeline": [
+    { "step": "ai_draft", "status": "enabled" },
+    { "step": "human_review", "status": "enabled" },
+    { "step": "publish_to_world", "status": "enabled" },
+    { "step": "sell_in_marketplace", "status": "enabled" }
+  ],
+  "family_rules": {
+    "minor_uploads_require_guardian_review": true,
+    "public_publish_requires_moderation": true,
+    "payouts_require_verified_account": true
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "boot_mode": "normal",
+  "last_boot": "2026-03-20 16:19:05.583184",
+  "loaded_modules": [
+    "boot_status.py",
+    "civic_system.py",
+    "continuity_system.py",
+    "device_system.py",
+    "final_stabilizer.py",
+    "front_shell.py",
+    "holo_commerce.py",
+    "holoverse.py",
+    "home_dashboard_polish.py",
+    "light_auth.py",
+    "live_checkout_shell.py",
+    "living_city.py",
+    "master_dashboard.py",
+    "payment_ui.py",
+    "performance_system.py",
+    "role_pages_polish.py",
+    "role_qa_admin.py",
+    "stripe_payload_wiring.py",
+    "ui_unification.py",
+    "visual_polish.py"
+  ],
+  "failed_modules": [
+    "FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given"
+  ],
+  "disabled_modules": []
+}

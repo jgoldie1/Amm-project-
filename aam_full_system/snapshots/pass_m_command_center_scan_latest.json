@@ -1,0 +1,14 @@
+[
+  {
+    "file": "command_center_20260401_210656.txt",
+    "problem": "route_missing"
+  },
+  {
+    "file": "finance_hub_20260401_210656.txt",
+    "problem": "route_missing"
+  },
+  {
+    "file": "streaming_hub_20260401_210656.txt",
+    "problem": "route_missing"
+  }
+]

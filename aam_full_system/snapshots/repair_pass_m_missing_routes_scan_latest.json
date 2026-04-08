@@ -1,0 +1,10 @@
+[
+  {
+    "file": "dashboard_health_repair_${STAMP}.txt",
+    "problem": "dashboard_health_unexpected"
+  },
+  {
+    "file": "jarvis_health_repair_${STAMP}.txt",
+    "problem": "jarvis_health_unexpected"
+  }
+]

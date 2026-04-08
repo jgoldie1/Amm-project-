@@ -1,0 +1,17 @@
+FINAL NAV REDESIGN + SCHEDULER REPORT
+Timestamp: 20260326_205051
+
+Added:
+- compact card helper
+- scheduler command page
+- scheduler execution route
+- scheduled_payout_execution_log
+
+Improved:
+- cleaner operator navigation
+- cleaner dashboard card structure
+- more intentional automation workflow
+
+Routes:
+- /scheduler-command
+- /scheduler/run/:id

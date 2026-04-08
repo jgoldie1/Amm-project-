@@ -1,0 +1,37 @@
+{
+  "mammals": [
+    {"name":"Lion","role":"brand_guardian","status":"active_build"},
+    {"name":"Wolf","role":"community_pack","status":"planned"},
+    {"name":"Bull","role":"market_growth","status":"planned"},
+    {"name":"Horse","role":"transport_mount","status":"planned"},
+    {"name":"Deer","role":"nature_zone","status":"planned"}
+  ],
+  "birds": [
+    {"name":"Eagle","role":"freedom_navigation","status":"planned"},
+    {"name":"Hawk","role":"scout_watch","status":"planned"},
+    {"name":"Owl","role":"wisdom_guide","status":"planned"}
+  ],
+  "insects": [
+    {"name":"Butterfly","role":"transformation_visual","status":"planned"},
+    {"name":"Bee","role":"ecosystem_productivity","status":"planned"},
+    {"name":"Firefly","role":"ambient_light","status":"planned"}
+  ],
+  "transport": [
+    {"name":"Creator Shuttle","type":"hover_transport","status":"planned"},
+    {"name":"Lion Gate Portal","type":"fast_travel","status":"planned"},
+    {"name":"Marketplace Cruiser","type":"city_transport","status":"planned"},
+    {"name":"Time Machine","type":"timeline_transport","status":"planned"}
+  ],
+  "housing": [
+    {"name":"Creator Pod","type":"starter_home","status":"planned"},
+    {"name":"Saturn Loft","type":"premium_home","status":"planned"},
+    {"name":"Marketplace Villa","type":"luxury_home","status":"planned"}
+  ],
+  "worlds": [
+    {"name":"Bethlehem","status":"playable_foundation"},
+    {"name":"Nazareth","status":"playable_foundation"},
+    {"name":"Galilee","status":"playable_foundation"},
+    {"name":"Creator Hall","status":"playable_foundation"},
+    {"name":"Cosmic Sky / Saturn","status":"visual_foundation"}
+  ]
+}

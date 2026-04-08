@@ -1,0 +1,8 @@
+{
+  "provider_type": "voice",
+  "voice_id": 1,
+  "character": "Star Creator",
+  "style": "charismatic, inspiring, human",
+  "project": "anyone_can_be_a_star_episode",
+  "status": "ready_for_manual_or_api_submission"
+}

@@ -1,0 +1,20 @@
+=== APP VERIFICATION 20260320_000717 ===
+
+--- PORT CHECK ---
+PORT 8080 NOT OPEN
+
+--- PAGE CHECKS ---
+/app-home                                    /control-tower                               /holoverse-center                            /flagship-showcase                           /brand-gallery                               /search-ui                                   /live-status-board                           /feature-radar                               /all-american-marketplace-university         /all-american-marketplace-wallet             /music-app                                   /streaming-app                               /vocal-coach-studio-recorder                 /aniyah-cross-border-payment                 /finbank-international                       /media-studio                                /flagship-ai-suite                           
+--- IMAGE CHECKS ---
+/static/img/stubbs_crest.svg                 /static/img/holographic_lion_saturn.svg      /static/img/american_flag_holo.svg           
+--- API CHECKS ---
+/api/university-courses                      /api/wallet-summary                          /api/music-tracks                            /api/stream-channels                         /api/vocal-sessions                          /api/cross-border-payments                   /api/module-registry-live                    /api/media-assets                            /api/ai-workflows                            /api/security-units                          /api/media-projects                          /api/trading-watchlist                       /api/upload-assets                           /api/finance-controls                        /api/workflow-actions                        /api/search?q=music                          
+--- SAMPLE DATA ---
+/api/search?q=music
+
+
+/api/wallet-summary
+
+
+--- LAST LOG LINES ---
+nohup: ignoring input

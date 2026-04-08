@@ -1,0 +1,13 @@
+WEB3D SCENE INTERACTION + STABILIZE REPORT
+Timestamp: 20260327_154207
+
+Added:
+- web3d_interaction_targets
+- clickable world interactions
+- interaction panel
+- route-linked world objects
+
+Purpose:
+- make the 3d scene interactive
+- connect world objects to platform systems
+- stabilize everything around usable world navigation

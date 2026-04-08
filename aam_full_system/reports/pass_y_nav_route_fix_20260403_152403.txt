@@ -1,0 +1,12 @@
+PASS Y NAV ROUTE FIX REPORT
+Timestamp: 20260403_152403
+
+Fixed:
+- navigation workflow hub GET route
+- navigation help POST route
+- kingdom help POST route
+- marketplace help POST route
+
+Purpose:
+- finish Pass X route attachment
+- preserve stable runtime

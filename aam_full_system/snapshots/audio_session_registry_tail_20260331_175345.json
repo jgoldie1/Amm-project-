@@ -1,0 +1,3 @@
+[{"id":3,"session_name":"Film Score Session","project_name":"Holostream Launch Film","session_type":"score_session","track_count":24,"session_status":"active","created_at":"2026-03-31 22:53:46"},
+{"id":2,"session_name":"Talent Show Mix Session","project_name":"Anyone Can Be A Star","session_type":"mix_session","track_count":18,"session_status":"active","created_at":"2026-03-31 22:53:46"},
+{"id":1,"session_name":"Pilot Vocal Session","project_name":"Jacobie Vision Pilot","session_type":"vocal_tracking","track_count":12,"session_status":"active","created_at":"2026-03-31 22:53:46"}]

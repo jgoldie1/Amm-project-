@@ -1,0 +1,40 @@
+[
+  {
+    "id": "district_mission_v2_001",
+    "district": "South Loop",
+    "title": "Clean and feed mission",
+    "summary": "Support cleanup, food support, and community uplift.",
+    "priority": "high",
+    "status": "active",
+    "reward_points": 150,
+    "lat": 41.8578,
+    "lng": -87.6243,
+    "pin_type": "mission",
+    "media": [
+      {
+        "type": "image",
+        "url": "/static/img/mission-default.jpg",
+        "label": "Mission visual"
+      }
+    ]
+  },
+  {
+    "id": "district_mission_v2_002",
+    "district": "Bronzeville",
+    "title": "Storehouse outreach mission",
+    "summary": "Coordinate grocery and bookstore outreach support.",
+    "priority": "medium",
+    "status": "active",
+    "reward_points": 220,
+    "lat": 41.8317,
+    "lng": -87.617,
+    "pin_type": "storehouse",
+    "media": [
+      {
+        "type": "image",
+        "url": "/static/img/storehouse-default.jpg",
+        "label": "Storehouse visual"
+      }
+    ]
+  }
+]

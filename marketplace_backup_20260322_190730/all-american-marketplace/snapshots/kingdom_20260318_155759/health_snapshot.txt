@@ -1,0 +1,35 @@
+SNAPSHOT TIME: Wed Mar 18 15:57:59 CDT 2026
+
+=== Service Status ===
+[DOWN] api-gateway (4000)
+
+[DOWN] auth-service (4100)
+
+[DOWN] booking-service (4200)
+
+[DOWN] payment-service (4300)
+
+[DOWN] dispatch-service (4400)
+
+[DOWN] rewards-service (4500)
+
+[DOWN] marketplace-service (4600)
+
+[DOWN] driver-service (4700)
+
+[DOWN] admin-service (4800)
+
+[DOWN] frontend-service (4900)
+
+[DOWN] storehouse-service (5000)
+
+[DOWN] finbank-service (5100)
+
+[DOWN] crossborder-service (5200)
+
+[DOWN] university-service (5300)
+
+[DOWN] creator-service (5400)
+
+
+Gateway:

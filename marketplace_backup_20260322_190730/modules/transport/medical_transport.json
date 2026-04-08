@@ -1,0 +1,9 @@
+{
+ "system":"medical_transport",
+ "features":[
+ "patient pickup",
+ "hospital routing",
+ "medical driver certification",
+ "transport scheduling"
+ ]
+}

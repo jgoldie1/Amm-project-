@@ -1,0 +1,2133 @@
+[2026-03-16 21:44:30.700559] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 21:44:30.953925] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 21:51:30.859484] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 21:54:34.456616] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 21:57:01.078766] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 21:59:13.890314] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 22:01:32.207796] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 22:02:43.662968] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 22:09:42.272945] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 22:09:42.538261] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 23:07:59.912340] NO register(app): app_bootstrap.py
+[2026-03-16 23:07:59.932463] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 23:08:00.104142] NO register(app): monitoring_system.py
+[2026-03-16 23:08:00.106379] NO register(app): payments_system.py
+[2026-03-16 23:08:00.122726] NO register(app): recovery_shell.py
+[2026-03-16 23:08:00.197619] NO register(app): app_bootstrap.py
+[2026-03-16 23:08:00.215226] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 23:08:00.393215] NO register(app): monitoring_system.py
+[2026-03-16 23:08:00.396112] NO register(app): payments_system.py
+[2026-03-16 23:08:00.415040] NO register(app): recovery_shell.py
+[2026-03-16 23:13:38.314149] NO register(app): app_bootstrap.py
+[2026-03-16 23:13:38.333597] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 23:13:38.526292] NO register(app): monitoring_system.py
+[2026-03-16 23:13:38.528535] NO register(app): payments_system.py
+[2026-03-16 23:13:38.551157] NO register(app): recovery_shell.py
+[2026-03-16 23:13:38.622706] NO register(app): app_bootstrap.py
+[2026-03-16 23:13:38.637851] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 23:13:38.788304] NO register(app): monitoring_system.py
+[2026-03-16 23:13:38.790676] NO register(app): payments_system.py
+[2026-03-16 23:13:38.806660] NO register(app): recovery_shell.py
+[2026-03-16 23:18:46.127522] NO register(app): app_bootstrap.py
+[2026-03-16 23:18:46.148448] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 23:18:46.356031] NO register(app): monitoring_system.py
+[2026-03-16 23:18:46.358809] NO register(app): payments_system.py
+[2026-03-16 23:18:46.378761] NO register(app): recovery_shell.py
+[2026-03-16 23:18:46.465154] NO register(app): app_bootstrap.py
+[2026-03-16 23:18:46.481058] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 23:18:46.637633] NO register(app): monitoring_system.py
+[2026-03-16 23:18:46.639598] NO register(app): payments_system.py
+[2026-03-16 23:18:46.655630] NO register(app): recovery_shell.py
+[2026-03-16 23:22:00.180199] NO register(app): app_bootstrap.py
+[2026-03-16 23:22:00.198093] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 23:22:00.370812] NO register(app): monitoring_system.py
+[2026-03-16 23:22:00.373253] NO register(app): payments_system.py
+[2026-03-16 23:22:00.387848] NO register(app): recovery_shell.py
+[2026-03-16 23:22:00.465599] NO register(app): app_bootstrap.py
+[2026-03-16 23:22:00.480799] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 23:22:00.637902] NO register(app): monitoring_system.py
+[2026-03-16 23:22:00.641854] NO register(app): payments_system.py
+[2026-03-16 23:22:00.654552] NO register(app): recovery_shell.py
+[2026-03-16 23:37:26.350719] NO register(app): app_bootstrap.py
+[2026-03-16 23:37:26.369383] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 23:37:26.559962] NO register(app): monitoring_system.py
+[2026-03-16 23:37:26.562430] NO register(app): payments_system.py
+[2026-03-16 23:37:26.582588] NO register(app): recovery_shell.py
+[2026-03-16 23:37:26.663784] NO register(app): app_bootstrap.py
+[2026-03-16 23:37:26.679127] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 23:37:26.834275] NO register(app): monitoring_system.py
+[2026-03-16 23:37:26.838874] NO register(app): payments_system.py
+[2026-03-16 23:37:26.852250] NO register(app): recovery_shell.py
+[2026-03-16 23:41:28.797139] NO register(app): app_bootstrap.py
+[2026-03-16 23:41:28.814616] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 23:41:28.973489] NO register(app): monitoring_system.py
+[2026-03-16 23:41:28.975990] NO register(app): payments_system.py
+[2026-03-16 23:41:28.991886] NO register(app): recovery_shell.py
+[2026-03-16 23:41:29.086365] NO register(app): app_bootstrap.py
+[2026-03-16 23:41:29.101764] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-16 23:41:29.257799] NO register(app): monitoring_system.py
+[2026-03-16 23:41:29.259972] NO register(app): payments_system.py
+[2026-03-16 23:41:29.272284] NO register(app): recovery_shell.py
+[2026-03-17 00:14:14.439914] NO register(app): app_bootstrap.py
+[2026-03-17 00:14:14.458938] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:14:14.639470] NO register(app): monitoring_system.py
+[2026-03-17 00:14:14.642078] NO register(app): payments_system.py
+[2026-03-17 00:14:14.736042] NO register(app): recovery_shell.py
+[2026-03-17 00:14:14.839362] NO register(app): app_bootstrap.py
+[2026-03-17 00:14:14.853667] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:14:15.008509] NO register(app): monitoring_system.py
+[2026-03-17 00:14:15.010622] NO register(app): payments_system.py
+[2026-03-17 00:14:15.039069] FAILED profile_db_integration.py: InvalidRequestError: Table 'user_preferences' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+[2026-03-17 00:14:15.040875] NO register(app): recovery_shell.py
+[2026-03-17 00:15:45.434298] NO register(app): app_bootstrap.py
+[2026-03-17 00:15:45.452935] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:15:45.630819] NO register(app): monitoring_system.py
+[2026-03-17 00:15:45.633052] NO register(app): payments_system.py
+[2026-03-17 00:15:45.716160] NO register(app): recovery_shell.py
+[2026-03-17 00:15:45.810394] NO register(app): app_bootstrap.py
+[2026-03-17 00:15:45.825021] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:15:45.978908] NO register(app): monitoring_system.py
+[2026-03-17 00:15:45.981115] NO register(app): payments_system.py
+[2026-03-17 00:15:46.008930] FAILED profile_db_integration.py: InvalidRequestError: Table 'user_preferences' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+[2026-03-17 00:15:46.010654] NO register(app): recovery_shell.py
+[2026-03-17 00:24:07.658458] NO register(app): app_bootstrap.py
+[2026-03-17 00:24:07.676045] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:24:07.864948] NO register(app): monitoring_system.py
+[2026-03-17 00:24:07.889110] NO register(app): payments_system.py
+[2026-03-17 00:24:07.988688] NO register(app): recovery_shell.py
+[2026-03-17 00:24:13.193762] NO register(app): app_bootstrap.py
+[2026-03-17 00:24:13.210330] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:24:13.365295] NO register(app): monitoring_system.py
+[2026-03-17 00:24:13.387980] NO register(app): payments_system.py
+[2026-03-17 00:24:13.470953] NO register(app): recovery_shell.py
+[2026-03-17 00:24:19.397825] NO register(app): app_bootstrap.py
+[2026-03-17 00:24:19.416362] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:24:19.574735] NO register(app): monitoring_system.py
+[2026-03-17 00:24:19.598281] NO register(app): payments_system.py
+[2026-03-17 00:24:19.685717] NO register(app): recovery_shell.py
+[2026-03-17 00:24:19.779635] NO register(app): app_bootstrap.py
+[2026-03-17 00:24:19.794879] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:24:19.955773] NO register(app): monitoring_system.py
+[2026-03-17 00:24:19.977585] NO register(app): payments_system.py
+[2026-03-17 00:24:20.007015] FAILED profile_db_integration.py: InvalidRequestError: Table 'user_preferences' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+[2026-03-17 00:24:20.009132] NO register(app): recovery_shell.py
+[2026-03-17 00:44:00.861959] NO register(app): app_bootstrap.py
+[2026-03-17 00:44:00.881783] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:44:01.104630] NO register(app): monitoring_system.py
+[2026-03-17 00:44:01.133488] NO register(app): payments_system.py
+[2026-03-17 00:44:01.231545] NO register(app): recovery_shell.py
+[2026-03-17 00:44:06.450333] NO register(app): app_bootstrap.py
+[2026-03-17 00:44:06.466913] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:44:06.623402] NO register(app): monitoring_system.py
+[2026-03-17 00:44:06.645927] NO register(app): payments_system.py
+[2026-03-17 00:44:06.730151] NO register(app): recovery_shell.py
+[2026-03-17 00:44:12.441649] NO register(app): app_bootstrap.py
+[2026-03-17 00:44:12.459706] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:44:12.614035] NO register(app): monitoring_system.py
+[2026-03-17 00:44:12.635868] NO register(app): payments_system.py
+[2026-03-17 00:44:12.731674] NO register(app): recovery_shell.py
+[2026-03-17 00:44:18.291096] NO register(app): app_bootstrap.py
+[2026-03-17 00:44:18.308595] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:44:18.461733] NO register(app): monitoring_system.py
+[2026-03-17 00:44:18.483250] NO register(app): payments_system.py
+[2026-03-17 00:44:18.570296] NO register(app): recovery_shell.py
+[2026-03-17 00:44:18.676778] NO register(app): app_bootstrap.py
+[2026-03-17 00:44:18.692191] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:44:18.865814] NO register(app): monitoring_system.py
+[2026-03-17 00:44:18.886402] NO register(app): payments_system.py
+[2026-03-17 00:44:18.917554] FAILED profile_db_integration.py: InvalidRequestError: Table 'user_preferences' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+[2026-03-17 00:44:18.919183] NO register(app): recovery_shell.py
+[2026-03-17 00:47:50.429179] NO register(app): app_bootstrap.py
+[2026-03-17 00:47:50.447102] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:47:50.632217] NO register(app): monitoring_system.py
+[2026-03-17 00:47:50.653459] NO register(app): payments_system.py
+[2026-03-17 00:47:50.675390] FAILED profile_db_integration.py: InvalidRequestError: Table 'user_preferences' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+[2026-03-17 00:47:50.679217] NO register(app): recovery_shell.py
+[2026-03-17 00:47:57.115092] NO register(app): app_bootstrap.py
+[2026-03-17 00:47:57.132566] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:47:57.287619] NO register(app): monitoring_system.py
+[2026-03-17 00:47:57.308843] NO register(app): payments_system.py
+[2026-03-17 00:47:57.390220] NO register(app): recovery_shell.py
+[2026-03-17 00:47:57.483863] NO register(app): app_bootstrap.py
+[2026-03-17 00:47:57.498325] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:47:57.672812] NO register(app): monitoring_system.py
+[2026-03-17 00:47:57.694611] NO register(app): payments_system.py
+[2026-03-17 00:47:57.724238] FAILED profile_db_integration.py: InvalidRequestError: Table 'user_preferences' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+[2026-03-17 00:47:57.726412] NO register(app): recovery_shell.py
+[2026-03-17 00:51:41.840028] NO register(app): app_bootstrap.py
+[2026-03-17 00:51:41.860099] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:51:42.048968] NO register(app): monitoring_system.py
+[2026-03-17 00:51:42.073624] NO register(app): payments_system.py
+[2026-03-17 00:51:42.193670] FAILED profile_db_safe.py: OperationalError: (sqlite3.OperationalError) unable to open database file
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2026-03-17 00:51:42.197642] NO register(app): recovery_shell.py
+[2026-03-17 00:51:42.333788] NO register(app): app_bootstrap.py
+[2026-03-17 00:51:42.351556] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:51:42.529256] NO register(app): monitoring_system.py
+[2026-03-17 00:51:42.549815] NO register(app): payments_system.py
+[2026-03-17 00:51:42.578654] FAILED profile_db_integration.py: InvalidRequestError: Table 'user_preferences' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+[2026-03-17 00:51:42.583767] FAILED profile_db_safe.py: InvalidRequestError: Table 'safe_user_preferences' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+[2026-03-17 00:51:42.585799] NO register(app): recovery_shell.py
+[2026-03-17 00:54:52.550720] NO register(app): app_bootstrap.py
+[2026-03-17 00:54:52.571422] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:54:52.750590] NO register(app): monitoring_system.py
+[2026-03-17 00:54:52.771917] NO register(app): payments_system.py
+[2026-03-17 00:54:52.790406] FAILED profile_db_safe.py: InvalidRequestError: Table 'safe_user_preferences' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+[2026-03-17 00:54:52.794800] NO register(app): recovery_shell.py
+[2026-03-17 00:54:52.901661] NO register(app): app_bootstrap.py
+[2026-03-17 00:54:52.916529] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 00:54:53.072069] NO register(app): monitoring_system.py
+[2026-03-17 00:54:53.095500] NO register(app): payments_system.py
+[2026-03-17 00:54:53.114868] FAILED profile_db_safe.py: InvalidRequestError: Table 'safe_user_preferences' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+[2026-03-17 00:54:53.116541] NO register(app): recovery_shell.py
+[2026-03-17 01:31:28.881893] NO register(app): app_bootstrap.py
+[2026-03-17 01:31:28.902777] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 01:31:29.099650] NO register(app): monitoring_system.py
+[2026-03-17 01:31:29.122740] NO register(app): payments_system.py
+[2026-03-17 01:31:29.142048] FAILED profile_db_safe.py: InvalidRequestError: Table 'safe_user_preferences' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+[2026-03-17 01:31:29.146893] NO register(app): recovery_shell.py
+[2026-03-17 01:31:29.259587] NO register(app): app_bootstrap.py
+[2026-03-17 01:31:29.274537] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 01:31:29.447594] NO register(app): monitoring_system.py
+[2026-03-17 01:31:29.471065] NO register(app): payments_system.py
+[2026-03-17 01:31:29.494255] FAILED profile_db_safe.py: InvalidRequestError: Table 'safe_user_preferences' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+[2026-03-17 01:31:29.496591] NO register(app): recovery_shell.py
+[2026-03-17 01:48:18.136597] NO register(app): app_bootstrap.py
+[2026-03-17 01:48:18.164345] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 01:48:18.426634] NO register(app): monitoring_system.py
+[2026-03-17 01:48:18.452959] NO register(app): payments_system.py
+[2026-03-17 01:48:18.477721] FAILED profile_db_safe.py: InvalidRequestError: Table 'safe_user_preferences' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+[2026-03-17 01:48:18.482062] NO register(app): recovery_shell.py
+[2026-03-17 01:48:18.624257] NO register(app): app_bootstrap.py
+[2026-03-17 01:48:18.645399] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 01:48:18.887749] NO register(app): monitoring_system.py
+[2026-03-17 01:48:18.911907] NO register(app): payments_system.py
+[2026-03-17 01:48:18.934740] FAILED profile_db_safe.py: InvalidRequestError: Table 'safe_user_preferences' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+[2026-03-17 01:48:18.937266] NO register(app): recovery_shell.py
+[2026-03-17 01:50:46.586031] NO register(app): app_bootstrap.py
+[2026-03-17 01:50:46.611628] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 01:50:46.820004] NO register(app): monitoring_system.py
+[2026-03-17 01:50:46.839278] NO register(app): payments_system.py
+[2026-03-17 01:50:46.855725] FAILED profile_db_safe.py: InvalidRequestError: Table 'safe_user_preferences' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+[2026-03-17 01:50:46.857974] NO register(app): recovery_shell.py
+[2026-03-17 01:50:46.968082] NO register(app): app_bootstrap.py
+[2026-03-17 01:50:46.982793] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 01:50:47.152633] NO register(app): monitoring_system.py
+[2026-03-17 01:50:47.172117] NO register(app): payments_system.py
+[2026-03-17 01:50:47.188146] FAILED profile_db_safe.py: InvalidRequestError: Table 'safe_user_preferences' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+[2026-03-17 01:50:47.190236] NO register(app): recovery_shell.py
+[2026-03-17 01:56:08.642764] NO register(app): app_bootstrap.py
+[2026-03-17 01:56:08.662443] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 01:56:08.891194] NO register(app): monitoring_system.py
+[2026-03-17 01:56:08.915375] NO register(app): payments_system.py
+[2026-03-17 01:56:08.933616] NO register(app): recovery_shell.py
+[2026-03-17 01:56:09.060847] NO register(app): app_bootstrap.py
+[2026-03-17 01:56:09.076622] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 01:56:09.271350] NO register(app): monitoring_system.py
+[2026-03-17 01:56:09.294435] NO register(app): payments_system.py
+[2026-03-17 01:56:09.310258] NO register(app): recovery_shell.py
+[2026-03-17 01:57:09.375604] NO register(app): app_bootstrap.py
+[2026-03-17 01:57:09.403622] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 01:57:09.787231] NO register(app): monitoring_system.py
+[2026-03-17 01:57:09.829280] NO register(app): payments_system.py
+[2026-03-17 01:57:09.881364] NO register(app): recovery_shell.py
+[2026-03-17 01:57:10.154128] NO register(app): app_bootstrap.py
+[2026-03-17 01:57:10.174952] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 01:57:10.459384] NO register(app): monitoring_system.py
+[2026-03-17 01:57:10.490960] NO register(app): payments_system.py
+[2026-03-17 01:57:10.509880] NO register(app): recovery_shell.py
+[2026-03-17 02:12:42.068162] NO register(app): app_bootstrap.py
+[2026-03-17 02:12:42.089908] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 02:12:42.300697] NO register(app): monitoring_system.py
+[2026-03-17 02:12:42.319646] NO register(app): payments_system.py
+[2026-03-17 02:12:42.337823] NO register(app): recovery_shell.py
+[2026-03-17 02:12:42.470091] NO register(app): app_bootstrap.py
+[2026-03-17 02:12:42.485671] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 02:12:42.661292] NO register(app): monitoring_system.py
+[2026-03-17 02:12:42.681622] NO register(app): payments_system.py
+[2026-03-17 02:12:42.694956] NO register(app): recovery_shell.py
+[2026-03-17 02:54:05.634453] NO register(app): app_bootstrap.py
+[2026-03-17 02:54:05.657442] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 02:54:05.913326] NO register(app): monitoring_system.py
+[2026-03-17 02:54:05.943069] NO register(app): payments_system.py
+[2026-03-17 02:54:05.964332] NO register(app): recovery_shell.py
+[2026-03-17 02:58:52.543605] NO register(app): app_bootstrap.py
+[2026-03-17 02:58:52.563810] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 02:58:52.773287] NO register(app): monitoring_system.py
+[2026-03-17 02:58:52.796656] NO register(app): payments_system.py
+[2026-03-17 02:58:52.816482] NO register(app): recovery_shell.py
+[2026-03-17 10:26:14.016202] NO register(app): app_bootstrap.py
+[2026-03-17 10:26:14.036755] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 10:26:14.261394] NO register(app): monitoring_system.py
+[2026-03-17 10:26:14.286721] NO register(app): payments_system.py
+[2026-03-17 10:26:14.304689] NO register(app): recovery_shell.py
+[2026-03-17 10:26:22.114632] NO register(app): app_bootstrap.py
+[2026-03-17 10:26:22.133556] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 10:26:22.330246] NO register(app): monitoring_system.py
+[2026-03-17 10:26:22.353855] NO register(app): payments_system.py
+[2026-03-17 10:26:22.368924] NO register(app): recovery_shell.py
+[2026-03-17 10:26:22.513772] NO register(app): app_bootstrap.py
+[2026-03-17 10:26:22.530613] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 10:26:22.736786] NO register(app): monitoring_system.py
+[2026-03-17 10:26:22.761169] NO register(app): payments_system.py
+[2026-03-17 10:26:22.777126] NO register(app): recovery_shell.py
+[2026-03-17 10:27:29.668817] NO register(app): app_bootstrap.py
+[2026-03-17 10:27:29.691208] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 10:27:29.900417] NO register(app): monitoring_system.py
+[2026-03-17 10:27:29.926469] NO register(app): payments_system.py
+[2026-03-17 10:27:29.941802] NO register(app): recovery_shell.py
+[2026-03-17 10:27:37.198005] NO register(app): app_bootstrap.py
+[2026-03-17 10:27:37.215382] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 10:27:37.391629] NO register(app): monitoring_system.py
+[2026-03-17 10:27:37.411639] NO register(app): payments_system.py
+[2026-03-17 10:27:37.424937] NO register(app): recovery_shell.py
+[2026-03-17 10:27:37.548398] NO register(app): app_bootstrap.py
+[2026-03-17 10:27:37.562981] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 10:27:37.736852] NO register(app): monitoring_system.py
+[2026-03-17 10:27:37.758267] NO register(app): payments_system.py
+[2026-03-17 10:27:37.771160] NO register(app): recovery_shell.py
+[2026-03-17 11:28:18.159752] NO register(app): app_bootstrap.py
+[2026-03-17 11:28:18.178724] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 11:28:18.390264] NO register(app): monitoring_system.py
+[2026-03-17 11:28:18.413213] NO register(app): payments_system.py
+[2026-03-17 11:28:18.430827] NO register(app): recovery_shell.py
+[2026-03-17 11:28:18.573768] NO register(app): app_bootstrap.py
+[2026-03-17 11:28:18.589151] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 11:28:18.767804] NO register(app): monitoring_system.py
+[2026-03-17 11:28:18.788223] NO register(app): payments_system.py
+[2026-03-17 11:28:18.802121] NO register(app): recovery_shell.py
+[2026-03-17 11:34:53.138218] NO register(app): app_bootstrap.py
+[2026-03-17 11:34:53.156540] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 11:34:53.361465] NO register(app): monitoring_system.py
+[2026-03-17 11:34:53.384017] NO register(app): payments_system.py
+[2026-03-17 11:34:53.402229] NO register(app): recovery_shell.py
+[2026-03-17 11:34:53.548292] NO register(app): app_bootstrap.py
+[2026-03-17 11:34:53.563174] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 11:34:53.730352] NO register(app): monitoring_system.py
+[2026-03-17 11:34:53.749821] NO register(app): payments_system.py
+[2026-03-17 11:34:53.764058] NO register(app): recovery_shell.py
+[2026-03-17 11:51:00.850523] NO register(app): app_bootstrap.py
+[2026-03-17 11:51:00.868523] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 11:51:01.074221] NO register(app): monitoring_system.py
+[2026-03-17 11:51:01.095966] NO register(app): payments_system.py
+[2026-03-17 11:51:01.113793] NO register(app): recovery_shell.py
+[2026-03-17 11:51:01.260313] NO register(app): app_bootstrap.py
+[2026-03-17 11:51:01.275992] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 11:51:01.469219] NO register(app): monitoring_system.py
+[2026-03-17 11:51:01.489904] NO register(app): payments_system.py
+[2026-03-17 11:51:01.502688] NO register(app): recovery_shell.py
+[2026-03-17 11:53:31.053567] NO register(app): app_bootstrap.py
+[2026-03-17 11:53:31.073450] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 11:53:31.283195] NO register(app): monitoring_system.py
+[2026-03-17 11:53:31.305273] NO register(app): payments_system.py
+[2026-03-17 11:53:31.321789] NO register(app): recovery_shell.py
+[2026-03-17 11:53:31.457967] NO register(app): app_bootstrap.py
+[2026-03-17 11:53:31.473199] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 11:53:31.644678] NO register(app): monitoring_system.py
+[2026-03-17 11:53:31.665669] NO register(app): payments_system.py
+[2026-03-17 11:53:31.678909] NO register(app): recovery_shell.py
+[2026-03-17 11:55:12.737695] NO register(app): app_bootstrap.py
+[2026-03-17 11:55:12.756543] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 11:55:12.959040] NO register(app): monitoring_system.py
+[2026-03-17 11:55:12.980718] NO register(app): payments_system.py
+[2026-03-17 11:55:12.997793] NO register(app): recovery_shell.py
+[2026-03-17 11:55:13.135271] NO register(app): app_bootstrap.py
+[2026-03-17 11:55:13.149658] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 11:55:13.320666] NO register(app): monitoring_system.py
+[2026-03-17 11:55:13.340322] NO register(app): payments_system.py
+[2026-03-17 11:55:13.353253] NO register(app): recovery_shell.py
+[2026-03-17 11:56:33.016036] NO register(app): app_bootstrap.py
+[2026-03-17 11:56:33.033501] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 11:56:33.208548] NO register(app): monitoring_system.py
+[2026-03-17 11:56:33.232590] NO register(app): payments_system.py
+[2026-03-17 11:56:33.245442] NO register(app): recovery_shell.py
+[2026-03-17 11:56:33.368733] NO register(app): app_bootstrap.py
+[2026-03-17 11:56:33.383249] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 11:56:33.555886] NO register(app): monitoring_system.py
+[2026-03-17 11:56:33.576245] NO register(app): payments_system.py
+[2026-03-17 11:56:33.588967] NO register(app): recovery_shell.py
+[2026-03-17 11:59:55.590195] NO register(app): app_bootstrap.py
+[2026-03-17 11:59:55.608722] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 11:59:55.816850] NO register(app): monitoring_system.py
+[2026-03-17 11:59:55.839051] NO register(app): payments_system.py
+[2026-03-17 11:59:55.856301] NO register(app): recovery_shell.py
+[2026-03-17 11:59:55.989398] NO register(app): app_bootstrap.py
+[2026-03-17 11:59:56.005033] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 11:59:56.182481] NO register(app): monitoring_system.py
+[2026-03-17 11:59:56.203983] NO register(app): payments_system.py
+[2026-03-17 11:59:56.218414] NO register(app): recovery_shell.py
+[2026-03-17 12:19:41.320846] NO register(app): app_bootstrap.py
+[2026-03-17 12:19:41.339499] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:19:41.546705] NO register(app): monitoring_system.py
+[2026-03-17 12:19:41.569240] NO register(app): payments_system.py
+[2026-03-17 12:19:41.585799] NO register(app): recovery_shell.py
+[2026-03-17 12:19:41.723486] NO register(app): app_bootstrap.py
+[2026-03-17 12:19:41.738482] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:19:41.908959] NO register(app): monitoring_system.py
+[2026-03-17 12:19:41.929514] NO register(app): payments_system.py
+[2026-03-17 12:19:41.942740] NO register(app): recovery_shell.py
+[2026-03-17 12:20:26.514223] NO register(app): app_bootstrap.py
+[2026-03-17 12:20:26.534095] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:20:26.737933] NO register(app): monitoring_system.py
+[2026-03-17 12:20:26.764213] NO register(app): payments_system.py
+[2026-03-17 12:20:26.780587] NO register(app): recovery_shell.py
+[2026-03-17 12:20:26.941357] NO register(app): app_bootstrap.py
+[2026-03-17 12:20:26.957240] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:20:27.155797] NO register(app): monitoring_system.py
+[2026-03-17 12:20:27.182179] NO register(app): payments_system.py
+[2026-03-17 12:20:27.199180] NO register(app): recovery_shell.py
+[2026-03-17 12:24:07.250834] NO register(app): app_bootstrap.py
+[2026-03-17 12:24:07.269824] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:24:07.487095] NO register(app): monitoring_system.py
+[2026-03-17 12:24:07.512592] NO register(app): payments_system.py
+[2026-03-17 12:24:07.532400] NO register(app): recovery_shell.py
+[2026-03-17 12:24:07.699077] NO register(app): app_bootstrap.py
+[2026-03-17 12:24:07.715693] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:24:07.892618] NO register(app): monitoring_system.py
+[2026-03-17 12:24:07.912052] NO register(app): payments_system.py
+[2026-03-17 12:24:07.925303] NO register(app): recovery_shell.py
+[2026-03-17 12:31:43.855829] NO register(app): app_bootstrap.py
+[2026-03-17 12:31:43.874644] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:31:44.075727] NO register(app): monitoring_system.py
+[2026-03-17 12:31:44.097583] NO register(app): payments_system.py
+[2026-03-17 12:31:44.114677] NO register(app): recovery_shell.py
+[2026-03-17 12:31:44.248600] NO register(app): app_bootstrap.py
+[2026-03-17 12:31:44.263139] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:31:44.430462] NO register(app): monitoring_system.py
+[2026-03-17 12:31:44.449651] NO register(app): payments_system.py
+[2026-03-17 12:31:44.462404] NO register(app): recovery_shell.py
+[2026-03-17 12:34:16.137821] NO register(app): app_bootstrap.py
+[2026-03-17 12:34:16.164790] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:34:16.353017] NO register(app): monitoring_system.py
+[2026-03-17 12:34:16.373153] NO register(app): payments_system.py
+[2026-03-17 12:34:16.385668] NO register(app): recovery_shell.py
+[2026-03-17 12:34:16.507806] NO register(app): app_bootstrap.py
+[2026-03-17 12:34:16.522084] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:34:16.692468] NO register(app): monitoring_system.py
+[2026-03-17 12:34:16.712865] NO register(app): payments_system.py
+[2026-03-17 12:34:16.726556] NO register(app): recovery_shell.py
+[2026-03-17 12:37:00.280323] NO register(app): app_bootstrap.py
+[2026-03-17 12:37:00.299954] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:37:00.510406] NO register(app): monitoring_system.py
+[2026-03-17 12:37:00.532247] NO register(app): payments_system.py
+[2026-03-17 12:37:00.549912] NO register(app): recovery_shell.py
+[2026-03-17 12:37:00.689693] NO register(app): app_bootstrap.py
+[2026-03-17 12:37:00.704605] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:37:00.877444] NO register(app): monitoring_system.py
+[2026-03-17 12:37:00.897779] NO register(app): payments_system.py
+[2026-03-17 12:37:00.910958] NO register(app): recovery_shell.py
+[2026-03-17 12:40:09.273776] NO register(app): app_bootstrap.py
+[2026-03-17 12:40:09.292959] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:40:09.501453] NO register(app): monitoring_system.py
+[2026-03-17 12:40:09.523735] NO register(app): payments_system.py
+[2026-03-17 12:40:09.540864] NO register(app): recovery_shell.py
+[2026-03-17 12:40:09.674440] NO register(app): app_bootstrap.py
+[2026-03-17 12:40:09.689239] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:40:09.856520] NO register(app): monitoring_system.py
+[2026-03-17 12:40:09.876137] NO register(app): payments_system.py
+[2026-03-17 12:40:09.889219] NO register(app): recovery_shell.py
+[2026-03-17 12:42:42.472262] NO register(app): app_bootstrap.py
+[2026-03-17 12:42:42.490785] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:42:42.670063] NO register(app): monitoring_system.py
+[2026-03-17 12:42:42.689414] NO register(app): payments_system.py
+[2026-03-17 12:42:42.702342] NO register(app): recovery_shell.py
+[2026-03-17 12:42:42.822259] NO register(app): app_bootstrap.py
+[2026-03-17 12:42:42.836787] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:42:43.004835] NO register(app): monitoring_system.py
+[2026-03-17 12:42:43.025464] NO register(app): payments_system.py
+[2026-03-17 12:42:43.038672] NO register(app): recovery_shell.py
+[2026-03-17 12:45:49.941644] NO register(app): app_bootstrap.py
+[2026-03-17 12:45:49.959041] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:45:50.138794] NO register(app): monitoring_system.py
+[2026-03-17 12:45:50.157822] NO register(app): payments_system.py
+[2026-03-17 12:45:50.170547] NO register(app): recovery_shell.py
+[2026-03-17 12:45:50.292649] NO register(app): app_bootstrap.py
+[2026-03-17 12:45:50.307077] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:45:50.478241] NO register(app): monitoring_system.py
+[2026-03-17 12:45:50.498535] NO register(app): payments_system.py
+[2026-03-17 12:45:50.510744] NO register(app): recovery_shell.py
+[2026-03-17 12:52:43.879209] NO register(app): app_bootstrap.py
+[2026-03-17 12:52:43.899513] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:52:44.105085] NO register(app): monitoring_system.py
+[2026-03-17 12:52:44.127293] NO register(app): payments_system.py
+[2026-03-17 12:52:44.145269] NO register(app): recovery_shell.py
+[2026-03-17 12:52:44.280359] NO register(app): app_bootstrap.py
+[2026-03-17 12:52:44.294808] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 12:52:44.464683] NO register(app): monitoring_system.py
+[2026-03-17 12:52:44.485159] NO register(app): payments_system.py
+[2026-03-17 12:52:44.499498] NO register(app): recovery_shell.py
+[2026-03-17 14:02:33.292523] NO register(app): app_bootstrap.py
+[2026-03-17 14:02:33.312273] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 14:02:33.543062] NO register(app): monitoring_system.py
+[2026-03-17 14:02:33.572622] NO register(app): payments_system.py
+[2026-03-17 14:02:33.592146] NO register(app): recovery_shell.py
+[2026-03-17 14:02:33.738030] NO register(app): app_bootstrap.py
+[2026-03-17 14:02:33.753089] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 14:02:33.940670] NO register(app): monitoring_system.py
+[2026-03-17 14:02:33.961746] NO register(app): payments_system.py
+[2026-03-17 14:02:33.975954] NO register(app): recovery_shell.py
+[2026-03-17 14:12:56.623229] NO register(app): app_bootstrap.py
+[2026-03-17 14:12:56.642563] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 14:12:56.869509] NO register(app): monitoring_system.py
+[2026-03-17 14:12:56.894636] NO register(app): payments_system.py
+[2026-03-17 14:12:56.913539] NO register(app): recovery_shell.py
+[2026-03-17 14:12:57.066236] NO register(app): app_bootstrap.py
+[2026-03-17 14:12:57.081778] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 14:12:57.266152] NO register(app): monitoring_system.py
+[2026-03-17 14:12:57.286979] NO register(app): payments_system.py
+[2026-03-17 14:12:57.300577] NO register(app): recovery_shell.py
+[2026-03-17 14:15:16.526944] NO register(app): app_bootstrap.py
+[2026-03-17 14:15:16.545125] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 14:15:16.747178] NO register(app): monitoring_system.py
+[2026-03-17 14:15:16.768744] NO register(app): payments_system.py
+[2026-03-17 14:15:16.785917] NO register(app): recovery_shell.py
+[2026-03-17 14:15:16.923746] NO register(app): app_bootstrap.py
+[2026-03-17 14:15:16.937738] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 14:15:17.104296] NO register(app): monitoring_system.py
+[2026-03-17 14:15:17.124114] NO register(app): payments_system.py
+[2026-03-17 14:15:17.136750] NO register(app): recovery_shell.py
+[2026-03-17 14:25:13.135997] NO register(app): app_bootstrap.py
+[2026-03-17 14:25:13.157319] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 14:25:13.397839] NO register(app): monitoring_system.py
+[2026-03-17 14:25:13.426562] NO register(app): payments_system.py
+[2026-03-17 14:25:13.447037] NO register(app): recovery_shell.py
+[2026-03-17 14:25:13.603301] NO register(app): app_bootstrap.py
+[2026-03-17 14:25:13.621607] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 14:25:13.816421] NO register(app): monitoring_system.py
+[2026-03-17 14:25:13.836311] NO register(app): payments_system.py
+[2026-03-17 14:25:13.849643] NO register(app): recovery_shell.py
+[2026-03-17 14:38:11.549703] NO register(app): app_bootstrap.py
+[2026-03-17 14:38:11.569152] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 14:38:11.778153] NO register(app): monitoring_system.py
+[2026-03-17 14:38:11.800724] NO register(app): payments_system.py
+[2026-03-17 14:38:11.817665] NO register(app): recovery_shell.py
+[2026-03-17 14:38:11.959162] NO register(app): app_bootstrap.py
+[2026-03-17 14:38:11.974266] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 14:38:12.152590] NO register(app): monitoring_system.py
+[2026-03-17 14:38:12.173294] NO register(app): payments_system.py
+[2026-03-17 14:38:12.186704] NO register(app): recovery_shell.py
+[2026-03-17 14:47:10.982073] NO register(app): app_bootstrap.py
+[2026-03-17 14:47:11.004725] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 14:47:11.269577] NO register(app): monitoring_system.py
+[2026-03-17 14:47:11.298174] NO register(app): payments_system.py
+[2026-03-17 14:47:11.319006] NO register(app): recovery_shell.py
+[2026-03-17 14:47:11.491134] NO register(app): app_bootstrap.py
+[2026-03-17 14:47:11.510254] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 14:47:11.718142] NO register(app): monitoring_system.py
+[2026-03-17 14:47:11.738643] NO register(app): payments_system.py
+[2026-03-17 14:47:11.752006] NO register(app): recovery_shell.py
+[2026-03-17 14:53:53.527779] NO register(app): app_bootstrap.py
+[2026-03-17 14:53:53.547605] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 14:53:53.761042] NO register(app): monitoring_system.py
+[2026-03-17 14:53:53.785039] NO register(app): payments_system.py
+[2026-03-17 14:53:53.803391] NO register(app): recovery_shell.py
+[2026-03-17 14:53:53.941814] NO register(app): app_bootstrap.py
+[2026-03-17 14:53:53.957025] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 14:53:54.128312] NO register(app): monitoring_system.py
+[2026-03-17 14:53:54.148335] NO register(app): payments_system.py
+[2026-03-17 14:53:54.161636] NO register(app): recovery_shell.py
+[2026-03-17 15:30:11.509915] NO register(app): app_bootstrap.py
+[2026-03-17 15:30:11.529003] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 15:30:11.729307] NO register(app): monitoring_system.py
+[2026-03-17 15:30:11.753549] NO register(app): payments_system.py
+[2026-03-17 15:30:11.770746] NO register(app): recovery_shell.py
+[2026-03-17 15:30:11.901215] NO register(app): app_bootstrap.py
+[2026-03-17 15:30:11.915793] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 15:30:12.090072] NO register(app): monitoring_system.py
+[2026-03-17 15:30:12.110938] NO register(app): payments_system.py
+[2026-03-17 15:30:12.123966] NO register(app): recovery_shell.py
+[2026-03-17 16:05:53.372606] NO register(app): app_bootstrap.py
+[2026-03-17 16:05:53.391652] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 16:05:53.594459] NO register(app): monitoring_system.py
+[2026-03-17 16:05:53.617714] NO register(app): payments_system.py
+[2026-03-17 16:05:53.636172] NO register(app): recovery_shell.py
+[2026-03-17 16:05:53.769274] NO register(app): app_bootstrap.py
+[2026-03-17 16:05:53.784007] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 16:05:53.959920] NO register(app): monitoring_system.py
+[2026-03-17 16:05:53.979458] NO register(app): payments_system.py
+[2026-03-17 16:05:53.991866] NO register(app): recovery_shell.py
+[2026-03-17 16:12:20.063404] NO register(app): app_bootstrap.py
+[2026-03-17 16:12:20.085501] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 16:12:20.320035] NO register(app): monitoring_system.py
+[2026-03-17 16:12:20.344739] NO register(app): payments_system.py
+[2026-03-17 16:12:20.365671] NO register(app): recovery_shell.py
+[2026-03-17 16:12:20.522238] NO register(app): app_bootstrap.py
+[2026-03-17 16:12:20.538334] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 16:12:20.731915] NO register(app): monitoring_system.py
+[2026-03-17 16:12:20.754932] NO register(app): payments_system.py
+[2026-03-17 16:12:20.769151] NO register(app): recovery_shell.py
+[2026-03-17 16:22:31.777766] NO register(app): app_bootstrap.py
+[2026-03-17 16:22:31.797042] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 16:22:31.999591] NO register(app): monitoring_system.py
+[2026-03-17 16:22:32.024858] NO register(app): payments_system.py
+[2026-03-17 16:22:32.045551] NO register(app): recovery_shell.py
+[2026-03-17 16:22:32.189430] NO register(app): app_bootstrap.py
+[2026-03-17 16:22:32.204762] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 16:22:32.373688] NO register(app): monitoring_system.py
+[2026-03-17 16:22:32.393928] NO register(app): payments_system.py
+[2026-03-17 16:22:32.406300] NO register(app): recovery_shell.py
+[2026-03-17 16:26:38.406618] NO register(app): app_bootstrap.py
+[2026-03-17 16:26:38.425177] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 16:26:38.626755] NO register(app): monitoring_system.py
+[2026-03-17 16:26:38.648575] NO register(app): payments_system.py
+[2026-03-17 16:26:38.665461] NO register(app): recovery_shell.py
+[2026-03-17 16:26:38.801131] NO register(app): app_bootstrap.py
+[2026-03-17 16:26:38.815549] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 16:26:38.987781] NO register(app): monitoring_system.py
+[2026-03-17 16:26:39.007225] NO register(app): payments_system.py
+[2026-03-17 16:26:39.020593] NO register(app): recovery_shell.py
+[2026-03-17 16:31:26.822590] NO register(app): app_bootstrap.py
+[2026-03-17 16:31:26.841497] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 16:31:27.032918] NO register(app): monitoring_system.py
+[2026-03-17 16:31:27.053852] NO register(app): payments_system.py
+[2026-03-17 16:31:27.070184] NO register(app): recovery_shell.py
+[2026-03-17 16:31:27.200403] NO register(app): app_bootstrap.py
+[2026-03-17 16:31:27.214927] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 16:31:27.388176] NO register(app): monitoring_system.py
+[2026-03-17 16:31:27.408366] NO register(app): payments_system.py
+[2026-03-17 16:31:27.421248] NO register(app): recovery_shell.py
+[2026-03-17 16:36:44.778094] NO register(app): app_bootstrap.py
+[2026-03-17 16:36:44.797398] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 16:36:45.000287] NO register(app): monitoring_system.py
+[2026-03-17 16:36:45.022915] NO register(app): payments_system.py
+[2026-03-17 16:36:45.040818] NO register(app): recovery_shell.py
+[2026-03-17 16:36:45.185004] NO register(app): app_bootstrap.py
+[2026-03-17 16:36:45.201063] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 16:36:45.375815] NO register(app): monitoring_system.py
+[2026-03-17 16:36:45.395410] NO register(app): payments_system.py
+[2026-03-17 16:36:45.408198] NO register(app): recovery_shell.py
+[2026-03-17 16:41:27.370614] NO register(app): app_bootstrap.py
+[2026-03-17 16:41:27.390324] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 16:41:27.598898] NO register(app): monitoring_system.py
+[2026-03-17 16:41:27.621337] NO register(app): payments_system.py
+[2026-03-17 16:41:27.639654] NO register(app): recovery_shell.py
+[2026-03-17 16:41:27.774773] NO register(app): app_bootstrap.py
+[2026-03-17 16:41:27.789701] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 16:41:27.970156] NO register(app): monitoring_system.py
+[2026-03-17 16:41:27.990816] NO register(app): payments_system.py
+[2026-03-17 16:41:28.004346] NO register(app): recovery_shell.py
+[2026-03-17 17:08:42.608840] NO register(app): app_bootstrap.py
+[2026-03-17 17:08:42.628995] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 17:08:42.850149] NO register(app): monitoring_system.py
+[2026-03-17 17:08:42.874566] NO register(app): payments_system.py
+[2026-03-17 17:08:42.892849] NO register(app): recovery_shell.py
+[2026-03-17 17:08:43.044574] NO register(app): app_bootstrap.py
+[2026-03-17 17:08:43.060133] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 17:08:43.252565] NO register(app): monitoring_system.py
+[2026-03-17 17:08:43.274737] NO register(app): payments_system.py
+[2026-03-17 17:08:43.288713] NO register(app): recovery_shell.py
+[2026-03-17 17:19:47.275830] NO register(app): app_bootstrap.py
+[2026-03-17 17:19:47.294684] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 17:19:47.493795] NO register(app): monitoring_system.py
+[2026-03-17 17:19:47.515898] NO register(app): payments_system.py
+[2026-03-17 17:19:47.533862] NO register(app): recovery_shell.py
+[2026-03-17 17:19:47.669805] NO register(app): app_bootstrap.py
+[2026-03-17 17:19:47.684681] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 17:19:47.859672] NO register(app): monitoring_system.py
+[2026-03-17 17:19:47.879319] NO register(app): payments_system.py
+[2026-03-17 17:19:47.893313] NO register(app): recovery_shell.py
+[2026-03-17 17:37:40.443522] NO register(app): app_bootstrap.py
+[2026-03-17 17:37:40.462945] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 17:37:40.672744] NO register(app): monitoring_system.py
+[2026-03-17 17:37:40.695782] NO register(app): payments_system.py
+[2026-03-17 17:37:40.713580] NO register(app): recovery_shell.py
+[2026-03-17 17:37:40.852005] NO register(app): app_bootstrap.py
+[2026-03-17 17:37:40.867268] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 17:37:41.038399] NO register(app): monitoring_system.py
+[2026-03-17 17:37:41.058199] NO register(app): payments_system.py
+[2026-03-17 17:37:41.071639] NO register(app): recovery_shell.py
+[2026-03-17 17:42:36.560320] NO register(app): app_bootstrap.py
+[2026-03-17 17:42:36.583552] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 17:42:36.823000] NO register(app): monitoring_system.py
+[2026-03-17 17:42:36.845083] NO register(app): payments_system.py
+[2026-03-17 17:42:36.863280] NO register(app): recovery_shell.py
+[2026-03-17 17:42:37.001845] NO register(app): app_bootstrap.py
+[2026-03-17 17:42:37.017025] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 17:42:37.188578] NO register(app): monitoring_system.py
+[2026-03-17 17:42:37.208529] NO register(app): payments_system.py
+[2026-03-17 17:42:37.221820] NO register(app): recovery_shell.py
+[2026-03-17 17:44:18.592697] NO register(app): app_bootstrap.py
+[2026-03-17 17:44:18.610696] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 17:44:18.786977] NO register(app): monitoring_system.py
+[2026-03-17 17:44:18.806417] NO register(app): payments_system.py
+[2026-03-17 17:44:18.819704] NO register(app): recovery_shell.py
+[2026-03-17 17:44:18.943717] NO register(app): app_bootstrap.py
+[2026-03-17 17:44:18.958792] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 17:44:19.132876] NO register(app): monitoring_system.py
+[2026-03-17 17:44:19.153348] NO register(app): payments_system.py
+[2026-03-17 17:44:19.166568] NO register(app): recovery_shell.py
+[2026-03-17 17:47:55.374701] NO register(app): app_bootstrap.py
+[2026-03-17 17:47:55.394488] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 17:47:55.602385] NO register(app): monitoring_system.py
+[2026-03-17 17:47:55.623769] NO register(app): payments_system.py
+[2026-03-17 17:47:55.640943] NO register(app): recovery_shell.py
+[2026-03-17 17:47:55.774692] NO register(app): app_bootstrap.py
+[2026-03-17 17:47:55.790956] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 17:47:55.961072] NO register(app): monitoring_system.py
+[2026-03-17 17:47:55.980806] NO register(app): payments_system.py
+[2026-03-17 17:47:55.993945] NO register(app): recovery_shell.py
+[2026-03-17 18:03:07.565592] NO register(app): app_bootstrap.py
+[2026-03-17 18:03:07.586111] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 18:03:07.806272] NO register(app): monitoring_system.py
+[2026-03-17 18:03:07.830472] NO register(app): payments_system.py
+[2026-03-17 18:03:07.848831] NO register(app): recovery_shell.py
+[2026-03-17 18:03:08.000566] NO register(app): app_bootstrap.py
+[2026-03-17 18:03:08.016141] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 18:03:08.205733] NO register(app): monitoring_system.py
+[2026-03-17 18:03:08.227786] NO register(app): payments_system.py
+[2026-03-17 18:03:08.242236] NO register(app): recovery_shell.py
+[2026-03-17 18:07:18.217931] NO register(app): app_bootstrap.py
+[2026-03-17 18:07:18.236504] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 18:07:18.426349] NO register(app): monitoring_system.py
+[2026-03-17 18:07:18.446936] NO register(app): payments_system.py
+[2026-03-17 18:07:18.462532] NO register(app): recovery_shell.py
+[2026-03-17 18:07:18.593208] NO register(app): app_bootstrap.py
+[2026-03-17 18:07:18.607740] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 18:07:18.777767] NO register(app): monitoring_system.py
+[2026-03-17 18:07:18.797517] NO register(app): payments_system.py
+[2026-03-17 18:07:18.810418] NO register(app): recovery_shell.py
+[2026-03-17 18:18:14.861510] NO register(app): app_bootstrap.py
+[2026-03-17 18:18:14.882379] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 18:18:15.103553] NO register(app): monitoring_system.py
+[2026-03-17 18:18:15.127768] NO register(app): payments_system.py
+[2026-03-17 18:18:15.146862] NO register(app): recovery_shell.py
+[2026-03-17 18:18:15.297767] NO register(app): app_bootstrap.py
+[2026-03-17 18:18:15.313481] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 18:18:15.506693] NO register(app): monitoring_system.py
+[2026-03-17 18:18:15.530127] NO register(app): payments_system.py
+[2026-03-17 18:18:15.544479] NO register(app): recovery_shell.py
+[2026-03-17 18:20:26.584932] NO register(app): app_bootstrap.py
+[2026-03-17 18:20:26.603590] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 18:20:26.809137] NO register(app): monitoring_system.py
+[2026-03-17 18:20:26.831493] NO register(app): payments_system.py
+[2026-03-17 18:20:26.847757] NO register(app): recovery_shell.py
+[2026-03-17 18:20:26.984244] NO register(app): app_bootstrap.py
+[2026-03-17 18:20:26.998814] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 18:20:27.170660] NO register(app): monitoring_system.py
+[2026-03-17 18:20:27.190515] NO register(app): payments_system.py
+[2026-03-17 18:20:27.203667] NO register(app): recovery_shell.py
+[2026-03-17 18:36:03.087807] NO register(app): app_bootstrap.py
+[2026-03-17 18:36:03.107468] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 18:36:03.309163] NO register(app): monitoring_system.py
+[2026-03-17 18:36:03.331434] NO register(app): payments_system.py
+[2026-03-17 18:36:03.348773] NO register(app): recovery_shell.py
+[2026-03-17 18:36:03.487856] NO register(app): app_bootstrap.py
+[2026-03-17 18:36:03.503642] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 18:36:03.681731] NO register(app): monitoring_system.py
+[2026-03-17 18:36:03.701473] NO register(app): payments_system.py
+[2026-03-17 18:36:03.714071] NO register(app): recovery_shell.py
+[2026-03-17 18:49:09.573633] NO register(app): app_bootstrap.py
+[2026-03-17 18:49:09.593733] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 18:49:09.851991] NO register(app): monitoring_system.py
+[2026-03-17 18:49:09.880857] NO register(app): payments_system.py
+[2026-03-17 18:49:09.902237] NO register(app): recovery_shell.py
+[2026-03-17 18:49:10.064631] NO register(app): app_bootstrap.py
+[2026-03-17 18:49:10.082072] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 18:49:10.282161] NO register(app): monitoring_system.py
+[2026-03-17 18:49:10.302036] NO register(app): payments_system.py
+[2026-03-17 18:49:10.314939] NO register(app): recovery_shell.py
+[2026-03-17 18:52:27.583025] NO register(app): app_bootstrap.py
+[2026-03-17 18:52:27.601713] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 18:52:27.803604] NO register(app): monitoring_system.py
+[2026-03-17 18:52:27.824292] NO register(app): payments_system.py
+[2026-03-17 18:52:27.841116] NO register(app): recovery_shell.py
+[2026-03-17 18:52:27.976327] NO register(app): app_bootstrap.py
+[2026-03-17 18:52:27.991141] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 18:52:28.160095] NO register(app): monitoring_system.py
+[2026-03-17 18:52:28.178993] NO register(app): payments_system.py
+[2026-03-17 18:52:28.192218] NO register(app): recovery_shell.py
+[2026-03-17 19:09:17.650425] NO register(app): app_bootstrap.py
+[2026-03-17 19:09:17.673557] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 19:09:17.919772] NO register(app): monitoring_system.py
+[2026-03-17 19:09:17.946350] NO register(app): payments_system.py
+[2026-03-17 19:09:17.966390] NO register(app): recovery_shell.py
+[2026-03-17 19:09:18.145832] NO register(app): app_bootstrap.py
+[2026-03-17 19:09:18.167356] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 19:09:18.402935] NO register(app): monitoring_system.py
+[2026-03-17 19:09:18.427866] NO register(app): payments_system.py
+[2026-03-17 19:09:18.443367] NO register(app): recovery_shell.py
+[2026-03-17 19:31:32.602536] NO register(app): app_bootstrap.py
+[2026-03-17 19:31:32.623869] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 19:31:32.846384] NO register(app): monitoring_system.py
+[2026-03-17 19:31:32.870255] NO register(app): payments_system.py
+[2026-03-17 19:31:32.888760] NO register(app): recovery_shell.py
+[2026-03-17 19:31:33.046311] NO register(app): app_bootstrap.py
+[2026-03-17 19:31:33.063076] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 19:31:33.258731] NO register(app): monitoring_system.py
+[2026-03-17 19:31:33.281696] NO register(app): payments_system.py
+[2026-03-17 19:31:33.296377] NO register(app): recovery_shell.py
+[2026-03-17 19:50:38.177267] NO register(app): app_bootstrap.py
+[2026-03-17 19:50:38.196783] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 19:50:38.421224] NO register(app): monitoring_system.py
+[2026-03-17 19:50:38.444843] NO register(app): payments_system.py
+[2026-03-17 19:50:38.463683] NO register(app): recovery_shell.py
+[2026-03-17 19:50:38.614733] NO register(app): app_bootstrap.py
+[2026-03-17 19:50:38.629927] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 19:50:38.822480] NO register(app): monitoring_system.py
+[2026-03-17 19:50:38.842772] NO register(app): payments_system.py
+[2026-03-17 19:50:38.857197] NO register(app): recovery_shell.py
+[2026-03-17 20:01:20.243819] NO register(app): app_bootstrap.py
+[2026-03-17 20:01:20.263465] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 20:01:20.472466] NO register(app): monitoring_system.py
+[2026-03-17 20:01:20.494409] NO register(app): payments_system.py
+[2026-03-17 20:01:20.514508] NO register(app): recovery_shell.py
+[2026-03-17 20:01:20.649280] NO register(app): app_bootstrap.py
+[2026-03-17 20:01:20.664261] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 20:01:20.840429] NO register(app): monitoring_system.py
+[2026-03-17 20:01:20.860497] NO register(app): payments_system.py
+[2026-03-17 20:01:20.875312] NO register(app): recovery_shell.py
+[2026-03-17 20:19:30.213637] NO register(app): app_bootstrap.py
+[2026-03-17 20:19:30.232283] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 20:19:30.431690] NO register(app): monitoring_system.py
+[2026-03-17 20:19:30.454847] NO register(app): payments_system.py
+[2026-03-17 20:19:30.473061] NO register(app): recovery_shell.py
+[2026-03-17 20:19:30.605307] NO register(app): app_bootstrap.py
+[2026-03-17 20:19:30.619611] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 20:19:30.787508] NO register(app): monitoring_system.py
+[2026-03-17 20:19:30.807143] NO register(app): payments_system.py
+[2026-03-17 20:19:30.819885] NO register(app): recovery_shell.py
+[2026-03-17 20:23:22.242997] NO register(app): app_bootstrap.py
+[2026-03-17 20:23:22.264673] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 20:23:22.495888] NO register(app): monitoring_system.py
+[2026-03-17 20:23:22.521189] NO register(app): payments_system.py
+[2026-03-17 20:23:22.541565] NO register(app): recovery_shell.py
+[2026-03-17 20:23:22.702056] NO register(app): app_bootstrap.py
+[2026-03-17 20:23:22.718914] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 20:23:22.925224] NO register(app): monitoring_system.py
+[2026-03-17 20:23:22.948408] NO register(app): payments_system.py
+[2026-03-17 20:23:22.964289] NO register(app): recovery_shell.py
+[2026-03-17 20:28:37.715228] NO register(app): app_bootstrap.py
+[2026-03-17 20:28:37.735222] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 20:28:37.968312] NO register(app): monitoring_system.py
+[2026-03-17 20:28:37.994007] NO register(app): payments_system.py
+[2026-03-17 20:28:38.013722] NO register(app): recovery_shell.py
+[2026-03-17 20:28:38.170926] NO register(app): app_bootstrap.py
+[2026-03-17 20:28:38.187816] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 20:28:38.388362] NO register(app): monitoring_system.py
+[2026-03-17 20:28:38.411316] NO register(app): payments_system.py
+[2026-03-17 20:28:38.426243] NO register(app): recovery_shell.py
+[2026-03-17 20:43:23.467733] NO register(app): app_bootstrap.py
+[2026-03-17 20:43:23.488087] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 20:43:23.715191] NO register(app): monitoring_system.py
+[2026-03-17 20:43:23.738487] NO register(app): payments_system.py
+[2026-03-17 20:43:23.758013] NO register(app): recovery_shell.py
+[2026-03-17 20:43:23.899867] NO register(app): app_bootstrap.py
+[2026-03-17 20:43:23.915511] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 20:43:24.108315] NO register(app): monitoring_system.py
+[2026-03-17 20:43:24.129161] NO register(app): payments_system.py
+[2026-03-17 20:43:24.142988] NO register(app): recovery_shell.py
+[2026-03-17 20:46:20.262908] NO register(app): app_bootstrap.py
+[2026-03-17 20:46:20.290552] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 20:46:20.474611] NO register(app): monitoring_system.py
+[2026-03-17 20:46:20.494310] NO register(app): payments_system.py
+[2026-03-17 20:46:20.507511] NO register(app): recovery_shell.py
+[2026-03-17 20:46:20.632223] NO register(app): app_bootstrap.py
+[2026-03-17 20:46:20.646757] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 20:46:20.824606] NO register(app): monitoring_system.py
+[2026-03-17 20:46:20.849255] NO register(app): payments_system.py
+[2026-03-17 20:46:20.863836] NO register(app): recovery_shell.py
+[2026-03-17 20:49:07.822181] NO register(app): app_bootstrap.py
+[2026-03-17 20:49:07.841551] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 20:49:08.047072] NO register(app): monitoring_system.py
+[2026-03-17 20:49:08.069018] NO register(app): payments_system.py
+[2026-03-17 20:49:08.088358] NO register(app): recovery_shell.py
+[2026-03-17 20:49:08.226500] NO register(app): app_bootstrap.py
+[2026-03-17 20:49:08.241771] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 20:49:08.424406] NO register(app): monitoring_system.py
+[2026-03-17 20:49:08.444698] NO register(app): payments_system.py
+[2026-03-17 20:49:08.457950] NO register(app): recovery_shell.py
+[2026-03-17 20:56:39.146927] NO register(app): app_bootstrap.py
+[2026-03-17 20:56:39.166486] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 20:56:39.369463] NO register(app): monitoring_system.py
+[2026-03-17 20:56:39.391147] NO register(app): payments_system.py
+[2026-03-17 20:56:39.409000] NO register(app): recovery_shell.py
+[2026-03-17 20:56:39.546821] NO register(app): app_bootstrap.py
+[2026-03-17 20:56:39.563202] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 20:56:39.735565] NO register(app): monitoring_system.py
+[2026-03-17 20:56:39.756014] NO register(app): payments_system.py
+[2026-03-17 20:56:39.769175] NO register(app): recovery_shell.py
+[2026-03-17 21:07:10.571055] NO register(app): app_bootstrap.py
+[2026-03-17 21:07:10.592534] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 21:07:10.839416] NO register(app): monitoring_system.py
+[2026-03-17 21:07:10.866609] NO register(app): payments_system.py
+[2026-03-17 21:07:10.890720] NO register(app): recovery_shell.py
+[2026-03-17 21:07:11.099698] NO register(app): app_bootstrap.py
+[2026-03-17 21:07:11.115286] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 21:07:11.325877] NO register(app): monitoring_system.py
+[2026-03-17 21:07:11.348140] NO register(app): payments_system.py
+[2026-03-17 21:07:11.362557] NO register(app): recovery_shell.py
+[2026-03-17 21:15:12.231964] NO register(app): app_bootstrap.py
+[2026-03-17 21:15:12.250970] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 21:15:12.456048] NO register(app): monitoring_system.py
+[2026-03-17 21:15:12.478900] NO register(app): payments_system.py
+[2026-03-17 21:15:12.496378] NO register(app): recovery_shell.py
+[2026-03-17 21:15:12.637152] NO register(app): app_bootstrap.py
+[2026-03-17 21:15:12.652143] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 21:15:12.832146] NO register(app): monitoring_system.py
+[2026-03-17 21:15:12.853533] NO register(app): payments_system.py
+[2026-03-17 21:15:12.866577] NO register(app): recovery_shell.py
+[2026-03-17 21:28:39.331352] NO register(app): app_bootstrap.py
+[2026-03-17 21:28:39.351561] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 21:28:39.555101] NO register(app): monitoring_system.py
+[2026-03-17 21:28:39.576028] NO register(app): payments_system.py
+[2026-03-17 21:28:39.592210] NO register(app): recovery_shell.py
+[2026-03-17 21:28:39.724994] NO register(app): app_bootstrap.py
+[2026-03-17 21:28:39.739417] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 21:28:39.908584] NO register(app): monitoring_system.py
+[2026-03-17 21:28:39.927448] NO register(app): payments_system.py
+[2026-03-17 21:28:39.939999] NO register(app): recovery_shell.py
+[2026-03-17 21:32:59.405837] NO register(app): app_bootstrap.py
+[2026-03-17 21:32:59.424945] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 21:32:59.627798] NO register(app): monitoring_system.py
+[2026-03-17 21:32:59.648660] NO register(app): payments_system.py
+[2026-03-17 21:32:59.665584] NO register(app): recovery_shell.py
+[2026-03-17 21:32:59.797066] NO register(app): app_bootstrap.py
+[2026-03-17 21:32:59.811669] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 21:32:59.979643] NO register(app): monitoring_system.py
+[2026-03-17 21:32:59.999187] NO register(app): payments_system.py
+[2026-03-17 21:33:00.014267] NO register(app): recovery_shell.py
+[2026-03-17 21:41:46.554429] NO register(app): app_bootstrap.py
+[2026-03-17 21:41:46.574449] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 21:41:46.792320] NO register(app): monitoring_system.py
+[2026-03-17 21:41:46.814128] NO register(app): payments_system.py
+[2026-03-17 21:41:46.831119] NO register(app): recovery_shell.py
+[2026-03-17 21:41:46.964086] NO register(app): app_bootstrap.py
+[2026-03-17 21:41:46.978900] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-17 21:41:47.162239] NO register(app): monitoring_system.py
+[2026-03-17 21:41:47.182316] NO register(app): payments_system.py
+[2026-03-17 21:41:47.194978] NO register(app): recovery_shell.py
+[2026-03-18 08:04:28.123551] NO register(app): app_bootstrap.py
+[2026-03-18 08:04:28.144104] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 08:04:28.367672] NO register(app): monitoring_system.py
+[2026-03-18 08:04:28.389898] NO register(app): payments_system.py
+[2026-03-18 08:04:28.411067] NO register(app): recovery_shell.py
+[2026-03-18 08:04:28.562125] NO register(app): app_bootstrap.py
+[2026-03-18 08:04:28.580369] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 08:04:28.759896] NO register(app): monitoring_system.py
+[2026-03-18 08:04:28.780302] NO register(app): payments_system.py
+[2026-03-18 08:04:28.793893] NO register(app): recovery_shell.py
+[2026-03-18 08:12:11.260915] NO register(app): app_bootstrap.py
+[2026-03-18 08:12:11.278407] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 08:12:11.466887] NO register(app): monitoring_system.py
+[2026-03-18 08:12:11.488013] NO register(app): payments_system.py
+[2026-03-18 08:12:11.505648] NO register(app): recovery_shell.py
+[2026-03-18 08:12:11.633212] NO register(app): app_bootstrap.py
+[2026-03-18 08:12:11.646892] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 08:12:11.808057] NO register(app): monitoring_system.py
+[2026-03-18 08:12:11.826011] NO register(app): payments_system.py
+[2026-03-18 08:12:11.838161] NO register(app): recovery_shell.py
+[2026-03-18 08:31:40.492028] NO register(app): app_bootstrap.py
+[2026-03-18 08:31:40.515095] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 08:31:40.750528] NO register(app): monitoring_system.py
+[2026-03-18 08:31:40.775424] NO register(app): payments_system.py
+[2026-03-18 08:31:40.794073] NO register(app): recovery_shell.py
+[2026-03-18 08:31:40.934638] NO register(app): app_bootstrap.py
+[2026-03-18 08:31:40.950723] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 08:31:41.153676] NO register(app): monitoring_system.py
+[2026-03-18 08:31:41.179581] NO register(app): payments_system.py
+[2026-03-18 08:31:41.195574] NO register(app): recovery_shell.py
+[2026-03-18 08:32:22.044063] NO register(app): app_bootstrap.py
+[2026-03-18 08:32:22.061507] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 08:32:22.238568] NO register(app): monitoring_system.py
+[2026-03-18 08:32:22.257978] NO register(app): payments_system.py
+[2026-03-18 08:32:22.270892] NO register(app): recovery_shell.py
+[2026-03-18 08:32:22.391328] NO register(app): app_bootstrap.py
+[2026-03-18 08:32:22.406206] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 08:32:22.581720] NO register(app): monitoring_system.py
+[2026-03-18 08:32:22.601083] NO register(app): payments_system.py
+[2026-03-18 08:32:22.614020] NO register(app): recovery_shell.py
+[2026-03-18 08:38:02.867156] NO register(app): app_bootstrap.py
+[2026-03-18 08:38:02.889987] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 08:38:03.196590] NO register(app): monitoring_system.py
+[2026-03-18 08:38:03.230914] NO register(app): payments_system.py
+[2026-03-18 08:38:03.253109] NO register(app): recovery_shell.py
+[2026-03-18 08:38:03.440526] NO register(app): app_bootstrap.py
+[2026-03-18 08:38:03.461451] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 08:38:03.736408] NO register(app): monitoring_system.py
+[2026-03-18 08:38:03.767900] NO register(app): payments_system.py
+[2026-03-18 08:38:03.787743] NO register(app): recovery_shell.py
+[2026-03-18 08:40:56.555434] NO register(app): app_bootstrap.py
+[2026-03-18 08:40:56.583442] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 08:40:56.807296] NO register(app): monitoring_system.py
+[2026-03-18 08:40:56.832678] NO register(app): payments_system.py
+[2026-03-18 08:40:56.849710] NO register(app): recovery_shell.py
+[2026-03-18 08:40:57.012480] NO register(app): app_bootstrap.py
+[2026-03-18 08:40:57.029188] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 08:40:57.232616] NO register(app): monitoring_system.py
+[2026-03-18 08:40:57.256088] NO register(app): payments_system.py
+[2026-03-18 08:40:57.271199] NO register(app): recovery_shell.py
+[2026-03-18 12:28:25.302759] NO register(app): app_bootstrap.py
+[2026-03-18 12:28:25.325352] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 12:28:25.563843] NO register(app): monitoring_system.py
+[2026-03-18 12:28:25.590268] NO register(app): payments_system.py
+[2026-03-18 12:28:25.611130] NO register(app): recovery_shell.py
+[2026-03-18 12:28:25.779076] NO register(app): app_bootstrap.py
+[2026-03-18 12:28:25.796608] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 12:28:26.011446] NO register(app): monitoring_system.py
+[2026-03-18 12:28:26.035679] NO register(app): payments_system.py
+[2026-03-18 12:28:26.051843] NO register(app): recovery_shell.py
+[2026-03-18 12:43:10.992038] NO register(app): app_bootstrap.py
+[2026-03-18 12:43:11.011870] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 12:43:11.236321] NO register(app): monitoring_system.py
+[2026-03-18 12:43:11.260637] NO register(app): payments_system.py
+[2026-03-18 12:43:11.280085] NO register(app): recovery_shell.py
+[2026-03-18 12:43:11.436598] NO register(app): app_bootstrap.py
+[2026-03-18 12:43:11.452842] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 12:43:11.656239] NO register(app): monitoring_system.py
+[2026-03-18 12:43:11.681779] NO register(app): payments_system.py
+[2026-03-18 12:43:11.696979] NO register(app): recovery_shell.py
+[2026-03-18 12:52:45.920813] NO register(app): app_bootstrap.py
+[2026-03-18 12:52:45.941396] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 12:52:46.158669] NO register(app): monitoring_system.py
+[2026-03-18 12:52:46.184090] NO register(app): payments_system.py
+[2026-03-18 12:52:46.202612] NO register(app): recovery_shell.py
+[2026-03-18 12:52:46.337773] NO register(app): app_bootstrap.py
+[2026-03-18 12:52:46.352438] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 12:52:46.525934] NO register(app): monitoring_system.py
+[2026-03-18 12:52:46.546501] NO register(app): payments_system.py
+[2026-03-18 12:52:46.559865] NO register(app): recovery_shell.py
+[2026-03-18 12:58:10.075002] NO register(app): app_bootstrap.py
+[2026-03-18 12:58:10.094230] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 12:58:10.296762] NO register(app): monitoring_system.py
+[2026-03-18 12:58:10.317221] NO register(app): payments_system.py
+[2026-03-18 12:58:10.335388] NO register(app): recovery_shell.py
+[2026-03-18 12:58:10.466011] NO register(app): app_bootstrap.py
+[2026-03-18 12:58:10.480658] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 12:58:10.646347] NO register(app): monitoring_system.py
+[2026-03-18 12:58:10.665610] NO register(app): payments_system.py
+[2026-03-18 12:58:10.678352] NO register(app): recovery_shell.py
+[2026-03-18 13:04:27.547484] NO register(app): app_bootstrap.py
+[2026-03-18 13:04:27.568188] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 13:04:27.792894] NO register(app): monitoring_system.py
+[2026-03-18 13:04:27.815047] NO register(app): payments_system.py
+[2026-03-18 13:04:27.833735] NO register(app): recovery_shell.py
+[2026-03-18 13:04:27.968233] NO register(app): app_bootstrap.py
+[2026-03-18 13:04:27.982919] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 13:04:28.153092] NO register(app): monitoring_system.py
+[2026-03-18 13:04:28.173138] NO register(app): payments_system.py
+[2026-03-18 13:04:28.186077] NO register(app): recovery_shell.py
+[2026-03-18 13:09:06.943805] NO register(app): app_bootstrap.py
+[2026-03-18 13:09:06.962544] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 13:09:07.161425] NO register(app): monitoring_system.py
+[2026-03-18 13:09:07.183023] NO register(app): payments_system.py
+[2026-03-18 13:09:07.201566] NO register(app): recovery_shell.py
+[2026-03-18 13:09:07.346506] NO register(app): app_bootstrap.py
+[2026-03-18 13:09:07.363131] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 13:09:07.549020] NO register(app): monitoring_system.py
+[2026-03-18 13:09:07.569934] NO register(app): payments_system.py
+[2026-03-18 13:09:07.583340] NO register(app): recovery_shell.py
+[2026-03-18 13:14:31.620358] NO register(app): app_bootstrap.py
+[2026-03-18 13:14:31.648059] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 13:14:31.826913] NO register(app): monitoring_system.py
+[2026-03-18 13:14:31.846098] NO register(app): payments_system.py
+[2026-03-18 13:14:31.859011] NO register(app): recovery_shell.py
+[2026-03-18 13:14:31.978156] NO register(app): app_bootstrap.py
+[2026-03-18 13:14:31.992863] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 13:14:32.158442] NO register(app): monitoring_system.py
+[2026-03-18 13:14:32.178576] NO register(app): payments_system.py
+[2026-03-18 13:14:32.191410] NO register(app): recovery_shell.py
+[2026-03-18 14:26:30.162377] NO register(app): app_bootstrap.py
+[2026-03-18 14:26:30.183862] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 14:26:30.410919] NO register(app): monitoring_system.py
+[2026-03-18 14:26:30.435692] NO register(app): payments_system.py
+[2026-03-18 14:26:30.453814] NO register(app): recovery_shell.py
+[2026-03-18 14:26:30.605805] NO register(app): app_bootstrap.py
+[2026-03-18 14:26:30.622008] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 14:26:30.818223] NO register(app): monitoring_system.py
+[2026-03-18 14:26:30.841493] NO register(app): payments_system.py
+[2026-03-18 14:26:30.858205] NO register(app): recovery_shell.py
+[2026-03-18 14:31:49.595274] NO register(app): app_bootstrap.py
+[2026-03-18 14:31:49.616104] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 14:31:49.864691] NO register(app): monitoring_system.py
+[2026-03-18 14:31:49.892170] NO register(app): payments_system.py
+[2026-03-18 14:31:49.911808] NO register(app): recovery_shell.py
+[2026-03-18 14:31:50.070017] NO register(app): app_bootstrap.py
+[2026-03-18 14:31:50.085738] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 14:31:50.294192] NO register(app): monitoring_system.py
+[2026-03-18 14:31:50.319029] NO register(app): payments_system.py
+[2026-03-18 14:31:50.338082] NO register(app): recovery_shell.py
+[2026-03-18 14:33:05.100652] NO register(app): app_bootstrap.py
+[2026-03-18 14:33:05.120714] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 14:33:05.295450] NO register(app): monitoring_system.py
+[2026-03-18 14:33:05.315609] NO register(app): payments_system.py
+[2026-03-18 14:33:05.328788] NO register(app): recovery_shell.py
+[2026-03-18 14:33:05.455395] NO register(app): app_bootstrap.py
+[2026-03-18 14:33:05.469804] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 14:33:05.658638] NO register(app): monitoring_system.py
+[2026-03-18 14:33:05.680481] NO register(app): payments_system.py
+[2026-03-18 14:33:05.694667] NO register(app): recovery_shell.py
+[2026-03-18 15:07:42.008391] NO register(app): app_bootstrap.py
+[2026-03-18 15:07:42.027199] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 15:07:42.237711] NO register(app): monitoring_system.py
+[2026-03-18 15:07:42.264251] NO register(app): payments_system.py
+[2026-03-18 15:07:42.287741] NO register(app): recovery_shell.py
+[2026-03-18 15:07:42.449378] NO register(app): app_bootstrap.py
+[2026-03-18 15:07:42.465875] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 15:07:42.673800] NO register(app): monitoring_system.py
+[2026-03-18 15:07:42.698319] NO register(app): payments_system.py
+[2026-03-18 15:07:42.714107] NO register(app): recovery_shell.py
+[2026-03-18 15:18:28.283558] NO register(app): app_bootstrap.py
+[2026-03-18 15:18:28.301859] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 15:18:28.501886] NO register(app): monitoring_system.py
+[2026-03-18 15:18:28.523314] NO register(app): payments_system.py
+[2026-03-18 15:18:28.540838] NO register(app): recovery_shell.py
+[2026-03-18 15:18:28.674549] NO register(app): app_bootstrap.py
+[2026-03-18 15:18:28.689386] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 15:18:28.860755] NO register(app): monitoring_system.py
+[2026-03-18 15:18:28.881545] NO register(app): payments_system.py
+[2026-03-18 15:18:28.894877] NO register(app): recovery_shell.py
+[2026-03-18 15:19:19.046204] NO register(app): app_bootstrap.py
+[2026-03-18 15:19:19.064306] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 15:19:19.236283] NO register(app): monitoring_system.py
+[2026-03-18 15:19:19.256098] NO register(app): payments_system.py
+[2026-03-18 15:19:19.269474] NO register(app): recovery_shell.py
+[2026-03-18 15:19:19.390961] NO register(app): app_bootstrap.py
+[2026-03-18 15:19:19.405893] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 15:19:19.577470] NO register(app): monitoring_system.py
+[2026-03-18 15:19:19.597527] NO register(app): payments_system.py
+[2026-03-18 15:19:19.610772] NO register(app): recovery_shell.py
+[2026-03-18 15:39:06.450372] NO register(app): app_bootstrap.py
+[2026-03-18 15:39:06.471357] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 15:39:06.715370] NO register(app): monitoring_system.py
+[2026-03-18 15:39:06.739210] NO register(app): payments_system.py
+[2026-03-18 15:39:06.756612] NO register(app): recovery_shell.py
+[2026-03-18 15:39:06.901017] NO register(app): app_bootstrap.py
+[2026-03-18 15:39:06.917332] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 15:39:07.118060] NO register(app): monitoring_system.py
+[2026-03-18 15:39:07.141692] NO register(app): payments_system.py
+[2026-03-18 15:39:07.156667] NO register(app): recovery_shell.py
+[2026-03-18 15:41:26.619383] NO register(app): app_bootstrap.py
+[2026-03-18 15:41:26.640773] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 15:41:26.856786] NO register(app): monitoring_system.py
+[2026-03-18 15:41:26.880211] NO register(app): payments_system.py
+[2026-03-18 15:41:26.898128] NO register(app): recovery_shell.py
+[2026-03-18 15:41:27.052084] NO register(app): app_bootstrap.py
+[2026-03-18 15:41:27.069757] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 15:41:27.269200] NO register(app): monitoring_system.py
+[2026-03-18 15:41:27.291907] NO register(app): payments_system.py
+[2026-03-18 15:41:27.306357] NO register(app): recovery_shell.py
+[2026-03-18 15:54:36.032484] NO register(app): app_bootstrap.py
+[2026-03-18 15:54:36.052786] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 15:54:36.256235] NO register(app): monitoring_system.py
+[2026-03-18 15:54:36.278355] NO register(app): payments_system.py
+[2026-03-18 15:54:36.294699] NO register(app): recovery_shell.py
+[2026-03-18 15:54:36.434554] NO register(app): app_bootstrap.py
+[2026-03-18 15:54:36.450481] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 15:54:36.659845] NO register(app): monitoring_system.py
+[2026-03-18 15:54:36.683890] NO register(app): payments_system.py
+[2026-03-18 15:54:36.700131] NO register(app): recovery_shell.py
+[2026-03-18 16:10:38.800298] NO register(app): app_bootstrap.py
+[2026-03-18 16:10:38.831136] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 16:10:39.144441] NO register(app): monitoring_system.py
+[2026-03-18 16:10:39.176462] NO register(app): payments_system.py
+[2026-03-18 16:10:39.198784] NO register(app): recovery_shell.py
+[2026-03-18 16:10:39.352310] NO register(app): app_bootstrap.py
+[2026-03-18 16:10:39.368972] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 16:10:39.578878] NO register(app): monitoring_system.py
+[2026-03-18 16:10:39.600972] NO register(app): payments_system.py
+[2026-03-18 16:10:39.615953] NO register(app): recovery_shell.py
+[2026-03-18 16:27:14.912647] NO register(app): app_bootstrap.py
+[2026-03-18 16:27:14.931837] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 16:27:15.140702] NO register(app): monitoring_system.py
+[2026-03-18 16:27:15.163312] NO register(app): payments_system.py
+[2026-03-18 16:27:15.180606] NO register(app): recovery_shell.py
+[2026-03-18 16:27:15.313865] NO register(app): app_bootstrap.py
+[2026-03-18 16:27:15.328303] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 16:27:15.500499] NO register(app): monitoring_system.py
+[2026-03-18 16:27:15.520285] NO register(app): payments_system.py
+[2026-03-18 16:27:15.533086] NO register(app): recovery_shell.py
+[2026-03-18 16:32:58.418519] NO register(app): app_bootstrap.py
+[2026-03-18 16:32:58.436870] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 16:32:58.639481] NO register(app): monitoring_system.py
+[2026-03-18 16:32:58.661873] NO register(app): payments_system.py
+[2026-03-18 16:32:58.679656] NO register(app): recovery_shell.py
+[2026-03-18 16:32:58.813860] NO register(app): app_bootstrap.py
+[2026-03-18 16:32:58.828333] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 16:32:58.995633] NO register(app): monitoring_system.py
+[2026-03-18 16:32:59.015206] NO register(app): payments_system.py
+[2026-03-18 16:32:59.028116] NO register(app): recovery_shell.py
+[2026-03-18 16:36:59.846316] NO register(app): app_bootstrap.py
+[2026-03-18 16:36:59.866339] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 16:37:00.078112] NO register(app): monitoring_system.py
+[2026-03-18 16:37:00.102945] NO register(app): payments_system.py
+[2026-03-18 16:37:00.121308] NO register(app): recovery_shell.py
+[2026-03-18 16:37:00.261011] NO register(app): app_bootstrap.py
+[2026-03-18 16:37:00.275233] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 16:37:00.452111] NO register(app): monitoring_system.py
+[2026-03-18 16:37:00.471603] NO register(app): payments_system.py
+[2026-03-18 16:37:00.484186] NO register(app): recovery_shell.py
+[2026-03-18 16:44:24.312938] NO register(app): app_bootstrap.py
+[2026-03-18 16:44:24.332366] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 16:44:24.535396] NO register(app): monitoring_system.py
+[2026-03-18 16:44:24.557367] NO register(app): payments_system.py
+[2026-03-18 16:44:24.575684] NO register(app): recovery_shell.py
+[2026-03-18 16:44:24.709972] NO register(app): app_bootstrap.py
+[2026-03-18 16:44:24.724608] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 16:44:24.895633] NO register(app): monitoring_system.py
+[2026-03-18 16:44:24.916120] NO register(app): payments_system.py
+[2026-03-18 16:44:24.929641] NO register(app): recovery_shell.py
+[2026-03-18 17:04:02.737548] NO register(app): app_bootstrap.py
+[2026-03-18 17:04:02.755884] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 17:04:02.971319] NO register(app): monitoring_system.py
+[2026-03-18 17:04:02.992835] NO register(app): payments_system.py
+[2026-03-18 17:04:03.011589] NO register(app): recovery_shell.py
+[2026-03-18 17:04:03.144278] NO register(app): app_bootstrap.py
+[2026-03-18 17:04:03.158873] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 17:04:03.327780] NO register(app): monitoring_system.py
+[2026-03-18 17:04:03.347625] NO register(app): payments_system.py
+[2026-03-18 17:04:03.359985] NO register(app): recovery_shell.py
+[2026-03-18 17:13:46.789132] NO register(app): app_bootstrap.py
+[2026-03-18 17:13:46.809482] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 17:13:47.040811] NO register(app): monitoring_system.py
+[2026-03-18 17:13:47.063958] NO register(app): payments_system.py
+[2026-03-18 17:13:47.083180] NO register(app): recovery_shell.py
+[2026-03-18 17:13:47.227953] NO register(app): app_bootstrap.py
+[2026-03-18 17:13:47.243034] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 17:13:47.411808] NO register(app): monitoring_system.py
+[2026-03-18 17:13:47.434445] NO register(app): payments_system.py
+[2026-03-18 17:13:47.448531] NO register(app): recovery_shell.py
+[2026-03-18 17:35:55.958446] NO register(app): app_bootstrap.py
+[2026-03-18 17:35:55.977357] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 17:35:56.181657] NO register(app): monitoring_system.py
+[2026-03-18 17:35:56.203445] NO register(app): payments_system.py
+[2026-03-18 17:35:56.221156] NO register(app): recovery_shell.py
+[2026-03-18 17:35:56.356338] NO register(app): app_bootstrap.py
+[2026-03-18 17:35:56.371262] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 17:35:56.538724] NO register(app): monitoring_system.py
+[2026-03-18 17:35:56.558437] NO register(app): payments_system.py
+[2026-03-18 17:35:56.571027] NO register(app): recovery_shell.py
+[2026-03-18 17:53:10.595054] NO register(app): app_bootstrap.py
+[2026-03-18 17:53:10.614269] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 17:53:10.808444] NO register(app): monitoring_system.py
+[2026-03-18 17:53:10.830395] NO register(app): payments_system.py
+[2026-03-18 17:53:10.847296] NO register(app): recovery_shell.py
+[2026-03-18 17:53:10.977780] NO register(app): app_bootstrap.py
+[2026-03-18 17:53:10.992052] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 17:53:11.161245] NO register(app): monitoring_system.py
+[2026-03-18 17:53:11.180300] NO register(app): payments_system.py
+[2026-03-18 17:53:11.193091] NO register(app): recovery_shell.py
+[2026-03-18 18:19:47.727436] NO register(app): app_bootstrap.py
+[2026-03-18 18:19:47.746804] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 18:19:47.949358] NO register(app): monitoring_system.py
+[2026-03-18 18:19:47.971140] NO register(app): payments_system.py
+[2026-03-18 18:19:47.989065] NO register(app): recovery_shell.py
+[2026-03-18 18:19:48.123708] NO register(app): app_bootstrap.py
+[2026-03-18 18:19:48.138092] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 18:19:48.305189] NO register(app): monitoring_system.py
+[2026-03-18 18:19:48.324679] NO register(app): payments_system.py
+[2026-03-18 18:19:48.337632] NO register(app): recovery_shell.py
+[2026-03-18 18:54:20.722403] NO register(app): app_bootstrap.py
+[2026-03-18 18:54:20.741580] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 18:54:20.956390] NO register(app): monitoring_system.py
+[2026-03-18 18:54:20.980266] NO register(app): payments_system.py
+[2026-03-18 18:54:20.998840] NO register(app): recovery_shell.py
+[2026-03-18 18:54:21.141116] NO register(app): app_bootstrap.py
+[2026-03-18 18:54:21.157912] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 18:54:21.341029] NO register(app): monitoring_system.py
+[2026-03-18 18:54:21.361033] NO register(app): payments_system.py
+[2026-03-18 18:54:21.376858] NO register(app): recovery_shell.py
+[2026-03-18 19:26:35.725294] NO register(app): app_bootstrap.py
+[2026-03-18 19:26:35.743761] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 19:26:35.950028] NO register(app): monitoring_system.py
+[2026-03-18 19:26:35.972229] NO register(app): payments_system.py
+[2026-03-18 19:26:35.990791] NO register(app): recovery_shell.py
+[2026-03-18 19:26:36.125866] NO register(app): app_bootstrap.py
+[2026-03-18 19:26:36.140557] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 19:26:36.308347] NO register(app): monitoring_system.py
+[2026-03-18 19:26:36.328485] NO register(app): payments_system.py
+[2026-03-18 19:26:36.341181] NO register(app): recovery_shell.py
+[2026-03-18 19:59:42.550439] NO register(app): app_bootstrap.py
+[2026-03-18 19:59:42.571255] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 19:59:42.776947] NO register(app): monitoring_system.py
+[2026-03-18 19:59:42.798489] NO register(app): payments_system.py
+[2026-03-18 19:59:42.817577] NO register(app): recovery_shell.py
+[2026-03-18 19:59:42.954210] NO register(app): app_bootstrap.py
+[2026-03-18 19:59:42.968587] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 19:59:43.152569] NO register(app): monitoring_system.py
+[2026-03-18 19:59:43.172491] NO register(app): payments_system.py
+[2026-03-18 19:59:43.185204] NO register(app): recovery_shell.py
+[2026-03-18 20:09:48.721644] NO register(app): app_bootstrap.py
+[2026-03-18 20:09:48.744335] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 20:09:48.956861] NO register(app): monitoring_system.py
+[2026-03-18 20:09:48.979313] NO register(app): payments_system.py
+[2026-03-18 20:09:48.996996] NO register(app): recovery_shell.py
+[2026-03-18 20:09:49.157638] NO register(app): app_bootstrap.py
+[2026-03-18 20:09:49.173492] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-18 20:09:49.360655] NO register(app): monitoring_system.py
+[2026-03-18 20:09:49.380682] NO register(app): payments_system.py
+[2026-03-18 20:09:49.393438] NO register(app): recovery_shell.py
+[2026-03-19 19:39:33.066082] NO register(app): app_bootstrap.py
+[2026-03-19 19:39:33.092404] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 19:39:33.352129] NO register(app): monitoring_system.py
+[2026-03-19 19:39:33.382707] NO register(app): payments_system.py
+[2026-03-19 19:39:33.414992] NO register(app): recovery_shell.py
+[2026-03-19 20:15:06.223898] NO register(app): app_bootstrap.py
+[2026-03-19 20:15:06.243459] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 20:15:06.458985] NO register(app): monitoring_system.py
+[2026-03-19 20:15:06.483610] NO register(app): payments_system.py
+[2026-03-19 20:15:06.500632] NO register(app): recovery_shell.py
+[2026-03-19 20:15:06.637879] NO register(app): app_bootstrap.py
+[2026-03-19 20:15:06.652452] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 20:15:06.827425] NO register(app): monitoring_system.py
+[2026-03-19 20:15:06.847809] NO register(app): payments_system.py
+[2026-03-19 20:15:06.860777] NO register(app): recovery_shell.py
+[2026-03-19 20:19:05.212993] NO register(app): app_bootstrap.py
+[2026-03-19 20:19:05.232250] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 20:19:05.410781] NO register(app): monitoring_system.py
+[2026-03-19 20:19:05.436894] NO register(app): payments_system.py
+[2026-03-19 20:19:05.450429] NO register(app): recovery_shell.py
+[2026-03-19 20:19:05.577585] NO register(app): app_bootstrap.py
+[2026-03-19 20:19:05.592899] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 20:19:05.771012] NO register(app): monitoring_system.py
+[2026-03-19 20:19:05.792153] NO register(app): payments_system.py
+[2026-03-19 20:19:05.805481] NO register(app): recovery_shell.py
+[2026-03-19 20:29:16.454303] NO register(app): app_bootstrap.py
+[2026-03-19 20:29:16.473101] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 20:29:16.675357] NO register(app): monitoring_system.py
+[2026-03-19 20:29:16.699499] NO register(app): payments_system.py
+[2026-03-19 20:29:16.717584] NO register(app): recovery_shell.py
+[2026-03-19 20:29:16.847831] NO register(app): app_bootstrap.py
+[2026-03-19 20:29:16.861874] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 20:29:17.076076] NO register(app): monitoring_system.py
+[2026-03-19 20:29:17.100621] NO register(app): payments_system.py
+[2026-03-19 20:29:17.115751] NO register(app): recovery_shell.py
+[2026-03-19 20:30:12.978085] NO register(app): app_bootstrap.py
+[2026-03-19 20:30:12.996425] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 20:30:13.183871] NO register(app): monitoring_system.py
+[2026-03-19 20:30:13.207109] NO register(app): payments_system.py
+[2026-03-19 20:30:13.221060] NO register(app): recovery_shell.py
+[2026-03-19 20:30:13.353811] NO register(app): app_bootstrap.py
+[2026-03-19 20:30:13.369803] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 20:30:13.562892] NO register(app): monitoring_system.py
+[2026-03-19 20:30:13.584773] NO register(app): payments_system.py
+[2026-03-19 20:30:13.599212] NO register(app): recovery_shell.py
+[2026-03-19 20:30:16.675393] NO register(app): app_bootstrap.py
+[2026-03-19 20:30:16.694745] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 20:30:16.880438] NO register(app): monitoring_system.py
+[2026-03-19 20:30:16.905348] NO register(app): payments_system.py
+[2026-03-19 20:30:16.919970] NO register(app): recovery_shell.py
+[2026-03-19 20:30:17.053361] NO register(app): app_bootstrap.py
+[2026-03-19 20:30:17.068954] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 20:30:17.250939] NO register(app): monitoring_system.py
+[2026-03-19 20:30:17.274400] NO register(app): payments_system.py
+[2026-03-19 20:30:17.288185] NO register(app): recovery_shell.py
+[2026-03-19 20:53:49.430631] NO register(app): app_bootstrap.py
+[2026-03-19 20:53:49.450462] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 20:53:49.662590] NO register(app): monitoring_system.py
+[2026-03-19 20:53:49.687604] NO register(app): payments_system.py
+[2026-03-19 20:53:49.705394] NO register(app): recovery_shell.py
+[2026-03-19 20:53:49.843926] NO register(app): app_bootstrap.py
+[2026-03-19 20:53:49.859565] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 20:53:50.035876] NO register(app): monitoring_system.py
+[2026-03-19 20:53:50.055693] NO register(app): payments_system.py
+[2026-03-19 20:53:50.068827] NO register(app): recovery_shell.py
+[2026-03-19 21:02:07.854416] NO register(app): app_bootstrap.py
+[2026-03-19 21:02:07.877510] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:02:08.112986] NO register(app): monitoring_system.py
+[2026-03-19 21:02:08.141177] NO register(app): payments_system.py
+[2026-03-19 21:02:08.161005] NO register(app): recovery_shell.py
+[2026-03-19 21:02:08.307487] NO register(app): app_bootstrap.py
+[2026-03-19 21:02:08.322478] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:02:08.499976] NO register(app): monitoring_system.py
+[2026-03-19 21:02:08.521019] NO register(app): payments_system.py
+[2026-03-19 21:02:08.534547] NO register(app): recovery_shell.py
+[2026-03-19 21:07:37.430498] NO register(app): app_bootstrap.py
+[2026-03-19 21:07:37.450663] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:07:37.655244] NO register(app): monitoring_system.py
+[2026-03-19 21:07:37.679882] NO register(app): payments_system.py
+[2026-03-19 21:07:37.697986] NO register(app): recovery_shell.py
+[2026-03-19 21:07:37.834059] NO register(app): app_bootstrap.py
+[2026-03-19 21:07:37.848818] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:07:38.026612] NO register(app): monitoring_system.py
+[2026-03-19 21:07:38.047061] NO register(app): payments_system.py
+[2026-03-19 21:07:38.060439] NO register(app): recovery_shell.py
+[2026-03-19 21:10:51.459128] NO register(app): app_bootstrap.py
+[2026-03-19 21:10:51.478757] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:10:51.682433] NO register(app): monitoring_system.py
+[2026-03-19 21:10:51.710613] NO register(app): payments_system.py
+[2026-03-19 21:10:51.728602] NO register(app): recovery_shell.py
+[2026-03-19 21:10:51.863599] NO register(app): app_bootstrap.py
+[2026-03-19 21:10:51.878727] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:10:52.050648] NO register(app): monitoring_system.py
+[2026-03-19 21:10:52.070915] NO register(app): payments_system.py
+[2026-03-19 21:10:52.083565] NO register(app): recovery_shell.py
+[2026-03-19 21:14:04.113370] NO register(app): app_bootstrap.py
+[2026-03-19 21:14:04.132203] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:14:04.315171] NO register(app): monitoring_system.py
+[2026-03-19 21:14:04.338727] NO register(app): payments_system.py
+[2026-03-19 21:14:04.352052] NO register(app): recovery_shell.py
+[2026-03-19 21:14:04.483717] NO register(app): app_bootstrap.py
+[2026-03-19 21:14:04.498682] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:14:04.679150] NO register(app): monitoring_system.py
+[2026-03-19 21:14:04.698895] NO register(app): payments_system.py
+[2026-03-19 21:14:04.711475] NO register(app): recovery_shell.py
+[2026-03-19 21:15:52.322743] NO register(app): app_bootstrap.py
+[2026-03-19 21:15:52.341964] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:15:52.517514] NO register(app): monitoring_system.py
+[2026-03-19 21:15:52.540206] NO register(app): payments_system.py
+[2026-03-19 21:15:52.553387] NO register(app): recovery_shell.py
+[2026-03-19 21:15:52.676456] NO register(app): app_bootstrap.py
+[2026-03-19 21:15:52.692063] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:15:52.862553] NO register(app): monitoring_system.py
+[2026-03-19 21:15:52.882959] NO register(app): payments_system.py
+[2026-03-19 21:15:52.895887] NO register(app): recovery_shell.py
+[2026-03-19 21:20:20.595339] NO register(app): app_bootstrap.py
+[2026-03-19 21:20:20.622659] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:20:20.886639] NO register(app): monitoring_system.py
+[2026-03-19 21:20:20.917402] NO register(app): payments_system.py
+[2026-03-19 21:20:20.938075] NO register(app): recovery_shell.py
+[2026-03-19 21:20:21.108659] NO register(app): app_bootstrap.py
+[2026-03-19 21:20:21.127097] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:20:21.357178] NO register(app): monitoring_system.py
+[2026-03-19 21:20:21.382917] NO register(app): payments_system.py
+[2026-03-19 21:20:21.400254] NO register(app): recovery_shell.py
+[2026-03-19 21:22:49.658662] NO register(app): app_bootstrap.py
+[2026-03-19 21:22:49.679693] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:22:49.894496] NO register(app): monitoring_system.py
+[2026-03-19 21:22:49.918589] NO register(app): payments_system.py
+[2026-03-19 21:22:49.936230] NO register(app): recovery_shell.py
+[2026-03-19 21:22:50.076089] NO register(app): app_bootstrap.py
+[2026-03-19 21:22:50.090703] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:22:50.296226] NO register(app): monitoring_system.py
+[2026-03-19 21:22:50.317833] NO register(app): payments_system.py
+[2026-03-19 21:22:50.331046] NO register(app): recovery_shell.py
+[2026-03-19 21:25:54.128491] NO register(app): app_bootstrap.py
+[2026-03-19 21:25:54.148790] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:25:54.365777] NO register(app): monitoring_system.py
+[2026-03-19 21:25:54.390966] NO register(app): payments_system.py
+[2026-03-19 21:25:54.408598] NO register(app): recovery_shell.py
+[2026-03-19 21:25:54.552568] NO register(app): app_bootstrap.py
+[2026-03-19 21:25:54.567758] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:25:54.745836] NO register(app): monitoring_system.py
+[2026-03-19 21:25:54.766644] NO register(app): payments_system.py
+[2026-03-19 21:25:54.779843] NO register(app): recovery_shell.py
+[2026-03-19 21:29:57.505894] NO register(app): app_bootstrap.py
+[2026-03-19 21:29:57.532369] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:29:57.775824] NO register(app): monitoring_system.py
+[2026-03-19 21:29:57.805270] NO register(app): payments_system.py
+[2026-03-19 21:29:57.824274] NO register(app): recovery_shell.py
+[2026-03-19 21:29:57.973350] NO register(app): app_bootstrap.py
+[2026-03-19 21:29:57.989438] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:29:58.182505] NO register(app): monitoring_system.py
+[2026-03-19 21:29:58.204662] NO register(app): payments_system.py
+[2026-03-19 21:29:58.220273] NO register(app): recovery_shell.py
+[2026-03-19 21:31:40.387844] NO register(app): app_bootstrap.py
+[2026-03-19 21:31:40.409252] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:31:40.602478] NO register(app): monitoring_system.py
+[2026-03-19 21:31:40.625745] NO register(app): payments_system.py
+[2026-03-19 21:31:40.641699] NO register(app): recovery_shell.py
+[2026-03-19 21:31:40.778452] NO register(app): app_bootstrap.py
+[2026-03-19 21:31:40.793677] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:31:40.965391] NO register(app): monitoring_system.py
+[2026-03-19 21:31:40.985346] NO register(app): payments_system.py
+[2026-03-19 21:31:40.999975] NO register(app): recovery_shell.py
+[2026-03-19 21:35:51.480172] NO register(app): app_bootstrap.py
+[2026-03-19 21:35:51.508466] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:35:51.813269] NO register(app): monitoring_system.py
+[2026-03-19 21:35:51.883570] NO register(app): payments_system.py
+[2026-03-19 21:35:51.923279] NO register(app): recovery_shell.py
+[2026-03-19 21:35:52.157085] NO register(app): app_bootstrap.py
+[2026-03-19 21:35:52.178880] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:35:52.481251] NO register(app): monitoring_system.py
+[2026-03-19 21:35:52.512007] NO register(app): payments_system.py
+[2026-03-19 21:35:52.532945] NO register(app): recovery_shell.py
+[2026-03-19 21:36:14.696036] NO register(app): app_bootstrap.py
+[2026-03-19 21:36:14.714713] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:36:14.893963] NO register(app): monitoring_system.py
+[2026-03-19 21:36:14.918162] NO register(app): payments_system.py
+[2026-03-19 21:36:14.931849] NO register(app): recovery_shell.py
+[2026-03-19 21:36:15.059147] NO register(app): app_bootstrap.py
+[2026-03-19 21:36:15.074502] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:36:15.251548] NO register(app): monitoring_system.py
+[2026-03-19 21:36:15.272840] NO register(app): payments_system.py
+[2026-03-19 21:36:15.287706] NO register(app): recovery_shell.py
+[2026-03-19 21:49:45.109293] NO register(app): app_bootstrap.py
+[2026-03-19 21:49:45.129892] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:49:45.337985] NO register(app): monitoring_system.py
+[2026-03-19 21:49:45.362461] NO register(app): payments_system.py
+[2026-03-19 21:49:45.379929] NO register(app): recovery_shell.py
+[2026-03-19 21:49:45.525132] NO register(app): app_bootstrap.py
+[2026-03-19 21:49:45.540193] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:49:45.735392] NO register(app): monitoring_system.py
+[2026-03-19 21:49:45.759064] NO register(app): payments_system.py
+[2026-03-19 21:49:45.774313] NO register(app): recovery_shell.py
+[2026-03-19 21:52:25.035177] NO register(app): app_bootstrap.py
+[2026-03-19 21:52:25.054343] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:52:25.247922] NO register(app): monitoring_system.py
+[2026-03-19 21:52:25.270867] NO register(app): payments_system.py
+[2026-03-19 21:52:25.287114] NO register(app): recovery_shell.py
+[2026-03-19 21:52:25.427138] NO register(app): app_bootstrap.py
+[2026-03-19 21:52:25.441695] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:52:25.620848] NO register(app): monitoring_system.py
+[2026-03-19 21:52:25.642784] NO register(app): payments_system.py
+[2026-03-19 21:52:25.655639] NO register(app): recovery_shell.py
+[2026-03-19 21:54:05.494147] NO register(app): app_bootstrap.py
+[2026-03-19 21:54:05.521993] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:54:05.703034] NO register(app): monitoring_system.py
+[2026-03-19 21:54:05.725342] NO register(app): payments_system.py
+[2026-03-19 21:54:05.738017] NO register(app): recovery_shell.py
+[2026-03-19 21:54:05.860034] NO register(app): app_bootstrap.py
+[2026-03-19 21:54:05.875022] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:54:06.046042] NO register(app): monitoring_system.py
+[2026-03-19 21:54:06.066746] NO register(app): payments_system.py
+[2026-03-19 21:54:06.079083] NO register(app): recovery_shell.py
+[2026-03-19 21:56:42.292273] NO register(app): app_bootstrap.py
+[2026-03-19 21:56:42.312114] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:56:42.513961] NO register(app): monitoring_system.py
+[2026-03-19 21:56:42.537981] NO register(app): payments_system.py
+[2026-03-19 21:56:42.556259] NO register(app): recovery_shell.py
+[2026-03-19 21:56:42.694378] NO register(app): app_bootstrap.py
+[2026-03-19 21:56:42.709177] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 21:56:42.879252] NO register(app): monitoring_system.py
+[2026-03-19 21:56:42.898535] NO register(app): payments_system.py
+[2026-03-19 21:56:42.911797] NO register(app): recovery_shell.py
+[2026-03-19 22:01:07.097395] NO register(app): app_bootstrap.py
+[2026-03-19 22:01:07.116840] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:01:07.331200] NO register(app): monitoring_system.py
+[2026-03-19 22:01:07.358052] NO register(app): payments_system.py
+[2026-03-19 22:01:07.376613] NO register(app): recovery_shell.py
+[2026-03-19 22:01:07.510165] NO register(app): app_bootstrap.py
+[2026-03-19 22:01:07.524729] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:01:07.694483] NO register(app): monitoring_system.py
+[2026-03-19 22:01:07.714119] NO register(app): payments_system.py
+[2026-03-19 22:01:07.727123] NO register(app): recovery_shell.py
+[2026-03-19 22:13:40.841613] NO register(app): app_bootstrap.py
+[2026-03-19 22:13:40.863979] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:13:41.073171] NO register(app): monitoring_system.py
+[2026-03-19 22:13:41.098491] NO register(app): payments_system.py
+[2026-03-19 22:13:41.117162] NO register(app): recovery_shell.py
+[2026-03-19 22:13:41.260555] NO register(app): app_bootstrap.py
+[2026-03-19 22:13:41.276272] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:13:41.452941] NO register(app): monitoring_system.py
+[2026-03-19 22:13:41.473776] NO register(app): payments_system.py
+[2026-03-19 22:13:41.487039] NO register(app): recovery_shell.py
+[2026-03-19 22:17:50.922632] NO register(app): app_bootstrap.py
+[2026-03-19 22:17:50.941202] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:17:51.141889] NO register(app): monitoring_system.py
+[2026-03-19 22:17:51.165312] NO register(app): payments_system.py
+[2026-03-19 22:17:51.183421] NO register(app): recovery_shell.py
+[2026-03-19 22:17:51.314486] NO register(app): app_bootstrap.py
+[2026-03-19 22:17:51.329095] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:17:51.497069] NO register(app): monitoring_system.py
+[2026-03-19 22:17:51.517057] NO register(app): payments_system.py
+[2026-03-19 22:17:51.529609] NO register(app): recovery_shell.py
+[2026-03-19 22:25:01.054326] NO register(app): app_bootstrap.py
+[2026-03-19 22:25:01.076394] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:25:01.312524] NO register(app): monitoring_system.py
+[2026-03-19 22:25:01.343323] NO register(app): payments_system.py
+[2026-03-19 22:25:01.364911] NO register(app): recovery_shell.py
+[2026-03-19 22:25:01.541947] NO register(app): app_bootstrap.py
+[2026-03-19 22:25:01.561792] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:25:01.811456] NO register(app): monitoring_system.py
+[2026-03-19 22:25:01.841962] NO register(app): payments_system.py
+[2026-03-19 22:25:01.861762] NO register(app): recovery_shell.py
+[2026-03-19 22:29:34.171862] NO register(app): app_bootstrap.py
+[2026-03-19 22:29:34.191588] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:29:34.395724] NO register(app): monitoring_system.py
+[2026-03-19 22:29:34.420716] NO register(app): payments_system.py
+[2026-03-19 22:29:34.437679] NO register(app): recovery_shell.py
+[2026-03-19 22:29:34.570148] NO register(app): app_bootstrap.py
+[2026-03-19 22:29:34.584795] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:29:34.768004] NO register(app): monitoring_system.py
+[2026-03-19 22:29:34.788144] NO register(app): payments_system.py
+[2026-03-19 22:29:34.800663] NO register(app): recovery_shell.py
+[2026-03-19 22:38:14.158132] NO register(app): app_bootstrap.py
+[2026-03-19 22:38:14.177658] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:38:14.394520] NO register(app): monitoring_system.py
+[2026-03-19 22:38:14.418961] NO register(app): payments_system.py
+[2026-03-19 22:38:14.435925] NO register(app): recovery_shell.py
+[2026-03-19 22:38:14.572504] NO register(app): app_bootstrap.py
+[2026-03-19 22:38:14.587261] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:38:14.754496] NO register(app): monitoring_system.py
+[2026-03-19 22:38:14.776753] NO register(app): payments_system.py
+[2026-03-19 22:38:14.792338] NO register(app): recovery_shell.py
+[2026-03-19 22:47:28.342353] NO register(app): app_bootstrap.py
+[2026-03-19 22:47:28.362177] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:47:28.564372] NO register(app): monitoring_system.py
+[2026-03-19 22:47:28.589056] NO register(app): payments_system.py
+[2026-03-19 22:47:28.606336] NO register(app): recovery_shell.py
+[2026-03-19 22:47:28.744402] NO register(app): app_bootstrap.py
+[2026-03-19 22:47:28.758968] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:47:28.930812] NO register(app): monitoring_system.py
+[2026-03-19 22:47:28.950339] NO register(app): payments_system.py
+[2026-03-19 22:47:28.962900] NO register(app): recovery_shell.py
+[2026-03-19 22:50:43.642192] NO register(app): app_bootstrap.py
+[2026-03-19 22:50:43.661462] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:50:43.841530] NO register(app): monitoring_system.py
+[2026-03-19 22:50:43.863788] NO register(app): payments_system.py
+[2026-03-19 22:50:43.877739] NO register(app): recovery_shell.py
+[2026-03-19 22:50:43.999663] NO register(app): app_bootstrap.py
+[2026-03-19 22:50:44.014722] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:50:44.208854] NO register(app): monitoring_system.py
+[2026-03-19 22:50:44.230211] NO register(app): payments_system.py
+[2026-03-19 22:50:44.245014] NO register(app): recovery_shell.py
+[2026-03-19 22:56:25.230987] NO register(app): app_bootstrap.py
+[2026-03-19 22:56:25.253775] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:56:25.520196] NO register(app): monitoring_system.py
+[2026-03-19 22:56:25.559105] NO register(app): payments_system.py
+[2026-03-19 22:56:25.595306] NO register(app): recovery_shell.py
+[2026-03-19 22:56:25.787328] NO register(app): app_bootstrap.py
+[2026-03-19 22:56:25.803569] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 22:56:26.014369] NO register(app): monitoring_system.py
+[2026-03-19 22:56:26.041039] NO register(app): payments_system.py
+[2026-03-19 22:56:26.058114] NO register(app): recovery_shell.py
+[2026-03-19 23:08:17.340101] NO register(app): app_bootstrap.py
+[2026-03-19 23:08:17.359662] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 23:08:17.567055] NO register(app): monitoring_system.py
+[2026-03-19 23:08:17.594056] NO register(app): payments_system.py
+[2026-03-19 23:08:17.613714] NO register(app): recovery_shell.py
+[2026-03-19 23:08:17.761901] NO register(app): app_bootstrap.py
+[2026-03-19 23:08:17.777151] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 23:08:17.947557] NO register(app): monitoring_system.py
+[2026-03-19 23:08:17.967282] NO register(app): payments_system.py
+[2026-03-19 23:08:17.980295] NO register(app): recovery_shell.py
+[2026-03-19 23:12:26.401081] NO register(app): app_bootstrap.py
+[2026-03-19 23:12:26.422746] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 23:12:26.657292] NO register(app): monitoring_system.py
+[2026-03-19 23:12:26.683084] NO register(app): payments_system.py
+[2026-03-19 23:12:26.706265] NO register(app): recovery_shell.py
+[2026-03-19 23:12:26.853586] NO register(app): app_bootstrap.py
+[2026-03-19 23:12:26.868174] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-19 23:12:27.040011] NO register(app): monitoring_system.py
+[2026-03-19 23:12:27.060219] NO register(app): payments_system.py
+[2026-03-19 23:12:27.073450] NO register(app): recovery_shell.py
+[2026-03-20 00:07:25.030231] NO register(app): app_bootstrap.py
+[2026-03-20 00:07:25.050614] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:07:25.292198] NO register(app): monitoring_system.py
+[2026-03-20 00:07:25.319476] NO register(app): payments_system.py
+[2026-03-20 00:07:25.337719] NO register(app): recovery_shell.py
+[2026-03-20 00:07:25.493250] NO register(app): app_bootstrap.py
+[2026-03-20 00:07:25.508188] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:07:25.679871] NO register(app): monitoring_system.py
+[2026-03-20 00:07:25.699794] NO register(app): payments_system.py
+[2026-03-20 00:07:25.712621] NO register(app): recovery_shell.py
+[2026-03-20 00:11:03.323705] NO register(app): app_bootstrap.py
+[2026-03-20 00:11:03.343159] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:11:03.518419] NO register(app): monitoring_system.py
+[2026-03-20 00:11:03.540435] NO register(app): payments_system.py
+[2026-03-20 00:11:03.563109] NO register(app): recovery_shell.py
+[2026-03-20 00:11:03.680975] NO register(app): app_bootstrap.py
+[2026-03-20 00:11:03.695312] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:11:03.894859] NO register(app): monitoring_system.py
+[2026-03-20 00:11:03.914189] NO register(app): payments_system.py
+[2026-03-20 00:11:03.928355] NO register(app): recovery_shell.py
+[2026-03-20 00:11:10.863533] NO register(app): app_bootstrap.py
+[2026-03-20 00:11:10.881760] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:11:11.055835] NO register(app): monitoring_system.py
+[2026-03-20 00:11:11.078052] NO register(app): payments_system.py
+[2026-03-20 00:11:11.091204] NO register(app): recovery_shell.py
+[2026-03-20 00:11:11.215806] NO register(app): app_bootstrap.py
+[2026-03-20 00:11:11.230421] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:11:11.406012] NO register(app): monitoring_system.py
+[2026-03-20 00:11:11.426101] NO register(app): payments_system.py
+[2026-03-20 00:11:11.439371] NO register(app): recovery_shell.py
+[2026-03-20 00:12:55.970800] NO register(app): app_bootstrap.py
+[2026-03-20 00:12:55.990924] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:12:56.196913] NO register(app): monitoring_system.py
+[2026-03-20 00:12:56.220858] NO register(app): payments_system.py
+[2026-03-20 00:12:56.237953] NO register(app): recovery_shell.py
+[2026-03-20 00:12:56.372938] NO register(app): app_bootstrap.py
+[2026-03-20 00:12:56.387444] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:12:56.561769] NO register(app): monitoring_system.py
+[2026-03-20 00:12:56.584088] NO register(app): payments_system.py
+[2026-03-20 00:12:56.598813] NO register(app): recovery_shell.py
+[2026-03-20 00:13:21.083513] NO register(app): app_bootstrap.py
+[2026-03-20 00:13:21.101757] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:13:21.268368] NO register(app): monitoring_system.py
+[2026-03-20 00:13:21.287683] NO register(app): payments_system.py
+[2026-03-20 00:13:21.300340] NO register(app): recovery_shell.py
+[2026-03-20 00:13:21.422286] NO register(app): app_bootstrap.py
+[2026-03-20 00:13:21.470280] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:13:21.633625] NO register(app): monitoring_system.py
+[2026-03-20 00:13:21.656291] NO register(app): payments_system.py
+[2026-03-20 00:13:21.669746] NO register(app): recovery_shell.py
+[2026-03-20 00:19:06.426065] NO register(app): app_bootstrap.py
+[2026-03-20 00:19:06.446237] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:19:06.648579] NO register(app): monitoring_system.py
+[2026-03-20 00:19:06.670288] NO register(app): payments_system.py
+[2026-03-20 00:19:06.689406] NO register(app): recovery_shell.py
+[2026-03-20 00:19:06.836180] NO register(app): app_bootstrap.py
+[2026-03-20 00:19:06.882560] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:19:07.046162] NO register(app): monitoring_system.py
+[2026-03-20 00:19:07.069549] NO register(app): payments_system.py
+[2026-03-20 00:19:07.082047] NO register(app): recovery_shell.py
+[2026-03-20 00:27:18.871659] NO register(app): app_bootstrap.py
+[2026-03-20 00:27:18.894013] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:27:19.095570] NO register(app): monitoring_system.py
+[2026-03-20 00:27:19.119714] NO register(app): payments_system.py
+[2026-03-20 00:27:19.137413] NO register(app): recovery_shell.py
+[2026-03-20 00:27:19.269353] NO register(app): app_bootstrap.py
+[2026-03-20 00:27:19.283924] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:27:19.483350] NO register(app): monitoring_system.py
+[2026-03-20 00:27:19.502448] NO register(app): payments_system.py
+[2026-03-20 00:27:19.514949] NO register(app): recovery_shell.py
+[2026-03-20 00:34:41.162870] NO register(app): app_bootstrap.py
+[2026-03-20 00:34:41.182291] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:34:41.391412] NO register(app): monitoring_system.py
+[2026-03-20 00:34:41.415727] NO register(app): payments_system.py
+[2026-03-20 00:34:41.433498] NO register(app): recovery_shell.py
+[2026-03-20 00:34:41.580536] NO register(app): app_bootstrap.py
+[2026-03-20 00:34:41.595567] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:34:41.799736] NO register(app): monitoring_system.py
+[2026-03-20 00:34:41.819273] NO register(app): payments_system.py
+[2026-03-20 00:34:41.832071] NO register(app): recovery_shell.py
+[2026-03-20 00:44:48.810235] NO register(app): app_bootstrap.py
+[2026-03-20 00:44:48.829689] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:44:49.033800] NO register(app): monitoring_system.py
+[2026-03-20 00:44:49.057836] NO register(app): payments_system.py
+[2026-03-20 00:44:49.075425] NO register(app): recovery_shell.py
+[2026-03-20 00:44:49.215890] NO register(app): app_bootstrap.py
+[2026-03-20 00:44:49.230142] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:44:49.430331] NO register(app): monitoring_system.py
+[2026-03-20 00:44:49.449551] NO register(app): payments_system.py
+[2026-03-20 00:44:49.462458] NO register(app): recovery_shell.py
+[2026-03-20 00:45:00.382231] NO register(app): app_bootstrap.py
+[2026-03-20 00:45:00.399268] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:45:00.594687] NO register(app): monitoring_system.py
+[2026-03-20 00:45:00.614266] NO register(app): payments_system.py
+[2026-03-20 00:45:00.626810] NO register(app): recovery_shell.py
+[2026-03-20 00:45:00.735115] NO register(app): app_bootstrap.py
+[2026-03-20 00:45:00.748029] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:45:00.925548] NO register(app): monitoring_system.py
+[2026-03-20 00:45:00.942578] NO register(app): payments_system.py
+[2026-03-20 00:45:00.954689] NO register(app): recovery_shell.py
+[2026-03-20 00:45:31.360923] NO register(app): app_bootstrap.py
+[2026-03-20 00:45:31.388122] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:45:31.559532] NO register(app): monitoring_system.py
+[2026-03-20 00:45:31.581340] NO register(app): payments_system.py
+[2026-03-20 00:45:31.594192] NO register(app): recovery_shell.py
+[2026-03-20 00:45:31.724934] NO register(app): app_bootstrap.py
+[2026-03-20 00:45:31.739575] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:45:31.940040] NO register(app): monitoring_system.py
+[2026-03-20 00:45:31.958918] NO register(app): payments_system.py
+[2026-03-20 00:45:31.971370] NO register(app): recovery_shell.py
+[2026-03-20 00:47:38.359769] NO register(app): app_bootstrap.py
+[2026-03-20 00:47:38.387818] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:47:38.571009] NO register(app): monitoring_system.py
+[2026-03-20 00:47:38.593379] NO register(app): payments_system.py
+[2026-03-20 00:47:38.606767] NO register(app): recovery_shell.py
+[2026-03-20 00:47:38.739797] NO register(app): app_bootstrap.py
+[2026-03-20 00:47:38.754466] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:47:38.925773] NO register(app): monitoring_system.py
+[2026-03-20 00:47:38.946004] NO register(app): payments_system.py
+[2026-03-20 00:47:38.958986] NO register(app): recovery_shell.py
+[2026-03-20 00:51:02.426766] NO register(app): app_bootstrap.py
+[2026-03-20 00:51:02.445851] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:51:02.653046] NO register(app): monitoring_system.py
+[2026-03-20 00:51:02.681359] NO register(app): payments_system.py
+[2026-03-20 00:51:02.700272] NO register(app): recovery_shell.py
+[2026-03-20 00:51:02.855826] NO register(app): app_bootstrap.py
+[2026-03-20 00:51:02.871316] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:51:03.041238] NO register(app): monitoring_system.py
+[2026-03-20 00:51:03.060518] NO register(app): payments_system.py
+[2026-03-20 00:51:03.073728] NO register(app): recovery_shell.py
+[2026-03-20 00:53:15.351897] NO register(app): app_bootstrap.py
+[2026-03-20 00:53:15.371645] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:53:15.550959] NO register(app): monitoring_system.py
+[2026-03-20 00:53:15.570749] NO register(app): payments_system.py
+[2026-03-20 00:53:15.583424] NO register(app): recovery_shell.py
+[2026-03-20 00:53:15.705129] NO register(app): app_bootstrap.py
+[2026-03-20 00:53:15.751862] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:53:15.914850] NO register(app): monitoring_system.py
+[2026-03-20 00:53:15.938035] NO register(app): payments_system.py
+[2026-03-20 00:53:15.950400] NO register(app): recovery_shell.py
+[2026-03-20 00:55:08.357308] NO register(app): app_bootstrap.py
+[2026-03-20 00:55:08.376247] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:55:08.551684] NO register(app): monitoring_system.py
+[2026-03-20 00:55:08.571808] NO register(app): payments_system.py
+[2026-03-20 00:55:08.585287] NO register(app): recovery_shell.py
+[2026-03-20 00:55:08.706300] NO register(app): app_bootstrap.py
+[2026-03-20 00:55:08.754115] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:55:08.930991] NO register(app): monitoring_system.py
+[2026-03-20 00:55:08.957784] NO register(app): payments_system.py
+[2026-03-20 00:55:08.971506] NO register(app): recovery_shell.py
+[2026-03-20 00:56:28.040222] NO register(app): app_bootstrap.py
+[2026-03-20 00:56:28.060185] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:56:28.270718] NO register(app): monitoring_system.py
+[2026-03-20 00:56:28.294048] NO register(app): payments_system.py
+[2026-03-20 00:56:28.311938] NO register(app): recovery_shell.py
+[2026-03-20 00:56:28.459638] NO register(app): app_bootstrap.py
+[2026-03-20 00:56:28.508978] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:56:28.679859] NO register(app): monitoring_system.py
+[2026-03-20 00:56:28.702775] NO register(app): payments_system.py
+[2026-03-20 00:56:28.716010] NO register(app): recovery_shell.py
+[2026-03-20 00:58:39.032103] NO register(app): app_bootstrap.py
+[2026-03-20 00:58:39.053187] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:58:39.246052] NO register(app): monitoring_system.py
+[2026-03-20 00:58:39.266699] NO register(app): payments_system.py
+[2026-03-20 00:58:39.283003] NO register(app): recovery_shell.py
+[2026-03-20 00:58:39.415352] NO register(app): app_bootstrap.py
+[2026-03-20 00:58:39.462336] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 00:58:39.650237] NO register(app): monitoring_system.py
+[2026-03-20 00:58:39.676900] NO register(app): payments_system.py
+[2026-03-20 00:58:39.690659] NO register(app): recovery_shell.py
+[2026-03-20 01:10:05.658001] NO register(app): app_bootstrap.py
+[2026-03-20 01:10:05.680112] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 01:10:05.988813] NO register(app): monitoring_system.py
+[2026-03-20 01:10:06.014328] NO register(app): payments_system.py
+[2026-03-20 01:10:06.034994] NO register(app): recovery_shell.py
+[2026-03-20 01:10:06.205281] NO register(app): app_bootstrap.py
+[2026-03-20 01:10:06.259192] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 01:10:06.496397] NO register(app): monitoring_system.py
+[2026-03-20 01:10:06.528518] NO register(app): payments_system.py
+[2026-03-20 01:10:06.545815] NO register(app): recovery_shell.py
+[2026-03-20 01:24:49.532282] NO register(app): app_bootstrap.py
+[2026-03-20 01:24:49.551454] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 01:24:49.746406] NO register(app): monitoring_system.py
+[2026-03-20 01:24:49.771403] NO register(app): payments_system.py
+[2026-03-20 01:24:49.789772] NO register(app): recovery_shell.py
+[2026-03-20 01:24:49.922879] NO register(app): app_bootstrap.py
+[2026-03-20 01:24:49.969362] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 01:24:50.133529] NO register(app): monitoring_system.py
+[2026-03-20 01:24:50.156200] NO register(app): payments_system.py
+[2026-03-20 01:24:50.168979] NO register(app): recovery_shell.py
+[2026-03-20 01:29:10.395316] NO register(app): app_bootstrap.py
+[2026-03-20 01:29:10.418215] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 01:29:10.654293] NO register(app): monitoring_system.py
+[2026-03-20 01:29:10.718673] NO register(app): payments_system.py
+[2026-03-20 01:29:10.742981] NO register(app): recovery_shell.py
+[2026-03-20 01:29:10.877453] NO register(app): app_bootstrap.py
+[2026-03-20 01:29:10.926117] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 01:29:11.098049] NO register(app): monitoring_system.py
+[2026-03-20 01:29:11.123541] NO register(app): payments_system.py
+[2026-03-20 01:29:11.136892] NO register(app): recovery_shell.py
+[2026-03-20 01:35:11.541848] NO register(app): app_bootstrap.py
+[2026-03-20 01:35:11.560881] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 01:35:11.759821] NO register(app): monitoring_system.py
+[2026-03-20 01:35:11.781334] NO register(app): payments_system.py
+[2026-03-20 01:35:11.798823] NO register(app): recovery_shell.py
+[2026-03-20 01:35:11.935571] NO register(app): app_bootstrap.py
+[2026-03-20 01:35:11.987949] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 01:35:12.167619] NO register(app): monitoring_system.py
+[2026-03-20 01:35:12.192169] NO register(app): payments_system.py
+[2026-03-20 01:35:12.205510] NO register(app): recovery_shell.py
+[2026-03-20 01:42:06.832411] NO register(app): app_bootstrap.py
+[2026-03-20 01:42:06.853553] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 01:42:07.068226] NO register(app): monitoring_system.py
+[2026-03-20 01:42:07.093442] NO register(app): payments_system.py
+[2026-03-20 01:42:07.111323] NO register(app): recovery_shell.py
+[2026-03-20 01:42:07.261861] NO register(app): app_bootstrap.py
+[2026-03-20 01:42:07.309244] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 01:42:07.502148] NO register(app): monitoring_system.py
+[2026-03-20 01:42:07.527955] NO register(app): payments_system.py
+[2026-03-20 01:42:07.542938] NO register(app): recovery_shell.py
+[2026-03-20 01:54:44.789897] NO register(app): app_bootstrap.py
+[2026-03-20 01:54:44.809816] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 01:54:45.018575] NO register(app): monitoring_system.py
+[2026-03-20 01:54:45.041272] NO register(app): payments_system.py
+[2026-03-20 01:54:45.059237] NO register(app): recovery_shell.py
+[2026-03-20 01:54:45.199315] NO register(app): app_bootstrap.py
+[2026-03-20 01:54:45.246537] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 01:54:45.412328] NO register(app): monitoring_system.py
+[2026-03-20 01:54:45.437122] NO register(app): payments_system.py
+[2026-03-20 01:54:45.449848] NO register(app): recovery_shell.py
+[2026-03-20 02:07:55.149084] NO register(app): app_bootstrap.py
+[2026-03-20 02:07:55.172843] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 02:07:55.546359] NO register(app): monitoring_system.py
+[2026-03-20 02:07:55.579326] NO register(app): payments_system.py
+[2026-03-20 02:07:55.644225] NO register(app): recovery_shell.py
+[2026-03-20 02:07:55.933745] NO register(app): app_bootstrap.py
+[2026-03-20 02:07:55.982034] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 02:07:56.195910] NO register(app): monitoring_system.py
+[2026-03-20 02:07:56.227351] NO register(app): payments_system.py
+[2026-03-20 02:07:56.243886] NO register(app): recovery_shell.py
+[2026-03-20 02:10:00.588878] NO register(app): app_bootstrap.py
+[2026-03-20 02:10:00.609419] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 02:10:00.796319] NO register(app): monitoring_system.py
+[2026-03-20 02:10:00.817688] NO register(app): payments_system.py
+[2026-03-20 02:10:00.833771] NO register(app): recovery_shell.py
+[2026-03-20 02:10:00.967652] NO register(app): app_bootstrap.py
+[2026-03-20 02:10:01.014559] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 02:10:01.177601] NO register(app): monitoring_system.py
+[2026-03-20 02:10:01.200285] NO register(app): payments_system.py
+[2026-03-20 02:10:01.212814] NO register(app): recovery_shell.py
+[2026-03-20 08:05:03.178694] NO register(app): app_bootstrap.py
+[2026-03-20 08:05:03.199526] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 08:05:03.401593] NO register(app): monitoring_system.py
+[2026-03-20 08:05:03.426477] NO register(app): payments_system.py
+[2026-03-20 08:05:03.440342] NO register(app): recovery_shell.py
+[2026-03-20 08:05:03.588042] NO register(app): app_bootstrap.py
+[2026-03-20 08:05:03.638428] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 08:05:03.837693] NO register(app): monitoring_system.py
+[2026-03-20 08:05:03.863746] NO register(app): payments_system.py
+[2026-03-20 08:05:03.878400] NO register(app): recovery_shell.py
+[2026-03-20 08:39:57.650176] NO register(app): app_bootstrap.py
+[2026-03-20 08:39:57.672088] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 08:39:57.905957] NO register(app): monitoring_system.py
+[2026-03-20 08:39:57.932069] NO register(app): payments_system.py
+[2026-03-20 08:39:57.951073] NO register(app): recovery_shell.py
+[2026-03-20 08:39:58.113160] NO register(app): app_bootstrap.py
+[2026-03-20 08:39:58.163439] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 08:39:58.358384] NO register(app): monitoring_system.py
+[2026-03-20 08:39:58.384096] NO register(app): payments_system.py
+[2026-03-20 08:39:58.397330] NO register(app): recovery_shell.py
+[2026-03-20 09:05:25.770488] NO register(app): app_bootstrap.py
+[2026-03-20 09:05:25.791630] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 09:05:26.003886] NO register(app): monitoring_system.py
+[2026-03-20 09:05:26.025049] NO register(app): payments_system.py
+[2026-03-20 09:05:26.042297] NO register(app): recovery_shell.py
+[2026-03-20 09:05:26.180933] NO register(app): app_bootstrap.py
+[2026-03-20 09:05:26.227440] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 09:05:26.391729] NO register(app): monitoring_system.py
+[2026-03-20 09:05:26.415714] NO register(app): payments_system.py
+[2026-03-20 09:05:26.427961] NO register(app): recovery_shell.py
+[2026-03-20 09:34:40.746838] NO register(app): app_bootstrap.py
+[2026-03-20 09:34:40.768442] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 09:34:40.988375] NO register(app): monitoring_system.py
+[2026-03-20 09:34:41.012740] NO register(app): payments_system.py
+[2026-03-20 09:34:41.031193] NO register(app): recovery_shell.py
+[2026-03-20 09:34:41.179428] NO register(app): app_bootstrap.py
+[2026-03-20 09:34:41.227537] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 09:34:41.403537] NO register(app): monitoring_system.py
+[2026-03-20 09:34:41.428475] NO register(app): payments_system.py
+[2026-03-20 09:34:41.441795] NO register(app): recovery_shell.py
+[2026-03-20 09:43:08.367252] NO register(app): app_bootstrap.py
+[2026-03-20 09:43:08.388331] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 09:43:08.617521] NO register(app): monitoring_system.py
+[2026-03-20 09:43:08.644218] NO register(app): payments_system.py
+[2026-03-20 09:43:08.665236] NO register(app): recovery_shell.py
+[2026-03-20 09:43:08.815297] NO register(app): app_bootstrap.py
+[2026-03-20 09:43:08.862390] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 09:43:09.033883] NO register(app): monitoring_system.py
+[2026-03-20 09:43:09.057605] NO register(app): payments_system.py
+[2026-03-20 09:43:09.070222] NO register(app): recovery_shell.py
+[2026-03-20 09:44:08.194376] NO register(app): app_bootstrap.py
+[2026-03-20 09:44:08.212388] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 09:44:08.388137] NO register(app): monitoring_system.py
+[2026-03-20 09:44:08.408905] NO register(app): payments_system.py
+[2026-03-20 09:44:08.421905] NO register(app): recovery_shell.py
+[2026-03-20 09:44:08.547469] NO register(app): app_bootstrap.py
+[2026-03-20 09:44:08.593849] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 09:44:08.761759] NO register(app): monitoring_system.py
+[2026-03-20 09:44:08.785671] NO register(app): payments_system.py
+[2026-03-20 09:44:08.798983] NO register(app): recovery_shell.py
+[2026-03-20 10:20:59.519119] NO register(app): app_bootstrap.py
+[2026-03-20 10:20:59.542744] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:20:59.772857] NO register(app): monitoring_system.py
+[2026-03-20 10:20:59.797884] NO register(app): payments_system.py
+[2026-03-20 10:20:59.816192] NO register(app): recovery_shell.py
+[2026-03-20 10:20:59.964679] NO register(app): app_bootstrap.py
+[2026-03-20 10:21:00.015433] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:21:00.210152] NO register(app): monitoring_system.py
+[2026-03-20 10:21:00.236492] NO register(app): payments_system.py
+[2026-03-20 10:21:00.250032] NO register(app): recovery_shell.py
+[2026-03-20 10:21:22.341616] NO register(app): app_bootstrap.py
+[2026-03-20 10:21:22.360284] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:21:22.540005] NO register(app): monitoring_system.py
+[2026-03-20 10:21:22.559389] NO register(app): payments_system.py
+[2026-03-20 10:21:22.572246] NO register(app): recovery_shell.py
+[2026-03-20 10:21:22.692625] NO register(app): app_bootstrap.py
+[2026-03-20 10:21:22.740294] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:21:22.908447] NO register(app): monitoring_system.py
+[2026-03-20 10:21:22.930574] NO register(app): payments_system.py
+[2026-03-20 10:21:22.942966] NO register(app): recovery_shell.py
+[2026-03-20 10:25:21.951119] NO register(app): app_bootstrap.py
+[2026-03-20 10:25:21.970159] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:25:22.174739] NO register(app): monitoring_system.py
+[2026-03-20 10:25:22.196707] NO register(app): payments_system.py
+[2026-03-20 10:25:22.214780] NO register(app): recovery_shell.py
+[2026-03-20 10:25:22.353730] NO register(app): app_bootstrap.py
+[2026-03-20 10:25:22.400023] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:25:22.561177] NO register(app): monitoring_system.py
+[2026-03-20 10:25:22.583671] NO register(app): payments_system.py
+[2026-03-20 10:25:22.595665] NO register(app): recovery_shell.py
+[2026-03-20 10:28:01.601048] NO register(app): app_bootstrap.py
+[2026-03-20 10:28:01.623777] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:28:01.825837] NO register(app): monitoring_system.py
+[2026-03-20 10:28:01.846570] NO register(app): payments_system.py
+[2026-03-20 10:28:01.859772] NO register(app): recovery_shell.py
+[2026-03-20 10:28:01.982184] NO register(app): app_bootstrap.py
+[2026-03-20 10:28:02.028465] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:28:02.192677] NO register(app): monitoring_system.py
+[2026-03-20 10:28:02.216295] NO register(app): payments_system.py
+[2026-03-20 10:28:02.229074] NO register(app): recovery_shell.py
+[2026-03-20 10:31:11.566827] NO register(app): app_bootstrap.py
+[2026-03-20 10:31:11.594901] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:31:11.784618] NO register(app): monitoring_system.py
+[2026-03-20 10:31:11.804821] NO register(app): payments_system.py
+[2026-03-20 10:31:11.819192] NO register(app): recovery_shell.py
+[2026-03-20 10:31:11.942159] NO register(app): app_bootstrap.py
+[2026-03-20 10:31:11.988521] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:31:12.158183] NO register(app): monitoring_system.py
+[2026-03-20 10:31:12.181931] NO register(app): payments_system.py
+[2026-03-20 10:31:12.195369] NO register(app): recovery_shell.py
+[2026-03-20 10:38:24.589677] NO register(app): app_bootstrap.py
+[2026-03-20 10:38:24.608833] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:38:24.813313] NO register(app): monitoring_system.py
+[2026-03-20 10:38:24.835330] NO register(app): payments_system.py
+[2026-03-20 10:38:24.853815] NO register(app): recovery_shell.py
+[2026-03-20 10:38:24.988429] NO register(app): app_bootstrap.py
+[2026-03-20 10:38:25.036256] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:38:25.203682] NO register(app): monitoring_system.py
+[2026-03-20 10:38:25.228093] NO register(app): payments_system.py
+[2026-03-20 10:38:25.240993] NO register(app): recovery_shell.py
+[2026-03-20 10:42:49.992720] NO register(app): app_bootstrap.py
+[2026-03-20 10:42:50.012206] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:42:50.195205] NO register(app): monitoring_system.py
+[2026-03-20 10:42:50.218381] NO register(app): payments_system.py
+[2026-03-20 10:42:50.231848] NO register(app): recovery_shell.py
+[2026-03-20 10:42:50.356864] NO register(app): app_bootstrap.py
+[2026-03-20 10:42:50.371507] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:42:50.542631] NO register(app): monitoring_system.py
+[2026-03-20 10:42:50.563405] NO register(app): payments_system.py
+[2026-03-20 10:42:50.577057] NO register(app): recovery_shell.py
+[2026-03-20 10:48:16.659666] NO register(app): app_bootstrap.py
+[2026-03-20 10:48:16.678400] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:48:16.883488] NO register(app): monitoring_system.py
+[2026-03-20 10:48:16.905149] NO register(app): payments_system.py
+[2026-03-20 10:48:16.922117] NO register(app): recovery_shell.py
+[2026-03-20 10:48:17.065486] NO register(app): app_bootstrap.py
+[2026-03-20 10:48:17.115035] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:48:17.310558] NO register(app): monitoring_system.py
+[2026-03-20 10:48:17.338391] NO register(app): payments_system.py
+[2026-03-20 10:48:17.353312] NO register(app): recovery_shell.py
+[2026-03-20 10:52:29.681684] NO register(app): app_bootstrap.py
+[2026-03-20 10:52:29.702619] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:52:29.897285] NO register(app): monitoring_system.py
+[2026-03-20 10:52:29.918498] NO register(app): payments_system.py
+[2026-03-20 10:52:29.931812] NO register(app): recovery_shell.py
+[2026-03-20 10:52:30.065229] NO register(app): app_bootstrap.py
+[2026-03-20 10:52:30.111530] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 10:52:30.273020] NO register(app): monitoring_system.py
+[2026-03-20 10:52:30.296734] NO register(app): payments_system.py
+[2026-03-20 10:52:30.309344] NO register(app): recovery_shell.py
+[2026-03-20 11:00:26.181729] NO register(app): app_bootstrap.py
+[2026-03-20 11:00:26.201371] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 11:00:26.613309] NO register(app): monitoring_system.py
+[2026-03-20 11:00:26.635892] NO register(app): payments_system.py
+[2026-03-20 11:00:26.653451] NO register(app): recovery_shell.py
+[2026-03-20 11:00:26.792799] NO register(app): app_bootstrap.py
+[2026-03-20 11:00:26.840289] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 11:00:27.010673] NO register(app): monitoring_system.py
+[2026-03-20 11:00:27.035177] NO register(app): payments_system.py
+[2026-03-20 11:00:27.048447] NO register(app): recovery_shell.py
+[2026-03-20 11:10:11.081442] NO register(app): app_bootstrap.py
+[2026-03-20 11:10:11.103801] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 11:10:11.324180] NO register(app): monitoring_system.py
+[2026-03-20 11:10:11.348474] NO register(app): payments_system.py
+[2026-03-20 11:10:11.366641] NO register(app): recovery_shell.py
+[2026-03-20 11:10:11.511812] NO register(app): app_bootstrap.py
+[2026-03-20 11:10:11.560961] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 11:10:11.734369] NO register(app): monitoring_system.py
+[2026-03-20 11:10:11.759336] NO register(app): payments_system.py
+[2026-03-20 11:10:11.773220] NO register(app): recovery_shell.py
+[2026-03-20 11:13:35.178496] NO register(app): app_bootstrap.py
+[2026-03-20 11:13:35.201389] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 11:13:35.447742] NO register(app): monitoring_system.py
+[2026-03-20 11:13:35.473253] NO register(app): payments_system.py
+[2026-03-20 11:13:35.490140] NO register(app): recovery_shell.py
+[2026-03-20 11:13:35.688998] NO register(app): app_bootstrap.py
+[2026-03-20 11:13:35.753810] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 11:13:35.911360] NO register(app): monitoring_system.py
+[2026-03-20 11:13:35.933044] NO register(app): payments_system.py
+[2026-03-20 11:13:35.944864] NO register(app): recovery_shell.py
+[2026-03-20 12:05:38.932273] NO register(app): app_bootstrap.py
+[2026-03-20 12:05:38.952515] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 12:05:39.171120] NO register(app): monitoring_system.py
+[2026-03-20 12:05:39.195890] NO register(app): payments_system.py
+[2026-03-20 12:05:39.214969] NO register(app): recovery_shell.py
+[2026-03-20 12:05:39.367173] NO register(app): app_bootstrap.py
+[2026-03-20 12:05:39.417367] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 12:05:39.605177] NO register(app): monitoring_system.py
+[2026-03-20 12:05:39.631286] NO register(app): payments_system.py
+[2026-03-20 12:05:39.646078] NO register(app): recovery_shell.py
+[2026-03-20 12:12:05.076485] NO register(app): app_bootstrap.py
+[2026-03-20 12:12:05.101176] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 12:12:05.355638] NO register(app): monitoring_system.py
+[2026-03-20 12:12:05.382958] NO register(app): payments_system.py
+[2026-03-20 12:12:05.403440] NO register(app): recovery_shell.py
+[2026-03-20 12:12:05.589975] NO register(app): app_bootstrap.py
+[2026-03-20 12:12:05.652775] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 12:12:05.870282] NO register(app): monitoring_system.py
+[2026-03-20 12:12:05.901924] NO register(app): payments_system.py
+[2026-03-20 12:12:05.918834] NO register(app): recovery_shell.py
+[2026-03-20 12:21:44.578498] NO register(app): app_bootstrap.py
+[2026-03-20 12:21:44.600416] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 12:21:44.824089] NO register(app): monitoring_system.py
+[2026-03-20 12:21:44.848494] NO register(app): payments_system.py
+[2026-03-20 12:21:44.866775] NO register(app): recovery_shell.py
+[2026-03-20 12:21:45.019588] NO register(app): app_bootstrap.py
+[2026-03-20 12:21:45.071722] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 12:21:45.258872] NO register(app): monitoring_system.py
+[2026-03-20 12:21:45.286013] NO register(app): payments_system.py
+[2026-03-20 12:21:45.300736] NO register(app): recovery_shell.py
+[2026-03-20 14:51:27.242439] NO register(app): app_bootstrap.py
+[2026-03-20 14:51:27.264671] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 14:51:27.484345] NO register(app): monitoring_system.py
+[2026-03-20 14:51:27.507064] NO register(app): payments_system.py
+[2026-03-20 14:51:27.526051] NO register(app): recovery_shell.py
+[2026-03-20 14:51:27.665518] NO register(app): app_bootstrap.py
+[2026-03-20 14:51:27.713675] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 14:51:27.885950] NO register(app): monitoring_system.py
+[2026-03-20 14:51:27.909789] NO register(app): payments_system.py
+[2026-03-20 14:51:27.922737] NO register(app): recovery_shell.py
+[2026-03-20 14:56:38.915725] NO register(app): app_bootstrap.py
+[2026-03-20 14:56:38.944594] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 14:56:39.140781] NO register(app): monitoring_system.py
+[2026-03-20 14:56:39.161913] NO register(app): payments_system.py
+[2026-03-20 14:56:39.176756] NO register(app): recovery_shell.py
+[2026-03-20 14:56:39.313229] NO register(app): app_bootstrap.py
+[2026-03-20 14:56:39.359159] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 14:56:39.528806] NO register(app): monitoring_system.py
+[2026-03-20 14:56:39.552517] NO register(app): payments_system.py
+[2026-03-20 14:56:39.564881] NO register(app): recovery_shell.py
+[2026-03-20 15:05:31.299909] NO register(app): app_bootstrap.py
+[2026-03-20 15:05:31.320445] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 15:05:31.524621] NO register(app): monitoring_system.py
+[2026-03-20 15:05:31.549531] NO register(app): payments_system.py
+[2026-03-20 15:05:31.569731] NO register(app): recovery_shell.py
+[2026-03-20 15:05:31.709638] NO register(app): app_bootstrap.py
+[2026-03-20 15:05:31.756188] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 15:05:31.921755] NO register(app): monitoring_system.py
+[2026-03-20 15:05:31.944411] NO register(app): payments_system.py
+[2026-03-20 15:05:31.957385] NO register(app): recovery_shell.py
+[2026-03-20 15:11:06.480432] NO register(app): app_bootstrap.py
+[2026-03-20 15:11:06.500329] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 15:11:06.708108] NO register(app): monitoring_system.py
+[2026-03-20 15:11:06.730654] NO register(app): payments_system.py
+[2026-03-20 15:11:06.748127] NO register(app): recovery_shell.py
+[2026-03-20 15:11:06.889512] NO register(app): app_bootstrap.py
+[2026-03-20 15:11:06.936395] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 15:11:07.104944] NO register(app): monitoring_system.py
+[2026-03-20 15:11:07.129551] NO register(app): payments_system.py
+[2026-03-20 15:11:07.142585] NO register(app): recovery_shell.py
+[2026-03-20 15:19:40.835601] NO register(app): app_bootstrap.py
+[2026-03-20 15:19:40.854720] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 15:19:41.060194] NO register(app): monitoring_system.py
+[2026-03-20 15:19:41.082095] NO register(app): payments_system.py
+[2026-03-20 15:19:41.099387] NO register(app): recovery_shell.py
+[2026-03-20 15:19:41.238089] NO register(app): app_bootstrap.py
+[2026-03-20 15:19:41.286989] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 15:19:41.471058] NO register(app): monitoring_system.py
+[2026-03-20 15:19:41.494532] NO register(app): payments_system.py
+[2026-03-20 15:19:41.507026] NO register(app): recovery_shell.py
+[2026-03-20 16:00:28.545570] NO register(app): app_bootstrap.py
+[2026-03-20 16:00:28.564216] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 16:00:28.768765] NO register(app): monitoring_system.py
+[2026-03-20 16:00:28.793589] NO register(app): payments_system.py
+[2026-03-20 16:00:28.811093] NO register(app): recovery_shell.py
+[2026-03-20 16:00:28.950816] NO register(app): app_bootstrap.py
+[2026-03-20 16:00:28.997327] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 16:00:29.159340] NO register(app): monitoring_system.py
+[2026-03-20 16:00:29.181644] NO register(app): payments_system.py
+[2026-03-20 16:00:29.194246] NO register(app): recovery_shell.py
+[2026-03-20 16:01:37.392643] NO register(app): app_bootstrap.py
+[2026-03-20 16:01:37.411200] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 16:01:37.580892] NO register(app): monitoring_system.py
+[2026-03-20 16:01:37.600758] NO register(app): payments_system.py
+[2026-03-20 16:01:37.613896] NO register(app): recovery_shell.py
+[2026-03-20 16:01:37.740172] NO register(app): app_bootstrap.py
+[2026-03-20 16:01:37.785968] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 16:01:37.954386] NO register(app): monitoring_system.py
+[2026-03-20 16:01:37.980726] NO register(app): payments_system.py
+[2026-03-20 16:01:37.994101] NO register(app): recovery_shell.py
+[2026-03-20 16:19:05.191562] NO register(app): app_bootstrap.py
+[2026-03-20 16:19:05.210445] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 16:19:05.412561] NO register(app): monitoring_system.py
+[2026-03-20 16:19:05.433949] NO register(app): payments_system.py
+[2026-03-20 16:19:05.450298] NO register(app): recovery_shell.py
+[2026-03-20 16:19:05.587084] NO register(app): app_bootstrap.py
+[2026-03-20 16:19:05.633769] FAILED auth_system.py: TypeError: register() takes 0 positional arguments but 1 was given
+[2026-03-20 16:19:05.807509] NO register(app): monitoring_system.py
+[2026-03-20 16:19:05.835372] NO register(app): payments_system.py
+[2026-03-20 16:19:05.849630] NO register(app): recovery_shell.py

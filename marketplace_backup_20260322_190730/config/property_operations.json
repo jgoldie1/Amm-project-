@@ -1,0 +1,32 @@
+{
+  "property_operations": {
+    "studio_presets": [
+      "podcast_room",
+      "music_room",
+      "streaming_suite",
+      "editing_room",
+      "brand_showroom",
+      "creator_office"
+    ],
+    "room_types": [
+      "bedroom",
+      "kitchen",
+      "bathroom",
+      "living_room",
+      "office",
+      "studio_room",
+      "lobby",
+      "reception",
+      "suite_lounge"
+    ],
+    "access_types": [
+      "resident",
+      "guest",
+      "creator",
+      "vip",
+      "founder",
+      "security",
+      "maintenance"
+    ]
+  }
+}

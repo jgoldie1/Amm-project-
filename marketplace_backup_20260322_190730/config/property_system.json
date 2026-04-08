@@ -1,0 +1,38 @@
+{
+  "property_system": {
+    "building_types": [
+      "apartment_tower",
+      "office_tower",
+      "creator_studio_building",
+      "mixed_use_building",
+      "retail_center",
+      "event_venue",
+      "vip_penthouse_tower"
+    ],
+    "space_types": [
+      "apartment",
+      "office_suite",
+      "creator_suite",
+      "retail_suite",
+      "event_room",
+      "studio_room",
+      "vip_penthouse"
+    ],
+    "furniture_types": [
+      "sofa",
+      "bed",
+      "desk",
+      "table",
+      "chair",
+      "studio_setup",
+      "display_shelf",
+      "luxury_decor"
+    ],
+    "media_modes": [
+      "music_playback",
+      "creator_playlist",
+      "streaming_lounge",
+      "business_media_display"
+    ]
+  }
+}
