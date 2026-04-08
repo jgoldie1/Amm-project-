@@ -1,40 +1,3 @@
-
-for path, text in readmes.items():
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text)
-
-summary = {
-    "status": "artist_music_dropzones_ready",
-    "next_step": "add real vocals, song drafts, approved soundtrack, and final masters"
-}
-
-(base / "outputs" / "artist_music_dropzones.json").write_text(json.dumps(summary, indent=2))
-print("artist music dropzones generated")
-PY
-
-cat > studio_os/services/soundtrack/build_injection_runner_stub.py <<'PY'
-from pathlib import Path
-
-base = Path("studio_os/projects/anyone_can_be_a_star_episode")
-runner = base / "provider_logs" / "inject_soundtrack_when_ready.sh"
-runner.parent.mkdir(parents=True, exist_ok=True)
-
-runner.write_text("""#!/usr/bin/env bash
-set -e
-cd "$HOME/aam_full_system"
-
-PROJECT="studio_os/projects/anyone_can_be_a_star_episode"
-FINAL="$PROJECT/assets/final/final_master.mp4"
-MUSIC="$PROJECT/assets/mix_masters/soundtrack_master.wav"
-
-if [ ! -f "$FINAL" ]; then
-  echo "Final master video not ready yet."
-  exit 0
-fi
-
-if [ ! -f "$MUSIC" ]; then
-  echo "Soundtrack master not ready yet."
-  exit 0
 fi
 
 echo "Ready to inject soundtrack into final render."
@@ -498,3 +461,40 @@ pkg update
 pkg upgrade -y
 cp -r ~/aam_full_system /sdcard/
 cp -r ~/aam_full_system /sdcard/aam_backup
+termux-share "/storage/emulated/0/Download/aam_backup.tar.gz"
+pkg install termux-api
+apt update --allow-insecure-repositories
+apt install termux-keyring --allow-unauthenticated
+apt update
+pkg install termux-api
+termux-share "/storage/emulated/0/Download/aam_backup.tar.gz"
+aam_backup
+tar -czf /sdcard/aam_backup.tar.gz ~/aam_full_system
+pkg install git -y
+git init
+git add .
+git commit -m "backup"
+ls -lh /sdcard/aam_backup.tar.gz
+rm -rf ~/.cache/*
+rm -rf ~/.npm/*
+tar -xzf /sdcard/aam_backup.tar.gz -C ~/
+rm -rf ~/.npm/*
+rm -rf ~/.cache/*
+rm -rf ~/.npm/*
+df -h
+tar -czf /sdcard/aam_backup.tar.gz ~/aam_full_system
+ls -lh /sdcard/aam_backup.tar.gz
+rm -rf ~/aam_full_system/test_results/*
+rm -rf ~/.cache/*
+rm -rf ~/.npm/*
+rm -rf ~/backups/*
+df -h
+3tar -tzf /sdcard/aam_backup.tar.gz | head
+tar -czf /sdcard/aam_backup_clean.tar.gz ~/aam_full_system
+tar -tzf /sdcard/aam_backup.tar.gz | head
+termux-setup-storage
+mv /sdcard/aam_backup.tar.gz /storage/emulated/0/Download/
+aam_backup.tar.gz
+ls /storage/emulated/0/Download/
+tar -tzf /storage/emulated/0/Download/aam_backup.tar.gz | head
+termux-share /storage/emulated/0/Download/aam_backup.tar.gz
