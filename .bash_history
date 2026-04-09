@@ -1,26 +1,3 @@
-fi
-
-echo "Ready to inject soundtrack into final render."
-echo "Next step: run final audio replacement/mix with ffmpeg or editor backend."
-""")
-runner.chmod(0o755)
-print("injection runner stub generated")
-PY
-
-python studio_os/services/artist_music/build_artist_music_plan.py
-python studio_os/services/soundtrack/build_soundtrack_injection_plan.py
-python studio_os/services/soundtrack/build_artist_dropzones.py
-python studio_os/services/soundtrack/build_injection_runner_stub.py
-
-echo
-echo "=== VERIFY ==="
-find "$PROJECT/assets"/vocal_sessions -maxdepth 2 -type f | sort
-find "$PROJECT/assets"/song_drafts -maxdepth 2 -type f | sort
-find "$PROJECT/assets"/approved_soundtrack -maxdepth 2 -type f | sort
-find "$PROJECT/assets"/mix_masters -maxdepth 2 -type f | sort
-find "$PROJECT/outputs" -maxdepth 1 -type f | sort | tail -n 10
-
-echo
 echo "=== FREEZE ==="
 STAMP=$(date +%Y%m%d_%H%M%S)
 tar -czf "snapshots/final/artist_music_injection_${STAMP}.tar.gz" studio_os
@@ -498,3 +475,26 @@ aam_backup.tar.gz
 ls /storage/emulated/0/Download/
 tar -tzf /storage/emulated/0/Download/aam_backup.tar.gz | head
 termux-share /storage/emulated/0/Download/aam_backup.tar.gz
+cd /storage/emulated/0/Download
+tar -xzf aam_backup.tar.gz
+ls
+tar -xvzf aam_backup.tar.gz
+cd ~/aam_full_system
+ls
+rm -rf node_modules
+git add .
+git commit -m "deploy setup"
+git push
+git remote add origin https://github.com/jgoldie1/aam-project.git
+git push -u origin main
+100644 aam_full_system/node_modules/busboy/package.json
+~/aam_full_system $ git push                                                              fatal: No configured push destination.
+Either specify the URL from the command-line or configure a remote repository using       
+and then push using the remote name                                                       
+error: src refspec main does not match any                                                error: failed to push some refs to 'https://github.com/jgoldie1/aam-project.git'
+~/aam_full_system $
+git add .
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/jgoldie1/aam-project.git
+git push -u origin main
