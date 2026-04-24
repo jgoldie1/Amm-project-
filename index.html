@@ -3,12 +3,13 @@
 
 <script>
 let count = 0;
-let clicked = false;
 
 function handleClick() {
-  if (clicked) return;
-  clicked = true;
-  count++;
+  if (localStorage.getItem("clicked")) return;
+
+  localStorage.setItem("clicked", "true");
+  count = 1;
+
   document.getElementById("count").innerText = count;
 }
 </script>
