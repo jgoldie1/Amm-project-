@@ -2,52 +2,59 @@
 <html>
 <head>
   <title>App</title>
+  <style>
+    body {
+      background: black;
+      color: white;
+      text-align: center;
+      font-family: Arial;
+    }
+
+    .video {
+      width: 300px;
+      height: 500px;
+      background: #111;
+      margin: auto;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .actions {
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
 
 <h2>My App</h2>
 
-<button onclick="handleClick()">❤️ Like</button>
-<p id="count">0</p>
+<div class="video">
+  <p>🎥 Live Screen (placeholder)</p>
+</div>
 
-<br>
+<div class="actions">
+  <button onclick="like()">❤️</button>
+  <p id="count">0</p>
 
-<button onclick="followUser()">Follow</button>
-<p id="follow">Not following</p>
-
-<br>
-
-<input id="commentInput" placeholder="Write comment">
-<button onclick="addComment()">Post</button>
-
-<ul id="comments"></ul>
+  <button onclick="gift()">🎁 Send Gift</button>
+  <p id="gift">No gifts yet</p>
+</div>
 
 <script>
+let liked = false;
 let count = 0;
-let clicked = false;
 
-function handleClick() {
-  if (clicked) return;
-  clicked = true;
+function like() {
+  if (liked) return;
+  liked = true;
   count = 1;
   document.getElementById("count").innerText = count;
 }
 
-function followUser() {
-  document.getElementById("follow").innerText = "Following";
-}
-
-function addComment() {
-  const input = document.getElementById("commentInput");
-  const comment = input.value;
-
-  if (!comment) return;
-
-  const li = document.createElement("li");
-  li.innerText = comment;
-
-  document.getElementById("comments").appendChild(li);
-  input.value = "";
+function gift() {
+  document.getElementById("gift").innerText = "🎁 Gift Sent!";
 }
 </script>
 
