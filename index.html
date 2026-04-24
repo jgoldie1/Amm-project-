@@ -1,20 +1,4 @@
-// LOAD ALL VIDEOS
-async function loadFeed() {
-  const res = await fetch("/videos");
-  const videos = await res.json();
-
-  const container = document.createElement("div");
-
-  videos.forEach(v => {
-    const vid = document.createElement("video");
-    vid.src = v;
-    vid.width = 300;
-    vid.controls = true;
-    container.appendChild(vid);
-  });
-
-  document.body.appendChild(container);
-}
-
-// run on load
-window.onload = loadFeed;
+<h2>Live Stream</h2>
+<video id="liveVideo" width="300" autoplay muted></video>
+<br>
+<button onclick="startLive()">Start Live</button>
