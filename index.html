@@ -1,0 +1,31 @@
+<h2>VIDEO + LIKE COUNT 🎬❤️</h2>
+
+<video width='300' controls>
+  <source src='https://www.w3schools.com/html/mov_bbb.mp4' type='video/mp4'>
+</video>
+
+<br>
+
+<button onclick='like()'>❤️ <span id="count">0</span></button>
+
+<script>
+function load(){
+ fetch('/likes')
+ .then(r=>r.json())
+ .then(d=>{
+  document.getElementById('count').innerText = d.main || 0;
+ });
+}
+
+function like(){
+ fetch('/like',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({name:'main'})
+ })
+ .then(()=>setTimeout(load,100)); // 🔥 force refresh after click
+}
+
+load();
+</script>
+
