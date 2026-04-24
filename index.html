@@ -1,12 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Click Test</title>
+  <title>App</title>
 </head>
 <body>
 
-<button onclick="handleClick()">Click</button>
+<h2>My App</h2>
+
+<button onclick="handleClick()">❤️ Like</button>
 <p id="count">0</p>
+
+<br>
+
+<button onclick="followUser()">Follow</button>
+<p id="follow">Not following</p>
+
+<br>
+
+<input id="commentInput" placeholder="Write comment">
+<button onclick="addComment()">Post</button>
+
+<ul id="comments"></ul>
 
 <script>
 let count = 0;
@@ -14,11 +28,26 @@ let clicked = false;
 
 function handleClick() {
   if (clicked) return;
-
   clicked = true;
   count = 1;
-
   document.getElementById("count").innerText = count;
+}
+
+function followUser() {
+  document.getElementById("follow").innerText = "Following";
+}
+
+function addComment() {
+  const input = document.getElementById("commentInput");
+  const comment = input.value;
+
+  if (!comment) return;
+
+  const li = document.createElement("li");
+  li.innerText = comment;
+
+  document.getElementById("comments").appendChild(li);
+  input.value = "";
 }
 </script>
 
