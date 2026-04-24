@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html>
 <head>
   <title>App</title>
@@ -25,7 +25,7 @@
 <h2>My App 🔴</h2>
 
 <!-- 🎥 VIDEO -->
-<video id="videoPlayer" width="300" height="500" controls autoplay muted>
+<video id="videoPlayer" width="300" height="500" controls>
   <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
 </video>
 
@@ -56,7 +56,9 @@
 let liked = false;
 let count = 0;
 let live = false;
+let botRunning = false;
 
+// ❤️ LIKE
 function like() {
   if (liked) return;
   liked = true;
@@ -65,6 +67,7 @@ function like() {
   createHeart();
 }
 
+// 💥 HEART
 function createHeart() {
   const heart = document.createElement("div");
   heart.innerText = "❤️";
@@ -77,7 +80,7 @@ function createHeart() {
   setTimeout(() => heart.remove(), 1000);
 }
 
-// 🎥 Upload preview
+// 🎥 UPLOAD (safe preview only)
 function loadVideo() {
   const file = document.getElementById("upload").files[0];
   if (!file) return;
@@ -89,15 +92,18 @@ function loadVideo() {
   video.load();
 }
 
-// 🔴 Live toggle
+// 🔴 LIVE MODE
 function goLive() {
   live = !live;
   document.getElementById("liveStatus").innerText = live ? "🔴 LIVE" : "Offline";
 
-  if (live) startBot();
+  if (live && !botRunning) {
+    startBot();
+    botRunning = true;
+  }
 }
 
-// 💬 Comments + 🤖 bot
+// 💬 COMMENTS
 function addComment() {
   const input = document.getElementById("commentInput");
   const text = input.value;
@@ -107,7 +113,7 @@ function addComment() {
   input.value = "";
 
   setTimeout(() => {
-    addToChat("Bot: 🔥 Nice stream!");
+    addToChat("Bot: 🔥 Nice!");
   }, 1000);
 }
 
@@ -117,7 +123,7 @@ function addToChat(msg) {
   document.getElementById("comments").appendChild(li);
 }
 
-// 🤖 Auto chat when live
+// 🤖 BOT (safe, no crash loop)
 function startBot() {
   setInterval(() => {
     if (!live) return;
