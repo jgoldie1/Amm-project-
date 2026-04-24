@@ -1,11 +1,8 @@
-let count = 0;
-let clicked = false;
+const express = require("express");
+const app = express();
 
-function handleClick() {
-  if (clicked) return;
+app.use(express.static("public"));
 
-  clicked = true;
-  count++;
-
-  document.getElementById("count").innerText = count;
-}
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
+});
