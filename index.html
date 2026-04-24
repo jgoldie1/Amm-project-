@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <title>App</title>
@@ -80,7 +80,7 @@ function createHeart() {
   setTimeout(() => heart.remove(), 1000);
 }
 
-// 🎥 UPLOAD (safe preview only)
+// 🎥 UPLOAD (preview only)
 function loadVideo() {
   const file = document.getElementById("upload").files[0];
   if (!file) return;
@@ -123,8 +123,10 @@ function addToChat(msg) {
   document.getElementById("comments").appendChild(li);
 }
 
-// 🤖 BOT (safe, no crash loop)
+// 🤖 BOT (SAFE)
 function startBot() {
+  if (botRunning) return;
+
   setInterval(() => {
     if (!live) return;
 
