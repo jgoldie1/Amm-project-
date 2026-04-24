@@ -10,6 +10,10 @@
       font-family: Arial;
     }
 
+    video {
+      margin-top: 10px;
+    }
+
     @keyframes floatUp {
       0% { transform: translateY(0); opacity: 1; }
       100% { transform: translateY(-200px); opacity: 0; }
@@ -20,10 +24,16 @@
 
 <h2>My App</h2>
 
-<!-- 🎥 VIDEO -->
-<video width="300" height="500" controls>
+<!-- 🎥 VIDEO PLAYER -->
+<video id="videoPlayer" width="300" height="500" controls>
   <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
 </video>
+
+<br><br>
+
+<!-- 📤 UPLOAD -->
+<input type="file" id="upload" accept="video/mp4">
+<button onclick="loadVideo()">Upload Video</button>
 
 <br><br>
 
@@ -55,13 +65,20 @@ function createHeart() {
   heart.style.animation = "floatUp 1s ease-out";
 
   document.body.appendChild(heart);
-
   setTimeout(() => heart.remove(), 1000);
 }
-</script>
 
-</body>
-</html>
+// 🎥 LOAD UPLOADED VIDEO (no server needed)
+function loadVideo() {
+  const file = document.getElementById("upload").files[0];
+  if (!file) return;
+
+  const url = URL.createObjectURL(file);
+  const video = document.getElementById("videoPlayer");
+
+  video.src = url;
+  video.load();
+}
 </script>
 
 </body>
