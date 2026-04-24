@@ -10,10 +10,6 @@
       font-family: Arial;
     }
 
-    video {
-      margin-top: 10px;
-    }
-
     @keyframes floatUp {
       0% { transform: translateY(0); opacity: 1; }
       100% { transform: translateY(-200px); opacity: 0; }
@@ -24,30 +20,25 @@
 
 <h2>My App 🔴</h2>
 
-<!-- 🎥 VIDEO -->
 <video id="videoPlayer" width="300" height="500" controls>
   <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
 </video>
 
 <br><br>
 
-<!-- 📤 UPLOAD -->
 <input type="file" id="upload" accept="video/mp4">
 <button onclick="loadVideo()">Upload</button>
 
 <br><br>
 
-<!-- ❤️ LIKE -->
 <button onclick="like()">❤️</button>
 <p id="count">0</p>
 
-<!-- 🔴 LIVE -->
 <button onclick="goLive()">Go Live</button>
 <p id="liveStatus">Offline</p>
 
 <br>
 
-<!-- 💬 COMMENTS -->
 <input id="commentInput" placeholder="Comment">
 <button onclick="addComment()">Post</button>
 <ul id="comments"></ul>
@@ -58,83 +49,57 @@ let count = 0;
 let live = false;
 let botRunning = false;
 
-// ❤️ LIKE
 function like() {
   if (liked) return;
   liked = true;
   count = 1;
   document.getElementById("count").innerText = count;
-  createHeart();
-}
 
-// 💥 HEART
-function createHeart() {
   const heart = document.createElement("div");
   heart.innerText = "❤️";
   heart.style.position = "fixed";
   heart.style.bottom = "20px";
   heart.style.left = "50%";
-  heart.style.fontSize = "30px";
   heart.style.animation = "floatUp 1s ease-out";
   document.body.appendChild(heart);
   setTimeout(() => heart.remove(), 1000);
 }
 
-// 🎥 UPLOAD (preview only)
 function loadVideo() {
   const file = document.getElementById("upload").files[0];
   if (!file) return;
-
   const url = URL.createObjectURL(file);
   const video = document.getElementById("videoPlayer");
-
   video.src = url;
   video.load();
 }
 
-// 🔴 LIVE MODE
 function goLive() {
   live = !live;
   document.getElementById("liveStatus").innerText = live ? "🔴 LIVE" : "Offline";
 
   if (live && !botRunning) {
-    startBot();
     botRunning = true;
+    setInterval(() => {
+      if (!live) return;
+      const msgs = ["🔥 fire", "💯 wow", "👏 nice"];
+      const msg = msgs[Math.floor(Math.random() * msgs.length)];
+      addToChat("Bot: " + msg);
+    }, 3000);
   }
 }
 
-// 💬 COMMENTS
 function addComment() {
   const input = document.getElementById("commentInput");
-  const text = input.value;
-  if (!text) return;
-
-  addToChat("You: " + text);
+  if (!input.value) return;
+  addToChat("You: " + input.value);
   input.value = "";
-
-  setTimeout(() => {
-    addToChat("Bot: 🔥 Nice!");
-  }, 1000);
 }
 
 function addToChat(msg) {
   const li = document.createElement("li");
   li.innerText = msg;
   document.getElementById("comments").appendChild(li);
-}
-
-// 🤖 BOT (SAFE)
-function startBot() {
-  if (botRunning) return;
-
-  setInterval(() => {
-    if (!live) return;
-
-    const messages = ["🔥 fire", "💯 wow", "👏 nice", "🎉 let’s go"];
-    const msg = messages[Math.floor(Math.random() * messages.length)];
-    addToChat("Bot: " + msg);
-
-  }, 3000);
 }
 </script>
 
