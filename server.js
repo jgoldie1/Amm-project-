@@ -1,8 +1,11 @@
+let count = 0;
 let clicked = false;
 
 function handleClick() {
   if (clicked) return;
+
   clicked = true;
   count++;
+
   document.getElementById("count").innerText = count;
 }
