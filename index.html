@@ -1,3 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body style="background:black;color:white;">
+
+<h3>Live</h3>
+
+<video id="live1" autoplay muted width="300"></video>
+<video id="live2" autoplay width="300"></video>
+<video id="live3" autoplay width="300"></video>
+
+<br><br>
+
+<button onclick="startLive()">Start Live (Host)</button>
+<button onclick="requestJoin()">Request Join</button>
+
+<br><br>
+
+<input id="chatInput" placeholder="chat">
+<button onclick="sendChat()">Send</button>
+
+<div id="chatBox"></div>
+
+<br>
+
+<button onclick="sendGift()">Gift 🎁</button>
+
 <script src="/socket.io/socket.io.js"></script>
 <script>
 
@@ -6,120 +37,75 @@ const room = "main";
 
 let localStream;
 let peers = {};
+let isHost = false;
 
 socket.emit("join-room", room);
 
-// START CAMERA
+// START LIVE
 async function startLive() {
-  try {
-    localStream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true
-    });
+  isHost = true;
 
-    document.getElementById("live1").srcObject = localStream;
-
-  } catch (err) {
-    alert("Camera/Mic error: " + err.message);
-  }
-}
-
-// USER JOINED
-socket.on("user-joined", async id => {
-  const peer = createPeer(id);
-  peers[id] = peer;
-
-  const offer = await peer.createOffer();
-  await peer.setLocalDescription(offer);
-
-  socket.emit("signal", {
-    to: id,
-    signal: offer
-  });
-});
-
-// CREATE PEER
-function createPeer(id) {
-  const peer = new RTCPeerConnection({
-    iceServers: [
-      { urls: "stun:stun.l.google.com:19302" }
-    ]
+  localStream = await navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: true
   });
 
-  if (localStream) {
-    localStream.getTracks().forEach(track => {
-      peer.addTrack(track, localStream);
-    });
-  }
-
-  peer.ontrack = event => {
-    attachStream(event.streams[0]);
-  };
-
-  peer.onicecandidate = event => {
-    if (event.candidate) {
-      socket.emit("signal", {
-        to: id,
-        signal: event.candidate
-      });
-    }
-  };
-
-  return peer;
+  document.getElementById("live1").srcObject = localStream;
 }
 
-// RECEIVE SIGNAL
-socket.on("signal", async data => {
-  let peer = peers[data.from];
+// REQUEST JOIN
+function requestJoin() {
+  socket.emit("request-join", room);
+}
 
-  if (!peer) {
-    peer = createPeer(data.from);
-    peers[data.from] = peer;
-  }
+// HOST APPROVES
+socket.on("join-request", id => {
+  if (!isHost) return;
 
-  if (data.signal.type === "offer") {
-    await peer.setRemoteDescription(data.signal);
-
-    const answer = await peer.createAnswer();
-    await peer.setLocalDescription(answer);
-
-    socket.emit("signal", {
-      to: data.from,
-      signal: answer
-    });
-
-  } else if (data.signal.type === "answer") {
-    await peer.setRemoteDescription(data.signal);
-
-  } else if (data.candidate) {
-    try {
-      await peer.addIceCandidate(data.signal);
-    } catch (e) {}
+  if (confirm("Allow user?")) {
+    socket.emit("approve-user", { userId: id });
   }
 });
 
-// ATTACH VIDEO TO SLOT
-function attachStream(stream) {
-  const slots = ["live2", "live3"];
+// APPROVED USER
+socket.on("approved", async () => {
+  await startLive();
+});
 
-  for (let id of slots) {
-    const vid = document.getElementById(id);
-    if (!vid.srcObject) {
-      vid.srcObject = stream;
-      return;
-    }
-  }
+// CHAT
+function sendChat() {
+  const msg = document.getElementById("chatInput").value;
+
+  socket.emit("chat", { room, text: msg });
+
+  document.getElementById("chatInput").value = "";
 }
 
-// USER LEFT
-socket.on("user-left", id => {
-  if (peers[id]) {
-    peers[id].close();
-    delete peers[id];
-  }
+socket.on("chat", data => {
+  const p = document.createElement("p");
+  p.innerText = data.text;
+  document.getElementById("chatBox").appendChild(p);
+});
 
-  document.getElementById("live2").srcObject = null;
-  document.getElementById("live3").srcObject = null;
+// GIFTS
+function sendGift() {
+  socket.emit("gift", { room });
+}
+
+socket.on("gift", () => {
+  const g = document.createElement("div");
+  g.innerText = "🎁";
+  g.style.position = "absolute";
+  g.style.top = "50%";
+  g.style.left = "50%";
+  g.style.fontSize = "40px";
+
+  document.body.appendChild(g);
+
+  setTimeout(() => g.remove(), 2000);
 });
 
 </script>
+
+</body>
+</html>
