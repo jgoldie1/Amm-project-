@@ -1,16 +1,16 @@
 {
   "name": "amm-project",
   "version": "1.0.0",
-  "description": "All American Live App",
+  "description": "Live streaming app",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
+  "engines": {
+    "node": "20.x"
+  },
   "dependencies": {
     "express": "^4.18.2",
     "socket.io": "^4.7.5"
-  },
-  "engines": {
-    "node": "20.x"
   }
 }
