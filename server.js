@@ -1,8 +1,6 @@
 const express = require("express");
-const http = require("http");
 const fs = require("fs");
 const app = express();
-const server = http.createServer(app);
 
 app.use(express.json());
 app.use(express.static("public"));
@@ -20,7 +18,7 @@ function writeUsers(data) {
   fs.writeFileSync(USERS_FILE, JSON.stringify(data, null, 2));
 }
 
-/* ===== AUTH ===== */
+/* ===== REGISTER ===== */
 app.post("/register", (req, res) => {
   const users = readUsers();
 
@@ -42,6 +40,7 @@ app.post("/register", (req, res) => {
   res.json({ user });
 });
 
+/* ===== LOGIN ===== */
 app.post("/login", (req, res) => {
   const users = readUsers();
 
@@ -53,21 +52,21 @@ app.post("/login", (req, res) => {
   res.json({ user });
 });
 
-/* ===== PROFILE ===== */
-app.get("/profile/:id", (req, res) => {
+/* ===== GET ALL USERS (IMPORTANT FIX) ===== */
+app.get("/users", (req, res) => {
   const users = readUsers();
-  const user = users.find(u => u.id == req.params.id);
-  res.json(user);
+  res.json(users);
 });
 
 /* ===== FOLLOW ===== */
 app.post("/follow", (req, res) => {
   const users = readUsers();
-
   const { me, target } = req.body;
 
   const meUser = users.find(u => u.id == me);
   const targetUser = users.find(u => u.id == target);
+
+  if (!meUser || !targetUser) return res.json({ error: "User not found" });
 
   if (!meUser.following.includes(target)) {
     meUser.following.push(target);
@@ -75,25 +74,8 @@ app.post("/follow", (req, res) => {
   }
 
   writeUsers(users);
-
-  res.json({ ok: true });
-});
-
-app.post("/unfollow", (req, res) => {
-  const users = readUsers();
-
-  const { me, target } = req.body;
-
-  const meUser = users.find(u => u.id == me);
-  const targetUser = users.find(u => u.id == target);
-
-  meUser.following = meUser.following.filter(id => id != target);
-  targetUser.followers = targetUser.followers.filter(id => id != me);
-
-  writeUsers(users);
-
   res.json({ ok: true });
 });
 
 /* ===== START ===== */
-server.listen(process.env.PORT || 3000, () => console.log("RUNNING"));
+app.listen(process.env.PORT || 3000, () => console.log("RUNNING"));
