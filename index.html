@@ -1,259 +1,138 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>REAL LIVE APP</title>
+<title>TikTok Live</title>
 
 <style>
 body {
-  background: black;
-  color: white;
-  font-family: Arial;
-  margin: 0;
+  margin:0;
+  background:black;
+  color:white;
+  font-family:sans-serif;
+  overflow:hidden;
 }
 
-/* TOP BAR */
-#topbar {
-  display:flex;
-  justify-content:space-between;
-  padding:10px;
-  background:#111;
+#feed {
+  height:100vh;
+  overflow-y:scroll;
+  scroll-snap-type:y mandatory;
 }
 
-/* VIDEO GRID */
-#grid {
-  display:grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap:10px;
-  padding:10px;
-}
-
-.videoBox {
-  background:#222;
+.videoCard {
+  height:100vh;
+  scroll-snap-align:start;
   position:relative;
 }
 
 video {
   width:100%;
-  height:200px;
-  background:black;
+  height:100%;
+  object-fit:cover;
 }
 
-/* HOST PANEL */
-#hostPanel {
-  position:fixed;
-  right:0;
-  top:50%;
-  transform:translateY(-50%);
-  background:#111;
+/* overlay UI */
+.overlay {
+  position:absolute;
+  bottom:20px;
+  left:20px;
+}
+
+.actions {
+  position:absolute;
+  right:10px;
+  bottom:100px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+button {
+  background:rgba(0,0,0,0.5);
+  color:white;
+  border:none;
   padding:10px;
-  border-left:2px solid red;
-}
-
-/* CHAT */
-#chatBox {
-  position:fixed;
-  bottom:0;
-  left:0;
-  width:100%;
-  background:#111;
-  padding:10px;
-}
-
-#chat {
-  max-height:100px;
-  overflow:auto;
+  border-radius:10px;
 }
 </style>
-
 </head>
 
 <body>
 
-<!-- TOP BAR -->
-<div id="topbar">
-  <div>🔥 LIVE ROOM</div>
-  <div>
-    <button onclick="startLive()">🔴 Go Live</button>
-    <button onclick="leaveLive()">❌ Leave</button>
-  </div>
-</div>
+<div id="feed"></div>
 
-<!-- VIDEO GRID -->
-<div id="grid">
-  <div class="videoBox"><video id="live1" autoplay muted></video></div>
-  <div class="videoBox"><video id="live2" autoplay></video></div>
-  <div class="videoBox"><video id="live3" autoplay></video></div>
-  <div class="videoBox"><video id="live4" autoplay></video></div>
-  <div class="videoBox"><video id="live5" autoplay></video></div>
-  <div class="videoBox"><video id="live6" autoplay></video></div>
-  <div class="videoBox"><video id="live7" autoplay></video></div>
-  <div class="videoBox"><video id="live8" autoplay></video></div>
-  <div class="videoBox"><video id="live9" autoplay></video></div>
-  <div class="videoBox"><video id="live10" autoplay></video></div>
-</div>
-
-<!-- HOST PANEL -->
-<div id="hostPanel">
-  <h4>HOST PANEL</h4>
-  <button onclick="kickUser()">🚫 Kick Random</button>
-  <button onclick="requestJoin()">🙋 Accept Join</button>
-  <button onclick="gift()">🎁 Send Gift</button>
-  <button onclick="like()">❤️ Like</button>
-</div>
-
-<!-- CHAT -->
-<div id="chatBox">
-  <input id="msg" placeholder="Type message...">
-  <button onclick="sendMsg()">Send</button>
-  <div id="chat"></div>
-</div>
-
-<script src="/socket.io/socket.io.js"></script>
 <script>
-const socket = io();
-const room = "main";
+// LOAD FEED
+async function loadFeed(){
+  const res = await fetch("/feed");
+  const data = await res.json();
 
-let localStream;
-let peers = {};
-let slots = ["live2","live3","live4","live5","live6","live7","live8","live9","live10"];
-let users = [];
+  feed.innerHTML="";
 
-socket.emit("join-room", room);
+  data.forEach(v=>{
+    const card = document.createElement("div");
+    card.className = "videoCard";
 
-// START LIVE
-async function startLive(){
-  localStream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
-  live1.srcObject = localStream;
-}
+    const vid = document.createElement("video");
+    vid.src = v.file;
+    vid.autoplay = true;
+    vid.loop = true;
 
-// USER JOIN
-socket.on("user-joined", id=>{
-  connectUser(id);
-});
+    // overlay
+    const overlay = document.createElement("div");
+    overlay.className="overlay";
+    overlay.innerText = "@" + v.user;
 
-function connectUser(id){
-  const peer = new RTCPeerConnection({
-    iceServers:[
-      { urls:"stun:stun.l.google.com:19302" },
-      {
-        urls:"turn:openrelay.metered.ca:80",
-        username:"openrelayproject",
-        credential:"openrelayproject"
-      }
-    ]
-  });
+    // actions
+    const actions = document.createElement("div");
+    actions.className="actions";
 
-  localStream.getTracks().forEach(t=>peer.addTrack(t, localStream));
+    const likeBtn = document.createElement("button");
+    likeBtn.innerText="❤️";
+    likeBtn.onclick = ()=>{
+      spawnHeart();
+    };
 
-  peer.ontrack = e=>{
-    const slot = slots.shift();
-    if(slot){
-      document.getElementById(slot).srcObject = e.streams[0];
-    }
-  };
+    const giftBtn = document.createElement("button");
+    giftBtn.innerText="🎁";
+    giftBtn.onclick = ()=>{
+      spawnGift();
+    };
 
-  peer.onicecandidate = e=>{
-    if(e.candidate){
-      socket.emit("signal",{to:id,signal:e.candidate});
-    }
-  };
+    actions.appendChild(likeBtn);
+    actions.appendChild(giftBtn);
 
-  peers[id] = peer;
+    card.appendChild(vid);
+    card.appendChild(overlay);
+    card.appendChild(actions);
 
-  peer.createOffer()
-  .then(o=>peer.setLocalDescription(o))
-  .then(()=>{
-    socket.emit("signal",{to:id,signal:peer.localDescription});
+    feed.appendChild(card);
   });
 }
 
-// SIGNAL
-socket.on("signal", async data=>{
-  let peer = peers[data.from];
+loadFeed();
 
-  if(!peer){
-    connectUser(data.from);
-    peer = peers[data.from];
-  }
-
-  if(data.signal.type==="offer"){
-    await peer.setRemoteDescription(data.signal);
-    const ans = await peer.createAnswer();
-    await peer.setLocalDescription(ans);
-    socket.emit("signal",{to:data.from,signal:ans});
-  }
-  else if(data.signal.type==="answer"){
-    await peer.setRemoteDescription(data.signal);
-  }
-  else{
-    try{await peer.addIceCandidate(data.signal);}catch{}
-  }
-});
-
-// CHAT
-function sendMsg(){
-  socket.emit("chat",{text:msg.value});
-  msg.value="";
+// ❤️ HEART
+function spawnHeart(){
+  const h = document.createElement("div");
+  h.innerText="❤️";
+  h.style.position="absolute";
+  h.style.bottom="0";
+  h.style.left=Math.random()*90+"%";
+  h.style.fontSize="30px";
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(),2000);
 }
 
-socket.on("chat", data=>{
-  const p = document.createElement("div");
-  p.innerText = data.text;
-  chat.appendChild(p);
-});
-
-// LIKE
-function like(){
-  socket.emit("like");
-}
-
-socket.on("like", ()=>{
-  const heart = document.createElement("div");
-  heart.innerText="❤️";
-  heart.style.position="absolute";
-  heart.style.left=Math.random()*90+"%";
-  heart.style.bottom="0";
-  heart.style.fontSize="30px";
-  document.body.appendChild(heart);
-  setTimeout(()=>heart.remove(),2000);
-});
-
-// GIFT
-function gift(){
-  socket.emit("gift");
-}
-
-socket.on("gift", ()=>{
-  const g=document.createElement("div");
+// 🎁 GIFT
+function spawnGift(){
+  const g = document.createElement("div");
   g.innerText="✨🎁✨";
   g.style.position="absolute";
-  g.style.left=Math.random()*90+"%";
   g.style.top=Math.random()*90+"%";
+  g.style.left=Math.random()*90+"%";
   g.style.fontSize="40px";
   document.body.appendChild(g);
   setTimeout(()=>g.remove(),2000);
-});
-
-// HOST CONTROL
-function kickUser(){
-  const ids = Object.keys(peers);
-  if(ids.length){
-    socket.emit("kick", ids[0]);
-  }
-}
-
-// REQUEST JOIN
-function requestJoin(){
-  socket.emit("request-join", room);
-}
-
-// LEAVE
-function leaveLive(){
-  Object.values(peers).forEach(p=>p.close());
-  if(localStream){
-    localStream.getTracks().forEach(t=>t.stop());
-  }
-  location.reload();
 }
 </script>
 
