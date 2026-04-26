@@ -1,151 +1,125 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Video App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <style>
-    body {
-      margin: 0;
-      background: black;
-      color: white;
-      font-family: Arial;
-    }
-
-    video {
-      width: 100%;
-      max-height: 300px;
-      object-fit: cover;
-    }
-
-    button {
-      margin: 5px;
-      padding: 6px;
-    }
-  </style>
-</head>
-
-<body>
-
-<h3>Upload</h3>
-<input type="file" id="upload" accept="video/mp4">
-<button onclick="uploadVideo()">Upload</button>
-
-<h3>Feed</h3>
-<div id="feed"></div>
-
-<h3>Live (3 Users)</h3>
-<video id="live1" autoplay muted></video>
-<video id="live2" autoplay muted></video>
-<video id="live3" autoplay muted></video>
-<br>
-<button onclick="startLive()">Start Live</button>
-
 <script src="/socket.io/socket.io.js"></script>
 <script>
 
 const socket = io();
-socket.emit("join-room", "main");
+const room = "main";
 
 let localStream;
+let peers = {};
+
+socket.emit("join-room", room);
 
 // START CAMERA
 async function startLive() {
-  localStream = await navigator.mediaDevices.getUserMedia({
-    video: true,
-    audio: true
-  });
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true
+    });
 
-  document.getElementById("live1").srcObject = localStream;
+    document.getElementById("live1").srcObject = localStream;
+
+  } catch (err) {
+    alert("Camera/Mic error: " + err.message);
+  }
 }
 
-// UPLOAD VIDEO
-async function uploadVideo() {
-  const file = document.getElementById("upload").files[0];
-  if (!file) return;
+// USER JOINED
+socket.on("user-joined", async id => {
+  const peer = createPeer(id);
+  peers[id] = peer;
 
-  const formData = new FormData();
-  formData.append("video", file);
+  const offer = await peer.createOffer();
+  await peer.setLocalDescription(offer);
 
-  await fetch("/upload", {
-    method: "POST",
-    body: formData
+  socket.emit("signal", {
+    to: id,
+    signal: offer
+  });
+});
+
+// CREATE PEER
+function createPeer(id) {
+  const peer = new RTCPeerConnection({
+    iceServers: [
+      { urls: "stun:stun.l.google.com:19302" }
+    ]
   });
 
-  loadFeed();
-}
+  if (localStream) {
+    localStream.getTracks().forEach(track => {
+      peer.addTrack(track, localStream);
+    });
+  }
 
-// LOAD FEED
-async function loadFeed() {
-  const videos = await (await fetch("/videos")).json();
-  const allComments = await (await fetch("/comments")).json();
-  const allLikes = await (await fetch("/likes")).json();
+  peer.ontrack = event => {
+    attachStream(event.streams[0]);
+  };
 
-  const feed = document.getElementById("feed");
-  feed.innerHTML = "";
-
-  videos.forEach(v => {
-    const div = document.createElement("div");
-
-    const vid = document.createElement("video");
-    vid.src = v;
-    vid.controls = true;
-
-    const likeBtn = document.createElement("button");
-    likeBtn.innerText = "❤️ " + (allLikes[v] || 0);
-
-    likeBtn.onclick = async () => {
-      const res = await fetch("/like", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ video: v })
-      });
-      const data = await res.json();
-      likeBtn.innerText = "❤️ " + data.likes;
-    };
-
-    const input = document.createElement("input");
-    input.placeholder = "comment";
-
-    const post = document.createElement("button");
-    post.innerText = "Post";
-
-    const commentsDiv = document.createElement("div");
-
-    if (allComments[v]) {
-      allComments[v].forEach(c => {
-        const p = document.createElement("p");
-        p.innerText = c;
-        commentsDiv.appendChild(p);
+  peer.onicecandidate = event => {
+    if (event.candidate) {
+      socket.emit("signal", {
+        to: id,
+        signal: event.candidate
       });
     }
+  };
 
-    post.onclick = async () => {
-      if (!input.value) return;
-
-      await fetch("/comment", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ video: v, text: input.value })
-      });
-
-      input.value = "";
-      loadFeed();
-    };
-
-    div.appendChild(vid);
-    div.appendChild(likeBtn);
-    div.appendChild(input);
-    div.appendChild(post);
-    div.appendChild(commentsDiv);
-
-    feed.appendChild(div);
-  });
+  return peer;
 }
 
-window.onload = loadFeed;
+// RECEIVE SIGNAL
+socket.on("signal", async data => {
+  let peer = peers[data.from];
+
+  if (!peer) {
+    peer = createPeer(data.from);
+    peers[data.from] = peer;
+  }
+
+  if (data.signal.type === "offer") {
+    await peer.setRemoteDescription(data.signal);
+
+    const answer = await peer.createAnswer();
+    await peer.setLocalDescription(answer);
+
+    socket.emit("signal", {
+      to: data.from,
+      signal: answer
+    });
+
+  } else if (data.signal.type === "answer") {
+    await peer.setRemoteDescription(data.signal);
+
+  } else if (data.candidate) {
+    try {
+      await peer.addIceCandidate(data.signal);
+    } catch (e) {}
+  }
+});
+
+// ATTACH VIDEO TO SLOT
+function attachStream(stream) {
+  const slots = ["live2", "live3"];
+
+  for (let id of slots) {
+    const vid = document.getElementById(id);
+    if (!vid.srcObject) {
+      vid.srcObject = stream;
+      return;
+    }
+  }
+}
+
+// USER LEFT
+socket.on("user-left", id => {
+  if (peers[id]) {
+    peers[id].close();
+    delete peers[id];
+  }
+
+  document.getElementById("live2").srcObject = null;
+  document.getElementById("live3").srcObject = null;
+});
 
 </script>
-
-</body>
-</html>
