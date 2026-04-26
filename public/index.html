@@ -1,87 +1,226 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Video App</title>
+<title>Live App</title>
+<style>
+body {
+  margin:0;
+  background:black;
+  color:white;
+  font-family:sans-serif;
+}
+
+/* VIDEO GRID */
+#videos {
+  display:flex;
+  height:70vh;
+}
+video {
+  width:33%;
+  object-fit:cover;
+  background:black;
+}
+
+/* RIGHT SIDE UI */
+#side {
+  position:fixed;
+  right:10px;
+  bottom:20px;
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+.btn {
+  background:#111;
+  border:none;
+  color:white;
+  font-size:20px;
+  padding:10px;
+  border-radius:50%;
+}
+
+/* CHAT */
+#chatBox {
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:70%;
+}
+#chat {
+  max-height:120px;
+  overflow:auto;
+  font-size:14px;
+}
+input {
+  width:70%;
+}
+
+/* HEART FLOAT */
+.heart {
+  position:absolute;
+  bottom:50px;
+  font-size:24px;
+  animation:float 2s linear;
+}
+@keyframes float {
+  from {transform:translateY(0);}
+  to {transform:translateY(-200px);opacity:0;}
+}
+</style>
 </head>
+
 <body>
 
-<h2>Upload Video</h2>
-<input type="file" id="upload">
-<button onclick="loadVideo()">Upload</button>
+<div id="videos">
+  <video id="live1" autoplay muted></video>
+  <video id="live2" autoplay></video>
+  <video id="live3" autoplay></video>
+</div>
 
-<h2>Player</h2>
-<video id="videoPlayer" width="300" controls></video>
+<!-- SIDE CONTROLS -->
+<div id="side">
+  <button class="btn" onclick="startLive()">🔴</button>
+  <button class="btn" onclick="like()">❤️</button>
+  <button class="btn" onclick="gift()">🎁</button>
+  <button class="btn" onclick="leaveLive()">❌</button>
+</div>
 
-<h2>Feed</h2>
-<div id="feed"></div>
+<!-- CHAT -->
+<div id="chatBox">
+  <div id="chat"></div>
+  <input id="msg">
+  <button onclick="sendMsg()">Send</button>
+</div>
 
+<script src="/socket.io/socket.io.js"></script>
 <script>
+const socket = io();
+const room = "main";
 
-// UPLOAD VIDEO
-async function loadVideo() {
-  const file = document.getElementById("upload").files[0];
-  if (!file) return;
+let localStream;
+let peers = {};
+let slots = ["live2","live3"];
 
-  const formData = new FormData();
-  formData.append("video", file);
+socket.emit("join-room", room);
 
-  const res = await fetch("/upload", {
-    method: "POST",
-    body: formData
+//////////////////////////////////
+// VIDEO
+//////////////////////////////////
+async function startLive(){
+  localStream = await navigator.mediaDevices.getUserMedia({
+    video:true,audio:true
   });
-
-  const data = await res.json();
-
-  const video = document.getElementById("videoPlayer");
-  video.src = data.file;
-  video.load();
-
-  loadFeed(); // refresh feed after upload
+  live1.srcObject = localStream;
 }
 
-// LOAD FEED
-async function loadFeed() {
-  const res = await fetch("/videos");
-  const videos = await res.json();
+socket.on("user-joined", id=>{
+  createPeer(id,true);
+});
 
-  const feed = document.getElementById("feed");
-  feed.innerHTML = "";
-
-  videos.forEach(v => {
-    const div = document.createElement("div");
-
-    const vid = document.createElement("video");
-    vid.src = v;
-    vid.width = 300;
-    vid.controls = true;
-
-    const input = document.createElement("input");
-    input.placeholder = "Add comment";
-
-    const btn = document.createElement("button");
-    btn.innerText = "Post";
-
-    const comments = document.createElement("div");
-
-    btn.onclick = () => {
-      const p = document.createElement("p");
-      p.innerText = input.value;
-      comments.appendChild(p);
-      input.value = "";
-    };
-
-    div.appendChild(vid);
-    div.appendChild(input);
-    div.appendChild(btn);
-    div.appendChild(comments);
-
-    feed.appendChild(div);
+function createPeer(id, init){
+  const peer = new RTCPeerConnection({
+    iceServers:[{urls:"stun:stun.l.google.com:19302"}]
   });
+
+  localStream.getTracks().forEach(t=>peer.addTrack(t,localStream));
+
+  peer.ontrack = e=>{
+    const slot = slots.shift();
+    if(slot) document.getElementById(slot).srcObject = e.streams[0];
+  };
+
+  peer.onicecandidate = e=>{
+    if(e.candidate){
+      socket.emit("signal",{to:id,signal:e.candidate});
+    }
+  };
+
+  peers[id]=peer;
+
+  if(init){
+    peer.createOffer()
+    .then(o=>peer.setLocalDescription(o))
+    .then(()=>{
+      socket.emit("signal",{to:id,signal:peer.localDescription});
+    });
+  }
 }
 
-// RUN ON LOAD
-window.onload = loadFeed;
+socket.on("signal", async data=>{
+  let peer = peers[data.from];
+  if(!peer){
+    createPeer(data.from,false);
+    peer = peers[data.from];
+  }
 
+  if(data.signal.type==="offer"){
+    await peer.setRemoteDescription(data.signal);
+    const ans = await peer.createAnswer();
+    await peer.setLocalDescription(ans);
+    socket.emit("signal",{to:data.from,signal:ans});
+  }
+  else if(data.signal.type==="answer"){
+    await peer.setRemoteDescription(data.signal);
+  }
+  else{
+    try{await peer.addIceCandidate(data.signal);}catch{}
+  }
+});
+
+//////////////////////////////////
+// HEART
+//////////////////////////////////
+function like(){
+  const h = document.createElement("div");
+  h.innerText="❤️";
+  h.className="heart";
+  h.style.left=Math.random()*80+"%";
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(),2000);
+}
+
+//////////////////////////////////
+// CHAT
+//////////////////////////////////
+function sendMsg(){
+  socket.emit("chat",{room,text:msg.value});
+  msg.value="";
+}
+
+socket.on("chat", data=>{
+  const p = document.createElement("p");
+  p.innerText=data.text;
+  chat.appendChild(p);
+});
+
+//////////////////////////////////
+// GIFT
+//////////////////////////////////
+function gift(){
+  socket.emit("gift",{room});
+}
+
+socket.on("gift", ()=>{
+  const g = document.createElement("div");
+  g.innerText="✨🎁✨";
+  g.style.position="absolute";
+  g.style.left=Math.random()*80+"%";
+  g.style.top=Math.random()*70+"%";
+  g.style.fontSize="30px";
+  document.body.appendChild(g);
+  setTimeout(()=>g.remove(),2000);
+});
+
+//////////////////////////////////
+// LEAVE
+//////////////////////////////////
+function leaveLive(){
+  Object.values(peers).forEach(p=>p.close());
+  if(localStream){
+    localStream.getTracks().forEach(t=>t.stop());
+  }
+  location.reload();
+}
 </script>
 
 </body>
