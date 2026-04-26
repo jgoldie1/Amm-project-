@@ -1,17 +1,73 @@
 <!DOCTYPE html>
 <html>
-<body style="background:black; color:white; text-align:center;">
+<head>
+<title>Live App</title>
+<style>
+body {
+  margin: 0;
+  background: black;
+  color: white;
+  font-family: Arial;
+  text-align: center;
+}
 
-<h2>Camera Test (FINAL)</h2>
+/* VIDEO */
+video {
+  width: 90%;
+  max-width: 400px;
+  margin-top: 20px;
+  border-radius: 10px;
+}
 
-<video id="video" width="300" height="400" autoplay playsinline></video>
+/* UI PANEL */
+#ui {
+  position: fixed;
+  right: 10px;
+  bottom: 50px;
+}
 
-<br><br>
+/* BUTTON */
+button {
+  display: block;
+  margin: 10px;
+  padding: 15px;
+  font-size: 20px;
+  border-radius: 50%;
+  border: none;
+  background: cyan;
+  color: black;
+  cursor: pointer;
+}
 
-<button id="startBtn">START CAMERA</button>
+/* COUNTER */
+#counter {
+  font-size: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>LIVE TEST</h1>
+
+<button onclick="startCamera()">🎥 Start Camera</button>
+
+<video id="video" autoplay playsinline muted></video>
+
+<div id="ui">
+  <button onclick="sendHeart()">❤️</button>
+  <div id="counter">0</div>
+</div>
 
 <script>
-document.getElementById("startBtn").addEventListener("click", async () => {
+let hearts = 0;
+
+function sendHeart() {
+  hearts++;
+  document.getElementById("counter").innerText = hearts;
+}
+
+async function startCamera() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
@@ -21,20 +77,11 @@ document.getElementById("startBtn").addEventListener("click", async () => {
     const video = document.getElementById("video");
     video.srcObject = stream;
 
-    // FORCE PLAY (critical)
-    video.onloadedmetadata = () => {
-      video.play();
-    };
-
-    console.log("Camera started");
-
   } catch (err) {
     alert("Camera error: " + err.message);
-    console.error(err);
   }
-});
+}
 </script>
 
 </body>
 </html>
-<h1 style="color:red;">I AM NEW VERSION</h1>
