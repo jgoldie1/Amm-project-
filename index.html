@@ -2,36 +2,37 @@
 <html>
 <body style="background:black; color:white; text-align:center;">
 
-<h1>Camera Debug</h1>
+<h2>Camera Test (FINAL)</h2>
 
-<button onclick="startCamera()">START CAMERA</button>
+<video id="video" width="300" height="400" autoplay playsinline></video>
 
 <br><br>
 
-<video id="video" autoplay playsinline style="width:300px; border:2px solid white;"></video>
+<button id="startBtn">START CAMERA</button>
 
 <script>
-async function startCamera() {
+document.getElementById("startBtn").addEventListener("click", async () => {
   try {
-    const video = document.getElementById("video");
-
     const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: false
     });
 
+    const video = document.getElementById("video");
     video.srcObject = stream;
 
-    // 🔥 FORCE PLAY (important fix)
-    await video.play();
+    // FORCE PLAY (critical)
+    video.onloadedmetadata = () => {
+      video.play();
+    };
 
-    alert("Camera SHOULD be working now");
+    console.log("Camera started");
 
   } catch (err) {
+    alert("Camera error: " + err.message);
     console.error(err);
-    alert("ERROR: " + err.message);
   }
-}
+});
 </script>
 
 </body>
