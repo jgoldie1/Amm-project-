@@ -1,227 +1,66 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Live App</title>
-<style>
-body {
-  margin:0;
-  background:black;
-  color:white;
-  font-family:sans-serif;
-}
+const express = require("express");
+const multer = require("multer");
+const fs = require("fs");
+const http = require("http");
 
-/* VIDEO GRID */
-#videos {
-  display:flex;
-  height:70vh;
-}
-video {
-  width:33%;
-  object-fit:cover;
-  background:black;
-}
+const app = express();
+const server = http.createServer(app);
+const io = require("socket.io")(server);
 
-/* RIGHT SIDE UI */
-#side {
-  position:fixed;
-  right:10px;
-  bottom:20px;
-  display:flex;
-  flex-direction:column;
-  gap:15px;
-}
-.btn {
-  background:#111;
-  border:none;
-  color:white;
-  font-size:20px;
-  padding:10px;
-  border-radius:50%;
-}
+app.use(express.json());
+app.use(express.static("public"));
 
-/* CHAT */
-#chatBox {
-  position:fixed;
-  bottom:0;
-  left:0;
-  width:70%;
-}
-#chat {
-  max-height:120px;
-  overflow:auto;
-  font-size:14px;
-}
-input {
-  width:70%;
-}
+if (!fs.existsSync("uploads")) fs.mkdirSync("uploads");
+app.use("/uploads", express.static("uploads"));
 
-/* HEART FLOAT */
-.heart {
-  position:absolute;
-  bottom:50px;
-  font-size:24px;
-  animation:float 2s linear;
-}
-@keyframes float {
-  from {transform:translateY(0);}
-  to {transform:translateY(-200px);opacity:0;}
-}
-</style>
-</head>
+// UPLOAD
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) => cb(null, Date.now() + ".mp4")
+});
+const upload = multer({ storage });
 
-<body>
-
-<div id="videos">
-  <video id="live1" autoplay muted></video>
-  <video id="live2" autoplay></video>
-  <video id="live3" autoplay></video>
-</div>
-
-<!-- SIDE CONTROLS -->
-<div id="side">
-  <button class="btn" onclick="startLive()">🔴</button>
-  <button class="btn" onclick="like()">❤️</button>
-  <button class="btn" onclick="gift()">🎁</button>
-  <button class="btn" onclick="leaveLive()">❌</button>
-</div>
-
-<!-- CHAT -->
-<div id="chatBox">
-  <div id="chat"></div>
-  <input id="msg">
-  <button onclick="sendMsg()">Send</button>
-</div>
-
-<script src="/socket.io/socket.io.js"></script>
-<script>
-const socket = io();
-const room = "main";
-
-let localStream;
-let peers = {};
-let slots = ["live2","live3"];
-
-socket.emit("join-room", room);
-
-//////////////////////////////////
-// VIDEO
-//////////////////////////////////
-async function startLive(){
-  localStream = await navigator.mediaDevices.getUserMedia({
-    video:true,audio:true
-  });
-  live1.srcObject = localStream;
-}
-
-socket.on("user-joined", id=>{
-  createPeer(id,true);
+app.post("/upload", upload.single("video"), (req, res) => {
+  res.json({ file: "/uploads/" + req.file.filename });
 });
 
-function createPeer(id, init){
-  const peer = new RTCPeerConnection({
-    iceServers:[{urls:"stun:stun.l.google.com:19302"}]
+// FEED LIST
+app.get("/videos", (req, res) => {
+  const files = fs.readdirSync("uploads");
+  res.json(files.map(f => "/uploads/" + f));
+});
+
+// SOCKET
+io.on("connection", socket => {
+
+  socket.on("join-room", room => {
+    socket.join(room);
+    socket.to(room).emit("user-joined", socket.id);
   });
 
-  localStream.getTracks().forEach(t=>peer.addTrack(t,localStream));
+  // 🔥 CHAT FIX
+  socket.on("chat", data => {
+    io.to(data.room).emit("chat", data);
+  });
 
-  peer.ontrack = e=>{
-    const slot = slots.shift();
-    if(slot) document.getElementById(slot).srcObject = e.streams[0];
-  };
+  // 🎁 GIFT FIX
+  socket.on("gift", data => {
+    io.to(data.room).emit("gift");
+  });
 
-  peer.onicecandidate = e=>{
-    if(e.candidate){
-      socket.emit("signal",{to:id,signal:e.candidate});
-    }
-  };
-
-  peers[id]=peer;
-
-  if(init){
-    peer.createOffer()
-    .then(o=>peer.setLocalDescription(o))
-    .then(()=>{
-      socket.emit("signal",{to:id,signal:peer.localDescription});
+  // SIGNAL
+  socket.on("signal", data => {
+    io.to(data.to).emit("signal", {
+      from: socket.id,
+      signal: data.signal
     });
-  }
-}
+  });
 
-socket.on("signal", async data=>{
-  let peer = peers[data.from];
-  if(!peer){
-    createPeer(data.from,false);
-    peer = peers[data.from];
-  }
+  socket.on("disconnect", () => {
+    socket.broadcast.emit("user-left", socket.id);
+  });
 
-  if(data.signal.type==="offer"){
-    await peer.setRemoteDescription(data.signal);
-    const ans = await peer.createAnswer();
-    await peer.setLocalDescription(ans);
-    socket.emit("signal",{to:data.from,signal:ans});
-  }
-  else if(data.signal.type==="answer"){
-    await peer.setRemoteDescription(data.signal);
-  }
-  else{
-    try{await peer.addIceCandidate(data.signal);}catch{}
-  }
 });
 
-//////////////////////////////////
-// HEART
-//////////////////////////////////
-function like(){
-  const h = document.createElement("div");
-  h.innerText="❤️";
-  h.className="heart";
-  h.style.left=Math.random()*80+"%";
-  document.body.appendChild(h);
-  setTimeout(()=>h.remove(),2000);
-}
-
-//////////////////////////////////
-// CHAT
-//////////////////////////////////
-function sendMsg(){
-  socket.emit("chat",{room,text:msg.value});
-  msg.value="";
-}
-
-socket.on("chat", data=>{
-  const p = document.createElement("p");
-  p.innerText=data.text;
-  chat.appendChild(p);
-});
-
-//////////////////////////////////
-// GIFT
-//////////////////////////////////
-function gift(){
-  socket.emit("gift",{room});
-}
-
-socket.on("gift", ()=>{
-  const g = document.createElement("div");
-  g.innerText="✨🎁✨";
-  g.style.position="absolute";
-  g.style.left=Math.random()*80+"%";
-  g.style.top=Math.random()*70+"%";
-  g.style.fontSize="30px";
-  document.body.appendChild(g);
-  setTimeout(()=>g.remove(),2000);
-});
-
-//////////////////////////////////
-// LEAVE
-//////////////////////////////////
-function leaveLive(){
-  Object.values(peers).forEach(p=>p.close());
-  if(localStream){
-    localStream.getTracks().forEach(t=>t.stop());
-  }
-  location.reload();
-}
-</script>
-
-</body>
-</html>
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log("RUNNING"));
