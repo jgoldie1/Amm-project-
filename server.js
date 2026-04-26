@@ -1,39 +1,42 @@
 const express = require("express");
-const path = require("path");
+const http = require("http");
+const { Server } = require("socket.io");
 
 const app = express();
-
-// serve frontend
-app.use(express.static(__dirname));
-
-// health check (important for Render stability)
-app.get("/health", (req, res) => {
-  res.send("OK");
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { origin: "*" }
 });
 
-// always return index.html
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+// serve your frontend
+app.use(express.static(".")); // serves index.html
+
+// TEST ROUTE (optional)
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/index.html");
 });
 
+// 🔴 REAL-TIME SYSTEM
+io.on("connection", (socket) => {
+  console.log("User connected");
+
+  // 💬 COMMENTS
+  socket.on("comment", (msg) => {
+    io.emit("comment", msg);
+  });
+
+  // ❤️ HEARTS
+  socket.on("heart", () => {
+    io.emit("heart");
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+  });
+});
+
+// 🚀 START SERVER
 const PORT = process.env.PORT || 10000;
-
-app.listen(PORT, () => {
-  console.log("RUNNING ON PORT " + PORT);
-});
-const express = require("express");
-const path = require("path");
-
-const app = express();
-
-app.use(express.static(__dirname));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
-
-const PORT = process.env.PORT || 10000;
-
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log("RUNNING ON PORT " + PORT);
 });
