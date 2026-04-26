@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Live App</title>
+<title>All American Live</title>
+
 <style>
 body {
   margin: 0;
@@ -13,9 +14,27 @@ body {
 
 /* VIDEO */
 #video {
+  position: absolute;
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* LIVE BADGE */
+#liveBadge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: red;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+/* VIEWERS */
+#viewers {
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }
 
 /* RIGHT UI */
@@ -75,29 +94,55 @@ input {
 
 <body>
 
+<!-- VIDEO -->
 <video id="video" autoplay playsinline muted></video>
 
+<!-- LIVE -->
+<div id="liveBadge">🔴 LIVE</div>
+
+<!-- VIEWERS -->
+<div id="viewers">👥 1</div>
+
+<!-- RIGHT SIDE -->
 <div id="ui">
   <button onclick="sendHeart()">❤️</button>
   <div id="counter">0</div>
+
+  <button onclick="sendGift()">🎁</button>
 </div>
 
+<!-- COMMENTS -->
 <div id="comments"></div>
 
+<!-- CHAT -->
 <div id="chatBox">
   <input id="msg" placeholder="Type comment..." />
   <button onclick="sendComment()">Send</button>
 </div>
 
 <script>
-let hearts = 0;
 
+// 🔒 ERROR HANDLER (NO MORE SILENT FAILS)
+window.onerror = function(message) {
+  alert("App Error: " + message);
+};
+
+// ❤️ HEART SYSTEM
+let hearts = 0;
 function sendHeart() {
   hearts++;
   document.getElementById("counter").innerText = hearts;
 }
 
-// COMMENTS
+// 🎁 GIFT SYSTEM
+function sendGift() {
+  const div = document.createElement("div");
+  div.className = "comment";
+  div.innerText = "🎁 Gift sent!";
+  document.getElementById("comments").appendChild(div);
+}
+
+// 💬 COMMENTS
 function sendComment() {
   const input = document.getElementById("msg");
   const text = input.value;
@@ -113,7 +158,14 @@ function sendComment() {
   input.value = "";
 }
 
-// CAMERA
+// 👥 FAKE VIEWERS (FOR NOW)
+let viewers = 1;
+setInterval(() => {
+  viewers++;
+  document.getElementById("viewers").innerText = "👥 " + viewers;
+}, 5000);
+
+// 🎥 CAMERA (AUTO START)
 async function startCamera() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -128,8 +180,8 @@ async function startCamera() {
   }
 }
 
-// AUTO START CAMERA
 startCamera();
+
 </script>
 
 </body>
