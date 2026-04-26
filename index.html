@@ -1,59 +1,166 @@
-const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>All American Live</title>
 
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: { origin: "*" }
+<script src="/socket.io/socket.io.js"></script>
+
+<style>
+body {
+  margin: 0;
+  background: black;
+  color: white;
+  font-family: Arial;
+}
+
+#video {
+  width: 100%;
+  height: 100vh;
+  object-fit: cover;
+}
+
+#ui {
+  position: absolute;
+  right: 10px;
+  bottom: 80px;
+  text-align: center;
+}
+
+button {
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 50%;
+  border: none;
+  font-size: 20px;
+}
+
+#users {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+#commentsBox {
+  position: absolute;
+  left: 10px;
+  bottom: 100px;
+  width: 220px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.comment {
+  background: rgba(0,0,0,0.5);
+  margin: 5px 0;
+  padding: 5px;
+}
+
+#inputArea {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<video id="video" autoplay playsinline muted></video>
+
+<div id="users"></div>
+
+<div id="ui">
+  <button onclick="sendHeart()">❤️</button>
+  <div id="counter">0</div>
+</div>
+
+<div id="commentsBox">
+  <div id="comments"></div>
+</div>
+
+<div id="inputArea">
+  <input id="msg" placeholder="Type comment..." />
+  <button onclick="sendComment()">Send</button>
+</div>
+
+<script>
+
+// 🔌 CONNECT
+const socket = io();
+
+// 👤 USERNAME
+const username = "User" + Math.floor(Math.random()*1000);
+socket.emit("join", username);
+
+// ❤️ HEARTS (SYNCED)
+function sendHeart() {
+  socket.emit("heart");
+}
+
+socket.on("heart", (count) => {
+  document.getElementById("counter").innerText = count;
 });
 
-app.use(express.static("."));
+// 💬 COMMENTS
+function sendComment() {
+  const input = document.getElementById("msg");
+  const text = input.value.trim();
+  if (!text) return;
 
-// 🔥 GLOBAL STATE
-let heartCount = 0;
-let users = [];
+  socket.emit("comment", username + ": " + text);
+  input.value = "";
+}
 
-// 🔌 CONNECTION
-io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+socket.on("comment", (msg) => {
+  const div = document.createElement("div");
+  div.className = "comment";
+  div.innerHTML = "<b>" + msg + "</b>";
 
-  // ❤️ HEART SYSTEM (LOCKED)
-  socket.on("heart", () => {
-    heartCount++;
-    io.emit("heart", heartCount);
-  });
+  document.getElementById("comments").appendChild(div);
+  div.scrollIntoView();
+});
 
-  // 💬 COMMENTS
-  socket.on("comment", (msg) => {
-    io.emit("comment", msg);
-  });
+// 👥 USERS
+socket.on("updateUsers", (users) => {
+  const box = document.getElementById("users");
+  box.innerHTML = "";
 
-  // 👥 JOIN ROOM (MAX 3)
-  socket.on("join", (username) => {
-    if (users.length >= 3) {
-      socket.emit("roomFull");
-      return;
-    }
-
-    users.push({ id: socket.id, name: username });
-    io.emit("updateUsers", users);
-  });
-
-  // ❌ DISCONNECT
-  socket.on("disconnect", () => {
-    users = users.filter(u => u.id !== socket.id);
-    io.emit("updateUsers", users);
+  users.forEach(u => {
+    const div = document.createElement("div");
+    div.innerText = u.name;
+    div.style.background = "white";
+    div.style.color = "black";
+    div.style.margin = "5px";
+    div.style.padding = "5px";
+    box.appendChild(div);
   });
 });
 
-// 🤖 BOT COMMENTS
-setInterval(() => {
-  io.emit("comment", "🤖 bot: this is fire 🔥");
-}, 10000);
-
-// 🚀 START
-const PORT = process.env.PORT || 10000;
-server.listen(PORT, () => {
-  console.log("RUNNING ON PORT " + PORT);
+socket.on("roomFull", () => {
+  alert("Room full (3 max)");
 });
+
+// 🎥 CAMERA
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: false
+    });
+
+    const video = document.getElementById("video");
+    video.srcObject = stream;
+    await video.play();
+
+  } catch (err) {
+    alert("Camera error: " + err.message);
+  }
+}
+
+startCamera();
+
+</script>
+
+</body>
+</html>
