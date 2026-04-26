@@ -1,27 +1,106 @@
-let localStream, peers = {}, isHost = false;
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
 
+<body style="background:black;color:white;font-family:sans-serif;">
+
+<h3>LIVE</h3>
+
+<video id="live1" autoplay muted width="300"></video>
+<video id="live2" autoplay width="300"></video>
+<video id="live3" autoplay width="300"></video>
+
+<br><br>
+
+<button onclick="startLive()">Start Live (Host)</button>
+<button onclick="requestJoin()">Request Join</button>
+
+<br><br>
+
+<input id="chatInput" placeholder="chat">
+<button onclick="sendChat()">Send</button>
+
+<div id="chatBox"></div>
+
+<br>
+
+<button onclick="sendGift()">Gift 🎁</button>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+
+const socket = io();
+const room = "main";
+
+let localStream;
+let peers = {};
+let isHost = false;
+
+socket.emit("join-room", room);
+
+// START LIVE
 async function startLive() {
-  try {
-    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    document.getElementById("live1").srcObject = localStream;
-    socket.emit("join-room", room, { isHost });
-  } catch (err) {
-    showError("Camera error: " + err.message);
-  }
+  isHost = true;
+
+  localStream = await navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: true
+  });
+
+  document.getElementById("live1").srcObject = localStream;
 }
 
-socket.on("user-joined", async (id) => {
-  peers[id] = createPeerConnection(id);
-  // ... offer/answer flow
+// REQUEST JOIN
+function requestJoin() {
+  socket.emit("request-join", room);
+}
+
+// APPROVAL
+socket.on("join-request", id => {
+  if (!isHost) return;
+
+  if (confirm("Allow user?")) {
+    socket.emit("approve-user", { userId: id });
+  }
 });
 
-function createPeerConnection(id) {
-  const pc = new RTCPeerConnection({ iceServers: [...] });
-  // add tracks, handlers, etc.
-  return pc;
+socket.on("approved", async () => {
+  await startLive();
+});
+
+// CHAT
+function sendChat() {
+  const msg = document.getElementById("chatInput").value;
+  socket.emit("chat", { room, text: msg });
+  document.getElementById("chatInput").value = "";
 }
 
-function showError(msg) {
-  // update UI with error
-  console.error(msg);
+socket.on("chat", data => {
+  const p = document.createElement("p");
+  p.innerText = data.text;
+  document.getElementById("chatBox").appendChild(p);
+});
+
+// GIFTS
+function sendGift() {
+  socket.emit("gift", { room });
 }
+
+socket.on("gift", () => {
+  const g = document.createElement("div");
+  g.innerText = "🎁";
+  g.style.position = "absolute";
+  g.style.top = "50%";
+  g.style.left = "50%";
+  g.style.fontSize = "40px";
+  document.body.appendChild(g);
+  setTimeout(() => g.remove(), 2000);
+});
+
+</script>
+
+</body>
+</html>
