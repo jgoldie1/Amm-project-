@@ -1,184 +1,117 @@
 const express = require("express");
 const http = require("http");
 const fs = require("fs");
+const multer = require("multer");
+const { AccessToken } = require("livekit-server-sdk");
+
 const app = express();
 const server = http.createServer(app);
-const io = require("socket.io")(server);
 
 app.use(express.json());
-app.use(express.static("public"));
 
-/* ===== SETUP ===== */
+// ===== FILE SETUP =====
 if (!fs.existsSync("data")) fs.mkdirSync("data");
+if (!fs.existsSync("uploads")) fs.mkdirSync("uploads");
 
-const USERS_FILE = "data/users.json";
-const POSTS_FILE = "data/posts.json";
+const USERS = "data/users.json";
+const STREAMS = "data/streams.json";
 
-if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, "[]");
-if (!fs.existsSync(POSTS_FILE)) fs.writeFileSync(POSTS_FILE, "[]");
+if (!fs.existsSync(USERS)) fs.writeFileSync(USERS, "[]");
+if (!fs.existsSync(STREAMS)) fs.writeFileSync(STREAMS, "[]");
 
 const read = f => JSON.parse(fs.readFileSync(f));
-const write = (f,d) => fs.writeFileSync(f, JSON.stringify(d,null,2));
+const write = (f, d) => fs.writeFileSync(f, JSON.stringify(d, null, 2));
 
-/* ===== AUTH ===== */
-app.post("/register",(req,res)=>{
-  let users = read(USERS_FILE);
+// ===== STATIC =====
+app.use(express.static("public"));
+app.use("/uploads", express.static("uploads"));
 
-  const user = {
-    id: Date.now(),
-    username:req.body.username,
-    password:req.body.password,
-    coins:100, // 💰 START COINS
-    followers:[],
-    following:[]
+// ===== AUTH =====
+app.post("/register", (req, res) => {
+  const users = read(USERS);
+  if (users.find(u => u.username === req.body.username)) {
+    return res.json({ error: "User exists" });
+  }
+  users.push({ ...req.body, followers: [], following: [] });
+  write(USERS, users);
+  res.json({ ok: true });
+});
+
+app.post("/login", (req, res) => {
+  const users = read(USERS);
+  const user = users.find(
+    u =>
+      u.username === req.body.username &&
+      u.password === req.body.password
+  );
+  res.json({ user });
+});
+
+// ===== FOLLOW =====
+app.post("/follow", (req, res) => {
+  const { me, target } = req.body;
+  const users = read(USERS);
+
+  const u1 = users.find(u => u.username === me);
+  const u2 = users.find(u => u.username === target);
+
+  if (!u1.following.includes(target)) u1.following.push(target);
+  if (!u2.followers.includes(me)) u2.followers.push(me);
+
+  write(USERS, users);
+  res.json({ ok: true });
+});
+
+// ===== USER LIST =====
+app.get("/users", (req, res) => {
+  res.json(read(USERS));
+});
+
+// ===== UPLOAD VIDEO =====
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) => cb(null, Date.now() + ".mp4")
+});
+const upload = multer({ storage });
+
+app.post("/upload", upload.single("video"), (req, res) => {
+  const streams = read(STREAMS);
+  const newVid = {
+    file: "/uploads/" + req.file.filename,
+    user: req.body.user,
+    time: Date.now()
   };
-
-  users.push(user);
-  write(USERS_FILE,users);
-
-  res.json({user});
+  streams.unshift(newVid);
+  write(STREAMS, streams);
+  res.json(newVid);
 });
 
-app.post("/login",(req,res)=>{
-  let users = read(USERS_FILE);
-  const user = users.find(u =>
-    u.username===req.body.username &&
-    u.password===req.body.password
-  );
-  res.json({user});
+// ===== FEED =====
+app.get("/feed", (req, res) => {
+  res.json(read(STREAMS));
 });
 
-/* ===== USERS ===== */
-app.get("/users",(req,res)=>res.json(read(USERS_FILE)));
+// ===== LIVEKIT TOKEN =====
+const LIVEKIT_API_KEY = "YOUR_API_KEY";
+const LIVEKIT_SECRET = "YOUR_SECRET";
 
-app.get("/profile/:id",(req,res)=>{
-  res.json(read(USERS_FILE).find(u=>u.id==req.params.id));
-});
+app.get("/get-token", (req, res) => {
+  const { username, room } = req.query;
 
-/* ===== FOLLOW ===== */
-app.post("/follow",(req,res)=>{
-  let users = read(USERS_FILE);
-  const {me,target} = req.body;
-
-  const a = users.find(u=>u.id==me);
-  const b = users.find(u=>u.id==target);
-
-  if(a && b && !a.following.includes(target)){
-    a.following.push(target);
-    b.followers.push(me);
-
-    io.emit("notify", `${a.username} followed ${b.username}`);
-  }
-
-  write(USERS_FILE,users);
-  res.json({ok:true});
-});
-
-/* ===== POSTS ===== */
-app.post("/post",(req,res)=>{
-  let posts = read(POSTS_FILE);
-
-  const post = {
-    id: Date.now(),
-    user:req.body.user,
-    content:req.body.content,
-    likes:0,
-    views:0,
-    score:0
-  };
-
-  posts.unshift(post);
-  write(POSTS_FILE,posts);
-
-  io.emit("notify", `${post.user} posted new content`);
-
-  res.json(post);
-});
-
-/* ===== LIKE ===== */
-app.post("/like",(req,res)=>{
-  let posts = read(POSTS_FILE);
-  const p = posts.find(x=>x.id==req.body.id);
-
-  if(p){
-    p.likes++;
-    p.score += 2;
-  }
-
-  write(POSTS_FILE,posts);
-  res.json({ok:true});
-});
-
-/* ===== VIEW ===== */
-app.post("/view",(req,res)=>{
-  let posts = read(POSTS_FILE);
-  const p = posts.find(x=>x.id==req.body.id);
-
-  if(p){
-    p.views++;
-    p.score += 5;
-  }
-
-  write(POSTS_FILE,posts);
-  res.json({ok:true});
-});
-
-/* ===== FEED ===== */
-app.get("/feed",(req,res)=>{
-  let posts = read(POSTS_FILE);
-  posts.sort((a,b)=>b.score-a.score);
-  res.json(posts);
-});
-
-/* ===== 💰 GIFT SYSTEM ===== */
-app.post("/gift",(req,res)=>{
-  let users = read(USERS_FILE);
-  const {from,to,amount} = req.body;
-
-  const sender = users.find(u=>u.id==from);
-  const receiver = users.find(u=>u.id==to);
-
-  if(sender && receiver && sender.coins >= amount){
-    sender.coins -= amount;
-    receiver.coins += amount;
-
-    io.emit("gift", `${sender.username} sent ${amount} coins to ${receiver.username}`);
-  }
-
-  write(USERS_FILE,users);
-  res.json({ok:true});
-});
-
-/* ===== 🔍 SEARCH ===== */
-app.get("/search",(req,res)=>{
-  const q = req.query.q.toLowerCase();
-
-  const users = read(USERS_FILE).filter(u =>
-    u.username.toLowerCase().includes(q)
-  );
-
-  const posts = read(POSTS_FILE).filter(p =>
-    p.content.toLowerCase().includes(q)
-  );
-
-  res.json({users,posts});
-});
-
-/* ===== 🤖 HOLO GPT (BASIC AI) ===== */
-function holoReply(text){
-  if(text.includes("hello")) return "👋 Welcome to the future";
-  if(text.includes("live")) return "🔥 Trending live streams now!";
-  return "🤖 AI is watching...";
-}
-
-/* ===== SOCKET ===== */
-io.on("connection", socket=>{
-  socket.on("chat", msg=>{
-    io.emit("chat", msg);
-
-    const ai = holoReply(msg);
-    io.emit("chat", ai);
+  const at = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_SECRET, {
+    identity: username
   });
+
+  at.addGrant({
+    roomJoin: true,
+    room,
+    canPublish: true,
+    canSubscribe: true
+  });
+
+  res.json({ token: at.toJwt() });
 });
 
-server.listen(process.env.PORT||3000,()=>console.log("RUNNING"));
+server.listen(process.env.PORT || 3000, () =>
+  console.log("RUNNING")
+);
