@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>All American Live</title>
 
-<script src="https://unpkg.com/livekit-client/dist/livekit-client.umd.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 
 <style>
 body {
@@ -12,16 +12,12 @@ body {
   background: black;
   color: white;
   font-family: Arial;
-  overflow: hidden;
 }
 
 #video {
   width: 100%;
-  height: 100%;
+  height: 100vh;
   object-fit: cover;
-  position: fixed;
-  top: 0;
-  left: 0;
 }
 
 #ui {
@@ -32,17 +28,11 @@ body {
 }
 
 button {
-  display: block;
   margin: 10px 0;
   padding: 12px;
   border-radius: 50%;
   border: none;
   font-size: 20px;
-  background: rgba(0,255,255,0.7);
-}
-
-#counter {
-  margin-top: 10px;
 }
 
 #commentsBox {
@@ -56,7 +46,6 @@ button {
   background: rgba(0,0,0,0.5);
   margin: 5px 0;
   padding: 5px;
-  border-radius: 5px;
 }
 
 #inputArea {
@@ -64,11 +53,6 @@ button {
   bottom: 10px;
   left: 10px;
 }
-
-#msg {
-  padding: 10px;
-}
-
 </style>
 </head>
 
@@ -92,30 +76,39 @@ button {
 
 <script>
 
-// ❤️ HEARTS
+// 🔌 CONNECT TO SERVER
+const socket = io();
+
+// ❤️ HEARTS (REAL TIME)
 let hearts = 0;
+
 function sendHeart() {
-  hearts++;
-  document.getElementById("counter").innerText = hearts;
+  socket.emit("heart");
 }
 
-// 💬 COMMENTS (WORKING)
+socket.on("heart", () => {
+  hearts++;
+  document.getElementById("counter").innerText = hearts;
+});
+
+// 💬 COMMENTS (REAL TIME)
 function sendComment() {
   const input = document.getElementById("msg");
   const text = input.value.trim();
-
   if (!text) return;
 
-  const div = document.createElement("div");
-  div.className = "comment";
-  div.innerText = text;
-
-  document.getElementById("comments").appendChild(div);
-
+  socket.emit("comment", text);
   input.value = "";
 }
 
-// 🎥 CAMERA (LOCKED + FIXED)
+socket.on("comment", (msg) => {
+  const div = document.createElement("div");
+  div.className = "comment";
+  div.innerText = msg;
+  document.getElementById("comments").appendChild(div);
+});
+
+// 🎥 CAMERA
 async function startCamera() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
