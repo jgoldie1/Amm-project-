@@ -1,41 +1,16 @@
 const express = require("express");
-const cors = require("cors");
-require("dotenv").config();
+const path = require("path");
 
-const { AccessToken } = require("livekit-server-sdk");
+const app = express();
 
-const app = express(); // ✅ THIS WAS MISSING
+// ✅ serve all files in root
+app.use(express.static(__dirname));
 
-app.use(cors());
-app.use(express.json());
-app.use(express.static("public"));
-
-/* ROOT */
+// ✅ force index.html on homepage
 app.get("/", (req, res) => {
-  res.send("Server running 🚀");
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
-/* LIVEKIT TOKEN */
-app.get("/get-token", (req, res) => {
-  const room = "main-room";
-  const username = "user-" + Math.floor(Math.random() * 10000);
-
-  const at = new AccessToken(
-    process.env.LIVEKIT_API_KEY,
-    process.env.LIVEKIT_API_SECRET,
-    {
-      identity: username,
-    }
-  );
-
-  at.addGrant({ roomJoin: true, room });
-
-  res.json({ token: at.toJwt(), room });
-});
-
-/* START SERVER */
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log("RUNNING ON PORT " + PORT);
+app.listen(10000, () => {
+  console.log("RUNNING ON PORT 10000");
 });
