@@ -3,6 +3,8 @@
 <head>
   <title>Video App</title>
 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
       margin: 0;
@@ -21,16 +23,12 @@
       object-fit: cover;
     }
   </style>
-
 </head>
 <body>
 
 <h2>Upload Video</h2>
 <input type="file" id="upload">
 <button onclick="loadVideo()">Upload</button>
-
-<h2>Player</h2>
-<video id="videoPlayer" controls></video>
 
 <h2>Feed</h2>
 <div id="feed"></div>
@@ -42,7 +40,7 @@
 
 <script>
 
-// UPLOAD VIDEO
+// UPLOAD
 async function loadVideo() {
   const file = document.getElementById("upload").files[0];
   if (!file) return;
@@ -55,12 +53,6 @@ async function loadVideo() {
     body: formData
   });
 
-  const data = await res.json();
-
-  const video = document.getElementById("videoPlayer");
-  video.src = data.file;
-  video.load();
-
   loadFeed();
 }
 
@@ -68,6 +60,9 @@ async function loadVideo() {
 async function loadFeed() {
   const res = await fetch("/videos");
   const videos = await res.json();
+
+  const commentRes = await fetch("/comments");
+  const allComments = await commentRes.json();
 
   const feed = document.getElementById("feed");
   feed.innerHTML = "";
@@ -87,19 +82,36 @@ async function loadFeed() {
     const btn = document.createElement("button");
     btn.innerText = "Post";
 
-    const comments = document.createElement("div");
+    const commentsDiv = document.createElement("div");
 
-    btn.onclick = () => {
-      const p = document.createElement("p");
-      p.innerText = input.value;
-      comments.appendChild(p);
+    if (allComments[v]) {
+      allComments[v].forEach(c => {
+        const p = document.createElement("p");
+        p.innerText = c;
+        commentsDiv.appendChild(p);
+      });
+    }
+
+    btn.onclick = async () => {
+      await fetch("/comment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          video: v,
+          text: input.value
+        })
+      });
+
       input.value = "";
+      loadFeed();
     };
 
     div.appendChild(vid);
     div.appendChild(input);
     div.appendChild(btn);
-    div.appendChild(comments);
+    div.appendChild(commentsDiv);
 
     feed.appendChild(div);
   });
@@ -117,7 +129,7 @@ async function startLive() {
   video.srcObject = stream;
 }
 
-// RUN ON LOAD
+// INIT
 window.onload = loadFeed;
 
 </script>
