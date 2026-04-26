@@ -2,7 +2,6 @@
 <html>
 <head>
   <title>Video App</title>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -10,11 +9,13 @@
       margin: 0;
       overflow-y: scroll;
       scroll-snap-type: y mandatory;
+      font-family: Arial;
     }
 
     #feed div {
       scroll-snap-align: start;
       height: 100vh;
+      position: relative;
     }
 
     video {
@@ -22,25 +23,38 @@
       height: 100vh;
       object-fit: cover;
     }
+
+    .overlay {
+      position: absolute;
+      bottom: 20px;
+      left: 10px;
+      color: white;
+    }
+
+    button {
+      margin: 5px;
+    }
   </style>
 </head>
+
 <body>
 
-<h2>Upload Video</h2>
-<input type="file" id="upload">
+<h3>Upload</h3>
+<input type="file" id="upload" accept="video/mp4">
 <button onclick="loadVideo()">Upload</button>
 
-<h2>Feed</h2>
+<h3>Feed</h3>
 <div id="feed"></div>
 
-<h2>Live Stream</h2>
-<video id="liveVideo" autoplay muted></video>
+<h3>Live (2 people)</h3>
+<video id="live1" autoplay muted width="150"></video>
+<video id="live2" autoplay muted width="150"></video>
 <br>
 <button onclick="startLive()">Start Live</button>
 
 <script>
 
-// UPLOAD
+// upload
 async function loadVideo() {
   const file = document.getElementById("upload").files[0];
   if (!file) return;
@@ -48,7 +62,7 @@ async function loadVideo() {
   const formData = new FormData();
   formData.append("video", file);
 
-  const res = await fetch("/upload", {
+  await fetch("/upload", {
     method: "POST",
     body: formData
   });
@@ -56,13 +70,11 @@ async function loadVideo() {
   loadFeed();
 }
 
-// LOAD FEED
+// load feed
 async function loadFeed() {
-  const res = await fetch("/videos");
-  const videos = await res.json();
-
-  const commentRes = await fetch("/comments");
-  const allComments = await commentRes.json();
+  const videos = await (await fetch("/videos")).json();
+  const allComments = await (await fetch("/comments")).json();
+  const allLikes = await (await fetch("/likes")).json();
 
   const feed = document.getElementById("feed");
   feed.innerHTML = "";
@@ -76,11 +88,37 @@ async function loadFeed() {
     vid.loop = true;
     vid.muted = true;
 
-    const input = document.createElement("input");
-    input.placeholder = "Add comment";
+    const overlay = document.createElement("div");
+    overlay.className = "overlay";
 
-    const btn = document.createElement("button");
-    btn.innerText = "Post";
+    // like button
+    const likeBtn = document.createElement("button");
+    likeBtn.innerText = "❤️ " + (allLikes[v] || 0);
+
+    likeBtn.onclick = async () => {
+      const res = await fetch("/like", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ video: v })
+      });
+      const data = await res.json();
+      likeBtn.innerText = "❤️ " + data.likes;
+    };
+
+    // gift button
+    const giftBtn = document.createElement("button");
+    giftBtn.innerText = "🎁 Gift";
+
+    giftBtn.onclick = () => {
+      alert("Gift sent 🎁");
+    };
+
+    // comment input
+    const input = document.createElement("input");
+    input.placeholder = "Comment";
+
+    const postBtn = document.createElement("button");
+    postBtn.innerText = "Post";
 
     const commentsDiv = document.createElement("div");
 
@@ -92,44 +130,38 @@ async function loadFeed() {
       });
     }
 
-    btn.onclick = async () => {
+    postBtn.onclick = async () => {
       await fetch("/comment", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          video: v,
-          text: input.value
-        })
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ video: v, text: input.value })
       });
 
       input.value = "";
       loadFeed();
     };
 
+    overlay.appendChild(likeBtn);
+    overlay.appendChild(giftBtn);
+    overlay.appendChild(input);
+    overlay.appendChild(postBtn);
+    overlay.appendChild(commentsDiv);
+
     div.appendChild(vid);
-    div.appendChild(input);
-    div.appendChild(btn);
-    div.appendChild(commentsDiv);
+    div.appendChild(overlay);
 
     feed.appendChild(div);
   });
 }
 
-// LIVE CAMERA
+// live (basic 2 cam UI)
 async function startLive() {
-  const video = document.getElementById("liveVideo");
+  const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
 
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: true,
-    audio: true
-  });
-
-  video.srcObject = stream;
+  document.getElementById("live1").srcObject = stream;
+  document.getElementById("live2").srcObject = stream; // placeholder for 2nd user
 }
 
-// INIT
 window.onload = loadFeed;
 
 </script>
