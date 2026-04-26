@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Real Live</title>
+<title>FULL LIVE</title>
 </head>
 
 <body style="background:black;color:white;">
 
-<h2>🔴 REAL LIVE (3 USERS)</h2>
+<h2>🔥 LIVE APP</h2>
 
+<!-- VIDEO -->
 <div style="display:flex;gap:10px;">
   <video id="live1" autoplay muted width="30%"></video>
   <video id="live2" autoplay width="30%"></video>
@@ -16,8 +17,34 @@
 
 <br>
 
-<button onclick="startLive()">Start</button>
-<button onclick="leaveLive()">Leave</button>
+<button onclick="startLive()">🔴 Start</button>
+<button onclick="leaveLive()">❌ Leave</button>
+
+<br><br>
+
+<!-- ❤️ HEART -->
+<button onclick="like()">❤️</button>
+<span id="likes">0</span>
+
+<br><br>
+
+<!-- 💬 CHAT -->
+<input id="msg">
+<button onclick="sendMsg()">Send</button>
+<div id="chat"></div>
+
+<br>
+
+<!-- 🎁 GIFT -->
+<button onclick="gift()">🎁 Gift</button>
+
+<br><br>
+
+<!-- 📺 UPLOAD -->
+<input type="file" id="file">
+<button onclick="upload()">Upload</button>
+
+<div id="feed"></div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -27,125 +54,152 @@ const room = "main";
 
 let localStream;
 let peers = {};
-let videoSlots = ["live2", "live3"];
+let slots = ["live2","live3"];
+let likes = 0;
 
 socket.emit("join-room", room);
 
 //////////////////////////////////
-// 🎥 START CAMERA
+// 🎥 VIDEO (KEEP THIS SAME)
 //////////////////////////////////
 async function startLive() {
   localStream = await navigator.mediaDevices.getUserMedia({
-    video: true,
-    audio: true
+    video:true,audio:true
   });
-
-  document.getElementById("live1").srcObject = localStream;
+  live1.srcObject = localStream;
 }
 
-//////////////////////////////////
-// 👥 USER JOINED
-//////////////////////////////////
 socket.on("user-joined", id => {
   createPeer(id, true);
 });
 
-//////////////////////////////////
-// 🔗 CREATE PEER CONNECTION
-//////////////////////////////////
-function createPeer(id, initiator) {
-
+function createPeer(id, init) {
   const peer = new RTCPeerConnection({
-    iceServers: [
-      { urls: "stun:stun.l.google.com:19302" }
-    ]
+    iceServers:[{urls:"stun:stun.l.google.com:19302"}]
   });
 
-  localStream.getTracks().forEach(track => {
-    peer.addTrack(track, localStream);
-  });
+  localStream.getTracks().forEach(t => peer.addTrack(t, localStream));
 
-  peer.ontrack = event => {
-    const videoId = videoSlots.shift();
-    if (!videoId) return;
-
-    document.getElementById(videoId).srcObject = event.streams[0];
+  peer.ontrack = e => {
+    const slot = slots.shift();
+    if(slot) document.getElementById(slot).srcObject = e.streams[0];
   };
 
-  peer.onicecandidate = event => {
-    if (event.candidate) {
-      socket.emit("signal", {
-        to: id,
-        signal: event.candidate
-      });
+  peer.onicecandidate = e => {
+    if(e.candidate){
+      socket.emit("signal",{to:id,signal:e.candidate});
     }
   };
 
-  peers[id] = peer;
+  peers[id]=peer;
 
-  if (initiator) {
+  if(init){
     peer.createOffer()
-      .then(offer => peer.setLocalDescription(offer))
-      .then(() => {
-        socket.emit("signal", {
-          to: id,
-          signal: peer.localDescription
-        });
+      .then(o=>peer.setLocalDescription(o))
+      .then(()=>{
+        socket.emit("signal",{to:id,signal:peer.localDescription});
       });
   }
 }
 
-//////////////////////////////////
-// 📡 SIGNALING
-//////////////////////////////////
-socket.on("signal", async data => {
-
+socket.on("signal", async data=>{
   let peer = peers[data.from];
-
-  if (!peer) {
-    createPeer(data.from, false);
+  if(!peer){
+    createPeer(data.from,false);
     peer = peers[data.from];
   }
 
-  if (data.signal.type === "offer") {
+  if(data.signal.type==="offer"){
     await peer.setRemoteDescription(data.signal);
-    const answer = await peer.createAnswer();
-    await peer.setLocalDescription(answer);
-
-    socket.emit("signal", {
-      to: data.from,
-      signal: answer
-    });
-
-  } else if (data.signal.type === "answer") {
+    const ans = await peer.createAnswer();
+    await peer.setLocalDescription(ans);
+    socket.emit("signal",{to:data.from,signal:ans});
+  }
+  else if(data.signal.type==="answer"){
     await peer.setRemoteDescription(data.signal);
-
-  } else {
-    try {
-      await peer.addIceCandidate(data.signal);
-    } catch (e) {}
+  }
+  else{
+    try{await peer.addIceCandidate(data.signal);}catch{}
   }
 });
 
 //////////////////////////////////
-// ❌ USER LEFT
+// ❤️ HEART SYSTEM
 //////////////////////////////////
-socket.on("user-left", id => {
-  if (peers[id]) {
-    peers[id].close();
-    delete peers[id];
-  }
+function like(){
+  likes++;
+  document.getElementById("likes").innerText = likes;
+}
+
+//////////////////////////////////
+// 💬 CHAT
+//////////////////////////////////
+function sendMsg(){
+  const text = msg.value;
+  socket.emit("chat",{room,text});
+  msg.value="";
+}
+
+socket.on("chat", data=>{
+  const p = document.createElement("p");
+  p.innerText = data.text;
+  chat.appendChild(p);
 });
 
 //////////////////////////////////
-// 🔌 LEAVE
+// 🎁 GIFT (HOLOGRAPHIC)
 //////////////////////////////////
-function leaveLive() {
-  Object.values(peers).forEach(p => p.close());
-  if (localStream) {
-    localStream.getTracks().forEach(t => t.stop());
+function gift(){
+  socket.emit("gift",{room});
+}
+
+socket.on("gift", ()=>{
+  const g = document.createElement("div");
+  g.innerText = "✨🎁✨";
+  g.style.position="absolute";
+  g.style.left=Math.random()*80+"%";
+  g.style.top=Math.random()*80+"%";
+  g.style.fontSize="40px";
+  document.body.appendChild(g);
+  setTimeout(()=>g.remove(),2000);
+});
+
+//////////////////////////////////
+// 📺 UPLOAD + FEED
+//////////////////////////////////
+async function upload(){
+  const file = document.getElementById("file").files[0];
+  const form = new FormData();
+  form.append("video", file);
+
+  await fetch("/upload",{method:"POST",body:form});
+  loadFeed();
+}
+
+async function loadFeed(){
+  const res = await fetch("/videos");
+  const vids = await res.json();
+
+  feed.innerHTML="";
+  vids.forEach(v=>{
+    const vid = document.createElement("video");
+    vid.src = v;
+    vid.controls=true;
+    vid.width=200;
+    feed.appendChild(vid);
+  });
+}
+
+loadFeed();
+
+//////////////////////////////////
+// ❌ LEAVE
+//////////////////////////////////
+function leaveLive(){
+  Object.values(peers).forEach(p=>p.close());
+  if(localStream){
+    localStream.getTracks().forEach(t=>t.stop());
   }
-  socket.disconnect();
   location.reload();
 }
 
