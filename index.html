@@ -1,138 +1,29 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>TikTok Live</title>
+<body style="background:black;color:white;text-align:center;">
 
-<style>
-body {
-  margin:0;
-  background:black;
-  color:white;
-  font-family:sans-serif;
-  overflow:hidden;
-}
+<h2>UPLOAD VIDEO</h2>
 
-#feed {
-  height:100vh;
-  overflow-y:scroll;
-  scroll-snap-type:y mandatory;
-}
+<input type="file" id="file">
+<input id="user" placeholder="username">
 
-.videoCard {
-  height:100vh;
-  scroll-snap-align:start;
-  position:relative;
-}
-
-video {
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-/* overlay UI */
-.overlay {
-  position:absolute;
-  bottom:20px;
-  left:20px;
-}
-
-.actions {
-  position:absolute;
-  right:10px;
-  bottom:100px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-button {
-  background:rgba(0,0,0,0.5);
-  color:white;
-  border:none;
-  padding:10px;
-  border-radius:10px;
-}
-</style>
-</head>
-
-<body>
-
-<div id="feed"></div>
+<button onclick="upload()">Upload</button>
 
 <script>
-// LOAD FEED
-async function loadFeed(){
-  const res = await fetch("/feed");
-  const data = await res.json();
+async function upload(){
+  const file = document.getElementById("file").files[0];
+  const user = document.getElementById("user").value;
 
-  feed.innerHTML="";
+  const form = new FormData();
+  form.append("video", file);
+  form.append("user", user);
 
-  data.forEach(v=>{
-    const card = document.createElement("div");
-    card.className = "videoCard";
-
-    const vid = document.createElement("video");
-    vid.src = v.file;
-    vid.autoplay = true;
-    vid.loop = true;
-
-    // overlay
-    const overlay = document.createElement("div");
-    overlay.className="overlay";
-    overlay.innerText = "@" + v.user;
-
-    // actions
-    const actions = document.createElement("div");
-    actions.className="actions";
-
-    const likeBtn = document.createElement("button");
-    likeBtn.innerText="❤️";
-    likeBtn.onclick = ()=>{
-      spawnHeart();
-    };
-
-    const giftBtn = document.createElement("button");
-    giftBtn.innerText="🎁";
-    giftBtn.onclick = ()=>{
-      spawnGift();
-    };
-
-    actions.appendChild(likeBtn);
-    actions.appendChild(giftBtn);
-
-    card.appendChild(vid);
-    card.appendChild(overlay);
-    card.appendChild(actions);
-
-    feed.appendChild(card);
+  await fetch("/upload", {
+    method:"POST",
+    body:form
   });
-}
 
-loadFeed();
-
-// ❤️ HEART
-function spawnHeart(){
-  const h = document.createElement("div");
-  h.innerText="❤️";
-  h.style.position="absolute";
-  h.style.bottom="0";
-  h.style.left=Math.random()*90+"%";
-  h.style.fontSize="30px";
-  document.body.appendChild(h);
-  setTimeout(()=>h.remove(),2000);
-}
-
-// 🎁 GIFT
-function spawnGift(){
-  const g = document.createElement("div");
-  g.innerText="✨🎁✨";
-  g.style.position="absolute";
-  g.style.top=Math.random()*90+"%";
-  g.style.left=Math.random()*90+"%";
-  g.style.fontSize="40px";
-  document.body.appendChild(g);
-  setTimeout(()=>g.remove(),2000);
+  alert("Uploaded!");
 }
 </script>
 
