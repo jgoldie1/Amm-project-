@@ -1,85 +1,99 @@
 const express = require("express");
 const http = require("http");
 const fs = require("fs");
-const multer = require("multer");
-
 const app = express();
 const server = http.createServer(app);
-const io = require("socket.io")(server);
 
 app.use(express.json());
+app.use(express.static("public"));
 
-// ===== FILE SYSTEM SETUP =====
-if (!fs.existsSync("uploads")) fs.mkdirSync("uploads");
 if (!fs.existsSync("data")) fs.mkdirSync("data");
 
-// simple DB files
-const USERS_FILE = "data/users.json";
-const STREAMS_FILE = "data/streams.json";
+const USERS = "data/users.json";
+if (!fs.existsSync(USERS)) fs.writeFileSync(USERS, "[]");
 
-if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, "[]");
-if (!fs.existsSync(STREAMS_FILE)) fs.writeFileSync(STREAMS_FILE, "[]");
-
-function read(file) {
-  return JSON.parse(fs.readFileSync(file));
+function read() {
+  return JSON.parse(fs.readFileSync(USERS));
 }
-function write(file, data) {
-  fs.writeFileSync(file, JSON.stringify(data, null, 2));
+function write(data) {
+  fs.writeFileSync(USERS, JSON.stringify(data, null, 2));
 }
 
-// ===== STATIC =====
-app.use(express.static("public"));
-app.use("/uploads", express.static("uploads"));
-
-// ===== AUTH (BASIC) =====
+/* REGISTER */
 app.post("/register", (req, res) => {
-  const users = read(USERS_FILE);
-  users.push(req.body);
-  write(USERS_FILE, users);
-  res.json({ ok: true });
-});
+  let users = read();
 
-app.post("/login", (req, res) => {
-  const users = read(USERS_FILE);
-  const user = users.find(
-    u => u.username === req.body.username && u.password === req.body.password
-  );
+  if (users.find(u => u.username === req.body.username)) {
+    return res.json({ error: "User exists" });
+  }
+
+  const user = {
+    id: Date.now(),
+    username: req.body.username,
+    password: req.body.password,
+    followers: [],
+    following: []
+  };
+
+  users.push(user);
+  write(users);
+
   res.json({ user });
 });
 
-// ===== UPLOAD STREAM =====
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) => cb(null, Date.now() + ".mp4")
-});
-const upload = multer({ storage });
+/* LOGIN */
+app.post("/login", (req, res) => {
+  let users = read();
 
-app.post("/upload", upload.single("video"), (req, res) => {
-  const streams = read(STREAMS_FILE);
+  const user = users.find(
+    u => u.username === req.body.username &&
+         u.password === req.body.password
+  );
 
-  const newStream = {
-    file: "/uploads/" + req.file.filename,
-    user: req.body.user || "anon",
-    time: Date.now()
-  };
-
-  streams.unshift(newStream);
-  write(STREAMS_FILE, streams);
-
-  res.json(newStream);
+  res.json({ user });
 });
 
-// ===== FEED =====
-app.get("/feed", (req, res) => {
-  const streams = read(STREAMS_FILE);
-  res.json(streams);
+/* GET PROFILE */
+app.get("/profile/:id", (req, res) => {
+  let users = read();
+  const user = users.find(u => u.id == req.params.id);
+  res.json(user);
 });
 
-// ===== SOCKET =====
-io.on("connection", socket => {
-  socket.on("chat", msg => io.emit("chat", msg));
-  socket.on("like", () => io.emit("like"));
-  socket.on("gift", () => io.emit("gift"));
+/* FOLLOW */
+app.post("/follow", (req, res) => {
+  let users = read();
+
+  const { me, target } = req.body;
+
+  const meUser = users.find(u => u.id == me);
+  const targetUser = users.find(u => u.id == target);
+
+  if (!meUser.following.includes(target)) {
+    meUser.following.push(target);
+    targetUser.followers.push(me);
+  }
+
+  write(users);
+
+  res.json({ ok: true });
 });
 
-server.listen(process.env.PORT || 3000, () => console.log("RUNNING"));
+/* UNFOLLOW */
+app.post("/unfollow", (req, res) => {
+  let users = read();
+
+  const { me, target } = req.body;
+
+  const meUser = users.find(u => u.id == me);
+  const targetUser = users.find(u => u.id == target);
+
+  meUser.following = meUser.following.filter(id => id != target);
+  targetUser.followers = targetUser.followers.filter(id => id != me);
+
+  write(users);
+
+  res.json({ ok: true });
+});
+
+server.listen(3000, () => console.log("RUNNING"));
