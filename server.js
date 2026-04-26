@@ -1,6 +1,9 @@
 const express = require("express");
+const http = require("http");
 const fs = require("fs");
 const app = express();
+const server = http.createServer(app);
+const io = require("socket.io")(server);
 
 app.use(express.json());
 app.use(express.static("public"));
@@ -14,21 +17,18 @@ const POSTS_FILE = "data/posts.json";
 if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, "[]");
 if (!fs.existsSync(POSTS_FILE)) fs.writeFileSync(POSTS_FILE, "[]");
 
-function read(file){ return JSON.parse(fs.readFileSync(file)); }
-function write(file,data){ fs.writeFileSync(file, JSON.stringify(data,null,2)); }
+const read = f => JSON.parse(fs.readFileSync(f));
+const write = (f,d) => fs.writeFileSync(f, JSON.stringify(d,null,2));
 
 /* ===== AUTH ===== */
 app.post("/register",(req,res)=>{
   let users = read(USERS_FILE);
 
-  if(users.find(u=>u.username===req.body.username)){
-    return res.json({error:"exists"});
-  }
-
   const user = {
     id: Date.now(),
     username:req.body.username,
     password:req.body.password,
+    coins:100, // 💰 START COINS
     followers:[],
     following:[]
   };
@@ -41,23 +41,18 @@ app.post("/register",(req,res)=>{
 
 app.post("/login",(req,res)=>{
   let users = read(USERS_FILE);
-
-  const user = users.find(
-    u=>u.username===req.body.username &&
-       u.password===req.body.password
+  const user = users.find(u =>
+    u.username===req.body.username &&
+    u.password===req.body.password
   );
-
   res.json({user});
 });
 
 /* ===== USERS ===== */
-app.get("/users",(req,res)=>{
-  res.json(read(USERS_FILE));
-});
+app.get("/users",(req,res)=>res.json(read(USERS_FILE)));
 
 app.get("/profile/:id",(req,res)=>{
-  const u = read(USERS_FILE).find(x=>x.id==req.params.id);
-  res.json(u);
+  res.json(read(USERS_FILE).find(u=>u.id==req.params.id));
 });
 
 /* ===== FOLLOW ===== */
@@ -71,20 +66,22 @@ app.post("/follow",(req,res)=>{
   if(a && b && !a.following.includes(target)){
     a.following.push(target);
     b.followers.push(me);
+
+    io.emit("notify", `${a.username} followed ${b.username}`);
   }
 
   write(USERS_FILE,users);
   res.json({ok:true});
 });
 
-/* ===== POSTS (ALGORITHM BASE) ===== */
+/* ===== POSTS ===== */
 app.post("/post",(req,res)=>{
   let posts = read(POSTS_FILE);
 
   const post = {
     id: Date.now(),
-    user: req.body.user,
-    content: req.body.content,
+    user:req.body.user,
+    content:req.body.content,
     likes:0,
     views:0,
     score:0
@@ -92,6 +89,8 @@ app.post("/post",(req,res)=>{
 
   posts.unshift(post);
   write(POSTS_FILE,posts);
+
+  io.emit("notify", `${post.user} posted new content`);
 
   res.json(post);
 });
@@ -103,39 +102,56 @@ app.post("/like",(req,res)=>{
 
   if(p){
     p.likes++;
-    p.score += 2; // algorithm weight
+    p.score += 2;
   }
 
   write(POSTS_FILE,posts);
   res.json({ok:true});
 });
 
-/* ===== VIEW TRACK (ALGORITHM CORE) ===== */
+/* ===== VIEW ===== */
 app.post("/view",(req,res)=>{
   let posts = read(POSTS_FILE);
   const p = posts.find(x=>x.id==req.body.id);
 
   if(p){
     p.views++;
-    p.score += 5; // MOST IMPORTANT
+    p.score += 5;
   }
 
   write(POSTS_FILE,posts);
   res.json({ok:true});
 });
 
-/* ===== FEED (SORTED BY SCORE) ===== */
+/* ===== FEED ===== */
 app.get("/feed",(req,res)=>{
   let posts = read(POSTS_FILE);
-
-  posts.sort((a,b)=>b.score - a.score);
-
+  posts.sort((a,b)=>b.score-a.score);
   res.json(posts);
 });
 
-/* ===== SEARCH (HOLO SEARCH) ===== */
+/* ===== 💰 GIFT SYSTEM ===== */
+app.post("/gift",(req,res)=>{
+  let users = read(USERS_FILE);
+  const {from,to,amount} = req.body;
+
+  const sender = users.find(u=>u.id==from);
+  const receiver = users.find(u=>u.id==to);
+
+  if(sender && receiver && sender.coins >= amount){
+    sender.coins -= amount;
+    receiver.coins += amount;
+
+    io.emit("gift", `${sender.username} sent ${amount} coins to ${receiver.username}`);
+  }
+
+  write(USERS_FILE,users);
+  res.json({ok:true});
+});
+
+/* ===== 🔍 SEARCH ===== */
 app.get("/search",(req,res)=>{
-  const q = req.query.q?.toLowerCase() || "";
+  const q = req.query.q.toLowerCase();
 
   const users = read(USERS_FILE).filter(u =>
     u.username.toLowerCase().includes(q)
@@ -148,5 +164,21 @@ app.get("/search",(req,res)=>{
   res.json({users,posts});
 });
 
-/* ===== START ===== */
-app.listen(process.env.PORT || 3000, ()=>console.log("RUNNING"));
+/* ===== 🤖 HOLO GPT (BASIC AI) ===== */
+function holoReply(text){
+  if(text.includes("hello")) return "👋 Welcome to the future";
+  if(text.includes("live")) return "🔥 Trending live streams now!";
+  return "🤖 AI is watching...";
+}
+
+/* ===== SOCKET ===== */
+io.on("connection", socket=>{
+  socket.on("chat", msg=>{
+    io.emit("chat", msg);
+
+    const ai = holoReply(msg);
+    io.emit("chat", ai);
+  });
+});
+
+server.listen(process.env.PORT||3000,()=>console.log("RUNNING"));
