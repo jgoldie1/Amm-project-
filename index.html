@@ -1,91 +1,128 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>FULL LIVE</title>
+<title>Live App</title>
+
+<style>
+body {margin:0;background:black;color:white;font-family:sans-serif;}
+
+#videos {display:flex;height:70vh;}
+video {
+  width:33%;
+  object-fit:cover;
+  border-radius:10px;
+  box-shadow:0 0 20px rgba(255,0,255,0.5);
+}
+
+/* background animation */
+#bg {
+  position:fixed;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:-1;
+  opacity:0.25;
+}
+
+#side {
+  position:fixed;
+  right:10px;
+  bottom:20px;
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+
+.btn {
+  background:#111;
+  border:none;
+  color:white;
+  font-size:20px;
+  padding:10px;
+  border-radius:50%;
+}
+
+/* chat */
+#chatBox {
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:70%;
+}
+#chat {
+  max-height:120px;
+  overflow:auto;
+}
+</style>
 </head>
 
-<body style="background:black;color:white;">
+<body>
 
-<h2>🔥 LIVE APP</h2>
+<!-- 🎥 ANIME BACKGROUND -->
+<video id="bg" autoplay muted loop>
+  <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+</video>
 
-<!-- VIDEO -->
-<div style="display:flex;gap:10px;">
-  <video id="live1" autoplay muted width="30%"></video>
-  <video id="live2" autoplay width="30%"></video>
-  <video id="live3" autoplay width="30%"></video>
+<div id="videos">
+  <video id="live1" autoplay muted></video>
+  <video id="live2" autoplay></video>
+  <video id="live3" autoplay></video>
 </div>
 
-<br>
+<!-- SIDE UI -->
+<div id="side">
+  <button class="btn" onclick="startLive()">🔴</button>
+  <button class="btn" onclick="like()">❤️</button>
+  <button class="btn" onclick="gift()">🎁</button>
+  <button class="btn" onclick="leaveLive()">❌</button>
+</div>
 
-<button onclick="startLive()">🔴 Start</button>
-<button onclick="leaveLive()">❌ Leave</button>
-
-<br><br>
-
-<!-- ❤️ HEART -->
-<button onclick="like()">❤️</button>
-<span id="likes">0</span>
-
-<br><br>
-
-<!-- 💬 CHAT -->
-<input id="msg">
-<button onclick="sendMsg()">Send</button>
-<div id="chat"></div>
-
-<br>
-
-<!-- 🎁 GIFT -->
-<button onclick="gift()">🎁 Gift</button>
-
-<br><br>
-
-<!-- 📺 UPLOAD -->
-<input type="file" id="file">
-<button onclick="upload()">Upload</button>
-
-<div id="feed"></div>
+<!-- CHAT -->
+<div id="chatBox">
+  <div id="chat"></div>
+  <input id="msg">
+  <button onclick="sendMsg()">Send</button>
+</div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-
 const socket = io();
 const room = "main";
 
 let localStream;
 let peers = {};
 let slots = ["live2","live3"];
-let likes = 0;
 
 socket.emit("join-room", room);
 
 //////////////////////////////////
-// 🎥 VIDEO (KEEP THIS SAME)
+// VIDEO + TURN (LOCKED)
 //////////////////////////////////
-async function startLive() {
-  localStream = await navigator.mediaDevices.getUserMedia({
-    video:true,audio:true
-  });
-  live1.srcObject = localStream;
-}
-
-socket.on("user-joined", id => {
-  createPeer(id, true);
-});
-
-function createPeer(id, init) {
+function createPeer(id, init){
   const peer = new RTCPeerConnection({
-    iceServers:[{urls:"stun:stun.l.google.com:19302"}]
+    iceServers: [
+      { urls: "stun:stun.l.google.com:19302" },
+      {
+        urls: "turn:openrelay.metered.ca:80",
+        username: "openrelayproject",
+        credential: "openrelayproject"
+      },
+      {
+        urls: "turn:openrelay.metered.ca:443",
+        username: "openrelayproject",
+        credential: "openrelayproject"
+      }
+    ]
   });
 
-  localStream.getTracks().forEach(t => peer.addTrack(t, localStream));
+  localStream.getTracks().forEach(t=>peer.addTrack(t,localStream));
 
-  peer.ontrack = e => {
+  peer.ontrack = e=>{
     const slot = slots.shift();
     if(slot) document.getElementById(slot).srcObject = e.streams[0];
   };
 
-  peer.onicecandidate = e => {
+  peer.onicecandidate = e=>{
     if(e.candidate){
       socket.emit("signal",{to:id,signal:e.candidate});
     }
@@ -95,12 +132,23 @@ function createPeer(id, init) {
 
   if(init){
     peer.createOffer()
-      .then(o=>peer.setLocalDescription(o))
-      .then(()=>{
-        socket.emit("signal",{to:id,signal:peer.localDescription});
-      });
+    .then(o=>peer.setLocalDescription(o))
+    .then(()=>{
+      socket.emit("signal",{to:id,signal:peer.localDescription});
+    });
   }
 }
+
+async function startLive(){
+  localStream = await navigator.mediaDevices.getUserMedia({
+    video:true,audio:true
+  });
+  live1.srcObject = localStream;
+}
+
+socket.on("user-joined", id=>{
+  createPeer(id,true);
+});
 
 socket.on("signal", async data=>{
   let peer = peers[data.from];
@@ -124,30 +172,42 @@ socket.on("signal", async data=>{
 });
 
 //////////////////////////////////
-// ❤️ HEART SYSTEM
+// ❤️ HEART
 //////////////////////////////////
 function like(){
-  likes++;
-  document.getElementById("likes").innerText = likes;
+  for(let i=0;i<5;i++){
+    const h = document.createElement("div");
+    h.innerText="❤️";
+    h.style.position="absolute";
+    h.style.left=Math.random()*90+"%";
+    h.style.bottom="0px";
+
+    h.animate([
+      { transform:"translateY(0px)", opacity:1 },
+      { transform:"translateY(-300px)", opacity:0 }
+    ], {duration:2000});
+
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),2000);
+  }
 }
 
 //////////////////////////////////
 // 💬 CHAT
 //////////////////////////////////
 function sendMsg(){
-  const text = msg.value;
-  socket.emit("chat",{room,text});
+  socket.emit("chat",{room,text:msg.value});
   msg.value="";
 }
 
 socket.on("chat", data=>{
   const p = document.createElement("p");
-  p.innerText = data.text;
+  p.innerText=data.text;
   chat.appendChild(p);
 });
 
 //////////////////////////////////
-// 🎁 GIFT (HOLOGRAPHIC)
+// 🎁 HOLOGRAPHIC GIFT
 //////////////////////////////////
 function gift(){
   socket.emit("gift",{room});
@@ -155,42 +215,19 @@ function gift(){
 
 socket.on("gift", ()=>{
   const g = document.createElement("div");
-  g.innerText = "✨🎁✨";
+  g.innerText="💎✨🎁✨💎";
   g.style.position="absolute";
   g.style.left=Math.random()*80+"%";
-  g.style.top=Math.random()*80+"%";
-  g.style.fontSize="40px";
+  g.style.top="80%";
+
+  g.animate([
+    { transform:"translateY(0px) scale(1)", opacity:1 },
+    { transform:"translateY(-300px) scale(1.5)", opacity:0 }
+  ], {duration:2000});
+
   document.body.appendChild(g);
   setTimeout(()=>g.remove(),2000);
 });
-
-//////////////////////////////////
-// 📺 UPLOAD + FEED
-//////////////////////////////////
-async function upload(){
-  const file = document.getElementById("file").files[0];
-  const form = new FormData();
-  form.append("video", file);
-
-  await fetch("/upload",{method:"POST",body:form});
-  loadFeed();
-}
-
-async function loadFeed(){
-  const res = await fetch("/videos");
-  const vids = await res.json();
-
-  feed.innerHTML="";
-  vids.forEach(v=>{
-    const vid = document.createElement("video");
-    vid.src = v;
-    vid.controls=true;
-    vid.width=200;
-    feed.appendChild(vid);
-  });
-}
-
-loadFeed();
 
 //////////////////////////////////
 // ❌ LEAVE
@@ -202,7 +239,6 @@ function leaveLive(){
   }
   location.reload();
 }
-
 </script>
 
 </body>
