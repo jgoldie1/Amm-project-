@@ -1,11 +1,11 @@
-    const express = require("express");
+const express = require("express");
 const multer = require("multer");
 const fs = require("fs");
 const http = require("http");
 
 const app = express();
 const server = http.createServer(app);
-const io = require("socket.io")(server); // ✅ FIX
+const io = require("socket.io")(server);
 
 app.use(express.json());
 
@@ -14,24 +14,21 @@ if (!fs.existsSync("uploads")) {
   fs.mkdirSync("uploads");
 }
 
-// serve static files
+// serve static
 app.use(express.static("public"));
 app.use("/uploads", express.static("uploads"));
 
-// upload setup
+// upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
   filename: (req, file, cb) => cb(null, Date.now() + ".mp4")
 });
-
 const upload = multer({ storage });
 
-// upload route
 app.post("/upload", upload.single("video"), (req, res) => {
   res.json({ file: "/uploads/" + req.file.filename });
 });
 
-// videos
 app.get("/videos", (req, res) => {
   fs.readdir("uploads", (err, files) => {
     if (err) return res.json([]);
@@ -61,9 +58,9 @@ app.post("/like", (req, res) => {
 
 app.get("/likes", (req, res) => res.json(likes));
 
-/* ===== SOCKET.IO ===== */
+/* ===== LIVE SYSTEM ===== */
 io.on("connection", socket => {
-  console.log("User connected:", socket.id);
+  console.log("User:", socket.id);
 
   socket.on("join-room", room => {
     socket.join(room);
@@ -105,5 +102,5 @@ io.on("connection", socket => {
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
-  console.log("Server running on " + PORT);
+  console.log("RUNNING " + PORT);
 });
