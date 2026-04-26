@@ -1,152 +1,115 @@
-const express = require("express");
-const fs = require("fs");
-const app = express();
+<!DOCTYPE html>
+<html>
+<head>
+<title>PLATFORM</title>
+<style>
+body { background:black; color:white; font-family:sans-serif; text-align:center; }
+.card { background:#222; margin:10px; padding:10px; }
+</style>
+</head>
 
-app.use(express.json());
-app.use(express.static("public"));
+<body>
 
-/* ===== SETUP ===== */
-if (!fs.existsSync("data")) fs.mkdirSync("data");
+<h2>🔥 PLATFORM</h2>
 
-const USERS_FILE = "data/users.json";
-const POSTS_FILE = "data/posts.json";
+<input id="user" placeholder="username">
+<input id="pass" placeholder="password">
+<button onclick="register()">Register</button>
+<button onclick="login()">Login</button>
 
-if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, "[]");
-if (!fs.existsSync(POSTS_FILE)) fs.writeFileSync(POSTS_FILE, "[]");
+<div id="me"></div>
 
-function read(file){ return JSON.parse(fs.readFileSync(file)); }
-function write(file,data){ fs.writeFileSync(file, JSON.stringify(data,null,2)); }
+<h3>Create Post</h3>
+<input id="postText">
+<button onclick="post()">Post</button>
 
-/* ===== AUTH ===== */
-app.post("/register",(req,res)=>{
-  let users = read(USERS_FILE);
+<h3>Feed</h3>
+<div id="feed"></div>
 
-  if(users.find(u=>u.username===req.body.username)){
-    return res.json({error:"exists"});
-  }
+<h3>Chat</h3>
+<input id="msg">
+<button onclick="send()">Send</button>
+<div id="chat"></div>
 
-  const user = {
-    id: Date.now(),
-    username:req.body.username,
-    password:req.body.password,
-    followers:[],
-    following:[]
-  };
+<script src="/socket.io/socket.io.js"></script>
+<script>
+let meUser=null;
+const socket = io();
 
-  users.push(user);
-  write(USERS_FILE,users);
+/* AUTH */
+async function register(){
+ await fetch("/register",{method:"POST",headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({username:user.value,password:pass.value})});
+ alert("Registered");
+}
 
-  res.json({user});
+async function login(){
+ const res=await fetch("/login",{method:"POST",headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({username:user.value,password:pass.value})});
+ const data=await res.json();
+ meUser=data.user;
+ me.innerHTML=`${meUser.username} | Coins: ${meUser.coins}`;
+}
+
+/* POST */
+async function post(){
+ await fetch("/post",{method:"POST",headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({user:meUser.username,content:postText.value})});
+ load();
+}
+
+/* FEED */
+async function load(){
+ const res=await fetch("/feed");
+ const data=await res.json();
+ feed.innerHTML="";
+ data.forEach(p=>{
+  const div=document.createElement("div");
+  div.className="card";
+  div.innerHTML=`
+   <b>${p.user}</b><br>${p.content}<br>
+   ❤️ ${p.likes} 👁 ${p.views}<br>
+   <button onclick="like(${p.id})">Like</button>
+  `;
+  div.onclick=()=>view(p.id);
+  feed.appendChild(div);
+ });
+}
+load();
+
+async function like(id){
+ await fetch("/like",{method:"POST",headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({id})});
+ load();
+}
+
+async function view(id){
+ await fetch("/view",{method:"POST",headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({id})});
+}
+
+/* CHAT + AI */
+function send(){
+ socket.emit("chat", msg.value);
+ msg.value="";
+}
+
+socket.on("chat", m=>{
+ const d=document.createElement("div");
+ d.innerText=m;
+ chat.appendChild(d);
 });
 
-app.post("/login",(req,res)=>{
-  let users = read(USERS_FILE);
-
-  const user = users.find(
-    u=>u.username===req.body.username &&
-       u.password===req.body.password
-  );
-
-  res.json({user});
+/* 🔔 NOTIFICATIONS */
+socket.on("notify", n=>{
+ alert(n);
 });
 
-/* ===== USERS ===== */
-app.get("/users",(req,res)=>{
-  res.json(read(USERS_FILE));
+/* 🎁 GIFT */
+socket.on("gift", g=>{
+ alert(g);
 });
+</script>
 
-app.get("/profile/:id",(req,res)=>{
-  const u = read(USERS_FILE).find(x=>x.id==req.params.id);
-  res.json(u);
-});
-
-/* ===== FOLLOW ===== */
-app.post("/follow",(req,res)=>{
-  let users = read(USERS_FILE);
-  const {me,target} = req.body;
-
-  const a = users.find(u=>u.id==me);
-  const b = users.find(u=>u.id==target);
-
-  if(a && b && !a.following.includes(target)){
-    a.following.push(target);
-    b.followers.push(me);
-  }
-
-  write(USERS_FILE,users);
-  res.json({ok:true});
-});
-
-/* ===== POSTS (ALGORITHM BASE) ===== */
-app.post("/post",(req,res)=>{
-  let posts = read(POSTS_FILE);
-
-  const post = {
-    id: Date.now(),
-    user: req.body.user,
-    content: req.body.content,
-    likes:0,
-    views:0,
-    score:0
-  };
-
-  posts.unshift(post);
-  write(POSTS_FILE,posts);
-
-  res.json(post);
-});
-
-/* ===== LIKE ===== */
-app.post("/like",(req,res)=>{
-  let posts = read(POSTS_FILE);
-  const p = posts.find(x=>x.id==req.body.id);
-
-  if(p){
-    p.likes++;
-    p.score += 2; // algorithm weight
-  }
-
-  write(POSTS_FILE,posts);
-  res.json({ok:true});
-});
-
-/* ===== VIEW TRACK (ALGORITHM CORE) ===== */
-app.post("/view",(req,res)=>{
-  let posts = read(POSTS_FILE);
-  const p = posts.find(x=>x.id==req.body.id);
-
-  if(p){
-    p.views++;
-    p.score += 5; // MOST IMPORTANT
-  }
-
-  write(POSTS_FILE,posts);
-  res.json({ok:true});
-});
-
-/* ===== FEED (SORTED BY SCORE) ===== */
-app.get("/feed",(req,res)=>{
-  let posts = read(POSTS_FILE);
-
-  posts.sort((a,b)=>b.score - a.score);
-
-  res.json(posts);
-});
-
-/* ===== SEARCH (HOLO SEARCH) ===== */
-app.get("/search",(req,res)=>{
-  const q = req.query.q?.toLowerCase() || "";
-
-  const users = read(USERS_FILE).filter(u =>
-    u.username.toLowerCase().includes(q)
-  );
-
-  const posts = read(POSTS_FILE).filter(p =>
-    p.content.toLowerCase().includes(q)
-  );
-
-  res.json({users,posts});
-});
-
-/* ===== START ===== */
-app.listen(process.env.PORT || 3000, ()=>console.log("RUNNING"));
+</body>
+</html>
