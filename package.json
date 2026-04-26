@@ -1,7 +1,7 @@
 {
   "name": "amm-project",
   "version": "1.0.0",
-  "description": "video live app",
+  "description": "live video app",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
