@@ -7,21 +7,22 @@ const server = http.createServer(app);
 app.use(express.json());
 app.use(express.static("public"));
 
+/* ===== SETUP ===== */
 if (!fs.existsSync("data")) fs.mkdirSync("data");
 
-const USERS = "data/users.json";
-if (!fs.existsSync(USERS)) fs.writeFileSync(USERS, "[]");
+const USERS_FILE = "data/users.json";
+if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, "[]");
 
-function read() {
-  return JSON.parse(fs.readFileSync(USERS));
+function readUsers() {
+  return JSON.parse(fs.readFileSync(USERS_FILE));
 }
-function write(data) {
-  fs.writeFileSync(USERS, JSON.stringify(data, null, 2));
+function writeUsers(data) {
+  fs.writeFileSync(USERS_FILE, JSON.stringify(data, null, 2));
 }
 
-/* REGISTER */
+/* ===== AUTH ===== */
 app.post("/register", (req, res) => {
-  let users = read();
+  const users = readUsers();
 
   if (users.find(u => u.username === req.body.username)) {
     return res.json({ error: "User exists" });
@@ -36,14 +37,13 @@ app.post("/register", (req, res) => {
   };
 
   users.push(user);
-  write(users);
+  writeUsers(users);
 
   res.json({ user });
 });
 
-/* LOGIN */
 app.post("/login", (req, res) => {
-  let users = read();
+  const users = readUsers();
 
   const user = users.find(
     u => u.username === req.body.username &&
@@ -53,16 +53,16 @@ app.post("/login", (req, res) => {
   res.json({ user });
 });
 
-/* GET PROFILE */
+/* ===== PROFILE ===== */
 app.get("/profile/:id", (req, res) => {
-  let users = read();
+  const users = readUsers();
   const user = users.find(u => u.id == req.params.id);
   res.json(user);
 });
 
-/* FOLLOW */
+/* ===== FOLLOW ===== */
 app.post("/follow", (req, res) => {
-  let users = read();
+  const users = readUsers();
 
   const { me, target } = req.body;
 
@@ -74,14 +74,13 @@ app.post("/follow", (req, res) => {
     targetUser.followers.push(me);
   }
 
-  write(users);
+  writeUsers(users);
 
   res.json({ ok: true });
 });
 
-/* UNFOLLOW */
 app.post("/unfollow", (req, res) => {
-  let users = read();
+  const users = readUsers();
 
   const { me, target } = req.body;
 
@@ -91,9 +90,10 @@ app.post("/unfollow", (req, res) => {
   meUser.following = meUser.following.filter(id => id != target);
   targetUser.followers = targetUser.followers.filter(id => id != me);
 
-  write(users);
+  writeUsers(users);
 
   res.json({ ok: true });
 });
 
-server.listen(3000, () => console.log("RUNNING"));
+/* ===== START ===== */
+server.listen(process.env.PORT || 3000, () => console.log("RUNNING"));
