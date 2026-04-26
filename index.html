@@ -1,43 +1,113 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Live Stream</title>
-  <script src="https://unpkg.com/livekit-client/dist/livekit-client.umd.min.js"></script>
+<meta charset="UTF-8">
+<title>All American Live</title>
+
+<script src="https://unpkg.com/livekit-client/dist/livekit-client.umd.min.js"></script>
+
+<style>
+body {
+  margin: 0;
+  background: black;
+  color: white;
+  font-family: Arial;
+  overflow: hidden;
+}
+
+/* HOLOGRAPHIC BACKGROUND */
+#bg {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, #001f3f, #000);
+  animation: pulse 6s infinite;
+  z-index: 0;
+}
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+/* VIDEO */
+#video {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+/* UI RIGHT SIDE */
+#ui {
+  position: absolute;
+  right: 10px;
+  bottom: 50px;
+  z-index: 2;
+  text-align: center;
+}
+
+button {
+  display: block;
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 50%;
+  border: none;
+  font-size: 20px;
+  background: rgba(0,255,255,0.7);
+  color: black;
+  cursor: pointer;
+}
+
+/* HEART COUNTER */
+#counter {
+  font-size: 20px;
+}
+
+/* GO LIVE BUTTON */
+#goLive {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 2;
+  padding: 15px 25px;
+  background: red;
+  border-radius: 10px;
+  font-size: 18px;
+}
+</style>
 </head>
-<body style="background:black; color:white; text-align:center;">
 
-<h1>GO LIVE</h1>
+<body>
 
-<button onclick="startLive()" style="padding:15px; font-size:20px;">
-  START STREAM
-</button>
+<div id="bg"></div>
 
-<br><br>
+<video id="video" autoplay playsinline muted></video>
 
-<video id="video" autoplay playsinline muted style="width:90%; max-width:500px;"></video>
+<div id="ui">
+  <button onclick="sendHeart()">❤️</button>
+  <div id="counter">0</div>
+</div>
+
+<button id="goLive" onclick="startLive()">🎥 Go Live</button>
 
 <script>
+let hearts = 0;
+let room;
+
+/* HEART BUTTON */
+function sendHeart() {
+  hearts++;
+  document.getElementById("counter").innerText = hearts;
+}
+
+/* MAIN LIVE FUNCTION */
 async function startLive() {
   try {
-    console.log("Starting...");
+    console.log("Starting live...");
 
-    // ✅ FIX 1: force correct backend URL
-    const res = await fetch("https://amm-project-d3zu.onrender.com/get-token?room=test-room&username=user1");
-
-    if (!res.ok) {
-      throw new Error("Failed to fetch token");
-    }
-
-    const data = await res.json();
-    console.log("Token received:", data);
-
-    // ✅ FIX 2: connect to LiveKit
-    const room = new LivekitClient.Room();
-
-    await room.connect(data.url, data.token);
-    console.log("Connected to LiveKit");
-
-    // ✅ FIX 3: camera + mic permissions
+    // 1. CAMERA FIRST
     const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: true
@@ -46,18 +116,25 @@ async function startLive() {
     const video = document.getElementById("video");
     video.srcObject = stream;
 
-    // ✅ FIX 4: publish tracks (IMPORTANT for real streaming)
-    const tracks = stream.getTracks();
-    for (let track of tracks) {
-      await room.localParticipant.publishTrack(
-        new LivekitClient.LocalTrackPublication(track)
-      );
+    // 2. GET TOKEN FROM YOUR SERVER
+    const res = await fetch("https://amm-project-d3zu.onrender.com/get-token?room=test-room&username=user1");
+    const data = await res.json();
+
+    // 3. CONNECT TO LIVEKIT
+    room = new LivekitClient.Room();
+    await room.connect(data.url, data.token);
+
+    console.log("Connected to LiveKit");
+
+    // 4. PUBLISH TRACKS (THIS WAS BROKEN BEFORE)
+    for (const track of stream.getTracks()) {
+      await room.localParticipant.publishTrack(track);
     }
 
-    console.log("Streaming live ✅");
+    console.log("LIVE STREAM STARTED ✅");
 
   } catch (err) {
-    console.error("ERROR:", err);
+    console.error(err);
     alert("Error: " + err.message);
   }
 }
