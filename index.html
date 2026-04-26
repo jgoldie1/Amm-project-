@@ -1,131 +1,81 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>APP</title>
-<style>
-body { background:black; color:white; font-family:sans-serif; text-align:center; }
+const express = require("express");
+const fs = require("fs");
+const app = express();
 
-/* NAV */
-#nav { background:#111; padding:10px; }
+app.use(express.json());
+app.use(express.static("public"));
 
-/* SECTIONS */
-#feed, #account { display:none; }
-.active { display:block; }
+/* ===== SETUP ===== */
+if (!fs.existsSync("data")) fs.mkdirSync("data");
 
-/* VIDEO */
-video { width:100%; max-width:400px; }
-</style>
-</head>
+const USERS_FILE = "data/users.json";
+if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, "[]");
 
-<body>
-
-<div id="nav">
-  <button onclick="showAccount()">Account</button>
-  <button onclick="showFeed()">Feed</button>
-</div>
-
-<!-- ACCOUNT -->
-<div id="account" class="active">
-  <h2>Account</h2>
-
-  <input id="user" placeholder="username"><br><br>
-  <input id="pass" placeholder="password"><br><br>
-
-  <button onclick="register()">Register</button>
-  <button onclick="login()">Login</button>
-
-  <div id="me"></div>
-</div>
-
-<!-- FEED -->
-<div id="feed">
-  <h2>Users</h2>
-  <div id="users"></div>
-</div>
-
-<script>
-let currentUser = null;
-
-/* NAV */
-function showAccount(){
-  account.classList.add("active");
-  feed.classList.remove("active");
+function readUsers() {
+  return JSON.parse(fs.readFileSync(USERS_FILE));
 }
-function showFeed(){
-  feed.classList.add("active");
-  account.classList.remove("active");
-  loadUsers();
+function writeUsers(data) {
+  fs.writeFileSync(USERS_FILE, JSON.stringify(data, null, 2));
 }
 
-/* REGISTER */
-async function register(){
-  await fetch("/register", {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({
-      username: user.value,
-      password: pass.value
-    })
-  });
-  alert("Registered");
-}
+/* ===== REGISTER ===== */
+app.post("/register", (req, res) => {
+  const users = readUsers();
 
-/* LOGIN */
-async function login(){
-  const res = await fetch("/login", {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({
-      username: user.value,
-      password: pass.value
-    })
-  });
-
-  const data = await res.json();
-  currentUser = data.user;
-
-  if(!currentUser){
-    alert("Login failed");
-    return;
+  if (users.find(u => u.username === req.body.username)) {
+    return res.json({ error: "User exists" });
   }
 
-  me.innerHTML = `
-    Logged in: ${currentUser.username}<br>
-    Followers: ${currentUser.followers.length}<br>
-    Following: ${currentUser.following.length}
-  `;
-}
+  const user = {
+    id: Date.now(),
+    username: req.body.username,
+    password: req.body.password,
+    followers: [],
+    following: []
+  };
 
-/* LOAD USERS */
-async function loadUsers(){
-  const res = await fetch("/profile/" + currentUser.id);
-  const meData = await res.json();
+  users.push(user);
+  writeUsers(users);
 
-  const resAll = await fetch("/profile/" + currentUser.id);
-  const usersDiv = document.getElementById("users");
+  res.json({ user });
+});
 
-  usersDiv.innerHTML = `
-    <div>
-      <b>${meData.username}</b><br>
-      Followers: ${meData.followers.length}
-    </div>
-  `;
-}
+/* ===== LOGIN ===== */
+app.post("/login", (req, res) => {
+  const users = readUsers();
 
-/* FOLLOW (TEST) */
-async function followSelf(){
-  await fetch("/follow", {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({
-      me: currentUser.id,
-      target: currentUser.id
-    })
-  });
+  const user = users.find(
+    u => u.username === req.body.username &&
+         u.password === req.body.password
+  );
 
-  alert("Followed (test)");
-}
-</script>
+  res.json({ user });
+});
 
-</body>
-</html>
+/* ===== GET ALL USERS (IMPORTANT FIX) ===== */
+app.get("/users", (req, res) => {
+  const users = readUsers();
+  res.json(users);
+});
+
+/* ===== FOLLOW ===== */
+app.post("/follow", (req, res) => {
+  const users = readUsers();
+  const { me, target } = req.body;
+
+  const meUser = users.find(u => u.id == me);
+  const targetUser = users.find(u => u.id == target);
+
+  if (!meUser || !targetUser) return res.json({ error: "User not found" });
+
+  if (!meUser.following.includes(target)) {
+    meUser.following.push(target);
+    targetUser.followers.push(me);
+  }
+
+  writeUsers(users);
+  res.json({ ok: true });
+});
+
+/* ===== START ===== */
+app.listen(process.env.PORT || 3000, () => console.log("RUNNING"));
