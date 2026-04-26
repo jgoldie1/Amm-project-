@@ -3,106 +3,127 @@
 <head>
 <title>APP</title>
 <style>
-body { margin:0; background:black; color:white; font-family:sans-serif; }
+body { background:black; color:white; font-family:sans-serif; text-align:center; }
 
 /* NAV */
-#nav {
-  position:fixed; top:0; width:100%;
-  background:#111; display:flex; justify-content:space-around;
-  padding:10px; z-index:10;
-}
+#nav { background:#111; padding:10px; }
 
 /* SECTIONS */
-#feed, #live { display:none; margin-top:60px; }
+#feed, #account { display:none; }
 .active { display:block; }
 
-/* FEED */
-.videoCard { height:100vh; }
-video { width:100%; height:100%; object-fit:cover; }
-
-/* LIVE GRID */
-#liveGrid {
-  display:grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap:10px;
-  padding:10px;
-}
-.liveBox {
-  background:#222;
-  height:200px;
-}
+/* VIDEO */
+video { width:100%; max-width:400px; }
 </style>
 </head>
 
 <body>
 
-<!-- NAV -->
 <div id="nav">
-  <button onclick="showFeed()">🏠 Feed</button>
-  <button onclick="showLive()">🔴 Live</button>
-  <button onclick="goLive()">🎥 Go Live</button>
+  <button onclick="showAccount()">Account</button>
+  <button onclick="showFeed()">Feed</button>
+</div>
+
+<!-- ACCOUNT -->
+<div id="account" class="active">
+  <h2>Account</h2>
+
+  <input id="user" placeholder="username"><br><br>
+  <input id="pass" placeholder="password"><br><br>
+
+  <button onclick="register()">Register</button>
+  <button onclick="login()">Login</button>
+
+  <div id="me"></div>
 </div>
 
 <!-- FEED -->
-<div id="feed" class="active"></div>
-
-<!-- LIVE -->
-<div id="live">
-  <div id="liveGrid">
-    <video id="live1" autoplay muted class="liveBox"></video>
-    <video id="live2" autoplay class="liveBox"></video>
-    <video id="live3" autoplay class="liveBox"></video>
-    <video id="live4" autoplay class="liveBox"></video>
-  </div>
+<div id="feed">
+  <h2>Users</h2>
+  <div id="users"></div>
 </div>
 
-<script src="/socket.io/socket.io.js"></script>
 <script>
-const socket = io();
+let currentUser = null;
 
-/* SWITCH */
-function showFeed(){
-  feed.classList.add("active");
-  live.classList.remove("active");
-}
-function showLive(){
-  live.classList.add("active");
+/* NAV */
+function showAccount(){
+  account.classList.add("active");
   feed.classList.remove("active");
 }
-
-/* LOAD FEED */
-async function loadFeed(){
-  const res = await fetch("/feed");
-  const data = await res.json();
-
-  feed.innerHTML = "";
-
-  data.forEach(v=>{
-    const card = document.createElement("div");
-    card.className = "videoCard";
-
-    const vid = document.createElement("video");
-    vid.src = v.file;
-    vid.autoplay = true;
-    vid.loop = true;
-
-    card.appendChild(vid);
-    feed.appendChild(card);
-  });
+function showFeed(){
+  feed.classList.add("active");
+  account.classList.remove("active");
+  loadUsers();
 }
-loadFeed();
 
-/* GO LIVE */
-let localStream;
-
-function goLive(){
-  showLive();
-
-  navigator.mediaDevices.getUserMedia({video:true,audio:true})
-  .then(stream=>{
-    localStream = stream;
-    live1.srcObject = stream;
+/* REGISTER */
+async function register(){
+  await fetch("/register", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      username: user.value,
+      password: pass.value
+    })
   });
+  alert("Registered");
+}
+
+/* LOGIN */
+async function login(){
+  const res = await fetch("/login", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      username: user.value,
+      password: pass.value
+    })
+  });
+
+  const data = await res.json();
+  currentUser = data.user;
+
+  if(!currentUser){
+    alert("Login failed");
+    return;
+  }
+
+  me.innerHTML = `
+    Logged in: ${currentUser.username}<br>
+    Followers: ${currentUser.followers.length}<br>
+    Following: ${currentUser.following.length}
+  `;
+}
+
+/* LOAD USERS */
+async function loadUsers(){
+  const res = await fetch("/profile/" + currentUser.id);
+  const meData = await res.json();
+
+  const resAll = await fetch("/profile/" + currentUser.id);
+  const usersDiv = document.getElementById("users");
+
+  usersDiv.innerHTML = `
+    <div>
+      <b>${meData.username}</b><br>
+      Followers: ${meData.followers.length}
+    </div>
+  `;
+}
+
+/* FOLLOW (TEST) */
+async function followSelf(){
+  await fetch("/follow", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      me: currentUser.id,
+      target: currentUser.id
+    })
+  });
+
+  alert("Followed (test)");
 }
 </script>
 
