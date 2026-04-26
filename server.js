@@ -3,14 +3,21 @@ const path = require("path");
 
 const app = express();
 
-// ✅ serve all files in root
+// serve frontend
 app.use(express.static(__dirname));
 
-// ✅ force index.html on homepage
-app.get("/", (req, res) => {
+// health check (important for Render stability)
+app.get("/health", (req, res) => {
+  res.send("OK");
+});
+
+// always return index.html
+app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-app.listen(10000, () => {
-  console.log("RUNNING ON PORT 10000");
+const PORT = process.env.PORT || 10000;
+
+app.listen(PORT, () => {
+  console.log("RUNNING ON PORT " + PORT);
 });
