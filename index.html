@@ -1,45 +1,112 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>LIVE APP</title>
+<title>REAL LIVE APP</title>
+
+<style>
+body {
+  background: black;
+  color: white;
+  font-family: Arial;
+  margin: 0;
+}
+
+/* TOP BAR */
+#topbar {
+  display:flex;
+  justify-content:space-between;
+  padding:10px;
+  background:#111;
+}
+
+/* VIDEO GRID */
+#grid {
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:10px;
+  padding:10px;
+}
+
+.videoBox {
+  background:#222;
+  position:relative;
+}
+
+video {
+  width:100%;
+  height:200px;
+  background:black;
+}
+
+/* HOST PANEL */
+#hostPanel {
+  position:fixed;
+  right:0;
+  top:50%;
+  transform:translateY(-50%);
+  background:#111;
+  padding:10px;
+  border-left:2px solid red;
+}
+
+/* CHAT */
+#chatBox {
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#111;
+  padding:10px;
+}
+
+#chat {
+  max-height:100px;
+  overflow:auto;
+}
+</style>
+
 </head>
 
-<body style="background:black;color:white;text-align:center;">
+<body>
 
-<h2>🔥 LIVE (3 USERS)</h2>
-
-<!-- VIDEO BOXES -->
-<div style="display:flex;justify-content:center;gap:10px;">
-  <div><video id="live1" autoplay muted width="200"></video><br>HOST</div>
-  <div><video id="live2" autoplay width="200"></video><br>GUEST</div>
-  <div><video id="live3" autoplay width="200"></video><br>GUEST</div>
+<!-- TOP BAR -->
+<div id="topbar">
+  <div>🔥 LIVE ROOM</div>
+  <div>
+    <button onclick="startLive()">🔴 Go Live</button>
+    <button onclick="leaveLive()">❌ Leave</button>
+  </div>
 </div>
 
-<br>
+<!-- VIDEO GRID -->
+<div id="grid">
+  <div class="videoBox"><video id="live1" autoplay muted></video></div>
+  <div class="videoBox"><video id="live2" autoplay></video></div>
+  <div class="videoBox"><video id="live3" autoplay></video></div>
+  <div class="videoBox"><video id="live4" autoplay></video></div>
+  <div class="videoBox"><video id="live5" autoplay></video></div>
+  <div class="videoBox"><video id="live6" autoplay></video></div>
+  <div class="videoBox"><video id="live7" autoplay></video></div>
+  <div class="videoBox"><video id="live8" autoplay></video></div>
+  <div class="videoBox"><video id="live9" autoplay></video></div>
+  <div class="videoBox"><video id="live10" autoplay></video></div>
+</div>
 
-<button onclick="startLive()">🔴 Start</button>
-<button onclick="leaveLive()">❌ Leave</button>
-<button onclick="requestJoin()">🙋 Join Live</button>
+<!-- HOST PANEL -->
+<div id="hostPanel">
+  <h4>HOST PANEL</h4>
+  <button onclick="kickUser()">🚫 Kick Random</button>
+  <button onclick="requestJoin()">🙋 Accept Join</button>
+  <button onclick="gift()">🎁 Send Gift</button>
+  <button onclick="like()">❤️ Like</button>
+</div>
 
-<br><br>
-
-<!-- ❤️ LIKE -->
-<button onclick="like()">❤️</button>
-<span id="likes">0</span>
-
-<br><br>
-
-<!-- 💬 CHAT -->
-<input id="msg">
-<button onclick="sendMsg()">Send</button>
-<div id="chat"></div>
-
-<br>
-
-<!-- 🎁 GIFT -->
-<button onclick="gift()">🎁 Gift</button>
-
-<br><br>
+<!-- CHAT -->
+<div id="chatBox">
+  <input id="msg" placeholder="Type message...">
+  <button onclick="sendMsg()">Send</button>
+  <div id="chat"></div>
+</div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -48,27 +115,23 @@ const room = "main";
 
 let localStream;
 let peers = {};
-let slots = ["live2","live3"];
-let likes = 0;
+let slots = ["live2","live3","live4","live5","live6","live7","live8","live9","live10"];
+let users = [];
 
 socket.emit("join-room", room);
 
-// START CAMERA
+// START LIVE
 async function startLive(){
-  localStream = await navigator.mediaDevices.getUserMedia({
-    video:true,
-    audio:true
-  });
+  localStream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
   live1.srcObject = localStream;
 }
 
-// NEW USER
-socket.on("user-joined", id => {
-  createPeer(id, true);
+// USER JOIN
+socket.on("user-joined", id=>{
+  connectUser(id);
 });
 
-// CREATE PEER
-function createPeer(id, init){
+function connectUser(id){
   const peer = new RTCPeerConnection({
     iceServers:[
       { urls:"stun:stun.l.google.com:19302" },
@@ -80,14 +143,16 @@ function createPeer(id, init){
     ]
   });
 
-  localStream.getTracks().forEach(t => peer.addTrack(t, localStream));
+  localStream.getTracks().forEach(t=>peer.addTrack(t, localStream));
 
-  peer.ontrack = e => {
+  peer.ontrack = e=>{
     const slot = slots.shift();
-    if(slot) document.getElementById(slot).srcObject = e.streams[0];
+    if(slot){
+      document.getElementById(slot).srcObject = e.streams[0];
+    }
   };
 
-  peer.onicecandidate = e => {
+  peer.onicecandidate = e=>{
     if(e.candidate){
       socket.emit("signal",{to:id,signal:e.candidate});
     }
@@ -95,13 +160,11 @@ function createPeer(id, init){
 
   peers[id] = peer;
 
-  if(init){
-    peer.createOffer()
-    .then(o=>peer.setLocalDescription(o))
-    .then(()=>{
-      socket.emit("signal",{to:id,signal:peer.localDescription});
-    });
-  }
+  peer.createOffer()
+  .then(o=>peer.setLocalDescription(o))
+  .then(()=>{
+    socket.emit("signal",{to:id,signal:peer.localDescription});
+  });
 }
 
 // SIGNAL
@@ -109,7 +172,7 @@ socket.on("signal", async data=>{
   let peer = peers[data.from];
 
   if(!peer){
-    createPeer(data.from,false);
+    connectUser(data.from);
     peer = peers[data.from];
   }
 
@@ -123,7 +186,7 @@ socket.on("signal", async data=>{
     await peer.setRemoteDescription(data.signal);
   }
   else{
-    try{ await peer.addIceCandidate(data.signal); }catch{}
+    try{await peer.addIceCandidate(data.signal);}catch{}
   }
 });
 
@@ -134,7 +197,7 @@ function sendMsg(){
 }
 
 socket.on("chat", data=>{
-  const p = document.createElement("p");
+  const p = document.createElement("div");
   p.innerText = data.text;
   chat.appendChild(p);
 });
@@ -145,8 +208,14 @@ function like(){
 }
 
 socket.on("like", ()=>{
-  likes++;
-  document.getElementById("likes").innerText = likes;
+  const heart = document.createElement("div");
+  heart.innerText="❤️";
+  heart.style.position="absolute";
+  heart.style.left=Math.random()*90+"%";
+  heart.style.bottom="0";
+  heart.style.fontSize="30px";
+  document.body.appendChild(heart);
+  setTimeout(()=>heart.remove(),2000);
 });
 
 // GIFT
@@ -155,30 +224,28 @@ function gift(){
 }
 
 socket.on("gift", ()=>{
-  const g = document.createElement("div");
-  g.innerText = "✨🎁✨";
+  const g=document.createElement("div");
+  g.innerText="✨🎁✨";
   g.style.position="absolute";
-  g.style.left=Math.random()*80+"%";
-  g.style.top=Math.random()*80+"%";
+  g.style.left=Math.random()*90+"%";
+  g.style.top=Math.random()*90+"%";
   g.style.fontSize="40px";
   document.body.appendChild(g);
   setTimeout(()=>g.remove(),2000);
 });
 
+// HOST CONTROL
+function kickUser(){
+  const ids = Object.keys(peers);
+  if(ids.length){
+    socket.emit("kick", ids[0]);
+  }
+}
+
 // REQUEST JOIN
 function requestJoin(){
   socket.emit("request-join", room);
 }
-
-socket.on("approved", ()=>{
-  startLive();
-});
-
-// KICK
-socket.on("kicked", ()=>{
-  alert("You were kicked");
-  location.reload();
-});
 
 // LEAVE
 function leaveLive(){
