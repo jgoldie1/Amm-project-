@@ -13,7 +13,7 @@ app.use(express.static("public"));
 if (!fs.existsSync("uploads")) fs.mkdirSync("uploads");
 app.use("/uploads", express.static("uploads"));
 
-// UPLOAD
+/* UPLOAD */
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
   filename: (req, file, cb) => cb(null, Date.now() + ".mp4")
@@ -24,13 +24,13 @@ app.post("/upload", upload.single("video"), (req, res) => {
   res.json({ file: "/uploads/" + req.file.filename });
 });
 
-// FEED
+/* VIDEO FEED */
 app.get("/videos", (req, res) => {
   const files = fs.readdirSync("uploads");
   res.json(files.map(f => "/uploads/" + f));
 });
 
-// SOCKET
+/* SOCKET */
 io.on("connection", socket => {
 
   socket.on("join-room", room => {
@@ -38,14 +38,31 @@ io.on("connection", socket => {
     socket.to(room).emit("user-joined", socket.id);
   });
 
+  // ✅ CHAT FIX
   socket.on("chat", data => {
     io.to(data.room).emit("chat", data);
   });
 
+  // ✅ GIFT FIX
   socket.on("gift", data => {
     io.to(data.room).emit("gift");
   });
 
+  // ✅ REQUEST JOIN
+  socket.on("request-join", () => {
+    socket.broadcast.emit("request-join", socket.id);
+  });
+
+  socket.on("approve-join", id => {
+    io.to(id).emit("approved");
+  });
+
+  // ✅ KICK
+  socket.on("kick", id => {
+    io.to(id).emit("kicked");
+  });
+
+  // SIGNAL
   socket.on("signal", data => {
     io.to(data.to).emit("signal", {
       from: socket.id,
