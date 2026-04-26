@@ -13,13 +13,38 @@ app.use(express.static("."));
 // 🔥 GLOBAL STATE
 let heartCount = 0;
 let users = [];
+let lastHeartTime = {};
+
+// 🤖 BOT SYSTEM
+const botNames = ["Jay", "Lex", "Nova", "Kai", "Zay"];
+
+const messages = [
+  "this stream go crazy 🔥",
+  "nah this lit fr",
+  "W chat 😂",
+  "ain’t no way 💀",
+  "this vibe different",
+  "yo keep going",
+  "W host fr",
+  "this lowkey fire",
+  "chat going wild",
+  "who else here 👀"
+];
 
 // 🔌 CONNECTION
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  // ❤️ HEART SYSTEM (LOCKED)
+  // ❤️ HEARTS (ANTI-SPAM LOCK)
   socket.on("heart", () => {
+    const now = Date.now();
+
+    if (lastHeartTime[socket.id] && now - lastHeartTime[socket.id] < 1000) {
+      return;
+    }
+
+    lastHeartTime[socket.id] = now;
+
     heartCount++;
     io.emit("heart", heartCount);
   });
@@ -43,16 +68,26 @@ io.on("connection", (socket) => {
   // ❌ DISCONNECT
   socket.on("disconnect", () => {
     users = users.filter(u => u.id !== socket.id);
+    delete lastHeartTime[socket.id];
     io.emit("updateUsers", users);
   });
 });
 
-// 🤖 BOT COMMENTS
+// 🤖 SMART BOT CHAT
 setInterval(() => {
-  io.emit("comment", "🤖 bot: this is fire 🔥");
-}, 10000);
+  if (users.length === 0) return;
 
-// 🚀 START
+  const randomUser = users[Math.floor(Math.random() * users.length)];
+  const randomBot = botNames[Math.floor(Math.random() * botNames.length)];
+  const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+
+  const fullMsg = `${randomBot}: @${randomUser.name} ${randomMsg}`;
+
+  io.emit("comment", fullMsg);
+
+}, 6000);
+
+// 🚀 START SERVER
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => {
   console.log("RUNNING ON PORT " + PORT);
