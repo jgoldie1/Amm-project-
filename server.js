@@ -1,10 +1,14 @@
-const express = require("express");
-const app = express();
+const { AccessToken } = require("livekit-server-sdk");
 
-app.use(express.static("public"));
+app.get("/get-token", (req, res) => {
+  const room = "main-room";
+  const username = "user-" + Math.floor(Math.random() * 10000);
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/public/index.html");
+  const at = new AccessToken("YOUR_API_KEY", "YOUR_SECRET", {
+    identity: username,
+  });
+
+  at.addGrant({ roomJoin: true, room });
+
+  res.json({ token: at.toJwt(), room });
 });
-
-app.listen(3000, () => console.log("RUNNING"));
