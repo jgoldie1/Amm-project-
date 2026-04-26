@@ -1,33 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Live App</title>
+  <title>Live Pro</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body style="background:black;color:white;font-family:sans-serif;">
 
-<h3>LIVE</h3>
+<h2>🔥 LIVE STREAM</h2>
 
-<video id="live1" autoplay muted width="300"></video>
-<video id="live2" autoplay width="300"></video>
-<video id="live3" autoplay width="300"></video>
-
-<br><br>
-
-<button onclick="startLive()">Start Live (Host)</button>
-<button onclick="requestJoin()">Request Join</button>
-
-<br><br>
-
-<input id="chatInput" placeholder="chat">
-<button onclick="sendChat()">Send</button>
-
-<div id="chatBox"></div>
+<!-- VIDEO BOXES -->
+<div style="display:flex;gap:10px;">
+  <video id="live1" autoplay muted width="30%"></video>
+  <video id="live2" autoplay width="30%"></video>
+  <video id="live3" autoplay width="30%"></video>
+</div>
 
 <br>
 
-<button onclick="sendGift()">Gift 🎁</button>
+<!-- CONTROLS -->
+<button onclick="startLive()">🔴 Go Live</button>
+<button onclick="requestJoin()">➕ Join Live</button>
+<button onclick="leaveLive()">❌ Leave</button>
+
+<br><br>
+
+<!-- LIKE / HEART -->
+<button onclick="sendLike()">❤️ Like</button>
+<span id="likeCount">0</span>
+
+<br><br>
+
+<!-- CHAT -->
+<input id="chatInput" placeholder="type message">
+<button onclick="sendChat()">Send</button>
+
+<div id="chatBox" style="height:150px;overflow:auto;border:1px solid white;"></div>
+
+<br>
+
+<!-- GIFTS -->
+<button onclick="sendGift()">🎁 Gift</button>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -38,10 +51,13 @@ const room = "main";
 let localStream;
 let peers = {};
 let isHost = false;
+let likeCount = 0;
 
 socket.emit("join-room", room);
 
-// START LIVE
+//////////////////////////////////
+// 🎥 START LIVE
+//////////////////////////////////
 async function startLive() {
   isHost = true;
 
@@ -53,12 +69,13 @@ async function startLive() {
   document.getElementById("live1").srcObject = localStream;
 }
 
-// REQUEST JOIN
+//////////////////////////////////
+// ➕ REQUEST JOIN
+//////////////////////////////////
 function requestJoin() {
   socket.emit("request-join", room);
 }
 
-// APPROVAL
 socket.on("join-request", id => {
   if (!isHost) return;
 
@@ -71,7 +88,20 @@ socket.on("approved", async () => {
   await startLive();
 });
 
-// CHAT
+//////////////////////////////////
+// 🔌 LEAVE / DISCONNECT
+//////////////////////////////////
+function leaveLive() {
+  if (localStream) {
+    localStream.getTracks().forEach(track => track.stop());
+  }
+  socket.disconnect();
+  location.reload();
+}
+
+//////////////////////////////////
+// 💬 CHAT
+//////////////////////////////////
 function sendChat() {
   const msg = document.getElementById("chatInput").value;
   socket.emit("chat", { room, text: msg });
@@ -84,20 +114,42 @@ socket.on("chat", data => {
   document.getElementById("chatBox").appendChild(p);
 });
 
-// GIFTS
+//////////////////////////////////
+// ❤️ LIKE / HEART
+//////////////////////////////////
+function sendLike() {
+  socket.emit("chat", { room, text: "❤️" });
+  likeCount++;
+  document.getElementById("likeCount").innerText = likeCount;
+}
+
+//////////////////////////////////
+// 🎁 GIFTS
+//////////////////////////////////
 function sendGift() {
   socket.emit("gift", { room });
 }
 
 socket.on("gift", () => {
   const g = document.createElement("div");
-  g.innerText = "🎁";
+  g.innerText = "🎁✨";
   g.style.position = "absolute";
-  g.style.top = "50%";
-  g.style.left = "50%";
+  g.style.top = Math.random()*80 + "%";
+  g.style.left = Math.random()*80 + "%";
   g.style.fontSize = "40px";
   document.body.appendChild(g);
   setTimeout(() => g.remove(), 2000);
+});
+
+//////////////////////////////////
+// 👥 BASIC VIDEO SLOT SYSTEM
+//////////////////////////////////
+socket.on("user-joined", id => {
+  console.log("User joined:", id);
+});
+
+socket.on("user-left", id => {
+  console.log("User left:", id);
 });
 
 </script>
