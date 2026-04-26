@@ -1,114 +1,129 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>PLATFORM</title>
+<title>HOLO LIVE APP</title>
+
+<script src="https://unpkg.com/livekit-client/dist/livekit-client.umd.min.js"></script>
+
 <style>
-body { background:black; color:white; font-family:sans-serif; text-align:center; }
-.card { background:#222; margin:10px; padding:10px; }
+body { margin:0; background:black; color:white; font-family:sans-serif; }
+#nav { display:flex; justify-content:space-around; background:#111; padding:10px; }
+#feed, #live, #profile { display:none; }
+.active { display:block; }
+
+.videoCard { height:100vh; position:relative; }
+video { width:100%; height:100%; object-fit:cover; }
+
+#users { position:fixed; right:0; top:50px; background:#111; padding:10px; }
 </style>
 </head>
 
 <body>
 
-<h2>🔥 PLATFORM</h2>
+<div id="nav">
+  <button onclick="show('feed')">🏠 Feed</button>
+  <button onclick="show('live')">🔴 Live</button>
+  <button onclick="show('profile')">👤 Profile</button>
+  <button onclick="goLive()">🎥 Go Live</button>
+</div>
 
-<input id="user" placeholder="username">
-<input id="pass" placeholder="password">
-<button onclick="register()">Register</button>
-<button onclick="login()">Login</button>
+<div id="feed" class="active"></div>
 
-<div id="me"></div>
+<div id="live">
+  <div id="liveContainer"></div>
+</div>
 
-<h3>Create Post</h3>
-<input id="postText">
-<button onclick="post()">Post</button>
+<div id="profile">
+  <h3 id="me"></h3>
+</div>
 
-<h3>Feed</h3>
-<div id="feed"></div>
+<div id="users"></div>
 
-<h3>Chat</h3>
-<input id="msg">
-<button onclick="send()">Send</button>
-<div id="chat"></div>
-
-<script src="/socket.io/socket.io.js"></script>
 <script>
-let meUser=null;
-const socket = io();
+let currentUser = prompt("username");
 
-/* AUTH */
-async function register(){
- await fetch("/register",{method:"POST",headers:{"Content-Type":"application/json"},
- body:JSON.stringify({username:user.value,password:pass.value})});
- alert("Registered");
+// ===== NAV =====
+function show(id){
+  feed.classList.remove("active");
+  live.classList.remove("active");
+  profile.classList.remove("active");
+  document.getElementById(id).classList.add("active");
 }
 
-async function login(){
- const res=await fetch("/login",{method:"POST",headers:{"Content-Type":"application/json"},
- body:JSON.stringify({username:user.value,password:pass.value})});
- const data=await res.json();
- meUser=data.user;
- me.innerHTML=`${meUser.username} | Coins: ${meUser.coins}`;
+// ===== FEED =====
+async function loadFeed(){
+  const res = await fetch("/feed");
+  const data = await res.json();
+
+  feed.innerHTML = "";
+
+  data.forEach(v=>{
+    const div = document.createElement("div");
+    div.className = "videoCard";
+
+    const vid = document.createElement("video");
+    vid.src = v.file;
+    vid.controls = true;
+
+    div.appendChild(vid);
+    feed.appendChild(div);
+  });
+}
+loadFeed();
+
+// ===== USERS + FOLLOW =====
+async function loadUsers(){
+  const res = await fetch("/users");
+  const users = await res.json();
+
+  usersDiv.innerHTML = "";
+
+  users.forEach(u=>{
+    const d = document.createElement("div");
+    d.innerHTML = `
+      ${u.username}
+      <button onclick="follow('${u.username}')">Follow</button>
+    `;
+    usersDiv.appendChild(d);
+  });
 }
 
-/* POST */
-async function post(){
- await fetch("/post",{method:"POST",headers:{"Content-Type":"application/json"},
- body:JSON.stringify({user:meUser.username,content:postText.value})});
- load();
+async function follow(user){
+  await fetch("/follow", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ me: currentUser, target: user })
+  });
+  alert("Followed");
 }
 
-/* FEED */
-async function load(){
- const res=await fetch("/feed");
- const data=await res.json();
- feed.innerHTML="";
- data.forEach(p=>{
-  const div=document.createElement("div");
-  div.className="card";
-  div.innerHTML=`
-   <b>${p.user}</b><br>${p.content}<br>
-   ❤️ ${p.likes} 👁 ${p.views}<br>
-   <button onclick="like(${p.id})">Like</button>
-  `;
-  div.onclick=()=>view(p.id);
-  feed.appendChild(div);
- });
+loadUsers();
+
+// ===== LIVE (SFU) =====
+let room;
+
+async function goLive(){
+  show("live");
+
+  const res = await fetch(`/get-token?username=${currentUser}&room=main`);
+  const data = await res.json();
+
+  room = await LivekitClient.connect("wss://YOUR_URL", data.token);
+
+  await room.localParticipant.enableCameraAndMicrophone();
+
+  room.localParticipant.videoTracks.forEach(pub=>{
+    const vid = pub.track.attach();
+    liveContainer.appendChild(vid);
+  });
+
+  room.on("trackSubscribed", (track)=>{
+    if(track.kind === "video"){
+      const vid = track.attach();
+      liveContainer.appendChild(vid);
+    }
+  });
 }
-load();
-
-async function like(id){
- await fetch("/like",{method:"POST",headers:{"Content-Type":"application/json"},
- body:JSON.stringify({id})});
- load();
-}
-
-async function view(id){
- await fetch("/view",{method:"POST",headers:{"Content-Type":"application/json"},
- body:JSON.stringify({id})});
-}
-
-/* CHAT + AI */
-function send(){
- socket.emit("chat", msg.value);
- msg.value="";
-}
-
-socket.on("chat", m=>{
- const d=document.createElement("div");
- d.innerText=m;
- chat.appendChild(d);
-});
-
-/* 🔔 NOTIFICATIONS */
-socket.on("notify", n=>{
- alert(n);
-});
-
-/* 🎁 GIFT */
-socket.on("gift", g=>{
- alert(g);
-});
 </script>
 
 </body>
