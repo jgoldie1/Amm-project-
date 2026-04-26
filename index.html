@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Video App</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -10,6 +11,8 @@
       overflow-y: scroll;
       scroll-snap-type: y mandatory;
       font-family: Arial;
+      background: black;
+      color: white;
     }
 
     #feed div {
@@ -28,11 +31,18 @@
       position: absolute;
       bottom: 20px;
       left: 10px;
-      color: white;
+    }
+
+    input {
+      padding: 6px;
+      margin-top: 5px;
+      width: 150px;
     }
 
     button {
-      margin: 5px;
+      padding: 6px;
+      margin: 3px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -46,7 +56,7 @@
 <h3>Feed</h3>
 <div id="feed"></div>
 
-<h3>Live (2 people)</h3>
+<h3>Live (2 People)</h3>
 <video id="live1" autoplay muted width="150"></video>
 <video id="live2" autoplay muted width="150"></video>
 <br>
@@ -54,7 +64,7 @@
 
 <script>
 
-// upload
+// UPLOAD VIDEO
 async function loadVideo() {
   const file = document.getElementById("upload").files[0];
   if (!file) return;
@@ -70,7 +80,7 @@ async function loadVideo() {
   loadFeed();
 }
 
-// load feed
+// LOAD FEED + COMMENTS + LIKES
 async function loadFeed() {
   const videos = await (await fetch("/videos")).json();
   const allComments = await (await fetch("/comments")).json();
@@ -91,7 +101,7 @@ async function loadFeed() {
     const overlay = document.createElement("div");
     overlay.className = "overlay";
 
-    // like button
+    // ❤️ LIKE BUTTON
     const likeBtn = document.createElement("button");
     likeBtn.innerText = "❤️ " + (allLikes[v] || 0);
 
@@ -101,21 +111,23 @@ async function loadFeed() {
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ video: v })
       });
+
       const data = await res.json();
       likeBtn.innerText = "❤️ " + data.likes;
     };
 
-    // gift button
+    // 🎁 GIFT BUTTON
     const giftBtn = document.createElement("button");
-    giftBtn.innerText = "🎁 Gift";
+    giftBtn.innerText = "🎁";
 
     giftBtn.onclick = () => {
       alert("Gift sent 🎁");
     };
 
-    // comment input
+    // COMMENT INPUT
     const input = document.createElement("input");
     input.placeholder = "Comment";
+    input.onclick = () => input.focus();
 
     const postBtn = document.createElement("button");
     postBtn.innerText = "Post";
@@ -131,10 +143,15 @@ async function loadFeed() {
     }
 
     postBtn.onclick = async () => {
+      if (!input.value) return;
+
       await fetch("/comment", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ video: v, text: input.value })
+        body: JSON.stringify({
+          video: v,
+          text: input.value
+        })
       });
 
       input.value = "";
@@ -154,14 +171,18 @@ async function loadFeed() {
   });
 }
 
-// live (basic 2 cam UI)
+// LIVE CAMERA (2 SLOT UI)
 async function startLive() {
-  const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: true
+  });
 
   document.getElementById("live1").srcObject = stream;
-  document.getElementById("live2").srcObject = stream; // placeholder for 2nd user
+  document.getElementById("live2").srcObject = stream; // placeholder second user
 }
 
+// INIT
 window.onload = loadFeed;
 
 </script>
