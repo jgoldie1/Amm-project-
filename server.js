@@ -24,7 +24,7 @@ app.post("/upload", upload.single("video"), (req, res) => {
   res.json({ file: "/uploads/" + req.file.filename });
 });
 
-/* VIDEO FEED */
+/* FEED */
 app.get("/videos", (req, res) => {
   const files = fs.readdirSync("uploads");
   res.json(files.map(f => "/uploads/" + f));
@@ -38,31 +38,14 @@ io.on("connection", socket => {
     socket.to(room).emit("user-joined", socket.id);
   });
 
-  // ✅ CHAT FIX
   socket.on("chat", data => {
     io.to(data.room).emit("chat", data);
   });
 
-  // ✅ GIFT FIX
   socket.on("gift", data => {
     io.to(data.room).emit("gift");
   });
 
-  // ✅ REQUEST JOIN
-  socket.on("request-join", () => {
-    socket.broadcast.emit("request-join", socket.id);
-  });
-
-  socket.on("approve-join", id => {
-    io.to(id).emit("approved");
-  });
-
-  // ✅ KICK
-  socket.on("kick", id => {
-    io.to(id).emit("kicked");
-  });
-
-  // SIGNAL
   socket.on("signal", data => {
     io.to(data.to).emit("signal", {
       from: socket.id,
@@ -76,5 +59,4 @@ io.on("connection", socket => {
 
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log("RUNNING"));
+server.listen(process.env.PORT || 3000, () => console.log("RUNNING"));
