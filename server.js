@@ -24,7 +24,7 @@ app.post("/upload", upload.single("video"), (req, res) => {
   res.json({ file: "/uploads/" + req.file.filename });
 });
 
-// FEED LIST
+// FEED
 app.get("/videos", (req, res) => {
   const files = fs.readdirSync("uploads");
   res.json(files.map(f => "/uploads/" + f));
@@ -38,17 +38,14 @@ io.on("connection", socket => {
     socket.to(room).emit("user-joined", socket.id);
   });
 
-  // 🔥 CHAT FIX
   socket.on("chat", data => {
     io.to(data.room).emit("chat", data);
   });
 
-  // 🎁 GIFT FIX
   socket.on("gift", data => {
     io.to(data.room).emit("gift");
   });
 
-  // SIGNAL
   socket.on("signal", data => {
     io.to(data.to).emit("signal", {
       from: socket.id,
