@@ -1,19 +1,36 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Working Base</title>
-</head>
 <body style="background:black; color:white; text-align:center;">
 
-<h1>TEST</h1>
+<h1>Camera Debug</h1>
 
-<button onclick="test()">Click Me</button>
+<button onclick="startCamera()">START CAMERA</button>
 
-<p id="text">Waiting...</p>
+<br><br>
+
+<video id="video" autoplay playsinline style="width:300px; border:2px solid white;"></video>
 
 <script>
-function test() {
-  document.getElementById("text").innerText = "JS WORKING ✅";
+async function startCamera() {
+  try {
+    const video = document.getElementById("video");
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: false
+    });
+
+    video.srcObject = stream;
+
+    // 🔥 FORCE PLAY (important fix)
+    await video.play();
+
+    alert("Camera SHOULD be working now");
+
+  } catch (err) {
+    console.error(err);
+    alert("ERROR: " + err.message);
+  }
 }
 </script>
 
