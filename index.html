@@ -1,164 +1,91 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>All American Live</title>
-
-<script src="/socket.io/socket.io.js"></script>
-
-<style>
-body {
-  margin: 0;
-  background: black;
-  color: white;
-  font-family: Arial;
-}
-
-#video {
-  width: 100%;
-  height: 100vh;
-  object-fit: cover;
-}
-
-#ui {
-  position: absolute;
-  right: 10px;
-  bottom: 80px;
-  text-align: center;
-}
-
-button {
-  margin: 10px 0;
-  padding: 12px;
-  border-radius: 50%;
-  border: none;
-  font-size: 20px;
-}
-
-#users {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-}
-
-#commentsBox {
-  position: absolute;
-  left: 10px;
-  bottom: 100px;
-  width: 220px;
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.comment {
-  background: rgba(0,0,0,0.5);
-  margin: 5px 0;
-  padding: 5px;
-}
-
-#inputArea {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-}
-</style>
+  <title>Live Room</title>
+  <style>
+    body { background:black; color:white; text-align:center; font-family:sans-serif; }
+    #chat { height:200px; overflow:auto; border:1px solid white; margin:10px; padding:5px; }
+    button { padding:10px; margin:5px; }
+  </style>
 </head>
-
 <body>
 
-<video id="video" autoplay playsinline muted></video>
+<h2>🔥 Live Streaming Room</h2>
 
-<div id="users"></div>
+<input id="name" placeholder="Enter username">
+<button onclick="join()">Join</button>
 
-<div id="ui">
-  <button onclick="sendHeart()">❤️</button>
-  <div id="counter">0</div>
-</div>
+<br><br>
 
-<div id="commentsBox">
-  <div id="comments"></div>
-</div>
+<video id="video" autoplay width="300"></video>
 
-<div id="inputArea">
-  <input id="msg" placeholder="Type comment..." />
-  <button onclick="sendComment()">Send</button>
-</div>
+<br>
 
+<button onclick="sendHeart()">❤️ Tap</button>
+<div>Hearts: <span id="hearts">0</span></div>
+
+<br>
+
+<input id="msg" placeholder="Say something">
+<button onclick="sendMsg()">Send</button>
+
+<div id="chat"></div>
+
+<script src="/socket.io/socket.io.js"></script>
 <script>
-
-// 🔌 CONNECT
 const socket = io();
 
-// 👤 USERNAME
-const username = "User" + Math.floor(Math.random()*1000);
-socket.emit("join", username);
+let username = "";
 
-// ❤️ HEARTS (SYNCED)
-function sendHeart() {
-  socket.emit("heart");
+function join() {
+  username = document.getElementById("name").value || "guest";
+  socket.emit("join", username);
+
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+      document.getElementById("video").srcObject = stream;
+    });
 }
 
-socket.on("heart", (count) => {
-  document.getElementById("counter").innerText = count;
-});
-
-// 💬 COMMENTS
-function sendComment() {
-  const input = document.getElementById("msg");
-  const text = input.value.trim();
-  if (!text) return;
-
-  socket.emit("comment", username + ": " + text);
-  input.value = "";
+// comments
+function sendMsg() {
+  const msg = document.getElementById("msg").value;
+  socket.emit("comment", msg);
+  document.getElementById("msg").value = "";
 }
 
 socket.on("comment", (msg) => {
   const div = document.createElement("div");
-  div.className = "comment";
-  div.innerHTML = "<b>" + msg + "</b>";
-
-  document.getElementById("comments").appendChild(div);
-  div.scrollIntoView();
+  div.innerText = msg;
+  document.getElementById("chat").appendChild(div);
 });
 
-// 👥 USERS
-socket.on("updateUsers", (users) => {
-  const box = document.getElementById("users");
-  box.innerHTML = "";
-
-  users.forEach(u => {
-    const div = document.createElement("div");
-    div.innerText = u.name;
-    div.style.background = "white";
-    div.style.color = "black";
-    div.style.margin = "5px";
-    div.style.padding = "5px";
-    box.appendChild(div);
-  });
+// hearts (FIXED so no runaway loop)
+socket.on("heart", (count) => {
+  document.getElementById("hearts").innerText = count;
 });
 
-socket.on("roomFull", () => {
-  alert("Room full (3 max)");
-});
-
-// 🎥 CAMERA
-async function startCamera() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: false
-    });
-
-    const video = document.getElementById("video");
-    video.srcObject = stream;
-    await video.play();
-
-  } catch (err) {
-    alert("Camera error: " + err.message);
-  }
+function sendHeart() {
+  socket.emit("heart");
 }
 
-startCamera();
+// 🔥 BOT SYSTEM (Gen Z style + usernames)
+const botMessages = [
+  "yo this live lit 🔥",
+  "who else watching rn 👀",
+  "drop hearts ❤️",
+  "W stream fr",
+  "spam chat let's go 💯"
+];
+
+setInterval(() => {
+  const msg = botMessages[Math.floor(Math.random() * botMessages.length)];
+  const fakeUser = "user" + Math.floor(Math.random() * 999);
+
+  const div = document.createElement("div");
+  div.innerText = `${fakeUser}: ${msg}`;
+  document.getElementById("chat").appendChild(div);
+}, 5000);
 
 </script>
 
