@@ -14,11 +14,11 @@ if (!fs.existsSync("uploads")) {
   fs.mkdirSync("uploads");
 }
 
-// serve files
+// serve static files
 app.use(express.static("public"));
 app.use("/uploads", express.static("uploads"));
 
-// MP4 upload only
+// upload setup (MP4 only)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
   filename: (req, file, cb) => cb(null, Date.now() + ".mp4")
@@ -37,7 +37,7 @@ app.post("/upload", upload.single("video"), (req, res) => {
   res.json({ file: "/uploads/" + req.file.filename });
 });
 
-// get videos
+// videos
 app.get("/videos", (req, res) => {
   fs.readdir("uploads", (err, files) => {
     if (err) return res.json([]);
@@ -67,7 +67,7 @@ app.post("/like", (req, res) => {
 
 app.get("/likes", (req, res) => res.json(likes));
 
-// SOCKET.IO (live system starter)
+// socket (live system base)
 io.on("connection", socket => {
   socket.on("join-room", room => {
     socket.join(room);
