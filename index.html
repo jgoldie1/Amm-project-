@@ -1,20 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Live App</title>
+<title>LIVE APP</title>
 
 <style>
 body {margin:0;background:black;color:white;font-family:sans-serif;}
 
-#videos {display:flex;height:70vh;}
-video {
-  width:33%;
-  object-fit:cover;
-  border-radius:10px;
-  box-shadow:0 0 20px rgba(255,0,255,0.5);
-}
-
-/* background animation */
 #bg {
   position:fixed;
   width:100%;
@@ -24,43 +15,42 @@ video {
   opacity:0.25;
 }
 
+#videos {display:flex;height:70vh;}
+video {
+  width:33%;
+  border-radius:10px;
+  box-shadow:0 0 20px purple;
+}
+
 #side {
   position:fixed;
   right:10px;
   bottom:20px;
   display:flex;
   flex-direction:column;
-  gap:15px;
+  gap:10px;
 }
 
 .btn {
-  background:#111;
-  border:none;
-  color:white;
   font-size:20px;
   padding:10px;
   border-radius:50%;
 }
 
-/* chat */
 #chatBox {
   position:fixed;
   bottom:0;
   left:0;
   width:70%;
 }
-#chat {
-  max-height:120px;
-  overflow:auto;
-}
 </style>
 </head>
 
 <body>
 
-<!-- 🎥 ANIME BACKGROUND -->
+<!-- BACKGROUND -->
 <video id="bg" autoplay muted loop>
-  <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+  <source src="https://www.w3schools.com/html/mov_bbb.mp4">
 </video>
 
 <div id="videos">
@@ -69,15 +59,14 @@ video {
   <video id="live3" autoplay></video>
 </div>
 
-<!-- SIDE UI -->
 <div id="side">
   <button class="btn" onclick="startLive()">🔴</button>
   <button class="btn" onclick="like()">❤️</button>
   <button class="btn" onclick="gift()">🎁</button>
-  <button class="btn" onclick="leaveLive()">❌</button>
+  <button class="btn" onclick="requestJoin()">🙋</button>
+  <button class="btn" onclick="kickUser()">🚫</button>
 </div>
 
-<!-- CHAT -->
 <div id="chatBox">
   <div id="chat"></div>
   <input id="msg">
@@ -92,23 +81,21 @@ const room = "main";
 let localStream;
 let peers = {};
 let slots = ["live2","live3"];
+let isHost = false;
 
 socket.emit("join-room", room);
 
-//////////////////////////////////
-// VIDEO + TURN (LOCKED)
-//////////////////////////////////
+socket.on("connect", () => {
+  isHost = true;
+});
+
+/* VIDEO */
 function createPeer(id, init){
   const peer = new RTCPeerConnection({
     iceServers: [
       { urls: "stun:stun.l.google.com:19302" },
       {
         urls: "turn:openrelay.metered.ca:80",
-        username: "openrelayproject",
-        credential: "openrelayproject"
-      },
-      {
-        urls: "turn:openrelay.metered.ca:443",
         username: "openrelayproject",
         credential: "openrelayproject"
       }
@@ -171,74 +158,83 @@ socket.on("signal", async data=>{
   }
 });
 
-//////////////////////////////////
-// ❤️ HEART
-//////////////////////////////////
-function like(){
-  for(let i=0;i<5;i++){
-    const h = document.createElement("div");
-    h.innerText="❤️";
-    h.style.position="absolute";
-    h.style.left=Math.random()*90+"%";
-    h.style.bottom="0px";
-
-    h.animate([
-      { transform:"translateY(0px)", opacity:1 },
-      { transform:"translateY(-300px)", opacity:0 }
-    ], {duration:2000});
-
-    document.body.appendChild(h);
-    setTimeout(()=>h.remove(),2000);
-  }
-}
-
-//////////////////////////////////
-// 💬 CHAT
-//////////////////////////////////
+/* CHAT */
 function sendMsg(){
   socket.emit("chat",{room,text:msg.value});
   msg.value="";
 }
 
 socket.on("chat", data=>{
-  const p = document.createElement("p");
+  const p=document.createElement("p");
   p.innerText=data.text;
   chat.appendChild(p);
 });
 
-//////////////////////////////////
-// 🎁 HOLOGRAPHIC GIFT
-//////////////////////////////////
+/* HEART */
+function like(){
+  const h=document.createElement("div");
+  h.innerText="❤️";
+  h.style.position="absolute";
+  h.style.left=Math.random()*90+"%";
+  h.style.bottom="0px";
+
+  h.animate([
+    {transform:"translateY(0)",opacity:1},
+    {transform:"translateY(-300px)",opacity:0}
+  ],{duration:2000});
+
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(),2000);
+}
+
+/* GIFT */
 function gift(){
   socket.emit("gift",{room});
 }
 
 socket.on("gift", ()=>{
-  const g = document.createElement("div");
+  const g=document.createElement("div");
   g.innerText="💎✨🎁✨💎";
   g.style.position="absolute";
   g.style.left=Math.random()*80+"%";
   g.style.top="80%";
 
   g.animate([
-    { transform:"translateY(0px) scale(1)", opacity:1 },
-    { transform:"translateY(-300px) scale(1.5)", opacity:0 }
-  ], {duration:2000});
+    {transform:"translateY(0)",opacity:1},
+    {transform:"translateY(-300px)",opacity:0}
+  ],{duration:2000});
 
   document.body.appendChild(g);
   setTimeout(()=>g.remove(),2000);
 });
 
-//////////////////////////////////
-// ❌ LEAVE
-//////////////////////////////////
-function leaveLive(){
-  Object.values(peers).forEach(p=>p.close());
-  if(localStream){
-    localStream.getTracks().forEach(t=>t.stop());
-  }
-  location.reload();
+/* JOIN SYSTEM */
+function requestJoin(){
+  socket.emit("request-join");
 }
+
+socket.on("request-join", id=>{
+  if(isHost){
+    if(confirm("User wants to join?")){
+      socket.emit("approve-join", id);
+    }
+  }
+});
+
+socket.on("approved", ()=>{
+  startLive();
+});
+
+/* KICK */
+function kickUser(){
+  const id = prompt("Enter ID");
+  socket.emit("kick", id);
+}
+
+socket.on("kicked", ()=>{
+  alert("Kicked!");
+  location.reload();
+});
 </script>
 
 </body>
