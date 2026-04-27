@@ -1,43 +1,28 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>RESET CHAT</title>
-  <script src="/socket.io/socket.io.js"></script>
-</head>
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 
-<body style="background:black;color:white;font-size:20px;">
+const app = express();
+const server = http.createServer(app);
 
-<h1>RESET CHAT</h1>
-
-<div id="chat" style="height:200px;border:2px solid white;overflow:auto;"></div>
-
-<br>
-
-<input id="msg" value="hello">
-<button onclick="send()">SEND</button>
-
-<script>
-const socket = io(window.location.origin, {
-  transports: ["websocket"]
+const io = new Server(server, {
+  cors: { origin: "*" }
 });
 
-function send() {
-  const input = document.getElementById("msg");
+app.use(express.static("public"));
 
-  const text = input.value;
+io.on("connection", (socket) => {
+  console.log("USER CONNECTED");
 
-  alert("SENDING: " + text); // MUST SHOW
+  socket.on("chat", (msg) => {
+    console.log("MSG:", msg);
 
-  socket.emit("chat", text);
-}
+    if (!msg) return;
 
-socket.on("chat", (msg) => {
-  alert("RECEIVED: " + msg); // MUST SHOW
-
-  const div = document.getElementById("chat");
-  div.innerHTML += "<div>" + msg + "</div>";
+    io.emit("chat", msg);
+  });
 });
-</script>
 
-</body>
-</html>
+server.listen(process.env.PORT || 10000, () => {
+  console.log("SERVER RUNNING");
+});
