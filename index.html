@@ -1,76 +1,85 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Live App</title>
+  <title>Live Room</title>
   <script src="/socket.io/socket.io.js"></script>
-  <style>
-    body { font-family: Arial; background:#111; color:white; }
-    #chat { height:200px; overflow:auto; border:1px solid #444; }
-    #users { border:1px solid #444; margin-top:10px; }
-    button { margin:5px; }
-  </style>
 </head>
 <body>
 
-<h2>🔥 LIVE ROOM</h2>
+<h2>🔥 Live Room</h2>
 
-<div id="chat"></div>
+<!-- USER LIST -->
+<div>
+  <h3>Users</h3>
+  <div id="users"></div>
+</div>
 
-<input id="msg" placeholder="Type message..." />
-<button onclick="sendMessage()">Send</button>
+<!-- CHAT -->
+<div>
+  <h3>Chat</h3>
+  <div id="chat" style="border:1px solid #000;height:150px;overflow:auto;"></div>
+  <input id="msg" placeholder="Type message..." />
+  <button onclick="sendMessage()">Send</button>
+</div>
 
-<h3>❤️ Likes: <span id="likeCount">0</span></h3>
-<button onclick="sendLike()">Tap ❤️</button>
+<!-- LIKES -->
+<div>
+  ❤️ Likes: <span id="likeCount">0</span>
+  <button onclick="sendLike()">Tap ❤️</button>
+</div>
 
-<h3>🎁 Gifts</h3>
-<button onclick="sendGift(100)">100</button>
-<button onclick="sendGift(500)">500</button>
-<button onclick="sendGift(1000)">1000</button>
-
-<h3>👥 Users</h3>
-<div id="users"></div>
-
-<h3>🛠 Admin</h3>
-<button onclick="muteUser()">Mute</button>
-<button onclick="kickUser()">Kick</button>
+<!-- ADMIN -->
+<div>
+  <button onclick="muteUser()">Mute</button>
+  <button onclick="kickUser()">Kick</button>
+</div>
 
 <script>
 const socket = io();
 let selectedUser = null;
-let muted = false;
+let username = "";
 
 // JOIN
-let username = prompt("Enter username");
+username = prompt("Enter username:");
 socket.emit("join", username);
 
-// USERS
+// USER LIST
 socket.on("userList", (list) => {
   const div = document.getElementById("users");
   div.innerHTML = "";
 
-  Object.values(list).forEach((user) => {
-    const el = document.createElement("div");
-    el.innerText = user.name;
-    el.onclick = () => {
-      selectedUser = user.id;
-      alert("Selected: " + user.name);
+  Object.entries(list).forEach(([id, name]) => {
+    const userDiv = document.createElement("div");
+    userDiv.innerText = name;
+
+    userDiv.onclick = () => {
+      selectedUser = id;
+      alert("Selected: " + name);
     };
-    div.appendChild(el);
+
+    div.appendChild(userDiv);
   });
 });
 
-// CHAT
+// SEND MESSAGE (FIXED)
 function sendMessage() {
-  if (muted) return alert("Muted");
   const input = document.getElementById("msg");
-  socket.emit("chat", input.value);
+
+  if (!input.value.trim()) return; // 🚨 prevents undefined
+
+  socket.emit("chat", {
+    user: username,
+    text: input.value
+  });
+
   input.value = "";
 }
 
-socket.on("chat", (data) => {
+// RECEIVE MESSAGE (FIXED)
+socket.on("chat", (msg) => {
   const div = document.getElementById("chat");
-  div.innerHTML += `<div><b>${data.user}:</b> ${data.text}</div>`;
-  div.scrollTop = div.scrollHeight;
+
+  div.innerHTML += `<div><b>${msg.user}:</b> ${msg.text}</div>`;
 });
 
 // LIKE
@@ -82,11 +91,6 @@ socket.on("likes", (count) => {
   document.getElementById("likeCount").innerText = count;
 });
 
-// GIFTS
-function sendGift(amount) {
-  socket.emit("gift", amount);
-}
-
 // ADMIN
 function muteUser() {
   if (!selectedUser) return alert("Select user");
@@ -97,22 +101,6 @@ function kickUser() {
   if (!selectedUser) return alert("Select user");
   socket.emit("kickUser", selectedUser);
 }
-
-// EVENTS
-socket.on("muted", () => {
-  muted = true;
-  alert("You are muted");
-});
-
-socket.on("unmuted", () => {
-  muted = false;
-  alert("Unmuted");
-});
-
-socket.on("kicked", () => {
-  alert("You were kicked");
-  location.reload();
-});
 </script>
 
 </body>
