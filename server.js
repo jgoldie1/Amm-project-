@@ -80,3 +80,36 @@ io.on("connection", (socket) => {
 http.listen(10000, () => {
   console.log("RUNNING ON PORT 10000");
 });
+let hashtags = {};
+
+socket.on("chat", (msg) => {
+  if (!msg) return;
+
+  const data = {
+    user: users[socket.id] || "anon",
+    text: msg
+  };
+
+  io.emit("chat", data);
+
+  // hashtags
+  const tags = msg.match(/#\w+/g);
+  if (tags) {
+    tags.forEach(tag => {
+      if (!hashtags[tag]) hashtags[tag] = 0;
+      hashtags[tag]++;
+    });
+
+    io.emit("trending", hashtags);
+  }
+
+  // BOT (SERVER SIDE — WORKS NOW)
+  if (Math.random() < 0.5) {
+    setTimeout(() => {
+      io.emit("chat", {
+        user: "AI_Bot",
+        text: `${data.user} 🔥 that's fire`
+      });
+    }, 1200);
+  }
+});
