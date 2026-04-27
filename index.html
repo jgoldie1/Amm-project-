@@ -1,49 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Live Room</title>
-  <script src="/socket.io/socket.io.js"></script>
-</head>
-<body>
-
-<h2>Live Room</h2>
-
-<!-- USERS -->
-<h3>Users (click to select)</h3>
-<div id="users"></div>
-
-<!-- CHAT -->
-<h3>Chat</h3>
-<div id="chat" style="height:150px; overflow:auto; border:1px solid #ccc;"></div>
-<input id="msg" placeholder="Type message">
-<button onclick="sendMessage()">Send</button>
-
-<!-- LIKES -->
-<h3>Likes ❤️</h3>
-<button onclick="sendLike()">❤️</button>
-<span id="likeCount">0</span>
-
-<!-- ADMIN -->
-<h3>Admin Controls</h3>
-<button onclick="muteUser()">Mute</button>
-<button onclick="kickUser()">Kick</button>
-
 <script>
 const socket = io();
 let selectedUser = null;
 
-// JOIN (auto prompt)
+// JOIN
 let username = prompt("Enter your username:");
 socket.emit("join", username);
 
-// RECEIVE USER LIST
+// RECEIVE USER LIST (FIXED)
 socket.on("userList", (list) => {
   const div = document.getElementById("users");
   div.innerHTML = "";
 
-  list.forEach((user) => {
+  // list is an OBJECT → use Object.values
+  Object.values(list).forEach((user) => {
     const userDiv = document.createElement("div");
     userDiv.innerText = user.name;
+
     userDiv.style.cursor = "pointer";
     userDiv.style.padding = "5px";
     userDiv.style.borderBottom = "1px solid #ccc";
@@ -57,7 +29,7 @@ socket.on("userList", (list) => {
   });
 });
 
-// CHAT
+// CHAT (FIXED — shows username)
 function sendMessage() {
   const input = document.getElementById("msg");
   socket.emit("chat", input.value);
@@ -69,7 +41,7 @@ socket.on("chat", (data) => {
   div.innerHTML += `<div><b>${data.user}:</b> ${data.text}</div>`;
 });
 
-// LIKE (FIXED — no infinite loop)
+// LIKE (correct — no auto loop here)
 function sendLike() {
   socket.emit("like");
 }
@@ -78,17 +50,14 @@ socket.on("likes", (count) => {
   document.getElementById("likeCount").innerText = count;
 });
 
-// ADMIN BUTTONS
+// ADMIN
 function muteUser() {
-  if (!selectedUser) return alert("Select a user first");
+  if (!selectedUser) return alert("Select a user");
   socket.emit("muteUser", selectedUser);
 }
 
 function kickUser() {
-  if (!selectedUser) return alert("Select a user first");
+  if (!selectedUser) return alert("Select a user");
   socket.emit("kickUser", selectedUser);
 }
 </script>
-
-</body>
-</html>
