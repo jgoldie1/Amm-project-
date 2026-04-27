@@ -14,13 +14,10 @@ const io = new Server(server, {
 app.use(express.static("public"));
 
 io.on("connection", (socket) => {
-
   socket.on("chat", (msg) => {
     if (!msg) return;
-
     io.emit("chat", msg);
   });
-
 });
 
 server.listen(process.env.PORT || 10000, () => {
