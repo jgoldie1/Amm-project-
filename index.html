@@ -9,80 +9,106 @@
 
 <h2>🔥 LIVE ROOM</h2>
 
-<div id="likeCount">0 Likes</div>
-<button onclick="sendLike()">❤️ Tap</button>
+<!-- VIDEO -->
+<video id="video" autoplay playsinline style="display:none;"></video>
+<canvas id="canvas" width="400" height="300" style="border:1px solid white;"></canvas>
 
-<!-- VIDEO GRID -->
-<div id="videoGrid" style="
-display:grid;
-grid-template-columns: repeat(3, 1fr);
-gap:10px;
-margin-top:20px;">
-</div>
+<br>
 
-<!-- USERS -->
-<h3>Users</h3>
-<div id="users"></div>
+<!-- AUTO + MANUAL FILTERS -->
+<button onclick="autoAdjust()">Auto Adjust ⚡</button>
+
+<br><br>
+
+<label>Brightness</label>
+<input type="range" id="brightness" min="0.5" max="2" step="0.1" value="1">
+
+<label>Contrast</label>
+<input type="range" id="contrast" min="0.5" max="2" step="0.1" value="1">
+
+<label>Saturation</label>
+<input type="range" id="saturation" min="0.5" max="2" step="0.1" value="1">
+
+<label>Warmth</label>
+<input type="range" id="warmth" min="0" max="40" step="1" value="0">
+
+<br><br>
 
 <!-- CHAT -->
 <div id="chat" style="height:150px;overflow:auto;border:1px solid white"></div>
 <input id="msg" placeholder="type..." />
 <button onclick="sendMessage()">Send</button>
 
-<!-- HOST CONTROLS -->
-<h3>Host Controls</h3>
-<button onclick="muteUser()">Mute</button>
-<button onclick="kickUser()">Kick</button>
-<button onclick="rotate()">Rotate</button>
-
-<!-- GIFT DISPLAY -->
-<div id="giftDisplay" style="
-position:fixed;
-top:40%;
-left:50%;
-transform:translate(-50%,-50%);
-font-size:30px;
-opacity:0;">
-</div>
-
-<button onclick="sendGift(100)">🎁 100</button>
-<button onclick="sendGift(500)">🎁 500</button>
-
 <script>
 const socket = io();
-let selectedUser = null;
-
 let username = prompt("Enter username");
 socket.emit("join", username);
 
-// USER LIST
-socket.on("userList", (list) => {
-  const div = document.getElementById("users");
-  div.innerHTML = "";
+// CAMERA + MIC
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
-  const grid = document.getElementById("videoGrid");
-  grid.innerHTML = "";
-
-  Object.entries(list).forEach(([id, name]) => {
-
-    // USER LIST UI
-    const userDiv = document.createElement("div");
-    userDiv.innerText = name;
-    userDiv.onclick = () => selectedUser = id;
-    div.appendChild(userDiv);
-
-    // VIDEO SLOT (fake cam for now)
-    const vid = document.createElement("div");
-    vid.innerText = name;
-    vid.style.height = "120px";
-    vid.style.background = "#222";
-    vid.style.display = "flex";
-    vid.style.alignItems = "center";
-    vid.style.justifyContent = "center";
-
-    grid.appendChild(vid);
-  });
+navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+.then(stream => {
+  video.srcObject = stream;
 });
+
+// AUTO ADJUST (SMART LIGHTING)
+function autoAdjust() {
+  document.getElementById("brightness").value = 1.2;
+  document.getElementById("contrast").value = 1.3;
+  document.getElementById("saturation").value = 1.2;
+  document.getElementById("warmth").value = 15;
+}
+
+// DRAW LOOP
+function draw() {
+  const b = parseFloat(document.getElementById("brightness").value);
+  const c = parseFloat(document.getElementById("contrast").value);
+  const s = parseFloat(document.getElementById("saturation").value);
+  const w = parseFloat(document.getElementById("warmth").value);
+
+  ctx.filter = `
+    brightness(${b})
+    contrast(${c})
+    saturate(${s})
+  `;
+
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // ADVANCED COLOR FIX (NO OVER-WHITENING)
+  let frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  let data = frame.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+
+    let r = data[i];
+    let g = data[i+1];
+    let b = data[i+2];
+
+    // detect bright pixels (like teeth/eyes) → DO NOT boost too much
+    let brightness = (r + g + b) / 3;
+
+    if (brightness < 200) {
+      // darker tones → enhance gently
+      data[i] += w;          // red warmth
+      data[i+1] += w * 0.3;  // green slight
+      data[i+2] -= w * 0.1;  // reduce blue (prevents washout)
+    }
+
+    // clamp values
+    data[i] = Math.min(255, data[i]);
+    data[i+1] = Math.min(255, data[i+1]);
+    data[i+2] = Math.min(255, data[i+2]);
+  }
+
+  ctx.putImageData(frame, 0, 0);
+
+  requestAnimationFrame(draw);
+}
+
+draw();
 
 // CHAT
 function sendMessage() {
@@ -93,45 +119,6 @@ function sendMessage() {
 
 socket.on("chat", (msg) => {
   document.getElementById("chat").innerHTML += `<div>${msg}</div>`;
-});
-
-// LIKE
-function sendLike() {
-  socket.emit("like");
-}
-
-socket.on("likes", (count) => {
-  document.getElementById("likeCount").innerText = count + " Likes";
-});
-
-// HOST CONTROLS
-function muteUser() {
-  if (!selectedUser) return alert("Select user");
-  socket.emit("muteUser", selectedUser);
-}
-
-function kickUser() {
-  if (!selectedUser) return alert("Select user");
-  socket.emit("kickUser", selectedUser);
-}
-
-function rotate() {
-  socket.emit("rotate");
-}
-
-// GIFT
-function sendGift(amount) {
-  socket.emit("gift", { user: username, amount });
-}
-
-socket.on("gift", (data) => {
-  const box = document.getElementById("giftDisplay");
-  box.innerHTML = `🎁 ${data.user} sent ${data.amount}`;
-  box.style.opacity = "1";
-
-  setTimeout(() => {
-    box.style.opacity = "0";
-  }, 2000);
 });
 </script>
 
