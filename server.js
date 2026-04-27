@@ -4,31 +4,23 @@ const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
-
 const io = new Server(server);
 
 app.use(express.static("public"));
 
-let users = {};
-
 io.on("connection", (socket) => {
 
-  socket.on("join", (name) => {
-    users[socket.id] = name || "anon";
-  });
-
   socket.on("chat", (msg) => {
-    if (!msg) return;
 
-    const name = users[socket.id] || "anon";
+    if (!msg || typeof msg !== "string") return;
 
-    // ✅ ALWAYS SEND OBJECT
+    // ✅ ALWAYS send SAME FORMAT
     io.emit("chat", {
-      user: name,
+      user: "user",
       text: msg
     });
 
-    // ✅ BOT (MATCH SAME FORMAT)
+    // ✅ BOT ALWAYS
     io.emit("chat", {
       user: "🤖 bot",
       text: "WORKING"
