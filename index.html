@@ -1,41 +1,59 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>TEST CHAT</title>
+  <title>Live Chat</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
-<body style="background:black;color:white;font-size:20px;">
+<body style="background:black;color:white;font-family:sans-serif;">
 
-<h1>TEST CHAT</h1>
+<h2>💬 Live Chat</h2>
 
-<div id="chat" style="height:200px;border:2px solid white;"></div>
+<div id="chat" style="height:250px;overflow:auto;border:1px solid white;padding:10px;"></div>
 
 <br>
 
-<input id="msg" value="test message">
-<button onclick="send()">SEND</button>
+<input id="msg" placeholder="Type here..." style="width:70%;padding:10px;">
+<button onclick="send()">Send</button>
 
 <script>
-const socket = io();
+const socket = io(window.location.origin);
 
-// 🔥 TEST BUTTON CLICK FIRST
+// username
+let username = prompt("Enter your name:");
+if (!username) username = "anon";
+
+socket.emit("join", username);
+
+// send
 function send() {
-  alert("BUTTON CLICKED"); // MUST SHOW
-
   const input = document.getElementById("msg");
 
-  const text = input.value || "fallback";
+  const text = input.value ? input.value.trim() : "";
+  if (!text) return;
 
   socket.emit("chat", text);
+  input.value = "";
 }
 
-// 🔥 RECEIVE
+// ENTER KEY SUPPORT 🔥
+document.getElementById("msg").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") {
+    send();
+  }
+});
+
+// receive
 socket.on("chat", (msg) => {
-  alert("RECEIVED: " + msg); // MUST SHOW
+  if (!msg) return;
 
   const div = document.getElementById("chat");
-  div.innerHTML += "<div>" + msg + "</div>";
+
+  const line = document.createElement("div");
+  line.innerText = msg;
+
+  div.appendChild(line);
+  div.scrollTop = div.scrollHeight;
 });
 </script>
 
