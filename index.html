@@ -19,25 +19,28 @@
 <script>
 const socket = io(window.location.origin);
 
-// username
-let username = prompt("Enter your name:") || "anon";
-socket.emit("join", username);
+// username (ALWAYS defined)
+let username = prompt("Enter your name:");
+if (!username) username = "anon";
 
 // send
 function send() {
   const input = document.getElementById("msg");
 
-  const value = (input.value || "").trim();
-  if (!value) return;
+  const text = input.value ? input.value.trim() : "";
+  if (!text) return;
 
-  socket.emit("chat", value);
+  // 🔥 BUILD STRING HERE (NO OBJECTS EVER)
+  const finalMessage = username + ": " + text;
+
+  socket.emit("chat", finalMessage);
 
   input.value = "";
 }
 
-// receive
+// receive (ONLY STRING)
 socket.on("chat", (msg) => {
-  if (!msg) return; // 🔥 stops undefined
+  if (!msg || typeof msg !== "string") return;
 
   const div = document.getElementById("chat");
 
