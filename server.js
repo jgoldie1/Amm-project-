@@ -1,55 +1,39 @@
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+// serve frontend
+app.use(express.static("public"));
+
 let users = {};
-let admins = {};
-let followers = {};
-let reports = [];
-
-const MAX_ADMINS_BASE = 5;
-const MAX_ADMINS_MAX = 20;
-
-function getMaxAdmins() {
-  const totalUsers = Object.keys(users).length;
-  if (totalUsers < 20) return 5;
-  if (totalUsers < 50) return 10;
-  if (totalUsers < 100) return 15;
-  return MAX_ADMINS_MAX;
-}
+let likes = 0;
 
 io.on("connection", (socket) => {
 
   socket.on("join", (username) => {
     users[socket.id] = username;
-    followers[socket.id] = 0;
-
-    // dynamic admin scaling
-    if (Object.keys(admins).length < getMaxAdmins()) {
-      admins[socket.id] = true;
-      socket.emit("admin", true);
-    }
-
     io.emit("chat", `🔥 ${username} joined`);
   });
 
   socket.on("chat", (msg) => {
-    if (socket.muted) return;
-
-    const name = users[socket.id];
+    const name = users[socket.id] || "User";
     io.emit("chat", `${name}: ${msg}`);
   });
 
   socket.on("like", () => {
-    followers[socket.id]++;
-    io.emit("likesUpdate", followers[socket.id]);
+    likes++;
+    io.emit("likes", likes);
   });
 
-  // 🔇 MUTE SYSTEM (3,5,10 mins)
   socket.on("muteUser", ({ id, time }) => {
-    if (!admins[socket.id]) return;
-
-    io.to(id).emit("muted", time);
-
     const target = io.sockets.sockets.get(id);
     if (target) {
       target.muted = true;
+      target.emit("muted", time);
 
       setTimeout(() => {
         target.muted = false;
@@ -58,40 +42,23 @@ io.on("connection", (socket) => {
     }
   });
 
-  // ❌ KICK
   socket.on("kickUser", (id) => {
-    if (admins[socket.id]) {
-      io.to(id).disconnect(true);
-    }
+    const target = io.sockets.sockets.get(id);
+    if (target) target.disconnect(true);
   });
 
-  // 🚫 BLOCK (local user block list)
-  socket.on("blockUser", (id) => {
-    socket.emit("blocked", id);
-  });
-
-  // 📢 REPORT SYSTEM
   socket.on("reportUser", ({ id, reason }) => {
-    reports.push({
-      reported: users[id],
+    console.log("REPORT:", {
+      user: users[id],
       by: users[socket.id],
       reason
-    });
-
-    // send to all admins
-    Object.keys(admins).forEach(adminId => {
-      io.to(adminId).emit("report", reports);
     });
   });
 
   socket.on("disconnect", () => {
     delete users[socket.id];
-    delete admins[socket.id];
-    delete followers[socket.id];
   });
 });
-app.get("/reels", (req, res) => {
-  res.json([
-    { user: "Host", video: "sample.mp4" }
-  ]);
-});
+
+const PORT = process.env.PORT || 10000;
+server.listen(PORT, () => console.log("RUNNING ON PORT", PORT));
