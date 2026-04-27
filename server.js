@@ -15,12 +15,10 @@ let users = {};
 
 io.on("connection", (socket) => {
 
-  // user joins
   socket.on("join", (name) => {
     users[socket.id] = name || "anon";
   });
 
-  // chat
   socket.on("chat", (msg) => {
     if (!msg) return;
 
@@ -28,6 +26,16 @@ io.on("connection", (socket) => {
     const finalMsg = name + ": " + msg;
 
     io.emit("chat", finalMsg);
+
+    // 🤖 SIMPLE BOT
+    if (msg.toLowerCase().includes("hello")) {
+      io.emit("chat", "🤖 bot: welcome to the live");
+    }
+
+    if (msg.toLowerCase().includes("#")) {
+      io.emit("chat", "🤖 bot: trending tag detected");
+    }
+
   });
 
   socket.on("disconnect", () => {
