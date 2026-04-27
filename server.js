@@ -69,3 +69,10 @@ io.on("connection", (socket) => {
 });
 
 http.listen(10000, () => console.log("RUNNING ON 10000"));
+io.on("connection", (socket) => {
+
+  socket.on("chat", (msg) => {
+    io.emit("chat", msg);
+  });
+
+});
