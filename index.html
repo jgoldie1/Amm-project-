@@ -1,55 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Live Room</title>
+  <title>Live Grid Room</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body style="background:black;color:white;font-family:sans-serif">
 
-<h2>🔥 LIVE AUTO ROOM</h2>
+<h2>🔥 LIVE GRID ROOM</h2>
 
-<!-- LOCAL VIDEO -->
-<video id="video" autoplay muted playsinline style="display:none;"></video>
-<canvas id="canvas" width="300" height="220" style="border:2px solid white;"></canvas>
-
-<h3>📺 Live Users</h3>
-<div id="videos" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+<!-- GRID -->
+<div id="grid" style="
+display:grid;
+grid-template-columns: repeat(3, 1fr);
+gap:10px;
+"></div>
 
 <script>
 const socket = io();
 let peers = {};
 let localStream;
+let myId;
+let isHost = false;
 
 // JOIN
 let username = prompt("Enter username:");
 socket.emit("join", username);
 
 // CAMERA
-const video = document.getElementById("video");
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-
 navigator.mediaDevices.getUserMedia({ video: true, audio: true })
 .then(stream => {
   localStream = stream;
-  video.srcObject = stream;
-  draw();
 });
 
-// FILTER (AUTO)
-function draw() {
-  ctx.filter = "brightness(1.2) contrast(1.3) saturate(1.2)";
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  requestAnimationFrame(draw);
-}
+// USER LIST
+socket.on("userList", (list) => {
+  myId = socket.id;
 
-// AUTO CONNECT WHEN USER JOINS
+  // first user = host
+  const firstUser = Object.keys(list)[0];
+  isHost = (firstUser === myId);
+});
+
+// AUTO CONNECT
 socket.on("new-user", (id) => {
   connectToUser(id);
 });
 
-// CREATE CONNECTION
+// CONNECT
 function connectToUser(id) {
   if (peers[id]) return;
 
@@ -65,27 +63,52 @@ function connectToUser(id) {
 function createPeer(id) {
   const peer = new RTCPeerConnection();
 
-  peer.onicecandidate = event => {
-    if (event.candidate) {
+  peer.onicecandidate = e => {
+    if (e.candidate) {
       socket.emit("signal", {
         to: id,
-        signal: { candidate: event.candidate }
+        signal: { candidate: e.candidate }
       });
     }
   };
 
-  peer.ontrack = event => {
-    let vid = document.getElementById(id);
+  peer.ontrack = e => {
+    let box = document.getElementById(id);
 
-    if (!vid) {
-      vid = document.createElement("video");
-      vid.id = id;
+    if (!box) {
+      box = document.createElement("div");
+      box.id = id;
+      box.style.position = "relative";
+
+      // VIDEO
+      const vid = document.createElement("video");
       vid.autoplay = true;
-      vid.style.width = "200px";
-      document.getElementById("videos").appendChild(vid);
-    }
+      vid.style.width = "100%";
+      vid.srcObject = e.streams[0];
 
-    vid.srcObject = event.streams[0];
+      // BORDER (HOLOGRAPHIC FLAG STYLE)
+      vid.style.border = "4px solid";
+      vid.style.borderImage = "linear-gradient(45deg, red, white, blue) 1";
+
+      box.appendChild(vid);
+
+      // HOST BUTTON
+      if (isHost) {
+        const btn = document.createElement("button");
+        btn.innerText = "Kick";
+        btn.style.position = "absolute";
+        btn.style.top = "5px";
+        btn.style.right = "5px";
+
+        btn.onclick = () => {
+          socket.emit("kickUser", id);
+        };
+
+        box.appendChild(btn);
+      }
+
+      document.getElementById("grid").appendChild(box);
+    }
   };
 
   peer.onnegotiationneeded = async () => {
@@ -133,14 +156,32 @@ socket.on("signal", async (data) => {
   }
 });
 
-// CLEAN UP
+// REMOVE USER
 socket.on("user-disconnected", (id) => {
   if (peers[id]) peers[id].close();
   delete peers[id];
 
-  const vid = document.getElementById(id);
-  if (vid) vid.remove();
+  const el = document.getElementById(id);
+  if (el) el.remove();
 });
+
+// KICKED
+socket.on("kicked", () => {
+  alert("You were removed by host");
+  location.reload();
+});
+
+// SPEAKER HIGHLIGHT (ROTATE)
+setInterval(() => {
+  const vids = document.querySelectorAll("video");
+  vids.forEach(v => v.style.boxShadow = "none");
+
+  if (vids.length > 0) {
+    const active = vids[Math.floor(Math.random() * vids.length)];
+    active.style.boxShadow = "0 0 20px gold";
+  }
+}, 3000);
+
 </script>
 
 </body>
