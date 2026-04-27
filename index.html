@@ -1,192 +1,190 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Live Grid Room</title>
+  <title>Live App</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
-<body style="background:black;color:white;font-family:sans-serif">
+<body style="background:black;color:white;font-family:sans-serif;">
 
-<h2>🔥 LIVE GRID ROOM</h2>
+<h2>🔥 Live Room</h2>
 
-<!-- GRID -->
-<div id="grid" style="
-display:grid;
-grid-template-columns: repeat(3, 1fr);
-gap:10px;
-"></div>
+<!-- USERS -->
+<div id="users"></div>
+
+<!-- VIDEO -->
+<video id="video" autoplay muted style="width:200px;"></video>
+
+<!-- CHAT -->
+<div id="comments"></div>
+
+<input id="msg" placeholder="Type message">
+<button onclick="sendMessage()">Send</button>
+
+<!-- GIFTS -->
+<button onclick="sendGift(100)">🎁 100</button>
+<button onclick="sendGift(500)">🎁 500</button>
+<button onclick="sendGift(1000)">🎁 1000</button>
+
+<div id="giftLayer"></div>
+
+<!-- JOIN BOX -->
+<button onclick="raiseHand()">✋ Join Box</button>
+<div id="hands"></div>
+
+<!-- ADMIN -->
+<button onclick="muteUser()">Mute</button>
+<button onclick="unmuteUser()">Unmute</button>
+
+<style>
+#giftLayer {
+  position: fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+}
+
+#comments {
+  position: fixed;
+  bottom:10px;
+  left:10px;
+}
+
+#hands button {
+  display:block;
+  margin:5px;
+}
+</style>
 
 <script>
 const socket = io();
-let peers = {};
-let localStream;
-let myId;
-let isHost = false;
+let selectedUser = null;
 
 // JOIN
-let username = prompt("Enter username:");
+let username = prompt("Enter your username:");
 socket.emit("join", username);
+
+// USER LIST
+socket.on("userList", (list) => {
+  const div = document.getElementById("users");
+  div.innerHTML = "";
+
+  Object.entries(list).forEach(([id, name]) => {
+    const userDiv = document.createElement("div");
+
+    userDiv.innerText = name;
+    userDiv.style.cursor = "pointer";
+
+    userDiv.onclick = () => {
+      selectedUser = id;
+      alert("Selected: " + name);
+    };
+
+    div.appendChild(userDiv);
+  });
+});
+
+// CHAT
+function sendMessage() {
+  const input = document.getElementById("msg");
+  socket.emit("chat", input.value);
+  input.value = "";
+}
+
+socket.on("chat", (data) => {
+  const div = document.getElementById("comments");
+
+  const msg = document.createElement("div");
+  msg.innerText = data.user + ": " + data.text;
+
+  div.appendChild(msg);
+
+  setTimeout(() => msg.remove(), 5000);
+
+  // AI BOT
+  if (Math.random() < 0.2) {
+    setTimeout(() => {
+      socket.emit("chat", data.user + " that's fire 🔥");
+    }, 1200);
+  }
+});
+
+// GIFTS
+function sendGift(amount) {
+  socket.emit("gift", amount);
+}
+
+socket.on("gift", (data) => {
+  const el = document.createElement("div");
+
+  el.innerText = `🎁 ${data.user} sent ${data.amount}`;
+  el.style.position = "absolute";
+  el.style.left = Math.random() * 80 + "%";
+  el.style.bottom = "0";
+  el.style.color = "gold";
+
+  document.getElementById("giftLayer").appendChild(el);
+
+  let pos = 0;
+  const anim = setInterval(() => {
+    pos += 2;
+    el.style.bottom = pos + "px";
+
+    if (pos > window.innerHeight) {
+      clearInterval(anim);
+      el.remove();
+    }
+  }, 30);
+});
+
+// RAISE HAND
+function raiseHand() {
+  socket.emit("raiseHand");
+}
+
+socket.on("handList", (list) => {
+  const div = document.getElementById("hands");
+  div.innerHTML = "";
+
+  list.forEach(user => {
+    const btn = document.createElement("button");
+
+    btn.innerText = "Approve " + user.name;
+
+    btn.onclick = () => {
+      socket.emit("approveJoin", user.id);
+    };
+
+    div.appendChild(btn);
+  });
+});
+
+socket.on("approved", () => {
+  alert("You joined the box 🔥");
+});
+
+// ADMIN
+function muteUser() {
+  if (!selectedUser) return alert("Select a user");
+  socket.emit("muteUser", selectedUser);
+}
+
+function unmuteUser() {
+  if (!selectedUser) return alert("Select a user");
+  socket.emit("unmuteUser", selectedUser);
+}
+
+socket.on("muted", () => alert("You are muted"));
+socket.on("unmuted", () => alert("You are unmuted"));
 
 // CAMERA
 navigator.mediaDevices.getUserMedia({ video: true, audio: true })
 .then(stream => {
-  localStream = stream;
+  document.getElementById("video").srcObject = stream;
 });
-
-// USER LIST
-socket.on("userList", (list) => {
-  myId = socket.id;
-
-  // first user = host
-  const firstUser = Object.keys(list)[0];
-  isHost = (firstUser === myId);
-});
-
-// AUTO CONNECT
-socket.on("new-user", (id) => {
-  connectToUser(id);
-});
-
-// CONNECT
-function connectToUser(id) {
-  if (peers[id]) return;
-
-  const peer = createPeer(id);
-  peers[id] = peer;
-
-  localStream.getTracks().forEach(track => {
-    peer.addTrack(track, localStream);
-  });
-}
-
-// CREATE PEER
-function createPeer(id) {
-  const peer = new RTCPeerConnection();
-
-  peer.onicecandidate = e => {
-    if (e.candidate) {
-      socket.emit("signal", {
-        to: id,
-        signal: { candidate: e.candidate }
-      });
-    }
-  };
-
-  peer.ontrack = e => {
-    let box = document.getElementById(id);
-
-    if (!box) {
-      box = document.createElement("div");
-      box.id = id;
-      box.style.position = "relative";
-
-      // VIDEO
-      const vid = document.createElement("video");
-      vid.autoplay = true;
-      vid.style.width = "100%";
-      vid.srcObject = e.streams[0];
-
-      // BORDER (HOLOGRAPHIC FLAG STYLE)
-      vid.style.border = "4px solid";
-      vid.style.borderImage = "linear-gradient(45deg, red, white, blue) 1";
-
-      box.appendChild(vid);
-
-      // HOST BUTTON
-      if (isHost) {
-        const btn = document.createElement("button");
-        btn.innerText = "Kick";
-        btn.style.position = "absolute";
-        btn.style.top = "5px";
-        btn.style.right = "5px";
-
-        btn.onclick = () => {
-          socket.emit("kickUser", id);
-        };
-
-        box.appendChild(btn);
-      }
-
-      document.getElementById("grid").appendChild(box);
-    }
-  };
-
-  peer.onnegotiationneeded = async () => {
-    const offer = await peer.createOffer();
-    await peer.setLocalDescription(offer);
-
-    socket.emit("signal", {
-      to: id,
-      signal: { sdp: peer.localDescription }
-    });
-  };
-
-  return peer;
-}
-
-// RECEIVE SIGNAL
-socket.on("signal", async (data) => {
-  let peer = peers[data.from];
-
-  if (!peer) {
-    peer = createPeer(data.from);
-    peers[data.from] = peer;
-
-    localStream.getTracks().forEach(track => {
-      peer.addTrack(track, localStream);
-    });
-  }
-
-  if (data.signal.sdp) {
-    await peer.setRemoteDescription(new RTCSessionDescription(data.signal.sdp));
-
-    if (data.signal.sdp.type === "offer") {
-      const answer = await peer.createAnswer();
-      await peer.setLocalDescription(answer);
-
-      socket.emit("signal", {
-        to: data.from,
-        signal: { sdp: peer.localDescription }
-      });
-    }
-  }
-
-  if (data.signal.candidate) {
-    await peer.addIceCandidate(new RTCIceCandidate(data.signal.candidate));
-  }
-});
-
-// REMOVE USER
-socket.on("user-disconnected", (id) => {
-  if (peers[id]) peers[id].close();
-  delete peers[id];
-
-  const el = document.getElementById(id);
-  if (el) el.remove();
-});
-
-// KICKED
-socket.on("kicked", () => {
-  alert("You were removed by host");
-  location.reload();
-});
-
-// SPEAKER HIGHLIGHT (ROTATE)
-setInterval(() => {
-  const vids = document.querySelectorAll("video");
-  vids.forEach(v => v.style.boxShadow = "none");
-
-  if (vids.length > 0) {
-    const active = vids[Math.floor(Math.random() * vids.length)];
-    active.style.boxShadow = "0 0 20px gold";
-  }
-}, 3000);
-
 </script>
 
 </body>
 </html>
-<div id="giftLayer"></div>
-<div id="comments"></div>
-<button onclick="raiseHand()">✋ Join Box</button>
-<div id="hands"></div>
