@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Chat Stable</title>
+  <title>Chat Fixed</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
@@ -23,7 +23,7 @@ const socket = io(window.location.origin, {
 
 // username
 let username = prompt("Enter your name:");
-if (!username || username === "undefined") username = "anon";
+if (!username) username = "anon";
 
 socket.emit("join", username);
 
@@ -31,12 +31,7 @@ socket.emit("join", username);
 function send() {
   const input = document.getElementById("msg");
 
-  let text = input.value;
-
-  // 🔒 FORCE STRING
-  if (typeof text !== "string") text = "";
-  text = text.trim();
-
+  const text = input.value.trim();
   if (!text) return;
 
   socket.emit("chat", text);
@@ -49,15 +44,13 @@ document.getElementById("msg").addEventListener("keydown", function(e) {
 });
 
 // receive
-socket.on("chat", (msg) => {
-
-  // 🔒 FORCE STRING DISPLAY
-  if (!msg) return;
+socket.on("chat", (data) => {
+  if (!data || !data.text) return;
 
   const div = document.getElementById("chat");
 
   const line = document.createElement("div");
-  line.innerText = String(msg);
+  line.innerText = data.user + ": " + data.text;
 
   div.appendChild(line);
   div.scrollTop = div.scrollHeight;
