@@ -20,21 +20,26 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat", (msg) => {
-    if (!msg) return;
+    if (typeof msg !== "string") return;
 
     const name = users[socket.id] || "anon";
     const finalMsg = name + ": " + msg;
 
+    // ✅ send user message
     io.emit("chat", finalMsg);
 
-    // 🤖 SIMPLE BOT
-    if (msg.toLowerCase().includes("hello")) {
-      io.emit("chat", "🤖 bot: welcome to the live");
-    }
+    // ✅ SAFE BOT (delayed + isolated)
+    const text = msg.toLowerCase();
 
-    if (msg.toLowerCase().includes("#")) {
-      io.emit("chat", "🤖 bot: trending tag detected");
-    }
+    setTimeout(() => {
+      if (text.includes("hello")) {
+        io.emit("chat", "🤖 bot: welcome to the live");
+      }
+
+      if (text.includes("#")) {
+        io.emit("chat", "🤖 bot: trending tag detected");
+      }
+    }, 300);
 
   });
 
