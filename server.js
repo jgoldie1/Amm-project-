@@ -11,36 +11,25 @@ app.use(express.static("public"));
 let users = {};
 
 io.on("connection", (socket) => {
+  console.log("CONNECTED:", socket.id);
 
-  console.log("Connected:", socket.id);
-
-  // JOIN
   socket.on("join", (username) => {
     users[socket.id] = username || "anon";
-    io.emit("userList", users);
+    console.log("JOIN:", username);
   });
 
-  // CHAT (ONLY THIS — CLEAN)
   socket.on("chat", (msg) => {
-    if (!msg || msg.trim() === "") return;
+    console.log("MESSAGE RECEIVED:", msg);
 
-    const data = {
+    if (!msg) return;
+
+    io.emit("chat", {
       user: users[socket.id] || "anon",
       text: msg
-    };
-
-    io.emit("chat", data);
+    });
   });
-
-  // DISCONNECT
-  socket.on("disconnect", () => {
-    delete users[socket.id];
-    io.emit("userList", users);
-    console.log("Disconnected:", socket.id);
-  });
-
 });
 
 server.listen(10000, () => {
-  console.log("RUNNING ON PORT 10000");
+  console.log("SERVER RUNNING");
 });
