@@ -6,6 +6,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+// serve frontend
 app.use(express.static("public"));
 
 let users = {};
@@ -19,7 +20,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat", (msg) => {
-    console.log("MESSAGE RECEIVED:", msg);
+    console.log("MESSAGE:", msg);
 
     if (!msg) return;
 
@@ -28,8 +29,13 @@ io.on("connection", (socket) => {
       text: msg
     });
   });
+
+  socket.on("disconnect", () => {
+    delete users[socket.id];
+    console.log("DISCONNECTED:", socket.id);
+  });
 });
 
 server.listen(10000, () => {
-  console.log("SERVER RUNNING");
+  console.log("SERVER RUNNING ON 10000");
 });
