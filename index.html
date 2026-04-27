@@ -1,48 +1,135 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <title>Live Room</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
-<body>
+<body style="background:black;color:white;font-family:sans-serif">
 
-<!-- YOUR UI -->
+<h2>🔥 LIVE ROOM</h2>
+
+<div id="likeCount">0 Likes</div>
+<button onclick="sendLike()">❤️ Tap</button>
+
+<!-- VIDEO GRID -->
+<div id="videoGrid" style="
+display:grid;
+grid-template-columns: repeat(3, 1fr);
+gap:10px;
+margin-top:20px;">
+</div>
+
+<!-- USERS -->
+<h3>Users</h3>
+<div id="users"></div>
+
+<!-- CHAT -->
+<div id="chat" style="height:150px;overflow:auto;border:1px solid white"></div>
+<input id="msg" placeholder="type..." />
+<button onclick="sendMessage()">Send</button>
+
+<!-- HOST CONTROLS -->
+<h3>Host Controls</h3>
+<button onclick="muteUser()">Mute</button>
+<button onclick="kickUser()">Kick</button>
+<button onclick="rotate()">Rotate</button>
+
+<!-- GIFT DISPLAY -->
 <div id="giftDisplay" style="
-  position:fixed;
-  top:40%;
-  left:50%;
-  transform:translate(-50%, -50%);
-  font-size:40px;
-  color:gold;
-  opacity:0;
-"></div>
+position:fixed;
+top:40%;
+left:50%;
+transform:translate(-50%,-50%);
+font-size:30px;
+opacity:0;">
+</div>
 
-<button onclick="sendGift(100)">Send 100</button>
+<button onclick="sendGift(100)">🎁 100</button>
+<button onclick="sendGift(500)">🎁 500</button>
 
-<!-- ✅ SCRIPT GOES HERE -->
 <script>
 const socket = io();
-let username = prompt("Enter name");
+let selectedUser = null;
 
-// SEND GIFT
-function sendGift(amount) {
-  socket.emit("gift", {
-    user: username,
-    amount: amount
+let username = prompt("Enter username");
+socket.emit("join", username);
+
+// USER LIST
+socket.on("userList", (list) => {
+  const div = document.getElementById("users");
+  div.innerHTML = "";
+
+  const grid = document.getElementById("videoGrid");
+  grid.innerHTML = "";
+
+  Object.entries(list).forEach(([id, name]) => {
+
+    // USER LIST UI
+    const userDiv = document.createElement("div");
+    userDiv.innerText = name;
+    userDiv.onclick = () => selectedUser = id;
+    div.appendChild(userDiv);
+
+    // VIDEO SLOT (fake cam for now)
+    const vid = document.createElement("div");
+    vid.innerText = name;
+    vid.style.height = "120px";
+    vid.style.background = "#222";
+    vid.style.display = "flex";
+    vid.style.alignItems = "center";
+    vid.style.justifyContent = "center";
+
+    grid.appendChild(vid);
   });
+});
+
+// CHAT
+function sendMessage() {
+  const input = document.getElementById("msg");
+  socket.emit("chat", input.value);
+  input.value = "";
 }
 
-// RECEIVE GIFT + SHOW EFFECT
+socket.on("chat", (msg) => {
+  document.getElementById("chat").innerHTML += `<div>${msg}</div>`;
+});
+
+// LIKE
+function sendLike() {
+  socket.emit("like");
+}
+
+socket.on("likes", (count) => {
+  document.getElementById("likeCount").innerText = count + " Likes";
+});
+
+// HOST CONTROLS
+function muteUser() {
+  if (!selectedUser) return alert("Select user");
+  socket.emit("muteUser", selectedUser);
+}
+
+function kickUser() {
+  if (!selectedUser) return alert("Select user");
+  socket.emit("kickUser", selectedUser);
+}
+
+function rotate() {
+  socket.emit("rotate");
+}
+
+// GIFT
+function sendGift(amount) {
+  socket.emit("gift", { user: username, amount });
+}
+
 socket.on("gift", (data) => {
   const box = document.getElementById("giftDisplay");
-
-  box.innerHTML = `🎁 ${data.user} sent ${data.amount}!`;
-
-  box.style.transform = "translate(-50%, -50%) scale(1.5)";
+  box.innerHTML = `🎁 ${data.user} sent ${data.amount}`;
   box.style.opacity = "1";
 
   setTimeout(() => {
-    box.style.transform = "translate(-50%, -50%) scale(1)";
     box.style.opacity = "0";
   }, 2000);
 });
