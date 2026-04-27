@@ -19,16 +19,16 @@
 <script>
 const socket = io(window.location.origin);
 
-// CONFIRM CONNECTION (you will SEE this)
+// confirm connection
 socket.on("connect", () => {
   alert("✅ Connected");
 });
 
-// USERNAME AUTO
+// auto username
 let username = "User" + Math.floor(Math.random()*1000);
 socket.emit("join", username);
 
-// SEND MESSAGE
+// send message
 function sendMessage() {
   const input = document.getElementById("msg");
 
@@ -39,7 +39,7 @@ function sendMessage() {
   input.value = "";
 }
 
-// RECEIVE MESSAGE
+// receive message (🔥 FIXED HERE)
 socket.on("chat", (data) => {
   const box = document.getElementById("chatBox");
 
