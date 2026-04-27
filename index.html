@@ -1,111 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Live App</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
-<body style="background:black; color:white; font-family:sans-serif;">
 
-<h2>🔴 LIVE ROOM</h2>
+<body>
 
-<!-- VIDEO AREA (fake for now, but styled like live app) -->
-<div style="
-  width:100%;
-  height:300px;
-  background:#111;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:24px;
-">
-  LIVE STREAM AREA
-</div>
-
-<!-- CHAT -->
-<div id="chat" style="height:150px; overflow:auto; border:1px solid #444;"></div>
-
-<input id="msg" placeholder="Type message">
-<button onclick="sendMessage()">Send</button>
-
-<!-- USERS -->
-<h3>Users</h3>
-<div id="users" style="border:1px solid #444; height:120px; overflow:auto;"></div>
-
-<!-- GIFTS -->
-<h3>🎁 Send Gifts</h3>
-<button onclick="sendGift(100)">💎 100</button>
-<button onclick="sendGift(500)">🚀 500</button>
-<button onclick="sendGift(1000)">👑 1000</button>
-
-<h3>Total Gifts: <span id="giftTotal">0</span></h3>
-
-<!-- BIG HOLOGRAPHIC DISPLAY -->
-<div id="giftOverlay" style="
+<!-- YOUR UI -->
+<div id="giftDisplay" style="
   position:fixed;
   top:40%;
   left:50%;
   transform:translate(-50%, -50%);
-  font-size:50px;
+  font-size:40px;
   color:gold;
-  text-shadow:0 0 20px gold;
   opacity:0;
-  transition:0.5s;
 "></div>
 
+<button onclick="sendGift(100)">Send 100</button>
+
+<!-- ✅ SCRIPT GOES HERE -->
 <script>
 const socket = io();
-let username = prompt("Enter username");
-let selectedUser = null;
+let username = prompt("Enter name");
 
-socket.emit("join", username);
-
-// CHAT
-function sendMessage() {
-  const input = document.getElementById("msg");
-  socket.emit("chat", { user: username, text: input.value });
-  input.value = "";
-}
-
-socket.on("chat", (data) => {
-  document.getElementById("chat").innerHTML += 
-    `<div><b>${data.user}:</b> ${data.text}</div>`;
-});
-
-// USERS
-socket.on("userList", (list) => {
-  const div = document.getElementById("users");
-  div.innerHTML = "";
-  Object.entries(list).forEach(([id, name]) => {
-    const el = document.createElement("div");
-    el.innerText = name;
-    el.onclick = () => selectedUser = id;
-    div.appendChild(el);
-  });
-});
-
-// GIFTS
+// SEND GIFT
 function sendGift(amount) {
-  socket.emit("gift", { user: username, amount });
+  socket.emit("gift", {
+    user: username,
+    amount: amount
+  });
 }
 
+// RECEIVE GIFT + SHOW EFFECT
 socket.on("gift", (data) => {
-  document.getElementById("giftTotal").innerText = data.total;
+  const box = document.getElementById("giftDisplay");
 
-  const overlay = document.getElementById("giftOverlay");
+  box.innerHTML = `🎁 ${data.user} sent ${data.amount}!`;
 
-  // different visuals
-  let icon = "🎁";
-  if (data.amount == 500) icon = "🚀";
-  if (data.amount == 1000) icon = "👑";
-
-  overlay.innerHTML = `${icon} ${data.user} sent ${data.amount}!`;
-
-  overlay.style.opacity = "1";
-  overlay.style.transform = "translate(-50%, -50%) scale(1.5)";
+  box.style.transform = "translate(-50%, -50%) scale(1.5)";
+  box.style.opacity = "1";
 
   setTimeout(() => {
-    overlay.style.opacity = "0";
-    overlay.style.transform = "translate(-50%, -50%) scale(1)";
+    box.style.transform = "translate(-50%, -50%) scale(1)";
+    box.style.opacity = "0";
   }, 2000);
 });
 </script>
