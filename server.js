@@ -9,13 +9,26 @@ const io = new Server(server);
 
 app.use(express.static("public"));
 
+let users = {};
+
 io.on("connection", (socket) => {
 
-  socket.on("chat", (msg) => {
-    console.log("SERVER RECEIVED:", msg);
+  socket.on("join", (name) => {
+    users[socket.id] = name || "anon";
+  });
 
-    // SEND BACK EXACTLY WHAT WAS SENT
-    io.emit("chat", msg);
+  socket.on("chat", (msg) => {
+    if (!msg) return;
+
+    const name = users[socket.id] || "anon";
+
+    // ✅ show user message
+    io.emit("chat", name + ": " + msg);
+
+    // ✅ FORCE BOT EVERY TIME (NO CONDITIONS)
+    setTimeout(() => {
+      io.emit("chat", "🤖 bot: I see your message");
+    }, 300);
   });
 
 });
