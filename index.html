@@ -19,11 +19,11 @@
 <script>
 const socket = io(window.location.origin);
 
-// username prompt
+// username
 let username = prompt("Enter your name:") || "anon";
 socket.emit("join", username);
 
-// send message
+// send
 function send() {
   const input = document.getElementById("msg");
 
@@ -33,15 +33,11 @@ function send() {
   input.value = "";
 }
 
-// receive message (handles object correctly)
-socket.on("chat", (data) => {
+// receive (🔥 ONLY STRING NOW)
+socket.on("chat", (msg) => {
   const div = document.getElementById("chat");
 
-  const text = (typeof data === "string")
-    ? data
-    : data.user + ": " + data.text;
-
-  div.innerHTML += "<div>" + text + "</div>";
+  div.innerHTML += "<div>" + msg + "</div>";
   div.scrollTop = div.scrollHeight;
 });
 </script>
