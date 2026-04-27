@@ -1,59 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Chat Fixed</title>
+  <title>DEBUG CHAT</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
-<body style="background:black;color:white;font-family:sans-serif;">
+<body style="background:black;color:white;font-size:20px;">
 
-<h2>💬 Chat</h2>
+<h1>DEBUG</h1>
 
-<div id="chat" style="height:250px;overflow:auto;border:1px solid white;padding:10px;"></div>
+<div id="chat" style="height:200px;border:2px solid white;"></div>
 
-<br>
-
-<input id="msg" placeholder="Type message..." style="width:70%;padding:10px;">
-<button onclick="send()">Send</button>
+<input id="msg" value="hello">
+<button onclick="send()">SEND</button>
 
 <script>
-const socket = io(window.location.origin, {
-  transports: ["websocket"]
-});
+const socket = io();
 
-// username
-let username = prompt("Enter your name:");
-if (!username) username = "anon";
-
-socket.emit("join", username);
-
-// send
+// SEND
 function send() {
-  const input = document.getElementById("msg");
+  const text = document.getElementById("msg").value;
 
-  const text = input.value.trim();
-  if (!text) return;
-
+  alert("SENDING TYPE: " + typeof text);
   socket.emit("chat", text);
-  input.value = "";
 }
 
-// enter key
-document.getElementById("msg").addEventListener("keydown", function(e) {
-  if (e.key === "Enter") send();
-});
+// RECEIVE
+socket.on("chat", (msg) => {
 
-// receive
-socket.on("chat", (data) => {
-  if (!data || !data.text) return;
+  alert("RECEIVED TYPE: " + typeof msg);
 
   const div = document.getElementById("chat");
 
-  const line = document.createElement("div");
-  line.innerText = data.user + ": " + data.text;
-
-  div.appendChild(line);
-  div.scrollTop = div.scrollHeight;
+  div.innerHTML += "<div>" + String(msg) + "</div>";
 });
 </script>
 
