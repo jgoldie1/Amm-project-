@@ -2,122 +2,93 @@
 <html>
 <head>
   <title>Live Room</title>
-  <style>
-    body { background: black; color: white; text-align: center; font-family: Arial; }
-    #chat { height: 200px; overflow-y: auto; border: 1px solid white; margin: 10px; padding: 5px; }
-    button { margin: 5px; padding: 8px; }
-    input { padding: 8px; margin: 5px; }
-  </style>
+  <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 
-<h2>🔥 Live Room</h2>
+<h2>Live Room</h2>
 
-<input id="name" placeholder="Enter username">
-<button onclick="join()">Join</button>
+<!-- USERS -->
+<h3>Users (click to select)</h3>
+<div id="users"></div>
 
-<h3>❤️ Likes: <span id="likes">0</span></h3>
-<button onclick="like()">Tap ❤️</button>
+<!-- CHAT -->
+<h3>Chat</h3>
+<div id="chat" style="height:150px; overflow:auto; border:1px solid #ccc;"></div>
+<input id="msg" placeholder="Type message">
+<button onclick="sendMessage()">Send</button>
 
-<div id="chat"></div>
+<!-- LIKES -->
+<h3>Likes ❤️</h3>
+<button onclick="sendLike()">❤️</button>
+<span id="likeCount">0</span>
 
-<input id="msg" placeholder="Say something">
-<button onclick="send()">Send</button>
-
-<br><br>
-
-<!-- ADMIN CONTROLS -->
-<button onclick="muteUser()">Mute (3m)</button>
+<!-- ADMIN -->
+<h3>Admin Controls</h3>
+<button onclick="muteUser()">Mute</button>
 <button onclick="kickUser()">Kick</button>
-<button onclick="reportUser()">Report</button>
 
-<script src="/socket.io/socket.io.js"></script>
 <script>
 const socket = io();
+let selectedUser = null;
 
-let isMuted = false;
-let username = "";
+// JOIN (auto prompt)
+let username = prompt("Enter your username:");
+socket.emit("join", username);
 
-// JOIN
-function join() {
-  username = document.getElementById("name").value;
-  if (!username) return alert("Enter a name");
+// RECEIVE USER LIST
+socket.on("userList", (list) => {
+  const div = document.getElementById("users");
+  div.innerHTML = "";
 
-  socket.emit("join", username);
+  list.forEach((user) => {
+    const userDiv = document.createElement("div");
+    userDiv.innerText = user.name;
+    userDiv.style.cursor = "pointer";
+    userDiv.style.padding = "5px";
+    userDiv.style.borderBottom = "1px solid #ccc";
+
+    userDiv.onclick = () => {
+      selectedUser = user.id;
+      alert("Selected: " + user.name);
+    };
+
+    div.appendChild(userDiv);
+  });
+});
+
+// CHAT
+function sendMessage() {
+  const input = document.getElementById("msg");
+  socket.emit("chat", input.value);
+  input.value = "";
 }
 
-// SEND CHAT
-function send() {
-  if (isMuted) return alert("You are muted");
+socket.on("chat", (data) => {
+  const div = document.getElementById("chat");
+  div.innerHTML += `<div><b>${data.user}:</b> ${data.text}</div>`;
+});
 
-  const msg = document.getElementById("msg").value;
-  if (!msg) return;
-
-  socket.emit("chat", msg);
-  document.getElementById("msg").value = "";
-}
-
-// LIKE
-function like() {
+// LIKE (FIXED — no infinite loop)
+function sendLike() {
   socket.emit("like");
 }
 
-// ADMIN ACTIONS
+socket.on("likes", (count) => {
+  document.getElementById("likeCount").innerText = count;
+});
+
+// ADMIN BUTTONS
 function muteUser() {
-  const id = prompt("User ID to mute:");
-  if (!id) return;
-  socket.emit("muteUser", { id, time: 3 });
+  if (!selectedUser) return alert("Select a user first");
+  socket.emit("muteUser", selectedUser);
 }
 
 function kickUser() {
-  const id = prompt("User ID to kick:");
-  if (!id) return;
-  socket.emit("kickUser", id);
+  if (!selectedUser) return alert("Select a user first");
+  socket.emit("kickUser", selectedUser);
 }
-
-function reportUser() {
-  const id = prompt("User ID to report:");
-  const reason = prompt("Reason:");
-  if (!id || !reason) return;
-  socket.emit("reportUser", { id, reason });
-}
-
-// RECEIVE CHAT
-socket.on("chat", (msg) => {
-  const div = document.getElementById("chat");
-  div.innerHTML += `<p>${msg}</p>`;
-  div.scrollTop = div.scrollHeight;
-});
-
-// RECEIVE LIKES
-socket.on("likes", (count) => {
-  document.getElementById("likes").innerText = count;
-});
-
-// MUTED
-socket.on("muted", (time) => {
-  isMuted = true;
-  alert("Muted for " + time + " minutes");
-});
-
-// UNMUTED
-socket.on("unmuted", () => {
-  isMuted = false;
-  alert("You are unmuted");
-});
-
-// ADMIN
-socket.on("admin", () => {
-  alert("You are admin 🔥");
-});
-
-// REPORT VIEW (admins)
-socket.on("report", (data) => {
-  console.log("Reports:", data);
-});
 </script>
 
 </body>
 </html>
-<h3>👥 Users</h3>
-<div id="users"></div>
