@@ -1,124 +1,114 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Live Room</title>
+  <title>Live App</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
-<body>
+<body style="background:black; color:white; font-family:sans-serif;">
 
-<h2>🔥 Live Room</h2>
+<h2>🔴 LIVE ROOM</h2>
 
-<!-- USER LIST -->
-<div>
-  <h3>Users</h3>
-  <div id="users"></div>
+<!-- VIDEO AREA (fake for now, but styled like live app) -->
+<div style="
+  width:100%;
+  height:300px;
+  background:#111;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+">
+  LIVE STREAM AREA
 </div>
 
 <!-- CHAT -->
-<div>
-  <h3>Chat</h3>
-  <div id="chat" style="border:1px solid #000;height:150px;overflow:auto;"></div>
-  <input id="msg" placeholder="Type message..." />
-  <button onclick="sendMessage()">Send</button>
-</div>
+<div id="chat" style="height:150px; overflow:auto; border:1px solid #444;"></div>
 
-<!-- LIKES -->
-<div>
-  ❤️ Likes: <span id="likeCount">0</span>
-  <button onclick="sendLike()">Tap ❤️</button>
-</div>
+<input id="msg" placeholder="Type message">
+<button onclick="sendMessage()">Send</button>
 
-<!-- ADMIN -->
-<div>
-  <button onclick="muteUser()">Mute</button>
-  <button onclick="kickUser()">Kick</button>
-</div>
+<!-- USERS -->
+<h3>Users</h3>
+<div id="users" style="border:1px solid #444; height:120px; overflow:auto;"></div>
+
+<!-- GIFTS -->
+<h3>🎁 Send Gifts</h3>
+<button onclick="sendGift(100)">💎 100</button>
+<button onclick="sendGift(500)">🚀 500</button>
+<button onclick="sendGift(1000)">👑 1000</button>
+
+<h3>Total Gifts: <span id="giftTotal">0</span></h3>
+
+<!-- BIG HOLOGRAPHIC DISPLAY -->
+<div id="giftOverlay" style="
+  position:fixed;
+  top:40%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  font-size:50px;
+  color:gold;
+  text-shadow:0 0 20px gold;
+  opacity:0;
+  transition:0.5s;
+"></div>
 
 <script>
 const socket = io();
+let username = prompt("Enter username");
 let selectedUser = null;
-let username = "";
 
-// JOIN
-username = prompt("Enter username:");
 socket.emit("join", username);
 
-// USER LIST
-socket.on("userList", (list) => {
-  const div = document.getElementById("users");
-  div.innerHTML = "";
-
-  Object.entries(list).forEach(([id, name]) => {
-    const userDiv = document.createElement("div");
-    userDiv.innerText = name;
-
-    userDiv.onclick = () => {
-      selectedUser = id;
-      alert("Selected: " + name);
-    };
-
-    div.appendChild(userDiv);
-  });
-});
-
-// SEND MESSAGE (FIXED)
+// CHAT
 function sendMessage() {
   const input = document.getElementById("msg");
-
-  if (!input.value.trim()) return; // 🚨 prevents undefined
-
-  socket.emit("chat", {
-    user: username,
-    text: input.value
-  });
-
+  socket.emit("chat", { user: username, text: input.value });
   input.value = "";
 }
 
-// RECEIVE MESSAGE (FIXED)
-socket.on("chat", (msg) => {
-  const div = document.getElementById("chat");
-
-  div.innerHTML += `<div><b>${msg.user}:</b> ${msg.text}</div>`;
+socket.on("chat", (data) => {
+  document.getElementById("chat").innerHTML += 
+    `<div><b>${data.user}:</b> ${data.text}</div>`;
 });
 
-// LIKE
-function sendLike() {
-  socket.emit("like");
-}
-
-socket.on("likes", (count) => {
-  document.getElementById("likeCount").innerText = count;
+// USERS
+socket.on("userList", (list) => {
+  const div = document.getElementById("users");
+  div.innerHTML = "";
+  Object.entries(list).forEach(([id, name]) => {
+    const el = document.createElement("div");
+    el.innerText = name;
+    el.onclick = () => selectedUser = id;
+    div.appendChild(el);
+  });
 });
 
-// ADMIN
-function muteUser() {
-  if (!selectedUser) return alert("Select user");
-  socket.emit("muteUser", selectedUser);
+// GIFTS
+function sendGift(amount) {
+  socket.emit("gift", { user: username, amount });
 }
 
-function kickUser() {
-  if (!selectedUser) return alert("Select user");
-  socket.emit("kickUser", selectedUser);
-}
+socket.on("gift", (data) => {
+  document.getElementById("giftTotal").innerText = data.total;
+
+  const overlay = document.getElementById("giftOverlay");
+
+  // different visuals
+  let icon = "🎁";
+  if (data.amount == 500) icon = "🚀";
+  if (data.amount == 1000) icon = "👑";
+
+  overlay.innerHTML = `${icon} ${data.user} sent ${data.amount}!`;
+
+  overlay.style.opacity = "1";
+  overlay.style.transform = "translate(-50%, -50%) scale(1.5)";
+
+  setTimeout(() => {
+    overlay.style.opacity = "0";
+    overlay.style.transform = "translate(-50%, -50%) scale(1)";
+  }, 2000);
+});
 </script>
 
 </body>
 </html>
-<!-- GIFT PANEL -->
-<div>
-  <h3>🎁 Gifts</h3>
-
-  <button onclick="sendGift(100)">💎 100</button>
-  <button onclick="sendGift(500)">🚀 500</button>
-  <button onclick="sendGift(1000)">🔥 1000</button>
-</div>
-
-<!-- LIVE GIFT DISPLAY -->
-<div id="giftDisplay" style="
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  font-size: 24px;
-  color: gold;
-"></div>
