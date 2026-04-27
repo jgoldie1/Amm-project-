@@ -1,41 +1,59 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>RESET CHAT</title>
+  <title>Chat</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
-<body style="background:black;color:white;font-size:20px;">
+<body style="background:black;color:white;font-family:sans-serif;">
 
-<h1>RESET CHAT</h1>
+<h2>💬 Chat</h2>
 
-<div id="chat" style="height:200px;border:2px solid white;overflow:auto;"></div>
+<div id="chat" style="height:250px;overflow:auto;border:1px solid white;padding:10px;"></div>
 
 <br>
 
-<input id="msg" value="hello">
-<button onclick="send()">SEND</button>
+<input id="msg" placeholder="Type message..." style="width:70%;padding:10px;">
+<button onclick="send()">Send</button>
 
 <script>
 const socket = io(window.location.origin, {
   transports: ["websocket"]
 });
 
+// ✅ SAFE USERNAME
+let username = prompt("Enter your name:");
+if (!username) username = "anon";
+
+socket.emit("join", username);
+
+// send
 function send() {
   const input = document.getElementById("msg");
 
-  const text = input.value;
-
-  alert("SENDING: " + text); // MUST SHOW
+  const text = input.value ? input.value.trim() : "";
+  if (!text) return;
 
   socket.emit("chat", text);
+  input.value = "";
 }
 
+// enter key
+document.getElementById("msg").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") send();
+});
+
+// receive
 socket.on("chat", (msg) => {
-  alert("RECEIVED: " + msg); // MUST SHOW
+  if (!msg) return;
 
   const div = document.getElementById("chat");
-  div.innerHTML += "<div>" + msg + "</div>";
+
+  const line = document.createElement("div");
+  line.innerText = msg;
+
+  div.appendChild(line);
+  div.scrollTop = div.scrollHeight;
 });
 </script>
 
