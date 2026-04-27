@@ -8,13 +8,28 @@ const io = new Server(server);
 
 app.use(express.static("public"));
 
+let users = {};
+
 io.on("connection", (socket) => {
 
+  // join with username
+  socket.on("join", (name) => {
+    users[socket.id] = name || "anon";
+  });
+
+  // chat
   socket.on("chat", (msg) => {
     if (!msg) return;
 
-    // ALWAYS send STRING ONLY (no object)
-    io.emit("chat", msg);
+    io.emit("chat", {
+      user: users[socket.id] || "anon",
+      text: msg
+    });
+  });
+
+  // disconnect
+  socket.on("disconnect", () => {
+    delete users[socket.id];
   });
 
 });
