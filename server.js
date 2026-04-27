@@ -4,20 +4,26 @@ const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+
+// 🔥 IMPORTANT FIX FOR RENDER
+const io = new Server(server, {
+  cors: {
+    origin: "*"
+  }
+});
 
 app.use(express.static("public"));
 
 io.on("connection", (socket) => {
+  console.log("USER CONNECTED");
 
   socket.on("chat", (msg) => {
-    if (!msg) return;
+    console.log("RECEIVED:", msg);
 
     io.emit("chat", msg);
   });
-
 });
 
-server.listen(10000, () => {
-  console.log("RUNNING");
+server.listen(process.env.PORT || 10000, () => {
+  console.log("SERVER RUNNING");
 });
