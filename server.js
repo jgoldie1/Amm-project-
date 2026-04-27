@@ -90,3 +90,8 @@ io.on("connection", (socket) => {
     delete followers[socket.id];
   });
 });
+app.get("/reels", (req, res) => {
+  res.json([
+    { user: "Host", video: "sample.mp4" }
+  ]);
+});
