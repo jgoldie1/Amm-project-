@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Chat</title>
+  <title>Chat Stable</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
@@ -33,6 +33,7 @@ function send() {
 
   let text = input.value;
 
+  // 🔒 FORCE STRING
   if (typeof text !== "string") text = "";
   text = text.trim();
 
@@ -49,12 +50,14 @@ document.getElementById("msg").addEventListener("keydown", function(e) {
 
 // receive
 socket.on("chat", (msg) => {
+
+  // 🔒 FORCE STRING DISPLAY
   if (!msg) return;
 
   const div = document.getElementById("chat");
 
   const line = document.createElement("div");
-  line.innerText = String(msg); // 🔒 FORCE STRING
+  line.innerText = String(msg);
 
   div.appendChild(line);
   div.scrollTop = div.scrollHeight;
