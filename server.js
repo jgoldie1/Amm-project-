@@ -17,12 +17,13 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat", (msg) => {
-    if (!msg) return;
+    // 🔥 FORCE SAFE STRING
+    const cleanMsg = (msg || "").toString().trim();
+    if (!cleanMsg) return;
 
     const username = users[socket.id] || "anon";
 
-    // 🔥 FORCE STRING FORMAT ONLY
-    const finalMessage = username + ": " + msg;
+    const finalMessage = username + ": " + cleanMsg;
 
     io.emit("chat", finalMessage);
   });
