@@ -18,17 +18,13 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat", (msg) => {
-    if (!msg) return;
-
     const name = users[socket.id] || "anon";
 
-    // ✅ show user message
+    // USER MESSAGE
     io.emit("chat", name + ": " + msg);
 
-    // ✅ FORCE BOT EVERY TIME (NO CONDITIONS)
-    setTimeout(() => {
-      io.emit("chat", "🤖 bot: I see your message");
-    }, 300);
+    // 🚨 BOT (NO DELAY, NO CONDITION)
+    io.emit("chat", "🤖 bot: WORKING");
   });
 
 });
