@@ -11,16 +11,26 @@ const io = new Server(server, {
 
 app.use(express.static("public"));
 
+let users = {};
+
 io.on("connection", (socket) => {
-  console.log("USER CONNECTED");
+
+  socket.on("join", (name) => {
+    users[socket.id] = name || "anon";
+  });
 
   socket.on("chat", (msg) => {
-    console.log("MSG:", msg);
-
     if (!msg) return;
 
-    io.emit("chat", msg);
+    const name = users[socket.id] || "anon";
+
+    io.emit("chat", name + ": " + msg);
   });
+
+  socket.on("disconnect", () => {
+    delete users[socket.id];
+  });
+
 });
 
 server.listen(process.env.PORT || 10000, () => {
