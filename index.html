@@ -1,51 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Live Chat</title>
+  <title>TEST CHAT</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
-<body style="background:black;color:white;font-family:sans-serif;">
+<body style="background:black;color:white;font-size:20px;">
 
-<h2>💬 Live Chat</h2>
+<h1>TEST CHAT</h1>
 
-<div id="chat" style="height:250px;overflow:auto;border:1px solid white;padding:10px;"></div>
+<div id="chat" style="height:200px;border:2px solid white;"></div>
 
 <br>
 
-<input id="msg" placeholder="Type here..." style="width:70%;padding:10px;">
-<button onclick="send()">Send</button>
+<input id="msg" value="test message">
+<button onclick="send()">SEND</button>
 
 <script>
-const socket = io(window.location.origin);
+const socket = io();
 
-// username (ALWAYS defined)
-let username = prompt("Enter your name:");
-if (!username) username = "anon";
-
-// send
+// 🔥 TEST BUTTON CLICK FIRST
 function send() {
+  alert("BUTTON CLICKED"); // MUST SHOW
+
   const input = document.getElementById("msg");
 
-  const text = input.value ? input.value.trim() : "";
-  if (!text) return;
+  const text = input.value || "fallback";
 
-  // 🔥 BUILD STRING HERE (NO OBJECTS EVER)
-  const finalMessage = username + ": " + text;
-
-  socket.emit("chat", finalMessage);
-
-  input.value = "";
+  socket.emit("chat", text);
 }
 
-// receive (ONLY STRING)
+// 🔥 RECEIVE
 socket.on("chat", (msg) => {
-  if (!msg || typeof msg !== "string") return;
+  alert("RECEIVED: " + msg); // MUST SHOW
 
   const div = document.getElementById("chat");
-
   div.innerHTML += "<div>" + msg + "</div>";
-  div.scrollTop = div.scrollHeight;
 });
 </script>
 
