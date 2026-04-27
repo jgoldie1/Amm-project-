@@ -12,22 +12,21 @@ let users = {};
 
 io.on("connection", (socket) => {
 
-  // join with username
   socket.on("join", (name) => {
     users[socket.id] = name || "anon";
   });
 
-  // chat
   socket.on("chat", (msg) => {
     if (!msg) return;
 
-    io.emit("chat", {
-      user: users[socket.id] || "anon",
-      text: msg
-    });
+    const username = users[socket.id] || "anon";
+
+    // 🔥 FORCE STRING FORMAT ONLY
+    const finalMessage = username + ": " + msg;
+
+    io.emit("chat", finalMessage);
   });
 
-  // disconnect
   socket.on("disconnect", () => {
     delete users[socket.id];
   });
