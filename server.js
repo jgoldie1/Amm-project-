@@ -1,57 +1,28 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Live Chat</title>
-  <script src="/socket.io/socket.io.js"></script>
-</head>
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 
-<body style="background:black;color:white;font-family:sans-serif;">
+const app = express();
+const server = http.createServer(app);
 
-<h2>💬 Live Chat</h2>
-
-<div id="chat" style="height:250px;overflow:auto;border:1px solid white;padding:10px;"></div>
-
-<br>
-
-<input id="msg" placeholder="Type message..." style="width:70%;padding:10px;">
-<button onclick="send()">Send</button>
-
-<script>
-const socket = io(window.location.origin, {
-  transports: ["websocket"]
-});
-
-// SEND
-function send() {
-  const input = document.getElementById("msg");
-
-  const text = input.value ? input.value.trim() : "";
-  if (!text) return;
-
-  socket.emit("chat", text);
-  input.value = "";
-}
-
-// ENTER KEY
-document.getElementById("msg").addEventListener("keydown", function(e) {
-  if (e.key === "Enter") {
-    send();
+const io = new Server(server, {
+  cors: {
+    origin: "*"
   }
 });
 
-// RECEIVE
-socket.on("chat", (msg) => {
-  if (!msg) return;
+app.use(express.static("public"));
 
-  const div = document.getElementById("chat");
+io.on("connection", (socket) => {
 
-  const line = document.createElement("div");
-  line.innerText = msg;
+  socket.on("chat", (msg) => {
+    if (!msg) return;
 
-  div.appendChild(line);
-  div.scrollTop = div.scrollHeight;
+    io.emit("chat", msg);
+  });
+
 });
-</script>
 
-</body>
-</html>
+server.listen(process.env.PORT || 10000, () => {
+  console.log("SERVER RUNNING");
+});
