@@ -9,17 +9,13 @@ const io = new Server(server);
 app.use(express.static("public"));
 
 io.on("connection", (socket) => {
+  console.log("CONNECTED");
 
   socket.on("chat", (msg) => {
     console.log("MSG:", msg);
 
-    // ✅ ALWAYS send simple string
-    io.emit("chat", String(msg));
-
-    // ✅ ALWAYS send bot string
-    io.emit("chat", "BOT: WORKING");
+    io.emit("chat", msg);
   });
-
 });
 
 server.listen(process.env.PORT || 10000, () => {
