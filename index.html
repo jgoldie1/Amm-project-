@@ -7,93 +7,44 @@
 
 <body style="background:black;color:white;font-family:sans-serif;">
 
-<h2>🔥 Live Room</h2>
+<h2>🔥 Live Chat</h2>
 
-<!-- USERS -->
-<div id="users"></div>
+<div id="comments" style="height:200px;overflow:auto;border:1px solid white;padding:10px;"></div>
 
-<!-- VIDEO -->
-<video id="video" autoplay muted style="width:200px;"></video>
-
-<!-- CHAT -->
-<div id="comments"></div>
-
-<input id="msg" placeholder="Type message">
+<input id="msg" placeholder="Type message" style="width:70%;">
 <button onclick="sendMessage()">Send</button>
 
-<!-- GIFTS -->
-<button onclick="sendGift(100)">🎁 100</button>
-<button onclick="sendGift(500)">🎁 500</button>
-<button onclick="sendGift(1000)">🎁 1000</button>
-
-<div id="giftLayer"></div>
-
-<!-- JOIN BOX -->
-<button onclick="raiseHand()">✋ Join Box</button>
-<div id="hands"></div>
-
-<!-- ADMIN -->
-<button onclick="muteUser()">Mute</button>
-<button onclick="unmuteUser()">Unmute</button>
-
-<style>
-#giftLayer {
-  position: fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-}
-
-#comments {
-  position: fixed;
-  bottom:10px;
-  left:10px;
-}
-
-#hands button {
-  display:block;
-  margin:5px;
-}
-</style>
+<h3>🔥 Trending</h3>
+<div id="trending"></div>
 
 <script>
 const socket = io();
-let selectedUser = null;
 
-// JOIN
-let username = prompt("Enter your username:");
+// USERNAME AUTO
+let username = "User" + Math.floor(Math.random()*1000);
 socket.emit("join", username);
 
-// USER LIST
-socket.on("userList", (list) => {
-  const div = document.getElementById("users");
-  div.innerHTML = "";
-
-  Object.entries(list).forEach(([id, name]) => {
-    const userDiv = document.createElement("div");
-
-    userDiv.innerText = name;
-    userDiv.style.cursor = "pointer";
-
-    userDiv.onclick = () => {
-      selectedUser = id;
-      alert("Selected: " + name);
-    };
-
-    div.appendChild(userDiv);
-  });
-});
-
-// CHAT
+// SEND MESSAGE
 function sendMessage() {
   const input = document.getElementById("msg");
+
+  if (!input.value.trim()) return;
+
   socket.emit("chat", input.value);
+
+  // hashtags
+  const tags = input.value.match(/#\w+/g);
+  if (tags) {
+    socket.emit("hashtags", tags);
+  }
+
   input.value = "";
 }
 
+// RECEIVE CHAT
 socket.on("chat", (data) => {
+  if (!data || !data.text) return;
+
   const div = document.getElementById("comments");
 
   const msg = document.createElement("div");
@@ -101,88 +52,21 @@ socket.on("chat", (data) => {
 
   div.appendChild(msg);
 
-  setTimeout(() => msg.remove(), 5000);
-
-  // AI BOT
-  if (Math.random() < 0.2) {
-    setTimeout(() => {
-      socket.emit("chat", data.user + " that's fire 🔥");
-    }, 1200);
-  }
+  div.scrollTop = div.scrollHeight;
 });
 
-// GIFTS
-function sendGift(amount) {
-  socket.emit("gift", amount);
-}
-
-socket.on("gift", (data) => {
-  const el = document.createElement("div");
-
-  el.innerText = `🎁 ${data.user} sent ${data.amount}`;
-  el.style.position = "absolute";
-  el.style.left = Math.random() * 80 + "%";
-  el.style.bottom = "0";
-  el.style.color = "gold";
-
-  document.getElementById("giftLayer").appendChild(el);
-
-  let pos = 0;
-  const anim = setInterval(() => {
-    pos += 2;
-    el.style.bottom = pos + "px";
-
-    if (pos > window.innerHeight) {
-      clearInterval(anim);
-      el.remove();
-    }
-  }, 30);
-});
-
-// RAISE HAND
-function raiseHand() {
-  socket.emit("raiseHand");
-}
-
-socket.on("handList", (list) => {
-  const div = document.getElementById("hands");
+// TRENDING
+socket.on("trending", (tags) => {
+  const div = document.getElementById("trending");
   div.innerHTML = "";
 
-  list.forEach(user => {
-    const btn = document.createElement("button");
-
-    btn.innerText = "Approve " + user.name;
-
-    btn.onclick = () => {
-      socket.emit("approveJoin", user.id);
-    };
-
-    div.appendChild(btn);
-  });
-});
-
-socket.on("approved", () => {
-  alert("You joined the box 🔥");
-});
-
-// ADMIN
-function muteUser() {
-  if (!selectedUser) return alert("Select a user");
-  socket.emit("muteUser", selectedUser);
-}
-
-function unmuteUser() {
-  if (!selectedUser) return alert("Select a user");
-  socket.emit("unmuteUser", selectedUser);
-}
-
-socket.on("muted", () => alert("You are muted"));
-socket.on("unmuted", () => alert("You are unmuted"));
-
-// CAMERA
-navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-.then(stream => {
-  document.getElementById("video").srcObject = stream;
+  Object.entries(tags)
+    .sort((a,b)=>b[1]-a[1])
+    .forEach(([tag,count]) => {
+      const el = document.createElement("div");
+      el.innerText = tag + " (" + count + ")";
+      div.appendChild(el);
+    });
 });
 </script>
 
