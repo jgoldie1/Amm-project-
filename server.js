@@ -55,3 +55,66 @@ io.on("connection", (socket) => {
 
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => console.log("RUNNING ON PORT", PORT));
+<script>
+const socket = io();
+let selectedUser = null;
+
+// JOIN
+let username = prompt("Enter your username:");
+socket.emit("join", username);
+
+// RECEIVE USER LIST (FIXED)
+socket.on("userList", (list) => {
+  const div = document.getElementById("users");
+  div.innerHTML = "";
+
+  // list is an OBJECT → use Object.values
+  Object.values(list).forEach((user) => {
+    const userDiv = document.createElement("div");
+    userDiv.innerText = user.name;
+
+    userDiv.style.cursor = "pointer";
+    userDiv.style.padding = "5px";
+    userDiv.style.borderBottom = "1px solid #ccc";
+
+    userDiv.onclick = () => {
+      selectedUser = user.id;
+      alert("Selected: " + user.name);
+    };
+
+    div.appendChild(userDiv);
+  });
+});
+
+// CHAT (FIXED — shows username)
+function sendMessage() {
+  const input = document.getElementById("msg");
+  socket.emit("chat", input.value);
+  input.value = "";
+}
+
+socket.on("chat", (data) => {
+  const div = document.getElementById("chat");
+  div.innerHTML += `<div><b>${data.user}:</b> ${data.text}</div>`;
+});
+
+// LIKE (correct — no auto loop here)
+function sendLike() {
+  socket.emit("like");
+}
+
+socket.on("likes", (count) => {
+  document.getElementById("likeCount").innerText = count;
+});
+
+// ADMIN
+function muteUser() {
+  if (!selectedUser) return alert("Select a user");
+  socket.emit("muteUser", selectedUser);
+}
+
+function kickUser() {
+  if (!selectedUser) return alert("Select a user");
+  socket.emit("kickUser", selectedUser);
+}
+</script>
