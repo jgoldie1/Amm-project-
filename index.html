@@ -1,29 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Live Chat</title>
+  <title>Chat</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body style="background:black;color:white;font-family:sans-serif;">
 
-<h2>💬 Live Chat</h2>
+<h2>💬 Chat</h2>
 
 <div id="chat" style="height:250px;overflow:auto;border:1px solid white;padding:10px;"></div>
 
 <br>
 
-<input id="msg" placeholder="Type here..." style="width:70%;padding:10px;">
+<input id="msg" placeholder="Type message..." style="width:70%;padding:10px;">
 <button onclick="send()">Send</button>
 
 <script>
-const socket = io(window.location.origin);
-
-// username
-let username = prompt("Enter your name:");
-if (!username) username = "anon";
-
-socket.emit("join", username);
+const socket = io();
 
 // send
 function send() {
@@ -33,11 +27,12 @@ function send() {
   if (!text) return;
 
   socket.emit("chat", text);
+
   input.value = "";
 }
 
-// ENTER KEY SUPPORT 🔥
-document.getElementById("msg").addEventListener("keypress", function(e) {
+// ENTER KEY (SAFE)
+document.getElementById("msg").addEventListener("keydown", function(e) {
   if (e.key === "Enter") {
     send();
   }
