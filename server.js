@@ -9,16 +9,15 @@ const io = new Server(server);
 app.use(express.static("public"));
 
 io.on("connection", (socket) => {
+  console.log("USER CONNECTED");
 
   socket.on("chat", (msg) => {
-    // just relay EXACTLY what was sent
-    if (!msg || typeof msg !== "string") return;
+    console.log("MSG:", msg);
 
-    io.emit("chat", msg);
+    io.emit("chat", msg || "EMPTY MESSAGE");
   });
-
 });
 
 server.listen(10000, () => {
-  console.log("RUNNING");
+  console.log("SERVER RUNNING");
 });
