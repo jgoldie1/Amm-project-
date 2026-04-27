@@ -1,50 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>FINAL FIX</title>
-  <script src="/socket.io/socket.io.js"></script>
-</head>
-
-<body style="background:black;color:white;">
-
-<h2>Chat</h2>
-
-<div id="chat" style="height:250px;overflow:auto;border:1px solid white;"></div>
-
-<input id="msg">
-<button onclick="send()">Send</button>
-
-<script>
-const socket = io();
-
-// send
-function send() {
-  const input = document.getElementById("msg");
-  const text = input.value.trim();
-
-  if (!text) return;
-
-  socket.emit("chat", text);
-  input.value = "";
-}
-
-// receive
 socket.on("chat", (data) => {
 
   const div = document.getElementById("chat");
-
   const line = document.createElement("div");
 
-  // ✅ NO MORE UNDEFINED POSSIBLE
-  if (data && data.user && data.text) {
+  // ✅ HANDLE OBJECT PROPERLY
+  if (typeof data === "object" && data.user && data.text) {
     line.innerText = data.user + ": " + data.text;
   } else {
-    line.innerText = "ERROR FIXED";
+    line.innerText = String(data);
   }
 
   div.appendChild(line);
 });
-</script>
-
-</body>
-</html>
