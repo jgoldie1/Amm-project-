@@ -16,37 +16,29 @@ let users = {};
 io.on("connection", (socket) => {
 
   socket.on("join", (name) => {
-    users[socket.id] = (name && typeof name === "string") ? name : "anon";
+    users[socket.id] = name || "anon";
   });
 
   socket.on("chat", (msg) => {
-
-    // 🔒 FORCE STRING ALWAYS
-    let text = "";
-
-    try {
-      text = (typeof msg === "string") ? msg : JSON.stringify(msg);
-    } catch {
-      text = "";
-    }
-
-    text = text.trim();
-    if (!text) return;
+    if (!msg || typeof msg !== "string") return;
 
     const name = users[socket.id] || "anon";
 
-    // ✅ ALWAYS SEND CLEAN STRING
-    io.emit("chat", String(name) + ": " + String(text));
+    // ✅ SEND AS OBJECT (THIS FIXES EVERYTHING)
+    io.emit("chat", {
+      user: name,
+      text: msg
+    });
 
-    // ✅ BOT (SAFE)
+    // ✅ BOT
     setTimeout(() => {
-      const lower = text.toLowerCase();
-
-      if (lower === "hello") {
-        io.emit("chat", "🤖 bot: welcome to the live");
+      if (msg.toLowerCase() === "hello") {
+        io.emit("chat", {
+          user: "🤖 bot",
+          text: "welcome to the live"
+        });
       }
     }, 200);
-
   });
 
 });
