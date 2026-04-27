@@ -1,48 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Stable Live Chat</title>
+  <title>Chat Test</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
-<body style="background:black;color:white;font-family:sans-serif;">
+<body>
 
-<h2>💬 Live Chat (Stable)</h2>
+<h2>Chat Test</h2>
 
-<div id="chatBox" style="height:250px;overflow:auto;border:1px solid white;padding:10px;"></div>
+<div id="chatBox" style="height:200px;border:1px solid black;overflow:auto;"></div>
 
-<input id="msg" placeholder="Type message..." style="width:70%;">
+<input id="msg" placeholder="Type message">
 <button onclick="sendMessage()">Send</button>
 
 <script>
 const socket = io();
 
-// USERNAME
-let username = prompt("Enter your name") || "anon";
+socket.on("connect", () => {
+  console.log("CONNECTED TO SERVER");
+});
+
+// username
+let username = prompt("Enter name") || "anon";
 socket.emit("join", username);
 
-// SEND MESSAGE
+// send
 function sendMessage() {
   const input = document.getElementById("msg");
 
-  if (!input.value.trim()) return;
+  console.log("SENDING:", input.value);
 
   socket.emit("chat", input.value);
 
   input.value = "";
 }
 
-// RECEIVE MESSAGE
+// receive
 socket.on("chat", (data) => {
-  if (!data || !data.text) return;
+  console.log("RECEIVED:", data);
 
   const box = document.getElementById("chatBox");
 
-  const msg = document.createElement("div");
-  msg.innerText = data.user + ": " + data.text;
+  const div = document.createElement("div");
+  div.innerText = data.user + ": " + data.text;
 
-  box.appendChild(msg);
-  box.scrollTop = box.scrollHeight;
+  box.appendChild(div);
 });
 </script>
 
