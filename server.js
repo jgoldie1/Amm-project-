@@ -7,12 +7,17 @@ app.use(express.static("public"));
 
 let users = {};
 
-// SOCKET CONNECTION
+// SOCKET
 io.on("connection", (socket) => {
 
   socket.on("join", (username) => {
     users[socket.id] = username;
+
+    // send full list
     io.emit("userList", users);
+
+    // tell others to auto-connect
+    socket.broadcast.emit("new-user", socket.id);
   });
 
   socket.on("disconnect", () => {
@@ -21,7 +26,7 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("user-disconnected", socket.id);
   });
 
-  // SIGNALING FOR WEBRTC
+  // WEBRTC SIGNAL
   socket.on("signal", (data) => {
     io.to(data.to).emit("signal", {
       from: socket.id,
