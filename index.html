@@ -1,36 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Chat</title>
+  <title>Live Chat</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
-<body>
+<body style="background:black;color:white;font-family:sans-serif;">
 
-<h2>Chat</h2>
+<h2>💬 Live Chat</h2>
 
-<div id="chat"></div>
+<div id="chat" style="height:250px;overflow:auto;border:1px solid white;padding:10px;"></div>
 
-<input id="msg">
+<br>
+
+<input id="msg" placeholder="Type here..." style="width:70%;padding:10px;">
 <button onclick="send()">Send</button>
 
 <script>
 const socket = io(window.location.origin);
 
-// send
+// username prompt
+let username = prompt("Enter your name:") || "anon";
+socket.emit("join", username);
+
+// send message
 function send() {
   const input = document.getElementById("msg");
 
-  socket.emit("chat", input.value);
+  if (!input.value.trim()) return;
 
+  socket.emit("chat", input.value);
   input.value = "";
 }
 
-// receive
-socket.on("chat", (msg) => {
+// receive message (handles object correctly)
+socket.on("chat", (data) => {
   const div = document.getElementById("chat");
 
-  div.innerHTML += "<div>" + msg + "</div>";
+  const text = (typeof data === "string")
+    ? data
+    : data.user + ": " + data.text;
+
+  div.innerHTML += "<div>" + text + "</div>";
+  div.scrollTop = div.scrollHeight;
 });
 </script>
 
