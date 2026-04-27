@@ -18,13 +18,21 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat", (msg) => {
+    if (!msg) return;
+
     const name = users[socket.id] || "anon";
 
-    // USER MESSAGE
-    io.emit("chat", name + ": " + msg);
+    // ✅ ALWAYS SEND OBJECT
+    io.emit("chat", {
+      user: name,
+      text: msg
+    });
 
-    // 🚨 BOT (NO DELAY, NO CONDITION)
-    io.emit("chat", "🤖 bot: WORKING");
+    // ✅ BOT (MATCH SAME FORMAT)
+    io.emit("chat", {
+      user: "🤖 bot",
+      text: "WORKING"
+    });
   });
 
 });
