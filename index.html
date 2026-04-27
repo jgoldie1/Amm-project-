@@ -3,94 +3,119 @@
 <head>
   <title>Live Room</title>
   <style>
-    body { background:black; color:white; text-align:center; font-family:sans-serif; }
-    #chat { height:200px; overflow:auto; border:1px solid white; margin:10px; padding:5px; }
-    button { padding:10px; margin:5px; }
+    body { background: black; color: white; text-align: center; font-family: Arial; }
+    #chat { height: 200px; overflow-y: auto; border: 1px solid white; margin: 10px; padding: 5px; }
+    button { margin: 5px; padding: 8px; }
+    input { padding: 8px; margin: 5px; }
   </style>
 </head>
 <body>
 
-<h2>🔥 Live Streaming Room</h2>
+<h2>🔥 Live Room</h2>
 
 <input id="name" placeholder="Enter username">
 <button onclick="join()">Join</button>
 
-<br><br>
-
-<video id="video" autoplay width="300"></video>
-
-<br>
-
-<button onclick="sendHeart()">❤️ Tap</button>
-<div>Hearts: <span id="hearts">0</span></div>
-
-<br>
-
-<input id="msg" placeholder="Say something">
-<button onclick="sendMsg()">Send</button>
+<h3>❤️ Likes: <span id="likes">0</span></h3>
+<button onclick="like()">Tap ❤️</button>
 
 <div id="chat"></div>
+
+<input id="msg" placeholder="Say something">
+<button onclick="send()">Send</button>
+
+<br><br>
+
+<!-- ADMIN CONTROLS -->
+<button onclick="muteUser()">Mute (3m)</button>
+<button onclick="kickUser()">Kick</button>
+<button onclick="reportUser()">Report</button>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const socket = io();
 
+let isMuted = false;
 let username = "";
 
+// JOIN
 function join() {
-  username = document.getElementById("name").value || "guest";
-  socket.emit("join", username);
+  username = document.getElementById("name").value;
+  if (!username) return alert("Enter a name");
 
-  navigator.mediaDevices.getUserMedia({ video: true })
-    .then(stream => {
-      document.getElementById("video").srcObject = stream;
-    });
+  socket.emit("join", username);
 }
 
-// comments
-function sendMsg() {
+// SEND CHAT
+function send() {
+  if (isMuted) return alert("You are muted");
+
   const msg = document.getElementById("msg").value;
-  socket.emit("comment", msg);
+  if (!msg) return;
+
+  socket.emit("chat", msg);
   document.getElementById("msg").value = "";
 }
 
-socket.on("comment", (msg) => {
-  const div = document.createElement("div");
-  div.innerText = msg;
-  document.getElementById("chat").appendChild(div);
-});
-
-// hearts (FIXED so no runaway loop)
-socket.on("heart", (count) => {
-  document.getElementById("hearts").innerText = count;
-});
-
-function sendHeart() {
-  socket.emit("heart");
+// LIKE
+function like() {
+  socket.emit("like");
 }
 
-// 🔥 BOT SYSTEM (Gen Z style + usernames)
-const botMessages = [
-  "yo this live lit 🔥",
-  "who else watching rn 👀",
-  "drop hearts ❤️",
-  "W stream fr",
-  "spam chat let's go 💯"
-];
+// ADMIN ACTIONS
+function muteUser() {
+  const id = prompt("User ID to mute:");
+  if (!id) return;
+  socket.emit("muteUser", { id, time: 3 });
+}
 
-setInterval(() => {
-  const msg = botMessages[Math.floor(Math.random() * botMessages.length)];
-  const fakeUser = "user" + Math.floor(Math.random() * 999);
+function kickUser() {
+  const id = prompt("User ID to kick:");
+  if (!id) return;
+  socket.emit("kickUser", id);
+}
 
-  const div = document.createElement("div");
-  div.innerText = `${fakeUser}: ${msg}`;
-  document.getElementById("chat").appendChild(div);
-}, 5000);
+function reportUser() {
+  const id = prompt("User ID to report:");
+  const reason = prompt("Reason:");
+  if (!id || !reason) return;
+  socket.emit("reportUser", { id, reason });
+}
 
+// RECEIVE CHAT
+socket.on("chat", (msg) => {
+  const div = document.getElementById("chat");
+  div.innerHTML += `<p>${msg}</p>`;
+  div.scrollTop = div.scrollHeight;
+});
+
+// RECEIVE LIKES
+socket.on("likes", (count) => {
+  document.getElementById("likes").innerText = count;
+});
+
+// MUTED
+socket.on("muted", (time) => {
+  isMuted = true;
+  alert("Muted for " + time + " minutes");
+});
+
+// UNMUTED
+socket.on("unmuted", () => {
+  isMuted = false;
+  alert("You are unmuted");
+});
+
+// ADMIN
+socket.on("admin", () => {
+  alert("You are admin 🔥");
+});
+
+// REPORT VIEW (admins)
+socket.on("report", (data) => {
+  console.log("Reports:", data);
+});
 </script>
 
 </body>
 </html>
-<button onclick="muteUser()">Mute 3m</button>
-<button onclick="kickUser()">Kick</button>
-<button onclick="reportUser()">Report</button>
