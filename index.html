@@ -27,14 +27,18 @@ socket.emit("join", username);
 function send() {
   const input = document.getElementById("msg");
 
-  if (!input.value.trim()) return;
+  const value = (input.value || "").trim();
+  if (!value) return;
 
-  socket.emit("chat", input.value);
+  socket.emit("chat", value);
+
   input.value = "";
 }
 
-// receive (🔥 ONLY STRING NOW)
+// receive
 socket.on("chat", (msg) => {
+  if (!msg) return; // 🔥 stops undefined
+
   const div = document.getElementById("chat");
 
   div.innerHTML += "<div>" + msg + "</div>";
