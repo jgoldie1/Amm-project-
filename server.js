@@ -1,42 +1,43 @@
-const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RESET CHAT</title>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
 
-const app = express();
-const server = http.createServer(app);
+<body style="background:black;color:white;font-size:20px;">
 
-const io = new Server(server, {
-  cors: { origin: "*" }
+<h1>RESET CHAT</h1>
+
+<div id="chat" style="height:200px;border:2px solid white;overflow:auto;"></div>
+
+<br>
+
+<input id="msg" value="hello">
+<button onclick="send()">SEND</button>
+
+<script>
+const socket = io(window.location.origin, {
+  transports: ["websocket"]
 });
 
-app.use(express.static("public"));
+function send() {
+  const input = document.getElementById("msg");
 
-let users = {};
+  const text = input.value;
 
-io.on("connection", (socket) => {
+  alert("SENDING: " + text); // MUST SHOW
 
-  socket.on("join", (name) => {
-    users[socket.id] = name || "anon";
-  });
+  socket.emit("chat", text);
+}
 
-  socket.on("chat", (msg) => {
-    console.log("MSG:", msg); // DEBUG
+socket.on("chat", (msg) => {
+  alert("RECEIVED: " + msg); // MUST SHOW
 
-    if (!msg) return;
-
-    const name = users[socket.id] || "anon";
-
-    // ✅ ALWAYS SEND USER MESSAGE
-    io.emit("chat", name + ": " + msg);
-
-    // ✅ SIMPLE BOT (NO CONDITIONS = CAN'T FAIL)
-    setTimeout(() => {
-      io.emit("chat", "🤖 bot: message received");
-    }, 300);
-  });
-
+  const div = document.getElementById("chat");
+  div.innerHTML += "<div>" + msg + "</div>";
 });
+</script>
 
-server.listen(process.env.PORT || 10000, () => {
-  console.log("SERVER RUNNING");
-});
+</body>
+</html>
