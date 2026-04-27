@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>FINAL FIX</title>
+  <title>FINAL LOCK</title>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </head>
 
@@ -15,10 +15,11 @@
 <button onclick="send()">Send</button>
 
 <script>
-const socket = io(); // connect
+const socket = io();
 
+// CONFIRM CONNECTION
 socket.on("connect", () => {
-  alert("CONNECTED"); // 🔥 MUST SHOW
+  alert("CONNECTED");
 });
 
 // SEND
@@ -34,9 +35,10 @@ function send() {
 
 // RECEIVE
 socket.on("chat", (msg) => {
-  alert("RECEIVED: " + msg); // 🔥 MUST SHOW
+  alert("RECEIVED: " + msg);
 
   const div = document.getElementById("chat");
+
   const line = document.createElement("div");
   line.innerText = msg;
 
