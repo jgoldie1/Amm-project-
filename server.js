@@ -1,4 +1,4 @@
-const express = require("express");
+  const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 
@@ -9,22 +9,20 @@ const io = new Server(server);
 app.use(express.static("public"));
 
 let users = {};
-let hashtags = {};
 
-// CONNECTION
 io.on("connection", (socket) => {
 
-  console.log("User connected:", socket.id);
+  console.log("Connected:", socket.id);
 
   // JOIN
   socket.on("join", (username) => {
-    users[socket.id] = username;
+    users[socket.id] = username || "anon";
     io.emit("userList", users);
   });
 
-  // CHAT (FIXED — INSIDE CONNECTION)
+  // CHAT (ONLY THIS — CLEAN)
   socket.on("chat", (msg) => {
-    if (!msg) return;
+    if (!msg || msg.trim() === "") return;
 
     const data = {
       user: users[socket.id] || "anon",
@@ -32,34 +30,13 @@ io.on("connection", (socket) => {
     };
 
     io.emit("chat", data);
-
-    // HASHTAGS
-    const tags = msg.match(/#\w+/g);
-    if (tags) {
-      tags.forEach(tag => {
-        if (!hashtags[tag]) hashtags[tag] = 0;
-        hashtags[tag]++;
-      });
-
-      io.emit("trending", hashtags);
-    }
-
-    // BOT RESPONSE
-    if (Math.random() < 0.5) {
-      setTimeout(() => {
-        io.emit("chat", {
-          user: "AI_Bot",
-          text: `${data.user} 🔥 that's fire`
-        });
-      }, 1200);
-    }
   });
 
   // DISCONNECT
   socket.on("disconnect", () => {
     delete users[socket.id];
     io.emit("userList", users);
-    console.log("User disconnected:", socket.id);
+    console.log("Disconnected:", socket.id);
   });
 
 });
