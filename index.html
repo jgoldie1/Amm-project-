@@ -1,27 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Live App</title>
+  <title>Stable Live Chat</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body style="background:black;color:white;font-family:sans-serif;">
 
-<h2>🔥 Live Chat</h2>
+<h2>💬 Live Chat (Stable)</h2>
 
-<div id="comments" style="height:200px;overflow:auto;border:1px solid white;padding:10px;"></div>
+<div id="chatBox" style="height:250px;overflow:auto;border:1px solid white;padding:10px;"></div>
 
-<input id="msg" placeholder="Type message" style="width:70%;">
+<input id="msg" placeholder="Type message..." style="width:70%;">
 <button onclick="sendMessage()">Send</button>
-
-<h3>🔥 Trending</h3>
-<div id="trending"></div>
 
 <script>
 const socket = io();
 
-// USERNAME AUTO
-let username = "User" + Math.floor(Math.random()*1000);
+// USERNAME
+let username = prompt("Enter your name") || "anon";
 socket.emit("join", username);
 
 // SEND MESSAGE
@@ -32,41 +29,20 @@ function sendMessage() {
 
   socket.emit("chat", input.value);
 
-  // hashtags
-  const tags = input.value.match(/#\w+/g);
-  if (tags) {
-    socket.emit("hashtags", tags);
-  }
-
   input.value = "";
 }
 
-// RECEIVE CHAT
+// RECEIVE MESSAGE
 socket.on("chat", (data) => {
   if (!data || !data.text) return;
 
-  const div = document.getElementById("comments");
+  const box = document.getElementById("chatBox");
 
   const msg = document.createElement("div");
   msg.innerText = data.user + ": " + data.text;
 
-  div.appendChild(msg);
-
-  div.scrollTop = div.scrollHeight;
-});
-
-// TRENDING
-socket.on("trending", (tags) => {
-  const div = document.getElementById("trending");
-  div.innerHTML = "";
-
-  Object.entries(tags)
-    .sort((a,b)=>b[1]-a[1])
-    .forEach(([tag,count]) => {
-      const el = document.createElement("div");
-      el.innerText = tag + " (" + count + ")";
-      div.appendChild(el);
-    });
+  box.appendChild(msg);
+  box.scrollTop = box.scrollHeight;
 });
 </script>
 
