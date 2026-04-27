@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>FINAL CHAT</title>
+  <title>FINAL STABLE</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
@@ -20,7 +20,7 @@ const socket = io();
 // SEND
 function send() {
   const input = document.getElementById("msg");
-  const text = input.value.trim();
+  const text = input.value;
 
   if (!text) return;
 
@@ -28,18 +28,12 @@ function send() {
   input.value = "";
 }
 
-// RECEIVE (🔥 FIXED)
-socket.on("chat", (data) => {
-  console.log("RECEIVED:", data); // DEBUG
-
+// RECEIVE (STRING ONLY — NO OBJECTS)
+socket.on("chat", (msg) => {
   const div = document.getElementById("chat");
-  const line = document.createElement("div");
 
-  if (data && data.user && data.text) {
-    line.innerText = data.user + ": " + data.text;
-  } else {
-    line.innerText = "BAD DATA";
-  }
+  const line = document.createElement("div");
+  line.innerText = msg;
 
   div.appendChild(line);
 });
