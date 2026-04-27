@@ -9,12 +9,16 @@ const io = new Server(server);
 app.use(express.static("public"));
 
 io.on("connection", (socket) => {
-  console.log("CONNECTED");
+  console.log("USER CONNECTED");
 
   socket.on("chat", (msg) => {
     console.log("MSG:", msg);
 
-    io.emit("chat", msg);
+    // ✅ ALWAYS send STRING ONLY
+    io.emit("chat", String(msg));
+
+    // ✅ BOT
+    io.emit("chat", "BOT: WORKING");
   });
 });
 
