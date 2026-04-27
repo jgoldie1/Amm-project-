@@ -21,9 +21,9 @@ const socket = io(window.location.origin, {
   transports: ["websocket"]
 });
 
-// ✅ SAFE USERNAME
+// username
 let username = prompt("Enter your name:");
-if (!username) username = "anon";
+if (!username || username === "undefined") username = "anon";
 
 socket.emit("join", username);
 
@@ -31,7 +31,11 @@ socket.emit("join", username);
 function send() {
   const input = document.getElementById("msg");
 
-  const text = input.value ? input.value.trim() : "";
+  let text = input.value;
+
+  if (typeof text !== "string") text = "";
+  text = text.trim();
+
   if (!text) return;
 
   socket.emit("chat", text);
@@ -50,7 +54,7 @@ socket.on("chat", (msg) => {
   const div = document.getElementById("chat");
 
   const line = document.createElement("div");
-  line.innerText = msg;
+  line.innerText = String(msg); // 🔒 FORCE STRING
 
   div.appendChild(line);
   div.scrollTop = div.scrollHeight;
