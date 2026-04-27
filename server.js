@@ -6,7 +6,6 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// serve frontend
 app.use(express.static("public"));
 
 let users = {};
@@ -16,23 +15,19 @@ io.on("connection", (socket) => {
 
   socket.on("join", (username) => {
     users[socket.id] = username || "anon";
-    console.log("JOIN:", username);
   });
 
   socket.on("chat", (msg) => {
-    console.log("MESSAGE:", msg);
-
     if (!msg) return;
 
     io.emit("chat", {
       user: users[socket.id] || "anon",
-      text: msg
+      text: String(msg) // 🔥 FIXED HERE
     });
   });
 
   socket.on("disconnect", () => {
     delete users[socket.id];
-    console.log("DISCONNECTED:", socket.id);
   });
 });
 
