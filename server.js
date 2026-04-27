@@ -20,38 +20,19 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat", (msg) => {
-    if (!msg || typeof msg !== "string") return;
+    console.log("MSG:", msg); // DEBUG
+
+    if (!msg) return;
 
     const name = users[socket.id] || "anon";
-    const cleanMsg = msg.trim();
 
-    // ✅ ALWAYS send user message first
-    io.emit("chat", name + ": " + cleanMsg);
+    // ✅ ALWAYS SEND USER MESSAGE
+    io.emit("chat", name + ": " + msg);
 
-    // ✅ BOT (ISOLATED — cannot break chat)
-    try {
-      const text = cleanMsg.toLowerCase();
-
-      if (text === "hello") {
-        setTimeout(() => {
-          io.emit("chat", "🤖 bot: welcome to the live");
-        }, 200);
-      }
-
-      if (text.startsWith("#")) {
-        setTimeout(() => {
-          io.emit("chat", "🤖 bot: trending tag detected");
-        }, 200);
-      }
-
-    } catch (e) {
-      console.log("BOT ERROR:", e);
-    }
-
-  });
-
-  socket.on("disconnect", () => {
-    delete users[socket.id];
+    // ✅ SIMPLE BOT (NO CONDITIONS = CAN'T FAIL)
+    setTimeout(() => {
+      io.emit("chat", "🤖 bot: message received");
+    }, 300);
   });
 
 });
