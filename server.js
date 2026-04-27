@@ -11,20 +11,13 @@ app.use(express.static("public"));
 io.on("connection", (socket) => {
 
   socket.on("chat", (msg) => {
+    console.log("MSG:", msg);
 
-    if (!msg || typeof msg !== "string") return;
+    // ✅ ALWAYS send simple string
+    io.emit("chat", String(msg));
 
-    // ✅ ALWAYS send SAME FORMAT
-    io.emit("chat", {
-      user: "user",
-      text: msg
-    });
-
-    // ✅ BOT ALWAYS
-    io.emit("chat", {
-      user: "🤖 bot",
-      text: "WORKING"
-    });
+    // ✅ ALWAYS send bot string
+    io.emit("chat", "BOT: WORKING");
   });
 
 });
