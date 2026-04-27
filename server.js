@@ -16,18 +16,18 @@ let users = {};
 io.on("connection", (socket) => {
 
   socket.on("join", (name) => {
-    users[socket.id] = (typeof name === "string" && name.trim()) ? name : "anon";
+    users[socket.id] = (name && typeof name === "string") ? name : "anon";
   });
 
   socket.on("chat", (msg) => {
 
-    // 🔒 FORCE STRING (THIS FIXES UNDEFINED FOREVER)
+    // 🔒 FORCE STRING ALWAYS
     let text = "";
 
-    if (typeof msg === "string") {
-      text = msg;
-    } else {
-      text = JSON.stringify(msg);
+    try {
+      text = (typeof msg === "string") ? msg : JSON.stringify(msg);
+    } catch {
+      text = "";
     }
 
     text = text.trim();
@@ -35,26 +35,18 @@ io.on("connection", (socket) => {
 
     const name = users[socket.id] || "anon";
 
-    // ✅ user message
-    io.emit("chat", name + ": " + text);
+    // ✅ ALWAYS SEND CLEAN STRING
+    io.emit("chat", String(name) + ": " + String(text));
 
-    // ✅ SAFE BOT
+    // ✅ BOT (SAFE)
     setTimeout(() => {
       const lower = text.toLowerCase();
 
       if (lower === "hello") {
         io.emit("chat", "🤖 bot: welcome to the live");
       }
-
-      if (lower.startsWith("#")) {
-        io.emit("chat", "🤖 bot: trending tag detected");
-      }
-
     }, 200);
-  });
 
-  socket.on("disconnect", () => {
-    delete users[socket.id];
   });
 
 });
