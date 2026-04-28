@@ -6,7 +6,9 @@
 </head>
 <body style="background:#111;color:#fff;text-align:center;">
 
-<h2>LIVE TEST</h2>
+<h2>LIVE</h2>
+
+<video id="video" autoplay muted playsinline style="width:300px;height:200px;background:#000;"></video>
 
 <div>
 ❤️ <span id="hearts">0</span>
@@ -14,6 +16,7 @@
 💰 <span id="coins">0</span>
 </div>
 
+<button onclick="tap()">🔥 TAP</button>
 <button onclick="sendHeart()">❤️</button>
 <button onclick="sendGift(1)">🎁1</button>
 
@@ -22,50 +25,58 @@
 <input id="msg">
 <button onclick="send()">Send</button>
 
+<audio id="sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
+
 <script src="/socket.io/socket.io.js"></script>
 <script>
-const socket = io(); // NO options (important test)
+const socket = io();
 
-console.log("START");
+// CAMERA
+navigator.mediaDevices.getUserMedia({ video:true })
+.then(stream => {
+  document.getElementById("video").srcObject = stream;
+})
+.catch(()=>{});
 
-// CONNECTION TEST
-socket.on("connect", () => {
-  console.log("✅ CONNECTED TO SERVER");
-});
+// CHAT SEND
+function send(){
+  const i = document.getElementById("msg");
+  if(!i.value) return;
+  socket.emit("chat", i.value);
+  i.value="";
+}
+
+// TAP = HEART
+function tap(){
+  socket.emit("heart");
+}
+
+// HEART
+function sendHeart(){
+  socket.emit("heart");
+}
+
+// GIFT
+function sendGift(n){
+  socket.emit("gift", n);
+}
 
 // RECEIVE CHAT
 socket.on("chat", msg => {
-  console.log("CHAT:", msg);
-
   const div = document.getElementById("chat");
   const line = document.createElement("div");
   line.innerText = msg;
   div.appendChild(line);
 });
 
-// UPDATE COUNTS
+// UPDATE
 socket.on("update", data => {
-  console.log("UPDATE:", data);
+  document.getElementById("hearts").innerText = data.hearts || 0;
+  document.getElementById("gifts").innerText = data.gifts || 0;
+  document.getElementById("coins").innerText = data.coins || 0;
 
-  document.getElementById("hearts").innerText = data.hearts;
-  document.getElementById("gifts").innerText = data.gifts;
-  document.getElementById("coins").innerText = data.coins;
+  document.getElementById("sound").play().catch(()=>{});
 });
-
-// SEND
-function send(){
-  const i = document.getElementById("msg");
-  socket.emit("chat", i.value);
-  i.value="";
-}
-
-function sendHeart(){
-  socket.emit("heart");
-}
-
-function sendGift(n){
-  socket.emit("gift", n);
-}
 </script>
 
 </body>
