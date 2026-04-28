@@ -41,12 +41,12 @@ body { background:#111; color:#fff; text-align:center; font-family:Arial; }
 <script>
 const socket = io();
 
-// CAMERA FIX
+// CAMERA
 navigator.mediaDevices.getUserMedia({ video:true })
 .then(s => document.getElementById("video").srcObject = s)
-.catch(()=>console.log("no cam"));
+.catch(()=>console.log("camera blocked"));
 
-// SEND
+// SEND CHAT
 function send(){
   const input = document.getElementById("msg");
   if(!input.value) return;
@@ -59,19 +59,19 @@ function sendGift(n){ socket.emit("gift", n); }
 
 // INIT
 socket.on("init", d => {
-  hearts.innerText = d.hearts;
-  gifts.innerText = d.gifts;
-  coins.innerText = d.coins;
+  document.getElementById("hearts").innerText = d.hearts;
+  document.getElementById("gifts").innerText = d.gifts;
+  document.getElementById("coins").innerText = d.coins;
 });
 
-// UPDATE (FIXED)
+// UPDATE
 socket.on("update", d => {
-  hearts.innerText = d.hearts;
-  gifts.innerText = d.gifts;
-  coins.innerText = d.coins;
+  document.getElementById("hearts").innerText = d.hearts;
+  document.getElementById("gifts").innerText = d.gifts;
+  document.getElementById("coins").innerText = d.coins;
 });
 
-// CHAT (FIXED NO UNDEFINED)
+// CHAT (FIXED)
 socket.on("chat", d => {
   if (!d || !d.text) return;
 
@@ -81,7 +81,7 @@ socket.on("chat", d => {
   document.getElementById("chat").appendChild(line);
 });
 
-// FX (SCALING WORKS)
+// FX
 socket.on("fx", d => {
   for(let i=0;i<d.power;i++){
     const el=document.createElement("div");
