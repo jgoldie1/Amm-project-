@@ -3,38 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <title>LIVE</title>
-
 <style>
-body { background:#111; color:#fff; text-align:center; }
-
-#video {
-  width:300px;
-  height:200px;
-  background:#000;
-  pointer-events:none; /* 🔥 FIX: camera no longer blocks clicks */
-}
-
-#chat {
-  height:150px;
-  overflow:auto;
-  border:1px solid #444;
-  margin:10px;
-}
-
-button { padding:10px; margin:5px; }
-
-@keyframes up {
-  from { transform:translateY(0); opacity:1; }
-  to { transform:translateY(-200px); opacity:0; }
-}
+body { background:#111; color:#fff; text-align:center; font-family:Arial; }
+#video { width:300px; height:200px; background:#000; }
+#chat { height:150px; overflow:auto; border:1px solid #444; margin:10px; }
+button { margin:5px; padding:10px; }
 </style>
 </head>
-
 <body>
 
 <h2>LIVE</h2>
 
-<video id="video" autoplay muted playsinline></video>
+<video id="video" autoplay muted></video>
 
 <div>
 ❤️ <span id="hearts">0</span>
@@ -42,9 +22,9 @@ button { padding:10px; margin:5px; }
 💰 <span id="coins">0</span>
 </div>
 
-<button onclick="tap()">❤️ TAP</button>
-<button onclick="gift(1)">🎁1</button>
-<button onclick="gift(10)">🎁10</button>
+<button onclick="sendHeart()">❤️</button>
+<button onclick="sendGift(1)">🎁1</button>
+<button onclick="sendGift(10)">🎁10</button>
 
 <div id="chat"></div>
 
@@ -57,79 +37,47 @@ const socket = io();
 
 // CAMERA
 navigator.mediaDevices.getUserMedia({ video:true })
-.then(s => {
-  video.srcObject = s;
-  video.play();
-}).catch(()=>{});
+.then(stream => {
+  document.getElementById("video").srcObject = stream;
+})
+.catch(() => console.log("camera blocked"));
 
-// FIRST CLICK ENABLES SOUND
-let soundReady = false;
-document.body.addEventListener("click", () => {
-  soundReady = true;
-});
-
-// SEND CHAT
+// SEND
 function send(){
-  if(!msg.value) return;
-  socket.emit("chat", msg.value);
-  msg.value="";
+  const i = document.getElementById("msg");
+  if(!i.value) return;
+  socket.emit("chat", i.value);
+  i.value="";
 }
 
-// BUTTONS
-function tap(){ socket.emit("heart"); }
-function gift(n){ socket.emit("gift", n); }
+// HEART
+function sendHeart(){
+  socket.emit("heart");
+}
 
-// INIT
-socket.on("init", d=>{
-  hearts.innerText = d.hearts||0;
-  gifts.innerText = d.gifts||0;
-  coins.innerText = d.coins||0;
+// GIFT
+function sendGift(n){
+  socket.emit("gift", n);
+}
+
+// RECEIVE CHAT
+socket.on("chat", msg => {
+  const div = document.getElementById("chat");
+  const line = document.createElement("div");
+  line.innerText = msg;
+  div.appendChild(line);
 });
 
 // UPDATE
-socket.on("update", d=>{
-  hearts.innerText = d.hearts||0;
-  gifts.innerText = d.gifts||0;
-  coins.innerText = d.coins||0;
+socket.on("update", data => {
+  document.getElementById("hearts").innerText = data.hearts;
+  document.getElementById("gifts").innerText = data.gifts;
+  document.getElementById("coins").innerText = data.coins;
 });
 
-// CHAT FIX (NO UNDEFINED EVER)
-socket.on("chat", d=>{
-  if(!d || !d.text) return;
-
-  const line = document.createElement("div");
-  line.innerText = d.text;
-  chat.appendChild(line);
-  chat.scrollTop = chat.scrollHeight;
-});
-
-// SOUND
-function play(type){
-  if(!soundReady) return;
-
-  let url = type==="gift"
-    ? "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
-    : "https://actions.google.com/sounds/v1/cartoon/pop.ogg";
-
-  new Audio(url).play().catch(()=>{});
-}
-
-// FX
-socket.on("fx", d=>{
-  play(d.type);
-
-  let power = d.type==="gift" ? 15 : 5;
-
-  for(let i=0;i<power;i++){
-    const el = document.createElement("div");
-    el.innerText = d.type==="gift" ? "💰💥" : "❤️";
-    el.style.position="fixed";
-    el.style.bottom="0";
-    el.style.left=Math.random()*100+"%";
-    el.style.animation="up 1s linear";
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(),1000);
-  }
+// EXPLOSION TEST
+socket.on("boom", n => {
+  console.log("boom:", n);
 });
 </script>
 
