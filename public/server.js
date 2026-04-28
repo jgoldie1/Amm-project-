@@ -2,8 +2,12 @@ const express = require("express");
 const app = express();
 const http = require("http").createServer(app);
 const { Server } = require("socket.io");
+
 const io = new Server(http, {
-  cors: { origin: "*" }
+  path: "/socket.io/",
+  cors: {
+    origin: "*",
+  }
 });
 
 app.use(express.static("public"));
@@ -11,7 +15,7 @@ app.use(express.static("public"));
 let count = 0;
 
 io.on("connection", (socket) => {
-  console.log("✅ CONNECTED");
+  console.log("✅ CONNECTED:", socket.id);
 
   socket.emit("update", { count });
 
@@ -23,4 +27,4 @@ io.on("connection", (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => console.log("RUNNING", PORT));
+http.listen(PORT, () => console.log("🚀 RUNNING", PORT));
