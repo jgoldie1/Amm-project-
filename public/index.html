@@ -5,6 +5,7 @@
 <title>LIVE</title>
 <style>
 body { background:#111; color:#fff; text-align:center; font-family:Arial; }
+#video { width:300px; height:200px; background:#000; }
 #chat { height:150px; overflow:auto; border:1px solid #444; margin:10px; }
 button { margin:5px; padding:10px; }
 </style>
@@ -12,6 +13,8 @@ button { margin:5px; padding:10px; }
 <body>
 
 <h2>LIVE</h2>
+
+<video id="video" autoplay muted playsinline></video>
 
 <div>
 ❤️ <span id="hearts">0</span>
@@ -30,18 +33,20 @@ button { margin:5px; padding:10px; }
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-let socket;
+const socket = io();
 
-try {
-  socket = io();
-} catch (e) {
-  console.log("socket failed", e);
-}
+// CAMERA (FIXED)
+navigator.mediaDevices.getUserMedia({ video:true })
+.then(stream => {
+  const vid = document.getElementById("video");
+  if (vid) vid.srcObject = stream;
+})
+.catch(err => console.log("camera blocked", err));
 
 // SEND CHAT
 function send(){
   const i = document.getElementById("msg");
-  if(!i || !i.value) return;
+  if(!i.value) return;
   socket.emit("chat", i.value);
   i.value="";
 }
@@ -66,7 +71,7 @@ socket.on("chat", msg => {
   div.appendChild(line);
 });
 
-// UPDATE COUNTS (NO MORE UNDEFINED CRASH)
+// UPDATE (FIXED)
 socket.on("update", data => {
   if(!data) return;
 
@@ -75,9 +80,9 @@ socket.on("update", data => {
   document.getElementById("coins").innerText = data.coins ?? 0;
 });
 
-// DEBUG
+// DEBUG (CHECK CONNECTION)
 socket.on("connect", () => {
-  console.log("connected");
+  console.log("CONNECTED");
 });
 </script>
 
