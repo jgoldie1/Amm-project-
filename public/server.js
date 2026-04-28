@@ -11,17 +11,20 @@ let gifts = 0;
 let coins = 0;
 
 io.on("connection", (socket) => {
-  console.log("CONNECTED");
+  console.log("USER CONNECTED");
 
+  // send current state
   socket.emit("update", { hearts, gifts, coins });
 
+  // CHAT
   socket.on("chat", (msg) => {
+    console.log("CHAT:", msg);
+
     if (!msg) return;
 
     io.emit("chat", msg);
 
     let reply = null;
-
     if (msg.toLowerCase().includes("/genz")) reply = "no cap 🔥";
     if (msg.toLowerCase().includes("/genx")) reply = "old school 😎";
 
@@ -30,18 +33,24 @@ io.on("connection", (socket) => {
     }
   });
 
+  // HEART / TAP
   socket.on("heart", () => {
+    console.log("HEART CLICK");
     hearts++;
     io.emit("update", { hearts, gifts, coins });
   });
 
+  // GIFT
   socket.on("gift", (n) => {
+    console.log("GIFT:", n);
+
     n = Number(n) || 0;
     gifts += n;
     coins += n * 10;
+
     io.emit("update", { hearts, gifts, coins });
   });
 });
 
 const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => console.log("RUNNING", PORT));
+http.listen(PORT, () => console.log("RUNNING ON", PORT));
