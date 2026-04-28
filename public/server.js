@@ -21,9 +21,9 @@ io.on("connection", (socket) => {
 
     io.emit("chat", { text: msg });
 
-    let reply = "👀 bot here";
+    let reply = "👀 bot";
     if (msg.toLowerCase().includes("/genz")) reply = "no cap 🔥";
-    if (msg.toLowerCase().includes("/genx")) reply = "back in my day 😎";
+    if (msg.toLowerCase().includes("/genx")) reply = "old school 😎";
 
     setTimeout(() => {
       io.emit("chat", { text: reply });
@@ -33,24 +33,18 @@ io.on("connection", (socket) => {
   socket.on("heart", () => {
     hearts++;
     coins++;
-
     io.emit("update", { hearts, gifts, coins });
-    io.emit("fx", { type: "heart", power: 5 });
+    io.emit("fx", { type:"heart", power:5 });
   });
 
   socket.on("gift", (n) => {
-    const val = Number(n) || 1;
-
-    gifts += val;
-    coins += val * 10;
-
+    n = Number(n) || 1;
+    gifts += n;
+    coins += n * 10;
     io.emit("update", { hearts, gifts, coins });
-    io.emit("fx", { type: "gift", power: 10 });
+    io.emit("fx", { type:"gift", power:10 });
   });
 
 });
 
-const PORT = process.env.PORT || 10000;
-server.listen(PORT, "0.0.0.0", () => {
-  console.log("RUNNING ON " + PORT);
-});
+server.listen(process.env.PORT || 10000, "0.0.0.0");
