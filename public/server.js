@@ -14,37 +14,32 @@ let coins = 0;
 
 io.on("connection", (socket) => {
 
-  // CHAT
   socket.on("chat", (msg) => {
     io.emit("chat", msg);
 
-    let reply = "";
+    let reply = "Bot 👀";
+
     if (msg.toLowerCase().includes("/genz")) {
-      reply = "no cap 🔥 that’s crazy fr fr";
+      reply = "no cap 🔥 that’s crazy fr";
     } else if (msg.toLowerCase().includes("/genx")) {
-      reply = "Back in my day 😎";
-    } else {
-      reply = "Bot 👀";
+      reply = "back in my day 😎";
     }
 
     setTimeout(() => {
       io.emit("chat", reply);
-    }, 800);
+    }, 500);
   });
 
-  // HEART TAP
   socket.on("heart", () => {
     hearts++;
     io.emit("update", { hearts, gifts, coins });
   });
 
-  // GIFT
   socket.on("gift", (n) => {
     gifts += n;
     coins += n * 10;
-    io.emit("update", { hearts, gifts, coins });
 
-    // explosion trigger
+    io.emit("update", { hearts, gifts, coins });
     io.emit("boom", n);
   });
 
