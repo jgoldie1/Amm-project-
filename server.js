@@ -1,43 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Chat</title>
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-</head>
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 
-<body style="background:black;color:white;">
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
-<h2>Chat Working</h2>
+// ✅ SERVE public folder
+app.use(express.static("public"));
 
-<div id="chat" style="height:200px;border:1px solid white;"></div>
+// ✅ SOCKET
+io.on("connection", (socket) => {
+  console.log("User connected");
 
-<input id="msg">
-<button onclick="send()">Send</button>
+  socket.on("chat", (msg) => {
+    if (!msg) return;
 
-<script>
-const socket = io();
+    // send user message
+    io.emit("chat", msg);
 
-// send
-function send() {
-  const input = document.getElementById("msg");
-  const text = input.value;
-
-  if (!text) return;
-
-  socket.emit("chat", text);
-  input.value = "";
-}
-
-// receive
-socket.on("chat", (msg) => {
-  const div = document.getElementById("chat");
-
-  const line = document.createElement("div");
-  line.innerText = msg;
-
-  div.appendChild(line);
+    // bot response
+    io.emit("chat", "BOT: working");
+  });
 });
-</script>
 
-</body>
-</html>
+// ✅ START
+server.listen(process.env.PORT || 10000, () => {
+  console.log("Server running");
+});
