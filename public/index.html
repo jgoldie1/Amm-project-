@@ -1,75 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Live App</title>
+  <style>
+    body { font-family: Arial; background:#111; color:#fff; text-align:center; }
+    #video { width:300px; height:200px; background:#000; margin:10px auto; }
+    #chat { height:150px; overflow:auto; border:1px solid #444; margin:10px; padding:5px; }
+    button { margin:5px; padding:10px; }
+  </style>
 </head>
-
-<body style="background:black;color:white;text-align:center;font-family:sans-serif;">
+<body>
 
 <h2>LIVE</h2>
 
-<video id="cam" autoplay playsinline width="300" style="border:2px solid white;"></video>
-
-<br><br>
+<video id="video" autoplay muted></video>
 
 <div>
-❤️ <span id="hearts">0</span> |
-🎁 <span id="gifts">0</span>
+  ❤️ <span id="hearts">0</span>
+  🎁 <span id="gifts">0</span>
 </div>
 
-<br>
+<button onclick="sendHeart()">❤️ Heart</button>
+<button onclick="sendGift(1)">🎁1</button>
+<button onclick="sendGift(10)">🎁10</button>
 
-<div id="chat" style="height:200px;overflow:auto;border:1px solid white;margin:10px;"></div>
+<div id="chat"></div>
 
-<input id="msg" placeholder="Type..." style="width:70%;padding:10px;">
+<input id="msg" placeholder="type message">
 <button onclick="send()">Send</button>
-<button onclick="heart()">❤️</button>
-<button onclick="gift()">🎁</button>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const socket = io();
 
 // CAMERA
-navigator.mediaDevices.getUserMedia({ video: true })
+navigator.mediaDevices.getUserMedia({ video:true })
 .then(stream => {
-  document.getElementById("cam").srcObject = stream;
+  document.getElementById("video").srcObject = stream;
 })
-.catch(() => console.log("camera blocked"));
+.catch(() => {
+  console.log("camera blocked");
+});
 
-// CHAT SEND
-function send() {
+// SEND CHAT
+function send(){
   const input = document.getElementById("msg");
-  if (!input.value) return;
+  if(!input.value) return;
   socket.emit("chat", input.value);
   input.value = "";
 }
 
 // HEART
-function heart() {
+function sendHeart(){
   socket.emit("heart");
 }
 
 // GIFT
-function gift() {
-  socket.emit("gift", 1);
+function sendGift(n){
+  socket.emit("gift", n);
 }
 
 // RECEIVE CHAT
-socket.on("chat", (msg) => {
+socket.on("chat", msg => {
   const div = document.getElementById("chat");
   const line = document.createElement("div");
-  line.innerText = msg.user + ": " + msg.msg;
+  line.innerText = msg;
   div.appendChild(line);
 });
 
-// COUNTERS
-socket.on("update", (data) => {
-  document.getElementById("hearts").innerText = data.hearts;
-  document.getElementById("gifts").innerText = data.gifts;
-});
-
-socket.on("init", (data) => {
+// UPDATE COUNTS
+socket.on("update", data => {
   document.getElementById("hearts").innerText = data.hearts;
   document.getElementById("gifts").innerText = data.gifts;
 });
