@@ -31,3 +31,5 @@ io.on("connection", (socket) => {
 server.listen(process.env.PORT || 10000, () => {
   console.log("Server running");
 });
+socket.on("heart", () => io.emit("heart"));
+socket.on("gift", () => io.emit("gift"));
