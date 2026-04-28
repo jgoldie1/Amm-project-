@@ -8,40 +8,27 @@ const io = new Server(server);
 
 app.use(express.static("public"));
 
-let state = {
-  hearts: 0,
-  gifts: 0,
-  users: {}
-};
+let hearts = 0;
+let gifts = 0;
 
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+  console.log("User connected");
 
-  // create simple profile
-  state.users[socket.id] = {
-    followers: Math.floor(Math.random() * 100)
-  };
-
-  // send full state
-  socket.emit("init", state);
+  // send current state
+  socket.emit("init", { hearts, gifts });
 
   socket.on("chat", (msg) => {
     io.emit("chat", msg);
   });
 
   socket.on("heart", () => {
-    state.hearts++;
-    io.emit("update", state);
+    hearts++;
+    io.emit("update", { hearts, gifts });
   });
 
   socket.on("gift", () => {
-    state.gifts++;
-    io.emit("update", state);
-    io.emit("giftFX"); // trigger animation + sound
-  });
-
-  socket.on("disconnect", () => {
-    delete state.users[socket.id];
+    gifts++;
+    io.emit("update", { hearts, gifts });
   });
 });
 
