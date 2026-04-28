@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Chat</title>
+  <title>Chat Fixed</title>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </head>
 
-<body style="background:black;color:white;">
+<body style="background:black;color:white;font-family:sans-serif;">
 
-<h2>Chat Working</h2>
+<h2>💬 Chat</h2>
 
-<div id="chat" style="height:200px;border:1px solid white;"></div>
+<div id="chat" style="height:250px;overflow:auto;border:1px solid white;padding:10px;"></div>
 
-<input id="msg">
+<br>
+
+<input id="msg" placeholder="Type message..." style="width:70%;padding:10px;">
 <button onclick="send()">Send</button>
 
 <script>
 const socket = io();
 
-// send
+// send message
 function send() {
   const input = document.getElementById("msg");
-  const text = input.value;
+  const text = input.value.trim();
 
   if (!text) return;
 
@@ -28,7 +30,7 @@ function send() {
   input.value = "";
 }
 
-// receive
+// receive message
 socket.on("chat", (msg) => {
   const div = document.getElementById("chat");
 
@@ -36,6 +38,7 @@ socket.on("chat", (msg) => {
   line.innerText = msg;
 
   div.appendChild(line);
+  div.scrollTop = div.scrollHeight;
 });
 </script>
 
