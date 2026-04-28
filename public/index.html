@@ -39,11 +39,17 @@ body { background:#111; color:#fff; text-align:center; }
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-const socket = io();
+const socket = io(window.location.origin, {
+  transports: ["websocket"]
+});
 
 // CAMERA
 navigator.mediaDevices.getUserMedia({ video:true })
-.then(s => video.srcObject = s)
+.then(stream => {
+  const v = document.getElementById("video");
+  v.srcObject = stream;
+  v.play();
+})
 .catch(()=>console.log("no cam"));
 
 // SEND
@@ -53,8 +59,18 @@ function send(){
   msg.value="";
 }
 
-function sendHeart(){ socket.emit("heart"); }
-function sendGift(n){ socket.emit("gift", n); }
+// INSTANT TAP (no delay)
+function sendHeart(){
+  hearts.innerText = Number(hearts.innerText) + 1;
+  coins.innerText = Number(coins.innerText) + 1;
+  socket.emit("heart");
+}
+
+function sendGift(n){
+  gifts.innerText = Number(gifts.innerText) + n;
+  coins.innerText = Number(coins.innerText) + (n*10);
+  socket.emit("gift", n);
+}
 
 // INIT
 socket.on("init", d => {
@@ -63,28 +79,27 @@ socket.on("init", d => {
   coins.innerText = d.coins || 0;
 });
 
-// UPDATE (FIX COUNTS)
+// UPDATE
 socket.on("update", d => {
   hearts.innerText = d.hearts || 0;
   gifts.innerText = d.gifts || 0;
   coins.innerText = d.coins || 0;
 });
 
-// CHAT (NO UNDEFINED EVER)
+// CHAT (NO UNDEFINED)
 socket.on("chat", d => {
   if (!d || !d.text) return;
 
   const line = document.createElement("div");
   line.innerText = d.text;
-
   chat.appendChild(line);
 });
 
-// FX (WORKING)
+// FX
 socket.on("fx", d => {
   for(let i=0;i<d.power;i++){
     const el=document.createElement("div");
-    el.innerText = d.type==="gift" ? "💥💰" : "❤️";
+    el.innerText = d.type==="gift" ? "💰💥" : "❤️";
     el.style.position="fixed";
     el.style.bottom="0";
     el.style.left=Math.random()*100+"%";
