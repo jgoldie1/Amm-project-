@@ -2,7 +2,7 @@
 <html>
 <body style="background:black;color:white;text-align:center;">
 
-<h1>TAP FIX</h1>
+<h1>FINAL FIX</h1>
 
 <h2 id="count">0</h2>
 
@@ -10,7 +10,8 @@
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
-const socket = io(window.location.origin, {
+const socket = io({
+  path: "/socket.io/",
   transports: ["websocket"]
 });
 
@@ -18,8 +19,8 @@ socket.on("connect", () => {
   console.log("✅ CONNECTED");
 });
 
-socket.on("connect_error", (e) => {
-  console.log("❌ ERROR:", e.message);
+socket.on("connect_error", (err) => {
+  console.log("❌ ERROR:", err.message);
 });
 
 function tap(){
