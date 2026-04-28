@@ -1,28 +1,43 @@
-const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat</title>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
 
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
+<body style="background:black;color:white;">
 
-app.use(express.static("public"));
+<h2>Chat Working</h2>
 
-io.on("connection", (socket) => {
-  console.log("USER CONNECTED");
+<div id="chat" style="height:200px;border:1px solid white;"></div>
 
-  socket.on("chat", (msg) => {
-    console.log("MSG:", msg);
+<input id="msg">
+<button onclick="send()">Send</button>
 
-    // ✅ ALWAYS send STRING ONLY
-    io.emit("chat", String(msg));
+<script>
+const socket = io();
 
-    // ✅ BOT
-    io.emit("chat", "BOT: WORKING");
-  });
+// send
+function send() {
+  const input = document.getElementById("msg");
+  const text = input.value;
+
+  if (!text) return;
+
+  socket.emit("chat", text);
+  input.value = "";
+}
+
+// receive
+socket.on("chat", (msg) => {
+  const div = document.getElementById("chat");
+
+  const line = document.createElement("div");
+  line.innerText = msg;
+
+  div.appendChild(line);
 });
+</script>
 
-server.listen(process.env.PORT || 10000, () => {
-  console.log("SERVER RUNNING");
-});
-app.use(express.static("public"));
+</body>
+</html>
