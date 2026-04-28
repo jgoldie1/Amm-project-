@@ -1,44 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>LIVE APP</title>
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-</head>
-
-<body style="background:black;color:white;font-family:sans-serif;text-align:center;">
-
-<h2>🔴 LIVE</h2>
-
-<!-- CAMERA -->
-<video id="video" autoplay playsinline width="300" style="border:2px solid white;"></video>
-
-<br><br>
-
-<!-- COUNTERS -->
-<div style="font-size:20px;">
-❤️ Hearts: <span id="hearts">0</span><br>
-🎁 Gifts: <span id="gifts">0</span>
-</div>
-
-<br>
-
-<!-- GIFT BUTTONS -->
-<div>
-<button onclick="sendGift(1)">🎁 1</button>
-<button onclick="sendGift(10)">🎁 10</button>
-<button onclick="sendGift(100)">🎁 100</button>
-<button onclick="sendGift(1000)">🎁 1000</button>
-</div>
-
-<br>
-
-<!-- CHAT -->
-<div id="chat" style="height:200px;overflow:auto;border:1px solid white;margin:10px;"></div>
-
-<input id="msg" placeholder="Type..." style="width:70%;padding:10px;">
-<button onclick="send()">Send</button>
-<button onclick="sendHeart()">❤️</button>
-
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
 const socket = io({ transports: ["websocket"] });
 
@@ -48,7 +8,7 @@ navigator.mediaDevices.getUserMedia({ video: true })
   document.getElementById("video").srcObject = stream;
 });
 
-// CHAT SEND
+// CHAT
 function send() {
   const input = document.getElementById("msg");
   const text = input.value.trim();
@@ -57,7 +17,6 @@ function send() {
   input.value = "";
 }
 
-// ENTER KEY
 document.getElementById("msg").addEventListener("keydown", (e) => {
   if (e.key === "Enter") send();
 });
@@ -67,7 +26,7 @@ function sendHeart() {
   socket.emit("heart");
 }
 
-// GIFTS
+// 🎁 GIFTS (buttons use: sendGift(1), sendGift(10), etc)
 function sendGift(amount) {
   socket.emit("gift", amount);
 }
@@ -81,18 +40,15 @@ socket.on("chat", (msg) => {
   div.scrollTop = div.scrollHeight;
 });
 
-// ✅ SINGLE SOURCE (THIS FIXES YOUR BUG)
+// ✅ THIS IS THE FIX (matches your server)
 socket.on("update", (data) => {
   document.getElementById("hearts").innerText = data.hearts;
   document.getElementById("gifts").innerText = data.gifts;
 });
 
-// INIT
+// INIT LOAD
 socket.on("init", (data) => {
-  document.getElementById("hearts").innerText = data.hearts || 0;
-  document.getElementById("gifts").innerText = data.gifts || 0;
+  document.getElementById("hearts").innerText = data.hearts;
+  document.getElementById("gifts").innerText = data.gifts;
 });
 </script>
-
-</body>
-</html>
