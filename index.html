@@ -57,3 +57,18 @@ socket.on("init", d=>{
   document.getElementById("gifts").innerText=d.gifts||0;
 });
 </script>
+socket.on("update", (data) => {
+  document.getElementById("hearts").innerText = data.hearts;
+  document.getElementById("gifts").innerText = data.gifts;
+
+  // SIMPLE EXPLOSION
+  const boom = document.createElement("div");
+  boom.innerText = "💥🎁";
+  boom.style.position = "fixed";
+  boom.style.left = "50%";
+  boom.style.top = "50%";
+  boom.style.fontSize = "40px";
+  document.body.appendChild(boom);
+
+  setTimeout(() => boom.remove(), 600);
+});
