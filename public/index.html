@@ -1,118 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>LIVE PRO</title>
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-</head>
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 
-<body style="background:black;color:white;font-family:sans-serif;text-align:center;overflow:hidden;">
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
-<h2>🔴 LIVE</h2>
+app.use(express.static("public"));
 
-<video id="video" autoplay playsinline width="300" style="border:2px solid white;"></video>
+io.on("connection", (socket) => {
+  console.log("User connected");
 
-<br>
+  socket.on("chat", (msg) => {
+    if (!msg) return;
+    io.emit("chat", msg);
+  });
 
-<div style="font-size:20px;">
-❤️ <span id="hearts">0</span> | 🎁 <span id="gifts">0</span>
-</div>
+  socket.on("heart", () => {
+    socket.broadcast.emit("heart"); // 🔥 prevents double count
+  });
 
-<div id="chat" style="height:150px;overflow:auto;border:1px solid white;margin:10px;"></div>
-
-<input id="msg" placeholder="Type..." style="width:60%;padding:10px;">
-<button onclick="send()">Send</button>
-<button onclick="sendHeart()">❤️</button>
-<button onclick="sendGift()">🎁</button>
-
-<script>
-const socket = io();
-
-let hearts = 0;
-let gifts = 0;
-
-// CAMERA
-navigator.mediaDevices.getUserMedia({ video: true })
-.then(s => video.srcObject = s);
-
-// SEND
-function send() {
-  const i = msg.value.trim();
-  if (!i) return;
-  socket.emit("chat", i);
-  msg.value = "";
-  msg.focus();
-}
-
-// ENTER
-msg.addEventListener("keydown", e => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    send();
-  }
+  socket.on("gift", () => {
+    socket.broadcast.emit("gift"); // 🔥 prevents double count
+  });
 });
 
-// HEART
-function sendHeart() {
-  socket.emit("heart");
-}
-
-// GIFT
-function sendGift() {
-  socket.emit("gift");
-}
-
-// RECEIVE HEART (ONLY HERE = NO BUG)
-socket.on("heart", () => {
-  hearts++;
-  document.getElementById("hearts").innerText = hearts;
-
-  const h = document.createElement("div");
-  h.innerText = "❤️";
-  h.style.position = "fixed";
-  h.style.right = "20px";
-  h.style.bottom = "0px";
-  h.style.fontSize = "24px";
-
-  document.body.appendChild(h);
-
-  let y = 0;
-  const anim = setInterval(() => {
-    y += 3;
-    h.style.bottom = y + "px";
-    h.style.opacity = 1 - y / 200;
-
-    if (y > 200) {
-      clearInterval(anim);
-      h.remove();
-    }
-  }, 20);
+server.listen(process.env.PORT || 10000, () => {
+  console.log("Server running");
 });
-
-// RECEIVE GIFT
-socket.on("gift", () => {
-  gifts++;
-  document.getElementById("gifts").innerText = gifts;
-
-  const g = document.createElement("div");
-  g.innerText = "🎁";
-  g.style.position = "fixed";
-  g.style.top = "50%";
-  g.style.left = "50%";
-  g.style.transform = "translate(-50%, -50%)";
-  g.style.fontSize = "60px";
-
-  document.body.appendChild(g);
-  setTimeout(() => g.remove(), 800);
-});
-
-// CHAT
-socket.on("chat", msg => {
-  const d = document.createElement("div");
-  d.innerText = msg;
-  chat.appendChild(d);
-  chat.scrollTop = chat.scrollHeight;
-});
-</script>
-
-</body>
-</html>
