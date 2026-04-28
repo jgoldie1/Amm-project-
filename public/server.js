@@ -35,3 +35,10 @@ io.on("connection", (socket) => {
 server.listen(process.env.PORT || 10000, () => {
   console.log("Server running");
 });
+let gifts = 0;
+
+socket.on("gift", (amount) => {
+  gifts += amount;
+  io.emit("gift", amount);
+  io.emit("update", { hearts, gifts });
+});
