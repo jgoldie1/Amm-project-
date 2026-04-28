@@ -14,37 +14,43 @@ let coins = 0;
 
 io.on("connection", (socket) => {
 
-  socket.emit("init", { hearts, gifts, coins });
-
+  // CHAT
   socket.on("chat", (msg) => {
-    if (!msg) return;
+    io.emit("chat", msg);
 
-    io.emit("chat", { text: msg });
-
-    let reply = "👀 bot";
-    if (msg.includes("/genz")) reply = "no cap 🔥";
-    if (msg.includes("/genx")) reply = "old school 😎";
+    let reply = "";
+    if (msg.toLowerCase().includes("/genz")) {
+      reply = "no cap 🔥 that’s crazy fr fr";
+    } else if (msg.toLowerCase().includes("/genx")) {
+      reply = "Back in my day 😎";
+    } else {
+      reply = "Bot 👀";
+    }
 
     setTimeout(() => {
-      io.emit("chat", { text: reply });
-    }, 600);
+      io.emit("chat", reply);
+    }, 800);
   });
 
+  // HEART TAP
   socket.on("heart", () => {
     hearts++;
-    coins++;
     io.emit("update", { hearts, gifts, coins });
-    io.emit("fx", { type:"heart" });
   });
 
+  // GIFT
   socket.on("gift", (n) => {
-    n = Number(n) || 1;
     gifts += n;
     coins += n * 10;
     io.emit("update", { hearts, gifts, coins });
-    io.emit("fx", { type:"gift" });
+
+    // explosion trigger
+    io.emit("boom", n);
   });
 
 });
 
-server.listen(process.env.PORT || 10000, "0.0.0.0");
+const PORT = process.env.PORT || 10000;
+server.listen(PORT, () => {
+  console.log("RUNNING " + PORT);
+});
