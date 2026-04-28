@@ -177,3 +177,36 @@ socket.on("init", (data) => {
   document.getElementById("gifts").innerText = data.gifts || 0;
 });
 </script>
+<!-- GIFT BUTTONS -->
+<div style="margin-top:20px;">
+  <button onclick="sendGift(250)">🎁 250</button>
+  <button onclick="sendGift(500)">🎁 500</button>
+  <button onclick="sendGift(1000)">🎁 1000</button>
+  <button onclick="sendGift(15000)">💎 15000</button>
+</div>
+
+<!-- GIFT DISPLAY -->
+<div id="giftBox" style="position:fixed;top:20%;left:50%;transform:translateX(-50%);font-size:40px;"></div>
+
+<script>
+function sendGift(amount) {
+  socket.emit("gift", amount);
+}
+
+// RECEIVE UPDATE
+socket.on("update", function(data) {
+  document.getElementById("hearts").innerText = data.hearts;
+  document.getElementById("gifts").innerText = data.gifts;
+});
+
+// 🎁 SIMPLE ANIMATION
+socket.on("gift", function(amount) {
+  const box = document.getElementById("giftBox");
+  box.innerText = "🎁 +" + amount;
+  box.style.opacity = "1";
+
+  setTimeout(() => {
+    box.style.opacity = "0";
+  }, 1000);
+});
+</script>
