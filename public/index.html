@@ -4,11 +4,12 @@
 <meta charset="UTF-8">
 <title>LIVE</title>
 </head>
+
 <body style="background:#111;color:#fff;text-align:center;">
 
 <h2>LIVE</h2>
 
-<video id="video" autoplay muted playsinline style="width:300px;height:200px;background:#000;"></video>
+<video id="video" autoplay muted playsinline width="300"></video>
 
 <div>
 ❤️ <span id="hearts">0</span>
@@ -20,10 +21,12 @@
 <button onclick="sendHeart()">❤️</button>
 <button onclick="sendGift(1)">🎁1</button>
 
-<div id="chat"></div>
+<br><br>
 
 <input id="msg">
 <button onclick="send()">Send</button>
+
+<div id="chat"></div>
 
 <audio id="sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
 
@@ -31,51 +34,64 @@
 <script>
 const socket = io();
 
-// CAMERA
+// ===== CAMERA =====
 navigator.mediaDevices.getUserMedia({ video:true })
 .then(stream => {
   document.getElementById("video").srcObject = stream;
 })
-.catch(()=>{});
+.catch(err => console.log("camera error", err));
 
-// CHAT SEND
+// ===== SEND CHAT =====
 function send(){
   const i = document.getElementById("msg");
-  if(!i.value) return;
+  if (!i.value) return;
   socket.emit("chat", i.value);
-  i.value="";
+  i.value = "";
 }
 
-// TAP = HEART
+// ===== TAP =====
 function tap(){
+  console.log("tap click");
   socket.emit("heart");
 }
 
-// HEART
+// ===== HEART =====
 function sendHeart(){
+  console.log("heart click");
   socket.emit("heart");
 }
 
-// GIFT
+// ===== GIFT =====
 function sendGift(n){
+  console.log("gift click", n);
   socket.emit("gift", n);
 }
 
-// RECEIVE CHAT
+// ===== RECEIVE CHAT =====
 socket.on("chat", msg => {
+  console.log("chat received:", msg);
+
   const div = document.getElementById("chat");
   const line = document.createElement("div");
   line.innerText = msg;
   div.appendChild(line);
 });
 
-// UPDATE
+// ===== UPDATE =====
 socket.on("update", data => {
-  document.getElementById("hearts").innerText = data.hearts || 0;
-  document.getElementById("gifts").innerText = data.gifts || 0;
-  document.getElementById("coins").innerText = data.coins || 0;
+  console.log("update:", data);
 
-  document.getElementById("sound").play().catch(()=>{});
+  document.getElementById("hearts").innerText = data.hearts;
+  document.getElementById("gifts").innerText = data.gifts;
+  document.getElementById("coins").innerText = data.coins;
+
+  const s = document.getElementById("sound");
+  s.play().catch(()=>{});
+});
+
+// ===== CONNECT =====
+socket.on("connect", () => {
+  console.log("CONNECTED TO SERVER");
 });
 </script>
 
