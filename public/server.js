@@ -1,21 +1,45 @@
-socket.on("chat", (msg) => {
-  io.emit("chat", {
-    user: "User",
-    msg: msg
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+app.use(express.static("public"));
+
+let hearts = 0;
+let gifts = 0;
+
+io.on("connection", (socket) => {
+  console.log("User connected");
+
+  // SEND START DATA
+  socket.emit("update", { hearts, gifts });
+
+  // CHAT
+  socket.on("chat", (msg) => {
+    io.emit("chat", msg);
+
+    // BOT
+    setTimeout(() => {
+      io.emit("chat", "StubbsAI: 🔥 I see you");
+    }, 500);
   });
 
-  // SIMPLE BOT (GEN Z / GEN X)
-  if (Math.random() < 0.3) {
-    let reply = "cool";
+  // HEART
+  socket.on("heart", () => {
+    hearts++;
+    io.emit("update", { hearts, gifts });
+  });
 
-    if (msg.includes("/genz")) reply = "no cap 🔥";
-    if (msg.includes("/genx")) reply = "back in my day 😎";
+  // GIFT
+  socket.on("gift", () => {
+    gifts++;
+    io.emit("update", { hearts, gifts });
+  });
+});
 
-    setTimeout(() => {
-      io.emit("chat", {
-        user: "StubbsAI",
-        msg: reply
-      });
-    }, 800);
-  }
+server.listen(process.env.PORT || 10000, () => {
+  console.log("Server running");
 });
