@@ -10,22 +10,23 @@ let coins = 0;
 app.use(express.static("public"));
 
 io.on("connection", (socket) => {
-  console.log("user connected");
+  console.log("CONNECTED");
 
-  // SEND CURRENT STATE
+  // FORCE SEND STATE ON JOIN
   socket.emit("update", { hearts, gifts, coins });
 
   // CHAT + BOT
   socket.on("chat", (msg) => {
-    if (!msg) return;
+    console.log("CHAT:", msg);
 
     io.emit("chat", msg);
 
     let reply = "Bot 👀";
 
-    if (msg.toLowerCase().includes("/genz")) {
+    if (msg && msg.toLowerCase().includes("/genz")) {
       reply = "no cap 🔥";
-    } else if (msg.toLowerCase().includes("/genx")) {
+    }
+    if (msg && msg.toLowerCase().includes("/genx")) {
       reply = "old school 😎";
     }
 
@@ -36,15 +37,19 @@ io.on("connection", (socket) => {
 
   // HEART
   socket.on("heart", () => {
+    console.log("HEART");
     hearts++;
     io.emit("update", { hearts, gifts, coins });
   });
 
   // GIFT
   socket.on("gift", (n) => {
+    console.log("GIFT:", n);
+
     n = Number(n) || 0;
     gifts += n;
     coins += n * 10;
+
     io.emit("update", { hearts, gifts, coins });
   });
 });
@@ -52,5 +57,5 @@ io.on("connection", (socket) => {
 const PORT = process.env.PORT || 3000;
 
 http.listen(PORT, () => {
-  console.log("RUNNING ON " + PORT);
+  console.log("RUNNING ON", PORT);
 });
