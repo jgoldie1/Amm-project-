@@ -1,79 +1,78 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Chat Fixed</title>
+  <title>Live Stream Chat</title>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </head>
 
 <body style="background:black;color:white;font-family:sans-serif;">
 
-<h2>💬 Chat</h2>
+<h2>🔴 LIVE</h2>
 
-<div id="chat" style="height:250px;overflow:auto;border:1px solid white;padding:10px;"></div>
+<!-- 📷 CAMERA -->
+<video id="video" autoplay playsinline style="width:300px;border:1px solid white;"></video>
 
-<br>
+<br><br>
 
+<!-- ❤️ HEART COUNTER -->
+<div>
+❤️ Hearts: <span id="hearts">0</span>
+</div>
+
+<!-- 💬 CHAT -->
+<div id="chat" style="height:200px;overflow:auto;border:1px solid white;margin:10px 0;"></div>
+
+<!-- INPUT -->
 <input id="msg" placeholder="Type message..." style="width:70%;padding:10px;">
 <button onclick="send()">Send</button>
+<button onclick="sendHeart()">❤️</button>
 
 <script>
 const socket = io();
+let heartCount = 0;
 
-// send message
+// 🎥 CAMERA START
+navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+.then(stream => {
+  document.getElementById("video").srcObject = stream;
+})
+.catch(() => {
+  alert("Camera blocked or not working");
+});
+
+// SEND MESSAGE
 function send() {
   const input = document.getElementById("msg");
   const text = input.value.trim();
-
   if (!text) return;
 
   socket.emit("chat", text);
   input.value = "";
 }
 
-// receive message
+// SEND HEART
+function sendHeart() {
+  socket.emit("heart");
+}
+
+// RECEIVE CHAT
 socket.on("chat", (msg) => {
   const div = document.getElementById("chat");
-
   const line = document.createElement("div");
   line.innerText = msg;
-
   div.appendChild(line);
   div.scrollTop = div.scrollHeight;
 });
-</script>
 
-</body>
-</html>
-<!DOCTYPE html>
-<html>
-<head>
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-</head>
+// RECEIVE HEART
+socket.on("heart", () => {
+  heartCount++;
+  document.getElementById("hearts").innerText = heartCount;
+});
 
-<body>
-
-<div id="chat"></div>
-
-<input id="msg">
-<button onclick="send()">Send</button>
-
-<script>
-const socket = io();
-
-function send() {
-  const input = document.getElementById("msg");
-  const text = input.value.trim();
-  if (!text) return;
-
-  socket.emit("chat", text);
-  input.value = "";
-}
-
-socket.on("chat", (msg) => {
-  const div = document.getElementById("chat");
-  const line = document.createElement("div");
-  line.innerText = msg;
-  div.appendChild(line);
+// ENTER KEY
+document.getElementById("msg").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") send();
 });
 </script>
 
