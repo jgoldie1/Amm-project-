@@ -114,3 +114,66 @@ socket.on("giftFX", () => {
 
 </body>
 </html>
+<script>
+const socket = io({ transports: ["websocket"] });
+
+let locked = false;
+
+// CAMERA
+navigator.mediaDevices.getUserMedia({ video: true })
+.then(stream => {
+  document.getElementById("video").srcObject = stream;
+})
+.catch(()=>{});
+
+// SEND CHAT
+function send() {
+  const input = document.getElementById("msg");
+  const text = input.value.trim();
+  if (!text) return;
+  socket.emit("chat", text);
+  input.value = "";
+}
+
+// ENTER KEY
+document.getElementById("msg").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") send();
+});
+
+// HEART
+function sendHeart() {
+  if (locked) return;
+  locked = true;
+  socket.emit("heart");
+  setTimeout(() => locked = false, 300);
+}
+
+// GIFT
+function sendGift() {
+  if (locked) return;
+  locked = true;
+  socket.emit("gift");
+  setTimeout(() => locked = false, 300);
+}
+
+// CHAT RECEIVE
+socket.on("chat", (msg) => {
+  const div = document.getElementById("chat");
+  const line = document.createElement("div");
+  line.innerText = msg;
+  div.appendChild(line);
+  div.scrollTop = div.scrollHeight;
+});
+
+// 🔥 SINGLE SOURCE OF TRUTH
+socket.on("update", (data) => {
+  document.getElementById("hearts").innerText = data.hearts;
+  document.getElementById("gifts").innerText = data.gifts;
+});
+
+// INIT LOAD
+socket.on("init", (data) => {
+  document.getElementById("hearts").innerText = data.hearts || 0;
+  document.getElementById("gifts").innerText = data.gifts || 0;
+});
+</script>
