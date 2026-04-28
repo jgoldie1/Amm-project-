@@ -4,46 +4,40 @@ const http = require("http").createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(http);
 
+app.use(express.static("public"));
+
 let hearts = 0;
 let gifts = 0;
 let coins = 0;
 
-app.use(express.static("public"));
-
 io.on("connection", (socket) => {
-  console.log("✅ CONNECTED:", socket.id);
+  console.log("🔥 CONNECTED:", socket.id);
 
-  // SEND STATE
+  // TEST EVENT (IMPORTANT)
+  socket.emit("chat", "✅ server connected");
+
   socket.emit("update", { hearts, gifts, coins });
 
-  // CHAT
   socket.on("chat", (msg) => {
     console.log("CHAT:", msg);
-
-    if (!msg) return;
 
     io.emit("chat", msg);
 
     let reply = "Bot 👀";
+    if (msg && msg.toLowerCase().includes("/genz")) reply = "no cap 🔥";
+    if (msg && msg.toLowerCase().includes("/genx")) reply = "old school 😎";
 
-    if (msg.toLowerCase().includes("/genz")) reply = "no cap 🔥";
-    else if (msg.toLowerCase().includes("/genx")) reply = "old school 😎";
-
-    setTimeout(() => {
-      io.emit("chat", reply);
-    }, 500);
+    setTimeout(() => io.emit("chat", reply), 500);
   });
 
-  // HEART
   socket.on("heart", () => {
-    console.log("HEART CLICK");
+    console.log("HEART");
     hearts++;
     io.emit("update", { hearts, gifts, coins });
   });
 
-  // GIFT
   socket.on("gift", (n) => {
-    console.log("GIFT CLICK:", n);
+    console.log("GIFT:", n);
 
     n = Number(n) || 0;
     gifts += n;
@@ -54,4 +48,4 @@ io.on("connection", (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => console.log("🚀 RUNNING ON", PORT));
+http.listen(PORT, () => console.log("🚀 RUNNING", PORT));
