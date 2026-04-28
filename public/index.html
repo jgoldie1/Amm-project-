@@ -1,37 +1,82 @@
 <!DOCTYPE html>
 <html>
-<body style="background:black;color:white;text-align:center;">
+<body style="background:#111;color:#fff;text-align:center;">
 
-<h1>FINAL FIX</h1>
+<h2>FINAL WORKING</h2>
 
-<h2 id="count">0</h2>
+<div>
+❤️ <span id="hearts">0</span>
+🎁 <span id="gifts">0</span>
+💰 <span id="coins">0</span>
+</div>
 
-<button onclick="tap()">TAP</button>
+<button onclick="tap()">🔥 TAP</button>
+<button onclick="gift()">🎁 GIFT</button>
 
-<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<br><br>
+
+<input id="msg">
+<button onclick="send()">Send</button>
+
+<div id="chat"></div>
+
+<audio id="sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
+
 <script>
-const socket = io({
-  path: "/socket.io/",
-  transports: ["websocket"]
-});
+// UPDATE LOOP (NO SOCKETS)
+async function load(){
+  const res = await fetch("/data");
+  const d = await res.json();
 
-socket.on("connect", () => {
-  console.log("✅ CONNECTED");
-});
+  document.getElementById("hearts").innerText = d.hearts;
+  document.getElementById("gifts").innerText = d.gifts;
+  document.getElementById("coins").innerText = d.coins;
 
-socket.on("connect_error", (err) => {
-  console.log("❌ ERROR:", err.message);
-});
-
-function tap(){
-  console.log("CLICK");
-  socket.emit("tap");
+  const chat = document.getElementById("chat");
+  chat.innerHTML = "";
+  d.chat.slice(-10).forEach(m => {
+    const div = document.createElement("div");
+    div.innerText = m;
+    chat.appendChild(div);
+  });
 }
 
-socket.on("update", data => {
-  console.log("UPDATE:", data);
-  document.getElementById("count").innerText = data.count;
-});
+// TAP
+async function tap(){
+  await fetch("/heart", { method: "POST" });
+  document.getElementById("sound").play().catch(()=>{});
+  load();
+}
+
+// GIFT
+async function gift(){
+  await fetch("/gift", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ n: 1 })
+  });
+  document.getElementById("sound").play().catch(()=>{});
+  load();
+}
+
+// CHAT
+async function send(){
+  const i = document.getElementById("msg");
+  if (!i.value) return;
+
+  await fetch("/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ msg: i.value })
+  });
+
+  i.value = "";
+  load();
+}
+
+// AUTO REFRESH
+setInterval(load, 1000);
+load();
 </script>
 
 </body>
