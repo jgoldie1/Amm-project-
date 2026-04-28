@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>FINAL LOCK</title>
+  <title>Chat</title>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </head>
 
 <body style="background:black;color:white;">
 
-<h2>Chat</h2>
+<h2>Chat Working</h2>
 
-<div id="chat" style="height:250px;overflow:auto;border:1px solid white;"></div>
+<div id="chat" style="height:200px;border:1px solid white;"></div>
 
 <input id="msg">
 <button onclick="send()">Send</button>
@@ -17,12 +17,7 @@
 <script>
 const socket = io();
 
-// CONFIRM CONNECTION
-socket.on("connect", () => {
-  alert("CONNECTED");
-});
-
-// SEND
+// send
 function send() {
   const input = document.getElementById("msg");
   const text = input.value;
@@ -33,10 +28,8 @@ function send() {
   input.value = "";
 }
 
-// RECEIVE
+// receive
 socket.on("chat", (msg) => {
-  alert("RECEIVED: " + msg);
-
   const div = document.getElementById("chat");
 
   const line = document.createElement("div");
@@ -45,14 +38,6 @@ socket.on("chat", (msg) => {
   div.appendChild(line);
 });
 </script>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html>
-<body style="background:black;color:white;">
-
-<h1>IF YOU SEE THIS — NEW CODE IS LOADED</h1>
 
 </body>
 </html>
