@@ -28,20 +28,19 @@ button { margin:5px; padding:10px; }
 
 <div id="chat"></div>
 
-<input id="msg" placeholder="type message">
+<input id="msg">
 <button onclick="send()">Send</button>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const socket = io();
 
-// CAMERA (FIXED)
+// CAMERA
 navigator.mediaDevices.getUserMedia({ video:true })
 .then(stream => {
-  const vid = document.getElementById("video");
-  if (vid) vid.srcObject = stream;
+  document.getElementById("video").srcObject = stream;
 })
-.catch(err => console.log("camera blocked", err));
+.catch(() => console.log("camera blocked"));
 
 // SEND CHAT
 function send(){
@@ -64,23 +63,21 @@ function sendGift(n){
 // RECEIVE CHAT
 socket.on("chat", msg => {
   const div = document.getElementById("chat");
-  if(!div) return;
-
   const line = document.createElement("div");
-  line.innerText = msg || "";
+  line.innerText = msg;
   div.appendChild(line);
 });
 
-// UPDATE (FIXED)
+// UPDATE COUNTS
 socket.on("update", data => {
   if(!data) return;
 
-  document.getElementById("hearts").innerText = data.hearts ?? 0;
-  document.getElementById("gifts").innerText = data.gifts ?? 0;
-  document.getElementById("coins").innerText = data.coins ?? 0;
+  document.getElementById("hearts").innerText = data.hearts || 0;
+  document.getElementById("gifts").innerText = data.gifts || 0;
+  document.getElementById("coins").innerText = data.coins || 0;
 });
 
-// DEBUG (CHECK CONNECTION)
+// DEBUG
 socket.on("connect", () => {
   console.log("CONNECTED");
 });
