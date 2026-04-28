@@ -39,64 +39,60 @@ body { background:#111; color:#fff; text-align:center; }
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-const socket = io(window.location.origin, {
-  transports: ["websocket"]
-});
+const socket = io();
 
 // CAMERA
 navigator.mediaDevices.getUserMedia({ video:true })
-.then(stream => {
-  const v = document.getElementById("video");
-  v.srcObject = stream;
-  v.play();
-})
-.catch(()=>console.log("no cam"));
+.then(s => { video.srcObject = s; video.play(); })
+.catch(()=>{});
 
-// SEND
+// SEND CHAT
 function send(){
   if(!msg.value) return;
   socket.emit("chat", msg.value);
   msg.value="";
 }
 
-// INSTANT TAP (no delay)
-function sendHeart(){
-  hearts.innerText = Number(hearts.innerText) + 1;
-  coins.innerText = Number(coins.innerText) + 1;
-  socket.emit("heart");
-}
-
-function sendGift(n){
-  gifts.innerText = Number(gifts.innerText) + n;
-  coins.innerText = Number(coins.innerText) + (n*10);
-  socket.emit("gift", n);
-}
+// BUTTONS
+function sendHeart(){ socket.emit("heart"); }
+function sendGift(n){ socket.emit("gift", n); }
 
 // INIT
-socket.on("init", d => {
-  hearts.innerText = d.hearts || 0;
-  gifts.innerText = d.gifts || 0;
-  coins.innerText = d.coins || 0;
+socket.on("init", d=>{
+  hearts.innerText = d.hearts||0;
+  gifts.innerText = d.gifts||0;
+  coins.innerText = d.coins||0;
 });
 
-// UPDATE
-socket.on("update", d => {
-  hearts.innerText = d.hearts || 0;
-  gifts.innerText = d.gifts || 0;
-  coins.innerText = d.coins || 0;
+// UPDATE (FIX COUNT ORDER)
+socket.on("update", d=>{
+  hearts.innerText = d.hearts||0;
+  gifts.innerText = d.gifts||0;
+  coins.innerText = d.coins||0;
 });
 
 // CHAT (NO UNDEFINED)
-socket.on("chat", d => {
-  if (!d || !d.text) return;
-
-  const line = document.createElement("div");
-  line.innerText = d.text;
+socket.on("chat", d=>{
+  if(!d || !d.text) return;
+  const line=document.createElement("div");
+  line.innerText=d.text;
   chat.appendChild(line);
+  chat.scrollTop=chat.scrollHeight;
 });
 
-// FX
-socket.on("fx", d => {
+// SOUND
+function sound(t){
+  new Audio(
+    t==="gift"
+    ? "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
+    : "https://actions.google.com/sounds/v1/cartoon/pop.ogg"
+  ).play().catch(()=>{});
+}
+
+// FX + SOUND
+socket.on("fx", d=>{
+  sound(d.type);
+
   for(let i=0;i<d.power;i++){
     const el=document.createElement("div");
     el.innerText = d.type==="gift" ? "💰💥" : "❤️";
