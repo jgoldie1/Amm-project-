@@ -1,31 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Live App</title>
+  <title>LIVE PRO</title>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </head>
 
-<body style="background:black;color:white;font-family:sans-serif;text-align:center;">
+<body style="background:black;color:white;font-family:sans-serif;text-align:center;overflow:hidden;">
 
 <h2>🔴 LIVE</h2>
 
 <!-- CAMERA -->
 <video id="video" autoplay playsinline width="300" style="border:2px solid white;"></video>
 
-<br><br>
+<br>
 
 <!-- COUNTERS -->
-<div style="font-size:20px;">
+<div>
 ❤️ <span id="hearts">0</span> | 🎁 <span id="gifts">0</span>
 </div>
 
-<br>
+<!-- FLOATING HEART AREA -->
+<div id="heartsArea" style="position:fixed;bottom:0;right:20px;"></div>
 
 <!-- CHAT -->
-<div id="chat" style="height:200px;overflow:auto;border:1px solid white;margin:10px;"></div>
+<div id="chat" style="height:150px;overflow:auto;border:1px solid white;margin:10px;"></div>
 
 <!-- INPUT -->
-<input id="msg" placeholder="Type..." style="width:70%;padding:10px;">
+<input id="msg" placeholder="Type..." style="width:60%;padding:10px;">
 <button onclick="send()">Send</button>
 <button onclick="sendHeart()">❤️</button>
 <button onclick="sendGift()">🎁</button>
@@ -40,8 +41,7 @@ let giftCount = 0;
 navigator.mediaDevices.getUserMedia({ video: true })
 .then(stream => {
   document.getElementById("video").srcObject = stream;
-})
-.catch(() => { alert("Allow camera"); });
+});
 
 // SEND MESSAGE
 function send() {
@@ -55,7 +55,7 @@ function send() {
 }
 
 // ENTER KEY
-document.getElementById("msg").addEventListener("keydown", function(e) {
+document.getElementById("msg").addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     e.preventDefault();
     send();
@@ -76,23 +76,63 @@ function sendGift() {
 socket.on("heart", () => {
   heartCount++;
   document.getElementById("hearts").innerText = heartCount;
+
+  // FLOATING HEART
+  const heart = document.createElement("div");
+  heart.innerText = "❤️";
+  heart.style.position = "absolute";
+  heart.style.bottom = "0px";
+  heart.style.fontSize = "24px";
+  heart.style.left = Math.random() * 100 + "px";
+
+  document.getElementById("heartsArea").appendChild(heart);
+
+  let pos = 0;
+  const float = setInterval(() => {
+    pos += 2;
+    heart.style.bottom = pos + "px";
+    heart.style.opacity = 1 - pos / 200;
+
+    if (pos > 200) {
+      clearInterval(float);
+      heart.remove();
+    }
+  }, 20);
 });
 
 // RECEIVE GIFT
 socket.on("gift", () => {
   giftCount++;
   document.getElementById("gifts").innerText = giftCount;
+
+  // GIFT POP
+  const gift = document.createElement("div");
+  gift.innerText = "🎁";
+  gift.style.position = "fixed";
+  gift.style.top = "50%";
+  gift.style.left = "50%";
+  gift.style.transform = "translate(-50%, -50%)";
+  gift.style.fontSize = "50px";
+
+  document.body.appendChild(gift);
+
+  setTimeout(() => gift.remove(), 1000);
 });
 
-// RECEIVE CHAT (NO SPAM)
+// CHAT + BOT
 socket.on("chat", (msg) => {
-  if (msg === "BOT: working") return;
-
   const div = document.getElementById("chat");
+
   const line = document.createElement("div");
   line.innerText = msg;
   div.appendChild(line);
+
   div.scrollTop = div.scrollHeight;
+
+  // SIMPLE BOT
+  if (msg.toLowerCase() === "hi") {
+    socket.emit("chat", "🤖 bot: hello");
+  }
 });
 </script>
 
