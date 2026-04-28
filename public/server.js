@@ -4,7 +4,9 @@ const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: { origin: "*" }
+});
 
 app.use(express.static("public"));
 
@@ -12,9 +14,9 @@ let hearts = 0;
 let gifts = 0;
 
 io.on("connection", (socket) => {
-  console.log("User connected");
+  console.log("User connected:", socket.id);
 
-  // send correct values on join
+  // ALWAYS send fresh values
   socket.emit("init", { hearts, gifts });
 
   socket.on("chat", (msg) => {
@@ -22,16 +24,20 @@ io.on("connection", (socket) => {
   });
 
   socket.on("heart", () => {
-    hearts += 1;
-    io.emit("heart", hearts);
+    hearts++;
+    io.emit("update", { hearts, gifts });
   });
 
   socket.on("gift", () => {
-    gifts += 1;
-    io.emit("gift", gifts);
+    gifts++;
+    io.emit("update", { hearts, gifts });
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User left:", socket.id);
   });
 });
 
 server.listen(process.env.PORT || 10000, () => {
   console.log("Server running");
-});
+});});
