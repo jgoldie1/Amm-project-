@@ -8,19 +8,27 @@ const io = new Server(server);
 
 app.use(express.static("public"));
 
+let hearts = 0;
+let gifts = 0;
+
 io.on("connection", (socket) => {
   console.log("User connected");
+
+  // send current counts when user joins
+  socket.emit("init", { hearts, gifts });
 
   socket.on("chat", (msg) => {
     io.emit("chat", msg);
   });
 
   socket.on("heart", () => {
-    io.emit("heart");
+    hearts++;
+    io.emit("heart", hearts);
   });
 
   socket.on("gift", () => {
-    io.emit("gift");
+    gifts++;
+    io.emit("gift", gifts);
   });
 });
 
