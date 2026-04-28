@@ -28,3 +28,129 @@ io.on("connection", (socket) => {
 server.listen(process.env.PORT || 10000, () => {
   console.log("Server running");
 });
+<script>
+const socket = io();
+
+let hearts = 0;
+let gifts = 0;
+
+// CAMERA
+navigator.mediaDevices.getUserMedia({ video: true })
+.then(s => video.srcObject = s)
+.catch(() => {});
+
+// SEND CHAT
+function send() {
+  const text = msg.value.trim();
+  if (!text) return;
+
+  addChat("You: " + text); // show instantly
+  socket.emit("chat", text);
+
+  msg.value = "";
+}
+
+// ENTER
+msg.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    send();
+  }
+});
+
+// HEART CLICK
+function sendHeart() {
+  hearts++;
+  updateHearts();
+  createHeart();
+
+  socket.emit("heart");
+}
+
+// GIFT CLICK
+function sendGift() {
+  gifts++;
+  updateGifts();
+  createGift();
+
+  socket.emit("gift");
+}
+
+// RECEIVE HEART
+socket.on("heart", () => {
+  hearts++;
+  updateHearts();
+  createHeart();
+});
+
+// RECEIVE GIFT
+socket.on("gift", () => {
+  gifts++;
+  updateGifts();
+  createGift();
+});
+
+// RECEIVE CHAT
+socket.on("chat", (text) => {
+  addChat("User: " + text);
+
+  // 🤖 SIMPLE BOT (NO LOOP)
+  if (text.toLowerCase() === "hi") {
+    setTimeout(() => {
+      addChat("🤖 bot: hello");
+    }, 500);
+  }
+});
+
+// UI FUNCTIONS
+function updateHearts() {
+  document.getElementById("hearts").innerText = hearts;
+}
+
+function updateGifts() {
+  document.getElementById("gifts").innerText = gifts;
+}
+
+function addChat(text) {
+  const d = document.createElement("div");
+  d.innerText = text;
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function createHeart() {
+  const h = document.createElement("div");
+  h.innerText = "❤️";
+  h.style.position = "fixed";
+  h.style.right = "20px";
+  h.style.bottom = "0px";
+  h.style.fontSize = "24px";
+
+  document.body.appendChild(h);
+
+  let y = 0;
+  const anim = setInterval(() => {
+    y += 3;
+    h.style.bottom = y + "px";
+    h.style.opacity = 1 - y / 200;
+
+    if (y > 200) {
+      clearInterval(anim);
+      h.remove();
+    }
+  }, 20);
+}
+
+function createGift() {
+  const g = document.createElement("div");
+  g.innerText = "🎁";
+  g.style.position = "fixed";
+  g.style.top = "50%";
+  g.style.left = "50%";
+  g.style.transform = "translate(-50%, -50%)";
+  g.style.fontSize = "60px";
+
+  document.body.appendChild(g);
+  setTimeout(() => g.remove(), 800);
+}
+</script>
