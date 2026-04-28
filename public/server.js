@@ -14,8 +14,8 @@ let gifts = 0;
 io.on("connection", (socket) => {
   console.log("User connected");
 
-  // send current state
-  socket.emit("init", { hearts, gifts });
+  // send current values
+  socket.emit("update", { hearts, gifts });
 
   socket.on("chat", (msg) => {
     io.emit("chat", msg);
@@ -26,19 +26,12 @@ io.on("connection", (socket) => {
     io.emit("update", { hearts, gifts });
   });
 
-  socket.on("gift", () => {
-    gifts++;
+  socket.on("gift", (amount = 1) => {
+    gifts += amount;
     io.emit("update", { hearts, gifts });
   });
 });
 
 server.listen(process.env.PORT || 10000, () => {
   console.log("Server running");
-});
-let gifts = 0;
-
-socket.on("gift", (amount) => {
-  gifts += amount;
-  io.emit("gift", amount);
-  io.emit("update", { hearts, gifts });
 });
