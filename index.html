@@ -72,3 +72,9 @@ socket.on("update", (data) => {
 
   setTimeout(() => boom.remove(), 600);
 });
+rsocket.on("chat", (msg) => {
+  const div = document.getElementById("chat");
+  const line = document.createElement("div");
+  line.innerText = msg;
+  div.appendChild(line);
+});
