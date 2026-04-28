@@ -1,58 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live App</title>
+</head>
+
+<body style="background:black;color:white;text-align:center;font-family:sans-serif;">
+
+<h2>LIVE</h2>
+
+<video id="cam" autoplay playsinline width="300" style="border:2px solid white;"></video>
+
+<br><br>
+
+<div>
+❤️ <span id="hearts">0</span> |
+🎁 <span id="gifts">0</span>
+</div>
+
+<br>
+
+<div id="chat" style="height:200px;overflow:auto;border:1px solid white;margin:10px;"></div>
+
+<input id="msg" placeholder="Type..." style="width:70%;padding:10px;">
+<button onclick="send()">Send</button>
+<button onclick="heart()">❤️</button>
+<button onclick="gift()">🎁</button>
+
 <script src="/socket.io/socket.io.js"></script>
 <script>
-const socket = io({ transports: ["websocket"] });
+const socket = io();
 
-// ✅ FIX CAMERA (your ID is "cam", NOT "video")
+// CAMERA
 navigator.mediaDevices.getUserMedia({ video: true })
 .then(stream => {
-  const cam = document.getElementById("cam");
-  if (cam) cam.srcObject = stream;
+  document.getElementById("cam").srcObject = stream;
 })
 .catch(() => console.log("camera blocked"));
 
-// ✅ FIX INPUT IDS (you changed them earlier)
-const chatForm = document.getElementById("chat-form");
-const chatInput = document.getElementById("chat-input");
-const chatBox = document.getElementById("chat-messages");
+// CHAT SEND
+function send() {
+  const input = document.getElementById("msg");
+  if (!input.value) return;
+  socket.emit("chat", input.value);
+  input.value = "";
+}
 
-// SEND CHAT
-chatForm.onsubmit = (e) => {
-  e.preventDefault();
-  const text = chatInput.value.trim();
-  if (!text) return;
-  socket.emit("chat", text);
-  chatInput.value = "";
-};
+// HEART
+function heart() {
+  socket.emit("heart");
+}
+
+// GIFT
+function gift() {
+  socket.emit("gift", 1);
+}
 
 // RECEIVE CHAT
-socket.on("chat", (data) => {
-  const div = document.createElement("div");
-  div.innerText = data.user + ": " + data.msg;
-  chatBox.appendChild(div);
-  chatBox.scrollTop = chatBox.scrollHeight;
+socket.on("chat", (msg) => {
+  const div = document.getElementById("chat");
+  const line = document.createElement("div");
+  line.innerText = msg.user + ": " + msg.msg;
+  div.appendChild(line);
 });
 
-// HEART BUTTON
-document.getElementById("heart-btn").onclick = () => {
-  socket.emit("heart");
-};
-
-// GIFT BUTTONS
-document.querySelectorAll("[data-amount]").forEach(btn => {
-  btn.onclick = () => {
-    socket.emit("gift", parseInt(btn.dataset.amount));
-  };
-});
-
-// COUNTERS (THIS WAS YOUR MAIN BUG BEFORE)
+// COUNTERS
 socket.on("update", (data) => {
   document.getElementById("hearts").innerText = data.hearts;
   document.getElementById("gifts").innerText = data.gifts;
 });
 
-// INIT LOAD
 socket.on("init", (data) => {
   document.getElementById("hearts").innerText = data.hearts;
   document.getElementById("gifts").innerText = data.gifts;
 });
 </script>
+
+</body>
+</html>
