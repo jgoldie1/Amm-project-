@@ -7,22 +7,25 @@ let hearts = 0;
 let gifts = 0;
 let coins = 0;
 
-// serve frontend
 app.use(express.static("public"));
 
-// SOCKET
 io.on("connection", (socket) => {
   console.log("user connected");
 
+  // SEND CURRENT STATE
+  socket.emit("update", { hearts, gifts, coins });
+
   // CHAT + BOT
   socket.on("chat", (msg) => {
+    if (!msg) return;
+
     io.emit("chat", msg);
 
     let reply = "Bot 👀";
 
-    if (msg && msg.toLowerCase().includes("/genz")) {
+    if (msg.toLowerCase().includes("/genz")) {
       reply = "no cap 🔥";
-    } else if (msg && msg.toLowerCase().includes("/genx")) {
+    } else if (msg.toLowerCase().includes("/genx")) {
       reply = "old school 😎";
     }
 
@@ -44,14 +47,10 @@ io.on("connection", (socket) => {
     coins += n * 10;
     io.emit("update", { hearts, gifts, coins });
   });
-
-  // SEND CURRENT STATE ON CONNECT (IMPORTANT FIX)
-  socket.emit("update", { hearts, gifts, coins });
 });
 
-// PORT FIX FOR RENDER
 const PORT = process.env.PORT || 3000;
 
 http.listen(PORT, () => {
-  console.log("server running on", PORT);
+  console.log("RUNNING ON " + PORT);
 });
