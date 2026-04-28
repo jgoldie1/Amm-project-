@@ -52,3 +52,10 @@ socket.on("init", (data) => {
   document.getElementById("gifts").innerText = data.gifts;
 });
 </script>
+❤️ <span id="hearts">0</span>
+🎁 <span id="gifts">0</span>
+
+<button onclick="sendHeart()">❤️</button>
+<button onclick="sendGift(1)">🎁1</button>
+<button onclick="sendGift(10)">🎁10</button>
+<button onclick="sendGift(100)">🎁100</button>
