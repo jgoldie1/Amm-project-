@@ -25,3 +25,4 @@ io.on("connection", (socket) => {
 server.listen(process.env.PORT || 10000, () => {
   console.log("SERVER RUNNING");
 });
+app.use(express.static("public"));
