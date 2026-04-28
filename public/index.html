@@ -1,3 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live App</title>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+
+<body style="background:black;color:white;text-align:center;font-family:sans-serif;">
+
+<h2>🔴 LIVE</h2>
+
+<video id="video" autoplay playsinline width="300" style="border:2px solid white;"></video>
+
+<br><br>
+
+<div>
+❤️ <span id="hearts">0</span> |
+🎁 <span id="gifts">0</span>
+</div>
+
+<br>
+
+<div id="chat" style="height:200px;overflow:auto;border:1px solid white;margin:10px;"></div>
+
+<input id="msg" placeholder="Type..." style="width:70%;padding:10px;">
+<button onclick="send()">Send</button>
+<button onclick="sendHeart()">❤️</button>
+<button onclick="sendGift()">🎁</button>
+
 <script>
 const socket = io();
 
@@ -40,7 +69,7 @@ socket.on("chat", function(msg) {
   div.scrollTop = div.scrollHeight;
 });
 
-// ✅ ONLY DISPLAY SERVER COUNT (NO +1)
+// ✅ ONLY SERVER CONTROLS COUNT
 socket.on("heart", function(count) {
   document.getElementById("hearts").innerText = count;
 });
@@ -49,9 +78,12 @@ socket.on("gift", function(count) {
   document.getElementById("gifts").innerText = count;
 });
 
-// LOAD CORRECT VALUES
+// INIT
 socket.on("init", function(data) {
   document.getElementById("hearts").innerText = data.hearts || 0;
   document.getElementById("gifts").innerText = data.gifts || 0;
 });
 </script>
+
+</body>
+</html>
