@@ -2,15 +2,25 @@
 <html>
 <body style="background:black;color:white;text-align:center;">
 
-<h1>TAP TEST</h1>
+<h1>TAP FIX</h1>
 
 <h2 id="count">0</h2>
 
 <button onclick="tap()">TAP</button>
 
-<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
-const socket = io();
+const socket = io(window.location.origin, {
+  transports: ["websocket"]
+});
+
+socket.on("connect", () => {
+  console.log("✅ CONNECTED");
+});
+
+socket.on("connect_error", (e) => {
+  console.log("❌ ERROR:", e.message);
+});
 
 function tap(){
   console.log("CLICK");
