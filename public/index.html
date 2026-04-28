@@ -1,3 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>LIVE</title>
+<style>
+body { background:#111; color:#fff; text-align:center; font-family:Arial; }
+#chat { height:150px; overflow:auto; border:1px solid #444; margin:10px; }
+button { margin:5px; padding:10px; }
+</style>
+</head>
+<body>
+
+<h2>LIVE</h2>
+
 <div>
 ❤️ <span id="hearts">0</span>
 🎁 <span id="gifts">0</span>
@@ -15,12 +30,18 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-const socket = io();
+let socket;
+
+try {
+  socket = io();
+} catch (e) {
+  console.log("socket failed", e);
+}
 
 // SEND CHAT
 function send(){
   const i = document.getElementById("msg");
-  if(!i.value) return;
+  if(!i || !i.value) return;
   socket.emit("chat", i.value);
   i.value="";
 }
@@ -38,20 +59,27 @@ function sendGift(n){
 // RECEIVE CHAT
 socket.on("chat", msg => {
   const div = document.getElementById("chat");
+  if(!div) return;
+
   const line = document.createElement("div");
-  line.innerText = msg;
+  line.innerText = msg || "";
   div.appendChild(line);
 });
 
-// UPDATE COUNTS (THIS FIXES YOUR PROBLEM)
+// UPDATE COUNTS (NO MORE UNDEFINED CRASH)
 socket.on("update", data => {
-  document.getElementById("hearts").innerText = data.hearts || 0;
-  document.getElementById("gifts").innerText = data.gifts || 0;
-  document.getElementById("coins").innerText = data.coins || 0;
+  if(!data) return;
+
+  document.getElementById("hearts").innerText = data.hearts ?? 0;
+  document.getElementById("gifts").innerText = data.gifts ?? 0;
+  document.getElementById("coins").innerText = data.coins ?? 0;
 });
 
-// EXPLOSION TEST (you’ll see in console)
-socket.on("boom", n => {
-  console.log("boom", n);
+// DEBUG
+socket.on("connect", () => {
+  console.log("connected");
 });
 </script>
+
+</body>
+</html>
