@@ -6,8 +6,22 @@
 
 <style>
 body { background:#111; color:#fff; text-align:center; }
-#video { width:300px; height:200px; background:#000; }
-#chat { height:150px; overflow:auto; border:1px solid #444; margin:10px; }
+
+#video {
+  width:300px;
+  height:200px;
+  background:#000;
+  pointer-events:none; /* 🔥 FIX: camera no longer blocks clicks */
+}
+
+#chat {
+  height:150px;
+  overflow:auto;
+  border:1px solid #444;
+  margin:10px;
+}
+
+button { padding:10px; margin:5px; }
 
 @keyframes up {
   from { transform:translateY(0); opacity:1; }
@@ -28,9 +42,9 @@ body { background:#111; color:#fff; text-align:center; }
 💰 <span id="coins">0</span>
 </div>
 
-<button onclick="sendHeart()">❤️ TAP</button>
-<button onclick="sendGift(1)">🎁1</button>
-<button onclick="sendGift(10)">🎁10</button>
+<button onclick="tap()">❤️ TAP</button>
+<button onclick="gift(1)">🎁1</button>
+<button onclick="gift(10)">🎁10</button>
 
 <div id="chat"></div>
 
@@ -43,8 +57,16 @@ const socket = io();
 
 // CAMERA
 navigator.mediaDevices.getUserMedia({ video:true })
-.then(s => { video.srcObject = s; video.play(); })
-.catch(()=>{});
+.then(s => {
+  video.srcObject = s;
+  video.play();
+}).catch(()=>{});
+
+// FIRST CLICK ENABLES SOUND
+let soundReady = false;
+document.body.addEventListener("click", () => {
+  soundReady = true;
+});
 
 // SEND CHAT
 function send(){
@@ -54,8 +76,8 @@ function send(){
 }
 
 // BUTTONS
-function sendHeart(){ socket.emit("heart"); }
-function sendGift(n){ socket.emit("gift", n); }
+function tap(){ socket.emit("heart"); }
+function gift(n){ socket.emit("gift", n); }
 
 // INIT
 socket.on("init", d=>{
@@ -64,37 +86,42 @@ socket.on("init", d=>{
   coins.innerText = d.coins||0;
 });
 
-// UPDATE (FIX COUNT ORDER)
+// UPDATE
 socket.on("update", d=>{
   hearts.innerText = d.hearts||0;
   gifts.innerText = d.gifts||0;
   coins.innerText = d.coins||0;
 });
 
-// CHAT (NO UNDEFINED)
+// CHAT FIX (NO UNDEFINED EVER)
 socket.on("chat", d=>{
   if(!d || !d.text) return;
-  const line=document.createElement("div");
-  line.innerText=d.text;
+
+  const line = document.createElement("div");
+  line.innerText = d.text;
   chat.appendChild(line);
-  chat.scrollTop=chat.scrollHeight;
+  chat.scrollTop = chat.scrollHeight;
 });
 
 // SOUND
-function sound(t){
-  new Audio(
-    t==="gift"
+function play(type){
+  if(!soundReady) return;
+
+  let url = type==="gift"
     ? "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
-    : "https://actions.google.com/sounds/v1/cartoon/pop.ogg"
-  ).play().catch(()=>{});
+    : "https://actions.google.com/sounds/v1/cartoon/pop.ogg";
+
+  new Audio(url).play().catch(()=>{});
 }
 
-// FX + SOUND
+// FX
 socket.on("fx", d=>{
-  sound(d.type);
+  play(d.type);
 
-  for(let i=0;i<d.power;i++){
-    const el=document.createElement("div");
+  let power = d.type==="gift" ? 15 : 5;
+
+  for(let i=0;i<power;i++){
+    const el = document.createElement("div");
     el.innerText = d.type==="gift" ? "💰💥" : "❤️";
     el.style.position="fixed";
     el.style.bottom="0";
