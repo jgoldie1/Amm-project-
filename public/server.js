@@ -13,26 +13,22 @@ let gifts = 0;
 let coins = 0;
 
 io.on("connection", (socket) => {
-  console.log("User connected");
 
-  // SEND START DATA
+  // START DATA
   socket.emit("init", { hearts, gifts, coins });
 
   // CHAT + BOT
   socket.on("chat", (msg) => {
     if (!msg) return;
 
-    io.emit("chat", msg);
+    io.emit("chat", { text: msg });
 
     let reply = "Bot 👀";
-    if (msg.toLowerCase().includes("/genz")) {
-      reply = "no cap 🔥 fr fr";
-    } else if (msg.toLowerCase().includes("/genx")) {
-      reply = "back in my day 😎";
-    }
+    if (msg.toLowerCase().includes("/genz")) reply = "no cap 🔥";
+    if (msg.toLowerCase().includes("/genx")) reply = "back in my day 😎";
 
     setTimeout(() => {
-      io.emit("chat", reply);
+      io.emit("chat", { text: reply });
     }, 700);
   });
 
@@ -47,8 +43,8 @@ io.on("connection", (socket) => {
   });
 
   // GIFT
-  socket.on("gift", (amount) => {
-    const val = Number(amount) || 1;
+  socket.on("gift", (n) => {
+    const val = Number(n) || 1;
 
     gifts += val;
     coins += val * 10;
@@ -59,6 +55,4 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(process.env.PORT || 10000, () => {
-  console.log("Server running");
-});
+server.listen(process.env.PORT || 10000);
