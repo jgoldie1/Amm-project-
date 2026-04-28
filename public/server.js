@@ -22,19 +22,19 @@ io.on("connection", (socket) => {
     io.emit("chat", { text: msg });
 
     let reply = "👀 bot";
-    if (msg.toLowerCase().includes("/genz")) reply = "no cap 🔥";
-    if (msg.toLowerCase().includes("/genx")) reply = "old school 😎";
+    if (msg.includes("/genz")) reply = "no cap 🔥";
+    if (msg.includes("/genx")) reply = "old school 😎";
 
     setTimeout(() => {
       io.emit("chat", { text: reply });
-    }, 500);
+    }, 600);
   });
 
   socket.on("heart", () => {
     hearts++;
     coins++;
     io.emit("update", { hearts, gifts, coins });
-    io.emit("fx", { type:"heart", power:5 });
+    io.emit("fx", { type:"heart" });
   });
 
   socket.on("gift", (n) => {
@@ -42,7 +42,7 @@ io.on("connection", (socket) => {
     gifts += n;
     coins += n * 10;
     io.emit("update", { hearts, gifts, coins });
-    io.emit("fx", { type:"gift", power:10 });
+    io.emit("fx", { type:"gift" });
   });
 
 });
