@@ -14,15 +14,14 @@
 
 <br><br>
 
-<!-- HEART COUNTER -->
+<!-- COUNTERS -->
 <div style="font-size:20px;">
-❤️ <span id="hearts">0</span>
+❤️ <span id="hearts">0</span> | 🎁 <span id="gifts">0</span>
 </div>
 
 <br>
 
-<!-- COMMENTS -->
-<h3>💬 Comments</h3>
+<!-- CHAT -->
 <div id="chat" style="height:200px;overflow:auto;border:1px solid white;margin:10px;"></div>
 
 <!-- INPUT -->
@@ -35,15 +34,14 @@
 const socket = io();
 
 let heartCount = 0;
+let giftCount = 0;
 
 // CAMERA
 navigator.mediaDevices.getUserMedia({ video: true })
 .then(stream => {
   document.getElementById("video").srcObject = stream;
 })
-.catch(() => {
-  alert("Allow camera");
-});
+.catch(() => { alert("Allow camera"); });
 
 // SEND MESSAGE
 function send() {
@@ -64,23 +62,32 @@ document.getElementById("msg").addEventListener("keydown", function(e) {
   }
 });
 
-// ❤️ HEART (FIXED SIMPLE)
+// ❤️ HEART
 function sendHeart() {
   socket.emit("heart");
 }
 
+// 🎁 GIFT
+function sendGift() {
+  socket.emit("gift");
+}
+
+// RECEIVE HEART
 socket.on("heart", () => {
   heartCount++;
   document.getElementById("hearts").innerText = heartCount;
 });
 
-// 🎁 GIFT
-function sendGift() {
-  socket.emit("chat", "🎁 Gift sent!");
-}
+// RECEIVE GIFT
+socket.on("gift", () => {
+  giftCount++;
+  document.getElementById("gifts").innerText = giftCount;
+});
 
-// CHAT
+// RECEIVE CHAT (NO SPAM)
 socket.on("chat", (msg) => {
+  if (msg === "BOT: working") return;
+
   const div = document.getElementById("chat");
   const line = document.createElement("div");
   line.innerText = msg;
