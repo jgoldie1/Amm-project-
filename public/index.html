@@ -2,27 +2,12 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Live App</title>
-
+<title>LIVE</title>
 <style>
 body { font-family: Arial; background:#111; color:#fff; text-align:center; }
-
 #video { width:300px; height:200px; background:#000; margin:10px auto; }
-
-#chat {
-  height:150px;
-  overflow:auto;
-  border:1px solid #444;
-  margin:10px;
-  padding:5px;
-}
-
+#chat { height:150px; overflow:auto; border:1px solid #444; margin:10px; padding:5px; }
 button { margin:5px; padding:10px; }
-
-@keyframes up {
-  0% { transform:translateY(0); opacity:1; }
-  100% { transform:translateY(-150px); opacity:0; }
-}
 </style>
 </head>
 
@@ -35,6 +20,7 @@ button { margin:5px; padding:10px; }
 <div>
   ❤️ <span id="hearts">0</span>
   🎁 <span id="gifts">0</span>
+  💰 <span id="coins">0</span>
 </div>
 
 <button onclick="sendHeart()">❤️ Heart</button>
@@ -47,7 +33,6 @@ button { margin:5px; padding:10px; }
 <button onclick="send()">Send</button>
 
 <script src="/socket.io/socket.io.js"></script>
-
 <script>
 const socket = io();
 
@@ -56,9 +41,7 @@ navigator.mediaDevices.getUserMedia({ video:true })
 .then(stream => {
   document.getElementById("video").srcObject = stream;
 })
-.catch(() => {
-  console.log("camera blocked");
-});
+.catch(() => console.log("camera blocked"));
 
 // SEND CHAT
 function send(){
@@ -71,13 +54,11 @@ function send(){
 // HEART
 function sendHeart(){
   socket.emit("heart");
-  pop("❤️");
 }
 
 // GIFT
 function sendGift(n){
   socket.emit("gift", n);
-  pop("🎁 x" + n);
 }
 
 // RECEIVE CHAT
@@ -86,29 +67,50 @@ socket.on("chat", msg => {
   const line = document.createElement("div");
   line.innerText = msg;
   div.appendChild(line);
-  div.scrollTop = div.scrollHeight;
+});
+
+// INIT
+socket.on("init", data => {
+  document.getElementById("hearts").innerText = data.hearts;
+  document.getElementById("gifts").innerText = data.gifts;
+  document.getElementById("coins").innerText = data.coins;
 });
 
 // UPDATE COUNTS
 socket.on("update", data => {
   document.getElementById("hearts").innerText = data.hearts;
   document.getElementById("gifts").innerText = data.gifts;
+  document.getElementById("coins").innerText = data.coins;
 });
 
-// 💥 POP EFFECT
-function pop(text) {
-  for (let i = 0; i < 5; i++) {
+// FX (explosions + sound)
+socket.on("fx", data => {
+  let count = 5;
+  if (data.power > 50) count = 10;
+  if (data.power > 200) count = 20;
+  if (data.power > 500) count = 30;
+
+  for (let i = 0; i < count; i++) {
     const el = document.createElement("div");
-    el.innerText = text;
+
+    el.innerText = data.type === "gift" ? "💥💰" : "❤️";
+
     el.style.position = "fixed";
     el.style.bottom = "0";
-    el.style.left = Math.random() * 100 + "%";
-    el.style.fontSize = "30px";
-    el.style.animation = "up 1s linear";
+    el.style.left = Math.random()*100 + "%";
+    el.style.fontSize = (20 + Math.random()*30) + "px";
+
     document.body.appendChild(el);
-    setTimeout(() => el.remove(), 1000);
+    setTimeout(()=>el.remove(),1000);
   }
-}
+
+  const audio = new Audio(
+    data.type === "gift"
+      ? "https://www.soundjay.com/explosion/sounds/explosion-01.mp3"
+      : "https://www.soundjay.com/buttons/sounds/button-09.mp3"
+  );
+  audio.play();
+});
 </script>
 
 </body>
