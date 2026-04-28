@@ -31,6 +31,9 @@ button { margin:5px; padding:10px; }
 <input id="msg">
 <button onclick="send()">Send</button>
 
+<!-- SOUND -->
+<audio id="pop" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
+
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const socket = io();
@@ -68,19 +71,20 @@ socket.on("chat", msg => {
   div.appendChild(line);
 });
 
-// UPDATE COUNTS
+// UPDATE COUNTS + SOUND
 socket.on("update", data => {
   if(!data) return;
 
   document.getElementById("hearts").innerText = data.hearts || 0;
   document.getElementById("gifts").innerText = data.gifts || 0;
   document.getElementById("coins").innerText = data.coins || 0;
+
+  // play sound
+  document.getElementById("pop").play();
 });
 
 // DEBUG
-socket.on("connect", () => {
-  console.log("CONNECTED");
-});
+socket.on("connect", () => console.log("CONNECTED"));
 </script>
 
 </body>
