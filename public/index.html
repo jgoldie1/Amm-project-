@@ -28,15 +28,16 @@ button { margin:5px; padding:10px; }
 
 <div id="chat"></div>
 
-<input id="msg">
+<input id="msg" placeholder="type...">
 <button onclick="send()">Send</button>
 
-<!-- SOUND -->
 <audio id="pop" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-const socket = io();
+const socket = io({
+  transports: ["websocket"] // FORCE FIX
+});
 
 // CAMERA
 navigator.mediaDevices.getUserMedia({ video:true })
@@ -49,42 +50,53 @@ navigator.mediaDevices.getUserMedia({ video:true })
 function send(){
   const i = document.getElementById("msg");
   if(!i.value) return;
+
+  console.log("SENDING:", i.value);
   socket.emit("chat", i.value);
   i.value="";
 }
 
 // HEART
 function sendHeart(){
+  console.log("SEND HEART");
   socket.emit("heart");
 }
 
 // GIFT
 function sendGift(n){
+  console.log("SEND GIFT:", n);
   socket.emit("gift", n);
 }
 
 // RECEIVE CHAT
 socket.on("chat", msg => {
+  console.log("RECEIVE CHAT:", msg);
+
   const div = document.getElementById("chat");
   const line = document.createElement("div");
   line.innerText = msg;
   div.appendChild(line);
 });
 
-// UPDATE COUNTS + SOUND
+// UPDATE
 socket.on("update", data => {
-  if(!data) return;
+  console.log("UPDATE:", data);
 
-  document.getElementById("hearts").innerText = data.hearts || 0;
-  document.getElementById("gifts").innerText = data.gifts || 0;
-  document.getElementById("coins").innerText = data.coins || 0;
+  document.getElementById("hearts").innerText = data.hearts;
+  document.getElementById("gifts").innerText = data.gifts;
+  document.getElementById("coins").innerText = data.coins;
 
-  // play sound
-  document.getElementById("pop").play();
+  document.getElementById("pop").play().catch(()=>{});
 });
 
-// DEBUG
-socket.on("connect", () => console.log("CONNECTED"));
+// CONNECTION DEBUG
+socket.on("connect", () => {
+  console.log("✅ SOCKET CONNECTED");
+});
+
+socket.on("connect_error", (err) => {
+  console.log("❌ CONNECT ERROR:", err);
+});
 </script>
 
 </body>
