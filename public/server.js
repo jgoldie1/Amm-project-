@@ -14,14 +14,11 @@ let coins = 0;
 
 io.on("connection", (socket) => {
 
-  // SEND INITIAL DATA
   socket.emit("init", { hearts, gifts, coins });
 
-  // CHAT + BOT (FIXED)
   socket.on("chat", (msg) => {
     if (!msg) return;
 
-    // ALWAYS OBJECT (fix undefined)
     io.emit("chat", { text: msg });
 
     let reply = "👀 bot here";
@@ -33,17 +30,14 @@ io.on("connection", (socket) => {
     }, 500);
   });
 
-  // HEART
   socket.on("heart", () => {
     hearts++;
     coins++;
 
     io.emit("update", { hearts, gifts, coins });
-
-    io.emit("fx", { type: "heart", power: hearts > 500 ? 20 : 5 });
+    io.emit("fx", { type: "heart", power: 5 });
   });
 
-  // GIFT
   socket.on("gift", (n) => {
     const val = Number(n) || 1;
 
@@ -51,10 +45,12 @@ io.on("connection", (socket) => {
     coins += val * 10;
 
     io.emit("update", { hearts, gifts, coins });
-
-    io.emit("fx", { type: "gift", power: val >= 10 ? 20 : 10 });
+    io.emit("fx", { type: "gift", power: 10 });
   });
 
 });
 
-server.listen(process.env.PORT || 10000);
+const PORT = process.env.PORT || 10000;
+server.listen(PORT, "0.0.0.0", () => {
+  console.log("RUNNING ON " + PORT);
+});
