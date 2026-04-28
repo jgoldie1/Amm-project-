@@ -28,17 +28,17 @@ body { background:#111; color:#fff; text-align:center; font-family:Arial; }
 💰 <span id="coins">0</span>
 </div>
 
-<button onclick="heart()">❤️ Tap</button>
-<button onclick="gift(1)">🎁1</button>
-<button onclick="gift(10)">🎁10</button>
+<button onclick="sendHeart()">❤️</button>
+<button onclick="sendGift(1)">🎁1</button>
+<button onclick="sendGift(10)">🎁10</button>
 
 <div id="chat"></div>
 
 <input id="msg">
 <button onclick="send()">Send</button>
 
-<audio id="sound-heart" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
-<audio id="sound-gift" src="https://www.soundjay.com/explosion/sounds/explosion-01.mp3"></audio>
+<audio id="h" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
+<audio id="g" src="https://www.soundjay.com/explosion/sounds/explosion-01.mp3"></audio>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -46,24 +46,18 @@ const socket = io();
 
 // CAMERA
 navigator.mediaDevices.getUserMedia({ video:true })
-.then(stream => video.srcObject = stream)
-.catch(() => console.log("camera blocked"));
+.then(s => video.srcObject = s)
+.catch(()=>console.log("no cam"));
 
 // SEND
 function send(){
-  const m = msg.value;
-  if(!m) return;
-  socket.emit("chat", m);
+  if(!msg.value) return;
+  socket.emit("chat", msg.value);
   msg.value="";
 }
 
-function heart(){
-  socket.emit("heart");
-}
-
-function gift(n){
-  socket.emit("gift", n);
-}
+function sendHeart(){ socket.emit("heart"); }
+function sendGift(n){ socket.emit("gift", n); }
 
 // INIT
 socket.on("init", d => {
@@ -79,29 +73,26 @@ socket.on("update", d => {
   coins.innerText = d.coins;
 });
 
-// CHAT
-socket.on("chat", m => {
+// CHAT (FIXED NO UNDEFINED)
+socket.on("chat", d => {
   const line = document.createElement("div");
-  line.innerText = m;
+  line.innerText = d.text;
   chat.appendChild(line);
 });
 
 // FX
 socket.on("fx", d => {
   let count = 5;
-  if (d.power > 50) count = 10;
-  if (d.power > 200) count = 20;
-  if (d.power > 500) count = 30;
+  if(d.power>50) count=10;
+  if(d.power>200) count=20;
 
   for(let i=0;i<count;i++){
-    const el = document.createElement("div");
+    const el=document.createElement("div");
     el.innerText = d.type==="gift" ? "💥💰" : "❤️";
-
     el.style.position="fixed";
     el.style.bottom="0";
     el.style.left=Math.random()*100+"%";
     el.style.animation="up 1s linear";
-
     document.body.appendChild(el);
     setTimeout(()=>el.remove(),1000);
   }
@@ -109,8 +100,8 @@ socket.on("fx", d => {
 
 // SOUND
 socket.on("sound", t => {
-  if(t==="heart") document.getElementById("sound-heart").play();
-  if(t==="gift") document.getElementById("sound-gift").play();
+  if(t==="heart") h.play();
+  if(t==="gift") g.play();
 });
 </script>
 
