@@ -14,24 +14,49 @@ let gifts = 0;
 io.on("connection", (socket) => {
   console.log("User connected");
 
+  // fake profile (so UI doesn't break)
+  const user = {
+    username: "User" + Math.floor(Math.random() * 1000),
+    followers: Math.floor(Math.random() * 500),
+  };
+
   // INIT
   socket.emit("init", { hearts, gifts });
+  socket.emit("profile", user);
 
   // CHAT
   socket.on("chat", (msg) => {
-    io.emit("chat", msg);
+    io.emit("chat", {
+      user: user.username,
+      followers: user.followers,
+      msg,
+    });
+
+    // 🤖 SIMPLE BOT
+    if (Math.random() < 0.3) {
+      io.emit("chat", {
+        user: "StubbsAI",
+        msg: "🔥 that's fire",
+        isBot: true,
+      });
+    }
   });
 
-  // HEART
+  // ❤️ HEART
   socket.on("heart", () => {
     hearts++;
     io.emit("update", { hearts, gifts });
+    io.emit("sound", { type: "heart" });
   });
 
-  // GIFT
+  // 🎁 GIFT
   socket.on("gift", (amount) => {
-    gifts += amount || 1;
+    const amt = amount || 1;
+    gifts += amt;
+
     io.emit("update", { hearts, gifts });
+    io.emit("gift-anim", { amount: amt });
+    io.emit("sound", { type: "gift" });
   });
 });
 
