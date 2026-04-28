@@ -1,63 +1,59 @@
 <script>
-const socket = io({
-  transports: ["websocket"], // prevents duplicate polling events
-});
+const socket = io({ transports: ["websocket"] });
 
-let locked = false;
+let lock = false;
 
 // CAMERA
 navigator.mediaDevices.getUserMedia({ video: true })
-.then(stream => {
-  document.getElementById("video").srcObject = stream;
-});
+.then(s => document.getElementById("video").srcObject = s);
 
 // SEND CHAT
-function send() {
-  const input = document.getElementById("msg");
-  const text = input.value.trim();
-  if (!text) return;
-  socket.emit("chat", text);
-  input.value = "";
+function send(){
+  let i = document.getElementById("msg");
+  if(!i.value.trim()) return;
+  socket.emit("chat", i.value);
+  i.value="";
 }
 
-// ENTER KEY
-document.getElementById("msg").addEventListener("keydown", function(e) {
-  if (e.key === "Enter") send();
-});
+// ENTER
+document.getElementById("msg").onkeydown = e => {
+  if(e.key==="Enter") send();
+};
 
-// ✅ PREVENT SPAM CLICK
-function sendHeart() {
-  if (locked) return;
-  locked = true;
+// HEART
+function sendHeart(){
+  if(lock) return;
+  lock=true;
   socket.emit("heart");
-  setTimeout(() => locked = false, 300);
+  setTimeout(()=>lock=false,300);
 }
 
-function sendGift() {
-  if (locked) return;
-  locked = true;
+// GIFT
+function sendGift(){
+  if(lock) return;
+  lock=true;
   socket.emit("gift");
-  setTimeout(() => locked = false, 300);
+  setTimeout(()=>lock=false,300);
 }
 
 // CHAT
-socket.on("chat", function(msg) {
-  const div = document.getElementById("chat");
-  const line = document.createElement("div");
-  line.innerText = msg;
-  div.appendChild(line);
-  div.scrollTop = div.scrollHeight;
+socket.on("chat", m=>{
+  let d=document.getElementById("chat");
+  let l=document.createElement("div");
+  l.innerText=m;
+  d.appendChild(l);
+  d.scrollTop=d.scrollHeight;
 });
 
-// ✅ SINGLE SOURCE OF TRUTH
-socket.on("update", function(data) {
-  document.getElementById("hearts").innerText = data.hearts;
-  document.getElementById("gifts").innerText = data.gifts;
+// COUNTERS (ONLY SERVER)
+socket.on("update", d=>{
+  document.getElementById("hearts").innerText=d.hearts;
+  document.getElementById("gifts").innerText=d.gifts;
 });
 
 // INIT
-socket.on("init", function(data) {
-  document.getElementById("hearts").innerText = data.hearts || 0;
-  document.getElementById("gifts").innerText = data.gifts || 0;
+socket.on("init", d=>{
+  document.getElementById("hearts").innerText=d.hearts||0;
+  document.getElementById("gifts").innerText=d.gifts||0;
 });
 </script>
