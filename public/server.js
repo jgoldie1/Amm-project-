@@ -14,16 +14,17 @@ let coins = 0;
 
 io.on("connection", (socket) => {
 
+  // SEND INITIAL DATA
   socket.emit("init", { hearts, gifts, coins });
 
-  // CHAT + BOT
+  // CHAT + BOT (FIXED)
   socket.on("chat", (msg) => {
     if (!msg) return;
 
-    // ALWAYS send object (fix undefined)
+    // ALWAYS OBJECT (fix undefined)
     io.emit("chat", { text: msg });
 
-    let reply = "👀 bot";
+    let reply = "👀 bot here";
     if (msg.toLowerCase().includes("/genz")) reply = "no cap 🔥";
     if (msg.toLowerCase().includes("/genx")) reply = "back in my day 😎";
 
@@ -39,12 +40,7 @@ io.on("connection", (socket) => {
 
     io.emit("update", { hearts, gifts, coins });
 
-    let power = 5;
-    if (hearts > 250) power = 10;
-    if (hearts > 500) power = 20;
-    if (hearts > 1000) power = 30;
-
-    io.emit("fx", { type: "heart", power });
+    io.emit("fx", { type: "heart", power: hearts > 500 ? 20 : 5 });
   });
 
   // GIFT
@@ -56,15 +52,9 @@ io.on("connection", (socket) => {
 
     io.emit("update", { hearts, gifts, coins });
 
-    let power = 10;
-    if (val >= 10) power = 20;
-    if (val >= 100) power = 30;
-
-    io.emit("fx", { type: "gift", power });
+    io.emit("fx", { type: "gift", power: val >= 10 ? 20 : 10 });
   });
 
 });
 
-server.listen(process.env.PORT || 10000, () => {
-  console.log("RUNNING");
-});
+server.listen(process.env.PORT || 10000);
