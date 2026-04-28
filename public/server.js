@@ -1,63 +1,70 @@
-// server.js
-const express = require('express');
-const http = require('http');
-const path = require('path');
-const { Server } = require('socket.io');
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-let state = {
-  hearts: 0,
-  gifts: 0,
-  coins: 0,
-};
+app.use(express.static("public"));
 
-app.use(express.static(path.join(__dirname, 'public')));
+let hearts = 0;
+let gifts = 0;
+let coins = 0;
 
-io.on('connection', (socket) => {
-  // Send initial state
-  socket.emit('update', { ...state });
+io.on("connection", (socket) => {
 
-  // Listen for chat messages
-  socket.on('chat', (data = {}) => {
-    if (!data.text || typeof data.text !== 'string') return;
-    let msg = { text: data.text };
-    io.emit('chat', msg);
-    // Bot responses
-    if (msg.text === '/genz') {
-      setTimeout(() => io.emit('chat', { text: 'no cap 🔥' }), 500);
-    }
-    if (msg.text === '/genx') {
-      setTimeout(() => io.emit('chat', { text: 'back in my day 😎' }), 500);
-    }
+  socket.emit("init", { hearts, gifts, coins });
+
+  // CHAT + BOT
+  socket.on("chat", (msg) => {
+    if (!msg) return;
+
+    // ALWAYS send object (fix undefined)
+    io.emit("chat", { text: msg });
+
+    let reply = "👀 bot";
+    if (msg.toLowerCase().includes("/genz")) reply = "no cap 🔥";
+    if (msg.toLowerCase().includes("/genx")) reply = "back in my day 😎";
+
+    setTimeout(() => {
+      io.emit("chat", { text: reply });
+    }, 500);
   });
 
-  // Heart button tap
-  socket.on('heart', () => {
-    state.hearts += 1;
-    io.emit('update', { ...state });
-    io.emit('fx', { type: 'heart', power: 1 });
-    io.emit('sound', 'heart');
+  // HEART
+  socket.on("heart", () => {
+    hearts++;
+    coins++;
+
+    io.emit("update", { hearts, gifts, coins });
+
+    let power = 5;
+    if (hearts > 250) power = 10;
+    if (hearts > 500) power = 20;
+    if (hearts > 1000) power = 30;
+
+    io.emit("fx", { type: "heart", power });
   });
 
-  // Gift button tap. data: { amount }
-  socket.on('gift', (amount = 1) => {
-    amount = Number(amount) || 1;
-    if (amount < 1) amount = 1;
-    if (amount > 99) amount = 99;
-    state.gifts += amount;
-    state.coins += amount * 10;
-    io.emit('update', { ...state });
-    io.emit('fx', { type: 'gift', power: amount });
-    io.emit('sound', 'gift');
+  // GIFT
+  socket.on("gift", (n) => {
+    const val = Number(n) || 1;
+
+    gifts += val;
+    coins += val * 10;
+
+    io.emit("update", { hearts, gifts, coins });
+
+    let power = 10;
+    if (val >= 10) power = 20;
+    if (val >= 100) power = 30;
+
+    io.emit("fx", { type: "gift", power });
   });
 
-  socket.on('disconnect', () => {});
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log('Server on http://localhost:' + PORT);
+server.listen(process.env.PORT || 10000, () => {
+  console.log("RUNNING");
 });
