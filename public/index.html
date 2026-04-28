@@ -3,18 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>LIVE</title>
-<style>
-body { background:#111; color:#fff; text-align:center; font-family:Arial; }
-#video { width:300px; height:200px; background:#000; }
-#chat { height:150px; overflow:auto; border:1px solid #444; margin:10px; }
-button { margin:5px; padding:10px; }
-</style>
 </head>
-<body>
+<body style="background:#111;color:#fff;text-align:center;">
 
-<h2>LIVE</h2>
-
-<video id="video" autoplay muted playsinline></video>
+<h2>LIVE TEST</h2>
 
 <div>
 ❤️ <span id="hearts">0</span>
@@ -24,53 +16,26 @@ button { margin:5px; padding:10px; }
 
 <button onclick="sendHeart()">❤️</button>
 <button onclick="sendGift(1)">🎁1</button>
-<button onclick="sendGift(10)">🎁10</button>
 
 <div id="chat"></div>
 
-<input id="msg" placeholder="type...">
+<input id="msg">
 <button onclick="send()">Send</button>
-
-<audio id="pop" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-const socket = io({
-  transports: ["websocket"] // FORCE FIX
+const socket = io(); // NO options (important test)
+
+console.log("START");
+
+// CONNECTION TEST
+socket.on("connect", () => {
+  console.log("✅ CONNECTED TO SERVER");
 });
-
-// CAMERA
-navigator.mediaDevices.getUserMedia({ video:true })
-.then(stream => {
-  document.getElementById("video").srcObject = stream;
-})
-.catch(() => console.log("camera blocked"));
-
-// SEND CHAT
-function send(){
-  const i = document.getElementById("msg");
-  if(!i.value) return;
-
-  console.log("SENDING:", i.value);
-  socket.emit("chat", i.value);
-  i.value="";
-}
-
-// HEART
-function sendHeart(){
-  console.log("SEND HEART");
-  socket.emit("heart");
-}
-
-// GIFT
-function sendGift(n){
-  console.log("SEND GIFT:", n);
-  socket.emit("gift", n);
-}
 
 // RECEIVE CHAT
 socket.on("chat", msg => {
-  console.log("RECEIVE CHAT:", msg);
+  console.log("CHAT:", msg);
 
   const div = document.getElementById("chat");
   const line = document.createElement("div");
@@ -78,25 +43,29 @@ socket.on("chat", msg => {
   div.appendChild(line);
 });
 
-// UPDATE
+// UPDATE COUNTS
 socket.on("update", data => {
   console.log("UPDATE:", data);
 
   document.getElementById("hearts").innerText = data.hearts;
   document.getElementById("gifts").innerText = data.gifts;
   document.getElementById("coins").innerText = data.coins;
-
-  document.getElementById("pop").play().catch(()=>{});
 });
 
-// CONNECTION DEBUG
-socket.on("connect", () => {
-  console.log("✅ SOCKET CONNECTED");
-});
+// SEND
+function send(){
+  const i = document.getElementById("msg");
+  socket.emit("chat", i.value);
+  i.value="";
+}
 
-socket.on("connect_error", (err) => {
-  console.log("❌ CONNECT ERROR:", err);
-});
+function sendHeart(){
+  socket.emit("heart");
+}
+
+function sendGift(n){
+  socket.emit("gift", n);
+}
 </script>
 
 </body>
