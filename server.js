@@ -11,17 +11,20 @@ app.use(express.static("public"));
 io.on("connection", (socket) => {
   console.log("User connected");
 
+  // ✅ CHAT
   socket.on("chat", (msg) => {
     if (!msg) return;
-
     io.emit("chat", msg);
     io.emit("chat", "BOT: working");
   });
+
+  // ✅ HEART (FIXED — INSIDE connection)
+  socket.on("heart", () => {
+    io.emit("heart");
+  });
+
 });
 
 server.listen(process.env.PORT || 10000, () => {
   console.log("Server running");
-});
-socket.on("heart", () => {
-  io.emit("heart");
 });
