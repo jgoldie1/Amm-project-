@@ -1,57 +1,45 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Live Stream Chat</title>
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-</head>
-
-<body style="background:black;color:white;font-family:sans-serif;">
-
-<h2>🔴 LIVE</h2>
-
-<!-- 📷 CAMERA -->
-<video id="video" autoplay playsinline style="width:300px;border:1px solid white;"></video>
-
-<br><br>
-
-<!-- ❤️ HEART COUNTER -->
-<div>
-❤️ Hearts: <span id="hearts">0</span>
-</div>
-
-<!-- 💬 CHAT -->
-<div id="chat" style="height:200px;overflow:auto;border:1px solid white;margin:10px 0;"></div>
-
-<!-- INPUT -->
-<input id="msg" placeholder="Type message..." style="width:70%;padding:10px;">
-<button onclick="send()">Send</button>
-<button onclick="sendHeart()">❤️</button>
-
 <script>
 const socket = io();
-let heartCount = 0;
 
-// 🎥 CAMERA START
-navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+let heartCount = 0;
+let lastHeartTime = 0;
+
+// CAMERA
+navigator.mediaDevices.getUserMedia({ video: true })
 .then(stream => {
   document.getElementById("video").srcObject = stream;
 })
 .catch(() => {
-  alert("Camera blocked or not working");
+  alert("Allow camera");
 });
 
-// SEND MESSAGE
+// SEND MESSAGE (FIXES TEXT LOCK)
 function send() {
   const input = document.getElementById("msg");
   const text = input.value.trim();
+
   if (!text) return;
 
   socket.emit("chat", text);
+
   input.value = "";
+  input.focus(); // keeps typing smooth
 }
 
-// SEND HEART
+// ENTER KEY FIX
+document.getElementById("msg").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    send();
+  }
+});
+
+// HEART FIX (STOPS SPAM)
 function sendHeart() {
+  const now = Date.now();
+  if (now - lastHeartTime < 1000) return; // 1 per second
+
+  lastHeartTime = now;
   socket.emit("heart");
 }
 
@@ -69,12 +57,5 @@ socket.on("heart", () => {
   heartCount++;
   document.getElementById("hearts").innerText = heartCount;
 });
-
-// ENTER KEY
-document.getElementById("msg").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") send();
-});
 </script>
-
-</body>
-</html>
+<button onclick="sendHeart()">❤️</button>
