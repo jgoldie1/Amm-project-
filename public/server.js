@@ -6,28 +6,27 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const PORT = process.env.PORT || 10000;
-
 app.use(express.static("public"));
 
 let hearts = 0;
 let gifts = 0;
+let coins = 0;
 
 io.on("connection", (socket) => {
   console.log("User connected");
 
-  socket.emit("update", { hearts, gifts });
+  // INIT
+  socket.emit("init", { hearts, gifts, coins });
 
   // CHAT + BOT
   socket.on("chat", (msg) => {
     io.emit("chat", msg);
 
     let reply = "";
-
     if (msg.toLowerCase().includes("/genz")) {
-      reply = "no cap 🔥 that’s crazy fr fr";
+      reply = "no cap 🔥 that’s crazy fr";
     } else if (msg.toLowerCase().includes("/genx")) {
-      reply = "Back in my day, things were different 😎";
+      reply = "back in my day 😎";
     } else {
       reply = "Bot: I see you 👀";
     }
@@ -37,19 +36,27 @@ io.on("connection", (socket) => {
     }, 800);
   });
 
-  // HEART
+  // HEART (tap power)
   socket.on("heart", () => {
     hearts++;
-    io.emit("update", { hearts, gifts });
+    coins += 1;
+
+    io.emit("update", { hearts, gifts, coins });
+    io.emit("fx", { type: "tap", power: hearts });
   });
 
-  // GIFT
+  // GIFT (money)
   socket.on("gift", (amount) => {
-    gifts += amount || 1;
-    io.emit("update", { hearts, gifts });
+    const value = amount || 1;
+
+    gifts += value;
+    coins += value * 10;
+
+    io.emit("update", { hearts, gifts, coins });
+    io.emit("fx", { type: "gift", power: value });
   });
 });
 
-server.listen(PORT, "0.0.0.0", () => {
-  console.log("Server running on " + PORT);
+server.listen(process.env.PORT || 10000, () => {
+  console.log("Server running");
 });
