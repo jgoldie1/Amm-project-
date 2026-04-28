@@ -28,7 +28,7 @@ body { background:#111; color:#fff; text-align:center; font-family:Arial; }
 💰 <span id="coins">0</span>
 </div>
 
-<button onclick="sendHeart()">❤️</button>
+<button onclick="sendHeart()">❤️ TAP</button>
 <button onclick="sendGift(1)">🎁1</button>
 <button onclick="sendGift(10)">🎁10</button>
 
@@ -37,23 +37,21 @@ body { background:#111; color:#fff; text-align:center; font-family:Arial; }
 <input id="msg">
 <button onclick="send()">Send</button>
 
-<audio id="h" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
-<audio id="g" src="https://www.soundjay.com/explosion/sounds/explosion-01.mp3"></audio>
-
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const socket = io();
 
-// CAMERA
+// CAMERA FIX
 navigator.mediaDevices.getUserMedia({ video:true })
-.then(s => video.srcObject = s)
+.then(s => document.getElementById("video").srcObject = s)
 .catch(()=>console.log("no cam"));
 
 // SEND
 function send(){
-  if(!msg.value) return;
-  socket.emit("chat", msg.value);
-  msg.value="";
+  const input = document.getElementById("msg");
+  if(!input.value) return;
+  socket.emit("chat", input.value);
+  input.value="";
 }
 
 function sendHeart(){ socket.emit("heart"); }
@@ -66,7 +64,7 @@ socket.on("init", d => {
   coins.innerText = d.coins;
 });
 
-// UPDATE
+// UPDATE (FIXED)
 socket.on("update", d => {
   hearts.innerText = d.hearts;
   gifts.innerText = d.gifts;
@@ -75,18 +73,17 @@ socket.on("update", d => {
 
 // CHAT (FIXED NO UNDEFINED)
 socket.on("chat", d => {
+  if (!d || !d.text) return;
+
   const line = document.createElement("div");
   line.innerText = d.text;
-  chat.appendChild(line);
+
+  document.getElementById("chat").appendChild(line);
 });
 
-// FX
+// FX (SCALING WORKS)
 socket.on("fx", d => {
-  let count = 5;
-  if(d.power>50) count=10;
-  if(d.power>200) count=20;
-
-  for(let i=0;i<count;i++){
+  for(let i=0;i<d.power;i++){
     const el=document.createElement("div");
     el.innerText = d.type==="gift" ? "💥💰" : "❤️";
     el.style.position="fixed";
@@ -96,12 +93,6 @@ socket.on("fx", d => {
     document.body.appendChild(el);
     setTimeout(()=>el.remove(),1000);
   }
-});
-
-// SOUND
-socket.on("sound", t => {
-  if(t==="heart") h.play();
-  if(t==="gift") g.play();
 });
 </script>
 
