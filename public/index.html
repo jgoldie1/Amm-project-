@@ -210,3 +210,110 @@ socket.on("gift", function(amount) {
   }, 1000);
 });
 </script>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LIVE APP</title>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+
+<body style="background:black;color:white;font-family:sans-serif;text-align:center;">
+
+<h2>🔴 LIVE</h2>
+
+<!-- CAMERA -->
+<video id="video" autoplay playsinline width="300" style="border:2px solid white;"></video>
+
+<br><br>
+
+<!-- COUNTERS -->
+<div style="font-size:20px;">
+  ❤️ <span id="hearts">0</span> |
+  🎁 <span id="gifts">0</span>
+</div>
+
+<br>
+
+<!-- GIFT BUTTONS -->
+<div>
+  <button onclick="sendGift(250)">🎁 250</button>
+  <button onclick="sendGift(500)">🎁 500</button>
+  <button onclick="sendGift(1000)">🎁 1000</button>
+</div>
+
+<br>
+
+<!-- CHAT -->
+<div id="chat" style="height:200px;overflow:auto;border:1px solid white;margin:10px;"></div>
+
+<input id="msg" placeholder="Type..." style="width:70%;padding:10px;">
+<button onclick="send()">Send</button>
+<button onclick="sendHeart()">❤️</button>
+
+<!-- EFFECT -->
+<div id="effect" style="font-size:40px;margin-top:10px;"></div>
+
+<script>
+const socket = io({ transports: ["websocket"] });
+
+// CAMERA
+navigator.mediaDevices.getUserMedia({ video: true })
+.then(stream => {
+  document.getElementById("video").srcObject = stream;
+})
+.catch(() => alert("Allow camera"));
+
+// CHAT SEND
+function send() {
+  const input = document.getElementById("msg");
+  const text = input.value.trim();
+  if (!text) return;
+  socket.emit("chat", text);
+  input.value = "";
+}
+
+// ENTER KEY
+document.getElementById("msg").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") send();
+});
+
+// HEART
+function sendHeart() {
+  socket.emit("heart");
+  showEffect("❤️");
+}
+
+// GIFT
+function sendGift(amount) {
+  socket.emit("gift", amount);
+  showEffect("🎁 +" + amount);
+}
+
+// RECEIVE CHAT
+socket.on("chat", (msg) => {
+  const div = document.getElementById("chat");
+  const line = document.createElement("div");
+  line.innerText = msg;
+  div.appendChild(line);
+  div.scrollTop = div.scrollHeight;
+});
+
+// ✅ SINGLE SOURCE OF TRUTH (THIS FIXES COUNTER BUG)
+socket.on("update", (data) => {
+  document.getElementById("hearts").innerText = data.hearts || 0;
+  document.getElementById("gifts").innerText = data.gifts || 0;
+});
+
+// EFFECT ANIMATION
+function showEffect(text) {
+  const el = document.getElementById("effect");
+  el.innerText = text;
+  el.style.opacity = 1;
+  setTimeout(() => {
+    el.style.opacity = 0;
+  }, 800);
+}
+</script>
+
+</body>
+</html>
