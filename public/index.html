@@ -5,9 +5,9 @@
 <title>LIVE</title>
 
 <style>
-body { background:#111; color:#fff; text-align:center; font-family:Arial; }
-#video { width:300px; height:200px; background:#000; margin:10px auto; }
-#chat { height:150px; overflow:auto; border:1px solid #444; margin:10px; padding:5px; }
+body { background:#111; color:#fff; text-align:center; }
+#video { width:300px; height:200px; background:#000; }
+#chat { height:150px; overflow:auto; border:1px solid #444; margin:10px; }
 
 @keyframes up {
   from { transform:translateY(0); opacity:1; }
@@ -43,15 +43,14 @@ const socket = io();
 
 // CAMERA
 navigator.mediaDevices.getUserMedia({ video:true })
-.then(s => document.getElementById("video").srcObject = s)
-.catch(()=>console.log("camera blocked"));
+.then(s => video.srcObject = s)
+.catch(()=>console.log("no cam"));
 
-// SEND CHAT
+// SEND
 function send(){
-  const input = document.getElementById("msg");
-  if(!input.value) return;
-  socket.emit("chat", input.value);
-  input.value="";
+  if(!msg.value) return;
+  socket.emit("chat", msg.value);
+  msg.value="";
 }
 
 function sendHeart(){ socket.emit("heart"); }
@@ -59,29 +58,29 @@ function sendGift(n){ socket.emit("gift", n); }
 
 // INIT
 socket.on("init", d => {
-  document.getElementById("hearts").innerText = d.hearts;
-  document.getElementById("gifts").innerText = d.gifts;
-  document.getElementById("coins").innerText = d.coins;
+  hearts.innerText = d.hearts || 0;
+  gifts.innerText = d.gifts || 0;
+  coins.innerText = d.coins || 0;
 });
 
-// UPDATE
+// UPDATE (FIX COUNTS)
 socket.on("update", d => {
-  document.getElementById("hearts").innerText = d.hearts;
-  document.getElementById("gifts").innerText = d.gifts;
-  document.getElementById("coins").innerText = d.coins;
+  hearts.innerText = d.hearts || 0;
+  gifts.innerText = d.gifts || 0;
+  coins.innerText = d.coins || 0;
 });
 
-// CHAT (FIXED)
+// CHAT (NO UNDEFINED EVER)
 socket.on("chat", d => {
   if (!d || !d.text) return;
 
   const line = document.createElement("div");
   line.innerText = d.text;
 
-  document.getElementById("chat").appendChild(line);
+  chat.appendChild(line);
 });
 
-// FX
+// FX (WORKING)
 socket.on("fx", d => {
   for(let i=0;i<d.power;i++){
     const el=document.createElement("div");
