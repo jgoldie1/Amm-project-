@@ -15,45 +15,47 @@ let coins = 0;
 io.on("connection", (socket) => {
   console.log("User connected");
 
-  // INIT
+  // SEND START DATA
   socket.emit("init", { hearts, gifts, coins });
 
   // CHAT + BOT
   socket.on("chat", (msg) => {
+    if (!msg) return;
+
     io.emit("chat", msg);
 
-    let reply = "";
+    let reply = "Bot 👀";
     if (msg.toLowerCase().includes("/genz")) {
-      reply = "no cap 🔥 that’s crazy fr";
+      reply = "no cap 🔥 fr fr";
     } else if (msg.toLowerCase().includes("/genx")) {
       reply = "back in my day 😎";
-    } else {
-      reply = "Bot: I see you 👀";
     }
 
     setTimeout(() => {
       io.emit("chat", reply);
-    }, 800);
+    }, 700);
   });
 
-  // HEART (tap power)
+  // HEART
   socket.on("heart", () => {
     hearts++;
-    coins += 1;
+    coins++;
 
     io.emit("update", { hearts, gifts, coins });
-    io.emit("fx", { type: "tap", power: hearts });
+    io.emit("fx", { type: "heart", power: hearts });
+    io.emit("sound", "heart");
   });
 
-  // GIFT (money)
+  // GIFT
   socket.on("gift", (amount) => {
-    const value = amount || 1;
+    const val = Number(amount) || 1;
 
-    gifts += value;
-    coins += value * 10;
+    gifts += val;
+    coins += val * 10;
 
     io.emit("update", { hearts, gifts, coins });
-    io.emit("fx", { type: "gift", power: value });
+    io.emit("fx", { type: "gift", power: val });
+    io.emit("sound", "gift");
   });
 });
 
