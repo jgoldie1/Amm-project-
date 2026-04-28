@@ -1,15 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Live App</title>
-  <style>
-    body { font-family: Arial; background:#111; color:#fff; text-align:center; }
-    #video { width:300px; height:200px; background:#000; margin:10px auto; }
-    #chat { height:150px; overflow:auto; border:1px solid #444; margin:10px; padding:5px; }
-    button { margin:5px; padding:10px; }
-  </style>
+<meta charset="UTF-8">
+<title>Live App</title>
+
+<style>
+body { font-family: Arial; background:#111; color:#fff; text-align:center; }
+
+#video { width:300px; height:200px; background:#000; margin:10px auto; }
+
+#chat {
+  height:150px;
+  overflow:auto;
+  border:1px solid #444;
+  margin:10px;
+  padding:5px;
+}
+
+button { margin:5px; padding:10px; }
+
+@keyframes up {
+  0% { transform:translateY(0); opacity:1; }
+  100% { transform:translateY(-150px); opacity:0; }
+}
+</style>
 </head>
+
 <body>
 
 <h2>LIVE</h2>
@@ -31,6 +47,7 @@
 <button onclick="send()">Send</button>
 
 <script src="/socket.io/socket.io.js"></script>
+
 <script>
 const socket = io();
 
@@ -54,11 +71,13 @@ function send(){
 // HEART
 function sendHeart(){
   socket.emit("heart");
+  pop("❤️");
 }
 
 // GIFT
 function sendGift(n){
   socket.emit("gift", n);
+  pop("🎁 x" + n);
 }
 
 // RECEIVE CHAT
@@ -67,6 +86,7 @@ socket.on("chat", msg => {
   const line = document.createElement("div");
   line.innerText = msg;
   div.appendChild(line);
+  div.scrollTop = div.scrollHeight;
 });
 
 // UPDATE COUNTS
@@ -74,6 +94,21 @@ socket.on("update", data => {
   document.getElementById("hearts").innerText = data.hearts;
   document.getElementById("gifts").innerText = data.gifts;
 });
+
+// 💥 POP EFFECT
+function pop(text) {
+  for (let i = 0; i < 5; i++) {
+    const el = document.createElement("div");
+    el.innerText = text;
+    el.style.position = "fixed";
+    el.style.bottom = "0";
+    el.style.left = Math.random() * 100 + "%";
+    el.style.fontSize = "30px";
+    el.style.animation = "up 1s linear";
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1000);
+  }
+}
 </script>
 
 </body>
