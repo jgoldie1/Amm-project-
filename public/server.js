@@ -1,28 +1,29 @@
 const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
-
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
-
-app.use(express.static("public"));
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
 
 let hearts = 0;
 let gifts = 0;
 let coins = 0;
 
-io.on("connection", (socket) => {
+// serve frontend
+app.use(express.static("public"));
 
+// SOCKET
+io.on("connection", (socket) => {
+  console.log("user connected");
+
+  // CHAT + BOT
   socket.on("chat", (msg) => {
     io.emit("chat", msg);
 
     let reply = "Bot 👀";
 
-    if (msg.toLowerCase().includes("/genz")) {
-      reply = "no cap 🔥 that’s crazy fr";
-    } else if (msg.toLowerCase().includes("/genx")) {
-      reply = "back in my day 😎";
+    if (msg && msg.toLowerCase().includes("/genz")) {
+      reply = "no cap 🔥";
+    } else if (msg && msg.toLowerCase().includes("/genx")) {
+      reply = "old school 😎";
     }
 
     setTimeout(() => {
@@ -30,22 +31,27 @@ io.on("connection", (socket) => {
     }, 500);
   });
 
+  // HEART
   socket.on("heart", () => {
     hearts++;
     io.emit("update", { hearts, gifts, coins });
   });
 
+  // GIFT
   socket.on("gift", (n) => {
+    n = Number(n) || 0;
     gifts += n;
     coins += n * 10;
-
     io.emit("update", { hearts, gifts, coins });
-    io.emit("boom", n);
   });
 
+  // SEND CURRENT STATE ON CONNECT (IMPORTANT FIX)
+  socket.emit("update", { hearts, gifts, coins });
 });
 
-const PORT = process.env.PORT || 10000;
-server.listen(PORT, () => {
-  console.log("RUNNING " + PORT);
+// PORT FIX FOR RENDER
+const PORT = process.env.PORT || 3000;
+
+http.listen(PORT, () => {
+  console.log("server running on", PORT);
 });
