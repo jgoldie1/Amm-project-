@@ -12,63 +12,89 @@ let data = {
 
 app.get("/", (req, res) => {
   res.send(`
-  <html>
-  <body style="background:#111;color:#fff;text-align:center;">
+<!DOCTYPE html>
+<html>
+<body style="background:#111;color:#fff;text-align:center;">
 
-  <h2>LIVE</h2>
+<h2>LIVE</h2>
 
-  ❤️ <span>${data.hearts}</span>
-  🎁 <span>${data.gifts}</span>
-  💰 <span>${data.coins}</span>
+<div>
+❤️ <span id="hearts">0</span>
+🎁 <span id="gifts">0</span>
+💰 <span id="coins">0</span>
+</div>
 
-  <br><br>
+<br>
 
-  <button onclick="tap()">🔥 TAP</button>
-  <button onclick="gift()">🎁 GIFT</button>
+<button onclick="tap()">🔥 TAP</button>
+<button onclick="gift()">🎁 GIFT</button>
 
-  <br><br>
+<br><br>
 
-  <input id="msg">
-  <button onclick="send()">Send</button>
+<input id="msg" placeholder="type">
+<button onclick="send()">Send</button>
 
-  <div id="chat"></div>
+<div id="chat"></div>
 
-  <script>
-  async function tap(){
-    await fetch('/heart',{method:'POST'});
-    location.reload();
-  }
+<script>
+async function load(){
+  const res = await fetch('/data');
+  const d = await res.json();
 
-  async function gift(){
-    await fetch('/gift',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({n:1})
-    });
-    location.reload();
-  }
+  document.getElementById('hearts').innerText = d.hearts;
+  document.getElementById('gifts').innerText = d.gifts;
+  document.getElementById('coins').innerText = d.coins;
 
-  async function send(){
-    const i = document.getElementById('msg');
-    if(!i.value) return;
+  const chat = document.getElementById('chat');
+  chat.innerHTML = '';
+  d.chat.slice(-10).forEach(m=>{
+    const div = document.createElement('div');
+    div.innerText = m;
+    chat.appendChild(div);
+  });
+}
 
-    await fetch('/chat',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({msg:i.value})
-    });
+async function tap(){
+  await fetch('/heart',{method:'POST'});
+  load();
+}
 
-    location.reload();
-  }
-  </script>
+async function gift(){
+  await fetch('/gift',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({n:1})
+  });
+  load();
+}
 
-  ${
-    data.chat.slice(-10).map(m => `<div>${m}</div>`).join("")
-  }
+async function send(){
+  const i = document.getElementById('msg');
+  if(!i.value) return;
 
-  </body>
-  </html>
+  await fetch('/chat',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({msg:i.value})
+  });
+
+  i.value='';
+  load();
+}
+
+setInterval(load,1000);
+load();
+</script>
+
+</body>
+</html>
   `);
+});
+
+// API
+
+app.get("/data",(req,res)=>{
+  res.json(data);
 });
 
 app.post("/heart",(req,res)=>{
@@ -91,9 +117,10 @@ app.post("/chat",(req,res)=>{
 
   if(msg.toLowerCase().includes("/genz")){
     data.chat.push("no cap 🔥");
-  }
-  if(msg.toLowerCase().includes("/genx")){
+  } else if(msg.toLowerCase().includes("/genx")){
     data.chat.push("old school 😎");
+  } else {
+    data.chat.push("Bot 👀");
   }
 
   res.sendStatus(200);
