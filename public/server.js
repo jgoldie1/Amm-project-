@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 
-// 🔑 THIS FIXES BUTTON (IMPORTANT)
+// 🔥 THIS LINE FIXES TAP
 app.use(express.urlencoded({ extended: true }));
 
 let hearts = 0;
