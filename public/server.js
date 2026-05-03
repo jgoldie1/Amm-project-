@@ -1,38 +1,50 @@
-require('dotenv').config();
-const express = require('express');
-const path = require('path');
+require("dotenv").config();
+const express = require("express");
+const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+let counter = 0;
+let messages = [];
+
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
-// TEST ROUTE (IMPORTANT)
-app.get('/api/state', (req, res) => {
-  res.json({ counter: 0, messages: [] });
-});
-
-// TAP TEST
-app.post('/api/counter/increment', (req, res) => {
-  res.json({ counter: Math.floor(Math.random() * 100) });
-});
-
-// CHAT TEST
-app.post('/api/chat', (req, res) => {
+app.get("/api/state", (req, res) => {
   res.json({
-    messages: [
-      { role: "user", content: "test" },
-      { role: "bot", content: "bot: ok" }
-    ]
+    counter,
+    messages
   });
 });
 
-// FRONTEND
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.post("/api/counter/increment", (req, res) => {
+  counter++;
+  res.json({ counter });
 });
 
-app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
+app.post("/api/chat", (req, res) => {
+  const { text } = req.body;
+
+  if (!text) return res.status(400).json({ error: "no text" });
+
+  messages.push({ role: "user", content: text });
+
+  // simple bot
+  let reply = "bot: ok";
+  if (text.toLowerCase().includes("hello")) reply = "bot: hello";
+  if (text.toLowerCase().includes("help")) reply = "bot: help ready";
+
+  messages.push({ role: "bot", content: reply });
+
+  // keep last 20
+  messages = messages.slice(-20);
+
+  res.json({ messages });
 });
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+app.listen(PORT, () => console.log("Server running on " + PORT));
