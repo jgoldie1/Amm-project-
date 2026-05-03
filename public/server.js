@@ -1,9 +1,10 @@
-require("dotenv").config();
+console.log("VERSION 4 CLEAN");
+
 const express = require("express");
 const path = require("path");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 let counter = 0;
 let messages = [];
@@ -11,11 +12,9 @@ let messages = [];
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
+// API
 app.get("/api/state", (req, res) => {
-  res.json({
-    counter,
-    messages
-  });
+  res.json({ counter, messages });
 });
 
 app.post("/api/counter/increment", (req, res) => {
@@ -25,24 +24,22 @@ app.post("/api/counter/increment", (req, res) => {
 
 app.post("/api/chat", (req, res) => {
   const { text } = req.body;
-
   if (!text) return res.status(400).json({ error: "no text" });
 
   messages.push({ role: "user", content: text });
 
-  // simple bot
   let reply = "bot: ok";
   if (text.toLowerCase().includes("hello")) reply = "bot: hello";
   if (text.toLowerCase().includes("help")) reply = "bot: help ready";
 
   messages.push({ role: "bot", content: reply });
 
-  // keep last 20
   messages = messages.slice(-20);
 
   res.json({ messages });
 });
 
+// FRONTEND LAST
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
