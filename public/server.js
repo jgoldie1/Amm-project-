@@ -1,31 +1,38 @@
-const express = require("express");
+require('dotenv').config();
+const express = require('express');
+const path = require('path');
+
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-// 🔥 THIS LINE FIXES TAP
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-let hearts = 0;
-
-app.get("/", (req, res) => {
-  res.send(`
-  <html>
-  <body style="background:black;color:white;text-align:center;">
-
-  <h1>WORKING V4</h1>
-  <h2>${hearts}</h2>
-
-  <form method="POST" action="/tap">
-    <button type="submit">TAP</button>
-  </form>
-
-  </body>
-  </html>
-  `);
+// TEST ROUTE (IMPORTANT)
+app.get('/api/state', (req, res) => {
+  res.json({ counter: 0, messages: [] });
 });
 
-app.post("/tap", (req, res) => {
-  hearts++;
-  res.redirect("/");
+// TAP TEST
+app.post('/api/counter/increment', (req, res) => {
+  res.json({ counter: Math.floor(Math.random() * 100) });
 });
 
-app.listen(process.env.PORT || 3000, () => console.log("RUNNING"));
+// CHAT TEST
+app.post('/api/chat', (req, res) => {
+  res.json({
+    messages: [
+      { role: "user", content: "test" },
+      { role: "bot", content: "bot: ok" }
+    ]
+  });
+});
+
+// FRONTEND
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
+});
