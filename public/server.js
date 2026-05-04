@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 
 app.use(express.json());
+app.use(express.static(__dirname));
 
 let count = 0;
 
@@ -11,11 +12,9 @@ app.get('/count', (req, res) => {
 
 app.post('/increment', (req, res) => {
   count++;
+  console.log("increment hit:", count);
   res.json({ count });
 });
 
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
-});
-
-app.listen(3000, () => console.log('Server running'));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log('Server running on ' + PORT));
