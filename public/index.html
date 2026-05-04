@@ -1,17 +1,12 @@
-<!DOCTYPE html>
-<html>
-<body>
-
-<button onclick="increment()">Tap</button>
-<p id="count">0</p>
-
-<script>
-function increment() {
-  console.log("CLICK WORKS");
-  let el = document.getElementById('count');
-  el.innerText = parseInt(el.innerText) + 1;
+async function load() {
+  const res = await fetch('/count');
+  const data = await res.json();
+  document.getElementById('count').innerText = data.count;
 }
-</script>
 
-</body>
-</html>
+async function increment() {
+  await fetch('/increment', { method: 'POST' });
+  load();
+}
+
+load();
