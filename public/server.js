@@ -5,37 +5,22 @@ app.use(express.json());
 
 let count = 0;
 
+// TEST ROUTE (important)
+app.get('/', (req, res) => {
+  res.send('server alive');
+});
+
+// COUNT ROUTE
 app.get('/count', (req, res) => {
   res.json({ count });
 });
 
+// INCREMENT
 app.post('/increment', (req, res) => {
   count++;
   res.json({ count });
 });
 
-app.get('/', (req, res) => {
-  res.send(`
-    <h1>Counter</h1>
-    <button onclick="inc()">Tap</button>
-    <p id="count">0</p>
-
-    <script>
-      async function load() {
-        const res = await fetch('/count');
-        const data = await res.json();
-        document.getElementById('count').innerText = data.count;
-      }
-
-      async function inc() {
-        const res = await fetch('/increment', { method: 'POST' });
-        const data = await res.json();
-        document.getElementById('count').innerText = data.count;
-      }
-
-      load();
-    </script>
-  `);
-});
-
-app.listen(3000, () => console.log('running'));
+// REQUIRED FOR RENDER
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log('running on ' + PORT));
