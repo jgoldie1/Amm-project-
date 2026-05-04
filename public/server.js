@@ -10,34 +10,55 @@ app.use(session({
   saveUninitialized: true
 }));
 
-let count = 0;
+let taps = 0;
+let gifts = 0;
 
-app.get('/count', (req, res) => {
-  res.json({ count });
+// routes
+app.get('/data', (req, res) => {
+  res.json({ taps, gifts });
 });
 
-app.post('/increment', (req, res) => {
-  count++;
-  res.json({ count });
+app.post('/tap', (req, res) => {
+  taps++;
+  res.json({ taps, gifts });
 });
 
+app.post('/gift', (req, res) => {
+  gifts++;
+  res.json({ taps, gifts });
+});
+
+// UI
 app.get('/', (req, res) => {
   res.send(`
     <h1>Counter</h1>
-    <button onclick="increment()">Tap</button>
-    <p id="count">0</p>
+
+    <button onclick="tap()">Tap</button>
+    <button onclick="gift()">Gift</button>
+
+    <p>Taps: <span id="taps">0</span></p>
+    <p>Gifts: <span id="gifts">0</span></p>
 
     <script>
       async function load() {
-        const res = await fetch('/count');
+        const res = await fetch('/data');
         const data = await res.json();
-        document.getElementById('count').innerText = data.count;
+        document.getElementById('taps').innerText = data.taps;
+        document.getElementById('gifts').innerText = data.gifts;
       }
 
-      async function increment() {
-        const res = await fetch('/increment', { method: 'POST' });
+      async function tap() {
+        const res = await fetch('/tap', { method: 'POST' });
         const data = await res.json();
-        document.getElementById('count').innerText = data.count;
+        document.getElementById('taps').innerText = data.taps;
+        document.getElementById('gifts').innerText = data.gifts;
+      }
+
+      async function gift() {
+        const res = await fetch('/gift', { method: 'POST' });
+        const data = await res.json();
+        document.getElementById('taps').innerText = data.taps;
+        document.getElementById('gifts').innerText = data.gifts;
       }
 
       load();
