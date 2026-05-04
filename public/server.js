@@ -13,7 +13,6 @@ app.use(session({
 let taps = 0;
 let gifts = 0;
 
-// routes
 app.get('/data', (req, res) => {
   res.json({ taps, gifts });
 });
@@ -28,7 +27,6 @@ app.post('/gift', (req, res) => {
   res.json({ taps, gifts });
 });
 
-// UI
 app.get('/', (req, res) => {
   res.send(`
     <h1>Counter</h1>
@@ -40,22 +38,24 @@ app.get('/', (req, res) => {
     <p>Gifts: <span id="gifts">0</span></p>
 
     <script>
+      const BASE = window.location.origin;
+
       async function load() {
-        const res = await fetch('/data');
+        const res = await fetch(BASE + '/data');
         const data = await res.json();
         document.getElementById('taps').innerText = data.taps;
         document.getElementById('gifts').innerText = data.gifts;
       }
 
       async function tap() {
-        const res = await fetch('/tap', { method: 'POST' });
+        const res = await fetch(BASE + '/tap', { method: 'POST' });
         const data = await res.json();
         document.getElementById('taps').innerText = data.taps;
         document.getElementById('gifts').innerText = data.gifts;
       }
 
       async function gift() {
-        const res = await fetch('/gift', { method: 'POST' });
+        const res = await fetch(BASE + '/gift', { method: 'POST' });
         const data = await res.json();
         document.getElementById('taps').innerText = data.taps;
         document.getElementById('gifts').innerText = data.gifts;
