@@ -1,3 +1,7 @@
+<button onclick="increment()">Tap</button>
+<p id="count">0</p>
+
+<script>
 async function load() {
   const res = await fetch('/count');
   const data = await res.json();
@@ -5,8 +9,10 @@ async function load() {
 }
 
 async function increment() {
+  console.log("clicked");
   await fetch('/increment', { method: 'POST' });
   load();
 }
 
 load();
+</script>
