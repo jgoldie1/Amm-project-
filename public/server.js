@@ -1,65 +1,36 @@
-const session = require('express-session');
 const express = require('express');
-const session = require('express-session');
-
 const app = express();
+
 app.use(express.json());
 
-app.use(session({
-  secret: 'secret-key',
-  resave: false,
-  saveUninitialized: true
-}));
+let count = 0;
 
-let taps = 0;
-let gifts = 0;
-
-app.get('/data', (req, res) => {
-  res.json({ taps, gifts });
+app.get('/count', (req, res) => {
+  res.json({ count });
 });
 
-app.post('/tap', (req, res) => {
-  taps++;
-  res.json({ taps, gifts });
-});
-
-app.post('/gift', (req, res) => {
-  gifts++;
-  res.json({ taps, gifts });
+app.post('/increment', (req, res) => {
+  count++;
+  res.json({ count });
 });
 
 app.get('/', (req, res) => {
   res.send(`
     <h1>Counter</h1>
-
-    <button onclick="tap()">Tap</button>
-    <button onclick="gift()">Gift</button>
-
-    <p>Taps: <span id="taps">0</span></p>
-    <p>Gifts: <span id="gifts">0</span></p>
+    <button onclick="inc()">Tap</button>
+    <p id="count">0</p>
 
     <script>
-      const BASE = window.location.origin;
-
       async function load() {
-        const res = await fetch(BASE + '/data');
+        const res = await fetch('/count');
         const data = await res.json();
-        document.getElementById('taps').innerText = data.taps;
-        document.getElementById('gifts').innerText = data.gifts;
+        document.getElementById('count').innerText = data.count;
       }
 
-      async function tap() {
-        const res = await fetch(BASE + '/tap', { method: 'POST' });
+      async function inc() {
+        const res = await fetch('/increment', { method: 'POST' });
         const data = await res.json();
-        document.getElementById('taps').innerText = data.taps;
-        document.getElementById('gifts').innerText = data.gifts;
-      }
-
-      async function gift() {
-        const res = await fetch(BASE + '/gift', { method: 'POST' });
-        const data = await res.json();
-        document.getElementById('taps').innerText = data.taps;
-        document.getElementById('gifts').innerText = data.gifts;
+        document.getElementById('count').innerText = data.count;
       }
 
       load();
@@ -67,4 +38,4 @@ app.get('/', (req, res) => {
   `);
 });
 
-app.listen(3000, () => console.log('Server running'));
+app.listen(3000, () => console.log('running'));
