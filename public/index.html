@@ -1,83 +1,18 @@
-<!DOCTYPE html>
-<html>
-<body style="background:#111;color:#fff;text-align:center;">
-
-<h2>FINAL WORKING</h2>
-
-<div>
-❤️ <span id="hearts">0</span>
-🎁 <span id="gifts">0</span>
-💰 <span id="coins">0</span>
-</div>
-
-<button onclick="tap()">🔥 TAP</button>
-<button onclick="gift()">🎁 GIFT</button>
-
-<br><br>
-
-<input id="msg">
-<button onclick="send()">Send</button>
-
-<div id="chat"></div>
-
-<audio id="sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
+<button onclick="increment()">Tap</button>
+<p id="count">0</p>
 
 <script>
-// UPDATE LOOP (NO SOCKETS)
-async function load(){
-  const res = await fetch("/data");
-  const d = await res.json();
-
-  document.getElementById("hearts").innerText = d.hearts;
-  document.getElementById("gifts").innerText = d.gifts;
-  document.getElementById("coins").innerText = d.coins;
-
-  const chat = document.getElementById("chat");
-  chat.innerHTML = "";
-  d.chat.slice(-10).forEach(m => {
-    const div = document.createElement("div");
-    div.innerText = m;
-    chat.appendChild(div);
-  });
+async function load() {
+  const res = await fetch('/count');
+  const data = await res.json();
+  document.getElementById('count').innerText = data.count;
 }
 
-// TAP
-async function tap(){
-  await fetch("/heart", { method: "POST" });
-  document.getElementById("sound").play().catch(()=>{});
-  load();
+async function increment() {
+  const res = await fetch('/increment', { method: 'POST' });
+  const data = await res.json();
+  document.getElementById('count').innerText = data.count;
 }
 
-// GIFT
-async function gift(){
-  await fetch("/gift", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ n: 1 })
-  });
-  document.getElementById("sound").play().catch(()=>{});
-  load();
-}
-
-// CHAT
-async function send(){
-  const i = document.getElementById("msg");
-  if (!i.value) return;
-
-  await fetch("/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ msg: i.value })
-  });
-
-  i.value = "";
-  load();
-}
-
-// AUTO REFRESH
-setInterval(load, 1000);
 load();
 </script>
-
-</body>
-</html>
