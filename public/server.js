@@ -5,12 +5,12 @@ app.use(express.json());
 
 let count = 0;
 
-// TEST ROUTE (important)
+// ROOT
 app.get('/', (req, res) => {
-  res.send('server alive');
+  res.send('OK');
 });
 
-// COUNT ROUTE
+// COUNT
 app.get('/count', (req, res) => {
   res.json({ count });
 });
@@ -21,6 +21,8 @@ app.post('/increment', (req, res) => {
   res.json({ count });
 });
 
-// REQUIRED FOR RENDER
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('running on ' + PORT));
+// FORCE BIND (important for Render)
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log('running on ' + PORT);
+});
