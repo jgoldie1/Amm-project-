@@ -6,12 +6,10 @@ let count = 0;
 app.use(express.json());
 app.use(express.static('public'));
 
-// GET count
 app.get('/count', (req, res) => {
   res.json({ count });
 });
 
-// POST increment
 app.post('/increment', (req, res) => {
   count++;
   res.json({ count });
