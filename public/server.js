@@ -2,15 +2,14 @@ const express = require('express');
 const app = express();
 
 app.use(express.json());
+app.use(express.static('public')); // <-- THIS WAS MISSING
 
 let count = 0;
 
-// GET count
 app.get('/count', (req, res) => {
   res.json({ count });
 });
 
-// POST increment
 app.post('/increment', (req, res) => {
   count++;
   res.json({ count });
