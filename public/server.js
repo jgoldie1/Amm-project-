@@ -1,21 +1,24 @@
 const express = require('express');
 const app = express();
 
+const PORT = process.env.PORT || 10000;
+
 let count = 0;
 
-app.use(express.json());
-app.use(express.static('public'));
+// test route (very important)
+app.get('/', (req, res) => {
+  res.send('WORKING');
+});
 
 app.get('/count', (req, res) => {
   res.json({ count });
 });
 
-app.post('/increment', (req, res) => {
+app.get('/increment', (req, res) => {
   count++;
   res.json({ count });
 });
 
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log('Server running');
+  console.log('Server running on ' + PORT);
 });
