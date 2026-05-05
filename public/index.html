@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Tap Counter</title>
+  <title>Counter</title>
 </head>
 <body>
 
+<h1 id="count">0</h1>
 <button onclick="increment()">Tap</button>
-<p id="count">0</p>
 
 <script>
 async function load() {
@@ -16,9 +16,8 @@ async function load() {
 }
 
 async function increment() {
-  const res = await fetch('/increment');
-  const data = await res.json();
-  document.getElementById('count').innerText = data.count;
+  await fetch('/increment', { method: 'POST' });
+  load();
 }
 
 load();
