@@ -6,12 +6,17 @@ let count = 0;
 app.use(express.json());
 app.use(express.static('public'));
 
-// test route (IMPORTANT)
 app.get('/', (req, res) => {
   res.send('WORKING');
 });
 
 app.get('/count', (req, res) => {
+  res.json({ count });
+});
+
+// 👇 IMPORTANT: support BOTH GET + POST (fixes your issue)
+app.get('/increment', (req, res) => {
+  count++;
   res.json({ count });
 });
 
