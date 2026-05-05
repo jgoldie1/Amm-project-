@@ -9,8 +9,9 @@ async function load() {
 }
 
 async function increment() {
-  await fetch('/increment', { method: 'POST' });
-  load();
+  const res = await fetch('/increment');
+  const data = await res.json();
+  document.getElementById('count').innerText = data.count;
 }
 
 load();
