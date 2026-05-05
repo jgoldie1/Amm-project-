@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
 
-app.use(express.json());
 app.use(express.static(__dirname));
 
 let count = 0;
@@ -10,9 +9,8 @@ app.get('/count', (req, res) => {
   res.json({ count });
 });
 
-app.post('/increment', (req, res) => {
+app.get('/increment', (req, res) => {
   count++;
-  console.log("COUNT:", count);
   res.json({ count });
 });
 
