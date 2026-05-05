@@ -3,7 +3,7 @@ const app = express();
 
 let count = 0;
 
-// serve page
+// homepage
 app.get('/', (req, res) => {
   res.send(`
     <h1 id="count">0</h1>
@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
 
       async function inc() {
         await fetch('/increment');
-        await load();
+        load();
       }
 
       load();
@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
   `);
 });
 
-// ✅ THIS is what was missing / broken
+// ✅ REQUIRED ROUTES (you are missing these in production)
 app.get('/count', (req, res) => {
   res.json({ count });
 });
