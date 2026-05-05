@@ -12,7 +12,7 @@ app.get('/count', (req, res) => {
 
 app.post('/increment', (req, res) => {
   count++;
-  console.log("INCREMENT HIT:", count);
+  console.log("COUNT:", count);
   res.json({ count });
 });
 
