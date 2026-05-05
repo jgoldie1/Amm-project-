@@ -3,11 +3,11 @@ const app = express();
 
 let count = 0;
 
-// homepage
 app.get('/', (req, res) => {
   res.send(`
     <h1 id="count">0</h1>
     <button onclick="inc()">Tap</button>
+
     <script>
       async function load() {
         const res = await fetch('/count');
@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
 
       async function inc() {
         await fetch('/increment');
-        load();
+        await load();
       }
 
       load();
@@ -25,7 +25,6 @@ app.get('/', (req, res) => {
   `);
 });
 
-// ✅ REQUIRED ROUTES (you are missing these in production)
 app.get('/count', (req, res) => {
   res.json({ count });
 });
