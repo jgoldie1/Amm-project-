@@ -3,6 +3,9 @@ const app = express();
 
 let count = 0;
 
+// 👇 THIS IS THE FIX
+const PORT = process.env.PORT || 3000;
+
 app.use(express.static('public'));
 
 app.get('/count', (req, res) => {
@@ -14,4 +17,6 @@ app.get('/increment', (req, res) => {
   res.json({ count });
 });
 
-app.listen(3000, () => console.log('Server running'));
+app.listen(PORT, () => {
+  console.log('Server running on port ' + PORT);
+});
