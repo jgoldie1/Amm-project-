@@ -12,9 +12,9 @@ app.get('/count', (req, res) => {
 
 app.post('/increment', (req, res) => {
   count++;
-  console.log("increment:", count);
+  console.log("INCREMENT HIT:", count);
   res.json({ count });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Server running on ' + PORT));
+app.listen(PORT, () => console.log('Server running'));
