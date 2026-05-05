@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1 id="count">0</h1>
 <button onclick="increment()">Tap</button>
 
 <script>
@@ -8,9 +13,12 @@ async function load() {
 }
 
 async function increment() {
-  await fetch('/increment', { method: 'POST' });
-  await load();
+  await fetch('/increment'); // 👈 works now (GET)
+  load();
 }
 
 load();
 </script>
+
+</body>
+</html>
