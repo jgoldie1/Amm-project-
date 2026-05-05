@@ -1,11 +1,12 @@
 const express = require('express');
 const app = express();
 
-const PORT = process.env.PORT || 10000;
-
 let count = 0;
 
-// test route (very important)
+app.use(express.json());
+app.use(express.static('public'));
+
+// test route (IMPORTANT)
 app.get('/', (req, res) => {
   res.send('WORKING');
 });
@@ -14,10 +15,12 @@ app.get('/count', (req, res) => {
   res.json({ count });
 });
 
-app.get('/increment', (req, res) => {
+app.post('/increment', (req, res) => {
   count++;
   res.json({ count });
 });
+
+const PORT = process.env.PORT || 10000;
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log('Server running on ' + PORT);
