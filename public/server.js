@@ -9,8 +9,9 @@ app.get('/count', (req, res) => {
   res.json({ count });
 });
 
+// 🔴 THIS WAS MISSING OR WRONG
 app.get('/increment', (req, res) => {
-  count++;
+  count = count + 1;
   res.json({ count });
 });
 
