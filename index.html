@@ -1,7 +1,125 @@
-const chatBox = document.getElementById("chat-messages");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jarvis OS</title>
 
-socket.on("chat", (msg) => {
-  const line = document.createElement("div");
-  line.innerText = msg;
-  chatBox.appendChild(line);
-});
+<style>
+body{
+    margin:0;
+    background:black;
+    color:#00ffff;
+    font-family:Arial;
+    overflow:hidden;
+}
+
+#video{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100vw;
+    height:100vh;
+    object-fit:cover;
+    opacity:0.35;
+}
+
+#overlay{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+}
+
+#hud{
+    position:absolute;
+    top:20px;
+    left:20px;
+    z-index:10;
+    background:rgba(0,0,0,0.6);
+    padding:20px;
+    border:1px solid cyan;
+    border-radius:12px;
+}
+
+button{
+    background:cyan;
+    color:black;
+    border:none;
+    padding:10px 20px;
+    margin-top:10px;
+    cursor:pointer;
+    font-weight:bold;
+    border-radius:8px;
+}
+
+#status{
+    margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<video id="video" autoplay playsinline></video>
+
+<div id="overlay">
+    <div id="hud">
+        <h1>JARVIS OS</h1>
+
+        <button onclick="startJarvis()">
+            START JARVIS
+        </button>
+
+        <div id="status">
+            System Offline
+        </div>
+    </div>
+</div>
+
+<script>
+
+const video = document.getElementById("video");
+const statusText = document.getElementById("status");
+
+async function startJarvis(){
+
+    try{
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video:true,
+            audio:true
+        });
+
+        video.srcObject = stream;
+
+        statusText.innerHTML =
+            "Jarvis Online<br>Camera Active<br>Microphone Active";
+
+        speak("Hello. Jarvis online.");
+
+    }catch(err){
+
+        statusText.innerHTML =
+            "Permission denied or device unavailable.";
+
+        console.error(err);
+    }
+}
+
+function speak(text){
+
+    const speech = new SpeechSynthesisUtterance(text);
+
+    speech.rate = 1;
+    speech.pitch = 1;
+
+    window.speechSynthesis.speak(speech);
+}
+
+</script>
+
+</body>
+</html>
