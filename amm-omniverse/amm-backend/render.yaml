@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: amm-omniverse-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: amm-omniverse-frontend
+          property: host
+      # Add these manually in Render dashboard:
+      # SUPABASE_URL
+      # SUPABASE_SERVICE_KEY  (Settings > API > service_role key)
+      # STRIPE_SECRET_KEY
+      # STRIPE_WEBHOOK_SECRET
+      # LIVEKIT_API_KEY
+      # LIVEKIT_API_SECRET

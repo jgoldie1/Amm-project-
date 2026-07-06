@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#020212" />
+    <meta name="description" content="AMM Omniverse — Faith creator metaverse: 3D city, 7 sports games, live streaming, marketplace, music royalties, blockchain" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <!-- Lion of Judah Holographic Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <!-- Google Pay / Apple Pay -->
+    <meta name="google-play-app" content="app-id=com.tryamm.omniverse" />
+    <!-- Generation targeting -->
+    <meta name="target-audience" content="Gen X, Millennials, Gen Z, Gen Alpha, Baby Boomers, Faith Community, Black-owned Business" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- iOS PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="AMM Omniverse" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+
+    <!-- OG tags -->
+    <meta property="og:title" content="AMM Omniverse — Lion of Judah · All American Marketplace" />
+    <meta property="og:image" content="/favicon.svg" />
+    <meta property="og:description" content="Faith creator metaverse: 11 games, Drama Box, live streaming, music royalties, Holoverse, Black-owned marketplace. All generations welcome." />
+    <meta property="og:description" content="Faith-centered creator metaverse — 6 realms, sports, music, marketplace" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://tryamm.online" />
+
+    <title>AMM Omniverse</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Register service worker for PWA
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {})
+        })
+      }
+    </script>
+  </body>
+</html>
