@@ -1,10 +1,27 @@
 # All American Marketplace (AMM) Project Hub
 
-Welcome to the AMM Project workspace. This repository contains the source code folders for the AMM digital ecosystem:
+Welcome to the AMM Project workspace. This repository coordinates the source code and deployments for the AMM digital ecosystem.
 
-* **[amm-omniverse](file:///Users/pro/Documents/%20allamericanmark/amm-omniverse/)**: Main React/Vite full-stack application (livestreams, games, directory, recording DAW, Express backend, and mobile apps).
-* **[isaiah-starverse](file:///Users/pro/Documents/%20allamericanmark/isaiah-starverse/)**: Next.js talent platform ("Anyone Can Be A Star") with AI scoring.
-* **[amm-card-arena](file:///Users/pro/Documents/%20allamericanmark/amm-card-arena/)**: Holographic card battle game engine.
+## 🚀 Live Staging Environments (Milestone 1)
+* **Frontend Application:** [https://amm-omniverse.vercel.app](https://amm-omniverse.vercel.app)
+* **Backend API Gateway:** [https://amm-backend-vic.onrender.com](https://amm-backend-vic.onrender.com)
+* **Active Development Branch:** `developer-vic`
 
-## Documentation
-For a complete breakdown of each project directory, build environments, and technical stack details, refer to **[OVERVIEW.md](file:///Users/pro/Documents/%20allamericanmark/OVERVIEW.md)** in the root folder.
+---
+
+## 📁 Repository Directory Structure
+
+* **[amm-omniverse/](file:///Users/pro/Documents/%20allamericanmark/amm-omniverse/)** — Creator Platform (Three.js sports hubs, DAW Recording Studio, and Node/Express backend).
+* **[isaiah-starverse/](file:///Users/pro/Documents/%20allamericanmark/isaiah-starverse/)** — Next.js talent platform ("Anyone Can Be A Star") with Messiah AI MD audition coaching.
+* **[amm-card-arena/](file:///Users/pro/Documents/%20allamericanmark/amm-card-arena/)** — Holographic 3D trading card game engine and Hebrew calendar appointed feast integrations.
+
+---
+
+## 📖 Technical Documentation
+
+* **[OVERVIEW.md](file:///Users/pro/Documents/%20allamericanmark/OVERVIEW.md)**: Workspace tech stacks, database components, and step-by-step local running instructions.
+* **[docs/](file:///Users/pro/Documents/%20allamericanmark/docs/)**: Project management folders containing:
+  * **[todo.md](file:///Users/pro/Documents/%20allamericanmark/docs/todo.md)**: Current roadmap checklists and implementation goals.
+  * **[test.md](file:///Users/pro/Documents/%20allamericanmark/docs/test.md)**: Verification and QA manual check guidelines.
+  * **[walkthrough.md](file:///Users/pro/Documents/%20allamericanmark/docs/walkthrough.md)**: Active milestone log of URLs, variables, and API responses.
+
