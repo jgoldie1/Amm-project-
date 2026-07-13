@@ -747,9 +747,8 @@ function CtrlBtn({ onClick, children, color = '#888' }: { onClick: () => void; c
 
 export function FaithRealm() {
   const store = useGameStore()
-  const [showDramaBox, setShowDramaBox] = useState(false)
   const [prayer, setPrayer] = useState('')
-  const [tab, setTab] = useState<'sanctuary' | 'prayer' | 'calendar' | 'ministry'>('sanctuary')
+  const [tab, setTab] = useState<'sanctuary' | 'drama box' | 'prayer' | 'calendar' | 'ministry'>('sanctuary')
 
   const sermons = [
     { title: 'Walking in the Spirit', pastor: 'Elder Solomon', views: 3421, duration: '52 min' },
@@ -768,16 +767,22 @@ export function FaithRealm() {
 
   return (
     <RealmShell color="#8800ff" icon="✝️" title="SERVANTS OF CHRIST — FAITH REALM" onBack={() => store.setScreen('city')}>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        {(['sanctuary', 'prayer', 'calendar', 'ministry'] as const).map(t => (
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20, overflowX: 'auto' }}>
+        {(['sanctuary', 'drama box', 'prayer', 'calendar', 'ministry'] as const).map(t => (
           <button key={t} onClick={() => setTab(t)} style={{
             background: tab === t ? '#8800ff22' : 'transparent',
             border: `1px solid ${tab === t ? '#8800ff' : '#333'}`,
             color: tab === t ? '#8800ff' : '#666',
-            borderRadius: 6, padding: '6px 14px', cursor: 'pointer', fontFamily: 'monospace', fontWeight: 700, textTransform: 'uppercase', fontSize: 11
+            borderRadius: 6, padding: '6px 14px', cursor: 'pointer', fontFamily: 'monospace', fontWeight: 700, textTransform: 'uppercase', fontSize: 11, whiteSpace: 'nowrap'
           }}>{t}</button>
         ))}
       </div>
+
+      {tab === 'drama box' && (
+        <Suspense fallback={<div style={{ color: '#fff', padding: 20 }}>Loading AMM Drama Box...</div>}>
+          <AMMDramaBox onClose={() => setTab('sanctuary')} />
+        </Suspense>
+      )}
 
       {tab === 'sanctuary' && (
         <div>
