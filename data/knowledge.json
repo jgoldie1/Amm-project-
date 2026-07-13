@@ -1,0 +1,58 @@
+[
+  {
+    "id": "platform-overview",
+    "title": "TryAMM Platform Overview",
+    "category": "platform",
+    "tags": ["tryamm", "platform", "streaming", "marketplace", "creator"],
+    "modes": ["quick", "creator", "accessibility"],
+    "content": "TryAMM is a creator-centered streaming, music, vertical-drama, anime, marketplace, education and live-community platform. The first release should focus on AMM Intelligence, creator discovery, content showcases, accessibility and marketplace connections."
+  },
+  {
+    "id": "creator-onboarding",
+    "title": "Creator Onboarding",
+    "category": "creator",
+    "tags": ["creator", "upload", "music", "video", "channel", "earn"],
+    "modes": ["creator", "quick", "accessibility"],
+    "content": "A creator starts by creating a profile, choosing a creator category, completing identity and payout setup, uploading approved content, adding titles and descriptions, selecting audience settings and publishing after moderation review."
+  },
+  {
+    "id": "faith-language",
+    "title": "Faith Language and Content",
+    "category": "faith",
+    "tags": ["yahavah", "yahusha", "mashiach", "ruach", "faith", "sabbath"],
+    "modes": ["faith", "quick"],
+    "content": "TryAMM faith programming may use the names Yahavah, Yahusha Ha Mashiach and Ruach. Faith answers must respectfully separate quoted Scripture, historical information, community interpretation and fictional creative storytelling."
+  },
+  {
+    "id": "accessibility",
+    "title": "Accessibility First",
+    "category": "accessibility",
+    "tags": ["stroke", "paralysis", "cane", "voice", "one-handed", "captions", "accessible"],
+    "modes": ["accessibility", "quick", "creator"],
+    "content": "TryAMM should support voice-first navigation, one-handed operation, large controls, keyboard access, captions, transcripts, audio descriptions, reduced motion, clear focus states and confirmation before sensitive actions."
+  },
+  {
+    "id": "genesis-pilot",
+    "title": "Genesis Protocol: The Signal",
+    "category": "content",
+    "tags": ["anime", "genesis", "signal", "pilot", "black anime", "science fiction"],
+    "modes": ["nerd", "quick", "creator", "faith"],
+    "content": "The flagship anime pilot is Genesis Protocol: The Signal. A disabled inventor who rebuilt his life after a stroke leads a young creative team investigating a mysterious transmission beneath a futuristic marketplace city. The discovery connects technology, music, faith, history and an ancient responsibility."
+  },
+  {
+    "id": "content-slate",
+    "title": "Season Zero Content Slate",
+    "category": "content",
+    "tags": ["drama", "anime", "music", "podcast", "faith", "kids", "marketplace"],
+    "modes": ["quick", "creator", "nerd"],
+    "content": "Season Zero includes one anime pilot, one vertical drama pilot, one faith program, one kids animation, one original music session, one creator documentary, one marketplace show and one gaming show. Each pilot should point viewers to related creators, products and community experiences."
+  },
+  {
+    "id": "nerd-mode",
+    "title": "Nerd Mode Creative Standard",
+    "category": "creative",
+    "tags": ["anime", "manga", "cosplay", "lore", "worldbuilding", "gaming"],
+    "modes": ["nerd", "creator"],
+    "content": "Nerd Mode should analyze character arcs, lore consistency, power rules, costume construction, props, mecha, game mechanics, Easter eggs, timelines and production choices instead of giving shallow recommendations."
+  }
+]
