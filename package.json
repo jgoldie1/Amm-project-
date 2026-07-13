@@ -1,12 +1,23 @@
 {
-  "name": "amm-project",
-  "version": "1.0.0",
+  "name": "tryamm-intelligence-mvp",
+  "version": "1.1.0",
+  "private": true,
+  "description": "TryAMM Intelligence MVP with multimode chat, platform knowledge and feedback logging",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "check": "node --check server.js && node --check public/app.js"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "socket.io": "^4.7.5"
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "socket.io": "^4.8.1"
   }
 }
