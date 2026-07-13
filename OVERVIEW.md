@@ -96,8 +96,8 @@ npm run dev
 
 The platform is configured with continuous deployment hooks to automatically compile new pushes to the `developer-vic` branch:
 
-* **Staging Frontend:** [https://amm-omniverse.vercel.app](https://amm-omniverse.vercel.app) (Serves React files via Vercel CDN edge caches).
-* **Staging Backend:** [https://amm-backend-vic.onrender.com](https://amm-backend-vic.onrender.com) (Host API endpoint running in free Node runtime on Render).
+* **Staging Frontend:** [https://tryamm.online](https://tryamm.online) (Serves React files via Vercel CDN edge caches).
+* **Staging Backend:** [https://api.tryamm.online](https://api.tryamm.online) (Host API endpoint running in free Node runtime on Render).
 * **Database System:** Supabase PostgreSQL instance (direct interface for tables query/upserts).
 * **Streaming Engine:** LiveKit Cloud sandbox.
 

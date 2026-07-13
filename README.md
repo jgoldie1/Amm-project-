@@ -3,8 +3,8 @@
 Welcome to the AMM Project workspace. This repository coordinates the source code and deployments for the AMM digital ecosystem.
 
 ## 🚀 Live Staging Environments (Milestone 1)
-* **Frontend Application:** [https://amm-omniverse.vercel.app](https://amm-omniverse.vercel.app)
-* **Backend API Gateway:** [https://amm-backend-vic.onrender.com](https://amm-backend-vic.onrender.com)
+* **Frontend Application:** [https://tryamm.online](https://tryamm.online)
+* **Backend API Gateway:** [https://api.tryamm.online](https://api.tryamm.online)
 * **Active Development Branch:** `developer-vic`
 
 ---
