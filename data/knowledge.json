@@ -16,6 +16,22 @@
     "content": "A creator starts by creating a profile, choosing a creator category, completing identity and payout setup, uploading approved content, adding titles and descriptions, selecting audience settings and publishing after moderation review."
   },
   {
+    "id": "africa-payments",
+    "title": "Africa Payments with Flutterwave and Paystack",
+    "category": "marketplace",
+    "tags": ["africa", "flutterwave", "paystack", "stack flow", "payments", "mobile money", "bank transfer", "payouts"],
+    "modes": ["creator", "quick", "accessibility"],
+    "content": "TryAMM uses a provider-neutral African payments layer with Flutterwave, Paystack and a local mock provider. It is designed for marketplace checkout, creator subscriptions, gifts, ticketing, vendor settlements and approved creator payouts. Live use requires provider onboarding, verified webhooks, transaction verification, KYC and AML controls, an internal ledger, reconciliation, tax review and confirmation that each country, currency and payment method is supported."
+  },
+  {
+    "id": "africa-business",
+    "title": "Africa Business Expansion",
+    "category": "business",
+    "tags": ["africa", "nigeria", "ghana", "kenya", "south africa", "vendors", "creators", "localization"],
+    "modes": ["creator", "quick", "nerd"],
+    "content": "The recommended TryAMM Africa pilot begins with Nigeria, Ghana, Kenya and South Africa, followed by additional supported Anglophone and Francophone markets. The platform should localize currency, language, customer support, address and phone formats, mobile-money methods, low-bandwidth media, creator onboarding, vendor logistics and country-specific compliance before expanding."
+  },
+  {
     "id": "faith-language",
     "title": "Faith Language and Content",
     "category": "faith",
