@@ -1,0 +1,13 @@
+[
+  {"id":"gridiron-x","title":"Gridiron X","genre":"football","engine":"webgl","modes":["mobile","tv-cast","controller","arena"],"status":"prototype"},
+  {"id":"court-kings","title":"Court Kings","genre":"basketball","engine":"webgl","modes":["mobile","tv-cast","controller","arena"],"status":"prototype"},
+  {"id":"diamond-legends","title":"Diamond Legends","genre":"baseball","engine":"webgl","modes":["mobile","tv-cast","controller","arena"],"status":"prototype"},
+  {"id":"ice-storm","title":"Ice Storm","genre":"hockey","engine":"webgl","modes":["mobile","tv-cast","controller","arena"],"status":"prototype"},
+  {"id":"world-pitch","title":"World Pitch","genre":"soccer","engine":"webgl","modes":["mobile","tv-cast","controller","arena"],"status":"prototype"},
+  {"id":"fight-night-holo","title":"Fight Night Holo","genre":"boxing-mma","engine":"webgl","modes":["mobile","controller","arena","vr"],"status":"prototype"},
+  {"id":"street-verse","title":"StreetVerse","genre":"open-world-action","engine":"unreal-bridge","modes":["mobile","pc","controller","tv-cast"],"status":"design"},
+  {"id":"battlefront-zero","title":"Battlefront Zero","genre":"shooter","engine":"unreal-bridge","modes":["mobile","pc","controller","arena","vr"],"status":"design"},
+  {"id":"yogihoo-arena","title":"Yogihoo Arena","genre":"creature-card-battle","engine":"webxr","modes":["mobile","ar","controller","arena"],"status":"prototype"},
+  {"id":"volcano-racers","title":"Volcano Racers","genre":"racing","engine":"webgl","modes":["mobile","controller","tv-cast","arena","vr"],"status":"prototype"},
+  {"id":"kingdom-builders","title":"Kingdom Builders","genre":"city-builder-strategy","engine":"webgl","modes":["mobile","pc","controller","mr"],"status":"prototype"}
+]
