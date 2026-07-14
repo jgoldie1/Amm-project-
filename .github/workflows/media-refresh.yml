@@ -1,0 +1,21 @@
+name: Media refresh
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Refresh licensed news and weather
+        env:
+          TRYAMM_API_URL: ${{ secrets.TRYAMM_API_URL }}
+          ADMIN_ACTION_KEY: ${{ secrets.ADMIN_ACTION_KEY }}
+        run: |
+          test -n "$TRYAMM_API_URL"
+          test -n "$ADMIN_ACTION_KEY"
+          curl --fail-with-body --retry 3 --max-time 90 \
+            -X POST "$TRYAMM_API_URL/api/memory/growth/media-refresh/run" \
+            -H "Content-Type: application/json" \
+            -H "x-admin-key: $ADMIN_ACTION_KEY" \
+            --data '{"country":"US","language":"en"}'
