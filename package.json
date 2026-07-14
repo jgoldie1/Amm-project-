@@ -1,13 +1,13 @@
 {
   "name": "tryamm-intelligence-mvp",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "private": true,
-  "description": "TryAMM Intelligence and Phase 2 platform integration MVP",
+  "description": "TryAMM Intelligence, Phase 2 integrations and Holo ecosystem MVP",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check public/app.js && node --check public/platform.js && node --check services/payments.js && node --check services/stripe.js && node --check services/livekit.js && node --check services/claude.js && node --check services/meshy.js"
+    "check": "node --check server.js && node --check public/app.js && node --check public/platform.js && node --check public/holo.js && node --check services/payments.js && node --check services/stripe.js && node --check services/livekit.js && node --check services/claude.js && node --check services/meshy.js && node --check services/holo.js"
   },
   "engines": { "node": ">=20" },
   "dependencies": {
