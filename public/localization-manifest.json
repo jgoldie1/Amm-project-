@@ -1,0 +1,12 @@
+{
+  "sourceLocale": "en-US",
+  "policy": "Only human-reviewed regional translations may be published as indexable pages.",
+  "pages": [
+    {"path":"/regions/nigeria-creators.html","market":"Nigeria","locale":"en-NG","status":"publishable-source","reviewRequired":false},
+    {"path":"/regions/japan-creators.html","market":"Japan","locale":"ja-JP","status":"translation-review-required","reviewRequired":true},
+    {"path":"/regions/korea-music-video.html","market":"South Korea","locale":"ko-KR","status":"translation-review-required","reviewRequired":true},
+    {"path":"/regions/caribbean-independent-music.html","market":"Caribbean","locale":"en-029","status":"regional-editor-review-required","reviewRequired":true},
+    {"path":"/regions/austria-creator-marketplace.html","market":"Austria","locale":"de-AT","status":"translation-review-required","reviewRequired":true}
+  ],
+  "requiredChecks": ["meaning accuracy","local terminology","legal claims","currency and pricing","cultural review","SEO title and description","human approval name and date"]
+}
