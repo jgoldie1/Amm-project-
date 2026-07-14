@@ -5,15 +5,18 @@ const fs = require("fs");
 const helmet = require("helmet");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
+const { initializePayment, verifyWebhook, createPayout, getProvider } = require("./services/payments");
 
 const app = express();
 const PORT = process.env.PORT || 10000;
 const DATA_DIR = path.join(__dirname, "data");
 const KNOWLEDGE_FILE = path.join(DATA_DIR, "knowledge.json");
 const FEEDBACK_FILE = path.join(DATA_DIR, "feedback.json");
+const PAYMENT_EVENTS_FILE = path.join(DATA_DIR, "payment-events.json");
 
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: process.env.ALLOWED_ORIGIN || true }));
+app.use("/api/payments/webhooks/:provider", express.raw({ type: "application/json", limit: "1mb" }));
 app.use(express.json({ limit: "1mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/api", rateLimit({ windowMs: 60_000, limit: 60, standardHeaders: true }));
@@ -90,7 +93,12 @@ function localAnswer(message, mode, sources) {
 }
 
 app.get("/api/health", (req, res) => {
-  res.json({ ok: true, service: "AMM Intelligence", providerConnected: Boolean(process.env.AI_API_URL && process.env.AI_API_KEY && process.env.AI_MODEL) });
+  res.json({
+    ok: true,
+    service: "AMM Intelligence",
+    providerConnected: Boolean(process.env.AI_API_URL && process.env.AI_API_KEY && process.env.AI_MODEL),
+    africaPaymentProvider: getProvider()
+  });
 });
 
 app.get("/api/knowledge", (req, res) => {
@@ -142,10 +150,43 @@ app.get("/api/content/search", (req, res) => {
   res.json(docs);
 });
 
+app.post("/api/payments/initialize", async (req, res, next) => {
+  try {
+    const payment = await initializePayment(req.body || {});
+    res.status(201).json(payment);
+  } catch (error) { next(error); }
+});
+
+app.post("/api/payments/payouts", async (req, res, next) => {
+  try {
+    if (String(req.headers["x-admin-key"] || "") !== String(process.env.ADMIN_ACTION_KEY || "")) {
+      return res.status(403).json({ error: "Payout authorization failed." });
+    }
+    const payout = await createPayout(req.body || {});
+    res.status(201).json(payout);
+  } catch (error) { next(error); }
+});
+
+app.post("/api/payments/webhooks/:provider", (req, res) => {
+  const provider = String(req.params.provider || "").toLowerCase();
+  if (!verifyWebhook(provider, req.body, req.headers)) return res.status(401).json({ error: "Invalid webhook signature." });
+  let event;
+  try { event = JSON.parse(req.body.toString("utf8")); }
+  catch { return res.status(400).json({ error: "Invalid webhook payload." }); }
+  const events = readJson(PAYMENT_EVENTS_FILE, []);
+  events.push({ provider, receivedAt: new Date().toISOString(), event });
+  writeJson(PAYMENT_EVENTS_FILE, events.slice(-5000));
+  res.sendStatus(200);
+});
+
+app.get("/payments/mock-success", (req, res) => {
+  res.send(`<h1>Mock payment complete</h1><p>Reference: ${String(req.query.reference || "unknown")}</p><p>This page is for development only.</p>`);
+});
+
 app.get("*", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
 app.use((error, req, res, next) => {
   console.error(error);
-  res.status(500).json({ error: "AMM Intelligence encountered an unexpected error." });
+  res.status(500).json({ error: error.message || "AMM Intelligence encountered an unexpected error." });
 });
 
 app.listen(PORT, () => console.log(`AMM Intelligence running on port ${PORT}`));
