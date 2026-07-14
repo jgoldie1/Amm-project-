@@ -5,6 +5,8 @@ const memoryCore=require('./googolplex-memory');
 const memoryEvaluation=require('./memory-evaluation');
 const africaWalletApi=require('./africa-wallet-api');
 const globalCommerceApi=require('./global-commerce-api');
+const quantumVocalStudioApi=require('./quantum-vocal-studio-api');
+const aniyahCrossborderApi=require('./aniyah-crossborder-api');
 
 const router=express.Router();
 const SECRET_PATTERNS=[
@@ -61,7 +63,9 @@ async function insertEventMemory(client,userId,{tier,title,content,subjectType,s
 
 router.use('/africa',africaWalletApi.router);
 router.use('/global',globalCommerceApi.router);
-router.get('/status',(req,res)=>res.json({configured:configured(),embedding:Boolean(process.env.EMBEDDING_API_URL&&process.env.EMBEDDING_API_KEY&&process.env.EMBEDDING_MODEL),service:'Googolplex Memory',africaCommerce:true,globalCommerce:true}));
+router.use('/music-studio',quantumVocalStudioApi.router);
+router.use('/aniyah',aniyahCrossborderApi.router);
+router.get('/status',(req,res)=>res.json({configured:configured(),embedding:Boolean(process.env.EMBEDDING_API_URL&&process.env.EMBEDDING_API_KEY&&process.env.EMBEDDING_MODEL),service:'Googolplex Memory',africaCommerce:true,globalCommerce:true,quantumVocalStudio:true,aniyahCrossborder:true}));
 router.use(auth);
 router.get('/',async(req,res,next)=>{try{const client=supabaseService.admin();let query=client.from('ai_memories').select('*').eq('owner_id',req.user.id).order('updated_at',{ascending:false}).limit(Math.min(Number(req.query.limit)||100,500));if(req.query.tier)query=query.eq('tier',req.query.tier);if(req.query.status)query=query.eq('status',req.query.status);const {data,error}=await query;if(error)throw error;res.json(data.map(normalize));}catch(error){next(error);}});
 router.post('/',async(req,res,next)=>{try{const client=supabaseService.admin();const safe=memoryCore.createMemory({...req.body,ownerId:req.user.id,content:redact(req.body.content),facts:(req.body.facts||[]).map(redact),consent:Boolean(req.body.consent)});const embedding=await embed(`${safe.title}\n${safe.content}\n${safe.facts.join('\n')}`).catch(()=>null);const row={owner_id:req.user.id,subject_type:safe.subjectType,subject_id:safe.subjectId||req.user.id,tier:safe.tier,title:safe.title,content:safe.content,facts:safe.facts,tags:safe.tags,source_ids:safe.sourceIds,confidence:safe.confidence,importance:safe.importance,visibility:safe.visibility,consent:safe.consent,expires_at:safe.expiresAt,embedding};const found=await conflicts(client,req.user.id,safe);const {data,error}=await client.from('ai_memories').insert(row).select().single();if(error)throw error;await audit(client,req.user.id,'create',data.id,{conflicts:found.length,visibility:data.visibility});res.status(201).json({...normalize(data),conflicts:found});}catch(error){next(error);}});
