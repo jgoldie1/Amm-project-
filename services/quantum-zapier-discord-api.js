@@ -1,0 +1,18 @@
+const express=require('express');
+const crypto=require('crypto');
+const engine=require('./quantum-viral-engine');
+const supabase=require('./supabase');
+const router=express.Router();
+async function auth(req,res,next){if(!supabase.configured())return res.status(503).json({error:'Supabase is not configured.'});return supabase.requireUser(req,res,next);}
+function admin(req){return process.env.ADMIN_ACTION_KEY&&crypto.timingSafeEqual(Buffer.from(String(req.headers['x-admin-key']||'')),Buffer.from(String(process.env.ADMIN_ACTION_KEY)));}
+async function discordSend(message,options={}){const url=options.webhookUrl||process.env.DISCORD_WEBHOOK_URL;if(!url)throw new Error('DISCORD_WEBHOOK_URL is not configured.');const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:String(message).slice(0,1900),username:options.username||'TryAMM Quantum Growth',allowed_mentions:{parse:[]}})});if(!response.ok)throw new Error(`Discord returned ${response.status}`);return{sent:true,status:response.status};}
+async function zapierSend(event){const url=process.env.ZAPIER_CATCH_HOOK_URL;if(!url)throw new Error('ZAPIER_CATCH_HOOK_URL is not configured.');const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','X-TryAMM-Key':process.env.ZAPIER_SHARED_SECRET||''},body:JSON.stringify(event)});if(!response.ok)throw new Error(`Zapier returned ${response.status}`);return{sent:true,status:response.status};}
+router.get('/platforms',(req,res)=>res.json(engine.PLATFORMS));
+router.post('/score',(req,res)=>res.json(engine.score(req.body||{})));
+router.use(auth);
+router.post('/campaigns',async(req,res,next)=>{try{const item=engine.campaign(req.body);const {data,error}=await supabase.admin().from('viral_campaigns').insert({owner_id:req.user.id,name:item.name,goal:item.goal,audience:item.audience,region:item.region,language:item.language,platforms:item.platforms,offer:item.offer,truthful_scarcity:item.truthfulScarcity,referral_code:item.referralCode,variant_count:item.variants,status:item.status,content_matrix:engine.contentMatrix(item)}).select().single();if(error)throw error;res.status(201).json(data);}catch(e){next(e);}});
+router.get('/campaigns',async(req,res,next)=>{try{const {data,error}=await supabase.admin().from('viral_campaigns').select('*').eq('owner_id',req.user.id).order('created_at',{ascending:false});if(error)throw error;res.json(data);}catch(e){next(e);}});
+router.post('/discord/announce',async(req,res,next)=>{try{res.json(await discordSend(req.body.message,{username:req.body.username}));}catch(e){next(e);}});
+router.post('/zapier/trigger',async(req,res,next)=>{try{const event=engine.zapierEvent(req.body.type||'campaign-event',{...req.body.payload,ownerId:req.user.id});const result=await zapierSend(event);await supabase.admin().from('automation_events').insert({owner_id:req.user.id,provider:'zapier',event_type:event.type,idempotency_key:event.idempotencyKey,status:'sent',payload:event.payload});res.status(201).json({...event,...result});}catch(e){next(e);}});
+router.post('/system/dispatch',async(req,res,next)=>{try{if(!admin(req))return res.status(403).json({error:'Admin authorization failed.'});const event=engine.zapierEvent(req.body.type||'system-event',req.body.payload||{});const outputs={};if(req.body.toZapier!==false)outputs.zapier=await zapierSend(event);if(req.body.toDiscord)outputs.discord=await discordSend(req.body.message||`${event.type}: ${JSON.stringify(event.payload).slice(0,1400)}`);res.json({event,outputs});}catch(e){next(e);}});
+module.exports={router,discordSend,zapierSend};
