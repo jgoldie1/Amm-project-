@@ -1,0 +1,6 @@
+[
+  {"id":"reel-genesis-teaser","type":"reel","title":"Genesis Protocol Teaser","description":"A 30-second vertical teaser for The Signal.","status":"demo"},
+  {"id":"drama-second-chance-1","type":"drama","title":"Second Chance — Episode 1","description":"A creator rebuilds after losing everything.","status":"demo"},
+  {"id":"holo-ad-marketplace","type":"holo-ad","title":"TryAMM Marketplace Holo Ad","description":"Interactive holographic marketplace promotion.","status":"demo"},
+  {"id":"stream-studio-session","type":"stream","title":"Studio Sessions Live","description":"A live music and creator interview room.","status":"demo"}
+]
