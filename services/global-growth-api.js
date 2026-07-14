@@ -4,12 +4,14 @@ const attribution=require('./growth-attribution');
 const seoApi=require('./advanced-seo-api');
 const crawlerOracleApi=require('./web-crawler-oracle-api');
 const mediaNetworkApi=require('./media-network-api');
+const mediaScheduledApi=require('./media-scheduled-api');
 const supabaseService=require('./supabase');
 const router=express.Router();
 async function auth(req,res,next){if(!supabaseService.configured())return res.status(503).json({error:'Supabase is not configured.'});return supabaseService.requireUser(req,res,next);}
 router.use('/seo',seoApi.router);
 router.use('/crawler',crawlerOracleApi.router);
 router.use('/media',mediaNetworkApi.router);
+router.use('/media-refresh',mediaScheduledApi.router);
 router.get('/regions',(req,res)=>res.json(growth.REGIONS));
 router.get('/rewards',(req,res)=>res.json(growth.REWARDS));
 router.get('/share-links',(req,res)=>{const referral=growth.referralLink({baseUrl:process.env.PUBLIC_APP_URL||'https://tryamm.online',referralCode:req.query.code,campaignId:req.query.campaign,locale:req.query.lang,country:req.query.country});res.json({...referral,...growth.shareLinks({url:referral.url,text:req.query.text||'Join me on TryAMM',country:req.query.country})});});
