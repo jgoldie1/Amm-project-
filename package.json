@@ -1,14 +1,14 @@
 {
   "name": "tryamm-intelligence-mvp",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "private": true,
-  "description": "TryAMM Advanced Alpha with AI, Holo ecosystem, mobility, gaming, call center, DAW and commerce foundations",
+  "description": "TryAMM Advanced Alpha with AI, Holo ecosystem, mobility, gaming, call center, DAW, commerce and Supabase Beta foundations",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "build:browser": "esbuild public/app.js public/platform.js public/holo.js public/yogihoo.js public/workstation.js --bundle --outdir=public/dist --platform=browser --format=iife",
-    "check": "node --check server.js && node --check public/app.js && node --check public/platform.js && node --check public/holo.js && node --check public/yogihoo.js && node --check public/workstation.js && node --check services/payments.js && node --check services/stripe.js && node --check services/livekit.js && node --check services/claude.js && node --check services/meshy.js && node --check services/holo.js && node --check services/mobility.js && node --check services/alpha-platform.js",
+    "build:browser": "esbuild public/app.js public/platform.js public/holo.js public/yogihoo.js public/openworld.js public/workstation.js --bundle --outdir=public/dist --platform=browser --format=iife",
+    "check": "node --check server.js && node --check public/app.js && node --check public/platform.js && node --check public/holo.js && node --check public/yogihoo.js && node --check public/openworld.js && node --check public/workstation.js && node --check services/payments.js && node --check services/stripe.js && node --check services/livekit.js && node --check services/claude.js && node --check services/meshy.js && node --check services/holo.js && node --check services/mobility.js && node --check services/alpha-platform.js && node --check services/openworld.js && node --check services/supabase.js",
     "ci": "npm run check"
   },
   "engines": { "node": ">=20" },
