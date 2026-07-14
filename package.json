@@ -1,24 +1,37 @@
 {
   "name": "tryamm-intelligence-mvp",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "private": true,
-  "description": "TryAMM advanced alpha with AI, Holo ecosystem, mobility, Yogihoo, call center, DAW and commerce scaffolding",
+  "description": "TryAMM Advanced Alpha with AI, Holo ecosystem, mobility, gaming, call center, DAW and commerce foundations",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check public/app.js && node --check public/platform.js && node --check public/holo.js && node --check public/yogihoo.js && node --check public/workstation.js && node --check services/payments.js && node --check services/stripe.js && node --check services/livekit.js && node --check services/claude.js && node --check services/meshy.js && node --check services/holo.js && node --check services/mobility.js && node --check services/alpha-platform.js"
+    "build:browser": "esbuild public/app.js public/platform.js public/holo.js public/yogihoo.js public/workstation.js --bundle --outdir=public/dist --platform=browser --format=iife",
+    "check": "node --check server.js && node --check public/app.js && node --check public/platform.js && node --check public/holo.js && node --check public/yogihoo.js && node --check public/workstation.js && node --check services/payments.js && node --check services/stripe.js && node --check services/livekit.js && node --check services/claude.js && node --check services/meshy.js && node --check services/holo.js && node --check services/mobility.js && node --check services/alpha-platform.js",
+    "ci": "npm run check"
   },
   "engines": { "node": ">=20" },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.57.0",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "express-rate-limit": "^7.5.0",
-    "helmet": "^8.0.0",
-    "livekit-server-sdk": "^2.13.3",
-    "socket.io": "^4.8.1",
-    "stripe": "^18.5.0"
+    "@anthropic-ai/sdk": "0.57.0",
+    "@shopify/shopify-api": "13.1.0",
+    "@supabase/supabase-js": "2.110.3",
+    "cors": "2.8.5",
+    "dotenv": "16.4.7",
+    "express": "4.21.2",
+    "express-rate-limit": "7.5.0",
+    "helmet": "8.0.0",
+    "livekit-client": "2.20.1",
+    "livekit-server-sdk": "2.13.3",
+    "lottie-web": "5.13.0",
+    "pino": "10.3.1",
+    "pino-http": "11.0.0",
+    "socket.io": "4.8.1",
+    "stripe": "18.5.0",
+    "three": "0.185.1",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.1"
   }
 }
