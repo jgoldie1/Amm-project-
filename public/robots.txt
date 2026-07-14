@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /memory-control.html
+Disallow: /growth-dashboard.html
+Disallow: /seo-console.html
+
+Sitemap: https://tryamm.online/sitemap.xml
