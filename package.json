@@ -1,13 +1,13 @@
 {
   "name": "tryamm-intelligence-mvp",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "private": true,
-  "description": "TryAMM Intelligence, Phase 2, Holo ecosystem, mobility and playable Yogihoo MVP",
+  "description": "TryAMM advanced alpha with AI, Holo ecosystem, mobility, Yogihoo, call center, DAW and commerce scaffolding",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check public/app.js && node --check public/platform.js && node --check public/holo.js && node --check public/yogihoo.js && node --check services/payments.js && node --check services/stripe.js && node --check services/livekit.js && node --check services/claude.js && node --check services/meshy.js && node --check services/holo.js && node --check services/mobility.js"
+    "check": "node --check server.js && node --check public/app.js && node --check public/platform.js && node --check public/holo.js && node --check public/yogihoo.js && node --check public/workstation.js && node --check services/payments.js && node --check services/stripe.js && node --check services/livekit.js && node --check services/claude.js && node --check services/meshy.js && node --check services/holo.js && node --check services/mobility.js && node --check services/alpha-platform.js"
   },
   "engines": { "node": ">=20" },
   "dependencies": {
