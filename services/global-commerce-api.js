@@ -7,9 +7,11 @@ const claudeService=require('./claude');
 const meshyService=require('./meshy');
 const payments=require('./payments');
 const productionIntegrationsApi=require('./production-integrations-api');
+const quantumAutomationApi=require('./quantum-automation-api');
 const router=express.Router();
 async function auth(req,res,next){if(!supabaseService.configured())return res.status(503).json({error:'Supabase is not configured.'});return supabaseService.requireUser(req,res,next);}
 router.use('/integrations',productionIntegrationsApi.router);
+router.use('/automation',quantumAutomationApi.router);
 router.get('/plans',(req,res)=>res.json(service.pricing(req.query.country||'US')));
 router.get('/languages',(req,res)=>res.json(service.LANGUAGES));
 router.post('/translate',async(req,res,next)=>{try{res.json(await service.translate(req.body));}catch(error){next(error);}});
@@ -20,6 +22,8 @@ router.get('/integrations/status',(req,res)=>res.json({
   livekit:{configured:livekitService.connected(),url:Boolean(process.env.LIVEKIT_URL),tokenSigning:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET)},
   claude:{configured:claudeService.connected(),model:process.env.CLAUDE_MODEL||'claude-sonnet-4-5'},
   meshy:{configured:meshyService.connected()},
+  zapier:{configured:Boolean(process.env.ZAPIER_WEBHOOK_URL),signed:Boolean(process.env.ZAPIER_WEBHOOK_SECRET)},
+  discord:{configured:Boolean(process.env.DISCORD_WEBHOOK_URL)},
   supabase:{configured:supabaseService.configured()},
   productionReady:Boolean(stripeService.connected()&&process.env.STRIPE_WEBHOOK_SECRET&&process.env.PAYSTACK_SECRET_KEY&&process.env.FLUTTERWAVE_SECRET_KEY&&process.env.FLUTTERWAVE_WEBHOOK_SECRET&&livekitService.connected()&&claudeService.connected()&&meshyService.connected()&&supabaseService.configured()),
   note:'Configured means credentials are present. Production readiness also requires provider account approval, signed webhook tests, database migrations, reconciliation, monitoring and acceptance testing.'
