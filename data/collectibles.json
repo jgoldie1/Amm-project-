@@ -1,0 +1,6 @@
+[
+  {"id":"ember-lion","name":"Ember Lion","element":"fire","rarity":"rare","attack":8,"defense":4,"speed":7,"price":9.99,"currency":"USD","marketplaceStatus":"demo"},
+  {"id":"aqua-owl","name":"Aqua Owl","element":"water","rarity":"uncommon","attack":5,"defense":7,"speed":6,"price":4.99,"currency":"USD","marketplaceStatus":"demo"},
+  {"id":"terra-rhino","name":"Terra Rhino","element":"earth","rarity":"epic","attack":7,"defense":9,"speed":3,"price":14.99,"currency":"USD","marketplaceStatus":"demo"},
+  {"id":"volt-fox","name":"Volt Fox","element":"electric","rarity":"rare","attack":6,"defense":4,"speed":10,"price":9.99,"currency":"USD","marketplaceStatus":"demo"}
+]
