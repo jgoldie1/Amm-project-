@@ -10,6 +10,7 @@ const stripeService = require('./services/stripe');
 const livekitService = require('./services/livekit');
 const claudeService = require('./services/claude');
 const meshyService = require('./services/meshy');
+const holoService = require('./services/holo');
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -18,6 +19,10 @@ const KNOWLEDGE_FILE = path.join(DATA_DIR, 'knowledge.json');
 const FEEDBACK_FILE = path.join(DATA_DIR, 'feedback.json');
 const PAYMENT_EVENTS_FILE = path.join(DATA_DIR, 'payment-events.json');
 const CONTENT_FILE = path.join(DATA_DIR, 'content.json');
+const GAMES_FILE = path.join(DATA_DIR, 'games.json');
+const RIDES_FILE = path.join(DATA_DIR, 'rides.json');
+const DELIVERIES_FILE = path.join(DATA_DIR, 'deliveries.json');
+const ARENA_FILE = path.join(DATA_DIR, 'arena-sessions.json');
 
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: process.env.ALLOWED_ORIGIN || true }));
@@ -70,7 +75,7 @@ function localAnswer(message, mode, sources) {
 
 app.get('/api/health', (req, res) => res.json({
   ok: true, service: 'AMM Intelligence Phase 2', claude: claudeService.connected(), openAICompatible: Boolean(process.env.AI_API_URL && process.env.AI_API_KEY && process.env.AI_MODEL),
-  stripe: stripeService.connected(), livekit: livekitService.connected(), meshy: meshyService.connected(), africaPaymentProvider: getProvider()
+  stripe: stripeService.connected(), livekit: livekitService.connected(), meshy: meshyService.connected(), africaPaymentProvider: getProvider(), holo: true
 }));
 
 app.get('/api/knowledge', (req, res) => res.json(readJson(KNOWLEDGE_FILE, []).map(({ id, title, category, tags, modes }) => ({ id, title, category, tags, modes }))));
@@ -81,24 +86,35 @@ app.post('/api/ai/chat', async (req, res) => {
   try { const answer = await callModel({ message, mode, sources, history }); res.json({ answer: answer || localAnswer(message, mode, sources), mode, provider: answer ? (claudeService.connected() ? 'claude' : 'connected-model') : 'local-knowledge', sources: sources.map(({ id, title, category }) => ({ id, title, category })) }); }
   catch (error) { console.error(error); res.json({ answer: localAnswer(message, mode, sources), mode, provider: 'local-fallback', sources: sources.map(({ id, title, category }) => ({ id, title, category })), warning: 'The connected AI provider was unavailable.' }); }
 });
-
 app.post('/api/ai/feedback', (req, res) => {
   const record = { id: `fb_${Date.now()}`, rating: req.body.rating === 'up' ? 'up' : 'down', mode: String(req.body.mode || 'quick'), question: String(req.body.question || '').slice(0, 4000), answer: String(req.body.answer || '').slice(0, 8000), reason: String(req.body.reason || '').slice(0, 1000), createdAt: new Date().toISOString() };
   const feedback = readJson(FEEDBACK_FILE, []); feedback.push(record); writeJson(FEEDBACK_FILE, feedback.slice(-2000)); res.status(201).json({ ok: true, id: record.id });
 });
 
-app.get('/api/content', (req, res) => {
-  const type = String(req.query.type || '').toLowerCase(); const items = readJson(CONTENT_FILE, []);
-  res.json(type ? items.filter((item) => item.type === type) : items);
-});
+app.get('/api/content', (req, res) => { const type = String(req.query.type || '').toLowerCase(); const items = readJson(CONTENT_FILE, []); res.json(type ? items.filter((item) => item.type === type) : items); });
 app.post('/api/content', (req, res) => {
   const item = { id: `content_${Date.now()}`, type: String(req.body.type || 'reel'), title: String(req.body.title || 'Untitled'), description: String(req.body.description || ''), status: 'draft', createdAt: new Date().toISOString() };
   const items = readJson(CONTENT_FILE, []); items.push(item); writeJson(CONTENT_FILE, items); res.status(201).json(item);
 });
 
-app.post('/api/stripe/checkout', async (req, res, next) => {
-  try { const base = process.env.PUBLIC_APP_URL || `${req.protocol}://${req.get('host')}`; res.status(201).json(await stripeService.createCheckout({ ...req.body, successUrl: `${base}/platform.html?payment=success`, cancelUrl: `${base}/platform.html?payment=cancelled` })); } catch (error) { next(error); }
+app.get('/api/holo/menu', (req, res) => res.json(holoService.menu()));
+app.get('/api/holo/search', (req, res) => res.json(holoService.searchHolo({ query: req.query.q, scope: req.query.scope || 'all', catalog: readJson(CONTENT_FILE, []), games: readJson(GAMES_FILE, []) })));
+app.get('/api/games', (req, res) => res.json(readJson(GAMES_FILE, [])));
+app.get('/api/games/:id', (req, res) => {
+  const game = readJson(GAMES_FILE, []).find((item) => item.id === req.params.id);
+  if (!game) return res.status(404).json({ error: 'Game not found.' });
+  res.json(game);
 });
+app.post('/api/holo/rides', (req, res) => { const record = holoService.createRide(req.body); const items = readJson(RIDES_FILE, []); items.push(record); writeJson(RIDES_FILE, items); res.status(201).json(record); });
+app.post('/api/holo/deliveries', (req, res) => { const record = holoService.createDelivery(req.body); const items = readJson(DELIVERIES_FILE, []); items.push(record); writeJson(DELIVERIES_FILE, items); res.status(201).json(record); });
+app.post('/api/holo/arena/session', (req, res) => {
+  const game = readJson(GAMES_FILE, []).find((item) => item.id === String(req.body.gameId || ''));
+  if (!game) return res.status(400).json({ error: 'Choose one of the 11 registered games.' });
+  const session = { id: `arena_${Date.now()}`, gameId: game.id, gameTitle: game.title, format: String(req.body.format || 'match'), spectators: req.body.spectators !== false, status: 'lobby', controllerSupport: game.modes.includes('controller'), xrModes: game.modes.filter((mode) => ['ar', 'vr', 'mr'].includes(mode)), createdAt: new Date().toISOString() };
+  const items = readJson(ARENA_FILE, []); items.push(session); writeJson(ARENA_FILE, items); res.status(201).json(session);
+});
+
+app.post('/api/stripe/checkout', async (req, res, next) => { try { const base = process.env.PUBLIC_APP_URL || `${req.protocol}://${req.get('host')}`; res.status(201).json(await stripeService.createCheckout({ ...req.body, successUrl: `${base}/platform.html?payment=success`, cancelUrl: `${base}/platform.html?payment=cancelled` })); } catch (error) { next(error); } });
 app.post('/api/payments/initialize', async (req, res, next) => { try { res.status(201).json(await initializePayment(req.body || {})); } catch (error) { next(error); } });
 app.post('/api/payments/payouts', async (req, res, next) => { try { if (String(req.headers['x-admin-key'] || '') !== String(process.env.ADMIN_ACTION_KEY || '')) return res.status(403).json({ error: 'Payout authorization failed.' }); res.status(201).json(await createPayout(req.body || {})); } catch (error) { next(error); } });
 app.post('/api/payments/webhooks/:provider', (req, res) => {
