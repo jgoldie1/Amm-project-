@@ -3,32 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>TryAMM CEO Growth Dashboard</title>
-  <style>
-    :root{color-scheme:dark;background:#070b18;color:#f6f8ff;font-family:system-ui,sans-serif}body{margin:0;padding:24px}main{max-width:1100px;margin:auto}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}.card{background:#11182b;border:1px solid #26345c;border-radius:16px;padding:18px}.metric{font-size:2rem;font-weight:800}.muted{color:#aeb9d8}input,select,button{width:100%;box-sizing:border-box;padding:12px;margin-top:8px;border-radius:10px;border:1px solid #35456f;background:#0b1122;color:white}button{background:#5749d8;font-weight:700;cursor:pointer}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid #26345c}a{color:#a8c8ff}.status{white-space:pre-wrap}.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:720px){.row{grid-template-columns:1fr}}</style>
+  <meta name="theme-color" content="#07111f">
+  <meta name="application-name" content="Stubbs AI">
+  <meta property="og:title" content="Stubbs AI CEO Global Growth Dashboard">
+  <meta property="og:description" content="Campaigns, referrals, conversions, hashtags and attributed revenue for TryAMM.">
+  <meta property="og:image" content="https://tryamm.online/brand/stubbs-ai-social-card.jpg">
+  <title>Stubbs AI CEO Global Growth Dashboard</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/brand/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/brand/stubbs-ai-rounded-180.png">
+  <link rel="stylesheet" href="/brand.css">
+  <style>:root{color-scheme:dark;background:#070b18;color:#f6f8ff;font-family:system-ui,sans-serif}body{margin:0;padding:24px}main{max-width:1100px;margin:auto}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}.card{background:#11182b;border:1px solid #26345c;border-radius:16px;padding:18px}.metric{font-size:2rem;font-weight:800}.muted{color:#aeb9d8}input,select,button{width:100%;box-sizing:border-box;padding:12px;margin-top:8px;border-radius:10px;border:1px solid #35456f;background:#0b1122;color:white}button{background:#5749d8;font-weight:700;cursor:pointer}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid #26345c}a{color:#a8c8ff}.status{white-space:pre-wrap}.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:720px){.row{grid-template-columns:1fr}}</style>
 </head>
 <body>
 <main>
-  <h1>TryAMM CEO Global Growth</h1>
-  <p class="muted">Track campaigns, referral links, conversions, rewards, countries, platforms, and attributed revenue.</p>
-  <section class="card">
-    <label>Supabase access token<input id="token" type="password" autocomplete="off" placeholder="Paste authenticated access token"></label>
-    <button id="load">Load dashboard</button>
-    <div id="status" class="status muted" aria-live="polite"></div>
-  </section>
+  <header class="brand-lockup"><img class="brand-mark" data-brand-image src="/brand/stubbs-ai-rounded-180.png" alt="Stubbs AI Lion of Judah crest"><div class="brand-copy"><strong>STUBBS AI CEO GLOBAL GROWTH</strong><small>Powered by Lyons Tech AI</small></div></header>
+  <p class="muted">Track campaigns, referral links, hashtags, conversions, rewards, countries, platforms, and attributed revenue.</p>
+  <section class="card"><label>Supabase access token<input id="token" type="password" autocomplete="off" placeholder="Paste authenticated access token"></label><button id="load">Load dashboard</button><div id="status" class="status muted" aria-live="polite"></div></section>
   <section class="grid" id="metrics"></section>
-  <section class="row">
-    <div class="card"><h2>By country</h2><table><thead><tr><th>Country</th><th>Events</th></tr></thead><tbody id="countries"></tbody></table></div>
-    <div class="card"><h2>By platform</h2><table><thead><tr><th>Platform</th><th>Events</th></tr></thead><tbody id="platforms"></tbody></table></div>
-  </section>
-  <section class="card">
-    <h2>Create share link</h2>
-    <div class="row"><label>Referral code<input id="code" value="JAMES-FOUNDER"></label><label>Campaign<input id="campaign" value="GLOBAL-LAUNCH"></label></div>
-    <div class="row"><label>Country<input id="country" value="NG" maxlength="2"></label><label>Language<input id="lang" value="en"></label></div>
-    <button id="share">Generate social links</button>
-    <div id="shareResult" class="status"></div>
-  </section>
+  <section class="row"><div class="card"><h2>By country</h2><table><thead><tr><th>Country</th><th>Events</th></tr></thead><tbody id="countries"></tbody></table></div><div class="card"><h2>By platform</h2><table><thead><tr><th>Platform</th><th>Events</th></tr></thead><tbody id="platforms"></tbody></table></div></section>
+  <section class="card"><h2>Create share link</h2><div class="row"><label>Referral code<input id="code" value="JAMES-FOUNDER"></label><label>Campaign<input id="campaign" value="GLOBAL-LAUNCH"></label></div><div class="row"><label>Country<input id="country" value="NG" maxlength="2"></label><label>Language<input id="lang" value="en"></label></div><button id="share">Generate social links</button><div id="shareResult" class="status"></div></section>
 </main>
-<script src="/growth-dashboard.js" defer></script>
+<script src="/brand.js" defer></script><script src="/growth-dashboard.js" defer></script>
 </body>
 </html>
