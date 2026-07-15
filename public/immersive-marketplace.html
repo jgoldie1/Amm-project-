@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="application-name" content="Stubbs AI"><meta property="og:title" content="Stubbs AI Immersive Marketplace"><meta property="og:image" content="https://tryamm.online/brand/stubbs-ai-social-card.jpg">
+<title>Stubbs AI Immersive Marketplace</title>
+<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/brand/favicon.ico"><link rel="apple-touch-icon" href="/brand/stubbs-ai-rounded-180.png"><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/brand.css">
+<style>
+.market-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem}.market-card{border:1px solid rgba(120,240,255,.25);border-radius:18px;padding:1rem;background:rgba(5,12,26,.78);box-shadow:0 0 28px rgba(0,220,255,.08)}.preview{min-height:210px;border-radius:16px;background:radial-gradient(circle at 50% 35%,rgba(30,240,255,.3),rgba(4,10,24,.9) 60%);display:grid;place-items:center;position:relative;overflow:hidden}.avatar{font-size:5rem;filter:drop-shadow(0 0 16px cyan)}.badge{display:inline-block;padding:.25rem .55rem;border-radius:999px;background:rgba(31,230,255,.12);border:1px solid rgba(31,230,255,.25);font-size:.8rem}.meter{height:10px;background:#182033;border-radius:999px;overflow:hidden}.meter span{display:block;height:100%;background:linear-gradient(90deg,#1de9ff,#9d4edd);width:35%}.toolbar{display:flex;flex-wrap:wrap;gap:.6rem}.status{min-height:2rem}.drop{border-color:rgba(255,112,225,.35)}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="hero"><div class="brand-lockup"><img class="brand-mark" data-brand-image src="/brand/stubbs-ai-rounded-512.png" alt="Stubbs AI Lion of Judah crest"><div class="brand-copy"><strong>STUBBS AI</strong><small>Powered by Lyons Tech AI</small></div></div><p class="eyebrow">TRYAMM HOLO COMMERCE</p><h1>Immersive Marketplace</h1><p>AR outfit try-on, VR showrooms, room placement, quests, drops, loyalty and verified social proof.</p></header>
+<section class="panel">
+<div class="toolbar"><button id="camera">Enable Camera Preview</button><button id="xr">Check AR/VR</button><button id="quest">Start Shopping Quest</button><button id="drop">Open Limited Drop</button></div>
+<p id="status" class="status" aria-live="polite">Privacy-first mode: camera and biometric data are not stored.</p>
+</section>
+<section class="market-grid" id="catalog"></section>
+<section class="panel">
+<h2>Your Holo Rewards</h2><p id="tier">Bronze · 0 points</p><div class="meter"><span id="progress"></span></div><p id="questStatus">Complete verified actions to earn points. No fake scarcity or fake viewer counts.</p>
+</section>
+</main>
+<script src="/brand.js" defer></script><script src="/immersive-marketplace.js" defer></script>
+</body></html>

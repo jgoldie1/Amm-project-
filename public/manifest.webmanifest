@@ -1,0 +1,24 @@
+{
+  "name": "Stubbs AI — Powered by Lyons Tech AI",
+  "short_name": "Stubbs AI",
+  "description": "HoloGPT, creator streaming, music, marketplace, academy, gaming and global commerce by Lyons Tech AI.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#020712",
+  "theme_color": "#081325",
+  "categories": ["entertainment", "music", "business", "education", "social"],
+  "icons": [
+    {"src":"/brand/stubbs-ai-icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"/brand/stubbs-ai-maskable-192.png","sizes":"192x192","type":"image/png","purpose":"maskable"},
+    {"src":"/brand/stubbs-ai-icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},
+    {"src":"/brand/stubbs-ai-maskable-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}
+  ],
+  "shortcuts": [
+    {"name":"HoloGPT","url":"/","icons":[{"src":"/brand/stubbs-ai-icon-192.png","sizes":"192x192"}]},
+    {"name":"Creator Portal","url":"/platform.html","icons":[{"src":"/brand/stubbs-ai-icon-192.png","sizes":"192x192"}]},
+    {"name":"Holo Ecosystem","url":"/holo.html","icons":[{"src":"/brand/stubbs-ai-icon-192.png","sizes":"192x192"}]},
+    {"name":"Marketplace","url":"/immersive-marketplace.html","icons":[{"src":"/brand/stubbs-ai-icon-192.png","sizes":"192x192"}]}
+  ]
+}

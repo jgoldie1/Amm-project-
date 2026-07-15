@@ -1,0 +1,30 @@
+{
+  "licensePolicy": "original-or-commercially-licensed-only",
+  "shared": {
+    "characters": ["base-male", "base-female", "wheelchair-avatar", "one-handed-controller-avatar"],
+    "animations": ["idle", "walk", "run", "jump", "dodge", "block", "attack-light", "attack-heavy", "victory", "defeat"],
+    "vehicles": ["city-compact", "delivery-van", "creator-bike", "arena-hovercar"],
+    "audio": ["ui-select", "ui-back", "match-found", "victory", "defeat", "ambient-city", "arena-crowd"],
+    "npcArchetypes": ["merchant", "coach", "quest-giver", "moderator", "citizen", "rival"]
+  },
+  "yogihooArena": {
+    "creatures": 12,
+    "battleArenas": 3,
+    "cards": 60,
+    "effects": ["summon", "attack", "shield", "heal", "critical", "evolution"]
+  },
+  "streetVerseCreatorCity": {
+    "mapSizeKm": 1.5,
+    "districtBlocks": 12,
+    "interiors": ["creator-studio", "marketplace-shop", "music-club", "academy", "garage"],
+    "vehicles": 8,
+    "npcOutfits": 30,
+    "missions": 15,
+    "landmarks": ["Stubbs AI Tower", "Creator Square", "Quantum Beat Club", "Aniyah Market"]
+  },
+  "technical": {
+    "web": ["glTF 2.0", "Draco compression", "KTX2 textures", "LOD0-LOD3"],
+    "engineExports": ["Unity", "Unreal", "Godot"],
+    "budgets": {"mobileCharacterTriangles": 35000, "desktopCharacterTriangles": 90000, "mobileTextureMax": 2048, "desktopTextureMax": 4096}
+  }
+}

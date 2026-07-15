@@ -1,0 +1,10 @@
+const ENGINES=['web','unity','unreal','godot'];
+function capabilityManifest(){return{name:'Quantum Speed Engine',version:'0.1-alpha',dimensions:['2d-ui','3d-world','4d-time-state'],engines:{web:['three.js','webxr','gamepad','webaudio'],unity:['mobile','console','xr','addressables'],unreal:['high-fidelity-worlds','nanite-class-assets','cinematics','dedicated-server'],godot:['open-source-tools','lightweight-clients','community-mods']},sharedContracts:['player-profile','world-coordinate','teleport-event','npc-state','combat-event','inventory-item','arena-match','audio-cue'],note:'This is an interoperability contract, not a single engine that automatically combines proprietary runtimes.'}}
+function createSession(input={}){const engine=ENGINES.includes(input.engine)?input.engine:'web';return{id:`qse_${Date.now()}`,engine,experience:String(input.experience||'twin-earth'),realm:String(input.realm||'metaverse'),quality:['mobile','balanced','ultra'].includes(input.quality)?input.quality:'balanced',holographicMode:['flat','3d','ar','vr','mr'].includes(input.holographicMode)?input.holographicMode:'3d',networkMode:String(input.networkMode||'authoritative-server-required'),createdAt:new Date().toISOString()}}
+function originalGameSlate(){return[
+{id:'battlefront-echo',inspiredCategory:'military sci-fi shooter',features:['squad AI','cover','objectives','vehicles','non-copy original world']},
+{id:'spectral-response',inspiredCategory:'cooperative paranormal investigation',features:['AR scanning','team traps','environment puzzles','original spirits']},
+{id:'yogihoo-world',inspiredCategory:'location creature exploration',features:['AR encounters','collecting','training','arena battles','original creatures']},
+{id:'photon-tag',inspiredCategory:'mobile laser tag',features:['camera targeting','safe geofenced arenas','Bluetooth controller','AR/VR/MR']}
+]}
+module.exports={capabilityManifest,createSession,originalGameSlate};

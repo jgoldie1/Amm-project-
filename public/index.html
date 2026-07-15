@@ -1,17 +1,44 @@
-<button onclick="increment()">Tap</button>
-<p id="count">0</p>
-
-<script>
-async function load() {
-  const res = await fetch('/count');
-  const data = await res.json();
-  document.getElementById('count').innerText = data.count;
-}
-
-async function increment() {
-  await fetch('/increment', { method: 'POST' });
-  load();
-}
-
-load();
-</script>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#07111f" />
+  <meta name="application-name" content="Stubbs AI" />
+  <meta name="apple-mobile-web-app-title" content="Stubbs AI" />
+  <meta property="og:title" content="Stubbs AI — Powered by Lyons Tech AI" />
+  <meta property="og:description" content="HoloGPT, creator streaming, music, marketplace, academy, gaming and global commerce." />
+  <meta property="og:image" content="https://tryamm.online/brand/stubbs-ai-social-card.jpg" />
+  <title>Stubbs AI — Powered by Lyons Tech AI</title>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/brand/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/svg+xml" href="/brand/stubbs-ai-fallback.svg" />
+  <link rel="apple-touch-icon" href="/brand/stubbs-ai-rounded-180.png" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/brand.css" />
+</head>
+<body>
+  <div class="app-splash" data-brand-splash aria-hidden="true"><img data-brand-image src="/brand/stubbs-ai-rounded-512.png" alt="" /></div>
+  <a class="skip-link" href="#composer">Skip to message box</a>
+  <div class="stars" aria-hidden="true"></div>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand-lockup">
+        <img class="brand-mark" data-brand-image src="/brand/stubbs-ai-rounded-512.png" alt="Stubbs AI Lion of Judah crest" />
+        <div class="brand-copy"><strong>STUBBS AI</strong><small>Powered by Lyons Tech AI</small></div>
+      </div>
+      <div class="status-wrap"><span id="statusDot" class="status-dot"></span><span id="statusText">Checking system</span></div>
+    </header>
+    <section class="hero-panel" aria-labelledby="assistantTitle">
+      <div class="holo-brand-stage" data-brand-hologram data-lottie-speed="0.8" aria-label="Animated Stubbs AI Lion of Judah holographic crest"><img class="holo-brand-logo" data-brand-image src="/brand/stubbs-ai-rounded-512.png" alt="Lion of Judah with American flag treatment and lamb, Stubbs AI crest" /></div>
+      <div><p class="eyebrow">ADVANCED HOLOGPT CREATOR CONCIERGE</p><h1 class="brand-title">STUBBS AI</h1><p class="brand-subtitle">Powered by Lyons Tech AI</p><h2 id="assistantTitle">Create, discover, learn, shop and build.</h2><p>Ask about music, Black anime, manga, cosplay, DramaBox-style originals, the marketplace, accessibility, faith programming or the Genesis universe.</p></div>
+    </section>
+    <section class="mode-panel" aria-label="Choose intelligence mode"><button class="mode active" data-mode="quick">⚡ Quick</button><button class="mode" data-mode="creator">🎬 Creator</button><button class="mode" data-mode="faith">✦ Faith</button><button class="mode" data-mode="accessibility">♿ Accessibility</button><button class="mode" data-mode="nerd">🧠 Nerd</button></section>
+    <section class="suggestions" aria-label="Suggested questions"><button data-prompt="What is the first thing I should build for TryAMM?">First build</button><button data-prompt="Tell me about Genesis Protocol: The Signal.">Genesis pilot</button><button data-prompt="How should a music creator upload and launch a song?">Launch a song</button><button data-prompt="Explain the faith section using Yahavah, Yahusha Ha Mashiach and the Ruach.">Faith section</button></section>
+    <section id="chat" class="chat" aria-live="polite" aria-label="Conversation"><article class="message assistant"><img class="avatar" data-brand-image src="/brand/stubbs-ai-rounded-180.png" alt="" /><div class="bubble"><strong>Stubbs AI</strong><p>I am online. Choose a mode, then tell me what you want to create or find.</p></div></article></section>
+    <form id="composer" class="composer"><label class="sr-only" for="messageInput">Message Stubbs AI</label><textarea id="messageInput" rows="2" maxlength="4000" placeholder="Ask Stubbs AI…" required></textarea><div class="composer-actions"><button type="button" id="speakButton" class="secondary" aria-label="Speak your message">🎙 Speak</button><button type="button" id="readButton" class="secondary" aria-label="Read the last answer aloud">🔊 Read</button><button type="submit" id="sendButton" class="send">Send</button></div></form>
+    <footer><label><input type="checkbox" id="largeControls" /> Large controls</label><label><input type="checkbox" id="reducedMotion" /> Reduced motion</label><span>Stubbs AI can make mistakes. Approved TryAMM sources appear under answers.</span></footer>
+  </main>
+  <script src="/brand.js" defer></script><script src="/dist/brand-lottie.js" defer></script><script src="/app.js" defer></script>
+</body>
+</html>
