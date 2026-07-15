@@ -1,0 +1,6 @@
+require('dotenv').config();
+const base=process.env.LOAD_TEST_URL||process.env.PUBLIC_APP_URL||`http://localhost:${process.env.PORT||10000}`;
+const users=Math.min(500,Math.max(1,Number(process.env.LOAD_TEST_USERS||25)));
+const rounds=Math.min(100,Math.max(1,Number(process.env.LOAD_TEST_ROUNDS||5)));
+async function request(i,r){const started=Date.now();const response=await fetch(`${base}/api/game-platform/matchmaking/queue`,{method:'POST',headers:{'Content-Type':'application/json','x-user-id':`load-user-${i}`},body:JSON.stringify({gameId:i%2?'yogihoo-arena':'street-verse',mode:'casual',region:'test',skillRating:1000+r})});return{ok:response.ok,ms:Date.now()-started,status:response.status};}
+(async()=>{const results=[];for(let r=0;r<rounds;r++){results.push(...await Promise.all(Array.from({length:users},(_,i)=>request(i,r))));}const passed=results.filter(x=>x.ok).length;const avg=Math.round(results.reduce((s,x)=>s+x.ms,0)/results.length);const p95=results.map(x=>x.ms).sort((a,b)=>a-b)[Math.floor(results.length*.95)]||0;console.log(JSON.stringify({base,requests:results.length,passed,failed:results.length-passed,averageMs:avg,p95Ms:p95},null,2));if(passed!==results.length)process.exitCode=1;})();
