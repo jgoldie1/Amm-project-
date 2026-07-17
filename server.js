@@ -5,6 +5,7 @@ const { Server } = require("socket.io");
 const { progressionFramework } = require("./gameProgression");
 const { initialReferralPartners } = require("./communityReferralData");
 const { createMusicRouter } = require("./musicStreaming");
+const { createRegionalMarketStore, marketRequirements } = require("./regionalMarkets");
 
 const app = express();
 const server = http.createServer(app);
@@ -34,10 +35,11 @@ const performanceProfiles = {
   cinematic: { targetFps: 30, resolutionScale: 1, effects: "ultra", note: "Supported devices only" }
 };
 
-const platformModules = ["AI Game Production Agent", "Adaptive Performance Manager", "Game Future Fund", "Family and Community Referral Program", "TikTok Family Community", "BIGO Family Community", "All American Billing", "The All American Billboard", "Music Streaming and Artist Dashboard", "Promotion Admin Center", "Creator Mentorship Program", "Family Business Dashboard", "Scholarship and Education Fund", "Community Grant Program", "Volunteer Program", "Creator Incubator", "AI Training Academy", "Public Roadmap", "Beta Testing Community", "Bug Bounty Program", "Accessibility Testing Panel", "Creator Advisory Council", "Faith Advisory Council", "Faith Premium", "Faith Ministry Onboarding", "Set Apart Ride Share", "Aniyah 64-Track Music Studio", "Aniyah Vocal Coach", "Anime and Cosplay Studio", "Dramabox", "Starverse", "Isaiah AI TV", "Jacobie Vision Cybersecurity", "Universal Asset Vault", "AR/VR/MR and Holographic Studio"];
+const platformModules = ["AI Game Production Agent", "Adaptive Performance Manager", "Game Future Fund", "Family and Community Referral Program", "Global Market and Ambassador Center", "TikTok Family Community", "BIGO Family Community", "All American Billing", "The All American Billboard", "Regional Billboard Charts", "Music Streaming and Artist Dashboard", "Promotion Admin Center", "Creator Mentorship Program", "Family Business Dashboard", "Scholarship and Education Fund", "Community Grant Program", "Volunteer Program", "Creator Incubator", "AI Training Academy", "Public Roadmap", "Beta Testing Community", "Bug Bounty Program", "Accessibility Testing Panel", "Creator Advisory Council", "Faith Advisory Council", "Faith Premium", "Faith Ministry Onboarding", "Set Apart Ride Share", "Aniyah 64-Track Music Studio", "Aniyah Vocal Coach", "Anime and Cosplay Studio", "Dramabox", "Starverse", "Isaiah AI TV", "Jacobie Vision Cybersecurity", "Universal Asset Vault", "AR/VR/MR and Holographic Studio"];
 
 const makeCode = (name, suffix) => `${name.replace(/[^a-z0-9]/gi, "").toUpperCase()}-${suffix}`;
 const referralPartners = initialReferralPartners.map(([displayName, group], index) => ({ id: crypto.randomUUID(), displayName, group, code: makeCode(displayName, String(index + 1).padStart(2, "0")), status: "active", qualifiedConversions: 0, pendingRewardCents: 0, paidRewardCents: 0 }));
+const regionalStore = createRegionalMarketStore();
 
 const promotions = new Map([
   ["FAITH-1PLUS1", { code: "FAITH-1PLUS1", planId: "faith-premium", paidMonths: 1, freeMonths: 1, active: true, requiresVerification: false }],
@@ -72,6 +74,29 @@ app.get("/api/games", (_req, res) => res.json({ games, qualityGoal: "AAA-inspire
 app.get("/api/faith/plans", (_req, res) => res.json({ plans: faithPlans }));
 app.get("/api/billing/config", (_req, res) => res.json({ billing: businessConfig.billing, supportedRevenue: ["Subscriptions", "Game purchases", "Creator sales", "Holographic services", "Music streaming", "Referral rewards", "Ride-share fees", "Faith plans"], productionRequirements: ["PCI-compliant payment provider", "Webhook verification", "Double-entry ledger", "Tax calculation", "Receipts", "Refunds", "Chargeback handling", "Payout reconciliation"] }));
 
+app.get("/api/markets", (_req, res) => res.json({ markets: regionalStore.list(), requirements: marketRequirements }));
+app.get("/api/markets/:marketId", (req, res) => {
+  const market = regionalStore.get(req.params.marketId);
+  if (!market) return res.status(404).json({ error: "Market not found." });
+  return res.json({ market, requirements: marketRequirements });
+});
+app.post("/api/admin/markets", requireAdmin, (req, res) => {
+  try { return res.status(201).json({ market: regionalStore.create(req.body || {}) }); }
+  catch (error) { return res.status(400).json({ error: error.message }); }
+});
+app.patch("/api/admin/markets/:marketId", requireAdmin, (req, res) => {
+  try {
+    const market = regionalStore.update(req.params.marketId, req.body || {});
+    if (!market) return res.status(404).json({ error: "Market not found." });
+    return res.json({ market });
+  } catch (error) { return res.status(400).json({ error: error.message }); }
+});
+app.get("/api/ambassadors", (_req, res) => res.json({ ambassadors: regionalStore.listAmbassadors(), qualification: businessConfig.referralProgram.qualification }));
+app.post("/api/admin/ambassadors", requireAdmin, (req, res) => {
+  try { return res.status(201).json({ ambassador: regionalStore.addAmbassador({ ...(req.body || {}), id: crypto.randomUUID() }) }); }
+  catch (error) { return res.status(400).json({ error: error.message }); }
+});
+
 function validatePromotion(req, res) {
   const code = String(req.body?.code || "").trim().toUpperCase();
   const offer = promotions.get(code);
@@ -96,7 +121,7 @@ app.post("/api/referrals/register", (req, res) => {
   res.status(201).json({ event, customerOffer: businessConfig.referralProgram.customerOffer, note: "Reward remains pending until verification, first paid month, refund window, and fraud review are complete." });
 });
 
-app.get("/api/admin/config", requireAdmin, (_req, res) => res.json({ businessConfig, promotions: [...promotions.values()], referralPartners }));
+app.get("/api/admin/config", requireAdmin, (_req, res) => res.json({ businessConfig, promotions: [...promotions.values()], referralPartners, markets: regionalStore.list(), ambassadors: regionalStore.listAmbassadors() }));
 app.patch("/api/admin/config", requireAdmin, (req, res) => {
   const { gameFundPercent, referralRewardCents, minimumPayoutCents, refundWindowDays, payoutSchedule } = req.body || {};
   if (gameFundPercent !== undefined) { const value = Number(gameFundPercent); if (!Number.isFinite(value) || value < 0 || value > 100) return res.status(400).json({ error: "gameFundPercent must be 0-100." }); businessConfig.gameFutureFund.percentOfPlatformNetGamingShare = value; }
