@@ -3,11 +3,12 @@ const http = require("http");
 const crypto = require("crypto");
 const { Server } = require("socket.io");
 const { progressionFramework } = require("./gameProgression");
+const { initialReferralPartners } = require("./communityReferralData");
+const { createMusicRouter } = require("./musicStreaming");
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-
 app.use(express.json({ limit: "1mb" }));
 app.use(express.static("public"));
 
@@ -33,11 +34,10 @@ const performanceProfiles = {
   cinematic: { targetFps: 30, resolutionScale: 1, effects: "ultra", note: "Supported devices only" }
 };
 
-const platformModules = ["AI Game Production Agent", "Adaptive Performance Manager", "Game Future Fund", "Family and Community Referral Program", "Promotion Admin Center", "Creator Mentorship Program", "Family Business Dashboard", "Scholarship and Education Fund", "Community Grant Program", "Volunteer Program", "Creator Incubator", "AI Training Academy", "Public Roadmap", "Beta Testing Community", "Bug Bounty Program", "Accessibility Testing Panel", "Creator Advisory Council", "Faith Advisory Council", "Faith Premium", "Faith Ministry Onboarding", "Set Apart Ride Share", "Aniyah 64-Track Music Studio", "Aniyah Vocal Coach", "Anime and Cosplay Studio", "Dramabox", "Starverse", "Isaiah AI TV", "Jacobie Vision Cybersecurity", "Universal Asset Vault", "AR/VR/MR and Holographic Studio"];
+const platformModules = ["AI Game Production Agent", "Adaptive Performance Manager", "Game Future Fund", "Family and Community Referral Program", "TikTok Family Community", "BIGO Family Community", "All American Billing", "The All American Billboard", "Music Streaming and Artist Dashboard", "Promotion Admin Center", "Creator Mentorship Program", "Family Business Dashboard", "Scholarship and Education Fund", "Community Grant Program", "Volunteer Program", "Creator Incubator", "AI Training Academy", "Public Roadmap", "Beta Testing Community", "Bug Bounty Program", "Accessibility Testing Panel", "Creator Advisory Council", "Faith Advisory Council", "Faith Premium", "Faith Ministry Onboarding", "Set Apart Ride Share", "Aniyah 64-Track Music Studio", "Aniyah Vocal Coach", "Anime and Cosplay Studio", "Dramabox", "Starverse", "Isaiah AI TV", "Jacobie Vision Cybersecurity", "Universal Asset Vault", "AR/VR/MR and Holographic Studio"];
 
 const makeCode = (name, suffix) => `${name.replace(/[^a-z0-9]/gi, "").toUpperCase()}-${suffix}`;
-const familyNames = ["James", "Sarah", "Jacobie", "Isaiah", "Aniyah", "Al", "Kevon", "Don", "Carlton", "Kenny", "Mike", "Shawndell", "Ashley", "Delvell", "Keshawn", "Ashley"];
-const referralPartners = familyNames.map((displayName, index) => ({ id: crypto.randomUUID(), displayName, code: makeCode(displayName, String(index + 1).padStart(2, "0")), status: "active", qualifiedConversions: 0, pendingRewardCents: 0, paidRewardCents: 0 }));
+const referralPartners = initialReferralPartners.map(([displayName, group], index) => ({ id: crypto.randomUUID(), displayName, group, code: makeCode(displayName, String(index + 1).padStart(2, "0")), status: "active", qualifiedConversions: 0, pendingRewardCents: 0, paidRewardCents: 0 }));
 
 const promotions = new Map([
   ["FAITH-1PLUS1", { code: "FAITH-1PLUS1", planId: "faith-premium", paidMonths: 1, freeMonths: 1, active: true, requiresVerification: false }],
@@ -47,13 +47,8 @@ const promotions = new Map([
 const businessConfig = {
   holographicRevenueSplit: { creatorPercent: 80, platformPercent: 20 },
   gameFutureFund: { percentOfPlatformNetGamingShare: 25, uses: ["New game development", "Servers and online services", "Accessibility improvements", "Tournaments and community events", "Quality assurance and security", "New levels and seasonal content"] },
-  referralProgram: {
-    rewardCentsPerQualifiedPaidConversion: 100,
-    qualification: ["New customer uses a valid referral code", "Customer verifies the account", "Customer completes the first paid month", "Payment clears the refund and fraud-review window"],
-    customerOffer: { paidMonths: 1, freeMonths: 1 },
-    minimumPayoutCents: 2500,
-    fraudReviewRequired: true
-  }
+  referralProgram: { rewardCentsPerQualifiedPaidConversion: 100, qualification: ["New customer uses a valid referral code", "Customer verifies the account", "Customer completes the first paid month", "Payment clears the refund and fraud-review window"], customerOffer: { paidMonths: 1, freeMonths: 1 }, minimumPayoutCents: 2500, fraudReviewRequired: true },
+  billing: { currency: "USD", processorStatus: "not-connected", refundWindowDays: 14, payoutSchedule: "monthly", taxCalculationRequired: true, receiptsRequired: true, immutableLedgerRequired: true }
 };
 
 const jobs = new Map();
@@ -71,9 +66,11 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-app.get("/api/platform/config", (_req, res) => res.json({ name: "TryAMM", modules: platformModules, performanceProfiles, businessConfig, buildStatus: "foundation", warning: "These routes are a working foundation. Production requires persistent storage, authentication, payments, provider integrations, game-engine workers, security review, and end-to-end testing." }));
+app.use("/api/music", createMusicRouter(express, crypto, requireAdmin));
+app.get("/api/platform/config", (_req, res) => res.json({ name: "TryAMM", modules: platformModules, performanceProfiles, businessConfig, buildStatus: "foundation", warning: "These routes are a working foundation. Production requires persistent storage, authentication, payments, licensed music delivery, provider integrations, game-engine workers, security review, and end-to-end testing." }));
 app.get("/api/games", (_req, res) => res.json({ games, qualityGoal: "AAA-inspired vertical slices with consistent art direction and scalable device presets", aiAgentResponsibilities: ["Level planning", "Asset budgets", "Enemy placement", "Dialogue drafts", "Difficulty balancing", "Optimization checks", "Automated test-case drafts"], humanApprovalRequired: ["Gameplay", "Art direction", "Safety", "Final builds"] }));
 app.get("/api/faith/plans", (_req, res) => res.json({ plans: faithPlans }));
+app.get("/api/billing/config", (_req, res) => res.json({ billing: businessConfig.billing, supportedRevenue: ["Subscriptions", "Game purchases", "Creator sales", "Holographic services", "Music streaming", "Referral rewards", "Ride-share fees", "Faith plans"], productionRequirements: ["PCI-compliant payment provider", "Webhook verification", "Double-entry ledger", "Tax calculation", "Receipts", "Refunds", "Chargeback handling", "Payout reconciliation"] }));
 
 function validatePromotion(req, res) {
   const code = String(req.body?.code || "").trim().toUpperCase();
@@ -84,35 +81,29 @@ function validatePromotion(req, res) {
 app.post("/api/promotions/validate", validatePromotion);
 app.post("/api/faith/promo/validate", validatePromotion);
 
-app.get("/api/referrals/partners", (_req, res) => res.json({ partners: referralPartners.map(({ id, displayName, code, status }) => ({ id, displayName, code, status })), program: businessConfig.referralProgram }));
+app.get("/api/referrals/partners", (req, res) => {
+  const group = String(req.query.group || "").trim().toLowerCase();
+  const partners = referralPartners.filter((item) => !group || item.group === group).map(({ id, displayName, group: partnerGroup, code, status }) => ({ id, displayName, group: partnerGroup, code, status }));
+  res.json({ partners, groups: [...new Set(referralPartners.map((item) => item.group))], program: businessConfig.referralProgram });
+});
 app.post("/api/referrals/register", (req, res) => {
   const code = String(req.body?.code || "").trim().toUpperCase();
   const customerReference = String(req.body?.customerReference || "").trim().slice(0, 100);
   const partner = referralPartners.find((item) => item.code === code && item.status === "active");
   if (!partner || !customerReference) return res.status(400).json({ error: "A valid referral code and customerReference are required." });
-  const event = { id: crypto.randomUUID(), partnerId: partner.id, code, customerReference, status: "registered", createdAt: new Date().toISOString(), rewardCents: businessConfig.referralProgram.rewardCentsPerQualifiedPaidConversion };
+  const event = { id: crypto.randomUUID(), partnerId: partner.id, partnerGroup: partner.group, code, customerReference, status: "registered", createdAt: new Date().toISOString(), rewardCents: businessConfig.referralProgram.rewardCentsPerQualifiedPaidConversion };
   referralEvents.set(event.id, event);
   res.status(201).json({ event, customerOffer: businessConfig.referralProgram.customerOffer, note: "Reward remains pending until verification, first paid month, refund window, and fraud review are complete." });
 });
 
 app.get("/api/admin/config", requireAdmin, (_req, res) => res.json({ businessConfig, promotions: [...promotions.values()], referralPartners }));
 app.patch("/api/admin/config", requireAdmin, (req, res) => {
-  const { gameFundPercent, referralRewardCents, minimumPayoutCents } = req.body || {};
-  if (gameFundPercent !== undefined) {
-    const value = Number(gameFundPercent);
-    if (!Number.isFinite(value) || value < 0 || value > 100) return res.status(400).json({ error: "gameFundPercent must be 0-100." });
-    businessConfig.gameFutureFund.percentOfPlatformNetGamingShare = value;
-  }
-  if (referralRewardCents !== undefined) {
-    const value = Number(referralRewardCents);
-    if (!Number.isInteger(value) || value < 0 || value > 100000) return res.status(400).json({ error: "referralRewardCents must be an integer from 0-100000." });
-    businessConfig.referralProgram.rewardCentsPerQualifiedPaidConversion = value;
-  }
-  if (minimumPayoutCents !== undefined) {
-    const value = Number(minimumPayoutCents);
-    if (!Number.isInteger(value) || value < 0) return res.status(400).json({ error: "minimumPayoutCents must be a nonnegative integer." });
-    businessConfig.referralProgram.minimumPayoutCents = value;
-  }
+  const { gameFundPercent, referralRewardCents, minimumPayoutCents, refundWindowDays, payoutSchedule } = req.body || {};
+  if (gameFundPercent !== undefined) { const value = Number(gameFundPercent); if (!Number.isFinite(value) || value < 0 || value > 100) return res.status(400).json({ error: "gameFundPercent must be 0-100." }); businessConfig.gameFutureFund.percentOfPlatformNetGamingShare = value; }
+  if (referralRewardCents !== undefined) { const value = Number(referralRewardCents); if (!Number.isInteger(value) || value < 0 || value > 100000) return res.status(400).json({ error: "referralRewardCents must be an integer from 0-100000." }); businessConfig.referralProgram.rewardCentsPerQualifiedPaidConversion = value; }
+  if (minimumPayoutCents !== undefined) { const value = Number(minimumPayoutCents); if (!Number.isInteger(value) || value < 0) return res.status(400).json({ error: "minimumPayoutCents must be a nonnegative integer." }); businessConfig.referralProgram.minimumPayoutCents = value; }
+  if (refundWindowDays !== undefined) { const value = Number(refundWindowDays); if (!Number.isInteger(value) || value < 0 || value > 90) return res.status(400).json({ error: "refundWindowDays must be 0-90." }); businessConfig.billing.refundWindowDays = value; }
+  if (payoutSchedule !== undefined) { const value = String(payoutSchedule).trim().toLowerCase(); if (!["weekly", "biweekly", "monthly"].includes(value)) return res.status(400).json({ error: "payoutSchedule must be weekly, biweekly, or monthly." }); businessConfig.billing.payoutSchedule = value; }
   res.json({ updated: true, businessConfig });
 });
 
@@ -129,11 +120,12 @@ app.post("/api/admin/promotions", requireAdmin, (req, res) => {
 
 app.post("/api/admin/referral-partners", requireAdmin, (req, res) => {
   const displayName = String(req.body?.displayName || "").trim().slice(0, 80);
+  const group = String(req.body?.group || "community").trim().toLowerCase().slice(0, 30);
   const requestedCode = String(req.body?.code || "").trim().toUpperCase();
-  if (!displayName) return res.status(400).json({ error: "displayName is required." });
+  if (!displayName || !/^[a-z0-9-]{2,30}$/.test(group)) return res.status(400).json({ error: "displayName and a valid group are required." });
   const code = requestedCode || makeCode(displayName, crypto.randomBytes(2).toString("hex").toUpperCase());
   if (!/^[A-Z0-9-]{4,40}$/.test(code) || referralPartners.some((item) => item.code === code)) return res.status(409).json({ error: "Referral code is invalid or already exists." });
-  const partner = { id: crypto.randomUUID(), displayName, code, status: "active", qualifiedConversions: 0, pendingRewardCents: 0, paidRewardCents: 0 };
+  const partner = { id: crypto.randomUUID(), displayName, group, code, status: "active", qualifiedConversions: 0, pendingRewardCents: 0, paidRewardCents: 0 };
   referralPartners.push(partner);
   res.status(201).json({ partner });
 });
@@ -158,7 +150,6 @@ app.post("/api/agents/game-production/jobs", (req, res) => {
   res.status(202).json(job);
 });
 app.get("/api/agents/game-production/jobs/:jobId", (req, res) => { const job = jobs.get(req.params.jobId); if (!job) return res.status(404).json({ error: "Job not found." }); return res.json(job); });
-
 app.get("/api/rideshare/set-apart", (_req, res) => res.json({ name: "Set Apart Ride Share", status: "planned", services: ["Standard rides", "Accessible rides", "Women-focused safety options", "Senior transportation", "Delivery", "Medical appointment transportation through qualified partners"], requiredBeforeLaunch: ["Driver screening", "Insurance and licensing review", "Emergency support", "Location and trip safety", "Payments and driver payouts"] }));
 
 io.on("connection", (socket) => {
@@ -167,6 +158,5 @@ io.on("connection", (socket) => {
   socket.on("heart", () => io.emit("heart", ++hearts));
   socket.on("gift", () => io.emit("gift", ++gifts));
 });
-
 app.use((err, _req, res, _next) => { console.error(err); res.status(500).json({ error: "Unexpected server error." }); });
 server.listen(process.env.PORT || 10000, () => console.log("TryAMM foundation server running"));
