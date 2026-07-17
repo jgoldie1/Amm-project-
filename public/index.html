@@ -1,17 +1,165 @@
-<button onclick="increment()">Tap</button>
-<p id="count">0</p>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TryAMM Platform Foundation</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+    body { margin: 0; background: #0d0815; color: #f7f1ff; }
+    header { padding: 32px 20px; background: linear-gradient(135deg, #28103f, #11142d); border-bottom: 1px solid #5d3f79; }
+    main { max-width: 1100px; margin: auto; padding: 24px 20px 60px; }
+    h1, h2 { margin-top: 0; }
+    .subtitle { color: #d6c8e8; max-width: 760px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+    .card { background: #171022; border: 1px solid #49365e; border-radius: 16px; padding: 18px; }
+    .badge { display: inline-block; border-radius: 999px; padding: 4px 9px; background: #3b2452; color: #ead8ff; font-size: 12px; }
+    .price { font-size: 28px; font-weight: 700; margin: 10px 0; }
+    button, select, input, textarea { width: 100%; box-sizing: border-box; border-radius: 10px; border: 1px solid #6b4f86; background: #0f0b16; color: #fff; padding: 11px; margin-top: 8px; }
+    button { cursor: pointer; background: #6d3ca0; font-weight: 700; }
+    button:hover { background: #8250b3; }
+    ul { padding-left: 20px; }
+    .status { min-height: 24px; color: #e8d8fb; }
+    .warning { border-left: 4px solid #cfaa4d; padding-left: 12px; color: #f0ddb1; }
+    section { margin-top: 28px; }
+    code { color: #f1cdff; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>TryAMM Unified Platform Foundation</h1>
+    <p class="subtitle">AI-assisted game production, adaptive graphics, faith subscriptions, ministry onboarding, Set Apart Ride Share, creator studios, immersive media, and holographic monetization.</p>
+  </header>
 
-<script>
-async function load() {
-  const res = await fetch('/count');
-  const data = await res.json();
-  document.getElementById('count').innerText = data.count;
-}
+  <main>
+    <p class="warning" id="platformWarning">Loading platform status…</p>
 
-async function increment() {
-  await fetch('/increment', { method: 'POST' });
-  load();
-}
+    <section>
+      <h2>Faith Premium</h2>
+      <div class="grid" id="faithPlans"></div>
+      <div class="card" style="margin-top:16px">
+        <label for="promoCode">Promotion or ministry invite code</label>
+        <input id="promoCode" value="FAITH-1PLUS2" />
+        <button id="validatePromo" type="button">Validate code</button>
+        <p class="status" id="promoStatus" aria-live="polite"></p>
+      </div>
+    </section>
 
-load();
-</script>
+    <section>
+      <h2>AI Game Production Agent</h2>
+      <div class="card">
+        <label for="gameSelect">Choose one of the 11 game projects</label>
+        <select id="gameSelect"></select>
+
+        <label for="profileSelect">Performance target</label>
+        <select id="profileSelect">
+          <option value="auto">Auto adaptive</option>
+          <option value="battery">Battery saver</option>
+          <option value="balanced">Balanced</option>
+          <option value="quality">Quality</option>
+          <option value="cinematic">Cinematic</option>
+        </select>
+
+        <label for="agentTask">Production task</label>
+        <textarea id="agentTask" rows="4">Create a polished vertical-slice plan with consistent art direction, gameplay systems, asset budgets, and device performance targets.</textarea>
+        <button id="queueJob" type="button">Queue AI production job</button>
+        <p class="status" id="jobStatus" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Connected platform modules</h2>
+      <div class="grid" id="moduleGrid"></div>
+    </section>
+
+    <section>
+      <h2>Business rules now wired</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="badge">Holographic</span>
+          <h3>80/20 revenue split</h3>
+          <p>Creator receives 80%; TryAMM receives 20%, with separate disclosed production costs where required.</p>
+        </article>
+        <article class="card">
+          <span class="badge">Faith offer</span>
+          <h3>Buy 1, get 2 free</h3>
+          <p>Code: <code>FAITH-1PLUS2</code></p>
+          <p>Ministry code: <code>YAHAVAH-MINISTRY-3X</code></p>
+        </article>
+        <article class="card">
+          <span class="badge">Performance</span>
+          <h3>Adaptive quality</h3>
+          <p>Games can target battery, balanced, quality, cinematic, or automatic device-aware presets.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const getJson = async (url, options) => {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || data.message || "Request failed");
+      return data;
+    };
+
+    async function loadPlatform() {
+      const [config, faith, gameData] = await Promise.all([
+        getJson("/api/platform/config"),
+        getJson("/api/faith/plans"),
+        getJson("/api/games")
+      ]);
+
+      document.getElementById("platformWarning").textContent = config.warning;
+      document.getElementById("moduleGrid").innerHTML = config.modules
+        .map((module) => `<article class="card"><span class="badge">Foundation</span><h3>${module}</h3><p>Connected to the shared platform roadmap and service architecture.</p></article>`)
+        .join("");
+
+      document.getElementById("faithPlans").innerHTML = faith.plans
+        .map((plan) => `<article class="card"><span class="badge">${plan.name}</span><div class="price">$${plan.priceMonthly.toFixed(2)}/mo</div><p>${plan.promotion || "Core access"}</p><ul>${plan.features.map((item) => `<li>${item}</li>`).join("")}</ul></article>`)
+        .join("");
+
+      document.getElementById("gameSelect").innerHTML = gameData.games
+        .map((game) => `<option value="${game.id}">${game.name}</option>`)
+        .join("");
+    }
+
+    document.getElementById("validatePromo").addEventListener("click", async () => {
+      const status = document.getElementById("promoStatus");
+      try {
+        const data = await getJson("/api/faith/promo/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: document.getElementById("promoCode").value })
+        });
+        status.textContent = `Valid: pay ${data.offer.paidMonths} month and receive ${data.offer.freeMonths} months free${data.offer.requiresMinistryVerification ? "; ministry verification required" : ""}.`;
+      } catch (error) {
+        status.textContent = error.message;
+      }
+    });
+
+    document.getElementById("queueJob").addEventListener("click", async () => {
+      const status = document.getElementById("jobStatus");
+      status.textContent = "Queueing…";
+      try {
+        const job = await getJson("/api/agents/game-production/jobs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            gameId: document.getElementById("gameSelect").value,
+            performanceProfile: document.getElementById("profileSelect").value,
+            task: document.getElementById("agentTask").value
+          })
+        });
+        status.textContent = `${job.gameName}: ${job.status}. Job ${job.id}. ${job.note}`;
+      } catch (error) {
+        status.textContent = error.message;
+      }
+    });
+
+    loadPlatform().catch((error) => {
+      document.getElementById("platformWarning").textContent = `Unable to load platform data: ${error.message}`;
+    });
+  </script>
+</body>
+</html>
