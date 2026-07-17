@@ -2,6 +2,7 @@ const express = require("express");
 const http = require("http");
 const crypto = require("crypto");
 const { Server } = require("socket.io");
+const { progressionFramework } = require("./gameProgression");
 
 const app = express();
 const server = http.createServer(app);
@@ -107,6 +108,10 @@ app.get("/api/platform/config", (_req, res) => {
 
 app.get("/api/games", (_req, res) => {
   res.json({ games, qualityGoal: "AAA-inspired vertical slices with scalable device presets" });
+});
+
+app.get("/api/games/progression", (_req, res) => {
+  res.json(progressionFramework);
 });
 
 app.get("/api/faith/plans", (_req, res) => {
