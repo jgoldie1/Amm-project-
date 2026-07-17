@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TryAMM Global Market Center</title>
+  <style>
+    :root{color-scheme:dark;font-family:Inter,system-ui,sans-serif}body{margin:0;background:#0c0813;color:#f8f3ff}header{padding:28px 20px;background:linear-gradient(135deg,#26113b,#11223b)}main{max-width:1150px;margin:auto;padding:24px 20px 60px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}.card{background:#171020;border:1px solid #533c69;border-radius:16px;padding:18px}input,select,button{width:100%;box-sizing:border-box;padding:11px;margin-top:8px;border-radius:10px;border:1px solid #70528c;background:#0d0912;color:white}button{background:#6d3ca0;font-weight:700;cursor:pointer}.badge{display:inline-block;padding:4px 9px;border-radius:999px;background:#3c2651;font-size:12px}.small{color:#d2c4df;font-size:13px}.status{min-height:24px;color:#ead8fb}a{color:#e4bbff}
+  </style>
+</head>
+<body>
+<header><h1>TryAMM Global Market Center</h1><p>Manage country launches, currencies, languages, ambassador programs, regional codes, and market readiness.</p><a href="/">Return to platform dashboard</a></header>
+<main>
+  <section><h2>Launch markets</h2><div class="grid" id="markets"></div></section>
+  <section><h2>Production requirements</h2><div class="card"><ul id="requirements"></ul></div></section>
+  <section><h2>Add a country or region</h2><p class="small">Development foundation only. Production requires authenticated role permissions, database storage, legal review, payment-provider support, and audit logs.</p>
+    <div class="grid">
+      <div class="card">
+        <label>Admin API key</label><input id="adminKey" type="password" placeholder="ADMIN_API_KEY" />
+        <label>Market name</label><input id="marketName" placeholder="Caribbean Regional" />
+        <label>Region</label><input id="region" placeholder="caribbean" />
+        <label>Launch code</label><input id="code" placeholder="CARIBBEAN-LAUNCH" />
+        <label>Currency</label><input id="currency" value="USD" maxlength="3" />
+        <label>Locale</label><input id="locale" value="en" />
+        <button id="addMarket">Add market</button><p class="status" id="marketStatus"></p>
+      </div>
+      <div class="card">
+        <label>Ambassador name</label><input id="ambassadorName" placeholder="Regional ambassador" />
+        <label>Market</label><select id="marketSelect"></select>
+        <label>Referral code</label><input id="ambassadorCode" placeholder="Optional market or personal code" />
+        <button id="addAmbassador">Add ambassador</button><p class="status" id="ambassadorStatus"></p>
+      </div>
+    </div>
+  </section>
+  <section><h2>Ambassadors</h2><div class="grid" id="ambassadors"></div></section>
+</main>
+<script>
+const getJson=async(url,options)=>{const r=await fetch(url,options);const d=await r.json();if(!r.ok)throw new Error(d.error||"Request failed");return d};
+const headers=()=>({"Content-Type":"application/json","x-admin-key":document.getElementById("adminKey").value});
+async function load(){const [marketData,ambassadorData]=await Promise.all([getJson('/api/markets'),getJson('/api/ambassadors')]);document.getElementById('markets').innerHTML=marketData.markets.map(m=>`<article class="card"><span class="badge">${m.region}</span><h3>${m.name}</h3><p><code>${m.code}</code></p><p>${m.currency} · ${m.locale}</p><p>Status: ${m.status}</p></article>`).join('');document.getElementById('requirements').innerHTML=marketData.requirements.map(x=>`<li>${x}</li>`).join('');document.getElementById('marketSelect').innerHTML=marketData.markets.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');document.getElementById('ambassadors').innerHTML=ambassadorData.ambassadors.length?ambassadorData.ambassadors.map(a=>`<article class="card"><span class="badge">${a.status}</span><h3>${a.displayName}</h3><p>${a.marketId}</p><code>${a.referralCode}</code></article>`).join(''):'<article class="card"><p>No ambassadors added yet.</p></article>'}
+document.getElementById('addMarket').onclick=async()=>{const s=document.getElementById('marketStatus');try{const data=await getJson('/api/admin/markets',{method:'POST',headers:headers(),body:JSON.stringify({name:document.getElementById('marketName').value,region:document.getElementById('region').value,code:document.getElementById('code').value,currency:document.getElementById('currency').value,locale:document.getElementById('locale').value})});s.textContent=`Added ${data.market.name}.`;await load()}catch(e){s.textContent=e.message}};
+document.getElementById('addAmbassador').onclick=async()=>{const s=document.getElementById('ambassadorStatus');try{const data=await getJson('/api/admin/ambassadors',{method:'POST',headers:headers(),body:JSON.stringify({displayName:document.getElementById('ambassadorName').value,marketId:document.getElementById('marketSelect').value,referralCode:document.getElementById('ambassadorCode').value})});s.textContent=`Added ${data.ambassador.displayName}.`;await load()}catch(e){s.textContent=e.message}};
+load().catch(e=>document.getElementById('markets').innerHTML=`<article class="card">${e.message}</article>`);
+</script>
+</body></html>
