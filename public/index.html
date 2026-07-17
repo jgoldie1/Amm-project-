@@ -30,98 +30,54 @@
 <body>
   <header>
     <h1>TryAMM Unified Platform Foundation</h1>
-    <p class="subtitle">AI-assisted game production, adaptive graphics, game reinvestment, family referrals, faith subscriptions, ministry onboarding, Set Apart Ride Share, creator studios, immersive media, and holographic monetization.</p>
+    <p class="subtitle">AI-assisted game production, adaptive graphics, game reinvestment, global referrals, faith subscriptions, Set Apart Ride Share, music streaming, The All American Billboard, creator studios, immersive media, and holographic monetization.</p>
   </header>
   <main>
     <p class="warning" id="platformWarning">Loading platform status…</p>
-
+    <section><h2>Business growth rules</h2><div class="grid" id="businessRules"></div></section>
     <section>
-      <h2>Business growth rules</h2>
-      <div class="grid" id="businessRules"></div>
+      <h2>Faith Premium</h2><div class="grid" id="faithPlans"></div>
+      <div class="card" style="margin-top:16px"><label for="promoCode">Promotion or ministry invite code</label><input id="promoCode" value="FAITH-1PLUS1" /><button id="validatePromo" type="button">Validate code</button><p class="status" id="promoStatus" aria-live="polite"></p></div>
     </section>
-
     <section>
-      <h2>Faith Premium</h2>
-      <div class="grid" id="faithPlans"></div>
-      <div class="card" style="margin-top:16px">
-        <label for="promoCode">Promotion or ministry invite code</label>
-        <input id="promoCode" value="FAITH-1PLUS1" />
-        <button id="validatePromo" type="button">Validate code</button>
-        <p class="status" id="promoStatus" aria-live="polite"></p>
-      </div>
-    </section>
-
-    <section>
-      <h2>Family and community referral codes</h2>
-      <p class="small">A reward is earned only after a referred customer verifies, completes the first paid month, clears the refund window, and passes fraud review.</p>
+      <h2>Family, community, and regional codes</h2>
+      <p class="small">Includes Africa, Asia, Philippines, TikTok Fam, BIGO Fam, family, and community groups. New countries or groups can be added below.</p>
+      <label for="groupFilter">Filter group</label><select id="groupFilter"><option value="">All groups</option></select>
       <div class="grid" id="referralGrid"></div>
     </section>
-
     <section>
       <h2>AI Game Production Agent</h2>
-      <div class="card">
-        <label for="gameSelect">Choose one of the 11 game projects</label>
-        <select id="gameSelect"></select>
-        <label for="profileSelect">Performance target</label>
-        <select id="profileSelect"><option value="auto">Auto adaptive</option><option value="battery">Battery saver</option><option value="balanced">Balanced</option><option value="quality">Quality</option><option value="cinematic">Cinematic</option></select>
-        <label for="agentTask">Production task</label>
-        <textarea id="agentTask" rows="4">Create a polished vertical-slice plan with consistent art direction, level planning, asset budgets, enemy placement, dialogue drafts, difficulty balancing, optimization checks, test cases, and device performance targets.</textarea>
-        <button id="queueJob" type="button">Queue AI production job</button>
-        <p class="status" id="jobStatus" aria-live="polite"></p>
-      </div>
+      <div class="card"><label for="gameSelect">Choose one of the 11 game projects</label><select id="gameSelect"></select><label for="profileSelect">Performance target</label><select id="profileSelect"><option value="auto">Auto adaptive</option><option value="battery">Battery saver</option><option value="balanced">Balanced</option><option value="quality">Quality</option><option value="cinematic">Cinematic</option></select><label for="agentTask">Production task</label><textarea id="agentTask" rows="4">Create a polished vertical-slice plan with consistent art direction, level planning, asset budgets, enemy placement, dialogue drafts, difficulty balancing, optimization checks, test cases, and device performance targets.</textarea><button id="queueJob" type="button">Queue AI production job</button><p class="status" id="jobStatus" aria-live="polite"></p></div>
     </section>
-
     <section>
-      <h2>Admin controls</h2>
-      <p class="small">For development only. Production must use authenticated role-based admin access, a database, audit logs, and secret management.</p>
+      <h2>Admin controls</h2><p class="small">For development only. Production must use authenticated role-based access, persistent storage, audit logs, and secret management.</p>
       <div class="two">
-        <div class="card">
-          <label for="adminKey">Admin API key</label><input id="adminKey" type="password" placeholder="Configured in ADMIN_API_KEY" />
-          <label for="gameFund">Game Future Fund (% of platform net gaming share)</label><input id="gameFund" type="number" min="0" max="100" value="25" />
-          <label for="referralReward">Referral reward in cents</label><input id="referralReward" type="number" min="0" value="100" />
-          <label for="minimumPayout">Minimum payout in cents</label><input id="minimumPayout" type="number" min="0" value="2500" />
-          <button id="saveConfig" type="button">Save business settings</button>
-          <p class="status" id="configStatus"></p>
-        </div>
-        <div class="card">
-          <label for="newPartner">Add referral partner</label><input id="newPartner" placeholder="Name" />
-          <label for="newPartnerCode">Optional custom code</label><input id="newPartnerCode" placeholder="NAME-CODE" />
-          <button id="addPartner" type="button">Add partner</button>
-          <p class="status" id="partnerStatus"></p>
-          <hr />
-          <label for="newPromoCode">New promotion code</label><input id="newPromoCode" placeholder="PROMO-CODE" />
-          <label for="newPromoPlan">Plan ID</label><input id="newPromoPlan" value="faith-premium" />
-          <label for="paidMonths">Paid months</label><input id="paidMonths" type="number" min="0" value="1" />
-          <label for="freeMonths">Free months</label><input id="freeMonths" type="number" min="0" value="1" />
-          <button id="addPromo" type="button">Create promotion</button>
-          <p class="status" id="newPromoStatus"></p>
-        </div>
+        <div class="card"><label for="adminKey">Admin API key</label><input id="adminKey" type="password" placeholder="Configured in ADMIN_API_KEY" /><label for="gameFund">Game Future Fund (%)</label><input id="gameFund" type="number" min="0" max="100" value="25" /><label for="referralReward">Referral reward in cents</label><input id="referralReward" type="number" min="0" value="100" /><label for="minimumPayout">Minimum payout in cents</label><input id="minimumPayout" type="number" min="0" value="2500" /><button id="saveConfig" type="button">Save business settings</button><p class="status" id="configStatus"></p></div>
+        <div class="card"><label for="newPartner">Add person, country, or group</label><input id="newPartner" placeholder="Name" /><label for="newPartnerGroup">Group or region</label><input id="newPartnerGroup" placeholder="africa, asia, philippines, country-name" /><label for="newPartnerCode">Optional custom code</label><input id="newPartnerCode" placeholder="CUSTOM-CODE" /><button id="addPartner" type="button">Add code</button><p class="status" id="partnerStatus"></p><hr /><label for="newPromoCode">New promotion code</label><input id="newPromoCode" placeholder="PROMO-CODE" /><label for="newPromoPlan">Plan ID</label><input id="newPromoPlan" value="faith-premium" /><label for="paidMonths">Paid months</label><input id="paidMonths" type="number" min="0" value="1" /><label for="freeMonths">Free months</label><input id="freeMonths" type="number" min="0" value="1" /><button id="addPromo" type="button">Create promotion</button><p class="status" id="newPromoStatus"></p></div>
       </div>
     </section>
-
     <section><h2>Connected platform modules</h2><div class="grid" id="moduleGrid"></div></section>
   </main>
-
   <script>
     const getJson = async (url, options) => { const response = await fetch(url, options); const data = await response.json(); if (!response.ok) throw new Error(data.error || data.message || "Request failed"); return data; };
     const adminHeaders = () => ({ "Content-Type": "application/json", "x-admin-key": document.getElementById("adminKey").value });
-
+    let allPartners = [];
+    function renderPartners(group = "") { const items = group ? allPartners.filter((p) => p.group === group) : allPartners; document.getElementById("referralGrid").innerHTML = items.map((p) => `<article class="card"><span class="badge">${p.group}</span><h3>${p.displayName}</h3><code>${p.code}</code><p>Status: ${p.status}</p></article>`).join(""); }
     async function loadPlatform() {
       const [config, faith, gameData, referralData] = await Promise.all([getJson("/api/platform/config"), getJson("/api/faith/plans"), getJson("/api/games"), getJson("/api/referrals/partners")]);
       document.getElementById("platformWarning").textContent = config.warning;
       document.getElementById("moduleGrid").innerHTML = config.modules.map((module) => `<article class="card"><span class="badge">Foundation</span><h3>${module}</h3><p>Connected to the shared platform roadmap and service architecture.</p></article>`).join("");
       document.getElementById("faithPlans").innerHTML = faith.plans.map((plan) => `<article class="card"><span class="badge">${plan.name}</span><div class="price">$${plan.priceMonthly.toFixed(2)}/mo</div><p>${plan.promotion || "Core access"}</p><ul>${plan.features.map((item) => `<li>${item}</li>`).join("")}</ul></article>`).join("");
       document.getElementById("gameSelect").innerHTML = gameData.games.map((game) => `<option value="${game.id}">${game.name}</option>`).join("");
-      document.getElementById("referralGrid").innerHTML = referralData.partners.map((p) => `<article class="card"><span class="badge">Referral partner</span><h3>${p.displayName}</h3><code>${p.code}</code><p>Status: ${p.status}</p></article>`).join("");
-      const b = config.businessConfig;
-      document.getElementById("businessRules").innerHTML = `<article class="card"><span class="badge">Holographic</span><h3>${b.holographicRevenueSplit.creatorPercent}/${b.holographicRevenueSplit.platformPercent} split</h3><p>Creator receives ${b.holographicRevenueSplit.creatorPercent}%; platform receives ${b.holographicRevenueSplit.platformPercent}%.</p></article><article class="card"><span class="badge">Game Future Fund</span><h3>${b.gameFutureFund.percentOfPlatformNetGamingShare}% reinvestment</h3><p>Taken from TryAMM's net gaming-platform share, not the creator's share.</p></article><article class="card"><span class="badge">Referral</span><h3>$${(b.referralProgram.rewardCentsPerQualifiedPaidConversion/100).toFixed(2)} qualified reward</h3><p>Customer buys 1 month and receives ${b.referralProgram.customerOffer.freeMonths} month free.</p></article>`;
+      allPartners = referralData.partners; document.getElementById("groupFilter").innerHTML = `<option value="">All groups</option>${referralData.groups.map((g) => `<option value="${g}">${g}</option>`).join("")}`; renderPartners(document.getElementById("groupFilter").value);
+      const b = config.businessConfig; document.getElementById("businessRules").innerHTML = `<article class="card"><span class="badge">Holographic</span><h3>${b.holographicRevenueSplit.creatorPercent}/${b.holographicRevenueSplit.platformPercent} split</h3></article><article class="card"><span class="badge">Game Future Fund</span><h3>${b.gameFutureFund.percentOfPlatformNetGamingShare}% reinvestment</h3></article><article class="card"><span class="badge">Referral</span><h3>$${(b.referralProgram.rewardCentsPerQualifiedPaidConversion/100).toFixed(2)} qualified reward</h3><p>Buy 1 month, receive ${b.referralProgram.customerOffer.freeMonths} month free.</p></article>`;
     }
-
-    document.getElementById("validatePromo").onclick = async () => { const status = document.getElementById("promoStatus"); try { const data = await getJson("/api/promotions/validate", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({code:document.getElementById("promoCode").value}) }); status.textContent = `Valid: pay ${data.offer.paidMonths} month and receive ${data.offer.freeMonths} month free${data.offer.requiresVerification ? "; verification required" : ""}.`; } catch(e) { status.textContent=e.message; } };
-    document.getElementById("queueJob").onclick = async () => { const status=document.getElementById("jobStatus"); status.textContent="Queueing…"; try { const job=await getJson("/api/agents/game-production/jobs", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({gameId:document.getElementById("gameSelect").value, performanceProfile:document.getElementById("profileSelect").value, task:document.getElementById("agentTask").value})}); status.textContent=`${job.gameName}: ${job.status}. ${job.note}`; } catch(e){status.textContent=e.message;} };
-    document.getElementById("saveConfig").onclick = async () => { const s=document.getElementById("configStatus"); try { await getJson("/api/admin/config", {method:"PATCH", headers:adminHeaders(), body:JSON.stringify({gameFundPercent:Number(document.getElementById("gameFund").value), referralRewardCents:Number(document.getElementById("referralReward").value), minimumPayoutCents:Number(document.getElementById("minimumPayout").value)})}); s.textContent="Settings updated for this running instance."; await loadPlatform(); } catch(e){s.textContent=e.message;} };
-    document.getElementById("addPartner").onclick = async () => { const s=document.getElementById("partnerStatus"); try { const result=await getJson("/api/admin/referral-partners", {method:"POST", headers:adminHeaders(), body:JSON.stringify({displayName:document.getElementById("newPartner").value, code:document.getElementById("newPartnerCode").value})}); s.textContent=`Added ${result.partner.displayName}: ${result.partner.code}`; await loadPlatform(); } catch(e){s.textContent=e.message;} };
-    document.getElementById("addPromo").onclick = async () => { const s=document.getElementById("newPromoStatus"); try { const result=await getJson("/api/admin/promotions", {method:"POST", headers:adminHeaders(), body:JSON.stringify({code:document.getElementById("newPromoCode").value, planId:document.getElementById("newPromoPlan").value, paidMonths:Number(document.getElementById("paidMonths").value), freeMonths:Number(document.getElementById("freeMonths").value)})}); s.textContent=`Created ${result.promotion.code}.`; } catch(e){s.textContent=e.message;} };
+    document.getElementById("groupFilter").onchange = (e) => renderPartners(e.target.value);
+    document.getElementById("validatePromo").onclick = async () => { const s=document.getElementById("promoStatus"); try { const d=await getJson("/api/promotions/validate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:document.getElementById("promoCode").value})}); s.textContent=`Valid: pay ${d.offer.paidMonths} month and receive ${d.offer.freeMonths} month free.`; } catch(e){s.textContent=e.message;} };
+    document.getElementById("queueJob").onclick = async () => { const s=document.getElementById("jobStatus"); try { const j=await getJson("/api/agents/game-production/jobs",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({gameId:document.getElementById("gameSelect").value,performanceProfile:document.getElementById("profileSelect").value,task:document.getElementById("agentTask").value})}); s.textContent=`${j.gameName}: ${j.status}. ${j.note}`; } catch(e){s.textContent=e.message;} };
+    document.getElementById("saveConfig").onclick = async () => { const s=document.getElementById("configStatus"); try { await getJson("/api/admin/config",{method:"PATCH",headers:adminHeaders(),body:JSON.stringify({gameFundPercent:Number(document.getElementById("gameFund").value),referralRewardCents:Number(document.getElementById("referralReward").value),minimumPayoutCents:Number(document.getElementById("minimumPayout").value)})}); s.textContent="Settings updated for this running instance."; await loadPlatform(); } catch(e){s.textContent=e.message;} };
+    document.getElementById("addPartner").onclick = async () => { const s=document.getElementById("partnerStatus"); try { const r=await getJson("/api/admin/referral-partners",{method:"POST",headers:adminHeaders(),body:JSON.stringify({displayName:document.getElementById("newPartner").value,group:document.getElementById("newPartnerGroup").value || "community",code:document.getElementById("newPartnerCode").value})}); s.textContent=`Added ${r.partner.displayName}: ${r.partner.code} (${r.partner.group})`; await loadPlatform(); } catch(e){s.textContent=e.message;} };
+    document.getElementById("addPromo").onclick = async () => { const s=document.getElementById("newPromoStatus"); try { const r=await getJson("/api/admin/promotions",{method:"POST",headers:adminHeaders(),body:JSON.stringify({code:document.getElementById("newPromoCode").value,planId:document.getElementById("newPromoPlan").value,paidMonths:Number(document.getElementById("paidMonths").value),freeMonths:Number(document.getElementById("freeMonths").value)})}); s.textContent=`Created ${r.promotion.code}.`; } catch(e){s.textContent=e.message;} };
     loadPlatform().catch((error) => { document.getElementById("platformWarning").textContent = `Unable to load platform data: ${error.message}`; });
   </script>
 </body>
