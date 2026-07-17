@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "check": "node --check server.js && node --check regionalMarkets.js && node --check musicStreaming.js",
+    "test": "node tests/regionalMarkets.test.js"
   },
   "dependencies": {
     "express": "^4.18.2",
