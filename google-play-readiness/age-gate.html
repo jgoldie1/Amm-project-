@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TryAMM Age Gate</title></head>
+<body>
+  <main>
+    <h1>Welcome to TryAMM</h1>
+    <p>Enter your date of birth so we can provide the right experience and safety settings.</p>
+    <form id="age-form">
+      <label>Date of birth <input id="dob" type="date" required></label>
+      <button type="submit">Continue</button>
+    </form>
+    <section id="result" aria-live="polite"></section>
+  </main>
+<script>
+const form = document.getElementById('age-form');
+const result = document.getElementById('result');
+form.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  result.textContent = 'Checking...';
+  const response = await fetch('/api/onboarding/age-band', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    credentials: 'include', body: JSON.stringify({ dateOfBirth: document.getElementById('dob').value })
+  });
+  const data = await response.json();
+  if (!response.ok) { result.textContent = data.error || 'Unable to continue'; return; }
+  result.textContent = `Your TryAMM experience is set to ${data.ageBand}.`;
+  location.assign(data.redirect || '/');
+});
+</script>
+</body>
+</html>
