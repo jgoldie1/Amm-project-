@@ -1,0 +1,13 @@
+VICTOR: START HERE
+
+Branch: agent/google-play-age-safety-layer
+Folder: google-play-readiness/app
+
+1) npm install
+2) copy .env.example to .env
+3) npm test
+4) npm start
+5) open http://localhost:8787
+6) read INTEGRATION_MAP.md and DEPLOYMENT_HANDOFF.md
+
+This is a runnable reference implementation. Do not deploy over tryamm.online until its policy/middleware/routes are transplanted into the actual production TryAMM codebase and validated.
