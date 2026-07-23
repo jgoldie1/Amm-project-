@@ -1,0 +1,21 @@
+{
+  "rendering": {
+    "status": "integration-contract",
+    "required": ["provider adapters", "job queue", "webhook/poll callbacks", "object storage", "render workers", "retry/failover", "cost capture", "output validation", "moderation", "signed delivery URLs"],
+    "providers": ["internal-worker", "approved-video-provider", "approved-image-provider", "approved-3d-provider", "approved-audio-provider"],
+    "rule": "No provider call without CostOps quote/authorization and no production-ready claim until a real provider job completes end-to-end."
+  },
+  "analytics": {
+    "status": "integration-contract",
+    "events": ["page_view", "signup_started", "signup_completed", "session_started", "content_created", "asset_generation_quoted", "asset_generation_completed", "checkout_started", "purchase_completed", "subscription_started", "refund", "creator_payout", "music_play", "game_session_started", "lesson_completed"],
+    "required": ["anonymous/session id policy", "authenticated user id", "UTM/referrer attribution", "funnel definitions", "retention cohorts", "revenue/cost joins", "creator dashboards", "founder dashboard", "consent/privacy controls", "retention/deletion policy"],
+    "funnels": ["visitor->signup->activation", "creator->asset quote->purchase->generation->reuse", "listener->play->follow->tip/subscription", "buyer->checkout->purchase->repeat", "learner->lesson->quiz->goal completion"]
+  },
+  "payments": {
+    "status": "integration-contract",
+    "stripePrimary": true,
+    "required": ["Checkout Sessions", "Billing", "Connect Accounts v2 where eligible", "verified webhook signatures", "idempotency keys", "double-entry ledger", "wallet/OmniCredit ledger", "refund/chargeback reconciliation", "fraud/risk controls", "KYC/KYB provider state", "payout state machine", "country/currency capability routing", "PCI/tokenization boundaries"],
+    "ledgerRule": "Never credit a wallet, entitlement, seller balance or payout from a browser success redirect; only from verified provider events reconciled into the durable ledger.",
+    "regional": ["US/global Stripe where eligible", "Africa/Nigeria adapters", "Latin America/PIX-capable adapters", "Asia/Japan adapters", "China-specific gated pathway"]
+  }
+}
