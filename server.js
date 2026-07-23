@@ -9,7 +9,9 @@ const GAMEVERSE = require("./data/gameverse.json");
 const PLATFORM_STATUS = require("./data/platform-status.json");
 const GAMEOPS_POLICY = require("./data/gameops-policy.json");
 const PLAY_SESSION_POLICY = require("./data/play-session-policy.json");
+const QUANTUM_SPEED_ENGINE = require("./data/quantum-speed-engine.json");
 const { createPlaySessionManager } = require("./lib/play-session-manager");
+const assetPipeline = require("./lib/asset-pipeline-manager");
 
 const app = express();
 const server = http.createServer(app);
@@ -84,7 +86,40 @@ app.get("/api/gameverse/games/:id", (req, res) => {
   res.json(game);
 });
 
-// Living Game World launch/control/casting orchestration foundation.
+app.get("/api/quantum-speed-engine", (_req, res) => res.json(QUANTUM_SPEED_ENGINE));
+app.get("/api/quantum-speed-engine/assets", requireGameOpsSecret, (_req, res) => res.json({ jobs: assetPipeline.listAssetJobs() }));
+app.post("/api/quantum-speed-engine/assets", requireGameOpsSecret, (req, res) => {
+  const { gameId, assetType, name, brief, requestedBy } = req.body || {};
+  if (!GAMEVERSE.games.some((game) => game.id === gameId)) return res.status(400).json({ error: "Unknown gameId" });
+  if (!assetType || !name || !brief) return res.status(400).json({ error: "assetType, name and brief are required" });
+  const job = assetPipeline.createAssetJob({ gameId, assetType, name, brief, requestedBy });
+  appendGameOpsRecord({ event: "asset-pipeline.created", job, at: new Date().toISOString() });
+  io.emit("asset-pipeline:update", job);
+  res.status(201).json(job);
+});
+app.get("/api/quantum-speed-engine/assets/:id", requireGameOpsSecret, (req, res) => {
+  const job = assetPipeline.getAssetJob(req.params.id);
+  if (!job) return res.status(404).json({ error: "Asset job not found" });
+  res.json(job);
+});
+app.post("/api/quantum-speed-engine/assets/:id/steps/:step", requireGameOpsSecret, (req, res) => {
+  const job = assetPipeline.updateStep(req.params.id, req.params.step, req.body || {});
+  if (!job) return res.status(404).json({ error: "Asset job or step not found" });
+  appendGameOpsRecord({ event: "asset-pipeline.step", jobId: job.id, step: req.params.step, snapshot: job, at: new Date().toISOString() });
+  io.emit("asset-pipeline:update", job);
+  res.json(job);
+});
+app.post("/api/quantum-speed-engine/assets/:id/publish", requireGameOpsSecret, (req, res) => {
+  const job = assetPipeline.getAssetJob(req.params.id);
+  if (!job) return res.status(404).json({ error: "Asset job not found" });
+  const validationPassed = Array.isArray(job.validation) && job.validation.some((item) => item && item.passed === true);
+  if (!validationPassed) return res.status(409).json({ error: "Validated asset required before publish" });
+  const published = assetPipeline.publishAsset(req.params.id, req.body?.publishedAsset || {});
+  appendGameOpsRecord({ event: "asset-pipeline.published", job: published, at: new Date().toISOString() });
+  io.emit("asset-pipeline:update", published);
+  res.json(published);
+});
+
 app.get("/api/living-world/policy", (_req, res) => res.json(PLAY_SESSION_POLICY));
 app.post("/api/living-world/sessions", (req, res) => {
   try {
