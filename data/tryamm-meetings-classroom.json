@@ -1,95 +1,46 @@
 {
-  "name": "TryAMM Meetings & Classroom",
+  "name": "TryAMM Meetings, Classroom & Broadcast Studio",
   "status": "architecture-foundation",
-  "purpose": "Original TryAMM video meeting, classroom, tutoring, webinar and collaboration platform for lessons, businesses, creators, support teams and communities.",
-  "positioning": "Zoom-style category capabilities with original branding, UX and implementation; do not copy another company's protected branding, assets or proprietary interface.",
-  "coreModes": [
-    "1-to-1 lesson",
-    "small group class",
-    "large classroom",
-    "webinar",
-    "office meeting",
-    "creator workshop",
-    "AI tutoring room",
-    "support/call-center room",
-    "virtual conference",
-    "HoloVerse/spatial session future"
-  ],
-  "features": [
-    "HD video/audio",
-    "screen sharing",
-    "chat",
-    "hand raise",
-    "polls",
-    "whiteboard",
-    "breakout rooms",
-    "waiting room",
-    "host/cohost roles",
-    "mute/remove/ban",
-    "recording with consent",
-    "captions",
-    "translation",
-    "AI notes and summaries",
-    "lesson plans",
-    "attendance",
-    "assignments",
-    "quizzes",
-    "file sharing",
-    "calendar integration",
-    "session replay",
-    "moderation",
-    "accessibility",
-    "mobile/web/desktop support",
-    "TV casting future"
-  ],
+  "purpose": "Original TryAMM video meeting, classroom, tutoring, webinar, broadcasting and AI-assisted production platform for lessons, businesses, creators, support teams and communities.",
+  "positioning": "Zoom-style category capabilities plus original AI production and broadcasting tools; do not copy another company's protected branding, assets or proprietary interface.",
+  "coreModes": ["1-to-1 lesson", "small group class", "large classroom", "webinar", "office meeting", "creator workshop", "AI tutoring room", "support/call-center room", "virtual conference", "live broadcast studio", "podcast/video show", "music premiere", "HoloVerse/spatial session future"],
+  "features": ["HD video/audio", "screen sharing", "chat", "hand raise", "polls", "whiteboard", "breakout rooms", "waiting room", "host/cohost roles", "mute/remove/ban", "recording with consent", "captions", "translation", "AI notes and summaries", "lesson plans", "attendance", "assignments", "quizzes", "file sharing", "calendar integration", "session replay", "moderation", "accessibility", "mobile/web/desktop support", "TV casting future", "AI teleprompter", "AI director", "broadcast control room", "scene switching", "lower thirds", "titles and graphics", "picture-in-picture", "remote guests", "screen/media cues", "stream health monitoring", "multi-destination distribution adapters", "clip/highlight generation"],
+  "aiTeleprompter": {
+    "capabilities": ["script import", "AI script drafting", "speaker-paced scrolling", "manual speed control", "large accessibility text", "section markers", "pronunciation notes", "live script revisions", "multilingual translation", "presenter private view", "timed cues"],
+    "guardrails": ["presenter retains control", "do not fabricate factual claims", "mark AI-generated script suggestions", "recording/broadcast consent"]
+  },
+  "aiDirector": {
+    "capabilities": ["suggest camera/scene changes", "active-speaker framing", "guest cueing", "run-of-show assistance", "break timing", "graphics cues", "audio-level alerts", "caption checks", "dead-air alerts", "highlight suggestions", "post-show summary", "production incident log"],
+    "controlRule": "AI may automate low-risk production actions within host-granted permissions; host can override or disable AI Director at any time."
+  },
+  "broadcastStudio": {
+    "destinations": ["TryAMM Live", "TryAMM Music/video surfaces", "Isaiah AI TV", "OmniBox", "StarVerse", "HoloVerse", "approved connected external social/video destinations via official APIs"],
+    "tools": ["scene presets", "guest green room", "countdown", "media playlist", "screen share", "graphics", "sponsor slots", "moderated chat", "recording", "replay", "clipping", "captions", "translation", "analytics"],
+    "externalDistributionRule": "Use official APIs/RTMP or approved integrations and respect each destination's terms; never imply universal posting support where a platform does not provide it."
+  },
   "education": {
-    "teacherTools": ["roster", "attendance", "lesson-plan", "whiteboard", "breakouts", "quizzes", "assignments", "recordings", "analytics"],
+    "teacherTools": ["roster", "attendance", "lesson-plan", "teleprompter", "AI director", "whiteboard", "breakouts", "quizzes", "assignments", "recordings", "analytics"],
     "studentTools": ["join-link", "chat", "captions", "translation", "notes", "replay", "assignments", "AI tutor assistance"],
-    "aiAssistance": ["lesson-plan drafting", "live transcription", "summaries", "action items", "quiz generation", "translation", "accessibility support", "follow-up tutoring", "content moderation assistance"]
+    "aiAssistance": ["lesson-plan drafting", "teleprompter script", "live transcription", "summaries", "action items", "quiz generation", "translation", "accessibility support", "follow-up tutoring", "content moderation assistance", "broadcast production assistance"]
   },
   "unlimitedPolicy": {
-    "marketingRule": "Do not promise unlimited usage unless the plan's infrastructure and fair-use policy truly support it.",
-    "recommendedModel": "Offer generous or no hard meeting-count limits on paid plans, while using fair-use, concurrency, recording-storage and bandwidth policies to protect platform economics.",
-    "costControls": ["concurrency limits", "recording storage quotas", "transcoding quotas", "fair-use policy", "enterprise capacity plans", "usage alerts", "provider cost routing"]
+    "marketingRule": "Do not promise unlimited usage unless infrastructure and fair-use policy truly support it.",
+    "recommendedModel": "Offer generous or no hard meeting-count limits on eligible paid plans while metering costly AI, broadcast, recording, storage, egress and premium production usage.",
+    "costControls": ["concurrency limits", "recording storage quotas", "transcoding quotas", "AI minute/credit pools", "broadcast egress metering", "fair-use policy", "enterprise capacity plans", "usage alerts", "provider cost routing"]
   },
-  "monetization": [
-    "free basic rooms",
-    "creator/teacher subscriptions",
-    "paid classes",
-    "ticketed webinars",
-    "enterprise plans",
-    "AI tutoring credits",
-    "recording/storage upgrades",
-    "white-label classrooms",
-    "school/community contracts"
-  ],
-  "integrations": [
-    "TryAMM Passport",
-    "HoloGPT",
-    "AI Workforce",
-    "Creator Workstation",
-    "OmniCare 360",
-    "TryAMM University/Academy",
-    "StarVerse",
-    "HoloVerse",
-    "TryAMM Books",
-    "TryAMM Music",
-    "Calendar",
-    "Payments/OmniCredits"
-  ],
-  "productionDependencies": [
-    "LiveKit or WebRTC SFU infrastructure",
-    "real auth",
-    "durable room/session database",
-    "TURN/STUN",
-    "recording/egress",
-    "object storage/CDN",
-    "caption/transcription provider",
-    "moderation",
-    "privacy/consent controls",
-    "calendar/email/SMS notifications",
-    "load testing",
-    "regional scaling",
-    "billing and entitlement system"
-  ]
+  "pricingStrategy": {
+    "principle": "Price premium production features above variable infrastructure and AI costs with a configurable target contribution margin; never use a fixed upcharge without measuring actual provider cost.",
+    "illustrativePlansNotFinalPrices": {
+      "Free": "basic meetings/classes with constrained duration/capacity and no expensive premium production bundle",
+      "CreatorTeacher": "recurring meetings/classes plus a monthly pool of recording/storage and AI assistance",
+      "BroadcastPro": "CreatorTeacher plus AI Teleprompter, AI Director, broadcast studio, larger production allowances and premium analytics",
+      "EnterpriseEducation": "custom capacity, admin, compliance, support, SSO/white-label options and negotiated usage"
+    },
+    "usageUpcharges": ["additional AI production credits", "additional recording/storage", "premium transcription/translation", "high-volume broadcast egress", "additional concurrent rooms", "large-event capacity", "premium HoloVerse/spatial rendering"],
+    "checkoutRule": "Show included allowances, overage/upcharge pricing and estimated variable charges before purchase where practical.",
+    "marginGate": "Finance/AI CostOps must calculate provider cost plus reserves and configured target margin before publishing production prices."
+  },
+  "monetization": ["free basic rooms", "creator/teacher subscriptions", "paid classes", "ticketed webinars", "BroadcastPro subscription", "AI production credit packs", "enterprise plans", "AI tutoring credits", "recording/storage upgrades", "broadcast egress/capacity upgrades", "white-label classrooms/studios", "school/community contracts", "sponsorship/ad production tools"],
+  "integrations": ["TryAMM Passport", "HoloGPT", "AI Workforce", "Creator Workstation", "OmniCare 360", "TryAMM University/Academy", "StarVerse", "HoloVerse", "TryAMM Books", "TryAMM Music", "TryAMM Live", "Isaiah AI TV", "OmniBox", "AMM Billboard", "Calendar", "Payments/OmniCredits"],
+  "productionDependencies": ["LiveKit or WebRTC SFU infrastructure", "real auth", "durable room/session database", "TURN/STUN", "recording/egress", "object storage/CDN", "caption/transcription provider", "AI model router and cost metering", "broadcast compositor/scene engine", "external destination adapters", "moderation", "privacy/consent controls", "calendar/email/SMS notifications", "load testing", "regional scaling", "billing/entitlement/usage-metering system"]
 }
