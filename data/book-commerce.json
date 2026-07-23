@@ -1,0 +1,13 @@
+{
+  "name": "TryAMM Books & Publishing",
+  "status": "architecture-foundation",
+  "mission": "Help authors create, publish, sell, promote, fulfill and monetize books while retaining clear rights and transparent economics.",
+  "formats": ["ebook", "paperback", "hardcover", "audiobook", "interactive-book", "course-bundle"],
+  "creatorTools": ["author-page", "book-project-workspace", "hologpt-writing-assistant", "editing-assistance", "cover-and-promo-asset-workflow", "metadata-and-isbn-readiness", "audiobook-workflow", "translation", "accessibility", "pricing", "preorders", "bundles", "signed-editions", "live-launch-events"],
+  "commerce": ["direct-sales", "marketplace-listing", "subscriptions-or-membership-bundles", "affiliate-sales", "tips", "book-club-sales", "bulk-orders", "school-church-community-orders", "print-on-demand-adapters", "warehouse-fulfillment", "global-shipping"],
+  "distributionAdapters": ["print-on-demand-provider", "ebook-distributor", "audiobook-distributor", "direct-fulfillment", "creator-owned-inventory"],
+  "rights": ["author-ownership", "publisher-rights", "territories", "formats", "royalty-splits", "license-expiration", "public-domain-verification", "permissions-and-sources"],
+  "ai": ["outline-assistance", "proofreading", "format-preflight", "metadata-suggestions", "translation-assistance", "marketing-copy", "launch-plan", "support-triage"],
+  "guardrails": ["no-unauthorized-copying", "no-fabricated-authorship", "no-hidden-royalty-deductions", "human-review-for-final-publication", "clear-ai-assistance-disclosure-where-required"],
+  "integrations": ["creator-workstation", "marketplace", "starverse", "isaiah-ai-tv", "holoverse", "universal-social-fabric", "amm-billboard", "global-logistics", "omnicredits", "payments-and-payouts"]
+}
