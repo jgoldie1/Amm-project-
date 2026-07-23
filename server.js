@@ -17,6 +17,7 @@ const MONETIZATION = require("./data/monetization-packages.json");
 const ECONOMIC_OPPORTUNITY = require("./data/economic-opportunity-hub.json");
 const GLOBAL_MOBILITY_READINESS = require("./data/global-mobility-readiness.json");
 const DELIVERY_ORCHESTRATION = require("./data/delivery-orchestration.json");
+const OMNICARE_360 = require("./data/omnicare-360.json");
 
 const { createPlaySessionManager } = require("./lib/play-session-manager");
 const { createServicesHubManager } = require("./lib/services-hub-manager");
@@ -24,6 +25,8 @@ const { createEconomicOpportunityManager } = require("./lib/economic-opportunity
 const { registerEconomicOpportunityRoutes } = require("./lib/economic-opportunity-routes");
 const { createMobilityOnboardingManager } = require("./lib/mobility-onboarding-manager");
 const { registerMobilityOnboardingRoutes } = require("./lib/mobility-onboarding-routes");
+const { createOmniCare360Manager } = require("./lib/omnicare-360-manager");
+const { registerOmniCare360Routes } = require("./lib/omnicare-360-routes");
 const assetPipeline = require("./lib/asset-pipeline-manager");
 
 const app = express();
@@ -33,6 +36,7 @@ const playSessions = createPlaySessionManager({ gameverse: GAMEVERSE, io });
 const servicesHub = createServicesHubManager({ servicesManifest: TRYAMM_SERVICES, io });
 const economicOpportunity = createEconomicOpportunityManager({ manifest: ECONOMIC_OPPORTUNITY, io });
 const mobilityOnboarding = createMobilityOnboardingManager({ readiness: GLOBAL_MOBILITY_READINESS, io });
+const omniCare360 = createOmniCare360Manager({ manifest: OMNICARE_360, io });
 
 const SITE_URL = (process.env.SITE_URL || "https://tryamm.online").replace(/\/$/, "");
 const AUDIT_LOG_PATH = process.env.GAMEOPS_LOG_PATH || path.join(process.cwd(), "runtime", "tryamm-audit.jsonl");
@@ -55,12 +59,7 @@ function requireInternalSecret(req, res, next) {
 }
 
 app.use(express.json({ limit: "1mb" }));
-app.use(express.static("public", {
-  extensions: ["html"],
-  setHeaders(res, filePath) {
-    if (filePath.endsWith(".html")) res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
-  },
-}));
+app.use(express.static("public", { extensions: ["html"], setHeaders(res, filePath) { if (filePath.endsWith(".html")) res.setHeader("Cache-Control", "public, max-age=0, must-revalidate"); } }));
 
 app.get("/health", (_req, res) => res.json({ ok: true, service: "tryamm", site: SITE_URL }));
 app.get("/api/social-links", (_req, res) => {
@@ -73,15 +72,8 @@ app.get("/api/platform/status", (_req, res) => {
 });
 
 app.get("/api/services", (_req, res) => res.json(TRYAMM_SERVICES));
-app.get("/api/services/:id", (req, res) => {
-  const service = TRYAMM_SERVICES.services.find((item) => item.id === req.params.id);
-  if (!service) return res.status(404).json({ error: "Service not found" });
-  res.json(service);
-});
-app.post("/api/services/requests", requireInternalSecret, (req, res) => {
-  try { const request = servicesHub.createRequest(req.body || {}); appendAudit({ event: "service.request.created", request, at: new Date().toISOString() }); res.status(201).json(request); }
-  catch (error) { res.status(error.message === "UNKNOWN_SERVICE" ? 400 : 500).json({ error: error.message }); }
-});
+app.get("/api/services/:id", (req, res) => { const service = TRYAMM_SERVICES.services.find((item) => item.id === req.params.id); if (!service) return res.status(404).json({ error: "Service not found" }); res.json(service); });
+app.post("/api/services/requests", requireInternalSecret, (req, res) => { try { const request = servicesHub.createRequest(req.body || {}); appendAudit({ event: "service.request.created", request, at: new Date().toISOString() }); res.status(201).json(request); } catch (error) { res.status(error.message === "UNKNOWN_SERVICE" ? 400 : 500).json({ error: error.message }); } });
 app.get("/api/services/requests", requireInternalSecret, (req, res) => res.json({ requests: servicesHub.listRequests(req.query.serviceId) }));
 app.get("/api/services/requests/:id", requireInternalSecret, (req, res) => { const request = servicesHub.getRequest(req.params.id); if (!request) return res.status(404).json({ error: "Request not found" }); res.json(request); });
 app.post("/api/services/requests/:id/status", requireInternalSecret, (req, res) => { const request = servicesHub.updateRequest(req.params.id, req.body || {}); if (!request) return res.status(404).json({ error: "Request not found" }); appendAudit({ event: "service.request.updated", request, at: new Date().toISOString() }); res.json(request); });
@@ -92,22 +84,15 @@ app.get("/api/delivery/orchestration", (_req, res) => res.json(DELIVERY_ORCHESTR
 
 registerEconomicOpportunityRoutes({ app, manifest: ECONOMIC_OPPORTUNITY, manager: economicOpportunity, requireInternalSecret, appendAudit });
 registerMobilityOnboardingRoutes({ app, readiness: GLOBAL_MOBILITY_READINESS, manager: mobilityOnboarding, requireInternalSecret, appendAudit });
+registerOmniCare360Routes({ app, manifest: OMNICARE_360, manager: omniCare360, requireInternalSecret, appendAudit });
 
 app.get("/api/gameverse", (_req, res) => res.json(GAMEVERSE));
-app.get("/api/gameverse/status", (_req, res) => {
-  const totals = GAMEVERSE.games.reduce((acc, game) => { acc[game.status] = (acc[game.status] || 0) + 1; return acc; }, {});
-  res.json({ platform: GAMEVERSE.platform, livingGameWorld: GAMEVERSE.world.status, gameCount: GAMEVERSE.games.length, totals, productionPlayableCount: GAMEVERSE.games.filter((game) => game.status === "production").length, note: "Foundation status does not mean a title is fully playable, tested or deployed." });
-});
+app.get("/api/gameverse/status", (_req, res) => { const totals = GAMEVERSE.games.reduce((acc, game) => { acc[game.status] = (acc[game.status] || 0) + 1; return acc; }, {}); res.json({ platform: GAMEVERSE.platform, livingGameWorld: GAMEVERSE.world.status, gameCount: GAMEVERSE.games.length, totals, productionPlayableCount: GAMEVERSE.games.filter((game) => game.status === "production").length, note: "Foundation status does not mean a title is fully playable, tested or deployed." }); });
 app.get("/api/gameverse/games/:id", (req, res) => { const game = GAMEVERSE.games.find((item) => item.id === req.params.id); if (!game) return res.status(404).json({ error: "Game not found" }); res.json(game); });
 
 app.get("/api/quantum-speed-engine", (_req, res) => res.json(QUANTUM_SPEED_ENGINE));
 app.get("/api/quantum-speed-engine/assets", requireInternalSecret, (_req, res) => res.json({ jobs: assetPipeline.listAssetJobs() }));
-app.post("/api/quantum-speed-engine/assets", requireInternalSecret, (req, res) => {
-  const { gameId, assetType, name, brief, requestedBy } = req.body || {};
-  if (!GAMEVERSE.games.some((game) => game.id === gameId)) return res.status(400).json({ error: "Unknown gameId" });
-  if (!assetType || !name || !brief) return res.status(400).json({ error: "assetType, name and brief are required" });
-  const job = assetPipeline.createAssetJob({ gameId, assetType, name, brief, requestedBy }); appendAudit({ event: "asset-pipeline.created", job, at: new Date().toISOString() }); io.emit("asset-pipeline:update", job); res.status(201).json(job);
-});
+app.post("/api/quantum-speed-engine/assets", requireInternalSecret, (req, res) => { const { gameId, assetType, name, brief, requestedBy } = req.body || {}; if (!GAMEVERSE.games.some((game) => game.id === gameId)) return res.status(400).json({ error: "Unknown gameId" }); if (!assetType || !name || !brief) return res.status(400).json({ error: "assetType, name and brief are required" }); const job = assetPipeline.createAssetJob({ gameId, assetType, name, brief, requestedBy }); appendAudit({ event: "asset-pipeline.created", job, at: new Date().toISOString() }); io.emit("asset-pipeline:update", job); res.status(201).json(job); });
 app.get("/api/quantum-speed-engine/assets/:id", requireInternalSecret, (req, res) => { const job = assetPipeline.getAssetJob(req.params.id); if (!job) return res.status(404).json({ error: "Asset job not found" }); res.json(job); });
 app.post("/api/quantum-speed-engine/assets/:id/steps/:step", requireInternalSecret, (req, res) => { const job = assetPipeline.updateStep(req.params.id, req.params.step, req.body || {}); if (!job) return res.status(404).json({ error: "Asset job or step not found" }); appendAudit({ event: "asset-pipeline.step", jobId: job.id, step: req.params.step, snapshot: job, at: new Date().toISOString() }); io.emit("asset-pipeline:update", job); res.json(job); });
 app.post("/api/quantum-speed-engine/assets/:id/publish", requireInternalSecret, (req, res) => { const job = assetPipeline.getAssetJob(req.params.id); if (!job) return res.status(404).json({ error: "Asset job not found" }); const validationPassed = job.validation.some((item) => item && item.passed === true); if (!validationPassed) return res.status(409).json({ error: "Validated asset required before publish" }); const published = assetPipeline.publishAsset(req.params.id, req.body?.publishedAsset || {}); appendAudit({ event: "asset-pipeline.published", job: published, at: new Date().toISOString() }); io.emit("asset-pipeline:update", published); res.json(published); });
@@ -120,13 +105,7 @@ app.post("/api/living-world/sessions/:id/cast", (req, res) => { const { adapter 
 app.post("/api/living-world/sessions/:id/state", (req, res) => { const state = req.body?.state; if (!PLAY_SESSION_POLICY.sessionStates.includes(state)) return res.status(400).json({ error: "Invalid session state" }); const session = playSessions.update(req.params.id, { state }); if (!session) return res.status(404).json({ error: "Session not found" }); appendAudit({ event: "play-session.state", session, at: new Date().toISOString() }); res.json(session); });
 
 app.get("/api/gameops/policy", (_req, res) => res.json(GAMEOPS_POLICY));
-app.post("/api/gameops/issues", requireInternalSecret, (req, res) => {
-  const { gameId, source, severity, category, summary, details, reportedBy } = req.body || {};
-  if (!GAMEVERSE.games.some((game) => game.id === gameId)) return res.status(400).json({ error: "Unknown gameId" });
-  if (!summary || typeof summary !== "string") return res.status(400).json({ error: "summary is required" });
-  const incident = { id: crypto.randomUUID(), gameId, source: source || "unknown", severity: severity || "medium", category: category || "unknown", summary: summary.slice(0, 500), details: typeof details === "string" ? details.slice(0, 5000) : "", status: "reported", detectedAt: new Date().toISOString(), reportedBy: reportedBy || "ai-or-system", aiDiagnosis: null, proposedFix: null, approvalRequired: !GAMEOPS_POLICY.autoFixAllowlist.includes(category), approvedBy: null, fixAppliedAt: null, validation: null, rollback: null, closedAt: null };
-  gameOpsIncidents.unshift(incident); if (gameOpsIncidents.length > 1000) gameOpsIncidents.length = 1000; appendAudit({ event: "incident.reported", incident }); io.emit("gameops:incident", incident); res.status(201).json(incident);
-});
+app.post("/api/gameops/issues", requireInternalSecret, (req, res) => { const { gameId, source, severity, category, summary, details, reportedBy } = req.body || {}; if (!GAMEVERSE.games.some((game) => game.id === gameId)) return res.status(400).json({ error: "Unknown gameId" }); if (!summary || typeof summary !== "string") return res.status(400).json({ error: "summary is required" }); const incident = { id: crypto.randomUUID(), gameId, source: source || "unknown", severity: severity || "medium", category: category || "unknown", summary: summary.slice(0, 500), details: typeof details === "string" ? details.slice(0, 5000) : "", status: "reported", detectedAt: new Date().toISOString(), reportedBy: reportedBy || "ai-or-system", aiDiagnosis: null, proposedFix: null, approvalRequired: !GAMEOPS_POLICY.autoFixAllowlist.includes(category), approvedBy: null, fixAppliedAt: null, validation: null, rollback: null, closedAt: null }; gameOpsIncidents.unshift(incident); if (gameOpsIncidents.length > 1000) gameOpsIncidents.length = 1000; appendAudit({ event: "incident.reported", incident }); io.emit("gameops:incident", incident); res.status(201).json(incident); });
 app.get("/api/gameops/issues", requireInternalSecret, (_req, res) => res.json({ incidents: gameOpsIncidents, persistence: AUDIT_LOG_PATH }));
 app.post("/api/gameops/issues/:id/ai-analysis", requireInternalSecret, (req, res) => { const incident = gameOpsIncidents.find((item) => item.id === req.params.id); if (!incident) return res.status(404).json({ error: "Incident not found" }); const { diagnosis, proposedFix, validationPlan, rollbackPlan, model } = req.body || {}; if (!diagnosis || !proposedFix) return res.status(400).json({ error: "diagnosis and proposedFix are required" }); incident.aiDiagnosis = { text: String(diagnosis).slice(0, 5000), model: model || "unspecified", at: new Date().toISOString() }; incident.proposedFix = String(proposedFix).slice(0, 5000); incident.validation = validationPlan ? { plan: String(validationPlan).slice(0, 5000), result: null } : null; incident.rollback = rollbackPlan ? { plan: String(rollbackPlan).slice(0, 5000), executed: false } : null; incident.status = incident.approvalRequired ? "awaiting-approval" : "approved-for-bounded-auto-fix"; appendAudit({ event: "incident.ai-analysis", incidentId: incident.id, snapshot: incident }); io.emit("gameops:update", incident); res.json(incident); });
 app.post("/api/gameops/issues/:id/approve", requireInternalSecret, (req, res) => { const incident = gameOpsIncidents.find((item) => item.id === req.params.id); if (!incident) return res.status(404).json({ error: "Incident not found" }); incident.approvedBy = req.body?.approvedBy || "authorized-human"; incident.status = "approved-for-fix"; appendAudit({ event: "incident.approved", incidentId: incident.id, approvedBy: incident.approvedBy, at: new Date().toISOString() }); io.emit("gameops:update", incident); res.json(incident); });
