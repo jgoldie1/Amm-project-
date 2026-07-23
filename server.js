@@ -22,6 +22,8 @@ const HOLO_COMMERCIAL_STUDIO = require("./data/holo-commercial-studio.json");
 const AMM_MOTION_HOLOFX = require("./data/amm-motion-holofx.json");
 const ASSET_HOLOGRAM_MARKETPLACE = require("./data/asset-hologram-marketplace.json");
 const DNA_PROTECTION = require("./data/dna-protection.json");
+const ASSET_GENERATION_PRICING = require("./data/asset-generation-pricing.json");
+const TRYAMM_ANALYTICS = require("./data/tryamm-analytics.json");
 
 const { createPlaySessionManager } = require("./lib/play-session-manager");
 const { createServicesHubManager } = require("./lib/services-hub-manager");
@@ -37,6 +39,10 @@ const { createAssetMarketplaceManager } = require("./lib/asset-marketplace-manag
 const { registerAssetMarketplaceRoutes } = require("./lib/asset-marketplace-routes");
 const { createDnaProtectionManager } = require("./lib/dna-protection-manager");
 const { registerDnaProtectionRoutes } = require("./lib/dna-protection-routes");
+const { createCostOpsManager } = require("./lib/costops-manager");
+const { registerCostOpsRoutes } = require("./lib/costops-routes");
+const { createTryAmmAnalyticsManager } = require("./lib/tryamm-analytics-manager");
+const { registerTryAmmAnalyticsRoutes } = require("./lib/tryamm-analytics-routes");
 const assetPipeline = require("./lib/asset-pipeline-manager");
 
 const app = express();
@@ -50,6 +56,8 @@ const omniCare360 = createOmniCare360Manager({ manifest: OMNICARE_360, io });
 const holoCommercial = createHoloCommercialManager({ manifest: HOLO_COMMERCIAL_STUDIO, motionManifest: AMM_MOTION_HOLOFX, io });
 const dnaProtection = createDnaProtectionManager({ manifest: DNA_PROTECTION, io });
 const assetMarketplace = createAssetMarketplaceManager({ manifest: ASSET_HOLOGRAM_MARKETPLACE, io, dnaProtection });
+const costOps = createCostOpsManager({ pricing: ASSET_GENERATION_PRICING, io });
+const tryAmmAnalytics = createTryAmmAnalyticsManager({ manifest: TRYAMM_ANALYTICS, io });
 
 const SITE_URL = (process.env.SITE_URL || "https://tryamm.online").replace(/\/$/, "");
 const AUDIT_LOG_PATH = process.env.GAMEOPS_LOG_PATH || path.join(process.cwd(), "runtime", "tryamm-audit.jsonl");
@@ -77,12 +85,14 @@ registerOmniCare360Routes({ app, manifest: OMNICARE_360, manager: omniCare360, r
 registerHoloCommercialRoutes({ app, manager: holoCommercial, requireInternalSecret, appendAudit });
 registerAssetMarketplaceRoutes({ app, manifest: ASSET_HOLOGRAM_MARKETPLACE, manager: assetMarketplace, requireInternalSecret, appendAudit });
 registerDnaProtectionRoutes({ app, manifest: DNA_PROTECTION, manager: dnaProtection, requireInternalSecret, appendAudit });
+registerCostOpsRoutes({ app, manager: costOps, pricing: ASSET_GENERATION_PRICING, requireInternalSecret, appendAudit });
+registerTryAmmAnalyticsRoutes({ app, manager: tryAmmAnalytics, manifest: TRYAMM_ANALYTICS, requireInternalSecret, appendAudit });
 app.get("/api/gameverse", (_req, res) => res.json(GAMEVERSE));
 app.get("/api/gameverse/status", (_req, res) => { const totals = GAMEVERSE.games.reduce((acc, game) => { acc[game.status] = (acc[game.status] || 0) + 1; return acc; }, {}); res.json({ platform: GAMEVERSE.platform, livingGameWorld: GAMEVERSE.world.status, gameCount: GAMEVERSE.games.length, totals, productionPlayableCount: GAMEVERSE.games.filter((game) => game.status === "production").length, note: "Foundation status does not mean a title is fully playable, tested or deployed." }); });
 app.get("/api/gameverse/games/:id", (req, res) => { const game = GAMEVERSE.games.find((item) => item.id === req.params.id); if (!game) return res.status(404).json({ error: "Game not found" }); res.json(game); });
 app.get("/api/quantum-speed-engine", (_req, res) => res.json(QUANTUM_SPEED_ENGINE));
 app.get("/api/quantum-speed-engine/assets", requireInternalSecret, (_req, res) => res.json({ jobs: assetPipeline.listAssetJobs() }));
-app.post("/api/quantum-speed-engine/assets", requireInternalSecret, (req, res) => { const { gameId, assetType, name, brief, requestedBy } = req.body || {}; if (!GAMEVERSE.games.some((game) => game.id === gameId)) return res.status(400).json({ error: "Unknown gameId" }); if (!assetType || !name || !brief) return res.status(400).json({ error: "assetType, name and brief are required" }); const job = assetPipeline.createAssetJob({ gameId, assetType, name, brief, requestedBy }); appendAudit({ event: "asset-pipeline.created", job, at: new Date().toISOString() }); io.emit("asset-pipeline:update", job); res.status(201).json(job); });
+app.post("/api/quantum-speed-engine/assets", requireInternalSecret, (req, res) => { const { gameId, assetType, name, brief, requestedBy, costOpsJobId } = req.body || {}; if (!GAMEVERSE.games.some((game) => game.id === gameId)) return res.status(400).json({ error: "Unknown gameId" }); if (!assetType || !name || !brief) return res.status(400).json({ error: "assetType, name and brief are required" }); if (!costOpsJobId) return res.status(402).json({ error: "COSTOPS_AUTHORIZATION_REQUIRED" }); const costJob = costOps.getJob(costOpsJobId); if (!costJob || costJob.status !== "queued") return res.status(409).json({ error: "VALID_COSTOPS_JOB_REQUIRED" }); const job = assetPipeline.createAssetJob({ gameId, assetType, name, brief, requestedBy }); job.costOpsJobId = costOpsJobId; appendAudit({ event: "asset-pipeline.created", job, at: new Date().toISOString() }); tryAmmAnalytics.track({ event: "asset_generation", surface: "asset-forge", gameId, metadata: { assetJobId: job.id, costOpsJobId } }); io.emit("asset-pipeline:update", job); res.status(201).json(job); });
 app.get("/api/quantum-speed-engine/assets/:id", requireInternalSecret, (req, res) => { const job = assetPipeline.getAssetJob(req.params.id); if (!job) return res.status(404).json({ error: "Asset job not found" }); res.json(job); });
 app.post("/api/quantum-speed-engine/assets/:id/steps/:step", requireInternalSecret, (req, res) => { const job = assetPipeline.updateStep(req.params.id, req.params.step, req.body || {}); if (!job) return res.status(404).json({ error: "Asset job or step not found" }); appendAudit({ event: "asset-pipeline.step", jobId: job.id, step: req.params.step, snapshot: job, at: new Date().toISOString() }); io.emit("asset-pipeline:update", job); res.json(job); });
 app.post("/api/quantum-speed-engine/assets/:id/publish", requireInternalSecret, (req, res) => { const job = assetPipeline.getAssetJob(req.params.id); if (!job) return res.status(404).json({ error: "Asset job not found" }); const validationPassed = job.validation.some((item) => item && item.passed === true); if (!validationPassed) return res.status(409).json({ error: "Validated asset required before publish" }); const published = assetPipeline.publishAsset(req.params.id, req.body?.publishedAsset || {}); appendAudit({ event: "asset-pipeline.published", job: published, at: new Date().toISOString() }); io.emit("asset-pipeline:update", published); res.json(published); });
