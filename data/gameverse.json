@@ -1,0 +1,117 @@
+{
+  "platform": "TryAMM GameVerse",
+  "world": {
+    "name": "Living Game World",
+    "status": "foundation-established",
+    "description": "A persistent shared game layer where player identity, progression, achievements, inventory, events and social presence can carry across compatible TryAMM games and experiences.",
+    "systems": [
+      "unified-player-profile",
+      "cross-game-progression",
+      "shared-achievements",
+      "shared-inventory-and-cosmetics",
+      "events-and-seasons",
+      "social-presence-and-parties",
+      "spectator-and-stream-integration",
+      "phone-controller-and-casting-readiness",
+      "AR-VR-MR-holographic-experience-hooks",
+      "accessibility-hooks",
+      "safety-and-age-gating-hooks"
+    ]
+  },
+  "statusPolicy": {
+    "concept": "Defined in product architecture but not implemented as a playable game.",
+    "foundation-established": "Authoritative registry/API/frontend foundation exists, but game runtime is not yet production playable.",
+    "prototype": "A playable prototype exists but is not production complete.",
+    "production": "Playable, tested, deployed and monitored in production."
+  },
+  "games": [
+    {
+      "id": "living-city",
+      "workingTitle": "Living City",
+      "category": "open-world-action",
+      "status": "foundation-established",
+      "origin": "Original open-world city experience inspired by the user's GTA-like concept without copying protected characters, maps or assets.",
+      "core": ["open-world-exploration", "missions", "vehicles", "social-events", "persistent-progression"]
+    },
+    {
+      "id": "shadow-ops",
+      "workingTitle": "Shadow Ops",
+      "category": "tactical-action",
+      "status": "foundation-established",
+      "origin": "Original tactical action experience based on the user's COD-style gameplay direction without copying protected IP.",
+      "core": ["team-objectives", "loadouts", "matchmaking-hooks", "spectator-mode", "replays"]
+    },
+    {
+      "id": "yogihoo-battle-deck",
+      "workingTitle": "Yogihoo Battle Deck",
+      "category": "card-battle",
+      "status": "foundation-established",
+      "origin": "Original holographic card-battle system; must use original rules, names, art and card data.",
+      "core": ["deck-building", "damage-feedback-hooks", "sound-effects", "AR-VR-MR-display-hooks", "holographic-display-hooks"]
+    },
+    {
+      "id": "mischief-creatures",
+      "workingTitle": "Mischief Creatures",
+      "category": "creature-chaos-adventure",
+      "status": "foundation-established",
+      "origin": "Original creature-chaos adventure derived from the user's Gremlins-like idea without using protected Gremlins IP.",
+      "core": ["creature-behavior", "environmental-events", "co-op-hooks", "collection", "story-events"]
+    },
+    {
+      "id": "amm-sports-universe",
+      "workingTitle": "AMM Sports Universe",
+      "category": "sports",
+      "status": "foundation-established",
+      "origin": "Multi-sport original game framework spanning football, basketball, baseball, hockey, soccer, boxing/MMA and track-style events.",
+      "core": ["rules-engine", "rosters", "plays", "shot-clock-hooks", "broadcast-camera", "replays", "multi-sport-progression"]
+    },
+    {
+      "id": "holo-laser-arena",
+      "workingTitle": "Holo Laser Arena",
+      "category": "AR-laser-tag",
+      "status": "foundation-established",
+      "origin": "Original AR laser-tag experience for compatible phone/controller/hardware concepts.",
+      "core": ["AR-targeting-hooks", "team-modes", "safe-play-zones", "scoring", "phone-controller-hooks", "holographic-display-hooks"]
+    },
+    {
+      "id": "wild-signal",
+      "workingTitle": "Wild Signal",
+      "category": "location-creature-adventure",
+      "status": "foundation-established",
+      "origin": "Original creature discovery and collection concept inspired by location-based creature games without copying Pokemon IP.",
+      "core": ["creature-discovery", "collection", "AR-hooks", "quests", "social-trading-hooks"]
+    },
+    {
+      "id": "spectral-response",
+      "workingTitle": "Spectral Response",
+      "category": "paranormal-coop",
+      "status": "foundation-established",
+      "origin": "Original paranormal investigation and capture experience without using Ghostbusters protected characters, branding or assets.",
+      "core": ["co-op-investigation", "sensor-hooks", "AR-MR-hooks", "capture-mechanics", "team-events"]
+    },
+    {
+      "id": "skyline-rivals",
+      "workingTitle": "Skyline Rivals",
+      "category": "racing-mobility",
+      "status": "foundation-established",
+      "origin": "Original racing and advanced-mobility game aligned with the user's vehicle, drone and future-mobility ecosystem concepts.",
+      "core": ["racing", "vehicle-progression", "drone-events", "time-trials", "spectator-hooks"]
+    },
+    {
+      "id": "twin-world-quest",
+      "workingTitle": "Twin World Quest",
+      "category": "mixed-reality-adventure",
+      "status": "foundation-established",
+      "origin": "Original experience connecting physical and digital twin-world interactions.",
+      "core": ["digital-twin-hooks", "AR-VR-MR", "world-events", "quests", "shared-progression"]
+    },
+    {
+      "id": "holo-arena-champions",
+      "workingTitle": "Holo Arena Champions",
+      "category": "holographic-arena",
+      "status": "foundation-established",
+      "origin": "Original showcase arena designed to demonstrate phone-as-controller, casting, spatial audio, haptics and holographic-display concepts.",
+      "core": ["arena-matches", "phone-controller", "casting-hooks", "spatial-audio-hooks", "haptics-hooks", "holographic-display-hooks"]
+    }
+  ]
+}
