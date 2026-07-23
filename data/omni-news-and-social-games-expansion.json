@@ -1,0 +1,74 @@
+{
+  "name": "OmniNews Neighborhood + TryAMM Social Game Show Expansion",
+  "version": "0.1.0",
+  "news": {
+    "neighborhood_news": {
+      "purpose": "Hyperlocal reporting for blocks, neighborhoods, schools, churches, nonprofits, local businesses, public meetings, alerts, events, youth sports, jobs, housing resources and community achievements.",
+      "workflow": ["community_submission", "identity_check", "source_and_evidence_review", "location_and_privacy_review", "editorial_review", "publish_or_reject", "correction_tracking"],
+      "roles": ["resident_contributor", "community_correspondent", "neighborhood_editor", "local_anchor"],
+      "safety": ["do_not_publish_private_addresses_without_public_interest_and_review", "protect_minors", "remove_doxxing", "label_unverified_claims", "right_of_reply_for_serious_allegations"]
+    },
+    "celebrity_entertainment_news": {
+      "purpose": "Entertainment reporting covering music, film, television, creators, red carpets, interviews, releases, tours, awards and verified public statements.",
+      "rules": ["attribute_sources", "separate_fact_from_commentary", "avoid_unverified_rumors", "respect_publicity_and_privacy_rights", "disclose_sponsorships_and_material_connections", "correct_errors"],
+      "formats": ["article", "short_video", "interview", "daily_entertainment_brief", "live_aftershow", "free_tv_segment"]
+    }
+  },
+  "game_shows": {
+    "brand": "TryAMM Crown Game Shows",
+    "formats": ["trivia", "music_challenge", "family_feud_style_original_format", "creator_showdown", "neighborhood_vs_neighborhood", "team_spades", "poker_tournament_free_play", "roulette_style_free_play", "slot_style_free_play"],
+    "features": ["host", "dealer", "teams", "spectators", "chat", "brackets", "leaderboards", "replays", "live_stream", "sponsor_slots", "creator_profiles", "virtual_prizes"]
+  },
+  "social_games": {
+    "default_mode": "free_play_only",
+    "currency": {
+      "name": "Crown Chips",
+      "cash_value": false,
+      "withdrawable": false,
+      "transferable_for_money": false,
+      "purpose": ["scorekeeping", "cosmetics", "tournament_entry_where_no_purchase_is_required", "badges", "unlockable_tables"]
+    },
+    "games": {
+      "spades": {
+        "players": [2, 4],
+        "modes": ["partners", "solo", "ranked", "private_room", "team_league"],
+        "dealer": "automated_dealer_or_hosted_table",
+        "features": ["bidding", "nil", "blind_nil_optional", "bags", "house_rules_selector", "voice_chat_optional", "spectator_mode"]
+      },
+      "poker": {
+        "mode": "free_play_tournament_and_social_tables",
+        "variants": ["texas_holdem", "five_card_draw"],
+        "features": ["automated_dealer", "live_host_optional", "private_tables", "team_points", "tournament_brackets", "anti_collusion_signals"],
+        "real_money": "disabled_without_separate_licensed_operator_and_jurisdictional_approval"
+      },
+      "slots": {
+        "mode": "free_play_entertainment",
+        "features": ["original_themes", "clearly_disclosed_odds_or_demo_behavior", "no_cash_out", "daily_free_chips", "responsible_play_controls"],
+        "real_money": "disabled"
+      },
+      "roulette": {
+        "mode": "free_play_entertainment",
+        "variants": ["single_zero_demo", "team_prediction_rounds"],
+        "features": ["automated_wheel", "live_dealer_show_mode", "spectator_chat", "team_score", "no_cash_out"],
+        "real_money": "disabled_without_licensing"
+      }
+    },
+    "multiplayer": {
+      "rooms": ["public", "private", "friends", "creator_hosted", "team_league", "tournament"],
+      "roles": ["player", "captain", "dealer", "host", "moderator", "spectator"],
+      "integrity": ["server_authoritative_game_state", "randomness_audit_for_chance_games", "anti_collusion", "anti_bot", "reporting", "match_history", "moderator_tools"]
+    },
+    "age_and_safety": {
+      "kids_teen_lane": "no casino-style games; family trivia and skill games only",
+      "adult_social_lane": "age-gated where required even though play is free",
+      "controls": ["session_reminders", "cool_down", "self_exclusion", "spend_limit_if_virtual_goods_are_sold", "no misleading near-win design for minors"]
+    }
+  },
+  "platform_effect": [
+    "Creates daily local and entertainment content for OmniNews and Free TV",
+    "Turns viewers into participants through live game shows and team competitions",
+    "Creates repeat engagement through leagues, tournaments, watch parties and creator-hosted rooms",
+    "Creates sponsorship, advertising, subscription, cosmetic-item and event revenue opportunities without requiring real-money gambling",
+    "Connects neighborhood identity, creators, anchors, teams, Free TV and Holo5DX inside one ecosystem"
+  ]
+}
