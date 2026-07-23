@@ -1,0 +1,62 @@
+{
+  "name": "TryAMM Global Mobility & Delivery Readiness",
+  "strategy": "partner-first-country-by-country-then-owned-network",
+  "markets": {
+    "statusValues": ["research", "partner-only", "pilot-ready", "owned-network-ready", "paused"],
+    "defaultStatus": "research"
+  },
+  "requiredGates": [
+    "legal-entity-and-tax",
+    "local-transport-or-delivery-licensing",
+    "insurance-and-commercial-cover",
+    "driver-or-courier-classification-review",
+    "background-and-identity-screening-policy",
+    "vehicle-or-bike-eligibility",
+    "safety-training-and-incident-response",
+    "data-privacy-and-location-consent",
+    "payments-payouts-and-tax-reporting",
+    "support-and-dispute-operations",
+    "maps-routing-and-geocoding",
+    "fraud-and-abuse-controls",
+    "demand-density-threshold",
+    "unit-economics-threshold",
+    "provider-or-fleet-capacity",
+    "city-country-operations-owner",
+    "launch-rollback-plan"
+  ],
+  "profitModel": {
+    "requiredMetrics": ["orders-or-trips-per-zone-per-hour", "gross-bookings", "provider-or-driver-cost", "payment-cost", "insurance-allocation", "support-cost", "promo-subsidy", "fraud-refund-reserve", "contribution-margin", "repeat-rate", "on-time-rate"],
+    "defaultContributionMarginFloorPercent": 12,
+    "targetContributionMarginPercent": 20,
+    "rule": "Do not activate an owned fleet solely because volume is high. Require positive modeled contribution after insurance, support, safety, taxes/fees, incentives and realistic idle time."
+  },
+  "aiAssist": [
+    "country-rule-research-checklist",
+    "license-renewal-calendar-draft",
+    "document-completeness-check",
+    "insurance-gap-checklist",
+    "driver-classification-risk-flagging",
+    "fraud-and-anomaly-detection",
+    "demand-density-forecast",
+    "zone-profitability-forecast",
+    "support-ticket-triage",
+    "incident-summary-and-escalation",
+    "provider-quote-comparison",
+    "launch-readiness-score",
+    "audit-report-generation"
+  ],
+  "aiGuardrails": [
+    "AI cannot declare a legal license unnecessary without jurisdiction-specific human/legal verification.",
+    "AI cannot approve insurance coverage, worker classification, or regulated launch by itself.",
+    "AI recommendations must store sources, dates, assumptions, reviewer and approval status.",
+    "Rules must be refreshed before each country/city launch and on renewal."
+  ],
+  "globalExpansionOrder": [
+    "launch with licensed/approved partners where possible",
+    "prove demand and contribution margin",
+    "add local contracted courier or fleet partners",
+    "pursue own permits/licenses only where economics justify it",
+    "pilot one city/zone",
+    "expand only after safety, support and profitability KPIs pass"
+  ]
+}
