@@ -1,0 +1,11 @@
+{
+  "name":"Jacobie Vision Cybersecurity",
+  "status":"architecture-foundation",
+  "purpose":"Security, privacy, identity, fraud defense, asset/IP protection and cyber education across TryAMM and customer-facing services.",
+  "capabilities":["security dashboard","threat alerts","account risk scoring","session/device anomaly detection","phishing education","fraud signals","credential hygiene","MFA/passkey readiness","RBAC review","API key/secret hygiene","webhook verification","audit logs","asset/Digital DNA integrity monitoring","incident intake","AI-assisted triage","security training","small-business cyber readiness"],
+  "aiAssistance":["summarize alerts","prioritize incidents","suggest bounded remediations","generate checklists/playbooks","detect suspicious patterns","explain risk in plain language","report actions to founder/admin"],
+  "guardrails":["defensive use only","no autonomous privilege escalation","no offensive intrusion tooling","human approval for high-impact remediation","evidence preservation","privacy and least privilege"],
+  "integrations":["TryAMM Passport","Digital DNA","Asset Vault/HoloMarket","OmniPay/TapPay","TryAMM Analytics","GameOps","Creator Workstation","AI Call Center","OmniCare 360","Marketplace","Dev Kit"],
+  "monetization":["business security subscriptions","managed readiness checks","training packs","fraud-monitoring add-ons","enterprise dashboards","cyber education"],
+  "productionGates":["durable security event store","SIEM/log pipeline","identity provider integration","MFA/passkeys","secret manager","vulnerability management","incident response runbooks","privacy review","security testing","monitoring/alerting"]
+}
