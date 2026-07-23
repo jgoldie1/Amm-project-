@@ -1,0 +1,85 @@
+{
+  "name": "TryAMM Living Gaming World Ecosystem",
+  "status": "architecture-foundation",
+  "purpose": "One shared operating layer for all 11 GameVerse titles so identity, progression, social, creator, commerce, streaming, AI and cross-device systems are reusable rather than rebuilt per game.",
+  "sharedCore": [
+    "TryAMM Passport identity",
+    "player profile and age/safety lane",
+    "cross-game progression",
+    "achievements and quests",
+    "inventory and cosmetics",
+    "OmniCredits and game-economy ledger hooks",
+    "friends, parties, guilds/clans and presence",
+    "matchmaking and lobbies",
+    "leaderboards, tournaments and seasons",
+    "spectator mode, replay and TryAMM Live streaming hooks",
+    "phone controller and TV casting",
+    "AR/VR/MR/holographic runtime hooks",
+    "My Digital Twin/avatar identity",
+    "Creator Workstation and Asset Forge integration",
+    "creator-made content and moderation pipeline",
+    "game marketplace and licensed digital goods",
+    "AI GameOps and automated bounded repair",
+    "telemetry, fraud/cheat detection and audit logs",
+    "accessibility and multilingual support"
+  ],
+  "playerLifecycle": [
+    "create-passport",
+    "create-or-scan-avatar",
+    "choose-game",
+    "create-session",
+    "match-or-party",
+    "play-local-or-cast",
+    "earn-progression",
+    "persist-inventory-achievements",
+    "share-or-stream",
+    "join-events-tournaments",
+    "spend-or-earn-through-approved-economy",
+    "carry-authorized-identity-and-rewards-across-compatible-games"
+  ],
+  "socialSystems": {
+    "friends": true,
+    "parties": true,
+    "guildsClans": true,
+    "presence": true,
+    "voiceText": "provider-dependent-and-moderated",
+    "childTeenSafety": "required"
+  },
+  "competitiveSystems": {
+    "matchmaking": ["skill", "region", "latency", "party-size", "age-safety", "input-mode", "crossplay-eligibility"],
+    "leaderboards": ["global", "regional", "friends", "seasonal", "game-specific"],
+    "tournaments": ["community", "creator-hosted", "sponsored", "ranked"],
+    "integrity": ["anti-cheat", "fraud-detection", "match-audit", "appeals"]
+  },
+  "creatorEconomy": {
+    "tools": ["Creator Workstation", "Quantum Speed Engine Asset Forge", "HoloGPT", "Digital Twin", "mod-content-workflow"],
+    "sellable": ["approved-cosmetics", "maps", "experiences", "creator-events", "licensed-digital-goods"],
+    "requirements": ["rights-provenance", "moderation", "age-rating", "revenue-split-ledger", "refund-rules", "platform-review"]
+  },
+  "streamingMedia": {
+    "TryAMMLive": ["spectator", "creator-broadcast", "tournaments", "replays", "highlights"],
+    "music": "game soundtracks and licensed creator music can connect to TryAMM Music",
+    "video": "trailers, machinima, shows and esports content can connect to Isaiah AI TV, OmniBox and HoloVerse"
+  },
+  "economy": {
+    "rule": "No game may directly mutate monetary or purchased balances without the shared audited ledger.",
+    "currencies": ["OmniCredits", "game-specific-soft-currency-where-approved"],
+    "monetization": ["cosmetics", "passes", "subscriptions", "events", "creator-goods", "marketplace", "sponsorships", "ads-with-safety-controls", "tips"]
+  },
+  "crossDevice": ["web", "mobile", "PC", "console-future", "TV-cast", "AR", "VR", "MR", "holographic-display-hooks"],
+  "productionGates": [
+    "real-auth-and-passport",
+    "durable-player-database",
+    "secure-ledger",
+    "actual-game-runtime-integration",
+    "matchmaking-service",
+    "multiplayer-authority",
+    "anti-cheat",
+    "content-moderation",
+    "parental-and-age-controls",
+    "store-entitlements",
+    "save-sync-and-conflict-resolution",
+    "load-performance-and-security-testing",
+    "platform-store-certification-where-applicable"
+  ]
+}
