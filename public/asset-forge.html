@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quantum Speed Engine Asset Forge | TryAMM</title>
+  <meta name="description" content="TryAMM AI-assisted 3D/4D hybrid asset pipeline for Living Game World characters, meshes, rigs, animation, LODs and validated runtime assets." />
+  <link rel="canonical" href="https://tryamm.online/asset-forge" />
+  <style>
+    body{font-family:system-ui,sans-serif;max-width:1100px;margin:auto;padding:24px;background:#0d0f14;color:#f4f5f7}a{color:#9ecbff}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.card{border:1px solid #303744;border-radius:16px;padding:16px;background:#151922}.badge{display:inline-block;padding:4px 8px;border:1px solid #4a5568;border-radius:999px;font-size:12px}button{padding:10px 14px;border-radius:10px;border:0;cursor:pointer}code{word-break:break-word}small{color:#b7c0ce}
+  </style>
+</head>
+<body>
+  <nav><a href="/">TryAMM</a> · <a href="/gameverse">GameVerse</a> · <a href="/play">Play</a></nav>
+  <h1>Quantum Speed Engine — Asset Forge</h1>
+  <p>AI-heavy orchestration for original/licensed game assets across the 11-game Living Game World.</p>
+  <p><span class="badge">3D spatial runtime</span> <span class="badge">4D time/state worlds</span> <span class="badge">AI GameOps audit</span></p>
+
+  <section class="grid" id="pipeline"></section>
+
+  <h2>Character/asset deliverable contract</h2>
+  <div class="grid">
+    <div class="card"><strong>Character</strong><p>Mesh, skeleton, skin weights, materials, LODs, collision, animation controller, metadata.</p></div>
+    <div class="card"><strong>World/prop</strong><p>Optimized mesh, materials, collision, LODs, placement metadata, interaction hooks.</p></div>
+    <div class="card"><strong>Holographic/XR</strong><p>Depth metadata, view variants, alpha-ready materials and spatial-anchor metadata.</p></div>
+    <div class="card"><strong>Trust</strong><p>Original/licensed-only provenance plus validation before publication.</p></div>
+  </div>
+
+  <h2>How AI does the heavy lifting</h2>
+  <p>AI can create briefs and original placeholders, prepare mesh/rig/animation/LOD plans, generate materials, assemble gameplay scaffolds, create tests, analyze performance and repair bounded issues. External model/mesh/rig generators must be connected by Victor as worker adapters; this page does not pretend those binaries are embedded in the current Express repo.</p>
+
+  <script>
+    const steps = [
+      'Game brief','Character/world spec','Concept generation','Mesh generation/selection','Retopology + LOD','UV/material/texture','Skeleton + rig','Animation set','Collision + physics','Audio + VFX','Gameplay prefab assembly','Holographic/AR/VR/MR variants','Automated validation','GameOps report','Approval when required','Publish to runtime registry'
+    ];
+    document.getElementById('pipeline').innerHTML = steps.map((step,i)=>`<div class="card"><small>${String(i+1).padStart(2,'0')}</small><h3>${step}</h3></div>`).join('');
+  </script>
+</body>
+</html>
