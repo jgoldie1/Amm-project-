@@ -1,0 +1,64 @@
+{
+  "name": "Quantum Speed Engine",
+  "version": "0.1-foundation",
+  "description": "AI-heavy 3D/4D hybrid game orchestration layer for TryAMM Living Game World. The term quantum is a product name; this configuration does not claim quantum-computing acceleration.",
+  "dimensions": {
+    "3d": "real-time spatial meshes, rigs, animation, physics, rendering",
+    "4d": "time/state-aware worlds, persistent progression, events, simulation history, replay and world evolution"
+  },
+  "pipeline": [
+    "game-brief",
+    "character-and-world-spec",
+    "concept-generation",
+    "mesh-generation-or-selection",
+    "retopology-and-lod",
+    "uv-material-texture",
+    "skeleton-rig",
+    "animation-set",
+    "collision-and-physics",
+    "audio-and-vfx",
+    "gameplay-prefab-assembly",
+    "holographic-ar-vr-mr-variants",
+    "automated-validation",
+    "gameops-report",
+    "human-approval-when-required",
+    "publish-to-runtime-registry"
+  ],
+  "aiHeavyLifting": {
+    "allowed": [
+      "generate-original-concept-briefs",
+      "generate-placeholder-and-original-assets",
+      "mesh-cleanup-instructions",
+      "rigging-plans",
+      "animation-retargeting-plans",
+      "lod-generation-plans",
+      "material-and-texture-generation",
+      "collision-suggestions",
+      "level-blockout-generation",
+      "npc-behavior-scaffolds",
+      "quest-and-dialogue-scaffolds",
+      "test-generation",
+      "performance-profiling-analysis",
+      "bounded-repairs",
+      "asset-manifest-and-provenance"
+    ],
+    "requiresHumanApproval": [
+      "copyright-or-licensed-character-use",
+      "production-economy-changes",
+      "security-sensitive-code",
+      "payments-or-wallets",
+      "moderation-or-child-safety-policy",
+      "production-deployment",
+      "destructive-data-migration"
+    ]
+  },
+  "assetRequirements": {
+    "originalOrLicensedOnly": true,
+    "provenanceRequired": true,
+    "formats": ["glTF/GLB", "FBX", "USD/USDZ", "engine-native"],
+    "characterDeliverables": ["mesh", "skeleton", "skin-weights", "materials", "lods", "collision", "animation-controller", "metadata"],
+    "holographicDeliverables": ["depth-metadata", "view-variants", "alpha-ready-materials", "spatial-anchor-metadata"]
+  },
+  "runtimeAdapters": ["webgpu-webgl", "unity", "unreal", "native-mobile", "xr-runtime", "tv-receiver"],
+  "status": "foundation"
+}
