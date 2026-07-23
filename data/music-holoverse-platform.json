@@ -1,0 +1,33 @@
+{
+  "name": "TryAMM Music + HoloVerse",
+  "status": "architecture-foundation",
+  "purpose": "Unify global music streaming, music video, live performance, spatial/holographic experiences, games, creator monetization and rights-aware distribution under one TryAMM identity and ledger.",
+  "musicStreaming": {
+    "catalog": ["artists", "albums", "singles", "EPs", "playlists", "radio", "podcasts-where-enabled", "music-videos", "concerts", "game-soundtracks"],
+    "playback": ["on-demand", "queue", "shuffle", "repeat", "favorites", "library", "history", "recommendations", "cross-device-resume", "offline-future-subject-to-rights"],
+    "creator": ["artist-dashboard", "upload", "release-scheduling", "metadata", "credits", "lyrics-metadata-not-unlicensed-display", "rights-and-splits", "analytics", "fan-club", "tips", "subscriptions", "merch", "tickets"],
+    "video": ["music-video-streaming", "premieres", "short-clips", "vertical-video", "captions", "translations", "age-rating", "Isaiah-AI-TV", "OmniBox", "StarVerse"],
+    "monetization": ["subscriptions", "ad-supported-tier-future", "tips", "fan-memberships", "digital-sales", "merchandise", "tickets", "sponsorships", "licensed-game-use", "sync-licensing-workflows"],
+    "rights": ["master", "composition-publishing", "writers-splits", "performers-producers", "samples", "territory", "term", "video-sync", "interactive-game", "royalty-policy", "takedown-dispute"],
+    "antiFraud": ["bot-stream-detection", "self-stream-anomaly", "device-account-patterns", "payment-fraud", "fake-tip-detection", "royalty-hold-review"]
+  },
+  "holoVerse": {
+    "experiences": ["holographic-concerts", "spatial-listening-rooms", "virtual-festivals", "artist-meet-and-greet", "interactive-music-videos", "game-world-concerts", "AR-performances", "VR-MR-venues", "holographic-display-output-hooks"],
+    "identity": ["TryAMM-Passport", "authorized-Digital-Twin", "avatar", "creator-page", "age-safety-lane"],
+    "production": ["Creator-Workstation", "HoloGPT", "Asset-Forge", "stage-builder", "lighting", "spatial-audio", "camera-director", "captions-translation", "ticketing", "merch-booths", "sponsor-placements"],
+    "guardrails": ["no-unauthorized-likeness-cloning", "rights-clearance", "performer-consent", "recording-consent", "age-safety", "moderation", "accessibility", "human-escalation"]
+  },
+  "crossPlatformFlow": [
+    "artist uploads authorized release",
+    "rights metadata and splits validated",
+    "release publishes to eligible TryAMM Music surfaces",
+    "music video can publish to TryAMM Music, Isaiah AI TV, StarVerse and OmniBox",
+    "authorized tracks can be licensed into Living Gaming World experiences",
+    "artist can launch TryAMM Live listening party or HoloVerse concert",
+    "fans can stream, follow, subscribe, tip, buy tickets and merchandise",
+    "usage events enter auditable analytics and royalty ledgers",
+    "Universal Social Fabric can distribute approved promotional links and clips to connected external platforms"
+  ],
+  "sharedInfrastructure": ["Passport/Auth", "catalog-database", "object-storage", "transcoding", "CDN", "search", "recommendations", "rights-provenance", "royalty-ledger", "OmniCredits", "payments-payouts", "moderation", "notifications", "analytics", "audit-log"],
+  "productionGates": ["licensed-content-rights", "durable-database", "secure-storage", "audio-video-transcoding", "CDN", "playback-entitlements", "royalty-calculation-validation", "payment-payout-reconciliation", "fraud-controls", "takedown-dispute-process", "privacy-security", "load-testing", "end-to-end-QA"]
+}
