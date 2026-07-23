@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "strategy": "capability-aware",
+  "tiers": {
+    "A": "native-connected",
+    "B": "share-connected",
+    "C": "link-connected",
+    "D": "protocol-connected"
+  },
+  "connectors": [
+    {
+      "id": "facebook",
+      "displayName": "Facebook",
+      "capabilities": {"oauth": true, "apiPublish": "conditional", "shareIntent": true, "deepLink": true, "webFallback": true, "richPreview": true}
+    },
+    {
+      "id": "instagram",
+      "displayName": "Instagram",
+      "capabilities": {"oauth": true, "apiPublish": "conditional", "shareIntent": "device-dependent", "deepLink": true, "webFallback": true, "richPreview": true}
+    },
+    {
+      "id": "tiktok",
+      "displayName": "TikTok",
+      "capabilities": {"oauth": true, "apiPublish": "conditional", "shareIntent": "device-dependent", "deepLink": true, "webFallback": true, "richPreview": true}
+    },
+    {
+      "id": "youtube",
+      "displayName": "YouTube",
+      "capabilities": {"oauth": true, "apiPublish": "conditional", "shareIntent": true, "deepLink": true, "webFallback": true, "richPreview": true}
+    },
+    {
+      "id": "x",
+      "displayName": "X",
+      "capabilities": {"oauth": true, "apiPublish": "conditional", "shareIntent": true, "deepLink": true, "webFallback": true, "richPreview": true}
+    },
+    {
+      "id": "linkedin",
+      "displayName": "LinkedIn",
+      "capabilities": {"oauth": true, "apiPublish": "conditional", "shareIntent": true, "deepLink": true, "webFallback": true, "richPreview": true}
+    },
+    {
+      "id": "pinterest",
+      "displayName": "Pinterest",
+      "capabilities": {"oauth": true, "apiPublish": "conditional", "shareIntent": true, "deepLink": true, "webFallback": true, "richPreview": true}
+    },
+    {
+      "id": "reddit",
+      "displayName": "Reddit",
+      "capabilities": {"oauth": true, "apiPublish": "conditional", "shareIntent": true, "deepLink": true, "webFallback": true, "richPreview": true}
+    },
+    {
+      "id": "whatsapp",
+      "displayName": "WhatsApp",
+      "capabilities": {"oauth": false, "apiPublish": false, "shareIntent": true, "deepLink": true, "webFallback": true, "richPreview": true}
+    },
+    {
+      "id": "telegram",
+      "displayName": "Telegram",
+      "capabilities": {"oauth": "conditional", "apiPublish": "conditional", "shareIntent": true, "deepLink": true, "webFallback": true, "richPreview": true}
+    },
+    {
+      "id": "discord",
+      "displayName": "Discord",
+      "capabilities": {"oauth": true, "apiPublish": "bot-webhook-conditional", "shareIntent": false, "deepLink": true, "webFallback": true, "richPreview": true}
+    },
+    {
+      "id": "generic",
+      "displayName": "Any Other Social Platform",
+      "capabilities": {"oauth": false, "apiPublish": false, "shareIntent": "web-share-or-copy", "deepLink": false, "webFallback": true, "richPreview": true}
+    }
+  ],
+  "note": "Capabilities are design-time declarations and must be verified against each platform's current official API and policies before production enablement."
+}
