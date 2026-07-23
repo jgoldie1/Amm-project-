@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /login
+Disallow: /signup
+Disallow: /account/
+Disallow: /settings/
+Disallow: /messages/
+Disallow: /checkout/
+Disallow: /wallet/
+Disallow: /moderation/
+Disallow: /drafts/
+Disallow: /private/
+
+Sitemap: https://tryamm.online/sitemap.xml

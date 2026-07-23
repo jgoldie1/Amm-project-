@@ -1,0 +1,16 @@
+{
+  "name": "TryAMM GEO + SEO + AEO + Inbound Growth Engine",
+  "status": "architecture-foundation",
+  "purpose": "Make TryAMM understandable, discoverable and answer-ready across Google, traditional search, AI answer engines, social search and inbound content journeys.",
+  "pillars": {
+    "SEO": ["technical crawlability", "sitemaps", "canonicals", "structured data", "internal links", "fast pages", "topic clusters", "local/global landing pages", "product/service pages", "freshness"],
+    "GEO": ["clear entity definitions", "source-backed factual pages", "FAQ and answer blocks", "comparison pages", "glossaries", "how-it-works pages", "citability", "consistent brand facts", "machine-readable structured data"],
+    "AEO": ["direct question-answer formatting", "FAQ schema where eligible", "concise definitions", "step-by-step answers", "pricing and feature clarity", "people-also-ask style topic coverage", "voice/search answer readiness"],
+    "Inbound": ["lead magnets", "guides", "creator education", "case studies", "templates", "webinars", "email nurture", "creator academy", "free tools", "comparison content", "retargeting-ready first-party audiences with consent"]
+  },
+  "contentClusters": ["AI creator operating system", "HoloGPT", "AI video commercials", "holograms and HoloVerse", "3D asset generation", "Digital DNA provenance", "creator asset marketplace", "music streaming and creator monetization", "Living Gaming World", "AI meetings classroom broadcast", "books publishing", "global marketplace and sourcing", "AI workforce", "OmniCare navigation", "creator ownership and generational wealth education"],
+  "pageRequirements": ["one primary search intent", "clear title and H1", "answer-first summary", "original useful content", "structured headings", "FAQ only when genuinely helpful", "schema matching visible content", "author/organization trust signals", "updated date where relevant", "internal links", "conversion CTA", "analytics events"],
+  "leadFlow": ["organic or AI discovery", "answer page", "helpful CTA", "email/interest capture with consent", "segmented nurture", "demo/trial/class/store/creator action", "conversion", "retention and referral"],
+  "measurement": ["organic sessions", "AI-answer referrals", "indexed pages", "non-brand queries", "answer-page conversions", "lead conversion rate", "topic-cluster assisted revenue", "content-to-signup", "signup-to-first-value", "creator acquisition cost where paid media is used"],
+  "guardrails": ["no fake reviews", "no doorway-page spam", "no keyword stuffing", "no mass low-value AI pages", "no unsupported superlatives", "no fabricated statistics", "no misleading competitor comparisons", "no schema markup for invisible content", "no automated link spam"]
+}

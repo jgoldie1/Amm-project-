@@ -1,0 +1,70 @@
+{
+  "name": "TryAMM Digital DNA Protection",
+  "status": "architecture-foundation",
+  "purpose": "Give every eligible asset, hologram, animation, character, scene, commercial element and reusable media package a traceable digital identity, lineage and rights record.",
+  "definition": "Digital DNA is a cryptographic and perceptual fingerprint plus provenance graph. It is not biological DNA.",
+  "fingerprints": [
+    "cryptographic content hash for exact-file identity",
+    "perceptual fingerprint for near-duplicate detection",
+    "metadata signature",
+    "creator/owner identifier",
+    "version and parent lineage",
+    "AI-generation disclosure",
+    "rights/license signature",
+    "timestamped audit events"
+  ],
+  "protections": [
+    "duplicate and stolen-asset screening",
+    "near-copy detection",
+    "authorized derivative tracking",
+    "fork and variant lineage",
+    "takedown propagation",
+    "license/entitlement verification",
+    "watermark or invisible marker support where appropriate",
+    "signed manifests for packaged assets",
+    "tamper-evident audit records",
+    "usage tracing across TryAMM surfaces"
+  ],
+  "hologramProtection": [
+    "scene fingerprint",
+    "performer/likeness authorization record",
+    "voice authorization record",
+    "model/rig identity",
+    "motion/animation identity",
+    "HoloFX preset identity",
+    "device/output compatibility signature",
+    "approved commercial-use scope"
+  ],
+  "assetLifecycle": [
+    "ingest asset",
+    "scan malware and validate format",
+    "calculate exact and perceptual fingerprints",
+    "attach provenance and rights evidence",
+    "check duplicates/near-duplicates",
+    "human/AI moderation review",
+    "publish approved asset/version",
+    "track licenses, entitlements and reuse",
+    "propagate recalls/takedowns to dependent projects"
+  ],
+  "guardrails": [
+    "fingerprinting does not prove legal ownership by itself",
+    "do not claim blockchain registration equals copyright registration",
+    "do not use biometric DNA or genetic data for asset protection",
+    "likeness and voice require explicit consent/authorization",
+    "appeal and dispute process required for false-positive matches"
+  ],
+  "productionDependencies": [
+    "durable provenance database",
+    "object storage",
+    "hashing service",
+    "perceptual similarity service",
+    "signed manifest/key management",
+    "rights evidence storage",
+    "moderation/dispute workflow",
+    "dependency graph",
+    "search/indexing",
+    "audit log",
+    "backup/disaster recovery",
+    "security and end-to-end testing"
+  ]
+}

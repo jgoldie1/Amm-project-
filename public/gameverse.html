@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TryAMM GameVerse — 11 Games + Living Game World</title>
+  <meta name="description" content="Explore the TryAMM GameVerse foundation: 11 original game concepts connected through the Living Game World shared progression architecture." />
+  <link rel="canonical" href="https://tryamm.online/gameverse" />
+  <meta property="og:title" content="TryAMM GameVerse — 11 Games + Living Game World" />
+  <meta property="og:description" content="11 original game foundations connected through one persistent Living Game World." />
+  <meta property="og:url" content="https://tryamm.online/gameverse" />
+  <meta property="og:type" content="website" />
+</head>
+<body>
+  <main>
+    <h1>TryAMM GameVerse</h1>
+    <p id="world-summary">Loading Living Game World...</p>
+    <p><strong>Status:</strong> <span id="world-status">loading</span></p>
+    <section>
+      <h2>11 Game Foundations</h2>
+      <div id="games">Loading games...</div>
+    </section>
+  </main>
+  <script>
+    async function loadGameVerse() {
+      const gamesEl = document.getElementById('games');
+      try {
+        const res = await fetch('/api/gameverse');
+        if (!res.ok) throw new Error('Unable to load GameVerse');
+        const data = await res.json();
+        document.getElementById('world-summary').textContent = data.world.description;
+        document.getElementById('world-status').textContent = data.world.status;
+        gamesEl.innerHTML = '';
+        data.games.forEach((game, index) => {
+          const article = document.createElement('article');
+          const title = document.createElement('h3');
+          title.textContent = `${index + 1}. ${game.workingTitle}`;
+          const meta = document.createElement('p');
+          meta.textContent = `${game.category} — ${game.status}`;
+          const origin = document.createElement('p');
+          origin.textContent = game.origin;
+          article.append(title, meta, origin);
+          gamesEl.appendChild(article);
+        });
+      } catch (error) {
+        gamesEl.textContent = 'GameVerse registry is temporarily unavailable.';
+      }
+    }
+    loadGameVerse();
+  </script>
+</body>
+</html>

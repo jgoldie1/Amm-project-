@@ -1,0 +1,53 @@
+{
+  "name": "TryAMM Delivery Orchestrator",
+  "strategy": "partner-first-then-hybrid-fleet",
+  "principles": [
+    "Keep checkout and tracking inside TryAMM where partner terms allow.",
+    "Use approved delivery providers through official APIs/contracts only.",
+    "Show fees clearly before purchase; do not hide delivery markups.",
+    "Never dispatch a delivery that is projected to lose money unless an approved promotion budget explicitly subsidizes it.",
+    "Do not describe delivery as free unless the customer-facing delivery charge is actually waived under disclosed eligibility rules."
+  ],
+  "providerAdapters": [
+    {"id":"doordash-drive","mode":"external-fulfillment","status":"requires-provider-approval-and-credentials"},
+    {"id":"uber-direct","mode":"external-fulfillment","status":"requires-provider-approval-and-credentials"},
+    {"id":"local-courier","mode":"contracted-provider","status":"future"},
+    {"id":"tryamm-fleet","mode":"owned-network","status":"future-regulated-launch"}
+  ],
+  "routing": {
+    "rankBy": ["eligibility", "total-landed-cost", "eta", "reliability", "coverage", "merchant-preference", "customer-preference"],
+    "fallback": "Offer pickup or another eligible provider when no delivery quote is available.",
+    "quoteExpirySeconds": 300
+  },
+  "pricing": {
+    "customerTotalComponents": ["basket-subtotal", "tax", "provider-delivery-cost", "tryamm-service-fee", "optional-tip", "approved-surcharges-or-discounts"],
+    "serviceFee": {"model":"configurable-flat-or-percentage-with-min-max","mustBeDisclosed":true},
+    "smallOrderFee": {"allowed":true,"mustBeDisclosed":true},
+    "surge": {"allowedOnlyWhenLawfulAndDisclosed":true},
+    "minimumMarginGate": {"enabled":true,"action":"reject-or-reprice-unprofitable-order"}
+  },
+  "membership": {
+    "workingName":"TryAMM+",
+    "benefits":["reduced-service-fees", "eligible-free-or-discounted-delivery", "bonus-omnicredits", "marketplace-benefits"],
+    "freeDeliveryFunding":["subscription-pool", "merchant-promotion", "sponsor-subsidy", "minimum-order-threshold", "TryAMM-approved-acquisition-budget"],
+    "guardrail":"A promotion must have a defined subsidy budget and unit-economics cap."
+  },
+  "merchantGrowth": [
+    "direct-ordering-pages",
+    "QR-ordering",
+    "scheduled-delivery",
+    "group-orders",
+    "business-catering",
+    "creator-food-drops",
+    "Black-Business-Directory-discovery",
+    "loyalty-and-referrals",
+    "cross-sell-marketplace-products"
+  ],
+  "safetyAndSupport": ["order-audit-log", "proof-of-delivery", "refund-dispute-workflow", "fraud-risk-check", "support-case", "provider-webhook-verification", "PII-minimization"],
+  "launchPhases": [
+    "Phase 1: pickup plus approved third-party fulfillment",
+    "Phase 2: multi-provider quote routing and membership",
+    "Phase 3: contracted local couriers in selected markets",
+    "Phase 4: TryAMM fleet only after insurance, licensing, safety, dispatch and unit economics are ready"
+  ]
+}

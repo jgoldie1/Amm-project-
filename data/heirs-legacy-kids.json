@@ -1,0 +1,27 @@
+{
+  "name": "TryAMM Heirs & Legacy Kids",
+  "status": "architecture-foundation",
+  "purpose": "Help families document knowledge, ownership, education, digital assets, business continuity and succession pathways for heirs without replacing legal estate planning.",
+  "principles": ["family education first", "age-appropriate access", "privacy by default", "no automatic legal ownership transfer", "licensed professionals for trusts/estate/tax/legal advice", "documented consent and guardianship where needed", "clear distinction between education, beneficial interests and legal title"],
+  "profiles": ["adult heir", "minor child/guardian-linked learner", "family steward", "beneficiary education profile", "business successor candidate"],
+  "modules": [
+    "family legacy map",
+    "knowledge vault",
+    "business continuity playbooks",
+    "IP and Digital DNA inventory",
+    "asset and license inventory",
+    "creator catalog and royalties education",
+    "financial literacy tracks",
+    "cybersecurity inheritance readiness",
+    "password/key recovery planning without exposing secrets",
+    "education milestones",
+    "succession readiness checklist",
+    "family governance and stewardship lessons",
+    "professional advisor handoff"
+  ],
+  "integrations": ["Aniyah", "Legacy & Ownership Center", "TryAMM Academy", "TryAMM Passport", "HoloGPT", "Digital DNA", "Asset Vault", "HoloMarket", "Jacobie Vision", "OmniPay", "TryAMM Analytics", "Books/Publishing"],
+  "minorSafety": ["guardian-managed permissions", "no public display of sensitive family wealth data", "no financial solicitation", "no unrestricted messaging with adults", "age-appropriate curriculum", "parent/guardian consent and regional legal review"],
+  "successionObjects": ["company roles", "IP records", "trademark/patent/copyright references", "digital assets", "royalty contracts", "business SOPs", "education plans", "trusted contacts", "advisor contacts", "emergency continuity plan"],
+  "criticalGuardrails": ["do not store raw private keys or passwords in plain text", "do not represent succession records as a will or trust", "legal transfer requires valid external legal instruments", "verify identity and authority before access changes", "audit all ownership/beneficiary changes", "protect minors and sensitive financial information"],
+  "productionGates": ["real auth/MFA", "guardian/minor model", "durable encrypted database", "fine-grained RBAC", "private document vault", "audit logs", "legal document/reference workflow", "export/delete", "backup/disaster recovery", "regional privacy/legal review"]
+}

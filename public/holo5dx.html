@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Holo5DX Control Console | TryAMM</title>
+  <style>
+    :root{color-scheme:dark}body{margin:0;font-family:system-ui;background:#090b16;color:#fff}main{max-width:1100px;margin:auto;padding:20px}.panel{border:1px solid #343b61;border-radius:18px;background:#11152a;padding:18px;margin-bottom:16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.card{border:1px solid #353d65;border-radius:14px;padding:14px;background:#151a31}.muted{opacity:.76}label{display:block;margin:8px 0 4px}input,select,button{width:100%;box-sizing:border-box;padding:10px;border-radius:10px;border:1px solid #59658f;background:#151a31;color:#fff}button{cursor:pointer;margin-top:10px}pre{white-space:pre-wrap;overflow:auto;background:#0c1020;padding:12px;border-radius:12px;border:1px solid #303655}.ok{color:#74e6a4}.warn{color:#ffd56a}</style>
+</head>
+<body>
+<main>
+  <section class="panel">
+    <h1>Holo5DX Control Console</h1>
+    <p>Capability detection, adaptive experience profiles, Quantum Cone calibration planning, render-plan generation and diagnostics.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Experience Profile</h2>
+    <div class="grid">
+      <div class="card"><strong>5DX Lite</strong><p class="muted">Phone/browser fallback: standard 3D, stereo, touch/keyboard.</p></div>
+      <div class="card"><strong>5DX Connected</strong><p class="muted">Phone + TV/cast + controller/session sync.</p></div>
+      <div class="card"><strong>5DX XR</strong><p class="muted">VR/MR capable hardware and tracked spatial output.</p></div>
+      <div class="card"><strong>5DX Holo</strong><p class="muted">Calibrated multi-view output for compatible optical hardware.</p></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Capability Test</h2>
+    <div class="grid">
+      <label>Profile<select id="profile"><option>5dx-lite</option><option>5dx-connected</option><option>5dx-xr</option><option>5dx-holo</option></select></label>
+      <label>Device Mode<select id="deviceMode"><option value="standard">Standard</option><option value="xr">XR</option><option value="holo">Holo-capable</option></select></label>
+    </div>
+    <button id="detect" type="button">Detect / Plan Capabilities</button>
+    <pre id="capabilities">No capability plan yet.</pre>
+  </section>
+
+  <section class="panel">
+    <h2>Quantum Cone Calibration Inputs</h2>
+    <div class="grid">
+      <label>Display width (mm)<input id="displayWidth" type="number" value="280"></label>
+      <label>Display height (mm)<input id="displayHeight" type="number" value="175"></label>
+      <label>Cone height (mm)<input id="coneHeight" type="number" value="140"></label>
+      <label>Cone angle (deg)<input id="coneAngle" type="number" value="45"></label>
+      <label>Viewer distance (mm)<input id="viewerDistance" type="number" value="550"></label>
+      <label>View count<input id="viewCount" type="number" value="8" min="2" max="64"></label>
+      <label>Viewing cone (deg)<input id="viewingCone" type="number" value="120"></label>
+      <label>Pack layout<select id="layout"><option value="grid">grid</option><option value="horizontal-strip">horizontal-strip</option><option value="vertical-strip">vertical-strip</option></select></label>
+    </div>
+    <button id="calibrate" type="button">Generate Calibration Plan</button>
+    <p class="muted">Calibration and render-plan endpoints require the protected internal service secret in production.</p>
+    <pre id="calibration">No calibration plan yet.</pre>
+  </section>
+
+  <section class="panel">
+    <h2>What becomes possible</h2>
+    <div class="grid">
+      <div class="card"><strong>GameVerse</strong><p>One scene can target phone/TV, XR or calibrated multi-view Holo output.</p></div>
+      <div class="card"><strong>eSports</strong><p>Tabletop-style spatial spectator views and replay presentation become an output mode.</p></div>
+      <div class="card"><strong>Holo Commercial Studio</strong><p>Creators can eventually export standard and Holo5DX multi-view commercial packages.</p></div>
+      <div class="card"><strong>Business/Education</strong><p>Spatial product demos, property walkthroughs, learning models and Twin Earth visualizations can share the same runtime.</p></div>
+    </div>
+  </section>
+</main>
+<script>
+const out=(id,data)=>document.getElementById(id).textContent=JSON.stringify(data,null,2);
+document.getElementById('detect').addEventListener('click',async()=>{
+  const mode=document.getElementById('deviceMode').value;
+  const body={profile:document.getElementById('profile').value,device:{xr:mode==='xr',holo:mode==='holo',spatialAudio:true,gamepad:true,network:true}};
+  try{const r=await fetch('/api/holo5dx/capabilities',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});out('capabilities',await r.json())}catch(e){out('capabilities',{error:String(e)})}
+});
+document.getElementById('calibrate').addEventListener('click',()=>{
+  const body={displayWidthMm:+displayWidth.value,displayHeightMm:+displayHeight.value,coneHeightMm:+coneHeight.value,coneAngleDeg:+coneAngle.value,viewerDistanceMm:+viewerDistance.value,viewCount:+viewCount.value,viewingConeDeg:+viewingCone.value,layout:layout.value};
+  out('calibration',{status:'Calibration inputs prepared. Protected backend endpoint /api/holo5dx/calibration must be called by an authorized admin tool.',input:body,next:'Run measured optical validation before certifying hardware.'});
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TryAMM Services — Stream, Create, Watch, Ride, Deliver & Earn</title>
+  <meta name="description" content="Explore TryAMM Live, Music, Isaiah AI TV, OmniBox, HoloRide, Delivery, Passport, Marketplace and Creator Workstation." />
+  <style>
+    body{font-family:system-ui,sans-serif;margin:0;background:#0b0b12;color:#f7f7fb}main{max-width:1100px;margin:auto;padding:32px 20px}a{color:inherit}.hero{padding:28px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.card{border:1px solid #343446;border-radius:18px;padding:18px;background:#151520}.badge{display:inline-block;border:1px solid #55556e;border-radius:999px;padding:4px 9px;font-size:12px}.muted{color:#b8b8c8}.credits{margin:24px 0;padding:18px;border:1px solid #343446;border-radius:18px;background:#11111a}button{padding:10px 14px;border-radius:10px;border:0;cursor:pointer}.status{min-height:24px;margin-top:10px}
+  </style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <span class="badge">One account • many services</span>
+    <h1>TryAMM Services Hub</h1>
+    <p class="muted">Create, stream, watch, listen, shop, ride, deliver, play and earn through one connected TryAMM identity.</p>
+  </section>
+  <section class="credits">
+    <h2>Affordable OmniCredits</h2>
+    <p>Small actions can cost only a few credits so users do not need an expensive subscription to participate. Heavy AI, video, 3D and streaming jobs are metered to real cost.</p>
+  </section>
+  <section id="services" class="grid" aria-live="polite"></section>
+  <p class="status" id="status"></p>
+</main>
+<script>
+(async()=>{
+  const root=document.getElementById('services');const status=document.getElementById('status');
+  try{const r=await fetch('/services.json');const data=await r.json();
+    data.services.forEach(s=>{const el=document.createElement('article');el.className='card';el.innerHTML=`<span class="badge">${s.id}</span><h2>${s.name}</h2><p class="muted">${s.summary}</p><button type="button" data-service="${s.id}">Open / Request</button>`;root.appendChild(el)});
+    root.addEventListener('click',e=>{const b=e.target.closest('button[data-service]');if(!b)return;status.textContent=`${b.dataset.service} is registered in the TryAMM service hub. Production availability depends on deployment/provider configuration.`});
+  }catch(e){status.textContent='Service manifest could not be loaded.'}
+})();
+</script>
+</body>
+</html>

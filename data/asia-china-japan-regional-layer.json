@@ -1,0 +1,13 @@
+{
+  "name": "TryAMM Asia-Pacific + China Regional Layer",
+  "status": "architecture-foundation",
+  "purpose": "Country-aware commerce, payments, sourcing, tax, logistics and compliance routing for Japan, broader Asia-Pacific and a separately governed mainland China pathway.",
+  "regions": {
+    "japan": {"currency":"JPY","payments":["Stripe where eligible","approved local methods/providers"],"commerce":["marketplace","creator payouts","subscriptions","books/music/games","B2B sourcing"],"requirements":["local payment eligibility","consumer law","tax handling","privacy","localization"]},
+    "asiaPacific": {"markets":["Singapore","Hong Kong","South Korea","India","Indonesia","Malaysia","Philippines","Thailand","Australia","New Zealand"],"rule":"Route by country, currency, merchant capability and provider eligibility rather than treating Asia as one market."},
+    "mainlandChina": {"mode":"separate-governance-gateway","payments":["approved Alipay/WeChat Pay capable providers where lawful and available","cross-border settlement partners"],"requirements":["payments/legal review","data/privacy review","content/app-distribution review","local partnerships where required","RMB/cross-border settlement controls","tax/customs","sanctions/export compliance"]}
+  },
+  "quantumSourcingFlow":["supplier identity","vetted supplier profile","low-MOQ sourcing","sample/inspection evidence","landed-cost estimate","tariffs/duties/taxes","freight/shipping","OmniPay checkout","buyer-protection/dispute flow","inventory/dropship/marketplace publish","global delivery tracking"],
+  "integrations":["OmniPay/TapPay","Stripe primary where eligible","regional provider adapters","Quantum Sourcing","Marketplace","TryAMM Analytics","CostOps","Passport","AI call center","shipping/logistics","tax/tariff engine"],
+  "activationRule":"Architecture may exist before regional launch, but live activation is gated by provider capability, legal/compliance review, tax/privacy requirements and end-to-end testing."
+}

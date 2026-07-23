@@ -1,0 +1,13 @@
+{
+  "name": "TryAMM Analytics",
+  "status": "architecture-foundation",
+  "purpose": "Original first-party analytics and attribution layer for product usage, SEO/GEO/AEO, campaigns, funnels, creator commerce, media, games and revenue across TryAMM.",
+  "principles": ["first-party data", "privacy-aware defaults", "consent where required", "no copying competitor proprietary code/UI", "event consistency across verticals", "revenue and cost attribution", "answer-engine and search visibility measurement"],
+  "eventFamilies": ["page_view", "session_start", "signup", "login", "search", "content_view", "lead_created", "checkout_started", "purchase", "subscription", "credit_purchase", "asset_quote", "asset_generation", "asset_reuse", "holo_market_sale", "music_play", "video_play", "live_join", "game_session", "meeting_join", "book_sale", "ad_click", "campaign_touch", "creator_tip", "payout", "error", "conversion"],
+  "dimensions": ["anonymous_or_user_id", "session_id", "timestamp", "surface", "page", "referrer", "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "search_engine", "answer_engine", "social_platform", "device", "locale", "country_region_when_lawful", "creator_id", "product_id", "asset_dna_id", "game_id", "campaign_id"],
+  "seoGeoAeo": ["organic landing pages", "search query cohorts where available", "indexed URL coverage", "AI/answer-engine referral detection", "featured-answer/FAQ content tracking", "entity/topic page performance", "citation/referral source", "conversion from organic/AI discovery", "content freshness"],
+  "funnels": ["visitor-to-signup", "signup-to-first-creation", "creation-to-publish", "publish-to-first-revenue", "asset-quote-to-generation", "generation-to-reuse", "HoloMarket-view-to-purchase", "music-listener-to-fan", "creator-view-to-tip", "meeting-landing-to-registration"],
+  "dashboards": ["founder executive", "growth acquisition", "SEO/GEO/AEO", "creator economy", "music/media", "Living Gaming World", "HoloMarket/Asset Vault", "commerce", "CostOps profitability", "retention", "trust-safety", "technical health"],
+  "privacy": ["consent management where required", "data minimization", "retention limits", "do not log secrets/passwords/private health data", "role-based dashboard access", "export/delete workflows", "child/teen protections", "regional legal review"],
+  "productionDependencies": ["durable event store", "identity/session strategy", "event schema/versioning", "server and client SDK", "batch ingestion", "warehouse/aggregations", "dashboard UI", "attribution model", "bot/internal-traffic filtering", "privacy/consent controls", "monitoring and data-quality checks"]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "AMM Motion + HoloFX",
+  "status": "architecture-foundation",
+  "purpose": "Original TryAMM motion graphics and holographic effects layer that can play Lottie-compatible assets while also defining TryAMM-native reusable motion primitives, templates and holographic effects.",
+  "lottieCompatibility": {
+    "runtime": "lottie-web",
+    "versionPolicy": "Use the installed npm dependency and lock/test upgrades before production rollout.",
+    "supportedUses": ["splash screens", "loading states", "logos", "buttons", "badges", "onboarding", "creator overlays", "broadcast graphics", "commercial titles", "game HUD animations"],
+    "assetPolicy": "Only use original, licensed, purchased or public-domain animation assets. Do not copy proprietary competitor assets."
+  },
+  "tryammNativeLibrary": {
+    "name": "AMM Motion Graph",
+    "concept": "A lightweight declarative scene graph for reusable vector, text, particle, glow, parallax, depth, audio-cue and holographic animation presets.",
+    "primitives": ["group", "shape", "text", "image", "mask", "gradient", "particle-emitter", "glow", "scanline", "depth-plane", "camera", "light", "audio-cue", "timeline", "trigger"],
+    "effects": ["hologram-flicker", "volumetric-glow-look", "chromatic-split", "scan-sweep", "particle-materialize", "digital-dissolve", "light-cone", "portal-open", "logo-reveal", "lion-roar-cue", "spatial-depth-parallax"],
+    "renderTargets": ["DOM-SVG", "Canvas", "WebGL-future", "video-compositor", "HoloVerse-runtime"],
+    "interchange": ["Lottie JSON import/playback", "TryAMM Motion Graph JSON", "PNG/WebP/SVG assets", "video-alpha-overlay-future"]
+  },
+  "commercialTemplates": [
+    "15-second product reveal",
+    "30-second cinematic ad",
+    "60-second founder story",
+    "game trailer",
+    "music premiere",
+    "HoloVerse concert promo",
+    "marketplace product ad",
+    "app feature explainer",
+    "broadcast lower-thirds package"
+  ],
+  "guardrails": ["original branding", "licensed assets", "no deceptive deepfakes", "consent for real-person likeness/voice", "music-rights checks", "ad-claim review", "age-safety", "export watermark/disclosure options where appropriate"]
+}

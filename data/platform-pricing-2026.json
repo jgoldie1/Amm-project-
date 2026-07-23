@@ -1,0 +1,34 @@
+{
+  "name": "TryAMM 2026 Sustainable Pricing",
+  "currency": "USD",
+  "principle": "Subscriptions pay for access, workflow and included allowances; expensive AI/video/3D/holographic/broadcast/storage work is metered so every job covers variable cost, payment fees, reserves, support and target profit.",
+  "plans": [
+    {"id":"free","name":"Discover","monthly":0,"includedCredits":75,"targetUser":"shoppers, learners, fans and light creators","features":["profile","marketplace browse","basic HoloGPT","limited creator tools","public classes/events","basic storage"],"limits":["no heavy generation included","fair-use limits"]},
+    {"id":"starter","name":"Starter","monthly":9,"includedCredits":250,"targetUser":"students, first-time creators and microbusinesses","features":["creator page","basic store/book tools","basic meetings/classes","HoloGPT starter","asset vault starter","basic analytics"]},
+    {"id":"creator","name":"Creator","monthly":19,"includedCredits":700,"targetUser":"active creators and sellers","features":["Creator Workstation","TryAMM Music creator tools","Books","storefront","HoloMarket selling eligibility subject to verification","teleprompter","standard HoloGPT","standard asset storage","monetization dashboard"]},
+    {"id":"pro","name":"Creator Pro","monthly":39,"includedCredits":1800,"targetUser":"serious creators and small teams","features":["everything Creator","AI Director","broadcast tools","Digital Twin authorized tools","advanced video/image workflows","translation/dubbing","HoloVerse creator tools","advanced analytics","priority queues","larger storage allowance"]},
+    {"id":"studio","name":"Studio","monthly":99,"includedCredits":5200,"targetUser":"shows, game teams, agencies and virtual production","features":["everything Pro","multi-project workspace","Asset Forge","3D/rig pipelines","team seats base allocation","Isaiah AI TV/OmniBox production","Holo Commercial Studio","batch publishing","rights/provenance workspace","higher concurrency"]},
+    {"id":"business","name":"Business / Agency","monthly":249,"includedCredits":14000,"targetUser":"brands, agencies, production companies and creator networks","features":["everything Studio","multiple brands","client workspaces","advanced permissions","API access subject to approval","priority support","bulk production","revenue/payout reporting","enterprise sourcing/commerce tools"]},
+    {"id":"enterprise","name":"Enterprise","monthly":"custom","includedCredits":"contract","targetUser":"schools, broadcasters, large brands, governments and institutions","features":["SSO/admin options","custom compliance","private workspaces","dedicated capacity","SLA options","custom integrations","volume pricing"]}
+  ],
+  "creditPacks": [
+    {"id":"mini","price":5,"credits":120},
+    {"id":"stack","price":10,"credits":260},
+    {"id":"dub-sack-20","name":"HoloGPT Dub Sack $20","price":20,"credits":560},
+    {"id":"dub-sack-30","name":"HoloGPT Dub Sack $30","price":30,"credits":900},
+    {"id":"boost","price":50,"credits":1650},
+    {"id":"power","price":100,"credits":3600}
+  ],
+  "marketplaceEconomics": {
+    "recommendedBaseTakeRatePercent": 15,
+    "creatorShareBeforeTaxesAndExternalFeesPercent": 85,
+    "note": "Use lower negotiated rates for high-volume enterprise sellers and higher disclosed service fees only where additional services justify them.",
+    "paymentProcessing": "pass through or absorb only after margin modeling",
+    "promotedListing": "optional paid placement, clearly labeled",
+    "licensing": "creator-defined prices within minimum fee/margin rules"
+  },
+  "highCostMetering": ["frontier AI reasoning","AI video","3D generation","rigging/animation","HoloVerse rendering","broadcast egress","transcription/translation at scale","large storage/CDN","large meetings/events","premium rendering"],
+  "marginRules": {"targetBlendedGrossMarginPercent":"55-70","minimumPackContributionMarginPercent":35,"minimumMarketplaceContributionMarginPercent":15,"jobRule":"estimated direct variable cost + payment fee + reserve + support allocation must be calculated before job authorization; credit debit or price must satisfy configured contribution-margin floor","reprice":"automatically review pricing when provider costs move materially"},
+  "competitivePositioning": "Do not lead with cheapest credits. Lead with one creator operating system: create, protect, reuse, license, distribute, monetize, learn and build ownership across media, games, HoloVerse, commerce and education.",
+  "status":"pricing-strategy-not-live-billing"
+}

@@ -1,0 +1,58 @@
+{
+  "name": "TryAMM AI GameOps",
+  "status": "foundation-established",
+  "purpose": "Detect, record, triage, propose and safely execute bounded game fixes while preserving a complete audit trail for the owner and developers.",
+  "principles": [
+    "Every detected issue gets a unique incident record.",
+    "AI may auto-fix only pre-approved low-risk classes.",
+    "High-risk gameplay, economy, security, legal, payment, account, moderation or data changes require human approval.",
+    "Every fix stores before/after state, reason, actor, timestamps, test results and rollback data.",
+    "Silent fixes are prohibited.",
+    "Failed auto-fixes must stop, roll back when possible, and escalate.",
+    "Production fixes require validation gates before release."
+  ],
+  "autoFixAllowlist": [
+    "broken-ui-label",
+    "missing-localization-key",
+    "non-critical-config-default",
+    "safe-null-guard",
+    "asset-reference-fallback",
+    "telemetry-tag-correction"
+  ],
+  "requiresApproval": [
+    "game-economy",
+    "payments",
+    "inventory-value",
+    "player-progression",
+    "authentication",
+    "permissions",
+    "security",
+    "moderation",
+    "age-safety",
+    "multiplayer-authority",
+    "database-migration",
+    "legal-compliance",
+    "copyright-or-licensed-content",
+    "production-deployment"
+  ],
+  "incidentFields": [
+    "id",
+    "gameId",
+    "source",
+    "severity",
+    "category",
+    "summary",
+    "details",
+    "status",
+    "detectedAt",
+    "reportedBy",
+    "aiDiagnosis",
+    "proposedFix",
+    "approvalRequired",
+    "approvedBy",
+    "fixAppliedAt",
+    "validation",
+    "rollback",
+    "closedAt"
+  ]
+}

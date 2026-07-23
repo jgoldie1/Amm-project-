@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TryAMM Finish-Line Status</title>
+  <meta name="description" content="Authoritative implementation status for TryAMM, including GameVerse, Living Game World, SEO, social connectivity and remaining production gaps." />
+  <link rel="canonical" href="https://tryamm.online/finish-line" />
+</head>
+<body>
+  <main>
+    <h1>TryAMM Finish-Line Status</h1>
+    <p>This page separates what is established in the connected repository from what is still planned or incomplete.</p>
+    <p><a href="/gameverse">View GameVerse / 11 Games</a></p>
+    <div id="summary">Loading status...</div>
+    <section>
+      <h2>Platform Domains</h2>
+      <div id="domains"></div>
+    </section>
+  </main>
+  <script>
+    async function loadStatus() {
+      const summary = document.getElementById('summary');
+      const domains = document.getElementById('domains');
+      try {
+        const res = await fetch('/api/platform/status');
+        if (!res.ok) throw new Error('status unavailable');
+        const data = await res.json();
+        summary.textContent = Object.entries(data.counts).map(([key, value]) => `${key}: ${value}`).join(' | ');
+        data.domains.forEach((domain) => {
+          const article = document.createElement('article');
+          const title = document.createElement('h3');
+          title.textContent = `${domain.name} — ${domain.status}`;
+          const evidence = document.createElement('p');
+          evidence.textContent = domain.evidence.length ? `Evidence: ${domain.evidence.join(', ')}` : 'Evidence: no implementation found in connected repo.';
+          const gaps = document.createElement('p');
+          gaps.textContent = `Gaps: ${domain.gaps.join(', ')}`;
+          article.append(title, evidence, gaps);
+          domains.appendChild(article);
+        });
+      } catch (_) {
+        summary.textContent = 'Status registry is temporarily unavailable.';
+      }
+    }
+    loadStatus();
+  </script>
+</body>
+</html>

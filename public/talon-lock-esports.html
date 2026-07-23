@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Talon Lock eSports | TryAMM GameVerse</title>
+  <link rel="icon" href="/talon-lock-icon.svg" type="image/svg+xml">
+  <style>
+    :root{color-scheme:dark}body{margin:0;font-family:system-ui;background:#090b16;color:#fff}main{max-width:1040px;margin:auto;padding:20px}.hero,.panel{border:1px solid #343b61;border-radius:18px;background:#11152a;padding:18px;margin-bottom:16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.card{border:1px solid #353d65;border-radius:14px;padding:14px;background:#151a31}.gold{color:#ffd56a}.muted{opacity:.76}.pill{display:inline-block;border:1px solid #59658f;border-radius:999px;padding:5px 9px;margin:3px}button,a.btn{display:inline-block;background:#232947;color:#fff;border:1px solid #59658f;border-radius:10px;padding:10px 14px;text-decoration:none;margin:4px}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid #303655}.status{font-weight:700}.ok{color:#74e6a4}.warn{color:#ffd56a}.error{color:#ff8c8c}input{background:#0e1225;color:#fff;border:1px solid #59658f;border-radius:9px;padding:9px 10px;margin:4px;max-width:220px}
+  </style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <h1>Talon Lock <span class="gold">eSports</span></h1>
+    <p>Competitive vault racing built around verified scores, identical seeded conditions, anti-cheat review, ranked tiers, spectators, replays and GameOps audit trails.</p>
+    <a class="btn" href="/talon-lock">Play Talon Lock</a>
+    <div>
+      <input id="playerName" aria-label="Player name" value="Player" maxlength="40">
+      <button id="register" type="button">Register</button>
+      <button id="checkin" type="button" disabled>Check In</button>
+      <span id="checkinStatus" class="status muted">Loading tournament…</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Competition Modes</h2>
+    <div class="grid">
+      <div class="card"><h3>Vault Score Attack</h3><p>Highest verified score wins on the same seeded vault.</p></div>
+      <div class="card"><h3>Talon Time Trial</h3><p>Clear the required vault sequence in the lowest verified time.</p></div>
+      <div class="card"><h3>Head-to-Head Vault</h3><p>Two players compete under identical conditions. Best validated result advances.</p></div>
+      <div class="card"><h3>Falcon Team Relay</h3><p>Teams complete assigned vault legs and combine verified score and time.</p></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Ranked Ladder</h2>
+    <div>
+      <span class="pill">Bronze</span><span class="pill">Silver</span><span class="pill">Gold</span><span class="pill">Platinum</span><span class="pill">Diamond</span><span class="pill">Master</span><span class="pill">Talon Elite</span><span class="pill">World Champion</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Verified Leaderboard</h2>
+    <p class="muted">Only verified runs appear here.</p>
+    <table aria-label="Talon Lock verified leaderboard">
+      <thead><tr><th>Rank</th><th>Player</th><th>Score</th><th>Vault</th><th>Status</th></tr></thead>
+      <tbody id="leaderboard"><tr><td colspan="5">Loading…</td></tr></tbody>
+    </table>
+  </section>
+
+  <section class="panel">
+    <h2>Live Spectator Feed</h2>
+    <p id="spectator" class="muted">No live competitive runs yet.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Competitive Integrity</h2>
+    <div class="grid">
+      <div class="card"><strong>Server validation</strong><p>Scores, stage, duration, seed and cooldown rules are checked before certification.</p></div>
+      <div class="card"><strong>Anti-cheat</strong><p>Impossible movement, score rates, modified state and invalid lock timing are flagged.</p></div>
+      <div class="card"><strong>Spectator / Replay</strong><p>Broadcast-safe delayed feeds, overlays, commentator views and replay evidence hooks.</p></div>
+      <div class="card"><strong>GameOps</strong><p>Disputes, disconnects and suspicious results enter an auditable incident workflow.</p></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Prize Policy</h2>
+    <p>Default competition rewards are digital trophies, recognition, cosmetics and approved in-platform rewards. Real-money prize competitions remain disabled until eligibility, contest/gaming law, tax, identity, age and payment requirements are reviewed for the applicable jurisdiction.</p>
+  </section>
+</main>
+<script>
+  const tournamentId='talon-lock-open-1';
+  const playerId=sessionStorage.getItem('talon_esports_player_id')||crypto.randomUUID();
+  sessionStorage.setItem('talon_esports_player_id',playerId);
+  const statusEl=document.getElementById('checkinStatus');
+  const registerBtn=document.getElementById('register');
+  const checkinBtn=document.getElementById('checkin');
+  const leaderboardEl=document.getElementById('leaderboard');
+  const spectatorEl=document.getElementById('spectator');
+
+  async function api(url,options={}){const r=await fetch(url,{headers:{'content-type':'application/json',...(options.headers||{})},...options});const body=await r.json().catch(()=>({}));if(!r.ok)throw new Error(body.error||`HTTP ${r.status}`);return body;}
+  function setStatus(text,kind='muted'){statusEl.textContent=text;statusEl.className=`status ${kind}`;}
+
+  async function loadTournament(){
+    try{
+      const data=await api('/api/esports/tournaments?gameId=talon-lock');
+      const t=(data.tournaments||[]).find(x=>x.id===tournamentId)||data.tournaments?.[0];
+      if(!t) throw new Error('No Talon Lock tournament is open');
+      setStatus(`${t.name} — ${t.status}`,'ok');
+    }catch(e){setStatus(`Competition API not active yet: ${e.message}`,'warn');}
+  }
+
+  registerBtn.addEventListener('click',async()=>{
+    try{
+      const displayName=document.getElementById('playerName').value.trim()||'Player';
+      await api('/api/esports/register',{method:'POST',body:JSON.stringify({tournamentId,playerId,displayName})});
+      checkinBtn.disabled=false; setStatus('Registered — ready to check in','ok');
+    }catch(e){setStatus(e.message,'error');}
+  });
+
+  checkinBtn.addEventListener('click',async()=>{
+    try{
+      const data=await api('/api/esports/check-in',{method:'POST',body:JSON.stringify({tournamentId,playerId})});
+      setStatus(`Checked in — seed ${data.seed||'assigned'}`,'ok');
+      sessionStorage.setItem('talon_esports_seed',data.seed||'');
+      sessionStorage.setItem('talon_esports_tournament',tournamentId);
+    }catch(e){setStatus(e.message,'error');}
+  });
+
+  async function loadLeaderboard(){
+    try{
+      const data=await api(`/api/esports/tournaments/${tournamentId}/leaderboard?limit=25`);
+      const rows=data.leaderboard||[];
+      leaderboardEl.innerHTML=rows.length?rows.map(r=>`<tr><td>${r.rank}</td><td>${r.playerId}</td><td>${r.score}</td><td>${r.vault}</td><td>${r.verificationStatus}</td></tr>`).join(''):'<tr><td colspan="5">No verified results yet.</td></tr>';
+    }catch{leaderboardEl.innerHTML='<tr><td colspan="5">Leaderboard API not active yet.</td></tr>';}
+  }
+
+  async function loadSpectator(){
+    try{
+      const data=await api(`/api/esports/tournaments/${tournamentId}/spectator`);
+      const latest=(data.liveResults||[]).slice(-5).reverse();
+      spectatorEl.textContent=latest.length?latest.map(r=>`${r.playerId}: ${r.score} pts / Vault ${r.vault} / ${r.verificationStatus}`).join(' • '):'No live competitive runs yet.';
+    }catch{spectatorEl.textContent='Spectator API not active yet.';}
+  }
+
+  loadTournament(); loadLeaderboard(); loadSpectator();
+  setInterval(()=>{loadLeaderboard();loadSpectator();},10000);
+</script>
+</body>
+</html>

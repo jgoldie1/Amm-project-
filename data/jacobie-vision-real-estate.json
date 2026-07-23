@@ -1,0 +1,56 @@
+{
+  "name": "Jacobie Vision Real Estate & Property Intelligence",
+  "status": "architecture-foundation",
+  "mission": "Help users learn, evaluate, improve, finance, protect, manage and responsibly participate in real-estate opportunities while turning licensed professionals and service providers into verified TryAMM customers and marketplace participants.",
+  "customerProviderCategories": [
+    "real estate brokers and agents",
+    "licensed appraisers",
+    "mortgage lenders and brokers",
+    "title and escrow companies",
+    "real estate attorneys",
+    "home inspectors",
+    "property and casualty insurance agents/brokers",
+    "general contractors",
+    "specialty contractors and trades",
+    "architects and engineers",
+    "surveyors",
+    "property managers",
+    "home warranty providers",
+    "cleaning, staging and photography providers",
+    "moving and logistics providers",
+    "investors and house flippers",
+    "buyers, sellers and landlords"
+  ],
+  "providerBusinessModel": {
+    "onboarding": ["TryAMM Passport business profile", "identity/KYB", "license/credential upload where applicable", "service areas", "insurance/bond evidence where applicable", "pricing/service menu", "background/risk checks where lawful", "agreement acceptance"],
+    "revenue": ["provider subscriptions", "qualified lead fees where lawful", "booking/service marketplace fees", "advertising and promoted listings", "document/workflow tools", "AI business tools", "AR/VR property media services", "cybersecurity subscriptions", "education and certification-style courses that do not misrepresent licensing"],
+    "rule": "TryAMM must not present an unlicensed provider as licensed. License status must be verified or clearly marked unverified/pending, and regulated referral/fee rules must be reviewed per jurisdiction."
+  },
+  "modules": [
+    "property discovery and saved searches",
+    "AI-assisted deal workspace",
+    "house-flip project planner",
+    "rehab scope and budget estimator",
+    "comparable-property research workspace",
+    "rental and cash-flow education",
+    "credit and financing readiness education",
+    "provider marketplace and booking/referral workflow",
+    "inspection and due-diligence checklist",
+    "title/closing/insurance handoff",
+    "property document vault",
+    "AR/VR/MR and holographic property tours",
+    "digital twin/property model",
+    "construction progress media",
+    "listing marketing studio",
+    "legacy property inventory and heir education"
+  ],
+  "flipWorkflow": ["discover", "screen", "estimate acquisition and closing costs", "inspect and perform due diligence", "estimate repairs with contingency", "model multiple exit scenarios", "route regulated steps to qualified professionals", "acquire through appropriate legal/financial channels", "manage renovation", "track invoices/change orders", "quality and safety checks", "market/rent/sell through appropriately licensed parties", "record outcome in analytics and legacy inventory"],
+  "jacobieVisionCybersecurity": {
+    "purpose": "Protect property, identity, payment and professional-workflow data across the real-estate ecosystem.",
+    "controls": ["MFA", "role-based access", "document encryption at rest/in transit", "document access logs", "wire-fraud warnings", "phishing/scam education", "suspicious-login detection", "secure provider messaging", "license/credential tamper checks", "secret detection", "backup/recovery checks", "incident workflow", "least-privilege admin access", "PII minimization", "no public exposure of private financial/property documents by default"],
+    "highRiskAlerts": ["last-minute wiring instruction change", "new payee/bank details", "unverified title/escrow identity", "suspicious document replacement", "impossible login/location pattern", "credential expiration", "unusual large invoice/change order"]
+  },
+  "aiGuardrails": ["No guaranteed appraisal, value, profit, legal outcome, loan approval or investment return.", "Do not represent automated estimates as licensed appraisals, inspections or legal advice.", "Brokerage, appraisal, lending, title, insurance, contracting and other regulated services must route to appropriately qualified/licensed providers where required."],
+  "integrations": ["TryAMM Passport", "HoloGPT", "Aniyah", "OmniPay/TapPay", "TryAMM Marketplace", "TryAMM Analytics", "Jacobie Vision Cybersecurity", "Heirs & Legacy Kids", "Legacy & Ownership Center", "Asset Vault/Digital DNA", "AR/VR/MR/HoloVerse"],
+  "productionGates": ["licensed-data/API agreements for restricted listing data", "provider credential verification", "clear brokerage/referral/licensing model by jurisdiction", "fair-housing and anti-discrimination review", "privacy/security review", "financial/legal disclaimers and professional handoffs", "real data validation", "payment/referral fee legality review", "end-to-end QA"]
+}

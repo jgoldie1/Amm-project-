@@ -1,0 +1,55 @@
+{
+  "name": "TryAMM Shared Platform Backbone",
+  "status": "required-production-backbone",
+  "purpose": "Provide one authoritative layer for identity, entitlements, credits, provider costs, jobs, assets, rights, payouts, audit events and cross-vertical orchestration.",
+  "whyCritical": "Without this layer, TryAMM verticals become separate islands with inconsistent balances, permissions, ownership, costs and audit history.",
+  "coreServices": [
+    "TryAMM Passport/Auth + MFA + RBAC",
+    "OmniCredit double-entry ledger",
+    "CostOps quote/authorize/settle service",
+    "unified job orchestrator and queue",
+    "provider adapter registry and health/failover",
+    "Asset Vault + Digital DNA + Rights Vault",
+    "entitlement/license service",
+    "creator payout and royalty ledger",
+    "event/audit bus",
+    "notifications",
+    "search/indexing",
+    "observability/incident response",
+    "policy and moderation engine"
+  ],
+  "canonicalFlow": [
+    "authenticate user",
+    "authorize requested action",
+    "search existing entitled/reusable assets",
+    "calculate quote and margin",
+    "authorize credits/payment",
+    "create durable job",
+    "route to approved provider or internal worker",
+    "record provider cost and outputs",
+    "validate safety/rights/quality",
+    "register Digital DNA and asset lineage",
+    "settle credits and payout obligations",
+    "emit audit/analytics events",
+    "make output available to entitled surfaces"
+  ],
+  "mustNot": [
+    "maintain separate un-reconciled balances per vertical",
+    "call paid AI providers without authorization",
+    "publish assets without rights/DNA gates",
+    "let agents self-escalate permissions",
+    "store critical state only in memory",
+    "let verticals invent incompatible user identities",
+    "silently lose job/provider cost data"
+  ],
+  "priorityOrder": [
+    "1 Passport/Auth",
+    "2 durable Postgres/Supabase persistence",
+    "3 OmniCredit ledger + CostOps",
+    "4 unified durable jobs/provider adapters",
+    "5 secure storage/CDN",
+    "6 rights/DNA/entitlements",
+    "7 payouts/reconciliation",
+    "8 vertical feature completion"
+  ]
+}

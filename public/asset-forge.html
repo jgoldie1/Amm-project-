@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quantum Speed Engine Asset Forge | TryAMM</title>
+  <meta name="description" content="Generate, reuse, protect and monetize production-ready 3D, holographic and game assets with TryAMM Asset Forge, Digital DNA, CostOps and HoloMarket." />
+  <link rel="canonical" href="https://tryamm.online/asset-forge" />
+  <style>
+    body{font-family:system-ui,sans-serif;max-width:1100px;margin:auto;padding:24px;background:#0d0f14;color:#f4f5f7}a{color:#9ecbff}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.card{border:1px solid #303744;border-radius:16px;padding:16px;background:#151922}.badge{display:inline-block;padding:4px 8px;border:1px solid #4a5568;border-radius:999px;font-size:12px;margin:2px}button,select,textarea{padding:10px 14px;border-radius:10px;border:1px solid #3d4655;background:#10141b;color:#fff;width:100%;box-sizing:border-box}button{cursor:pointer;font-weight:700}.price{font-size:28px;font-weight:800}.ok{color:#9ee6ad}.warn{color:#ffd68a}code{word-break:break-word}small,.muted{color:#b7c0ce}pre{white-space:pre-wrap}
+  </style>
+</head>
+<body>
+  <nav><a href="/">TryAMM</a> · <a href="/gameverse">GameVerse</a> · <a href="/play">Play</a> · <a href="/holomarket">HoloMarket</a></nav>
+  <h1>Quantum Speed Engine — Asset Forge</h1>
+  <p>AI-assisted generation and production orchestration for reusable original/licensed assets across TryAMM, the 11-game Living Gaming World, HoloVerse, commercials, TV, AR/VR/MR and HoloMarket.</p>
+  <p><span class="badge">Reuse-first</span> <span class="badge">Digital DNA</span> <span class="badge">CostOps</span> <span class="badge">HoloMarket</span> <span class="badge">3D/XR</span></p>
+  <div class="card"><strong class="ok">Create once, reuse many times.</strong><p>Before paying Meshy or another generation provider, TryAMM should search the user's Asset Vault for an owned or properly licensed reusable asset. Generate new work only when reuse or adaptation is not suitable.</p></div>
+
+  <h2>Asset generation pricing</h2>
+  <section class="grid" id="offers"><div class="card">Loading pricing…</div></section>
+
+  <section class="card">
+    <h2>Prepare an asset quote</h2>
+    <label>Asset brief<textarea id="brief" rows="5" placeholder="Describe the character, prop, environment, hologram or other asset..."></textarea></label><br><br>
+    <label>Offer<select id="offer"></select></label><br><br>
+    <p class="muted">The public page shows starting prices. A real generation job must pass authenticated CostOps preflight, provider-cost estimate, margin check, credit-balance check and credit authorization before any paid provider is called.</p>
+    <button id="quoteBtn">Review quote process</button>
+    <pre id="result"></pre>
+  </section>
+
+  <h2>Production pipeline</h2>
+  <section class="grid" id="pipeline"></section>
+
+  <h2>Character/asset deliverable contract</h2>
+  <div class="grid">
+    <div class="card"><strong>Character</strong><p>Mesh, skeleton, skin weights, materials, LODs, collision, animation controller, metadata and Digital DNA.</p></div>
+    <div class="card"><strong>World/prop</strong><p>Optimized mesh, materials, collision, LODs, placement metadata, interaction hooks and reusable derivatives.</p></div>
+    <div class="card"><strong>Holographic/XR</strong><p>Depth metadata, view variants, alpha-ready materials, spatial-anchor metadata and authorized likeness/voice records when applicable.</p></div>
+    <div class="card"><strong>Trust</strong><p>Original/licensed-only provenance, rights checks, Digital DNA and validation before publication or HoloMarket listing.</p></div>
+  </div>
+
+  <h2>How AI does the heavy lifting</h2>
+  <p>AI can create briefs, search the Asset Vault, recommend reuse, prepare mesh/rig/animation/LOD plans, generate materials, assemble gameplay scaffolds, create tests, analyze performance, record costs and repair bounded issues. External model/mesh/rig generators remain provider adapters and must never be called without quote/authorization controls.</p>
+
+  <script>
+    const steps = ['Authenticate + authorize','Search Asset Vault for reuse','Rights-risk check','CostOps quote','Credit authorization','Game/asset brief','Character/world spec','Concept generation','Mesh generation/selection','Retopology + LOD','UV/material/texture','Skeleton + rig','Animation set','Collision + physics','Audio + VFX','Gameplay prefab assembly','Holographic/AR/VR/MR variants','Automated validation','Digital DNA + lineage','GameOps/ErrorOps report','Approval when required','Publish to Asset Vault/runtime/HoloMarket'];
+    document.getElementById('pipeline').innerHTML = steps.map((step,i)=>`<div class="card"><small>${String(i+1).padStart(2,'0')}</small><h3>${step}</h3></div>`).join('');
+    async function loadPricing(){
+      const offers=document.getElementById('offers'),select=document.getElementById('offer');
+      try{
+        const response=await fetch('/api/costops/asset-pricing');
+        if(!response.ok) throw new Error('pricing API not registered');
+        const pricing=await response.json(); offers.innerHTML='';
+        pricing.meshyAssetOffers.forEach(o=>{
+          offers.insertAdjacentHTML('beforeend',`<article class="card"><h3>${o.name}</h3><div class="price">from ${o.startingOmniCredits} credits</div><p>${o.startingUsdEquivalent ? `About $${o.startingUsdEquivalent} starting equivalent` : 'Dynamic production quote'}</p><p class="muted">${o.pricingRule}</p></article>`);
+          select.insertAdjacentHTML('beforeend',`<option value="${o.id}">${o.name}</option>`);
+        });
+      }catch(e){ offers.innerHTML='<div class="card warn">CostOps pricing exists in the branch but is not registered on this deployed server yet.</div>'; }
+    }
+    document.getElementById('quoteBtn').onclick=()=>{document.getElementById('result').textContent='Secure flow: Passport/Auth → Asset Vault reuse search → rights check → CostOps quote → credit authorization → durable job → provider → validation → Digital DNA → settlement. Protected quote creation is not exposed anonymously from this page.'};
+    loadPricing();
+  </script>
+</body>
+</html>

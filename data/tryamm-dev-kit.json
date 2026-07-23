@@ -1,0 +1,11 @@
+{
+  "name": "TryAMM Dev Kit",
+  "status": "architecture-foundation",
+  "purpose": "Give Victor and future developers one documented SDK/dev-kit surface for TryAMM APIs, analytics, auth, credits, assets, HoloMarket, HoloGPT, GameVerse, Music, HoloVerse, meetings and commerce.",
+  "packages": ["@tryamm/core", "@tryamm/auth", "@tryamm/analytics", "@tryamm/credits", "@tryamm/assets", "@tryamm/hologpt", "@tryamm/gameverse", "@tryamm/music", "@tryamm/holoverse", "@tryamm/meetings", "@tryamm/commerce"],
+  "developerTools": ["typed API client", "event tracking SDK", "webhooks", "sandbox/test mode", "CLI", "starter templates", "API explorer", "example apps", "error catalog", "rate-limit guidance", "changelog", "versioned docs"],
+  "analyticsSDK": ["track", "identify after consent/auth", "page", "conversion", "campaign attribution", "server-side events", "privacy controls"],
+  "assetSDK": ["search reusable assets", "request quote", "authorize credits", "create generation job", "poll job", "register Digital DNA", "list entitlements", "record asset usage"],
+  "security": ["never expose service-role secrets", "scoped API keys", "OAuth/passport tokens", "signed webhooks", "idempotency keys", "request validation", "rate limits", "audit logs"],
+  "releaseRules": ["semantic versioning", "backward-compatible API windows", "deprecation notices", "migration guides", "automated contract tests", "SDK integration tests"]
+}

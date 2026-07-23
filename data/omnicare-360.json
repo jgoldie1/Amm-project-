@@ -1,0 +1,62 @@
+{
+  "name": "OmniCare 360",
+  "mission": "Help people navigate health, care, benefits and support through one accessible AI-assisted experience while regulated services are delivered by appropriately licensed providers and partners.",
+  "status": "architecture-foundation",
+  "core": [
+    "TryAMM Passport identity and consent",
+    "HoloGPT care navigator",
+    "AI call center and multilingual support",
+    "provider directory and matching",
+    "appointment and follow-up coordination",
+    "benefits and insurance navigation",
+    "care-plan task tracking",
+    "secure document intake",
+    "accessibility and caregiver support",
+    "audit and incident records"
+  ],
+  "serviceDomains": [
+    {"id":"primary-care-navigation","mode":"licensed-partner-required"},
+    {"id":"telehealth","mode":"licensed-provider-required"},
+    {"id":"behavioral-health","mode":"licensed-provider-required"},
+    {"id":"pharmacy-navigation","mode":"licensed-pharmacy-prescriber-rules"},
+    {"id":"home-care","mode":"jurisdiction-specific-licensing"},
+    {"id":"insurance-benefits","mode":"licensed-agent-or-approved-partner-where-required"},
+    {"id":"caregiver-support","mode":"platform-support"},
+    {"id":"transport-to-care","mode":"HoloRide-or-licensed-partner"},
+    {"id":"wellness-education","mode":"non-diagnostic-education"},
+    {"id":"remote-support-work","mode":"AI-call-center-plus-human-escalation"}
+  ],
+  "aiAllowed": [
+    "intake summarization",
+    "appointment preparation",
+    "benefit-document organization",
+    "plain-language education",
+    "translation and accessibility assistance",
+    "reminders and adherence support",
+    "provider matching based on user-selected criteria",
+    "support triage",
+    "fraud/anomaly flags",
+    "case summaries for authorized staff"
+  ],
+  "aiNotAllowedWithoutLicensedHuman": [
+    "final diagnosis",
+    "prescribing",
+    "emergency medical decisions",
+    "clinical treatment changes",
+    "insurance coverage guarantees",
+    "licensure determinations"
+  ],
+  "safety": {
+    "emergency": "Escalate emergencies to local emergency services/approved crisis workflows; AI must not act as sole emergency responder.",
+    "privacy": ["minimum-necessary-data", "role-based-access", "consent", "encryption", "audit", "retention-policy"],
+    "humanEscalation": true
+  },
+  "monetization": [
+    "B2B care-navigation contracts",
+    "licensed partner referral or service revenue where lawful",
+    "employer and community programs",
+    "call-center support services",
+    "care coordination subscriptions",
+    "white-label platform licensing"
+  ]
+}

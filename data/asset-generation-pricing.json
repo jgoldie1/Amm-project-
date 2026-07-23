@@ -1,0 +1,46 @@
+{
+  "name": "TryAMM Asset Forge Credit Pricing",
+  "currency": "USD",
+  "status": "commercial-pricing-foundation",
+  "principle": "Search and reuse authorized Asset Vault items first. Generate a new asset only when reuse or adaptation is not suitable. All generation requires a preflight quote, credit authorization, provider-cost record and minimum-margin gate.",
+  "creditReference": {
+    "targetCreditsPerUsd": 30,
+    "note": "This is a customer-facing reference for quoting, not a promise of fixed compute value. CostOps may adjust debit amounts when upstream provider, compute, storage, payment or support costs change."
+  },
+  "meshyAssetOffers": [
+    {
+      "id": "meshy-standard-asset",
+      "name": "AI 3D Asset Generation — Standard",
+      "startingUsdEquivalent": 6,
+      "startingOmniCredits": 180,
+      "includes": ["reuse-first Asset Vault search", "one standard generation job", "basic preview", "Digital DNA registration workflow", "basic optimization metadata"],
+      "excludes": ["advanced rigging", "complex animation", "large texture packs", "manual artist cleanup", "exclusive IP transfer"],
+      "pricingRule": "180 credits is a starting quote only. Before execution CostOps must ensure actual provider+compute+storage+payment+support+reserve cost is covered with configured contribution margin."
+    },
+    {
+      "id": "meshy-rigged-character",
+      "name": "AI Character + Rig Pipeline",
+      "startingOmniCredits": 360,
+      "pricingRule": "Quote dynamically based on generation, retopology, rigging, textures and validation steps."
+    },
+    {
+      "id": "meshy-production-ready",
+      "name": "Production Asset Pipeline",
+      "startingOmniCredits": 600,
+      "pricingRule": "Quote dynamically for higher-quality generation plus optimization, LODs, collision, rig/animation where requested, Digital DNA, validation and export derivatives."
+    }
+  ],
+  "requiredPreflight": ["authenticated user", "asset brief", "Asset Vault similarity/reuse search", "rights-risk check", "provider route", "estimated upstream cost", "storage/egress estimate", "required margin calculation", "credit balance check", "credit authorization"],
+  "reuseDiscount": {
+    "rule": "If an owned or properly licensed asset can be reused or adapted, quote the lower-cost adaptation pipeline instead of charging for unnecessary full regeneration.",
+    "benefit": "Reduces provider spend, increases margin and grows the value of the Asset Vault."
+  },
+  "marginPolicy": {
+    "targetBlendedGrossMarginPercent": "60-75",
+    "minimumJobContributionMarginPercent": 35,
+    "formula": "required_customer_revenue >= total_expected_variable_cost / (1 - target_margin)",
+    "variableCosts": ["AI/3D provider", "compute", "storage/CDN", "payment fees", "fraud/refund reserve", "support allocation", "third-party licensing where applicable"]
+  },
+  "executionRule": "No external generation provider may be called until the quote is accepted and credits are authorized. On completion settle against actual cost; release unused authorization or clearly disclose any additional authorization required before extra work.",
+  "failureRule": "Provider failure must not silently consume the full customer charge. Apply retry/refund/re-credit rules based on completed billable work and provider recovery."
+}

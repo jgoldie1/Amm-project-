@@ -1,0 +1,20 @@
+{
+  "name":"TryAMM Global Commerce Expansion",
+  "modules":[
+    {"id":"quantum-sourcing","features":["China-Asia-Japan-supplier-discovery","low-MOQ","sample-first-buying","landed-cost-estimator","supplier-score","inspection-checklist","customs-duty-estimate","direct-to-consumer-fulfillment","private-label-workflow","multi-currency-quotes"],"status":"foundation"},
+    {"id":"live-shopping","features":["QVC-HSN-style-live-shows","creator-hosts","shoppable-video","limited-time-offers","bundles","chat","tips","affiliate-commissions","inventory-reservation","returns-support"],"status":"foundation"},
+    {"id":"approved-auction-house","features":["seller-verification","lot-catalog","reserve-price","timed-auction","live-auction","bid-increments","anti-shill-monitoring","escrow-or-payment-hold-via-provider","buyer-premium-disclosure","provenance","condition-report","shipping-estimate","dispute-process"],"status":"foundation"},
+    {"id":"second-chance-work","features":["fair-chance-employer-profiles","skills-first-matching","background-check-consent","individualized-review-workflow","training","certifications","remote-work","driver-courier-eligibility-by-jurisdiction","appeals-and-corrections"],"status":"foundation"},
+    {"id":"tipping","features":["creator-tips","streamer-tips","artist-tips","driver-courier-tips","merchant-staff-tips","transparent-payout-ledger","refund-and-chargeback-rules"],"status":"foundation"},
+    {"id":"fx-service-fee","features":["licensed-provider-routing","rate-and-fee-disclosure","small-platform-service-fee","multi-currency-display","settlement-reconciliation","country-availability-gates"],"status":"foundation"},
+    {"id":"music-video-streaming","features":["music-streaming","music-video-streaming","artist-pages","albums-tracks-videos","live-premieres","playlists","rights-provenance","royalty-ledger","fraud-detection","tips","subscriptions","ads"],"status":"foundation"},
+    {"id":"amm-billboard","features":["digital-billboards","in-app-featured-placements","livestream-ad-breaks","creator-sponsorships","local-business-ads","geo-targeting","auction-or-fixed-price-inventory","brand-safety","campaign-analytics","cross-platform-attribution"],"status":"foundation"}
+  ],
+  "errorDoctrine":{
+    "principle":"Everything can fail; no workflow may assume zero-error operation.",
+    "required":["idempotency","retries-with-backoff","dead-letter-queue","human-escalation","rollback","audit-log","user-visible-status","support-case-linkage","provider-health-check","circuit-breaker","duplicate-prevention","reconciliation-jobs"]
+  },
+  "marketplaceTrust":{
+    "required":["seller-KYB-KYC-via-approved-provider","high-volume-seller-verification","counterfeit-reporting","unsafe-product-blocking","recall-workflow","supplier-provenance","inspection-evidence","returns-refunds","chargeback-handling","buyer-protection-rules","suspicious-activity-reporting"]
+  }
+}

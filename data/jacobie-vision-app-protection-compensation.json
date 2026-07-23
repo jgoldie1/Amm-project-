@@ -1,0 +1,25 @@
+{
+  "name": "Jacobie Vision App Protection & Compensation",
+  "status": "architecture-foundation",
+  "appProtection": {
+    "purpose": "Offer defensive app and business protection services across TryAMM while strengthening TryAMM's own security posture.",
+    "customerSegments": ["TryAMM creators", "real-estate providers", "small businesses", "marketplace sellers", "schools/nonprofits", "professional service firms", "app developers"],
+    "services": ["security posture scan", "dependency and vulnerability review", "secret exposure checks", "MFA/RBAC setup guidance", "phishing and wire-fraud training", "backup/recovery checks", "incident intake", "security dashboard", "document access monitoring", "configuration hardening guidance", "privacy/data-minimization review", "security education"],
+    "guardrails": ["defensive use only", "no unauthorized intrusion", "no malware", "no credential theft", "no destructive testing without explicit written authorization", "professional/legal/compliance review for regulated clients where needed"],
+    "monetization": ["monthly security subscriptions", "one-time security assessments", "provider-business security bundles", "training courses", "premium monitoring/alerting", "enterprise contracts"],
+    "integrations": ["TryAMM Passport", "TryAMM Analytics", "HoloGPT", "Jacobie Vision Real Estate", "Aniyah scam/fraud education", "Heirs & Legacy Kids", "Provider Marketplace"]
+  },
+  "jacobieCompensationPathways": {
+    "principle": "Compensate Jacobie through a documented lawful structure tied to actual ownership, work, licensed IP, or approved profit-sharing—not an informal promise in code.",
+    "options": [
+      "salary or hourly employment for actual work",
+      "independent-contractor payments where classification is legally appropriate",
+      "royalty or brand/IP licensing payments if Jacobie legally owns or licenses qualifying IP",
+      "documented profit-sharing/bonus plan",
+      "equity or membership interest subject to company documents, securities/tax/legal review",
+      "family trust or succession structure established by qualified counsel"
+    ],
+    "recommendedStart": "Use a written role description and compensation agreement for real work performed, then separately document any ownership, royalty, profit-share or equity rights with attorney/CPA review.",
+    "controls": ["written agreement", "market-reasonable compensation", "payroll/tax reporting where applicable", "separate IP assignment/license documents", "board/member approvals where required", "conflict-of-interest disclosure", "audit trail"]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "TryAMM Asset Vault + HoloMarket",
+  "status": "architecture-foundation",
+  "mission": "Create once, verify rights once, reuse safely across TryAMM, and let eligible creators monetize original digital assets and holographic experiences repeatedly.",
+  "assetTypes": ["2D graphics", "Lottie-compatible animations", "AMM Motion graphs", "HoloFX presets", "3D models", "rigged characters", "avatars", "Digital Twin authorized assets", "environments", "props", "vehicles", "game assets", "music and sound effects", "voice assets with consent", "video templates", "commercial scenes", "broadcast graphics", "AR assets", "VR/MR assets", "holographic scenes", "educational assets"],
+  "coreSystems": {
+    "assetVault": ["immutable asset id", "versions", "source files", "optimized derivatives", "thumbnails/previews", "metadata", "tags", "compatibility", "owner/creator", "provenance", "rights evidence", "content hash", "moderation state", "AI-generation disclosure", "dependencies"],
+    "reuseGraph": ["track every project/game/show/commercial using an asset", "dependency-safe version pinning", "fork/variant lineage", "update notifications", "deprecation", "recall/takedown propagation"],
+    "marketplace": ["listings", "collections", "search", "preview", "license selector", "cart/checkout", "receipts", "entitlements", "downloads/streaming access", "ratings/reviews after verified use", "creator storefronts", "bundles"],
+    "hologramCommerce": ["hologram templates", "performer/avatar holograms with authorization", "product holograms", "concert stages", "virtual showroom scenes", "HoloVerse venue packs", "commercial HoloFX packs", "device/output compatibility metadata"],
+    "creatorEconomy": ["creator-defined eligible price within platform rules", "platform fee", "royalty splits", "affiliate/referral share where enabled", "tax/payout records", "refund/dispute handling", "earnings dashboard"]
+  },
+  "licenses": [
+    {"id":"personal","allows":["personal projects"],"forbids":["resale of source asset", "claiming authorship"]},
+    {"id":"commercial-standard","allows":["commercial end products", "TryAMM productions within purchased seat/usage terms"],"forbids":["standalone resale", "redistribution of editable source"]},
+    {"id":"extended","allows":["higher-scale commercial use as defined at checkout"],"forbids":["ownership transfer unless explicitly contracted"]},
+    {"id":"subscription-library","allows":["use while entitlement and project rules are satisfied"],"forbids":["bulk scraping", "model training unless separately licensed"]}
+  ],
+  "criticalGuardrails": ["seller must own or control listed rights", "likeness/voice/Digital Twin requires explicit authorization", "music requires applicable master/publishing/sync/game rights", "no trademark/copyright infringement", "no hidden model-training rights", "takedown and dispute workflow", "malware/file scanning", "content moderation", "age safety", "export/sanctions controls where applicable", "no promise that a simulated hologram is a true volumetric display unless hardware supports it"],
+  "economics": {
+    "rule": "Every transaction must cover payment fees, storage/CDN/compute, support/refund/fraud reserves, creator share and configured TryAMM contribution margin.",
+    "revenue": ["marketplace commission", "featured placement", "creator subscriptions", "asset generation credits", "HoloFX premium packs", "enterprise licenses", "white-label libraries", "HoloVerse venue/experience fees"],
+    "antiAbuse": ["no wash trading", "no fake purchases/reviews", "duplicate/stolen asset detection", "payout holds for risk", "chargeback reconciliation"]
+  },
+  "integrations": ["TryAMM Passport", "Creator Workstation", "HoloGPT", "Asset Forge", "AMM Motion/HoloFX", "Holo Commercial Studio", "HoloVerse", "Living Gaming World", "TryAMM Music", "Isaiah AI TV", "OmniBox", "StarVerse", "Broadcast Studio", "Books", "Marketplace", "OmniCredits/payments", "AI GameOps/ErrorOps"],
+  "productionGates": ["durable database", "object storage/CDN", "auth/RBAC", "signed upload/download URLs", "content hashing", "provenance/rights records", "license/entitlement engine", "checkout/payments", "creator payouts", "tax records", "moderation", "malware scanning", "search/indexing", "version/dependency graph", "takedown propagation", "analytics", "backup/disaster recovery", "security/load/e2e testing"]
+}

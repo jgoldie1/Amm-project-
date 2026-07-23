@@ -1,0 +1,29 @@
+{
+  "product": "TryAMM",
+  "statusPolicy": {
+    "production": "Implemented, tested, deployed and monitored in production.",
+    "foundation-established": "Authoritative code/data/API foundation exists in the connected repository, but full product capability is not yet production complete.",
+    "partial": "Some implementation exists, but critical workflow pieces are missing.",
+    "planned": "Defined in product requirements/conversation but not implemented in this repository."
+  },
+  "domains": [
+    {"id":"core-web","name":"Core web shell","status":"partial","evidence":["Express server","static homepage","Socket.IO hearts/chat/gifts demo"],"gaps":["production app architecture","auth","database-backed user state","error observability","full routing"]},
+    {"id":"seo-discovery","name":"SEO and search discovery","status":"foundation-established","evidence":["canonical metadata","robots.txt","sitemap.xml","IndexNow endpoint","structured-data foundation"],"gaps":["Search Console/Bing production verification","dynamic sitemap from real content","rich-result validation","Core Web Vitals validation"]},
+    {"id":"universal-social","name":"Universal Social Fabric","status":"foundation-established","evidence":["social connector registry","official-profile configuration","UTM strategy","Universal Social Fabric architecture"],"gaps":["OAuth/API adapters","publishing permission flows","connector health monitoring","per-network compliance testing","OmniShare composer UI"]},
+    {"id":"gameverse","name":"GameVerse / Living Game World","status":"foundation-established","evidence":["11-game authoritative registry","Living Game World systems definition","public GameVerse page","GameVerse APIs"],"gaps":["playable runtimes","game engine projects","multiplayer services","asset pipelines","original art/audio","physics/gameplay implementation","QA/performance certification"]},
+    {"id":"live-streaming","name":"Live streaming / PK / panels","status":"planned","evidence":[],"gaps":["LiveKit/RTC wiring","rooms","PK","3-20 panels","moderation","recording/replays","stream discovery","production scaling"]},
+    {"id":"creator-feed","name":"Short-form creator feed","status":"planned","evidence":[],"gaps":["upload/transcode","feed ranking","follow graph","likes/comments/shares","reels","recommendation safety","moderation"]},
+    {"id":"marketplace","name":"Marketplace / vendor portal","status":"planned","evidence":[],"gaps":["catalog","seller onboarding","inventory","checkout","orders","payouts","tax/shipping","disputes","search"]},
+    {"id":"payments","name":"Payments / coins / gifts / payouts","status":"planned","evidence":[],"gaps":["Stripe Connect wiring","Paystack/Flutterwave where applicable","wallet ledger","coin economics","gift settlement","refunds","fraud controls","KYC/KYB"]},
+    {"id":"ai","name":"HoloGPT / AI intelligence","status":"planned","evidence":[],"gaps":["model router","tool permissions","moderation pipeline","translation","AI call center","audit logs","cost controls","fallbacks"]},
+    {"id":"safety","name":"Trust, safety and age lanes","status":"planned","evidence":[],"gaps":["teen/adult separation","age assurance strategy","reporting","mute/kick/ban","appeals","AI risk engine","child-safety controls","policy enforcement"]},
+    {"id":"accessibility","name":"Accessibility","status":"planned","evidence":[],"gaps":["keyboard/screen-reader QA","captions","voice UI","translation","high-contrast/reduced-motion","one-hand workflows","accessibility testing"]},
+    {"id":"media","name":"Music / podcasts / creator media","status":"planned","evidence":[],"gaps":["rights metadata","streaming/transcode","royalty ledger","artist pages","podcasts","reporting","anti-fraud"]},
+    {"id":"academy","name":"Academy / education","status":"planned","evidence":[],"gaps":["course catalog","enrollment","learning progress","credentials","moderation","payments"]},
+    {"id":"holographic-xr","name":"AR/VR/MR/holographic integration","status":"planned","evidence":[],"gaps":["hardware interfaces","render pipelines","device capability detection","latency/performance tests","safety","production optical hardware"]},
+    {"id":"notifications","name":"Notifications / messaging","status":"planned","evidence":[],"gaps":["in-app notifications","push","email","preferences","rate limits","abuse controls"]},
+    {"id":"analytics","name":"Analytics / growth measurement","status":"planned","evidence":[],"gaps":["event schema","attribution","funnels","retention","creator/business dashboards","privacy controls"]},
+    {"id":"operations","name":"Admin / observability / operations","status":"planned","evidence":[],"gaps":["admin portal","audit logs","metrics","alerts","backups","incident response","SLOs","feature flags"]},
+    {"id":"legal-ip","name":"Legal / IP / platform compliance","status":"planned","evidence":[],"gaps":["terms/privacy","DMCA process","content licenses","game IP clearance","trademark/patent counsel review","platform API terms","app-store compliance"]}
+  ]
+}

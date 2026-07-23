@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "sessionStates": ["created", "pairing", "ready", "playing", "paused", "ended", "failed"],
+  "controllerModes": ["touch", "gamepad", "keyboard", "voice-accessibility"],
+  "displayModes": ["local", "cast", "second-screen"],
+  "casting": {
+    "strategy": "capability-adapter",
+    "adapters": ["google-cast", "airplay", "dlna-or-smart-tv-app", "browser-second-screen"],
+    "fallback": "show pairing code and open receiver URL on TV browser",
+    "note": "Actual device discovery/casting depends on platform SDK support and cannot be claimed production-ready until device-specific integrations are implemented and tested."
+  },
+  "aiPreparation": {
+    "preflightChecks": ["game-registry-entry", "runtime-available", "assets-available", "controller-profile", "network-health", "save-state", "compatibility", "telemetry"],
+    "safeActions": ["select-fallback-assets", "repair-noncritical-config", "recommend-controller-profile", "retry-session-bootstrap", "collect-diagnostics"],
+    "humanApprovalRequired": ["production-deploy", "economy-change", "security-change", "account-change", "moderation-change", "payment-change", "progression-change", "database-migration"]
+  }
+}

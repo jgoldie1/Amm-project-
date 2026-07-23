@@ -1,0 +1,29 @@
+{
+  "platform": "TryAMM Creator Universe",
+  "purpose": "Help creators create, own, publish, distribute and monetize original or properly licensed work with AI assistance.",
+  "brands": {
+    "starverse": {"name": "StarVerse", "tagline": "Anyone Can Be a Star", "role": "creator discovery, talent development, virtual production and audience experiences"},
+    "isaiahAiTv": {"name": "Isaiah AI TV", "role": "AI-assisted creator television, channels, shows and interactive programming"},
+    "holoverse": {"name": "HoloVerse", "role": "AR/VR/MR/holographic performances, worlds, characters and interactive media"},
+    "omniBox": {"name": "OmniBox", "role": "short-form and episodic vertical drama, series and creator storytelling hub", "replaces": "any prior DramaBox references"}
+  },
+  "creatorWorkspace": {
+    "name": "Creator Workstation",
+    "modules": ["idea-studio", "script-room", "storyboard", "casting", "digital-twin-studio", "avatar-studio", "virtual-production", "asset-forge", "music-audio", "video-editing", "captions-translation", "thumbnail-poster", "rights-provenance", "publish-distribute", "monetization", "analytics", "ai-copilot"],
+    "goal": "AI does repetitive production work while the creator controls identity, rights, approvals, creative direction and publication."
+  },
+  "digitalTwin": {
+    "name": "My Digital Twin",
+    "modes": ["avatar-only", "ai-assistant-twin", "authorized-performance-double", "creator-clone-workflow"],
+    "requirements": ["explicit-consent", "identity-verification", "scope-of-use", "revocation", "audit-log", "clear-ai-disclosure-where-needed"],
+    "capabilities": ["approved-likeness", "approved-voice", "movement-profile", "accessibility-profile", "wardrobe-library", "character-roles", "multilingual-performance", "creator-assistant", "scheduled-approved-workflows"],
+    "prohibited": ["nonconsensual-cloning", "deceptive-impersonation", "identity-fraud", "unauthorized-celebrity-cloning", "sexualized-minors"]
+  },
+  "rightsPolicy": {
+    "allowed": ["original-work", "public-domain-material", "properly-licensed-material", "creator-owned-assets", "authorized-transformations"],
+    "notAllowed": ["ripped-or-copied-protected-shows", "unlicensed-character-clones", "pirated-video", "unauthorized-music", "trademark-confusing-brand-copying"],
+    "note": "Clone/copy workflows are technical capabilities, not permission to infringe copyright, trademark, publicity or likeness rights."
+  },
+  "monetization": ["subscriptions", "tips-gifts", "pay-per-view", "ad-revenue-share", "sponsorships", "marketplace-sales", "digital-goods", "licensed-content-sales", "tickets", "creator-services", "brand-deals"],
+  "status": "architecture-foundation"
+}

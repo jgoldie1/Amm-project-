@@ -1,0 +1,38 @@
+{
+  "name": "Aniyah",
+  "status": "architecture-foundation",
+  "purpose": "Financial literacy, budgeting, credit education, entrepreneurship and cross-border money skills for families, youth and global TryAMM users, with regulated financial actions handed off to OmniPay and licensed providers.",
+  "positioning": "Education-first financial empowerment app; not a bank, lender, broker or unlicensed money transmitter.",
+  "audiences": ["teens with guardian/age-appropriate controls", "young adults", "families", "creators", "entrepreneurs", "diaspora communities", "cross-border buyers and sellers"],
+  "coreModules": [
+    "money basics and budgeting",
+    "saving and emergency funds",
+    "credit education and credit-repair literacy",
+    "debt and interest education",
+    "banking and payment-method education",
+    "fraud/scam awareness",
+    "tax basics and recordkeeping education",
+    "entrepreneurship and side-business basics",
+    "creator-income literacy",
+    "cross-border payments education",
+    "FX, fees, duties and landed-cost education",
+    "Africa/Nigeria commerce education",
+    "Latin America/South America commerce education",
+    "Asia/Japan/China sourcing and payment education",
+    "family legacy and generational wealth education"
+  ],
+  "ai": {
+    "assistant": "Aniyah AI powered through HoloGPT orchestration",
+    "capabilities": ["explain financial concepts in plain language", "personalized lessons", "budget coaching", "goal planning", "quiz generation", "scam warnings", "compare fee scenarios", "cross-border cost explanations", "learning-path recommendations"],
+    "guardrails": ["no guaranteed financial outcomes", "no personalized investment advice unless routed to appropriately licensed service", "no credit-repair guarantees", "high-risk financial actions require regulated provider flow and applicable consent"]
+  },
+  "crossBorder": {
+    "educationFlow": "show amount -> destination -> FX -> provider/network fee -> taxes/duties where applicable -> recipient amount -> timing/risk explanation",
+    "regulatedActionRule": "Actual money movement is executed only by eligible licensed providers through OmniPay/TapPay routing.",
+    "regions": ["United States", "Africa/Nigeria", "South America/Latin America", "Asia-Pacific/Japan", "China-specific gated pathway", "global fallback where eligible"]
+  },
+  "youthSafety": ["age-appropriate content", "guardian controls where required", "no high-risk credit/lending solicitation to minors", "privacy minimization", "teen-safe financial simulations", "earned-learning badges instead of gambling-style mechanics"],
+  "monetization": ["free core financial literacy", "premium guided learning", "school/community licensing", "family plans", "business/creator financial education", "sponsored education with clear disclosures", "qualified referrals to regulated providers where lawful and disclosed"],
+  "integrations": ["TryAMM Passport", "HoloGPT", "OmniPay/TapPay", "TryAMM Analytics", "TryAMM Academy", "Legacy & Ownership Center", "Creator Workstation", "Marketplace", "Quantum Sourcing", "Jacobie Vision Cybersecurity", "OmniCare 360"],
+  "productionDependencies": ["real auth and age lanes", "durable learner/profile database", "curriculum/content CMS", "progress tracking", "guardian controls where required", "regional legal review", "regulated provider integrations for actual payments", "privacy/data-safety controls", "accessibility QA", "analytics", "content review and financial-disclaimer governance"]
+}

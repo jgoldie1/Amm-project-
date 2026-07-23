@@ -1,0 +1,46 @@
+{
+  "name": "TryAMM Self-Funding Creator Plans",
+  "principle": "Keep entry affordable while metering high-cost AI, media, 3D, holographic, storage and provider usage so direct costs, payment fees, reserves and support overhead are covered before profit is recognized.",
+  "currency": "USD",
+  "plans": [
+    {"id":"free","name":"Free / Discover","monthlyPrice":0,"monthlyOmniCredits":100,"purpose":"Discovery, learning, shopping and light creation","features":["creator-page","basic-hologpt","limited-ai-tools","social-sharing","public-discovery","marketplace-browse","basic-book-and-store-tools"],"limits":["selected-generation-export-limits","no-unlimited-heavy-ai-video-or-3d"]},
+    {"id":"starter","name":"Starter","monthlyPrice":4.99,"monthlyOmniCredits":175,"purpose":"Affordable first paid step for students, new creators and microbusinesses","features":["everything-in-free","starter-creator-workstation","basic-selling","basic-author-tools","basic-ai-assistance","basic-analytics"]},
+    {"id":"creator","name":"Creator","monthlyPrice":9.99,"monthlyOmniCredits":450,"purpose":"Creators building an income stream","features":["creator-workstation","hologpt-standard","script-storyboard-tools","basic-image-audio-video-generation","omnibox-publishing","starverse-profile","tryamm-books","creator-store","analytics-basic","monetization-starter"]},
+    {"id":"pro","name":"Creator Pro","monthlyPrice":29.99,"monthlyOmniCredits":1500,"purpose":"Serious creators and small production teams","features":["everything-in-creator","hologpt-pro-routing","digital-twin-tools","avatar-scan-pipeline","advanced-video-generation","translation-dubbing","holoverse-tools","priority-generation","advanced-analytics","monetization-toolkit"]},
+    {"id":"studio","name":"Studio","monthlyPrice":79.99,"monthlyOmniCredits":4500,"purpose":"High-volume creators, shows, games and virtual production","features":["everything-in-pro","multi-project-workspace","quantum-speed-engine-asset-forge","3d-rig-animation-jobs","team-seats-base-allocation","isaiah-ai-tv-channel-tools","omnibox-series-tools","brand-kit","batch-publishing","higher-concurrency"]},
+    {"id":"business","name":"Business / Agency","monthlyPrice":199,"monthlyOmniCredits":12000,"purpose":"Agencies, production companies, brands and creator networks","features":["everything-in-studio","multiple-brands","agency-client-workspaces","advanced-rights-provenance","team-admin","api-access-subject-to-approval","priority-support","custom-workflows","bulk-generation","revenue-and-payout-reporting"]}
+  ],
+  "topUps": [
+    {"id":"mini-1","name":"Mini Refill","price":1,"omniCredits":20},
+    {"id":"pocket-5","name":"Pocket Pack","price":5,"omniCredits":110},
+    {"id":"stack-10","name":"Stack Pack","price":10,"omniCredits":250},
+    {"id":"dub-sack-20","name":"HoloGPT Dub Sack 20","price":20,"omniCredits":540,"positioning":"Affordable mid-size HoloGPT and creator-tool refill"},
+    {"id":"dub-sack-30","name":"HoloGPT Dub Sack 30","price":30,"omniCredits":850,"positioning":"Higher-value HoloGPT and creator-tool refill"},
+    {"id":"boost-50","name":"Boost Pack","price":50,"omniCredits":1600},
+    {"id":"power-100","name":"Power Pack","price":100,"omniCredits":3500}
+  ],
+  "dubSackRules": {
+    "use": ["HoloGPT text/reasoning", "creator workstation AI", "eligible image/audio/video/3D jobs according to per-action credit price"],
+    "notUnlimited": true,
+    "dynamicCosting": "Every action debits credits based on actual provider/infrastructure cost class plus target margin; expensive jobs can require additional credits even when purchased with a Dub Sack pack.",
+    "expiry": "Do not expire paid credits unless clearly disclosed and legally reviewed; promotional credits may have separate disclosed terms."
+  },
+  "microAccess": {
+    "goal": "Allow nickel-and-dime participation without forcing a subscription.",
+    "examples": ["low-cost-text-help", "captions", "metadata", "simple-design-assist", "small-book-or-store-actions"],
+    "rule": "Actual credit cost per action is dynamically set from provider and infrastructure cost plus required margin."
+  },
+  "meteredCategories": ["hologpt-text-reasoning","image-generation","video-generation","voice-dubbing","music-audio-generation","3d-mesh-generation","rigging-animation","holographic-xr-processing","high-cost-code-agent-work","storage-egress-heavy-jobs","broadcast-ai-director-teleprompter-and-egress","print-and-fulfillment-external-costs"],
+  "freeOrLowCostCategories": ["basic-editing","project-management","creator-page","manual-upload","basic-social-sharing","basic-analytics","basic-workstation-tools"],
+  "economics": {
+    "targetBlendedGrossMarginPercent": "60-75",
+    "minimumPackContributionMarginPercent": 35,
+    "minimumHeavyAiMarkupRule": "Price metered heavy-AI work at no less than estimated provider+compute+storage+payment+support+reserve cost divided by (1-target margin). Reprice automatically when upstream costs change.",
+    "packSafetyRule": "Credit packs are denominations, not promises of fixed compute. Internal credit value and per-action debit tables must be calibrated so expected redemption cost plus payment fees and reserves remain below the configured contribution-margin floor.",
+    "paymentFeeRule": "Before publishing a pack, subtract expected card/payment fees and fraud/refund reserve from revenue, then verify remaining contribution margin.",
+    "neverOffer": ["unlimited-frontier-ai-without-fair-use-guardrails","unlimited-high-cost-video","unlimited-3d-generation","below-cost-credit-promotions-without-approved-marketing-subsidy"],
+    "costControls": ["model-routing","cached-responses","batch-processing","quality-tiers","daily-budget-guards","per-user-hard-spend-caps","job-cost-estimate-before-run","provider-failover","auto-refill-opt-in","dynamic-credit-debit-table","margin-alerts","provider-cost-sync"]
+  },
+  "platformRevenue": ["subscriptions","credit-topups","marketplace-take-rate","creator-service-fees","payment-processing-margin-where-lawful-and-disclosed","ads-and-sponsorships","ppv-and-tickets","digital-goods","licensing","business-api-and-enterprise-contracts","printing-and-fulfillment-margin-where-lawful-and-disclosed"],
+  "status": "commercial-model-foundation-not-live-billing"
+}

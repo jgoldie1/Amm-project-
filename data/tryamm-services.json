@@ -1,0 +1,29 @@
+{
+  "platform": "TryAMM Services Hub",
+  "purpose": "Unify creator media, streaming, mobility, delivery, identity/passport, commerce and AI under one account while keeping entry affordable.",
+  "affordability": {
+    "principle": "Nickel-and-dime access should be available for small actions while subscriptions reduce unit cost for frequent users.",
+    "microCreditName": "OmniCredits",
+    "minimumTopUpUsd": 1,
+    "examples": [
+      {"action": "basic-hologpt-help", "credits": 1},
+      {"action": "caption-or-short-copy", "credits": 1},
+      {"action": "creator-thumbnail-assist", "credits": 2},
+      {"action": "short-audio-processing", "credits": 2},
+      {"action": "basic-stream-boost-tool", "credits": 3}
+    ],
+    "rule": "All prices are configurable. Heavy AI/video/3D/streaming work must be metered to real provider cost and margin before production launch."
+  },
+  "services": [
+    {"id": "live", "name": "TryAMM Live", "category": "streaming", "status": "foundation-required", "capabilities": ["live-video", "pk-battles", "multi-panel", "chat", "gifts", "moderation", "recording", "replays"]},
+    {"id": "music", "name": "TryAMM Music", "category": "media", "status": "foundation-required", "capabilities": ["artist-pages", "tracks", "albums", "playlists", "streaming", "royalty-ledger", "rights-provenance", "fan-support"]},
+    {"id": "movies", "name": "Isaiah AI TV / OmniBox", "category": "media", "status": "architecture-foundation", "capabilities": ["movies", "series", "vertical-drama", "episodes", "channels", "ppv", "subscriptions", "ads", "creator-pages"]},
+    {"id": "holoride", "name": "HoloRide", "category": "mobility", "status": "foundation-required", "capabilities": ["rider-request", "driver-onboarding", "dispatch", "fare-estimate", "trip-tracking", "safety", "payments", "ratings", "holographic-xr-experience-hooks"]},
+    {"id": "delivery", "name": "TryAMM Delivery", "category": "logistics", "status": "foundation-required", "capabilities": ["delivery-request", "courier-onboarding", "dispatch", "pickup-dropoff", "proof-of-delivery", "tips", "ratings", "merchant-hooks"]},
+    {"id": "passport", "name": "TryAMM Passport", "category": "identity", "status": "foundation-required", "capabilities": ["single-sign-on", "profile", "creator-identity", "business-identity", "driver-courier-role", "age-lane", "verification-hooks", "permissions", "digital-twin-consent"]},
+    {"id": "marketplace", "name": "TryAMM Marketplace", "category": "commerce", "status": "foundation-required", "capabilities": ["seller-pages", "products", "services", "checkout", "orders", "payouts", "disputes", "reviews"]},
+    {"id": "creator-workstation", "name": "Creator Workstation", "category": "creator-tools", "status": "architecture-foundation", "capabilities": ["hologpt", "script", "storyboard", "asset-forge", "digital-twin", "editing", "distribution", "monetization", "analytics"]}
+  ],
+  "sharedBackends": ["passport-auth", "wallet-ledger", "payments", "notifications", "moderation", "analytics", "search", "ai-router", "audit-log", "rights-ledger", "location-dispatch", "media-storage-cdn"],
+  "truth": "This manifest establishes the product contract. A service is not production-ready until provider integrations, database persistence, security, compliance, QA and deployment validation are complete."
+}

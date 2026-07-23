@@ -1,0 +1,44 @@
+{
+  "platform": "TryAMM Regulated Services Compliance Gateway",
+  "principle": "Launch regulated capabilities through appropriately licensed partners first. Do not hold, transmit, lend, broker, insure, appraise, repair credit, transport passengers, or perform other regulated activity directly until legal review confirms the required licenses, registrations, appointments, insurance and controls are in place.",
+  "stages": [
+    {"id":"partner-first","name":"Partner-first launch","description":"TryAMM provides UX, routing, education, discovery and orchestration while licensed providers perform regulated activities and hold regulated funds/data where appropriate."},
+    {"id":"agent-program","name":"Authorized agent/program model","description":"Where legally available, contract as an authorized agent/program participant of licensed providers with written role boundaries, compliance allocations and regulator-ready records."},
+    {"id":"own-license","name":"Own-license pathway","description":"Pursue direct licenses only after volume, economics, compliance staffing, capital/net-worth, bonds, policies, exams and state/country requirements justify it."}
+  ],
+  "domains": {
+    "crossBorderPayments": {
+      "launchMode":"partner-first",
+      "requiredBeforeDirectOperation":["legal-activity-analysis","FinCEN-MSB-analysis-and-registration-if-required","BSA-AML-program","KYC-CIP-sanctions-screening","SAR-CTR-and-recordkeeping-processes-as-applicable","state-money-transmitter-license-analysis-via-NMLS-or-state-regulators","surety-bonds-net-worth-and-permissible-investment-requirements-as-applicable","consumer-disclosures-error-resolution-and-complaints","foreign-country-licensing-or-local-partner-analysis","cybersecurity-privacy-incident-response","independent-testing-and-compliance-officer"],
+      "partnerCapabilities":["licensed-money-transmission","collections","FX","cross-border-payouts","KYC-KYB","sanctions-screening","webhooks","reconciliation"]
+    },
+    "creditEducation": {
+      "launchMode":"education-first",
+      "safeInitialScope":["financial-literacy","budgeting","credit-factor-education","document-organization","self-help-dispute-education","progress-tracking"],
+      "gatesForPaidCreditRepair":["CROA-and-state-law-review","written-contract-and-required-disclosures","no-advance-fee-analysis","cancellation-right-process","bond-registration-or-license-analysis-by-state","marketing-claims-review","complaints-and-record-retention"]
+    },
+    "realEstate": {
+      "launchMode":"marketplace-and-tools-first",
+      "safeInitialScope":["education","property-project-workspaces","rehab-budget-tools","contractor-directory","owner-submitted-listings-subject-to-policy","AR-VR-holographic-tours"],
+      "gatesForRegulatedActivity":["brokerage-license-or-licensed-broker-partner","mortgage-license-or-licensed-lender-broker-partner","appraisal-by-licensed-or-qualified-provider-where-required","title-escrow-closing-partners","fair-housing-and-advertising-review","contractor-license-verification-by-jurisdiction"]
+    },
+    "rideShare": {
+      "launchMode":"licensed-TNC-or-local-compliance-first",
+      "gates":["jurisdiction-by-jurisdiction-TNC-or-for-hire-license-analysis","commercial-auto-and-rideshare-insurance","driver-screening-and-background-checks","vehicle-inspection","accessibility-policy","safety-incident-response","pricing-and-consumer-disclosures","airport-and-local-permits","payments-and-payouts"]
+    },
+    "delivery": {
+      "launchMode":"marketplace-dispatch-first",
+      "gates":["courier-contractor-classification-review","commercial-insurance","food-delivery-local-rules-if-applicable","alcohol-tobacco-controlled-item-blocks-unless-licensed","background-check-policy","proof-of-delivery","payments-and-payouts","safety-and-incident-response"]
+    },
+    "cybersecurity": {
+      "launchMode":"advisory-and-tools-first",
+      "gates":["terms-and-scope","authorization-before-testing","privacy-and-data-processing-agreements","breach-response-boundaries","professional-liability-cyber-insurance","state-breach-notification-process","vendor-security-controls"]
+    },
+    "businessDirectory": {
+      "launchMode":"open-directory-with-highlight-programs",
+      "principle":"Everyone may participate subject to neutral eligibility and conduct rules; discovery programs may intentionally highlight Black-owned businesses and Black entrepreneurship without falsely excluding or misrepresenting other businesses.",
+      "gates":["business-claim-verification","ownership-attribute-self-attestation-or-verification-policy","anti-fraud","reviews-moderation","advertising-disclosures","privacy","accessibility"]
+    }
+  },
+  "releaseRule":"A regulated feature remains disabled in production until its compliance gate is marked approved by authorized legal/compliance personnel and required provider credentials are configured."
+}

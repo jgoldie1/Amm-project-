@@ -1,0 +1,24 @@
+{
+  "name": "TryAMM AI Workforce",
+  "mission": "Create accessible work-from-home opportunities where AI assists people rather than replacing human accountability.",
+  "surfaces": ["ai-call-center", "work-from-home-workstation", "supervisor-console", "quality-assurance", "training-academy"],
+  "verticalQueues": ["general-support", "omnicare-360", "marketplace", "delivery", "holoride", "creator-support", "aniyah-crossborder", "real-estate", "credit-education", "jacobie-vision-cybersecurity"],
+  "agentTools": ["holgpt-copilot", "knowledge-search", "call-summary", "case-notes", "translation", "sentiment-risk-flags", "next-best-action", "script-guidance", "appointment-scheduling", "task-checklist", "escalation", "accessibility-assist"],
+  "workstation": {
+    "features": ["secure-login", "availability-status", "queue-selector", "task-board", "voice-chat-video-support", "crm-case-view", "knowledge-base", "ai-copilot", "time-and-earnings", "training", "qa-feedback", "supervisor-help", "accessible-one-handed-ui", "captions", "screen-reader", "voice-control"],
+    "employmentModes": ["employee", "contractor-where-lawful", "licensed-professional", "partner-organization"]
+  },
+  "guardrails": {
+    "licensedRoleGate": true,
+    "noAutonomousClinicalAdvice": true,
+    "noAutonomousFinancialOrLegalDecisions": true,
+    "humanEscalationRequiredForHighRisk": true,
+    "backgroundChecksRoleBasedAndCompliant": true,
+    "fairChanceReview": true,
+    "recordingConsentAndJurisdictionRules": true,
+    "qualityMonitoring": true,
+    "auditLogs": true
+  },
+  "revenue": ["B2B-call-center-contracts", "care-navigation-contracts", "merchant-support-services", "creator-support-services", "white-label-ai-workforce", "licensed-partner-revenue-where-lawful"],
+  "status": "architecture-foundation"
+}

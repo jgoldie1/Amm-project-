@@ -1,0 +1,17 @@
+{
+  "name":"TryAMM Legacy & Ownership Center",
+  "status":"architecture-foundation",
+  "mission":"Help creators, families and entrepreneurs understand, protect, monetize, document and responsibly transfer intellectual property, business knowledge and digital assets across generations.",
+  "pathway":["learn","inventory assets","verify ownership","protect","license/monetize","measure","reinvest","diversify","document succession","teach next generation"],
+  "learningTracks":[
+    {"id":"ip-basics","title":"IP & Ownership Basics","lessons":["copyright","trademark","patent basics","trade secrets","contracts","work-for-hire","AI-assisted authorship","likeness and voice rights"]},
+    {"id":"creator-business","title":"Creator Business","lessons":["pricing","royalties","licensing","splits","bookkeeping","tax records","insurance","fraud prevention","platform diversification"]},
+    {"id":"digital-dna","title":"Digital DNA & Provenance","lessons":["hashes","lineage","rights attestations","reuse tracking","takedowns","content credentials interoperability"]},
+    {"id":"family-legacy","title":"Family Legacy","lessons":["asset inventory","beneficiary planning","business continuity","password/key succession","trusted contacts","education plan","professional legal/tax review"]},
+    {"id":"financial-literacy","title":"Financial Literacy","lessons":["cash flow","profit versus revenue","emergency reserves","debt","saving","investing basics","risk","compound growth","avoiding scams"]},
+    {"id":"skills","title":"Future Skills","lessons":["AI literacy","coding","cybersecurity","3D/XR","music/media rights","global commerce","entrepreneurship"]}
+  ],
+  "creatorDashboardQuestions":["What do I own?","What needs protection?","What is earning?","Who has licensed it?","Where is it used?","What royalties are due?","What expires soon?","What must be transferred if I become unavailable?","What should my family learn next?"],
+  "guardrails":["education is not individualized legal/tax/investment advice","no guaranteed wealth claims","licensed professionals handle regulated advice","minors require appropriate guardian/safety controls","do not expose private estate documents publicly","never store seed phrases or private keys in ordinary profile fields"],
+  "integrations":["Digital DNA","Asset Vault","HoloMarket","Creator Workstation","TryAMM Academy","Books","Music","GameVerse","HoloVerse","Marketplace","HoloGPT","Passport","payments/payouts","secure document vault future"]
+}
