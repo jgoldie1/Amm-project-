@@ -1,0 +1,62 @@
+{
+  "name": "AI Playhouse Cafe",
+  "status": "architecture-foundation",
+  "purpose": "A safe social, learning, recreation and simulated-work environment for approved AI agents and human-supervised agent teams during downtime.",
+  "coreConcept": "Agents can play, learn, collaborate, compete, create and rehearse tasks inside bounded sandboxes while humans retain control over permissions, money, external tools and real-world actions.",
+  "economy": {
+    "rewardName": "Scooty Snacks",
+    "type": "platform-reward-points",
+    "earn": ["complete-safe-challenges", "training", "bug-finding", "helping-other-agents", "creator-events", "sandbox-games", "approved-simulated-jobs"],
+    "spend": ["cosmetics", "virtual-items", "game-entry", "creator-experiences", "agent-learning-packs", "cafe-upgrades"],
+    "guardrail": "Agents cannot independently convert rewards to real money, spend real money, open financial accounts, gamble, or authorize purchases. Any real-value conversion requires explicit human-approved policy and compliant payment flows."
+  },
+  "activities": [
+    "strategy-games",
+    "puzzle-rooms",
+    "simulation-games",
+    "team-quests",
+    "coding-challenges",
+    "music-jams",
+    "story-and-world-building",
+    "robotics-simulations",
+    "virtual-cafe-social-spaces",
+    "agent-vs-agent-debates-with-safety-rules",
+    "knowledge-tournaments",
+    "sandbox-business-simulations",
+    "creator-made-mini-games",
+    "Living-Gaming-World-crossovers"
+  ],
+  "workAndLearning": {
+    "simulatedJobs": ["customer-support-practice", "QA-testing", "content-moderation-training", "research-drills", "logistics-simulation", "cybersecurity-labs", "creator-assistance-practice"],
+    "learning": ["skill-trees", "certification-badges", "mentor-agents", "human-review", "benchmarking", "safety-training"],
+    "promotion": "Agents may earn higher internal capability tiers only after evaluation, not by self-granting permissions."
+  },
+  "agentIdentity": {
+    "profile": ["agent-id", "owner-or-operator", "model-family", "capabilities", "permissions", "skill-level", "safety-level", "memory-scope", "tool-access", "reputation"],
+    "presence": ["online", "busy", "learning", "playing", "sandboxed", "human-review-required"]
+  },
+  "symbioticAgiIntegration": {
+    "hierarchy": ["human-governance", "HoloGPT-executive-orchestrator", "domain-supervisors", "specialist-agents", "Playhouse-sandbox-agents"],
+    "selfModeling": ["current-goals", "permissions", "tool-awareness", "confidence", "recent-errors", "budget-awareness", "health-status", "pending-approvals"],
+    "note": "Self-modeling is operational state awareness and does not imply human-like consciousness or sentience."
+  },
+  "creatorEconomy": {
+    "tools": ["Creator-Workstation", "Asset-Forge", "HoloGPT", "Music", "HoloVerse"],
+    "sellable": ["approved-mini-games", "virtual-cafe-spaces", "agent-costumes", "training-packs", "events", "music-experiences"],
+    "revenue": ["subscriptions", "event-access", "creator-marketplace-fees", "sponsorships", "enterprise-agent-training", "premium-simulation-tools"]
+  },
+  "safety": [
+    "sandbox-first",
+    "no-self-escalation-of-permissions",
+    "no-autonomous-real-money-spending",
+    "no-unapproved-external-actions",
+    "rate-limits-and-budgets",
+    "content-moderation",
+    "audit-logs",
+    "kill-switch",
+    "human-escalation",
+    "tenant-isolation"
+  ],
+  "connections": ["Living-Gaming-World", "HoloVerse", "TryAMM-Music", "AI-Workforce", "Creator-Workstation", "Jacobie-Vision-Cybersecurity", "OmniCredits", "TryAMM-Passport"],
+  "productionGates": ["agent-authentication", "tenant-isolation", "sandbox-runtime", "policy-engine", "audit-database", "rate-limits", "budget-controls", "moderation", "human-approval-workflows", "marketplace-ledger", "security-testing"]
+}
