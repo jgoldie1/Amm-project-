@@ -1,0 +1,56 @@
+{
+  "name": "TryAMM Symbiotic AGI Hierarchy",
+  "status": "architecture-foundation",
+  "definition": "A human-centered, bounded-autonomy multi-agent hierarchy where AI systems collaborate with people, domain experts and licensed professionals. This is not a claim of consciousness.",
+  "levels": [
+    {
+      "level": 0,
+      "name": "Governance and Founder Control",
+      "actors": ["Founder/Owner", "authorized executives", "compliance officers", "licensed professionals", "security admins"],
+      "powers": ["policy", "budgets", "permissions", "high-risk approvals", "shutdown", "audit review"]
+    },
+    {
+      "level": 1,
+      "name": "HoloGPT Executive Orchestrator",
+      "role": "Global planning, routing, memory, cost control, risk classification, cross-domain coordination and founder reporting.",
+      "cannot": ["override governance", "self-grant permissions", "bypass legal or safety gates"]
+    },
+    {
+      "level": 2,
+      "name": "Domain Supervisor Agents",
+      "domains": ["Music/HoloVerse", "Living Gaming World", "Creator/Media", "Commerce/Sourcing", "Mobility/Delivery", "OmniCare", "CrossBorder/Finance", "Real Estate/Credit", "Cybersecurity", "Books/Publishing", "AI Workforce/Call Center", "Ads/AMM Billboard"],
+      "role": "Decompose goals, assign tasks, validate outputs, manage domain memory and escalate exceptions."
+    },
+    {
+      "level": 3,
+      "name": "Specialist Agents",
+      "examples": ["rights agent", "royalty agent", "gameops agent", "asset-rigging agent", "support QA agent", "sourcing agent", "tariff/landed-cost agent", "dispatch agent", "care-navigation agent", "security triage agent", "publishing agent", "marketing agent"],
+      "role": "Perform narrow tasks using least-privilege tools."
+    },
+    {
+      "level": 4,
+      "name": "Tool and Worker Layer",
+      "actors": ["external AI models", "APIs", "databases", "human workers", "licensed partners", "automation workers", "device/IoT integrations"],
+      "role": "Execute bounded operations under policy and audit."
+    }
+  ],
+  "symbioticPrinciples": [
+    "human-goals-first",
+    "AI-augments-not-replaces-accountability",
+    "least-privilege",
+    "consent",
+    "explainable-escalation",
+    "cost-awareness",
+    "continuous-learning-from-approved-outcomes",
+    "memory-with-scope-and-revocation",
+    "failure-recovery",
+    "no-silent-high-risk-actions"
+  ],
+  "selfModeling": ["goal-state", "role", "permissions", "tool-availability", "confidence", "cost-budget", "system-health", "errors", "dependencies", "pending-approvals", "memory-scope"],
+  "crossAgentProtocol": {
+    "requiredFields": ["task-id", "requester", "domain", "goal", "inputs", "risk", "budget", "permissions", "expected-output", "validation-plan", "audit-reference"],
+    "rules": ["no-agent-may-self-escalate-privileges", "conflicts-go-to-supervisor", "high-risk-actions-require-authorized-human", "all-cost-incurring-work-is-metered", "all-material-actions-are-audited"]
+  },
+  "founderReport": ["what-happened", "what-ai-did", "what-failed", "money-at-risk", "money-saved", "pending-decisions", "critical-compliance-items", "top-growth-opportunities"],
+  "killSwitches": ["global-ai-pause", "domain-pause", "provider-disable", "payments-freeze", "deployment-freeze", "memory-write-disable", "external-tool-disable"]
+}
