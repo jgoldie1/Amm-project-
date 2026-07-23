@@ -1,0 +1,74 @@
+{
+  "gameId": "talon-lock",
+  "name": "Talon Lock eSports",
+  "status": "foundation-established",
+  "competitionModes": [
+    {
+      "id": "score-attack",
+      "name": "Vault Score Attack",
+      "format": "score_attack",
+      "objective": "Earn the highest verified score on the same seeded vault configuration.",
+      "tiebreakers": ["higher_stage", "lower_duration_ms", "fewer_lock_uses", "earlier_verified_submission"]
+    },
+    {
+      "id": "time-trial",
+      "name": "Talon Time Trial",
+      "format": "time_trial",
+      "objective": "Clear the required vault sequence in the lowest verified time.",
+      "tiebreakers": ["higher_score", "fewer_deaths_or_restarts", "earlier_verified_submission"]
+    },
+    {
+      "id": "head-to-head",
+      "name": "Head-to-Head Vault",
+      "format": "single_elimination",
+      "objective": "Two players compete on identical seeded conditions; best validated result advances.",
+      "tiebreakers": ["higher_score", "higher_stage", "lower_duration_ms"]
+    },
+    {
+      "id": "team-relay",
+      "name": "Falcon Team Relay",
+      "format": "team",
+      "objective": "Teams complete assigned vault legs; combined verified score/time determines ranking.",
+      "tiebreakers": ["higher_combined_score", "lower_combined_time", "fewer_penalties"]
+    }
+  ],
+  "rankedTiers": ["Bronze", "Silver", "Gold", "Platinum", "Diamond", "Master", "Talon Elite", "World Champion"],
+  "requiredSystems": [
+    "TryAMM Passport",
+    "verified high-score submissions",
+    "server-authoritative tournament state",
+    "seeded deterministic vault configs",
+    "anti-cheat verification",
+    "match check-in",
+    "disconnect/reconnect policy",
+    "spectator mode",
+    "replay/evidence references",
+    "leaderboards",
+    "GameOps incident workflow",
+    "accessibility parity"
+  ],
+  "antiCheat": {
+    "principles": [
+      "server validates score, stage, duration and tournament seed",
+      "client cannot set verified status, winner, rank or prize",
+      "flag impossible movement, impossible score rates, invalid lock cooldowns and modified seed/state",
+      "retain match evidence and audit records",
+      "flagged runs do not appear on verified leaderboards until reviewed"
+    ]
+  },
+  "spectatorBroadcast": {
+    "features": [
+      "spectator-safe delayed state feed",
+      "score/stage overlays",
+      "hunter AI status",
+      "lock charge display",
+      "caster/commentator view",
+      "replay markers",
+      "streaming/casting hooks"
+    ]
+  },
+  "prizes": {
+    "default": "non-cash digital recognition, trophies, cosmetics and approved rewards",
+    "realMoney": "disabled by default; requires jurisdiction-specific contest/sweepstakes/gaming, tax, age, identity and payment compliance review"
+  }
+}
