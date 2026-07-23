@@ -1,0 +1,13 @@
+{
+  "version":"0.1.0",
+  "name":"TryAMM Free TV",
+  "model":"FAST+AVOD+creator-distribution",
+  "positioning":"Original free ad-supported streaming and creator distribution platform; not a clone of any third-party service.",
+  "surfaces":["movies","series","reality","documentaries","music-video","kids-family","teen","18plus-gated","live-fast-channels","creator-originals","regional-channels","sports-talk","faith-education"],
+  "viewerFeatures":["free-account-optional-browsing","watchlist","continue-watching","profiles","parental-controls","captions","audio-description-ready","multi-language-metadata","search","recommendations","cast-to-tv","live-guide","channels","notifications"],
+  "creatorFeatures":["title-submission","rights-checklist","metadata-builder","poster-trailer-upload","episode-season-manager","caption-file-upload","territory-window-settings","ad-monetization-eligibility","revenue-dashboard","content-moderation-review","distribution-status"],
+  "contentIngest":["upload-master","technical-qc","transcode-package","captions-subtitles","artwork","metadata","rights-clearance","rating-age-lane","moderation","publish-schedule"],
+  "monetization":["avod-ad-breaks","fast-channel-ads","sponsorship","brand-integration","premium-upsell-optional","ppv-specials","creator-revenue-share","merchandise-commerce-links"],
+  "safetyAndRights":["copyright-proof","music-rights","appearance-location-releases","territory-window","age-rating","kids-privacy-controls","adult-gating","content-moderation","takedown-dispute-workflow"],
+  "integrations":["TryAMM Reality Network","Creator Production Compliance OS","Holo5DX","Holo Commercial Studio","Music","Marketplace","OmniPay","Analytics","Passport"]
+}
