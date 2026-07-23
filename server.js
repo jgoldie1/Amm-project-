@@ -3,6 +3,7 @@ const http = require("http");
 const https = require("https");
 const { Server } = require("socket.io");
 const GAMEVERSE = require("./data/gameverse.json");
+const PLATFORM_STATUS = require("./data/platform-status.json");
 
 const app = express();
 const server = http.createServer(app);
@@ -36,6 +37,20 @@ app.get("/api/social-links", (_req, res) => {
   );
 
   res.json(configured);
+});
+
+app.get("/api/platform/status", (_req, res) => {
+  const counts = PLATFORM_STATUS.domains.reduce((acc, domain) => {
+    acc[domain.status] = (acc[domain.status] || 0) + 1;
+    return acc;
+  }, {});
+
+  res.json({
+    product: PLATFORM_STATUS.product,
+    counts,
+    domains: PLATFORM_STATUS.domains,
+    note: "Status reflects the connected GitHub repository, not every idea discussed historically.",
+  });
 });
 
 // Authoritative GameVerse registry. This establishes the product/system foundation,
