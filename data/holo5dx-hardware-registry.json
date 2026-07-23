@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "0.2.0",
+  "profiles": [
+    {
+      "hardwareId": "QCONE-13-8V-P001",
+      "type": "quantum-cone-prototype",
+      "status": "prototype-unvalidated",
+      "display": { "resolutionPx": { "width": 2560, "height": 1600 }, "widthMm": 286, "heightMm": 179 },
+      "optics": { "coneHeightMm": 140, "coneAngleDeg": 45, "viewerDistanceMm": 550, "viewCount": 8, "viewingConeDeg": 120 },
+      "calibration": { "version": null, "profileId": null, "measured": false },
+      "quality": { "crosstalkPercent": null, "brightnessNits": null, "sweetSpotDeg": null, "latencyMs": null },
+      "certification": { "render": false, "optical": false, "thermal": false, "power": false, "deviceQa": false }
+    }
+  ]
+}
