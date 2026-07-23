@@ -19,7 +19,7 @@
   <meta name="twitter:description" content="Discover creators, live experiences, games, music, podcasts, products and more on TryAMM." />
   <meta name="twitter:image" content="https://tryamm.online/og-default.jpg" />
 
-  <script type="application/ld+json">
+  <script type="application/ld+json" id="organization-jsonld">
   {
     "@context": "https://schema.org",
     "@graph": [
@@ -45,6 +45,20 @@
     <h1>TryAMM</h1>
     <p>Create, stream, play, shop and connect.</p>
 
+    <nav id="official-social-links" aria-label="Official TryAMM social profiles" hidden>
+      <strong>Follow TryAMM:</strong>
+      <a data-social="facebook" rel="me noopener noreferrer" target="_blank">Facebook</a>
+      <a data-social="instagram" rel="me noopener noreferrer" target="_blank">Instagram</a>
+      <a data-social="tiktok" rel="me noopener noreferrer" target="_blank">TikTok</a>
+    </nav>
+
+    <section aria-label="Share TryAMM">
+      <button type="button" id="share-facebook">Share on Facebook</button>
+      <button type="button" data-copy-campaign="instagram">Copy Instagram campaign link</button>
+      <button type="button" data-copy-campaign="tiktok">Copy TikTok campaign link</button>
+      <p id="share-status" role="status" aria-live="polite"></p>
+    </section>
+
     <button onclick="increment()">Tap</button>
     <p id="count">0</p>
   </main>
@@ -66,6 +80,61 @@
     } catch (_) {}
   }
 
+  function campaignUrl(source) {
+    const url = new URL(window.location.href);
+    url.search = '';
+    url.hash = '';
+    url.searchParams.set('utm_source', source);
+    url.searchParams.set('utm_medium', 'social');
+    url.searchParams.set('utm_campaign', 'tryamm_launch');
+    return url.toString();
+  }
+
+  async function configureSocialLinks() {
+    try {
+      const res = await fetch('/api/social-links');
+      if (!res.ok) return;
+      const links = await res.json();
+      const nav = document.getElementById('official-social-links');
+      let visible = 0;
+      Object.entries(links).forEach(([name, url]) => {
+        const anchor = nav.querySelector(`[data-social="${name}"]`);
+        if (anchor && typeof url === 'string' && url.startsWith('https://')) {
+          anchor.href = url;
+          anchor.hidden = false;
+          visible++;
+        }
+      });
+      if (visible) {
+        nav.hidden = false;
+
+        const jsonLd = document.getElementById('organization-jsonld');
+        const data = JSON.parse(jsonLd.textContent);
+        const organization = data['@graph'].find((item) => item['@type'] === 'Organization');
+        organization.sameAs = Object.values(links);
+        jsonLd.textContent = JSON.stringify(data);
+      }
+    } catch (_) {}
+  }
+
+  document.getElementById('share-facebook').addEventListener('click', () => {
+    const shareUrl = encodeURIComponent(campaignUrl('facebook'));
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, '_blank', 'noopener,noreferrer');
+  });
+
+  document.querySelectorAll('[data-copy-campaign]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const source = button.getAttribute('data-copy-campaign');
+      try {
+        await navigator.clipboard.writeText(campaignUrl(source));
+        document.getElementById('share-status').textContent = `${source} campaign link copied.`;
+      } catch (_) {
+        document.getElementById('share-status').textContent = `Copy this link: ${campaignUrl(source)}`;
+      }
+    });
+  });
+
+  configureSocialLinks();
   load();
   </script>
 </body>
