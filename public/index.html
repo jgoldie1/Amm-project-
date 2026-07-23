@@ -1,17 +1,72 @@
-<button onclick="increment()">Tap</button>
-<p id="count">0</p>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TryAMM — Create, Stream, Play, Shop & Connect</title>
+  <meta name="description" content="TryAMM is a creator, streaming, gaming, marketplace and community platform built for discovery, participation and accessible digital experiences." />
+  <link rel="canonical" href="https://tryamm.online/" />
 
-<script>
-async function load() {
-  const res = await fetch('/count');
-  const data = await res.json();
-  document.getElementById('count').innerText = data.count;
-}
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="TryAMM" />
+  <meta property="og:title" content="TryAMM — Create, Stream, Play, Shop & Connect" />
+  <meta property="og:description" content="Discover creators, live experiences, games, music, podcasts, products and more on TryAMM." />
+  <meta property="og:url" content="https://tryamm.online/" />
+  <meta property="og:image" content="https://tryamm.online/og-default.jpg" />
 
-async function increment() {
-  await fetch('/increment', { method: 'POST' });
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="TryAMM — Create, Stream, Play, Shop & Connect" />
+  <meta name="twitter:description" content="Discover creators, live experiences, games, music, podcasts, products and more on TryAMM." />
+  <meta name="twitter:image" content="https://tryamm.online/og-default.jpg" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://tryamm.online/#organization",
+        "name": "TryAMM",
+        "url": "https://tryamm.online/"
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://tryamm.online/#website",
+        "url": "https://tryamm.online/",
+        "name": "TryAMM",
+        "publisher": { "@id": "https://tryamm.online/#organization" }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>TryAMM</h1>
+    <p>Create, stream, play, shop and connect.</p>
+
+    <button onclick="increment()">Tap</button>
+    <p id="count">0</p>
+  </main>
+
+  <script>
+  async function load() {
+    try {
+      const res = await fetch('/count');
+      if (!res.ok) return;
+      const data = await res.json();
+      document.getElementById('count').innerText = data.count;
+    } catch (_) {}
+  }
+
+  async function increment() {
+    try {
+      await fetch('/increment', { method: 'POST' });
+      load();
+    } catch (_) {}
+  }
+
   load();
-}
-
-load();
-</script>
+  </script>
+</body>
+</html>
