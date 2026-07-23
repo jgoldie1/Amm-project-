@@ -1,0 +1,45 @@
+{
+  "feature": "Respectful Avatar Scan and Mod Character Pipeline",
+  "version": 1,
+  "captureViews": ["front", "left-side", "right-side", "back"],
+  "optionalCapture": ["full-body", "expressions", "voice-sample", "motion-reference"],
+  "allowedSubjects": ["self", "consenting-adult", "guardian-authorized-minor"],
+  "prohibitedUses": [
+    "nonconsensual-likeness",
+    "impersonation-for-deception",
+    "sexualized-minor",
+    "hateful-or-degrading-characterization",
+    "unauthorized-public-figure-clone",
+    "identity-fraud"
+  ],
+  "pipeline": [
+    "capture-quality-check",
+    "landmark-detection",
+    "multi-view-reconstruction",
+    "base-mesh-fit",
+    "texture-projection",
+    "retopology",
+    "rig-selection",
+    "skin-weighting",
+    "facial-rig",
+    "lod-generation",
+    "animation-retargeting",
+    "xr-holographic-variants",
+    "validation",
+    "publish"
+  ],
+  "privacy": {
+    "defaultRawCaptureRetention": "delete-after-derived-avatar-validation",
+    "requireExplicitConsent": true,
+    "allowUserDelete": true,
+    "storeDerivedAvatarSeparatelyFromRawBiometricMedia": true,
+    "encryptSensitiveMediaAtRest": true
+  },
+  "respectRules": [
+    "Do not alter protected traits into stereotypes or degrading caricatures.",
+    "User controls stylization intensity and can preview before publishing.",
+    "Mod characters must be original or properly licensed.",
+    "Likeness sharing/export requires the subject's permission.",
+    "AI must preserve dignity and avoid insulting transformations by default."
+  ]
+}
