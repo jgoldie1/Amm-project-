@@ -2,6 +2,7 @@ const express = require("express");
 const http = require("http");
 const https = require("https");
 const { Server } = require("socket.io");
+const GAMEVERSE = require("./data/gameverse.json");
 
 const app = express();
 const server = http.createServer(app);
@@ -19,13 +20,10 @@ app.use(express.static("public", {
   },
 }));
 
-// Basic health endpoint for deployment and monitoring checks.
 app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "tryamm", site: SITE_URL });
 });
 
-// Return only configured official social links. Empty environment variables are omitted
-// so the UI never publishes guessed or placeholder profile URLs.
 app.get("/api/social-links", (_req, res) => {
   const links = {
     facebook: process.env.FACEBOOK_URL || "",
@@ -40,8 +38,34 @@ app.get("/api/social-links", (_req, res) => {
   res.json(configured);
 });
 
-// IndexNow submission endpoint. Keep INDEXNOW_KEY and the optional webhook
-// secret in deployment environment variables; never commit real secrets.
+// Authoritative GameVerse registry. This establishes the product/system foundation,
+// not a claim that all games are already production-playable.
+app.get("/api/gameverse", (_req, res) => {
+  res.json(GAMEVERSE);
+});
+
+app.get("/api/gameverse/status", (_req, res) => {
+  const totals = GAMEVERSE.games.reduce((acc, game) => {
+    acc[game.status] = (acc[game.status] || 0) + 1;
+    return acc;
+  }, {});
+
+  res.json({
+    platform: GAMEVERSE.platform,
+    livingGameWorld: GAMEVERSE.world.status,
+    gameCount: GAMEVERSE.games.length,
+    totals,
+    productionPlayableCount: GAMEVERSE.games.filter((game) => game.status === "production").length,
+    note: "Foundation status does not mean a title is fully playable, tested or deployed.",
+  });
+});
+
+app.get("/api/gameverse/games/:id", (req, res) => {
+  const game = GAMEVERSE.games.find((item) => item.id === req.params.id);
+  if (!game) return res.status(404).json({ error: "Game not found" });
+  res.json(game);
+});
+
 app.post("/api/indexnow", async (req, res) => {
   try {
     const key = process.env.INDEXNOW_KEY;
