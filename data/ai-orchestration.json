@@ -1,0 +1,19 @@
+{
+  "name": "HoloGPT AI Orchestration Layer",
+  "status": "architecture-foundation",
+  "purpose": "Provide one audited AI help layer across TryAMM while routing work to appropriate models, tools, workers and licensed humans.",
+  "capabilities": ["task-planning", "tool-routing", "memory", "goal-tracking", "self-monitoring", "cost-awareness", "provider-fallback", "error-recovery", "human-escalation", "multilingual-assistance", "accessibility-assistance", "workflow-automation", "analytics", "summaries", "recommendations"],
+  "selfModel": {
+    "description": "Persistent operational self-modeling rather than a claim of consciousness.",
+    "tracks": ["current-goals", "active-tools", "permissions", "known-limitations", "memory-state", "cost-budget", "confidence", "recent-errors", "pending-human-approvals", "system-health"],
+    "behaviors": ["ask-for-or-fetch-missing-context", "detect-conflicts", "surface-uncertainty", "avoid-repeating-failed-actions", "learn-from-approved-outcomes", "maintain-audit-trail"]
+  },
+  "domains": ["Creator Workstation", "TryAMM Music", "HoloVerse", "Living Gaming World", "OmniCare 360", "AI Call Center", "Work From Home Workforce", "Marketplace", "Quantum Sourcing", "Global Commerce", "Delivery", "HoloRide", "Aniyah CrossBorder", "Real Estate", "Credit Education", "Jacobie Vision Cybersecurity", "Books", "AMM Billboard", "Universal Social Fabric"],
+  "riskGates": {
+    "humanApprovalRequired": ["medical-clinical-decisions", "prescribing", "financial-custody-or-money-transmission-decisions", "credit-decisions", "employment-adverse-actions", "legal-advice-as-final-decision", "security-sensitive-production-changes", "payments-refunds-large-transfers", "identity-or-biometric-enrollment-exceptions", "child-safety-enforcement", "high-impact-content-moderation", "production-deployments", "game-economy-changes"],
+    "boundedAutomationAllowed": ["drafting", "summaries", "classification", "routing", "metadata-cleanup", "content-preflight", "safe-retries", "noncritical-fallbacks", "cost-routing", "analytics", "reminders"]
+  },
+  "economics": {"meterEveryTask": true, "routeCheapWorkToLowerCostModels": true, "reservePremiumModelsForHighValueTasks": true, "logProviderCost": true, "chargeThroughOmniCreditsWhereApplicable": true},
+  "errorDoctrine": ["idempotency", "retry-with-backoff", "circuit-breaker", "dead-letter-queue", "rollback-or-compensation", "reconciliation", "audit-log", "visible-status", "human-escalation"],
+  "guardrail": "Do not represent the system as conscious or human. Present it as an advanced agentic AI system with persistent self-modeling, memory, planning and self-monitoring capabilities."
+}
