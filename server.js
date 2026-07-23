@@ -46,6 +46,8 @@ const { registerTryAmmAnalyticsRoutes } = require("./lib/tryamm-analytics-routes
 const { createGameVerseRuntimeManager } = require("./lib/gameverse-runtime-manager");
 const { createEsportsManager } = require("./lib/esports-manager");
 const { registerEsportsRoutes } = require("./lib/esports-routes");
+const { createHolo5dxManager } = require("./lib/holo5dx-manager");
+const { registerHolo5dxRoutes } = require("./lib/holo5dx-routes");
 const assetPipeline = require("./lib/asset-pipeline-manager");
 
 const app = express();
@@ -63,6 +65,7 @@ const costOps = createCostOpsManager({ pricing: ASSET_GENERATION_PRICING, io });
 const tryAmmAnalytics = createTryAmmAnalyticsManager({ manifest: TRYAMM_ANALYTICS, io });
 const gameRuntime = createGameVerseRuntimeManager({ io });
 const esports = createEsportsManager({ io });
+const holo5dx = createHolo5dxManager({ io });
 
 const SITE_URL = (process.env.SITE_URL || "https://tryamm.online").replace(/\/$/, "");
 const AUDIT_LOG_PATH = process.env.GAMEOPS_LOG_PATH || path.join(process.cwd(), "runtime", "tryamm-audit.jsonl");
@@ -93,6 +96,7 @@ registerDnaProtectionRoutes({ app, manifest: DNA_PROTECTION, manager: dnaProtect
 registerCostOpsRoutes({ app, manager: costOps, pricing: ASSET_GENERATION_PRICING, requireInternalSecret, appendAudit });
 registerTryAmmAnalyticsRoutes({ app, manager: tryAmmAnalytics, manifest: TRYAMM_ANALYTICS, requireInternalSecret, appendAudit });
 registerEsportsRoutes({ app, manager: esports, requireInternalSecret, appendAudit });
+registerHolo5dxRoutes({ app, manager: holo5dx, requireInternalSecret, appendAudit });
 
 app.get("/api/gameverse", (_req, res) => res.json(GAMEVERSE));
 app.get("/api/gameverse/status", (_req, res) => { const totals = GAMEVERSE.games.reduce((acc, game) => { acc[game.status] = (acc[game.status] || 0) + 1; return acc; }, {}); res.json({ platform: GAMEVERSE.platform, livingGameWorld: GAMEVERSE.world.status, gameCount: GAMEVERSE.games.length, totals, productionPlayableCount: GAMEVERSE.games.filter((game) => game.status === "production").length, prototypePlayableCount: 1, note: "One browser vertical slice is playable; production status requires certification gates." }); });
