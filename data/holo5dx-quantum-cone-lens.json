@@ -1,0 +1,50 @@
+{
+  "id": "holo5dx-quantum-cone-lens",
+  "name": "Holo5DX Quantum Cone Lens Adapter",
+  "claimBoundary": "Software generates calibrated multi-view/depth/spatial output. True holographic or light-field output requires compatible optical/display hardware and validated calibration.",
+  "modes": [
+    "standard-3d",
+    "stereo-spatial",
+    "cone-reflector-4view",
+    "cone-reflector-8view",
+    "lenticular-multiview",
+    "light-field-multiview",
+    "xr-spatial"
+  ],
+  "calibration": {
+    "required": true,
+    "fields": [
+      "displayWidthPx",
+      "displayHeightPx",
+      "physicalWidthMm",
+      "physicalHeightMm",
+      "viewerDistanceMm",
+      "coneAngleDegrees",
+      "coneHeightMm",
+      "reflectorCount",
+      "viewCount",
+      "opticalCenterX",
+      "opticalCenterY",
+      "viewConeDegrees",
+      "brightnessCompensation",
+      "gammaCompensation"
+    ]
+  },
+  "renderPipeline": [
+    "scene-camera-rig",
+    "multi-view-render",
+    "view-warp",
+    "optical-layout-pack",
+    "brightness-gamma-compensation",
+    "device-output"
+  ],
+  "fallback": {
+    "whenUnsupported": "standard-3d",
+    "preserveGameplay": true
+  },
+  "safety": {
+    "photosensitivityMode": true,
+    "reducedMotionFallback": true,
+    "maxBrightnessProfileRequired": true
+  }
+}
