@@ -1,0 +1,33 @@
+{
+  "name": "TryAMM Holo Commercial Studio",
+  "status": "architecture-foundation",
+  "purpose": "AI-assisted cinematic commercial creation for TryAMM creators and businesses using original workflows for scripts, shots, motion graphics, holographic looks, music, captions and multi-platform exports.",
+  "workflow": [
+    "choose goal/product/audience",
+    "HoloGPT creates campaign brief",
+    "AI writes script and CTA",
+    "AI Director builds shot list and timing",
+    "user selects visual style and aspect ratios",
+    "generate or upload authorized media",
+    "apply AMM Motion + HoloFX overlays",
+    "AI Teleprompter prepares founder/presenter lines",
+    "music/audio selected with rights checks",
+    "captions and translations generated",
+    "AI editor assembles draft",
+    "brand/safety/claim review",
+    "user approval",
+    "render platform variants",
+    "publish/share through approved connectors"
+  ],
+  "creationModes": ["text-to-commercial-plan", "image-to-video-workflow", "video-remix-with-owned-media", "product-demo", "founder-commercial", "holographic-reveal", "music-driven-trailer", "game-trailer", "live-shopping-ad"],
+  "aiDirector": ["storyboard", "shot timing", "camera movement suggestions", "transition plan", "hook optimization", "CTA placement", "continuity checks", "brand consistency", "platform-duration variants"],
+  "holoLooks": ["holographic lion/logo reveal", "volumetric-light-look", "particle materialization", "floating UI panels", "AR portal", "digital twin stage", "holographic product pedestal", "spatial text", "scanline transition"],
+  "exports": ["9:16 vertical", "1:1 square", "4:5 social", "16:9 landscape", "15-second", "30-second", "60-second", "custom duration"],
+  "distribution": ["TryAMM Live", "AMM Billboard", "StarVerse", "Isaiah AI TV", "OmniBox", "TryAMM Music/video", "HoloVerse", "connected external social platforms via official sharing/publishing integrations"],
+  "economics": {
+    "billing": "Use OmniCredits and plan allowances for AI/video/render jobs.",
+    "rule": "Estimate provider, compute, storage, render and payment costs before generation and charge enough credits to preserve configured margin.",
+    "qualityTiers": ["draft", "standard", "cinematic", "holographic-premium"]
+  },
+  "guardrails": ["no copying competitor proprietary UI/code/assets", "no unauthorized celebrity/person cloning", "clear rights for uploaded media/music", "truthful ad claims", "human approval before paid publication", "audit generation/provider costs"]
+}
