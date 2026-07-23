@@ -1,0 +1,39 @@
+{
+  "name": "TryAMM Economic Opportunity Hub",
+  "status": "architecture-foundation",
+  "purpose": "Help people learn, build credit knowledge, start and grow businesses, participate in cross-border commerce, protect their digital lives, invest in property and discover community businesses.",
+  "domains": [
+    {
+      "id": "aniyah-crossborder",
+      "name": "Aniyah CrossBorder",
+      "focus": ["financial-literacy", "budgeting", "credit-education", "cross-border-commerce", "africa-us-payments", "merchant-payments", "multicurrency-display", "remittance-education"],
+      "productionGates": ["licensed-payment-partners", "KYC-AML", "sanctions-screening", "FX-disclosure", "consumer-disclosures", "transaction-ledger", "partner-webhooks"]
+    },
+    {
+      "id": "jacobie-vision",
+      "name": "Jacobie Vision Cybersecurity",
+      "focus": ["security-education", "phishing-scam-detection", "account-security-checkups", "small-business-security", "breach-alerts", "vendor-risk", "AI-security-assistant"],
+      "productionGates": ["privacy-policy", "security-logging", "incident-response", "data-minimization", "secure-secret-storage", "responsible-disclosure"]
+    },
+    {
+      "id": "real-estate-home-flip",
+      "name": "TryAMM Real Estate + Home Flip Studio",
+      "focus": ["property-discovery", "deal-analysis", "rehab-estimator", "contractor-marketplace", "project-tracking", "before-after-visualization", "AR-VR-holographic-tours", "investor-collaboration"],
+      "productionGates": ["licensed-broker-partner-where-required", "fair-housing-compliance", "property-data-provider", "map-geocoding", "contractor-verification", "disclosures"]
+    },
+    {
+      "id": "credit-education",
+      "name": "TryAMM Credit Builder + Education",
+      "focus": ["credit-factor-education", "budgeting", "debt-planning", "document-organization", "progress-tracking", "dispute-education"],
+      "productionGates": ["no-guaranteed-score-claims", "no-fabricated-disputes", "credit-repair-law-review", "consumer-disclosures", "licensed-partners-if-paid-repair-services"]
+    },
+    {
+      "id": "black-business-directory",
+      "name": "TryAMM Black Business Directory — Everyone Welcome",
+      "focus": ["business-discovery", "verified-business-pages", "black-owned-highlight-filter", "products-services", "reviews", "events", "B2B-sourcing", "jobs", "procurement", "creator-promotion", "AI-business-help"],
+      "inclusionPolicy": "Open to all eligible businesses and users while intentionally highlighting Black entrepreneurship, business creation, discovery and retention.",
+      "productionGates": ["business-verification", "review-moderation", "anti-discrimination-policy", "directory-data-quality", "location-search", "reporting-and-appeals"]
+    }
+  ],
+  "sharedSystems": ["tryamm-passport", "hologpt", "omnicredits", "marketplace", "notifications", "analytics", "audit-log", "universal-social-fabric", "creator-workstation"]
+}
