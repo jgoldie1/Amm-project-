@@ -1,0 +1,14 @@
+{
+  "platform": "TryAMM Services Hub",
+  "affordability": "Affordable micro-credit access plus subscriptions for frequent users.",
+  "services": [
+    {"id":"live","name":"TryAMM Live","summary":"Live video, PK, panels, chat, gifts, moderation, recording and replays."},
+    {"id":"music","name":"TryAMM Music","summary":"Artist pages, tracks, albums, playlists, streaming, rights and royalty ledger."},
+    {"id":"movies","name":"Isaiah AI TV / OmniBox","summary":"Movies, series, vertical episodes, channels, PPV, subscriptions, ads and creator pages."},
+    {"id":"holoride","name":"HoloRide","summary":"Ride requests, driver onboarding, dispatch, fare estimates, trip safety and payments."},
+    {"id":"delivery","name":"TryAMM Delivery","summary":"Courier delivery, merchant pickup/dropoff, dispatch, proof of delivery and tips."},
+    {"id":"passport","name":"TryAMM Passport","summary":"One identity for creator, buyer, seller, player, driver, courier and Digital Twin permissions."},
+    {"id":"marketplace","name":"TryAMM Marketplace","summary":"Products, services, sellers, checkout, orders, payouts, disputes and reviews."},
+    {"id":"creator-workstation","name":"Creator Workstation","summary":"HoloGPT, Digital Twin, production, editing, distribution, monetization and analytics."}
+  ]
+}
