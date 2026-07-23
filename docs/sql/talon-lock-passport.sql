@@ -23,6 +23,28 @@ create table if not exists public.game_progress (
   primary key (user_id, game_id)
 );
 
+-- Client can submit a claimed score, but cannot directly overwrite authoritative high_score.
+-- A trusted server worker validates submissions, then updates game_progress.
+create table if not exists public.high_score_submissions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  game_id text not null,
+  score bigint not null check (score >= 0),
+  stage integer not null default 1 check (stage >= 1),
+  duration_ms bigint check (duration_ms is null or duration_ms >= 0),
+  client_run_id text,
+  evidence jsonb not null default '{}'::jsonb,
+  status text not null default 'pending' check (status in ('pending','accepted','rejected')),
+  rejection_reason text,
+  created_at timestamptz not null default now(),
+  reviewed_at timestamptz
+);
+
+create index if not exists high_score_submissions_pending_idx
+  on public.high_score_submissions (status, created_at);
+create index if not exists high_score_submissions_user_game_idx
+  on public.high_score_submissions (user_id, game_id, created_at desc);
+
 create table if not exists public.game_achievements (
   user_id uuid not null references auth.users(id) on delete cascade,
   game_id text not null,
@@ -33,6 +55,7 @@ create table if not exists public.game_achievements (
 
 alter table public.game_profiles enable row level security;
 alter table public.game_progress enable row level security;
+alter table public.high_score_submissions enable row level security;
 alter table public.game_achievements enable row level security;
 
 create policy "game_profiles_select_own" on public.game_profiles
@@ -45,7 +68,19 @@ for update to authenticated using ((select auth.uid()) = user_id) with check ((s
 create policy "game_progress_select_own" on public.game_progress
 for select to authenticated using ((select auth.uid()) = user_id);
 -- Intentionally no direct client INSERT/UPDATE policy for authoritative score/XP fields.
--- Server-side trusted code should validate game results and write progression using a protected backend path.
+-- Trusted server code validates accepted score submissions and writes progression.
+
+create policy "high_score_submissions_insert_own" on public.high_score_submissions
+for insert to authenticated
+with check ((select auth.uid()) = user_id and status = 'pending');
+
+create policy "high_score_submissions_select_own" on public.high_score_submissions
+for select to authenticated
+using ((select auth.uid()) = user_id);
+
+-- No authenticated UPDATE/DELETE policy: players cannot approve their own score claims.
+-- Backend processing should validate anti-cheat signals, then atomically update game_progress
+-- using high_score = greatest(existing high_score, accepted score), and mark the submission accepted/rejected.
 
 create policy "game_achievements_select_own" on public.game_achievements
 for select to authenticated using ((select auth.uid()) = user_id);
