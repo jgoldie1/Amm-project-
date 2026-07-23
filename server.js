@@ -20,6 +20,7 @@ const DELIVERY_ORCHESTRATION = require("./data/delivery-orchestration.json");
 const OMNICARE_360 = require("./data/omnicare-360.json");
 const HOLO_COMMERCIAL_STUDIO = require("./data/holo-commercial-studio.json");
 const AMM_MOTION_HOLOFX = require("./data/amm-motion-holofx.json");
+const ASSET_HOLOGRAM_MARKETPLACE = require("./data/asset-hologram-marketplace.json");
 
 const { createPlaySessionManager } = require("./lib/play-session-manager");
 const { createServicesHubManager } = require("./lib/services-hub-manager");
@@ -31,6 +32,8 @@ const { createOmniCare360Manager } = require("./lib/omnicare-360-manager");
 const { registerOmniCare360Routes } = require("./lib/omnicare-360-routes");
 const { createHoloCommercialManager } = require("./lib/holo-commercial-manager");
 const { registerHoloCommercialRoutes } = require("./lib/holo-commercial-routes");
+const { createAssetMarketplaceManager } = require("./lib/asset-marketplace-manager");
+const { registerAssetMarketplaceRoutes } = require("./lib/asset-marketplace-routes");
 const assetPipeline = require("./lib/asset-pipeline-manager");
 
 const app = express();
@@ -42,74 +45,48 @@ const economicOpportunity = createEconomicOpportunityManager({ manifest: ECONOMI
 const mobilityOnboarding = createMobilityOnboardingManager({ readiness: GLOBAL_MOBILITY_READINESS, io });
 const omniCare360 = createOmniCare360Manager({ manifest: OMNICARE_360, io });
 const holoCommercial = createHoloCommercialManager({ manifest: HOLO_COMMERCIAL_STUDIO, motionManifest: AMM_MOTION_HOLOFX, io });
+const assetMarketplace = createAssetMarketplaceManager({ manifest: ASSET_HOLOGRAM_MARKETPLACE, io });
 
 const SITE_URL = (process.env.SITE_URL || "https://tryamm.online").replace(/\/$/, "");
 const AUDIT_LOG_PATH = process.env.GAMEOPS_LOG_PATH || path.join(process.cwd(), "runtime", "tryamm-audit.jsonl");
 const gameOpsIncidents = [];
-
-function appendAudit(record) {
-  try {
-    fs.mkdirSync(path.dirname(AUDIT_LOG_PATH), { recursive: true });
-    fs.appendFileSync(AUDIT_LOG_PATH, `${JSON.stringify(record)}\n`, "utf8");
-  } catch (error) {
-    console.error("Audit log write failed", error.message);
-  }
-}
-
-function requireInternalSecret(req, res, next) {
-  const secret = process.env.GAMEOPS_INTERNAL_SECRET;
-  if (!secret) return res.status(503).json({ error: "Internal service secret is not configured" });
-  if (req.get("authorization") !== `Bearer ${secret}`) return res.status(401).json({ error: "Unauthorized" });
-  next();
-}
+function appendAudit(record) { try { fs.mkdirSync(path.dirname(AUDIT_LOG_PATH), { recursive: true }); fs.appendFileSync(AUDIT_LOG_PATH, `${JSON.stringify(record)}\n`, "utf8"); } catch (error) { console.error("Audit log write failed", error.message); } }
+function requireInternalSecret(req, res, next) { const secret = process.env.GAMEOPS_INTERNAL_SECRET; if (!secret) return res.status(503).json({ error: "Internal service secret is not configured" }); if (req.get("authorization") !== `Bearer ${secret}`) return res.status(401).json({ error: "Unauthorized" }); next(); }
 
 app.use(express.json({ limit: "1mb" }));
 app.use(express.static("public", { extensions: ["html"], setHeaders(res, filePath) { if (filePath.endsWith(".html")) res.setHeader("Cache-Control", "public, max-age=0, must-revalidate"); } }));
-
 app.get("/health", (_req, res) => res.json({ ok: true, service: "tryamm", site: SITE_URL }));
-app.get("/api/social-links", (_req, res) => {
-  const links = { facebook: process.env.FACEBOOK_URL || "", instagram: process.env.INSTAGRAM_URL || "", tiktok: process.env.TIKTOK_URL || "" };
-  res.json(Object.fromEntries(Object.entries(links).filter(([, value]) => /^https:\/\//i.test(value))));
-});
-app.get("/api/platform/status", (_req, res) => {
-  const counts = PLATFORM_STATUS.domains.reduce((acc, domain) => { acc[domain.status] = (acc[domain.status] || 0) + 1; return acc; }, {});
-  res.json({ product: PLATFORM_STATUS.product, counts, domains: PLATFORM_STATUS.domains, note: "Status reflects the connected GitHub repository, not every idea discussed historically." });
-});
-
+app.get("/api/social-links", (_req, res) => { const links = { facebook: process.env.FACEBOOK_URL || "", instagram: process.env.INSTAGRAM_URL || "", tiktok: process.env.TIKTOK_URL || "" }; res.json(Object.fromEntries(Object.entries(links).filter(([, value]) => /^https:\/\//i.test(value)))); });
+app.get("/api/platform/status", (_req, res) => { const counts = PLATFORM_STATUS.domains.reduce((acc, domain) => { acc[domain.status] = (acc[domain.status] || 0) + 1; return acc; }, {}); res.json({ product: PLATFORM_STATUS.product, counts, domains: PLATFORM_STATUS.domains, note: "Status reflects the connected GitHub repository, not every idea discussed historically." }); });
 app.get("/api/services", (_req, res) => res.json(TRYAMM_SERVICES));
 app.get("/api/services/:id", (req, res) => { const service = TRYAMM_SERVICES.services.find((item) => item.id === req.params.id); if (!service) return res.status(404).json({ error: "Service not found" }); res.json(service); });
 app.post("/api/services/requests", requireInternalSecret, (req, res) => { try { const request = servicesHub.createRequest(req.body || {}); appendAudit({ event: "service.request.created", request, at: new Date().toISOString() }); res.status(201).json(request); } catch (error) { res.status(error.message === "UNKNOWN_SERVICE" ? 400 : 500).json({ error: error.message }); } });
 app.get("/api/services/requests", requireInternalSecret, (req, res) => res.json({ requests: servicesHub.listRequests(req.query.serviceId) }));
 app.get("/api/services/requests/:id", requireInternalSecret, (req, res) => { const request = servicesHub.getRequest(req.params.id); if (!request) return res.status(404).json({ error: "Request not found" }); res.json(request); });
 app.post("/api/services/requests/:id/status", requireInternalSecret, (req, res) => { const request = servicesHub.updateRequest(req.params.id, req.body || {}); if (!request) return res.status(404).json({ error: "Request not found" }); appendAudit({ event: "service.request.updated", request, at: new Date().toISOString() }); res.json(request); });
-
 app.get("/api/creator-universe", (_req, res) => res.json(CREATOR_UNIVERSE));
 app.get("/api/monetization", (_req, res) => res.json(MONETIZATION));
 app.get("/api/delivery/orchestration", (_req, res) => res.json(DELIVERY_ORCHESTRATION));
-
 registerEconomicOpportunityRoutes({ app, manifest: ECONOMIC_OPPORTUNITY, manager: economicOpportunity, requireInternalSecret, appendAudit });
 registerMobilityOnboardingRoutes({ app, readiness: GLOBAL_MOBILITY_READINESS, manager: mobilityOnboarding, requireInternalSecret, appendAudit });
 registerOmniCare360Routes({ app, manifest: OMNICARE_360, manager: omniCare360, requireInternalSecret, appendAudit });
 registerHoloCommercialRoutes({ app, manager: holoCommercial, requireInternalSecret, appendAudit });
-
+registerAssetMarketplaceRoutes({ app, manifest: ASSET_HOLOGRAM_MARKETPLACE, manager: assetMarketplace, requireInternalSecret, appendAudit });
 app.get("/api/gameverse", (_req, res) => res.json(GAMEVERSE));
 app.get("/api/gameverse/status", (_req, res) => { const totals = GAMEVERSE.games.reduce((acc, game) => { acc[game.status] = (acc[game.status] || 0) + 1; return acc; }, {}); res.json({ platform: GAMEVERSE.platform, livingGameWorld: GAMEVERSE.world.status, gameCount: GAMEVERSE.games.length, totals, productionPlayableCount: GAMEVERSE.games.filter((game) => game.status === "production").length, note: "Foundation status does not mean a title is fully playable, tested or deployed." }); });
 app.get("/api/gameverse/games/:id", (req, res) => { const game = GAMEVERSE.games.find((item) => item.id === req.params.id); if (!game) return res.status(404).json({ error: "Game not found" }); res.json(game); });
-
 app.get("/api/quantum-speed-engine", (_req, res) => res.json(QUANTUM_SPEED_ENGINE));
 app.get("/api/quantum-speed-engine/assets", requireInternalSecret, (_req, res) => res.json({ jobs: assetPipeline.listAssetJobs() }));
 app.post("/api/quantum-speed-engine/assets", requireInternalSecret, (req, res) => { const { gameId, assetType, name, brief, requestedBy } = req.body || {}; if (!GAMEVERSE.games.some((game) => game.id === gameId)) return res.status(400).json({ error: "Unknown gameId" }); if (!assetType || !name || !brief) return res.status(400).json({ error: "assetType, name and brief are required" }); const job = assetPipeline.createAssetJob({ gameId, assetType, name, brief, requestedBy }); appendAudit({ event: "asset-pipeline.created", job, at: new Date().toISOString() }); io.emit("asset-pipeline:update", job); res.status(201).json(job); });
 app.get("/api/quantum-speed-engine/assets/:id", requireInternalSecret, (req, res) => { const job = assetPipeline.getAssetJob(req.params.id); if (!job) return res.status(404).json({ error: "Asset job not found" }); res.json(job); });
 app.post("/api/quantum-speed-engine/assets/:id/steps/:step", requireInternalSecret, (req, res) => { const job = assetPipeline.updateStep(req.params.id, req.params.step, req.body || {}); if (!job) return res.status(404).json({ error: "Asset job or step not found" }); appendAudit({ event: "asset-pipeline.step", jobId: job.id, step: req.params.step, snapshot: job, at: new Date().toISOString() }); io.emit("asset-pipeline:update", job); res.json(job); });
 app.post("/api/quantum-speed-engine/assets/:id/publish", requireInternalSecret, (req, res) => { const job = assetPipeline.getAssetJob(req.params.id); if (!job) return res.status(404).json({ error: "Asset job not found" }); const validationPassed = job.validation.some((item) => item && item.passed === true); if (!validationPassed) return res.status(409).json({ error: "Validated asset required before publish" }); const published = assetPipeline.publishAsset(req.params.id, req.body?.publishedAsset || {}); appendAudit({ event: "asset-pipeline.published", job: published, at: new Date().toISOString() }); io.emit("asset-pipeline:update", published); res.json(published); });
-
 app.get("/api/living-world/policy", (_req, res) => res.json(PLAY_SESSION_POLICY));
 app.post("/api/living-world/sessions", (req, res) => { try { const session = playSessions.create(req.body || {}); appendAudit({ event: "play-session.created", session, at: new Date().toISOString() }); res.status(201).json(session); } catch (error) { res.status(error.message === "UNKNOWN_GAME" ? 400 : 500).json({ error: error.message }); } });
 app.get("/api/living-world/sessions/:id", (req, res) => { const session = playSessions.get(req.params.id); if (!session) return res.status(404).json({ error: "Session not found" }); res.json(session); });
 app.post("/api/living-world/sessions/:id/preflight", (req, res) => { const session = playSessions.preflight(req.params.id, Boolean(req.body?.runtimeAvailable)); if (!session) return res.status(404).json({ error: "Session not found" }); appendAudit({ event: "play-session.ai-preflight", session, at: new Date().toISOString() }); res.json(session); });
 app.post("/api/living-world/sessions/:id/cast", (req, res) => { const { adapter = "browser-second-screen", target = null } = req.body || {}; if (!PLAY_SESSION_POLICY.casting.adapters.includes(adapter)) return res.status(400).json({ error: "Unsupported casting adapter" }); const session = playSessions.update(req.params.id, { displayMode: "cast", castTarget: { adapter, target }, state: "pairing" }); if (!session) return res.status(404).json({ error: "Session not found" }); appendAudit({ event: "play-session.cast-requested", session, at: new Date().toISOString() }); res.json({ ...session, receiverUrl: `${SITE_URL}/tv-receiver?session=${encodeURIComponent(session.id)}` }); });
 app.post("/api/living-world/sessions/:id/state", (req, res) => { const state = req.body?.state; if (!PLAY_SESSION_POLICY.sessionStates.includes(state)) return res.status(400).json({ error: "Invalid session state" }); const session = playSessions.update(req.params.id, { state }); if (!session) return res.status(404).json({ error: "Session not found" }); appendAudit({ event: "play-session.state", session, at: new Date().toISOString() }); res.json(session); });
-
 app.get("/api/gameops/policy", (_req, res) => res.json(GAMEOPS_POLICY));
 app.post("/api/gameops/issues", requireInternalSecret, (req, res) => { const { gameId, source, severity, category, summary, details, reportedBy } = req.body || {}; if (!GAMEVERSE.games.some((game) => game.id === gameId)) return res.status(400).json({ error: "Unknown gameId" }); if (!summary || typeof summary !== "string") return res.status(400).json({ error: "summary is required" }); const incident = { id: crypto.randomUUID(), gameId, source: source || "unknown", severity: severity || "medium", category: category || "unknown", summary: summary.slice(0, 500), details: typeof details === "string" ? details.slice(0, 5000) : "", status: "reported", detectedAt: new Date().toISOString(), reportedBy: reportedBy || "ai-or-system", aiDiagnosis: null, proposedFix: null, approvalRequired: !GAMEOPS_POLICY.autoFixAllowlist.includes(category), approvedBy: null, fixAppliedAt: null, validation: null, rollback: null, closedAt: null }; gameOpsIncidents.unshift(incident); if (gameOpsIncidents.length > 1000) gameOpsIncidents.length = 1000; appendAudit({ event: "incident.reported", incident }); io.emit("gameops:incident", incident); res.status(201).json(incident); });
 app.get("/api/gameops/issues", requireInternalSecret, (_req, res) => res.json({ incidents: gameOpsIncidents, persistence: AUDIT_LOG_PATH }));
@@ -117,22 +94,7 @@ app.post("/api/gameops/issues/:id/ai-analysis", requireInternalSecret, (req, res
 app.post("/api/gameops/issues/:id/approve", requireInternalSecret, (req, res) => { const incident = gameOpsIncidents.find((item) => item.id === req.params.id); if (!incident) return res.status(404).json({ error: "Incident not found" }); incident.approvedBy = req.body?.approvedBy || "authorized-human"; incident.status = "approved-for-fix"; appendAudit({ event: "incident.approved", incidentId: incident.id, approvedBy: incident.approvedBy, at: new Date().toISOString() }); io.emit("gameops:update", incident); res.json(incident); });
 app.post("/api/gameops/issues/:id/fix-result", requireInternalSecret, (req, res) => { const incident = gameOpsIncidents.find((item) => item.id === req.params.id); if (!incident) return res.status(404).json({ error: "Incident not found" }); if (incident.approvalRequired && incident.status !== "approved-for-fix") return res.status(409).json({ error: "Human approval is required before recording a fix as applied" }); const { appliedBy, changeReference, validationResult, success } = req.body || {}; incident.fixAppliedAt = new Date().toISOString(); incident.status = success === false ? "fix-failed" : "fixed-pending-validation"; incident.validation = { ...(incident.validation || {}), result: validationResult || null, changeReference: changeReference || null, appliedBy: appliedBy || "ai-or-developer" }; appendAudit({ event: "incident.fix-result", incidentId: incident.id, snapshot: incident }); io.emit("gameops:update", incident); res.json(incident); });
 app.post("/api/gameops/issues/:id/close", requireInternalSecret, (req, res) => { const incident = gameOpsIncidents.find((item) => item.id === req.params.id); if (!incident) return res.status(404).json({ error: "Incident not found" }); incident.status = "closed"; incident.closedAt = new Date().toISOString(); incident.validation = { ...(incident.validation || {}), closureNote: req.body?.closureNote || "" }; appendAudit({ event: "incident.closed", incidentId: incident.id, snapshot: incident }); io.emit("gameops:update", incident); res.json(incident); });
-
-app.post("/api/indexnow", async (req, res) => {
-  try {
-    const key = process.env.INDEXNOW_KEY; const internalSecret = process.env.INTERNAL_PUBLISH_WEBHOOK_SECRET;
-    if (!key) return res.status(503).json({ error: "IndexNow is not configured" });
-    if (internalSecret && req.get("authorization") !== `Bearer ${internalSecret}`) return res.status(401).json({ error: "Unauthorized" });
-    const siteOrigin = new URL(SITE_URL).origin;
-    const urls = (Array.isArray(req.body?.urls) ? req.body.urls : []).filter((value) => { try { return typeof value === "string" && new URL(value).origin === siteOrigin; } catch { return false; } }).slice(0, 10000);
-    if (!urls.length) return res.status(400).json({ error: "No valid TryAMM URLs supplied" });
-    const payload = JSON.stringify({ host: new URL(SITE_URL).host, key, keyLocation: `${SITE_URL}/${key}.txt`, urlList: urls });
-    const request = https.request("https://api.indexnow.org/indexnow", { method: "POST", headers: { "Content-Type": "application/json; charset=utf-8", "Content-Length": Buffer.byteLength(payload) } }, (indexNowResponse) => { indexNowResponse.resume(); const ok = indexNowResponse.statusCode >= 200 && indexNowResponse.statusCode < 300; res.status(ok ? 200 : 502).json({ ok, status: indexNowResponse.statusCode, submitted: urls.length }); });
-    request.on("error", () => res.status(502).json({ error: "IndexNow submission failed" })); request.write(payload); request.end();
-  } catch { res.status(500).json({ error: "IndexNow submission failed" }); }
-});
-
+app.post("/api/indexnow", async (req, res) => { try { const key = process.env.INDEXNOW_KEY; const internalSecret = process.env.INTERNAL_PUBLISH_WEBHOOK_SECRET; if (!key) return res.status(503).json({ error: "IndexNow is not configured" }); if (internalSecret && req.get("authorization") !== `Bearer ${internalSecret}`) return res.status(401).json({ error: "Unauthorized" }); const siteOrigin = new URL(SITE_URL).origin; const urls = (Array.isArray(req.body?.urls) ? req.body.urls : []).filter((value) => { try { return typeof value === "string" && new URL(value).origin === siteOrigin; } catch { return false; } }).slice(0, 10000); if (!urls.length) return res.status(400).json({ error: "No valid TryAMM URLs supplied" }); const payload = JSON.stringify({ host: new URL(SITE_URL).host, key, keyLocation: `${SITE_URL}/${key}.txt`, urlList: urls }); const request = https.request("https://api.indexnow.org/indexnow", { method: "POST", headers: { "Content-Type": "application/json; charset=utf-8", "Content-Length": Buffer.byteLength(payload) } }, (indexNowResponse) => { indexNowResponse.resume(); const ok = indexNowResponse.statusCode >= 200 && indexNowResponse.statusCode < 300; res.status(ok ? 200 : 502).json({ ok, status: indexNowResponse.statusCode, submitted: urls.length }); }); request.on("error", () => res.status(502).json({ error: "IndexNow submission failed" })); request.write(payload); request.end(); } catch { res.status(500).json({ error: "IndexNow submission failed" }); } });
 let hearts = 0; let gifts = 0;
 io.on("connection", (socket) => { socket.emit("init", { hearts, gifts }); socket.on("chat", (msg) => io.emit("chat", msg)); socket.on("heart", () => { hearts++; io.emit("heart", hearts); }); socket.on("gift", () => { gifts++; io.emit("gift", gifts); }); });
-
 server.listen(process.env.PORT || 10000, () => console.log(`Server running for ${SITE_URL}`));
