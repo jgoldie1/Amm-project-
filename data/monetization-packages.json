@@ -1,56 +1,71 @@
 {
   "name": "TryAMM Self-Funding Creator Plans",
-  "principle": "Every metered AI or media action must have an internal cost estimate before execution. Included credits and top-ups are priced so provider/API/compute/storage/payment costs are covered before profit is recognized.",
+  "principle": "Keep entry affordable while metering high-cost AI, media, 3D, holographic, storage and provider usage so direct costs are covered before profit is recognized.",
   "currency": "USD",
   "plans": [
     {
       "id": "free",
       "name": "Free / Discover",
       "monthlyPrice": 0,
-      "monthlyOmniCredits": 50,
-      "purpose": "Acquisition, discovery and light creation",
-      "features": ["creator-page", "basic-hologpt", "limited-ai-tools", "social-sharing", "public-discovery", "marketplace-browse"],
-      "limits": ["watermark-or-export-limits-on-selected-generation-tools", "no-heavy-3d-or-long-video-included"]
+      "monthlyOmniCredits": 100,
+      "purpose": "Discovery, learning, shopping and light creation",
+      "features": ["creator-page", "basic-hologpt", "limited-ai-tools", "social-sharing", "public-discovery", "marketplace-browse", "basic-book-and-store-tools"],
+      "limits": ["selected-generation-export-limits", "no-unlimited-heavy-ai-video-or-3d"]
+    },
+    {
+      "id": "starter",
+      "name": "Starter",
+      "monthlyPrice": 4.99,
+      "monthlyOmniCredits": 175,
+      "purpose": "Affordable first paid step for students, new creators and microbusinesses",
+      "features": ["everything-in-free", "starter-creator-workstation", "basic-selling", "basic-author-tools", "basic-ai-assistance", "basic-analytics"]
     },
     {
       "id": "creator",
       "name": "Creator",
-      "monthlyPrice": 19,
-      "monthlyOmniCredits": 500,
-      "purpose": "New creators building a business",
-      "features": ["creator-workstation", "hologpt-standard", "script-storyboard-tools", "basic-image-audio-video-generation", "omniBox-publishing", "starVerse-profile", "analytics-basic", "commercial-use-for-creator-owned-output-subject-to-provider-terms"]
+      "monthlyPrice": 9.99,
+      "monthlyOmniCredits": 450,
+      "purpose": "Creators building an income stream",
+      "features": ["creator-workstation", "hologpt-standard", "script-storyboard-tools", "basic-image-audio-video-generation", "omnibox-publishing", "starverse-profile", "tryamm-books", "creator-store", "analytics-basic", "monetization-starter"]
     },
     {
       "id": "pro",
       "name": "Creator Pro",
-      "monthlyPrice": 49,
-      "monthlyOmniCredits": 1800,
+      "monthlyPrice": 29.99,
+      "monthlyOmniCredits": 1500,
       "purpose": "Serious creators and small production teams",
       "features": ["everything-in-creator", "hologpt-pro-routing", "digital-twin-tools", "avatar-scan-pipeline", "advanced-video-generation", "translation-dubbing", "holoverse-tools", "priority-generation", "advanced-analytics", "monetization-toolkit"]
     },
     {
       "id": "studio",
       "name": "Studio",
-      "monthlyPrice": 99,
+      "monthlyPrice": 79.99,
       "monthlyOmniCredits": 4500,
-      "purpose": "High-volume creators, shows and virtual production",
-      "features": ["everything-in-pro", "multi-project-workspace", "quantum-speed-engine-asset-forge", "3d-rig-animation-jobs", "team-seats-base-allocation", "isaiah-ai-tv-channel-tools", "omniBox-series-tools", "brand-kit", "batch-publishing", "higher-concurrency"]
+      "purpose": "High-volume creators, shows, games and virtual production",
+      "features": ["everything-in-pro", "multi-project-workspace", "quantum-speed-engine-asset-forge", "3d-rig-animation-jobs", "team-seats-base-allocation", "isaiah-ai-tv-channel-tools", "omnibox-series-tools", "brand-kit", "batch-publishing", "higher-concurrency"]
     },
     {
       "id": "business",
       "name": "Business / Agency",
-      "monthlyPrice": 249,
-      "monthlyOmniCredits": 14000,
+      "monthlyPrice": 199,
+      "monthlyOmniCredits": 12000,
       "purpose": "Agencies, production companies, brands and creator networks",
       "features": ["everything-in-studio", "multiple-brands", "agency-client-workspaces", "advanced-rights-provenance", "team-admin", "api-access-subject-to-approval", "priority-support", "custom-workflows", "bulk-generation", "revenue-and-payout-reporting"]
     }
   ],
   "topUps": [
+    {"price": 1, "omniCredits": 20},
+    {"price": 5, "omniCredits": 110},
     {"price": 10, "omniCredits": 250},
     {"price": 25, "omniCredits": 700},
     {"price": 50, "omniCredits": 1600},
     {"price": 100, "omniCredits": 3500}
   ],
+  "microAccess": {
+    "goal": "Allow nickel-and-dime participation without forcing a subscription.",
+    "examples": ["low-cost-text-help", "captions", "metadata", "simple-design-assist", "small-book-or-store-actions"],
+    "rule": "Actual credit cost per action is dynamically set from provider and infrastructure cost plus required margin."
+  },
   "meteredCategories": [
     "hologpt-text-reasoning",
     "image-generation",
@@ -61,9 +76,10 @@
     "rigging-animation",
     "holographic-xr-processing",
     "high-cost-code-agent-work",
-    "storage-egress-heavy-jobs"
+    "storage-egress-heavy-jobs",
+    "print-and-fulfillment-external-costs"
   ],
-  "freeOrLowCostCategories": ["basic-editing", "project-management", "creator-page", "manual-upload", "basic-social-sharing", "basic-analytics"],
+  "freeOrLowCostCategories": ["basic-editing", "project-management", "creator-page", "manual-upload", "basic-social-sharing", "basic-analytics", "basic-workstation-tools"],
   "economics": {
     "targetBlendedGrossMarginPercent": "60-75",
     "minimumHeavyAiMarkupRule": "Price metered heavy-AI work at no less than estimated provider+compute+storage+payment cost divided by (1-target margin). Reprice automatically when upstream costs change.",
@@ -71,16 +87,7 @@
     "costControls": ["model-routing", "cached-responses", "batch-processing", "quality-tiers", "daily-budget-guards", "per-user-hard-spend-caps", "job-cost-estimate-before-run", "provider-failover", "auto-refill-opt-in"]
   },
   "platformRevenue": [
-    "subscriptions",
-    "credit-topups",
-    "marketplace-take-rate",
-    "creator-service-fees",
-    "payment-processing-margin-where-lawful-and-disclosed",
-    "ads-and-sponsorships",
-    "ppv-and-tickets",
-    "digital-goods",
-    "licensing",
-    "business-api-and-enterprise-contracts"
+    "subscriptions", "credit-topups", "marketplace-take-rate", "creator-service-fees", "payment-processing-margin-where-lawful-and-disclosed", "ads-and-sponsorships", "ppv-and-tickets", "digital-goods", "licensing", "business-api-and-enterprise-contracts", "printing-and-fulfillment-margin-where-lawful-and-disclosed"
   ],
   "status": "commercial-model-foundation-not-live-billing"
 }
