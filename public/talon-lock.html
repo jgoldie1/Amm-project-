@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Talon Lock | TryAMM GameVerse</title>
+  <style>
+    :root{color-scheme:dark}body{margin:0;font-family:system-ui;background:#090b16;color:#fff}main{max-width:960px;margin:auto;padding:18px}.top{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between}.hud{display:flex;gap:12px;flex-wrap:wrap}.pill{background:#171a2c;border:1px solid #3b4163;border-radius:999px;padding:7px 11px}canvas{display:block;width:100%;max-width:900px;aspect-ratio:16/9;background:#11152a;border:1px solid #4c557d;border-radius:18px;touch-action:none;margin-top:12px}.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}button{background:#232947;color:#fff;border:1px solid #59658f;border-radius:10px;padding:10px 14px}.gold{color:#ffd56a}.note{opacity:.8;font-size:.92rem}.dpad{display:grid;grid-template-columns:repeat(3,56px);gap:6px;margin-top:10px}.dpad button{height:50px}.lock{grid-column:3;grid-row:2;background:#6f4f00}.sr{position:absolute;left:-9999px}</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div><h1><span class="gold">TALON LOCK</span></h1><div class="note">Original falcon vault-chase arcade prototype for TryAMM GameVerse.</div></div>
+    <div class="hud"><span class="pill" id="profile">Guest Falcon</span><span class="pill" id="score">Score 0</span><span class="pill" id="level">Vault 1</span><span class="pill" id="locks">LOCK 3</span></div>
+  </div>
+  <canvas id="game" width="900" height="506" aria-label="Talon Lock game board"></canvas>
+  <div class="controls"><button id="restart">Restart</button><button id="save">Save Progress</button><button id="find">Find Match</button><button id="contrast">High Contrast</button><span id="status" aria-live="polite"></span></div>
+  <div class="dpad" aria-label="Touch controls"><span></span><button data-dir="up">▲</button><span></span><button data-dir="left">◀</button><button data-dir="down">▼</button><button data-dir="right">▶</button><button class="lock" id="lockBtn">LOCK</button></div>
+  <p class="note">Keyboard: arrows/WASD to move, Space to LOCK. The server progression API is used when available; guest fallback remains playable.</p>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const statusEl=document.getElementById('status');
+const playerId=localStorage.talonPlayerId||(localStorage.talonPlayerId=(crypto.randomUUID?crypto.randomUUID():'guest-'+Date.now()));
+let profile={id:playerId,displayName:'Falcon '+playerId.slice(0,5),xp:0,level:1,bestScore:+localStorage.talonBest||0};
+let score=0,vault=1,lockCharges=3,running=false,highContrast=false,lastDir={x:1,y:0},socket=null,matchId=null;
+const W=900,H=506,cell=46,cols=19,rows=10,ox=13,oy=23;
+const maze=Array.from({length:rows},(_,y)=>Array.from({length:cols},(_,x)=>x===0||y===0||x===cols-1||y===rows-1||((x%4===0)&&(y%3!==1))));
+let falcon,hunters,shards,gates,power;
+function tileCenter(x,y){return{x:ox+x*cell+cell/2,y:oy+y*cell+cell/2}}
+function reset(){score=0;lockCharges=3;gates=[];power=null;falcon={...tileCenter(1,1),r:14,s:2.9,dir:{x:1,y:0}};hunters=[['Stoop',17,8,1.40],['Glide',17,1,1.28],['Shear',1,8,1.22],['Drift',9,8,1.12]].map((h,i)=>({name:h[0],...tileCenter(h[1],h[2]),r:14,s:h[3]+vault*.03,mode:i}));shards=[];for(let y=1;y<rows-1;y++)for(let x=1;x<cols-1;x++)if(!maze[y][x]&&Math.random()<.26)shards.push({...tileCenter(x,y),r:5});updateHud();if(!running){running=true;requestAnimationFrame(loop)}}
+function updateHud(){document.getElementById('score').textContent='Score '+score;document.getElementById('level').textContent='Vault '+vault;document.getElementById('locks').textContent='LOCK '+lockCharges;document.getElementById('profile').textContent=profile.displayName+' · Lv '+(profile.level||1)}
+function blocked(x,y){const tx=Math.floor((x-ox)/cell),ty=Math.floor((y-oy)/cell);if(tx<0||ty<0||tx>=cols||ty>=rows)return true;if(maze[ty][tx])return true;return gates.some(g=>g.tx===tx&&g.ty===ty&&g.until>Date.now())}
+function move(entity,dx,dy,s){const nx=entity.x+dx*s,ny=entity.y+dy*s;if(!blocked(nx,entity.y))entity.x=nx;if(!blocked(entity.x,ny))entity.y=ny}
+const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=1;if(e.code==='Space'){e.preventDefault();placeLock()}});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=0);
+function input(){let dx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),dy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);if(dx||dy){const m=Math.hypot(dx,dy)||1;dx/=m;dy/=m;lastDir={x:Math.sign(dx),y:Math.sign(dy)};falcon.dir={x:dx,y:dy};move(falcon,dx,dy,falcon.s)}}
+function hunterAI(h){let tx=falcon.x,ty=falcon.y;if(h.mode===1){tx+=falcon.dir.x*110;ty+=falcon.dir.y*110}else if(h.mode===2){tx-=falcon.dir.x*80;ty-=falcon.dir.y*80}else if(h.mode===3&&Math.hypot(falcon.x-h.x,falcon.y-h.y)>180){tx=450+Math.sin(Date.now()/900)*250;ty=250+Math.cos(Date.now()/1100)*150}let dx=tx-h.x,dy=ty-h.y,m=Math.hypot(dx,dy)||1;move(h,dx/m,dy/m,h.s)}
+function placeLock(){if(lockCharges<=0)return;const tx=Math.floor((falcon.x-ox)/cell)-lastDir.x,ty=Math.floor((falcon.y-oy)/cell)-lastDir.y;if(tx>0&&ty>0&&tx<cols-1&&ty<rows-1&&!maze[ty][tx]){gates.push({tx,ty,until:Date.now()+6000});lockCharges--;updateHud();setTimeout(()=>{lockCharges=Math.min(3,lockCharges+1);updateHud()},8000)}}
+function collide(a,b){return Math.hypot(a.x-b.x,a.y-b.y)<a.r+b.r}
+async function finish(won){running=false;if(won){vault++;score+=500;statusEl.textContent='Vault cleared.'}else statusEl.textContent='Caught by a hunter.';localStorage.talonBest=Math.max(+localStorage.talonBest||0,score);try{const r=await fetch('/api/gameverse/result',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({playerId,score,won,matchId})});const j=await r.json();if(j.profile){profile=j.profile;updateHud()}}catch{}setTimeout(reset,900)}
+function step(){input();hunters.forEach(hunterAI);shards=shards.filter(s=>{if(collide(falcon,s)){score+=10;updateHud();return false}return true});if(!power&&score>=100&&Math.random()<.004)power={...tileCenter(9,5),r:10};if(power&&collide(falcon,power)){hunters.forEach(h=>{h.x=tileCenter(17,8).x;h.y=tileCenter(17,8).y});score+=200;power=null}if(!shards.length)return finish(true);if(hunters.some(h=>collide(falcon,h)))return finish(false);if(socket&&matchId)socket.emit('gameverse:state',{x:falcon.x,y:falcon.y})}
+function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle=highContrast?'#000':'#0d1020';ctx.fillRect(0,0,W,H);ctx.strokeStyle=highContrast?'#fff':'#5866a8';ctx.lineWidth=2;for(let y=0;y<rows;y++)for(let x=0;x<cols;x++)if(maze[y][x]){ctx.fillStyle=highContrast?'#fff':'#1e274a';ctx.fillRect(ox+x*cell,oy+y*cell,cell-2,cell-2)}gates=gates.filter(g=>g.until>Date.now());gates.forEach(g=>{ctx.fillStyle='#ffd166';ctx.fillRect(ox+g.tx*cell+8,oy+g.ty*cell+8,cell-18,cell-18)});ctx.fillStyle='#ffd54a';shards.forEach(s=>{ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill()});if(power){ctx.strokeStyle='#fff1a8';ctx.lineWidth=5;ctx.beginPath();ctx.arc(power.x,power.y,power.r,0,Math.PI*2);ctx.stroke()}ctx.save();ctx.translate(falcon.x,falcon.y);ctx.rotate(Math.atan2(falcon.dir.y,falcon.dir.x));ctx.fillStyle='#f5b700';ctx.beginPath();ctx.moveTo(18,0);ctx.lineTo(-12,-12);ctx.lineTo(-5,0);ctx.lineTo(-12,12);ctx.closePath();ctx.fill();ctx.restore();const hc=['#ff4d6d','#7b61ff','#00c2ff','#ff8c42'];hunters.forEach((h,i)=>{ctx.fillStyle=hc[i];ctx.beginPath();ctx.arc(h.x,h.y,h.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.font='10px system-ui';ctx.fillText(h.name,h.x-18,h.y-20)})}
+function loop(){if(!running)return;step();draw();if(running)requestAnimationFrame(loop)}
+document.querySelectorAll('[data-dir]').forEach(b=>b.addEventListener('click',()=>{const d=b.dataset.dir;falcon.dir=d==='up'?{x:0,y:-1}:d==='down'?{x:0,y:1}:d==='left'?{x:-1,y:0}:{x:1,y:0};lastDir={x:Math.sign(falcon.dir.x),y:Math.sign(falcon.dir.y)};move(falcon,falcon.dir.x,falcon.dir.y,cell*.65)}));
+document.getElementById('lockBtn').onclick=placeLock;document.getElementById('restart').onclick=()=>{running=false;reset()};document.getElementById('contrast').onclick=()=>{highContrast=!highContrast};
+document.getElementById('save').onclick=async()=>{try{const r=await fetch('/api/gameverse/profile',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({playerId,displayName:profile.displayName,accessibility:{highContrast}})});profile=await r.json();updateHud();statusEl.textContent='Progress profile saved.'}catch{statusEl.textContent='Server save unavailable; guest play continues.'}};
+document.getElementById('find').onclick=async()=>{try{const r=await fetch('/api/gameverse/matchmaking',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({playerId,gameId:'talon-lock',mode:'ghost-race'})});const j=await r.json();if(j.match){matchId=j.match.id;statusEl.textContent='Matched! '+matchId.slice(0,8);socket=io();socket.emit('gameverse:join',{matchId,playerId})}else statusEl.textContent='Queued for a ghost race.'}catch{statusEl.textContent='Matchmaking unavailable.'}};
+(async()=>{try{let r=await fetch('/api/gameverse/profile/'+encodeURIComponent(playerId));if(r.ok)profile=await r.json();else{r=await fetch('/api/gameverse/profile',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({playerId,displayName:profile.displayName})});if(r.ok)profile=await r.json()}}catch{}updateHud();reset()})();
+</script>
+</body>
+</html>
