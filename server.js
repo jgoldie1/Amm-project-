@@ -18,6 +18,8 @@ const ECONOMIC_OPPORTUNITY = require("./data/economic-opportunity-hub.json");
 const GLOBAL_MOBILITY_READINESS = require("./data/global-mobility-readiness.json");
 const DELIVERY_ORCHESTRATION = require("./data/delivery-orchestration.json");
 const OMNICARE_360 = require("./data/omnicare-360.json");
+const HOLO_COMMERCIAL_STUDIO = require("./data/holo-commercial-studio.json");
+const AMM_MOTION_HOLOFX = require("./data/amm-motion-holofx.json");
 
 const { createPlaySessionManager } = require("./lib/play-session-manager");
 const { createServicesHubManager } = require("./lib/services-hub-manager");
@@ -27,6 +29,8 @@ const { createMobilityOnboardingManager } = require("./lib/mobility-onboarding-m
 const { registerMobilityOnboardingRoutes } = require("./lib/mobility-onboarding-routes");
 const { createOmniCare360Manager } = require("./lib/omnicare-360-manager");
 const { registerOmniCare360Routes } = require("./lib/omnicare-360-routes");
+const { createHoloCommercialManager } = require("./lib/holo-commercial-manager");
+const { registerHoloCommercialRoutes } = require("./lib/holo-commercial-routes");
 const assetPipeline = require("./lib/asset-pipeline-manager");
 
 const app = express();
@@ -37,6 +41,7 @@ const servicesHub = createServicesHubManager({ servicesManifest: TRYAMM_SERVICES
 const economicOpportunity = createEconomicOpportunityManager({ manifest: ECONOMIC_OPPORTUNITY, io });
 const mobilityOnboarding = createMobilityOnboardingManager({ readiness: GLOBAL_MOBILITY_READINESS, io });
 const omniCare360 = createOmniCare360Manager({ manifest: OMNICARE_360, io });
+const holoCommercial = createHoloCommercialManager({ manifest: HOLO_COMMERCIAL_STUDIO, motionManifest: AMM_MOTION_HOLOFX, io });
 
 const SITE_URL = (process.env.SITE_URL || "https://tryamm.online").replace(/\/$/, "");
 const AUDIT_LOG_PATH = process.env.GAMEOPS_LOG_PATH || path.join(process.cwd(), "runtime", "tryamm-audit.jsonl");
@@ -85,6 +90,7 @@ app.get("/api/delivery/orchestration", (_req, res) => res.json(DELIVERY_ORCHESTR
 registerEconomicOpportunityRoutes({ app, manifest: ECONOMIC_OPPORTUNITY, manager: economicOpportunity, requireInternalSecret, appendAudit });
 registerMobilityOnboardingRoutes({ app, readiness: GLOBAL_MOBILITY_READINESS, manager: mobilityOnboarding, requireInternalSecret, appendAudit });
 registerOmniCare360Routes({ app, manifest: OMNICARE_360, manager: omniCare360, requireInternalSecret, appendAudit });
+registerHoloCommercialRoutes({ app, manager: holoCommercial, requireInternalSecret, appendAudit });
 
 app.get("/api/gameverse", (_req, res) => res.json(GAMEVERSE));
 app.get("/api/gameverse/status", (_req, res) => { const totals = GAMEVERSE.games.reduce((acc, game) => { acc[game.status] = (acc[game.status] || 0) + 1; return acc; }, {}); res.json({ platform: GAMEVERSE.platform, livingGameWorld: GAMEVERSE.world.status, gameCount: GAMEVERSE.games.length, totals, productionPlayableCount: GAMEVERSE.games.filter((game) => game.status === "production").length, note: "Foundation status does not mean a title is fully playable, tested or deployed." }); });
