@@ -6,36 +6,22 @@
   <title>TryAMM — Create, Stream, Play, Shop & Connect</title>
   <meta name="description" content="TryAMM is a creator, streaming, gaming, marketplace and community platform built for discovery, participation and accessible digital experiences." />
   <link rel="canonical" href="https://tryamm.online/" />
-
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="TryAMM" />
   <meta property="og:title" content="TryAMM — Create, Stream, Play, Shop & Connect" />
   <meta property="og:description" content="Discover creators, live experiences, games, music, podcasts, products and more on TryAMM." />
   <meta property="og:url" content="https://tryamm.online/" />
   <meta property="og:image" content="https://tryamm.online/og-default.jpg" />
-
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="TryAMM — Create, Stream, Play, Shop & Connect" />
   <meta name="twitter:description" content="Discover creators, live experiences, games, music, podcasts, products and more on TryAMM." />
   <meta name="twitter:image" content="https://tryamm.online/og-default.jpg" />
-
   <script type="application/ld+json" id="organization-jsonld">
   {
     "@context": "https://schema.org",
     "@graph": [
-      {
-        "@type": "Organization",
-        "@id": "https://tryamm.online/#organization",
-        "name": "TryAMM",
-        "url": "https://tryamm.online/"
-      },
-      {
-        "@type": "WebSite",
-        "@id": "https://tryamm.online/#website",
-        "url": "https://tryamm.online/",
-        "name": "TryAMM",
-        "publisher": { "@id": "https://tryamm.online/#organization" }
-      }
+      {"@type":"Organization","@id":"https://tryamm.online/#organization","name":"TryAMM","url":"https://tryamm.online/"},
+      {"@type":"WebSite","@id":"https://tryamm.online/#website","url":"https://tryamm.online/","name":"TryAMM","publisher":{"@id":"https://tryamm.online/#organization"}}
     ]
   }
   </script>
@@ -44,25 +30,25 @@
   <main>
     <h1>TryAMM</h1>
     <p>Create, stream, play, shop and connect.</p>
-
+    <nav aria-label="TryAMM sections">
+      <a href="/gameverse">GameVerse: 11 Games + Living Game World</a>
+      <a href="/finish-line">Finish-Line Status</a>
+    </nav>
     <nav id="official-social-links" aria-label="Official TryAMM social profiles" hidden>
       <strong>Follow TryAMM:</strong>
       <a data-social="facebook" rel="me noopener noreferrer" target="_blank">Facebook</a>
       <a data-social="instagram" rel="me noopener noreferrer" target="_blank">Instagram</a>
       <a data-social="tiktok" rel="me noopener noreferrer" target="_blank">TikTok</a>
     </nav>
-
     <section aria-label="Share TryAMM">
       <button type="button" id="share-facebook">Share on Facebook</button>
       <button type="button" data-copy-campaign="instagram">Copy Instagram campaign link</button>
       <button type="button" data-copy-campaign="tiktok">Copy TikTok campaign link</button>
       <p id="share-status" role="status" aria-live="polite"></p>
     </section>
-
-    <button onclick="increment()">Tap</button>
+    <button type="button" id="tap-button">Tap</button>
     <p id="count">0</p>
   </main>
-
   <script>
   async function load() {
     try {
@@ -72,14 +58,12 @@
       document.getElementById('count').innerText = data.count;
     } catch (_) {}
   }
-
   async function increment() {
     try {
       await fetch('/increment', { method: 'POST' });
       load();
     } catch (_) {}
   }
-
   function campaignUrl(source) {
     const url = new URL(window.location.href);
     url.search = '';
@@ -89,7 +73,6 @@
     url.searchParams.set('utm_campaign', 'tryamm_launch');
     return url.toString();
   }
-
   async function configureSocialLinks() {
     try {
       const res = await fetch('/api/social-links');
@@ -107,7 +90,6 @@
       });
       if (visible) {
         nav.hidden = false;
-
         const jsonLd = document.getElementById('organization-jsonld');
         const data = JSON.parse(jsonLd.textContent);
         const organization = data['@graph'].find((item) => item['@type'] === 'Organization');
@@ -116,12 +98,11 @@
       }
     } catch (_) {}
   }
-
+  document.getElementById('tap-button').addEventListener('click', increment);
   document.getElementById('share-facebook').addEventListener('click', () => {
     const shareUrl = encodeURIComponent(campaignUrl('facebook'));
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, '_blank', 'noopener,noreferrer');
   });
-
   document.querySelectorAll('[data-copy-campaign]').forEach((button) => {
     button.addEventListener('click', async () => {
       const source = button.getAttribute('data-copy-campaign');
@@ -133,7 +114,6 @@
       }
     });
   });
-
   configureSocialLinks();
   load();
   </script>
