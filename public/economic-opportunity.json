@@ -1,0 +1,12 @@
+{
+  "name": "TryAMM Economic Opportunity Hub",
+  "status": "architecture-foundation",
+  "routes": [
+    {"id":"aniyah-crossborder","name":"Aniyah CrossBorder","purpose":"Financial literacy and compliant U.S.-Africa cross-border commerce/payment partner orchestration"},
+    {"id":"jacobie-vision","name":"Jacobie Vision Cybersecurity","purpose":"Consumer and small-business cybersecurity education, assessments and protection services"},
+    {"id":"real-estate-home-flip","name":"Real Estate + Home Flip Studio","purpose":"Property discovery, deal analysis, rehab planning, virtual tours and contractor marketplace"},
+    {"id":"credit-education","name":"Credit Builder + Education","purpose":"Credit-factor education, budgeting, debt planning, document organization and lawful dispute education"},
+    {"id":"black-business-directory","name":"Black Business Directory — Everyone Welcome","purpose":"Inclusive business discovery while intentionally highlighting Black entrepreneurship and retention"}
+  ],
+  "sharedSystems":["TryAMM Passport","HoloGPT","OmniCredits","Marketplace","Universal Social Fabric","Creator Workstation","Analytics","Audit Log"]
+}
