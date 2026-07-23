@@ -1,15 +1,39 @@
 const express = require("express");
 const http = require("http");
 const https = require("https");
+const fs = require("fs");
+const path = require("path");
+const crypto = require("crypto");
 const { Server } = require("socket.io");
 const GAMEVERSE = require("./data/gameverse.json");
 const PLATFORM_STATUS = require("./data/platform-status.json");
+const GAMEOPS_POLICY = require("./data/gameops-policy.json");
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
 const SITE_URL = (process.env.SITE_URL || "https://tryamm.online").replace(/\/$/, "");
+const GAMEOPS_LOG_PATH = process.env.GAMEOPS_LOG_PATH || path.join(process.cwd(), "runtime", "gameops-incidents.jsonl");
+const gameOpsIncidents = [];
+
+function appendGameOpsRecord(record) {
+  try {
+    fs.mkdirSync(path.dirname(GAMEOPS_LOG_PATH), { recursive: true });
+    fs.appendFileSync(GAMEOPS_LOG_PATH, `${JSON.stringify(record)}\n`, "utf8");
+  } catch (error) {
+    console.error("GameOps audit-log write failed", error.message);
+  }
+}
+
+function requireGameOpsSecret(req, res, next) {
+  const secret = process.env.GAMEOPS_INTERNAL_SECRET;
+  if (!secret) return res.status(503).json({ error: "GameOps internal secret is not configured" });
+  if (req.get("authorization") !== `Bearer ${secret}`) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  next();
+}
 
 app.use(express.json({ limit: "100kb" }));
 app.use(express.static("public", {
@@ -53,8 +77,6 @@ app.get("/api/platform/status", (_req, res) => {
   });
 });
 
-// Authoritative GameVerse registry. This establishes the product/system foundation,
-// not a claim that all games are already production-playable.
 app.get("/api/gameverse", (_req, res) => {
   res.json(GAMEVERSE);
 });
@@ -79,6 +101,114 @@ app.get("/api/gameverse/games/:id", (req, res) => {
   const game = GAMEVERSE.games.find((item) => item.id === req.params.id);
   if (!game) return res.status(404).json({ error: "Game not found" });
   res.json(game);
+});
+
+// AI GameOps control-plane foundation. AI/telemetry agents report issues here,
+// attach diagnosis/fix proposals, and preserve an auditable record for James/Victor.
+app.get("/api/gameops/policy", (_req, res) => {
+  res.json(GAMEOPS_POLICY);
+});
+
+app.post("/api/gameops/issues", requireGameOpsSecret, (req, res) => {
+  const { gameId, source, severity, category, summary, details, reportedBy } = req.body || {};
+  const knownGame = GAMEVERSE.games.some((game) => game.id === gameId);
+  if (!knownGame) return res.status(400).json({ error: "Unknown gameId" });
+  if (!summary || typeof summary !== "string") return res.status(400).json({ error: "summary is required" });
+
+  const incident = {
+    id: crypto.randomUUID(),
+    gameId,
+    source: source || "unknown",
+    severity: severity || "medium",
+    category: category || "unknown",
+    summary: summary.slice(0, 500),
+    details: typeof details === "string" ? details.slice(0, 5000) : "",
+    status: "reported",
+    detectedAt: new Date().toISOString(),
+    reportedBy: reportedBy || "ai-or-system",
+    aiDiagnosis: null,
+    proposedFix: null,
+    approvalRequired: !GAMEOPS_POLICY.autoFixAllowlist.includes(category),
+    approvedBy: null,
+    fixAppliedAt: null,
+    validation: null,
+    rollback: null,
+    closedAt: null,
+  };
+
+  gameOpsIncidents.unshift(incident);
+  if (gameOpsIncidents.length > 1000) gameOpsIncidents.length = 1000;
+  appendGameOpsRecord({ event: "incident.reported", incident });
+  io.emit("gameops:incident", incident);
+  res.status(201).json(incident);
+});
+
+app.get("/api/gameops/issues", requireGameOpsSecret, (_req, res) => {
+  res.json({ incidents: gameOpsIncidents, persistence: GAMEOPS_LOG_PATH });
+});
+
+app.post("/api/gameops/issues/:id/ai-analysis", requireGameOpsSecret, (req, res) => {
+  const incident = gameOpsIncidents.find((item) => item.id === req.params.id);
+  if (!incident) return res.status(404).json({ error: "Incident not found" });
+
+  const { diagnosis, proposedFix, validationPlan, rollbackPlan, model } = req.body || {};
+  if (!diagnosis || !proposedFix) return res.status(400).json({ error: "diagnosis and proposedFix are required" });
+
+  incident.aiDiagnosis = { text: String(diagnosis).slice(0, 5000), model: model || "unspecified", at: new Date().toISOString() };
+  incident.proposedFix = String(proposedFix).slice(0, 5000);
+  incident.validation = validationPlan ? { plan: String(validationPlan).slice(0, 5000), result: null } : null;
+  incident.rollback = rollbackPlan ? { plan: String(rollbackPlan).slice(0, 5000), executed: false } : null;
+  incident.status = incident.approvalRequired ? "awaiting-approval" : "approved-for-bounded-auto-fix";
+
+  appendGameOpsRecord({ event: "incident.ai-analysis", incidentId: incident.id, snapshot: incident });
+  io.emit("gameops:update", incident);
+  res.json(incident);
+});
+
+app.post("/api/gameops/issues/:id/approve", requireGameOpsSecret, (req, res) => {
+  const incident = gameOpsIncidents.find((item) => item.id === req.params.id);
+  if (!incident) return res.status(404).json({ error: "Incident not found" });
+
+  incident.approvedBy = req.body?.approvedBy || "authorized-human";
+  incident.status = "approved-for-fix";
+  appendGameOpsRecord({ event: "incident.approved", incidentId: incident.id, approvedBy: incident.approvedBy, at: new Date().toISOString() });
+  io.emit("gameops:update", incident);
+  res.json(incident);
+});
+
+app.post("/api/gameops/issues/:id/fix-result", requireGameOpsSecret, (req, res) => {
+  const incident = gameOpsIncidents.find((item) => item.id === req.params.id);
+  if (!incident) return res.status(404).json({ error: "Incident not found" });
+
+  if (incident.approvalRequired && incident.status !== "approved-for-fix") {
+    return res.status(409).json({ error: "Human approval is required before recording a fix as applied" });
+  }
+
+  const { appliedBy, changeReference, validationResult, success } = req.body || {};
+  incident.fixAppliedAt = new Date().toISOString();
+  incident.status = success === false ? "fix-failed" : "fixed-pending-validation";
+  incident.validation = {
+    ...(incident.validation || {}),
+    result: validationResult || null,
+    changeReference: changeReference || null,
+    appliedBy: appliedBy || "ai-or-developer",
+  };
+
+  appendGameOpsRecord({ event: "incident.fix-result", incidentId: incident.id, snapshot: incident });
+  io.emit("gameops:update", incident);
+  res.json(incident);
+});
+
+app.post("/api/gameops/issues/:id/close", requireGameOpsSecret, (req, res) => {
+  const incident = gameOpsIncidents.find((item) => item.id === req.params.id);
+  if (!incident) return res.status(404).json({ error: "Incident not found" });
+
+  incident.status = "closed";
+  incident.closedAt = new Date().toISOString();
+  incident.validation = { ...(incident.validation || {}), closureNote: req.body?.closureNote || "" };
+  appendGameOpsRecord({ event: "incident.closed", incidentId: incident.id, snapshot: incident });
+  io.emit("gameops:update", incident);
+  res.json(incident);
 });
 
 app.post("/api/indexnow", async (req, res) => {
