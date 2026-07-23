@@ -1,0 +1,17 @@
+{
+  "name": "TryAMM Books / Author Studio",
+  "mission": "Help authors create, publish, sell and monetize books globally with AI assistance and third-party print/fulfillment options.",
+  "formats": ["ebook", "paperback", "hardcover", "audiobook", "large-print", "accessible-digital"],
+  "authorStudio": ["idea-and-outline", "holgpt-writing-assistant", "editing", "proofreading", "formatting", "cover-design", "isbn-metadata", "rights-provenance", "pricing", "proof-copy", "publish", "marketing", "analytics"],
+  "salesChannels": ["tryamm-marketplace", "creator-page", "live-shopping", "affiliate-links", "bundles", "events", "external-distribution-adapters"],
+  "printFulfillment": {
+    "strategy": "adapter-based-third-party-printing-plus-optional-inventory",
+    "capabilities": ["instant-print-quote", "trim-size", "paper-type", "color-or-bw", "binding", "page-count", "quantity", "proof-copy", "print-on-demand", "bulk-print", "packaging", "tracking", "global-shipping"],
+    "providerTypes": ["print-on-demand", "commercial-printer", "local-printer", "book-distributor", "3pl-warehouse"],
+    "rules": ["use-official-provider-apis-or-contracts", "show-print-and-shipping-costs-before-approval", "require-proof-approval-before-large-bulk-order", "track-provider-sla-and-defect-rate", "support-provider-fallbacks"]
+  },
+  "orderFlow": ["customer-order", "payment-authorized", "rights-and-inventory-check", "printer-or-stock-routing", "print-job", "quality-status", "shipping-label", "tracking", "delivery", "royalty-ledger", "returns-support"],
+  "monetization": ["book-sales-margin", "author-pro-plan", "ai-editing-credits", "cover-formatting-services", "printing-margin-where-lawful", "shipping-service-margin-where-disclosed", "affiliate-sales", "audiobook-sales", "licensing-and-adaptations"],
+  "adaptations": ["omniBox-series", "isaiah-ai-tv", "starverse", "holoverse", "living-game-world", "courses", "audiobook"],
+  "status": "architecture-foundation"
+}
