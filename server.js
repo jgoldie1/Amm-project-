@@ -24,6 +24,22 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "tryamm", site: SITE_URL });
 });
 
+// Return only configured official social links. Empty environment variables are omitted
+// so the UI never publishes guessed or placeholder profile URLs.
+app.get("/api/social-links", (_req, res) => {
+  const links = {
+    facebook: process.env.FACEBOOK_URL || "",
+    instagram: process.env.INSTAGRAM_URL || "",
+    tiktok: process.env.TIKTOK_URL || "",
+  };
+
+  const configured = Object.fromEntries(
+    Object.entries(links).filter(([, value]) => typeof value === "string" && /^https:\/\//i.test(value))
+  );
+
+  res.json(configured);
+});
+
 // IndexNow submission endpoint. Keep INDEXNOW_KEY and the optional webhook
 // secret in deployment environment variables; never commit real secrets.
 app.post("/api/indexnow", async (req, res) => {
