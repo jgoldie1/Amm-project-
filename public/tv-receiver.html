@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TryAMM TV Receiver</title>
+  <style>
+    body { font-family: system-ui, sans-serif; display:grid; place-items:center; min-height:100vh; margin:0; background:#111; color:#fff; }
+    main { max-width:900px; padding:32px; text-align:center; }
+    .code { font-size:clamp(36px,10vw,96px); letter-spacing:.12em; }
+    pre { text-align:left; white-space:pre-wrap; background:#222; padding:16px; border-radius:12px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>TryAMM Living Game World Receiver</h1>
+  <p id="message">Preparing TV session…</p>
+  <div class="code" id="code"></div>
+  <pre id="details"></pre>
+</main>
+<script>
+(async () => {
+  const id = new URL(location.href).searchParams.get('session');
+  const message = document.getElementById('message');
+  if (!id) { message.textContent = 'Missing session ID.'; return; }
+  try {
+    const res = await fetch(`/api/living-world/sessions/${encodeURIComponent(id)}`);
+    const session = await res.json();
+    if (!res.ok) throw new Error(session.error || 'Session unavailable');
+    document.getElementById('code').textContent = session.pairingCode;
+    document.getElementById('details').textContent = JSON.stringify(session, null, 2);
+    message.textContent = 'Receiver foundation connected. The actual game runtime/stream renderer must attach here for playable TV output.';
+  } catch (e) { message.textContent = e.message; }
+})();
+</script>
+</body>
+</html>
