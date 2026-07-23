@@ -1,0 +1,86 @@
+{
+  "name": "TryAMM Self-Funding Creator Plans",
+  "principle": "Every metered AI or media action must have an internal cost estimate before execution. Included credits and top-ups are priced so provider/API/compute/storage/payment costs are covered before profit is recognized.",
+  "currency": "USD",
+  "plans": [
+    {
+      "id": "free",
+      "name": "Free / Discover",
+      "monthlyPrice": 0,
+      "monthlyOmniCredits": 50,
+      "purpose": "Acquisition, discovery and light creation",
+      "features": ["creator-page", "basic-hologpt", "limited-ai-tools", "social-sharing", "public-discovery", "marketplace-browse"],
+      "limits": ["watermark-or-export-limits-on-selected-generation-tools", "no-heavy-3d-or-long-video-included"]
+    },
+    {
+      "id": "creator",
+      "name": "Creator",
+      "monthlyPrice": 19,
+      "monthlyOmniCredits": 500,
+      "purpose": "New creators building a business",
+      "features": ["creator-workstation", "hologpt-standard", "script-storyboard-tools", "basic-image-audio-video-generation", "omniBox-publishing", "starVerse-profile", "analytics-basic", "commercial-use-for-creator-owned-output-subject-to-provider-terms"]
+    },
+    {
+      "id": "pro",
+      "name": "Creator Pro",
+      "monthlyPrice": 49,
+      "monthlyOmniCredits": 1800,
+      "purpose": "Serious creators and small production teams",
+      "features": ["everything-in-creator", "hologpt-pro-routing", "digital-twin-tools", "avatar-scan-pipeline", "advanced-video-generation", "translation-dubbing", "holoverse-tools", "priority-generation", "advanced-analytics", "monetization-toolkit"]
+    },
+    {
+      "id": "studio",
+      "name": "Studio",
+      "monthlyPrice": 99,
+      "monthlyOmniCredits": 4500,
+      "purpose": "High-volume creators, shows and virtual production",
+      "features": ["everything-in-pro", "multi-project-workspace", "quantum-speed-engine-asset-forge", "3d-rig-animation-jobs", "team-seats-base-allocation", "isaiah-ai-tv-channel-tools", "omniBox-series-tools", "brand-kit", "batch-publishing", "higher-concurrency"]
+    },
+    {
+      "id": "business",
+      "name": "Business / Agency",
+      "monthlyPrice": 249,
+      "monthlyOmniCredits": 14000,
+      "purpose": "Agencies, production companies, brands and creator networks",
+      "features": ["everything-in-studio", "multiple-brands", "agency-client-workspaces", "advanced-rights-provenance", "team-admin", "api-access-subject-to-approval", "priority-support", "custom-workflows", "bulk-generation", "revenue-and-payout-reporting"]
+    }
+  ],
+  "topUps": [
+    {"price": 10, "omniCredits": 250},
+    {"price": 25, "omniCredits": 700},
+    {"price": 50, "omniCredits": 1600},
+    {"price": 100, "omniCredits": 3500}
+  ],
+  "meteredCategories": [
+    "hologpt-text-reasoning",
+    "image-generation",
+    "video-generation",
+    "voice-dubbing",
+    "music-audio-generation",
+    "3d-mesh-generation",
+    "rigging-animation",
+    "holographic-xr-processing",
+    "high-cost-code-agent-work",
+    "storage-egress-heavy-jobs"
+  ],
+  "freeOrLowCostCategories": ["basic-editing", "project-management", "creator-page", "manual-upload", "basic-social-sharing", "basic-analytics"],
+  "economics": {
+    "targetBlendedGrossMarginPercent": "60-75",
+    "minimumHeavyAiMarkupRule": "Price metered heavy-AI work at no less than estimated provider+compute+storage+payment cost divided by (1-target margin). Reprice automatically when upstream costs change.",
+    "neverOffer": ["unlimited-frontier-ai-without-fair-use-guardrails", "unlimited-high-cost-video", "unlimited-3d-generation"],
+    "costControls": ["model-routing", "cached-responses", "batch-processing", "quality-tiers", "daily-budget-guards", "per-user-hard-spend-caps", "job-cost-estimate-before-run", "provider-failover", "auto-refill-opt-in"]
+  },
+  "platformRevenue": [
+    "subscriptions",
+    "credit-topups",
+    "marketplace-take-rate",
+    "creator-service-fees",
+    "payment-processing-margin-where-lawful-and-disclosed",
+    "ads-and-sponsorships",
+    "ppv-and-tickets",
+    "digital-goods",
+    "licensing",
+    "business-api-and-enterprise-contracts"
+  ],
+  "status": "commercial-model-foundation-not-live-billing"
+}
