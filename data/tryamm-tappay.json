@@ -1,0 +1,39 @@
+{
+  "name": "TryAMM TapPay",
+  "status": "architecture-foundation",
+  "purpose": "Original payment orchestration and merchant checkout layer for TryAMM covering tap-to-pay category flows, online checkout, payment links, wallets/OmniCredits, marketplace settlement, creator payouts and future global payment routing through licensed providers.",
+  "positioning": "Build an original TryAMM payments experience inspired by modern merchant payment capabilities, not a copy of any competitor proprietary code, branding or UI.",
+  "phase1PartnerModel": {
+    "rule": "TryAMM orchestrates licensed/acquiring/payment providers rather than representing itself as an unlicensed processor or money transmitter.",
+    "capabilities": ["card checkout", "wallet payments", "payment links", "NFC/tap-to-pay through approved provider SDKs where available", "ACH/bank transfer adapters", "cross-border provider routing", "marketplace split settlement", "refunds", "disputes", "payouts", "receipts"]
+  },
+  "coreFlows": [
+    "merchant onboarding and KYC/KYB through regulated provider",
+    "quote and fee disclosure",
+    "payment intent/order creation",
+    "provider routing",
+    "customer authorization",
+    "webhook verification",
+    "ledger posting",
+    "platform/creator split calculation",
+    "settlement/payout",
+    "receipt",
+    "refund/chargeback reconciliation",
+    "analytics and audit"
+  ],
+  "paymentMethods": ["cards", "Apple Pay", "Google Pay", "approved digital wallets", "payment links", "ACH/bank transfer", "OmniCredits for internal eligible purchases", "future regional methods through provider adapters"],
+  "tapToPay": {
+    "model": "Use approved device/platform and processor SDKs for NFC/contactless acceptance. TryAMM provides merchant UX, orchestration, receipts, analytics, tipping, fee display and business tools around the regulated payment rail.",
+    "features": ["amount entry", "tip options", "contactless card/wallet acceptance where provider/device supports it", "digital receipt", "refund lookup", "merchant sales dashboard", "instant analytics event", "fee pass-through option only where lawful and properly disclosed"]
+  },
+  "feesAndProfit": {
+    "principle": "Never publish a payment price below actual processor/network/compliance/support cost. Platform fees must be lawful, disclosed and configured per market/provider.",
+    "components": ["processor fee", "network/interchange where applicable", "FX/cross-border cost", "fraud/chargeback reserve", "support/compliance allocation", "TryAMM platform/service fee where lawful"],
+    "pricingRule": "CostOps computes minimum viable fee and target contribution margin before pricing is exposed. No hidden fee markups."
+  },
+  "merchantTools": ["seller dashboard", "transaction search", "payment links", "invoices", "tips", "refunds", "receipts", "daily sales", "payout status", "tax/export reports", "inventory/order association", "AI business insights", "fraud alerts"],
+  "integrations": ["TryAMM Passport", "CostOps", "TryAMM Analytics", "Marketplace", "HoloMarket", "Creator Workstation", "OmniCredits", "Subscriptions", "Music", "Books", "Meetings/Classroom", "Delivery/HoloRide", "CrossBorder", "Store catalog", "AI Workforce"],
+  "riskControls": ["KYC/KYB", "sanctions screening through providers", "fraud scoring", "velocity limits", "device/session risk", "3DS/SCA where applicable", "webhook signatures", "idempotency", "tokenization", "no raw PAN storage", "refund controls", "chargeback evidence", "suspicious activity escalation", "role-based admin access", "audit trail"],
+  "licensingPath": ["phase 1: regulated provider orchestration", "phase 2: expand multi-provider acquiring and regional payment methods", "phase 3: obtain legal/regulatory advice for money-transmission/payfac/merchant-of-record or other roles before assuming them", "phase 4: pursue licenses/registrations only where economically justified"],
+  "productionGates": ["regulated provider accounts", "PCI scope review", "tokenized payment architecture", "webhook verification", "durable ledger", "idempotency", "reconciliation", "KYC/KYB onboarding", "refund/dispute handling", "payout controls", "tax reporting", "fraud monitoring", "privacy/security review", "regional legal review", "end-to-end payment tests"]
+}
