@@ -1,39 +1,34 @@
 {
-  "name": "TryAMM TapPay",
+  "name": "TryAMM TapPay / OmniPay",
   "status": "architecture-foundation",
-  "purpose": "Original payment orchestration and merchant checkout layer for TryAMM covering tap-to-pay category flows, online checkout, payment links, wallets/OmniCredits, marketplace settlement, creator payouts and future global payment routing through licensed providers.",
-  "positioning": "Build an original TryAMM payments experience inspired by modern merchant payment capabilities, not a copy of any competitor proprietary code, branding or UI.",
+  "purpose": "Original payment orchestration and merchant checkout layer for TryAMM covering Stripe-first online checkout, subscriptions, wallets, marketplace settlement, creator payouts, tap-to-pay category flows, OmniCredits and regional payment routing through licensed providers.",
+  "positioning": "Build an original TryAMM payments experience using regulated providers and original orchestration, not copied proprietary payment code or branding.",
+  "primaryProviderStrategy": {
+    "primary": "Stripe",
+    "stripeUses": ["Checkout Sessions for one-time checkout", "Billing plus Checkout Sessions for subscriptions", "Stripe Connect Accounts v2 for eligible marketplace/creator payout structures", "Apple Pay and Google Pay through Stripe where eligible", "Payment Links", "Stripe Tax only after required registrations are active", "Terminal/tap-to-pay through approved Stripe SDKs/devices where eligible"],
+    "security": ["restricted API keys preferred", "webhook signature verification", "no raw card storage", "idempotency", "capability checks before payments/transfers", "secrets only in server-side environment/secret manager"],
+    "fallbackRule": "When Stripe does not support a required local rail, merchant country, payout route or capability, route through an approved regional licensed provider instead of faking support."
+  },
+  "regionalStrategy": {
+    "unitedStates": {"primary":"Stripe","currency":"USD","methods":["cards","Apple Pay","Google Pay","ACH where eligible","payment links","subscriptions","approved tap-to-pay/Terminal"]},
+    "nigeria": {"primary":"Stripe where account/capability is eligible","fallbacks":["Flutterwave","Paystack"],"currency":"NGN","methods":["cards","bank transfer","USSD or local methods through eligible provider","wallets where supported"],"rule":"Check actual Stripe/account/provider eligibility before presenting a local method."},
+    "africa": {"primary":"Stripe where supported/eligible","fallbacks":["Flutterwave","Paystack","approved regional provider"],"examples":["Ghana","Kenya","South Africa","Cote d'Ivoire"],"rule":"Country, currency, payout and local-method support are capability-driven, not assumed."},
+    "brazil": {"primary":"Stripe for eligible Brazilian/global flows","fallbacks":["approved LATAM provider"],"currency":"BRL","methods":["cards","Apple Pay/Google Pay where eligible","Pix when Stripe account/capability is eligible","Boleto where eligible"],"rule":"Pix eligibility and Connect limitations must be checked at runtime."},
+    "latinAmerica": {"primary":"Stripe in supported countries/capabilities","fallbacks":["approved LATAM regional provider"],"examples":["Mexico","Brazil","Colombia","Argentina","Chile","Peru"],"rule":"Use provider capability matrix for currencies, local methods and payouts."},
+    "globalFallback": {"primary":"Stripe where available","fallbacks":["Flutterwave","Paystack","approved licensed regional adapters"],"currency":"localized when supported, otherwise disclosed settlement currency"}
+  },
   "phase1PartnerModel": {
     "rule": "TryAMM orchestrates licensed/acquiring/payment providers rather than representing itself as an unlicensed processor or money transmitter.",
     "capabilities": ["card checkout", "wallet payments", "payment links", "NFC/tap-to-pay through approved provider SDKs where available", "ACH/bank transfer adapters", "cross-border provider routing", "marketplace split settlement", "refunds", "disputes", "payouts", "receipts"]
   },
-  "coreFlows": [
-    "merchant onboarding and KYC/KYB through regulated provider",
-    "quote and fee disclosure",
-    "payment intent/order creation",
-    "provider routing",
-    "customer authorization",
-    "webhook verification",
-    "ledger posting",
-    "platform/creator split calculation",
-    "settlement/payout",
-    "receipt",
-    "refund/chargeback reconciliation",
-    "analytics and audit"
-  ],
-  "paymentMethods": ["cards", "Apple Pay", "Google Pay", "approved digital wallets", "payment links", "ACH/bank transfer", "OmniCredits for internal eligible purchases", "future regional methods through provider adapters"],
-  "tapToPay": {
-    "model": "Use approved device/platform and processor SDKs for NFC/contactless acceptance. TryAMM provides merchant UX, orchestration, receipts, analytics, tipping, fee display and business tools around the regulated payment rail.",
-    "features": ["amount entry", "tip options", "contactless card/wallet acceptance where provider/device supports it", "digital receipt", "refund lookup", "merchant sales dashboard", "instant analytics event", "fee pass-through option only where lawful and properly disclosed"]
-  },
-  "feesAndProfit": {
-    "principle": "Never publish a payment price below actual processor/network/compliance/support cost. Platform fees must be lawful, disclosed and configured per market/provider.",
-    "components": ["processor fee", "network/interchange where applicable", "FX/cross-border cost", "fraud/chargeback reserve", "support/compliance allocation", "TryAMM platform/service fee where lawful"],
-    "pricingRule": "CostOps computes minimum viable fee and target contribution margin before pricing is exposed. No hidden fee markups."
-  },
-  "merchantTools": ["seller dashboard", "transaction search", "payment links", "invoices", "tips", "refunds", "receipts", "daily sales", "payout status", "tax/export reports", "inventory/order association", "AI business insights", "fraud alerts"],
-  "integrations": ["TryAMM Passport", "CostOps", "TryAMM Analytics", "Marketplace", "HoloMarket", "Creator Workstation", "OmniCredits", "Subscriptions", "Music", "Books", "Meetings/Classroom", "Delivery/HoloRide", "CrossBorder", "Store catalog", "AI Workforce"],
-  "riskControls": ["KYC/KYB", "sanctions screening through providers", "fraud scoring", "velocity limits", "device/session risk", "3DS/SCA where applicable", "webhook signatures", "idempotency", "tokenization", "no raw PAN storage", "refund controls", "chargeback evidence", "suspicious activity escalation", "role-based admin access", "audit trail"],
-  "licensingPath": ["phase 1: regulated provider orchestration", "phase 2: expand multi-provider acquiring and regional payment methods", "phase 3: obtain legal/regulatory advice for money-transmission/payfac/merchant-of-record or other roles before assuming them", "phase 4: pursue licenses/registrations only where economically justified"],
-  "productionGates": ["regulated provider accounts", "PCI scope review", "tokenized payment architecture", "webhook verification", "durable ledger", "idempotency", "reconciliation", "KYC/KYB onboarding", "refund/dispute handling", "payout controls", "tax reporting", "fraud monitoring", "privacy/security review", "regional legal review", "end-to-end payment tests"]
+  "coreFlows": ["merchant onboarding and KYC/KYB through regulated provider", "country/currency capability check", "quote and fee disclosure", "payment intent/order creation", "provider routing", "customer authorization", "webhook verification", "ledger posting", "platform/creator split calculation", "settlement/payout", "receipt", "refund/chargeback reconciliation", "analytics and audit"],
+  "paymentMethods": ["cards", "Apple Pay", "Google Pay", "approved digital wallets", "payment links", "ACH/bank transfer where eligible", "Pix where eligible", "regional bank/mobile-money/USSD methods through approved providers", "OmniCredits for internal eligible purchases"],
+  "tapToPay": {"model":"Use approved Stripe Terminal/Tap to Pay or other approved processor/device SDKs for NFC/contactless acceptance. TryAMM provides merchant UX, orchestration, receipts, analytics, tipping, fee display and business tools around the regulated rail.","features":["amount entry","tip options","contactless card/wallet acceptance where supported","digital receipt","refund lookup","merchant sales dashboard","instant analytics event","fee pass-through only where lawful and disclosed"]},
+  "feesAndProfit": {"principle":"Never publish a payment price below actual processor/network/compliance/support cost. Platform fees must be lawful, disclosed and configured per market/provider.","components":["processor fee","network/interchange where applicable","FX/cross-border cost","fraud/chargeback reserve","support/compliance allocation","TryAMM platform/service fee where lawful"],"pricingRule":"CostOps computes minimum viable fee and target contribution margin before pricing is exposed. No hidden fee markups."},
+  "merchantTools": ["seller dashboard","transaction search","payment links","invoices","tips","refunds","receipts","daily sales","payout status","tax/export reports","inventory/order association","AI business insights","fraud alerts"],
+  "integrations": ["TryAMM Passport","CostOps","TryAMM Analytics","Marketplace","HoloMarket","Creator Workstation","OmniCredits","Subscriptions","Music","Books","Meetings/Classroom","Delivery/HoloRide","Aniyah CrossBorder","Store catalog","AI Workforce"],
+  "riskControls": ["KYC/KYB","sanctions screening through providers","fraud scoring","velocity limits","device/session risk","3DS/SCA where applicable","webhook signatures","idempotency","tokenization","no raw PAN storage","refund controls","chargeback evidence","suspicious activity escalation","role-based admin access","audit trail"],
+  "stripeImplementationRules": ["Use current Stripe API/SDK", "Use Checkout Sessions for standard one-time checkout", "Use Billing APIs plus Checkout Sessions for subscriptions", "Use Connect Accounts v2 rather than deprecated account-type patterns", "Check connected-account capability status before transfers/payments", "Use dynamic payment methods rather than hard-coding non-Terminal payment_method_types", "Use verified webhooks as payment truth", "Do not enable Stripe Tax unless registrations are active"],
+  "licensingPath": ["phase 1: Stripe-first regulated provider orchestration", "phase 2: expand multi-provider acquiring and regional payment methods", "phase 3: obtain legal/regulatory advice for money-transmission/payfac/merchant-of-record roles before assuming them", "phase 4: pursue licenses/registrations only where economically justified"],
+  "productionGates": ["Stripe account and restricted server credentials", "Connect account architecture decision", "regulated regional provider accounts", "PCI scope review", "tokenized payment architecture", "webhook verification", "durable ledger", "idempotency", "reconciliation", "KYC/KYB onboarding", "refund/dispute handling", "payout controls", "tax registration/tax logic", "fraud monitoring", "privacy/security review", "regional legal review", "end-to-end payment tests"]
 }
