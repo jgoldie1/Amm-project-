@@ -1,0 +1,31 @@
+{
+  "name": "TryAMM Business-in-a-Box",
+  "version": "1.0.0",
+  "status": "production-integration-foundation",
+  "businessTypes": ["retail","restaurant","services","creator-store","professional-services","education","events","nonprofit","marketplace-seller"],
+  "plans": [
+    {"id":"starter","monthlyUsd":0,"setupFeeUsd":0,"features":["basic storefront","product/menu listing","promo codes","basic analytics"]},
+    {"id":"growth","monthlyUsd":29,"setupFeeUsd":49,"features":["custom storefront","HoloAds tools","GrowthOS recommendations","customer loyalty","booking/order tools","priority support"]},
+    {"id":"pro","monthlyUsd":99,"setupFeeUsd":199,"features":["advanced analytics","multi-location","AI call-center routing","campaign automation","advanced staff roles","business dashboard"]}
+  ],
+  "pricingRule": "All pricing is configurable by market and campaign; never hard-code one global fee schedule.",
+  "paymentRouter": {
+    "name":"Jin / PayRouter",
+    "purpose":"Select approved payment methods by country, channel, product and regulation.",
+    "rails":["stripe-online","tap-to-pay-where-supported","paystack","flutterwave-or-approved-local-rail","mobile-money-where-supported","bank-transfer-where-supported","apple-google-billing-where-required"]
+  },
+  "revenuePolicies": [
+    "RW-BUSINESS-SUBSCRIPTION-01",
+    "RW-BUSINESS-SETUP-01",
+    "RW-MARKETPLACE-01",
+    "RW-RESTAURANT-01",
+    "RW-DELIVERY-01",
+    "RW-HOLOADS-01",
+    "RW-CREATOR-SPONSORSHIP-01"
+  ],
+  "referrals": {
+    "qualifiedReferralDefaultUsd":1,
+    "adjustable":true,
+    "requirements":["verified account","fraud check","qualifying activation event"]
+  }
+}
