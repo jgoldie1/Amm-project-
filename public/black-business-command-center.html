@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TryAMM Black Business Command Center</title>
+<style>
+:root{color-scheme:dark;--bg:#07101d;--panel:#101b2d;--border:#2a3d5d;--text:#f6f8fb;--muted:#a9b7cc;--accent:#e2b857}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif}main{max-width:1180px;margin:auto;padding:22px}.top{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:14px;margin-top:18px}.card{border:1px solid var(--border);border-radius:16px;background:var(--panel);padding:16px}.metric{font-size:1.8rem;font-weight:700}.muted{color:var(--muted)}.badge{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:5px 9px;color:var(--accent)}a,button{color:inherit}button{background:#172641;border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer}.links{display:grid;gap:8px}.section{margin-top:24px}progress{width:100%}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div>
+      <span class="badge">Support Black Business</span>
+      <h1>Business Command Center</h1>
+      <p class="muted">One place to sell, market, find contracts, discover funding, manage suppliers and expand.</p>
+    </div>
+    <button type="button" id="refresh">Refresh dashboard</button>
+  </div>
+
+  <section class="grid" aria-label="Business summary">
+    <article class="card"><div class="muted">Readiness</div><div class="metric" id="readiness">—</div><progress id="readinessBar" max="100" value="0"></progress></article>
+    <article class="card"><div class="muted">Procurement matches</div><div class="metric" id="procurement">—</div><div class="muted">RFP/RFQ and buyer opportunities</div></article>
+    <article class="card"><div class="muted">Funding matches</div><div class="metric" id="funding">—</div><div class="muted">Grants and third-party capital opportunities</div></article>
+    <article class="card"><div class="muted">Supplier listings</div><div class="metric" id="suppliers">—</div><div class="muted">Wholesale, sourcing and partnerships</div></article>
+  </section>
+
+  <section class="section grid">
+    <article class="card"><h2>Sell & grow</h2><div class="links"><button>Open Storefront</button><button>Manage HoloMenu</button><button>Create HoloCoupon</button><button>Start Business Live</button><button>Launch HoloAds</button></div></article>
+    <article class="card"><h2>Contracts & procurement</h2><p class="muted">Review matched opportunities, buyer inquiries and contract-readiness tasks.</p><button>Open Procurement Hub</button></article>
+    <article class="card"><h2>Funding Center</h2><p class="muted">Track grants, accelerators, competitions and third-party financing opportunities. No funding is guaranteed.</p><button>Open Funding Hub</button></article>
+    <article class="card"><h2>Africa & Diaspora</h2><p class="muted">Find suppliers, customers and partners across enabled countries, subject to payment, shipping, tax and compliance gates.</p><button>Open Global Trade</button></article>
+  </section>
+
+  <section class="section card">
+    <h2>GrowthOS recommendations</h2>
+    <ul id="recommendations">
+      <li>Complete business verification and storefront setup.</li>
+      <li>Add at least one HoloCoupon and one creator-affiliate campaign.</li>
+      <li>Complete supplier and funding-readiness profiles.</li>
+    </ul>
+    <p class="muted">GrowthOS may recommend actions, but merchant approval is required before spending money, submitting applications, accepting contracts or changing prices.</p>
+  </section>
+</main>
+<script>
+const demo={readiness:67,procurement:8,funding:4,suppliers:3};
+function render(data){
+  document.getElementById('readiness').textContent=`${data.readiness}%`;
+  document.getElementById('readinessBar').value=data.readiness;
+  document.getElementById('procurement').textContent=data.procurement;
+  document.getElementById('funding').textContent=data.funding;
+  document.getElementById('suppliers').textContent=data.suppliers;
+}
+document.getElementById('refresh').addEventListener('click',()=>render(demo));
+render(demo);
+</script>
+</body>
+</html>
