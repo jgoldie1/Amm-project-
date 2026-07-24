@@ -1,0 +1,24 @@
+{
+  "product": "TryAMM Omniverse",
+  "branch": "agent/tryamm-production-integration",
+  "status": "INTEGRATION_IN_PROGRESS",
+  "releaseGate": "BLOCKED_UNTIL_ALL_CRITICAL_GATES_PASS",
+  "criticalGates": [
+    {"id":"auth","label":"Auth + profile persistence","status":"UNVERIFIED"},
+    {"id":"database","label":"Supabase/Postgres migrations + RLS","status":"UNVERIFIED"},
+    {"id":"live","label":"Real LiveKit/WebRTC creator live flow","status":"UNVERIFIED"},
+    {"id":"creatorProgress","label":"Qualified hours + protected breaks + 15/30/40","status":"UNVERIFIED"},
+    {"id":"payments","label":"Verified Stripe/store payment webhooks","status":"UNVERIFIED"},
+    {"id":"waterfall","label":"Revenue Waterfall + payable balances","status":"UNVERIFIED"},
+    {"id":"ledger","label":"Unified Value Ledger durability/idempotency","status":"UNVERIFIED"},
+    {"id":"ai","label":"HoloGPT/Bennie/JARVIS real backend routing + usage metering","status":"UNVERIFIED"},
+    {"id":"translation","label":"HoloLingo translation smoke tests","status":"UNVERIFIED"},
+    {"id":"accessibility","label":"HoloAccess/accessibility acceptance","status":"UNVERIFIED"},
+    {"id":"safety","label":"HoloGuardian age-lane/moderation acceptance","status":"UNVERIFIED"},
+    {"id":"hologram","label":"Hologram/Lottie non-blocking app-entry integration","status":"PARTIAL"},
+    {"id":"game","label":"One Living World end-to-end verified progression/reward flow","status":"UNVERIFIED"},
+    {"id":"music","label":"HoloMusic storage/rights/royalties/tickets/live event staging flow","status":"UNVERIFIED"},
+    {"id":"observability","label":"Monitoring, alerts, audit logs, rollback","status":"UNVERIFIED"}
+  ],
+  "truthRule": "A feature is production-ready only after frontend, backend, database, permissions, provider integration, error handling, tests and staging validation pass where applicable."
+}
