@@ -1,0 +1,81 @@
+{
+  "name": "TryAMM Unified Front Scroll",
+  "version": "1.0.0",
+  "status": "production-integration-foundation",
+  "tabs": [
+    "for-you",
+    "following",
+    "live",
+    "shop-live",
+    "business-live",
+    "reels",
+    "threads",
+    "news-tv",
+    "holomusic",
+    "games",
+    "local"
+  ],
+  "contentTypes": [
+    "creator-video",
+    "live-stream",
+    "shop-live",
+    "business-live",
+    "reel",
+    "thread-post",
+    "news-clip",
+    "tv-clip",
+    "music-track",
+    "music-video",
+    "game-clip",
+    "game-live",
+    "local-business",
+    "holo-coupon",
+    "ad-placement"
+  ],
+  "requiredFields": [
+    "id",
+    "contentType",
+    "creatorId",
+    "createdAt",
+    "countryAvailability",
+    "ageLane",
+    "rightsStatus",
+    "language",
+    "engagement",
+    "commerceActions"
+  ],
+  "rankingSignals": [
+    "follow-affinity",
+    "watch-time",
+    "completion-rate",
+    "rewatch-rate",
+    "share-rate",
+    "comment-quality",
+    "save-rate",
+    "live-join-rate",
+    "purchase-conversion",
+    "coupon-conversion",
+    "local-relevance",
+    "freshness",
+    "safety-quality",
+    "creator-diversity"
+  ],
+  "preRankFilters": [
+    "age-safety",
+    "country-availability",
+    "music-tv-rights",
+    "moderation-status",
+    "commerce-availability",
+    "payment-availability",
+    "language-and-translation",
+    "user-blocks-and-mutes"
+  ],
+  "guardrails": [
+    "Do not optimize minors toward harmful or manipulative engagement loops.",
+    "Sponsored content must be labeled.",
+    "Creator-attributed ads and general platform ads use separate revenue policies.",
+    "Unavailable or unlicensed TV/music must not be shown as playable content.",
+    "Local commerce actions must respect country and service availability.",
+    "Accessibility and reduced-motion preferences apply before rendering." 
+  ]
+}
