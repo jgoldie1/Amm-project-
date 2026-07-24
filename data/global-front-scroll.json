@@ -1,0 +1,75 @@
+{
+  "name": "TryAMM Global Front Scroll",
+  "status": "integration-foundation",
+  "tabs": [
+    "For You",
+    "Following",
+    "Live",
+    "Shop Live",
+    "Business Live",
+    "Reels",
+    "Threads",
+    "News/TV",
+    "HoloMusic",
+    "Games",
+    "Local"
+  ],
+  "contentTypes": [
+    "short_video",
+    "live_stream",
+    "shop_live",
+    "business_live",
+    "thread_post",
+    "news_clip",
+    "tv_program",
+    "music_video",
+    "game_clip",
+    "local_offer"
+  ],
+  "sharedActions": [
+    "like",
+    "comment",
+    "share",
+    "follow",
+    "save",
+    "shop",
+    "coupon",
+    "book",
+    "ride",
+    "delivery",
+    "translate",
+    "accessibility",
+    "report"
+  ],
+  "globalRules": {
+    "countryAware": true,
+    "languageAware": true,
+    "currencyAware": true,
+    "ageLaneAware": true,
+    "rightsAware": true,
+    "taxPolicyAware": true,
+    "paymentRailAware": true
+  },
+  "rankingInputs": [
+    "follow_graph",
+    "watch_time",
+    "completion_rate",
+    "legitimate_engagement",
+    "freshness",
+    "language_match",
+    "country_availability",
+    "age_safety",
+    "user_interests",
+    "creator_quality",
+    "business_relevance",
+    "local_relevance"
+  ],
+  "guardrails": [
+    "Do not boost unsafe or age-inappropriate content.",
+    "Do not recommend unavailable products or payment rails in a user's country.",
+    "Respect music/TV territorial rights.",
+    "HoloGuardian overrides engagement ranking for minors.",
+    "HoloLingo may translate captions/text without changing the source meaning.",
+    "HoloAccess preferences must apply across feed controls."
+  ]
+}
