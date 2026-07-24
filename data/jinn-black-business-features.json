@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "name": "Jinn Merchant Operating Layer",
+  "purpose": "Help participating businesses run sales, payments, loyalty, invoicing, supplier payments, receipts and growth from one operating layer.",
+  "features": [
+    {"id":"jinn-tap-pay","name":"Tap to Pay / in-person checkout","status":"provider-dependent"},
+    {"id":"jinn-digital-receipts","name":"SMS/email/in-app receipts","status":"build"},
+    {"id":"jinn-tax-routing","name":"Tax responsibility engine by jurisdiction","status":"build"},
+    {"id":"jinn-invoices","name":"Invoices, payment links and reminders","status":"build"},
+    {"id":"jinn-subscriptions","name":"Recurring billing and memberships","status":"build"},
+    {"id":"jinn-split-payments","name":"Configurable split payouts and revenue waterfalls","status":"build"},
+    {"id":"jinn-tips","name":"Tips and gratuities with transparent allocation","status":"build"},
+    {"id":"jinn-qr-nfc","name":"QR/NFC payment and HoloMenu entry points","status":"build"},
+    {"id":"jinn-loyalty","name":"HoloPass loyalty and merchant rewards","status":"build"},
+    {"id":"jinn-coupons","name":"HoloCoupon validation and redemption","status":"build"},
+    {"id":"jinn-payouts","name":"Merchant payout scheduling and status","status":"build"},
+    {"id":"jinn-supplier-pay","name":"Supplier and wholesale payment workflows","status":"build"},
+    {"id":"jinn-purchase-orders","name":"Purchase order and invoice matching","status":"build"},
+    {"id":"jinn-bookkeeping-export","name":"Accounting/bookkeeping exports and summaries","status":"build"},
+    {"id":"jinn-disputes","name":"Refund, dispute and chargeback workflows","status":"build"},
+    {"id":"jinn-africa","name":"Country-aware PayRouter for Africa/local rails","status":"country-gated"},
+    {"id":"jinn-cross-border","name":"Cross-border pricing, currency and compliance hooks","status":"country-gated"},
+    {"id":"jinn-funding-readiness","name":"Cash-flow and funding-readiness summaries","status":"build"},
+    {"id":"jinn-procurement","name":"Procurement/RFP payment readiness and contract invoicing","status":"build"}
+  ],
+  "guardrails": [
+    "Do not claim TryAMM has no tax responsibility globally; determine seller/marketplace role per jurisdiction.",
+    "Do not commingle merchant payable, tax liabilities and TryAMM revenue.",
+    "Do not auto-submit loan, grant or procurement applications without merchant approval.",
+    "Do not expose full payment credentials or sensitive tax documents in general app surfaces.",
+    "Paid placement and financing offers must be clearly disclosed."
+  ]
+}
