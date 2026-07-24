@@ -1,0 +1,44 @@
+{
+  "name": "TryAMM Black Business Directory",
+  "status": "foundation",
+  "purpose": "Verified discovery, commerce, growth, and diaspora/Africa connection layer for Black-owned businesses within the broader inclusive TryAMM marketplace.",
+  "principles": [
+    "Verification must be evidence-based and auditable.",
+    "The directory is an affinity/discovery layer inside a broader platform open to all eligible businesses.",
+    "Directory inclusion must not imply government certification unless actually verified.",
+    "Businesses can opt into storefront, restaurant, services, HoloMenu, HoloCoupons, HoloAds, creator affiliate campaigns, HoloLocal, Ride/Delivery, HoloTV commerce, and Africa/diaspora commerce where available."
+  ],
+  "verificationLevels": [
+    {"id":"self_attested","label":"Self-attested Black-owned"},
+    {"id":"document_reviewed","label":"Document-reviewed"},
+    {"id":"third_party_certified","label":"Third-party certified","examples":["MBE","NMSDC or regional affiliate","government or recognized certifier"]}
+  ],
+  "directoryTabs": [
+    "Near Me",
+    "Restaurants",
+    "Retail",
+    "Professional Services",
+    "Beauty & Wellness",
+    "Home Services",
+    "Transportation",
+    "Tech",
+    "Creators & Media",
+    "Books & Publishing",
+    "Africa & Diaspora",
+    "HoloCoupons",
+    "Live Now",
+    "New Businesses"
+  ],
+  "monetization": [
+    "optional premium business plans",
+    "featured listings and sponsored placements",
+    "HoloAds",
+    "storefront/commerce fees",
+    "restaurant/delivery services",
+    "creator affiliate commissions",
+    "booking/reservation fees",
+    "AI/GrowthOS services",
+    "HoloTV/HoloMusic commerce",
+    "business academy and premium tools"
+  ]
+}
