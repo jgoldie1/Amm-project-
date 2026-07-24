@@ -1,0 +1,39 @@
+name: Production Readiness
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - agent/tryamm-production-integration
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - name: Readiness audit (structure only in CI without production secrets)
+        run: |
+          SITE_URL=https://staging.tryamm.online \
+          GAMEOPS_INTERNAL_SECRET=ci-not-production \
+          SUPABASE_URL=https://example.supabase.co \
+          SUPABASE_ANON_KEY=ci-placeholder \
+          SUPABASE_SERVICE_ROLE_KEY=ci-placeholder \
+          LIVEKIT_URL=wss://example.livekit.cloud \
+          LIVEKIT_API_KEY=ci-placeholder \
+          LIVEKIT_API_SECRET=ci-placeholder \
+          STRIPE_SECRET_KEY=sk_test_placeholder \
+          STRIPE_WEBHOOK_SECRET=whsec_placeholder \
+          npm run production:audit
+      - name: Production gate
+        run: npm run production:gate
