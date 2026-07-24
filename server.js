@@ -51,6 +51,7 @@ const { registerHolo5dxRoutes } = require("./lib/holo5dx-routes");
 const { installProductionSecurity, safeErrorHandler, notFoundHandler } = require("./lib/production-security");
 const { createAuthMiddleware } = require("./lib/auth-rbac");
 const { createSupabaseAuthAdapter } = require("./lib/supabase-auth-adapter");
+const { installQuantumSandbox } = require("./lib/quantum-sandbox-bootstrap");
 const assetPipeline = require("./lib/asset-pipeline-manager");
 
 const app = express();
@@ -87,6 +88,19 @@ app.get("/health", (_req, res) => res.json({ ok: true, service: "tryamm", site: 
 app.get("/ready", (_req, res) => { const missing = ["SUPABASE_URL", "SUPABASE_ANON_KEY"].filter((name) => !process.env[name]); res.status(missing.length ? 503 : 200).json({ ready: missing.length === 0, missing }); });
 app.get("/api/social-links", (_req, res) => { const links = { facebook: process.env.FACEBOOK_URL || "", instagram: process.env.INSTAGRAM_URL || "", tiktok: process.env.TIKTOK_URL || "" }; res.json(Object.fromEntries(Object.entries(links).filter(([, value]) => /^https:\/\//i.test(value)))); });
 app.get("/api/platform/status", (_req, res) => { const counts = PLATFORM_STATUS.domains.reduce((acc, domain) => { acc[domain.status] = (acc[domain.status] || 0) + 1; return acc; }, {}); res.json({ product: PLATFORM_STATUS.product, counts, domains: PLATFORM_STATUS.domains, note: "Status reflects the connected GitHub repository, not every idea discussed historically." }); });
+
+const quantumSandbox = installQuantumSandbox({ app, auth, appendAudit, env: process.env });
+app.get("/api/quantum-sandbox/status", (_req, res) => {
+  res.json({
+    enabled: Boolean(quantumSandbox?.enabled),
+    classicalSimulator: Boolean(quantumSandbox?.enabled),
+    realQuantumHardware: false,
+    note: quantumSandbox?.enabled
+      ? "Authenticated Quantum Sandbox routes are installed. Real quantum hardware remains disabled until a verified provider adapter and credentials are configured."
+      : "Quantum Sandbox is disabled until required Supabase configuration is present."
+  });
+});
+
 app.get("/api/services", (_req, res) => res.json(TRYAMM_SERVICES));
 app.get("/api/services/:id", (req, res) => { const service = TRYAMM_SERVICES.services.find((item) => item.id === req.params.id); if (!service) return res.status(404).json({ error: "Service not found" }); res.json(service); });
 app.post("/api/services/requests", requireInternalSecret, (req, res) => { try { const request = servicesHub.createRequest(req.body || {}); appendAudit({ event: "service.request.created", request, at: new Date().toISOString() }); res.status(201).json(request); } catch (error) { res.status(error.message === "UNKNOWN_SERVICE" ? 400 : 500).json({ error: error.message }); } });
