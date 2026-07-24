@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "sourceOfTruth": "single business profile + storefront + verification + commerce state",
+  "surfaces": [
+    {
+      "id": "support-black-business",
+      "label": "Support Black Business",
+      "includes": ["business profiles", "short videos", "Business Live", "Shop Live", "products", "restaurant menus", "HoloCoupons", "books", "events", "creator collaborations"]
+    },
+    {
+      "id": "for-you",
+      "label": "For You",
+      "eligibility": "personalized and safety-filtered participating businesses may appear when relevant"
+    },
+    {
+      "id": "local",
+      "label": "Local",
+      "eligibility": "city/distance relevance, open/available status, local commerce availability"
+    },
+    {
+      "id": "business-live",
+      "label": "Business Live",
+      "eligibility": "currently live participating businesses"
+    },
+    {
+      "id": "shop-live",
+      "label": "Shop Live",
+      "eligibility": "live streams with approved shoppable catalog/menu links"
+    },
+    {
+      "id": "coupons",
+      "label": "HoloCoupons",
+      "eligibility": "active valid offers with server-authoritative redemption"
+    },
+    {
+      "id": "africa-diaspora",
+      "label": "Africa & Diaspora",
+      "eligibility": "businesses opted into relevant cross-border discovery; payments/shipping remain country-gated"
+    }
+  ],
+  "sharedRules": [
+    "Do not duplicate business identity records across surfaces.",
+    "Paid placement must be labeled Sponsored/Featured.",
+    "Verification level must be displayed accurately.",
+    "Country, age, moderation, availability and commerce rules apply before ranking.",
+    "A business can be discoverable even when payments are unavailable, but purchase CTAs must be hidden or disabled where not legally/operationally supported.",
+    "HoloLingo translation and HoloAccess accessibility settings should apply across all surfaces."
+  ]
+}
