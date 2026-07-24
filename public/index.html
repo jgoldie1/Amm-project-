@@ -13,109 +13,31 @@
   <meta property="og:url" content="https://tryamm.online/" />
   <meta property="og:image" content="https://tryamm.online/og-default.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="TryAMM — Create, Stream, Play, Shop & Connect" />
-  <meta name="twitter:description" content="Discover creators, live experiences, games, music, podcasts, products and more on TryAMM." />
-  <meta name="twitter:image" content="https://tryamm.online/og-default.jpg" />
-  <script type="application/ld+json" id="organization-jsonld">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {"@type":"Organization","@id":"https://tryamm.online/#organization","name":"TryAMM","url":"https://tryamm.online/"},
-      {"@type":"WebSite","@id":"https://tryamm.online/#website","url":"https://tryamm.online/","name":"TryAMM","publisher":{"@id":"https://tryamm.online/#organization"}}
-    ]
-  }
-  </script>
+  <style>
+    body{font-family:system-ui;margin:0;background:#060713;color:#fff}main{max-width:1100px;margin:auto;padding:24px}a{color:#89e9ff;margin-right:16px}.holo-splash{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at center,#0b2740 0,#050713 55%,#02030a 100%);display:grid;place-items:center;transition:opacity .45s ease}.holo-splash[hidden]{display:none}.holo-panel{text-align:center;width:min(92vw,680px)}#home-hologram{height:min(68vw,520px);max-height:520px}.skip{position:absolute;top:18px;right:18px;padding:.7rem 1rem;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.35);color:white}.holo-link{display:inline-block;margin-top:14px}@media (prefers-reduced-motion: reduce){.holo-splash{transition:none}#home-hologram{height:auto;min-height:120px;display:grid;place-items:center;font-size:2rem}}
+  </style>
+  <script type="application/ld+json" id="organization-jsonld">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://tryamm.online/#organization","name":"TryAMM","url":"https://tryamm.online/"},{"@type":"WebSite","@id":"https://tryamm.online/#website","url":"https://tryamm.online/","name":"TryAMM","publisher":{"@id":"https://tryamm.online/#organization"}}]}</script>
 </head>
 <body>
+  <section id="holo-splash" class="holo-splash" aria-label="TryAMM hologram introduction">
+    <button id="skip-holo" class="skip" type="button">Skip</button>
+    <div class="holo-panel"><div id="home-hologram" aria-label="Animated TryAMM hologram"></div><h1>TryAMM</h1><p>The Omniverse starts here.</p></div>
+  </section>
   <main>
-    <h1>TryAMM</h1>
-    <p>Create, stream, play, shop and connect.</p>
-    <nav aria-label="TryAMM sections">
-      <a href="/gameverse">GameVerse: 11 Games + Living Game World</a>
-      <a href="/finish-line">Finish-Line Status</a>
-    </nav>
-    <nav id="official-social-links" aria-label="Official TryAMM social profiles" hidden>
-      <strong>Follow TryAMM:</strong>
-      <a data-social="facebook" rel="me noopener noreferrer" target="_blank">Facebook</a>
-      <a data-social="instagram" rel="me noopener noreferrer" target="_blank">Instagram</a>
-      <a data-social="tiktok" rel="me noopener noreferrer" target="_blank">TikTok</a>
-    </nav>
-    <section aria-label="Share TryAMM">
-      <button type="button" id="share-facebook">Share on Facebook</button>
-      <button type="button" data-copy-campaign="instagram">Copy Instagram campaign link</button>
-      <button type="button" data-copy-campaign="tiktok">Copy TikTok campaign link</button>
-      <p id="share-status" role="status" aria-live="polite"></p>
-    </section>
-    <button type="button" id="tap-button">Tap</button>
-    <p id="count">0</p>
+    <h1>TryAMM</h1><p>Create, stream, play, shop and connect.</p>
+    <nav aria-label="TryAMM sections"><a href="/gameverse">GameVerse: 11 Games + Living Game World</a><a href="/hologram">Hologram + Lottie Library</a><a href="/finish-line">Finish-Line Status</a></nav>
+    <nav id="official-social-links" aria-label="Official TryAMM social profiles" hidden><strong>Follow TryAMM:</strong><a data-social="facebook" rel="me noopener noreferrer" target="_blank">Facebook</a><a data-social="instagram" rel="me noopener noreferrer" target="_blank">Instagram</a><a data-social="tiktok" rel="me noopener noreferrer" target="_blank">TikTok</a></nav>
+    <section aria-label="Share TryAMM"><button type="button" id="share-facebook">Share on Facebook</button><button type="button" data-copy-campaign="instagram">Copy Instagram campaign link</button><button type="button" data-copy-campaign="tiktok">Copy TikTok campaign link</button><p id="share-status" role="status" aria-live="polite"></p></section>
+    <button type="button" id="tap-button">Tap</button><p id="count">0</p>
   </main>
+  <script src="/js/tryamm-lottie.js"></script>
   <script>
-  async function load() {
-    try {
-      const res = await fetch('/count');
-      if (!res.ok) return;
-      const data = await res.json();
-      document.getElementById('count').innerText = data.count;
-    } catch (_) {}
-  }
-  async function increment() {
-    try {
-      await fetch('/increment', { method: 'POST' });
-      load();
-    } catch (_) {}
-  }
-  function campaignUrl(source) {
-    const url = new URL(window.location.href);
-    url.search = '';
-    url.hash = '';
-    url.searchParams.set('utm_source', source);
-    url.searchParams.set('utm_medium', 'social');
-    url.searchParams.set('utm_campaign', 'tryamm_launch');
-    return url.toString();
-  }
-  async function configureSocialLinks() {
-    try {
-      const res = await fetch('/api/social-links');
-      if (!res.ok) return;
-      const links = await res.json();
-      const nav = document.getElementById('official-social-links');
-      let visible = 0;
-      Object.entries(links).forEach(([name, url]) => {
-        const anchor = nav.querySelector(`[data-social="${name}"]`);
-        if (anchor && typeof url === 'string' && url.startsWith('https://')) {
-          anchor.href = url;
-          anchor.hidden = false;
-          visible++;
-        }
-      });
-      if (visible) {
-        nav.hidden = false;
-        const jsonLd = document.getElementById('organization-jsonld');
-        const data = JSON.parse(jsonLd.textContent);
-        const organization = data['@graph'].find((item) => item['@type'] === 'Organization');
-        organization.sameAs = Object.values(links);
-        jsonLd.textContent = JSON.stringify(data);
-      }
-    } catch (_) {}
-  }
-  document.getElementById('tap-button').addEventListener('click', increment);
-  document.getElementById('share-facebook').addEventListener('click', () => {
-    const shareUrl = encodeURIComponent(campaignUrl('facebook'));
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, '_blank', 'noopener,noreferrer');
-  });
-  document.querySelectorAll('[data-copy-campaign]').forEach((button) => {
-    button.addEventListener('click', async () => {
-      const source = button.getAttribute('data-copy-campaign');
-      try {
-        await navigator.clipboard.writeText(campaignUrl(source));
-        document.getElementById('share-status').textContent = `${source} campaign link copied.`;
-      } catch (_) {
-        document.getElementById('share-status').textContent = `Copy this link: ${campaignUrl(source)}`;
-      }
-    });
-  });
-  configureSocialLinks();
-  load();
+  const splash=document.getElementById('holo-splash');const closeSplash=()=>{splash.style.opacity='0';setTimeout(()=>splash.hidden=true,450)};document.getElementById('skip-holo').addEventListener('click',closeSplash);
+  TryAMMLottie.mount(document.getElementById('home-hologram'),'tryamm-hologram-splash',{loop:false}).then(anim=>{if(anim)anim.addEventListener('complete',()=>setTimeout(closeSplash,500));else setTimeout(closeSplash,1200)}).catch(()=>setTimeout(closeSplash,1000));setTimeout(()=>{if(!splash.hidden)closeSplash()},7000);
+  async function load(){try{const res=await fetch('/count');if(!res.ok)return;const data=await res.json();document.getElementById('count').innerText=data.count}catch(_){}}
+  async function increment(){try{await fetch('/increment',{method:'POST'});load()}catch(_){}}
+  function campaignUrl(source){const url=new URL(window.location.href);url.search='';url.hash='';url.searchParams.set('utm_source',source);url.searchParams.set('utm_medium','social');url.searchParams.set('utm_campaign','tryamm_launch');return url.toString()}
+  async function configureSocialLinks(){try{const res=await fetch('/api/social-links');if(!res.ok)return;const links=await res.json();const nav=document.getElementById('official-social-links');let visible=0;Object.entries(links).forEach(([name,url])=>{const anchor=nav.querySelector(`[data-social="${name}"]`);if(anchor&&typeof url==='string'&&url.startsWith('https://')){anchor.href=url;anchor.hidden=false;visible++}});if(visible)nav.hidden=false}catch(_){}}
+  document.getElementById('tap-button').addEventListener('click',increment);document.getElementById('share-facebook').addEventListener('click',()=>window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(campaignUrl('facebook'))}`,'_blank','noopener,noreferrer'));document.querySelectorAll('[data-copy-campaign]').forEach(button=>button.addEventListener('click',async()=>{const source=button.getAttribute('data-copy-campaign');try{await navigator.clipboard.writeText(campaignUrl(source));document.getElementById('share-status').textContent=`${source} campaign link copied.`}catch(_){document.getElementById('share-status').textContent=`Copy this link: ${campaignUrl(source)}`}}));configureSocialLinks();load();
   </script>
-</body>
-</html>
+</body></html>
