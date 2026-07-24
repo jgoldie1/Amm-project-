@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0",
+  "status": "master-commercialization-registry",
+  "pathways": [
+    {"id":"BIZ-STORE-001","name":"Business-in-a-Box Storefronts","status":"BUILD","revenue":["setup_fee","subscription","transaction_fee","ads","ai_usage","delivery"]},
+    {"id":"RESTAURANT-001","name":"Restaurant Commerce","status":"BUILD","requires":["menu","modifiers","pickup","delivery","payments","loyalty","ads"]},
+    {"id":"PAY-ROUTER-001","name":"Jin / PayRouter","status":"PARTIAL","requires":["provider_routing","verified_webhooks","ledger","payouts","country_rules"]},
+    {"id":"AFRICA-001","name":"Africa Hub","status":"PARTIAL","markets":["Nigeria","Ghana","Kenya","South Africa"]},
+    {"id":"SHOPIFY-001","name":"Shopify Commerce Bridge","status":"BUILD","catalog":["books","digital_products","music","merchandise","reload_cards_after_compliance","HoloDeck","devices","courses"]},
+    {"id":"PUBLISHING-001","name":"Books and Publishing","status":"BUILD","channels":["TryAMM Marketplace","Shopify","KDP/approved publishing channels"]},
+    {"id":"HOLOTV-ORIG-001","name":"HoloTV Originals","status":"BUILD"},
+    {"id":"TV-LICENSE-001","name":"Third-Party TV Licensing Pipeline","status":"BUILD","gate":"WRITTEN_RIGHTS_REQUIRED"},
+    {"id":"HOLOBROADCAST-001","name":"HoloBroadcast and HoloStudio","status":"PARTIAL"},
+    {"id":"HOLOADS-001","name":"Internal and External Advertising","status":"BUILD"},
+    {"id":"REFERRAL-001","name":"Qualified Referral and Promo Codes","status":"BUILD","defaultConcept":"$1 per qualified referral, campaign-adjustable"},
+    {"id":"RELOAD-001","name":"Reload/Gift Cards","status":"BLOCKED_PENDING_COMPLIANCE"},
+    {"id":"HOLODECK-001","name":"HoloDeck and Device Commerce","status":"R&D_TO_PRODUCT_PATH"},
+    {"id":"ADDRESS-001","name":"Business Address","status":"VERIFY_EXTERNAL_SETUP"},
+    {"id":"EMAIL-001","name":"Business Email","status":"VERIFY_EXTERNAL_SETUP"},
+    {"id":"PHONE-001","name":"1-800 / Business Phone / Call Forwarding","status":"VERIFY_EXTERNAL_SETUP"},
+    {"id":"CALLCENTER-001","name":"AI Call Center","status":"PARTIAL"}
+  ],
+  "truthRule":"External accounts, addresses, phone numbers, licenses, payment rails, and hardware are not live until actually provisioned/contracted and staging acceptance passes."
+}
