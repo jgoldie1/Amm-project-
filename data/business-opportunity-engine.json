@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "name": "TryAMM Business Opportunity Engine",
+  "purpose": "Turn discovery into measurable sales, contracts, funding opportunities, supplier relationships and global growth for eligible businesses.",
+  "modules": {
+    "opportunityHub": ["RFP/RFQ discovery", "corporate procurement", "public-sector opportunity links", "grant discovery", "accelerators", "supplier requests", "wholesale leads", "creator campaign opportunities"],
+    "businessProfile": ["capabilities", "categories/NAICS", "service area", "countries served", "capacity", "certifications", "insurance", "licenses", "past performance", "accessibility", "shipping/delivery"],
+    "matchEngine": ["eligibility filters", "location", "industry", "capacity", "certification", "deadline", "contract size", "country readiness"],
+    "workflow": ["save opportunity", "assign owner", "checklist", "document requests", "deadline reminders", "draft assistance", "submit externally", "status tracking", "award/loss learning"],
+    "supplierExchange": ["RFQ", "quotes", "purchase orders", "wholesale catalog", "recurring orders", "joint bids", "subcontractor discovery"],
+    "events": ["Black Business Month", "Black Business Week", "Juneteenth", "city spotlights", "virtual expos", "HoloVerse business expos", "buyer-supplier matchmaking"],
+    "growthAI": ["opportunity recommendations", "storefront improvements", "coupon recommendations", "creator matching", "ad recommendations", "procurement readiness", "funding readiness", "global expansion readiness"]
+  },
+  "globalControls": {
+    "countryLaunchGate": true,
+    "requirements": ["payments", "payouts", "tax", "privacy", "consumer rules", "licenses", "content rights", "currency", "language", "shipping/customs where applicable"],
+    "rule": "Global discovery may be available before regulated transaction capabilities; monetized capabilities activate country-by-country after verification."
+  },
+  "guardrails": [
+    "No guaranteed grants, contracts, loans or awards",
+    "No automatic submission without business approval",
+    "No automatic ad spend without business approval",
+    "Paid placement must be labeled",
+    "Sensitive ownership/certification claims must show verification level"
+  ]
+}
