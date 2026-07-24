@@ -4,12 +4,18 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js",
-    "production:gate": "node scripts/production-gate.js"
+    "check": "node --check server.js && node --check lib/production-security.js && node --check scripts/production-readiness-audit.js && node --check scripts/staging-smoke.js",
+    "production:gate": "node scripts/production-gate.js",
+    "production:audit": "node scripts/production-readiness-audit.js",
+    "staging:smoke": "node scripts/staging-smoke.js",
+    "release:verify": "npm run check && npm run production:audit && npm run production:gate"
   },
   "dependencies": {
     "express": "^4.18.2",
     "lottie-web": "^5.13.0",
     "socket.io": "^4.7.5"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
