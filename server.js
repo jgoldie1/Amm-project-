@@ -48,11 +48,14 @@ const { createEsportsManager } = require("./lib/esports-manager");
 const { registerEsportsRoutes } = require("./lib/esports-routes");
 const { createHolo5dxManager } = require("./lib/holo5dx-manager");
 const { registerHolo5dxRoutes } = require("./lib/holo5dx-routes");
+const { installProductionSecurity, safeErrorHandler, notFoundHandler } = require("./lib/production-security");
+const { createAuthMiddleware } = require("./lib/auth-rbac");
+const { createSupabaseAuthAdapter } = require("./lib/supabase-auth-adapter");
 const assetPipeline = require("./lib/asset-pipeline-manager");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, { cors: { origin: false } });
 const playSessions = createPlaySessionManager({ gameverse: GAMEVERSE, io });
 const servicesHub = createServicesHubManager({ servicesManifest: TRYAMM_SERVICES, io });
 const economicOpportunity = createEconomicOpportunityManager({ manifest: ECONOMIC_OPPORTUNITY, io });
@@ -70,12 +73,18 @@ const holo5dx = createHolo5dxManager({ io });
 const SITE_URL = (process.env.SITE_URL || "https://tryamm.online").replace(/\/$/, "");
 const AUDIT_LOG_PATH = process.env.GAMEOPS_LOG_PATH || path.join(process.cwd(), "runtime", "tryamm-audit.jsonl");
 const gameOpsIncidents = [];
+const authAdapter = createSupabaseAuthAdapter();
+const auth = createAuthMiddleware({ verifyAccessToken: authAdapter.verifyAccessToken, loadRoles: authAdapter.loadRoles });
+
 function appendAudit(record) { try { fs.mkdirSync(path.dirname(AUDIT_LOG_PATH), { recursive: true }); fs.appendFileSync(AUDIT_LOG_PATH, `${JSON.stringify(record)}\n`, "utf8"); } catch (error) { console.error("Audit log write failed", error.message); } }
 function requireInternalSecret(req, res, next) { const secret = process.env.GAMEOPS_INTERNAL_SECRET; if (!secret) return res.status(503).json({ error: "Internal service secret is not configured" }); if (req.get("authorization") !== `Bearer ${secret}`) return res.status(401).json({ error: "Unauthorized" }); next(); }
+function requireOwnedSession(req, res, next) { const session = playSessions.get(req.params.id); if (!session) return res.status(404).json({ error: "Session not found" }); if (String(session.playerId || session.userId || "") !== String(req.auth.userId)) return res.status(403).json({ error: "FORBIDDEN", requestId: req.requestId }); req.playSession = session; next(); }
 
+installProductionSecurity(app, { siteUrl: SITE_URL, rateLimit: { windowMs: 60_000, max: Number(process.env.HTTP_RATE_LIMIT_PER_MINUTE || 180) } });
 app.use(express.json({ limit: "1mb" }));
 app.use(express.static("public", { extensions: ["html"], setHeaders(res, filePath) { if (filePath.endsWith(".html")) res.setHeader("Cache-Control", "public, max-age=0, must-revalidate"); } }));
 app.get("/health", (_req, res) => res.json({ ok: true, service: "tryamm", site: SITE_URL }));
+app.get("/ready", (_req, res) => { const missing = ["SUPABASE_URL", "SUPABASE_ANON_KEY"].filter((name) => !process.env[name]); res.status(missing.length ? 503 : 200).json({ ready: missing.length === 0, missing }); });
 app.get("/api/social-links", (_req, res) => { const links = { facebook: process.env.FACEBOOK_URL || "", instagram: process.env.INSTAGRAM_URL || "", tiktok: process.env.TIKTOK_URL || "" }; res.json(Object.fromEntries(Object.entries(links).filter(([, value]) => /^https:\/\//i.test(value)))); });
 app.get("/api/platform/status", (_req, res) => { const counts = PLATFORM_STATUS.domains.reduce((acc, domain) => { acc[domain.status] = (acc[domain.status] || 0) + 1; return acc; }, {}); res.json({ product: PLATFORM_STATUS.product, counts, domains: PLATFORM_STATUS.domains, note: "Status reflects the connected GitHub repository, not every idea discussed historically." }); });
 app.get("/api/services", (_req, res) => res.json(TRYAMM_SERVICES));
@@ -101,11 +110,11 @@ registerHolo5dxRoutes({ app, manager: holo5dx, requireInternalSecret, appendAudi
 app.get("/api/gameverse", (_req, res) => res.json(GAMEVERSE));
 app.get("/api/gameverse/status", (_req, res) => { const totals = GAMEVERSE.games.reduce((acc, game) => { acc[game.status] = (acc[game.status] || 0) + 1; return acc; }, {}); res.json({ platform: GAMEVERSE.platform, livingGameWorld: GAMEVERSE.world.status, gameCount: GAMEVERSE.games.length, totals, productionPlayableCount: GAMEVERSE.games.filter((game) => game.status === "production").length, prototypePlayableCount: 1, note: "One browser vertical slice is playable; production status requires certification gates." }); });
 app.get("/api/gameverse/games/:id", (req, res) => { const game = GAMEVERSE.games.find((item) => item.id === req.params.id); if (!game) return res.status(404).json({ error: "Game not found" }); res.json(game); });
-app.post("/api/gameverse/profile", (req, res) => { try { const profile = gameRuntime.upsertProfile(req.body || {}); appendAudit({ event: "gameverse.profile.upsert", playerId: profile.id, at: new Date().toISOString() }); res.json(profile); } catch (error) { res.status(400).json({ error: error.message }); } });
-app.get("/api/gameverse/profile/:id", (req, res) => { const profile = gameRuntime.getProfile(req.params.id); if (!profile) return res.status(404).json({ error: "Profile not found" }); res.json(profile); });
-app.post("/api/gameverse/result", (req, res) => { const result = gameRuntime.recordResult(req.body || {}); appendAudit({ event: "gameverse.result", result, at: new Date().toISOString() }); res.status(result.accepted ? 200 : 409).json(result); });
-app.post("/api/gameverse/matchmaking", (req, res) => { try { const result = gameRuntime.enqueue(req.body || {}); appendAudit({ event: "gameverse.matchmaking", result, at: new Date().toISOString() }); res.json(result); } catch (error) { res.status(400).json({ error: error.message }); } });
-app.get("/api/gameverse/matches/:id", (req, res) => { const match = gameRuntime.getMatch(req.params.id); if (!match) return res.status(404).json({ error: "Match not found" }); res.json(match); });
+app.post("/api/gameverse/profile", auth.authenticate, (req, res) => { try { const profile = gameRuntime.upsertProfile({ ...(req.body || {}), id: req.auth.userId, playerId: req.auth.userId }); appendAudit({ event: "gameverse.profile.upsert", playerId: req.auth.userId, requestId: req.requestId, at: new Date().toISOString() }); res.json(profile); } catch (error) { res.status(400).json({ error: error.message, requestId: req.requestId }); } });
+app.get("/api/gameverse/profile/:id", auth.authenticate, auth.requireSelf("id"), (req, res) => { const profile = gameRuntime.getProfile(req.params.id); if (!profile) return res.status(404).json({ error: "Profile not found" }); res.json(profile); });
+app.post("/api/gameverse/result", auth.authenticate, (req, res) => { const result = gameRuntime.recordResult({ ...(req.body || {}), playerId: req.auth.userId }); appendAudit({ event: "gameverse.result", playerId: req.auth.userId, result, requestId: req.requestId, at: new Date().toISOString() }); res.status(result.accepted ? 200 : 409).json(result); });
+app.post("/api/gameverse/matchmaking", auth.authenticate, (req, res) => { try { const result = gameRuntime.enqueue({ ...(req.body || {}), playerId: req.auth.userId }); appendAudit({ event: "gameverse.matchmaking", playerId: req.auth.userId, result, requestId: req.requestId, at: new Date().toISOString() }); res.json(result); } catch (error) { res.status(400).json({ error: error.message, requestId: req.requestId }); } });
+app.get("/api/gameverse/matches/:id", auth.authenticate, (req, res) => { const match = gameRuntime.getMatch(req.params.id); if (!match) return res.status(404).json({ error: "Match not found" }); res.json(match); });
 
 app.get("/api/quantum-speed-engine", (_req, res) => res.json(QUANTUM_SPEED_ENGINE));
 app.get("/api/quantum-speed-engine/assets", requireInternalSecret, (_req, res) => res.json({ jobs: assetPipeline.listAssetJobs() }));
@@ -114,11 +123,11 @@ app.get("/api/quantum-speed-engine/assets/:id", requireInternalSecret, (req, res
 app.post("/api/quantum-speed-engine/assets/:id/steps/:step", requireInternalSecret, (req, res) => { const job = assetPipeline.updateStep(req.params.id, req.params.step, req.body || {}); if (!job) return res.status(404).json({ error: "Asset job or step not found" }); appendAudit({ event: "asset-pipeline.step", jobId: job.id, step: req.params.step, snapshot: job, at: new Date().toISOString() }); io.emit("asset-pipeline:update", job); res.json(job); });
 app.post("/api/quantum-speed-engine/assets/:id/publish", requireInternalSecret, (req, res) => { const job = assetPipeline.getAssetJob(req.params.id); if (!job) return res.status(404).json({ error: "Asset job not found" }); const validationPassed = job.validation.some((item) => item && item.passed === true); if (!validationPassed) return res.status(409).json({ error: "Validated asset required before publish" }); const published = assetPipeline.publishAsset(req.params.id, req.body?.publishedAsset || {}); appendAudit({ event: "asset-pipeline.published", job: published, at: new Date().toISOString() }); io.emit("asset-pipeline:update", published); res.json(published); });
 app.get("/api/living-world/policy", (_req, res) => res.json(PLAY_SESSION_POLICY));
-app.post("/api/living-world/sessions", (req, res) => { try { const session = playSessions.create(req.body || {}); appendAudit({ event: "play-session.created", session, at: new Date().toISOString() }); res.status(201).json(session); } catch (error) { res.status(error.message === "UNKNOWN_GAME" ? 400 : 500).json({ error: error.message }); } });
-app.get("/api/living-world/sessions/:id", (req, res) => { const session = playSessions.get(req.params.id); if (!session) return res.status(404).json({ error: "Session not found" }); res.json(session); });
-app.post("/api/living-world/sessions/:id/preflight", (req, res) => { const session = playSessions.preflight(req.params.id, Boolean(req.body?.runtimeAvailable)); if (!session) return res.status(404).json({ error: "Session not found" }); appendAudit({ event: "play-session.ai-preflight", session, at: new Date().toISOString() }); res.json(session); });
-app.post("/api/living-world/sessions/:id/cast", (req, res) => { const { adapter = "browser-second-screen", target = null } = req.body || {}; if (!PLAY_SESSION_POLICY.casting.adapters.includes(adapter)) return res.status(400).json({ error: "Unsupported casting adapter" }); const session = playSessions.update(req.params.id, { displayMode: "cast", castTarget: { adapter, target }, state: "pairing" }); if (!session) return res.status(404).json({ error: "Session not found" }); appendAudit({ event: "play-session.cast-requested", session, at: new Date().toISOString() }); res.json({ ...session, receiverUrl: `${SITE_URL}/tv-receiver?session=${encodeURIComponent(session.id)}` }); });
-app.post("/api/living-world/sessions/:id/state", (req, res) => { const state = req.body?.state; if (!PLAY_SESSION_POLICY.sessionStates.includes(state)) return res.status(400).json({ error: "Invalid session state" }); const session = playSessions.update(req.params.id, { state }); if (!session) return res.status(404).json({ error: "Session not found" }); appendAudit({ event: "play-session.state", session, at: new Date().toISOString() }); res.json(session); });
+app.post("/api/living-world/sessions", auth.authenticate, (req, res) => { try { const session = playSessions.create({ ...(req.body || {}), playerId: req.auth.userId, userId: req.auth.userId }); appendAudit({ event: "play-session.created", playerId: req.auth.userId, session, requestId: req.requestId, at: new Date().toISOString() }); res.status(201).json(session); } catch (error) { res.status(error.message === "UNKNOWN_GAME" ? 400 : 500).json({ error: error.message, requestId: req.requestId }); } });
+app.get("/api/living-world/sessions/:id", auth.authenticate, requireOwnedSession, (req, res) => res.json(req.playSession));
+app.post("/api/living-world/sessions/:id/preflight", auth.authenticate, requireOwnedSession, (req, res) => { const session = playSessions.preflight(req.params.id, Boolean(req.body?.runtimeAvailable)); appendAudit({ event: "play-session.ai-preflight", playerId: req.auth.userId, session, requestId: req.requestId, at: new Date().toISOString() }); res.json(session); });
+app.post("/api/living-world/sessions/:id/cast", auth.authenticate, requireOwnedSession, (req, res) => { const { adapter = "browser-second-screen", target = null } = req.body || {}; if (!PLAY_SESSION_POLICY.casting.adapters.includes(adapter)) return res.status(400).json({ error: "Unsupported casting adapter" }); const session = playSessions.update(req.params.id, { displayMode: "cast", castTarget: { adapter, target }, state: "pairing" }); appendAudit({ event: "play-session.cast-requested", playerId: req.auth.userId, session, requestId: req.requestId, at: new Date().toISOString() }); res.json({ ...session, receiverUrl: `${SITE_URL}/tv-receiver?session=${encodeURIComponent(session.id)}` }); });
+app.post("/api/living-world/sessions/:id/state", auth.authenticate, requireOwnedSession, (req, res) => { const state = req.body?.state; if (!PLAY_SESSION_POLICY.sessionStates.includes(state)) return res.status(400).json({ error: "Invalid session state" }); const session = playSessions.update(req.params.id, { state }); appendAudit({ event: "play-session.state", playerId: req.auth.userId, session, requestId: req.requestId, at: new Date().toISOString() }); res.json(session); });
 
 app.get("/api/gameops/policy", (_req, res) => res.json(GAMEOPS_POLICY));
 app.post("/api/gameops/issues", requireInternalSecret, (req, res) => { const { gameId, source, severity, category, summary, details, reportedBy } = req.body || {}; if (!GAMEVERSE.games.some((game) => game.id === gameId)) return res.status(400).json({ error: "Unknown gameId" }); if (!summary || typeof summary !== "string") return res.status(400).json({ error: "summary is required" }); const incident = { id: crypto.randomUUID(), gameId, source: source || "unknown", severity: severity || "medium", category: category || "unknown", summary: summary.slice(0, 500), details: typeof details === "string" ? details.slice(0, 5000) : "", status: "reported", detectedAt: new Date().toISOString(), reportedBy: reportedBy || "ai-or-system", aiDiagnosis: null, proposedFix: null, approvalRequired: !GAMEOPS_POLICY.autoFixAllowlist.includes(category), approvedBy: null, fixAppliedAt: null, validation: null, rollback: null, closedAt: null }; gameOpsIncidents.unshift(incident); if (gameOpsIncidents.length > 1000) gameOpsIncidents.length = 1000; appendAudit({ event: "incident.reported", incident }); io.emit("gameops:incident", incident); res.status(201).json(incident); });
@@ -131,13 +140,30 @@ app.post("/api/gameops/issues/:id/close", requireInternalSecret, (req, res) => {
 app.post("/api/indexnow", async (req, res) => { try { const key = process.env.INDEXNOW_KEY; const internalSecret = process.env.INTERNAL_PUBLISH_WEBHOOK_SECRET; if (!key) return res.status(503).json({ error: "IndexNow is not configured" }); if (internalSecret && req.get("authorization") !== `Bearer ${internalSecret}`) return res.status(401).json({ error: "Unauthorized" }); const siteOrigin = new URL(SITE_URL).origin; const urls = (Array.isArray(req.body?.urls) ? req.body.urls : []).filter((value) => { try { return typeof value === "string" && new URL(value).origin === siteOrigin; } catch { return false; } }).slice(0, 10000); if (!urls.length) return res.status(400).json({ error: "No valid TryAMM URLs supplied" }); const payload = JSON.stringify({ host: new URL(SITE_URL).host, key, keyLocation: `${SITE_URL}/${key}.txt`, urlList: urls }); const request = https.request("https://api.indexnow.org/indexnow", { method: "POST", headers: { "Content-Type": "application/json; charset=utf-8", "Content-Length": Buffer.byteLength(payload) } }, (indexNowResponse) => { indexNowResponse.resume(); const ok = indexNowResponse.statusCode >= 200 && indexNowResponse.statusCode < 300; res.status(ok ? 200 : 502).json({ ok, status: indexNowResponse.statusCode, submitted: urls.length }); }); request.on("error", () => res.status(502).json({ error: "IndexNow submission failed" })); request.write(payload); request.end(); } catch { res.status(500).json({ error: "IndexNow submission failed" }); } });
 
 let hearts = 0; let gifts = 0;
+io.use(async (socket, next) => {
+  try {
+    const header = socket.handshake.headers.authorization || "";
+    const bearer = /^Bearer\s+(.+)$/i.exec(header)?.[1];
+    const token = socket.handshake.auth?.token || bearer;
+    if (!token) return next(new Error("AUTH_REQUIRED"));
+    const identity = await authAdapter.verifyAccessToken(token);
+    if (!identity?.id) return next(new Error("INVALID_TOKEN"));
+    const roles = await authAdapter.loadRoles(identity.id, identity);
+    socket.data.auth = { userId: identity.id, roles };
+    next();
+  } catch (_error) { next(new Error("INVALID_TOKEN")); }
+});
 io.on("connection", (socket) => {
-  socket.emit("init", { hearts, gifts });
-  socket.on("chat", (msg) => io.emit("chat", msg));
+  const playerId = socket.data.auth.userId;
+  socket.emit("init", { hearts, gifts, playerId });
+  socket.on("chat", (msg) => io.emit("chat", { playerId, message: String(msg || "").slice(0, 1000) }));
   socket.on("heart", () => { hearts++; io.emit("heart", hearts); });
   socket.on("gift", () => { gifts++; io.emit("gift", gifts); });
-  socket.on("gameverse:join", ({ matchId, playerId } = {}) => { if (!matchId || !playerId || !gameRuntime.getMatch(matchId)) return; socket.join(`match:${matchId}`); socket.data.playerId = playerId; socket.data.matchId = matchId; socket.to(`match:${matchId}`).emit("gameverse:peer", { playerId, connected: true }); });
-  socket.on("gameverse:state", (payload = {}) => { const matchId = socket.data.matchId; if (!matchId) return; const x = Number(payload.x), y = Number(payload.y); if (!Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x > 800 || y < 0 || y > 450) return; socket.to(`match:${matchId}`).emit("gameverse:state", { playerId: socket.data.playerId, x, y, t: Date.now() }); });
-  socket.on("disconnect", () => { if (socket.data.matchId) socket.to(`match:${socket.data.matchId}`).emit("gameverse:peer", { playerId: socket.data.playerId, connected: false }); });
+  socket.on("gameverse:join", ({ matchId } = {}) => { if (!matchId || !gameRuntime.getMatch(matchId)) return; socket.join(`match:${matchId}`); socket.data.playerId = playerId; socket.data.matchId = matchId; socket.to(`match:${matchId}`).emit("gameverse:peer", { playerId, connected: true }); });
+  socket.on("gameverse:state", (payload = {}) => { const matchId = socket.data.matchId; if (!matchId) return; const x = Number(payload.x), y = Number(payload.y); if (!Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x > 800 || y < 0 || y > 450) return; socket.to(`match:${matchId}`).emit("gameverse:state", { playerId, x, y, t: Date.now() }); });
+  socket.on("disconnect", () => { if (socket.data.matchId) socket.to(`match:${socket.data.matchId}`).emit("gameverse:peer", { playerId, connected: false }); });
 });
+
+app.use(notFoundHandler);
+app.use(safeErrorHandler);
 server.listen(process.env.PORT || 10000, () => console.log(`Server running for ${SITE_URL}`));
