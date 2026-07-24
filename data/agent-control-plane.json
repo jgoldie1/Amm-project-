@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "name": "TryAMM Agent Control Plane",
+  "principles": ["least privilege","tenant isolation","human approval for high-risk actions","metered cost controls","auditable tool use","revocable access"],
+  "agentTypes": ["Stubbs AI business agent","Bennie assistant","GrowthOS agent","Jinn operations agent","Jacobie security agent","Call Center agent","GameOps agent","HoloLingo translation agent","HoloAccess accessibility agent"],
+  "toolClasses": ["payments","live-streaming","storage-cdn","email-sms-voice","calendar","crm","accounting","shipping-logistics","ai-provider","developer-tools","analytics","moderation"],
+  "executionPipeline": ["authenticate","authorize","validate","budget-check","risk-check","human-approval-if-required","execute","audit","cost-record","redact-result"],
+  "highRiskActions": ["move-funds","change-payout-destination","material-refund","large-auto-recharge","material-price-change","publish-rights-sensitive-content","submit-binding-application","accept-contract","delete-sensitive-data","change-security-role","change-secret"],
+  "budgeting": {"router":"AI Cost Manager","trialAllowance":true,"tenantBudgets":true,"providerCostTracking":true,"autoRecharge":"explicit-opt-in-only"},
+  "security": {"credentials":"server-side-secret-management-only","browserSecretExposure":false,"agentPromptSecretExposure":false,"auditRequired":true,"revokeImmediately":true}
+}
