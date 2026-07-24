@@ -1,0 +1,111 @@
+{
+  "name": "TryAMM Growth + Commerce Platform",
+  "version": "1.0.0",
+  "systems": [
+    {
+      "id": "HOLOPASS",
+      "name": "HoloPass Loyalty",
+      "status": "BUILD",
+      "features": ["cross-vertical loyalty", "Beans rewards", "XP/status", "merchant-specific rewards", "customer retention", "earn/burn rules", "fraud limits"]
+    },
+    {
+      "id": "HOLOCOUPON-MARKETPLACE",
+      "name": "HoloCoupon Marketplace",
+      "status": "BUILD",
+      "features": ["searchable deals", "nearby/online offers", "boosted coupons", "creator attribution", "conversion tracking", "campaign ROI"]
+    },
+    {
+      "id": "HOLOMENU-QR-NFC",
+      "name": "HoloMenu QR/NFC",
+      "status": "BUILD",
+      "features": ["QR deep links", "NFC deep links", "table/window/receipt/event placement", "menu/order/pay", "coupon", "loyalty", "analytics"]
+    },
+    {
+      "id": "CREATOR-AFFILIATE",
+      "name": "Creator Affiliate Marketplace",
+      "status": "BUILD",
+      "features": ["merchant campaigns", "creator opt-in", "discount + commission offers", "verified conversion attribution", "configurable payouts"]
+    },
+    {
+      "id": "RESERVATIONS",
+      "name": "HoloReservations + Appointments",
+      "status": "BUILD",
+      "features": ["restaurants", "salons", "barbers", "consultants", "mechanics", "venues", "deposits", "booking fees", "calendar integration"]
+    },
+    {
+      "id": "HOLOLOCAL",
+      "name": "HoloLocal",
+      "status": "BUILD",
+      "features": ["local discovery", "restaurants", "stores", "professionals", "events", "ride/delivery", "coupons", "livestreams"]
+    },
+    {
+      "id": "BUSINESS-LIVE",
+      "name": "HoloBusiness Live",
+      "status": "BUILD",
+      "features": ["flash sales", "product launches", "cooking demos", "auctions", "click-to-buy", "sponsored events"]
+    },
+    {
+      "id": "HOLOGIFT",
+      "name": "HoloGift",
+      "status": "COMPLIANCE-GATED",
+      "features": ["merchant gift cards", "closed-loop value only after review", "separate liability accounting", "fraud controls", "breakage policy"]
+    },
+    {
+      "id": "BUSINESS-FINANCE-MARKETPLACE",
+      "name": "Business Financing Marketplace",
+      "status": "LATER",
+      "features": ["licensed third-party funder referrals", "qualification routing", "no direct TryAMM lending initially"]
+    },
+    {
+      "id": "GROUP-BUYING",
+      "name": "Group Buying",
+      "status": "BUILD",
+      "features": ["threshold deals", "viral sharing", "limited-time offers", "refund/failure rules"]
+    },
+    {
+      "id": "HOLOTV-COMMERCE",
+      "name": "HoloTV Commerce",
+      "status": "BUILD",
+      "features": ["shoppable originals", "shoppable music", "creator programming", "approved product overlays", "shop-page handoff"]
+    },
+    {
+      "id": "AFRICA-COMMERCE-BRIDGE",
+      "name": "Africa Commerce Bridge",
+      "status": "PARTIAL",
+      "features": ["local currency display", "HoloLingo", "country payment routing", "diaspora shopping", "shipping/customs gates", "cross-border merchant tools"]
+    },
+    {
+      "id": "BUSINESS-INBOX",
+      "name": "Unified Business Inbox",
+      "status": "BUILD",
+      "features": ["orders", "reservations", "customer messages", "calls", "reviews", "delivery issues", "AI triage"]
+    },
+    {
+      "id": "HOLOREPUTATION",
+      "name": "HoloReputation",
+      "status": "BUILD",
+      "features": ["verified-purchase reviews", "verified-ride reviews", "verified-booking reviews", "fraud detection", "business replies"]
+    },
+    {
+      "id": "BUSINESS-ACADEMY",
+      "name": "TryAMM Business Academy",
+      "status": "BUILD",
+      "features": ["storefront setup", "ads", "livestream selling", "bookkeeping basics", "AI tools", "growth lessons"]
+    },
+    {
+      "id": "REVENUE-OPPORTUNITY-MAP",
+      "name": "Revenue Opportunity Map",
+      "status": "BUILD",
+      "categories": ["Subscription", "Transaction", "Advertising", "Commission", "Affiliate", "Licensing", "Hardware", "AI Credits", "Ticketing", "Digital Goods", "Physical Goods", "Retention/Growth"]
+    }
+  ],
+  "sharedRules": [
+    "Use Omniverse Passport/account identity where appropriate.",
+    "Use server-authoritative attribution and rewards.",
+    "Use Jin/PayRouter for approved payment rail selection.",
+    "Use configurable Revenue Waterfall policies by vertical/campaign.",
+    "Use Unified Value Ledger for durable accounting.",
+    "Do not issue cash-equivalent rewards solely from client-side events.",
+    "Gift/reload products require separate compliance and liability accounting before launch."
+  ]
+}
