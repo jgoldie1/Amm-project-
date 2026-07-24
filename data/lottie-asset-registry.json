@@ -1,0 +1,12 @@
+{
+  "name": "TryAMM Lottie + Hologram Asset Registry",
+  "version": "1.0.0",
+  "runtime": "lottie-web",
+  "categories": ["tryamm-brand","hebrew-faith","america-250","hologram","badges","gifts","holidays","living-worlds"],
+  "assets": [
+    {"id":"tryamm-hologram-splash","name":"TryAMM Hologram Splash","category":"hologram","path":"/lottie/tryamm-hologram-splash.json","autoplay":true,"loop":true,"reducedMotionFallback":"TryAMM"},
+    {"id":"hebrew-shalom-glow","name":"Hebrew Shalom Glow","category":"hebrew-faith","path":"/lottie/hebrew-shalom-glow.json","autoplay":true,"loop":true,"reducedMotionFallback":"שלום"},
+    {"id":"america-250-happy-birthday","name":"250 Happy Birthday America","category":"america-250","path":"/lottie/america-250-happy-birthday.json","autoplay":true,"loop":true,"reducedMotionFallback":"250 — Happy Birthday America"}
+  ],
+  "originalAssetImportPolicy": "When the exact user-created .json or .lottie source file is available, replace the starter recreation at the same registry id/path only after preview and regression validation. Preserve authorship metadata and do not silently overwrite originals."
+}
