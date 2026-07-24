@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "name": "TryAMM Quantum Provider Gateway",
+  "enabledByDefault": false,
+  "executionModes": ["classical-simulation", "quantum-simulator", "real-quantum-hardware"],
+  "rules": [
+    "Execution mode must be shown to the user and stored with results",
+    "No automatic quantum advantage claims",
+    "Provider credentials remain server-side",
+    "Budget approval occurs before external submission",
+    "No silent fallback from hardware to simulator",
+    "Sensitive production data is denied by default"
+  ],
+  "adapterContract": [
+    "listBackends",
+    "describeBackend",
+    "estimateCost",
+    "validateJob",
+    "submitJob",
+    "getJobStatus",
+    "getJobResult",
+    "cancelJob"
+  ],
+  "jobStates": ["draft","validated","awaiting-approval","queued","submitted","running","completed","failed","cancelled","expired"],
+  "costControls": {
+    "perJobBudgetRequired": true,
+    "tenantDailyLimit": true,
+    "tenantMonthlyLimit": true,
+    "approvalThresholds": true,
+    "autoRejectOverBudget": true
+  },
+  "provenance": ["provider","backendId","executionMode","providerJobId","adapterVersion","inputHash","resultHash","submittedAt","completedAt"],
+  "security": ["managed secrets","least privilege","tenant quotas","audit events","data minimization","regional controls","Jacobie monitoring","provider kill switch"]
+}
