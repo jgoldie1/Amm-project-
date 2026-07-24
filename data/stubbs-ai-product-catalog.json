@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "product": "Stubbs AI Builder",
+  "purpose": "Create reusable, configurable AI assistants for businesses, creators and organizations on top of shared TryAMM infrastructure.",
+  "plans": [
+    {"id":"starter","exampleMonthlyUsd":39,"included":"web/storefront assistant, knowledge base, lead capture, basic analytics","usage":"metered AI credits"},
+    {"id":"growth","exampleMonthlyUsd":149,"included":"Starter plus Jinn commerce actions, HoloMenu, bookings, coupons, CRM follow-up, multilingual support","usage":"metered AI credits"},
+    {"id":"pro","exampleMonthlyUsd":399,"included":"Growth plus voice/call workflows, advanced automations, team roles, GrowthOS analytics","usage":"metered AI/voice credits"},
+    {"id":"agency","exampleMonthlyUsd":999,"included":"multi-tenant reseller console, client provisioning, branded assistants, usage controls","usage":"platform plus per-client/usage pricing"},
+    {"id":"enterprise","exampleMonthlyUsd":null,"included":"custom security, integrations, SLAs, deployment and governance","usage":"contract"}
+  ],
+  "verticalTemplates": [
+    "restaurant and hospitality",
+    "Black Business Growth AI",
+    "retail and ecommerce",
+    "creator and artist",
+    "real estate",
+    "professional services",
+    "call center and customer support",
+    "education",
+    "nonprofit/community organization",
+    "Africa/diaspora commerce"
+  ],
+  "paidAddOns": [
+    "custom onboarding/setup",
+    "custom holographic avatar",
+    "approved custom voice",
+    "phone/call-center capacity",
+    "translation packs",
+    "additional knowledge/storage",
+    "premium integrations",
+    "analytics and compliance exports",
+    "white-label domain/embed",
+    "additional seats/locations"
+  ],
+  "revenueStreams": [
+    "setup fees",
+    "recurring subscriptions",
+    "AI credit margin",
+    "voice usage margin",
+    "integration fees",
+    "Holo avatar/design services",
+    "agency/reseller platform fees",
+    "approved agent marketplace commissions",
+    "enterprise implementation/support"
+  ],
+  "costControls": {
+    "router": "AI Cost Manager",
+    "rules": [
+      "route tasks to the lowest-cost model that meets quality/safety requirements",
+      "enforce tenant budgets and usage limits",
+      "show trial allowance and remaining credits",
+      "never promise unlimited expensive inference",
+      "track provider, voice, translation, storage and tool costs per tenant",
+      "require approval or auto-recharge rules before exceeding configured budget"
+    ]
+  },
+  "commerceActions": [
+    "search catalog/menu",
+    "apply eligible HoloCoupon",
+    "create cart/order draft",
+    "create Jinn payment link or approved checkout session",
+    "book reservation/appointment",
+    "capture lead",
+    "send digital receipt after verified payment",
+    "explain order/payout status without exposing sensitive data"
+  ],
+  "approvalRequired": [
+    "move funds",
+    "change payout destination",
+    "material price changes",
+    "ad spend",
+    "major refunds",
+    "submit grant/loan/contract applications",
+    "accept binding contracts",
+    "hire/fire decisions"
+  ],
+  "marketplace": {
+    "name": "Stubbs AI Agent Marketplace",
+    "examples": ["Restaurant Marketing Agent","Invoice Follow-up Agent","Procurement Finder","Grant Discovery Agent","Social Content Agent","HoloCoupon Agent","Creator Commerce Agent"],
+    "rule": "Third-party agents require permissions, safety review, transparent pricing and revocable scopes before publication."
+  }
+}
