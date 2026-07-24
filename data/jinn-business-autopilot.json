@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "name": "Jinn Business Autopilot",
+  "goal": "Help merchants operate and grow with AI-assisted recommendations while requiring owner approval for money-moving or material decisions.",
+  "modules": {
+    "inventory": ["sales velocity", "low-stock alerts", "reorder suggestions", "seasonality", "supplier lead time"],
+    "staffing": ["demand forecast", "shift suggestions", "coverage gaps", "overtime risk alerts"],
+    "invoices": ["aging buckets", "payment reminders", "follow-up drafts", "collection priority scoring"],
+    "marketing": ["HoloCoupon suggestions", "HoloAds budget suggestions", "creator affiliate matches", "slow-hour campaigns", "customer win-back"],
+    "bookkeeping": ["transaction categorization suggestions", "receipt matching", "supplier bill matching", "cash-flow calendar", "monthly summary draft"],
+    "procurement": ["RFP/RFQ alerts", "supplier matches", "joint-bid opportunities", "contract-readiness gaps"],
+    "funding": ["grant alerts", "accelerator alerts", "document checklist", "deadline reminders"],
+    "healthScore": ["revenue trend", "gross margin trend", "refund rate", "repeat customer rate", "cash coverage", "invoice aging", "ad efficiency", "inventory health"]
+  },
+  "approvalRequired": ["spend money", "change prices", "issue material refunds", "submit applications", "accept contracts", "move funds", "change payout settings", "hire or terminate staff"],
+  "automationAllowed": ["alerts", "drafts", "recommendations", "classification suggestions", "reminders", "report generation", "non-financial status updates"],
+  "guardrails": ["ledger-derived financials", "explainable recommendations", "audit log", "role-based access", "step-up authentication", "country launch gates", "no guaranteed funding or contracts"]
+}
