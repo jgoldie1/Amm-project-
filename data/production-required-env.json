@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "requiredForStaging": [
+    "SITE_URL",
+    "GAMEOPS_INTERNAL_SECRET",
+    "SUPABASE_URL",
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "LIVEKIT_URL",
+    "LIVEKIT_API_KEY",
+    "LIVEKIT_API_SECRET",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET"
+  ],
+  "requiredBeforePublicProduction": [
+    "SESSION_SIGNING_SECRET",
+    "ENCRYPTION_KEY",
+    "INTERNAL_PUBLISH_WEBHOOK_SECRET",
+    "ERROR_REPORTING_DSN",
+    "PRIMARY_SUPPORT_EMAIL"
+  ],
+  "optionalByVertical": {
+    "ai": ["ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GEMINI_API_KEY"],
+    "africaPayments": ["PAYSTACK_SECRET_KEY", "FLUTTERWAVE_SECRET_KEY"],
+    "email": ["EMAIL_PROVIDER_API_KEY", "EMAIL_FROM_ADDRESS"],
+    "smsVoice": ["SMS_PROVIDER_API_KEY", "VOICE_PROVIDER_API_KEY"],
+    "indexing": ["INDEXNOW_KEY"],
+    "social": ["FACEBOOK_URL", "INSTAGRAM_URL", "TIKTOK_URL"]
+  },
+  "rules": [
+    "Never commit production secret values.",
+    "Use separate staging and production credentials.",
+    "Rotate any secret exposed in logs, commits, screenshots or chat.",
+    "Production readiness fails when a required dependency is missing or unverified."
+  ]
+}
