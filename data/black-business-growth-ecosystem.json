@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "name": "TryAMM Black Business Growth Ecosystem",
+  "principle": "An opt-in affinity discovery and economic-development layer within the inclusive global TryAMM marketplace.",
+  "surfaces": [
+    "Support Black Business feed",
+    "Black Business Directory",
+    "HoloLocal city directories",
+    "Business Live",
+    "Shop Live",
+    "HoloCoupon Marketplace",
+    "HoloTV commerce",
+    "Africa and Diaspora commerce"
+  ],
+  "campaigns": {
+    "seasonal": ["Black Business Month", "Black Business Week", "Juneteenth campaigns", "holiday gift guides", "city spotlight campaigns"],
+    "capabilities": ["featured collections", "sponsored placements", "creator affiliate campaigns", "group-buy campaigns", "QR/NFC HoloMenu campaigns"]
+  },
+  "procurement": {
+    "buyerTypes": ["corporations", "government and public-sector buyers where eligible", "universities", "hospitals", "nonprofits", "prime contractors", "other TryAMM businesses"],
+    "supplierProfile": ["NAICS/category", "service area", "capacity", "certifications", "insurance status", "past performance", "minimum order", "delivery capability", "countries served"],
+    "features": ["opportunity matching", "RFP/RFQ alerts", "supplier shortlists", "team/joint-bid discovery", "buyer inquiry inbox", "contract-readiness checklist"]
+  },
+  "funding": {
+    "features": ["grant opportunity directory", "loan/funder marketplace links", "pitch-readiness checklist", "document vault pointers", "deadline alerts", "application status tracker"],
+    "rule": "Do not promise approval or funding. Label eligibility and third-party terms clearly."
+  },
+  "b2bSupplierExchange": {
+    "features": ["wholesale listings", "supplier requests", "quote requests", "purchase-order workflow", "recurring procurement", "cross-border supplier discovery", "Africa-diaspora trade discovery"]
+  },
+  "cityDirectories": {
+    "initialExamples": ["Chicago", "Detroit", "Atlanta", "Los Angeles", "New York", "Houston", "St. Louis"],
+    "dynamic": true,
+    "filters": ["near me", "category", "open now", "delivery", "HoloCoupon", "live now", "verified ownership", "accessibility", "online ordering"]
+  },
+  "businessGrowthAI": {
+    "name": "GrowthOS Business Coach",
+    "recommendations": ["storefront completeness", "coupon strategy", "ad budget", "creator matches", "slow-hour promotions", "customer win-back", "procurement readiness", "grant/funding matches", "cross-border opportunities"],
+    "guardrail": "Requires merchant approval before spending money, submitting applications, accepting contracts, or changing prices."
+  },
+  "monetization": ["optional subscriptions", "featured placement", "HoloAds", "commerce fees", "booking fees", "affiliate campaign fees", "AI credits", "B2B tools", "event/ticketing", "education"],
+  "fairness": ["directory participation is opt-in", "verification claims require evidence level", "general marketplace remains open to eligible businesses", "paid placement must be labeled", "ranking must not misrepresent verification"]
+}
