@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "activationDefault": "disabled-until-verified",
+  "portals": [
+    {
+      "id": "raymond-partner",
+      "name": "Raymond Jarreau Partner Portal",
+      "serviceTypes": ["care-navigation", "licensed-services-as-verified", "call-center-supervision"],
+      "credentialStatus": "awaiting-partner-submission"
+    },
+    {
+      "id": "telehealth-provider",
+      "name": "Telehealth Provider Portal",
+      "serviceTypes": ["appointments", "secure-video-handoff", "care-navigation", "follow-up", "benefits-navigation"],
+      "requires": ["verified-professional-license", "jurisdiction-authorization", "privacy-security-approval", "professional-liability-review"]
+    },
+    {
+      "id": "legal-professional",
+      "name": "Lawyer and Law Firm Portal",
+      "serviceTypes": ["consultation-intake", "appointment", "secure-documents", "matter-workflow", "legal-service-by-lawyer"],
+      "requires": ["verified-bar-status", "jurisdiction-authorization", "conflicts-process", "approved-fee-model"]
+    },
+    {
+      "id": "auto-insurance",
+      "name": "Auto Insurance Producer and Agency Portal",
+      "serviceTypes": ["quote-request", "licensed-producer-handoff", "renewal-support", "claims-navigation", "document-workflow"],
+      "requires": ["verified-producer-or-agency-license", "line-of-authority", "state-authorization", "carrier-or-agency-agreement"]
+    }
+  ],
+  "platformRevenue": [
+    "software subscription",
+    "portal and workstation seats",
+    "setup and onboarding",
+    "advertising and featured placement",
+    "call-center and scheduling services",
+    "translation and accessibility services",
+    "payment processing or orchestration fees where lawful",
+    "document workflow and storage",
+    "analytics and reporting",
+    "white-label licensing"
+  ],
+  "separateLedgerClasses": [
+    "professional service revenue",
+    "TryAMM platform revenue",
+    "partner payable",
+    "processor fee",
+    "tax liability",
+    "refund reserve",
+    "customer refund",
+    "advertising spend"
+  ],
+  "aiAllowed": [
+    "general education",
+    "intake summarization",
+    "appointment scheduling",
+    "document organization",
+    "translation and accessibility",
+    "routing to verified professionals",
+    "follow-up reminders",
+    "draft administrative communications"
+  ],
+  "humanLicensedApprovalRequired": [
+    "diagnosis or treatment",
+    "prescribing",
+    "legal advice or representation",
+    "insurance recommendation, sale, binding or underwriting",
+    "coverage guarantees",
+    "acceptance of a professional engagement",
+    "material professional decisions"
+  ]
+}
