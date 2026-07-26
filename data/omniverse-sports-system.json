@@ -1,0 +1,42 @@
+{
+  "name": "TryAMM Omniverse Sports System",
+  "version": "0.2.0",
+  "status": "playable vertical slice",
+  "entrypoint": "/public/omniverse-sports.html",
+  "identity": {
+    "scope": "shared player identity across sports, combat and future living worlds",
+    "persistent_fields": ["displayName", "xp", "level", "rank", "coins", "abilities", "inventory", "accessibilitySettings"]
+  },
+  "ranks": [
+    {"id":"E","xp":0}, {"id":"D","xp":120}, {"id":"C","xp":300},
+    {"id":"B","xp":600}, {"id":"A","xp":1000}, {"id":"S","xp":1600},
+    {"id":"SS","xp":2500}, {"id":"SSS","xp":3800},
+    {"id":"LEGEND","xp":5500}, {"id":"MYTHIC","xp":8000},
+    {"id":"OMNIVERSE","xp":12000}
+  ],
+  "modes": {
+    "basketball": ["women's elite league", "men's elite league", "mixed league", "wheelchair basketball", "streetball", "training"],
+    "combat": ["training", "arcade", "story", "ranked target", "tag-team target"]
+  },
+  "abilities": [
+    {"id":"sky","name":"Sky Breaker","category":"basketball"},
+    {"id":"vision","name":"Holo Court Vision","category":"basketball"},
+    {"id":"lion","name":"Lion Roar","category":"combat"},
+    {"id":"guardian","name":"Guardian Wall","category":"cross-mode"}
+  ],
+  "asset_studio": {
+    "required_categories": ["modular characters", "uniforms", "sports equipment", "combat animations", "arenas", "crowds", "holographic overlays", "broadcast UI", "sound effects", "music", "accessibility cues"],
+    "license_rule": "Every imported asset must record source URL, creator, license, commercial-use rights, attribution requirement and modification status.",
+    "current_slice": "Uses browser-native emoji, CSS and original code; no third-party art is bundled."
+  },
+  "backend_contract": {
+    "current_storage": "browser localStorage for prototype continuity",
+    "production_tables": ["profiles", "game_progress", "abilities", "player_abilities", "items", "player_inventory", "matches", "leaderboards", "missions", "mission_progress"],
+    "required_services": ["authentication", "authoritative rewards", "inventory transactions", "match validation", "leaderboards", "moderation", "telemetry"],
+    "security": ["Never trust client-submitted coin or XP totals", "Use idempotency keys for rewards", "Validate match results server-side", "Rate-limit actions", "Keep service secrets server-only"]
+  },
+  "ip_boundary": {
+    "rule": "Do not use Space Jam, NBA, WNBA, DramaBox, anime-series characters, logos, team marks, storylines or protected audiovisual assets without a license.",
+    "allowed_direction": "Original pro-style basketball leagues, cartoon-energy presentation, holographic panels, transformation effects, serialized stories and original characters."
+  }
+}
