@@ -4,122 +4,50 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jarvis OS</title>
-
 <style>
-body{
-    margin:0;
-    background:black;
-    color:#00ffff;
-    font-family:Arial;
-    overflow:hidden;
-}
-
-#video{
-    position:absolute;
-    top:0;
-    left:0;
-    width:100vw;
-    height:100vh;
-    object-fit:cover;
-    opacity:0.35;
-}
-
-#overlay{
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    pointer-events:none;
-}
-
-#hud{
-    position:absolute;
-    top:20px;
-    left:20px;
-    z-index:10;
-    background:rgba(0,0,0,0.6);
-    padding:20px;
-    border:1px solid cyan;
-    border-radius:12px;
-}
-
-button{
-    background:cyan;
-    color:black;
-    border:none;
-    padding:10px 20px;
-    margin-top:10px;
-    cursor:pointer;
-    font-weight:bold;
-    border-radius:8px;
-}
-
-#status{
-    margin-top:10px;
-}
+body{margin:0;background:black;color:#00ffff;font-family:Arial;overflow:hidden}
+#video{position:absolute;top:0;left:0;width:100vw;height:100vh;object-fit:cover;opacity:.35}
+#overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#hud{position:absolute;top:20px;left:20px;z-index:10;background:rgba(0,0,0,.72);padding:20px;border:1px solid cyan;border-radius:12px;max-width:360px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;pointer-events:auto}
+button,a.launch{background:cyan;color:black;border:none;padding:12px 18px;margin-top:10px;cursor:pointer;font-weight:bold;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;min-height:44px}
+button:focus,a.launch:focus{outline:3px solid #ffd76a;outline-offset:3px}
+a.launch{background:#ffd76a}
+#status{margin-top:12px;line-height:1.5}
 </style>
 </head>
-
 <body>
-
-<video id="video" autoplay playsinline></video>
-
-<div id="overlay">
-    <div id="hud">
-        <h1>JARVIS OS</h1>
-
-        <button onclick="startJarvis()">
-            START JARVIS
-        </button>
-
-        <div id="status">
-            System Offline
-        </div>
-    </div>
+<video id="video" autoplay playsinline muted></video>
+<div id="overlay"><div id="hud">
+<h1>JARVIS OS</h1>
+<p>TryAMM command center and living-world launcher.</p>
+<div class="actions">
+<button id="startJarvis">START JARVIS</button>
+<a class="launch" href="public/omniverse-sports.html">PLAY OMNIVERSE SPORTS</a>
 </div>
-
+<div id="status" aria-live="polite">System Offline</div>
+</div></div>
 <script>
-
-const video = document.getElementById("video");
-const statusText = document.getElementById("status");
-
+const video=document.getElementById('video');
+const statusText=document.getElementById('status');
+document.getElementById('startJarvis').addEventListener('click',startJarvis);
 async function startJarvis(){
-
-    try{
-
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video:true,
-            audio:true
-        });
-
-        video.srcObject = stream;
-
-        statusText.innerHTML =
-            "Jarvis Online<br>Camera Active<br>Microphone Active";
-
-        speak("Hello. Jarvis online.");
-
-    }catch(err){
-
-        statusText.innerHTML =
-            "Permission denied or device unavailable.";
-
-        console.error(err);
-    }
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+    video.srcObject=stream;
+    video.muted=true;
+    statusText.innerHTML='Jarvis Online<br>Camera Active<br>Microphone Active<br>Omniverse Sports Ready';
+    speak('Hello. Jarvis online. Omniverse Sports is ready.');
+  }catch(err){
+    statusText.innerHTML='Jarvis interface online.<br>Camera or microphone permission was not granted.<br>Omniverse Sports remains playable.';
+    console.error(err);
+  }
 }
-
 function speak(text){
-
-    const speech = new SpeechSynthesisUtterance(text);
-
-    speech.rate = 1;
-    speech.pitch = 1;
-
-    window.speechSynthesis.speak(speech);
+  if(!('speechSynthesis' in window))return;
+  const speech=new SpeechSynthesisUtterance(text);
+  speech.rate=1;speech.pitch=1;window.speechSynthesis.speak(speech);
 }
-
 </script>
-
 </body>
 </html>
