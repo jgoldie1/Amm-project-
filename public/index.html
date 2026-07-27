@@ -26,7 +26,7 @@
   <div id="appShell" class="hidden">
     <header class="topbar">
       <a class="brand" href="#home" aria-label="TryAMM home"><span>TRY</span>AMM</a>
-      <nav><a href="#live">Live</a><a href="#worlds">Worlds</a><a href="#earn">Earn</a><a href="#safety">Safety</a></nav>
+      <nav><a href="#products">Platforms</a><a href="#live">Live</a><a href="#worlds">Worlds</a><a href="#earn">Earn</a><a href="#safety">Safety</a></nav>
       <div id="accountActions">
         <button id="installAppButton" class="ghost hidden">Add to home screen</button>
         <button id="googleSignIn" class="ghost">Continue with Google</button>
@@ -44,7 +44,7 @@
           <div class="actions">
             <button data-open="register">Create an account</button>
             <button id="openHoloGPT" class="secondary">Open HoloGPT</button>
-            <a class="button ghost" href="#live">Explore live rooms</a>
+            <a class="button ghost" href="#products">Explore every platform</a>
           </div>
           <div class="metrics"><div><strong id="userCount">—</strong><span>members</span></div><div><strong id="liveCount">—</strong><span>live now</span></div><div><strong>75%</strong><span>creator share target</span></div></div>
         </div>
@@ -55,6 +55,12 @@
         <div><p class="eyebrow">YOUR DASHBOARD</p><h2>Welcome, <span id="displayName"></span></h2><p id="accountStatus"></p></div>
         <div class="dashboard-actions"><button id="creatorButton">Activate creator tools</button><button id="goLiveButton" class="secondary">Start a live room</button><button id="logoutButton" class="ghost">Sign out</button></div>
         <div class="balance"><span>Creator balance</span><strong id="balance">$0.00</strong></div>
+      </section>
+
+      <section id="products" class="section product-hub">
+        <p class="eyebrow">THE FAMILY PLATFORM NETWORK</p>
+        <div class="section-head"><div><h2>Everything you created, connected</h2><p class="lead">Each platform now has a defined home, launch status, MVP purpose and phase-two roadmap.</p></div></div>
+        <div id="productCards" class="product-grid"><p class="empty">Loading AMM platforms…</p></div>
       </section>
 
       <section id="worlds" class="section"><p class="eyebrow">13 LIVING WORLDS</p><div class="section-head"><h2>Enter the Omniverse</h2></div><div id="worldCards" class="cards"><p class="empty">Loading world registry…</p></div></section>
@@ -70,6 +76,7 @@
     <dialog id="authDialog"><button class="dialog-close" aria-label="Close">×</button><form id="authForm"><h2 id="authTitle">Join TryAMM</h2><input type="hidden" id="authMode" value="register"/><label id="nameLabel">Display name<input id="authName" autocomplete="name" /></label><label>Email<input id="authEmail" type="email" autocomplete="email" required /></label><label>Password<input id="authPassword" type="password" minlength="10" autocomplete="current-password" required /></label><p id="authError" class="error"></p><button id="authSubmit">Create account</button></form></dialog>
     <dialog id="liveDialog"><button class="dialog-close" aria-label="Close">×</button><form id="liveForm"><h2>Start a live room</h2><label>Title<input id="liveTitle" required maxlength="100" placeholder="Community Showcase" /></label><label>Category<select id="liveCategory"><option>Community</option><option>Music</option><option>Gaming</option><option>Faith</option><option>Education</option><option>Business</option></select></label><label>Ticket price<input id="ticketPrice" type="number" min="0" max="1000" step="0.01" value="0" /></label><p class="fine">Set $0 for a free room.</p><button>Go live</button></form></dialog>
     <dialog id="holoDialog"><button class="dialog-close" aria-label="Close">×</button><h2>HoloGPT</h2><p id="holoStatus">HoloGPT is ready for frontend integration. A production AI API key and backend route are still required before live responses can be enabled.</p><button id="closeHoloGPT">Close</button></dialog>
+    <dialog id="productDialog" class="product-dialog"><button class="dialog-close" aria-label="Close">×</button><div id="productDetail"></div></dialog>
     <div id="toast" role="status" aria-live="polite"></div>
     <footer><strong>The AMM Omniverse</strong><span>TryAMM Creator Live • © 2026</span></footer>
   </div>
