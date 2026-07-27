@@ -8,6 +8,7 @@ const { createNewsManager } = require("./lib/news-manager");
 const { registerNewsRoutes } = require("./lib/news-routes");
 const { createOmniNewsOracleManager } = require("./lib/omni-news-oracle-manager");
 const { registerOmniNewsOracleRoutes } = require("./lib/omni-news-oracle-routes");
+const { registerAnimeStudioRoutes } = require("./lib/anime-studio-routes");
 const HOLO_MENU = require("./data/holo-menu.json");
 
 const app = express();
@@ -23,6 +24,7 @@ registerHolo5dxRoutes({ app });
 registerFreeTvRoutes({ app, manager: freeTv });
 registerNewsRoutes({ app, manager: news });
 registerOmniNewsOracleRoutes({ app, manager: omniNewsOracle });
+registerAnimeStudioRoutes({ app });
 app.get('/api/holo-menu', (_req, res) => res.json(HOLO_MENU));
 
 let hearts = 0;
