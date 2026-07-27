@@ -1,1 +1,44 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TryAMM Universal Anime Studio</title><style>body{font-family:Arial,sans-serif;margin:0;background:#111;color:#fff}main{max-width:980px;margin:auto;padding:24px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}label{display:block;font-weight:700;margin-bottom:6px}input,select,textarea,button{width:100%;box-sizing:border-box;padding:12px;border-radius:10px;border:1px solid #555;background:#1c1c1c;color:#fff}textarea{min-height:120px}button{cursor:pointer;font-weight:700;margin-top:16px}.card{background:#1a1a1a;padding:18px;border-radius:14px;margin-top:18px}.status{white-space:pre-wrap}</style></head><body><main><h1>TryAMM Universal Anime Studio</h1><p>Create original anime projects across eras, styles, genres and formats.</p><form id="studioForm" class="card"><div class="grid"><div><label for="title">Project title</label><input id="title" required></div><div><label for="era">Era</label><select id="era"></select></div><div><label for="visualStyle">Visual style</label><select id="visualStyle"></select></div><div><label for="genre">Genre</label><select id="genre"></select></div><div><label for="format">Format</label><select id="format"></select></div><div><label for="quality">Quality</label><select id="quality"></select></div></div><label for="premise" style="margin-top:14px">Story premise</label><textarea id="premise" placeholder="Describe the world, characters, conflict and desired outcome."></textarea><button type="submit">Create anime project</button></form><section class="card"><h2>Status</h2><div id="status" class="status">Loading catalog…</div></section></main><script>const byId=id=>document.getElementById(id);const fill=(id,items)=>{byId(id).innerHTML=items.map(v=>`<option>${v}</option>`).join('')};async function boot(){const res=await fetch('/api/anime-studio/catalog');if(!res.ok)throw new Error('Anime Studio API is not wired into server.js yet.');const c=await res.json();fill('era',c.eras);fill('visualStyle',c.visualStyles);fill('genre',c.genres);fill('format',c.formats);fill('quality',c.qualityPresets);byId('status').textContent='Ready to create a project.'}byId('studioForm').addEventListener('submit',async e=>{e.preventDefault();const payload={title:byId('title').value,era:byId('era').value,visualStyle:byId('visualStyle').value,genre:byId('genre').value,format:byId('format').value,quality:byId('quality').value,premise:byId('premise').value};const res=await fetch('/api/anime-studio/projects',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});byId('status').textContent=JSON.stringify(await res.json(),null,2)});boot().catch(err=>byId('status').textContent=err.message);</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TryAMM Universal Anime Studio</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{font-family:Arial,sans-serif;margin:0;background:radial-gradient(circle at top,#27184a,#09090d 55%);color:#fff}main{max-width:1100px;margin:auto;padding:28px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}label{display:block;font-weight:700;margin-bottom:6px}input,select,textarea,button{width:100%;padding:13px;border-radius:10px;border:1px solid #62577d;background:#17141f;color:#fff}textarea{min-height:130px;resize:vertical}button{cursor:pointer;font-weight:800;margin-top:16px;background:linear-gradient(90deg,#7857ff,#c64eff);border:0}button:disabled{opacity:.5;cursor:not-allowed}.card{background:rgba(22,19,31,.9);padding:20px;border:1px solid #453a59;border-radius:16px;margin-top:18px;box-shadow:0 18px 48px #0007}.status{white-space:pre-wrap;line-height:1.5}.outputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}.output img,.output iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:12px;background:#000}.output a{display:inline-block;margin-top:10px;color:#dfc8ff}.progress{height:14px;background:#282232;border-radius:99px;overflow:hidden;margin-top:12px}.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#7857ff,#f4d35e);transition:width .3s}small{color:#c8bfd4}</style>
+</head>
+<body>
+<main>
+<h1>TryAMM Universal Anime Studio</h1>
+<p>Create original anime projects across eras, styles, genres and formats. The built-in renderer makes a finished concept poster and playable 20-second animatic without requiring an external API key.</p>
+<form id="studioForm" class="card">
+<div class="grid">
+<div><label for="title">Project title</label><input id="title" required maxlength="120"></div>
+<div><label for="era">Era</label><select id="era"></select></div>
+<div><label for="visualStyle">Visual style</label><select id="visualStyle"></select></div>
+<div><label for="genre">Genre</label><select id="genre"></select></div>
+<div><label for="format">Format</label><select id="format"></select></div>
+<div><label for="quality">Quality</label><select id="quality"></select></div>
+</div>
+<label for="premise" style="margin-top:14px">Story premise</label>
+<textarea id="premise" maxlength="3000" placeholder="Describe the world, characters, conflict and desired outcome."></textarea>
+<button id="createButton" type="submit">Create anime project</button>
+<button id="generateButton" type="button" disabled>Generate poster and animatic</button>
+</form>
+<section class="card"><h2>Status</h2><div id="status" class="status">Loading catalog…</div><div class="progress" aria-label="Generation progress"><span id="progressBar"></span></div></section>
+<section id="resultsCard" class="card" hidden><h2>Generated outputs</h2><div id="outputs" class="outputs"></div><small>The local renderer creates original concept assets. Production MP4, frame-by-frame animation, voices and lip-sync require a connected rendering provider.</small></section>
+</main>
+<script>
+const byId=id=>document.getElementById(id);let project=null;
+const fill=(id,items)=>{byId(id).innerHTML=items.map(v=>`<option value="${String(v).replace(/"/g,'&quot;')}">${v}</option>`).join('')};
+const showStatus=value=>{byId('status').textContent=typeof value==='string'?value:JSON.stringify(value,null,2)};
+async function request(url,options){const res=await fetch(url,options);const data=await res.json();if(!res.ok)throw new Error(data.error||`Request failed (${res.status})`);return data}
+async function boot(){const c=await request('/api/anime-studio/catalog');fill('era',c.eras);fill('visualStyle',c.visualStyles);fill('genre',c.genres);fill('format',c.formats);fill('quality',c.qualityPresets);showStatus('Ready. Create a project, then generate its outputs.')}
+byId('studioForm').addEventListener('submit',async e=>{e.preventDefault();byId('createButton').disabled=true;try{const payload={title:byId('title').value,era:byId('era').value,visualStyle:byId('visualStyle').value,genre:byId('genre').value,format:byId('format').value,quality:byId('quality').value,premise:byId('premise').value};project=await request('/api/anime-studio/projects',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});byId('generateButton').disabled=false;showStatus(`Project created: ${project.title}\nProject ID: ${project.id}`)}catch(err){showStatus(err.message)}finally{byId('createButton').disabled=false}});
+byId('generateButton').addEventListener('click',async()=>{if(!project)return;byId('generateButton').disabled=true;byId('progressBar').style.width='5%';try{const job=await request(`/api/anime-studio/projects/${project.id}/generate`,{method:'POST'});showStatus('Generation queued…');await pollJob(job.id)}catch(err){showStatus(err.message);byId('generateButton').disabled=false}});
+async function pollJob(jobId){for(;;){const job=await request(`/api/anime-studio/jobs/${jobId}`);byId('progressBar').style.width=`${job.progress||0}%`;showStatus(`Generation status: ${job.status}\nProgress: ${job.progress||0}%`);if(job.status==='completed'){renderOutputs(job.outputs);return}if(job.status==='failed')throw new Error(job.error||'Generation failed');await new Promise(resolve=>setTimeout(resolve,600))}}
+function renderOutputs(outputs){byId('resultsCard').hidden=false;byId('outputs').innerHTML=`<article class="output"><h3>Finished poster</h3><img src="${outputs.image.url}" alt="Generated anime poster"><a href="${outputs.image.url}" target="_blank" rel="noopener">Open full-size poster</a></article><article class="output"><h3>Playable animatic</h3><iframe src="${outputs.videoPreview.url}" title="Generated anime animatic"></iframe><a href="${outputs.videoPreview.url}" target="_blank" rel="noopener">Open animatic</a></article>`;showStatus(`Generation completed with ${outputs.provider}.\n${outputs.note}`);byId('generateButton').disabled=false}
+boot().catch(err=>showStatus(err.message));
+</script>
+</body>
+</html>
