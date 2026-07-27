@@ -1,0 +1,84 @@
+{
+  "products": [
+    {
+      "slug": "jacobie-vision-cybersecurity",
+      "name": "Jacobie Vision Cybersecurity",
+      "owner": "Jacobie Legacy Project",
+      "status": "MVP preview",
+      "icon": "🛡️",
+      "summary": "Cybersecurity education, digital safety, ethical-hacking pathways, identity protection and workforce preparation.",
+      "launchFeatures": ["Program overview", "Interest and partner intake", "Learning-path preview", "Security-resource directory"],
+      "phaseTwo": ["Live threat monitoring", "Certification labs", "Enterprise security dashboard"]
+    },
+    {
+      "slug": "amm-real-estate-house-flipping",
+      "name": "AMM Real Estate & House Flipping",
+      "owner": "The AMM Omniverse",
+      "status": "MVP preview",
+      "icon": "🏠",
+      "summary": "A workspace for property leads, renovation planning, project education, contractor coordination and investor readiness.",
+      "launchFeatures": ["Property project board", "House-flip education", "Partner-interest intake", "Renovation checklist"],
+      "phaseTwo": ["MLS or licensed-data integrations", "Automated property valuation", "Escrow, lending and transaction workflows"]
+    },
+    {
+      "slug": "isaiah-anyone-can-be-a-star",
+      "name": "Isaiah — Anyone Can Be a Star",
+      "owner": "Isaiah Legacy Project",
+      "status": "MVP preview",
+      "icon": "⭐",
+      "summary": "Talent discovery for music, sports, acting, comedy, education and community creators, connected to TryAMM livestreaming.",
+      "launchFeatures": ["Talent profile preview", "Audition-interest form", "Creator livestream connection", "Category discovery"],
+      "phaseTwo": ["Judged competitions", "Scholarships and sponsorships", "Advanced talent matching"]
+    },
+    {
+      "slug": "starverse",
+      "name": "StarVerse",
+      "owner": "The AMM Omniverse",
+      "status": "MVP preview",
+      "icon": "🌟",
+      "summary": "Creator and fan worlds for performances, digital merchandise, memberships, meet-and-greets and interactive events.",
+      "launchFeatures": ["StarVerse portal", "Creator-world previews", "Event-interest intake", "TryAMM creator links"],
+      "phaseTwo": ["Persistent multiplayer worlds", "Avatar economy", "Virtual concerts and fan experiences"]
+    },
+    {
+      "slug": "aniyah-cross-border",
+      "name": "Aniyah Cross-Border",
+      "owner": "Aniyah Legacy Project",
+      "status": "MVP preview",
+      "icon": "🌍",
+      "summary": "Cross-border marketplace and trade education connecting sellers, buyers, freight partners and international opportunities.",
+      "launchFeatures": ["Trade-opportunity directory", "Seller and partner intake", "Shipping-readiness checklist", "Country and category discovery"],
+      "phaseTwo": ["Licensed payments", "Customs automation", "Live freight quotes and shipment tracking"]
+    },
+    {
+      "slug": "64-track-vocal-studio",
+      "name": "64-Track Vocal Studio",
+      "owner": "The AMM Omniverse",
+      "status": "MVP preview",
+      "icon": "🎙️",
+      "summary": "A music-creation portal for vocal coaching, multitrack planning, collaboration, tuning workflows and creator publishing.",
+      "launchFeatures": ["64-track session planner", "Vocal-teacher lessons", "Recording checklist", "Creator upload and collaboration intake"],
+      "phaseTwo": ["Browser multitrack recorder", "Licensed pitch-correction engine", "Real-time collaboration and mastering"]
+    },
+    {
+      "slug": "holoverse",
+      "name": "Holoverse",
+      "owner": "The AMM Omniverse",
+      "status": "Interactive prototype",
+      "icon": "🔮",
+      "summary": "The holographic, AR, VR and mixed-reality layer connecting HoloGPT, product demonstrations and Living Worlds.",
+      "launchFeatures": ["Holographic visual prototype", "Mission-system modules", "HoloGPT portal", "Device concept showcase"],
+      "phaseTwo": ["Hardware-control integration", "Production spatial experiences", "Certified device compatibility"]
+    },
+    {
+      "slug": "living-worlds",
+      "name": "13 Living Worlds",
+      "owner": "The AMM Omniverse",
+      "status": "Registry preview",
+      "icon": "🪐",
+      "summary": "A connected game and experience universe with missions, creators, persistent progression and future world portals.",
+      "launchFeatures": ["13-world registry", "World status display", "Mission prototype modules", "Accessible world navigation"],
+      "phaseTwo": ["Full game runtimes", "Persistent progression", "Multiplayer and AI NPC systems"]
+    }
+  ]
+}

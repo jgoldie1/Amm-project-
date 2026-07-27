@@ -1,0 +1,10 @@
+{
+  "name": "The AMM Omniverse",
+  "short_name": "TryAMM",
+  "description": "Creators, commerce, community and Living Worlds.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080612",
+  "theme_color": "#080612",
+  "icons": []
+}

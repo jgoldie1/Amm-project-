@@ -1,12 +1,23 @@
 'use strict';
 const $=(s)=>document.querySelector(s),$$=(s)=>[...document.querySelectorAll(s)];
-let token=localStorage.getItem('tryamm_token')||'',me=null,socket=null,currentRoom=null,localStream=null;
+let token=localStorage.getItem('tryamm_token')||'',me=null,socket=null,currentRoom=null,localStream=null,deferredInstallPrompt=null;
 const money=(c)=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format((c||0)/100);
 function toast(message){const el=$('#toast');el.textContent=message;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2600)}
 async function api(url,options={}){const res=await fetch(url,{...options,headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`} : {}),...(options.headers||{})}});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'Request failed');return data}
-function openDialog(id){$(id).showModal()}
+function openDialog(id){const dialog=$(id);if(dialog?.showModal)dialog.showModal()}
+function enterPlatform(){localStorage.setItem('tryamm_splash_seen','1');$('#splashScreen')?.classList.add('hidden');$('#appShell')?.classList.remove('hidden')}
+$('#enterPlatform')?.addEventListener('click',enterPlatform);
+$('#skipSplash')?.addEventListener('click',enterPlatform);
+if(localStorage.getItem('tryamm_splash_seen')==='1')enterPlatform();
 $$('.dialog-close').forEach(b=>b.addEventListener('click',()=>b.closest('dialog').close()));
 $$('[data-open]').forEach(b=>b.addEventListener('click',()=>{const mode=b.dataset.open;$('#authMode').value=mode;$('#authTitle').textContent=mode==='login'?'Sign in to TryAMM':'Join TryAMM';$('#authSubmit').textContent=mode==='login'?'Sign in':'Create account';$('#nameLabel').classList.toggle('hidden',mode==='login');openDialog('#authDialog')}));
+$('#openHoloGPT')?.addEventListener('click',()=>openDialog('#holoDialog'));
+$('#closeHoloGPT')?.addEventListener('click',()=>$('#holoDialog')?.close());
+$('#googleSignIn')?.addEventListener('click',()=>toast('Google sign-in needs the production OAuth client ID and callback URL.'));
+window.addEventListener('beforeinstallprompt',(event)=>{event.preventDefault();deferredInstallPrompt=event;$('#installAppButton')?.classList.remove('hidden')});
+$('#installAppButton')?.addEventListener('click',async()=>{if(!deferredInstallPrompt){toast('Install is not available yet on this browser.');return}deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;$('#installAppButton')?.classList.add('hidden')});
+window.addEventListener('appinstalled',()=>toast('TryAMM was added to your device.'));
+async function registerServiceWorker(){if('serviceWorker' in navigator){try{await navigator.serviceWorker.register('/service-worker.js')}catch(err){console.warn('Service worker registration failed',err)}}}
 async function refreshHealth(){try{const h=await api('/api/health');$('#userCount').textContent=h.users;$('#liveCount').textContent=h.rooms}catch{}}
 async function refreshMe(){if(!token)return renderAccount();try{const d=await api('/api/me');me=d.user;renderAccount();connectSocket()}catch{token='';localStorage.removeItem('tryamm_token');renderAccount()}}
 function renderAccount(){const signed=Boolean(me);$('#dashboard').classList.toggle('hidden',!signed);$('#accountActions').classList.toggle('hidden',signed);if(!signed)return;$('#displayName').textContent=me.displayName;$('#balance').textContent=money(me.balanceCents);$('#accountStatus').textContent=me.isCreator?'Creator tools active':'Activate creator tools to host livestreams and earn.';$('#creatorButton').classList.toggle('hidden',me.isCreator);$('#goLiveButton').disabled=!me.isCreator&&me.role!=='admin'}
@@ -16,6 +27,7 @@ $('#creatorButton').addEventListener('click',async()=>{try{const d=await api('/a
 $('#goLiveButton').addEventListener('click',()=>openDialog('#liveDialog'));
 $('#liveForm').addEventListener('submit',async(e)=>{e.preventDefault();try{const d=await api('/api/rooms',{method:'POST',body:JSON.stringify({title:$('#liveTitle').value,category:$('#liveCategory').value,ticketPriceCents:Math.round(Number($('#ticketPrice').value||0)*100)})});$('#liveDialog').close();await joinRoom(d.room,true)}catch(err){toast(err.message)}});
 async function loadRooms(){try{const d=await api('/api/rooms');$('#rooms').innerHTML=d.rooms.length?d.rooms.map(r=>`<article class="room-card"><div class="thumb">◉</div><h3>${escapeHtml(r.title)}</h3><p class="room-meta">${escapeHtml(r.hostName)} • ${r.viewerCount} watching • ${r.ticketPriceCents?money(r.ticketPriceCents):'Free'}</p><button data-room="${r.id}">Join live</button></article>`).join(''):'<p class="empty">No rooms are live yet. Be the first creator to start one.</p>';$$('[data-room]').forEach(b=>b.addEventListener('click',()=>joinRoom(d.rooms.find(r=>r.id===b.dataset.room),false)))}catch(e){$('#rooms').innerHTML=`<p class="error">${escapeHtml(e.message)}</p>`}}
+async function loadWorlds(){try{const res=await fetch('/data/worlds.json');if(!res.ok)throw new Error('World registry unavailable');const data=await res.json();$('#worldCards').innerHTML=data.worlds.map(w=>`<article class="room-card"><div class="thumb">${w.status==='live'?'◎':'◇'}</div><h3>${escapeHtml(w.name)}</h3><p class="room-meta">${escapeHtml(w.status)} • ${escapeHtml(w.ageLane||'all ages')}</p><button class="${w.status==='live'?'':'ghost'}" data-world="${escapeHtml(w.slug)}" ${w.status==='live'?'':'disabled'}>${w.status==='live'?'Enter world':'Planned'}</button></article>`).join('');$$('[data-world]:not([disabled])').forEach(b=>b.addEventListener('click',()=>toast(`${b.dataset.world} runtime is awaiting Victor's verified deployment.`)))}catch(err){$('#worldCards').innerHTML=`<p class="error">${escapeHtml(err.message)}</p>`}}
 $('#refreshRooms').addEventListener('click',loadRooms);
 function connectSocket(){if(!token||socket?.connected)return;socket=io({auth:{token}});socket.on('connect_error',()=>toast('Live connection needs sign-in'));socket.on('rooms:changed',loadRooms);socket.on('chat',m=>addMessage(m.from,m.text));socket.on('viewer:count',n=>$('#viewerCount').textContent=`${n} watching`);socket.on('heart',n=>toast(`❤️ ${n} hearts`));socket.on('gift',g=>{addMessage('TryAMM',`${g.from} sent ${g.gift} (${money(g.amountCents)})`);toast(`Gift sent: ${g.gift}`)});socket.on('room:ended',()=>{toast('This live ended');leaveRoom()})}
 async function joinRoom(room,isHost){if(!me){openDialog('#authDialog');return}currentRoom=room;$('#live').classList.add('hidden');$('#roomView').classList.remove('hidden');$('#roomTitle').textContent=room.title;$('#chatMessages').innerHTML='';socket?.emit('room:join',{roomId:room.id});if(isHost){try{localStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});$('#localVideo').srcObject=localStream;$('#videoEmpty').classList.add('hidden')}catch{toast('Camera unavailable; room remains live with chat')}}location.hash='roomView'}
@@ -25,4 +37,4 @@ $('#chatForm').addEventListener('submit',(e)=>{e.preventDefault();const input=$(
 function addMessage(from,text){const p=document.createElement('p');p.className='message';p.innerHTML=`<strong>${escapeHtml(from)}:</strong> ${escapeHtml(text)}`;$('#chatMessages').append(p);p.scrollIntoView({block:'nearest'})}
 $$('[data-gift]').forEach(b=>b.addEventListener('click',async()=>{if(!currentRoom)return;try{await api(`/api/rooms/${currentRoom.id}/gifts`,{method:'POST',body:JSON.stringify({gift:b.dataset.gift})});await refreshMe()}catch(e){toast(e.message)}}));
 function escapeHtml(v){return String(v||'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-refreshHealth();refreshMe();loadRooms();
+registerServiceWorker();refreshHealth();refreshMe();loadRooms();loadWorlds();
