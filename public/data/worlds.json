@@ -1,0 +1,17 @@
+{
+  "worlds": [
+    {"slug":"faith-hub","name":"The Faith Hub","status":"live","version":1,"ageLane":"all"},
+    {"slug":"lion-kingdom-gate","name":"Lion Kingdom Gate","status":"live","version":1,"ageLane":"all"},
+    {"slug":"chicago-commons","name":"Chicago Commons","status":"live","version":1,"ageLane":"all"},
+    {"slug":"africa-trade-kingdom","name":"Africa Trade Kingdom","status":"planned","version":1,"ageLane":"all","fallback":{"shape":"box","size":[12,5,12],"color":"#2E7D32"}},
+    {"slug":"creator-city","name":"Creator City","status":"planned","version":1,"ageLane":"all","fallback":{"shape":"box","size":[12,5,12],"color":"#1F4E79"}},
+    {"slug":"gameverse-nexus","name":"GameVerse Nexus","status":"planned","version":1,"ageLane":"all","fallback":{"shape":"cylinder","size":[12,5,12],"color":"#6A1B9A"}},
+    {"slug":"holotech-city","name":"HoloTech City","status":"planned","version":1,"ageLane":"all","fallback":{"shape":"box","size":[12,5,12],"color":"#00838F"}},
+    {"slug":"marketplace-metropolis","name":"Marketplace Metropolis","status":"planned","version":1,"ageLane":"all","fallback":{"shape":"box","size":[12,5,12],"color":"#D84315"}},
+    {"slug":"academy-world","name":"Academy World","status":"planned","version":1,"ageLane":"all","fallback":{"shape":"box","size":[12,5,12],"color":"#283593"}},
+    {"slug":"omnicare-wellness","name":"Wellness and OmniCare World","status":"planned","version":1,"ageLane":"all","fallback":{"shape":"box","size":[12,5,12],"color":"#00695C"}},
+    {"slug":"music-culture-universe","name":"Music and Culture Universe","status":"planned","version":1,"ageLane":"all","fallback":{"shape":"cylinder","size":[12,5,12],"color":"#AD1457"}},
+    {"slug":"future-mobility","name":"Future Mobility World","status":"planned","version":1,"ageLane":"all","fallback":{"shape":"box","size":[12,5,12],"color":"#455A64"}},
+    {"slug":"kingdom-builders","name":"Kingdom Builders World","status":"planned","version":1,"ageLane":"all","fallback":{"shape":"box","size":[12,5,12],"color":"#8D6E63"}}
+  ]
+}
