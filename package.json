@@ -1,12 +1,19 @@
 {
-  "name": "amm-project",
-  "version": "1.0.0",
+  "name": "tryamm-creator-live",
+  "version": "2.0.0",
+  "private": true,
+  "description": "TryAMM creator livestreaming and monetization MVP",
   "main": "server.js",
+  "engines": { "node": ">=20" },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "check": "node --check server.js && node --check public/app.js",
+    "test": "node test/smoke.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "socket.io": "^4.7.5"
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1",
+    "stripe": "^18.5.0"
   }
 }
