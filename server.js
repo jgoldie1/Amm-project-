@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const { Server } = require('socket.io');
+const { OAuth2Client } = require('google-auth-library');
 
 const PORT = Number(process.env.PORT || 10000);
 const APP_URL = process.env.APP_URL || `http://localhost:${PORT}`;
@@ -13,6 +14,8 @@ const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'theammonmiverse@gmail.com').toL
 const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'data', 'store.json');
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 14;
 const PLATFORM_FEE_BPS = Number(process.env.PLATFORM_FEE_BPS || 2500);
+const GOOGLE_CLIENT_ID = String(process.env.GOOGLE_CLIENT_ID || '').trim();
+const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
 
 const app = express();
 const server = http.createServer(app);
@@ -58,14 +61,14 @@ function saveStore() {
 
 const id = (prefix) => `${prefix}_${crypto.randomBytes(12).toString('hex')}`;
 const clean = (value, max = 120) => String(value || '').trim().slice(0, max);
-const publicUser = (user) => user && ({ id: user.id, email: user.email, displayName: user.displayName, role: user.role, isCreator: user.isCreator, balanceCents: user.balanceCents || 0, createdAt: user.createdAt });
+const publicUser = (user) => user && ({ id: user.id, email: user.email, displayName: user.displayName, avatarUrl: user.avatarUrl || '', role: user.role, isCreator: user.isCreator, balanceCents: user.balanceCents || 0, authProvider: user.authProvider || 'password', createdAt: user.createdAt });
 function passwordHash(password, salt = crypto.randomBytes(16).toString('hex')) {
   const hash = crypto.scryptSync(password, salt, 64).toString('hex');
   return `${salt}:${hash}`;
 }
 function passwordValid(password, stored) {
   try {
-    const [salt, hash] = stored.split(':');
+    const [salt, hash] = String(stored || '').split(':');
     return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(passwordHash(password, salt).split(':')[1], 'hex'));
   } catch { return false; }
 }
@@ -89,7 +92,36 @@ function createSession(userId) {
   store.sessions.push(session); return session;
 }
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'TryAMM Creator Live', version: '2.0.0', users: store.users.length, rooms: store.rooms.filter((r) => r.status === 'live').length, stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY), time: new Date().toISOString() }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'TryAMM Creator Live', version: '2.1.0', users: store.users.length, rooms: store.rooms.filter((r) => r.status === 'live').length, stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY), googleLoginConfigured: Boolean(GOOGLE_CLIENT_ID), time: new Date().toISOString() }));
+app.get('/api/auth/google/config', (_req, res) => res.json({ enabled: Boolean(GOOGLE_CLIENT_ID), clientId: GOOGLE_CLIENT_ID || null }));
+app.post('/api/auth/google', async (req, res, next) => {
+  try {
+    if (!googleClient) return res.status(503).json({ error: 'Google login is not configured', code: 'GOOGLE_LOGIN_NOT_CONFIGURED' });
+    const credential = clean(req.body.credential, 5000);
+    if (!credential) return res.status(400).json({ error: 'Google credential is required' });
+    const ticket = await googleClient.verifyIdToken({ idToken: credential, audience: GOOGLE_CLIENT_ID });
+    const payload = ticket.getPayload();
+    if (!payload?.sub || !payload?.email || payload.email_verified !== true) return res.status(401).json({ error: 'Google account could not be verified' });
+    const email = payload.email.toLowerCase();
+    let user = store.users.find((u) => u.googleSub === payload.sub || u.email === email);
+    if (!user) {
+      user = { id: id('usr'), email, displayName: clean(payload.name || email.split('@')[0], 60), avatarUrl: clean(payload.picture, 500), googleSub: payload.sub, passwordHash: null, authProvider: 'google', role: email === ADMIN_EMAIL ? 'admin' : 'member', isCreator: false, balanceCents: 0, createdAt: new Date().toISOString() };
+      store.users.push(user);
+    } else {
+      user.googleSub = payload.sub;
+      user.authProvider = user.passwordHash ? 'password+google' : 'google';
+      user.avatarUrl = clean(payload.picture, 500) || user.avatarUrl || '';
+      if (!user.displayName) user.displayName = clean(payload.name || email.split('@')[0], 60);
+    }
+    const session = createSession(user.id);
+    store.events.push({ id: id('evt'), type: 'google_login', userId: user.id, createdAt: new Date().toISOString() });
+    await saveStore();
+    res.json({ token: session.token, user: publicUser(user) });
+  } catch (error) {
+    if (/Token used too late|Invalid token|Wrong recipient|audience/i.test(error.message || '')) return res.status(401).json({ error: 'Google sign-in expired or was invalid. Please try again.' });
+    next(error);
+  }
+});
 
 app.post('/api/auth/register', async (req, res) => {
   const email = clean(req.body.email, 200).toLowerCase();
@@ -98,8 +130,8 @@ app.post('/api/auth/register', async (req, res) => {
   if (!/^\S+@\S+\.\S+$/.test(email)) return res.status(400).json({ error: 'Enter a valid email' });
   if (displayName.length < 2) return res.status(400).json({ error: 'Display name is required' });
   if (password.length < 10) return res.status(400).json({ error: 'Password must be at least 10 characters' });
-  if (store.users.some((u) => u.email === email)) return res.status(409).json({ error: 'Account already exists' });
-  const user = { id: id('usr'), email, displayName, passwordHash: passwordHash(password), role: email === ADMIN_EMAIL ? 'admin' : 'member', isCreator: false, balanceCents: 0, createdAt: new Date().toISOString() };
+  if (store.users.some((u) => u.email === email)) return res.status(409).json({ error: 'Account already exists. Sign in with Google or your password.' });
+  const user = { id: id('usr'), email, displayName, passwordHash: passwordHash(password), authProvider: 'password', role: email === ADMIN_EMAIL ? 'admin' : 'member', isCreator: false, balanceCents: 0, createdAt: new Date().toISOString() };
   store.users.push(user);
   const session = createSession(user.id);
   await saveStore();
@@ -108,7 +140,7 @@ app.post('/api/auth/register', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
   const email = clean(req.body.email, 200).toLowerCase();
   const user = store.users.find((u) => u.email === email);
-  if (!user || !passwordValid(String(req.body.password || ''), user.passwordHash)) return res.status(401).json({ error: 'Invalid email or password' });
+  if (!user || !passwordValid(String(req.body.password || ''), user.passwordHash)) return res.status(401).json({ error: user?.googleSub && !user?.passwordHash ? 'This account uses Google sign-in' : 'Invalid email or password' });
   const session = createSession(user.id); await saveStore(); res.json({ token: session.token, user: publicUser(user) });
 });
 app.get('/api/me', auth, (req, res) => res.json({ user: publicUser(req.user) }));
@@ -121,7 +153,6 @@ app.post('/api/creator/apply', auth, async (req, res) => {
   req.user.creatorApprovedAt = new Date().toISOString();
   await saveStore(); res.json({ user: publicUser(req.user), message: 'Creator tools activated' });
 });
-
 app.get('/api/rooms', (_req, res) => {
   const rooms = store.rooms.filter((r) => r.status === 'live').map((r) => ({ id: r.id, title: r.title, category: r.category, hostName: r.hostName, viewerCount: io.sockets.adapter.rooms.get(`room:${r.id}`)?.size || 0, ticketPriceCents: r.ticketPriceCents, startedAt: r.startedAt }));
   res.json({ rooms });
@@ -160,7 +191,6 @@ app.post('/api/rooms/:roomId/gifts', auth, async (req, res) => {
   io.to(`room:${room.id}`).emit('gift', { gift, from: req.user.displayName, amountCents, total: room.giftsCents });
   res.status(201).json({ purchase });
 });
-
 app.post('/api/checkout', auth, async (req, res) => {
   if (!process.env.STRIPE_SECRET_KEY) return res.status(503).json({ error: 'Stripe is not configured yet', code: 'STRIPE_NOT_CONFIGURED', required: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'APP_URL'] });
   const Stripe = require('stripe'); const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -170,7 +200,6 @@ app.post('/api/checkout', auth, async (req, res) => {
   const checkout = await stripe.checkout.sessions.create({ mode: 'payment', customer_email: req.user.email, line_items: [{ quantity: 1, price_data: { currency: 'usd', unit_amount: amount, product_data: { name: `TryAMM: ${room.title}` } } }], metadata: { roomId: room.id, buyerId: req.user.id, creatorId: room.hostId }, success_url: `${APP_URL}/?payment=success`, cancel_url: `${APP_URL}/?payment=cancelled` });
   res.json({ url: checkout.url });
 });
-
 app.get('/api/admin/summary', auth, admin, (_req, res) => {
   const gross = store.purchases.reduce((sum, p) => sum + p.amountCents, 0);
   const fees = store.purchases.reduce((sum, p) => sum + p.platformFeeCents, 0);
