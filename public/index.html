@@ -6,6 +6,7 @@
   <meta name="description" content="TryAMM Creator Live — stream, build community, sell tickets and earn." />
   <title>TryAMM Creator Live</title>
   <link rel="stylesheet" href="/styles.css" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="/socket.io/socket.io.js" defer></script>
   <script src="/app.js" defer></script>
 </head>
@@ -37,7 +38,7 @@
     <section id="earn" class="section"><p class="eyebrow">HOW CREATORS EARN</p><div class="feature-grid"><article><span>01</span><h3>Ticketed livestreams</h3><p>Sell access to concerts, classes, premieres, worship programs and community events.</p></article><article><span>02</span><h3>Virtual gifts</h3><p>Audience support is recorded, split and added to the creator balance.</p></article><article><span>03</span><h3>Memberships</h3><p>Build recurring income from supporters and premium creator communities.</p></article></div></section>
     <section id="safety" class="section safety"><h2>Built for trust and accessibility</h2><p>Account protection, reporting, creator controls, large targets, keyboard navigation and reduced-motion support are part of the foundation.</p></section>
   </main>
-  <dialog id="authDialog"><button class="dialog-close" aria-label="Close">×</button><form id="authForm"><h2 id="authTitle">Join TryAMM</h2><input type="hidden" id="authMode" value="register"/><label id="nameLabel">Display name<input id="authName" autocomplete="name" /></label><label>Email<input id="authEmail" type="email" autocomplete="email" required /></label><label>Password<input id="authPassword" type="password" minlength="10" autocomplete="current-password" required /></label><p id="authError" class="error"></p><button id="authSubmit">Create account</button></form></dialog>
+  <dialog id="authDialog"><button class="dialog-close" aria-label="Close">×</button><form id="authForm"><h2 id="authTitle">Join TryAMM</h2><div id="googleSignIn"></div><p id="googleUnavailable" class="fine hidden">Google sign-in will appear after the site owner adds the Google Client ID.</p><div class="auth-divider"><span>or use email</span></div><input type="hidden" id="authMode" value="register"/><label id="nameLabel">Display name<input id="authName" autocomplete="name" /></label><label>Email<input id="authEmail" type="email" autocomplete="email" required /></label><label>Password<input id="authPassword" type="password" minlength="10" autocomplete="current-password" required /></label><p id="authError" class="error"></p><button id="authSubmit">Create account</button></form></dialog>
   <dialog id="liveDialog"><button class="dialog-close" aria-label="Close">×</button><form id="liveForm"><h2>Start a live room</h2><label>Title<input id="liveTitle" required maxlength="100" placeholder="Community Showcase" /></label><label>Category<select id="liveCategory"><option>Community</option><option>Music</option><option>Gaming</option><option>Faith</option><option>Education</option><option>Business</option></select></label><label>Ticket price<input id="ticketPrice" type="number" min="0" max="1000" step="0.01" value="0" /></label><p class="fine">Set $0 for a free room.</p><button>Go live</button></form></dialog>
   <div id="toast" role="status" aria-live="polite"></div>
   <footer><strong>TryAMM</strong><span>Creator Live MVP • © 2026 The AMM Omniverse</span></footer>
