@@ -3,43 +3,75 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="TryAMM Creator Live — stream, build community, sell tickets and earn." />
-  <title>TryAMM Creator Live</title>
+  <meta name="theme-color" content="#080612" />
+  <meta name="description" content="The AMM Omniverse — creators, livestreaming, marketplace, HoloGPT and Living Worlds." />
+  <title>The AMM Omniverse</title>
+  <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="stylesheet" href="/styles.css" />
   <script src="/socket.io/socket.io.js" defer></script>
   <script src="/app.js" defer></script>
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="#home" aria-label="TryAMM home"><span>TRY</span>AMM</a>
-    <nav><a href="#live">Live</a><a href="#earn">Earn</a><a href="#safety">Safety</a></nav>
-    <div id="accountActions"><button class="ghost" data-open="login">Sign in</button><button data-open="register">Join free</button></div>
-  </header>
-  <main>
-    <section class="hero" id="home">
-      <div><p class="eyebrow">CREATOR-OWNED ENTERTAINMENT</p><h1>Go live. Build community. <em>Get paid.</em></h1>
-        <p class="lead">Livestreams, creator tickets, virtual gifts, community rooms and accessible entertainment—all in one platform.</p>
-        <div class="actions"><button data-open="register">Create an account</button><a class="button secondary" href="#live">Explore live rooms</a></div>
-        <div class="metrics"><div><strong id="userCount">—</strong><span>members</span></div><div><strong id="liveCount">—</strong><span>live now</span></div><div><strong>75%</strong><span>creator share target</span></div></div>
+  <section id="splashScreen" class="splash" aria-label="AMM Omniverse opening screen">
+    <div class="splash-orb" aria-hidden="true">♛</div>
+    <p class="eyebrow">THE AMM OMNIVERSE</p>
+    <h1>All American Marketplace</h1>
+    <p>Creators. Commerce. Community. Living Worlds.</p>
+    <div class="splash-actions">
+      <button id="enterPlatform">Enter platform</button>
+      <button id="skipSplash" class="ghost">Skip animation</button>
+    </div>
+  </section>
+
+  <div id="appShell" class="hidden">
+    <header class="topbar">
+      <a class="brand" href="#home" aria-label="TryAMM home"><span>TRY</span>AMM</a>
+      <nav><a href="#live">Live</a><a href="#worlds">Worlds</a><a href="#earn">Earn</a><a href="#safety">Safety</a></nav>
+      <div id="accountActions">
+        <button id="installAppButton" class="ghost hidden">Add to home screen</button>
+        <button id="googleSignIn" class="ghost">Continue with Google</button>
+        <button class="ghost" data-open="login">Sign in</button>
+        <button data-open="register">Join free</button>
       </div>
-      <aside class="preview"><div class="live-badge">● LIVE</div><div class="stage"><span class="lion">♛</span><h2>Your stage is ready</h2><p>Camera, microphone, chat, hearts and gifts.</p></div></aside>
-    </section>
-    <section id="dashboard" class="panel hidden" aria-live="polite">
-      <div><p class="eyebrow">YOUR DASHBOARD</p><h2>Welcome, <span id="displayName"></span></h2><p id="accountStatus"></p></div>
-      <div class="dashboard-actions"><button id="creatorButton">Activate creator tools</button><button id="goLiveButton" class="secondary">Start a live room</button><button id="logoutButton" class="ghost">Sign out</button></div>
-      <div class="balance"><span>Creator balance</span><strong id="balance">$0.00</strong></div>
-    </section>
-    <section id="live" class="section"><p class="eyebrow">LIVE NOW</p><div class="section-head"><h2>Join the conversation</h2><button id="refreshRooms" class="ghost">Refresh</button></div><div id="rooms" class="cards"><p class="empty">Loading live rooms…</p></div></section>
-    <section id="roomView" class="section hidden">
-      <button id="leaveRoom" class="ghost">← Leave room</button><div class="room-layout"><div class="video-card"><video id="localVideo" autoplay muted playsinline></video><div class="video-empty" id="videoEmpty">Camera preview appears here</div><div class="room-overlay"><span id="roomTitle"></span><span id="viewerCount">0 watching</span></div></div>
-      <aside class="chat-card"><div id="chatMessages" class="messages"></div><form id="chatForm"><input id="chatInput" maxlength="500" placeholder="Say something…" aria-label="Chat message"/><button>Send</button></form><div class="gift-row"><button data-gift="applause">👏 $0.99</button><button data-gift="rose">🌹 $1.99</button><button data-gift="crown">👑 $4.99</button><button data-gift="lion">🦁 $9.99</button></div></aside></div>
-    </section>
-    <section id="earn" class="section"><p class="eyebrow">HOW CREATORS EARN</p><div class="feature-grid"><article><span>01</span><h3>Ticketed livestreams</h3><p>Sell access to concerts, classes, premieres, worship programs and community events.</p></article><article><span>02</span><h3>Virtual gifts</h3><p>Audience support is recorded, split and added to the creator balance.</p></article><article><span>03</span><h3>Memberships</h3><p>Build recurring income from supporters and premium creator communities.</p></article></div></section>
-    <section id="safety" class="section safety"><h2>Built for trust and accessibility</h2><p>Account protection, reporting, creator controls, large targets, keyboard navigation and reduced-motion support are part of the foundation.</p></section>
-  </main>
-  <dialog id="authDialog"><button class="dialog-close" aria-label="Close">×</button><form id="authForm"><h2 id="authTitle">Join TryAMM</h2><input type="hidden" id="authMode" value="register"/><label id="nameLabel">Display name<input id="authName" autocomplete="name" /></label><label>Email<input id="authEmail" type="email" autocomplete="email" required /></label><label>Password<input id="authPassword" type="password" minlength="10" autocomplete="current-password" required /></label><p id="authError" class="error"></p><button id="authSubmit">Create account</button></form></dialog>
-  <dialog id="liveDialog"><button class="dialog-close" aria-label="Close">×</button><form id="liveForm"><h2>Start a live room</h2><label>Title<input id="liveTitle" required maxlength="100" placeholder="Community Showcase" /></label><label>Category<select id="liveCategory"><option>Community</option><option>Music</option><option>Gaming</option><option>Faith</option><option>Education</option><option>Business</option></select></label><label>Ticket price<input id="ticketPrice" type="number" min="0" max="1000" step="0.01" value="0" /></label><p class="fine">Set $0 for a free room.</p><button>Go live</button></form></dialog>
-  <div id="toast" role="status" aria-live="polite"></div>
-  <footer><strong>TryAMM</strong><span>Creator Live MVP • © 2026 The AMM Omniverse</span></footer>
+    </header>
+
+    <main>
+      <section class="hero" id="home">
+        <div>
+          <p class="eyebrow">CREATOR-OWNED ENTERTAINMENT</p>
+          <h1>One platform. <em>Many worlds.</em></h1>
+          <p class="lead">Livestreams, creator tickets, virtual gifts, marketplace tools, HoloGPT and accessible entertainment in one connected ecosystem.</p>
+          <div class="actions">
+            <button data-open="register">Create an account</button>
+            <button id="openHoloGPT" class="secondary">Open HoloGPT</button>
+            <a class="button ghost" href="#live">Explore live rooms</a>
+          </div>
+          <div class="metrics"><div><strong id="userCount">—</strong><span>members</span></div><div><strong id="liveCount">—</strong><span>live now</span></div><div><strong>75%</strong><span>creator share target</span></div></div>
+        </div>
+        <aside class="preview"><div class="live-badge">● LIVE</div><div class="stage"><span class="lion">♛</span><h2>Your stage is ready</h2><p>Camera, microphone, chat, hearts, gifts and world portals.</p></div></aside>
+      </section>
+
+      <section id="dashboard" class="panel hidden" aria-live="polite">
+        <div><p class="eyebrow">YOUR DASHBOARD</p><h2>Welcome, <span id="displayName"></span></h2><p id="accountStatus"></p></div>
+        <div class="dashboard-actions"><button id="creatorButton">Activate creator tools</button><button id="goLiveButton" class="secondary">Start a live room</button><button id="logoutButton" class="ghost">Sign out</button></div>
+        <div class="balance"><span>Creator balance</span><strong id="balance">$0.00</strong></div>
+      </section>
+
+      <section id="worlds" class="section"><p class="eyebrow">13 LIVING WORLDS</p><div class="section-head"><h2>Enter the Omniverse</h2></div><div id="worldCards" class="cards"><p class="empty">Loading world registry…</p></div></section>
+      <section id="live" class="section"><p class="eyebrow">LIVE NOW</p><div class="section-head"><h2>Join the conversation</h2><button id="refreshRooms" class="ghost">Refresh</button></div><div id="rooms" class="cards"><p class="empty">Loading live rooms…</p></div></section>
+      <section id="roomView" class="section hidden">
+        <button id="leaveRoom" class="ghost">← Leave room</button><div class="room-layout"><div class="video-card"><video id="localVideo" autoplay muted playsinline></video><div class="video-empty" id="videoEmpty">Camera preview appears here</div><div class="room-overlay"><span id="roomTitle"></span><span id="viewerCount">0 watching</span></div></div>
+        <aside class="chat-card"><div id="chatMessages" class="messages"></div><form id="chatForm"><input id="chatInput" maxlength="500" placeholder="Say something…" aria-label="Chat message"/><button>Send</button></form><div class="gift-row"><button data-gift="applause">👏 $0.99</button><button data-gift="rose">🌹 $1.99</button><button data-gift="crown">👑 $4.99</button><button data-gift="lion">🦁 $9.99</button></div></aside></div>
+      </section>
+      <section id="earn" class="section"><p class="eyebrow">HOW CREATORS EARN</p><div class="feature-grid"><article><span>01</span><h3>Ticketed livestreams</h3><p>Sell access to concerts, classes, premieres, worship programs and community events.</p></article><article><span>02</span><h3>Virtual gifts</h3><p>Audience support is recorded, split and added to the creator balance.</p></article><article><span>03</span><h3>Marketplace and memberships</h3><p>Build recurring income from supporters, products, services and premium communities.</p></article></div></section>
+      <section id="safety" class="section safety"><h2>Built for trust and accessibility</h2><p>Large touch targets, keyboard navigation, one-hand use, reduced-motion support, reporting and creator controls are part of the foundation.</p></section>
+    </main>
+
+    <dialog id="authDialog"><button class="dialog-close" aria-label="Close">×</button><form id="authForm"><h2 id="authTitle">Join TryAMM</h2><input type="hidden" id="authMode" value="register"/><label id="nameLabel">Display name<input id="authName" autocomplete="name" /></label><label>Email<input id="authEmail" type="email" autocomplete="email" required /></label><label>Password<input id="authPassword" type="password" minlength="10" autocomplete="current-password" required /></label><p id="authError" class="error"></p><button id="authSubmit">Create account</button></form></dialog>
+    <dialog id="liveDialog"><button class="dialog-close" aria-label="Close">×</button><form id="liveForm"><h2>Start a live room</h2><label>Title<input id="liveTitle" required maxlength="100" placeholder="Community Showcase" /></label><label>Category<select id="liveCategory"><option>Community</option><option>Music</option><option>Gaming</option><option>Faith</option><option>Education</option><option>Business</option></select></label><label>Ticket price<input id="ticketPrice" type="number" min="0" max="1000" step="0.01" value="0" /></label><p class="fine">Set $0 for a free room.</p><button>Go live</button></form></dialog>
+    <dialog id="holoDialog"><button class="dialog-close" aria-label="Close">×</button><h2>HoloGPT</h2><p id="holoStatus">HoloGPT is ready for frontend integration. A production AI API key and backend route are still required before live responses can be enabled.</p><button id="closeHoloGPT">Close</button></dialog>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <footer><strong>The AMM Omniverse</strong><span>TryAMM Creator Live • © 2026</span></footer>
+  </div>
 </body>
 </html>
