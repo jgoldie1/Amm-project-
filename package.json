@@ -1,15 +1,15 @@
 {
   "name": "tryamm-creator-live",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
-  "description": "TryAMM creator livestreaming and monetization MVP",
+  "description": "TryAMM creator livestreaming, monetization, HoloGPT and Stubbs AI MVP",
   "main": "server.js",
   "engines": { "node": ">=20" },
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check public/app.js",
-    "test": "node test/smoke.js"
+    "start": "node -r ./lib/ai-preload.js server.js",
+    "dev": "node --watch -r ./lib/ai-preload.js server.js",
+    "check": "node --check server.js && node --check public/app.js && node --check lib/ai-runtime.js && node --check lib/ai-preload.js && node --check public/ai.js",
+    "test": "node test/smoke.js && node test/ai-smoke.js"
   },
   "dependencies": {
     "express": "^4.21.2",
