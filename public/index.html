@@ -9,9 +9,11 @@
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="stylesheet" href="/styles.css" />
   <link rel="stylesheet" href="/product-hub.css" />
+  <link rel="stylesheet" href="/omni-box.css" />
   <script src="/socket.io/socket.io.js" defer></script>
   <script src="/app.js" defer></script>
   <script src="/product-hub.js" defer></script>
+  <script src="/omni-box.js" defer></script>
 </head>
 <body>
   <section id="splashScreen" class="splash" aria-label="AMM Omniverse opening screen">
@@ -51,6 +53,18 @@
           <div class="metrics"><div><strong id="userCount">—</strong><span>members</span></div><div><strong id="liveCount">—</strong><span>live now</span></div><div><strong>75%</strong><span>creator share target</span></div></div>
         </div>
         <aside class="preview"><div class="live-badge">● LIVE</div><div class="stage"><span class="lion">♛</span><h2>Your stage is ready</h2><p>Camera, microphone, chat, hearts, gifts and world portals.</p></div></aside>
+      </section>
+
+      <section class="omni-box" aria-labelledby="omniBoxTitle">
+        <p class="eyebrow">YOUR UNIVERSAL COMMAND CENTER</p>
+        <h2 id="omniBoxTitle">Omni Box</h2>
+        <p>Type what you want to do, then press Enter or choose a command.</p>
+        <div class="omni-box-search">
+          <input id="omniBoxInput" type="search" placeholder="Try: Go Live, Living Worlds, Vocal Studio, HoloGPT…" autocomplete="off" aria-controls="omniBoxResults" />
+          <span class="omni-shortcut">Ctrl/⌘ + K</span>
+        </div>
+        <p id="omniBoxStatus" role="status" aria-live="polite"></p>
+        <div id="omniBoxResults" class="omni-box-results" aria-label="Omni Box commands"></div>
       </section>
 
       <section id="dashboard" class="panel hidden" aria-live="polite">
