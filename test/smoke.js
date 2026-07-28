@@ -1,9 +1,13 @@
 'use strict';
 const assert=require('assert');
 const fs=require('fs');
-for(const file of ['server.js','public/index.html','public/app.js','public/styles.css']) assert(fs.existsSync(file),`${file} missing`);
+for(const file of ['server.js','public/index.html','public/app.js','public/styles.css','public/vocal-studio.html','public/vocal-studio-app.js','public/vocal-studio-engine.js','public/vocal-studio.css']) assert(fs.existsSync(file),`${file} missing`);
 const server=fs.readFileSync('server.js','utf8');
 for(const route of ['/api/health','/api/auth/register','/api/rooms','/api/checkout','/api/admin/summary']) assert(server.includes(route),`${route} missing`);
 const html=fs.readFileSync('public/index.html','utf8');
-for(const feature of ['Go live','Virtual gifts','Ticketed livestreams','Built for trust']) assert(html.includes(feature),`${feature} missing`);
+for(const feature of ['Go live','Virtual gifts','Ticketed livestreams','Built for trust','Vocal Studio']) assert(html.includes(feature),`${feature} missing`);
+const studio=fs.readFileSync('public/vocal-studio-engine.js','utf8');
+for(const feature of ['playAll()','pauseAll()','stopAll()','toggleMute(trackId)','toggleSolo(trackId)','toggleLoop(trackId)','removeTrack(trackId)','setPan(trackId, value)']) assert(studio.includes(feature),`${feature} missing`);
+const studioHtml=fs.readFileSync('public/vocal-studio.html','utf8');
+for(const feature of ['64-TRACK VOCAL STUDIO FOUNDATION','aria-live="polite"','Master volume','Current milestone']) assert(studioHtml.includes(feature),`${feature} missing`);
 console.log('TryAMM smoke checks passed');
