@@ -70,4 +70,17 @@
   }
 
   window.TryAMMStudioCloud = { api, saveCurrentProject, listProjects, loadProject, deleteProject, createStudioRoom, connectStudioRoom };
+
+  const cloudButton = document.querySelector('#cloudSave');
+  const status = document.querySelector('#studioStatus');
+  if (cloudButton) cloudButton.onclick = async () => {
+    cloudButton.disabled = true;
+    if (status) status.textContent = 'Saving project metadata to TryAMM cloud…';
+    try {
+      const project = await saveCurrentProject();
+      if (status) status.textContent = `Cloud project “${project.name}” saved as version ${project.version}. Audio-object storage remains the next backend stage.`;
+    } catch (error) {
+      if (status) status.textContent = error.message;
+    } finally { cloudButton.disabled = false; }
+  };
 })();
