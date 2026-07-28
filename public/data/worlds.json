@@ -1,8 +1,8 @@
 {
   "worlds": [
-    {"slug":"faith-hub","name":"The Faith Hub","status":"live","version":1,"ageLane":"all"},
-    {"slug":"lion-kingdom-gate","name":"Lion Kingdom Gate","status":"live","version":1,"ageLane":"all"},
-    {"slug":"chicago-commons","name":"Chicago Commons","status":"live","version":1,"ageLane":"all"},
+    {"slug":"faith-hub","name":"The Faith Hub","status":"live","version":1,"ageLane":"all","spawn":{"x":0,"y":0.8,"z":8,"rotationY":3.14159},"budget":{"maxGeometries":20,"maxTextures":8,"maxTriangles":50000},"environment":{"shape":"box","color":"#2f2150","size":[24,1,24]},"portals":[{"id":"faith-to-lion","label":"Enter Lion Kingdom Gate","toSlug":"lion-kingdom-gate","position":{"x":0,"y":1.5,"z":-8},"radius":2}]},
+    {"slug":"lion-kingdom-gate","name":"Lion Kingdom Gate","status":"live","version":1,"ageLane":"all","spawn":{"x":0,"y":0.8,"z":7,"rotationY":3.14159},"budget":{"maxGeometries":20,"maxTextures":8,"maxTriangles":50000},"environment":{"shape":"cylinder","color":"#6f4f16","size":[22,1,22]},"portals":[{"id":"lion-to-faith","label":"Return to The Faith Hub","toSlug":"faith-hub","position":{"x":0,"y":1.5,"z":-8},"radius":2}]},
+    {"slug":"chicago-commons","name":"Chicago Commons","status":"planned","version":1,"ageLane":"all","fallback":{"shape":"box","size":[12,5,12],"color":"#1F4E79"}},
     {"slug":"africa-trade-kingdom","name":"Africa Trade Kingdom","status":"planned","version":1,"ageLane":"all","fallback":{"shape":"box","size":[12,5,12],"color":"#2E7D32"}},
     {"slug":"creator-city","name":"Creator City","status":"planned","version":1,"ageLane":"all","fallback":{"shape":"box","size":[12,5,12],"color":"#1F4E79"}},
     {"slug":"gameverse-nexus","name":"GameVerse Nexus","status":"planned","version":1,"ageLane":"all","fallback":{"shape":"cylinder","size":[12,5,12],"color":"#6A1B9A"}},
