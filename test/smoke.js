@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('assert');
 const fs=require('fs');
-for(const file of ['server.js','public/index.html','public/app.js','public/styles.css','public/living-worlds.html','public/living-worlds-runtime.js','public/data/worlds.json']) assert(fs.existsSync(file),`${file} missing`);
+for(const file of ['server.js','public/index.html','public/app.js','public/styles.css','public/living-worlds.html','public/living-worlds-runtime.js','public/data/worlds.json','public/vocal-studio.html','public/vocal-studio.js','public/vocal-studio.css']) assert(fs.existsSync(file),`${file} missing`);
 const server=fs.readFileSync('server.js','utf8');
 for(const route of ['/api/health','/api/auth/register','/api/rooms','/api/checkout','/api/admin/summary']) assert(server.includes(route),`${route} missing`);
 const html=fs.readFileSync('public/index.html','utf8');
@@ -16,4 +16,8 @@ for(const world of registry.filter(w=>w.status==='live')){
 }
 const runtime=fs.readFileSync('public/living-worlds-runtime.js','utf8');
 for(const feature of ['class WorldRegistry','class WorldRuntime','enforceBudget','disposeObject','async transition','renderer.info.memory','SoloAmbientPresence']) assert(runtime.includes(feature),`${feature} missing`);
-console.log('TryAMM and Living Worlds smoke checks passed');
+const studioHtml=fs.readFileSync('public/vocal-studio.html','utf8');
+for(const feature of ['Record microphone','Vocal Coach','Save on this device','Export finished song','Export stems']) assert(studioHtml.includes(feature),`${feature} studio control missing`);
+const studio=fs.readFileSync('public/vocal-studio.js','utf8');
+for(const feature of ['MediaRecorder','autoCorrelate','autoTuneTrack','createDynamicsCompressor','indexedDB.open','OfflineAudioContext','encodeWav','exportStems']) assert(studio.includes(feature),`${feature} studio engine missing`);
+console.log('TryAMM, Living Worlds and advanced Vocal Studio smoke checks passed');
