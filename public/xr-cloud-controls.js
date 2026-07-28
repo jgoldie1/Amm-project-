@@ -1,4 +1,4 @@
-' strict';
+'use strict';
 (() => {
   const status = document.querySelector('#xrStatus');
   const presence = document.querySelector('#studioPresence');
