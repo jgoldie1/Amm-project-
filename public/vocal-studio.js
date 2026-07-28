@@ -1,100 +1,89 @@
 'use strict';
 (() => {
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  const files = document.querySelector('#trackFiles');
-  const tracksEl = document.querySelector('#tracks');
-  const status = document.querySelector('#studioStatus');
-  const count = document.querySelector('#trackCount');
-  const masterSlider = document.querySelector('#masterVolume');
-  if (!AudioCtx || !files || !tracksEl) { if (status) status.textContent = 'This browser does not support the Web Audio mixer.'; return; }
+  const OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  const $ = (selector) => document.querySelector(selector);
+  const files = $('#trackFiles'), tracksEl = $('#tracks'), status = $('#studioStatus'), count = $('#trackCount');
+  if (!AudioCtx || !OfflineCtx || !files || !tracksEl) { if (status) status.textContent = 'This browser does not support the advanced Web Audio studio.'; return; }
 
   const ctx = new AudioCtx();
-  const master = ctx.createGain();
-  master.gain.value = Number(masterSlider.value);
-  master.connect(ctx.destination);
+  const master = ctx.createGain(); master.gain.value = Number($('#masterVolume').value); master.connect(ctx.destination);
   const tracks = [];
-  let startedAt = 0;
-  let pausedAt = 0;
-  let playing = false;
+  let startedAt = 0, pausedAt = 0, playing = false, recorder = null, recordStream = null, recordChunks = [];
+  let coachStream = null, coachFrame = 0;
+  const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  const SCALE_STEPS = { major:[0,2,4,5,7,9,11], minor:[0,2,3,5,7,8,10], chromatic:[0,1,2,3,4,5,6,7,8,9,10,11] };
 
   function announce(message) { status.textContent = message; }
   function updateCount() { count.textContent = `${tracks.length} / 64 tracks`; }
-  function stopSources(reset = true) {
-    tracks.forEach((track) => { try { track.source?.stop(); } catch (_) {} track.source = null; });
-    playing = false;
-    if (reset) pausedAt = 0;
-  }
-  function effectiveAudible(track) {
-    const anySolo = tracks.some((item) => item.solo);
-    return !track.muted && (!anySolo || track.solo);
-  }
-  function updateMix() {
-    tracks.forEach((track) => track.gain.gain.setTargetAtTime(effectiveAudible(track) ? track.volume : 0, ctx.currentTime, .01));
-  }
-  function makeSource(track, offset) {
-    const source = ctx.createBufferSource();
-    source.buffer = track.buffer;
-    source.loop = track.loop;
-    source.connect(track.gain);
-    source.onended = () => { if (!source.loop && playing && tracks.every((item) => !item.source || item.source === source)) { playing = false; announce('Playback finished.'); } };
-    source.start(0, Math.min(offset, Math.max(0, track.buffer.duration - .01)));
-    track.source = source;
-  }
-  async function playAll() {
-    if (!tracks.length) return announce('Add at least one audio track first.');
-    await ctx.resume();
-    stopSources(false);
-    const offset = pausedAt;
-    tracks.forEach((track) => makeSource(track, offset));
-    startedAt = ctx.currentTime - offset;
-    playing = true;
-    announce(`Playing ${tracks.length} synchronized track${tracks.length === 1 ? '' : 's'}.`);
-  }
-  function pauseAll() {
-    if (!playing) return announce('Playback is not currently running.');
-    pausedAt = Math.max(0, ctx.currentTime - startedAt);
-    stopSources(false);
-    announce(`Paused at ${pausedAt.toFixed(1)} seconds.`);
-  }
-  function stopAll() { stopSources(true); announce('Playback stopped and returned to the beginning.'); }
+  function cleanName(name) { return String(name || 'track').replace(/[<>]/g, '').slice(0, 100); }
+  function uid() { return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`; }
+  function dbOpen() { return new Promise((resolve,reject) => { const request=indexedDB.open('tryamm-vocal-studio',1); request.onupgradeneeded=()=>request.result.createObjectStore('projects',{keyPath:'id'}); request.onsuccess=()=>resolve(request.result); request.onerror=()=>reject(request.error); }); }
+  async function dbPut(value) { const db=await dbOpen(); return new Promise((resolve,reject)=>{ const tx=db.transaction('projects','readwrite'); tx.objectStore('projects').put(value); tx.oncomplete=()=>resolve(); tx.onerror=()=>reject(tx.error); }); }
+  async function dbGet(id='current') { const db=await dbOpen(); return new Promise((resolve,reject)=>{ const request=db.transaction('projects').objectStore('projects').get(id); request.onsuccess=()=>resolve(request.result); request.onerror=()=>reject(request.error); }); }
 
-  function render() {
-    tracksEl.replaceChildren();
-    if (!tracks.length) {
-      const empty = document.createElement('article'); empty.className = 'empty holo-panel';
-      empty.innerHTML = '<h2>No tracks loaded</h2><p>Add music, vocals, beats or podcast audio from your device.</p>';
-      tracksEl.append(empty); updateCount(); return;
-    }
-    tracks.forEach((track, index) => {
-      const card = document.createElement('article'); card.className = 'track holo-panel';
-      card.innerHTML = `<div><h2>${track.name}</h2><small>${track.buffer.duration.toFixed(1)} seconds</small><div class="meter"><span></span></div></div><label>Volume<input data-control="volume" type="range" min="0" max="1" step="0.01" value="${track.volume}"></label><label>Pan<input data-control="pan" type="range" min="-1" max="1" step="0.01" value="${track.panValue}"></label><div class="track-controls"><button data-action="mute" class="${track.muted ? 'active' : ''}">Mute</button><button data-action="solo" class="${track.solo ? 'active' : ''}">Solo</button><button data-action="loop" class="${track.loop ? 'active' : ''}">Loop</button><button data-action="remove">Remove</button></div>`;
-      card.querySelector('[data-control="volume"]').addEventListener('input', (event) => { track.volume = Number(event.target.value); updateMix(); });
-      card.querySelector('[data-control="pan"]').addEventListener('input', (event) => { track.panValue = Number(event.target.value); track.pan.pan.setTargetAtTime(track.panValue, ctx.currentTime, .01); });
-      card.querySelector('[data-action="mute"]').addEventListener('click', () => { track.muted = !track.muted; updateMix(); render(); });
-      card.querySelector('[data-action="solo"]').addEventListener('click', () => { track.solo = !track.solo; updateMix(); render(); });
-      card.querySelector('[data-action="loop"]').addEventListener('click', () => { track.loop = !track.loop; if (track.source) track.source.loop = track.loop; render(); });
-      card.querySelector('[data-action="remove"]').addEventListener('click', () => { try { track.source?.stop(); } catch (_) {} track.gain.disconnect(); track.pan.disconnect(); tracks.splice(index, 1); updateMix(); render(); announce(`${track.name} removed.`); });
-      tracksEl.append(card);
-    });
-    updateCount();
+  function createImpulse(audioContext, seconds=1.25, decay=2.4) { const rate=audioContext.sampleRate, length=Math.floor(rate*seconds), impulse=audioContext.createBuffer(2,length,rate); for(let c=0;c<2;c++){ const data=impulse.getChannelData(c); for(let i=0;i<length;i++) data[i]=(Math.random()*2-1)*Math.pow(1-i/length,decay); } return impulse; }
+  function makeNodes(audioContext, track, destination) {
+    const highpass=audioContext.createBiquadFilter(); highpass.type='highpass'; highpass.frequency.value=track.highpass;
+    const low=audioContext.createBiquadFilter(); low.type='lowshelf'; low.frequency.value=180; low.gain.value=track.lowEq;
+    const mid=audioContext.createBiquadFilter(); mid.type='peaking'; mid.frequency.value=1800; mid.Q.value=.8; mid.gain.value=track.midEq;
+    const high=audioContext.createBiquadFilter(); high.type='highshelf'; high.frequency.value=6500; high.gain.value=track.highEq;
+    const compressor=audioContext.createDynamicsCompressor(); compressor.threshold.value=track.compThreshold; compressor.ratio.value=track.compRatio; compressor.attack.value=.01; compressor.release.value=.2;
+    const gain=audioContext.createGain(); gain.gain.value=track.volume;
+    const pan=audioContext.createStereoPanner(); pan.pan.value=track.panValue;
+    const convolver=audioContext.createConvolver(); convolver.buffer=createImpulse(audioContext);
+    const reverbGain=audioContext.createGain(); reverbGain.gain.value=track.reverb;
+    const delay=audioContext.createDelay(1); delay.delayTime.value=.22;
+    const feedback=audioContext.createGain(); feedback.gain.value=.18;
+    const delayGain=audioContext.createGain(); delayGain.gain.value=track.delay;
+    highpass.connect(low); low.connect(mid); mid.connect(high); high.connect(compressor); compressor.connect(gain); gain.connect(pan); pan.connect(destination);
+    high.connect(convolver); convolver.connect(reverbGain); reverbGain.connect(gain);
+    high.connect(delay); delay.connect(feedback); feedback.connect(delay); delay.connect(delayGain); delayGain.connect(gain);
+    return { input:highpass, highpass, low, mid, high, compressor, gain, pan, reverbGain, delayGain };
   }
+  function ensureLiveNodes(track) { if(track.nodes) return track.nodes; track.nodes=makeNodes(ctx,track,master); return track.nodes; }
+  function effectiveAudible(track) { const anySolo=tracks.some(item=>item.solo); return !track.muted && (!anySolo || track.solo); }
+  function updateMix() { tracks.forEach(track=>{ const n=ensureLiveNodes(track); n.gain.gain.setTargetAtTime(effectiveAudible(track)?track.volume:0,ctx.currentTime,.01); n.pan.pan.setTargetAtTime(track.panValue,ctx.currentTime,.01); n.low.gain.value=track.lowEq; n.mid.gain.value=track.midEq; n.high.gain.value=track.highEq; n.compressor.threshold.value=track.compThreshold; n.compressor.ratio.value=track.compRatio; n.reverbGain.gain.value=track.reverb; n.delayGain.gain.value=track.delay; n.highpass.frequency.value=track.highpass; }); }
+  function stopSources(reset=true) { tracks.forEach(track=>{ try{track.source?.stop();}catch(_){} track.source=null; }); playing=false; if(reset) pausedAt=0; }
+  function makeSource(track, timelineOffset) { const source=ctx.createBufferSource(); source.buffer=track.buffer; source.loop=track.loop; source.detune.value=track.detune; source.connect(ensureLiveNodes(track).input); const start=track.trimStart+timelineOffset; const available=Math.max(.01,track.trimEnd-start); source.start(0,Math.min(start,track.trimEnd-.01),available); track.source=source; }
+  async function playAll() { if(!tracks.length)return announce('Add or record at least one track first.'); await ctx.resume(); stopSources(false); tracks.forEach(track=>makeSource(track,pausedAt)); startedAt=ctx.currentTime-pausedAt; playing=true; announce(`Playing ${tracks.length} synchronized track${tracks.length===1?'':'s'}.`); }
+  function pauseAll(){ if(!playing)return announce('Playback is not running.'); pausedAt=Math.max(0,ctx.currentTime-startedAt); stopSources(false); announce(`Paused at ${pausedAt.toFixed(1)} seconds.`); }
+  function stopAll(){ stopSources(true); announce('Playback stopped.'); }
 
-  files.addEventListener('change', async () => {
-    const selected = [...files.files].slice(0, Math.max(0, 64 - tracks.length));
-    for (const file of selected) {
-      try {
-        const buffer = await ctx.decodeAudioData(await file.arrayBuffer());
-        const gain = ctx.createGain(); const pan = ctx.createStereoPanner();
-        gain.connect(pan); pan.connect(master);
-        tracks.push({ name: file.name, buffer, gain, pan, volume: .85, panValue: 0, muted: false, solo: false, loop: false, source: null });
-      } catch (_) { announce(`Could not load ${file.name}. Try another audio format.`); }
-    }
-    files.value = ''; updateMix(); render(); announce(`${tracks.length} track${tracks.length === 1 ? '' : 's'} ready.`);
-  });
-  masterSlider.addEventListener('input', () => master.gain.setTargetAtTime(Number(masterSlider.value), ctx.currentTime, .01));
-  document.querySelector('#playAll').addEventListener('click', playAll);
-  document.querySelector('#pauseAll').addEventListener('click', pauseAll);
-  document.querySelector('#stopAll').addEventListener('click', stopAll);
-  window.addEventListener('beforeunload', () => { stopSources(true); ctx.close(); });
-  render();
+  function defaultTrack(name,buffer,blob){ return { id:uid(),name:cleanName(name),buffer,blob,volume:.85,panValue:0,muted:false,solo:false,loop:false,source:null,nodes:null,trimStart:0,trimEnd:buffer.duration,detune:0,highpass:70,lowEq:0,midEq:0,highEq:0,compThreshold:-24,compRatio:3,reverb:0,delay:0 }; }
+  async function addBlob(name,blob){ if(tracks.length>=64) throw new Error('64 track limit reached'); const buffer=await ctx.decodeAudioData(await blob.arrayBuffer()); tracks.push(defaultTrack(name,buffer,blob)); }
+  function disconnectTrack(track){ try{track.source?.stop();}catch(_){} if(track.nodes) Object.values(track.nodes).forEach(node=>{try{node.disconnect();}catch(_){}}); }
+
+  function drawWave(canvas,track){ const dpr=Math.min(devicePixelRatio||1,2), width=Math.max(300,canvas.clientWidth), height=92; canvas.width=width*dpr; canvas.height=height*dpr; const g=canvas.getContext('2d'); g.scale(dpr,dpr); g.clearRect(0,0,width,height); const data=track.buffer.getChannelData(0), step=Math.max(1,Math.floor(data.length/width)); g.strokeStyle='#6ff5ff'; g.lineWidth=1; g.beginPath(); for(let x=0;x<width;x++){ let min=1,max=-1; for(let i=0;i<step;i++){const v=data[x*step+i]||0; if(v<min)min=v;if(v>max)max=v;} g.moveTo(x,(1+min)*height/2); g.lineTo(x,(1+max)*height/2);} g.stroke(); g.fillStyle='rgba(213,111,255,.22)'; const a=track.trimStart/track.buffer.duration*width,b=track.trimEnd/track.buffer.duration*width; g.fillRect(0,0,a,height); g.fillRect(b,0,width-b,height); }
+  function control(label,type,min,max,step,value,key,index){ return `<label>${label}<input data-index="${index}" data-key="${key}" type="${type}" min="${min}" max="${max}" step="${step}" value="${value}"></label>`; }
+  function render(){ tracksEl.replaceChildren(); if(!tracks.length){const empty=document.createElement('article');empty.className='empty holo-panel';empty.innerHTML='<h2>No tracks loaded</h2><p>Add music, vocals or beats, or record a microphone track.</p>';tracksEl.append(empty);updateCount();return;} tracks.forEach((track,index)=>{ const card=document.createElement('article'); card.className='track holo-panel'; card.innerHTML=`<div class="track-head"><div><h2>${track.name}</h2><small>${track.buffer.duration.toFixed(1)} seconds · pitch ${track.detune>=0?'+':''}${track.detune} cents</small></div><div class="track-controls"><button data-action="autotune">Auto-Key</button><button data-action="mute" class="${track.muted?'active':''}">Mute</button><button data-action="solo" class="${track.solo?'active':''}">Solo</button><button data-action="loop" class="${track.loop?'active':''}">Loop</button><button data-action="remove">Remove</button></div></div><div class="wave-wrap"><canvas class="waveform" aria-label="Waveform for ${track.name}"></canvas></div><div class="trim-grid">${control('Trim start','range',0,track.buffer.duration-.02,.01,track.trimStart,'trimStart',index)}${control('Trim end','range',.02,track.buffer.duration,.01,track.trimEnd,'trimEnd',index)}${control('Volume','range',0,1,.01,track.volume,'volume',index)}${control('Pan','range',-1,1,.01,track.panValue,'panValue',index)}</div><div class="effect-grid">${control('Pitch correction','range',-600,600,1,track.detune,'detune',index)}${control('Low EQ','range',-12,12,.5,track.lowEq,'lowEq',index)}${control('Mid EQ','range',-12,12,.5,track.midEq,'midEq',index)}${control('High EQ','range',-12,12,.5,track.highEq,'highEq',index)}${control('Compression','range',1,12,.5,track.compRatio,'compRatio',index)}${control('Reverb','range',0,.7,.01,track.reverb,'reverb',index)}${control('Delay','range',0,.6,.01,track.delay,'delay',index)}${control('Noise filter','range',20,300,1,track.highpass,'highpass',index)}</div>`;
+      const canvas=card.querySelector('canvas'); requestAnimationFrame(()=>drawWave(canvas,track));
+      card.querySelectorAll('input[data-key]').forEach(input=>input.addEventListener('input',e=>{ const key=e.target.dataset.key,value=Number(e.target.value); if(key==='trimStart')track.trimStart=Math.min(value,track.trimEnd-.02); else if(key==='trimEnd')track.trimEnd=Math.max(value,track.trimStart+.02); else track[key]=value; updateMix(); if(key.startsWith('trim'))drawWave(canvas,track); }));
+      card.querySelector('[data-action="mute"]').onclick=()=>{track.muted=!track.muted;updateMix();render();}; card.querySelector('[data-action="solo"]').onclick=()=>{track.solo=!track.solo;updateMix();render();}; card.querySelector('[data-action="loop"]').onclick=()=>{track.loop=!track.loop;if(track.source)track.source.loop=track.loop;render();}; card.querySelector('[data-action="remove"]').onclick=()=>{disconnectTrack(track);tracks.splice(index,1);updateMix();render();announce(`${track.name} removed.`);}; card.querySelector('[data-action="autotune"]').onclick=()=>autoTuneTrack(track);
+      tracksEl.append(card); }); updateCount(); }
+
+  function autoCorrelate(data,sampleRate){ let rms=0;for(const v of data)rms+=v*v;rms=Math.sqrt(rms/data.length);if(rms<.01)return -1;let bestOffset=-1,best=0;const min=Math.floor(sampleRate/1000),max=Math.min(Math.floor(sampleRate/70),data.length/2);for(let offset=min;offset<max;offset++){let corr=0;for(let i=0;i<data.length-offset;i++)corr+=data[i]*data[i+offset];if(corr>best){best=corr;bestOffset=offset;}}return bestOffset>0?sampleRate/bestOffset:-1;}
+  function freqToMidi(freq){return 69+12*Math.log2(freq/440);} function midiToName(midi){const n=Math.round(midi);return `${NOTE_NAMES[(n%12+12)%12]}${Math.floor(n/12)-1}`;}
+  function allowedMidi(midi){const root=NOTE_NAMES.indexOf($('#targetKey').value),steps=SCALE_STEPS[$('#targetScale').value];let best=Math.round(midi),distance=Infinity;for(let n=Math.round(midi)-12;n<=Math.round(midi)+12;n++){if(steps.includes((n-root+120)%12)&&Math.abs(n-midi)<distance){best=n;distance=Math.abs(n-midi);}}return best;}
+  function autoTuneTrack(track){const data=track.buffer.getChannelData(0),size=Math.min(8192,data.length),start=Math.max(0,Math.floor(data.length/2-size/2)),freq=autoCorrelate(data.subarray(start,start+size),track.buffer.sampleRate);if(freq<0)return announce(`Could not detect a stable pitch in ${track.name}.`);const midi=freqToMidi(freq),target=allowedMidi(midi);track.detune=Math.max(-600,Math.min(600,Math.round((target-midi)*100)));render();announce(`${track.name}: detected ${midiToName(midi)}, corrected toward ${midiToName(target)} by ${track.detune} cents.`);}
+
+  async function startRecording(){try{recordStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:false}});recordChunks=[];recorder=new MediaRecorder(recordStream);recorder.ondataavailable=e=>{if(e.data.size)recordChunks.push(e.data)};recorder.onstop=async()=>{const blob=new Blob(recordChunks,{type:recorder.mimeType||'audio/webm'});try{await addBlob(`Vocal Take ${tracks.length+1}`,blob);render();announce('Microphone recording added as a new track.');}catch(e){announce(`Recording could not be decoded: ${e.message}`);}recordStream?.getTracks().forEach(t=>t.stop());recordStream=null;$('#recordMic').classList.remove('recording');$('#recordMic').disabled=false;$('#stopRecording').disabled=true;};recorder.start(250);$('#recordMic').classList.add('recording');$('#recordMic').disabled=true;$('#stopRecording').disabled=false;announce('Recording microphone… Press Stop recording when finished.');}catch(e){announce(`Microphone unavailable: ${e.message}`);}}
+  function stopRecording(){if(recorder&&recorder.state!=='inactive')recorder.stop();}
+
+  async function startCoach(){try{coachStream=await navigator.mediaDevices.getUserMedia({audio:true});const source=ctx.createMediaStreamSource(coachStream),analyser=ctx.createAnalyser();analyser.fftSize=2048;source.connect(analyser);const data=new Float32Array(analyser.fftSize);$('#startCoach').disabled=true;$('#stopCoach').disabled=false;const tick=()=>{analyser.getFloatTimeDomainData(data);const freq=autoCorrelate(data,ctx.sampleRate);if(freq>0){const midi=freqToMidi(freq),target=allowedMidi(midi),cents=(midi-target)*100;$('#coachReadout').textContent=`${midiToName(midi)} · ${freq.toFixed(1)} Hz · ${Math.abs(cents)<15?'On pitch':cents<0?'Sing slightly higher':'Sing slightly lower'} · ${Math.abs(cents).toFixed(0)} cents`;$('#coachNeedle').style.left=`${Math.max(0,Math.min(100,50+cents/2))}%`;}coachFrame=requestAnimationFrame(tick);};tick();announce('Vocal Coach is listening. Use headphones to reduce feedback.');}catch(e){announce(`Vocal Coach could not access the microphone: ${e.message}`);}}
+  function stopCoach(){cancelAnimationFrame(coachFrame);coachStream?.getTracks().forEach(t=>t.stop());coachStream=null;$('#startCoach').disabled=false;$('#stopCoach').disabled=true;$('#coachReadout').textContent='Coach stopped.';$('#coachNeedle').style.left='50%';}
+
+  async function saveProject(){try{const project={id:'current',name:$('#projectName').value||'My TryAMM Song',savedAt:new Date().toISOString(),tracks:tracks.map(t=>({name:t.name,blob:t.blob,settings:{volume:t.volume,panValue:t.panValue,muted:t.muted,solo:t.solo,loop:t.loop,trimStart:t.trimStart,trimEnd:t.trimEnd,detune:t.detune,highpass:t.highpass,lowEq:t.lowEq,midEq:t.midEq,highEq:t.highEq,compThreshold:t.compThreshold,compRatio:t.compRatio,reverb:t.reverb,delay:t.delay}}))};await dbPut(project);announce(`Project “${project.name}” saved on this device.`);}catch(e){announce(`Project save failed: ${e.message}`);}}
+  async function loadProject(){try{const project=await dbGet();if(!project)return announce('No saved project was found on this device.');stopSources(true);tracks.forEach(disconnectTrack);tracks.length=0;for(const saved of project.tracks){await addBlob(saved.name,saved.blob);Object.assign(tracks[tracks.length-1],saved.settings);}$('#projectName').value=project.name;updateMix();render();announce(`Loaded “${project.name}” with ${tracks.length} tracks.`);}catch(e){announce(`Project load failed: ${e.message}`);}}
+  async function cloudSave(){try{const response=await fetch('/api/studio/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:$('#projectName').value,trackCount:tracks.length,updatedAt:new Date().toISOString()})});if(!response.ok)throw new Error(`cloud service returned ${response.status}`);announce('Project metadata saved to TryAMM cloud. Audio upload requires signed storage URLs.');}catch(_){announce('Cloud storage is not connected yet. Your project can still be saved safely on this device.');}}
+
+  function encodeWav(buffer){const channels=buffer.numberOfChannels,length=buffer.length*channels*2+44,view=new DataView(new ArrayBuffer(length));let p=0;const write=s=>{for(let i=0;i<s.length;i++)view.setUint8(p++,s.charCodeAt(i));};write('RIFF');view.setUint32(p,length-8,true);p+=4;write('WAVEfmt ');view.setUint32(p,16,true);p+=4;view.setUint16(p,1,true);p+=2;view.setUint16(p,channels,true);p+=2;view.setUint32(p,buffer.sampleRate,true);p+=4;view.setUint32(p,buffer.sampleRate*channels*2,true);p+=4;view.setUint16(p,channels*2,true);p+=2;view.setUint16(p,16,true);p+=2;write('data');view.setUint32(p,length-p-4,true);p+=4;const data=Array.from({length:channels},(_,c)=>buffer.getChannelData(c));for(let i=0;i<buffer.length;i++)for(let c=0;c<channels;c++){const s=Math.max(-1,Math.min(1,data[c][i]));view.setInt16(p,s<0?s*32768:s*32767,true);p+=2;}return new Blob([view],{type:'audio/wav'});}
+  function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000);}
+  async function renderOffline(selected){const audible=selected.filter(t=>effectiveAudible(t)),duration=Math.max(.1,...audible.map(t=>t.trimEnd-t.trimStart)),rate=44100,offline=new OfflineCtx(2,Math.ceil(duration*rate),rate),out=offline.createGain();out.gain.value=Number($('#masterVolume').value);out.connect(offline.destination);audible.forEach(track=>{const source=offline.createBufferSource();source.buffer=track.buffer;source.detune.value=track.detune;const nodes=makeNodes(offline,track,out);source.connect(nodes.input);source.start(0,track.trimStart,track.trimEnd-track.trimStart);});return offline.startRendering();}
+  async function exportMix(){if(!tracks.length)return announce('Add tracks before exporting.');try{announce('Rendering finished song…');const rendered=await renderOffline(tracks);download(encodeWav(rendered),`${cleanName($('#projectName').value).replace(/\s+/g,'-')||'tryamm-song'}.wav`);announce('Finished-song WAV export created.');}catch(e){announce(`Export failed: ${e.message}`);}}
+  async function exportStems(){if(!tracks.length)return announce('Add tracks before exporting stems.');try{announce('Rendering stems…');for(let i=0;i<tracks.length;i++){const rendered=await renderOffline([tracks[i]]);download(encodeWav(rendered),`${String(i+1).padStart(2,'0')}-${cleanName(tracks[i].name).replace(/\s+/g,'-')}.wav`);await new Promise(r=>setTimeout(r,250));}announce(`${tracks.length} WAV stem export${tracks.length===1?'':'s'} created.`);}catch(e){announce(`Stem export failed: ${e.message}`);}}
+
+  files.addEventListener('change',async()=>{const selected=[...files.files].slice(0,Math.max(0,64-tracks.length));for(const file of selected){try{await addBlob(file.name,file);}catch(_){announce(`Could not load ${file.name}. Try WAV, MP3, M4A or WebM.`);}}files.value='';updateMix();render();announce(`${tracks.length} track${tracks.length===1?'':'s'} ready.`);});
+  $('#masterVolume').oninput=e=>master.gain.setTargetAtTime(Number(e.target.value),ctx.currentTime,.01); $('#playAll').onclick=playAll;$('#pauseAll').onclick=pauseAll;$('#stopAll').onclick=stopAll;$('#recordMic').onclick=startRecording;$('#stopRecording').onclick=stopRecording;$('#startCoach').onclick=startCoach;$('#stopCoach').onclick=stopCoach;$('#saveProject').onclick=saveProject;$('#loadProject').onclick=loadProject;$('#cloudSave').onclick=cloudSave;$('#exportMix').onclick=exportMix;$('#exportStems').onclick=exportStems;
+  window.addEventListener('beforeunload',()=>{stopSources(true);stopCoach();recordStream?.getTracks().forEach(t=>t.stop());ctx.close();}); render();
 })();
