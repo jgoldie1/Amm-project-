@@ -1,6 +1,6 @@
 {
   "name": "tryamm-creator-live",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "private": true,
   "description": "TryAMM creator livestreaming, music, immersive media, enterprise and partner platform",
   "main": "server.js",
@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check music-api.js && node --check enterprise-api.js && node --check public/app.js && node --check public/music-hub.js && node --check public/enterprise.js",
+    "check": "node --check server.js && node --check music-api.js && node --check enterprise-api.js && node --check enterprise-catalog-api.js && node --check public/app.js && node --check public/music-hub.js && node --check public/enterprise.js",
     "test": "node test/smoke.js"
   },
   "dependencies": {
