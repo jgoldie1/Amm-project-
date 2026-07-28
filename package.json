@@ -1,14 +1,14 @@
 {
   "name": "tryamm-creator-live",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
-  "description": "TryAMM creator livestreaming and monetization MVP",
+  "description": "TryAMM creator livestreaming, music, immersive media and monetization MVP",
   "main": "server.js",
   "engines": { "node": ">=20" },
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check public/app.js",
+    "check": "node --check server.js && node --check music-api.js && node --check public/app.js && node --check public/music-hub.js",
     "test": "node test/smoke.js"
   },
   "dependencies": {
