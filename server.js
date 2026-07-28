@@ -13,6 +13,8 @@ const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'theammonmiverse@gmail.com').toL
 const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'data', 'store.json');
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 14;
 const PLATFORM_FEE_BPS = Number(process.env.PLATFORM_FEE_BPS || 2500);
+const STUDIO_PROJECT_LIMIT = 25;
+const STUDIO_PROJECT_BYTES = 1_500_000;
 
 const app = express();
 const server = http.createServer(app);
@@ -30,7 +32,7 @@ app.use((req, res, next) => {
 });
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
 
-function initialStore() { return { users: [], sessions: [], rooms: [], purchases: [], reports: [], events: [] }; }
+function initialStore() { return { users: [], sessions: [], rooms: [], purchases: [], reports: [], events: [], studioProjects: [], studioRooms: [] }; }
 function readStore() {
   try {
     fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
@@ -88,8 +90,14 @@ function createSession(userId) {
   const session = { token: crypto.randomBytes(32).toString('hex'), userId, expiresAt: Date.now() + SESSION_TTL_MS };
   store.sessions.push(session); return session;
 }
+function studioProjectView(project) {
+  return { id: project.id, name: project.name, version: project.version, trackCount: project.trackCount, xr: project.xr, createdAt: project.createdAt, updatedAt: project.updatedAt };
+}
+function validStudioState(value) {
+  return value && typeof value === 'object' && Array.isArray(value.tracks) && value.tracks.length <= 64;
+}
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'TryAMM Creator Live', version: '2.0.0', users: store.users.length, rooms: store.rooms.filter((r) => r.status === 'live').length, stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY), time: new Date().toISOString() }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'TryAMM Creator Live', version: '2.1.0', users: store.users.length, rooms: store.rooms.filter((r) => r.status === 'live').length, studioProjects: store.studioProjects.length, stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY), time: new Date().toISOString() }));
 
 app.post('/api/auth/register', async (req, res) => {
   const email = clean(req.body.email, 200).toLowerCase();
@@ -120,6 +128,50 @@ app.post('/api/creator/apply', auth, async (req, res) => {
   req.user.creatorCategory = clean(req.body.category, 80) || 'Creator';
   req.user.creatorApprovedAt = new Date().toISOString();
   await saveStore(); res.json({ user: publicUser(req.user), message: 'Creator tools activated' });
+});
+
+app.get('/api/studio/projects', auth, (req, res) => {
+  const projects = store.studioProjects.filter((p) => p.ownerId === req.user.id).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).map(studioProjectView);
+  res.json({ projects, limit: STUDIO_PROJECT_LIMIT });
+});
+app.post('/api/studio/projects', auth, async (req, res) => {
+  const payloadBytes = Buffer.byteLength(JSON.stringify(req.body || {}));
+  if (payloadBytes > STUDIO_PROJECT_BYTES) return res.status(413).json({ error: 'Project metadata is too large. Upload audio through object storage in production.', maxBytes: STUDIO_PROJECT_BYTES });
+  const state = req.body.state || req.body.project || req.body;
+  if (!validStudioState(state)) return res.status(400).json({ error: 'A valid studio project with no more than 64 tracks is required' });
+  const owned = store.studioProjects.filter((p) => p.ownerId === req.user.id);
+  const requestedId = clean(req.body.id || state.id, 80);
+  let project = requestedId && owned.find((p) => p.id === requestedId);
+  if (!project && owned.length >= STUDIO_PROJECT_LIMIT) return res.status(409).json({ error: `Cloud project limit reached (${STUDIO_PROJECT_LIMIT})` });
+  const now = new Date().toISOString();
+  if (!project) {
+    project = { id: id('studio'), ownerId: req.user.id, createdAt: now, version: 1 };
+    store.studioProjects.push(project);
+  } else project.version += 1;
+  project.name = clean(state.name || req.body.name, 80) || 'Untitled TryAMM Project';
+  project.trackCount = state.tracks.length;
+  project.state = state;
+  project.xr = req.body.xr && typeof req.body.xr === 'object' ? req.body.xr : project.xr || null;
+  project.updatedAt = now;
+  await saveStore();
+  res.status(project.version === 1 ? 201 : 200).json({ project: studioProjectView(project) });
+});
+app.get('/api/studio/projects/:projectId', auth, (req, res) => {
+  const project = store.studioProjects.find((p) => p.id === req.params.projectId && p.ownerId === req.user.id);
+  if (!project) return res.status(404).json({ error: 'Studio project not found' });
+  res.json({ project: { ...studioProjectView(project), state: project.state } });
+});
+app.delete('/api/studio/projects/:projectId', auth, async (req, res) => {
+  const before = store.studioProjects.length;
+  store.studioProjects = store.studioProjects.filter((p) => !(p.id === req.params.projectId && p.ownerId === req.user.id));
+  if (store.studioProjects.length === before) return res.status(404).json({ error: 'Studio project not found' });
+  await saveStore(); res.json({ ok: true });
+});
+app.post('/api/studio/rooms', auth, async (req, res) => {
+  const projectId = clean(req.body.projectId, 80);
+  if (projectId && !store.studioProjects.some((p) => p.id === projectId && p.ownerId === req.user.id)) return res.status(404).json({ error: 'Studio project not found' });
+  const room = { id: id('xrstudio'), ownerId: req.user.id, projectId: projectId || null, name: clean(req.body.name, 80) || `${req.user.displayName}'s XR Studio`, members: [req.user.id], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+  store.studioRooms.push(room); await saveStore(); res.status(201).json({ room: { id: room.id, name: room.name, projectId: room.projectId, createdAt: room.createdAt } });
 });
 
 app.get('/api/rooms', (_req, res) => {
@@ -174,7 +226,7 @@ app.post('/api/checkout', auth, async (req, res) => {
 app.get('/api/admin/summary', auth, admin, (_req, res) => {
   const gross = store.purchases.reduce((sum, p) => sum + p.amountCents, 0);
   const fees = store.purchases.reduce((sum, p) => sum + p.platformFeeCents, 0);
-  res.json({ users: store.users.length, creators: store.users.filter((u) => u.isCreator).length, liveRooms: store.rooms.filter((r) => r.status === 'live').length, purchases: store.purchases.length, grossCents: gross, platformRevenueCents: fees, reports: store.reports.filter((r) => r.status === 'open').length });
+  res.json({ users: store.users.length, creators: store.users.filter((u) => u.isCreator).length, liveRooms: store.rooms.filter((r) => r.status === 'live').length, purchases: store.purchases.length, grossCents: gross, platformRevenueCents: fees, reports: store.reports.filter((r) => r.status === 'open').length, studioProjects: store.studioProjects.length, studioRooms: store.studioRooms.length });
 });
 app.post('/api/reports', auth, async (req, res) => {
   const report = { id: id('rpt'), reporterId: req.user.id, roomId: clean(req.body.roomId, 80), reason: clean(req.body.reason, 300), status: 'open', createdAt: new Date().toISOString() };
@@ -191,11 +243,29 @@ io.on('connection', (socket) => {
     socket.to(`room:${roomId}`).emit('peer:joined', { socketId: socket.id, name: socket.user.displayName });
     io.to(`room:${roomId}`).emit('viewer:count', io.sockets.adapter.rooms.get(`room:${roomId}`)?.size || 0);
   });
+  socket.on('studio:join', ({ studioRoomId }) => {
+    const room = store.studioRooms.find((r) => r.id === clean(studioRoomId, 80));
+    if (!room) return socket.emit('studio:error', { error: 'Studio room not found' });
+    if (!room.members.includes(socket.user.id)) room.members.push(socket.user.id);
+    socket.join(`studio:${room.id}`); socket.data.studioRoomId = room.id; room.updatedAt = new Date().toISOString(); saveStore();
+    socket.to(`studio:${room.id}`).emit('studio:peer-joined', { userId: socket.user.id, name: socket.user.displayName });
+    io.to(`studio:${room.id}`).emit('studio:presence', { count: io.sockets.adapter.rooms.get(`studio:${room.id}`)?.size || 0 });
+  });
+  socket.on('xr_studio_state', ({ studioRoomId, type, payload }) => {
+    const room = store.studioRooms.find((r) => r.id === clean(studioRoomId, 80) && r.members.includes(socket.user.id));
+    if (!room || !['track-position', 'track-volume', 'track-mute', 'transport', 'room-anchor', 'performer'].includes(type)) return;
+    socket.to(`studio:${room.id}`).emit('xr_studio_state', { type, payload, userId: socket.user.id, name: socket.user.displayName, at: Date.now() });
+  });
   socket.on('chat', ({ roomId, message }) => { const text = clean(message, 500); if (text) io.to(`room:${roomId}`).emit('chat', { id: id('msg'), from: socket.user.displayName, text, at: Date.now() }); });
   socket.on('webrtc:offer', ({ to, offer }) => io.to(to).emit('webrtc:offer', { from: socket.id, offer }));
   socket.on('webrtc:answer', ({ to, answer }) => io.to(to).emit('webrtc:answer', { from: socket.id, answer }));
   socket.on('webrtc:ice', ({ to, candidate }) => io.to(to).emit('webrtc:ice', { from: socket.id, candidate }));
-  socket.on('disconnect', () => { const roomId = socket.data.roomId; if (roomId) io.to(`room:${roomId}`).emit('viewer:count', io.sockets.adapter.rooms.get(`room:${roomId}`)?.size || 0); });
+  socket.on('disconnect', () => {
+    const roomId = socket.data.roomId;
+    if (roomId) io.to(`room:${roomId}`).emit('viewer:count', io.sockets.adapter.rooms.get(`room:${roomId}`)?.size || 0);
+    const studioRoomId = socket.data.studioRoomId;
+    if (studioRoomId) io.to(`studio:${studioRoomId}`).emit('studio:presence', { count: io.sockets.adapter.rooms.get(`studio:${studioRoomId}`)?.size || 0 });
+  });
 });
 
 app.use('/api', (_req, res) => res.status(404).json({ error: 'API route not found' }));
