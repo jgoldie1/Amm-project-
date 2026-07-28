@@ -1,0 +1,25 @@
+{
+  "worlds": [
+    {
+      "slug":"faith-hub","name":"The Faith Hub","status":"live","version":1,"ageLane":"all",
+      "spawn":{"x":0,"y":1,"z":8},
+      "budget":{"maxGeometries":16,"maxTextures":8},
+      "environment":{"kind":"primitive","fallback":{"shape":"box","size":[24,1,24],"color":"#50308f"}},
+      "portals":[{"id":"faith-to-lion","toSlug":"lion-kingdom-gate","position":{"x":0,"y":1,"z":-8},"radius":2.2,"label":"Enter Lion Kingdom Gate"}]
+    },
+    {
+      "slug":"lion-kingdom-gate","name":"Lion Kingdom Gate","status":"live","version":1,"ageLane":"all",
+      "spawn":{"x":0,"y":1,"z":7},
+      "budget":{"maxGeometries":16,"maxTextures":8},
+      "environment":{"kind":"primitive","fallback":{"shape":"cylinder","size":[18,1,18],"color":"#a97712"}},
+      "portals":[{"id":"lion-to-faith","toSlug":"faith-hub","position":{"x":0,"y":1,"z":-7},"radius":2.2,"label":"Return to The Faith Hub"}]
+    },
+    {
+      "slug":"chicago-commons","name":"Chicago Commons","status":"planned","version":1,"ageLane":"all",
+      "spawn":{"x":0,"y":1,"z":0},
+      "budget":{"maxGeometries":20,"maxTextures":10},
+      "environment":{"kind":"primitive","fallback":{"shape":"box","size":[28,1,28],"color":"#1f4e79"}},
+      "portals":[]
+    }
+  ]
+}
