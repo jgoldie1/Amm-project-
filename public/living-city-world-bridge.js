@@ -33,9 +33,10 @@
         if(!response.ok) return null;
         const data=await response.json(); return data.worldState||null;
       },
-      async save(worldState){
+      async save(worldSlug,position){
+        const worldState={worldSlug,position,updatedAt:new Date().toISOString()};
         localStorage.setItem('tryamm_world_state',JSON.stringify(worldState));
-        if(!token) return {persisted:'local'};
+        if(!token) return {persisted:'local',worldState};
         const response=await fetch(`${apiBase}/world-state`,{method:'PUT',headers:headers(),body:JSON.stringify(worldState)});
         if(!response.ok) throw new Error('World position could not be saved');
         return response.json();
@@ -59,12 +60,13 @@
     const saved=await persistence.load().catch(()=>null);
     const startSlug=options.startSlug||saved?.worldSlug||'faith-hub';
     const viewer=options.viewer||{id:livingCity.userId||'solo-viewer'};
+    const transitionEffects=options.transitionEffects||global.TryAMMQuantumLeapEffects?.create?.(options.effectsOptions);
 
     const runtime=await global.TryAMMWorldRuntime.boot({
       WorldLoader,registry,renderer,scene,avatar,camera,THREE,
       assetLoader:livingCity.assetLoader,
       presenceAdapter:options.presenceAdapter||livingCity.presenceAdapter,
-      persistence,viewer,startSlug
+      persistence,transitionEffects,viewer,startSlug
     });
 
     global.dispatchEvent(new CustomEvent('tryamm:world-runtime-connected',{detail:{startSlug,rendererInfo:renderer.info}}));
