@@ -1,6 +1,6 @@
 {
   "name": "tryamm-creator-live",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "private": true,
   "description": "TryAMM creator livestreaming, music, immersive media, Living Worlds and monetization MVP",
   "main": "server.js",
@@ -8,9 +8,9 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check music-api.js && node --check src/worlds/world-registry.js && node --check src/worlds/world-loader.js && node --check src/worlds/world-api.js && node --check public/app.js && node --check public/music-hub.js && node --check public/world-runtime-client.js && node --check public/living-city-world-bridge.js && node --check public/world-runtime-status.js",
-    "test": "node test/smoke.js && node test/world-runtime.test.js && node test/world-bridge.test.js",
-    "test:worlds": "node test/world-runtime.test.js && node test/world-bridge.test.js"
+    "check": "node --check server.js && node --check music-api.js && node --check src/worlds/world-registry.js && node --check src/worlds/world-loader.js && node --check src/worlds/world-api.js && node --check public/app.js && node --check public/music-hub.js && node --check public/world-runtime-client.js && node --check public/living-city-world-bridge.js && node --check public/world-runtime-status.js && node --check public/quantum-leap-effects.js",
+    "test": "node test/smoke.js && node test/world-runtime.test.js && node test/world-bridge.test.js && node test/quantum-leap.test.js",
+    "test:worlds": "node test/world-runtime.test.js && node test/world-bridge.test.js && node test/quantum-leap.test.js"
   },
   "dependencies": {
     "express": "^4.21.2",
