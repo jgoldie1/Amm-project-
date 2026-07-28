@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('assert');
 const fs=require('fs');
-for(const file of ['server.js','public/index.html','public/app.js','public/styles.css','public/living-worlds.html','public/living-worlds-runtime.js','public/data/worlds.json','public/vocal-studio.html','public/vocal-studio.js','public/vocal-studio.css']) assert(fs.existsSync(file),`${file} missing`);
+for(const file of ['server.js','public/index.html','public/app.js','public/styles.css','public/living-worlds.html','public/living-worlds-runtime.js','public/data/worlds.json','public/vocal-studio.html','public/vocal-studio.js','public/vocal-studio.css','public/xr-vocal-studio.html','public/xr-vocal-studio.js','public/xr-vocal-studio.css']) assert(fs.existsSync(file),`${file} missing`);
 const server=fs.readFileSync('server.js','utf8');
 for(const route of ['/api/health','/api/auth/register','/api/rooms','/api/checkout','/api/admin/summary']) assert(server.includes(route),`${route} missing`);
 const html=fs.readFileSync('public/index.html','utf8');
@@ -20,4 +20,8 @@ const studioHtml=fs.readFileSync('public/vocal-studio.html','utf8');
 for(const feature of ['Record microphone','Vocal Coach','Save on this device','Export finished song','Export stems']) assert(studioHtml.includes(feature),`${feature} studio control missing`);
 const studio=fs.readFileSync('public/vocal-studio.js','utf8');
 for(const feature of ['MediaRecorder','autoCorrelate','autoTuneTrack','createDynamicsCompressor','indexedDB.open','OfflineAudioContext','encodeWav','exportStems']) assert(studio.includes(feature),`${feature} studio engine missing`);
-console.log('TryAMM, Living Worlds and advanced Vocal Studio smoke checks passed');
+const xrHtml=fs.readFileSync('public/xr-vocal-studio.html','utf8');
+for(const feature of ['2D Studio','3D Spatial','Holographic','Enter VR','Enter AR / MR','Four-view pyramid','Parallax display']) assert(xrHtml.includes(feature),`${feature} XR control missing`);
+const xr=fs.readFileSync('public/xr-vocal-studio.js','utf8');
+for(const feature of ['immersive-vr','immersive-ar','setMode','renderPyramid','parallax','renderer.xr.enabled','hand-tracking','hit-test']) assert(xr.includes(feature),`${feature} XR runtime missing`);
+console.log('TryAMM, Living Worlds, advanced Vocal Studio and holographic XR smoke checks passed');
