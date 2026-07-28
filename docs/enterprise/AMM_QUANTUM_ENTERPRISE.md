@@ -19,6 +19,7 @@ AMM Quantum Enterprise extends the existing TryAMM creator platform without repl
 - Browse approved partners and approved marketplace listings.
 - Review Innovation Labs, Venture Network, Global Accelerator, Research Consortium, Industry Councils, Integration Marketplace, Managed Services and Accessibility Alliance concepts.
 - Review commercial add-ons for AI Workforce, Digital Twins, Living Worlds, XR, analytics, security, support and training.
+- Navigate into the enterprise portal from the main TryAMM homepage and signed-in creator dashboard.
 
 ## Starting commercial model
 
