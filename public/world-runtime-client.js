@@ -16,10 +16,14 @@
     return ()=>{cancelAnimationFrame(raf);removeEventListener('keydown',down);removeEventListener('keyup',up)};
   }
   global.TryAMMWorldRuntime={
-    boot:async function({WorldLoader,registry,renderer,scene,avatar,camera,THREE,assetLoader,presenceAdapter,persistence,viewer,startSlug='faith-hub'}){
+    boot:async function({WorldLoader,registry,renderer,scene,avatar,camera,THREE,assetLoader,presenceAdapter,persistence,transitionEffects,viewer,startSlug='faith-hub'}){
       if(camera&&!avatar.camera)avatar.camera=camera;
       const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const loader=new WorldLoader({registry,renderer,scene,avatar,THREE,assetLoader,presenceAdapter,persistence,reducedMotion}); createAccessibleOverlay(loader); const stopKeyboard=wireKeyboard({loader,avatar,viewer}); await loader.mount(await loader.preload(startSlug),viewer); return {loader,stop:async()=>{stopKeyboard();await loader.dispose();}};
+      const loader=new WorldLoader({registry,renderer,scene,avatar,THREE,assetLoader,presenceAdapter,persistence,transitionEffects,reducedMotion});
+      createAccessibleOverlay(loader);
+      const stopKeyboard=wireKeyboard({loader,avatar,viewer});
+      await loader.mount(await loader.preload(startSlug),viewer);
+      return {loader,stop:async()=>{stopKeyboard();await loader.dispose();}};
     }
   };
 })(window);
