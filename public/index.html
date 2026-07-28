@@ -12,21 +12,21 @@
 <body>
   <header class="topbar">
     <a class="brand" href="#home" aria-label="TryAMM home"><span>TRY</span>AMM</a>
-    <nav><a href="#live">Live</a><a href="#earn">Earn</a><a href="#safety">Safety</a></nav>
+    <nav><a href="#live">Live</a><a href="#earn">Earn</a><a href="/vocal-studio.html">Vocal Studio</a><a href="#safety">Safety</a></nav>
     <div id="accountActions"><button class="ghost" data-open="login">Sign in</button><button data-open="register">Join free</button></div>
   </header>
   <main>
     <section class="hero" id="home">
       <div><p class="eyebrow">CREATOR-OWNED ENTERTAINMENT</p><h1>Go live. Build community. <em>Get paid.</em></h1>
         <p class="lead">Livestreams, creator tickets, virtual gifts, community rooms and accessible entertainment—all in one platform.</p>
-        <div class="actions"><button data-open="register">Create an account</button><a class="button secondary" href="#live">Explore live rooms</a></div>
+        <div class="actions"><button data-open="register">Create an account</button><a class="button secondary" href="#live">Explore live rooms</a><a class="button secondary" href="/vocal-studio.html">Open Vocal Studio</a></div>
         <div class="metrics"><div><strong id="userCount">—</strong><span>members</span></div><div><strong id="liveCount">—</strong><span>live now</span></div><div><strong>75%</strong><span>creator share target</span></div></div>
       </div>
       <aside class="preview"><div class="live-badge">● LIVE</div><div class="stage"><span class="lion">♛</span><h2>Your stage is ready</h2><p>Camera, microphone, chat, hearts and gifts.</p></div></aside>
     </section>
     <section id="dashboard" class="panel hidden" aria-live="polite">
       <div><p class="eyebrow">YOUR DASHBOARD</p><h2>Welcome, <span id="displayName"></span></h2><p id="accountStatus"></p></div>
-      <div class="dashboard-actions"><button id="creatorButton">Activate creator tools</button><button id="goLiveButton" class="secondary">Start a live room</button><button id="logoutButton" class="ghost">Sign out</button></div>
+      <div class="dashboard-actions"><button id="creatorButton">Activate creator tools</button><button id="goLiveButton" class="secondary">Start a live room</button><a class="button secondary" href="/vocal-studio.html">Vocal Studio</a><button id="logoutButton" class="ghost">Sign out</button></div>
       <div class="balance"><span>Creator balance</span><strong id="balance">$0.00</strong></div>
     </section>
     <section id="live" class="section"><p class="eyebrow">LIVE NOW</p><div class="section-head"><h2>Join the conversation</h2><button id="refreshRooms" class="ghost">Refresh</button></div><div id="rooms" class="cards"><p class="empty">Loading live rooms…</p></div></section>
