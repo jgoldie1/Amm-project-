@@ -18,8 +18,8 @@ function disposeObject(root, sharedAssets=new Set()) {
 }
 function counts(renderer){ return { geometries:Number(renderer?.info?.memory?.geometries||0), textures:Number(renderer?.info?.memory?.textures||0) }; }
 class WorldLoader extends EventEmitter {
-  constructor({registry,renderer,scene,avatar,THREE,assetLoader,presenceAdapter,persistence,reducedMotion=false,sharedAssets=[]}) {
-    super(); Object.assign(this,{registry,renderer,scene,avatar,THREE,assetLoader,persistence,reducedMotion});
+  constructor({registry,renderer,scene,avatar,THREE,assetLoader,presenceAdapter,persistence,transitionEffects,reducedMotion=false,sharedAssets=[]}) {
+    super(); Object.assign(this,{registry,renderer,scene,avatar,THREE,assetLoader,persistence,transitionEffects,reducedMotion});
     this.presenceAdapter=presenceAdapter||new SoloAmbientPresenceAdapter(); this.sharedAssets=new Set(sharedAssets); this.current=null; this.transitioning=false;
     if(!registry||!renderer||!scene||!avatar||!THREE) throw new Error('WorldLoader requires registry, renderer, scene, avatar and THREE');
   }
@@ -52,9 +52,32 @@ class WorldLoader extends EventEmitter {
     const released=after.geometries<=current.baseline.geometries && after.textures<=current.baseline.textures;
     this.emit('unmounted',{slug:current.world.slug,before,after,released}); return {released,before,after,baseline:current.baseline};
   }
-  async transition(toSlug,viewer={}){ if(this.transitioning) throw new Error('A world transition is already in progress'); this.transitioning=true; try{ const from=this.current?.world.slug||null; this.emit('transition',{from,to:toSlug,phase:'start',reducedMotion:this.reducedMotion}); const release=await this.unmount(); if(!release.released) throw new Error(`GPU memory was not released before loading ${toSlug}`); const preloaded=await this.preload(toSlug); const mounted=await this.mount(preloaded,viewer); this.persistence?.save(toSlug,{x:this.avatar.position.x,y:this.avatar.position.y,z:this.avatar.position.z}); this.emit('transition',{from,to:toSlug,phase:'complete'}); return mounted; } finally{ this.transitioning=false; } }
+  async transition(toSlug,viewer={}){
+    if(this.transitioning) throw new Error('A world transition is already in progress');
+    this.transitioning=true;
+    const from=this.current?.world.slug||null;
+    try{
+      this.emit('transition',{from,to:toSlug,phase:'start',reducedMotion:this.reducedMotion});
+      await this.transitionEffects?.beforeTransition?.({fromSlug:from,toSlug});
+      const release=await this.unmount();
+      if(!release.released) throw new Error(`GPU memory was not released before loading ${toSlug}`);
+      await this.transitionEffects?.afterDispose?.({fromSlug:from,toSlug,release});
+      const preloaded=await this.preload(toSlug);
+      const mounted=await this.mount(preloaded,viewer);
+      await this.persistence?.save?.(toSlug,{x:this.avatar.position.x,y:this.avatar.position.y,z:this.avatar.position.z});
+      await this.transitionEffects?.afterMount?.({fromSlug:from,toSlug,mounted});
+      this.emit('transition',{from,to:toSlug,phase:'complete'});
+      return mounted;
+    } catch(error){
+      await this.transitionEffects?.fail?.(error);
+      this.emit('transition',{from,to:toSlug,phase:'failed',error:error.message});
+      throw error;
+    } finally{
+      this.transitioning=false;
+    }
+  }
   async checkPortals(viewer={}){ if(!this.current)return null; const pos=this.avatar.position; for(const p of this.current.world.portals){ const dx=pos.x-p.position.x,dy=pos.y-p.position.y,dz=pos.z-p.position.z; if(Math.hypot(dx,dy,dz)<=p.radius) return this.transition(p.toSlug,viewer); } return null; }
   getStats(){ return {currentWorld:this.current?.world.slug||null,memory:counts(this.renderer),baseline:this.current?.baseline||null}; }
-  async dispose(){ await this.unmount(); this.presenceAdapter.dispose?.(); this.removeAllListeners(); }
+  async dispose(){ await this.unmount(); this.transitionEffects?.dispose?.(); this.presenceAdapter.dispose?.(); this.removeAllListeners(); }
 }
 module.exports={WorldLoader,disposeObject,counts};
