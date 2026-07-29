@@ -251,7 +251,7 @@ export class ChapelleAISimple {
           }
         }
       })
-      inner.send(question)
+      inner.ask(question)
       // Fallback timeout
       setTimeout(() => {
         if (!answered) resolve("I'm thinking... Try asking again! Or type 'help' to see what I know.")

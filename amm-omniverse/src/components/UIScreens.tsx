@@ -192,7 +192,7 @@ export function LoginScreen() {
   const handlePayment = async () => {
     if(selectedTier==='free'||payMethod==='skip'){ setStep('avatar'); return }
     if(payMethod==='card'&&(!cardNum||!cardExpiry||!cardCVV||!cardName)){ store.setNotif('❌ Fill in all card fields'); return }
-    if(apiUrl&&selectedTier!=='free'){
+    if(apiUrl){
       try{
         const res = await fetch(`${apiUrl}/api/stripe/checkout`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan:selectedTier==='pro'?'pro_monthly':'creator_monthly',userId:authUser?.id??'guest',email:authUser?.email??'',type:'subscription'})})
         const { url } = await res.json()

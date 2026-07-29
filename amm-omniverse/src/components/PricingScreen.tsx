@@ -286,7 +286,7 @@ export default function PricingScreen({ onClose, forceUpgrade }: {
                 <div key={pack.id} style={{ background: pack.popular ? 'rgba(255,215,0,0.06)' : '#09091c', border: `1px solid ${pack.popular ? '#ffd70066' : '#222'}`, borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
                   {pack.popular && <div style={{ position: 'absolute', marginTop: -28, background: '#ffd700', color: '#111', borderRadius: 20, padding: '1px 10px', fontSize: 9, fontWeight: 900 }}>BEST VALUE</div>}
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', align: 'center', gap: 8, marginBottom: 3 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
                       <span style={{ color: '#ffd700', fontWeight: 700, fontSize: 13 }}>🪙 {((pack as any).total ?? pack.tokens).toLocaleString()} tokens</span>
                       {(pack as any).bonus > 0 && <span style={{ color: '#00cc44', fontSize: 10 }}>+{(pack as any).bonus} bonus</span>}
                     </div>

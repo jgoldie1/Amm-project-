@@ -12,8 +12,6 @@ import { lazy, Suspense, useState } from 'react'
 const ProAudioSuite = lazy(() => import('./components/ProAudioSuite'))
 import './styles.css'
 
-import { useState } from 'react'
-
 export default function App() {
   const screen = useGameStore(s => s.screen)
   const [showPricing,   setShowPricing]   = useState(false)
