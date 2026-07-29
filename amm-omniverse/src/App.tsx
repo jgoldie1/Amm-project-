@@ -44,7 +44,7 @@ export default function App() {
       {showHoloverse && <div style={{position:'fixed',inset:0,zIndex:9998,background:'#020212'}}><HoloverseHub   onClose={() => setShowHoloverse(false)} /></div>}
       {showBennie    && <div style={{position:'fixed',inset:0,zIndex:9997,background:'#020212'}}><BennieChat     onClose={() => setShowBennie(false)} /></div>}
       {showProAudio  && <Suspense fallback={null}><div style={{position:'fixed',inset:0,zIndex:9996,background:'#03040c'}}><ProAudioSuite onClose={() => setShowProAudio(false)} /></div></Suspense>}
-      {showSwipeTip  && <SwipeTutorial onDismiss={()=>{ setShowSwipeTip(false); localStorage.setItem('amm_swiped','1') }} />}
+      {showSwipeTip && screen !== 'intro' && screen !== 'login' && <SwipeTutorial onDismiss={()=>{ setShowSwipeTip(false); localStorage.setItem('amm_swiped','1') }} />}
     </div>
   )
   </SwipeNavigator>

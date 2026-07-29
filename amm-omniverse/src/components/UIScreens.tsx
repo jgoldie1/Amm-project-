@@ -186,8 +186,8 @@ export function LoginScreen() {
     setGoogleLoading(false)
   }
   const handleGuest = () => {
-    if(!guestName.trim()) return
-    setName(guestName.trim()); setMode('guest'); setStep('payment')
+    const finalName = guestName.trim() || 'Creator'
+    setName(finalName); setMode('guest'); setStep('payment')
   }
   const handlePayment = async () => {
     if(selectedTier==='free'||payMethod==='skip'){ setStep('avatar'); return }
@@ -255,7 +255,7 @@ export function LoginScreen() {
             </div>
             <input value={guestName} onChange={e=>setGuestName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleGuest()} placeholder="Enter your creator name..."
               style={{ width:'100%',background:'#0a0a25',border:'1px solid #00ffcc33',color:'#fff',borderRadius:8,padding:'11px 14px',fontSize:13,fontFamily:'monospace',marginBottom:10,boxSizing:'border-box' }}/>
-            <button onClick={handleGuest} disabled={!guestName.trim()} style={{ width:'100%',background:guestName.trim()?'#00ffcc11':'#0a0a20',border:`1px solid ${guestName.trim()?'#00ffcc55':'#222'}`,color:guestName.trim()?'#00ffcc':'#444',borderRadius:8,padding:'10px',cursor:guestName.trim()?'pointer':'default',fontFamily:'monospace',fontWeight:700,fontSize:13 }}>
+            <button onClick={handleGuest} style={{ width:'100%',background:'rgba(0,255,204,.15)',border:'1px solid #00ffcc88',color:'#00ffcc',borderRadius:8,padding:'12px',cursor:'pointer',fontFamily:'monospace',fontWeight:700,fontSize:13 }}>
               CONTINUE AS GUEST →
             </button>
             <div style={{ color:'#2a2a3a',fontSize:10,textAlign:'center',marginTop:12 }}>Google saves your progress · Guest accounts are temporary</div>
