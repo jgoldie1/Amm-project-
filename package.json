@@ -1,6 +1,6 @@
 {
   "name": "tryamm-creator-live",
-  "version": "3.7.1",
+  "version": "3.8.0",
   "private": true,
   "description": "TryAMM creator livestreaming, music, immersive media, global commerce and operating-system MVP",
   "main": "server.js",
@@ -8,8 +8,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check music-api.js && node --check platform-kernel.js && node --check nigeria-payments.js && node --check deployment-readiness.js && node --check integration-health.js && node --check lib/supabase-rest.js && node --check lib/africa-provider-clients.js && node --check lib/hybrid-persistence.js && node --check lib/persistence-retry-queue.js && node --check public/app.js && node --check public/music-hub.js && node --check public/omniverse-v1.js",
-    "test": "node test/smoke.js && node test/platform-kernel-smoke.js && node test/nigeria-payments-smoke.js && node test/omniverse-v1-smoke.js && node test/deployment-readiness-smoke.js && node test/integration-adapters-smoke.js && node test/hybrid-persistence-smoke.js && node test/persistence-retry-smoke.js && node test/supabase-adapter-contract-smoke.js",
+    "check": "node --check server.js && node --check music-api.js && node --check platform-kernel.js && node --check nigeria-payments.js && node --check nigeria-provider-fulfillment.js && node --check deployment-readiness.js && node --check integration-health.js && node --check lib/supabase-rest.js && node --check lib/africa-provider-clients.js && node --check lib/hybrid-persistence.js && node --check lib/persistence-retry-queue.js && node --check public/app.js && node --check public/music-hub.js && node --check public/omniverse-v1.js",
+    "test": "node test/smoke.js && node test/platform-kernel-smoke.js && node test/nigeria-payments-smoke.js && node test/omniverse-v1-smoke.js && node test/deployment-readiness-smoke.js && node test/integration-adapters-smoke.js && node test/hybrid-persistence-smoke.js && node test/persistence-retry-smoke.js && node test/supabase-adapter-contract-smoke.js && node test/nigeria-provider-fulfillment-smoke.js",
     "deployment:check": "node deployment-readiness.js"
   },
   "dependencies": {
