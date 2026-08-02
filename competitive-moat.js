@@ -6,7 +6,8 @@ const PACKS = [
   { id: 'business', name: 'Business Pack', doors: ['shop','work'], worlds: ['business','earth','creator'] },
   { id: 'university', name: 'University Pack', doors: ['learn','work'], worlds: ['university','workforce','earth'] },
   { id: 'access', name: 'Universal Access Pack', doors: ['transit','translation','accessibility'], worlds: ['earth','herrin','sports','university'] },
-  { id: 'news', name: 'News and Media Pack', doors: ['news','local','national','global'], worlds: ['earth','herrin','creator','business','university'] }
+  { id: 'news', name: 'News and Media Pack', doors: ['news','local','national','global'], worlds: ['earth','herrin','creator','business','university'] },
+  { id: 'tv', name: 'Local TV and FAST Pack', doors: ['watch','local-tv','isaiah-tv','live-channels'], worlds: ['earth','herrin','creator','sports','university'] }
 ];
 
 module.exports = function registerCompetitiveMoat({ app, auth, clean, id, getStore, saveStore }) {
@@ -14,6 +15,7 @@ module.exports = function registerCompetitiveMoat({ app, auth, clean, id, getSto
     ? next()
     : res.status(403).json({ error: 'Admin access required' });
   require('./news-intelligence')({ app, auth, admin, clean, id, getStore, saveStore });
+  require('./local-tv-fast')({ app, auth, clean, getStore });
 
   app.get('/api/packs', (_req, res) => res.json({ packs: PACKS }));
 
