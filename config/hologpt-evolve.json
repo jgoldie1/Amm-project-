@@ -1,0 +1,51 @@
+{
+  "id": "hologpt-evolve",
+  "name": "HoloGPT Evolve",
+  "description": "A bounded AI-for-AI research loop for improving TryAMM models, prompts, tools, data pipelines and workflows under human control.",
+  "researchCycle": ["learn", "design", "experiment", "analyze", "review", "promote-or-reject"],
+  "evolutionTargets": [
+    "prompt-and-agent-workflows",
+    "retrieval-and-memory",
+    "data-quality-and-curation",
+    "model-routing",
+    "evaluation-suites",
+    "accessibility-assistance",
+    "translation-quality",
+    "game-agent-behavior",
+    "moderation-precision",
+    "creator-tools"
+  ],
+  "forbiddenAutonomy": [
+    "self-deploy-to-production",
+    "modify-its-own-release-gates",
+    "disable-audit-logging",
+    "change-payment-or-ledger-rules",
+    "grant-itself-permissions",
+    "obtain-secrets-or-credentials",
+    "run-unapproved-network-or-radio-actions",
+    "replicate-outside-approved-infrastructure"
+  ],
+  "requiredControls": {
+    "sandboxOnly": true,
+    "humanApprovalForPromotion": true,
+    "immutableExperimentRecord": true,
+    "benchmarkRegressionBlock": true,
+    "securityReviewForHighRiskChanges": true,
+    "privacyReviewForTrainingData": true,
+    "rightsAndLicenseReview": true,
+    "rollbackRequired": true,
+    "budgetAndComputeCaps": true,
+    "killSwitch": true
+  },
+  "promotionGates": [
+    "task-quality-improves",
+    "no-critical-safety-regression",
+    "no-accessibility-regression",
+    "no-privacy-or-rights-violation",
+    "latency-and-cost-within-budget",
+    "human-review-approved",
+    "rollback-tested"
+  ],
+  "releaseTruth": "research-preview",
+  "artificialSuperintelligenceClaimed": false
+}
