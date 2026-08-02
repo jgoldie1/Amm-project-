@@ -1,0 +1,17 @@
+{
+  "definition": "A release is complete only when every requirement has genuine evidence.",
+  "requirements": [
+    {"id":"web-build","title":"Web production build","evidence":"command","status":"pending"},
+    {"id":"api-build","title":"API production build","evidence":"command","status":"pending"},
+    {"id":"native-unreal","title":"Unreal native map and build","evidence":"external","status":"blocked"},
+    {"id":"native-unity","title":"Unity native scene and build","evidence":"external","status":"blocked"},
+    {"id":"native-godot","title":"Godot native scene and build","evidence":"external","status":"blocked"},
+    {"id":"live-backend","title":"Live backend and media deployment","evidence":"external","status":"blocked"},
+    {"id":"licensed-final-art","title":"Final licensed art and performed audio","evidence":"external","status":"blocked"},
+    {"id":"device-testing","title":"Controller, XR and holographic device testing","evidence":"external","status":"blocked"},
+    {"id":"accessibility-testing","title":"Accessibility participant testing","evidence":"external","status":"blocked"},
+    {"id":"security-review","title":"Independent security review","evidence":"external","status":"blocked"},
+    {"id":"legal-review","title":"Legal and regulatory review","evidence":"external","status":"blocked"},
+    {"id":"platform-certification","title":"Store, platform and hardware certification","evidence":"external","status":"blocked"}
+  ]
+}
