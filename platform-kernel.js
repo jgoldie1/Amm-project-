@@ -3,11 +3,11 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { createHybridPersistence } = require('./lib/hybrid-persistence');
 
 function loadJson(relativePath, fallback) {
   try {
-    const fullPath = path.join(__dirname, relativePath);
-    return JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+    return JSON.parse(fs.readFileSync(path.join(__dirname, relativePath), 'utf8'));
   } catch (error) {
     console.warn(`Kernel registry unavailable: ${relativePath}`, error.message);
     return fallback;
@@ -25,8 +25,12 @@ function safeModes(value) {
 }
 
 module.exports = function registerPlatformKernel({ app, auth, clean, id, getStore, saveStore }) {
-  const admin = (req, res, next) => req.user?.role === 'admin' ? next() : res.status(403).json({ error: 'Admin access required' });
-  require('./nigeria-payments')({ app, auth, admin, clean, id, getStore, saveStore });
+  const admin = (req, res, next) => req.user?.role === 'admin'
+    ? next()
+    : res.status(403).json({ error: 'Admin access required' });
+  const persistence = createHybridPersistence({ getStore, saveStore, id });
+
+  require('./nigeria-payments')({ app, auth, admin, clean, id, getStore, saveStore, persistence });
   require('./integration-health')({ app, auth, admin });
 
   const features = loadJson('config/features.json', loadJson('packages/config/features.json', []));
@@ -39,9 +43,16 @@ module.exports = function registerPlatformKernel({ app, auth, clean, id, getStor
   });
 
   app.get('/api/platform/v1', (_req, res) => res.json({
-    name: 'TryAMM Operating System', version: '1.0.0-prealpha', releaseTruth: 'verified-pre-alpha',
+    name: 'TryAMM Operating System',
+    version: '1.0.0-prealpha',
+    releaseTruth: 'verified-pre-alpha',
+    persistence: persistence.configured() ? 'supabase-with-local-fallback' : 'local-development',
     doors: ['watch', 'live', 'play', 'enter-globe', 'create', 'shop', 'learn', 'work'],
-    systems: { features: features.length, worlds: worlds.length, nigeriaLaunchState: nigeria.launchState || nigeria.status || 'sandbox' }
+    systems: {
+      features: features.length,
+      worlds: worlds.length,
+      nigeriaLaunchState: nigeria.launchState || nigeria.status || 'sandbox'
+    }
   }));
 
   app.get('/api/platform/features', (req, res) => {
@@ -80,8 +91,11 @@ module.exports = function registerPlatformKernel({ app, auth, clean, id, getStor
   app.get('/api/profile/experience', auth, (req, res) => res.json({
     ageLane: safeLane(req.user.ageLane),
     accessibility: req.user.accessibility || {
-      oneHandMode: false, captions: true, reducedMotion: false,
-      screenReaderOptimized: false, highContrast: false
+      oneHandMode: false,
+      captions: true,
+      reducedMotion: false,
+      screenReaderOptimized: false,
+      highContrast: false
     }
   }));
 
@@ -90,31 +104,63 @@ module.exports = function registerPlatformKernel({ app, auth, clean, id, getStor
     const input = req.body.accessibility || {};
     req.user.ageLane = ageLane;
     req.user.accessibility = {
-      oneHandMode: Boolean(input.oneHandMode), captions: input.captions !== false,
-      reducedMotion: Boolean(input.reducedMotion), screenReaderOptimized: Boolean(input.screenReaderOptimized),
+      oneHandMode: Boolean(input.oneHandMode),
+      captions: input.captions !== false,
+      reducedMotion: Boolean(input.reducedMotion),
+      screenReaderOptimized: Boolean(input.screenReaderOptimized),
       highContrast: Boolean(input.highContrast)
     };
     await saveStore();
-    res.json({ ageLane: req.user.ageLane, accessibility: req.user.accessibility });
+    const persisted = await persistence.experienceProfile(req.user);
+    await persistence.audit({
+      actorUserId: req.user.id,
+      type: 'profile.experience.updated',
+      targetType: 'user',
+      targetId: req.user.id,
+      metadata: { ageLane, persistenceMode: persisted.mode }
+    });
+    res.json({ ageLane: req.user.ageLane, accessibility: req.user.accessibility, persistence: persisted.mode });
   });
 
   app.post('/api/enter-globe/prepare', auth, async (req, res) => {
     const worldId = clean(req.body.worldId, 80);
     const world = worlds.find(item => item.id === worldId);
     if (!world) return res.status(404).json({ error: 'World not found' });
+
     const requestedModes = safeModes(req.body.mode);
     const supportedMode = requestedModes.find(mode => (world.modes || []).includes(mode));
     if (!supportedMode) return res.status(400).json({ error: 'Requested mode is not supported by this world' });
-    const store = getStore(); store.events = store.events || [];
+
+    const store = getStore();
+    store.events = store.events || [];
     const session = {
-      id: id('teleport'), userId: req.user.id, worldId: world.id, worldName: world.name,
-      mode: supportedMode, ageLane: safeLane(req.user.ageLane), state: 'arrival-bubble-ready',
-      checks: { authenticated: true, ageLane: true, accessibilityProfile: true, featureFlag: true, assetBudget: 'pending-runtime-validation' },
+      id: id('teleport'),
+      userId: req.user.id,
+      worldId: world.id,
+      worldName: world.name,
+      mode: supportedMode,
+      ageLane: safeLane(req.user.ageLane),
+      state: 'arrival-bubble-ready',
+      checks: {
+        authenticated: true,
+        ageLane: true,
+        accessibilityProfile: true,
+        featureFlag: true,
+        assetBudget: 'pending-runtime-validation'
+      },
       createdAt: new Date().toISOString()
     };
     store.events.push({ id: crypto.randomUUID(), type: 'teleport.prepared', ...session });
     await saveStore();
-    res.status(201).json({ session });
+    const persisted = await persistence.teleport(session);
+    await persistence.audit({
+      actorUserId: req.user.id,
+      type: 'teleport.prepared',
+      targetType: 'world',
+      targetId: world.id,
+      metadata: { sessionId: session.id, mode: supportedMode, persistenceMode: persisted.mode }
+    });
+    res.status(201).json({ session, persistence: persisted.mode });
   });
 
   app.get('/api/experience/v1', auth, (req, res) => {
@@ -124,7 +170,8 @@ module.exports = function registerPlatformKernel({ app, auth, clean, id, getStor
     res.json({
       user: { id: req.user.id, displayName: req.user.displayName, ageLane: safeLane(req.user.ageLane) },
       journey: {
-        world: firstWorld, liveRoom,
+        world: firstWorld,
+        liveRoom,
         game: features.find(feature => feature.id === 'gaming.quantum-tag') || null,
         store: features.find(feature => feature.id === 'commerce.store-builder') || null,
         learning: features.find(feature => feature.id === 'education.aau') || null,
