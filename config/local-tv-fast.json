@@ -1,0 +1,72 @@
+{
+  "productName": "My World Local TV",
+  "model": "FAST",
+  "description": "Free ad-supported streaming television for local, regional, national and global channels inside My World.",
+  "channels": [
+    {"id":"herrin-local","name":"Herrin Local","scope":"local","regions":["Herrin","Southern Illinois"],"formats":["live","scheduled","on-demand"],"status":"beta-build"},
+    {"id":"chicago-local","name":"Chicago Local","scope":"local","regions":["Chicago","Illinois"],"formats":["live","scheduled","on-demand"],"status":"beta-build"},
+    {"id":"nyc-local","name":"New York Local","scope":"local","regions":["New York City","New York"],"formats":["live","scheduled","on-demand"],"status":"planned"},
+    {"id":"nigeria-local","name":"Nigeria Local","scope":"regional","regions":["Nigeria"],"formats":["live","scheduled","on-demand"],"status":"planned"},
+    {"id":"isaiah-ai-tv","name":"Isaiah AI TV","scope":"global","regions":["global"],"formats":["live","scheduled","on-demand"],"status":"beta-build"},
+    {"id":"my-world-news","name":"My World News","scope":"global","regions":["global"],"formats":["live","scheduled","on-demand"],"status":"beta-build"},
+    {"id":"his-hers-sports","name":"His & Hers Sports Network","scope":"global","regions":["global"],"formats":["live","scheduled","replay"],"status":"active-build"},
+    {"id":"creator-stage","name":"Creator Stage","scope":"global","regions":["global"],"formats":["live","scheduled","on-demand"],"status":"beta-build"},
+    {"id":"aau-learning","name":"All American University TV","scope":"global","regions":["global"],"formats":["scheduled","on-demand"],"status":"beta-build"},
+    {"id":"original-internet","name":"Original Internet Channel","scope":"global","regions":["global"],"formats":["scheduled","on-demand"],"status":"beta-build"}
+  ],
+  "programming": {
+    "localNews": true,
+    "cityCouncilAndPublicMeetings": true,
+    "weatherAndEmergencyAlerts": true,
+    "schoolAndUniversityMedia": true,
+    "localSports": true,
+    "creatorShows": true,
+    "musicAndConcerts": true,
+    "faithAndCommunity": true,
+    "businessAndMarketplace": true,
+    "transportationUpdates": true,
+    "publicDomainAndLicensedArchives": true
+  },
+  "distribution": {
+    "linearGuide": true,
+    "liveChannels": true,
+    "onDemand": true,
+    "regionalization": true,
+    "geoAwareEmergencyOverride": true,
+    "connectedTvReady": true,
+    "mobileAndWeb": true,
+    "futureHolographicDisplay": true
+  },
+  "advertising": {
+    "freeToViewer": true,
+    "serverSideAdInsertionPlanned": true,
+    "localBusinessInventory": true,
+    "creatorRevenueShare": "policy-controlled",
+    "sponsoredContentLabelsRequired": true,
+    "politicalAdDisclosureRequired": true,
+    "childDirectedAdRestrictions": true,
+    "frequencyCapsRequired": true
+  },
+  "rightsAndSafety": {
+    "licensedOrOwnedContentOnly": true,
+    "publicDomainVerification": true,
+    "musicPerformanceRightsRequired": true,
+    "sportsRightsRequired": true,
+    "localStationRetransmissionPermissionRequired": true,
+    "emergencyAlertIntegrityRequired": true,
+    "correctionsAndTakedowns": true,
+    "ageLaneScheduling": true
+  },
+  "accessibility": {
+    "captions": true,
+    "audioDescription": true,
+    "liveTranscription": true,
+    "signLanguageWindowReady": true,
+    "screenReaderGuide": true,
+    "highContrastGuide": true,
+    "largeText": true,
+    "remoteAndOneHandNavigation": true,
+    "translation": true,
+    "plainLanguageSummaries": true
+  }
+}
