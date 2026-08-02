@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "1.0.0",
+  "launchPolicy": {
+    "defaultStatus": "blocked",
+    "requiresEvidence": true,
+    "noGlobalOverride": true,
+    "requiredGates": [
+      "technology",
+      "localization",
+      "privacy",
+      "consumerProtection",
+      "payments",
+      "tax",
+      "tradeAndCustoms",
+      "contentAndAge",
+      "accessibility",
+      "employment",
+      "partnerApprovals",
+      "operations",
+      "security",
+      "legalSignoff"
+    ]
+  },
+  "launchWaves": [
+    {
+      "wave": 1,
+      "markets": ["US", "CA"],
+      "purpose": "North American production validation"
+    },
+    {
+      "wave": 2,
+      "markets": ["NG", "GH", "ZA", "JP", "KR", "PH", "SG"],
+      "purpose": "Approved Africa and Asia trade corridors"
+    },
+    {
+      "wave": 3,
+      "markets": ["KE", "UG", "TZ", "IN", "GB", "AU", "NZ"],
+      "purpose": "Expansion after successful corridor evidence"
+    }
+  ],
+  "countries": [
+    {
+      "code": "US",
+      "name": "United States",
+      "region": "North America",
+      "currencies": ["USD"],
+      "languages": ["en", "es"],
+      "status": "blocked",
+      "requiredReviews": ["privacy", "child-safety", "consumer", "sales-tax", "advertising", "employment", "marketplace", "payments", "accessibility"]
+    },
+    {
+      "code": "CA",
+      "name": "Canada",
+      "region": "North America",
+      "currencies": ["CAD"],
+      "languages": ["en", "fr"],
+      "status": "blocked",
+      "requiredReviews": ["privacy", "consumer", "gst-hst", "provincial-tax", "french-language", "customs", "importer-record", "accessibility"]
+    },
+    {
+      "code": "NG",
+      "name": "Nigeria",
+      "region": "Africa",
+      "currencies": ["NGN"],
+      "languages": ["en", "yo", "ha", "ig"],
+      "status": "blocked",
+      "requiredReviews": ["privacy", "consumer", "payments", "mobile-money", "customs", "tax", "restricted-products", "cross-border-settlement"]
+    },
+    {
+      "code": "GH",
+      "name": "Ghana",
+      "region": "Africa",
+      "currencies": ["GHS"],
+      "languages": ["en"],
+      "status": "blocked",
+      "requiredReviews": ["privacy", "consumer", "payments", "customs", "tax", "restricted-products", "cross-border-settlement"]
+    },
+    {
+      "code": "ZA",
+      "name": "South Africa",
+      "region": "Africa",
+      "currencies": ["ZAR"],
+      "languages": ["en", "zu", "xh", "af"],
+      "status": "blocked",
+      "requiredReviews": ["privacy", "consumer", "payments", "vat", "customs", "employment", "advertising", "accessibility"]
+    },
+    {
+      "code": "JP",
+      "name": "Japan",
+      "region": "Asia",
+      "currencies": ["JPY"],
+      "languages": ["ja", "en"],
+      "status": "blocked",
+      "requiredReviews": ["privacy", "consumer", "payments", "consumption-tax", "customs", "content", "product-safety", "localization"]
+    },
+    {
+      "code": "KR",
+      "name": "South Korea",
+      "region": "Asia",
+      "currencies": ["KRW"],
+      "languages": ["ko", "en"],
+      "status": "blocked",
+      "requiredReviews": ["privacy", "consumer", "payments", "vat", "customs", "content", "product-safety", "localization"]
+    },
+    {
+      "code": "PH",
+      "name": "Philippines",
+      "region": "Asia",
+      "currencies": ["PHP"],
+      "languages": ["en", "fil"],
+      "status": "blocked",
+      "requiredReviews": ["privacy", "consumer", "payments", "vat", "customs", "employment", "cross-border-settlement"]
+    },
+    {
+      "code": "SG",
+      "name": "Singapore",
+      "region": "Asia",
+      "currencies": ["SGD"],
+      "languages": ["en", "zh", "ms", "ta"],
+      "status": "blocked",
+      "requiredReviews": ["privacy", "consumer", "payments", "gst", "customs", "restricted-products", "cross-border-settlement"]
+    }
+  ]
+}
