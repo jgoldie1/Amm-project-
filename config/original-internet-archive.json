@@ -1,0 +1,74 @@
+{
+  "name": "Original Internet Archive",
+  "purpose": "Preserve accessible, lawful snapshots and metadata from the early web through the pre-AI internet era while linking to original and trusted archival sources.",
+  "eras": [
+    {"id":"pre-web","label":"Network foundations","range":"1960s-1989","examples":["ARPANET history","email","FTP","Usenet","BBS culture","open protocols"]},
+    {"id":"early-web","label":"Beginning of the World Wide Web","range":"1989-1995","examples":["first websites","HTML","HTTP","URLs","public research pages"]},
+    {"id":"personal-web","label":"Personal and community web","range":"1995-2004","examples":["homepages","web rings","fan sites","forums","independent publishing"]},
+    {"id":"social-web","label":"Social and creator web","range":"2004-2015","examples":["blogs","podcasts","video communities","open-source projects","social platforms"]},
+    {"id":"platform-web","label":"Mobile and platform web","range":"2015-2025","examples":["mobile-first sites","streaming","creator economy","web apps","public datasets"]},
+    {"id":"ai-web","label":"AI internet transition","range":"2025-present","examples":["AI-generated pages","agent-authored content","synthetic media","model-readable metadata"]}
+  ],
+  "formats": {
+    "primaryArchiveFormat": "WARC ISO 28500:2017",
+    "metadata": ["original-url","capture-time","content-type","language","license","content-hash","crawler-policy","source-archive","AI-generation-label"],
+    "timeNavigation": "Memento-compatible time maps when available",
+    "integrity": ["SHA-256 content hashes","capture manifests","duplicate detection","version history"]
+  },
+  "sources": [
+    {"id":"internet-archive","type":"external-archive","mode":"link-and-save-page-adapter","enabled":false,"requiresTermsReview":true},
+    {"id":"library-of-congress-web-archive","type":"external-archive","mode":"catalog-link","enabled":true},
+    {"id":"memento-aggregators","type":"time-travel-protocol","mode":"discovery-adapter","enabled":false},
+    {"id":"user-submitted-public-url","type":"capture-request","mode":"reviewed-queue","enabled":true}
+  ],
+  "collectionPolicy": {
+    "preferMetadataAndLinks": true,
+    "captureOnlyWhenAuthorized": true,
+    "honorRobotsTxtAndPublisherTerms": true,
+    "noPaywallBypass": true,
+    "noAuthenticationBypass": true,
+    "noPrivateAccountCapture": true,
+    "removeSecretsAndPersonalData": true,
+    "copyrightAndTakedownProcess": true,
+    "rightsholderContact": true,
+    "publicDomainAndOpenLicensePriority": true,
+    "preserveOriginalContext": true,
+    "labelAIContent": true,
+    "neverRewriteHistoricalCapture": true
+  },
+  "collections": [
+    "first-websites-and-protocols",
+    "independent-homepages-and-webrings",
+    "local-community-web",
+    "Black-and-diaspora-digital-history",
+    "disability-and-accessibility-web-history",
+    "music-and-creator-web",
+    "gaming-and-virtual-world-history",
+    "open-source-software-and-documentation",
+    "local-national-global-news-history",
+    "TryAMM-build-and-release-history"
+  ],
+  "accessibility": {
+    "screenReader": true,
+    "semanticReplay": true,
+    "readerMode": true,
+    "captionsAndTranscripts": true,
+    "audioDescriptionMetadata": true,
+    "highContrast": true,
+    "largeText": true,
+    "keyboardOnly": true,
+    "oneHandControls": true,
+    "plainLanguageSummaries": true,
+    "translation": true,
+    "preserveOriginalLanguage": true
+  },
+  "aiPreservationBoundary": {
+    "humanAuthoredLabel": true,
+    "AIAuthoredLabel": true,
+    "mixedAuthorshipLabel": true,
+    "sourceCitationRequired": true,
+    "trainingPermissionNotImpliedByArchiving": true,
+    "machineReadableOptOutMetadata": true,
+    "originalCaptureAlwaysAvailableBesideAISummary": true
+  }
+}
