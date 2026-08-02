@@ -1,48 +1,34 @@
--- TryAMM row-level security baseline
--- Apply after 20260802_tryamm_kernel.sql.
--- The server service-role bypasses RLS; authenticated users receive least-privilege access.
+-- TryAMM row-level security baseline.
+-- The current app uses its own server-side authentication and the Supabase service role.
+-- Therefore all exposed public tables are RLS-protected with no direct anon/authenticated write access.
 
 alter table public.experience_profiles enable row level security;
 alter table public.teleport_sessions enable row level security;
 alter table public.payment_intents enable row level security;
 alter table public.webhook_events enable row level security;
-alter table public.payouts enable row level security;
 alter table public.ledger_entries enable row level security;
+alter table public.payouts enable row level security;
 alter table public.audit_events enable row level security;
+alter table public.entitlements enable row level security;
+alter table public.receipts enable row level security;
+alter table public.settlements enable row level security;
+alter table public.refunds enable row level security;
+alter table public.disputes enable row level security;
 
--- Users can read and update only their own experience profile.
-create policy "experience profile owner select"
-on public.experience_profiles for select
-to authenticated
-using (user_id = auth.uid()::text);
+-- No public policies are intentionally created yet.
+-- The trusted TryAMM server uses the service-role key, which must never be exposed to browsers.
+-- When the platform migrates to Supabase Auth, add owner-specific SELECT policies using auth.uid()
+-- only after user IDs are mapped to Supabase auth identities.
 
-create policy "experience profile owner update"
-on public.experience_profiles for update
-to authenticated
-using (user_id = auth.uid()::text)
-with check (user_id = auth.uid()::text);
-
--- Users can inspect only their own teleport sessions and payment intents.
-create policy "teleport owner select"
-on public.teleport_sessions for select
-to authenticated
-using (user_id = auth.uid()::text);
-
-create policy "payment intent owner select"
-on public.payment_intents for select
-to authenticated
-using (user_id = auth.uid()::text);
-
-create policy "payout owner select"
-on public.payouts for select
-to authenticated
-using (user_id = auth.uid()::text);
-
--- Financial ledger, webhook and audit writes remain server-only.
--- No authenticated insert/update/delete policies are intentionally created.
--- Add explicit admin reporting views later rather than exposing raw provider payloads.
-
-comment on policy "experience profile owner select" on public.experience_profiles is
-'Users may read only their own age-lane and accessibility profile.';
-comment on policy "payment intent owner select" on public.payment_intents is
-'Users may inspect only payment intents linked to their own identity.';
+revoke all on table public.experience_profiles from anon, authenticated;
+revoke all on table public.teleport_sessions from anon, authenticated;
+revoke all on table public.payment_intents from anon, authenticated;
+revoke all on table public.webhook_events from anon, authenticated;
+revoke all on table public.ledger_entries from anon, authenticated;
+revoke all on table public.payouts from anon, authenticated;
+revoke all on table public.audit_events from anon, authenticated;
+revoke all on table public.entitlements from anon, authenticated;
+revoke all on table public.receipts from anon, authenticated;
+revoke all on table public.settlements from anon, authenticated;
+revoke all on table public.refunds from anon, authenticated;
+revoke all on table public.disputes from anon, authenticated;
