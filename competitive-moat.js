@@ -8,7 +8,8 @@ const PACKS = [
   { id: 'access', name: 'Universal Access Pack', doors: ['transit','translation','accessibility'], worlds: ['earth','herrin','sports','university'] },
   { id: 'news', name: 'News and Media Pack', doors: ['news','local','national','global'], worlds: ['earth','herrin','creator','business','university'] },
   { id: 'tv', name: 'Local TV and FAST Pack', doors: ['watch','local-tv','isaiah-tv','live-channels'], worlds: ['earth','herrin','creator','sports','university'] },
-  { id: 'connect', name: 'Adaptive Network and Chirp Pack', doors: ['chirp','network','emergency-communications'], worlds: ['earth','herrin','business','sports','university','workforce'] }
+  { id: 'connect', name: 'Adaptive Network and Chirp Pack', doors: ['chirp','network','emergency-communications'], worlds: ['earth','herrin','business','sports','university','workforce'] },
+  { id: 'evolve', name: 'HoloGPT Evolve Research Pack', doors: ['ai-research','evaluation','sandbox-experiments'], worlds: ['creator','university','business','workforce'] }
 ];
 
 module.exports = function registerCompetitiveMoat({ app, auth, clean, id, getStore, saveStore }) {
@@ -18,6 +19,7 @@ module.exports = function registerCompetitiveMoat({ app, auth, clean, id, getSto
   require('./news-intelligence')({ app, auth, admin, clean, id, getStore, saveStore });
   require('./local-tv-fast')({ app, auth, clean, getStore });
   require('./adaptive-network')({ app, auth, clean, id, getStore, saveStore });
+  require('./hologpt-evolve')({ app, auth, admin, clean, id, getStore, saveStore });
 
   app.get('/api/packs', (_req, res) => res.json({ packs: PACKS }));
 
