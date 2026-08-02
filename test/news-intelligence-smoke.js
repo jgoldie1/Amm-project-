@@ -5,7 +5,7 @@ const fs = require('fs');
 
 const registry = JSON.parse(fs.readFileSync('config/news-media.json', 'utf8'));
 const runtime = fs.readFileSync('news-intelligence.js', 'utf8');
-const kernel = fs.readFileSync('platform-kernel.js', 'utf8');
+const moat = fs.readFileSync('competitive-moat.js', 'utf8');
 
 assert(registry.coverage.includes('neighborhood'), 'local news coverage missing');
 assert(registry.coverage.includes('national'), 'national news coverage missing');
@@ -22,6 +22,7 @@ assert(runtime.includes('/api/admin/news/sources/validate'), 'source validation 
 assert(runtime.includes('/api/admin/news/oracle/attest'), 'oracle attestation route missing');
 assert(runtime.includes('/api/news/articles/:articleId/provenance'), 'provenance route missing');
 assert(runtime.includes('paywall-bypass-prohibited'), 'paywall bypass blocker missing');
-assert(kernel.includes("require('./news-intelligence')"), 'news intelligence not wired into kernel');
+assert(moat.includes("require('./news-intelligence')"), 'news intelligence not wired into platform');
+assert(moat.includes("id: 'news'"), 'news and media pack missing');
 
 console.log('News, media, scraper governance and oracle smoke checks passed');
