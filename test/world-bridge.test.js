@@ -1,0 +1,10 @@
+'use strict';
+const assert=require('assert');
+const fs=require('fs');
+const bridge=fs.readFileSync('public/living-city-world-bridge.js','utf8');
+for(const dependency of ['renderer','scene','avatar','camera','THREE instance','WorldLoader constructor']) assert(bridge.includes(dependency),`${dependency} guard missing`);
+assert(bridge.includes('TryAMMWorldRuntime.boot'),'bridge does not boot shared runtime');
+assert(!bridge.includes('new THREE.WebGLRenderer'),'bridge must not create another renderer');
+assert(bridge.includes('/world-state'),'persistence wiring missing');
+assert(bridge.includes('/worlds'),'registry API wiring missing');
+console.log('Living City world bridge contract passed');

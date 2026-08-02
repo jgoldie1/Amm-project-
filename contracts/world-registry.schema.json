@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TryAMM Living World",
+  "type": "object",
+  "required": ["slug","name","status","version","ageLane","spawn","budget","environment","portals"],
+  "properties": {
+    "slug": {"type":"string","pattern":"^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "name": {"type":"string","minLength":2},
+    "status": {"enum":["live","planned","disabled"]},
+    "version": {"type":"integer","minimum":1},
+    "ageLane": {"enum":["all","teen","adult"]},
+    "spawn": {"$ref":"#/$defs/vector3"},
+    "budget": {"type":"object","required":["maxGeometries","maxTextures"],"properties":{"maxGeometries":{"type":"integer","minimum":1},"maxTextures":{"type":"integer","minimum":0}}},
+    "environment": {"type":"object","required":["kind"],"properties":{"kind":{"enum":["primitive","gltf"]},"assetUrl":{"type":"string"},"fallback":{"type":"object"}}},
+    "portals": {"type":"array","items":{"type":"object","required":["id","toSlug","position","radius"],"properties":{"id":{"type":"string"},"toSlug":{"type":"string"},"position":{"$ref":"#/$defs/vector3"},"radius":{"type":"number","exclusiveMinimum":0},"label":{"type":"string"}}}}
+  },
+  "$defs": {"vector3":{"type":"object","required":["x","y","z"],"properties":{"x":{"type":"number"},"y":{"type":"number"},"z":{"type":"number"}}}}
+}
