@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "worlds": [
+    {"id":"earth","name":"Earth Living World","category":"living-world"},
+    {"id":"herrin","name":"Herrin Community Twin","category":"living-world","timelineEnabled":true},
+    {"id":"moon","name":"Moon World","category":"living-world"},
+    {"id":"mars","name":"Mars World","category":"living-world"},
+    {"id":"saturn","name":"Saturn and Moons World","category":"living-world"},
+    {"id":"sports","name":"Sports World","category":"living-world"},
+    {"id":"creator","name":"Creator and Entertainment World","category":"living-world"},
+    {"id":"business","name":"Business and Marketplace World","category":"business"},
+    {"id":"university","name":"University and Education World","category":"education"},
+    {"id":"workforce","name":"Middleverse Workforce World","category":"workforce"},
+    {"id":"nature","name":"Nature and Wildlife World","category":"living-world"},
+    {"id":"history","name":"Historical and Time Travel World","category":"living-world","timelineEnabled":true},
+    {"id":"innovation","name":"Innovation and Future World","category":"living-world","timelineEnabled":true},
+    {"id":"starverse","name":"StarVerse Exploration Network","category":"starverse","separateFromLivingWorlds":true}
+  ],
+  "sharedCapabilities": [
+    "enter-globe",
+    "teleportation",
+    "age-lanes",
+    "accessibility-profile",
+    "asset-registry",
+    "world-versioning",
+    "moderation",
+    "analytics"
+  ]
+}
