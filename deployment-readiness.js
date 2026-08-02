@@ -40,4 +40,10 @@ function readiness() {
   };
 }
 
+if (require.main === module) {
+  const result = readiness();
+  console.log(JSON.stringify(result, null, 2));
+  if (!result.ok) process.exitCode = 1;
+}
+
 module.exports = { readiness, REQUIRED_CORE, OPTIONAL_INTEGRATIONS };
