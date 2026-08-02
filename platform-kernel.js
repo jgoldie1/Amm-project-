@@ -34,6 +34,7 @@ module.exports = function registerPlatformKernel({ app, auth, clean, id, getStor
   require('./nigeria-payments')({ app, auth, admin, clean, id, getStore, saveStore, persistence });
   require('./nigeria-provider-fulfillment')({ app, auth, admin, clean, id, getStore, saveStore, persistence });
   require('./integration-health')({ app, auth, admin, persistence });
+  require('./production-control-plane')({ app, auth, admin, clean, id, getStore, saveStore, persistence });
 
   const features = loadJson('config/features.json', loadJson('packages/config/features.json', []));
   const worlds = loadJson('config/worlds.json', loadJson('packages/config/worlds.json', []));
@@ -128,40 +129,21 @@ module.exports = function registerPlatformKernel({ app, auth, clean, id, getStor
     const worldId = clean(req.body.worldId, 80);
     const world = worlds.find(item => item.id === worldId);
     if (!world) return res.status(404).json({ error: 'World not found' });
-
     const requestedModes = safeModes(req.body.mode);
     const supportedMode = requestedModes.find(mode => (world.modes || []).includes(mode));
     if (!supportedMode) return res.status(400).json({ error: 'Requested mode is not supported by this world' });
-
     const store = getStore();
     store.events = store.events || [];
     const session = {
-      id: id('teleport'),
-      userId: req.user.id,
-      worldId: world.id,
-      worldName: world.name,
-      mode: supportedMode,
-      ageLane: safeLane(req.user.ageLane),
-      state: 'arrival-bubble-ready',
-      checks: {
-        authenticated: true,
-        ageLane: true,
-        accessibilityProfile: true,
-        featureFlag: true,
-        assetBudget: 'pending-runtime-validation'
-      },
+      id: id('teleport'), userId: req.user.id, worldId: world.id, worldName: world.name,
+      mode: supportedMode, ageLane: safeLane(req.user.ageLane), state: 'arrival-bubble-ready',
+      checks: { authenticated: true, ageLane: true, accessibilityProfile: true, featureFlag: true, assetBudget: 'pending-runtime-validation' },
       createdAt: new Date().toISOString()
     };
     store.events.push({ id: crypto.randomUUID(), type: 'teleport.prepared', ...session });
     await saveStore();
     const persisted = await persistence.teleport(session);
-    await persistence.audit({
-      actorUserId: req.user.id,
-      type: 'teleport.prepared',
-      targetType: 'world',
-      targetId: world.id,
-      metadata: { sessionId: session.id, mode: supportedMode, persistenceMode: persisted.mode }
-    });
+    await persistence.audit({ actorUserId: req.user.id, type: 'teleport.prepared', targetType: 'world', targetId: world.id, metadata: { sessionId: session.id, mode: supportedMode, persistenceMode: persisted.mode } });
     res.status(201).json({ session, persistence: persisted.mode });
   });
 
@@ -172,8 +154,7 @@ module.exports = function registerPlatformKernel({ app, auth, clean, id, getStor
     res.json({
       user: { id: req.user.id, displayName: req.user.displayName, ageLane: safeLane(req.user.ageLane) },
       journey: {
-        world: firstWorld,
-        liveRoom,
+        world: firstWorld, liveRoom,
         game: features.find(feature => feature.id === 'gaming.quantum-tag') || null,
         store: features.find(feature => feature.id === 'commerce.store-builder') || null,
         learning: features.find(feature => feature.id === 'education.aau') || null,
