@@ -39,6 +39,7 @@ module.exports = function registerPlatformKernel({ app, auth, clean, id, getStor
   require('./transit-accessibility')({ app, auth, clean, id, getStore, saveStore });
   require('./competitive-moat')({ app, auth, clean, id, getStore, saveStore });
   require('./my-world-unity')({ app, auth, getStore });
+  require('./spectrum-compliance')({ app, auth });
 
   const features = loadJson('config/features.json', loadJson('packages/config/features.json', []));
   const worlds = loadJson('config/worlds.json', loadJson('packages/config/worlds.json', []));
@@ -66,6 +67,8 @@ module.exports = function registerPlatformKernel({ app, auth, clean, id, getStor
       modularPacks: true,
       crossWorldProgression: true,
       globalUnityLayer: true,
+      spectrumComplianceGates: true,
+      productionRadioAuthorized: false,
       nigeriaLaunchState: nigeria.launchState || nigeria.status || 'sandbox'
     }
   }));
