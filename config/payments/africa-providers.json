@@ -1,0 +1,98 @@
+{
+  "version": "1.0.0",
+  "defaultState": "blocked",
+  "canonicalStatuses": [
+    "blocked",
+    "sandbox",
+    "pilot",
+    "limited",
+    "open",
+    "paused",
+    "revoked"
+  ],
+  "providers": [
+    {
+      "id": "flutterwave",
+      "name": "Flutterwave",
+      "state": "sandbox",
+      "countries": ["NG", "GH", "KE", "ZA"],
+      "capabilities": [
+        "collections",
+        "bank-transfer-collections",
+        "bank-payouts",
+        "mobile-money-where-supported",
+        "cross-border-tools-where-approved",
+        "refunds",
+        "webhooks"
+      ],
+      "currencies": ["NGN", "GHS", "KES", "ZAR", "USD"],
+      "productionApprovalRequired": true,
+      "health": "unknown",
+      "webhookVerificationRequired": true,
+      "settlementReconciliationRequired": true
+    },
+    {
+      "id": "paystack",
+      "name": "Paystack",
+      "state": "sandbox",
+      "countries": ["NG", "GH", "KE", "ZA"],
+      "capabilities": [
+        "collections",
+        "cards",
+        "bank-payments-where-supported",
+        "pay-with-transfer-where-supported",
+        "ussd-where-supported",
+        "subscriptions-where-supported",
+        "bank-payouts",
+        "mobile-money-where-supported",
+        "refunds",
+        "webhooks"
+      ],
+      "currencies": ["NGN", "GHS", "KES", "ZAR"],
+      "productionApprovalRequired": true,
+      "health": "unknown",
+      "webhookVerificationRequired": true,
+      "settlementReconciliationRequired": true
+    }
+  ],
+  "routes": [
+    {
+      "country": "NG",
+      "currency": "NGN",
+      "collections": ["paystack", "flutterwave"],
+      "payouts": ["paystack", "flutterwave"],
+      "state": "sandbox"
+    },
+    {
+      "country": "GH",
+      "currency": "GHS",
+      "collections": ["flutterwave", "paystack"],
+      "payouts": ["paystack", "flutterwave"],
+      "state": "blocked"
+    },
+    {
+      "country": "KE",
+      "currency": "KES",
+      "collections": ["flutterwave", "paystack"],
+      "payouts": ["paystack", "flutterwave"],
+      "state": "blocked"
+    },
+    {
+      "country": "ZA",
+      "currency": "ZAR",
+      "collections": ["paystack", "flutterwave"],
+      "payouts": ["paystack", "flutterwave"],
+      "state": "blocked"
+    }
+  ],
+  "globalRules": {
+    "browserRedirectIsPaymentProof": false,
+    "signedWebhookRequired": true,
+    "serverVerificationRequired": true,
+    "idempotencyRequired": true,
+    "doubleEntryLedgerRequired": true,
+    "simultaneousPayoutFailoverAllowed": false,
+    "negativeAvailableCreatorBalanceAllowed": false,
+    "dailyReconciliationRequired": true
+  }
+}
