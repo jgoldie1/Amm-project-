@@ -31,7 +31,7 @@ module.exports = function registerPlatformKernel({ app, auth, clean, id, getStor
   const persistence = createHybridPersistence({ getStore, saveStore, id });
 
   require('./nigeria-payments')({ app, auth, admin, clean, id, getStore, saveStore, persistence });
-  require('./integration-health')({ app, auth, admin });
+  require('./integration-health')({ app, auth, admin, persistence });
 
   const features = loadJson('config/features.json', loadJson('packages/config/features.json', []));
   const worlds = loadJson('config/worlds.json', loadJson('packages/config/worlds.json', []));
