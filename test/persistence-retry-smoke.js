@@ -16,7 +16,9 @@ assert(hybrid.includes('retryId'), 'fallback retry identifier missing');
 assert(health.includes('/api/admin/integrations/persistence/retry'), 'admin retry endpoint missing');
 assert(kernel.includes("persistence });"), 'persistence not passed to integration health');
 assert(rls.includes('enable row level security'), 'RLS enable statements missing');
-assert(/auth\.uid\(\)/.test(rls) && /user_id/.test(rls) && /to authenticated/i.test(rls), 'owner policies missing');
+assert(/revoke all on table public\.experience_profiles from anon, authenticated/i.test(rls), 'browser access revocation missing');
+assert(/service-role key/i.test(rls), 'trusted server boundary missing');
+assert(!/create policy/i.test(rls), 'direct browser policies must remain disabled until Supabase Auth identity mapping exists');
 assert(!/on public\.(ledger_entries|webhook_events|audit_events) for (insert|update|delete)/i.test(rls), 'sensitive financial tables must not expose direct authenticated write policies');
 
 console.log('Persistence retry and RLS smoke test passed');
