@@ -1,0 +1,16 @@
+[
+  {"id":"earth","name":"Earth Living World","category":"living-world","modes":["2d","3d","ar","vr","mr","holographic"],"status":"beta-build","summary":"Shared global world with commerce, travel, nature, cities and creator activity."},
+  {"id":"herrin","name":"Herrin Community Twin","category":"living-world","modes":["2d","3d","ar","vr","mr"],"status":"beta-proof","summary":"First complete digital-twin proof world for community, school, sports, business and family experiences."},
+  {"id":"moon","name":"Moon Living World","category":"living-world","modes":["3d","vr","mr","holographic"],"status":"planned","summary":"Lunar settlements, exploration, science, transport and low-gravity activities."},
+  {"id":"mars","name":"Mars Living World","category":"living-world","modes":["3d","vr","mr","holographic"],"status":"planned","summary":"Mars cities, survival, research, farming, transport and trade."},
+  {"id":"saturn","name":"Saturn Living World","category":"living-world","modes":["3d","vr","mr","holographic"],"status":"planned","summary":"Saturn orbital habitats, ring travel, science and energy experiences."},
+  {"id":"saturn-moons","name":"Saturn Moon Worlds","category":"living-world","modes":["3d","vr","mr","holographic"],"status":"planned","summary":"Titan, Enceladus and original moon settlements connected to Saturn."},
+  {"id":"sports","name":"Sports World","category":"living-world","modes":["2d","3d","ar","vr","mr","holographic"],"status":"beta-build","summary":"Football, basketball, baseball, track, boxing, racing, esports and fan events."},
+  {"id":"creator","name":"Creator World","category":"living-world","modes":["2d","3d","ar","vr","mr","holographic"],"status":"beta-build","summary":"Livestreaming, music, film, podcasts, studios, concerts and creator storefronts."},
+  {"id":"business","name":"Business World","category":"living-world","modes":["2d","3d","ar","vr","mr","holographic"],"status":"beta-build","summary":"Stores, live shopping, business twins, global trade, advertising and enterprise services."},
+  {"id":"university","name":"University World","category":"living-world","modes":["2d","3d","ar","vr","mr","holographic"],"status":"beta-build","summary":"All American University, UIC, HBCU and partner-campus learning network."},
+  {"id":"workforce","name":"Middleverse Workforce World","category":"living-world","modes":["2d","3d","ar","vr","mr"],"status":"beta-build","summary":"Remote work, AI call center, training, hiring, support and global job pathways."},
+  {"id":"nature","name":"Nature Living World","category":"living-world","modes":["2d","3d","ar","vr","mr","holographic"],"status":"planned","summary":"Dynamic wildlife, migration, oceans, insects, birds, fish, climate and conservation systems."},
+  {"id":"timeline","name":"Timeline and Time Travel World","category":"living-world","modes":["3d","vr","mr","holographic"],"status":"planned","summary":"Safe educational timeline travel, historical reconstruction and Total Recall memory experiences."},
+  {"id":"starverse","name":"Isaiah StarVerse","category":"separate-universe","modes":["2d","3d","ar","vr","mr","holographic"],"status":"beta-build","summary":"Separate AI television, story, character and entertainment universe connected through Enter Globe but not counted among the 13 Living Worlds."}
+]
