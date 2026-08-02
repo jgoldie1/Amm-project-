@@ -1,0 +1,74 @@
+{
+  "name": "TryAMM Adaptive Spectrum Network",
+  "releaseState": "architecture-and-simulation",
+  "networkPrinciple": "Use the best lawful transport for each distance, obstruction, capacity and reliability requirement.",
+  "bands": [
+    {
+      "id": "low-band",
+      "role": "wide-area-coverage-and-building-penetration",
+      "frequencyClass": "sub-1-ghz",
+      "strengths": ["longer-range", "rural-coverage", "indoor-penetration", "emergency-fallback"],
+      "limits": ["lower-capacity", "licensed-spectrum-required-for-carrier-operation"]
+    },
+    {
+      "id": "mid-band",
+      "role": "balanced-coverage-and-capacity",
+      "frequencyClass": "1-to-7-ghz-class",
+      "strengths": ["urban-coverage", "mobile-video", "multiplayer", "live-broadcasting"],
+      "limits": ["operator-and-spectrum-dependence"]
+    },
+    {
+      "id": "millimeter-wave",
+      "role": "dense-short-range-high-capacity",
+      "frequencyClass": "above-24-ghz-class",
+      "strengths": ["high-throughput", "stadiums", "campuses", "fixed-wireless", "xr-streaming"],
+      "limits": ["shorter-range", "obstruction-sensitive", "dense-site-requirement"]
+    },
+    {
+      "id": "above-100-ghz-research",
+      "role": "experimental-line-of-sight-backhaul-and-room-scale-links",
+      "frequencyClass": "above-100-ghz-including-terahertz-research",
+      "strengths": ["very-high-potential-capacity", "short-range-kiosk-links", "data-center-interconnect-research"],
+      "limits": ["research-stage", "line-of-sight", "atmospheric-attenuation", "specialized-hardware", "experimental-or-future-authority-required"]
+    },
+    {
+      "id": "non-terrestrial",
+      "role": "coverage-extension",
+      "frequencyClass": "satellite-and-high-altitude-platforms",
+      "strengths": ["remote-coverage", "disaster-recovery", "oceans-and-rural-regions"],
+      "limits": ["latency", "weather-and-capacity-variation", "provider-dependence"]
+    }
+  ],
+  "transportAdapters": ["ethernet", "fiber", "wifi", "4g", "5g", "future-imt-2030", "fixed-wireless", "satellite", "private-network"],
+  "selectionMetrics": ["latency-ms", "jitter-ms", "packet-loss-percent", "available-mbps", "signal-quality", "cost", "power-use", "coverage-confidence", "accessibility-criticality"],
+  "qualityProfiles": {
+    "emergency-voice": { "priority": 100, "minimumKbps": 24, "fallback": ["low-band", "satellite", "wifi"] },
+    "push-to-talk": { "priority": 95, "targetSetupMs": 300, "fallback": ["low-band", "mid-band", "wifi", "satellite"] },
+    "captions-and-text": { "priority": 90, "minimumKbps": 8, "fallback": ["any-available"] },
+    "livestream": { "priority": 70, "adaptiveBitrate": true, "targetMbps": [1, 25] },
+    "gameplay": { "priority": 80, "targetLatencyMs": 60, "adaptiveStateSync": true },
+    "xr-holographic": { "priority": 60, "targetGbps": [0.2, 10], "requiresEdgeRendering": true, "degradesTo": ["3d", "2d", "audio-text"] }
+  },
+  "pushToTalk": {
+    "productName": "My World Chirp",
+    "standardsDirection": "3gpp-mission-critical-push-to-talk-compatible-architecture",
+    "features": ["instant-group-call", "private-call", "priority", "emergency-override", "floor-control", "presence", "location-sharing-opt-in", "voice-text-image-data", "recording-policy-controls", "offline-queue", "cross-network-handoff"],
+    "security": ["strong-identity", "end-to-end-encryption-where-compatible", "transport-encryption", "group-key-rotation", "device-revocation", "audit-logs", "anti-replay", "rate-limits"],
+    "accessibility": ["one-hand-push-or-toggle", "voice-activation-optional", "live-captions", "text-to-speech", "speech-to-text", "haptic-call-alert", "visual-floor-indicator", "screen-reader-support"],
+    "safety": ["no-secret-listening", "recording-indicator", "consent-and-jurisdiction-controls", "minor-protection", "emergency-channel-governance"]
+  },
+  "towerArchitecture": {
+    "principle": "Use co-location or stacked radio equipment only after structural, RF, zoning, aviation, power and backhaul review.",
+    "layers": ["macro-coverage-site", "mid-band-sector", "small-cell-or-mmwave-node", "microwave-or-fiber-backhaul", "edge-compute", "backup-power"],
+    "targetBackhaulGbps": 10,
+    "notGuaranteedToEndUser": true,
+    "requiredReviews": ["licensed-engineer-structural-review", "rf-exposure-compliance", "spectrum-authorization", "zoning-and-site-lease", "aviation-marking-if-applicable", "electrical-and-lightning-protection", "cybersecurity", "carrier-or-private-network-agreement"]
+  },
+  "releaseGates": ["simulation", "lab-test", "licensed-spectrum-or-unlicensed-rule-validation", "certified-radio-hardware", "field-test", "independent-security-review", "regulatory-approval", "limited-pilot"],
+  "claims": {
+    "tenGbps": "backhaul-or-ideal-short-range-target-not-universal-user-speed",
+    "sixG": "future-imt-2030-adapter-not-production-network",
+    "terahertz": "research-adapter-only",
+    "betterThanLegacyChirp": "goal-is-broader-capabilities-and-modern-security-not-an-unverified-coverage-claim"
+  }
+}
