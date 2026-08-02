@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = function registerMusicApi({ app, auth, clean, id, getStore, saveStore, io }) {
+  require('./platform-kernel')({ app, auth, clean, id, getStore, saveStore });
   const store = getStore();
   for (const key of ['tracks','streamEvents','creatorLedger','chartSnapshots']) if (!Array.isArray(store[key])) store[key] = [];
 
