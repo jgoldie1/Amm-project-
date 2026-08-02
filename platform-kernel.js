@@ -27,6 +27,7 @@ function safeModes(value) {
 module.exports = function registerPlatformKernel({ app, auth, clean, id, getStore, saveStore }) {
   const admin = (req, res, next) => req.user?.role === 'admin' ? next() : res.status(403).json({ error: 'Admin access required' });
   require('./nigeria-payments')({ app, auth, admin, clean, id, getStore, saveStore });
+  require('./integration-health')({ app, auth, admin });
 
   const features = loadJson('config/features.json', loadJson('packages/config/features.json', []));
   const worlds = loadJson('config/worlds.json', loadJson('packages/config/worlds.json', []));
