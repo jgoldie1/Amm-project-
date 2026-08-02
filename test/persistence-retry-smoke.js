@@ -16,7 +16,7 @@ assert(hybrid.includes('retryId'), 'fallback retry identifier missing');
 assert(health.includes('/api/admin/integrations/persistence/retry'), 'admin retry endpoint missing');
 assert(kernel.includes("persistence });"), 'persistence not passed to integration health');
 assert(rls.includes('enable row level security'), 'RLS enable statements missing');
-assert(rls.includes('auth.uid()'), 'owner policies missing');
-assert(rls.includes('server-only'), 'financial server-only policy note missing');
+assert(rls.includes('(select auth.uid())::text = user_id'), 'owner policies missing');
+assert(!/on public\.(ledger_entries|webhook_events|audit_events) for (insert|update|delete)/i.test(rls), 'sensitive financial tables must not expose direct authenticated write policies');
 
 console.log('Persistence retry and RLS smoke test passed');
