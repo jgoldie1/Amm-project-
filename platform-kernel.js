@@ -30,6 +30,7 @@ module.exports = function registerPlatformKernel({ app, auth, clean, id, getStor
     : res.status(403).json({ error: 'Admin access required' });
   const persistence = createHybridPersistence({ getStore, saveStore, id });
 
+  require('./nigeria-webhook-fulfillment')({ app, clean, id, getStore, saveStore, persistence });
   require('./nigeria-payments')({ app, auth, admin, clean, id, getStore, saveStore, persistence });
   require('./nigeria-provider-fulfillment')({ app, auth, admin, clean, id, getStore, saveStore, persistence });
   require('./integration-health')({ app, auth, admin, persistence });
