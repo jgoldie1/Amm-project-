@@ -1,0 +1,70 @@
+{
+  "systems": [
+    {
+      "id": "chicago-cta",
+      "name": "Chicago CTA",
+      "worlds": ["earth", "herrin", "business", "university", "sports"],
+      "modes": ["rail", "bus", "paratransit", "bike", "walk", "rideshare"],
+      "railBrand": "Chicago L-inspired transit layer",
+      "officialData": {
+        "scheduled": "CTA GTFS",
+        "realtime": ["CTA Train Tracker", "CTA Bus Tracker", "CTA Customer Alerts"],
+        "licenseReviewRequired": true
+      },
+      "accessibility": {
+        "stepFreeRouting": true,
+        "elevatorStatus": true,
+        "rampAndLowFloor": true,
+        "wheelchairSecurement": true,
+        "audioAnnouncements": true,
+        "textAnnouncements": true,
+        "brailleAndTactileWayfinding": true,
+        "paratransitHandoff": "Pace ADA Paratransit",
+        "serviceAnimalSupport": true
+      }
+    },
+    {
+      "id": "nyc-mta",
+      "name": "New York MTA",
+      "worlds": ["earth", "business", "creator", "sports", "timeline"],
+      "modes": ["subway", "bus", "paratransit", "commuter-rail", "bike", "walk", "rideshare"],
+      "railBrand": "New York subway-inspired transit layer",
+      "officialData": {
+        "scheduled": "MTA GTFS",
+        "realtime": ["MTA GTFS-Realtime", "MTA Bus Time", "MTA service alerts"],
+        "licenseReviewRequired": true
+      },
+      "accessibility": {
+        "stepFreeRouting": true,
+        "elevatorStatus": true,
+        "accessibleStationAlternatives": true,
+        "audioNavigation": true,
+        "highContrastWayfinding": true,
+        "cognitiveTripBreakdown": true,
+        "paratransitHandoff": "Access-A-Ride",
+        "serviceAnimalSupport": true
+      }
+    }
+  ],
+  "universalProfile": {
+    "mobility": ["wheelchair", "power-wheelchair", "walker", "cane", "prosthetic", "limited-stamina", "temporary-injury"],
+    "vision": ["blind", "low-vision", "color-vision", "light-sensitivity"],
+    "hearing": ["deaf", "hard-of-hearing", "caption-required", "sign-language-preferred"],
+    "speech": ["non-speaking", "speech-impaired", "text-to-speech"],
+    "motor": ["one-hand", "switch-control", "voice-control", "eye-gaze", "adaptive-controller"],
+    "cognitive": ["plain-language", "reduced-distraction", "step-by-step", "memory-support", "extra-time"],
+    "sensory": ["reduced-motion", "reduced-flashing", "reduced-audio", "haptic-substitution"],
+    "communication": ["captions", "live-transcript", "text-chat", "visual-alerts", "audio-description"]
+  },
+  "translation": {
+    "text": true,
+    "speechToText": true,
+    "textToSpeech": true,
+    "captions": true,
+    "routeInstructions": true,
+    "emergencyAlerts": true,
+    "userSelectedLocale": true,
+    "preserveOriginal": true,
+    "humanReviewForSafetyCriticalContent": true
+  }
+}
