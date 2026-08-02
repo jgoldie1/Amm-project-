@@ -38,6 +38,7 @@ module.exports = function registerPlatformKernel({ app, auth, clean, id, getStor
   require('./game-world-runtime')({ app, auth, clean, id, getStore, saveStore });
   require('./transit-accessibility')({ app, auth, clean, id, getStore, saveStore });
   require('./competitive-moat')({ app, auth, clean, id, getStore, saveStore });
+  require('./my-world-unity')({ app, auth, getStore });
 
   const features = loadJson('config/features.json', loadJson('packages/config/features.json', []));
   const worlds = loadJson('config/worlds.json', loadJson('packages/config/worlds.json', []));
@@ -50,6 +51,8 @@ module.exports = function registerPlatformKernel({ app, auth, clean, id, getStor
 
   app.get('/api/platform/v1', (_req, res) => res.json({
     name: 'TryAMM Operating System',
+    product: 'My World',
+    unityLayer: 'We Are One World',
     version: '1.0.0-prealpha',
     releaseTruth: 'verified-pre-alpha',
     persistence: persistence.configured() ? 'supabase-with-local-fallback' : 'local-development',
@@ -62,6 +65,7 @@ module.exports = function registerPlatformKernel({ app, auth, clean, id, getStor
       transitAccessibility: true,
       modularPacks: true,
       crossWorldProgression: true,
+      globalUnityLayer: true,
       nigeriaLaunchState: nigeria.launchState || nigeria.status || 'sandbox'
     }
   }));
