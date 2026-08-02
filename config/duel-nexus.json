@@ -1,0 +1,39 @@
+{
+  "name": "TryAMM Duel Nexus",
+  "releaseState": "web-beta-shell",
+  "originalIpOnly": true,
+  "inspirationBoundary": "Strategic global card dueling is allowed; third-party names, cards, characters, rules text, artwork, music, logos and storylines are prohibited.",
+  "modes": ["casual", "ranked", "private", "team", "tournament", "spectator"],
+  "displayModes": ["2d", "3d", "ar", "vr", "mr", "holographic"],
+  "arenas": ["digital-arena", "herrin-arena", "chicago-arena", "nigeria-arena", "university-league", "world-championship"],
+  "cardClasses": ["creature", "hero", "guardian", "kingdom", "technology", "element", "equipment", "action", "legend"],
+  "deckRules": {
+    "minimumCards": 30,
+    "maximumCards": 60,
+    "maximumCopiesPerCard": 3,
+    "serverValidated": true,
+    "rightsMetadataRequired": true
+  },
+  "matchIntegrity": {
+    "serverAuthoritative": true,
+    "deterministicReplay": true,
+    "turnNonceRequired": true,
+    "duplicateActionRejected": true,
+    "disconnectRecovery": true,
+    "antiBotReview": true,
+    "rankedRewardsNonWithdrawable": true
+  },
+  "accessibility": ["one-hand", "voice-control", "screen-reader", "captions", "text-to-speech", "color-symbols", "reduced-motion", "adaptive-controller", "extended-turn-time"],
+  "broadcast": {
+    "isaiahAiTv": true,
+    "localTv": true,
+    "spectatorDelayRequiredForRanked": true,
+    "replayRightsRequired": true
+  },
+  "economy": {
+    "payToWinProhibited": true,
+    "verifiedCosmeticsAllowed": true,
+    "creatorAssetsRequireApproval": true,
+    "cashConversionEnabled": false
+  }
+}
