@@ -6,22 +6,34 @@
       "worlds": ["earth", "herrin", "business", "university", "sports"],
       "modes": ["rail", "bus", "paratransit", "bike", "walk", "rideshare"],
       "railBrand": "Chicago L-inspired transit layer",
-      "officialData": {
-        "scheduled": "CTA GTFS",
-        "realtime": ["CTA Train Tracker", "CTA Bus Tracker", "CTA Customer Alerts"],
-        "licenseReviewRequired": true
-      },
-      "accessibility": {
-        "stepFreeRouting": true,
-        "elevatorStatus": true,
-        "rampAndLowFloor": true,
-        "wheelchairSecurement": true,
-        "audioAnnouncements": true,
-        "textAnnouncements": true,
-        "brailleAndTactileWayfinding": true,
-        "paratransitHandoff": "Pace ADA Paratransit",
-        "serviceAnimalSupport": true
-      }
+      "officialData": {"scheduled":"CTA GTFS","realtime":["CTA Train Tracker","CTA Bus Tracker","CTA Customer Alerts"],"licenseReviewRequired":true},
+      "accessibility": {"stepFreeRouting":true,"elevatorStatus":true,"rampAndLowFloor":true,"wheelchairSecurement":true,"audioAnnouncements":true,"textAnnouncements":true,"brailleAndTactileWayfinding":true,"paratransitHandoff":"Pace ADA Paratransit","serviceAnimalSupport":true}
+    },
+    {
+      "id": "chicago-metra",
+      "name": "Chicago Metra Regional Rail",
+      "worlds": ["earth", "herrin", "business", "university", "sports"],
+      "modes": ["commuter-rail", "bus-connection", "walk", "rideshare", "paratransit"],
+      "officialData": {"scheduled":"Metra GTFS or approved schedule feed","realtime":["train status","service alerts","station accessibility"],"licenseReviewRequired":true},
+      "accessibility": {"stepFreeRouting":true,"accessibleStationAlternatives":true,"boardingAssistance":true,"prioritySeating":true,"audioAnnouncements":true,"textAnnouncements":true,"serviceAnimalSupport":true}
+    },
+    {
+      "id": "us-amtrak",
+      "name": "United States Intercity Passenger Rail",
+      "worlds": ["earth", "herrin", "business", "university", "sports", "creator"],
+      "modes": ["intercity-rail", "overnight-rail", "bus-connection", "walk", "rideshare"],
+      "brandReference": "Amtrak-compatible integration pending data and branding approval",
+      "officialData": {"scheduled":"approved intercity rail schedule source","realtime":["train status","station alerts","boarding changes"],"licenseReviewRequired":true},
+      "accessibility": {"stepFreeRouting":true,"wheelchairSpace":true,"accessibleRestrooms":true,"boardingAssistance":true,"audioAnnouncements":true,"textAnnouncements":true,"serviceAnimalSupport":true}
+    },
+    {
+      "id": "us-intercity-coach",
+      "name": "United States Intercity Coach Network",
+      "worlds": ["earth", "herrin", "business", "university", "sports", "workforce"],
+      "modes": ["intercity-bus", "regional-coach", "walk", "rideshare", "paratransit"],
+      "brandReference": "Greyhound-compatible integration pending data and branding approval",
+      "officialData": {"scheduled":"approved coach schedule source","realtime":["vehicle status","terminal alerts","boarding changes"],"licenseReviewRequired":true},
+      "accessibility": {"stepFreeRouting":true,"wheelchairLift":true,"priorityBoarding":true,"accessibleTerminalAlternatives":true,"audioAnnouncements":true,"textAnnouncements":true,"serviceAnimalSupport":true}
     },
     {
       "id": "nyc-mta",
@@ -29,21 +41,8 @@
       "worlds": ["earth", "business", "creator", "sports", "timeline"],
       "modes": ["subway", "bus", "paratransit", "commuter-rail", "bike", "walk", "rideshare"],
       "railBrand": "New York subway-inspired transit layer",
-      "officialData": {
-        "scheduled": "MTA GTFS",
-        "realtime": ["MTA GTFS-Realtime", "MTA Bus Time", "MTA service alerts"],
-        "licenseReviewRequired": true
-      },
-      "accessibility": {
-        "stepFreeRouting": true,
-        "elevatorStatus": true,
-        "accessibleStationAlternatives": true,
-        "audioNavigation": true,
-        "highContrastWayfinding": true,
-        "cognitiveTripBreakdown": true,
-        "paratransitHandoff": "Access-A-Ride",
-        "serviceAnimalSupport": true
-      }
+      "officialData": {"scheduled":"MTA GTFS","realtime":["MTA GTFS-Realtime","MTA Bus Time","MTA service alerts"],"licenseReviewRequired":true},
+      "accessibility": {"stepFreeRouting":true,"elevatorStatus":true,"accessibleStationAlternatives":true,"audioNavigation":true,"highContrastWayfinding":true,"cognitiveTripBreakdown":true,"paratransitHandoff":"Access-A-Ride","serviceAnimalSupport":true}
     }
   ],
   "universalProfile": {
@@ -56,15 +55,5 @@
     "sensory": ["reduced-motion", "reduced-flashing", "reduced-audio", "haptic-substitution"],
     "communication": ["captions", "live-transcript", "text-chat", "visual-alerts", "audio-description"]
   },
-  "translation": {
-    "text": true,
-    "speechToText": true,
-    "textToSpeech": true,
-    "captions": true,
-    "routeInstructions": true,
-    "emergencyAlerts": true,
-    "userSelectedLocale": true,
-    "preserveOriginal": true,
-    "humanReviewForSafetyCriticalContent": true
-  }
+  "translation": {"text":true,"speechToText":true,"textToSpeech":true,"captions":true,"routeInstructions":true,"emergencyAlerts":true,"userSelectedLocale":true,"preserveOriginal":true,"humanReviewForSafetyCriticalContent":true}
 }
