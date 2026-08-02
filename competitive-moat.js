@@ -3,6 +3,7 @@
 const PACKS = [
   { id: 'creator', name: 'Creator Pack', doors: ['create','live','music','isaiah-tv'], worlds: ['creator','earth'] },
   { id: 'gamer', name: 'Gamer Pack', doors: ['play','enter-globe'], worlds: ['herrin','sports','nature','timeline','starverse'] },
+  { id: 'duel', name: 'Duel Nexus Global Battle Pack', doors: ['duel','deck-builder','ranked-arena','tournaments'], worlds: ['herrin','sports','creator','university','starverse'] },
   { id: 'business', name: 'Business Pack', doors: ['shop','work'], worlds: ['business','earth','creator'] },
   { id: 'university', name: 'University Pack', doors: ['learn','work'], worlds: ['university','workforce','earth'] },
   { id: 'access', name: 'Universal Access Pack', doors: ['transit','translation','accessibility'], worlds: ['earth','herrin','sports','university'] },
@@ -20,6 +21,7 @@ module.exports = function registerCompetitiveMoat({ app, auth, clean, id, getSto
   require('./local-tv-fast')({ app, auth, clean, getStore });
   require('./adaptive-network')({ app, auth, clean, id, getStore, saveStore });
   require('./hologpt-evolve')({ app, auth, admin, clean, id, getStore, saveStore });
+  require('./duel-nexus')({ app, auth, clean, id, getStore, saveStore });
 
   app.get('/api/packs', (_req, res) => res.json({ packs: PACKS }));
 
@@ -38,9 +40,12 @@ module.exports = function registerCompetitiveMoat({ app, auth, clean, id, getSto
   app.get('/api/progression', auth, (req, res) => {
     const store = getStore();
     const sessions = (store.gameSessions || []).filter(item => item.userId === req.user.id);
+    const duelMatches = (store.duelMatches || []).filter(item => item.players?.includes(req.user.id));
     const visits = (store.worldVisits || []).filter(item => item.userId === req.user.id);
     const achievements = [...new Set([
       ...(sessions.length ? ['first-game-session'] : []),
+      ...(duelMatches.length ? ['first-global-duel'] : []),
+      ...(duelMatches.some(item => item.state === 'completed') ? ['duel-finisher'] : []),
       ...(visits.length ? ['first-world-visit'] : []),
       ...(visits.some(item => item.worldId === 'herrin') ? ['herrin-traveler'] : []),
       ...(sessions.some(item => item.gameId === 'gaming.open-city') ? ['open-city-citizen'] : []),
@@ -50,6 +55,7 @@ module.exports = function registerCompetitiveMoat({ app, auth, clean, id, getSto
       userId: req.user.id,
       worldVisits: visits.length,
       gameSessions: sessions.length,
+      duelMatches: duelMatches.length,
       achievements,
       portableAcrossWorlds: true,
       cashConversionEnabled: false
