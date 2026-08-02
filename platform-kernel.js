@@ -35,6 +35,7 @@ module.exports = function registerPlatformKernel({ app, auth, clean, id, getStor
   require('./nigeria-provider-fulfillment')({ app, auth, admin, clean, id, getStore, saveStore, persistence });
   require('./integration-health')({ app, auth, admin, persistence });
   require('./production-control-plane')({ app, auth, admin, clean, id, getStore, saveStore, persistence });
+  require('./game-world-runtime')({ app, auth, clean, id, getStore, saveStore });
 
   const features = loadJson('config/features.json', loadJson('packages/config/features.json', []));
   const worlds = loadJson('config/worlds.json', loadJson('packages/config/worlds.json', []));
@@ -54,6 +55,8 @@ module.exports = function registerPlatformKernel({ app, auth, clean, id, getStor
     systems: {
       features: features.length,
       worlds: worlds.length,
+      livingWorlds: worlds.filter(world => world.category === 'living-world').length,
+      games: features.filter(feature => feature.domain === 'gaming').length,
       nigeriaLaunchState: nigeria.launchState || nigeria.status || 'sandbox'
     }
   }));
