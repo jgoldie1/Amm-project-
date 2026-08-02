@@ -1,0 +1,78 @@
+{
+  "releaseTruth": "software-ready-radio-not-authorized",
+  "jurisdiction": "United States",
+  "authorities": {
+    "nonFederalSpectrum": "FCC",
+    "federalSpectrum": "NTIA",
+    "localConstruction": ["zoning authority", "building authority", "tower owner", "utility"]
+  },
+  "deploymentPaths": [
+    {
+      "id": "carrier-partner",
+      "name": "Use approved mobile and fixed-network providers",
+      "recommendedFirst": true,
+      "requires": ["commercial agreement", "API or private-network agreement", "coverage and SLA evidence", "security review"]
+    },
+    {
+      "id": "unlicensed-private-network",
+      "name": "Use authorized equipment in permitted unlicensed bands",
+      "requires": ["FCC-authorized equipment", "Part 15 compliance", "RF exposure assessment", "interference plan", "site permission"]
+    },
+    {
+      "id": "cbrs-private-network",
+      "name": "Deploy private LTE or 5G through CBRS",
+      "requires": ["SAS administrator agreement", "GAA or PAL authority", "certified CBSD equipment", "CPI installation where required", "site and RF plan"]
+    },
+    {
+      "id": "licensed-spectrum-partner",
+      "name": "Lease or partner for licensed spectrum",
+      "requires": ["FCC licensee agreement", "spectrum lease or service contract", "frequency coordination", "certified radios", "interference protection"]
+    },
+    {
+      "id": "experimental-radio",
+      "name": "Research, product-development, or market trial",
+      "requires": ["FCC experimental authorization or STA", "defined frequencies", "locations", "power", "emission designators", "test dates", "interference shutdown procedure"]
+    },
+    {
+      "id": "high-band-backhaul",
+      "name": "Licensed or coordinated point-to-point high-band backhaul",
+      "requires": ["FCC licensing or registration", "frequency coordination", "path study", "antenna alignment", "rain-fade budget", "certified equipment"]
+    },
+    {
+      "id": "terahertz-research",
+      "name": "Above-100-GHz or terahertz research only",
+      "requires": ["experimental authority when applicable", "laboratory or controlled-site plan", "line-of-sight test plan", "RF safety review", "no consumer-service claims"]
+    }
+  ],
+  "mandatoryGates": [
+    "provider-or-license-authority",
+    "equipment-authorization",
+    "spectrum-and-frequency-plan",
+    "structural-and-site-approval",
+    "rf-exposure-compliance",
+    "electrical-lightning-and-backup-power",
+    "cybersecurity-and-key-management",
+    "interference-and-shutdown-plan",
+    "field-acceptance-testing",
+    "insurance-and-incident-response",
+    "legal-and-regulatory-signoff"
+  ],
+  "fieldTests": [
+    "coverage and dead-zone survey",
+    "throughput latency jitter and packet-loss testing",
+    "handover and fallback testing",
+    "push-to-talk setup and floor-control timing",
+    "emergency-priority testing",
+    "RF exposure measurements",
+    "interference monitoring",
+    "power failure and recovery",
+    "accessibility testing",
+    "security penetration and replay testing"
+  ],
+  "claimsPolicy": {
+    "tenGbps": "backhaul-or-controlled-link-target-not-universal-user-speed",
+    "sixG": "future-compatible-not-currently-operated-by-tryamm",
+    "terahertz": "research-only-until-authorized-certified-and-field-proven",
+    "productionRadio": "false-until-all-mandatory-gates-have-evidence"
+  }
+}

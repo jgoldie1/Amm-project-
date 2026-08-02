@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="TryAMM Version 1 proof journey: Enter Globe, Herrin, Quantum Tag, commerce, live and Nigeria payments.">
+  <title>TryAMM Omniverse V1</title>
+  <link rel="stylesheet" href="/omniverse-v1.css">
+  <script src="/omniverse-v1.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/">TRYAMM</a>
+  <nav aria-label="Version 1 navigation">
+    <a href="#journey">Journey</a>
+    <a href="#nigeria">Nigeria</a>
+    <a href="#evidence">Evidence</a>
+  </nav>
+  <span id="authState" class="pill">Signed out</span>
+</header>
+<main>
+  <section class="hero">
+    <p class="eyebrow">TRYAMM OPERATING SYSTEM · VERSION 1 PROOF JOURNEY</p>
+    <h1>One account. One globe. Every experience.</h1>
+    <p class="lead">Use the existing TryAMM account to configure accessibility, prepare a teleport to Herrin, open Quantum Tag, visit commerce and live experiences, and exercise Nigeria payment sandbox controls.</p>
+    <div class="actions">
+      <a class="button" href="/">Sign in or create account</a>
+      <button id="loadJourney" class="secondary">Load my journey</button>
+    </div>
+  </section>
+
+  <section class="panel" id="profile">
+    <div class="section-head">
+      <div><p class="eyebrow">PROFILE</p><h2>Age lane and accessibility</h2></div>
+      <button id="saveProfile">Save profile</button>
+    </div>
+    <div class="form-grid">
+      <label>Age lane
+        <select id="ageLane"><option value="child">Child</option><option value="teen">Teen</option><option value="adult" selected>Adult</option></select>
+      </label>
+      <label><input type="checkbox" id="oneHandMode"> One-hand mode</label>
+      <label><input type="checkbox" id="captions" checked> Captions</label>
+      <label><input type="checkbox" id="reducedMotion"> Reduced motion</label>
+      <label><input type="checkbox" id="screenReaderOptimized"> Screen-reader optimized</label>
+      <label><input type="checkbox" id="highContrast"> High contrast</label>
+    </div>
+  </section>
+
+  <section class="section" id="journey">
+    <p class="eyebrow">ENTER GLOBE</p>
+    <div class="section-head"><h2>Herrin proof journey</h2><button id="prepareTeleport">Prepare teleport</button></div>
+    <div class="journey-grid">
+      <article><span>01</span><h3>Enter Globe</h3><p>Authenticate, apply age lane, accessibility and feature checks.</p><strong id="teleportState">Not prepared</strong></article>
+      <article><span>02</span><h3>Herrin Twin</h3><p>Load the first community world destination and arrival bubble.</p><strong id="worldState">Waiting</strong></article>
+      <article><span>03</span><h3>Quantum Tag</h3><p>Open the shared AR/VR/MR game feature card.</p><strong id="gameState">Waiting</strong></article>
+      <article><span>04</span><h3>Store + Live</h3><p>Connect commerce and the existing live-room MVP.</p><strong id="commerceState">Waiting</strong></article>
+    </div>
+    <pre id="journeyOutput" aria-live="polite">Load the journey to inspect the current API response.</pre>
+  </section>
+
+  <section class="section" id="nigeria">
+    <p class="eyebrow">NIGERIA ACTIVE BUILD</p>
+    <div class="section-head"><h2>Flutterwave + Paystack sandbox</h2><button id="loadProviders">Refresh providers</button></div>
+    <div id="providerCards" class="cards"></div>
+    <form id="paymentForm" class="panel compact">
+      <h3>Create NGN sandbox payment intent</h3>
+      <label>Provider
+        <select id="provider"><option value="paystack">Paystack</option><option value="flutterwave">Flutterwave</option></select>
+      </label>
+      <label>Purpose
+        <select id="purpose"><option value="holocredits">HoloCredits</option><option value="subscription">Subscription</option><option value="marketplace">Marketplace</option><option value="ticket">Ticket</option><option value="advertising">Advertising</option></select>
+      </label>
+      <label>Amount in kobo<input id="amountMinor" type="number" min="100" step="100" value="100000"></label>
+      <button>Create sandbox intent</button>
+    </form>
+    <pre id="paymentOutput" aria-live="polite">Nigeria production payments remain disabled until real provider approval and evidence exist.</pre>
+  </section>
+
+  <section class="section" id="evidence">
+    <p class="eyebrow">RELEASE TRUTH</p>
+    <h2>What this page proves</h2>
+    <div class="cards">
+      <article><h3>Implemented</h3><p>Frontend API wiring, experience settings, teleport preparation, Version 1 journey discovery and Nigeria sandbox intent creation.</p></article>
+      <article><h3>Still external</h3><p>Native engine builds, provider credentials, live payouts, physical devices, independent reviews, licensed final assets and certifications.</p></article>
+    </div>
+  </section>
+</main>
+<div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

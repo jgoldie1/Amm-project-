@@ -1,0 +1,98 @@
+'use strict';
+
+const PACKS = [
+  { id: 'creator', name: 'Creator Pack', doors: ['create','live','music','isaiah-tv'], worlds: ['creator','earth'] },
+  { id: 'gamer', name: 'Gamer Pack', doors: ['play','enter-globe'], worlds: ['herrin','sports','nature','timeline','starverse'] },
+  { id: 'duel', name: 'Duel Nexus Global Battle Pack', doors: ['duel','deck-builder','ranked-arena','tournaments'], worlds: ['herrin','sports','creator','university','starverse'] },
+  { id: 'business', name: 'Business Pack', doors: ['shop','work'], worlds: ['business','earth','creator'] },
+  { id: 'university', name: 'University Pack', doors: ['learn','work'], worlds: ['university','workforce','earth'] },
+  { id: 'access', name: 'Universal Access Pack', doors: ['transit','translation','accessibility'], worlds: ['earth','herrin','sports','university'] },
+  { id: 'news', name: 'News and Media Pack', doors: ['news','local','national','global'], worlds: ['earth','herrin','creator','business','university'] },
+  { id: 'tv', name: 'Local TV and FAST Pack', doors: ['watch','local-tv','isaiah-tv','live-channels'], worlds: ['earth','herrin','creator','sports','university'] },
+  { id: 'connect', name: 'Adaptive Network and Chirp Pack', doors: ['chirp','network','emergency-communications'], worlds: ['earth','herrin','business','sports','university','workforce'] },
+  { id: 'evolve', name: 'HoloGPT Evolve Research Pack', doors: ['ai-research','evaluation','sandbox-experiments'], worlds: ['creator','university','business','workforce'] }
+];
+
+module.exports = function registerCompetitiveMoat({ app, auth, clean, id, getStore, saveStore }) {
+  const admin = (req, res, next) => req.user?.role === 'admin'
+    ? next()
+    : res.status(403).json({ error: 'Admin access required' });
+  require('./news-intelligence')({ app, auth, admin, clean, id, getStore, saveStore });
+  require('./local-tv-fast')({ app, auth, clean, getStore });
+  require('./adaptive-network')({ app, auth, clean, id, getStore, saveStore });
+  require('./hologpt-evolve')({ app, auth, admin, clean, id, getStore, saveStore });
+  require('./duel-nexus')({ app, auth, clean, id, getStore, saveStore });
+
+  app.get('/api/packs', (_req, res) => res.json({ packs: PACKS }));
+
+  app.get('/api/profile/packs', auth, (req, res) => {
+    res.json({ selected: req.user.selectedPacks || ['creator','gamer','access'], available: PACKS });
+  });
+
+  app.put('/api/profile/packs', auth, async (req, res) => {
+    const requested = Array.isArray(req.body.packIds) ? req.body.packIds.map(value => clean(value, 40)) : [];
+    const valid = [...new Set(requested.filter(packId => PACKS.some(pack => pack.id === packId)))];
+    req.user.selectedPacks = valid.length ? valid : ['access'];
+    await saveStore();
+    res.json({ selected: req.user.selectedPacks });
+  });
+
+  app.get('/api/progression', auth, (req, res) => {
+    const store = getStore();
+    const sessions = (store.gameSessions || []).filter(item => item.userId === req.user.id);
+    const duelMatches = (store.duelMatches || []).filter(item => item.players?.includes(req.user.id));
+    const visits = (store.worldVisits || []).filter(item => item.userId === req.user.id);
+    const achievements = [...new Set([
+      ...(sessions.length ? ['first-game-session'] : []),
+      ...(duelMatches.length ? ['first-global-duel'] : []),
+      ...(duelMatches.some(item => item.state === 'completed') ? ['duel-finisher'] : []),
+      ...(visits.length ? ['first-world-visit'] : []),
+      ...(visits.some(item => item.worldId === 'herrin') ? ['herrin-traveler'] : []),
+      ...(sessions.some(item => item.gameId === 'gaming.open-city') ? ['open-city-citizen'] : []),
+      ...(sessions.some(item => item.gameId === 'gaming.his-hers-sports') ? ['two-league-athlete'] : [])
+    ])];
+    res.json({
+      userId: req.user.id,
+      worldVisits: visits.length,
+      gameSessions: sessions.length,
+      duelMatches: duelMatches.length,
+      achievements,
+      portableAcrossWorlds: true,
+      cashConversionEnabled: false
+    });
+  });
+
+  app.get('/api/inventory', auth, (req, res) => {
+    const store = getStore();
+    const items = (store.inventory || []).filter(item => item.userId === req.user.id);
+    res.json({ items, portableAcrossEligibleWorlds: true, exportable: true });
+  });
+
+  app.post('/api/inventory', auth, async (req, res) => {
+    const store = getStore();
+    store.inventory = store.inventory || [];
+    const item = {
+      id: id('item'),
+      userId: req.user.id,
+      type: clean(req.body.type, 40) || 'digital-asset',
+      name: clean(req.body.name, 120) || 'Untitled asset',
+      sourceWorld: clean(req.body.sourceWorld, 60) || 'earth',
+      eligibleWorlds: Array.isArray(req.body.eligibleWorlds) ? req.body.eligibleWorlds.map(value => clean(value, 60)) : [],
+      rightsOwner: req.user.id,
+      exportStatus: 'user-exportable',
+      createdAt: new Date().toISOString()
+    };
+    store.inventory.push(item);
+    await saveStore();
+    res.status(201).json({ item });
+  });
+
+  app.get('/api/recommendation-controls', auth, (req, res) => res.json({
+    chronologicalFeed: true,
+    resetRecommendations: true,
+    interestControls: true,
+    sensitiveTopicControls: true,
+    explainWhyShown: true,
+    selectedPacks: req.user.selectedPacks || []
+  }));
+};

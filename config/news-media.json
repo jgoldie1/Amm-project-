@@ -1,0 +1,63 @@
+{
+  "product": "My World News and Media",
+  "mission": "Give users broad access to local, national and global reporting with visible sources, viewpoint diversity, corrections and user controls.",
+  "coverage": ["neighborhood", "city", "state-region", "national", "continental", "global"],
+  "channels": [
+    "local-news", "national-news", "global-news", "weather-emergency", "government-public-records",
+    "business-markets", "technology-science", "health", "education", "sports", "culture-entertainment",
+    "transportation", "community-voices", "investigations", "creator-citizen-reports"
+  ],
+  "ingestion": {
+    "preferred": ["licensed-api", "official-api", "rss", "atom", "publisher-webhook", "public-record-feed"],
+    "conditional": ["approved-scraper"],
+    "scraperRules": {
+      "honorRobotsTxt": true,
+      "respectRateLimits": true,
+      "respectTermsAndCopyright": true,
+      "noPaywallBypass": true,
+      "noAuthenticationBypass": true,
+      "storeExcerptOnlyUnlessLicensed": true,
+      "linkToOriginal": true,
+      "identifyCrawler": true,
+      "sourceApprovalRequired": true
+    }
+  },
+  "aggregators": [
+    {"id":"gdelt-cloud", "status":"adapter-planned", "purpose":"global story and event discovery", "credential":"GDELT_API_KEY"},
+    {"id":"rss-atom", "status":"registry-ready", "purpose":"publisher-controlled syndication"},
+    {"id":"official-public-feeds", "status":"registry-ready", "purpose":"government, transit, weather and emergency notices"},
+    {"id":"local-publisher-partners", "status":"partner-onboarding", "purpose":"community and regional reporting"}
+  ],
+  "oracleLayer": {
+    "purpose": "Attest provenance, timestamps, hashes, correction history and multi-source confirmation without declaring opinions to be facts.",
+    "providers": [
+      {"id":"tryamm-provenance-oracle", "status":"implemented-metadata-model"},
+      {"id":"chainlink-cre", "status":"adapter-planned", "productionEnabled":false}
+    ],
+    "minimumEvidence": ["canonical-url", "publisher", "published-at", "retrieved-at", "content-hash", "ingestion-method"],
+    "confirmationStates": ["single-source", "multi-source-confirmed", "officially-confirmed", "disputed", "corrected", "retracted"]
+  },
+  "editorial": {
+    "principle": "viewpoint-diverse and source-transparent, not viewpoint-suppressed",
+    "alwaysShow": ["publisher", "author-when-available", "published-time", "updated-time", "original-link", "correction-status", "evidence-state"],
+    "userControls": ["chronological", "local-first", "global", "topic-follow", "source-follow", "source-block", "viewpoint-mix", "graphic-content-filter", "reset-recommendations"],
+    "protections": ["defamation-review", "privacy-and-doxxing-protection", "copyright-compliance", "graphic-content-warning", "minor-safety", "fraud-and-impersonation-control", "corrections-and-appeals"],
+    "noSecretGovernmentOrSponsorSuppression": true,
+    "sponsoredContentMustBeLabeled": true,
+    "opinionsMustBeLabeled": true,
+    "aiGeneratedContentMustBeLabeled": true
+  },
+  "accessibility": {
+    "captions": true,
+    "liveTranscript": true,
+    "screenReader": true,
+    "audioEdition": true,
+    "plainLanguageSummary": true,
+    "highContrast": true,
+    "largeText": true,
+    "reducedMotion": true,
+    "signLanguageWindowReady": true,
+    "translation": true,
+    "preserveOriginalLanguage": true
+  }
+}

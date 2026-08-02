@@ -1,0 +1,59 @@
+{
+  "countryCode": "NG",
+  "countryName": "Nigeria",
+  "region": "Africa",
+  "priority": "active-build",
+  "launchWave": 1,
+  "currency": ["NGN", "USD-display-only-where-approved"],
+  "languages": ["en"],
+  "status": "sandbox",
+  "services": {
+    "socialViewing": "sandbox",
+    "creatorPublishing": "sandbox",
+    "livestreaming": "sandbox",
+    "musicStreaming": "sandbox",
+    "isaiahAiTvNigeria": "sandbox",
+    "digitalProducts": "blocked",
+    "physicalMarketplace": "blocked",
+    "creatorPayouts": "blocked",
+    "crossBorderTrade": "blocked",
+    "middleverseWorkforce": "sandbox",
+    "aauTraining": "sandbox",
+    "holographicAdvertising": "sandbox"
+  },
+  "requiredGates": [
+    "legal-review",
+    "privacy-review",
+    "consumer-protection-review",
+    "youth-safety-review",
+    "payment-provider-approval",
+    "settlement-provider-approval",
+    "tax-configuration",
+    "marketplace-policy",
+    "advertising-review",
+    "logistics-provider-approval",
+    "customs-review",
+    "security-review",
+    "accessibility-testing",
+    "localization-testing",
+    "support-readiness",
+    "pilot-transaction",
+    "reconciliation-test",
+    "executive-signoff"
+  ],
+  "approvedCorridors": [],
+  "plannedCorridors": [
+    "US-NG",
+    "NG-GH",
+    "NG-CA",
+    "NG-GB"
+  ],
+  "rules": {
+    "negativeCreatorBalances": false,
+    "providerRequiredForPayments": true,
+    "providerRequiredForMoneyTransmission": true,
+    "countryEvidenceRequired": true,
+    "serviceLevelApprovalRequired": true,
+    "manualPercentageCannotOpenMarket": true
+  }
+}
