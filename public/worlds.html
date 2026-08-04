@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#130827">
+  <title>TryAMM Living Worlds</title>
+  <link rel="stylesheet" href="/worlds.css">
+</head>
+<body>
+  <header class="hero">
+    <nav><a href="/">TryAMM</a><span>My World · Middleverse · Metaverse · Multiverse</span></nav>
+    <div class="hero-copy">
+      <p class="eyebrow">ONE IDENTITY · THIRTEEN LIVING WORLDS</p>
+      <h1>Live, play, build and compete across one connected universe.</h1>
+      <p>Enter sports worlds, My World, We Are the World and the Middleverse through one avatar, wallet, inventory and creator profile.</p>
+      <div class="hero-actions"><button id="explore">Explore worlds</button><a class="secondary" href="/">Return to Creator Live</a></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="status" aria-live="polite">
+      <div><strong id="worldCount">13</strong><span>Living worlds</span></div>
+      <div><strong id="activePlayers">0</strong><span>Active travelers</span></div>
+      <div><strong>1</strong><span>Shared identity</span></div>
+    </section>
+
+    <section id="worlds-section">
+      <div class="section-heading"><div><p class="eyebrow">WORLD DIRECTORY</p><h2>Choose where your journey continues</h2></div><button id="refresh" class="small">Refresh</button></div>
+      <div id="worldGrid" class="world-grid"><p>Loading worlds…</p></div>
+    </section>
+
+    <section class="architecture">
+      <p class="eyebrow">CONNECTED EXPERIENCE</p>
+      <h2>How the universe is organized</h2>
+      <div class="layers">
+        <article><b>01</b><h3>My World</h3><p>Your home, career, property, businesses, vehicles, missions and social life.</p></article>
+        <article><b>02</b><h3>Living Worlds</h3><p>Sports, music, creator, education, community and cooperative experiences.</p></article>
+        <article><b>03</b><h3>Middleverse</h3><p>The shared travel, tournament, commerce and event hub connecting every world.</p></article>
+        <article><b>04</b><h3>Metaverse + Multiverse</h3><p>The identity and interoperability layer for TryAMM and future partner worlds.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="worldDialog">
+    <button class="close" aria-label="Close">×</button>
+    <p class="eyebrow" id="dialogKind"></p>
+    <h2 id="dialogTitle"></h2>
+    <p id="dialogDescription"></p>
+    <div class="feature-list"><span>Shared avatar</span><span>Cross-world inventory</span><span>AI coach</span><span>Holographic-ready</span></div>
+    <button id="enterWorld">Enter world</button>
+    <p id="dialogMessage" class="message"></p>
+  </dialog>
+  <script src="/worlds.js" defer></script>
+</body>
+</html>
