@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TRYAMM Founder Dashboard</title>
+  <link rel="stylesheet" href="/founder-dashboard.css">
+</head>
+<body>
+  <main class="shell">
+    <header><p class="eyebrow">TRYAMM · The Living Digital Universe</p><h1>Founder Content & Build Dashboard</h1><p>Turn every contractor, inventor, and development milestone into truthful, reusable content.</p></header>
+    <section class="auth"><label>Session token<input id="token" type="password" placeholder="Paste the token returned after login"></label><button id="load">Load dashboard</button></section>
+    <section id="metrics" class="metrics" aria-live="polite"></section>
+    <section class="panel">
+      <h2>Add a development update</h2>
+      <form id="project-form">
+        <label>Feature title<input name="title" required maxlength="140"></label>
+        <label>Plain-language summary<textarea name="summary" required maxlength="1000"></textarea></label>
+        <label>Problem solved<textarea name="problemSolved" maxlength="1000"></textarea></label>
+        <div class="grid"><label>Status<select name="status"><option>concept</option><option>prototype</option><option>alpha</option><option>beta</option><option>live</option></select></label><label>Contributor<input name="contributorName"></label><label>Contributor role<input name="contributorRole"></label></div>
+        <label>Known limitation<textarea name="limitation"></textarea></label>
+        <label>Next milestone<textarea name="nextMilestone"></textarea></label>
+        <button type="submit">Create project and content package</button>
+      </form>
+    </section>
+    <section class="panel"><h2>Development projects</h2><div id="projects"></div></section>
+    <section class="panel"><h2>Generated content</h2><div id="outputs"></div></section>
+    <p id="status" role="status"></p>
+  </main>
+  <script src="/founder-dashboard.js" defer></script>
+</body>
+</html>
