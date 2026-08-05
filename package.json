@@ -1,14 +1,14 @@
 {
   "name": "tryamm-creator-live",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "private": true,
-  "description": "TryAMM creator livestreaming, music, immersive media and monetization MVP",
+  "description": "TryAMM creator livestreaming, music, immersive media, content engine and monetization MVP",
   "main": "server.js",
   "engines": { "node": ">=20" },
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check music-api.js && node --check public/app.js && node --check public/music-hub.js",
+    "start": "node -r ./lib/content-engine-preload.js server.js",
+    "dev": "node --watch -r ./lib/content-engine-preload.js server.js",
+    "check": "node --check server.js && node --check music-api.js && node --check lib/content-engine-routes.js && node --check lib/content-engine-preload.js && node --check lib/supabase-rest.js && node --check public/app.js && node --check public/music-hub.js && node --check public/founder-dashboard.js",
     "test": "node test/smoke.js"
   },
   "dependencies": {
