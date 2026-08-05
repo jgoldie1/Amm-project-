@@ -1,0 +1,28 @@
+{
+  "company": "TRYAMM, LLC",
+  "operatingModel": "founder-led, controls-first, evidence-based release management",
+  "layers": [
+    {"id":"executive","name":"Executive and Governance","ownerRole":"Founder/CEO","purpose":"Mission, priorities, approvals, board records, risk acceptance and capital allocation.","requiredArtifacts":["decision log","quarterly priorities","risk register","delegation matrix"]},
+    {"id":"product","name":"Product and Portfolio","ownerRole":"Head of Product","purpose":"Convert the vision into a ranked portfolio, product requirements, release stages and measurable outcomes.","requiredArtifacts":["product requirements","roadmap","acceptance criteria","release notes"]},
+    {"id":"engineering","name":"Engineering and Architecture","ownerRole":"Technical Lead","purpose":"Own system design, code quality, environments, integrations, reliability and technical debt.","requiredArtifacts":["architecture records","API contracts","test evidence","deployment runbook"]},
+    {"id":"security","name":"Security, Privacy and Audit","ownerRole":"Security Lead","purpose":"Protect users, company systems, credentials, payments, data and high-risk releases.","requiredArtifacts":["threat model","access review","security test report","audit evidence"]},
+    {"id":"legal","name":"Legal, IP and Compliance","ownerRole":"Counsel/Compliance Lead","purpose":"Entity governance, contracts, intellectual property, licensing, privacy, consumer and platform compliance.","requiredArtifacts":["contract register","IP assignments","privacy records","compliance matrix"]},
+    {"id":"finance","name":"Finance and Revenue Operations","ownerRole":"Finance Lead","purpose":"Budgets, accounting, payouts, taxes, pricing, reserves, reconciliation and financial controls.","requiredArtifacts":["budget","reconciliation","payout policy","approval limits"]},
+    {"id":"trust-safety","name":"Trust, Safety and Accessibility","ownerRole":"Trust and Safety Lead","purpose":"Moderation, age lanes, appeals, accessibility, incident handling and community protection.","requiredArtifacts":["moderation policy","age-assurance design","appeals process","accessibility test"]},
+    {"id":"growth","name":"Marketing, Sales and Community","ownerRole":"Growth Lead","purpose":"Audience strategy, content operations, partnerships, press, acquisition and retention.","requiredArtifacts":["campaign brief","content calendar","attribution report","community feedback"]},
+    {"id":"data","name":"Data and Measurement","ownerRole":"Analytics Lead","purpose":"Metric definitions, event tracking, data quality, dashboards and decision support.","requiredArtifacts":["metric dictionary","tracking plan","data quality checks","KPI review"]},
+    {"id":"people","name":"People, Vendors and Delivery","ownerRole":"Operations Lead","purpose":"Contractor onboarding, roles, work acceptance, contributor security and delivery accountability.","requiredArtifacts":["statement of work","IP assignment","access checklist","acceptance record"]},
+    {"id":"resilience","name":"Reliability and Business Continuity","ownerRole":"Operations/Engineering","purpose":"Backups, recovery, incident response, vendor failure plans and service continuity.","requiredArtifacts":["incident plan","backup test","recovery objective","vendor exit plan"]}
+  ],
+  "releaseStages": ["concept","prototype","alpha","beta","production-candidate","live"],
+  "globalReleaseRequirements": [
+    "named accountable owner",
+    "documented scope and acceptance criteria",
+    "security and privacy review proportional to risk",
+    "legal and licensing review where applicable",
+    "test evidence",
+    "rollback plan",
+    "monitoring and incident owner",
+    "truthful public status"
+  ]
+}
