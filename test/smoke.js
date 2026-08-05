@@ -6,6 +6,7 @@ for(const file of [
   'server.js','music-api.js','public/index.html','public/app.js','public/styles.css',
   'public/music-hub.html','public/music-hub.js','public/music-hub.css','public/community-rules.html',
   'public/founder-dashboard.html','public/founder-dashboard.js','public/founder-dashboard.css',
+  'public/app-shell.html','public/app-shell.js','public/app-shell.css','public/manifest.webmanifest','public/service-worker.js',
   'lib/content-engine-routes.js','lib/content-engine-preload.js','lib/supabase-rest.js',
   'supabase/migrations/202608050001_content_engine.sql','render.yaml','.replit','.env.example','.gitignore'
 ]) assert(fs.existsSync(file),`${file} missing`);
@@ -24,6 +25,16 @@ for(const stage of ['concept','prototype','alpha','beta','live']) assert(content
 const dashboard=fs.readFileSync('public/founder-dashboard.html','utf8');
 for(const feature of ['Founder Content & Build Dashboard','Add a development update','Generated content','Known limitation','Next milestone']) assert(dashboard.includes(feature),`${feature} missing`);
 
+const shell=fs.readFileSync('public/app-shell.html','utf8');
+for(const feature of ['Your creator world in one app','Live now','Creator tools','Safety center','manifest.webmanifest']) assert(shell.includes(feature),`${feature} missing from app shell`);
+const shellJs=fs.readFileSync('public/app-shell.js','utf8');
+for(const feature of ['/api/rooms','serviceWorker','online','offline']) assert(shellJs.includes(feature),`${feature} missing from app shell wiring`);
+const manifest=JSON.parse(fs.readFileSync('public/manifest.webmanifest','utf8'));
+assert.strictEqual(manifest.display,'standalone','PWA display must be standalone');
+assert.strictEqual(manifest.start_url,'/app-shell.html','PWA start URL incorrect');
+const sw=fs.readFileSync('public/service-worker.js','utf8');
+for(const feature of ['tryamm-shell-v1','cache.addAll','/api/','app-shell.html']) assert(sw.includes(feature),`${feature} missing from service worker`);
+
 const migration=fs.readFileSync('supabase/migrations/202608050001_content_engine.sql','utf8');
 for(const table of ['content_projects','content_assets','content_outputs','analytics_events','referrals']) assert(migration.includes(table),`${table} schema missing`);
 assert(migration.includes('service_role'),'service-role access missing');
@@ -31,14 +42,11 @@ assert(migration.includes('enable row level security'),'RLS missing');
 
 const html=fs.readFileSync('public/index.html','utf8');
 for(const feature of ['Open Music Hub','AMM Global Creator Chart','rulesAccepted','bathroom-break','Built for trust']) assert(html.includes(feature),`${feature} missing`);
-
 const hub=fs.readFileSync('public/music-hub.html','utf8');
 for(const feature of ['CREATOR-OWNED MUSIC','Music video URL','AR experience URL','VR concert URL','Mixed reality URL','AMM GLOBAL CREATOR CHART']) assert(hub.includes(feature),`${feature} missing`);
-
 const rules=fs.readFileSync('public/community-rules.html','utf8');
 for(const feature of ['Lawful adult substance content','BRB and Bathroom Break privacy','No fake activity','Protect minors']) assert(rules.includes(feature),`${feature} missing`);
-
 const gitignore=fs.readFileSync('.gitignore','utf8');
 for(const ignored of ['node_modules/','.env','data/store.json']) assert(gitignore.includes(ignored),`${ignored} should be ignored`);
 
-console.log('TryAMM live, music, content engine, Supabase wiring, deployment and safety smoke checks passed');
+console.log('TryAMM mobile app shell, live, music, content engine, Supabase wiring, deployment and safety smoke checks passed');
