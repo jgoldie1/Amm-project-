@@ -1,0 +1,99 @@
+{
+  "products": [
+    {
+      "id": "holo-fon",
+      "name": "Holo Fon",
+      "stage": "concept",
+      "purpose": "A TRYAMM-connected mobile device and interface concept for holographic communication, spatial media, creator tools, accessibility and secure access to the ecosystem.",
+      "plannedCapabilities": [
+        "standard voice and video communication",
+        "holographic or spatial display compatibility",
+        "TRYAMM identity and creator profile",
+        "live streaming and music access",
+        "voice-first navigation",
+        "switch and one-hand control support",
+        "captions, sign-language relay compatibility and text-to-speech",
+        "real-time language translation",
+        "emergency and caregiver modes",
+        "offline and low-bandwidth modes"
+      ],
+      "releaseRequirements": [
+        "tested hardware prototype",
+        "carrier and radio certification",
+        "battery and thermal safety testing",
+        "privacy and biometric review",
+        "accessibility conformance testing",
+        "repair, warranty and support plan"
+      ]
+    },
+    {
+      "id": "satellite-fon",
+      "name": "Satellite Fon",
+      "stage": "concept",
+      "purpose": "A resilient communications concept for areas with weak or unavailable terrestrial coverage, intended to connect users, drivers, couriers, logistics teams and emergency contacts to TRYAMM services.",
+      "plannedCapabilities": [
+        "satellite messaging and emergency check-in",
+        "store-and-forward communication",
+        "location sharing with user consent",
+        "low-bandwidth dispatch for rideshare, delivery and logistics",
+        "multilingual emergency messages",
+        "accessible SOS workflows",
+        "fallback synchronization when terrestrial service returns"
+      ],
+      "releaseRequirements": [
+        "licensed satellite network partner",
+        "radio and spectrum compliance",
+        "emergency-service integration review",
+        "location privacy controls",
+        "coverage and latency testing",
+        "clear service limitations and pricing"
+      ]
+    }
+  ],
+  "accessibility": {
+    "principle": "Accessibility is a platform requirement, not an optional add-on.",
+    "supportedNeeds": [
+      "blind and low-vision users",
+      "deaf and hard-of-hearing users",
+      "speech-disabled and non-speaking users",
+      "users with limited mobility or one-hand use",
+      "users with cognitive, learning or neurodivergent needs",
+      "older adults",
+      "users with temporary injuries",
+      "low-literacy and low-bandwidth users"
+    ],
+    "requiredCapabilities": [
+      "screen-reader semantics",
+      "keyboard, switch and voice navigation",
+      "large touch targets",
+      "high contrast and scalable text",
+      "reduced motion",
+      "captions and transcripts",
+      "text-to-speech and speech-to-text",
+      "one-hand mode",
+      "caregiver and trusted-contact settings",
+      "accessible reporting and emergency actions",
+      "plain-language mode"
+    ]
+  },
+  "translation": {
+    "principle": "Language assistance must preserve meaning, privacy and user control.",
+    "plannedCapabilities": [
+      "interface localization",
+      "real-time chat translation",
+      "caption translation",
+      "creator post and listing translation",
+      "rideshare and delivery message translation",
+      "emergency phrase translation",
+      "human-review escalation for legal, medical, financial and safety-critical content",
+      "original-text display and translation confidence notices"
+    ],
+    "safetyRules": [
+      "do not silently replace original text",
+      "do not rely only on machine translation for emergencies or binding agreements",
+      "do not expose private conversations to third parties without consent",
+      "allow users to correct preferred names and terminology",
+      "log translation errors affecting safety or money"
+    ]
+  }
+}
