@@ -1,0 +1,28 @@
+{
+  "defaultPolicy": "deny-until-evidence",
+  "systems": {
+    "creator-live": {"enabled": true, "minimumStage": "beta", "requiredChecks": ["ci","moderation","privacy","rollback"]},
+    "music": {"enabled": true, "minimumStage": "beta", "requiredChecks": ["ci","rights","fraud-controls","payout-reconciliation"]},
+    "marketplace": {"enabled": false, "minimumStage": "production-candidate", "requiredChecks": ["ci","seller-policy","payments","tax","consumer-protection","refunds"]},
+    "teen-lane": {"enabled": false, "minimumStage": "production-candidate", "requiredChecks": ["age-assurance","parental-controls","moderation-capacity","privacy","legal-review"]},
+    "blockchain": {
+      "enabled": false,
+      "status": "AUDIT_HOLD",
+      "reason": "No blockchain, token, wallet, bridge, staking, smart-contract, custody or on-chain payment capability may be exposed until independent audit evidence is approved.",
+      "requiredChecks": [
+        "architecture-threat-model",
+        "independent-smart-contract-audit",
+        "critical-and-high-findings-closed",
+        "retest-passed",
+        "key-management-review",
+        "bridge-and-oracle-review",
+        "economic-and-tokenomics-review",
+        "legal-and-regulatory-review",
+        "incident-and-pause-procedure",
+        "signed-founder-release-approval"
+      ],
+      "activationEnvironmentVariables": ["BLOCKCHAIN_ENABLED","BLOCKCHAIN_AUDIT_STATUS","BLOCKCHAIN_AUDIT_REPORT_SHA256","BLOCKCHAIN_RELEASE_APPROVED_BY"],
+      "activationRule": "BLOCKCHAIN_ENABLED may equal true only when audit status is PASSED, an audit report SHA-256 is present, all required checks are recorded as passed, and a named release approver is present."
+    }
+  }
+}
