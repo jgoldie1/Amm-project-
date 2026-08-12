@@ -21,8 +21,9 @@ const AGENTS = {
 function chooseAgent(task='') {
   const t=task.toLowerCase()
   if (/security|auth|rls|secret|vulnerab|fraud/.test(t)) return 'security'
+  // QA intent takes priority over generic CI/deployment words when the task is explicitly about tests/regressions.
+  if (/test|qa|regression|typecheck|smoke test|accessibility check/.test(t)) return 'qa'
   if (/deploy|vercel|release|ci|staging/.test(t)) return 'deployment'
-  if (/test|qa|regression|typecheck/.test(t)) return 'qa'
   if (/treasury|ledger|bill|tax|refund|royalt|revenue|reserve/.test(t)) return 'treasury'
   if (/world|mission|npc|game|quantumverse|level|city/.test(t)) return 'world_builder'
   if (/movie|drama|starverse|casting|production|episode|advertis/.test(t)) return 'media'
