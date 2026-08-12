@@ -5,6 +5,8 @@ function bearer(req) {
   return h.startsWith('Bearer ') ? h.slice(7) : null
 }
 
+const money = v => Math.max(0, Number(v || 0))
+
 function createTreasuryRouter({ supabase }) {
   const router = express.Router()
 
@@ -19,7 +21,6 @@ function createTreasuryRouter({ supabase }) {
 
   router.use(requireUser)
 
-  // Read-only treasury snapshot. Financial execution remains provider/human-authorized.
   router.get('/summary', async (req, res) => {
     const entityKey = String(req.query.entity || 'tryamm')
     const now = new Date().toISOString()
@@ -57,17 +58,74 @@ function createTreasuryRouter({ supabase }) {
   })
 
   router.post('/forecast', async (req, res) => {
-    const cash = Math.max(0,Number(req.body?.cashAvailable)||0)
-    const [bills, reserves] = await Promise.all([
-      supabase.from('omni_bills').select('amount').eq('entity_key','tryamm').in('status',['scheduled','approved','processing']),
-      supabase.from('omni_reserve_buckets').select('target_type,target_value,current_amount,minimum_amount').eq('entity_key','tryamm').eq('active',true),
+    const entityKey = 'tryamm'
+    const cash = money(req.body?.cashAvailable)
+    const currency = String(req.body?.currency || 'USD').toUpperCase().slice(0,3)
+    const taxRate = Math.max(0, Math.min(1, Number(req.body?.estimatedTaxRate ?? 0.25)))
+
+    const [bills, reserves, ledger] = await Promise.all([
+      supabase.from('omni_bills').select('amount,currency,status,due_at').eq('entity_key',entityKey).in('status',['scheduled','approved','processing']),
+      supabase.from('omni_reserve_buckets').select('bucket_key,target_type,target_value,current_amount,minimum_amount').eq('entity_key',entityKey).eq('active',true),
+      supabase.from('omni_treasury_ledger').select('entry_type,debit,credit,gross_amount,currency,occurred_at').eq('entity_key',entityKey),
     ])
-    if (bills.error || reserves.error) return res.status(500).json({ error:'Forecast inputs unavailable' })
-    const billsDue = (bills.data||[]).reduce((s,b)=>s+Number(b.amount||0),0)
-    const reserveFloor = (reserves.data||[]).reduce((s,r)=>s+Math.max(Number(r.minimum_amount||0),0),0)
-    const reserveShortfall = (reserves.data||[]).reduce((s,r)=>s+Math.max(0,Number(r.minimum_amount||0)-Number(r.current_amount||0)),0)
-    const safe = Math.max(0,cash-billsDue-reserveShortfall)
-    const payload = { entity_key:'tryamm', cash_available:cash, bills_due:billsDue, reserve_shortfall:reserveShortfall, safe_to_spend:safe, assumptions:{ reserveFloor, note:'Taxes, refunds and contractual payables must be supplied by accounting integrations before production use.' } }
+    if (bills.error || reserves.error || ledger.error) return res.status(500).json({ error:'Forecast inputs unavailable' })
+
+    const compatibleBills = (bills.data || []).filter(b => String(b.currency || currency).toUpperCase() === currency)
+    const compatibleLedger = (ledger.data || []).filter(e => String(e.currency || currency).toUpperCase() === currency)
+
+    const billsDue = compatibleBills.reduce((s,b)=>s+money(b.amount),0)
+    const sumDebit = types => compatibleLedger.filter(e=>types.includes(e.entry_type)).reduce((s,e)=>s+money(e.debit || e.gross_amount),0)
+    const sumCredit = types => compatibleLedger.filter(e=>types.includes(e.entry_type)).reduce((s,e)=>s+money(e.credit || e.gross_amount),0)
+
+    const recognizedRevenue = sumCredit(['revenue'])
+    const explicitTaxes = sumDebit(['tax'])
+    const explicitRefunds = sumDebit(['refund','chargeback'])
+    const contractualPayables = sumDebit(['creator_payable','talent_payable','royalty_payable'])
+    const providerFees = sumDebit(['provider_fee'])
+    const productionAndLabor = sumDebit(['production_cost','payroll','contractor'])
+
+    const estimatedTaxes = explicitTaxes > 0 ? explicitTaxes : recognizedRevenue * taxRate
+    const reserveShortfall = (reserves.data||[]).reduce((s,r)=>s+Math.max(0,money(r.minimum_amount)-money(r.current_amount)),0)
+
+    const obligations = estimatedTaxes + explicitRefunds + contractualPayables + providerFees + productionAndLabor + billsDue + reserveShortfall
+    const safe = Math.max(0,cash-obligations)
+
+    const sourceCoverage = {
+      revenueLedger: recognizedRevenue > 0,
+      taxes: explicitTaxes > 0 ? 'ledger' : (recognizedRevenue > 0 ? 'estimated-from-revenue' : 'missing'),
+      refundsChargebacks: compatibleLedger.some(e=>['refund','chargeback'].includes(e.entry_type)) ? 'ledger' : 'none-recorded',
+      contractualPayables: compatibleLedger.some(e=>['creator_payable','talent_payable','royalty_payable'].includes(e.entry_type)) ? 'ledger' : 'none-recorded',
+      providerFees: compatibleLedger.some(e=>e.entry_type==='provider_fee') ? 'ledger' : 'none-recorded',
+      operatingBills: compatibleBills.length > 0 ? 'bills-engine' : 'none-recorded',
+      reserveBuckets: (reserves.data||[]).length > 0 ? 'reserve-engine' : 'missing',
+    }
+
+    const missingCritical = []
+    if (!recognizedRevenue) missingCritical.push('recognized-revenue-ledger')
+    if (!(reserves.data||[]).length) missingCritical.push('reserve-buckets')
+    const confidence = missingCritical.length ? 'low' : (sourceCoverage.taxes === 'ledger' ? 'high' : 'medium')
+
+    const payload = {
+      entity_key:entityKey,
+      currency,
+      cash_available:cash,
+      taxes_due:estimatedTaxes,
+      refunds_chargebacks:explicitRefunds,
+      contractual_payables:contractualPayables,
+      bills_due:billsDue + providerFees + productionAndLabor,
+      reserve_shortfall:reserveShortfall,
+      safe_to_spend:safe,
+      assumptions:{
+        recognizedRevenue,
+        providerFees,
+        productionAndLabor,
+        taxRateUsed: explicitTaxes > 0 ? null : taxRate,
+        sourceCoverage,
+        confidence,
+        missingCritical,
+        conservativeRule:'Safe-to-spend never includes cash already allocated to known obligations or reserve shortfalls.',
+      }
+    }
     const { data, error } = await supabase.from('omni_cash_forecasts').insert(payload).select().single()
     if (error) return res.status(500).json({ error:'Could not save forecast' })
     res.json(data)
