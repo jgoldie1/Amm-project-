@@ -12,7 +12,7 @@ function createOmniverseRouter({ supabase }) {
       if (error || !data?.user) return res.status(401).json({ error: 'Invalid session' })
       req.user = data.user
       next()
-    } catch (error) {
+    } catch (_error) {
       res.status(401).json({ error: 'Authentication failed' })
     }
   }
@@ -132,6 +132,7 @@ function createOmniverseRouter({ supabase }) {
     const { data, error } = await supabase.from('workforce_runs').update(patch).eq('id', req.params.id).eq('user_id', req.user.id).select('*').maybeSingle()
     if (error) return res.status(500).json({ error: error.message })
     if (!data) return res.status(404).json({ error: 'Workforce run not found' })
+    if (status === 'completed') await supabase.from('platform_events').insert({ user_id: req.user.id, event_type: 'WORKFORCE_SIMULATION_COMPLETED', source: 'backend', payload: { runId: data.id, simulationKey: data.simulation_key, score: data.score } })
     res.json({ run: data })
   })
 
@@ -146,7 +147,31 @@ function createOmniverseRouter({ supabase }) {
     if (!title) return res.status(400).json({ error: 'title required' })
     const { data, error } = await supabase.from('publications').insert({ owner_id: req.user.id, project_id: projectId, title, format, metadata }).select('*').single()
     if (error) return res.status(500).json({ error: error.message })
+    await supabase.from('platform_events').insert({ user_id: req.user.id, event_type: 'PUBLICATION_CREATED', source: 'backend', payload: { publicationId: data.id, title, format } })
     res.status(201).json({ publication: data })
+  })
+
+  router.get('/store/catalog', async (_req, res) => {
+    const { data, error } = await supabase.from('app_store_assets').select('*').eq('status', 'approved').order('name')
+    if (error) return res.status(500).json({ error: error.message })
+    res.json({ assets: data || [] })
+  })
+
+  router.post('/store/acquire/:assetKey', requireUser, async (req, res) => {
+    const { data: asset, error: assetError } = await supabase.from('app_store_assets').select('*').eq('asset_key', req.params.assetKey).eq('status', 'approved').maybeSingle()
+    if (assetError) return res.status(500).json({ error: assetError.message })
+    if (!asset) return res.status(404).json({ error: 'Asset not found' })
+    if (asset.price_cents > 0) return res.status(402).json({ error: 'Paid assets must use the Stripe checkout flow', asset })
+    const { data, error } = await supabase.from('entitlements').upsert({
+      user_id: req.user.id,
+      asset_key: asset.asset_key,
+      asset_type: asset.asset_type,
+      source: 'grant',
+      metadata: { catalog_asset_id: asset.id },
+    }, { onConflict: 'user_id,asset_key' }).select('*').single()
+    if (error) return res.status(500).json({ error: error.message })
+    await supabase.from('platform_events').insert({ user_id: req.user.id, event_type: 'ASSET_ACQUIRED', source: 'backend', payload: { assetKey: asset.asset_key, assetType: asset.asset_type } })
+    res.json({ entitlement: data, asset })
   })
 
   router.get('/entitlements', requireUser, async (req, res) => {
