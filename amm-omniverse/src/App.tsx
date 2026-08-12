@@ -11,6 +11,7 @@ import BennieChat from './components/BennieChat'
 import { SwipeNavigator, SwipeTutorial } from './components/SwipeNavigator'
 import LivingWorldsBridge from './components/LivingWorldsBridge'
 import OmniverseCommandCenter from './components/OmniverseCommandCenter'
+import AdvancedWorldSystems from './components/AdvancedWorldSystems'
 import './styles.css'
 
 const ProAudioSuite = lazy(() => import('./components/ProAudioSuite'))
@@ -22,6 +23,7 @@ export default function App() {
   const [showBennie, setShowBennie] = useState(false)
   const [showProAudio, setShowProAudio] = useState(false)
   const [showOmniverse, setShowOmniverse] = useState(false)
+  const [showAdvanced, setShowAdvanced] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
   ;(window as any).__showPricing = () => setShowPricing(true)
@@ -29,6 +31,7 @@ export default function App() {
   ;(window as any).__showBennie = () => setShowBennie(true)
   ;(window as any).__showProAudio = () => setShowProAudio(true)
   ;(window as any).__showOmniverse = () => setShowOmniverse(true)
+  ;(window as any).__showAdvancedWorlds = () => setShowAdvanced(true)
 
   const signedIn = screen !== 'intro' && screen !== 'login'
 
@@ -51,20 +54,36 @@ export default function App() {
         <InstallPrompt />
 
         {signedIn && (
-          <button
-            type="button"
-            aria-label="Open Omniverse command center"
-            onClick={() => setShowOmniverse(true)}
-            style={{
-              position: 'fixed', right: 12, bottom: 72, zIndex: 9000,
-              background: 'linear-gradient(135deg,#221744,#003f39)', color: '#ffd700',
-              border: '1px solid #00ffcc88', borderRadius: 999, padding: '9px 13px',
-              fontFamily: 'monospace', fontSize: 11, fontWeight: 900, cursor: 'pointer',
-              boxShadow: '0 0 18px rgba(0,255,204,.18)'
-            }}
-          >
-            ◉ OMNIVERSE
-          </button>
+          <>
+            <button
+              type="button"
+              aria-label="Open Omniverse command center"
+              onClick={() => setShowOmniverse(true)}
+              style={{
+                position: 'fixed', right: 12, bottom: 72, zIndex: 9000,
+                background: 'linear-gradient(135deg,#221744,#003f39)', color: '#ffd700',
+                border: '1px solid #00ffcc88', borderRadius: 999, padding: '9px 13px',
+                fontFamily: 'monospace', fontSize: 11, fontWeight: 900, cursor: 'pointer',
+                boxShadow: '0 0 18px rgba(0,255,204,.18)'
+              }}
+            >
+              ◉ OMNIVERSE
+            </button>
+            <button
+              type="button"
+              aria-label="Open advanced Living Worlds systems"
+              onClick={() => setShowAdvanced(true)}
+              style={{
+                position: 'fixed', right: 12, bottom: 112, zIndex: 9000,
+                background: 'linear-gradient(135deg,#102d4e,#35134e)', color: '#78d5ff',
+                border: '1px solid #78d5ff88', borderRadius: 999, padding: '8px 12px',
+                fontFamily: 'monospace', fontSize: 10, fontWeight: 900, cursor: 'pointer',
+                boxShadow: '0 0 18px rgba(120,213,255,.15)'
+              }}
+            >
+              ✦ SPACE • TIME • LIFE
+            </button>
+          </>
         )}
 
         {showPricing && <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#020212' }}><PricingScreen onClose={() => setShowPricing(false)} /></div>}
@@ -72,6 +91,7 @@ export default function App() {
         {showBennie && <div style={{ position: 'fixed', inset: 0, zIndex: 9997, background: '#020212' }}><BennieChat onClose={() => setShowBennie(false)} /></div>}
         {showProAudio && <Suspense fallback={null}><div style={{ position: 'fixed', inset: 0, zIndex: 9996, background: '#03040c' }}><ProAudioSuite onClose={() => setShowProAudio(false)} /></div></Suspense>}
         {showOmniverse && <OmniverseCommandCenter onClose={() => setShowOmniverse(false)} />}
+        {showAdvanced && <AdvancedWorldSystems onClose={() => setShowAdvanced(false)} />}
 
         {showSwipeTip && signedIn && (
           <SwipeTutorial onDismiss={() => {
