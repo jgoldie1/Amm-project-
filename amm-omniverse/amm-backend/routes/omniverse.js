@@ -1,4 +1,5 @@
 const express = require('express')
+const { createAdvancedWorldsRouter } = require('./advanced-worlds')
 
 function createOmniverseRouter({ supabase }) {
   const router = express.Router()
@@ -32,11 +33,7 @@ function createOmniverseRouter({ supabase }) {
   router.post('/profile', requireUser, async (req, res) => {
     const allowed = ['avatar_name','home_world_slug','level','xp','reputation','skills','accessibility']
     const patch = Object.fromEntries(Object.entries(req.body || {}).filter(([key]) => allowed.includes(key)))
-    const { data, error } = await supabase.from('world_profiles').upsert({
-      user_id: req.user.id,
-      ...patch,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'user_id' }).select('*').single()
+    const { data, error } = await supabase.from('world_profiles').upsert({ user_id: req.user.id, ...patch, updated_at: new Date().toISOString() }, { onConflict: 'user_id' }).select('*').single()
     if (error) return res.status(500).json({ error: error.message })
     res.json({ profile: data })
   })
@@ -55,7 +52,6 @@ function createOmniverseRouter({ supabase }) {
       id = world?.id
     }
     if (!id) return res.status(400).json({ error: 'worldId or valid worldSlug required' })
-
     await supabase.from('world_sessions').update({ ended_at: new Date().toISOString() }).eq('user_id', req.user.id).is('ended_at', null)
     const { data, error } = await supabase.from('world_sessions').insert({ user_id: req.user.id, world_id: id, shard, state }).select('*').single()
     if (error) return res.status(500).json({ error: error.message })
@@ -83,14 +79,7 @@ function createOmniverseRouter({ supabase }) {
   router.post('/projects', requireUser, async (req, res) => {
     const { title, projectType = 'other', data: projectData = {} } = req.body || {}
     if (!title) return res.status(400).json({ error: 'title required' })
-    const { data, error } = await supabase.from('creator_projects').insert({
-      owner_id: req.user.id,
-      title,
-      project_type: projectType,
-      status: 'idea',
-      current_stage: 'idea',
-      data: projectData,
-    }).select('*').single()
+    const { data, error } = await supabase.from('creator_projects').insert({ owner_id: req.user.id, title, project_type: projectType, status: 'idea', current_stage: 'idea', data: projectData }).select('*').single()
     if (error) return res.status(500).json({ error: error.message })
     await supabase.from('platform_events').insert({ user_id: req.user.id, event_type: 'PROJECT_CREATED', source: 'backend', payload: { projectId: data.id, projectType } })
     res.status(201).json({ project: data })
@@ -162,13 +151,7 @@ function createOmniverseRouter({ supabase }) {
     if (assetError) return res.status(500).json({ error: assetError.message })
     if (!asset) return res.status(404).json({ error: 'Asset not found' })
     if (asset.price_cents > 0) return res.status(402).json({ error: 'Paid assets must use the Stripe checkout flow', asset })
-    const { data, error } = await supabase.from('entitlements').upsert({
-      user_id: req.user.id,
-      asset_key: asset.asset_key,
-      asset_type: asset.asset_type,
-      source: 'grant',
-      metadata: { catalog_asset_id: asset.id },
-    }, { onConflict: 'user_id,asset_key' }).select('*').single()
+    const { data, error } = await supabase.from('entitlements').upsert({ user_id: req.user.id, asset_key: asset.asset_key, asset_type: asset.asset_type, source: 'grant', metadata: { catalog_asset_id: asset.id } }, { onConflict: 'user_id,asset_key' }).select('*').single()
     if (error) return res.status(500).json({ error: error.message })
     await supabase.from('platform_events').insert({ user_id: req.user.id, event_type: 'ASSET_ACQUIRED', source: 'backend', payload: { assetKey: asset.asset_key, assetType: asset.asset_type } })
     res.json({ entitlement: data, asset })
@@ -185,6 +168,9 @@ function createOmniverseRouter({ supabase }) {
     if (error) return res.status(500).json({ error: error.message })
     res.json({ events: data || [] })
   })
+
+  // Space, Chrono, Biosphere, Global City, AI Cafe operations and Generations APIs.
+  router.use('/advanced', createAdvancedWorldsRouter({ supabase }))
 
   return router
 }
