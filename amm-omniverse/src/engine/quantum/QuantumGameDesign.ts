@@ -1,5 +1,5 @@
 export type AgeLane = 'pre-k'|'child'|'tween'|'teen'|'family'|'adult'
-export type PlayLane = 'street-action'|'life-city'|'kingdom'|'generations'|'business'|'creator'|'wilderness'|'space'|'chrono'
+export type PlayLane = 'street-action'|'life-city'|'kingdom'|'generations'|'business'|'creator'|'wilderness'|'space'|'chrono'|'after-dark'
 export type ConsequenceDomain = 'reputation'|'law'|'economy'|'relationships'|'property'|'education'|'faith'|'ecology'|'legacy'
 
 export interface AgePolicy {
@@ -46,10 +46,36 @@ export const AGE_POLICIES: Record<AgeLane, AgePolicy> = {
   },
   adult: {
     ageLane:'adult',
-    allowedPlayLanes:['street-action','life-city','kingdom','generations','business','creator','wilderness','space','chrono'],
+    allowedPlayLanes:['street-action','life-city','kingdom','generations','business','creator','wilderness','space','chrono','after-dark'],
     combatLevel:'standard', commerce:'adult', chat:'standard-moderated', userGeneratedContent:'standard-moderated',
     aiMode:'full', locationSharing:'user-controlled'
   },
+}
+
+export interface AfterDarkPolicy {
+  minimumAge: 18
+  requiresAdultVerification: true
+  discoverableByMinors: false
+  crossLaneInvitesFromMinors: false
+  youthProfilesBlocked: true
+  youthCreatorAssetsBlocked: true
+  adultModerationRequired: true
+  separateRecommendations: true
+  separateChatGraph: true
+  separateCommercePolicy: true
+}
+
+export const OMNIVERSE_AFTER_DARK_POLICY: AfterDarkPolicy = {
+  minimumAge:18,
+  requiresAdultVerification:true,
+  discoverableByMinors:false,
+  crossLaneInvitesFromMinors:false,
+  youthProfilesBlocked:true,
+  youthCreatorAssetsBlocked:true,
+  adultModerationRequired:true,
+  separateRecommendations:true,
+  separateChatGraph:true,
+  separateCommercePolicy:true,
 }
 
 export interface DynamicMission {
@@ -89,7 +115,7 @@ export const QUANTUM_GAME_SYSTEMS = {
   activities: [
     'original-story-missions','dynamic-side-missions','rideshare','delivery','logistics','music',
     'film-and-tv','sports','real-estate','restaurant','publishing','education','trades','ministry',
-    'wildlife','fishing','conservation','space-exploration','chrono-scenarios','creator-worlds'
+    'wildlife','fishing','conservation','space-exploration','chrono-scenarios','creator-worlds','adult-nightlife-lane'
   ],
   action: [
     'driving','boats','aircraft','parkour','melee-gameplay','age-gated-action-combat',
@@ -101,12 +127,16 @@ export const QUANTUM_GAME_SYSTEMS = {
   ],
   experience: [
     'cinematic-camera','photo-mode','replay-editor','spatial-audio','haptics','voice','accessibility',
-    'localization','parental-age-lanes','cloud-persistence','cross-device-passport'
+    'localization','parental-age-lanes','cloud-persistence','cross-device-passport','adult-lane-isolation'
   ]
 } as const
 
 export function isLaneAllowed(ageLane: AgeLane, playLane: PlayLane): boolean {
   return AGE_POLICIES[ageLane].allowedPlayLanes.includes(playLane)
+}
+
+export function canEnterAfterDark(ageLane: AgeLane, adultVerified: boolean): boolean {
+  return ageLane === 'adult' && adultVerified
 }
 
 export function filterMissionsForAge(ageLane: AgeLane, missions: DynamicMission[]): DynamicMission[] {
