@@ -1,5 +1,6 @@
 const express = require('express')
 const { createAdvancedWorldsRouter } = require('./advanced-worlds')
+const { createHoloServicesRouter } = require('./holo-services')
 
 function createOmniverseRouter({ supabase }) {
   const router = express.Router()
@@ -169,8 +170,8 @@ function createOmniverseRouter({ supabase }) {
     res.json({ events: data || [] })
   })
 
-  // Space, Chrono, Biosphere, Global City, AI Cafe operations and Generations APIs.
   router.use('/advanced', createAdvancedWorldsRouter({ supabase }))
+  router.use('/holo', createHoloServicesRouter({ supabase }))
 
   return router
 }
