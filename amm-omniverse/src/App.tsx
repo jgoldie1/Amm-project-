@@ -17,6 +17,7 @@ import ImmersiveWorldViewport from './components/ImmersiveWorldViewport'
 import AICafeRestaurant from './components/AICafeRestaurant'
 import HoloServicesHub from './components/HoloServicesHub'
 import HoloCoreCenter from './components/HoloCoreCenter'
+import FamilyLegacyHub from './components/FamilyLegacyHub'
 import './styles.css'
 
 const ProAudioSuite = lazy(() => import('./components/ProAudioSuite'))
@@ -34,6 +35,7 @@ export default function App() {
   const [showCafe, setShowCafe] = useState(false)
   const [showHoloServices, setShowHoloServices] = useState(false)
   const [showHoloCore, setShowHoloCore] = useState(false)
+  const [showFamilyLegacy, setShowFamilyLegacy] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
   ;(window as any).__showPricing = () => setShowPricing(true)
@@ -47,6 +49,7 @@ export default function App() {
   ;(window as any).__showAICafe = () => setShowCafe(true)
   ;(window as any).__showHoloServices = () => setShowHoloServices(true)
   ;(window as any).__showHoloCore = () => setShowHoloCore(true)
+  ;(window as any).__showFamilyLegacy = () => setShowFamilyLegacy(true)
 
   const signedIn = screen !== 'intro' && screen !== 'login'
 
@@ -77,6 +80,7 @@ export default function App() {
             <button type="button" aria-label="Open advanced Living Worlds systems" onClick={() => setShowAdvanced(true)} style={{position:'fixed',right:12,bottom:226,zIndex:9000,background:'linear-gradient(135deg,#102d4e,#35134e)',color:'#78d5ff',border:'1px solid #78d5ff88',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>SPACE • TIME • LIFE</button>
             <button type="button" aria-label="Open Kingdoms Press operations" onClick={() => setShowPress(true)} style={{position:'fixed',right:12,bottom:264,zIndex:9000,background:'linear-gradient(135deg,#4a123c,#211435)',color:'#ff9ee8',border:'1px solid #ff9ee877',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>📚 KINGDOMS PRESS</button>
             <button type="button" aria-label="Open immersive Living Worlds viewport" onClick={() => setShowImmersive(true)} style={{position:'fixed',right:12,bottom:302,zIndex:9000,background:'linear-gradient(135deg,#071a31,#17321f)',color:'#bdeaff',border:'1px solid #8cff9877',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>◈ IMMERSIVE WORLD</button>
+            <button type="button" aria-label="Open Family Legacy systems" onClick={() => setShowFamilyLegacy(true)} style={{position:'fixed',right:12,bottom:340,zIndex:9000,background:'linear-gradient(135deg,#3b2b08,#2a102e)',color:'#ffe493',border:'1px solid #ffe49388',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>♜ FAMILY LEGACY</button>
           </>
         )}
 
@@ -91,6 +95,7 @@ export default function App() {
         {showAdvanced && <AdvancedWorldSystems onClose={() => setShowAdvanced(false)} />}
         {showPress && <KingdomsPressOperations onClose={() => setShowPress(false)} />}
         {showImmersive && <ImmersiveWorldViewport onClose={() => setShowImmersive(false)} />}
+        {showFamilyLegacy && <FamilyLegacyHub onClose={() => setShowFamilyLegacy(false)} />}
 
         {showSwipeTip && signedIn && (
           <SwipeTutorial onDismiss={() => {
