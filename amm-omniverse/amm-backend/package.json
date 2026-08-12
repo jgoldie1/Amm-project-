@@ -1,7 +1,7 @@
 {
   "name": "amm-omniverse-backend",
-  "version": "1.7.4",
-  "description": "AMM Omniverse Backend — Stripe + Supabase + LiveKit + Living Worlds + Stubbs AI + HoloGPT + supervised Quantumverse agents",
+  "version": "1.7.5",
+  "description": "AMM Omniverse Backend — Stripe + Supabase + LiveKit + Living Worlds + Stubbs AI + HoloGPT + supervised Quantumverse agents + OmniShield 360",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -9,7 +9,8 @@
     "agent:start": "node agent-server.js",
     "agent:dev": "nodemon agent-server.js",
     "test:agents": "node tests/agent-runtime.mock.test.js && node tests/agent-runtime.persistence.test.js && node tests/agent-runtime.lifecycle.test.js",
-    "check": "node --check server.js && node --check agent-server.js && node --check routes/omniverse.js && node --check routes/advanced-worlds.js && node --check routes/holo-services.js && node --check routes/holo-core.js && node --check routes/university.js && node --check routes/family-ventures.js && node --check routes/legacy-heirs.js && node --check routes/legacy-secure.js && node --check routes/treasury.js && node --check routes/agents.js && node --check agents/quantum-agent-runtime.js && node --check routes/ai.js && npm run test:agents"
+    "test:omnishield": "node tests/omnishield360.test.js",
+    "check": "node --check server.js && node --check agent-server.js && node --check routes/omniverse.js && node --check routes/advanced-worlds.js && node --check routes/holo-services.js && node --check routes/holo-core.js && node --check routes/university.js && node --check routes/family-ventures.js && node --check routes/legacy-heirs.js && node --check routes/legacy-secure.js && node --check routes/treasury.js && node --check routes/agents.js && node --check routes/omnishield.js && node --check lib/omnishield360.js && node --check agents/quantum-agent-runtime.js && node --check routes/ai.js && npm run test:agents && npm run test:omnishield"
   },
   "engines": {
     "node": ">=22.0.0"
