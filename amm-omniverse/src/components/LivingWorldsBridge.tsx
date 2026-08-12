@@ -22,8 +22,15 @@ export default function LivingWorldsBridge() {
   const sessionRef = useRef<WorldSession | null>(null)
   const worldsRef = useRef<WorldRecord[]>([])
   const readyRef = useRef(false)
+  const signedIn = screen !== 'intro' && screen !== 'login'
 
   useEffect(() => {
+    if (!signedIn) {
+      readyRef.current = false
+      sessionRef.current = null
+      return
+    }
+
     let cancelled = false
     async function bootstrap() {
       if (!isSupabaseConfigured()) return
@@ -43,7 +50,6 @@ export default function LivingWorldsBridge() {
         sessionRef.current = active
         readyRef.current = true
 
-        // Restore the last persisted screen when it is one of the app's current screens.
         const persistedScreen = active?.state?.screen
         const valid = ['city','sports','marketplace','music','faith','blockchain']
         if (typeof persistedScreen === 'string' && valid.includes(persistedScreen) && persistedScreen !== useGameStore.getState().screen) {
@@ -55,12 +61,12 @@ export default function LivingWorldsBridge() {
     }
     bootstrap()
     return () => { cancelled = true }
-    // Bootstrap once after authenticated app mount.
+    // Re-run when the user moves from login/intro into the signed-in app.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [signedIn])
 
   useEffect(() => {
-    if (!readyRef.current) return
+    if (!signedIn || !readyRef.current) return
     let cancelled = false
 
     async function persistScreen() {
@@ -93,7 +99,7 @@ export default function LivingWorldsBridge() {
 
     persistScreen()
     return () => { cancelled = true }
-  }, [screen, player.level, player.xp, player.rep, player.faith, player.activeVehicle])
+  }, [signedIn, screen, player.level, player.xp, player.rep, player.faith, player.activeVehicle])
 
   return null
 }
