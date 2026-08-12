@@ -1,3 +1,4 @@
+import { lazy, Suspense, useState } from 'react'
 import { useGameStore } from './game/state/useGameStore'
 import CityView from './components/CityView'
 import { SportsRealm, MarketplaceRealm, MusicRealm, FaithRealm, BlockchainRealm } from './components/RealmScreens'
@@ -8,43 +9,77 @@ import HoloverseHub from './components/HoloverseHub'
 import { BennieButton } from './components/BennieChatbot'
 import BennieChat from './components/BennieChat'
 import { SwipeNavigator, SwipeTutorial } from './components/SwipeNavigator'
-import { lazy, Suspense, useState } from 'react'
-const ProAudioSuite = lazy(() => import('./components/ProAudioSuite'))
+import LivingWorldsBridge from './components/LivingWorldsBridge'
+import OmniverseCommandCenter from './components/OmniverseCommandCenter'
 import './styles.css'
+
+const ProAudioSuite = lazy(() => import('./components/ProAudioSuite'))
 
 export default function App() {
   const screen = useGameStore(s => s.screen)
-  const [showPricing,   setShowPricing]   = useState(false)
+  const [showPricing, setShowPricing] = useState(false)
   const [showHoloverse, setShowHoloverse] = useState(false)
-  const [showBennie,    setShowBennie]    = useState(false)
-  const [showProAudio,  setShowProAudio]  = useState(false)
-  const [showSwipeTip,  setShowSwipeTip]  = useState(() => !localStorage.getItem('amm_swiped'))
-  ;(window as any).__showPricing   = () => setShowPricing(true)
+  const [showBennie, setShowBennie] = useState(false)
+  const [showProAudio, setShowProAudio] = useState(false)
+  const [showOmniverse, setShowOmniverse] = useState(false)
+  const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
+
+  ;(window as any).__showPricing = () => setShowPricing(true)
   ;(window as any).__showHoloverse = () => setShowHoloverse(true)
-  ;(window as any).__showBennie    = () => setShowBennie(true)
+  ;(window as any).__showBennie = () => setShowBennie(true)
   ;(window as any).__showProAudio = () => setShowProAudio(true)
+  ;(window as any).__showOmniverse = () => setShowOmniverse(true)
+
+  const signedIn = screen !== 'intro' && screen !== 'login'
 
   return (
     <SwipeNavigator>
-    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: '#020212' }}>
-      {screen === 'intro' && <IntroScreen />}
-      {screen === 'login' && <LoginScreen />}
-      {screen === 'city' && <CityView />}
-      {screen === 'sports' && <SportsRealm />}
-      {screen === 'marketplace' && <MarketplaceRealm />}
-      {screen === 'music' && <MusicRealm />}
-      {screen === 'faith' && <FaithRealm />}
-      {screen === 'blockchain' && <BlockchainRealm />}
-      <NotifToast />
-      <BennieButton />
-      <InstallPrompt />
-      {showPricing   && <div style={{position:'fixed',inset:0,zIndex:9999,background:'#020212'}}><PricingScreen   onClose={() => setShowPricing(false)} /></div>}
-      {showHoloverse && <div style={{position:'fixed',inset:0,zIndex:9998,background:'#020212'}}><HoloverseHub   onClose={() => setShowHoloverse(false)} /></div>}
-      {showBennie    && <div style={{position:'fixed',inset:0,zIndex:9997,background:'#020212'}}><BennieChat     onClose={() => setShowBennie(false)} /></div>}
-      {showProAudio  && <Suspense fallback={null}><div style={{position:'fixed',inset:0,zIndex:9996,background:'#03040c'}}><ProAudioSuite onClose={() => setShowProAudio(false)} /></div></Suspense>}
-      {showSwipeTip && screen !== 'intro' && screen !== 'login' && <SwipeTutorial onDismiss={()=>{ setShowSwipeTip(false); localStorage.setItem('amm_swiped','1') }} />}
-    </div>
-  )
-  </SwipeNavigator>
+      <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: '#020212' }}>
+        <LivingWorldsBridge />
+
+        {screen === 'intro' && <IntroScreen />}
+        {screen === 'login' && <LoginScreen />}
+        {screen === 'city' && <CityView />}
+        {screen === 'sports' && <SportsRealm />}
+        {screen === 'marketplace' && <MarketplaceRealm />}
+        {screen === 'music' && <MusicRealm />}
+        {screen === 'faith' && <FaithRealm />}
+        {screen === 'blockchain' && <BlockchainRealm />}
+
+        <NotifToast />
+        <BennieButton />
+        <InstallPrompt />
+
+        {signedIn && (
+          <button
+            type="button"
+            aria-label="Open Omniverse command center"
+            onClick={() => setShowOmniverse(true)}
+            style={{
+              position: 'fixed', right: 12, bottom: 72, zIndex: 9000,
+              background: 'linear-gradient(135deg,#221744,#003f39)', color: '#ffd700',
+              border: '1px solid #00ffcc88', borderRadius: 999, padding: '9px 13px',
+              fontFamily: 'monospace', fontSize: 11, fontWeight: 900, cursor: 'pointer',
+              boxShadow: '0 0 18px rgba(0,255,204,.18)'
+            }}
+          >
+            ◉ OMNIVERSE
+          </button>
+        )}
+
+        {showPricing && <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#020212' }}><PricingScreen onClose={() => setShowPricing(false)} /></div>}
+        {showHoloverse && <div style={{ position: 'fixed', inset: 0, zIndex: 9998, background: '#020212' }}><HoloverseHub onClose={() => setShowHoloverse(false)} /></div>}
+        {showBennie && <div style={{ position: 'fixed', inset: 0, zIndex: 9997, background: '#020212' }}><BennieChat onClose={() => setShowBennie(false)} /></div>}
+        {showProAudio && <Suspense fallback={null}><div style={{ position: 'fixed', inset: 0, zIndex: 9996, background: '#03040c' }}><ProAudioSuite onClose={() => setShowProAudio(false)} /></div></Suspense>}
+        {showOmniverse && <OmniverseCommandCenter onClose={() => setShowOmniverse(false)} />}
+
+        {showSwipeTip && signedIn && (
+          <SwipeTutorial onDismiss={() => {
+            setShowSwipeTip(false)
+            localStorage.setItem('amm_swiped', '1')
+          }} />
+        )}
+      </div>
+    </SwipeNavigator>
   )
 }
