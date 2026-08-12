@@ -11,6 +11,7 @@ const { createFamilyVenturesRouter } = require('./routes/family-ventures')
 const { createLegacyHeirsRouter } = require('./routes/legacy-heirs')
 const { createLegacySecureRouter } = require('./routes/legacy-secure')
 const { createTreasuryRouter } = require('./routes/treasury')
+const { postCheckoutToTreasury, postInvoiceToTreasury, postRefundToTreasury, postDisputeToTreasury } = require('./lib/treasury-ledger')
 
 const app = express()
 
@@ -23,11 +24,11 @@ app.use(cors({ origin:['https://tryamm.online','https://www.tryamm.online','http
 app.use('/api/stripe/webhook', express.raw({ type:'application/json' }))
 app.use(express.json({ limit:'2mb' }))
 
-app.get('/', (_req,res)=>res.json({ name:'AMM Omniverse Backend', status:'online', version:'1.7.0-treasury', systems:['stripe','supabase','livekit','living-worlds','ai-cafe','workforce','kingdoms-press','app-store','stubbs-ai','hologpt','holo-services','holo-core','all-american-university','family-legacy','heirs-legacy-kids','omni-treasury','reserve-buckets'] }))
+app.get('/', (_req,res)=>res.json({ name:'AMM Omniverse Backend', status:'online', version:'1.7.1-auto-ledger', systems:['stripe','supabase','livekit','living-worlds','ai-cafe','workforce','kingdoms-press','app-store','stubbs-ai','hologpt','holo-services','holo-core','all-american-university','family-legacy','heirs-legacy-kids','omni-treasury','reserve-buckets','auto-ledger'] }))
 app.get('/api/health', async (_req,res)=>{
   let database=false
   try { const { error }=await supabase.from('worlds').select('id').limit(1); database=!error } catch(_) {}
-  res.json({ ok:true, ts:Date.now(), version:'1.7.0-treasury', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true } })
+  res.json({ ok:true, ts:Date.now(), version:'1.7.1-auto-ledger', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, autoLedger:true } })
 })
 
 app.use('/api/omniverse', createOmniverseRouter({ supabase }))
@@ -48,10 +49,13 @@ app.post('/api/stripe/webhook', async (req,res)=>{
     if(previous?.status==='processed') return res.json({received:true,duplicate:true})
     if(previous) await supabase.from('stripe_webhook_events').update({status:'processing',attempts:Number(previous.attempts||0)+1,last_error:null,updated_at:new Date().toISOString()}).eq('event_id',event.id)
     else { const {error}=await supabase.from('stripe_webhook_events').insert({event_id:event.id,event_type:event.type,status:'processing'}); if(error) throw error }
+
     const object=event.data.object
     switch(event.type){
       case 'checkout.session.completed': {
-        const {userId,plan,type,holoPaymentIntentId}=object.metadata||{}; if(!userId) break
+        await postCheckoutToTreasury({ supabase, stripe, session: object })
+        const {userId,plan,type,holoPaymentIntentId}=object.metadata||{}
+        if(!userId) break
         if(type==='subscription'){
           const tierMap={pro_monthly:'pro',creator_monthly:'creator',battle_pass:'battle'}
           await supabase.from('users').update({subscription_tier:tierMap[plan]||'pro',subscription_active:true,subscription_start:new Date().toISOString(),stripe_customer_id:object.customer}).eq('id',userId)
@@ -62,11 +66,31 @@ app.post('/api/stripe/webhook', async (req,res)=>{
         } else if(type==='holo-pay'&&holoPaymentIntentId){
           await supabase.from('holo_payment_intents').update({status:'paid',provider_session_id:object.id,updated_at:new Date().toISOString()}).eq('id',holoPaymentIntentId).eq('user_id',userId)
           await supabase.from('platform_events').insert({user_id:userId,event_type:'HOLO_PAYMENT_COMPLETED',source:'stripe-webhook',payload:{holoPaymentIntentId,stripeSessionId:object.id,amountTotal:object.amount_total,currency:object.currency}})
-        } break
+        }
+        break
       }
-      case 'checkout.session.expired': { const {userId,type,holoPaymentIntentId}=object.metadata||{}; if(type==='holo-pay'&&userId&&holoPaymentIntentId) await supabase.from('holo_payment_intents').update({status:'cancelled',updated_at:new Date().toISOString()}).eq('id',holoPaymentIntentId).eq('user_id',userId); break }
-      case 'customer.subscription.deleted': await supabase.from('users').update({subscription_tier:'free',subscription_active:false}).eq('stripe_customer_id',object.customer); break
-      case 'invoice.payment_failed': console.log('Payment failed; Stripe customer notifications remain enabled.'); break
+      case 'invoice.payment_succeeded':
+        await postInvoiceToTreasury({ supabase, stripe, invoice: object })
+        break
+      case 'charge.refunded':
+      case 'refund.updated':
+        await postRefundToTreasury({ supabase, eventObject: object, eventId: event.id })
+        break
+      case 'charge.dispute.created':
+      case 'charge.dispute.funds_withdrawn':
+        await postDisputeToTreasury({ supabase, dispute: object, eventId: event.id })
+        break
+      case 'checkout.session.expired': {
+        const {userId,type,holoPaymentIntentId}=object.metadata||{}
+        if(type==='holo-pay'&&userId&&holoPaymentIntentId) await supabase.from('holo_payment_intents').update({status:'cancelled',updated_at:new Date().toISOString()}).eq('id',holoPaymentIntentId).eq('user_id',userId)
+        break
+      }
+      case 'customer.subscription.deleted':
+        await supabase.from('users').update({subscription_tier:'free',subscription_active:false}).eq('stripe_customer_id',object.customer)
+        break
+      case 'invoice.payment_failed':
+        console.log('Payment failed; Stripe customer notifications remain enabled.')
+        break
     }
     await supabase.from('stripe_webhook_events').update({status:'processed',processed_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('event_id',event.id)
     res.json({received:true})
