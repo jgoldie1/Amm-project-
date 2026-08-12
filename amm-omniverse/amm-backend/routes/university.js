@@ -15,6 +15,12 @@ function createUniversityRouter({ supabase }) {
     } catch (_) { res.status(401).json({ error: 'Authentication failed' }) }
   }
 
+  async function getAgeLane(userId) {
+    const { data, error } = await supabase.from('holo_identity_profiles').select('age_lane').eq('user_id', userId).maybeSingle()
+    if (error) throw error
+    return data?.age_lane || null
+  }
+
   router.get('/catalog', async (_req, res) => {
     const [p, c] = await Promise.all([
       supabase.from('university_programs').select('*').eq('active', true).order('level').order('name'),
@@ -27,24 +33,41 @@ function createUniversityRouter({ supabase }) {
   router.get('/me', requireUser, async (req, res) => {
     const { data: student, error } = await supabase.from('university_students').select('*').eq('user_id', req.user.id).maybeSingle()
     if (error) return res.status(500).json({ error: error.message })
-    if (!student) return res.json({ student: null, enrollments: [], credentials: [], transcript: [], portfolio: [] })
-    const [e, cr, tr, pf] = await Promise.all([
+    if (!student) return res.json({ student: null, enrollments: [], credentials: [], transcript: [], portfolio: [], guardians: [] })
+    const [e, cr, tr, pf, g] = await Promise.all([
       supabase.from('university_enrollments').select('*, university_sections(*, university_courses(*))').eq('student_id', student.id),
       supabase.from('university_credentials').select('*').eq('student_id', student.id).order('issued_at', { ascending: false }),
       supabase.from('university_transcript_entries').select('*').eq('student_id', student.id).order('term', { ascending: false }),
-      supabase.from('university_portfolio_items').select('*').eq('student_id', student.id).order('created_at', { ascending: false })
+      supabase.from('university_portfolio_items').select('*').eq('student_id', student.id).order('created_at', { ascending: false }),
+      supabase.from('university_guardians').select('id,relationship,permissions,verified,guardian_user_id').eq('student_id', student.id),
     ])
-    const err = [e.error, cr.error, tr.error, pf.error].find(Boolean)
+    const err = [e.error, cr.error, tr.error, pf.error, g.error].find(Boolean)
     if (err) return res.status(500).json({ error: err.message })
-    res.json({ student, enrollments: e.data || [], credentials: cr.data || [], transcript: tr.data || [], portfolio: pf.data || [] })
+    res.json({ student, enrollments: e.data || [], credentials: cr.data || [], transcript: tr.data || [], portfolio: pf.data || [], guardians: g.data || [] })
   })
 
   router.post('/me', requireUser, async (req, res) => {
-    const allowedStages = ['prek','k5','middle','high','trade','certificate','associate','bachelor','master','doctorate','professional','continuing','adult']
-    const educationStage = allowedStages.includes(req.body?.educationStage) ? req.body.educationStage : 'adult'
-    const { data, error } = await supabase.from('university_students').upsert({ user_id: req.user.id, education_stage: educationStage, program_code: req.body?.programCode || null, updated_at: new Date().toISOString() }, { onConflict: 'user_id' }).select('*').single()
-    if (error) return res.status(500).json({ error: error.message })
-    res.json({ student: data })
+    try {
+      const ageLane = await getAgeLane(req.user.id)
+      if (!ageLane) return res.status(409).json({ error: 'Holo Identity age lane must be verified before creating a student profile' })
+      const requested = req.body?.educationStage
+      const allowedByLane = {
+        child: ['prek','k5','middle'],
+        teen: ['middle','high','trade','certificate','associate'],
+        adult: ['trade','certificate','associate','bachelor','master','doctorate','professional','continuing','adult'],
+      }
+      const allowed = allowedByLane[ageLane] || []
+      const educationStage = allowed.includes(requested) ? requested : allowed[0]
+      if (!educationStage) return res.status(403).json({ error: 'No education stage is available for this identity profile' })
+      const { data, error } = await supabase.from('university_students').upsert({
+        user_id: req.user.id,
+        education_stage: educationStage,
+        program_code: req.body?.programCode || null,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' }).select('*').single()
+      if (error) return res.status(500).json({ error: error.message })
+      res.json({ student: data, ageLane })
+    } catch (err) { res.status(500).json({ error: err.message }) }
   })
 
   router.get('/hbcu-network', async (_req, res) => {
@@ -72,7 +95,12 @@ function createUniversityRouter({ supabase }) {
     if (!student) return res.status(400).json({ error: 'Create a student profile first' })
     const allowed = ['tutoring','academic-advising','career-advising','financial-aid-guidance','mentoring','accessibility-support','counseling-referral']
     if (!allowed.includes(req.body?.serviceType)) return res.status(400).json({ error: 'Invalid support service' })
-    const { data, error } = await supabase.from('university_support_sessions').insert({ student_id: student.id, service_type: req.body.serviceType, scheduled_at: req.body?.scheduledAt || null, notes: req.body?.notes || {} }).select('*').single()
+    const { data, error } = await supabase.from('university_support_sessions').insert({
+      student_id: student.id,
+      service_type: req.body.serviceType,
+      scheduled_at: req.body?.scheduledAt || null,
+      notes: req.body?.notes || {},
+    }).select('*').single()
     if (error) return res.status(500).json({ error: error.message })
     res.status(201).json({ session: data })
   })
@@ -88,7 +116,7 @@ function createUniversityRouter({ supabase }) {
 
   router.get('/library', requireUser, async (req, res) => {
     let q = supabase.from('university_library_items').select('*').order('title')
-    if (req.query.q) q = q.ilike('title', `%${String(req.query.q)}%`)
+    if (req.query.q) q = q.ilike('title', `%${String(req.query.q).slice(0,100)}%`)
     const { data, error } = await q.limit(100)
     if (error) return res.status(500).json({ error: error.message })
     res.json({ items: data || [] })
