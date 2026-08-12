@@ -7,6 +7,8 @@ const { createOmniverseRouter } = require('./routes/omniverse')
 const { createAIRouter } = require('./routes/ai')
 const { createHoloCoreRouter } = require('./routes/holo-core')
 const { createUniversityRouter } = require('./routes/university')
+const { createFamilyVenturesRouter } = require('./routes/family-ventures')
+const { createLegacyHeirsRouter } = require('./routes/legacy-heirs')
 const { createLegacySecureRouter } = require('./routes/legacy-secure')
 
 const app = express()
@@ -35,8 +37,8 @@ app.use(express.json({ limit: '2mb' }))
 
 app.get('/', (_req, res) => {
   res.json({
-    name: 'AMM Omniverse Backend', status: 'online', version: '1.6.2-ai-security',
-    systems: ['stripe','supabase','livekit','living-worlds','ai-cafe','workforce','kingdoms-press','app-store','stubbs-ai','holo-services','holo-core','all-american-university'],
+    name: 'AMM Omniverse Backend', status: 'online', version: '1.6.4-family-legacy',
+    systems: ['stripe','supabase','livekit','living-worlds','ai-cafe','workforce','kingdoms-press','app-store','stubbs-ai','holo-services','holo-core','all-american-university','family-legacy','heirs-legacy-kids'],
   })
 })
 
@@ -44,11 +46,11 @@ app.get('/api/health', async (_req, res) => {
   let database = false
   try { const { error } = await supabase.from('worlds').select('id').limit(1); database = !error } catch (_) {}
   res.json({
-    ok: true, ts: Date.now(), version: '1.6.2-ai-security',
+    ok: true, ts: Date.now(), version: '1.6.4-family-legacy',
     services: {
       supabase: Boolean(process.env.SUPABASE_URL), livingWorldsSchema: database, stripe: Boolean(stripe),
       livekit: Boolean(process.env.LIVEKIT_API_KEY && process.env.LIVEKIT_API_SECRET), gemini: Boolean(process.env.GEMINI_API_KEY),
-      holoCore: true, university: true,
+      holoCore: true, university: true, familyLegacy: true, heirsLegacy: true,
     },
   })
 })
@@ -56,6 +58,8 @@ app.get('/api/health', async (_req, res) => {
 app.use('/api/omniverse', createOmniverseRouter({ supabase }))
 app.use('/api/holo-core', createHoloCoreRouter({ supabase, stripe }))
 app.use('/api/university', createUniversityRouter({ supabase }))
+app.use('/api/family', createFamilyVenturesRouter({ supabase }))
+app.use('/api/legacy', createLegacyHeirsRouter({ supabase }))
 app.use('/api/ai', createAIRouter({ supabase }))
 app.use('/api', createLegacySecureRouter({ supabase, stripe }))
 
@@ -182,5 +186,7 @@ app.listen(PORT, () => {
   console.log('   Omniverse API: /api/omniverse/*')
   console.log('   Holo Core API: /api/holo-core/*')
   console.log('   University API: /api/university/*')
+  console.log('   Family Legacy API: /api/family/*')
+  console.log('   Heirs & Legacy Kids API: /api/legacy/*')
   console.log('   Holo C / Stubbs AI API: POST /api/ai/answer\n')
 })
