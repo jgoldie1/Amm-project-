@@ -16,6 +16,7 @@ import KingdomsPressOperations from './components/KingdomsPressOperations'
 import ImmersiveWorldViewport from './components/ImmersiveWorldViewport'
 import AICafeRestaurant from './components/AICafeRestaurant'
 import HoloServicesHub from './components/HoloServicesHub'
+import HoloCoreCenter from './components/HoloCoreCenter'
 import './styles.css'
 
 const ProAudioSuite = lazy(() => import('./components/ProAudioSuite'))
@@ -32,6 +33,7 @@ export default function App() {
   const [showImmersive, setShowImmersive] = useState(false)
   const [showCafe, setShowCafe] = useState(false)
   const [showHoloServices, setShowHoloServices] = useState(false)
+  const [showHoloCore, setShowHoloCore] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
   ;(window as any).__showPricing = () => setShowPricing(true)
@@ -44,6 +46,7 @@ export default function App() {
   ;(window as any).__showImmersiveWorlds = () => setShowImmersive(true)
   ;(window as any).__showAICafe = () => setShowCafe(true)
   ;(window as any).__showHoloServices = () => setShowHoloServices(true)
+  ;(window as any).__showHoloCore = () => setShowHoloCore(true)
 
   const signedIn = screen !== 'intro' && screen !== 'login'
 
@@ -68,11 +71,12 @@ export default function App() {
         {signedIn && (
           <>
             <button type="button" aria-label="Open Omniverse command center" onClick={() => setShowOmniverse(true)} style={{position:'fixed',right:12,bottom:72,zIndex:9000,background:'linear-gradient(135deg,#221744,#003f39)',color:'#ffd700',border:'1px solid #00ffcc88',borderRadius:999,padding:'9px 13px',fontFamily:'monospace',fontSize:11,fontWeight:900,cursor:'pointer',boxShadow:'0 0 18px rgba(0,255,204,.18)'}}>◉ OMNIVERSE</button>
-            <button type="button" aria-label="Open Holo Services" onClick={() => setShowHoloServices(true)} style={{position:'fixed',right:12,bottom:112,zIndex:9000,background:'linear-gradient(135deg,#06213f,#05343d)',color:'#52e5ff',border:'1px solid #52e5ff88',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer',boxShadow:'0 0 18px rgba(82,229,255,.16)'}}>✦ HOLO SERVICES</button>
-            <button type="button" aria-label="Open AI Cafe" onClick={() => setShowCafe(true)} style={{position:'fixed',right:12,bottom:150,zIndex:9000,background:'linear-gradient(135deg,#3a2613,#1e160e)',color:'#ffd166',border:'1px solid #ffd16677',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>☕ AI CAFÉ</button>
-            <button type="button" aria-label="Open advanced Living Worlds systems" onClick={() => setShowAdvanced(true)} style={{position:'fixed',right:12,bottom:188,zIndex:9000,background:'linear-gradient(135deg,#102d4e,#35134e)',color:'#78d5ff',border:'1px solid #78d5ff88',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>SPACE • TIME • LIFE</button>
-            <button type="button" aria-label="Open Kingdoms Press operations" onClick={() => setShowPress(true)} style={{position:'fixed',right:12,bottom:226,zIndex:9000,background:'linear-gradient(135deg,#4a123c,#211435)',color:'#ff9ee8',border:'1px solid #ff9ee877',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>📚 KINGDOMS PRESS</button>
-            <button type="button" aria-label="Open immersive Living Worlds viewport" onClick={() => setShowImmersive(true)} style={{position:'fixed',right:12,bottom:264,zIndex:9000,background:'linear-gradient(135deg,#071a31,#17321f)',color:'#bdeaff',border:'1px solid #8cff9877',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>◈ IMMERSIVE WORLD</button>
+            <button type="button" aria-label="Open Holo Core" onClick={() => setShowHoloCore(true)} style={{position:'fixed',right:12,bottom:112,zIndex:9000,background:'linear-gradient(135deg,#122541,#2e173e)',color:'#ffd166',border:'1px solid #ffd16688',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer',boxShadow:'0 0 18px rgba(255,209,102,.14)'}}>◎ HOLO CORE</button>
+            <button type="button" aria-label="Open Holo Services" onClick={() => setShowHoloServices(true)} style={{position:'fixed',right:12,bottom:150,zIndex:9000,background:'linear-gradient(135deg,#06213f,#05343d)',color:'#52e5ff',border:'1px solid #52e5ff88',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer',boxShadow:'0 0 18px rgba(82,229,255,.16)'}}>✦ HOLO SERVICES</button>
+            <button type="button" aria-label="Open AI Cafe" onClick={() => setShowCafe(true)} style={{position:'fixed',right:12,bottom:188,zIndex:9000,background:'linear-gradient(135deg,#3a2613,#1e160e)',color:'#ffd166',border:'1px solid #ffd16677',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>☕ AI CAFÉ</button>
+            <button type="button" aria-label="Open advanced Living Worlds systems" onClick={() => setShowAdvanced(true)} style={{position:'fixed',right:12,bottom:226,zIndex:9000,background:'linear-gradient(135deg,#102d4e,#35134e)',color:'#78d5ff',border:'1px solid #78d5ff88',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>SPACE • TIME • LIFE</button>
+            <button type="button" aria-label="Open Kingdoms Press operations" onClick={() => setShowPress(true)} style={{position:'fixed',right:12,bottom:264,zIndex:9000,background:'linear-gradient(135deg,#4a123c,#211435)',color:'#ff9ee8',border:'1px solid #ff9ee877',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>📚 KINGDOMS PRESS</button>
+            <button type="button" aria-label="Open immersive Living Worlds viewport" onClick={() => setShowImmersive(true)} style={{position:'fixed',right:12,bottom:302,zIndex:9000,background:'linear-gradient(135deg,#071a31,#17321f)',color:'#bdeaff',border:'1px solid #8cff9877',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>◈ IMMERSIVE WORLD</button>
           </>
         )}
 
@@ -81,6 +85,7 @@ export default function App() {
         {showBennie && <div style={{ position: 'fixed', inset: 0, zIndex: 9997, background: '#020212' }}><BennieChat onClose={() => setShowBennie(false)} /></div>}
         {showProAudio && <Suspense fallback={null}><div style={{ position: 'fixed', inset: 0, zIndex: 9996, background: '#03040c' }}><ProAudioSuite onClose={() => setShowProAudio(false)} /></div></Suspense>}
         {showOmniverse && <OmniverseCommandCenter onClose={() => setShowOmniverse(false)} />}
+        {showHoloCore && <HoloCoreCenter onClose={() => setShowHoloCore(false)} />}
         {showHoloServices && <HoloServicesHub onClose={() => setShowHoloServices(false)} />}
         {showCafe && <AICafeRestaurant onClose={() => setShowCafe(false)} />}
         {showAdvanced && <AdvancedWorldSystems onClose={() => setShowAdvanced(false)} />}
