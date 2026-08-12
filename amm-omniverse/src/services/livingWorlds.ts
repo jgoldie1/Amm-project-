@@ -59,6 +59,20 @@ export interface WorkforceRun {
   completed_at: string | null
 }
 
+export interface PublicationRecord {
+  id: string
+  owner_id: string
+  project_id: string | null
+  title: string
+  format: string
+  edition: string
+  status: string
+  source_verification_status: string
+  metadata: Record<string, unknown>
+  created_at: string
+  updated_at: string
+}
+
 function requireClient() {
   const sb = getSupabaseClient()
   if (!sb) throw new Error('Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.')
@@ -76,7 +90,6 @@ export async function getOrCreateWorldProfile(defaults?: Partial<WorldProfile>):
   const sb = requireClient()
   const userId = await getAuthenticatedUserId()
   if (!userId) throw new Error('Authentication required')
-
   const existing = await sb.from('world_profiles').select('*').eq('user_id', userId).maybeSingle()
   if (existing.error) throw existing.error
   if (existing.data) return existing.data as WorldProfile
@@ -100,12 +113,7 @@ export async function updateWorldProfile(changes: Partial<Omit<WorldProfile, 'us
   const sb = requireClient()
   const userId = await getAuthenticatedUserId()
   if (!userId) throw new Error('Authentication required')
-  const { data, error } = await sb
-    .from('world_profiles')
-    .update({ ...changes, updated_at: new Date().toISOString() })
-    .eq('user_id', userId)
-    .select('*')
-    .single()
+  const { data, error } = await sb.from('world_profiles').update({ ...changes, updated_at: new Date().toISOString() }).eq('user_id', userId).select('*').single()
   if (error) throw error
   return data as WorldProfile
 }
@@ -114,14 +122,7 @@ export async function getActiveWorldSession(): Promise<WorldSession | null> {
   const sb = requireClient()
   const userId = await getAuthenticatedUserId()
   if (!userId) return null
-  const { data, error } = await sb
-    .from('world_sessions')
-    .select('*')
-    .eq('user_id', userId)
-    .is('ended_at', null)
-    .order('entered_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
+  const { data, error } = await sb.from('world_sessions').select('*').eq('user_id', userId).is('ended_at', null).order('entered_at', { ascending: false }).limit(1).maybeSingle()
   if (error) throw error
   return (data as WorldSession | null) ?? null
 }
@@ -130,14 +131,8 @@ export async function enterWorld(world: WorldRecord, state: Record<string, unkno
   const sb = requireClient()
   const userId = await getAuthenticatedUserId()
   if (!userId) throw new Error('Authentication required')
-
   await sb.from('world_sessions').update({ ended_at: new Date().toISOString() }).eq('user_id', userId).is('ended_at', null)
-  const { data, error } = await sb.from('world_sessions').insert({
-    user_id: userId,
-    world_id: world.id,
-    shard: 'global-1',
-    state,
-  }).select('*').single()
+  const { data, error } = await sb.from('world_sessions').insert({ user_id: userId, world_id: world.id, shard: 'global-1', state }).select('*').single()
   if (error) throw error
   await emitPlatformEvent('WORLD_ENTERED', { worldSlug: world.slug, state }, world.id)
   return data as WorldSession
@@ -159,13 +154,7 @@ export async function emitPlatformEvent(eventType: string, payload: Record<strin
   const sb = requireClient()
   const userId = await getAuthenticatedUserId()
   if (!userId) return
-  const { error } = await sb.from('platform_events').insert({
-    user_id: userId,
-    world_id: worldId || null,
-    event_type: eventType,
-    source: 'amm-omniverse-web',
-    payload,
-  })
+  const { error } = await sb.from('platform_events').insert({ user_id: userId, world_id: worldId || null, event_type: eventType, source: 'amm-omniverse-web', payload })
   if (error) throw error
 }
 
@@ -182,16 +171,22 @@ export async function createProject(title: string, projectType: string): Promise
   const sb = requireClient()
   const userId = await getAuthenticatedUserId()
   if (!userId) throw new Error('Authentication required')
-  const { data, error } = await sb.from('creator_projects').insert({
-    owner_id: userId,
-    title,
-    project_type: projectType,
-    status: 'idea',
-    current_stage: 'idea',
-    data: {},
-  }).select('*').single()
+  const { data, error } = await sb.from('creator_projects').insert({ owner_id: userId, title, project_type: projectType, status: 'idea', current_stage: 'idea', data: {} }).select('*').single()
   if (error) throw error
   await emitPlatformEvent('PROJECT_CREATED', { projectId: data.id, projectType })
+  return data as CreatorProject
+}
+
+export async function advanceProject(project: CreatorProject): Promise<CreatorProject> {
+  const stages = ['idea','learning','designing','building','testing','published']
+  const index = Math.max(0, stages.indexOf(project.current_stage))
+  const next = stages[Math.min(index + 1, stages.length - 1)]
+  const sb = requireClient()
+  const userId = await getAuthenticatedUserId()
+  if (!userId) throw new Error('Authentication required')
+  const { data, error } = await sb.from('creator_projects').update({ current_stage: next, status: next === 'published' ? 'published' : next, updated_at: new Date().toISOString() }).eq('id', project.id).eq('owner_id', userId).select('*').single()
+  if (error) throw error
+  await emitPlatformEvent('PROJECT_ADVANCED', { projectId: project.id, stage: next })
   return data as CreatorProject
 }
 
@@ -208,15 +203,20 @@ export async function startWorkforceRun(simulationKey: string): Promise<Workforc
   const sb = requireClient()
   const userId = await getAuthenticatedUserId()
   if (!userId) throw new Error('Authentication required')
-  const { data, error } = await sb.from('workforce_runs').insert({
-    user_id: userId,
-    simulation_key: simulationKey,
-    status: 'started',
-    state: {},
-    feedback: {},
-  }).select('*').single()
+  const { data, error } = await sb.from('workforce_runs').insert({ user_id: userId, simulation_key: simulationKey, status: 'started', state: {}, feedback: {} }).select('*').single()
   if (error) throw error
   await emitPlatformEvent('WORKFORCE_SIMULATION_STARTED', { runId: data.id, simulationKey })
+  return data as WorkforceRun
+}
+
+export async function completeWorkforceRun(run: WorkforceRun, score: number, feedback: Record<string, unknown>): Promise<WorkforceRun> {
+  const sb = requireClient()
+  const userId = await getAuthenticatedUserId()
+  if (!userId) throw new Error('Authentication required')
+  const bounded = Math.max(0, Math.min(100, Math.round(score)))
+  const { data, error } = await sb.from('workforce_runs').update({ status: 'completed', score: bounded, feedback, completed_at: new Date().toISOString() }).eq('id', run.id).eq('user_id', userId).select('*').single()
+  if (error) throw error
+  await emitPlatformEvent('WORKFORCE_SIMULATION_COMPLETED', { runId: run.id, simulationKey: run.simulation_key, score: bounded })
   return data as WorkforceRun
 }
 
@@ -229,11 +229,21 @@ export async function listEntitlements() {
   return data ?? []
 }
 
-export async function listPublications() {
+export async function listPublications(): Promise<PublicationRecord[]> {
   const sb = requireClient()
   const userId = await getAuthenticatedUserId()
   if (!userId) return []
   const { data, error } = await sb.from('publications').select('*').eq('owner_id', userId).order('updated_at', { ascending: false })
   if (error) throw error
-  return data ?? []
+  return (data ?? []) as PublicationRecord[]
+}
+
+export async function createPublication(title: string, projectId?: string, format = 'ebook'): Promise<PublicationRecord> {
+  const sb = requireClient()
+  const userId = await getAuthenticatedUserId()
+  if (!userId) throw new Error('Authentication required')
+  const { data, error } = await sb.from('publications').insert({ owner_id: userId, project_id: projectId || null, title, format, status: 'draft', source_verification_status: 'not-required', metadata: {} }).select('*').single()
+  if (error) throw error
+  await emitPlatformEvent('PUBLICATION_CREATED', { publicationId: data.id, title, format })
+  return data as PublicationRecord
 }
