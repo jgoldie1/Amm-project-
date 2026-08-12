@@ -18,6 +18,7 @@ import AICafeRestaurant from './components/AICafeRestaurant'
 import HoloServicesHub from './components/HoloServicesHub'
 import HoloCoreCenter from './components/HoloCoreCenter'
 import FamilyLegacyHub from './components/FamilyLegacyHub'
+import QuantumEngineCenter from './components/QuantumEngineCenter'
 import './styles.css'
 
 const ProAudioSuite = lazy(() => import('./components/ProAudioSuite'))
@@ -36,6 +37,7 @@ export default function App() {
   const [showHoloServices, setShowHoloServices] = useState(false)
   const [showHoloCore, setShowHoloCore] = useState(false)
   const [showFamilyLegacy, setShowFamilyLegacy] = useState(false)
+  const [showQuantumEngine, setShowQuantumEngine] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
   ;(window as any).__showPricing = () => setShowPricing(true)
@@ -50,6 +52,7 @@ export default function App() {
   ;(window as any).__showHoloServices = () => setShowHoloServices(true)
   ;(window as any).__showHoloCore = () => setShowHoloCore(true)
   ;(window as any).__showFamilyLegacy = () => setShowFamilyLegacy(true)
+  ;(window as any).__showQuantumEngine = () => setShowQuantumEngine(true)
 
   const signedIn = screen !== 'intro' && screen !== 'login'
 
@@ -81,6 +84,7 @@ export default function App() {
             <button type="button" aria-label="Open Kingdoms Press operations" onClick={() => setShowPress(true)} style={{position:'fixed',right:12,bottom:264,zIndex:9000,background:'linear-gradient(135deg,#4a123c,#211435)',color:'#ff9ee8',border:'1px solid #ff9ee877',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>📚 KINGDOMS PRESS</button>
             <button type="button" aria-label="Open immersive Living Worlds viewport" onClick={() => setShowImmersive(true)} style={{position:'fixed',right:12,bottom:302,zIndex:9000,background:'linear-gradient(135deg,#071a31,#17321f)',color:'#bdeaff',border:'1px solid #8cff9877',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>◈ IMMERSIVE WORLD</button>
             <button type="button" aria-label="Open Family Legacy systems" onClick={() => setShowFamilyLegacy(true)} style={{position:'fixed',right:12,bottom:340,zIndex:9000,background:'linear-gradient(135deg,#3b2b08,#2a102e)',color:'#ffe493',border:'1px solid #ffe49388',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>♜ FAMILY LEGACY</button>
+            <button type="button" aria-label="Open Quantum adaptive engine" onClick={() => setShowQuantumEngine(true)} style={{position:'fixed',right:12,bottom:378,zIndex:9000,background:'linear-gradient(135deg,#07263a,#27144a)',color:'#73efff',border:'1px solid #73efff88',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>⚛ QUANTUM ENGINE</button>
           </>
         )}
 
@@ -96,6 +100,7 @@ export default function App() {
         {showPress && <KingdomsPressOperations onClose={() => setShowPress(false)} />}
         {showImmersive && <ImmersiveWorldViewport onClose={() => setShowImmersive(false)} />}
         {showFamilyLegacy && <FamilyLegacyHub onClose={() => setShowFamilyLegacy(false)} />}
+        {showQuantumEngine && <QuantumEngineCenter onClose={() => setShowQuantumEngine(false)} />}
 
         {showSwipeTip && signedIn && (
           <SwipeTutorial onDismiss={() => {
