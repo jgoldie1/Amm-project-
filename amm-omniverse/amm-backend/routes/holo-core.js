@@ -1,4 +1,5 @@
 const express = require('express')
+const { createUniversityRouter } = require('./university')
 
 function createHoloCoreRouter({ supabase, stripe }) {
   const router = express.Router()
@@ -33,6 +34,9 @@ function createHoloCoreRouter({ supabase, stripe }) {
     const {data,error}=await supabase.from('holo_courses').select('*').eq('status','published').order('title')
     if(error)return res.status(500).json({error:error.message}); res.json({courses:data||[]})
   })
+
+  // Full All American University & Academy operating system lives under Holo Education.
+  router.use('/university', createUniversityRouter({ supabase }))
 
   router.get('/creator/projects', requireUser, async (req,res)=>{
     const {data,error}=await supabase.from('holo_creator_projects').select('*').eq('owner_id',req.user.id).order('updated_at',{ascending:false})
