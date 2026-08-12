@@ -1,12 +1,14 @@
 {
   "name": "amm-omniverse-backend",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "AMM Omniverse Backend — Stripe + Supabase + LiveKit + Living Worlds + Stubbs AI + HoloGPT + supervised Quantumverse agents",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "check": "node --check server.js && node --check routes/omniverse.js && node --check routes/advanced-worlds.js && node --check routes/holo-services.js && node --check routes/holo-core.js && node --check routes/university.js && node --check routes/family-ventures.js && node --check routes/legacy-heirs.js && node --check routes/legacy-secure.js && node --check routes/treasury.js && node --check routes/agents.js && node --check agents/quantum-agent-runtime.js && node --check routes/ai.js"
+    "agent:start": "node agent-server.js",
+    "agent:dev": "nodemon agent-server.js",
+    "check": "node --check server.js && node --check agent-server.js && node --check routes/omniverse.js && node --check routes/advanced-worlds.js && node --check routes/holo-services.js && node --check routes/holo-core.js && node --check routes/university.js && node --check routes/family-ventures.js && node --check routes/legacy-heirs.js && node --check routes/legacy-secure.js && node --check routes/treasury.js && node --check routes/agents.js && node --check agents/quantum-agent-runtime.js && node --check routes/ai.js"
   },
   "engines": {
     "node": ">=18.0.0"
