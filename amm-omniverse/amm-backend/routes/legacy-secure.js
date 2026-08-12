@@ -18,20 +18,63 @@ function createLegacySecureRouter({ supabase, stripe }) {
     }
   }
 
+  router.post('/live/rooms', requireUser, async (req, res) => {
+    try {
+      const roomKey = String(req.body?.roomKey || '').trim()
+      if (!/^[a-zA-Z0-9_-]{3,80}$/.test(roomKey)) return res.status(400).json({ error: 'roomKey must be 3-80 letters, numbers, underscores or hyphens' })
+      if (req.body?.youthMode === true) return res.status(403).json({ error: 'Youth rooms require a trusted moderation/guardian provisioning workflow' })
+      const visibility = req.body?.visibility === 'private' ? 'private' : 'public'
+      const { data: room, error } = await supabase.from('live_rooms').insert({
+        room_key: roomKey,
+        owner_user_id: req.user.id,
+        title: String(req.body?.title || roomKey).slice(0,120),
+        visibility,
+        youth_mode: false,
+      }).select('*').single()
+      if (error) return res.status(error.code === '23505' ? 409 : 500).json({ error: error.message })
+      await supabase.from('live_room_members').upsert({ room_key: roomKey, user_id: req.user.id, role: 'owner', status: 'active' })
+      res.status(201).json({ room })
+    } catch (err) { res.status(500).json({ error: err.message }) }
+  })
+
   router.get('/livekit-token', requireUser, async (req, res) => {
     try {
-      const room = String(req.query.room || '')
-      if (!room) return res.status(400).json({ error: 'room required' })
+      const roomKey = String(req.query.room || '')
+      if (!roomKey) return res.status(400).json({ error: 'room required' })
       if (!process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) return res.status(503).json({ error: 'LiveKit is not configured' })
+
+      const { data: room, error: roomError } = await supabase.from('live_rooms').select('*').eq('room_key', roomKey).eq('active', true).maybeSingle()
+      if (roomError) return res.status(500).json({ error: roomError.message })
+      if (!room) return res.status(404).json({ error: 'Live room not found. Create the room first.' })
+
+      const isOwner = room.owner_user_id === req.user.id
+      const { data: member } = await supabase.from('live_room_members').select('role,status').eq('room_key', roomKey).eq('user_id', req.user.id).maybeSingle()
+      const activeMember = member?.status === 'active'
+      if (room.visibility === 'private' && !isOwner && !activeMember) return res.status(403).json({ error: 'Private room membership required' })
+      if (member?.status === 'blocked') return res.status(403).json({ error: 'Room access blocked' })
+
+      const role = isOwner ? 'owner' : (activeMember ? member.role : 'viewer')
+      if (room.youth_mode) {
+        const { data: identity } = await supabase.from('holo_identity_profiles').select('age_lane').eq('user_id', req.user.id).maybeSingle()
+        const allowedAdultRoles = ['owner','moderator']
+        if (identity?.age_lane === 'adult' && !allowedAdultRoles.includes(role)) return res.status(403).json({ error: 'Youth room access requires an approved moderation role' })
+      }
+
+      const publishRoles = ['owner','cohost','speaker']
+      const dataRoles = ['owner','cohost','speaker','moderator']
       const at = new AccessToken(process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET, {
         identity: req.user.id,
         name: req.user.email || req.user.id,
       })
-      // Authenticated users may join/publish for now; room ownership/moderation should be enforced
-      // by the live-room service when that service is introduced.
-      at.addGrant({ roomJoin: true, room, canPublish: true, canSubscribe: true, canPublishData: true })
-      res.json({ token: await at.toJwt(), room, user: req.user.id })
-    } catch (err) {
+      at.addGrant({
+        roomJoin: true,
+        room: roomKey,
+        canPublish: publishRoles.includes(role),
+        canSubscribe: true,
+        canPublishData: dataRoles.includes(role),
+      })
+      res.json({ token: await at.toJwt(), room: roomKey, user: req.user.id, role })
+    } catch (_err) {
       res.status(500).json({ error: 'Failed to generate token' })
     }
   })
@@ -58,22 +101,18 @@ function createLegacySecureRouter({ supabase, stripe }) {
       if (type === 'subscription' && PLANS[plan]) {
         const p = PLANS[plan]
         session = await stripe.checkout.sessions.create({
-          mode: 'subscription',
-          customer_email: req.user.email || undefined,
+          mode: 'subscription', customer_email: req.user.email || undefined,
           metadata: { userId: req.user.id, plan, type: 'subscription' },
           line_items: [{ price_data: { currency: 'usd', product_data: { name: p.name }, unit_amount: p.price, recurring: { interval: p.interval } }, quantity: 1 }],
-          success_url: `${base}/?session_id={CHECKOUT_SESSION_ID}&success=1`,
-          cancel_url: `${base}/?cancelled=1`,
+          success_url: `${base}/?session_id={CHECKOUT_SESSION_ID}&success=1`, cancel_url: `${base}/?cancelled=1`,
         })
       } else if (type === 'tokens' && TOKEN_PACKS[plan]) {
         const p = TOKEN_PACKS[plan]
         session = await stripe.checkout.sessions.create({
-          mode: 'payment',
-          customer_email: req.user.email || undefined,
+          mode: 'payment', customer_email: req.user.email || undefined,
           metadata: { userId: req.user.id, plan, type: 'tokens' },
           line_items: [{ price_data: { currency: 'usd', product_data: { name: p.name }, unit_amount: p.price }, quantity: 1 }],
-          success_url: `${base}/?session_id={CHECKOUT_SESSION_ID}&success=1`,
-          cancel_url: `${base}/?cancelled=1`,
+          success_url: `${base}/?session_id={CHECKOUT_SESSION_ID}&success=1`, cancel_url: `${base}/?cancelled=1`,
         })
       } else return res.status(400).json({ error: 'Invalid plan or type' })
       res.json({ url: session.url, sessionId: session.id })
@@ -96,9 +135,7 @@ function createLegacySecureRouter({ supabase, stripe }) {
       const platformCut = Math.floor(amount * 0.10)
       const creatorCut = amount - platformCut
       const paymentIntent = await stripe.paymentIntents.create({
-        amount,
-        currency: 'usd',
-        receipt_email: req.user.email || undefined,
+        amount, currency: 'usd', receipt_email: req.user.email || undefined,
         transfer_data: { amount: creatorCut, destination: payout.provider_account_id },
         metadata: { productId: product.id, buyerUserId: req.user.id, platformCut, creatorCut },
       })
