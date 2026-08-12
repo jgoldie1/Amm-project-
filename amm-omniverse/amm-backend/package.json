@@ -1,12 +1,12 @@
 {
   "name": "amm-omniverse-backend",
-  "version": "1.6.3",
-  "description": "AMM Omniverse Backend — Stripe + Supabase + LiveKit + Living Worlds + Stubbs AI + Holo Services + Holo Core + All American University + Family Legacy + security hardening",
+  "version": "1.6.4",
+  "description": "AMM Omniverse Backend — Stripe + Supabase + LiveKit + Living Worlds + Stubbs AI + Holo Services + Holo Core + All American University + Family Legacy + Heirs",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "check": "node --check server.js && node --check routes/omniverse.js && node --check routes/advanced-worlds.js && node --check routes/holo-services.js && node --check routes/holo-core.js && node --check routes/university.js && node --check routes/family-ventures.js && node --check routes/legacy-secure.js && node --check routes/ai.js"
+    "check": "node --check server.js && node --check routes/omniverse.js && node --check routes/advanced-worlds.js && node --check routes/holo-services.js && node --check routes/holo-core.js && node --check routes/university.js && node --check routes/family-ventures.js && node --check routes/legacy-heirs.js && node --check routes/legacy-secure.js && node --check routes/ai.js"
   },
   "engines": {
     "node": ">=18.0.0"
