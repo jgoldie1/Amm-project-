@@ -26,7 +26,7 @@ export default function QuantumGameDesignCenter({ onClose }:{ onClose:()=>void }
         </div>
       </section>
 
-      <section style={{marginTop:20}}><h2>Open-World Systems</h2><div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:12}}>{systems.map(([group,items])=><article key={group} style={{background:'#0b1422',border:'1px solid #233b52',borderRadius:16,padding:16}}><h3 style={{textTransform:'capitalize',marginTop:0,color:'#ffd166'}}>{group}</h3><ul style={{paddingLeft:18,color:'#c8d5e2'}}>{items.map(x=><li key={x} style={{margin:'5px 0'}}>{x.replaceAll('-',' ')}</li>)}</ul></article>)}</div></section>
+      <section style={{marginTop:20}}><h2>Open-World Systems</h2><div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:12}}>{systems.map(([group,items])=><article key={group} style={{background:'#0b1422',border:'1px solid #233b52',borderRadius:16,padding:16}}><h3 style={{textTransform:'capitalize',marginTop:0,color:'#ffd166'}}>{group}</h3><ul style={{paddingLeft:18,color:'#c8d5e2'}}>{items.map(x=><li key={x} style={{margin:'5px 0'}}>{x.replace(/-/g,' ')}</li>)}</ul></article>)}</div></section>
 
       <section style={{marginTop:20,background:'#101a29',border:'1px solid #334e69',borderRadius:16,padding:16}}>
         <strong>Design rule:</strong> Children do not enter the adult economy/action lane simply because the same map exists. The engine changes mission availability, AI behavior, commerce, communication, content, combat intensity and privacy at the policy layer before the world activates.
