@@ -11,7 +11,7 @@
     "check": "node --check server.js && node --check agent-server.js && node --check routes/omniverse.js && node --check routes/advanced-worlds.js && node --check routes/holo-services.js && node --check routes/holo-core.js && node --check routes/university.js && node --check routes/family-ventures.js && node --check routes/legacy-heirs.js && node --check routes/legacy-secure.js && node --check routes/treasury.js && node --check routes/agents.js && node --check agents/quantum-agent-runtime.js && node --check routes/ai.js"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.0",
@@ -20,7 +20,6 @@
     "express": "^5.2.1",
     "livekit-server-sdk": "^2.16.0",
     "node-fetch": "^3.3.2",
-    "openai": "^6.0.0",
     "stripe": "^22.3.0"
   }
 }
