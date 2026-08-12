@@ -1,4 +1,3 @@
-const OpenAI = require('openai')
 const crypto = require('crypto')
 
 const DEFAULT_MODEL = process.env.OPENAI_AGENT_MODEL || 'gpt-5.6-terra'
@@ -38,15 +37,27 @@ function requiresApproval(task='') {
   return /production deploy|delete production|change payout|change bank|disable guardian|disable age|disable safety/i.test(task)
 }
 
+async function callResponsesAPI({model,instructions,input,maxOutputTokens}){
+  const r=await fetch('https://api.openai.com/v1/responses',{
+    method:'POST',
+    headers:{
+      'Authorization':`Bearer ${process.env.OPENAI_API_KEY}`,
+      'Content-Type':'application/json',
+    },
+    body:JSON.stringify({model,instructions,input,max_output_tokens:maxOutputTokens}),
+  })
+  const body=await r.json().catch(()=>({}))
+  if(!r.ok) throw new Error(body?.error?.message || `OpenAI request failed (${r.status})`)
+  const output=(body.output||[]).flatMap(item=>item.content||[]).filter(c=>c.type==='output_text').map(c=>c.text||'').join('\n')
+  return {id:body.id||null,outputText:output}
+}
+
 class QuantumAgentRuntime {
-  constructor({supabase}) {
-    this.supabase=supabase
-    this.client=process.env.OPENAI_API_KEY ? new OpenAI({apiKey:process.env.OPENAI_API_KEY}) : null
-  }
-  isConfigured(){ return Boolean(this.client) }
+  constructor({supabase}) { this.supabase=supabase }
+  isConfigured(){ return Boolean(process.env.OPENAI_API_KEY) }
   async log(row){ if(this.supabase){ try{ await this.supabase.from('quantum_agent_runs').insert(row) }catch(_){} } }
   async execute({userId,task,requestedAgent,context={},approved=false}){
-    if(!this.client) throw new Error('OPENAI_API_KEY is not configured on the server')
+    if(!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not configured on the server')
     if(!task||typeof task!=='string') throw new Error('task is required')
     const agentKey=requestedAgent&&AGENTS[requestedAgent]?requestedAgent:chooseAgent(task)
     const agent=AGENTS[agentKey]
@@ -57,13 +68,13 @@ class QuantumAgentRuntime {
     }
     await this.log({id:runId,user_id:userId,agent_key:agentKey,task,status:'running',input_context:context})
     try{
-      const response=await this.client.responses.create({
+      const response=await callResponsesAPI({
         model:agent.model,
         instructions:`You are a supervised specialist inside TRYAMM Quantumverse. Reuse existing systems, minimize cost, require evidence, and never claim an action occurred unless verified. ${agent.instructions}`,
         input:`TASK:\n${task}\n\nCONTEXT:\n${JSON.stringify(context).slice(0,20000)}`,
-        max_output_tokens:Number(process.env.OPENAI_AGENT_MAX_OUTPUT_TOKENS||5000),
+        maxOutputTokens:Number(process.env.OPENAI_AGENT_MAX_OUTPUT_TOKENS||5000),
       })
-      const output=response.output_text||''
+      const output=response.outputText||''
       if(this.supabase) await this.supabase.from('quantum_agent_runs').update({status:'completed',output_text:output,model:agent.model,response_id:response.id,completed_at:new Date().toISOString()}).eq('id',runId)
       return {runId,agent:agentKey,model:agent.model,status:'completed',approvalRequired:false,output,responseId:response.id}
     }catch(error){
