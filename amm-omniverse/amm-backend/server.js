@@ -30,52 +30,33 @@ app.use(cors({
   credentials: true,
 }))
 
-// Stripe requires the unparsed request body for signature verification.
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }))
 app.use(express.json({ limit: '2mb' }))
 
 app.get('/', (_req, res) => {
   res.json({
-    name: 'AMM Omniverse Backend',
-    status: 'online',
-    version: '1.6.0-security-university',
-    systems: [
-      'stripe','supabase','livekit','living-worlds','ai-cafe','workforce','kingdoms-press',
-      'app-store','stubbs-ai','holo-services','holo-core','all-american-university'
-    ],
+    name: 'AMM Omniverse Backend', status: 'online', version: '1.6.1-security-integrity',
+    systems: ['stripe','supabase','livekit','living-worlds','ai-cafe','workforce','kingdoms-press','app-store','stubbs-ai','holo-services','holo-core','all-american-university'],
   })
 })
 
 app.get('/api/health', async (_req, res) => {
   let database = false
-  try {
-    const { error } = await supabase.from('worlds').select('id').limit(1)
-    database = !error
-  } catch (_) {}
+  try { const { error } = await supabase.from('worlds').select('id').limit(1); database = !error } catch (_) {}
   res.json({
-    ok: true,
-    ts: Date.now(),
-    version: '1.6.0-security-university',
+    ok: true, ts: Date.now(), version: '1.6.1-security-integrity',
     services: {
-      supabase: Boolean(process.env.SUPABASE_URL),
-      livingWorldsSchema: database,
-      stripe: Boolean(stripe),
-      livekit: Boolean(process.env.LIVEKIT_API_KEY && process.env.LIVEKIT_API_SECRET),
-      gemini: Boolean(process.env.GEMINI_API_KEY),
-      holoCore: true,
-      university: true,
+      supabase: Boolean(process.env.SUPABASE_URL), livingWorldsSchema: database, stripe: Boolean(stripe),
+      livekit: Boolean(process.env.LIVEKIT_API_KEY && process.env.LIVEKIT_API_SECRET), gemini: Boolean(process.env.GEMINI_API_KEY),
+      holoCore: true, university: true,
     },
   })
 })
 
-// Core authenticated services.
 app.use('/api/omniverse', createOmniverseRouter({ supabase }))
 app.use('/api/holo-core', createHoloCoreRouter({ supabase, stripe }))
 app.use('/api/university', createUniversityRouter({ supabase }))
 app.use('/api/ai', createAIRouter())
-
-// Security compatibility layer. These paths intentionally shadow the old public write routes
-// and derive user identity, prices and payout destinations server-side.
 app.use('/api', createLegacySecureRouter({ supabase, stripe }))
 
 app.post('/api/stripe/webhook', async (req, res) => {
@@ -89,52 +70,42 @@ app.post('/api/stripe/webhook', async (req, res) => {
     return res.status(400).send(`Webhook Error: ${err.message}`)
   }
 
-  const object = event.data.object
   try {
+    const { data: previous } = await supabase.from('stripe_webhook_events').select('status,attempts').eq('event_id', event.id).maybeSingle()
+    if (previous?.status === 'processed') return res.json({ received: true, duplicate: true })
+    if (previous) {
+      await supabase.from('stripe_webhook_events').update({ status: 'processing', attempts: Number(previous.attempts || 0) + 1, last_error: null, updated_at: new Date().toISOString() }).eq('event_id', event.id)
+    } else {
+      const { error: eventInsertError } = await supabase.from('stripe_webhook_events').insert({ event_id: event.id, event_type: event.type, status: 'processing' })
+      if (eventInsertError) throw eventInsertError
+    }
+
+    const object = event.data.object
     switch (event.type) {
       case 'checkout.session.completed': {
         const { userId, plan, type, holoPaymentIntentId } = object.metadata || {}
         if (!userId) break
         if (type === 'subscription') {
           const tierMap = { pro_monthly: 'pro', creator_monthly: 'creator', battle_pass: 'battle' }
-          await supabase.from('users').update({
-            subscription_tier: tierMap[plan] || 'pro',
-            subscription_active: true,
-            subscription_start: new Date().toISOString(),
-            stripe_customer_id: object.customer,
-          }).eq('id', userId)
-          await supabase.from('entitlements').upsert({
-            user_id: userId,
-            asset_key: plan,
-            asset_type: 'subscription',
-            source: 'purchase',
-            metadata: { stripe_session_id: object.id },
-          }, { onConflict: 'user_id,asset_key' })
+          await supabase.from('users').update({ subscription_tier: tierMap[plan] || 'pro', subscription_active: true, subscription_start: new Date().toISOString(), stripe_customer_id: object.customer }).eq('id', userId)
+          await supabase.from('entitlements').upsert({ user_id: userId, asset_key: plan, asset_type: 'subscription', source: 'purchase', metadata: { stripe_session_id: object.id } }, { onConflict: 'user_id,asset_key' })
         } else if (type === 'tokens') {
           const tokenAmounts = { tokens_100: 100, tokens_500: 550, tokens_1500: 1700, tokens_5000: 6000, tokens_10000: 12500, tokens_25000: 32500 }
           const amount = tokenAmounts[plan] || 0
           if (amount > 0) {
             const { data: user } = await supabase.from('users').select('amm_tokens').eq('id', userId).single()
-            await supabase.from('users').update({ amm_tokens: (user?.amm_tokens || 0) + amount }).eq('id', userId)
+            await supabase.from('users').update({ amm_tokens: Number(user?.amm_tokens || 0) + amount }).eq('id', userId)
           }
         } else if (type === 'holo-pay' && holoPaymentIntentId) {
-          await supabase.from('holo_payment_intents').update({
-            status: 'paid', provider_session_id: object.id, updated_at: new Date().toISOString(),
-          }).eq('id', holoPaymentIntentId).eq('user_id', userId)
-          await supabase.from('platform_events').insert({
-            user_id: userId,
-            event_type: 'HOLO_PAYMENT_COMPLETED',
-            source: 'stripe-webhook',
-            payload: { holoPaymentIntentId, stripeSessionId: object.id, amountTotal: object.amount_total, currency: object.currency },
-          })
+          await supabase.from('holo_payment_intents').update({ status: 'paid', provider_session_id: object.id, updated_at: new Date().toISOString() }).eq('id', holoPaymentIntentId).eq('user_id', userId)
+          await supabase.from('platform_events').insert({ user_id: userId, event_type: 'HOLO_PAYMENT_COMPLETED', source: 'stripe-webhook', payload: { holoPaymentIntentId, stripeSessionId: object.id, amountTotal: object.amount_total, currency: object.currency } })
         }
         break
       }
       case 'checkout.session.expired': {
         const { userId, type, holoPaymentIntentId } = object.metadata || {}
         if (type === 'holo-pay' && userId && holoPaymentIntentId) {
-          await supabase.from('holo_payment_intents').update({ status: 'cancelled', updated_at: new Date().toISOString() })
-            .eq('id', holoPaymentIntentId).eq('user_id', userId)
+          await supabase.from('holo_payment_intents').update({ status: 'cancelled', updated_at: new Date().toISOString() }).eq('id', holoPaymentIntentId).eq('user_id', userId)
         }
         break
       }
@@ -145,14 +116,16 @@ app.post('/api/stripe/webhook', async (req, res) => {
         console.log('Payment failed; Stripe customer notifications remain enabled.')
         break
     }
+
+    await supabase.from('stripe_webhook_events').update({ status: 'processed', processed_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq('event_id', event.id)
     res.json({ received: true })
   } catch (err) {
     console.error('Webhook processing error:', err)
+    await supabase.from('stripe_webhook_events').upsert({ event_id: event.id, event_type: event.type, status: 'failed', last_error: String(err.message || err).slice(0,1000), updated_at: new Date().toISOString() }, { onConflict: 'event_id' }).catch(() => {})
     res.status(500).json({ error: 'Webhook processing failed' })
   }
 })
 
-// Public read-only discovery endpoints.
 app.get('/api/marketplace/products', async (req, res) => {
   try {
     const { category, search } = req.query
@@ -203,7 +176,7 @@ const PORT = process.env.PORT || 4000
 app.listen(PORT, () => {
   console.log(`\n✅ AMM Backend running on port ${PORT}`)
   console.log(`   Stripe: ${stripe ? '✅ connected' : '❌ STRIPE_SECRET_KEY missing'}`)
-  console.log(`   Supabase: ✅ connected`)
+  console.log('   Supabase: ✅ connected')
   console.log(`   LiveKit: ${process.env.LIVEKIT_API_KEY ? '✅ connected' : '❌ LIVEKIT_API_KEY missing'}`)
   console.log(`   Stubbs AI/Gemini: ${process.env.GEMINI_API_KEY ? '✅ connected' : '⚠️ local fallback'}`)
   console.log('   Omniverse API: /api/omniverse/*')
