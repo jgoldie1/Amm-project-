@@ -35,7 +35,7 @@ app.use(express.json({ limit: '2mb' }))
 
 app.get('/', (_req, res) => {
   res.json({
-    name: 'AMM Omniverse Backend', status: 'online', version: '1.6.1-security-integrity',
+    name: 'AMM Omniverse Backend', status: 'online', version: '1.6.2-ai-security',
     systems: ['stripe','supabase','livekit','living-worlds','ai-cafe','workforce','kingdoms-press','app-store','stubbs-ai','holo-services','holo-core','all-american-university'],
   })
 })
@@ -44,7 +44,7 @@ app.get('/api/health', async (_req, res) => {
   let database = false
   try { const { error } = await supabase.from('worlds').select('id').limit(1); database = !error } catch (_) {}
   res.json({
-    ok: true, ts: Date.now(), version: '1.6.1-security-integrity',
+    ok: true, ts: Date.now(), version: '1.6.2-ai-security',
     services: {
       supabase: Boolean(process.env.SUPABASE_URL), livingWorldsSchema: database, stripe: Boolean(stripe),
       livekit: Boolean(process.env.LIVEKIT_API_KEY && process.env.LIVEKIT_API_SECRET), gemini: Boolean(process.env.GEMINI_API_KEY),
@@ -56,7 +56,7 @@ app.get('/api/health', async (_req, res) => {
 app.use('/api/omniverse', createOmniverseRouter({ supabase }))
 app.use('/api/holo-core', createHoloCoreRouter({ supabase, stripe }))
 app.use('/api/university', createUniversityRouter({ supabase }))
-app.use('/api/ai', createAIRouter())
+app.use('/api/ai', createAIRouter({ supabase }))
 app.use('/api', createLegacySecureRouter({ supabase, stripe }))
 
 app.post('/api/stripe/webhook', async (req, res) => {
