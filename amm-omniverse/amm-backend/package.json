@@ -1,11 +1,13 @@
 {
   "name": "amm-omniverse-backend",
   "version": "1.0.0",
-  "description": "AMM Omniverse Backend — Stripe + Supabase + LiveKit",
+  "description": "AMM Omniverse Backend — Stripe + Supabase + LiveKit + Sign Language",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "start:sign": "node sign-server.js",
+    "check": "node --check server.js && node --check sign-server.js && node --check signLanguageService.js"
   },
   "engines": {
     "node": ">=18.0.0"
