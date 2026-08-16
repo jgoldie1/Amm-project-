@@ -11,6 +11,8 @@ create table if not exists public.media_catalog (
   media_kind text not null default 'video',
   lane text default 'originals',
   access_type text not null default 'FREE',
+  ppv_price_cents integer,
+  currency text not null default 'usd',
   storage_bucket text,
   storage_path text,
   external_stream_url text,
@@ -24,13 +26,14 @@ create table if not exists public.media_catalog (
   updated_at timestamptz not null default now()
 );
 
--- If an earlier media_catalog shape exists, add canonical columns without destroying data.
 alter table public.media_catalog add column if not exists creator_user_id uuid;
 alter table public.media_catalog add column if not exists slug text;
 alter table public.media_catalog add column if not exists description text default '';
 alter table public.media_catalog add column if not exists media_kind text;
 alter table public.media_catalog add column if not exists lane text default 'originals';
 alter table public.media_catalog add column if not exists access_type text default 'FREE';
+alter table public.media_catalog add column if not exists ppv_price_cents integer;
+alter table public.media_catalog add column if not exists currency text default 'usd';
 alter table public.media_catalog add column if not exists storage_bucket text;
 alter table public.media_catalog add column if not exists storage_path text;
 alter table public.media_catalog add column if not exists external_stream_url text;
@@ -43,7 +46,6 @@ alter table public.media_catalog add column if not exists metadata jsonb default
 alter table public.media_catalog add column if not exists created_at timestamptz default now();
 alter table public.media_catalog add column if not exists updated_at timestamptz default now();
 
--- Copy legacy aliases only when those columns exist.
 do $$ begin
   if exists(select 1 from information_schema.columns where table_schema='public' and table_name='media_catalog' and column_name='media_type') then
     execute 'update public.media_catalog set media_kind=coalesce(media_kind,media_type) where media_kind is null';
@@ -56,6 +58,7 @@ end $$;
 update public.media_catalog set media_kind=coalesce(nullif(media_kind,''),'video');
 update public.media_catalog set access_type=upper(coalesce(nullif(access_type,''),'FREE'));
 update public.media_catalog set access_type='FREE' where access_type not in ('FREE','MEMBER','PPV');
+update public.media_catalog set currency=lower(coalesce(nullif(currency,''),'usd'));
 update public.media_catalog set slug=lower(regexp_replace(title,'[^a-zA-Z0-9]+','-','g')) where slug is null or slug='';
 create unique index if not exists media_catalog_slug_uq on public.media_catalog(slug) where slug is not null;
 create index if not exists idx_media_catalog_published on public.media_catalog(published,created_at desc);
@@ -105,4 +108,4 @@ create policy media_watch_self_insert on public.media_watch_history for insert t
 drop policy if exists media_watch_self_update on public.media_watch_history;
 create policy media_watch_self_update on public.media_watch_history for update to authenticated using (user_id=auth.uid()) with check (user_id=auth.uid());
 
--- Catalog publishing, external stream URL changes, entitlement grants/revocations and storage paths are service-role responsibilities.
+-- Catalog publishing, pricing, external stream URL changes, entitlement grants/revocations and storage paths are service-role responsibilities.
