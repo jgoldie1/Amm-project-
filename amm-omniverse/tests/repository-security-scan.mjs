@@ -3,6 +3,7 @@ import path from 'node:path'
 
 const root=process.cwd()
 const skip=new Set(['node_modules','dist','.git','.next','coverage','build'])
+const selfScanFile='tests/repository-security-scan.mjs'
 const textExt=/\.(js|jsx|ts|tsx|mjs|cjs|json|yml|yaml|sh|ps1|bat|cmd|md)$/i
 const findings=[]
 
@@ -25,9 +26,10 @@ function walk(dir){
   }
 }
 function scan(file){
+  const rel=path.relative(root,file).split(path.sep).join('/')
+  if(rel===selfScanFile)return
   let text=''
   try{text=fs.readFileSync(file,'utf8')}catch{return}
-  const rel=path.relative(root,file)
   for(const [id,re,desc] of rules){if(re.test(text))findings.push({id,file:rel,desc})}
   const secretPatterns=[
     [/sk_live_[A-Za-z0-9]{20,}/,'Stripe live secret'],
