@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#04050E" />
     <meta name="description" content="TRYAMM — one connected platform for creators, commerce, LIVE, games, AI, business, education, workforce, and Living Worlds." />
 
-    <link rel="manifest" href="/manifest.json" />
+    <link rel="manifest" href="/manifest.json?v=20260816-2" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
@@ -38,14 +38,14 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {
-            const registration = await navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+            const registration = await navigator.serviceWorker.register('/sw.js?v=20260816-2', { updateViaCache: 'none' })
             await registration.update()
-            let reloading = false
             navigator.serviceWorker.addEventListener('controllerchange', () => {
-              if (reloading || sessionStorage.getItem('tryamm_sw_refreshed') === '1') return
-              reloading = true
-              sessionStorage.setItem('tryamm_sw_refreshed', '1')
-              window.location.reload()
+              const key = 'tryamm-sw-refresh-20260816-2'
+              if (!sessionStorage.getItem(key)) {
+                sessionStorage.setItem(key, '1')
+                location.reload()
+              }
             })
           } catch (_) {}
         })
