@@ -4,6 +4,7 @@ import type { Room } from 'livekit-client'
 import { connectLiveRoom, getLiveStatus, type LiveRole } from '../services/live'
 
 type Format = 'live' | 'showcase' | 'debate' | 'starverse' | 'podcast' | 'shopping' | 'gamecast'
+type VisualFilter = 'clean' | 'bright' | 'warm' | 'cool' | 'mono' | 'contrast' | 'holo'
 
 const FORMATS: Array<{ id: Format; label: string; description: string }> = [
   { id: 'live', label: 'TryAMM LIVE', description: 'General live broadcast and community room' },
@@ -13,6 +14,16 @@ const FORMATS: Array<{ id: Format; label: string; description: string }> = [
   { id: 'podcast', label: 'Podcast', description: 'Video/audio podcast and remote guest room' },
   { id: 'shopping', label: 'LIVE Shopping', description: 'Shoppable creator and marketplace broadcast' },
   { id: 'gamecast', label: 'GameVerse Cast', description: 'Tournament, gameplay and esports-style broadcast' },
+]
+
+const FILTERS: Array<{ id: VisualFilter; label: string; css: string }> = [
+  { id: 'clean', label: 'Clean', css: 'none' },
+  { id: 'bright', label: 'Bright', css: 'brightness(1.12) saturate(1.06)' },
+  { id: 'warm', label: 'Warm', css: 'sepia(.14) saturate(1.12) brightness(1.04)' },
+  { id: 'cool', label: 'Cool', css: 'hue-rotate(10deg) saturate(1.1) brightness(1.03)' },
+  { id: 'mono', label: 'Mono', css: 'grayscale(1) contrast(1.06)' },
+  { id: 'contrast', label: 'High Contrast', css: 'contrast(1.28) saturate(1.12)' },
+  { id: 'holo', label: 'Holo Glow', css: 'contrast(1.08) saturate(1.32) hue-rotate(8deg) drop-shadow(0 0 10px rgba(79,227,255,.45))' },
 ]
 
 function slug(value: string) {
@@ -30,6 +41,9 @@ export default function LiveCenter({ onClose }: { onClose: () => void }) {
   const [participants, setParticipants] = useState(0)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [visualFilter, setVisualFilter] = useState<VisualFilter>('clean')
+  const [mirrorLocal, setMirrorLocal] = useState(true)
+  const [effectsOpen, setEffectsOpen] = useState(false)
   const roomRef = useRef<Room | null>(null)
   const stageRef = useRef<HTMLDivElement>(null)
 
@@ -41,6 +55,10 @@ export default function LiveCenter({ onClose }: { onClose: () => void }) {
     }
   }, [])
 
+  useEffect(() => {
+    applyStageFilter()
+  }, [visualFilter, mirrorLocal])
+
   function chooseFormat(next: Format) {
     setFormat(next)
     const selected = FORMATS.find(x => x.id === next)
@@ -48,6 +66,34 @@ export default function LiveCenter({ onClose }: { onClose: () => void }) {
       setTitle(selected.label)
       setRoomName(slug(selected.label))
     }
+  }
+
+  function applyStageFilter() {
+    const css = FILTERS.find(x => x.id === visualFilter)?.css || 'none'
+    const stage = stageRef.current
+    if (!stage) return
+    stage.querySelectorAll('video').forEach(node => {
+      const video = node as HTMLVideoElement
+      video.style.filter = css
+      const local = video.dataset.local === 'true'
+      video.style.transform = local && mirrorLocal ? 'scaleX(-1)' : 'none'
+    })
+  }
+
+  function prepareMediaElement(element: HTMLMediaElement, participantIdentity: string, local = false) {
+    element.setAttribute('data-participant', participantIdentity)
+    element.setAttribute('data-local', local ? 'true' : 'false')
+    element.style.width = '100%'
+    element.style.maxHeight = '360px'
+    element.style.objectFit = 'cover'
+    element.style.borderRadius = '14px'
+    if (element instanceof HTMLVideoElement) {
+      const css = FILTERS.find(x => x.id === visualFilter)?.css || 'none'
+      element.style.filter = css
+      element.style.transform = local && mirrorLocal ? 'scaleX(-1)' : 'none'
+      if (local) element.muted = true
+    }
+    if (element instanceof HTMLAudioElement) element.style.display = 'none'
   }
 
   async function connect() {
@@ -61,12 +107,7 @@ export default function LiveCenter({ onClose }: { onClose: () => void }) {
         displayName,
         onParticipants: setParticipants,
         onTrack: (element, participantIdentity) => {
-          element.setAttribute('data-participant', participantIdentity)
-          element.style.width = '100%'
-          element.style.maxHeight = '360px'
-          element.style.objectFit = 'cover'
-          element.style.borderRadius = '14px'
-          if (element instanceof HTMLAudioElement) element.style.display = 'none'
+          prepareMediaElement(element, participantIdentity, false)
           stageRef.current?.appendChild(element)
         },
       })
@@ -77,12 +118,7 @@ export default function LiveCenter({ onClose }: { onClose: () => void }) {
           const track = pub.track
           if (track) {
             const element = track.attach()
-            element.style.width = '100%'
-            element.style.maxHeight = '360px'
-            element.style.objectFit = 'cover'
-            element.style.borderRadius = '14px'
-            if (element instanceof HTMLVideoElement) element.muted = true
-            if (element instanceof HTMLAudioElement) element.style.display = 'none'
+            prepareMediaElement(element, room.localParticipant.identity || 'local', true)
             stageRef.current?.prepend(element)
           }
         }
@@ -113,6 +149,7 @@ export default function LiveCenter({ onClose }: { onClose: () => void }) {
     if (!roomRef.current || role !== 'host') return
     const enabled = roomRef.current.localParticipant.isCameraEnabled
     await roomRef.current.localParticipant.setCameraEnabled(!enabled)
+    setTimeout(applyStageFilter, 150)
   }
 
   return (
@@ -147,6 +184,18 @@ export default function LiveCenter({ onClose }: { onClose: () => void }) {
             <button onClick={() => setRole('viewer')} style={{ ...styles.role, ...(role === 'viewer' ? styles.roleActive : {}) }}>Viewer</button>
           </div>
 
+          <button type="button" onClick={() => setEffectsOpen(v => !v)} style={styles.effectsButton}>✨ HoloFilter {effectsOpen ? '▲' : '▼'}</button>
+          {effectsOpen && <div style={styles.effectsPanel}>
+            <div style={styles.filterGrid}>
+              {FILTERS.map(filter => <button key={filter.id} type="button" onClick={() => setVisualFilter(filter.id)} style={{...styles.filterChip,...(visualFilter===filter.id?styles.filterActive:{})}}>{filter.label}</button>)}
+            </div>
+            <label style={styles.check}><input type="checkbox" checked={mirrorLocal} onChange={e=>setMirrorLocal(e.target.checked)}/> Mirror my camera</label>
+            <div style={styles.filterRoadmap}>
+              <span>✓ visual presets</span><span>◌ beauty/lighting</span><span>◌ background blur/replace</span><span>◌ AR/hologram masks</span><span>◌ noise cleanup</span><span>◌ moderation/safety</span>
+            </div>
+            <p style={styles.small}>Visual presets work now with browser video filters. Background segmentation, face effects and audio denoise require dedicated media processors and are kept as explicit provider/device hooks instead of being falsely marked complete.</p>
+          </div>}
+
           {!connected ? (
             <button disabled={busy || configured === false} onClick={() => void connect()} style={styles.primary}>{busy ? 'Connecting…' : role === 'host' ? 'Go LIVE' : 'Join LIVE'}</button>
           ) : (
@@ -163,14 +212,14 @@ export default function LiveCenter({ onClose }: { onClose: () => void }) {
 
         <section style={{ ...styles.card, ...styles.stageCard }}>
           <div style={styles.stageHeader}>
-            <div><strong>{title || 'TryAMM LIVE'}</strong><div style={styles.small}>{format.toUpperCase()} · {role.toUpperCase()}</div></div>
+            <div><strong>{title || 'TryAMM LIVE'}</strong><div style={styles.small}>{format.toUpperCase()} · {role.toUpperCase()} · FILTER {visualFilter.toUpperCase()}</div></div>
             <div style={styles.viewerBadge}>👥 {participants}</div>
           </div>
           <div ref={stageRef} style={styles.stage} aria-live="polite">
             {!connected && <div style={styles.placeholder}>Camera/video stage appears here after joining.</div>}
           </div>
           <div style={styles.features}>
-            <span>Captions-ready</span><span>Translation-ready</span><span>Sign-language companion</span><span>Gifts/commerce hook</span><span>OTT replay hook</span>
+            <span>HoloFilter</span><span>Captions-ready</span><span>Translation-ready</span><span>Sign-language companion</span><span>Gifts/commerce hook</span><span>OTT replay hook</span>
           </div>
         </section>
       </main>
@@ -194,6 +243,13 @@ const styles: Record<string, CSSProperties> = {
   row: { display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 },
   role: { flex: 1, padding: 10, borderRadius: 11, border: '1px solid rgba(255,255,255,.16)', background: '#0a1025', color: '#fff', cursor: 'pointer' },
   roleActive: { background: '#fff', color: '#081022' },
+  effectsButton: { width:'100%', marginTop:12, padding:11, borderRadius:12, border:'1px solid rgba(79,227,255,.4)', background:'#0a1c2d', color:'#fff', fontWeight:900, cursor:'pointer' },
+  effectsPanel: { marginTop:8, padding:12, borderRadius:14, border:'1px solid rgba(79,227,255,.2)', background:'rgba(5,18,32,.85)' },
+  filterGrid: { display:'flex', flexWrap:'wrap', gap:7 },
+  filterChip: { padding:'8px 10px', borderRadius:999, border:'1px solid rgba(255,255,255,.16)', background:'#10172b', color:'#fff', cursor:'pointer', fontSize:12 },
+  filterActive: { border:'1px solid #4fe3ff', boxShadow:'0 0 12px rgba(79,227,255,.22)', background:'#123145' },
+  check: { display:'flex', gap:8, alignItems:'center', marginTop:10, fontSize:12 },
+  filterRoadmap: { display:'flex', flexWrap:'wrap', gap:7, marginTop:10, fontSize:11, opacity:.75 },
   primary: { width: '100%', marginTop: 14, padding: 13, border: 0, borderRadius: 13, fontWeight: 900, cursor: 'pointer', background: '#fff', color: '#071022' },
   secondary: { padding: '10px 14px', borderRadius: 11, border: '1px solid rgba(255,255,255,.2)', background: 'rgba(255,255,255,.08)', color: '#fff', cursor: 'pointer' },
   danger: { padding: '10px 14px', borderRadius: 11, border: '1px solid rgba(255,80,80,.35)', background: 'rgba(255,80,80,.14)', color: '#fff', cursor: 'pointer' },
