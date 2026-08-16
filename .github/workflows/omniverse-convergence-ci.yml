@@ -43,3 +43,30 @@ jobs:
           cache-dependency-path: amm-omniverse/amm-backend/package-lock.json
       - run: npm ci
       - run: npm run check
+
+  deploy-production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/developer-vic'
+    needs: [frontend, backend]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    env:
+      VERCEL_ORG_ID: team_whGr4qRPOF6jMCRuQZ3Kbnry
+      VERCEL_PROJECT_ID: prj_pjc4m9dRB2WAWAtbkpyjpdhrJRFg
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify Vercel token
+        run: test -n "$VERCEL_TOKEN" || (echo 'VERCEL_TOKEN repository secret is required for production deploy' && exit 1)
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      - name: Pull production environment
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+      - name: Build production bundle
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+      - name: Deploy production bundle
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
