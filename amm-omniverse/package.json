@@ -5,10 +5,11 @@
   "scripts": {
     "dev": "vite",
     "smoke": "node tests/smoke-contracts.mjs",
+    "security": "node tests/repository-security-scan.mjs",
     "build": "npm run smoke && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "check": "npm run typecheck && npm run build"
+    "check": "npm run security && npm run typecheck && npm run build"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
