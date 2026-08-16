@@ -20,6 +20,7 @@ type Prefs = {
   switchNavigation: boolean
   largeTargets: boolean
   audioDescriptions: boolean
+  vibrationFeedback: boolean
   remoteMode: 'standard'|'one-hand-left'|'one-hand-right'|'switch'|'voice'|'large-target'
 }
 
@@ -27,7 +28,7 @@ const defaults: Prefs = {
   preferredLanguage:'en', captions:true, textScale:'normal', highContrast:false, reducedMotion:false,
   oneHandMode:false, screenReaderOptimized:false, speechToText:false, textToSpeech:false,
   plainLanguage:false, voiceNavigation:false, switchNavigation:false, largeTargets:true,
-  audioDescriptions:false, remoteMode:'standard'
+  audioDescriptions:false, vibrationFeedback:true, remoteMode:'standard'
 }
 
 const destinations: Array<{screen: Screen; label: string; icon: string}> = [
@@ -134,7 +135,8 @@ export default function AccessibilityRemoteHub({onClose}:{onClose:()=>void}) {
     ['captions','Captions + transcripts'],['highContrast','High contrast'],['reducedMotion','Reduced motion'],
     ['screenReaderOptimized','Screen-reader optimized'],['speechToText','Speech → text'],['textToSpeech','Text → speech'],
     ['plainLanguage','Plain-language mode'],['voiceNavigation','Voice navigation'],['switchNavigation','Switch navigation'],
-    ['largeTargets','Large touch targets'],['audioDescriptions','Audio descriptions'],['oneHandMode','One-hand mode']
+    ['largeTargets','Large touch targets'],['audioDescriptions','Audio descriptions'],['oneHandMode','One-hand mode'],
+    ['vibrationFeedback','Vibration feedback']
   ] as const,[])
 
   return <div role="dialog" aria-modal="true" aria-label="Omni Access and Remote" style={{position:'fixed',inset:0,zIndex:12000,background:'#050816',color:'#fff',overflowY:'auto',fontFamily:'system-ui,sans-serif'}}>
@@ -154,7 +156,7 @@ export default function AccessibilityRemoteHub({onClose}:{onClose:()=>void}) {
         <div style={{display:'flex',justifyContent:align}}><div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(130px,1fr))',gap:12,width:'min(100%,520px)'}}>
           {destinations.map(d=><button key={d.screen} onClick={()=>command(d.screen)} aria-label={`Open ${d.label}`} style={{minHeight:buttonSize,borderRadius:18,border:'1px solid #4fe3ff66',background:'#101a32',color:'#fff',fontSize:16,fontWeight:800}}>{d.icon} {d.label}</button>)}
           <button onClick={startVoice} style={{minHeight:buttonSize,borderRadius:18,border:'1px solid #e8b94488',background:'#2c2411',color:'#fff',fontWeight:800}}>🎙 {listening?'Listening…':'Voice Remote'}</button>
-          <button onClick={()=>{ window.dispatchEvent(new CustomEvent('tryamm:remote-command',{detail:{action:'play-pause'}})); if(navigator.vibrate)navigator.vibrate(20)}} style={{minHeight:buttonSize,borderRadius:18,border:'1px solid #8cf',background:'#16243b',color:'#fff',fontWeight:800}}>⏯ Play / Pause</button>
+          <button onClick={()=>{ window.dispatchEvent(new CustomEvent('tryamm:remote-command',{detail:{action:'play-pause'}})); if(prefs.vibrationFeedback&&navigator.vibrate)navigator.vibrate(20)}} style={{minHeight:buttonSize,borderRadius:18,border:'1px solid #8cf',background:'#16243b',color:'#fff',fontWeight:800}}>⏯ Play / Pause</button>
         </div></div>
         <label style={{display:'block',marginTop:20}}>Remote layout
           <select value={prefs.remoteMode} onChange={e=>setPrefs({...prefs,remoteMode:e.target.value as Prefs['remoteMode']})} style={{display:'block',width:'100%',maxWidth:420,marginTop:6,padding:12,borderRadius:10}}>
