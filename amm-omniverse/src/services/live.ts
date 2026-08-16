@@ -1,5 +1,6 @@
 import { Room, RoomEvent, Track } from 'livekit-client'
 import { getAccessToken } from './supabaseClient'
+import { installCallSafeLive } from './protectedLive'
 
 const API_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || ''
 
@@ -62,10 +63,32 @@ export async function connectLiveRoom(opts: {
   await room.connect(session.url, session.token)
   updateCount()
 
+  let protectedLive: ReturnType<typeof installCallSafeLive> | null = null
   if (opts.role === 'host') {
     await room.localParticipant.setMicrophoneEnabled(true)
     await room.localParticipant.setCameraEnabled(true)
+
+    let restoreMic = true
+    let restoreCamera = true
+    protectedLive = installCallSafeLive(opts.roomName, {
+      muteMicrophone: async () => {
+        restoreMic = room.localParticipant.isMicrophoneEnabled
+        if (restoreMic) await room.localParticipant.setMicrophoneEnabled(false)
+      },
+      disableCamera: async () => {
+        restoreCamera = room.localParticipant.isCameraEnabled
+        if (restoreCamera) await room.localParticipant.setCameraEnabled(false)
+      },
+      restoreMicrophone: async () => {
+        if (restoreMic) await room.localParticipant.setMicrophoneEnabled(true)
+      },
+      restoreCamera: async () => {
+        if (restoreCamera) await room.localParticipant.setCameraEnabled(true)
+      },
+    })
+
+    room.once(RoomEvent.Disconnected, () => protectedLive?.destroy())
   }
 
-  return { room, session }
+  return { room, session, protectedLive }
 }
