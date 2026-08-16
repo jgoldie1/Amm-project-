@@ -69,9 +69,46 @@ function createModerationRouter({supabase}){
     }catch(err){res.status(500).json({error:err.message||'Could not submit appeal'})}
   })
 
-  router.post('/block/:userId',requireUser,async(req,res)=>{
-    // UI-compatible safe acknowledgement until relationship/block table is connected.
-    res.json({ok:true,blockedUserId:req.params.userId,localEnforcementRequired:true})
+  async function setRelationship(req,res,changes){
+    try{
+      const targetUserId=String(req.params.userId||'').trim()
+      if(!targetUserId)return res.status(400).json({error:'userId is required'})
+      if(targetUserId===req.user.id)return res.status(400).json({error:'You cannot block or mute yourself'})
+      const {data:existing,error:readError}=await supabase.from('user_safety_relationships').select('blocked,muted').eq('owner_user_id',req.user.id).eq('target_user_id',targetUserId).maybeSingle()
+      if(readError)throw readError
+      const row={
+        owner_user_id:req.user.id,target_user_id:targetUserId,
+        blocked:changes.blocked??Boolean(existing?.blocked),
+        muted:changes.muted??Boolean(existing?.muted),
+        reason:String(req.body?.reason||'').slice(0,500)||null,
+        source:String(req.body?.source||'user-action').slice(0,80),
+        updated_at:new Date().toISOString(),
+      }
+      const {data,error}=await supabase.from('user_safety_relationships').upsert(row,{onConflict:'owner_user_id,target_user_id'}).select('target_user_id,blocked,muted,updated_at').single()
+      if(error)throw error
+      res.json({ok:true,relationship:data})
+    }catch(err){res.status(500).json({error:err.message||'Could not update safety relationship'})}
+  }
+
+  router.post('/block/:userId',requireUser,(req,res)=>setRelationship(req,res,{blocked:true}))
+  router.post('/unblock/:userId',requireUser,(req,res)=>setRelationship(req,res,{blocked:false}))
+  router.post('/mute/:userId',requireUser,(req,res)=>setRelationship(req,res,{muted:true}))
+  router.post('/unmute/:userId',requireUser,(req,res)=>setRelationship(req,res,{muted:false}))
+
+  router.get('/relationships',requireUser,async(req,res)=>{
+    try{
+      const {data,error}=await supabase.from('user_safety_relationships').select('target_user_id,blocked,muted,reason,source,updated_at').eq('owner_user_id',req.user.id).or('blocked.eq.true,muted.eq.true').order('updated_at',{ascending:false}).limit(500)
+      if(error)throw error
+      res.json({relationships:data||[]})
+    }catch(err){res.status(500).json({error:'Could not load safety relationships'})}
+  })
+
+  router.get('/relationship/:userId',requireUser,async(req,res)=>{
+    try{
+      const {data,error}=await supabase.from('user_safety_relationships').select('target_user_id,blocked,muted,updated_at').eq('owner_user_id',req.user.id).eq('target_user_id',req.params.userId).maybeSingle()
+      if(error)throw error
+      res.json({relationship:data||{target_user_id:req.params.userId,blocked:false,muted:false}})
+    }catch(err){res.status(500).json({error:'Could not load safety relationship'})}
   })
 
   return router
