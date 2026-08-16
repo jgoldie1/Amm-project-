@@ -5,6 +5,7 @@ const Stripe = require('stripe')
 const { createClient } = require('@supabase/supabase-js')
 const { createOmniverseRouter } = require('./routes/omniverse')
 const { createAIRouter } = require('./routes/ai')
+const { createOmniNetRouter } = require('./routes/omninet')
 const { createHoloCoreRouter } = require('./routes/holo-core')
 const { createUniversityRouter } = require('./routes/university')
 const { createFamilyVenturesRouter } = require('./routes/family-ventures')
@@ -26,14 +27,15 @@ app.use(cors({ origin:['https://tryamm.online','https://www.tryamm.online','http
 app.use('/api/stripe/webhook', express.raw({ type:'application/json' }))
 app.use(express.json({ limit:'2mb' }))
 
-app.get('/', (_req,res)=>res.json({ name:'AMM Omniverse Backend', status:'online', version:'1.9.0-live', systems:['stripe','supabase','livekit','living-worlds','ai-cafe','workforce','kingdoms-press','app-store','stubbs-ai','hologpt','holo-services','holo-core','all-american-university','family-legacy','heirs-legacy-kids','omni-treasury','reserve-buckets','auto-ledger','sign-language','tryamm-live'] }))
+app.get('/', (_req,res)=>res.json({ name:'AMM Omniverse Backend', status:'online', version:'1.10.0-revenue-beta', systems:['stripe','supabase','livekit','living-worlds','ai-cafe','workforce','kingdoms-press','app-store','stubbs-ai','hologpt','omninet','holo-search','holo-services','holo-core','all-american-university','family-legacy','heirs-legacy-kids','omni-treasury','reserve-buckets','auto-ledger','sign-language','tryamm-live'] }))
 app.get('/api/health', async (_req,res)=>{
   let database=false
   try { const { error }=await supabase.from('worlds').select('id').limit(1); database=!error } catch(_) {}
-  res.json({ ok:true, ts:Date.now(), version:'1.9.0-live', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, autoLedger:true, signLanguage:true, signRecognitionProvider:Boolean(process.env.SIGN_LANGUAGE_PROVIDER_URL), tryammLive:true } })
+  res.json({ ok:true, ts:Date.now(), version:'1.10.0-revenue-beta', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL), gemini:Boolean(process.env.GEMINI_API_KEY), omninet:true, publicWebSearch:Boolean(process.env.BRAVE_SEARCH_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, autoLedger:true, signLanguage:true, signRecognitionProvider:Boolean(process.env.SIGN_LANGUAGE_PROVIDER_URL), tryammLive:true } })
 })
 
 app.use('/api/omniverse', createOmniverseRouter({ supabase }))
+app.use('/api/omninet', createOmniNetRouter({ supabase }))
 app.use('/api/holo-core', createHoloCoreRouter({ supabase, stripe }))
 app.use('/api/university', createUniversityRouter({ supabase }))
 app.use('/api/family', createFamilyVenturesRouter({ supabase }))
@@ -118,8 +120,10 @@ app.listen(PORT,()=>{
   console.log('   Supabase: ✅ connected')
   console.log(`   LiveKit: ${process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL?'✅ connected':'❌ LiveKit configuration incomplete'}`)
   console.log(`   Stubbs AI/HoloGPT: ${process.env.GEMINI_API_KEY?'✅ connected':'⚠️ local fallback'}`)
+  console.log(`   OmniNet public web: ${process.env.BRAVE_SEARCH_API_KEY?'✅ connected':'⚠️ own index only'}`)
   console.log(`   Sign language: ${process.env.SIGN_LANGUAGE_PROVIDER_URL?'✅ provider configured':'⚠️ fallback translation only'}`)
   console.log('   LIVE API: /api/live/*')
+  console.log('   OmniNet / Holo Search API: /api/omninet/*')
   console.log('   Omniverse API: /api/omniverse/*')
   console.log('   Holo Core API: /api/holo-core/*')
   console.log('   University API: /api/university/*')

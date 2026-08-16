@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "policy": "owned-first-zero-cost",
+  "rules": {
+    "preferExisting": true,
+    "allowPaidPurchase": false,
+    "requireLicenseRecord": true,
+    "requireEngineVerificationForComplete": true,
+    "neverShipUnclearProvenance": true
+  },
+  "sources": [
+    {
+      "id": "drive-quaternius-street-pack",
+      "name": "Street Pack by @Quaternius",
+      "location": "google-drive",
+      "status": "owned-or-existing-verify",
+      "formats": ["FBX", "BLEND", "OBJ"],
+      "licenseFilePresent": true,
+      "useFor": ["living-worlds", "kingdom-city", "roads", "street-scenes", "open-world"],
+      "action": "recover-and-import-do-not-redownload"
+    },
+    {
+      "id": "library-recovered-glb",
+      "name": "Recovered TryAMM GLB Assets",
+      "location": "chatgpt-library",
+      "status": "recovered",
+      "assets": ["hunter.glb", "shard.glb", "falcon.glb", "athlete.glb", "raptor.glb", "BoomBox.glb", "Corset.glb", "Lantern.glb", "WaterBottle.glb", "Avocado.glb"],
+      "useFor": ["players", "sports", "creatures", "props", "gameverse"],
+      "action": "verify-license-scale-rig-and-import"
+    },
+    {
+      "id": "library-sports-audio",
+      "name": "Recovered Sports Audio",
+      "location": "chatgpt-library",
+      "status": "recovered",
+      "assets": ["buzzer", "crowd", "swish", "bounce", "whistle", "rim", "music-loops"],
+      "useFor": ["court-kings", "sports-universe", "arena-audio", "quantum-beat"],
+      "action": "normalize-and-import"
+    },
+    {
+      "id": "library-holo-creator-kit",
+      "name": "Holo Creator Kit Phase 1",
+      "location": "chatgpt-library",
+      "status": "recovered",
+      "useFor": ["holo", "ar", "mr", "reflector", "holoclip", "creator-tools"],
+      "action": "recover-cad-web-docs-and-test"
+    },
+    {
+      "id": "cc0-quaternius",
+      "name": "Quaternius CC0",
+      "location": "external-cc0",
+      "status": "fallback-after-existing-search",
+      "useFor": ["characters", "animations", "cities", "vehicles", "nature", "scifi", "cards", "creatures"],
+      "action": "search-drive-and-pc-first-then-acquire-only-missing"
+    },
+    {
+      "id": "cc0-kenney",
+      "name": "Kenney CC0",
+      "location": "external-cc0",
+      "status": "fallback",
+      "useFor": ["ui", "audio", "vehicles", "buildings", "roads", "nature", "prototype"],
+      "action": "acquire-only-missing"
+    },
+    {
+      "id": "cc0-polyhaven",
+      "name": "Poly Haven CC0",
+      "location": "external-cc0",
+      "status": "fallback",
+      "useFor": ["hdri", "pbr-materials", "environment-models"],
+      "action": "acquire-only-missing"
+    },
+    {
+      "id": "tryamm-original",
+      "name": "TryAMM Original Production",
+      "location": "generated-or-authored",
+      "status": "preferred-for-signature-ip",
+      "useFor": ["dolo", "black-anime", "hero-characters", "signature-creatures", "signature-vehicles", "landmarks", "holo-brand-assets"],
+      "action": "create-rig-optimize-export"
+    }
+  ],
+  "targetFormats": {
+    "webHolo": ["GLB", "GLTF", "KTX2", "WEBP"],
+    "engines": ["FBX", "GLB"],
+    "spatial": ["USD", "USDZ", "GLB"],
+    "audio": ["WAV", "OGG"]
+  }
+}

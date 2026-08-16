@@ -1,0 +1,18 @@
+{
+  "id":"streetverse.kingdom-press.v1",
+  "title":"StreetVerse / Kingdom Press Living World",
+  "genre":["open-world","life-sim","driving","business","missions","multiplayer"],
+  "engines":["unreal","unity","godot","web-holo"],
+  "world":{"streaming":true,"districts":["kingdom-core","market-mile","sound-river","judah-heights","harbor","industrial","holo-quarter"],"dayNight":true,"weather":true,"interiors":true,"traffic":true},
+  "player":{"walk":true,"sprint":true,"drive":true,"properties":true,"businesses":true,"reputation":["civic","business","creator","street","security"],"wantedLevels":6},
+  "npc":{"schedules":true,"roles":["civilian","worker","creator","merchant","security","driver","official","performer"],"memory":true,"moods":true},
+  "vehicles":{"classes":["car","motorcycle","truck","boat","aircraft","ev","future"],"damage":true,"energy":true,"ownership":true,"garage":true},
+  "missions":{"types":["delivery","race","business","rescue","investigation","creator","community","security","property"],"dynamicEvents":true,"replayable":true},
+  "economy":{"businessOwnership":true,"propertyOwnership":true,"creatorEconomy":true,"commerceBackend":"tryamm","serverAuthoritative":true},
+  "media":{"clubs":true,"concerts":true,"radio":true,"podcasts":true,"sportsVenues":true,"omniplayer":true},
+  "holo":{"overlay":true,"hologpt":true,"ar":true,"vr":true,"mr":true,"remotePresence":true,"portals":true},
+  "accessibility":{"oneHand":true,"remappableControls":true,"voiceNavigation":true,"captions":true,"audioDescription":true,"highContrast":true,"reducedMotion":true,"languageTranslation":"all-supported"},
+  "assets":{"city":"drive-quaternius-street-pack","player":"recovered-athlete-or-custom-avatar","props":"library-recovered-glb","signature":"tryamm-original"},
+  "network":{"cloudSave":true,"matchmaking":true,"presence":true,"reconnect":true,"authoritativeEconomy":true},
+  "ipRule":"Original TryAMM world, characters, brands, missions, music, logos and assets. No GTA/Rockstar protected content."
+}

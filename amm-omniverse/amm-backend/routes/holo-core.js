@@ -35,7 +35,6 @@ function createHoloCoreRouter({ supabase, stripe }) {
     if(error)return res.status(500).json({error:error.message}); res.json({courses:data||[]})
   })
 
-  // Full All American University & Academy operating system lives under Holo Education.
   router.use('/university', createUniversityRouter({ supabase }))
 
   router.get('/creator/projects', requireUser, async (req,res)=>{
@@ -76,6 +75,68 @@ function createHoloCoreRouter({ supabase, stripe }) {
   router.get('/pay/intents', requireUser, async (req,res)=>{
     const {data,error}=await supabase.from('holo_payment_intents').select('*').eq('user_id',req.user.id).order('created_at',{ascending:false})
     if(error)return res.status(500).json({error:error.message});res.json({intents:data||[]})
+  })
+
+  const HOLO_CREDIT_PACKS = {
+    holo_100: { credits:100, price:99, name:'100 Holo Credits' },
+    holo_550: { credits:550, price:499, name:'550 Holo Credits' },
+    holo_1700: { credits:1700, price:1299, name:'1,700 Holo Credits' },
+    holo_6000: { credits:6000, price:3999, name:'6,000 Holo Credits' },
+    holo_12500: { credits:12500, price:7499, name:'12,500 Holo Credits' },
+  }
+
+  router.get('/credits', requireUser, async (req,res)=>{
+    try{
+      const [wallet,tx]=await Promise.all([
+        supabase.from('holo_credit_wallets').select('balance,lifetime_earned,lifetime_spent,updated_at').eq('user_id',req.user.id).maybeSingle(),
+        supabase.from('holo_credit_transactions').select('id,amount,transaction_type,description,metadata,created_at').eq('user_id',req.user.id).order('created_at',{ascending:false}).limit(100)
+      ])
+      if(wallet.error||tx.error) return res.status(500).json({error:wallet.error?.message||tx.error?.message})
+      res.json({wallet:wallet.data||{balance:0,lifetime_earned:0,lifetime_spent:0},transactions:tx.data||[],redeemableForCash:false})
+    }catch(err){res.status(500).json({error:err.message})}
+  })
+
+  router.get('/credits/packs', (_req,res)=>{
+    res.json({packs:Object.entries(HOLO_CREDIT_PACKS).map(([id,p])=>({id,...p,currency:'usd'})),redeemableForCash:false})
+  })
+
+  router.post('/credits/checkout', requireUser, async (req,res)=>{
+    try{
+      if(!stripe) return res.status(503).json({error:'Stripe is not configured'})
+      const packId=String(req.body?.packId||'')
+      const pack=HOLO_CREDIT_PACKS[packId]
+      if(!pack) return res.status(400).json({error:'Invalid Holo Credit pack'})
+      const base=process.env.FRONTEND_URL||'https://tryamm.online'
+      const session=await stripe.checkout.sessions.create({
+        mode:'payment',customer_email:req.user.email||undefined,
+        line_items:[{price_data:{currency:'usd',product_data:{name:pack.name},unit_amount:pack.price},quantity:1}],
+        success_url:`${base}/?holo_credits=success&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url:`${base}/?holo_credits=cancelled`,
+        metadata:{userId:req.user.id,type:'holo-credits',plan:packId,holoCredits:String(pack.credits)}
+      })
+      res.status(201).json({checkoutUrl:session.url,sessionId:session.id,pack:{id:packId,...pack}})
+    }catch(err){res.status(500).json({error:err.message})}
+  })
+
+  router.post('/credits/confirm', requireUser, async (req,res)=>{
+    try{
+      if(!stripe) return res.status(503).json({error:'Stripe is not configured'})
+      const sessionId=String(req.body?.sessionId||'')
+      if(!/^cs_/.test(sessionId)) return res.status(400).json({error:'Valid Checkout Session required'})
+      const session=await stripe.checkout.sessions.retrieve(sessionId)
+      if(session.payment_status!=='paid') return res.status(409).json({error:'Checkout Session is not paid'})
+      const meta=session.metadata||{}
+      if(meta.type!=='holo-credits'||meta.userId!==req.user.id) return res.status(403).json({error:'Session does not belong to this Holo Credits wallet'})
+      const pack=HOLO_CREDIT_PACKS[meta.plan]
+      const credits=Number(meta.holoCredits||0)
+      if(!pack||credits!==pack.credits) return res.status(409).json({error:'Credit package metadata failed validation'})
+      const {data:balance,error}=await supabase.rpc('apply_holo_credits',{
+        p_user_id:req.user.id,p_amount:credits,p_transaction_type:'purchase',p_source_system:'stripe-checkout',p_source_ref:session.id,
+        p_description:pack.name,p_metadata:{plan:meta.plan,paymentIntent:session.payment_intent||null}
+      })
+      if(error) throw error
+      res.json({fulfilled:true,balance:Number(balance),creditsAdded:credits,redeemableForCash:false})
+    }catch(err){res.status(500).json({error:err.message})}
   })
 
   return router

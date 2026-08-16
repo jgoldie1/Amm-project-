@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "gameId": "streetverse-kingdom-press",
+  "canonicalState": "src/game/world/StreetVerseLivingCityCore.ts",
+  "sharedSystems": [
+    "player-state",
+    "traffic",
+    "npc-schedules",
+    "npc-memory",
+    "security-response",
+    "wanted-heat",
+    "properties",
+    "interiors",
+    "dynamic-events",
+    "business-income",
+    "missions",
+    "weather",
+    "day-night",
+    "multiplayer-replication",
+    "cloud-save",
+    "holo-overlay",
+    "accessibility",
+    "localization"
+  ],
+  "engines": {
+    "unreal": {
+      "role": "high-end-open-world",
+      "worldStreaming": "World Partition",
+      "traffic": "Mass AI + Chaos Vehicles",
+      "npc": "Mass Entity + Behavior Trees/EQS",
+      "vehicles": "Chaos Vehicles",
+      "physics": "Chaos",
+      "interiors": "level-instances/data-layers",
+      "replication": "server-authoritative",
+      "targets": ["windows", "console", "high-end-xr"]
+    },
+    "unity": {
+      "role": "cross-platform-open-world",
+      "worldStreaming": "Addressables + additive scenes",
+      "traffic": "NavMesh/ECS-compatible traffic adapter",
+      "npc": "NavMesh + state-machine adapter",
+      "vehicles": "WheelCollider/custom vehicle adapter",
+      "physics": "PhysX",
+      "interiors": "additive-scenes",
+      "replication": "server-authoritative-adapter",
+      "targets": ["android", "ios", "windows", "xr"]
+    },
+    "godot": {
+      "role": "lightweight-open-world",
+      "worldStreaming": "chunked PackedScenes",
+      "traffic": "NavigationAgent3D traffic adapter",
+      "npc": "NavigationAgent3D + state-machine adapter",
+      "vehicles": "VehicleBody3D/custom suspension adapter",
+      "physics": "Godot Physics/Jolt adapter",
+      "interiors": "PackedScene streaming",
+      "replication": "MultiplayerSynchronizer/server adapter",
+      "targets": ["linux", "windows", "android", "web"]
+    },
+    "webHolo": {
+      "role": "launcher-spectator-holo",
+      "worldStreaming": "district LOD tiles",
+      "renderer": "Three.js/WebGL/WebGPU where available",
+      "targets": ["browser", "holo-spectator", "remote-control"]
+    }
+  },
+  "firstPlayableDistrict": {
+    "id": "kingdom-square",
+    "required": [
+      "player locomotion",
+      "one drivable vehicle",
+      "10+ NPCs",
+      "traffic loop",
+      "one patrol/security response",
+      "one apartment interior",
+      "one creator studio interior",
+      "one purchasable business",
+      "three dynamic events",
+      "day-night progression",
+      "weather toggle",
+      "save-resume"
+    ]
+  },
+  "assetPolicy": {
+    "existingFirst": true,
+    "sources": ["Google Drive Asset Vault", "Quaternius existing packs", "Recovered Library GLBs", "TryAMM originals"],
+    "protectedFranchiseAssets": false
+  }
+}
