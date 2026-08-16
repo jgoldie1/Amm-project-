@@ -20,7 +20,11 @@ const guardian=solarPlexusGuard({proposal:{objective:'deploy',type:'creative'},s
 assert.equal(guardian.decision,'VERIFY');
 
 assert.equal(compareBrains({answer:'A',decision:'ship'},{answer:'A',decision:'ship'}).agree,true);
-assert.equal(compareBrains({answer:'A',decision:'ship'},{answer:'B',decision:'ship'}).agree,false);
+assert.equal(compareBrains({answer:'A',decision:'ship'},{answer:'B',decision:'stop'}).agree,false);
+assert.equal(compareBrains(
+  {answer:'The candidate is safe to proceed.',conclusionKey:'candidate-ok',evidenceIds:['e1']},
+  {answer:'Independent verification agrees.',conclusionKey:'candidate-ok',evidenceIds:['e1']}
+).agree,true,'different wording with the same normalized conclusion should agree');
 
 const verified=consensusGate({
   primary:{answer:'A',decision:'ship',evidenceIds:['e1']},
