@@ -17,6 +17,40 @@ async function upsertEntry(supabase, entry){
   if(error) throw error
 }
 
+async function postBalancedJournal(supabase,{sourceSystem,sourceRef,journalType,currency,description,metadata,entries}){
+  const { data,error }=await supabase.rpc('post_omnicash_journal',{
+    p_source_system:sourceSystem,
+    p_source_ref:String(sourceRef),
+    p_journal_type:journalType,
+    p_currency:String(currency||'USD').toUpperCase(),
+    p_description:description||'',
+    p_metadata:metadata||{},
+    p_entries:entries,
+  })
+  if(error) throw error
+  return data
+}
+
+async function upsertOrder(supabase,{userId,creatorUserId=null,providerSessionId=null,providerPaymentIntentId=null,orderType,status='paid',currency='USD',grossAmount=0,platformAmount=0,creatorAmount=0,metadata={}}){
+  const row={
+    user_id:userId||null,
+    creator_user_id:creatorUserId||null,
+    provider:'stripe',
+    provider_session_id:providerSessionId||null,
+    provider_payment_intent_id:providerPaymentIntentId||null,
+    order_type:orderType||'purchase',
+    status,
+    currency:String(currency||'USD').toUpperCase(),
+    gross_amount:Number(grossAmount||0),
+    platform_amount:Number(platformAmount||0),
+    creator_amount:Number(creatorAmount||0),
+    metadata,
+    updated_at:new Date().toISOString(),
+  }
+  const { error }=await supabase.from('commerce_orders').upsert(row,{onConflict:'provider,provider_session_id'})
+  if(error) throw error
+}
+
 async function getStripeSettlement(stripe, object){
   const result={ fee:null, net:null, balanceTransactionId:null, exact:false }
   const paymentIntent=object?.payment_intent || object?.payment_intent_id
@@ -46,21 +80,63 @@ async function postCheckoutToTreasury({supabase,stripe,session}){
   await upsertEntry(supabase,{ entryType:'revenue',sourceSystem:'stripe-checkout',sourceRef,grossAmount:gross,credit:gross,currency,
     description:`Stripe checkout ${metadata.type||'purchase'} ${metadata.plan||''}`.trim(),metadata:{userId:metadata.userId||null,type:metadata.type||null,plan:metadata.plan||null,paymentIntent:session.payment_intent||null} })
 
+  await postBalancedJournal(supabase,{
+    sourceSystem:'stripe-checkout',sourceRef,journalType:'sale',currency,
+    description:`Stripe checkout ${metadata.type||'purchase'} ${metadata.plan||''}`.trim(),
+    metadata:{userId:metadata.userId||null,type:metadata.type||null,plan:metadata.plan||null,paymentIntent:session.payment_intent||null},
+    entries:[
+      {accountCode:'STRIPE_CLEARING',debit:gross,credit:0,metadata:{paymentIntent:session.payment_intent||null}},
+      {accountCode:'SALES_REVENUE',debit:0,credit:gross,metadata:{type:metadata.type||null,plan:metadata.plan||null}},
+    ],
+  })
+
   if(settlement.fee!=null&&settlement.fee>0){
     await upsertEntry(supabase,{ entryType:'provider_fee',sourceSystem:'stripe-checkout',sourceRef,grossAmount:gross,debit:settlement.fee,currency,
       description:'Stripe processing fee',metadata:{exact:settlement.exact,balanceTransactionId:settlement.balanceTransactionId} })
+    await postBalancedJournal(supabase,{
+      sourceSystem:'stripe-checkout',sourceRef,journalType:'provider-fee',currency,description:'Stripe processing fee',
+      metadata:{exact:settlement.exact,balanceTransactionId:settlement.balanceTransactionId},
+      entries:[
+        {accountCode:'PAYMENT_PROCESSING_EXPENSE',debit:settlement.fee,credit:0},
+        {accountCode:'STRIPE_CLEARING',debit:0,credit:settlement.fee},
+      ],
+    })
   }
 
+  let creatorAmount=0
+  let platformAmount=gross
   const splits=[['creator_payable','creatorShareBps','creatorUserId'],['talent_payable','talentShareBps','talentUserId'],['royalty_payable','royaltyShareBps','royaltyPartyId']]
   for(const [entryType,bpsKey,partyKey] of splits){
     const bps=Math.max(0,Math.min(10000,Number(metadata[bpsKey]||0)))
     const party=metadata[partyKey]
     if(bps>0&&party){
       const amount=splitBps(gross,bps)
-      if(amount>0) await upsertEntry(supabase,{ entryType,sourceSystem:'stripe-checkout',sourceRef,grossAmount:gross,debit:amount,currency,
-        description:`Contractual ${entryType.replace('_',' ')}`,metadata:{partyId:party,bps,contractRef:metadata.contractRef||null,productionRef:metadata.productionRef||null} })
+      if(amount>0){
+        await upsertEntry(supabase,{ entryType,sourceSystem:'stripe-checkout',sourceRef,grossAmount:gross,debit:amount,currency,
+          description:`Contractual ${entryType.replace('_',' ')}`,metadata:{partyId:party,bps,contractRef:metadata.contractRef||null,productionRef:metadata.productionRef||null} })
+        await postBalancedJournal(supabase,{
+          sourceSystem:'stripe-checkout',sourceRef,journalType:`allocation-${entryType}`,currency,
+          description:`Contractual ${entryType.replace('_',' ')}`,
+          metadata:{partyId:party,bps,contractRef:metadata.contractRef||null,productionRef:metadata.productionRef||null},
+          entries:[
+            {accountCode:'CREATOR_ROYALTY_EXPENSE',partyUserId:party,debit:amount,credit:0},
+            {accountCode:'CREATOR_PAYABLE',partyUserId:party,debit:0,credit:amount},
+          ],
+        })
+        if(entryType==='creator_payable'){ creatorAmount+=amount; platformAmount=Math.max(0,platformAmount-amount) }
+      }
     }
   }
+
+  await upsertOrder(supabase,{
+    userId:metadata.userId||null,
+    creatorUserId:metadata.creatorUserId||null,
+    providerSessionId:session.id,
+    providerPaymentIntentId:typeof session.payment_intent==='string'?session.payment_intent:session.payment_intent?.id||null,
+    orderType:metadata.type||'purchase',status:'paid',currency,grossAmount:gross,platformAmount,creatorAmount,
+    metadata:{plan:metadata.plan||null,contractRef:metadata.contractRef||null,productionRef:metadata.productionRef||null},
+  })
+
   return {gross,currency,settlement}
 }
 
@@ -73,24 +149,46 @@ async function postInvoiceToTreasury({supabase,stripe,invoice}){
   const settlement=await getStripeSettlement(stripe,{payment_intent:paymentIntent})
   await upsertEntry(supabase,{ entryType:'revenue',sourceSystem:'stripe-invoice',sourceRef,grossAmount:gross,credit:gross,currency,
     description:'Recurring subscription invoice paid',metadata:{customer:invoice.customer||null,subscription:invoice.subscription||null,paymentIntent:paymentIntent||null} })
+  await postBalancedJournal(supabase,{
+    sourceSystem:'stripe-invoice',sourceRef,journalType:'subscription-revenue',currency,description:'Recurring subscription invoice paid',
+    metadata:{customer:invoice.customer||null,subscription:invoice.subscription||null,paymentIntent:paymentIntent||null},
+    entries:[{accountCode:'STRIPE_CLEARING',debit:gross,credit:0},{accountCode:'SUBSCRIPTION_REVENUE',debit:0,credit:gross}],
+  })
   if(settlement.fee!=null&&settlement.fee>0){
     await upsertEntry(supabase,{ entryType:'provider_fee',sourceSystem:'stripe-invoice',sourceRef,grossAmount:gross,debit:settlement.fee,currency,
       description:'Stripe recurring-payment fee',metadata:{exact:settlement.exact,balanceTransactionId:settlement.balanceTransactionId} })
+    await postBalancedJournal(supabase,{
+      sourceSystem:'stripe-invoice',sourceRef,journalType:'provider-fee',currency,description:'Stripe recurring-payment fee',
+      metadata:{exact:settlement.exact,balanceTransactionId:settlement.balanceTransactionId},
+      entries:[{accountCode:'PAYMENT_PROCESSING_EXPENSE',debit:settlement.fee,credit:0},{accountCode:'STRIPE_CLEARING',debit:0,credit:settlement.fee}],
+    })
   }
 }
 
 async function postRefundToTreasury({supabase,eventObject,eventId}){
   const amount=centsToAmount(eventObject.amount||eventObject.amount_refunded||0)
   if(amount<=0) return
+  const currency=String(eventObject.currency||'usd').toUpperCase()
   await upsertEntry(supabase,{ entryType:'refund',sourceSystem:'stripe-refund',sourceRef:String(eventId),grossAmount:amount,debit:amount,
-    currency:String(eventObject.currency||'usd').toUpperCase(),description:'Stripe refund/credit adjustment',metadata:{paymentIntent:eventObject.payment_intent||null,charge:eventObject.charge||eventObject.id||null} })
+    currency,description:'Stripe refund/credit adjustment',metadata:{paymentIntent:eventObject.payment_intent||null,charge:eventObject.charge||eventObject.id||null} })
+  await postBalancedJournal(supabase,{
+    sourceSystem:'stripe-refund',sourceRef:String(eventId),journalType:'refund',currency,description:'Stripe refund/credit adjustment',
+    metadata:{paymentIntent:eventObject.payment_intent||null,charge:eventObject.charge||eventObject.id||null},
+    entries:[{accountCode:'SALES_RETURNS',debit:amount,credit:0},{accountCode:'STRIPE_CLEARING',debit:0,credit:amount}],
+  })
 }
 
 async function postDisputeToTreasury({supabase,dispute,eventId}){
   const amount=centsToAmount(dispute.amount)
   if(amount<=0) return
+  const currency=String(dispute.currency||'usd').toUpperCase()
   await upsertEntry(supabase,{ entryType:'chargeback',sourceSystem:'stripe-dispute',sourceRef:String(eventId),grossAmount:amount,debit:amount,
-    currency:String(dispute.currency||'usd').toUpperCase(),description:'Stripe dispute/chargeback',metadata:{disputeId:dispute.id,status:dispute.status} })
+    currency,description:'Stripe dispute/chargeback',metadata:{disputeId:dispute.id,status:dispute.status} })
+  await postBalancedJournal(supabase,{
+    sourceSystem:'stripe-dispute',sourceRef:String(eventId),journalType:'chargeback',currency,description:'Stripe dispute/chargeback',
+    metadata:{disputeId:dispute.id,status:dispute.status},
+    entries:[{accountCode:'CHARGEBACK_EXPENSE',debit:amount,credit:0},{accountCode:'STRIPE_CLEARING',debit:0,credit:amount}],
+  })
 }
 
 module.exports={postCheckoutToTreasury,postInvoiceToTreasury,postRefundToTreasury,postDisputeToTreasury}
