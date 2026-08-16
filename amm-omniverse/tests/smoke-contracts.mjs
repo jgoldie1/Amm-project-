@@ -25,7 +25,7 @@ must(moderation.includes("/api/moderation/report"),'misconduct reporting API con
 must(moderation.includes("/api/moderation/appeal"),'moderation appeal API contract must exist')
 must(moderation.includes("/api/moderation/block/"),'persistent block API contract must exist')
 must(launcher.includes("tryamm:safety-open"),'context-aware Safety launcher event must exist')
-must(commerce.includes('COMMERCE_MODES'),'Commerce OS capability model must exist')
+must(commerce.includes('COMMERCE_CAPABILITIES'),'Commerce OS capability model must exist')
 
 const env=read('.env.example')
 for(const key of ['VITE_SUPABASE_URL','VITE_SUPABASE_ANON_KEY','VITE_API_URL']) must(env.includes(key),`${key} must be documented`)
