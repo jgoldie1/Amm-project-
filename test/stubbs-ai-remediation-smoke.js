@@ -3,9 +3,11 @@ const assert=require('assert');
 const {AREAS,extraBudget,evaluateArea,evaluateQualification,makeRepairPlan,postActionVerification,evidenceDecision}=require('../lib/stubbs-ai-remediation');
 
 assert.equal(extraBudget(.89,.90),.20);
+assert.equal(extraBudget(.85,.90),.20);
 assert.equal(extraBudget(.80,.90),.30);
 assert.equal(extraBudget(.70,.90),.40);
 assert.equal(extraBudget(.40,.90),.50);
+assert.equal(extraBudget(.90,.90),0);
 
 for(const [name,spec] of Object.entries(AREAS)){
   const passing=spec.probes.map(probe=>({probe,status:'pass',score:spec.target,evidenceIds:[`e:${name}:${probe}`]}));
