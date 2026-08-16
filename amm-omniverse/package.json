@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "smoke": "node tests/smoke-contracts.mjs",
+    "build": "npm run smoke && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm run build"
