@@ -1,5 +1,5 @@
 import { getAccessToken } from './supabaseClient'
-import { reportLiveHealth } from '../runtime/ProductionHealthMonitor'
+import { publishLiveHealth } from '../runtime/ProductionHealthMonitor'
 
 const API=(import.meta.env.VITE_API_URL as string|undefined)?.replace(/\/$/,'')||''
 
@@ -48,15 +48,15 @@ export function installCallSafeLive(roomName:string,controls:ProtectedLiveMediaC
     await Promise.resolve(controls.disableCamera()).catch(()=>{})
     await Promise.resolve(controls.saveCheckpoint?.()).catch(()=>{})
     await pauseLive(roomName,reason,source).catch(error=>{
-      reportLiveHealth(roomName,{kind:'protected-pause-api-error',severity:'error',message:String(error),metadata:{reason,source}})
+      publishLiveHealth({roomId:roomName,kind:'protected-pause-api-error',severity:'error',message:String(error),reason,source})
     })
-    reportLiveHealth(roomName,{kind:'protected-pause-entered',severity:'info',message:`Protected pause entered: ${reason}`,metadata:{reason,source}})
+    publishLiveHealth({roomId:roomName,kind:'protected-pause-entered',severity:'info',message:`Protected pause entered: ${reason}`,reason,source})
   }
 
   const leaveProtectedPause=async()=>{
     if(!protectedPause)return
     const response=await resumeLive(roomName).catch(error=>{
-      reportLiveHealth(roomName,{kind:'protected-resume-api-error',severity:'error',message:String(error)})
+      publishLiveHealth({roomId:roomName,kind:'protected-resume-api-error',severity:'error',message:String(error)})
       return null
     })
     const countdown=Math.max(0,Number(response?.resumeCountdownSeconds??3))
@@ -66,7 +66,7 @@ export function installCallSafeLive(roomName:string,controls:ProtectedLiveMediaC
       await Promise.resolve(controls.restoreMicrophone()).catch(()=>{})
       controls.hidePrivacyShield?.()
       protectedPause=false
-      reportLiveHealth(roomName,{kind:'protected-pause-resumed',severity:'info',message:'LIVE resumed after protected pause',metadata:{interruptionMs:Date.now()-interruptedAt}})
+      publishLiveHealth({roomId:roomName,kind:'protected-pause-resumed',severity:'info',message:'LIVE resumed after protected pause',interruptionMs:Date.now()-interruptedAt})
     },countdown*1000)
   }
 
