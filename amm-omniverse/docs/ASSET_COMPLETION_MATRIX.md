@@ -1,6 +1,7 @@
 # TryAMM Omniverse Asset Completion Matrix
 
 Status: ACTIVE RECOVERY / COMPLETION
+Budget rule: ZERO-COST-FIRST. Do not buy an asset pack until existing Library/Drive/PC assets, CC0 sources, procedural creation, and TryAMM-original generation have been exhausted and a specific production blocker is documented.
 
 ## Already recovered and verified in Library archives
 - GLB creatures: hunter.glb, shard.glb, falcon.glb
@@ -13,6 +14,15 @@ Status: ACTIVE RECOVERY / COMPLETION
 - Quantum Sports Universe / Game Lab references and playable athlete system
 - Living Worlds manifests: portals, NPCs, dialogue, quests, items, factions, buildings, asset-manifest
 - Existing generated TryAMM brand/video/audio assets in the ChatGPT Library
+- Google Drive: Quaternius Street Pack with License.txt plus FBX, Blend and OBJ folders (recover/verify; do not redownload)
+
+## Zero-cost acquisition order
+1. RECOVER: ChatGPT Library archives, Google Drive Asset Vault, existing PC downloads.
+2. REUSE: TryAMM-owned original assets and compatible recovered GLB/FBX/audio/images.
+3. CC0: Quaternius, Kenney CC0 packs, Poly Haven, ambientCG and verified CC0 OpenGameArt sources.
+4. CREATE: procedural geometry, Blender/OpenSCAD, Three.js/WebGL primitives, original textures/materials, TryAMM asset-generation pipeline.
+5. GENERATE/RETOPO/RIG: create original hero characters, creatures, vehicles, landmarks and Holo assets; normalize topology/UV/PBR/rig/LODs.
+6. PAID LAST: only after a documented blocker proves the asset cannot reasonably be recovered, sourced CC0 or created in-house.
 
 ## Asset classes required for completion
 ### Characters / players
@@ -106,11 +116,12 @@ Status: ACTIVE RECOVERY / COMPLETION
 - subtitle/caption/audio-description icons
 
 ## Preferred free/commercial-safe sources
-1. Quaternius — CC0 models/characters/vehicles/buildings/animations/game kits.
-2. Poly Haven — CC0 HDRIs, textures, and 3D models.
-3. ambientCG — CC0 PBR materials/textures.
-4. Kenney individual free/name-your-price CC0 packs where needed; verify each pack/license at acquisition time.
-5. Mixamo only for compatible rigging/animation workflow after current Adobe terms are reviewed; do not redistribute raw Mixamo source assets.
+1. Quaternius — CC0 models/characters/vehicles/buildings/animations/game kits. Search existing Drive/PC copies before downloading.
+2. Kenney — CC0 game kits/UI/audio/vehicles/buildings/nature; verify the specific pack metadata at acquisition.
+3. Poly Haven — CC0 HDRIs, textures and 3D models.
+4. ambientCG — CC0 PBR materials/textures.
+5. OpenGameArt — use only assets explicitly verified CC0/public-domain; mixed-license collections remain YELLOW until reviewed.
+6. Mixamo — workflow-only/YELLOW: review current Adobe terms; do not redistribute raw source assets as an asset pack.
 
 ## License policy
 - GREEN: CC0/public-domain or TryAMM-owned original assets.
@@ -130,8 +141,10 @@ WAV/OGG -> audio pipeline
 
 ## Immediate priority
 1. Recover all existing Library ZIP/GLB/audio/image assets.
-2. Deduplicate and classify licenses.
-3. Fill base characters + universal animation gap.
-4. Fill modular city + stadium + vehicle + nature gap.
-5. Fill Holo/AR/VR/MR interaction assets.
-6. Run import/load tests and update the manifest.
+2. Inventory all Quaternius/other packs already in Google Drive and PC copies; deduplicate.
+3. Fill base characters + universal animation gap using existing/CC0 assets.
+4. Fill modular city + stadium + vehicle + horse + nature gap using existing/CC0 assets.
+5. Create original TryAMM hero assets for Dolo, Black Anime, signature fighters/athletes/creatures/vehicles/landmarks.
+6. Fill Holo/AR/VR/MR interaction assets.
+7. Run import/load tests and update the manifest.
+8. Spend $0 on paid art packs unless a documented blocker is approved.
