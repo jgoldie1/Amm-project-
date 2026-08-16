@@ -2,7 +2,8 @@ import { lazy, Suspense, useState } from 'react'
 import { useGameStore } from './game/state/useGameStore'
 import CityView from './components/CityView'
 import { SportsRealm, MarketplaceRealm, MusicRealm, FaithRealm, BlockchainRealm } from './components/RealmScreens'
-import { IntroScreen, LoginScreen, NotifToast } from './components/UIScreens'
+import { LoginScreen, NotifToast } from './components/UIScreens'
+import TryAMMHome from './components/TryAMMHome'
 import InstallPrompt from './components/InstallPrompt'
 import PricingScreen from './components/PricingScreen'
 import HoloverseHub from './components/HoloverseHub'
@@ -52,6 +53,7 @@ export default function App() {
   const [showLagBuster, setShowLagBuster] = useState(false)
   const [showQuantumBeat, setShowQuantumBeat] = useState(false)
   const [showOTT, setShowOTT] = useState(false)
+  const [showNexus, setShowNexus] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
   ;(window as any).__showPricing = () => setShowPricing(true)
@@ -74,14 +76,35 @@ export default function App() {
   ;(window as any).__showQuantumLagBuster = () => setShowLagBuster(true)
   ;(window as any).__showQuantumBeat = () => setShowQuantumBeat(true)
   ;(window as any).__showIsaiahTV = () => setShowOTT(true)
+  ;(window as any).__showCommandNexus = () => setShowNexus(true)
 
   const signedIn = screen !== 'intro' && screen !== 'login'
+  const nexusItems = [
+    ['◉','OMNIVERSE',()=>setShowOmniverse(true),'BETA'],
+    ['◎','HOLO CORE',()=>setShowHoloCore(true),'BETA'],
+    ['✦','HOLO SERVICES',()=>setShowHoloServices(true),'BETA'],
+    ['☕','AI CAFÉ',()=>setShowCafe(true),'BETA'],
+    ['◈','IMMERSIVE WORLD',()=>setShowImmersive(true),'BETA'],
+    ['SPACE','TIME • LIFE',()=>setShowAdvanced(true),'BETA'],
+    ['📚','KINGDOMS PRESS',()=>setShowPress(true),'BETA'],
+    ['♜','FAMILY LEGACY',()=>setShowFamilyLegacy(true),'BETA'],
+    ['⚛','QUANTUM ENGINE',()=>setShowQuantumEngine(true),'BETA'],
+    ['🤟','SIGN LANGUAGE',()=>setShowSignLanguage(true),'BETA'],
+    ['♿','OMNI ACCESS',()=>setShowAccessibilityRemote(true),'BETA'],
+    ['✨','STREAM FX',()=>setShowStreamFX(true),'BETA'],
+    ['⚡','LAG BUSTER',()=>setShowLagBuster(true),'BETA'],
+    ['♫','QUANTUM BEAT',()=>setShowQuantumBeat(true),'BETA'],
+    ['▣','ISAIAH AI TV',()=>setShowOTT(true),'BETA'],
+    ['💿','PRO AUDIO',()=>setShowProAudio(true),'BETA'],
+    ['🌐','HOLOVERSE',()=>setShowHoloverse(true),'BETA'],
+    ['$','PRICING',()=>setShowPricing(true),'LIVE'],
+  ] as const
 
   return (
     <SwipeNavigator>
       <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: '#020212' }}>
         <LivingWorldsBridge />
-        {screen === 'intro' && <IntroScreen />}
+        {screen === 'intro' && <TryAMMHome />}
         {screen === 'login' && <LoginScreen />}
         {screen === 'city' && <CityView />}
         {screen === 'sports' && <SportsRealm />}
@@ -92,23 +115,17 @@ export default function App() {
         <NotifToast /><BennieButton /><InstallPrompt />
 
         {signedIn && <>
-          <button type="button" aria-label="Open TryAMM LIVE Center" onClick={() => setShowLive(true)} style={{position:'fixed',left:12,bottom:72,zIndex:9000,background:'linear-gradient(135deg,#ff334e,#8f1744)',color:'#fff',border:'1px solid #ff8fa4aa',borderRadius:999,padding:'9px 13px',fontFamily:'monospace',fontSize:11,fontWeight:900,cursor:'pointer'}}>● LIVE</button>
-          <button type="button" aria-label="Open Stream Studio FX" onClick={() => setShowStreamFX(true)} style={{position:'fixed',left:12,bottom:112,zIndex:9000,background:'#15213b',color:'#9ff7ff',border:'1px solid #4fe3ffaa',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900}}>✨ STREAM FX</button>
-          <button type="button" aria-label="Open Quantum Lag Buster" onClick={() => setShowLagBuster(true)} style={{position:'fixed',left:12,bottom:150,zIndex:9000,background:'#10213b',color:'#73efff',border:'1px solid #73efffaa',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900}}>⚡ LAG BUSTER</button>
-          <button type="button" aria-label="Open Quantum Beat" onClick={() => setShowQuantumBeat(true)} style={{position:'fixed',left:12,bottom:188,zIndex:9000,background:'#3b2d12',color:'#ffe493',border:'1px solid #e8b944aa',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900}}>♫ QUANTUM BEAT™</button>
-          <button type="button" aria-label="Open Isaiah AI TV" onClick={() => setShowOTT(true)} style={{position:'fixed',left:12,bottom:226,zIndex:9000,background:'linear-gradient(135deg,#13243f,#30154d)',color:'#fff',border:'1px solid #8cecffaa',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900}}>▣ ISAIAH AI TV</button>
-          <button type="button" aria-label="Open Omniverse command center" onClick={() => setShowOmniverse(true)} style={{position:'fixed',right:12,bottom:72,zIndex:9000,background:'#17322d',color:'#ffd700',border:'1px solid #00ffcc88',borderRadius:999,padding:'9px 13px',fontFamily:'monospace',fontSize:11,fontWeight:900}}>◉ OMNIVERSE</button>
-          <button type="button" aria-label="Open Holo Core" onClick={() => setShowHoloCore(true)} style={{position:'fixed',right:12,bottom:112,zIndex:9000,background:'#211b35',color:'#ffd166',border:'1px solid #ffd16688',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900}}>◎ HOLO CORE</button>
-          <button type="button" aria-label="Open Holo Services" onClick={() => setShowHoloServices(true)} style={{position:'fixed',right:12,bottom:150,zIndex:9000,background:'#08303c',color:'#52e5ff',border:'1px solid #52e5ff88',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900}}>✦ HOLO SERVICES</button>
-          <button type="button" aria-label="Open AI Cafe" onClick={() => setShowCafe(true)} style={{position:'fixed',right:12,bottom:188,zIndex:9000,background:'#302315',color:'#ffd166',border:'1px solid #ffd16677',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900}}>☕ AI CAFÉ</button>
-          <button type="button" aria-label="Open advanced Living Worlds systems" onClick={() => setShowAdvanced(true)} style={{position:'fixed',right:12,bottom:226,zIndex:9000,background:'#202342',color:'#78d5ff',border:'1px solid #78d5ff88',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900}}>SPACE • TIME • LIFE</button>
-          <button type="button" aria-label="Open Kingdoms Press operations" onClick={() => setShowPress(true)} style={{position:'fixed',right:12,bottom:264,zIndex:9000,background:'#35182f',color:'#ff9ee8',border:'1px solid #ff9ee877',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900}}>📚 KINGDOMS PRESS</button>
-          <button type="button" aria-label="Open immersive Living Worlds viewport" onClick={() => setShowImmersive(true)} style={{position:'fixed',right:12,bottom:302,zIndex:9000,background:'#12251e',color:'#bdeaff',border:'1px solid #8cff9877',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900}}>◈ IMMERSIVE WORLD</button>
-          <button type="button" aria-label="Open Family Legacy systems" onClick={() => setShowFamilyLegacy(true)} style={{position:'fixed',right:12,bottom:340,zIndex:9000,background:'#30201f',color:'#ffe493',border:'1px solid #ffe49388',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900}}>♜ FAMILY LEGACY</button>
-          <button type="button" aria-label="Open Quantum adaptive engine" onClick={() => setShowQuantumEngine(true)} style={{position:'fixed',right:12,bottom:378,zIndex:9000,background:'#14243b',color:'#73efff',border:'1px solid #73efff88',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900}}>⚛ QUANTUM ENGINE</button>
-          <button type="button" aria-label="Open Sign Language Hub" onClick={() => setShowSignLanguage(true)} style={{position:'fixed',right:12,bottom:416,zIndex:9000,background:'#e9f6ff',color:'#071225',border:'1px solid #ffffffaa',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900}}>🤟 SIGN LANGUAGE</button>
-          <button type="button" aria-label="Open Omni accessibility and universal remote" onClick={() => setShowAccessibilityRemote(true)} style={{position:'fixed',right:12,bottom:454,zIndex:9000,background:'#79ebdf',color:'#04121a',border:'1px solid #ffffffaa',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900}}>♿ OMNI ACCESS</button>
+          <button type="button" aria-label="Open TryAMM LIVE Center" onClick={() => setShowLive(true)} style={{position:'fixed',left:12,bottom:72,zIndex:9000,background:'linear-gradient(135deg,#ff334e,#8f1744)',color:'#fff',border:'1px solid #ff8fa4aa',borderRadius:999,padding:'10px 14px',fontFamily:'monospace',fontSize:11,fontWeight:900,cursor:'pointer',boxShadow:'0 8px 28px #0008'}}>● LIVE</button>
+          <button type="button" aria-label="Open Command Nexus" onClick={() => setShowNexus(v=>!v)} style={{position:'fixed',right:12,bottom:72,zIndex:9000,background:'linear-gradient(135deg,#0d2934,#181326)',color:'#e8b944',border:'1px solid #4fe3ff88',borderRadius:999,padding:'10px 14px',fontFamily:'monospace',fontSize:11,fontWeight:900,cursor:'pointer',boxShadow:'0 8px 28px #0008'}}>✦ COMMAND NEXUS</button>
         </>}
+
+        {showNexus && signedIn && <div role="dialog" aria-label="TRYAMM Command Nexus" style={{position:'fixed',right:12,bottom:118,zIndex:10010,width:'min(92vw,440px)',maxHeight:'68vh',overflowY:'auto',background:'linear-gradient(160deg,#09131f,#070710)',border:'1px solid #4fe3ff66',borderRadius:22,boxShadow:'0 24px 80px #000c',padding:14}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,padding:'4px 4px 12px'}}><div><div style={{color:'#4fe3ff',fontSize:10,fontWeight:900,letterSpacing:3}}>TRYAMM</div><div style={{fontSize:18,color:'#fff',fontWeight:950}}>Command Nexus</div></div><button aria-label="Close Command Nexus" onClick={()=>setShowNexus(false)} style={{width:34,height:34,borderRadius:'50%',border:'1px solid #394557',background:'#101522',color:'#fff',cursor:'pointer'}}>×</button></div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
+            {nexusItems.map(([icon,label,action,status])=><button key={label} onClick={()=>{setShowNexus(false);action()}} style={{minHeight:74,textAlign:'left',padding:11,border:'1px solid #1c2c3e',borderRadius:14,background:'#0b111b',color:'#fff',cursor:'pointer'}}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><span style={{fontSize:18}}>{icon}</span><span style={{fontSize:8,color:status==='LIVE'?'#78ffb4':'#e8b944',fontWeight:900}}>{status}</span></div><div style={{fontSize:10,fontWeight:950,marginTop:9,letterSpacing:.5}}>{label}</div></button>)}
+          </div>
+          <div style={{marginTop:10,fontSize:9,color:'#718096',lineHeight:1.5}}>Advanced systems stay available here without covering the main experience. Readiness labels distinguish live and beta features.</div>
+        </div>}
 
         {showPricing && <div style={{position:'fixed',inset:0,zIndex:9999,background:'#020212'}}><PricingScreen onClose={() => setShowPricing(false)} /></div>}
         {showHoloverse && <div style={{position:'fixed',inset:0,zIndex:9998,background:'#020212'}}><HoloverseHub onClose={() => setShowHoloverse(false)} /></div>}
