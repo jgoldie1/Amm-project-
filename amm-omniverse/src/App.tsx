@@ -27,6 +27,7 @@ const AccessibilityRemoteHub = lazy(() => import('./components/AccessibilityRemo
 const LiveCenter = lazy(() => import('./components/LiveCenter'))
 const StreamStudioFX = lazy(() => import('./components/StreamStudioFX'))
 const QuantumLagBuster = lazy(() => import('./components/QuantumLagBuster'))
+const QuantumBeatCenter = lazy(() => import('./components/QuantumBeatCenter'))
 
 export default function App() {
   const screen = useGameStore(s => s.screen)
@@ -48,6 +49,7 @@ export default function App() {
   const [showLive, setShowLive] = useState(false)
   const [showStreamFX, setShowStreamFX] = useState(false)
   const [showLagBuster, setShowLagBuster] = useState(false)
+  const [showQuantumBeat, setShowQuantumBeat] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
   ;(window as any).__showPricing = () => setShowPricing(true)
@@ -68,6 +70,7 @@ export default function App() {
   ;(window as any).__showTryAMMLive = () => setShowLive(true)
   ;(window as any).__showStreamStudioFX = () => setShowStreamFX(true)
   ;(window as any).__showQuantumLagBuster = () => setShowLagBuster(true)
+  ;(window as any).__showQuantumBeat = () => setShowQuantumBeat(true)
 
   const signedIn = screen !== 'intro' && screen !== 'login'
 
@@ -94,6 +97,7 @@ export default function App() {
             <button type="button" aria-label="Open TryAMM LIVE Center" onClick={() => setShowLive(true)} style={{position:'fixed',left:12,bottom:72,zIndex:9000,background:'linear-gradient(135deg,#ff334e,#8f1744)',color:'#fff',border:'1px solid #ff8fa4aa',borderRadius:999,padding:'9px 13px',fontFamily:'monospace',fontSize:11,fontWeight:900,cursor:'pointer',boxShadow:'0 0 18px rgba(255,51,78,.2)'}}>● LIVE</button>
             <button type="button" aria-label="Open Stream Studio FX" onClick={() => setShowStreamFX(true)} style={{position:'fixed',left:12,bottom:112,zIndex:9000,background:'linear-gradient(135deg,#123145,#27144a)',color:'#9ff7ff',border:'1px solid #4fe3ffaa',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer',boxShadow:'0 0 18px rgba(79,227,255,.18)'}}>✨ STREAM FX</button>
             <button type="button" aria-label="Open Quantum Lag Buster" onClick={() => setShowLagBuster(true)} style={{position:'fixed',left:12,bottom:150,zIndex:9000,background:'linear-gradient(135deg,#07354a,#10213b)',color:'#73efff',border:'1px solid #73efffaa',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer',boxShadow:'0 0 18px rgba(115,239,255,.18)'}}>⚡ LAG BUSTER</button>
+            <button type="button" aria-label="Open Quantum Beat" onClick={() => setShowQuantumBeat(true)} style={{position:'fixed',left:12,bottom:188,zIndex:9000,background:'linear-gradient(135deg,#4d3600,#142d4d)',color:'#ffe493',border:'1px solid #e8b944aa',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer',boxShadow:'0 0 18px rgba(232,185,68,.18)'}}>♫ QUANTUM BEAT™</button>
             <button type="button" aria-label="Open Omniverse command center" onClick={() => setShowOmniverse(true)} style={{position:'fixed',right:12,bottom:72,zIndex:9000,background:'linear-gradient(135deg,#221744,#003f39)',color:'#ffd700',border:'1px solid #00ffcc88',borderRadius:999,padding:'9px 13px',fontFamily:'monospace',fontSize:11,fontWeight:900,cursor:'pointer',boxShadow:'0 0 18px rgba(0,255,204,.18)'}}>◉ OMNIVERSE</button>
             <button type="button" aria-label="Open Holo Core" onClick={() => setShowHoloCore(true)} style={{position:'fixed',right:12,bottom:112,zIndex:9000,background:'linear-gradient(135deg,#122541,#2e173e)',color:'#ffd166',border:'1px solid #ffd16688',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer',boxShadow:'0 0 18px rgba(255,209,102,.14)'}}>◎ HOLO CORE</button>
             <button type="button" aria-label="Open Holo Services" onClick={() => setShowHoloServices(true)} style={{position:'fixed',right:12,bottom:150,zIndex:9000,background:'linear-gradient(135deg,#06213f,#05343d)',color:'#52e5ff',border:'1px solid #52e5ff88',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer',boxShadow:'0 0 18px rgba(82,229,255,.16)'}}>✦ HOLO SERVICES</button>
@@ -126,6 +130,7 @@ export default function App() {
         {showLive && <Suspense fallback={null}><div style={{position:'fixed',inset:0,zIndex:10020,background:'#030611'}}><LiveCenter onClose={() => setShowLive(false)} /></div></Suspense>}
         {showStreamFX && <Suspense fallback={null}><StreamStudioFX onClose={() => setShowStreamFX(false)} /></Suspense>}
         {showLagBuster && <Suspense fallback={null}><QuantumLagBuster onClose={() => setShowLagBuster(false)} /></Suspense>}
+        {showQuantumBeat && <Suspense fallback={null}><QuantumBeatCenter onClose={() => setShowQuantumBeat(false)} /></Suspense>}
 
         {showSwipeTip && signedIn && (
           <SwipeTutorial onDismiss={() => {
