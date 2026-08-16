@@ -1,0 +1,17 @@
+export type WorldLod='planet'|'country'|'metro'|'district'|'interior'
+export type GeoProvider='maplibre'|'cesium-3d-tiles'|'engine-native'
+export interface GeoPoint{lat:number;lng:number;alt?:number}
+export interface WorldCell{id:string;lod:WorldLod;center:GeoPoint;radiusKm:number;assetPack?:string;sceneId?:string;priority:number}
+export interface WorldConditions{localHour:number;weather:'clear'|'rain'|'snow'|'fog'|'storm'|'heat';season:'spring'|'summer'|'autumn'|'winter'}
+export interface StreamRequest{player:GeoPoint;destination?:GeoPoint;speedKph:number;indoors:boolean;conditions:WorldConditions}
+export interface StreamPlan{lod:WorldLod;load:string[];prefetch:string[];unload:string[];geoProvider:GeoProvider;enableTraffic:boolean;enableSmartNpc:boolean;enableMissions:boolean;enableInteriors:boolean}
+
+const hav=(a:GeoPoint,b:GeoPoint)=>{const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLon=(b.lng-a.lng)*Math.PI/180;const x=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
+export function chooseLod(r:StreamRequest):WorldLod{if(r.indoors)return'interior';if(r.speedKph>500)return'country';if(r.speedKph>100)return'metro';return'district'}
+export function buildStreamPlan(r:StreamRequest,cells:WorldCell[],loaded:string[]):StreamPlan{const lod=chooseLod(r);const ranked=cells.map(c=>({...c,d:hav(r.player,c.center)})).sort((a,b)=>(a.d-a.radiusKm)-(b.d-b.radiusKm)||b.priority-a.priority);const near=ranked.filter(c=>c.lod===lod&&c.d<=Math.max(c.radiusKm,40)).slice(0,12);const ahead=r.destination?ranked.filter(c=>c.lod===lod&&hav(c.center,r.destination)<250).slice(0,8):[];const load=[...new Set(near.map(c=>c.id))];const prefetch=[...new Set(ahead.map(c=>c.id).filter(id=>!load.includes(id)))];return{lod,load,prefetch,unload:loaded.filter(id=>!load.includes(id)&&!prefetch.includes(id)),geoProvider:lod==='planet'||lod==='country'?'maplibre':lod==='metro'?'cesium-3d-tiles':'engine-native',enableTraffic:lod==='metro'||lod==='district',enableSmartNpc:lod==='district'||lod==='interior',enableMissions:lod==='district'||lod==='interior',enableInteriors:lod==='interior'}}
+
+export interface ArrivalContext{countryId:string;cityId:string;districtId?:string;language:string;accessibilityProfile:string;teenMode:boolean;partyId?:string}
+export interface ArrivalBootstrap{spawn:'airport'|'rail-station'|'port'|'road-entry'|'holo-portal';systems:string[];preserve:string[]}
+export function bootstrapArrival(mode:'plane'|'rail'|'boat'|'car'|'holo-portal',ctx:ArrivalContext):ArrivalBootstrap{return{spawn:mode==='plane'?'airport':mode==='rail'?'rail-station':mode==='boat'?'port':mode==='car'?'road-entry':'holo-portal',systems:['weather-day-night','traffic','copy-smart-npc','dynamic-secret-missions','business-property','sports-creator-events','omni-player-holo-overlay','localization','moderation'],preserve:['avatar','xp','inventory','businesses','properties','sports-career','creator-career','npc-relationships','mission-history','discovered-secrets','accessibility','teen-safety','party-state']}}
+
+export const WORLD_STREAMING_RULES={maxActiveDistrictCells:12,maxPrefetchCells:8,interiorsOnDemand:true,npcSimulationRadiusKm:2,trafficSimulationRadiusKm:8,missionSimulationRadiusKm:5,remoteNpcSimulation:'schedule-summary',serverAuthority:['player-state','economy','mission-results','multiplayer','entitlements'],clients:['unreal','unity','godot','web-holo']} as const
