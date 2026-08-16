@@ -13,6 +13,8 @@ const { createLegacySecureRouter } = require('./routes/legacy-secure')
 const { createTreasuryRouter } = require('./routes/treasury')
 const { createLiveRouter } = require('./routes/live')
 const { createModerationRouter } = require('./routes/moderation')
+const { createWorkforceRouter } = require('./routes/workforce')
+const { createMiddleverseRouter } = require('./routes/middleverse')
 const { postCheckoutToTreasury, postInvoiceToTreasury, postRefundToTreasury, postDisputeToTreasury } = require('./lib/treasury-ledger')
 const signLanguage = require('./signLanguageService')
 
@@ -27,11 +29,11 @@ app.use(cors({ origin:['https://tryamm.online','https://www.tryamm.online','http
 app.use('/api/stripe/webhook', express.raw({ type:'application/json' }))
 app.use(express.json({ limit:'2mb' }))
 
-app.get('/', (_req,res)=>res.json({ name:'AMM Omniverse Backend', status:'online', version:'1.9.0-live', systems:['stripe','supabase','livekit','living-worlds','ai-cafe','workforce','kingdoms-press','app-store','stubbs-ai','hologpt','holo-services','holo-core','all-american-university','family-legacy','heirs-legacy-kids','omni-treasury','reserve-buckets','auto-ledger','sign-language','tryamm-live','moderation-reporting'] }))
+app.get('/', (_req,res)=>res.json({ name:'AMM Omniverse Backend', status:'online', version:'1.10.0-workforce-middleverse', systems:['stripe','supabase','livekit','living-worlds','ai-cafe','workforce','middleverse','kingdoms-press','app-store','stubbs-ai','hologpt','holo-services','holo-core','all-american-university','family-legacy','heirs-legacy-kids','omni-treasury','reserve-buckets','auto-ledger','sign-language','tryamm-live','moderation-reporting'] }))
 app.get('/api/health', async (_req,res)=>{
   let database=false
   try { const { error }=await supabase.from('worlds').select('id').limit(1); database=!error } catch(_) {}
-  res.json({ ok:true, ts:Date.now(), version:'1.9.0-live', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, autoLedger:true, signLanguage:true, signRecognitionProvider:Boolean(process.env.SIGN_LANGUAGE_PROVIDER_URL), tryammLive:true, moderationReporting:true } })
+  res.json({ ok:true, ts:Date.now(), version:'1.10.0-workforce-middleverse', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, autoLedger:true, signLanguage:true, signRecognitionProvider:Boolean(process.env.SIGN_LANGUAGE_PROVIDER_URL), tryammLive:true, moderationReporting:true, workforce:true, middleverse:true, repoWorkstation:true } })
 })
 
 app.use('/api/omniverse', createOmniverseRouter({ supabase }))
@@ -42,6 +44,8 @@ app.use('/api/legacy', createLegacyHeirsRouter({ supabase }))
 app.use('/api/treasury', createTreasuryRouter({ supabase }))
 app.use('/api/live', createLiveRouter({ supabase }))
 app.use('/api/moderation', createModerationRouter({ supabase }))
+app.use('/api/workforce', createWorkforceRouter({ supabase }))
+app.use('/api/middleverse', createMiddleverseRouter({ supabase }))
 app.use('/api/ai', createAIRouter({ supabase }))
 app.use('/api', createLegacySecureRouter({ supabase, stripe }))
 
@@ -123,6 +127,8 @@ app.listen(PORT,()=>{
   console.log(`   Sign language: ${process.env.SIGN_LANGUAGE_PROVIDER_URL?'✅ provider configured':'⚠️ fallback translation only'}`)
   console.log('   LIVE API: /api/live/*')
   console.log('   Moderation API: /api/moderation/*')
+  console.log('   Workforce API: /api/workforce/*')
+  console.log('   Middleverse API: /api/middleverse/*')
   console.log('   Omniverse API: /api/omniverse/*')
   console.log('   Holo Core API: /api/holo-core/*')
   console.log('   University API: /api/university/*')
