@@ -19,6 +19,7 @@ import HoloServicesHub from './components/HoloServicesHub'
 import HoloCoreCenter from './components/HoloCoreCenter'
 import FamilyLegacyHub from './components/FamilyLegacyHub'
 import QuantumEngineCenter from './components/QuantumEngineCenter'
+import HolographicOverlay from './components/HolographicOverlay'
 import './styles.css'
 
 const ProAudioSuite = lazy(() => import('./components/ProAudioSuite'))
@@ -81,6 +82,7 @@ export default function App() {
     <SwipeNavigator>
       <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: '#020212' }}>
         <LivingWorldsBridge />
+        {signedIn && <HolographicOverlay defaultMode="ambient" />}
         {screen === 'intro' && <IntroScreen />}
         {screen === 'login' && <LoginScreen />}
         {screen === 'city' && <CityView />}
