@@ -1,0 +1,94 @@
+name: TRYAMM Security Scan
+
+on:
+  push:
+    branches: [developer-vic]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repository-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Inventory executable and opaque files
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Executable/script candidates:"
+          find . -type f \( -name '*.sh' -o -name '*.ps1' -o -name '*.bat' -o -name '*.cmd' -o -name '*.exe' -o -name '*.dll' -o -name '*.scr' \) -print || true
+          echo "Large/opaque uploads:"
+          find uploads -type f -size +5M -print -exec file {} \; -exec sha256sum {} \; 2>/dev/null || true
+
+      - name: Reject committed environment secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          if find . -type f \( -name '.env' -o -name '.env.local' -o -name '.env.production' -o -name '.env.development' \) -not -path '*/node_modules/*' | grep -q .; then
+            echo 'Committed environment file detected. Use .env.example only.'
+            find . -type f \( -name '.env' -o -name '.env.local' -o -name '.env.production' -o -name '.env.development' \) -not -path '*/node_modules/*'
+            exit 1
+          fi
+
+      - name: Scan suspicious script patterns
+        shell: bash
+        run: |
+          set -euo pipefail
+          PATTERN='(curl|wget).*(\||bash|sh)|base64[[:space:]]+-d|eval[[:space:]]+\$|/dev/tcp/|nc[[:space:]].*-e|chmod[[:space:]]+\+s|crontab|systemctl[[:space:]]+enable|LaunchAgents|powershell.*-enc'
+          files=$(find . -type f \( -name '*.sh' -o -name '*.ps1' -o -name '*.bat' -o -name '*.cmd' \) -not -path '*/node_modules/*')
+          if [ -n "$files" ]; then
+            grep -Ein "$PATTERN" $files || true
+          fi
+          echo 'Pattern matches are review signals, not automatic malware verdicts.'
+
+      - name: Install ClamAV
+        shell: bash
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq clamav
+
+      - name: Antivirus scan repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          clamscan -r --infected --exclude-dir='node_modules' --exclude-dir='.git' .
+
+  frontend-dependencies:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npm run check
+
+  backend-dependencies:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: amm-omniverse/amm-backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: amm-omniverse/amm-backend/package-lock.json
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npm run check
