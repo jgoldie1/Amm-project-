@@ -1,75 +1,75 @@
-// AMM Omniverse Service Worker
-// Handles: offline caching, background sync, push notifications, install prompt
+// TRYAMM Service Worker
+// Network-first app shell so production UI changes are visible immediately.
 
-const CACHE_NAME = 'amm-omniverse-v8'
-const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-]
+const CACHE_NAME = 'tryamm-shell-v10-20260816'
+const STATIC_ASSETS = ['/manifest.json']
 
-// ── Install ─────────────────────────────────────────────────────────────────
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(STATIC_ASSETS)
-    }).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting())
   )
 })
 
-// ── Activate ─────────────────────────────────────────────────────────────────
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
   )
 })
 
-// ── Fetch strategy: Network first, fallback to cache ─────────────────────────
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url)
+  const request = event.request
+  const url = new URL(request.url)
 
-  // Don't cache API calls, auth, or external services
+  if (request.method !== 'GET') return
+
   if (
     url.pathname.startsWith('/api/') ||
     url.hostname.includes('supabase') ||
     url.hostname.includes('livekit') ||
     url.hostname.includes('stripe') ||
     url.hostname.includes('anthropic')
-  ) {
-    return // Let these go straight to network
-  }
+  ) return
 
-  // Cache-first for static assets
-  if (
-    url.pathname.match(/\.(js|css|woff2?|png|jpg|svg|ico)$/) ||
-    url.pathname === '/'
-  ) {
+  // Always prefer fresh HTML/navigation so the live homepage cannot be trapped
+  // behind an older cached application shell.
+  if (request.mode === 'navigate' || url.pathname === '/' || url.pathname === '/index.html') {
     event.respondWith(
-      caches.match(event.request).then(cached => {
-        const networkFetch = fetch(event.request).then(response => {
+      fetch(request, { cache: 'no-store' })
+        .then(response => {
           if (response.ok) {
             const clone = response.clone()
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone))
+            caches.open(CACHE_NAME).then(cache => cache.put('/index.html', clone))
           }
           return response
-        }).catch(() => cached)
-        return cached || networkFetch
-      })
+        })
+        .catch(() => caches.match('/index.html'))
     )
     return
   }
 
-  // Network first for everything else
-  event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
-  )
+  // Hashed assets are safe to cache after first network response.
+  if (url.pathname.match(/\.(js|css|woff2?|png|jpg|jpeg|webp|svg|ico)$/i)) {
+    event.respondWith(
+      caches.match(request).then(cached => cached || fetch(request).then(response => {
+        if (response.ok) {
+          const clone = response.clone()
+          caches.open(CACHE_NAME).then(cache => cache.put(request, clone))
+        }
+        return response
+      }))
+    )
+    return
+  }
+
+  event.respondWith(fetch(request).catch(() => caches.match(request)))
 })
 
-// ── Push notifications ────────────────────────────────────────────────────────
 self.addEventListener('push', (event) => {
-  let data = { title: 'AMM Omniverse', body: 'You have a new notification', icon: '/icons/icon-192.png', badge: '/icons/badge-72.png' }
+  let data = { title: 'TRYAMM', body: 'You have a new notification', icon: '/icons/icon-192.png', badge: '/icons/badge-72.png' }
   if (event.data) {
     try { data = { ...data, ...event.data.json() } } catch { data.body = event.data.text() }
   }
@@ -79,9 +79,9 @@ self.addEventListener('push', (event) => {
       icon: data.icon,
       badge: data.badge,
       vibrate: [200, 100, 200],
-      data: data,
+      data,
       actions: [
-        { action: 'open', title: 'Open AMM', icon: '/icons/action-open.png' },
+        { action: 'open', title: 'Open TRYAMM', icon: '/icons/action-open.png' },
         { action: 'dismiss', title: 'Dismiss' }
       ]
     })
@@ -99,18 +99,12 @@ self.addEventListener('notificationclick', (event) => {
   )
 })
 
-// ── Background sync ───────────────────────────────────────────────────────────
 self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-game-state') {
-    event.waitUntil(syncGameState())
-  }
-  if (event.tag === 'sync-orders') {
-    event.waitUntil(syncOrders())
-  }
+  if (event.tag === 'sync-game-state') event.waitUntil(syncGameState())
+  if (event.tag === 'sync-orders') event.waitUntil(syncOrders())
 })
 
 async function syncGameState() {
-  // When back online, sync local game state to Supabase
   const state = await getLocalState('amm_game_state')
   if (!state) return
   try {
@@ -119,9 +113,7 @@ async function syncGameState() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(state)
     })
-  } catch (e) {
-    // Will retry on next sync
-  }
+  } catch (_) {}
 }
 
 async function syncOrders() {
@@ -133,10 +125,9 @@ async function syncOrders() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(pendingOrders)
     })
-  } catch (e) { /* retry */ }
+  } catch (_) {}
 }
 
-async function getLocalState(key) {
-  // Read from IndexedDB (simplified)
+async function getLocalState(_key) {
   return null
 }
