@@ -4,7 +4,7 @@ services:
     env: node
     region: oregon
     plan: free
-    buildCommand: npm install
+    buildCommand: npm install && npm run check
     startCommand: node server.js
     healthCheckPath: /api/health
     envVars:
@@ -17,10 +17,14 @@ services:
           type: web
           name: amm-omniverse-frontend
           property: host
-      # Add these manually in Render dashboard:
+      # Add these as secret environment variables in Render dashboard:
       # SUPABASE_URL
-      # SUPABASE_SERVICE_KEY  (Settings > API > service_role key)
+      # SUPABASE_SERVICE_KEY  (server-side service_role key; never expose to browser)
       # STRIPE_SECRET_KEY
       # STRIPE_WEBHOOK_SECRET
       # LIVEKIT_API_KEY
       # LIVEKIT_API_SECRET
+      # GEMINI_API_KEY          (Stubbs Brain 1 / Executive)
+      # GEMINI_MODEL            (default: gemini-2.5-flash)
+      # OPENAI_API_KEY          (Stubbs Brain 2 / independent critic + supervised agents)
+      # OPENAI_STUBBS_CRITIC_MODEL (default: gpt-5.6-sol)
