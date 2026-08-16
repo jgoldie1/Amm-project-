@@ -49,11 +49,18 @@ jobs:
           fi
           echo 'Pattern matches are review signals, not automatic malware verdicts.'
 
-      - name: Install ClamAV
+      - name: Install ClamAV and signatures
         shell: bash
         run: |
+          set -euo pipefail
           sudo apt-get update -qq
-          sudo apt-get install -y -qq clamav
+          sudo apt-get install -y -qq clamav clamav-freshclam
+          sudo systemctl stop clamav-freshclam.service 2>/dev/null || true
+          sudo freshclam --stdout
+          test -n "$(find /var/lib/clamav -maxdepth 1 -type f \( -name '*.cvd' -o -name '*.cld' \) -print -quit)" || {
+            echo 'ClamAV signatures are unavailable; refusing to report a false clean scan.'
+            exit 1
+          }
 
       - name: Antivirus scan repository
         shell: bash
