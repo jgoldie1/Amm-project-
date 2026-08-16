@@ -1,4 +1,5 @@
 const express = require('express')
+const { answerWithTriBrain } = require('../lib/stubbs-tri-brain')
 
 function createAIRouter({ supabase }) {
   const router = express.Router()
@@ -29,6 +30,21 @@ function createAIRouter({ supabase }) {
     next()
   }
 
+  router.get('/health', requireUser, async (req, res) => {
+    const { data: identity } = await supabase.from('holo_identity_profiles').select('age_lane').eq('user_id', req.user.id).maybeSingle()
+    res.json({
+      ok: true,
+      service: 'Stubbs AI Tri-Brain Runtime',
+      ageLane: identity?.age_lane || 'unverified',
+      providers: { gemini: Boolean(process.env.GEMINI_API_KEY), openai: Boolean(process.env.OPENAI_API_KEY) },
+      memory: true,
+      audit: true,
+      verification: 'executive -> independent critic -> Spider Sense -> Guardian decision',
+      trueAgiQualified: false,
+      label: 'General Intelligence Runtime / AGI candidate',
+    })
+  })
+
   router.post('/answer', requireUser, rateLimit, async (req, res) => {
     try {
       const { question, mode = 'hybrid', context = {} } = req.body || {}
@@ -38,48 +54,38 @@ function createAIRouter({ supabase }) {
       const { data: identity } = await supabase.from('holo_identity_profiles').select('age_lane').eq('user_id', req.user.id).maybeSingle()
       const ageLane = identity?.age_lane || 'unverified'
       const safeContext = {
-        screen: typeof context.screen === 'string' ? context.screen.slice(0,100) : undefined,
-        worldId: typeof context.worldId === 'string' ? context.worldId.slice(0,120) : undefined,
-        projectId: typeof context.projectId === 'string' ? context.projectId.slice(0,120) : undefined,
+        screen: typeof context.screen === 'string' ? context.screen.slice(0, 100) : undefined,
+        worldId: typeof context.worldId === 'string' ? context.worldId.slice(0, 120) : undefined,
+        projectId: typeof context.projectId === 'string' ? context.projectId.slice(0, 120) : undefined,
+        timeSensitive: context.timeSensitive === true,
+        highImpact: context.highImpact === true,
+        irreversible: context.irreversible === true,
       }
 
-      const apiKey = process.env.GEMINI_API_KEY
-      if (!apiKey) {
-        return res.json({
-          answer: `Stubbs AI is online in local mode. I received: “${question.slice(0,300)}”. Connect GEMINI_API_KEY on the backend to enable model-powered answers.`,
-          provider: 'local-fallback', mode, ageLane,
-        })
-      }
-
-      const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
-      const system = [
-        'You are Stubbs AI, the orchestration intelligence for the AMM Omniverse.',
-        'Holo C is the human-facing interface and Middleverse AI manages world context.',
-        `The platform-verified age lane for this user is: ${ageLane}.`,
-        'Be concise, useful, age-appropriate, and clear about uncertainty.',
-        'For child or teen lanes, do not bypass guardian, youth-safety, spending, communication, or age-access rules.',
-        'Never claim consciousness or self-awareness; describe self-modeling capabilities accurately.',
-        'For consequential real-world business, financial, legal, employment, publishing, medical, or safety actions, require the appropriate human/provider confirmation before execution.',
-        'Do not invent completed platform features; distinguish working, simulated, planned, and unavailable capabilities.',
-      ].join(' ')
-
-      const prompt = `${system}\n\nMode: ${String(mode).slice(0,50)}\nContext: ${JSON.stringify(safeContext)}\nUser: ${question}`
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`
-      const response = await fetch(url, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.5, maxOutputTokens: 1200 } }),
+      const result = await answerWithTriBrain({
+        supabase,
+        userId: req.user.id,
+        question,
+        ageLane,
+        mode: String(mode).slice(0, 50),
+        context: safeContext,
       })
-      const body = await response.json()
-      if (!response.ok) {
-        console.error('Gemini API error status:', response.status)
-        return res.status(502).json({ error: 'AI provider unavailable', providerStatus: response.status })
+
+      if (result.reason === 'AI_PROVIDERS_NOT_CONFIGURED') {
+        return res.status(503).json({ error: 'Stubbs AI model providers are not configured', ...result, ageLane, mode })
       }
-      const answer = body?.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('').trim()
-      if (!answer) return res.status(502).json({ error: 'AI provider returned no answer' })
-      res.json({ answer, provider: 'gemini', model, mode, ageLane })
+
+      const provider = result.providers?.executive || 'unavailable'
+      res.status(result.status === 'BLOCKED' ? 403 : 200).json({
+        ...result,
+        provider,
+        model: provider === 'gemini' ? (process.env.GEMINI_MODEL || 'gemini-2.5-flash') : (process.env.OPENAI_STUBBS_CRITIC_MODEL || 'gpt-5.6-sol'),
+        mode,
+        ageLane,
+      })
     } catch (error) {
       console.error('AI answer error:', error)
-      res.status(500).json({ error: 'Failed to generate answer' })
+      res.status(500).json({ error: 'Failed to generate verified Stubbs AI answer' })
     }
   })
 
