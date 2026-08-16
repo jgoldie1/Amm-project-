@@ -3,42 +3,42 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-    <meta name="theme-color" content="#020212" />
-    <meta name="description" content="AMM Omniverse — Faith creator metaverse: 3D city, 7 sports games, live streaming, marketplace, music royalties, blockchain" />
+    <meta name="theme-color" content="#04050E" />
+    <meta name="description" content="TRYAMM — one connected platform for creators, commerce, LIVE, games, AI, business, education, workforce, and Living Worlds." />
 
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
-    <!-- Lion of Judah Holographic Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
-    <!-- Google Pay / Apple Pay -->
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <meta name="google-play-app" content="app-id=com.tryamm.omniverse" />
-    <!-- Generation targeting -->
-    <meta name="target-audience" content="Gen X, Millennials, Gen Z, Gen Alpha, Baby Boomers, Faith Community, Black-owned Business" />
     <meta name="mobile-web-app-capable" content="yes" />
 
     <!-- iOS PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="AMM Omniverse" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <meta name="apple-mobile-web-app-title" content="TRYAMM" />
 
-    <!-- OG tags -->
-    <meta property="og:title" content="AMM Omniverse — Lion of Judah · All American Marketplace" />
-    <meta property="og:image" content="/favicon.svg" />
-    <meta property="og:description" content="Faith creator metaverse: 11 games, Drama Box, live streaming, music royalties, Holoverse, Black-owned marketplace. All generations welcome." />
-    <meta property="og:description" content="Faith-centered creator metaverse — 6 realms, sports, music, marketplace" />
+    <!-- Search + social -->
+    <meta name="application-name" content="TRYAMM" />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="https://tryamm.online/" />
+    <meta property="og:title" content="TRYAMM — All American Marketplace & Living Worlds" />
+    <meta property="og:image" content="https://tryamm.online/favicon.svg" />
+    <meta property="og:description" content="Creators, commerce, LIVE, games, AI, business, workforce, education, and Living Worlds in one connected platform." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://tryamm.online" />
+    <meta property="og:url" content="https://tryamm.online/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="TRYAMM — All American Marketplace & Living Worlds" />
+    <meta name="twitter:description" content="One connected platform for creators, commerce, LIVE, games, AI, business, workforce, education, and Living Worlds." />
+    <meta name="twitter:image" content="https://tryamm.online/favicon.svg" />
 
-    <title>AMM Omniverse</title>
+    <title>TRYAMM — All American Marketplace & Living Worlds</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      // Register service worker for PWA
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js').catch(() => {})
