@@ -23,6 +23,7 @@ import './styles.css'
 
 const ProAudioSuite = lazy(() => import('./components/ProAudioSuite'))
 const SignLanguageHub = lazy(() => import('./components/SignLanguageHub'))
+const AccessibilityRemoteHub = lazy(() => import('./components/AccessibilityRemoteHub'))
 
 export default function App() {
   const screen = useGameStore(s => s.screen)
@@ -40,6 +41,7 @@ export default function App() {
   const [showFamilyLegacy, setShowFamilyLegacy] = useState(false)
   const [showQuantumEngine, setShowQuantumEngine] = useState(false)
   const [showSignLanguage, setShowSignLanguage] = useState(false)
+  const [showAccessibilityRemote, setShowAccessibilityRemote] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
   ;(window as any).__showPricing = () => setShowPricing(true)
@@ -56,6 +58,7 @@ export default function App() {
   ;(window as any).__showFamilyLegacy = () => setShowFamilyLegacy(true)
   ;(window as any).__showQuantumEngine = () => setShowQuantumEngine(true)
   ;(window as any).__showSignLanguage = () => setShowSignLanguage(true)
+  ;(window as any).__showOmniAccess = () => setShowAccessibilityRemote(true)
 
   const signedIn = screen !== 'intro' && screen !== 'login'
 
@@ -89,6 +92,7 @@ export default function App() {
             <button type="button" aria-label="Open Family Legacy systems" onClick={() => setShowFamilyLegacy(true)} style={{position:'fixed',right:12,bottom:340,zIndex:9000,background:'linear-gradient(135deg,#3b2b08,#2a102e)',color:'#ffe493',border:'1px solid #ffe49388',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>♜ FAMILY LEGACY</button>
             <button type="button" aria-label="Open Quantum adaptive engine" onClick={() => setShowQuantumEngine(true)} style={{position:'fixed',right:12,bottom:378,zIndex:9000,background:'linear-gradient(135deg,#07263a,#27144a)',color:'#73efff',border:'1px solid #73efff88',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>⚛ QUANTUM ENGINE</button>
             <button type="button" aria-label="Open Sign Language Hub" onClick={() => setShowSignLanguage(true)} style={{position:'fixed',right:12,bottom:416,zIndex:9000,background:'linear-gradient(135deg,#ffffff,#bdeaff)',color:'#071225',border:'1px solid #ffffffaa',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>🤟 SIGN LANGUAGE</button>
+            <button type="button" aria-label="Open Omni accessibility and universal remote" onClick={() => setShowAccessibilityRemote(true)} style={{position:'fixed',right:12,bottom:454,zIndex:9000,background:'linear-gradient(135deg,#4fe3ff,#8fffc1)',color:'#04121a',border:'1px solid #ffffffaa',borderRadius:999,padding:'8px 12px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer'}}>♿ OMNI ACCESS</button>
           </>
         )}
 
@@ -106,6 +110,7 @@ export default function App() {
         {showFamilyLegacy && <FamilyLegacyHub onClose={() => setShowFamilyLegacy(false)} />}
         {showQuantumEngine && <QuantumEngineCenter onClose={() => setShowQuantumEngine(false)} />}
         {showSignLanguage && <Suspense fallback={null}><div style={{position:'fixed',inset:0,zIndex:10000,background:'#050816'}}><SignLanguageHub onClose={() => setShowSignLanguage(false)} /></div></Suspense>}
+        {showAccessibilityRemote && <Suspense fallback={null}><AccessibilityRemoteHub onClose={() => setShowAccessibilityRemote(false)} /></Suspense>}
 
         {showSwipeTip && signedIn && (
           <SwipeTutorial onDismiss={() => {
