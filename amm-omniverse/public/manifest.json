@@ -1,40 +1,33 @@
 {
-  "name": "AMM Omniverse",
-  "short_name": "AMM",
-  "description": "Faith-centered creator metaverse — 6 realms, live sports, marketplace, music, streaming, and blockchain on one platform",
-  "start_url": "/",
+  "id": "/",
+  "name": "TRYAMM — All American Marketplace & Living Worlds",
+  "short_name": "TRYAMM",
+  "description": "Creators, commerce, LIVE, games, AI, business, workforce, education, accessibility and Living Worlds in one connected platform.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
-  "orientation": "portrait-primary",
-  "theme_color": "#020212",
-  "background_color": "#020212",
+  "orientation": "any",
+  "theme_color": "#04050E",
+  "background_color": "#04050E",
   "lang": "en-US",
   "dir": "ltr",
-  "categories": ["games", "entertainment", "social", "music", "shopping"],
+  "categories": ["social", "shopping", "business", "entertainment", "games", "music", "education", "productivity"],
   "icons": [
-    { "src": "/icons/icon-72.png",   "sizes": "72x72",   "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icons/icon-96.png",   "sizes": "96x96",   "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icons/icon-128.png",  "sizes": "128x128", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icons/icon-144.png",  "sizes": "144x144", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icons/icon-152.png",  "sizes": "152x152", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icons/icon-192.png",  "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icons/icon-384.png",  "sizes": "384x384", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icons/icon-512.png",  "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
-  ],
-  "screenshots": [
-    { "src": "/screenshots/city.png",   "sizes": "390x844", "type": "image/png", "form_factor": "narrow", "label": "AMM City — 3D open world" },
-    { "src": "/screenshots/sports.png", "sizes": "390x844", "type": "image/png", "form_factor": "narrow", "label": "Sports Realm — 7 games" },
-    { "src": "/screenshots/music.png",  "sizes": "390x844", "type": "image/png", "form_factor": "narrow", "label": "Music Realm — stream and earn" }
+    { "src": "/icons/icon-72.png", "sizes": "72x72", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-128.png", "sizes": "128x128", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-144.png", "sizes": "144x144", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-152.png", "sizes": "152x152", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon-384.png", "sizes": "384x384", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
   "shortcuts": [
-    { "name": "AMM City",    "short_name": "City",    "url": "/?screen=city",        "icons": [{ "src": "/icons/shortcut-city.png",    "sizes": "96x96" }] },
-    { "name": "Sports",      "short_name": "Sports",  "url": "/?screen=sports",      "icons": [{ "src": "/icons/shortcut-sports.png",   "sizes": "96x96" }] },
-    { "name": "Marketplace", "short_name": "Market",  "url": "/?screen=marketplace", "icons": [{ "src": "/icons/shortcut-market.png",   "sizes": "96x96" }] },
-    { "name": "Music",       "short_name": "Music",   "url": "/?screen=music",       "icons": [{ "src": "/icons/shortcut-music.png",    "sizes": "96x96" }] }
-  ],
-  "related_applications": [
-    { "platform": "play", "url": "https://play.google.com/store/apps/details?id=com.tryamm.omniverse", "id": "com.tryamm.omniverse" },
-    { "platform": "itunes", "url": "https://apps.apple.com/app/amm-omniverse/id0000000000" }
+    { "name": "TRYAMM Home", "short_name": "Home", "url": "/", "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }] },
+    { "name": "Marketplace", "short_name": "Market", "url": "/?screen=marketplace", "icons": [{ "src": "/icons/shortcut-market.png", "sizes": "96x96" }] },
+    { "name": "LIVE", "short_name": "LIVE", "url": "/?action=live", "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }] },
+    { "name": "Living Worlds", "short_name": "Worlds", "url": "/?screen=city", "icons": [{ "src": "/icons/shortcut-city.png", "sizes": "96x96" }] }
   ],
   "prefer_related_applications": false,
   "share_target": {
@@ -49,7 +42,7 @@
     }
   },
   "protocol_handlers": [
-    { "protocol": "web+amm", "url": "/?action=%s" }
+    { "protocol": "web+tryamm", "url": "/?action=%s" }
   ],
   "handle_links": "preferred",
   "launch_handler": { "client_mode": "focus-existing" }
