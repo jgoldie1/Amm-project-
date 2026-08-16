@@ -26,3 +26,8 @@ export const escalateInteraction=(id:string,input:{type:string;priority:string;r
 export const getRepoWorkstation=()=>authed('/api/workforce/workstation/repo')
 export const getRepoFile=(path:string)=>authed(`/api/workforce/workstation/file?path=${encodeURIComponent(path)}`)
 export const askStubbsAboutRepoFile=(path:string,question:string)=>authed('/api/workforce/workstation/ai-review',{method:'POST',body:JSON.stringify({path,question})})
+
+export const getMiddleverseStatus=()=>authed('/api/middleverse/status')
+export const getMiddleverseHandoffs=()=>authed('/api/middleverse/handoffs')
+export const createMiddleverseHandoff=(input:{routeKey:string;taskSummary:string;sourceContext?:Record<string,unknown>;riskBand?:'green'|'yellow'|'orange'|'red';targetRef?:string})=>authed('/api/middleverse/handoffs',{method:'POST',body:JSON.stringify(input)})
+export const updateMiddleverseHandoff=(id:string,status:'accepted'|'in_progress'|'completed'|'blocked'|'cancelled',result?:Record<string,unknown>)=>authed(`/api/middleverse/handoffs/${encodeURIComponent(id)}/status`,{method:'POST',body:JSON.stringify({status,result})})
