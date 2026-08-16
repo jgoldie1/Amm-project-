@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "name": "TryAMM GameVerse Scene Contract",
+  "engines": ["unreal", "unity", "godot", "web-holo"],
+  "shared": {
+    "identity": ["userId", "avatarId", "displayName", "accessibilityProfile"],
+    "progression": ["xp", "level", "achievements", "career", "team", "league"],
+    "economy": ["wallet", "holoCredits", "entitlements", "rewards"],
+    "network": ["matchmaking", "lobby", "sessionId", "authoritativeState", "reconnect"],
+    "save": ["cloudSave", "checkpoint", "replay", "resumeAcrossDevices"],
+    "presentation": ["holoOverlay", "quantumBeat", "broadcastCamera", "replayCamera", "captions", "audioDescription"]
+  },
+  "assetBindings": {
+    "athlete": "athlete.glb",
+    "raptor": "raptor.glb",
+    "hunter": "hunter.glb",
+    "falcon": "falcon.glb",
+    "sportsAudio": ["bounce", "swish", "rim", "whistle", "crowd", "buzzer"],
+    "runtimeSource": "asset-source-registry.json"
+  },
+  "sceneTypes": {
+    "basketball": {
+      "players": 10,
+      "rules": ["5v5", "quarters", "24-second-shot-clock", "2pt", "3pt", "dunk", "steal", "block", "overtime"],
+      "camera": ["broadcast", "player-follow", "replay"],
+      "lanes": ["men", "women", "mixed"]
+    },
+    "boxing": {
+      "players": 2,
+      "rules": ["rounds", "health", "stamina", "judging", "jab", "cross", "hook", "body", "block", "dodge"],
+      "lanes": ["men", "women"]
+    },
+    "mma": {
+      "players": 2,
+      "rules": ["rounds", "health", "stamina", "judging", "striking", "takedown", "grapple", "defense"],
+      "lanes": ["men", "women"]
+    },
+    "football": {
+      "modes": ["gridiron-kingdom", "mascot-evolution"],
+      "rules": ["downs", "clock", "scoring", "formations", "passing", "rushing", "tackling", "interceptions"],
+      "mascots": ["bear", "panther", "eagle", "lion", "dolphin"],
+      "transformationsEarnedByPlay": true
+    },
+    "racing": {
+      "title": "Volcano Racers",
+      "modes": ["circuit", "sprint", "elimination", "time-trial", "battle", "holo-vr"],
+      "gadgets": ["quantum-boost", "jump-jets", "grip-claws", "energy-shield", "repair-drone", "scan-drone", "terrain-mode", "holo-decoy"],
+      "camera": ["cockpit", "hood", "drone", "broadcast", "replay"]
+    }
+  },
+  "engineResponsibilities": {
+    "unreal": ["high-end-visuals", "cinematic-presentation", "large-worlds", "advanced-physics", "console-pc"],
+    "unity": ["mobile", "xr", "cross-platform", "companion", "rapid-release"],
+    "godot": ["open-source", "lightweight", "web-desktop-mobile", "prototype", "mod-tooling"],
+    "web-holo": ["browser-access", "holo-overlay", "spectator", "launcher", "cross-device-control"]
+  },
+  "completionGate": [
+    "asset-resolves",
+    "scene-loads",
+    "input-works",
+    "rules-match-canonical-core",
+    "save-and-resume-pass",
+    "multiplayer-reconnect-pass",
+    "accessibility-pass",
+    "performance-budget-pass"
+  ]
+}
