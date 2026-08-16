@@ -7,6 +7,7 @@ on:
       - '.github/workflows/omniverse-convergence-ci.yml'
   push:
     branches:
+      - 'developer-vic'
       - 'integration/living-worlds-convergence'
     paths:
       - 'amm-omniverse/**'
@@ -26,8 +27,7 @@ jobs:
           cache: npm
           cache-dependency-path: amm-omniverse/package-lock.json
       - run: npm ci
-      - run: npm run typecheck
-      - run: npm run build
+      - run: npm run check
 
   backend:
     runs-on: ubuntu-latest
