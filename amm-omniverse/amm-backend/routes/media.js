@@ -10,7 +10,7 @@ function createMediaRouter({supabase}){
  async function requireUser(req,res,next){const u=await optionalUser(req);if(!u)return res.status(401).json({error:'Authentication required'});req.user=u;next()}
 
  router.get('/catalog',async(_req,res)=>{
-  const {data,error}=await supabase.from('media_catalog').select('id,slug,title,description,media_kind,lane,access_type,poster_url,rating,metadata').eq('published',true).order('created_at',{ascending:false}).limit(200)
+  const {data,error}=await supabase.from('media_catalog').select('id,slug,title,description,media_kind,lane,access_type,poster_url,rating,duration_seconds,metadata').eq('published',true).order('created_at',{ascending:false}).limit(200)
   if(error)return res.status(500).json({error:'Could not load media catalog'})
   res.json({items:data||[]})
  })
@@ -21,21 +21,34 @@ function createMediaRouter({supabase}){
    const {data:item,error}=await supabase.from('media_catalog').select('*').eq('id',req.params.id).eq('published',true).maybeSingle()
    if(error)throw error
    if(!item)return res.status(404).json({error:'Media not found'})
-   let allowed=item.access_type==='FREE'
+   const access=String(item.access_type||'FREE').toUpperCase()
+   let allowed=access==='FREE'
+
+   if(!allowed&&user&&access==='MEMBER'){
+    const {data:profile,error:profileError}=await supabase.from('users').select('subscription_active,subscription_tier').eq('id',user.id).maybeSingle()
+    if(profileError)throw profileError
+    allowed=Boolean(profile?.subscription_active)&&String(profile?.subscription_tier||'free')!=='free'
+   }
+
    if(!allowed&&user){
     const now=new Date().toISOString()
-    const {data:ent}=await supabase.from('media_entitlements').select('id,expires_at,revoked_at').eq('user_id',user.id).eq('media_id',item.id).is('revoked_at',null).limit(20)
+    const {data:ent,error:entError}=await supabase.from('media_entitlements').select('id,expires_at,revoked_at').eq('user_id',user.id).eq('media_id',item.id).is('revoked_at',null).limit(20)
+    if(entError)throw entError
     allowed=(ent||[]).some(e=>!e.expires_at||e.expires_at>now)
    }
-   if(!allowed)return res.status(user?403:401).json({error:'Entitlement required',access:item.access_type})
+
+   if(!allowed)return res.status(user?403:401).json({error:'Entitlement required',access})
    let url=item.external_stream_url||null
+   let expiresInSeconds=null
    if(item.storage_bucket&&item.storage_path){
     const {data:signed,error:signError}=await supabase.storage.from(item.storage_bucket).createSignedUrl(item.storage_path,900)
     if(signError)throw signError
     url=signed?.signedUrl||null
+    expiresInSeconds=900
    }
    if(!url)return res.status(409).json({error:'Media is published but no playable source is configured'})
-   res.json({media:{id:item.id,title:item.title,kind:item.media_kind,poster:item.poster_url,captions:item.captions_url},playback:{url,expiresInSeconds:item.storage_path?900:null},access:item.access_type})
+   res.setHeader('Cache-Control','no-store')
+   res.json({media:{id:item.id,title:item.title,kind:item.media_kind,poster:item.poster_url,captions:item.captions_url,rating:item.rating,metadata:item.metadata},playback:{url,expiresInSeconds},access:{type:access,allowed:true}})
   }catch(err){res.status(500).json({error:err.message||'Playback authorization failed'})}
  })
 
