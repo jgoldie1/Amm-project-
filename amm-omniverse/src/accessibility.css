@@ -1,0 +1,20 @@
+html[data-amm-text-scale='large'] { font-size: 112.5%; }
+html[data-amm-text-scale='extra-large'] { font-size: 125%; }
+html[data-amm-contrast='high'] { filter: contrast(1.18); }
+html[data-amm-contrast='high'] button,
+html[data-amm-contrast='high'] input,
+html[data-amm-contrast='high'] select,
+html[data-amm-contrast='high'] textarea { border-width: 2px !important; }
+html[data-amm-reduced-motion='true'] *,
+html[data-amm-reduced-motion='true'] *::before,
+html[data-amm-reduced-motion='true'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+:focus-visible { outline: 3px solid #4fe3ff !important; outline-offset: 3px !important; }
+button, [role='button'], input, select, textarea { touch-action: manipulation; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}

@@ -1,0 +1,45 @@
+name: Omniverse Convergence CI
+
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/**'
+      - '.github/workflows/omniverse-convergence-ci.yml'
+  push:
+    branches:
+      - 'integration/living-worlds-convergence'
+    paths:
+      - 'amm-omniverse/**'
+      - '.github/workflows/omniverse-convergence-ci.yml'
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: amm-omniverse/amm-backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: amm-omniverse/amm-backend/package-lock.json
+      - run: npm ci
+      - run: npm run check

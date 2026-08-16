@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "builds": [
+    { "src": "agent-app.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/agent-app.js" }
+  ],
+  "functions": {
+    "agent-app.js": {
+      "maxDuration": 60
+    }
+  }
+}
