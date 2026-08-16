@@ -118,6 +118,27 @@ function createHoloCoreRouter({ supabase, stripe }) {
     }catch(err){res.status(500).json({error:err.message})}
   })
 
+  router.post('/credits/confirm', requireUser, async (req,res)=>{
+    try{
+      if(!stripe) return res.status(503).json({error:'Stripe is not configured'})
+      const sessionId=String(req.body?.sessionId||'')
+      if(!/^cs_/.test(sessionId)) return res.status(400).json({error:'Valid Checkout Session required'})
+      const session=await stripe.checkout.sessions.retrieve(sessionId)
+      if(session.payment_status!=='paid') return res.status(409).json({error:'Checkout Session is not paid'})
+      const meta=session.metadata||{}
+      if(meta.type!=='holo-credits'||meta.userId!==req.user.id) return res.status(403).json({error:'Session does not belong to this Holo Credits wallet'})
+      const pack=HOLO_CREDIT_PACKS[meta.plan]
+      const credits=Number(meta.holoCredits||0)
+      if(!pack||credits!==pack.credits) return res.status(409).json({error:'Credit package metadata failed validation'})
+      const {data:balance,error}=await supabase.rpc('apply_holo_credits',{
+        p_user_id:req.user.id,p_amount:credits,p_transaction_type:'purchase',p_source_system:'stripe-checkout',p_source_ref:session.id,
+        p_description:pack.name,p_metadata:{plan:meta.plan,paymentIntent:session.payment_intent||null}
+      })
+      if(error) throw error
+      res.json({fulfilled:true,balance:Number(balance),creditsAdded:credits,redeemableForCash:false})
+    }catch(err){res.status(500).json({error:err.message})}
+  })
+
   return router
 }
 
