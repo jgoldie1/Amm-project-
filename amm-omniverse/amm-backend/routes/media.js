@@ -1,6 +1,6 @@
 const express=require('express')
 
-function createMediaRouter({supabase}){
+function createMediaRouter({supabase,stripe}){
  const router=express.Router()
  async function optionalUser(req){
   const auth=req.headers.authorization||''; const token=auth.startsWith('Bearer ')?auth.slice(7):''
@@ -10,9 +10,32 @@ function createMediaRouter({supabase}){
  async function requireUser(req,res,next){const u=await optionalUser(req);if(!u)return res.status(401).json({error:'Authentication required'});req.user=u;next()}
 
  router.get('/catalog',async(_req,res)=>{
-  const {data,error}=await supabase.from('media_catalog').select('id,slug,title,description,media_kind,lane,access_type,poster_url,rating,duration_seconds,metadata').eq('published',true).order('created_at',{ascending:false}).limit(200)
+  const {data,error}=await supabase.from('media_catalog').select('id,slug,title,description,media_kind,lane,access_type,ppv_price_cents,currency,poster_url,rating,duration_seconds,metadata').eq('published',true).order('created_at',{ascending:false}).limit(200)
   if(error)return res.status(500).json({error:'Could not load media catalog'})
   res.json({items:data||[]})
+ })
+
+ router.post('/:id/checkout',requireUser,async(req,res)=>{
+  try{
+   if(!stripe)return res.status(503).json({error:'Stripe is not configured'})
+   const {data:item,error}=await supabase.from('media_catalog').select('id,title,access_type,ppv_price_cents,currency,published,creator_user_id').eq('id',req.params.id).eq('published',true).maybeSingle()
+   if(error)throw error
+   if(!item)return res.status(404).json({error:'Media not found'})
+   if(String(item.access_type||'').toUpperCase()!=='PPV')return res.status(409).json({error:'This title is not PPV'})
+   const price=Math.floor(Number(item.ppv_price_cents||0))
+   if(!Number.isFinite(price)||price<50)return res.status(409).json({error:'PPV price is not configured'})
+   const currency=String(item.currency||'usd').toLowerCase()
+   const base=process.env.FRONTEND_URL||'https://tryamm.online'
+   const metadata={userId:req.user.id,type:'media-ppv',mediaId:item.id,creatorUserId:item.creator_user_id||'',creatorShareBps:String(Math.max(0,Math.min(10000,Number(process.env.MEDIA_CREATOR_SHARE_BPS||7000))))}
+   const session=await stripe.checkout.sessions.create({
+    mode:'payment',customer_email:req.user.email||undefined,
+    line_items:[{price_data:{currency,product_data:{name:item.title},unit_amount:price},quantity:1}],
+    success_url:`${base}/?media_purchase=success&media_id=${encodeURIComponent(item.id)}&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url:`${base}/?media_purchase=cancelled&media_id=${encodeURIComponent(item.id)}`,
+    metadata
+   })
+   res.status(201).json({checkoutUrl:session.url,sessionId:session.id,mediaId:item.id})
+  }catch(err){res.status(500).json({error:err.message||'Could not create PPV checkout'})}
  })
 
  router.post('/:id/playback',async(req,res)=>{
