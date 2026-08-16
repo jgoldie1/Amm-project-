@@ -1,0 +1,19 @@
+{
+  "id": "court-kings-vertical-slice-v1",
+  "sport": "basketball",
+  "lanes": ["men", "women", "mixed"],
+  "teams": {"home": 5, "away": 5},
+  "rules": {"quarters": 4, "quarterSeconds": 720, "shotClockSeconds": 24, "overtimeSeconds": 300},
+  "actions": ["pass", "drive", "shoot2", "shoot3", "dunk", "steal", "block"],
+  "assets": {
+    "athlete": "athlete.glb",
+    "court": "neon-court",
+    "audio": ["bounce", "swish", "rim", "whistle", "crowd", "buzzer"]
+  },
+  "cameras": ["broadcast", "player", "rim", "replay"],
+  "inputs": ["keyboard", "gamepad", "touch", "oneHanded", "voice"],
+  "accessibility": {"captions": true, "highContrast": true, "reducedMotion": true, "oneHanded": true, "audioDescription": true},
+  "network": {"authoritative": true, "rollbackSafe": true, "reconnect": true},
+  "save": {"cloud": true, "resume": true, "replay": true},
+  "engines": ["unreal", "unity", "godot", "web-holo"]
+}
