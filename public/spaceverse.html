@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="TRYAMM SpaceVerse digital worlds: Time Machine, Moon, Mars, Saturn and its moons.">
+  <title>TRYAMM SpaceVerse</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/judah-192.png">
+  <link rel="stylesheet" href="/spaceverse.css">
+  <script src="/spaceverse.js" defer></script>
+</head>
+<body>
+  <header>
+    <a class="brand" href="/"><span>TRY</span>AMM</a>
+    <nav aria-label="SpaceVerse navigation"><a href="/">Home</a><a href="#worlds">Worlds</a><a href="#engine">Shared engine</a></nav>
+  </header>
+  <main>
+    <section class="hero">
+      <p class="eyebrow">LIVING WORLDS • DIGITAL SIMULATION</p>
+      <h1>One engine. <em>Entire worlds.</em></h1>
+      <p class="lead">Explore the Time Machine, Moon, Mars, Saturn and Saturn's moons through one reusable world foundation for games, education, creator events and shared multiplayer experiences.</p>
+      <div class="actions"><a class="button" href="#worlds">Choose a world</a><a class="button ghost" href="#engine">See how it connects</a></div>
+      <p class="notice"><strong>Simulation notice:</strong> SpaceVerse is an entertainment and learning environment. It is not real time travel, spacecraft navigation or a substitute for scientific mission systems.</p>
+    </section>
+
+    <section id="worlds" class="section">
+      <p class="eyebrow">DESTINATIONS</p>
+      <h2>Choose your experience</h2>
+      <div class="world-grid" role="list">
+        <button class="world active" data-world="time" role="listitem"><span>⌛</span><strong>Time Machine</strong><small>Historical and future scenario simulator</small></button>
+        <button class="world" data-world="moon" role="listitem"><span>◐</span><strong>Moon</strong><small>Low-gravity exploration and building</small></button>
+        <button class="world" data-world="mars" role="listitem"><span>●</span><strong>Mars</strong><small>Habitats, rovers and survival missions</small></button>
+        <button class="world" data-world="saturn" role="listitem"><span>♄</span><strong>Saturn</strong><small>Orbital stations and ring expeditions</small></button>
+        <button class="world" data-world="moons" role="listitem"><span>✦</span><strong>Saturn's Moons</strong><small>Titan, Enceladus, Rhea and more</small></button>
+      </div>
+
+      <article class="mission" aria-live="polite">
+        <div>
+          <p class="eyebrow" id="worldKicker">TIME MACHINE</p>
+          <h2 id="worldTitle">Travel through simulated eras</h2>
+          <p id="worldDescription">Build historically inspired rooms, explore possible futures and create branching stories where every choice can change the shared world state.</p>
+        </div>
+        <div class="mission-controls" id="timeControls">
+          <label for="era">Simulation year <output id="eraOutput">2026</output></label>
+          <input id="era" type="range" min="-3000" max="3000" value="2026" step="1">
+        </div>
+        <button id="launchPreview" type="button">Prepare simulation</button>
+        <p id="launchStatus" class="status">Select a destination and prepare a safe digital simulation.</p>
+      </article>
+    </section>
+
+    <section id="engine" class="section engine">
+      <p class="eyebrow">SHARED LIVING WORLDS FOUNDATION</p>
+      <h2>The same systems power every destination</h2>
+      <div class="engine-grid">
+        <article><strong>01</strong><h3>World and physics layer</h3><p>Reusable terrain, gravity profiles, vehicles, weather, building rules and object interaction.</p></article>
+        <article><strong>02</strong><h3>Multiplayer state</h3><p>Shared rooms, avatars, voice, missions, creator events and synchronized world changes.</p></article>
+        <article><strong>03</strong><h3>Creator pipeline</h3><p>One asset can become a game object, virtual set, livestream backdrop or educational experience.</p></article>
+        <article><strong>04</strong><h3>Safety and evidence</h3><p>Age lanes, moderation, permissions, simulation labels and scientific-source tracking.</p></article>
+      </div>
+      <div class="roadmap"><strong>Implementation path</strong><span>Browser hub → WebGL/WebGPU prototype → multiplayer world state → Unity/Unreal experiences → optional AR/VR/MR clients</span></div>
+    </section>
+  </main>
+  <footer><strong>TRYAMM SpaceVerse</strong><span>Digital simulation foundation • © 2026 The AMM Omniverse</span></footer>
+</body>
+</html>
