@@ -22,12 +22,12 @@ Planned kernel classes:
 | Space Shuttle (D).glb | 2.4 MB | Optimized to 353 KB | Orbital vehicle viewer |
 | Space Launch System (SLS) Block 1.stl | 13.7 MB / 274,432 triangles | Converted and optimized to 772 KB | Launch vehicle viewer |
 | Space Exploration Vehicle.glb | 22.4 MB / 605,140 uploaded vertices | Optimized to 1.1 MB | Surface exploration viewer |
-| Saturn V Rocket.zip | 12 printable STL components | Assembly calibration pending | Future staged launch vehicle |
+| External tank.glb | 829 KB | Optimized to 95 KB | Shuttle external tank viewer |\n| Tycho Supernova Remnant — left inner | 18.9 MB / 396,361 triangles | Assembly incomplete | Scientific visualization component |\n| Tycho Supernova Remnant — left outer | 19.4 MB / 407,209 triangles | Assembly incomplete | Scientific visualization component |\n| Tycho Supernova Remnant — right outer | 19.4 MB / 406,826 triangles | Assembly incomplete | Scientific visualization component |\n| Tycho Supernova Remnant — right inner | Not provided | Required before assembly | Missing scientific visualization component |\n| Saturn V Rocket.zip | 12 printable STL components | Assembly calibration pending | Future staged launch vehicle |
 | top.stl | 10,252 triangles | Preserved as assembly component | Saturn V/source kit component |
 | bottom.stl | 27,604 triangles | Preserved as assembly component | Saturn V/source kit component |
 | joining cube.stl | 12 triangles | Preserved as assembly component | Saturn V/source kit connector |
 
-## Release requirements
+## Tycho assembly gate\n\nThe three supplied Tycho STL sections must not be labeled as a complete remnant. The corresponding right-inner section, shared coordinate frame, scale and source attribution are required before optimization and interactive publication.\n\n## Release requirements
 
 1. Confirm license and attribution for every visual asset before commercial redistribution.
 2. Preserve original source files separately from lossy web-optimized derivatives.
