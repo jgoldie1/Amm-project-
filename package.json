@@ -1,6 +1,6 @@
 {
-  "name":"tryamm-creator-live","version":"5.7.0","private":true,
-  "description":"TRYAMM platform hardening release with transactional commerce, verified provider boundaries, scalable Holo media routing, governance, inventory intelligence, hardened sessions, MFA step-up and encrypted security vault controls",
+  "name":"tryamm-creator-live","version":"5.8.0","private":true,
+  "description":"TRYAMM platform hardening release with transactional commerce, verified provider boundaries, scalable Holo media routing, governance, inventory intelligence, hardened sessions, MFA step-up, encrypted security vault and WebAuthn passkeys",
   "main":"server.js","engines":{"node":">=20"},
   "scripts":{
     "start":"node -r ./lib/content-engine-preload.js server.js","dev":"node --watch -r ./lib/content-engine-preload.js server.js",
@@ -10,5 +10,5 @@
     "test:governance":"node test/warehouse-network-smoke.js && node test/warehouse-routing-smoke.js && node test/ip-command-center-smoke.js && node test/ip-portfolio-smoke.js && node test/ai-legal-compliance-smoke.js && node test/regulatory-graph-smoke.js && node test/compliance-readiness-smoke.js && node test/credential-vault-smoke.js && node test/trust-network-smoke.js && node test/trust-risk-smoke.js && node test/dispute-resolution-smoke.js && node test/claims-holds-smoke.js && node test/governance-routes-smoke.js && node test/platform-readiness-smoke.js && node test/domain-events-smoke.js",
     "test:hardening":"node test/distinguished-hardening-smoke.js && node test/session-security-smoke.js && node test/step-up-security-smoke.js && node test/security-vault-smoke.js"
   },
-  "dependencies":{"express":"^4.21.2","socket.io":"^4.8.1","stripe":"^18.5.0"}
+  "dependencies":{"@simplewebauthn/server":"13.3.2","express":"^4.21.2","socket.io":"^4.8.1","stripe":"^18.5.0"}
 }
