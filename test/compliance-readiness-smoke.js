@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('assert');
+const {buildGraph}=require('../lib/regulatory-graph');
+const {readiness,jurisdictionProfile}=require('../lib/compliance-readiness');
+const good=buildGraph([{id:'ok',name:'Required registration',domain:'marketplace',jurisdiction:'Illinois',requiredFor:['seller-launch'],blocksFeature:true,status:'verified',lastVerifiedAt:'2026-08-17'}]);
+const green=readiness({graph:good,domain:'marketplace',jurisdictions:['Illinois'],feature:'seller-launch',sources:[{authority:'Official regulator',url:'https://example.gov/rule',official:true,verified:true}],professionalReview:true,evidenceComplete:true});assert.equal(green.color,'green');assert(green.launchAllowed);
+const yellow=readiness({graph:good,domain:'marketplace',jurisdictions:['Illinois'],feature:'seller-launch',sources:[],professionalReview:false,evidenceComplete:false});assert.equal(yellow.color,'yellow');
+const bad=buildGraph([{id:'bad',name:'License',domain:'property',jurisdiction:'Illinois',requiredFor:['regulated-closing'],blocksFeature:true,status:'expired',lastVerifiedAt:'2025-01-01'}]);
+const red=readiness({graph:bad,domain:'property',jurisdictions:['Illinois'],feature:'regulated-closing',sources:[{authority:'Official',url:'https://example.gov',official:true,verified:true}],professionalReview:true,evidenceComplete:true});assert.equal(red.color,'red');assert(!red.launchAllowed);
+assert.equal(jurisdictionProfile({country:'US',stateProvince:'Illinois',activity:'seller-financing'}).country,'US');
+console.log('compliance readiness smoke: PASS');
