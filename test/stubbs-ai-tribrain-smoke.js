@@ -16,7 +16,11 @@ assert.equal(red.action,'block-isolate-rollback');
 assert.equal(secondBrainCritique({objective:'answer',type:'creative'}).passed,true);
 assert.equal(secondBrainCritique({objective:'fresh fact',type:'fact',evidenceIds:[]}).passed,false);
 
-const guardian=solarPlexusGuard({proposal:{objective:'deploy',type:'creative'},signals:{unexpectedPermission:.7}});
+const guardian=solarPlexusGuard({
+  proposal:{objective:'deploy',type:'creative'},
+  signals:{unexpectedPermission:.7,suspiciousPrompt:true}
+});
+assert.equal(guardian.risk.band,'YELLOW');
 assert.equal(guardian.decision,'VERIFY');
 
 assert.equal(compareBrains({answer:'A',decision:'ship'},{answer:'A',decision:'ship'}).agree,true);
