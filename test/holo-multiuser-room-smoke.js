@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('assert');
+const {createRoom,joinRoom,hasPermission,applyAction,personalizeScene}=require('../lib/holo-multiuser-room');
+let room=createRoom({roomId:'family-room',sceneId:'mars',owner:{userId:'owner1',displayName:'Owner'}});
+room=joinRoom(room,{userId:'guest1',displayName:'Guest',role:'guest',permissions:['view','move-self'],accessibility:{captions:true,reducedMotion:true}});
+assert(hasPermission(room,'owner1','purchase'));
+assert(!hasPermission(room,'guest1','purchase'));
+assert.equal(applyAction(room,{userId:'guest1',type:'purchase'}).code,'permission_denied');
+const ownerBuy=applyAction(room,{userId:'owner1',type:'purchase',payload:{sku:'shoe-1'}});assert(ownerBuy.ok&&ownerBuy.requiresConfirmation);
+const view=personalizeScene({id:'scene',nodes:[]},room.members.find(x=>x.userId==='guest1'));assert(view.renderOverrides.reducedMotion&&view.renderOverrides.captions);
+console.log('Holo multi-user room smoke: PASS');
