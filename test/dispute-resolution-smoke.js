@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('assert');
+const {createCase,addEvidence,offer,mediationPlan,decision,appeal,fundsGate}=require('../lib/dispute-resolution');
+let c=createCase({type:'merchant-supplier',openedBy:'merchant1',parties:['merchant1','supplier1'],amountDisputed:1500,summary:'Shipment shortage'});assert.equal(c.status,'open');
+c=addEvidence(c,{submittedBy:'merchant1',type:'receiving-record',reference:'receipt-1',hash:'abc'});assert.equal(c.evidence.length,1);
+c=offer(c,{by:'supplier1',amount:500,terms:'Partial credit'});assert.equal(c.offers.length,1);
+const plan=mediationPlan(c);assert(plan.prohibited.includes('release-or-transfer-disputed-funds'));assert(plan.humanEscalationRequired);
+c=decision(c,{recommendation:'Review receiving and carrier evidence before settlement',basisEvidenceIds:[c.evidence[0].id]});assert(c.decisions[0].requiresHumanApproval);assert(c.decisions[0].requiresExternalProfessional);
+assert.equal(fundsGate({caseRecord:c,action:'release'}).allowed,false);
+c=appeal(c,{by:'supplier1',reason:'New carrier scan available',newEvidenceRefs:['carrier-scan']});assert.equal(c.status,'appealed');
+console.log('dispute resolution smoke: PASS');
