@@ -1,0 +1,13 @@
+'use strict';
+const assert=require('assert');
+const {renderPlan,oledSceneGuidance}=require('../lib/holographic-display-capabilities');
+let x=renderPlan({displayType:'OLED',oled:true,width:3840,height:2160,refreshHz:120,hdr:true,stereo:true,gpuTier:3});
+assert.equal(x.plan.mode,'stereoscopic-3d');
+assert.equal(x.plan.targetFps,120);
+assert(x.plan.oledOptimizations.includes('true-black-background'));
+assert.equal(x.plan.quality,'ultra');
+x=renderPlan({oled:true,webxr:true,vr:true,gpuTier:2,prefersReducedMotion:true});
+assert.equal(x.plan.mode,'spatial-3d');
+assert.equal(x.plan.targetFps,60);
+assert(oledSceneGuidance().notes.includes('not by itself a holographic'));
+console.log('holographic display capabilities smoke: PASS');
