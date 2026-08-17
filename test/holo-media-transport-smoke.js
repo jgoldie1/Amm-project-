@@ -1,0 +1,13 @@
+'use strict';
+const assert=require('assert'),fs=require('fs'),path=require('path');
+const root=path.resolve(__dirname,'..');
+const media=fs.readFileSync(path.join(root,'public','holo-media-transport.js'),'utf8');
+const demo=fs.readFileSync(path.join(root,'public','holo-runtime-demo.js'),'utf8');
+const html=fs.readFileSync(path.join(root,'public','holo-runtime-demo.html'),'utf8');
+const routes=fs.readFileSync(path.join(root,'lib','holographic-runtime-routes.js'),'utf8');
+for(const token of ['RTCPeerConnection','getUserMedia','createOffer','createAnswer','addIceCandidate','holo:signal'])assert(media.includes(token),token);
+assert(html.includes('/holo-media-transport.js'));
+assert(demo.includes('HoloMediaTransport'));
+assert(routes.includes('target.data.holoSessionId !== sessionId'));
+assert(routes.includes("holo:peer"));
+console.log('holo media transport smoke: PASS');
