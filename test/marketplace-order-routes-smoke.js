@@ -1,0 +1,16 @@
+'use strict';
+const assert=require('assert'),fs=require('fs'),path=require('path');
+const root=path.resolve(__dirname,'..');
+const routes=fs.readFileSync(path.join(root,'lib','marketplace-order-routes.js'),'utf8');
+const preload=fs.readFileSync(path.join(root,'lib','content-engine-preload.js'),'utf8');
+const catalog=fs.readFileSync(path.join(root,'public','marketplace.js'),'utf8');
+const store=fs.readFileSync(path.join(root,'public','marketplace-store.js'),'utf8');
+assert(routes.includes('/api/marketplace/orders/:orderId/sync'));
+assert(routes.includes("session.payment_status==='paid'"));
+assert(routes.includes('!order.inventoryApplied'));
+assert(routes.includes('stripe.checkout.sessions.retrieve'));
+assert(routes.includes("order.buyerId!==req.user.id"));
+assert(preload.includes("require('./marketplace-order-routes')"));
+assert(catalog.includes('/api/marketplace/checkout'));
+assert(store.includes('/api/marketplace/stores/'));
+console.log('marketplace order reconciliation smoke: PASS');
