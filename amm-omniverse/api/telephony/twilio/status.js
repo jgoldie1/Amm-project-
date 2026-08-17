@@ -1,4 +1,4 @@
-import{formBody,twilioConfigured,validateTwilio}from'../../../_lib/twilio.js'
+import{formBody,twilioConfigured,validateTwilio}from'../../_lib/twilio.js'
 
 export default async function handler(req,res){
   if(req.method!=='POST')return res.status(405).json({error:'method_not_allowed'})
@@ -15,8 +15,6 @@ export default async function handler(req,res){
     to:form.To||null,
     timestamp:new Date().toISOString()
   }
-  // Do not expose or persist arbitrary provider payloads until the production
-  // service-role key and audited call-event table are both verified.
   console.info('TRYAMM_TWILIO_STATUS',JSON.stringify(event))
   res.setHeader('Cache-Control','no-store')
   return res.status(204).end()
