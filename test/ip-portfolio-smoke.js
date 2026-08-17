@@ -1,0 +1,12 @@
+'use strict';
+const assert=require('assert');
+const {createInvention}=require('../lib/ip-command-center');
+const {portfolioRecord,addDisclosure,disclosureRisk,provisionalDocket,licensingScenario,publicReleaseGate}=require('../lib/ip-portfolio');
+const inv=createInvention({title:'Holographic Runtime',summary:'Adaptive spatial runtime',inventors:['Human Inventor'],type:'patent-candidate'});
+const rec=portfolioRecord({invention:inv,priority:'P0',jurisdictions:['US','PCT']});
+addDisclosure(rec,{date:'2026-08-01',type:'website',audience:'public',confidential:false});
+assert.equal(disclosureRisk(rec,new Date('2026-08-17')).level,'urgent');
+const filing=provisionalDocket({record:rec,filingDate:'2026-08-17'});assert(filing.nonprovisionalTargetDate.startsWith('2027-08-17'));
+const scenario=licensingScenario({revenue:1000000,royaltyRatePct:4,upfrontFee:25000});assert.equal(scenario.totalPotential,65000);
+assert.equal(publicReleaseGate({record:rec,invention:inv,legalApproved:true}).allowed,false);
+console.log('IP portfolio smoke: PASS');
