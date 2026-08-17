@@ -1,0 +1,10 @@
+'use strict';
+const assert=require('assert');
+const {signal,score,decision,validateFeatures,passport}=require('../lib/trust-risk');
+const good=signal({type:'positive-fulfillment',subjectId:'s1',source:'orders',severity:80,confidence:1});
+const bad=signal({type:'chargeback',subjectId:'s1',source:'payments',severity:70,confidence:.9});
+assert(score([good]).trustScore>50);assert(score([bad]).trustScore<50);
+const d=decision({signals:[bad],action:'supplier-auto-order',highImpact:true});assert.equal(d.automaticAdverseDecisionAllowed,false);assert(d.protections.appealRequired);
+assert(!validateFeatures({race:'x',order_count:4}).allowed);assert(validateFeatures({order_count:4,on_time_rate:.99}).allowed);
+const p=passport({subjectId:'s1',trustCredential:{level:'enhanced',claims:['business-verified']},signals:[good]});assert.equal(p.privateRiskDetailsRestricted,true);assert.equal(p.publicView.credentialLevel,'enhanced');
+console.log('trust risk smoke: PASS');
