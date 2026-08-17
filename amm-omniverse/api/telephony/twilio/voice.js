@@ -1,4 +1,4 @@
-import{appBaseUrl,formBody,twilioConfigured,twiml,validateTwilio,xmlEscape}from'../../../_lib/twilio.js'
+import{appBaseUrl,formBody,twilioConfigured,twiml,validateTwilio,xmlEscape}from'../../_lib/twilio.js'
 
 export default async function handler(req,res){
   if(req.method!=='POST')return res.status(405).json({error:'method_not_allowed'})
