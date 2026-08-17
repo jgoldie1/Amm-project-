@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>TRYAMM Founder Publisher Studio</title>
+<link rel="stylesheet" href="/tryamm-hub.css"><script src="/publisher-studio.js" defer></script>
+</head>
+<body>
+<header><a class="brand" href="/tryamm-hub.html"><span>TRY</span>AMM</a><nav><a href="/tryamm-hub.html">Public Hub</a><a href="/founder-dashboard.html">Content Dashboard</a><a href="/">App</a></nav></header>
+<main>
+<section class="hero studio-hero"><p class="eyebrow">FOUNDER CONTROL</p><h1>Publish the <em>real work.</em></h1><p>Create blog posts and versioned white papers, add confirmed team relationships, and review community posts. This page requires a TRYAMM administrator session.</p>
+<form id="sessionForm" class="studio-form compact"><label>Administrator session token<input id="tokenInput" type="password" autocomplete="off" placeholder="Paste your TRYAMM admin token"></label><button type="submit">Use session</button><p id="sessionStatus" class="status"></p></form></section>
+<section class="section studio-grid">
+<article class="studio-panel"><p class="eyebrow">PUBLICATIONS</p><h2>Blog or white paper</h2><form id="publicationForm" class="studio-form">
+<label>Type<select name="type"><option value="blog">Blog post</option><option value="whitepaper">White paper</option></select></label>
+<label>Title<input name="title" maxlength="180" required></label>
+<label>Abstract<textarea name="abstract" maxlength="1000" required></textarea></label>
+<label>Full text<textarea name="body" maxlength="20000"></textarea></label>
+<label>Author<input name="author" maxlength="120" value="James Stubbs"></label>
+<div class="form-row"><label>Version<input name="version" maxlength="40" value="1.0"></label><label>Status<select name="status"><option value="draft">Draft</option><option value="published">Publish now</option></select></label></div>
+<label>Optional HTTPS document link<input name="documentUrl" type="url" placeholder="https://..."></label>
+<button type="submit">Save publication</button><p id="publicationStatus" class="status"></p></form><div id="publicationList"></div></article>
+<article class="studio-panel"><p class="eyebrow">TEAM DIRECTORY</p><h2>Add confirmed people</h2><p class="fine">Choose the real relationship. Contractors and advisors are never shown as employees.</p><form id="teamForm" class="studio-form">
+<label>Name<input name="name" maxlength="120" required></label><label>Role<input name="role" maxlength="140" required></label>
+<label>Relationship<select name="relationship"><option value="employee">Employee</option><option value="contractor">Contractor</option><option value="advisor">Advisor</option><option value="partner">Partner</option></select></label>
+<label>Responsibilities, one per line<textarea name="responsibilities" maxlength="1200"></textarea></label><label>Bio<textarea name="bio" maxlength="1000"></textarea></label>
+<label class="check"><input name="public" type="checkbox"> Show publicly after confirmation</label><button type="submit">Add team profile</button><p id="teamStatus" class="status"></p></form><div id="teamList"></div></article>
+</section>
+<section class="section"><p class="eyebrow">NETWORK MODERATION</p><h2>Review community submissions.</h2><div id="moderationQueue" class="feed"><p>Connect an administrator session to load posts.</p></div></section>
+</main>
+<footer><strong>TRYAMM Publisher Studio</strong><span>Private founder tool • public pages show approved material only</span></footer>
+</body></html>
