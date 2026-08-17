@@ -25,7 +25,8 @@
     }
     resizeCanvas(){const ratio=Math.min(devicePixelRatio||1,2),rect=this.canvas.getBoundingClientRect();this.canvas.width=Math.max(320,Math.round(rect.width*ratio));this.canvas.height=Math.max(240,Math.round(rect.height*ratio));if(this.gl)this.gl.viewport(0,0,this.canvas.width,this.canvas.height);}
     setWorld(world){this.world=palette[world]?world:"time";this.render(performance.now());}
-    setAltitude(value){this.altitude=Number(value)||250;}\n    setHolographic(enabled){this.holographic=Boolean(enabled);this.canvas.classList.toggle("holographic",this.holographic);this.render(performance.now());}
+    setAltitude(value){this.altitude=Number(value)||250;}
+    setHolographic(enabled){this.holographic=Boolean(enabled);this.canvas.classList.toggle("holographic",this.holographic);this.render(performance.now());}
     start(){if(!this.running){this.running=true;this.startedAt=performance.now()-this.elapsed;requestAnimationFrame(t=>this.render(t));}}
     pause(){this.running=false;}
     reset(){this.running=false;this.elapsed=0;this.render(0);}
