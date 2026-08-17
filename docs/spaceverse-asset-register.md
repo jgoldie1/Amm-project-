@@ -93,3 +93,23 @@ The supplied Parts.zip contains 20 separate STL components covering the body, Ch
 The Apollo terrain models and image are educational visualization assets. Coordinate measurements, traverses and landing-site claims remain disabled until scale, projection, orientation, source product identifiers, mission provenance and licensing are confirmed.
 
 The east and west Vesta hollow-globe files are exposed as separately labeled components. They must not be represented as a validated complete globe until seam alignment, shared origin, scale, orientation and topology are verified. Precision Vesta geometry must continue to use a documented, validated DSK or other approved scientific source.
+
+
+## Space heritage and human exploration pack
+
+| Asset | Source size | Web status | Simulation role |
+| --- | ---: | --- | --- |
+| Cassiopeia A Supernova (1).glb | 10 MB / 1.72M rendered vertices | Reduced to 4.1 MB GLB; load on demand | Deep-space remnant visualization |
+| Ben Franklin.glb | 14 MB / 509,784 vertices | Reduced to 420 KB GLB | Historical Time Machine character reference |
+| Astronaut.glb | 746 KB | Reduced to 55 KB GLB | Human exploration figure |
+| Ares 1 (A).glb | 96 KB | Reduced to 15 KB GLB | Launch vehicle reference |
+| Apollo Soyuz.glb | 931 KB | Reduced to 125 KB GLB | International docking mission reference |
+| Agena Target Vehicle.glb | 1.2 MB | Reduced to 173 KB GLB | Rendezvous and docking target |
+| Advanced Crew Escape Suit.glb | 839 KB | Reduced to 155 KB GLB | Crew safety equipment inspection |
+| ACRIMSat (A).glb | 2.1 MB | Reduced to 575 KB GLB | Solar irradiance mission reference |
+
+Cassiopeia A is a visual remnant model and must not be treated as a calibrated volumetric scientific data product without confirmed wavelength, observation date, coordinate system, scaling and source-product metadata.
+
+The Benjamin Franklin model is labeled as a historical simulation figure. It does not claim a forensic reconstruction, authentic appearance, voice, conduct or endorsement. Educational scenarios should distinguish documented history from fictional branching narrative.
+
+Spacecraft, suit and satellite models are visual references only. Operational procedures, dimensions, dynamics, safety decisions and mission geometry require authoritative technical documentation and validated SPICE data where applicable.
