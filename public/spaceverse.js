@@ -1,7 +1,8 @@
 "use strict";
 const worlds={
  time:{kicker:"TIME MACHINE",title:"Travel through simulated eras",description:"Build historically inspired rooms, explore possible futures and create branching stories where every choice can change the shared world state.",time:true},
- moon:{kicker:"THE MOON",title:"Build in low gravity",description:"Explore lunar terrain, operate rovers, design accessible habitats and host creator missions using a Moon-specific gravity profile."},\n venus:{kicker:"VENUS",title:"Navigate an extreme planetary environment",description:"Use the global surface atlas to plan digital landing zones, study terrain and build future missions with clearly sourced scientific layers."},
+ moon:{kicker:"THE MOON",title:"Build in low gravity",description:"Explore lunar terrain, operate rovers, design accessible habitats and host creator missions using a Moon-specific gravity profile."},
+ venus:{kicker:"VENUS",title:"Navigate an extreme planetary environment",description:"Use the global surface atlas to plan digital landing zones, study terrain and build future missions with clearly sourced scientific layers."},
  mars:{kicker:"MARS",title:"Create a living Mars settlement",description:"Combine survival gameplay, science education, vehicle missions and community-built habitats in one persistent digital world."},
  saturn:{kicker:"SATURN",title:"Explore the ring system",description:"Pilot simulated orbital expeditions, build stations and create music, film and educational events above Saturn's atmosphere."},
  moons:{kicker:"SATURN'S MOONS",title:"Many moons, one connected journey",description:"Travel between Titan, Enceladus, Rhea, Iapetus and other simulated destinations while keeping the same avatar, inventory and mission history."}
