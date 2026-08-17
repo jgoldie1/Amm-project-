@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('assert');
+const {credential,insurance,status,capabilityGate,reminders}=require('../lib/credential-vault');
+const active=credential({id:'c1',ownerId:'vendor1',type:'license',name:'Operating License',jurisdiction:'Illinois',status:'verified',verifiedAt:'2026-08-01',expiresAt:'2027-01-01',capabilities:['accept-inventory']});
+assert.equal(status(active,new Date('2026-08-17')).state,'active');
+const policy=insurance({id:'i1',ownerId:'vendor1',name:'General Liability',carrier:'Example Carrier',status:'verified',verifiedAt:'2026-08-01',expiresAt:'2026-08-20',capabilities:['accept-inventory'],coverageTypes:['general-liability']});
+assert.equal(status(policy,new Date('2026-08-17')).state,'expiring');
+const gate=capabilityGate({credentials:[active,policy],capability:'accept-inventory',ownerId:'vendor1',now:new Date('2026-08-17')});assert(gate.allowed);
+const expired={...policy,expiresAt:'2026-08-01'};assert(!capabilityGate({credentials:[active,expired],capability:'accept-inventory',ownerId:'vendor1',now:new Date('2026-08-17')}).allowed);
+assert(reminders([active,policy],new Date('2026-08-17')).some(x=>x.id==='i1'));
+console.log('credential vault smoke: PASS');
