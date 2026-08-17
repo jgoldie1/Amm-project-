@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('assert');
+const {createMatter,complianceChecklist,gateAction,legalResearchPlan,contractReview,auditEvent}=require('../lib/ai-legal-compliance');
+const matter=createMatter({title:'PropertyVerse seller financing review',domain:'property',jurisdictions:['US','Illinois'],facts:'Review platform workflow.'});
+assert(matter.id);assert(complianceChecklist('property').rules.includes('fair-housing'));
+assert.equal(gateAction({action:'summarize-contract'}).allowed,true);
+const filing=gateAction({action:'patent-filing',changesLegalRights:true});assert.equal(filing.allowed,false);assert.equal(filing.mode,'PREPARE_ONLY');
+const research=legalResearchPlan({...matter,questions:['What disclosures apply?']});assert(research.controls.noInventedAuthority);assert(research.controls.recordEffectiveDate);
+assert(contractReview({documentId:'c1'}).review.includes('IP ownership/license'));
+assert(auditEvent({actor:'stubbs-ai',action:'prepare-review',matterId:matter.id}).immutableRequested);
+console.log('AI legal compliance smoke: PASS');
