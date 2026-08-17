@@ -1,9 +1,9 @@
 'use strict';
 const feed=document.querySelector('#liveFeed'),network=document.querySelector('#network');
 const splash=document.querySelector('#appSplash'),splashVideo=document.querySelector('#splashVideo'),splashStart=document.querySelector('#splashStart'),splashSkip=document.querySelector('#splashSkip'),splashReplay=document.querySelector('#splashReplay');
-const SPLASH_KEY='tryamm:splash-seen',SPLASH_FAILSAFE_MS=10000;
+const SPLASH_FAILSAFE_MS=10000;
 let splashTimer;
-function closeSplash(){clearTimeout(splashTimer);splash.hidden=true;splashStart.hidden=true;splashReplay.hidden=false;try{sessionStorage.setItem(SPLASH_KEY,'1');}catch(_){}}
+function closeSplash(){clearTimeout(splashTimer);splashVideo.pause();splash.hidden=true;splashStart.hidden=true;splashReplay.hidden=false;}
 function startFailsafe(){clearTimeout(splashTimer);splashTimer=setTimeout(closeSplash,SPLASH_FAILSAFE_MS);}
 function requestSplashPlayback(){
   splashStart.hidden=true;
@@ -11,9 +11,8 @@ function requestSplashPlayback(){
 }
 function playSplash(){splash.hidden=false;splashReplay.hidden=true;splashVideo.currentTime=0;startFailsafe();requestSplashPlayback();}
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
-let splashSeen=false;try{splashSeen=sessionStorage.getItem(SPLASH_KEY)==='1';}catch(_){}
-if(splashSeen||reduceMotion){splash.hidden=true;splashReplay.hidden=false;}else{startFailsafe();requestSplashPlayback();}
-splashVideo.addEventListener('ended',closeSplash);splashVideo.addEventListener('error',closeSplash);
+if(reduceMotion){splash.hidden=true;splashReplay.hidden=false;}else{playSplash();}
+splashVideo.addEventListener('ended',closeSplash);splashVideo.addEventListener('error',()=>{splashStart.hidden=false;});
 splashStart.addEventListener('click',()=>{splashVideo.currentTime=0;startFailsafe();requestSplashPlayback();});
 splashSkip.addEventListener('click',closeSplash);splashReplay.addEventListener('click',playSplash);
 const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
