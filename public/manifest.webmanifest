@@ -1,8 +1,9 @@
 {
+  "id": "/",
   "name": "TRYAMM Living Digital Universe",
   "short_name": "TRYAMM",
   "description": "Creator live, music, community, founder tools and marketplace foundation.",
-  "start_url": "/app-shell.html",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#04050e",
