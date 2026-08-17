@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('assert');
+const {hold,reserve,claim,releaseGate,settlementInstruction}=require('../lib/claims-holds');
+const h=hold({provider:'payment-provider',providerReference:'p_1',transactionId:'tx1',amount:500,currency:'USD',reason:'merchant dispute',releaseConditions:['case closed']});assert.equal(h.tryammCustody,false);assert.equal(h.custody,'provider');
+const r=reserve({provider:'payment-provider',merchantId:'m1',basisPoints:500,maxAmount:5000,reason:'risk policy'});assert.equal(r.basisPoints,500);assert(r.requiresMerchantTerms);
+const c=claim({caseId:'case1',claimType:'vehicle-damage',provider:'insurer',amountClaimed:1200,evidenceRefs:['photo1']});assert.equal(c.submittedExternally,false);
+assert(!releaseGate({holdRecord:h,caseRecord:{status:'open'},providerStatus:'releasable',authorizedHuman:true}).allowed);
+assert(releaseGate({holdRecord:h,caseRecord:{status:'closed'},providerStatus:'releasable',authorizedHuman:true}).allowed);
+assert.throws(()=>settlementInstruction({holdRecord:h,destinationRef:'acct1',amount:500}),/human_authorization_required/);
+assert.equal(settlementInstruction({holdRecord:h,destinationRef:'acct1',amount:500,authorizedHuman:true}).mode,'PROVIDER_EXECUTION_ONLY');
+console.log('claims holds smoke: PASS');
