@@ -8,7 +8,7 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="/icons/judah-192.png">
   <link rel="stylesheet" href="/spaceverse.css">
-  <script src="/spaceverse-engine.js" defer></script><script src="/spaceverse.js" defer></script>
+  <script src="/vendor/model-viewer.min.js" defer></script><script src="/spaceverse-engine.js" defer></script><script src="/spaceverse.js" defer></script>
 </head>
 <body>
   <header>
@@ -43,6 +43,27 @@
         </div>
         <p id="engineStatus" class="status" aria-live="polite">Viewer ready. Choose a destination, then start the digital mission.</p>
       </aside>
+    </section>
+
+    <section id="vehicleBay" class="section vehicle-bay">
+      <div class="vehicle-copy">
+        <p class="eyebrow">INTERACTIVE 3D VEHICLE BAY</p>
+        <h2>Inspect the mission hardware</h2>
+        <p>Rotate, zoom and examine optimized spacecraft models before entering the simulation. High-detail source files are converted into Chromebook-safe web versions.</p>
+        <div class="vehicle-select" role="group" aria-label="Choose a spacecraft model">
+          <button type="button" class="vehicle-choice active" data-model="/models/space-shuttle-web.glb" data-name="Space Shuttle" aria-pressed="true">Space Shuttle</button>
+          <button type="button" class="vehicle-choice" data-model="/models/sls-block1-web.glb" data-name="SLS Block 1" aria-pressed="false">SLS Block 1</button>
+          <button type="button" class="vehicle-choice" data-model="/models/space-exploration-vehicle-web.glb" data-name="Space Exploration Vehicle" aria-pressed="false">Exploration Vehicle</button>
+        </div>
+        <div class="vehicle-readout"><span>SELECTED</span><strong id="selectedVehicle">Space Shuttle</strong><span id="vehicleLoadStatus" role="status" aria-live="polite">Loading optimized model…</span></div>
+        <p class="asset-note">These are project-provided reference assets used in a digital simulation. Confirm each source license and attribution before commercial redistribution.</p>
+      </div>
+      <div class="model-stage">
+        <model-viewer id="vehicleModel" src="/models/space-shuttle-web.glb" alt="Interactive Space Shuttle 3D model" camera-controls auto-rotate rotation-per-second="12deg" interaction-prompt="auto" shadow-intensity="1.2" shadow-softness="0.8" exposure="1.15" environment-image="neutral" loading="eager">
+          <div class="model-loading" slot="poster">Preparing 3D vehicle…</div>
+        </model-viewer>
+        <div class="model-hud"><span>DRAG TO ROTATE</span><span>PINCH OR SCROLL TO ZOOM</span><span>HOLOGRAPHIC BAY</span></div>
+      </div>
     </section>
 
     <section id="worlds" class="section">
