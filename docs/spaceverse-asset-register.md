@@ -58,3 +58,22 @@ The Venus map requires confirmed projection, coordinate convention, source missi
 | 4-wheels.stl | 17 MB | 348,144 | Print-layout component |
 
 The four rover files share a print-bed origin but are not preassembled. Wheel, hub, pin and body transforms, scale and connection constraints must be calibrated before the kit is shown as a drivable simulation vehicle.
+
+
+## Vesta and science fleet additions
+
+| Asset | Source size | Web status | Simulation role |
+| --- | ---: | --- | --- |
+| Asteroid 4 Vesta (A).stl | 39 MB / 800,000 triangles | Reduced to 1.1 MB GLB | Interactive small-body terrain and Vesta destination |
+| CubeSat - ICECube.glb | 303 KB | Optimized to 296 KB | CubeSat inspection and mission storytelling |
+| CubeSat - 2 RU Generic.glb | 202 KB | Optimized to 177 KB | Configurable small-satellite reference |
+| Cosmic Origins Spectrograph.glb | 431 KB | Optimized to 33 KB | Instrument inspection and observation planning |
+| Cluster II.glb | 819 KB | Optimized to 111 KB | Multi-spacecraft science mission reference |
+| Aura (A).glb | 466 KB | Optimized to 92 KB | Earth-observing spacecraft reference |
+| Parts.zip | 4.2 MB / 20 STL components | Assembly calibration pending | Detailed rover fabrication kit |
+
+The Vesta derivative is a performance-oriented visual model, not a measurement-grade digital shape kernel. Scientific geometry and coordinates must use documented SPICE kernels or a validated DSK with explicit coverage, reference frame, provenance and version.
+
+## Detailed rover assembly gate
+
+The supplied Parts.zip contains 20 separate STL components covering the body, ChemCam, science arm parts, steering, suspension, wheel and tire. It must remain labeled as a fabrication kit until scale, handedness, pivots, repeated-part counts, connection constraints and source license are validated. Do not present it as an assembled or operational rover.
