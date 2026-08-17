@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('assert');
+const {normalizeWarehouse,quoteWarehouse,rankWarehouses,createWarehouseBooking}=require('../lib/warehouse-network');
+const a=normalizeWarehouse({provider:'partner-a',name:'Chicago Flex',country:'US',city:'Chicago',verified:true,capabilities:['storage','pick-pack','b2c','returns'],storagePerUnitMonth:2,pickPackPerOrder:3,receivingPerUnit:.5,accuracyPct:99.5,shipHours:24});
+const b=normalizeWarehouse({provider:'partner-b',name:'Toronto Flex',country:'CA',city:'Toronto',verified:true,capabilities:['storage','pick-pack','b2c'],storagePerUnitMonth:1.5,pickPackPerOrder:4,accuracyPct:99,shipHours:24});
+const quote=quoteWarehouse({warehouse:a,units:100,months:1,orders:50,receivingUnits:100,platformFeeBps:500});
+assert.equal(quote.providerSubtotal,400);assert.equal(quote.platformFee,20);assert.equal(quote.total,420);assert(quote.feeDisclosure.includes('5.00%'));
+const ranked=rankWarehouses([a,b],{country:'US',capabilities:['returns']});assert.equal(ranked.length,1);assert.equal(ranked[0].country,'US');
+const booking=createWarehouseBooking({merchantId:'m1',warehouseId:a.id,quote,termsAccepted:true});assert.equal(booking.status,'pending_provider_confirmation');
+assert.throws(()=>createWarehouseBooking({merchantId:'m1',warehouseId:a.id,quote}),/terms/);
+console.log('warehouse network smoke: PASS');

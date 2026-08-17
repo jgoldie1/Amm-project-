@@ -1,0 +1,13 @@
+'use strict';
+const assert=require('assert');
+const {negotiateHolographicSession,sessionSummary}=require('../lib/holographic-runtime');
+const session=negotiateHolographicSession({user:{userId:'u1',language:'en'},accessibility:{captions:true,reducedMotion:false},device:{panel:'oled',refreshHz:120,hdr:true,autostereoscopic:true,lightField:true,gpuTier:3},network:{bandwidthMbps:50,latencyMs:20},permissions:{role:'member',scopes:['view','purchase','camera']},scene:{worldUri:'tryamm://living-worlds/mars',sceneId:'mars'},presenceCapture:{depth:true,gpuTier:3,microphones:2},audioOutput:{channels:8,headTracking:true},audioObjects:[{type:'voice',label:'Guide',safety:{status:'approved'}}]});
+assert.equal(session.protocol,'tryamm-holographic-runtime/1.0');
+assert.equal(session.world.sceneId,'mars');
+assert(session.services.quantumInternet&&session.services.holoPresence);
+assert.equal(session.authorize('view').allowed,true);
+assert.equal(session.authorize('purchase').requiresConfirmation,true);
+assert.equal(session.authorize('delete').allowed,false);
+assert(session.fallback.twoD&&session.fallback.screenReader);
+const s=sessionSummary(session); assert.equal(s.role,'member'); assert(s.renderMode);
+console.log('holographic runtime smoke: PASS');

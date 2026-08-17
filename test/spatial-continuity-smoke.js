@@ -1,0 +1,10 @@
+'use strict';
+const assert=require('assert');
+const {createSpatialIdentity,checkpoint,planTeleport,resumePacket}=require('../lib/spatial-continuity');
+const identity=createSpatialIdentity({userId:'u1',captions:true,reducedMotion:true});
+const cp=checkpoint({identity,worldUri:'tryamm://living-worlds/mars',sceneId:'mars-1',position:{x:4,y:1,z:9},inventoryRefs:['item-1'],permissionRefs:['room:view']});
+const move=planTeleport({checkpoint:cp,targetWorld:'tryamm://sportsverse/arena',targetDevice:'holotv-1',allowedWorlds:['tryamm://'],carry:{inventory:true,conversations:true}});
+assert(move.allowed); assert(move.preserve.identity); assert.equal(move.preserve.permissions,false); assert(move.security.revalidateTargetPermissions);
+const denied=planTeleport({checkpoint:cp,targetWorld:'external://unknown',allowedWorlds:['tryamm://']}); assert.equal(denied.allowed,false);
+const resume=resumePacket(identity,cp,'phone-1'); assert.equal(resume.position.x,4); assert.equal(resume.permissions,'revalidate'); assert(resume.accessibility.captions);
+console.log('spatial continuity smoke: PASS');

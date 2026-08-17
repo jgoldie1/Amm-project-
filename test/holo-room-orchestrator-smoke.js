@@ -1,0 +1,10 @@
+'use strict';
+const assert=require('assert');
+const {createRoomState,requestAction,handoff,syncClock}=require('../lib/holo-room-orchestrator');
+const state=createRoomState({roomId:'living-room',devices:[{id:'tv',type:'holotv',name:'HoloTV',trusted:true},{id:'cube',type:'holocube',name:'HoloCube',trusted:true},{id:'beat',type:'quantum-beat',name:'Quantum Beat',trusted:true}],sceneId:'mars'});
+assert.equal(state.protocol,'tryamm-holo-room/1.0');assert.equal(state.devices.length,3);
+assert(requestAction(state,{type:'purchase',target:'shoe'}).requiresConfirmation);
+assert(!requestAction(state,{type:'open',target:'paper'}).requiresConfirmation);
+const moved=handoff(state,{from:'tv',to:'cube',sceneId:'mars',position:{x:1,y:2,z:3}});assert.equal(moved.userState.focusDevice,'cube');assert.equal(moved.sceneId,'mars');
+const clock=syncClock(state,Date.now()-100);assert(Math.abs(clock.clockSkewMs)>=0);assert(Math.abs(clock.correctionMs)<=250);
+console.log('holo room orchestrator smoke: PASS');

@@ -1,0 +1,13 @@
+'use strict';
+const assert=require('assert');
+const {makeSpatialNode,makeSpatialEdge,buildHoloScene,actionRequiresConfirmation}=require('../lib/holographic-internet');
+const trusted=makeSpatialNode({type:'academic',label:'Paper',sourceUrl:'https://example.org/paper',provenance:{trusted:true},x:1,y:2,z:3});
+const blocked=makeSpatialNode({type:'web',label:'Unknown',sourceUrl:'https://example.net',safety:{status:'unreviewed'}});
+const scene=buildHoloScene({query:'battery research',nodes:[trusted,blocked],edges:[makeSpatialEdge(trusted.id,blocked.id,'disputes',.8)]});
+assert.equal(scene.protocol,'tryamm-holo-internet/1.0');
+assert.equal(scene.nodes.length,1,'unreviewed/untrusted nodes must not enter public scene');
+assert.equal(scene.edges.length,0,'edges to hidden nodes must be removed');
+assert(scene.controls.timeDial&&scene.controls.provenanceOverlay&&scene.rendering.fallback2D);
+assert(actionRequiresConfirmation({type:'purchase'}));
+assert(!actionRequiresConfirmation({type:'open'}));
+console.log('holographic internet smoke: PASS');

@@ -1,0 +1,10 @@
+'use strict';
+const assert=require('assert');
+const {publicPresence,translationPlan,syncPresence,interactionPolicy}=require('../lib/holo-presence');
+const person=publicPresence({type:'real-person',label:'Guest',subjectId:'u2',worldUri:'tryamm://world/a',language:'en',verified:true,safety:{status:'approved'}});
+const ai=publicPresence({type:'ai-agent',label:'HoloGPT',subjectId:'ai1',language:'en',translation:true,safety:{status:'approved'}});
+assert.equal(person.identity.disclosure,'LIVE PERSON'); assert.equal(ai.identity.disclosure,'AI');
+const tr=translationPlan(ai,'es'); assert.equal(tr.targetLanguage,'es'); assert(tr.keepOriginalAudio);
+const moved=syncPresence(person,{worldUri:'tryamm://world/b',position:{x:1,y:2,z:3},orientation:{yaw:90,pitch:0,roll:0}}); assert.equal(moved.worldUri,'tryamm://world/b'); assert.equal(moved.position.x,1);
+assert(interactionPolicy(person,ai,'speak').disclosureRequired); assert(interactionPolicy(person,ai,'purchase').requiresConfirmation);
+console.log('HoloPresence smoke: PASS');

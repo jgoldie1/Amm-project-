@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('assert');const fs=require('fs');const path=require('path');
+const mm=require('../lib/quantum-multimodal-index');
+const img=mm.makeMediaAsset({mediaType:'image',sourceUrl:'https://tryamm.online/a.jpg',title:'Judah lion',description:'crowned lion',tags:['Judah','TRYAMM']});
+assert.equal(img.mediaType,'image');assert.equal(img.safety.status,'unreviewed');assert(img.contentFingerprint.length===64);assert(img.searchableText.includes('Judah'));
+const q=mm.crossModalQuery({text:'lion',mediaType:'image',limit:500});assert.equal(q.limit,100);assert.equal(q.mediaType,'image');
+assert.equal(mm.resultLabel({mediaType:'world3d'}),'WORLD');
+assert.throws(()=>mm.makeMediaAsset({mediaType:'exe',sourceUrl:'https://example.com/a'}));
+const sql=fs.readFileSync(path.join(__dirname,'../supabase/migrations/004_quantum_multimodal_index.sql'),'utf8');
+for(const token of ['quantum_media_assets','vector(1536)','using hnsw','image_embedding','audio_embedding','search_vector','approved media public read','quantum_multimodal_search'])assert(sql.includes(token),token);
+console.log('QUANTUM MULTIMODAL CHECK: PASS');
