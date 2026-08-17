@@ -1,6 +1,6 @@
 'use strict';
-const CACHE='tryamm-shell-v9';
-const APP_SHELL=['/','/styles.css','/app.js','/app-shell.html','/app-shell.css','/app-shell.js','/judah-splash.css','/judah-splash.js','/spaceverse.html','/spaceverse.css','/spaceverse.js','/spaceverse-engine.js','/manifest.webmanifest','/community-rules.html','/icons/judah-192.png','/icons/judah-512.png','/media/tryamm-judah-splash-poster-v2.jpg','/media/tryamm-spaceverse-launch-poster-v1.jpg'];
+const CACHE='tryamm-shell-v10';
+const APP_SHELL=['/','/styles.css','/app.js','/app-shell.html','/app-shell.css','/app-shell.js','/judah-splash.css','/judah-splash.js','/spaceverse.html','/spaceverse.css','/spaceverse.js','/spaceverse-engine.js','/vendor/model-viewer.min.js','/manifest.webmanifest','/community-rules.html','/icons/judah-192.png','/icons/judah-512.png','/media/tryamm-judah-splash-poster-v2.jpg','/media/tryamm-spaceverse-launch-poster-v1.jpg'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(APP_SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',event=>{
