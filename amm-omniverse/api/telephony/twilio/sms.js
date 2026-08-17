@@ -1,4 +1,4 @@
-import{formBody,twilioConfigured,twiml,validateTwilio,xmlEscape}from'../../../_lib/twilio.js'
+import{formBody,twilioConfigured,twiml,validateTwilio,xmlEscape}from'../../_lib/twilio.js'
 
 const STOP=new Set(['stop','quit','end','revoke','opt out','optout','cancel','unsubscribe'])
 const HELP=new Set(['help','info'])
