@@ -19,7 +19,7 @@
     <section class="hero">
       <p class="eyebrow">LIVING WORLDS • DIGITAL SIMULATION</p>
       <h1>One engine. <em>Entire worlds.</em></h1>
-      <p class="lead">Explore the Time Machine, Moon, Mars, Saturn and Saturn's moons through one reusable world foundation for games, education, creator events and shared multiplayer experiences.</p>
+      <p class="lead">Explore the Time Machine, Moon, Venus, Mars, Saturn and Saturn's moons through one reusable world foundation for games, education, creator events and shared multiplayer experiences.</p>
       <div class="actions"><a class="button" href="#worlds">Choose a world</a><a class="button ghost" href="#engine">See how it connects</a></div>
       <p class="notice"><strong>Simulation notice:</strong> SpaceVerse is an entertainment and learning environment. It is not real time travel, spacecraft navigation or a substitute for scientific mission systems.</p>
     </section>
@@ -48,12 +48,12 @@
     <section id="vehicleBay" class="section vehicle-bay">
       <div class="vehicle-copy">
         <p class="eyebrow">INTERACTIVE 3D VEHICLE BAY</p>
-        <h2>Inspect the mission hardware</h2>
+        <h2>Inspect spacecraft and mission infrastructure</h2>
         <p>Rotate, zoom and examine optimized spacecraft models before entering the simulation. High-detail source files are converted into Chromebook-safe web versions.</p>
         <div class="vehicle-select" role="group" aria-label="Choose a spacecraft model">
           <button type="button" class="vehicle-choice active" data-model="/models/space-shuttle-web.glb" data-name="Space Shuttle" aria-pressed="true">Space Shuttle</button>
           <button type="button" class="vehicle-choice" data-model="/models/sls-block1-web.glb" data-name="SLS Block 1" aria-pressed="false">SLS Block 1</button>
-          <button type="button" class="vehicle-choice" data-model="/models/external-tank-web.glb" data-name="Shuttle External Tank" aria-pressed="false">External Tank</button><button type="button" class="vehicle-choice" data-model="/models/space-exploration-vehicle-web.glb" data-name="Space Exploration Vehicle" aria-pressed="false">Exploration Vehicle</button>
+          <button type="button" class="vehicle-choice" data-model="/models/external-tank-web.glb" data-name="Shuttle External Tank" aria-pressed="false">External Tank</button><button type="button" class="vehicle-choice" data-model="/models/space-exploration-vehicle-web.glb" data-name="Space Exploration Vehicle" aria-pressed="false">Exploration Vehicle</button><button type="button" class="vehicle-choice" data-model="/models/themis-web.glb" data-name="THEMIS Spacecraft" aria-pressed="false">THEMIS</button><button type="button" class="vehicle-choice" data-model="/models/ulysses-web.glb" data-name="Ulysses Spacecraft" aria-pressed="false">Ulysses</button><button type="button" class="vehicle-choice" data-model="/models/vab-web.glb" data-name="Vehicle Assembly Building" aria-pressed="false">Vehicle Assembly Building</button>
         </div>
         <div class="vehicle-readout"><span>SELECTED</span><strong id="selectedVehicle">Space Shuttle</strong><span id="vehicleLoadStatus" role="status" aria-live="polite">Loading optimized model…</span></div>
         <p class="asset-note">These are project-provided reference assets used in a digital simulation. Confirm each source license and attribution before commercial redistribution.</p>
@@ -72,7 +72,7 @@
       <div class="world-grid" role="list">
         <button class="world active" data-world="time" role="listitem"><span>⌛</span><strong>Time Machine</strong><small>Historical and future scenario simulator</small></button>
         <button class="world" data-world="moon" role="listitem"><span>◐</span><strong>Moon</strong><small>Low-gravity exploration and building</small></button>
-        <button class="world" data-world="mars" role="listitem"><span>●</span><strong>Mars</strong><small>Habitats, rovers and survival missions</small></button>
+        <button class="world" data-world="venus" role="listitem"><span>◉</span><strong>Venus</strong><small>Global surface atlas and extreme-environment missions</small></button><button class="world" data-world="mars" role="listitem"><span>●</span><strong>Mars</strong><small>Habitats, rovers and survival missions</small></button>
         <button class="world" data-world="saturn" role="listitem"><span>♄</span><strong>Saturn</strong><small>Orbital stations and ring expeditions</small></button>
         <button class="world" data-world="moons" role="listitem"><span>✦</span><strong>Saturn's Moons</strong><small>Titan, Enceladus, Rhea and more</small></button>
       </div>
@@ -91,6 +91,8 @@
         <p id="launchStatus" class="status">Select a destination and prepare a safe digital simulation.</p>
       </article>
     </section>
+
+    <section class="section venus-atlas" aria-labelledby="venusAtlasTitle"><div class="atlas-copy"><p class="eyebrow">VENUS MISSION ATLAS</p><h2 id="venusAtlasTitle">Plan across a global surface map</h2><p>The uploaded 1440×720 Venus map is converted into a lightweight browser texture for mission selection, terrain study and future landing-zone overlays.</p><p class="asset-note">Map projection, source mission, coordinate convention and license must be confirmed before scientific measurements are enabled.</p></div><figure><img src="/media/venus-map-web.webp" alt="Global orange-toned surface map of Venus" loading="lazy"><figcaption>Project-provided Venus global surface map • digital simulation reference</figcaption></figure></section>
 
     <section id="engine" class="section engine">
       <p class="eyebrow">SHARED LIVING WORLDS FOUNDATION</p>

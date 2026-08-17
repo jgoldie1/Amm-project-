@@ -34,3 +34,27 @@ Planned kernel classes:
 3. Validate scale, origin, orientation and assembly transforms before using a model in physics.
 4. Use lower levels of detail on phones and Chromebooks.
 5. Never describe the browser simulation as flight-certified or the Time Machine as literal physical time travel.
+
+
+## Venus and mission archive additions
+
+| Asset | Source size | Web status | Simulation role |
+| --- | ---: | --- | --- |
+| Venus.tif | 3.0 MB / 1440×720 | Converted to 145 KB WebP | Global Venus mission atlas |
+| THEMIS.glb | 667 KB | Optimized to 96 KB | Magnetospheric mission spacecraft |
+| Ulysses.glb | 2.4 MB | Optimized to 183 KB | Solar polar mission spacecraft |
+| Vehicle Assembly Building.glb | 6.3 MB | Optimized to 52 KB | Launch-site infrastructure |
+| Voyager.zip | 15 printable STL pieces | Assembly calibration pending | Future Voyager spacecraft viewer |
+
+The Venus map requires confirmed projection, coordinate convention, source mission and license metadata before scientific measurements or landing coordinates are enabled.
+
+## Numbered rover fabrication kit
+
+| Part | Source size | Triangles | Status |
+| --- | ---: | ---: | --- |
+| 1-body.stl | 896 KB | 18,338 | Print-layout component |
+| 2-components.stl | 12 MB | 243,140 | Print-layout component |
+| 3-pins-and-hubs.stl | 6.7 MB | 139,724 | Print-layout component |
+| 4-wheels.stl | 17 MB | 348,144 | Print-layout component |
+
+The four rover files share a print-bed origin but are not preassembled. Wheel, hub, pin and body transforms, scale and connection constraints must be calibrated before the kit is shown as a drivable simulation vehicle.
