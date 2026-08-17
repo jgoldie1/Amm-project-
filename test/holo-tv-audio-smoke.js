@@ -1,0 +1,10 @@
+'use strict';
+const assert=require('assert');
+const {buildAudioScene}=require('../lib/quantum-audio-scene');
+const {planHoloTvExperience,holoTvCommand}=require('../lib/holo-tv-platform');
+const audio=buildAudioScene({sceneId:'concert',objects:[{type:'voice',label:'Singer',x:0,y:1.7,z:3,safety:{status:'approved'}},{type:'effect',label:'Unknown',safety:{status:'unreviewed'}}],output:{channels:8,headTracking:true}});
+assert.equal(audio.protocol,'tryamm-quantum-audio/1.0'); assert.equal(audio.objects.length,1); assert(audio.accessibility.captions);
+const tv=planHoloTvExperience({panel:'oled',screenInches:77,refreshHz:120,hdr:true,stereo3d:true,autostereoscopic:true,lightField:true,gpuTier:3,speakers:8,microphones:4,camera:true},{bandwidthMbps:60},{desiredViews:24});
+assert.equal(tv.protocol,'tryamm-holotv/1.0'); assert.equal(tv.audio.mode,'spatial-array'); assert(tv.stream.views.length>=8); assert(tv.privacy.cameraIndicator); assert(tv.accessibility.audioDescription);
+assert.equal(holoTvCommand('search Mars').intent,'quantum-search'); assert(holoTvCommand('buy this shoe').requiresConfirmation);
+console.log('HoloTV + Quantum Audio smoke: PASS');
