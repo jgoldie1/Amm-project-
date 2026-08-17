@@ -77,3 +77,19 @@ The Vesta derivative is a performance-oriented visual model, not a measurement-g
 ## Detailed rover assembly gate
 
 The supplied Parts.zip contains 20 separate STL components covering the body, ChemCam, science arm parts, steering, suspension, wheel and tire. It must remain labeled as a fabrication kit until scale, handedness, pivots, repeated-part counts, connection constraints and source license are validated. Do not present it as an assembled or operational rover.
+
+
+## Apollo and asteroid exploration pack
+
+| Asset | Source detail | Web status | Simulation role |
+| --- | ---: | --- | --- |
+| Apollo 11 - View of the Moon.tif | 11 MB / 1913×1911 | Converted to 252 KB WebP | Lunar archive image and Moon mission backdrop |
+| Apollo 15 - Landing Site.stl | 6.8 MB / 141,296 triangles | Reduced to 308 KB GLB | Interactive landing-site terrain |
+| Apollo 16 - Landing Site.stl | 6.7 MB / 138,810 triangles | Reduced to 298 KB GLB | Interactive landing-site terrain |
+| Asteroid 6489 Golevka.stl | 200 KB / 4,092 triangles | Converted to 34 KB GLB | Small-body inspection |
+| Vesta West Globe Hollow.stl | 20 MB / 400,000 triangles | Reduced to 652 KB GLB | Inspectable globe component |
+| Vesta East Globe Hollow.stl | 20 MB / 400,000 triangles | Reduced to 651 KB GLB | Inspectable globe component |
+
+The Apollo terrain models and image are educational visualization assets. Coordinate measurements, traverses and landing-site claims remain disabled until scale, projection, orientation, source product identifiers, mission provenance and licensing are confirmed.
+
+The east and west Vesta hollow-globe files are exposed as separately labeled components. They must not be represented as a validated complete globe until seam alignment, shared origin, scale, orientation and topology are verified. Precision Vesta geometry must continue to use a documented, validated DSK or other approved scientific source.
