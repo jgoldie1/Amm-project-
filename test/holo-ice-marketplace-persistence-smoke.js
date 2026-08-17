@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('assert'),fs=require('fs'),path=require('path');
+const root=path.resolve(__dirname,'..');
+const ice=fs.readFileSync(path.join(root,'lib','holo-ice-routes.js'),'utf8');
+const preload=fs.readFileSync(path.join(root,'lib','content-engine-preload.js'),'utf8');
+const demo=fs.readFileSync(path.join(root,'public','holo-runtime-demo.js'),'utf8');
+const migration=fs.readFileSync(path.join(root,'supabase','migrations','041_marketplace_merchants.sql'),'utf8');
+assert(ice.includes('/api/holo/runtime/ice'));
+assert(ice.includes('HOLO_TURN_URL')&&ice.includes("Cache-Control','no-store"));
+assert(preload.includes("require('./holo-ice-routes')"));
+assert(demo.includes("fetch('/api/holo/runtime/ice'")&&demo.includes('iceServers'));
+for(const table of ['marketplace_merchants','marketplace_products','marketplace_orders'])assert(migration.includes(table),table);
+assert(migration.includes('enable row level security'));
+assert(migration.includes('stripe_account_id'));
+console.log('holo ICE + marketplace persistence smoke: PASS');
