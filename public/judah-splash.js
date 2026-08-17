@@ -9,7 +9,7 @@
   function unlockPage(){document.querySelectorAll('body > header, body > main, body > footer').forEach(element=>element.removeAttribute('inert'));}
   function lockPage(){document.querySelectorAll('body > header, body > main, body > footer').forEach(element=>element.setAttribute('inert',''));}
   function clearTimers(){clearTimeout(failsafeTimer);clearTimeout(stallTimer);}
-  function close(){if(closed)return;closed=true;clearTimers();video.pause();splash.classList.add('closing');start.hidden=true;unlockPage();replay.hidden=false;setTimeout(()=>{splash.hidden=true;splash.classList.remove('closing');},reduced?0:280);}
+  function close(){if(closed)return;closed=true;clearTimers();video.pause();splash.classList.add('closing');start.hidden=true;unlockPage();replay.hidden=false;window.dispatchEvent(new Event('tryamm:splash-closed'));setTimeout(()=>{splash.hidden=true;splash.classList.remove('closing');},reduced?0:280);}
   function armFailsafe(){clearTimeout(failsafeTimer);failsafeTimer=setTimeout(()=>{setStatus('Intro closed automatically so TRYAMM stays responsive.');close();},FAILSAFE_MS);}
   function armStall(){clearTimeout(stallTimer);stallTimer=setTimeout(()=>{if(video.readyState<3&&!closed){start.hidden=false;start.textContent='Retry Judah intro';setStatus('The intro is taking longer than expected. Retry or skip safely.');start.focus();}},STALL_MS);}
   function updateProgress(){if(Number.isFinite(video.duration)&&video.duration>0)setProgress(video.currentTime/video.duration*100);}
