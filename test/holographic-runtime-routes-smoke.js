@@ -1,0 +1,13 @@
+'use strict';
+const assert=require('assert'),fs=require('fs'),path=require('path');
+const root=path.resolve(__dirname,'..');
+const routes=fs.readFileSync(path.join(root,'lib','holographic-runtime-routes.js'),'utf8');
+const preload=fs.readFileSync(path.join(root,'lib','content-engine-preload.js'),'utf8');
+const migration=fs.readFileSync(path.join(root,'supabase','migrations','040_holographic_runtime.sql'),'utf8');
+const demo=fs.readFileSync(path.join(root,'public','holo-runtime-demo.js'),'utf8');
+for(const p of ['/api/holo/runtime/session','/checkpoint','holo:join','holo:pose','holo:signal'])assert(routes.includes(p),p);
+assert(routes.includes('negotiateHolographicSession'));
+assert(preload.includes("require('./holographic-runtime-routes')"));
+assert(migration.includes('holo_runtime_sessions')&&migration.includes('holo_spatial_checkpoints')&&migration.includes('enable row level security'));
+assert(demo.includes("fetch('/api/holo/runtime/session'")&&demo.includes("socket.emit('holo:join'"));
+console.log('holographic runtime routes smoke: PASS');
