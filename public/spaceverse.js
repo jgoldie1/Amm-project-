@@ -21,4 +21,6 @@ document.querySelector("#missionStart").addEventListener("click",()=>{engine.sta
 document.querySelector("#missionPause").addEventListener("click",()=>{engine.pause();missionState.textContent="PAUSED";engineStatus.textContent="Simulation paused safely.";clearInterval(timerId);updateClock();});
 document.querySelector("#missionReset").addEventListener("click",()=>{engine.reset();missionState.textContent="STANDBY";engineStatus.textContent="Mission reset. No real-world system was affected.";clearInterval(timerId);updateClock();});
 document.addEventListener("visibilitychange",()=>{if(document.hidden&&engine.running){engine.pause();missionState.textContent="PAUSED";engineStatus.textContent="Simulation paused because the app moved to the background.";clearInterval(timerId);updateClock();}});
-selectWorld(selected);engine.setAltitude(altitude.value);updateClock();
+const holoToggle=document.querySelector("#holoToggle");
+holoToggle.addEventListener("click",()=>{const enabled=holoToggle.getAttribute("aria-pressed")!=="true";holoToggle.setAttribute("aria-pressed",String(enabled));holoToggle.classList.toggle("holo-active",enabled);holoToggle.textContent="Holographic display: "+(enabled?"On":"Off");engine.setHolographic(enabled);engineStatus.textContent=enabled?"Holographic screen mode enabled.":"Standard screen mode enabled.";});
+selectWorld(selected);engine.setAltitude(altitude.value);engine.setHolographic(true);updateClock();
