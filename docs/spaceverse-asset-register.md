@@ -64,7 +64,7 @@ The four rover files share a print-bed origin but are not preassembled. Wheel, h
 
 | Asset | Source size | Web status | Simulation role |
 | --- | ---: | --- | --- |
-| Asteroid 4 Vesta (A).stl | 39 MB / 800,000 triangles | Reduced to 1.1 MB GLB | Interactive small-body terrain and Vesta destination |
+| Asteroid 4 Vesta (A).stl | 39 MB / 800,000 triangles | Reduced to 549 KB GLB | Interactive small-body terrain and Vesta destination |
 | CubeSat - ICECube.glb | 303 KB | Optimized to 296 KB | CubeSat inspection and mission storytelling |
 | CubeSat - 2 RU Generic.glb | 202 KB | Optimized to 177 KB | Configurable small-satellite reference |
 | Cosmic Origins Spectrograph.glb | 431 KB | Optimized to 33 KB | Instrument inspection and observation planning |
@@ -99,7 +99,7 @@ The east and west Vesta hollow-globe files are exposed as separately labeled com
 
 | Asset | Source size | Web status | Simulation role |
 | --- | ---: | --- | --- |
-| Cassiopeia A Supernova (1).glb | 10 MB / 1.72M rendered vertices | Reduced to 4.1 MB GLB; load on demand | Deep-space remnant visualization |
+| Cassiopeia A Supernova (1).glb | 10 MB / 1.72M rendered vertices | Reduced to 661 KB GLB; load on demand | Deep-space remnant visualization |
 | Ben Franklin.glb | 14 MB / 509,784 vertices | Reduced to 420 KB GLB | Historical Time Machine character reference |
 | Astronaut.glb | 746 KB | Reduced to 55 KB GLB | Human exploration figure |
 | Ares 1 (A).glb | 96 KB | Reduced to 15 KB GLB | Launch vehicle reference |
@@ -113,3 +113,8 @@ Cassiopeia A is a visual remnant model and must not be treated as a calibrated v
 The Benjamin Franklin model is labeled as a historical simulation figure. It does not claim a forensic reconstruction, authentic appearance, voice, conduct or endorsement. Educational scenarios should distinguish documented history from fictional branching narrative.
 
 Spacecraft, suit and satellite models are visual references only. Operational procedures, dimensions, dynamics, safety decisions and mission geometry require authoritative technical documentation and validated SPICE data where applicable.
+
+
+## Browser delivery integrity repair
+
+Live verification found four GLB payloads clipped by the repository upload transport: Cassiopeia A, Vesta, SLS Block 1 and the Space Exploration Vehicle. Each was regenerated below the transport ceiling, validated with a GLB parser and retained under the original public URL. Current web sizes are approximately 661 KB, 549 KB, 343 KB and 647 KB respectively.
