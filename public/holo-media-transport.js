@@ -42,7 +42,9 @@
       this.socket.on('holo:peer', async ({ socketId, status }) => {
         if (!socketId || socketId === this.socket.id) return;
         if (status === 'left') return this.closePeer(socketId);
-        if (status === 'joined') await this.call(socketId).catch(error => this.status('peer-error', { socketId, error: error.message }));
+        if (status === 'joined' && String(this.socket.id).localeCompare(String(socketId)) < 0) {
+          await this.call(socketId).catch(error => this.status('peer-error', { socketId, error: error.message }));
+        }
       });
       this.socket.on('holo:signal', async ({ from, data }) => {
         try { await this.handleSignal(from, data); }
@@ -77,6 +79,7 @@
     async call(socketId) {
       if (!this.localStream) throw new Error('capture_not_started');
       const pc = this.createPeer(socketId);
+      if (pc.signalingState !== 'stable') return;
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
       this.socket.emit('holo:signal', { to: socketId, data: { type: 'offer', sdp: pc.localDescription } });
