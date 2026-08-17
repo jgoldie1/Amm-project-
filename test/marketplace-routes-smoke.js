@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('assert'),fs=require('fs'),path=require('path');
+const root=path.resolve(__dirname,'..');
+const routes=fs.readFileSync(path.join(root,'lib','marketplace-routes.js'),'utf8');
+const preload=fs.readFileSync(path.join(root,'lib','content-engine-preload.js'),'utf8');
+const studio=fs.readFileSync(path.join(root,'public','merchant-studio.js'),'utf8');
+for(const p of ['/api/marketplace/merchant/apply','/api/marketplace/merchant/connect','/api/marketplace/products','/api/marketplace/checkout','/api/admin/marketplace/merchants'])assert(routes.includes(p),p);
+assert(routes.includes("status:'pending'"));
+assert(routes.includes("m.status!=='approved'"));
+assert(routes.includes('application_fee_amount')&&routes.includes('transfer_data'));
+assert(routes.includes('account.charges_enabled'));
+assert(!/social.?security|\bssn\b|tax.?id/i.test(routes),'Marketplace must not collect regulated identity numbers in TRYAMM profile storage');
+assert(preload.includes("require('./marketplace-routes')"));
+assert(studio.includes("localStorage.getItem('tryamm_token')")&&studio.includes('/api/marketplace/merchant/apply'));
+console.log('marketplace merchant routes smoke: PASS');
