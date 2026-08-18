@@ -6,6 +6,7 @@ import UniversalSafetyLauncher from './components/UniversalSafetyLauncher'
 import MiddleverseLauncher from './components/MiddleverseLauncher'
 import GameVerseLauncher from './components/GameVerseLauncher'
 import AccessibilityPassportPanel from './components/AccessibilityPassportPanel'
+import HoloDeliveryLauncher from './components/HoloDeliveryLauncher'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 
@@ -19,5 +20,6 @@ createRoot(document.getElementById('root')!).render(
     <MiddleverseLauncher />
     <GameVerseLauncher />
     <AccessibilityPassportPanel />
+    <HoloDeliveryLauncher />
   </StrictMode>
 )
