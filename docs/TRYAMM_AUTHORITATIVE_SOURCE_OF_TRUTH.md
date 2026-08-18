@@ -21,201 +21,123 @@ The platform must favor complete end-to-end journeys over feature count.
 - Stubbs AI: intelligence foundation.
 - HoloGPT: conversational/spatial/holographic interface.
 - JARVIS: personalized operating assistant.
+- Stubbs Harmony: AI + visual website/store/experience builder.
+- Jin Pay: user-facing payment orchestration.
+- Money Engine: financial source of truth and ledger separation.
 - Personal JARVIS → Student JARVIS → Creator JARVIS → Business JARVIS → Vehicle JARVIS → Home JARVIS.
 - Agent Council: Strategy, Engineering, Marketing, Sales, Support, Operations, Finance, HR, Procurement, Grants, Creator, Delivery, Security, Accessibility.
 - Permission ladder: READ → SUGGEST → PREPARE → REQUEST APPROVAL → EXECUTE.
 - Consequential actions require appropriate authorization and audit.
 
 ## 3. Company Digital Twin and Business Simulator
-Each business may maintain an authorized digital twin spanning people, products, customers, orders, money, inventory, suppliers, delivery, marketing, HR, grants, compliance, risks and goals.
+Each business may maintain an authorized structured digital twin spanning people, products, customers, orders, money, inventory, suppliers, delivery, marketing, HR, grants, compliance, risks and goals.
 
-Business Pulse surfaces NOW | TODAY | THIS WEEK | WATCH.
+Relationship graph:
+PEOPLE ↔ PRODUCTS ↔ CUSTOMERS ↔ ORDERS ↔ MONEY ↔ INVENTORY ↔ SUPPLIERS ↔ DELIVERY ↔ HR ↔ MARKETING ↔ RISKS ↔ OPPORTUNITIES.
+
+Holographic layers:
+People | Commerce | Money | Operations | Delivery | Marketing | Risk | Opportunity.
+
+Business Pulse surfaces:
+NOW | TODAY | THIS WEEK | WATCH | REQUIRES APPROVAL.
 
 Business Simulator flow:
 SIMULATE → COMPARE → APPROVE → SMALL TEST → MEASURE → SCALE/ROLLBACK.
 
-Simulations are advisory and must not be presented as guaranteed forecasts.
+Simulations are advisory and must expose assumptions/confidence rather than being presented as guaranteed forecasts.
 
 ## 4. Business Launch OS
 One-stop formation-to-operation-to-growth path:
-IDEA → NAME → ENTITY → STATE FORMATION → EIN WORKFLOW → DOMAIN/DNS → STUBBS HARMONY SITE/STORE → BANKING READINESS → LICENSE/COMPLIANCE → BUSINESS JARVIS → MARKETPLACE → SUPPLIER EXCHANGE → HR → JIN PAY → HOLO DELIVERY → DIGITAL TWIN → GROWTH.
+IDEA → BUSINESS NAME → ENTITY PATH → STATE FILING GUIDANCE → EIN WORKFLOW → DOMAIN → DNS → WEBSITE/STORE → BUSINESS PASSPORT → BUSINESS JARVIS → MARKETPLACE → SUPPLIER EXCHANGE → HR → JIN PAY → HOLO DELIVERY → COMPANY DIGITAL TWIN → BUSINESS PULSE → BUSINESS SIMULATOR → GROWTH.
 
-TRYAMM may guide, prepare, validate and connect to official/approved providers. It must not falsely claim state formation, EIN issuance, banking approval, professional licensing or domain registration without authoritative evidence.
+TRYAMM may prepare, validate, guide and integrate with authoritative providers. It must never falsely state that a state filing, EIN, bank account, domain registration, license, permit or external credential exists before authoritative evidence is returned.
 
-## 5. Domain / DNS / Forever ownership
-Supported domain strategy includes common gTLDs and ccTLDs such as `.com`, `.org`, `.net`, `.app`, `.io`, `.ai`, `.us`, `.ca`, `.uk`, `.ng`, `.za` and others where registries/registrars support them.
+## 5. Domain/DNS and ownership
+Architecture supports valid global and country-code TLDs through approved registrar/reseller integrations, including examples such as:
+.com | .net | .org | .app | .io | .ai | .us | .ca | .uk | .ng | .za and additional valid TLDs supported by integrated registrars.
 
-- Do not invent public TLDs such as `.usa` unless officially delegated.
-- City/state/country/continent branding is offered only where an actual registry product exists or as subdomain/path branding.
-- Initial low-capital route: reseller/integration relationship with an ICANN-accredited registrar rather than becoming an ICANN registrar first.
-- `Forever Website`: one-time TRYAMM website-builder entitlement with disclosed fair-use hosting/storage/bandwidth limits and exportability.
-- `Forever Domain`: renewal-care service backed by a disclosed funded reserve/term; conventional DNS domains still have registry/registrar renewal costs.
-- Customer domain transfer and website export must be supported where technically/provider feasible.
+Country-code and restricted TLD requirements are registry-specific. TRYAMM does not invent public TLDs that are not delegated.
+
+### Forever Domain Care
+Conventional domains have recurring registry/registrar fees. `Forever Domain` means a disclosed reserve/managed-renewal product for a funded term/conditions, not a claim that registry fees disappear forever.
+
+Required controls:
+- reserve model
+- renewal-cost monitoring
+- inflation buffer
+- auto-renew workflow
+- low-reserve alert
+- domain transfer/export rights
+- registrar/provider audit evidence.
+
+### Forever Website
+User may purchase a one-time TRYAMM website-builder entitlement with disclosed fair-use hosting/storage/bandwidth limits and no recurring TRYAMM builder subscription for that entitlement.
+
+Must include portability/export options. Premium ongoing costs remain separately metered where necessary: advanced AI, massive storage/video, LIVE streaming, premium data, SMS, high-end rendering, payment-provider costs and unusually high bandwidth.
 
 ## 6. Stubbs Harmony
-TRYAMM's AI + visual site/business creation environment.
+PROMPT → COMPANY DIGITAL TWIN CONTEXT → AI DRAFT → VISUAL EDIT → ACCESSIBILITY/SEO/SAFETY REVIEW → PREVIEW → OWNER APPROVAL → PUBLISH.
 
-PROMPT → AUTHORIZED BUSINESS CONTEXT → AI DRAFT → VISUAL EDIT → DESKTOP/MOBILE/SPATIAL PREVIEW → ACCESSIBILITY/SEO QA → OWNER APPROVAL → PUBLISH.
+Supports websites, storefronts, landing pages, portfolios, campaigns, courses, events and Holo Experiences.
 
-Targets: websites, landing pages, storefronts, portfolios, campaigns, courses, events and Holo Experiences.
+Authorized business updates may propagate to website, Marketplace, Holo Menu, JARVIS knowledge, inventory, campaigns and delivery eligibility after preview/approval.
 
-A product/business update should propagate through authorized connected surfaces such as website, Marketplace, Holo Menu, Business JARVIS knowledge, inventory, ads and delivery eligibility after preview/approval.
+## 7. Holo Marketplace
+Supports physical products, digital products, services, courses, events/tickets and subscriptions.
 
-## 7. Commerce and creator economy
-- Holo Marketplace: physical products, digital products, services, tickets, courses, subscriptions.
-- Discovery lanes: For You, Local, Black Business, Disability-Owned, Creator Goods, Supplier Exchange, Community Circulation, New Businesses.
-- Creator Project + Rights Registry + Money Engine remain the foundation for ownership, splits and payouts.
-- Holo Coupon: percent/fixed/free-delivery/community/sponsor promotions.
-- Holo Gifts: creator gifts, AI Actions/HoloGPT Credits gifts, sponsored gifts.
-- Real creator earnings and withdrawable gifts remain separate from usage credits.
+Discovery lanes may include:
+FOR YOU | LOCAL | BLACK BUSINESS | DISABILITY-OWNED | CREATOR GOODS | SUPPLIER EXCHANGE | COMMUNITY CIRCULATION | NEW BUSINESSES.
 
-## 8. Jin Pay / Money Engine
-Architecture:
-ALL AMERICAN WALLET → JIN PAY → MONEY ENGINE → APPROVED PAYMENT PROVIDER/RAIL.
+Fulfillment routes:
+Holo Delivery | Package Delivery | Pickup | Digital Delivery | Service Booking | External Shipping.
 
-Use cases may include person-to-person, customer-to-business, business-to-business, Marketplace, Holo Delivery, creator splits, subscriptions and approved charitable giving, subject to provider/legal gates.
+Includes seller/business JARVIS, Holo Coupons, returns/disputes, accessibility, creator-to-product pathways and community-circulation discovery.
 
-Financial truth rules:
-- server-authoritative balances;
-- double-entry ledger;
-- idempotency;
-- verified webhooks;
-- payout state machine;
-- separate creator earnings, platform revenue, restricted mission funds, refunds/reserves, provider settlements and taxes/other liabilities;
-- no client-side authority over balances or payout eligibility.
+## 8. Holo Delivery
+Customer flow:
+DISCOVER/MENU → CART → COUPON → CHECKOUT → MERCHANT → DISPATCH → COURIER → TRACK → ARRIVE → PROOF → ISSUE/RETURN/REFUND.
 
-## 9. Holo Delivery / Package / Food
-Unified fulfillment system for food, grocery, local commerce and packages.
+Supports food and package delivery.
 
-Order state:
-CART → QUOTED → PAYMENT → CONFIRMED → MERCHANT ACCEPTED → PREPARING/PACKED → READY → COURIER ASSIGNED → PICKED UP → IN TRANSIT → ARRIVING → DELIVERED, with PROBLEM/CANCELLED/REFUNDED paths.
+Delivery modes may include walk, bike, car, van, approved third-party providers and later robot/drone integrations where lawful and provider-verified.
 
-Delivery modes may include walk, bike, car, van, third-party courier, robot and drone. Robot/drone options appear only through approved providers after legal/safety verification.
+Tracking states:
+CONFIRMED → MERCHANT ACCEPTED → PREPARING/PACKED → READY → COURIER ASSIGNED → PICKED UP → IN TRANSIT → ARRIVING → DELIVERED.
 
-Package delivery supports service levels, pickup/drop-off, tracking, proof, signature where configured and disputes/refunds.
+Includes privacy controls, masked communications where possible, proof of delivery, disputes, group orders, sponsored meals and Holo Fridge/Fridge Share pathways.
 
-## 10. Ghost kitchens / home food / virtual restaurants
-Path:
-HOME/COTTAGE FOOD → LICENSED HOME KITCHEN WHERE PERMITTED → SHARED/COMMISSARY KITCHEN → GHOST KITCHEN → RESTAURANT.
+## 9. Jin Pay + Money Engine
+Jin Pay orchestrates user-facing checkout/payment flows through approved payment providers.
 
-Status:
-DRAFT → REQUIREMENTS IDENTIFIED → DOCUMENTS SUBMITTED → VERIFIED → ACTIVE, with EXPIRED/SUSPENDED.
+Money Engine separates:
+- platform revenue
+- creator earnings
+- collaborator/rights obligations
+- provider/courier obligations
+- restricted mission/charity funds
+- refunds/reserves
+- taxes/other liabilities
+- actual payouts.
 
-Do not allow self-certification as approved. Merchant-supplied/verified allergy and ingredient information only.
+Real-money features stay gated until provider/compliance requirements are satisfied.
 
-## 11. Education / workforce / accessibility
-- Student JARVIS + Learning Passport + Opportunity Matcher + Aniyah Financial Literacy.
-- Tracks include Pre-K–12, GED, trades, college/HBCU, creator/business, esthetician, massage therapy, medical assistant and CNA.
-- TRYAMM can teach/tutor/prepare/match; external licensure/registry/clinical requirements remain external where required.
-- Accessibility Passport persists functional preferences rather than medical identity.
-- Accessibility Match uses user-selected requirements and explainable opportunity facts.
-- Disability Opportunity is a first-class pathway across Learn, Work, Create, Business, Grants, Assistive Tech, Transportation, Housing Resources, Games, Community, Mentors and Give Back.
+## 10. HoloGPT Credits / AI Actions / Holo Gifts
+User-facing compute/creation allowance.
 
-## 12. Community wealth / restoration
-Unified system:
-Learning Passport + Aniyah Financial Literacy + 12-Circulation Challenge + Supplier Exchange + Launchpad + Emergency Path + Community Gap Finder + Soul Ascension + Community Spotlight + Kingdom Missions.
+May fund eligible:
+- AI inference
+- authorized/licensed data enrichment
+- rendering
+- business simulations
+- creator generation
+- advanced JARVIS/agent actions.
 
-12-Circulation is educational/voluntary and measures community economic linkages; do not claim a specific dollar can be forced to circulate exactly twelve times.
+HoloGPT Credits are not cash, deposits, creator earnings or Jin Pay balances.
 
-Community Gap Finder:
-NEED → EVIDENCE → LOCATION/SCOPE → EXISTING CAPACITY → MISSING CAPACITY → TRAINING → BUSINESS/SUPPLIER → FUNDING → PARTNERS → MILESTONES → IMPACT.
+Holo Gifts may gift AI Actions/HoloGPT Credits. Withdrawable/paid creator gifting routes through Jin Pay/Money Engine instead.
 
-## 13. Opportunity / grant engine
-Opportunity Profile + explainable matching:
-LIKELY MATCH | POSSIBLE MATCH | VERIFY WITH FUNDER | NOT A MATCH | CLOSED/EXPIRED.
-
-Every opportunity stores provenance, deadline, geography, eligibility and last-verified state. Never promise an award.
-
-## 14. Regulated tele-services marketplace
-TRYAMM may provide discovery, scheduling, marketplace, communications, billing orchestration and administrative infrastructure for properly qualified providers. It must not hold itself out as the licensed professional where it is not.
-
-Potential lanes:
-- lawyer-on-demand / legal consultations, including traffic-stop/on-call access where lawful;
-- telehealth through qualified providers;
-- tele-tax/bookkeeping;
-- tele-insurance;
-- tele-realty;
-- remote notarization where permitted;
-- tutoring;
-- interpreting/sign-language services;
-- HR/recruiting;
-- technical/cybersecurity support;
-- non-medical beauty consultations;
-- other professional services added only after jurisdiction/provider review.
-
-Pricing principle:
-TRYAMM earns disclosed platform/subscription/referral/administrative fees where lawful; professional fees remain with qualified providers and fee-splitting/referral restrictions must be checked by jurisdiction/profession.
-
-## 15. Medicaid / healthcare billing
-Any Medicaid/insurance billing functionality must be gated behind qualified providers/entities, payer enrollment, coding/billing compliance, documentation, privacy/security and applicable healthcare law.
-
-TRYAMM may build administrative workflows and qualified-provider billing support but must not claim reimbursements, eligibility or provider status without verification. Healthcare-regulated-data remains OFF by default until production compliance evidence exists.
-
-## 16. Community safety / healthy crime-prevention pathway
-Create a non-vigilante, non-police-impersonation community safety network focused on prevention, accompaniment, de-escalation, safe passage, youth engagement, resource navigation, emergency escalation and trained volunteer/community responder partnerships.
-
-Principles:
-- no vigilantism;
-- no weapons program by default;
-- no pursuit/detention/search powers;
-- no impersonation of police/security guards;
-- clear training, code of conduct, insurance/partner requirements where applicable;
-- emergency services escalation for imminent danger;
-- privacy-preserving incident/resource reporting;
-- youth Peace Missions, mentorship, sports, music, jobs/trades and community service as prevention pathways.
-
-Business model may include institutional/community contracts, memberships, training, events, sponsorship and software coordination while preserving the public-service mission.
-
-## 17. Quantum Zapier
-Automation system:
-TRIGGER → CONDITION → DATA/AI → APPROVAL IF REQUIRED → ACTION → AUDIT → RESULT.
-
-Examples: orders, inventory, Supplier Exchange, grants, creator clips, support cases, delivery exceptions, HR and Business Pulse.
-
-## 18. Quantum Discord
-Original TRYAMM community/viral layer:
-WORLD/COMMUNITY → ROOMS → TOPICS → LIVE STAGE → CREWS → MISSIONS → EVENTS → MARKETPLACE → OPPORTUNITIES.
-
-Viral loop:
-CREATE → INVITE → COLLABORATE → CLIP → SHARE → NEW MEMBER → PARTICIPATE → CREATE AGAIN.
-
-Avoid spam/growth-hacking that harms users.
-
-## 19. Vehicle JARVIS / robotic systems
-Vehicle JARVIS supports navigation prep, charging/fuel planning, maintenance information, accessibility, parking memory, mileage and Holo Delivery courier workflows.
-
-Actual steering/braking/autonomous control remains behind certified OEM/safety integrations.
-
-Robotic/device pattern:
-DEVICE → CAPABILITIES → AUTHORIZATION → SAFETY → COMMAND → TELEMETRY → AUDIT.
-
-## 20. HoloGPT Credits / AI Actions
-- User-facing metering uses understandable AI Actions and HoloGPT Credits.
-- Eligible uses: AI inference, business simulation, creator generation, advanced rendering, approved data enrichment/provider usage, agent runs and selected Holo experiences.
-- Credits are NOT cash, deposits, creator earnings or Jin Pay balances.
-- Gifting AI Actions/HoloGPT Credits is allowed as usage entitlement, not cash transfer.
-- Expensive infrastructure (massive video storage, LIVE streaming, premium data, SMS, advanced rendering, payment-provider fees, unusually high bandwidth) remains metered or separately priced.
-
-## 21. Platform Sustainability Engine
-Goal: app supports itself from legitimate recurring/transactional revenue.
-
-Revenue sources may include:
-- Business/Creator subscriptions;
-- Marketplace fees;
-- Holo Delivery platform/service fees;
-- Holo Ads;
-- sponsored Holo Coupons;
-- HoloGPT Credits / AI Actions;
-- Stubbs Harmony / Forever Website / Forever Domain Care;
-- creator production tools;
-- Business Simulator/advanced JARVIS;
-- JARVIS Skill Marketplace;
-- events/ticketing;
-- education/business/institutional contracts;
-- professional-services marketplace fees where lawful;
-- future approved payment economics.
-
-Cost classes include AI compute, data providers, database, storage, bandwidth, LIVE video, maps/delivery, messaging, moderation, security, rendering and support.
+## 11. Platform Sustainability Engine
+Goal: TRYAMM must support itself from legitimate eligible revenue.
 
 Self-Support Ratio = eligible platform revenue / measured infrastructure cost.
 
@@ -224,84 +146,144 @@ SUBSIDIZED → BREAK-EVEN → SELF-SUPPORTING → RESERVE-BUILDING → 3.00× GO
 
 Official target: 3.00×.
 
-Interpretation:
-- 1.00×: measured infrastructure covered;
-- >1.00×: capacity exists for other operating obligations/reserves, subject to accounting;
-- 3.00×: three dollars of eligible platform revenue for each dollar of measured infrastructure cost.
+At 3.00×, each $1 of measured infrastructure cost is matched by $3 of eligible platform revenue before other business obligations. This is a target, not a guarantee.
 
-Do not count creator liabilities, restricted mission funds, taxes, provider settlements or other non-available funds as platform revenue.
+Revenue engines may include:
+- business/creator subscriptions
+- Marketplace platform fees
+- Holo Delivery platform/service fees
+- Holo Ads
+- Holo Coupon campaigns
+- HoloGPT Credits/AI Actions
+- Stubbs Harmony
+- Forever Website purchases
+- Forever Domain Care
+- creator production tools
+- business tools/simulations
+- events/ticketing
+- enterprise/education contracts
+- future approved payment economics
+- regulated-service marketplace platform/referral/technology fees where lawful.
 
-## 22. Pricing strategy baseline
-Competitive principle: formation is the gateway, not the entire product.
+Excluded from available platform revenue:
+creator obligations, restricted mission funds, provider settlements, taxes, refunds/reserves and other liabilities.
 
-Proposed platform baseline, subject to live unit-economics testing:
-- Business Launch: $0 TRYAMM platform fee + government/provider fees;
-- Starter: low-cost monthly tier for domain/DNS/Stubbs Harmony/basic Marketplace;
-- Growth: Business JARVIS + Supplier Exchange + automation + promotions;
-- Command: Adaptive Company OS + Business Pulse + Simulator + Agent Council;
-- Enterprise/institutional: custom.
+## 12. Quantum Zapier
+TRYAMM automation layer:
+TRIGGER → CONDITION → DATA → JARVIS/AI → APPROVAL IF NEEDED → ACTION → DELAY/NOTIFY → AUDIT → RESULT.
 
-Forever Website and Forever Domain Care must use reserve/fair-use economics rather than unfunded lifetime promises.
+Supports Marketplace, delivery, supplier, grants, Creator Studio, HR, customer support and other authorized workflows.
 
-## 23. Trust / security / red-team launch gates
-- canonical identity and least-privilege authorization;
-- MFA/passkey path for privileged accounts;
-- JARVIS Permission Firewall;
-- append-only-style server audit trail;
-- server-authoritative money and production gates;
-- moderation/report/block/appeal;
-- anti-fraud/anti-bot/anti-impersonation;
-- opportunity provenance;
-- sensitive-data minimization;
-- feature flags / kill switches.
+## 13. Quantum Discord
+TRYAMM community/viral layer:
+WORLD/COMMUNITY → ROOMS → TOPICS → LIVE STAGE → CREWS → MISSIONS → EVENTS → MARKETPLACE → OPPORTUNITIES.
 
-High-risk features OFF by default include real money/payouts, paid prize competitions, card issuing, Tap to Pay, cross-border transfers, government-ID integration, healthcare-regulated data and autonomous high-impact agent execution until production evidence exists.
+Viral loop:
+CREATE → INVITE → COLLABORATE → CLIP → SHARE → NEW MEMBER → PARTICIPATE → CREATE AGAIN.
 
-## 24. Holographic UX
-JARVIS is the front door, not another menu item.
+Must avoid spam/dark patterns and use user-controlled invitations and moderation.
 
-Users should be able to say:
-- help me with school;
-- start my business;
-- find a grant I may qualify for;
-- sell this product;
-- where is my food/package;
-- prepare this supplier payment;
-- make this easier to use one-handed;
-- show what is hurting my business;
-- simulate a change.
+## 14. Accessibility + Disability Opportunity
+Accessibility Passport supports screen reader, keyboard-only, switch access, voice control, one-handed mode, large targets/text, high contrast, reduced motion, captions, transcripts, audio description, speech-to-text/text-to-speech, simplified UI and related preferences.
 
-JARVIS routes into the underlying systems with the user's permission.
+Accessibility Match explains opportunity fit without inferring or exposing disability.
 
-## 25. Named people / recovery rule
-Named team/family/business participants must not receive invented roles, permissions or business details when prior authoritative context cannot be recovered. Preserve placeholders/recovery identities and attach exact prior roles only after evidence is found.
+Disability Opportunity lanes:
+LEARN | WORK | CREATE | BUSINESS | GRANTS | ASSISTIVE TECH | TRANSPORTATION | HOUSING RESOURCES | GAMES | COMMUNITY | MENTORS | GIVE BACK.
 
-This currently applies to any unresolved prior role/business specifics, including Tasha Ash and BJ, unless authoritative details are recovered.
+## 15. Education/workforce pathways
+Student JARVIS + Learning Passport + opportunity matching.
 
-## 26. Status discipline
-Every major capability must be labeled:
+Current explicit pathways include:
+Pre-K–12 | GED | trades | college/HBCU | financial literacy | creator careers | entrepreneurship | esthetician | massage therapy | medical assistant | CNA.
+
+TRYAMM may teach, tutor, prepare, track and match; it must not falsely issue external licenses/clinical credentials when approved schools, boards, clinical placement, exams or registries are required.
+
+## 16. Community economic/restoration system
+Unified system:
+12-Circulation Challenge + Learning Passport + Aniyah Financial Literacy + Supplier Exchange + Launchpad + Emergency Path + Community Gap Finder + Community Spotlight + Soul Ascension.
+
+The 12-Circulation Challenge teaches community economic linkage; it does not claim money can be technically forced to circulate exactly twelve times.
+
+## 17. Regulated remote-service marketplace
+Potential verticals:
+- telehealth
+- tele-law / Lawyer on Demand
+- tele-tax/bookkeeping
+- tele-insurance
+- tele-realty
+- remote notarization where permitted
+- tutoring
+- interpreting/sign-language services
+- HR/recruiting
+- technical/cybersecurity support
+- non-medical beauty consultations.
+
+TRYAMM is the platform/marketplace/orchestration layer unless separately licensed. Licensed/regulated services must be delivered by qualified providers in permitted jurisdictions.
+
+### Lawyer on Demand
+Use cases may include urgent legal consultation such as traffic stops, landlord/tenant, small-business matters and document review. The app can connect a user to an available licensed attorney; JARVIS may explain general information but must not impersonate counsel or create an attorney-client relationship without the provider's process.
+
+### Telehealth / Medicaid billing
+TRYAMM may support provider discovery, scheduling, intake, accessibility, telehealth workflow and billing software/integration. Medicaid claims must be submitted by/enabled for appropriately enrolled/qualified providers under applicable program rules. TRYAMM does not bill Medicaid merely because a user appears eligible.
+
+## 18. Healthy community safety / Guardian pathway
+Goal: reduce harm without creating vigilantes or unlicensed security forces.
+
+Model:
+COMMUNITY CARE CORPS / GUARDIAN PATHWAY.
+
+Roles can include trained visible community ambassadors, youth mentors, safe-walk companions, de-escalation-trained volunteers/workers, event greeters, resource navigators, conflict-interrupter partnerships, transit/school/community escorts where lawful, and rapid connection to professional emergency/public services.
+
+Rules:
+- no vigilantism
+- no impersonating police/security
+- no weapons mandate
+- no detention/search authority
+- no chasing suspects
+- no public doxxing/target lists
+- escalation to trained professionals/emergency services when needed
+- background checks/training/insurance/partner requirements based on role/jurisdiction.
+
+Potential lawful revenue may come from contracts/sponsorships with property owners, events, schools/nonprofits, local programs, memberships or institutional partnerships, while free community/sponsor-funded missions remain possible.
+
+## 19. HR/team integrity
+Named people may be preserved without inventing authority. Exact titles/privileges require authoritative prior records or explicit confirmation.
+
+Sensitive HR data is separated from general team profiles and protected by least privilege/audit controls.
+
+## 20. Trust, safety and launch gates
+Every feature has one status:
 CONCEPT | SPECIFIED | CODED | INTEGRATED | TESTED | GATED | LIVE.
 
-Never promote a feature based only on conversation/specification status.
+No externally regulated/provider-dependent feature becomes LIVE merely because UI/code exists.
 
-## 27. Current priority gaps
-1. Shared server-side account/identity + permission scopes.
-2. Supabase persistence/RLS for new domain models.
-3. Real integration tests for JARVIS permissions, Marketplace, Holo Delivery, Sustainability and Accessibility.
-4. Provider adapters for registrar/domain, payments, maps/delivery, messaging and regulated-service partners.
-5. Actual production usage/revenue/cost ingestion into Sustainability Engine.
-6. Trust Center + Security Command Center.
-7. Holographic JARVIS navigation integrated consistently across the public website/app.
-8. Recovery of unresolved historical business/team specifics without reinvention.
-9. Legal/compliance review before regulated services, Medicaid billing, money movement, contest/prize and autonomous hardware become LIVE.
-10. End-to-end launch journeys proven with evidence.
+High-risk feature gates default OFF for real money/payouts, paid prize competitions, card issuing, Tap to Pay, cross-border transfer, government-ID integrations, regulated healthcare data and autonomous high-impact agent actions until evidence/approval exists.
 
-## 28. Non-negotiable end-to-end journeys
-A. Student: SCHOOL HELP → LEARNING PASSPORT → OPPORTUNITY → APPLICATION → CAREER/CREATOR/BUSINESS.
-B. Business: IDEA → FORMATION → DOMAIN/SITE → PRODUCT → MARKETPLACE → CUSTOMER → PAYMENT → DELIVERY → SUPPORT → ANALYTICS.
-C. Creator: CREATE → RIGHTS/SPLITS → PUBLISH → PROMOTE → SELL/EARN → PAYOUT → AWARDS/ARCHIVE.
-D. Accessibility: ACCESSIBILITY PASSPORT → ADAPTIVE UI → ACCESSIBLE OPPORTUNITY MATCH → LEARN/WORK/CREATE.
-E. Community: GAP → FUNDING/PARTNER → PROGRAM/BUSINESS → RESULT → COMMUNITY SPOTLIGHT.
-F. Safety: NEED/CONCERN → SAFE RESOURCE/DE-ESCALATION/ESCALATION → EVIDENCE/OUTCOME without vigilantism.
+Security requirements include authorization, RLS/data isolation, audit logs, feature flags/kill switches, fraud/abuse controls, moderation, child/teen safeguards, accessibility QA, financial idempotency/webhook verification and red-team testing.
 
-Future additions must attach to at least one complete journey or justify why a new subsystem is necessary.
+## 21. Source-of-truth rule
+This file is the master architecture reference for this branch.
+
+When another document conflicts with this file:
+1. prefer authoritative external legal/provider requirements for regulated facts;
+2. otherwise prefer this master document for TRYAMM product architecture/status language;
+3. preserve prior work and reconcile into this document rather than silently duplicating/replacing systems;
+4. never upgrade a feature to TESTED/GATED/LIVE without evidence.
+
+## 22. Completion priority
+1. Shared account/identity + server authorization + RLS.
+2. JARVIS permission firewall + server-side audit/approval persistence.
+3. Company Digital Twin persistence + Business Pulse.
+4. Jin Pay sandbox + Money Engine server ledger/reconciliation.
+5. Marketplace/Holo Delivery persistence + real-time tracking.
+6. Platform Sustainability live metering + 3.00× dashboard.
+7. Stubbs Harmony integrated publish flow.
+8. Business Launch OS registrar/reseller + EIN/state-provider pathways.
+9. Quantum Zapier workflow runtime.
+10. Quantum Discord community/viral runtime.
+11. Regulated-service provider marketplace with jurisdiction/license verification.
+12. Community Care Corps/Guardian pilot with legal/insurance/training boundaries.
+13. End-to-end automated tests, red-team, accessibility and production gates.
+
+LOCKED: Future additions should extend this source of truth or explicitly supersede a named section with evidence, rather than creating an unrelated parallel architecture.
