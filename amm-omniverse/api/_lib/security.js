@@ -2,11 +2,11 @@ import crypto from 'node:crypto';
 import {adminRest,adminReady} from './supabase-admin.js';
 
 const SUPABASE_URL=()=>process.env.VITE_SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL||process.env.SUPABASE_URL||'';
-const enc=v=>encodeURIComponent(String(v??''));
-const b64u=b=>Buffer.from(b).toString('base64url');
 const fromB64u=s=>Buffer.from(String(s||''),'base64url');
 const nowIso=()=>new Date().toISOString();
 const rp=()=>({origin:(process.env.WEBAUTHN_ORIGIN||'https://tryamm.online').replace(/\/$/,''),rpID:process.env.WEBAUTHN_RP_ID||'tryamm.online'});
+function tokenClaims(token){try{return JSON.parse(fromB64u(String(token).split('.')[1]||'').toString('utf8'))}catch{return {}}}
+function authTimestamp(claims){const amr=Array.isArray(claims.amr)?claims.amr:[];const times=amr.map(x=>Number(x?.timestamp)||0).filter(Boolean);return times.length?Math.max(...times):Number(claims.iat)||0}
 
 export async function requireUser(req,res){
   const auth=String(req.headers.authorization||'');
@@ -15,14 +15,17 @@ export async function requireUser(req,res){
   if(!token||!SUPABASE_URL()) {res.status(503).json({error:'Authentication service unavailable'});return null;}
   const r=await fetch(`${SUPABASE_URL().replace(/\/$/,'')}/auth/v1/user`,{headers:{apikey:process.env.VITE_SUPABASE_ANON_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'',authorization:`Bearer ${token}`}});
   if(!r.ok){res.status(401).json({error:'Invalid or expired session'});return null;}
-  return await r.json();
+  const user=await r.json(),claims=tokenClaims(token),authAt=authTimestamp(claims);
+  user.__security={authAt,authAgeSeconds:authAt?Math.max(0,Math.floor(Date.now()/1000-authAt)):Number.POSITIVE_INFINITY,aal:claims.aal||null,amr:claims.amr||[]};
+  return user;
 }
 
 export function securityReady(){return adminReady()}
 export function randomChallenge(){return crypto.randomBytes(32).toString('base64url')}
-export function hashToken(v){const pepper=process.env.STEP_UP_TOKEN_PEPPER||process.env.SESSION_TOKEN_PEPPER||'';if(!pepper)throw new Error('step_up_pepper_missing');return crypto.createHmac('sha256',pepper).update(String(v)).digest('hex')}
+export function hashToken(v){const pepper=process.env.STEP_UP_TOKEN_PEPPER||process.env.SESSION_TOKEN_PEPPER||'';return pepper?crypto.createHmac('sha256',pepper).update(String(v)).digest('hex'):crypto.createHash('sha256').update(String(v)).digest('hex')}
 export function issueStepUp(){const token=crypto.randomBytes(32).toString('base64url');return {token,hash:hashToken(token),expiresAt:new Date(Date.now()+10*60*1000).toISOString()}}
 export function expectedRp(){return rp()}
+export function recentlyAuthenticated(user,maxAgeSeconds=600){return Number(user?.__security?.authAgeSeconds)<=maxAgeSeconds}
 
 export async function saveChallenge(userId,purpose,challenge,action=''){
   await adminRest('security_webauthn_challenges',{method:'POST',body:{user_id:userId,session_id:'supabase',purpose,challenge:action?`${action}:${challenge}`:challenge,expires_at:new Date(Date.now()+5*60*1000).toISOString()}})
@@ -59,7 +62,7 @@ export function verifyAssertion({authenticatorData,clientDataJSON,signature,publ
   try{const key=crypto.createPublicKey({key:fromB64u(publicKeyB64),format:'der',type:'spki'});const ok=crypto.verify(null,signed,key,fromB64u(signature));return ok?{ok:true,counter:auth.counter}:{ok:false,reason:'bad_signature'}}catch{return {ok:false,reason:'bad_public_key'}}
 }
 export async function consumeStepUp(userId,token,action){
-  if(!token)return null;let h;try{h=hashToken(token)}catch{return null}
+  if(!token)return null;const h=hashToken(token);
   const rows=await adminRest('security_stepup_challenges',{query:{token_hash:`eq.${h}`,user_id:`eq.${userId}`,session_id:'eq.supabase',action:`eq.${action}`,used_at:'is.null',expires_at:`gt.${nowIso()}`,limit:1}});const row=rows?.[0];if(!row)return null;
   await adminRest('security_stepup_challenges',{method:'PATCH',query:{id:`eq.${row.id}`,used_at:'is.null'},body:{used_at:nowIso()}});return row;
 }
