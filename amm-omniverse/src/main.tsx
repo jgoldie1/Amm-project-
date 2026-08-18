@@ -6,6 +6,7 @@ import UniversalSafetyLauncher from './components/UniversalSafetyLauncher'
 import MiddleverseLauncher from './components/MiddleverseLauncher'
 import GameVerseLauncher from './components/GameVerseLauncher'
 import AccessibilityPassportPanel from './components/AccessibilityPassportPanel'
+import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 
 installProductionHealthMonitor()
