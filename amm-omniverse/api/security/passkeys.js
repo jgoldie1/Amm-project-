@@ -1,4 +1,4 @@
-import {requireUser,securityReady,randomChallenge,saveChallenge,consumeChallenge,activePasskeys,verifyClientData,verifyAuthenticatorData,verifyAssertion,issueStepUp,expectedRp,audit} from '../_lib/security.js';
+import {requireUser,securityReady,randomChallenge,saveChallenge,consumeChallenge,activePasskeys,verifyClientData,verifyAuthenticatorData,verifyAssertion,issueStepUp,expectedRp,audit,recentlyAuthenticated,consumeStepUp} from '../_lib/security.js';
 import {adminRest,json} from '../_lib/supabase-admin.js';
 
 export default async function handler(req,res){
@@ -11,6 +11,14 @@ export default async function handler(req,res){
     if(req.method!=='POST')return json(res,405,{error:'Method not allowed'});
     const op=String(req.body?.op||'');
     if(op==='register-options'){
+      const keys=await activePasskeys(user.id);
+      if(keys.length){
+        const token=String(req.headers['x-step-up-token']||req.body?.stepUpToken||'');
+        const approved=await consumeStepUp(user.id,token,'add-passkey');
+        if(!approved)return json(res,403,{error:'Existing passkey verification required before adding another passkey',code:'PASSKEY_STEP_UP_REQUIRED'});
+      }else if(!recentlyAuthenticated(user,600)){
+        return json(res,403,{error:'Please sign in again before enrolling your first passkey',code:'RECENT_AUTH_REQUIRED'});
+      }
       const challenge=randomChallenge();await saveChallenge(user.id,'registration',challenge);return json(res,200,{challenge,rp:expectedRp(),user:{id:user.id,name:user.email||user.id,displayName:user.user_metadata?.full_name||user.email||'TRYAMM User'}});
     }
     if(op==='register-verify'){
