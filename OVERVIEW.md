@@ -1,103 +1,89 @@
-# AMM Omniverse Workspace Overview
+# TRYAMM Workspace Overview
 
-This workspace coordinates the source code for the **All American Marketplace (AMM)** digital ecosystem. The codebase is divided into three distinct folders, each serving as a specialized component of the overall platform.
+> **Canonical status:** This file is a current workspace summary. Architecture-level decisions are governed by `README.md`, `CLAUDE.md`, `SKILL.md`, and `docs/TRYAMM_CANONICAL_ARCHITECTURE.md`.
+>
+> Older files named `*_COMPLETE.md`, `MASTER_*`, or milestone handoff documents are historical snapshots unless explicitly marked current. Do not use them to claim production readiness.
 
----
+## Workspace structure
 
-## Workspace Directory Structure
+- `amm-omniverse/` — primary TRYAMM web/PWA/mobile-wrapper application serving the core platform experience.
+- `isaiah-starverse/` — companion talent-discovery / StarVerse work.
+- `amm-card-arena/` — card-game / holographic arena work.
+- `docs/` — canonical cross-platform product and engineering architecture.
 
-* **`amm-omniverse/`** — Main Full-Stack Application (Creator Platform, 3D Sports Games, Backend API, and Mobile wrappers)
-* **`isaiah-starverse/`** — Next.js Faith-Centered Talent Discovery and AI Audition Platform
-* **`amm-card-arena/`** — Holographic 3D Card Battle Game Engine & Lore Bible
+## Canonical TRYAMM experience
 
----
+**HOME | PLAY | LIVE | CREATE | NEXUS**
 
-## 1. AMM Omniverse (`amm-omniverse/`)
-* **Purpose:** The core social marketplace and creator economy platform (**tryamm.online**). It manages user logins, live streaming data, the digital store, payroll, and includes 15+ interactive Three.js 3D sports games.
-* **Summary:** The flagship full-stack system that powers the primary creator economy at **tryamm.online**. It operates as a responsive web app, Progressive Web App (PWA), and compiles to iOS and Android builds.
+Lifecycle:
 
-* **Tech Stack:**
-  * **Frontend:** React 18, Vite, Zustand (state management), Three.js (procedural graphics and lighting), Capacitor 6 (iOS/Android wrappers).
-  * **Backend (`amm-backend/`):** Node.js, Express, Stripe API, LiveKit Server SDK.
-  * **Database:** Supabase (PostgreSQL with Row-Level Security).
-* **Core Systems:**
-  * **Games Hub (15+):** 3D sports games (Basketball 5v5, Football, WNBA, MMA, Baseball, and WebXR VR Arenas) running on custom Cannon-es rigid-body physics.
-  * **Recording Studio DAW:** A 64-track digital audio workstation supporting vocal coaching, AI script writing, and digital music distribution.
-  * **Creator Hub & Live Hub:** High-performance live streaming (WebRTC via LiveKit Cloud) with tap-to-tip token mechanics, melanin-tuned video filters, and AI script writing.
-  * **Business Directory:** A localized registry for discovering and booking verified Black-owned businesses.
-  * **Regional Teams & Payouts (BIGO Model):** Integrated multi-role payroll supporting Stripe (US), Paystack & Flutterwave (Africa), and M-Pesa payouts.
-  * **KITT AI Assistant:** SVG/CSS-animated holographic helper orb utilizing Gemini 1.5 Flash for audio mixing feedback, chat support, and stream co-hosting.
+**JOIN → DISCOVER → LEARN → CREATE → OWN → PUBLISH → PLAY/WATCH/LISTEN → BUILD COMMUNITY → EARN → GET PAID → ACHIEVE → GET RECOGNIZED → BUILD LEGACY.**
 
----
+## Core platform pillars
 
-## 2. Isaiah AI Starverse (`isaiah-starverse/`)
-* **Purpose:** A Next.js 14 companion application focused on faith-centered talent discovery (**"Anyone Can Be A Star"**). Performers submit video auditions scored by an AI judge ("Messiah AI MD") and compete in public showcase tournaments.
-* **Summary:** A Next.js talent showcase companion platform designed around the philosophy that **"Anyone Can Be A Star."** It is focused on family-safe, faith-centered talent discovery.
+### Discovery and algorithms
+TRYAMM uses a federation of specialized algorithms rather than one universal feed. Algorithm Studio allows users to create, save, share and remix ranking profiles through sliders, rules or natural language. Custom algorithms cannot bypass safety, age, copyright, fraud or legal eligibility controls.
 
-* **Tech Stack:**
-  * **Framework:** Next.js 14 (App Router), TypeScript, Tailwind CSS.
-  * **Database/Logic:** Modular local JSON structures for zero-API cost deployments, interfacing with the main Supabase storage.
-* **Core Systems:**
-  * **Messiah AI MD Judge:** A specialized AI coaching system providing 30-day custom talent roadmaps and automatic scoring for auditions.
-  * **Starverse Audition Feed:** A community dashboard featuring live user voting, AI score ranking, and category-filtered star profiles.
-  * **Higfield Dance 2.0:** Audition pipelines and registration management for contemporary, praise, hip-hop, and parent-child step productions.
-  * **Audition Form Consent:** A built-in security check validating parent/guardian consent for youth performers.
+### Unified identity
+One account spans Profile, PLAY, LIVE, Creator Studio, Academy, Marketplace, Awards, All American Passport and All American Wallet.
 
----
+### Creator Project model
+A Creator Project is the aggregate root for connected songs, Reels, films, anime, games, podcasts, LIVE events, AR/VR/MR/holographic experiences, merchandise and Omni Boxes. Rights and split agreements are versioned and shared rather than duplicated per feature.
 
-## 3. AMM Card Arena (`amm-card-arena/`)
-* **Purpose:** The dedicated gameplay engine for the **Holographic Card Battle Arena**. It features advanced 3D shaders representing different cosmic/biblical realms and integrates with the Hebrew Calendar to award in-game bonuses during Appointed Feasts.
-* **Summary:** The dedicated visual and logical engine for the **Holographic Card Battle Arena**, which operates as a collectible card game (similar to a trading card game) built into the Fantasy Card League.
+### Money Engine
+The Money Engine is sandbox-first double-entry accounting. It separates TRYAMM revenue from creator/rightsholder liabilities, prizes, tax, refund reserves, sponsor-restricted money, charity, Kenosha Legacy, ministry allocations, fees, reserves and settlement cash. UI balances do not create or authorize real payouts by themselves.
 
-* **Tech Stack:**
-  * **Rendering Engine:** Three.js (r168) physical iridescence material shaders, simulated camera sway, and Rim-Lighting.
-  * **Audio Synthesis:** Web Audio API (synthesizes 10 different battle SFX offline, no media assets required).
-* **Core Systems:**
-  * **Ten Realms Shaders:** Unique battle rules and card visual themes representing Judah, Saturn, Light, Fire, Sky, and more.
-  * **Hebrew Appointed Feast Integrations:** Syncs with the Hebrew Calendar to award in-game combat bonuses during feasts (e.g., *Yom Teruah* Shofar stun, *Hanukkah* Menorah draws, *Pesach* Exodus shields).
-  * **Battle FX System:** Full visual feedback screen-shaking, damage-number floaters, and colored flash overlays responding to attacks.
-  * **DTC Print Bridge:** QR-code print layouts matching print-on-demand specifications (MakePlayingCards) for physical deck unlocking.
+### Wallet and Passport
+All American Wallet is the user-facing financial interface over Money Engine states. All American Passport is a TRYAMM membership/achievement/reputation credential. It is not a government passport or driver's license. Regulated identity, card issuing and tap-to-pay require approved partners and corresponding compliance gates.
 
----
+### Creator economy
+Academy → Studio → Rights → Publish/Distribution → Reels/Music/Movies/Games/LIVE/Immersive → Commerce → Money Engine → Wallet/Payout → Charts/Certifications → Awards → Hall of Fame/Legacy.
 
-## Local Development Start Instructions
+### Faith, Set Apart Music and service
+Set Apart Music supports faith-centered music including Yahuah-centered music/rap, gospel, worship, testimony and spoken word. Faith/service awards remain distinct from popularity-only metrics. The Kenosha Stubbs Legacy Award is a living-honor/service award rooted in compassion, family, community and licensed social-work service.
 
-### Run AMM Omniverse (Main Frontend & Backend)
-1. **Start the Backend API:**
-   ```bash
-   cd amm-omniverse/amm-backend
-   npm install
-   npm start
-   ```
-2. **Start the Frontend App:**
-   ```bash
-   cd amm-omniverse
-   npm install
-   npm run dev
-   ```
+## Current technical direction
 
-### Run Isaiah AI Starverse
+- Frontend: React + Vite + TypeScript.
+- State: Zustand and Supabase-backed persistent state where implemented.
+- Database/Auth: Supabase PostgreSQL + Auth + RLS.
+- Payments: Stripe sandbox during integration; Connect/payment features remain gated until end-to-end controls pass.
+- Streaming: LiveKit-related work remains subject to production validation and deployment configuration.
+- Mobile: PWA plus Capacitor wrappers; store readiness is separate from web readiness.
+
+## Development commands
+
+Primary app:
+
 ```bash
-cd isaiah-starverse
+cd amm-omniverse
 npm install
 npm run dev
 ```
 
-### Run AMM Card Arena
-```bash
-cd amm-card-arena
-npm install
-npm run dev
-```
+Run the repository's validation scripts before calling a change complete. Production readiness requires more than a successful local build.
 
----
+## Launch states
 
-## Staging & Deployment Configs (Milestone 1)
+**DEMO → INTERNAL → ALPHA → BETA → PUBLIC**
 
-The platform is configured with continuous deployment hooks to automatically compile new pushes to the `developer-vic` branch:
+Independent feature flags must govern:
 
-* **Staging Frontend:** [https://tryamm.online](https://tryamm.online) (Serves React files via Vercel CDN edge caches).
-* **Staging Backend:** [https://api.tryamm.online](https://api.tryamm.online) (Host API endpoint running in free Node runtime on Render).
-* **Database System:** Supabase PostgreSQL instance (direct interface for tables query/upserts).
-* **Streaming Engine:** LiveKit Cloud sandbox.
+- REAL MONEY
+- REAL PAYOUTS
+- PRIZE COMPETITIONS
+- EXTERNAL DISTRIBUTION
+- REGULATED IDENTITY
+- CARD / TAP-TO-PAY
 
+A simulated, sandboxed, mocked, UI-only or undeployed capability must never be documented as production-ready.
+
+## Documentation order
+
+1. `README.md`
+2. `CLAUDE.md`
+3. `SKILL.md`
+4. `docs/TRYAMM_CANONICAL_ARCHITECTURE.md`
+5. `docs/DOCS_INDEX.md`
+6. Feature-specific docs in `docs/`
+7. Historical milestone files only for background/context
