@@ -2,7 +2,7 @@ import type { AccessibilityPassport } from '../accessibility/accessibilityPasspo
 import { matchAccessibility, type AccessibleOpportunity } from '../accessibility/accessibilityMatch';
 import type { LearningPassport, LearningStage } from './learningPassport';
 
-export type StudentOpportunityType = 'scholarship' | 'grant' | 'college' | 'hbcU' | 'trade' | 'ged' | 'internship' | 'apprenticeship' | 'job' | 'mentor' | 'tutoring';
+export type StudentOpportunityType = 'scholarship' | 'grant' | 'college' | 'hbcu' | 'trade' | 'ged' | 'internship' | 'apprenticeship' | 'job' | 'mentor' | 'tutoring';
 
 export type StudentOpportunity = AccessibleOpportunity & {
   type: StudentOpportunityType;
