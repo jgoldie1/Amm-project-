@@ -1,0 +1,13 @@
+'use strict';
+const assert=require('assert');
+const faith=require('../lib/faith-calendar');
+const prefs=faith.normalizePrefs({sabbathMethod:'friday-sunset-to-saturday-sunset',newMoonMethod:'community-declared',reflectMode:true,quietNotifications:true});
+assert.equal(prefs.reflectMode,true);
+const sabbath=faith.nextWeeklySabbath(new Date('2026-08-17T12:00:00Z'),prefs);
+assert(sabbath.start&&sabbath.end);
+const moon=faith.moonEvent({startsAt:'2026-08-18T00:00:00Z',method:'community-declared',declaredBy:'community'});
+assert.equal(moon.method,'community-declared');
+const active=faith.observanceState({now:new Date(sabbath.start),sabbath,prefs});
+assert.equal(active.reflectModeActive,true);
+assert.equal(active.ui.reduceCommercialPrompts,true);
+console.log('faith calendar smoke: PASS');

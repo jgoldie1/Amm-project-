@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('assert');
+process.env.SESSION_TOKEN_PEPPER=process.env.SESSION_TOKEN_PEPPER||'test-pepper-123456789';
+const s=require('../lib/step-up-security');
+const secret=s.totpSecret(),now=Date.now(),code=s.totpCode(secret,{time:now});
+assert(s.verifyTotp(secret,code,{time:now}));assert(!s.verifyTotp(secret,'000000',{time:now})||code==='000000');
+const p=s.actionPolicy('change-payout-destination',{moneyMovement:true});assert(p.stepUpRequired);assert(p.requiredMethods.includes('passkey-or-totp'));
+const issued=s.issue({userId:'u1',sessionId:'s1',action:'change-payout-destination',method:'totp',now});const records=[issued.record];
+assert(s.verify(records,issued.token,{userId:'u1',sessionId:'s1',action:'change-payout-destination',now:now+1000}).ok);
+assert(!s.verify(records,issued.token,{userId:'u1',sessionId:'s1',action:'change-payout-destination',now:now+2000}).ok);
+console.log('step-up security smoke: PASS');

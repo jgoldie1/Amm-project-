@@ -1,0 +1,12 @@
+'use strict';
+const assert=require('assert');
+process.env.SESSION_TOKEN_PEPPER='test-only-pepper-not-production';
+const s=require('../lib/session-security');
+const records=[];
+const created=s.create('user1',{userAgent:'Browser/1.2.3',acceptLanguage:'en-US',deviceId:'device-a'},1000);records.push(created.record);
+assert(created.token);assert(!created.record.token);assert(created.record.tokenHash);assert(!created.record.tokenHash.includes(created.token));
+const good=s.verify(records,created.token,{userAgent:'Browser/9.8.7',acceptLanguage:'en-US',deviceId:'device-a'},2000);assert(good.ok);
+const stolen=s.verify(records,created.token,{userAgent:'OtherBrowser/1.0',acceptLanguage:'en-US',deviceId:'device-b'},2000);assert(!stolen.ok);assert.equal(stolen.reason,'fingerprint_mismatch');
+assert(s.revoke(records,created.token,'logout',3000));assert(!s.verify(records,created.token,{userAgent:'Browser/1.0',acceptLanguage:'en-US',deviceId:'device-a'},4000).ok);
+const a=s.create('user2',{userAgent:'Browser',deviceId:'a'},5000),b=s.create('user2',{userAgent:'Browser',deviceId:'b'},5000);records.push(a.record,b.record);assert.equal(s.revokeUser(records,'user2','logout_all',null,6000),2);
+console.log('session security smoke: PASS');
