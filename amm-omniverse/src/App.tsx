@@ -20,6 +20,7 @@ import HoloServicesHub from './components/HoloServicesHub'
 import HoloCoreCenter from './components/HoloCoreCenter'
 import FamilyLegacyHub from './components/FamilyLegacyHub'
 import QuantumEngineCenter from './components/QuantumEngineCenter'
+import SecurityCenter from './components/SecurityCenter'
 import './styles.css'
 
 const ProAudioSuite = lazy(() => import('./components/ProAudioSuite'))
@@ -53,6 +54,7 @@ export default function App() {
   const [showLagBuster, setShowLagBuster] = useState(false)
   const [showQuantumBeat, setShowQuantumBeat] = useState(false)
   const [showOTT, setShowOTT] = useState(false)
+  const [showSecurity, setShowSecurity] = useState(false)
   const [showNexus, setShowNexus] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
@@ -76,10 +78,12 @@ export default function App() {
   ;(window as any).__showQuantumLagBuster = () => setShowLagBuster(true)
   ;(window as any).__showQuantumBeat = () => setShowQuantumBeat(true)
   ;(window as any).__showIsaiahTV = () => setShowOTT(true)
+  ;(window as any).__showSecurityCenter = () => setShowSecurity(true)
   ;(window as any).__showCommandNexus = () => setShowNexus(true)
 
   const signedIn = screen !== 'intro' && screen !== 'login'
   const nexusItems = [
+    ['🛡','SECURITY',()=>setShowSecurity(true),'LIVE'],
     ['◉','OMNIVERSE',()=>setShowOmniverse(true),'BETA'],
     ['◎','HOLO CORE',()=>setShowHoloCore(true),'BETA'],
     ['✦','HOLO SERVICES',()=>setShowHoloServices(true),'BETA'],
@@ -140,6 +144,7 @@ export default function App() {
         {showImmersive && <ImmersiveWorldViewport onClose={() => setShowImmersive(false)} />}
         {showFamilyLegacy && <FamilyLegacyHub onClose={() => setShowFamilyLegacy(false)} />}
         {showQuantumEngine && <QuantumEngineCenter onClose={() => setShowQuantumEngine(false)} />}
+        {showSecurity && <SecurityCenter onClose={() => setShowSecurity(false)} />}
         {showSignLanguage && <Suspense fallback={null}><div style={{position:'fixed',inset:0,zIndex:10000,background:'#050816'}}><SignLanguageHub onClose={() => setShowSignLanguage(false)} /></div></Suspense>}
         {showAccessibilityRemote && <Suspense fallback={null}><AccessibilityRemoteHub onClose={() => setShowAccessibilityRemote(false)} /></Suspense>}
         {showLive && <Suspense fallback={null}><div style={{position:'fixed',inset:0,zIndex:10020,background:'#030611'}}><LiveCenter onClose={() => setShowLive(false)} /></div></Suspense>}
