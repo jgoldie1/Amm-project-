@@ -7,6 +7,7 @@ const must = (condition, message) => { if (!condition) throw new Error(`LIVE PER
 
 const persistence = read('src/runtime/tryammPersistence.ts');
 const journey = read('src/coreJourney/coreJourneyService.ts');
+const launcher = read('src/components/CoreJourneyLauncher.tsx');
 const edge = read('supabase/functions/tryamm-core/index.ts');
 const env = read('.env.example');
 
@@ -38,6 +39,14 @@ for (const forbiddenDirectWrite of [
 ]) {
   must(!journey.includes(forbiddenDirectWrite), `core journey must not directly write protected table via ${forbiddenDirectWrite}`);
 }
+
+must(journey.includes('loadTryammDashboard()'), 'core journey service must expose authoritative dashboard aggregation');
+must(journey.includes('subscribeToOrderJourney'), 'core journey service must expose realtime order/delivery subscription');
+must(launcher.includes('Completed steps this session: {doneCount}/9'), 'visible core journey must contain nine evidenced steps');
+must(launcher.includes("['delivered','Delivered successfully',0]"), 'visible delivery journey must reach delivered state');
+must(launcher.includes('loadBusinessDashboard()'), 'visible journey must validate dashboard aggregation');
+must(launcher.includes('subscribeJourney(order.id'), 'visible journey must subscribe to realtime order/delivery events');
+must(launcher.includes("events.at(-1)?.state!=='delivered'"), 'visible journey must verify persisted delivery completion');
 
 must(edge.includes('approved_checkout_required'), 'sandbox payment must require approved JARVIS checkout evidence');
 must(edge.includes('invalid_delivery_transition'), 'delivery state machine must reject invalid transitions');
