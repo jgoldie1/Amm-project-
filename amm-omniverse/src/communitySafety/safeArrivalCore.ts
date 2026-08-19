@@ -1,6 +1,7 @@
-export type JourneyState = 'requested' | 'authorized' | 'responder_assigned' | 'en_route' | 'accompanying' | 'arrived' | 'closed' | 'cancelled' | 'escalated';
+export type JourneyState = 'requested' | 'dispatcher_review' | 'authorized' | 'responder_assigned' | 'en_route' | 'accompanying' | 'arrived' | 'disengaged' | 'emergency_handoff' | 'closed' | 'cancelled' | 'escalated';
 export type ResponderStatus = 'pending' | 'eligible' | 'suspended' | 'expired' | 'revoked';
 export type ServicePackage = 'individual' | 'family' | 'employer_closing_shift' | 'campus_community' | 'church_event' | 'senior_disability' | 'sponsored' | 'nonprofit_municipal';
+export type RiskLevel = 'low' | 'elevated' | 'high' | 'imminent_danger';
 
 export type ResponderEligibility = {
   responderId: string;
@@ -9,6 +10,8 @@ export type ResponderEligibility = {
   trainingComplete: boolean;
   backgroundCheckState?: 'not_required' | 'pending' | 'passed' | 'failed' | 'expired';
   insuranceVerified?: boolean;
+  jurisdictionApproved?: boolean;
+  prohibitedFromWeaponsOrEnforcementRole?: boolean;
   serviceAreas: string[];
   accessibilitySkills?: string[];
   expiresAt?: string;
@@ -26,6 +29,7 @@ export type SafeArrivalJourney = {
   accountId: string;
   package: ServicePackage;
   state: JourneyState;
+  riskLevel: RiskLevel;
   originLabel: string;
   destinationLabel: string;
   requestedAt: string;
@@ -37,6 +41,8 @@ export type SafeArrivalJourney = {
   locationExpiresAt?: string;
   consentToLiveLocation: boolean;
   escalationReason?: string;
+  emergencyServicesContactedAt?: string;
+  closedAt?: string;
 };
 
 export type JourneyLocation = {
@@ -62,10 +68,19 @@ export type SafetyAuditEvent = {
   metadata?: Record<string, string | number | boolean | null>;
 };
 
+export type SafeArrivalMembership = {
+  id: string;
+  kind: ServicePackage;
+  billingModel: 'monthly' | 'annual' | 'per_use' | 'contract' | 'sponsored';
+  includedUses?: number;
+  serviceAreaIds: string[];
+  active: boolean;
+};
+
 export function authorizeDispatcherAction(input: {
   dispatcher: DispatcherAuthorization | undefined;
   journey: SafeArrivalJourney;
-  action: 'authorize' | 'assign' | 'escalate' | 'close' | 'cancel';
+  action: 'review' | 'authorize' | 'assign' | 'escalate' | 'close' | 'cancel';
 }) {
   const { dispatcher, journey, action } = input;
   if (!dispatcher?.active) return { allowed: false, reason: 'Dispatcher is inactive or missing.' };
@@ -74,7 +89,8 @@ export function authorizeDispatcherAction(input: {
   }
   const inArea = dispatcher.roles.includes('admin') || dispatcher.serviceAreas.includes('*') || dispatcher.serviceAreas.includes(journey.originLabel);
   if (!inArea) return { allowed: false, reason: 'Journey is outside dispatcher service area.' };
-  if (action === 'authorize' && journey.state !== 'requested') return { allowed: false, reason: 'Only requested journeys can be authorized.' };
+  if (action === 'review' && journey.state !== 'requested') return { allowed: false, reason: 'Only requested journeys enter dispatcher review.' };
+  if (action === 'authorize' && !['requested', 'dispatcher_review'].includes(journey.state)) return { allowed: false, reason: 'Journey must be requested/reviewed before authorization.' };
   if (action === 'assign' && journey.state !== 'authorized') return { allowed: false, reason: 'Responder assignment requires an authorized journey.' };
   return { allowed: true, reason: 'Dispatcher action is within scope.' };
 }
@@ -90,18 +106,34 @@ export function responderCanAccept(input: {
   if (r.status !== 'eligible' || !r.identityVerified || !r.trainingComplete) return { allowed: false, reason: 'Responder is not currently eligible.' };
   if (r.expiresAt && new Date(r.expiresAt) <= now) return { allowed: false, reason: 'Responder eligibility expired.' };
   if (r.backgroundCheckState && !['not_required', 'passed'].includes(r.backgroundCheckState)) return { allowed: false, reason: 'Responder background-check requirement is not satisfied.' };
+  if (r.insuranceVerified === false || r.jurisdictionApproved === false) return { allowed: false, reason: 'Responder coverage/jurisdiction requirement is not satisfied.' };
+  if (r.prohibitedFromWeaponsOrEnforcementRole === false) return { allowed: false, reason: 'Responder role must remain non-enforcement/non-weaponized.' };
   if (!r.serviceAreas.includes('*') && !r.serviceAreas.includes(input.journey.originLabel)) return { allowed: false, reason: 'Journey is outside responder service area.' };
   return { allowed: true, reason: 'Responder is eligible for this journey.' };
 }
 
+export function evaluateRiskForDispatch(journey: SafeArrivalJourney) {
+  if (journey.riskLevel === 'imminent_danger') {
+    return {
+      assignResponder: false,
+      emergencyHandoff: true,
+      instructions: ['DISENGAGE', 'CREATE_DISTANCE', 'CONTACT_APPROPRIATE_EMERGENCY_SERVICES', 'SUPERVISOR_AUDIT'],
+    } as const;
+  }
+  return { assignResponder: true, emergencyHandoff: false, instructions: ['DISPATCHER_AUTHORIZATION', 'ELIGIBILITY_CHECK', 'ASSIGNMENT'] } as const;
+}
+
 const transitions: Record<JourneyState, JourneyState[]> = {
-  requested: ['authorized', 'cancelled'],
-  authorized: ['responder_assigned', 'cancelled', 'escalated'],
-  responder_assigned: ['en_route', 'cancelled', 'escalated'],
-  en_route: ['accompanying', 'cancelled', 'escalated'],
-  accompanying: ['arrived', 'escalated'],
+  requested: ['dispatcher_review', 'authorized', 'cancelled'],
+  dispatcher_review: ['authorized', 'cancelled', 'escalated', 'emergency_handoff'],
+  authorized: ['responder_assigned', 'cancelled', 'escalated', 'emergency_handoff'],
+  responder_assigned: ['en_route', 'cancelled', 'escalated', 'emergency_handoff'],
+  en_route: ['accompanying', 'cancelled', 'escalated', 'emergency_handoff'],
+  accompanying: ['arrived', 'disengaged', 'escalated', 'emergency_handoff'],
   arrived: ['closed', 'escalated'],
-  closed: [], cancelled: [], escalated: ['closed'],
+  disengaged: ['emergency_handoff', 'closed'],
+  emergency_handoff: ['closed'],
+  closed: [], cancelled: [], escalated: ['disengaged', 'emergency_handoff', 'closed'],
 };
 
 export function canTransitionJourney(from: JourneyState, to: JourneyState) {
@@ -129,6 +161,14 @@ export type PilotEvidence = {
   controlledFieldHarness: boolean;
   noIncidentBounties: boolean;
   pricingNotTiedToConfrontations: boolean;
+  trainingVerified: boolean;
+  insuranceVerified: boolean;
+  legalReviewVerified: boolean;
+  emergencyProtocolVerified: boolean;
+  dispatcherCoverageVerified: boolean;
+  backgroundCheckProcessVerified: boolean;
+  privacyReviewVerified: boolean;
+  simulationPassed: boolean;
 };
 
 export function evaluatePilotReadiness(evidence: PilotEvidence) {
@@ -144,7 +184,8 @@ export function evaluatePilotReadiness(evidence: PilotEvidence) {
 // Safety/business rules:
 // - Compensation is for time, availability, accompaniment, dispatch coverage, accessibility support, training, and service delivery.
 // - No worker, contractor, member, or partner is paid per confrontation, arrest, suspicious-person report, weapon discovery, or incident found.
-// - Responders are not police/security substitutes and must not chase, detain, interrogate, search, or escalate conflicts.
-// - Imminent danger routes to 911/local emergency services; responders disengage and prioritize distance/safety.
+// - Responders are not police/security substitutes and must not chase, detain, interrogate, search, pursue, or escalate conflicts.
+// - Imminent danger path: disengage -> create distance -> contact appropriate emergency services -> supervisor/audit -> close.
 // - Precise member/responder location is purpose-limited and expires after the active journey/retention window.
 // - Production state, eligibility, audit logs, and pricing authority must be server-side; client state is display-only.
+// - Real-world pilots remain gated by jurisdiction-specific legal/insurance/training/operations requirements.
