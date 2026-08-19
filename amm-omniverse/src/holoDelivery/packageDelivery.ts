@@ -70,10 +70,10 @@ export type ArrivalSnapshot = {
 
 export function packageArrivalSnapshot(delivery: PackageDelivery): ArrivalSnapshot {
   const events = [...delivery.trackingEvents].sort((a, b) => a.occurredAt.localeCompare(b.occurredAt));
-  const latest = events.at(-1);
+  const latest = events.length > 0 ? events[events.length - 1] : undefined;
   const latestEta = [...events].reverse().find((e) => typeof e.etaMinutes === 'number')?.etaMinutes;
   const latestLocation = [...events].reverse().find((e) => e.location)?.location;
-  const state = latest?.state ?? delivery.state;
+  const state: OrderState = latest?.state ?? delivery.state;
   return {
     status: latest?.publicMessage ?? 'Delivery created',
     etaMinutes: latestEta,
