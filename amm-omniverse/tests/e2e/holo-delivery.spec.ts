@@ -6,18 +6,19 @@ test('Holo Delivery launcher opens food package tracking and help flows', async 
   await expect(launcher).toBeVisible();
   await launcher.click();
 
-  await expect(page.getByRole('dialog', { name: /holo delivery center/i })).toBeVisible();
-  await expect(page.getByText(/food • packages • coupons • live arrival tracking/i)).toBeVisible();
+  const dialog = page.getByRole('dialog', { name: /holo delivery center/i });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByText(/food • packages • coupons • live arrival tracking/i)).toBeVisible();
 
-  await page.getByRole('button', { name: /package/i }).click();
-  await expect(page.getByRole('heading', { name: /send a package/i })).toBeVisible();
-  await expect(page.getByLabel(/pickup address/i)).toBeVisible();
+  await dialog.getByRole('button', { name: '📦 PACKAGE', exact: true }).click();
+  await expect(dialog.getByRole('heading', { name: /send a package/i })).toBeVisible();
+  await expect(dialog.getByLabel(/pickup address/i)).toBeVisible();
 
-  await page.getByRole('button', { name: /track/i }).click();
-  await expect(page.getByRole('heading', { name: /track delivery arrival/i })).toBeVisible();
-  await expect(page.getByText(/live map adapter/i)).toBeVisible();
+  await dialog.getByRole('button', { name: '📍 TRACK', exact: true }).click();
+  await expect(dialog.getByRole('heading', { name: /track delivery arrival/i })).toBeVisible();
+  await expect(dialog.getByText(/live map adapter/i)).toBeVisible();
 
-  await page.getByRole('button', { name: /help/i }).click();
-  await expect(page.getByRole('heading', { name: /delivery help/i })).toBeVisible();
-  await expect(page.getByRole('button', { name: /request refund\/review/i })).toBeVisible();
+  await dialog.getByRole('button', { name: '🛟 HELP', exact: true }).click();
+  await expect(dialog.getByRole('heading', { name: /delivery help/i })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: /request refund\/review/i })).toBeVisible();
 });
