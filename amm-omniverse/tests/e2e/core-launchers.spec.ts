@@ -11,7 +11,10 @@ test.describe('TRYAMM global commerce launchers', () => {
     await expect(market).toBeVisible();
 
     await delivery.click();
-    await expect(page.getByText(/Holo Delivery/i).first()).toBeVisible();
+    const deliveryDialog = page.getByRole('dialog', { name: /Holo Delivery Center/i });
+    await expect(deliveryDialog).toBeVisible();
+    await deliveryDialog.getByRole('button', { name: 'Close Holo Delivery' }).click();
+    await expect(deliveryDialog).toBeHidden();
 
     await market.click();
     await expect(page.getByText(/Holo Marketplace/i).first()).toBeVisible();
