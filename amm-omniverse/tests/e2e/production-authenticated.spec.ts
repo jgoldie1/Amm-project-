@@ -7,6 +7,8 @@ const required = (name: string) => {
   return value;
 };
 
+test.skip(process.env.RUN_PRODUCTION_ACCEPTANCE !== '1', 'Production authenticated acceptance only runs in the protected release workflow.');
+
 test('real authenticated owner journey persists through reload and RLS returns owner-only records', async ({ page }) => {
   const email = required('E2E_TEST_EMAIL');
   const password = required('E2E_TEST_PASSWORD');
@@ -62,7 +64,7 @@ test('real authenticated owner journey persists through reload and RLS returns o
 
   const { data: orders, error: orderError } = await verifier
     .from('tryamm_orders')
-    .select('id,buyer_id,business_id,status,total_minor')
+    .select('id,buyer_id,business_id,status,total_minor,created_at')
     .eq('business_id', business.id)
     .order('created_at', { ascending: false })
     .limit(5);
