@@ -105,10 +105,10 @@ export default function CoreJourneyLauncher() {
         })}/>
 
         <JourneyStep n="5" title="Payment sandbox" status={pill('payment')} disabled={!ready || !order || !approvalId} onClick={()=>run('payment', async()=>{
-          if(!order) throw new Error('Order missing'); await authorizeSandboxPayment(order)
+          if(!order || !approvalId) throw new Error('Order or approval missing'); await authorizeSandboxPayment(order, approvalId)
         })}/>
 
-        <JourneyStep n="6" title="Holo Delivery tracking" status={pill('delivery')} disabled={!ready || !order} onClick={()=>run('delivery', async()=>{
+        <JourneyStep n="6" title="Holo Delivery tracking" status={pill('delivery')} disabled={!ready || !order || states.payment !== 'done'} onClick={()=>run('delivery', async()=>{
           if(!order) throw new Error('Order missing')
           await addDeliveryEvent(order.id,'confirmed','Order confirmed',28)
           await addDeliveryEvent(order.id,'in_transit','Courier is on the way',12)
