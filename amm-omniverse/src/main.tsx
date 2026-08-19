@@ -10,8 +10,10 @@ import HoloDeliveryLauncher from './components/HoloDeliveryLauncher'
 import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
+import { installGameStatePersistence } from './game/runtime/gameCompletionCore'
 
 installProductionHealthMonitor()
+installGameStatePersistence()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
