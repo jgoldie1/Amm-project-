@@ -1,27 +1,25 @@
-# All American Marketplace (AMM) Project Hub
+# TRYAMM / All American Marketplace
 
-Welcome to the AMM Project workspace. This repository coordinates the source code and deployments for the AMM digital ecosystem.
+TRYAMM is a unified creator, entertainment, gaming, learning, commerce, identity and opportunity platform.
 
-## 🚀 Live Staging Environments (Milestone 1)
-* **Frontend Application:** [https://tryamm.online](https://tryamm.online)
-* **Backend API Gateway:** [https://api.tryamm.online](https://api.tryamm.online)
-* **Active Development Branch:** `developer-vic`
+## Canonical product loop
+JOIN → DISCOVER → LEARN → CREATE → OWN → PUBLISH → PLAY/WATCH/LISTEN → BUILD COMMUNITY → EARN → GET PAID → ACHIEVE → GET RECOGNIZED → BUILD LEGACY.
 
----
+## Primary navigation
+HOME | PLAY | LIVE | CREATE | NEXUS
 
-## 📁 Repository Directory Structure
+## Locked platform pillars
+- Algorithm Studio: multiple specialized algorithms plus user-created, shareable and remixable ranking profiles. Safety, age, copyright, fraud and legal eligibility remain non-bypassable.
+- Unified Account: one identity across profile, games, LIVE, Creator Studio, Academy, marketplace and awards.
+- All American Passport: TRYAMM membership, achievement, credential and reputation layer. It is not a government passport.
+- All American Wallet: user-facing view over earnings, marketplace proceeds, prizes/rewards and non-cash promotional/game credits. The Money Engine is the accounting authority.
+- Creator Project Model: one project can own related songs, Reels, movies, anime, games, merchandise, immersive experiences, LIVE events and Omni Boxes under a shared rights tree.
+- Money Engine: sandbox-first double-entry ledger with rights splits, creator liabilities, platform revenue, restricted allocations, settlement and payout states.
+- Creator Economy: Academy → Studio → Rights → Publish/Distribute → Discovery → Commerce → Earnings → Charts/Certifications → Awards → Legacy.
+- Set Apart Music and Faith: dedicated discovery, creation and recognition for faith-centered music including music about Yahuah.
+- Awards: TRYAMM Omniverse, music, screen, games, creators, immersive, faith/service and Kenosha Stubbs Legacy recognition.
 
-* **[amm-omniverse/](file:///Users/pro/Documents/%20allamericanmark/amm-omniverse/)** — Creator Platform (Three.js sports hubs, DAW Recording Studio, and Node/Express backend).
-* **[isaiah-starverse/](file:///Users/pro/Documents/%20allamericanmark/isaiah-starverse/)** — Next.js talent platform ("Anyone Can Be A Star") with Messiah AI MD audition coaching.
-* **[amm-card-arena/](file:///Users/pro/Documents/%20allamericanmark/amm-card-arena/)** — Holographic 3D trading card game engine and Hebrew calendar appointed feast integrations.
+## Money launch rule
+Real payouts, paid-entry prize competitions, regulated card/wallet functions and government credential integrations remain feature-gated until required payment, identity/tax, fraud, reconciliation, legal and store-policy controls are operational.
 
----
-
-## 📖 Technical Documentation
-
-* **[OVERVIEW.md](file:///Users/pro/Documents/%20allamericanmark/OVERVIEW.md)**: Workspace tech stacks, database components, and step-by-step local running instructions.
-* **[docs/](file:///Users/pro/Documents/%20allamericanmark/docs/)**: Project management folders containing:
-  * **[todo.md](file:///Users/pro/Documents/%20allamericanmark/docs/todo.md)**: Current roadmap checklists and implementation goals.
-  * **[test.md](file:///Users/pro/Documents/%20allamericanmark/docs/test.md)**: Verification and QA manual check guidelines.
-  * **[walkthrough.md](file:///Users/pro/Documents/%20allamericanmark/docs/walkthrough.md)**: Active milestone log of URLs, variables, and API responses.
-
+See `CLAUDE.md`, `SKILL.md`, and `docs/TRYAMM_CANONICAL_ARCHITECTURE.md` before architecture-level changes.

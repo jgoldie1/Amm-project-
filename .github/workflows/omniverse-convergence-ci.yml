@@ -26,7 +26,7 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: amm-omniverse/package-lock.json
-      - run: npm ci
+      - run: npm install --no-fund --no-audit
       - run: npm run check
 
   backend:
