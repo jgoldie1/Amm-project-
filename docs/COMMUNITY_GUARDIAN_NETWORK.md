@@ -9,6 +9,7 @@ Community Guardians are NOT police, do not claim law-enforcement authority, do n
 
 ## Core services
 - Safe Walk / Safe Ride coordination
+- Safe Arrival check-ins and destination timers
 - hospitality and directions
 - visible unarmed community presence
 - business and storefront check-ins
@@ -16,6 +17,7 @@ Community Guardians are NOT police, do not claim law-enforcement authority, do n
 - youth engagement and mentorship
 - homeless/resource outreach and referrals
 - lost-child / vulnerable-person assistance
+- senior and disability accompaniment/support
 - event support
 - transit-stop / school-route presence where contracted and lawful
 - non-emergency hazard reporting
@@ -25,10 +27,13 @@ Community Guardians are NOT police, do not claim law-enforcement authority, do n
 - Community Gap Finder referrals
 
 ## App experience
-HOME → `I NEED A SAFE WALK` | `REQUEST A GUARDIAN` | `REPORT A HAZARD` | `YOUTH / COMMUNITY HELP` | `BUSINESS SAFETY CHECK-IN` | `EVENT SUPPORT`.
+HOME → `I NEED A SAFE WALK` | `REQUEST A GUARDIAN` | `SAFE ARRIVAL` | `REPORT A HAZARD` | `YOUTH / COMMUNITY HELP` | `BUSINESS SAFETY CHECK-IN` | `EVENT SUPPORT`.
 
 ### Safe Walk
 REQUEST → pickup → destination → accessibility needs → guardian/team assignment → live ETA → consented tracking during mission → check-in → completed → feedback.
+
+### Safe Arrival
+User sets destination + expected arrival + trusted escalation path. The system sends reminders/check-ins and, if missed, follows the user-approved escalation workflow. It does not silently contact police or third parties unless the user configured that behavior or an immediate emergency requires appropriate routing.
 
 ### Business Guardian
 Businesses can subscribe to scheduled storefront check-ins, opening/closing accompaniment, employee safe-walks, hospitality support, incident documentation and referral to emergency/security services where appropriate.
@@ -79,6 +84,9 @@ Potential revenue lanes:
 10. city/county grants/contracts for eligible outreach or violence-prevention services
 11. training/certification-prep services where lawful and not misrepresented as government licensing
 12. software/SaaS fee for Guardian Dispatch, reporting and analytics
+13. senior-housing / disability-access support contracts
+14. optional consumer premium check-in / safe-arrival subscriptions
+15. enterprise API / white-label Guardian coordination for qualified organizations
 
 ### Suggested pricing architecture
 Pricing is local and labor-cost dependent. Use transparent components:
@@ -86,14 +94,42 @@ BASE PLATFORM + STAFF HOURS + SUPERVISION + INSURANCE/REQUIRED LICENSING + EQUIP
 
 Do not underprice labor by relying on unpaid volunteers for commercial contracts. Community volunteers may exist in separate, well-scoped service programs, but commercial clients should fund trained staff.
 
+### Pricing hypotheses for Business Simulator only
+These are not promises or fixed public prices:
+- Business Safety Lite: $29–$49/month/location for software/check-in features with no staffed coverage
+- Business Safety Pro: $99–$249/month/location depending on service scope; staffed hours priced separately
+- Consumer Safe Arrival / check-in premium: $4.99–$9.99/month where sustainable
+- Event Guardian: quoted by attendance, service hours, staffing and compliance needs
+- Employer late-shift Safe Arrival: contract or per-employee pricing
+- Residential/Senior Community: contract pricing
+
 ## Profitability & 3.00x sustainability
 Guardian Network contributes eligible TRYAMM platform revenue through SaaS/dispatch subscriptions, employer/business subscriptions and contracted program-management/software fees. Wages owed to ambassadors and restricted grant/program funds are not counted as free platform revenue.
 
 A healthy contract should target positive contribution margin after direct labor, supervision, insurance, training, payroll burden, equipment and incident support. TRYAMM's platform-wide goal remains 3.00x eligible platform revenue to measured infrastructure cost; Guardian labor economics are additionally tracked at the program level.
 
+### Guardian unit economics
+For each service contract calculate:
+`CONTRIBUTION = CONTRACT REVENUE - DIRECT LABOR - PAYROLL BURDEN - INSURANCE - TRAINING/VERIFICATION - COMMUNICATIONS/MAPS - EQUIPMENT - SUPPORT/INCIDENT COSTS - PROVIDER FEES`.
+
+Track:
+- margin per staffed hour
+- margin per location
+- margin per event
+- sponsor subsidy per free service
+- renewal/churn
+- customer acquisition cost where applicable
+- utilization rate
+- overtime exposure
+- incident-support cost
+
+No staffed service is marked profitable merely because subscription revenue exceeds app/server cost.
+
 ## Evidence / impact dashboard
 Aggregate privacy-preserving measures:
 - safe walks completed
+- Safe Arrival check-ins completed
+- missed check-ins escalated
 - average response time
 - business check-ins
 - hazards reported/resolved
@@ -117,6 +153,7 @@ Jin Pay → approved payments/contracts
 Money Engine → payroll/program/mission separation
 Company Digital Twin → operator staffing, contracts, service zones, costs
 Business Simulator → model staffing/service levels and contract economics
+Platform Sustainability Engine → program revenue/cost contribution
 Community Spotlight → consented impact stories
 
 ## Safety principle
