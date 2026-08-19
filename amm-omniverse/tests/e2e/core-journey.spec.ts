@@ -22,11 +22,13 @@ test('core journey exposes the complete ordered integration path', async ({ page
     'Authenticated Business creation',
     'Marketplace order',
     'JARVIS approval firewall',
-    'Payment sandbox',
-    'Holo Delivery tracking',
-    'Audit evidence',
-    'Reload evidence',
+    'Server-authoritative sandbox Money Engine',
+    'Realtime Holo Delivery → delivered',
+    'Business dashboard aggregation',
+    'Persisted audit evidence',
+    'Reload persistent evidence',
   ]) {
     await expect(page.getByText(label, { exact: true })).toBeVisible()
   }
+  await expect(page.getByText(/Completed steps this session: 0\/9/)).toBeVisible()
 })
