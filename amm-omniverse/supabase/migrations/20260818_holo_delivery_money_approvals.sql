@@ -18,7 +18,7 @@ alter table public.holo_delivery_events enable row level security;
 
 do $$ begin
   create policy "delivery owners can read events" on public.holo_delivery_events
-    for select using (auth.uid() = account_id);
+    for select to authenticated using ((select auth.uid()) = account_id);
 exception when duplicate_object then null; end $$;
 
 create table if not exists public.agent_approval_requests (
@@ -40,7 +40,8 @@ create index if not exists agent_approval_requests_account_status_idx on public.
 alter table public.agent_approval_requests enable row level security;
 
 do $$ begin
-  create policy "approval owners can read" on public.agent_approval_requests for select using (auth.uid() = account_id);
+  create policy "approval owners can read" on public.agent_approval_requests
+    for select to authenticated using ((select auth.uid()) = account_id);
 exception when duplicate_object then null; end $$;
 
 create table if not exists public.money_ledger_entries (
@@ -61,7 +62,8 @@ create index if not exists money_ledger_entries_account_idx on public.money_ledg
 alter table public.money_ledger_entries enable row level security;
 
 do $$ begin
-  create policy "ledger owners can read" on public.money_ledger_entries for select using (auth.uid() = account_id);
+  create policy "ledger owners can read" on public.money_ledger_entries
+    for select to authenticated using ((select auth.uid()) = account_id);
 exception when duplicate_object then null; end $$;
 
 create table if not exists public.platform_allocation_policies (
@@ -69,15 +71,34 @@ create table if not exists public.platform_allocation_policies (
   policy_key text unique not null,
   beneficiary_name text not null,
   percentage numeric(5,2) not null check (percentage >= 0 and percentage <= 100),
-  applies_to text not null default 'eligible_platform_revenue',
+  applies_to text not null default 'eligible_distributable_platform_surplus',
   status text not null default 'pending_verification' check (status in ('pending_verification','active','paused','retired')),
   notes text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+alter table public.platform_allocation_policies enable row level security;
 
-insert into public.platform_allocation_policies(policy_key,beneficiary_name,percentage,status,notes)
-values ('soc_ministry_tithe','Pastor Kofi Ofri / Servants of Christ ministry',10.00,'pending_verification','Apply only to eligible platform revenue after recipient identity, agreement, accounting/tax treatment, and restricted-fund exclusions are verified. Never apply to creator earnings, taxes, refunds, reserves, provider settlements, or restricted mission funds.')
+insert into public.platform_allocation_policies(policy_key,beneficiary_name,percentage,applies_to,status,notes)
+values (
+  'soc_ministry_tithe',
+  'Pastor Kofi Ofri / Servants of Christ ministry',
+  10.00,
+  'eligible_distributable_platform_surplus',
+  'pending_verification',
+  'Fund only from TRYAMM distributable platform surplus after creator/rightsholder obligations, taxes, refunds/reserves, provider settlements, restricted mission funds, infrastructure obligations, and board/accounting-approved reserves. Recipient identity, agreement, and tax/accounting treatment must be verified before activation.'
+)
+on conflict (policy_key) do nothing;
+
+insert into public.platform_allocation_policies(policy_key,beneficiary_name,percentage,applies_to,status,notes)
+values (
+  'kenosha_shelton_legacy_family',
+  'Kenosha Shelton Legacy Family Allocation',
+  20.00,
+  'eligible_distributable_platform_surplus',
+  'pending_verification',
+  'Intended family legacy allocation: 20% total, split 10% + 10% between the two intended children only after their identities, beneficiary instructions, agreement, legal/tax treatment, and payment destination are verified. Never draw from creator earnings, taxes, restricted funds, provider settlements, refunds/reserves, or customer money.'
+)
 on conflict (policy_key) do nothing;
 
 create or replace function public.money_engine_post(
@@ -98,6 +119,9 @@ declare
   v_credits bigint;
   e jsonb;
 begin
+  if p_account_id is null or jsonb_typeof(p_entries) <> 'array' then
+    raise exception 'invalid_posting_input';
+  end if;
   select coalesce(sum((x->>'amount_minor')::bigint),0) into v_debits
     from jsonb_array_elements(p_entries) x where x->>'direction'='debit';
   select coalesce(sum((x->>'amount_minor')::bigint),0) into v_credits
@@ -107,12 +131,20 @@ begin
   end if;
   for e in select * from jsonb_array_elements(p_entries)
   loop
+    if coalesce(e->>'ledger_account','') = '' or e->>'direction' not in ('debit','credit') then
+      raise exception 'invalid_ledger_entry';
+    end if;
     insert into public.money_ledger_entries(posting_id,account_id,ledger_account,direction,amount_minor,currency,reference_type,reference_id,metadata)
     values(v_posting,p_account_id,e->>'ledger_account',e->>'direction',(e->>'amount_minor')::bigint,upper(p_currency),p_reference_type,p_reference_id,coalesce(p_metadata,'{}'::jsonb));
   end loop;
   return v_posting;
 end;
 $$;
+
+revoke all on function public.money_engine_post(uuid,text,text,text,jsonb,jsonb) from public;
+revoke all on function public.money_engine_post(uuid,text,text,text,jsonb,jsonb) from anon;
+revoke all on function public.money_engine_post(uuid,text,text,text,jsonb,jsonb) from authenticated;
+grant execute on function public.money_engine_post(uuid,text,text,text,jsonb,jsonb) to service_role;
 
 -- Realtime publication: add table only if it is not already included.
 do $$ begin
