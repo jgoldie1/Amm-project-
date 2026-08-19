@@ -61,11 +61,18 @@ Deno.serve(async (req) => {
   const input = body?.input ?? {};
   const correlationId = typeof body?.correlationId === 'string' && body.correlationId.trim() ? body.correlationId.trim() : crypto.randomUUID();
 
-  async function audit(result: 'allowed'|'denied'|'pending_approval'|'success'|'failure', targetType?: string, targetId?: string, metadata: Record<string, unknown> = {}) {
-    const { data } = await admin.from('tryamm_audit_events').insert({
-      actor_id: user.id, action: String(action ?? 'unknown'), target_type: targetType ?? null,
+  async function audit(
+    result: 'allowed'|'denied'|'pending_approval'|'success'|'failure',
+    targetType?: string,
+    targetId?: string,
+    metadata: Record<string, unknown> = {},
+    actionOverride?: string,
+  ) {
+    const { data, error } = await admin.from('tryamm_audit_events').insert({
+      actor_id: user.id, action: actionOverride ?? String(action ?? 'unknown'), target_type: targetType ?? null,
       target_id: targetId ?? null, result, correlation_id: correlationId, metadata,
     }).select().single();
+    if (error) throw error;
     return data;
   }
 
@@ -169,10 +176,13 @@ Deno.serve(async (req) => {
       const requestedAction = requiredString(input.action, 'action');
       const result = requiredString(input.result, 'result');
       if (!['allowed','denied','pending_approval','success','failure'].includes(result)) return json({ error: 'invalid_audit_result', correlationId }, 400);
-      const originalAction = action;
-      body.action = requestedAction;
-      const data = await audit(result as any, typeof input.targetType === 'string' ? input.targetType : undefined, typeof input.targetId === 'string' ? input.targetId : undefined, input.metadata ?? {});
-      body.action = originalAction;
+      const data = await audit(
+        result as 'allowed'|'denied'|'pending_approval'|'success'|'failure',
+        typeof input.targetType === 'string' ? input.targetType : undefined,
+        typeof input.targetId === 'string' ? input.targetId : undefined,
+        input.metadata ?? {},
+        requestedAction,
+      );
       return json({ data, correlationId }, 201);
     }
 
@@ -207,7 +217,11 @@ Deno.serve(async (req) => {
 
     return json({ error: 'unknown_action', correlationId }, 400);
   } catch (error) {
-    await audit('failure', undefined, undefined, { message: error instanceof Error ? error.message : 'unknown_error' });
+    try {
+      await audit('failure', undefined, undefined, { message: error instanceof Error ? error.message : 'unknown_error' });
+    } catch {
+      // Preserve the original operation failure even if audit persistence is unavailable.
+    }
     return json({ error: 'operation_failed', correlationId }, 500);
   }
 });
