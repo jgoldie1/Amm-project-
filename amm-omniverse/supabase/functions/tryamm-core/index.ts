@@ -125,6 +125,33 @@ Deno.serve(async (req) => {
       return json({ data, correlationId }, 201);
     }
 
+    if (action === 'request_approval') {
+      const requestedAction = requiredString(input.action, 'action');
+      const { data, error } = await admin.from('tryamm_approval_requests').insert({
+        user_id: user.id,
+        action: requestedAction,
+        payload: input.payload ?? {},
+        status: 'pending',
+      }).select().single();
+      if (error) throw error;
+      await audit('pending_approval', 'approval', data.id, { requestedAction }, 'jarvis.approval.requested');
+      return json({ data, correlationId }, 201);
+    }
+
+    if (action === 'approve_request') {
+      const id = requiredString(input.id, 'id');
+      const { data: existing } = await admin.from('tryamm_approval_requests')
+        .select('id,user_id,action,payload,status').eq('id', id).maybeSingle();
+      if (!existing || existing.user_id !== user.id) return reject('approval_not_found', 404, 'approval', id);
+      if (existing.status !== 'pending') return reject('approval_not_pending', 409, 'approval', id, { status: existing.status });
+      const { data, error } = await admin.from('tryamm_approval_requests').update({
+        status: 'approved', decided_at: new Date().toISOString(),
+      }).eq('id', id).eq('user_id', user.id).eq('status', 'pending').select().single();
+      if (error) throw error;
+      await audit('success', 'approval', id, { requestedAction: data.action }, 'jarvis.approval.approved');
+      return json({ data, correlationId });
+    }
+
     if (action === 'record_sandbox_payment') {
       const orderId = requiredString(input.orderId, 'orderId');
       const approvalId = requiredString(input.approvalId, 'approvalId');
