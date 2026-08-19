@@ -1,10 +1,12 @@
 import { getSupabaseClient } from '../services/supabaseClient'
 import {
   appendDeliveryEvent,
+  approveRequest,
   createSandboxOrder,
   loadTryammDashboard,
   recordAuditEvent,
   recordSandboxPayment,
+  requestApproval,
   saveBusiness,
   stopOrderJourneySubscription,
   subscribeToOrderJourney,
@@ -93,24 +95,13 @@ export async function createMarketplaceOrder(input: {
 }
 
 export async function requestJarvisApproval(action: string, payload: Record<string, unknown>) {
-  const { sb, user } = await requireAuth()
-  const { data, error } = await sb.from('tryamm_approval_requests')
-    .insert({ user_id: user.id, action, payload, status: 'pending' })
-    .select('id,status').single()
-  if (error) throw error
-  await writeAudit('jarvis.approval.requested', 'approval', data.id, 'pending_approval')
-  return data as { id: string; status: string }
+  await requireAuth()
+  return requestApproval({ action, payload })
 }
 
 export async function approveJarvisRequest(id: string) {
-  const { sb } = await requireAuth()
-  const { data, error } = await sb.from('tryamm_approval_requests')
-    .update({ status: 'approved', decided_at: new Date().toISOString() })
-    .eq('id', id).eq('status', 'pending')
-    .select('id,status,action,payload').single()
-  if (error) throw error
-  await writeAudit('jarvis.approval.approved', 'approval', id, 'success')
-  return data
+  await requireAuth()
+  return approveRequest({ id })
 }
 
 export async function authorizeSandboxPayment(order: JourneyOrder, approvalId: string) {
