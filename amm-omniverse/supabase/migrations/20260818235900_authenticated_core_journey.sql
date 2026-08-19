@@ -81,16 +81,61 @@ alter table public.tryamm_approval_requests enable row level security;
 alter table public.tryamm_audit_events enable row level security;
 alter table public.tryamm_sandbox_payments enable row level security;
 
-create policy "passport_owner_all" on public.tryamm_passports for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-create policy "business_owner_all" on public.tryamm_businesses for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
-create policy "order_buyer_all" on public.tryamm_orders for all using (auth.uid() = buyer_id) with check (auth.uid() = buyer_id);
-create policy "delivery_order_owner_all" on public.tryamm_delivery_events for all
-  using (exists (select 1 from public.tryamm_orders o where o.id = order_id and o.buyer_id = auth.uid()))
-  with check (actor_id = auth.uid() and exists (select 1 from public.tryamm_orders o where o.id = order_id and o.buyer_id = auth.uid()));
-create policy "approval_owner_all" on public.tryamm_approval_requests for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-create policy "audit_owner_select" on public.tryamm_audit_events for select using (auth.uid() = actor_id);
-create policy "audit_owner_insert" on public.tryamm_audit_events for insert with check (auth.uid() = actor_id);
-create policy "sandbox_payment_owner_all" on public.tryamm_sandbox_payments for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+drop policy if exists passport_owner_all on public.tryamm_passports;
+create policy passport_owner_all on public.tryamm_passports for all to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
+
+drop policy if exists business_owner_all on public.tryamm_businesses;
+create policy business_owner_all on public.tryamm_businesses for all to authenticated
+  using ((select auth.uid()) = owner_id)
+  with check ((select auth.uid()) = owner_id);
+
+drop policy if exists order_buyer_all on public.tryamm_orders;
+create policy order_buyer_all on public.tryamm_orders for all to authenticated
+  using ((select auth.uid()) = buyer_id)
+  with check ((select auth.uid()) = buyer_id);
+
+drop policy if exists delivery_order_owner_all on public.tryamm_delivery_events;
+create policy delivery_order_owner_all on public.tryamm_delivery_events for all to authenticated
+  using (exists (
+    select 1 from public.tryamm_orders o
+    where o.id = order_id and o.buyer_id = (select auth.uid())
+  ))
+  with check (
+    actor_id = (select auth.uid()) and exists (
+      select 1 from public.tryamm_orders o
+      where o.id = order_id and o.buyer_id = (select auth.uid())
+    )
+  );
+
+drop policy if exists approval_owner_all on public.tryamm_approval_requests;
+create policy approval_owner_all on public.tryamm_approval_requests for all to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
+
+drop policy if exists audit_owner_select on public.tryamm_audit_events;
+create policy audit_owner_select on public.tryamm_audit_events for select to authenticated
+  using ((select auth.uid()) = actor_id);
+
+drop policy if exists audit_owner_insert on public.tryamm_audit_events;
+create policy audit_owner_insert on public.tryamm_audit_events for insert to authenticated
+  with check ((select auth.uid()) = actor_id);
+
+drop policy if exists sandbox_payment_owner_all on public.tryamm_sandbox_payments;
+create policy sandbox_payment_owner_all on public.tryamm_sandbox_payments for all to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
+
+grant select, insert, update, delete on
+  public.tryamm_passports,
+  public.tryamm_businesses,
+  public.tryamm_orders,
+  public.tryamm_delivery_events,
+  public.tryamm_approval_requests,
+  public.tryamm_audit_events,
+  public.tryamm_sandbox_payments
+  to authenticated;
 
 create index if not exists tryamm_businesses_owner_idx on public.tryamm_businesses(owner_id, created_at desc);
 create index if not exists tryamm_orders_buyer_idx on public.tryamm_orders(buyer_id, created_at desc);
