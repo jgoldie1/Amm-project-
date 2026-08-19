@@ -25,6 +25,7 @@
     "@capacitor/ios": "^8.4.1",
     "@google/generative-ai": "^0.24.1",
     "@supabase/supabase-js": "^2.108.2",
+    "face-api.js": "^0.22.2",
     "howler": "^2.2.4",
     "livekit-client": "^2.20.0",
     "lottie-web": "^5.13.0",
@@ -47,6 +48,7 @@
   "overrides": {
     "brace-expansion": "5.0.9",
     "nanoid": "3.3.18",
+    "node-fetch": "2.7.0",
     "postcss": "8.5.26",
     "tar": "7.5.22"
   }
