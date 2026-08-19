@@ -8,6 +8,7 @@ import GameVerseLauncher from './components/GameVerseLauncher'
 import AccessibilityPassportPanel from './components/AccessibilityPassportPanel'
 import HoloDeliveryLauncher from './components/HoloDeliveryLauncher'
 import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
+import CoreJourneyLauncher from './components/CoreJourneyLauncher'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 
@@ -23,5 +24,6 @@ createRoot(document.getElementById('root')!).render(
     <AccessibilityPassportPanel />
     <HoloDeliveryLauncher />
     <HoloMarketplaceLauncher />
+    <CoreJourneyLauncher />
   </StrictMode>
 )
