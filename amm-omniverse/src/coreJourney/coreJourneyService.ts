@@ -2,9 +2,13 @@ import { getSupabaseClient } from '../services/supabaseClient'
 import {
   appendDeliveryEvent,
   createSandboxOrder,
+  loadTryammDashboard,
   recordAuditEvent,
   recordSandboxPayment,
   saveBusiness,
+  stopOrderJourneySubscription,
+  subscribeToOrderJourney,
+  type TryammDashboard,
 } from '../runtime/tryammPersistence'
 
 export type JourneyPassport = {
@@ -133,6 +137,11 @@ export async function listDeliveryEvents(orderId: string) {
   return data ?? []
 }
 
+export async function loadBusinessDashboard(): Promise<TryammDashboard> {
+  await requireAuth()
+  return loadTryammDashboard()
+}
+
 export async function listAuditEvidence(limit = 25) {
   const { sb, user } = await requireAuth()
   const { data, error } = await sb.from('tryamm_audit_events')
@@ -141,6 +150,16 @@ export async function listAuditEvidence(limit = 25) {
   if (error) throw error
   return data ?? []
 }
+
+export async function subscribeJourney(
+  orderId: string,
+  handlers: Parameters<typeof subscribeToOrderJourney>[1],
+) {
+  await requireAuth()
+  return subscribeToOrderJourney(orderId, handlers)
+}
+
+export { stopOrderJourneySubscription as stopJourneySubscription }
 
 async function writeAudit(
   action: string,
