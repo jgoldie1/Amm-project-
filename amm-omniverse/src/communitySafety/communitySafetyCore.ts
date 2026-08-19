@@ -156,9 +156,145 @@ export function calculateSafetyContribution(input: SafetyProgramEconomics) {
   };
 }
 
+export type PilotAssignmentState =
+  | 'requested'
+  | 'screening'
+  | 'quoted'
+  | 'scheduled'
+  | 'worker_assigned'
+  | 'worker_en_route'
+  | 'checked_in'
+  | 'in_service'
+  | 'completed'
+  | 'incident_review'
+  | 'cancelled';
+
+const pilotTransitions: Record<PilotAssignmentState, PilotAssignmentState[]> = {
+  requested: ['screening', 'cancelled'],
+  screening: ['quoted', 'cancelled'],
+  quoted: ['scheduled', 'cancelled'],
+  scheduled: ['worker_assigned', 'cancelled'],
+  worker_assigned: ['worker_en_route', 'cancelled'],
+  worker_en_route: ['checked_in', 'cancelled'],
+  checked_in: ['in_service', 'incident_review', 'cancelled'],
+  in_service: ['completed', 'incident_review'],
+  completed: [],
+  incident_review: ['completed'],
+  cancelled: [],
+};
+
+export function canTransitionPilotAssignment(from: PilotAssignmentState, to: PilotAssignmentState) {
+  return pilotTransitions[from].includes(to);
+}
+
+export type PilotAssignment = {
+  id: string;
+  journeyId?: string;
+  service: SafetyService;
+  memberId: string;
+  workerId?: string;
+  dispatcherId?: string;
+  state: PilotAssignmentState;
+  requestedAt: string;
+  scheduledStart?: string;
+  checkedInAt?: string;
+  completedAt?: string;
+  locationLabel?: string;
+  emergencyServicesCalled?: boolean;
+};
+
+export type SafetyWorkerProfile = {
+  id: string;
+  displayName: string;
+  status: 'applicant' | 'screening' | 'training' | 'active' | 'suspended' | 'inactive';
+  services: SafetyService[];
+  backgroundCheckStatus: 'not_started' | 'pending' | 'passed' | 'failed' | 'expired';
+  identityVerified: boolean;
+  trainingCompleted: string[];
+  insuranceVerified?: boolean;
+};
+
+export type MemberCheckIn = {
+  assignmentId: string;
+  memberId: string;
+  status: 'waiting' | 'worker_visible' | 'matched' | 'service_started' | 'safe_arrival' | 'needs_help';
+  occurredAt: string;
+  confirmationCode?: string;
+};
+
+export type SafetyIncident = {
+  id: string;
+  assignmentId: string;
+  category: 'medical' | 'threat' | 'harassment' | 'lost_contact' | 'property' | 'policy_violation' | 'other';
+  severity: 'low' | 'medium' | 'high' | 'emergency';
+  reportedAt: string;
+  emergencyReferral?: '911' | 'local_emergency' | 'none';
+  preserveEvidence: boolean;
+  notes?: string;
+};
+
+export type ContractUnitEconomics = {
+  contractRevenueMinor: number;
+  directLaborMinor: number;
+  insuranceScreeningMinor: number;
+  mapsSmsDispatchMinor: number;
+  supervisionMinor: number;
+  otherVariableMinor?: number;
+  tryammPlatformSharePercent: number;
+};
+
+export function calculateContractMargin(input: ContractUnitEconomics) {
+  const variableCosts = input.directLaborMinor + input.insuranceScreeningMinor + input.mapsSmsDispatchMinor + input.supervisionMinor + (input.otherVariableMinor ?? 0);
+  const contributionMinor = input.contractRevenueMinor - variableCosts;
+  const tryammPlatformShareMinor = Math.max(0, Math.round(contributionMinor * (input.tryammPlatformSharePercent / 100)));
+  return {
+    variableCosts,
+    contributionMinor,
+    contributionMarginPercent: input.contractRevenueMinor > 0 ? (contributionMinor / input.contractRevenueMinor) * 100 : 0,
+    tryammPlatformShareMinor,
+  };
+}
+
+export type PilotReadinessGate = {
+  narrowServiceSelected: boolean;
+  partnerCount: number;
+  legalReviewComplete: boolean;
+  licensingReviewComplete: boolean;
+  insuranceReviewComplete: boolean;
+  backgroundProviderReady: boolean;
+  dispatcherUiReady: boolean;
+  workerUiReady: boolean;
+  memberUiReady: boolean;
+  serverPersistenceReady: boolean;
+  rlsReady: boolean;
+  trackingNotificationsReady: boolean;
+  trainingReady: boolean;
+};
+
+export function evaluatePilotReadiness(g: PilotReadinessGate) {
+  const checks = [
+    g.narrowServiceSelected,
+    g.partnerCount >= 1,
+    g.legalReviewComplete,
+    g.licensingReviewComplete,
+    g.insuranceReviewComplete,
+    g.backgroundProviderReady,
+    g.dispatcherUiReady,
+    g.workerUiReady,
+    g.memberUiReady,
+    g.serverPersistenceReady,
+    g.rlsReady,
+    g.trackingNotificationsReady,
+    g.trainingReady,
+  ];
+  const passed = checks.filter(Boolean).length;
+  return { passed, total: checks.length, percent: Math.round((passed / checks.length) * 100), readyForPilot: passed === checks.length };
+}
+
 // Operating principles:
-// - This is accompaniment, dispatch, journey monitoring and community presence; it is not vigilante enforcement.
+// - This is accompaniment, dispatch, journey monitoring, de-escalation, observation and community presence; it is not vigilante enforcement.
 // - Personnel do not pursue, detain, interrogate, search, seize property, impersonate police or earn money for finding incidents.
 // - Imminent danger is escalated according to approved emergency protocol and local law.
 // - Precise location data is minimized and expires automatically.
 // - Accessibility support may shape how accompaniment/check-ins work but never lowers privacy or safety standards.
+// - Exact licensing, insurance, background-screening and training requirements are jurisdiction-specific and must be verified before launch.
