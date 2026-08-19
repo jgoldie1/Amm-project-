@@ -8,9 +8,12 @@ import {
   createMarketplaceOrder,
   listAuditEvidence,
   listDeliveryEvents,
+  loadBusinessDashboard,
   loadPassport,
   requestJarvisApproval,
   savePassport,
+  stopJourneySubscription,
+  subscribeJourney,
   type JourneyBusiness,
   type JourneyOrder,
 } from '../coreJourney/coreJourneyService'
@@ -26,12 +29,37 @@ export default function CoreJourneyLauncher() {
   const [approvalId, setApprovalId] = useState<string | null>(null)
   const [deliveryEvents, setDeliveryEvents] = useState<any[]>([])
   const [audit, setAudit] = useState<any[]>([])
+  const [dashboard, setDashboard] = useState<any>(null)
+  const [realtimeStatus, setRealtimeStatus] = useState('not connected')
   const [message, setMessage] = useState('')
   const [states, setStates] = useState<Record<string, StepState>>({})
 
   useEffect(() => {
     getSessionUser().then((u) => setUserName(u?.provider === 'mock' ? null : u?.name ?? null))
   }, [open])
+
+  useEffect(() => {
+    if (!order?.id) return
+    let active = true
+    let channel: Awaited<ReturnType<typeof subscribeJourney>> | undefined
+    subscribeJourney(order.id, {
+      onOrder: (next) => {
+        if (!active) return
+        setOrder((current) => current ? { ...current, status: next.status } : current)
+      },
+      onDeliveryEvent: (event) => {
+        if (!active) return
+        setDeliveryEvents((current) => current.some((row) => row.id === event.id) ? current : [...current, event])
+      },
+      onStatus: (status) => active && setRealtimeStatus(status),
+    }).then((next) => { channel = next }).catch((error) => {
+      if (active) setRealtimeStatus(`error: ${error instanceof Error ? error.message : String(error)}`)
+    })
+    return () => {
+      active = false
+      if (channel) void stopJourneySubscription(channel)
+    }
+  }, [order?.id])
 
   const configured = isSupabaseConfigured()
   const ready = configured && Boolean(userName)
@@ -70,7 +98,7 @@ export default function CoreJourneyLauncher() {
           <div>
             <div style={{color:'#4fe3ff',fontSize:10,letterSpacing:3,fontWeight:900}}>TRYAMM SECURE JOURNEY</div>
             <h2 style={{margin:'6px 0',fontSize:24}}>One real account → one persistent platform</h2>
-            <div style={{fontSize:11,color:'#8a9bad'}}>Completed steps this session: {doneCount}/8</div>
+            <div style={{fontSize:11,color:'#8a9bad'}}>Completed steps this session: {doneCount}/9 · Realtime: {realtimeStatus}</div>
           </div>
           <button onClick={()=>setOpen(false)} aria-label="Close" style={{width:40,height:40,borderRadius:'50%',border:'1px solid #394557',background:'#0c1420',color:'#fff',cursor:'pointer'}}>×</button>
         </div>
@@ -104,32 +132,51 @@ export default function CoreJourneyLauncher() {
           const r=await requestJarvisApproval('authorize_sandbox_checkout',{orderId:order?.id,totalMinor:order?.totalMinor});setApprovalId(r.id);await approveJarvisRequest(r.id)
         })}/>
 
-        <JourneyStep n="5" title="Payment sandbox" status={pill('payment')} disabled={!ready || !order || !approvalId} onClick={()=>run('payment', async()=>{
+        <JourneyStep n="5" title="Server-authoritative sandbox Money Engine" status={pill('payment')} disabled={!ready || !order || !approvalId} onClick={()=>run('payment', async()=>{
           if(!order || !approvalId) throw new Error('Order or approval missing'); await authorizeSandboxPayment(order, approvalId)
         })}/>
 
-        <JourneyStep n="6" title="Holo Delivery tracking" status={pill('delivery')} disabled={!ready || !order || states.payment !== 'done'} onClick={()=>run('delivery', async()=>{
+        <JourneyStep n="6" title="Realtime Holo Delivery → delivered" status={pill('delivery')} disabled={!ready || !order || states.payment !== 'done'} onClick={()=>run('delivery', async()=>{
           if(!order) throw new Error('Order missing')
-          await addDeliveryEvent(order.id,'confirmed','Order confirmed',28)
-          await addDeliveryEvent(order.id,'in_transit','Courier is on the way',12)
+          const path = [
+            ['confirmed','Order confirmed',28],
+            ['courier_assigned','Courier assigned',22],
+            ['picked_up','Package picked up',16],
+            ['in_transit','Courier is on the way',12],
+            ['arriving','Courier is arriving',3],
+            ['delivered','Delivered successfully',0],
+          ] as const
+          for (const [state,label,eta] of path) await addDeliveryEvent(order.id,state,label,eta)
           const events=await listDeliveryEvents(order.id);setDeliveryEvents(events)
-          if(events.length<2) throw new Error('Delivery events did not persist.')
+          if(events.length<path.length || events.at(-1)?.state!=='delivered') throw new Error('Complete delivery journey did not persist.')
         })}/>
 
-        <JourneyStep n="7" title="Audit evidence" status={pill('audit')} disabled={!ready} onClick={()=>run('audit', async()=>{
-          const rows=await listAuditEvidence();setAudit(rows); if(rows.length<1) throw new Error('No audit evidence found.')
+        <JourneyStep n="7" title="Business dashboard aggregation" status={pill('dashboard')} disabled={!ready || states.delivery !== 'done'} onClick={()=>run('dashboard', async()=>{
+          const d=await loadBusinessDashboard();setDashboard(d)
+          if(!business || !order) throw new Error('Business or order missing.')
+          if(!d.businesses.some((row:any)=>row.id===business.id)) throw new Error('Business missing from dashboard aggregation.')
+          if(!d.recentOrders.some((row:any)=>row.id===order.id)) throw new Error('Order missing from dashboard aggregation.')
+          if(d.totals.deliveredOrders<1) throw new Error('Delivered order was not aggregated.')
         })}/>
 
-        <JourneyStep n="8" title="Reload evidence" status={pill('reload')} disabled={!ready || !order} onClick={()=>run('reload', async()=>{
-          const p=await loadPassport(); const events=order?await listDeliveryEvents(order.id):[]; const a=await listAuditEvidence();
-          if(!p || !events.length || !a.length) throw new Error('Persistent reload check failed.'); setDeliveryEvents(events);setAudit(a)
+        <JourneyStep n="8" title="Persisted audit evidence" status={pill('audit')} disabled={!ready || states.dashboard !== 'done'} onClick={()=>run('audit', async()=>{
+          const rows=await listAuditEvidence(50);setAudit(rows)
+          if(rows.length<1) throw new Error('No audit evidence found.')
+          if(order && !rows.some((row:any)=>row.target_id===order.id)) throw new Error('Order audit evidence was not found.')
+        })}/>
+
+        <JourneyStep n="9" title="Reload persistent evidence" status={pill('reload')} disabled={!ready || !order || states.audit !== 'done'} onClick={()=>run('reload', async()=>{
+          const p=await loadPassport(); const events=order?await listDeliveryEvents(order.id):[]; const a=await listAuditEvidence(50); const d=await loadBusinessDashboard()
+          if(!p || events.at(-1)?.state!=='delivered' || !a.length || !d.recentOrders.some((row:any)=>row.id===order?.id)) throw new Error('Persistent reload check failed.')
+          setDeliveryEvents(events);setAudit(a);setDashboard(d)
         })}/>
 
         {(business||order) && <div style={{marginTop:14,padding:12,border:'1px solid #173047',borderRadius:14,background:'#060d16',fontSize:10,lineHeight:1.7,color:'#a8b6c8'}}>
           <b style={{color:'#fff'}}>Evidence snapshot</b><br/>
           Business: {business?.name ?? '—'} {business?.id ? `· ${business.id.slice(0,8)}…` : ''}<br/>
-          Order: {order?.id ? `${order.id.slice(0,8)}…` : '—'} · ${(order?.totalMinor ?? 0)/100} {order?.currency ?? ''}<br/>
-          Delivery events: {deliveryEvents.length} · Audit events loaded: {audit.length}
+          Order: {order?.id ? `${order.id.slice(0,8)}…` : '—'} · {(order?.totalMinor ?? 0)/100} {order?.currency ?? ''} · status {order?.status ?? '—'}<br/>
+          Delivery events: {deliveryEvents.length} · Audit events loaded: {audit.length}<br/>
+          Dashboard: {dashboard ? `${dashboard.totals.orders} orders · ${dashboard.totals.deliveredOrders} delivered · $${(dashboard.totals.sandboxPaidMinor/100).toFixed(2)} sandbox recorded` : 'not loaded'}
         </div>}
       </div>
     </div>}
