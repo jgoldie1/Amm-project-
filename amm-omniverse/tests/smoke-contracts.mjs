@@ -29,9 +29,12 @@ must(home.includes('AR • VR • MR'),'homepage must surface AR VR and Mixed Re
 must(home.includes('MUSIC UNIVERSE'),'homepage must surface Music universe')
 must(home.includes('Middleverse'),'homepage must surface Middleverse')
 must(home.includes('AI Workforce + WFH'),'homepage must surface AI Workforce and work-from-home')
+
 for(const world of ['Gridiron X','Court Kings','Diamond Legends','Ice Storm','World Pitch','Fight Night Holo','StreetVerse','Battlefront Zero','Yogihoo Arena','Volcano Racers','Kingdom Builders']) {
   must(universe.includes(world),`${world} must remain in the 11-world homepage GameVerse`)
-  must(gameverse.includes(world),`${world} must remain in the interactive GameVerse Nexus`)
+}
+for(const game of ['Living City','Living Flight','HoloBeasts: Living Wilds','Living Ops: Shadow Front','Paranormal Unit: Rift Hunters','Holo Battle: Omniverse','Living Racing','Living Sports','Living Laser','Living Quest','Creator World']) {
+  must(gameverse.includes(game),`${game} must remain in the interactive GameVerse Nexus`)
 }
 for(const lane of ['AR PORTALS','VR WORLDS','MIXED REALITY','MUSIC & CULTURE','CREATOR WORLDS','HOLOVERSE']) must(universe.includes(lane),`${lane} immersive lane must remain visible`)
 must(universe.includes('__showGameVerse') && universe.includes('tryamm:gameverse-open'),'Living World cards must open GameVerse')
