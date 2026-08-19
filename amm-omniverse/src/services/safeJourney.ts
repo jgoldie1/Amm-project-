@@ -38,6 +38,15 @@ export type SafeJourneyDispatchRequest={
   updated_at:string
 }
 
+export type SafeJourneyResponderSummary={
+  user_id:string
+  responder_type:'community_guide'|'route_monitor'|'companion'|'transport_assist'
+  status:'offline'|'available'|'assigned'|'paused'
+  vetted:boolean
+  training_status:'not_started'|'in_progress'|'complete'|'expired'
+  last_seen_at?:string|null
+}
+
 function client(){
   const sb=getSupabaseClient()
   if(!sb)throw new Error('Supabase is not configured')
@@ -130,12 +139,32 @@ export async function getSafeJourneyDispatch(journeyId:string){
   return (data??[]) as SafeJourneyDispatchRequest[]
 }
 
+async function dispatchFunction<T>(body:Record<string,unknown>):Promise<T>{
+  const {data,error}=await client().functions.invoke('safe-journey-dispatch',{body})
+  if(error)throw error
+  if(data?.error)throw new Error(String(data.error))
+  return data as T
+}
+
+export async function listAvailableSafeJourneyResponders(){
+  return dispatchFunction<{responders:SafeJourneyResponderSummary[]}>({action:'list_available'})
+}
+
+export async function assignSafeJourneyResponder(requestId:string,responderUserId:string){
+  return dispatchFunction<{request:SafeJourneyDispatchRequest}>({action:'assign',requestId,responderUserId})
+}
+
+export async function updateSafeJourneyDispatch(requestId:string,action:'accept'|'en_route'|'resolve'|'escalate'){
+  return dispatchFunction<{request:SafeJourneyDispatchRequest;note?:string}>({action,requestId})
+}
+
 export function subscribeToSafeJourney(journeyId:string,onChange:()=>void){
   const sb=client()
+  const callback=()=>onChange()
   const channel=sb.channel(`safe-journey:${journeyId}`)
-    .on('postgres_changes',{event:'*',schema:'public',table:'safe_journeys',filter:`id=eq.${journeyId}`},onChange)
-    .on('postgres_changes',{event:'*',schema:'public',table:'safe_journey_dispatch_requests',filter:`journey_id=eq.${journeyId}`},onChange)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'safe_journey_events',filter:`journey_id=eq.${journeyId}`},onChange)
+    .on('postgres_changes',{event:'*',schema:'public',table:'safe_journeys',filter:`id=eq.${journeyId}`},callback)
+    .on('postgres_changes',{event:'*',schema:'public',table:'safe_journey_dispatch_requests',filter:`journey_id=eq.${journeyId}`},callback)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'safe_journey_events',filter:`journey_id=eq.${journeyId}`},callback)
     .subscribe()
   return ()=>{void sb.removeChannel(channel)}
 }
