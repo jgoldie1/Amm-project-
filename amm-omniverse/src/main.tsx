@@ -11,6 +11,7 @@ import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import SharedCityMultiplayerPanel from './components/SharedCityMultiplayerPanel'
 import AuthGateway from './components/AuthGateway'
 import CoreJourneyLauncher from './components/CoreJourneyLauncher'
+import SafeJourneyLauncher from './components/SafeJourneyLauncher'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 import { installGameStatePersistence } from './game/runtime/gameCompletionCore'
@@ -31,5 +32,6 @@ createRoot(document.getElementById('root')!).render(
     <SharedCityMultiplayerPanel />
     <AuthGateway />
     <CoreJourneyLauncher />
+    <SafeJourneyLauncher />
   </StrictMode>
 )
