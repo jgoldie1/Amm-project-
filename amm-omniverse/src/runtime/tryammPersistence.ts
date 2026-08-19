@@ -3,6 +3,8 @@ import { createClient, type RealtimeChannel, type SupabaseClient } from '@supaba
 export type TryammCoreAction =
   | 'upsert_business'
   | 'create_order'
+  | 'request_approval'
+  | 'approve_request'
   | 'record_sandbox_payment'
   | 'append_delivery_event'
   | 'record_audit_event'
@@ -22,6 +24,16 @@ export type TryammBusinessRecord = {
   profile: Record<string, unknown>;
   created_at: string;
   updated_at: string;
+};
+
+export type TryammApprovalRecord = {
+  id: string;
+  user_id: string;
+  action: string;
+  payload: Record<string, unknown>;
+  status: 'pending' | 'approved' | 'denied' | 'expired';
+  created_at?: string;
+  decided_at?: string | null;
 };
 
 export type TryammOrderRecord = {
@@ -141,6 +153,14 @@ export async function createSandboxOrder(input: {
   idempotencyKey: string;
 }) {
   return unwrap(await invokeCore<TryammOrderRecord>('create_order', input));
+}
+
+export async function requestApproval(input: { action: string; payload?: Record<string, unknown> }) {
+  return unwrap(await invokeCore<TryammApprovalRecord>('request_approval', input));
+}
+
+export async function approveRequest(input: { id: string }) {
+  return unwrap(await invokeCore<TryammApprovalRecord>('approve_request', input));
 }
 
 export async function recordSandboxPayment(input: { orderId: string; amountMinor?: number; idempotencyKey: string; approvalId: string }) {
