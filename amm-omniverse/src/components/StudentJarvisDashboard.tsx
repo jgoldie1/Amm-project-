@@ -88,7 +88,7 @@ export default function StudentJarvisDashboard() {
               <div key={opportunity.id} style={{ border: '1px solid #29415b', borderRadius: 14, padding: 14, background: '#091321' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
                   <strong>{opportunity.title}</strong>
-                  <span style={{ fontWeight: 800 }}>{status.replaceAll('_', ' ').toUpperCase()}</span>
+                  <span style={{ fontWeight: 800 }}>{status.replace(/_/g, ' ').toUpperCase()}</span>
                 </div>
                 <p style={{ margin: '8px 0', opacity: .8 }}>{opportunity.organization}</p>
                 {[...reasons, ...a11y.explanation].slice(0, 5).map((reason) => <div key={reason}>• {reason}</div>)}
