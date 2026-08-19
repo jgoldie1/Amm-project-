@@ -16,6 +16,7 @@ const protectedLive=read('src/services/protectedLive.ts')
 const moderation=read('src/services/moderation.ts')
 const launcher=read('src/components/UniversalSafetyLauncher.tsx')
 const commerce=read('src/services/commerceOS.ts')
+const payToPlay=read('src/services/payToPlay.ts')
 
 must(main.includes('installProductionHealthMonitor()'),'production health monitor must install at startup')
 must(main.includes('<UniversalSafetyLauncher />'),'universal Safety launcher must be mounted')
@@ -58,6 +59,13 @@ must(moderation.includes("'mute'"),'persistent mute API contract must exist')
 must(moderation.includes('/api/moderation/relationships'),'safety relationship list contract must exist')
 must(launcher.includes('tryamm:safety-open'),'context-aware Safety launcher event must exist')
 must(commerce.includes('COMMERCE_CAPABILITIES'),'Commerce OS capability model must exist')
+
+for(const gate of ['authenticatedUserId','passportId','businessId','orderId','jarvisApprovalId','sandboxPaymentId','deliveryId','auditEventId']) {
+  must(payToPlay.includes(gate),`pay-to-play journey must include ${gate}`)
+}
+must(payToPlay.includes('REAL_MONEY feature gate is disabled.'),'production pay-to-play must honor REAL_MONEY gate')
+must(payToPlay.includes('Human approval is required'),'JARVIS-prepared consequential payment must require human approval')
+must(payToPlay.includes("'subscription'") && payToPlay.includes("'game_access'") && payToPlay.includes("'business_feature'"),'pay-to-play entitlement modes must support subscriptions, games and business features')
 
 const env=read('.env.example')
 for(const key of ['VITE_SUPABASE_URL','VITE_SUPABASE_ANON_KEY','VITE_API_URL']) must(env.includes(key),`${key} must be documented`)
