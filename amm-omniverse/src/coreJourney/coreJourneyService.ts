@@ -1,4 +1,11 @@
 import { getSupabaseClient } from '../services/supabaseClient'
+import {
+  appendDeliveryEvent,
+  createSandboxOrder,
+  recordAuditEvent,
+  recordSandboxPayment,
+  saveBusiness,
+} from '../runtime/tryammPersistence'
 
 export type JourneyPassport = {
   displayName?: string
@@ -49,15 +56,11 @@ export async function loadPassport(): Promise<JourneyPassport | null> {
 }
 
 export async function createBusiness(name: string, profile: Record<string, unknown> = {}): Promise<JourneyBusiness> {
-  const { sb, user } = await requireAuth()
+  await requireAuth()
   const cleanName = name.trim()
   if (cleanName.length < 2) throw new Error('Business name is required.')
-  const { data, error } = await sb.from('tryamm_businesses')
-    .insert({ owner_id: user.id, name: cleanName, profile, status: 'draft' })
-    .select('id,name,status,profile').single()
-  if (error) throw error
-  await writeAudit('business.create', 'business', data.id, 'success')
-  return data as JourneyBusiness
+  const data = await saveBusiness({ name: cleanName, profile, status: 'draft' })
+  return { id: data.id, name: data.name, status: data.status as JourneyBusiness['status'], profile: data.profile }
 }
 
 export async function createMarketplaceOrder(input: {
@@ -66,21 +69,18 @@ export async function createMarketplaceOrder(input: {
   currency?: string
   payload: Record<string, unknown>
 }): Promise<JourneyOrder> {
-  const { sb, user } = await requireAuth()
-  const { data, error } = await sb.from('tryamm_orders').insert({
-    buyer_id: user.id,
-    business_id: input.businessId ?? null,
+  await requireAuth()
+  const data = await createSandboxOrder({
+    businessId: input.businessId,
     kind: 'marketplace',
-    status: 'payment_pending',
-    total_minor: input.totalMinor,
+    totalMinor: input.totalMinor,
     currency: input.currency ?? 'USD',
     payload: input.payload,
-  }).select('id,kind,status,total_minor,currency,payload').single()
-  if (error) throw error
-  await writeAudit('marketplace.order.create', 'order', data.id, 'success')
+    idempotencyKey: crypto.randomUUID(),
+  })
   return {
     id: data.id,
-    kind: data.kind,
+    kind: data.kind as JourneyOrder['kind'],
     status: data.status,
     totalMinor: data.total_minor,
     currency: data.currency,
@@ -102,42 +102,26 @@ export async function approveJarvisRequest(id: string) {
   const { sb } = await requireAuth()
   const { data, error } = await sb.from('tryamm_approval_requests')
     .update({ status: 'approved', decided_at: new Date().toISOString() })
-    .eq('id', id).select('id,status,action,payload').single()
+    .eq('id', id).eq('status', 'pending')
+    .select('id,status,action,payload').single()
   if (error) throw error
   await writeAudit('jarvis.approval.approved', 'approval', id, 'success')
   return data
 }
 
-export async function authorizeSandboxPayment(order: JourneyOrder) {
-  const { sb, user } = await requireAuth()
-  const { data, error } = await sb.from('tryamm_sandbox_payments').insert({
-    user_id: user.id,
-    order_id: order.id,
-    amount_minor: order.totalMinor,
-    currency: order.currency,
-    provider: 'tryamm_sandbox',
-    status: 'authorized',
-  }).select('id,status').single()
-  if (error) throw error
-  const { error: orderError } = await sb.from('tryamm_orders').update({ status: 'paid_sandbox', updated_at: new Date().toISOString() }).eq('id', order.id)
-  if (orderError) throw orderError
-  await writeAudit('payment.sandbox.authorized', 'order', order.id, 'success', { paymentId: data.id })
-  return data
+export async function authorizeSandboxPayment(order: JourneyOrder, approvalId: string) {
+  await requireAuth()
+  return recordSandboxPayment({
+    orderId: order.id,
+    amountMinor: order.totalMinor,
+    idempotencyKey: crypto.randomUUID(),
+    approvalId,
+  })
 }
 
 export async function addDeliveryEvent(orderId: string, state: string, publicMessage: string, etaMinutes?: number) {
-  const { sb, user } = await requireAuth()
-  const { data, error } = await sb.from('tryamm_delivery_events').insert({
-    order_id: orderId,
-    actor_id: user.id,
-    state,
-    public_message: publicMessage,
-    eta_minutes: etaMinutes ?? null,
-  }).select('id,state,public_message,eta_minutes,occurred_at').single()
-  if (error) throw error
-  await sb.from('tryamm_orders').update({ status: state, updated_at: new Date().toISOString() }).eq('id', orderId)
-  await writeAudit('delivery.event', 'order', orderId, 'success', { state })
-  return data
+  await requireAuth()
+  return appendDeliveryEvent({ orderId, state, publicMessage, etaMinutes })
 }
 
 export async function listDeliveryEvents(orderId: string) {
@@ -162,19 +146,9 @@ async function writeAudit(
   action: string,
   targetType: string,
   targetId: string,
-  result: string,
+  result: 'allowed' | 'denied' | 'pending_approval' | 'success' | 'failure',
   metadata: Record<string, unknown> = {},
 ) {
-  const { sb, user } = await requireAuth()
-  const correlationId = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`
-  const { error } = await sb.from('tryamm_audit_events').insert({
-    actor_id: user.id,
-    action,
-    target_type: targetType,
-    target_id: targetId,
-    result,
-    correlation_id: correlationId,
-    metadata,
-  })
-  if (error) throw error
+  await requireAuth()
+  await recordAuditEvent({ action, targetType, targetId, result, metadata })
 }
