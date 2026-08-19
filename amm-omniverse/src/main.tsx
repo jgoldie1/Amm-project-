@@ -8,6 +8,7 @@ import GameVerseLauncher from './components/GameVerseLauncher'
 import AccessibilityPassportPanel from './components/AccessibilityPassportPanel'
 import HoloDeliveryLauncher from './components/HoloDeliveryLauncher'
 import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
+import SharedCityMultiplayerPanel from './components/SharedCityMultiplayerPanel'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 import { installGameStatePersistence } from './game/runtime/gameCompletionCore'
@@ -25,5 +26,6 @@ createRoot(document.getElementById('root')!).render(
     <AccessibilityPassportPanel />
     <HoloDeliveryLauncher />
     <HoloMarketplaceLauncher />
+    <SharedCityMultiplayerPanel />
   </StrictMode>
 )
