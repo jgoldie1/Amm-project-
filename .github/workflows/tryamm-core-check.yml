@@ -35,7 +35,7 @@ jobs:
           cache-dependency-path: amm-omniverse/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-fund --no-audit
 
       - name: Security → provider gates → readiness → persistence → typecheck → smoke/build
         run: npm run check
