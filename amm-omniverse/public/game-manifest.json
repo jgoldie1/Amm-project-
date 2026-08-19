@@ -1,0 +1,28 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-08-18T23:15:00-05:00",
+  "defaultGameId": "tryamm-playable-beta",
+  "games": [
+    {
+      "id": "tryamm-playable-beta",
+      "title": "TRYAMM Playable Beta",
+      "version": "0.1.0",
+      "experience": "demo",
+      "enabled": true,
+      "clientModule": "PlayableBeta",
+      "multiplayerRequired": false,
+      "minimumHealth": "degraded"
+    },
+    {
+      "id": "shared-world-multiplayer",
+      "title": "Shared World Multiplayer",
+      "version": "0.1.0",
+      "experience": "beta",
+      "enabled": false,
+      "multiplayerRequired": true,
+      "requiredRegions": ["us-east", "us-central"],
+      "minimumHealth": "healthy",
+      "maintenanceMessage": "Authoritative multiplayer is still gated until regional services and persistence pass production checks."
+    }
+  ]
+}
