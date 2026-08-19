@@ -1,0 +1,42 @@
+name: amm-omniverse-ci
+
+on:
+  push:
+    paths:
+      - 'amm-omniverse/**'
+      - '.github/workflows/amm-omniverse-ci.yml'
+  pull_request:
+    paths:
+      - 'amm-omniverse/**'
+      - '.github/workflows/amm-omniverse-ci.yml'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci
+      - run: npm run security
+      - run: npm run readiness
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e
+        env:
+          CI: 'true'
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: amm-omniverse/playwright-report
+          if-no-files-found: ignore
+          retention-days: 7
