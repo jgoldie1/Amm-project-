@@ -81,10 +81,10 @@ const labels: Record<OrderState, string> = {
 
 export function buildTrackingView(orderId: string, events: DeliveryTrackingEvent[]): DeliveryTrackingView {
   const sorted = [...events].filter((e) => e.orderId === orderId).sort((a, b) => a.occurredAt.localeCompare(b.occurredAt));
-  const latest = sorted.at(-1);
+  const latest = sorted.length > 0 ? sorted[sorted.length - 1] : undefined;
   const lastLocation = [...sorted].reverse().find((e) => e.location)?.location;
   const lastEta = [...sorted].reverse().find((e) => typeof e.etaMinutes === 'number')?.etaMinutes;
-  const state = latest?.state ?? 'confirmed';
+  const state: OrderState = latest?.state ?? 'confirmed';
   return { orderId, state, statusLabel: labels[state], etaMinutes: lastEta, courierLocation: lastLocation, events: sorted };
 }
 
