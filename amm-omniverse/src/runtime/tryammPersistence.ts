@@ -5,6 +5,7 @@ export type TryammCoreAction =
   | 'create_order'
   | 'record_sandbox_payment'
   | 'append_delivery_event'
+  | 'record_audit_event'
   | 'dashboard';
 
 export type TryammCoreResponse<T> = {
@@ -60,6 +61,18 @@ export type TryammSandboxPaymentRecord = {
   updated_at: string;
 };
 
+export type TryammAuditRecord = {
+  id: string;
+  actor_id: string;
+  action: string;
+  target_type: string | null;
+  target_id: string | null;
+  result: string;
+  correlation_id: string;
+  metadata: Record<string, unknown>;
+  occurred_at: string;
+};
+
 export type TryammDashboard = {
   businesses: Array<Pick<TryammBusinessRecord, 'id' | 'name' | 'status' | 'updated_at'>>;
   totals: {
@@ -110,11 +123,16 @@ async function invokeCore<T>(action: TryammCoreAction, input: Record<string, unk
   return data as TryammCoreResponse<T>;
 }
 
-export function saveBusiness(input: { id?: string; name: string; status?: string; profile?: Record<string, unknown> }) {
-  return invokeCore<TryammBusinessRecord>('upsert_business', input);
+function unwrap<T>(response: TryammCoreResponse<T>): T {
+  if (response.error || !response.data) throw new Error(response.error ?? 'TRYAMM core returned no data.');
+  return response.data;
 }
 
-export function createSandboxOrder(input: {
+export async function saveBusiness(input: { id?: string; name: string; status?: string; profile?: Record<string, unknown> }) {
+  return unwrap(await invokeCore<TryammBusinessRecord>('upsert_business', input));
+}
+
+export async function createSandboxOrder(input: {
   businessId?: string;
   kind: string;
   totalMinor: number;
@@ -122,19 +140,29 @@ export function createSandboxOrder(input: {
   payload?: Record<string, unknown>;
   idempotencyKey: string;
 }) {
-  return invokeCore<TryammOrderRecord>('create_order', input);
+  return unwrap(await invokeCore<TryammOrderRecord>('create_order', input));
 }
 
-export function recordSandboxPayment(input: { orderId: string; amountMinor?: number; idempotencyKey: string }) {
-  return invokeCore<TryammSandboxPaymentRecord>('record_sandbox_payment', input);
+export async function recordSandboxPayment(input: { orderId: string; amountMinor?: number; idempotencyKey: string; approvalId: string }) {
+  return unwrap(await invokeCore<TryammSandboxPaymentRecord>('record_sandbox_payment', input));
 }
 
-export function appendDeliveryEvent(input: { orderId: string; state: string; publicMessage: string; etaMinutes?: number }) {
-  return invokeCore<TryammDeliveryEventRecord>('append_delivery_event', input);
+export async function appendDeliveryEvent(input: { orderId: string; state: string; publicMessage: string; etaMinutes?: number }) {
+  return unwrap(await invokeCore<TryammDeliveryEventRecord>('append_delivery_event', input));
 }
 
-export function loadTryammDashboard() {
-  return invokeCore<TryammDashboard>('dashboard');
+export async function recordAuditEvent(input: {
+  action: string;
+  targetType?: string;
+  targetId?: string;
+  result: 'allowed' | 'denied' | 'pending_approval' | 'success' | 'failure';
+  metadata?: Record<string, unknown>;
+}) {
+  return unwrap(await invokeCore<TryammAuditRecord>('record_audit_event', input));
+}
+
+export async function loadTryammDashboard() {
+  return unwrap(await invokeCore<TryammDashboard>('dashboard'));
 }
 
 export async function readOrderJourney(orderId: string) {
@@ -153,7 +181,7 @@ export async function readOrderJourney(orderId: string) {
     order: orderResult.data as TryammOrderRecord | null,
     payment: paymentResult.data as TryammSandboxPaymentRecord | null,
     deliveryEvents: (deliveryResult.data ?? []) as TryammDeliveryEventRecord[],
-    auditEvents: auditResult.data ?? [],
+    auditEvents: (auditResult.data ?? []) as TryammAuditRecord[],
   };
 }
 
