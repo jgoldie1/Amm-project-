@@ -1,31 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
-
-const root = process.cwd();
-const readinessPath = path.join(root, 'src/runtime/productionReadiness.ts');
-if (!fs.existsSync(readinessPath)) throw new Error('Missing production readiness registry.');
-
-const source = fs.readFileSync(readinessPath, 'utf8');
-const forbiddenLive = [
-  'telehealth','medicaid','telelaw','tax-bookkeeping','insurance-realty','remote-notary',
-  'drone-robot','ios-android','jin-pay','live-streaming'
-];
-
-for (const id of forbiddenLive) {
-  const pattern = new RegExp(`id:\\s*['\"]${id}['\"][\\s\\S]{0,500}?state:\\s*['\"]LIVE['\"]`);
-  if (pattern.test(source)) {
-    throw new Error(`High-risk/external feature ${id} cannot be marked LIVE without external production evidence.`);
-  }
-}
-
-const requiredIds = [
-  'core-web','accessibility-passport','business-jarvis','trust-core','marketplace','holo-delivery',
-  'money-engine','sustainability','business-launch','domain-dns','quantum-zapier','quantum-discord'
-];
-for (const id of requiredIds) {
-  if (!source.includes(`id: '${id}'`) && !source.includes(`id: \"${id}\"`)) {
-    throw new Error(`Readiness registry missing required feature: ${id}`);
-  }
-}
-
-console.log('production-readiness: registry integrity OK');
+const root=process.cwd();const readinessPath=path.join(root,'src/runtime/productionReadiness.ts');if(!fs.existsSync(readinessPath))throw new Error('Missing production readiness registry.');const source=fs.readFileSync(readinessPath,'utf8');
+const forbiddenLive=['telehealth','medicaid','telelaw','tax-bookkeeping','insurance-realty','remote-notary','drone-robot','ios-android','jin-pay','live-streaming'];for(const id of forbiddenLive){const pattern=new RegExp(`id:\\s*['\"]${id}['\"][\\s\\S]{0,500}?state:\\s*['\"]LIVE['\"]`);if(pattern.test(source))throw new Error(`High-risk/external feature ${id} cannot be marked LIVE without external production evidence.`)}
+const requiredIds=['core-web','accessibility-passport','business-jarvis','trust-core','marketplace','holo-delivery','money-engine','sustainability','business-launch','domain-dns','quantum-zapier','quantum-discord'];for(const id of requiredIds)if(!source.includes(`id: '${id}'`)&&!source.includes(`id: \"${id}\"`))throw new Error(`Readiness registry missing required feature: ${id}`)
+const exists=(p)=>fs.existsSync(path.join(root,p)),read=(p)=>fs.readFileSync(path.join(root,p),'utf8'),must=(condition,message)=>{if(!condition)throw new Error(`StreetVerse readiness: ${message}`)};
+for(const p of ['api/streetverse/life/[action].ts','src/components/StreetVerseBiographyProofHub.tsx','src/components/StreetVerseMissionDirectorHub.tsx','src/game/story/StreetVerseMissionProductionEngine.ts','src/services/streetVerseLifeApi.ts','src/services/pkBackchannel.ts','src/components/PKBackchannelPanel.tsx','supabase/migrations/20260820253000_streetverse_life_world_memory.sql','supabase/migrations/20260820261500_streetverse_mission_runs.sql','supabase/migrations/20260820270000_pk_backchannel.sql','tests/e2e/streetverse-biography-proof.spec.ts','tests/e2e/streetverse-mission-director.spec.ts'])must(exists(p),`${p} missing`)
+const life=read('api/streetverse/life/[action].ts');for(const action of ['biography-save','return-world','archive-progress','creator-work','mission-state','rejoin'])must(life.includes(`action==='${action}'`),`life action ${action} missing`)
+const migration=read('supabase/migrations/20260820253000_streetverse_life_world_memory.sql');for(const table of ['streetverse_biography_snapshots','streetverse_world_changes','streetverse_archive_mission_progress','streetverse_creator_works'])must(migration.includes(table),`migration table ${table} missing`);must(migration.includes('enable row level security'),'life RLS missing');must(migration.includes('revoke all'),'anonymous Data API hardening missing')
+const mission=read('supabase/migrations/20260820261500_streetverse_mission_runs.sql');must(mission.includes('streetverse_mission_runs')&&mission.includes('enable row level security'),'mission persistence/RLS missing')
+const pk=read('supabase/migrations/20260820270000_pk_backchannel.sql');must(pk.includes('pk_backchannel_members')&&pk.includes('pk_backchannel_messages')&&pk.includes('enable row level security')&&pk.includes('revoke all'),'PK backchannel security contract missing')
+const live=read('src/services/live.ts'),moderation=read('src/services/moderation.ts');must(!live.includes("throw new Error('VITE_API_URL is not configured')"),'LIVE same-origin fallback regressed');must(!moderation.includes("throw new Error('VITE_API_URL is not configured')"),'moderation same-origin fallback regressed')
+console.log('production-readiness: registry + StreetVerse life + mission runtime + PK backchannel contracts OK');

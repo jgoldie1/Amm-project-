@@ -1,6 +1,10 @@
 import { useEffect, useRef } from 'react'
 import { useGameStore } from '../game/state/useGameStore'
 import { getAuthenticatedUserId, isSupabaseConfigured } from '../services/supabaseClient'
+import StreetVerseLifePathLauncher from './StreetVerseLifePathLauncher'
+import StreetVerseLegacyMemoryHub from './StreetVerseLegacyMemoryHub'
+import StreetVerseBiographyProofHub from './StreetVerseBiographyProofHub'
+import StreetVerseMissionDirectorHub from './StreetVerseMissionDirectorHub'
 import {
   enterWorld,
   getActiveWorldSession,
@@ -61,7 +65,6 @@ export default function LivingWorldsBridge() {
     }
     bootstrap()
     return () => { cancelled = true }
-    // Re-run when the user moves from login/intro into the signed-in app.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signedIn])
 
@@ -101,5 +104,5 @@ export default function LivingWorldsBridge() {
     return () => { cancelled = true }
   }, [signedIn, screen, player.level, player.xp, player.rep, player.faith, player.activeVehicle])
 
-  return null
+  return signedIn ? <><StreetVerseLifePathLauncher /><StreetVerseLegacyMemoryHub /><StreetVerseBiographyProofHub /><StreetVerseMissionDirectorHub /></> : null
 }
