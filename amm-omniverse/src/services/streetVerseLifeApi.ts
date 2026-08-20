@@ -11,7 +11,7 @@ export const STREETVERSE_LIFE_API={
 } as const
 
 async function parse<T>(response:Response,fallback:string):Promise<T>{const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data?.error||fallback);return data as T}
-async function request<T>(path:string,init:RequestInit={},requiresAuth=true):Promise<T>{if(!API)throw new Error('VITE_API_URL is not configured');const headers=new Headers(init.headers||{});headers.set('Content-Type','application/json');if(requiresAuth){const token=await getAccessToken();if(!token)throw new Error('Authentication required');headers.set('Authorization',`Bearer ${token}`)}return parse<T>(await fetch(`${API}${path}`,{...init,headers}),'StreetVerse life API request failed')}
+async function request<T>(path:string,init:RequestInit={},requiresAuth=true):Promise<T>{const headers=new Headers(init.headers||{});headers.set('Content-Type','application/json');if(requiresAuth){const token=await getAccessToken();if(!token)throw new Error('Authentication required');headers.set('Authorization',`Bearer ${token}`)}return parse<T>(await fetch(`${API}${path}`,{...init,headers}),'StreetVerse life API request failed')}
 
 export type BiographyInput={characterId:string;chapter:string;regionId:string;state:Record<string,unknown>;legacyScore:number}
 export type WorldChange={entity_id:string;entity_kind:string;before_state:string;after_state:string;reason:string;importance:number}
