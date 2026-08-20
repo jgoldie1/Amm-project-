@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getAuthenticatedUserId, getSupabaseClient, isSupabaseConfigured } from '../services/supabaseClient'
+import RealityLabMultiplayerPanel from './RealityLabMultiplayerPanel'
 
 type Room = { id: string; name: string; proof: string; xp: number }
 type Exhibit = { id: string; name: string; experience: string; linkedProof: string }
@@ -277,6 +278,8 @@ export default function RealityLabDistrict01({ onClose }: { onClose: () => void 
           </div>
         </section>
 
+        <RealityLabMultiplayerPanel active={current.id === 'puzzle' && !panic} />
+
         <section aria-label="Chicago World Museum Immersive Wing" style={{ marginTop:20, border:'1px solid #704fe3aa', borderRadius:20, padding:18, background:'linear-gradient(145deg,#0c1022,#10081c)' }}>
           <div style={{ display:'flex', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
             <div><div style={{ color:'#d49cff', fontSize:10, letterSpacing:2, fontWeight:900 }}>RECOVERED ORIGINAL DESIGN • IMMERSIVE WING</div><h2 style={{ margin:'7px 0' }}>Chicago World Museum Experiences</h2></div>
@@ -297,7 +300,7 @@ export default function RealityLabDistrict01({ onClose }: { onClose: () => void 
         </fieldset>
 
         {panic && <div role="alert" style={{ marginTop:18, border:'3px solid #ff6b7d', borderRadius:18, padding:18 }}><strong>SAFE STATE ACTIVE.</strong> Room progression is locked.<div><button onClick={resume} style={{ marginTop:10 }}>Resume</button></div></div>}
-        {allComplete && <div style={{ marginTop:18, border:'2px solid #e8b944', borderRadius:18, padding:18 }}><strong>Interaction loop complete.</strong> This does not turn the active slice GREEN by itself. Two-device multiplayer, authenticated cloud save/rejoin, physical controller evidence, mobile/XR benchmarks, commerce isolation and deployed smoke evidence still require real proof.</div>}
+        {allComplete && <div style={{ marginTop:18, border:'2px solid #e8b944', borderRadius:18, padding:18 }}><strong>Interaction loop complete.</strong> This does not turn the active slice GREEN by itself. Two-device cloud save/rejoin, physical controller evidence, physical mobile/XR benchmarks, commerce isolation and deployed smoke evidence still require real proof.</div>}
       </div>
     </div>
   )
