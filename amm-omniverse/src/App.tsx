@@ -21,6 +21,7 @@ import HoloCoreCenter from './components/HoloCoreCenter'
 import FamilyLegacyHub from './components/FamilyLegacyHub'
 import QuantumEngineCenter from './components/QuantumEngineCenter'
 import SecurityCenter from './components/SecurityCenter'
+import RealityLabDistrict01 from './components/RealityLabDistrict01'
 import './styles.css'
 
 const ProAudioSuite = lazy(() => import('./components/ProAudioSuite'))
@@ -55,6 +56,7 @@ export default function App() {
   const [showQuantumBeat, setShowQuantumBeat] = useState(false)
   const [showOTT, setShowOTT] = useState(false)
   const [showSecurity, setShowSecurity] = useState(false)
+  const [showRealityLab, setShowRealityLab] = useState(false)
   const [showNexus, setShowNexus] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
@@ -79,11 +81,13 @@ export default function App() {
   ;(window as any).__showQuantumBeat = () => setShowQuantumBeat(true)
   ;(window as any).__showIsaiahTV = () => setShowOTT(true)
   ;(window as any).__showSecurityCenter = () => setShowSecurity(true)
+  ;(window as any).__showRealityLab = () => setShowRealityLab(true)
   ;(window as any).__showCommandNexus = () => setShowNexus(true)
 
   const signedIn = screen !== 'intro' && screen !== 'login'
   const nexusItems = [
     ['🛡','SECURITY',()=>setShowSecurity(true),'LIVE'],
+    ['🏙','DISTRICT 01',()=>setShowRealityLab(true),'PROOF'],
     ['◉','OMNIVERSE',()=>setShowOmniverse(true),'BETA'],
     ['◎','HOLO CORE',()=>setShowHoloCore(true),'BETA'],
     ['✦','HOLO SERVICES',()=>setShowHoloServices(true),'BETA'],
@@ -126,9 +130,9 @@ export default function App() {
         {showNexus && signedIn && <div role="dialog" aria-label="TRYAMM Command Nexus" style={{position:'fixed',right:12,bottom:118,zIndex:10010,width:'min(92vw,440px)',maxHeight:'68vh',overflowY:'auto',background:'linear-gradient(160deg,#09131f,#070710)',border:'1px solid #4fe3ff66',borderRadius:22,boxShadow:'0 24px 80px #000c',padding:14}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,padding:'4px 4px 12px'}}><div><div style={{color:'#4fe3ff',fontSize:10,fontWeight:900,letterSpacing:3}}>TRYAMM</div><div style={{fontSize:18,color:'#fff',fontWeight:950}}>Command Nexus</div></div><button aria-label="Close Command Nexus" onClick={()=>setShowNexus(false)} style={{width:34,height:34,borderRadius:'50%',border:'1px solid #394557',background:'#101522',color:'#fff',cursor:'pointer'}}>×</button></div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
-            {nexusItems.map(([icon,label,action,status])=><button key={label} onClick={()=>{setShowNexus(false);action()}} style={{minHeight:74,textAlign:'left',padding:11,border:'1px solid #1c2c3e',borderRadius:14,background:'#0b111b',color:'#fff',cursor:'pointer'}}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><span style={{fontSize:18}}>{icon}</span><span style={{fontSize:8,color:status==='LIVE'?'#78ffb4':'#e8b944',fontWeight:900}}>{status}</span></div><div style={{fontSize:10,fontWeight:950,marginTop:9,letterSpacing:.5}}>{label}</div></button>)}
+            {nexusItems.map(([icon,label,action,status])=><button key={label} onClick={()=>{setShowNexus(false);action()}} style={{minHeight:74,textAlign:'left',padding:11,border:'1px solid #1c2c3e',borderRadius:14,background:'#0b111b',color:'#fff',cursor:'pointer'}}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><span style={{fontSize:18}}>{icon}</span><span style={{fontSize:8,color:status==='LIVE'?'#78ffb4':status==='PROOF'?'#4fe3ff':'#e8b944',fontWeight:900}}>{status}</span></div><div style={{fontSize:10,fontWeight:950,marginTop:9,letterSpacing:.5}}>{label}</div></button>)}
           </div>
-          <div style={{marginTop:10,fontSize:9,color:'#718096',lineHeight:1.5}}>Advanced systems stay available here without covering the main experience. Readiness labels distinguish live and beta features.</div>
+          <div style={{marginTop:10,fontSize:9,color:'#718096',lineHeight:1.5}}>Advanced systems stay available here without covering the main experience. Readiness labels distinguish live, proof and beta features.</div>
         </div>}
 
         {showPricing && <div style={{position:'fixed',inset:0,zIndex:9999,background:'#020212'}}><PricingScreen onClose={() => setShowPricing(false)} /></div>}
@@ -145,6 +149,7 @@ export default function App() {
         {showFamilyLegacy && <FamilyLegacyHub onClose={() => setShowFamilyLegacy(false)} />}
         {showQuantumEngine && <QuantumEngineCenter onClose={() => setShowQuantumEngine(false)} />}
         {showSecurity && <SecurityCenter onClose={() => setShowSecurity(false)} />}
+        {showRealityLab && <RealityLabDistrict01 onClose={() => setShowRealityLab(false)} />}
         {showSignLanguage && <Suspense fallback={null}><div style={{position:'fixed',inset:0,zIndex:10000,background:'#050816'}}><SignLanguageHub onClose={() => setShowSignLanguage(false)} /></div></Suspense>}
         {showAccessibilityRemote && <Suspense fallback={null}><AccessibilityRemoteHub onClose={() => setShowAccessibilityRemote(false)} /></Suspense>}
         {showLive && <Suspense fallback={null}><div style={{position:'fixed',inset:0,zIndex:10020,background:'#030611'}}><LiveCenter onClose={() => setShowLive(false)} /></div></Suspense>}
