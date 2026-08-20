@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { getAuthenticatedUserId, getSupabaseClient, isSupabaseConfigured } from '../services/supabaseClient'
 
 type Room = {
   id: string
@@ -16,6 +17,14 @@ type Saved = {
   highContrast: boolean
 }
 
+type CloudRow = {
+  current_room: string
+  completed_rooms: string[] | null
+  xp: number | null
+  accessibility: Record<string, unknown> | null
+  checkpoint_revision: number | null
+}
+
 const ROOMS: Room[] = [
   { id: 'welcome', name: 'Holographic Welcome Hall', proof: 'Identity, accessibility profile, mission state and checkpoint.', xp: 25 },
   { id: 'light', name: 'Infinite Light Chamber', proof: 'Movement, controller, touch and reactive-environment proof.', xp: 25 },
@@ -31,8 +40,12 @@ const initial: Saved = { room: 0, completed: [], xp: 0, oneHanded: false, reduce
 
 export default function RealityLabDistrict01({ onClose }: { onClose: () => void }) {
   const [state, setState] = useState<Saved>(initial)
+  const [hydrated, setHydrated] = useState(false)
   const [panic, setPanic] = useState(false)
   const [message, setMessage] = useState('District 01 checkpoint ready.')
+  const [cloudStatus, setCloudStatus] = useState<'local'|'loading'|'synced'|'unavailable'>('local')
+  const userIdRef = useRef<string | null>(null)
+  const loadedCloudRef = useRef(false)
 
   useEffect(() => {
     try {
@@ -40,12 +53,99 @@ export default function RealityLabDistrict01({ onClose }: { onClose: () => void 
       if (raw) setState({ ...initial, ...JSON.parse(raw) })
     } catch {
       setMessage('Local checkpoint recovery failed; safe fresh state loaded.')
+    } finally {
+      setHydrated(true)
     }
   }, [])
 
   useEffect(() => {
+    if (!hydrated) return
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-  }, [state])
+  }, [hydrated, state])
+
+  useEffect(() => {
+    if (!hydrated || loadedCloudRef.current) return
+    loadedCloudRef.current = true
+    let cancelled = false
+
+    async function loadCloudCheckpoint() {
+      if (!isSupabaseConfigured()) return
+      const client = getSupabaseClient()
+      if (!client) return
+      setCloudStatus('loading')
+      try {
+        const userId = await getAuthenticatedUserId()
+        if (!userId) {
+          if (!cancelled) setCloudStatus('local')
+          return
+        }
+        userIdRef.current = userId
+        const { data, error } = await client
+          .from('reality_lab_progress')
+          .select('current_room,completed_rooms,xp,accessibility,checkpoint_revision')
+          .eq('user_id', userId)
+          .maybeSingle<CloudRow>()
+        if (error) throw error
+        if (data && !cancelled) {
+          const index = Math.max(0, ROOMS.findIndex(room => room.id === data.current_room))
+          const a11y = data.accessibility ?? {}
+          setState(prev => ({
+            ...prev,
+            room: index,
+            completed: Array.isArray(data.completed_rooms) ? data.completed_rooms.filter(id => ROOMS.some(room => room.id === id)) : [],
+            xp: typeof data.xp === 'number' ? Math.max(0, data.xp) : 0,
+            oneHanded: a11y.oneHanded === true,
+            reducedMotion: a11y.reducedMotion === true,
+            highContrast: a11y.highContrast === true,
+          }))
+          setMessage(`Cloud checkpoint restored • revision ${data.checkpoint_revision ?? 1}.`)
+        }
+        if (!cancelled) setCloudStatus('synced')
+      } catch (error) {
+        console.warn('[RealityLab] cloud checkpoint load skipped:', error)
+        if (!cancelled) setCloudStatus('unavailable')
+      }
+    }
+
+    void loadCloudCheckpoint()
+    return () => { cancelled = true }
+  }, [hydrated])
+
+  useEffect(() => {
+    if (!hydrated || !userIdRef.current) return
+    const client = getSupabaseClient()
+    if (!client) return
+    const timer = window.setTimeout(async () => {
+      setCloudStatus('loading')
+      const current = ROOMS[state.room] ?? ROOMS[0]
+      const { data: existing } = await client
+        .from('reality_lab_progress')
+        .select('checkpoint_revision')
+        .eq('user_id', userIdRef.current)
+        .maybeSingle<{ checkpoint_revision: number | null }>()
+      const revision = (existing?.checkpoint_revision ?? 0) + 1
+      const { error } = await client.from('reality_lab_progress').upsert({
+        user_id: userIdRef.current,
+        current_room: current.id,
+        completed_rooms: state.completed,
+        xp: state.xp,
+        accessibility: {
+          oneHanded: state.oneHanded,
+          reducedMotion: state.reducedMotion,
+          highContrast: state.highContrast,
+        },
+        checkpoint_revision: revision,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' })
+      if (error) {
+        console.warn('[RealityLab] cloud checkpoint save skipped:', error)
+        setCloudStatus('unavailable')
+      } else {
+        setCloudStatus('synced')
+      }
+    }, 450)
+    return () => window.clearTimeout(timer)
+  }, [hydrated, state])
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -55,18 +155,14 @@ export default function RealityLabDistrict01({ onClose }: { onClose: () => void 
         return
       }
       if (panic) return
-      if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
-        setState(s => ({ ...s, room: Math.min(ROOMS.length - 1, s.room + 1) }))
-      }
-      if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
-        setState(s => ({ ...s, room: Math.max(0, s.room - 1) }))
-      }
+      if (event.key === 'ArrowRight' || event.key === 'ArrowDown') setState(s => ({ ...s, room: Math.min(ROOMS.length - 1, s.room + 1) }))
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') setState(s => ({ ...s, room: Math.max(0, s.room - 1) }))
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [panic])
 
-  const current = ROOMS[state.room]
+  const current = ROOMS[state.room] ?? ROOMS[0]
   const progress = Math.round((state.completed.length / ROOMS.length) * 100)
   const allComplete = state.completed.length === ROOMS.length
   const completedSet = useMemo(() => new Set(state.completed), [state.completed])
@@ -74,7 +170,7 @@ export default function RealityLabDistrict01({ onClose }: { onClose: () => void 
   const completeRoom = () => {
     if (panic || completedSet.has(current.id)) return
     setState(s => ({ ...s, completed: [...s.completed, current.id], xp: s.xp + current.xp }))
-    setMessage(`${current.name} interaction recorded. Non-cash progression only.`)
+    setMessage(`${current.name} interaction recorded. Lab XP only; no cash or payable balance changed.`)
   }
 
   return (
@@ -93,7 +189,7 @@ export default function RealityLabDistrict01({ onClose }: { onClose: () => void 
         </div>
 
         <div aria-live="polite" style={{ marginTop:16, padding:12, border:'1px solid #4fe3ff55', borderRadius:12, background:'#06111dcc' }}><strong>{message}</strong></div>
-        <div style={{ marginTop:10, display:'flex', gap:18, flexWrap:'wrap', fontFamily:'monospace', fontSize:12 }}><span>PROGRESS {progress}%</span><span>XP {state.xp}</span><span>ROOM {state.room + 1}/{ROOMS.length}</span></div>
+        <div style={{ marginTop:10, display:'flex', gap:18, flexWrap:'wrap', fontFamily:'monospace', fontSize:12 }}><span>PROGRESS {progress}%</span><span>LAB XP {state.xp}</span><span>ROOM {state.room + 1}/{ROOMS.length}</span><span>CLOUD {cloudStatus.toUpperCase()}</span></div>
         <progress value={progress} max={100} style={{ width:'100%', height:18, marginTop:10 }} />
 
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))', gap:10, marginTop:18 }}>
@@ -106,7 +202,7 @@ export default function RealityLabDistrict01({ onClose }: { onClose: () => void 
           <p style={{ color:'#c3d0dc', maxWidth:840 }}>{current.proof}</p>
           <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
             <button disabled={panic || state.room === 0} onClick={() => setState(s => ({ ...s, room:Math.max(0,s.room-1) }))}>Previous</button>
-            <button disabled={panic || completedSet.has(current.id)} onClick={completeRoom}>{completedSet.has(current.id)?'Interaction recorded':`Complete +${current.xp} XP`}</button>
+            <button disabled={panic || completedSet.has(current.id)} onClick={completeRoom}>{completedSet.has(current.id)?'Interaction recorded':`Complete +${current.xp} Lab XP`}</button>
             <button disabled={panic || state.room === ROOMS.length - 1} onClick={() => setState(s => ({ ...s, room:Math.min(ROOMS.length-1,s.room+1) }))}>Next</button>
           </div>
         </section>
@@ -120,7 +216,7 @@ export default function RealityLabDistrict01({ onClose }: { onClose: () => void 
 
         {panic && <div role="alert" style={{ marginTop:18, border:'3px solid #ff6b7d', borderRadius:18, padding:18 }}><strong>SAFE STATE ACTIVE.</strong> Room progression is locked.<div><button onClick={()=>{setPanic(false);setMessage('Safe state cleared. Resume when ready.')}} style={{ marginTop:10 }}>Resume</button></div></div>}
 
-        {allComplete && <div style={{ marginTop:18, border:'2px solid #e8b944', borderRadius:18, padding:18 }}><strong>Local interaction loop complete.</strong> This does not turn the active slice GREEN by itself. Two-device multiplayer, authenticated cloud save/rejoin, physical controller/touch, mobile/XR benchmarks, commerce isolation and deployed smoke evidence still require real proof.</div>}
+        {allComplete && <div style={{ marginTop:18, border:'2px solid #e8b944', borderRadius:18, padding:18 }}><strong>Interaction loop complete.</strong> This does not turn the active slice GREEN by itself. Two-device multiplayer, authenticated cloud save/rejoin, physical controller/touch, mobile/XR benchmarks, commerce isolation and deployed smoke evidence still require real proof.</div>}
       </div>
     </div>
   )
