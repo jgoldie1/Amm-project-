@@ -2,6 +2,7 @@ import { Room, RoomEvent, Track } from 'livekit-client'
 import { getAccessToken } from './supabaseClient'
 import { installCallSafeLive } from './protectedLive'
 
+// Explicit API host wins. Empty means same-origin /api on Vercel.
 const API_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || ''
 
 export type LiveRole = 'host' | 'viewer'
@@ -15,7 +16,6 @@ export interface LiveTokenResponse {
 }
 
 async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
-  if (!API_URL) throw new Error('VITE_API_URL is not configured')
   const token = await getAccessToken()
   if (!token) throw new Error('Sign in is required for LIVE')
   const headers = new Headers(init.headers || {})
@@ -28,9 +28,10 @@ async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
 }
 
 export async function getLiveStatus() {
-  if (!API_URL) return { configured: false }
   const response = await fetch(`${API_URL}/api/live/status`)
-  return response.json() as Promise<{ configured: boolean; url?: string }>
+  const body=await response.json().catch(()=>({configured:false}))
+  if(!response.ok)return {configured:false}
+  return body as { configured: boolean; url?: string }
 }
 
 export async function createLiveToken(room: string, role: LiveRole, displayName?: string) {
