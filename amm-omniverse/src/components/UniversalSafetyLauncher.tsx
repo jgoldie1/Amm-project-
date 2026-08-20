@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import SafetyActionSheet from './SafetyActionSheet'
+import SafeJourneyPanel from './SafeJourneyPanel'
 import type { ModerationTarget } from '../services/moderation'
 
 type SafetyTarget={
@@ -16,6 +17,7 @@ type SafetyTarget={
 declare global{
   interface WindowEventMap{
     'tryamm:safety-open':CustomEvent<SafetyTarget>
+    'tryamm:safe-journey-open':CustomEvent<void>
   }
 }
 
@@ -68,8 +70,13 @@ export function openTryAMMSafety(target:SafetyTarget){
   window.dispatchEvent(new CustomEvent('tryamm:safety-open',{detail:target}))
 }
 
+export function openTryAMMSafeJourney(){
+  window.dispatchEvent(new CustomEvent('tryamm:safe-journey-open'))
+}
+
 export default function UniversalSafetyLauncher(){
   const [open,setOpen]=useState(false)
+  const [journeyOpen,setJourneyOpen]=useState(false)
   const [target,setTarget]=useState<SafetyTarget>(()=>fallbackTarget())
 
   useEffect(()=>{
@@ -77,6 +84,7 @@ export default function UniversalSafetyLauncher(){
       setTarget({...fallbackTarget(),...(event.detail||{})})
       setOpen(true)
     }
+    const onJourneyOpen=()=>setJourneyOpen(true)
     const openBoundTarget=(element:HTMLElement)=>{
       const next=fromElement(element)
       if(!next)return false
@@ -99,11 +107,13 @@ export default function UniversalSafetyLauncher(){
     }
 
     window.addEventListener('tryamm:safety-open',onOpen as EventListener)
+    window.addEventListener('tryamm:safe-journey-open',onJourneyOpen as EventListener)
     document.addEventListener('contextmenu',onContextMenu)
     document.addEventListener('keydown',onKeyDown)
     document.addEventListener('tryamm:safety-request',onSafetyRequest)
     return ()=>{
       window.removeEventListener('tryamm:safety-open',onOpen as EventListener)
+      window.removeEventListener('tryamm:safe-journey-open',onJourneyOpen as EventListener)
       document.removeEventListener('contextmenu',onContextMenu)
       document.removeEventListener('keydown',onKeyDown)
       document.removeEventListener('tryamm:safety-request',onSafetyRequest)
@@ -111,13 +121,22 @@ export default function UniversalSafetyLauncher(){
   },[])
 
   return <>
-    <button
-      type="button"
-      aria-label="Open TRYAMM Safety Center"
-      title="Safety / Report / Block / Mute"
-      onClick={()=>{setTarget(fallbackTarget());setOpen(true)}}
-      style={{position:'fixed',left:14,bottom:84,zIndex:9998,width:48,height:48,borderRadius:16,border:'1px solid rgba(79,227,255,.5)',background:'rgba(4,5,14,.94)',color:'#fff',fontSize:22,boxShadow:'0 0 22px rgba(79,227,255,.22)',cursor:'pointer'}}
-    >🛡</button>
+    <div style={{position:'fixed',left:14,bottom:84,zIndex:9998,display:'grid',gap:8}}>
+      <button
+        type="button"
+        aria-label="Open TRYAMM Safety Center"
+        title="Safety / Report / Block / Mute"
+        onClick={()=>{setTarget(fallbackTarget());setOpen(true)}}
+        style={{width:48,height:48,borderRadius:16,border:'1px solid rgba(79,227,255,.5)',background:'rgba(4,5,14,.94)',color:'#fff',fontSize:22,boxShadow:'0 0 22px rgba(79,227,255,.22)',cursor:'pointer'}}
+      >🛡</button>
+      <button
+        type="button"
+        aria-label="Open Safe Journey"
+        title="Safe Journey / Check-in / Route support"
+        onClick={()=>setJourneyOpen(true)}
+        style={{width:48,height:48,borderRadius:16,border:'1px solid rgba(232,185,68,.55)',background:'rgba(4,5,14,.94)',color:'#fff',fontSize:20,boxShadow:'0 0 22px rgba(232,185,68,.18)',cursor:'pointer'}}
+      >🧭</button>
+    </div>
     <SafetyActionSheet
       open={open}
       onClose={()=>setOpen(false)}
@@ -130,5 +149,6 @@ export default function UniversalSafetyLauncher(){
       mediaRefs={target.mediaRefs}
       context={target.context}
     />
+    <SafeJourneyPanel open={journeyOpen} onClose={()=>setJourneyOpen(false)} />
   </>
 }

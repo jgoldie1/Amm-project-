@@ -1,0 +1,58 @@
+name: TRYAMM Core Completion Gate
+
+on:
+  push:
+    branches:
+      - agent/completion-pathways
+      - developer-vic
+  pull_request:
+    branches:
+      - developer-vic
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tryamm-core-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+
+      - name: Install dependencies
+        run: npm install --no-fund --no-audit
+
+      - name: Security → provider gates → readiness → persistence → typecheck → smoke/build
+        run: npm run check
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser E2E
+        run: npm run e2e
+
+      - name: Upload Playwright evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-playwright-${{ github.sha }}
+          path: |
+            amm-omniverse/playwright-report
+            amm-omniverse/test-results
+          if-no-files-found: ignore
+          retention-days: 14
