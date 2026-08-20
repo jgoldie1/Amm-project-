@@ -50,7 +50,7 @@ export function saveLegacyMemory(input: { characterId: string; summary: string; 
 }
 
 export function getLegacyRightsStatus(sceneId: string) {
-  return authed<{ sceneId: string; status: LegacySceneStatus; rightsProofId?: string }>(`${STREETVERSE_LEGACY_API.rights}/${encodeURIComponent(sceneId)}`)
+  return authed<{ sceneId: string; status: LegacySceneStatus; rightsProofId?: string }>(`${STREETVERSE_LEGACY_API.rights}?sceneId=${encodeURIComponent(sceneId)}`)
 }
 
 export function requestEveLegacyDirective(input: Record<string, unknown>) {
