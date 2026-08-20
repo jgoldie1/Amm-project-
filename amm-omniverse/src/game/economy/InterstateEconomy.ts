@@ -13,10 +13,18 @@ export const INTERSTATE_HUBS: InterstateHub[] = [
   {
     id: 'great-lakes-midwest',
     name: 'Great Lakes + Midwest Corridor',
-    regions: ['Chicago', 'Detroit + Southeast Michigan', 'Peoria', 'Greenville', 'St. Louis', 'Mount Vernon', 'Herrin'],
+    regions: ['Chicago', 'Gary + Northwest Indiana', 'Indianapolis', 'South Bend', 'Fort Wayne', 'Bloomington', 'Evansville', 'Detroit + Southeast Michigan', 'Peoria', 'Greenville', 'St. Louis', 'Mount Vernon', 'Herrin'],
     modes: ['airport', 'rail', 'bus', 'trucking', 'rideshare', 'hotel', 'moving', 'touring'],
     jobs: ['Airport ground worker', 'Rail attendant', 'Bus driver', 'Truck driver', 'Freight dispatcher', 'Rideshare driver', 'Hotel worker', 'Mover', 'Tour manager'],
-    missionLoops: ['Move freight between cities', 'Relocate a household', 'Transport a sports team', 'Run a creator tour', 'Cover a weather reroute', 'Deliver urgent business inventory']
+    missionLoops: ['Move freight between cities', 'Relocate a household', 'Transport a sports team', 'Run a creator tour', 'Cover a weather reroute', 'Deliver urgent business inventory', 'Run Chicago ↔ Northwest Indiana commuter and freight missions']
+  },
+  {
+    id: 'indiana-state-network',
+    name: 'Indiana State Network',
+    regions: ['Gary + Northwest Indiana', 'Indianapolis', 'South Bend', 'Fort Wayne', 'Bloomington', 'Evansville'],
+    modes: ['airport', 'rail', 'bus', 'trucking', 'rideshare', 'hotel', 'moving', 'touring'],
+    jobs: ['Freight dispatcher', 'Manufacturing worker', 'Sports/event worker', 'Hospitality worker', 'Creator', 'Mover', 'Rideshare driver', 'Public-service support'],
+    missionLoops: ['Chicago-Gary daily route', 'Indianapolis sports/event logistics', 'South Bend campus trip', 'Fort Wayne manufacturing delivery', 'Bloomington creator tour', 'Evansville river-commerce transfer']
   },
   {
     id: 'southern-route',
