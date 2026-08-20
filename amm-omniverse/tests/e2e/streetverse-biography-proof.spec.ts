@@ -16,10 +16,10 @@ test.describe('StreetVerse biography and World Memory proof shell', () => {
     await expect(dialog.getByText('WORLD REMEMBERS', { exact: true })).toBeVisible()
     await expect(dialog.getByRole('button', { name: 'RUN FULL AUTHENTICATED PROOF' })).toBeVisible()
 
-    // CI browser runs do not receive a real player's Supabase session. The full proof
-    // must fail closed rather than silently writing unauthenticated biography state.
+    // CI has no real player's Supabase session. Same-origin API fallback is allowed,
+    // but authenticated persistence must still fail closed without an access token.
     await dialog.getByRole('button', { name: 'RUN FULL AUTHENTICATED PROOF' }).click()
     await expect(dialog.getByText(/STATUS: FAILED|STATUS: RUNNING/)).toBeVisible()
-    await expect(dialog.getByText(/Authentication required|VITE_API_URL is not configured|FULL PROOF STOPPED/i).first()).toBeVisible()
+    await expect(dialog.getByText(/Authentication required|StreetVerse life API request failed|FULL PROOF STOPPED/i).first()).toBeVisible()
   })
 })
