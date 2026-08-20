@@ -19,3 +19,5 @@ if (failures.length) {
 }
 
 console.log('vercel-deployment-contract: project build contract OK')
+console.log('expected Vercel project: amm-omniverse')
+console.log('expected repository root directory: amm-omniverse')
