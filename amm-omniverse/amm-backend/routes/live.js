@@ -1,5 +1,5 @@
 const express = require('express')
-const { AccessToken } = require('livekit-server-sdk')
+const { AccessToken, RoomServiceClient } = require('livekit-server-sdk')
 
 const BREAK_REASONS = new Set(['brb','bathroom','accessibility','meal','technical','emergency','backstage','ai-host','phone-call','background-interruption'])
 
@@ -24,15 +24,38 @@ function createLiveRouter({ supabase }) {
     return String(value || '').trim().replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 80)
   }
 
+  function livekitConfigured() {
+    return Boolean(process.env.LIVEKIT_API_KEY && process.env.LIVEKIT_API_SECRET && process.env.LIVEKIT_URL)
+  }
+
+  function roomService() {
+    if (!livekitConfigured()) throw new Error('LiveKit is not fully configured on the server')
+    const host = String(process.env.LIVEKIT_URL).replace(/^wss:/i, 'https:').replace(/^ws:/i, 'http:')
+    return new RoomServiceClient(host, process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET)
+  }
+
   async function getOwnedSession(userId, roomName) {
     const { data, error } = await supabase.from('live_stream_sessions').select('*').eq('user_id', userId).eq('room_name', roomName).maybeSingle()
     if (error) throw error
     return data
   }
 
+  async function getActiveRoomSession(roomName) {
+    const { data, error } = await supabase
+      .from('live_stream_sessions')
+      .select('*')
+      .eq('room_name', roomName)
+      .in('status', ['live', 'paused'])
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    if (error) throw error
+    return data
+  }
+
   router.get('/status', (_req, res) => {
     res.json({
-      configured: Boolean(process.env.LIVEKIT_API_KEY && process.env.LIVEKIT_API_SECRET && process.env.LIVEKIT_URL),
+      configured: livekitConfigured(),
       urlConfigured: Boolean(process.env.LIVEKIT_URL),
       features: ['audio','video','screen-share','chat-data','multi-participant','recording-provider-ready','protected-pause','phone-call-safe','bathroom-break','qualified-time-accounting'],
       protectedBreakReasons: [...BREAK_REASONS],
@@ -40,46 +63,60 @@ function createLiveRouter({ supabase }) {
   })
 
   router.post('/token', requireUser, async (req, res) => {
-    if (!process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET || !process.env.LIVEKIT_URL) {
-      return res.status(503).json({ error: 'LiveKit is not fully configured on the server' })
-    }
-    const roomName = cleanRoomName(req.body?.roomName)
-    if (!roomName) return res.status(400).json({ error: 'roomName is required' })
-    const displayName = String(req.body?.displayName || req.user.user_metadata?.display_name || req.user.email || 'TryAMM User').slice(0, 80)
-    const canPublish = req.body?.role !== 'viewer'
+    try {
+      if (!livekitConfigured()) {
+        return res.status(503).json({ error: 'LiveKit is not fully configured on the server' })
+      }
+      const roomName = cleanRoomName(req.body?.roomName)
+      if (!roomName) return res.status(400).json({ error: 'roomName is required' })
+      const displayName = String(req.body?.displayName || req.user.user_metadata?.display_name || req.user.email || 'TryAMM User').slice(0, 80)
+      const role = req.body?.role === 'viewer' ? 'viewer' : 'host'
+      const canPublish = role === 'host'
+      const activeSession = await getActiveRoomSession(roomName)
 
-    const token = new AccessToken(process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET, {
-      identity: req.user.id,
-      name: displayName,
-      ttl: '2h',
-      metadata: JSON.stringify({ tryammUserId: req.user.id, role: canPublish ? 'host' : 'viewer' }),
-    })
-    token.addGrant({ roomJoin: true, room: roomName, canPublish, canSubscribe: true, canPublishData: true })
-    const jwt = await token.toJwt()
+      if (canPublish && activeSession && activeSession.user_id !== req.user.id) {
+        return res.status(409).json({ error: 'LIVE room name is already in use' })
+      }
+      if (!canPublish && !activeSession) {
+        return res.status(404).json({ error: 'LIVE room is not active' })
+      }
 
-    if (canPublish) {
-      try {
-        await supabase.from('live_stream_sessions').upsert({
+      const token = new AccessToken(process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET, {
+        identity: req.user.id,
+        name: displayName,
+        ttl: '15m',
+        metadata: JSON.stringify({ tryammUserId: req.user.id, role }),
+      })
+      token.addGrant({ roomJoin: true, room: roomName, canPublish, canSubscribe: true, canPublishData: true })
+      const jwt = await token.toJwt()
+
+      if (canPublish) {
+        const now = new Date().toISOString()
+        const { error } = await supabase.from('live_stream_sessions').upsert({
           user_id: req.user.id,
           room_name: roomName,
           status: 'live',
           pause_reason: null,
-          resumed_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          ended_at: null,
+          resumed_at: now,
+          updated_at: now,
         }, { onConflict: 'user_id,room_name' })
+        if (error) throw error
+      }
+
+      try {
+        await supabase.from('platform_events').insert({
+          user_id: req.user.id,
+          event_type: 'LIVE_TOKEN_ISSUED',
+          source: 'livekit',
+          payload: { roomName, role },
+        })
       } catch (_) {}
+
+      res.json({ token: jwt, url: process.env.LIVEKIT_URL, roomName, identity: req.user.id, role })
+    } catch (error) {
+      res.status(500).json({ error: error.message || 'Could not issue LIVE token' })
     }
-
-    try {
-      await supabase.from('platform_events').insert({
-        user_id: req.user.id,
-        event_type: 'LIVE_TOKEN_ISSUED',
-        source: 'livekit',
-        payload: { roomName, role: canPublish ? 'host' : 'viewer' },
-      })
-    } catch (_) {}
-
-    res.json({ token: jwt, url: process.env.LIVEKIT_URL, roomName, identity: req.user.id, role: canPublish ? 'host' : 'viewer' })
   })
 
   router.get('/session/:roomName', requireUser, async (req, res) => {
@@ -102,11 +139,7 @@ function createLiveRouter({ supabase }) {
       const source = String(req.body?.source || 'manual').slice(0, 80)
       const now = new Date().toISOString()
       let session = await getOwnedSession(req.user.id, roomName)
-      if (!session) {
-        const { data, error } = await supabase.from('live_stream_sessions').insert({ user_id: req.user.id, room_name: roomName, status: 'live' }).select('*').single()
-        if (error) throw error
-        session = data
-      }
+      if (!session) return res.status(404).json({ error: 'LIVE session not found' })
       if (session.status === 'ended') return res.status(409).json({ error: 'LIVE session already ended' })
       if (session.status === 'paused') {
         const { data: existing } = await supabase.from('live_stream_breaks').select('*').eq('session_id', session.id).is('ended_at', null).order('started_at', { ascending: false }).limit(1).maybeSingle()
@@ -169,6 +202,15 @@ function createLiveRouter({ supabase }) {
       const roomName = cleanRoomName(req.params.roomName)
       const session = await getOwnedSession(req.user.id, roomName)
       if (!session) return res.status(404).json({ error: 'LIVE session not found' })
+      if (session.status === 'ended') return res.json({ ok: true, alreadyEnded: true, session })
+
+      if (!livekitConfigured()) return res.status(503).json({ error: 'LiveKit is not fully configured on the server' })
+      try {
+        await roomService().deleteRoom(roomName)
+      } catch (error) {
+        return res.status(502).json({ error: 'Could not close the LiveKit room safely', detail: String(error?.message || error) })
+      }
+
       const now = new Date()
       let totalPause = Number(session.total_pause_seconds || 0)
       const { data: activeBreak } = await supabase.from('live_stream_breaks').select('*').eq('session_id', session.id).is('ended_at', null).order('started_at', { ascending: false }).limit(1).maybeSingle()
@@ -181,6 +223,7 @@ function createLiveRouter({ supabase }) {
       const qualified = Math.max(0, elapsed - totalPause)
       const { data: updated, error } = await supabase.from('live_stream_sessions').update({ status: 'ended', ended_at: now.toISOString(), total_pause_seconds: totalPause, qualified_live_seconds: qualified, updated_at: now.toISOString() }).eq('id', session.id).select('*').single()
       if (error) throw error
+      try { await supabase.from('platform_events').insert({ user_id: req.user.id, event_type: 'LIVE_ROOM_ENDED', source: 'livekit', payload: { roomName, qualifiedLiveSeconds: qualified } }) } catch (_) {}
       res.json({ ok: true, session: updated })
     } catch (error) {
       res.status(500).json({ error: error.message || 'Could not end LIVE session' })

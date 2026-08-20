@@ -6,6 +6,14 @@ const API_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\
 
 export type LiveRole = 'host' | 'viewer'
 
+interface LiveTokenWireResponse {
+  token: string
+  url: string
+  roomName: string
+  identity: string
+  role: LiveRole
+}
+
 export interface LiveTokenResponse {
   token: string
   url: string
@@ -30,14 +38,21 @@ async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
 export async function getLiveStatus() {
   if (!API_URL) return { configured: false }
   const response = await fetch(`${API_URL}/api/live/status`)
-  return response.json() as Promise<{ configured: boolean; url?: string }>
+  return response.json() as Promise<{ configured: boolean; urlConfigured?: boolean; features?: string[] }>
 }
 
-export async function createLiveToken(room: string, role: LiveRole, displayName?: string) {
-  return api<LiveTokenResponse>('/api/live/token', {
+export async function createLiveToken(roomName: string, role: LiveRole, displayName?: string): Promise<LiveTokenResponse> {
+  const wire = await api<LiveTokenWireResponse>('/api/live/token', {
     method: 'POST',
-    body: JSON.stringify({ room, role, displayName }),
+    body: JSON.stringify({ roomName, role, displayName }),
   })
+  return {
+    token: wire.token,
+    url: wire.url,
+    room: wire.roomName,
+    role: wire.role,
+    participant: wire.identity,
+  }
 }
 
 export async function connectLiveRoom(opts: {

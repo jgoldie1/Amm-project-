@@ -22,12 +22,19 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: amm-omniverse/package-lock.json
-      - run: npm install --no-fund --no-audit
-      - run: npm run security
-      - run: npm run readiness
-      - run: npm run typecheck
-      - run: npm run build
+          cache-dependency-path: |
+            amm-omniverse/package-lock.json
+            amm-omniverse/amm-backend/package-lock.json
+      - name: Install web dependencies
+        run: npm ci --no-fund --no-audit
+      - name: Verify repository security and release contracts
+        run: npm run check
+      - name: Install backend dependencies
+        run: npm ci --no-fund --no-audit
+        working-directory: amm-omniverse/amm-backend
+      - name: Verify backend LIVE, security and API contracts
+        run: npm run check
+        working-directory: amm-omniverse/amm-backend
       - run: npx playwright install --with-deps chromium
       - run: npm run e2e
         env:
