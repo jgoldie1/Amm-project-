@@ -9,6 +9,7 @@ import AccessibilityPassportPanel from './components/AccessibilityPassportPanel'
 import HoloDeliveryLauncher from './components/HoloDeliveryLauncher'
 import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import IllinoisRegionalLauncher from './components/IllinoisRegionalLauncher'
+import StreetVerseLifePathLauncher from './components/StreetVerseLifePathLauncher'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 
@@ -25,5 +26,6 @@ createRoot(document.getElementById('root')!).render(
     <HoloDeliveryLauncher />
     <HoloMarketplaceLauncher />
     <IllinoisRegionalLauncher />
+    <StreetVerseLifePathLauncher />
   </StrictMode>
 )
