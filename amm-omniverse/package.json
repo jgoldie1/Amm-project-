@@ -10,13 +10,15 @@
     "smoke": "node tests/smoke-contracts.mjs",
     "security": "node tests/repository-security-scan.mjs",
     "provider-gates": "node tests/provider-gates.mjs",
-    "readiness": "node tests/production-readiness.mjs && npm run provider-gates",
+    "quantum-sandbox": "node tests/quantum-sandbox-faults.mjs",
+    "release-matrix": "node tests/release-matrix.mjs",
+    "readiness": "node tests/production-readiness.mjs && npm run provider-gates && npm run release-matrix",
     "build": "npm run smoke && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "e2e": "playwright test",
     "e2e:install": "playwright install chromium",
-    "check": "npm run security && npm run readiness && npm run typecheck && npm run build"
+    "check": "npm run security && npm run readiness && npm run quantum-sandbox && npm run typecheck && npm run build"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
