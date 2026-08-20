@@ -2,8 +2,10 @@ import { useMemo, useState } from 'react'
 import { CHARACTER_CLAIM_RULES, CHARACTER_CREATION_FLOW, CHARACTER_PORTABLE_STATE } from '../game/avatar/StreetVerseCharacterClaim'
 import { EDUCATION_INSTITUTIONS, EDUCATION_PROGRESS_PATH, EDUCATION_SAFETY_RULES } from '../game/education/StreetVerseEducation'
 import { CALIFORNIA_REGIONAL_CLUSTERS, INTERSTATE_ECONOMY_LOOP, INTERSTATE_HUBS } from '../game/economy/InterstateEconomy'
+import { CHICAGO_ORIGIN_CONTEXT, CHICAGO_ORIGIN_MISSIONS, CHICAGO_ORIGIN_TITLE, STUBBS_AI_ORIGIN_LINES } from '../game/story/StreetVerseChicagoOrigin'
+import { ASSET_APPROVAL_PIPELINE, ASSET_FORGE_PACKS, STREETVERSE_RENDER_PROFILE } from '../game/assets/StreetVerseAssetForge'
 
-type Tab = 'prologue' | 'character' | 'education' | 'travel'
+type Tab = 'prologue' | 'character' | 'education' | 'travel' | 'forge'
 
 type DraftCharacter = {
   displayName: string
@@ -53,38 +55,38 @@ export default function StreetVerseLifePathLauncher() {
       <div style={{maxWidth:1180,margin:'0 auto'}}>
         <header style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,flexWrap:'wrap'}}>
           <div>
-            <div style={{color:'#4fe3ff',fontSize:10,fontWeight:900,letterSpacing:3}}>STREETVERSE • CHICAGO EDITION • PROLOGUE</div>
-            <h1 style={{fontSize:'clamp(2.4rem,8vw,5rem)',margin:'8px 0'}}>Stubbs AI says: “Meet the Stubbs.”</h1>
-            <p style={{color:'#b2c0cf',maxWidth:900,lineHeight:1.6}}>Your character enters Chicago with a life to build. The opening introduces the family/community network, teaches movement and city systems, then lets you choose education, work, entrepreneurship, public service, creator life or interstate travel.</p>
+            <div style={{color:'#4fe3ff',fontSize:10,fontWeight:900,letterSpacing:3}}>STREETVERSE • CHICAGO EDITION • ORIGIN STORY</div>
+            <h1 style={{fontSize:'clamp(2.4rem,8vw,5rem)',margin:'8px 0'}}>{CHICAGO_ORIGIN_TITLE}</h1>
+            <p style={{color:'#b2c0cf',maxWidth:900,lineHeight:1.6}}>Stubbs AI opens the game through memory instead of a generic mission marker. Your character begins in a privacy-safe fictionalized Near West Side chapter inspired by Madden Park, Circle Park and the ABLA/Village surroundings, then grows through school, work, music, sports, business, travel and legacy.</p>
           </div>
           <button onClick={() => setOpen(false)} aria-label="Close life path" style={{width:48,height:48,borderRadius:'50%',background:'#0d1420',border:'1px solid #46566a',color:'#fff',fontSize:24}}>×</button>
         </header>
 
         <nav style={{display:'flex',gap:8,flexWrap:'wrap',margin:'18px 0'}}>
-          {(['prologue','character','education','travel'] as Tab[]).map(item => <button key={item} onClick={() => setTab(item)} style={tabButton(tab===item)}>{item.toUpperCase()}</button>)}
+          {(['prologue','character','education','travel','forge'] as Tab[]).map(item => <button key={item} onClick={() => setTab(item)} style={tabButton(tab===item)}>{item.toUpperCase()}</button>)}
         </nav>
 
         {tab === 'prologue' && <section style={panel}>
-          <h2>Opening story: Meet the Stubbs</h2>
-          <p style={muted}><strong>Stubbs AI:</strong> “Welcome to StreetVerse Chicago Edition. Before you own a business, run a route, attend school, work a shift or build a name in this city, you need a character and a story.”</p>
-          <div style={grid}>
-            {[
-              ['1 • Arrival','Start in Chicago. Learn movement, phone/AI assistant, map, accessibility controls and safe-state controls.'],
-              ['2 • Meet the Network','Meet fictionalized family/community mentors who represent business, music, technology, security, sports, media and public-service pathways.'],
-              ['3 • Choose Your Path','Student, worker, entrepreneur, creator, athlete, public service, logistics/driver, technology or a custom mix.'],
-              ['4 • First Responsibility','Complete a real-world-style responsibility: class, shift, delivery, customer, civic task or creator booking.'],
-              ['5 • First Reputation','Your choices create references, job reputation, neighborhood reputation and business trust.'],
-              ['6 • Open the World','Unlock Illinois travel, Detroit/Michigan, St. Louis, Tennessee, California, Atlanta, Florida and NYC starter routes.'],
-            ].map(([title,text]) => <article style={card} key={title}><strong>{title}</strong><p style={mutedSmall}>{text}</p></article>)}
-          </div>
-          <p style={muted}>This makes the opening a tutorial that feels like a story instead of a menu. Every system the player learns becomes useful later in jobs, school, business, court/civic missions and travel.</p>
+          <h2>Opening story: the city remembers</h2>
+          <p style={muted}><strong>Stubbs AI:</strong> “{STUBBS_AI_ORIGIN_LINES[0]}”</p>
+          <p style={mutedSmall}>{CHICAGO_ORIGIN_CONTEXT.framing}</p>
+          <div style={grid}>{CHICAGO_ORIGIN_MISSIONS.map((mission,index)=><article style={card} key={mission.id}>
+            <div style={{fontSize:10,color:'#4fe3ff'}}>CHAPTER {index+1} • {mission.district}</div>
+            <h3>{mission.title}</h3>
+            <p style={mutedSmall}>{mission.objective}</p>
+            <strong>WORLD MEMORY</strong><p style={mutedSmall}>{mission.worldMemory}</p>
+            <strong>UNLOCKS</strong><div style={chips}>{mission.unlocks.map(x=><span style={chip} key={x}>{x}</span>)}</div>
+            <strong>IMMERSION</strong><p style={mutedSmall}>{mission.presentation.join(' • ')}</p>
+          </article>)}</div>
+          <p style={muted}><strong>Privacy rule:</strong> {CHICAGO_ORIGIN_CONTEXT.privateHomeAnchorPolicy}</p>
+          <div style={chips}>{STUBBS_AI_ORIGIN_LINES.map(line=><span style={chip} key={line}>{line}</span>)}</div>
         </section>}
 
         {tab === 'character' && <section style={panel}>
           <h2>Create + claim your StreetVerse character</h2>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:12}}>
             <label style={field}>Display name<input value={character.displayName} onChange={e=>setCharacter(c=>({...c,displayName:e.target.value}))} placeholder="Your StreetVerse name" style={input}/></label>
-            <label style={field}>Home region<select value={character.homeRegion} onChange={e=>setCharacter(c=>({...c,homeRegion:e.target.value}))} style={input}>{['Chicago','Mount Vernon','Herrin','Peoria','Greenville','Detroit','St. Louis','Tennessee','San Diego','Hollywood','Silver Lake','Northern California','Southern California','Atlanta','Florida','New York City'].map(x=><option key={x}>{x}</option>)}</select></label>
+            <label style={field}>Home region<select value={character.homeRegion} onChange={e=>setCharacter(c=>({...c,homeRegion:e.target.value}))} style={input}>{['Chicago','Mount Vernon','Herrin','Peoria','Greenville','Detroit','St. Louis','Tennessee','San Diego','Hollywood','Silver Lake','Northern California','Southern California','Atlanta','Florida','New York City','Nigeria','South Africa','Haiti'].map(x=><option key={x}>{x}</option>)}</select></label>
             <label style={field}>Starter path<select value={character.archetype} onChange={e=>setCharacter(c=>({...c,archetype:e.target.value}))} style={input}>{['student','worker','entrepreneur','creator','athlete','public-service','driver-logistics','tech-builder','custom'].map(x=><option key={x}>{x}</option>)}</select></label>
             <label style={field}>Starter outfit<input value={character.outfit} onChange={e=>setCharacter(c=>({...c,outfit:e.target.value}))} style={input}/></label>
           </div>
@@ -109,11 +111,19 @@ export default function StreetVerseLifePathLauncher() {
         </section>}
 
         {tab === 'travel' && <section style={panel}>
-          <h2>Interstate economy</h2>
+          <h2>Interstate + global economy</h2>
           <p style={muted}>Airports, rail, buses, trucking/freight, rideshare, hotels, moving companies and touring create jobs and make every city economically connected.</p>
           <div style={grid}>{INTERSTATE_HUBS.map(hub=><article style={card} key={hub.id}><h3>{hub.name}</h3><div style={chips}>{hub.regions.map(x=><span style={chip} key={x}>{x}</span>)}</div><p style={mutedSmall}>Jobs: {hub.jobs.join(' • ')}</p><p style={mutedSmall}>Missions: {hub.missionLoops.join(' • ')}</p></article>)}</div>
           <h3>California expansion</h3><div style={grid}>{CALIFORNIA_REGIONAL_CLUSTERS.map(cluster=><article style={card} key={cluster.id}><strong>{cluster.name}</strong><p style={mutedSmall}>{cluster.identity}</p><div style={chips}>{cluster.includes.map(x=><span style={chip} key={x}>{x}</span>)}</div></article>)}</div>
           <h3>Contract loop</h3><div style={chips}>{INTERSTATE_ECONOMY_LOOP.map(x=><span style={chip} key={x}>{x}</span>)}</div>
+        </section>}
+
+        {tab === 'forge' && <section style={panel}>
+          <h2>StreetVerse Asset Forge</h2>
+          <p style={muted}>This is the production quality gate for making the origin, holograms and Chicago worlds photoreal and immersive. A request is not considered finished until it reaches approved status after rights, visual, performance and accessibility review.</p>
+          <div style={grid}>{ASSET_FORGE_PACKS.map(asset=><article style={card} key={asset.id}><div style={{fontSize:10,color:'#e8b944'}}>{asset.kind.toUpperCase()} • {asset.status.toUpperCase()}</div><h3>{asset.name}</h3><p style={mutedSmall}>{asset.scene}</p><strong>QUALITY</strong><div style={chips}>{asset.quality.map(x=><span style={chip} key={x}>{x}</span>)}</div><strong>MATERIALS</strong><p style={mutedSmall}>{asset.materials.join(' • ')}</p><strong>LIGHTING</strong><p style={mutedSmall}>{asset.lighting.join(' • ')}</p></article>)}</div>
+          <h3>Render profile</h3><div style={chips}>{Object.entries(STREETVERSE_RENDER_PROFILE).filter(([,value])=>value===true).map(([key])=><span style={chip} key={key}>{key}</span>)}</div>
+          <h3>Approval pipeline</h3><ol>{ASSET_APPROVAL_PIPELINE.map(step=><li key={step}>{step}</li>)}</ol>
         </section>}
       </div>
     </div>}
