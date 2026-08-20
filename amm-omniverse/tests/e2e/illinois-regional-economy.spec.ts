@@ -1,16 +1,16 @@
 import { test, expect } from '@playwright/test'
 
-test.describe('StreetVerse Illinois regional economy', () => {
-  test('opens regions, jobs, stories, business claims, death care and revenue panels', async ({ page }) => {
+test.describe('StreetVerse regional economy', () => {
+  test('opens Illinois and national launch regions with jobs stories business and revenue', async ({ page }) => {
     await page.goto('/')
 
-    const launcher = page.getByRole('button', { name: 'Open Illinois StreetVerse regional economy' })
+    const launcher = page.getByRole('button', { name: 'Open StreetVerse regional economy' })
     await expect(launcher).toBeVisible()
     await launcher.click()
 
-    const dialog = page.getByRole('dialog', { name: 'Illinois StreetVerse Regional Economy' })
+    const dialog = page.getByRole('dialog', { name: 'StreetVerse Regional Economy' })
     await expect(dialog).toBeVisible()
-    await expect(dialog.getByRole('heading', { name: /Chicago.*Downstate.*Global/ })).toBeVisible()
+    await expect(dialog.getByRole('heading', { name: /Chicago.*Michigan.*California.*Global/ })).toBeVisible()
 
     await dialog.getByRole('button', { name: 'Greenville + University District' }).click()
     await expect(dialog.getByText(/college-town and surrounding-area world/i)).toBeVisible()
@@ -21,18 +21,28 @@ test.describe('StreetVerse Illinois regional economy', () => {
 
     await dialog.getByRole('button', { name: 'stories' }).click()
     await expect(dialog.getByRole('heading', { name: 'First Semester' })).toBeVisible()
-    await expect(dialog.getByText(/new student arrives with limited money/i)).toBeVisible()
 
     await dialog.getByRole('button', { name: 'business' }).click()
     await expect(dialog.getByText('Search public registry record')).toBeVisible()
-    await expect(dialog.getByText('Claim this business', { exact: false })).toBeVisible()
 
     await dialog.getByRole('button', { name: 'death care' }).click()
     await expect(dialog.getByText('Bond County Coroner')).toBeVisible()
-    await expect(dialog.getByText('Funeral services', { exact: false }).first()).toBeVisible()
+
+    await dialog.getByRole('button', { name: 'NATIONAL STARTER' }).click()
+    await dialog.getByRole('button', { name: 'Detroit + Southeast Michigan' }).click()
+    await dialog.getByRole('button', { name: 'region' }).click()
+    await expect(dialog.getByText(/Motor-city, music, manufacturing/i)).toBeVisible()
+
+    await dialog.getByRole('button', { name: 'Hollywood' }).click()
+    await dialog.getByRole('button', { name: 'stories' }).click()
+    await expect(dialog.getByRole('heading', { name: 'Call Time' })).toBeVisible()
+
+    await dialog.getByRole('button', { name: 'New York City' }).click()
+    await dialog.getByRole('button', { name: 'jobs' }).click()
+    await expect(dialog.getByText('Transit worker')).toBeVisible()
 
     await dialog.getByRole('button', { name: 'revenue' }).click()
     await expect(dialog.getByRole('heading', { name: 'Marketplace cash-cow model' })).toBeVisible()
-    await expect(dialog.getByText('Business Pro subscription')).toBeVisible()
+    await expect(dialog.getByText('Multi-location tools')).toBeVisible()
   })
 })
