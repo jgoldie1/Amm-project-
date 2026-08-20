@@ -7,7 +7,7 @@ const vercel = JSON.parse(fs.readFileSync(path.join(cwd, 'vercel.json'), 'utf8')
 
 const failures = []
 if (pkg.name !== 'amm-omniverse') failures.push('package name must remain amm-omniverse')
-if (pkg.scripts?.['vercel-build'] !== 'npm run typecheck && npm run build') failures.push('vercel-build must typecheck then build')
+if (pkg.scripts?.['vercel-build'] !== 'npm run vercel-contract && npm run typecheck && npm run build') failures.push('vercel-build must guard contract, typecheck, then build')
 if (vercel.framework !== 'vite') failures.push('Vercel framework must be vite')
 if (vercel.outputDirectory !== 'dist') failures.push('Vercel outputDirectory must be dist')
 if (vercel.buildCommand !== 'npm run vercel-build') failures.push('Vercel buildCommand must run vercel-build')
