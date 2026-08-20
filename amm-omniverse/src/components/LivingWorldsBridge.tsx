@@ -3,6 +3,7 @@ import { useGameStore } from '../game/state/useGameStore'
 import { getAuthenticatedUserId, isSupabaseConfigured } from '../services/supabaseClient'
 import StreetVerseLifePathLauncher from './StreetVerseLifePathLauncher'
 import StreetVerseLegacyMemoryHub from './StreetVerseLegacyMemoryHub'
+import StreetVerseBiographyProofHub from './StreetVerseBiographyProofHub'
 import {
   enterWorld,
   getActiveWorldSession,
@@ -102,5 +103,5 @@ export default function LivingWorldsBridge() {
     return () => { cancelled = true }
   }, [signedIn, screen, player.level, player.xp, player.rep, player.faith, player.activeVehicle])
 
-  return signedIn ? <><StreetVerseLifePathLauncher /><StreetVerseLegacyMemoryHub /></> : null
+  return signedIn ? <><StreetVerseLifePathLauncher /><StreetVerseLegacyMemoryHub /><StreetVerseBiographyProofHub /></> : null
 }
