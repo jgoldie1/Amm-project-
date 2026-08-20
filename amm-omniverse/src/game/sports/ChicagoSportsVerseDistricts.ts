@@ -21,15 +21,15 @@ export const CHICAGO_SPORTSVERSE_DISTRICTS: SportsVerseDistrict[] = [
     rightsMode: 'location-reference',
   },
   {
-    id: 'united-center', referenceName: 'United Center', sport: ['basketball','hockey','concerts'],
-    districtRole: 'West Side arena economy',
-    jobs: ['arena operations','concessions','security','broadcast','merchandise','transportation','hospitality'],
-    missions: ['Arena Rush','Courtside Creator Night','Concert Changeover','West Side Vendor Run'],
-    eventEffects: ['rideshare demand','restaurant demand','merchandise demand','nightlife traffic'],
+    id: 'united-center-bulls', referenceName: 'United Center / Chicago Bulls District', sport: ['basketball','hockey','concerts'],
+    districtRole: 'West Side arena economy and Chicago Bulls basketball anchor',
+    jobs: ['arena operations','concessions','security','broadcast','merchandise','transportation','hospitality','creator media','event production'],
+    missions: ['Bulls Game Night Rush','Arena Rush','Courtside Creator Night','Concert Changeover','West Side Vendor Run','Championship Memory Night'],
+    eventEffects: ['rideshare demand','restaurant demand','merchandise demand','nightlife traffic','hotel demand','creator audience surge','West Side foot traffic'],
     rightsMode: 'location-reference',
   },
   {
-    id: 'rate-field', referenceName: 'Rate Field / South Side baseball district', sport: ['baseball'],
+    id: 'rate-field', referenceName: 'Rate Field / White Sox South Side baseball district', sport: ['baseball'],
     districtRole: 'South Side baseball and neighborhood commerce anchor',
     jobs: ['stadium staff','vendors','parking','security','broadcast','food service','transportation'],
     missions: ['South Side Game Day','Vendor Supply Run','Extra Innings Transit','Neighborhood Watch Party'],
@@ -66,4 +66,13 @@ export const SPORTS_EVENT_ECONOMY = [
   'CREATOR + BROADCAST CONTENT',
   'ALL AMERICAN MARKETPLACE TRANSACTIONS',
   'WORLD MEMORY RECORDS THE EVENT AND PLAYER ROLE',
+] as const
+
+export const BULLS_DISTRICT_MEMORY_HOOKS = [
+  'first Bulls game attended or worked',
+  'arena job history and references',
+  'creator/broadcast clips produced around game night',
+  'friends or family met at the arena district',
+  'championship-era memories represented only through original or licensed assets',
+  'return-to-city dialogue that remembers the player’s West Side sports history',
 ] as const
