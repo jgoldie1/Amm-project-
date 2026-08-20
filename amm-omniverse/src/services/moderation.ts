@@ -1,5 +1,6 @@
 import { getAccessToken } from './supabaseClient'
 
+// Empty API base intentionally targets /api on the current Vercel origin.
 const API=(import.meta.env.VITE_API_URL as string|undefined)?.replace(/\/$/,'')||''
 
 export type ModerationTarget='user'|'live'|'reel'|'post'|'comment'|'dm'|'game'|'marketplace'|'ride'|'delivery'|'business'|'other'
@@ -19,7 +20,6 @@ export type SubmitReportInput={
 }
 
 async function authed(path:string,init:RequestInit={}){
-  if(!API) throw new Error('VITE_API_URL is not configured')
   const token=await getAccessToken()
   if(!token) throw new Error('Authentication required')
   const response=await fetch(`${API}${path}`,{
@@ -31,20 +31,10 @@ async function authed(path:string,init:RequestInit={}){
   return data
 }
 
-export function submitMisconductReport(input:SubmitReportInput){
-  return authed('/api/moderation/report',{method:'POST',body:JSON.stringify(input)})
-}
-
+export function submitMisconductReport(input:SubmitReportInput){return authed('/api/moderation/report',{method:'POST',body:JSON.stringify(input)})}
 export function getMyReports(){return authed('/api/moderation/my-reports')}
-
-export function appealModerationDecision(reportId:string,statement:string,evidence:Record<string,unknown>={}){
-  return authed('/api/moderation/appeal',{method:'POST',body:JSON.stringify({reportId,statement,evidence})})
-}
-
-function relationshipAction(action:'block'|'unblock'|'mute'|'unmute',userId:string,reason?:string){
-  return authed(`/api/moderation/${action}/${encodeURIComponent(userId)}`,{method:'POST',body:JSON.stringify({reason,source:'user-action'})})
-}
-
+export function appealModerationDecision(reportId:string,statement:string,evidence:Record<string,unknown>={}){return authed('/api/moderation/appeal',{method:'POST',body:JSON.stringify({reportId,statement,evidence})})}
+function relationshipAction(action:'block'|'unblock'|'mute'|'unmute',userId:string,reason?:string){return authed(`/api/moderation/${action}/${encodeURIComponent(userId)}`,{method:'POST',body:JSON.stringify({reason,source:'user-action'})})}
 export const blockUser=(userId:string,reason?:string)=>relationshipAction('block',userId,reason)
 export const unblockUser=(userId:string)=>relationshipAction('unblock',userId)
 export const muteUser=(userId:string,reason?:string)=>relationshipAction('mute',userId,reason)
