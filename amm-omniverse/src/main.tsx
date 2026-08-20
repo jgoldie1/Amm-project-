@@ -12,6 +12,7 @@ import SharedCityMultiplayerPanel from './components/SharedCityMultiplayerPanel'
 import AuthGateway from './components/AuthGateway'
 import CoreJourneyLauncher from './components/CoreJourneyLauncher'
 import SafeJourneyLauncher from './components/SafeJourneyLauncher'
+import CommunityGuardianLauncher from './components/CommunityGuardianLauncher'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 import { installGameStatePersistence } from './game/runtime/gameCompletionCore'
@@ -33,5 +34,6 @@ createRoot(document.getElementById('root')!).render(
     <AuthGateway />
     <CoreJourneyLauncher />
     <SafeJourneyLauncher />
+    <CommunityGuardianLauncher />
   </StrictMode>
 )
