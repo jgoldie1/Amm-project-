@@ -13,6 +13,19 @@ export type LegacySceneRecord = {
   updatedAt: string
 }
 
+async function parse<T>(response: Response, fallback: string): Promise<T> {
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) throw new Error(data?.error || fallback)
+  return data as T
+}
+
+async function publicRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+  if (!API) throw new Error('VITE_API_URL is not configured')
+  const headers = new Headers(init.headers || {})
+  headers.set('Content-Type', 'application/json')
+  return parse<T>(await fetch(`${API}${path}`, { ...init, headers }), 'StreetVerse public API request failed')
+}
+
 async function authed<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (!API) throw new Error('VITE_API_URL is not configured')
   const token = await getAccessToken()
@@ -20,10 +33,7 @@ async function authed<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers || {})
   headers.set('Authorization', `Bearer ${token}`)
   headers.set('Content-Type', 'application/json')
-  const response = await fetch(`${API}${path}`, { ...init, headers })
-  const data = await response.json().catch(() => ({}))
-  if (!response.ok) throw new Error(data?.error || `Legacy API request failed (${response.status})`)
-  return data as T
+  return parse<T>(await fetch(`${API}${path}`, { ...init, headers }), 'Legacy API request failed')
 }
 
 export const STREETVERSE_LEGACY_API = {
@@ -36,17 +46,11 @@ export const STREETVERSE_LEGACY_API = {
 } as const
 
 export function saveLegacyScene(input: Omit<LegacySceneRecord, 'updatedAt'>) {
-  return authed<{ scene: LegacySceneRecord }>(STREETVERSE_LEGACY_API.scene, {
-    method: 'POST',
-    body: JSON.stringify(input),
-  })
+  return authed<{ scene: LegacySceneRecord }>(STREETVERSE_LEGACY_API.scene, { method: 'POST', body: JSON.stringify(input) })
 }
 
 export function saveLegacyMemory(input: { characterId: string; summary: string; tags: string[] }) {
-  return authed<{ ok: true; memoryId: string }>(STREETVERSE_LEGACY_API.memory, {
-    method: 'POST',
-    body: JSON.stringify(input),
-  })
+  return authed<{ ok: true; memoryId: string }>(STREETVERSE_LEGACY_API.memory, { method: 'POST', body: JSON.stringify(input) })
 }
 
 export function getLegacyRightsStatus(sceneId: string) {
@@ -54,12 +58,13 @@ export function getLegacyRightsStatus(sceneId: string) {
 }
 
 export function requestEveLegacyDirective(input: Record<string, unknown>) {
-  return authed<{ directive: Record<string, unknown> }>(STREETVERSE_LEGACY_API.eve, {
-    method: 'POST',
-    body: JSON.stringify(input),
-  })
+  return publicRequest<{ directive: Record<string, unknown> }>(STREETVERSE_LEGACY_API.eve, { method: 'POST', body: JSON.stringify(input) })
+}
+
+export function getLegacyReusableAssets() {
+  return publicRequest<{ version: string; runtime: string; assets: string[]; rightsDefault: string }>(STREETVERSE_LEGACY_API.assets)
 }
 
 export function runLegacyBackendSmoke() {
-  return authed<{ ok: boolean; checks: Record<string, boolean> }>(STREETVERSE_LEGACY_API.smoke)
+  return publicRequest<{ ok: boolean; checks: Record<string, boolean> }>(STREETVERSE_LEGACY_API.smoke)
 }
