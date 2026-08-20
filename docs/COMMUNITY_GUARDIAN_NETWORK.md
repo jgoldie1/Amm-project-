@@ -13,6 +13,9 @@ Community Guardians are NOT police, do not claim law-enforcement authority, do n
 - hospitality and directions
 - visible unarmed community presence
 - business and storefront check-ins
+- business opening/closing buddy service
+- night-shift worker accompaniment
+- event arrival/departure escorts
 - de-escalation and conflict interruption within training/scope
 - youth engagement and mentorship
 - homeless/resource outreach and referrals
@@ -24,10 +27,12 @@ Community Guardians are NOT police, do not claim law-enforcement authority, do n
 - emergency escalation to 911 / local authorities when needed
 - documentation of low-risk incidents and service requests
 - accessibility assistance
+- Safe Place business network
 - Community Gap Finder referrals
+- Lawyer-on-Demand handoff for legal incidents such as traffic stops; Guardians do not confront officers or give individualized legal advice unless separately licensed
 
 ## App experience
-HOME → `I NEED A SAFE WALK` | `REQUEST A GUARDIAN` | `SAFE ARRIVAL` | `REPORT A HAZARD` | `YOUTH / COMMUNITY HELP` | `BUSINESS SAFETY CHECK-IN` | `EVENT SUPPORT`.
+HOME → `I NEED A SAFE WALK` | `REQUEST A GUARDIAN` | `SAFE ARRIVAL` | `REPORT A HAZARD` | `YOUTH / COMMUNITY HELP` | `BUSINESS SAFETY CHECK-IN` | `EVENT SUPPORT` | `SAFE PLACE` | `LEGAL HELP`.
 
 ### Safe Walk
 REQUEST → pickup → destination → accessibility needs → guardian/team assignment → live ETA → consented tracking during mission → check-in → completed → feedback.
@@ -37,6 +42,19 @@ User sets destination + expected arrival + trusted escalation path. The system s
 
 ### Business Guardian
 Businesses can subscribe to scheduled storefront check-ins, opening/closing accompaniment, employee safe-walks, hospitality support, incident documentation and referral to emergency/security services where appropriate.
+
+### Safe Place Network
+Verified participating businesses, campuses, ministries/community organizations and other approved locations may opt in as temporary Safe Place destinations. Listings show hours, accessibility facts, contact method and verification state. Participation does not imply police powers, shelter licensing, medical capacity or guaranteed physical protection.
+
+### Lawyer-on-Demand handoff
+When a user says `JARVIS, I got pulled over` or requests legal help:
+1. show general rights/safety information appropriate to the jurisdiction where available;
+2. offer connection to an independently qualified lawyer/legal provider;
+3. allow the user to share only the information they choose;
+4. record booking/payment separately through the regulated-services pathway;
+5. Guardians stay out of the traffic stop and do not interfere with police activity.
+
+TRYAMM earns only disclosed platform/referral/technology fees where lawful; legal fees belong to the lawyer/provider and fee-sharing rules must be respected.
 
 ### Community Guardian JARVIS
 JARVIS can route service requests, provide approved de-escalation scripts/training reminders, surface nearby safe resources, coordinate check-ins, document non-sensitive outcomes and escalate emergencies. It cannot instruct vigilantism, confrontation, pursuit or illegal detention.
@@ -87,6 +105,9 @@ Potential revenue lanes:
 13. senior-housing / disability-access support contracts
 14. optional consumer premium check-in / safe-arrival subscriptions
 15. enterprise API / white-label Guardian coordination for qualified organizations
+16. Safe Place business verification/membership services where lawful
+17. employer/college late-shift accompaniment contracts
+18. premium JARVIS safety automation and family check-in plans
 
 ### Suggested pricing architecture
 Pricing is local and labor-cost dependent. Use transparent components:
@@ -96,12 +117,16 @@ Do not underprice labor by relying on unpaid volunteers for commercial contracts
 
 ### Pricing hypotheses for Business Simulator only
 These are not promises or fixed public prices:
+- Guardian Basic: $0 for emergency/resource navigation and basic check-ins
+- Guardian Plus: $7.99–$12.99/month hypothesis
+- Family Guardian: $19–$29/month hypothesis
 - Business Safety Lite: $29–$49/month/location for software/check-in features with no staffed coverage
 - Business Safety Pro: $99–$249/month/location depending on service scope; staffed hours priced separately
-- Consumer Safe Arrival / check-in premium: $4.99–$9.99/month where sustainable
+- Scheduled Safe Walk: disclosed platform booking fee + worker/provider compensation
 - Event Guardian: quoted by attendance, service hours, staffing and compliance needs
 - Employer late-shift Safe Arrival: contract or per-employee pricing
 - Residential/Senior Community: contract pricing
+- Campus/municipality/anchor institution: negotiated contract pricing
 
 ## Profitability & 3.00x sustainability
 Guardian Network contributes eligible TRYAMM platform revenue through SaaS/dispatch subscriptions, employer/business subscriptions and contracted program-management/software fees. Wages owed to ambassadors and restricted grant/program funds are not counted as free platform revenue.
@@ -133,12 +158,16 @@ Aggregate privacy-preserving measures:
 - average response time
 - business check-ins
 - hazards reported/resolved
+- Safe Place locations active
 - outreach referrals
 - youth mentor engagements
 - emergency escalations
+- legal-service handoffs requested/completed without exposing case details
 - user-reported safety/hospitality satisfaction
 - incidents avoided/de-escalated where evidence supports it
 - jobs created
+- contract renewals
+- contribution margin
 
 Do not claim crime reduction without appropriate comparative evidence.
 
@@ -155,7 +184,11 @@ Company Digital Twin → operator staffing, contracts, service zones, costs
 Business Simulator → model staffing/service levels and contract economics
 Platform Sustainability Engine → program revenue/cost contribution
 Community Spotlight → consented impact stories
+Regulated Services / Lawyer-on-Demand → legal handoff when required
 
 ## Safety principle
 `BE PRESENT → HELP → DE-ESCALATE → CONNECT → DOCUMENT → ESCALATE WHEN REQUIRED`.
 Not: patrol for suspects, chase people, act as police, or physically enforce laws.
+
+## What this does
+Turns safety into a community service and employment ecosystem instead of a fear-based enforcement product. It gives TRYAMM another recurring-revenue lane while also supporting youth opportunity, accessibility, trusted local businesses, legal/health/resource handoffs and measurable community impact. The long-term value is a platform that can help prevent problems, move people safely, create jobs and route serious situations to qualified professionals instead of escalating ordinary community encounters into confrontation.
