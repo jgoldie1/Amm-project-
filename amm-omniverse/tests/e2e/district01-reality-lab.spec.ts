@@ -17,7 +17,7 @@ test.describe('StreetVerse District 01 Reality Lab', () => {
     await expect(lab.getByRole('heading', { name: 'TRYAMM Reality Lab' })).toBeVisible();
     await expect(lab.getByText('ROOM 1/7')).toBeVisible();
     await expect(lab.getByRole('region', { name: 'Chicago World Museum Immersive Wing' })).toBeVisible();
-    await expect(lab.getByText('Reactive Holographic Hall')).toBeVisible();
+    await expect(lab.getByRole('button', { name: 'Reactive Holographic Hall' })).toBeVisible();
 
     await lab.getByRole('button', { name: /Complete \+25 Lab XP/ }).click();
     await expect(lab.getByText('LAB XP 25')).toBeVisible();
