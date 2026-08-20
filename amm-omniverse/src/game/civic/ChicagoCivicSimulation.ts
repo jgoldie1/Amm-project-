@@ -74,6 +74,10 @@ export function jurisdictionForStage(stage: EncounterStage): Jurisdiction {
   return 'chicago'
 }
 
+function escapeSocrataLiteral(value: string) {
+  return value.split("'").join("''")
+}
+
 export async function fetchChicagoActiveBusinesses(options?: {
   limit?: number
   offset?: number
@@ -84,7 +88,7 @@ export async function fetchChicagoActiveBusinesses(options?: {
   const limit = Math.min(Math.max(options?.limit ?? 250, 1), 1000)
   const params = new URLSearchParams({ '$limit': String(limit), '$offset': String(Math.max(options?.offset ?? 0, 0)) })
   const clauses: string[] = []
-  if (options?.licenseDescription) clauses.push(`license_description='${options.licenseDescription.replaceAll("'", "''")}'`)
+  if (options?.licenseDescription) clauses.push(`license_description='${escapeSocrataLiteral(options.licenseDescription)}'`)
   if (Number.isFinite(options?.policeDistrict)) clauses.push(`police_district=${Number(options?.policeDistrict)}`)
   if (clauses.length) params.set('$where', clauses.join(' AND '))
 
