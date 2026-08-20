@@ -12,12 +12,13 @@
     "provider-gates": "node tests/provider-gates.mjs",
     "readiness": "node tests/production-readiness.mjs && npm run provider-gates",
     "build": "npm run smoke && vite build",
-    "vercel-build": "npm run typecheck && npm run build",
+    "vercel-contract": "node tests/vercel-deployment-contract.mjs",
+    "vercel-build": "npm run vercel-contract && npm run typecheck && npm run build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "e2e": "playwright test",
     "e2e:install": "playwright install chromium",
-    "check": "npm run security && npm run readiness && npm run typecheck && npm run build"
+    "check": "npm run security && npm run readiness && npm run vercel-contract && npm run typecheck && npm run build"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
