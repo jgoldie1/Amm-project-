@@ -15,6 +15,7 @@ import TryAMMMobileLauncher from './components/TryAMMMobileLauncher'
 import HoloArenaLauncher from './components/HoloArenaLauncher'
 import SampleRightsCenter from './components/SampleRightsCenter'
 import ServicesWorkCommerceHub from './components/ServicesWorkCommerceHub'
+import FieldServicesLauncher from './components/FieldServicesLauncher'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 
@@ -37,5 +38,6 @@ createRoot(document.getElementById('root')!).render(
     <HoloArenaLauncher />
     <SampleRightsCenter />
     <ServicesWorkCommerceHub />
+    <FieldServicesLauncher />
   </StrictMode>
 )
