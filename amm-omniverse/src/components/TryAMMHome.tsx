@@ -59,7 +59,7 @@ export default function TryAMMHome(){
           <h1 style={{margin:'0 0 18px',fontSize:'clamp(42px,7.5vw,86px)',lineHeight:.91,letterSpacing:'clamp(-4px,-.3vw,-1px)'}}>Enter the <span style={{color:cyan}}>Living Worlds.</span></h1>
           <p style={{margin:'0 0 25px',maxWidth:790,color:'#bdcada',fontSize:'clamp(15px,2vw,20px)',lineHeight:1.58}}>TRYAMM brings games, open worlds, AR portals, VR spaces, Mixed Reality, music, creators, LIVE, AI, commerce and work into one connected ecosystem instead of separate disconnected apps.</p>
           <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
-            <button onClick={()=>enter('city')} style={{border:0,borderRadius:14,padding:'15px 21px',background:`linear-gradient(135deg,${cyan},#66a6ff)`,color:'#031018',fontWeight:1000,cursor:'pointer',boxShadow:`0 0 30px ${cyan}33`}}>🎮 ENTER GAMEVERSE</button>
+            <button onClick={()=>openGlobal('__showGameVerse')} style={{border:0,borderRadius:14,padding:'15px 21px',background:`linear-gradient(135deg,${cyan},#66a6ff)`,color:'#031018',fontWeight:1000,cursor:'pointer',boxShadow:`0 0 30px ${cyan}33`}}>🎮 ENTER GAMEVERSE</button>
             <button onClick={()=>openGlobal('__showImmersiveWorlds')} style={{border:`1px solid ${gold}88`,borderRadius:14,padding:'15px 21px',background:'#211907',color:'#ffe49b',fontWeight:1000,cursor:'pointer'}}>🥽 AR • VR • MIXED REALITY</button>
             <button onClick={()=>enter('music')} style={{border:'1px solid #9b77ff88',borderRadius:14,padding:'15px 21px',background:'#171029',color:'#cdbaff',fontWeight:1000,cursor:'pointer'}}>🎵 MUSIC & CULTURE</button>
           </div>
