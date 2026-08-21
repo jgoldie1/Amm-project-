@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react'
 import { ATC_CAREER_PROGRAM, AAU_CAREER_EXPANSION, AAU_GO_LIVE_CONTRACT } from '../education/ATCCareerProgram'
 
+type AtcLevelId=(typeof ATC_CAREER_PROGRAM.levels)[number]['id']
+
 export default function ATCCareerProgramPanel(){
- const[level,setLevel]=useState(ATC_CAREER_PROGRAM.levels[0].id),[scenario,setScenario]=useState(0)
+ const[level,setLevel]=useState<AtcLevelId>(ATC_CAREER_PROGRAM.levels[0].id),[scenario,setScenario]=useState(0)
  const active=useMemo(()=>ATC_CAREER_PROGRAM.levels.find(x=>x.id===level)!,[level])
  const drills=[
   'Identify the runway/taxiway conflict before moving traffic.',
