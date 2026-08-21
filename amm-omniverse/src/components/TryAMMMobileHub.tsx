@@ -3,6 +3,7 @@ import { AGENCY_EARNING_PATH, FAMILY_CODE_MODEL, FAMILY_EARNING_PATH, MOBILE_BRA
 import { JACOBIE_VISION_SECURITY, JACOBIE_VISION_PATH } from '../mobile/JacobieVisionSecurity'
 import { BEAN_PACKAGE_CATALOG, BEAN_TRUTH, CREATOR_REBATE_PROGRAM, QUOTA_COACH, QUOTA_TO_LEGACY_PATH } from '../mobile/CreatorQuotaBeanEngine'
 import { AGENCY_CREATION_PATH, AGENCY_GROWTH_LOOP, AGENCY_GROWTH_RULES, AGENCY_TOOLS, EXTERNAL_CREATOR_INVITES } from '../mobile/ExternalCreatorAgencyGrowth'
+import AgencyGrowthConsole from './AgencyGrowthConsole'
 
 const cyan='#4FE3FF',gold='#E8B944'
 export default function TryAMMMobileHub({onClose}:{onClose:()=>void}){
@@ -10,6 +11,7 @@ export default function TryAMMMobileHub({onClose}:{onClose:()=>void}){
  return <div role="dialog" aria-label="TRYAMM Mobile" style={{position:'fixed',inset:0,zIndex:12200,overflowY:'auto',background:'radial-gradient(circle at top,#10253a,#04050e 55%,#010205)',color:'#fff',padding:18}}><div style={{maxWidth:1180,margin:'0 auto'}}>
   <header style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'center'}}><div><div style={{fontSize:10,color:cyan,letterSpacing:3,fontWeight:900}}>TRYAMM • ALL AMERICAN MOBILE • JACOBIE VISION • CREATOR AGENCY • HOLOFON</div><h1 style={{margin:'7px 0'}}>TRYAMM Mobile + All American Mobile</h1><p style={{color:'#a9b7c8',maxWidth:820}}>{TRYAMM_MOBILE.truth}</p></div><button aria-label="Close TRYAMM Mobile" onClick={onClose} style={close}>×</button></header>
   <section style={panel}><strong style={{color:enabled?'#7dffb0':'#ffcf66'}}>FEATURE FLAG: {enabled?'ENABLED':'OFF / RELEASE-PROTECTED'}</strong><p style={muted}>Development can continue without exposing unapproved telecom actions. Real carrier, eSIM, NTN and hardware actions remain provider/regulatory gated.</p></section>
+  <AgencyGrowthConsole />
   <section style={panel}><h2>Two wireless brands</h2><div style={grid}>{Object.values(MOBILE_BRANDS).map(b=><article key={b.name} style={card}><b>{b.name}</b><p style={muted}>{b.position}</p></article>)}</div></section>
   <section style={panel}><h2>Invite Creators From Other Platforms</h2><p style={muted}>{EXTERNAL_CREATOR_INVITES.purpose}</p><div style={grid}>{EXTERNAL_CREATOR_INVITES.sources.map(x=><article key={x} style={card}><b>{x}</b></article>)}</div><p style={muted}>Invite methods: {EXTERNAL_CREATOR_INVITES.methods.join(' • ')}</p><p style={{...muted,color:'#7dffb0'}}>{EXTERNAL_CREATOR_INVITES.attribution}</p><small style={{color:'#ffcf66'}}>{EXTERNAL_CREATOR_INVITES.truth}</small></section>
   <section style={panel}><h2>Start an Agency</h2><ol>{AGENCY_CREATION_PATH.map(x=><li key={x}>{x}</li>)}</ol><p style={{...muted,color:'#7dffb0'}}>{AGENCY_GROWTH_LOOP}</p></section>
