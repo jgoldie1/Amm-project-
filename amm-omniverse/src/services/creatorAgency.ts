@@ -21,15 +21,9 @@ export async function generateAgencyInvite(input:{agencyId?:string;code:string;s
 }
 
 export async function acceptInvite(input:{code:string}){
- const client=sb(),user=await currentUser(),code=normalizeInviteCode(input.code);if(!code)throw new Error('Invite code is required')
- const {data:invite,error}=await client.from('tryamm_creator_invites').select('*').eq('code',code).eq('active',true).maybeSingle();if(error)throw error;if(!invite)throw new Error('Invite code was not found or is inactive')
- if(invite.expires_at&&new Date(invite.expires_at).getTime()<Date.now())throw new Error('Invite code has expired')
- if(invite.max_uses!=null&&invite.uses>=invite.max_uses)throw new Error('Invite code has reached its usage limit')
- const {data:existing}=await client.from('tryamm_creator_attribution').select('id').eq('user_id',user.id).maybeSingle();if(existing)throw new Error('Your first-touch creator attribution is already locked')
- const {error:attrError}=await client.from('tryamm_creator_attribution').insert({user_id:user.id,invite_id:invite.id,agency_id:invite.agency_id||null,source_platform:invite.source_platform});if(attrError)throw attrError
- if(invite.agency_id){const {error:memberError}=await client.from('tryamm_agency_memberships').upsert({agency_id:invite.agency_id,user_id:user.id,role:'creator',status:'active'},{onConflict:'agency_id,user_id'});if(memberError)throw memberError}
- const {error:useError}=await client.from('tryamm_creator_invites').update({uses:(invite.uses||0)+1}).eq('id',invite.id).eq('uses',invite.uses||0);if(useError)throw useError
- return invite
+ const client=sb();await currentUser();const code=normalizeInviteCode(input.code);if(!code)throw new Error('Invite code is required')
+ const {data,error}=await client.rpc('redeem_creator_invite',{p_code:code});if(error){const m=String(error.message||error);if(m.includes('INVITE_NOT_FOUND'))throw new Error('Invite code was not found or is inactive');if(m.includes('INVITE_EXPIRED'))throw new Error('Invite code has expired');if(m.includes('INVITE_LIMIT_REACHED'))throw new Error('Invite code has reached its usage limit');if(m.includes('ATTRIBUTION_ALREADY_LOCKED'))throw new Error('Your first-touch creator attribution is already locked');throw error}
+ return Array.isArray(data)?data[0]:data
 }
 
 export async function getMyAgencies(){const client=sb(),user=await currentUser();const {data,error}=await client.from('tryamm_agency_memberships').select('id,agency_id,role,status,tryamm_agencies(id,name,slug,status,markets,specialties)').eq('user_id',user.id);if(error)throw error;return data||[]}
