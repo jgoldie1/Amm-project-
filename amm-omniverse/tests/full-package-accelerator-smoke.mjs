@@ -1,0 +1,16 @@
+import fs from 'node:fs'
+const read=p=>fs.readFileSync(p,'utf8');const must=(c,m)=>{if(!c)throw new Error(`FULL PACKAGE SMOKE FAIL: ${m}`)}
+const main=read('src/main.tsx'),game=read('src/components/GameReleaseAccelerator.tsx'),immersive=read('src/components/ImmersiveLibraryAccelerator.tsx'),university=read('src/components/AllAmericanUniversityLauncher.tsx'),gameHub=read('src/components/GameVerseHub.tsx'),reality=read('src/components/RealityLabDistrict01.tsx'),archive=read('src/game/archive/ArchiveToCreatorLegacyEngine.ts'),universityMigration=read('supabase/migrations/202608120008_all_american_university.sql'),passport=read('src/education/learningPassport.ts'),jarvis=read('src/education/studentJarvis.ts'),env=read('.env.example')
+for(const token of ['<GameReleaseAccelerator />','<ImmersiveLibraryAccelerator />','<AllAmericanUniversityLauncher />'])must(main.includes(token),`main ${token}`)
+for(const token of ['GameVerse + StreetVerse','District 01 Reality Lab','Movie / Reel Studio','LIVE + PK','AR • VR • MR','Holoverse','Summer + Winter Global Games'])must(game.includes(token),`game ${token}`)
+for(const token of ['Recovered Chicago World Museum','Archive-generated missions','CREATE MOVIE / REEL','SEND TO MISSION DIRECTOR','SEND TO MIDDLEVERSE'])must(immersive.includes(token),`immersive ${token}`)
+for(const token of ['Learning Passport + Student Jarvis','Programs','Courses + immersive mission bridge','Opportunity engine','Accreditation truth'])must(university.includes(token),`university ${token}`)
+for(const token of ['MovieMakerHub','GlobalGamesHub','GlobalAccessHub','StreetVerseBiographyProofHub','StreetVerseMissionDirectorHub'])must(gameHub.includes(token),`GameVerse ${token}`)
+must(reality.includes('14 EXPERIENCES')&&reality.includes('RealityLabMultiplayerPanel'),'Reality Lab 14-experience + multiplayer contract')
+for(const token of ['ARCHIVE_MISSION_PIPELINE','ARCHIVE_TO_CREATOR_SEEDS','CREATOR_COOPERATIVE_SYSTEMS','NEXT_GENERATION_LOOP'])must(archive.includes(token),`archive ${token}`)
+for(const table of ['university_students','university_programs','university_courses','university_enrollments','university_credentials','university_library_items','university_labs','university_opportunities','university_hbcu_partners'])must(universityMigration.includes(table),`university schema ${table}`)
+must(universityMigration.includes('enable row level security'),'university RLS')
+must(passport.includes('coreLearningCredentials')&&passport.includes('createLearningPassport'),'Learning Passport runtime')
+must(jarvis.includes('buildStudyPlan')&&jarvis.includes('schoolSafetyBoundary'),'Student Jarvis runtime')
+for(const flag of ['VITE_GAME_ACCELERATOR_ENABLED=false','VITE_IMMERSIVE_LIBRARY_ENABLED=false','VITE_ALL_AMERICAN_UNIVERSITY_ENABLED=false'])must(env.includes(flag),`feature flag ${flag}`)
+console.log('✅ Full package Game + Immersive + University accelerator contract passed')

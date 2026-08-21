@@ -12,6 +12,9 @@ import IllinoisRegionalLauncher from './components/IllinoisRegionalLauncher'
 import StreetVerseLifePathLauncher from './components/StreetVerseLifePathLauncher'
 import StreetVerseExpansionHub from './components/StreetVerseExpansionHub'
 import TryAMMMobileLauncher from './components/TryAMMMobileLauncher'
+import GameReleaseAccelerator from './components/GameReleaseAccelerator'
+import ImmersiveLibraryAccelerator from './components/ImmersiveLibraryAccelerator'
+import AllAmericanUniversityLauncher from './components/AllAmericanUniversityLauncher'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 
@@ -31,5 +34,8 @@ createRoot(document.getElementById('root')!).render(
     <StreetVerseLifePathLauncher />
     <StreetVerseExpansionHub />
     <TryAMMMobileLauncher />
+    <GameReleaseAccelerator />
+    <ImmersiveLibraryAccelerator />
+    <AllAmericanUniversityLauncher />
   </StrictMode>
 )
