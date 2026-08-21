@@ -33,7 +33,7 @@ test.describe('StreetVerse regional economy', () => {
     await expect(dialog.getByText('Search public registry record')).toBeVisible()
 
     await dialog.getByRole('button', { name: 'death care' }).click()
-    await expect(dialog.getByText('Bond County Coroner')).toBeVisible()
+    await expect(dialog.getByText('Bond County Coroner', { exact: true })).toBeVisible()
 
     await dialog.getByRole('button', { name: 'NATIONAL STARTER' }).click()
     await dialog.getByRole('button', { name: 'Detroit + Southeast Michigan' }).click()
