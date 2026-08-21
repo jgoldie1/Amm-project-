@@ -4,12 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
     <meta name="theme-color" content="#04050E" />
-    <meta name="description" content="TRYAMM — one connected platform for creators, commerce, LIVE, games, AI, business, education, workforce, and Living Worlds." />
+    <meta name="description" content="TRYAMM combines creators, LIVE, games and Living Worlds, AI, commerce, business, education and workforce tools in one connected platform." />
 
-    <link rel="manifest" href="/manifest.json?v=20260816-2" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="shortcut icon" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="manifest" href="/manifest.json?v=20260821-judah-v3" />
+    <link rel="icon" type="image/svg+xml" sizes="any" href="/tryamm-judah-holographic-v3.svg?v=3" />
+    <link rel="shortcut icon" type="image/svg+xml" href="/tryamm-judah-holographic-v3.svg?v=3" />
+    <link rel="mask-icon" href="/tryamm-judah-holographic-v3.svg?v=3" color="#4FE3FF" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png?v=20260821-judah-v3" />
     <meta name="google-play-app" content="app-id=com.tryamm.omniverse" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -17,31 +18,75 @@
     <meta name="apple-mobile-web-app-title" content="TRYAMM" />
 
     <meta name="application-name" content="TRYAMM" />
-    <meta name="robots" content="index,follow" />
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+    <meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
     <link rel="canonical" href="https://tryamm.online/" />
+    <link rel="sitemap" type="application/xml" href="https://tryamm.online/sitemap.xml" />
+    <meta property="og:site_name" content="TRYAMM" />
     <meta property="og:title" content="TRYAMM — All American Marketplace & Living Worlds" />
-    <meta property="og:image" content="https://tryamm.online/favicon.svg" />
-    <meta property="og:description" content="Creators, commerce, LIVE, games, AI, business, workforce, education, and Living Worlds in one connected platform." />
+    <meta property="og:image" content="https://tryamm.online/tryamm-judah-holographic-v3.svg?v=3" />
+    <meta property="og:description" content="Creators, LIVE, games and Living Worlds, AI, commerce, business, workforce and education in one connected platform." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://tryamm.online/" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="TRYAMM — All American Marketplace & Living Worlds" />
-    <meta name="twitter:description" content="One connected platform for creators, commerce, LIVE, games, AI, business, workforce, education, and Living Worlds." />
-    <meta name="twitter:image" content="https://tryamm.online/favicon.svg" />
+    <meta name="twitter:description" content="Creators, LIVE, games and Living Worlds, AI, commerce, business, workforce and education in one connected platform." />
+    <meta name="twitter:image" content="https://tryamm.online/tryamm-judah-holographic-v3.svg?v=3" />
 
-    <title>TRYAMM — All American Marketplace & Living Worlds</title>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://tryamm.online/#organization",
+          "name": "TRYAMM",
+          "url": "https://tryamm.online/",
+          "logo": "https://tryamm.online/tryamm-judah-holographic-v3.svg?v=3",
+          "description": "A connected platform for creators, LIVE, games and Living Worlds, AI, commerce, business, education and workforce tools."
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://tryamm.online/#website",
+          "url": "https://tryamm.online/",
+          "name": "TRYAMM",
+          "publisher": { "@id": "https://tryamm.online/#organization" },
+          "inLanguage": "en-US"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://tryamm.online/#app",
+          "name": "TRYAMM",
+          "applicationCategory": "EntertainmentApplication",
+          "operatingSystem": "Web, PWA",
+          "url": "https://tryamm.online/",
+          "description": "TRYAMM connects creators, LIVE experiences, games and Living Worlds, AI, marketplace, business, education and workforce experiences."
+        }
+      ]
+    }
+    </script>
+
+    <title>TRYAMM — Creators, LIVE, Games, AI & Living Worlds</title>
   </head>
   <body>
     <div id="root"></div>
+    <nav aria-label="TRYAMM public discovery" style="position:relative;z-index:1;padding:14px 18px;background:#04050e;color:#dff8ff;font:600 13px/1.5 system-ui;display:flex;gap:14px;flex-wrap:wrap">
+      <a href="/about/" style="color:#4fe3ff">About TRYAMM</a>
+      <a href="/streetverse/" style="color:#4fe3ff">StreetVerse</a>
+      <a href="/marketplace/" style="color:#4fe3ff">Marketplace</a>
+      <a href="/live/" style="color:#4fe3ff">TRYAMM LIVE</a>
+      <a href="/archive/" style="color:#4fe3ff">Immersive Archive</a>
+      <a href="/accessibility/" style="color:#4fe3ff">Accessibility</a>
+    </nav>
     <script type="module" src="/src/main.tsx"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {
-            const registration = await navigator.serviceWorker.register('/sw.js?v=20260816-2', { updateViaCache: 'none' })
+            const registration = await navigator.serviceWorker.register('/sw.js?v=20260821-judah-v3', { updateViaCache: 'none' })
             await registration.update()
             navigator.serviceWorker.addEventListener('controllerchange', () => {
-              const key = 'tryamm-sw-refresh-20260816-2'
+              const key = 'tryamm-sw-refresh-20260821-judah-v3'
               if (!sessionStorage.getItem(key)) {
                 sessionStorage.setItem(key, '1')
                 location.reload()

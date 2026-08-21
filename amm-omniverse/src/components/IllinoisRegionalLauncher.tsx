@@ -32,7 +32,7 @@ export default function IllinoisRegionalLauncher() {
       type="button"
       aria-label="Open StreetVerse regional economy"
       onClick={() => setOpen(true)}
-      style={{position:'fixed',left:12,bottom:126,zIndex:8999,border:'1px solid #4fe3ff88',borderRadius:999,background:'linear-gradient(135deg,#071827,#23102f)',color:'#fff',padding:'10px 14px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer',boxShadow:'0 8px 28px #0008'}}
+      style={{position:'fixed',left:12,bottom:126,zIndex:9020,border:'1px solid #4fe3ff88',borderRadius:999,background:'linear-gradient(135deg,#071827,#23102f)',color:'#fff',padding:'10px 14px',fontFamily:'monospace',fontSize:10,fontWeight:900,cursor:'pointer',boxShadow:'0 8px 28px #0008'}}
     >
       🏙 STREETVERSE WORLDS
     </button>

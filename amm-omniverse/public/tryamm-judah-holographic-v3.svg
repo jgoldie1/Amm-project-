@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="TRYAMM holographic Lion of Judah">
+<defs>
+ <radialGradient id="void" cx="50%" cy="44%" r="66%"><stop offset="0" stop-color="#12264a"/><stop offset=".46" stop-color="#07101f"/><stop offset="1" stop-color="#02030a"/></radialGradient>
+ <radialGradient id="mane" cx="50%" cy="43%" r="58%"><stop offset="0" stop-color="#f8cf68"/><stop offset=".5" stop-color="#b87916"/><stop offset="1" stop-color="#4b2407"/></radialGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0a3"/><stop offset=".35" stop-color="#e8b944"/><stop offset=".72" stop-color="#9b6411"/><stop offset="1" stop-color="#ffe18a"/></linearGradient>
+ <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d8fbff"/><stop offset=".35" stop-color="#4fe3ff"/><stop offset="1" stop-color="#108bad"/></linearGradient>
+ <linearGradient id="flag" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#19458f"/><stop offset=".34" stop-color="#fff"/><stop offset=".52" stop-color="#d82635"/><stop offset=".72" stop-color="#fff"/><stop offset="1" stop-color="#d82635"/></linearGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+</defs>
+<rect width="512" height="512" rx="110" fill="url(#void)"/>
+<circle cx="256" cy="252" r="214" fill="none" stroke="#4fe3ff" stroke-width="7" opacity=".25" filter="url(#glow)"/>
+<circle cx="256" cy="252" r="194" fill="none" stroke="url(#cyan)" stroke-width="3" stroke-dasharray="5 15" opacity=".92"/>
+<ellipse cx="256" cy="266" rx="170" ry="176" fill="#4fe3ff" opacity=".08" filter="url(#soft)"/>
+<!-- crown -->
+<path d="M147 151 174 69l56 56 27-83 27 83 55-56 28 82-42 24H190Z" fill="url(#gold)" stroke="#fff0a3" stroke-width="5" filter="url(#glow)"/>
+<circle cx="174" cy="74" r="9" fill="#4fe3ff"/><circle cx="257" cy="47" r="10" fill="#e8b944"/><circle cx="339" cy="74" r="9" fill="#4fe3ff"/>
+<!-- mane -->
+<path d="M111 252c0-90 60-151 145-151s145 61 145 151c0 77-43 172-145 213-102-41-145-136-145-213Z" fill="url(#mane)" stroke="#d99b28" stroke-width="6"/>
+<!-- face -->
+<path d="M163 230c18-61 55-87 93-87s76 26 94 87l-18 133-76 66-76-66Z" fill="#c98b3c" stroke="#f2c66a" stroke-width="5"/>
+<!-- flag overlay across face -->
+<path d="M166 250c56-24 124-24 180 0l-5 80c-55-20-115-20-170 0Z" fill="url(#flag)" opacity=".72"/>
+<path d="M166 269c58-21 123-21 179 0M168 295c56-18 118-18 175 0M171 319c55-15 112-15 169 0" fill="none" stroke="#fff" stroke-width="7" opacity=".55"/>
+<!-- stars -->
+<g fill="#fff" opacity=".95"><circle cx="190" cy="264" r="4"/><circle cx="211" cy="276" r="4"/><circle cx="187" cy="292" r="4"/><circle cx="216" cy="309" r="4"/></g>
+<!-- eyes -->
+<path d="M183 239q33-26 63 2-32 27-63-2Zm83 2q31-28 64-2-31 29-64 2Z" fill="#11151c" stroke="#e8b944" stroke-width="5"/>
+<ellipse cx="218" cy="241" rx="9" ry="12" fill="#4fe3ff" filter="url(#glow)"/><ellipse cx="295" cy="241" rx="9" ry="12" fill="#4fe3ff" filter="url(#glow)"/>
+<!-- muzzle -->
+<path d="M212 327q44-27 88 0l-10 57-34 27-34-27Z" fill="#e6b768" opacity=".93"/>
+<path d="M237 337q19-14 38 0l-19 20Z" fill="#24140b"/><path d="M256 357v24m-28 5q28 25 56 0" fill="none" stroke="#3d210d" stroke-width="7" stroke-linecap="round"/>
+<!-- holographic scan -->
+<g stroke="#4fe3ff" opacity=".16"><path d="M90 197h332M72 226h368M62 257h388M68 288h376M80 319h352M101 350h310"/></g>
+<!-- lamb symbol -->
+<g transform="translate(226 405)"><ellipse cx="30" cy="25" rx="31" ry="19" fill="#f7f3e8"/><circle cx="52" cy="15" r="14" fill="#f7f3e8"/><path d="M56 2l10-10M47 3 40-8" stroke="#e8b944" stroke-width="4" stroke-linecap="round"/></g>
+<!-- initials -->
+<text x="256" y="492" text-anchor="middle" font-family="Arial,sans-serif" font-size="25" font-weight="900" letter-spacing="8" fill="#e8b944">TRYAMM</text>
+</svg>

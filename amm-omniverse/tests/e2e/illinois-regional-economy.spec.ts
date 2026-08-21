@@ -1,8 +1,15 @@
 import { test, expect } from '@playwright/test'
 
+async function enterTryAMM(page:any){
+  const enter=page.getByRole('button',{name:'ENTER TRYAMM'})
+  if(await enter.isVisible({timeout:5000}).catch(()=>false)) await enter.click()
+  await expect(page.getByRole('dialog',{name:'TRYAMM Lion of Judah opening screen'})).toBeHidden({timeout:6000})
+}
+
 test.describe('StreetVerse regional economy', () => {
   test('opens Illinois and national launch regions with jobs stories business and revenue', async ({ page }) => {
     await page.goto('/')
+    await enterTryAMM(page)
 
     const launcher = page.getByRole('button', { name: 'Open StreetVerse regional economy' })
     await expect(launcher).toBeVisible()
@@ -26,14 +33,14 @@ test.describe('StreetVerse regional economy', () => {
     await expect(dialog.getByText('Search public registry record')).toBeVisible()
 
     await dialog.getByRole('button', { name: 'death care' }).click()
-    await expect(dialog.getByText('Bond County Coroner')).toBeVisible()
+    await expect(dialog.getByText('Bond County Coroner', { exact: true })).toBeVisible()
 
     await dialog.getByRole('button', { name: 'NATIONAL STARTER' }).click()
     await dialog.getByRole('button', { name: 'Detroit + Southeast Michigan' }).click()
-    await dialog.getByRole('button', { name: 'region' }).click()
+    await dialog.getByRole('button', { name: 'region', exact: true }).click()
     await expect(dialog.getByText(/Motor-city, music, manufacturing/i)).toBeVisible()
 
-    await dialog.getByRole('button', { name: 'Hollywood' }).click()
+    await dialog.getByRole('button', { name: 'Hollywood', exact: true }).click()
     await dialog.getByRole('button', { name: 'stories' }).click()
     await expect(dialog.getByRole('heading', { name: 'Call Time' })).toBeVisible()
 

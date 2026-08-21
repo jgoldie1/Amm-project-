@@ -1,13 +1,21 @@
 import { test, expect } from '@playwright/test'
 
+async function enterTryAMM(page:any){
+  const enter=page.getByRole('button',{name:'ENTER TRYAMM'})
+  if(await enter.isVisible({timeout:5000}).catch(()=>false)) await enter.click()
+  await expect(page.getByRole('dialog',{name:'TRYAMM Lion of Judah opening screen'})).toBeHidden({timeout:6000})
+}
+
 test.describe('StreetVerse scripted mission director', () => {
   test('opens a produced mission, advances a storyboard beat, and fails safe to local checkpoint without auth', async ({ page }) => {
     await page.goto('/')
+    await enterTryAMM(page)
     await page.getByRole('button', { name: /ENTER GAMEVERSE/i }).click()
-    const launcher=page.getByRole('button',{name:'Open StreetVerse mission director'})
-    await expect(launcher).toBeVisible()
+    const gameverse=page.getByRole('dialog',{name:'TRYAMM GameVerse'}).first()
+    const launcher=gameverse.getByRole('button',{name:'Open StreetVerse mission director'})
+    await expect(launcher).toBeVisible({timeout:10000})
     await launcher.click()
-    const dialog=page.getByRole('dialog',{name:'StreetVerse Mission Director'})
+    const dialog=gameverse.getByRole('dialog',{name:'StreetVerse Mission Director'})
     await expect(dialog).toBeVisible()
     await expect(dialog.getByRole('heading',{name:/Missions Are Scenes, Choices and Consequences/i})).toBeVisible()
     await expect(dialog.getByText('The Block Remembers',{exact:true}).first()).toBeVisible()
