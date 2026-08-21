@@ -1,8 +1,15 @@
 import { test, expect } from '@playwright/test'
 
+async function enterTryAMM(page:any){
+  const enter=page.getByRole('button',{name:'ENTER TRYAMM'})
+  if(await enter.isVisible({timeout:5000}).catch(()=>false)) await enter.click()
+  await expect(page.getByRole('dialog',{name:'TRYAMM Lion of Judah opening screen'})).toBeHidden({timeout:6000})
+}
+
 test.describe('StreetVerse regional economy', () => {
   test('opens Illinois and national launch regions with jobs stories business and revenue', async ({ page }) => {
     await page.goto('/')
+    await enterTryAMM(page)
 
     const launcher = page.getByRole('button', { name: 'Open StreetVerse regional economy' })
     await expect(launcher).toBeVisible()
