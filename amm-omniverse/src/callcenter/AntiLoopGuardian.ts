@@ -6,7 +6,7 @@ export const HARD_ESCAPE_OPTIONS=['human agent','callback','text/chat','previous
 
 const norm=(v='')=>v.toLowerCase().replace(/\s+/g,' ').trim()
 export function detectLoop(history:CallSignal[]):GuardianDecision{
- const last=history.at(-1);if(!last)return{action:'continue',reason:'new conversation',mustOfferEscape:true,preserveContext:true}
+ const last=history.length?history[history.length-1]:undefined;if(!last)return{action:'continue',reason:'new conversation',mustOfferEscape:true,preserveContext:true}
  const intents=history.slice(-5).map(x=>norm(x.intent));const texts=history.slice(-5).map(x=>norm(x.assistantText));
  const repeatedIntent=intents.length>=3&&new Set(intents.slice(-3)).size===1
  const repeatedAnswer=texts.filter(Boolean).length>=3&&new Set(texts.filter(Boolean).slice(-3)).size===1
