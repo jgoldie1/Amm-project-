@@ -40,7 +40,7 @@ test.describe('StreetVerse regional economy', () => {
     await dialog.getByRole('button', { name: 'region', exact: true }).click()
     await expect(dialog.getByText(/Motor-city, music, manufacturing/i)).toBeVisible()
 
-    await dialog.getByRole('button', { name: 'Hollywood' }).click()
+    await dialog.getByRole('button', { name: 'Hollywood', exact: true }).click()
     await dialog.getByRole('button', { name: 'stories' }).click()
     await expect(dialog.getByRole('heading', { name: 'Call Time' })).toBeVisible()
 
