@@ -12,7 +12,7 @@ test.describe('StreetVerse biography and World Memory proof shell', () => {
     await enterTryAMM(page)
     await page.getByRole('button', { name: /ENTER GAMEVERSE/i }).click()
 
-    const launcher = page.getByRole('button', { name: 'Open StreetVerse biography proof' })
+    const launcher = page.getByRole('button', { name: 'Open StreetVerse biography proof' }).first()
     await expect(launcher).toBeVisible({timeout:10000})
     await launcher.click()
 
