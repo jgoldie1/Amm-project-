@@ -11,7 +11,7 @@ test.describe('StreetVerse scripted mission director', () => {
     await page.goto('/')
     await enterTryAMM(page)
     await page.getByRole('button', { name: /ENTER GAMEVERSE/i }).click()
-    const launcher=page.getByRole('button',{name:'Open StreetVerse mission director'})
+    const launcher=page.getByRole('button',{name:'Open StreetVerse mission director'}).first()
     await expect(launcher).toBeVisible({timeout:10000})
     await launcher.click()
     const dialog=page.getByRole('dialog',{name:'StreetVerse Mission Director'})
