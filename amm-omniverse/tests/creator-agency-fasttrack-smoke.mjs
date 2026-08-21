@@ -7,7 +7,7 @@ const founderUi=read('src/components/FounderFastTrackAgencyPanel.tsx')
 const agencyService=read('src/services/creatorAgency.ts')
 const founderService=read('src/services/founderFastTrack.ts')
 const agencyMigration=read('supabase/migrations/20260820294500_creator_agency_invites.sql')
-const redeemMigration=read('supabase/migrations/20260820300000_creator_agency_invite_redemption.sql')
+const redeemMigration=read('supabase/migrations/20260820295000_creator_invite_redeem_rpc.sql')
 const founderMigration=read('supabase/migrations/20260820301500_founder_fast_track_agency_invites.sql')
 
 must(hub.includes('<AgencyGrowthConsole />'),'Agency Growth Console must be mounted')
