@@ -15,6 +15,7 @@ import TryAMMMobileLauncher from './components/TryAMMMobileLauncher'
 import GameReleaseAccelerator from './components/GameReleaseAccelerator'
 import ImmersiveLibraryAccelerator from './components/ImmersiveLibraryAccelerator'
 import AllAmericanUniversityLauncher from './components/AllAmericanUniversityLauncher'
+import TierOnePlayableHub from './components/TierOnePlayableHub'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 
@@ -37,5 +38,6 @@ createRoot(document.getElementById('root')!).render(
     <GameReleaseAccelerator />
     <ImmersiveLibraryAccelerator />
     <AllAmericanUniversityLauncher />
+    <TierOnePlayableHub />
   </StrictMode>
 )
