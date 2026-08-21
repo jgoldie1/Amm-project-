@@ -21,9 +21,9 @@
   ],
   "shortcuts": [
     { "name": "TRYAMM Home", "short_name": "Home", "url": "/", "icons": [{ "src": "/tryamm-judah-holographic-v3.svg?v=3", "sizes": "any", "type": "image/svg+xml" }] },
-    { "name": "Marketplace", "short_name": "Market", "url": "/?screen=marketplace", "icons": [{ "src": "/icons/shortcut-market.png", "sizes": "96x96" }] },
-    { "name": "LIVE", "short_name": "LIVE", "url": "/?action=live", "icons": [{ "src": "/tryamm-judah-holographic-v3.svg?v=3", "sizes": "any", "type": "image/svg+xml" }] },
-    { "name": "Living Worlds", "short_name": "Worlds", "url": "/?screen=city", "icons": [{ "src": "/icons/shortcut-city.png", "sizes": "96x96" }] }
+    { "name": "Marketplace", "short_name": "Market", "url": "/marketplace/", "icons": [{ "src": "/tryamm-judah-holographic-v3.svg?v=3", "sizes": "any", "type": "image/svg+xml" }] },
+    { "name": "TRYAMM LIVE", "short_name": "LIVE", "url": "/live/", "icons": [{ "src": "/tryamm-judah-holographic-v3.svg?v=3", "sizes": "any", "type": "image/svg+xml" }] },
+    { "name": "StreetVerse", "short_name": "Worlds", "url": "/streetverse/", "icons": [{ "src": "/tryamm-judah-holographic-v3.svg?v=3", "sizes": "any", "type": "image/svg+xml" }] }
   ],
   "prefer_related_applications": false,
   "share_target": {
