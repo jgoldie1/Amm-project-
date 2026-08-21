@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import StreetVerseBiographyProofHub from './StreetVerseBiographyProofHub'
+import StreetVerseMissionDirectorHub from './StreetVerseMissionDirectorHub'
 
 const cyan='#4FE3FF'
 const gold='#E8B944'
@@ -26,6 +28,8 @@ export default function GameVerseHub({onClose,onEnterSports,onEnterCity,initialW
   const [selected,setSelected]=useState(initial)
   const enter=()=>{ if(selected.entry==='sports')onEnterSports(); else if(selected.entry==='city')onEnterCity() }
   return <div role="dialog" aria-label="TRYAMM GameVerse" style={{position:'fixed',inset:0,zIndex:12000,background:'radial-gradient(circle at 50% 0,#12263b,#04050e 48%,#010205)',color:'#fff',overflowY:'auto',fontFamily:'Inter,system-ui,sans-serif'}}>
+    <StreetVerseBiographyProofHub/>
+    <StreetVerseMissionDirectorHub/>
     <div style={{maxWidth:1240,margin:'0 auto',padding:'20px 18px 90px'}}>
       <header style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,marginBottom:22}}><div><div style={{fontSize:10,color:cyan,fontWeight:950,letterSpacing:3}}>TRYAMM • VOLCANO LIVING GAMES</div><h1 style={{margin:'5px 0 0',fontSize:'clamp(30px,5vw,54px)'}}>GameVerse Nexus</h1><div style={{fontSize:11,color:'#8ca0b8',marginTop:5}}>11 standalone games • bridged through the Living Worlds ecosystem</div></div><button onClick={onClose} aria-label="Close GameVerse" style={{width:42,height:42,borderRadius:'50%',border:'1px solid #40516a',background:'#0c1320',color:'#fff',fontSize:22,cursor:'pointer'}}>×</button></header>
       <div style={{display:'grid',gridTemplateColumns:'minmax(260px,.8fr) minmax(0,1.2fr)',gap:16}} className="gameverse-layout">
