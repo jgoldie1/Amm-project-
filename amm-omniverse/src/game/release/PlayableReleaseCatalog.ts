@@ -24,7 +24,19 @@ export const TIER_ONE_RELEASE_GAMES:SliceGame[]=[
   {id:'district',name:'District Trials',objective:'Win three tactical encounters.',proof:'deck state + encounter scoring'},
   {id:'rift',name:'Rift Tournament',objective:'Adapt to rotating arena modifiers.',proof:'modifier + tournament state'},
   {id:'crown',name:'Crown Circuit',objective:'Defeat multi-phase Holo Champion.',proof:'boss phases + persistent unlock'}],
-  releaseGates:['original-card rules','no pay-to-win','save deck','tournament result','spectator path','performance']}
+  releaseGates:['original-card rules','no pay-to-win','save deck','tournament result','spectator path','performance']},
+ {id:'sports-framework',name:'Living Sports Framework',status:'PLAYABLE_SLICE',levels:[
+  {id:'combine',name:'Athlete Combine',objective:'Create athlete profile and complete movement/skill drills.',proof:'input metrics + role/archetype state'},
+  {id:'team',name:'Team Practice',objective:'Complete coach-selected team objectives.',proof:'position role + teammate/AI coordination'},
+  {id:'game',name:'Game Day',objective:'Complete a regulation-style match loop for the selected sport module.',proof:'clock/period + scoring + penalties/fouls state'},
+  {id:'season',name:'Season & Legacy',objective:'Save result, reputation, stats and next-event eligibility.',proof:'persistent season record + World Memory handoff'}],
+  releaseGates:['shared athlete contract','sport-specific rules adapters','accessibility/gamepad','AI/team logic','save stats','multiplayer/performance']},
+ {id:'living-racing',name:'Living Racing',status:'PLAYABLE_SLICE',levels:[
+  {id:'license',name:'Driver Academy',objective:'Learn steering, braking, route and safety controls.',proof:'input + checkpoints + safe-boundary state'},
+  {id:'street',name:'City Circuit',objective:'Complete a traffic-aware legal race/event route.',proof:'lap/checkpoint timing + collision/penalty state'},
+  {id:'sponsor',name:'Sponsor Challenge',objective:'Complete a verified sponsored race objective without pay-to-win advantage.',proof:'server result + sponsor/event rules + anti-cheat evidence'},
+  {id:'podium',name:'Championship Podium',objective:'Finalize result, save reputation and create payout/reward eligibility evidence.',proof:'1st/2nd/3rd result + prize ledger handoff + World Memory'}],
+  releaseGates:['vehicle input','physics/track contract','server-authoritative result','anti-cheat','sponsor/prize rules','save/rejoin','performance']}
 ]
 export const RELEASE_ORDER=['streetverse','court-kings','volcano','battle-deck','sports-framework','living-racing','pinball-recovery','remaining-worlds'] as const
 export const PROGRESS_RULE='A world counts upward only when its playable slice has input, objective, result, save/rejoin or equivalent persistence, smoke coverage and a release gate. Design-only entries stay PLANNED.'
