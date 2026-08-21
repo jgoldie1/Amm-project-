@@ -37,6 +37,7 @@ create table if not exists public.service_share_payouts (
   currency text not null default 'USD',
   state text not null default 'pending' check(state in ('pending','held','approved','submitted','paid','failed','reversed','cancelled')),
   tax_reporting_state text not null default 'unknown',
+  idempotency_key text not null unique,
   gate_evidence jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
