@@ -11,8 +11,6 @@ import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import IllinoisRegionalLauncher from './components/IllinoisRegionalLauncher'
 import StreetVerseLifePathLauncher from './components/StreetVerseLifePathLauncher'
 import StreetVerseExpansionHub from './components/StreetVerseExpansionHub'
-import StreetVerseBiographyProofHub from './components/StreetVerseBiographyProofHub'
-import StreetVerseMissionDirectorHub from './components/StreetVerseMissionDirectorHub'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 
@@ -31,7 +29,5 @@ createRoot(document.getElementById('root')!).render(
     <IllinoisRegionalLauncher />
     <StreetVerseLifePathLauncher />
     <StreetVerseExpansionHub />
-    <StreetVerseBiographyProofHub />
-    <StreetVerseMissionDirectorHub />
   </StrictMode>
 )
