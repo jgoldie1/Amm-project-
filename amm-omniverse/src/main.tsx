@@ -14,6 +14,7 @@ import StreetVerseExpansionHub from './components/StreetVerseExpansionHub'
 import TryAMMMobileLauncher from './components/TryAMMMobileLauncher'
 import HoloArenaLauncher from './components/HoloArenaLauncher'
 import SampleRightsCenter from './components/SampleRightsCenter'
+import ServiceCommerceWorkforceHub from './components/ServiceCommerceWorkforceHub'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 
@@ -35,5 +36,6 @@ createRoot(document.getElementById('root')!).render(
     <TryAMMMobileLauncher />
     <HoloArenaLauncher />
     <SampleRightsCenter />
+    <ServiceCommerceWorkforceHub />
   </StrictMode>
 )
