@@ -36,6 +36,11 @@ export async function createFounderPriorityAgency(input:{name:string;markets?:st
  const {data,error}=await client.rpc('create_founder_priority_agency',{p_name:input.name.trim().slice(0,100),p_markets:(input.markets||[]).slice(0,20),p_specialties:(input.specialties||[]).slice(0,20)});if(error){const m=String(error.message||error);if(m.includes('PRIORITY_ENTITLEMENT_REQUIRED'))throw new Error('A valid founder priority entitlement is required');throw error}return Array.isArray(data)?data[0]:data
 }
 
+export async function issueFounderPriorityInvite(input:{label?:string;note?:string;maxUses?:number;expiresDays?:number}){
+ const client=sb();await currentUser();const {data:{session}}=await client.auth.getSession();if(!session?.access_token)throw new Error('Sign in is required')
+ const res=await fetch('/api/agency/founder-priority',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${session.access_token}`},body:JSON.stringify(input)});const body=await res.json().catch(()=>({}));if(!res.ok)throw new Error(body?.error||'Could not issue founder priority invite');return body as {code:string;label:string;maxUses:number;expiresAt:string;warning:string}
+}
+
 export async function getMyFounderPriority(){const client=sb(),user=await currentUser();const {data,error}=await client.from('tryamm_founder_priority_entitlements').select('id,status,granted_at,used_at,agency_id').eq('user_id',user.id).maybeSingle();if(error)throw error;return data}
 export async function getMyAgencies(){const client=sb(),user=await currentUser();const {data,error}=await client.from('tryamm_agency_memberships').select('id,agency_id,role,status,tryamm_agencies(id,name,slug,status,priority_lane,markets,specialties)').eq('user_id',user.id);if(error)throw error;return data||[]}
 export async function getMyAttribution(){const client=sb(),user=await currentUser();const {data,error}=await client.from('tryamm_creator_attribution').select('id,source_platform,agency_id,consented_at,tryamm_creator_invites(code,campaign)').eq('user_id',user.id).maybeSingle();if(error)throw error;return data}
