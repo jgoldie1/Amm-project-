@@ -12,7 +12,16 @@ function clients(req:any){
  return {user,admin}
 }
 async function requireTrusted(req:any,res:any){const c=clients(req);if(!c){res.status(503).json({error:'Payout provider/database server configuration missing'});return null}const {data,error}=await c.user.auth.getUser();if(error||!data.user){res.status(401).json({error:'Authenticated session required'});return null}const trusted=(process.env.TRYAMM_PAYOUT_REVIEWER_USER_IDS||'').split(',').map(x=>x.trim()).filter(Boolean);if(!trusted.includes(data.user.id)){res.status(403).json({error:'Trusted payout reviewer required'});return null}return {...c,actor:data.user}}
-async function loadApproved(admin:any,kind:'game-prize'|'service-share',id:string){const table=kind==='game-prize'?'game_prize_payouts':'service_share_payouts';const fields=kind==='game-prize'?'id,user_id,amount_cents,currency,state,idempotency_key,gate_evidence':'id,beneficiary_ref,amount_cents,currency,state,idempotency_key,gate_evidence';const {data,error}=await admin.from(table).select(fields).eq('id',id).single();if(error||!data)throw new Error('Approved payout ledger row not found');if(data.state!=='approved')throw new Error('Payout must be approved before provider submission');return{table,row:data,recipientRef:String(kind==='game-prize'?data.user_id:data.beneficiary_ref)}}
+async function loadApproved(admin:any,kind:'game-prize'|'service-share',id:string){
+ const table=kind==='game-prize'?'game_prize_payouts':'service_share_payouts'
+ const fields=kind==='game-prize'?'id,user_id,amount_cents,currency,state,idempotency_key,gate_evidence':'id,recipient_user_id,amount_cents,currency,state,idempotency_key,gate_evidence'
+ const {data,error}=await admin.from(table).select(fields).eq('id',id).single()
+ if(error||!data)throw new Error('Approved payout ledger row not found')
+ if(data.state!=='approved')throw new Error('Payout must be approved before provider submission')
+ const recipientRef=String(kind==='game-prize'?data.user_id:data.recipient_user_id||'')
+ if(!recipientRef)throw new Error('Approved payout recipient is missing')
+ return{table,row:data,recipientRef}
+}
 
 export default async function handler(req:any,res:any){cors(res);if(req.method==='OPTIONS')return res.status(204).end();const action=clean(req.query?.action,48)
  if(action==='health'&&req.method==='GET')return res.status(200).json({ok:true,providerConfigured:Boolean(process.env.TRYAMM_PAYOUT_PROVIDER||process.env.TRYAMM_PAYOUT_SANDBOX_ENABLED==='true'),reviewersConfigured:Boolean(process.env.TRYAMM_PAYOUT_REVIEWER_USER_IDS),serviceRoleConfigured:Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY)})
