@@ -6,10 +6,11 @@
     <meta name="theme-color" content="#04050E" />
     <meta name="description" content="TRYAMM — one connected platform for creators, commerce, LIVE, games, AI, business, education, workforce, and Living Worlds." />
 
-    <link rel="manifest" href="/manifest.json?v=20260816-2" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="shortcut icon" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="manifest" href="/manifest.json?v=20260821-judah-v3" />
+    <link rel="icon" type="image/svg+xml" sizes="any" href="/tryamm-judah-holographic-v3.svg?v=3" />
+    <link rel="shortcut icon" type="image/svg+xml" href="/tryamm-judah-holographic-v3.svg?v=3" />
+    <link rel="mask-icon" href="/tryamm-judah-holographic-v3.svg?v=3" color="#4FE3FF" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png?v=20260821-judah-v3" />
     <meta name="google-play-app" content="app-id=com.tryamm.omniverse" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -20,14 +21,14 @@
     <meta name="robots" content="index,follow" />
     <link rel="canonical" href="https://tryamm.online/" />
     <meta property="og:title" content="TRYAMM — All American Marketplace & Living Worlds" />
-    <meta property="og:image" content="https://tryamm.online/favicon.svg" />
+    <meta property="og:image" content="https://tryamm.online/tryamm-judah-holographic-v3.svg?v=3" />
     <meta property="og:description" content="Creators, commerce, LIVE, games, AI, business, workforce, education, and Living Worlds in one connected platform." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://tryamm.online/" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="TRYAMM — All American Marketplace & Living Worlds" />
     <meta name="twitter:description" content="One connected platform for creators, commerce, LIVE, games, AI, business, workforce, education, and Living Worlds." />
-    <meta name="twitter:image" content="https://tryamm.online/favicon.svg" />
+    <meta name="twitter:image" content="https://tryamm.online/tryamm-judah-holographic-v3.svg?v=3" />
 
     <title>TRYAMM — All American Marketplace & Living Worlds</title>
   </head>
@@ -38,10 +39,10 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {
-            const registration = await navigator.serviceWorker.register('/sw.js?v=20260816-2', { updateViaCache: 'none' })
+            const registration = await navigator.serviceWorker.register('/sw.js?v=20260821-judah-v3', { updateViaCache: 'none' })
             await registration.update()
             navigator.serviceWorker.addEventListener('controllerchange', () => {
-              const key = 'tryamm-sw-refresh-20260816-2'
+              const key = 'tryamm-sw-refresh-20260821-judah-v3'
               if (!sessionStorage.getItem(key)) {
                 sessionStorage.setItem(key, '1')
                 location.reload()
