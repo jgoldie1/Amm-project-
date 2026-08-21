@@ -37,7 +37,7 @@ test.describe('StreetVerse regional economy', () => {
 
     await dialog.getByRole('button', { name: 'NATIONAL STARTER' }).click()
     await dialog.getByRole('button', { name: 'Detroit + Southeast Michigan' }).click()
-    await dialog.getByRole('button', { name: 'region' }).click()
+    await dialog.getByRole('button', { name: 'region', exact: true }).click()
     await expect(dialog.getByText(/Motor-city, music, manufacturing/i)).toBeVisible()
 
     await dialog.getByRole('button', { name: 'Hollywood' }).click()
