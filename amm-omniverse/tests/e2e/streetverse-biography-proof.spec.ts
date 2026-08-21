@@ -11,18 +11,16 @@ test.describe('StreetVerse biography and World Memory proof shell', () => {
     await page.goto('/')
     await enterTryAMM(page)
     await page.getByRole('button', { name: /ENTER GAMEVERSE/i }).click()
-
-    const launcher = page.getByRole('button', { name: 'Open StreetVerse biography proof' }).first()
+    const gameverse=page.getByRole('dialog',{name:'TRYAMM GameVerse'}).first()
+    const launcher = gameverse.getByRole('button', { name: 'Open StreetVerse biography proof' })
     await expect(launcher).toBeVisible({timeout:10000})
     await launcher.click()
-
-    const dialog = page.getByRole('dialog', { name: 'StreetVerse World Memory Proof' })
+    const dialog = gameverse.getByRole('dialog', { name: 'StreetVerse World Memory Proof' })
     await expect(dialog).toBeVisible()
     await expect(dialog.getByRole('heading', { name: 'Your Save File Becomes Your Biography' })).toBeVisible()
     await expect(dialog.getByText('WORLD CONTINUES', { exact: true })).toBeVisible()
     await expect(dialog.getByText('WORLD REMEMBERS', { exact: true })).toBeVisible()
     await expect(dialog.getByRole('button', { name: 'RUN FULL AUTHENTICATED PROOF' })).toBeVisible()
-
     await dialog.getByRole('button', { name: 'RUN FULL AUTHENTICATED PROOF' }).click()
     await expect(dialog.getByText(/STATUS: FAILED|STATUS: RUNNING/)).toBeVisible()
     await expect(dialog.getByText(/Authentication required|StreetVerse life API request failed|FULL PROOF STOPPED/i).first()).toBeVisible()
