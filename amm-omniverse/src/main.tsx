@@ -27,10 +27,12 @@ import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
 import { installStreetVerseLivingWorldRuntime } from './runtime/StreetVerseLivingWorldRuntime'
+import { installCreatorExperienceRuntime } from './runtime/CreatorExperienceRuntime'
 
 installProductionHealthMonitor()
 installMediaCloudBridge()
 installStreetVerseLivingWorldRuntime()
+installCreatorExperienceRuntime()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
