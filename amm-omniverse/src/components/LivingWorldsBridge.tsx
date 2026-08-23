@@ -6,6 +6,7 @@ import HoloDirectLaunchBridge from './HoloDirectLaunchBridge'
 import HoloMusicStreaming from './HoloMusicStreaming'
 import CommandNexusControlPlane from './CommandNexusControlPlane'
 import XRCommandGateway from './XRCommandGateway'
+import HoloLabGateway from './HoloLabGateway'
 import RouteCoordinator from '../navigation/RouteCoordinator'
 import {
   enterWorld,
@@ -31,25 +32,31 @@ export default function LivingWorldsBridge() {
   const [showNexusV2,setShowNexusV2]=useState(false)
   const [showHoloMusic,setShowHoloMusic]=useState(false)
   const [showXR,setShowXR]=useState(false)
+  const [showHoloLab,setShowHoloLab]=useState(false)
   const signedIn = screen !== 'intro' && screen !== 'login'
 
   useEffect(()=>{
     const openNexus=()=>setShowNexusV2(true)
     const openMusic=()=>setShowHoloMusic(true)
     const openXR=()=>setShowXR(true)
+    const openLab=()=>setShowHoloLab(true)
     ;(window as any).__showCommandNexusV2=openNexus
     ;(window as any).__showHoloMusic=openMusic
     ;(window as any).__showXR=openXR
+    ;(window as any).__showHoloLab=openLab
     window.addEventListener('tryamm:open-command-nexus-v2',openNexus)
     window.addEventListener('tryamm:open-holo-music',openMusic)
     window.addEventListener('tryamm:open-xr',openXR)
+    window.addEventListener('tryamm:open-holo-lab',openLab)
     return()=>{
       window.removeEventListener('tryamm:open-command-nexus-v2',openNexus)
       window.removeEventListener('tryamm:open-holo-music',openMusic)
       window.removeEventListener('tryamm:open-xr',openXR)
+      window.removeEventListener('tryamm:open-holo-lab',openLab)
       if((window as any).__showCommandNexusV2===openNexus)delete (window as any).__showCommandNexusV2
       if((window as any).__showHoloMusic===openMusic)delete (window as any).__showHoloMusic
       if((window as any).__showXR===openXR)delete (window as any).__showXR
+      if((window as any).__showHoloLab===openLab)delete (window as any).__showHoloLab
     }
   },[])
 
@@ -137,5 +144,6 @@ export default function LivingWorldsBridge() {
     {showNexusV2&&<CommandNexusControlPlane onClose={()=>setShowNexusV2(false)}/>} 
     {showHoloMusic&&<HoloMusicStreaming onClose={()=>setShowHoloMusic(false)}/>} 
     {showXR&&<XRCommandGateway onClose={()=>setShowXR(false)}/>} 
+    {showHoloLab&&<HoloLabGateway onClose={()=>setShowHoloLab(false)}/>} 
   </>
 }
