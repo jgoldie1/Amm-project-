@@ -1,0 +1,41 @@
+{
+  "version": "1.0.0",
+  "name": "TRYAMM Quantum Convergence",
+  "description": "Canonical production service map and release contract. Quantum means cross-system convergence/orchestration here; it does not assert quantum-computing hardware.",
+  "sourceOfTruth": {
+    "repository": "jgoldie1/Amm-project-",
+    "branch": "developer-vic",
+    "applicationRoot": "amm-omniverse",
+    "publicDomain": "https://tryamm.online",
+    "productionVercelProject": "amm-omniverse",
+    "supabaseProjectRef": "fxluchtdfpediivhoksl",
+    "renderBackend": "https://amm-project-1-rpz9.onrender.com/"
+  },
+  "criticalUserFlow": [
+    "public-app",
+    "authentication",
+    "streetverse",
+    "reel-creator",
+    "save-to-phone",
+    "jacobie-vision",
+    "hologpt",
+    "supabase-persistence",
+    "stripe-sandbox",
+    "reward-verification"
+  ],
+  "releaseRules": {
+    "oneFeatureOneOwner": true,
+    "commitShaMustMatchProduction": true,
+    "healthEndpoint": "/api/system/convergence",
+    "moneyPathsRequireHumanGate": true,
+    "rollbackRequired": true,
+    "secretsNeverReturnedByHealthEndpoint": true
+  },
+  "services": {
+    "github": { "role": "source-control", "required": true },
+    "vercel": { "role": "public-web-pwa-and-serverless", "required": true },
+    "supabase": { "role": "auth-database-storage-persistence", "required": true },
+    "render": { "role": "backend-runtime", "required": true },
+    "stripe": { "role": "sandbox-and-approved-money-rails", "requiredForMoney": true }
+  }
+}
