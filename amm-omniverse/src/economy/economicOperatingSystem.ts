@@ -1,5 +1,6 @@
 export type RevenueLane =
   | 'subscriptions' | 'marketplace' | 'delivery' | 'ads' | 'coupons'
+  | 'holo_advertising' | 'holo_3d_advertising' | 'product_placement' | 'world_sponsorships' | 'creator_campaigns'
   | 'hologpt_credits' | 'stubbs_harmony' | 'forever_website' | 'forever_domain'
   | 'creator_services' | 'events' | 'education_contracts' | 'business_services'
   | 'regulated_service_platform_fees' | 'community_peace_contracts';
@@ -7,7 +8,8 @@ export type RevenueLane =
 export type CostLane =
   | 'ai_compute' | 'data_providers' | 'database' | 'storage' | 'bandwidth'
   | 'live_video' | 'maps_delivery' | 'sms_email_push' | 'moderation' | 'security'
-  | 'rendering' | 'support' | 'domain_reserves' | 'provider_fees' | 'insurance' | 'legal_compliance';
+  | 'rendering' | 'support' | 'domain_reserves' | 'provider_fees' | 'insurance' | 'legal_compliance'
+  | 'campus_media_operations';
 
 export type EconomicSnapshot = {
   periodStart: string;
