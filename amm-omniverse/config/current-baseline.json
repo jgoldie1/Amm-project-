@@ -1,0 +1,28 @@
+{
+  "lockedAt": "2026-08-22",
+  "workingBranch": "developer-vic",
+  "baselineCommit": "2dde6c4f81b3055c2a12e09a7bbc3328a9b7b298",
+  "rollbackBranch": "checkpoint/2026-08-22-current-baseline",
+  "policyCommit": "2dde6c4f81b3055c2a12e09a7bbc3328a9b7b298",
+  "releaseSequence": [
+    "ALL_PAGES",
+    "ONE_ROUTE_MAP",
+    "API_HEALTH",
+    "HOLOGPT_FULL_RESPONSE",
+    "AUTH",
+    "PERSISTENT_STATE",
+    "SERVICE_WORKER_CACHE",
+    "DEPLOYMENT",
+    "LIVE_SMOKE_TEST",
+    "GREEN_PROOF"
+  ],
+  "continuationRule": "Search Git and this baseline before creating or replacing any HoloGPT, Holoverse, auth, route, state, cache, deployment, or provider subsystem. Extend canonical implementations only.",
+  "statusRule": {
+    "COMMITTED": "source safely recorded in Git",
+    "DEPLOYED": "the committed source reached the target environment",
+    "VERIFIED": "live behavior was tested successfully",
+    "GREEN": "all required gates have evidence"
+  },
+  "nextGate": "HOLOGPT_FULL_RESPONSE",
+  "knownBlocker": "At least one live generative provider must return a non-degraded response in production before HoloGPT can be marked GREEN."
+}
