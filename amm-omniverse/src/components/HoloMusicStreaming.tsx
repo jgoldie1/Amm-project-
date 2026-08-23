@@ -2,12 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { getSupabaseClient } from '../services/supabaseClient'
 
 type TrackRecord = Record<string, any>
-
 type Props = { onClose: () => void }
 
-function streamUrl(track: TrackRecord){
-  return track.stream_url || track.audio_url || track.preview_url || track.media_url || track.url || ''
-}
+function streamUrl(track: TrackRecord){return track.file_url || track.stream_url || track.audio_url || track.preview_url || track.media_url || track.url || ''}
 function trackTitle(track: TrackRecord){return track.title || track.name || 'Untitled track'}
 function artistName(track: TrackRecord){return track.artist_name || track.artist || track.creator_name || track.creator || 'TRYAMM Artist'}
 
@@ -24,28 +21,23 @@ export default function HoloMusicStreaming({ onClose }: Props){
       const sb=getSupabaseClient()
       if(!sb){setStatus('Supabase music catalog is not configured in this build.');return}
       try{
-        let request=sb.from('tracks').select('*').order('created_at',{ascending:false}).limit(100)
-        const {data,error}=await request
+        const {data,error}=await sb.from('tracks').select('*').eq('is_public',true).order('created_at',{ascending:false}).limit(100)
         if(error)throw error
         if(cancelled)return
         const rows=(data||[]) as TrackRecord[]
         setTracks(rows)
-        setStatus(rows.length?`${rows.length} catalog track(s) loaded. Playback is available only when an authorized audio URL exists.`:'No music has been published to the track catalog yet.')
-      }catch(error){
-        if(!cancelled)setStatus(error instanceof Error?error.message:'Music catalog unavailable.')
-      }
+        const playable=rows.filter(row=>Boolean(streamUrl(row))).length
+        setStatus(rows.length?`${rows.length} public catalog track(s) loaded · ${playable} stream-ready.`:'No public music has been published to the track catalog yet.')
+      }catch(error){if(!cancelled)setStatus(error instanceof Error?error.message:'Music catalog unavailable.')}
     }
     load();return()=>{cancelled=true;audioRef.current?.pause()}
   },[])
 
-  const filtered=useMemo(()=>{
-    const q=query.trim().toLowerCase();if(!q)return tracks
-    return tracks.filter(t=>`${trackTitle(t)} ${artistName(t)} ${t.genre||''}`.toLowerCase().includes(q))
-  },[tracks,query])
+  const filtered=useMemo(()=>{const q=query.trim().toLowerCase();if(!q)return tracks;return tracks.filter(t=>`${trackTitle(t)} ${artistName(t)} ${t.genre||''}`.toLowerCase().includes(q))},[tracks,query])
 
   function play(track:TrackRecord){
     const url=streamUrl(track)
-    if(!url){setStatus('This catalog item has no authorized streaming URL yet. Upload/license the audio before playback is enabled.');return}
+    if(!url){setStatus('This public catalog item has no authorized streaming file yet.');return}
     setSelected(track)
     window.setTimeout(()=>audioRef.current?.play().catch(()=>setStatus('Browser blocked autoplay. Tap Play in the player.')),0)
   }
@@ -56,16 +48,10 @@ export default function HoloMusicStreaming({ onClose }: Props){
       <button onClick={onClose} style={button}>CLOSE</button>
     </header>
     <main style={{maxWidth:1100,margin:'0 auto',padding:18,display:'grid',gap:14}}>
-      <section style={panel}>
-        <strong style={{color:'#8ff5ff'}}>RIGHTS-AWARE STREAMING</strong>
-        <p style={{opacity:.72,lineHeight:1.5}}>Holo Music only plays media that has a real catalog URL. Owned, licensed, public-domain or otherwise authorized music can be distributed; missing media stays unavailable instead of being simulated.</p>
-        <div style={{fontSize:12,color:'#e8b944'}}>{status}</div>
-      </section>
+      <section style={panel}><strong style={{color:'#8ff5ff'}}>RIGHTS-AWARE STREAMING</strong><p style={{opacity:.72,lineHeight:1.5}}>Only public catalog items are loaded. Playback requires a real media file URL; private studio sessions stay out of this surface.</p><div style={{fontSize:12,color:'#e8b944'}}>{status}</div></section>
       {selected&&<section style={{...panel,borderColor:'#4fe3ff88'}}><div style={{fontSize:11,color:'#4fe3ff'}}>NOW PLAYING</div><h2 style={{margin:'5px 0'}}>{trackTitle(selected)}</h2><div style={{opacity:.65,marginBottom:10}}>{artistName(selected)}{selected.genre?` · ${selected.genre}`:''}</div><audio ref={audioRef} controls preload="metadata" src={streamUrl(selected)} style={{width:'100%'}}/></section>}
       <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search Holo Music…" style={{padding:13,borderRadius:12,border:'1px solid #315168',background:'#07101b',color:'#fff'}}/>
-      <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:10}}>
-        {filtered.map(track=>{const playable=Boolean(streamUrl(track));return <article key={track.id||`${trackTitle(track)}-${artistName(track)}`} style={panel}><div style={{fontSize:10,color:playable?'#78ffb4':'#e8b944'}}>{playable?'STREAM READY':'MEDIA REQUIRED'}</div><h3 style={{margin:'6px 0'}}>{trackTitle(track)}</h3><div style={{fontSize:12,opacity:.65}}>{artistName(track)}{track.genre?` · ${track.genre}`:''}</div><button disabled={!playable} onClick={()=>play(track)} style={{...button,marginTop:12,opacity:playable?1:.45}}>{playable?'▶ PLAY':'LOCKED'}</button></article>})}
-      </section>
+      <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:10}}>{filtered.map(track=>{const playable=Boolean(streamUrl(track));return <article key={track.id||`${trackTitle(track)}-${artistName(track)}`} style={panel}><div style={{fontSize:10,color:playable?'#78ffb4':'#e8b944'}}>{playable?'STREAM READY':'MEDIA REQUIRED'}</div><h3 style={{margin:'6px 0'}}>{trackTitle(track)}</h3><div style={{fontSize:12,opacity:.65}}>{artistName(track)}{track.genre?` · ${track.genre}`:''}</div><button disabled={!playable} onClick={()=>play(track)} style={{...button,marginTop:12,opacity:playable?1:.45}}>{playable?'▶ PLAY':'LOCKED'}</button></article>})}</section>
     </main>
   </div>
 }
