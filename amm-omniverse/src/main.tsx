@@ -28,11 +28,13 @@ import { installProductionHealthMonitor } from './runtime/ProductionHealthMonito
 import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
 import { installStreetVerseLivingWorldRuntime } from './runtime/StreetVerseLivingWorldRuntime'
 import { installCreatorExperienceRuntime } from './runtime/CreatorExperienceRuntime'
+import { installCreatorCommerceOrchestrator } from './runtime/CreatorCommerceOrchestrator'
 
 installProductionHealthMonitor()
 installMediaCloudBridge()
 installStreetVerseLivingWorldRuntime()
 installCreatorExperienceRuntime()
+installCreatorCommerceOrchestrator()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
