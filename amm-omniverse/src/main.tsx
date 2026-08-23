@@ -25,9 +25,11 @@ import HoloMusicLauncher from './components/HoloMusicLauncher'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
+import { installStreetVerseLivingWorldRuntime } from './runtime/StreetVerseLivingWorldRuntime'
 
 installProductionHealthMonitor()
 installMediaCloudBridge()
+installStreetVerseLivingWorldRuntime()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
