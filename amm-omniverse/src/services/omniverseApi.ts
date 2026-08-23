@@ -30,10 +30,43 @@ export interface AppStoreAsset {
   metadata: Record<string, unknown>
 }
 
-export async function getStoreCatalog(): Promise<AppStoreAsset[]> {
-  if (!API_URL) return []
-  const body = await request<{ assets: AppStoreAsset[] }>('/api/omniverse/store/catalog')
-  return body.assets || []
+export interface DurablePlayerState {
+  id: string
+  user_id: string
+  cash?: number
+  tokens?: number
+  xp?: number
+  level?: number
+  missions?: unknown[]
+  avatar?: string
+  avatar_id?: string | null
+  current_world_id: string
+  current_verse: string
+  reputation: number
+  inventory: unknown[]
+  unlocked_worlds: unknown[]
+  checkpoint: Record<string, unknown>
+  accessibility_profile: Record<string, unknown>
+  revision: number
+  updated_at?: string
+}
+
+export interface StreetVerseMissionRun {
+  id: string
+  user_id: string
+  character_id: string
+  mission_id: string
+  beat_id: string
+  status: 'active' | 'paused' | 'completed' | 'failed'
+  choice: Record<string, unknown>
+  runtime_state: Record<string, unknown>
+  created_at: string
+  updated_at: string
+}
+
+export function getStoreCatalog(): Promise<AppStoreAsset[]> {
+  if (!API_URL) return Promise.resolve([])
+  return request<{ assets: AppStoreAsset[] }>('/api/omniverse/store/catalog').then(body => body.assets || [])
 }
 
 export async function acquireStoreAsset(assetKey: string) {
@@ -45,5 +78,69 @@ export async function askStubbsAI(question: string, context: Record<string, unkn
   return request<{ answer: string; provider: string; model?: string }>('/api/ai/answer', {
     method: 'POST',
     body: JSON.stringify({ question, mode: 'hybrid', context }),
+  })
+}
+
+export async function getDurableStatus() {
+  return request<{ ok: boolean; configured: boolean; identityReady: boolean; supabaseUserId: string }>('/api/durable/status')
+}
+
+export async function getPlayerState() {
+  const body = await request<{ state: DurablePlayerState }>('/api/player/state')
+  return body.state
+}
+
+export async function patchPlayerState(patch: Partial<Pick<DurablePlayerState, 'avatar' | 'avatar_id' | 'current_world_id' | 'current_verse' | 'checkpoint' | 'accessibility_profile'>>) {
+  const body = await request<{ state: DurablePlayerState }>('/api/player/state', {
+    method: 'PATCH',
+    body: JSON.stringify(patch),
+  })
+  return body.state
+}
+
+export async function listStreetVerseMissions() {
+  const body = await request<{ missions: StreetVerseMissionRun[] }>('/api/streetverse/missions')
+  return body.missions || []
+}
+
+export async function createStreetVerseMission(input: {
+  mission_id: string
+  character_id?: string
+  beat_id?: string
+  choice?: Record<string, unknown>
+  runtime_state?: Record<string, unknown>
+}) {
+  const body = await request<{ mission: StreetVerseMissionRun }>('/api/streetverse/missions', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+  return body.mission
+}
+
+export async function updateStreetVerseMission(id: string, patch: {
+  beat_id?: string
+  status?: StreetVerseMissionRun['status']
+  choice?: Record<string, unknown>
+  runtime_state?: Record<string, unknown>
+}) {
+  const body = await request<{ mission: StreetVerseMissionRun }>(`/api/streetverse/missions/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(patch),
+  })
+  return body.mission
+}
+
+export async function createMediaCatalogItem(input: {
+  title: string
+  media_type: 'video' | 'image' | 'gif' | 'audio' | 'reel' | 'movie' | 'episode' | 'live-replay'
+  caption?: string
+  destinations?: string[]
+  source?: string
+  visibility?: 'private' | 'unlisted' | 'public'
+  client_draft_id?: string
+}) {
+  return request<{ media: Record<string, unknown>; uploadRequired: boolean }>('/api/media/catalog', {
+    method: 'POST',
+    body: JSON.stringify(input),
   })
 }

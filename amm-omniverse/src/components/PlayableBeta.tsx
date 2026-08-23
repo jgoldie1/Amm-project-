@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useGameStore } from '../game/state/useGameStore'
+import { createStreetVerseMission, isBackendConfigured, listStreetVerseMissions, patchPlayerState, updateStreetVerseMission } from '../services/omniverseApi'
 
 type Vec={x:number;y:number}
 type Shop={id:string;name:string;pos:Vec;color:string}
+type CloudState='checking'|'cloud'|'local'|'syncing'|'error'
 
 const W=1000,H=640
 const SHOPS:Shop[]=[
@@ -15,24 +17,49 @@ const SAVE_KEY='tryamm.playable-beta.v1'
 
 function clamp(v:number,min:number,max:number){return Math.max(min,Math.min(max,v))}
 function dist(a:Vec,b:Vec){return Math.hypot(a.x-b.x,a.y-b.y)}
+function localSave(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')}catch{return {}}}
 
 export default function PlayableBeta({onClose}:{onClose:()=>void}){
   const completeMission=useGameStore(s=>s.completeMission)
   const startMission=useGameStore(s=>s.startMission)
   const mission=useGameStore(s=>s.missions.find(m=>m.id==='m1'))
   const player=useGameStore(s=>s.player)
-  const [pos,setPos]=useState<Vec>(()=>{
-    try{const raw=localStorage.getItem(SAVE_KEY);return raw?JSON.parse(raw).pos||START:START}catch{return START}
-  })
-  const [visited,setVisited]=useState<string[]>(()=>{
-    try{const raw=localStorage.getItem(SAVE_KEY);return raw?JSON.parse(raw).visited||[]:[]}catch{return []}
-  })
+  const initial=localSave()
+  const [pos,setPos]=useState<Vec>(initial.pos||START)
+  const [visited,setVisited]=useState<string[]>(initial.visited||[])
   const [started,setStarted]=useState(()=>mission?.status==='active')
   const [message,setMessage]=useState('Reach all 3 record shops. Use WASD / arrows or the touch controls.')
+  const [cloudState,setCloudState]=useState<CloudState>(isBackendConfigured()?'checking':'local')
+  const [missionRunId,setMissionRunId]=useState<string|null>(null)
   const keys=useRef(new Set<string>())
 
   const completed=visited.length===SHOPS.length
   const progress=Math.round((visited.length/SHOPS.length)*100)
+
+  useEffect(()=>{
+    if(!isBackendConfigured()){setCloudState('local');return}
+    let cancelled=false
+    ;(async()=>{
+      try{
+        const runs=await listStreetVerseMissions()
+        if(cancelled)return
+        const run=runs.find(item=>item.mission_id==='m1')
+        if(run){
+          setMissionRunId(run.id)
+          const state=run.runtime_state||{}
+          const cloudPos=(state as any).pos
+          const cloudVisited=(state as any).visited
+          if(cloudPos&&typeof cloudPos.x==='number'&&typeof cloudPos.y==='number')setPos(cloudPos)
+          if(Array.isArray(cloudVisited))setVisited(cloudVisited.filter((x:any)=>typeof x==='string'))
+          if(run.status==='active')setStarted(true)
+        }
+        setCloudState('cloud')
+      }catch{
+        if(!cancelled)setCloudState('local')
+      }
+    })()
+    return()=>{cancelled=true}
+  },[])
 
   useEffect(()=>{
     const down=(e:KeyboardEvent)=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','W','A','S','D'].includes(e.key)){e.preventDefault();keys.current.add(e.key.toLowerCase())}}
@@ -66,7 +93,19 @@ export default function PlayableBeta({onClose}:{onClose:()=>void}){
 
   useEffect(()=>{
     localStorage.setItem(SAVE_KEY,JSON.stringify({pos,visited,updatedAt:new Date().toISOString()}))
-  },[pos,visited])
+    if(cloudState!=='cloud'||!missionRunId)return
+    const timer=window.setTimeout(async()=>{
+      try{
+        setCloudState('syncing')
+        await Promise.all([
+          updateStreetVerseMission(missionRunId,{runtime_state:{pos,visited,progress},beat_id:completed?'complete':`delivery-${visited.length}`,status:completed?'completed':'active'}),
+          patchPlayerState({current_world_id:'streetverse',current_verse:'middleverse',checkpoint:{world:'streetverse',mission_id:'m1',pos,visited,progress,updated_at:new Date().toISOString()}})
+        ])
+        setCloudState('cloud')
+      }catch{setCloudState('error')}
+    },900)
+    return()=>window.clearTimeout(timer)
+  },[pos,visited,progress,completed,cloudState,missionRunId])
 
   useEffect(()=>{
     if(completed&&mission?.status!=='complete'){
@@ -76,9 +115,21 @@ export default function PlayableBeta({onClose}:{onClose:()=>void}){
 
   const nearest=useMemo(()=>SHOPS.filter(s=>!visited.includes(s.id)).sort((a,b)=>dist(pos,a.pos)-dist(pos,b.pos))[0],[pos,visited])
 
-  const begin=()=>{setStarted(true);if(mission?.status==='available')startMission('m1');setMessage('First Drop started. Deliver the album to all 3 shops.')}
+  const begin=async()=>{
+    setStarted(true)
+    if(mission?.status==='available')startMission('m1')
+    setMessage('First Drop started. Deliver the album to all 3 shops.')
+    if(cloudState==='cloud'&&!missionRunId){
+      try{
+        setCloudState('syncing')
+        const run=await createStreetVerseMission({mission_id:'m1',character_id:'player',beat_id:'start',runtime_state:{pos,visited,progress:0}})
+        setMissionRunId(run.id);setCloudState('cloud')
+      }catch{setCloudState('local')}
+    }
+  }
   const reset=()=>{setPos(START);setVisited([]);setStarted(false);localStorage.removeItem(SAVE_KEY);setMessage('Beta reset. Start the mission when ready.')}
   const nudge=(dx:number,dy:number)=>setPos(p=>({x:clamp(p.x+dx,28,W-28),y:clamp(p.y+dy,28,H-28)}))
+  const saveLabel=cloudState==='cloud'?'CLOUD SAVE ✓':cloudState==='syncing'?'SYNCING…':cloudState==='checking'?'CHECKING CLOUD…':cloudState==='error'?'CLOUD RETRY NEEDED':'LOCAL SAVE ✓'
 
   return <div role="dialog" aria-label="TRYAMM Playable Beta" style={{position:'fixed',inset:0,zIndex:14000,background:'#02050b',color:'#fff',fontFamily:'Inter,system-ui,sans-serif',overflow:'auto'}}>
     <div style={{maxWidth:1180,margin:'0 auto',padding:'14px 14px 90px'}}>
@@ -95,7 +146,7 @@ export default function PlayableBeta({onClose}:{onClose:()=>void}){
           {SHOPS.map(shop=><div key={shop.id} style={{position:'absolute',left:`${shop.pos.x/W*100}%`,top:`${shop.pos.y/H*100}%`,transform:'translate(-50%,-50%)',width:86,height:70,border:`2px solid ${visited.includes(shop.id)?'#5cff9c':shop.color}`,borderRadius:14,background:'#08121bcc',display:'grid',placeItems:'center',textAlign:'center',fontSize:10,fontWeight:900,boxShadow:`0 0 30px ${shop.color}22`}}><div><div style={{fontSize:20}}>{visited.includes(shop.id)?'✓':'♫'}</div>{shop.name}</div></div>)}
           <div aria-label="player" style={{position:'absolute',left:`${pos.x/W*100}%`,top:`${pos.y/H*100}%`,transform:'translate(-50%,-50%)',width:34,height:34,borderRadius:'50%',background:'radial-gradient(circle,#fff,#4FE3FF 45%,#1460aa)',border:'2px solid #fff',boxShadow:'0 0 28px #4FE3FF',transition:'left 40ms linear,top 40ms linear'}}/>
           {nearest&&<div style={{position:'absolute',left:12,top:12,padding:'8px 10px',borderRadius:12,background:'#040910cc',border:'1px solid #32475b',fontSize:10}}>NEXT: {nearest.name} • {Math.round(dist(pos,nearest.pos))}m</div>}
-          <div style={{position:'absolute',right:12,top:12,padding:'8px 10px',borderRadius:12,background:'#040910cc',border:'1px solid #32475b',fontSize:10}}>BETA SAVE: LOCAL ✓</div>
+          <div style={{position:'absolute',right:12,top:12,padding:'8px 10px',borderRadius:12,background:'#040910cc',border:'1px solid #32475b',fontSize:10}}>{saveLabel}</div>
         </section>
 
         <aside style={{display:'grid',gap:10,alignContent:'start'}}>
@@ -114,7 +165,7 @@ export default function PlayableBeta({onClose}:{onClose:()=>void}){
         </div>
       </div>
 
-      <div style={{marginTop:16,padding:13,border:'1px solid #253345',borderRadius:14,color:'#8da2b8',fontSize:10,lineHeight:1.55}}>PLAYABLE BETA scope: real browser controls, mission progression, rewards and local save are active. Authoritative online multiplayer, production cloud saves, native Godot/Unity clients, real-money rewards, production voice chat and app-store builds remain separate gated work.</div>
+      <div style={{marginTop:16,padding:13,border:'1px solid #253345',borderRadius:14,color:'#8da2b8',fontSize:10,lineHeight:1.55}}>PLAYABLE BETA scope: browser controls and mission progression are active. Signed-in players use durable TRYAMM cloud checkpoints when the production API is configured; unsigned or offline players fall back to local save. Authoritative multiplayer and real-money game rewards remain separately gated.</div>
     </div>
     <style>{`@media(max-width:820px){.pb-layout{grid-template-columns:1fr!important}}`}</style>
   </div>

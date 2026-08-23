@@ -8,10 +8,13 @@ import GameVerseLauncher from './components/GameVerseLauncher'
 import AccessibilityPassportPanel from './components/AccessibilityPassportPanel'
 import HoloDeliveryLauncher from './components/HoloDeliveryLauncher'
 import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
+import MediaStudioLauncher from './components/MediaStudioLauncher'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
+import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
 
 installProductionHealthMonitor()
+installMediaCloudBridge()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -20,6 +23,7 @@ createRoot(document.getElementById('root')!).render(
     <UniversalSafetyLauncher />
     <MiddleverseLauncher />
     <GameVerseLauncher />
+    <MediaStudioLauncher />
     <AccessibilityPassportPanel />
     <HoloDeliveryLauncher />
     <HoloMarketplaceLauncher />
