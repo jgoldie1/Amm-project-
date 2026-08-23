@@ -21,6 +21,7 @@ import HoloFridge from './components/HoloFridge'
 import LivingWorldEconomyHUD from './components/LivingWorldEconomyHUD'
 import BuildSwarmControl from './components/BuildSwarmControl'
 import ProductTryOnHub from './components/ProductTryOnHub'
+import HoloMusicLauncher from './components/HoloMusicLauncher'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
@@ -50,6 +51,7 @@ createRoot(document.getElementById('root')!).render(
     <LivingWorldEconomyHUD />
     <BuildSwarmControl />
     <ProductTryOnHub />
+    <HoloMusicLauncher />
     <HoloConcierge />
   </StrictMode>
 )
