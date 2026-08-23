@@ -6,10 +6,12 @@ const PlayableBeta=lazy(()=>import('./PlayableBeta'))
 
 type GameVerseDetail={world?:string}
 
+const PLAYABLE_PATHS=new Set(['/play','/game','/streetverse','/streetverse/play'])
+
 function shouldOpenPlayableBeta(){
   if(typeof window==='undefined')return false
   const url=new URL(window.location.href)
-  return url.pathname==='/play'||url.pathname==='/game'||url.searchParams.get('play')==='beta'||url.searchParams.get('game')==='streetverse'
+  return PLAYABLE_PATHS.has(url.pathname)||url.searchParams.get('play')==='beta'||url.searchParams.get('game')==='streetverse'
 }
 
 export default function GameVerseLauncher(){
@@ -23,6 +25,10 @@ export default function GameVerseLauncher(){
     const launchBeta=()=>{setOpen(false);setPlayBeta(true)}
     ;(window as any).__showGameVerse=(worldSlug?:string)=>show({world:worldSlug})
     ;(window as any).__showPlayableBeta=launchBeta
+    ;(window as any).__launchStreetVerse=()=>{
+      window.history.pushState({},'',window.location.origin+'/streetverse')
+      launchBeta()
+    }
     const handler=(event:Event)=>show((event as CustomEvent<GameVerseDetail>).detail)
     const betaHandler=()=>launchBeta()
     const popHandler=()=>{if(shouldOpenPlayableBeta())launchBeta()}
@@ -35,18 +41,24 @@ export default function GameVerseLauncher(){
       window.removeEventListener('popstate',popHandler)
       delete (window as any).__showGameVerse
       delete (window as any).__showPlayableBeta
+      delete (window as any).__launchStreetVerse
     }
   },[])
 
   const closeBeta=()=>{
     setPlayBeta(false)
-    if(window.location.pathname==='/play'||window.location.pathname==='/game'){
+    if(PLAYABLE_PATHS.has(window.location.pathname)){
       window.history.replaceState({},'',window.location.origin+'/')
     }
   }
 
+  const launchFromButton=()=>{
+    window.history.pushState({},'',window.location.origin+'/streetverse')
+    setPlayBeta(true)
+  }
+
   if(playBeta)return <Suspense fallback={<div style={{position:'fixed',inset:0,zIndex:14000,background:'#04050e'}}/>}><PlayableBeta onClose={closeBeta}/></Suspense>
-  if(!open)return <button type="button" aria-label="Open StreetVerse playable beta" onClick={()=>setPlayBeta(true)} style={{position:'fixed',right:12,bottom:122,zIndex:8995,border:'1px solid #4fe3ff88',borderRadius:999,padding:'10px 14px',background:'linear-gradient(135deg,#071b27,#171129)',color:'#4FE3FF',fontSize:10,fontWeight:950,letterSpacing:1,cursor:'pointer',boxShadow:'0 8px 28px #0009'}}>🎮 PLAY STREETVERSE</button>
+  if(!open)return <button type="button" aria-label="Open StreetVerse playable beta" onClick={launchFromButton} style={{position:'fixed',right:12,bottom:122,zIndex:8995,border:'1px solid #4fe3ff88',borderRadius:999,padding:'10px 14px',background:'linear-gradient(135deg,#071b27,#171129)',color:'#4FE3FF',fontSize:10,fontWeight:950,letterSpacing:1,cursor:'pointer',boxShadow:'0 8px 28px #0009'}}>🎮 PLAY STREETVERSE</button>
   return <Suspense fallback={<div style={{position:'fixed',inset:0,zIndex:12000,background:'#04050e'}}/>}>
     <GameVerseHub
       initialWorld={world}
