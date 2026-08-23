@@ -6,6 +6,24 @@ type Health={ok:boolean;provider?:string;model?:string;error?:string}
 const KEY='tryamm_hologpt_history_v1'
 
 function loadHistory():Msg[]{try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v.slice(-20):[]}catch{return []}}
+function invoke(name:string){const fn=(window as any)[name];if(typeof fn==='function'){fn();return true}return false}
+function localIntent(question:string){
+  const q=question.toLowerCase()
+  const intents:[RegExp,string,string][]=[
+    [/healthy|grocery|food basket|yahavah/, '__showYahavahGrocery','Opening YAHAVAH Grocery and the healthy-value basket engine.'],
+    [/wig|bundle|extension|beauty supply|makeup|nail/, '__showAllAmericanBeauty','Opening All American Beauty Supply.'],
+    [/start.*(beauty|wig|nail|store)|supply plug/, '__showSupplyPlug','Opening Supply Plug Global entrepreneur launch.'],
+    [/streetverse|play.*game/, '__showPlayableBeta','Opening StreetVerse: First Drop.'],
+    [/reel|movie|clip|video|green screen/, '__showMediaStudio','Opening TRYAMM Media Studio for capture, effects, render and save/publish.'],
+    [/ride|car service/, '__showHoloRide','Opening Holo Ride.'],
+    [/delivery|courier/, '__showHoloDelivery','Opening Holo Delivery.'],
+    [/concierge|what can i do|help me choose/, '__showHoloConcierge','Opening Holo Concierge.'],
+    [/holo menu|command nexus|menu/, '__showCommandNexusV2','Opening Holo Menu / Command Nexus.'],
+    [/holoverse/, '__showHoloverse','Opening Holoverse.'],
+  ]
+  for(const [pattern,opener,message] of intents){if(pattern.test(q)&&invoke(opener))return message}
+  return ''
+}
 
 export default function HoloGPTAssistant(){
   const [open,setOpen]=useState(false)
@@ -27,7 +45,10 @@ export default function HoloGPTAssistant(){
 
   async function send(){
     const question=input.trim();if(!question||busy)return
-    setInput('');setMessages(m=>[...m,{role:'user',content:question}]);setBusy(true)
+    setInput('');setMessages(m=>[...m,{role:'user',content:question}])
+    const action=localIntent(question)
+    if(action){setMessages(m=>[...m,{role:'assistant',content:`${action}\n\nGuardian rule: navigation can happen immediately, but spending money, physical delivery, rides, drones and other consequential actions still require the appropriate identity, permission and confirmation gates.`,provider:'holo-concierge'}]);return}
+    setBusy(true)
     try{
       const token=await getAccessToken()
       const r=await fetch('/api/ai/answer',{method:'POST',headers:{'content-type':'application/json',...(token?{authorization:`Bearer ${token}`}:{})},body:JSON.stringify({question,history})})
@@ -47,7 +68,7 @@ export default function HoloGPTAssistant(){
       <div onClick={e=>e.stopPropagation()} style={{width:'min(96vw,460px)',height:'min(82vh,690px)',background:'linear-gradient(160deg,#06101a,#080615)',border:'1px solid #4fe3ff77',borderRadius:22,display:'flex',flexDirection:'column',overflow:'hidden',boxShadow:'0 28px 90px #000d'}}>
         <header style={{padding:'14px 16px',borderBottom:'1px solid #4fe3ff22',display:'flex',alignItems:'center',gap:10}}><div style={{fontSize:27}}>◈</div><div style={{flex:1}}><div style={{color:'#fff',fontWeight:950}}>HoloGPT</div><div style={{fontSize:9,color:health?.ok?'#78ffb4':'#e8b944',fontFamily:'monospace'}}>{health?.ok?`INTELLIGENCE ONLINE · ${health.provider||'provider'}`:`DIAGNOSTIC MODE · ${health?.error||health?.provider||'provider not configured'}`}</div></div><button aria-label="Close HoloGPT" onClick={()=>setOpen(false)} style={{background:'transparent',border:'1px solid #334',color:'#fff',borderRadius:'50%',width:34,height:34,cursor:'pointer'}}>×</button></header>
         <div style={{flex:1,overflowY:'auto',padding:14}}>
-          {messages.length===0&&<div style={{padding:16,border:'1px solid #4fe3ff22',borderRadius:14,color:'#b8cfda',lineHeight:1.6,fontSize:12}}>I’m the intelligent TRYAMM/Holoverse assistant. Ask about a broken feature, a route, a world, deployment, business tools, games, accessibility, or what should be built next. I will distinguish verified-live systems from beta or planned work.</div>}
+          {messages.length===0&&<div style={{padding:16,border:'1px solid #4fe3ff22',borderRadius:14,color:'#b8cfda',lineHeight:1.6,fontSize:12}}>I’m the intelligent TRYAMM/Holoverse assistant. I can now route local intents into StreetVerse, Media Studio, Holo Concierge, YAHAVAH Grocery, All American Beauty Supply, Supply Plug Global, Holo Ride, Holo Delivery and the Holo Menu. Full generative answers still depend on a live model provider.</div>}
           {messages.map((m,i)=><div key={i} style={{display:'flex',justifyContent:m.role==='user'?'flex-end':'flex-start',margin:'10px 0'}}><div style={{maxWidth:'88%',whiteSpace:'pre-wrap',lineHeight:1.55,fontSize:12,padding:'10px 12px',borderRadius:14,background:m.role==='user'?'#e8b94418':'#4fe3ff12',border:`1px solid ${m.role==='user'?'#e8b94444':'#4fe3ff33'}`,color:m.role==='user'?'#ffe7a0':'#e8faff'}}>{m.content}{m.provider&&<div style={{marginTop:7,fontSize:8,color:'#6f8d9e',fontFamily:'monospace'}}>{m.provider}</div>}</div></div>)}
           {busy&&<div style={{color:'#4fe3ff',fontFamily:'monospace',fontSize:11}}>HOLOGPT IS THINKING…</div>}<div ref={end}/>
         </div>
