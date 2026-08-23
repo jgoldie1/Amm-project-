@@ -22,6 +22,7 @@ import HoloCoreCenter from './components/HoloCoreCenter'
 import FamilyLegacyHub from './components/FamilyLegacyHub'
 import QuantumEngineCenter from './components/QuantumEngineCenter'
 import SecurityCenter from './components/SecurityCenter'
+import OmniWearCenter from './components/OmniWearCenter'
 import './styles.css'
 
 const ProAudioSuite = lazy(() => import('./components/ProAudioSuite'))
@@ -57,6 +58,7 @@ export default function App() {
   const [showQuantumBeat, setShowQuantumBeat] = useState(false)
   const [showOTT, setShowOTT] = useState(false)
   const [showSecurity, setShowSecurity] = useState(false)
+  const [showOmniWear, setShowOmniWear] = useState(false)
   const [showNexus, setShowNexus] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
@@ -82,6 +84,7 @@ export default function App() {
   ;(window as any).__showQuantumBeat = () => setShowQuantumBeat(true)
   ;(window as any).__showIsaiahTV = () => setShowOTT(true)
   ;(window as any).__showSecurityCenter = () => setShowSecurity(true)
+  ;(window as any).__showOmniWear = () => setShowOmniWear(true)
   ;(window as any).__showCommandNexus = () => setShowNexus(true)
 
   const signedIn = screen !== 'intro' && screen !== 'login'
@@ -90,6 +93,7 @@ export default function App() {
     ['◉','OMNIVERSE',()=>setShowOmniverse(true),'BETA'],
     ['◎','HOLO CORE',()=>setShowHoloCore(true),'BETA'],
     ['✦','HOLO SERVICES',()=>setShowHoloServices(true),'BETA'],
+    ['⌚','OMNIWEAR',()=>setShowOmniWear(true),'BETA'],
     ['☕','AI CAFÉ',()=>setShowCafe(true),'BETA'],
     ['🎓','SCHOOL NETWORK',()=>setShowSchoolNetwork(true),'BETA'],
     ['◈','IMMERSIVE WORLD',()=>setShowImmersive(true),'BETA'],
@@ -142,6 +146,7 @@ export default function App() {
         {showOmniverse && <OmniverseCommandCenter onClose={() => setShowOmniverse(false)} />}
         {showHoloCore && <HoloCoreCenter onClose={() => setShowHoloCore(false)} />}
         {showHoloServices && <HoloServicesHub onClose={() => setShowHoloServices(false)} />}
+        {showOmniWear && <OmniWearCenter onClose={() => setShowOmniWear(false)} />}
         {showCafe && <AICafeRestaurant onClose={() => setShowCafe(false)} />}
         {showSchoolNetwork && <SchoolNetworkPortal onClose={() => setShowSchoolNetwork(false)} />}
         {showAdvanced && <AdvancedWorldSystems onClose={() => setShowAdvanced(false)} />}
