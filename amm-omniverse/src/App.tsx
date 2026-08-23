@@ -16,6 +16,7 @@ import AdvancedWorldSystems from './components/AdvancedWorldSystems'
 import KingdomsPressOperations from './components/KingdomsPressOperations'
 import ImmersiveWorldViewport from './components/ImmersiveWorldViewport'
 import AICafeRestaurant from './components/AICafeRestaurant'
+import SchoolNetworkPortal from './components/SchoolNetworkPortal'
 import HoloServicesHub from './components/HoloServicesHub'
 import HoloCoreCenter from './components/HoloCoreCenter'
 import FamilyLegacyHub from './components/FamilyLegacyHub'
@@ -43,6 +44,7 @@ export default function App() {
   const [showPress, setShowPress] = useState(false)
   const [showImmersive, setShowImmersive] = useState(false)
   const [showCafe, setShowCafe] = useState(false)
+  const [showSchoolNetwork, setShowSchoolNetwork] = useState(false)
   const [showHoloServices, setShowHoloServices] = useState(false)
   const [showHoloCore, setShowHoloCore] = useState(false)
   const [showFamilyLegacy, setShowFamilyLegacy] = useState(false)
@@ -67,6 +69,7 @@ export default function App() {
   ;(window as any).__showKingdomsPress = () => setShowPress(true)
   ;(window as any).__showImmersiveWorlds = () => setShowImmersive(true)
   ;(window as any).__showAICafe = () => setShowCafe(true)
+  ;(window as any).__showSchoolNetwork = () => setShowSchoolNetwork(true)
   ;(window as any).__showHoloServices = () => setShowHoloServices(true)
   ;(window as any).__showHoloCore = () => setShowHoloCore(true)
   ;(window as any).__showFamilyLegacy = () => setShowFamilyLegacy(true)
@@ -88,6 +91,7 @@ export default function App() {
     ['◎','HOLO CORE',()=>setShowHoloCore(true),'BETA'],
     ['✦','HOLO SERVICES',()=>setShowHoloServices(true),'BETA'],
     ['☕','AI CAFÉ',()=>setShowCafe(true),'BETA'],
+    ['🎓','SCHOOL NETWORK',()=>setShowSchoolNetwork(true),'BETA'],
     ['◈','IMMERSIVE WORLD',()=>setShowImmersive(true),'BETA'],
     ['SPACE','TIME • LIFE',()=>setShowAdvanced(true),'BETA'],
     ['📚','KINGDOMS PRESS',()=>setShowPress(true),'BETA'],
@@ -139,6 +143,7 @@ export default function App() {
         {showHoloCore && <HoloCoreCenter onClose={() => setShowHoloCore(false)} />}
         {showHoloServices && <HoloServicesHub onClose={() => setShowHoloServices(false)} />}
         {showCafe && <AICafeRestaurant onClose={() => setShowCafe(false)} />}
+        {showSchoolNetwork && <SchoolNetworkPortal onClose={() => setShowSchoolNetwork(false)} />}
         {showAdvanced && <AdvancedWorldSystems onClose={() => setShowAdvanced(false)} />}
         {showPress && <KingdomsPressOperations onClose={() => setShowPress(false)} />}
         {showImmersive && <ImmersiveWorldViewport onClose={() => setShowImmersive(false)} />}
