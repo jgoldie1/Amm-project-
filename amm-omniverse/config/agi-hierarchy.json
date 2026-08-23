@@ -1,14 +1,14 @@
 {
-  "version": "2026-08-22-v1",
-  "name": "TRYAMM Intelligence Hierarchy",
-  "truthRule": "No component may claim consciousness, self-awareness, physical senses, autonomy, deployment, or successful external action without evidence. Software self-modeling and multimodal input are represented explicitly as simulations/adapters.",
+  "version": "2026-08-22-v2",
+  "name": "TRYAMM Intelligence + Reality Hierarchy",
+  "truthRule": "No component may claim consciousness, self-awareness, physical senses, autonomy, deployment, quantum computation, multiverse travel, or successful external action without evidence. Software self-modeling, simulation, multimodal input, and quantum-inspired computation are labeled explicitly.",
   "layers": [
     {
       "order": 1,
       "id": "hologpt",
       "name": "HoloGPT",
       "role": "primary conversational orchestrator and user-facing intelligence",
-      "dependsOn": ["model-router", "stubbs-ai", "lyons-tech-ai", "middleverse-ai", "memory", "guardian"]
+      "dependsOn": ["model-router", "stubbs-ai", "lyons-tech-ai", "middleverse-ai", "memory", "guardian", "omniverse", "quantumverse"]
     },
     {
       "order": 2,
@@ -44,9 +44,26 @@
     "providers": ["openai", "gemini", "claude", "deepseek", "amm-backend"],
     "rule": "Providers are replaceable engines. HoloGPT remains the TRYAMM orchestration identity."
   },
-  "worldHierarchy": {
-    "holoverse": "application/world experience layer",
-    "middleverse": "service/operations layer between real-world connectors and immersive worlds",
+  "realityHierarchy": {
+    "holoverse": {
+      "role": "immersive application and holographic interaction layer",
+      "contains": ["world UI", "avatars", "creator tools", "marketplace experiences", "live experiences"]
+    },
+    "middleverse": {
+      "role": "service and operations bridge between real-world systems and immersive worlds",
+      "contains": ["communications", "call center", "workflows", "service agents", "authorized connectors"]
+    },
+    "omniverse": {
+      "role": "top-level world registry and continuity layer joining every approved TRYAMM world into one canonical universe graph",
+      "contains": ["Holoverse", "Middleverse", "StreetVerse", "My World", "Kingdom", "StarVerse", "SpaceVerse", "future worlds"],
+      "rules": ["one user identity", "one avatar identity", "one route map", "one world-memory contract", "one checkpoint contract", "no duplicate disconnected world state"]
+    },
+    "quantumverse": {
+      "role": "simulation and experimentation layer for quantum-inspired worlds, probabilistic scenarios, sandbox branches and future verified quantum-compute adapters",
+      "contains": ["quantum sandbox", "scenario branching", "probability experiments", "simulation forks", "future external quantum provider adapters"],
+      "literalQuantumHardwareClaim": false,
+      "rule": "Use simulation/quantum-inspired computation unless a real external quantum provider is configured and independently verified."
+    },
     "worldMemory": "shared authenticated world/session state",
     "routeMap": "single canonical navigation contract"
   },
@@ -58,6 +75,7 @@
       "track allowed tools and permissions",
       "track uncertainty and evidence",
       "track project/release state",
+      "track active world/verse and checkpoint",
       "detect contradictions and regressions",
       "report limitations instead of pretending"
     ]
