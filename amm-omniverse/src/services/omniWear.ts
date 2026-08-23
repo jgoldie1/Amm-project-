@@ -1,0 +1,16 @@
+import { getAuthenticatedUserId, getSupabaseClient } from './supabaseClient'
+
+function sb(){const client=getSupabaseClient();if(!client)throw new Error('Supabase not configured');return client}
+async function uid(){const id=await getAuthenticatedUserId();if(!id)throw new Error('Authentication required');return id}
+
+export type OmniWearDeviceType='watch'|'band'|'ring'|'glasses'|'clothing'|'glove'|'vest'|'suit'|'mobility'|'sensor'|'other'
+export interface OmniWearDevice {id:string;user_id:string;device_name:string;device_type:OmniWearDeviceType;capabilities:Record<string,unknown>;connection_state:'disconnected'|'pairing'|'connected'|'degraded';battery_percent:number|null;firmware_version:string|null;medical_mode:boolean}
+export interface OmniWearProfile {user_id:string;consent:Record<string,boolean>;haptics:Record<string,unknown>;accessibility:Record<string,unknown>;privacy_mode:'local-first'|'cloud-sync'|'minimal'}
+
+export async function listOmniWearDevices(){const id=await uid();const {data,error}=await sb().from('omniwear_devices').select('*').eq('user_id',id).order('updated_at',{ascending:false});if(error)throw error;return (data??[]) as OmniWearDevice[]}
+export async function registerOmniWearDevice(device_name:string,device_type:OmniWearDeviceType,capabilities:Record<string,unknown>={}){const id=await uid();const {data,error}=await sb().from('omniwear_devices').insert({user_id:id,device_name,device_type,capabilities,connection_state:'disconnected',medical_mode:false}).select('*').single();if(error)throw error;return data as OmniWearDevice}
+export async function setOmniWearConnection(deviceId:string,state:OmniWearDevice['connection_state']){const id=await uid();const {data,error}=await sb().from('omniwear_devices').update({connection_state:state,updated_at:new Date().toISOString()}).eq('id',deviceId).eq('user_id',id).select('*').single();if(error)throw error;return data as OmniWearDevice}
+export async function getOmniWearProfile(){const id=await uid();const {data,error}=await sb().from('omniwear_profiles').select('*').eq('user_id',id).maybeSingle();if(error)throw error;if(data)return data as OmniWearProfile;const ins=await sb().from('omniwear_profiles').insert({user_id:id}).select('*').single();if(ins.error)throw ins.error;return ins.data as OmniWearProfile}
+export async function updateOmniWearProfile(patch:Partial<Pick<OmniWearProfile,'consent'|'haptics'|'accessibility'|'privacy_mode'>>){const id=await uid();const {data,error}=await sb().from('omniwear_profiles').upsert({user_id:id,...patch,updated_at:new Date().toISOString()}).select('*').single();if(error)throw error;return data as OmniWearProfile}
+export async function startOmniWearSession(deviceId:string|null,mode:'accessibility'|'xr'|'fitness'|'gaming'|'navigation'|'training'|'simulation'){const id=await uid();const {data,error}=await sb().from('omniwear_sessions').insert({user_id:id,device_id:deviceId,mode,safety_state:'normal',session_state:{source:'tryamm'}}).select('*').single();if(error)throw error;return data}
+export async function stopOmniWearSession(sessionId:string){const id=await uid();const {data,error}=await sb().from('omniwear_sessions').update({ended_at:new Date().toISOString(),safety_state:'paused'}).eq('id',sessionId).eq('user_id',id).select('*').single();if(error)throw error;return data}
