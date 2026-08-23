@@ -1,0 +1,27 @@
+import { useEffect, useMemo, useState } from 'react'
+
+type Lane='grocery'|'beauty'|'business'
+type Cost={wholesale:number;freight:number;pickPack:number;payment:number;spoilage:number;delivery:number;margin:number}
+
+const grocery=['Fresh produce','Frozen fruits & vegetables','Whole grains','Rice & beans','Nuts & seeds','Lean proteins','Fish','Healthy oils','Lower-sodium foods','No/low-added-sugar foods','Plant-based foods','Allergy & dietary-restriction foods','International foods','Family staples','Bulk foods','Household essentials','Prepared healthy meals']
+const beauty=['Wigs','Human-hair bundles','Braiding hair','Extensions','Closures & frontals','Lashes','Makeup','Skin care','Nail tips','Acrylic & gel supplies','Nail tools','Salon furniture','Beauty accessories','Barber supplies','Packaging & retail displays']
+
+export default function UnifiedCommerceHub(){
+ const [open,setOpen]=useState(false);const [lane,setLane]=useState<Lane>('grocery')
+ const [cost,setCost]=useState<Cost>({wholesale:40,freight:4,pickPack:3,payment:2,spoilage:1,delivery:6,margin:8})
+ useEffect(()=>{const show=(target?:Lane)=>{if(target)setLane(target);setOpen(true)};(window as any).__showYahavahGrocery=()=>show('grocery');(window as any).__showAllAmericanBeauty=()=>show('beauty');(window as any).__showSupplyPlug=()=>show('business');return()=>{delete (window as any).__showYahavahGrocery;delete (window as any).__showAllAmericanBeauty;delete (window as any).__showSupplyPlug}},[])
+ const floor=useMemo(()=>Object.values(cost).reduce((a,b)=>a+Number(b||0),0),[cost])
+ if(!open)return null
+ const items=lane==='grocery'?grocery:beauty
+ return <div role="dialog" aria-modal="true" aria-label="TRYAMM unified commerce" style={{position:'fixed',inset:0,zIndex:13050,background:'rgba(2,4,10,.96)',color:'#fff',overflow:'auto'}}><div style={{maxWidth:1100,margin:'0 auto',padding:18}}>
+  <header style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'center'}}><div><div style={{color:'#4FE3FF',fontSize:10,fontWeight:900,letterSpacing:3}}>ONE COMMERCE ENGINE</div><h1 style={{margin:'5px 0'}}>YAHAVAH Grocery • All American Beauty • Supply Plug Global</h1></div><button onClick={()=>setOpen(false)} style={btn}>Close</button></header>
+  <div style={{display:'flex',gap:8,flexWrap:'wrap',margin:'14px 0'}}>{([['grocery','YAHAVAH Grocery'],['beauty','Beauty Supply'],['business','Start Your Store / Nail Shop']] as [Lane,string][]).map(([id,label])=><button key={id} onClick={()=>setLane(id)} style={{...btn,background:lane===id?'#12354a':'#0b1320'}}>{label}</button>)}</div>
+  {lane!=='business'?<><section style={panel}><h2>{lane==='grocery'?'Healthy everyday food + bulk value':'Global beauty supply assortment'}</h2><div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))',gap:8}}>{items.map(x=><div key={x} style={card}>{x}</div>)}</div></section>
+  <section style={panel}><h2>Basket floor-price engine</h2><p style={{color:'#9fb3c6'}}>Wholesale + freight + pick/pack + payment fee + spoilage reserve + delivery + required margin = floor price. Membership, bundles, loyalty credits, sponsored discounts and substitutions can lower the customer basket without silently selling below the safe floor.</p><div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:8}}>{Object.entries(cost).map(([k,v])=><label key={k} style={card}>{k}<input type="number" value={v} onChange={e=>setCost(c=>({...c,[k]:Number(e.target.value)||0}))} style={input}/></label>)}</div><div style={{marginTop:12,fontSize:22,fontWeight:950,color:'#E8B944'}}>SAFE FLOOR: ${floor.toFixed(2)}</div></section></>:<section style={panel}><h2>Supply Plug Global entrepreneur lane</h2><p style={{color:'#b7c4d1',lineHeight:1.6}}>Help entrepreneurs launch beauty-supply stores and nail shops with verified wholesale catalogs, starter assortments, MOQ visibility, landed-cost estimates, storefront setup, inventory planning, packaging, delivery options and reorder automation. Supplier identity, product authenticity, cosmetics compliance, import duties and shipping terms stay evidence-gated.</p><div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:8}}>{['Choose store type','Set startup budget','Select verified catalog','Calculate landed cost','Build opening inventory','Create TRYAMM storefront','Set retail prices & margin floors','Launch pickup/delivery','Reorder from sales velocity'].map((x,i)=><div key={x} style={card}><b>{i+1}. {x}</b></div>)}</div></section>}
+  <section style={panel}><b>WORLD LOOP</b><div style={{marginTop:8,color:'#9fb3c6'}}>Game/World discovery → Holo Concierge → product/store → cart → Guardian payment authorization → checkout → pickup/delivery → verified result → loyalty/wallet → return to My World / StreetVerse.</div></section>
+ </div></div>
+}
+const panel:React.CSSProperties={marginTop:12,padding:16,border:'1px solid #20374a',borderRadius:18,background:'#07111c'}
+const card:React.CSSProperties={padding:12,border:'1px solid #26394a',borderRadius:12,background:'#0a1521',fontSize:12}
+const btn:React.CSSProperties={border:'1px solid #4FE3FF77',borderRadius:10,padding:'10px 13px',background:'#0b1a27',color:'#fff',fontWeight:900,cursor:'pointer'}
+const input:React.CSSProperties={display:'block',width:'100%',boxSizing:'border-box',marginTop:7,padding:8,borderRadius:8,border:'1px solid #345',background:'#030914',color:'#fff'}
