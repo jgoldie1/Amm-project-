@@ -30,6 +30,7 @@ export default function TryAMMHome(){
   const ecosystem=[
     {icon:'◈',title:'Middleverse',copy:'Context-preserving orchestration connecting Holoverse, Stubbs AI, Workforce, Commerce, LIVE, Safety and Living Worlds.',action:()=>openGlobal('__showMiddleverseWorkstation'),label:'NEW'},
     {icon:'🎧',title:'AI Workforce + WFH',copy:'Approved scripts, rebuttals, DNC checks, interaction logging, QA, supervisor/compliance escalation and AI assistance.',action:()=>openGlobal('__showMiddleverseWorkstation'),label:'NEW'},
+    {icon:'🎓',title:'School Network + Student JARVIS',copy:'Greenville student context, HBCU pathways, College Book/library, labs, AI Café workforce training, internships and portfolio-to-paid-work routing powered by Stubbs AI.',action:()=>openGlobal('__showSchoolNetwork'),label:'NEW'},
     {icon:'●',title:'TRYAMM LIVE',copy:'Create, watch, collaborate and sell through LIVE with protected pause and safety tools.',action:()=>openGlobal('__showTryAMMLive'),label:'LIVE'},
     {icon:'🛍️',title:'Commerce OS',copy:'Marketplace, Buy Now, auctions, offers, wholesale, services, digital products and live commerce.',action:()=>enter('marketplace'),label:'BETA'},
     {icon:'✦',title:'Stubbs AI',copy:'One AI navigation and creation layer for TRYAMM experiences, work and connected services.',action:()=>openGlobal('__showBennie'),label:'BETA'},
