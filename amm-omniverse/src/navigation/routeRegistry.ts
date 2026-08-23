@@ -12,6 +12,7 @@ export const TRYAMM_ROUTES: TryammRoute[] = [
   { id:'yahavah-grocery', path:'/yahavah-grocery', label:'YAHAVAH Grocery', kind:'overlay', opener:'__showYahavahGrocery', readiness:'beta' },
   { id:'all-american-beauty', path:'/beauty-supply', label:'All American Beauty Supply', kind:'overlay', opener:'__showAllAmericanBeauty', readiness:'beta' },
   { id:'supply-plug', path:'/supply-plug', label:'Supply Plug Global', kind:'overlay', opener:'__showSupplyPlug', readiness:'beta' },
+  { id:'holo-coupon', path:'/holo-coupon', label:'Holo Coupon', kind:'overlay', opener:'__showHoloCoupon', readiness:'beta' },
   { id:'holo-music', path:'/holo-music', label:'Holo Music Streaming', kind:'overlay', opener:'__showHoloMusic', readiness:'beta' },
   { id:'tryamm-connect', path:'/connect', label:'TRYAMM Connect', kind:'overlay', opener:'__showTryAMMConnect', readiness:'beta' },
   { id:'holo-fon', path:'/holo-fon', label:'Holo Fon', kind:'overlay', opener:'__showHoloFon', readiness:'beta' },
