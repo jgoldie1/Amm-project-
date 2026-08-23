@@ -29,6 +29,8 @@ export const TRYAMM_ROUTES: TryammRoute[] = [
   { id:'holoverse', path:'/holoverse', label:'Holoverse', kind:'overlay', opener:'__showHoloverse', readiness:'beta' },
   { id:'command-nexus', path:'/command-nexus', label:'Command Nexus', kind:'overlay', opener:'__showCommandNexusV2', readiness:'beta' },
   { id:'holo-menu', path:'/holo-menu', label:'Holo Menu', kind:'overlay', opener:'__showCommandNexusV2', readiness:'beta' },
+  { id:'holo-lab', path:'/holo-lab', label:'Holo Lab', kind:'overlay', opener:'__showHoloLab', readiness:'beta' },
+  { id:'xr', path:'/xr', label:'AR VR Mixed Reality', kind:'overlay', opener:'__showXR', readiness:'beta' },
   { id:'holo-core', path:'/holo-core', label:'Holo Core', kind:'overlay', opener:'__showHoloCore', readiness:'beta' },
   { id:'holo-services', path:'/holo-services', label:'Holo Services', kind:'overlay', opener:'__showHoloServices', readiness:'beta' },
   { id:'holo-ride', path:'/holo-ride', label:'Holo Ride', kind:'overlay', opener:'__showHoloRide', readiness:'beta' },
