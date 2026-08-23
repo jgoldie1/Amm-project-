@@ -9,6 +9,7 @@ import AccessibilityPassportPanel from './components/AccessibilityPassportPanel'
 import HoloDeliveryLauncher from './components/HoloDeliveryLauncher'
 import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import MediaStudioLauncher from './components/MediaStudioLauncher'
+import CampusWelcomeBoard from './components/CampusWelcomeBoard'
 import RevenueLandingCTAs from './components/RevenueLandingCTAs'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
@@ -26,6 +27,7 @@ createRoot(document.getElementById('root')!).render(
     <MiddleverseLauncher />
     <GameVerseLauncher />
     <MediaStudioLauncher />
+    <CampusWelcomeBoard />
     <AccessibilityPassportPanel />
     <HoloDeliveryLauncher />
     <HoloMarketplaceLauncher />
