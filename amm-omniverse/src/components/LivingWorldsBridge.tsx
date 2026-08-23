@@ -1,9 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useGameStore } from '../game/state/useGameStore'
 import { getAuthenticatedUserId, isSupabaseConfigured } from '../services/supabaseClient'
 import HoloGPTAssistant from './HoloGPTAssistant'
-import MediaStudioLauncher from './MediaStudioLauncher'
-import JacobieVisionCenter from './JacobieVisionCenter'
 import RouteCoordinator from '../navigation/RouteCoordinator'
 import {
   enterWorld,
@@ -26,13 +24,7 @@ export default function LivingWorldsBridge() {
   const sessionRef = useRef<WorldSession | null>(null)
   const worldsRef = useRef<WorldRecord[]>([])
   const readyRef = useRef(false)
-  const [showJacobieVision,setShowJacobieVision]=useState(false)
   const signedIn = screen !== 'intro' && screen !== 'login'
-
-  useEffect(() => {
-    ;(window as any).__showJacobieVision = () => setShowJacobieVision(true)
-    return () => { delete (window as any).__showJacobieVision }
-  }, [])
 
   useEffect(() => {
     if (!signedIn) {
@@ -113,10 +105,5 @@ export default function LivingWorldsBridge() {
   return <>
     <RouteCoordinator />
     <HoloGPTAssistant />
-    {signedIn && <>
-      <MediaStudioLauncher />
-      <button type="button" onClick={()=>setShowJacobieVision(true)} aria-label="Open Jacobie Vision" style={{position:'fixed',left:12,bottom:122,zIndex:8998,border:'1px solid #53ddff99',borderRadius:999,padding:'10px 13px',background:'linear-gradient(135deg,#071b2c,#102a3f)',color:'#bff5ff',fontSize:10,fontWeight:950,letterSpacing:.8,cursor:'pointer',boxShadow:'0 8px 28px #0008'}}>🛡 JACOBIE VISION</button>
-    </>}
-    {showJacobieVision && <JacobieVisionCenter onClose={()=>setShowJacobieVision(false)} />}
   </>
 }
