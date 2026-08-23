@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "TRYAMM Quantum Convergence",
   "description": "Canonical production service map and release contract. Quantum means cross-system convergence/orchestration here; it does not assert quantum-computing hardware.",
   "sourceOfTruth": {
@@ -18,6 +18,12 @@
     "reel-creator",
     "save-to-phone",
     "jacobie-vision",
+    "aniyah-studio",
+    "financial-literacy",
+    "aniyah-crossborder",
+    "isaiah-starverse",
+    "isaiah-ai-tv",
+    "free-tv",
     "hologpt",
     "supabase-persistence",
     "stripe-sandbox",
@@ -28,6 +34,8 @@
     "commitShaMustMatchProduction": true,
     "healthEndpoint": "/api/system/convergence",
     "moneyPathsRequireHumanGate": true,
+    "crossBorderRequiresLicensedProvider": true,
+    "freeTvRequiresRightsVerification": true,
     "rollbackRequired": true,
     "secretsNeverReturnedByHealthEndpoint": true
   },
@@ -37,5 +45,13 @@
     "supabase": { "role": "auth-database-storage-persistence", "required": true },
     "render": { "role": "backend-runtime", "required": true },
     "stripe": { "role": "sandbox-and-approved-money-rails", "requiredForMoney": true }
+  },
+  "modules": {
+    "aniyah-studio": { "owner": "FamilyLegacyHub", "backend": "/api/family/aniyah/audio", "persistence": "aniyah_audio_projects + aniyah_audio_tracks", "target": "64-track creation, vocal coaching, mix/master assistance and export" },
+    "financial-literacy": { "owner": "FamilyLegacyHub", "persistence": "family_financial_literacy_progress", "target": "budgeting, banking, credit, taxes, investing basics, fraud awareness and cross-border payment education" },
+    "aniyah-crossborder": { "owner": "FamilyLegacyHub", "backend": "/api/family/aniyah/crossborder", "mode": "simulation/provider-gated", "humanGate": true },
+    "isaiah-starverse": { "owner": "FamilyLegacyHub", "backend": "/api/family/isaiah/starverse", "brand": "Anyone Can Be A Star" },
+    "isaiah-ai-tv": { "owner": "OTTIsaiahTV", "target": "live, replay, episode, podcast, clips and OTT distribution" },
+    "free-tv": { "owner": "OTTIsaiahTV", "target": "ad-supported/free licensed-or-owned programming lanes", "rightsGate": true }
   }
 }
