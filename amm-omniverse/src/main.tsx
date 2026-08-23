@@ -9,6 +9,8 @@ import AccessibilityPassportPanel from './components/AccessibilityPassportPanel'
 import HoloDeliveryLauncher from './components/HoloDeliveryLauncher'
 import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import MediaStudioLauncher from './components/MediaStudioLauncher'
+import JacobieVisionLauncher from './components/JacobieVisionLauncher'
+import FirstClassFeatureDock from './components/FirstClassFeatureDock'
 import CampusWelcomeBoard from './components/CampusWelcomeBoard'
 import RevenueLandingCTAs from './components/RevenueLandingCTAs'
 import './accessibility/accessibility.css'
@@ -27,6 +29,8 @@ createRoot(document.getElementById('root')!).render(
     <MiddleverseLauncher />
     <GameVerseLauncher />
     <MediaStudioLauncher />
+    <JacobieVisionLauncher />
+    <FirstClassFeatureDock />
     <CampusWelcomeBoard />
     <AccessibilityPassportPanel />
     <HoloDeliveryLauncher />
