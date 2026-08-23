@@ -1,0 +1,64 @@
+{
+  "project": "TRYAMM",
+  "canonicalRepository": "jgoldie1/Amm-project-",
+  "defaultBranch": "main",
+  "updatedAt": "2026-08-22",
+  "releaseTruth": {
+    "status": "BUILT_UNVERIFIED",
+    "rule": "No feature is GREEN without source, route, runtime, persistence where required, tests and deployed verification."
+  },
+  "currentPriorities": [
+    "route-registry-and-dead-link-audit",
+    "hologpt-full-response-path",
+    "single-deployment-manifest",
+    "pwa-cache-versioning",
+    "health-readiness-proof",
+    "fresh-screen-session-continuity"
+  ],
+  "canonicalSystems": {
+    "auth": "single-auth-state",
+    "user": "single-user-avatar-state",
+    "world": "single-world-memory-contract",
+    "routing": "single-route-map",
+    "deployment": "single-release-truth",
+    "sourceMemory": "git-commits",
+    "decisionMemory": "structured-provenance-not-hidden-chain-of-thought"
+  },
+  "modules": {
+    "mediaOttMarketplace": "PLANNED",
+    "multiPlatformStreaming": "PLANNED",
+    "assumableMortgageDiscovery": "PLANNED",
+    "neuromuscularAssistiveTrack": "PLANNED_RESEARCH",
+    "alternativeInputBciGameControl": "PLANNED_RESEARCH",
+    "respiratoryCoolingResearch": "PLANNED_RESEARCH",
+    "danteEscapeFromHellSetApart": "PLANNED",
+    "quarantineZoneWorld": "PLANNED",
+    "faithBibleWorlds": "VERIFY_EXISTING_ASSETS",
+    "creatorAcademy": "PLANNED",
+    "christianRecordLabelAcademy": "PLANNED",
+    "streamingAcademy": "PLANNED",
+    "holoForgeAiBuilder": "PLANNED",
+    "godotCompatible3dAuthoring": "PLANNED",
+    "deviceWorkstationNexus": "PLANNED",
+    "localModelOllama": "PLANNED",
+    "huggingFaceOpenModels": "PLANNED",
+    "modelRouter": "PLANNED",
+    "ragWithProvenance": "PLANNED",
+    "n8nAutomation": "PLANNED",
+    "messagingAdapters": "PLANNED",
+    "nationalBusinessGrowthEngine": "PLANNED",
+    "creatorTrendIntelligence": "PLANNED",
+    "consentBasedGenerativeMedia": "PLANNED"
+  },
+  "researchQueue": [
+    "Ray Reynolds method",
+    "Alain Antonioe",
+    "Chris Brichwood/Birchwood",
+    "trenh.io",
+    "Poyo/Photo AI",
+    "Seedance API",
+    "Kling API",
+    "Cyber Leaks manifesto"
+  ],
+  "resumeInstruction": "Read docs/FRESH-SCREEN-CONTINUATION.md and this file, audit current commit, repair broken runtime/routes first, run tests and deployed smoke checks, then continue the highest-priority module and update this state file."
+}
