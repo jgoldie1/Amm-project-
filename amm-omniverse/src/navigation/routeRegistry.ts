@@ -1,15 +1,6 @@
 import type { Screen } from '../game/state/useGameStore'
 
-export type TryammRoute = {
-  id: string
-  path: string
-  label: string
-  kind: 'screen' | 'overlay'
-  screen?: Screen
-  opener?: string
-  readiness: 'live' | 'beta'
-}
-
+export type TryammRoute = {id:string;path:string;label:string;kind:'screen'|'overlay';screen?:Screen;opener?:string;readiness:'live'|'beta'}
 export const TRYAMM_ROUTES: TryammRoute[] = [
   { id:'home', path:'/', label:'Home', kind:'screen', screen:'intro', readiness:'live' },
   { id:'login', path:'/login', label:'Sign In', kind:'screen', screen:'login', readiness:'live' },
@@ -18,6 +9,9 @@ export const TRYAMM_ROUTES: TryammRoute[] = [
   { id:'marketplace', path:'/marketplace', label:'Marketplace', kind:'screen', screen:'marketplace', readiness:'live' },
   { id:'music', path:'/music', label:'Music Realm', kind:'screen', screen:'music', readiness:'live' },
   { id:'holo-music', path:'/holo-music', label:'Holo Music Streaming', kind:'overlay', opener:'__showHoloMusic', readiness:'beta' },
+  { id:'tryamm-connect', path:'/connect', label:'TRYAMM Connect', kind:'overlay', opener:'__showTryAMMConnect', readiness:'beta' },
+  { id:'holo-fon', path:'/holo-fon', label:'Holo Fon', kind:'overlay', opener:'__showHoloFon', readiness:'beta' },
+  { id:'quantum-email', path:'/quantum-email', label:'Quantum Email', kind:'overlay', opener:'__showQuantumEmail', readiness:'beta' },
   { id:'faith', path:'/faith', label:'Faith Realm', kind:'screen', screen:'faith', readiness:'live' },
   { id:'blockchain', path:'/blockchain', label:'Blockchain Realm', kind:'screen', screen:'blockchain', readiness:'beta' },
   { id:'streetverse', path:'/streetverse', label:'StreetVerse', kind:'overlay', opener:'__showPlayableBeta', readiness:'beta' },
@@ -56,12 +50,6 @@ export const TRYAMM_ROUTES: TryammRoute[] = [
   { id:'pricing', path:'/pricing', label:'Pricing', kind:'overlay', opener:'__showPricing', readiness:'live' },
   { id:'hologpt', path:'/hologpt', label:'HoloGPT', kind:'overlay', opener:'__showHoloGPT', readiness:'beta' },
 ]
-
 export const ROUTE_BY_PATH = new Map(TRYAMM_ROUTES.map(route => [route.path, route]))
 export const PATH_BY_SCREEN = new Map(TRYAMM_ROUTES.filter(r=>r.kind==='screen'&&r.screen).map(r => [r.screen as Screen, r.path]))
-
-export function normalizeRoutePath(value=''){
-  const raw=value.replace(/^#/, '').trim() || '/'
-  const withSlash=raw.startsWith('/')?raw:`/${raw}`
-  return withSlash.length>1?withSlash.replace(/\/$/,''):withSlash
-}
+export function normalizeRoutePath(value=''){const raw=value.replace(/^#/, '').trim()||'/';const withSlash=raw.startsWith('/')?raw:`/${raw}`;return withSlash.length>1?withSlash.replace(/\/$/,''):withSlash}
