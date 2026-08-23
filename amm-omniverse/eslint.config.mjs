@@ -1,4 +1,5 @@
 import tseslint from 'typescript-eslint';
+import reactHooks from 'eslint-plugin-react-hooks';
 
 export default [
   {
@@ -16,6 +17,7 @@ export default [
     },
     plugins: {
       '@typescript-eslint': tseslint.plugin,
+      'react-hooks': reactHooks,
     },
     rules: {
       'no-constant-binary-expression': 'error',
@@ -30,6 +32,8 @@ export default [
       'no-useless-backreference': 'error',
       'use-isnan': 'error',
       'valid-typeof': 'error',
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
       '@typescript-eslint/no-duplicate-enum-values': 'error',
       '@typescript-eslint/no-extra-non-null-assertion': 'error',
       '@typescript-eslint/no-non-null-asserted-optional-chain': 'error',
