@@ -38,6 +38,7 @@ export default function SchoolNetworkPortal({ onClose }: Props) {
 
   const lanes=[
     ['☕','AI Café Workforce Lab','Inventory, digital-twin QA, creator tables, Holo-ad QA, customer operations and business analytics.',()=> (window as any).__showAICafe?.()],
+    ['🛡️','Jacobie Vision Team','Cybersecurity, application-security QA, privacy, incident response, real-estate analysis and supervised team leadership.',()=> (window as any).__showFamilyLegacy?.()],
     ['🤖','Student JARVIS','Stubbs AI study planning, tutoring, Learning Passport, school-first job scheduling and career coaching.',()=>setTab('jarvis')],
     ['📚','College Book + Library','Connect coursework to the existing university library catalog and future book marketplace.',()=>setMessage(`College Book/library catalog: ${data.books.length} current records.`)],
     ['🏫','HBCU + College Network','Explore verified partner records, Black Excellence programs, internships and mentoring pathways.',()=>setMessage(`School network: ${data.hbcuPartners.length} HBCU partner records; ${data.blackExcellence.length} Black Excellence programs.`)],
@@ -48,7 +49,7 @@ export default function SchoolNetworkPortal({ onClose }: Props) {
   return <section style={{position:'fixed',inset:0,zIndex:10080,overflowY:'auto',background:'radial-gradient(circle at 20% 0,#102a43,#040712 52%)',color:'#fff',fontFamily:'Inter,system-ui,sans-serif'}}>
     <div style={{maxWidth:1180,margin:'0 auto',padding:'22px 18px 110px'}}>
       <header style={{display:'flex',justifyContent:'space-between',gap:14,alignItems:'start',flexWrap:'wrap'}}>
-        <div><div style={{color:'#4fe3ff',fontSize:10,fontWeight:950,letterSpacing:3}}>POWERED BY STUBBS AI</div><h1 style={{fontSize:'clamp(34px,6vw,64px)',margin:'6px 0 8px'}}>TRYAMM School Network</h1><p style={{maxWidth:820,color:'#a9b9c9',lineHeight:1.6}}>School → Student JARVIS → books → labs → AI Café → portfolio → internship/job → verified pay. One education-to-work network for college, HBCU, trade, high-school and adult learners.</p></div>
+        <div><div style={{color:'#4fe3ff',fontSize:10,fontWeight:950,letterSpacing:3}}>POWERED BY STUBBS AI</div><h1 style={{fontSize:'clamp(34px,6vw,64px)',margin:'6px 0 8px'}}>TRYAMM School Network</h1><p style={{maxWidth:820,color:'#a9b9c9',lineHeight:1.6}}>School → Student JARVIS → books → labs → AI Café → Jacobie Vision → portfolio → internship/job → verified pay. One education-to-work network for college, HBCU, trade, high-school and adult learners.</p></div>
         <button onClick={onClose} style={button}>← Back to TRYAMM</button>
       </header>
 
