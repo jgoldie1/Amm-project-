@@ -1,17 +1,35 @@
-name: TryAMM CI
+name: TryAMM Full CI
+
 on:
   push:
-    branches: [main]
+    branches: [main, developer-vic]
   pull_request:
-    branches: [main]
+    branches: [main, developer-vic]
+
 jobs:
-  test:
+  root-platform:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - run: npm install
+          node-version: 22
+          cache: npm
+      - run: npm ci
       - run: npm run check
       - run: npm test
+
+  omniverse-app:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci
+      - run: npm run check
