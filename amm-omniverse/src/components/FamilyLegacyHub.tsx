@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import JacobieVisionCenter from './JacobieVisionCenter'
 import {
   createAniyahAudio,
   createJacobieCyber,
@@ -21,6 +22,7 @@ export default function FamilyLegacyHub({ onClose }: Props) {
   const [starverse, setStarverse] = useState<any>(null)
   const [crossborder, setCrossborder] = useState<any>(null)
   const [status, setStatus] = useState('Loading family ventures…')
+  const [showJacobieVision, setShowJacobieVision] = useState(false)
 
   async function refresh() {
     try {
@@ -41,6 +43,8 @@ export default function FamilyLegacyHub({ onClose }: Props) {
 
   useEffect(() => { refresh() }, [])
 
+  if (showJacobieVision) return <JacobieVisionCenter onClose={() => setShowJacobieVision(false)} />
+
   const card: React.CSSProperties = { background:'#0b1324', border:'1px solid #28486a', borderRadius:16, padding:16, minHeight:180 }
   const action: React.CSSProperties = { border:'1px solid #76d7ff88', background:'#10283a', color:'#e9fbff', borderRadius:10, padding:'8px 10px', cursor:'pointer', fontWeight:800 }
 
@@ -58,14 +62,20 @@ export default function FamilyLegacyHub({ onClose }: Props) {
             <h2>Jacobie Vision Cybersecurity</h2>
             <p>Defensive security audits, threat models, training labs, privacy reviews, compliance readiness and cyber-range simulations.</p>
             <p>{cyber.length} project(s)</p>
-            <button style={action} onClick={async()=>{await createJacobieCyber('New Cybersecurity Lab'); await refresh()}}>Create Cyber Lab</button>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+              <button style={action} onClick={()=>setShowJacobieVision(true)}>Open Jacobie Vision</button>
+              <button style={action} onClick={async()=>{await createJacobieCyber('New Cybersecurity Lab'); await refresh()}}>Create Cyber Lab</button>
+            </div>
           </section>
 
           <section style={card}>
             <h2>Jacobie Vision Real Estate</h2>
             <p>Land, home flipping, rentals and development analysis with purchase/rehab/ARV/carrying-cost and due-diligence models.</p>
             <p>{realEstate.length} project(s)</p>
-            <button style={action} onClick={async()=>{await createJacobieRealEstate('New Property Analysis'); await refresh()}}>Create Flip Analysis</button>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+              <button style={action} onClick={()=>setShowJacobieVision(true)}>Open Team + Training</button>
+              <button style={action} onClick={async()=>{await createJacobieRealEstate('New Property Analysis'); await refresh()}}>Create Flip Analysis</button>
+            </div>
           </section>
 
           <section style={card}>
