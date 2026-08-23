@@ -1,0 +1,14 @@
+'use strict';
+const assert=require('assert');
+const {AD_PRODUCTS,splitNetRevenue,quote}=require('../lib/holo-ad-funding-routes');
+assert.strictEqual(AD_PRODUCTS.holo_banner.priceCents,25000);
+assert.strictEqual(AD_PRODUCTS.sponsored_mission.priceCents,500000);
+assert.strictEqual(AD_PRODUCTS.tournament_sponsor.priceCents,1000000);
+const split=splitNetRevenue(100000);
+assert.deepStrictEqual(split,{netCents:100000,rewardReserveCents:25000,operationsCents:50000,growthCents:15000,contingencyCents:10000});
+const q=quote('world_takeover',5000,0);
+assert.strictEqual(q.grossCents,250000);
+assert.strictEqual(q.netCents,245000);
+assert(q.rewardReserveCents>0);
+assert.strictEqual(quote('missing'),null);
+console.log('Holo ad funding smoke: PASS');
