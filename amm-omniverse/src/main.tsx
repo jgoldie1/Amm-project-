@@ -13,6 +13,8 @@ import JacobieVisionLauncher from './components/JacobieVisionLauncher'
 import FirstClassFeatureDock from './components/FirstClassFeatureDock'
 import CampusWelcomeBoard from './components/CampusWelcomeBoard'
 import RevenueLandingCTAs from './components/RevenueLandingCTAs'
+import HoloConcierge from './components/HoloConcierge'
+import UnifiedCommerceHub from './components/UnifiedCommerceHub'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
@@ -35,5 +37,7 @@ createRoot(document.getElementById('root')!).render(
     <AccessibilityPassportPanel />
     <HoloDeliveryLauncher />
     <HoloMarketplaceLauncher />
+    <UnifiedCommerceHub />
+    <HoloConcierge />
   </StrictMode>
 )
