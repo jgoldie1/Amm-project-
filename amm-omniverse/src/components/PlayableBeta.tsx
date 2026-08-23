@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useGameStore } from '../game/state/useGameStore'
-import { createStreetVerseMission, isBackendConfigured, listStreetVerseMissions, patchPlayerState, updateStreetVerseMission } from '../services/omniverseApi'
+import { claimGetPaidToPlay, createStreetVerseMission, isBackendConfigured, listStreetVerseMissions, patchPlayerState, updateStreetVerseMission } from '../services/omniverseApi'
 
 type Vec={x:number;y:number}
 type Shop={id:string;name:string;pos:Vec;color:string}
@@ -31,6 +31,7 @@ export default function PlayableBeta({onClose}:{onClose:()=>void}){
   const [message,setMessage]=useState('Reach all 3 record shops. Use WASD / arrows or the touch controls.')
   const [cloudState,setCloudState]=useState<CloudState>(isBackendConfigured()?'checking':'local')
   const [missionRunId,setMissionRunId]=useState<string|null>(null)
+  const [rewardStatus,setRewardStatus]=useState<'idle'|'claiming'|'claimed'|'local'|'error'>('idle')
   const keys=useRef(new Set<string>())
 
   const completed=visited.length===SHOPS.length
@@ -107,9 +108,28 @@ export default function PlayableBeta({onClose}:{onClose:()=>void}){
 
   useEffect(()=>{
     if(completed&&mission?.status!=='complete'){
-      completeMission('m1');setMessage('MISSION COMPLETE — First Drop delivered to all 3 shops. Progress saved.')
+      completeMission('m1');setMessage('MISSION COMPLETE — First Drop delivered. Local Game Cash/XP updated; server reward verification follows.')
     }
   },[completed,mission?.status,completeMission])
+
+  useEffect(()=>{
+    if(!completed||!missionRunId||cloudState!=='cloud'||rewardStatus!=='idle')return
+    let cancelled=false
+    ;(async()=>{
+      try{
+        setRewardStatus('claiming')
+        await updateStreetVerseMission(missionRunId,{runtime_state:{pos,visited,progress:100},beat_id:'complete',status:'completed'})
+        const result=await claimGetPaidToPlay({programId:'streetverse_first_drop',game:'streetverse',evidence:{missionRunId}})
+        if(cancelled)return
+        setRewardStatus('claimed')
+        const claim=result.claim
+        setMessage(`VERIFIED REWARD — +${claim?.holoCredits||0} Holo Credits, +${claim?.xp||0} server XP. ${claim?.cashCents?`$${(claim.cashCents/100).toFixed(2)} pending payout review.`:'No withdrawable cash attached to this mission.'}`)
+      }catch{
+        if(!cancelled)setRewardStatus('error')
+      }
+    })()
+    return()=>{cancelled=true}
+  },[completed,missionRunId,cloudState,rewardStatus,pos,visited])
 
   const nearest=useMemo(()=>SHOPS.filter(s=>!visited.includes(s.id)).sort((a,b)=>dist(pos,a.pos)-dist(pos,b.pos))[0],[pos,visited])
 
@@ -125,9 +145,10 @@ export default function PlayableBeta({onClose}:{onClose:()=>void}){
       }catch{setCloudState('local')}
     }
   }
-  const reset=()=>{setPos(START);setVisited([]);setStarted(false);localStorage.removeItem(SAVE_KEY);setMessage('Beta reset. Start the mission when ready.')}
+  const reset=()=>{setPos(START);setVisited([]);setStarted(false);setRewardStatus('idle');localStorage.removeItem(SAVE_KEY);setMessage('Beta reset. Start the mission when ready.')}
   const nudge=(dx:number,dy:number)=>setPos(p=>({x:clamp(p.x+dx,28,W-28),y:clamp(p.y+dy,28,H-28)}))
   const saveLabel=cloudState==='cloud'?'CLOUD SAVE ✓':cloudState==='syncing'?'SYNCING…':cloudState==='checking'?'CHECKING CLOUD…':cloudState==='error'?'CLOUD RETRY NEEDED':'LOCAL SAVE ✓'
+  const rewardLabel=rewardStatus==='claimed'?'REWARD VERIFIED ✓':rewardStatus==='claiming'?'VERIFYING REWARD…':rewardStatus==='error'?'REWARD VERIFY RETRY':'GET PAID TO PLAY: SERVER GATED'
 
   return <div role="dialog" aria-label="TRYAMM Playable Beta" style={{position:'fixed',inset:0,zIndex:14000,background:'#02050b',color:'#fff',fontFamily:'Inter,system-ui,sans-serif',overflow:'auto'}}>
     <div style={{maxWidth:1180,margin:'0 auto',padding:'14px 14px 90px'}}>
@@ -149,7 +170,7 @@ export default function PlayableBeta({onClose}:{onClose:()=>void}){
 
         <aside style={{display:'grid',gap:10,alignContent:'start'}}>
           <div style={{padding:14,border:'1px solid #294058',borderRadius:16,background:'#08111c'}}><div style={{fontSize:9,color:'#E8B944',fontWeight:900}}>MISSION</div><strong>First Drop</strong><p style={{fontSize:12,color:'#9fb2c8',lineHeight:1.5}}>Deliver the creator album to all three shops.</p><div style={{height:8,borderRadius:99,background:'#172130',overflow:'hidden'}}><div style={{width:`${progress}%`,height:'100%',background:'linear-gradient(90deg,#4FE3FF,#5cff9c)'}}/></div><div style={{fontSize:10,marginTop:7}}>{visited.length}/3 stops • {progress}%</div></div>
-          <div style={{padding:14,border:'1px solid #294058',borderRadius:16,background:'#08111c',fontSize:11,lineHeight:1.5}}><div>Player: <b>{player.name||'Guest Pilot'}</b></div><div>Cash: <b>${player.cash}</b></div><div>XP: <b>{player.xp}</b></div><div>Level: <b>{player.level}</b></div></div>
+          <div style={{padding:14,border:'1px solid #294058',borderRadius:16,background:'#08111c',fontSize:11,lineHeight:1.5}}><div>Player: <b>{player.name||'Guest Pilot'}</b></div><div>Game Cash: <b>{player.cash}</b></div><div>Holo Credits: <b>{player.tokens}</b></div><div>XP: <b>{player.xp}</b></div><div>Level: <b>{player.level}</b></div><div style={{marginTop:6,color:'#E8B944',fontSize:9,fontWeight:900}}>{rewardLabel}</div></div>
           <div aria-live="polite" style={{padding:14,border:'1px solid #3b3652',borderRadius:16,background:'#100d19',fontSize:11,lineHeight:1.5,minHeight:70}}>{message}</div>
           {!started&&!completed&&<button onClick={begin} style={{border:0,borderRadius:14,padding:14,fontWeight:950,background:'linear-gradient(135deg,#4FE3FF,#7aa7ff)',color:'#04111a'}}>START PLAYABLE BETA</button>}
           <button onClick={reset} style={{border:'1px solid #39495b',borderRadius:14,padding:12,fontWeight:900,background:'#101722',color:'#fff'}}>RESET BETA</button>
@@ -163,9 +184,9 @@ export default function PlayableBeta({onClose}:{onClose:()=>void}){
         </div>
       </div>
 
-      <div style={{marginTop:16,padding:13,border:'1px solid #253345',borderRadius:14,color:'#8da2b8',fontSize:10,lineHeight:1.55}}>PLAYABLE BETA scope: browser controls and mission progression are active. Signed-in players use durable TRYAMM cloud checkpoints when the production API is configured; unsigned or offline players fall back to local save. Authoritative multiplayer and real-money game rewards remain separately gated.</div>
+      <div style={{marginTop:16,padding:13,border:'1px solid #253345',borderRadius:14,color:'#8da2b8',fontSize:10,lineHeight:1.55}}>GET PAID TO PLAY safety: browser controls and local Game Cash never create withdrawable money. Signed-in players can receive server-verified XP/Holo Credits. Real cash is limited to separately funded eligible programs, anti-abuse/result verification, daily caps, money-ledger posting and payout eligibility. Chance-based games such as poker are excluded from cash rewards.</div>
     </div>
-    <style>{`@media(max-width:820px){.pb-layout{grid-template-columns:1fr!important}}`}</style>
+    <style>{`@media(max-width:820px){.pb-layout{grid-templateColumns:1fr!important}.pb-layout{grid-template-columns:1fr!important}}`}</style>
   </div>
 }
 
