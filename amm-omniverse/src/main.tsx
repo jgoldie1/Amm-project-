@@ -22,6 +22,7 @@ import LivingWorldEconomyHUD from './components/LivingWorldEconomyHUD'
 import BuildSwarmControl from './components/BuildSwarmControl'
 import ProductTryOnHub from './components/ProductTryOnHub'
 import HoloMusicLauncher from './components/HoloMusicLauncher'
+import LivingWorldAdaptiveBridge from './components/LivingWorldAdaptiveBridge'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
@@ -35,6 +36,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <JudahSplash />
     <App />
+    <LivingWorldAdaptiveBridge />
     <RevenueLandingCTAs />
     <UniversalSafetyLauncher />
     <MiddleverseLauncher />
