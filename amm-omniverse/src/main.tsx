@@ -17,6 +17,8 @@ import HoloConcierge from './components/HoloConcierge'
 import UnifiedCommerceHub from './components/UnifiedCommerceHub'
 import NeighborhoodCommerceNetwork from './components/NeighborhoodCommerceNetwork'
 import VirtualWarehouseNetwork from './components/VirtualWarehouseNetwork'
+import HoloFridge from './components/HoloFridge'
+import LivingWorldEconomyHUD from './components/LivingWorldEconomyHUD'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
@@ -42,6 +44,8 @@ createRoot(document.getElementById('root')!).render(
     <UnifiedCommerceHub />
     <NeighborhoodCommerceNetwork />
     <VirtualWarehouseNetwork />
+    <HoloFridge />
+    <LivingWorldEconomyHUD />
     <HoloConcierge />
   </StrictMode>
 )
