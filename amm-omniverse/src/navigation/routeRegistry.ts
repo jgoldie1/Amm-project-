@@ -40,6 +40,7 @@ export const TRYAMM_ROUTES: TryammRoute[] = [
   { id:'immersive-worlds', path:'/immersive-worlds', label:'Immersive Worlds', kind:'overlay', opener:'__showImmersiveWorlds', readiness:'beta' },
   { id:'advanced-worlds', path:'/advanced-worlds', label:'Advanced Worlds', kind:'overlay', opener:'__showAdvancedWorlds', readiness:'beta' },
   { id:'kingdoms-press', path:'/kingdoms-press', label:'Kingdoms Press', kind:'overlay', opener:'__showKingdomsPress', readiness:'beta' },
+  { id:'book-club', path:'/book-club', label:'Kingdoms Press Book Club', kind:'overlay', opener:'__showBookClub', readiness:'beta' },
   { id:'ai-cafe', path:'/ai-cafe', label:'AI Cafe', kind:'overlay', opener:'__showAICafe', readiness:'beta' },
   { id:'family-legacy', path:'/family-legacy', label:'Family Legacy', kind:'overlay', opener:'__showFamilyLegacy', readiness:'beta' },
   { id:'quantum-engine', path:'/quantum-engine', label:'Quantum Engine', kind:'overlay', opener:'__showQuantumEngine', readiness:'beta' },
