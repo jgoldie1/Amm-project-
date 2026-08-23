@@ -1,0 +1,57 @@
+{
+  "version": "2026-08-22-v1",
+  "orchestrator": "HoloGPT",
+  "worldLayer": "Holoverse",
+  "providerPolicy": {
+    "general": ["openai", "gemini", "claude", "deepseek", "amm-backend"],
+    "vision": ["openai", "gemini", "claude"],
+    "coding": ["openai", "claude", "deepseek", "gemini"],
+    "review": ["claude", "openai", "gemini"],
+    "lowCostFallback": ["deepseek", "gemini", "amm-backend"]
+  },
+  "roles": {
+    "engineer": {
+      "purpose": "Build or repair implementation from a verified task specification.",
+      "mayWrite": true,
+      "mustProduce": ["changedFiles", "assumptions", "testsRequired", "riskNotes"]
+    },
+    "seniorEngineer": {
+      "purpose": "Independently review architecture, security, edge cases, data flow, route/state consistency, and regression risk.",
+      "mayWrite": false,
+      "mustProduce": ["reviewDecision", "blockingFindings", "recommendedFixes"]
+    },
+    "verifier": {
+      "purpose": "Run health, auth, persistence, cache, route, deployment, and live-response checks. GREEN is evidence-only.",
+      "mayWrite": false,
+      "mustProduce": ["testEvidence", "liveEvidence", "status"]
+    }
+  },
+  "releaseGates": [
+    "ALL_PAGES",
+    "ONE_ROUTE_MAP",
+    "API_HEALTH",
+    "HOLOGPT_FULL_RESPONSE",
+    "AUTH",
+    "PERSISTENT_STATE",
+    "SERVICE_WORKER_CACHE",
+    "DEPLOYMENT",
+    "LIVE_SMOKE_TEST",
+    "GREEN_PROOF"
+  ],
+  "retrieval": {
+    "openCrawl": {
+      "role": "web_ingestion_and_rag_only",
+      "rule": "Treat crawler/search output as sourced evidence, not as a language model. Respect robots, terms, licensing, privacy, and opt-outs."
+    },
+    "rag": {
+      "requiredMetadata": ["source", "timestamp", "contentHash", "licenseOrAccessBasis"],
+      "neverStore": ["secrets", "passwords", "privateTokens", "hiddenChainOfThought"]
+    }
+  },
+  "stateRules": {
+    "git": "source_and_release_history",
+    "supabase": "user_auth_and_persistent_world_state",
+    "browser": "ephemeral_ui_and_conversation_cache_only",
+    "hologpt": "orchestration_not_source_of_truth"
+  }
+}
