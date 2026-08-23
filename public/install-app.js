@@ -1,5 +1,7 @@
 'use strict';
 (()=>{
+  if(!document.querySelector('link[data-hologpt-widget]')){const link=document.createElement('link');link.rel='stylesheet';link.href='/hologpt-widget.css?v=1';link.dataset.hologptWidget='true';document.head.append(link);}
+  if(!document.querySelector('script[data-hologpt-widget]')){const script=document.createElement('script');script.src='/hologpt-widget.js?v=1';script.defer=true;script.dataset.hologptWidget='true';document.head.append(script);}
   const card=document.querySelector('#installCard'),install=document.querySelector('#installConfirm'),dismiss=document.querySelector('#installDismiss'),open=document.querySelector('#installOpen'),status=document.querySelector('#installStatus'),instructions=document.querySelector('#installInstructions');
   if(!card||!install||!dismiss||!open||!status||!instructions)return;
   const KEY='tryamm-install-dismissed-at',COOLDOWN=7*24*60*60*1000;
