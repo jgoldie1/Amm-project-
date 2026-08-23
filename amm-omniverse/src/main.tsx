@@ -16,6 +16,7 @@ import RevenueLandingCTAs from './components/RevenueLandingCTAs'
 import HoloConcierge from './components/HoloConcierge'
 import UnifiedCommerceHub from './components/UnifiedCommerceHub'
 import NeighborhoodCommerceNetwork from './components/NeighborhoodCommerceNetwork'
+import VirtualWarehouseNetwork from './components/VirtualWarehouseNetwork'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
@@ -40,6 +41,7 @@ createRoot(document.getElementById('root')!).render(
     <HoloMarketplaceLauncher />
     <UnifiedCommerceHub />
     <NeighborhoodCommerceNetwork />
+    <VirtualWarehouseNetwork />
     <HoloConcierge />
   </StrictMode>
 )
