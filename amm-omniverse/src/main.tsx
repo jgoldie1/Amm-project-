@@ -19,6 +19,7 @@ import NeighborhoodCommerceNetwork from './components/NeighborhoodCommerceNetwor
 import VirtualWarehouseNetwork from './components/VirtualWarehouseNetwork'
 import HoloFridge from './components/HoloFridge'
 import LivingWorldEconomyHUD from './components/LivingWorldEconomyHUD'
+import BuildSwarmControl from './components/BuildSwarmControl'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
@@ -46,6 +47,7 @@ createRoot(document.getElementById('root')!).render(
     <VirtualWarehouseNetwork />
     <HoloFridge />
     <LivingWorldEconomyHUD />
+    <BuildSwarmControl />
     <HoloConcierge />
   </StrictMode>
 )
