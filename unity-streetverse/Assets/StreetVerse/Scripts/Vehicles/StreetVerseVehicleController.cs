@@ -22,7 +22,7 @@ namespace Tryamm.StreetVerse
         [SerializeField] private bool rightDoorOpen;
 
         private Rigidbody body;
-        public float SpeedKph => body == null ? 0f : body.linearVelocity.magnitude * 3.6f;
+        public float SpeedKph => body == null ? 0f : body.velocity.magnitude * 3.6f;
         public float ExteriorAudioBleed => Mathf.Clamp01(Mathf.Max(leftWindowOpen, rightWindowOpen, leftDoorOpen ? 1f : 0f, rightDoorOpen ? 1f : 0f));
         public event Action<float> ExteriorAudioBleedChanged;
 
@@ -54,7 +54,13 @@ namespace Tryamm.StreetVerse
             int frontCount = frontWheels?.Length ?? 0;
             for (int i = 0; i < (wheelMeshes?.Length ?? 0); i++)
             {
-                var collider = i < frontCount ? frontWheels[i] : rearWheels[i - frontCount];
+                WheelCollider collider = null;
+                if (i < frontCount && i < frontWheels.Length) collider = frontWheels[i];
+                else
+                {
+                    int rearIndex = i - frontCount;
+                    if (rearWheels != null && rearIndex >= 0 && rearIndex < rearWheels.Length) collider = rearWheels[rearIndex];
+                }
                 if (collider == null || wheelMeshes[i] == null) continue;
                 collider.GetWorldPose(out var position, out var rotation);
                 wheelMeshes[i].SetPositionAndRotation(position, rotation);
