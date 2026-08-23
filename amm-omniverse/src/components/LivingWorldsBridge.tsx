@@ -133,6 +133,7 @@ export default function LivingWorldsBridge() {
     <RouteCoordinator />
     <HoloGPTAssistant />
     <HoloDirectLaunchBridge />
+    {signedIn&&<button aria-label="Open AR VR Mixed Reality" onClick={()=>setShowXR(true)} style={{position:'fixed',left:12,bottom:18,zIndex:10031,border:'1px solid #a36cff99',borderRadius:999,padding:'12px 15px',background:'linear-gradient(135deg,#17102b,#071d2a)',color:'#d6b7ff',fontFamily:'monospace',fontWeight:950,fontSize:11,cursor:'pointer',boxShadow:'0 0 24px #a36cff22'}}>XR · AR/VR</button>}
     {showNexusV2&&<CommandNexusControlPlane onClose={()=>setShowNexusV2(false)}/>} 
     {showHoloMusic&&<HoloMusicStreaming onClose={()=>setShowHoloMusic(false)}/>} 
     {showXR&&<XRCommandGateway onClose={()=>setShowXR(false)}/>} 
