@@ -8,8 +8,11 @@ export default function HoloConcierge(){
  useEffect(()=>{(window as any).__showHoloConcierge=()=>setOpen(true);return()=>{delete (window as any).__showHoloConcierge}},[])
  const intents:Intent[]=[
   {label:'I want healthy groceries',action:()=>call('__showYahavahGrocery')},
+  {label:'Open my Holo Fridge',action:()=>call('__showHoloFridge')},
+  {label:'Find the best supplier / fulfillment rail',action:()=>call('__showVirtualWarehouse')},
   {label:'I need wigs / beauty / nail supplies',action:()=>call('__showAllAmericanBeauty')},
   {label:'Help me start a beauty store or nail shop',action:()=>call('__showSupplyPlug')},
+  {label:'Show the living StreetVerse economy',action:()=>call('__showLivingWorldEconomy')},
   {label:'I want to play StreetVerse',action:()=>call('__showPlayableBeta')},
   {label:'I want to make a Reel / movie clip',action:()=>call('__showMediaStudio')},
   {label:'I need a ride',action:()=>call('__showHoloRide')},
