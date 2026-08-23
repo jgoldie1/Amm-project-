@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useGameStore } from '../game/state/useGameStore'
 import { getAuthenticatedUserId, isSupabaseConfigured } from '../services/supabaseClient'
 import HoloGPTAssistant from './HoloGPTAssistant'
+import HoloDirectLaunchBridge from './HoloDirectLaunchBridge'
 import RouteCoordinator from '../navigation/RouteCoordinator'
 import {
   enterWorld,
@@ -105,5 +106,6 @@ export default function LivingWorldsBridge() {
   return <>
     <RouteCoordinator />
     <HoloGPTAssistant />
+    <HoloDirectLaunchBridge />
   </>
 }
