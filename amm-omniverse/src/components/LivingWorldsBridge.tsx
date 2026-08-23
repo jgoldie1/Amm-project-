@@ -1,8 +1,10 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useGameStore } from '../game/state/useGameStore'
 import { getAuthenticatedUserId, isSupabaseConfigured } from '../services/supabaseClient'
 import HoloGPTAssistant from './HoloGPTAssistant'
 import HoloDirectLaunchBridge from './HoloDirectLaunchBridge'
+import HoloMusicStreaming from './HoloMusicStreaming'
+import CommandNexusControlPlane from './CommandNexusControlPlane'
 import RouteCoordinator from '../navigation/RouteCoordinator'
 import {
   enterWorld,
@@ -25,7 +27,24 @@ export default function LivingWorldsBridge() {
   const sessionRef = useRef<WorldSession | null>(null)
   const worldsRef = useRef<WorldRecord[]>([])
   const readyRef = useRef(false)
+  const [showNexusV2,setShowNexusV2]=useState(false)
+  const [showHoloMusic,setShowHoloMusic]=useState(false)
   const signedIn = screen !== 'intro' && screen !== 'login'
+
+  useEffect(()=>{
+    const openNexus=()=>setShowNexusV2(true)
+    const openMusic=()=>setShowHoloMusic(true)
+    ;(window as any).__showCommandNexusV2=openNexus
+    ;(window as any).__showHoloMusic=openMusic
+    window.addEventListener('tryamm:open-command-nexus-v2',openNexus)
+    window.addEventListener('tryamm:open-holo-music',openMusic)
+    return()=>{
+      window.removeEventListener('tryamm:open-command-nexus-v2',openNexus)
+      window.removeEventListener('tryamm:open-holo-music',openMusic)
+      if((window as any).__showCommandNexusV2===openNexus)delete (window as any).__showCommandNexusV2
+      if((window as any).__showHoloMusic===openMusic)delete (window as any).__showHoloMusic
+    }
+  },[])
 
   useEffect(() => {
     if (!signedIn) {
@@ -107,5 +126,7 @@ export default function LivingWorldsBridge() {
     <RouteCoordinator />
     <HoloGPTAssistant />
     <HoloDirectLaunchBridge />
+    {showNexusV2&&<CommandNexusControlPlane onClose={()=>setShowNexusV2(false)}/>} 
+    {showHoloMusic&&<HoloMusicStreaming onClose={()=>setShowHoloMusic(false)}/>} 
   </>
 }
