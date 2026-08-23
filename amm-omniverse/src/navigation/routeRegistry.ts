@@ -13,6 +13,7 @@ export const TRYAMM_ROUTES: TryammRoute[] = [
   { id:'holo-fridge', path:'/holo-fridge', label:'Holo Fridge', kind:'overlay', opener:'__showHoloFridge', readiness:'beta' },
   { id:'holo-cold-vault', path:'/holo-cold-vault', label:'Holo Cold Vault', kind:'overlay', opener:'__showHoloColdVault', readiness:'beta' },
   { id:'all-american-beauty', path:'/beauty-supply', label:'All American Beauty Supply', kind:'overlay', opener:'__showAllAmericanBeauty', readiness:'beta' },
+  { id:'product-try-on', path:'/try-on', label:'Product Try-On', kind:'overlay', opener:'__showProductTryOn', readiness:'beta' },
   { id:'supply-plug', path:'/supply-plug', label:'Supply Plug Global', kind:'overlay', opener:'__showSupplyPlug', readiness:'beta' },
   { id:'virtual-warehouse', path:'/virtual-warehouse', label:'Global Virtual Warehouse', kind:'overlay', opener:'__showVirtualWarehouse', readiness:'beta' },
   { id:'holo-coupon', path:'/holo-coupon', label:'Holo Coupon', kind:'overlay', opener:'__showHoloCoupon', readiness:'beta' },
