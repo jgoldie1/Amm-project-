@@ -64,6 +64,22 @@ export interface StreetVerseMissionRun {
   updated_at: string
 }
 
+export interface GetPaidToPlayClaim {
+  id: string
+  programId: string
+  programType: string
+  userId: string
+  evidenceType: string
+  evidenceRef: string
+  xp: number
+  holoCredits: number
+  cashCents: number
+  cashStatus: string
+  status: string
+  serverDetermined: boolean
+  createdAt: string
+}
+
 export function getStoreCatalog(): Promise<AppStoreAsset[]> {
   if (!API_URL) return Promise.resolve([])
   return request<{ assets: AppStoreAsset[] }>('/api/omniverse/store/catalog').then(body => body.assets || [])
@@ -128,6 +144,29 @@ export async function updateStreetVerseMission(id: string, patch: {
     body: JSON.stringify(patch),
   })
   return body.mission
+}
+
+export async function claimGetPaidToPlay(input: {
+  programId: string
+  game?: string
+  evidence: Record<string, unknown>
+}) {
+  return request<{ ok: boolean; applied: boolean; claim: GetPaidToPlayClaim; playerState?: DurablePlayerState; notice?: string; reason?: string }>('/api/get-paid-to-play/claim', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export async function getGetPaidToPlayStatus() {
+  return request<{ ok: boolean; mode: string; realPayoutsEnabled: boolean; dailyCashCapCents: number; browserControlsRewardAmount: boolean; chanceGamesCashEligible: boolean; payoutStatus: string }>('/api/get-paid-to-play/status')
+}
+
+export async function getGetPaidToPlayPrograms() {
+  return request<{ programs: Array<Record<string, unknown>> }>('/api/get-paid-to-play/programs')
+}
+
+export async function getGetPaidToPlayHistory() {
+  return request<{ claims: GetPaidToPlayClaim[] }>('/api/get-paid-to-play/history')
 }
 
 export async function createMediaCatalogItem(input: {
