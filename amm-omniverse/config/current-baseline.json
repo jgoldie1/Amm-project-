@@ -1,8 +1,8 @@
 {
   "lockedAt": "2026-08-22",
   "workingBranch": "developer-vic",
-  "baselineCommit": "2dde6c4f81b3055c2a12e09a7bbc3328a9b7b298",
-  "rollbackBranch": "checkpoint/2026-08-22-current-baseline",
+  "baselineCommit": "53dd324c0f6423db58cd8299d168ca757f9ef32e",
+  "rollbackBranch": "checkpoint/2026-08-22-intelligence-hierarchy",
   "policyCommit": "2dde6c4f81b3055c2a12e09a7bbc3328a9b7b298",
   "releaseSequence": [
     "ALL_PAGES",
@@ -16,7 +16,17 @@
     "LIVE_SMOKE_TEST",
     "GREEN_PROOF"
   ],
-  "continuationRule": "Search Git and this baseline before creating or replacing any HoloGPT, Holoverse, auth, route, state, cache, deployment, or provider subsystem. Extend canonical implementations only.",
+  "canonicalIntelligence": {
+    "orchestrator": "HoloGPT",
+    "worldLayer": "Holoverse",
+    "operationsLayer": "Middleverse AI",
+    "executiveReasoning": "Stubbs AI",
+    "engineeringReview": "Lyons Tech AI",
+    "guardian": "Guardian Brain",
+    "selfAwarenessClaim": "operational software self-model only; not literal consciousness",
+    "fiveSenses": "multimodal/device/sensor adapters only; not biological senses"
+  },
+  "continuationRule": "Search Git and this baseline before creating or replacing any HoloGPT, Holoverse, Middleverse AI, Stubbs AI, Lyons Tech AI, auth, route, state, cache, deployment, or provider subsystem. Extend canonical implementations only.",
   "statusRule": {
     "COMMITTED": "source safely recorded in Git",
     "DEPLOYED": "the committed source reached the target environment",
@@ -24,5 +34,5 @@
     "GREEN": "all required gates have evidence"
   },
   "nextGate": "HOLOGPT_FULL_RESPONSE",
-  "knownBlocker": "At least one live generative provider must return a non-degraded response in production before HoloGPT can be marked GREEN."
+  "knownBlocker": "At least one live generative provider must return a non-degraded response in production before the intelligence hierarchy can be marked GREEN."
 }
