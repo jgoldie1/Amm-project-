@@ -11,8 +11,10 @@ import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import MediaStudioLauncher from './components/MediaStudioLauncher'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
+import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
 
 installProductionHealthMonitor()
+installMediaCloudBridge()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
