@@ -20,6 +20,7 @@ import VirtualWarehouseNetwork from './components/VirtualWarehouseNetwork'
 import HoloFridge from './components/HoloFridge'
 import LivingWorldEconomyHUD from './components/LivingWorldEconomyHUD'
 import BuildSwarmControl from './components/BuildSwarmControl'
+import ProductTryOnHub from './components/ProductTryOnHub'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
@@ -48,6 +49,7 @@ createRoot(document.getElementById('root')!).render(
     <HoloFridge />
     <LivingWorldEconomyHUD />
     <BuildSwarmControl />
+    <ProductTryOnHub />
     <HoloConcierge />
   </StrictMode>
 )
