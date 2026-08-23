@@ -16,8 +16,17 @@ type NetworkState = {
 const card: React.CSSProperties = { background:'#07101c', border:'1px solid #17334a', borderRadius:18, padding:16 }
 const button: React.CSSProperties = { border:'1px solid #4fe3ff77', borderRadius:12, padding:'11px 13px', background:'#081824', color:'#72e9ff', fontWeight:900, cursor:'pointer' }
 
+function initialTab(): 'network'|'jarvis'|'aau' {
+  const target=localStorage.getItem('tryamm_school_network_target')
+  if(target==='aau'||target==='jarvis'){
+    localStorage.removeItem('tryamm_school_network_target')
+    return target
+  }
+  return 'network'
+}
+
 export default function SchoolNetworkPortal({ onClose }: Props) {
-  const [tab,setTab]=useState<'network'|'jarvis'|'aau'>('network')
+  const [tab,setTab]=useState<'network'|'jarvis'|'aau'>(initialTab)
   const [data,setData]=useState<NetworkState>({hbcuPartners:[],blackExcellence:[],books:[],labs:[],opportunities:[]})
   const [message,setMessage]=useState('')
 
