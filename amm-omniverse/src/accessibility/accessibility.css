@@ -1,0 +1,50 @@
+html.a11y-large-text { font-size: 112.5%; }
+html.a11y-large-targets button,
+html.a11y-large-targets [role='button'],
+html.a11y-large-targets input,
+html.a11y-large-targets select,
+html.a11y-large-targets textarea,
+html.a11y-one-handed button,
+html.a11y-one-handed [role='button'] { min-height: 48px; min-width: 48px; }
+
+html.a11y-high-contrast body,
+html.a11y-high-contrast #root { background: #000 !important; color: #fff !important; }
+html.a11y-high-contrast button,
+html.a11y-high-contrast input,
+html.a11y-high-contrast select,
+html.a11y-high-contrast textarea,
+html.a11y-high-contrast [role='dialog'] { border-color: currentColor !important; }
+
+html.a11y-reduced-motion *,
+html.a11y-reduced-motion *::before,
+html.a11y-reduced-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+  transition-duration: 0.001ms !important;
+}
+
+html.a11y-keyboard-only :focus-visible,
+html.a11y-switch-access :focus-visible,
+html.a11y-screen-reader :focus-visible {
+  outline: 3px solid #4FE3FF !important;
+  outline-offset: 3px !important;
+}
+
+html.a11y-simplified [data-tryamm-secondary='true'] { display: none !important; }
+
+@media (max-width: 720px) {
+  html.a11y-one-handed [data-tryamm-primary-actions='true'] {
+    position: sticky;
+    bottom: 0;
+    z-index: 50;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not(.a11y-motion-override) *,
+  html:not(.a11y-motion-override) *::before,
+  html:not(.a11y-motion-override) *::after {
+    scroll-behavior: auto;
+  }
+}

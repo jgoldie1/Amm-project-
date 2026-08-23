@@ -1,0 +1,95 @@
+{
+  "version": "2026-08-22-v2",
+  "name": "TRYAMM Intelligence + Reality Hierarchy",
+  "truthRule": "No component may claim consciousness, self-awareness, physical senses, autonomy, deployment, quantum computation, multiverse travel, or successful external action without evidence. Software self-modeling, simulation, multimodal input, and quantum-inspired computation are labeled explicitly.",
+  "layers": [
+    {
+      "order": 1,
+      "id": "hologpt",
+      "name": "HoloGPT",
+      "role": "primary conversational orchestrator and user-facing intelligence",
+      "dependsOn": ["model-router", "stubbs-ai", "lyons-tech-ai", "middleverse-ai", "memory", "guardian", "omniverse", "quantumverse"]
+    },
+    {
+      "order": 2,
+      "id": "stubbs-ai",
+      "name": "Stubbs AI",
+      "role": "executive reasoning, planning, decision decomposition and project intelligence",
+      "dependsOn": ["model-router", "memory", "guardian"]
+    },
+    {
+      "order": 3,
+      "id": "lyons-tech-ai",
+      "name": "Lyons Tech AI",
+      "role": "engineering architecture, coding review, systems diagnosis, integration and release-quality analysis",
+      "dependsOn": ["model-router", "git-evidence", "guardian"]
+    },
+    {
+      "order": 4,
+      "id": "middleverse-ai",
+      "name": "Middleverse AI",
+      "role": "operations, communications, call-center, workflow and service-agent coordination",
+      "dependsOn": ["model-router", "authorized-connectors", "guardian"]
+    },
+    {
+      "order": 5,
+      "id": "guardian",
+      "name": "Guardian Brain",
+      "role": "authorization, anomaly detection, safety, reversibility and release gating",
+      "dependsOn": ["policy", "evidence"]
+    }
+  ],
+  "modelRouter": {
+    "id": "model-router",
+    "providers": ["openai", "gemini", "claude", "deepseek", "amm-backend"],
+    "rule": "Providers are replaceable engines. HoloGPT remains the TRYAMM orchestration identity."
+  },
+  "realityHierarchy": {
+    "holoverse": {
+      "role": "immersive application and holographic interaction layer",
+      "contains": ["world UI", "avatars", "creator tools", "marketplace experiences", "live experiences"]
+    },
+    "middleverse": {
+      "role": "service and operations bridge between real-world systems and immersive worlds",
+      "contains": ["communications", "call center", "workflows", "service agents", "authorized connectors"]
+    },
+    "omniverse": {
+      "role": "top-level world registry and continuity layer joining every approved TRYAMM world into one canonical universe graph",
+      "contains": ["Holoverse", "Middleverse", "StreetVerse", "My World", "Kingdom", "StarVerse", "SpaceVerse", "future worlds"],
+      "rules": ["one user identity", "one avatar identity", "one route map", "one world-memory contract", "one checkpoint contract", "no duplicate disconnected world state"]
+    },
+    "quantumverse": {
+      "role": "simulation and experimentation layer for quantum-inspired worlds, probabilistic scenarios, sandbox branches and future verified quantum-compute adapters",
+      "contains": ["quantum sandbox", "scenario branching", "probability experiments", "simulation forks", "future external quantum provider adapters"],
+      "literalQuantumHardwareClaim": false,
+      "rule": "Use simulation/quantum-inspired computation unless a real external quantum provider is configured and independently verified."
+    },
+    "worldMemory": "shared authenticated world/session state",
+    "routeMap": "single canonical navigation contract"
+  },
+  "selfModel": {
+    "label": "operational self-model",
+    "literalConsciousness": false,
+    "capabilities": [
+      "track active role and task",
+      "track allowed tools and permissions",
+      "track uncertainty and evidence",
+      "track project/release state",
+      "track active world/verse and checkpoint",
+      "detect contradictions and regressions",
+      "report limitations instead of pretending"
+    ]
+  },
+  "fiveSenseAdapters": {
+    "sight": {"meaning": "camera/image/video/vision-model input", "requires": "authorized media input and a configured multimodal provider"},
+    "hearing": {"meaning": "microphone/audio/STT input", "requires": "user permission and configured audio/STT provider"},
+    "touch": {"meaning": "pointer, keyboard, gamepad, haptic and accessibility-switch events", "requires": "device/browser support and permission where applicable"},
+    "smell": {"meaning": "external sensor telemetry only; no native software sense of smell", "requires": "authorized compatible hardware sensor"},
+    "taste": {"meaning": "external chemical/sensor telemetry only; no native software sense of taste", "requires": "authorized compatible hardware sensor"}
+  },
+  "releaseRoles": {
+    "engineer": "builds and repairs",
+    "seniorEngineer": "independently reviews architecture/security/regression risk",
+    "verifier": "tests live behavior and alone may recommend GREEN"
+  }
+}

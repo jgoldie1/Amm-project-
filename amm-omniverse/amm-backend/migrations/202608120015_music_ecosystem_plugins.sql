@@ -1,0 +1,18 @@
+-- Music ecosystem interoperability for Aniyah Studio.
+-- These records describe supported handoff/adapter contracts; they do not bundle proprietary SDKs or credentials.
+
+insert into public.plugin_registry(plugin_key,name,category,runtime,status,permissions,capabilities,requires_human_confirmation,youth_allowed,config_schema) values
+('aniyah.ableton-link','Ableton Link Sync','daw-sync','external-adapter','sandbox',array['audio.transport'],array['tempo-sync','beat-sync','phase-sync','start-stop-sync'],false,true,'{"license":"Ableton Link SDK terms apply","native_bridge_required":true}'::jsonb),
+('aniyah.ableton-export','Ableton Live Set Export/Handoff','daw-export','external-adapter','disabled',array['project.export'],array['stems','midi','project-handoff','live-set-export-when-licensed'],true,true,'{"note":"Use stems/MIDI universally; ALS export only when Ableton SDK access/license is obtained."}'::jsonb),
+('aniyah.protools','Pro Tools AAX/Session Handoff','daw-export','external-adapter','disabled',array['project.export','plugin.native'],array['stems','midi','AAF-handoff','AAX-plugin-host-bridge'],true,false,'{"note":"AAX development requires Avid SDK/license and signing/iLok requirements; no AAX binaries are bundled here."}'::jsonb),
+('aniyah.flstudio','FL Studio Interop','daw-export','external-adapter','sandbox',array['project.export','midi.io'],array['stems','midi','tempo-map','VST-host-handoff'],false,true,'{"note":"Use standard stems/MIDI and desktop plugin bridge; browser does not directly host desktop VST instances."}'::jsonb),
+('aniyah.korg-midi','KORG MIDI/MIDI 2.0 Bridge','hardware','external-adapter','sandbox',array['midi.io'],array['midi-1','midi-2-property-exchange','poly-aftertouch','controller-mapping','program-change'],false,true,'{"note":"Capabilities depend on connected KORG model and OS MIDI support."}'::jsonb),
+('aniyah.plugin-vst3','VST3 Desktop Bridge','plugin-format','external-adapter','disabled',array['audio.process','plugin.native'],array['native-effects','native-instruments','preset-bridge'],true,false,'{"note":"Requires a signed desktop companion/native host; VST3 binaries are not executed inside the web browser."}'::jsonb),
+('aniyah.plugin-au','Audio Unit Desktop Bridge','plugin-format','external-adapter','disabled',array['audio.process','plugin.native'],array['native-effects','native-instruments','preset-bridge'],true,false,'{"note":"macOS/iOS native host integration required."}'::jsonb),
+('aniyah.plugin-aax','AAX Desktop Bridge','plugin-format','external-adapter','disabled',array['audio.process','plugin.native'],array['pro-tools-plugin'],true,false,'{"note":"Avid AAX SDK/license/signing requirements apply."}'::jsonb),
+('aniyah.bandcamp','Bandcamp Publishing/Sales Adapter','distribution','external-adapter','disabled',array['catalog.read','sales.read','orders.read'],array['account-data','sales-reports','merch-orders','publishing-handoff'],true,false,'{"note":"Bandcamp API access is granted to eligible labels/merch fulfillment partners by request; OAuth credentials must remain server-side."}'::jsonb),
+('aniyah.universal-export','Universal DAW Export','daw-export','server','enabled',array['project.export'],array['wav-stems','midi','tempo-map','track-sheet','mix-notes','master-notes'],false,true,'{"formats":["WAV","MIDI","JSON track sheet","CSV cue sheet"]}'::jsonb)
+on conflict(plugin_key) do update set
+  name=excluded.name, category=excluded.category, runtime=excluded.runtime, permissions=excluded.permissions,
+  capabilities=excluded.capabilities, requires_human_confirmation=excluded.requires_human_confirmation,
+  youth_allowed=excluded.youth_allowed, config_schema=excluded.config_schema, updated_at=now();

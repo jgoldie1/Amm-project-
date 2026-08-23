@@ -1,0 +1,49 @@
+{
+  "id": "/",
+  "name": "TRYAMM — All American Marketplace & Living Worlds",
+  "short_name": "TRYAMM",
+  "description": "Creators, commerce, LIVE, games, AI, business, workforce, education, accessibility and Living Worlds in one connected platform.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "theme_color": "#04050E",
+  "background_color": "#04050E",
+  "lang": "en-US",
+  "dir": "ltr",
+  "categories": ["social", "shopping", "business", "entertainment", "games", "music", "education", "productivity"],
+  "icons": [
+    { "src": "/icons/icon-72.png", "sizes": "72x72", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-128.png", "sizes": "128x128", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-144.png", "sizes": "144x144", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-152.png", "sizes": "152x152", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon-384.png", "sizes": "384x384", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "TRYAMM Home", "short_name": "Home", "url": "/", "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }] },
+    { "name": "Marketplace", "short_name": "Market", "url": "/?screen=marketplace", "icons": [{ "src": "/icons/shortcut-market.png", "sizes": "96x96" }] },
+    { "name": "LIVE", "short_name": "LIVE", "url": "/?action=live", "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }] },
+    { "name": "Living Worlds", "short_name": "Worlds", "url": "/?screen=city", "icons": [{ "src": "/icons/shortcut-city.png", "sizes": "96x96" }] }
+  ],
+  "prefer_related_applications": false,
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [{ "name": "media", "accept": ["audio/*", "video/*", "image/*"] }]
+    }
+  },
+  "protocol_handlers": [
+    { "protocol": "web+tryamm", "url": "/?action=%s" }
+  ],
+  "handle_links": "preferred",
+  "launch_handler": { "client_mode": "focus-existing" }
+}

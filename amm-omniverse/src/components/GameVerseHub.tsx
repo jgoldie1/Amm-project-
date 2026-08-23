@@ -1,0 +1,42 @@
+import { useMemo, useState } from 'react'
+
+const cyan='#4FE3FF'
+const gold='#E8B944'
+
+type Game={slug:string;name:string;icon:string;genre:string;status:'PROTOTYPE'|'PLANNED';summary:string;features:string[];entry:'sports'|'city'|'planned'}
+
+// Authoritative VOLCANO / Living Games lineup. The separate 13 Living Worlds registry
+// remains the cross-world environment layer; GameVerse Nexus bridges these 11 games.
+export const GAMEVERSE_WORLDS:Game[]=[
+  {slug:'living-city',name:'Living City',icon:'🌆',genre:'Open World',status:'PROTOTYPE',summary:'Living-city action, businesses, missions, interiors, reputation, economy and shared-world foundation.',features:['Living city','Businesses + economy','Missions + interiors','Shared Passport'],entry:'city'},
+  {slug:'living-flight',name:'Living Flight',icon:'✈️',genre:'Flight + Space',status:'PLANNED',summary:'Aircraft, spaceflight, missions, planetary travel and future crew operations.',features:['Controllable flight','Mission systems','Planetary travel','Crew progression'],entry:'planned'},
+  {slug:'holobeasts-living-wilds',name:'HoloBeasts: Living Wilds',icon:'🦁',genre:'Creature Adventure',status:'PLANNED',summary:'Original living-creature exploration, collection, habitats, quests and arena encounters.',features:['Creature discovery','Living habitats','Quests','Arena encounters'],entry:'planned'},
+  {slug:'living-ops-shadow-front',name:'Living Ops: Shadow Front',icon:'🎯',genre:'Tactical Action',status:'PLANNED',summary:'Original squad-based tactical action, objectives, operations and cross-world progression.',features:['Squads','Objectives','Team tactics','Cross-world progression'],entry:'planned'},
+  {slug:'paranormal-unit-rift-hunters',name:'Paranormal Unit: Rift Hunters',icon:'👻',genre:'Paranormal Action',status:'PLANNED',summary:'Investigate rifts, anomalies and supernatural encounters with cooperative missions and equipment.',features:['Rift investigations','Co-op missions','Equipment','Anomaly encounters'],entry:'planned'},
+  {slug:'holo-battle-omniverse',name:'Holo Battle: Omniverse',icon:'⚔️',genre:'Battle Arena',status:'PLANNED',summary:'Original cross-world battle arena using holographic presentation, teams and persistent progression.',features:['Arena battles','Teams','Holo presentation','Persistent progression'],entry:'planned'},
+  {slug:'living-racing',name:'Living Racing',icon:'🏎️',genre:'Racing',status:'PLANNED',summary:'Cars, bikes and future vehicles racing across reactive Living Worlds tracks and cities.',features:['Cars + bikes','Reactive tracks','Future vehicles','Career progression'],entry:'planned'},
+  {slug:'living-sports',name:'Living Sports',icon:'🏆',genre:'Sports Universe',status:'PROTOTYPE',summary:'The unified sports game housing football, basketball, baseball, hockey, global football, boxing and future sports modules.',features:['Multiple sports','Career progression','Leagues + tournaments','Explainable officiating'],entry:'sports'},
+  {slug:'living-laser',name:'Living Laser',icon:'🔦',genre:'Laser + Arena',status:'PLANNED',summary:'Fast holographic laser-grid competition with solo, team and spatial arena modes.',features:['Laser arenas','Team modes','Spatial play','Cross-world rewards'],entry:'planned'},
+  {slug:'living-quest',name:'Living Quest',icon:'🗺️',genre:'Adventure + Quest',status:'PLANNED',summary:'Story-driven quests, exploration, puzzles, discoveries and persistent character progression.',features:['Quest chains','Exploration','Puzzles','Persistent characters'],entry:'planned'},
+  {slug:'creator-world',name:'Creator World',icon:'🎬',genre:'Create + Build',status:'PLANNED',summary:'Build games, scenes, stories, characters, experiences and reusable assets that can connect across Living Games.',features:['World building','Character creation','Story tools','Creator assets'],entry:'planned'},
+]
+
+export default function GameVerseHub({onClose,onEnterSports,onEnterCity,initialWorld}:{onClose:()=>void;onEnterSports:()=>void;onEnterCity:()=>void;initialWorld?:string}){
+  const initial=useMemo(()=>GAMEVERSE_WORLDS.find(w=>w.slug===initialWorld)||GAMEVERSE_WORLDS[0],[initialWorld])
+  const [selected,setSelected]=useState(initial)
+  const enter=()=>{ if(selected.entry==='sports')onEnterSports(); else if(selected.entry==='city')onEnterCity() }
+  return <div role="dialog" aria-label="TRYAMM GameVerse" style={{position:'fixed',inset:0,zIndex:12000,background:'radial-gradient(circle at 50% 0,#12263b,#04050e 48%,#010205)',color:'#fff',overflowY:'auto',fontFamily:'Inter,system-ui,sans-serif'}}>
+    <div style={{maxWidth:1240,margin:'0 auto',padding:'20px 18px 90px'}}>
+      <header style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,marginBottom:22}}><div><div style={{fontSize:10,color:cyan,fontWeight:950,letterSpacing:3}}>TRYAMM • VOLCANO LIVING GAMES</div><h1 style={{margin:'5px 0 0',fontSize:'clamp(30px,5vw,54px)'}}>GameVerse Nexus</h1><div style={{fontSize:11,color:'#8ca0b8',marginTop:5}}>11 standalone games • bridged through the Living Worlds ecosystem</div></div><button onClick={onClose} aria-label="Close GameVerse" style={{width:42,height:42,borderRadius:'50%',border:'1px solid #40516a',background:'#0c1320',color:'#fff',fontSize:22,cursor:'pointer'}}>×</button></header>
+      <div style={{display:'grid',gridTemplateColumns:'minmax(260px,.8fr) minmax(0,1.2fr)',gap:16}} className="gameverse-layout">
+        <nav aria-label="11 Living Games" style={{display:'grid',gap:7,alignContent:'start'}}>{GAMEVERSE_WORLDS.map((game,i)=><button key={game.slug} onClick={()=>setSelected(game)} style={{display:'grid',gridTemplateColumns:'34px 1fr auto',alignItems:'center',gap:9,textAlign:'left',padding:11,border:`1px solid ${selected.slug===game.slug?cyan:'#18283a'}`,borderRadius:14,background:selected.slug===game.slug?'#0a202c':'#080d16',color:'#fff',cursor:'pointer'}}><span style={{fontSize:21}}>{game.icon}</span><span><span style={{display:'block',fontSize:9,color:'#748aa3'}}>GAME {String(i+1).padStart(2,'0')} • {game.genre.toUpperCase()}</span><strong style={{fontSize:13}}>{game.name}</strong></span><span style={{fontSize:7,fontWeight:900,color:game.status==='PROTOTYPE'?gold:'#93a0b2'}}>{game.status}</span></button>)}</nav>
+        <section style={{border:'1px solid #23374d',borderRadius:24,padding:'clamp(20px,4vw,38px)',background:'linear-gradient(150deg,#0b1625,#070910)',minHeight:520}}>
+          <div style={{fontSize:58}}>{selected.icon}</div><div style={{fontSize:10,color:gold,fontWeight:950,letterSpacing:2,marginTop:15}}>{selected.genre.toUpperCase()} • {selected.status}</div><h2 style={{fontSize:'clamp(32px,5vw,58px)',margin:'8px 0 14px'}}>{selected.name}</h2><p style={{fontSize:16,color:'#afbdd0',lineHeight:1.6,maxWidth:720}}>{selected.summary}</p>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:9,marginTop:22}}>{selected.features.map(f=><div key={f} style={{border:'1px solid #203247',borderRadius:13,padding:12,background:'#0a111c',fontSize:12,color:'#dce7f5'}}>✦ {f}</div>)}</div>
+          <div style={{marginTop:26,padding:16,border:'1px solid #2b3341',borderRadius:16,background:'#090c12',fontSize:12,color:'#98a9bd',lineHeight:1.55}}><strong style={{color:'#fff'}}>Shared-world contract:</strong> the long-term design uses one TRYAMM Passport for identity, progression, safety settings, creator attribution and backend-authoritative owned items/rankings/purchases. Prototype/planned labels are readiness indicators, not claims of complete online multiplayer.</div>
+          <div style={{display:'flex',gap:10,flexWrap:'wrap',marginTop:24}}><button onClick={enter} disabled={selected.entry==='planned'} style={{border:0,borderRadius:13,padding:'13px 18px',background:selected.entry==='planned'?'#252a33':`linear-gradient(135deg,${cyan},#77a7ff)`,color:selected.entry==='planned'?'#7e8998':'#04111a',fontWeight:950,cursor:selected.entry==='planned'?'not-allowed':'pointer'}}>{selected.entry==='planned'?'PLANNED — NOT PLAYABLE YET':'ENTER PROTOTYPE →'}</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:middleverse-open',{detail:{source:'gameverse',world:selected.slug}}))} style={{border:`1px solid ${gold}88`,borderRadius:13,padding:'13px 18px',background:'#201807',color:'#ffe49b',fontWeight:900,cursor:'pointer'}}>◈ SEND TO MIDDLEVERSE</button></div>
+        </section>
+      </div>
+    </div><style>{`@media(max-width:800px){.gameverse-layout{grid-template-columns:1fr!important}}`}</style>
+  </div>
+}

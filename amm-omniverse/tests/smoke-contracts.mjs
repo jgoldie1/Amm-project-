@@ -1,0 +1,65 @@
+import fs from 'node:fs'
+import path from 'node:path'
+
+const root=process.cwd()
+const read=(p)=>fs.readFileSync(path.join(root,p),'utf8')
+const must=(condition,message)=>{ if(!condition) throw new Error(`SMOKE FAIL: ${message}`) }
+
+const main=read('src/main.tsx')
+const app=read('src/App.tsx')
+const home=read('src/components/TryAMMHome.tsx')
+const universe=read('src/components/LivingWorldsUniverse.tsx')
+const gameverse=read('src/components/GameVerseHub.tsx')
+const gameverseLauncher=read('src/components/GameVerseLauncher.tsx')
+const live=read('src/services/live.ts')
+const protectedLive=read('src/services/protectedLive.ts')
+const moderation=read('src/services/moderation.ts')
+const launcher=read('src/components/UniversalSafetyLauncher.tsx')
+const commerce=read('src/services/commerceOS.ts')
+
+must(main.includes('installProductionHealthMonitor()'),'production health monitor must install at startup')
+must(main.includes('<UniversalSafetyLauncher />'),'universal Safety launcher must be mounted')
+must(main.includes('<MiddleverseLauncher />'),'Middleverse workstation launcher must be mounted')
+must(main.includes('<GameVerseLauncher />'),'GameVerse launcher must be mounted globally')
+must(app.includes('<TryAMMHome />'),'new TRYAMM homepage must be mounted for intro screen')
+must(app.includes('COMMAND NEXUS'),'Command Nexus must replace the legacy button wall')
+must(home.includes('LivingWorldsUniverse'),'homepage must mount the Living Worlds universe')
+must(home.includes('11 CORE WORLDS'),'homepage must surface the 11 core Living Worlds')
+must(home.includes('AR • VR • MR'),'homepage must surface AR VR and Mixed Reality')
+must(home.includes('MUSIC UNIVERSE'),'homepage must surface Music universe')
+must(home.includes('Middleverse'),'homepage must surface Middleverse')
+must(home.includes('AI Workforce + WFH'),'homepage must surface AI Workforce and work-from-home')
+
+for(const world of ['Gridiron X','Court Kings','Diamond Legends','Ice Storm','World Pitch','Fight Night Holo','StreetVerse','Battlefront Zero','Yogihoo Arena','Volcano Racers','Kingdom Builders']) {
+  must(universe.includes(world),`${world} must remain in the 11-world homepage GameVerse`)
+}
+for(const game of ['Living City','Living Flight','HoloBeasts: Living Wilds','Living Ops: Shadow Front','Paranormal Unit: Rift Hunters','Holo Battle: Omniverse','Living Racing','Living Sports','Living Laser','Living Quest','Creator World']) {
+  must(gameverse.includes(game),`${game} must remain in the interactive GameVerse Nexus`)
+}
+for(const lane of ['AR PORTALS','VR WORLDS','MIXED REALITY','MUSIC & CULTURE','CREATOR WORLDS','HOLOVERSE']) must(universe.includes(lane),`${lane} immersive lane must remain visible`)
+must(universe.includes('__showGameVerse') && universe.includes('tryamm:gameverse-open'),'Living World cards must open GameVerse')
+must(gameverseLauncher.includes('tryamm:gameverse-open'),'GameVerse global event contract must exist')
+must(gameverse.includes('ENTER PROTOTYPE'),'GameVerse must distinguish enterable prototypes from planned worlds')
+must(gameverse.includes('SEND TO MIDDLEVERSE'),'GameVerse must preserve a Middleverse handoff path')
+must(home.includes('Commerce OS'),'homepage must surface Commerce OS')
+must(home.includes('TRYAMM LIVE'),'homepage must surface TRYAMM LIVE')
+must(home.includes('Stubbs AI'),'homepage must surface Stubbs AI')
+must(home.includes('Report, block, mute'),'homepage must surface trust and safety')
+must(app.includes("import('./components/LiveCenter')"),'LIVE Center must remain reachable from App')
+must(live.includes('installCallSafeLive'),'LiveKit connection must wire protected/call-safe LIVE')
+must(live.includes('RoomEvent.Disconnected'),'protected LIVE listeners must be cleaned up on disconnect')
+must(protectedLive.includes("'phone-call'"),'phone-call protected break must exist')
+must(protectedLive.includes("'bathroom'"),'bathroom protected break must exist')
+must(protectedLive.includes('visibilitychange'),'background interruption detection must exist')
+must(moderation.includes('/api/moderation/report'),'misconduct reporting API contract must exist')
+must(moderation.includes('/api/moderation/appeal'),'moderation appeal API contract must exist')
+must(moderation.includes('relationshipAction(') && moderation.includes("'block'"),'persistent block API contract must exist')
+must(moderation.includes("'mute'"),'persistent mute API contract must exist')
+must(moderation.includes('/api/moderation/relationships'),'safety relationship list contract must exist')
+must(launcher.includes('tryamm:safety-open'),'context-aware Safety launcher event must exist')
+must(commerce.includes('COMMERCE_CAPABILITIES'),'Commerce OS capability model must exist')
+
+const env=read('.env.example')
+for(const key of ['VITE_SUPABASE_URL','VITE_SUPABASE_ANON_KEY','VITE_API_URL']) must(env.includes(key),`${key} must be documented`)
+
+console.log('✅ frontend smoke contracts passed')

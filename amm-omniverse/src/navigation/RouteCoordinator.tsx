@@ -1,0 +1,47 @@
+import { useEffect } from 'react'
+import { useGameStore } from '../game/state/useGameStore'
+import { PATH_BY_SCREEN, ROUTE_BY_PATH, normalizeRoutePath } from './routeRegistry'
+
+function openRouteFromHash(){
+  const path=normalizeRoutePath(window.location.hash)
+  const route=ROUTE_BY_PATH.get(path)
+  if(!route)return
+  if(route.kind==='screen'&&route.screen){
+    if(useGameStore.getState().screen!==route.screen)useGameStore.getState().setScreen(route.screen)
+    return
+  }
+  if(route.opener){
+    const fn=(window as any)[route.opener]
+    if(typeof fn==='function')fn()
+  }
+}
+
+export default function RouteCoordinator(){
+  const screen=useGameStore(s=>s.screen)
+
+  useEffect(()=>{
+    ;(window as any).__tryammNavigate=(path:string)=>{
+      const normalized=normalizeRoutePath(path)
+      if(window.location.hash!==`#${normalized}`)window.location.hash=normalized
+      else openRouteFromHash()
+    }
+    ;(window as any).__showHoloGPT=()=>window.dispatchEvent(new CustomEvent('tryamm:open-hologpt'))
+    const onHash=()=>openRouteFromHash()
+    window.addEventListener('hashchange',onHash)
+    // Run after App assigns its overlay openers.
+    const timer=window.setTimeout(onHash,0)
+    return()=>{window.clearTimeout(timer);window.removeEventListener('hashchange',onHash);delete (window as any).__tryammNavigate}
+  },[])
+
+  useEffect(()=>{
+    const path=PATH_BY_SCREEN.get(screen)
+    if(!path)return
+    const current=normalizeRoutePath(window.location.hash)
+    const currentRoute=ROUTE_BY_PATH.get(current)
+    // Do not erase an explicitly-open overlay hash when its underlying screen changes.
+    if(currentRoute?.kind==='overlay')return
+    if(current!==path)history.replaceState(null,'',`${location.pathname}${location.search}#${path}`)
+  },[screen])
+
+  return null
+}
