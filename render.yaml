@@ -3,10 +3,10 @@ services:
     name: tryamm-api
     runtime: node
     plan: starter
-    buildCommand: npm install
+    buildCommand: npm ci
     startCommand: npm start
     healthCheckPath: /api/health
-    autoDeploy: false
+    autoDeploy: true
     envVars:
       - key: NODE_VERSION
         value: 20
@@ -16,11 +16,47 @@ services:
         sync: false
       - key: ADMIN_EMAIL
         sync: false
+      - key: PLATFORM_FEE_BPS
+        value: 2500
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: HOLOGPT_OPENAI_MODEL
+        sync: false
+      - key: HOLOGPT_API_URL
+        sync: false
+      - key: HOLOGPT_API_KEY
+        sync: false
+      - key: HOLOGPT_MODEL
+        sync: false
+      - key: OLLAMA_BASE_URL
+        sync: false
+      - key: OLLAMA_MODEL
+        sync: false
+      - key: HOLOGPT_TIMEOUT_MS
+        value: 20000
+      - key: STUBBS_EXECUTIVE_URL
+        sync: false
+      - key: STUBBS_SECOND_BRAIN_URL
+        sync: false
+      - key: STUBBS_SANDBOX_URL
+        sync: false
+      - key: STUBBS_MODEL_GATEWAY_TOKEN
+        sync: false
+      - key: STUBBS_REQUEST_TIMEOUT_MS
+        value: 15000
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: BLOCKCHAIN_ENABLED
+        value: false
+      - key: BLOCKCHAIN_AUDIT_STATUS
+        value: NOT_SUBMITTED
+      - key: BLOCKCHAIN_AUDIT_REPORT_SHA256
+        sync: false
+      - key: BLOCKCHAIN_RELEASE_APPROVED_BY
         sync: false
