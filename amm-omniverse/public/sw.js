@@ -1,7 +1,7 @@
 // TRYAMM Service Worker
 // Network-first app shell so production UI changes are visible immediately.
 
-const CACHE_NAME = 'tryamm-shell-v10-20260816'
+const CACHE_NAME = 'tryamm-shell-v11-hologpt-20260822'
 const STATIC_ASSETS = ['/manifest.json']
 
 self.addEventListener('install', (event) => {
@@ -20,6 +20,13 @@ self.addEventListener('activate', (event) => {
   )
 })
 
+self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting()
+  if (event.data?.type === 'CLEAR_TRYAMM_CACHE') {
+    event.waitUntil(caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key)))))
+  }
+})
+
 self.addEventListener('fetch', (event) => {
   const request = event.request
   const url = new URL(request.url)
@@ -31,11 +38,11 @@ self.addEventListener('fetch', (event) => {
     url.hostname.includes('supabase') ||
     url.hostname.includes('livekit') ||
     url.hostname.includes('stripe') ||
-    url.hostname.includes('anthropic')
+    url.hostname.includes('anthropic') ||
+    url.hostname.includes('openai') ||
+    url.hostname.includes('googleapis')
   ) return
 
-  // Always prefer fresh HTML/navigation so the live homepage cannot be trapped
-  // behind an older cached application shell.
   if (request.mode === 'navigate' || url.pathname === '/' || url.pathname === '/index.html') {
     event.respondWith(
       fetch(request, { cache: 'no-store' })
@@ -51,16 +58,22 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Hashed assets are safe to cache after first network response.
+  // Hashed Vite assets are immutable, but never let a stale non-hashed JS/CSS file
+  // hide a newly deployed route or HoloGPT control.
+  if (url.pathname.startsWith('/assets/') && url.pathname.match(/\.(js|css)$/i)) {
+    event.respondWith(fetch(request).catch(() => caches.match(request)))
+    return
+  }
+
   if (url.pathname.match(/\.(js|css|woff2?|png|jpg|jpeg|webp|svg|ico)$/i)) {
     event.respondWith(
-      caches.match(request).then(cached => cached || fetch(request).then(response => {
+      fetch(request).then(response => {
         if (response.ok) {
           const clone = response.clone()
           caches.open(CACHE_NAME).then(cache => cache.put(request, clone))
         }
         return response
-      }))
+      }).catch(() => caches.match(request))
     )
     return
   }
