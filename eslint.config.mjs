@@ -35,6 +35,7 @@ export default [
   },
   {
     files: ['**/*.js', '**/*.cjs'],
+    ignores: ['public/holo5dx-renderer.js', 'amm-omniverse/api/**/*.js'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'commonjs',
@@ -42,7 +43,7 @@ export default [
     rules: criticalRules,
   },
   {
-    files: ['amm-omniverse/api/**/*.js', 'amm-omniverse/**/*.mjs', '**/*.mjs'],
+    files: ['public/holo5dx-renderer.js', 'amm-omniverse/api/**/*.js', 'amm-omniverse/**/*.mjs', '**/*.mjs'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',

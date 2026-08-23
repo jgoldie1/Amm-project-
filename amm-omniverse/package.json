@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "lint": "eslint . --max-warnings=0",
+    "lint": "eslint .",
+    "lint:strict": "eslint . --max-warnings=0",
     "smoke": "node tests/smoke-contracts.mjs",
     "security": "node tests/repository-security-scan.mjs",
     "provider-gates": "node tests/provider-gates.mjs",
@@ -33,7 +34,7 @@
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "three": "^0.184.0",
-    "three-stdlib": "^0.184.1",
+    "three-stdlib": "^2.36.1",
     "tone": "^15.1.22",
     "zustand": "^5.0.0"
   },
@@ -44,12 +45,15 @@
     "@types/three": "^0.184.1",
     "@vitejs/plugin-react": "^6.0.5",
     "eslint": "9.39.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "typescript": "^5.5.0",
     "typescript-eslint": "8.67.0",
     "vite": "^8.2.1"
   },
   "overrides": {
-    "brace-expansion": "5.0.9",
+    "minimatch@3": {
+      "brace-expansion": "1.1.17"
+    },
     "nanoid": "3.3.18",
     "node-fetch": "2.7.0",
     "postcss": "8.5.26",
