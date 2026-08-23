@@ -96,12 +96,10 @@ export default function PlayableBeta({onClose}:{onClose:()=>void}){
     if(cloudState!=='cloud'||!missionRunId)return
     const timer=window.setTimeout(async()=>{
       try{
-        setCloudState('syncing')
         await Promise.all([
           updateStreetVerseMission(missionRunId,{runtime_state:{pos,visited,progress},beat_id:completed?'complete':`delivery-${visited.length}`,status:completed?'completed':'active'}),
           patchPlayerState({current_world_id:'streetverse',current_verse:'middleverse',checkpoint:{world:'streetverse',mission_id:'m1',pos,visited,progress,updated_at:new Date().toISOString()}})
         ])
-        setCloudState('cloud')
       }catch{setCloudState('error')}
     },900)
     return()=>window.clearTimeout(timer)
