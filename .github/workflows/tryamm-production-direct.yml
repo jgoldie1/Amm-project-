@@ -18,6 +18,7 @@ concurrency:
 env:
   VERCEL_ORG_ID: team_whGr4qRPOF6jMCRuQZ3Kbnry
   VERCEL_PROJECT_ID: prj_pjc4m9dRB2WAWAtbkpyjpdhrJRFg
+  VERCEL_SCOPE: jgoldie1s-projects
 
 jobs:
   deploy-production:
@@ -60,20 +61,20 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           rm -rf .vercel
-          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          vercel pull --yes --environment=production --project="$VERCEL_PROJECT_ID" --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN"
 
       - name: Build production release
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           TRYAMM_RELEASE_SHA: ${{ github.sha }}
-        run: vercel build --prod --token="$VERCEL_TOKEN"
+        run: vercel build --prod --project="$VERCEL_PROJECT_ID" --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN"
 
       - name: Deploy production release
         id: deploy
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          PROD_URL=$(vercel deploy --prebuilt --prod --yes --token="$VERCEL_TOKEN")
+          PROD_URL=$(vercel deploy --prebuilt --prod --yes --project="$VERCEL_PROJECT_ID" --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN")
           echo "url=$PROD_URL" >> "$GITHUB_OUTPUT"
           echo "Production: $PROD_URL"
 
