@@ -58,6 +58,7 @@ import { installNiaSourceRuntime } from './runtime/NiaSourceRuntime'
 import { installQuantumSourcingRuntime } from './runtime/QuantumSourcingRuntime'
 import { installMetaverseBusinessBuilderRuntime } from './runtime/MetaverseBusinessBuilderRuntime'
 import { installAIWebsiteBusinessBuilderRuntime } from './runtime/AIWebsiteBusinessBuilderRuntime'
+import { installAICafeMultiAgentRuntime } from './runtime/AICafeMultiAgentRuntime'
 import { installMiddleverseRemoteWorkRuntime } from './runtime/MiddleverseRemoteWorkRuntime'
 import { installBroadcastStudioRuntime } from './runtime/BroadcastStudioRuntime'
 import { installStubbsHarmonyAIRuntime } from './runtime/StubbsHarmonyAIRuntime'
@@ -88,6 +89,7 @@ installNiaSourceRuntime()
 installQuantumSourcingRuntime()
 installMetaverseBusinessBuilderRuntime()
 installAIWebsiteBusinessBuilderRuntime()
+installAICafeMultiAgentRuntime()
 installMiddleverseRemoteWorkRuntime()
 installBroadcastStudioRuntime()
 installStubbsHarmonyAIRuntime()
