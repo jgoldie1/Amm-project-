@@ -17,6 +17,7 @@ import ProductionReadinessPanel from './components/ProductionReadinessPanel'
 import HoloGPTEventAlias from './components/HoloGPTEventAlias'
 import StreetVersePortalTransition from './components/StreetVersePortalTransition'
 import OmniBICommandCenter from './components/OmniBICommandCenter'
+import MetaverseBusinessBuilder from './components/MetaverseBusinessBuilder'
 import RevenueLandingCTAs from './components/RevenueLandingCTAs'
 import HoloConcierge from './components/HoloConcierge'
 import UnifiedCommerceHub from './components/UnifiedCommerceHub'
@@ -42,6 +43,8 @@ import { installFaithLifeSimulationRuntime } from './runtime/FaithLifeSimulation
 import { installGlobalCityVerseRuntime } from './runtime/GlobalCityVerseRuntime'
 import { installGlobalWorldHierarchyRuntime } from './runtime/GlobalWorldHierarchyRuntime'
 import { installNiaSourceRuntime } from './runtime/NiaSourceRuntime'
+import { installQuantumSourcingRuntime } from './runtime/QuantumSourcingRuntime'
+import { installMetaverseBusinessBuilderRuntime } from './runtime/MetaverseBusinessBuilderRuntime'
 import { installCreatorExperienceRuntime } from './runtime/CreatorExperienceRuntime'
 import { installCreatorCommerceOrchestrator } from './runtime/CreatorCommerceOrchestrator'
 import { installSocialShareBridge } from './runtime/SocialShareBridge'
@@ -59,6 +62,8 @@ installStreetVerseGameModeRuntime()
 installGlobalCityVerseRuntime()
 installGlobalWorldHierarchyRuntime()
 installNiaSourceRuntime()
+installQuantumSourcingRuntime()
+installMetaverseBusinessBuilderRuntime()
 installCreatorExperienceRuntime()
 installCreatorCommerceOrchestrator()
 installSocialShareBridge()
@@ -83,6 +88,7 @@ createRoot(document.getElementById('root')!).render(
     <ReleaseChangesPanel />
     <ProductionReadinessPanel />
     <OmniBICommandCenter />
+    <MetaverseBusinessBuilder />
     <AccessibilityPassportPanel />
     <HoloDeliveryLauncher />
     <HoloMarketplaceLauncher />
