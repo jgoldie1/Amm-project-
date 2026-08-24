@@ -23,25 +23,31 @@ export default function GameVerseLauncher(){
   useEffect(()=>{
     const show=(detail?:GameVerseDetail)=>{setWorld(detail?.world);setOpen(true)}
     const launchBeta=()=>{setOpen(false);setPlayBeta(true)}
-    ;(window as any).__showGameVerse=(worldSlug?:string)=>show({world:worldSlug})
-    ;(window as any).__showPlayableBeta=launchBeta
-    ;(window as any).__launchStreetVerse=()=>{
+    const launchStreetVerse=()=>{
       window.history.pushState({},'',window.location.origin+'/streetverse')
       launchBeta()
     }
+    ;(window as any).__showGameVerse=(worldSlug?:string)=>show({world:worldSlug})
+    ;(window as any).__showPlayableBeta=launchBeta
+    ;(window as any).__launchStreetVerse=launchStreetVerse
+    ;(window as any).__showStreetVerse=launchStreetVerse
     const handler=(event:Event)=>show((event as CustomEvent<GameVerseDetail>).detail)
     const betaHandler=()=>launchBeta()
+    const streetVerseHandler=()=>launchStreetVerse()
     const popHandler=()=>{if(shouldOpenPlayableBeta())launchBeta()}
     window.addEventListener('tryamm:gameverse-open',handler)
     window.addEventListener('tryamm:playable-beta-open',betaHandler)
+    window.addEventListener('tryamm:streetverse-open',streetVerseHandler)
     window.addEventListener('popstate',popHandler)
     return()=>{
       window.removeEventListener('tryamm:gameverse-open',handler)
       window.removeEventListener('tryamm:playable-beta-open',betaHandler)
+      window.removeEventListener('tryamm:streetverse-open',streetVerseHandler)
       window.removeEventListener('popstate',popHandler)
       delete (window as any).__showGameVerse
       delete (window as any).__showPlayableBeta
       delete (window as any).__launchStreetVerse
+      delete (window as any).__showStreetVerse
     }
   },[])
 
