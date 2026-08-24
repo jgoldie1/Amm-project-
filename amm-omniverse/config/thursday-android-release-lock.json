@@ -1,0 +1,44 @@
+{
+  "release":"TRYAMM Android Launch Candidate",
+  "targetDate":"2026-08-27",
+  "packageId":"online.tryamm.app",
+  "appName":"TRYAMM",
+  "targetSdk":36,
+  "scopeFrozen":true,
+  "newMajorModulesAllowed":false,
+  "canonicalBranch":"developer-vic",
+  "requiredGates":[
+    "canonical-production-sha-proven",
+    "omni-id-auth-onboarding",
+    "accessibility-language-pass",
+    "hologpt-jarvis-provider-smoke",
+    "live-pk-core-pass",
+    "streetverse-playable-pass",
+    "creator-holoclip-reel-pass",
+    "save-to-phone-device-proof",
+    "payments-truth-and-provider-gates",
+    "privacy-data-safety-account-deletion",
+    "android-api36-build",
+    "signed-release-aab",
+    "play-console-internal-or-closed-test"
+  ],
+  "launchCore":[
+    "Omni ID + onboarding",
+    "JARVIS + HoloGPT",
+    "Universal Access + HoloLingo",
+    "TRYAMM LIVE + PK",
+    "StreetVerse",
+    "Holo Clip + Reel + save/share",
+    "Holo Gifts",
+    "Isaiah AI TV / All American Network TV / Servants of Christ TV",
+    "Marketplace / creator commerce core",
+    "wallet and payment truth layer"
+  ],
+  "deferredAfterLaunch":[
+    "full completion of all 11 GameVerse titles",
+    "unproven regulated services",
+    "unverified provider-specific international integrations",
+    "new major product families"
+  ],
+  "truthRule":"A feature is not LIVE until exact production SHA, provider requirements, and required real-device tests are proven."
+}
