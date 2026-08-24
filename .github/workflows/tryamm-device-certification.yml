@@ -43,6 +43,11 @@ on:
         required: true
         type: choice
         options: [yes, no]
+      returned_to_world:
+        description: 'After the creator/economic loop, did the user re-enter StreetVerse with continuity preserved?'
+        required: true
+        type: choice
+        options: [yes, no]
       evidence_url:
         description: 'Optional screenshot/video/test evidence URL'
         required: false
@@ -59,11 +64,11 @@ jobs:
   certify-real-device:
     runs-on: ubuntu-latest
     steps:
-      - name: Refuse false GREEN
-        if: ${{ inputs.result != 'passed' || inputs.reel_created != 'yes' || inputs.saved_to_phone != 'yes' }}
+      - name: Refuse false round-trip GREEN
+        if: ${{ inputs.result != 'passed' || inputs.reel_created != 'yes' || inputs.saved_to_phone != 'yes' || inputs.published != 'yes' || inputs.returned_to_world != 'yes' }}
         run: |
-          echo 'Real-device/Reel certification FAILED for ${{ inputs.commit_sha }} on ${{ inputs.device_class }}.'
-          echo 'result=${{ inputs.result }} reel_created=${{ inputs.reel_created }} saved_to_phone=${{ inputs.saved_to_phone }}'
+          echo 'Real-device round-trip certification FAILED for ${{ inputs.commit_sha }} on ${{ inputs.device_class }}.'
+          echo 'result=${{ inputs.result }} reel_created=${{ inputs.reel_created }} saved_to_phone=${{ inputs.saved_to_phone }} published=${{ inputs.published }} returned_to_world=${{ inputs.returned_to_world }}'
           exit 1
 
       - name: Require exact live production SHA
@@ -73,7 +78,7 @@ jobs:
           python3 - <<'PY'
           import json, os, urllib.request
           url='https://tryamm.online/api/system/release'
-          req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Device-SHA/2.0'})
+          req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Device-SHA/3.0'})
           with urllib.request.urlopen(req,timeout=45) as r:
             body=json.loads(r.read().decode())
           live=body.get('commitSha') or body.get('sha')
@@ -84,7 +89,7 @@ jobs:
             raise SystemExit(f'DEVICE CERTIFICATION BLOCKED: live SHA {live!r} != tested SHA {expected!r}')
           PY
 
-      - name: Re-probe public release from CI
+      - name: Re-probe public release and flywheel
         run: |
           python3 - <<'PY'
           import json, urllib.request
@@ -94,17 +99,22 @@ jobs:
             ('financial-truth-page','https://tryamm.online/financial-truth'),
             ('creator-convergence','https://tryamm.online/api/system/creator-convergence'),
             ('economic-convergence','https://tryamm.online/api/system/economic-convergence'),
+            ('flywheel-convergence','https://tryamm.online/api/system/flywheel-convergence'),
             ('financial-truth-api','https://amm-project-1-rpz9.onrender.com/api/financial-truth/health'),
             ('backend-health','https://amm-project-1-rpz9.onrender.com/api/health'),
           ]
           results=[]
           for name,url in targets:
             try:
-              req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Device-Certification/2.0'})
+              req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Device-Certification/3.0'})
               with urllib.request.urlopen(req,timeout=45) as r:
+                body=r.read(250000).decode('utf-8','replace')
                 ok=200 <= r.status < 400
+                if name=='flywheel-convergence':
+                  parsed=json.loads(body)
+                  ok=ok and parsed.get('syntheticGreen') is True and parsed.get('financialSafety',{}).get('realCashMoved') is False and parsed.get('financialSafety',{}).get('realOwnershipSettled') is False
                 results.append({'gate':name,'url':url,'status':r.status,'ok':ok})
-                if not ok: raise SystemExit(f'{name} failed: HTTP {r.status}')
+                if not ok: raise SystemExit(f'{name} failed')
             except Exception as exc:
               results.append({'gate':name,'url':url,'ok':False,'error':str(exc)})
               print(json.dumps(results,indent=2))
@@ -112,7 +122,7 @@ jobs:
           print(json.dumps(results,indent=2))
           PY
 
-      - name: Write real-device creator certificate
+      - name: Write real-device round-trip certificate
         env:
           COMMIT_SHA: ${{ inputs.commit_sha }}
           DEVICE_CLASS: ${{ inputs.device_class }}
@@ -120,13 +130,14 @@ jobs:
           REEL_CREATED: ${{ inputs.reel_created }}
           SAVED_TO_PHONE: ${{ inputs.saved_to_phone }}
           PUBLISHED: ${{ inputs.published }}
+          RETURNED_TO_WORLD: ${{ inputs.returned_to_world }}
           EVIDENCE_URL: ${{ inputs.evidence_url }}
           NOTES: ${{ inputs.notes }}
         run: |
           python3 - <<'PY'
           import datetime, json, os
           proof={
-            'schema':'tryamm.device-proof.v2',
+            'schema':'tryamm.device-proof.v3',
             'commitSha':os.environ['COMMIT_SHA'],
             'deviceClass':os.environ['DEVICE_CLASS'],
             'osVersion':os.environ['OS_VERSION'],
@@ -137,12 +148,17 @@ jobs:
               'savedToPhone':os.environ['SAVED_TO_PHONE']=='yes',
               'published':os.environ['PUBLISHED']=='yes',
             },
+            'worldLoop':{
+              'returnedToWorld':os.environ['RETURNED_TO_WORLD']=='yes',
+              'continuityRequired':True,
+              'roundTripGreen':True,
+            },
             'evidenceUrl':os.environ.get('EVIDENCE_URL') or None,
             'notes':os.environ.get('NOTES') or None,
             'certifiedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),
             'deviceGreen':True,
-            'fullGreenEligible':False,
-            'fullGreenReason':'This certificate proves one real device. FULL GREEN requires the required device matrix plus production release proof for the same SHA.',
+            'fullGreen':False,
+            'fullGreenReason':'This proves one real-device round trip for the exact production SHA. FULL GREEN still requires the required iPhone/Android matrix plus production release proof for the same SHA.',
           }
           with open('tryamm-device-proof.json','w') as f: json.dump(proof,f,indent=2)
           print(json.dumps(proof,indent=2))
