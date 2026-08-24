@@ -1,0 +1,98 @@
+name: TRYAMM Flywheel Convergence
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: 'Optional exact production SHA to require; defaults to developer-vic HEAD'
+        required: false
+        type: string
+  push:
+    branches: [developer-vic]
+    paths:
+      - 'amm-omniverse/api/system/flywheel-convergence.js'
+      - '.github/workflows/tryamm-flywheel-convergence.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  prove-round-trip-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout canonical source
+        uses: actions/checkout@v4
+        with:
+          ref: developer-vic
+          fetch-depth: 1
+
+      - name: Resolve expected SHA
+        id: sha
+        env:
+          INPUT_SHA: ${{ inputs.expected_sha }}
+        run: |
+          if [ -n "$INPUT_SHA" ]; then EXPECTED="$INPUT_SHA"; else EXPECTED="$(git rev-parse HEAD)"; fi
+          echo "value=$EXPECTED" >> "$GITHUB_OUTPUT"
+          echo "Expected production SHA: $EXPECTED"
+
+      - name: Prove exact public SHA and synthetic flywheel invariants
+        env:
+          EXPECTED_SHA: ${{ steps.sha.outputs.value }}
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request
+
+          def get_json(url):
+            req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Flywheel-Proof/1.0'})
+            with urllib.request.urlopen(req,timeout=45) as r:
+              if not 200 <= r.status < 400:
+                raise SystemExit(f'{url} HTTP {r.status}')
+              return json.loads(r.read().decode())
+
+          expected=os.environ['EXPECTED_SHA']
+          release=get_json('https://tryamm.online/api/system/release')
+          live=release.get('commitSha') or release.get('sha')
+          if live != expected:
+            raise SystemExit(f'PUBLIC SHA MISMATCH: expected {expected}, got {live}')
+
+          proof=get_json('https://tryamm.online/api/system/flywheel-convergence')
+          required=[
+            proof.get('ok') is True,
+            proof.get('syntheticGreen') is True,
+            proof.get('invariants',{}).get('orderedStages') is True,
+            proof.get('invariants',{}).get('creatorAttributionContinuity') is True,
+            proof.get('invariants',{}).get('financialTruthProtected') is True,
+            proof.get('invariants',{}).get('walletNonWithdrawable') is True,
+            proof.get('invariants',{}).get('ownershipProposalOnly') is True,
+            proof.get('invariants',{}).get('reinvestmentProposalOnly') is True,
+            proof.get('invariants',{}).get('returnContinuityPreserved') is True,
+            proof.get('financialSafety',{}).get('realCashMoved') is False,
+            proof.get('financialSafety',{}).get('realOwnershipSettled') is False,
+            proof.get('physicalProof',{}).get('roundTripGreen') is False,
+          ]
+          if not all(required):
+            print(json.dumps(proof,indent=2))
+            raise SystemExit('FLYWHEEL INVARIANT FAILURE')
+
+          out={
+            'schema':'tryamm.flywheel-ci-proof.v1',
+            'commitSha':expected,
+            'publicShaMatch':True,
+            'syntheticFlywheelGreen':True,
+            'realDeviceRoundTripPending':True,
+            'fullGreen':False,
+            'loop':proof.get('loop'),
+            'correlationId':proof.get('correlationId'),
+          }
+          with open('tryamm-flywheel-proof.json','w') as f: json.dump(out,f,indent=2)
+          print(json.dumps(out,indent=2))
+          PY
+
+      - name: Upload flywheel proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-flywheel-proof-${{ steps.sha.outputs.value }}
+          path: tryamm-flywheel-proof.json
+          if-no-files-found: warn
+          retention-days: 30
