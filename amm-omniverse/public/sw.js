@@ -1,7 +1,7 @@
 // TRYAMM Service Worker
 // Network-first app shell so production UI changes are visible immediately.
 
-const CACHE_NAME = 'tryamm-shell-v11-hologpt-20260822'
+const CACHE_NAME = 'tryamm-shell-v12-release-20260824'
 const STATIC_ASSETS = ['/manifest.json']
 
 self.addEventListener('install', (event) => {
@@ -58,10 +58,8 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Hashed Vite assets are immutable, but never let a stale non-hashed JS/CSS file
-  // hide a newly deployed route or HoloGPT control.
   if (url.pathname.startsWith('/assets/') && url.pathname.match(/\.(js|css)$/i)) {
-    event.respondWith(fetch(request).catch(() => caches.match(request)))
+    event.respondWith(fetch(request, { cache: 'no-store' }).catch(() => caches.match(request)))
     return
   }
 
