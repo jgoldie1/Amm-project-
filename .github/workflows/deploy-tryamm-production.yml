@@ -94,7 +94,14 @@ jobs:
           python3 - <<'PY'
           import os, time, urllib.request
           base=os.environ['PREVIEW_URL'].rstrip('/')
-          paths=['/','/streetverse','/financial-truth']
+          paths=[
+              '/',
+              '/streetverse',
+              '/financial-truth',
+              '/api/ai/health',
+              '/api/ai/smoke',
+              '/api/media/health',
+          ]
           failures=[]
           for path in paths:
               url=base+path
@@ -134,9 +141,14 @@ jobs:
           targets=[
               ('home','https://tryamm.online/',False),
               ('streetverse','https://tryamm.online/streetverse',False),
-              ('financial-truth','https://tryamm.online/financial-truth',False),
+              ('financial-truth-page','https://tryamm.online/financial-truth',False),
+              ('hologpt-health','https://tryamm.online/api/ai/health',True),
+              ('hologpt-smoke','https://tryamm.online/api/ai/smoke',True),
+              ('creator-media-health','https://tryamm.online/api/media/health',True),
               ('convergence','https://tryamm.online/api/system/convergence',True),
               ('backend-health','https://amm-project-1-rpz9.onrender.com/api/health',True),
+              ('financial-truth-backend','https://amm-project-1-rpz9.onrender.com/api/financial-truth/health',True),
+              ('commerce-read','https://amm-project-1-rpz9.onrender.com/api/marketplace/products',True),
           ]
           results=[]; failures=[]
           for name,url,want_json in targets:
@@ -154,7 +166,7 @@ jobs:
               if not ok: failures.append(name)
           production_green=not failures
           proof={
-              'schema':'tryamm.release-proof.v2',
+              'schema':'tryamm.release-proof.v3',
               'commitSha':os.environ.get('EXPECTED_SHA'),
               'stagedDeployment':os.environ.get('PREVIEW_URL'),
               'verifiedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),
