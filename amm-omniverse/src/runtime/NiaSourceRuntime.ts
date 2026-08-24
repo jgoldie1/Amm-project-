@@ -1,4 +1,4 @@
-export type NiaSourceKind='game'|'creator'|'commerce'|'telecom'|'finance'|'security'|'global'|'faith'|'operations'|'custom'
+export type NiaSourceKind='game'|'creator'|'commerce'|'telecom'|'finance'|'security'|'global'|'faith'|'sourcing'|'operations'|'custom'
 export type NiaSourceStatus='connected'|'degraded'|'offline'|'simulated'
 
 export type NiaSourceDefinition={
@@ -33,6 +33,7 @@ const BUILTIN_SOURCES:NiaSourceDefinition[]=[
   {id:'streetverse',label:'StreetVerse Living World',kind:'game',description:'Player progression, missions, city travel, performance, world memory, creator moments and community outcomes.',status:'connected',freshnessSeconds:5,pii:false,owner:'TRYAMM GameVerse',metrics:['active_players','mission_completion','avg_level','faith_score','world_fps'],dimensions:['city','country','continent','mode','level','faith_tier'],capabilities:['realtime','event-stream','world-state']},
   {id:'creator',label:'Creator Studio',kind:'creator',description:'Capture, reels, edits, publishing, attribution and creator growth.',status:'connected',freshnessSeconds:15,pii:false,owner:'TRYAMM Creator',metrics:['reels_created','publish_rate','views','engagement','creator_revenue'],dimensions:['creator','format','city','campaign'],capabilities:['realtime','content-lineage','attribution']},
   {id:'commerce',label:'Marketplace & Commerce',kind:'commerce',description:'Marketplace orders, vendors, inventory, conversion and local commerce.',status:'connected',freshnessSeconds:30,pii:false,owner:'TRYAMM Commerce',metrics:['gmv','orders','conversion_rate','active_vendors','avg_order_value'],dimensions:['vendor','category','city','country'],capabilities:['semantic-model','forecast-ready','anomaly-ready']},
+  {id:'quantum-sourcing',label:'Quantum Sourcing',kind:'sourcing',description:'Supplier discovery, RFQ/RFP, provenance, scorecards, protected deal rooms, sourcing agreements, delivery risk and procurement intelligence.',status:'connected',freshnessSeconds:30,pii:false,owner:'TRYAMM Quantum Sourcing',metrics:['active_suppliers','verified_supplier_rate','avg_supplier_score','avg_lead_time','open_rfq','sourcing_savings','deal_risk_score'],dimensions:['supplier','country','category','capability','risk','verification','document_type'],capabilities:['supplier-graph','rfq-rfp','provenance','vendor-scorecard','nda-nnn-policy','non-circumvention','audit-trail','deal-room','forecast-ready','agent-ready']},
   {id:'hologpt',label:'HoloGPT Intelligence',kind:'operations',description:'AI requests, provider health, response quality, latency and automation outcomes.',status:'degraded',freshnessSeconds:15,pii:false,owner:'TRYAMM AI',metrics:['ai_requests','ai_success_rate','ai_latency','provider_availability'],dimensions:['provider','model','feature'],capabilities:['natural-language','agent-ready','quality-gates']},
   {id:'global-city',label:'Global CityVerse',kind:'global',description:'Continent, country, region, city and district context for travel and localization.',status:'connected',freshnessSeconds:60,pii:false,owner:'TRYAMM World',metrics:['city_sessions','country_sessions','travel_events'],dimensions:['continent','country','region','city','district'],capabilities:['geo-hierarchy','localization','culture-context']},
   {id:'faith-life',label:'Faith Life Simulation',kind:'faith',description:'Faith tiers, service, mentorship, community missions and legacy progression.',status:'connected',freshnessSeconds:10,pii:false,owner:'TRYAMM Faith',metrics:['faith_score','faith_tier','service_missions','mentorship_actions'],dimensions:['faith_tier','level','city','mission_type'],capabilities:['progression','mission-context','legacy']},
@@ -44,18 +45,24 @@ const BUILTIN_METRICS:SemanticMetric[]=[
   {id:'community_impact',label:'Community Impact',description:'Service, mentorship, safe-passage and positive mission completion.',unit:'score',sourceIds:['faith-life','security-guardian','streetverse'],aggregation:'sum',formula:'service_missions + mentorship_actions + safe_passage_missions + deescalations'},
   {id:'creator_economy',label:'Creator Economy',description:'Creator publishing and revenue activity across TRYAMM.',unit:'currency',sourceIds:['creator','commerce'],aggregation:'sum',formula:'creator_revenue + attributed_gmv'},
   {id:'global_reach',label:'Global Reach',description:'Distinct geographic usage and travel across the global city hierarchy.',unit:'count',sourceIds:['global-city','streetverse'],aggregation:'count',formula:'distinct(continent,country,city)'},
+  {id:'sourcing_strength',label:'Sourcing Strength',description:'Weighted supplier quality, provenance, verification and delivery performance.',unit:'score',sourceIds:['quantum-sourcing'],aggregation:'avg',formula:'weighted(provenance_score, quality_score, delivery_score, communication_score, verified_supplier_rate)'},
+  {id:'sourcing_savings',label:'Sourcing Savings',description:'Estimated savings captured through comparable sourcing and negotiated supplier selection.',unit:'currency',sourceIds:['quantum-sourcing','commerce'],aggregation:'sum',formula:'baseline_quote_cost - awarded_supplier_cost'},
 ]
 
 function loadSources(){
   try{
     const saved=JSON.parse(localStorage.getItem(REGISTRY_KEY)||'null')
-    return Array.isArray(saved)?saved as NiaSourceDefinition[]:BUILTIN_SOURCES
+    if(!Array.isArray(saved))return BUILTIN_SOURCES
+    const ids=new Set(saved.map((s:any)=>s?.id))
+    return [...saved,...BUILTIN_SOURCES.filter(s=>!ids.has(s.id))] as NiaSourceDefinition[]
   }catch{return BUILTIN_SOURCES}
 }
 function loadMetrics(){
   try{
     const saved=JSON.parse(localStorage.getItem(METRIC_KEY)||'null')
-    return Array.isArray(saved)?saved as SemanticMetric[]:BUILTIN_METRICS
+    if(!Array.isArray(saved))return BUILTIN_METRICS
+    const ids=new Set(saved.map((m:any)=>m?.id))
+    return [...saved,...BUILTIN_METRICS.filter(m=>!ids.has(m.id))] as SemanticMetric[]
   }catch{return BUILTIN_METRICS}
 }
 function save(sources:NiaSourceDefinition[],metrics:SemanticMetric[]){
@@ -63,7 +70,7 @@ function save(sources:NiaSourceDefinition[],metrics:SemanticMetric[]){
 }
 function publish(sources:NiaSourceDefinition[],metrics:SemanticMetric[]){
   save(sources,metrics)
-  window.dispatchEvent(new CustomEvent('tryamm:niasource-state',{detail:{schema:'tryamm.niasource.v1',sources,metrics,features:['semantic-layer','lineage','freshness','pii-flags','quality-status','natural-language-ready','agent-ready','geo-hierarchy','realtime-events'],at:Date.now()}}))
+  window.dispatchEvent(new CustomEvent('tryamm:niasource-state',{detail:{schema:'tryamm.niasource.v1',sources,metrics,features:['semantic-layer','lineage','freshness','pii-flags','quality-status','natural-language-ready','agent-ready','geo-hierarchy','realtime-events','supplier-intelligence','deal-protection','procurement-analytics'],at:Date.now()}}))
 }
 
 export function installNiaSourceRuntime(){
