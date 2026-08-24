@@ -34,14 +34,28 @@ Financial context: distinguish gross sale, settlement, fees/taxes/refund reserve
 
 Always distinguish BUILT, DEMO/BETA, PLANNED, CONFIGURED and VERIFIED LIVE. Never claim a payment, deployment, accreditation, partnership, employment outcome, medical result, hardware capability, legal status, licensed service or external action happened without evidence. When diagnosing software, behave like an experienced engineer: identify likely cause, evidence, repair, regression risk and verification. Keep the user's intent central and do not invent repository or production state.`}
 
+function extractResponseText(data){
+  let answer=clean(data?.output_text,20000);
+  if(answer)return answer;
+  for(const item of data?.output||[])for(const part of item?.content||[])if(part?.text)answer+=part.text;
+  return clean(answer,20000);
+}
+
+async function vercelGateway(question,history){
+  const token=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN;if(!token)return null;
+  const model=process.env.HOLOGPT_GATEWAY_MODEL||'openai/gpt-5.6-sol';
+  const input=[...history.slice(-10).map(m=>({role:m.role==='assistant'?'assistant':'user',content:clean(m.content,3000)})),{role:'user',content:question}];
+  const data=await fetchJson('https://ai-gateway.vercel.sh/v1/responses',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${token}`},body:JSON.stringify({model,instructions:systemPrompt(),input,max_output_tokens:2200,store:false})});
+  const answer=extractResponseText(data);if(!answer)throw new Error('gateway_empty_response');
+  return {answer,provider:'vercel-ai-gateway',model:data.model||model};
+}
+
 async function openai(question,history){
   const key=process.env.OPENAI_API_KEY;if(!key)return null;
-  const model=process.env.HOLOGPT_OPENAI_MODEL;if(!model)return null;
+  const model=process.env.HOLOGPT_OPENAI_MODEL||process.env.OPENAI_MODEL||'gpt-5.4';
   const input=[...history.slice(-10).map(m=>({role:m.role==='assistant'?'assistant':'user',content:clean(m.content,3000)})),{role:'user',content:question}];
   const data=await fetchJson('https://api.openai.com/v1/responses',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${key}`},body:JSON.stringify({model,instructions:systemPrompt(),input,max_output_tokens:2200,store:false})});
-  let answer=clean(data.output_text,20000);
-  if(!answer)for(const item of data.output||[])for(const part of item.content||[])if(part.text)answer+=part.text;
-  answer=clean(answer,20000);if(!answer)throw new Error('openai_empty_response');
+  const answer=extractResponseText(data);if(!answer)throw new Error('openai_empty_response');
   return {answer,provider:'openai',model:data.model||model};
 }
 
@@ -87,7 +101,7 @@ async function ammBackend(question,history,authorization){
   return {answer,provider:'amm-backend',model:data.model||null};
 }
 
-function diagnostic(question,errors=[]){return {answer:`HoloGPT is wired into TRYAMM, but this deployment has no reachable generative model provider yet.\n\nYour request: ${question}\n\nInstalled context now includes All American University, Student JARVIS, real-teacher/trade-school rules, Jacobie Vision, house flipping, AI Cafe, workforce/pay gates, Get Paid to Play and TRYAMM revenue protections. Full generative intelligence turns GREEN when one production provider responds: OpenAI, Gemini, Claude, DeepSeek, or the AMM backend.${errors.length?`\n\nProvider diagnostics: ${errors.join(' | ')}`:''}`,provider:'diagnostic',model:null};}
+function diagnostic(question,errors=[]){return {answer:`HoloGPT is wired into TRYAMM, but no generative provider answered this request.\n\nYour request: ${question}\n\nPrimary path: Vercel AI Gateway with Vercel OIDC. Fallbacks: OpenAI, Gemini, Claude, DeepSeek, then the AMM backend.${errors.length?`\n\nProvider diagnostics: ${errors.join(' | ')}`:''}`,provider:'diagnostic',model:null};}
 
 export default async function handler(req,res){
   res.setHeader('Cache-Control','no-store');
@@ -99,6 +113,7 @@ export default async function handler(req,res){
   if(authorization.startsWith('Bearer ')){user=await requireUser(req,res);if(!user)return;}
   const errors=[];
   const runners=[
+    ()=>vercelGateway(question,history),
     ()=>openai(question,history),
     ()=>gemini(question,history),
     ()=>claude(question,history),
