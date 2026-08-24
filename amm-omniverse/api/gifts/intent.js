@@ -2,11 +2,17 @@ import {json} from '../_lib/supabase-admin.js'
 import {requireUser} from '../_lib/security.js'
 
 const GIFT_TYPES=new Set([
-  'spark','heart','crown','lion','galaxy','supernova','portal','judah',
-  'america250','twelve-tribes','shofar','set-apart-scroll','jerusalem-gate'
+  'spark','rose','heart','fire','confetti','mic-drop','vinyl','boombox','gold-record',
+  'america250','eagle','liberty-bell','stars-stripes','crown','diamond','private-jet','supercar','yacht',
+  'lion','twelve-tribes','shofar','set-apart-scroll','jerusalem-gate','menorah-light','ark','judah','galaxy','supernova',
+  'pk-ko','pk-comeback','pk-crown','portal','streetverse-car','mars-drop','starverse-stage','omnibox-premiere','world-takeover'
 ])
 const SPATIAL_MODES=new Set(['screen','ar','vr'])
-const SAFE_CUES=new Set(['spark','heart','crown','lion','galaxy','supernova','portal','royal','america250','tribes','shofar','scroll','jerusalem'])
+const SAFE_CUES=new Set([
+  'spark','rose','heart','fire','confetti','mic','vinyl','boombox','goldrecord','america250','eagle','bell','stars',
+  'crown','diamond','jet','car','yacht','lion','tribes','shofar','scroll','jerusalem','menorah','ark','royal','galaxy','supernova',
+  'pkko','pkcomeback','pkcrown','portal','streetcar','mars','stage','premiere','world'
+])
 
 export default async function handler(req,res){
   if(req.method!=='POST')return json(res,405,{error:'method_not_allowed'})
