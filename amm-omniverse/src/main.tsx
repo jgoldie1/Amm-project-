@@ -9,6 +9,7 @@ import AccessibilityPassportPanel from './components/AccessibilityPassportPanel'
 import HoloDeliveryLauncher from './components/HoloDeliveryLauncher'
 import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import MediaStudioLauncher from './components/MediaStudioLauncher'
+import BroadcastStudioLauncher from './components/BroadcastStudioLauncher'
 import JacobieVisionLauncher from './components/JacobieVisionLauncher'
 import FirstClassFeatureDock from './components/FirstClassFeatureDock'
 import CampusWelcomeBoard from './components/CampusWelcomeBoard'
@@ -46,6 +47,7 @@ import { installNiaSourceRuntime } from './runtime/NiaSourceRuntime'
 import { installQuantumSourcingRuntime } from './runtime/QuantumSourcingRuntime'
 import { installMetaverseBusinessBuilderRuntime } from './runtime/MetaverseBusinessBuilderRuntime'
 import { installMiddleverseRemoteWorkRuntime } from './runtime/MiddleverseRemoteWorkRuntime'
+import { installBroadcastStudioRuntime } from './runtime/BroadcastStudioRuntime'
 import { installCreatorExperienceRuntime } from './runtime/CreatorExperienceRuntime'
 import { installCreatorCommerceOrchestrator } from './runtime/CreatorCommerceOrchestrator'
 import { installSocialShareBridge } from './runtime/SocialShareBridge'
@@ -66,6 +68,7 @@ installNiaSourceRuntime()
 installQuantumSourcingRuntime()
 installMetaverseBusinessBuilderRuntime()
 installMiddleverseRemoteWorkRuntime()
+installBroadcastStudioRuntime()
 installCreatorExperienceRuntime()
 installCreatorCommerceOrchestrator()
 installSocialShareBridge()
@@ -83,6 +86,7 @@ createRoot(document.getElementById('root')!).render(
     <MiddleverseLauncher />
     <GameVerseLauncher />
     <MediaStudioLauncher />
+    <BroadcastStudioLauncher />
     <JacobieVisionLauncher />
     <HoloGPTEventAlias />
     <FirstClassFeatureDock />
