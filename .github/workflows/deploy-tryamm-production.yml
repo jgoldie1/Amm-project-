@@ -23,7 +23,7 @@ env:
 jobs:
   verify-stage-promote:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: amm-omniverse
@@ -117,6 +117,7 @@ jobs:
           PY
 
       - name: Promote verified preview to production
+        id: promote
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           PREVIEW_URL: ${{ steps.preview.outputs.url }}
@@ -151,12 +152,19 @@ jobs:
                       detail=str(exc); time.sleep(6)
               results.append({'gate':name,'url':url,'ok':ok,'status':status,'finalUrl':final_url,'error':detail})
               if not ok: failures.append(name)
+          production_green=not failures
           proof={
-              'schema':'tryamm.release-proof.v1',
+              'schema':'tryamm.release-proof.v2',
               'commitSha':os.environ.get('EXPECTED_SHA'),
               'stagedDeployment':os.environ.get('PREVIEW_URL'),
               'verifiedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),
-              'overall':'green' if not failures else 'red',
+              'productionGreen':production_green,
+              'deviceProof':{
+                  'status':'pending',
+                  'required':True,
+                  'reason':'A real phone/device smoke test has not yet been recorded for this SHA.'
+              },
+              'fullGreen':False,
               'gates':results,
           }
           with open('../tryamm-release-proof.json','w') as f: json.dump(proof,f,indent=2)
@@ -164,7 +172,42 @@ jobs:
           if failures:
               print('PRODUCTION GREEN BLOCKED:', ', '.join(failures))
               raise SystemExit(1)
-          print('PRODUCTION GREEN')
+          print('PRODUCTION GREEN; DEVICE PROOF STILL REQUIRED FOR FULL GREEN')
+          PY
+
+      - name: Roll back failed promoted release
+        if: failure() && steps.promote.outcome == 'success'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          echo "Post-promotion verification failed. Rolling production back to the previous deployment."
+          vercel rollback --yes --token="$VERCEL_TOKEN"
+          vercel rollback status --token="$VERCEL_TOKEN" || true
+
+      - name: Verify service after rollback
+        if: failure() && steps.promote.outcome == 'success'
+        run: |
+          python3 - <<'PY'
+          import time, urllib.request
+          targets=['https://tryamm.online/','https://tryamm.online/streetverse']
+          failed=[]
+          for url in targets:
+              ok=False; last=None
+              for _ in range(8):
+                  try:
+                      req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Rollback-Proof/1.0'})
+                      with urllib.request.urlopen(req,timeout=45) as r:
+                          print(url, r.status, r.geturl())
+                          if 200 <= r.status < 400:
+                              ok=True; break
+                  except Exception as exc:
+                      last=exc; time.sleep(5)
+              if not ok: failed.append(f'{url}: {last}')
+          if failed:
+              print('ROLLBACK RESTORATION NEEDS MANUAL ATTENTION')
+              for item in failed: print(' -', item)
+          else:
+              print('ROLLBACK RESTORATION VERIFIED')
           PY
 
       - name: Upload release proof
