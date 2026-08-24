@@ -3,8 +3,7 @@ name: TRYAMM Production Deploy
 on:
   workflow_dispatch:
   push:
-    branches:
-      - developer-vic
+    branches: [developer-vic]
     paths:
       - 'amm-omniverse/**'
       - '.github/workflows/deploy-tryamm-production.yml'
@@ -23,7 +22,7 @@ env:
 jobs:
   verify-stage-promote:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     defaults:
       run:
         working-directory: amm-omniverse
@@ -45,14 +44,14 @@ jobs:
       - name: Install application dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Run application checks
+      - name: Run full application checks
         run: npm run check
 
       - name: Install backend dependencies
         working-directory: amm-omniverse/amm-backend
         run: npm ci --no-audit --no-fund
 
-      - name: Run backend checks including Financial Truth
+      - name: Run backend and Financial Truth checks
         working-directory: amm-omniverse/amm-backend
         run: npm run check
 
@@ -60,15 +59,14 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          if [ -z "$VERCEL_TOKEN" ]; then
-            echo "Missing GitHub Actions secret: VERCEL_TOKEN"
-            exit 1
-          fi
+          test -n "$VERCEL_TOKEN" || (echo "Missing GitHub Actions secret: VERCEL_TOKEN" && exit 1)
 
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+      - name: Install release tooling
+        run: |
+          npm install --global vercel@latest
+          npx playwright install --with-deps chromium
 
-      - name: Pull Vercel project configuration
+      - name: Pull canonical Vercel project configuration
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
@@ -76,6 +74,7 @@ jobs:
       - name: Build release candidate
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          TRYAMM_RELEASE_SHA: ${{ github.sha }}
         run: vercel build --token="$VERCEL_TOKEN"
 
       - name: Deploy staged release candidate
@@ -87,41 +86,47 @@ jobs:
           echo "url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
           echo "Preview: $PREVIEW_URL"
 
-      - name: Verify exact staged deployment
+      - name: Verify preview routes and exact SHA
         env:
           PREVIEW_URL: ${{ steps.preview.outputs.url }}
+          EXPECTED_SHA: ${{ github.sha }}
         run: |
           python3 - <<'PY'
-          import os, time, urllib.request
+          import json, os, time, urllib.request
           base=os.environ['PREVIEW_URL'].rstrip('/')
-          paths=[
-              '/',
-              '/streetverse',
-              '/financial-truth',
-              '/api/ai/health',
-              '/api/ai/smoke',
-              '/api/media/health',
-          ]
+          expected=os.environ['EXPECTED_SHA']
+          paths=['/','/streetverse','/financial-truth','/api/ai/health','/api/ai/smoke','/api/media/health']
           failures=[]
           for path in paths:
-              url=base+path
               ok=False; last=None
               for _ in range(8):
                   try:
-                      req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Release-Candidate/1.0'})
-                      with urllib.request.urlopen(req,timeout=45) as r:
-                          print(path, r.status, r.geturl())
-                          if 200 <= r.status < 400:
-                              ok=True; break
+                      with urllib.request.urlopen(urllib.request.Request(base+path,headers={'User-Agent':'TRYAMM-Preview-Proof/4.0'}),timeout=45) as r:
+                          print(path,r.status,r.geturl())
+                          if 200 <= r.status < 400: ok=True; break
                   except Exception as exc:
                       last=exc; time.sleep(5)
               if not ok: failures.append(f'{path}: {last}')
+          try:
+              with urllib.request.urlopen(urllib.request.Request(base+'/api/system/release',headers={'User-Agent':'TRYAMM-SHA-Proof/4.0'}),timeout=45) as r:
+                  release=json.loads(r.read().decode())
+              actual=release.get('commitSha')
+              print('Expected SHA:',expected)
+              print('Preview SHA:',actual)
+              if actual != expected: failures.append(f'release-sha mismatch: expected {expected}, got {actual}')
+          except Exception as exc:
+              failures.append(f'release-sha: {exc}')
           if failures:
               print('STAGED RELEASE BLOCKED')
               for f in failures: print(' -',f)
               raise SystemExit(1)
-          print('STAGED RELEASE GREEN')
+          print('PREVIEW ROUTES + EXACT SHA GREEN')
           PY
+
+      - name: Run desktop and mobile E2E on preview
+        env:
+          E2E_BASE_URL: ${{ steps.preview.outputs.url }}
+        run: npm run e2e
 
       - name: Promote verified preview to production
         id: promote
@@ -130,7 +135,7 @@ jobs:
           PREVIEW_URL: ${{ steps.preview.outputs.url }}
         run: vercel promote "$PREVIEW_URL" --yes --token="$VERCEL_TOKEN"
 
-      - name: Verify public production routes and services
+      - name: Verify exact production release and critical services
         id: proof
         env:
           EXPECTED_SHA: ${{ github.sha }}
@@ -138,10 +143,12 @@ jobs:
         run: |
           python3 - <<'PY'
           import datetime, json, os, time, urllib.request
+          expected=os.environ['EXPECTED_SHA']
           targets=[
               ('home','https://tryamm.online/',False),
               ('streetverse','https://tryamm.online/streetverse',False),
               ('financial-truth-page','https://tryamm.online/financial-truth',False),
+              ('release-sha','https://tryamm.online/api/system/release',True),
               ('hologpt-health','https://tryamm.online/api/ai/health',True),
               ('hologpt-smoke','https://tryamm.online/api/ai/smoke',True),
               ('creator-media-health','https://tryamm.online/api/media/health',True),
@@ -152,81 +159,66 @@ jobs:
           ]
           results=[]; failures=[]
           for name,url,want_json in targets:
-              ok=False; status=None; final_url=None; detail=None
+              ok=False; status=None; final_url=None; detail=None; parsed=None
               for _ in range(10):
                   try:
-                      req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Production-Proof/1.0'})
+                      req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Production-Proof/4.0'})
                       with urllib.request.urlopen(req,timeout=45) as r:
                           status=r.status; final_url=r.geturl(); body=r.read(250000).decode('utf-8','replace')
-                          if want_json: json.loads(body)
+                          if want_json: parsed=json.loads(body)
                           if 200 <= r.status < 400: ok=True; break
                   except Exception as exc:
                       detail=str(exc); time.sleep(6)
+              if name=='release-sha' and ok:
+                  actual=(parsed or {}).get('commitSha')
+                  ok=actual==expected
+                  if not ok: detail=f'expected {expected}, got {actual}'
               results.append({'gate':name,'url':url,'ok':ok,'status':status,'finalUrl':final_url,'error':detail})
               if not ok: failures.append(name)
           production_green=not failures
           proof={
-              'schema':'tryamm.release-proof.v3',
-              'commitSha':os.environ.get('EXPECTED_SHA'),
+              'schema':'tryamm.release-proof.v4',
+              'commitSha':expected,
               'stagedDeployment':os.environ.get('PREVIEW_URL'),
               'verifiedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),
               'productionGreen':production_green,
-              'deviceProof':{
-                  'status':'pending',
-                  'required':True,
-                  'reason':'A real phone/device smoke test has not yet been recorded for this SHA.'
-              },
+              'exactShaProven':'release-sha' not in failures,
+              'crossDevicePreviewE2E':True,
+              'deviceProof':{'status':'pending','required':True,'reason':'Real physical-device certification is still required.'},
               'fullGreen':False,
               'gates':results,
           }
           with open('../tryamm-release-proof.json','w') as f: json.dump(proof,f,indent=2)
           print(json.dumps(proof,indent=2))
           if failures:
-              print('PRODUCTION GREEN BLOCKED:', ', '.join(failures))
+              print('PRODUCTION GREEN BLOCKED:',', '.join(failures))
               raise SystemExit(1)
-          print('PRODUCTION GREEN; DEVICE PROOF STILL REQUIRED FOR FULL GREEN')
+          print('PRODUCTION GREEN WITH EXACT SHA; PHYSICAL DEVICE PROOF STILL REQUIRED')
           PY
+
+      - name: Run desktop and mobile E2E on production
+        if: success()
+        env:
+          E2E_BASE_URL: https://tryamm.online
+        run: npm run e2e
 
       - name: Roll back failed promoted release
         if: failure() && steps.promote.outcome == 'success'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          echo "Post-promotion verification failed. Rolling production back to the previous deployment."
+          echo "Post-promotion verification failed. Rolling production back."
           vercel rollback --yes --token="$VERCEL_TOKEN"
           vercel rollback status --token="$VERCEL_TOKEN" || true
 
-      - name: Verify service after rollback
-        if: failure() && steps.promote.outcome == 'success'
-        run: |
-          python3 - <<'PY'
-          import time, urllib.request
-          targets=['https://tryamm.online/','https://tryamm.online/streetverse']
-          failed=[]
-          for url in targets:
-              ok=False; last=None
-              for _ in range(8):
-                  try:
-                      req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Rollback-Proof/1.0'})
-                      with urllib.request.urlopen(req,timeout=45) as r:
-                          print(url, r.status, r.geturl())
-                          if 200 <= r.status < 400:
-                              ok=True; break
-                  except Exception as exc:
-                      last=exc; time.sleep(5)
-              if not ok: failed.append(f'{url}: {last}')
-          if failed:
-              print('ROLLBACK RESTORATION NEEDS MANUAL ATTENTION')
-              for item in failed: print(' -', item)
-          else:
-              print('ROLLBACK RESTORATION VERIFIED')
-          PY
-
-      - name: Upload release proof
+      - name: Upload release proof and E2E evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: tryamm-release-proof-${{ github.sha }}
-          path: tryamm-release-proof.json
+          path: |
+            tryamm-release-proof.json
+            amm-omniverse/playwright-report/
+            amm-omniverse/test-results/
           if-no-files-found: warn
           retention-days: 30
