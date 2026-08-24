@@ -1,5 +1,6 @@
 name: TRYAMM Production Direct
 
+# Release lock trigger: promote the current developer-vic SHA and verify tryamm.online.
 on:
   workflow_dispatch:
   push:
