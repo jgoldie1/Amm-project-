@@ -1,0 +1,62 @@
+type BudgetLevel='ultra'|'high'|'balanced'|'data-saver'
+
+type PerfSample={fps:number;rtt:number;longTaskMs:number;at:number}
+
+const KEY='tryamm_streetverse_perf_budget_v1'
+let installed=false
+let raf=0
+let frames=0
+let windowStarted=0
+let current:PerfSample={fps:60,rtt:0,longTaskMs:0,at:Date.now()}
+
+function choose(sample:PerfSample):BudgetLevel{
+  if(sample.fps<34||sample.rtt>280||sample.longTaskMs>500)return 'data-saver'
+  if(sample.fps<50||sample.rtt>160||sample.longTaskMs>250)return 'balanced'
+  if(sample.fps>=57&&sample.rtt<90&&sample.longTaskMs<120)return 'high'
+  return 'balanced'
+}
+
+function publish(sample:PerfSample){
+  const quality=choose(sample)
+  try{localStorage.setItem(KEY,JSON.stringify({quality,sample,savedAt:Date.now()}))}catch{}
+  window.dispatchEvent(new CustomEvent('tryamm:quantum-lag-buster',{detail:{quality,metrics:{fps:sample.fps,rtt:sample.rtt},source:'streetverse-performance-budget'}}))
+  window.dispatchEvent(new CustomEvent('tryamm:game-health',{detail:{kind:'streetverse-performance-budget',severity:quality==='data-saver'?'warning':'info',message:`StreetVerse adaptive budget: ${quality}`,fps:sample.fps,rttMs:sample.rtt,longTaskMs:sample.longTaskMs,quality}}))
+}
+
+function frame(now:number){
+  if(!windowStarted)windowStarted=now
+  frames++
+  const elapsed=now-windowStarted
+  if(elapsed>=2000){
+    current={...current,fps:Math.round(frames*1000/elapsed),at:Date.now()}
+    frames=0;windowStarted=now;publish(current);current.longTaskMs=0
+  }
+  raf=requestAnimationFrame(frame)
+}
+
+export function installStreetVersePerformanceBudget(){
+  if(installed||typeof window==='undefined')return
+  installed=true
+
+  try{
+    const saved=JSON.parse(localStorage.getItem(KEY)||'null')
+    if(saved?.quality)queueMicrotask(()=>window.dispatchEvent(new CustomEvent('tryamm:quantum-lag-buster',{detail:{quality:saved.quality,metrics:saved.sample||{fps:60,rtt:0},source:'streetverse-performance-restore'}})))
+  }catch{}
+
+  const onNetwork=(event:Event)=>{
+    const detail=(event as CustomEvent<any>).detail||{}
+    const rtt=Number(detail.rttMs??detail.rtt??detail.metrics?.rtt)
+    if(Number.isFinite(rtt)){current={...current,rtt,at:Date.now()};publish(current)}
+  }
+  window.addEventListener('tryamm:live-health',onNetwork)
+
+  try{
+    const observer=new PerformanceObserver(list=>{
+      current={...current,longTaskMs:current.longTaskMs+list.getEntries().reduce((sum,e)=>sum+e.duration,0),at:Date.now()}
+    })
+    observer.observe({entryTypes:['longtask']})
+  }catch{}
+
+  raf=requestAnimationFrame(frame)
+  window.addEventListener('beforeunload',()=>cancelAnimationFrame(raf),{once:true})
+}
