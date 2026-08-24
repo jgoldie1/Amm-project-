@@ -11,6 +11,7 @@ import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import MediaStudioLauncher from './components/MediaStudioLauncher'
 import BroadcastStudioLauncher from './components/BroadcastStudioLauncher'
 import StreetVerseLifeHub from './components/StreetVerseLifeHub'
+import StreetVerseCareerHUD from './components/StreetVerseCareerHUD'
 import JacobieVisionLauncher from './components/JacobieVisionLauncher'
 import FirstClassFeatureDock from './components/FirstClassFeatureDock'
 import CampusWelcomeBoard from './components/CampusWelcomeBoard'
@@ -99,6 +100,7 @@ createRoot(document.getElementById('root')!).render(
     <MediaStudioLauncher />
     <BroadcastStudioLauncher />
     <StreetVerseLifeHub />
+    <StreetVerseCareerHUD />
     <JacobieVisionLauncher />
     <HoloGPTEventAlias />
     <FirstClassFeatureDock />
