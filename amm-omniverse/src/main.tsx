@@ -13,6 +13,7 @@ import BroadcastStudioLauncher from './components/BroadcastStudioLauncher'
 import StreetVerseLifeHub from './components/StreetVerseLifeHub'
 import StreetVerseCareerHUD from './components/StreetVerseCareerHUD'
 import StreetVerseMissionWorldBridge from './components/StreetVerseMissionWorldBridge'
+import AIWebsiteBusinessBuilder from './components/AIWebsiteBusinessBuilder'
 import JacobieVisionLauncher from './components/JacobieVisionLauncher'
 import FirstClassFeatureDock from './components/FirstClassFeatureDock'
 import CampusWelcomeBoard from './components/CampusWelcomeBoard'
@@ -111,6 +112,7 @@ createRoot(document.getElementById('root')!).render(
     <StreetVerseLifeHub />
     <StreetVerseCareerHUD />
     <StreetVerseMissionWorldBridge />
+    <AIWebsiteBusinessBuilder />
     <JacobieVisionLauncher />
     <HoloGPTEventAlias />
     <FirstClassFeatureDock />
