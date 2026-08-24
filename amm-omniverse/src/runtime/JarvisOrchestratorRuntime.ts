@@ -15,6 +15,11 @@ const routes:Record<string,()=>void>={
   'open-omniverse':()=> (window as any).__showOmniverse?.(),
   'open-holocore':()=> (window as any).__showHoloCore?.(),
   'open-security':()=> (window as any).__showSecurityCenter?.(),
+  'open-family':()=> (window as any).__showFamilyLegacy?.(),
+  'open-isaiah-tv':()=> (window as any).__showIsaiahTV?.(),
+  'open-starverse':()=> window.dispatchEvent(new CustomEvent('tryamm:starverse-open',{detail:{source:'jarvis'}})),
+  'open-pro-audio':()=> (window as any).__showProAudio?.(),
+  'open-jacobie-vision':()=> window.dispatchEvent(new CustomEvent('tryamm:jacobie-vision-open',{detail:{source:'jarvis'}})),
   'open-servants-network':()=> window.dispatchEvent(new CustomEvent('tryamm:network-open',{detail:{networkId:'servants-of-christ-network',source:'jarvis'}})),
   'open-all-american-network':()=> window.dispatchEvent(new CustomEvent('tryamm:network-open',{detail:{networkId:'all-american-network',source:'jarvis'}})),
 }
