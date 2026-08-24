@@ -1,0 +1,136 @@
+name: TRYAMM Production Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - developer-vic
+    paths:
+      - 'amm-omniverse/**'
+      - '.github/workflows/deploy-tryamm-production.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tryamm-production
+  cancel-in-progress: true
+
+env:
+  VERCEL_ORG_ID: team_whGr4qRPOF6jMCRuQZ3Kbnry
+  VERCEL_PROJECT_ID: prj_pjc4m9dRB2WAWAtbkpyjpdhrJRFg
+
+jobs:
+  verify-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: amm-omniverse
+
+    steps:
+      - name: Checkout canonical branch
+        uses: actions/checkout@v4
+        with:
+          ref: developer-vic
+          fetch-depth: 1
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+
+      - name: Install application dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Run application checks
+        run: npm run check
+
+      - name: Install backend dependencies
+        working-directory: amm-omniverse/amm-backend
+        run: npm ci --no-audit --no-fund
+
+      - name: Run backend checks including Financial Truth
+        working-directory: amm-omniverse/amm-backend
+        run: npm run check
+
+      - name: Require Vercel deployment token
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "Missing GitHub Actions secret: VERCEL_TOKEN"
+            exit 1
+          fi
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull production Vercel configuration
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Build canonical production artifact
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+
+      - name: Deploy specifically to amm-omniverse production
+        id: deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
+          echo "url=$DEPLOYMENT_URL" >> "$GITHUB_OUTPUT"
+          echo "Deployed: $DEPLOYMENT_URL"
+
+      - name: Verify deployment and public routes
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import time
+          import urllib.request
+          import urllib.error
+
+          targets = [
+              ("home", "https://tryamm.online/", None),
+              ("streetverse", "https://tryamm.online/streetverse", None),
+              ("financial-truth", "https://tryamm.online/financial-truth", None),
+              ("convergence", "https://tryamm.online/api/system/convergence", "json"),
+              ("render-backend", "https://amm-project-1-rpz9.onrender.com/api/health", "json"),
+          ]
+
+          failures = []
+          for name, url, mode in targets:
+              ok = False
+              last = None
+              for _ in range(8):
+                  try:
+                      req = urllib.request.Request(url, headers={"User-Agent": "TRYAMM-Production-Deploy/1.0"})
+                      with urllib.request.urlopen(req, timeout=45) as r:
+                          body = r.read(250000).decode("utf-8", "replace")
+                          if 200 <= r.status < 400:
+                              if mode == "json":
+                                  json.loads(body)
+                              print(f"{name}: HTTP {r.status} {r.geturl()}")
+                              ok = True
+                              break
+                  except Exception as exc:
+                      last = exc
+                      time.sleep(5)
+              if not ok:
+                  failures.append(f"{name}: {last}")
+
+          if failures:
+              print("POST-DEPLOY VERIFY FAILED")
+              for failure in failures:
+                  print(" -", failure)
+              raise SystemExit(1)
+
+          print("POST-DEPLOY VERIFY GREEN")
+          PY
