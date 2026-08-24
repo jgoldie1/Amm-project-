@@ -56,6 +56,7 @@ import { installGlobalTravelExperienceRuntime } from './runtime/GlobalTravelExpe
 import { installNiaSourceRuntime } from './runtime/NiaSourceRuntime'
 import { installQuantumSourcingRuntime } from './runtime/QuantumSourcingRuntime'
 import { installMetaverseBusinessBuilderRuntime } from './runtime/MetaverseBusinessBuilderRuntime'
+import { installAIWebsiteBusinessBuilderRuntime } from './runtime/AIWebsiteBusinessBuilderRuntime'
 import { installMiddleverseRemoteWorkRuntime } from './runtime/MiddleverseRemoteWorkRuntime'
 import { installBroadcastStudioRuntime } from './runtime/BroadcastStudioRuntime'
 import { installStubbsHarmonyAIRuntime } from './runtime/StubbsHarmonyAIRuntime'
@@ -85,6 +86,7 @@ installGlobalTravelExperienceRuntime()
 installNiaSourceRuntime()
 installQuantumSourcingRuntime()
 installMetaverseBusinessBuilderRuntime()
+installAIWebsiteBusinessBuilderRuntime()
 installMiddleverseRemoteWorkRuntime()
 installBroadcastStudioRuntime()
 installStubbsHarmonyAIRuntime()
