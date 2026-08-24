@@ -8,12 +8,20 @@ export default function LivingWorldAdaptiveBridge(){
   const activeVehicle=useGameStore(s=>s.player.activeVehicle)
   const [snapshot,setSnapshot]=useState<LivingWorldSnapshot|null>(null)
   const lastRef=useRef(0)
+  const previousScreen=useRef(screen)
 
   useEffect(()=>{
     const onState=(event:Event)=>setSnapshot((event as CustomEvent<LivingWorldSnapshot>).detail)
     window.addEventListener('tryamm:living-world-state',onState)
     return()=>window.removeEventListener('tryamm:living-world-state',onState)
   },[])
+
+  useEffect(()=>{
+    const previous=previousScreen.current
+    if(screen==='city'&&previous!=='city')window.dispatchEvent(new CustomEvent('tryamm:streetverse-enter',{detail:{from:previous,to:screen,at:Date.now()}}))
+    if(screen!=='city'&&previous==='city')window.dispatchEvent(new CustomEvent('tryamm:streetverse-leave',{detail:{from:previous,to:screen,at:Date.now()}}))
+    previousScreen.current=screen
+  },[screen])
 
   useEffect(()=>{
     if(screen!=='city')return
