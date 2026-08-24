@@ -4,7 +4,7 @@ import {Howl} from 'howler'
 
 const API=(import.meta as any).env?.VITE_API_URL??''
 
-type Gift={id:string;label:string;icon:string;effect:string;suggested:number;spatial:'2d'|'ar'|'vr'|'all';musicCue:string;collection:string;tier:'MICRO'|'MUSIC'|'PRESTIGE'|'SET-APART'|'PK'|'WORLD'}
+type Gift={id:string;label:string;icon:string;effect:string;suggested:number;spatial:'2d'|'ar'|'vr'|'all';musicCue:string;collection:string;tier:'MICRO'|'REACTION'|'MUSIC'|'PRESTIGE'|'SET-APART'|'PK'|'WORLD'}
 const G=(id:string,label:string,icon:string,effect:string,suggested:number,spatial:Gift['spatial'],musicCue:string,collection:string,tier:Gift['tier']):Gift=>({id,label,icon,effect,suggested,spatial,musicCue,collection,tier})
 const GIFTS:Gift[]=[
   G('spark','Spark','✦','Cyan particle pop',0,'all','spark','QUICK REACTIONS','MICRO'),
@@ -12,6 +12,16 @@ const GIFTS:Gift[]=[
   G('heart','Holo Heart','♡','Floating heart ribbons around host',100,'ar','heart','QUICK REACTIONS','MICRO'),
   G('fire','Fire Wave','🔥','Reactive flame wall and heat shimmer',150,'all','fire','QUICK REACTIONS','MICRO'),
   G('confetti','Celebration','🎉','Room-wide holographic confetti burst',200,'all','confetti','QUICK REACTIONS','MICRO'),
+  G('kiss-me','Kiss Me','💋','Playful holographic kiss flies toward the host with heart trail',100,'ar','kiss','PLAYFUL','REACTION'),
+  G('air-kiss','Air Kiss','😘','Floating kiss bubbles and pink/cyan light rings',75,'all','kiss','PLAYFUL','REACTION'),
+  G('holo-hug','Holo Hug','🤗','Soft glowing arms and heart aura wrap the creator frame',125,'ar','hug','PLAYFUL','REACTION'),
+  G('high-five','High Five','🖐️','Two holographic hands meet with a spark burst',100,'ar','highfive','PLAYFUL','REACTION'),
+  G('wink','Wink','😉','Giant holographic wink with star sparkle',50,'all','wink','PLAYFUL','REACTION'),
+  G('laugh-burst','Laugh Burst','😂','Emoji orbit erupts into a room-wide laugh wave',100,'all','laugh','COMEDY','REACTION'),
+  G('boo','Boo!','👻','Cartoon ghost jump-scare pops in and dissolves',75,'ar','boo','COMEDY','REACTION'),
+  G('heartbreak','Heartbreak','💔','Heart splits into holographic shards then reforms',150,'all','heartbreak','DRAMA','REACTION'),
+  G('cartoon-punch','Holo Punch','🥊','Clearly virtual boxing glove flies across screen with comic POW burst',125,'all','punch','COMEDY','REACTION'),
+  G('cartoon-slap','Holo Slap','🫲','Clearly virtual foam-hand slap with comic spin and stars',125,'all','slap','COMEDY','REACTION'),
   G('america250','America 250','🇺🇸','250-star red/white/blue sweep with cyan/gold finale',250,'all','america250','AMERICA 250','PRESTIGE'),
   G('eagle','American Eagle','🦅','Holographic eagle fly-through with star trail',500,'vr','eagle','AMERICA 250','PRESTIGE'),
   G('liberty-bell','Liberty Bell','🔔','Gold bell materializes with radial pulse',750,'ar','bell','AMERICA 250','PRESTIGE'),
@@ -90,7 +100,7 @@ export default function HoloGiftEngine({recipientId='demo-host'}:Props){
     <style>{`@keyframes tryammGiftRing{from{transform:scale(.15) rotate(0);opacity:1}to{transform:scale(1.9) rotate(38deg);opacity:0}}@keyframes tryammGiftFade{0%,80%{opacity:1}100%{opacity:0}}`}</style>
     <div style={{fontSize:10,letterSpacing:2.5,color:'#4fe3ff',fontWeight:950}}>TRYAMM HOLO GIFT UNIVERSE • AR / VR / MUSIC</div>
     <div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:10}}>{(['screen','ar','vr'] as const).map(id=><button key={id} onClick={()=>id==='screen'?setMode('screen'):enterXR(id)} style={{padding:'8px 11px',borderRadius:11,border:`1px solid ${mode===id?'#4fe3ff':'#2d4050'}`,background:mode===id?'#0c2b39':'#081019',color:'#fff',fontWeight:900,cursor:'pointer'}}>{id.toUpperCase()}</button>)}<button onClick={()=>setMusicEnabled(v=>!v)} style={{padding:'8px 11px',borderRadius:11,border:'1px solid #e8b94466',background:'#151007',color:'#fff',fontWeight:900,cursor:'pointer'}}>♫ MUSIC {musicEnabled?'ON':'OFF'}</button></div>
-    <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:9}}>{(['ALL','MICRO','MUSIC','PRESTIGE','SET-APART','PK','WORLD'] as const).map(id=><button key={id} onClick={()=>setTier(id)} style={{padding:'6px 9px',borderRadius:999,border:`1px solid ${tier===id?'#4fe3ff':'#253645'}`,background:tier===id?'#0b2937':'#071019',color:'#dce8ef',fontSize:9,fontWeight:900,cursor:'pointer'}}>{id}</button>)}</div>
+    <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:9}}>{(['ALL','MICRO','REACTION','MUSIC','PRESTIGE','SET-APART','PK','WORLD'] as const).map(id=><button key={id} onClick={()=>setTier(id)} style={{padding:'6px 9px',borderRadius:999,border:`1px solid ${tier===id?'#4fe3ff':'#253645'}`,background:tier===id?'#0b2937':'#071019',color:'#dce8ef',fontSize:9,fontWeight:900,cursor:'pointer'}}>{id}</button>)}</div>
     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(124px,1fr))',gap:7,marginTop:10,maxHeight:460,overflowY:'auto'}}>{visible.map(item=><button key={item.id} onClick={()=>{setGift(item);setAmount(item.suggested)}} style={{padding:9,borderRadius:12,border:`1px solid ${gift.id===item.id?'#4fe3ff':'#26394b'}`,background:gift.id===item.id?'#0c2837':'#080d14',color:'#fff',cursor:'pointer'}}><div style={{fontSize:25}}>{item.icon}</div><div style={{fontSize:10,fontWeight:900}}>{item.label}</div><div style={{fontSize:8,color:'#899aa8',marginTop:3}}>{item.effect}</div><div style={{fontSize:7,color:item.collection==='AMERICA 250'?'#fff':'#e8b944',marginTop:4,letterSpacing:.5}}>{item.collection}</div><div style={{fontSize:8,color:'#4fe3ff',marginTop:3}}>{item.spatial.toUpperCase()} • {item.tier}</div></button>)}</div>
     <label style={{display:'block',marginTop:10,fontSize:9,color:'#9aabb8'}}>OPTIONAL TIP (USD cents)</label><input type="number" min={0} max={100000} value={amount} onChange={e=>setAmount(Math.max(0,Math.floor(Number(e.target.value||0))))} style={{width:'100%',boxSizing:'border-box',marginTop:4,padding:10,borderRadius:10,border:'1px solid #294052',background:'#03070d',color:'#fff'}}/>
     <button onClick={send} disabled={busy} style={{width:'100%',marginTop:10,padding:12,borderRadius:12,border:'1px solid #4fe3ff88',background:'linear-gradient(135deg,#0c3343,#2a1f35)',color:'#fff',fontWeight:950,cursor:'pointer'}}>{busy?'SENDING…':`SEND ${gift.icon} ${gift.label} • ${mode.toUpperCase()}${amount?` + $${(amount/100).toFixed(2)} TIP`:''}`}</button>
