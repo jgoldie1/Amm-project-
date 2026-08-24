@@ -15,6 +15,8 @@ const routes:Record<string,()=>void>={
   'open-omniverse':()=> (window as any).__showOmniverse?.(),
   'open-holocore':()=> (window as any).__showHoloCore?.(),
   'open-security':()=> (window as any).__showSecurityCenter?.(),
+  'open-servants-network':()=> window.dispatchEvent(new CustomEvent('tryamm:network-open',{detail:{networkId:'servants-of-christ-network',source:'jarvis'}})),
+  'open-all-american-network':()=> window.dispatchEvent(new CustomEvent('tryamm:network-open',{detail:{networkId:'all-american-network',source:'jarvis'}})),
 }
 
 export function installJarvisOrchestratorRuntime(){
