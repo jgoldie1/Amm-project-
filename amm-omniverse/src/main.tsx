@@ -15,6 +15,7 @@ import CampusWelcomeBoard from './components/CampusWelcomeBoard'
 import ReleaseChangesPanel from './components/ReleaseChangesPanel'
 import ProductionReadinessPanel from './components/ProductionReadinessPanel'
 import HoloGPTEventAlias from './components/HoloGPTEventAlias'
+import StreetVersePortalTransition from './components/StreetVersePortalTransition'
 import RevenueLandingCTAs from './components/RevenueLandingCTAs'
 import HoloConcierge from './components/HoloConcierge'
 import UnifiedCommerceHub from './components/UnifiedCommerceHub'
@@ -33,6 +34,7 @@ import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
 import { installStreetVerseLivingWorldRuntime } from './runtime/StreetVerseLivingWorldRuntime'
 import { installStreetVerseWorldMemory } from './runtime/StreetVerseWorldMemory'
 import { installStreetVerseCheckpointRuntime } from './runtime/StreetVerseCheckpointRuntime'
+import { installStreetVersePerformanceBudget } from './runtime/StreetVersePerformanceBudget'
 import { installCreatorExperienceRuntime } from './runtime/CreatorExperienceRuntime'
 import { installCreatorCommerceOrchestrator } from './runtime/CreatorCommerceOrchestrator'
 import { installSocialShareBridge } from './runtime/SocialShareBridge'
@@ -43,6 +45,7 @@ installMediaCloudBridge()
 installStreetVerseLivingWorldRuntime()
 installStreetVerseWorldMemory()
 installStreetVerseCheckpointRuntime()
+installStreetVersePerformanceBudget()
 installCreatorExperienceRuntime()
 installCreatorCommerceOrchestrator()
 installSocialShareBridge()
@@ -53,6 +56,7 @@ createRoot(document.getElementById('root')!).render(
     <UniversalAccessRuntime />
     <JudahSplash />
     <App />
+    <StreetVersePortalTransition />
     <LivingWorldAdaptiveBridge />
     <RevenueLandingCTAs />
     <UniversalSafetyLauncher />
