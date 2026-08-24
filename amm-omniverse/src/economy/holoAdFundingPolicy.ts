@@ -7,12 +7,7 @@ export const HOLO_AD_PRODUCTS = [
   { id:'tournament_sponsor', name:'Skill Tournament Sponsor', priceUsd:10000, use:'Eligible skill tournament sponsorship' },
 ] as const;
 
-export const HOLO_AD_NET_ALLOCATION = {
-  rewardReservePercent:25,
-  operationsPercent:50,
-  growthPercent:15,
-  contingencyPercent:10,
-} as const;
+export const HOLO_AD_NET_ALLOCATION = { rewardReservePercent:25, operationsPercent:50, growthPercent:15, contingencyPercent:10 } as const;
 
 export function allocateVerifiedAdNet(netCents:number){
   const net=Math.max(0,Math.round(netCents));
