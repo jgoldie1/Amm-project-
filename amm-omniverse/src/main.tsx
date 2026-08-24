@@ -52,6 +52,7 @@ import { installStreetVerseUnifiedProgressionRuntime } from './runtime/StreetVer
 import { installStreetVerseGameModeRuntime } from './runtime/StreetVerseGameModeRuntime'
 import { installStreetVerseCommerceWorldRuntime } from './runtime/StreetVerseCommerceWorldRuntime'
 import { installCommerceJobTrainingRuntime } from './runtime/CommerceJobTrainingRuntime'
+import { installRegulatedBusinessNetworkRuntime } from './runtime/RegulatedBusinessNetworkRuntime'
 import { installFaithLifeSimulationRuntime } from './runtime/FaithLifeSimulationRuntime'
 import { installGlobalCityVerseRuntime } from './runtime/GlobalCityVerseRuntime'
 import { installGlobalWorldHierarchyRuntime } from './runtime/GlobalWorldHierarchyRuntime'
@@ -86,6 +87,7 @@ installStreetVerseUnifiedProgressionRuntime()
 installStreetVerseGameModeRuntime()
 installStreetVerseCommerceWorldRuntime()
 installCommerceJobTrainingRuntime()
+installRegulatedBusinessNetworkRuntime()
 installFaithLifeSimulationRuntime()
 installGlobalCityVerseRuntime()
 installGlobalWorldHierarchyRuntime()
