@@ -47,12 +47,13 @@ export default function FamilyLegacyHub({ onClose }: Props) {
 
   const card: React.CSSProperties = { background:'#0b1324', border:'1px solid #28486a', borderRadius:16, padding:16, minHeight:180 }
   const action: React.CSSProperties = { border:'1px solid #76d7ff88', background:'#10283a', color:'#e9fbff', borderRadius:10, padding:'8px 10px', cursor:'pointer', fontWeight:800 }
+  const jarvis=(action:string)=>window.dispatchEvent(new CustomEvent('tryamm:jarvis-command',{detail:{action}}))
 
   return (
     <div style={{position:'fixed',inset:0,zIndex:10020,background:'#020711',color:'#fff',overflow:'auto',padding:24,fontFamily:'system-ui,sans-serif'}}>
       <div style={{maxWidth:1180,margin:'0 auto'}}>
         <div style={{display:'flex',justifyContent:'space-between',gap:16,alignItems:'center'}}>
-          <div><div style={{color:'#ffd166',fontWeight:900,letterSpacing:1}}>FAMILY LEGACY SYSTEMS</div><h1 style={{margin:'4px 0'}}>Jacobie • Isaiah • Aniyah</h1><p style={{color:'#a9bdd4'}}>Cybersecurity, real estate, Starverse/AI TV, 64-track music production, plugins and compliant cross-border payment architecture.</p></div>
+          <div><div style={{color:'#ffd166',fontWeight:900,letterSpacing:1}}>FAMILY LEGACY SYSTEMS</div><h1 style={{margin:'4px 0'}}>Jacobie • Isaiah • Aniyah</h1><p style={{color:'#a9bdd4'}}>Cybersecurity, real estate, StarVerse/AI TV, education, 64-track music production, plugins and compliant cross-border payment architecture.</p></div>
           <button onClick={onClose} style={action}>Close</button>
         </div>
         <div style={{padding:'10px 12px',background:'#071a28',borderLeft:'4px solid #54e0b4',margin:'16px 0'}}>{status}</div>
@@ -65,11 +66,12 @@ export default function FamilyLegacyHub({ onClose }: Props) {
             <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
               <button style={action} onClick={()=>setShowJacobieVision(true)}>Open Jacobie Vision</button>
               <button style={action} onClick={async()=>{await createJacobieCyber('New Cybersecurity Lab'); await refresh()}}>Create Cyber Lab</button>
+              <button style={action} onClick={()=>jarvis('open-security')}>Open Security Center</button>
             </div>
           </section>
 
           <section style={card}>
-            <h2>Jacobie Vision Real Estate</h2>
+            <h2>Jacobie Vision Real Estate + House Flipping</h2>
             <p>Land, home flipping, rentals and development analysis with purchase/rehab/ARV/carrying-cost and due-diligence models.</p>
             <p>{realEstate.length} project(s)</p>
             <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
@@ -79,17 +81,24 @@ export default function FamilyLegacyHub({ onClose }: Props) {
           </section>
 
           <section style={card}>
-            <h2>Isaiah AI TV / Starverse</h2>
-            <p><strong>Anyone Can Be A Star.</strong> Auditions, showcases, fan voting, films, TV, talent development and youth-guardian protections reuse the existing Starverse application.</p>
+            <h2>Greenville University • Class of ’31</h2>
+            <p>Education and student-success lane connected to Jacobie Vision: academic planning, campus/community networking, internships, cybersecurity portfolio work, real-estate learning projects and creator/media opportunities.</p>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button style={action} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:school-network-open',{detail:{school:'Greenville University',cohort:'Class of 2031',source:'family-legacy'}}))}>Open Education Lane</button><button style={action} onClick={()=>jarvis('open-share')}>Share Portfolio</button></div>
+          </section>
+
+          <section style={card}>
+            <h2>Isaiah AI TV / StarVerse</h2>
+            <p><strong>Anyone Can Be A Star.</strong> Auditions, showcases, fan voting, films, TV, talent development and youth-guardian protections reuse the existing StarVerse application.</p>
             <p>{starverse?.link ? 'Profile linked' : 'Ready for profile linking'}</p>
             <div style={{color:'#8fdcff'}}>Existing app: {starverse?.app || 'isaiah-starverse'}</div>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:10}}><button style={action} onClick={()=> (window as any).__showIsaiahTV?.()}>Open Isaiah AI TV</button><button style={action} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:starverse-open',{detail:{source:'family-legacy'}}))}>Open StarVerse</button><button style={action} onClick={()=>jarvis('open-media')}>Create Show/Reel</button></div>
           </section>
 
           <section style={card}>
             <h2>Aniyah 64-Track Studio</h2>
             <p>64-track DAW project model with pitch correction, vocal coaching, mix/master assistance and universal DAW export.</p>
             <p>{audio.length} project(s)</p>
-            <button style={action} onClick={async()=>{await createAniyahAudio('New 64-Track Session'); await refresh()}}>Create Session</button>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button style={action} onClick={async()=>{await createAniyahAudio('New 64-Track Session'); await refresh()}}>Create Session</button><button style={action} onClick={()=> (window as any).__showProAudio?.()}>Open Pro Audio</button></div>
           </section>
 
           <section style={card}>
@@ -97,6 +106,12 @@ export default function FamilyLegacyHub({ onClose }: Props) {
             <p>Provider-neutral quote/transfer architecture with KYC/AML/sanctions and human confirmation gates before real funds move.</p>
             <p>{crossborder?.liveTransfersEnabled ? 'Live transfers enabled' : 'Simulation/adapter stage'}</p>
             <small style={{color:'#a9bdd4'}}>{crossborder?.reason}</small>
+          </section>
+
+          <section style={card}>
+            <h2>FREE IV</h2>
+            <p>User-named venture preserved in the Family Legacy registry. Scope is intentionally marked <strong>not yet defined</strong> so TRYAMM does not invent capabilities or a business model that were not recovered from source.</p>
+            <small style={{color:'#ffd166'}}>PRESERVED • NEEDS ORIGINAL SCOPE RECOVERY</small>
           </section>
 
           <section style={card}>
