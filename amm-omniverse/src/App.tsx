@@ -34,6 +34,7 @@ const StreamStudioFX = lazy(() => import('./components/StreamStudioFX'))
 const QuantumLagBuster = lazy(() => import('./components/QuantumLagBuster'))
 const QuantumBeatCenter = lazy(() => import('./components/QuantumBeatCenter'))
 const OTTIsaiahTV = lazy(() => import('./components/OTTIsaiahTV'))
+const PoyoAIStudio = lazy(() => import('./components/PoyoAIStudio'))
 
 export default function App() {
   const screen = useGameStore(s => s.screen)
@@ -61,6 +62,7 @@ export default function App() {
   const [showSecurity, setShowSecurity] = useState(false)
   const [showOmniWear, setShowOmniWear] = useState(false)
   const [showConnect, setShowConnect] = useState(false)
+  const [showPoyo, setShowPoyo] = useState(false)
   const [showNexus, setShowNexus] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
@@ -90,11 +92,13 @@ export default function App() {
   ;(window as any).__showTryAMMConnect = () => setShowConnect(true)
   ;(window as any).__showHoloFon = () => setShowConnect(true)
   ;(window as any).__showQuantumEmail = () => setShowConnect(true)
+  ;(window as any).__showPoyoAI = () => setShowPoyo(true)
   ;(window as any).__showCommandNexus = () => setShowNexus(true)
 
   const signedIn = screen !== 'intro' && screen !== 'login'
   const nexusItems = [
     ['🛡','SECURITY',()=>setShowSecurity(true),'LIVE'],
+    ['AI','POYO AI STUDIO',()=>setShowPoyo(true),'BETA'],
     ['📡','TRYAMM CONNECT',()=>setShowConnect(true),'BETA'],
     ['📱','HOLO FON',()=>setShowConnect(true),'BETA'],
     ['✉','QUANTUM EMAIL',()=>setShowConnect(true),'BETA'],
@@ -151,6 +155,7 @@ export default function App() {
         {showHoloverse && <div style={{position:'fixed',inset:0,zIndex:9998,background:'#020212'}}><HoloverseHub onClose={() => setShowHoloverse(false)} /></div>}
         {showBennie && <div style={{position:'fixed',inset:0,zIndex:9997,background:'#020212'}}><BennieChat onClose={() => setShowBennie(false)} /></div>}
         {showProAudio && <Suspense fallback={null}><div style={{position:'fixed',inset:0,zIndex:9996,background:'#03040c'}}><ProAudioSuite onClose={() => setShowProAudio(false)} /></div></Suspense>}
+        {showPoyo && <Suspense fallback={null}><PoyoAIStudio onClose={() => setShowPoyo(false)} /></Suspense>}
         {showOmniverse && <OmniverseCommandCenter onClose={() => setShowOmniverse(false)} />}
         {showHoloCore && <HoloCoreCenter onClose={() => setShowHoloCore(false)} />}
         {showHoloServices && <HoloServicesHub onClose={() => setShowHoloServices(false)} />}
