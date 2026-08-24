@@ -12,6 +12,7 @@ import MediaStudioLauncher from './components/MediaStudioLauncher'
 import JacobieVisionLauncher from './components/JacobieVisionLauncher'
 import FirstClassFeatureDock from './components/FirstClassFeatureDock'
 import CampusWelcomeBoard from './components/CampusWelcomeBoard'
+import ReleaseChangesPanel from './components/ReleaseChangesPanel'
 import RevenueLandingCTAs from './components/RevenueLandingCTAs'
 import HoloConcierge from './components/HoloConcierge'
 import UnifiedCommerceHub from './components/UnifiedCommerceHub'
@@ -55,6 +56,7 @@ createRoot(document.getElementById('root')!).render(
     <JacobieVisionLauncher />
     <FirstClassFeatureDock />
     <CampusWelcomeBoard />
+    <ReleaseChangesPanel />
     <AccessibilityPassportPanel />
     <HoloDeliveryLauncher />
     <HoloMarketplaceLauncher />
