@@ -45,6 +45,7 @@ import { installGlobalWorldHierarchyRuntime } from './runtime/GlobalWorldHierarc
 import { installNiaSourceRuntime } from './runtime/NiaSourceRuntime'
 import { installQuantumSourcingRuntime } from './runtime/QuantumSourcingRuntime'
 import { installMetaverseBusinessBuilderRuntime } from './runtime/MetaverseBusinessBuilderRuntime'
+import { installMiddleverseRemoteWorkRuntime } from './runtime/MiddleverseRemoteWorkRuntime'
 import { installCreatorExperienceRuntime } from './runtime/CreatorExperienceRuntime'
 import { installCreatorCommerceOrchestrator } from './runtime/CreatorCommerceOrchestrator'
 import { installSocialShareBridge } from './runtime/SocialShareBridge'
@@ -64,6 +65,7 @@ installGlobalWorldHierarchyRuntime()
 installNiaSourceRuntime()
 installQuantumSourcingRuntime()
 installMetaverseBusinessBuilderRuntime()
+installMiddleverseRemoteWorkRuntime()
 installCreatorExperienceRuntime()
 installCreatorCommerceOrchestrator()
 installSocialShareBridge()
