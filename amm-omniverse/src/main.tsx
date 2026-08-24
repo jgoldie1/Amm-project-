@@ -16,6 +16,7 @@ import ReleaseChangesPanel from './components/ReleaseChangesPanel'
 import ProductionReadinessPanel from './components/ProductionReadinessPanel'
 import HoloGPTEventAlias from './components/HoloGPTEventAlias'
 import StreetVersePortalTransition from './components/StreetVersePortalTransition'
+import OmniBICommandCenter from './components/OmniBICommandCenter'
 import RevenueLandingCTAs from './components/RevenueLandingCTAs'
 import HoloConcierge from './components/HoloConcierge'
 import UnifiedCommerceHub from './components/UnifiedCommerceHub'
@@ -37,7 +38,10 @@ import { installStreetVerseCheckpointRuntime } from './runtime/StreetVerseCheckp
 import { installStreetVersePerformanceBudget } from './runtime/StreetVersePerformanceBudget'
 import { installStreetVerseCharacterMissionRuntime } from './runtime/StreetVerseCharacterMissionRuntime'
 import { installStreetVerseGameModeRuntime } from './runtime/StreetVerseGameModeRuntime'
+import { installFaithLifeSimulationRuntime } from './runtime/FaithLifeSimulationRuntime'
 import { installGlobalCityVerseRuntime } from './runtime/GlobalCityVerseRuntime'
+import { installGlobalWorldHierarchyRuntime } from './runtime/GlobalWorldHierarchyRuntime'
+import { installNiaSourceRuntime } from './runtime/NiaSourceRuntime'
 import { installCreatorExperienceRuntime } from './runtime/CreatorExperienceRuntime'
 import { installCreatorCommerceOrchestrator } from './runtime/CreatorCommerceOrchestrator'
 import { installSocialShareBridge } from './runtime/SocialShareBridge'
@@ -50,8 +54,11 @@ installStreetVerseWorldMemory()
 installStreetVerseCheckpointRuntime()
 installStreetVersePerformanceBudget()
 installStreetVerseCharacterMissionRuntime()
+installFaithLifeSimulationRuntime()
 installStreetVerseGameModeRuntime()
 installGlobalCityVerseRuntime()
+installGlobalWorldHierarchyRuntime()
+installNiaSourceRuntime()
 installCreatorExperienceRuntime()
 installCreatorCommerceOrchestrator()
 installSocialShareBridge()
@@ -75,6 +82,7 @@ createRoot(document.getElementById('root')!).render(
     <CampusWelcomeBoard />
     <ReleaseChangesPanel />
     <ProductionReadinessPanel />
+    <OmniBICommandCenter />
     <AccessibilityPassportPanel />
     <HoloDeliveryLauncher />
     <HoloMarketplaceLauncher />
