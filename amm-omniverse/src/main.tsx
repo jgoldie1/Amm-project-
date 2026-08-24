@@ -32,6 +32,7 @@ import { installProductionHealthMonitor } from './runtime/ProductionHealthMonito
 import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
 import { installStreetVerseLivingWorldRuntime } from './runtime/StreetVerseLivingWorldRuntime'
 import { installStreetVerseWorldMemory } from './runtime/StreetVerseWorldMemory'
+import { installStreetVerseCheckpointRuntime } from './runtime/StreetVerseCheckpointRuntime'
 import { installCreatorExperienceRuntime } from './runtime/CreatorExperienceRuntime'
 import { installCreatorCommerceOrchestrator } from './runtime/CreatorCommerceOrchestrator'
 import { installSocialShareBridge } from './runtime/SocialShareBridge'
@@ -41,6 +42,7 @@ installProductionHealthMonitor()
 installMediaCloudBridge()
 installStreetVerseLivingWorldRuntime()
 installStreetVerseWorldMemory()
+installStreetVerseCheckpointRuntime()
 installCreatorExperienceRuntime()
 installCreatorCommerceOrchestrator()
 installSocialShareBridge()
