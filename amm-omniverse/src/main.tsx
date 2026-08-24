@@ -31,6 +31,7 @@ import { installStreetVerseLivingWorldRuntime } from './runtime/StreetVerseLivin
 import { installCreatorExperienceRuntime } from './runtime/CreatorExperienceRuntime'
 import { installCreatorCommerceOrchestrator } from './runtime/CreatorCommerceOrchestrator'
 import { installSocialShareBridge } from './runtime/SocialShareBridge'
+import { installJarvisOrchestratorRuntime } from './runtime/JarvisOrchestratorRuntime'
 
 installProductionHealthMonitor()
 installMediaCloudBridge()
@@ -38,6 +39,7 @@ installStreetVerseLivingWorldRuntime()
 installCreatorExperienceRuntime()
 installCreatorCommerceOrchestrator()
 installSocialShareBridge()
+installJarvisOrchestratorRuntime()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
