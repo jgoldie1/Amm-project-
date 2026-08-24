@@ -42,6 +42,7 @@ import { installStreetVersePerformanceBudget } from './runtime/StreetVersePerfor
 import { installStreetVerseCharacterMissionRuntime } from './runtime/StreetVerseCharacterMissionRuntime'
 import { installGuardianMissionProgressRuntime } from './runtime/GuardianMissionProgressRuntime'
 import { installPublicServiceCareerRuntime } from './runtime/PublicServiceCareerRuntime'
+import { installStreetVerseCareerExtractionRuntime } from './runtime/StreetVerseCareerExtractionRuntime'
 import { installStreetVerseUnifiedProgressionRuntime } from './runtime/StreetVerseUnifiedProgressionRuntime'
 import { installStreetVerseGameModeRuntime } from './runtime/StreetVerseGameModeRuntime'
 import { installFaithLifeSimulationRuntime } from './runtime/FaithLifeSimulationRuntime'
@@ -67,6 +68,7 @@ installStreetVersePerformanceBudget()
 installStreetVerseCharacterMissionRuntime()
 installGuardianMissionProgressRuntime()
 installPublicServiceCareerRuntime()
+installStreetVerseCareerExtractionRuntime()
 installStreetVerseUnifiedProgressionRuntime()
 installFaithLifeSimulationRuntime()
 installStreetVerseGameModeRuntime()
