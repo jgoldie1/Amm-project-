@@ -14,6 +14,7 @@ import FirstClassFeatureDock from './components/FirstClassFeatureDock'
 import CampusWelcomeBoard from './components/CampusWelcomeBoard'
 import ReleaseChangesPanel from './components/ReleaseChangesPanel'
 import ProductionReadinessPanel from './components/ProductionReadinessPanel'
+import HoloGPTEventAlias from './components/HoloGPTEventAlias'
 import RevenueLandingCTAs from './components/RevenueLandingCTAs'
 import HoloConcierge from './components/HoloConcierge'
 import UnifiedCommerceHub from './components/UnifiedCommerceHub'
@@ -55,6 +56,7 @@ createRoot(document.getElementById('root')!).render(
     <GameVerseLauncher />
     <MediaStudioLauncher />
     <JacobieVisionLauncher />
+    <HoloGPTEventAlias />
     <FirstClassFeatureDock />
     <CampusWelcomeBoard />
     <ReleaseChangesPanel />
