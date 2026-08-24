@@ -23,21 +23,25 @@ import BuildSwarmControl from './components/BuildSwarmControl'
 import ProductTryOnHub from './components/ProductTryOnHub'
 import HoloMusicLauncher from './components/HoloMusicLauncher'
 import LivingWorldAdaptiveBridge from './components/LivingWorldAdaptiveBridge'
+import UniversalAccessRuntime from './components/UniversalAccessRuntime'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
 import { installStreetVerseLivingWorldRuntime } from './runtime/StreetVerseLivingWorldRuntime'
 import { installCreatorExperienceRuntime } from './runtime/CreatorExperienceRuntime'
 import { installCreatorCommerceOrchestrator } from './runtime/CreatorCommerceOrchestrator'
+import { installSocialShareBridge } from './runtime/SocialShareBridge'
 
 installProductionHealthMonitor()
 installMediaCloudBridge()
 installStreetVerseLivingWorldRuntime()
 installCreatorExperienceRuntime()
 installCreatorCommerceOrchestrator()
+installSocialShareBridge()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <UniversalAccessRuntime />
     <JudahSplash />
     <App />
     <LivingWorldAdaptiveBridge />
