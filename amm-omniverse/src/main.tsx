@@ -53,6 +53,7 @@ import { installStreetVerseGameModeRuntime } from './runtime/StreetVerseGameMode
 import { installStreetVerseCommerceWorldRuntime } from './runtime/StreetVerseCommerceWorldRuntime'
 import { installCommerceJobTrainingRuntime } from './runtime/CommerceJobTrainingRuntime'
 import { installRegulatedBusinessNetworkRuntime } from './runtime/RegulatedBusinessNetworkRuntime'
+import { installWorldEconomyOrchestratorRuntime } from './runtime/WorldEconomyOrchestratorRuntime'
 import { installFaithLifeSimulationRuntime } from './runtime/FaithLifeSimulationRuntime'
 import { installGlobalCityVerseRuntime } from './runtime/GlobalCityVerseRuntime'
 import { installGlobalWorldHierarchyRuntime } from './runtime/GlobalWorldHierarchyRuntime'
@@ -88,6 +89,7 @@ installStreetVerseGameModeRuntime()
 installStreetVerseCommerceWorldRuntime()
 installCommerceJobTrainingRuntime()
 installRegulatedBusinessNetworkRuntime()
+installWorldEconomyOrchestratorRuntime()
 installFaithLifeSimulationRuntime()
 installGlobalCityVerseRuntime()
 installGlobalWorldHierarchyRuntime()
