@@ -50,6 +50,8 @@ import { installDynamicDispatchRuntime } from './runtime/DynamicDispatchRuntime'
 import { installStreetVerseResilienceRuntime } from './runtime/StreetVerseResilienceRuntime'
 import { installStreetVerseUnifiedProgressionRuntime } from './runtime/StreetVerseUnifiedProgressionRuntime'
 import { installStreetVerseGameModeRuntime } from './runtime/StreetVerseGameModeRuntime'
+import { installStreetVerseCommerceWorldRuntime } from './runtime/StreetVerseCommerceWorldRuntime'
+import { installCommerceJobTrainingRuntime } from './runtime/CommerceJobTrainingRuntime'
 import { installFaithLifeSimulationRuntime } from './runtime/FaithLifeSimulationRuntime'
 import { installGlobalCityVerseRuntime } from './runtime/GlobalCityVerseRuntime'
 import { installGlobalWorldHierarchyRuntime } from './runtime/GlobalWorldHierarchyRuntime'
@@ -81,8 +83,10 @@ installStreetVerseCareerExtractionRuntime()
 installDynamicDispatchRuntime()
 installStreetVerseResilienceRuntime()
 installStreetVerseUnifiedProgressionRuntime()
-installFaithLifeSimulationRuntime()
 installStreetVerseGameModeRuntime()
+installStreetVerseCommerceWorldRuntime()
+installCommerceJobTrainingRuntime()
+installFaithLifeSimulationRuntime()
 installGlobalCityVerseRuntime()
 installGlobalWorldHierarchyRuntime()
 installGlobalTravelExperienceRuntime()
