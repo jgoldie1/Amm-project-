@@ -28,6 +28,21 @@ on:
         options:
           - passed
           - failed
+      reel_created:
+        description: 'Was a real Reel created/rendered on this device?'
+        required: true
+        type: choice
+        options: [yes, no]
+      saved_to_phone:
+        description: 'Was the rendered Reel saved to Photos/Files on this device?'
+        required: true
+        type: choice
+        options: [yes, no]
+      published:
+        description: 'Was the Reel published/shared from TRYAMM?'
+        required: true
+        type: choice
+        options: [yes, no]
       evidence_url:
         description: 'Optional screenshot/video/test evidence URL'
         required: false
@@ -45,10 +60,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Refuse false GREEN
-        if: ${{ inputs.result != 'passed' }}
+        if: ${{ inputs.result != 'passed' || inputs.reel_created != 'yes' || inputs.saved_to_phone != 'yes' }}
         run: |
-          echo 'Real-device certification FAILED for ${{ inputs.commit_sha }} on ${{ inputs.device_class }}.'
+          echo 'Real-device/Reel certification FAILED for ${{ inputs.commit_sha }} on ${{ inputs.device_class }}.'
+          echo 'result=${{ inputs.result }} reel_created=${{ inputs.reel_created }} saved_to_phone=${{ inputs.saved_to_phone }}'
           exit 1
+
+      - name: Require exact live production SHA
+        env:
+          EXPECTED_SHA: ${{ inputs.commit_sha }}
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request
+          url='https://tryamm.online/api/system/release'
+          req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Device-SHA/2.0'})
+          with urllib.request.urlopen(req,timeout=45) as r:
+            body=json.loads(r.read().decode())
+          live=body.get('commitSha') or body.get('sha')
+          expected=os.environ['EXPECTED_SHA']
+          print('expected', expected)
+          print('live', live)
+          if live != expected:
+            raise SystemExit(f'DEVICE CERTIFICATION BLOCKED: live SHA {live!r} != tested SHA {expected!r}')
+          PY
 
       - name: Re-probe public release from CI
         run: |
@@ -58,13 +92,15 @@ jobs:
             ('home','https://tryamm.online/'),
             ('streetverse','https://tryamm.online/streetverse'),
             ('financial-truth-page','https://tryamm.online/financial-truth'),
+            ('creator-convergence','https://tryamm.online/api/system/creator-convergence'),
+            ('economic-convergence','https://tryamm.online/api/system/economic-convergence'),
             ('financial-truth-api','https://amm-project-1-rpz9.onrender.com/api/financial-truth/health'),
             ('backend-health','https://amm-project-1-rpz9.onrender.com/api/health'),
           ]
           results=[]
           for name,url in targets:
             try:
-              req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Device-Certification/1.0'})
+              req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Device-Certification/2.0'})
               with urllib.request.urlopen(req,timeout=45) as r:
                 ok=200 <= r.status < 400
                 results.append({'gate':name,'url':url,'status':r.status,'ok':ok})
@@ -76,27 +112,37 @@ jobs:
           print(json.dumps(results,indent=2))
           PY
 
-      - name: Write real-device certificate
+      - name: Write real-device creator certificate
         env:
           COMMIT_SHA: ${{ inputs.commit_sha }}
           DEVICE_CLASS: ${{ inputs.device_class }}
           OS_VERSION: ${{ inputs.os_version }}
+          REEL_CREATED: ${{ inputs.reel_created }}
+          SAVED_TO_PHONE: ${{ inputs.saved_to_phone }}
+          PUBLISHED: ${{ inputs.published }}
           EVIDENCE_URL: ${{ inputs.evidence_url }}
           NOTES: ${{ inputs.notes }}
         run: |
           python3 - <<'PY'
           import datetime, json, os
           proof={
-            'schema':'tryamm.device-proof.v1',
+            'schema':'tryamm.device-proof.v2',
             'commitSha':os.environ['COMMIT_SHA'],
             'deviceClass':os.environ['DEVICE_CLASS'],
             'osVersion':os.environ['OS_VERSION'],
             'realDeviceAttestation':True,
             'result':'passed',
+            'creator':{
+              'reelCreated':os.environ['REEL_CREATED']=='yes',
+              'savedToPhone':os.environ['SAVED_TO_PHONE']=='yes',
+              'published':os.environ['PUBLISHED']=='yes',
+            },
             'evidenceUrl':os.environ.get('EVIDENCE_URL') or None,
             'notes':os.environ.get('NOTES') or None,
             'certifiedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),
-            'fullGreenEligible':True,
+            'deviceGreen':True,
+            'fullGreenEligible':False,
+            'fullGreenReason':'This certificate proves one real device. FULL GREEN requires the required device matrix plus production release proof for the same SHA.',
           }
           with open('tryamm-device-proof.json','w') as f: json.dump(proof,f,indent=2)
           print(json.dumps(proof,indent=2))
