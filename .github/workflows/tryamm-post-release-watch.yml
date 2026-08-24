@@ -1,0 +1,78 @@
+name: TRYAMM Post Release Watch
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '7,37 * * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  observe-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Probe live TRYAMM surfaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import datetime, json, urllib.request
+
+          targets = [
+              ('home','https://tryamm.online/',False),
+              ('streetverse','https://tryamm.online/streetverse',False),
+              ('financial-truth-page','https://tryamm.online/financial-truth',False),
+              ('convergence','https://tryamm.online/api/system/convergence',True),
+              ('backend-health','https://amm-project-1-rpz9.onrender.com/api/health',True),
+              ('financial-truth-health','https://amm-project-1-rpz9.onrender.com/api/financial-truth/health',True),
+          ]
+
+          user_agents = {
+              'desktop':'TRYAMM-PostRelease/Desktop',
+              'mobile':'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36 TRYAMM-PostRelease',
+          }
+
+          results=[]
+          failures=[]
+          for device,ua in user_agents.items():
+              for name,url,want_json in targets:
+                  ok=False; status=None; detail=None; final_url=None
+                  try:
+                      req=urllib.request.Request(url,headers={'User-Agent':ua,'Cache-Control':'no-cache'})
+                      with urllib.request.urlopen(req,timeout=45) as r:
+                          status=r.status
+                          final_url=r.geturl()
+                          body=r.read(250000).decode('utf-8','replace')
+                          if want_json:
+                              json.loads(body)
+                          ok=200 <= r.status < 400
+                  except Exception as exc:
+                      detail=str(exc)
+                  results.append({'device':device,'gate':name,'url':url,'ok':ok,'status':status,'finalUrl':final_url,'error':detail})
+                  if not ok:
+                      failures.append(f'{device}:{name}')
+
+          proof={
+              'schema':'tryamm.post-release-observation.v1',
+              'observedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'overall':'green' if not failures else 'red',
+              'scaleGate':'open' if not failures else 'blocked',
+              'gates':results,
+          }
+          with open('tryamm-post-release-observation.json','w') as f:
+              json.dump(proof,f,indent=2)
+          print(json.dumps(proof,indent=2))
+          if failures:
+              raise SystemExit('Post-release watch failed: '+', '.join(failures))
+          PY
+
+      - name: Upload observation proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-post-release-observation-${{ github.run_id }}
+          path: tryamm-post-release-observation.json
+          if-no-files-found: warn
+          retention-days: 14

@@ -1,0 +1,248 @@
+name: TRYAMM Production Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [developer-vic]
+    paths:
+      - 'amm-omniverse/**'
+      - '.github/workflows/deploy-tryamm-production.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tryamm-production
+  cancel-in-progress: true
+
+env:
+  VERCEL_ORG_ID: team_whGr4qRPOF6jMCRuQZ3Kbnry
+  VERCEL_PROJECT_ID: prj_pjc4m9dRB2WAWAtbkpyjpdhrJRFg
+
+jobs:
+  verify-stage-promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: amm-omniverse
+
+    steps:
+      - name: Checkout canonical branch
+        uses: actions/checkout@v4
+        with:
+          ref: developer-vic
+          fetch-depth: 1
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+
+      - name: Install application dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Run full application checks
+        run: npm run check
+
+      - name: Install backend dependencies
+        working-directory: amm-omniverse/amm-backend
+        run: npm ci --no-audit --no-fund
+
+      - name: Run backend Financial Truth and economic convergence checks
+        working-directory: amm-omniverse/amm-backend
+        run: npm run check
+
+      - name: Require Vercel deployment token
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          test -n "$VERCEL_TOKEN" || (echo "Missing GitHub Actions secret: VERCEL_TOKEN" && exit 1)
+
+      - name: Install release tooling
+        run: |
+          npm install --global vercel@latest
+          npx playwright install --with-deps chromium
+
+      - name: Pull canonical Vercel project configuration
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
+
+      - name: Build release candidate
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          TRYAMM_RELEASE_SHA: ${{ github.sha }}
+        run: vercel build --token="$VERCEL_TOKEN"
+
+      - name: Deploy staged release candidate
+        id: preview
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          PREVIEW_URL=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")
+          echo "url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
+          echo "Preview: $PREVIEW_URL"
+
+      - name: Verify preview routes exact SHA and convergence contracts
+        env:
+          PREVIEW_URL: ${{ steps.preview.outputs.url }}
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          import json, os, time, urllib.request
+          base=os.environ['PREVIEW_URL'].rstrip('/')
+          expected=os.environ['EXPECTED_SHA']
+          paths=['/','/streetverse','/financial-truth','/api/ai/health','/api/ai/smoke','/api/media/health','/api/system/creator-convergence','/api/system/economic-convergence']
+          failures=[]
+          for path in paths:
+              ok=False; last=None
+              for _ in range(8):
+                  try:
+                      with urllib.request.urlopen(urllib.request.Request(base+path,headers={'User-Agent':'TRYAMM-Preview-Proof/5.0'}),timeout=45) as r:
+                          body=r.read(250000).decode('utf-8','replace')
+                          if 200 <= r.status < 400:
+                              ok=True
+                              if path=='/api/system/economic-convergence':
+                                  p=json.loads(body)
+                                  ok=bool(p.get('ok') and p.get('synthetic') and not p.get('movesRealMoney') and not p.get('issuesRealOwnership') and (p.get('wallet') or {}).get('withdrawableMinor')==0 and (p.get('ownership') or {}).get('settledUnits')==0 and (p.get('ownership') or {}).get('providerSettlementRequired'))
+                              if path=='/api/system/creator-convergence':
+                                  p=json.loads(body)
+                                  save=p.get('saveToPhone') or {}
+                                  reel=p.get('realReel') or {}
+                                  ok=bool(p.get('ok') and save.get('capabilityContract') and save.get('realDeviceProofRequired') and not save.get('realDeviceCertified') and reel.get('deviceProofRequired') and not p.get('fullGreenEligible'))
+                              if ok: break
+                  except Exception as exc:
+                      last=exc; time.sleep(5)
+              if not ok: failures.append(f'{path}: {last or "semantic convergence check failed"}')
+          try:
+              with urllib.request.urlopen(urllib.request.Request(base+'/api/system/release',headers={'User-Agent':'TRYAMM-SHA-Proof/5.0'}),timeout=45) as r:
+                  release=json.loads(r.read().decode())
+              actual=release.get('commitSha')
+              print('Expected SHA:',expected)
+              print('Preview SHA:',actual)
+              if actual != expected: failures.append(f'release-sha mismatch: expected {expected}, got {actual}')
+          except Exception as exc:
+              failures.append(f'release-sha: {exc}')
+          if failures:
+              print('STAGED RELEASE BLOCKED')
+              for f in failures: print(' -',f)
+              raise SystemExit(1)
+          print('PREVIEW SHA + CREATOR + ECONOMIC CONVERGENCE GREEN')
+          PY
+
+      - name: Run desktop and mobile E2E on preview
+        env:
+          E2E_BASE_URL: ${{ steps.preview.outputs.url }}
+        run: npm run e2e
+
+      - name: Promote verified preview to production
+        id: promote
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          PREVIEW_URL: ${{ steps.preview.outputs.url }}
+        run: vercel promote "$PREVIEW_URL" --yes --token="$VERCEL_TOKEN"
+
+      - name: Verify exact production release and critical services
+        id: proof
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+          PREVIEW_URL: ${{ steps.preview.outputs.url }}
+        run: |
+          python3 - <<'PY'
+          import datetime, json, os, time, urllib.request
+          expected=os.environ['EXPECTED_SHA']
+          targets=[
+              ('home','https://tryamm.online/',False),
+              ('streetverse','https://tryamm.online/streetverse',False),
+              ('financial-truth-page','https://tryamm.online/financial-truth',False),
+              ('release-sha','https://tryamm.online/api/system/release',True),
+              ('creator-convergence','https://tryamm.online/api/system/creator-convergence',True),
+              ('economic-convergence','https://tryamm.online/api/system/economic-convergence',True),
+              ('hologpt-health','https://tryamm.online/api/ai/health',True),
+              ('hologpt-smoke','https://tryamm.online/api/ai/smoke',True),
+              ('creator-media-health','https://tryamm.online/api/media/health',True),
+              ('convergence','https://tryamm.online/api/system/convergence',True),
+              ('backend-health','https://amm-project-1-rpz9.onrender.com/api/health',True),
+              ('financial-truth-backend','https://amm-project-1-rpz9.onrender.com/api/financial-truth/health',True),
+              ('commerce-read','https://amm-project-1-rpz9.onrender.com/api/marketplace/products',True),
+          ]
+          results=[]; failures=[]
+          for name,url,want_json in targets:
+              ok=False; status=None; final_url=None; detail=None; parsed=None
+              for _ in range(10):
+                  try:
+                      req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Production-Proof/5.0'})
+                      with urllib.request.urlopen(req,timeout=45) as r:
+                          status=r.status; final_url=r.geturl(); body=r.read(250000).decode('utf-8','replace')
+                          if want_json: parsed=json.loads(body)
+                          if 200 <= r.status < 400: ok=True; break
+                  except Exception as exc:
+                      detail=str(exc); time.sleep(6)
+              if name=='release-sha' and ok:
+                  actual=(parsed or {}).get('commitSha')
+                  ok=actual==expected
+                  if not ok: detail=f'expected {expected}, got {actual}'
+              if name=='economic-convergence' and ok:
+                  p=parsed or {}; w=p.get('wallet') or {}; o=p.get('ownership') or {}
+                  ok=bool(p.get('ok') and p.get('synthetic') and not p.get('movesRealMoney') and not p.get('issuesRealOwnership') and w.get('withdrawableMinor')==0 and o.get('settledUnits')==0 and o.get('providerSettlementRequired'))
+                  if not ok: detail='economic sandbox invariants failed'
+              if name=='creator-convergence' and ok:
+                  p=parsed or {}; s=p.get('saveToPhone') or {}; rr=p.get('realReel') or {}
+                  ok=bool(p.get('ok') and s.get('capabilityContract') and s.get('realDeviceProofRequired') and not s.get('realDeviceCertified') and rr.get('deviceProofRequired') and not p.get('fullGreenEligible'))
+                  if not ok: detail='creator convergence did not preserve physical-device proof requirement'
+              results.append({'gate':name,'url':url,'ok':ok,'status':status,'finalUrl':final_url,'error':detail})
+              if not ok: failures.append(name)
+          production_green=not failures
+          proof={
+              'schema':'tryamm.release-proof.v5',
+              'commitSha':expected,
+              'stagedDeployment':os.environ.get('PREVIEW_URL'),
+              'verifiedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'productionGreen':production_green,
+              'exactShaProven':'release-sha' not in failures,
+              'crossDevicePreviewE2E':True,
+              'economicSandboxGreen':'economic-convergence' not in failures,
+              'creatorContractGreen':'creator-convergence' not in failures,
+              'realReelProof':'pending',
+              'saveToPhoneProof':'pending',
+              'deviceProof':{'status':'pending','required':True,'reason':'Real Reel + Save to Phone on a physical device must be certified against this exact SHA.'},
+              'fullGreen':False,
+              'gates':results,
+          }
+          with open('../tryamm-release-proof.json','w') as f: json.dump(proof,f,indent=2)
+          print(json.dumps(proof,indent=2))
+          if failures:
+              print('PRODUCTION GREEN BLOCKED:',', '.join(failures))
+              raise SystemExit(1)
+          print('PRODUCTION GREEN WITH ECONOMIC + CREATOR CONTRACTS; REAL DEVICE REEL PROOF STILL REQUIRED')
+          PY
+
+      - name: Run desktop and mobile E2E on production
+        if: success()
+        env:
+          E2E_BASE_URL: https://tryamm.online
+        run: npm run e2e
+
+      - name: Roll back failed promoted release
+        if: failure() && steps.promote.outcome == 'success'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          echo "Post-promotion verification failed. Rolling production back."
+          vercel rollback --yes --token="$VERCEL_TOKEN"
+          vercel rollback status --token="$VERCEL_TOKEN" || true
+
+      - name: Upload release proof and E2E evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-release-proof-${{ github.sha }}
+          path: |
+            tryamm-release-proof.json
+            amm-omniverse/playwright-report/
+            amm-omniverse/test-results/
+          if-no-files-found: warn
+          retention-days: 30

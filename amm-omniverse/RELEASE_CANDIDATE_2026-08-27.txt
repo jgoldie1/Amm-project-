@@ -1,0 +1,5 @@
+TRYAMM Android Launch Candidate
+Release target: 2026-08-27
+Canonical branch: developer-vic
+This file intentionally triggers both production-direct and Android-candidate workflows.
+Truth gate: this commit is not considered released until tryamm.online reports this exact SHA and Android artifacts pass device certification.

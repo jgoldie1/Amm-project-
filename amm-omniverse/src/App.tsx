@@ -16,11 +16,14 @@ import AdvancedWorldSystems from './components/AdvancedWorldSystems'
 import KingdomsPressOperations from './components/KingdomsPressOperations'
 import ImmersiveWorldViewport from './components/ImmersiveWorldViewport'
 import AICafeRestaurant from './components/AICafeRestaurant'
+import SchoolNetworkPortal from './components/SchoolNetworkPortal'
 import HoloServicesHub from './components/HoloServicesHub'
 import HoloCoreCenter from './components/HoloCoreCenter'
 import FamilyLegacyHub from './components/FamilyLegacyHub'
 import QuantumEngineCenter from './components/QuantumEngineCenter'
 import SecurityCenter from './components/SecurityCenter'
+import OmniWearCenter from './components/OmniWearCenter'
+import TryAMMConnectCenter from './components/TryAMMConnectCenter'
 import './styles.css'
 
 const ProAudioSuite = lazy(() => import('./components/ProAudioSuite'))
@@ -31,6 +34,7 @@ const StreamStudioFX = lazy(() => import('./components/StreamStudioFX'))
 const QuantumLagBuster = lazy(() => import('./components/QuantumLagBuster'))
 const QuantumBeatCenter = lazy(() => import('./components/QuantumBeatCenter'))
 const OTTIsaiahTV = lazy(() => import('./components/OTTIsaiahTV'))
+const PoyoAIStudio = lazy(() => import('./components/PoyoAIStudio'))
 
 export default function App() {
   const screen = useGameStore(s => s.screen)
@@ -43,6 +47,7 @@ export default function App() {
   const [showPress, setShowPress] = useState(false)
   const [showImmersive, setShowImmersive] = useState(false)
   const [showCafe, setShowCafe] = useState(false)
+  const [showSchoolNetwork, setShowSchoolNetwork] = useState(false)
   const [showHoloServices, setShowHoloServices] = useState(false)
   const [showHoloCore, setShowHoloCore] = useState(false)
   const [showFamilyLegacy, setShowFamilyLegacy] = useState(false)
@@ -55,6 +60,9 @@ export default function App() {
   const [showQuantumBeat, setShowQuantumBeat] = useState(false)
   const [showOTT, setShowOTT] = useState(false)
   const [showSecurity, setShowSecurity] = useState(false)
+  const [showOmniWear, setShowOmniWear] = useState(false)
+  const [showConnect, setShowConnect] = useState(false)
+  const [showPoyo, setShowPoyo] = useState(false)
   const [showNexus, setShowNexus] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
@@ -67,6 +75,7 @@ export default function App() {
   ;(window as any).__showKingdomsPress = () => setShowPress(true)
   ;(window as any).__showImmersiveWorlds = () => setShowImmersive(true)
   ;(window as any).__showAICafe = () => setShowCafe(true)
+  ;(window as any).__showSchoolNetwork = () => setShowSchoolNetwork(true)
   ;(window as any).__showHoloServices = () => setShowHoloServices(true)
   ;(window as any).__showHoloCore = () => setShowHoloCore(true)
   ;(window as any).__showFamilyLegacy = () => setShowFamilyLegacy(true)
@@ -79,15 +88,26 @@ export default function App() {
   ;(window as any).__showQuantumBeat = () => setShowQuantumBeat(true)
   ;(window as any).__showIsaiahTV = () => setShowOTT(true)
   ;(window as any).__showSecurityCenter = () => setShowSecurity(true)
+  ;(window as any).__showOmniWear = () => setShowOmniWear(true)
+  ;(window as any).__showTryAMMConnect = () => setShowConnect(true)
+  ;(window as any).__showHoloFon = () => setShowConnect(true)
+  ;(window as any).__showQuantumEmail = () => setShowConnect(true)
+  ;(window as any).__showPoyoAI = () => setShowPoyo(true)
   ;(window as any).__showCommandNexus = () => setShowNexus(true)
 
   const signedIn = screen !== 'intro' && screen !== 'login'
   const nexusItems = [
     ['🛡','SECURITY',()=>setShowSecurity(true),'LIVE'],
+    ['AI','POYO AI STUDIO',()=>setShowPoyo(true),'BETA'],
+    ['📡','TRYAMM CONNECT',()=>setShowConnect(true),'BETA'],
+    ['📱','HOLO FON',()=>setShowConnect(true),'BETA'],
+    ['✉','QUANTUM EMAIL',()=>setShowConnect(true),'BETA'],
     ['◉','OMNIVERSE',()=>setShowOmniverse(true),'BETA'],
     ['◎','HOLO CORE',()=>setShowHoloCore(true),'BETA'],
     ['✦','HOLO SERVICES',()=>setShowHoloServices(true),'BETA'],
+    ['⌚','OMNIWEAR',()=>setShowOmniWear(true),'BETA'],
     ['☕','AI CAFÉ',()=>setShowCafe(true),'BETA'],
+    ['🎓','SCHOOL NETWORK',()=>setShowSchoolNetwork(true),'BETA'],
     ['◈','IMMERSIVE WORLD',()=>setShowImmersive(true),'BETA'],
     ['SPACE','TIME • LIFE',()=>setShowAdvanced(true),'BETA'],
     ['📚','KINGDOMS PRESS',()=>setShowPress(true),'BETA'],
@@ -135,10 +155,14 @@ export default function App() {
         {showHoloverse && <div style={{position:'fixed',inset:0,zIndex:9998,background:'#020212'}}><HoloverseHub onClose={() => setShowHoloverse(false)} /></div>}
         {showBennie && <div style={{position:'fixed',inset:0,zIndex:9997,background:'#020212'}}><BennieChat onClose={() => setShowBennie(false)} /></div>}
         {showProAudio && <Suspense fallback={null}><div style={{position:'fixed',inset:0,zIndex:9996,background:'#03040c'}}><ProAudioSuite onClose={() => setShowProAudio(false)} /></div></Suspense>}
+        {showPoyo && <Suspense fallback={null}><PoyoAIStudio onClose={() => setShowPoyo(false)} /></Suspense>}
         {showOmniverse && <OmniverseCommandCenter onClose={() => setShowOmniverse(false)} />}
         {showHoloCore && <HoloCoreCenter onClose={() => setShowHoloCore(false)} />}
         {showHoloServices && <HoloServicesHub onClose={() => setShowHoloServices(false)} />}
+        {showOmniWear && <OmniWearCenter onClose={() => setShowOmniWear(false)} />}
+        {showConnect && <TryAMMConnectCenter onClose={() => setShowConnect(false)} />}
         {showCafe && <AICafeRestaurant onClose={() => setShowCafe(false)} />}
+        {showSchoolNetwork && <SchoolNetworkPortal onClose={() => setShowSchoolNetwork(false)} />}
         {showAdvanced && <AdvancedWorldSystems onClose={() => setShowAdvanced(false)} />}
         {showPress && <KingdomsPressOperations onClose={() => setShowPress(false)} />}
         {showImmersive && <ImmersiveWorldViewport onClose={() => setShowImmersive(false)} />}

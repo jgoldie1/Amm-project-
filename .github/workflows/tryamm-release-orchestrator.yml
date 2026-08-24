@@ -1,0 +1,122 @@
+name: TRYAMM Release Orchestrator
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [developer-vic]
+    paths:
+      - '.github/workflows/tryamm-release-orchestrator.yml'
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  FROZEN_SHA: 74b5b6850465ebd01a84d22eee16d9b518f71351
+  FROZEN_DEPLOYMENT: https://amm-omniverse-lt3mmyqo2-jgoldie1s-projects.vercel.app
+  VERCEL_SCOPE: jgoldie1s-projects
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Announce run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue comment 107 --repo "$GITHUB_REPOSITORY" --body "🚀 TRYAMM release orchestrator started for frozen SHA \`$FROZEN_SHA\`. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+      - name: Checkout exact frozen release
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.FROZEN_SHA }}
+          fetch-depth: 1
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android 16 SDK
+        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+
+      - name: Install dependencies and verify web build
+        working-directory: amm-omniverse
+        run: |
+          npm ci
+          npm run typecheck
+          npm run build
+
+      - name: Promote exact frozen preview to production
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          test -n "$VERCEL_TOKEN"
+          npm install --global vercel@latest
+          vercel promote "$FROZEN_DEPLOYMENT" --yes --timeout 5m --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN"
+
+      - name: Verify public production SHA
+        run: |
+          python3 - <<'PY'
+          import json, os, time, urllib.request
+          expected=os.environ['FROZEN_SHA']
+          url='https://tryamm.online/api/system/release'
+          last=None
+          for _ in range(18):
+              try:
+                  req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Release-Orchestrator/1.0','Cache-Control':'no-cache'})
+                  with urllib.request.urlopen(req,timeout=30) as r:
+                      payload=json.loads(r.read().decode())
+                  actual=payload.get('commitSha')
+                  print('Expected:', expected, 'Production:', actual)
+                  if actual == expected: raise SystemExit(0)
+                  last=f'expected {expected}, got {actual}'
+              except Exception as exc: last=str(exc)
+              time.sleep(5)
+          raise SystemExit('Production SHA verification failed: '+str(last))
+          PY
+
+      - name: Generate Android shell
+        working-directory: amm-omniverse
+        run: |
+          rm -rf android
+          npx cap add android
+          npx cap sync android
+
+      - name: Build Android debug APK and unsigned release AAB
+        working-directory: amm-omniverse/android
+        run: |
+          ./gradlew assembleDebug
+          ./gradlew bundleRelease
+
+      - name: Upload Android artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-android-frozen-${{ env.FROZEN_SHA }}
+          path: |
+            amm-omniverse/android/app/build/outputs/apk/debug/*.apk
+            amm-omniverse/android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
+
+      - name: Report success
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue comment 107 --repo "$GITHUB_REPOSITORY" --body "✅ TRYAMM orchestrator PASS. Production SHA: \`$FROZEN_SHA\`. Android APK + unsigned AAB artifacts uploaded. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+      - name: Report failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue comment 107 --repo "$GITHUB_REPOSITORY" --body "❌ TRYAMM orchestrator FAILED for \`$FROZEN_SHA\`. Inspect run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
