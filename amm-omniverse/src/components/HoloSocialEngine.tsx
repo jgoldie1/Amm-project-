@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import HoloGiftEngine from './HoloGiftEngine'
+import GlobalGiftPassport from './GlobalGiftPassport'
+import FaceGiftStudio from './FaceGiftStudio'
 
 type Props={onClose:()=>void}
 type Mode='feed'|'live'|'pk'|'world'
+type GiftLane='holo'|'global'|'face'
 
 export default function HoloSocialEngine({onClose}:Props){
   const mountRef=useRef<HTMLDivElement|null>(null)
   const [mode,setMode]=useState<Mode>('feed')
   const [clipSeconds,setClipSeconds]=useState(30)
+  const [giftLane,setGiftLane]=useState<GiftLane>('holo')
   const [status,setStatus]=useState('HOLO SOCIAL ENGINE READY')
 
   useEffect(()=>{
@@ -52,16 +56,17 @@ export default function HoloSocialEngine({onClose}:Props){
     world:[['ENTER WORLD','A video is not the end of the funnel—the viewer can enter the location, mission or event.'],['WORLD CLIP','Capture a mission, race, performance or discovery and turn it into a portal-linked Reel.'],['RETURN LOOP','World moment → clip → Reel → viewer enters same world → creator attribution → return.']]
   } as const
 
+  const recipientId=mode==='pk'?'pk-host':'live-host'
   return <div style={{position:'fixed',inset:0,zIndex:10080,background:'radial-gradient(circle at 50% 25%,#071728,#02040b 55%,#000)',color:'#fff',fontFamily:'Inter,system-ui,sans-serif',overflow:'auto'}}>
     <div ref={mountRef} aria-hidden="true" style={{position:'fixed',inset:0,opacity:.9,pointerEvents:'none'}}/>
     <div style={{position:'relative',zIndex:2,maxWidth:1160,margin:'0 auto',padding:'22px 16px 48px'}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,flexWrap:'wrap'}}><div><div style={{fontSize:11,letterSpacing:4,color:'#4fe3ff',fontWeight:900}}>TRYAMM • HOLOGRAPHIC SOCIAL OS</div><h1 style={{margin:'7px 0 4px',fontSize:'clamp(28px,6vw,62px)',lineHeight:.98}}>Holo Social Engine</h1><div style={{color:'#e8b944',fontWeight:800,fontSize:12}}>{status}</div></div><button onClick={onClose} aria-label="Close Holo Social Engine" style={{width:44,height:44,borderRadius:'50%',border:'1px solid #4fe3ff77',background:'#07111dcc',color:'#fff',fontSize:22,cursor:'pointer'}}>×</button></div>
       <div style={{marginTop:26,display:'grid',gridTemplateColumns:'repeat(4,minmax(0,1fr))',gap:8}}>{(['feed','live','pk','world'] as Mode[]).map(id=><button key={id} onClick={()=>setMode(id)} style={{padding:'12px 8px',borderRadius:14,border:`1px solid ${mode===id?'#4fe3ff':'#243349'}`,background:mode===id?'#0a2634dd':'#07111dcc',color:mode===id?'#4fe3ff':'#dbe8f3',fontWeight:900,textTransform:'uppercase',cursor:'pointer'}}>{id}</button>)}</div>
       <div style={{marginTop:18,display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:12}}>{cards[mode].map(([title,body])=><section key={title} style={{minHeight:150,border:'1px solid #21405a',borderRadius:20,background:'linear-gradient(155deg,#081521e8,#05070ddb)',padding:18,boxShadow:'0 20px 50px #0008, inset 0 0 30px #4fe3ff09'}}><div style={{fontSize:12,color:'#4fe3ff',fontWeight:950,letterSpacing:1.5}}>{title}</div><p style={{fontSize:13,lineHeight:1.55,color:'#c8d5e4'}}>{body}</p></section>)}</div>
-      {(mode==='live'||mode==='pk')&&<div style={{marginTop:14}}><HoloGiftEngine recipientId={mode==='pk'?'pk-host':'live-host'}/></div>}
+      {(mode==='live'||mode==='pk')&&<section style={{marginTop:14}}><div style={{display:'flex',gap:7,flexWrap:'wrap',marginBottom:8}}>{([['holo','HOLO GIFTS'],['global','GLOBAL PASSPORT'],['face','FACE GIFTS']] as const).map(([id,label])=><button key={id} onClick={()=>setGiftLane(id)} style={{...action,background:giftLane===id?'linear-gradient(135deg,#0e4354,#30213d)':'#08111a',padding:'9px 11px'}}>{label}</button>)}</div>{giftLane==='holo'&&<HoloGiftEngine recipientId={recipientId}/>} {giftLane==='global'&&<GlobalGiftPassport recipientId={recipientId}/>} {giftLane==='face'&&<FaceGiftStudio recipientId={recipientId}/>}</section>}
       <section style={{marginTop:14,border:'1px solid #4fe3ff55',borderRadius:18,background:'#06111ce8',padding:14}}><div style={{fontSize:10,letterSpacing:2,color:'#4fe3ff',fontWeight:950}}>INSTANT CLIP</div><div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:9}}>{[15,30,60].map(seconds=><button key={seconds} onClick={()=>setClipSeconds(seconds)} style={{...action,background:clipSeconds===seconds?'linear-gradient(135deg,#0e4354,#30213d)':'#08111a'}}>{seconds}s</button>)}<button onClick={makeClip} style={{...action,flex:'1 1 180px'}}>✂ MAKE {clipSeconds}s CLIP</button></div><div style={{fontSize:10,color:'#9fb0bd',marginTop:8}}>Clip → edit → Lottie/holographic effects → caption/music → render → save to phone or publish.</div></section>
       <div style={{marginTop:18,display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(170px,1fr))',gap:10}}><button onClick={()=>launch('live')} style={action}>● OPEN LIVE CENTER</button><button onClick={()=>launch('studio')} style={action}>✦ OPEN POYO AI MAX</button><button onClick={()=>launch('media')} style={action}>🎬 OPEN REEL STUDIO</button></div>
-      <div style={{marginTop:20,padding:16,borderRadius:18,border:'1px solid #e8b94455',background:'#110d05cc',fontSize:12,lineHeight:1.6,color:'#e8ddbd'}}>Architecture target: FEED → LIVE/PK → CLIP → LOTTIE/HOLO GIFT FX → AI REMIX → REEL/MOVIE → WORLD PORTAL → CREATOR ATTRIBUTION → COMMERCE → VERIFIED LEDGER/WALLET → RETURN. Visual effects are immediate; real tips remain non-withdrawable until payment-provider and ledger settlement succeed.</div>
+      <div style={{marginTop:20,padding:16,borderRadius:18,border:'1px solid #e8b94455',background:'#110d05cc',fontSize:12,lineHeight:1.6,color:'#e8ddbd'}}>Architecture target: FEED → LIVE/PK → GLOBAL/FACE/HOLO GIFTS → CLIP → LOTTIE/HOLO FX → AI REMIX → REEL/MOVIE → WORLD PORTAL → CREATOR ATTRIBUTION → COMMERCE → VERIFIED LEDGER/WALLET → RETURN. Visual effects are immediate; real tips remain non-withdrawable until payment-provider and ledger settlement succeed.</div>
     </div>
   </div>
 }
