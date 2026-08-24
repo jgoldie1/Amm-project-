@@ -35,6 +35,9 @@ import { installStreetVerseLivingWorldRuntime } from './runtime/StreetVerseLivin
 import { installStreetVerseWorldMemory } from './runtime/StreetVerseWorldMemory'
 import { installStreetVerseCheckpointRuntime } from './runtime/StreetVerseCheckpointRuntime'
 import { installStreetVersePerformanceBudget } from './runtime/StreetVersePerformanceBudget'
+import { installStreetVerseCharacterMissionRuntime } from './runtime/StreetVerseCharacterMissionRuntime'
+import { installStreetVerseGameModeRuntime } from './runtime/StreetVerseGameModeRuntime'
+import { installGlobalCityVerseRuntime } from './runtime/GlobalCityVerseRuntime'
 import { installCreatorExperienceRuntime } from './runtime/CreatorExperienceRuntime'
 import { installCreatorCommerceOrchestrator } from './runtime/CreatorCommerceOrchestrator'
 import { installSocialShareBridge } from './runtime/SocialShareBridge'
@@ -46,6 +49,9 @@ installStreetVerseLivingWorldRuntime()
 installStreetVerseWorldMemory()
 installStreetVerseCheckpointRuntime()
 installStreetVersePerformanceBudget()
+installStreetVerseCharacterMissionRuntime()
+installStreetVerseGameModeRuntime()
+installGlobalCityVerseRuntime()
 installCreatorExperienceRuntime()
 installCreatorCommerceOrchestrator()
 installSocialShareBridge()
