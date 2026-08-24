@@ -1,0 +1,61 @@
+name: TRYAMM E2E Convergence
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - developer-vic
+    paths:
+      - 'amm-omniverse/**'
+      - '.github/workflows/tryamm-e2e-convergence.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tryamm-e2e-convergence
+  cancel-in-progress: true
+
+jobs:
+  public-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: amm-omniverse
+
+    steps:
+      - name: Checkout canonical source
+        uses: actions/checkout@v4
+        with:
+          ref: developer-vic
+          fetch-depth: 1
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run desktop and mobile convergence E2E against public TRYAMM
+        env:
+          TRYAMM_BASE_URL: https://tryamm.online
+        run: npx playwright test tests/e2e/release-convergence.spec.ts
+
+      - name: Upload E2E proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-e2e-proof-${{ github.sha }}
+          path: |
+            amm-omniverse/playwright-report
+            amm-omniverse/test-results
+          if-no-files-found: warn
+          retention-days: 30
