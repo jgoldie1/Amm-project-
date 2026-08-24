@@ -1,0 +1,110 @@
+name: TRYAMM Device Certification
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: 'Exact deployed commit SHA tested on the real device'
+        required: true
+        type: string
+      device_class:
+        description: 'Real device class'
+        required: true
+        type: choice
+        options:
+          - iphone-safari
+          - android-chrome
+          - chromebook-chrome
+          - windows-chrome
+          - other
+      os_version:
+        description: 'OS/version actually tested'
+        required: true
+        type: string
+      result:
+        description: 'Real-device smoke result'
+        required: true
+        type: choice
+        options:
+          - passed
+          - failed
+      evidence_url:
+        description: 'Optional screenshot/video/test evidence URL'
+        required: false
+        type: string
+      notes:
+        description: 'Optional failure notes or observations'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  certify-real-device:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Refuse false GREEN
+        if: ${{ inputs.result != 'passed' }}
+        run: |
+          echo 'Real-device certification FAILED for ${{ inputs.commit_sha }} on ${{ inputs.device_class }}.'
+          exit 1
+
+      - name: Re-probe public release from CI
+        run: |
+          python3 - <<'PY'
+          import json, urllib.request
+          targets=[
+            ('home','https://tryamm.online/'),
+            ('streetverse','https://tryamm.online/streetverse'),
+            ('financial-truth-page','https://tryamm.online/financial-truth'),
+            ('financial-truth-api','https://amm-project-1-rpz9.onrender.com/api/financial-truth/health'),
+            ('backend-health','https://amm-project-1-rpz9.onrender.com/api/health'),
+          ]
+          results=[]
+          for name,url in targets:
+            try:
+              req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Device-Certification/1.0'})
+              with urllib.request.urlopen(req,timeout=45) as r:
+                ok=200 <= r.status < 400
+                results.append({'gate':name,'url':url,'status':r.status,'ok':ok})
+                if not ok: raise SystemExit(f'{name} failed: HTTP {r.status}')
+            except Exception as exc:
+              results.append({'gate':name,'url':url,'ok':False,'error':str(exc)})
+              print(json.dumps(results,indent=2))
+              raise
+          print(json.dumps(results,indent=2))
+          PY
+
+      - name: Write real-device certificate
+        env:
+          COMMIT_SHA: ${{ inputs.commit_sha }}
+          DEVICE_CLASS: ${{ inputs.device_class }}
+          OS_VERSION: ${{ inputs.os_version }}
+          EVIDENCE_URL: ${{ inputs.evidence_url }}
+          NOTES: ${{ inputs.notes }}
+        run: |
+          python3 - <<'PY'
+          import datetime, json, os
+          proof={
+            'schema':'tryamm.device-proof.v1',
+            'commitSha':os.environ['COMMIT_SHA'],
+            'deviceClass':os.environ['DEVICE_CLASS'],
+            'osVersion':os.environ['OS_VERSION'],
+            'realDeviceAttestation':True,
+            'result':'passed',
+            'evidenceUrl':os.environ.get('EVIDENCE_URL') or None,
+            'notes':os.environ.get('NOTES') or None,
+            'certifiedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            'fullGreenEligible':True,
+          }
+          with open('tryamm-device-proof.json','w') as f: json.dump(proof,f,indent=2)
+          print(json.dumps(proof,indent=2))
+          PY
+
+      - name: Upload device proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-device-proof-${{ inputs.commit_sha }}-${{ inputs.device_class }}
+          path: tryamm-device-proof.json
+          retention-days: 90
