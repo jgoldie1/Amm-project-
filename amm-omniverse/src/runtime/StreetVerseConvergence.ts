@@ -12,7 +12,7 @@ export const STREETVERSE_WAVES:StreetVerseWave[] = [
   {id:1,name:'Playable Core',weight:20,status:'wired',requiredProof:['production /streetverse route','player input','save/load','mission runtime','device smoke']},
   {id:2,name:'Living World',weight:20,status:'source',requiredProof:['world streaming','NPC schedules','traffic','weather/day-night','interiors','performance budget']},
   {id:3,name:'Creator + HoloMusic',weight:20,status:'source',requiredProof:['real video encode','edit/effects','save to phone','publish','HoloMusic rights/attribution','Quantum Beat sync']},
-  {id:4,name:'Commerce + Money',weight:20,status:'source',requiredProof:['real inventory','Guardian server auth','real payment webhook','fulfillment/tracking','50/30/20 ledger','creator attribution','reorder']},
+  {id:4,name:'Commerce + Money',weight:20,status:'wired',requiredProof:['real inventory','Guardian server auth','verified provider webhook/API event','canonical ledger','multi-gateway reconciliation','treasury truth by currency','merchant/creator/developer payables','fulfillment/tracking','capital-allocation policy','12D fund','creator attribution','reorder','sandbox/test transaction proof']},
   {id:5,name:'Multiplayer + XR + Device',weight:20,status:'source',requiredProof:['server-authoritative multiplayer','OmniInput gamepad','Volcano controller smoke','WebXR/OpenXR','VR/MR device smoke','Quantum Lag Buster telemetry']},
 ];
 
