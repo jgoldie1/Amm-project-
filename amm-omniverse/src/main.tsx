@@ -58,6 +58,7 @@ import { installQuantumSourcingRuntime } from './runtime/QuantumSourcingRuntime'
 import { installMetaverseBusinessBuilderRuntime } from './runtime/MetaverseBusinessBuilderRuntime'
 import { installMiddleverseRemoteWorkRuntime } from './runtime/MiddleverseRemoteWorkRuntime'
 import { installBroadcastStudioRuntime } from './runtime/BroadcastStudioRuntime'
+import { installStubbsHarmonyAIRuntime } from './runtime/StubbsHarmonyAIRuntime'
 import { installCreatorExperienceRuntime } from './runtime/CreatorExperienceRuntime'
 import { installCreatorCommerceOrchestrator } from './runtime/CreatorCommerceOrchestrator'
 import { installSocialShareBridge } from './runtime/SocialShareBridge'
@@ -86,6 +87,7 @@ installQuantumSourcingRuntime()
 installMetaverseBusinessBuilderRuntime()
 installMiddleverseRemoteWorkRuntime()
 installBroadcastStudioRuntime()
+installStubbsHarmonyAIRuntime()
 installCreatorExperienceRuntime()
 installCreatorCommerceOrchestrator()
 installSocialShareBridge()
