@@ -40,6 +40,7 @@ import { installStreetVerseWorldMemory } from './runtime/StreetVerseWorldMemory'
 import { installStreetVerseCheckpointRuntime } from './runtime/StreetVerseCheckpointRuntime'
 import { installStreetVersePerformanceBudget } from './runtime/StreetVersePerformanceBudget'
 import { installStreetVerseCharacterMissionRuntime } from './runtime/StreetVerseCharacterMissionRuntime'
+import { installGuardianMissionProgressRuntime } from './runtime/GuardianMissionProgressRuntime'
 import { installStreetVerseUnifiedProgressionRuntime } from './runtime/StreetVerseUnifiedProgressionRuntime'
 import { installStreetVerseGameModeRuntime } from './runtime/StreetVerseGameModeRuntime'
 import { installFaithLifeSimulationRuntime } from './runtime/FaithLifeSimulationRuntime'
@@ -62,6 +63,7 @@ installStreetVerseWorldMemory()
 installStreetVerseCheckpointRuntime()
 installStreetVersePerformanceBudget()
 installStreetVerseCharacterMissionRuntime()
+installGuardianMissionProgressRuntime()
 installStreetVerseUnifiedProgressionRuntime()
 installFaithLifeSimulationRuntime()
 installStreetVerseGameModeRuntime()
