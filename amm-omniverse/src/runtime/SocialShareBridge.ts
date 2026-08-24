@@ -23,6 +23,8 @@ const PLATFORM_PRESETS:Record<SharePlatform,{label:string;aspect:'9:16'|'1:1'|'1
   linkedin:{label:'LinkedIn',aspect:'any'},whatsapp:{label:'WhatsApp',aspect:'any'},telegram:{label:'Telegram',aspect:'any'}
 }
 
+const DEFAULT_SHARE_PLATFORMS:SharePlatform[]=['native','tiktok','instagram','youtube','facebook','x','threads','snapchat','whatsapp','telegram']
+
 export function buildSharePackage(asset:ShareAsset){
   const language=asset.language||document.documentElement.dataset.tryammLanguage||document.documentElement.lang||'en'
   const accessibility={
@@ -32,7 +34,7 @@ export function buildSharePackage(asset:ShareAsset){
     audioDescription:asset.audioDescription||'',
     language,
   }
-  const platforms=asset.platforms?.length?asset.platforms:['native','tiktok','instagram','youtube','facebook','x','threads','snapchat','whatsapp','telegram']
+  const platforms:SharePlatform[]=asset.platforms?.length?asset.platforms:DEFAULT_SHARE_PLATFORMS
   return {schema:'tryamm.social-share.v1',...asset,language,accessibility,platforms,presets:platforms.map(id=>({id,...PLATFORM_PRESETS[id]}))}
 }
 
