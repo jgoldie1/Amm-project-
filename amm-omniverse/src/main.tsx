@@ -33,6 +33,7 @@ import LivingWorldEconomyHUD from './components/LivingWorldEconomyHUD'
 import BuildSwarmControl from './components/BuildSwarmControl'
 import ProductTryOnHub from './components/ProductTryOnHub'
 import HoloMusicLauncher from './components/HoloMusicLauncher'
+import OmniCashLauncher from './components/OmniCashLauncher'
 import LivingWorldAdaptiveBridge from './components/LivingWorldAdaptiveBridge'
 import UniversalAccessRuntime from './components/UniversalAccessRuntime'
 import './accessibility/accessibility.css'
@@ -146,6 +147,7 @@ createRoot(document.getElementById('root')!).render(
     <BuildSwarmControl />
     <ProductTryOnHub />
     <HoloMusicLauncher />
+    <OmniCashLauncher />
     <HoloConcierge />
   </StrictMode>
 )
