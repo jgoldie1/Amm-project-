@@ -46,6 +46,7 @@ import { installStreetVerseGameModeRuntime } from './runtime/StreetVerseGameMode
 import { installFaithLifeSimulationRuntime } from './runtime/FaithLifeSimulationRuntime'
 import { installGlobalCityVerseRuntime } from './runtime/GlobalCityVerseRuntime'
 import { installGlobalWorldHierarchyRuntime } from './runtime/GlobalWorldHierarchyRuntime'
+import { installGlobalTravelExperienceRuntime } from './runtime/GlobalTravelExperienceRuntime'
 import { installNiaSourceRuntime } from './runtime/NiaSourceRuntime'
 import { installQuantumSourcingRuntime } from './runtime/QuantumSourcingRuntime'
 import { installMetaverseBusinessBuilderRuntime } from './runtime/MetaverseBusinessBuilderRuntime'
@@ -69,6 +70,7 @@ installFaithLifeSimulationRuntime()
 installStreetVerseGameModeRuntime()
 installGlobalCityVerseRuntime()
 installGlobalWorldHierarchyRuntime()
+installGlobalTravelExperienceRuntime()
 installNiaSourceRuntime()
 installQuantumSourcingRuntime()
 installMetaverseBusinessBuilderRuntime()
