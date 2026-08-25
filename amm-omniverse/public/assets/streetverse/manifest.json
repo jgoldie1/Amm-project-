@@ -1,0 +1,8 @@
+{
+  "version":"2026-08-25.1",
+  "world":"streetverse",
+  "district":"district-01",
+  "status":"asset-pipeline-ready",
+  "folders":["characters","npcs","vehicles","buildings","interiors","animals","props","environment","audio"],
+  "requiredFirstWave":["player-default","npc-citizen-a","car-sedan-a","building-records","building-club","building-restaurant","dog-a","bird-a","city-ambience"]
+}
