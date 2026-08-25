@@ -1,7 +1,7 @@
 // TRYAMM Service Worker
 // Network-first app shell so production UI changes are visible immediately.
 
-const CACHE_NAME = 'tryamm-shell-v12-release-20260824'
+const CACHE_NAME = 'tryamm-shell-v13-streetverse-20260825'
 const STATIC_ASSETS = ['/manifest.json']
 
 self.addEventListener('install', (event) => {
@@ -65,7 +65,7 @@ self.addEventListener('fetch', (event) => {
 
   if (url.pathname.match(/\.(js|css|woff2?|png|jpg|jpeg|webp|svg|ico)$/i)) {
     event.respondWith(
-      fetch(request).then(response => {
+      fetch(request, { cache: 'no-store' }).then(response => {
         if (response.ok) {
           const clone = response.clone()
           caches.open(CACHE_NAME).then(cache => cache.put(request, clone))
@@ -76,7 +76,7 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  event.respondWith(fetch(request).catch(() => caches.match(request)))
+  event.respondWith(fetch(request, { cache: 'no-store' }).catch(() => caches.match(request)))
 })
 
 self.addEventListener('push', (event) => {
@@ -93,7 +93,7 @@ self.addEventListener('push', (event) => {
       data,
       actions: [
         { action: 'open', title: 'Open TRYAMM', icon: '/icons/action-open.png' },
-        { action: 'dismiss', title: 'Dismiss' }
+        { action: 'dismiss', title: 'Dismiss', icon: '/icons/action-open.png' }
       ]
     })
   )

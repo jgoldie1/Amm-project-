@@ -6,9 +6,9 @@
     <meta name="theme-color" content="#04050E" />
     <meta name="description" content="TRYAMM — one connected platform for creators, commerce, LIVE, games, AI, business, education, workforce, and Living Worlds." />
 
-    <link rel="manifest" href="/manifest.json?v=20260824-release-1" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260824-release-1" />
-    <link rel="shortcut icon" href="/favicon.svg?v=20260824-release-1" />
+    <link rel="manifest" href="/manifest.json?v=20260825-streetverse-1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260825-streetverse-1" />
+    <link rel="shortcut icon" href="/favicon.svg?v=20260825-streetverse-1" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <meta name="google-play-app" content="app-id=com.tryamm.omniverse" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -38,7 +38,7 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {
-            const SW_VERSION='20260824-release-1'
+            const SW_VERSION='20260825-streetverse-1'
             const registration = await navigator.serviceWorker.register('/sw.js?v=' + SW_VERSION, { updateViaCache: 'none' })
             await registration.update()
             if (registration.waiting) registration.waiting.postMessage({type:'SKIP_WAITING'})
