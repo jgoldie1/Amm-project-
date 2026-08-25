@@ -14,8 +14,8 @@ export type StreetVerseAsset={
 }
 
 export const STREETVERSE_ASSETS:StreetVerseAsset[]=[
-  {id:'player-default',kind:'character',label:'StreetVerse Player',url:'/assets/streetverse/recovered/characters/player-recovered.glb',scale:1,fallback:'primitive',tags:['player','avatar','recovered'],recovered:true},
-  {id:'npc-citizen-a',kind:'npc',label:'Citizen A',url:'/assets/streetverse/recovered/npcs/citizen-a-recovered.glb',scale:1,fallback:'primitive',tags:['citizen','recovered'],recovered:true},
+  {id:'player-default',kind:'character',label:'StreetVerse Player',url:'/assets/streetverse/characters/player-default.glb',scale:1,fallback:'primitive',tags:['player','avatar']},
+  {id:'npc-citizen-a',kind:'npc',label:'Citizen A',url:'/assets/streetverse/npcs/citizen-a.glb',scale:1,fallback:'primitive',tags:['citizen']},
   {id:'car-sedan-a',kind:'vehicle',label:'Sedan A',url:'/assets/streetverse/vehicles/sedan-a.glb',scale:1,fallback:'primitive',tags:['traffic','car']},
   {id:'building-records',kind:'building',label:'Soul Records',url:'/assets/streetverse/buildings/soul-records.glb',scale:1,fallback:'primitive',district:'district-01',tags:['shop','music']},
   {id:'building-club',kind:'building',label:'Night Club',url:'/assets/streetverse/buildings/night-club.glb',scale:1,fallback:'primitive',district:'district-01',tags:['club','nightlife']},
