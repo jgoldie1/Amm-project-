@@ -29,28 +29,47 @@ const recovered=[
   ['platform.glb','props/platform.glb']
 ]
 
-function copy(from,to){
-  if(!fs.existsSync(from)){
-    console.warn('missing',from)
-    return false
+const planned=[
+  ...recovered.map(([src,dst])=>({from:path.join(kenney,src),to:path.join(destRoot,dst)})),
+  ...['UAL1_Standard.glb','UAL1_Standard_RM.glb'].map(file=>({from:path.join(universal,file),to:path.join(destRoot,'animations',file)})),
+  {from:path.join(sourceRoot,'assets','third-party','kenney-platformer-kit','License.txt'),to:path.join(destRoot,'licenses','kenney-platformer-kit-license.txt')},
+  {from:path.join(sourceRoot,'assets','third-party','universal-animation-library','Universal Animation Library[Standard]','License.txt'),to:path.join(destRoot,'licenses','universal-animation-library-license.txt')}
+]
+
+const missing=planned.filter(item=>!fs.existsSync(item.from))
+if(missing.length){
+  console.error(`StreetVerse recovery aborted: ${missing.length} required source file(s) are missing.`)
+  for(const item of missing)console.error('missing',item.from)
+  process.exit(1)
+}
+
+const stageRoot=`${destRoot}.stage-${process.pid}`
+fs.rmSync(stageRoot,{recursive:true,force:true})
+
+try{
+  for(const item of planned){
+    const relative=path.relative(destRoot,item.to)
+    const staged=path.join(stageRoot,relative)
+    fs.mkdirSync(path.dirname(staged),{recursive:true})
+    fs.copyFileSync(item.from,staged)
+    console.log('staged',relative)
   }
-  fs.mkdirSync(path.dirname(to),{recursive:true})
-  fs.copyFileSync(from,to)
-  console.log('recovered',path.relative(repoRoot,to))
-  return true
+
+  const backupRoot=`${destRoot}.backup-${process.pid}`
+  if(fs.existsSync(destRoot))fs.renameSync(destRoot,backupRoot)
+  try{
+    fs.renameSync(stageRoot,destRoot)
+    fs.rmSync(backupRoot,{recursive:true,force:true})
+  }catch(error){
+    fs.rmSync(destRoot,{recursive:true,force:true})
+    if(fs.existsSync(backupRoot))fs.renameSync(backupRoot,destRoot)
+    throw error
+  }
+}catch(error){
+  fs.rmSync(stageRoot,{recursive:true,force:true})
+  console.error('StreetVerse recovery failed; existing recovered assets were preserved.')
+  console.error(error)
+  process.exit(1)
 }
 
-let count=0
-for(const [src,dst] of recovered){
-  if(copy(path.join(kenney,src),path.join(destRoot,dst)))count++
-}
-for(const file of ['UAL1_Standard.glb','UAL1_Standard_RM.glb']){
-  if(copy(path.join(universal,file),path.join(destRoot,'animations',file)))count++
-}
-
-const licenseSource=path.join(sourceRoot,'assets','third-party','kenney-platformer-kit','License.txt')
-copy(licenseSource,path.join(destRoot,'licenses','kenney-platformer-kit-license.txt'))
-const animationLicense=path.join(sourceRoot,'assets','third-party','universal-animation-library','Universal Animation Library[Standard]','License.txt')
-copy(animationLicense,path.join(destRoot,'licenses','universal-animation-library-license.txt'))
-
-console.log(`StreetVerse recovery complete: ${count} production files copied without modifying the original archive.`)
+console.log(`StreetVerse recovery complete: ${planned.length} required files copied atomically without modifying the original archive.`)
