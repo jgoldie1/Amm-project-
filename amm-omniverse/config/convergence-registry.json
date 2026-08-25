@@ -4,7 +4,7 @@
   "description": "Canonical production service map and release contract. Quantum means cross-system convergence/orchestration here; it does not assert quantum-computing hardware.",
   "sourceOfTruth": {
     "repository": "jgoldie1/Amm-project-",
-    "branch": "developer-vic",
+    "branch": "main",
     "applicationRoot": "amm-omniverse",
     "publicDomain": "https://tryamm.online",
     "productionVercelProject": "amm-omniverse",
