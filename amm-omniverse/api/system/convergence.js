@@ -1,4 +1,5 @@
 const DEFAULT_TIMEOUT_MS = 8000
+const REGISTRY_STALE_AFTER_MS = 6 * 60 * 60 * 1000
 
 function timeoutSignal(ms = DEFAULT_TIMEOUT_MS) {
   const controller = new AbortController()
@@ -34,6 +35,20 @@ async function probe(name, url) {
   }
 }
 
+function annotateRegistryRows(rows, now = Date.now()) {
+  return rows.map(row => {
+    const checkedAtMs = Date.parse(row.checked_at || '')
+    const ageMs = Number.isFinite(checkedAtMs) ? Math.max(0, now - checkedAtMs) : null
+    return {
+      ...row,
+      evidence: {
+        stale: ageMs === null || ageMs > REGISTRY_STALE_AFTER_MS,
+        ageHours: ageMs === null ? null : Math.round((ageMs / 36e5) * 10) / 10,
+      },
+    }
+  })
+}
+
 async function readRegistry() {
   const base = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
   const key = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY
@@ -46,7 +61,15 @@ async function readRegistry() {
       headers: { apikey: key, Authorization: `Bearer ${key}` },
     })
     if (!response.ok) return { status: 'degraded', rows: [], reason: `registry returned ${response.status}` }
-    return { status: 'healthy', rows: await response.json() }
+    const rows = annotateRegistryRows(await response.json())
+    return {
+      status: 'healthy',
+      rows,
+      freshness: {
+        staleAfterHours: REGISTRY_STALE_AFTER_MS / 36e5,
+        staleCount: rows.filter(row => row.evidence.stale).length,
+      },
+    }
   } catch (error) {
     return { status: 'down', rows: [], reason: error?.name === 'AbortError' ? 'registry timeout' : 'registry request failed' }
   } finally {
