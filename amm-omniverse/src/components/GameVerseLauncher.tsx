@@ -1,8 +1,8 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { useGameStore } from '../game/state/useGameStore'
+import PlayableBeta from './PlayableBeta'
 
 const GameVerseHub=lazy(()=>import('./GameVerseHub'))
-const PlayableBeta=lazy(()=>import('./PlayableBeta'))
 
 type GameVerseDetail={world?:string}
 
@@ -63,7 +63,7 @@ export default function GameVerseLauncher(){
     setPlayBeta(true)
   }
 
-  if(playBeta)return <Suspense fallback={<div style={{position:'fixed',inset:0,zIndex:14000,background:'#04050e'}}/>}><PlayableBeta onClose={closeBeta}/></Suspense>
+  if(playBeta)return <PlayableBeta onClose={closeBeta}/>
   if(!open)return <button type="button" aria-label="Open StreetVerse playable beta" onClick={launchFromButton} style={{position:'fixed',right:12,bottom:122,zIndex:8995,border:'1px solid #4fe3ff88',borderRadius:999,padding:'10px 14px',background:'linear-gradient(135deg,#071b27,#171129)',color:'#4FE3FF',fontSize:10,fontWeight:950,letterSpacing:1,cursor:'pointer',boxShadow:'0 8px 28px #0009'}}>🎮 PLAY STREETVERSE</button>
   return <Suspense fallback={<div style={{position:'fixed',inset:0,zIndex:12000,background:'#04050e'}}/>}>
     <GameVerseHub
