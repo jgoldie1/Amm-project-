@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three-stdlib'
 import { getStreetVerseAsset } from '../data/streetverseAssetRegistry'
+import { evaluateProductionClearance } from '../data/assetRightsRegistry'
 
 const loader=new GLTFLoader()
 const cache=new Map<string,Promise<THREE.Group|null>>()
@@ -15,6 +16,15 @@ async function fetchModel(url:string){
   return original?.clone(true)||null
 }
 
+function isAssetCleared(id:string){
+  const result=evaluateProductionClearance(id)
+  if(!result.allowed){
+    console.warn(`[StreetVerse rights gate] blocked ${id}: ${result.reasons.join(', ')}`)
+    return false
+  }
+  return true
+}
+
 export async function replacePrimitiveWithStreetVerseAsset(options:{
   id:string
   fallback:THREE.Object3D
@@ -22,9 +32,12 @@ export async function replacePrimitiveWithStreetVerseAsset(options:{
   position?:THREE.Vector3
   rotationY?:number
   scale?:number
+  requireClearance?:boolean
 }){
   const asset=getStreetVerseAsset(options.id)
   if(!asset)return false
+  const requireClearance=options.requireClearance??true
+  if(requireClearance&&!isAssetCleared(options.id))return false
   const model=await fetchModel(asset.url)
   if(!model)return false
   const position=options.position||options.fallback.position.clone()
@@ -40,9 +53,12 @@ export async function replacePrimitiveWithStreetVerseAsset(options:{
   return true
 }
 
-export async function preloadStreetVerseAssets(ids:string[]){
+export async function preloadStreetVerseAssets(ids:string[],options:{requireClearance?:boolean}={}){
+  const requireClearance=options.requireClearance??true
   await Promise.all(ids.map(async id=>{
     const asset=getStreetVerseAsset(id)
-    if(asset)await fetchModel(asset.url)
+    if(!asset)return
+    if(requireClearance&&!isAssetCleared(id))return
+    await fetchModel(asset.url)
   }))
 }
