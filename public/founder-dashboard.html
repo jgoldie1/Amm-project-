@@ -3,15 +3,75 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>TRYAMM Founder Dashboard</title>
+  <title>TRYAMM Founder Command Center</title>
   <link rel="stylesheet" href="/founder-dashboard.css">
 </head>
 <body>
   <main class="shell">
-    <header><p class="eyebrow">TRYAMM · The Living Digital Universe</p><h1>Founder Content & Build Dashboard</h1><p>Turn every contractor, inventor, and development milestone into truthful, reusable content.</p></header>
-    <section class="auth"><label>Session token<input id="token" type="password" placeholder="Paste the token returned after login"></label><button id="load">Load dashboard</button></section>
+    <header>
+      <p class="eyebrow">TRYAMM · Founder Command Center</p>
+      <h1>Build, Family & Legacy Operations</h1>
+      <p>Track platform development and keep family-tree membership, career opportunity, ownership, control, employment and succession as separate decisions.</p>
+    </header>
+
+    <section class="auth" aria-label="Founder authentication">
+      <label>Session token<input id="token" type="password" placeholder="Paste the token returned after admin login" autocomplete="off"></label>
+      <button id="load" class="primary-action">Load command center</button>
+    </section>
+
+    <nav class="command-nav" aria-label="Command center sections">
+      <a href="#family">Family</a><a href="#enterprises">Enterprises</a><a href="#pathways">Education</a><a href="#builds">Builds</a><a href="#legacy">Legacy/IP</a>
+    </nav>
+
     <section id="metrics" class="metrics" aria-live="polite"></section>
-    <section class="panel">
+
+    <section id="family" class="panel">
+      <div class="section-heading"><div><p class="eyebrow">Protected registry</p><h2>Family Enterprise Registry</h2></div><span class="badge">Admin only</span></div>
+      <p class="guardrail">Adding a person to the family tree does not automatically make them an owner, beneficiary, employee, manager or voting controller.</p>
+      <form id="family-form">
+        <div class="grid">
+          <label>Name<input name="displayName" required maxlength="120"></label>
+          <label>Relationship<input name="relationship" maxlength="80" placeholder="child, relative, uncle, family"></label>
+          <label>Current career goal<input name="careerGoal" maxlength="240" placeholder="Optional — careers can change"></label>
+        </div>
+        <fieldset>
+          <legend>Rights — grant only when intentionally approved</legend>
+          <div class="rights-grid">
+            <label><input type="checkbox" name="beneficiary"> Beneficiary</label>
+            <label><input type="checkbox" name="economicOwnership"> Economic ownership</label>
+            <label><input type="checkbox" name="votingControl"> Voting/control</label>
+            <label><input type="checkbox" name="managementAuthority"> Management authority</label>
+            <label><input type="checkbox" name="educationAccess" checked> Education/opportunity access</label>
+            <label><input type="checkbox" name="ipRoyaltyRights"> IP/royalty rights</label>
+          </div>
+        </fieldset>
+        <label>Planning notes<textarea name="notes" maxlength="500" placeholder="Do not enter passwords, account numbers, medical records or other secrets."></textarea></label>
+        <button type="submit" class="primary-action">Add protected family profile</button>
+      </form>
+      <div id="family-members" class="card-grid" aria-live="polite"></div>
+    </section>
+
+    <section id="enterprises" class="panel">
+      <div class="section-heading"><div><p class="eyebrow">Enterprise map</p><h2>Companies & Business Lines</h2></div></div>
+      <div id="enterprises-list" class="card-grid"></div>
+    </section>
+
+    <section id="pathways" class="panel">
+      <div class="section-heading"><div><p class="eyebrow">All American University</p><h2>Become Anything Pathways</h2></div></div>
+      <p>Career pathways are guidance, not assignments. Regulated careers route students to the external accredited education, supervised training, examinations and licenses that profession requires.</p>
+      <div id="pathways-list" class="card-grid"></div>
+    </section>
+
+    <section id="legacy" class="panel">
+      <div class="section-heading"><div><p class="eyebrow">Planning controls</p><h2>Opportunity Fund + IP/Legacy Vault + Succession</h2></div></div>
+      <div class="three-column">
+        <article><h3>Opportunity Fund</h3><p>Education, career changes, certifications, entrepreneurship and approved life opportunities can be funded without forcing a family member into a particular company.</p></article>
+        <article><h3>IP / Legacy Vault</h3><p>Track creator, legal owner, successor, royalties, licenses and legal-review status for important family and company assets.</p></article>
+        <article><h3>Succession Engine</h3><p>Record founder intent for death, incapacity, retirement or transfer while clearly marking planning records that still require attorney review.</p></article>
+      </div>
+    </section>
+
+    <section id="builds" class="panel">
       <h2>Add a development update</h2>
       <form id="project-form">
         <label>Feature title<input name="title" required maxlength="140"></label>
