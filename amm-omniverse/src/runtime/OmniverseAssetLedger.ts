@@ -84,7 +84,7 @@ export function loadOmniverseEconomy(){
 
 async function appendBlock(input:Omit<OmniverseLedgerBlock,'index'|'timestamp'|'previousHash'|'hash'>){
   const current=loadOmniverseEconomy()
-  const previousHash=current.ledger.at(-1)?.hash||'GENESIS'
+  const previousHash=current.ledger.length?current.ledger[current.ledger.length-1].hash:'GENESIS'
   const blockBase={
     index:current.ledger.length,
     timestamp:new Date().toISOString(),
