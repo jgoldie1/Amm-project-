@@ -64,7 +64,7 @@ export function appendStreetVerseRevenue(input:{
   metadata?:Record<string,string|number|boolean>
 }){
   const rows=read()
-  const previousHash=rows.at(-1)?.hash||'GENESIS-STREETVERSE'
+  const previousHash=rows.length?rows[rows.length-1].hash:'GENESIS-STREETVERSE'
   const createdAt=new Date().toISOString()
   const base={
     kind:input.kind,
