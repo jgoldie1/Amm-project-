@@ -1,3 +1,4 @@
+import {generateText} from 'ai';
 import {requireUser} from '../_lib/security.js';
 
 const clean=(v,n=12000)=>String(v||'').trim().slice(0,n);
@@ -34,6 +35,8 @@ Financial context: distinguish gross sale, settlement, fees/taxes/refund reserve
 
 Always distinguish BUILT, DEMO/BETA, PLANNED, CONFIGURED and VERIFIED LIVE. Never claim a payment, deployment, accreditation, partnership, employment outcome, medical result, hardware capability, legal status, licensed service or external action happened without evidence. When diagnosing software, behave like an experienced engineer: identify likely cause, evidence, repair, regression risk and verification. Keep the user's intent central and do not invent repository or production state.`}
 
+function normalizeHistory(history=[]){return history.slice(-10).map(m=>({role:m.role==='assistant'?'assistant':'user',content:clean(m.content,3000)}));}
+
 function extractResponseText(data){
   let answer=clean(data?.output_text,20000);
   if(answer)return answer;
@@ -41,10 +44,31 @@ function extractResponseText(data){
   return clean(answer,20000);
 }
 
+async function aiSdkGateway(question,history){
+  const configured=clean(process.env.HOLOGPT_GATEWAY_MODEL,200);
+  const models=[configured,'openai/gpt-5.4'].filter((value,index,array)=>value&&array.indexOf(value)===index);
+  let lastError=null;
+  for(const model of models){
+    try{
+      const result=await generateText({
+        model,
+        system:systemPrompt(),
+        messages:[...normalizeHistory(history),{role:'user',content:question}],
+        maxOutputTokens:2200,
+        abortSignal:AbortSignal.timeout(timeoutMs())
+      });
+      const answer=clean(result?.text,20000);
+      if(!answer)throw new Error('ai_sdk_gateway_empty_response');
+      return {answer,provider:'vercel-ai-gateway-auto',model};
+    }catch(error){lastError=error;}
+  }
+  throw lastError||new Error('ai_sdk_gateway_failed');
+}
+
 async function vercelGateway(question,history){
   const token=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN;if(!token)return null;
-  const model=process.env.HOLOGPT_GATEWAY_MODEL||'openai/gpt-5.6-sol';
-  const input=[...history.slice(-10).map(m=>({role:m.role==='assistant'?'assistant':'user',content:clean(m.content,3000)})),{role:'user',content:question}];
+  const model=process.env.HOLOGPT_GATEWAY_MODEL||'openai/gpt-5.4';
+  const input=[...normalizeHistory(history),{role:'user',content:question}];
   const data=await fetchJson('https://ai-gateway.vercel.sh/v1/responses',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${token}`},body:JSON.stringify({model,instructions:systemPrompt(),input,max_output_tokens:2200,store:false})});
   const answer=extractResponseText(data);if(!answer)throw new Error('gateway_empty_response');
   return {answer,provider:'vercel-ai-gateway',model:data.model||model};
@@ -53,7 +77,7 @@ async function vercelGateway(question,history){
 async function openai(question,history){
   const key=process.env.OPENAI_API_KEY;if(!key)return null;
   const model=process.env.HOLOGPT_OPENAI_MODEL||process.env.OPENAI_MODEL||'gpt-5.4';
-  const input=[...history.slice(-10).map(m=>({role:m.role==='assistant'?'assistant':'user',content:clean(m.content,3000)})),{role:'user',content:question}];
+  const input=[...normalizeHistory(history),{role:'user',content:question}];
   const data=await fetchJson('https://api.openai.com/v1/responses',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${key}`},body:JSON.stringify({model,instructions:systemPrompt(),input,max_output_tokens:2200,store:false})});
   const answer=extractResponseText(data);if(!answer)throw new Error('openai_empty_response');
   return {answer,provider:'openai',model:data.model||model};
@@ -74,7 +98,7 @@ async function gemini(question,history){
 async function claude(question,history){
   const key=process.env.ANTHROPIC_API_KEY;if(!key)return null;
   const model=process.env.HOLOGPT_CLAUDE_MODEL;if(!model)return null;
-  const messages=[...history.slice(-10).map(m=>({role:m.role==='assistant'?'assistant':'user',content:clean(m.content,3000)})),{role:'user',content:question}];
+  const messages=[...normalizeHistory(history),{role:'user',content:question}];
   const data=await fetchJson('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},body:JSON.stringify({model,max_tokens:2200,system:systemPrompt(),messages})});
   const answer=clean((data.content||[]).map(part=>part?.text||'').join('\n'),20000);
   if(!answer)throw new Error('claude_empty_response');
@@ -84,7 +108,7 @@ async function claude(question,history){
 async function deepseek(question,history){
   const key=process.env.DEEPSEEK_API_KEY;if(!key)return null;
   const model=process.env.HOLOGPT_DEEPSEEK_MODEL;if(!model)return null;
-  const messages=[{role:'system',content:systemPrompt()},...history.slice(-10).map(m=>({role:m.role==='assistant'?'assistant':'user',content:clean(m.content,3000)})),{role:'user',content:question}];
+  const messages=[{role:'system',content:systemPrompt()},...normalizeHistory(history),{role:'user',content:question}];
   const base=String(process.env.DEEPSEEK_API_BASE||'https://api.deepseek.com').replace(/\/$/,'');
   const data=await fetchJson(`${base}/chat/completions`,{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${key}`},body:JSON.stringify({model,messages,temperature:.35,max_tokens:2200})});
   const answer=clean(data?.choices?.[0]?.message?.content,20000);
@@ -101,7 +125,7 @@ async function ammBackend(question,history,authorization){
   return {answer,provider:'amm-backend',model:data.model||null};
 }
 
-function diagnostic(question,errors=[]){return {answer:`HoloGPT is wired into TRYAMM, but no generative provider answered this request.\n\nYour request: ${question}\n\nPrimary path: Vercel AI Gateway with Vercel OIDC. Fallbacks: OpenAI, Gemini, Claude, DeepSeek, then the AMM backend.${errors.length?`\n\nProvider diagnostics: ${errors.join(' | ')}`:''}`,provider:'diagnostic',model:null};}
+function diagnostic(question,errors=[]){return {answer:`HoloGPT is online in recovery mode, but no generative provider completed this request.\n\nYour request: ${question}\n\nPrimary path: Vercel AI SDK + AI Gateway automatic OIDC. Fallbacks: explicit Vercel AI Gateway, OpenAI, Gemini, Claude, DeepSeek, then the AMM backend.${errors.length?`\n\nProvider diagnostics: ${errors.join(' | ')}`:''}`,provider:'diagnostic',model:null};}
 
 export default async function handler(req,res){
   res.setHeader('Cache-Control','no-store');
@@ -113,6 +137,7 @@ export default async function handler(req,res){
   if(authorization.startsWith('Bearer ')){user=await requireUser(req,res);if(!user)return;}
   const errors=[];
   const runners=[
+    ()=>aiSdkGateway(question,history),
     ()=>vercelGateway(question,history),
     ()=>openai(question,history),
     ()=>gemini(question,history),
@@ -127,5 +152,5 @@ export default async function handler(req,res){
     }catch(error){errors.push(clean(error?.message,300));}
   }
   const fallback=diagnostic(question,errors);
-  return res.status(200).json({ok:true,...fallback,degraded:true,authenticated:Boolean(user),userId:user?.id||null,time:new Date().toISOString()});
+  return res.status(200).json({ok:true,...fallback,degraded:true,authenticated:Boolean(user),userId:user?.id||null,providerErrors:errors,time:new Date().toISOString()});
 }
