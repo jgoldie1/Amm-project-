@@ -7,7 +7,7 @@
     "dev": "vite",
     "lint": "eslint .",
     "lint:strict": "eslint . --max-warnings=0",
-    "smoke": "node tests/smoke-contracts.mjs && node tests/living-world-recovery-contract.mjs",
+    "smoke": "node tests/smoke-contracts.mjs && node tests/living-world-recovery-contract.mjs && node tests/asset-rights-contract.mjs",
     "security": "node tests/repository-security-scan.mjs",
     "provider-gates": "node tests/provider-gates.mjs",
     "readiness": "node tests/production-readiness.mjs && npm run provider-gates",
@@ -47,7 +47,7 @@
     "@types/three":"^0.184.1",
     "@vitejs/plugin-react":"^6.0.5",
     "eslint":"9.39.5",
-    "eslint-plugin-react-hooks":"^7.1.1",
+    "eslint-plugin-react-hooks":"8.67.0",
     "typescript":"^5.5.0",
     "typescript-eslint":"8.67.0",
     "vite":"^8.2.1"
