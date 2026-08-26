@@ -37,6 +37,7 @@ const ECONOMY_KEY='tryamm.omniverse.economy.v1'
 const PLAYER_ID='streetverse-player-local'
 
 const encoder=new TextEncoder()
+let economyMutationQueue:Promise<void>=Promise.resolve()
 
 async function sha256(value:string){
   if(globalThis.crypto?.subtle){
@@ -55,6 +56,12 @@ function loadJson<T>(key:string,fallback:T):T{
 }
 
 function saveJson(key:string,value:unknown){localStorage.setItem(key,JSON.stringify(value))}
+
+function serializeEconomyMutation<T>(operation:()=>Promise<T>):Promise<T>{
+  const run=economyMutationQueue.then(operation,operation)
+  economyMutationQueue=run.then(()=>undefined,()=>undefined)
+  return run
+}
 
 export const OMNIVERSE_DEMO_ASSETS:OmniverseAssetRecord[]=[
   {id:'animal-dog-01',class:'animal',label:'City Dog',ownerId:'world',license:'PLACEHOLDER',provenance:'Procedural StreetVerse demo primitive',valueCredits:20},
@@ -82,7 +89,7 @@ export function loadOmniverseEconomy(){
   return {...EMPTY_ECONOMY,...economy,ledger}
 }
 
-async function appendBlock(input:Omit<OmniverseLedgerBlock,'index'|'timestamp'|'previousHash'|'hash'>){
+async function appendBlockUnlocked(input:Omit<OmniverseLedgerBlock,'index'|'timestamp'|'previousHash'|'hash'>){
   const current=loadOmniverseEconomy()
   const previousHash=current.ledger.length?current.ledger[current.ledger.length-1].hash:'GENESIS'
   const blockBase={
@@ -99,58 +106,68 @@ async function appendBlock(input:Omit<OmniverseLedgerBlock,'index'|'timestamp'|'
 }
 
 export async function ensureOmniverseGenesis(){
-  const current=loadOmniverseEconomy()
-  if(current.ledger.length)return current
-  await appendBlock({event:'GENESIS',playerId:PLAYER_ID,amountCredits:0,metadata:{network:'El Saturn Quantum Omniverse Internal Game Ledger',mode:'local-demo'}})
-  return loadOmniverseEconomy()
+  return serializeEconomyMutation(async()=>{
+    const current=loadOmniverseEconomy()
+    if(current.ledger.length)return current
+    await appendBlockUnlocked({event:'GENESIS',playerId:PLAYER_ID,amountCredits:0,metadata:{network:'El Saturn Quantum Omniverse Internal Game Ledger',mode:'local-demo'}})
+    return loadOmniverseEconomy()
+  })
 }
 
 export async function recordMissionReward(amountCredits:number,mission:string){
-  const economy=loadOmniverseEconomy()
-  economy.playerBalance+=amountCredits
-  saveJson(ECONOMY_KEY,economy)
-  await appendBlock({event:'MISSION_REWARD',playerId:PLAYER_ID,amountCredits,metadata:{mission}})
-  return loadOmniverseEconomy()
+  return serializeEconomyMutation(async()=>{
+    const economy=loadOmniverseEconomy()
+    economy.playerBalance+=amountCredits
+    saveJson(ECONOMY_KEY,economy)
+    await appendBlockUnlocked({event:'MISSION_REWARD',playerId:PLAYER_ID,amountCredits,metadata:{mission}})
+    return loadOmniverseEconomy()
+  })
 }
 
 export async function recordPurchase(assetId:string){
-  const asset=OMNIVERSE_DEMO_ASSETS.find(item=>item.id===assetId)
-  if(!asset)throw new Error('Unknown asset')
-  const economy=loadOmniverseEconomy()
-  if(economy.ownedAssetIds.includes(assetId))return economy
-  if(economy.playerBalance<asset.valueCredits)throw new Error('Not enough demo credits')
-  const platformFee=Math.max(1,Math.round(asset.valueCredits*.10))
-  economy.playerBalance-=asset.valueCredits
-  economy.grossPlatformCredits+=platformFee
-  economy.byStream['asset-marketplace']=(economy.byStream['asset-marketplace']||0)+platformFee
-  economy.ownedAssetIds=[...economy.ownedAssetIds,assetId]
-  saveJson(ECONOMY_KEY,economy)
-  await appendBlock({event:'PURCHASE',playerId:PLAYER_ID,assetId,amountCredits:asset.valueCredits,revenueStream:'asset-marketplace',metadata:{platformFee,license:asset.license}})
-  return loadOmniverseEconomy()
+  return serializeEconomyMutation(async()=>{
+    const asset=OMNIVERSE_DEMO_ASSETS.find(item=>item.id===assetId)
+    if(!asset)throw new Error('Unknown asset')
+    const economy=loadOmniverseEconomy()
+    if(economy.ownedAssetIds.includes(assetId))return economy
+    if(economy.playerBalance<asset.valueCredits)throw new Error('Not enough demo credits')
+    const platformFee=Math.max(1,Math.round(asset.valueCredits*.10))
+    economy.playerBalance-=asset.valueCredits
+    economy.grossPlatformCredits+=platformFee
+    economy.byStream['asset-marketplace']=(economy.byStream['asset-marketplace']||0)+platformFee
+    economy.ownedAssetIds=[...economy.ownedAssetIds,assetId]
+    saveJson(ECONOMY_KEY,economy)
+    await appendBlockUnlocked({event:'PURCHASE',playerId:PLAYER_ID,assetId,amountCredits:asset.valueCredits,revenueStream:'asset-marketplace',metadata:{platformFee,license:asset.license}})
+    return loadOmniverseEconomy()
+  })
 }
 
 export async function recordRental(assetId:string){
-  const asset=OMNIVERSE_DEMO_ASSETS.find(item=>item.id===assetId)
-  if(!asset)throw new Error('Unknown asset')
-  const rental=Math.max(5,Math.round(asset.valueCredits*.08))
-  const economy=loadOmniverseEconomy()
-  if(economy.playerBalance<rental)throw new Error('Not enough demo credits')
-  economy.playerBalance-=rental
-  economy.grossPlatformCredits+=rental
-  economy.byStream['vehicle-watercraft-rental']=(economy.byStream['vehicle-watercraft-rental']||0)+rental
-  saveJson(ECONOMY_KEY,economy)
-  await appendBlock({event:'RENTAL',playerId:PLAYER_ID,assetId,amountCredits:rental,revenueStream:'vehicle-watercraft-rental'})
-  return loadOmniverseEconomy()
+  return serializeEconomyMutation(async()=>{
+    const asset=OMNIVERSE_DEMO_ASSETS.find(item=>item.id===assetId)
+    if(!asset)throw new Error('Unknown asset')
+    const rental=Math.max(5,Math.round(asset.valueCredits*.08))
+    const economy=loadOmniverseEconomy()
+    if(economy.playerBalance<rental)throw new Error('Not enough demo credits')
+    economy.playerBalance-=rental
+    economy.grossPlatformCredits+=rental
+    economy.byStream['vehicle-watercraft-rental']=(economy.byStream['vehicle-watercraft-rental']||0)+rental
+    saveJson(ECONOMY_KEY,economy)
+    await appendBlockUnlocked({event:'RENTAL',playerId:PLAYER_ID,assetId,amountCredits:rental,revenueStream:'vehicle-watercraft-rental'})
+    return loadOmniverseEconomy()
+  })
 }
 
 export async function recordSponsorReward(amountCredits=5){
-  const economy=loadOmniverseEconomy()
-  economy.playerBalance+=amountCredits
-  economy.grossPlatformCredits+=amountCredits
-  economy.byStream['sponsored-missions']=(economy.byStream['sponsored-missions']||0)+amountCredits
-  saveJson(ECONOMY_KEY,economy)
-  await appendBlock({event:'SPONSOR_REWARD',playerId:PLAYER_ID,amountCredits,revenueStream:'sponsored-missions',metadata:{demo:true}})
-  return loadOmniverseEconomy()
+  return serializeEconomyMutation(async()=>{
+    const economy=loadOmniverseEconomy()
+    economy.playerBalance+=amountCredits
+    economy.grossPlatformCredits+=amountCredits
+    economy.byStream['sponsored-missions']=(economy.byStream['sponsored-missions']||0)+amountCredits
+    saveJson(ECONOMY_KEY,economy)
+    await appendBlockUnlocked({event:'SPONSOR_REWARD',playerId:PLAYER_ID,amountCredits,revenueStream:'sponsored-missions',metadata:{demo:true}})
+    return loadOmniverseEconomy()
+  })
 }
 
 export function resetOmniverseEconomy(){
