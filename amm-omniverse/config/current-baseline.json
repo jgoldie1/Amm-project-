@@ -1,7 +1,7 @@
 {
-  "lockedAt": "2026-08-22",
-  "workingBranch": "developer-vic",
-  "baselineCommit": "5726d000ec931241f4013f1cb76c9d39ae674125",
+  "lockedAt": "2026-08-26",
+  "workingBranch": "main",
+  "baselineCommit": "63adc10bcc5415e965d0116722b4ee160399b7f7",
   "rollbackBranch": "checkpoint/2026-08-22-intelligence-hierarchy",
   "policyCommit": "2dde6c4f81b3055c2a12e09a7bbc3328a9b7b298",
   "releaseSequence": [
