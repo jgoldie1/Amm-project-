@@ -5,7 +5,7 @@ const { answerWithTriBrain } = require('../lib/stubbs-tri-brain')
 function createWorkforceRouter({ supabase }) {
   const router = express.Router()
   const githubRepo = process.env.GITHUB_WORKSTATION_REPO || 'jgoldie1/Amm-project-'
-  const githubBranch = process.env.GITHUB_WORKSTATION_BRANCH || 'developer-vic'
+  const githubBranch = process.env.GITHUB_WORKSTATION_BRANCH || 'main'
   const repoCache = new Map()
 
   async function requireUser(req, res, next) {
