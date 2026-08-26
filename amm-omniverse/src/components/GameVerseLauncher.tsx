@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { useGameStore } from '../game/state/useGameStore'
-import StreetVerseLivingWorld from './StreetVerseLivingWorld'
+import StreetVerseOmniWorld from './StreetVerseOmniWorld'
 
 const GameVerseHub=lazy(()=>import('./GameVerseHub'))
 
@@ -45,7 +45,7 @@ export default function GameVerseLauncher(){
   const closeStreetVerse=()=>{setPlayStreetVerse(false);if(PLAYABLE_PATHS.has(window.location.pathname))window.history.replaceState({},'',window.location.origin+'/')}
   const launchFromButton=()=>{window.history.pushState({},'',window.location.origin+'/streetverse');setPlayStreetVerse(true)}
 
-  if(playStreetVerse)return <StreetVerseLivingWorld onClose={closeStreetVerse}/>
-  if(!open)return <button type="button" aria-label="Open StreetVerse living world" onClick={launchFromButton} style={{position:'fixed',right:12,bottom:122,zIndex:8995,border:'1px solid #4fe3ff88',borderRadius:999,padding:'10px 14px',background:'linear-gradient(135deg,#071b27,#171129)',color:'#4FE3FF',fontSize:10,fontWeight:950,letterSpacing:1,cursor:'pointer',boxShadow:'0 8px 28px #0009'}}>🎮 PLAY STREETVERSE</button>
+  if(playStreetVerse)return <StreetVerseOmniWorld onClose={closeStreetVerse}/>
+  if(!open)return <button type="button" aria-label="Open StreetVerse Omni world" onClick={launchFromButton} style={{position:'fixed',right:12,bottom:122,zIndex:8995,border:'1px solid #4fe3ff88',borderRadius:999,padding:'10px 14px',background:'linear-gradient(135deg,#071b27,#171129)',color:'#4FE3FF',fontSize:10,fontWeight:950,letterSpacing:1,cursor:'pointer',boxShadow:'0 8px 28px #0009'}}>🎮 PLAY STREETVERSE</button>
   return <Suspense fallback={<div style={{position:'fixed',inset:0,zIndex:12000,background:'#04050e'}}/>}><GameVerseHub initialWorld={world} onClose={()=>setOpen(false)} onEnterSports={()=>{setOpen(false);setScreen('sports')}} onEnterCity={()=>{setOpen(false);setScreen('city')}}/></Suspense>
 }
