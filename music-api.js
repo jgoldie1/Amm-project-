@@ -122,4 +122,9 @@ module.exports = function registerMusicApi({ app, auth, clean, id, getStore, sav
     await saveStore(); io.to(`room:${room.id}`).emit('room:status', { status: room.hostStatus, breakEndsAt: room.breakEndsAt });
     res.json({ status: room.hostStatus, breakEndsAt: room.breakEndsAt });
   });
+
+  if (!app.locals.tryammPaymentRoutesRegistered) {
+    require('./lib/payment-routes')({ app, auth, getStore, saveStore });
+    app.locals.tryammPaymentRoutesRegistered = true;
+  }
 };
