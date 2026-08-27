@@ -27,13 +27,23 @@ export type PaymentRoute = {
   score: number
 }
 
+export type PaymentAuthorization = {
+  intent: PaymentIntent
+  route: PaymentRoute
+  authorizedAt: number
+  status: 'authorized'|'sandbox-authorized'
+}
+
 const rails = new Map<string, PaymentRail>()
 const seen = new Set<string>()
+const authorizations: PaymentAuthorization[] = []
 
 export function registerPaymentRail(rail: PaymentRail) {
   rails.set(rail.key, rail)
   return rail
 }
+export function listPaymentRails(){ return [...rails.values()] }
+export function listPaymentAuthorizations(){ return [...authorizations].sort((a,b)=>b.authorizedAt-a.authorizedAt) }
 
 export function createPaymentIntent(input: Omit<PaymentIntent, 'id' | 'createdAt'>) {
   if (input.amountMinor <= 0) throw new Error('Payment amount must be positive')
@@ -62,7 +72,9 @@ export function authorizePayment(intent: PaymentIntent) {
   const route = routePayment(intent)[0]
   if (!route) throw new Error('No approved payment rail available')
   seen.add(intent.idempotencyKey)
-  return { intent, route, authorizedAt: Date.now(), status: route.rail.status === 'live' ? 'authorized' : 'sandbox-authorized' as const }
+  const authorization:PaymentAuthorization={ intent, route, authorizedAt: Date.now(), status: route.rail.status === 'live' ? 'authorized' : 'sandbox-authorized' }
+  authorizations.push(authorization)
+  return authorization
 }
 
 function hash(input: string) {
