@@ -25,6 +25,8 @@ import SecurityCenter from './components/SecurityCenter'
 import OmniWearCenter from './components/OmniWearCenter'
 import TryAMMConnectCenter from './components/TryAMMConnectCenter'
 import EconomicLoopCenter from './components/EconomicLoopCenter'
+import QuantumZoomViewer from './components/QuantumZoomViewer'
+import NextDevelopmentTargetCenter from './components/NextDevelopmentTargetCenter'
 import './styles.css'
 
 const ProAudioSuite = lazy(() => import('./components/ProAudioSuite'))
@@ -65,6 +67,8 @@ export default function App() {
   const [showConnect, setShowConnect] = useState(false)
   const [showPoyo, setShowPoyo] = useState(false)
   const [showEconomicLoop, setShowEconomicLoop] = useState(false)
+  const [showQuantumZoom, setShowQuantumZoom] = useState(false)
+  const [showNextDevelopment, setShowNextDevelopment] = useState(false)
   const [showNexus, setShowNexus] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
@@ -96,6 +100,8 @@ export default function App() {
   ;(window as any).__showQuantumEmail = () => setShowConnect(true)
   ;(window as any).__showPoyoAI = () => setShowPoyo(true)
   ;(window as any).__showEconomicLoop = () => setShowEconomicLoop(true)
+  ;(window as any).__showQuantumZoom = () => setShowQuantumZoom(true)
+  ;(window as any).__showNextDevelopment = () => setShowNextDevelopment(true)
   ;(window as any).__showCommandNexus = () => setShowNexus(true)
 
   const signedIn = screen !== 'intro' && screen !== 'login'
@@ -114,6 +120,8 @@ export default function App() {
     ['🎓','SCHOOL NETWORK',()=>setShowSchoolNetwork(true),'BETA'],
     ['◈','IMMERSIVE WORLD',()=>setShowImmersive(true),'BETA'],
     ['SPACE','TIME • LIFE',()=>setShowAdvanced(true),'BETA'],
+    ['🔭','QUANTUM ZOOM',()=>setShowQuantumZoom(true),'BETA'],
+    ['ROAD','NEXT BUILD',()=>setShowNextDevelopment(true),'BETA'],
     ['📚','KINGDOMS PRESS',()=>setShowPress(true),'BETA'],
     ['♜','FAMILY LEGACY',()=>setShowFamilyLegacy(true),'BETA'],
     ['⚛','QUANTUM ENGINE',()=>setShowQuantumEngine(true),'BETA'],
@@ -161,6 +169,8 @@ export default function App() {
         {showProAudio && <Suspense fallback={null}><div style={{position:'fixed',inset:0,zIndex:9996,background:'#03040c'}}><ProAudioSuite onClose={() => setShowProAudio(false)} /></div></Suspense>}
         {showPoyo && <Suspense fallback={null}><PoyoAIStudio onClose={() => setShowPoyo(false)} /></Suspense>}
         {showEconomicLoop && <EconomicLoopCenter onClose={() => setShowEconomicLoop(false)} />}
+        {showQuantumZoom && <QuantumZoomViewer onClose={() => setShowQuantumZoom(false)} />}
+        {showNextDevelopment && <NextDevelopmentTargetCenter onClose={() => setShowNextDevelopment(false)} />}
         {showOmniverse && <OmniverseCommandCenter onClose={() => setShowOmniverse(false)} />}
         {showHoloCore && <HoloCoreCenter onClose={() => setShowHoloCore(false)} />}
         {showHoloServices && <HoloServicesHub onClose={() => setShowHoloServices(false)} />}
