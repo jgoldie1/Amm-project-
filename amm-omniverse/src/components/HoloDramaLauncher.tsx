@@ -43,7 +43,14 @@ export default function HoloDramaLauncher(){
   function addScene(){const next=blankScene(project.scenes.length+1);setProject(current=>({...current,scenes:[...current.scenes,next]}));setSelectedId(next.id);setMessage('Scene added. Add the caption, audio direction and optional product/ad tag.')}
   function removeScene(){if(!selected||project.scenes.length===1){setMessage('A Holo Drama project must keep at least one scene.');return}const index=project.scenes.findIndex(scene=>scene.id===selected.id);const remaining=project.scenes.filter(scene=>scene.id!==selected.id);setProject(current=>({...current,scenes:remaining}));setSelectedId(remaining[Math.max(0,index-1)]?.id||remaining[0]?.id||'')}
   function moveScene(direction:-1|1){if(!selected)return;const index=project.scenes.findIndex(scene=>scene.id===selected.id),target=index+direction;if(index<0||target<0||target>=project.scenes.length)return;const scenes=[...project.scenes];[scenes[index],scenes[target]]=[scenes[target],scenes[index]];setProject(current=>({...current,scenes}))}
-  function openInReel(){if(!selected)return;window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'holo-drama',title:`${project.title} — ${selected.title}`,caption:selected.caption||`${selected.title} • Made in Holo Drama`}}));setMessage('Scene handed to Reel Creator. Capture or upload the scene media there, then edit, render, save or publish.')}
+  function openInReel(){
+    if(!selected)return
+    const baseCaption=selected.caption||`${selected.title} • Made in Holo Drama`
+    const metadata=[selected.audioNote?`Audio: ${selected.audioNote}`:'',selected.productTag?`Product/Ad: ${selected.productTag}`:''].filter(Boolean).join(' • ')
+    const reelCaption=[baseCaption,metadata].filter(Boolean).join(' • ')
+    window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'holo-drama',title:`${project.title} — ${selected.title}`,caption:reelCaption}}))
+    setMessage('Scene handed to Reel Creator with title, caption, audio direction and product/ad metadata preserved for the draft.')
+  }
 
   if(!open)return <button onClick={()=>setOpen(true)} style={{position:'fixed',right:18,bottom:210,zIndex:1100,border:'1px solid #8de7ff',borderRadius:999,padding:'10px 14px',background:'rgba(2,10,20,.92)',color:'#fff',fontWeight:800,boxShadow:'0 0 22px rgba(75,211,255,.28)'}}>HOLO DRAMA</button>
 
