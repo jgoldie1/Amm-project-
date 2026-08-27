@@ -25,7 +25,8 @@ const child = spawn(process.execPath, ['-r', './lib/content-engine-preload.js', 
     OLLAMA_MODEL: '',
     STUBBS_EXECUTIVE_URL: '',
     SUPABASE_URL: '',
-    SUPABASE_SERVICE_ROLE_KEY: ''
+    SUPABASE_SERVICE_ROLE_KEY: '',
+    STRIPE_SECRET_KEY: ''
   },
   stdio: ['ignore', 'pipe', 'pipe']
 });
@@ -56,6 +57,13 @@ async function waitForHealth() {
   try {
     const health = await waitForHealth();
     assert.strictEqual(health.ok, true);
+
+    const paymentStatus = await json(`${base}/api/payments/status`);
+    assert.strictEqual(paymentStatus.response.status, 200, JSON.stringify(paymentStatus.body));
+    assert.strictEqual(paymentStatus.body.ok, true);
+    assert.strictEqual(paymentStatus.body.verification, 'server_retrieve');
+    assert.strictEqual(paymentStatus.body.payoutMode, 'ledger_only');
+    assert.strictEqual(paymentStatus.body.livePayoutsEnabled, false);
 
     const email = `smoke-${Date.now()}@example.test`;
     const register = await json(`${base}/api/auth/register`, {
