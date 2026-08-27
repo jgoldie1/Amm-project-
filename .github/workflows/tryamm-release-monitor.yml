@@ -1,0 +1,108 @@
+name: TRYAMM Release Monitor
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: tryamm-release-monitor
+  cancel-in-progress: true
+
+jobs:
+  probe-production:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe TRYAMM production
+        id: probe
+        shell: bash
+        run: |
+          set +e
+          ROOT_CODE=$(curl -L -sS -o /tmp/root.html -w '%{http_code}' --max-time 20 https://tryamm.online/)
+          HEALTH_CODE=$(curl -L -sS -o /tmp/health.json -w '%{http_code}' --max-time 30 https://tryamm.online/api/ai/health)
+          SELFTEST_CODE=$(curl -L -sS -o /tmp/selftest.json -w '%{http_code}' --max-time 45 https://tryamm.online/api/ai/selftest)
+
+          ROOT_OK=false
+          HEALTH_OK=false
+          AI_OK=false
+
+          if [ "$ROOT_CODE" = "200" ] && grep -qi '<div id="root"></div>' /tmp/root.html; then ROOT_OK=true; fi
+          if [ "$HEALTH_CODE" = "200" ] && jq -e '.ok == true' /tmp/health.json >/dev/null 2>&1; then HEALTH_OK=true; fi
+          if [ "$SELFTEST_CODE" = "200" ] && jq -e '.ok == true and .degraded == false' /tmp/selftest.json >/dev/null 2>&1; then AI_OK=true; fi
+
+          PROVIDER=$(jq -r '.provider // "unknown"' /tmp/selftest.json 2>/dev/null || echo unknown)
+          MODEL=$(jq -r '.model // "none"' /tmp/selftest.json 2>/dev/null || echo none)
+          ERROR=$(jq -r '(.errors // []) | join(" | ")' /tmp/selftest.json 2>/dev/null || true)
+
+          STATUS=GREEN
+          if [ "$ROOT_OK" != true ] || [ "$HEALTH_OK" != true ] || [ "$AI_OK" != true ]; then STATUS=BLOCKED; fi
+
+          {
+            echo "status=$STATUS"
+            echo "root_ok=$ROOT_OK"
+            echo "health_ok=$HEALTH_OK"
+            echo "ai_ok=$AI_OK"
+            echo "provider=$PROVIDER"
+            echo "model=$MODEL"
+            echo "error<<EOF"
+            echo "$ERROR"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "TRYAMM release monitor: $STATUS"
+          echo "root=$ROOT_OK health=$HEALTH_OK ai=$AI_OK provider=$PROVIDER model=$MODEL"
+
+      - name: Open or update release blocker issue
+        if: steps.probe.outputs.status != 'GREEN'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ROOT_OK: ${{ steps.probe.outputs.root_ok }}
+          HEALTH_OK: ${{ steps.probe.outputs.health_ok }}
+          AI_OK: ${{ steps.probe.outputs.ai_ok }}
+          PROVIDER: ${{ steps.probe.outputs.provider }}
+          MODEL: ${{ steps.probe.outputs.model }}
+          ERROR_TEXT: ${{ steps.probe.outputs.error }}
+        shell: bash
+        run: |
+          TITLE='[AUTO] TRYAMM production release blocker'
+          ISSUE=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "$TITLE in:title" --json number,title --jq '.[0].number // empty')
+          BODY=$(cat <<EOF
+          Automated 15-minute production check detected a release blocker.
+
+          - StreetVerse/app shell reachable: **$ROOT_OK**
+          - HoloGPT health endpoint healthy: **$HEALTH_OK**
+          - HoloGPT real model self-test GREEN: **$AI_OK**
+          - Provider: **$PROVIDER**
+          - Model: **$MODEL**
+          - Provider/error detail: **${ERROR_TEXT:-none}**
+          - Checked at: **$(date -u +'%Y-%m-%d %H:%M:%S UTC')**
+
+          Release discipline: CODED ≠ DEPLOYED ≠ VERIFIED. This issue stays open until the production probes are GREEN.
+          EOF
+          )
+          if [ -z "$ISSUE" ]; then
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body "$BODY"
+          else
+            gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body "$BODY"
+          fi
+
+      - name: Close recovered release blocker issue
+        if: steps.probe.outputs.status == 'GREEN'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          TITLE='[AUTO] TRYAMM production release blocker'
+          ISSUE=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "$TITLE in:title" --json number,title --jq '.[0].number // empty')
+          if [ -n "$ISSUE" ]; then
+            gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body "Production probes recovered to GREEN at $(date -u +'%Y-%m-%d %H:%M:%S UTC'). Closing automatically."
+            gh issue close "$ISSUE" --repo "$GITHUB_REPOSITORY" --reason completed
+          fi
+
+      - name: Fail workflow when production is blocked
+        if: steps.probe.outputs.status != 'GREEN'
+        run: exit 1
