@@ -42,7 +42,7 @@ jobs:
           cache-dependency-path: amm-omniverse/package-lock.json
 
       - name: Install application dependencies
-        run: npm ci --no-audit --no-fund
+        run: npm install --no-audit --no-fund
 
       - name: Run full application checks
         run: npm run check
