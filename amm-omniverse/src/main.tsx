@@ -9,6 +9,7 @@ import AccessibilityPassportPanel from './components/AccessibilityPassportPanel'
 import HoloDeliveryLauncher from './components/HoloDeliveryLauncher'
 import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import MediaStudioLauncher from './components/MediaStudioLauncher'
+import HoloDramaLauncher from './components/HoloDramaLauncher'
 import BroadcastStudioLauncher from './components/BroadcastStudioLauncher'
 import StreetVerseLifeHub from './components/StreetVerseLifeHub'
 import StreetVerseCareerHUD from './components/StreetVerseCareerHUD'
@@ -124,6 +125,7 @@ createRoot(document.getElementById('root')!).render(
     <MiddleverseLauncher />
     <GameVerseLauncher />
     <MediaStudioLauncher />
+    <HoloDramaLauncher />
     <BroadcastStudioLauncher />
     <StreetVerseLifeHub />
     <StreetVerseCareerHUD />
