@@ -32,7 +32,7 @@ assert(gates.systems.blockchain.requiredChecks.includes('independent-smart-contr
 const dashboard=fs.readFileSync('public/founder-dashboard.html','utf8');
 for(const feature of ['Founder Content & Build Dashboard','Add a development update','Generated content','Known limitation','Next milestone']) assert(dashboard.includes(feature),`${feature} missing`);
 const shell=fs.readFileSync('public/app-shell.html','utf8');
-for(const feature of ['Your creator world in one app','Live now','Creator tools','Safety center','manifest.webmanifest']) assert(shell.includes(feature),`${feature} missing from app shell`);
+for(const feature of ['One world. Every scale. Every time.','Creator economy','Live now','Safety Center','manifest.webmanifest']) assert(shell.includes(feature),`${feature} missing from app shell`);
 const shellJs=fs.readFileSync('public/app-shell.js','utf8');
 for(const feature of ['/api/rooms','serviceWorker','online','offline']) assert(shellJs.includes(feature),`${feature} missing from app shell wiring`);
 const manifest=JSON.parse(fs.readFileSync('public/manifest.webmanifest','utf8'));
