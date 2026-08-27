@@ -2,7 +2,7 @@ import { lazy, Suspense, useState } from 'react'
 import { useGameStore } from './game/state/useGameStore'
 import CityView from './components/CityView'
 import { SportsRealm, MarketplaceRealm, MusicRealm, FaithRealm, BlockchainRealm } from './components/RealmScreens'
-import { LoginScreen, NotifToast } from './components/UIScreens'
+import { NotifToast } from './components/UIScreens'
 import TryAMMHome from './components/TryAMMHome'
 import InstallPrompt from './components/InstallPrompt'
 import PricingScreen from './components/PricingScreen'
@@ -141,7 +141,6 @@ export default function App() {
       <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: '#020212' }}>
         <LivingWorldsBridge />
         {screen === 'intro' && <TryAMMHome />}
-        {screen === 'login' && <LoginScreen />}
         {screen === 'city' && <CityView />}
         {screen === 'sports' && <SportsRealm />}
         {screen === 'marketplace' && <MarketplaceRealm />}
