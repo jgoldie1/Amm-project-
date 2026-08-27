@@ -11,6 +11,7 @@ import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import MediaStudioLauncher from './components/MediaStudioLauncher'
 import HoloDramaLauncher from './components/HoloDramaLauncher'
 import BroadcastStudioLauncher from './components/BroadcastStudioLauncher'
+import StreetVerse3D from './components/StreetVerse3D'
 import StreetVerseLifeHub from './components/StreetVerseLifeHub'
 import StreetVerseCareerHUD from './components/StreetVerseCareerHUD'
 import StreetVerseMissionWorldBridge from './components/StreetVerseMissionWorldBridge'
@@ -153,5 +154,6 @@ createRoot(document.getElementById('root')!).render(
     <OmniCashLauncher />
     <GlobalGrowthHub />
     <HoloConcierge />
+    {window.location.pathname.startsWith('/streetverse') && <StreetVerse3D onClose={() => { window.location.href='/' }} />}
   </StrictMode>
 )
