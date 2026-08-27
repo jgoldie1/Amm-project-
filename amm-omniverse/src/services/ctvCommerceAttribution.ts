@@ -5,6 +5,8 @@ export type AttributionEvent={id:string;campaignId:string;provider:string;type:A
 export type CommerceAttribution={campaignId:string;provider:string;sessionId:string;orderId:string;grossMinor:number;platformMinor:number;merchantMinor:number;currency:'USD';touches:AttributionEvent[];paymentIntent:PaymentIntent}
 const events:AttributionEvent[]=[];const settlements=new Map<string,CommerceAttribution>();const id=(p:string)=>`${p}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,8)}`
 export function recordCTVAttribution(input:Omit<AttributionEvent,'id'|'occurredAt'>){const event:AttributionEvent={...input,id:id('attr'),occurredAt:Date.now()};events.push(event);return event}
+export function listCTVAttributionEvents(){return [...events].sort((a,b)=>b.occurredAt-a.occurredAt)}
+export function listCTVSettlements(){return [...settlements.values()].sort((a,b)=>b.paymentIntent.createdAt-a.paymentIntent.createdAt)}
 export function getCampaignAttribution(campaignId:string){return events.filter(e=>e.campaignId===campaignId).sort((a,b)=>a.occurredAt-b.occurredAt)}
 export function getSessionAttribution(sessionId:string){return events.filter(e=>e.sessionId===sessionId).sort((a,b)=>a.occurredAt-b.occurredAt)}
 export function attributeVerifiedOrder(input:{campaignId:string;provider:string;sessionId:string;orderId:string;grossMinor:number;platformBps?:number;merchantDid:string;buyerDid?:string}){
