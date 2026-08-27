@@ -16,10 +16,15 @@ const SAVE_KEY='tryamm.streetverse3d.v2'
 const WORLD=170
 const START={x:0,z:48}
 const checkpoints=[
+  {id:'welcome',label:'District Welcome',x:0,z:38,reward:10},
   {id:'studio',label:'64 Track Studio',x:-38,z:-28,reward:20},
   {id:'market',label:'All American Market',x:36,z:-22,reward:25},
   {id:'broadcast',label:'All American Network',x:34,z:34,reward:30},
   {id:'marina',label:'Lakefront Marina',x:-42,z:-59,reward:35},
+]
+const businesses=[
+  {id:'welcome-market',label:'All American Market Pop-Up',x:14,z:48,description:'Meet the merchant and open the local commerce interaction.'},
+  {id:'studio-desk',label:'64 Track Studio Desk',x:-34,z:-25,description:'Talk to the studio host about a creator mission.'},
 ]
 
 function loadSave(){
@@ -30,8 +35,10 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
   const mountRef=useRef<HTMLDivElement|null>(null)
   const inputRef=useRef({up:false,down:false,left:false,right:false})
   const visitedRef=useRef<string[]>(loadSave().visited||[])
+  const nearbyBusinessRef=useRef<(typeof businesses)[number]|null>(null)
   const [visited,setVisited]=useState<string[]>(visitedRef.current)
-  const [message,setMessage]=useState('Explore District 01. Cars, animals and boats now share the living world.')
+  const [message,setMessage]=useState('Move forward to the glowing District Welcome checkpoint, then visit the nearby market pop-up.')
+  const [nearbyBusiness,setNearbyBusiness]=useState<(typeof businesses)[number]|null>(null)
   const [started,setStarted]=useState(true)
   const startedRef=useRef(started)
   const [economy,setEconomy]=useState<OmniverseEconomySnapshot>(()=>loadOmniverseEconomy())
@@ -106,12 +113,25 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
       beam.position.y=5;g.add(beam);scene.add(g);beacons.set(cp.id,g)
     })
 
+    businesses.forEach(business=>{
+      const g=new THREE.Group();g.position.set(business.x,0,business.z)
+      const kiosk=new THREE.Mesh(new THREE.BoxGeometry(4.6,3.4,4.6),new THREE.MeshStandardMaterial({color:0x17364a,emissive:0x062638,emissiveIntensity:.45,metalness:.2,roughness:.5}))
+      kiosk.position.y=1.7;kiosk.castShadow=true;g.add(kiosk)
+      const sign=new THREE.Mesh(new THREE.BoxGeometry(3.8,.8,.18),new THREE.MeshBasicMaterial({color:0x58e8ff}))
+      sign.position.set(0,3.45,2.4);g.add(sign)
+      const interactionRing=new THREE.Mesh(new THREE.TorusGeometry(3,.16,10,36),new THREE.MeshBasicMaterial({color:0x79ffad}))
+      interactionRing.rotation.x=Math.PI/2;interactionRing.position.y=.22;g.add(interactionRing)
+      scene.add(g)
+    })
+
     const npcMat=new THREE.MeshStandardMaterial({color:0xff77aa})
     const npcs:THREE.Mesh[]=[]
     for(let i=0;i<8;i++){
       const npc=new THREE.Mesh(new THREE.CapsuleGeometry(.45,1.2,4,8),npcMat)
       npc.position.set(-55+i*15,1.2,(i%2?8:-8));npc.castShadow=true;scene.add(npc);npcs.push(npc)
     }
+    const merchant=new THREE.Mesh(new THREE.CapsuleGeometry(.5,1.35,4,8),new THREE.MeshStandardMaterial({color:0x79ffad}))
+    merchant.position.set(businesses[0].x-3,1.3,businesses[0].z);merchant.castShadow=true;scene.add(merchant)
 
     const makeCar=(color:number,scale=1)=>{
       const car=new THREE.Group()
@@ -126,12 +146,12 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
       return car
     }
     const cars=[
-      {mesh:makeCar(0x3869ff),z:-42,speed:11,start:-72,label:'City Sedan'},
-      {mesh:makeCar(0xe6e8ee,1.08),z:0,speed:-14,start:68,label:'European Luxury Sedan'},
-      {mesh:makeCar(0xd12828,.92),z:42,speed:18,start:-58,label:'Italian-Style Grand Tourer'},
-      {mesh:makeCar(0x101216,.88),z:-42,speed:-21,start:42,label:'Exotic Supercar'},
+      {mesh:makeCar(0x3869ff),laneZ:-44.3,speed:11,start:-72,label:'City Sedan'},
+      {mesh:makeCar(0xe6e8ee,1.08),laneZ:2.3,speed:-14,start:68,label:'European Luxury Sedan'},
+      {mesh:makeCar(0xd12828,.92),laneZ:39.7,speed:18,start:-58,label:'Italian-Style Grand Tourer'},
+      {mesh:makeCar(0x101216,.88),laneZ:-39.7,speed:-21,start:42,label:'Exotic Supercar'},
     ]
-    cars.forEach(({mesh,z,start})=>{mesh.position.set(start,0,z);scene.add(mesh)})
+    cars.forEach(({mesh,laneZ,start})=>{mesh.position.set(start,0,laneZ);scene.add(mesh)})
 
     const makeAnimal=(kind:'dog'|'deer'|'horse',color:number,scale:number)=>{
       const g=new THREE.Group()
@@ -205,11 +225,12 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
         avatar.rotation.y=Math.atan2(dx,dz)
       }
       npcs.forEach((npc,i)=>{npc.position.z=Math.sin(t/1.4+i)*14+(i%2?20:-20);npc.rotation.y=Math.sin(t/1.8+i)})
-      cars.forEach((car,i)=>{
+      merchant.rotation.y=Math.sin(t*.8)*.3
+      cars.forEach(car=>{
         car.mesh.position.x+=car.speed*dt
         if(car.speed>0&&car.mesh.position.x>84)car.mesh.position.x=-84
         if(car.speed<0&&car.mesh.position.x<-84)car.mesh.position.x=84
-        car.mesh.position.z=car.z+(i%2?2.3:-2.3)
+        car.mesh.position.z=car.laneZ
         car.mesh.rotation.y=car.speed>0?0:Math.PI
       })
       animals.forEach((animal,i)=>{
@@ -239,6 +260,9 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
           void recordMissionReward(cp.reward,cp.id).then(setEconomy)
         }
       })
+      const nearest=businesses.map(business=>({business,distance:Math.hypot(avatar.position.x-business.x,avatar.position.z-business.z)})).sort((a,b)=>a.distance-b.distance)[0]
+      const nextBusiness=nearest&&nearest.distance<7?nearest.business:null
+      if(nextBusiness?.id!==nearbyBusinessRef.current?.id){nearbyBusinessRef.current=nextBusiness;setNearbyBusiness(nextBusiness)}
       desiredCam.set(avatar.position.x,10,avatar.position.z+15)
       camera.position.lerp(desiredCam,1-Math.pow(.001,dt));camera.lookAt(avatar.position.x,2.4,avatar.position.z-4)
       const now=performance.now();if(now-lastSave>900){localStorage.setItem(SAVE_KEY,JSON.stringify({x:avatar.position.x,z:avatar.position.z,visited:visitedRef.current,updatedAt:new Date().toISOString()}));lastSave=now}
@@ -251,6 +275,10 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
 
   const press=(key:keyof typeof inputRef.current,value:boolean)=>{inputRef.current[key]=value}
   const completed=visited.length===checkpoints.length
+  const interactBusiness=()=>{
+    if(!nearbyBusiness)return
+    setMessage(`${nearbyBusiness.label}: ${nearbyBusiness.description} Interaction confirmed in the playable StreetVerse scene.`)
+  }
   const transact=async(action:'buy'|'rent'|'sponsor',assetId?:string)=>{
     try{
       const next=action==='buy'&&assetId?await recordPurchase(assetId):action==='rent'&&assetId?await recordRental(assetId):await recordSponsorReward(5)
@@ -271,7 +299,8 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
         <div style={{fontSize:10,color:'#ffd45e',fontWeight:900}}>MISSION: DISTRICT INTRO</div>
         <div style={{fontSize:12,lineHeight:1.45,marginTop:5}}>{message}</div>
         <div style={{fontSize:10,marginTop:7,color:completed?'#79ffad':'#b7c6d5'}}>{visited.length}/{checkpoints.length} checkpoints {completed?'• COMPLETE ✓':''}</div>
-        <div style={{fontSize:9,marginTop:6,color:'#8fa5b7'}}>WORLD: pedestrians • traffic • dog • deer • horse • birds • speedboat • motor yacht</div>
+        {nearbyBusiness&&<button onClick={interactBusiness} style={{...actionBtn,background:'#16472f',borderColor:'#79ffad'}}>INTERACT • {nearbyBusiness.label}</button>}
+        <div style={{fontSize:9,marginTop:6,color:'#8fa5b7'}}>WORLD: player • pedestrians • business interaction • ordered traffic • buildings • animals • boats</div>
       </div>
       <aside style={{position:'absolute',right:10,top:10,width:'min(340px,44vw)',maxHeight:'calc(100% - 20px)',overflow:'auto',padding:10,borderRadius:14,background:'#030914e8',border:'1px solid #2b485e',backdropFilter:'blur(9px)'}}>
         <div style={{fontSize:10,fontWeight:950,color:'#58e8ff'}}>EL SATURN INTERNAL ASSET LEDGER</div>
