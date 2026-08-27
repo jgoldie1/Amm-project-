@@ -70,20 +70,16 @@ jobs:
         run: |
           TITLE='[AUTO] TRYAMM production release blocker'
           ISSUE=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "$TITLE in:title" --json number,title --jq '.[0].number // empty')
-          BODY=$(cat <<EOF
-          Automated 15-minute production check detected a release blocker.
-
-          - StreetVerse/app shell reachable: **$ROOT_OK**
-          - HoloGPT health endpoint healthy: **$HEALTH_OK**
-          - HoloGPT real model self-test GREEN: **$AI_OK**
-          - Provider: **$PROVIDER**
-          - Model: **$MODEL**
-          - Provider/error detail: **${ERROR_TEXT:-none}**
-          - Checked at: **$(date -u +'%Y-%m-%d %H:%M:%S UTC')**
-
-          Release discipline: CODED ≠ DEPLOYED ≠ VERIFIED. This issue stays open until the production probes are GREEN.
-          EOF
-          )
+          BODY=$(printf '%s\n\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n\n%s' \
+            'Automated 15-minute production check detected a release blocker.' \
+            "- StreetVerse/app shell reachable: **$ROOT_OK**" \
+            "- HoloGPT health endpoint healthy: **$HEALTH_OK**" \
+            "- HoloGPT real model self-test GREEN: **$AI_OK**" \
+            "- Provider: **$PROVIDER**" \
+            "- Model: **$MODEL**" \
+            "- Provider/error detail: **${ERROR_TEXT:-none}**" \
+            "- Checked at: **$(date -u +'%Y-%m-%d %H:%M:%S UTC')**" \
+            'Release discipline: CODED ≠ DEPLOYED ≠ VERIFIED. This issue stays open until the production probes are GREEN.')
           if [ -z "$ISSUE" ]; then
             gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body "$BODY"
           else
