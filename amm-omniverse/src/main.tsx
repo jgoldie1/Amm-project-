@@ -12,6 +12,7 @@ import MediaStudioLauncher from './components/MediaStudioLauncher'
 import HoloDramaLauncher from './components/HoloDramaLauncher'
 import BroadcastStudioLauncher from './components/BroadcastStudioLauncher'
 import StreetVerse3D from './components/StreetVerse3D'
+import SafeOnboardingGate from './components/SafeOnboardingGate'
 import StreetVerseLifeHub from './components/StreetVerseLifeHub'
 import StreetVerseCareerHUD from './components/StreetVerseCareerHUD'
 import StreetVerseMissionWorldBridge from './components/StreetVerseMissionWorldBridge'
@@ -119,6 +120,7 @@ createRoot(document.getElementById('root')!).render(
     <UniversalAccessRuntime />
     <JudahSplash />
     <App />
+    <SafeOnboardingGate />
     <StreetVersePortalTransition />
     <LivingWorldAdaptiveBridge />
     <RevenueLandingCTAs />
