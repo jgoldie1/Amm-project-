@@ -27,6 +27,7 @@ import TryAMMConnectCenter from './components/TryAMMConnectCenter'
 import EconomicLoopCenter from './components/EconomicLoopCenter'
 import QuantumZoomViewer from './components/QuantumZoomViewer'
 import NextDevelopmentTargetCenter from './components/NextDevelopmentTargetCenter'
+import QuantumTagArena from './components/QuantumTagArena'
 import './styles.css'
 
 const ProAudioSuite = lazy(() => import('./components/ProAudioSuite'))
@@ -69,6 +70,7 @@ export default function App() {
   const [showEconomicLoop, setShowEconomicLoop] = useState(false)
   const [showQuantumZoom, setShowQuantumZoom] = useState(false)
   const [showNextDevelopment, setShowNextDevelopment] = useState(false)
+  const [showQuantumTag, setShowQuantumTag] = useState(false)
   const [showNexus, setShowNexus] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
@@ -102,10 +104,12 @@ export default function App() {
   ;(window as any).__showEconomicLoop = () => setShowEconomicLoop(true)
   ;(window as any).__showQuantumZoom = () => setShowQuantumZoom(true)
   ;(window as any).__showNextDevelopment = () => setShowNextDevelopment(true)
+  ;(window as any).__showQuantumTag = () => setShowQuantumTag(true)
   ;(window as any).__showCommandNexus = () => setShowNexus(true)
 
   const signedIn = screen !== 'intro' && screen !== 'login'
   const nexusItems = [
+    ['TAG','QUANTUM TAG',()=>setShowQuantumTag(true),'BETA'],
     ['∞','ECONOMIC LOOP',()=>setShowEconomicLoop(true),'BETA'],
     ['🛡','SECURITY',()=>setShowSecurity(true),'LIVE'],
     ['AI','POYO AI STUDIO',()=>setShowPoyo(true),'BETA'],
@@ -170,6 +174,7 @@ export default function App() {
         {showEconomicLoop && <EconomicLoopCenter onClose={() => setShowEconomicLoop(false)} />}
         {showQuantumZoom && <QuantumZoomViewer onClose={() => setShowQuantumZoom(false)} />}
         {showNextDevelopment && <NextDevelopmentTargetCenter onClose={() => setShowNextDevelopment(false)} />}
+        {showQuantumTag && <QuantumTagArena onClose={() => setShowQuantumTag(false)} />}
         {showOmniverse && <OmniverseCommandCenter onClose={() => setShowOmniverse(false)} />}
         {showHoloCore && <HoloCoreCenter onClose={() => setShowHoloCore(false)} />}
         {showHoloServices && <HoloServicesHub onClose={() => setShowHoloServices(false)} />}
