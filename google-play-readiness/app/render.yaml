@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: tryamm-google-play-safety-layer
+    runtime: node
+    rootDir: google-play-readiness/app
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: https://tryamm.online
