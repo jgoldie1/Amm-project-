@@ -57,7 +57,7 @@ export function compileEvent(event: EventDNA, kinds: EventOutputKind[] = default
     outputId: `${event.eventId}:${kind.toLowerCase()}:${index + 1}`,
     eventId: event.eventId,
     kind,
-    title: `${event.title} — ${kind.replaceAll('_', ' ')}`,
+    title: `${event.title} — ${kind.split('_').join(' ')}`,
     status,
     reason: `Derived from authoritative Event DNA ${event.eventId}; downstream systems must preserve source, timeline and gates.`,
   }))
