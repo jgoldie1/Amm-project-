@@ -81,6 +81,7 @@ import { installCreatorExperienceRuntime } from './runtime/CreatorExperienceRunt
 import { installCreatorCommerceOrchestrator } from './runtime/CreatorCommerceOrchestrator'
 import { installSocialShareBridge } from './runtime/SocialShareBridge'
 import { installJarvisOrchestratorRuntime } from './runtime/JarvisOrchestratorRuntime'
+import { installStreetVerseGrowthNetworkRuntime } from './runtime/StreetVerseGrowthNetworkRuntime'
 
 installProductionHealthMonitor()
 installMediaCloudBridge()
@@ -118,6 +119,7 @@ installCreatorExperienceRuntime()
 installCreatorCommerceOrchestrator()
 installSocialShareBridge()
 installJarvisOrchestratorRuntime()
+installStreetVerseGrowthNetworkRuntime()
 
 const currentPath=window.location.pathname
 const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
