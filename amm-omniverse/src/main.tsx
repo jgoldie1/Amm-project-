@@ -14,6 +14,8 @@ import BroadcastStudioLauncher from './components/BroadcastStudioLauncher'
 import StreetVerse3D from './components/StreetVerse3D'
 import MeetTheStubbsWorldDistrict from './components/MeetTheStubbsWorldDistrict'
 import FamilyBusinessPublicSite from './components/FamilyBusinessPublicSite'
+import FamilyBusinessDirectory from './components/FamilyBusinessDirectory'
+import FamilyBusinessDirectoryLauncher from './components/FamilyBusinessDirectoryLauncher'
 import SafeOnboardingGate from './components/SafeOnboardingGate'
 import StreetVerseLifeHub from './components/StreetVerseLifeHub'
 import StreetVerseCareerHUD from './components/StreetVerseCareerHUD'
@@ -120,13 +122,14 @@ installJarvisOrchestratorRuntime()
 const currentPath=window.location.pathname
 const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
 const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs
+const isBusinessDirectory=currentPath==='/business'||currentPath==='/business/'
 const businessMatch=currentPath.match(/^\/business\/([^/]+)\/?$/)
 const businessSlug=businessMatch?.[1]||''
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <UniversalAccessRuntime />
-    {businessSlug ? <FamilyBusinessPublicSite slug={businessSlug} onClose={() => { window.location.href='/' }} /> : <>
+    {isBusinessDirectory ? <FamilyBusinessDirectory /> : businessSlug ? <FamilyBusinessPublicSite slug={businessSlug} onClose={() => { window.location.href='/business' }} /> : <>
     <JudahSplash />
     <App />
     <SafeOnboardingGate />
@@ -143,6 +146,7 @@ createRoot(document.getElementById('root')!).render(
     <StreetVerseCareerHUD />
     <StreetVerseMissionWorldBridge />
     <AIWebsiteBusinessBuilder />
+    <FamilyBusinessDirectoryLauncher />
     <JacobieVisionLauncher />
     <HoloGPTEventAlias />
     <FirstClassFeatureDock />
