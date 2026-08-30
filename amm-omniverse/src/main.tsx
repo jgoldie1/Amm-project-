@@ -175,6 +175,5 @@ createRoot(document.getElementById('root')!).render(
     </>}
     {isMeetStubbs && <MeetTheStubbsWorldDistrict onClose={() => { window.location.href='/streetverse' }} />}
     </>}
-    }
   </StrictMode>
 )
