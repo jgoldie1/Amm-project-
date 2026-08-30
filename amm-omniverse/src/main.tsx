@@ -83,6 +83,7 @@ import { installSocialShareBridge } from './runtime/SocialShareBridge'
 import { installJarvisOrchestratorRuntime } from './runtime/JarvisOrchestratorRuntime'
 import { installStreetVerseGrowthNetworkRuntime } from './runtime/StreetVerseGrowthNetworkRuntime'
 import { installStreetVerseRacingAfterDarkRuntime } from './runtime/StreetVerseRacingAfterDarkRuntime'
+import { installStreetVerseMissionDiscoveryRuntime } from './runtime/StreetVerseMissionDiscoveryRuntime'
 
 installProductionHealthMonitor()
 installMediaCloudBridge()
@@ -122,6 +123,7 @@ installSocialShareBridge()
 installJarvisOrchestratorRuntime()
 installStreetVerseGrowthNetworkRuntime()
 installStreetVerseRacingAfterDarkRuntime()
+installStreetVerseMissionDiscoveryRuntime()
 
 const currentPath=window.location.pathname
 const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
