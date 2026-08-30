@@ -84,6 +84,7 @@ import { installJarvisOrchestratorRuntime } from './runtime/JarvisOrchestratorRu
 import { installStreetVerseGrowthNetworkRuntime } from './runtime/StreetVerseGrowthNetworkRuntime'
 import { installStreetVerseRacingAfterDarkRuntime } from './runtime/StreetVerseRacingAfterDarkRuntime'
 import { installStreetVerseMissionDiscoveryRuntime } from './runtime/StreetVerseMissionDiscoveryRuntime'
+import { installSECSConstructRuntime } from './runtime/SECSConstructRuntime'
 
 installProductionHealthMonitor()
 installMediaCloudBridge()
@@ -124,6 +125,7 @@ installJarvisOrchestratorRuntime()
 installStreetVerseGrowthNetworkRuntime()
 installStreetVerseRacingAfterDarkRuntime()
 installStreetVerseMissionDiscoveryRuntime()
+installSECSConstructRuntime()
 
 const currentPath=window.location.pathname
 const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
