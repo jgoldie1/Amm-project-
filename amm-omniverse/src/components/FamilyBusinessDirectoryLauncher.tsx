@@ -1,0 +1,1 @@
+export default function FamilyBusinessDirectoryLauncher(){return <button type="button" onClick={()=>{window.location.href='/business'}} style={{position:'fixed',right:12,bottom:226,zIndex:9001,background:'#17120a',color:'#ffd98a',border:'1px solid #e8b94466',borderRadius:999,padding:'10px 14px',fontSize:10,fontWeight:900,cursor:'pointer'}}>BUSINESS DIRECTORY</button>}
