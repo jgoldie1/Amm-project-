@@ -1,35 +1,39 @@
 import { lazy, Suspense, useState } from 'react'
 import { useGameStore } from './game/state/useGameStore'
-import CityView from './components/CityView'
-import { SportsRealm, MarketplaceRealm, MusicRealm, FaithRealm, BlockchainRealm } from './components/RealmScreens'
 import { NotifToast } from './components/UIScreens'
 import TryAMMHome from './components/TryAMMHome'
 import InstallPrompt from './components/InstallPrompt'
-import PricingScreen from './components/PricingScreen'
-import HoloverseHub from './components/HoloverseHub'
 import { BennieButton } from './components/BennieChatbot'
-import BennieChat from './components/BennieChat'
 import { SwipeNavigator, SwipeTutorial } from './components/SwipeNavigator'
 import LivingWorldsBridge from './components/LivingWorldsBridge'
-import OmniverseCommandCenter from './components/OmniverseCommandCenter'
-import AdvancedWorldSystems from './components/AdvancedWorldSystems'
-import KingdomsPressOperations from './components/KingdomsPressOperations'
-import ImmersiveWorldViewport from './components/ImmersiveWorldViewport'
-import AICafeRestaurant from './components/AICafeRestaurant'
-import SchoolNetworkPortal from './components/SchoolNetworkPortal'
-import HoloServicesHub from './components/HoloServicesHub'
-import HoloCoreCenter from './components/HoloCoreCenter'
-import FamilyLegacyHub from './components/FamilyLegacyHub'
-import QuantumEngineCenter from './components/QuantumEngineCenter'
-import SecurityCenter from './components/SecurityCenter'
-import OmniWearCenter from './components/OmniWearCenter'
-import TryAMMConnectCenter from './components/TryAMMConnectCenter'
-import EconomicLoopCenter from './components/EconomicLoopCenter'
-import QuantumZoomViewer from './components/QuantumZoomViewer'
-import NextDevelopmentTargetCenter from './components/NextDevelopmentTargetCenter'
-import QuantumTagArena from './components/QuantumTagArena'
 import './styles.css'
 
+const CityView = lazy(() => import('./components/CityView'))
+const SportsRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.SportsRealm })))
+const MarketplaceRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.MarketplaceRealm })))
+const MusicRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.MusicRealm })))
+const FaithRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.FaithRealm })))
+const BlockchainRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.BlockchainRealm })))
+const PricingScreen = lazy(() => import('./components/PricingScreen'))
+const HoloverseHub = lazy(() => import('./components/HoloverseHub'))
+const BennieChat = lazy(() => import('./components/BennieChat'))
+const OmniverseCommandCenter = lazy(() => import('./components/OmniverseCommandCenter'))
+const AdvancedWorldSystems = lazy(() => import('./components/AdvancedWorldSystems'))
+const KingdomsPressOperations = lazy(() => import('./components/KingdomsPressOperations'))
+const ImmersiveWorldViewport = lazy(() => import('./components/ImmersiveWorldViewport'))
+const AICafeRestaurant = lazy(() => import('./components/AICafeRestaurant'))
+const SchoolNetworkPortal = lazy(() => import('./components/SchoolNetworkPortal'))
+const HoloServicesHub = lazy(() => import('./components/HoloServicesHub'))
+const HoloCoreCenter = lazy(() => import('./components/HoloCoreCenter'))
+const FamilyLegacyHub = lazy(() => import('./components/FamilyLegacyHub'))
+const QuantumEngineCenter = lazy(() => import('./components/QuantumEngineCenter'))
+const SecurityCenter = lazy(() => import('./components/SecurityCenter'))
+const OmniWearCenter = lazy(() => import('./components/OmniWearCenter'))
+const TryAMMConnectCenter = lazy(() => import('./components/TryAMMConnectCenter'))
+const EconomicLoopCenter = lazy(() => import('./components/EconomicLoopCenter'))
+const QuantumZoomViewer = lazy(() => import('./components/QuantumZoomViewer'))
+const NextDevelopmentTargetCenter = lazy(() => import('./components/NextDevelopmentTargetCenter'))
+const QuantumTagArena = lazy(() => import('./components/QuantumTagArena'))
 const ProAudioSuite = lazy(() => import('./components/ProAudioSuite'))
 const SignLanguageHub = lazy(() => import('./components/SignLanguageHub'))
 const AccessibilityRemoteHub = lazy(() => import('./components/AccessibilityRemoteHub'))
@@ -142,6 +146,7 @@ export default function App() {
 
   return (
     <SwipeNavigator>
+      <Suspense fallback={null}>
       <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: '#020212' }}>
         <LivingWorldsBridge />
         {screen === 'intro' && <TryAMMHome />}
@@ -169,8 +174,8 @@ export default function App() {
         {showPricing && <div style={{position:'fixed',inset:0,zIndex:9999,background:'#020212'}}><PricingScreen onClose={() => setShowPricing(false)} /></div>}
         {showHoloverse && <div style={{position:'fixed',inset:0,zIndex:9998,background:'#020212'}}><HoloverseHub onClose={() => setShowHoloverse(false)} /></div>}
         {showBennie && <div style={{position:'fixed',inset:0,zIndex:9997,background:'#020212'}}><BennieChat onClose={() => setShowBennie(false)} /></div>}
-        {showProAudio && <Suspense fallback={null}><div style={{position:'fixed',inset:0,zIndex:9996,background:'#03040c'}}><ProAudioSuite onClose={() => setShowProAudio(false)} /></div></Suspense>}
-        {showPoyo && <Suspense fallback={null}><PoyoAIStudio onClose={() => setShowPoyo(false)} /></Suspense>}
+        {showProAudio && <div style={{position:'fixed',inset:0,zIndex:9996,background:'#03040c'}}><ProAudioSuite onClose={() => setShowProAudio(false)} /></div>}
+        {showPoyo && <PoyoAIStudio onClose={() => setShowPoyo(false)} />}
         {showEconomicLoop && <EconomicLoopCenter onClose={() => setShowEconomicLoop(false)} />}
         {showQuantumZoom && <QuantumZoomViewer onClose={() => setShowQuantumZoom(false)} />}
         {showNextDevelopment && <NextDevelopmentTargetCenter onClose={() => setShowNextDevelopment(false)} />}
@@ -188,16 +193,17 @@ export default function App() {
         {showFamilyLegacy && <FamilyLegacyHub onClose={() => setShowFamilyLegacy(false)} />}
         {showQuantumEngine && <QuantumEngineCenter onClose={() => setShowQuantumEngine(false)} />}
         {showSecurity && <SecurityCenter onClose={() => setShowSecurity(false)} />}
-        {showSignLanguage && <Suspense fallback={null}><div style={{position:'fixed',inset:0,zIndex:10000,background:'#050816'}}><SignLanguageHub onClose={() => setShowSignLanguage(false)} /></div></Suspense>}
-        {showAccessibilityRemote && <Suspense fallback={null}><AccessibilityRemoteHub onClose={() => setShowAccessibilityRemote(false)} /></Suspense>}
-        {showLive && <Suspense fallback={null}><div style={{position:'fixed',inset:0,zIndex:10020,background:'#030611'}}><LiveCenter onClose={() => setShowLive(false)} /></div></Suspense>}
-        {showStreamFX && <Suspense fallback={null}><StreamStudioFX onClose={() => setShowStreamFX(false)} /></Suspense>}
-        {showLagBuster && <Suspense fallback={null}><QuantumLagBuster onClose={() => setShowLagBuster(false)} /></Suspense>}
-        {showQuantumBeat && <Suspense fallback={null}><QuantumBeatCenter onClose={() => setShowQuantumBeat(false)} /></Suspense>}
-        {showOTT && <Suspense fallback={null}><OTTIsaiahTV onClose={() => setShowOTT(false)} /></Suspense>}
+        {showSignLanguage && <div style={{position:'fixed',inset:0,zIndex:10000,background:'#050816'}}><SignLanguageHub onClose={() => setShowSignLanguage(false)} /></div>}
+        {showAccessibilityRemote && <AccessibilityRemoteHub onClose={() => setShowAccessibilityRemote(false)} />}
+        {showLive && <div style={{position:'fixed',inset:0,zIndex:10020,background:'#030611'}}><LiveCenter onClose={() => setShowLive(false)} /></div>}
+        {showStreamFX && <StreamStudioFX onClose={() => setShowStreamFX(false)} />}
+        {showLagBuster && <QuantumLagBuster onClose={() => setShowLagBuster(false)} />}
+        {showQuantumBeat && <QuantumBeatCenter onClose={() => setShowQuantumBeat(false)} />}
+        {showOTT && <OTTIsaiahTV onClose={() => setShowOTT(false)} />}
 
         {showSwipeTip && signedIn && <SwipeTutorial onDismiss={() => {setShowSwipeTip(false);localStorage.setItem('amm_swiped','1')}} />}
       </div>
+      </Suspense>
     </SwipeNavigator>
   )
 }
