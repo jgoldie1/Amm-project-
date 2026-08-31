@@ -44,6 +44,8 @@ import OmniCashLauncher from './components/OmniCashLauncher'
 import GlobalGrowthHub from './components/GlobalGrowthHub'
 import LivingWorldAdaptiveBridge from './components/LivingWorldAdaptiveBridge'
 import UniversalAccessRuntime from './components/UniversalAccessRuntime'
+import StandaloneProductSite from './components/StandaloneProductSite'
+import { getStandaloneSite } from './data/standaloneSiteRegistry'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
 import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
@@ -128,6 +130,8 @@ installStreetVerseMissionDiscoveryRuntime()
 installSECSConstructRuntime()
 
 const currentPath=window.location.pathname
+const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
+const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
 const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
 const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs
 const isBusinessDirectory=currentPath==='/business'||currentPath==='/business/'
@@ -137,7 +141,7 @@ const businessSlug=businessMatch?.[1]||''
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <UniversalAccessRuntime />
-    {isBusinessDirectory ? <FamilyBusinessDirectory /> : businessSlug ? <FamilyBusinessPublicSite slug={businessSlug} onClose={() => { window.location.href='/business' }} /> : <>
+    {standaloneSite ? <StandaloneProductSite site={standaloneSite} /> : isBusinessDirectory ? <FamilyBusinessDirectory /> : businessSlug ? <FamilyBusinessPublicSite slug={businessSlug} onClose={() => { window.location.href='/business' }} /> : <>
     <JudahSplash />
     <App />
     <SafeOnboardingGate />
