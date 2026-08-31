@@ -58,7 +58,6 @@ export function sendConstructToPrototype(frame: ConstructFrame) {
     emit('tryamm:secs:prototype-denied', denied)
     return denied
   }
-  // Browser-safe bridge: hardware gateway listens for this event and performs its own independent limits/interlocks.
   const packet = {
     version: 1,
     requestId: frame.requestId,
@@ -87,10 +86,10 @@ export function runConstructSelfTest() {
 }
 
 export function installSECSConstructRuntime() {
-  const w = window as Window & Record<string, unknown>
-  w.__compileSECSConstruct = compileConstruct
-  w.__sendSECSConstructToPrototype = sendConstructToPrototype
-  w.__runSECSConstructSelfTest = runConstructSelfTest
+  const runtime = window as unknown as Record<string, unknown>
+  runtime.__compileSECSConstruct = compileConstruct
+  runtime.__sendSECSConstructToPrototype = sendConstructToPrototype
+  runtime.__runSECSConstructSelfTest = runConstructSelfTest
   emit('tryamm:secs:ready', {
     status: 'software-prototype',
     chamberEnvelopeMm: { x: MAX_DIMENSION_MM, y: MAX_DIMENSION_MM, z: MAX_DIMENSION_MM },
