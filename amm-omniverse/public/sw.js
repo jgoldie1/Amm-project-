@@ -1,7 +1,7 @@
 // TRYAMM Service Worker
 // Network-first app shell so production UI changes are visible immediately.
 
-const CACHE_NAME = 'tryamm-shell-v13-streetverse-20260825'
+const CACHE_NAME = 'tryamm-shell-v14-streetverse-20260831'
 const STATIC_ASSETS = ['/manifest.json']
 
 self.addEventListener('install', (event) => {
