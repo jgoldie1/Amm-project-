@@ -53,7 +53,7 @@ jobs:
           cache-dependency-path: amm-omniverse/package-lock.json
 
       - name: Install Omniverse dependencies
-        run: npm ci --no-audit --no-fund
+        run: npm install --no-audit --no-fund
 
       - name: Omniverse validation
         run: npm run check
