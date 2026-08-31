@@ -1,31 +1,75 @@
 name: TryAMM Full CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, developer-vic]
   pull_request:
     branches: [main, developer-vic]
 
+concurrency:
+  group: tryamm-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   root-platform:
+    name: Root platform checks
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
-      - run: npm install --no-audit --no-fund
-      - run: npm run check
+          node-version: 24
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Lint, syntax, and smoke tests
+        run: npm run check
 
   omniverse-app:
+    name: Omniverse app checks
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     defaults:
       run:
         working-directory: amm-omniverse
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
-      - run: npm install --no-audit --no-fund
-      - run: npm run check
+          node-version: 24
+
+      - name: Install Omniverse dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Omniverse validation
+        run: npm run check
+
+  release-gate:
+    name: Release gate
+    if: ${{ always() }}
+    needs: [root-platform, omniverse-app]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm both validation lanes passed
+        env:
+          ROOT_RESULT: ${{ needs.root-platform.result }}
+          OMNIVERSE_RESULT: ${{ needs.omniverse-app.result }}
+        run: |
+          echo "Root platform: $ROOT_RESULT"
+          echo "Omniverse app: $OMNIVERSE_RESULT"
+          test "$ROOT_RESULT" = "success"
+          test "$OMNIVERSE_RESULT" = "success"
+          echo "TryAMM release gate is GREEN"
