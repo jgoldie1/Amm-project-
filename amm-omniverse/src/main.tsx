@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import { StrictMode, Suspense, lazy } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
 import JudahSplash from './components/JudahSplash'
@@ -12,8 +12,6 @@ import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import MediaStudioLauncher from './components/MediaStudioLauncher'
 import HoloDramaLauncher from './components/HoloDramaLauncher'
 import BroadcastStudioLauncher from './components/BroadcastStudioLauncher'
-import StreetVerse3D from './components/StreetVerse3D'
-import MeetTheStubbsWorldDistrict from './components/MeetTheStubbsWorldDistrict'
 import FamilyBusinessPublicSite from './components/FamilyBusinessPublicSite'
 import FamilyBusinessDirectory from './components/FamilyBusinessDirectory'
 import FamilyBusinessDirectoryLauncher from './components/FamilyBusinessDirectoryLauncher'
@@ -91,6 +89,9 @@ import { installStreetVerseMissionDiscoveryRuntime } from './runtime/StreetVerse
 import { installSECSConstructRuntime } from './runtime/SECSConstructRuntime'
 import { installOmniverseEventFabricRuntime } from './runtime/OmniverseEventFabricRuntime'
 
+const StreetVerse3D=lazy(()=>import('./components/StreetVerse3D'))
+const MeetTheStubbsWorldDistrict=lazy(()=>import('./components/MeetTheStubbsWorldDistrict'))
+
 installProductionHealthMonitor()
 installMediaCloudBridge()
 installStreetVerseLivingWorldRuntime()
@@ -141,6 +142,7 @@ const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs
 const isBusinessDirectory=currentPath==='/business'||currentPath==='/business/'
 const businessMatch=currentPath.match(/^\/business\/([^/]+)\/?$/)
 const businessSlug=businessMatch?.[1]||''
+const routeFallback=<div role="status" aria-live="polite" style={{position:'fixed',inset:0,zIndex:15980,display:'grid',placeItems:'center',background:'#050505',color:'#fff',fontFamily:'system-ui,sans-serif',fontWeight:900}}>LOADING STREETVERSE…</div>
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -188,10 +190,10 @@ createRoot(document.getElementById('root')!).render(
     <HoloConcierge />
     <OmniverseCoreLoopHUD />
     {isStreetVerse && <>
-      <StreetVerse3D onClose={() => { window.location.href='/' }} />
+      <Suspense fallback={routeFallback}><StreetVerse3D onClose={() => { window.location.href='/' }} /></Suspense>
       <button onClick={()=>{window.location.href='/streetverse/meet-the-stubbs'}} style={{position:'fixed',left:12,top:12,zIndex:15990,border:'1px solid #e8b94499',borderRadius:999,padding:'10px 14px',background:'#17120a',color:'#fff',fontWeight:950,cursor:'pointer'}}>MEET THE STUBBS • 13 WORLD STORES</button>
     </>}
-    {isMeetStubbs && <MeetTheStubbsWorldDistrict onClose={() => { window.location.href='/streetverse' }} />}
+    {isMeetStubbs && <Suspense fallback={routeFallback}><MeetTheStubbsWorldDistrict onClose={() => { window.location.href='/streetverse' }} /></Suspense>}
     </>}
   </StrictMode>
 )

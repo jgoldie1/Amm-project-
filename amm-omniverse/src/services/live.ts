@@ -1,4 +1,3 @@
-import { Room, RoomEvent, Track } from 'livekit-client'
 import { getAccessToken } from './supabaseClient'
 import { installCallSafeLive } from './protectedLive'
 
@@ -47,7 +46,10 @@ export async function connectLiveRoom(opts: {
   onParticipants?: (count: number) => void
   onTrack?: (element: HTMLMediaElement, participantIdentity: string) => void
 }) {
-  const session = await createLiveToken(opts.roomName, opts.role, opts.displayName)
+  const [{ Room, RoomEvent, Track }, session] = await Promise.all([
+    import('livekit-client'),
+    createLiveToken(opts.roomName, opts.role, opts.displayName),
+  ])
   const room = new Room({ adaptiveStream: true, dynacast: true })
 
   const updateCount = () => opts.onParticipants?.(room.remoteParticipants.size + 1)
