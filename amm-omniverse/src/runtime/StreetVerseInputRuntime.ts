@@ -1,8 +1,12 @@
-export type StreetVerseInput={source:'keyboard'|'gamepad'|'remote'|'touch';x:number;y:number;buttons?:Record<string,boolean>;timestamp:number}
+import { installFonStreetVerseTransport } from './FonStreetVerseTransport'
+import { installUniversalIntentRuntime } from './UniversalIntentRuntime'
+
+export type StreetVerseInput={source:'keyboard'|'gamepad'|'remote'|'touch'|'intent';x:number;y:number;buttons?:Record<string,boolean>;timestamp:number}
 
 let installed=false
 const DEADZONE=.18
 const held=new Set<string>()
+const heldButtons=new Set<string>()
 
 function clamp(v:number){return Math.max(-1,Math.min(1,v))}
 function emit(detail:StreetVerseInput){
@@ -20,10 +24,35 @@ function syncKeys(x:number,y:number){
   for(const key of held){if(!wanted.has(key)){keyEvent('keyup',key);held.delete(key)}}
   for(const key of wanted){if(!held.has(key)){keyEvent('keydown',key);held.add(key)}}
 }
+function syncSemanticButtons(buttons:Record<string,boolean>={},source:StreetVerseInput['source']='remote'){
+  const next=new Set(Object.entries(buttons).filter(([,pressed])=>Boolean(pressed)).map(([name])=>name))
+  for(const name of next){
+    if(!heldButtons.has(name)){
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-action',{detail:{action:name,pressed:true,source,timestamp:performance.now()}}))
+      heldButtons.add(name)
+    }
+  }
+  for(const name of [...heldButtons]){
+    if(!next.has(name)){
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-action',{detail:{action:name,pressed:false,source,timestamp:performance.now()}}))
+      heldButtons.delete(name)
+    }
+  }
+}
+function releaseAll(){syncKeys(0,0);syncSemanticButtons({})}
+function applyInput(source:StreetVerseInput['source'],raw:any){
+  const x=clamp(Number(raw?.x)||0),y=clamp(Number(raw?.y)||0)
+  const buttons=raw?.buttons&&typeof raw.buttons==='object'?raw.buttons:{}
+  syncKeys(x,y)
+  syncSemanticButtons(buttons,source)
+  emit({source,x,y,buttons,timestamp:performance.now()})
+}
 
 export function installStreetVerseInputRuntime(){
   if(installed||typeof window==='undefined')return
   installed=true
+  installUniversalIntentRuntime()
+  installFonStreetVerseTransport()
 
   let raf=0
   const poll=()=>{
@@ -38,8 +67,7 @@ export function installStreetVerseInputRuntime(){
         menu:!!pad.buttons[9]?.pressed,
         sprint:!!pad.buttons[10]?.pressed,
       }
-      syncKeys(x,y)
-      emit({source:'gamepad',x,y,buttons,timestamp:performance.now()})
+      applyInput('gamepad',{x,y,buttons})
     }
     raf=requestAnimationFrame(poll)
   }
@@ -51,27 +79,34 @@ export function installStreetVerseInputRuntime(){
   })
   window.addEventListener('gamepaddisconnected',(e:Event)=>{
     const g=(e as GamepadEvent).gamepad
-    syncKeys(0,0)
+    releaseAll()
     window.dispatchEvent(new CustomEvent('tryamm:controller-status',{detail:{connected:false,index:g.index,id:g.id}}))
   })
 
-  window.addEventListener('tryamm:remote-controller-input',(e:Event)=>{
-    const d=(e as CustomEvent<any>).detail||{}
-    const x=clamp(Number(d.x)||0),y=clamp(Number(d.y)||0)
-    syncKeys(x,y)
-    emit({source:'remote',x,y,buttons:d.buttons||{},timestamp:performance.now()})
-  })
-
-  window.addEventListener('tryamm:touch-controller-input',(e:Event)=>{
-    const d=(e as CustomEvent<any>).detail||{}
-    const x=clamp(Number(d.x)||0),y=clamp(Number(d.y)||0)
-    syncKeys(x,y)
-    emit({source:'touch',x,y,buttons:d.buttons||{},timestamp:performance.now()})
-  })
+  window.addEventListener('tryamm:remote-controller-input',(e:Event)=>applyInput('remote',(e as CustomEvent<any>).detail||{}))
+  window.addEventListener('tryamm:touch-controller-input',(e:Event)=>applyInput('touch',(e as CustomEvent<any>).detail||{}))
+  window.addEventListener('tryamm:universal-controller-input',(e:Event)=>applyInput('intent',(e as CustomEvent<any>).detail||{}))
+  window.addEventListener('blur',releaseAll)
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseAll()})
 
   ;(window as any).__streetverseController={
     inject:(input:{x?:number;y?:number;buttons?:Record<string,boolean>})=>window.dispatchEvent(new CustomEvent('tryamm:remote-controller-input',{detail:input})),
-    capabilities:{keyboard:true,touch:true,gamepad:typeof navigator.getGamepads==='function',remoteEventBridge:true,crossDeviceTransport:false,webxr:false},
-    note:'Bluetooth/USB controllers supported through the browser Gamepad API when the browser exposes them. Cross-device QR pairing still requires realtime signaling transport.'
+    capabilities:{
+      keyboard:true,
+      touch:true,
+      gamepad:typeof navigator.getGamepads==='function',
+      remoteEventBridge:true,
+      crossDeviceTransport:true,
+      universalIntent:true,
+      nonInvasiveAdapters:true,
+      webxr:'xr'in navigator
+    },
+    release:releaseAll,
+    note:'Unified StreetVerse input runtime. Holo FON cross-device transport uses authenticated private Supabase Realtime; non-invasive EEG/EOG/EMG adapters feed calibrated intent samples through __tryammIntent.'
+  }
+
+  return()=>{
+    cancelAnimationFrame(raf)
+    releaseAll()
   }
 }

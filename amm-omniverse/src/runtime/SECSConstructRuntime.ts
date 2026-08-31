@@ -1,3 +1,6 @@
+import { installHolographicInternetRuntime } from './HolographicInternetRuntime'
+import { installConstructHoloGridRuntime } from './ConstructHoloGridRuntime'
+
 export type ConstructShape = 'cube' | 'sphere' | 'button' | 'steering-wheel'
 export type ConstructMode = 'simulation' | 'prototype'
 
@@ -58,7 +61,6 @@ export function sendConstructToPrototype(frame: ConstructFrame) {
     emit('tryamm:secs:prototype-denied', denied)
     return denied
   }
-  // Browser-safe bridge: hardware gateway listens for this event and performs its own independent limits/interlocks.
   const packet = {
     version: 1,
     requestId: frame.requestId,
@@ -87,15 +89,21 @@ export function runConstructSelfTest() {
 }
 
 export function installSECSConstructRuntime() {
-  const w = window as Window & Record<string, unknown>
+  installHolographicInternetRuntime()
+  const w = window as unknown as Window & Record<string, unknown>
   w.__compileSECSConstruct = compileConstruct
   w.__sendSECSConstructToPrototype = sendConstructToPrototype
   w.__runSECSConstructSelfTest = runConstructSelfTest
+  installConstructHoloGridRuntime()
   emit('tryamm:secs:ready', {
     status: 'software-prototype',
     chamberEnvelopeMm: { x: MAX_DIMENSION_MM, y: MAX_DIMENSION_MM, z: MAX_DIMENSION_MM },
     modes: ['simulation', 'prototype'],
     shapes: ['cube', 'sphere', 'button', 'steering-wheel'],
+    networkFabric: 'holographic-internet-spatial-protocol',
+    gridBridge: true,
+    autonomousCursor: true,
+    consentGatedPresence: true,
     hardwareClaim: 'requires physical prototype and lab validation',
   })
 }
