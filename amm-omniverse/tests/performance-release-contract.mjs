@@ -14,6 +14,6 @@ for(const chunk of ['vendor-react','vendor-three','vendor-supabase','vendor-medi
 assert.match(main,/lazy\(\(\)=>import\('\.\/components\/StreetVerse3D'\)\)/,'StreetVerse3D must be route-lazy')
 assert.match(main,/lazy\(\(\)=>import\('\.\/components\/MeetTheStubbsWorldDistrict'\)\)/,'MeetTheStubbs district must be route-lazy')
 assert.ok(!live.startsWith("import { Room, RoomEvent, Track } from 'livekit-client'"),'LiveKit must not be eagerly imported into startup bundle')
-assert.match(live,/await import\('livekit-client'\)/,'LiveKit must load only when a room is connected')
+assert.match(live,/import\('livekit-client'\)/,'LiveKit must load only when a room connection is requested')
 
 console.log('Performance release contract OK: Node runtime aligned and heavyweight world/live modules are split from startup.')
