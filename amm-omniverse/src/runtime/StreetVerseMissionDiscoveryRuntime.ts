@@ -40,7 +40,7 @@ export function discoverStreetVerseMission(mission: MissionDiscovery) {
   const record = { ...mission, status: 'discovered' as const, discoveredAt: new Date().toISOString() }
   missionState.set(mission.missionId, record)
   emit('tryamm:mission:discovered', record)
-  emit('tryamm:world-memory:record', { type: 'mission-discovery', ...record })
+  emit('tryamm:world-memory:record', { ...record, type: 'mission-discovery' })
   if (mission.rarity === 'secret' || mission.rarity === 'mythic') emit('tryamm:easter-egg:found', record)
   if (mission.crossVerseDestination) emit('tryamm:cross-verse:clue', { missionId: mission.missionId, destination: mission.crossVerseDestination, clue: mission.clue })
   return record
@@ -58,7 +58,7 @@ export function triggerStreetVerseSecret(trigger: SecretTrigger) {
   emit('tryamm:secret:triggered', record)
   emit('tryamm:secret-area:unlocked', { secretId: trigger.secretId, state: 'unlocked', trigger: trigger.type })
   secretState.set(trigger.secretId, { state: 'unlocked', updatedAt: record.triggeredAt })
-  emit('tryamm:world-memory:record', { type: 'secret-discovery', ...record })
+  emit('tryamm:world-memory:record', { ...record, type: 'secret-discovery' })
   return record
 }
 
@@ -69,7 +69,7 @@ export function completeStreetVerseMission(missionId: string, outcome: Record<st
   missionState.set(missionId, record)
   emit('tryamm:mission:completed', record)
   emit('tryamm:mission:consequence', { missionId, rarity: mission.rarity, category: mission.category, outcome, destinations: ['world-memory', 'relationships', 'crew-reputation', 'business-network', 'creator-content', 'command-nexus'] })
-  emit('tryamm:world-memory:record', { type: 'mission-consequence', ...record })
+  emit('tryamm:world-memory:record', { ...record, type: 'mission-consequence' })
   emit('tryamm:mission:next-candidate', { sourceMissionId: missionId, prefer: mission.rarity === 'mythic' ? ['cross-verse', 'reality-quest'] : ['story', 'exploration', 'business'] })
   return record
 }
@@ -91,13 +91,13 @@ export function getStreetVerseMissionDiscoveryState() {
 }
 
 export function installStreetVerseMissionDiscoveryRuntime() {
-  const w = window as Window & Record<string, unknown>
-  w.__discoverStreetVerseMission = discoverStreetVerseMission
-  w.__triggerStreetVerseSecret = triggerStreetVerseSecret
-  w.__completeStreetVerseMission = completeStreetVerseMission
-  w.__getStreetVerseMissionDiscoveryState = getStreetVerseMissionDiscoveryState
-  w.__buildStreetVerseLivingMysteryContext = buildLivingMysteryContext
-  w.__buildStreetVerseRealityQuest = buildRealityQuest
+  const runtime = window as unknown as Record<string, unknown>
+  runtime.__discoverStreetVerseMission = discoverStreetVerseMission
+  runtime.__triggerStreetVerseSecret = triggerStreetVerseSecret
+  runtime.__completeStreetVerseMission = completeStreetVerseMission
+  runtime.__getStreetVerseMissionDiscoveryState = getStreetVerseMissionDiscoveryState
+  runtime.__buildStreetVerseLivingMysteryContext = buildLivingMysteryContext
+  runtime.__buildStreetVerseRealityQuest = buildRealityQuest
   emit('tryamm:mission-discovery:ready', {
     rarities: ['common', 'uncommon', 'rare', 'legendary', 'secret', 'mythic'],
     systems: ['mission-compiler', 'living-mystery-director', 'easter-eggs', 'secret-areas', 'cross-verse-clues', 'world-memory', 'reality-quests', 'adult-gated-after-dark'],
