@@ -58,7 +58,7 @@ export function triggerStreetVerseSecret(trigger: SecretTrigger) {
   emit('tryamm:secret:triggered', record)
   emit('tryamm:secret-area:unlocked', { secretId: trigger.secretId, state: 'unlocked', trigger: trigger.type })
   secretState.set(trigger.secretId, { state: 'unlocked', updatedAt: record.triggeredAt })
-  emit('tryamm:world-memory:record', { type: 'secret-discovery', ...record })
+  emit('tryamm:world-memory:record', { ...record, recordType: 'secret-discovery' })
   return record
 }
 
@@ -91,7 +91,7 @@ export function getStreetVerseMissionDiscoveryState() {
 }
 
 export function installStreetVerseMissionDiscoveryRuntime() {
-  const w = window as Window & Record<string, unknown>
+  const w = window as unknown as Window & Record<string, unknown>
   w.__discoverStreetVerseMission = discoverStreetVerseMission
   w.__triggerStreetVerseSecret = triggerStreetVerseSecret
   w.__completeStreetVerseMission = completeStreetVerseMission
