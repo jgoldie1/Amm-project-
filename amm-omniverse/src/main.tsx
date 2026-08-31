@@ -33,6 +33,7 @@ import OmniBICommandCenter from './components/OmniBICommandCenter'
 import MetaverseBusinessBuilder from './components/MetaverseBusinessBuilder'
 import RevenueLandingCTAs from './components/RevenueLandingCTAs'
 import HoloConcierge from './components/HoloConcierge'
+import OmniverseCoreLoopHUD from './components/OmniverseCoreLoopHUD'
 import UnifiedCommerceHub from './components/UnifiedCommerceHub'
 import NeighborhoodCommerceNetwork from './components/NeighborhoodCommerceNetwork'
 import VirtualWarehouseNetwork from './components/VirtualWarehouseNetwork'
@@ -88,6 +89,7 @@ import { installStreetVerseGrowthNetworkRuntime } from './runtime/StreetVerseGro
 import { installStreetVerseRacingAfterDarkRuntime } from './runtime/StreetVerseRacingAfterDarkRuntime'
 import { installStreetVerseMissionDiscoveryRuntime } from './runtime/StreetVerseMissionDiscoveryRuntime'
 import { installSECSConstructRuntime } from './runtime/SECSConstructRuntime'
+import { installOmniverseEventFabricRuntime } from './runtime/OmniverseEventFabricRuntime'
 
 installProductionHealthMonitor()
 installMediaCloudBridge()
@@ -129,6 +131,7 @@ installStreetVerseGrowthNetworkRuntime()
 installStreetVerseRacingAfterDarkRuntime()
 installStreetVerseMissionDiscoveryRuntime()
 installSECSConstructRuntime()
+installOmniverseEventFabricRuntime()
 
 const currentPath=window.location.pathname
 const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
@@ -183,6 +186,7 @@ createRoot(document.getElementById('root')!).render(
     <OmniCashLauncher />
     <GlobalGrowthHub />
     <HoloConcierge />
+    <OmniverseCoreLoopHUD />
     {isStreetVerse && <>
       <StreetVerse3D onClose={() => { window.location.href='/' }} />
       <button onClick={()=>{window.location.href='/streetverse/meet-the-stubbs'}} style={{position:'fixed',left:12,top:12,zIndex:15990,border:'1px solid #e8b94499',borderRadius:999,padding:'10px 14px',background:'#17120a',color:'#fff',fontWeight:950,cursor:'pointer'}}>MEET THE STUBBS • 13 WORLD STORES</button>
