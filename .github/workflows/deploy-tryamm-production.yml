@@ -2,11 +2,7 @@ name: TRYAMM Production Deploy
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'amm-omniverse/**'
-      - '.github/workflows/deploy-tryamm-production.yml'
+  workflow_call:
 
 permissions:
   contents: read
@@ -28,16 +24,16 @@ jobs:
         working-directory: amm-omniverse
 
     steps:
-      - name: Checkout canonical branch
-        uses: actions/checkout@v4
+      - name: Checkout exact release commit
+        uses: actions/checkout@v5
         with:
-          ref: main
+          ref: ${{ github.sha }}
           fetch-depth: 1
 
-      - name: Set up Node 22
-        uses: actions/setup-node@v4
+      - name: Set up Node 24
+        uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: amm-omniverse/package-lock.json
 
