@@ -47,13 +47,16 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
     const ground=new THREE.Mesh(new THREE.PlaneGeometry(190,190),material(0x142019,0,.98));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground)
     const roadMat=material(0x1c2029,0,.98)
     const sidewalkMat=material(0x6c7073,0,.95)
+    const laneMat=new THREE.MeshBasicMaterial({color:0xe8d97a})
     for(const z of [-48,0,48]){
       const road=new THREE.Mesh(new THREE.BoxGeometry(190,.12,14),roadMat);road.position.set(0,.07,z);scene.add(road)
       for(const dz of [-9,9]){const walk=new THREE.Mesh(new THREE.BoxGeometry(190,.2,3),sidewalkMat);walk.position.set(0,.12,z+dz);scene.add(walk)}
+      for(let x=-84;x<=84;x+=12){const mark=new THREE.Mesh(new THREE.BoxGeometry(6,.03,.16),laneMat);mark.position.set(x,.145,z);scene.add(mark)}
     }
     for(const x of [-48,0,48]){
       const road=new THREE.Mesh(new THREE.BoxGeometry(14,.12,190),roadMat);road.position.set(x,.07,0);scene.add(road)
       for(const dx of [-9,9]){const walk=new THREE.Mesh(new THREE.BoxGeometry(3,.2,190),sidewalkMat);walk.position.set(x+dx,.12,0);scene.add(walk)}
+      for(let z=-84;z<=84;z+=12){const mark=new THREE.Mesh(new THREE.BoxGeometry(.16,.03,6),laneMat);mark.position.set(x,.145,z);scene.add(mark)}
     }
 
     const collisionBoxes:THREE.Box3[]=[]
@@ -117,11 +120,14 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
     }
 
     const cars:THREE.Group[]=[]
-    for(let i=0;i<10;i++){
+    for(let i=0;i<12;i++){
       const car=new THREE.Group();const shell=new THREE.Mesh(new THREE.BoxGeometry(4.8,1.15,2.2),material([0xe84141,0x3f8cff,0xe8c84b,0xeaeaea,0x1f1f27][i%5],.55,.3));shell.position.y=1;car.add(shell)
       const cabin=new THREE.Mesh(new THREE.BoxGeometry(2.5,.85,1.9),material(0x83b9d6,.7,.18));cabin.position.set(-.2,1.8,0);car.add(cabin)
       for(const sx of [-1.45,1.45])for(const sz of [-1,1]){const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.43,.43,.3,12),material(0x111111,0,.9));wheel.rotation.x=Math.PI/2;wheel.position.set(sx,.55,sz*1.05);car.add(wheel)}
-      car.position.set(-82+i*18,.05,i%2?48:-48);scene.add(car);cars.push(car)
+      const roadCenter=i<6?-48:48
+      const dir=i%2===0?1:-1
+      car.userData.traffic={roadCenter,dir,laneOffset:dir>0?2.4:-2.4,speed:9+(i%4)*1.1,phase:i*15}
+      car.position.set(-82+i*14,.05,roadCenter+(dir>0?2.4:-2.4));car.rotation.y=dir>0?0:Math.PI;scene.add(car);cars.push(car)
     }
 
     const dogs:THREE.Group[]=[]
@@ -165,7 +171,7 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
         if(!collides(nx,avatar.position.z))avatar.position.x=nx;if(!collides(avatar.position.x,nz))avatar.position.z=nz;avatar.rotation.y=Math.atan2(dx,dz)
       }
       npcs.forEach((npc,i)=>{npc.position.x=-72+((elapsed*2.2+i*13)%144);npc.position.z=i<8?-18:18;npc.rotation.y=Math.PI/2})
-      cars.forEach((car,i)=>{const dir=i%2?1:-1;car.position.x=dir*(-88+((elapsed*(10+i*.5)+i*17)%176));car.position.z=i%2?48:-48;car.rotation.y=dir>0?Math.PI/2:-Math.PI/2})
+      cars.forEach((car)=>{const traffic=car.userData.traffic as {roadCenter:number;dir:number;laneOffset:number;speed:number;phase:number};const travel=-88+((elapsed*traffic.speed+traffic.phase)%176);car.position.x=traffic.dir>0?travel:-travel;car.position.z=traffic.roadCenter+traffic.laneOffset;car.rotation.y=traffic.dir>0?0:Math.PI})
       dogs.forEach((dog,i)=>{dog.position.x+=Math.sin(elapsed*.8+i)*dt*.8;dog.rotation.y=Math.sin(elapsed+i)})
       birds.forEach((bird,i)=>{const a=elapsed*.35+i*.68,b=26+i%3*4;bird.position.set(Math.cos(a)*b,18+i%3*3,Math.sin(a)*b);bird.rotation.y=-a})
       trees.forEach((tree,i)=>{tree.rotation.z=Math.sin(elapsed*.7+i)*.015})
