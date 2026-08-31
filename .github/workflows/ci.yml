@@ -74,3 +74,10 @@ jobs:
           test "$ROOT_RESULT" = "success"
           test "$OMNIVERSE_RESULT" = "success"
           echo "TryAMM release gate is GREEN"
+
+  production-deploy:
+    name: Production deploy
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    needs: [release-gate]
+    uses: ./.github/workflows/deploy-tryamm-production.yml
+    secrets: inherit
