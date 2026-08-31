@@ -90,7 +90,7 @@ export function runConstructSelfTest() {
 
 export function installSECSConstructRuntime() {
   installHolographicInternetRuntime()
-  const w = window as Window & Record<string, unknown>
+  const w = window as unknown as Window & Record<string, unknown>
   w.__compileSECSConstruct = compileConstruct
   w.__sendSECSConstructToPrototype = sendConstructToPrototype
   w.__runSECSConstructSelfTest = runConstructSelfTest
