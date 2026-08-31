@@ -18,6 +18,7 @@ export const FAMILY_BUSINESS_REGISTRY:FamilyBusinessProfile[]=[
   {id:'alyssa-rock-island',owner:'Alyssa',region:'Rock Island',ventures:['fitness app','online store','Turo','business development'],modules:['website','booking','store','vehicle-catalog','crm','holo-ads','analytics'],status:'registry'},
   {id:'alyssa-robinson',owner:'Alyssa Robinson',region:'United States',ventures:['aesthetics business'],modules:['website','booking','store','crm','holo-ads','analytics'],status:'registry'},
   {id:'eric-kirkland',owner:'Eric Kirkland',region:'California',ventures:['record label','music publishing'],modules:['website','artist-roster','music-catalog','licensing','store','crm','holo-ads','starverse','analytics'],status:'registry'},
+  {id:'al-ai-security',owner:'Al AI Security & Conceal-to-Carry',region:'United States',ventures:['lawful security services','concealed-carry training and compliance'],modules:['website','lead-form','booking','training-catalog','compliance-gate','crm','holo-ads','streetverse-location','analytics'],status:'registry'},
 ]
 
 export const SITE_FACTORY_PIPELINE=['business-profile','brand-kit','website','booking-or-store','payments-provider-gate','crm','holo-ads','streetverse-location','reels','search','analytics'] as const
