@@ -7,6 +7,7 @@ import MiddleverseLauncher from './components/MiddleverseLauncher'
 import GameVerseLauncher from './components/GameVerseLauncher'
 import AccessibilityPassportPanel from './components/AccessibilityPassportPanel'
 import HoloDeliveryLauncher from './components/HoloDeliveryLauncher'
+import HoloMobilityLauncher from './components/HoloMobilityLauncher'
 import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import MediaStudioLauncher from './components/MediaStudioLauncher'
 import HoloDramaLauncher from './components/HoloDramaLauncher'
@@ -169,6 +170,7 @@ createRoot(document.getElementById('root')!).render(
     <MetaverseBusinessBuilder />
     <AccessibilityPassportPanel />
     <HoloDeliveryLauncher />
+    <HoloMobilityLauncher />
     <HoloMarketplaceLauncher />
     <UnifiedCommerceHub />
     <NeighborhoodCommerceNetwork />
