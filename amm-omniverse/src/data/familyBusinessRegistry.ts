@@ -1,18 +1,12 @@
 export type BusinessSiteStatus='registry'|'site-ready'|'domain-pending'|'live'
 
-export type FamilyBusinessProfile={
-  id:string
-  owner:string
-  region:string
-  ventures:string[]
-  modules:string[]
-  status:BusinessSiteStatus
-}
+export type FamilyBusinessProfile={id:string;owner:string;region:string;ventures:string[];modules:string[];status:BusinessSiteStatus}
 
 export const FAMILY_BUSINESS_REGISTRY:FamilyBusinessProfile[]=[
   {id:'afonso-gregory',owner:'Afonso Gregory',region:'Las Vegas',ventures:['CNA/home-care agency'],modules:['website','lead-form','booking','crm','holo-ads','streetverse-location','analytics'],status:'registry'},
-  {id:'kim-lucii',owner:'Kim Lucii',region:'Las Vegas',ventures:['Pathway to Business','creator and entrepreneurship development'],modules:['website','business-pathway','creator-tools','store','crm','holo-ads','middleverse','quantum-sourcing','analytics'],status:'registry'},
-  {id:'jasmine-dilland',owner:'Jasmine Dilland',region:'Las Vegas',ventures:['Pathway to Business','entrepreneurship development'],modules:['website','business-pathway','store','crm','holo-ads','middleverse','quantum-sourcing','analytics'],status:'registry'},
+  {id:'kim-lucii',owner:'Kim Lucii',region:'Las Vegas',ventures:['fashion designer business','online fashion brand','private-label fashion'],modules:['website','business-in-a-box','fashion-design-studio','product-catalog','store','creator-tools','crm','holo-ads','middleverse','quantum-sourcing','low-moq','global-delivery-tracking','analytics','stubbs-ai'],status:'registry'},
+  {id:'jasmine-dilland',owner:'Jasmine Dilland',region:'Las Vegas',ventures:['makeup line for Black women','hair bundles and wigs','nail business','beauty brand'],modules:['website','business-in-a-box','beauty-brand-builder','shade-catalog','hair-catalog','nail-catalog','store','subscriptions','creator-tools','crm','holo-ads','middleverse','quantum-sourcing','low-moq','global-delivery-tracking','analytics','stubbs-ai'],status:'registry'},
+  {id:'latasha-johnson',owner:'Latasha Johnson',region:'United States',ventures:['meal prep','food delivery','catering'],modules:['website','business-in-a-box','menu','meal-plans','catering-quotes','ordering','booking','delivery-tracking','subscriptions','crm','holo-ads','streetverse-location','analytics','stubbs-ai','food-compliance-gate'],status:'registry'},
   {id:'c-von-thornton',owner:'C Von Thornton',region:'United States',ventures:['barber business','upscale short-term rental'],modules:['website','booking','store','crm','holo-ads','streetverse-location','analytics'],status:'registry'},
   {id:'micky-von-wife',owner:"Micky Von's wife",region:'United States',ventures:['Turo business','online store'],modules:['website','vehicle-catalog','store','crm','holo-ads','analytics'],status:'registry'},
   {id:'david-castner',owner:'David Castner',region:'United States',ventures:['transmission/automotive business','online store','business development'],modules:['website','service-booking','store','crm','holo-ads','streetverse-location','analytics'],status:'registry'},
@@ -33,20 +27,9 @@ export const FAMILY_BUSINESS_REGISTRY:FamilyBusinessProfile[]=[
 ]
 
 export const SITE_FACTORY_PIPELINE=['business-profile','brand-kit','website','booking-or-store','quantum-sourcing','low-moq','direct-to-consumer','payments-provider-gate','global-delivery-tracking','crm','holo-ads','streetverse-location','reels','search','analytics'] as const
-
 export const BUSINESS_PROTECTION_PIPELINE=['nda-template','supplier-agreement','trademark-readiness','copyright-readiness','ip-vault','compliance-review'] as const
-
 export const GLOBAL_SUPPLY_CHAIN_PIPELINE=['supplier-discovery','supplier-verification','quote-comparison','sample-gate','low-moq','purchase-order','quality-check','freight-routing','customs-readiness','last-mile-delivery','global-tracking','returns-and-disputes'] as const
+export const COMPETITOR_CAPABILITY_ABSORPTION=['shopify-style-storefront','alibaba-style-supplier-discovery','amazon-style-catalog-fulfillment','tiktok-style-creator-commerce','roblox-style-world-commerce','salesforce-style-crm','hubspot-style-lead-automation','doordash-style-local-delivery','canva-style-brand-assets','stubbs-ai-orchestration'] as const
+export const BUSINESS_IN_A_BOX_PIPELINE=['idea','business-plan','brand-kit','ip-readiness','supplier-sourcing','samples','catalog','website','store','payments-provider-gate','marketing','crm','delivery','analytics','streetverse-location','middleverse-workforce','stubbs-ai-assistant'] as const
 
-export function buildSiteBlueprint(profile:FamilyBusinessProfile){
-  return {
-    slug:profile.id,
-    title:`${profile.owner} — ${profile.ventures[0]}`,
-    modules:profile.modules,
-    pipeline:SITE_FACTORY_PIPELINE,
-    protectionPipeline:BUSINESS_PROTECTION_PIPELINE,
-    supplyChainPipeline:GLOBAL_SUPPLY_CHAIN_PIPELINE,
-    productionReady:profile.status==='live',
-    requiresDomain:profile.status!=='live',
-  }
-}
+export function buildSiteBlueprint(profile:FamilyBusinessProfile){return {slug:profile.id,title:`${profile.owner} — ${profile.ventures[0]}`,modules:profile.modules,pipeline:SITE_FACTORY_PIPELINE,businessInABox:BUSINESS_IN_A_BOX_PIPELINE,competitorCapabilities:COMPETITOR_CAPABILITY_ABSORPTION,protectionPipeline:BUSINESS_PROTECTION_PIPELINE,supplyChainPipeline:GLOBAL_SUPPLY_CHAIN_PIPELINE,productionReady:profile.status==='live',requiresDomain:profile.status!=='live'}}
