@@ -1,3 +1,5 @@
+import { installBennyOmniHostRuntime } from './BennyOmniHostRuntime'
+
 export type MissionRarity = 'common' | 'uncommon' | 'rare' | 'legendary' | 'secret' | 'mythic'
 export type MissionCategory = 'story' | 'racing' | 'drift' | 'motorcycle' | 'delivery' | 'business' | 'crew' | 'relationship' | 'nightlife' | 'after-dark' | 'puzzle' | 'exploration' | 'cross-verse' | 'reality-quest'
 export type SecretTriggerType = 'location' | 'item' | 'audio-clue' | 'qr-symbol' | 'relationship-state' | 'business-state' | 'race-win' | 'time-window' | 'weather' | 'sequence' | 'world-memory' | 'cross-verse-clue'
@@ -98,9 +100,10 @@ export function installStreetVerseMissionDiscoveryRuntime() {
   runtime.__getStreetVerseMissionDiscoveryState = getStreetVerseMissionDiscoveryState
   runtime.__buildStreetVerseLivingMysteryContext = buildLivingMysteryContext
   runtime.__buildStreetVerseRealityQuest = buildRealityQuest
+  installBennyOmniHostRuntime()
   emit('tryamm:mission-discovery:ready', {
     rarities: ['common', 'uncommon', 'rare', 'legendary', 'secret', 'mythic'],
-    systems: ['mission-compiler', 'living-mystery-director', 'easter-eggs', 'secret-areas', 'cross-verse-clues', 'world-memory', 'reality-quests', 'adult-gated-after-dark'],
+    systems: ['mission-compiler', 'living-mystery-director', 'easter-eggs', 'secret-areas', 'cross-verse-clues', 'world-memory', 'reality-quests', 'adult-gated-after-dark', 'benny-omnihost'],
     interfaceLadder: ['phone-3d', 'ar', 'vr-mr', 'spatial-display', 'compatible-holographic-display', 'haptics', 'experimental-construct-interface'],
     boundaries: { adultLane18Plus: true, noMinorsInAdultLane: true, nonGraphicAdultPresentationOnly: true, noPublicIntimateTelemetry: true, noIntimateAdTargeting: true, physicalHologramClaimsRequireHardwareValidation: true },
   })
