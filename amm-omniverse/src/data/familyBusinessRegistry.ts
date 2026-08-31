@@ -11,6 +11,8 @@ export type FamilyBusinessProfile={
 
 export const FAMILY_BUSINESS_REGISTRY:FamilyBusinessProfile[]=[
   {id:'afonso-gregory',owner:'Afonso Gregory',region:'Las Vegas',ventures:['CNA/home-care agency'],modules:['website','lead-form','booking','crm','holo-ads','streetverse-location','analytics'],status:'registry'},
+  {id:'kim-lucii',owner:'Kim Lucii',region:'Las Vegas',ventures:['Pathway to Business','creator and entrepreneurship development'],modules:['website','business-pathway','creator-tools','store','crm','holo-ads','middleverse','quantum-sourcing','analytics'],status:'registry'},
+  {id:'jasmine-dilland',owner:'Jasmine Dilland',region:'Las Vegas',ventures:['Pathway to Business','entrepreneurship development'],modules:['website','business-pathway','store','crm','holo-ads','middleverse','quantum-sourcing','analytics'],status:'registry'},
   {id:'c-von-thornton',owner:'C Von Thornton',region:'United States',ventures:['barber business','upscale short-term rental'],modules:['website','booking','store','crm','holo-ads','streetverse-location','analytics'],status:'registry'},
   {id:'micky-von-wife',owner:"Micky Von's wife",region:'United States',ventures:['Turo business','online store'],modules:['website','vehicle-catalog','store','crm','holo-ads','analytics'],status:'registry'},
   {id:'david-castner',owner:'David Castner',region:'United States',ventures:['transmission/automotive business','online store','business development'],modules:['website','service-booking','store','crm','holo-ads','streetverse-location','analytics'],status:'registry'},
@@ -25,12 +27,16 @@ export const FAMILY_BUSINESS_REGISTRY:FamilyBusinessProfile[]=[
   {id:'sarah-laur',owner:'Sarah Laur',region:'United States',ventures:['business profile recovery','business development'],modules:['website','lead-form','booking','store','crm','holo-ads','analytics'],status:'registry'},
   {id:'eric-kirkland',owner:'Eric Kirkland',region:'California',ventures:['record label','music publishing'],modules:['website','artist-roster','music-catalog','licensing','store','crm','holo-ads','starverse','analytics'],status:'registry'},
   {id:'nikki-frances',owner:'Nikki Frances',region:'Indiana',ventures:['business profile recovery','business development'],modules:['website','lead-form','booking','store','crm','holo-ads','streetverse-location','analytics'],status:'registry'},
-  {id:'golden-ma',owner:'Golden Ma',region:'California',ventures:['Pathway to Business','entrepreneurship development'],modules:['website','business-pathway','training','lead-form','crm','holo-ads','middleverse','analytics'],status:'registry'},
-  {id:'tasha-ash-family',owner:'Tasha Ash Family',region:'United States',ventures:['family business pathway','creator and entrepreneurship development'],modules:['website','family-hub','business-pathway','creator-tools','store','crm','holo-ads','middleverse','streetverse-location','analytics'],status:'registry'},
+  {id:'golden-ma',owner:'Golden Ma',region:'California',ventures:['Pathway to Business','entrepreneurship development'],modules:['website','business-pathway','training','lead-form','crm','holo-ads','middleverse','quantum-sourcing','analytics'],status:'registry'},
+  {id:'tasha-ash-family',owner:'Tasha Ash Family',region:'United States',ventures:['family business pathway','creator and entrepreneurship development'],modules:['website','family-hub','business-pathway','creator-tools','store','crm','holo-ads','middleverse','streetverse-location','quantum-sourcing','analytics'],status:'registry'},
   {id:'al-ai-security',owner:'Al AI Security & Conceal-to-Carry',region:'United States',ventures:['lawful security services','concealed-carry training and compliance'],modules:['website','lead-form','booking','training-catalog','compliance-gate','crm','holo-ads','streetverse-location','analytics'],status:'registry'},
 ]
 
-export const SITE_FACTORY_PIPELINE=['business-profile','brand-kit','website','booking-or-store','payments-provider-gate','crm','holo-ads','streetverse-location','reels','search','analytics'] as const
+export const SITE_FACTORY_PIPELINE=['business-profile','brand-kit','website','booking-or-store','quantum-sourcing','low-moq','direct-to-consumer','payments-provider-gate','global-delivery-tracking','crm','holo-ads','streetverse-location','reels','search','analytics'] as const
+
+export const BUSINESS_PROTECTION_PIPELINE=['nda-template','supplier-agreement','trademark-readiness','copyright-readiness','ip-vault','compliance-review'] as const
+
+export const GLOBAL_SUPPLY_CHAIN_PIPELINE=['supplier-discovery','supplier-verification','quote-comparison','sample-gate','low-moq','purchase-order','quality-check','freight-routing','customs-readiness','last-mile-delivery','global-tracking','returns-and-disputes'] as const
 
 export function buildSiteBlueprint(profile:FamilyBusinessProfile){
   return {
@@ -38,6 +44,8 @@ export function buildSiteBlueprint(profile:FamilyBusinessProfile){
     title:`${profile.owner} — ${profile.ventures[0]}`,
     modules:profile.modules,
     pipeline:SITE_FACTORY_PIPELINE,
+    protectionPipeline:BUSINESS_PROTECTION_PIPELINE,
+    supplyChainPipeline:GLOBAL_SUPPLY_CHAIN_PIPELINE,
     productionReady:profile.status==='live',
     requiresDomain:profile.status!=='live',
   }
