@@ -1,4 +1,6 @@
-export type PocketDimensionZone='command-vault'|'broadcast-studio'|'holo-stage'|'app-store'|'business-lab'|'creator-studio'|'omnicash'|'archive'|'streetverse-portal'
+import { installSecretAssetVaultRuntime, openSecretAssetVault } from './SecretAssetVaultRuntime'
+
+export type PocketDimensionZone='command-vault'|'secret-assets'|'broadcast-studio'|'holo-stage'|'app-store'|'business-lab'|'creator-studio'|'omnicash'|'archive'|'streetverse-portal'
 export type DistributionTarget='pwa'|'ios-app-store'|'google-play'|'samsung-galaxy-store'|'internal-amm-app'
 
 export interface PocketDimensionState{
@@ -18,7 +20,7 @@ const now=()=>new Date().toISOString()
 const state:PocketDimensionState={
   ownerMode:'founder',
   privateByDefault:true,
-  zones:['command-vault','broadcast-studio','holo-stage','app-store','business-lab','creator-studio','omnicash','archive','streetverse-portal'],
+  zones:['command-vault','secret-assets','broadcast-studio','holo-stage','app-store','business-lab','creator-studio','omnicash','archive','streetverse-portal'],
   activeZone:'command-vault',
   broadcastNetwork:{live:false,destinations:['tryamm-live','all-american-network','ctv-fast','reels','pk','holo-fon'],recording:false},
   holoOverlay:{enabled:true,mode:'screen-spatial-overlay',hardwareValidated:false},
@@ -33,10 +35,11 @@ export function enterPocketDimension(zone:PocketDimensionZone='command-vault'){
   const snapshot=getFounderPocketDimensionState()
   emit('tryamm:pocket-dimension:entered',snapshot)
   emit('tryamm:benny:overlay-request',{context:'founder-pocket-dimension',zone,mode:'robot-holographic-overlay',privacyScope:'founder',createdAt:now()})
+  if(zone==='secret-assets')queueMicrotask(()=>openSecretAssetVault())
   return snapshot
 }
 
-export function setPocketDimensionZone(zone:PocketDimensionZone){state.activeZone=zone;state.updatedAt=now();const snapshot=getFounderPocketDimensionState();emit('tryamm:pocket-dimension:zone-changed',snapshot);return snapshot}
+export function setPocketDimensionZone(zone:PocketDimensionZone){state.activeZone=zone;state.updatedAt=now();const snapshot=getFounderPocketDimensionState();emit('tryamm:pocket-dimension:zone-changed',snapshot);if(zone==='secret-assets')queueMicrotask(()=>openSecretAssetVault());return snapshot}
 
 export function startFounderBroadcast(input:{title:string;destinations?:string[];record?:boolean}){
   state.broadcastNetwork={live:true,destinations:input.destinations?.length?input.destinations:[...state.broadcastNetwork.destinations],recording:input.record===true};state.updatedAt=now()
@@ -59,6 +62,7 @@ let installed=false
 export function installFounderPocketDimensionRuntime(){
   if(installed||typeof window==='undefined')return
   installed=true
+  installSecretAssetVaultRuntime()
   const runtime=window as unknown as Record<string,unknown>
   runtime.__enterFounderPocketDimension=enterPocketDimension
   runtime.__setPocketDimensionZone=setPocketDimensionZone
@@ -66,7 +70,9 @@ export function installFounderPocketDimensionRuntime(){
   runtime.__startFounderBroadcast=startFounderBroadcast
   runtime.__stopFounderBroadcast=stopFounderBroadcast
   runtime.__requestAMMAppInstall=requestAppInstall
+  runtime.__openFounderSecretAssets=()=>enterPocketDimension('secret-assets')
   window.addEventListener('tryamm:pocket-dimension:open',()=>enterPocketDimension())
   window.addEventListener('tryamm:all-american-app-store:open',()=>setPocketDimensionZone('app-store'))
-  emit('tryamm:pocket-dimension:ready',{schema:'tryamm.founder-pocket-dimension.v1',state:getFounderPocketDimensionState(),capabilities:['private-founder-command-vault','live-broadcast-network','benny-robot-holographic-overlay','all-american-app-store','business-and-saas-control','creator-studio','omnicash-link','archive-and-ip-vault','streetverse-portal'],boundaries:{softwarePocketDimension:true,literalPhysicalDimension:false,holographicHardwareRequiresCompatibleDisplay:true,appStoresRequirePlatformApproval:true,noSilentAppInstallation:true}})
+  window.addEventListener('tryamm:founder-secret-assets:open',()=>enterPocketDimension('secret-assets'))
+  emit('tryamm:pocket-dimension:ready',{schema:'tryamm.founder-pocket-dimension.v2',state:getFounderPocketDimensionState(),capabilities:['private-founder-command-vault','secret-asset-vault','live-broadcast-network','benny-robot-holographic-overlay','all-american-app-store','business-and-saas-control','creator-studio','omnicash-link','archive-and-ip-vault','streetverse-portal'],boundaries:{softwarePocketDimension:true,literalPhysicalDimension:false,holographicHardwareRequiresCompatibleDisplay:true,appStoresRequirePlatformApproval:true,noSilentAppInstallation:true,noRawSecretsInPublicRepository:true,secretAssetFilesRequireAuthenticatedPrivateStorage:true}})
 }
