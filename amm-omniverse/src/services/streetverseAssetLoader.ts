@@ -29,6 +29,7 @@ export async function replacePrimitiveWithStreetVerseAsset(options:{
   id:string
   fallback:THREE.Object3D
   scene:THREE.Scene
+  parent?:THREE.Object3D
   position?:THREE.Vector3
   rotationY?:number
   scale?:number
@@ -50,8 +51,9 @@ export async function replacePrimitiveWithStreetVerseAsset(options:{
     if(node instanceof THREE.Mesh){node.castShadow=true;node.receiveShadow=true}
   })
   if(options.transformLoadedModel)await options.transformLoadedModel(model)
-  options.scene.add(model)
-  options.scene.remove(options.fallback)
+  const parent=options.parent??options.scene
+  parent.add(model)
+  options.fallback.parent?.remove(options.fallback)
   return true
 }
 
