@@ -9,8 +9,8 @@ const world=fs.readFileSync(worldPath,'utf8')
 const studio=fs.readFileSync(studioPath,'utf8')
 
 const checks=[
-  ['StreetVerse resident population is materialized',/NPC_NEAR_SPAWN/.test(world)&&/for\(let i=0;i<18;i\+\+\)/.test(world)],
-  ['AI Spirit skins are materialized',/function aiSpirit/.test(world)&&/for\(let i=0;i<6;i\+\+\)/.test(world)],
+  ['StreetVerse resident population is materialized',/NPC_NEAR_SPAWN/.test(world)&&/for\(let i=0;i<24;i\+\+\)/.test(world)],
+  ['AI Spirit skins are materialized',/function aiSpirit/.test(world)&&/for\(let i=0;i<8;i\+\+\)/.test(world)],
   ['Traffic heading follows direction of travel',/c\.rotation\.y=dir>0\?0:Math\.PI/.test(world)],
   ['Player can enter and exit vehicles',/setIsDriving\(true\)/.test(world)&&/setIsDriving\(false\)/.test(world)],
   ['Mission completion produces a ledger receipt',/appendStreetVerseRevenue/.test(world)&&/receipt\.hash/.test(world)],
