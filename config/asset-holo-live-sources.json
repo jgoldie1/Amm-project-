@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "policy": {
+    "streetverseRemainsCanonical": true,
+    "noBlindVendoring": true,
+    "licenseMustBeVerifiedBeforeCopy": true,
+    "externalAssetsRequireProvenance": true,
+    "driveAssetsRequireRightsReviewBeforeProduction": true
+  },
+  "githubSources": [
+    {"repo":"livekit/livekit","role":"live-webrtc-reference-and-server","license":"Apache-2.0","use":"licensed-reference-and-integration"},
+    {"repo":"ektogamat/threejs-vanilla-holographic-material","role":"holographic-threejs-material","license":"MIT","use":"licensed-reference-and-port"},
+    {"repo":"shpowley/threejs-journey-webxr","role":"webxr-threejs-reference","license":"VERIFY_BEFORE_COPY","use":"reference-only-until-verified"},
+    {"repo":"mrthinh307/toptop","role":"vertical-video-social-reference","license":"VERIFY_BEFORE_COPY","use":"reference-only-until-verified"},
+    {"repo":"KhronosGroup/glTF-Sample-Assets","role":"official-gltf-test-assets","license":"PER-ASSET-LICENSE","use":"test-and-compatibility-reference"},
+    {"repo":"KhronosGroup/glTF-Blender-IO","role":"official-blender-gltf-import-export","license":"VERIFY_BEFORE_VENDORING","use":"tooling-reference"},
+    {"repo":"pmndrs/gltfjsx","role":"gltf-to-react-three-component-tooling","license":"VERIFY_BEFORE_VENDORING","use":"tooling-reference"},
+    {"repo":"donmccurdy/glTF-Transform","role":"gltf-optimization-tooling","license":"VERIFY_BEFORE_VENDORING","use":"tooling-reference"}
+  ],
+  "externalAssetProviders": [
+    {"provider":"Quaternius","rule":"record pack-specific license and source before import"},
+    {"provider":"Kenney","rule":"prefer CC0 packs and retain source metadata"},
+    {"provider":"Poly Pizza","rule":"only import assets whose individual license is verified"}
+  ],
+  "googleDriveDiscoveries": [
+    "Characters_Avatars",
+    "Stubbs_AI_HoloGPT_Player",
+    "Outfits_Skins_HoloVariants",
+    "Rigged_GLTF_GLB_FBX",
+    "Front_Side_Back_Turnarounds"
+  ],
+  "targetPipeline": [
+    "SOURCE_DISCOVERY",
+    "LICENSE_AND_RIGHTS_CHECK",
+    "GLB_CONVERSION",
+    "GLTF_OPTIMIZATION",
+    "ASSET_REGISTRY",
+    "CHARACTER_FACTORY",
+    "SKIN_CLOTHING_RANDOMIZER",
+    "ANIMATION_CONTROLLER",
+    "LOD_AND_CULLING",
+    "STREETVERSE_NPC_AI",
+    "HOLOGRAPHIC_RENDER_LAYER",
+    "LIVE_PK_REPLAY_INTEGRATION"
+  ]
+}
