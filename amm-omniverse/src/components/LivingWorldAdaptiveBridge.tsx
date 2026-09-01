@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useGameStore } from '../game/state/useGameStore'
 import type { LivingWorldSnapshot } from '../runtime/StreetVerseLivingWorldRuntime'
+import { installHoloForgeRuntime } from '../runtime/HoloForgeAssetRuntime'
+
+installHoloForgeRuntime()
 
 function createWorldSessionId(){
   if(typeof crypto!=='undefined'&&'randomUUID' in crypto)return `streetverse-${crypto.randomUUID()}`
@@ -39,25 +42,13 @@ export default function LivingWorldAdaptiveBridge(){
     const publish=()=>{
       const now=new Date()
       const hour=now.getHours()+now.getMinutes()/60
-      const context={
-        worldSessionId:worldSessionId.current,
-        activeWorld:'streetverse' as const,
-        activeMission,
-        activeVehicle:activeVehicle||null,
-        uiIntent:activeVehicle?'vehicle':'free-roam',
-        position:{x:0,y:0,z:0},
-        hour,
-        at:Date.now(),
-      }
+      const context={worldSessionId:worldSessionId.current,activeWorld:'streetverse' as const,activeMission,activeVehicle:activeVehicle||null,uiIntent:activeVehicle?'vehicle':'free-roam',position:{x:0,y:0,z:0},hour,at:Date.now()}
       window.dispatchEvent(new CustomEvent('tryamm:world-clock',{detail:{hour,source:'streetverse-city',worldSessionId:worldSessionId.current}}))
       window.dispatchEvent(new CustomEvent('tryamm:world-player-signal',{detail:context}))
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-context',{detail:context}))
     }
     publish()
-    const timer=window.setInterval(()=>{
-      const now=performance.now()
-      if(now-lastRef.current>=1800){lastRef.current=now;publish()}
-    },500)
+    const timer=window.setInterval(()=>{const now=performance.now();if(now-lastRef.current>=1800){lastRef.current=now;publish()}},500)
     return()=>window.clearInterval(timer)
   },[screen,missions,activeVehicle])
 
@@ -67,13 +58,7 @@ export default function LivingWorldAdaptiveBridge(){
       const source=(event as CustomEvent<{source?:string}>).detail?.source
       if(source&&source!=='streetverse')return
       const activeMission=missions.find(m=>m.status==='active')?.id
-      window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-context',{detail:{
-        worldSessionId:worldSessionId.current,
-        missionId:activeMission||null,
-        vehicleId:activeVehicle||null,
-        world:'streetverse',
-        capturedAt:Date.now(),
-      }}))
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-context',{detail:{worldSessionId:worldSessionId.current,missionId:activeMission||null,vehicleId:activeVehicle||null,world:'streetverse',capturedAt:Date.now()}}))
     }
     window.addEventListener('tryamm:media-studio-open',onReelRequest)
     return()=>window.removeEventListener('tryamm:media-studio-open',onReelRequest)
