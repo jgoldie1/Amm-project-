@@ -17,7 +17,7 @@ export async function preloadStreetVerseCharacterPack(){
  await preloadStreetVerseAssets(ids)
 }
 
-export async function materializeStreetVerseCharacter(options:{assetId:string;fallback:THREE.Object3D;scene:THREE.Scene;position?:THREE.Vector3;rotationY?:number;scale?:number;applySavedHeroMorph?:boolean}){
+export async function materializeStreetVerseCharacter(options:{assetId:string;fallback:THREE.Object3D;scene:THREE.Scene;parent?:THREE.Object3D;position?:THREE.Vector3;rotationY?:number;scale?:number;applySavedHeroMorph?:boolean}){
  return replacePrimitiveWithStreetVerseAsset({
   ...options,
   id:options.assetId,
