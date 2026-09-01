@@ -16,6 +16,7 @@ const BUSINESSES=[
   {id:'holo-ads',label:'Holo Ads',x:-45,z:38},
   {id:'network',label:'All American Network',x:38,z:36},
 ]
+const NPC_NEAR_SPAWN:[number,number][]=[[-13,58],[-7,52],[7,55],[13,61],[-19,47],[19,49],[-4,67],[9,69]]
 
 function mat(color:number,metal=.1,rough=.65){return new THREE.MeshStandardMaterial({color,metalness:metal,roughness:rough})}
 function load(){try{return JSON.parse(localStorage.getItem(SAVE)||'{}')}catch{return {}}}
@@ -32,7 +33,7 @@ function vehicle(color:number,style:'sedan'|'gt'|'supercar'|'suv'|'limousine'){
 
 function boat(color:number,size='sport'){
   const g=new THREE.Group();const l=size==='yacht'?10:6.5
-  const hull=new THREE.Mesh(new THREE.BoxGeometry(l,1.0,2.5),mat(color,.45,.28));hull.position.y=.55;g.add(hull)
+  const hull=new THREE.Mesh(new THREE.BoxGeometry(l,1,2.5),mat(color,.45,.28));hull.position.y=.55;g.add(hull)
   const bow=new THREE.Mesh(new THREE.ConeGeometry(1.25,2.8,4),mat(color,.45,.28));bow.rotation.z=-Math.PI/2;bow.position.set(l/2+1.25,.55,0);g.add(bow)
   const deck=new THREE.Mesh(new THREE.BoxGeometry(l*.56,.5,2),mat(0xf4f0e6,.25,.34));deck.position.set(-.4,1.25,0);g.add(deck)
   const glass=new THREE.Mesh(new THREE.BoxGeometry(2.4,.9,1.65),mat(0x6da9c9,.7,.18));glass.position.set(-.8,2,0);g.add(glass)
@@ -40,40 +41,150 @@ function boat(color:number,size='sport'){
   return g
 }
 
-function quadruped(color:number,scale=1){const g=new THREE.Group();const b=new THREE.Mesh(new THREE.BoxGeometry(1.5*scale,.7*scale,.65*scale),mat(color));b.position.y=.85*scale;g.add(b);const h=new THREE.Mesh(new THREE.BoxGeometry(.6*scale,.6*scale,.55*scale),mat(color));h.position.set(.95*scale,1.1*scale,0);g.add(h);for(const x of [-.55,.55])for(const z of [-.22,.22]){const leg=new THREE.Mesh(new THREE.BoxGeometry(.16*scale,.65*scale,.16*scale),mat(color));leg.position.set(x,.35*scale,z);g.add(leg)}return g}
-function person(color:number,skin:number){const g=new THREE.Group();const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.48,1.25,5,8),mat(color,.08,.72));torso.position.y=1.65;g.add(torso);const head=new THREE.Mesh(new THREE.SphereGeometry(.42,12,10),mat(skin,0,.78));head.position.y=3;g.add(head);for(const side of [-1,1]){const leg=new THREE.Mesh(new THREE.BoxGeometry(.28,1.25,.3),mat(0x20242b,0,.88));leg.position.set(side*.2,.62,0);g.add(leg)}return g}
+function quadruped(color:number,scale=1){
+  const g=new THREE.Group();const body=new THREE.Mesh(new THREE.BoxGeometry(1.5*scale,.7*scale,.65*scale),mat(color));body.position.y=.85*scale;g.add(body)
+  const head=new THREE.Mesh(new THREE.BoxGeometry(.6*scale,.6*scale,.55*scale),mat(color));head.position.set(.95*scale,1.1*scale,0);g.add(head)
+  for(const x of [-.55,.55])for(const z of [-.22,.22]){const leg=new THREE.Mesh(new THREE.BoxGeometry(.16*scale,.65*scale,.16*scale),mat(color));leg.position.set(x,.35*scale,z);g.add(leg)}
+  return g
+}
+
+function person(color:number,skin:number){
+  const g=new THREE.Group()
+  const shirt=new THREE.MeshStandardMaterial({color,roughness:.58,metalness:.04,emissive:new THREE.Color(color),emissiveIntensity:.08})
+  const skinMat=new THREE.MeshStandardMaterial({color:skin,roughness:.7})
+  const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.58,1.45,6,10),shirt);torso.position.y=1.85;g.add(torso)
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.5,16,12),skinMat);head.position.y=3.35;g.add(head)
+  const hair=new THREE.Mesh(new THREE.SphereGeometry(.515,12,8,0,Math.PI*2,0,Math.PI*.52),mat(0x17181d,0,.9));hair.position.y=3.45;g.add(hair)
+  for(const side of [-1,1]){
+    const arm=new THREE.Mesh(new THREE.CapsuleGeometry(.14,.82,4,7),skinMat);arm.position.set(side*.72,1.9,0);arm.rotation.z=side*.1;g.add(arm)
+    const leg=new THREE.Mesh(new THREE.BoxGeometry(.34,1.35,.38),mat(0x20242b,0,.88));leg.position.set(side*.23,.68,0);g.add(leg)
+  }
+  const marker=new THREE.Mesh(new THREE.TorusGeometry(.62,.07,8,22),new THREE.MeshBasicMaterial({color:0x73e7ff,transparent:true,opacity:.75}));marker.rotation.x=Math.PI/2;marker.position.y=4.35;g.add(marker)
+  g.scale.setScalar(1.18)
+  return g
+}
+
+function aiSpirit(index:number){
+  const palette=[0x4fe3ff,0xa68bff,0xff6fae,0x76d98b]
+  const c=palette[index%palette.length]
+  const g=person(c,[0xba7b52,0xd3a079,0x925f3f,0x6f4028][index%4])
+  g.traverse(node=>{if(node instanceof THREE.Mesh&&node.material instanceof THREE.MeshStandardMaterial){node.material=node.material.clone();node.material.transparent=true;node.material.opacity=.88;node.material.emissive=new THREE.Color(c);node.material.emissiveIntensity=.18}})
+  const aura=new THREE.Mesh(new THREE.TorusGeometry(1.05,.08,8,28),new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.7}));aura.rotation.x=Math.PI/2;aura.position.y=.08;g.add(aura)
+  return g
+}
 
 export default function StreetVerseOmniWorld({onClose}:{onClose:()=>void}){
- const mount=useRef<HTMLDivElement|null>(null);const input=useRef({u:false,d:false,l:false,r:false});const action=useRef(false);const businessRef=useRef<string|null>(null);const [msg,setMsg]=useState('StreetVerse Omni District loaded. Explore, complete missions and test the economic loop.');const [summary,setSummary]=useState(()=>getStreetVerseRevenueSummary());const [visited,setVisited]=useState<string[]>(()=>load().visited||[]);const [isDriving,setIsDriving]=useState(false);const [business,setBusiness]=useState<string|null>(null)
- useEffect(()=>{const root=mount.current;if(!root)return;const saved=load();const scene=new THREE.Scene();scene.background=new THREE.Color(0x07111d);scene.fog=new THREE.FogExp2(0x07111d,.0048);const camera=new THREE.PerspectiveCamera(62,1,.1,900);const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.shadowMap.enabled=true;renderer.outputColorSpace=THREE.SRGBColorSpace;root.appendChild(renderer.domElement)
- const hemi=new THREE.HemisphereLight(0xa8ddff,0x15121b,2.4);scene.add(hemi);const sun=new THREE.DirectionalLight(0xffddbd,3.1);sun.position.set(80,110,40);sun.castShadow=true;scene.add(sun)
- const ground=new THREE.Mesh(new THREE.PlaneGeometry(260,220),mat(0x24351f,0,.95));ground.rotation.x=-Math.PI/2;scene.add(ground)
- const water=new THREE.Mesh(new THREE.PlaneGeometry(260,52),new THREE.MeshStandardMaterial({color:0x0d5578,metalness:.2,roughness:.28,transparent:true,opacity:.93}));water.rotation.x=-Math.PI/2;water.position.set(0,.05,86);scene.add(water)
- const road=mat(0x1d222a,0,.98),walk=mat(0x777a7d,0,.95)
- for(const z of [-55,-5,45]){const r=new THREE.Mesh(new THREE.BoxGeometry(260,.1,15),road);r.position.set(0,.05,z);scene.add(r);for(const dz of [-9,9]){const s=new THREE.Mesh(new THREE.BoxGeometry(260,.18,3),walk);s.position.set(0,.11,z+dz);scene.add(s)}}
- for(const x of [-65,-15,35,85]){const r=new THREE.Mesh(new THREE.BoxGeometry(15,.1,170),road);r.position.set(x,.05,5);scene.add(r)}
- const buildings=[[-98,-72,22,28,20],[-98,-28,18,22,18],[-98,20,24,38,19],[-50,-72,19,24,18],[-50,-22,23,34,22],[-50,22,18,20,17],[5,-72,24,42,20],[5,-25,18,25,18],[5,22,22,36,20],[58,-72,20,30,19],[58,-25,22,44,20],[58,20,19,27,18],[105,-70,18,24,17],[105,-22,22,35,19],[105,20,20,31,18]]
- buildings.forEach((b,i)=>{const [x,z,w,h,d]=b;const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat([0x293d52,0x49364f,0x36503c,0x56432f,0x2c4f59][i%5],.22,.62));m.position.set(x,h/2,z);m.castShadow=true;scene.add(m);for(let y=4;y<h-2;y+=4){const light=new THREE.Mesh(new THREE.PlaneGeometry(w*.62,.55),new THREE.MeshBasicMaterial({color:i%2?0xffd08a:0x65dcff}));light.position.set(x,y,z+d/2+.02);scene.add(light)}})
- const avatar=new THREE.Group();const body=new THREE.Mesh(new THREE.CapsuleGeometry(1,2.3,6,10),mat(0x55e4ff,.35,.32));body.position.y=2.2;avatar.add(body);const head=new THREE.Mesh(new THREE.SphereGeometry(.75,16,12),mat(0xba7b52));head.position.y=4.25;avatar.add(head);avatar.position.set(saved.x??0,0,saved.z??58);scene.add(avatar)
- const cars:THREE.Group[]=[];const specs:[number,'sedan'|'gt'|'supercar'|'suv'|'limousine'][]=[[0xe33d3d,'sedan'],[0x111318,'gt'],[0xf5f5f0,'supercar'],[0x275aa8,'suv'],[0xd4b24d,'gt'],[0x681b8f,'supercar'],[0x212121,'limousine'],[0x0f7c5f,'suv'],[0xb92c2c,'gt'],[0xcfcfd2,'sedan'],[0x102a58,'supercar'],[0x7f5a25,'gt']]
- specs.forEach((s,i)=>{const c=vehicle(s[0],s[1]);c.position.set(-118+i*21,.05,i%2?-55:45);scene.add(c);cars.push(c)})
- const npcs:THREE.Group[]=[];for(let i=0;i<18;i++){const n=person([0x4fe3ff,0xff6fae,0xf3c85b,0x76d98b,0xa68bff][i%5],[0x6f4028,0x925f3f,0xba7b52,0xd3a079][i%4]);const bx=-108+(i*27)%216,bz=-72+(i*19)%122;n.position.set(bx,0,bz);n.userData.baseX=bx;n.userData.baseZ=bz;scene.add(n);npcs.push(n)}
- const businessMarkers=new Map<string,THREE.Group>();BUSINESSES.forEach((b,i)=>{const g=new THREE.Group();const door=new THREE.Mesh(new THREE.BoxGeometry(3.2,5.2,.35),mat([0x4fe3ff,0xff6fae,0xffd75c,0x7ef29a][i%4],.25,.3));door.position.y=2.6;g.add(door);const halo=new THREE.Mesh(new THREE.TorusGeometry(2.4,.16,8,28),new THREE.MeshBasicMaterial({color:0xffffff}));halo.rotation.x=Math.PI/2;halo.position.y=.3;g.add(halo);g.position.set(b.x,0,b.z);scene.add(g);businessMarkers.set(b.id,g)})
- const boats:THREE.Group[]=[];[[0xffffff,'yacht'],[0xd83a3a,'sport'],[0x18355f,'sport'],[0xe5c54b,'yacht']].forEach((s:any[],i)=>{const b=boat(s[0],s[1]);b.position.set(-85+i*55,.12,87+i%2*8);scene.add(b);boats.push(b)})
- const animals:THREE.Group[]=[];[[0x8a5b35,1],[0x2c2d31,.85],[0xc99a68,.95],[0x6a4b2d,1.5],[0xe5d4b8,1.25],[0x4c3a29,1.7]].forEach((a,i)=>{const q=quadruped(a[0],a[1] as number);q.position.set(-90+i*33,0,62-(i%2)*14);scene.add(q);animals.push(q)})
- const birds:THREE.Mesh[]=[];for(let i=0;i<14;i++){const b=new THREE.Mesh(new THREE.ConeGeometry(.22,.65,4),mat(0xdce8ef));b.rotation.z=Math.PI/2;scene.add(b);birds.push(b)}
- for(let i=0;i<38;i++){const t=new THREE.Group();const tr=new THREE.Mesh(new THREE.CylinderGeometry(.3,.45,3,7),mat(0x69482f));tr.position.y=1.5;t.add(tr);const crown=new THREE.Mesh(new THREE.SphereGeometry(1.5,8,7),mat(0x2d7445));crown.position.y=3.8;t.add(crown);t.position.set(-118+(i*31)%236,0,-92+(i*17)%155);scene.add(t)}
- const beacons=new Map<string,THREE.Group>();MISSIONS.forEach(m=>{const g=new THREE.Group();const ring=new THREE.Mesh(new THREE.TorusGeometry(2.4,.22,10,40),new THREE.MeshBasicMaterial({color:0xffd75c}));ring.rotation.x=Math.PI/2;ring.position.y=.35;g.add(ring);const beam=new THREE.Mesh(new THREE.CylinderGeometry(.3,.85,11,14,1,true),new THREE.MeshBasicMaterial({color:0x55ddff,transparent:true,opacity:.18,side:THREE.DoubleSide}));beam.position.y=5.5;g.add(beam);g.position.set(m.x,0,m.z);scene.add(g);beacons.set(m.id,g)})
- const keys=new Set<string>();const kd=(e:KeyboardEvent)=>{const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift','e'].includes(k)){e.preventDefault();if(k==='e'){if(!e.repeat)action.current=true}else keys.add(k)}};const ku=(e:KeyboardEvent)=>keys.delete(e.key.toLowerCase());addEventListener('keydown',kd,{passive:false});addEventListener('keyup',ku)
- const resize=()=>{const w=root.clientWidth,h=Math.max(430,root.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)};const ro=new ResizeObserver(resize);ro.observe(root);resize();const clock=new THREE.Clock();let elapsed=0,raf=0,lastSave=0,activeCar=-1,carSpeed=0
- const animate=()=>{const dt=Math.min(.033,clock.getDelta());elapsed+=dt;let dx=0,dz=0;const p=input.current;if(keys.has('w')||keys.has('arrowup')||p.u)dz-=1;if(keys.has('s')||keys.has('arrowdown')||p.d)dz+=1;if(keys.has('a')||keys.has('arrowleft')||p.l)dx-=1;if(keys.has('d')||keys.has('arrowright')||p.r)dx+=1
- if(action.current){action.current=false;if(activeCar>=0){const c=cars[activeCar];avatar.visible=true;avatar.position.set(THREE.MathUtils.clamp(c.position.x+Math.cos(c.rotation.y)*4,-122,122),0,THREE.MathUtils.clamp(c.position.z-Math.sin(c.rotation.y)*4,-95,72));activeCar=-1;carSpeed=0;setIsDriving(false);setMsg('Exited vehicle • continue on foot or approach another original StreetVerse vehicle.')}else if(businessRef.current){const label=businessRef.current;businessRef.current=null;setBusiness(null);setMsg(`Exited ${label} • continue exploring StreetVerse.`)}else{let nearestBusinessIndex=-1,nearestBusinessD=7;BUSINESSES.forEach((b,i)=>{const d=Math.hypot(avatar.position.x-b.x,avatar.position.z-b.z);if(d<nearestBusinessD){nearestBusinessIndex=i;nearestBusinessD=d}});if(nearestBusinessIndex>=0){const selected=BUSINESSES[nearestBusinessIndex];businessRef.current=selected.label;setBusiness(selected.label);setMsg(`Entered ${selected.label} interaction hub • mission check-in and commerce context are active.`)}else{let nearestNpc=-1,nearestNpcD=5;npcs.forEach((n,i)=>{const d=Math.hypot(avatar.position.x-n.position.x,avatar.position.z-n.position.z);if(d<nearestNpcD){nearestNpc=i;nearestNpcD=d}});if(nearestNpc>=0){setMsg(`StreetVerse resident ${nearestNpc+1}: Welcome to the district. Missions, creator businesses and events are active around the city.`)}else{let nearest=-1,nearestD=8;cars.forEach((c,i)=>{const d=Math.hypot(avatar.position.x-c.position.x,avatar.position.z-c.position.z);if(d<nearestD){nearest=i;nearestD=d}});if(nearest>=0){activeCar=nearest;carSpeed=0;avatar.visible=false;avatar.position.copy(cars[nearest].position);setIsDriving(true);setMsg('Vehicle entered • steer with arrows/WASD • E or INTERACT button leaves the vehicle.')}else setMsg('Move closer to a business portal, resident, or vehicle to interact.')}}}}
- if(activeCar>=0){const c=cars[activeCar];const throttle=((keys.has('w')||keys.has('arrowup')||p.u)?1:0)-((keys.has('s')||keys.has('arrowdown')||p.d)?1:0);const steer=((keys.has('a')||keys.has('arrowleft')||p.l)?1:0)-((keys.has('d')||keys.has('arrowright')||p.r)?1:0);const target=throttle*(keys.has('shift')?42:30);carSpeed=THREE.MathUtils.lerp(carSpeed,target,Math.min(1,dt*(throttle?3.8:2.4)));if(Math.abs(carSpeed)<.05)carSpeed=0;if(steer&&Math.abs(carSpeed)>.4)c.rotation.y+=steer*dt*1.45*Math.sign(carSpeed);c.position.x=THREE.MathUtils.clamp(c.position.x+Math.cos(c.rotation.y)*carSpeed*dt,-122,122);c.position.z=THREE.MathUtils.clamp(c.position.z-Math.sin(c.rotation.y)*carSpeed*dt,-92,72);avatar.position.set(c.position.x,0,c.position.z);avatar.rotation.y=c.rotation.y}else if(!businessRef.current&&(dx||dz)){const len=Math.hypot(dx,dz)||1;const speed=(keys.has('shift')?30:18)*dt;avatar.position.x=THREE.MathUtils.clamp(avatar.position.x+dx/len*speed,-122,122);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z+dz/len*speed,-95,72);avatar.rotation.y=Math.atan2(dx,dz)}
- cars.forEach((c,i)=>{if(i===activeCar)return;const lane=i%2?45:-55;const dir=i%2?1:-1;c.position.x=dir*(-128+((elapsed*(11+i*.45)+i*19)%256));c.position.z=lane;c.rotation.y=dir>0?Math.PI/2:-Math.PI/2});npcs.forEach((n,i)=>{n.position.x=n.userData.baseX+Math.sin(elapsed*.38+i)*2.2;n.position.z=n.userData.baseZ+Math.cos(elapsed*.31+i*.7)*1.4;n.rotation.y=Math.sin(elapsed*.4+i)});businessMarkers.forEach(g=>{g.rotation.y+=dt*.25});boats.forEach((b,i)=>{b.position.x=-110+((elapsed*(3+i*.35)+i*48)%220);b.position.z=84+(i%2)*10;b.rotation.y=Math.PI/2});animals.forEach((a,i)=>{a.position.x+=Math.sin(elapsed*.5+i)*dt*.7;a.rotation.y=Math.sin(elapsed*.35+i)});birds.forEach((b,i)=>{const a=elapsed*.25+i*.45,r=32+(i%4)*7;b.position.set(Math.cos(a)*r,20+(i%3)*3,Math.sin(a)*r);b.rotation.y=-a})
- MISSIONS.forEach(m=>{const g=beacons.get(m.id);if(g)g.rotation.y+=dt;const d=Math.hypot(avatar.position.x-m.x,avatar.position.z-m.z);if(d<4&&!visited.includes(m.id)){const next=[...visited,m.id];setVisited(next);const receipt=appendStreetVerseRevenue({kind:m.id==='ads'?'holo_ad':m.id==='marina'?'boat_rental':m.id==='market'?'marketplace_sale':'mission_reward',amountCents:m.reward,currency:'HOLO',source:`streetverse:${m.id}`,metadata:{mission:m.label}});setSummary(getStreetVerseRevenueSummary());setMsg(`${m.label} complete • +${m.reward} local demo Holo Credits • ${receipt.status} receipt ${receipt.hash}`)}})
- const focus=activeCar>=0?cars[activeCar]:avatar;const follow=activeCar>=0?new THREE.Vector3(focus.position.x+16,focus.position.y+9,focus.position.z+18):new THREE.Vector3(avatar.position.x+12,avatar.position.y+11,avatar.position.z+16);camera.position.lerp(follow,.08);camera.lookAt(focus.position.x,activeCar>=0?1.6:2.2,focus.position.z);if(elapsed-lastSave>1.5){lastSave=elapsed;localStorage.setItem(SAVE,JSON.stringify({x:avatar.position.x,z:avatar.position.z,visited}))}renderer.render(scene,camera);raf=requestAnimationFrame(animate)};animate();return()=>{cancelAnimationFrame(raf);ro.disconnect();removeEventListener('keydown',kd);removeEventListener('keyup',ku);renderer.dispose();root.replaceChildren()}},[visited])
- const press=(k:keyof typeof input.current,v:boolean)=>()=>{input.current[k]=v}
- const releaseAll=()=>{input.current={u:false,d:false,l:false,r:false}}
- const triggerAction=()=>{action.current=true}
- return <div style={{position:'fixed',inset:0,zIndex:20000,background:'#020711',color:'#fff',fontFamily:'Inter,system-ui,sans-serif'}}><div ref={mount} style={{position:'absolute',inset:0}}/><div style={{position:'absolute',left:14,top:14,maxWidth:430,padding:'12px 14px',border:'1px solid #4fe3ff66',borderRadius:16,background:'#04101ddd',backdropFilter:'blur(10px)'}}><div style={{fontSize:11,fontWeight:900,letterSpacing:1.7,color:'#4fe3ff'}}>STREETVERSE • OMNI DISTRICT</div><div style={{fontSize:12,marginTop:7,lineHeight:1.4}}>{msg}</div><div style={{display:'flex',gap:12,marginTop:9,fontSize:11,flexWrap:'wrap'}}><b>{visited.length}/{MISSIONS.length} missions</b><span>{summary.events} local chain events</span><span>{summary.holoCredits} demo Holo Credits</span><span>{isDriving?'DRIVING':business?'IN BUSINESS':'ON FOOT'}</span></div><div style={{fontSize:10,opacity:.72,marginTop:6}}>Local demo credits are non-cash, non-payable test values until a server-authoritative reward is verified. Original/non-branded vehicles • moving residents/NPCs • business interaction portals • boats/yachts • animals • keyboard/touch controls.</div></div><button onClick={onClose} style={{position:'absolute',right:14,top:14,border:'1px solid #ffffff44',borderRadius:999,padding:'9px 13px',background:'#07101ddd',color:'#fff',fontWeight:800}}>EXIT</button>{business&&<div style={{position:'absolute',left:'50%',top:'50%',transform:'translate(-50%,-50%)',width:'min(88vw,420px)',padding:18,border:'1px solid #4fe3ff88',borderRadius:18,background:'#04101df2',boxShadow:'0 20px 80px #000c'}}><div style={{fontSize:11,fontWeight:950,letterSpacing:1.4,color:'#4fe3ff'}}>BUSINESS INTERACTION</div><h3 style={{margin:'8px 0 6px'}}>{business}</h3><div style={{fontSize:12,lineHeight:1.5,opacity:.86}}>You entered the first StreetVerse business interaction gate. Mission context and commerce discovery are active here. Full authored 3D interiors remain a separate rights/performance-tested asset gate.</div><button onClick={triggerAction} style={{marginTop:14,border:'1px solid #ffffff44',borderRadius:999,padding:'9px 13px',background:'#0a2234',color:'#fff',fontWeight:850}}>EXIT BUSINESS</button></div>}<div onPointerLeave={releaseAll} onPointerCancel={releaseAll} style={{position:'absolute',left:16,bottom:20,display:'grid',gridTemplateColumns:'52px 52px 52px',gridTemplateRows:'52px 52px',gap:7,userSelect:'none',touchAction:'none'}}><button onPointerDown={press('u',true)} onPointerUp={press('u',false)} onPointerCancel={press('u',false)} style={{gridColumn:2,gridRow:1,touchAction:'none'}}>▲</button><button onPointerDown={press('l',true)} onPointerUp={press('l',false)} onPointerCancel={press('l',false)} style={{gridColumn:1,gridRow:2,touchAction:'none'}}>◀</button><button onPointerDown={press('d',true)} onPointerUp={press('d',false)} onPointerCancel={press('d',false)} style={{gridColumn:2,gridRow:2,touchAction:'none'}}>▼</button><button onPointerDown={press('r',true)} onPointerUp={press('r',false)} onPointerCancel={press('r',false)} style={{gridColumn:3,gridRow:2,touchAction:'none'}}>▶</button></div><button onClick={triggerAction} style={{position:'absolute',right:18,bottom:126,border:'1px solid #4fe3ff88',borderRadius:999,padding:'12px 15px',background:'#052337dd',color:'#fff',fontWeight:900,touchAction:'manipulation'}}>{business?'EXIT BUSINESS':isDriving?'EXIT VEHICLE':'INTERACT / ENTER'}</button><div style={{position:'absolute',right:14,bottom:18,padding:'10px 12px',borderRadius:14,background:'#07101ddd',fontSize:10,lineHeight:1.5,maxWidth:270}}>Revenue lanes are modeled for missions • Holo Ads • marketplace • creator media • rentals • marina/boats • events • sponsorships. Real cash, payable earnings, and prize settlement remain server-verified and funding/provider-gated.</div></div>
+  const mount=useRef<HTMLDivElement|null>(null)
+  const input=useRef({u:false,d:false,l:false,r:false})
+  const action=useRef(false)
+  const businessRef=useRef<string|null>(null)
+  const [msg,setMsg]=useState('StreetVerse Omni District loaded. Residents and AI Spirit skins are active. Explore, drive and create a Reel.')
+  const [summary,setSummary]=useState(()=>getStreetVerseRevenueSummary())
+  const [visited,setVisited]=useState<string[]>(()=>load().visited||[])
+  const [isDriving,setIsDriving]=useState(false)
+  const [business,setBusiness]=useState<string|null>(null)
+
+  useEffect(()=>{
+    const root=mount.current;if(!root)return
+    const saved=load(),scene=new THREE.Scene();scene.background=new THREE.Color(0x07111d);scene.fog=new THREE.FogExp2(0x07111d,.0038)
+    const camera=new THREE.PerspectiveCamera(62,1,.1,900)
+    const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.shadowMap.enabled=true;renderer.outputColorSpace=THREE.SRGBColorSpace;root.appendChild(renderer.domElement)
+    scene.add(new THREE.HemisphereLight(0xa8ddff,0x15121b,2.7));const sun=new THREE.DirectionalLight(0xffddbd,3.2);sun.position.set(80,110,40);sun.castShadow=true;scene.add(sun)
+    const ground=new THREE.Mesh(new THREE.PlaneGeometry(260,220),mat(0x24351f,0,.95));ground.rotation.x=-Math.PI/2;scene.add(ground)
+    const water=new THREE.Mesh(new THREE.PlaneGeometry(260,52),new THREE.MeshStandardMaterial({color:0x0d5578,metalness:.2,roughness:.28,transparent:true,opacity:.93}));water.rotation.x=-Math.PI/2;water.position.set(0,.05,86);scene.add(water)
+    const road=mat(0x1d222a,0,.98),walk=mat(0x777a7d,0,.95)
+    for(const z of [-55,-5,45]){const r=new THREE.Mesh(new THREE.BoxGeometry(260,.1,15),road);r.position.set(0,.05,z);scene.add(r);for(const dz of [-9,9]){const s=new THREE.Mesh(new THREE.BoxGeometry(260,.18,3),walk);s.position.set(0,.11,z+dz);scene.add(s)}}
+    for(const x of [-65,-15,35,85]){const r=new THREE.Mesh(new THREE.BoxGeometry(15,.1,170),road);r.position.set(x,.05,5);scene.add(r)}
+    const buildings=[[-98,-72,22,28,20],[-98,-28,18,22,18],[-98,20,24,38,19],[-50,-72,19,24,18],[-50,-22,23,34,22],[-50,22,18,20,17],[5,-72,24,42,20],[5,-25,18,25,18],[5,22,22,36,20],[58,-72,20,30,19],[58,-25,22,44,20],[58,20,19,27,18],[105,-70,18,24,17],[105,-22,22,35,19],[105,20,20,31,18]]
+    buildings.forEach((b,i)=>{const [x,z,w,h,d]=b;const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat([0x293d52,0x49364f,0x36503c,0x56432f,0x2c4f59][i%5],.22,.62));m.position.set(x,h/2,z);m.castShadow=true;scene.add(m);for(let y=4;y<h-2;y+=4){const light=new THREE.Mesh(new THREE.PlaneGeometry(w*.62,.55),new THREE.MeshBasicMaterial({color:i%2?0xffd08a:0x65dcff}));light.position.set(x,y,z+d/2+.02);scene.add(light)}})
+
+    const avatar=person(0x55e4ff,0xba7b52);avatar.scale.setScalar(1.25);avatar.position.set(saved.x??0,0,saved.z??58);scene.add(avatar)
+    const cars:THREE.Group[]=[];const specs:[number,'sedan'|'gt'|'supercar'|'suv'|'limousine'][]=[[0xe33d3d,'sedan'],[0x111318,'gt'],[0xf5f5f0,'supercar'],[0x275aa8,'suv'],[0xd4b24d,'gt'],[0x681b8f,'supercar'],[0x212121,'limousine'],[0x0f7c5f,'suv'],[0xb92c2c,'gt'],[0xcfcfd2,'sedan'],[0x102a58,'supercar'],[0x7f5a25,'gt']]
+    specs.forEach((s,i)=>{const c=vehicle(s[0],s[1]);c.position.set(-118+i*21,.05,i%2?-55:45);scene.add(c);cars.push(c)})
+
+    const npcs:THREE.Group[]=[]
+    for(let i=0;i<18;i++){
+      const n=person([0x4fe3ff,0xff6fae,0xf3c85b,0x76d98b,0xa68bff][i%5],[0x6f4028,0x925f3f,0xba7b52,0xd3a079][i%4])
+      const near=NPC_NEAR_SPAWN[i]
+      const bx=near?.[0]??(-108+(i*27)%216),bz=near?.[1]??(-72+(i*19)%122)
+      n.position.set(bx,0,bz);n.userData.baseX=bx;n.userData.baseZ=bz;scene.add(n);npcs.push(n)
+    }
+    const spirits:THREE.Group[]=[]
+    for(let i=0;i<6;i++){const s=aiSpirit(i);const a=i/6*Math.PI*2;s.position.set(Math.cos(a)*18,0,58+Math.sin(a)*12);s.userData.baseX=s.position.x;s.userData.baseZ=s.position.z;scene.add(s);spirits.push(s)}
+
+    const businessMarkers=new Map<string,THREE.Group>();BUSINESSES.forEach((b,i)=>{const g=new THREE.Group();const door=new THREE.Mesh(new THREE.BoxGeometry(3.2,5.2,.35),mat([0x4fe3ff,0xff6fae,0xffd75c,0x7ef29a][i%4],.25,.3));door.position.y=2.6;g.add(door);const halo=new THREE.Mesh(new THREE.TorusGeometry(2.4,.16,8,28),new THREE.MeshBasicMaterial({color:0xffffff}));halo.rotation.x=Math.PI/2;halo.position.y=.3;g.add(halo);g.position.set(b.x,0,b.z);scene.add(g);businessMarkers.set(b.id,g)})
+    const boats:THREE.Group[]=[];[[0xffffff,'yacht'],[0xd83a3a,'sport'],[0x18355f,'sport'],[0xe5c54b,'yacht']].forEach((s:any[],i)=>{const b=boat(s[0],s[1]);b.position.set(-85+i*55,.12,87+i%2*8);scene.add(b);boats.push(b)})
+    const animals:THREE.Group[]=[];[[0x8a5b35,1],[0x2c2d31,.85],[0xc99a68,.95],[0x6a4b2d,1.5],[0xe5d4b8,1.25],[0x4c3a29,1.7]].forEach((a,i)=>{const q=quadruped(a[0],a[1] as number);q.position.set(-90+i*33,0,62-(i%2)*14);scene.add(q);animals.push(q)})
+    const birds:THREE.Mesh[]=[];for(let i=0;i<14;i++){const b=new THREE.Mesh(new THREE.ConeGeometry(.22,.65,4),mat(0xdce8ef));b.rotation.z=Math.PI/2;scene.add(b);birds.push(b)}
+    for(let i=0;i<38;i++){const t=new THREE.Group();const tr=new THREE.Mesh(new THREE.CylinderGeometry(.3,.45,3,7),mat(0x69482f));tr.position.y=1.5;t.add(tr);const crown=new THREE.Mesh(new THREE.SphereGeometry(1.5,8,7),mat(0x2d7445));crown.position.y=3.8;t.add(crown);t.position.set(-118+(i*31)%236,0,-92+(i*17)%155);scene.add(t)}
+    const beacons=new Map<string,THREE.Group>();MISSIONS.forEach(m=>{const g=new THREE.Group();const ring=new THREE.Mesh(new THREE.TorusGeometry(2.4,.22,10,40),new THREE.MeshBasicMaterial({color:0xffd75c}));ring.rotation.x=Math.PI/2;ring.position.y=.35;g.add(ring);const beam=new THREE.Mesh(new THREE.CylinderGeometry(.3,.85,11,14,1,true),new THREE.MeshBasicMaterial({color:0x55ddff,transparent:true,opacity:.18,side:THREE.DoubleSide}));beam.position.y=5.5;g.add(beam);g.position.set(m.x,0,m.z);scene.add(g);beacons.set(m.id,g)})
+
+    const keys=new Set<string>();const kd=(e:KeyboardEvent)=>{const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift','e'].includes(k)){e.preventDefault();if(k==='e'){if(!e.repeat)action.current=true}else keys.add(k)}};const ku=(e:KeyboardEvent)=>keys.delete(e.key.toLowerCase());addEventListener('keydown',kd,{passive:false});addEventListener('keyup',ku)
+    const resize=()=>{const w=root.clientWidth,h=Math.max(430,root.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)};const ro=new ResizeObserver(resize);ro.observe(root);resize()
+    const clock=new THREE.Clock();let elapsed=0,raf=0,lastSave=0,activeCar=-1,carSpeed=0
+    const animate=()=>{
+      const dt=Math.min(.033,clock.getDelta());elapsed+=dt;let dx=0,dz=0;const p=input.current
+      if(keys.has('w')||keys.has('arrowup')||p.u)dz-=1;if(keys.has('s')||keys.has('arrowdown')||p.d)dz+=1;if(keys.has('a')||keys.has('arrowleft')||p.l)dx-=1;if(keys.has('d')||keys.has('arrowright')||p.r)dx+=1
+      if(action.current){
+        action.current=false
+        if(activeCar>=0){const c=cars[activeCar];avatar.visible=true;avatar.position.set(THREE.MathUtils.clamp(c.position.x+Math.cos(c.rotation.y)*4,-122,122),0,THREE.MathUtils.clamp(c.position.z-Math.sin(c.rotation.y)*4,-95,72));activeCar=-1;carSpeed=0;setIsDriving(false);setMsg('Exited vehicle • residents and AI Spirits remain active nearby.')}
+        else if(businessRef.current){const label=businessRef.current;businessRef.current=null;setBusiness(null);setMsg(`Exited ${label} • continue exploring StreetVerse.`)}
+        else{
+          let nearestBusinessIndex=-1,nearestBusinessD=7;BUSINESSES.forEach((b,i)=>{const d=Math.hypot(avatar.position.x-b.x,avatar.position.z-b.z);if(d<nearestBusinessD){nearestBusinessIndex=i;nearestBusinessD=d}})
+          if(nearestBusinessIndex>=0){const selected=BUSINESSES[nearestBusinessIndex];businessRef.current=selected.label;setBusiness(selected.label);setMsg(`Entered ${selected.label} interaction hub.`)}
+          else{
+            let nearestNpc=-1,nearestNpcD=5;npcs.forEach((n,i)=>{const d=Math.hypot(avatar.position.x-n.position.x,avatar.position.z-n.position.z);if(d<nearestNpcD){nearestNpc=i;nearestNpcD=d}})
+            if(nearestNpc>=0)setMsg(`StreetVerse resident ${nearestNpc+1}: Welcome. People, missions, creator businesses and events are active.`)
+            else{
+              let nearestSpirit=-1,nearestSpiritD=5;spirits.forEach((s,i)=>{const d=Math.hypot(avatar.position.x-s.position.x,avatar.position.z-s.position.z);if(d<nearestSpiritD){nearestSpirit=i;nearestSpiritD=d}})
+              if(nearestSpirit>=0)setMsg(`AI Spirit ${nearestSpirit+1}: skin online • holographic guide ready.`)
+              else{let nearest=-1,nearestD=8;cars.forEach((c,i)=>{const d=Math.hypot(avatar.position.x-c.position.x,avatar.position.z-c.position.z);if(d<nearestD){nearest=i;nearestD=d}});if(nearest>=0){activeCar=nearest;carSpeed=0;avatar.visible=false;avatar.position.copy(cars[nearest].position);setIsDriving(true);setMsg('Vehicle entered • cars now face their actual direction of travel.')}else setMsg('Move closer to a resident, AI Spirit, business portal, or vehicle to interact.')}
+            }
+          }
+        }
+      }
+      if(activeCar>=0){const c=cars[activeCar];const throttle=((keys.has('w')||keys.has('arrowup')||p.u)?1:0)-((keys.has('s')||keys.has('arrowdown')||p.d)?1:0);const steer=((keys.has('a')||keys.has('arrowleft')||p.l)?1:0)-((keys.has('d')||keys.has('arrowright')||p.r)?1:0);const target=throttle*(keys.has('shift')?42:30);carSpeed=THREE.MathUtils.lerp(carSpeed,target,Math.min(1,dt*(throttle?3.8:2.4)));if(Math.abs(carSpeed)<.05)carSpeed=0;if(steer&&Math.abs(carSpeed)>.4)c.rotation.y+=steer*dt*1.45*Math.sign(carSpeed);c.position.x=THREE.MathUtils.clamp(c.position.x+Math.cos(c.rotation.y)*carSpeed*dt,-122,122);c.position.z=THREE.MathUtils.clamp(c.position.z-Math.sin(c.rotation.y)*carSpeed*dt,-92,72);avatar.position.set(c.position.x,0,c.position.z);avatar.rotation.y=c.rotation.y}
+      else if(!businessRef.current&&(dx||dz)){const len=Math.hypot(dx,dz)||1;const speed=(keys.has('shift')?30:18)*dt;avatar.position.x=THREE.MathUtils.clamp(avatar.position.x+dx/len*speed,-122,122);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z+dz/len*speed,-95,72);avatar.rotation.y=Math.atan2(dx,dz)}
+
+      cars.forEach((c,i)=>{if(i===activeCar)return;const lane=i%2?45:-55;const dir=i%2?1:-1;c.position.x=dir*(-128+((elapsed*(11+i*.45)+i*19)%256));c.position.z=lane;c.rotation.y=dir>0?0:Math.PI})
+      npcs.forEach((n,i)=>{n.position.x=n.userData.baseX+Math.sin(elapsed*.38+i)*2.2;n.position.z=n.userData.baseZ+Math.cos(elapsed*.31+i*.7)*1.4;n.rotation.y=Math.sin(elapsed*.4+i)})
+      spirits.forEach((s,i)=>{s.position.x=s.userData.baseX+Math.sin(elapsed*.5+i)*1.4;s.position.z=s.userData.baseZ+Math.cos(elapsed*.4+i)*1.2;s.position.y=.12+Math.sin(elapsed*1.4+i)*.12;s.rotation.y+=dt*.35})
+      businessMarkers.forEach(g=>{g.rotation.y+=dt*.25});boats.forEach((b,i)=>{b.position.x=-110+((elapsed*(3+i*.35)+i*48)%220);b.position.z=84+(i%2)*10;b.rotation.y=0});animals.forEach((a,i)=>{a.position.x+=Math.sin(elapsed*.5+i)*dt*.7;a.rotation.y=Math.sin(elapsed*.35+i)});birds.forEach((b,i)=>{const a=elapsed*.25+i*.45,r=32+(i%4)*7;b.position.set(Math.cos(a)*r,20+(i%3)*3,Math.sin(a)*r);b.rotation.y=-a})
+      MISSIONS.forEach(m=>{const g=beacons.get(m.id);if(g)g.rotation.y+=dt;const d=Math.hypot(avatar.position.x-m.x,avatar.position.z-m.z);if(d<4&&!visited.includes(m.id)){const next=[...visited,m.id];setVisited(next);const receipt=appendStreetVerseRevenue({kind:m.id==='ads'?'holo_ad':m.id==='marina'?'boat_rental':m.id==='market'?'marketplace_sale':'mission_reward',amountCents:m.reward,currency:'HOLO',source:`streetverse:${m.id}`,metadata:{mission:m.label}});setSummary(getStreetVerseRevenueSummary());setMsg(`${m.label} complete • +${m.reward} local demo Holo Credits • ${receipt.status} receipt ${receipt.hash}`)}})
+      const focus=activeCar>=0?cars[activeCar]:avatar;const follow=activeCar>=0?new THREE.Vector3(focus.position.x+16,focus.position.y+9,focus.position.z+18):new THREE.Vector3(avatar.position.x+11,avatar.position.y+8.5,avatar.position.z+14);camera.position.lerp(follow,.08);camera.lookAt(focus.position.x,activeCar>=0?1.6:2.3,focus.position.z)
+      if(elapsed-lastSave>1.5){lastSave=elapsed;localStorage.setItem(SAVE,JSON.stringify({x:avatar.position.x,z:avatar.position.z,visited}))}
+      renderer.render(scene,camera);raf=requestAnimationFrame(animate)
+    }
+    animate()
+    return()=>{cancelAnimationFrame(raf);ro.disconnect();removeEventListener('keydown',kd);removeEventListener('keyup',ku);renderer.dispose();root.replaceChildren()}
+  },[visited])
+
+  const press=(k:keyof typeof input.current,v:boolean)=>()=>{input.current[k]=v}
+  const releaseAll=()=>{input.current={u:false,d:false,l:false,r:false}}
+  const triggerAction=()=>{action.current=true}
+  const openReel=()=>{
+    onClose()
+    setTimeout(()=>window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'streetverse',title:'StreetVerse Highlight',caption:'Captured in StreetVerse • #TRYAMM #StreetVerse'}})),0)
+  }
+
+  return <div style={{position:'fixed',inset:0,zIndex:20000,background:'#020711',color:'#fff',fontFamily:'Inter,system-ui,sans-serif'}}>
+    <div ref={mount} style={{position:'absolute',inset:0}}/>
+    <div style={{position:'absolute',left:14,top:14,maxWidth:430,padding:'12px 14px',border:'1px solid #4fe3ff66',borderRadius:16,background:'#04101ddd',backdropFilter:'blur(10px)'}}>
+      <div style={{fontSize:11,fontWeight:900,letterSpacing:1.7,color:'#4fe3ff'}}>STREETVERSE • OMNI DISTRICT</div>
+      <div style={{fontSize:12,marginTop:7,lineHeight:1.4}}>{msg}</div>
+      <div style={{display:'flex',gap:10,marginTop:9,fontSize:11,flexWrap:'wrap'}}><b>{visited.length}/{MISSIONS.length} missions</b><span>18 residents</span><span>6 AI Spirits</span><span>{summary.holoCredits} demo Holo Credits</span><span>{isDriving?'DRIVING':business?'IN BUSINESS':'ON FOOT'}</span></div>
+      <div style={{fontSize:10,opacity:.72,marginTop:6}}>Cars aligned to travel direction • residents materialized near spawn • AI Spirit skins active • Reel Creator exposed on mobile.</div>
+    </div>
+    <button onClick={onClose} style={{position:'absolute',right:14,top:14,border:'1px solid #ffffff44',borderRadius:999,padding:'9px 13px',background:'#07101ddd',color:'#fff',fontWeight:800}}>EXIT</button>
+    <button onClick={openReel} aria-label="Create StreetVerse Reel" style={{position:'absolute',right:14,top:62,border:'1px solid #ffd75c99',borderRadius:999,padding:'11px 15px',background:'#21170ae8',color:'#ffe08a',fontWeight:950,boxShadow:'0 10px 30px #0009'}}>🎥 REEL</button>
+    {business&&<div style={{position:'absolute',left:'50%',top:'50%',transform:'translate(-50%,-50%)',width:'min(88vw,420px)',padding:18,border:'1px solid #4fe3ff88',borderRadius:18,background:'#04101df2',boxShadow:'0 20px 80px #000c'}}><div style={{fontSize:11,fontWeight:950,letterSpacing:1.4,color:'#4fe3ff'}}>BUSINESS INTERACTION</div><h3 style={{margin:'8px 0 6px'}}>{business}</h3><div style={{fontSize:12,lineHeight:1.5,opacity:.86}}>Mission context and commerce discovery are active here.</div><button onClick={triggerAction} style={{marginTop:14,border:'1px solid #ffffff44',borderRadius:999,padding:'9px 13px',background:'#0a2234',color:'#fff',fontWeight:850}}>EXIT BUSINESS</button></div>}
+    <div onPointerLeave={releaseAll} onPointerCancel={releaseAll} style={{position:'absolute',left:16,bottom:20,display:'grid',gridTemplateColumns:'52px 52px 52px',gridTemplateRows:'52px 52px',gap:7,userSelect:'none',touchAction:'none'}}>
+      <button onPointerDown={press('u',true)} onPointerUp={press('u',false)} onPointerCancel={press('u',false)} style={{gridColumn:2,gridRow:1,touchAction:'none'}}>▲</button>
+      <button onPointerDown={press('l',true)} onPointerUp={press('l',false)} onPointerCancel={press('l',false)} style={{gridColumn:1,gridRow:2,touchAction:'none'}}>◀</button>
+      <button onPointerDown={press('d',true)} onPointerUp={press('d',false)} onPointerCancel={press('d',false)} style={{gridColumn:2,gridRow:2,touchAction:'none'}}>▼</button>
+      <button onPointerDown={press('r',true)} onPointerUp={press('r',false)} onPointerCancel={press('r',false)} style={{gridColumn:3,gridRow:2,touchAction:'none'}}>▶</button>
+    </div>
+    <button onClick={triggerAction} style={{position:'absolute',right:18,bottom:126,border:'1px solid #4fe3ff88',borderRadius:999,padding:'12px 15px',background:'#052337dd',color:'#fff',fontWeight:900,touchAction:'manipulation'}}>{business?'EXIT BUSINESS':isDriving?'EXIT VEHICLE':'INTERACT / ENTER'}</button>
+    <div style={{position:'absolute',right:14,bottom:18,padding:'10px 12px',borderRadius:14,background:'#07101ddd',fontSize:10,lineHeight:1.5,maxWidth:270}}>On iPhone: tap 🎥 REEL, then use Control Center Screen Recording if direct browser capture is unavailable; import the clip into Reel Composer, edit, render, save or publish.</div>
+  </div>
 }
