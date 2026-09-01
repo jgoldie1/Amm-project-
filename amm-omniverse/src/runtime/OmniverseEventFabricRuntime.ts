@@ -1,4 +1,5 @@
 import { installBiometricAvatarPrivacyRuntime } from './BiometricAvatarPrivacyRuntime'
+import { installBennyConstructHolographicOverlay } from './BennyConstructHolographicOverlay'
 
 export type OmniverseEventChannel='game'|'mission'|'live'|'reel'|'creator'|'ads'|'marketplace'|'ledger'|'broadcast'
 
@@ -98,6 +99,7 @@ export function installOmniverseEventFabricRuntime(){
   if(installed||typeof window==='undefined')return
   installed=true
   installBiometricAvatarPrivacyRuntime()
+  installBennyConstructHolographicOverlay()
   queueMicrotask(()=>publish(readState()))
   window.addEventListener('tryamm:omniverse-submit',(event:Event)=>{
     const detail=(event as CustomEvent<Partial<OmniverseEventEnvelope>&Pick<OmniverseEventEnvelope,'type'|'title'>>).detail
