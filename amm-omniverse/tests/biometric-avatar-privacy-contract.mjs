@@ -4,7 +4,7 @@ const privacy=fs.readFileSync(new URL('../src/runtime/BiometricAvatarPrivacyRunt
 const mesh=fs.readFileSync(new URL('../src/runtime/AvatarMultiViewMeshPipeline.ts',import.meta.url),'utf8')
 const avatar=fs.readFileSync(new URL('../src/game/avatar/AvatarSystem.ts',import.meta.url),'utf8')
 
-for(const token of ['identityRecognition:false','identityMatching:false','fingerprintCollection:false','emotionInference:false','protectedAttributeInference:false','sellOrTradeBiometrics:false','modelTrainingUse:false','session-only','requestAvatarBiometricDeletion']){
+for(const token of ['identityRecognition:false','identityMatching:false','fingerprintCollection:false','emotionInference:false','protectedAttributeInference:false','sellOrTradeBiometrics:false','modelTrainingUse:false','session-only','requestAvatarBiometricDeletion','cameraVideoRetention:\'none-after-processing\'','cameraRecording:false','cameraServerUpload:false','cameraFrameArchive:false','completeEphemeralAvatarVideoProcessing','rawFrameRetained:false','recordingRetained:false','serverCopyRetained:false']){
   if(!privacy.includes(token))throw new Error(`Biometric avatar privacy contract missing ${token}`)
 }
 for(const token of ['CONSENT GATE','FRONT CAPTURE REQUIRED; SIDE VIEWS RECOMMENDED; BACK OPTIONAL','NON-IDENTITY GEOMETRY FIT','OPTIONAL REAR-HEAD SYNTHESIS FROM BASE MESH + HAIRSTYLE','HUMANOID AUTO-RIG','FACIAL BLENDSHAPE FIT','DELETE RAW CAPTURES OR EXPLICIT SAVE','localOnly:true','neutral-hairstyle-template','side-view-assisted']){
