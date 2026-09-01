@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { replacePrimitiveWithStreetVerseAsset,preloadStreetVerseAssets } from '../services/streetverseAssetLoader'
+import { applyHeroAvatarMorphProfile,loadHeroAvatarMorphProfile } from './StreetVerseHeroAvatarMorphRuntime'
 
 export const STREETVERSE_CHARACTER_PACK={
  hero:{id:'player-hero-v1',fallbackId:'player-default',quality:'hero' as const},
@@ -16,9 +17,13 @@ export async function preloadStreetVerseCharacterPack(){
  await preloadStreetVerseAssets(ids)
 }
 
-export async function materializeStreetVerseCharacter(options:{assetId:string;fallback:THREE.Object3D;scene:THREE.Scene;position?:THREE.Vector3;rotationY?:number;scale?:number}){
- // Rights-gated GLB/glTF replacement. If the file is absent, invalid or uncleared, the procedural body stays live.
- return replacePrimitiveWithStreetVerseAsset({...options,id:options.assetId,requireClearance:true})
+export async function materializeStreetVerseCharacter(options:{assetId:string;fallback:THREE.Object3D;scene:THREE.Scene;position?:THREE.Vector3;rotationY?:number;scale?:number;applySavedHeroMorph?:boolean}){
+ return replacePrimitiveWithStreetVerseAsset({
+  ...options,
+  id:options.assetId,
+  requireClearance:true,
+  transformLoadedModel:options.applySavedHeroMorph?model=>{applyHeroAvatarMorphProfile(model,loadHeroAvatarMorphProfile())}:undefined,
+ })
 }
 
 export function requestCharacterMaterialization(detail:{assetId:string;role:'player'|'resident'|'benny';quality:'hero'|'premium';fallbackId?:string}){
