@@ -13,9 +13,9 @@ assert.match(vite,/chunkSizeWarningLimit:\s*600/,'Chunk warning budget must rema
 for(const chunk of ['app-runtime','app-data','vendor-react','vendor-three','vendor-supabase','vendor-livekit','vendor-media','vendor-ai']){
   assert.ok(vite.includes(chunk),`Vite bundle strategy missing ${chunk}`)
 }
-assert.match(main,/lazy\(\(\)=>import\('\.\/components\/StreetVerse3D'\)\)/,'StreetVerse3D must be route-lazy')
+assert.match(main,/lazy\(\(\)=>import\('\.\/components\/StreetVerseLivingWorld'\)\)/,'StreetVerseLivingWorld must be route-lazy')
 assert.match(main,/lazy\(\(\)=>import\('\.\/components\/MeetTheStubbsWorldDistrict'\)\)/,'MeetTheStubbs district must be route-lazy')
 assert.ok(!live.startsWith("import { Room, RoomEvent, Track } from 'livekit-client'"),'LiveKit must not be eagerly imported into startup bundle')
 assert.match(live,/import\('livekit-client'\)/,'LiveKit must load only when a room connection is requested')
 
-console.log('Performance release contract OK: Node 24, reviewed scripts, route lazy-loading and bundle budgets are locked.')
+console.log('Performance release contract OK: Node 24, reviewed scripts, canonical Living World route lazy-loading and bundle budgets are locked.')
