@@ -33,6 +33,7 @@ export async function replacePrimitiveWithStreetVerseAsset(options:{
   rotationY?:number
   scale?:number
   requireClearance?:boolean
+  transformLoadedModel?:(model:THREE.Group)=>void|Promise<void>
 }){
   const asset=getStreetVerseAsset(options.id)
   if(!asset)return false
@@ -48,6 +49,7 @@ export async function replacePrimitiveWithStreetVerseAsset(options:{
   model.traverse(node=>{
     if(node instanceof THREE.Mesh){node.castShadow=true;node.receiveShadow=true}
   })
+  if(options.transformLoadedModel)await options.transformLoadedModel(model)
   options.scene.add(model)
   options.scene.remove(options.fallback)
   return true
