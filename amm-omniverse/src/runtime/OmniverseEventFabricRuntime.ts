@@ -1,3 +1,5 @@
+import { installBiometricAvatarPrivacyRuntime } from './BiometricAvatarPrivacyRuntime'
+
 export type OmniverseEventChannel='game'|'mission'|'live'|'reel'|'creator'|'ads'|'marketplace'|'ledger'|'broadcast'
 
 export type OmniverseEventEnvelope={
@@ -95,6 +97,7 @@ export function submitOmniverseEvent(input:Partial<OmniverseEventEnvelope>&Pick<
 export function installOmniverseEventFabricRuntime(){
   if(installed||typeof window==='undefined')return
   installed=true
+  installBiometricAvatarPrivacyRuntime()
   queueMicrotask(()=>publish(readState()))
   window.addEventListener('tryamm:omniverse-submit',(event:Event)=>{
     const detail=(event as CustomEvent<Partial<OmniverseEventEnvelope>&Pick<OmniverseEventEnvelope,'type'|'title'>>).detail
