@@ -43,6 +43,7 @@ const QuantumLagBuster = lazy(() => import('./components/QuantumLagBuster'))
 const QuantumBeatCenter = lazy(() => import('./components/QuantumBeatCenter'))
 const OTTIsaiahTV = lazy(() => import('./components/OTTIsaiahTV'))
 const PoyoAIStudio = lazy(() => import('./components/PoyoAIStudio'))
+const PropertyVerseCenter = lazy(() => import('./components/PropertyVerseCenter'))
 
 export default function App() {
   const screen = useGameStore(s => s.screen)
@@ -75,6 +76,7 @@ export default function App() {
   const [showQuantumZoom, setShowQuantumZoom] = useState(false)
   const [showNextDevelopment, setShowNextDevelopment] = useState(false)
   const [showQuantumTag, setShowQuantumTag] = useState(false)
+  const [showPropertyVerse, setShowPropertyVerse] = useState(false)
   const [showNexus, setShowNexus] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
@@ -84,6 +86,8 @@ export default function App() {
   ;(window as any).__showProAudio = () => setShowProAudio(true)
   ;(window as any).__showOmniverse = () => setShowOmniverse(true)
   ;(window as any).__showAdvancedWorlds = () => setShowAdvanced(true)
+  ;(window as any).__showSpaceVerse = () => setShowAdvanced(true)
+  ;(window as any).__showPropertyVerse = () => setShowPropertyVerse(true)
   ;(window as any).__showKingdomsPress = () => setShowPress(true)
   ;(window as any).__showImmersiveWorlds = () => setShowImmersive(true)
   ;(window as any).__showAICafe = () => setShowCafe(true)
@@ -121,13 +125,14 @@ export default function App() {
     ['📱','HOLO FON',()=>setShowConnect(true),'BETA'],
     ['✉','QUANTUM EMAIL',()=>setShowConnect(true),'BETA'],
     ['◉','OMNIVERSE',()=>setShowOmniverse(true),'BETA'],
+    ['🏠','PROPERTYVERSE',()=>setShowPropertyVerse(true),'BETA'],
     ['◎','HOLO CORE',()=>setShowHoloCore(true),'BETA'],
     ['✦','HOLO SERVICES',()=>setShowHoloServices(true),'BETA'],
     ['⌚','OMNIWEAR',()=>setShowOmniWear(true),'BETA'],
     ['☕','AI CAFÉ',()=>setShowCafe(true),'BETA'],
     ['🎓','SCHOOL NETWORK',()=>setShowSchoolNetwork(true),'BETA'],
-    ['◈','IMMERSIVE WORLD',()=>setShowImmersive(true),'BETA'],
-    ['SPACE','TIME • LIFE',()=>setShowAdvanced(true),'BETA'],
+    ['◈','MY WORLD / IMMERSIVE',()=>setShowImmersive(true),'BETA'],
+    ['SPACE','SPACEVERSE • TIME',()=>setShowAdvanced(true),'BETA'],
     ['🔭','QUANTUM ZOOM',()=>setShowQuantumZoom(true),'BETA'],
     ['ROAD','NEXT BUILD',()=>setShowNextDevelopment(true),'BETA'],
     ['📚','KINGDOMS PRESS',()=>setShowPress(true),'BETA'],
@@ -181,6 +186,7 @@ export default function App() {
         {showNextDevelopment && <NextDevelopmentTargetCenter onClose={() => setShowNextDevelopment(false)} />}
         {showQuantumTag && <QuantumTagArena onClose={() => setShowQuantumTag(false)} />}
         {showOmniverse && <OmniverseCommandCenter onClose={() => setShowOmniverse(false)} />}
+        {showPropertyVerse && <PropertyVerseCenter onClose={() => setShowPropertyVerse(false)} />}
         {showHoloCore && <HoloCoreCenter onClose={() => setShowHoloCore(false)} />}
         {showHoloServices && <HoloServicesHub onClose={() => setShowHoloServices(false)} />}
         {showOmniWear && <OmniWearCenter onClose={() => setShowOmniWear(false)} />}
