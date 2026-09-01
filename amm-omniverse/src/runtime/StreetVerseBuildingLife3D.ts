@@ -63,7 +63,7 @@ function makeElevator(x:number,z:number,w:number,h:number,d:number,index:number)
 }
 
 function emit(kind:'window'|'elevator',x:number,z:number,detail:Record<string,unknown>={}){
-  const level=kind==='window'?.055:.075
+  const level=kind==='window' ? .055 : .075
   const eventName=kind==='window'?'tryamm:world-sound':'tryamm:elevator-move'
   window.dispatchEvent(new CustomEvent(eventName,{detail:{kind:kind==='window'?'window':'elevator',x,z,level,...detail}}))
 }
