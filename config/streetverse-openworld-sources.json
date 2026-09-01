@@ -1,0 +1,45 @@
+{
+  "purpose": "Curated external open-world references for StreetVerse. No source is copied merely because it is public; reuse requires a compatible license and architecture review.",
+  "sources": [
+    {
+      "name": "Gta-Clone",
+      "repository": "https://github.com/Faizankhan17623/Gta-Clone.git",
+      "stack": "JavaScript/Three.js/WebGL",
+      "licenseStatus": "NO_LICENSE_DETECTED",
+      "integrationMode": "reference-only",
+      "candidateSystems": ["traffic", "vehicles", "helicopters", "wanted-level AI", "police chase AI", "day-night cycle", "procedural audio"]
+    },
+    {
+      "name": "GTAVClone",
+      "repository": "https://github.com/SERAP-KEREM/GTAVClone.git",
+      "stack": "C#/Unity",
+      "licenseStatus": "NO_LICENSE_DETECTED",
+      "integrationMode": "reference-only",
+      "candidateSystems": ["character controller", "vehicle controller", "NPC AI", "mission structure", "inventory", "save-load"]
+    },
+    {
+      "name": "Defy",
+      "repository": "https://github.com/openfw-game/defy.git",
+      "stack": "GDScript/Godot",
+      "licenseStatus": "MIT",
+      "integrationMode": "licensed-reference-and-port",
+      "candidateSystems": ["open-world architecture", "modularity", "mission patterns", "world interaction patterns"]
+    },
+    {
+      "name": "ZrnTheftAuto",
+      "repository": "https://github.com/Zero-One101/ZrnTheftAuto.git",
+      "stack": "C++/Unreal Engine",
+      "licenseStatus": "MIT",
+      "integrationMode": "licensed-reference-and-port",
+      "candidateSystems": ["online-world patterns", "mission flow", "multiplayer gameplay patterns"]
+    },
+    {
+      "name": "open-world",
+      "repository": "https://github.com/Glavin001/open-world.git",
+      "stack": "JavaScript",
+      "licenseStatus": "NO_LICENSE_DETECTED",
+      "integrationMode": "reference-only",
+      "candidateSystems": ["OpenStreetMap world generation", "multiplayer world concepts", "open-data city generation"]
+    }
+  ]
+}
