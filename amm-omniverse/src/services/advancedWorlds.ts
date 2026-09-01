@@ -62,6 +62,8 @@ export async function startChronoRun(scenarioId:string) {
   const id=await userId()
   const {data,error}=await sb().from('chrono_runs').insert({user_id:id,scenario_id:scenarioId,status:'active',state:{checkpoint:0}}).select('*,chrono_scenarios(*)').single()
   if(error) throw error
+  const scenario=(data as any)?.chrono_scenarios||{}
+  if(typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:chrono-run-started',{detail:{runId:(data as any)?.id,scenarioId,scenario,slug:scenario.slug,name:scenario.name,era:scenario.era,scenarioType:scenario.scenario_type,evidenceLevel:scenario.evidence_level,description:scenario.description,checkpoint:0,returnPoint:'advanced-worlds'}}))
   return data
 }
 
