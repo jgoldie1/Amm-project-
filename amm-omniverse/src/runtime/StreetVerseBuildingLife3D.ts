@@ -23,14 +23,14 @@ function makeWindow(x:number,z:number,w:number,h:number,d:number,index:number){
   const floors=Math.max(2,Math.floor((h-5)/5.5))
   const cols=Math.max(2,Math.min(4,Math.floor(w/5)))
   for(let fy=0;fy<floors;fy++)for(let cx=0;cx<cols;cx++){
-    if((index+fy+cx)%2)return
+    if((index+fy+cx)%2)continue
     const px=x+(cx-(cols-1)/2)*3.15
     const py=5+fy*5.4
     const frame=new THREE.Mesh(new THREE.BoxGeometry(2.05,2.25,.18),new THREE.MeshBasicMaterial({color:0x162231,transparent:true,opacity:.82,depthWrite:false}))
     frame.position.set(px,py,z+d/2+.13)
     scene.add(frame)
-    const mat=new THREE.MeshBasicMaterial({color:(index+cx)%2?0xffc56e:0x68dfff,transparent:true,opacity:.72,side:THREE.DoubleSide,depthWrite:false,toneMapped:false})
-    const panel=new THREE.Mesh(new THREE.PlaneGeometry(1.72,1.78),mat)
+    const panelMat=new THREE.MeshBasicMaterial({color:(index+cx)%2?0xffc56e:0x68dfff,transparent:true,opacity:.72,side:THREE.DoubleSide,depthWrite:false,toneMapped:false})
+    const panel=new THREE.Mesh(new THREE.PlaneGeometry(1.72,1.78),panelMat)
     panel.position.set(px,py,z+d/2+.25)
     panel.geometry.translate(-.86,0,0)
     scene.add(panel)
@@ -44,20 +44,28 @@ function makeElevator(x:number,z:number,w:number,h:number,d:number,index:number)
   const glass=new THREE.Mesh(new THREE.BoxGeometry(2.9,h-3,1.25),new THREE.MeshBasicMaterial({color:0x5ccfff,transparent:true,opacity:.08,depthWrite:false}))
   glass.position.y=(h-3)/2+1.5
   shaft.add(glass)
-  for(let y=3;y<h-2;y+=4.5){const rail=new THREE.Mesh(new THREE.BoxGeometry(2.55,.06,.08),new THREE.MeshBasicMaterial({color:0x8be8ff,transparent:true,opacity:.22,depthWrite:false}));rail.position.set(0,y-(h/2),.66);shaft.add(rail)}
+  for(let y=3;y<h-2;y+=4.5){
+    const rail=new THREE.Mesh(new THREE.BoxGeometry(2.55,.06,.08),new THREE.MeshBasicMaterial({color:0x8be8ff,transparent:true,opacity:.22,depthWrite:false}))
+    rail.position.set(0,y,.66)
+    shaft.add(rail)
+  }
   shaft.position.set(x+w*.28,0,z+d/2+.5)
   scene.add(shaft)
   const cab=new THREE.Group()
   const shell=new THREE.Mesh(new THREE.BoxGeometry(2.15,2.25,1),new THREE.MeshBasicMaterial({color:0xd8f7ff,transparent:true,opacity:.34,depthWrite:false}))
   cab.add(shell)
-  const glow=new THREE.Mesh(new THREE.BoxGeometry(1.65,.14,1.03),new THREE.MeshBasicMaterial({color:0x65e9ff,transparent:true,opacity:.9,depthWrite:false,toneMapped:false}));glow.position.y=1.05;cab.add(glow)
+  const glow=new THREE.Mesh(new THREE.BoxGeometry(1.65,.14,1.03),new THREE.MeshBasicMaterial({color:0x65e9ff,transparent:true,opacity:.9,depthWrite:false,toneMapped:false}))
+  glow.position.y=1.05
+  cab.add(glow)
   cab.position.set(x+w*.28,3.2,z+d/2+.58)
   scene.add(cab)
   elevators.push({cab,shaft,buildingX:x,buildingZ:z,minY:3.2,maxY:h-3.2,phase:index*.63,lastFloor:-1})
 }
 
 function emit(kind:'window'|'elevator',x:number,z:number,detail:Record<string,unknown>={}){
-  window.dispatchEvent(new CustomEvent(kind==='window'?'tryamm:world-sound':'tryamm:elevator-move',{detail:{kind:kind==='window'?'window':'elevator',x,z,level:kind==='window'?.055:.075,...detail}}))
+  const level=kind==='window'?.055:.075
+  const eventName=kind==='window'?'tryamm:world-sound':'tryamm:elevator-move'
+  window.dispatchEvent(new CustomEvent(eventName,{detail:{kind:kind==='window'?'window':'elevator',x,z,level,...detail}}))
 }
 
 function build(){
@@ -74,13 +82,15 @@ function build(){
   camera=new THREE.PerspectiveCamera(60,1,.1,900)
   BUILDINGS.forEach((b,i)=>{makeWindow(...b,i);makeElevator(...b,i)})
   const resize=()=>{if(!renderer||!camera)return;const w=innerWidth,h=Math.max(430,innerHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}
-  addEventListener('resize',resize);resize()
+  addEventListener('resize',resize)
+  resize()
 }
 
 function animate(){
   if(!active||!renderer||!scene||!camera){raf=requestAnimationFrame(animate);return}
   const t=performance.now()/1000
-  player.x=THREE.MathUtils.lerp(player.x,targetPlayer.x,.08);player.z=THREE.MathUtils.lerp(player.z,targetPlayer.z,.08)
+  player.x=THREE.MathUtils.lerp(player.x,targetPlayer.x,.08)
+  player.z=THREE.MathUtils.lerp(player.z,targetPlayer.z,.08)
   const follow=new THREE.Vector3(player.x+11,8.5,player.z+14)
   camera.position.lerp(follow,.13)
   camera.lookAt(player.x,2.3,player.z)
@@ -89,8 +99,8 @@ function animate(){
     const target=wave>.76?1:0
     w.open=THREE.MathUtils.lerp(w.open,target,.035)
     w.panel.rotation.y=-w.open*Math.PI*.48
-    const mat=w.panel.material as THREE.MeshBasicMaterial
-    mat.opacity=.48+.3*(1-w.open)
+    const panelMat=w.panel.material as THREE.MeshBasicMaterial
+    panelMat.opacity=.48+.3*(1-w.open)
     const isOpen=w.open>.55
     if(isOpen!==w.lastState){w.lastState=isOpen;emit('window',w.buildingX,w.buildingZ,{state:isOpen?'open':'closed',windowIndex:i})}
   })
