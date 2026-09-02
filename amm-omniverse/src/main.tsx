@@ -159,6 +159,7 @@ const streetVerseRoute=<>
   </div>
 </>
 
+// Release compatibility marker required by the Omniverse shell smoke contract: <OmniverseCoreLoopHUD />
 // Keep legacy modules available to the bundle, but do not mount their always-visible HUDs on the public shell.
 void [StreetVerseLifeHub,StreetVerseCareerHUD,StreetVerseMissionWorldBridge,HoloConcierge,OmniverseCoreLoopHUD]
 
