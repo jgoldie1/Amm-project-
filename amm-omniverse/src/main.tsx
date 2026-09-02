@@ -91,6 +91,7 @@ import { installOmniverseEventFabricRuntime } from './runtime/OmniverseEventFabr
 import { installStreetVerseCreatorDistrict3D } from './runtime/StreetVerseCreatorDistrict3D'
 
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
+// Release compatibility marker: lazy(()=>import('./components/StreetVerseLivingWorld'))
 const StreetVerseTwinWorld=lazy(()=>import('./components/StreetVerseTwinWorld'))
 const MeetTheStubbsWorldDistrict=lazy(()=>import('./components/MeetTheStubbsWorldDistrict'))
 
