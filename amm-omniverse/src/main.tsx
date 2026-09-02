@@ -93,7 +93,6 @@ import { installStreetVerseCreatorDistrict3D } from './runtime/StreetVerseCreato
 
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 const StreetVerseNextLevelHUD=lazy(()=>import('./components/StreetVerseNextLevelHUD'))
-// Release compatibility marker: lazy(()=>import('./components/StreetVerseLivingWorld'))
 const StreetVerseTwinWorld=lazy(()=>import('./components/StreetVerseTwinWorld'))
 const MeetTheStubbsWorldDistrict=lazy(()=>import('./components/MeetTheStubbsWorldDistrict'))
 
@@ -160,9 +159,13 @@ const streetVerseRoute=<>
   </div>
 </>
 
+// Keep legacy modules available to the bundle, but do not mount their always-visible HUDs on the public shell.
+void [StreetVerseLifeHub,StreetVerseCareerHUD,StreetVerseMissionWorldBridge,HoloConcierge,OmniverseCoreLoopHUD]
+
 const mainShell=<>
   <JudahSplash />
   <App />
+  <Suspense fallback={null}><StreetVerseNextLevelHUD district="TRYAMM • HOME" assetStatus="PLATFORM ACTIVE" /></Suspense>
   <SafeOnboardingGate />
   <StreetVersePortalTransition />
   <LivingWorldAdaptiveBridge />
@@ -173,9 +176,6 @@ const mainShell=<>
   <MediaStudioLauncher />
   <HoloDramaLauncher />
   <BroadcastStudioLauncher />
-  <StreetVerseLifeHub />
-  <StreetVerseCareerHUD />
-  <StreetVerseMissionWorldBridge />
   <AIWebsiteBusinessBuilder />
   <FamilyBusinessDirectoryLauncher />
   <JacobieVisionLauncher />
@@ -200,9 +200,7 @@ const mainShell=<>
   <HoloMusicLauncher />
   <OmniCashLauncher />
   <GlobalGrowthHub />
-  <HoloConcierge />
-  <OmniverseCoreLoopHUD />
-  <a href="/accessibility" aria-label="Read TRYAMM Accessibility Statement" style={{position:'fixed',left:12,bottom:12,zIndex:9100,minHeight:44,display:'inline-flex',alignItems:'center',padding:'0 14px',borderRadius:999,background:'#07131df2',border:'1px solid #7de8ff77',color:'#e8fbff',fontFamily:'system-ui,sans-serif',fontSize:12,fontWeight:800,textDecoration:'none'}}>♿ Accessibility</a>
+  <a href="/accessibility.html" aria-label="Read TRYAMM Accessibility Statement" style={{position:'fixed',left:12,bottom:12,zIndex:9100,minHeight:44,display:'inline-flex',alignItems:'center',padding:'0 14px',borderRadius:999,background:'#07131df2',border:'1px solid #7de8ff77',color:'#e8fbff',fontFamily:'system-ui,sans-serif',fontSize:12,fontWeight:800,textDecoration:'none'}}>♿ Accessibility</a>
 </>
 
 let routeContent
