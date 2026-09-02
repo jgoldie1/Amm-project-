@@ -1,5 +1,5 @@
 (()=>{
-  const isStreetVerse=()=>location.pathname.startsWith('/streetverse')
+  const isStreetVerse=()=>location.pathname.startsWith('/streetverse')||location.hash.replace(/^#/,'').startsWith('/streetverse')
   if(!isStreetVerse())return
 
   let recorder=null
@@ -8,12 +8,22 @@
   let timer=null
   let startedAt=0
 
+  const liveBadge=document.createElement('div')
+  liveBadge.setAttribute('role','status')
+  liveBadge.setAttribute('aria-live','polite')
+  liveBadge.textContent='STREETVERSE LIVE • 46 PEOPLE • REEL READY'
+  Object.assign(liveBadge.style,{
+    position:'fixed',right:'14px',bottom:'140px',zIndex:'20050',padding:'8px 10px',borderRadius:'999px',
+    background:'rgba(3,16,24,.94)',border:'1px solid rgba(94,234,255,.72)',color:'#bdf7ff',
+    font:'900 10px/1 system-ui,sans-serif',letterSpacing:'.06em',boxShadow:'0 8px 28px rgba(0,0,0,.5)'
+  })
+
   const button=document.createElement('button')
   button.type='button'
   button.setAttribute('aria-label','Start StreetVerse Reel recording')
-  button.textContent='● REC'
+  button.textContent='● REEL'
   Object.assign(button.style,{
-    position:'fixed',right:'14px',bottom:'88px',zIndex:'20050',minWidth:'82px',height:'46px',padding:'0 14px',
+    position:'fixed',right:'14px',bottom:'88px',zIndex:'20050',minWidth:'96px',height:'46px',padding:'0 14px',
     borderRadius:'999px',border:'1px solid rgba(255,80,105,.9)',background:'rgba(70,7,19,.92)',color:'#fff',
     font:'900 13px/1 system-ui,sans-serif',letterSpacing:'.08em',boxShadow:'0 0 0 2px rgba(255,80,105,.12)',cursor:'pointer'
   })
@@ -50,14 +60,15 @@
     if(!active)return
     active=false
     clearInterval(timer)
-    button.textContent='● REC'
+    button.textContent='● REEL'
     button.style.background='rgba(70,7,19,.92)'
     button.setAttribute('aria-label','Start StreetVerse Reel recording')
+    liveBadge.textContent='STREETVERSE LIVE • 46 PEOPLE • REEL READY'
     if(recorder&&recorder.state!=='inactive')recorder.stop()
   }
   async function start(){
     const canvas=getGameCanvas()
-    if(!canvas){setStatus('StreetVerse canvas not ready');return}
+    if(!canvas){setStatus('StreetVerse canvas not ready');liveBadge.textContent='STREETVERSE LIVE • CANVAS LOADING';return}
     if(!canvas.captureStream||!window.MediaRecorder){setStatus('Recording is not supported in this browser');return}
     try{
       const stream=canvas.captureStream(30)
@@ -72,14 +83,16 @@
         const blob=new Blob(chunks,{type:recorder?.mimeType||'video/webm'})
         download(blob)
         setStatus('Reel saved to your device')
+        liveBadge.textContent='STREETVERSE LIVE • REEL SAVED'
         window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-captured',{detail:{size:blob.size,type:blob.type,durationMs:Date.now()-startedAt}}))
-        setTimeout(()=>setStatus('',false),3500)
+        setTimeout(()=>{setStatus('',false);liveBadge.textContent='STREETVERSE LIVE • 46 PEOPLE • REEL READY'},3500)
       }
       recorder.start(1000)
       active=true;startedAt=Date.now()
       button.textContent='■ STOP'
       button.style.background='rgba(188,18,47,.96)'
       button.setAttribute('aria-label','Stop StreetVerse Reel recording')
+      liveBadge.textContent='● RECORDING STREETVERSE'
       setStatus('Recording 00:00')
       timer=setInterval(()=>{
         const s=Math.floor((Date.now()-startedAt)/1000)
@@ -91,5 +104,5 @@
   }
   button.addEventListener('click',()=>active?stop():start())
   window.addEventListener('tryamm:streetverse-exit',stop)
-  document.body.append(button,status)
+  document.body.append(liveBadge,button,status)
 })()
