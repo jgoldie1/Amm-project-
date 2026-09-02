@@ -1,82 +1,26 @@
 import { useEffect, useRef, useState } from 'react'
 
-declare global {
-  interface Window { Cesium?: any; CESIUM_BASE_URL?: string }
-}
-
+declare global { interface Window { Cesium?: any; CESIUM_BASE_URL?: string } }
 const CESIUM_VERSION='1.138'
 const CESIUM_BASE=`https://cdn.jsdelivr.net/npm/cesium@${CESIUM_VERSION}/Build/Cesium/`
 const CHICAGO={lon:-87.6298,lat:41.8781,height:2100}
-
+const PLACES=[
+ {id:'loop',label:'THE LOOP',lon:-87.6298,lat:41.8781,height:1500},
+ {id:'millennium',label:'MILLENNIUM PARK',lon:-87.6226,lat:41.8826,height:900},
+ {id:'lakefront',label:'LAKEFRONT',lon:-87.6079,lat:41.8840,height:1200},
+ {id:'river',label:'CHICAGO RIVER',lon:-87.6267,lat:41.8883,height:900},
+ {id:'south',label:'SOUTH SIDE',lon:-87.6244,lat:41.7943,height:1800},
+ {id:'west',label:'WEST SIDE',lon:-87.7000,lat:41.8810,height:2200},
+ {id:'north',label:'NORTH SIDE',lon:-87.6533,lat:41.9400,height:2200},
+ {id:'ohare',label:"O'HARE",lon:-87.9073,lat:41.9742,height:3000},
+ {id:'midway',label:'MIDWAY',lon:-87.7522,lat:41.7868,height:2600},
+]
 type Props={onClose?:()=>void}
-
-function loadCesium(){
-  if(window.Cesium)return Promise.resolve(window.Cesium)
-  window.CESIUM_BASE_URL=CESIUM_BASE
-  if(!document.querySelector('link[data-streetverse-cesium]')){
-    const link=document.createElement('link');link.rel='stylesheet';link.href=`${CESIUM_BASE}Widgets/widgets.css`;link.dataset.streetverseCesium='1';document.head.appendChild(link)
-  }
-  return new Promise<any>((resolve,reject)=>{
-    const existing=document.querySelector<HTMLScriptElement>('script[data-streetverse-cesium]')
-    if(existing){existing.addEventListener('load',()=>resolve(window.Cesium),{once:true});existing.addEventListener('error',reject,{once:true});return}
-    const script=document.createElement('script');script.src=`${CESIUM_BASE}Cesium.js`;script.async=true;script.dataset.streetverseCesium='1';script.onload=()=>resolve(window.Cesium);script.onerror=()=>reject(new Error('CesiumJS failed to load'));document.head.appendChild(script)
-  })
-}
-
-export default function StreetVerseTwinWorld({onClose}:Props){
-  const host=useRef<HTMLDivElement|null>(null)
-  const [status,setStatus]=useState('Starting Twin World…')
-  const [provider,setProvider]=useState('REAL EARTH • OSM')
-
-  useEffect(()=>{
-    let viewer:any
-    let cancelled=false
-    ;(async()=>{
-      try{
-        const C=await loadCesium();if(cancelled||!host.current||!C)return
-        const googleKey=String(import.meta.env.VITE_GOOGLE_MAP_TILES_API_KEY||'').trim()
-        viewer=new C.Viewer(host.current,{
-          animation:false,timeline:false,baseLayerPicker:false,sceneModePicker:true,homeButton:true,fullscreenButton:true,
-          navigationHelpButton:false,infoBox:false,selectionIndicator:false,geocoder:false,globe:googleKey?false:undefined,
-          imageryProvider:googleKey?false:new C.OpenStreetMapImageryProvider({url:'https://tile.openstreetmap.org/',credit:'© OpenStreetMap contributors'}),
-          terrainProvider:googleKey?undefined:new C.EllipsoidTerrainProvider(),
-        })
-        viewer.scene.skyAtmosphere.show=true
-        viewer.scene.globe && (viewer.scene.globe.depthTestAgainstTerrain=true)
-        if(googleKey){
-          try{
-            C.GoogleMaps.defaultApiKey=googleKey
-            const tileset=await C.createGooglePhotorealistic3DTileset({key:googleKey,onlyUsingWithGoogleGeocoder:true},{showCreditsOnScreen:true,maximumScreenSpaceError:10})
-            if(!cancelled){viewer.scene.primitives.add(tileset);setProvider('GOOGLE PHOTOREALISTIC 3D TILES')}
-          }catch(err){console.error('[TwinWorld] Google 3D Tiles failed',err);setProvider('REAL EARTH FALLBACK • OSM');setStatus('Google 3D Tiles unavailable; using real-world map fallback.')}
-        }
-        viewer.camera.flyTo({destination:C.Cartesian3.fromDegrees(CHICAGO.lon,CHICAGO.lat,CHICAGO.height),orientation:{heading:C.Math.toRadians(20),pitch:C.Math.toRadians(-45),roll:0},duration:0})
-        const chicago=viewer.entities.add({name:'StreetVerse Chicago Twin',position:C.Cartesian3.fromDegrees(CHICAGO.lon,CHICAGO.lat,250),point:{pixelSize:13,color:C.Color.GOLD,outlineColor:C.Color.BLACK,outlineWidth:3},label:{text:'STREETVERSE • CHICAGO TWIN',font:'700 18px sans-serif',pixelOffset:new C.Cartesian2(0,-26),fillColor:C.Color.WHITE,showBackground:true,backgroundColor:new C.Color(0,0,0,.68)}})
-        viewer.trackedEntity=undefined
-        setStatus(googleKey?'Chicago digital twin online. Photorealistic tiles stream as you move closer.':'Chicago geospatial Twin World online. Add VITE_GOOGLE_MAP_TILES_API_KEY to enable Google Photorealistic 3D Tiles.')
-        window.dispatchEvent(new CustomEvent('tryamm:twin-world-ready',{detail:{city:'Chicago',lat:CHICAGO.lat,lon:CHICAGO.lon,provider:googleKey?'google-photorealistic-3d':'osm-geospatial',earthScale:true}}))
-        return chicago
-      }catch(err){console.error('[TwinWorld]',err);setStatus('Twin World could not initialize on this device/browser.')}
-    })()
-    return()=>{cancelled=true;try{viewer?.destroy?.()}catch{}}
-  },[])
-
-  return <div style={{position:'fixed',inset:0,zIndex:17000,background:'#02060a',color:'#fff',fontFamily:'system-ui,sans-serif'}}>
-    <div ref={host} style={{position:'absolute',inset:0}} aria-label="StreetVerse Twin World real-Earth Chicago map" />
-    <div style={{position:'absolute',left:12,top:12,zIndex:3,maxWidth:390,padding:'12px 14px',borderRadius:14,background:'rgba(2,8,14,.86)',border:'1px solid rgba(255,215,92,.5)',backdropFilter:'blur(10px)'}}>
-      <div style={{fontWeight:1000,letterSpacing:'.08em'}}>STREETVERSE • TWIN WORLD</div>
-      <div style={{marginTop:4,fontSize:12,fontWeight:800,color:'#ffd75c'}}>{provider}</div>
-      <div style={{marginTop:7,fontSize:12,lineHeight:1.35,color:'#d8e5ee'}}>{status}</div>
-      <div style={{display:'flex',gap:8,marginTop:10,flexWrap:'wrap'}}>
-        <button onClick={()=>{window.location.href='/streetverse'}} style={buttonStyle}>OPEN GAME WORLD</button>
-        <button onClick={()=>{window.location.href='/streetverse/twin-world'}} style={buttonStyle}>CHICAGO TWIN</button>
-        <button onClick={()=>onClose?onClose():window.location.assign('/')} style={buttonStyle}>HOME</button>
-      </div>
-    </div>
-    <div style={{position:'absolute',right:12,bottom:30,zIndex:3,padding:'8px 10px',borderRadius:10,background:'rgba(0,0,0,.68)',fontSize:11,maxWidth:330}}>
-      Real geospatial layer. StreetVerse missions/gameplay remain original overlays; Google imagery is used only when a licensed Map Tiles API key is configured and required attribution remains visible.
-    </div>
-  </div>
-}
-
-const buttonStyle:React.CSSProperties={border:'1px solid #ffffff33',background:'#111b24',color:'#fff',borderRadius:999,padding:'8px 10px',fontWeight:900,cursor:'pointer',fontSize:11}
+function loadCesium(){if(window.Cesium)return Promise.resolve(window.Cesium);window.CESIUM_BASE_URL=CESIUM_BASE;if(!document.querySelector('link[data-streetverse-cesium]')){const l=document.createElement('link');l.rel='stylesheet';l.href=`${CESIUM_BASE}Widgets/widgets.css`;l.dataset.streetverseCesium='1';document.head.appendChild(l)}return new Promise<any>((resolve,reject)=>{const e=document.querySelector<HTMLScriptElement>('script[data-streetverse-cesium]');if(e){e.addEventListener('load',()=>resolve(window.Cesium),{once:true});e.addEventListener('error',reject,{once:true});return}const s=document.createElement('script');s.src=`${CESIUM_BASE}Cesium.js`;s.async=true;s.dataset.streetverseCesium='1';s.onload=()=>resolve(window.Cesium);s.onerror=()=>reject(new Error('CesiumJS failed to load'));document.head.appendChild(s)})}
+export default function StreetVerseTwinWorld({onClose}:Props){const host=useRef<HTMLDivElement|null>(null),viewerRef=useRef<any>(null);const[status,setStatus]=useState('Starting Twin World…'),[provider,setProvider]=useState('REAL EARTH • STREET MAP'),[selected,setSelected]=useState('THE LOOP');
+ useEffect(()=>{let viewer:any,cancelled=false;(async()=>{try{const C=await loadCesium();if(cancelled||!host.current||!C)return;const googleKey=String(import.meta.env.VITE_GOOGLE_MAP_TILES_API_KEY||'').trim();viewer=new C.Viewer(host.current,{animation:false,timeline:false,baseLayerPicker:false,sceneModePicker:true,homeButton:true,fullscreenButton:true,navigationHelpButton:false,infoBox:false,selectionIndicator:false,geocoder:false,globe:googleKey?false:undefined,imageryProvider:googleKey?false:new C.OpenStreetMapImageryProvider({url:'https://tile.openstreetmap.org/',credit:'© OpenStreetMap contributors'}),terrainProvider:googleKey?undefined:new C.EllipsoidTerrainProvider()});viewerRef.current=viewer;viewer.scene.skyAtmosphere.show=true;if(viewer.scene.globe)viewer.scene.globe.depthTestAgainstTerrain=true;if(googleKey){try{C.GoogleMaps.defaultApiKey=googleKey;const tileset=await C.createGooglePhotorealistic3DTileset({key:googleKey,onlyUsingWithGoogleGeocoder:true},{showCreditsOnScreen:true,maximumScreenSpaceError:10});if(!cancelled){viewer.scene.primitives.add(tileset);setProvider('GOOGLE PHOTOREALISTIC 3D TILES')}}catch(err){console.error('[TwinWorld] Google tiles failed',err);setProvider('REAL EARTH FALLBACK • STREET MAP')}}
+ const fly=(p:any,duration=0)=>viewer.camera.flyTo({destination:C.Cartesian3.fromDegrees(p.lon,p.lat,p.height),orientation:{heading:C.Math.toRadians(18),pitch:C.Math.toRadians(-48),roll:0},duration});fly(CHICAGO);PLACES.forEach(p=>viewer.entities.add({name:p.label,position:C.Cartesian3.fromDegrees(p.lon,p.lat,35),point:{pixelSize:9,color:C.Color.GOLD,outlineColor:C.Color.BLACK,outlineWidth:2},label:{text:p.label,font:'700 13px sans-serif',pixelOffset:new C.Cartesian2(0,-18),fillColor:C.Color.WHITE,showBackground:true,backgroundColor:new C.Color(0,0,0,.64),distanceDisplayCondition:new C.DistanceDisplayCondition(0,18000)}}));setStatus(googleKey?'Chicago Twin online. Streets/landmarks anchor gameplay while photorealistic tiles stream.':'Chicago street-navigation Twin online. Street names and geography come from the map layer; add the Google Map Tiles key for photorealistic 3D.');window.dispatchEvent(new CustomEvent('tryamm:twin-world-ready',{detail:{city:'Chicago',lat:CHICAGO.lat,lon:CHICAGO.lon,provider:googleKey?'google-photorealistic-3d':'osm-street-map',earthScale:true,navigation:true}}))}catch(err){console.error('[TwinWorld]',err);setStatus('Twin World could not initialize on this device/browser.')}})();return()=>{cancelled=true;viewerRef.current=null;try{viewer?.destroy?.()}catch{}}},[])
+ const go=(p:(typeof PLACES)[number])=>{const C=window.Cesium,v=viewerRef.current;if(!C||!v)return;setSelected(p.label);v.camera.flyTo({destination:C.Cartesian3.fromDegrees(p.lon,p.lat,p.height),orientation:{heading:C.Math.toRadians(18),pitch:C.Math.toRadians(-48),roll:0},duration:1.2});window.dispatchEvent(new CustomEvent('tryamm:twin-world-navigate',{detail:{...p,city:'Chicago'}}))}
+ const locate=()=>{if(!navigator.geolocation){setStatus('Location is unavailable on this browser.');return}setStatus('Finding your position…');navigator.geolocation.getCurrentPosition(pos=>{const C=window.Cesium,v=viewerRef.current;if(!C||!v)return;const {latitude:lat,longitude:lon}=pos.coords;v.camera.flyTo({destination:C.Cartesian3.fromDegrees(lon,lat,900),duration:1.2});setSelected('MY LOCATION');setStatus('Your location is centered. StreetVerse uses location only after browser permission.');window.dispatchEvent(new CustomEvent('tryamm:twin-world-user-location',{detail:{lat,lon,accuracy:pos.coords.accuracy}}))},()=>setStatus('Location permission was not granted.'),{enableHighAccuracy:false,timeout:8000,maximumAge:60000})}
+ return <div style={{position:'fixed',inset:0,zIndex:17000,background:'#02060a',color:'#fff',fontFamily:'system-ui,sans-serif'}}><div ref={host} style={{position:'absolute',inset:0}} aria-label="StreetVerse Twin World Chicago street navigation map"/><div style={{position:'absolute',left:12,top:12,zIndex:3,maxWidth:430,padding:'12px 14px',borderRadius:14,background:'rgba(2,8,14,.88)',border:'1px solid rgba(255,215,92,.5)',backdropFilter:'blur(10px)'}}><div style={{fontWeight:1000,letterSpacing:'.08em'}}>STREETVERSE • CHICAGO TWIN NAV</div><div style={{marginTop:4,fontSize:12,fontWeight:800,color:'#ffd75c'}}>{provider} • {selected}</div><div style={{marginTop:7,fontSize:12,lineHeight:1.35,color:'#d8e5ee'}}>{status}</div><div style={{display:'flex',gap:6,marginTop:9,flexWrap:'wrap'}}>{PLACES.map(p=><button key={p.id} onClick={()=>go(p)} style={buttonStyle}>{p.label}</button>)}</div><div style={{display:'flex',gap:8,marginTop:10,flexWrap:'wrap'}}><button onClick={locate} style={buttonStyle}>◎ MY LOCATION</button><button onClick={()=>window.location.assign('/streetverse')} style={buttonStyle}>OPEN GAME WORLD</button><button onClick={()=>onClose?onClose():window.location.assign('/')} style={buttonStyle}>HOME</button></div></div><div style={{position:'absolute',right:12,bottom:30,zIndex:3,padding:'8px 10px',borderRadius:10,background:'rgba(0,0,0,.7)',fontSize:11,maxWidth:350}}>Chicago navigation layer: real-world street geography + StreetVerse-original gameplay. Google imagery is used only with a licensed Map Tiles API key and required attribution. Browser location is opt-in.</div></div>}
+const buttonStyle:React.CSSProperties={border:'1px solid #ffffff33',background:'#111b24',color:'#fff',borderRadius:999,padding:'7px 9px',fontWeight:900,cursor:'pointer',fontSize:10}
