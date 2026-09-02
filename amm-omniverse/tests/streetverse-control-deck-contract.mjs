@@ -2,11 +2,13 @@ import fs from 'node:fs'
 import assert from 'node:assert/strict'
 
 const hud=fs.readFileSync(new URL('../src/components/StreetVerseNextLevelHUD.tsx',import.meta.url),'utf8')
+const volcano=fs.readFileSync(new URL('../src/components/VolcanoGamingHub.tsx',import.meta.url),'utf8')
 
 assert.match(hud,/STREETVERSE • CONTROL DECK/,'StreetVerse must expose the upgraded control deck')
 assert.match(hud,/PLAY/,'Control deck must keep a Play lane')
 assert.match(hud,/CREATE/,'Control deck must expose creator controls')
 assert.match(hud,/SYSTEM/,'Control deck must expose system controls')
+assert.match(hud,/Volcano Gaming/,'Volcano Gaming must be reachable from StreetVerse')
 assert.match(hud,/Start Reel/,'Reel recording/creation must be visible from StreetVerse')
 assert.match(hud,/Broadcast/,'LIVE/broadcast access must be visible')
 assert.match(hud,/Omni Box/,'Omni Box must remain directly accessible')
@@ -17,5 +19,12 @@ assert.match(hud,/aria-live="polite"/,'Launcher failures must be announced acces
 assert.match(hud,/minHeight:44/,'Primary mobile controls must use large touch targets')
 assert.match(hud,/runtime launcher is not connected/,'Buttons must explain disconnected runtime launchers instead of failing silently')
 assert.match(hud,/Real-money submission remains server-side and compliance-gated/,'Payment safety boundary must remain visible')
+assert.match(volcano,/navigator\.getGamepads/,'Volcano must read browser-visible gamepads')
+assert.match(volcano,/tryamm:volcano-gamepad/,'Volcano must normalize controller input into a TRYAMM event bridge')
+assert.match(volcano,/Holo Fon/,'Volcano must retain Holo Fon companion control')
+assert.match(volcano,/AR \/ VR/,'Volcano must expose XR handoff')
+assert.match(volcano,/CAST \/ SHARE/,'Volcano must expose casting/display handoff')
+assert.match(volcano,/CONNECT BLE/,'Volcano must expose permissioned BLE accessory flow')
+assert.match(volcano,/does not control real weapons/,'Weapon-shaped peripherals must remain game-input only')
 
 console.log('StreetVerse control deck contract: PASS')
