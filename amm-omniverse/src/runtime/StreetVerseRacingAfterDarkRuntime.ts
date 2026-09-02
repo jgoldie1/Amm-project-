@@ -1,3 +1,5 @@
+import { installAfterDarkIntimateDeviceRuntime } from './AfterDarkIntimateDeviceRuntime'
+
 export type StreetVerseEventKind =
   | 'circuit-race' | 'point-to-point-race' | 'drift-challenge' | 'motorcycle-race'
   | 'delivery-mission' | 'crew-challenge' | 'date-night' | 'after-dark-event'
@@ -89,6 +91,7 @@ export function dispatchDynamicCityEvent(input: { type: 'rain' | 'traffic' | 'co
 }
 
 export function installStreetVerseRacingAfterDarkRuntime() {
+  installAfterDarkIntimateDeviceRuntime()
   const w = window as typeof window & {
     __recordStreetVerseWorldEvent?: typeof recordStreetVerseWorldEvent
     __scoreStreetVerseDrift?: typeof scoreDrift
@@ -102,7 +105,7 @@ export function installStreetVerseRacingAfterDarkRuntime() {
   w.__requestAfterDarkSession = requestAfterDarkSession
   w.__dispatchStreetVerseCityEvent = dispatchDynamicCityEvent
   emit('tryamm:racing-after-dark:ready', {
-    systems: ['cars', 'motorcycles', 'drifting', 'racing-seasons', 'delivery-missions', 'crew-system', 'relationships', 'dynamic-city-events', 'omniverse-after-dark', 'creator-clips', 'ctv-ott-fast', 'world-memory'],
+    systems: ['cars', 'motorcycles', 'drifting', 'racing-seasons', 'delivery-missions', 'crew-system', 'relationships', 'dynamic-city-events', 'omniverse-after-dark', 'lovense-compatible-haptics', 'creator-clips', 'ctv-ott-fast', 'world-memory'],
     providerGates: ['real-money-settlement', 'external-intimate-device-pairing', 'ctv-ott-distribution'],
   })
 }
