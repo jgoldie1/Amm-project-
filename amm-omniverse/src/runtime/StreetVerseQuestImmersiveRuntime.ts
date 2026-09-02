@@ -2,79 +2,47 @@ import * as THREE from 'three'
 
 let installed=false
 let active=false
-
+const XR_KEY='tryamm.streetverse.xr.progress.v2'
+type XRSave={avatarId:string;xp:number;credits:number;missions:string[];inventory:string[];verse:string;position:[number,number,number];locomotion:'smooth'|'teleport'}
+const defaults=():XRSave=>({avatarId:`tryamm_${Math.random().toString(36).slice(2,10)}`,xp:0,credits:0,missions:[],inventory:['Omni Passport'],verse:'StreetVerse',position:[0,0,0],locomotion:'smooth'})
+function load():XRSave{try{return {...defaults(),...JSON.parse(localStorage.getItem(XR_KEY)||'{}')}}catch{return defaults()}}
+function save(s:XRSave){try{localStorage.setItem(XR_KEY,JSON.stringify(s))}catch{};emit('tryamm:quest-progress-saved',s)}
 function emit(name:string,detail:any={}){window.dispatchEvent(new CustomEvent(name,{detail}))}
-
-function makeLabel(text:string,color='#72e5ff'){
-  const canvas=document.createElement('canvas');canvas.width=512;canvas.height=128
-  const ctx=canvas.getContext('2d')!;ctx.clearRect(0,0,512,128);ctx.fillStyle='rgba(3,11,21,.88)';ctx.fillRect(0,0,512,128)
-  ctx.strokeStyle=color;ctx.lineWidth=5;ctx.strokeRect(4,4,504,120);ctx.fillStyle='#fff';ctx.font='700 34px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,256,64)
-  const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace
-  const mat=new THREE.SpriteMaterial({map:texture,transparent:true,depthWrite:false});const sprite=new THREE.Sprite(mat);sprite.scale.set(4,1,1);return sprite
-}
-
-function addPortal(scene:THREE.Scene,label:string,x:number,z:number,color:number,eventName:string){
-  const g=new THREE.Group();g.position.set(x,0,z);g.userData={eventName,label,interactive:true}
-  const ring=new THREE.Mesh(new THREE.TorusGeometry(1.45,.16,16,48),new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:1.8,metalness:.35,roughness:.2}));ring.position.y=1.8;g.add(ring)
-  const core=new THREE.Mesh(new THREE.CircleGeometry(1.2,40),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.18,side:THREE.DoubleSide}));core.position.y=1.8;g.add(core)
-  const tag=makeLabel(label);tag.position.set(0,3.75,0);g.add(tag);scene.add(g);return g
-}
-
+function makeLabel(text:string,color='#72e5ff'){const canvas=document.createElement('canvas');canvas.width=512;canvas.height=128;const ctx=canvas.getContext('2d')!;ctx.fillStyle='rgba(3,11,21,.9)';ctx.fillRect(0,0,512,128);ctx.strokeStyle=color;ctx.lineWidth=5;ctx.strokeRect(4,4,504,120);ctx.fillStyle='#fff';ctx.font='700 30px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,256,64);const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,transparent:true,depthWrite:false}));sprite.scale.set(4,1,1);return sprite}
+function addPortal(scene:THREE.Scene,label:string,x:number,z:number,color:number,eventName:string){const g=new THREE.Group();g.position.set(x,0,z);g.userData={eventName,label,interactive:true,type:'portal'};const ring=new THREE.Mesh(new THREE.TorusGeometry(1.45,.16,16,48),new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:1.8,metalness:.35,roughness:.2}));ring.position.y=1.8;g.add(ring);const tag=makeLabel(label);tag.position.set(0,3.75,0);g.add(tag);scene.add(g);return g}
+function npc(scene:THREE.Scene,name:string,x:number,z:number,text:string){const g=new THREE.Group();g.position.set(x,0,z);g.userData={interactive:true,type:'npc',name,text};const body=new THREE.Mesh(new THREE.CapsuleGeometry(.3,.85,6,12),new THREE.MeshStandardMaterial({color:0x8055ff,roughness:.55}));body.position.y=1;g.add(body);const tag=makeLabel(name,'#a68bff');tag.scale.set(2.3,.58,1);tag.position.y=2.25;g.add(tag);scene.add(g);return g}
 async function startImmersive(mode:'immersive-vr'|'immersive-ar'='immersive-vr'){
-  if(active)return
-  const xr=(navigator as any).xr
-  if(!xr?.requestSession){emit('tryamm:meta-quest-error',{reason:'WebXR is unavailable in this browser.'});return}
-  active=true
-  let session:any=null,renderer:THREE.WebGLRenderer|null=null,root:HTMLDivElement|null=null
-  try{
-    session=await xr.requestSession(mode,{requiredFeatures:['local-floor'],optionalFeatures:['bounded-floor','hand-tracking']})
-    root=document.createElement('div');root.id='tryamm-quest-immersive-root';Object.assign(root.style,{position:'fixed',inset:'0',zIndex:'2147483600',background:'#02050b'});document.body.appendChild(root)
-    const scene=new THREE.Scene();scene.background=new THREE.Color(0x020711);scene.fog=new THREE.FogExp2(0x071322,.018)
-    const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.05,250);camera.position.set(0,1.65,0)
-    const rig=new THREE.Group();scene.add(rig);rig.add(camera)
-    renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance',alpha:mode==='immersive-ar'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.25));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.xr.enabled=true;root.appendChild(renderer.domElement)
-    await renderer.xr.setSession(session)
-
-    scene.add(new THREE.HemisphereLight(0x9edfff,0x141021,2.4));const key=new THREE.DirectionalLight(0xffffff,2.2);key.position.set(8,14,5);scene.add(key)
-    const floor=new THREE.Mesh(new THREE.PlaneGeometry(80,80),new THREE.MeshStandardMaterial({color:0x101a26,roughness:.92,metalness:.05}));floor.rotation.x=-Math.PI/2;scene.add(floor)
-    for(let i=-4;i<=4;i++)for(let j=-4;j<=4;j++){if(Math.abs(i)<2&&Math.abs(j)<2)continue;const h=2+Math.random()*8;const b=new THREE.Mesh(new THREE.BoxGeometry(3,h,3),new THREE.MeshStandardMaterial({color:0x172b3c,emissive:0x06111e,emissiveIntensity:.4,roughness:.72}));b.position.set(i*6,h/2,j*6);scene.add(b)}
-    const plaza=makeLabel('STREETVERSE • QUEST IMMERSIVE');plaza.position.set(0,4,-5);scene.add(plaza)
-    const portals=[
-      addPortal(scene,'PROPERTYVERSE',-7,-10,0x5bf3b3,'tryamm:propertyverse-open'),
-      addPortal(scene,'SPACEVERSE',0,-13,0x72e5ff,'tryamm:spaceverse-open'),
-      addPortal(scene,'TIME MACHINE',7,-10,0xa68bff,'tryamm:chrono-open'),
-      addPortal(scene,'OMNI CONNECT',0,10,0xff6fae,'tryamm:omni-connect-open')
-    ]
-    const ball=new THREE.Mesh(new THREE.SphereGeometry(.24,24,16),new THREE.MeshStandardMaterial({color:0xd86c20,roughness:.62}));ball.position.set(2,1,-4);scene.add(ball)
-    const hoop=new THREE.Mesh(new THREE.TorusGeometry(.42,.055,10,28),new THREE.MeshStandardMaterial({color:0xff6a24,emissive:0xff3b00,emissiveIntensity:.8}));hoop.rotation.x=Math.PI/2;hoop.position.set(2,3.05,-7);scene.add(hoop)
-
-    const controllers=[renderer.xr.getController(0),renderer.xr.getController(1)];controllers.forEach((c,index)=>{rig.add(c);const ray=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-5)]),new THREE.LineBasicMaterial({color:index?0xff6fae:0x72e5ff}));c.add(ray);c.addEventListener('selectstart',()=>{const raycaster=new THREE.Raycaster();const origin=new THREE.Vector3(),dir=new THREE.Vector3(0,0,-1);c.getWorldPosition(origin);dir.applyQuaternion(c.getWorldQuaternion(new THREE.Quaternion())).normalize();raycaster.set(origin,dir);const hits=raycaster.intersectObjects(portals,true);if(hits[0]){let obj:any=hits[0].object;while(obj&&!obj.userData?.interactive)obj=obj.parent;if(obj?.userData?.eventName)emit(obj.userData.eventName,{source:'quest-immersive',label:obj.userData.label})}else{emit('tryamm:quest-action',{index,action:'select'});emit('tryamm:basketball-shot',{source:'quest-controller',controller:index})}});c.addEventListener('squeezestart',()=>emit('tryamm:quest-action',{index,action:'grip'}))})
-
-    const hands=[renderer.xr.getHand(0),renderer.xr.getHand(1)];hands.forEach((h,index)=>{rig.add(h);h.addEventListener('pinchstart',()=>emit('tryamm:quest-hand',{index,gesture:'pinchstart'}));h.addEventListener('pinchend',()=>emit('tryamm:quest-hand',{index,gesture:'pinchend'}))})
-
-    let snapReady=true
-    const clock=new THREE.Clock()
-    renderer.setAnimationLoop(()=>{
-      const dt=Math.min(clock.getDelta(),.05)
-      const xrCamera=renderer!.xr.getCamera(camera);const q=new THREE.Quaternion();xrCamera.getWorldQuaternion(q);const forward=new THREE.Vector3(0,0,-1).applyQuaternion(q);forward.y=0;forward.normalize();const right=new THREE.Vector3(1,0,0).applyQuaternion(q);right.y=0;right.normalize()
-      for(const c of controllers){const source=(c as any).userData?.inputSource || (c as any).inputSource;const gp=source?.gamepad;if(!gp)continue;const ax=gp.axes||[];const x=Number(ax[2]??ax[0]??0),y=Number(ax[3]??ax[1]??0);if(Math.abs(y)>.18)rig.position.addScaledVector(forward,-y*dt*3.2);if(Math.abs(x)>.18)rig.position.addScaledVector(right,x*dt*3.2)}
-      const sessionSources=session.inputSources||[];for(const src of sessionSources){const gp=src.gamepad;if(!gp)continue;const ax=gp.axes||[];const turn=Number(ax[2]??ax[0]??0);if(Math.abs(turn)>.75&&snapReady){rig.rotateY(-Math.sign(turn)*Math.PI/6);snapReady=false;setTimeout(()=>snapReady=true,260)}}
-      ball.rotation.x+=dt*1.6;ball.rotation.z+=dt*.8
-      portals.forEach((p,i)=>{p.rotation.y=Math.sin(performance.now()*.0005+i)*.08})
-      renderer!.render(scene,camera)
-    })
-    emit('tryamm:meta-quest-session-start',{mode,source:'streetverse-quest-immersive',features:['true-webxr-session','threejs-xr-renderer','controller-rays','smooth-locomotion','snap-turn','hand-pinch-events','world-portals','basketball-action-routing']})
-    emit('tryamm:accessibility-announce',{text:'StreetVerse immersive Quest mode started.'})
-
-    const end=()=>{renderer?.setAnimationLoop(null);renderer?.dispose();root?.remove();active=false;emit('tryamm:meta-quest-session-end',{mode,source:'streetverse-quest-immersive'})}
-    session.addEventListener('end',end,{once:true})
-  }catch(error:any){active=false;renderer?.setAnimationLoop(null);renderer?.dispose();root?.remove();emit('tryamm:meta-quest-error',{reason:error?.message||String(error),mode})}
+ if(active)return;const xr=(navigator as any).xr;if(!xr?.requestSession){emit('tryamm:meta-quest-error',{reason:'WebXR is unavailable in this browser.'});return} active=true
+ let session:any=null,renderer:THREE.WebGLRenderer|null=null,root:HTMLDivElement|null=null;const progress=load()
+ try{
+  session=await xr.requestSession(mode,{requiredFeatures:['local-floor'],optionalFeatures:['bounded-floor','hand-tracking']});root=document.createElement('div');root.id='tryamm-quest-immersive-root';Object.assign(root.style,{position:'fixed',inset:'0',zIndex:'2147483600',background:'#02050b'});document.body.appendChild(root)
+  const scene=new THREE.Scene();scene.background=new THREE.Color(0x020711);scene.fog=new THREE.FogExp2(0x071322,.014);const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.05,300);camera.position.set(0,1.65,0);const rig=new THREE.Group();rig.position.fromArray(progress.position);scene.add(rig);rig.add(camera)
+  renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance',alpha:mode==='immersive-ar'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.25));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.xr.enabled=true;root.appendChild(renderer.domElement);await renderer.xr.setSession(session)
+  scene.add(new THREE.HemisphereLight(0x9edfff,0x141021,2.4));const key=new THREE.DirectionalLight(0xffffff,2.2);key.position.set(8,14,5);scene.add(key);const floor=new THREE.Mesh(new THREE.PlaneGeometry(120,120),new THREE.MeshStandardMaterial({color:0x101a26,roughness:.92}));floor.rotation.x=-Math.PI/2;scene.add(floor)
+  for(let i=-6;i<=6;i++)for(let j=-6;j<=6;j++){if(Math.abs(i)<2&&Math.abs(j)<2)continue;const h=2+Math.random()*9;const b=new THREE.Mesh(new THREE.BoxGeometry(3,h,3),new THREE.MeshStandardMaterial({color:0x172b3c,emissive:0x06111e,emissiveIntensity:.35,roughness:.72}));b.position.set(i*7,h/2,j*7);scene.add(b)}
+  const status=makeLabel(`AVATAR ${progress.avatarId} • XP ${progress.xp} • HC ${progress.credits}`);status.position.set(0,4,-5);scene.add(status)
+  const portals=[addPortal(scene,'PROPERTYVERSE',-8,-12,0x5bf3b3,'tryamm:propertyverse-open'),addPortal(scene,'SPACEVERSE',0,-15,0x72e5ff,'tryamm:spaceverse-open'),addPortal(scene,'TIME MACHINE',8,-12,0xa68bff,'tryamm:chrono-open'),addPortal(scene,'OMNI CONNECT',0,12,0xff6fae,'tryamm:omni-connect-open')]
+  const npcs=[npc(scene,'Benny',-4,-5,'Welcome back. Your TRYAMM identity travels with you.'),npc(scene,'Street Captain',5,-5,'Complete the Court Run mission and return for your reward.'),npc(scene,'Creator Guide',-5,5,'Your missions, inventory and XP persist between Verse portals.')]
+  const ball=new THREE.Mesh(new THREE.SphereGeometry(.24,24,16),new THREE.MeshStandardMaterial({color:0xd86c20,roughness:.62}));ball.position.set(2,1,-4);ball.userData={interactive:true,type:'ball'};scene.add(ball);const hoop=new THREE.Mesh(new THREE.TorusGeometry(.42,.055,10,28),new THREE.MeshStandardMaterial({color:0xff6a24,emissive:0xff3b00,emissiveIntensity:.8}));hoop.rotation.x=Math.PI/2;hoop.position.set(2,3.05,-7);scene.add(hoop)
+  const car=new THREE.Group();car.position.set(-7,.45,2);car.userData={interactive:true,type:'vehicle'};const chassis=new THREE.Mesh(new THREE.BoxGeometry(2.2,.65,4),new THREE.MeshStandardMaterial({color:0x14b8a6,metalness:.5,roughness:.3}));car.add(chassis);scene.add(car);let driving=false,held=false,holder:THREE.Object3D|null=null
+  const interactives=[...portals,...npcs,ball,car];const controllers=[renderer.xr.getController(0),renderer.xr.getController(1)]
+  function act(c:THREE.Object3D,index:number){const rc=new THREE.Raycaster(),origin=new THREE.Vector3(),dir=new THREE.Vector3(0,0,-1);c.getWorldPosition(origin);dir.applyQuaternion(c.getWorldQuaternion(new THREE.Quaternion())).normalize();rc.set(origin,dir);const hit=rc.intersectObjects(interactives,true)[0];let obj:any=hit?.object;while(obj&&!obj.userData?.interactive)obj=obj.parent;if(!obj){emit('tryamm:quest-action',{index,action:'select'});return} const d=obj.userData
+   if(d.type==='portal'){progress.verse=d.label;save(progress);emit(d.eventName,{source:'quest-immersive',label:d.label,avatarId:progress.avatarId})}
+   if(d.type==='npc'){emit('tryamm:npc-conversation',{source:'quest',npc:d.name,text:d.text,avatarId:progress.avatarId});emit('tryamm:accessibility-announce',{text:`${d.name}: ${d.text}`})}
+   if(d.type==='vehicle'){driving=!driving;emit('tryamm:quest-vehicle',{driving,avatarId:progress.avatarId})}
+   if(d.type==='ball'){held=true;holder=c;emit('tryamm:basketball-possession',{source:'quest',controller:index})}
+  }
+  controllers.forEach((c,index)=>{rig.add(c);c.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(0,0,-5)]),new THREE.LineBasicMaterial({color:index?0xff6fae:0x72e5ff})));c.addEventListener('selectstart',()=>act(c,index));c.addEventListener('selectend',()=>{if(held&&holder===c){held=false;holder=null;const dir=new THREE.Vector3(0,0,-1).applyQuaternion(c.getWorldQuaternion(new THREE.Quaternion())).normalize();ball.position.copy(c.getWorldPosition(new THREE.Vector3()));(ball.userData as any).velocity=dir.multiplyScalar(7).add(new THREE.Vector3(0,2.6,0));emit('tryamm:basketball-shot',{source:'quest-physical',controller:index})}});c.addEventListener('squeezestart',()=>emit('tryamm:quest-action',{index,action:'grip'}))})
+  const hands=[renderer.xr.getHand(0),renderer.xr.getHand(1)];hands.forEach((h,index)=>{rig.add(h);h.addEventListener('pinchstart',()=>emit('tryamm:quest-hand',{index,gesture:'pinchstart'}));h.addEventListener('pinchend',()=>emit('tryamm:quest-hand',{index,gesture:'pinchend'}))})
+  let snapReady=true,lastSave=0;const clock=new THREE.Clock();const vel=new THREE.Vector3()
+  renderer.setAnimationLoop(()=>{const dt=Math.min(clock.getDelta(),.05);const xrCam=renderer!.xr.getCamera(camera),q=new THREE.Quaternion();xrCam.getWorldQuaternion(q);const f=new THREE.Vector3(0,0,-1).applyQuaternion(q);f.y=0;f.normalize();const r=new THREE.Vector3(1,0,0).applyQuaternion(q);r.y=0;r.normalize();for(const src of session.inputSources||[]){const gp=src.gamepad;if(!gp)continue;const a=gp.axes||[],x=Number(a[2]??a[0]??0),y=Number(a[3]??a[1]??0);if(progress.locomotion==='smooth'){const speed=driving?8:3.2;if(Math.abs(y)>.18)rig.position.addScaledVector(f,-y*dt*speed);if(Math.abs(x)>.18)rig.position.addScaledVector(r,x*dt*speed)}if(Math.abs(x)>.78&&snapReady){rig.rotateY(-Math.sign(x)*Math.PI/6);snapReady=false;setTimeout(()=>snapReady=true,260)}}
+   if(held&&holder)ball.position.copy(holder.getWorldPosition(new THREE.Vector3())).add(new THREE.Vector3(0,-.08,-.18));else{const v=(ball.userData as any).velocity as THREE.Vector3|undefined;if(v){v.y-=9.8*dt;ball.position.addScaledVector(v,dt);if(ball.position.y<.24){ball.position.y=.24;v.y*=-.55;v.x*=.8;v.z*=.8;if(v.length()<.35)delete (ball.userData as any).velocity}}}
+   if(!progress.missions.includes('court-run')&&rig.position.distanceTo(new THREE.Vector3(2,0,-7))<2.4){progress.missions.push('court-run');progress.xp+=250;progress.credits+=500;progress.inventory.push('Court Run Badge');save(progress);emit('tryamm:mission-completed',{missionId:'court-run',title:'Quest Court Run',actorId:progress.avatarId,xp:250,credits:500,currency:'HC'})}
+   if(progress.locomotion==='teleport'){for(const c of controllers){const src=(c as any).inputSource||(c as any).userData?.inputSource,gp=src?.gamepad;if(gp?.buttons?.[3]?.pressed){const p=c.getWorldPosition(new THREE.Vector3()),d=new THREE.Vector3(0,0,-1).applyQuaternion(c.getWorldQuaternion(new THREE.Quaternion()));if(d.y<-.08){const t=-p.y/d.y;if(t>0&&t<20){const dest=p.clone().addScaledVector(d,t);rig.position.x=dest.x;rig.position.z=dest.z}}}}}
+   portals.forEach((p,i)=>p.rotation.y=Math.sin(performance.now()*.0005+i)*.08);if(performance.now()-lastSave>2000){progress.position=rig.position.toArray() as [number,number,number];progress.verse='StreetVerse';save(progress);lastSave=performance.now()} renderer!.render(scene,camera)})
+  const locomotionListener=(e:Event)=>{const d=(e as CustomEvent<any>).detail||{};if(d.mode==='teleport'||d.mode==='smooth'){progress.locomotion=d.mode;save(progress)}};window.addEventListener('tryamm:quest-locomotion-mode',locomotionListener)
+  emit('tryamm:meta-quest-session-start',{mode,avatarId:progress.avatarId,progress,features:['persistent-avatar','persistent-xp-inventory-missions','true-webxr-session','controller-rays','smooth-locomotion','teleport-mode','snap-turn','physical-ball-hold-throw','vehicle-driving-mode','npc-conversation','world-portals']});emit('tryamm:accessibility-announce',{text:'StreetVerse immersive Quest mode started. Your avatar and progression are loaded.'})
+  const end=()=>{progress.position=rig.position.toArray() as [number,number,number];save(progress);window.removeEventListener('tryamm:quest-locomotion-mode',locomotionListener);renderer?.setAnimationLoop(null);renderer?.dispose();root?.remove();active=false;emit('tryamm:meta-quest-session-end',{mode,avatarId:progress.avatarId})};session.addEventListener('end',end,{once:true})
+ }catch(error:any){active=false;renderer?.setAnimationLoop(null);renderer?.dispose();root?.remove();emit('tryamm:meta-quest-error',{reason:error?.message||String(error),mode})}
 }
-
-export function installStreetVerseQuestImmersiveRuntime(){
-  if(installed||typeof window==='undefined')return;installed=true
-  window.addEventListener('tryamm:meta-quest-request-immersive',(event:Event)=>{const mode=(event as CustomEvent<any>).detail?.mode==='immersive-ar'?'immersive-ar':'immersive-vr';void startImmersive(mode)})
-  window.addEventListener('tryamm:metaquest-enter-vr',()=>void startImmersive('immersive-vr'))
-  window.addEventListener('tryamm:metaquest-enter-ar',()=>void startImmersive('immersive-ar'))
-  queueMicrotask(()=>emit('tryamm:quest-immersive-runtime-ready',{trueWebXR:true,rendererBinding:true,controllerInput:true,handEvents:true,locomotion:true,portals:true}))
-}
+export function installStreetVerseQuestImmersiveRuntime(){if(installed||typeof window==='undefined')return;installed=true;window.addEventListener('tryamm:meta-quest-request-immersive',(e:Event)=>void startImmersive((e as CustomEvent<any>).detail?.mode==='immersive-ar'?'immersive-ar':'immersive-vr'));window.addEventListener('tryamm:metaquest-enter-vr',()=>void startImmersive('immersive-vr'));window.addEventListener('tryamm:metaquest-enter-ar',()=>void startImmersive('immersive-ar'));window.addEventListener('tryamm:quest-progress-request',()=>emit('tryamm:quest-progress',load()));queueMicrotask(()=>emit('tryamm:quest-immersive-runtime-ready',{trueWebXR:true,persistentAvatar:true,persistentProgress:true,npcs:true,physicalBasketball:true,vehicleMode:true,locomotion:['smooth','teleport'],portals:true}))}
