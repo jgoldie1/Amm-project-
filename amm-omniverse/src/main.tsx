@@ -6,6 +6,7 @@ import AccessibilityStatement from './components/AccessibilityStatement'
 import FamilyBusinessPublicSite from './components/FamilyBusinessPublicSite'
 import FamilyBusinessDirectory from './components/FamilyBusinessDirectory'
 import HoloGPTEventAlias from './components/HoloGPTEventAlias'
+import UniversalSafetyLauncher from './components/UniversalSafetyLauncher'
 import UniversalAccessRuntime from './components/UniversalAccessRuntime'
 import StandaloneProductSite from './components/StandaloneProductSite'
 import { getStandaloneSite } from './data/standaloneSiteRegistry'
@@ -129,6 +130,7 @@ const mainShell=<>
   <JudahSplash />
   <App />
   <HoloGPTEventAlias />
+  <UniversalSafetyLauncher />
   <Suspense fallback={null}><StreetVerseNextLevelHUD district="TRYAMM • HOME" assetStatus="PLATFORM ACTIVE" /></Suspense>
   <a href="/accessibility.html" aria-label="Read TRYAMM Accessibility Statement" style={{position:'fixed',left:12,bottom:12,zIndex:9100,minHeight:44,display:'inline-flex',alignItems:'center',padding:'0 14px',borderRadius:999,background:'#07131df2',border:'1px solid #7de8ff77',color:'#e8fbff',fontFamily:'system-ui,sans-serif',fontSize:12,fontWeight:800,textDecoration:'none'}}>♿ Accessibility</a>
 </>
