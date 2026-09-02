@@ -23,7 +23,7 @@ export const TRYAMM_ROUTES: TryammRoute[] = [
   { id:'quantum-email', path:'/quantum-email', label:'Quantum Email', kind:'overlay', opener:'__showQuantumEmail', readiness:'beta' },
   { id:'faith', path:'/faith', label:'Faith Realm', kind:'screen', screen:'faith', readiness:'live' },
   { id:'blockchain', path:'/blockchain', label:'Blockchain Realm', kind:'screen', screen:'blockchain', readiness:'beta' },
-  { id:'streetverse', path:'/streetverse', label:'StreetVerse', kind:'overlay', opener:'__showPlayableBeta', readiness:'beta' },
+  { id:'streetverse', path:'/streetverse', label:'StreetVerse Chicago', kind:'screen', screen:'city', readiness:'live' },
   { id:'reel-creator', path:'/reel-creator', label:'Reel Creator', kind:'overlay', opener:'__showMediaStudio', readiness:'beta' },
   { id:'holo-video', path:'/holo-video', label:'Holo Video', kind:'overlay', opener:'__showMediaStudio', readiness:'beta' },
   { id:'all-american-network', path:'/all-american-network', label:'All American Network', kind:'overlay', opener:'__showAllAmericanNetwork', readiness:'beta' },
