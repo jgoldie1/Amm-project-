@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import HoloDeliveryCenter from './HoloDeliveryCenter';
+import { installStreetVerseShoppingDeliveryMissionRuntime } from '../runtime/StreetVerseShoppingDeliveryMissionRuntime';
+
+installStreetVerseShoppingDeliveryMissionRuntime();
 
 export default function HoloDeliveryLauncher() {
   const [open, setOpen] = useState(false);
