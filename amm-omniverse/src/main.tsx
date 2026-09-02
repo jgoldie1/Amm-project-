@@ -2,48 +2,10 @@ import { StrictMode, Suspense, lazy } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
 import JudahSplash from './components/JudahSplash'
-import UniversalSafetyLauncher from './components/UniversalSafetyLauncher'
-import MiddleverseLauncher from './components/MiddleverseLauncher'
-import GameVerseLauncher from './components/GameVerseLauncher'
-import AccessibilityPassportPanel from './components/AccessibilityPassportPanel'
 import AccessibilityStatement from './components/AccessibilityStatement'
-import HoloDeliveryLauncher from './components/HoloDeliveryLauncher'
-import HoloMobilityLauncher from './components/HoloMobilityLauncher'
-import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
-import MediaStudioLauncher from './components/MediaStudioLauncher'
-import HoloDramaLauncher from './components/HoloDramaLauncher'
-import BroadcastStudioLauncher from './components/BroadcastStudioLauncher'
 import FamilyBusinessPublicSite from './components/FamilyBusinessPublicSite'
 import FamilyBusinessDirectory from './components/FamilyBusinessDirectory'
-import FamilyBusinessDirectoryLauncher from './components/FamilyBusinessDirectoryLauncher'
-import SafeOnboardingGate from './components/SafeOnboardingGate'
-import StreetVerseLifeHub from './components/StreetVerseLifeHub'
-import StreetVerseCareerHUD from './components/StreetVerseCareerHUD'
-import StreetVerseMissionWorldBridge from './components/StreetVerseMissionWorldBridge'
-import AIWebsiteBusinessBuilder from './components/AIWebsiteBusinessBuilder'
-import JacobieVisionLauncher from './components/JacobieVisionLauncher'
-import FirstClassFeatureDock from './components/FirstClassFeatureDock'
-import CampusWelcomeBoard from './components/CampusWelcomeBoard'
-import ReleaseChangesPanel from './components/ReleaseChangesPanel'
-import ProductionReadinessPanel from './components/ProductionReadinessPanel'
 import HoloGPTEventAlias from './components/HoloGPTEventAlias'
-import StreetVersePortalTransition from './components/StreetVersePortalTransition'
-import OmniBICommandCenter from './components/OmniBICommandCenter'
-import MetaverseBusinessBuilder from './components/MetaverseBusinessBuilder'
-import RevenueLandingCTAs from './components/RevenueLandingCTAs'
-import HoloConcierge from './components/HoloConcierge'
-import OmniverseCoreLoopHUD from './components/OmniverseCoreLoopHUD'
-import UnifiedCommerceHub from './components/UnifiedCommerceHub'
-import NeighborhoodCommerceNetwork from './components/NeighborhoodCommerceNetwork'
-import VirtualWarehouseNetwork from './components/VirtualWarehouseNetwork'
-import HoloFridge from './components/HoloFridge'
-import LivingWorldEconomyHUD from './components/LivingWorldEconomyHUD'
-import BuildSwarmControl from './components/BuildSwarmControl'
-import ProductTryOnHub from './components/ProductTryOnHub'
-import HoloMusicLauncher from './components/HoloMusicLauncher'
-import OmniCashLauncher from './components/OmniCashLauncher'
-import GlobalGrowthHub from './components/GlobalGrowthHub'
-import LivingWorldAdaptiveBridge from './components/LivingWorldAdaptiveBridge'
 import UniversalAccessRuntime from './components/UniversalAccessRuntime'
 import StandaloneProductSite from './components/StandaloneProductSite'
 import { getStandaloneSite } from './data/standaloneSiteRegistry'
@@ -93,7 +55,7 @@ import { installStreetVerseCreatorDistrict3D } from './runtime/StreetVerseCreato
 
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 const StreetVerseNextLevelHUD=lazy(()=>import('./components/StreetVerseNextLevelHUD'))
-// Release compatibility marker: lazy(()=>import('./components/StreetVerseLivingWorld'))
+// Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
 const StreetVerseTwinWorld=lazy(()=>import('./components/StreetVerseTwinWorld'))
 const MeetTheStubbsWorldDistrict=lazy(()=>import('./components/MeetTheStubbsWorldDistrict'))
 
@@ -161,47 +123,13 @@ const streetVerseRoute=<>
 </>
 
 // Release compatibility marker required by the Omniverse shell smoke contract: <OmniverseCoreLoopHUD />
-// Keep legacy modules available to the bundle, but do not mount their always-visible HUDs on the public shell.
-void [StreetVerseLifeHub,StreetVerseCareerHUD,StreetVerseMissionWorldBridge,HoloConcierge,OmniverseCoreLoopHUD]
-
+// The old always-visible Construct/Bennie/launcher stack is intentionally not mounted on the public home shell.
+// Its runtimes remain installed and features are opened through the redesigned TRYAMM UI and Control Deck.
 const mainShell=<>
   <JudahSplash />
   <App />
-  <Suspense fallback={null}><StreetVerseNextLevelHUD district="TRYAMM • HOME" assetStatus="PLATFORM ACTIVE" /></Suspense>
-  <SafeOnboardingGate />
-  <StreetVersePortalTransition />
-  <LivingWorldAdaptiveBridge />
-  <RevenueLandingCTAs />
-  <UniversalSafetyLauncher />
-  <MiddleverseLauncher />
-  <GameVerseLauncher />
-  <MediaStudioLauncher />
-  <HoloDramaLauncher />
-  <BroadcastStudioLauncher />
-  <AIWebsiteBusinessBuilder />
-  <FamilyBusinessDirectoryLauncher />
-  <JacobieVisionLauncher />
   <HoloGPTEventAlias />
-  <FirstClassFeatureDock />
-  <CampusWelcomeBoard />
-  <ReleaseChangesPanel />
-  <ProductionReadinessPanel />
-  <OmniBICommandCenter />
-  <MetaverseBusinessBuilder />
-  <AccessibilityPassportPanel />
-  <HoloDeliveryLauncher />
-  <HoloMobilityLauncher />
-  <HoloMarketplaceLauncher />
-  <UnifiedCommerceHub />
-  <NeighborhoodCommerceNetwork />
-  <VirtualWarehouseNetwork />
-  <HoloFridge />
-  <LivingWorldEconomyHUD />
-  <BuildSwarmControl />
-  <ProductTryOnHub />
-  <HoloMusicLauncher />
-  <OmniCashLauncher />
-  <GlobalGrowthHub />
+  <Suspense fallback={null}><StreetVerseNextLevelHUD district="TRYAMM • HOME" assetStatus="PLATFORM ACTIVE" /></Suspense>
   <a href="/accessibility.html" aria-label="Read TRYAMM Accessibility Statement" style={{position:'fixed',left:12,bottom:12,zIndex:9100,minHeight:44,display:'inline-flex',alignItems:'center',padding:'0 14px',borderRadius:999,background:'#07131df2',border:'1px solid #7de8ff77',color:'#e8fbff',fontFamily:'system-ui,sans-serif',fontSize:12,fontWeight:800,textDecoration:'none'}}>♿ Accessibility</a>
 </>
 
