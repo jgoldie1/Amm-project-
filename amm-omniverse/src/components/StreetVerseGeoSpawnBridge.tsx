@@ -1,4 +1,5 @@
 import { Suspense, lazy, useMemo } from 'react'
+import StreetVerseNextLevelHUD from './StreetVerseNextLevelHUD'
 
 const StreetVerseLivingWorld=lazy(()=>import('./StreetVerseLivingWorld'))
 const DESTINATION_KEY='tryamm.streetverse.chicago-destination.v1'
@@ -36,7 +37,8 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
     <Suspense fallback={<div style={{position:'fixed',inset:0,display:'grid',placeItems:'center',background:'#050505',color:'#fff',zIndex:17000,fontFamily:'system-ui',fontWeight:900}}>LOADING CHICAGO STREETVERSE…</div>}>
       <StreetVerseLivingWorld onClose={onClose}/>
     </Suspense>
-    {prepared.mapped&&<div style={{position:'fixed',right:12,top:12,zIndex:16995,maxWidth:300,padding:'10px 12px',borderRadius:12,background:'rgba(3,12,20,.84)',border:'1px solid #62b8ff77',color:'#fff',fontFamily:'system-ui',fontSize:12}}>
+    <StreetVerseNextLevelHUD district={prepared.mapped?.label?`CHICAGO • ${prepared.mapped.label.toUpperCase()}`:'CHICAGO • DISTRICT 01'} assetStatus="WORLD ACTIVE" />
+    {prepared.mapped&&<div style={{position:'fixed',left:12,bottom:12,zIndex:16995,maxWidth:300,padding:'10px 12px',borderRadius:12,background:'rgba(3,12,20,.84)',border:'1px solid #62b8ff77',color:'#fff',fontFamily:'system-ui',fontSize:12}}>
       <strong>CHICAGO NAV SPAWN</strong><br/>{prepared.mapped.label}<br/><span style={{opacity:.75}}>Selected from Twin World • real-world destination mapped into the playable district.</span>
     </div>}
   </>
