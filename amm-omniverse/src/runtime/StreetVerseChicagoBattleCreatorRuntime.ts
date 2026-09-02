@@ -1,0 +1,15 @@
+let installed=false
+const KEY='tryamm.streetverse.chicago-battle-creator.v1'
+type Mode='district-rush'|'creator-build'|'squad-survival'|'lakefront-storm'|'chrono-clash'
+type State={mode:Mode;season:number;wins:number;builds:number;district:string;squad:number;storm:number}
+const read=():State=>{try{return {...{mode:'district-rush',season:1,wins:0,builds:0,district:'Loop',squad:1,storm:100},...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{return {mode:'district-rush',season:1,wins:0,builds:0,district:'Loop',squad:1,storm:100}}}
+const save=(s:State)=>{try{localStorage.setItem(KEY,JSON.stringify({...s,updatedAt:new Date().toISOString()}))}catch{}}
+const emit=(n:string,d:any)=>window.dispatchEvent(new CustomEvent(n,{detail:d}))
+const MODES={
+'district-rush':{title:'District Rush',desc:'Fast Chicago district challenge with rotating objectives, transit movement, rooftops, courts and creator checkpoints.'},
+'creator-build':{title:'Creator Build-Off',desc:'Place temporary game structures, stages, art walls and obstacle pieces in approved creator zones.'},
+'squad-survival':{title:'Squad Survival',desc:'Team-based fictional survival event with revives, resource pickups, rotating safe zones and non-cash rewards.'},
+'lakefront-storm':{title:'Lakefront Storm',desc:'Dynamic storm event across a fictionalized Chicago lakefront with rescue, racing and extraction objectives.'},
+'chrono-clash':{title:'Chrono Clash',desc:'Time Machine event where historical and speculative Chicago simulation layers overlap for rotating objectives.'}
+} as const
+export function installStreetVerseChicagoBattleCreatorRuntime(){if(installed||typeof window==='undefined')return;installed=true;let state=read();const publish=(reason:string)=>{save(state);emit('tryamm:chicago-battle-creator-state',{...state,reason,modes:MODES,originalMode:true,notAffiliatedWithEpic:true})};window.addEventListener('tryamm:battle-mode-select',(e:any)=>{const m=String(e.detail?.mode||'district-rush') as Mode;if(m in MODES)state.mode=m;state.squad=Math.max(1,Math.min(4,Number(e.detail?.squad||state.squad)));publish('mode-select')});window.addEventListener('tryamm:district-enter',(e:any)=>{state.district=String(e.detail?.district||state.district);publish('district')});window.addEventListener('tryamm:creator-build-place',(e:any)=>{state.builds+=1;emit('tryamm:creator-build-confirmed',{count:state.builds,zone:e.detail?.zone||'approved-creator-zone'});publish('build')});window.addEventListener('tryamm:battle-round-win',()=>{state.wins+=1;emit('tryamm:mission-completed',{missionId:`battle-${state.mode}`,title:MODES[state.mode].title,xp:350,holoCredits:70,source:'chicago-battle-creator'});publish('win')});window.addEventListener('tryamm:streetverse-weather',(e:any)=>{const w=String(e.detail?.weather||'clear');state.storm=w.includes('storm')?35:w.includes('snow')?60:100;publish('weather')});emit('tryamm:chicago-battle-creator-ready',{modes:MODES,state,brand:'StreetVerse Chicago Battle + Creator',originalMode:true})}
