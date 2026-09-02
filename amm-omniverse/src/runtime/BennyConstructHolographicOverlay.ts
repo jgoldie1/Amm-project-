@@ -1,7 +1,7 @@
 export type BennyOverlayMode='guide'|'mission'|'scan'|'creator'|'accessibility'|'construct'
 export type BennyOverlayState={enabled:boolean;mode:BennyOverlayMode;opacity:number;scanlines:boolean;depthCue:boolean;worldAnchored:boolean;physicalProjection:false}
 
-let state:BennyOverlayState={enabled:true,mode:'guide',opacity:.9,scanlines:true,depthCue:true,worldAnchored:true,physicalProjection:false}
+let state:BennyOverlayState={enabled:false,mode:'guide',opacity:.9,scanlines:true,depthCue:true,worldAnchored:true,physicalProjection:false}
 let installed=false
 let shell:HTMLDivElement|null=null
 let caption:HTMLDivElement|null=null
@@ -41,19 +41,17 @@ function render(){
 
 export function getBennyConstructOverlay(){return {...state}}
 export function setBennyConstructOverlay(patch:Partial<BennyOverlayState>){state={...state,...patch,physicalProjection:false};render();emit('tryamm:benny:construct-overlay-state',{...state,softwareOverlay:true,requiresCompatibleDisplayForPhysicalHologram:true,createdAt:new Date().toISOString()});return getBennyConstructOverlay()}
-export function pulseBennyConstructOverlay(context:string){render();if(shell){shell.style.transform='scale(1.035)';if(pulseTimer)window.clearTimeout(pulseTimer);pulseTimer=window.setTimeout(()=>{if(shell)shell.style.transform='scale(1)'},220)}emit('tryamm:benny:construct-pulse',{context,state:getBennyConstructOverlay(),layers:['volumetric-rim','depth-grid','scanline-shell','world-anchor','caption-panel','mission-pointer'],createdAt:new Date().toISOString()})}
+export function pulseBennyConstructOverlay(context:string){render();if(shell&&state.enabled){shell.style.transform='scale(1.035)';if(pulseTimer)window.clearTimeout(pulseTimer);pulseTimer=window.setTimeout(()=>{if(shell)shell.style.transform='scale(1)'},220)}emit('tryamm:benny:construct-pulse',{context,state:getBennyConstructOverlay(),layers:['volumetric-rim','depth-grid','scanline-shell','world-anchor','caption-panel','mission-pointer'],createdAt:new Date().toISOString()})}
 
 export function installBennyConstructHolographicOverlay(){
  if(installed||typeof window==='undefined')return
  installed=true
  render()
- window.addEventListener('tryamm:benny:overlay-request',(event:Event)=>{const detail=(event as CustomEvent<Record<string,unknown>>).detail||{};const context=String(detail.context||'streetverse');setBennyConstructOverlay({enabled:true,mode:context.includes('creator')?'creator':context.includes('scan')?'scan':context.includes('mission')?'mission':'construct'});pulseBennyConstructOverlay(context)})
- window.addEventListener('tryamm:mission:discovered',()=>{setBennyConstructOverlay({enabled:true,mode:'mission'});pulseBennyConstructOverlay('mission')})
- window.addEventListener('tryamm:mission-completed',()=>{setBennyConstructOverlay({enabled:true,mode:'guide'});pulseBennyConstructOverlay('mission-complete')})
- window.addEventListener('tryamm:media-studio-open',()=>{setBennyConstructOverlay({enabled:true,mode:'creator'});pulseBennyConstructOverlay('creator')})
- window.addEventListener('tryamm:avatar-capture-authorized',()=>{setBennyConstructOverlay({enabled:true,mode:'scan'});pulseBennyConstructOverlay('avatar-scan')})
- window.addEventListener('tryamm:avatar-video-ephemeral-complete',()=>{setBennyConstructOverlay({enabled:true,mode:'guide'});pulseBennyConstructOverlay('avatar-scan-complete')})
- window.addEventListener('tryamm:streetverse-enter',()=>{setBennyConstructOverlay({enabled:true,mode:'construct'});pulseBennyConstructOverlay('streetverse-enter')})
- window.addEventListener('tryamm:streetverse-exit',()=>setBennyConstructOverlay({enabled:false}))
- emit('tryamm:benny:construct-overlay-ready',{software:true,physicalProjection:false,layers:['volumetric-rim','depth-grid','scanline-shell','world-anchor','caption-panel','mission-pointer'],accessibility:['captions','high-contrast','reduced-motion-compatible','audio-description-hooks'],modes:Object.keys(MODE_COPY)})
+ const show=(context='construct')=>{setBennyConstructOverlay({enabled:true,mode:context.includes('creator')?'creator':context.includes('scan')?'scan':context.includes('mission')?'mission':'construct'});pulseBennyConstructOverlay(context)}
+ const hide=()=>setBennyConstructOverlay({enabled:false})
+ ;(window as any).__showBennyConstructHologram=show
+ ;(window as any).__hideBennyConstructHologram=hide
+ window.addEventListener('tryamm:benny:overlay-request',(event:Event)=>{const detail=(event as CustomEvent<Record<string,unknown>>).detail||{};show(String(detail.context||'construct'))})
+ window.addEventListener('tryamm:benny:overlay-hide',hide)
+ emit('tryamm:benny:construct-overlay-ready',{software:true,physicalProjection:false,defaultVisible:false,summonOnly:true,layers:['volumetric-rim','depth-grid','scanline-shell','world-anchor','caption-panel','mission-pointer'],accessibility:['captions','high-contrast','reduced-motion-compatible','audio-description-hooks'],modes:Object.keys(MODE_COPY)})
 }
