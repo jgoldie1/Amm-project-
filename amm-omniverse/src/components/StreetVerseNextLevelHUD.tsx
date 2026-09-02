@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import AniyahPayCenter from './AniyahPayCenter'
+import VolcanoGamingHub from './VolcanoGamingHub'
 
 type Props={district?:string;assetStatus?:string;visited?:number;totalMissions?:number}
 type HudTab='play'|'create'|'system'
@@ -9,12 +10,14 @@ type LauncherAction={label:string;icon:string;names?:string[];run?:()=>void;hint
 export default function StreetVerseNextLevelHUD({district='CHICAGO • DISTRICT 01',assetStatus='WORLD ACTIVE',visited=0,totalMissions=4}:Props){
  const [open,setOpen]=useState(true)
  const [showAniyahPay,setShowAniyahPay]=useState(false)
+ const [showVolcano,setShowVolcano]=useState(false)
  const [tab,setTab]=useState<HudTab>('play')
  const [status,setStatus]=useState('StreetVerse controls ready.')
  const progress=useMemo(()=>totalMissions>0?Math.min(100,Math.round((visited/totalMissions)*100)):0,[visited,totalMissions])
 
  useEffect(()=>{const fn=()=>setOpen(v=>!v);window.addEventListener('tryamm:streetverse-hud',fn);return()=>window.removeEventListener('tryamm:streetverse-hud',fn)},[])
  useEffect(()=>{;(window as any).__showAniyahPay=()=>setShowAniyahPay(true);return()=>{delete (window as any).__showAniyahPay}},[])
+ useEffect(()=>{;(window as any).__showVolcanoGaming=()=>setShowVolcano(true);return()=>{delete (window as any).__showVolcanoGaming}},[])
 
  const launch=(names:string[],label:string)=>{
    for(const name of names){
@@ -32,6 +35,7 @@ export default function StreetVerseNextLevelHUD({district='CHICAGO • DISTRICT 
    play:[
      {label:'HoloGPT',icon:'◈',names:['__showHoloGPT'],hint:'Ask, navigate and get mission help.',accent:true},
      {label:'Holo Fon',icon:'📱',names:['__showHoloFon'],hint:'Calls, messages, services and world controls.'},
+     {label:'Volcano Gaming',icon:'🌋',run:()=>setShowVolcano(true),hint:'Phone + gamepad + TV / AR / VR control bridge.'},
      {label:'Aniyah Pay',icon:'💸',run:()=>setShowAniyahPay(true),hint:'Send, request, split and cross-border.'},
      {label:'Holoverse',icon:'◎',names:['__showHoloverse'],hint:'Move between connected worlds.'},
    ],
@@ -50,6 +54,7 @@ export default function StreetVerseNextLevelHUD({district='CHICAGO • DISTRICT 
  }
 
  if(showAniyahPay)return <AniyahPayCenter onClose={()=>setShowAniyahPay(false)}/>
+ if(showVolcano)return <VolcanoGamingHub onClose={()=>setShowVolcano(false)}/>
  if(!open)return <button aria-label="Open StreetVerse control deck" onClick={()=>setOpen(true)} style={{position:'absolute',right:12,top:'max(12px,env(safe-area-inset-top))',zIndex:30,minHeight:44,border:'1px solid #4fe3ff77',borderRadius:999,background:'#06131df2',color:'#b9f7ff',padding:'9px 14px',fontFamily:'monospace',fontWeight:900,boxShadow:'0 10px 30px #0009'}}>◈ STREETVERSE</button>
 
  return <aside aria-label="StreetVerse control deck" style={{position:'absolute',right:10,top:'max(10px,env(safe-area-inset-top))',zIndex:30,width:'min(378px,calc(100vw - 20px))',maxHeight:'calc(100dvh - 20px)',overflowY:'auto',background:'linear-gradient(165deg,#04131cf5,#0b0718f2 62%,#051019f5)',border:'1px solid #4fe3ff66',borderRadius:20,padding:14,backdropFilter:'blur(16px)',boxShadow:'0 20px 70px #000c',fontFamily:'monospace',color:'#e8fbff'}}>
@@ -73,8 +78,8 @@ export default function StreetVerseNextLevelHUD({district='CHICAGO • DISTRICT 
 
   <div role="status" aria-live="polite" style={{marginTop:10,minHeight:34,padding:'9px 10px',border:'1px solid #284655',borderRadius:11,background:'#050d14cc',fontSize:9,lineHeight:1.55,color:'#a7c2cc'}}>{status}</div>
 
-  <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6,marginTop:9}}><Metric label="WORLD" value="LIVE"/><Metric label="PAY" value="GATED"/><Metric label="MEMORY" value="ON"/><Metric label="A11Y" value="READY"/></div>
-  <div style={{marginTop:9,fontSize:8.5,lineHeight:1.55,color:'#7195a4'}}>One control deck for play, creation and platform systems. Large touch targets and explicit launcher feedback prevent invisible button failures. Real-money submission remains server-side and compliance-gated.</div>
+  <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6,marginTop:9}}><Metric label="WORLD" value="LIVE"/><Metric label="INPUT" value="VOLCANO"/><Metric label="MEMORY" value="ON"/><Metric label="A11Y" value="READY"/></div>
+  <div style={{marginTop:9,fontSize:8.5,lineHeight:1.55,color:'#7195a4'}}>One control deck for play, creation and platform systems. VOLCANO connects Holo Fon, browser-visible gamepads, casting and XR handoff without replacing the existing StreetVerse controls. Real-money submission remains server-side and compliance-gated.</div>
  </aside>
 }
 
