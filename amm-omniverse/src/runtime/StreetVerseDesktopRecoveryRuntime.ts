@@ -2,9 +2,12 @@ let installed=false
 
 function style(el:HTMLElement,css:Partial<CSSStyleDeclaration>){Object.assign(el.style,css)}
 
-function go(path:string){
-  if(window.location.pathname===path){window.location.reload();return}
-  window.location.assign(path)
+function navigate(path:string){
+  const nav=(window as any).__tryammNavigate
+  if(typeof nav==='function'){nav(path);return}
+  const normalized=path.startsWith('/')?path:`/${path}`
+  if(window.location.hash===`#${normalized}`){window.dispatchEvent(new HashChangeEvent('hashchange'));return}
+  window.location.hash=normalized
 }
 
 export function installStreetVerseDesktopRecoveryRuntime(){
@@ -28,17 +31,17 @@ export function installStreetVerseDesktopRecoveryRuntime(){
     }
 
     nav.append(
-      make('🎮 STREETVERSE',()=>go('/streetverse'),true),
-      make('🏠 HOME',()=>go('/')),
-      make('🛍 MARKET',()=>{const fn=(window as any).__showMarketplace;if(typeof fn==='function')fn();else window.dispatchEvent(new CustomEvent('tryamm:open-marketplace'))}),
-      make('✦ NEXUS',()=>{const fn=(window as any).__showCommandNexus;if(typeof fn==='function')fn()})
+      make('🎮 STREETVERSE',()=>navigate('/streetverse'),true),
+      make('🏠 HOME',()=>navigate('/')),
+      make('🛍 MARKET',()=>navigate('/marketplace')),
+      make('✦ NEXUS',()=>navigate('/command-nexus'))
     )
     document.body.appendChild(nav)
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount()
 
-  window.addEventListener('tryamm:streetverse-open',()=>go('/streetverse'))
-  window.addEventListener('tryamm:streetverse-recover',()=>go('/streetverse'))
-  queueMicrotask(()=>window.dispatchEvent(new CustomEvent('tryamm:desktop-recovery-ready',{detail:{streetversePath:'/streetverse',homePath:'/'}})))
+  window.addEventListener('tryamm:streetverse-open',()=>navigate('/streetverse'))
+  window.addEventListener('tryamm:streetverse-recover',()=>navigate('/streetverse'))
+  queueMicrotask(()=>window.dispatchEvent(new CustomEvent('tryamm:desktop-recovery-ready',{detail:{streetversePath:'#/streetverse',homePath:'#/'}})))
 }
