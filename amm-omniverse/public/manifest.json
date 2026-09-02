@@ -25,6 +25,7 @@
   ],
   "shortcuts": [
     { "name": "TRYAMM Home", "short_name": "Home", "url": "/", "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }] },
+    { "name": "StreetVerse XR", "short_name": "StreetVerse XR", "description": "Launch StreetVerse with Meta Quest and WebXR capability detection.", "url": "/?screen=streetverse&source=meta-quest-xr", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "Marketplace", "short_name": "Market", "url": "/?screen=marketplace", "icons": [{ "src": "/icons/shortcut-market.png", "sizes": "96x96" }] },
     { "name": "LIVE", "short_name": "LIVE", "url": "/?action=live", "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }] },
     { "name": "Living Worlds", "short_name": "Worlds", "url": "/?screen=city", "icons": [{ "src": "/icons/shortcut-city.png", "sizes": "96x96" }] }
