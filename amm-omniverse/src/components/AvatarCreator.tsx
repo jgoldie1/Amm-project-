@@ -275,7 +275,7 @@ export default function AvatarCreator({onDone}:{onDone:()=>void}){
 
       {step==='preview'&&<div style={{textAlign:'center'}}>
         <p style={muted}>This derived avatar preview can remain while raw video/camera frames are deleted.</p>
-        {previewCanvas&&<div style={{display:'flex',justifyContent:'center',margin:'18px 0'}}><canvas ref={el=>{if(el){el.width=220;el.height=220;el.getContext('2d')!.drawImage(previewCanvas,0,0,previewCanvas.width,previewCanvas.height,0,0,220,220)}} style={{width:220,height:220,borderRadius:'50%',border:`3px solid ${CATEGORY_COLORS[species.category]}`,boxShadow:`0 0 25px ${CATEGORY_COLORS[species.category]}55`}}/></div>}
+        {previewCanvas&&<div style={{display:'flex',justifyContent:'center',margin:'18px 0'}}><canvas ref={el=>{if(el){el.width=220;el.height=220;el.getContext('2d')!.drawImage(previewCanvas,0,0,previewCanvas.width,previewCanvas.height,0,0,220,220)}}} style={{width:220,height:220,borderRadius:'50%',border:`3px solid ${CATEGORY_COLORS[species.category]}`,boxShadow:`0 0 25px ${CATEGORY_COLORS[species.category]}55`}}/></div>}
         <h2 style={{marginBottom:4}}>{store.player.name}</h2><div style={{color:CATEGORY_COLORS[species.category]}}>{species.emoji} {species.label}</div>
         <div style={{color:'#5fe5b0',fontSize:11,margin:'8px 0 18px'}}>RAW VIDEO/FRAME RETENTION: NONE AFTER FIT • DERIVED AVATAR USER-DELETABLE</div>
         <div style={{display:'flex',gap:9}}><button onClick={()=>setStep('face')} style={btn('#666')}>← BACK</button><button onClick={confirm} style={{...btn(CATEGORY_COLORS[species.category]),flex:1,fontWeight:900}}>✅ CONFIRM AVATAR</button></div>
