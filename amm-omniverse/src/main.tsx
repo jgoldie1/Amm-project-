@@ -88,6 +88,7 @@ import { installStreetVerseRacingAfterDarkRuntime } from './runtime/StreetVerseR
 import { installStreetVerseMissionDiscoveryRuntime } from './runtime/StreetVerseMissionDiscoveryRuntime'
 import { installSECSConstructRuntime } from './runtime/SECSConstructRuntime'
 import { installOmniverseEventFabricRuntime } from './runtime/OmniverseEventFabricRuntime'
+import { installStreetVerseCreatorDistrict3D } from './runtime/StreetVerseCreatorDistrict3D'
 
 const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
 const MeetTheStubbsWorldDistrict=lazy(()=>import('./components/MeetTheStubbsWorldDistrict'))
@@ -133,6 +134,7 @@ installStreetVerseRacingAfterDarkRuntime()
 installStreetVerseMissionDiscoveryRuntime()
 installSECSConstructRuntime()
 installOmniverseEventFabricRuntime()
+installStreetVerseCreatorDistrict3D()
 
 const currentPath=window.location.pathname
 const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
