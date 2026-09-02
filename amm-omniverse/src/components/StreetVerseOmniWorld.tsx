@@ -16,6 +16,12 @@ const BUSINESSES=[
   {id:'holo-ads',label:'Holo Ads',x:-45,z:38,color:0xffd75c},
   {id:'network',label:'All American Network',x:38,z:36,color:0x7ef29a},
 ]
+const BASKETBALL_COURTS=[
+  {id:'south-loop',name:'South Loop Holo Court',x:-24,z:18,color:0xf3a53b},
+  {id:'lakefront',name:'Lakefront Lights',x:62,z:46,color:0x4fe3ff},
+  {id:'west-side',name:'West Side Legacy Court',x:-68,z:-22,color:0xff6fae},
+  {id:'skyline',name:'Skyline Championship Arena',x:18,z:-74,color:0xa68bff},
+]
 const NPC_NEAR_SPAWN:[number,number][]=[[-13,58],[-7,52],[7,55],[13,61],[-19,47],[19,49],[-4,67],[9,69]]
 
 function mat(color:number,metal=.1,rough=.65){return new THREE.MeshStandardMaterial({color,metalness:metal,roughness:rough})}
@@ -77,6 +83,17 @@ function aiSpirit(index:number){
   return g
 }
 
+function basketballCourt(color:number){
+  const g=new THREE.Group();const floor=new THREE.Mesh(new THREE.BoxGeometry(26,.16,15),new THREE.MeshStandardMaterial({color:0x182331,roughness:.58,metalness:.08}));floor.position.y=.11;floor.receiveShadow=true;g.add(floor)
+  const paint=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.72,toneMapped:false});const line=(w:number,d:number,x:number,z:number)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,.035,d),paint);m.position.set(x,.21,z);g.add(m)}
+  line(25,.12,0,-7);line(25,.12,0,7);line(.12,14,12.4,0);line(.12,14,-12.4,0);line(.12,14,0,0)
+  const center=new THREE.Mesh(new THREE.RingGeometry(1.8,1.94,40),paint);center.rotation.x=-Math.PI/2;center.position.y=.22;g.add(center)
+  for(const side of [-1,1]){const key=new THREE.Mesh(new THREE.BoxGeometry(5,.028,6),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.13,toneMapped:false}));key.position.set(side*9.8,.225,0);g.add(key);const pole=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,4.2,10),mat(0x252b33,.7,.28));pole.position.set(side*11.3,2.1,0);g.add(pole);const board=new THREE.Mesh(new THREE.BoxGeometry(.18,3.6,5.2),new THREE.MeshPhysicalMaterial({color:0xdaf5ff,transparent:true,opacity:.56,roughness:.12,metalness:.08}));board.position.set(side*10.75,4.5,0);g.add(board);const rim=new THREE.Mesh(new THREE.TorusGeometry(.75,.09,10,32),glow(0xff6a24,.95));rim.rotation.y=Math.PI/2;rim.position.set(side*10.05,3.6,0);g.add(rim);const net=new THREE.Mesh(new THREE.CylinderGeometry(.72,.42,.9,16,1,true),new THREE.MeshBasicMaterial({color:0xf4f4f4,wireframe:true,transparent:true,opacity:.38}));net.position.set(side*10.05,3.12,0);g.add(net)}
+  for(const x of [-11,11])for(const z of [-6.2,6.2]){const lamp=new THREE.PointLight(color,1.5,22,2);lamp.position.set(x,7,z);g.add(lamp);const bulb=new THREE.Mesh(new THREE.SphereGeometry(.13,8,6),glow(color,1));bulb.position.copy(lamp.position);g.add(bulb)}
+  const ball=new THREE.Mesh(new THREE.SphereGeometry(.42,18,14),new THREE.MeshStandardMaterial({color:0xd86c20,roughness:.62,metalness:.02}));ball.position.set(0,.62,0);ball.castShadow=true;ball.userData.baseY=.62;g.add(ball);g.userData.ball=ball
+  return g
+}
+
 function addStreetLight(scene:THREE.Scene,x:number,z:number,color=0xffd7a0){
   const pole=new THREE.Mesh(new THREE.CylinderGeometry(.08,.12,5.5,8),mat(0x151a21,.7,.34));pole.position.set(x,2.75,z);scene.add(pole)
   const lamp=new THREE.Mesh(new THREE.SphereGeometry(.18,10,8),glow(color,1));lamp.position.set(x,5.45,z);scene.add(lamp)
@@ -126,6 +143,8 @@ export default function StreetVerseOmniWorld({onClose}:{onClose:()=>void}){
       if(i%3===0){const roof=new THREE.Mesh(new THREE.BoxGeometry(w*.65,.45,d*.65),mat(0x10151d,.55,.3));roof.position.set(x,h+.25,z);scene.add(roof)}
     })
 
+    const courtGroups=new Map<string,THREE.Group>(),courtRivals=new Map<string,THREE.Group[]>();BASKETBALL_COURTS.forEach((court,ci)=>{const cg=basketballCourt(court.color);cg.position.set(court.x,.02,court.z);cg.rotation.y=ci%2?Math.PI/2:0;scene.add(cg);courtGroups.set(court.id,cg);const rivals:THREE.Group[]=[];for(let i=0;i<3;i++){const rival=person([0xd83a3a,0x5f6bff,0xf2d05e,0x8a55d6][ci],[0x6f4028,0x925f3f,0xba7b52][i]);rival.scale.setScalar(.93);rival.position.set(court.x-3+i*3,0,court.z+(i%2?2.2:-2.2));rival.userData.baseX=rival.position.x;rival.userData.baseZ=rival.position.z;rival.userData.court=ci;scene.add(rival);rivals.push(rival)}courtRivals.set(court.id,rivals)})
+
     const avatar=person(0x55e4ff,0xba7b52);avatar.scale.setScalar(1.25);avatar.position.set(saved.x??0,0,saved.z??58);scene.add(avatar)
     const cars:THREE.Group[]=[];const specs:[number,'sedan'|'gt'|'supercar'|'suv'|'limousine'][]=[[0xe33d3d,'sedan'],[0x111318,'gt'],[0xf5f5f0,'supercar'],[0x275aa8,'suv'],[0xd4b24d,'gt'],[0x681b8f,'supercar'],[0x212121,'limousine'],[0x0f7c5f,'suv'],[0xb92c2c,'gt'],[0xcfcfd2,'sedan'],[0x102a58,'supercar'],[0x7f5a25,'gt']]
     specs.forEach((s,i)=>{const c=vehicle(s[0],s[1]);c.position.set(-118+i*21,.05,i%2?-55:45);scene.add(c);cars.push(c)})
@@ -146,6 +165,11 @@ export default function StreetVerseOmniWorld({onClose}:{onClose:()=>void}){
     for(let i=0;i<42;i++){const t=new THREE.Group();const tr=new THREE.Mesh(new THREE.CylinderGeometry(.3,.45,3,8),mat(0x69482f));tr.position.y=1.5;t.add(tr);const crown=new THREE.Mesh(new THREE.SphereGeometry(1.5,10,8),mat(i%3?0x267144:0x3c8d55));crown.position.y=3.8;t.add(crown);t.position.set(-118+(i*31)%236,0,-92+(i*17)%155);scene.add(t)}
     const beacons=new Map<string,THREE.Group>();MISSIONS.forEach(m=>{const g=new THREE.Group();const ring=new THREE.Mesh(new THREE.TorusGeometry(2.4,.16,10,48),glow(0xffd75c,.95));ring.rotation.x=Math.PI/2;ring.position.y=.35;g.add(ring);const beam=new THREE.Mesh(new THREE.CylinderGeometry(.25,.85,12,18,1,true),new THREE.MeshBasicMaterial({color:0x55ddff,transparent:true,opacity:.14,side:THREE.DoubleSide,toneMapped:false}));beam.position.y=6;g.add(beam);g.position.set(m.x,0,m.z);scene.add(g);beacons.set(m.id,g)})
 
+    const onBasketballShot=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{},court=courtGroups.get(String(d.court||''));if(!court)return;const ball=court.userData.ball as THREE.Mesh|undefined;if(!ball)return;ball.userData.shotAt=performance.now();ball.userData.made=Boolean(d.made);ball.userData.startX=ball.position.x;ball.userData.targetX=Boolean(d.made)?10.05:8.6;ball.userData.startZ=ball.position.z;ball.userData.targetZ=Boolean(d.made)?0:(Math.random()-.5)*3.2}
+    const onBasketballDribble=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};courtGroups.forEach(c=>{const ball=c.userData.ball as THREE.Mesh|undefined;if(ball){ball.userData.dribbleAt=performance.now();ball.userData.dribbleMove=String(d.move||'dribble')}})}
+    const onBasketballDefense=()=>{courtRivals.forEach(rs=>rs.forEach(r=>{r.userData.defenseAt=performance.now()}))}
+    addEventListener('tryamm:basketball-shot',onBasketballShot);addEventListener('tryamm:basketball-dribble',onBasketballDribble);addEventListener('tryamm:basketball-defense',onBasketballDefense)
+
     const keys=new Set<string>();const kd=(e:KeyboardEvent)=>{const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift','e'].includes(k)){e.preventDefault();if(k==='e'){if(!e.repeat)action.current=true}else keys.add(k)}};const ku=(e:KeyboardEvent)=>keys.delete(e.key.toLowerCase());addEventListener('keydown',kd,{passive:false});addEventListener('keyup',ku)
     const resize=()=>{const w=root.clientWidth,h=Math.max(430,root.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)};const ro=new ResizeObserver(resize);ro.observe(root);resize()
     const clock=new THREE.Clock();let elapsed=0,raf=0,lastSave=0,activeCar=-1,carSpeed=0
@@ -165,7 +189,7 @@ export default function StreetVerseOmniWorld({onClose}:{onClose:()=>void}){
             else{
               let nearestSpirit=-1,nearestSpiritD=5;spirits.forEach((s,i)=>{const d=Math.hypot(avatar.position.x-s.position.x,avatar.position.z-s.position.z);if(d<nearestSpiritD){nearestSpirit=i;nearestSpiritD=d}})
               if(nearestSpirit>=0)setMsg(`AI Spirit ${nearestSpirit+1}: holographic guide skin online.`)
-              else{let nearest=-1,nearestD=8;cars.forEach((c,i)=>{const d=Math.hypot(avatar.position.x-c.position.x,avatar.position.z-c.position.z);if(d<nearestD){nearest=i;nearestD=d}});if(nearest>=0){activeCar=nearest;carSpeed=0;avatar.visible=false;avatar.position.copy(cars[nearest].position);setIsDriving(true);setMsg('Vehicle entered • cinematic driving active.')}else setMsg('Move closer to a resident, AI Spirit, business portal, or vehicle to interact.')}
+              else{let nearest=-1,nearestD=8;cars.forEach((c,i)=>{const d=Math.hypot(avatar.position.x-c.position.x,avatar.position.z-c.position.z);if(d<nearestD){nearest=i;nearestD=d}});if(nearest>=0){activeCar=nearest;carSpeed=0;avatar.visible=false;avatar.position.copy(cars[nearest].position);setIsDriving(true);setMsg('Vehicle entered • cinematic driving active.')}else{const court=BASKETBALL_COURTS.find(c=>Math.hypot(avatar.position.x-c.x,avatar.position.z-c.z)<11);if(court){setMsg(`${court.name} • basketball court active. Use the StreetVerse Basketball controls to start 1v1, 3v3, 5v5 or tournament play.`);window.dispatchEvent(new CustomEvent('tryamm:basketball-open',{detail:{court:court.id}}))}else setMsg('Move closer to a resident, AI Spirit, business portal, vehicle, or basketball court to interact.')}}
             }
           }
         }
@@ -177,13 +201,15 @@ export default function StreetVerseOmniWorld({onClose}:{onClose:()=>void}){
       npcs.forEach((n,i)=>{n.position.x=n.userData.baseX+Math.sin(elapsed*.38+i)*2.2;n.position.z=n.userData.baseZ+Math.cos(elapsed*.31+i*.7)*1.4;n.rotation.y=Math.sin(elapsed*.4+i)})
       spirits.forEach((s,i)=>{s.position.x=s.userData.baseX+Math.sin(elapsed*.5+i)*1.4;s.position.z=s.userData.baseZ+Math.cos(elapsed*.4+i)*1.2;s.position.y=.12+Math.sin(elapsed*1.4+i)*.12;s.rotation.y+=dt*.35})
       businessMarkers.forEach(g=>{g.rotation.y+=dt*.25});boats.forEach((b,i)=>{b.position.x=-110+((elapsed*(3+i*.35)+i*48)%220);b.position.z=84+(i%2)*10;b.rotation.y=0});animals.forEach((a,i)=>{a.position.x+=Math.sin(elapsed*.5+i)*dt*.7;a.rotation.y=Math.sin(elapsed*.35+i)});birds.forEach((b,i)=>{const a=elapsed*.25+i*.45,r=32+(i%4)*7;b.position.set(Math.cos(a)*r,20+(i%3)*3,Math.sin(a)*r);b.rotation.y=-a})
+      courtGroups.forEach((court,id)=>{const ball=court.userData.ball as THREE.Mesh|undefined;if(ball){const shotAt=Number(ball.userData.shotAt||0),dribbleAt=Number(ball.userData.dribbleAt||0),nowMs=performance.now();if(shotAt&&nowMs-shotAt<900){const t=(nowMs-shotAt)/900,ease=Math.min(1,t);ball.position.x=THREE.MathUtils.lerp(Number(ball.userData.startX||0),Number(ball.userData.targetX||9),ease);ball.position.z=THREE.MathUtils.lerp(Number(ball.userData.startZ||0),Number(ball.userData.targetZ||0),ease);ball.position.y=.62+Math.sin(Math.PI*ease)*6.8;ball.rotation.x+=dt*8;ball.rotation.z+=dt*5}else if(dribbleAt&&nowMs-dribbleAt<700){const t=(nowMs-dribbleAt)/700;ball.position.y=.48+Math.abs(Math.sin(t*Math.PI*4))*1.15;ball.position.x=Math.sin(t*Math.PI*2)*.7;ball.rotation.z+=dt*10}else{ball.position.y=.62+Math.abs(Math.sin(elapsed*2.4+id.length))*.08;ball.position.x=THREE.MathUtils.lerp(ball.position.x,0,.08);ball.position.z=THREE.MathUtils.lerp(ball.position.z,0,.08)}}})
+      courtRivals.forEach((rs,id)=>rs.forEach((r,i)=>{const defenseAt=Number(r.userData.defenseAt||0),defending=performance.now()-defenseAt<900,phase=elapsed*(defending?3.2:.85)+i*1.7;r.position.x=r.userData.baseX+Math.sin(phase)*(defending?1.3:.55);r.position.z=r.userData.baseZ+Math.cos(phase*.8)*(defending?.8:.35);r.rotation.y=Math.sin(phase)*.7;if(defending)r.position.y=Math.max(0,Math.sin((performance.now()-defenseAt)/900*Math.PI)*.35)}))
       MISSIONS.forEach(m=>{const g=beacons.get(m.id);if(g){g.rotation.y+=dt;g.position.y=Math.sin(elapsed*1.4+m.x)*.1}const d=Math.hypot(avatar.position.x-m.x,avatar.position.z-m.z);if(d<4&&!visitedRef.current.includes(m.id)){const next=[...visitedRef.current,m.id];visitedRef.current=next;setVisited(next);const receipt=appendStreetVerseRevenue({kind:m.id==='ads'?'holo_ad':m.id==='marina'?'boat_rental':m.id==='market'?'marketplace_sale':'mission_reward',amountCents:m.reward,currency:'HOLO',source:`streetverse:${m.id}`,metadata:{mission:m.label}});setSummary(getStreetVerseRevenueSummary());setMsg(`${m.label} complete • +${m.reward} local demo Holo Credits • ${receipt.status} receipt ${receipt.hash}`)}})
       const focus=activeCar>=0?cars[activeCar]:avatar;const follow=activeCar>=0?new THREE.Vector3(focus.position.x+16,focus.position.y+9,focus.position.z+18):new THREE.Vector3(avatar.position.x+11,avatar.position.y+8.5,avatar.position.z+14);camera.position.lerp(follow,.075);camera.lookAt(focus.position.x,activeCar>=0?1.6:2.3,focus.position.z)
       if(elapsed-lastSave>1.5){lastSave=elapsed;localStorage.setItem(SAVE,JSON.stringify({x:avatar.position.x,z:avatar.position.z,visited:visitedRef.current}))}
       renderer.render(scene,camera);raf=requestAnimationFrame(animate)
     }
     animate()
-    return()=>{cancelAnimationFrame(raf);ro.disconnect();removeEventListener('keydown',kd);removeEventListener('keyup',ku);renderer.dispose();root.replaceChildren()}
+    return()=>{cancelAnimationFrame(raf);ro.disconnect();removeEventListener('keydown',kd);removeEventListener('keyup',ku);removeEventListener('tryamm:basketball-shot',onBasketballShot);removeEventListener('tryamm:basketball-dribble',onBasketballDribble);removeEventListener('tryamm:basketball-defense',onBasketballDefense);renderer.dispose();root.replaceChildren()}
   },[])
 
   const press=(k:keyof typeof input.current,v:boolean)=>()=>{input.current[k]=v}
@@ -199,8 +225,8 @@ export default function StreetVerseOmniWorld({onClose}:{onClose:()=>void}){
     <div style={{position:'absolute',left:14,top:14,maxWidth:470,padding:'13px 15px',borderRadius:18,...glass}}>
       <div style={{display:'flex',alignItems:'center',gap:8}}><span style={{width:8,height:8,borderRadius:99,background:'#52f2ba',boxShadow:'0 0 16px #52f2ba'}}/><div style={{fontSize:11,fontWeight:950,letterSpacing:1.8,color:'#6be9ff'}}>STREETVERSE • CINEMATIC OMNI DISTRICT</div></div>
       <div style={{fontSize:12,marginTop:8,lineHeight:1.45}}>{msg}</div>
-      <div style={{display:'flex',gap:10,marginTop:10,fontSize:11,flexWrap:'wrap'}}><b>{visited.length}/{MISSIONS.length} missions</b><span>18 residents</span><span>6 AI Spirits</span><span>{summary.holoCredits} demo Holo Credits</span><span style={{color:isDriving?'#ffd75c':'#7ef29a',fontWeight:900}}>{isDriving?'DRIVING':business?'IN BUSINESS':'ON FOOT'}</span></div>
-      <div style={{fontSize:10,opacity:.72,marginTop:6}}>ACES cinematic lighting • reflective vehicles • city windows • road markings • street lamps • persistent missions • Reel Creator.</div>
+      <div style={{display:'flex',gap:10,marginTop:10,fontSize:11,flexWrap:'wrap'}}><b>{visited.length}/{MISSIONS.length} missions</b><span>18 residents</span><span>6 AI Spirits</span><span>4 basketball courts</span><span>{summary.holoCredits} demo Holo Credits</span><span style={{color:isDriving?'#ffd75c':'#7ef29a',fontWeight:900}}>{isDriving?'DRIVING':business?'IN BUSINESS':'ON FOOT'}</span></div>
+      <div style={{fontSize:10,opacity:.72,marginTop:6}}>ACES cinematic lighting • reflective vehicles • city windows • 3D courts/hoops • basketball/rival animations • persistent missions • Reel Creator.</div>
     </div>
     <button onClick={onClose} style={{position:'absolute',right:14,top:14,border:'1px solid #ffffff44',borderRadius:999,padding:'9px 13px',background:'#07101de8',color:'#fff',fontWeight:850,boxShadow:'0 8px 26px #0009'}}>EXIT</button>
     <button onClick={openReel} aria-label="Create StreetVerse Reel" style={{position:'absolute',right:14,top:62,border:'1px solid #ffd75caa',borderRadius:999,padding:'11px 15px',background:'linear-gradient(135deg,#26160a,#3a2208)',color:'#ffe08a',fontWeight:950,boxShadow:'0 10px 34px #000a,0 0 18px #ffcc5533'}}>🎥 REEL</button>
