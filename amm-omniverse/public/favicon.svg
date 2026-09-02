@@ -1,40 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <radialGradient id="bg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#0a0050"/><stop offset="100%" stop-color="#020212"/></radialGradient>
-    <radialGradient id="glow" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#ffd700" stop-opacity="0.4"/><stop offset="100%" stop-color="#ffd700" stop-opacity="0"/></radialGradient>
+    <radialGradient id="bg" cx="50%" cy="45%" r="58%"><stop offset="0%" stop-color="#14243f"/><stop offset="60%" stop-color="#070914"/><stop offset="100%" stop-color="#020307"/></radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff0a6"/><stop offset="38%" stop-color="#ffd34d"/><stop offset="100%" stop-color="#b97800"/></linearGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#9cf8ff"/><stop offset="100%" stop-color="#27c8ff"/></linearGradient>
   </defs>
   <circle cx="32" cy="32" r="31" fill="url(#bg)"/>
-  <circle cx="32" cy="32" r="31" fill="url(#glow)"/>
-  <circle cx="32" cy="32" r="29" fill="none" stroke="#ffd700" stroke-width="1" stroke-dasharray="4 2" opacity="0.8"/>
-  <circle cx="32" cy="32" r="26" fill="none" stroke="#00ffcc" stroke-width="0.5" opacity="0.5"/>
-  <ellipse cx="32" cy="33" rx="20" ry="22" fill="#c8860a" opacity="0.9"/>
-  <ellipse cx="32" cy="33" rx="17" ry="19" fill="#a06808"/>
-  <polygon points="20,14 24,8 27,13 32,6 37,13 40,8 44,14" fill="#ffd700"/>
-  <line x1="20" y1="14" x2="44" y2="14" stroke="#ffd700" stroke-width="2"/>
-  <circle cx="32" cy="8" r="2" fill="#00ffcc"/>
-  <circle cx="24" cy="11" r="1.5" fill="#4488ff"/>
-  <circle cx="40" cy="11" r="1.5" fill="#ff4444"/>
-  <ellipse cx="32" cy="35" rx="13" ry="14" fill="#d4942a"/>
-  <path d="M19,25 Q32,23 32,49 Q24,49 19,45 Z" fill="#1a3a8f" opacity="0.7"/>
-  <circle cx="23" cy="30" r="1" fill="white" opacity="0.9"/>
-  <circle cx="27" cy="27" r="1" fill="white" opacity="0.9"/>
-  <circle cx="25" cy="34" r="1" fill="white" opacity="0.9"/>
-  <circle cx="29" cy="31" r="0.8" fill="white" opacity="0.9"/>
-  <path d="M32,23 Q45,25 45,45 Q38,49 32,49 Z" fill="#cc2200" opacity="0.6"/>
-  <path d="M32,25 Q45,27 44,33 Q38,30 32,30 Z" fill="white" opacity="0.3"/>
-  <path d="M32,35 Q45,36 44,41 Q38,38 32,38 Z" fill="white" opacity="0.3"/>
-  <ellipse cx="26" cy="33" rx="3" ry="2.5" fill="#ffd700"/>
-  <ellipse cx="38" cy="33" rx="3" ry="2.5" fill="#ffd700"/>
-  <circle cx="26.5" cy="33" r="1.8" fill="#111"/>
-  <circle cx="38.5" cy="33" r="1.8" fill="#111"/>
-  <circle cx="27" cy="32.5" r="0.5" fill="white"/>
-  <circle cx="39" cy="32.5" r="0.5" fill="white"/>
-  <ellipse cx="32" cy="39" rx="2.5" ry="1.5" fill="#5a2a00"/>
-  <path d="M30,41 Q32,43 34,41" fill="none" stroke="#5a2a00" stroke-width="1"/>
-  <line x1="34" y1="29" x2="37" y2="36" stroke="#8b0000" stroke-width="0.8" opacity="0.7"/>
-  <ellipse cx="32" cy="51" rx="7" ry="4" fill="#e8e0d0"/>
-  <circle cx="32" cy="48" r="3" fill="#e8e0d0"/>
-  <text x="32" y="62" text-anchor="middle" font-family="monospace" font-size="5" font-weight="bold" fill="#ffd700" letter-spacing="1">AMM</text>
-  <circle cx="10" cy="32" r="1" fill="#00ffcc" opacity="0.8"/>
-  <circle cx="54" cy="32" r="1" fill="#00ffcc" opacity="0.8"/>
+  <circle cx="32" cy="32" r="29" fill="none" stroke="#ffd34d" stroke-width="1.4" opacity=".95"/>
+  <circle cx="32" cy="32" r="25.5" fill="none" stroke="#42dcff" stroke-width=".65" opacity=".5"/>
+  <path d="M17 18l6-7 5 5 4-9 4 9 5-5 6 7-4 5H21z" fill="url(#gold)"/>
+  <path d="M19 28c2-7 8-11 13-11s11 4 13 11c2 6 0 15-5 20-2 2-5 4-8 5-3-1-6-3-8-5-5-5-7-14-5-20z" fill="#a76416"/>
+  <path d="M20 28c4-3 8-4 12-4s8 1 12 4l-4 4-4-2-4 3-4-3-4 2z" fill="#6d3b0b"/>
+  <path d="M22 34l7-4 3 3 3-3 7 4-3 3-4-1-3 4-3-4-4 1z" fill="#d4962c"/>
+  <ellipse cx="26" cy="34" rx="2.6" ry="2.1" fill="#ffd34d"/><ellipse cx="38" cy="34" rx="2.6" ry="2.1" fill="#ffd34d"/>
+  <circle cx="26.5" cy="34" r="1.2"/><circle cx="37.5" cy="34" r="1.2"/>
+  <path d="M28 43c2 1 6 1 8 0-1 3-3 5-4 5s-3-2-4-5z" fill="#3f1d08"/>
+  <path d="M11 31h8M45 31h8" stroke="url(#cyan)" stroke-width="1.2" stroke-linecap="round" opacity=".8"/>
+  <circle cx="9" cy="31" r="1.6" fill="#42dcff"/><circle cx="55" cy="31" r="1.6" fill="#42dcff"/>
+  <text x="32" y="60" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="6.2" font-weight="800" letter-spacing="1.1" fill="#ffd34d">TRYAMM</text>
 </svg>
