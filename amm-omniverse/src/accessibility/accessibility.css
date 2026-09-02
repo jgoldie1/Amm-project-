@@ -33,6 +33,11 @@ html.a11y-screen-reader :focus-visible {
 
 html.a11y-simplified [data-tryamm-secondary='true'] { display: none !important; }
 
+/* Legacy Bennie launcher is superseded by the new TRYAMM control deck. */
+button[title='Chat with Bennie — AMM AI Assistant'] {
+  display: none !important;
+}
+
 @media (max-width: 720px) {
   html.a11y-one-handed [data-tryamm-primary-actions='true'] {
     position: sticky;
