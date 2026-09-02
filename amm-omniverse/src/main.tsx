@@ -7,6 +7,8 @@ import FamilyBusinessPublicSite from './components/FamilyBusinessPublicSite'
 import FamilyBusinessDirectory from './components/FamilyBusinessDirectory'
 import HoloGPTEventAlias from './components/HoloGPTEventAlias'
 import UniversalSafetyLauncher from './components/UniversalSafetyLauncher'
+import MiddleverseLauncher from './components/MiddleverseLauncher'
+import GameVerseLauncher from './components/GameVerseLauncher'
 import UniversalAccessRuntime from './components/UniversalAccessRuntime'
 import StandaloneProductSite from './components/StandaloneProductSite'
 import { getStandaloneSite } from './data/standaloneSiteRegistry'
@@ -124,13 +126,14 @@ const streetVerseRoute=<>
 </>
 
 // Release compatibility marker required by the Omniverse shell smoke contract: <OmniverseCoreLoopHUD />
-// The old always-visible Construct/Bennie/launcher stack is intentionally not mounted on the public home shell.
-// Its runtimes remain installed and features are opened through the redesigned TRYAMM UI and Control Deck.
+// Keep only contract-critical global launchers mounted; the former large legacy launcher stack stays removed.
 const mainShell=<>
   <JudahSplash />
   <App />
   <HoloGPTEventAlias />
   <UniversalSafetyLauncher />
+  <MiddleverseLauncher />
+  <GameVerseLauncher />
   <Suspense fallback={null}><StreetVerseNextLevelHUD district="TRYAMM • HOME" assetStatus="PLATFORM ACTIVE" /></Suspense>
   <a href="/accessibility.html" aria-label="Read TRYAMM Accessibility Statement" style={{position:'fixed',left:12,bottom:12,zIndex:9100,minHeight:44,display:'inline-flex',alignItems:'center',padding:'0 14px',borderRadius:999,background:'#07131df2',border:'1px solid #7de8ff77',color:'#e8fbff',fontFamily:'system-ui,sans-serif',fontSize:12,fontWeight:800,textDecoration:'none'}}>♿ Accessibility</a>
 </>
