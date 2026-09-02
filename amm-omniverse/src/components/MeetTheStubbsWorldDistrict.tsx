@@ -4,6 +4,7 @@ import * as THREE from 'three'
 type Character={name:string;role:string;color:number;skin:number;x:number;z:number}
 type WorldStore={world:string;store:string;description:string;action?:()=>void}
 
+const SAVE_KEY='tryamm.stubbs-family.playable.v1'
 const CHARACTERS:Character[]=[
   {name:'BJ',role:'Family / StreetVerse',color:0x4fe3ff,skin:0x8a5638,x:-18,z:2},
   {name:'Al B',role:'Family / StreetVerse',color:0xe8b944,skin:0x7a472f,x:-12,z:-5},
@@ -30,69 +31,78 @@ const WORLD_STORES:WorldStore[]=[
   {world:'CreatorVerse',store:'64-Track + Creator Commerce',description:'Music, Reels, Holo Drama, creator inventory and sellable media.',action:()=>{(window as any).__showMediaStudio?.()}},
 ]
 
+function readSave(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')}catch{return {}}}
 function person(character:Character){
   const g=new THREE.Group()
-  const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.55,1.5,5,10),new THREE.MeshStandardMaterial({color:character.color,roughness:.65,metalness:.08}))
-  torso.position.y=1.75;g.add(torso)
-  const head=new THREE.Mesh(new THREE.SphereGeometry(.46,16,12),new THREE.MeshStandardMaterial({color:character.skin,roughness:.78}))
-  head.position.y=3.15;g.add(head)
-  for(const side of [-1,1]){
-    const leg=new THREE.Mesh(new THREE.BoxGeometry(.3,1.15,.34),new THREE.MeshStandardMaterial({color:0x20242b,roughness:.9}))
-    leg.position.set(side*.22,.58,0);g.add(leg)
-  }
+  const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.55,1.5,5,10),new THREE.MeshStandardMaterial({color:character.color,roughness:.65,metalness:.08}));torso.position.y=1.75;g.add(torso)
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.46,16,12),new THREE.MeshStandardMaterial({color:character.skin,roughness:.78}));head.position.y=3.15;g.add(head)
+  for(const side of [-1,1]){const leg=new THREE.Mesh(new THREE.BoxGeometry(.3,1.15,.34),new THREE.MeshStandardMaterial({color:0x20242b,roughness:.9}));leg.position.set(side*.22,.58,0);g.add(leg)}
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(.8,.07,8,28),new THREE.MeshBasicMaterial({color:character.color,transparent:true,opacity:.8}));ring.rotation.x=Math.PI/2;ring.position.y=.12;ring.name='player-ring';ring.visible=false;g.add(ring)
   g.userData.character=character
   return g
 }
 
 function storeBuilding(index:number){
-  const g=new THREE.Group()
-  const color=[0x17364a,0x39284f,0x254937,0x5a4024,0x263e62][index%5]
-  const shell=new THREE.Mesh(new THREE.BoxGeometry(8,5.5,7),new THREE.MeshStandardMaterial({color,roughness:.65,metalness:.15}))
-  shell.position.y=2.75;g.add(shell)
-  const door=new THREE.Mesh(new THREE.BoxGeometry(2.4,3.5,.2),new THREE.MeshBasicMaterial({color:0x58e8ff}))
-  door.position.set(0,1.75,3.61);g.add(door)
-  const sign=new THREE.Mesh(new THREE.BoxGeometry(6.3,.65,.22),new THREE.MeshBasicMaterial({color:index%2?0xe8b944:0x79ffad}))
-  sign.position.set(0,4.7,3.62);g.add(sign)
-  return g
+  const g=new THREE.Group();const color=[0x17364a,0x39284f,0x254937,0x5a4024,0x263e62][index%5]
+  const shell=new THREE.Mesh(new THREE.BoxGeometry(8,5.5,7),new THREE.MeshStandardMaterial({color,roughness:.65,metalness:.15}));shell.position.y=2.75;g.add(shell)
+  const door=new THREE.Mesh(new THREE.BoxGeometry(2.4,3.5,.2),new THREE.MeshBasicMaterial({color:0x58e8ff}));door.position.set(0,1.75,3.61);g.add(door)
+  const sign=new THREE.Mesh(new THREE.BoxGeometry(6.3,.65,.22),new THREE.MeshBasicMaterial({color:index%2?0xe8b944:0x79ffad}));sign.position.set(0,4.7,3.62);g.add(sign);return g
 }
 
 export default function MeetTheStubbsWorldDistrict({onClose}:{onClose:()=>void}){
   const mount=useRef<HTMLDivElement|null>(null)
+  const input=useRef({u:false,d:false,l:false,r:false})
+  const saved=readSave()
   const [selected,setSelected]=useState<WorldStore>(WORLD_STORES[0])
-  const [message,setMessage]=useState('Meet the Stubbs is loaded as named StreetVerse characters. Select one of the 13 world storefronts below.')
+  const [activeCharacter,setActiveCharacter]=useState<string>(saved.character||CHARACTERS[0].name)
+  const [message,setMessage]=useState('Choose a named family character below. WASD/arrows/touch/gamepad control that individual character.')
 
   useEffect(()=>{
     const root=mount.current;if(!root)return
     const scene=new THREE.Scene();scene.background=new THREE.Color(0x050914);scene.fog=new THREE.Fog(0x050914,45,150)
-    const camera=new THREE.PerspectiveCamera(55,1,.1,260);camera.position.set(0,25,52);camera.lookAt(0,2,0)
+    const camera=new THREE.PerspectiveCamera(55,1,.1,260);camera.position.set(0,14,24);camera.lookAt(0,2,0)
     const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.shadowMap.enabled=true;root.appendChild(renderer.domElement)
     scene.add(new THREE.HemisphereLight(0x9bdfff,0x171018,2.5));const light=new THREE.DirectionalLight(0xffffff,2.8);light.position.set(35,55,25);light.castShadow=true;scene.add(light)
     const ground=new THREE.Mesh(new THREE.PlaneGeometry(100,78),new THREE.MeshStandardMaterial({color:0x101923,roughness:.95}));ground.rotation.x=-Math.PI/2;scene.add(ground)
     const plaza=new THREE.Mesh(new THREE.CylinderGeometry(24,24,.25,48),new THREE.MeshStandardMaterial({color:0x182632,roughness:.85}));plaza.position.y=.12;scene.add(plaza)
 
     const familyMeshes=CHARACTERS.map(c=>{const p=person(c);p.position.set(c.x,0,c.z);scene.add(p);return p})
-    const stores:THREE.Group[]=[]
-    WORLD_STORES.forEach((_,i)=>{const angle=(i/WORLD_STORES.length)*Math.PI*2;const g=storeBuilding(i);g.position.set(Math.cos(angle)*36,0,Math.sin(angle)*27);g.rotation.y=-angle+Math.PI/2;scene.add(g);stores.push(g)})
+    const stores:THREE.Group[]=[];WORLD_STORES.forEach((_,i)=>{const angle=(i/WORLD_STORES.length)*Math.PI*2;const g=storeBuilding(i);g.position.set(Math.cos(angle)*36,0,Math.sin(angle)*27);g.rotation.y=-angle+Math.PI/2;scene.add(g);stores.push(g)})
 
-    let raf=0;const clock=new THREE.Clock()
-    const animate=()=>{const t=clock.getElapsedTime();familyMeshes.forEach((p,i)=>{p.rotation.y=Math.sin(t*.5+i)*.18;p.position.y=Math.sin(t*1.4+i)*.035});stores.forEach((s,i)=>{s.position.y=.04+Math.sin(t*.75+i)*.04});renderer.render(scene,camera);raf=requestAnimationFrame(animate)}
+    let controlledIndex=Math.max(0,CHARACTERS.findIndex(c=>c.name===(saved.character||CHARACTERS[0].name)))
+    let controlled=familyMeshes[controlledIndex]
+    if(Number.isFinite(saved.x)&&Number.isFinite(saved.z)){controlled.position.x=saved.x;controlled.position.z=saved.z}
+    const markControlled=()=>familyMeshes.forEach((p,i)=>{const ring=p.getObjectByName('player-ring');if(ring)ring.visible=i===controlledIndex})
+    markControlled()
+    const selectCharacter=(name:string)=>{const i=CHARACTERS.findIndex(c=>c.name===name);if(i<0)return;controlledIndex=i;controlled=familyMeshes[i];markControlled();setActiveCharacter(name);setMessage(`${name} is now playable. Movement, camera and saved position are attached to this character.`);window.dispatchEvent(new CustomEvent('tryamm:stubbs-family-character-controlled',{detail:{name,index:i,role:CHARACTERS[i].role}}))}
+    const onSelect=(e:Event)=>selectCharacter(String((e as CustomEvent).detail?.name||''));window.addEventListener('tryamm:stubbs-family-character-select',onSelect)
+
+    const keys=new Set<string>();const down=(e:KeyboardEvent)=>{const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift'].includes(k)){e.preventDefault();keys.add(k)}};const up=(e:KeyboardEvent)=>keys.delete(e.key.toLowerCase());addEventListener('keydown',down,{passive:false});addEventListener('keyup',up)
+    let raf=0,lastSave=0;const clock=new THREE.Clock(),camTarget=new THREE.Vector3()
+    const animate=()=>{const dt=Math.min(.033,clock.getDelta()),t=clock.elapsedTime;let dx=0,dz=0
+      if(keys.has('w')||keys.has('arrowup')||input.current.u)dz-=1;if(keys.has('s')||keys.has('arrowdown')||input.current.d)dz+=1;if(keys.has('a')||keys.has('arrowleft')||input.current.l)dx-=1;if(keys.has('d')||keys.has('arrowright')||input.current.r)dx+=1
+      const gp=(navigator.getGamepads?.()||[])[0];if(gp){dx+=Math.abs(gp.axes[0]||0)>.18?(gp.axes[0]||0):0;dz+=Math.abs(gp.axes[1]||0)>.18?(gp.axes[1]||0):0}
+      if(dx||dz){const len=Math.hypot(dx,dz)||1;dx/=len;dz/=len;const speed=(keys.has('shift')?18:11)*dt;controlled.position.x=THREE.MathUtils.clamp(controlled.position.x+dx*speed,-42,42);controlled.position.z=THREE.MathUtils.clamp(controlled.position.z+dz*speed,-31,31);controlled.rotation.y=Math.atan2(dx,dz)}
+      familyMeshes.forEach((p,i)=>{if(i!==controlledIndex){p.rotation.y=Math.sin(t*.5+i)*.18;p.position.y=Math.sin(t*1.4+i)*.035}else p.position.y=0});stores.forEach((s,i)=>{s.position.y=.04+Math.sin(t*.75+i)*.04})
+      camTarget.set(controlled.position.x,10,controlled.position.z+17);camera.position.lerp(camTarget,1-Math.pow(.001,dt));camera.lookAt(controlled.position.x,2.1,controlled.position.z-3)
+      const now=performance.now();if(now-lastSave>900){localStorage.setItem(SAVE_KEY,JSON.stringify({character:CHARACTERS[controlledIndex].name,index:controlledIndex,x:controlled.position.x,z:controlled.position.z,updatedAt:new Date().toISOString()}));lastSave=now}
+      renderer.render(scene,camera);raf=requestAnimationFrame(animate)}
     const resize=()=>{const w=root.clientWidth,h=Math.max(340,root.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)};const ro=new ResizeObserver(resize);ro.observe(root);resize();animate()
-    return()=>{cancelAnimationFrame(raf);ro.disconnect();renderer.dispose();renderer.domElement.remove();scene.traverse(o=>{const any=o as any;any.geometry?.dispose?.();const m=any.material;if(Array.isArray(m))m.forEach((x:any)=>x.dispose?.());else m?.dispose?.()})}
+    return()=>{cancelAnimationFrame(raf);ro.disconnect();removeEventListener('keydown',down);removeEventListener('keyup',up);window.removeEventListener('tryamm:stubbs-family-character-select',onSelect);renderer.dispose();renderer.domElement.remove();scene.traverse(o=>{const any=o as any;any.geometry?.dispose?.();const m=any.material;if(Array.isArray(m))m.forEach((x:any)=>x.dispose?.());else m?.dispose?.()})}
   },[])
 
+  const chooseCharacter=(name:string)=>window.dispatchEvent(new CustomEvent('tryamm:stubbs-family-character-select',{detail:{name}}))
+  const press=(k:keyof typeof input.current,v:boolean)=>{input.current[k]=v}
   return <div style={{position:'fixed',inset:0,zIndex:16000,background:'#030711',color:'#fff',overflow:'auto'}}>
     <div style={{maxWidth:1280,margin:'0 auto',padding:14}}>
-      <header style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'flex-start'}}>
-        <div><div style={{color:'#4fe3ff',fontSize:10,fontWeight:950,letterSpacing:3}}>STREETVERSE • FAMILY • WORLD COMMERCE</div><h1 style={{margin:'5px 0'}}>Meet the Stubbs — 13 World Store District</h1><p style={{margin:0,color:'#aab9c7',maxWidth:850}}>Named family characters are rendered in the 3D district. The 13 gateways connect StreetVerse commerce to the existing TRYAMM warehouse, Holo Fridge, creator, media, education and world systems.</p></div>
-        <button onClick={onClose} style={{border:'1px solid #4fe3ff77',borderRadius:12,padding:'10px 14px',background:'#0b1a27',color:'#fff',fontWeight:900}}>Back</button>
-      </header>
-      <div ref={mount} style={{height:'48vh',minHeight:340,border:'1px solid #24394b',borderRadius:20,overflow:'hidden',marginTop:12}} />
+      <header style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'flex-start'}}><div><div style={{color:'#4fe3ff',fontSize:10,fontWeight:950,letterSpacing:3}}>STREETVERSE • FAMILY • PLAYABLE DISTRICT</div><h1 style={{margin:'5px 0'}}>Meet the Stubbs — 13 World Store District</h1><p style={{margin:0,color:'#aab9c7',maxWidth:850}}>Named family characters are separate playable protagonists in this district. Generic StreetVerse residents remain separate NPC/playable population characters.</p><div style={{marginTop:6,color:'#ffd45e',fontSize:10,fontWeight:950}}>PLAYING AS • {activeCharacter}</div></div><button onClick={onClose} style={{border:'1px solid #4fe3ff77',borderRadius:12,padding:'10px 14px',background:'#0b1a27',color:'#fff',fontWeight:900}}>Back</button></header>
+      <div style={{position:'relative',marginTop:12}}><div ref={mount} style={{height:'48vh',minHeight:340,border:'1px solid #24394b',borderRadius:20,overflow:'hidden'}}/><div style={{position:'absolute',left:10,bottom:10,display:'grid',gridTemplateColumns:'48px 48px 48px',gap:4,touchAction:'none'}}><span/><Pad label='▲' down={()=>press('u',true)} up={()=>press('u',false)}/><span/><Pad label='◀' down={()=>press('l',true)} up={()=>press('l',false)}/><Pad label='▼' down={()=>press('d',true)} up={()=>press('d',false)}/><Pad label='▶' down={()=>press('r',true)} up={()=>press('r',false)}/></div></div>
       <div style={{padding:'10px 12px',marginTop:10,border:'1px solid #294055',borderRadius:14,background:'#08121c',color:'#d8e2eb'}}>{message}</div>
-      <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(235px,1fr))',gap:9,marginTop:10}}>
-        {WORLD_STORES.map((s,i)=><button key={s.world} onClick={()=>{setSelected(s);setMessage(`${s.world} → ${s.store} selected.`)}} style={{textAlign:'left',padding:13,border:selected.world===s.world?'1px solid #58e8ff':'1px solid #24394b',borderRadius:15,background:selected.world===s.world?'#102538':'#08121c',color:'#fff',cursor:'pointer'}}><div style={{fontSize:10,color:'#4fe3ff',fontWeight:950}}>WORLD {String(i+1).padStart(2,'0')}</div><b>{s.world}</b><div style={{color:'#e8b944',marginTop:4,fontWeight:900}}>{s.store}</div><p style={{fontSize:11,color:'#9fb0bf',lineHeight:1.45}}>{s.description}</p></button>)}
-      </section>
+      <section style={{marginTop:10,padding:14,border:'1px solid #294055',borderRadius:16,background:'#08121c'}}><h2 style={{marginTop:0}}>Playable family roster</h2><div style={{display:'flex',flexWrap:'wrap',gap:8}}>{CHARACTERS.map(c=><button key={c.name} onClick={()=>chooseCharacter(c.name)} style={{padding:'9px 11px',borderRadius:999,border:activeCharacter===c.name?'1px solid #58e8ff':'1px solid #31485c',background:activeCharacter===c.name?'#123047':'#0b1722',color:'#fff',cursor:'pointer'}}><b>{c.name}</b> <span style={{color:'#9fb0bf'}}>• {c.role}</span></button>)}</div><div style={{marginTop:10,fontSize:10,color:'#8fa5b7'}}>WASD/arrows • Shift run • touch controls • standard gamepad • position saves per selected character session</div></section>
+      <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(235px,1fr))',gap:9,marginTop:10}}>{WORLD_STORES.map((s,i)=><button key={s.world} onClick={()=>{setSelected(s);setMessage(`${s.world} → ${s.store} selected.`)}} style={{textAlign:'left',padding:13,border:selected.world===s.world?'1px solid #58e8ff':'1px solid #24394b',borderRadius:15,background:selected.world===s.world?'#102538':'#08121c',color:'#fff',cursor:'pointer'}}><div style={{fontSize:10,color:'#4fe3ff',fontWeight:950}}>WORLD {String(i+1).padStart(2,'0')}</div><b>{s.world}</b><div style={{color:'#e8b944',marginTop:4,fontWeight:900}}>{s.store}</div><p style={{fontSize:11,color:'#9fb0bf',lineHeight:1.45}}>{s.description}</p></button>)}</section>
       <section style={{marginTop:12,padding:14,border:'1px solid #294055',borderRadius:16,background:'#08121c'}}><h2 style={{marginTop:0}}>{selected.world}: {selected.store}</h2><p style={{color:'#aebdca'}}>{selected.description}</p><div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button onClick={()=>selected.action?.()} style={{border:'1px solid #79ffad88',borderRadius:11,padding:'10px 13px',background:'#0d241a',color:'#fff',fontWeight:900}}>Open connected experience</button><button onClick={()=>{(window as any).__showVirtualWarehouse?.();setMessage('Global Virtual Warehouse opened from the world-store district.')}} style={{border:'1px solid #4fe3ff77',borderRadius:11,padding:'10px 13px',background:'#0b1a27',color:'#fff',fontWeight:900}}>Open Warehouse</button><button onClick={()=>{(window as any).__showHoloFridge?.();setMessage('Holo Fridge opened from the world-store district.')}} style={{border:'1px solid #4fe3ff77',borderRadius:11,padding:'10px 13px',background:'#0b1a27',color:'#fff',fontWeight:900}}>Open Holo Fridge</button><button onClick={()=>{(window as any).__showYahavahGrocery?.();setMessage('YAHAVAH Grocery requested from the world-store district.')}} style={{border:'1px solid #e8b94488',borderRadius:11,padding:'10px 13px',background:'#211b0d',color:'#fff',fontWeight:900}}>YAHAVAH Grocery</button></div></section>
-      <section style={{marginTop:12,padding:14,border:'1px solid #294055',borderRadius:16,background:'#08121c'}}><h2 style={{marginTop:0}}>Meet the Stubbs roster in this build</h2><div style={{display:'flex',flexWrap:'wrap',gap:8}}>{CHARACTERS.map(c=><span key={c.name} style={{padding:'8px 10px',borderRadius:999,border:'1px solid #31485c',background:'#0b1722'}}><b>{c.name}</b> <span style={{color:'#8fa3b5'}}>• {c.role}</span></span>)}</div></section>
     </div>
   </div>
 }
+
+function Pad({label,down,up}:{label:string;down:()=>void;up:()=>void}){return <button onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);down()}} onPointerUp={up} onPointerCancel={up} onPointerLeave={up} style={{width:48,height:42,borderRadius:11,border:'1px solid #4a6a82',background:'#0d1a28dd',color:'#fff',fontWeight:900,fontSize:16}}>{label}</button>}
