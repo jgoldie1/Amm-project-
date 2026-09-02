@@ -33,8 +33,12 @@ html.a11y-screen-reader :focus-visible {
 
 html.a11y-simplified [data-tryamm-secondary='true'] { display: none !important; }
 
-/* Legacy Bennie launcher is superseded by the new TRYAMM control deck. */
-button[title='Chat with Bennie — AMM AI Assistant'] {
+/* Legacy launchers stay mounted for runtime/event contracts but no longer compete with the redesigned TRYAMM UI. */
+button[title='Chat with Bennie — AMM AI Assistant'],
+button[aria-label='Open Middleverse AI Workforce and Developer Workstation'],
+button[aria-label='Open StreetVerse Omni world'],
+button[aria-label='Open TRYAMM Safety Center'],
+a[aria-label='Read TRYAMM Accessibility Statement'] {
   display: none !important;
 }
 
