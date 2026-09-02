@@ -1,0 +1,43 @@
+import { Suspense, lazy, useMemo } from 'react'
+
+const StreetVerseLivingWorld=lazy(()=>import('./StreetVerseLivingWorld'))
+const DESTINATION_KEY='tryamm.streetverse.chicago-destination.v1'
+const SAVE_KEY='tryamm.streetverse.living.v1'
+const GAME_SPAWNS:Record<string,{x:number;z:number,label:string}>={
+  loop:{x:0,z:0,label:'The Loop'},
+  millennium:{x:38,z:38,label:'Millennium Park'},
+  lakefront:{x:72,z:58,label:'Lakefront'},
+  river:{x:28,z:-12,label:'Chicago River'},
+  south:{x:-18,z:72,label:'South Side'},
+  west:{x:-72,z:10,label:'West Side'},
+  north:{x:12,z:-72,label:'North Side'},
+  ohare:{x:-78,z:-78,label:"O'Hare Gateway"},
+  midway:{x:-58,z:72,label:'Midway Gateway'},
+}
+
+type Destination={id?:string;label?:string;lon?:number;lat?:number;city?:string}
+function prepareSpawn(){
+  let destination:Destination|undefined
+  try{destination=JSON.parse(localStorage.getItem(DESTINATION_KEY)||'null')||undefined}catch{}
+  const mapped=destination?.id?GAME_SPAWNS[destination.id]:undefined
+  if(mapped){
+    try{
+      const previous=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')
+      localStorage.setItem(SAVE_KEY,JSON.stringify({...previous,x:mapped.x,z:mapped.z,geoDestination:destination,geoSpawnLabel:mapped.label,updatedAt:new Date().toISOString()}))
+    }catch{}
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-geo-spawn-ready',{detail:{destination,mapped}}))
+  }
+  return {destination,mapped}
+}
+
+export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
+  const prepared=useMemo(()=>prepareSpawn(),[])
+  return <>
+    <Suspense fallback={<div style={{position:'fixed',inset:0,display:'grid',placeItems:'center',background:'#050505',color:'#fff',zIndex:17000,fontFamily:'system-ui',fontWeight:900}}>LOADING CHICAGO STREETVERSE…</div>}>
+      <StreetVerseLivingWorld onClose={onClose}/>
+    </Suspense>
+    {prepared.mapped&&<div style={{position:'fixed',right:12,top:12,zIndex:16995,maxWidth:300,padding:'10px 12px',borderRadius:12,background:'rgba(3,12,20,.84)',border:'1px solid #62b8ff77',color:'#fff',fontFamily:'system-ui',fontSize:12}}>
+      <strong>CHICAGO NAV SPAWN</strong><br/>{prepared.mapped.label}<br/><span style={{opacity:.75}}>Selected from Twin World • real-world destination mapped into the playable district.</span>
+    </div>}
+  </>
+}
