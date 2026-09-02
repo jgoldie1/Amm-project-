@@ -110,25 +110,16 @@ export default function UniversalSafetyLauncher(){
     }
   },[])
 
-  return <>
-    <button
-      type="button"
-      aria-label="Open TRYAMM Safety Center"
-      title="Safety / Report / Block / Mute"
-      onClick={()=>{setTarget(fallbackTarget());setOpen(true)}}
-      style={{position:'fixed',left:14,bottom:84,zIndex:9998,width:48,height:48,borderRadius:16,border:'1px solid rgba(79,227,255,.5)',background:'rgba(4,5,14,.94)',color:'#fff',fontSize:22,boxShadow:'0 0 22px rgba(79,227,255,.22)',cursor:'pointer'}}
-    >🛡</button>
-    <SafetyActionSheet
-      open={open}
-      onClose={()=>setOpen(false)}
-      targetType={target.targetType}
-      targetId={target.targetId}
-      targetLabel={target.targetLabel}
-      reportedUserId={target.reportedUserId}
-      roomName={target.roomName}
-      messageIds={target.messageIds}
-      mediaRefs={target.mediaRefs}
-      context={target.context}
-    />
-  </>
+  return <SafetyActionSheet
+    open={open}
+    onClose={()=>setOpen(false)}
+    targetType={target.targetType}
+    targetId={target.targetId}
+    targetLabel={target.targetLabel}
+    reportedUserId={target.reportedUserId}
+    roomName={target.roomName}
+    messageIds={target.messageIds}
+    mediaRefs={target.mediaRefs}
+    context={target.context}
+  />
 }
