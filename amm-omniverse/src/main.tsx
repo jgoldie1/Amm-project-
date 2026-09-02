@@ -126,7 +126,7 @@ const streetVerseRoute=<>
 </>
 
 // Release compatibility marker required by the Omniverse shell smoke contract: <OmniverseCoreLoopHUD />
-// Keep only contract-critical global launchers mounted; the former large legacy launcher stack stays removed.
+// Keep contract-critical launchers mounted for event wiring; presentation is handled by the redesigned homepage.
 const mainShell=<>
   <JudahSplash />
   <App />
@@ -134,8 +134,6 @@ const mainShell=<>
   <UniversalSafetyLauncher />
   <MiddleverseLauncher />
   <GameVerseLauncher />
-  <Suspense fallback={null}><StreetVerseNextLevelHUD district="TRYAMM • HOME" assetStatus="PLATFORM ACTIVE" /></Suspense>
-  <a href="/accessibility.html" aria-label="Read TRYAMM Accessibility Statement" style={{position:'fixed',left:12,bottom:12,zIndex:9100,minHeight:44,display:'inline-flex',alignItems:'center',padding:'0 14px',borderRadius:999,background:'#07131df2',border:'1px solid #7de8ff77',color:'#e8fbff',fontFamily:'system-ui,sans-serif',fontSize:12,fontWeight:800,textDecoration:'none'}}>♿ Accessibility</a>
 </>
 
 let routeContent
