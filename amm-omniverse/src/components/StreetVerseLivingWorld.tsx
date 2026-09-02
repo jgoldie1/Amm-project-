@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { replacePrimitiveWithStreetVerseAsset } from '../services/streetverseAssetLoader'
+import { addChicagoTransitAirportDepth } from '../runtime/StreetVerseChicago3DDepthRuntime'
 
 const SAVE_KEY='tryamm.streetverse.living.v1'
 const CHARACTER_KEY='tryamm.streetverse.playable-character.v1'
@@ -73,6 +74,7 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
     if(!mount)return
     const saved=loadSave()
     const scene=new THREE.Scene();scene.background=new THREE.Color(0x07101d);scene.fog=new THREE.FogExp2(0x07101d,.007)
+    addChicagoTransitAirportDepth(scene)
     const camera=new THREE.PerspectiveCamera(63,1,.1,600)
     const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;mount.appendChild(renderer.domElement)
     const hemi=new THREE.HemisphereLight(0x9bdcff,0x17111b,2.7);scene.add(hemi)
@@ -99,7 +101,7 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
     const streetLights:THREE.Group[]=[];for(let i=0;i<18;i++){const g=new THREE.Group();const pole=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,6,8),material(0x353b45,.7,.3));pole.position.y=3;g.add(pole);const lamp=new THREE.PointLight(0xffd7a0,5,18,2);lamp.position.y=6.2;g.add(lamp);g.position.set(i%2?10:-10,0,-76+i*9);scene.add(g);streetLights.push(g)}
 
     const avatar=new THREE.Group();const body=new THREE.Mesh(new THREE.CapsuleGeometry(1.05,2.2,5,10),material(0x58e8ff,.38,.32));body.position.y=2.2;body.castShadow=true;avatar.add(body);const head=new THREE.Mesh(new THREE.SphereGeometry(.78,18,14),material(0xc98e67,0,.58));head.position.y=4.25;avatar.add(head);avatar.position.set(saved.x??START.x,0,saved.z??START.z);scene.add(avatar)
-    replacePrimitiveWithStreetVerseAsset({id:'player-default',fallback:avatar,scene,position:avatar.position.clone()}).then(ok=>ok&&setAssetStatus('PLAYER GLB • RESIDENT GLB GATE ACTIVE • 20 VEHICLES'))
+    replacePrimitiveWithStreetVerseAsset({id:'player-default',fallback:avatar,scene,position:avatar.position.clone()}).then(ok=>ok&&setAssetStatus('PLAYER GLB • RESIDENT GLB GATE ACTIVE • 20 VEHICLES • CHICAGO TRANSIT/AIRPORT DEPTH'))
 
     const npcs:THREE.Group[]=[]
     for(let i=0;i<24;i++){
@@ -107,7 +109,7 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
       const horizontal=i<16;const dir=(i%2===0?1:-1) as 1|-1;const route:ResidentRoute=horizontal?{axis:'x',fixed:i<8?-18:18,dir,speed:1.7+(i%5)*.18,phase:i*9}:{axis:'z',fixed:i<20?-18:18,dir,speed:1.55+(i%4)*.2,phase:i*11};anchor.userData.route=route
       if(route.axis==='x')anchor.position.set(wrap(-78+route.phase),0,route.fixed);else anchor.position.set(route.fixed,0,wrap(-78+route.phase));scene.add(anchor);npcs.push(anchor)
       const id=RESIDENT_ASSETS[i%RESIDENT_ASSETS.length]
-      replacePrimitiveWithStreetVerseAsset({id,fallback,scene,parent:anchor,position:new THREE.Vector3(0,0,0),requireClearance:true}).then(ok=>{if(ok)setAssetStatus('GLB RESIDENTS • SMART CROSSWALKS • 20 VEHICLES')})
+      replacePrimitiveWithStreetVerseAsset({id,fallback,scene,parent:anchor,position:new THREE.Vector3(0,0,0),requireClearance:true}).then(ok=>{if(ok)setAssetStatus('GLB RESIDENTS • SMART CROSSWALKS • 20 VEHICLES • CHICAGO TRANSIT/AIRPORT DEPTH')})
     }
 
     let controlled:THREE.Group=avatar
@@ -140,7 +142,7 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
     const resize=()=>{const w=mount.clientWidth,h=Math.max(420,mount.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)};const ro=new ResizeObserver(resize);ro.observe(mount);resize()
     const clock=new THREE.Clock(),tmp=new THREE.Vector3(),desiredCam=new THREE.Vector3();let raf=0,lastSave=0,elapsed=0,lastWorldPulse=0,lastSignalPhase=-1
     const collides=(x:number,z:number)=>collisionBoxes.some(box=>box.containsPoint(tmp.set(x,2,z)))
-    window.dispatchEvent(new CustomEvent('tryamm:streetverse-enter',{detail:{district:'01',residents:npcs.length,vehicles:cars.length,smartIntersections:true}}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-enter',{detail:{district:'01',residents:npcs.length,vehicles:cars.length,smartIntersections:true,chicagoTransitAirportDepth:true}}))
 
     const animate=()=>{
       const dt=Math.min(.033,clock.getDelta());elapsed+=dt
@@ -166,7 +168,7 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
   const press=(key:keyof typeof inputRef.current,value:boolean)=>{inputRef.current[key]=value}
   return <div role="dialog" aria-modal="true" aria-label="StreetVerse Living World" style={{position:'fixed',inset:0,zIndex:16000,background:'#02040a',color:'#fff',display:'grid',gridTemplateRows:'auto 1fr auto',fontFamily:'Inter,system-ui,sans-serif'}}>
     <header style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:10,padding:'9px 12px',background:'#050a12ee',borderBottom:'1px solid #28425a'}}><div><div style={{fontSize:9,fontWeight:950,letterSpacing:2,color:'#59e7ff'}}>STREETVERSE • CHICAGO • LIVING WORLD</div><div style={{fontWeight:950,fontSize:'clamp(18px,4vw,29px)'}}>District 01</div><div style={{fontSize:9,color:'#ffd45e',marginTop:3}}>PLAYING AS • {activeCharacter}</div></div><div style={{display:'flex',alignItems:'center',gap:8}}><span style={{fontSize:9,color:'#8effb7'}}>{assetStatus}</span><button onClick={onClose} aria-label="Close StreetVerse" style={{width:42,height:42,borderRadius:13,border:'1px solid #3a5369',background:'#0c1520',color:'#fff',fontSize:22}}>×</button></div></header>
-    <main style={{position:'relative',minHeight:0}}><div ref={mountRef} style={{position:'absolute',inset:0,minHeight:420}}/><div style={{position:'absolute',left:10,top:10,maxWidth:340,padding:10,borderRadius:14,background:'#030914dc',border:'1px solid #2b485e',backdropFilter:'blur(9px)'}}><div style={{fontSize:9,color:'#ffd45e',fontWeight:950}}>LIVING CITY MISSION</div><div style={{fontSize:12,lineHeight:1.45,marginTop:5}}>{message}</div><div style={{fontSize:10,marginTop:7,color:visited.length===MISSIONS.length?'#79ffad':'#b7c6d5'}}>{visited.length}/{MISSIONS.length} locations {visited.length===MISSIONS.length?'• DISTRICT COMPLETE ✓':''}</div></div><div style={{position:'absolute',right:10,top:10,display:'grid',gap:5,justifyItems:'end'}}><div style={{padding:'7px 9px',borderRadius:999,background:'#030914dc',border:'1px solid #2b485e',fontSize:9}}>24 PLAYABLE RESIDENTS • 20 TRAFFIC VEHICLES • SMART INTERSECTIONS</div><div style={{padding:'7px 9px',borderRadius:999,background:'#030914dc',border:'1px solid #2b485e',fontSize:9,color:'#8effb7'}}>{signalStatus}</div></div></main>
+    <main style={{position:'relative',minHeight:0}}><div ref={mountRef} style={{position:'absolute',inset:0,minHeight:420}}/><div style={{position:'absolute',left:10,top:10,maxWidth:340,padding:10,borderRadius:14,background:'#030914dc',border:'1px solid #2b485e',backdropFilter:'blur(9px)'}}><div style={{fontSize:9,color:'#ffd45e',fontWeight:950}}>LIVING CITY MISSION</div><div style={{fontSize:12,lineHeight:1.45,marginTop:5}}>{message}</div><div style={{fontSize:10,marginTop:7,color:visited.length===MISSIONS.length?'#79ffad':'#b7c6d5'}}>{visited.length}/{MISSIONS.length} locations {visited.length===MISSIONS.length?'• DISTRICT COMPLETE ✓':''}</div></div><div style={{position:'absolute',right:10,top:10,display:'grid',gap:5,justifyItems:'end'}}><div style={{padding:'7px 9px',borderRadius:999,background:'#030914dc',border:'1px solid #2b485e',fontSize:9}}>24 PLAYABLE RESIDENTS • 20 TRAFFIC VEHICLES • SMART INTERSECTIONS • CHICAGO TRANSIT/AIRPORT 3D</div><div style={{padding:'7px 9px',borderRadius:999,background:'#030914dc',border:'1px solid #2b485e',fontSize:9,color:'#8effb7'}}>{signalStatus}</div></div></main>
     <footer style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',alignItems:'center',gap:8,padding:'8px 10px',background:'#050912',borderTop:'1px solid #24384b'}}><div style={{fontSize:9,color:'#8fa5b7'}}>WASD/arrows • Shift run • touch • standard gamepad • character switcher</div><div style={{display:'grid',gridTemplateColumns:'54px 54px 54px',gap:4,touchAction:'none',userSelect:'none'}}><span/><Pad label="▲" down={()=>press('up',true)} up={()=>press('up',false)}/><span/><Pad label="◀" down={()=>press('left',true)} up={()=>press('left',false)}/><Pad label="▼" down={()=>press('down',true)} up={()=>press('down',false)}/><Pad label="▶" down={()=>press('right',true)} up={()=>press('right',false)}/></div><div style={{display:'flex',justifyContent:'flex-end',gap:7}}><button onClick={()=>{localStorage.removeItem(SAVE_KEY);location.reload()}} style={smallBtn}>RESET</button><button onClick={()=>setPaused(v=>!v)} style={smallBtn}>{paused?'PLAY':'PAUSE'}</button></div></footer>
   </div>
 }
