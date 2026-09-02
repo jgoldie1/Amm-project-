@@ -91,6 +91,7 @@ import { installOmniverseEventFabricRuntime } from './runtime/OmniverseEventFabr
 import { installStreetVerseCreatorDistrict3D } from './runtime/StreetVerseCreatorDistrict3D'
 
 const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
+const StreetVerseTwinWorld=lazy(()=>import('./components/StreetVerseTwinWorld'))
 const MeetTheStubbsWorldDistrict=lazy(()=>import('./components/MeetTheStubbsWorldDistrict'))
 
 installProductionHealthMonitor()
@@ -139,63 +140,78 @@ installStreetVerseCreatorDistrict3D()
 const currentPath=window.location.pathname
 const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
 const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
+const isTwinWorld=currentPath.startsWith('/streetverse/twin-world')
 const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
-const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs
+const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs&&!isTwinWorld
 const isBusinessDirectory=currentPath==='/business'||currentPath==='/business/'
 const businessMatch=currentPath.match(/^\/business\/([^/]+)\/?$/)
 const businessSlug=businessMatch?.[1]||''
 const routeFallback=<div role="status" aria-live="polite" style={{position:'fixed',inset:0,zIndex:15980,display:'grid',placeItems:'center',background:'#050505',color:'#fff',fontFamily:'system-ui,sans-serif',fontWeight:900}}>LOADING STREETVERSE…</div>
 
+const streetVerseRoute=<>
+  <Suspense fallback={routeFallback}><StreetVerseLivingWorld onClose={()=>{window.location.href='/'}} /></Suspense>
+  <div style={{position:'fixed',left:12,top:12,zIndex:16990,display:'flex',gap:8,flexWrap:'wrap'}}>
+    <button onClick={()=>{window.location.href='/streetverse/twin-world'}} style={{border:'1px solid #62b8ff99',borderRadius:999,padding:'10px 14px',background:'#071725',color:'#fff',fontWeight:950,cursor:'pointer'}}>🌎 TWIN WORLD • REAL CHICAGO</button>
+    <button onClick={()=>{window.location.href='/streetverse/meet-the-stubbs'}} style={{border:'1px solid #e8b94499',borderRadius:999,padding:'10px 14px',background:'#17120a',color:'#fff',fontWeight:950,cursor:'pointer'}}>MEET THE STUBBS • 13 WORLD STORES</button>
+  </div>
+</>
+
+const mainShell=<>
+  <JudahSplash />
+  <App />
+  <SafeOnboardingGate />
+  <StreetVersePortalTransition />
+  <LivingWorldAdaptiveBridge />
+  <RevenueLandingCTAs />
+  <UniversalSafetyLauncher />
+  <MiddleverseLauncher />
+  <GameVerseLauncher />
+  <MediaStudioLauncher />
+  <HoloDramaLauncher />
+  <BroadcastStudioLauncher />
+  <StreetVerseLifeHub />
+  <StreetVerseCareerHUD />
+  <StreetVerseMissionWorldBridge />
+  <AIWebsiteBusinessBuilder />
+  <FamilyBusinessDirectoryLauncher />
+  <JacobieVisionLauncher />
+  <HoloGPTEventAlias />
+  <FirstClassFeatureDock />
+  <CampusWelcomeBoard />
+  <ReleaseChangesPanel />
+  <ProductionReadinessPanel />
+  <OmniBICommandCenter />
+  <MetaverseBusinessBuilder />
+  <AccessibilityPassportPanel />
+  <HoloDeliveryLauncher />
+  <HoloMobilityLauncher />
+  <HoloMarketplaceLauncher />
+  <UnifiedCommerceHub />
+  <NeighborhoodCommerceNetwork />
+  <VirtualWarehouseNetwork />
+  <HoloFridge />
+  <LivingWorldEconomyHUD />
+  <BuildSwarmControl />
+  <ProductTryOnHub />
+  <HoloMusicLauncher />
+  <OmniCashLauncher />
+  <GlobalGrowthHub />
+  <HoloConcierge />
+  <OmniverseCoreLoopHUD />
+</>
+
+let routeContent
+if(standaloneSite)routeContent=<StandaloneProductSite site={standaloneSite} />
+else if(isBusinessDirectory)routeContent=<FamilyBusinessDirectory />
+else if(businessSlug)routeContent=<FamilyBusinessPublicSite slug={businessSlug} onClose={()=>{window.location.href='/business'}} />
+else if(isTwinWorld)routeContent=<Suspense fallback={routeFallback}><StreetVerseTwinWorld onClose={()=>{window.location.href='/'}} /></Suspense>
+else if(isMeetStubbs)routeContent=<Suspense fallback={routeFallback}><MeetTheStubbsWorldDistrict onClose={()=>{window.location.href='/streetverse'}} /></Suspense>
+else if(isStreetVerse)routeContent=streetVerseRoute
+else routeContent=mainShell
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <UniversalAccessRuntime />
-    {standaloneSite ? <StandaloneProductSite site={standaloneSite} /> : isBusinessDirectory ? <FamilyBusinessDirectory /> : businessSlug ? <FamilyBusinessPublicSite slug={businessSlug} onClose={() => { window.location.href='/business' }} /> : <>
-    <JudahSplash />
-    <App />
-    <SafeOnboardingGate />
-    <StreetVersePortalTransition />
-    <LivingWorldAdaptiveBridge />
-    <RevenueLandingCTAs />
-    <UniversalSafetyLauncher />
-    <MiddleverseLauncher />
-    <GameVerseLauncher />
-    <MediaStudioLauncher />
-    <HoloDramaLauncher />
-    <BroadcastStudioLauncher />
-    <StreetVerseLifeHub />
-    <StreetVerseCareerHUD />
-    <StreetVerseMissionWorldBridge />
-    <AIWebsiteBusinessBuilder />
-    <FamilyBusinessDirectoryLauncher />
-    <JacobieVisionLauncher />
-    <HoloGPTEventAlias />
-    <FirstClassFeatureDock />
-    <CampusWelcomeBoard />
-    <ReleaseChangesPanel />
-    <ProductionReadinessPanel />
-    <OmniBICommandCenter />
-    <MetaverseBusinessBuilder />
-    <AccessibilityPassportPanel />
-    <HoloDeliveryLauncher />
-    <HoloMobilityLauncher />
-    <HoloMarketplaceLauncher />
-    <UnifiedCommerceHub />
-    <NeighborhoodCommerceNetwork />
-    <VirtualWarehouseNetwork />
-    <HoloFridge />
-    <LivingWorldEconomyHUD />
-    <BuildSwarmControl />
-    <ProductTryOnHub />
-    <HoloMusicLauncher />
-    <OmniCashLauncher />
-    <GlobalGrowthHub />
-    <HoloConcierge />
-    <OmniverseCoreLoopHUD />
-    {isStreetVerse && <>
-      <Suspense fallback={routeFallback}><StreetVerseLivingWorld onClose={() => { window.location.href='/' }} /></Suspense>
-      <button onClick={()=>{window.location.href='/streetverse/meet-the-stubbs'}} style={{position:'fixed',left:12,top:12,zIndex:15990,border:'1px solid #e8b94499',borderRadius:999,padding:'10px 14px',background:'#17120a',color:'#fff',fontWeight:950,cursor:'pointer'}}>MEET THE STUBBS • 13 WORLD STORES</button>
-    </>}
-    {isMeetStubbs && <Suspense fallback={routeFallback}><MeetTheStubbsWorldDistrict onClose={() => { window.location.href='/streetverse' }} /></Suspense>}
-    </>}
+    {routeContent}
   </StrictMode>
 )
