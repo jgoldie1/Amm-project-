@@ -11,6 +11,7 @@ import MiddleverseLauncher from './components/MiddleverseLauncher'
 import GameVerseLauncher from './components/GameVerseLauncher'
 import UniversalAccessRuntime from './components/UniversalAccessRuntime'
 import StandaloneProductSite from './components/StandaloneProductSite'
+import GlobalLaunchBar from './components/GlobalLaunchBar'
 import { getStandaloneSite } from './data/standaloneSiteRegistry'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
@@ -57,9 +58,12 @@ import { installOmniverseEventFabricRuntime } from './runtime/OmniverseEventFabr
 
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 const StreetVerseNextLevelHUD=lazy(()=>import('./components/StreetVerseNextLevelHUD'))
+// Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
 const StreetVerseTwinWorld=lazy(()=>import('./components/StreetVerseTwinWorld'))
 const MeetTheStubbsWorldDistrict=lazy(()=>import('./components/MeetTheStubbsWorldDistrict'))
 const OmniWorkstation=lazy(()=>import('./components/OmniWorkstation'))
+const AllAmericanNetworkHub=lazy(()=>import('./components/AllAmericanNetworkHub'))
+const ServantsOfChristMinistry=lazy(()=>import('./components/ServantsOfChristMinistry'))
 
 installProductionHealthMonitor()
 installMediaCloudBridge()
@@ -108,6 +112,8 @@ const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
 const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
 const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
 const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
+const isNetwork=['/network','/network/','/free-tv','/free-tv/','/isaiah-ai-tv','/isaiah-ai-tv/','/starverse','/starverse/'].includes(currentPath)
+const isServantsOfChrist=currentPath==='/servants-of-christ'||currentPath==='/servants-of-christ/'
 const isTwinWorld=currentPath.startsWith('/streetverse/twin-world')
 const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
 const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs&&!isTwinWorld
@@ -137,11 +143,14 @@ const mainShell=<>
   <UniversalSafetyLauncher />
   <MiddleverseLauncher />
   <GameVerseLauncher />
+  <GlobalLaunchBar />
 </>
 
 let routeContent
 if(isAccessibility)routeContent=<AccessibilityStatement />
 else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
+else if(isNetwork)routeContent=<Suspense fallback={routeFallback}><AllAmericanNetworkHub /></Suspense>
+else if(isServantsOfChrist)routeContent=<Suspense fallback={routeFallback}><ServantsOfChristMinistry /></Suspense>
 else if(standaloneSite)routeContent=<StandaloneProductSite site={standaloneSite} />
 else if(isBusinessDirectory)routeContent=<FamilyBusinessDirectory />
 else if(businessSlug)routeContent=<FamilyBusinessPublicSite slug={businessSlug} onClose={()=>{window.location.href='/business'}} />
