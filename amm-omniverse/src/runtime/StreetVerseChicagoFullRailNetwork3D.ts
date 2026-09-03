@@ -1,0 +1,30 @@
+import * as THREE from 'three'
+
+type LineDef={id:string;name:string;color:number;mode:'subway'|'elevated'|'surface';z:number;y:number;length:number}
+const LINES:LineDef[]=[
+{id:'red',name:'RED LINE',color:0xc60c30,mode:'subway',z:-86,y:-5,length:210},
+{id:'blue',name:'BLUE LINE',color:0x00a1de,mode:'subway',z:-102,y:-6,length:230},
+{id:'brown',name:'BROWN LINE',color:0x62361b,mode:'elevated',z:-54,y:9,length:190},
+{id:'green',name:'GREEN LINE',color:0x009b3a,mode:'elevated',z:58,y:9,length:210},
+{id:'orange',name:'ORANGE LINE',color:0xf9461c,mode:'elevated',z:78,y:8,length:210},
+{id:'pink',name:'PINK LINE',color:0xe27ea6,mode:'elevated',z:18,y:8,length:190},
+{id:'purple',name:'PURPLE LINE',color:0x522398,mode:'elevated',z:-70,y:10,length:180},
+{id:'yellow',name:'YELLOW LINE',color:0xf9e300,mode:'surface',z:-118,y:.7,length:150},
+]
+const mat=(color:number,metal=.35)=>new THREE.MeshStandardMaterial({color,roughness:.58,metalness:metal})
+const box=(p:THREE.Object3D,x:number,y:number,z:number,w:number,h:number,d:number,m:THREE.Material)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;p.add(o);return o}
+const label=(p:THREE.Object3D,text:string,x:number,y:number,z:number,color:number)=>{const c=document.createElement('canvas');c.width=512;c.height=96;const g=c.getContext('2d');if(g){g.fillStyle='#111';g.fillRect(0,0,512,96);g.fillStyle='#fff';g.font='900 34px Arial';g.textAlign='center';g.textBaseline='middle';g.fillText(text,256,48);g.strokeStyle=`#${color.toString(16).padStart(6,'0')}`;g.lineWidth=10;g.strokeRect(2,2,508,92)}const t=new THREE.CanvasTexture(c);const m=new THREE.Mesh(new THREE.PlaneGeometry(9,1.7),new THREE.MeshBasicMaterial({map:t,transparent:true}));m.position.set(x,y,z);p.add(m)}
+const makeTrain=(color:number)=>{const g=new THREE.Group();for(let i=0;i<4;i++){box(g,i*6,0,0,5.5,3,2.7,mat(0xb8bec4,.55));box(g,i*6,.1,-1.39,5,.35,.08,mat(color,.25))}return g}
+export function addStreetVerseChicagoFullRailNetwork3D(scene:THREE.Scene){
+ const root=new THREE.Group();root.name='streetverse-chicago-full-rail-network';scene.add(root)
+ const trains:{g:THREE.Group;line:LineDef;phase:number}[]=[]
+ LINES.forEach((line,idx)=>{
+  const g=new THREE.Group();root.add(g)
+  if(line.mode==='subway'){box(g,0,line.y,line.z,line.length,7,18,mat(0x25282d,.05));box(g,0,line.y+3.1,line.z,line.length,.35,11,mat(0x3d4248,.45));for(let x=-line.length/2+10;x<line.length/2;x+=28){box(g,x,line.y+1.1,line.z-5.2,18,.5,3.2,mat(0x666a6f,.2));label(g,`${line.name} • SUBWAY`,x,line.y+4.5,line.z-7,line.color)}}else{for(let x=-line.length/2;x<=line.length/2;x+=12)box(g,x,line.y/2,line.z,.6,line.y,.6,mat(0x3d444d,.7));box(g,0,line.y,line.z,line.length,.5,5.5,mat(0x4b5158,.7));for(let x=-line.length/2+18;x<line.length/2;x+=42){box(g,x,line.y+.8,line.z-3,22,.4,4.5,mat(0x666a6f,.3));label(g,line.name,x,line.y+3,line.z-5.4,line.color)}}
+  for(const dz of [-1.2,1.2])box(g,0,line.y+.55,line.z+dz,line.length,.16,.16,mat(0x222,.9))
+  const train=makeTrain(line.color);train.position.set(-line.length/2+12,line.y+1.9,line.z);root.add(train);trains.push({g:train,line,phase:idx*23})
+ })
+ const clock=new THREE.Clock();let raf=0;const tick=()=>{const t=clock.getElapsedTime();trains.forEach(({g,line,phase})=>{const span=line.length-30;g.position.x=-span/2+((t*8+phase)%span)});raf=requestAnimationFrame(tick)};tick()
+ window.dispatchEvent(new CustomEvent('tryamm:streetverse-rail-network-ready',{detail:{lines:LINES.map(l=>({id:l.id,name:l.name,mode:l.mode})),subway:['red','blue'],elevated:['brown','green','orange','pink','purple'],surface:['yellow']}}))
+ return {group:root,lines:LINES.length,subwayLines:2,dispose:()=>{cancelAnimationFrame(raf);scene.remove(root);root.traverse(o=>{const m=o as THREE.Mesh;m.geometry?.dispose?.();const material=m.material as THREE.Material|THREE.Material[]|undefined;if(Array.isArray(material))material.forEach(x=>x.dispose());else material?.dispose?.()})}}
+}
