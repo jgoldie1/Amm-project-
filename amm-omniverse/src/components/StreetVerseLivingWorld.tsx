@@ -19,7 +19,7 @@ type Traffic={axis:'x'|'z';roadCenter:number;dir:1|-1;laneOffset:number;speed:nu
 type ResidentRoute={axis:'x'|'z';fixed:number;dir:1|-1;speed:number;phase:number}
 type CharacterSelect={id?:string;label?:string;index?:number}
 type VehicleInteract={entered?:boolean;x?:number;z?:number}
-type VehicleInput={throttle?:number;brake?:number;steer?:number;horn?:boolean;exit?:boolean}
+type VehicleInput={throttle?:number;brake?:number;steer?:number;handbrake?:number|boolean;horn?:boolean;exit?:boolean}
 
 function loadSave(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')}catch{return {}}}
 function loadCharacter(){try{return JSON.parse(localStorage.getItem(CHARACTER_KEY)||'{}')?.character as CharacterSelect|undefined}catch{return undefined}}
@@ -139,19 +139,15 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
     let activeCar:THREE.Group|null=null
     let activeCarIndex=-1
     let driver:THREE.Group|null=null
-    let driveThrottle=0,driveBrake=0,driveSteer=0,driveSpeed=0
+    let driveThrottle=0,driveBrake=0,driveSteer=0,driveHandbrake=0,driveSpeed=0,velocityX=0,velocityZ=0
     let hornDown=false
-    const nearestCar=(from:THREE.Group)=>{
-      let bestIndex=-1,best=Infinity
-      cars.forEach((car,i)=>{if(car===activeCar)return;const d=Math.hypot(car.position.x-from.position.x,car.position.z-from.position.z);if(d<best){best=d;bestIndex=i}})
-      return {index:bestIndex,distance:best}
-    }
+    const nearestCar=(from:THREE.Group)=>{let bestIndex=-1,best=Infinity;cars.forEach((car,i)=>{if(car===activeCar)return;const d=Math.hypot(car.position.x-from.position.x,car.position.z-from.position.z);if(d<best){best=d;bestIndex=i}});return {index:bestIndex,distance:best}}
     const enterCar=()=>{
       if(activeCar)return
       const nearest=nearestCar(controlled)
       if(nearest.index<0||nearest.distance>18){setMessage('No drivable vehicle close enough. Move nearer to traffic and try again.');window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-denied',{detail:{reason:'too-far',distance:nearest.distance}}));return}
-      driver=controlled;activeCar=cars[nearest.index];activeCarIndex=nearest.index;activeCar.userData.aiTraffic=false;driveSpeed=Math.max(0,(activeCar.userData.traffic as Traffic).speed*.45);activeCar.userData.driveSpeed=driveSpeed;driver.visible=false;controlled=activeCar
-      setDriveStatus(`DRIVING • CAR ${String(activeCarIndex+1).padStart(2,'0')}`);setMessage('Vehicle control active. W/↑ gas • S/↓ brake/reverse • A/D steer • H horn • E exit.')
+      driver=controlled;activeCar=cars[nearest.index];activeCarIndex=nearest.index;activeCar.userData.aiTraffic=false;driveSpeed=Math.max(0,(activeCar.userData.traffic as Traffic).speed*.45);activeCar.userData.driveSpeed=driveSpeed;const f=new THREE.Vector3(Math.cos(activeCar.rotation.y),0,-Math.sin(activeCar.rotation.y));velocityX=f.x*driveSpeed;velocityZ=f.z*driveSpeed;driver.visible=false;controlled=activeCar
+      setDriveStatus(`DRIVING • CAR ${String(activeCarIndex+1).padStart(2,'0')}`);setMessage('Vehicle active. W gas • S brake/reverse • A/D steer • SPACE handbrake • H horn • E exit.')
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-controlled',{detail:{entered:true,index:activeCarIndex,x:activeCar.position.x,z:activeCar.position.z,speed:driveSpeed}}))
     }
     const exitCar=()=>{
@@ -160,26 +156,25 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
       const side=new THREE.Vector3(0,0,4.2).applyAxisAngle(new THREE.Vector3(0,1,0),car.rotation.y)
       let ex=THREE.MathUtils.clamp(car.position.x+side.x,-86,86),ez=THREE.MathUtils.clamp(car.position.z+side.z,-86,86)
       if(collisionBoxes.some(box=>box.containsPoint(tmp.set(ex,2,ez)))){ex=THREE.MathUtils.clamp(car.position.x-side.x,-86,86);ez=THREE.MathUtils.clamp(car.position.z-side.z,-86,86)}
-      who.position.set(ex,0,ez);who.visible=true;controlled=who;car.userData.aiTraffic=true;car.userData.driveSpeed=0;activeCar=null;activeCarIndex=-1;driver=null;driveThrottle=0;driveBrake=0;driveSteer=0;driveSpeed=0
-      setDriveStatus('ON FOOT');setMessage('Exited vehicle. Character control restored.')
+      who.position.set(ex,0,ez);who.visible=true;controlled=who;car.userData.aiTraffic=false;car.userData.driveSpeed=0;car.rotation.z=0;activeCar=null;activeCarIndex=-1;driver=null;driveThrottle=0;driveBrake=0;driveSteer=0;driveHandbrake=0;driveSpeed=0;velocityX=0;velocityZ=0
+      setDriveStatus('ON FOOT');setMessage('Exited vehicle. Character control restored; your car stays parked for re-entry.')
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-controlled',{detail:{entered:false,x:controlled.position.x,z:controlled.position.z}}))
     }
     const onVehicleInteract=(event:Event)=>{const d=(event as CustomEvent<VehicleInteract>).detail||{};d.entered?enterCar():exitCar()}
-    const onVehicleInput=(event:Event)=>{const d=(event as CustomEvent<VehicleInput>).detail||{};driveThrottle=THREE.MathUtils.clamp(Number(d.throttle||0),0,1);driveBrake=THREE.MathUtils.clamp(Number(d.brake||0),0,1);driveSteer=THREE.MathUtils.clamp(Number(d.steer||0),-1,1);if(d.horn&&!hornDown){hornDown=true;window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-sound',{detail:{kind:'horn'}}))}if(!d.horn)hornDown=false;if(d.exit)exitCar()}
+    const onVehicleInput=(event:Event)=>{const d=(event as CustomEvent<VehicleInput>).detail||{};driveThrottle=THREE.MathUtils.clamp(Number(d.throttle||0),0,1);driveBrake=THREE.MathUtils.clamp(Number(d.brake||0),0,1);driveSteer=THREE.MathUtils.clamp(Number(d.steer||0),-1,1);driveHandbrake=typeof d.handbrake==='boolean'?(d.handbrake?1:0):THREE.MathUtils.clamp(Number(d.handbrake||0),0,1);if(d.horn&&!hornDown){hornDown=true;window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-sound',{detail:{kind:'horn'}}))}if(!d.horn)hornDown=false;if(d.exit)exitCar()}
     addEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract)
     addEventListener('tryamm:streetverse-vehicle-input',onVehicleInput)
 
     const dogs:THREE.Group[]=[];for(let i=0;i<3;i++){const dog=new THREE.Group();const dogBody=new THREE.Mesh(new THREE.BoxGeometry(1.6,.75,.7),material(i?0x8a5b35:0x303033));dogBody.position.y=.75;dog.add(dogBody);dog.position.set(-20+i*22,0,62-i*15);scene.add(dog);dogs.push(dog)}
     const birds:THREE.Mesh[]=[];for(let i=0;i<9;i++){const bird=new THREE.Mesh(new THREE.ConeGeometry(.28,.8,5),material(0xd9e8f5,.15,.7));bird.rotation.z=Math.PI/2;scene.add(bird);birds.push(bird)}
-
     const beacons=new Map<string,THREE.Group>();MISSIONS.forEach(m=>{const g=new THREE.Group();g.position.set(m.x,0,m.z);const ring=new THREE.Mesh(new THREE.TorusGeometry(2.4,.22,12,44),new THREE.MeshBasicMaterial({color:0xffd45e}));ring.rotation.x=Math.PI/2;ring.position.y=.35;g.add(ring);const beam=new THREE.Mesh(new THREE.CylinderGeometry(.35,.9,12,18,1,true),new THREE.MeshBasicMaterial({color:0x55ddff,transparent:true,opacity:.2,side:THREE.DoubleSide}));beam.position.y=6;g.add(beam);scene.add(g);beacons.set(m.id,g)})
 
-    const keys=new Set<string>();const down=(e:KeyboardEvent)=>{const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift','h'].includes(k)){e.preventDefault();keys.add(k)}if(k==='e'&&activeCar){e.preventDefault();exitCar()}};const up=(e:KeyboardEvent)=>keys.delete(e.key.toLowerCase());addEventListener('keydown',down,{passive:false});addEventListener('keyup',up)
+    const keys=new Set<string>();const down=(e:KeyboardEvent)=>{const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift','h',' '].includes(k)){e.preventDefault();keys.add(k)}if(k==='e'){e.preventDefault();activeCar?exitCar():enterCar()}};const up=(e:KeyboardEvent)=>keys.delete(e.key.toLowerCase());addEventListener('keydown',down,{passive:false});addEventListener('keyup',up)
     const resize=()=>{const w=mount.clientWidth,h=Math.max(420,mount.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)};const ro=new ResizeObserver(resize);ro.observe(mount);resize()
-    const clock=new THREE.Clock(),tmp=new THREE.Vector3(),desiredCam=new THREE.Vector3(),forward=new THREE.Vector3();let raf=0,lastSave=0,elapsed=0,lastWorldPulse=0,lastSignalPhase=-1,lastDrivePulse=0,lastImpact=0
+    const clock=new THREE.Clock(),tmp=new THREE.Vector3(),desiredCam=new THREE.Vector3(),forward=new THREE.Vector3(),right=new THREE.Vector3();let raf=0,lastSave=0,elapsed=0,lastWorldPulse=0,lastSignalPhase=-1,lastDrivePulse=0,lastImpact=0
     const collides=(x:number,z:number)=>collisionBoxes.some(box=>box.containsPoint(tmp.set(x,2,z)))
     const carHitsTraffic=(car:THREE.Group,x:number,z:number)=>cars.some(other=>other!==car&&Math.hypot(other.position.x-x,other.position.z-z)<3.3)
-    window.dispatchEvent(new CustomEvent('tryamm:streetverse-enter',{detail:{district:'01',residents:npcs.length,vehicles:cars.length,smartIntersections:true,chicagoTransitAirportDepth:true,drivableVehicles:true}}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-enter',{detail:{district:'01',residents:npcs.length,vehicles:cars.length,smartIntersections:true,chicagoTransitAirportDepth:true,drivableVehicles:true,lateralGripPhysics:true}}))
 
     const animate=()=>{
       const dt=Math.min(.033,clock.getDelta());elapsed+=dt
@@ -191,22 +186,34 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
 
       if(activeCar&&!paused){
         const keyThrottle=(keys.has('w')||keys.has('arrowup')||input.up)?1:0,keyBrake=(keys.has('s')||keys.has('arrowdown')||input.down)?1:0,keySteer=((keys.has('a')||keys.has('arrowleft')||input.left)?-1:0)+((keys.has('d')||keys.has('arrowright')||input.right)?1:0)
-        const gpThrottle=gp?.buttons?.[7]?.value||0,gpBrake=gp?.buttons?.[6]?.value||0,gpSteer=Math.abs(gp?.axes?.[0]||0)>.18?(gp?.axes?.[0]||0):0
-        const throttle=Math.max(driveThrottle,keyThrottle,gpThrottle),brake=Math.max(driveBrake,keyBrake,gpBrake),steer=THREE.MathUtils.clamp(Math.abs(driveSteer)>Math.abs(gpSteer)?driveSteer:(keySteer||gpSteer),-1,1)
-        const accel=24,decel=31,drag=7.5,maxForward=38,maxReverse=-13
-        if(throttle>0)driveSpeed+=accel*throttle*dt
-        if(brake>0)driveSpeed-=decel*brake*dt
-        if(!throttle&&!brake)driveSpeed-=Math.sign(driveSpeed)*Math.min(Math.abs(driveSpeed),drag*dt)
-        driveSpeed=THREE.MathUtils.clamp(driveSpeed,maxReverse,maxForward)
-        const steerScale=THREE.MathUtils.clamp(Math.abs(driveSpeed)/7,.25,1);activeCar.rotation.y-=steer*1.65*steerScale*dt*(driveSpeed>=0?1:-1)
-        forward.set(Math.cos(activeCar.rotation.y),0,-Math.sin(activeCar.rotation.y));const nx=THREE.MathUtils.clamp(activeCar.position.x+forward.x*driveSpeed*dt,-87,87),nz=THREE.MathUtils.clamp(activeCar.position.z+forward.z*driveSpeed*dt,-87,87)
+        const gpThrottle=gp?.buttons?.[7]?.value||0,gpBrake=gp?.buttons?.[6]?.value||0,gpSteer=Math.abs(gp?.axes?.[0]||0)>.18?(gp?.axes?.[0]||0):0,gpHandbrake=gp?.buttons?.[0]?.pressed?1:0
+        const throttle=Math.max(driveThrottle,keyThrottle,gpThrottle),brake=Math.max(driveBrake,keyBrake,gpBrake),steer=THREE.MathUtils.clamp(Math.abs(driveSteer)>Math.abs(gpSteer)?driveSteer:(keySteer||gpSteer),-1,1),handbrake=Math.max(driveHandbrake,keys.has(' ')?1:0,gpHandbrake)
+        forward.set(Math.cos(activeCar.rotation.y),0,-Math.sin(activeCar.rotation.y));right.set(-forward.z,0,forward.x)
+        let longitudinal=velocityX*forward.x+velocityZ*forward.z
+        let lateral=velocityX*right.x+velocityZ*right.z
+        const accel=25,decel=32,drag=7.2,maxForward=39,maxReverse=-14
+        if(throttle>0)longitudinal+=accel*throttle*dt
+        if(brake>0&&longitudinal>0)longitudinal-=decel*brake*dt;else if(brake>0)longitudinal-=accel*.72*brake*dt
+        if(!throttle&&!brake)longitudinal-=Math.sign(longitudinal)*Math.min(Math.abs(longitudinal),drag*dt)
+        longitudinal=THREE.MathUtils.clamp(longitudinal,maxReverse,maxForward)
+        const speedAbs=Math.abs(longitudinal),steerScale=THREE.MathUtils.clamp(speedAbs/7,.18,1)
+        const yawGrip=handbrake?2.45:1.62;activeCar.rotation.y-=steer*yawGrip*steerScale*dt*(longitudinal>=0?1:-1)
+        const lateralKick=steer*speedAbs*(handbrake?.92:.16)*dt;lateral+=lateralKick
+        const grip=handbrake?1.15:(brake>.65?3.4:7.4);lateral*=Math.max(0,1-grip*dt)
+        const burnout=throttle>.75&&brake>.55&&speedAbs<8;const wheelspin=throttle>.82&&speedAbs<12
+        if(burnout)lateral+=steer*(4.2+throttle*3)*dt
+        forward.set(Math.cos(activeCar.rotation.y),0,-Math.sin(activeCar.rotation.y));right.set(-forward.z,0,forward.x)
+        velocityX=forward.x*longitudinal+right.x*lateral;velocityZ=forward.z*longitudinal+right.z*lateral
+        const nx=THREE.MathUtils.clamp(activeCar.position.x+velocityX*dt,-87,87),nz=THREE.MathUtils.clamp(activeCar.position.z+velocityZ*dt,-87,87)
         const hitWorld=collides(nx,nz),hitTraffic=carHitsTraffic(activeCar,nx,nz)
-        if(!hitWorld&&!hitTraffic){activeCar.position.x=nx;activeCar.position.z=nz}else{const impact=Math.abs(driveSpeed);driveSpeed*=-.18;if(performance.now()-lastImpact>350){lastImpact=performance.now();window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-sound',{detail:{kind:'impact',speed:impact}}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-collision',{detail:{kind:hitTraffic?'traffic':'world',speed:impact,x:activeCar.position.x,z:activeCar.position.z}}))}}
-        if(brake>.55&&Math.abs(driveSpeed)>13&&performance.now()-lastDrivePulse>300){lastDrivePulse=performance.now();window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-sound',{detail:{kind:'brake',speed:Math.abs(driveSpeed)}}))}
-        if(Math.abs(steer)>.72&&Math.abs(driveSpeed)>20&&performance.now()-lastDrivePulse>320){lastDrivePulse=performance.now();window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-sound',{detail:{kind:'skid',speed:Math.abs(driveSpeed)}}))}
+        if(!hitWorld&&!hitTraffic){activeCar.position.x=nx;activeCar.position.z=nz}else{const impact=Math.hypot(velocityX,velocityZ);velocityX*=-.2;velocityZ*=-.2;longitudinal*=-.18;lateral*=-.12;if(performance.now()-lastImpact>350){lastImpact=performance.now();window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-sound',{detail:{kind:'impact',speed:impact}}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-collision',{detail:{kind:hitTraffic?'traffic':'world',speed:impact,x:activeCar.position.x,z:activeCar.position.z}}))}}
+        driveSpeed=longitudinal;const slipAngle=Math.min(90,Math.abs(Math.atan2(lateral,Math.max(1,Math.abs(longitudinal)))*180/Math.PI));const drifting=slipAngle>8&&speedAbs>11
+        activeCar.rotation.z=THREE.MathUtils.lerp(activeCar.rotation.z,THREE.MathUtils.clamp(-steer*speedAbs*.006,-.11,.11),1-Math.pow(.02,dt))
+        if((brake>.55||handbrake>.2)&&speedAbs>10&&performance.now()-lastDrivePulse>260){lastDrivePulse=performance.now();window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-sound',{detail:{kind:'brake',speed:speedAbs,handbrake:handbrake>0}}))}
+        if((drifting||burnout)&&performance.now()-lastDrivePulse>260){lastDrivePulse=performance.now();window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-sound',{detail:{kind:'skid',speed:speedAbs,slipAngle,burnout}}))}
         if(keys.has('h')&&!hornDown){hornDown=true;window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-sound',{detail:{kind:'horn'}}))}if(!keys.has('h')&&!driveThrottle)hornDown=false
         activeCar.userData.driveSpeed=driveSpeed
-        window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-telemetry',{detail:{entered:true,index:activeCarIndex,speed:Math.abs(driveSpeed),signedSpeed:driveSpeed,throttle,brake,steer,x:activeCar.position.x,z:activeCar.position.z}}))
+        window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-telemetry',{detail:{entered:true,index:activeCarIndex,speed:Math.hypot(velocityX,velocityZ),signedSpeed:driveSpeed,throttle,brake,steer,handbrake,heading:activeCar.rotation.y,velocityX,velocityZ,lateralSpeed:lateral,slipAngle,drifting,burnout,wheelspin,x:activeCar.position.x,z:activeCar.position.z}}))
       }else if(!paused&&(dx||dz)){
         const len=Math.hypot(dx,dz)||1;dx/=len;dz/=len;const speed=(keys.has('shift')?28:18)*dt;const nx=THREE.MathUtils.clamp(controlled.position.x+dx*speed,-88,88),nz=THREE.MathUtils.clamp(controlled.position.z+dz*speed,-88,88);if(!collides(nx,controlled.position.z))controlled.position.x=nx;if(!collides(controlled.position.x,nz))controlled.position.z=nz;controlled.rotation.y=Math.atan2(dx,dz)
       }
@@ -226,8 +233,8 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
   const press=(key:keyof typeof inputRef.current,value:boolean)=>{inputRef.current[key]=value}
   return <div role="dialog" aria-modal="true" aria-label="StreetVerse Living World" style={{position:'fixed',inset:0,zIndex:16000,background:'#02040a',color:'#fff',display:'grid',gridTemplateRows:'auto 1fr auto',fontFamily:'Inter,system-ui,sans-serif'}}>
     <header style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:10,padding:'9px 12px',background:'#050a12ee',borderBottom:'1px solid #28425a'}}><div><div style={{fontSize:9,fontWeight:950,letterSpacing:2,color:'#59e7ff'}}>STREETVERSE • CHICAGO • LIVING WORLD</div><div style={{fontWeight:950,fontSize:'clamp(18px,4vw,29px)'}}>District 01</div><div style={{fontSize:9,color:'#ffd45e',marginTop:3}}>PLAYING AS • {activeCharacter} • {driveStatus}</div></div><div style={{display:'flex',alignItems:'center',gap:8}}><span style={{fontSize:9,color:'#8effb7'}}>{assetStatus}</span><button onClick={onClose} aria-label="Close StreetVerse" style={{width:42,height:42,borderRadius:13,border:'1px solid #3a5369',background:'#0c1520',color:'#fff',fontSize:22}}>×</button></div></header>
-    <main style={{position:'relative',minHeight:0}}><div ref={mountRef} style={{position:'absolute',inset:0,minHeight:420}}/><div style={{position:'absolute',left:10,top:10,maxWidth:340,padding:10,borderRadius:14,background:'#030914dc',border:'1px solid #2b485e',backdropFilter:'blur(9px)'}}><div style={{fontSize:9,color:'#ffd45e',fontWeight:950}}>LIVING CITY MISSION</div><div style={{fontSize:12,lineHeight:1.45,marginTop:5}}>{message}</div><div style={{fontSize:10,marginTop:7,color:visited.length===MISSIONS.length?'#79ffad':'#b7c6d5'}}>{visited.length}/{MISSIONS.length} locations {visited.length===MISSIONS.length?'• DISTRICT COMPLETE ✓':''}</div></div><div style={{position:'absolute',right:10,top:10,display:'grid',gap:5,justifyItems:'end'}}><div style={{padding:'7px 9px',borderRadius:999,background:'#030914dc',border:'1px solid #2b485e',fontSize:9}}>24 PLAYABLE RESIDENTS • 20 DRIVABLE TRAFFIC VEHICLES • SMART INTERSECTIONS • CHICAGO TRANSIT/AIRPORT 3D</div><div style={{padding:'7px 9px',borderRadius:999,background:'#030914dc',border:'1px solid #2b485e',fontSize:9,color:'#8effb7'}}>{signalStatus}</div></div></main>
-    <footer style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',alignItems:'center',gap:8,padding:'8px 10px',background:'#050912',borderTop:'1px solid #24384b'}}><div style={{fontSize:9,color:'#8fa5b7'}}>ON FOOT: WASD/arrows • Shift run • touch/gamepad • DRIVE: W gas • S brake/reverse • A/D steer • H horn • E exit</div><div style={{display:'grid',gridTemplateColumns:'54px 54px 54px',gap:4,touchAction:'none',userSelect:'none'}}><span/><Pad label="▲" down={()=>press('up',true)} up={()=>press('up',false)}/><span/><Pad label="◀" down={()=>press('left',true)} up={()=>press('left',false)}/><Pad label="▼" down={()=>press('down',true)} up={()=>press('down',false)}/><Pad label="▶" down={()=>press('right',true)} up={()=>press('right',false)}/></div><div style={{display:'flex',justifyContent:'flex-end',gap:7}}><button onClick={()=>{localStorage.removeItem(SAVE_KEY);location.reload()}} style={smallBtn}>RESET</button><button onClick={()=>setPaused(v=>!v)} style={smallBtn}>{paused?'PLAY':'PAUSE'}</button></div></footer>
+    <main style={{position:'relative',minHeight:0}}><div ref={mountRef} style={{position:'absolute',inset:0,minHeight:420}}/><div style={{position:'absolute',left:10,top:10,maxWidth:340,padding:10,borderRadius:14,background:'#030914dc',border:'1px solid #2b485e',backdropFilter:'blur(9px)'}}><div style={{fontSize:9,color:'#ffd45e',fontWeight:950}}>LIVING CITY MISSION</div><div style={{fontSize:12,lineHeight:1.45,marginTop:5}}>{message}</div><div style={{fontSize:10,marginTop:7,color:visited.length===MISSIONS.length?'#79ffad':'#b7c6d5'}}>{visited.length}/{MISSIONS.length} locations {visited.length===MISSIONS.length?'• DISTRICT COMPLETE ✓':''}</div></div><div style={{position:'absolute',right:10,top:10,display:'grid',gap:5,justifyItems:'end'}}><div style={{padding:'7px 9px',borderRadius:999,background:'#030914dc',border:'1px solid #2b485e',fontSize:9}}>24 PLAYABLE RESIDENTS • 20 DRIVABLE TRAFFIC VEHICLES • LATERAL GRIP/DRIFT • SMART INTERSECTIONS</div><div style={{padding:'7px 9px',borderRadius:999,background:'#030914dc',border:'1px solid #2b485e',fontSize:9,color:'#8effb7'}}>{signalStatus}</div></div></main>
+    <footer style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',alignItems:'center',gap:8,padding:'8px 10px',background:'#050912',borderTop:'1px solid #24384b'}}><div style={{fontSize:9,color:'#8fa5b7'}}>ON FOOT: WASD/arrows • Shift run • touch/gamepad • DRIVE: W gas • S brake/reverse • A/D steer • SPACE handbrake • H horn • E enter/exit</div><div style={{display:'grid',gridTemplateColumns:'54px 54px 54px',gap:4,touchAction:'none',userSelect:'none'}}><span/><Pad label="▲" down={()=>press('up',true)} up={()=>press('up',false)}/><span/><Pad label="◀" down={()=>press('left',true)} up={()=>press('left',false)}/><Pad label="▼" down={()=>press('down',true)} up={()=>press('down',false)}/><Pad label="▶" down={()=>press('right',true)} up={()=>press('right',false)}/></div><div style={{display:'flex',justifyContent:'flex-end',gap:7}}><button onClick={()=>{localStorage.removeItem(SAVE_KEY);location.reload()}} style={smallBtn}>RESET</button><button onClick={()=>setPaused(v=>!v)} style={smallBtn}>{paused?'PLAY':'PAUSE'}</button></div></footer>
   </div>
 }
 
