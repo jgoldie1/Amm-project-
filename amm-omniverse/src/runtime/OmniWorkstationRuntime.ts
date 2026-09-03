@@ -64,7 +64,7 @@ const readState = (): OmniWorkstationState => {
 
 const writeState = (state: OmniWorkstationState) => {
   if (typeof window !== 'undefined') localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-  window.dispatchEvent(new CustomEvent('tryamm:workstation:state', { detail: state }))
+  if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('tryamm:workstation:state', { detail: state }))
   return state
 }
 
@@ -79,6 +79,7 @@ export const omniWorkflowRecipes = [
 
 export const omniWorkstation = {
   getState: readState,
+  replaceState(next: OmniWorkstationState) { return writeState({ ...next, deviceId: readState().deviceId, deviceLabel: detectDeviceLabel() }) },
   createProject(name = 'Untitled project', workflow?: string) {
     const project: OmniProject = { id: uid('project'), name, createdAt: now(), updatedAt: now(), renderTarget: 'this-device', assets: [], workflow }
     return mutate(state => ({ ...state, activeProjectId: project.id, projects: [project, ...state.projects] }))
@@ -87,10 +88,7 @@ export const omniWorkstation = {
     return mutate(state => ({ ...state, activeProjectId: state.projects.some(p => p.id === projectId) ? projectId : state.activeProjectId }))
   },
   setRenderTarget(target: OmniRenderTarget, projectId?: string) {
-    return mutate(state => ({
-      ...state,
-      projects: state.projects.map(p => p.id === (projectId || state.activeProjectId) ? { ...p, renderTarget: target, updatedAt: now() } : p),
-    }))
+    return mutate(state => ({ ...state, projects: state.projects.map(p => p.id === (projectId || state.activeProjectId) ? { ...p, renderTarget: target, updatedAt: now() } : p) }))
   },
   addAsset(asset: Omit<OmniAsset, 'id' | 'createdAt'>, projectId?: string) {
     const id = projectId || readState().activeProjectId
@@ -105,7 +103,7 @@ export const omniWorkstation = {
   launch(destination: 'omnireel' | 'streetverse' | 'live' | 'audio' | 'holo' | 'home') {
     if (typeof window === 'undefined') return
     localStorage.setItem('tryamm_workstation_launch', JSON.stringify({ destination, at: now(), projectId: readState().activeProjectId }))
-    const routes: Record<string, string> = { streetverse: '/streetverse', home: '/', omnireel: '/', live: '/', audio: '/', holo: '/' }
+    const routes: Record<string, string> = { streetverse: '/streetverse', home: '/', omnireel: '/', live: '/', audio: '/', holo: '/standalone/holoverse' }
     window.location.href = routes[destination] || '/'
   },
 }
