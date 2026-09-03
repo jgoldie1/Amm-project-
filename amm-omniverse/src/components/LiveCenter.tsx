@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import type { Room } from 'livekit-client'
 import { connectLiveRoom, getLiveStatus, type LiveRole } from '../services/live'
+import LiveGenerationIntelligence from './LiveGenerationIntelligence'
 
 type Format = 'live' | 'showcase' | 'debate' | 'starverse' | 'podcast' | 'shopping' | 'gamecast'
 type VisualFilter = 'clean' | 'bright' | 'warm' | 'cool' | 'mono' | 'contrast' | 'holo'
@@ -223,6 +224,8 @@ export default function LiveCenter({ onClose }: { onClose: () => void }) {
           </div>
         </section>
       </main>
+
+      <LiveGenerationIntelligence format={format} />
     </div>
   )
 }
