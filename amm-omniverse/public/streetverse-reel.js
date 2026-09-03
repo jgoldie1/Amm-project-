@@ -11,13 +11,14 @@
   diagnostic.setAttribute('role','alert');Object.assign(diagnostic.style,{position:'fixed',left:'12px',right:'12px',top:'72px',zIndex:'2147482999',padding:'14px',borderRadius:'14px',background:'rgba(31,8,12,.96)',border:'1px solid rgba(255,104,124,.85)',color:'#fff',font:'800 12px/1.45 system-ui,sans-serif',boxShadow:'0 18px 55px rgba(0,0,0,.7)',display:'none'})
   const setStatus=(text,visible=true)=>{status.textContent=text;status.style.display=visible?'block':'none'}
   const getGameCanvas=()=>[...document.querySelectorAll('canvas')].sort((a,b)=>(b.width*b.height)-(a.width*a.height))[0]||null
+  const getHtmlCity=()=>document.querySelector('[data-streetverse-html-city="true"]')
   const webglStatus=()=>{try{const c=document.createElement('canvas'),gl=c.getContext('webgl2')||c.getContext('webgl')||c.getContext('experimental-webgl');return gl?'WEBGL READY':'WEBGL UNAVAILABLE'}catch{return'WEBGL ERROR'}}
   const missionMeta=()=>pendingMissionReel?{missionId:pendingMissionReel.missionId||null,title:pendingMissionReel.title||'StreetVerse Mission Highlight',caption:pendingMissionReel.caption||'Mission complete in StreetVerse • #TRYAMM #StreetVerse',source:pendingMissionReel.source||'star-mission'}:{}
   const prepareMissionReel=(detail={})=>{pendingMissionReel={missionId:detail.missionId||null,title:detail.title||'StreetVerse Mission Highlight',caption:detail.caption||`${detail.title||'StreetVerse mission'} complete • #TRYAMM #StreetVerse`,source:detail.source||'star-mission'};if(!active){button.textContent='● MISSION REEL';button.setAttribute('aria-label',`Record ${pendingMissionReel.title}`);liveBadge.textContent='MISSION COMPLETE • REEL READY';setStatus(`${pendingMissionReel.title} • tap MISSION REEL to record your highlight`)}}
   function showDiagnostic(reason){diagnostic.innerHTML=`<b>STREETVERSE DID NOT START</b><br>${reason}<br><span style="opacity:.75">${webglStatus()}</span><br><button id="tryamm-streetverse-reload" style="margin-top:10px;min-height:44px;padding:9px 13px;border-radius:10px;border:1px solid #6fe8ff;background:#08202d;color:#fff;font-weight:900">RELOAD STREETVERSE</button>`;diagnostic.style.display='block';liveBadge.textContent='STREETVERSE • RUNTIME ISSUE DETECTED';diagnostic.querySelector('#tryamm-streetverse-reload')?.addEventListener('click',()=>location.replace('/streetverse?release=0903-final'))}
   const pickMime=()=>{if(!window.MediaRecorder)return'';return['video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].find(t=>MediaRecorder.isTypeSupported?.(t))||''}
   function mobileFallback(reason='captureStream-or-MediaRecorder-unavailable'){
-    const meta=missionMeta();liveBadge.textContent=pendingMissionReel?'MISSION REEL • MOBILE CAPTURE':'STREETVERSE LIVE • MOBILE REEL MODE'
+    const meta=missionMeta();diagnostic.style.display='none';liveBadge.textContent=pendingMissionReel?'MISSION REEL • MOBILE CAPTURE':'STREETVERSE LIVE • MOBILE REEL MODE'
     setStatus(pendingMissionReel?`${meta.title}: direct game recording is unavailable here. Use Control Center Screen Recording, then return to TRYAMM to import/share the clip.`:'Direct game recording is unavailable in this browser. On iPhone, use Control Center Screen Recording, then import the clip.')
     window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:meta.source||'streetverse-mobile-fallback',title:meta.title||'StreetVerse Highlight',caption:meta.caption||'Captured in StreetVerse • #TRYAMM #StreetVerse',missionId:meta.missionId||null}}))
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-fallback',{detail:{reason,...meta}}))
@@ -32,7 +33,8 @@
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-stopping',{detail:{reason,durationMs:Date.now()-startedAt,...missionMeta()}}))
   }
   async function start(){
-    const canvas=getGameCanvas();if(!canvas){setStatus('StreetVerse canvas not ready');showDiagnostic('No game canvas was created');return}
+    const canvas=getGameCanvas();
+    if(!canvas){if(getHtmlCity()){mobileFallback('html-safe-city-no-canvas');return}setStatus('StreetVerse canvas not ready');showDiagnostic('No game canvas was created');return}
     if(!canvas.captureStream||!window.MediaRecorder){mobileFallback();return}
     try{
       const mobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent),fps=mobile?20:30,stream=canvas.captureStream(fps),mime=pickMime(),bps=mobile?2_800_000:5_500_000,meta=missionMeta()
@@ -51,5 +53,5 @@
   window.addEventListener('pagehide',()=>stop('pagehide'))
   document.addEventListener('visibilitychange',()=>{if(document.hidden&&active){setStatus('StreetVerse moved to background • finishing Reel…');stop('backgrounded')}})
   document.body.append(liveBadge,button,status,diagnostic)
-  window.setTimeout(()=>{const canvas=getGameCanvas();if(canvas){liveBadge.textContent=`STREETVERSE LIVE • CANVAS ${canvas.width}×${canvas.height} • REEL READY`;diagnostic.style.display='none';window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-ready',{detail:{canvasWidth:canvas.width,canvasHeight:canvas.height,captureStream:!!canvas.captureStream,mediaRecorder:!!window.MediaRecorder,mime:pickMime(),missionBridge:true}}))}else showDiagnostic('StreetVerse loaded, but the 3D canvas did not materialize')},5000)
+  window.setTimeout(()=>{const canvas=getGameCanvas(),htmlCity=getHtmlCity();if(canvas){liveBadge.textContent=`STREETVERSE LIVE • CANVAS ${canvas.width}×${canvas.height} • REEL READY`;diagnostic.style.display='none';window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-ready',{detail:{canvasWidth:canvas.width,canvasHeight:canvas.height,captureStream:!!canvas.captureStream,mediaRecorder:!!window.MediaRecorder,mime:pickMime(),missionBridge:true}}))}else if(htmlCity){diagnostic.style.display='none';liveBadge.textContent='STREETVERSE LIVE • HTML CITY • MOBILE REEL READY';window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-ready',{detail:{htmlCity:true,captureStream:false,mediaRecorder:!!window.MediaRecorder,mobileFallback:true,missionBridge:true}}))}else showDiagnostic('StreetVerse loaded, but neither the 3D canvas nor HTML safe city materialized')},5000)
 })()
