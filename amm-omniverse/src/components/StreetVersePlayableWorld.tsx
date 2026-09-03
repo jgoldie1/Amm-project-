@@ -1,7 +1,6 @@
 import {lazy,Suspense,useMemo} from 'react'
 import StreetVerseMobileWorld from './StreetVerseMobileWorld'
 import StreetVerseMobilePlayableWorld from './StreetVerseMobilePlayableWorld'
-import StreetVerseMobileSafeWorld from './StreetVerseMobileSafeWorld'
 import StreetVerseMobileWalkControls from './StreetVerseMobileWalkControls'
 
 const StreetVerseLivingWorld=lazy(()=>import('./StreetVerseLivingWorld'))
@@ -25,7 +24,9 @@ export function shouldUseStreetVerseSafeMode(){
 export default function StreetVersePlayableWorld({onClose}:{onClose:()=>void}){
  const mobile=useMemo(isMobileDevice,[])
  const safe=useMemo(shouldUseStreetVerseSafeMode,[])
- if(safe)return <StreetVerseMobileSafeWorld onClose={onClose}/>
+ // Safe mode must never depend on Three.js/WebGL. Older iPhones can create a canvas
+ // successfully but still fail to paint the scene, leaving users with a blank world.
+ if(safe)return <StreetVerseMobilePlayableWorld onClose={onClose}/>
  if(mobile)return <><Suspense fallback={<StreetVerseMobilePlayableWorld onClose={onClose}/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense><StreetVerseMobileWalkControls/></>
  return <Suspense fallback={<StreetVerseMobilePlayableWorld onClose={onClose}/>}><StreetVerseLivingWorld onClose={onClose}/></Suspense>
 }
