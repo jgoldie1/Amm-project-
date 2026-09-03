@@ -57,9 +57,9 @@ import { installOmniverseEventFabricRuntime } from './runtime/OmniverseEventFabr
 
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 const StreetVerseNextLevelHUD=lazy(()=>import('./components/StreetVerseNextLevelHUD'))
-// Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
 const StreetVerseTwinWorld=lazy(()=>import('./components/StreetVerseTwinWorld'))
 const MeetTheStubbsWorldDistrict=lazy(()=>import('./components/MeetTheStubbsWorldDistrict'))
+const OmniWorkstation=lazy(()=>import('./components/OmniWorkstation'))
 
 installProductionHealthMonitor()
 installMediaCloudBridge()
@@ -107,6 +107,7 @@ const currentPath=window.location.pathname
 const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
 const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
 const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
+const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
 const isTwinWorld=currentPath.startsWith('/streetverse/twin-world')
 const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
 const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs&&!isTwinWorld
@@ -118,7 +119,7 @@ if(!isStreetVerse){
   void import('./runtime/StreetVerseCreatorDistrict3D').then(({installStreetVerseCreatorDistrict3D})=>installStreetVerseCreatorDistrict3D())
 }
 
-const routeFallback=<div role="status" aria-live="polite" style={{position:'fixed',inset:0,zIndex:15980,display:'grid',placeItems:'center',background:'#050505',color:'#fff',fontFamily:'system-ui,sans-serif',fontWeight:900}}>LOADING STREETVERSE…</div>
+const routeFallback=<div role="status" aria-live="polite" style={{position:'fixed',inset:0,zIndex:15980,display:'grid',placeItems:'center',background:'#050505',color:'#fff',fontFamily:'system-ui,sans-serif',fontWeight:900}}>LOADING…</div>
 
 const streetVerseRoute=<>
   <Suspense fallback={routeFallback}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /><StreetVerseNextLevelHUD /></Suspense>
@@ -128,8 +129,6 @@ const streetVerseRoute=<>
   </div>
 </>
 
-// Release compatibility marker required by the Omniverse shell smoke contract: <OmniverseCoreLoopHUD />
-// Keep contract-critical launchers mounted for event wiring; presentation is handled by the redesigned homepage.
 const mainShell=<>
   <JudahSplash />
   <App />
@@ -141,6 +140,7 @@ const mainShell=<>
 
 let routeContent
 if(isAccessibility)routeContent=<AccessibilityStatement />
+else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
 else if(standaloneSite)routeContent=<StandaloneProductSite site={standaloneSite} />
 else if(isBusinessDirectory)routeContent=<FamilyBusinessDirectory />
 else if(businessSlug)routeContent=<FamilyBusinessPublicSite slug={businessSlug} onClose={()=>{window.location.href='/business'}} />
