@@ -69,6 +69,7 @@ const GlobalTradeWorldHub=lazy(()=>import('./components/GlobalTradeWorldHub'))
 const LiveCenter=lazy(()=>import('./components/LiveCenter'))
 const GuardianCommandCenter=lazy(()=>import('./components/GuardianCommandCenter'))
 const HoloDramaHub=lazy(()=>import('./components/HoloDramaHub'))
+const HoloDeliveryRideEntertainmentHub=lazy(()=>import('./components/HoloDeliveryRideEntertainmentHub'))
 
 installProductionHealthMonitor()
 installMediaCloudBridge()
@@ -120,6 +121,7 @@ const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
 const isLive=currentPath==='/live'||currentPath==='/live/'
 const isGuardian=currentPath==='/guardian'||currentPath==='/guardian/'
 const isHoloDrama=currentPath==='/holo-drama'||currentPath==='/holo-drama/'
+const isRecoveredSurface=['/spectra-entertainment','/spectra-entertainment/','/all-american-records','/all-american-records/','/set-apart','/set-apart/','/christian-rap','/christian-rap/','/holo-music','/holo-music/','/holo-food','/holo-food/','/holo-ride-share','/holo-ride-share/'].includes(currentPath)
 const isNetwork=['/network','/network/','/free-tv','/free-tv/','/isaiah-ai-tv','/isaiah-ai-tv/','/starverse','/starverse/'].includes(currentPath)
 const isServantsOfChrist=currentPath==='/servants-of-christ'||currentPath==='/servants-of-christ/'
 const isCareCash=['/omnicare-360','/omnicare-360/','/omnicare-rx','/omnicare-rx/','/omni-cash','/omni-cash/','/aniyah-pay','/aniyah-pay/'].includes(currentPath)
@@ -145,6 +147,8 @@ const streetVerseRoute=<>
     <button onClick={()=>{window.location.href='/global-trade'}} style={{border:'1px solid #7fe8c799',borderRadius:999,padding:'10px 14px',background:'#071b16',color:'#fff',fontWeight:950,cursor:'pointer'}}>GLOBAL TRADE • SUPPLY CHAIN</button>
     <button onClick={()=>{window.location.href='/live'}} style={{border:'1px solid #ff6b8799',borderRadius:999,padding:'10px 14px',background:'#221019',color:'#fff',fontWeight:950,cursor:'pointer'}}>● TRYAMM LIVE</button>
     <button onClick={()=>{window.location.href='/holo-drama'}} style={{border:'1px solid #ff7ce899',borderRadius:999,padding:'10px 14px',background:'#251027',color:'#fff',fontWeight:950,cursor:'pointer'}}>🎬 HOLO DRAMA</button>
+    <button onClick={()=>{window.location.href='/holo-food'}} style={{border:'1px solid #ffba6899',borderRadius:999,padding:'10px 14px',background:'#25190d',color:'#fff',fontWeight:950,cursor:'pointer'}}>🍽 HOLO FOOD</button>
+    <button onClick={()=>{window.location.href='/holo-ride-share'}} style={{border:'1px solid #76c7ff99',borderRadius:999,padding:'10px 14px',background:'#0b1a25',color:'#fff',fontWeight:950,cursor:'pointer'}}>🚘 HOLO RIDE</button>
     <button onClick={()=>{window.location.href='/guardian'}} style={{border:'1px solid #79e6c499',borderRadius:999,padding:'10px 14px',background:'#0a1d19',color:'#fff',fontWeight:950,cursor:'pointer'}}>🛡 GUARDIAN CENTER</button>
   </div>
 </>
@@ -166,6 +170,7 @@ else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorks
 else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter onClose={()=>{window.location.href='/'}} /></Suspense>
 else if(isGuardian)routeContent=<Suspense fallback={routeFallback}><GuardianCommandCenter /></Suspense>
 else if(isHoloDrama)routeContent=<Suspense fallback={routeFallback}><HoloDramaHub /></Suspense>
+else if(isRecoveredSurface)routeContent=<Suspense fallback={routeFallback}><HoloDeliveryRideEntertainmentHub /></Suspense>
 else if(isNetwork)routeContent=<Suspense fallback={routeFallback}><AllAmericanNetworkHub /></Suspense>
 else if(isServantsOfChrist)routeContent=<Suspense fallback={routeFallback}><ServantsOfChristMinistry /></Suspense>
 else if(isCareCash)routeContent=<Suspense fallback={routeFallback}><OmniCareCashSuite /></Suspense>
