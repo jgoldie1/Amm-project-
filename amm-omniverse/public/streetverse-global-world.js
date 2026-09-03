@@ -14,7 +14,7 @@
     openOcean:{label:'Open Ocean • Yacht',biome:'open-ocean',marine:true,savanna:false,apex:false,yacht:true,climate:'ocean'}
   }
   let current=localStorage.getItem(KEY)||'chicago';if(!regions[current])current='chicago'
-  let mounted=false
+  let mounted=false,lastSource='manual'
   const css=`
   #sv-world-open{position:absolute;left:12px;top:158px;z-index:23;min-height:44px;padding:0 11px;border-radius:12px;border:1px solid #7bdfff;background:#071426e8;color:#fff;font:900 10px/1 system-ui;box-shadow:0 6px 18px #0008;pointer-events:auto}
   #sv-world-panel{position:absolute;left:10px;right:10px;bottom:12px;z-index:31;display:none;max-height:56%;overflow:auto;border-radius:14px;border:1px solid #7bdfff;background:#04101df4;color:#fff;padding:10px;box-shadow:0 10px 30px #000c;pointer-events:auto;font-family:system-ui,sans-serif}
@@ -36,7 +36,7 @@
   `
   function emit(){
     const r=regions[current]
-    window.dispatchEvent(new CustomEvent('tryamm:streetverse-global-region',{detail:{regionId:current,...r,source:'virtual-game-world',gps:false}}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-global-region',{detail:{regionId:current,...r,source:'virtual-game-world',selectionSource:lastSource,gps:lastSource==='gps'}}))
   }
   function apply(){
     const r=regions[current]
@@ -51,16 +51,16 @@
     const style=document.createElement('style');style.id='sv-global-world-style';style.textContent=css;document.head.appendChild(style)
     const open=document.createElement('button');open.id='sv-world-open';open.type='button';open.textContent='🌍 WORLD';open.setAttribute('aria-controls','sv-world-panel');open.setAttribute('aria-expanded','false')
     const panel=document.createElement('section');panel.id='sv-world-panel';panel.dataset.open='false';panel.setAttribute('aria-label','StreetVerse global world travel')
-    panel.innerHTML=`<button class="close" type="button" aria-label="Close world travel">✕</button><h3>STREETVERSE GLOBAL WORLD</h3><p>Virtual travel across cities, coasts, islands, ocean and wildlife reserves. This selector does not use GPS.</p><div class="grid">${Object.entries(regions).map(([id,r])=>`<button type="button" data-region="${id}">${r.yacht?'🛥️ ':r.savanna?'🌍 ':'📍 '}${r.label}</button>`).join('')}</div><div class="sv-world-status" aria-live="polite"></div>`
+    panel.innerHTML=`<button class="close" type="button" aria-label="Close world travel">✕</button><h3>STREETVERSE GLOBAL WORLD</h3><p>Virtual travel across cities, coasts, islands, ocean and wildlife reserves. Manual travel works without GPS; optional GPS controls can suggest the nearest game region.</p><div class="grid">${Object.entries(regions).map(([id,r])=>`<button type="button" data-region="${id}">${r.yacht?'🛥️ ':r.savanna?'🌍 ':'📍 '}${r.label}</button>`).join('')}</div><div class="sv-world-status" aria-live="polite"></div>`
     const yacht=document.createElement('div');yacht.id='sv-yacht';yacht.setAttribute('aria-hidden','true')
     const setOpen=v=>{panel.dataset.open=String(v);open.setAttribute('aria-expanded',String(v))}
     const status=panel.querySelector('.sv-world-status')
-    function sync(){const r=regions[current];status.textContent=`Current world: ${r.label} • biome ${r.biome}${r.yacht?' • yacht available':''}.`;apply()}
+    function sync(){const r=regions[current];status.textContent=`Current world: ${r.label} • biome ${r.biome}${r.yacht?' • yacht available':''}${lastSource==='gps'?' • GPS selected':''}.`;apply()}
     open.addEventListener('click',()=>setOpen(panel.dataset.open!=='true'));panel.querySelector('.close')?.addEventListener('click',()=>setOpen(false))
-    panel.querySelectorAll('[data-region]').forEach(btn=>btn.addEventListener('click',()=>{current=btn.dataset.region;sync();setOpen(false)}))
+    panel.querySelectorAll('[data-region]').forEach(btn=>btn.addEventListener('click',()=>{current=btn.dataset.region;lastSource='manual';sync();setOpen(false)}))
     main.append(yacht,open,panel);sync()
-    window.StreetVerseGlobalWorld={regions:JSON.parse(JSON.stringify(regions)),current:()=>({id:current,...regions[current]}),travel:id=>{if(!regions[id])return false;current=id;sync();return true}}
-    window.dispatchEvent(new CustomEvent('tryamm:streetverse-global-world-ready',{detail:{regions:Object.keys(regions),current,source:'virtual-game-world',gps:false,yachtRegions:Object.entries(regions).filter(([,r])=>r.yacht).map(([id])=>id)}}))
+    window.StreetVerseGlobalWorld={regions:JSON.parse(JSON.stringify(regions)),current:()=>({id:current,...regions[current],selectionSource:lastSource}),travel:(id,source='manual')=>{if(!regions[id])return false;current=id;lastSource=source==='gps'?'gps':'manual';sync();return true}}
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-global-world-ready',{detail:{regions:Object.keys(regions),current,source:'virtual-game-world',gpsOptional:true,yachtRegions:Object.entries(regions).filter(([,r])=>r.yacht).map(([id])=>id)}}))
   }
   const observer=new MutationObserver(mount);observer.observe(document.documentElement,{subtree:true,childList:true});mount()
   addEventListener('pagehide',()=>observer.disconnect(),{once:true})
