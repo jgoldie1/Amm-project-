@@ -24,12 +24,14 @@ export interface MemorialRaceProgram {
   effects:string[]
   broadcast:string[]
   sponsorSlots:SponsorSlot[]
+  legacyAllocation:{percent:20;beneficiaries:['kenosha-kids','servants-of-christ'];distribution:'verified-beneficiary-schedule';basis:'eligible-net-race-revenue';settlement:'authoritative-ledger-only'}
   prizePolicy:{places:PrizePlace[];cashValue:'server-funded-only';requiresFundingVerification:true;requiresResultVerification:true;settlement:'authoritative-ledger-only'}
 }
 
 const emit=(name:string,detail:unknown)=>window.dispatchEvent(new CustomEvent(name,{detail}))
 
 const sponsorSlots:SponsorSlot[]=['title','presenting','prize-pool','vehicle-livery','checkpoint-gate','broadcast','community']
+const legacyAllocation={percent:20 as const,beneficiaries:['kenosha-kids','servants-of-christ'] as ['kenosha-kids','servants-of-christ'],distribution:'verified-beneficiary-schedule' as const,basis:'eligible-net-race-revenue' as const,settlement:'authoritative-ledger-only' as const}
 
 export const MEMORIAL_RACES:MemorialRaceProgram[]=[
   {
@@ -39,7 +41,7 @@ export const MEMORIAL_RACES:MemorialRaceProgram[]=[
     world:'streetverse',raceType:'circuit-race',laps:5,
     effects:['original-anime-speed-lines','holographic-checkpoint-gates','boost-trails','drift-sparks','nitro-bloom','tunnel-light-streaks','finish-camera-flash','cinematic-slow-motion-replay','crowd-light-wave','bennie-race-commentary'],
     broadcast:['tryamm-live','world-seasons','pk-events','reels','ctv-ott-fast'],
-    sponsorSlots,
+    sponsorSlots,legacyAllocation,
     prizePolicy:{places:[1,2,3],cashValue:'server-funded-only',requiresFundingVerification:true,requiresResultVerification:true,settlement:'authoritative-ledger-only'}
   },
   {
@@ -49,7 +51,7 @@ export const MEMORIAL_RACES:MemorialRaceProgram[]=[
     world:'streetverse',raceType:'point-to-point-race',laps:1,
     effects:['original-anime-speed-lines','city-neon-boost-trails','holographic-lion-gates','drift-sparks','nitro-bloom','finish-photo','cinematic-replay','bennie-race-commentary'],
     broadcast:['tryamm-live','world-seasons','pk-events','reels'],
-    sponsorSlots,
+    sponsorSlots,legacyAllocation,
     prizePolicy:{places:[1,2,3],cashValue:'server-funded-only',requiresFundingVerification:true,requiresResultVerification:true,settlement:'authoritative-ledger-only'}
   },
   {
@@ -59,7 +61,7 @@ export const MEMORIAL_RACES:MemorialRaceProgram[]=[
     world:'streetverse',raceType:'circuit-race',laps:3,
     effects:['golden-light-gates','original-anime-speed-lines','boost-trails','drift-sparks','finish-camera-flash','community-banner-wave','cinematic-replay','bennie-race-commentary'],
     broadcast:['tryamm-live','world-seasons','reels','servants-of-christ'],
-    sponsorSlots,
+    sponsorSlots,legacyAllocation,
     prizePolicy:{places:[1,2,3],cashValue:'server-funded-only',requiresFundingVerification:true,requiresResultVerification:true,settlement:'authoritative-ledger-only'}
   }
 ]
@@ -79,6 +81,17 @@ export function attachMemorialRaceSponsor(input:{raceId:MemorialRaceId;sponsor:M
     emit('tryamm:memorial-prize:funding-verification-request',{raceId:input.raceId,sponsorId:record.sponsorId,campaignId:record.campaignId,contractReference:record.contractReference,amountCents:record.prizeContributionCents,earmark:'race-prize-pool',authority:'pending-server-verification'})
   }
   return record
+}
+
+export function requestLegacyRevenueAllocation(input:{raceId:MemorialRaceId;revenueReference:string;eligibleNetRevenueCents:number}){
+  const race=MEMORIAL_RACES.find(x=>x.id===input.raceId)
+  if(!race)throw new Error('memorial_race_not_found')
+  const eligible=Math.max(0,Math.floor(input.eligibleNetRevenueCents))
+  const legacyReserveCents=Math.floor(eligible*race.legacyAllocation.percent/100)
+  const request={raceId:input.raceId,revenueReference:input.revenueReference,eligibleNetRevenueCents:eligible,legacyReserveCents,allocation:race.legacyAllocation,requestedAt:new Date().toISOString(),authority:'pending-server-verification'}
+  emit('tryamm:memorial-race:legacy-allocation-request',request)
+  emit('tryamm:earnings-ledger:verification-required',{...request,reason:'Protected 20% legacy reserve for Kenosha kids and Servants of Christ requires verified revenue and beneficiary schedule before settlement.'})
+  return request
 }
 
 export function launchMemorialRace(id:MemorialRaceId,extra:Record<string,unknown>={}){
@@ -102,10 +115,11 @@ export function requestMemorialPrizeSettlement(input:{raceId:MemorialRaceId;resu
 }
 
 export function installKenoshaMemorialRaceRuntime(){
-  const w=window as typeof window & {__tryammMemorialRaces?:typeof MEMORIAL_RACES;__launchTryammMemorialRace?:typeof launchMemorialRace;__attachTryammMemorialRaceSponsor?:typeof attachMemorialRaceSponsor;__requestMemorialPrizeSettlement?:typeof requestMemorialPrizeSettlement}
+  const w=window as typeof window & {__tryammMemorialRaces?:typeof MEMORIAL_RACES;__launchTryammMemorialRace?:typeof launchMemorialRace;__attachTryammMemorialRaceSponsor?:typeof attachMemorialRaceSponsor;__requestMemorialPrizeSettlement?:typeof requestMemorialPrizeSettlement;__requestTryammLegacyRevenueAllocation?:typeof requestLegacyRevenueAllocation}
   w.__tryammMemorialRaces=MEMORIAL_RACES
   w.__launchTryammMemorialRace=launchMemorialRace
   w.__attachTryammMemorialRaceSponsor=attachMemorialRaceSponsor
   w.__requestMemorialPrizeSettlement=requestMemorialPrizeSettlement
-  emit('tryamm:kenosha-memorial-racing:ready',{races:MEMORIAL_RACES.map(r=>({id:r.id,title:r.title,places:r.prizePolicy.places,sponsorSlots:r.sponsorSlots})),effectsReady:true,sponsorship:'verified-campaign-and-contract-required',prizes:'funding-and-server-verification-required'})
+  w.__requestTryammLegacyRevenueAllocation=requestLegacyRevenueAllocation
+  emit('tryamm:kenosha-memorial-racing:ready',{races:MEMORIAL_RACES.map(r=>({id:r.id,title:r.title,places:r.prizePolicy.places,sponsorSlots:r.sponsorSlots,legacyAllocation:r.legacyAllocation})),effectsReady:true,sponsorship:'verified-campaign-and-contract-required',legacyReserve:'20%-protected-for-kenosha-kids-and-servants-of-christ',prizes:'funding-and-server-verification-required'})
 }
