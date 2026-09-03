@@ -8,6 +8,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // Keep the Three.js creator-district runtime out of the shared app-runtime
+          // chunk so constrained StreetVerse devices do not preload WebGL code before
+          // the guaranteed HTML city can render.
+          if (id.includes('/src/runtime/StreetVerseCreatorDistrict3D')) return 'streetverse-creator-3d'
           if (id.includes('/src/runtime/')) return 'app-runtime'
           if (id.includes('/src/data/')) return 'app-data'
           if (!id.includes('node_modules')) return
