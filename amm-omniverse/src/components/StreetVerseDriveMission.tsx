@@ -26,15 +26,24 @@ export default function StreetVerseDriveMission(){
   const target=CHECKPOINTS[checkpoint]
   const distance=useMemo(()=>pos&&target?Math.hypot(pos.x-target.x,pos.z-target.z):Infinity,[pos,target])
 
+  const start=()=>{
+    if(!driving)return
+    setComplete(false);setCheckpoint(0);setElapsed(0);const now=performance.now();setStartedAt(now);setActive(true)
+    dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{id:'chicago-circuit-01',label:'Chicago Circuit 01',checkpoints:CHECKPOINTS.length}}))
+    dispatchEvent(new CustomEvent('tryamm:streetverse-race-target',{detail:{checkpoint:0,total:CHECKPOINTS.length,...CHECKPOINTS[0]}}))
+  }
+
   useEffect(()=>{
     const onPos=(e:Event)=>{const d=(e as CustomEvent<PlayerPos>).detail;if(Number.isFinite(d?.x)&&Number.isFinite(d?.z))setPos(d)}
-    const onVehicle=(e:Event)=>{const d=(e as CustomEvent<Telemetry>).detail||{};setDriving(Boolean(d.entered));if(!d.entered&&active){setActive(false);setCheckpoint(0)}}
+    const onVehicle=(e:Event)=>{const d=(e as CustomEvent<Telemetry>).detail||{};setDriving(Boolean(d.entered));if(!d.entered&&active){setActive(false);setCheckpoint(0);dispatchEvent(new CustomEvent('tryamm:streetverse-race-target-clear'))}}
     const onTelemetry=(e:Event)=>{const d=(e as CustomEvent<Telemetry>).detail||{};if(typeof d.entered==='boolean')setDriving(d.entered)}
+    const onStartRequest=()=>start()
     addEventListener('tryamm:streetverse-player-position',onPos)
     addEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
     addEventListener('tryamm:streetverse-drive-telemetry',onTelemetry)
-    return()=>{removeEventListener('tryamm:streetverse-player-position',onPos);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-drive-telemetry',onTelemetry)}
-  },[active])
+    addEventListener('tryamm:streetverse-drive-mission-start-request',onStartRequest)
+    return()=>{removeEventListener('tryamm:streetverse-player-position',onPos);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-drive-telemetry',onTelemetry);removeEventListener('tryamm:streetverse-drive-mission-start-request',onStartRequest)}
+  },[active,driving])
 
   useEffect(()=>{
     if(!active||!startedAt)return
@@ -47,6 +56,7 @@ export default function StreetVerseDriveMission(){
     if(checkpoint<CHECKPOINTS.length-1){
       const next=checkpoint+1;setCheckpoint(next)
       dispatchEvent(new CustomEvent('tryamm:streetverse-race-checkpoint',{detail:{checkpoint:next,total:CHECKPOINTS.length,label:CHECKPOINTS[next].label}}))
+      dispatchEvent(new CustomEvent('tryamm:streetverse-race-target',{detail:{checkpoint:next,total:CHECKPOINTS.length,...CHECKPOINTS[next]}}))
       dispatchEvent(new CustomEvent('tryamm:streetverse-drive-sound',{detail:{kind:'checkpoint'}}))
       return
     }
@@ -56,16 +66,12 @@ export default function StreetVerseDriveMission(){
     setXp(nextXp);setElapsed(finalMs);setActive(false);setComplete(true);setCheckpoint(0)
     const nextBest=!best||finalMs<best?finalMs:best;setBest(nextBest)
     try{localStorage.setItem(XP_KEY,String(nextXp));localStorage.setItem(RACE_KEY,JSON.stringify({bestMs:nextBest,lastMs:finalMs,completedAt:new Date().toISOString()}))}catch{}
+    dispatchEvent(new CustomEvent('tryamm:streetverse-race-target-clear'))
     dispatchEvent(new CustomEvent('tryamm:streetverse-xp-earned',{detail:{source:'drive-mission',mission:'Chicago Circuit 01',xp:earned,totalXp:nextXp,timeMs:finalMs}}))
     dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{id:'chicago-circuit-01',label:'Chicago Circuit 01',xp:earned,timeMs:finalMs,financialReward:false}}))
     dispatchEvent(new CustomEvent('tryamm:streetverse-drive-sound',{detail:{kind:'mission-complete'}}))
   },[active,driving,target,distance,checkpoint,startedAt,xp,best])
 
-  const start=()=>{
-    if(!driving)return
-    setComplete(false);setCheckpoint(0);setElapsed(0);const now=performance.now();setStartedAt(now);setActive(true)
-    dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{id:'chicago-circuit-01',label:'Chicago Circuit 01',checkpoints:CHECKPOINTS.length}}))
-  }
   const openReel=()=>dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'streetverse-race',title:'Chicago Circuit 01',caption:`Chicago Circuit complete • ${formatMs(elapsed)} • #TRYAMM #StreetVerse`}}))
 
   return <div style={{position:'fixed',left:12,top:112,zIndex:16997,width:'min(88vw,300px)',padding:10,borderRadius:14,background:'#030914e8',border:'1px solid #ffcc6666',color:'#fff',fontFamily:'system-ui,sans-serif',boxShadow:'0 10px 28px #0008'}}>
@@ -75,7 +81,7 @@ export default function StreetVerseDriveMission(){
     <div style={{display:'flex',gap:6,marginTop:8,flexWrap:'wrap'}}>
       {!active&&<button disabled={!driving} onClick={start} style={{...btn,opacity:driving?1:.45}}>{driving?'START RACE':'NEED VEHICLE'}</button>}
       {complete&&<button onClick={openReel} style={btn}>🎥 REEL</button>}
-      {active&&<button onClick={()=>{setActive(false);setCheckpoint(0)}} style={btn}>CANCEL</button>}
+      {active&&<button onClick={()=>{setActive(false);setCheckpoint(0);dispatchEvent(new CustomEvent('tryamm:streetverse-race-target-clear'))}} style={btn}>CANCEL</button>}
     </div>
   </div>
 }
