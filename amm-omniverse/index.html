@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
     <meta name="theme-color" content="#04050E" />
     <meta name="description" content="TRYAMM — one connected platform for creators, commerce, LIVE, games, AI, business, education, workforce, and Living Worlds." />
-    <link rel="manifest" href="/manifest.json?v=20260903-streetverse-v19" />
-    <link rel="icon" type="image/svg+xml" href="/tryamm-lion-crown-america.svg?v=20260903-streetverse-v19" />
-    <link rel="shortcut icon" type="image/svg+xml" href="/tryamm-lion-crown-america.svg?v=20260903-streetverse-v19" />
-    <link rel="apple-touch-icon" href="/tryamm-lion-crown-america.svg?v=20260903-streetverse-v19" />
+    <link rel="manifest" href="/manifest.json?v=20260903-platform-v20" />
+    <link rel="icon" type="image/svg+xml" href="/tryamm-lion-crown-america.svg?v=20260903-platform-v20" />
+    <link rel="shortcut icon" type="image/svg+xml" href="/tryamm-lion-crown-america.svg?v=20260903-platform-v20" />
+    <link rel="apple-touch-icon" href="/tryamm-lion-crown-america.svg?v=20260903-platform-v20" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -36,6 +36,7 @@
     <a id="tryamm-accessibility-link" href="/accessibility.html" aria-label="Open TRYAMM Accessibility Statement">♿ Accessibility</a>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script src="/tryamm-global-supply-chain.js?v=20260903-supply-v1" defer></script>
     <script src="/streetverse-reel.js?v=20260903-streetverse-v19" defer></script>
     <script src="/streetverse-safe-mode.js?v=20260903-streetverse-v19" defer></script>
     <script src="/streetverse-mobile-life.js?v=20260903-streetverse-v19" defer></script>
@@ -50,7 +51,7 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {
-            const SW_VERSION='20260903-streetverse-v19'
+            const SW_VERSION='20260903-platform-v20'
             const RELEASE_KEY='tryamm-release-version'
             const previousRelease=localStorage.getItem(RELEASE_KEY)
             if (previousRelease !== SW_VERSION && 'caches' in window) {
