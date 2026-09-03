@@ -1,0 +1,16 @@
+import {useEffect} from 'react'
+
+type Snapshot={version:1;activeMission?:string|null;completed:string[];lastMission?:string|null;xp?:number;level?:number;missionsCompleted?:number;district?:string|null;transit?:Record<string,unknown>;worldEvents:string[];updatedAt:string}
+const KEY='tryamm.streetverse.gameplay-state.v1'
+const load=():Snapshot=>{try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v?.version===1)return v}catch{}return{version:1,activeMission:null,completed:[],lastMission:null,worldEvents:[],updatedAt:new Date().toISOString()}}
+const save=(s:Snapshot)=>{const next={...s,updatedAt:new Date().toISOString()};try{localStorage.setItem(KEY,JSON.stringify(next))}catch{}window.dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-state',{detail:next}));return next}
+export default function StreetVerseGameplayStateCoordinator(){useEffect(()=>{let state=load();window.dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-state-restored',{detail:state}))
+ const onStart=(e:Event)=>{const d=(e as CustomEvent).detail||{};state=save({...state,activeMission:String(d.missionId||d.id||d.label||'mission')})}
+ const onComplete=(e:Event)=>{const d=(e as CustomEvent).detail||{},id=String(d.missionId||d.id||d.label||'mission');state=save({...state,activeMission:null,lastMission:id,completed:Array.from(new Set([...state.completed,id]))})}
+ const onLoaded=(e:Event)=>{const d=(e as CustomEvent).detail||{};state=save({...state,xp:Number(d.xp||0),level:Number(d.level||1),missionsCompleted:Number(d.missionsCompleted||0),lastMission:d.lastMissionId||state.lastMission})}
+ const onSynced=(e:Event)=>{const d=(e as CustomEvent).detail||{};state=save({...state,xp:Number(d.xp||state.xp||0),level:Number(d.level||state.level||1),missionsCompleted:Number(d.missionsCompleted||state.missionsCompleted||0),lastMission:d.missionId||state.lastMission})}
+ const onTransit=(e:Event)=>{const d=(e as CustomEvent).detail||{};state=save({...state,transit:{...(state.transit||{}),...d}})}
+ const onWorld=(e:Event)=>{const d=(e as CustomEvent).detail||{},id=String(d.id||d.eventId||d.label||'world-event');state=save({...state,worldEvents:Array.from(new Set([...state.worldEvents,id])).slice(-20)})}
+ const onSpawn=(e:Event)=>{const d=(e as CustomEvent).detail||{};state=save({...state,district:d?.mapped?.label||d?.label||state.district||null})}
+ addEventListener('tryamm:streetverse-mission-start',onStart);addEventListener('tryamm:streetverse-mission-complete',onComplete);addEventListener('tryamm:streetverse-progress-loaded',onLoaded);addEventListener('tryamm:streetverse-progress-synced',onSynced);addEventListener('tryamm:l-train-state',onTransit);addEventListener('tryamm:streetverse-world-event',onWorld);addEventListener('tryamm:streetverse-geo-spawn-ready',onSpawn)
+ return()=>{removeEventListener('tryamm:streetverse-mission-start',onStart);removeEventListener('tryamm:streetverse-mission-complete',onComplete);removeEventListener('tryamm:streetverse-progress-loaded',onLoaded);removeEventListener('tryamm:streetverse-progress-synced',onSynced);removeEventListener('tryamm:l-train-state',onTransit);removeEventListener('tryamm:streetverse-world-event',onWorld);removeEventListener('tryamm:streetverse-geo-spawn-ready',onSpawn)}},[]);return null}
