@@ -14,7 +14,6 @@ export interface LiveTokenResponse {
 }
 
 async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
-  if (!API_URL) throw new Error('VITE_API_URL is not configured')
   const token = await getAccessToken()
   if (!token) throw new Error('Sign in is required for LIVE')
   const headers = new Headers(init.headers || {})
@@ -27,8 +26,7 @@ async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
 }
 
 export async function getLiveStatus() {
-  if (!API_URL) return { configured: false }
-  const response = await fetch(`${API_URL}/api/live/status`)
+  const response = await fetch(`${API_URL}/api/live/status`, { cache: 'no-store' })
   return response.json() as Promise<{ configured: boolean; url?: string }>
 }
 
