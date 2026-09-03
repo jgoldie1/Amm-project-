@@ -1,8 +1,8 @@
 // TRYAMM Service Worker
 // Network-first app shell so production UI changes are visible immediately.
 
-const CACHE_NAME = 'tryamm-shell-v17-ui-shell-v4-20260902'
-const STATIC_ASSETS = ['/manifest.json?v=20260902-ui-shell-v4','/tryamm-lion-crown-america.svg?v=20260902-ui-shell-v4']
+const CACHE_NAME = 'tryamm-shell-v18-streetverse-v5-20260902'
+const STATIC_ASSETS = ['/manifest.json?v=20260902-streetverse-v5','/tryamm-lion-crown-america.svg?v=20260902-streetverse-v5']
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -67,7 +67,7 @@ self.addEventListener('fetch', (event) => {
 })
 
 self.addEventListener('push', (event) => {
-  let data = { title: 'TRYAMM', body: 'You have a new notification', icon: '/tryamm-lion-crown-america.svg?v=20260902-ui-shell-v4', badge: '/icons/badge-72.png' }
+  let data = { title: 'TRYAMM', body: 'You have a new notification', icon: '/tryamm-lion-crown-america.svg?v=20260902-streetverse-v5', badge: '/icons/badge-72.png' }
   if (event.data) {
     try { data = { ...data, ...event.data.json() } } catch { data.body = event.data.text() }
   }
