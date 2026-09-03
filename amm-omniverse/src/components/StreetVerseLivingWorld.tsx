@@ -14,12 +14,15 @@ const MISSIONS=[
   {id:'network',label:'All American Network',x:38,z:38},
   {id:'club',label:'Chicago After Dark',x:-38,z:38},
 ]
+const RACE_PATH=[{x:0,z:48},{x:48,z:-48},{x:0,z:0},{x:48,z:48},{x:0,z:48}]
 
 type Traffic={axis:'x'|'z';roadCenter:number;dir:1|-1;laneOffset:number;speed:number;phase:number}
 type ResidentRoute={axis:'x'|'z';fixed:number;dir:1|-1;speed:number;phase:number}
 type CharacterSelect={id?:string;label?:string;index?:number}
 type VehicleInteract={entered?:boolean;x?:number;z?:number}
 type VehicleInput={throttle?:number;brake?:number;steer?:number;handbrake?:number|boolean;horn?:boolean;exit?:boolean}
+type AIRacerDetail={id?:string;name?:string;progress?:number;speed?:number}
+type SurfaceInfo={name:'DRY'|'WET'|'LOW-GRIP';grip:number;accel:number}
 
 function loadSave(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')}catch{return {}}}
 function loadCharacter(){try{return JSON.parse(localStorage.getItem(CHARACTER_KEY)||'{}')?.character as CharacterSelect|undefined}catch{return undefined}}
@@ -27,6 +30,8 @@ function material(color:number,metalness=.1,roughness=.72){return new THREE.Mesh
 function wrap(v:number,min=-88,max=88){const span=max-min;return min+((((v-min)%span)+span)%span)}
 function nearestIntersection(v:number){return ROAD_CENTERS.reduce((best,n)=>Math.abs(v-n)<Math.abs(v-best)?n:best,ROAD_CENTERS[0])}
 function approachingIntersection(v:number,dir:1|-1){const center=nearestIntersection(v);const distance=(center-v)*dir;return distance>0&&distance<10}
+function surfaceAt(x:number,z:number):SurfaceInfo{if(x>18&&z<-6)return{name:'WET',grip:.62,accel:.9};if(x<-22&&z>5)return{name:'LOW-GRIP',grip:.72,accel:.94};return{name:'DRY',grip:1,accel:1}}
+function racePoint(progress:number,laneOffset=0){const p=THREE.MathUtils.clamp(progress,0,100)/100*(RACE_PATH.length-1);const index=Math.min(RACE_PATH.length-2,Math.floor(p));const t=p-index;const a=RACE_PATH[index],b=RACE_PATH[index+1];const x=THREE.MathUtils.lerp(a.x,b.x,t),z=THREE.MathUtils.lerp(a.z,b.z,t);const dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz)||1;return{x:x+(-dz/len)*laneOffset,z:z+(dx/len)*laneOffset,rotation:Math.atan2(-dz,dx)}}
 
 function makeResident(i:number){
   const g=new THREE.Group()
@@ -88,6 +93,8 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
     for(const z of ROAD_CENTERS){const road=new THREE.Mesh(new THREE.BoxGeometry(190,.12,14),roadMat);road.position.set(0,.07,z);scene.add(road);for(const dz of [-9,9]){const walk=new THREE.Mesh(new THREE.BoxGeometry(190,.2,3),sidewalkMat);walk.position.set(0,.12,z+dz);scene.add(walk)}for(let x=-84;x<=84;x+=12){const mark=new THREE.Mesh(new THREE.BoxGeometry(6,.03,.16),laneMat);mark.position.set(x,.145,z);scene.add(mark)}}
     for(const x of ROAD_CENTERS){const road=new THREE.Mesh(new THREE.BoxGeometry(14,.12,190),roadMat);road.position.set(x,.07,0);scene.add(road);for(const dx of [-9,9]){const walk=new THREE.Mesh(new THREE.BoxGeometry(3,.2,190),sidewalkMat);walk.position.set(x+dx,.12,0);scene.add(walk)}for(let z=-84;z<=84;z+=12){const mark=new THREE.Mesh(new THREE.BoxGeometry(.16,.03,6),laneMat);mark.position.set(x,.145,z);scene.add(mark)}}
     for(const x of ROAD_CENTERS)for(const z of ROAD_CENTERS){for(const offset of [-5,-3,-1,1,3,5]){const eastWest=new THREE.Mesh(new THREE.BoxGeometry(.7,.035,5.2),crosswalkMat);eastWest.position.set(x+offset,.17,z+7.15);scene.add(eastWest);const northSouth=new THREE.Mesh(new THREE.BoxGeometry(5.2,.035,.7),crosswalkMat);northSouth.position.set(x+7.15,.17,z+offset);scene.add(northSouth)}}
+    const wetPatch=new THREE.Mesh(new THREE.PlaneGeometry(64,42),new THREE.MeshStandardMaterial({color:0x23384c,metalness:.35,roughness:.32,transparent:true,opacity:.46}));wetPatch.rotation.x=-Math.PI/2;wetPatch.position.set(50,.19,-35);scene.add(wetPatch)
+    const lowGripPatch=new THREE.Mesh(new THREE.PlaneGeometry(54,44),new THREE.MeshStandardMaterial({color:0x4d4232,metalness:.05,roughness:1,transparent:true,opacity:.38}));lowGripPatch.rotation.x=-Math.PI/2;lowGripPatch.position.set(-54,.19,38);scene.add(lowGripPatch)
 
     const signalLights:{axis:'x'|'z';lamp:THREE.Mesh}[]=[]
     for(const x of ROAD_CENTERS)for(const z of ROAD_CENTERS)for(const axis of ['x','z'] as const){const pole=new THREE.Mesh(new THREE.CylinderGeometry(.1,.12,3.8,8),material(0x33383e,.7,.3));pole.position.set(x+(axis==='x'?8.5:-8.5),1.9,z+(axis==='z'?8.5:-8.5));scene.add(pole);const lamp=new THREE.Mesh(new THREE.SphereGeometry(.28,10,8),new THREE.MeshBasicMaterial({color:0x43ff7b}));lamp.position.copy(pole.position);lamp.position.y=3.85;scene.add(lamp);signalLights.push({axis,lamp})}
@@ -136,6 +143,14 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
     const cars:THREE.Group[]=[]
     for(let i=0;i<20;i++){const car=makeCar(i);const horizontal=i<12;const dir=(i%2===0?1:-1) as 1|-1;const roadCenter=horizontal?(i<6?-48:48):(i<16?-48:48);const traffic:Traffic={axis:horizontal?'x':'z',roadCenter,dir,laneOffset:dir>0?2.4:-2.4,speed:8.5+(i%5)*1.05,phase:i*13};car.userData.traffic=traffic;car.userData.aiTraffic=true;car.userData.driveSpeed=0;if(horizontal){car.position.set(wrap(-82+traffic.phase),.05,roadCenter+traffic.laneOffset);car.rotation.y=dir>0?0:Math.PI}else{car.position.set(roadCenter+traffic.laneOffset,.05,wrap(-82+traffic.phase));car.rotation.y=dir>0?-Math.PI/2:Math.PI/2}scene.add(car);cars.push(car)}
 
+    const aiRacerDefs=[{id:'nova',name:'NOVA',car:makeCar(0),lane:-2.4},{id:'south',name:'SOUTH LOOP',car:makeCar(2),lane:0},{id:'lake',name:'LAKEFRONT',car:makeCar(5),lane:2.4}]
+    aiRacerDefs.forEach((r,i)=>{const p=racePoint(i*1.5,r.lane);r.car.position.set(p.x,.08,p.z);r.car.rotation.y=p.rotation;r.car.visible=false;r.car.userData.aiRacer=true;r.car.userData.aiRacerId=r.id;scene.add(r.car)})
+    const hideAIRacers=()=>aiRacerDefs.forEach(r=>{r.car.visible=false})
+    const onAIRacer=(event:Event)=>{const d=(event as CustomEvent<AIRacerDetail>).detail||{};const racer=aiRacerDefs.find(r=>r.id===d.id||r.name===d.name);if(!racer)return;const p=racePoint(Number(d.progress)||0,racer.lane);racer.car.visible=true;racer.car.position.set(p.x,.08,p.z);racer.car.rotation.y=p.rotation;window.dispatchEvent(new CustomEvent('tryamm:streetverse-ai-racer-world-position',{detail:{id:racer.id,name:racer.name,progress:Number(d.progress)||0,x:p.x,z:p.z,speed:Number(d.speed)||0}}))}
+    const onAIStart=()=>{aiRacerDefs.forEach((r,i)=>{const p=racePoint(i*1.25,r.lane);r.car.visible=true;r.car.position.set(p.x,.08,p.z);r.car.rotation.y=p.rotation})}
+    const onRaceEnd=()=>hideAIRacers()
+    addEventListener('tryamm:streetverse-ai-opponent',onAIRacer);addEventListener('tryamm:streetverse-ai-opponents-start',onAIStart);addEventListener('tryamm:streetverse-mission-complete',onRaceEnd);addEventListener('tryamm:streetverse-scene-close',onRaceEnd)
+
     let activeCar:THREE.Group|null=null
     let activeCarIndex=-1
     let driver:THREE.Group|null=null
@@ -173,8 +188,8 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
     const resize=()=>{const w=mount.clientWidth,h=Math.max(420,mount.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)};const ro=new ResizeObserver(resize);ro.observe(mount);resize()
     const clock=new THREE.Clock(),tmp=new THREE.Vector3(),desiredCam=new THREE.Vector3(),forward=new THREE.Vector3(),right=new THREE.Vector3();let raf=0,lastSave=0,elapsed=0,lastWorldPulse=0,lastSignalPhase=-1,lastDrivePulse=0,lastImpact=0
     const collides=(x:number,z:number)=>collisionBoxes.some(box=>box.containsPoint(tmp.set(x,2,z)))
-    const carHitsTraffic=(car:THREE.Group,x:number,z:number)=>cars.some(other=>other!==car&&Math.hypot(other.position.x-x,other.position.z-z)<3.3)
-    window.dispatchEvent(new CustomEvent('tryamm:streetverse-enter',{detail:{district:'01',residents:npcs.length,vehicles:cars.length,smartIntersections:true,chicagoTransitAirportDepth:true,drivableVehicles:true,lateralGripPhysics:true}}))
+    const carHitsTraffic=(car:THREE.Group,x:number,z:number)=>cars.some(other=>other!==car&&Math.hypot(other.position.x-x,other.position.z-z)<3.3)||aiRacerDefs.some(r=>r.car.visible&&r.car!==car&&Math.hypot(r.car.position.x-x,r.car.position.z-z)<3.5)
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-enter',{detail:{district:'01',residents:npcs.length,vehicles:cars.length,smartIntersections:true,chicagoTransitAirportDepth:true,drivableVehicles:true,lateralGripPhysics:true,integratedAIRacers:true,surfaceGrip:true}}))
 
     const animate=()=>{
       const dt=Math.min(.033,clock.getDelta());elapsed+=dt
@@ -188,18 +203,19 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
         const keyThrottle=(keys.has('w')||keys.has('arrowup')||input.up)?1:0,keyBrake=(keys.has('s')||keys.has('arrowdown')||input.down)?1:0,keySteer=((keys.has('a')||keys.has('arrowleft')||input.left)?-1:0)+((keys.has('d')||keys.has('arrowright')||input.right)?1:0)
         const gpThrottle=gp?.buttons?.[7]?.value||0,gpBrake=gp?.buttons?.[6]?.value||0,gpSteer=Math.abs(gp?.axes?.[0]||0)>.18?(gp?.axes?.[0]||0):0,gpHandbrake=gp?.buttons?.[0]?.pressed?1:0
         const throttle=Math.max(driveThrottle,keyThrottle,gpThrottle),brake=Math.max(driveBrake,keyBrake,gpBrake),steer=THREE.MathUtils.clamp(Math.abs(driveSteer)>Math.abs(gpSteer)?driveSteer:(keySteer||gpSteer),-1,1),handbrake=Math.max(driveHandbrake,keys.has(' ')?1:0,gpHandbrake)
+        const surface=surfaceAt(activeCar.position.x,activeCar.position.z)
         forward.set(Math.cos(activeCar.rotation.y),0,-Math.sin(activeCar.rotation.y));right.set(-forward.z,0,forward.x)
         let longitudinal=velocityX*forward.x+velocityZ*forward.z
         let lateral=velocityX*right.x+velocityZ*right.z
         const accel=25,decel=32,drag=7.2,maxForward=39,maxReverse=-14
-        if(throttle>0)longitudinal+=accel*throttle*dt
+        if(throttle>0)longitudinal+=accel*surface.accel*throttle*dt
         if(brake>0&&longitudinal>0)longitudinal-=decel*brake*dt;else if(brake>0)longitudinal-=accel*.72*brake*dt
         if(!throttle&&!brake)longitudinal-=Math.sign(longitudinal)*Math.min(Math.abs(longitudinal),drag*dt)
         longitudinal=THREE.MathUtils.clamp(longitudinal,maxReverse,maxForward)
         const speedAbs=Math.abs(longitudinal),steerScale=THREE.MathUtils.clamp(speedAbs/7,.18,1)
         const yawGrip=handbrake?2.45:1.62;activeCar.rotation.y-=steer*yawGrip*steerScale*dt*(longitudinal>=0?1:-1)
         const lateralKick=steer*speedAbs*(handbrake?.92:.16)*dt;lateral+=lateralKick
-        const grip=handbrake?1.15:(brake>.65?3.4:7.4);lateral*=Math.max(0,1-grip*dt)
+        const grip=(handbrake?1.15:(brake>.65?3.4:7.4))*surface.grip;lateral*=Math.max(0,1-grip*dt)
         const burnout=throttle>.75&&brake>.55&&speedAbs<8;const wheelspin=throttle>.82&&speedAbs<12
         if(burnout)lateral+=steer*(4.2+throttle*3)*dt
         forward.set(Math.cos(activeCar.rotation.y),0,-Math.sin(activeCar.rotation.y));right.set(-forward.z,0,forward.x)
@@ -210,10 +226,10 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
         driveSpeed=longitudinal;const slipAngle=Math.min(90,Math.abs(Math.atan2(lateral,Math.max(1,Math.abs(longitudinal)))*180/Math.PI));const drifting=slipAngle>8&&speedAbs>11
         activeCar.rotation.z=THREE.MathUtils.lerp(activeCar.rotation.z,THREE.MathUtils.clamp(-steer*speedAbs*.006,-.11,.11),1-Math.pow(.02,dt))
         if((brake>.55||handbrake>.2)&&speedAbs>10&&performance.now()-lastDrivePulse>260){lastDrivePulse=performance.now();window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-sound',{detail:{kind:'brake',speed:speedAbs,handbrake:handbrake>0}}))}
-        if((drifting||burnout)&&performance.now()-lastDrivePulse>260){lastDrivePulse=performance.now();window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-sound',{detail:{kind:'skid',speed:speedAbs,slipAngle,burnout}}))}
+        if((drifting||burnout)&&performance.now()-lastDrivePulse>260){lastDrivePulse=performance.now();window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-sound',{detail:{kind:'skid',speed:speedAbs,slipAngle,burnout,surface:surface.name}}))}
         if(keys.has('h')&&!hornDown){hornDown=true;window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-sound',{detail:{kind:'horn'}}))}if(!keys.has('h')&&!driveThrottle)hornDown=false
         activeCar.userData.driveSpeed=driveSpeed
-        window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-telemetry',{detail:{entered:true,index:activeCarIndex,speed:Math.hypot(velocityX,velocityZ),signedSpeed:driveSpeed,throttle,brake,steer,handbrake,heading:activeCar.rotation.y,velocityX,velocityZ,lateralSpeed:lateral,slipAngle,drifting,burnout,wheelspin,x:activeCar.position.x,z:activeCar.position.z}}))
+        window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-telemetry',{detail:{entered:true,index:activeCarIndex,speed:Math.hypot(velocityX,velocityZ),signedSpeed:driveSpeed,throttle,brake,steer,handbrake,heading:activeCar.rotation.y,velocityX,velocityZ,lateralSpeed:lateral,slipAngle,drifting,burnout,wheelspin,surface:surface.name,gripMultiplier:surface.grip,x:activeCar.position.x,z:activeCar.position.z}}))
       }else if(!paused&&(dx||dz)){
         const len=Math.hypot(dx,dz)||1;dx/=len;dz/=len;const speed=(keys.has('shift')?28:18)*dt;const nx=THREE.MathUtils.clamp(controlled.position.x+dx*speed,-88,88),nz=THREE.MathUtils.clamp(controlled.position.z+dz*speed,-88,88);if(!collides(nx,controlled.position.z))controlled.position.x=nx;if(!collides(controlled.position.x,nz))controlled.position.z=nz;controlled.rotation.y=Math.atan2(dx,dz)
       }
@@ -227,13 +243,13 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
       renderer.render(scene,camera);raf=requestAnimationFrame(animate)
     }
     animate()
-    return()=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-exit',{detail:{district:'01'}}));cancelAnimationFrame(raf);ro.disconnect();removeEventListener('keydown',down);removeEventListener('keyup',up);removeEventListener('tryamm:streetverse-character-select',onCharacterSelect);removeEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract);removeEventListener('tryamm:streetverse-vehicle-input',onVehicleInput);renderer.dispose();renderer.domElement.remove()}
+    return()=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-exit',{detail:{district:'01'}}));cancelAnimationFrame(raf);ro.disconnect();removeEventListener('keydown',down);removeEventListener('keyup',up);removeEventListener('tryamm:streetverse-character-select',onCharacterSelect);removeEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract);removeEventListener('tryamm:streetverse-vehicle-input',onVehicleInput);removeEventListener('tryamm:streetverse-ai-opponent',onAIRacer);removeEventListener('tryamm:streetverse-ai-opponents-start',onAIStart);removeEventListener('tryamm:streetverse-mission-complete',onRaceEnd);removeEventListener('tryamm:streetverse-scene-close',onRaceEnd);renderer.dispose();renderer.domElement.remove()}
   },[paused])
 
   const press=(key:keyof typeof inputRef.current,value:boolean)=>{inputRef.current[key]=value}
   return <div role="dialog" aria-modal="true" aria-label="StreetVerse Living World" style={{position:'fixed',inset:0,zIndex:16000,background:'#02040a',color:'#fff',display:'grid',gridTemplateRows:'auto 1fr auto',fontFamily:'Inter,system-ui,sans-serif'}}>
     <header style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:10,padding:'9px 12px',background:'#050a12ee',borderBottom:'1px solid #28425a'}}><div><div style={{fontSize:9,fontWeight:950,letterSpacing:2,color:'#59e7ff'}}>STREETVERSE • CHICAGO • LIVING WORLD</div><div style={{fontWeight:950,fontSize:'clamp(18px,4vw,29px)'}}>District 01</div><div style={{fontSize:9,color:'#ffd45e',marginTop:3}}>PLAYING AS • {activeCharacter} • {driveStatus}</div></div><div style={{display:'flex',alignItems:'center',gap:8}}><span style={{fontSize:9,color:'#8effb7'}}>{assetStatus}</span><button onClick={onClose} aria-label="Close StreetVerse" style={{width:42,height:42,borderRadius:13,border:'1px solid #3a5369',background:'#0c1520',color:'#fff',fontSize:22}}>×</button></div></header>
-    <main style={{position:'relative',minHeight:0}}><div ref={mountRef} style={{position:'absolute',inset:0,minHeight:420}}/><div style={{position:'absolute',left:10,top:10,maxWidth:340,padding:10,borderRadius:14,background:'#030914dc',border:'1px solid #2b485e',backdropFilter:'blur(9px)'}}><div style={{fontSize:9,color:'#ffd45e',fontWeight:950}}>LIVING CITY MISSION</div><div style={{fontSize:12,lineHeight:1.45,marginTop:5}}>{message}</div><div style={{fontSize:10,marginTop:7,color:visited.length===MISSIONS.length?'#79ffad':'#b7c6d5'}}>{visited.length}/{MISSIONS.length} locations {visited.length===MISSIONS.length?'• DISTRICT COMPLETE ✓':''}</div></div><div style={{position:'absolute',right:10,top:10,display:'grid',gap:5,justifyItems:'end'}}><div style={{padding:'7px 9px',borderRadius:999,background:'#030914dc',border:'1px solid #2b485e',fontSize:9}}>24 PLAYABLE RESIDENTS • 20 DRIVABLE TRAFFIC VEHICLES • LATERAL GRIP/DRIFT • SMART INTERSECTIONS</div><div style={{padding:'7px 9px',borderRadius:999,background:'#030914dc',border:'1px solid #2b485e',fontSize:9,color:'#8effb7'}}>{signalStatus}</div></div></main>
+    <main style={{position:'relative',minHeight:0}}><div ref={mountRef} style={{position:'absolute',inset:0,minHeight:420}}/><div style={{position:'absolute',left:10,top:10,maxWidth:340,padding:10,borderRadius:14,background:'#030914dc',border:'1px solid #2b485e',backdropFilter:'blur(9px)'}}><div style={{fontSize:9,color:'#ffd45e',fontWeight:950}}>LIVING CITY MISSION</div><div style={{fontSize:12,lineHeight:1.45,marginTop:5}}>{message}</div><div style={{fontSize:10,marginTop:7,color:visited.length===MISSIONS.length?'#79ffad':'#b7c6d5'}}>{visited.length}/{MISSIONS.length} locations {visited.length===MISSIONS.length?'• DISTRICT COMPLETE ✓':''}</div></div><div style={{position:'absolute',right:10,top:10,display:'grid',gap:5,justifyItems:'end'}}><div style={{padding:'7px 9px',borderRadius:999,background:'#030914dc',border:'1px solid #2b485e',fontSize:9}}>24 PLAYABLE RESIDENTS • 20 DRIVABLE VEHICLES • 3 IN-SCENE AI RACERS • DRY/WET/LOW-GRIP</div><div style={{padding:'7px 9px',borderRadius:999,background:'#030914dc',border:'1px solid #2b485e',fontSize:9,color:'#8effb7'}}>{signalStatus}</div></div></main>
     <footer style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',alignItems:'center',gap:8,padding:'8px 10px',background:'#050912',borderTop:'1px solid #24384b'}}><div style={{fontSize:9,color:'#8fa5b7'}}>ON FOOT: WASD/arrows • Shift run • touch/gamepad • DRIVE: W gas • S brake/reverse • A/D steer • SPACE handbrake • H horn • E enter/exit</div><div style={{display:'grid',gridTemplateColumns:'54px 54px 54px',gap:4,touchAction:'none',userSelect:'none'}}><span/><Pad label="▲" down={()=>press('up',true)} up={()=>press('up',false)}/><span/><Pad label="◀" down={()=>press('left',true)} up={()=>press('left',false)}/><Pad label="▼" down={()=>press('down',true)} up={()=>press('down',false)}/><Pad label="▶" down={()=>press('right',true)} up={()=>press('right',false)}/></div><div style={{display:'flex',justifyContent:'flex-end',gap:7}}><button onClick={()=>{localStorage.removeItem(SAVE_KEY);location.reload()}} style={smallBtn}>RESET</button><button onClick={()=>setPaused(v=>!v)} style={smallBtn}>{paused?'PLAY':'PAUSE'}</button></div></footer>
   </div>
 }
