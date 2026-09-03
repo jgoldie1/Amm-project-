@@ -32,6 +32,7 @@
     "face-api.js": "^0.22.2",
     "howler": "^2.2.4",
     "livekit-client": "^2.20.0",
+    "livekit-server-sdk": "^2.18.0",
     "lottie-web": "^5.13.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
