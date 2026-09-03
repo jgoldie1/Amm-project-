@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { CSSProperties } from 'react'
+import LiveRoomAgents from './LiveRoomAgents'
 
 type Generation = 'gen-x' | 'millennial' | 'gen-z' | 'gen-alpha' | 'mixed'
 
@@ -52,7 +53,7 @@ const PROFILES: Record<Generation, Profile> = {
   },
   mixed: {
     label: 'Mixed Audience',
-    years: 'All generations',
+    years: 'All generations and ages',
     discovery: 'Blend topic, creator, social and accessibility signals without assuming age.',
     pacing: 'Adaptive pacing with user-controlled density and motion.',
     captions: 'Captions, translation, transcript and accessible control sizing by default.',
@@ -76,37 +77,40 @@ export default function LiveGenerationIntelligence({ format }: { format: string 
   }, [format])
 
   return (
-    <section aria-label="Generation Intelligence" style={s.card}>
-      <div style={s.header}>
-        <div>
-          <div style={s.eyebrow}>STUBBS AI • LIVE INTELLIGENCE</div>
-          <h2 style={s.title}>Gen X → Gen Alpha Intelligence</h2>
+    <>
+      <section aria-label="Generation Intelligence" style={s.card}>
+        <div style={s.header}>
+          <div>
+            <div style={s.eyebrow}>STUBBS AI • LIVE INTELLIGENCE</div>
+            <h2 style={s.title}>All-Ages Intelligence • Gen X → Gen Alpha</h2>
+          </div>
+          <label style={s.toggle}><input type="checkbox" checked={enabled} onChange={e => setEnabled(e.target.checked)} /> Adaptive assist</label>
         </div>
-        <label style={s.toggle}><input type="checkbox" checked={enabled} onChange={e => setEnabled(e.target.checked)} /> Adaptive assist</label>
-      </div>
 
-      <p style={s.note}>This is an adaptive AI assistance layer, not a claim of human-level autonomous AGI. It changes presentation and assistance while keeping age, safety and accessibility controls explicit.</p>
+        <p style={s.note}>TRYAMM LIVE is designed for all ages. Generation profiles tune presentation and assistance, while explicit youth, adult, senior-friendly, accessibility and guardian controls determine safety and participation. This is adaptive AI assistance, not a claim of human-level autonomous AGI.</p>
 
-      <div style={s.chips} role="group" aria-label="Audience generation profile">
-        {(Object.keys(PROFILES) as Generation[]).map(id => (
-          <button key={id} type="button" onClick={() => setGeneration(id)} style={{ ...s.chip, ...(generation === id ? s.chipActive : {}) }}>
-            {PROFILES[id].label}
-          </button>
-        ))}
-      </div>
-
-      <div style={{ ...s.profile, opacity: enabled ? 1 : .45 }} aria-disabled={!enabled}>
-        <div style={s.profileTop}><strong>{profile.label}</strong><span>{profile.years}</span></div>
-        <div style={s.grid}>
-          <div><b>Discovery</b><span>{profile.discovery}</span></div>
-          <div><b>Pacing</b><span>{profile.pacing}</span></div>
-          <div><b>Accessibility</b><span>{profile.captions}</span></div>
-          <div><b>Host AI</b><span>{profile.hostAssist}</span></div>
-          <div><b>Safety</b><span>{profile.moderation}</span></div>
-          <div><b>{format.toUpperCase()} mode</b><span>{modeAssist}</span></div>
+        <div style={s.chips} role="group" aria-label="Audience generation profile">
+          {(Object.keys(PROFILES) as Generation[]).map(id => (
+            <button key={id} type="button" onClick={() => setGeneration(id)} style={{ ...s.chip, ...(generation === id ? s.chipActive : {}) }}>
+              {PROFILES[id].label}
+            </button>
+          ))}
         </div>
-      </div>
-    </section>
+
+        <div style={{ ...s.profile, opacity: enabled ? 1 : .45 }} aria-disabled={!enabled}>
+          <div style={s.profileTop}><strong>{profile.label}</strong><span>{profile.years}</span></div>
+          <div style={s.grid}>
+            <div><b>Discovery</b><span>{profile.discovery}</span></div>
+            <div><b>Pacing</b><span>{profile.pacing}</span></div>
+            <div><b>Accessibility</b><span>{profile.captions}</span></div>
+            <div><b>Host AI</b><span>{profile.hostAssist}</span></div>
+            <div><b>Safety</b><span>{profile.moderation}</span></div>
+            <div><b>{format.toUpperCase()} mode</b><span>{modeAssist}</span></div>
+          </div>
+        </div>
+      </section>
+      <LiveRoomAgents format={format} />
+    </>
   )
 }
 
