@@ -6,7 +6,7 @@ export default async function handler(req,res){
   res.setHeader('Cache-Control','no-store');
   if(req.method!=='GET')return res.status(405).json({ok:false,error:'Method not allowed'});
   const configured=String(process.env.HOLOGPT_GATEWAY_MODEL||'').trim();
-  const models=[configured,'inclusionai/ling-3.0-flash-free','openai/gpt-5.4'].filter((v,i,a)=>v&&a.indexOf(v)===i);
+  const models=[configured,'inclusionai/ling-3.0-tiny-free','inclusionai/ling-3.0-flash-free','openai/gpt-5.4'].filter((v,i,a)=>v&&a.indexOf(v)===i);
   const errors=[];
   for(const model of models){
     try{
@@ -15,6 +15,7 @@ export default async function handler(req,res){
         system:'You are the TRYAMM HoloGPT production readiness probe. Reply with exactly HOLOGPT_READY.',
         prompt:'Return the readiness token.',
         maxOutputTokens:12,
+        providerOptions:{gateway:{allowFallbackFromFree:true}},
         abortSignal:AbortSignal.timeout(timeoutMs())
       });
       const text=String(result?.text||'').trim();
