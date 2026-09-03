@@ -64,6 +64,7 @@ const MeetTheStubbsWorldDistrict=lazy(()=>import('./components/MeetTheStubbsWorl
 const OmniWorkstation=lazy(()=>import('./components/OmniWorkstation'))
 const AllAmericanNetworkHub=lazy(()=>import('./components/AllAmericanNetworkHub'))
 const ServantsOfChristMinistry=lazy(()=>import('./components/ServantsOfChristMinistry'))
+const OmniCareCashSuite=lazy(()=>import('./components/OmniCareCashSuite'))
 
 installProductionHealthMonitor()
 installMediaCloudBridge()
@@ -114,6 +115,7 @@ const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibil
 const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
 const isNetwork=['/network','/network/','/free-tv','/free-tv/','/isaiah-ai-tv','/isaiah-ai-tv/','/starverse','/starverse/'].includes(currentPath)
 const isServantsOfChrist=currentPath==='/servants-of-christ'||currentPath==='/servants-of-christ/'
+const isCareCash=['/omnicare-360','/omnicare-360/','/omnicare-rx','/omnicare-rx/','/omni-cash','/omni-cash/','/aniyah-pay','/aniyah-pay/'].includes(currentPath)
 const isTwinWorld=currentPath.startsWith('/streetverse/twin-world')
 const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
 const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs&&!isTwinWorld
@@ -151,6 +153,7 @@ if(isAccessibility)routeContent=<AccessibilityStatement />
 else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
 else if(isNetwork)routeContent=<Suspense fallback={routeFallback}><AllAmericanNetworkHub /></Suspense>
 else if(isServantsOfChrist)routeContent=<Suspense fallback={routeFallback}><ServantsOfChristMinistry /></Suspense>
+else if(isCareCash)routeContent=<Suspense fallback={routeFallback}><OmniCareCashSuite /></Suspense>
 else if(standaloneSite)routeContent=<StandaloneProductSite site={standaloneSite} />
 else if(isBusinessDirectory)routeContent=<FamilyBusinessDirectory />
 else if(businessSlug)routeContent=<FamilyBusinessPublicSite slug={businessSlug} onClose={()=>{window.location.href='/business'}} />
