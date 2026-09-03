@@ -6,6 +6,8 @@ type PlayerPosition={x?:number;z?:number;vehicle?:boolean;vehicleType?:string;ri
 type PresencePayload={userId:string;x:number;z:number;heading:number;vehicle:boolean;vehicleType:string;rideId?:string;rideLabel?:string;updatedAt:string}
 type PresenceState=Record<string,PresencePayload[]>
 type MotionEnvelope={payload?:PresencePayload}
+type PlayerAction={fromUserId:string;toUserId:string;action:'wave'|'crew-invite'|'race-challenge';sentAt:string}
+type ActionEnvelope={payload?:PlayerAction}
 
 const CHANNEL='streetverse:chicago:district-01'
 const clamp=(n:number)=>Math.max(-88,Math.min(88,Number.isFinite(n)?n:0))
@@ -41,6 +43,11 @@ export default function StreetVerseRealtimePresence(){
       if(!active)return
       void active.send({type:'broadcast',event:'player-motion',payload:next})
     }
+    const sendAction=(action:PlayerAction)=>{
+      const active=channelRef.current
+      if(!active)return
+      void active.send({type:'broadcast',event:'player-action',payload:action})
+    }
 
     const start=async()=>{
       const {data:{session}}=await sb.auth.getSession()
@@ -59,6 +66,11 @@ export default function StreetVerseRealtimePresence(){
           if(!p?.userId||p.userId===localUserId)return
           peers.set(p.userId,p)
           emitPlayers()
+        })
+        .on('broadcast',{event:'player-action'},(event:ActionEnvelope)=>{
+          const action=event?.payload
+          if(!action?.fromUserId||action.fromUserId===localUserId||action.toUserId!==localUserId)return
+          window.dispatchEvent(new CustomEvent('tryamm:streetverse-player-action-received',{detail:action}))
         })
         .subscribe(async status=>{
           if(cancelled)return
@@ -98,13 +110,20 @@ export default function StreetVerseRealtimePresence(){
       sendMotion(next)
       void channelRef.current.track(next)
     }
+    const onPlayerAction=(event:Event)=>{
+      const detail=(event as CustomEvent<{toUserId?:string;action?:PlayerAction['action']}>).detail||{}
+      if(!localUserId||!detail.toUserId||!detail.action)return
+      sendAction({fromUserId:localUserId,toUserId:String(detail.toUserId),action:detail.action,sentAt:new Date().toISOString()})
+    }
     addEventListener('tryamm:streetverse-player-position',onPosition)
     addEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
+    addEventListener('tryamm:streetverse-player-action-send',onPlayerAction)
     void start()
     return()=>{
       cancelled=true
       removeEventListener('tryamm:streetverse-player-position',onPosition)
       removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
+      removeEventListener('tryamm:streetverse-player-action-send',onPlayerAction)
       peers.clear()
       if(channel){void channel.untrack();void sb.removeChannel(channel)}
       channelRef.current=null
