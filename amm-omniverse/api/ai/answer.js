@@ -46,7 +46,7 @@ function extractResponseText(data){
 
 async function aiSdkGateway(question,history){
   const configured=clean(process.env.HOLOGPT_GATEWAY_MODEL,200);
-  const models=[configured,'inclusionai/ling-3.0-flash-free','openai/gpt-5.4'].filter((value,index,array)=>value&&array.indexOf(value)===index);
+  const models=[configured,'inclusionai/ling-3.0-tiny-free','inclusionai/ling-3.0-flash-free','openai/gpt-5.4'].filter((value,index,array)=>value&&array.indexOf(value)===index);
   let lastError=null;
   for(const model of models){
     try{
@@ -55,6 +55,7 @@ async function aiSdkGateway(question,history){
         system:systemPrompt(),
         messages:[...normalizeHistory(history),{role:'user',content:question}],
         maxOutputTokens:2200,
+        providerOptions:{gateway:{allowFallbackFromFree:true}},
         abortSignal:AbortSignal.timeout(timeoutMs())
       });
       const answer=clean(result?.text,20000);
@@ -67,7 +68,7 @@ async function aiSdkGateway(question,history){
 
 async function vercelGateway(question,history){
   const token=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN;if(!token)return null;
-  const model=process.env.HOLOGPT_GATEWAY_MODEL||'inclusionai/ling-3.0-flash-free';
+  const model=process.env.HOLOGPT_GATEWAY_MODEL||'inclusionai/ling-3.0-tiny-free';
   const input=[...normalizeHistory(history),{role:'user',content:question}];
   const data=await fetchJson('https://ai-gateway.vercel.sh/v1/responses',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${token}`},body:JSON.stringify({model,instructions:systemPrompt(),input,max_output_tokens:2200,store:false})});
   const answer=extractResponseText(data);if(!answer)throw new Error('gateway_empty_response');
