@@ -22,6 +22,14 @@ function ensureAnimationLoop(){
   requestAnimationFrame(tick)
 }
 
+function keepFallbackVisible(fallback:THREE.Object3D,id:string,reason:string){
+  fallback.visible=true
+  fallback.traverse(node=>{node.visible=true})
+  fallback.userData.streetVerseFallbackActive=true
+  fallback.userData.streetVerseFallbackReason=reason
+  if(typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:streetverse-asset-fallback',{detail:{id,reason,fallback:'procedural',visible:true}}))
+}
+
 async function fetchModel(url:string){
   if(!cache.has(url)){
     cache.set(url,new Promise(resolve=>{
@@ -33,13 +41,13 @@ async function fetchModel(url:string){
   return {scene:original.scene.clone(true),animations:original.animations}
 }
 
-function isAssetCleared(id:string){
+function productionClearance(id:string){
   const result=evaluateProductionClearance(id)
   if(!result.allowed){
     console.warn(`[StreetVerse rights gate] blocked ${id}: ${result.reasons.join(', ')}`)
-    return false
+    if(typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:streetverse-asset-blocked',{detail:{id,reasons:result.reasons,status:result.record?.status||'NO_RECORD'}}))
   }
-  return true
+  return result
 }
 
 function startEmbeddedAnimation(model:THREE.Group,clips:THREE.AnimationClip[]){
@@ -67,11 +75,14 @@ export async function replacePrimitiveWithStreetVerseAsset(options:{
   transformLoadedModel?:(model:THREE.Group)=>void|Promise<void>
 }){
   const asset=getStreetVerseAsset(options.id)
-  if(!asset)return false
+  if(!asset){keepFallbackVisible(options.fallback,options.id,'ASSET_NOT_REGISTERED');return false}
   const requireClearance=options.requireClearance??true
-  if(requireClearance&&!isAssetCleared(options.id))return false
+  if(requireClearance){
+    const clearance=productionClearance(options.id)
+    if(!clearance.allowed){keepFallbackVisible(options.fallback,options.id,clearance.reasons.join('|'));return false}
+  }
   const loaded=await fetchModel(asset.url)
-  if(!loaded)return false
+  if(!loaded){keepFallbackVisible(options.fallback,options.id,'MODEL_LOAD_FAILED');return false}
   const model=loaded.scene
   const position=options.position||options.fallback.position.clone()
   model.position.copy(position)
@@ -79,6 +90,7 @@ export async function replacePrimitiveWithStreetVerseAsset(options:{
   const scale=options.scale??asset.scale??1
   model.scale.setScalar(scale)
   model.traverse(node=>{
+    node.visible=true
     if(node instanceof THREE.Mesh){node.castShadow=true;node.receiveShadow=true}
   })
   if(options.transformLoadedModel)await options.transformLoadedModel(model)
@@ -86,7 +98,7 @@ export async function replacePrimitiveWithStreetVerseAsset(options:{
   const parent=options.parent??options.scene
   parent.add(model)
   options.fallback.parent?.remove(options.fallback)
-  window.dispatchEvent(new CustomEvent('tryamm:streetverse-asset-materialized',{detail:{id:options.id,animated:loaded.animations.length>0,clips:loaded.animations.map(c=>c.name)}}))
+  if(typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:streetverse-asset-materialized',{detail:{id:options.id,animated:loaded.animations.length>0,clips:loaded.animations.map(c=>c.name),fallback:false}}))
   return true
 }
 
@@ -95,7 +107,7 @@ export async function preloadStreetVerseAssets(ids:string[],options:{requireClea
   await Promise.all(ids.map(async id=>{
     const asset=getStreetVerseAsset(id)
     if(!asset)return
-    if(requireClearance&&!isAssetCleared(id))return
+    if(requireClearance&&!productionClearance(id).allowed)return
     await fetchModel(asset.url)
   }))
 }
