@@ -2,6 +2,7 @@ import { Suspense, lazy, useMemo } from 'react'
 import StreetVerseNextLevelHUD from './StreetVerseNextLevelHUD'
 import StreetVerseRiggedPlayerFallback from './StreetVerseRiggedPlayerFallback'
 import StreetVerseLivingLayer from './StreetVerseLivingLayer'
+import StreetVerseSoundEngine from './StreetVerseSoundEngine'
 import { announceStreetVerseProductionMode } from '../config/streetverseProductionMode'
 
 const StreetVerseLivingWorld=lazy(()=>import('./StreetVerseLivingWorld'))
@@ -43,6 +44,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
     </Suspense>
     <StreetVerseRiggedPlayerFallback />
     <StreetVerseLivingLayer />
+    <StreetVerseSoundEngine />
     <StreetVerseNextLevelHUD district={prepared.mapped?.label?`CHICAGO • ${prepared.mapped.label.toUpperCase()}`:'CHICAGO • DISTRICT 01'} assetStatus="WORLD ACTIVE • PROCEDURAL-FIRST • NO ASSET BLOCKERS" />
     {prepared.mapped&&<div style={{position:'fixed',left:12,bottom:12,zIndex:16995,maxWidth:300,padding:'10px 12px',borderRadius:12,background:'rgba(3,12,20,.84)',border:'1px solid #62b8ff77',color:'#fff',fontFamily:'system-ui',fontSize:12}}>
       <strong>CHICAGO NAV SPAWN</strong><br/>{prepared.mapped.label}<br/><span style={{opacity:.75}}>Selected from Twin World • real-world destination mapped into the playable district.</span>
