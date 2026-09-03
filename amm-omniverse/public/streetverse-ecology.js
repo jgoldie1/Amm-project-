@@ -9,8 +9,10 @@
   #tryamm-ecology .squirrel{left:8%;top:52%;font-size:15px;animation:ecoSquirrel 5s ease-in-out infinite alternate}
   #tryamm-ecology .rabbit{right:10%;top:56%;font-size:15px;animation:ecoRabbit 6.5s ease-in-out infinite alternate}
   #tryamm-ecology .bird{font-size:13px;animation:ecoBird 8s linear infinite}.bird.b2{animation-delay:-2.2s}.bird.b3{animation-delay:-4.8s}.bird.b4{animation-delay:-6.1s}
+  #tryamm-ecology .parrot{font-size:16px;animation:ecoParrot 9.5s ease-in-out infinite}.parrot.p2{animation-delay:-3s}.parrot.p3{animation-delay:-6s}
   #tryamm-ecology .goose{font-size:15px;animation:ecoFlock 11s linear infinite}.goose.g2{animation-delay:-1.8s}.goose.g3{animation-delay:-3.6s}.goose.g4{animation-delay:-5.4s}
   #tryamm-ecology .bug{font-size:9px;animation:ecoBug 7s ease-in-out infinite}.bug.i2{animation-delay:-2s}.bug.i3{animation-delay:-4s}.bug.i4{animation-delay:-5.3s}
+  #tryamm-ecology .roach{font-size:10px;animation:ecoRoach 4.5s steps(8,end) infinite}.roach.r2{animation-delay:-1.3s}.roach.r3{animation-delay:-2.6s}.roach.r4{animation-delay:-3.8s}
   #tryamm-ecology .spider{right:6%;top:27%;font-size:13px;animation:ecoSpider 5s ease-in-out infinite alternate}
   #tryamm-ecology .river{position:absolute;left:3%;right:3%;top:22%;height:10%;border-radius:50%;background:linear-gradient(180deg,#55b8e91a,#0e6c9e38);overflow:hidden}
   #tryamm-ecology .fish{position:absolute;font-size:12px;animation:ecoFish 8s linear infinite}.fish.f2{top:28%;animation-delay:-1.5s}.fish.f3{top:52%;animation-delay:-3s}.fish.f4{top:66%;animation-delay:-4.7s}.fish.f5{top:38%;animation-delay:-6s}
@@ -21,8 +23,10 @@
   @keyframes ecoSquirrel{from{transform:translate(0,0)}to{transform:translate(34px,-8px)}}
   @keyframes ecoRabbit{from{transform:translateX(0)}to{transform:translateX(-42px)}}
   @keyframes ecoBird{0%{transform:translate(-12vw,12vh)}100%{transform:translate(112vw,-4vh)}}
+  @keyframes ecoParrot{0%,100%{transform:translate(0,0) rotate(-6deg)}30%{transform:translate(36px,-18px) rotate(6deg)}60%{transform:translate(82px,8px) rotate(-3deg)}}
   @keyframes ecoFlock{0%{transform:translate(-15vw,18vh)}100%{transform:translate(115vw,8vh)}}
   @keyframes ecoBug{0%,100%{transform:translate(0,0)}25%{transform:translate(22px,-15px)}50%{transform:translate(40px,8px)}75%{transform:translate(12px,18px)}}
+  @keyframes ecoRoach{0%{transform:translate(0,0) rotate(0)}25%{transform:translate(24px,3px) rotate(12deg)}50%{transform:translate(45px,-2px) rotate(-8deg)}75%{transform:translate(18px,5px) rotate(6deg)}100%{transform:translate(0,0)}}
   @keyframes ecoSpider{from{transform:translateY(-6px)}to{transform:translateY(20px)}}
   @keyframes ecoFish{0%{left:-10%;transform:scaleX(1)}49%{left:95%;transform:scaleX(1)}50%{left:95%;transform:scaleX(-1)}100%{left:-10%;transform:scaleX(-1)}}
   @keyframes ecoHerd{from{transform:translateX(-8px)}to{transform:translateX(30px)}}
@@ -39,13 +43,15 @@
       <div class="river">${[1,2,3,4,5].map(i=>`<span class="fish f${i} eco">🐟</span>`).join('')}</div>
       <span class="eco dog">🐕</span><span class="eco squirrel">🐿️</span><span class="eco rabbit">🐇</span>
       ${[1,2,3,4].map((i)=>`<span class="eco bird b${i}" style="top:${10+i*3}%;left:${-8-i*3}%">🐦</span>`).join('')}
+      ${[1,2,3].map((i)=>`<span class="eco parrot p${i}" style="top:${25+i*4}%;left:${58+i*8}%">🦜</span>`).join('')}
       ${[1,2,3,4].map((i)=>`<span class="eco goose g${i}" style="top:${16+i*2}%;left:${-12-i*4}%">🪿</span>`).join('')}
       ${[1,2,3,4].map((i)=>`<span class="eco bug i${i}" style="left:${24+i*13}%;top:${30+i*7}%">${i%2?'🦋':'🐝'}</span>`).join('')}
+      ${[1,2,3,4].map((i)=>`<span class="eco roach r${i}" style="left:${7+i*18}%;top:${72+(i%2)*6}%">🪳</span>`).join('')}
       <span class="eco spider">🕷️</span>
       <div class="herd">${[1,2,3,4].map(i=>`<span class="deer h${i}">🦌</span>`).join('')}</div>
-      <div class="label">SIMULATED GAME ECOLOGY • flock • herd • school</div>`
+      <div class="label">SIMULATED GAME ECOLOGY • flock • herd • school • insects</div>`
     main.appendChild(layer)
-    window.dispatchEvent(new CustomEvent('tryamm:streetverse-ecology-ready',{detail:{source:'simulated-game-ecology',animals:['dog','squirrel','rabbit','bird','goose','deer'],insects:['butterfly','bee','spider'],aquatic:['fish'],groupBehaviors:['flock','herd','school'],reducedMotion:reduced()}}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-ecology-ready',{detail:{source:'simulated-game-ecology',animals:['dog','squirrel','rabbit','bird','parrot','goose','deer'],insects:['butterfly','bee','roach','spider'],aquatic:['fish'],groupBehaviors:['flock','herd','school'],reducedMotion:reduced()}}))
   }
   const observer=new MutationObserver(mount);observer.observe(document.documentElement,{subtree:true,childList:true});mount()
   addEventListener('pagehide',()=>observer.disconnect(),{once:true})
