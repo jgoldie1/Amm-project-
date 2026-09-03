@@ -30,16 +30,16 @@ const pages:Record<string,{eyebrow:string;title:string;tagline:string;descriptio
   '/holo-food':{
     eyebrow:'TRYAMM LOCAL COMMERCE',title:'HOLO FOOD DELIVERY',tagline:'Restaurants • pickup • delivery • couriers • StreetVerse missions',
     description:'A food-ordering and local-delivery layer designed to compete on merchant economics, courier tools, accessibility, transparent fees and deep StreetVerse integration.',
-    features:['restaurant discovery','pickup and delivery','transparent fee preview','merchant storefronts','courier dispatch','live order status','group/family orders','scheduled delivery','accessibility preferences','StreetVerse delivery missions','Omni Cash settlement bridge'],
+    features:['restaurant discovery','pickup and delivery','transparent fee preview','merchant storefronts','courier dispatch','live order tracking','ETA milestones','courier status','group/family orders','scheduled delivery','accessibility preferences','StreetVerse delivery missions','Omni Cash settlement bridge'],
     actions:[['STREETVERSE','/streetverse'],['GLOBAL TRADE','/global-trade'],['OMNI CASH','/omni-cash'],['HOLO RIDE SHARE','/holo-ride-share'],['HOME','/']],
-    notice:'Real restaurant availability, courier dispatch, location tracking and card capture remain provider/merchant gated until those live integrations are connected.'
+    notice:'Real restaurant availability, courier dispatch, GPS tracking and card capture remain provider/merchant gated until those live integrations are connected.'
   },
   '/holo-ride-share':{
-    eyebrow:'TRYAMM MOBILITY',title:'HOLO RIDE SHARE',tagline:'Request • match • ride • safety • accessibility • StreetVerse',
-    description:'A mobility layer for riders and drivers with transparent fare quotes, accessibility preferences, safety check-ins and digital-twin connections to StreetVerse.',
-    features:['ride requests','driver matching','fare preview','scheduled rides','accessibility ride preferences','trusted-contact/safety check-in hooks','driver earnings','business rides','StreetVerse mobility missions','Omni Cash settlement bridge'],
+    eyebrow:'TRYAMM MOBILITY',title:'HOLO RIDE SHARE',tagline:'Request • match • track • ride • safety • accessibility • StreetVerse',
+    description:'A mobility layer for riders and drivers with transparent fare quotes, accessibility preferences, live trip milestones, safety check-ins and digital-twin connections to StreetVerse.',
+    features:['ride requests','driver matching','fare preview','live trip tracking','driver arrival ETA','scheduled rides','accessibility ride preferences','trusted-contact/safety check-in hooks','driver earnings','business rides','StreetVerse mobility missions','Omni Cash settlement bridge'],
     actions:[['STREETVERSE','/streetverse'],['HOLO FOOD','/holo-food'],['OMNI CASH','/omni-cash'],['GUARDIAN CENTER','/guardian'],['HOME','/']],
-    notice:'Real dispatch, maps, background checks, insurance, driver eligibility, emergency integrations and payment settlement remain gated until verified providers and legal requirements are satisfied.'
+    notice:'Real dispatch, GPS/maps, background checks, insurance, driver eligibility, emergency integrations and payment settlement remain gated until verified providers and legal requirements are satisfied.'
   },
   '/holo-music':{
     eyebrow:'SPECTRA + ALL AMERICAN RECORDS',title:'HOLO MUSIC',tagline:'Streaming • artists • radio • LIVE • StreetVerse • royalties',
@@ -50,8 +50,15 @@ const pages:Record<string,{eyebrow:string;title:string;tagline:string;descriptio
   }
 }
 
+const trackingMilestones={
+  '/holo-food':['ORDER PLACED','MERCHANT ACCEPTED','PREPARING','COURIER ASSIGNED','PICKED UP','EN ROUTE','DELIVERED'],
+  '/holo-ride-share':['RIDE REQUESTED','DRIVER MATCHED','DRIVER ARRIVING','PICKUP CHECK-IN','IN RIDE','DESTINATION NEAR','COMPLETED']
+} as const
+
 export default function HoloDeliveryRideEntertainmentHub(){
-  const page=pages[window.location.pathname]||pages['/spectra-entertainment']
+  const path=window.location.pathname
+  const page=pages[path]||pages['/spectra-entertainment']
+  const milestones=trackingMilestones[path as keyof typeof trackingMilestones]
   return <main style={{minHeight:'100vh',padding:'28px 18px 110px',background:'radial-gradient(circle at top,#12253b,#080b12 45%,#050505)',color:'#fff',fontFamily:'system-ui,sans-serif'}}>
     <div style={{maxWidth:1120,margin:'0 auto'}}>
       <div style={{fontSize:12,fontWeight:950,letterSpacing:2,color:'#79e6ff'}}>{page.eyebrow}</div>
@@ -60,8 +67,9 @@ export default function HoloDeliveryRideEntertainmentHub(){
       <p style={{maxWidth:850,fontSize:18,lineHeight:1.55,color:'#bed0da'}}>{page.description}</p>
       <div style={{display:'flex',gap:8,flexWrap:'wrap',margin:'18px 0'}}>{page.actions.map(([label,href])=><a key={href} href={href} style={button}>{label}</a>)}</div>
       <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:12,marginTop:18}}>{page.features.map(feature=><article key={feature} style={card}><strong>{feature.toUpperCase()}</strong></article>)}</section>
+      {milestones&&<section style={{...card,marginTop:18}}><div style={{fontSize:12,fontWeight:950,letterSpacing:1.5,color:'#7fe8c7'}}>TRACKING TIMELINE</div><h2 style={{margin:'7px 0 12px'}}>One status stream from request to completion</h2><div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{milestones.map((step,i)=><span key={step} style={{...button,background:i===0?'#153526':'#101d27',borderColor:i===0?'#59d9a5':'#46677c'}}>{i+1}. {step}</span>)}</div><p style={{color:'#bed0da',lineHeight:1.5}}>TRYAMM stores status/ETA events for the signed-in account. Provider GPS coordinates are only shown after a verified dispatch/maps provider supplies them; simulated StreetVerse movement is labeled simulation and never presented as a real courier or driver location.</p></section>}
       <section style={{...card,marginTop:18,borderColor:'#8c742f',background:'#1a160a'}}><strong>PRODUCTION GATE</strong><p style={{marginBottom:0,color:'#ffe6a8',lineHeight:1.5}}>{page.notice}</p></section>
-      {(window.location.pathname==='/holo-food'||window.location.pathname==='/holo-ride-share')&&<section style={{...card,marginTop:14}}><h2>STREETVERSE CONNECTION</h2><p style={{color:'#bed0da',lineHeight:1.5}}>Orders and rides use the same TRYAMM account and can become StreetVerse jobs/missions. Real-world fulfillment remains separate from simulation until a verified merchant/driver/provider accepts the job.</p></section>}
+      {(path==='/holo-food'||path==='/holo-ride-share')&&<section style={{...card,marginTop:14}}><h2>STREETVERSE CONNECTION</h2><p style={{color:'#bed0da',lineHeight:1.5}}>Orders and rides use the same TRYAMM account and can become StreetVerse jobs/missions. Real-world fulfillment remains separate from simulation until a verified merchant/driver/provider accepts the job.</p></section>}
     </div>
   </main>
 }
