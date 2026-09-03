@@ -32,7 +32,7 @@ import { installStreetVerseCommerceWorldRuntime } from './runtime/StreetVerseCom
 import { installCommerceJobTrainingRuntime } from './runtime/CommerceJobTrainingRuntime'
 import { installRegulatedBusinessNetworkRuntime } from './runtime/RegulatedBusinessNetworkRuntime'
 import { installWorldEconomyOrchestratorRuntime } from './runtime/WorldEconomyOrchestratorRuntime'
-import { installLearnWorkBusinessBridge } from './runtime/LearnWorkBusinessBridge'
+import { installLearnWorkBusinessBridgeRuntime } from './runtime/LearnWorkBusinessBridgeRuntime'
 import { installFaithLifeSimulationRuntime } from './runtime/FaithLifeSimulationRuntime'
 import { installGlobalCityVerseRuntime } from './runtime/GlobalCityVerseRuntime'
 import { installGlobalWorldHierarchyRuntime } from './runtime/GlobalWorldHierarchyRuntime'
@@ -90,7 +90,7 @@ installStreetVerseCommerceWorldRuntime()
 installCommerceJobTrainingRuntime()
 installRegulatedBusinessNetworkRuntime()
 installWorldEconomyOrchestratorRuntime()
-installLearnWorkBusinessBridge()
+installLearnWorkBusinessBridgeRuntime()
 installFaithLifeSimulationRuntime()
 installGlobalCityVerseRuntime()
 installGlobalWorldHierarchyRuntime()
