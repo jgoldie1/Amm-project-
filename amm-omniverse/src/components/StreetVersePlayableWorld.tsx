@@ -1,6 +1,7 @@
 import {lazy,Suspense,useMemo} from 'react'
 import StreetVerseMobileWorld from './StreetVerseMobileWorld'
 import StreetVerseMobilePlayableWorld from './StreetVerseMobilePlayableWorld'
+import StreetVerseMobileWalkControls from './StreetVerseMobileWalkControls'
 
 const StreetVerseLivingWorld=lazy(()=>import('./StreetVerseLivingWorld'))
 
@@ -21,6 +22,6 @@ function shouldUseSafeMode(){
 export default function StreetVersePlayableWorld({onClose}:{onClose:()=>void}){
  const mobile=useMemo(isMobileDevice,[])
  const safe=useMemo(shouldUseSafeMode,[])
- if(mobile||safe)return <Suspense fallback={<StreetVerseMobilePlayableWorld onClose={onClose}/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense>
+ if(mobile||safe)return <><Suspense fallback={<StreetVerseMobilePlayableWorld onClose={onClose}/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense><StreetVerseMobileWalkControls/></>
  return <Suspense fallback={<StreetVerseMobilePlayableWorld onClose={onClose}/>}><StreetVerseLivingWorld onClose={onClose}/></Suspense>
 }
