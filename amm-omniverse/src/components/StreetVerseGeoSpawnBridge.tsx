@@ -2,6 +2,7 @@ import { Suspense, lazy, useMemo } from 'react'
 import StreetVerseNextLevelHUD from './StreetVerseNextLevelHUD'
 import StreetVerseRiggedPlayerFallback from './StreetVerseRiggedPlayerFallback'
 import StreetVerseLivingLayer from './StreetVerseLivingLayer'
+import { announceStreetVerseProductionMode } from '../config/streetverseProductionMode'
 
 const StreetVerseLivingWorld=lazy(()=>import('./StreetVerseLivingWorld'))
 const DESTINATION_KEY='tryamm.streetverse.chicago-destination.v1'
@@ -20,6 +21,7 @@ const GAME_SPAWNS:Record<string,{x:number;z:number;label:string}>={
 
 type Destination={id?:string;label?:string;lon?:number;lat?:number;city?:string}
 function prepareSpawn(){
+  announceStreetVerseProductionMode()
   let destination:Destination|undefined
   try{destination=JSON.parse(localStorage.getItem(DESTINATION_KEY)||'null')||undefined}catch{}
   const mapped=destination?.id?GAME_SPAWNS[destination.id]:undefined
@@ -41,7 +43,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
     </Suspense>
     <StreetVerseRiggedPlayerFallback />
     <StreetVerseLivingLayer />
-    <StreetVerseNextLevelHUD district={prepared.mapped?.label?`CHICAGO • ${prepared.mapped.label.toUpperCase()}`:'CHICAGO • DISTRICT 01'} assetStatus="WORLD ACTIVE • LIVING LAYER • RIG READY" />
+    <StreetVerseNextLevelHUD district={prepared.mapped?.label?`CHICAGO • ${prepared.mapped.label.toUpperCase()}`:'CHICAGO • DISTRICT 01'} assetStatus="WORLD ACTIVE • PROCEDURAL-FIRST • NO ASSET BLOCKERS" />
     {prepared.mapped&&<div style={{position:'fixed',left:12,bottom:12,zIndex:16995,maxWidth:300,padding:'10px 12px',borderRadius:12,background:'rgba(3,12,20,.84)',border:'1px solid #62b8ff77',color:'#fff',fontFamily:'system-ui',fontSize:12}}>
       <strong>CHICAGO NAV SPAWN</strong><br/>{prepared.mapped.label}<br/><span style={{opacity:.75}}>Selected from Twin World • real-world destination mapped into the playable district.</span>
     </div>}
