@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import type { CSSProperties } from 'react'
 
 type Generation = 'gen-x' | 'millennial' | 'gen-z' | 'gen-alpha' | 'mixed'
 
@@ -109,7 +110,7 @@ export default function LiveGenerationIntelligence({ format }: { format: string 
   )
 }
 
-const s: Record<string, React.CSSProperties> = {
+const s: Record<string, CSSProperties> = {
   card: { maxWidth: 1200, margin: '16px auto 0', border: '1px solid rgba(79,227,255,.22)', borderRadius: 20, background: 'rgba(5,18,32,.75)', padding: 16 },
   header: { display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' },
   eyebrow: { fontSize: 10, letterSpacing: 2.2, fontWeight: 950, color: '#66e7ff' },
