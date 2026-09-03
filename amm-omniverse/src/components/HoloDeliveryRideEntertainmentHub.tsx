@@ -30,7 +30,7 @@ const pages:Record<string,{eyebrow:string;title:string;tagline:string;descriptio
   '/holo-food':{
     eyebrow:'TRYAMM LOCAL COMMERCE',title:'HOLO FOOD DELIVERY',tagline:'Restaurants • pickup • delivery • couriers • StreetVerse missions',
     description:'A food-ordering and local-delivery layer designed to compete on merchant economics, courier tools, accessibility, transparent fees and deep StreetVerse integration.',
-    features:['restaurant discovery','pickup and delivery','transparent fee preview','merchant storefronts','courier dispatch','live order tracking','ETA milestones','courier status','group/family orders','scheduled delivery','accessibility preferences','StreetVerse delivery missions','Omni Cash settlement bridge'],
+    features:['restaurant discovery','pickup and delivery','transparent fee preview','merchant storefronts','courier dispatch','live order tracking','ETA milestones','courier status','proof-of-delivery photo','one-time delivery code','signature/contactless confirmation','group/family orders','scheduled delivery','accessibility preferences','StreetVerse delivery missions','Omni Cash settlement bridge'],
     actions:[['STREETVERSE','/streetverse'],['GLOBAL TRADE','/global-trade'],['OMNI CASH','/omni-cash'],['HOLO RIDE SHARE','/holo-ride-share'],['HOME','/']],
     notice:'Real restaurant availability, courier dispatch, GPS tracking and card capture remain provider/merchant gated until those live integrations are connected.'
   },
@@ -51,7 +51,7 @@ const pages:Record<string,{eyebrow:string;title:string;tagline:string;descriptio
 }
 
 const trackingMilestones={
-  '/holo-food':['ORDER PLACED','MERCHANT ACCEPTED','PREPARING','COURIER ASSIGNED','PICKED UP','EN ROUTE','DELIVERED'],
+  '/holo-food':['ORDER PLACED','MERCHANT ACCEPTED','PREPARING','COURIER ASSIGNED','PICKED UP','EN ROUTE','DELIVERY VERIFICATION','DELIVERED'],
   '/holo-ride-share':['RIDE REQUESTED','DRIVER MATCHED','DRIVER ARRIVING','PICKUP CHECK-IN','IN RIDE','DESTINATION NEAR','COMPLETED']
 } as const
 
@@ -68,6 +68,7 @@ export default function HoloDeliveryRideEntertainmentHub(){
       <div style={{display:'flex',gap:8,flexWrap:'wrap',margin:'18px 0'}}>{page.actions.map(([label,href])=><a key={href} href={href} style={button}>{label}</a>)}</div>
       <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:12,marginTop:18}}>{page.features.map(feature=><article key={feature} style={card}><strong>{feature.toUpperCase()}</strong></article>)}</section>
       {milestones&&<section style={{...card,marginTop:18}}><div style={{fontSize:12,fontWeight:950,letterSpacing:1.5,color:'#7fe8c7'}}>TRACKING TIMELINE</div><h2 style={{margin:'7px 0 12px'}}>One status stream from request to completion</h2><div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{milestones.map((step,i)=><span key={step} style={{...button,background:i===0?'#153526':'#101d27',borderColor:i===0?'#59d9a5':'#46677c'}}>{i+1}. {step}</span>)}</div><p style={{color:'#bed0da',lineHeight:1.5}}>TRYAMM stores status/ETA events for the signed-in account. Provider GPS coordinates are only shown after a verified dispatch/maps provider supplies them; simulated StreetVerse movement is labeled simulation and never presented as a real courier or driver location.</p></section>}
+      {path==='/holo-food'&&<section style={{...card,marginTop:18}}><div style={{fontSize:12,fontWeight:950,letterSpacing:1.5,color:'#ffd77a'}}>DELIVERY VERIFICATION</div><h2 style={{margin:'7px 0 12px'}}>Choose the proof required before completion</h2><div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:10}}><article style={subcard}><strong>📷 PHOTO PROOF</strong><p style={muted}>Courier takes a doorstep/hand-off photo and attaches it to the order record.</p><input type='file' accept='image/*' capture='environment' aria-label='Take delivery proof photo' style={input}/></article><article style={subcard}><strong>🔢 ONE-TIME CODE</strong><p style={muted}>Customer receives a short code. Courier enters it before the order can be marked delivered.</p><input inputMode='numeric' maxLength={8} placeholder='ENTER DELIVERY CODE' aria-label='Delivery verification code' style={input}/></article><article style={subcard}><strong>✍️ SIGNATURE / CONTACTLESS</strong><p style={muted}>Use signature, customer confirmation, or a contactless drop-off acknowledgment when appropriate.</p><button type='button' style={actionButton}>CONFIRM HANDOFF</button></article></div><p style={{...muted,marginTop:12}}>The backend stores verification method, status, optional photo path, code hash/expiry and verification timestamp. The code itself should be generated and validated server-side; it is not stored in plain text.</p></section>}
       <section style={{...card,marginTop:18,borderColor:'#8c742f',background:'#1a160a'}}><strong>PRODUCTION GATE</strong><p style={{marginBottom:0,color:'#ffe6a8',lineHeight:1.5}}>{page.notice}</p></section>
       {(path==='/holo-food'||path==='/holo-ride-share')&&<section style={{...card,marginTop:14}}><h2>STREETVERSE CONNECTION</h2><p style={{color:'#bed0da',lineHeight:1.5}}>Orders and rides use the same TRYAMM account and can become StreetVerse jobs/missions. Real-world fulfillment remains separate from simulation until a verified merchant/driver/provider accepts the job.</p></section>}
     </div>
@@ -75,4 +76,8 @@ export default function HoloDeliveryRideEntertainmentHub(){
 }
 
 const card={padding:18,border:'1px solid #334a5a',borderRadius:18,background:'#0d141cee'} as const
+const subcard={padding:14,border:'1px solid #3b5260',borderRadius:14,background:'#0b1118'} as const
+const muted={color:'#bed0da',lineHeight:1.5} as const
+const input={width:'100%',boxSizing:'border-box',marginTop:8,padding:'11px 12px',border:'1px solid #46677c',borderRadius:10,background:'#070b10',color:'#fff'} as const
 const button={display:'inline-block',padding:'10px 13px',border:'1px solid #46677c',borderRadius:999,background:'#101d27',color:'#fff',fontWeight:900,textDecoration:'none'} as const
+const actionButton={...button,cursor:'pointer'} as const
