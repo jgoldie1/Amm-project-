@@ -1,6 +1,7 @@
 import {lazy,Suspense,useMemo} from 'react'
 import StreetVerseMobileWorld from './StreetVerseMobileWorld'
 import StreetVerseMobilePlayableWorld from './StreetVerseMobilePlayableWorld'
+import StreetVerseMobileSafeWorld from './StreetVerseMobileSafeWorld'
 import StreetVerseMobileWalkControls from './StreetVerseMobileWalkControls'
 
 const StreetVerseLivingWorld=lazy(()=>import('./StreetVerseLivingWorld'))
@@ -11,17 +12,20 @@ function isMobileDevice(){
 }
 
 function shouldUseSafeMode(){
- if(typeof navigator==='undefined')return false
+ if(typeof navigator==='undefined'||typeof window==='undefined')return false
  const ua=navigator.userAgent||''
- const mobile=isMobileDevice()
+ const appleMobile=/iPhone|iPad|iPod/i.test(ua)
+ const olderIOS=/OS (1[0-6])[_\d]* like Mac OS X/i.test(ua)
  const memory=Number((navigator as Navigator & {deviceMemory?:number}).deviceMemory||0)
  const cores=Number(navigator.hardwareConcurrency||0)
- return mobile&&(memory>0&&memory<=4||cores>0&&cores<=4||/iPhone OS 1[0-6]_/.test(ua))
+ const narrow=Math.min(window.innerWidth||9999,window.innerHeight||9999)<=480
+ return appleMobile&&(olderIOS||narrow||cores>0&&cores<=4||memory>0&&memory<=4)
 }
 
 export default function StreetVersePlayableWorld({onClose}:{onClose:()=>void}){
  const mobile=useMemo(isMobileDevice,[])
  const safe=useMemo(shouldUseSafeMode,[])
- if(mobile||safe)return <><Suspense fallback={<StreetVerseMobilePlayableWorld onClose={onClose}/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense><StreetVerseMobileWalkControls/></>
+ if(safe)return <StreetVerseMobileSafeWorld onClose={onClose}/>
+ if(mobile)return <><Suspense fallback={<StreetVerseMobilePlayableWorld onClose={onClose}/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense><StreetVerseMobileWalkControls/></>
  return <Suspense fallback={<StreetVerseMobilePlayableWorld onClose={onClose}/>}><StreetVerseLivingWorld onClose={onClose}/></Suspense>
 }
