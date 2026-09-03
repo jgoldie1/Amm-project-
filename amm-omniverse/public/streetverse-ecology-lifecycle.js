@@ -1,26 +1,39 @@
 (()=>{
   if(!location.pathname.startsWith('/streetverse'))return
-  const KEY='tryamm.streetverse.ecology.lifecycle.v1'
-  const VERSION=1
+  const KEY='tryamm.streetverse.ecology.lifecycle.v2'
+  const VERSION=2
   const species={
-    deer:{adult:12,young:3,min:6,max:30,birth:2,prey:true,group:'herd',season:'spring'},
-    rabbit:{adult:24,young:8,min:10,max:60,birth:5,prey:true,group:'colony',season:'spring'},
-    squirrel:{adult:18,young:5,min:8,max:45,birth:3,prey:true,group:'family',season:'spring'},
-    pigeon:{adult:32,young:8,min:15,max:75,birth:3,prey:true,group:'flock',season:'spring'},
-    goose:{adult:16,young:4,min:8,max:38,birth:3,prey:true,group:'flock',season:'spring'},
-    parrot:{adult:8,young:2,min:4,max:18,birth:2,prey:false,group:'flock',season:'spring'},
-    fish:{adult:45,young:20,min:20,max:120,birth:12,prey:true,group:'school',season:'spring'},
-    butterfly:{adult:28,young:10,min:12,max:80,birth:8,prey:true,group:'swarm',season:'summer'},
-    roach:{adult:35,young:15,min:15,max:90,birth:8,prey:true,group:'colony',season:'summer'},
-    spider:{adult:12,young:4,min:6,max:30,birth:3,prey:false,group:'web',season:'summer'},
-    coyote:{adult:5,young:1,min:2,max:10,birth:1,prey:false,group:'pack',season:'spring'},
-    hawk:{adult:5,young:1,min:2,max:10,birth:1,prey:false,group:'pair',season:'spring'},
-    owl:{adult:4,young:1,min:2,max:8,birth:1,prey:false,group:'pair',season:'spring'}
+    deer:{adult:12,young:3,min:6,max:30,birth:2,prey:true,group:'herd',season:'spring',protected:false},
+    rabbit:{adult:24,young:8,min:10,max:60,birth:5,prey:true,group:'colony',season:'spring',protected:false},
+    squirrel:{adult:18,young:5,min:8,max:45,birth:3,prey:true,group:'family',season:'spring',protected:true},
+    pigeon:{adult:32,young:8,min:15,max:75,birth:3,prey:true,group:'flock',season:'spring',protected:true},
+    goose:{adult:16,young:4,min:8,max:38,birth:3,prey:true,group:'flock',season:'spring',protected:true},
+    parrot:{adult:8,young:2,min:4,max:18,birth:2,prey:false,group:'flock',season:'spring',protected:true},
+    fish:{adult:45,young:20,min:20,max:120,birth:12,prey:true,group:'school',season:'spring',protected:false},
+    butterfly:{adult:28,young:10,min:12,max:80,birth:8,prey:true,group:'swarm',season:'summer',protected:true},
+    roach:{adult:35,young:15,min:15,max:90,birth:8,prey:true,group:'colony',season:'summer',protected:true},
+    spider:{adult:12,young:4,min:6,max:30,birth:3,prey:false,group:'web',season:'summer',protected:true},
+    coyote:{adult:5,young:1,min:2,max:10,birth:1,prey:false,group:'pack',season:'spring',protected:true},
+    hawk:{adult:5,young:1,min:2,max:10,birth:1,prey:false,group:'pair',season:'spring',protected:true},
+    owl:{adult:4,young:1,min:2,max:8,birth:1,prey:false,group:'pair',season:'spring',protected:true},
+    wolf:{adult:7,young:2,min:3,max:16,birth:2,prey:false,group:'pack',season:'spring',protected:true},
+    lion:{adult:6,young:2,min:3,max:14,birth:2,prey:false,group:'pride',season:'spring',protected:true},
+    crocodile:{adult:6,young:2,min:3,max:15,birth:2,prey:false,group:'bask',season:'summer',protected:true},
+    elephant:{adult:8,young:2,min:5,max:18,birth:1,prey:false,group:'herd',season:'spring',protected:true},
+    giraffe:{adult:9,young:2,min:5,max:20,birth:1,prey:false,group:'tower',season:'spring',protected:true}
   }
-  const predatorMap={coyote:['rabbit','deer','squirrel'],hawk:['pigeon','rabbit','squirrel'],owl:['rabbit','pigeon','roach']}
+  const predatorMap={
+    coyote:['rabbit','deer','squirrel'],
+    hawk:['pigeon','rabbit','squirrel'],
+    owl:['rabbit','pigeon','roach'],
+    wolf:['rabbit','deer'],
+    lion:['deer'],
+    crocodile:['fish','rabbit']
+  }
   const huntable=new Set(['deer','rabbit','fish'])
-  const migratory=new Set(['goose','pigeon','hawk'])
+  const migratory=new Set(['goose','pigeon','hawk','elephant','giraffe'])
   const hibernating=new Set(['butterfly'])
+  const protectedSpecies=new Set(Object.entries(species).filter(([,s])=>s.protected).map(([n])=>n))
   const seasonForMonth=m=>m===11||m<2?'winter':m<5?'spring':m<8?'summer':'fall'
   const clamp=(n,min,max)=>Math.max(min,Math.min(max,n))
   const nowSeason=()=>seasonForMonth(new Date().getMonth())
@@ -29,8 +42,12 @@
     return {version:VERSION,season:nowSeason(),cycle:0,populations,lastEvent:'ecosystem initialized',updatedAt:Date.now()}
   }
   function load(){
-    try{const parsed=JSON.parse(localStorage.getItem(KEY)||'null');if(parsed?.version===VERSION&&parsed.populations)return parsed}catch{}
-    return fresh()
+    let parsed=null
+    try{parsed=JSON.parse(localStorage.getItem(KEY)||'null')}catch{}
+    const state=parsed?.populations?parsed:fresh()
+    state.version=VERSION;state.season=state.season||nowSeason();state.cycle=Number(state.cycle||0);state.populations=state.populations||{}
+    Object.entries(species).forEach(([name,s])=>{if(!state.populations[name])state.populations[name]={adult:s.adult,young:s.young,generation:1}})
+    return state
   }
   let state=load(),timer=0
   function save(){state.updatedAt=Date.now();localStorage.setItem(KEY,JSON.stringify(state))}
@@ -39,15 +56,15 @@
   function lifecycle(name,s,season){
     const p=state.populations[name];if(!p)return
     const before={...p}
-    // Young mature gradually; reproduction is represented as pairing/nesting -> offspring, not explicit sexual animation.
     const matured=Math.min(p.young,Math.max(0,Math.floor(p.young*.32)))
     p.young-=matured;p.adult+=matured
-    const canBreed=(season===s.season||name==='roach'||name==='fish')&&p.adult>=2&&total(name)<s.max
+    const perennial=name==='roach'||name==='fish'||name==='crocodile'
+    const canBreed=(season===s.season||perennial)&&p.adult>=2&&total(name)<s.max
     let births=0
     if(canBreed&&state.cycle%3===0){births=clamp(Math.floor((p.adult/6)*s.birth),1,Math.max(1,s.max-total(name)));p.young+=births;p.generation+=births?1:0}
     const naturalLoss=Math.max(0,Math.floor(p.adult*.015));p.adult=Math.max(s.min,p.adult-naturalLoss)
     p.adult=clamp(p.adult,0,s.max);p.young=clamp(p.young,0,Math.max(0,s.max-p.adult))
-    if(births)emit('tryamm:streetverse-wildlife-offspring',{species:name,babies:births,generation:p.generation,group:s.group,stage:'offspring'})
+    if(births)emit('tryamm:streetverse-wildlife-offspring',{species:name,babies:births,generation:p.generation,group:s.group,stage:name==='elephant'||name==='giraffe'?'calf':'offspring',protected:s.protected})
     if(matured)emit('tryamm:streetverse-wildlife-matured',{species:name,count:matured,stage:'juvenile-to-adult'})
     return {before,after:{...p},births,matured}
   }
@@ -63,7 +80,7 @@
     })
   }
   function seasonalBehavior(season){
-    migratory.forEach(name=>emit('tryamm:streetverse-wildlife-seasonal',{species:name,season,behavior:season==='fall'?'migration-south':season==='spring'?'migration-return':'local-flock'}))
+    migratory.forEach(name=>emit('tryamm:streetverse-wildlife-seasonal',{species:name,season,behavior:season==='fall'?'range-migration':season==='spring'?'range-return':'local-group'}))
     hibernating.forEach(name=>emit('tryamm:streetverse-wildlife-seasonal',{species:name,season,behavior:season==='winter'?'dormant':'active'}))
   }
   function tick(){
@@ -71,10 +88,11 @@
     const changes={};Object.entries(species).forEach(([name,s])=>changes[name]=lifecycle(name,s,season))
     predation();if(state.cycle%4===0)seasonalBehavior(season)
     state.lastEvent='life-cycle '+state.cycle;save()
-    emit('tryamm:streetverse-ecology-cycle',{cycle:state.cycle,season,populations:state.populations,changes,features:['pairing','nesting','offspring','juvenile-growth','herd-growth','flock-growth','school-growth','migration','hibernation','predator-prey','hunting','fishing']})
+    emit('tryamm:streetverse-ecology-cycle',{cycle:state.cycle,season,populations:state.populations,changes,features:['pairing','nesting','offspring','calves','juvenile-growth','herd-growth','pride-growth','pack-growth','tower-growth','flock-growth','school-growth','migration','hibernation','predator-prey','hunting','fishing']})
   }
   function harvest(kind,speciesName,amount=1){
     const name=String(speciesName||'').toLowerCase();const count=clamp(Number(amount)||1,1,3);const def=species[name],p=state.populations[name]
+    if(protectedSpecies.has(name))return {ok:false,reason:'protected-game-species'}
     if(kind==='hunt'&&!huntable.has(name))return {ok:false,reason:'species-not-open-for-game-hunting'}
     if(kind==='fish'&&name!=='fish')return {ok:false,reason:'fishing-only-targets-fish'}
     if(!def||!p)return {ok:false,reason:'unknown-species'}
@@ -88,11 +106,12 @@
   window.StreetVerseEcologyLifecycle={
     snapshot:()=>JSON.parse(JSON.stringify(state)),
     tick,
+    protectedSpecies:[...protectedSpecies],
     requestHunt:(speciesName,amount)=>harvest('hunt',speciesName,amount),
     requestFish:(amount)=>harvest('fish','fish',amount),
     reset:()=>{state=fresh();save();return JSON.parse(JSON.stringify(state))}
   }
-  save();emit('tryamm:streetverse-ecology-lifecycle-ready',{season:state.season,populations:state.populations,features:['mating-pairing','babies-offspring','herd-flock-school-growth','migration','hibernation','predator-prey','hunting','fishing'],graphic:false})
+  save();emit('tryamm:streetverse-ecology-lifecycle-ready',{season:state.season,populations:state.populations,protectedSpecies:[...protectedSpecies],features:['mating-pairing','babies-offspring','calves','herds','prides','packs','towers','migration','hibernation','predator-prey','hunting','fishing'],graphic:false})
   timer=window.setInterval(tick,30000)
   addEventListener('pagehide',()=>{if(timer)clearInterval(timer)},{once:true})
 })()
