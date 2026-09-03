@@ -5,6 +5,19 @@ export default defineConfig({
   plugins: [react()],
   build: {
     chunkSizeWarningLimit: 600,
+    modulePreload: {
+      resolveDependencies(_filename, deps) {
+        // Do not advertise the heavy Three.js / StreetVerse 3D chunks in the
+        // initial HTML preload graph. They remain available and will load when
+        // their importing 3D route/runtime actually needs them. This keeps the
+        // iPhone-safe HTML city and non-3D TRYAMM pages from paying the WebGL
+        // download/parse cost during first paint.
+        return deps.filter(dep =>
+          !dep.includes('vendor-three') &&
+          !dep.includes('streetverse-creator-3d')
+        )
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks(id) {
