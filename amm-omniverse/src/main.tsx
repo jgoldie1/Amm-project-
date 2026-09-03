@@ -54,7 +54,6 @@ import { installStreetVerseRacingAfterDarkRuntime } from './runtime/StreetVerseR
 import { installStreetVerseMissionDiscoveryRuntime } from './runtime/StreetVerseMissionDiscoveryRuntime'
 import { installSECSConstructRuntime } from './runtime/SECSConstructRuntime'
 import { installOmniverseEventFabricRuntime } from './runtime/OmniverseEventFabricRuntime'
-import { installStreetVerseCreatorDistrict3D } from './runtime/StreetVerseCreatorDistrict3D'
 
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 const StreetVerseNextLevelHUD=lazy(()=>import('./components/StreetVerseNextLevelHUD'))
@@ -103,7 +102,6 @@ installStreetVerseRacingAfterDarkRuntime()
 installStreetVerseMissionDiscoveryRuntime()
 installSECSConstructRuntime()
 installOmniverseEventFabricRuntime()
-installStreetVerseCreatorDistrict3D()
 
 const currentPath=window.location.pathname
 const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
@@ -115,6 +113,11 @@ const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs&&!isTw
 const isBusinessDirectory=currentPath==='/business'||currentPath==='/business/'
 const businessMatch=currentPath.match(/^\/business\/([^/]+)\/?$/)
 const businessSlug=businessMatch?.[1]||''
+
+if(!isStreetVerse){
+  void import('./runtime/StreetVerseCreatorDistrict3D').then(({installStreetVerseCreatorDistrict3D})=>installStreetVerseCreatorDistrict3D())
+}
+
 const routeFallback=<div role="status" aria-live="polite" style={{position:'fixed',inset:0,zIndex:15980,display:'grid',placeItems:'center',background:'#050505',color:'#fff',fontFamily:'system-ui,sans-serif',fontWeight:900}}>LOADING STREETVERSE…</div>
 
 const streetVerseRoute=<>
