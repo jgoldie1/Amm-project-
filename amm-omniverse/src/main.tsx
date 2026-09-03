@@ -71,6 +71,8 @@ const GuardianCommandCenter=lazy(()=>import('./components/GuardianCommandCenter'
 const HoloDramaHub=lazy(()=>import('./components/HoloDramaHub'))
 const HoloDeliveryRideEntertainmentHub=lazy(()=>import('./components/HoloDeliveryRideEntertainmentHub'))
 const SpectraStudioCommandCenter=lazy(()=>import('./components/SpectraStudioCommandCenter'))
+const EthiopianBibleMetaverse=lazy(()=>import('./components/EthiopianBibleMetaverse'))
+const KingdomsPressOperations=lazy(()=>import('./components/KingdomsPressOperations'))
 
 installProductionHealthMonitor()
 installMediaCloudBridge()
@@ -123,6 +125,8 @@ const isLive=currentPath==='/live'||currentPath==='/live/'
 const isGuardian=currentPath==='/guardian'||currentPath==='/guardian/'
 const isHoloDrama=currentPath==='/holo-drama'||currentPath==='/holo-drama/'
 const isSpectraStudios=currentPath==='/spectra-studios'||currentPath==='/spectra-studios/'
+const isEthiopianBible=currentPath==='/ethiopian-bible'||currentPath==='/ethiopian-bible/'
+const isKingdomsPress=currentPath==='/kingdoms-press'||currentPath==='/kingdoms-press/'
 const isRecoveredSurface=['/spectra-entertainment','/spectra-entertainment/','/all-american-records','/all-american-records/','/set-apart','/set-apart/','/christian-rap','/christian-rap/','/holo-music','/holo-music/','/holo-food','/holo-food/','/holo-ride-share','/holo-ride-share/'].includes(currentPath)
 const isNetwork=['/network','/network/','/free-tv','/free-tv/','/isaiah-ai-tv','/isaiah-ai-tv/','/starverse','/starverse/'].includes(currentPath)
 const isServantsOfChrist=currentPath==='/servants-of-christ'||currentPath==='/servants-of-christ/'
@@ -174,6 +178,8 @@ else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter onClo
 else if(isGuardian)routeContent=<Suspense fallback={routeFallback}><GuardianCommandCenter /></Suspense>
 else if(isHoloDrama)routeContent=<Suspense fallback={routeFallback}><HoloDramaHub /></Suspense>
 else if(isSpectraStudios)routeContent=<Suspense fallback={routeFallback}><SpectraStudioCommandCenter /></Suspense>
+else if(isEthiopianBible)routeContent=<Suspense fallback={routeFallback}><EthiopianBibleMetaverse /></Suspense>
+else if(isKingdomsPress)routeContent=<Suspense fallback={routeFallback}><KingdomsPressOperations onClose={()=>{window.location.href='/'}} /></Suspense>
 else if(isRecoveredSurface)routeContent=<Suspense fallback={routeFallback}><HoloDeliveryRideEntertainmentHub /></Suspense>
 else if(isNetwork)routeContent=<Suspense fallback={routeFallback}><AllAmericanNetworkHub /></Suspense>
 else if(isServantsOfChrist)routeContent=<Suspense fallback={routeFallback}><ServantsOfChristMinistry /></Suspense>
