@@ -1,19 +1,22 @@
-import {useEffect,useMemo,useState} from 'react'
+import {useEffect,useMemo,useRef,useState} from 'react'
 
-type Point={id:string;label:string;district:string;x:number;z:number;kind:'JOB'|'CREATOR'|'DELIVERY'|'SOCIAL';mission:string}
+type Point={id:string;label:string;district:string;x:number;z:number;kind:'JOB'|'CREATOR'|'DELIVERY'|'SOCIAL';mission:string;targetX:number;targetZ:number;objective:string;xp:number}
 const points:Point[]=[
-{id:'loop-courier',label:'Loop Courier Hub',district:'THE LOOP',x:0,z:18,kind:'DELIVERY',mission:'Loop Express Delivery'},
-{id:'riverwalk-creator',label:'Riverwalk Creator Spot',district:'CHICAGO RIVER',x:18,z:10,kind:'CREATOR',mission:'Riverwalk Reel Challenge'},
-{id:'millennium-event',label:'Millennium Park Event',district:'LAKEFRONT',x:48,z:100,kind:'SOCIAL',mission:'Millennium Creator Jam'},
-{id:'south-market',label:'79th Street Market',district:'SOUTH SIDE',x:-12,z:111,kind:'JOB',mission:'South Side Market Run'},
-{id:'west-maker',label:'Madison Maker Hub',district:'WEST SIDE',x:-64,z:-7,kind:'JOB',mission:'West Side Business Delivery'},
-{id:'north-night',label:'North Side Venue',district:'NORTH SIDE',x:18,z:-69,kind:'CREATOR',mission:'North Side Creator Night'},
+{id:'loop-courier',label:'Loop Courier Hub',district:'THE LOOP',x:0,z:18,kind:'DELIVERY',mission:'Loop Express Delivery',targetX:28,targetZ:-12,objective:'Deliver the package to the Chicago River checkpoint.',xp:180},
+{id:'riverwalk-creator',label:'Riverwalk Creator Spot',district:'CHICAGO RIVER',x:18,z:10,kind:'CREATOR',mission:'Riverwalk Reel Challenge',targetX:48,targetZ:100,objective:'Reach Millennium Park and finish the creator route.',xp:160},
+{id:'millennium-event',label:'Millennium Park Event',district:'LAKEFRONT',x:48,z:100,kind:'SOCIAL',mission:'Millennium Creator Jam',targetX:0,targetZ:112,objective:'Move from the park pavilion to the lakefront activity zone.',xp:150},
+{id:'south-market',label:'79th Street Market',district:'SOUTH SIDE',x:-12,z:111,kind:'JOB',mission:'South Side Market Run',targetX:-72,targetZ:10,objective:'Complete the market run at the West Side handoff.',xp:220},
+{id:'west-maker',label:'Madison Maker Hub',district:'WEST SIDE',x:-64,z:-7,kind:'JOB',mission:'West Side Business Delivery',targetX:0,targetZ:18,objective:'Deliver the business order back to the Loop hub.',xp:210},
+{id:'north-night',label:'North Side Venue',district:'NORTH SIDE',x:18,z:-69,kind:'CREATOR',mission:'North Side Creator Night',targetX:18,targetZ:10,objective:'Finish the creator route at the Riverwalk.',xp:190},
 ]
 export default function StreetVerseChicagoActivityDirector(){
- const [pos,setPos]=useState({x:0,z:0});const [active,setActive]=useState('')
+ const [pos,setPos]=useState({x:0,z:0});const [activeId,setActiveId]=useState('');const [status,setStatus]=useState('');const startedAt=useRef(0)
  useEffect(()=>{const onPos=(e:Event)=>{const d=(e as CustomEvent).detail||{};if(Number.isFinite(d.x)&&Number.isFinite(d.z))setPos({x:d.x,z:d.z})};window.addEventListener('tryamm:streetverse-player-position',onPos);return()=>window.removeEventListener('tryamm:streetverse-player-position',onPos)},[])
  const nearest=useMemo(()=>points.map(p=>({...p,d:Math.hypot(pos.x-p.x,pos.z-p.z)})).sort((a,b)=>a.d-b.d)[0],[pos])
- const start=()=>{if(!nearest)return;setActive(nearest.id);const detail={eventId:nearest.id,label:nearest.mission,mode:nearest.kind,district:nearest.district,position:{x:nearest.x,z:nearest.z},financialReward:false};window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-event-join',{detail}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail}));window.dispatchEvent(new CustomEvent('tryamm:chicago-activity-start',{detail}))}
- if(!nearest)return null
- return <div style={{position:'absolute',right:12,bottom:150,zIndex:44,width:230,padding:10,borderRadius:12,background:'rgba(4,10,18,.86)',border:'1px solid rgba(70,180,255,.55)',color:'#fff',fontFamily:'system-ui',fontSize:12,boxShadow:'0 8px 30px rgba(0,0,0,.3)'}}><div style={{fontWeight:900,letterSpacing:.7}}>CHICAGO ACTIVITY</div><div style={{marginTop:5,fontWeight:800}}>{nearest.label}</div><div style={{opacity:.72}}>{nearest.district} • {nearest.kind} • {Math.round(nearest.d)}m</div><button onClick={start} disabled={nearest.d>38} style={{marginTop:8,width:'100%',padding:'8px 10px',borderRadius:8,border:0,fontWeight:900,cursor:nearest.d<=38?'pointer':'default'}}>{nearest.d<=38?(active===nearest.id?'ACTIVE':'START '+nearest.mission.toUpperCase()):'MOVE CLOSER'}</button></div>
+ const active=useMemo(()=>points.find(p=>p.id===activeId)||null,[activeId])
+ const targetDistance=active?Math.hypot(pos.x-active.targetX,pos.z-active.targetZ):Infinity
+ useEffect(()=>{if(!active||targetDistance>10)return;const timeMs=Math.max(1,Date.now()-startedAt.current);const detail={id:active.id,label:active.mission,xp:active.xp,timeMs,financialReward:false,district:active.district,mode:active.kind};window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail}));window.dispatchEvent(new CustomEvent('tryamm:chicago-activity-complete',{detail}));setStatus(`COMPLETE • +${active.xp} XP`);setActiveId('')},[active,targetDistance])
+ const start=()=>{if(!nearest||nearest.d>38)return;setActiveId(nearest.id);setStatus('OBJECTIVE ACTIVE');startedAt.current=Date.now();const detail={eventId:nearest.id,id:nearest.id,label:nearest.mission,mode:nearest.kind,district:nearest.district,position:{x:nearest.x,z:nearest.z},target:{x:nearest.targetX,z:nearest.targetZ},objective:nearest.objective,xp:nearest.xp,financialReward:false};window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-event-join',{detail}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail}));window.dispatchEvent(new CustomEvent('tryamm:chicago-activity-start',{detail}))}
+ const shown=active||nearest;if(!shown)return null;const dist=active?targetDistance:nearest.d
+ return <div style={{position:'absolute',right:12,bottom:150,zIndex:44,width:250,padding:10,borderRadius:12,background:'rgba(4,10,18,.88)',border:'1px solid rgba(70,180,255,.55)',color:'#fff',fontFamily:'system-ui',fontSize:12,boxShadow:'0 8px 30px rgba(0,0,0,.3)'}}><div style={{fontWeight:900,letterSpacing:.7}}>CHICAGO ACTIVITY</div><div style={{marginTop:5,fontWeight:800}}>{shown.mission}</div><div style={{opacity:.72}}>{shown.district} • {shown.kind} • {Math.round(dist)}m</div>{active&&<><div style={{marginTop:7,lineHeight:1.35}}>{active.objective}</div><div style={{marginTop:5,fontWeight:800}}>REWARD • {active.xp} XP</div></>}{status&&<div style={{marginTop:6,opacity:.85}}>{status}</div>}{!active&&<button onClick={start} disabled={nearest.d>38} style={{marginTop:8,width:'100%',padding:'8px 10px',borderRadius:8,border:0,fontWeight:900,cursor:nearest.d<=38?'pointer':'default'}}>{nearest.d<=38?'START '+nearest.mission.toUpperCase():'MOVE CLOSER'}</button>}</div>
 }
