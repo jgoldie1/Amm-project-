@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 type PlayerPos={x:number;z:number;vehicle?:boolean}
 type Telemetry={entered?:boolean;speed?:number}
+type SyncedProgress={xp?:number}
 const XP_KEY='tryamm.streetverse.xp.v1'
 const RACE_KEY='tryamm.streetverse.drive-mission.v1'
 const CHECKPOINTS=[
@@ -32,6 +33,13 @@ export default function StreetVerseDriveMission(){
     dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{id:'chicago-circuit-01',label:'Chicago Circuit 01',checkpoints:CHECKPOINTS.length}}))
     dispatchEvent(new CustomEvent('tryamm:streetverse-race-target',{detail:{checkpoint:0,total:CHECKPOINTS.length,...CHECKPOINTS[0]}}))
   }
+
+  useEffect(()=>{
+    const onProgress=(e:Event)=>{const value=Number((e as CustomEvent<SyncedProgress>).detail?.xp);if(Number.isFinite(value)&&value>=0)setXp(value)}
+    addEventListener('tryamm:streetverse-progress-loaded',onProgress)
+    addEventListener('tryamm:streetverse-progress-synced',onProgress)
+    return()=>{removeEventListener('tryamm:streetverse-progress-loaded',onProgress);removeEventListener('tryamm:streetverse-progress-synced',onProgress)}
+  },[])
 
   useEffect(()=>{
     const onPos=(e:Event)=>{const d=(e as CustomEvent<PlayerPos>).detail;if(Number.isFinite(d?.x)&&Number.isFinite(d?.z))setPos(d)}
