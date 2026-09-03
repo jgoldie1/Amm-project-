@@ -1,62 +1,26 @@
-import { useMemo } from 'react'
+import {lazy,Suspense,useMemo} from 'react'
 import StreetVersePlayableWorld,{shouldUseStreetVerseSafeMode} from './StreetVersePlayableWorld'
-import StreetVerseNextLevelHUD from './StreetVerseNextLevelHUD'
-import StreetVerseLiveBuildBadge from './StreetVerseLiveBuildBadge'
-import StreetVerseRealtimePresence from './StreetVerseRealtimePresence'
-import StreetVerseNearbyPlayers from './StreetVerseNearbyPlayers'
-import StreetVerseRemotePlayerMarkers from './StreetVerseRemotePlayerMarkers'
-import StreetVersePlayerInteractions from './StreetVersePlayerInteractions'
-import StreetVerseSharedWorldAvatars from './StreetVerseSharedWorldAvatars'
-import StreetVerseNativeRemotePlayers from './StreetVerseNativeRemotePlayers'
-import StreetVerseWorldEvents from './StreetVerseWorldEvents'
-import StreetVerseCoopSync from './StreetVerseCoopSync'
-import StreetVerseRaceSessionSync from './StreetVerseRaceSessionSync'
-import StreetVerseRaceCountdownSync from './StreetVerseRaceCountdownSync'
-import StreetVerseCrewPersistence from './StreetVerseCrewPersistence'
-import StreetVersePartyBeacon from './StreetVersePartyBeacon'
-import StreetVerseRiggedPlayerFallback from './StreetVerseRiggedPlayerFallback'
-import StreetVerseLivingLayer from './StreetVerseLivingLayer'
-import StreetVerseSoundEngine from './StreetVerseSoundEngine'
-import StreetVerseDriveStatus from './StreetVerseDriveStatus'
-import StreetVerseGamepadBridge from './StreetVerseGamepadBridge'
-import StreetVerseTouchDriveControls from './StreetVerseTouchDriveControls'
-import StreetVerseDriveMission from './StreetVerseDriveMission'
-import StreetVerseRaceMissionGiver from './StreetVerseRaceMissionGiver'
-import StreetVerseRaceNavigator from './StreetVerseRaceNavigator'
-import StreetVerseMissionExpansion from './StreetVerseMissionExpansion'
-import StreetVerseAdvancedDrivingSystems from './StreetVerseAdvancedDrivingSystems'
-import StreetVerseVehicleEffects from './StreetVerseVehicleEffects'
-import StreetVerseSceneTransition from './StreetVerseSceneTransition'
-import StreetVerseAIRacerLayer from './StreetVerseAIRacerLayer'
-import StreetVerseMotorcycleSystems from './StreetVerseMotorcycleSystems'
-import StreetVersePowersportsGarage from './StreetVersePowersportsGarage'
-import StreetVerseNativePowersportAdapter from './StreetVerseNativePowersportAdapter'
-import StreetVerseProgressSync from './StreetVerseProgressSync'
-import StreetVerseGameplayStateCoordinator from './StreetVerseGameplayStateCoordinator'
-import StreetVerseStarMissions from './StreetVerseStarMissions'
-import StreetVerseDialogueHUD from './StreetVerseDialogueHUD'
-import StreetVerseStarMissionEncounterLayer from './StreetVerseStarMissionEncounterLayer'
-import StreetVerseAmbientLife from './StreetVerseAmbientLife'
-import StreetVerseEmergencyLighting from './StreetVerseEmergencyLighting'
-import StreetVerseCityReaction from './StreetVerseCityReaction'
-import StreetVerseEmergencyIncidentLifecycle from './StreetVerseEmergencyIncidentLifecycle'
-import StreetVerseLawEnforcementComms from './StreetVerseLawEnforcementComms'
-import StreetVerseRoadblockController from './StreetVerseRoadblockController'
-import StreetVerseResponderStaging from './StreetVerseResponderStaging'
-import StreetVerseResponderNPCController from './StreetVerseResponderNPCController'
-import StreetVersePursuitController from './StreetVersePursuitController'
-import StreetVerseChicagoActivityDirector from './StreetVerseChicagoActivityDirector'
-import StreetVerseChicagoStorefronts from './StreetVerseChicagoStorefronts'
-import StreetVerseChicagoInteriors from './StreetVerseChicagoInteriors'
-import StreetVerseShoppingCore from './StreetVerseShoppingCore'
-import StreetVerseLOperatorMission from './StreetVerseLOperatorMission'
-import StreetVerseCityMissionPack from './StreetVerseCityMissionPack'
-import StreetVerseTransitBossMission from './StreetVerseTransitBossMission'
-import StreetVerseTransitLineMissionSelector from './StreetVerseTransitLineMissionSelector'
-import StreetVerseTransitSafetyDirector from './StreetVerseTransitSafetyDirector'
-import { announceStreetVerseProductionMode } from '../config/streetverseProductionMode'
+import {announceStreetVerseProductionMode} from '../config/streetverseProductionMode'
+
+// Keep the safe-mode route lightweight. The full overlay/mission/multiplayer
+// stack is loaded only for the full world, so constrained iOS devices do not
+// have to parse the Three.js-heavy graph before the HTML city can paint.
+const StreetVerseFullWorldOverlays=lazy(()=>import('./StreetVerseFullWorldOverlays'))
+
 const DESTINATION_KEY='tryamm.streetverse.chicago-destination.v1',SAVE_KEY='tryamm.streetverse.living.v1'
 const GAME_SPAWNS:Record<string,{x:number;z:number;label:string}>={loop:{x:0,z:0,label:'The Loop'},millennium:{x:38,z:38,label:'Millennium Park'},lakefront:{x:72,z:58,label:'Lakefront'},river:{x:28,z:-12,label:'Chicago River'},south:{x:-18,z:72,label:'South Side'},west:{x:-72,z:10,label:'West Side'},north:{x:12,z:-72,label:'North Side'},ohare:{x:-78,z:-78,label:"O'Hare Gateway"},midway:{x:-58,z:72,label:'Midway Gateway'}}
 type Destination={id?:string;label?:string;lon?:number;lat?:number;city?:string}
+
 function prepareSpawn(){announceStreetVerseProductionMode();let destination:Destination|undefined;try{destination=JSON.parse(localStorage.getItem(DESTINATION_KEY)||'null')||undefined}catch{}const mapped=destination?.id?GAME_SPAWNS[destination.id]:undefined;if(mapped){try{const previous=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');localStorage.setItem(SAVE_KEY,JSON.stringify({...previous,x:mapped.x,z:mapped.z,geoDestination:destination,geoSpawnLabel:mapped.label,updatedAt:new Date().toISOString()}))}catch{}window.dispatchEvent(new CustomEvent('tryamm:streetverse-geo-spawn-ready',{detail:{destination,mapped}}))}return {destination,mapped}}
-export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){const prepared=useMemo(()=>prepareSpawn(),[]);const safe=useMemo(shouldUseStreetVerseSafeMode,[]);if(safe)return <StreetVersePlayableWorld onClose={onClose}/>;return <><StreetVersePlayableWorld onClose={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-request-close'))}/><StreetVerseLiveBuildBadge/><StreetVerseRealtimePresence/><StreetVerseNearbyPlayers/><StreetVerseRemotePlayerMarkers/><StreetVersePlayerInteractions/><StreetVerseSharedWorldAvatars/><StreetVerseNativeRemotePlayers/><StreetVerseWorldEvents/><StreetVerseCoopSync/><StreetVerseRaceSessionSync/><StreetVerseRaceCountdownSync/><StreetVerseCrewPersistence/><StreetVersePartyBeacon/><StreetVerseRiggedPlayerFallback/><StreetVerseLivingLayer/><StreetVerseSoundEngine/><StreetVerseAmbientLife/><StreetVerseEmergencyLighting/><StreetVerseCityReaction/><StreetVerseEmergencyIncidentLifecycle/><StreetVerseLawEnforcementComms/><StreetVerseRoadblockController/><StreetVerseResponderStaging/><StreetVerseResponderNPCController/><StreetVersePursuitController/><StreetVerseProgressSync/><StreetVerseGameplayStateCoordinator/><StreetVerseStarMissions/><StreetVerseDialogueHUD/><StreetVerseStarMissionEncounterLayer/><StreetVerseDriveStatus/><StreetVerseGamepadBridge/><StreetVerseTouchDriveControls/><StreetVerseDriveMission/><StreetVerseRaceMissionGiver/><StreetVerseRaceNavigator/><StreetVerseMissionExpansion/><StreetVerseChicagoActivityDirector/><StreetVerseChicagoStorefronts/><StreetVerseChicagoInteriors/><StreetVerseShoppingCore/><StreetVerseLOperatorMission/><StreetVerseTransitLineMissionSelector/><StreetVerseTransitSafetyDirector/><StreetVerseCityMissionPack/><StreetVerseTransitBossMission/><StreetVerseAdvancedDrivingSystems/><StreetVerseVehicleEffects/><StreetVerseAIRacerLayer/><StreetVerseMotorcycleSystems/><StreetVersePowersportsGarage/><StreetVerseNativePowersportAdapter/><StreetVerseSceneTransition onClose={onClose}/><StreetVerseNextLevelHUD district={prepared.mapped?.label?`CHICAGO • ${prepared.mapped.label.toUpperCase()}`:'CHICAGO • DISTRICT 01'} assetStatus="WORLD ACTIVE • SAFE MOBILE PLAY + STAR ENCOUNTERS + STAR MISSIONS + DIALOGUE HUD + PERSISTENT GAMEPLAY + TRANSIT SAFETY + ALL-LINE MISSIONS + TRANSIT BOSS + FULL RAIL/SUBWAY + CITY MISSIONS + PASSENGERS + SHOPPING + MULTIPLAYER + SERVER XP + RESPONDERS"/>{prepared.mapped&&<div style={{position:'fixed',left:12,bottom:12,zIndex:16995,maxWidth:300,padding:'10px 12px',borderRadius:12,background:'rgba(3,12,20,.84)',border:'1px solid #62b8ff77',color:'#fff',fontFamily:'system-ui',fontSize:12}}><strong>CHICAGO NAV SPAWN</strong><br/>{prepared.mapped.label}<br/><span style={{opacity:.75}}>Selected from Twin World • real-world destination mapped into the playable district.</span></div>}</>}
+
+export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
+ const prepared=useMemo(()=>prepareSpawn(),[])
+ const safe=useMemo(shouldUseStreetVerseSafeMode,[])
+ if(safe)return <StreetVersePlayableWorld onClose={onClose}/>
+ return <>
+  <StreetVersePlayableWorld onClose={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-request-close'))}/>
+  <Suspense fallback={null}>
+   <StreetVerseFullWorldOverlays onClose={onClose} mapped={prepared.mapped}/>
+  </Suspense>
+ </>
+}
