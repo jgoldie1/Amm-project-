@@ -5,7 +5,7 @@ const products=[
   {path:'/aniyah-pay',name:'Aniyah Cross-Border Payments',eyebrow:'GLOBAL PAY',description:'Cross-border payment experience connecting TRYAMM commerce to compliant global and African payment rails.',status:'Transfers are disabled until provider credentials, KYC/AML, settlement and country rules are verified.',features:['Cross-border send/receive','FX and fee preview','Recipient and payout routing','Africa payment rail orchestration']},
 ]
 
-const africaRails=['Paystack','Monnify','Moniepoint','Remita','Squad (GTCO)','OPay','Paga','Cellulant / Tingg','Fincra','Kora','SeerBit','M-Pesa']
+const africaRails=['Flutterwave','Paystack','Monnify','Moniepoint','Remita','Squad (GTCO)','OPay','Paga','Cellulant / Tingg','Fincra','Kora','SeerBit','M-Pesa']
 
 export default function OmniCareCashSuite(){
   const current=window.location.pathname.replace(/\/$/,'')||'/'
