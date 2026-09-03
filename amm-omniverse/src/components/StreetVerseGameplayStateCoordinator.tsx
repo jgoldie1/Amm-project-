@@ -11,7 +11,7 @@ export default function StreetVerseGameplayStateCoordinator(){useEffect(()=>{let
  const onComplete=(e:Event)=>{const d=(e as CustomEvent).detail||{},id=String(d.missionId||d.id||d.label||'mission');save({...state,activeMission:null,lastMission:id,completed:Array.from(new Set([...state.completed,id]))})}
  const onLoaded=(e:Event)=>{const d=(e as CustomEvent).detail||{};save({...state,xp:Number(d.xp||0),level:Number(d.level||1),missionsCompleted:Number(d.missionsCompleted||0),lastMission:d.lastMissionId||state.lastMission})}
  const onSynced=(e:Event)=>{const d=(e as CustomEvent).detail||{};save({...state,xp:Number(d.xp||state.xp||0),level:Number(d.level||state.level||1),missionsCompleted:Number(d.missionsCompleted||state.missionsCompleted||0),lastMission:d.missionId||state.lastMission})}
- const onTransit=(e:Event)=>{pendingTransit={(pendingTransit||{}),...(e as CustomEvent).detail};flushTransit(false)}
+ const onTransit=(e:Event)=>{const d=((e as CustomEvent).detail||{}) as Record<string,unknown>;pendingTransit={...(pendingTransit||{}),...d};flushTransit(false)}
  const onWorld=(e:Event)=>{const d=(e as CustomEvent).detail||{},id=String(d.id||d.eventId||d.label||'world-event');save({...state,worldEvents:Array.from(new Set([...state.worldEvents,id])).slice(-20)})}
  const onSpawn=(e:Event)=>{const d=(e as CustomEvent).detail||{};save({...state,district:d?.mapped?.label||d?.label||state.district||null})}
  const onVisibility=()=>{if(document.visibilityState==='hidden')flushTransit(true)}
