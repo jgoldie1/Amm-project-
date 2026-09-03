@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 type Pos={x:number;z:number;character?:string}
-type Target={id:string;kind:'resident'|'business'|'vehicle'|'mission';label:string;copy:string;x:number;z:number;action:string}
+type TargetKind='resident'|'spirit'|'business'|'vehicle'|'mission'|'basketball'
+type Target={id:string;kind:TargetKind;label:string;copy:string;x:number;z:number;action:string}
 
-const PROGRESS_KEY='tryamm.streetverse.living-layer.v2'
+const PROGRESS_KEY='tryamm.streetverse.living-layer.v3'
 const TARGETS:Target[]=[
   {id:'studio',kind:'business',label:'Aniyah 64 Track Studio',copy:'Recording sessions, creator missions and Reel moments are active here.',x:-42,z:-30,action:'ENTER STUDIO'},
   {id:'market',kind:'business',label:'All American Marketplace',copy:'Shop, sell and discover StreetVerse businesses from this district.',x:42,z:-24,action:'OPEN MARKET'},
@@ -11,9 +12,12 @@ const TARGETS:Target[]=[
   {id:'after-dark',kind:'business',label:'Chicago After Dark',copy:'Nightlife district mission hub with creator and social events.',x:-38,z:38,action:'ENTER DISTRICT'},
   {id:'vehicle-01',kind:'vehicle',label:'StreetVerse Vehicle',copy:'A nearby procedural vehicle is ready for the driving interaction layer.',x:0,z:48,action:'ENTER VEHICLE'},
   {id:'resident-01',kind:'resident',label:'Chicago Resident',copy:'Resident awareness is active. Talk, receive local hints, and discover nearby missions.',x:0,z:18,action:'TALK'},
+  {id:'spirit-01',kind:'spirit',label:'AI Spirit',copy:'A holographic guide can surface world hints, mission context and creator routes.',x:12,z:30,action:'ASK SPIRIT'},
+  {id:'court-south-loop',kind:'basketball',label:'South Loop Holo Court',copy:'Street basketball interaction contract connected to the shared GameVerse basketball system.',x:-24,z:18,action:'OPEN COURT'},
+  {id:'court-lakefront',kind:'basketball',label:'Lakefront Lights',copy:'Street basketball interaction contract connected to the shared GameVerse basketball system.',x:62,z:46,action:'OPEN COURT'},
 ]
 
-const lines=[
+const residentLines=[
   'Welcome to StreetVerse. The city reacts to where you go now.',
   'Try the Marketplace or Creator Studio — both have district missions nearby.',
   'Traffic is live. Use the crosswalks and watch the signal cycle.',
@@ -21,9 +25,14 @@ const lines=[
   'Explore the glowing checkpoints to complete District 01.',
   'You can build progress here without downloading any new asset pack.',
 ]
+const spiritLines=[
+  'AI Spirit online. I can point you toward missions, creator businesses and GameVerse activities.',
+  'The main StreetVerse world is procedural-first. Missing external assets cannot block play.',
+  'Try a business portal, basketball court, vehicle interaction or Reel capture next.',
+]
 
 function loadProgress(){
-  try{return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'{}') as {visited?:string[];talks?:number;vehicleEntered?:boolean}}
+  try{return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'{}') as {visited?:string[];talks?:number;spiritTalks?:number;vehicleEntered?:boolean;courts?:string[]}}
   catch{return {}}
 }
 function nearestTarget(pos:Pos|null){
@@ -44,14 +53,16 @@ export default function StreetVerseLivingLayer(){
   const [quality,setQuality]=useState<'BALANCED'|'PERFORMANCE'>('BALANCED')
   const [visited,setVisited]=useState<string[]>(initial.visited||[])
   const [talks,setTalks]=useState(initial.talks||0)
+  const [spiritTalks,setSpiritTalks]=useState(initial.spiritTalks||0)
+  const [courts,setCourts]=useState<string[]>(initial.courts||[])
   const [vehicleEntered,setVehicleEntered]=useState(Boolean(initial.vehicleEntered))
   const lastNear=useRef('')
   const near=useMemo(()=>nearestTarget(pos),[pos])
   const completed=visited.length
 
   useEffect(()=>{
-    try{localStorage.setItem(PROGRESS_KEY,JSON.stringify({visited,talks,vehicleEntered,updatedAt:new Date().toISOString()}))}catch{}
-  },[visited,talks,vehicleEntered])
+    try{localStorage.setItem(PROGRESS_KEY,JSON.stringify({visited,talks,spiritTalks,courts,vehicleEntered,updatedAt:new Date().toISOString()}))}catch{}
+  },[visited,talks,spiritTalks,courts,vehicleEntered])
 
   useEffect(()=>{
     const mobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -90,14 +101,27 @@ export default function StreetVerseLivingLayer(){
     setVisited(current=>current.includes(target.id)?current:[...current,target.id])
   }
 
+  function openReel(){
+    setMessage('REEL CREATOR • STREETVERSE HIGHLIGHT')
+    window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'streetverse',title:'StreetVerse Highlight',caption:'Captured in StreetVerse • #TRYAMM #StreetVerse'}}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-open',{detail:{x:pos?.x,z:pos?.z}}))
+  }
+
   function interact(){
-    if(!near){setInteraction('Move closer to a resident, vehicle, business, or mission marker.');return}
+    if(!near){setInteraction('Move closer to a resident, AI Spirit, vehicle, business, mission marker, or basketball court.');return}
     const {target}=near
     if(target.kind==='resident'){
-      const next=lines[talks%lines.length]
+      const next=residentLines[talks%residentLines.length]
       setTalks(v=>v+1)
       setInteraction(`${target.label}: ${next}`)
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-resident-talk',{detail:{label:target.label,text:next,x:pos?.x,z:pos?.z,talkNumber:talks+1}}))
+      return
+    }
+    if(target.kind==='spirit'){
+      const next=spiritLines[spiritTalks%spiritLines.length]
+      setSpiritTalks(v=>v+1)
+      setInteraction(`${target.label}: ${next}`)
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-ai-spirit',{detail:{id:target.id,label:target.label,text:next,x:pos?.x,z:pos?.z,talkNumber:spiritTalks+1}}))
       return
     }
     if(target.kind==='business'){
@@ -111,18 +135,27 @@ export default function StreetVerseLivingLayer(){
       if(target.label.includes('After Dark'))window.dispatchEvent(new CustomEvent('tryamm:streetverse-after-dark-enter',{detail:{source:'streetverse'}}))
       return
     }
+    if(target.kind==='basketball'){
+      setCourts(current=>current.includes(target.id)?current:[...current,target.id])
+      setInteraction(`${target.label}: basketball activity ready. Choose 1v1, 3v3, 5v5 or tournament from the shared basketball controls.`)
+      setMessage(`GAMEVERSE COURT • ${target.label.toUpperCase()}`)
+      window.dispatchEvent(new CustomEvent('tryamm:basketball-open',{detail:{court:target.id,source:'streetverse',x:pos?.x,z:pos?.z}}))
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-basketball-enter',{detail:{court:target.id,label:target.label}}))
+      return
+    }
     if(target.kind==='vehicle'){
       const next=!vehicleEntered
       setVehicleEntered(next)
       setInteraction(next?'VEHICLE MODE • entered procedural vehicle interaction state.':'ON FOOT • exited vehicle interaction state.')
       setMessage(next?'DRIVING INTERACTION ACTIVE':'CITY AWARENESS ONLINE')
-      window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{x:pos?.x,z:pos?.z,entered:next}}))
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{x:pos?.x,z:pos?.z,entered:next,source:'living-layer-v3'}}))
     }
   }
 
   useEffect(()=>{
     const onKey=(event:KeyboardEvent)=>{
       if((event.key==='e'||event.key==='E')&&!event.repeat){event.preventDefault();interact()}
+      if((event.key==='r'||event.key==='R')&&!event.repeat){event.preventDefault();openReel()}
     }
     window.addEventListener('keydown',onKey)
     return()=>window.removeEventListener('keydown',onKey)
@@ -131,14 +164,15 @@ export default function StreetVerseLivingLayer(){
   return <>
     <div style={{position:'fixed',left:12,bottom:88,zIndex:16991,display:'grid',gap:6,pointerEvents:'none',fontFamily:'system-ui,sans-serif'}}>
       <div style={{padding:'7px 9px',borderRadius:999,background:'#04121ddd',border:'1px solid #4fe3ff66',color:'#bdf7ff',fontSize:9,fontWeight:900}}>CITY AI • {quality} • {vehicleEntered?'VEHICLE':'ON FOOT'}</div>
-      <div style={{padding:'7px 9px',borderRadius:999,background:'#07101ddd',border:'1px solid #e8b94455',color:'#ffe49b',fontSize:9,fontWeight:900}}>DISTRICT 01 • {completed}/4 LOCATIONS • {talks} TALKS</div>
+      <div style={{padding:'7px 9px',borderRadius:999,background:'#07101ddd',border:'1px solid #e8b94455',color:'#ffe49b',fontSize:9,fontWeight:900}}>DISTRICT 01 • {completed}/4 LOCATIONS • {talks} TALKS • {courts.length} COURTS</div>
       {near&&<div style={{maxWidth:260,padding:'9px 10px',borderRadius:12,background:'#050b13ee',border:'1px solid #e8b94477',color:'#fff',fontSize:10,lineHeight:1.4}}><b>{near.target.kind.toUpperCase()} • {near.target.label}</b><br/><span style={{opacity:.72}}>{near.distance.toFixed(1)}m away • E / INTERACT</span></div>}
     </div>
-    <div style={{position:'fixed',right:14,bottom:18,zIndex:16992,display:'grid',gap:7,width:'min(88vw,290px)',fontFamily:'system-ui,sans-serif'}}>
+    <div style={{position:'fixed',right:14,bottom:18,zIndex:16992,display:'grid',gap:7,width:'min(88vw,310px)',fontFamily:'system-ui,sans-serif'}}>
       <div role="status" style={{padding:'8px 10px',borderRadius:10,background:'#050b13dd',border:'1px solid #4fe3ff44',color:'#bdf7ff',fontSize:9,fontWeight:900}}>{message}</div>
       {interaction&&<div role="status" style={{padding:'10px 11px',borderRadius:12,background:'#07101eee',border:'1px solid #4fe3ff55',color:'#dffaff',fontSize:11,lineHeight:1.45}}>{interaction}</div>}
-      <div style={{display:'flex',gap:7,justifyContent:'flex-end'}}>
+      <div style={{display:'flex',gap:7,justifyContent:'flex-end',flexWrap:'wrap'}}>
         <button onClick={()=>setQuality(v=>v==='BALANCED'?'PERFORMANCE':'BALANCED')} style={buttonStyle}>{quality}</button>
+        <button onClick={openReel} style={{...buttonStyle,borderColor:'#ffcc6699',color:'#ffe49b'}}>🎥 REEL</button>
         <button onClick={interact} style={{...buttonStyle,borderColor:'#e8b94499',color:'#ffe49b'}}>{near?.target.action||'INTERACT'}</button>
       </div>
     </div>
