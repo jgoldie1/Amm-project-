@@ -6,6 +6,7 @@
     { "src": "/accessibility/?", "dest": "/accessibility.html" },
     { "src": "/accessibility.html", "dest": "/accessibility.html" },
     { "src": "/world-seasons/?", "dest": "/world-seasons.html" },
+    { "src": "/all-american-university/?", "dest": "/all-american-university.html" },
     { "src": "/api/payments/status", "dest": "https://amm-project-1-rpz9.onrender.com/api/payments/status" },
     { "src": "/api/checkout", "methods": ["POST"], "dest": "https://amm-project-1-rpz9.onrender.com/api/checkout" },
     { "src": "/api/payments/verify-checkout", "methods": ["POST"], "dest": "https://amm-project-1-rpz9.onrender.com/api/payments/verify-checkout" },
