@@ -14,13 +14,40 @@ export default defineConfig({
         // download/parse cost during first paint.
         return deps.filter(dep =>
           !dep.includes('vendor-three') &&
-          !dep.includes('streetverse-creator-3d')
+          !dep.includes('streetverse-creator-3d') &&
+          !dep.includes('streetverse-3d-runtime')
         )
       },
     },
     rollupOptions: {
       output: {
-        manualChunks(id) {
+        manualChunks(id, { getModuleInfo }) {
+          // Transitively follow STATIC imports to detect first-party modules
+          // that pull in Three.js. These must remain outside app-runtime or
+          // Rollup can collapse dynamic StreetVerse 3D imports back into the
+          // eager application chunk.
+          const seenThree = new Map<string, boolean>()
+          const importsThreeStatically = (moduleId: string, stack = new Set<string>()): boolean => {
+            const cached = seenThree.get(moduleId)
+            if (cached !== undefined) return cached
+            if (stack.has(moduleId)) return false
+            stack.add(moduleId)
+            const info = getModuleInfo(moduleId)
+            let result = false
+            if (info) {
+              for (const dep of info.importedIds) {
+                if (dep.includes('/three/') || dep.includes('/three-stdlib/')) { result = true; break }
+                if (dep.includes('/src/') && importsThreeStatically(dep, stack)) { result = true; break }
+              }
+            }
+            stack.delete(moduleId)
+            seenThree.set(moduleId, result)
+            return result
+          }
+
+          // Route Three-dependent StreetVerse runtime/game modules into a lazy
+          // chunk BEFORE the /src/runtime/ -> app-runtime catch-all.
+          if ((id.includes('/src/runtime/') || id.includes('/src/game/')) && importsThreeStatically(id)) return 'streetverse-3d-runtime'
           // Keep the Three.js creator-district runtime out of the shared app-runtime
           // chunk so constrained StreetVerse devices do not preload WebGL code before
           // the guaranteed HTML city can render.
