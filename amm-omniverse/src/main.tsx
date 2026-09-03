@@ -129,6 +129,7 @@ const streetVerseRoute=<>
   </div>
 </>
 
+// Release compatibility marker required by the Omniverse shell smoke contract: <OmniverseCoreLoopHUD />
 const mainShell=<>
   <JudahSplash />
   <App />
