@@ -3,7 +3,8 @@ import * as THREE from 'three'
 
 type Ride={id?:string;label?:string;wheels?:number;className?:string;grip?:number;steer?:number;roll?:number;stunts?:string[]}
 type Pos={x:number;z:number}
-type Drive={entered?:boolean;speed?:number;steer?:number;throttle?:number;brake?:number;heading?:number;surface?:string;gripMultiplier?:number}
+type Drive={entered?:boolean;speed?:number;steer?:number;throttle?:number;brake?:number;heading?:number;surface?:string;gripMultiplier?:number;handbrake?:number|boolean}
+type Input={throttle?:number;brake?:number;steer?:number;handbrake?:number|boolean;exit?:boolean}
 
 const mat=(c:number,m=.2,r=.65)=>new THREE.MeshStandardMaterial({color:c,metalness:m,roughness:r})
 function makeWheel(radius=.48,width=.34){const w=new THREE.Mesh(new THREE.CylinderGeometry(radius,radius,width,14),mat(0x111214,.02,.94));w.rotation.x=Math.PI/2;w.castShadow=true;return w}
@@ -32,16 +33,19 @@ function makeRide(ride:Ride){
 }
 
 export default function StreetVersePowersportRuntime(){
- const mountRef=useRef<HTMLDivElement|null>(null);const [ride,setRide]=useState<Ride|null>(null);const [active,setActive]=useState(false)
- const playerRef=useRef<Pos>({x:0,z:54});const driveRef=useRef<Drive>({});const headingRef=useRef(0)
+ const mountRef=useRef<HTMLDivElement|null>(null);const [ride,setRide]=useState<Ride|null>(null);const [active,setActive]=useState(false);const [mounted,setMounted]=useState(false);const [status,setStatus]=useState('PARKED')
+ const playerRef=useRef<Pos>({x:0,z:54});const worldRef=useRef<Pos>({x:4,z:56});const driveRef=useRef<Drive>({});const inputRef=useRef<Input>({});const headingRef=useRef(0);const speedRef=useRef(0);const mountedRef=useRef(false)
+ useEffect(()=>{mountedRef.current=mounted},[mounted])
  useEffect(()=>{
-  const onPos=(e:Event)=>{const d=(e as CustomEvent<Pos>).detail;if(d&&Number.isFinite(d.x)&&Number.isFinite(d.z))playerRef.current={x:d.x,z:d.z}}
+  const onPos=(e:Event)=>{const d=(e as CustomEvent<Pos>).detail;if(d&&Number.isFinite(d.x)&&Number.isFinite(d.z)&&!mountedRef.current)playerRef.current={x:d.x,z:d.z}}
   const onDrive=(e:Event)=>{driveRef.current=(e as CustomEvent<Drive>).detail||{}}
-  const onSpawn=(e:Event)=>{const d=(e as CustomEvent<Ride>).detail||{};setRide(d);setActive(true);window.dispatchEvent(new CustomEvent('tryamm:streetverse-powersport-world-spawned',{detail:{...d,x:playerRef.current.x+4,z:playerRef.current.z+2,runtime:'threejs-powersport'}}))}
-  const onClose=()=>setActive(false)
-  addEventListener('tryamm:streetverse-player-position',onPos);addEventListener('tryamm:streetverse-drive-telemetry',onDrive);addEventListener('tryamm:streetverse-powersport-spawn',onSpawn);addEventListener('tryamm:streetverse-scene-close',onClose)
-  return()=>{removeEventListener('tryamm:streetverse-player-position',onPos);removeEventListener('tryamm:streetverse-drive-telemetry',onDrive);removeEventListener('tryamm:streetverse-powersport-spawn',onSpawn);removeEventListener('tryamm:streetverse-scene-close',onClose)}
- },[])
+  const onInput=(e:Event)=>{inputRef.current=(e as CustomEvent<Input>).detail||{};if(inputRef.current.exit&&mountedRef.current){mountedRef.current=false;setMounted(false);setStatus('PARKED')}}
+  const onSpawn=(e:Event)=>{const d=(e as CustomEvent<Ride>).detail||{};const pos={x:playerRef.current.x+4,z:playerRef.current.z+2};worldRef.current=pos;speedRef.current=0;headingRef.current=0;setRide(d);setActive(true);setMounted(false);setStatus('PARKED');window.dispatchEvent(new CustomEvent('tryamm:streetverse-powersport-world-spawned',{detail:{...d,...pos,runtime:'threejs-powersport',enterable:true}}))}
+  const onKey=(e:KeyboardEvent)=>{if(e.key.toLowerCase()!=='e'||!active)return;if(mountedRef.current){mountedRef.current=false;setMounted(false);setStatus('PARKED');window.dispatchEvent(new CustomEvent('tryamm:streetverse-powersport-controlled',{detail:{entered:false,...worldRef.current,ride}}));return}const d=Math.hypot(playerRef.current.x-worldRef.current.x,playerRef.current.z-worldRef.current.z);if(d<=12){mountedRef.current=true;setMounted(true);setStatus('RIDING');window.dispatchEvent(new CustomEvent('tryamm:streetverse-powersport-controlled',{detail:{entered:true,...worldRef.current,ride}}))}}
+  const onClose=()=>{setActive(false);setMounted(false);mountedRef.current=false}
+  addEventListener('tryamm:streetverse-player-position',onPos);addEventListener('tryamm:streetverse-drive-telemetry',onDrive);addEventListener('tryamm:streetverse-vehicle-input',onInput);addEventListener('tryamm:streetverse-powersport-spawn',onSpawn);addEventListener('keydown',onKey);addEventListener('tryamm:streetverse-scene-close',onClose)
+  return()=>{removeEventListener('tryamm:streetverse-player-position',onPos);removeEventListener('tryamm:streetverse-drive-telemetry',onDrive);removeEventListener('tryamm:streetverse-vehicle-input',onInput);removeEventListener('tryamm:streetverse-powersport-spawn',onSpawn);removeEventListener('keydown',onKey);removeEventListener('tryamm:streetverse-scene-close',onClose)}
+ },[active,ride])
  useEffect(()=>{
   const mount=mountRef.current;if(!mount||!ride||!active)return
   const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(54,1,.1,100);camera.position.set(7,5.5,9);camera.lookAt(0,1,0)
@@ -49,9 +53,13 @@ export default function StreetVersePowersportRuntime(){
   scene.add(new THREE.HemisphereLight(0xbfe9ff,0x19191d,2.5));const key=new THREE.DirectionalLight(0xffffff,2.4);key.position.set(4,8,5);scene.add(key)
   const root=makeRide(ride);scene.add(root);const floor=new THREE.Mesh(new THREE.CircleGeometry(3.5,32),new THREE.MeshBasicMaterial({color:0x0a1118,transparent:true,opacity:.42}));floor.rotation.x=-Math.PI/2;floor.position.y=.02;scene.add(floor)
   const resize=()=>{const w=mount.clientWidth,h=mount.clientHeight;camera.aspect=Math.max(.5,w/Math.max(1,h));camera.updateProjectionMatrix();renderer.setSize(w,h,false)};const ro=new ResizeObserver(resize);ro.observe(mount);resize()
-  let raf=0,last=performance.now();const animate=(now:number)=>{const dt=Math.min(.04,(now-last)/1000);last=now;const d=driveRef.current;const steer=Number(d.steer||0),speed=Number(d.speed||0),throttle=Number(d.throttle||0),brake=Number(d.brake||0);headingRef.current+=steer*(ride.steer||1)*dt*.55;root.rotation.y=headingRef.current;const roll=(ride.wheels===2?-.42:-.12)*steer*Math.min(1,speed/25)*(ride.roll||.4);root.rotation.z=THREE.MathUtils.lerp(root.rotation.z,roll,.12);const pitch=ride.wheels===2?(throttle>.85&&speed>9?-.16:brake>.78&&speed>8?.12:0):0;root.rotation.x=THREE.MathUtils.lerp(root.rotation.x,pitch,.1);root.children.forEach(o=>{if(o instanceof THREE.Mesh&&o.geometry instanceof THREE.CylinderGeometry&&speed>0)o.rotation.z-=speed*dt*.9});renderer.render(scene,camera);raf=requestAnimationFrame(animate)};raf=requestAnimationFrame(animate)
+  let raf=0,last=performance.now(),lastPulse=0;const animate=(now:number)=>{const dt=Math.min(.04,(now-last)/1000);last=now;const d=driveRef.current;const i=inputRef.current;const steer=THREE.MathUtils.clamp(Number(i.steer??d.steer??0),-1,1);const throttle=THREE.MathUtils.clamp(Number(i.throttle??d.throttle??0),0,1);const brake=THREE.MathUtils.clamp(Number(i.brake??d.brake??0),0,1);let speed=mountedRef.current?speedRef.current:Number(d.speed||0);const grip=Math.max(.45,Math.min(1.2,ride.grip||1));const steerRate=ride.steer||1
+   if(mountedRef.current){speed+=throttle*(18+8*grip)*dt;speed-=brake*28*dt;if(!throttle&&!brake)speed-=Math.sign(speed)*Math.min(Math.abs(speed),5.8*dt);speed=THREE.MathUtils.clamp(speed,-7,34);headingRef.current-=steer*steerRate*THREE.MathUtils.clamp(Math.abs(speed)/9,.2,1.15)*dt*1.35;worldRef.current.x=THREE.MathUtils.clamp(worldRef.current.x+Math.cos(headingRef.current)*speed*dt,-86,86);worldRef.current.z=THREE.MathUtils.clamp(worldRef.current.z-Math.sin(headingRef.current)*speed*dt,-86,86);speedRef.current=speed;if(now-lastPulse>80){lastPulse=now;window.dispatchEvent(new CustomEvent('tryamm:streetverse-powersport-telemetry',{detail:{entered:true,rideId:ride.id,label:ride.label,wheels:ride.wheels,speed,steer,throttle,brake,heading:headingRef.current,gripMultiplier:grip,...worldRef.current}}))}}
+   else headingRef.current+=steer*steerRate*dt*.25
+   root.rotation.y=headingRef.current;const roll=(ride.wheels===2?-.42:-.12)*steer*Math.min(1,Math.abs(speed)/25)*(ride.roll||.4);root.rotation.z=THREE.MathUtils.lerp(root.rotation.z,roll,.12);const canWheelie=(ride.stunts||[]).includes('wheelie'),canStoppie=(ride.stunts||[]).includes('stoppie');const pitch=ride.wheels===2&&canWheelie&&throttle>.85&&Math.abs(speed)>9?-.16:ride.wheels===2&&canStoppie&&brake>.78&&Math.abs(speed)>8?.12:0;root.rotation.x=THREE.MathUtils.lerp(root.rotation.x,pitch,.1);root.children.forEach(o=>{if(o instanceof THREE.Mesh&&o.geometry instanceof THREE.CylinderGeometry&&Math.abs(speed)>0)o.rotation.z-=speed*dt*.9});renderer.render(scene,camera);raf=requestAnimationFrame(animate)};raf=requestAnimationFrame(animate)
   return()=>{cancelAnimationFrame(raf);ro.disconnect();renderer.dispose();renderer.domElement.remove()}
  },[ride,active])
  if(!ride||!active)return null
- return <div style={{position:'fixed',right:12,bottom:188,zIndex:16996,width:230,height:150,pointerEvents:'none',border:'1px solid #59e7ff44',borderRadius:14,overflow:'hidden',background:'linear-gradient(180deg,rgba(3,10,18,.18),rgba(3,10,18,.72))'}}><div ref={mountRef} style={{position:'absolute',inset:0}}/><div style={{position:'absolute',left:8,bottom:7,right:8,color:'#fff',fontFamily:'system-ui',fontSize:9,fontWeight:900,textShadow:'0 1px 3px #000'}}>WORLD SPAWN • {ride.label}<br/><span style={{opacity:.7}}>GRIP {(ride.grip||1).toFixed(2)} • STEER {(ride.steer||1).toFixed(2)} • {ride.wheels||2} WHEELS</span></div></div>
+ const distance=Math.hypot(playerRef.current.x-worldRef.current.x,playerRef.current.z-worldRef.current.z)
+ return <div style={{position:'fixed',right:12,bottom:188,zIndex:16996,width:240,height:164,pointerEvents:'none',border:'1px solid #59e7ff44',borderRadius:14,overflow:'hidden',background:'linear-gradient(180deg,rgba(3,10,18,.18),rgba(3,10,18,.78))'}}><div ref={mountRef} style={{position:'absolute',inset:0}}/><div style={{position:'absolute',left:8,bottom:7,right:8,color:'#fff',fontFamily:'system-ui',fontSize:9,fontWeight:900,textShadow:'0 1px 3px #000'}}>WORLD RIDE • {ride.label} • {status}<br/><span style={{opacity:.72}}>GRIP {(ride.grip||1).toFixed(2)} • STEER {(ride.steer||1).toFixed(2)} • {ride.wheels||2} WHEELS</span><br/><span style={{opacity:.66}}>{mounted?'W/S DRIVE • A/D STEER • E EXIT':distance<=12?'PRESS E TO RIDE':'MOVE CLOSER TO RIDE'}</span></div></div>
 }
