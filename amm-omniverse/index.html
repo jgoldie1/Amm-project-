@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
     <meta name="theme-color" content="#04050E" />
     <meta name="description" content="TRYAMM — one connected platform for creators, commerce, LIVE, games, AI, business, education, workforce, and Living Worlds." />
-    <link rel="manifest" href="/manifest.json?v=20260902-ui-shell-v4" />
-    <link rel="icon" type="image/svg+xml" href="/tryamm-lion-crown-america.svg?v=20260902-ui-shell-v4" />
-    <link rel="shortcut icon" type="image/svg+xml" href="/tryamm-lion-crown-america.svg?v=20260902-ui-shell-v4" />
-    <link rel="apple-touch-icon" href="/tryamm-lion-crown-america.svg?v=20260902-ui-shell-v4" />
+    <link rel="manifest" href="/manifest.json?v=20260902-streetverse-v5" />
+    <link rel="icon" type="image/svg+xml" href="/tryamm-lion-crown-america.svg?v=20260902-streetverse-v5" />
+    <link rel="shortcut icon" type="image/svg+xml" href="/tryamm-lion-crown-america.svg?v=20260902-streetverse-v5" />
+    <link rel="apple-touch-icon" href="/tryamm-lion-crown-america.svg?v=20260902-streetverse-v5" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -41,7 +41,7 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {
-            const SW_VERSION='20260902-ui-shell-v4'
+            const SW_VERSION='20260902-streetverse-v5'
             const registration = await navigator.serviceWorker.register('/sw.js?v=' + SW_VERSION, { updateViaCache: 'none' })
             await registration.update()
             if (registration.waiting) registration.waiting.postMessage({type:'SKIP_WAITING'})
