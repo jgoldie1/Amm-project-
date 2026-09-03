@@ -1,3 +1,5 @@
+import HoloFoodMerchantOnboarding from './HoloFoodMerchantOnboarding'
+
 const pages:Record<string,{eyebrow:string;title:string;tagline:string;description:string;features:string[];actions:[string,string][];notice:string}>={
   '/spectra-entertainment':{
     eyebrow:'TRYAMM ENTERTAINMENT',title:'SPECTRA ENTERTAINMENT',tagline:'Film • music • creators • LIVE • Holo Drama • StarVerse',
@@ -30,8 +32,8 @@ const pages:Record<string,{eyebrow:string;title:string;tagline:string;descriptio
   '/holo-food':{
     eyebrow:'TRYAMM LOCAL COMMERCE',title:'HOLO FOOD DELIVERY',tagline:'Restaurants • pickup • delivery • couriers • StreetVerse missions',
     description:'A food-ordering and local-delivery layer designed to compete on merchant economics, courier tools, accessibility, transparent fees and deep StreetVerse integration.',
-    features:['restaurant discovery','pickup and delivery','transparent fee preview','merchant storefronts','courier dispatch','live order tracking','ETA milestones','courier status','proof-of-delivery photo','one-time delivery code','signature/contactless confirmation','group/family orders','scheduled delivery','accessibility preferences','StreetVerse delivery missions','Omni Cash settlement bridge'],
-    actions:[['STREETVERSE','/streetverse'],['GLOBAL TRADE','/global-trade'],['OMNI CASH','/omni-cash'],['HOLO RIDE SHARE','/holo-ride-share'],['HOME','/']],
+    features:['restaurant discovery','pickup and delivery','transparent fee preview','merchant storefronts','courier dispatch','live order tracking','ETA milestones','courier status','proof-of-delivery photo','one-time delivery code','signature/contactless confirmation','merchant self-service onboarding','menu management','group/family orders','scheduled delivery','accessibility preferences','StreetVerse delivery missions','Omni Cash settlement bridge'],
+    actions:[['SELL ON HOLO FOOD','/holo-food?mode=onboard'],['STREETVERSE','/streetverse'],['GLOBAL TRADE','/global-trade'],['OMNI CASH','/omni-cash'],['HOLO RIDE SHARE','/holo-ride-share'],['HOME','/']],
     notice:'Real restaurant availability, courier dispatch, GPS tracking and card capture remain provider/merchant gated until those live integrations are connected.'
   },
   '/holo-ride-share':{
@@ -57,6 +59,8 @@ const trackingMilestones={
 
 export default function HoloDeliveryRideEntertainmentHub(){
   const path=window.location.pathname
+  const params=new URLSearchParams(window.location.search)
+  if(path==='/holo-food'&&params.get('mode')==='onboard')return <HoloFoodMerchantOnboarding />
   const page=pages[path]||pages['/spectra-entertainment']
   const milestones=trackingMilestones[path as keyof typeof trackingMilestones]
   return <main style={{minHeight:'100vh',padding:'28px 18px 110px',background:'radial-gradient(circle at top,#12253b,#080b12 45%,#050505)',color:'#fff',fontFamily:'system-ui,sans-serif'}}>
