@@ -22,13 +22,16 @@
   function goose(){tone(340,.17,'square',.011,.68);setTimeout(()=>tone(300,.15,'square',.009,.8),145)}
   function insect(){tone(4200,.055,'square',.004,1.02);setTimeout(()=>tone(3900,.05,'square',.0035,1.03),70)}
   function water(){tone(115,.35,'sine',.0045,.94);setTimeout(()=>tone(160,.28,'sine',.0035,.9),170)}
-  const scenes=[chirp,pigeon,parrot,bark,meow,goose,insect,water]
+  function whale(){tone(82,.75,'sine',.008,1.7);setTimeout(()=>tone(125,.55,'sine',.006,.72),520)}
+  function dolphin(){tone(2200,.055,'sine',.008,1.18);setTimeout(()=>tone(2700,.045,'sine',.007,.84),80);setTimeout(()=>tone(2350,.05,'sine',.006,1.1),145)}
+  function ocean(){tone(72,.9,'sine',.0038,.96);setTimeout(()=>tone(105,.7,'sine',.003,.92),330)}
+  const scenes=[chirp,pigeon,parrot,bark,meow,goose,insect,water,whale,dolphin,ocean]
   function playAmbient(){
     if(!enabled||document.hidden)return
     const i=Math.floor(Math.random()*scenes.length);scenes[i]()
-    if(Math.random()>.72)setTimeout(()=>scenes[(i+2)%scenes.length](),420+Math.random()*420)
+    if(Math.random()>.76)setTimeout(()=>scenes[(i+3)%scenes.length](),420+Math.random()*520)
   }
-  function start(){if(!enabled||timer)return;ensureCtx();playAmbient();timer=window.setInterval(playAmbient,3800)}
+  function start(){if(!enabled||timer)return;ensureCtx();playAmbient();timer=window.setInterval(playAmbient,4200)}
   function stop(){if(timer){clearInterval(timer);timer=0}try{ctx?.suspend()}catch{}}
   function mount(){
     if(mounted)return
@@ -41,7 +44,7 @@
     btn.addEventListener('click',()=>{enabled=!enabled;localStorage.setItem(KEY,enabled?'on':'off');sync();enabled?start():stop();window.dispatchEvent(new CustomEvent('tryamm:streetverse-ecology-audio',{detail:{enabled,source:'procedural-game-audio',recordings:false}}))})
     sync();main.appendChild(btn);if(enabled)start()
     document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else if(enabled)start()})
-    window.dispatchEvent(new CustomEvent('tryamm:streetverse-ecology-audio-ready',{detail:{enabled,source:'procedural-game-audio',recordings:false,sounds:['bird-chirp','pigeon-coo','parrot-call','dog-bark','cat-meow','goose-call','insects','water-ambience'],reducedMotion:reduced()}}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-ecology-audio-ready',{detail:{enabled,source:'procedural-game-audio',recordings:false,sounds:['bird-chirp','pigeon-coo','parrot-call','dog-bark','cat-meow','goose-call','insects','water-ambience','whale-call','dolphin-clicks','ocean-ambience'],reducedMotion:reduced()}}))
   }
   const observer=new MutationObserver(mount);observer.observe(document.documentElement,{subtree:true,childList:true});mount()
   addEventListener('pagehide',()=>{observer.disconnect();stop();try{ctx?.close()}catch{}},{once:true})
