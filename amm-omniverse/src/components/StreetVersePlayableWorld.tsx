@@ -11,7 +11,7 @@ function isMobileDevice(){
  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent||'')
 }
 
-function shouldUseSafeMode(){
+export function shouldUseStreetVerseSafeMode(){
  if(typeof navigator==='undefined'||typeof window==='undefined')return false
  const ua=navigator.userAgent||''
  const appleMobile=/iPhone|iPad|iPod/i.test(ua)
@@ -24,7 +24,7 @@ function shouldUseSafeMode(){
 
 export default function StreetVersePlayableWorld({onClose}:{onClose:()=>void}){
  const mobile=useMemo(isMobileDevice,[])
- const safe=useMemo(shouldUseSafeMode,[])
+ const safe=useMemo(shouldUseStreetVerseSafeMode,[])
  if(safe)return <StreetVerseMobileSafeWorld onClose={onClose}/>
  if(mobile)return <><Suspense fallback={<StreetVerseMobilePlayableWorld onClose={onClose}/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense><StreetVerseMobileWalkControls/></>
  return <Suspense fallback={<StreetVerseMobilePlayableWorld onClose={onClose}/>}><StreetVerseLivingWorld onClose={onClose}/></Suspense>
