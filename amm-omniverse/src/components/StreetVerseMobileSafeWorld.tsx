@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState} from 'react'
 import * as THREE from 'three'
+import StreetVerseMobilePlayableWorld from './StreetVerseMobilePlayableWorld'
 
 const SAVE_KEY='tryamm.streetverse.living.v1'
 const START={x:0,z:54}
@@ -17,12 +18,13 @@ export default function StreetVerseMobileSafeWorld({onClose}:{onClose:()=>void})
  const moveRef=useRef({up:false,down:false,left:false,right:false})
  const [status,setStatus]=useState('MOBILE SAFE CITY • LOADING')
  const [message,setMessage]=useState('StreetVerse mobile-safe city is starting…')
+ const [webglFailed,setWebglFailed]=useState(false)
  useEffect(()=>{
   const mount=mountRef.current;if(!mount)return
   const saved=loadSave(),scene=new THREE.Scene();scene.background=new THREE.Color(0x07101d);scene.fog=new THREE.Fog(0x07101d,70,190)
   const camera=new THREE.PerspectiveCamera(62,1,.1,260)
   let renderer:THREE.WebGLRenderer
-  try{renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'default',alpha:false})}catch(err){setStatus('WEBGL COULD NOT START');setMessage('This browser could not create the 3D renderer.');return}
+  try{renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'default',alpha:false})}catch(err){setStatus('WEBGL COULD NOT START');setMessage('Switching to StreetVerse Safe Play Mode.');setWebglFailed(true);return}
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.1));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=false;mount.appendChild(renderer.domElement)
   scene.add(new THREE.HemisphereLight(0xb9e7ff,0x1a1820,2.6));const sun=new THREE.DirectionalLight(0xffdfb8,2.1);sun.position.set(35,70,30);scene.add(sun)
   const ground=new THREE.Mesh(new THREE.PlaneGeometry(190,190),mat(0x183125));ground.rotation.x=-Math.PI/2;scene.add(ground)
@@ -47,6 +49,7 @@ export default function StreetVerseMobileSafeWorld({onClose}:{onClose:()=>void})
  const press=(key:keyof typeof moveRef.current,value:boolean)=>{moveRef.current={...moveRef.current,[key]:value}}
  const hold=(key:keyof typeof moveRef.current)=>(e:React.PointerEvent)=>{e.preventDefault();(e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);press(key,true)}
  const release=(key:keyof typeof moveRef.current)=>(e:React.PointerEvent)=>{e.preventDefault();press(key,false)}
+ if(webglFailed)return <StreetVerseMobilePlayableWorld onClose={onClose}/>
  return <div style={{position:'fixed',inset:0,background:'#07101d',zIndex:15000}}><div ref={mountRef} style={{position:'absolute',inset:0}}/><div style={{position:'fixed',top:14,left:14,zIndex:15010,padding:'9px 11px',borderRadius:10,background:'#07131ddd',border:'1px solid #66e6ff99',color:'#fff',fontFamily:'system-ui',fontSize:11,fontWeight:800}}>{status}<div style={{opacity:.72,marginTop:3,maxWidth:260}}>{message}</div></div><button onClick={onClose} style={{position:'fixed',top:14,right:14,zIndex:15012,minHeight:44,padding:'0 14px',borderRadius:12,border:'1px solid #ffffff55',background:'#111827dd',color:'#fff',fontWeight:900}}>EXIT</button><div style={{position:'fixed',left:16,bottom:22,zIndex:15012,display:'grid',gridTemplateColumns:'58px 58px 58px',gridTemplateRows:'58px 58px',gap:8,touchAction:'none'}}><span/><button onPointerDown={hold('up')} onPointerUp={release('up')} onPointerCancel={release('up')} style={pad}>▲</button><span/><button onPointerDown={hold('left')} onPointerUp={release('left')} onPointerCancel={release('left')} style={pad}>◀</button><button onPointerDown={hold('down')} onPointerUp={release('down')} onPointerCancel={release('down')} style={pad}>▼</button><button onPointerDown={hold('right')} onPointerUp={release('right')} onPointerCancel={release('right')} style={pad}>▶</button></div></div>
 }
 const pad:React.CSSProperties={borderRadius:14,border:'1px solid #6fe8ff88',background:'#07131de8',color:'#fff',fontSize:23,fontWeight:900,touchAction:'none'}
