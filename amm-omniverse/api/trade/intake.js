@@ -26,11 +26,15 @@ export default async function handler(req,res){
   const message=clean(body.message,MAX.message)||null;
   const estimatedMonthlyVolume=numberOrNull(body.estimatedMonthlyVolume);
   const targetMoq=numberOrNull(body.targetMoq);
+  const consentToBusinessContact=Boolean(body.consentToBusinessContact);
+  const ndaRequested=Boolean(body.ndaRequested);
+  const lowMoqRequested=Boolean(body.lowMoqRequested);
 
   if(!ALLOWED_ROLES.has(role))return json(res,400,{ok:false,error:'Choose a valid partner role.'});
   if(companyName.length<2)return json(res,400,{ok:false,error:'Company or brand name is required.'});
   if(contactName.length<2)return json(res,400,{ok:false,error:'Contact name is required.'});
   if(!validEmail(email))return json(res,400,{ok:false,error:'Enter a valid business email.'});
+  if(!consentToBusinessContact)return json(res,400,{ok:false,error:'Consent to business contact is required for Deal Desk submission.'});
 
   const payload={
     role,
@@ -47,12 +51,14 @@ export default async function handler(req,res){
     message,
     source:'global-supply-chain',
     status:'new',
+    consent_to_business_contact:consentToBusinessContact,
+    nda_requested:ndaRequested,
+    low_moq_requested:lowMoqRequested,
     metadata:{
       offerId:clean(body.offerId,80)||null,
-      consentToBusinessContact:Boolean(body.consentToBusinessContact),
-      ndaRequested:Boolean(body.ndaRequested),
-      lowMoqRequested:Boolean(body.lowMoqRequested),
-      submittedFrom:'tryamm.online/global-supply-chain'
+      submissionRef:clean(body.submissionRef,80)||null,
+      submittedFrom:'tryamm.online/global-supply-chain',
+      intakeVersion:'20260903-deal-desk-v2'
     }
   };
 
