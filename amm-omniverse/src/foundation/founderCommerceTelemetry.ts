@@ -8,23 +8,25 @@ export type CommerceAuthority =
   | 'customs-service'
   | 'settlement-service';
 
+export type FounderCommerceTelemetryEventType =
+  | 'rfq.created'
+  | 'supplier.verified'
+  | 'po.opened'
+  | 'payment.verified'
+  | 'inventory.received'
+  | 'shipment.departed'
+  | 'customs.hold.opened'
+  | 'customs.hold.cleared'
+  | 'live.sale.completed'
+  | 'delivery.confirmed'
+  | 'settlement.created'
+  | 'refund.completed';
+
 export interface FounderCommerceTelemetryEvent {
   id: string;
   occurredAt: string;
   authority: CommerceAuthority;
-  type:
-    | 'rfq.created'
-    | 'supplier.verified'
-    | 'po.opened'
-    | 'payment.verified'
-    | 'inventory.received'
-    | 'shipment.departed'
-    | 'customs.hold.opened'
-    | 'customs.hold.cleared'
-    | 'live.sale.completed'
-    | 'delivery.confirmed'
-    | 'settlement.created'
-    | 'refund.completed';
+  type: FounderCommerceTelemetryEventType;
   orderId?: string;
   supplierId?: string;
   country?: string;
@@ -45,6 +47,25 @@ export interface FounderCommerceTelemetryState {
   countries: string[];
   corridors: string[];
 }
+
+const eventAuthorities: Record<FounderCommerceTelemetryEventType, readonly CommerceAuthority[]> = {
+  'rfq.created': ['commerce-api'],
+  'supplier.verified': ['commerce-api'],
+  'po.opened': ['commerce-api'],
+  'payment.verified': ['payment-provider'],
+  'inventory.received': ['inventory-service'],
+  'shipment.departed': ['logistics-service'],
+  'customs.hold.opened': ['customs-service'],
+  'customs.hold.cleared': ['customs-service'],
+  'live.sale.completed': ['commerce-api'],
+  'delivery.confirmed': ['logistics-service'],
+  'settlement.created': ['settlement-service'],
+  'refund.completed': ['payment-provider', 'settlement-service'],
+};
+
+export const isAuthorizedFounderTelemetryEvent = (
+  event: FounderCommerceTelemetryEvent,
+): boolean => eventAuthorities[event.type].includes(event.authority);
 
 const zeroKpis = (): Record<CommerceKpi, number> => ({
   gmv: 0,
@@ -85,11 +106,13 @@ const nonNegative = (value: number): number => Math.max(0, value);
  * StreetVerse, Vision QA, and other presentation clients are intentionally not
  * accepted authorities and therefore cannot mutate money, inventory, customs,
  * logistics, or settlement truth through this reducer.
+ * Each accepted event type is additionally bound to its owning authority.
  */
 export const reduceFounderCommerceTelemetry = (
   state: FounderCommerceTelemetryState,
   event: FounderCommerceTelemetryEvent,
 ): FounderCommerceTelemetryState => {
+  if (!isAuthorizedFounderTelemetryEvent(event)) return state;
   if (state.processedEventIds.includes(event.id)) return state;
 
   const next: FounderCommerceTelemetryState = {
