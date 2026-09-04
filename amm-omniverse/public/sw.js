@@ -1,17 +1,18 @@
 // TRYAMM Service Worker
 // Network-first app shell with stale-asset self recovery.
-// 2026-09-04 American Lion favicon/PWA cache release.
+// 2026-09-04 StreetVerse immediate-play release.
 
-const CACHE_NAME = 'tryamm-shell-american-lion-v2-20260904'
+const RELEASE = '20260904-streetverse-play-v3'
+const CACHE_NAME = 'tryamm-shell-' + RELEASE
 const STATIC_ASSETS = ['/manifest.json?v=20260904-american-lion-v2','/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2']
 
 async function notifyStaleAsset(url) {
   const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
-  windows.forEach(client => client.postMessage({ type: 'TRYAMM_STALE_ASSET', url, release: '20260904-american-lion-v2' }))
+  windows.forEach(client => client.postMessage({ type: 'TRYAMM_STALE_ASSET', url, release: RELEASE }))
 }
 
 function recoveryModule(url) {
-  const source = `(()=>{const k='tryamm-stale-asset-v27';try{if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('_tryamm_recover','v27');location.replace(u.toString())}}catch{location.reload()}})();export {};\n//# sourceURL=tryamm-stale-asset-recovery.js`
+  const source = `(()=>{const k='tryamm-stale-asset-v28';try{if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('_tryamm_recover','v28');location.replace(u.toString())}}catch{location.reload()}})();export {};\n//# sourceURL=tryamm-stale-asset-recovery.js`
   return new Response(source, {
     status: 200,
     headers: {
@@ -71,7 +72,7 @@ self.addEventListener('fetch', (event) => {
     url.hostname.includes('googleapis')
   ) return
 
-  if (request.mode === 'navigate' || url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '/accessibility' || url.pathname === '/accessibility/') {
+  if (request.mode === 'navigate' || url.pathname === '/' || url.pathname === '/index.html' || url.pathname.startsWith('/streetverse') || url.pathname === '/accessibility' || url.pathname === '/accessibility/') {
     event.respondWith(fetch(request, { cache: 'no-store' }))
     return
   }
