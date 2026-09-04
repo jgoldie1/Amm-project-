@@ -54,6 +54,11 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
   return()=>window.removeEventListener('tryamm:streetverse-request-close',requestClose)
  },[closeStreetVerse])
  useEffect(()=>{
+  if(!safe)return
+  const frame=window.requestAnimationFrame(()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-ready',{detail:{mode:'mobile-safe',mobileSafeMode:true,htmlCity:true,canvas:false,playable:true,source:'streetverse-geo-spawn'}})))
+  return()=>window.cancelAnimationFrame(frame)
+ },[safe])
+ useEffect(()=>{
   if(safe)return
   const timer=window.setTimeout(()=>setEnhancementsReady(true),650)
   return()=>window.clearTimeout(timer)
