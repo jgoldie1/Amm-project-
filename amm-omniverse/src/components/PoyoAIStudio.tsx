@@ -1,9 +1,10 @@
-import {useEffect,useMemo,useState} from 'react'
+import {lazy,Suspense,useEffect,useMemo,useState} from 'react'
 import {getAccessToken} from '../services/supabaseClient'
 import {CreatorEngineKind,enginesFor} from '../data/creatorEngineCatalog'
-import HoloSocialEngine from './HoloSocialEngine'
 import PoyoMovieFactoryPanel from './PoyoMovieFactoryPanel'
 import HoloForgeGameFactoryPanel from './HoloForgeGameFactoryPanel'
+
+const HoloSocialEngine=lazy(()=>import('./HoloSocialEngine'))
 
 type Props={onClose:()=>void}
 type Task={task_id?:string;status?:string;progress?:number;files?:{file_url?:string;url?:string;file_type?:string;type?:string}[];error_message?:string}
@@ -54,9 +55,9 @@ export default function PoyoAIStudio({onClose}:Props){
         </div>
         <PoyoMovieFactoryPanel />
         <HoloForgeGameFactoryPanel />
-        <div style={{marginTop:14,...panel,fontSize:11,color:'#94a6b4',lineHeight:1.6}}>Architecture: <b style={{color:'#fff'}}>Poyo AI Studio → HoloGPT Director → Stubbs AI Factory → specialist model lanes → Holo Forge / movie continuity → simulation + QA → TRYAMM world/media handoff.</b> Software architecture can run now; owned inference and full rendering remain visibly blocked until real GPU/provider configuration exists.</div>
+        <div style={{marginTop:14,...panel,fontSize:11,color:'#94a6b4',lineHeight:1.6}}>Architecture: <b style={{color:'#fff'}}>Poyo AI Studio → HoloGPT Director → Stubbs AI Factory → specialist model lanes → Holo Forge / movie continuity → simulation + QA → TRYAMM world/media handoff.</b> Holo Social and its Three.js renderer now load only when opened. Owned inference and full rendering remain visibly blocked until real GPU/provider configuration exists.</div>
       </div>
     </div>
-    {showHoloSocial&&<HoloSocialEngine onClose={()=>setShowHoloSocial(false)}/>} 
+    {showHoloSocial&&<Suspense fallback={<div role="status" aria-live="polite" style={{position:'fixed',inset:0,zIndex:10080,display:'grid',placeItems:'center',background:'#02040b',color:'#dffaff',fontWeight:900}}>LOADING HOLO SOCIAL…</div>}><HoloSocialEngine onClose={()=>setShowHoloSocial(false)}/></Suspense>}
   </>
 }
