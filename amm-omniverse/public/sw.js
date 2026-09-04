@@ -1,9 +1,37 @@
 // TRYAMM Service Worker
-// Network-first app shell so production UI changes are visible immediately.
-// 2026-09-03 platform v25 cache rescue release.
+// Network-first app shell with stale-asset self recovery.
+// 2026-09-03 platform v26 recovery release.
 
-const CACHE_NAME = 'tryamm-shell-platform-v25-20260903'
-const STATIC_ASSETS = ['/manifest.json?v=20260903-platform-v25','/tryamm-lion-crown-america.svg?v=20260903-platform-v25']
+const CACHE_NAME = 'tryamm-shell-platform-v26-20260903'
+const STATIC_ASSETS = ['/manifest.json?v=20260903-platform-v26','/tryamm-lion-crown-america.svg?v=20260903-platform-v26']
+
+async function notifyStaleAsset(url) {
+  const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+  windows.forEach(client => client.postMessage({ type: 'TRYAMM_STALE_ASSET', url, release: '20260903-platform-v26' }))
+}
+
+function recoveryModule(url) {
+  const source = `(()=>{const k='tryamm-stale-asset-v26';try{if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('_tryamm_recover','v26');location.replace(u.toString())}}catch{location.reload()}})();export {};\n//# sourceURL=tryamm-stale-asset-recovery.js`
+  return new Response(source, {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/javascript; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'X-TRYAMM-Recovery': url
+    }
+  })
+}
+
+function recoveryCss(url) {
+  return new Response('/* TRYAMM stale stylesheet recovery */', {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/css; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'X-TRYAMM-Recovery': url
+    }
+  })
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -49,7 +77,28 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (url.pathname.startsWith('/assets/') && url.pathname.match(/\.(js|css)$/i)) {
-    event.respondWith(fetch(request, { cache: 'no-store' }).catch(() => caches.match(request)))
+    event.respondWith((async () => {
+      const isJs = /\.js$/i.test(url.pathname)
+      try {
+        const response = await fetch(request, { cache: 'no-store' })
+        const type = String(response.headers.get('content-type') || '').toLowerCase()
+        const validType = isJs ? type.includes('javascript') : type.includes('text/css')
+        if (response.ok && validType) {
+          const clone = response.clone()
+          caches.open(CACHE_NAME).then(cache => cache.put(request, clone)).catch(() => {})
+          return response
+        }
+        const cached = await caches.match(request)
+        if (cached) return cached
+        await notifyStaleAsset(url.href)
+        return isJs ? recoveryModule(url.href) : recoveryCss(url.href)
+      } catch {
+        const cached = await caches.match(request)
+        if (cached) return cached
+        await notifyStaleAsset(url.href)
+        return isJs ? recoveryModule(url.href) : recoveryCss(url.href)
+      }
+    })())
     return
   }
 
@@ -57,7 +106,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(fetch(request, { cache: 'no-store' }).then(response => {
       if (response.ok) {
         const clone = response.clone()
-        caches.open(CACHE_NAME).then(cache => cache.put(request, clone))
+        caches.open(CACHE_NAME).then(cache => cache.put(request, clone)).catch(() => {})
       }
       return response
     }).catch(() => caches.match(request)))
@@ -68,7 +117,7 @@ self.addEventListener('fetch', (event) => {
 })
 
 self.addEventListener('push', (event) => {
-  let data = { title: 'TRYAMM', body: 'You have a new notification', icon: '/tryamm-lion-crown-america.svg?v=20260903-platform-v25', badge: '/icons/badge-72.png' }
+  let data = { title: 'TRYAMM', body: 'You have a new notification', icon: '/tryamm-lion-crown-america.svg?v=20260903-platform-v26', badge: '/icons/badge-72.png' }
   if (event.data) {
     try { data = { ...data, ...event.data.json() } } catch { data.body = event.data.text() }
   }
