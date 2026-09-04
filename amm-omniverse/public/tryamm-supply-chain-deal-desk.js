@@ -1,5 +1,5 @@
 (()=>{
-  const VERSION='20260903-dealdesk-v1'
+  const VERSION='20260903-dealdesk-v2'
   const offers={
     foundingSeller:{
       name:'Founding Seller Pilot',
@@ -69,4 +69,12 @@
   ]
   window.TRYAMMSupplyChainDealDesk={version:VERSION,offers,quote,firstCustomers,pipelineMath,wedge,chargesEnabled:false}
   window.dispatchEvent(new CustomEvent('tryamm:supply-chain-dealdesk-ready',{detail:{version:VERSION,offers:Object.keys(offers),chargesEnabled:false}}))
+
+  if(!document.querySelector('script[data-tryamm-supply-intake-loader]')){
+    const script=document.createElement('script')
+    script.src='/tryamm-supply-chain-intake.js?v=20260903-deal-desk-v2'
+    script.defer=true
+    script.dataset.tryammSupplyIntakeLoader='true'
+    document.head.appendChild(script)
+  }
 })()
