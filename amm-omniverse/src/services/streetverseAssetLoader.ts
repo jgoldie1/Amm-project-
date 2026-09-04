@@ -95,10 +95,23 @@ export async function replacePrimitiveWithStreetVerseAsset(options:{
   })
   if(options.transformLoadedModel)await options.transformLoadedModel(model)
   startEmbeddedAnimation(model,loaded.animations)
-  const parent=options.parent??options.scene
-  parent.add(model)
-  options.fallback.parent?.remove(options.fallback)
-  if(typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:streetverse-asset-materialized',{detail:{id:options.id,animated:loaded.animations.length>0,clips:loaded.animations.map(c=>c.name),fallback:false}}))
+
+  const preserveControlRoot=options.id==='player-default'&&options.fallback instanceof THREE.Group
+  if(preserveControlRoot){
+    model.position.set(0,0,0)
+    model.rotation.y=options.rotationY??asset.rotationY??0
+    const root=options.fallback as THREE.Group
+    while(root.children.length)root.remove(root.children[0])
+    root.add(model)
+    root.visible=true
+    root.userData.streetVerseLoadedModel=model
+    root.userData.streetVerseControlRootPreserved=true
+  }else{
+    const parent=options.parent??options.scene
+    parent.add(model)
+    options.fallback.parent?.remove(options.fallback)
+  }
+  if(typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:streetverse-asset-materialized',{detail:{id:options.id,animated:loaded.animations.length>0,clips:loaded.animations.map(c=>c.name),fallback:false,controlRootPreserved:preserveControlRoot}}))
   return true
 }
 
