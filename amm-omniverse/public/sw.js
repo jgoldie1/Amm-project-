@@ -1,17 +1,17 @@
 // TRYAMM Service Worker
 // Network-first app shell with stale-asset self recovery.
-// 2026-09-03 platform v26 recovery release.
+// 2026-09-04 American Lion favicon/PWA cache release.
 
-const CACHE_NAME = 'tryamm-shell-platform-v26-20260903'
-const STATIC_ASSETS = ['/manifest.json?v=20260903-platform-v26','/tryamm-lion-crown-america.svg?v=20260903-platform-v26']
+const CACHE_NAME = 'tryamm-shell-american-lion-v2-20260904'
+const STATIC_ASSETS = ['/manifest.json?v=20260904-american-lion-v2','/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2']
 
 async function notifyStaleAsset(url) {
   const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
-  windows.forEach(client => client.postMessage({ type: 'TRYAMM_STALE_ASSET', url, release: '20260903-platform-v26' }))
+  windows.forEach(client => client.postMessage({ type: 'TRYAMM_STALE_ASSET', url, release: '20260904-american-lion-v2' }))
 }
 
 function recoveryModule(url) {
-  const source = `(()=>{const k='tryamm-stale-asset-v26';try{if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('_tryamm_recover','v26');location.replace(u.toString())}}catch{location.reload()}})();export {};\n//# sourceURL=tryamm-stale-asset-recovery.js`
+  const source = `(()=>{const k='tryamm-stale-asset-v27';try{if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('_tryamm_recover','v27');location.replace(u.toString())}}catch{location.reload()}})();export {};\n//# sourceURL=tryamm-stale-asset-recovery.js`
   return new Response(source, {
     status: 200,
     headers: {
@@ -117,7 +117,7 @@ self.addEventListener('fetch', (event) => {
 })
 
 self.addEventListener('push', (event) => {
-  let data = { title: 'TRYAMM', body: 'You have a new notification', icon: '/tryamm-lion-crown-america.svg?v=20260903-platform-v26', badge: '/icons/badge-72.png' }
+  let data = { title: 'TRYAMM', body: 'You have a new notification', icon: '/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2', badge: '/icons/badge-72.png' }
   if (event.data) {
     try { data = { ...data, ...event.data.json() } } catch { data.body = event.data.text() }
   }
