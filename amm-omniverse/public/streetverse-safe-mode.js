@@ -2,6 +2,7 @@
   const isStreetVerse=()=>location.pathname.startsWith('/streetverse')||location.hash.replace(/^#/,'').startsWith('/streetverse')
   if(!isStreetVerse())return
   let safeActive=false
+  let vehicleActive=false
   const STYLE_ID='tryamm-streetverse-safe-life-v2'
   const findRecorderUi=()=>[...document.body.children].filter(el=>{
     const z=Number.parseInt(getComputedStyle(el).zIndex||'0',10)
@@ -42,6 +43,30 @@
     actions.insertBefore(button,actions.lastElementChild)
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-launcher-ready',{detail:{source:'streetverse-living-world',visible:true}}))
   }
+  const updateVehicleLauncher=()=>{
+    const button=document.querySelector('[data-tryamm-streetverse-vehicle-launcher="true"]')
+    if(!button)return
+    button.textContent=vehicleActive?'EXIT VEHICLE':'ENTER VEHICLE'
+    button.setAttribute('aria-label',vehicleActive?'Exit current StreetVerse vehicle':'Enter nearest StreetVerse vehicle')
+    button.style.borderColor=vehicleActive?'#ffd45e':'#59e7ff'
+    button.style.color=vehicleActive?'#ffe9a0':'#9af0ff'
+  }
+  const ensureVehicleLauncher=()=>{
+    const world=document.querySelector('[role="dialog"][aria-label="StreetVerse Living World"]')
+    if(!world)return
+    const header=world.querySelector('header')
+    if(!header||header.querySelector('[data-tryamm-streetverse-vehicle-launcher="true"]'))return
+    const actions=header.lastElementChild
+    if(!actions)return
+    const button=document.createElement('button')
+    button.type='button'
+    button.dataset.tryammStreetverseVehicleLauncher='true'
+    Object.assign(button.style,{minHeight:'42px',borderRadius:'12px',border:'1px solid #59e7ff',background:'#071b25',color:'#9af0ff',fontWeight:'900',padding:'0 13px',cursor:'pointer',boxShadow:'0 6px 18px #0008',whiteSpace:'nowrap'})
+    button.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:!vehicleActive,source:'touch-header'}})))
+    actions.insertBefore(button,actions.lastElementChild)
+    updateVehicleLauncher()
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-launcher-ready',{detail:{source:'streetverse-living-world',visible:true,touch:true}}))
+  }
   const markVisibleLife=(city)=>{
     ensureLifeStyles()
     const streets=[...city.querySelectorAll('main > div[aria-hidden="true"]')]
@@ -61,6 +86,7 @@
   }
   const sync=()=>{
     ensureReelLauncher()
+    ensureVehicleLauncher()
     const city=document.querySelector('[data-streetverse-html-city="true"]')
     safeActive=!!city
     if(!safeActive)return
@@ -76,6 +102,12 @@
   }
   const observer=new MutationObserver(sync)
   observer.observe(document.documentElement,{childList:true,subtree:true})
+  window.addEventListener('tryamm:streetverse-vehicle-controlled',event=>{
+    const detail=event.detail||{}
+    vehicleActive=!!detail.entered
+    updateVehicleLauncher()
+  })
+  window.addEventListener('tryamm:streetverse-enter',()=>{vehicleActive=false;updateVehicleLauncher()})
   window.addEventListener('tryamm:open-reel-creator',()=>{
     if(!document.querySelector('[data-streetverse-html-city="true"]'))return
     window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'streetverse-html-city',title:'StreetVerse Chicago Reel',caption:'Captured in StreetVerse Chicago • #TRYAMM #StreetVerse',mobileSafeMode:true,screenRecordingRecommended:true}}))
