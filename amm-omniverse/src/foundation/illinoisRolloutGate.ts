@@ -47,14 +47,28 @@ const REQUIRED_BOOLEAN_EVIDENCE: Array<
   'accessibilityGatePassed',
 ];
 
+const hasValidEvidenceIds = (evidenceIds: string[]): boolean => {
+  if (evidenceIds.length === 0) return false;
+
+  const normalizedIds = evidenceIds.map((id) => id.trim());
+  if (normalizedIds.some((id) => id.length === 0)) return false;
+
+  return new Set(normalizedIds).size === normalizedIds.length;
+};
+
+const hasValidVerificationTimestamp = (verifiedAt?: string): boolean => {
+  if (!verifiedAt?.trim()) return false;
+  return Number.isFinite(Date.parse(verifiedAt));
+};
+
 export const evaluateIllinoisToUnitedStatesGate = (
   evidence: IllinoisRolloutEvidence,
 ): RolloutGateDecision => {
   const missingEvidence = REQUIRED_BOOLEAN_EVIDENCE.filter((key) => evidence[key] !== true);
 
   if (!evidence.goldenOrderId.trim()) missingEvidence.push('goldenOrderId');
-  if (evidence.evidenceIds.length === 0) missingEvidence.push('evidenceIds');
-  if (!evidence.verifiedAt) missingEvidence.push('verifiedAt');
+  if (!hasValidEvidenceIds(evidence.evidenceIds)) missingEvidence.push('evidenceIds');
+  if (!hasValidVerificationTimestamp(evidence.verifiedAt)) missingEvidence.push('verifiedAt');
 
   return {
     currentScope: 'illinois',
