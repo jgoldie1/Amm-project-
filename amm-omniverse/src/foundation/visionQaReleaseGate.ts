@@ -13,6 +13,8 @@ export const ILLINOIS_VISION_QA_REQUIRED_AREAS: readonly VisionQaArea[] = [
   'world-population-gaps',
 ] as const;
 
+const BUILD_SHA_PATTERN = /^[0-9a-f]{7,64}$/i;
+
 export interface VisionQaReleaseEvidence {
   run: VisionQaRun;
   inspectedAreas: VisionQaArea[];
@@ -46,13 +48,22 @@ export const evaluateIllinoisVisionQaReleaseGate = (
     if (!inspected.has(area)) missingEvidence.push(`inspectedArea:${area}`);
   }
 
-  if (!evidence.expectedBuildSha.trim()) missingEvidence.push('expectedBuildSha');
-  if (!evidence.run.buildSha?.trim()) missingEvidence.push('run.buildSha');
-  if (
-    evidence.expectedBuildSha.trim() &&
-    evidence.run.buildSha?.trim() &&
-    evidence.expectedBuildSha !== evidence.run.buildSha
-  ) {
+  const expectedBuildSha = evidence.expectedBuildSha.trim();
+  const runBuildSha = evidence.run.buildSha?.trim() ?? '';
+
+  if (!expectedBuildSha) {
+    missingEvidence.push('expectedBuildSha');
+  } else if (expectedBuildSha !== evidence.expectedBuildSha || !BUILD_SHA_PATTERN.test(expectedBuildSha)) {
+    missingEvidence.push('expectedBuildShaInvalid');
+  }
+
+  if (!runBuildSha) {
+    missingEvidence.push('run.buildSha');
+  } else if (runBuildSha !== evidence.run.buildSha || !BUILD_SHA_PATTERN.test(runBuildSha)) {
+    missingEvidence.push('run.buildShaInvalid');
+  }
+
+  if (expectedBuildSha && runBuildSha && expectedBuildSha !== runBuildSha) {
     missingEvidence.push('buildShaMismatch');
   }
 
