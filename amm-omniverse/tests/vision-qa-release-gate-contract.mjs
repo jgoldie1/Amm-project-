@@ -20,11 +20,15 @@ const requiredSnippets = [
   'buildShaMismatch',
   'evidenceRefs',
   'evidenceRef:${index}',
+  'evidenceRefInvalid:${index}',
+  'normalizedEvidenceRef !== evidenceRef',
   'verifiedAt',
   'verifiedAtInvalid',
   'Date.parse(verifiedAt)',
   'criticalFindingIds',
   'findingEvidenceRef:',
+  'findingEvidenceRefInvalid:',
+  'normalizedFindingEvidenceRef !== finding.evidenceRef',
   'allowed: missingEvidence.length === 0 && criticalFindingIds.length === 0',
 ];
 
