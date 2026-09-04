@@ -19,6 +19,7 @@
     { "src": "/api/stripe/webhook", "methods": ["POST"], "dest": "https://amm-project-1-rpz9.onrender.com/api/stripe/webhook" },
     { "src": "/api/creator/earnings", "dest": "https://amm-project-1-rpz9.onrender.com/api/creator/earnings" },
     { "handle": "filesystem" },
+    { "src": "/assets/.*", "status": 404 },
     { "src": "/.*", "dest": "/index.html" }
   ]
 }
