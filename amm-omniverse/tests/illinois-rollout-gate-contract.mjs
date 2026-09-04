@@ -19,6 +19,10 @@ const requiredSignals = [
   'goldenOrderId',
   'evidenceIds',
   'verifiedAt',
+  'hasValidEvidenceIds',
+  'hasValidVerificationTimestamp',
+  'new Set(normalizedIds).size === normalizedIds.length',
+  'Date.parse(verifiedAt)',
   "nextScope: missingEvidence.length === 0 ? 'united-states' : undefined",
   "'national-expansion-evidence-not-yet-defined'",
   "'world-is-terminal-rollout-scope'",
@@ -33,6 +37,18 @@ for (const signal of requiredSignals) {
 const requiredBooleanBlock = source.match(/const REQUIRED_BOOLEAN_EVIDENCE[\s\S]*?= \[([\s\S]*?)\];/);
 if (!requiredBooleanBlock || !requiredBooleanBlock[1].includes("'visionQaReleaseGatePassed'")) {
   throw new Error('Illinois rollout gate must require a passing Vision-assisted AAA release gate.');
+}
+
+if (!/normalizedIds\.some\(\(id\) => id\.length === 0\)/.test(source)) {
+  throw new Error('Illinois rollout gate must reject blank evidence identifiers.');
+}
+
+if (!/new Set\(normalizedIds\)\.size === normalizedIds\.length/.test(source)) {
+  throw new Error('Illinois rollout gate must reject duplicate evidence identifiers.');
+}
+
+if (!/Number\.isFinite\(Date\.parse\(verifiedAt\)\)/.test(source)) {
+  throw new Error('Illinois rollout gate must require a parseable verification timestamp.');
 }
 
 if (/source\s*===?\s*['\"]streetverse['\"]\s*&&\s*authoritative\s*===?\s*true/.test(source)) {
