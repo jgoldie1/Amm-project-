@@ -73,9 +73,29 @@ const isIsoTimestamp = (value: string): boolean => {
   return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
 };
 
+const numericTelemetryFields: readonly (keyof FounderCommerceTelemetryEvent)[] = [
+  'amount',
+  'platformRevenue',
+  'inventoryValue',
+  'sellerPayable',
+  'grossMargin',
+  'supplierRisk',
+];
+
+const hasOnlyFiniteNumericTelemetry = (
+  event: FounderCommerceTelemetryEvent,
+): boolean =>
+  numericTelemetryFields.every((field) => {
+    const value = event[field];
+    return value === undefined || (typeof value === 'number' && Number.isFinite(value));
+  });
+
 export const hasValidFounderTelemetryEnvelope = (
   event: FounderCommerceTelemetryEvent,
-): boolean => event.id.trim().length > 0 && isIsoTimestamp(event.occurredAt);
+): boolean =>
+  event.id.trim().length > 0 &&
+  isIsoTimestamp(event.occurredAt) &&
+  hasOnlyFiniteNumericTelemetry(event);
 
 const zeroKpis = (): Record<CommerceKpi, number> => ({
   gmv: 0,
