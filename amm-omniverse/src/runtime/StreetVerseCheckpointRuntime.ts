@@ -1,4 +1,5 @@
 import { useGameStore, type Screen } from '../game/state/useGameStore'
+import { installStreetVerseMobileMissionRewardRuntime } from './StreetVerseMobileMissionRewardRuntime'
 
 const KEY='tryamm_streetverse_checkpoint_v1'
 const MAX_AGE_MS=1000*60*60*24*14
@@ -99,6 +100,7 @@ function restore(value:Checkpoint){
 export function installStreetVerseCheckpointRuntime(){
   if(installed||typeof window==='undefined')return
   installed=true
+  installStreetVerseMobileMissionRewardRuntime()
 
   const checkpoint=read()
   if(checkpoint)queueMicrotask(()=>restore(checkpoint))
