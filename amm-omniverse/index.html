@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
     <meta name="theme-color" content="#04050E" />
     <meta name="description" content="TRYAMM — one connected platform for creators, commerce, LIVE, games, AI, business, education, workforce, and Living Worlds." />
-    <link rel="manifest" href="/manifest.json?v=20260904-american-lion-v1" />
-    <link rel="icon" type="image/svg+xml" href="/tryamm-lion-crown-america.svg?v=20260904-american-lion-v1" />
-    <link rel="shortcut icon" type="image/svg+xml" href="/tryamm-lion-crown-america.svg?v=20260904-american-lion-v1" />
-    <link rel="apple-touch-icon" href="/tryamm-lion-crown-america.svg?v=20260904-american-lion-v1" />
+    <link rel="manifest" href="/manifest.json?v=20260904-american-lion-v2" />
+    <link rel="icon" type="image/svg+xml" href="/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2" />
+    <link rel="shortcut icon" type="image/svg+xml" href="/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2" />
+    <link rel="apple-touch-icon" href="/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -17,23 +17,23 @@
     <meta name="robots" content="index,follow" />
     <link rel="canonical" href="https://tryamm.online/" />
     <meta property="og:title" content="TRYAMM — All American Marketplace & Living Worlds" />
-    <meta property="og:image" content="https://tryamm.online/tryamm-lion-crown-america.svg?v=20260904-american-lion-v1" />
+    <meta property="og:image" content="https://tryamm.online/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2" />
     <meta property="og:description" content="Creators, commerce, LIVE, games, AI, business, workforce, education, and Living Worlds in one connected platform." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://tryamm.online/" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="TRYAMM — All American Marketplace & Living Worlds" />
     <meta name="twitter:description" content="One connected platform for creators, commerce, LIVE, games, AI, business, workforce, education, and Living Worlds." />
-    <meta name="twitter:image" content="https://tryamm.online/tryamm-lion-crown-america.svg?v=20260904-american-lion-v1" />
+    <meta name="twitter:image" content="https://tryamm.online/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2" />
     <script>
       (()=>{
-        const KEY='tryamm-asset-recovery-v26'
+        const KEY='tryamm-asset-recovery-v27'
         const recover=()=>{
           try{
             if(sessionStorage.getItem(KEY))return
             sessionStorage.setItem(KEY,'1')
             const u=new URL(location.href)
-            u.searchParams.set('_tryamm_recover','v26')
+            u.searchParams.set('_tryamm_recover','v27')
             location.replace(u.toString())
           }catch{location.reload()}
         }
@@ -88,7 +88,7 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {
-            const SW_VERSION='20260904-american-lion-v1'
+            const SW_VERSION='20260904-american-lion-v2'
             const RELEASE_KEY='tryamm-release-version'
             const previousRelease=localStorage.getItem(RELEASE_KEY)
             if (previousRelease !== SW_VERSION && 'caches' in window) {
