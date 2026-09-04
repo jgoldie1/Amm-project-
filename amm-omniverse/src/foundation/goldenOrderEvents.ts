@@ -18,6 +18,15 @@ export const GOLDEN_ORDER_EVENTS = [
 
 export type GoldenOrderEventName = (typeof GOLDEN_ORDER_EVENTS)[number];
 
+export type GoldenOrderEventSource =
+  | 'tryamm-commerce'
+  | 'payment-provider'
+  | 'logistics-provider'
+  | 'warehouse'
+  | 'customs-service'
+  | 'settlement-service'
+  | 'streetverse';
+
 export interface GoldenOrderEvent<TPayload = Record<string, unknown>> {
   eventId: string;
   eventName: GoldenOrderEventName;
@@ -26,13 +35,34 @@ export interface GoldenOrderEvent<TPayload = Record<string, unknown>> {
   correlationId: string;
   actorType: 'seller' | 'supplier' | 'buyer' | 'carrier' | 'warehouse' | 'customs' | 'system';
   actorId?: string;
-  source: 'tryamm-commerce' | 'payment-provider' | 'logistics-provider' | 'warehouse' | 'streetverse';
+  source: GoldenOrderEventSource;
   authoritative: boolean;
   payload: TPayload;
 }
 
+export const GOLDEN_ORDER_EVENT_AUTHORITIES: Record<GoldenOrderEventName, readonly GoldenOrderEventSource[]> = {
+  'golden-order.rfq.created': ['tryamm-commerce'],
+  'golden-order.quote.received': ['tryamm-commerce'],
+  'golden-order.quote.accepted': ['tryamm-commerce'],
+  'golden-order.po.opened': ['tryamm-commerce'],
+  'golden-order.funded': ['payment-provider'],
+  'golden-order.production.started': ['tryamm-commerce'],
+  'golden-order.shipment.departed': ['logistics-provider'],
+  'golden-order.customs.hold': ['customs-service'],
+  'golden-order.customs.released': ['customs-service'],
+  'golden-order.warehouse.received': ['warehouse'],
+  'golden-order.inventory.reserved': ['warehouse'],
+  'golden-order.live-sale.completed': ['tryamm-commerce'],
+  'golden-order.delivery.confirmed': ['logistics-provider'],
+  'golden-order.settlement.created': ['settlement-service'],
+  'golden-order.refund.created': ['payment-provider', 'settlement-service'],
+};
+
 export const isWorldProjectionOnly = (event: GoldenOrderEvent): boolean =>
   event.source === 'streetverse' && event.authoritative === false;
 
+export const isAuthorizedGoldenOrderEvent = (event: GoldenOrderEvent): boolean =>
+  event.authoritative === true && GOLDEN_ORDER_EVENT_AUTHORITIES[event.eventName].includes(event.source);
+
 export const mayMutateCommerceTruth = (event: GoldenOrderEvent): boolean =>
-  event.authoritative === true && event.source !== 'streetverse';
+  event.source !== 'streetverse' && isAuthorizedGoldenOrderEvent(event);
