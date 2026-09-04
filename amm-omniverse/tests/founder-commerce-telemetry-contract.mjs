@@ -61,6 +61,10 @@ const requiredProtections = [
   'StreetVerse, Vision QA, and other presentation clients are intentionally not',
   'isAuthorizedFounderTelemetryEvent(event)',
   'eventAuthorities[event.type].includes(event.authority)',
+  'hasValidFounderTelemetryEnvelope(event)',
+  'event.id.trim().length > 0',
+  'Date.parse(value)',
+  'new Date(parsed).toISOString() === value',
 ];
 
 for (const protection of requiredProtections) {
@@ -70,9 +74,16 @@ for (const protection of requiredProtections) {
 }
 
 const authorityCheckPosition = source.indexOf('if (!isAuthorizedFounderTelemetryEvent(event)) return state;');
+const envelopeCheckPosition = source.indexOf('if (!hasValidFounderTelemetryEnvelope(event)) return state;');
 const processedIdPosition = source.indexOf('if (state.processedEventIds.includes(event.id)) return state;');
-if (authorityCheckPosition < 0 || processedIdPosition < 0 || authorityCheckPosition > processedIdPosition) {
-  throw new Error('Authority validation must happen before an event is recorded as processed');
+if (
+  authorityCheckPosition < 0 ||
+  envelopeCheckPosition < 0 ||
+  processedIdPosition < 0 ||
+  authorityCheckPosition > envelopeCheckPosition ||
+  envelopeCheckPosition > processedIdPosition
+) {
+  throw new Error('Authority and envelope validation must happen before an event is recorded as processed');
 }
 
 const requiredKpis = [
@@ -101,4 +112,4 @@ for (const kpi of requiredKpis) {
   }
 }
 
-console.log('Founder commerce telemetry authority contract passed');
+console.log('Founder commerce telemetry authority and envelope contract passed');
