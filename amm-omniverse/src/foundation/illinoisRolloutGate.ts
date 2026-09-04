@@ -15,12 +15,21 @@ export interface IllinoisRolloutEvidence {
   verifiedAt?: string;
 }
 
+export interface IllinoisRolloutGateOptions {
+  /** Clock injection keeps the gate deterministic in tests and audit replays. */
+  nowMs?: number;
+  /** Maximum age of verification evidence before a fresh proof is required. */
+  maxEvidenceAgeMs?: number;
+}
+
 export interface RolloutGateDecision {
   currentScope: RolloutScope;
   nextScope?: RolloutScope;
   allowed: boolean;
   missingEvidence: string[];
 }
+
+const DEFAULT_MAX_EVIDENCE_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 const REQUIRED_BOOLEAN_EVIDENCE: Array<
   keyof Pick<
@@ -56,8 +65,13 @@ const hasValidEvidenceIds = (evidenceIds: string[]): boolean => {
   return new Set(normalizedIds).size === normalizedIds.length;
 };
 
-const hasValidVerificationTimestamp = (verifiedAt?: string): boolean => {
+const hasValidVerificationTimestamp = (
+  verifiedAt: string | undefined,
+  nowMs: number,
+  maxEvidenceAgeMs: number,
+): boolean => {
   if (!verifiedAt?.trim()) return false;
+  if (!Number.isFinite(nowMs) || !Number.isFinite(maxEvidenceAgeMs) || maxEvidenceAgeMs < 0) return false;
 
   const timestamp = Date.parse(verifiedAt);
   if (!Number.isFinite(timestamp)) return false;
@@ -65,17 +79,27 @@ const hasValidVerificationTimestamp = (verifiedAt?: string): boolean => {
   // Expansion evidence must already exist when the gate is evaluated. Reject
   // future-dated proof so a malformed clock or pre-staged record cannot unlock
   // geographic rollout before its verification actually occurred.
-  return timestamp <= Date.now();
+  if (timestamp > nowMs) return false;
+
+  // Do not let an old Illinois verification remain a permanent expansion key.
+  // A configurable freshness window forces the paid-order/reconciliation/QA
+  // proof to be recent when U.S. expansion is proposed.
+  return nowMs - timestamp <= maxEvidenceAgeMs;
 };
 
 export const evaluateIllinoisToUnitedStatesGate = (
   evidence: IllinoisRolloutEvidence,
+  options: IllinoisRolloutGateOptions = {},
 ): RolloutGateDecision => {
   const missingEvidence = REQUIRED_BOOLEAN_EVIDENCE.filter((key) => evidence[key] !== true);
+  const nowMs = options.nowMs ?? Date.now();
+  const maxEvidenceAgeMs = options.maxEvidenceAgeMs ?? DEFAULT_MAX_EVIDENCE_AGE_MS;
 
   if (!evidence.goldenOrderId.trim()) missingEvidence.push('goldenOrderId');
   if (!hasValidEvidenceIds(evidence.evidenceIds)) missingEvidence.push('evidenceIds');
-  if (!hasValidVerificationTimestamp(evidence.verifiedAt)) missingEvidence.push('verifiedAt');
+  if (!hasValidVerificationTimestamp(evidence.verifiedAt, nowMs, maxEvidenceAgeMs)) {
+    missingEvidence.push('verifiedAt');
+  }
 
   return {
     currentScope: 'illinois',
@@ -96,6 +120,7 @@ export const evaluateIllinoisToUnitedStatesGate = (
 export const proposeRolloutAdvance = (
   currentScope: RolloutScope,
   illinoisEvidence?: IllinoisRolloutEvidence,
+  options: IllinoisRolloutGateOptions = {},
 ): RolloutGateDecision => {
   if (currentScope === 'illinois') {
     if (!illinoisEvidence) {
@@ -105,7 +130,7 @@ export const proposeRolloutAdvance = (
         missingEvidence: ['illinoisEvidence'],
       };
     }
-    return evaluateIllinoisToUnitedStatesGate(illinoisEvidence);
+    return evaluateIllinoisToUnitedStatesGate(illinoisEvidence, options);
   }
 
   return {
