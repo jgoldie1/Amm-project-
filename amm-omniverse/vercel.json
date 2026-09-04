@@ -9,6 +9,7 @@
     { "src": "/all-american-university/?", "dest": "/all-american-university.html" },
     { "src": "/global-supply-chain/?", "dest": "/global-supply-chain.html" },
     { "src": "/demand-pool/?", "dest": "/demand-pool.html" },
+    { "src": "/studio-release/?", "dest": "/studio-release.html" },
     { "src": "/shipping-receiving/?", "dest": "/shipping-receiving.html" },
     { "src": "/stores/?", "dest": "/store-network.html" },
     { "src": "/api/payments/status", "dest": "https://amm-project-1-rpz9.onrender.com/api/payments/status" },
