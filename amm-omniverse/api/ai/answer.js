@@ -106,6 +106,17 @@ async function claude(question,history){
   return {answer,provider:'claude',model:data.model||model};
 }
 
+async function glm(question,history){
+  const key=process.env.ZAI_API_KEY||process.env.GLM_API_KEY;if(!key)return null;
+  const model=process.env.HOLOGPT_GLM_MODEL||'glm-5.2';
+  const base=String(process.env.ZAI_API_BASE||process.env.GLM_API_BASE||'https://api.z.ai/api/paas/v4').trim().replace(/\/$/,'');
+  const messages=[{role:'system',content:systemPrompt()},...normalizeHistory(history),{role:'user',content:question}];
+  const data=await fetchJson(`${base}/chat/completions`,{method:'POST',headers:{'content-type':'application/json','accept-language':'en-US,en',authorization:`Bearer ${key}`},body:JSON.stringify({model,messages,temperature:.35,max_tokens:2200,stream:false,thinking:{type:'enabled'}})});
+  const answer=clean(data?.choices?.[0]?.message?.content,20000);
+  if(!answer)throw new Error('glm_empty_response');
+  return {answer,provider:'zai-glm',model:data.model||model};
+}
+
 async function deepseek(question,history){
   const key=process.env.DEEPSEEK_API_KEY;if(!key)return null;
   const model=process.env.HOLOGPT_DEEPSEEK_MODEL;if(!model)return null;
@@ -126,7 +137,7 @@ async function ammBackend(question,history,authorization){
   return {answer,provider:'amm-backend',model:data.model||null};
 }
 
-function diagnostic(question,errors=[]){return {answer:`HoloGPT is online in recovery mode, but no generative provider completed this request.\n\nYour request: ${question}\n\nPrimary path: Vercel AI SDK + AI Gateway automatic OIDC. Fallbacks: explicit Vercel AI Gateway, OpenAI, Gemini, Claude, DeepSeek, then the AMM backend.${errors.length?`\n\nProvider diagnostics: ${errors.join(' | ')}`:''}`,provider:'diagnostic',model:null};}
+function diagnostic(question,errors=[]){return {answer:`HoloGPT is online in recovery mode, but no generative provider completed this request.\n\nYour request: ${question}\n\nPrimary path: Vercel AI SDK + AI Gateway automatic OIDC. Fallbacks: explicit Vercel AI Gateway, OpenAI, Gemini, Claude, GLM 5.2, DeepSeek, then the AMM backend.${errors.length?`\n\nProvider diagnostics: ${errors.join(' | ')}`:''}`,provider:'diagnostic',model:null};}
 
 export default async function handler(req,res){
   res.setHeader('Cache-Control','no-store');
@@ -143,6 +154,7 @@ export default async function handler(req,res){
     ()=>openai(question,history),
     ()=>gemini(question,history),
     ()=>claude(question,history),
+    ()=>glm(question,history),
     ()=>deepseek(question,history),
     ()=>ammBackend(question,history,authorization)
   ];
