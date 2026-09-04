@@ -1,9 +1,9 @@
 // TRYAMM Service Worker
 // Network-first app shell so production UI changes are visible immediately.
-// 2026-09-03 cache rescue release: force clients off stale StreetVerse shells.
+// 2026-09-03 platform v25 cache rescue release.
 
-const CACHE_NAME = 'tryamm-shell-v21-streetverse-v8-20260903'
-const STATIC_ASSETS = ['/manifest.json?v=20260903-streetverse-v8','/tryamm-lion-crown-america.svg?v=20260903-streetverse-v8']
+const CACHE_NAME = 'tryamm-shell-platform-v25-20260903'
+const STATIC_ASSETS = ['/manifest.json?v=20260903-platform-v25','/tryamm-lion-crown-america.svg?v=20260903-platform-v25']
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -68,7 +68,7 @@ self.addEventListener('fetch', (event) => {
 })
 
 self.addEventListener('push', (event) => {
-  let data = { title: 'TRYAMM', body: 'You have a new notification', icon: '/tryamm-lion-crown-america.svg?v=20260903-streetverse-v8', badge: '/icons/badge-72.png' }
+  let data = { title: 'TRYAMM', body: 'You have a new notification', icon: '/tryamm-lion-crown-america.svg?v=20260903-platform-v25', badge: '/icons/badge-72.png' }
   if (event.data) {
     try { data = { ...data, ...event.data.json() } } catch { data.body = event.data.text() }
   }
