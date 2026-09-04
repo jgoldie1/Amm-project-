@@ -5,9 +5,7 @@ import { getSupabaseClient } from '../services/supabaseClient'
 type PlayerPosition={x?:number;z?:number;vehicle?:boolean;vehicleType?:string;ride?:{id?:string;label?:string}}
 type PresencePayload={userId:string;x:number;z:number;heading:number;vehicle:boolean;vehicleType:string;rideId?:string;rideLabel?:string;updatedAt:string}
 type PresenceState=Record<string,PresencePayload[]>
-type MotionEnvelope={payload?:PresencePayload}
 type PlayerAction={fromUserId:string;toUserId:string;action:'wave'|'crew-invite'|'race-challenge';sentAt:string}
-type ActionEnvelope={payload?:PlayerAction}
 
 const CHANNEL='streetverse:chicago:district-01'
 const clamp=(n:number)=>Math.max(-88,Math.min(88,Number.isFinite(n)?n:0))
@@ -61,14 +59,14 @@ export default function StreetVerseRealtimePresence(){
         .on('presence',{event:'sync'},()=>syncPresence(channel!.presenceState() as unknown as PresenceState))
         .on('presence',{event:'join'},()=>syncPresence(channel!.presenceState() as unknown as PresenceState))
         .on('presence',{event:'leave'},()=>syncPresence(channel!.presenceState() as unknown as PresenceState))
-        .on('broadcast',{event:'player-motion'},(event:MotionEnvelope)=>{
-          const p=event?.payload
+        .on('broadcast',{event:'player-motion'},event=>{
+          const p=(event as {payload?:PresencePayload})?.payload
           if(!p?.userId||p.userId===localUserId)return
           peers.set(p.userId,p)
           emitPlayers()
         })
-        .on('broadcast',{event:'player-action'},(event:ActionEnvelope)=>{
-          const action=event?.payload
+        .on('broadcast',{event:'player-action'},event=>{
+          const action=(event as {payload?:PlayerAction})?.payload
           if(!action?.fromUserId||action.fromUserId===localUserId||action.toUserId!==localUserId)return
           window.dispatchEvent(new CustomEvent('tryamm:streetverse-player-action-received',{detail:action}))
         })
