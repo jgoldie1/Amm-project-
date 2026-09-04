@@ -33,24 +33,25 @@ for (const forbiddenAuthority of ['streetverse', 'vision-qa', 'game-client']) {
   }
 }
 
-const requiredEvents = [
-  'rfq.created',
-  'supplier.verified',
-  'po.opened',
-  'payment.verified',
-  'inventory.received',
-  'shipment.departed',
-  'customs.hold.opened',
-  'customs.hold.cleared',
-  'live.sale.completed',
-  'delivery.confirmed',
-  'settlement.created',
-  'refund.completed',
-];
+const requiredEventOwners = new Map([
+  ['rfq.created', "['commerce-api']"],
+  ['supplier.verified', "['commerce-api']"],
+  ['po.opened', "['commerce-api']"],
+  ['payment.verified', "['payment-provider']"],
+  ['inventory.received', "['inventory-service']"],
+  ['shipment.departed', "['logistics-service']"],
+  ['customs.hold.opened', "['customs-service']"],
+  ['customs.hold.cleared', "['customs-service']"],
+  ['live.sale.completed', "['commerce-api']"],
+  ['delivery.confirmed', "['logistics-service']"],
+  ['settlement.created', "['settlement-service']"],
+  ['refund.completed', "['payment-provider', 'settlement-service']"],
+]);
 
-for (const eventName of requiredEvents) {
-  if (!source.includes(`'${eventName}'`)) {
-    throw new Error(`Missing founder telemetry event: ${eventName}`);
+for (const [eventName, owners] of requiredEventOwners) {
+  const mapping = `'${eventName}': ${owners}`;
+  if (!source.includes(mapping)) {
+    throw new Error(`Missing or incorrect telemetry authority mapping: ${mapping}`);
   }
 }
 
@@ -58,12 +59,20 @@ const requiredProtections = [
   'processedEventIds.includes(event.id)',
   'Math.max(0, value)',
   'StreetVerse, Vision QA, and other presentation clients are intentionally not',
+  'isAuthorizedFounderTelemetryEvent(event)',
+  'eventAuthorities[event.type].includes(event.authority)',
 ];
 
 for (const protection of requiredProtections) {
   if (!source.includes(protection)) {
     throw new Error(`Missing telemetry protection: ${protection}`);
   }
+}
+
+const authorityCheckPosition = source.indexOf('if (!isAuthorizedFounderTelemetryEvent(event)) return state;');
+const processedIdPosition = source.indexOf('if (state.processedEventIds.includes(event.id)) return state;');
+if (authorityCheckPosition < 0 || processedIdPosition < 0 || authorityCheckPosition > processedIdPosition) {
+  throw new Error('Authority validation must happen before an event is recorded as processed');
 }
 
 const requiredKpis = [
