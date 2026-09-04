@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#090816" />
+<title>TRYAMM Studio Release Desk</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#05050d;color:#f7f5ff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#2b1648 0,#0b0b1b 38%,#030308 100%);min-height:100vh}.wrap{max-width:1180px;margin:auto;padding:18px 14px 70px}.hero,.section{background:#0b0b1de8;border:1px solid #5b4887;border-radius:20px;padding:18px;box-shadow:0 16px 50px #0009}.section{margin-top:14px}.hero h1{font-size:clamp(28px,5vw,50px);margin:5px 0}.hero p,.section p{color:#d9d2ec;line-height:1.45}.badge{display:inline-block;border:1px solid #9b7bdd;background:#271a44;color:#efe4ff;border-radius:999px;padding:5px 8px;font:900 10px/1 system-ui;letter-spacing:.08em}.truth{padding:10px;border-radius:12px;background:#271f08;border:1px solid #a88c36;color:#ffe9a7;font-size:12px;line-height:1.45}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:9px}.grid label{font-size:11px;color:#d5caeb}.grid input,.grid select,.grid textarea{width:100%;min-height:44px;margin-top:4px;padding:8px;border-radius:10px;border:1px solid #69558d;background:#070713;color:#fff}.grid textarea{min-height:72px;resize:vertical}.action,.linkbtn{min-height:44px;border-radius:12px;border:1px solid #b794ff;background:#241741;color:#fff;font-weight:900;padding:0 13px}.linkbtn{display:inline-flex;align-items:center;text-decoration:none;margin:4px 4px 0 0}.danger{border-color:#ff8e9d;background:#40151d}.good{border-color:#6ee6ac;background:#103329}.toolbar{display:flex;flex-wrap:wrap;gap:7px;align-items:center}.toolbar select{min-height:44px;border-radius:10px;border:1px solid #69558d;background:#070713;color:#fff;padding:8px}.status{font-size:28px;font-weight:950}.RED{color:#ff8e9d}.YELLOW{color:#ffe177}.GREEN{color:#80ffb8}.result{padding:10px;border:1px solid #55467c;background:#09091a;border-radius:12px;color:#e7e0fa;font-size:12px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}.takes{display:grid;gap:8px}.take{display:grid;grid-template-columns:1fr auto auto;gap:7px;align-items:center;border:1px solid #4c3d6e;background:#080817;border-radius:11px;padding:9px}.take small{color:#bfb5d5}.portal{border-color:#346b7b;background:#071a22}.portal h2{color:#b8efff}.export{border-color:#426e58;background:#071811}.export h2{color:#c0ffd9}.splithelp{font-size:11px;color:#bcb2d3}.readiness{border-color:#725c33;background:#171205}.readiness h2{color:#ffe29a}@media(max-width:620px){.take{grid-template-columns:1fr}.take button{width:100%}.wrap{padding-top:10px}}
+button:focus,a:focus,input:focus,select:focus,textarea:focus{outline:3px solid #fff;outline-offset:2px}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="hero">
+<span class="badge">ANIYAH / TRYAMM • 64-SLOT TAKE VAULT • RELEASE DESK</span>
+<h1>Studio → Rights → Distribution</h1>
+<p>Capture or import album takes, organize credits and splits, clear samples/covers, prepare PRO/copyright/distribution metadata, then export your project information and audio takes.</p>
+<div class="truth">TRYAMM currently prepares the data and stores takes locally in this browser. It does not submit to BMI, ASCAP, the U.S. Copyright Office, DistroKid, The MLC or SoundExchange on your behalf. Local takes are not cloud backups; export important recordings.</div>
+<p><a class="linkbtn" href="/">← TRYAMM Home</a></p>
+</section>
+
+<section class="section">
+<h2>Album / Release</h2>
+<div class="grid">
+<label>Album title<input id="albumTitle" /></label><label>Primary artist<input id="albumArtist" /></label><label>Label / imprint<input id="label" /></label><label>Release date<input id="releaseDate" type="date" /></label>
+<label>Genre<input id="genre" /></label><label>Subgenre<input id="subgenre" /></label><label>Territory<input id="territory" value="Worldwide" /></label><label>UPC / EAN if assigned<input id="upc" /></label>
+<label>Artwork file<input id="artworkFile" type="file" accept="image/*" /></label><label>Artwork rights<select id="artworkRights"><option value="unknown">Unknown / not checked</option><option value="approved">Approved / owned or licensed</option></select></label>
+</div>
+<p><button class="action" id="saveAlbum" type="button">SAVE ALBUM INFO</button></p>
+</section>
+
+<section class="section">
+<h2>Track Metadata + Rights</h2>
+<div class="toolbar"><select id="trackPicker" aria-label="Select track"></select><button class="action" id="addTrack" type="button">+ ADD TRACK</button><button class="action danger" id="removeTrack" type="button">REMOVE TRACK</button></div>
+<div class="grid" style="margin-top:10px">
+<label>Track title<input id="trackTitle" /></label><label>Version<input id="version" value="Original" /></label><label>Primary artist<input id="primaryArtist" /></label><label>Featured artists<input id="featuredArtists" /></label>
+<label>Writers + splits<textarea id="writers" placeholder="James Stubbs|50|BMI|IPI123; Co-writer|50|ASCAP|IPI456"></textarea></label><label>Publishers<textarea id="publishers" placeholder="Publisher Name|50; Another Publisher|50"></textarea></label>
+<label>Producer<input id="producer" /></label><label>Mix engineer<input id="mixEngineer" /></label><label>Mastering engineer<input id="masteringEngineer" /></label><label>Performers<input id="performers" /></label>
+<label>Master owner<input id="masterOwner" /></label><label>Composition owner / publisher<input id="compositionOwner" /></label><label>PRO<select id="pro"><option value="none">None / not selected</option><option>BMI</option><option>ASCAP</option><option>SESAC</option><option>GMR</option><option>Other</option></select></label><label>IPI / CAE<input id="ipi" /></label>
+<label>ISRC if assigned<input id="isrc" /></label><label>ISWC if assigned<input id="iswc" /></label><label>Final audio filename<input id="audioFileName" /></label><label>Explicit content<select id="explicit"><option value="false">No</option><option value="true">Yes</option></select></label>
+<label>Rights type<select id="rightsType"><option value="original">Original</option><option value="cover">Cover</option></select></label><label>Cover license<select id="coverLicense"><option value="not-needed">Not needed</option><option value="pending">Pending</option><option value="approved">Approved</option></select></label>
+<label>Sample / interpolation<select id="sampleStatus"><option value="none">None</option><option value="sample">Sample from recording</option><option value="interpolation">Interpolation / replay</option></select></label><label>Sampled source<input id="sampleSource" /></label>
+<label>Master-use permission<select id="sampleMaster"><option value="not-needed">Not needed</option><option value="pending">Pending</option><option value="approved">Approved</option></select></label><label>Composition permission<select id="sampleComposition"><option value="not-needed">Not needed</option><option value="pending">Pending</option><option value="approved">Approved</option></select></label>
+<label>Clearance document ref<input id="sampleDoc" placeholder="Agreement filename / vault ID" /></label><label>AI elements<select id="aiElements"><option value="none">None</option><option value="assistive">Assistive tools</option><option value="generated-elements">Generated elements</option></select></label>
+<label>AI consent / provenance notes<textarea id="aiConsent"></textarea></label><label>Lyrics<textarea id="lyrics"></textarea></label>
+</div>
+<p class="splithelp">Writer format: <strong>Name|percentage|PRO|IPI</strong>, separated with semicolons. Writer splits must total 100% for TRYAMM to mark the track ready.</p>
+<p><button class="action" id="saveTrack" type="button">SAVE TRACK</button></p>
+</section>
+
+<section class="section">
+<h2>64-Slot Take Vault</h2>
+<p>Record one microphone/input take at a time or import finished mixes/stems. Files are stored in this browser’s IndexedDB until you export/delete them.</p>
+<div class="grid"><label>Take slot 1–64<input id="takeSlot" type="number" min="1" max="64" value="1" /></label><label>Take name<input id="takeName" value="Album Take" /></label><label>Import audio<input id="takeImport" type="file" accept="audio/*" /></label></div>
+<div class="toolbar" style="margin-top:10px"><button class="action good" id="recordTake" type="button">● RECORD TAKE</button><button class="action" id="stopTake" type="button">■ STOP & SAVE</button><button class="action" id="refreshTakes" type="button">REFRESH TAKES</button></div>
+<div class="result" id="recordStatus" aria-live="polite">Recorder status loading…</div><div class="takes" id="takeList" style="margin-top:10px"></div>
+</section>
+
+<section class="section readiness">
+<h2>Release Readiness</h2><div class="status" id="releaseStatus">RED</div><div class="result" id="readinessResult"></div>
+<p><button class="action" id="checkReadiness" type="button">CHECK RELEASE</button></p>
+</section>
+
+<section class="section portal">
+<h2>Registration + Royalty Lanes</h2>
+<p>These buttons open official services. TRYAMM prepares your metadata; you review and submit it yourself until direct authorized integrations are added.</p>
+<div class="toolbar">
+<a class="linkbtn" href="https://www.bmi.com/" target="_blank" rel="noopener">BMI</a><a class="linkbtn" href="https://www.ascap.com/" target="_blank" rel="noopener">ASCAP</a><a class="linkbtn" href="https://www.copyright.gov/registration/" target="_blank" rel="noopener">U.S. COPYRIGHT</a><a class="linkbtn" href="https://distrokid.com/" target="_blank" rel="noopener">DISTROKID</a><a class="linkbtn" href="https://www.themlc.com/" target="_blank" rel="noopener">THE MLC</a><a class="linkbtn" href="https://www.soundexchange.com/register/" target="_blank" rel="noopener">SOUNDEXCHANGE</a>
+</div>
+<div class="result" id="prepPreview" style="margin-top:10px">Select a preparation package below.</div>
+<div class="toolbar" style="margin-top:8px"><button class="action" id="prepPro" type="button">PRO PREP</button><button class="action" id="prepCopyright" type="button">COPYRIGHT PREP</button><button class="action" id="prepDistribution" type="button">DISTRIBUTION PREP</button><button class="action" id="prepRoyalties" type="button">ROYALTY MAP</button></div>
+</section>
+
+<section class="section export">
+<h2>Take Your Information Out</h2>
+<p>Export your album metadata, track spreadsheet, credits, rights/readiness report and take manifest. Audio takes have their own DOWNLOAD buttons above.</p>
+<div class="toolbar"><button class="action" id="exportJson" type="button">ALBUM JSON</button><button class="action" id="exportCsv" type="button">TRACK CSV</button><button class="action" id="exportCredits" type="button">CREDITS TXT</button><button class="action" id="exportRights" type="button">RIGHTS REPORT</button><button class="action" id="exportTakeManifest" type="button">TAKE MANIFEST</button></div>
+</section>
+</main>
+<script src="/tryamm-studio-release.js?v=20260903-studio-release-v1"></script>
+<script src="/tryamm-studio-takes.js?v=20260903-studio-takes-v1"></script>
+<script>
+const R=window.TRYAMMStudioRelease,T=window.TRYAMMStudioTakes;let state=R.load(),currentId=state.tracks[0]?.id
+const $=id=>document.getElementById(id),money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n||0)
+function downloadText(name,text,type='text/plain'){const a=document.createElement('a'),blob=new Blob([text],{type});a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
+function writersFrom(v){return String(v||'').split(';').map(x=>x.trim()).filter(Boolean).map(x=>{const [name,split,pro,ipi]=x.split('|').map(y=>y?.trim());return{name:name||'',split:Number(split)||0,pro:pro||'',ipi:ipi||''}})}
+function writersTo(a){return (a||[]).map(w=>[w.name,w.split,w.pro||'',w.ipi||''].join('|')).join('; ')}
+function pubsFrom(v){return String(v||'').split(';').map(x=>x.trim()).filter(Boolean).map(x=>{const [name,split]=x.split('|').map(y=>y?.trim());return{name:name||'',split:Number(split)||0}})}
+function pubsTo(a){return (a||[]).map(p=>[p.name,p.split].join('|')).join('; ')}
+function loadRelease(){state=R.load();albumTitle.value=state.albumTitle||'';albumArtist.value=state.primaryArtist||'';label.value=state.label||'';releaseDate.value=state.releaseDate||'';genre.value=state.genre||'';subgenre.value=state.subgenre||'';territory.value=state.territory||'Worldwide';upc.value=state.upc||'';artworkRights.value=state.artworkRights||'unknown';refreshPicker();loadTrack()}
+function refreshPicker(){trackPicker.innerHTML='';state.tracks.forEach((t,i)=>{const o=document.createElement('option');o.value=t.id;o.textContent=`${i+1}. ${t.title||'Untitled Track'}`;trackPicker.appendChild(o)});if(!state.tracks.some(t=>t.id===currentId))currentId=state.tracks[0]?.id;trackPicker.value=currentId||''}
+function loadTrack(){const t=state.tracks.find(x=>x.id===currentId)||state.tracks[0];if(!t)return;currentId=t.id;trackTitle.value=t.title||'';version.value=t.version||'Original';primaryArtist.value=t.primaryArtist||state.primaryArtist||'';featuredArtists.value=t.featuredArtists||'';writers.value=writersTo(t.writers);publishers.value=pubsTo(t.publishers);producer.value=t.producer||'';mixEngineer.value=t.mixEngineer||'';masteringEngineer.value=t.masteringEngineer||'';performers.value=t.performers||'';masterOwner.value=t.masterOwner||'';compositionOwner.value=t.compositionOwner||'';pro.value=t.pro||'none';ipi.value=t.ipi||'';isrc.value=t.isrc||'';iswc.value=t.iswc||'';audioFileName.value=t.audioFileName||'';explicit.value=String(Boolean(t.explicit));rightsType.value=t.rightsType||'original';coverLicense.value=t.coverLicense||'not-needed';sampleStatus.value=t.sampleStatus||'none';sampleSource.value=t.sampleSource||'';sampleMaster.value=t.sampleMasterPermission||'not-needed';sampleComposition.value=t.sampleCompositionPermission||'not-needed';sampleDoc.value=t.sampleDocumentRef||'';aiElements.value=t.aiElements||'none';aiConsent.value=t.aiConsentNotes||'';lyrics.value=t.lyrics||''}
+saveAlbum.addEventListener('click',()=>{const art=artworkFile.files[0]?.name||state.artworkFileName||'';state=R.setRelease({albumTitle:albumTitle.value,primaryArtist:albumArtist.value,label:label.value,releaseDate:releaseDate.value,genre:genre.value,subgenre:subgenre.value,territory:territory.value,upc:upc.value,artworkFileName:art,artworkRights:artworkRights.value});loadRelease();check()})
+function trackPatch(){return{title:trackTitle.value,version:version.value,primaryArtist:primaryArtist.value,featuredArtists:featuredArtists.value,writers:writersFrom(writers.value),publishers:pubsFrom(publishers.value),producer:producer.value,mixEngineer:mixEngineer.value,masteringEngineer:masteringEngineer.value,performers:performers.value,masterOwner:masterOwner.value,compositionOwner:compositionOwner.value,pro:pro.value,ipi:ipi.value,isrc:isrc.value,iswc:iswc.value,audioFileName:audioFileName.value,explicit:explicit.value==='true',rightsType:rightsType.value,coverLicense:coverLicense.value,sampleStatus:sampleStatus.value,sampleSource:sampleSource.value,sampleMasterPermission:sampleMaster.value,sampleCompositionPermission:sampleComposition.value,sampleDocumentRef:sampleDoc.value,aiElements:aiElements.value,aiConsentNotes:aiConsent.value,lyrics:lyrics.value}}
+saveTrack.addEventListener('click',()=>{R.updateTrack(currentId,trackPatch());state=R.load();refreshPicker();check()});trackPicker.addEventListener('change',()=>{currentId=trackPicker.value;loadTrack()});addTrack.addEventListener('click',()=>{const t=R.addTrack({primaryArtist:state.primaryArtist||''});state=R.load();currentId=t.id;refreshPicker();loadTrack();check()});removeTrack.addEventListener('click',()=>{if(R.removeTrack(currentId)){state=R.load();currentId=state.tracks[0]?.id;refreshPicker();loadTrack();check()}})
+function check(){const out=R.releaseReadiness();releaseStatus.className=`status ${out.status}`;releaseStatus.textContent=out.status;readinessResult.textContent=`Blockers (${out.blockers.length}): ${out.blockers.join(', ')||'none'}\nWarnings (${out.warnings.length}): ${out.warnings.join(', ')||'none'}`;return out}checkReadiness.addEventListener('click',check)
+async function renderTakes(){const items=await T.list();takeList.innerHTML='';if(!items.length){takeList.innerHTML='<div class="result">No local takes yet.</div>';return}items.forEach(item=>{const d=document.createElement('div');d.className='take';d.innerHTML=`<div><strong>Slot ${item.slot}: ${item.name}</strong><br><small>${item.source} • ${(item.size/1024/1024).toFixed(2)} MB • ${item.mimeType}</small></div><button class="action dl" type="button">DOWNLOAD</button><button class="action danger del" type="button">DELETE</button>`;d.querySelector('.dl').onclick=()=>T.download(item.id);d.querySelector('.del').onclick=async()=>{await T.remove(item.id);renderTakes()};takeList.appendChild(d)})}
+recordStatus.textContent=T.recordingSupported?'Recorder supported. Tap RECORD TAKE and allow microphone access.':'This browser does not expose MediaRecorder microphone capture; you can still import audio files.'
+recordTake.addEventListener('click',async()=>{try{await T.start({slot:+takeSlot.value,trackId:currentId,name:takeName.value});recordStatus.textContent='● RECORDING — perform your take, then tap STOP & SAVE.'}catch(e){recordStatus.textContent=`Recorder error: ${e.message}`}})
+stopTake.addEventListener('click',async()=>{try{const x=await T.stop();recordStatus.textContent=`Saved ${x.name}. Export important takes; this is local browser storage.`;audioFileName.value=x.name+'.'+(x.mimeType.includes('mp4')?'m4a':x.mimeType.includes('ogg')?'ogg':'webm');R.updateTrack(currentId,trackPatch());state=R.load();renderTakes();check()}catch(e){recordStatus.textContent=`Stop error: ${e.message}`}})
+takeImport.addEventListener('change',async()=>{const f=takeImport.files[0];if(!f)return;const x=await T.importFile(f,{slot:+takeSlot.value,trackId:currentId,name:takeName.value||f.name});audioFileName.value=f.name;R.updateTrack(currentId,trackPatch());state=R.load();recordStatus.textContent=`Imported ${f.name} to local Take Vault.`;renderTakes();check()});refreshTakes.addEventListener('click',renderTakes)
+prepPro.addEventListener('click',()=>{const t=R.load().tracks.find(x=>x.id===currentId);prepPreview.textContent=JSON.stringify(R.proPrep(t),null,2)});prepCopyright.addEventListener('click',()=>prepPreview.textContent=JSON.stringify(R.copyrightPrep(),null,2));prepDistribution.addEventListener('click',()=>prepPreview.textContent=JSON.stringify(R.distributorManifest(),null,2));prepRoyalties.addEventListener('click',()=>prepPreview.textContent=JSON.stringify(R.royaltyMap(),null,2))
+exportJson.addEventListener('click',()=>downloadText('tryamm-album-release.json',JSON.stringify(R.distributorManifest(),null,2),'application/json'));exportCsv.addEventListener('click',()=>downloadText('tryamm-track-metadata.csv',R.csv(),'text/csv'));exportCredits.addEventListener('click',()=>downloadText('tryamm-album-credits.txt',R.credits()));exportRights.addEventListener('click',()=>downloadText('tryamm-rights-readiness.json',JSON.stringify({readiness:R.releaseReadiness(),copyright:R.copyrightPrep(),royalties:R.royaltyMap()},null,2),'application/json'));exportTakeManifest.addEventListener('click',async()=>downloadText('tryamm-take-manifest.json',JSON.stringify(await T.manifest(),null,2),'application/json'))
+loadRelease();renderTakes();check()
+</script>
+</body>
+</html>
