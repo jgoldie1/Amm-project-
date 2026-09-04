@@ -3,13 +3,21 @@ import StreetVerseMobilePlayableWorld from './StreetVerseMobilePlayableWorld'
 import StreetVerseMobileWalkControls from './StreetVerseMobileWalkControls'
 
 // Heavy three.js worlds are lazy-loaded. This keeps the guaranteed safe-mode
-// HTML city out of the Three.js/WebGL bundle on constrained mobile Safari.
+// HTML city out of the Three.js/WebGL bundle on constrained devices.
 const StreetVerseMobileWorld=lazy(()=>import('./StreetVerseMobileWorld'))
 const StreetVerseLivingWorld=lazy(()=>import('./StreetVerseLivingWorld'))
 
 function isMobileDevice(){
  if(typeof navigator==='undefined')return false
  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent||'')
+}
+
+function hasUsableWebGL(){
+ if(typeof document==='undefined')return false
+ try{
+  const canvas=document.createElement('canvas')
+  return !!(canvas.getContext('webgl2',{failIfMajorPerformanceCaveat:true})||canvas.getContext('webgl',{failIfMajorPerformanceCaveat:true})||canvas.getContext('experimental-webgl'))
+ }catch{return false}
 }
 
 export function shouldUseStreetVerseSafeMode(){
@@ -20,7 +28,9 @@ export function shouldUseStreetVerseSafeMode(){
  const memory=Number((navigator as Navigator & {deviceMemory?:number}).deviceMemory||0)
  const cores=Number(navigator.hardwareConcurrency||0)
  const narrow=Math.min(window.innerWidth||9999,window.innerHeight||9999)<=480
- return appleMobile&&(olderIOS||narrow||cores>0&&cores<=4||memory>0&&memory<=4)
+ const constrained=(memory>0&&memory<=4)||(cores>0&&cores<=4)
+ if(!hasUsableWebGL())return true
+ return appleMobile&&(olderIOS||narrow||constrained)||(!appleMobile&&narrow&&constrained)
 }
 
 class StreetVerseWorldBoundary extends Component<{onClose:()=>void;children:ReactNode},{failed:boolean}>{
