@@ -72,6 +72,7 @@ const HoloDeliveryRideEntertainmentHub=lazy(()=>import('./components/HoloDeliver
 const SpectraStudioCommandCenter=lazy(()=>import('./components/SpectraStudioCommandCenter'))
 const EthiopianBibleMetaverse=lazy(()=>import('./components/EthiopianBibleMetaverse'))
 const KingdomsPressOperations=lazy(()=>import('./components/KingdomsPressOperations'))
+const UnifiedCommerceHub=lazy(()=>import('./components/UnifiedCommerceHub'))
 
 installProductionHealthMonitor()
 installMediaCloudBridge()
@@ -195,6 +196,7 @@ else routeContent=mainShell
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <UniversalAccessRuntime />
+    <Suspense fallback={null}><UnifiedCommerceHub /></Suspense>
     {routeContent}
   </StrictMode>
 )
