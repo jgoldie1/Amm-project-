@@ -42,10 +42,13 @@ const visibleAppTokens=[
   'showStaysAgencyFamily',
   '__showStaysAgencyFamily',
   'STAYS · AGENCY · FAMILY',
-  '<StaysAgencyFamilyHub onClose=',
+  '<StaysAgencyFamilyHub',
 ]
 for(const token of visibleAppTokens){
   if(!app.includes(token))throw new Error(`Missing visible stays/agency/family app wiring: ${token}`)
+}
+if(!app.includes('onClose={() => setShowStaysAgencyFamily(false)}')){
+  throw new Error('Stays/agency/family hub must retain its close handler')
 }
 
 const visibleHubTokens=[
