@@ -21,8 +21,9 @@ const requiredSignals = [
   'verifiedAt',
   'hasValidEvidenceIds',
   'hasValidVerificationTimestamp',
-  'new Set(normalizedIds).size === normalizedIds.length',
   'Date.parse(verifiedAt)',
+  'Date.now()',
+  'timestamp <= Date.now()',
   "nextScope: missingEvidence.length === 0 ? 'united-states' : undefined",
   "'national-expansion-evidence-not-yet-defined'",
   "'world-is-terminal-rollout-scope'",
@@ -47,8 +48,12 @@ if (!/new Set\(normalizedIds\)\.size === normalizedIds\.length/.test(source)) {
   throw new Error('Illinois rollout gate must reject duplicate evidence identifiers.');
 }
 
-if (!/Number\.isFinite\(Date\.parse\(verifiedAt\)\)/.test(source)) {
+if (!/Number\.isFinite\(timestamp\)/.test(source)) {
   throw new Error('Illinois rollout gate must require a parseable verification timestamp.');
+}
+
+if (!/timestamp\s*<=\s*Date\.now\(\)/.test(source)) {
+  throw new Error('Illinois rollout gate must reject future-dated verification evidence.');
 }
 
 if (/source\s*===?\s*['\"]streetverse['\"]\s*&&\s*authoritative\s*===?\s*true/.test(source)) {
