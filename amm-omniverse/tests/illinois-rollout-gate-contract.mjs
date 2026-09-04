@@ -23,7 +23,9 @@ const requiredSignals = [
   'hasValidVerificationTimestamp',
   'Date.parse(verifiedAt)',
   'Date.now()',
-  'timestamp <= Date.now()',
+  'DEFAULT_MAX_EVIDENCE_AGE_MS',
+  'maxEvidenceAgeMs',
+  'nowMs - timestamp <= maxEvidenceAgeMs',
   "nextScope: missingEvidence.length === 0 ? 'united-states' : undefined",
   "'national-expansion-evidence-not-yet-defined'",
   "'world-is-terminal-rollout-scope'",
@@ -52,8 +54,16 @@ if (!/Number\.isFinite\(timestamp\)/.test(source)) {
   throw new Error('Illinois rollout gate must require a parseable verification timestamp.');
 }
 
-if (!/timestamp\s*<=\s*Date\.now\(\)/.test(source)) {
+if (!/timestamp\s*>\s*nowMs/.test(source)) {
   throw new Error('Illinois rollout gate must reject future-dated verification evidence.');
+}
+
+if (!/nowMs\s*-\s*timestamp\s*<=\s*maxEvidenceAgeMs/.test(source)) {
+  throw new Error('Illinois rollout gate must reject stale verification evidence.');
+}
+
+if (!/maxEvidenceAgeMs\s*<\s*0/.test(source)) {
+  throw new Error('Illinois rollout gate must reject invalid negative freshness windows.');
 }
 
 if (/source\s*===?\s*['\"]streetverse['\"]\s*&&\s*authoritative\s*===?\s*true/.test(source)) {
