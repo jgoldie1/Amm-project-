@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#061216" />
+  <title>TRYAMM Demand Pool</title>
+  <style>
+    :root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#031015;color:#f4fbff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#15383a 0,#07171d 35%,#02080b 100%);min-height:100vh}.wrap{max-width:1080px;margin:auto;padding:20px 14px 60px}.hero,.section{border:1px solid #28646a;border-radius:20px;background:#06191ddf;padding:18px;box-shadow:0 18px 50px #0008}.hero h1{margin:4px 0 8px;font-size:clamp(28px,5vw,48px)}.hero p,.section p{color:#cce7e8;line-height:1.45}.badge{display:inline-block;padding:5px 8px;border-radius:999px;background:#103831;border:1px solid #4ba994;color:#bfffee;font:900 10px/1 system-ui;letter-spacing:.08em}.section{margin-top:16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px}.grid label{font-size:11px;color:#c8e6e7}.grid input{width:100%;min-height:44px;margin-top:4px;border-radius:10px;border:1px solid #3f777b;background:#031115;color:#fff;padding:9px}.action,.back{min-height:44px;border-radius:12px;border:1px solid #7ce4e7;background:#0c3135;color:#fff;font-weight:900;padding:0 14px}.back{display:inline-flex;align-items:center;text-decoration:none}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:9px;margin-top:12px}.metric{padding:13px;border-radius:13px;border:1px solid #35766e;background:#08231f}.metric small{color:#a9d2cc}.metric b{display:block;font-size:23px;color:#c9fff0;margin-top:4px}.result{margin-top:10px;padding:10px;border-radius:10px;background:#071c20;border:1px solid #28575d;color:#d2f8fa;font-weight:800;line-height:1.4}.rfq{display:grid;gap:8px;margin-top:10px}.bid{display:grid;grid-template-columns:1.2fr repeat(5,minmax(70px,.7fr));gap:7px;padding:8px;border-radius:10px;background:#07191e;border:1px solid #2e5961}.bid input{min-width:0;width:100%;min-height:42px;border-radius:8px;border:1px solid #376872;background:#020e12;color:#fff;padding:7px}.truth{padding:10px;border-radius:12px;background:#241d08;border:1px solid #9d8433;color:#ffe7a2;font-size:12px;line-height:1.45}@media(max-width:760px){.bid{grid-template-columns:1fr 1fr}.bid input:first-child{grid-column:1/-1}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <section class="hero">
+    <span class="badge">TRYAMM TRADE GRAPH • DEMAND FIRST</span>
+    <h1>Group Buy + Reverse RFQ</h1>
+    <p>Combine small creator and buyer demand into one factory-size opportunity. When the demand threshold is reached, verified suppliers can compete on price, lead time, MOQ, quality and compliance.</p>
+    <div class="truth">This is an orchestration/planning layer. It does not capture customer money, create escrow, automatically award suppliers or place production orders. Those actions require verified server-side payment, compliance and supplier controls.</div>
+    <p><a class="back" href="/global-supply-chain">← Global Supply Chain</a></p>
+  </section>
+
+  <section class="section">
+    <h2>Demand Pool</h2>
+    <div class="grid">
+      <label>Product<input id="product" value="Creator Private-Label Product" /></label>
+      <label>Target units<input id="targetUnits" inputmode="numeric" value="500" /></label>
+      <label>Committed units<input id="committedUnits" inputmode="numeric" value="325" /></label>
+      <label>Current unit price<input id="unitPrice" inputmode="decimal" value="20" /></label>
+      <label>Target factory price<input id="targetUnitPrice" inputmode="decimal" value="14" /></label>
+      <label>Creators in coalition<input id="creators" inputmode="numeric" value="12" /></label>
+      <label>Buyers represented<input id="buyers" inputmode="numeric" value="250" /></label>
+      <label>Launch threshold %<input id="minPercent" inputmode="decimal" value="80" /></label>
+    </div>
+    <p><button id="modelPool" class="action" type="button">MODEL DEMAND POOL</button></p>
+    <div class="metrics"><div class="metric"><small>Progress</small><b id="progress">0%</b></div><div class="metric"><small>Remaining units</small><b id="remaining">0</b></div><div class="metric"><small>Committed demand value</small><b id="demandValue">$0</b></div><div class="metric"><small>Threshold</small><b id="threshold">OPEN</b></div></div>
+    <div class="result" id="poolResult" aria-live="polite">Model the pool.</div>
+  </section>
+
+  <section class="section">
+    <h2>Creator Coalition Forecast</h2>
+    <div class="grid"><label>Creators<input id="coalitionCreators" value="20" /></label><label>Total audience<input id="audience" value="100000" /></label><label>Conversion %<input id="conversion" value="1.5" /></label><label>Units per buyer<input id="unitsPerBuyer" value="1" /></label></div>
+    <p><button id="modelCoalition" class="action" type="button">MODEL COALITION</button></p>
+    <div class="result" id="coalitionResult" aria-live="polite">Forecast only; no sales are assumed until real orders occur.</div>
+  </section>
+
+  <section class="section">
+    <h2>Reverse RFQ — Supplier Competition</h2>
+    <div class="grid"><label>Units needed<input id="rfqUnits" value="500" /></label><label>Max unit price<input id="rfqPrice" value="15" /></label><label>Max lead days<input id="rfqLead" value="30" /></label><label>Minimum quality score<input id="rfqQuality" value="80" /></label></div>
+    <div class="rfq">
+      <div class="bid"><input class="supplier" value="Supplier A" /><input class="price" value="14.20" /><input class="lead" value="24" /><input class="quality" value="88" /><input class="moq" value="300" /><input class="compliance" value="1" aria-label="Compliance 1 yes 0 no" /></div>
+      <div class="bid"><input class="supplier" value="Supplier B" /><input class="price" value="13.70" /><input class="lead" value="35" /><input class="quality" value="91" /><input class="moq" value="500" /><input class="compliance" value="1" aria-label="Compliance 1 yes 0 no" /></div>
+      <div class="bid"><input class="supplier" value="Supplier C" /><input class="price" value="14.80" /><input class="lead" value="21" /><input class="quality" value="84" /><input class="moq" value="200" /><input class="compliance" value="1" aria-label="Compliance 1 yes 0 no" /></div>
+    </div>
+    <p style="font-size:11px;color:#a9c9cd">Supplier • unit price • lead days • quality • MOQ • compliance (1/0)</p>
+    <p><button id="scoreRfq" class="action" type="button">SCORE SUPPLIER BIDS</button></p>
+    <div class="result" id="rfqResult" aria-live="polite">No supplier is automatically awarded.</div>
+  </section>
+</main>
+<script src="/tryamm-demand-pool.js?v=20260903-demand-v1"></script>
+<script>
+const api=window.TRYAMMDemandPool;const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n||0)
+function runPool(){const out=api.preorderGate({product:product.value,targetUnits:+targetUnits.value,committedUnits:+committedUnits.value,unitPrice:+unitPrice.value,targetUnitPrice:+targetUnitPrice.value,creators:+creators.value,buyers:+buyers.value,minPercentToLaunch:+minPercent.value});progress.textContent=out.progress.toFixed(0)+'%';remaining.textContent=out.remainingUnits;demandValue.textContent=money(out.grossDemandValue);threshold.textContent=out.thresholdReached?'DEMAND MET':'OPEN';poolResult.textContent=out.thresholdReached?`Demand threshold met for ${out.product}. Supplier/payment/compliance gates still remain before production can be released.`:`${out.remainingUnits} more units are needed to reach the full target. Current progress is ${out.progress.toFixed(0)}%.`}
+modelPool.addEventListener('click',runPool);runPool()
+modelCoalition.addEventListener('click',()=>{const out=api.creatorCoalition({creators:+coalitionCreators.value,totalAudience:+audience.value,conversionRate:+conversion.value,avgUnitsPerBuyer:+unitsPerBuyer.value});coalitionResult.textContent=`Forecast only: ${out.creators} creators with ${out.totalAudience.toLocaleString()} combined audience at ${out.conversionRate}% modeled conversion ≈ ${out.estimatedBuyers.toLocaleString()} buyers / ${out.estimatedUnits.toLocaleString()} units. This is not a sales forecast guarantee.`})
+scoreRfq.addEventListener('click',()=>{const bids=[...document.querySelectorAll('.bid')].map((row,i)=>({id:'BID-'+(i+1),supplier:row.querySelector('.supplier').value,unitPrice:+row.querySelector('.price').value,leadDays:+row.querySelector('.lead').value,quality:+row.querySelector('.quality').value,moq:+row.querySelector('.moq').value,compliance:row.querySelector('.compliance').value==='1'}));const out=api.reverseRfq({units:+rfqUnits.value,maxUnitPrice:+rfqPrice.value,maxLeadDays:+rfqLead.value,minQuality:+rfqQuality.value,bids});rfqResult.textContent=out.recommended?`Advisory leader: ${out.recommended.supplier}, score ${out.recommended.score}, ${money(out.recommended.unitPrice)} per unit, ${out.recommended.leadDays} days, MOQ ${out.recommended.moq}. Human verification/award still required.`:'No current bid meets every configured gate.'})
+</script>
+</body></html>
