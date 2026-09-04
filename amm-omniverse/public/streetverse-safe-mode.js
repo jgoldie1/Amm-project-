@@ -35,7 +35,7 @@
     people.forEach(el=>el.classList.add('tryamm-safe-person'))
     const cars=all.filter(el=>(el.style.width==='22px'&&el.style.height==='38px')||(el.style.width==='26px'&&el.style.height==='45px')||(el.style.width==='30px'&&el.style.height==='50px'))
     cars.forEach((el,i)=>el.classList.add(i===0?'tryamm-safe-car-a':i===1?'tryamm-safe-car-b':'tryamm-safe-car-c'))
-    const headerStatus=[...city.querySelectorAll('header div')].find(el=>/CITY ACTIVE/i.test(el.textContent||''))
+    const headerStatus=[...city.querySelectorAll('header div')].find(el=>el.children.length===0&&/CITY ACTIVE/i.test(el.textContent||''))
     if(headerStatus)headerStatus.textContent='CITY ACTIVE • PEOPLE + TRAFFIC • REEL READY'
     if(!city.dataset.visibleLifeReady){
       city.dataset.visibleLifeReady='true'
