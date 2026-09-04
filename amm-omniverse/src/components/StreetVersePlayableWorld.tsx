@@ -1,4 +1,4 @@
-import {Component,lazy,Suspense,useMemo,type ReactNode} from 'react'
+import {Component,lazy,Suspense,useEffect,useMemo,useState,type ReactNode} from 'react'
 import StreetVerseMobilePlayableWorld from './StreetVerseMobilePlayableWorld'
 import StreetVerseMobileWalkControls from './StreetVerseMobileWalkControls'
 
@@ -40,10 +40,57 @@ class StreetVerseWorldBoundary extends Component<{onClose:()=>void;children:Reac
  render(){return this.state.failed?<StreetVerseMobilePlayableWorld onClose={this.props.onClose}/>:this.props.children}
 }
 
+function MobileRuntimeGuard({onClose,children}:{onClose:()=>void;children:ReactNode}){
+ const [safeFallback,setSafeFallback]=useState(false)
+ useEffect(()=>{
+  if(safeFallback||typeof window==='undefined')return
+  let healthy=false
+  let lastHeartbeat=performance.now()
+  let failed=false
+  const report=(state:'healthy'|'fallback',reason:string)=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-runtime-health',{detail:{state,reason,mode:state==='fallback'?'mobile-safe':'mobile-lite',selfHealing:true,at:new Date().toISOString()}}))
+  const markHealthy=()=>{healthy=true;lastHeartbeat=performance.now()}
+  const fail=(reason:string)=>{
+   if(failed||document.visibilityState==='hidden')return
+   failed=true
+   report('fallback',reason)
+   window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'StreetVerse 3D recovery activated • safe city is keeping gameplay available.'}}))
+   setSafeFallback(true)
+  }
+  const onReady=(event:Event)=>{
+   const detail=(event as CustomEvent<Record<string,unknown>>).detail||{}
+   if(detail.mode==='mobile-lite'&&detail.canvas===true&&detail.htmlCity!==true){markHealthy();report('healthy','world-ready')}
+  }
+  const onPosition=(event:Event)=>{
+   const detail=(event as CustomEvent<Record<string,unknown>>).detail||{}
+   if(detail.mobileLite===true&&detail.htmlCity!==true&&detail.mobileSafeMode!==true)markHealthy()
+  }
+  const onContextLost=(event:Event)=>{
+   const target=event.target as HTMLElement|null
+   if(target?.tagName==='CANVAS'){
+    if('preventDefault' in event)event.preventDefault()
+    fail('webgl-context-lost')
+   }
+  }
+  window.addEventListener('tryamm:streetverse-world-ready',onReady)
+  window.addEventListener('tryamm:streetverse-player-position',onPosition)
+  window.addEventListener('webglcontextlost',onContextLost,true)
+  const bootTimer=window.setTimeout(()=>{if(!healthy)fail('mobile-webgl-no-heartbeat')},8000)
+  const stallTimer=window.setInterval(()=>{if(healthy&&document.visibilityState==='visible'&&performance.now()-lastHeartbeat>10000)fail('mobile-webgl-stalled')},2500)
+  return()=>{
+   window.clearTimeout(bootTimer);window.clearInterval(stallTimer)
+   window.removeEventListener('tryamm:streetverse-world-ready',onReady)
+   window.removeEventListener('tryamm:streetverse-player-position',onPosition)
+   window.removeEventListener('webglcontextlost',onContextLost,true)
+  }
+ },[safeFallback])
+ if(safeFallback)return <StreetVerseMobilePlayableWorld onClose={onClose}/>
+ return <>{children}</>
+}
+
 export default function StreetVersePlayableWorld({onClose}:{onClose:()=>void}){
  const mobile=useMemo(isMobileDevice,[])
  const safe=useMemo(shouldUseStreetVerseSafeMode,[])
  if(safe)return <StreetVerseMobilePlayableWorld onClose={onClose}/>
- if(mobile)return <StreetVerseWorldBoundary onClose={onClose}><Suspense fallback={<StreetVerseMobilePlayableWorld onClose={onClose}/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense><StreetVerseMobileWalkControls/></StreetVerseWorldBoundary>
+ if(mobile)return <StreetVerseWorldBoundary onClose={onClose}><MobileRuntimeGuard onClose={onClose}><Suspense fallback={<StreetVerseMobilePlayableWorld onClose={onClose}/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense><StreetVerseMobileWalkControls/></MobileRuntimeGuard></StreetVerseWorldBoundary>
  return <StreetVerseWorldBoundary onClose={onClose}><Suspense fallback={<StreetVerseMobilePlayableWorld onClose={onClose}/>}><StreetVerseLivingWorld onClose={onClose}/></Suspense></StreetVerseWorldBoundary>
 }
