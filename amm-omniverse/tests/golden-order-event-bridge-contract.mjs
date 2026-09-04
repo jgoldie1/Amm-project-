@@ -55,4 +55,22 @@ if (!source.includes('event.authoritative === true')) {
   throw new Error('Authoritative flag is required for commerce truth mutation');
 }
 
+for (const integrityCheck of [
+  'hasValidGoldenOrderEventIntegrity',
+  'hasNonEmptyIdentifier(event.eventId)',
+  'hasNonEmptyIdentifier(event.goldenOrderId)',
+  'hasNonEmptyIdentifier(event.correlationId)',
+  'Number.isFinite(Date.parse(event.occurredAt))',
+  "event.payload !== null",
+  "typeof event.payload === 'object'",
+]) {
+  if (!source.includes(integrityCheck)) {
+    throw new Error(`Golden Order event integrity guard missing: ${integrityCheck}`);
+  }
+}
+
+if (!source.includes('hasValidGoldenOrderEventIntegrity(event) &&')) {
+  throw new Error('Golden Order authorization must require structural event integrity');
+}
+
 console.log('Golden Order event bridge contract passed');
