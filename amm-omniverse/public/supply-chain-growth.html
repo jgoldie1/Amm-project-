@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#090613" />
+  <title>TRYAMM Founder Growth Command</title>
+  <style>
+    :root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#08050e;color:#fff}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#2a1544 0,#0c0b18 34%,#050509 100%)}
+    .wrap{max-width:1180px;margin:auto;padding:20px 14px 64px}.hero,.section{border:1px solid #4b3a6e;background:#0d0b18e8;border-radius:20px;padding:18px;box-shadow:0 18px 48px #0008}.hero h1{margin:3px 0 8px;font-size:clamp(28px,5vw,50px)}.hero p,.section p{color:#ddd4ed;line-height:1.45}.eyebrow{font-size:11px;letter-spacing:.15em;font-weight:900;color:#cdb5ff}.back{display:inline-flex;align-items:center;min-height:44px;padding:0 13px;border:1px solid #a983ff;border-radius:12px;color:#fff;text-decoration:none;font-weight:900;background:#1a1230}.section{margin-top:16px}.section h2{margin:0 0 10px;color:#e7d9ff}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}.card{border:1px solid #594475;background:#130e22;border-radius:15px;padding:14px}.card h3{margin:0 0 5px;font-size:15px}.price{font-size:23px;font-weight:950;color:#d7c2ff;margin:4px 0}.tag{display:inline-block;margin-top:8px;padding:4px 7px;border-radius:999px;border:1px solid #5f8977;background:#0c291e;color:#c3ffdd;font-size:9px;font-weight:900}.sprint{display:grid;gap:9px}.step{border:1px solid #455b70;background:#0a1720;border-radius:14px;padding:13px}.step strong{color:#9ee9ff}.step ul{margin:7px 0 0;padding-left:18px;color:#d2e6ee;font-size:12px;line-height:1.45}.moat{border-color:#8d6a1b;background:#1b1306}.moat h2{color:#ffe29a}.moat li{color:#f0e6c7;margin-bottom:8px;line-height:1.4}.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}.calc label{font-size:11px;color:#d3c8e2}.calc input{width:100%;min-height:44px;margin-top:4px;border-radius:10px;border:1px solid #604c83;background:#080611;color:#fff;padding:8px}.action{min-height:44px;padding:0 14px;border:1px solid #a885ff;border-radius:12px;background:#241544;color:#fff;font-weight:900}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px;margin-top:10px}.metric{padding:13px;border-radius:14px;border:1px solid #4c7d63;background:#091c12}.metric small{color:#b9d9c5}.metric b{display:block;font-size:27px;color:#c7ffd9;margin-top:3px}.truth{padding:10px 12px;border:1px solid #826720;border-radius:12px;background:#231a07;color:#ffe8a7;font-size:12px;line-height:1.4}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">TRYAMM • FOUNDER GROWTH COMMAND</div>
+      <h1>Turn the Supply Chain Into Revenue</h1>
+      <p>Start with a narrow, sellable sourcing workflow. Prove buyers pay, prove suppliers perform, then compound the data into a defensible TRYAMM Supply Graph.</p>
+      <div class="truth">All prices and scenarios on this page are illustrative planning values. They do not activate billing, guarantee income, or imply connected carriers, customs, warehouses, financing, insurance or marketplaces.</div>
+      <p><a class="back" href="/global-supply-chain">← Global Supply Chain</a></p>
+    </section>
+
+    <section class="section">
+      <h2>First-Dollar Offers</h2>
+      <div class="grid" id="offers"></div>
+    </section>
+
+    <section class="section moat">
+      <h2>Dominance = The TRYAMM Supply Graph</h2>
+      <p>Do not try to dominate by owning every physical asset. Dominate by getting better at matching buyer demand to supplier capacity, landed cost, fulfillment and creator distribution.</p>
+      <ul id="moat"></ul>
+    </section>
+
+    <section class="section">
+      <h2>90-Day First-Revenue Sprint</h2>
+      <div class="sprint" id="sprint"></div>
+    </section>
+
+    <section class="section">
+      <h2>First-Cash Scenario</h2>
+      <p>Model a small founder-led customer base before chasing large GMV.</p>
+      <div class="calc">
+        <label>Source Sprints<input id="sourceSprints" inputmode="numeric" value="5" /></label>
+        <label>Growth sellers<input id="growthSellers" inputmode="numeric" value="10" /></label>
+        <label>Pro sellers<input id="proSellers" inputmode="numeric" value="3" /></label>
+        <label>Supplier members<input id="supplierMembers" inputmode="numeric" value="5" /></label>
+        <label>Supplier Pro<input id="supplierPro" inputmode="numeric" value="1" /></label>
+        <label>Control Towers<input id="controlTowers" inputmode="numeric" value="0" /></label>
+        <label>White-label accounts<input id="whiteLabels" inputmode="numeric" value="0" /></label>
+      </div>
+      <p><button class="action" id="cashModel" type="button">MODEL FIRST CASH</button></p>
+      <div class="metrics">
+        <div class="metric"><small>Illustrative monthly-equivalent gross</small><b id="cashTotal">$0</b></div>
+      </div>
+      <p id="cashNote" style="font-size:12px"></p>
+    </section>
+
+    <section class="section">
+      <h2>Dominance Readiness</h2>
+      <div class="calc">
+        <label>Verified suppliers 0–100<input id="verifiedSuppliers" inputmode="numeric" value="15" /></label>
+        <label>Paying sellers 0–100<input id="payingSellers" inputmode="numeric" value="10" /></label>
+        <label>Repeat-order rate 0–100<input id="repeatOrderRate" inputmode="numeric" value="5" /></label>
+        <label>Provider coverage 0–100<input id="providerCoverage" inputmode="numeric" value="10" /></label>
+        <label>Data completeness 0–100<input id="dataCompleteness" inputmode="numeric" value="20" /></label>
+        <label>Gross-margin quality 0–100<input id="grossMarginQuality" inputmode="numeric" value="10" /></label>
+      </div>
+      <p><button class="action" id="readiness" type="button">SCORE READINESS</button></p>
+      <div class="metrics">
+        <div class="metric"><small>Readiness</small><b id="readinessScore">0</b></div>
+        <div class="metric"><small>Stage</small><b id="readinessStage">WEDGE</b></div>
+      </div>
+      <p style="font-size:12px">This is an internal execution score, not a valuation or market-share claim.</p>
+    </section>
+  </main>
+  <script src="/tryamm-supply-chain-growth.js?v=20260903-growth-v1"></script>
+  <script>
+    const api=window.TRYAMMSupplyChainGrowth
+    const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n||0)
+    Object.values(api.offers).forEach(o=>{const el=document.createElement('article');el.className='card';el.innerHTML=`<h3>${o.name}</h3><div class="price">${money(o.illustrativePrice)} ${o.billing==='monthly'?'/mo':''}</div><p>${o.outcome}</p><span class="tag">${o.who}</span>`;offers.appendChild(el)})
+    Object.entries(api.moat).forEach(([name,text])=>{const li=document.createElement('li');li.innerHTML=`<strong>${name}</strong> — ${text}`;moat.appendChild(li)})
+    api.firstRevenueSprint.forEach(s=>{const el=document.createElement('article');el.className='step';el.innerHTML=`<strong>${s.days} • ${s.goal}</strong><ul>${s.actions.map(a=>`<li>${a}</li>`).join('')}</ul><p><b>Proof:</b> ${s.proof}</p>`;sprint.appendChild(el)})
+    function runCash(){const out=api.firstCashScenario({sourceSprints:+sourceSprints.value,growthSellers:+growthSellers.value,proSellers:+proSellers.value,supplierMembers:+supplierMembers.value,supplierPro:+supplierPro.value,controlTowers:+controlTowers.value,whiteLabels:+whiteLabels.value});cashTotal.textContent=money(out.monthlyEquivalent);cashNote.textContent='Illustrative gross before '+out.excludes.join(', ')+'. Charges remain disabled.'}
+    cashModel.addEventListener('click',runCash);runCash()
+    function runReadiness(){const out=api.dominanceReadiness({verifiedSuppliers:+verifiedSuppliers.value,payingSellers:+payingSellers.value,repeatOrderRate:+repeatOrderRate.value,providerCoverage:+providerCoverage.value,dataCompleteness:+dataCompleteness.value,grossMarginQuality:+grossMarginQuality.value});readinessScore.textContent=out.overall;readinessStage.textContent=out.stage}
+    readiness.addEventListener('click',runReadiness);runReadiness()
+  </script>
+</body>
+</html>
