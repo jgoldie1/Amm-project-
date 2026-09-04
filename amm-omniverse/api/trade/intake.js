@@ -5,11 +5,36 @@ const MAX={company:160,contact:120,email:254,phone:64,country:8,website:240,deal
 const clean=(value,max)=>String(value??'').trim().slice(0,max);
 const numberOrNull=value=>{const n=Number(value);return Number.isFinite(n)&&n>=0?n:null};
 const validEmail=email=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)&&email.length<=MAX.email;
+const publicUrl=()=>process.env.VITE_SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL||'https://fxluchtdfpediivhoksl.supabase.co';
+const publicKey=()=>process.env.VITE_SUPABASE_ANON_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'sb_publishable_y2OadDy1zy8QlWy-YAcdlg_uzAYMLzj';
+const publicReady=()=>Boolean(publicUrl()&&publicKey());
+
+async function publicInsert(payload){
+  if(!publicReady())throw new Error('supabase_public_not_configured');
+  const response=await fetch(`${publicUrl().replace(/\/$/,'')}/rest/v1/global_trade_partner_intakes`,{
+    method:'POST',
+    headers:{
+      apikey:publicKey(),
+      authorization:`Bearer ${publicKey()}`,
+      'content-type':'application/json',
+      prefer:'return=minimal'
+    },
+    body:JSON.stringify(payload)
+  });
+  if(!response.ok){
+    let detail='';
+    try{detail=(await response.json())?.message||''}catch{}
+    throw new Error(detail||`supabase_public_${response.status}`);
+  }
+  return true;
+}
 
 export default async function handler(req,res){
-  if(req.method==='GET')return json(res,200,{ok:true,providerReady:adminReady(),storage:'global_trade_partner_intakes'});
+  const providerReady=adminReady()||publicReady();
+  const providerMode=adminReady()?'service-role':publicReady()?'publishable-rls':'unconfigured';
+  if(req.method==='GET')return json(res,200,{ok:true,providerReady,providerMode,storage:'global_trade_partner_intakes'});
   if(req.method!=='POST')return json(res,405,{ok:false,error:'Method not allowed'});
-  if(!adminReady())return json(res,503,{ok:false,state:'INTAKE_PROVIDER_GATED',message:'Partner intake storage is not configured on this deployment.'});
+  if(!providerReady)return json(res,503,{ok:false,state:'INTAKE_PROVIDER_GATED',message:'Partner intake storage is not configured on this deployment.'});
 
   const body=req.body||{};
   if(clean(body.website_confirm,120))return json(res,200,{ok:true,state:'RECEIVED'});
@@ -29,6 +54,7 @@ export default async function handler(req,res){
   const consentToBusinessContact=Boolean(body.consentToBusinessContact);
   const ndaRequested=Boolean(body.ndaRequested);
   const lowMoqRequested=Boolean(body.lowMoqRequested);
+  const submissionRef=clean(body.submissionRef,80)||`GT-${Date.now().toString(36).toUpperCase()}`;
 
   if(!ALLOWED_ROLES.has(role))return json(res,400,{ok:false,error:'Choose a valid partner role.'});
   if(companyName.length<2)return json(res,400,{ok:false,error:'Company or brand name is required.'});
@@ -56,17 +82,23 @@ export default async function handler(req,res){
     low_moq_requested:lowMoqRequested,
     metadata:{
       offerId:clean(body.offerId,80)||null,
-      submissionRef:clean(body.submissionRef,80)||null,
+      submissionRef,
       submittedFrom:'tryamm.online/global-supply-chain',
-      intakeVersion:'20260903-deal-desk-v2'
+      intakeVersion:'20260903-deal-desk-v3',
+      providerMode
     }
   };
 
   try{
-    const rows=await adminRest('global_trade_partner_intakes',{method:'POST',body:payload});
-    const row=rows?.[0];
-    if(!row?.id)throw new Error('intake_not_persisted');
-    return json(res,201,{ok:true,state:'INTAKE_SAVED',intakeId:row.id,message:'Your TRYAMM Global Trade request was received for founder review.'});
+    if(adminReady()){
+      const rows=await adminRest('global_trade_partner_intakes',{method:'POST',body:payload});
+      const row=rows?.[0];
+      if(!row?.id)throw new Error('intake_not_persisted');
+      return json(res,201,{ok:true,state:'INTAKE_SAVED',intakeId:row.id,providerMode,message:'Your TRYAMM Global Trade request was received for founder review.'});
+    }
+
+    await publicInsert(payload);
+    return json(res,201,{ok:true,state:'INTAKE_SAVED_RLS',intakeId:submissionRef,providerMode,message:'Your TRYAMM Global Trade request was received for founder review.'});
   }catch(error){
     console.error('global_trade_partner_intake_failed',String(error?.message||error));
     return json(res,500,{ok:false,error:'Unable to save this request right now.'});
