@@ -19,6 +19,7 @@ const requiredSignals = [
   'goldenOrderId',
   'evidenceIds',
   'verifiedAt',
+  'hasCanonicalId',
   'hasValidEvidenceIds',
   'hasValidVerificationTimestamp',
   'Date.parse(verifiedAt)',
@@ -42,11 +43,19 @@ if (!requiredBooleanBlock || !requiredBooleanBlock[1].includes("'visionQaRelease
   throw new Error('Illinois rollout gate must require a passing Vision-assisted AAA release gate.');
 }
 
-if (!/normalizedIds\.some\(\(id\) => id\.length === 0\)/.test(source)) {
-  throw new Error('Illinois rollout gate must reject blank evidence identifiers.');
+if (!/trimmed\.length\s*>\s*0\s*&&\s*trimmed\s*===\s*value/.test(source)) {
+  throw new Error('Illinois rollout gate must require canonical non-whitespace-padded identifiers.');
 }
 
-if (!/new Set\(normalizedIds\)\.size === normalizedIds\.length/.test(source)) {
+if (!/evidenceIds\.some\(\(id\) => !hasCanonicalId\(id\)\)/.test(source)) {
+  throw new Error('Illinois rollout gate must apply canonical identifier validation to every evidence ID.');
+}
+
+if (!/hasCanonicalId\(evidence\.goldenOrderId\)/.test(source)) {
+  throw new Error('Illinois rollout gate must require a canonical Golden Order identifier.');
+}
+
+if (!/new Set\(evidenceIds\)\.size === evidenceIds\.length/.test(source)) {
   throw new Error('Illinois rollout gate must reject duplicate evidence identifiers.');
 }
 
