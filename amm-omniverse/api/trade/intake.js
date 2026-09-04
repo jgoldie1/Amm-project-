@@ -7,6 +7,7 @@ const numberOrNull=value=>{const n=Number(value);return Number.isFinite(n)&&n>=0
 const validEmail=email=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)&&email.length<=MAX.email;
 
 export default async function handler(req,res){
+  if(req.method==='GET')return json(res,200,{ok:true,providerReady:adminReady(),storage:'global_trade_partner_intakes'});
   if(req.method!=='POST')return json(res,405,{ok:false,error:'Method not allowed'});
   if(!adminReady())return json(res,503,{ok:false,state:'INTAKE_PROVIDER_GATED',message:'Partner intake storage is not configured on this deployment.'});
 
