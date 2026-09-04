@@ -71,7 +71,12 @@ export const evaluateIllinoisVisionQaReleaseGate = (
     missingEvidence.push('evidenceRefs');
   } else {
     for (const [index, evidenceRef] of evidence.evidenceRefs.entries()) {
-      if (!evidenceRef.trim()) missingEvidence.push(`evidenceRef:${index}`);
+      const normalizedEvidenceRef = evidenceRef.trim();
+      if (!normalizedEvidenceRef) {
+        missingEvidence.push(`evidenceRef:${index}`);
+      } else if (normalizedEvidenceRef !== evidenceRef) {
+        missingEvidence.push(`evidenceRefInvalid:${index}`);
+      }
     }
   }
 
@@ -87,8 +92,11 @@ export const evaluateIllinoisVisionQaReleaseGate = (
     .map((finding) => finding.id);
 
   for (const finding of evidence.run.findings) {
-    if (!finding.evidenceRef?.trim()) {
+    const normalizedFindingEvidenceRef = finding.evidenceRef?.trim() ?? '';
+    if (!normalizedFindingEvidenceRef) {
       missingEvidence.push(`findingEvidenceRef:${finding.id}`);
+    } else if (normalizedFindingEvidenceRef !== finding.evidenceRef) {
+      missingEvidence.push(`findingEvidenceRefInvalid:${finding.id}`);
     }
   }
 
