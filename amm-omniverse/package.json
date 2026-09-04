@@ -2,12 +2,14 @@
   "name": "amm-omniverse",
   "version": "1.1.0",
   "type": "module",
-  "engines": {"node": ">=24 <25"},
+  "engines": {
+    "node": ">=24 <25"
+  },
   "scripts": {
     "dev": "vite",
     "lint": "eslint .",
     "lint:strict": "eslint . --max-warnings=0",
-    "smoke": "node tests/smoke-contracts.mjs && node tests/living-world-recovery-contract.mjs && node tests/streetverse-economy-contract.mjs && node tests/streetverse-visible-loop-contract.mjs && node tests/streetverse-control-deck-contract.mjs && node tests/asset-rights-contract.mjs && node tests/network-fast-xr-contract.mjs && node tests/aniyah-pay-contract.mjs && node tests/secs-construct-contract.mjs && node tests/mobility-blockchain-contract.mjs && node tests/omniverse-event-fabric-contract.mjs && node tests/performance-release-contract.mjs && node tests/biometric-avatar-privacy-contract.mjs && node tests/streetverse-vehicle-control-contract.mjs && node tests/streetverse-mobile-resident-conversation-contract.mjs && node tests/holo-forge-contract.mjs && node tests/streetverse-mobile-living-city-contract.mjs && node tests/poyo-holosocial-lazy-contract.mjs && node tests/streetverse-self-healing-contract.mjs && node tests/streetverse-journey-qa-contract.mjs && node tests/aaa-commerce-foundation-contract.mjs && node tests/founder-commerce-telemetry-contract.mjs && node tests/golden-order-event-bridge-contract.mjs && node tests/illinois-rollout-gate-contract.mjs && node tests/vision-qa-foundation-contract.mjs && node tests/vision-qa-release-gate-contract.mjs",
+    "smoke": "node tests/smoke-contracts.mjs && node tests/living-world-recovery-contract.mjs && node tests/streetverse-economy-contract.mjs && node tests/streetverse-visible-loop-contract.mjs && node tests/streetverse-control-deck-contract.mjs && node tests/asset-rights-contract.mjs && node tests/network-fast-xr-contract.mjs && node tests/aniyah-pay-contract.mjs && node tests/secs-construct-contract.mjs && node tests/mobility-blockchain-contract.mjs && node tests/omniverse-event-fabric-contract.mjs && node tests/performance-release-contract.mjs && node tests/biometric-avatar-privacy-contract.mjs && node tests/streetverse-vehicle-control-contract.mjs && node tests/streetverse-mobile-resident-conversation-contract.mjs && node tests/holo-forge-contract.mjs && node tests/streetverse-mobile-living-city-contract.mjs && node tests/poyo-holosocial-lazy-contract.mjs && node tests/streetverse-self-healing-contract.mjs && node tests/streetverse-journey-qa-contract.mjs && node tests/aaa-commerce-foundation-contract.mjs && node tests/founder-commerce-telemetry-contract.mjs && node tests/golden-order-event-bridge-contract.mjs && node tests/illinois-rollout-gate-contract.mjs && node tests/vision-qa-foundation-contract.mjs && node tests/vision-qa-release-gate-contract.mjs && node tests/platform-expansion-foundation-contract.mjs",
     "security": "node tests/repository-security-scan.mjs",
     "provider-gates": "node tests/provider-gates.mjs",
     "readiness": "node tests/production-readiness.mjs && npm run provider-gates",
@@ -16,6 +18,8 @@
     "typecheck": "tsc --noEmit",
     "e2e": "playwright test",
     "e2e:install": "playwright install chromium",
+    "asset:optimize": "gltf-transform optimize",
+    "asset:inspect": "gltf-transform inspect",
     "check": "npm run lint && npm run security && npm run readiness && npm run typecheck && npm run build"
   },
   "dependencies": {
@@ -23,10 +27,12 @@
     "@capacitor/cli": "^8.4.1",
     "@capacitor/core": "^8.4.1",
     "@capacitor/ios": "^8.4.1",
+    "@dimforge/rapier3d-compat": "0.20.0",
     "@google/generative-ai": "^0.24.1",
     "@lottiefiles/dotlottie-io": "^0.0.4",
     "@lottiefiles/dotlottie-react": "^0.19.15",
     "@lottiefiles/dotlottie-web": "^0.79.2",
+    "@recast-navigation/three": "0.43.1",
     "@supabase/supabase-js": "^2.108.2",
     "@vitejs/plugin-react": "^5.0.4",
     "ai": "^7.0.79",
@@ -35,29 +41,35 @@
     "livekit-client": "^2.20.0",
     "livekit-server-sdk": "^2.18.0",
     "lottie-web": "^5.13.0",
+    "maplibre-gl": "6.7.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
+    "recast-navigation": "0.43.1",
     "three": "^0.184.0",
+    "three-mesh-bvh": "0.9.14",
     "three-stdlib": "^2.36.1",
     "tone": "^15.1.22",
     "zustand": "^5.0.0"
   },
   "devDependencies": {
-    "@types/react":"^18.3.0",
-    "@types/react-dom":"^18.3.0",
-    "@types/three":"^0.184.1",
-    "eslint":"10.9.1",
-    "eslint-plugin-react-hooks":"7.1.1",
-    "typescript":"^5.5.0",
-    "typescript-eslint":"8.68.0",
-    "vite":"7.3.6"
+    "@gltf-transform/cli": "4.5.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@types/three": "^0.184.1",
+    "eslint": "10.9.1",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "typescript": "^5.5.0",
+    "typescript-eslint": "8.68.0",
+    "vite": "7.3.6"
   },
   "overrides": {
-    "minimatch@3":{"brace-expansion":"1.1.17"},
-    "nanoid":"3.3.18",
-    "node-fetch":"2.7.0",
-    "postcss":"8.5.26",
-    "tar":"7.5.22"
+    "minimatch@3": {
+      "brace-expansion": "1.1.17"
+    },
+    "nanoid": "3.3.18",
+    "node-fetch": "2.7.0",
+    "postcss": "8.5.26",
+    "tar": "7.5.22"
   },
   "allowScripts": {
     "esbuild@0.28.2": true
