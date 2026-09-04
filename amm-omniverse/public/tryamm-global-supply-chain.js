@@ -67,5 +67,8 @@
     suggestions:SUGGESTIONS
   }
   window.addEventListener('tryamm:local-food-source-options',e=>window.dispatchEvent(new CustomEvent('tryamm:supply-chain-food-options',{detail:{...(e.detail||{}),supplyVersion:VERSION}})))
+  if(location.pathname.includes('global-supply-chain')){
+    const intake=document.createElement('script');intake.src='/tryamm-supply-chain-intake.js?v=20260903-intake-v1';intake.defer=true;document.head.appendChild(intake)
+  }
   window.dispatchEvent(new CustomEvent('tryamm:global-supply-chain-ready',{detail:{version:VERSION,lanes:Object.keys(LANES),recovered:RECOVERED,connections:{...state.connections},truthBoundary:'Software orchestration is present; external farms, processors, cold-chain providers, carriers, customs, warehouses, marketplaces and payment rails require verified provider connections.'}}))
 })()
