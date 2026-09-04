@@ -1,5 +1,5 @@
 'use strict';
-const CACHE='tryamm-shell-v18-release-truth';
+const CACHE='tryamm-shell-v19-american-lion';
 const APP_SHELL=['/','/styles.css','/app.js','/app-shell.html','/app-shell.css','/app-shell.js','/judah-splash.css','/judah-splash.js','/install-app.css','/install-app.js','/hologpt-widget.css','/hologpt-widget.js','/spaceverse.html','/spaceverse.css','/spaceverse.js','/moon-mission.html','/moon-mission.css','/moon-mission.js','/el-saturn-space.html','/el-saturn-space.css','/el-saturn-space.js','/spaceverse-engine.js','/vendor/model-viewer.min.js','/manifest.webmanifest','/tryamm-hub.html','/tryamm-hub.css','/tryamm-hub.js','/publisher-studio.html','/publisher-studio.js','/whitepapers/TryAMM_Public_White_Paper_v1.pdf','/privacy.html','/terms.html','/community-rules.html','/icons/judah-192.png','/icons/judah-512.png','/media/tryamm-judah-splash-poster-v2.jpg','/media/tryamm-spaceverse-launch-poster-v1.jpg','/media/venus-map-web.webp'];
 function injectHoloGPT(html){
   if(!html||html.includes('data-hologpt-global'))return html;
