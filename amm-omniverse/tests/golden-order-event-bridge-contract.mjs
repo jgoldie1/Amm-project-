@@ -27,8 +27,28 @@ for (const event of requiredEvents) {
   if (!source.includes(`'${event}'`)) throw new Error(`Missing Golden Order event: ${event}`);
 }
 
-if (!source.includes("event.source !== 'streetverse'")) {
-  throw new Error('StreetVerse must not mutate authoritative commerce truth');
+const requiredAuthorityPairs = [
+  ["'golden-order.funded'", "['payment-provider']"],
+  ["'golden-order.shipment.departed'", "['logistics-provider']"],
+  ["'golden-order.customs.hold'", "['customs-service']"],
+  ["'golden-order.customs.released'", "['customs-service']"],
+  ["'golden-order.warehouse.received'", "['warehouse']"],
+  ["'golden-order.inventory.reserved'", "['warehouse']"],
+  ["'golden-order.delivery.confirmed'", "['logistics-provider']"],
+  ["'golden-order.settlement.created'", "['settlement-service']"],
+];
+
+for (const [eventName, authorities] of requiredAuthorityPairs) {
+  const expected = `${eventName}: ${authorities}`;
+  if (!source.includes(expected)) throw new Error(`Missing Golden Order authority mapping: ${expected}`);
+}
+
+if (!source.includes('GOLDEN_ORDER_EVENT_AUTHORITIES[event.eventName].includes(event.source)')) {
+  throw new Error('Golden Order mutation must enforce event-specific source ownership');
+}
+
+if (!source.includes("event.source !== 'streetverse' && isAuthorizedGoldenOrderEvent(event)")) {
+  throw new Error('StreetVerse must remain projection-only and mutation must require event authorization');
 }
 
 if (!source.includes('event.authoritative === true')) {
