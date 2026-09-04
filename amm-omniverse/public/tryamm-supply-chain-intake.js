@@ -1,5 +1,11 @@
 (()=>{
   const host=document.querySelector('.hero');if(!host)return
+  const SUPABASE_URL='https://fxluchtdfpediivhoksl.supabase.co'
+  const SUPABASE_PUBLISHABLE_KEY='sb_publishable_y2OadDy1zy8QlWy-YAcdlg_uzAYMLzj'
+  const DIRECT_TABLE=`${SUPABASE_URL}/rest/v1/global_trade_partner_intakes`
+  const clean=(value,max)=>String(value??'').trim().slice(0,max)
+  const optionalNumber=value=>{const text=String(value??'').trim();if(!text)return null;const n=Number(text);return Number.isFinite(n)&&n>=0?n:null}
+  const makeRef=()=>`GT-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2,7).toUpperCase()}`
   const style=document.createElement('style');style.textContent=`
   .startdeal{margin-top:16px;padding:18px;border:1px solid #6d8cff;border-radius:18px;background:linear-gradient(180deg,#111b42d9,#07131cd9)}
   .startdeal h2{margin:0 0 6px;color:#dce4ff}.startdeal p{margin:0 0 12px;color:#ccd7ff;font-size:13px;line-height:1.45}
@@ -37,14 +43,54 @@
     </form>`
   host.insertAdjacentElement('afterend',wrap)
   const form=wrap.querySelector('form'),status=wrap.querySelector('#tryammDealStatus'),button=form.querySelector('button[type="submit"]')
+
+  async function serverReady(){
+    try{const r=await fetch('/api/trade/intake',{headers:{accept:'application/json'},cache:'no-store'});const d=await r.json();return Boolean(r.ok&&d?.providerReady)}catch{return false}
+  }
+  async function saveDirect(payload,submissionRef){
+    const record={
+      role:payload.role,
+      company_name:payload.companyName,
+      contact_name:payload.contactName,
+      email:payload.email,
+      phone:payload.phone||null,
+      country_code:payload.countryCode||null,
+      website:payload.website||null,
+      deal_type:payload.dealType||'general',
+      product_or_service:payload.productOrService||null,
+      estimated_monthly_volume:optionalNumber(payload.estimatedMonthlyVolume),
+      target_moq:optionalNumber(payload.targetMoq),
+      message:payload.message||null,
+      source:'global-supply-chain',
+      status:'new',
+      consent_to_business_contact:true,
+      nda_requested:Boolean(payload.ndaRequested),
+      low_moq_requested:Boolean(payload.lowMoqRequested),
+      metadata:{submissionRef,submittedFrom:'tryamm.online/global-supply-chain',via:'supabase-data-api'}
+    }
+    const response=await fetch(DIRECT_TABLE,{method:'POST',headers:{apikey:SUPABASE_PUBLISHABLE_KEY,'content-type':'application/json',prefer:'return=minimal'},body:JSON.stringify(record)})
+    if(!response.ok){let detail='';try{detail=(await response.json())?.message||''}catch{}throw new Error(detail||`Storage rejected request (${response.status})`)}
+    return {ok:true,intakeId:submissionRef,state:'INTAKE_SAVED_RLS'}
+  }
+  async function saveViaServer(payload){
+    const response=await fetch('/api/trade/intake',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)})
+    const data=await response.json().catch(()=>({}))
+    if(!response.ok)throw new Error(data?.error||data?.message||'Unable to submit request')
+    return data
+  }
+
   form.addEventListener('submit',async event=>{
     event.preventDefault();button.disabled=true;status.textContent='Submitting your request…'
-    const fd=new FormData(form),payload={};for(const [k,v] of fd.entries())payload[k]=v
-    payload.consentToBusinessContact=fd.has('consentToBusinessContact');payload.ndaRequested=fd.has('ndaRequested');payload.lowMoqRequested=fd.has('lowMoqRequested')
+    const fd=new FormData(form)
+    if(clean(fd.get('website_confirm'),120)){status.textContent='Received.';button.disabled=false;form.reset();return}
+    const payload={
+      role:clean(fd.get('role'),40),companyName:clean(fd.get('companyName'),160),contactName:clean(fd.get('contactName'),120),email:clean(fd.get('email'),254).toLowerCase(),phone:clean(fd.get('phone'),64),countryCode:clean(fd.get('countryCode'),8).toUpperCase(),website:clean(fd.get('website'),240),dealType:clean(fd.get('dealType'),80),productOrService:clean(fd.get('productOrService'),600),estimatedMonthlyVolume:clean(fd.get('estimatedMonthlyVolume'),40),targetMoq:clean(fd.get('targetMoq'),40),message:clean(fd.get('message'),2400),consentToBusinessContact:fd.has('consentToBusinessContact'),ndaRequested:fd.has('ndaRequested'),lowMoqRequested:fd.has('lowMoqRequested')
+    }
+    if(!payload.role||payload.companyName.length<2||payload.contactName.length<2||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)||!payload.consentToBusinessContact){status.textContent='Please complete the required business contact fields.';button.disabled=false;return}
+    const submissionRef=makeRef()
     try{
-      const res=await fetch('/api/trade/intake',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)}),data=await res.json().catch(()=>({}))
-      if(!res.ok)throw new Error(data?.error||data?.message||'Unable to submit request')
-      status.textContent=`Received. Deal Desk reference: ${data.intakeId||'saved'}. TRYAMM will review the request before any quote, supplier introduction or payment step.`
+      const data=(await serverReady())?await saveViaServer({...payload,submissionRef}):await saveDirect(payload,submissionRef)
+      status.textContent=`Received. Deal Desk reference: ${data.intakeId||submissionRef}. TRYAMM will review the request before any quote, supplier introduction or payment step.`
       form.reset()
     }catch(error){status.textContent=`Not saved: ${String(error?.message||error)}.`}
     finally{button.disabled=false}
