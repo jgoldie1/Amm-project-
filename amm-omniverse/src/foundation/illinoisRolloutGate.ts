@@ -8,6 +8,7 @@ export interface IllinoisRolloutEvidence {
   shipmentReconciled: boolean;
   founderKpisComplete: boolean;
   streetVerseAuthorityBoundaryVerified: boolean;
+  visionQaReleaseGatePassed: boolean;
   performanceGatePassed: boolean;
   accessibilityGatePassed: boolean;
   evidenceIds: string[];
@@ -30,6 +31,7 @@ const REQUIRED_BOOLEAN_EVIDENCE: Array<
     | 'shipmentReconciled'
     | 'founderKpisComplete'
     | 'streetVerseAuthorityBoundaryVerified'
+    | 'visionQaReleaseGatePassed'
     | 'performanceGatePassed'
     | 'accessibilityGatePassed'
   >
@@ -40,6 +42,7 @@ const REQUIRED_BOOLEAN_EVIDENCE: Array<
   'shipmentReconciled',
   'founderKpisComplete',
   'streetVerseAuthorityBoundaryVerified',
+  'visionQaReleaseGatePassed',
   'performanceGatePassed',
   'accessibilityGatePassed',
 ];
@@ -65,6 +68,9 @@ export const evaluateIllinoisToUnitedStatesGate = (
  * Expansion is intentionally one-way and evidence-gated. This helper does not
  * mutate authoritative commerce state; it only evaluates whether verified
  * Illinois evidence is sufficient to propose the next geographic scope.
+ *
+ * Visual quality is part of the expansion contract: Illinois must have a
+ * passing Vision-assisted AAA release gate before proposing U.S. expansion.
  */
 export const proposeRolloutAdvance = (
   currentScope: RolloutScope,
