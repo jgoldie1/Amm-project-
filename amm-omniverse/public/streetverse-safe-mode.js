@@ -25,6 +25,23 @@
     `
     document.head.appendChild(style)
   }
+  const ensureReelLauncher=()=>{
+    const world=document.querySelector('[role="dialog"][aria-label="StreetVerse Living World"]')
+    if(!world)return
+    const header=world.querySelector('header')
+    if(!header||header.querySelector('[data-tryamm-streetverse-reel-launcher="true"]'))return
+    const actions=header.lastElementChild
+    if(!actions)return
+    const button=document.createElement('button')
+    button.type='button'
+    button.dataset.tryammStreetverseReelLauncher='true'
+    button.setAttribute('aria-label','Open StreetVerse Reel Creator')
+    button.textContent='● REEL'
+    Object.assign(button.style,{minHeight:'42px',borderRadius:'12px',border:'1px solid #ff7ce8',background:'#251027',color:'#fff',fontWeight:'900',padding:'0 13px',cursor:'pointer',boxShadow:'0 6px 18px #0008'})
+    button.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'streetverse-living-world'}})))
+    actions.insertBefore(button,actions.lastElementChild)
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-launcher-ready',{detail:{source:'streetverse-living-world',visible:true}}))
+  }
   const markVisibleLife=(city)=>{
     ensureLifeStyles()
     const streets=[...city.querySelectorAll('main > div[aria-hidden="true"]')]
@@ -43,6 +60,7 @@
     }
   }
   const sync=()=>{
+    ensureReelLauncher()
     const city=document.querySelector('[data-streetverse-html-city="true"]')
     safeActive=!!city
     if(!safeActive)return
