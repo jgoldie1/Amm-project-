@@ -104,9 +104,21 @@ The Passport is intentionally read-only in the browser:
 - Layer 3 anchor authority: trusted server/service role only
 - raw Layer 3 table access: RLS protected
 - direct browser calls to `anchor_set_apart_chain_event`: prohibited
-- future user-visible receipts must come through an authenticated, least-privilege server projection rather than exposing raw chain rows or service credentials
 
-The Passport may display the Layer 3 network label, attestation categories, security status, and user-authorized receipts when a safe server projection exists. It must not imply that a browser render is itself an attestation or that UI state can create a Layer 3 block.
+### Authenticated receipt projection
+
+Current implementation:
+- protected raw chain: `public.set_apart_chain_blocks`
+- private projection: `public.set_apart_passport_receipts`
+- trusted publisher: `public.publish_set_apart_passport_receipt`
+- browser reader: `src/services/setApartPassportPersistence.ts`
+- receipt UI: `src/components/SetApartPassportReceipts.tsx`
+
+The projection is an **authenticated, owner-only read projection**. An authenticated user receives `SELECT` access only to rows where `owner_user_id = auth.uid()`. Browser users receive no insert, update, delete, truncate, or publisher execution authority.
+
+Only trusted server authority may project an existing Layer 3 event into a user's Passport. The publisher does not create a Layer 3 block; it copies approved display fields and evidence identifiers from an already-existing protected chain event into a private receipt row.
+
+The visible receipt intentionally shows only approved projection data such as display title/summary, attestation category, classification, attested time, resource reference, and a shortened block-hash preview. The browser does not query raw Layer 3 rows or receive service credentials.
 
 Despite the product name, the Set Apart Passport is a voluntary TRYAMM faith/community credential only. It is **not** a government passport, citizenship or nationality record, tax status, civil jurisdiction, legal sovereignty, regulated license, payment authority, or title to real-world property.
 
@@ -114,18 +126,19 @@ Despite the product name, the Set Apart Passport is a voluntary TRYAMM faith/com
 
 A typical evidence flow may be:
 
-`user experience → Layer 1 receipt → authoritative service action → Layer 2 anchor → optional Set Apart/community attestation → Layer 3 cross-anchor`
+`user experience → Layer 1 receipt → authoritative service action → Layer 2 anchor → optional Set Apart/community attestation → Layer 3 cross-anchor → optional private Passport projection`
 
-The reverse must not occur. A Layer 3 attestation cannot create a payment, customs clearance, payout, inventory mutation, or other regulated/financial state.
+The reverse must not occur. A Layer 3 attestation or Passport projection cannot create a payment, customs clearance, payout, inventory mutation, or other regulated/financial state.
 
 ## Security boundary
 
 - Layer 1: local/client; useful for experience verification, not authoritative real-world settlement.
 - Layer 2: server-only anchoring; RLS protected; service-role execution only.
 - Layer 3: separate server-only anchoring; RLS protected; service-role execution only.
+- Passport projection: authenticated owner-only `SELECT`; publishing remains service-role only.
 - No client service-role keys.
 - No browser direct anchoring of Layer 2 or Layer 3.
-- No chain layer may bypass provider, regulatory, settlement, inventory, customs, or safety authority.
+- No chain layer or Passport projection may bypass provider, regulatory, settlement, inventory, customs, or safety authority.
 
 ## Product meaning
 

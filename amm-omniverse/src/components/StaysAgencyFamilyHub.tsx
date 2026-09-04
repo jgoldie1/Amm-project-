@@ -5,6 +5,7 @@ import {
   TRYAMM_FAMILY_STREAMING,
   TRYAMM_STAYS,
 } from '../foundation/staysAgencyFamilyFoundation'
+import SetApartPassportReceipts from './SetApartPassportReceipts'
 
 type HubTab='stays'|'agency'|'family'|'passport'
 type Props={onClose:()=>void;initialTab?:HubTab}
@@ -85,8 +86,9 @@ export default function StaysAgencyFamilyHub({onClose,initialTab='stays'}:Props)
         {tab==='passport'&&<>
           <div aria-label="Set Apart Passport status" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:8,marginBottom:18}}>{SET_APART_PASSPORT_STATUS.map(([label,value])=><div key={label} style={{border:'1px solid #24412f',borderRadius:13,padding:12,background:'#08120e'}}><div style={{fontSize:8,letterSpacing:1.4,color:'#78ffb4',fontWeight:900}}>{label}</div><div style={{fontSize:11,color:'#edf8f0',lineHeight:1.5,marginTop:5,wordBreak:'break-word'}}>{value}</div></div>)}</div>
           <FeatureGrid items={SET_APART_PASSPORT_CATEGORIES}/>
+          <SetApartPassportReceipts/>
           <Boundary title="Read-only boundary">The browser has no direct write authority. Layer 3 anchoring stays trusted-server-only and RLS protected.</Boundary>
-          <Boundary title="Evidence projection">User-authorized receipts should appear only through an authenticated server projection; raw chain rows and service credentials remain hidden from the browser.</Boundary>
+          <Boundary title="Evidence projection">Only approved private projection rows for the authenticated user are readable. Raw chain rows and service credentials remain hidden from the browser.</Boundary>
           <Boundary title="Community credential">This Set Apart Passport is a voluntary faith/community record. It is not a government passport, citizenship or nationality record, tax status, civil jurisdiction, legal sovereignty, regulated license, payment authority, or title to real-world property.</Boundary>
           <div style={{display:'flex',flexWrap:'wrap',gap:8,marginTop:18}}><Action label="Back to Family Groups" onClick={()=>setTab('family')}/><Action label="Open Family Legacy" onClick={()=>openSystem('__showFamilyLegacy')}/></div>
         </>}
