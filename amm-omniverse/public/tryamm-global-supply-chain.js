@@ -1,6 +1,6 @@
 (()=>{
-  const VERSION='20260903-supply-v1'
-  const RECOVERED=['qvc-hsn-live-selling','shopify-product-builder','global-trade','vendor-creator-stores','seller-payouts','live-shopping','affiliate-commerce','delivery-tracking','proof-of-delivery','marketplace-fulfillment']
+  const VERSION='20260903-supply-v2'
+  const RECOVERED=['qvc-hsn-live-selling','shopify-product-builder','global-trade','vendor-creator-stores','seller-payouts','live-shopping','affiliate-commerce','delivery-tracking','proof-of-delivery','marketplace-fulfillment','yahavah-grocery','all-american-beauty','supply-plug-global']
   const LANES={
     ndaSourcing:{label:'NDA Sourcing Rooms',status:'software-ready',description:'Gate supplier briefs, samples, pricing, drawings and negotiations behind explicit confidentiality/permission records.'},
     quantumSourcing:{label:'Quantum Sourcing',status:'decision-layer',description:'Multi-supplier scoring for cost, MOQ, lead time, quality, geography, resilience and verified compliance. No claim of quantum-computer execution without a connected backend.'},
@@ -10,6 +10,7 @@
     dtc:{label:'Direct-to-Consumer Routing',status:'software-ready',description:'Supplier or warehouse to customer routing with marketplace order status, delivery events and returns.'},
     virtualWarehouse:{label:'Virtual Warehouse',status:'software-ready',description:'One inventory view across supplier stock, in-transit stock, owned warehouses, third-party fulfillment and reserved marketplace units.'},
     holoFridge:{label:'Holo Fridge / Cold-Chain Warehouse',status:'software-ready',description:'Cold-chain inventory lane for temperature-sensitive goods with condition events, expiry/lot metadata and fulfillment holds when data is missing.'},
+    localAmericanFood:{label:'Local American Farm & Food Network',status:'software-ready-provider-gated',description:'Discover U.S. farms, ranches, CSAs, farmers markets and regional distributors for beef, poultry, pork, lamb/goat, eggs, dairy, produce, honey and other local food. Eatwild can be used for discovery; actual sellable inventory remains gated by supplier, origin, applicable inspection/processing, labeling and cold-chain evidence.'},
     fulfillment:{label:'Warehouse Fulfillment',status:'software-ready',description:'Receiving, put-away, pick, pack, label, dispatch, proof of delivery and reverse-logistics events.'},
     liveCommerce:{label:'QVC / HSN-style Live Commerce',status:'recovered-ui',description:'Live shopping, flash-sale, countdown and purchase-alert experience already documented in the platform inventory; external broadcast/merchant connections remain provider-gated.'},
     shopify:{label:'Shopify Commerce Adapter',status:'recovered-builder',description:'Product/listing builder is documented as built; external Shopify account/API sync is treated as disconnected until credentials and provider verification exist.'},
@@ -23,13 +24,14 @@
     splitOrder:'Smart Split Orders: divide one PO across suppliers/routes when it lowers risk without silently changing customer promises.',
     routeResilience:'Route Resilience: compare ocean, air, rail and truck alternatives and flag single-port/single-carrier dependencies.',
     coldChain:'Cold-Chain Exception Engine: quarantine virtual inventory when temperature/condition evidence is missing or outside configured limits.',
+    foodIntegrity:'Food Integrity Gate: supplier/farm verification + origin + applicable inspection/processing + lot/expiry + labeling + cold-chain evidence before a food SKU becomes sellable.',
     reverseLogistics:'Reverse Logistics: returns, repair, refurbish, resale, recycle and supplier chargeback workflows.',
     complianceVault:'Compliance Vault: licenses, certificates, test reports, insurance and supplier documents with expiry alerts.',
     liveInventory:'LIVE-to-Inventory Reservation: hold units during live selling/auction windows so overselling does not occur.',
     supplierFinance:'Supplier Finance Readiness: invoice/PO evidence and settlement status for approved financing partners; no automatic lending claims.',
-    missionLayer:'StreetVerse Supply Missions: ports, warehouses, stores and creator shops can visualize simulated supply events without pretending game events are real shipments.'
+    missionLayer:'StreetVerse Supply Missions: ports, warehouses, farms, stores and creator shops can visualize simulated supply events without pretending game events are real shipments.'
   }
-  const state={version:VERSION,lastUpdated:new Date().toISOString(),lanes:LANES,recovered:RECOVERED,suggestions:SUGGESTIONS,connections:{shopify:false,externalMarketplaces:false,carriers:false,customs:false,warehouses:false,paymentRails:false}}
+  const state={version:VERSION,lastUpdated:new Date().toISOString(),lanes:LANES,recovered:RECOVERED,suggestions:SUGGESTIONS,connections:{shopify:false,externalMarketplaces:false,carriers:false,customs:false,warehouses:false,paymentRails:false,farms:false,processors:false,coldChain:false}}
   const safeNum=n=>Number.isFinite(Number(n))?Number(n):0
   function landedCost(input={}){
     const goods=safeNum(input.goods),freight=safeNum(input.freight),duties=safeNum(input.duties),brokerage=safeNum(input.brokerage),storage=safeNum(input.storage),pickPack=safeNum(input.pickPack),payment=safeNum(input.payment),returnsReserve=safeNum(input.returnsReserve),other=safeNum(input.other)
@@ -64,5 +66,6 @@
     lanes:LANES,
     suggestions:SUGGESTIONS
   }
-  window.dispatchEvent(new CustomEvent('tryamm:global-supply-chain-ready',{detail:{version:VERSION,lanes:Object.keys(LANES),recovered:RECOVERED,connections:{...state.connections},truthBoundary:'Software orchestration is present; external carriers, customs, warehouses, marketplaces and payment rails require verified provider connections.'}}))
+  window.addEventListener('tryamm:local-food-source-options',e=>window.dispatchEvent(new CustomEvent('tryamm:supply-chain-food-options',{detail:{...(e.detail||{}),supplyVersion:VERSION}})))
+  window.dispatchEvent(new CustomEvent('tryamm:global-supply-chain-ready',{detail:{version:VERSION,lanes:Object.keys(LANES),recovered:RECOVERED,connections:{...state.connections},truthBoundary:'Software orchestration is present; external farms, processors, cold-chain providers, carriers, customs, warehouses, marketplaces and payment rails require verified provider connections.'}}))
 })()
