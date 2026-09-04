@@ -29,7 +29,7 @@ export default function HoloFoodMerchantOnboarding(){
     const {data:{user}}=await supabase.auth.getUser();setUserId(user?.id||null)
     if(!user){setStatus('Sign in to start or continue merchant onboarding.');return}
     const found=await supabase.from('holo_food_merchant_profiles').select('*').eq('owner_user_id',user.id).order('created_at',{ascending:false}).limit(1).maybeSingle()
-    if(found.data){setProfile(found.data);setStatus(`Application ${String(found.data.onboarding_status||'draft').replaceAll('_',' ')}.`)}else setStatus('Ready to start your Holo Food merchant application.')
+    if(found.data){setProfile(found.data);setStatus(`Application ${String(found.data.onboarding_status||'draft').split('_').join(' ')}.`)}else setStatus('Ready to start your Holo Food merchant application.')
   }
   useEffect(()=>{void refresh()},[])
 
@@ -56,7 +56,7 @@ export default function HoloFoodMerchantOnboarding(){
 
       <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:10,margin:'16px 0 22px'}}>{steps.map(([n,title,body])=><article key={n} style={card}><strong style={{color:'#7fe8c7'}}>{n}. {title}</strong><p style={muted}>{body}</p></article>)}</section>
 
-      {profile?<section style={card}><h2>YOUR MERCHANT APPLICATION</h2><Metric label='Business' value={profile.business_name}/><Metric label='Type' value={String(profile.business_type).replaceAll('_',' ')}/><Metric label='Onboarding' value={String(profile.onboarding_status).replaceAll('_',' ')}/><Metric label='Verification' value={String(profile.verification_status).replaceAll('_',' ')}/><Metric label='Menu' value={String(profile.menu_status).replaceAll('_',' ')}/><Metric label='Payouts' value={String(profile.payout_status).replaceAll('_',' ')}/><div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:14}}><a href='/holo-food' style={button}>OPEN HOLO FOOD</a><a href='/omni-cash' style={button}>OMNI CASH</a></div></section>:
+      {profile?<section style={card}><h2>YOUR MERCHANT APPLICATION</h2><Metric label='Business' value={profile.business_name}/><Metric label='Type' value={String(profile.business_type).split('_').join(' ')}/><Metric label='Onboarding' value={String(profile.onboarding_status).split('_').join(' ')}/><Metric label='Verification' value={String(profile.verification_status).split('_').join(' ')}/><Metric label='Menu' value={String(profile.menu_status).split('_').join(' ')}/><Metric label='Payouts' value={String(profile.payout_status).split('_').join(' ')}/><div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:14}}><a href='/holo-food' style={button}>OPEN HOLO FOOD</a><a href='/omni-cash' style={button}>OMNI CASH</a></div></section>:
       <section style={{...card,maxWidth:820}}><h2>START APPLICATION</h2>
         <label style={label}>Business type<select value={businessType} onChange={e=>setBusinessType(e.target.value)} style={input}>{types.map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></label>
         <label style={label}>Business name<input value={businessName} onChange={e=>setBusinessName(e.target.value)} style={input}/></label>
