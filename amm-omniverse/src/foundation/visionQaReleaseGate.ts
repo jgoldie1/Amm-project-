@@ -83,8 +83,13 @@ export const evaluateIllinoisVisionQaReleaseGate = (
   const verifiedAt = evidence.verifiedAt.trim();
   if (!verifiedAt) {
     missingEvidence.push('verifiedAt');
-  } else if (Number.isNaN(Date.parse(verifiedAt))) {
-    missingEvidence.push('verifiedAtInvalid');
+  } else {
+    const verifiedAtMs = Date.parse(verifiedAt);
+    if (Number.isNaN(verifiedAtMs)) {
+      missingEvidence.push('verifiedAtInvalid');
+    } else if (verifiedAt !== evidence.verifiedAt || new Date(verifiedAtMs).toISOString() !== verifiedAt) {
+      missingEvidence.push('verifiedAtInvalid');
+    }
   }
 
   const criticalFindingIds = evidence.run.findings
