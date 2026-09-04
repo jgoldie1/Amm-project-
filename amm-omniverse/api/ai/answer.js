@@ -44,6 +44,18 @@ function extractResponseText(data){
   return clean(answer,20000);
 }
 
+async function selfHosted(question,history){
+  const base=String(process.env.HOLOGPT_SELFHOST_BASE||'').trim().replace(/\/$/,'');if(!base)return null;
+  const model=clean(process.env.HOLOGPT_SELFHOST_MODEL||'hologpt-local',200);
+  const key=clean(process.env.HOLOGPT_SELFHOST_API_KEY,1000);
+  const endpoint=/\/v1$/i.test(base)?`${base}/chat/completions`:`${base}/v1/chat/completions`;
+  const messages=[{role:'system',content:systemPrompt()},...normalizeHistory(history),{role:'user',content:question}];
+  const data=await fetchJson(endpoint,{method:'POST',headers:{'content-type':'application/json',...(key?{authorization:`Bearer ${key}`}:{})},body:JSON.stringify({model,messages,temperature:.35,max_tokens:2200,stream:false})});
+  const answer=clean(data?.choices?.[0]?.message?.content||data?.response||data?.text,20000);
+  if(!answer)throw new Error('selfhost_empty_response');
+  return {answer,provider:'hologpt-selfhost',model:data.model||model};
+}
+
 async function aiSdkGateway(question,history){
   const configured=clean(process.env.HOLOGPT_GATEWAY_MODEL,200);
   const models=[configured,'inclusionai/ling-3.0-tiny-free','inclusionai/ling-3.0-flash-free','openai/gpt-5.4'].filter((value,index,array)=>value&&array.indexOf(value)===index);
@@ -137,7 +149,7 @@ async function ammBackend(question,history,authorization){
   return {answer,provider:'amm-backend',model:data.model||null};
 }
 
-function diagnostic(question,errors=[]){return {answer:`HoloGPT is online in recovery mode, but no generative provider completed this request.\n\nYour request: ${question}\n\nPrimary path: Vercel AI SDK + AI Gateway automatic OIDC. Fallbacks: explicit Vercel AI Gateway, OpenAI, Gemini, Claude, GLM 5.2, DeepSeek, then the AMM backend.${errors.length?`\n\nProvider diagnostics: ${errors.join(' | ')}`:''}`,provider:'diagnostic',model:null};}
+function diagnostic(question,errors=[]){return {answer:`HoloGPT is online in recovery mode, but no generative provider completed this request.\n\nYour request: ${question}\n\nHoloGPT supports an owned/self-hosted OpenAI-compatible inference endpoint plus cloud failover through Vercel AI Gateway, OpenAI, Gemini, Claude, GLM 5.2, DeepSeek and the AMM backend.${errors.length?`\n\nProvider diagnostics: ${errors.join(' | ')}`:''}`,provider:'diagnostic',model:null};}
 
 export default async function handler(req,res){
   res.setHeader('Cache-Control','no-store');
@@ -148,16 +160,18 @@ export default async function handler(req,res){
   let user=null;
   if(authorization.startsWith('Bearer ')){user=await requireUser(req,res);if(!user)return;}
   const errors=[];
-  const runners=[
+  const ownFirst=String(process.env.HOLOGPT_SELFHOST_PREFERRED||'').toLowerCase()==='true';
+  const cloudRunners=[
     ()=>aiSdkGateway(question,history),
     ()=>vercelGateway(question,history),
     ()=>openai(question,history),
     ()=>gemini(question,history),
     ()=>claude(question,history),
-    ()=>glm(question,history),
-    ()=>deepseek(question,history),
-    ()=>ammBackend(question,history,authorization)
+    ()=>glm(question,history)
   ];
+  const runners=ownFirst
+    ?[()=>selfHosted(question,history),...cloudRunners,()=>deepseek(question,history),()=>ammBackend(question,history,authorization)]
+    :[...cloudRunners,()=>selfHosted(question,history),()=>deepseek(question,history),()=>ammBackend(question,history,authorization)];
   for(const runner of runners){
     try{
       const result=await runner();
