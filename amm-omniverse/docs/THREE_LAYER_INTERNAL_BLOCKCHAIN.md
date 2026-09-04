@@ -95,6 +95,21 @@ Layer 3 does **not** by itself create or prove:
 
 Those claims require the appropriate real-world authority and evidence.
 
+## Visible Set Apart Passport
+
+The visible product surface lives in `src/components/StaysAgencyFamilyHub.tsx` as the **Set Apart Passport** tab and is reachable directly from Command Nexus.
+
+The Passport is intentionally read-only in the browser:
+- client write authority: none
+- Layer 3 anchor authority: trusted server/service role only
+- raw Layer 3 table access: RLS protected
+- direct browser calls to `anchor_set_apart_chain_event`: prohibited
+- future user-visible receipts must come through an authenticated, least-privilege server projection rather than exposing raw chain rows or service credentials
+
+The Passport may display the Layer 3 network label, attestation categories, security status, and user-authorized receipts when a safe server projection exists. It must not imply that a browser render is itself an attestation or that UI state can create a Layer 3 block.
+
+Despite the product name, the Set Apart Passport is a voluntary TRYAMM faith/community credential only. It is **not** a government passport, citizenship or nationality record, tax status, civil jurisdiction, legal sovereignty, regulated license, payment authority, or title to real-world property.
+
 ## Cross-layer rule
 
 A typical evidence flow may be:
