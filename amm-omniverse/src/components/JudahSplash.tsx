@@ -5,15 +5,14 @@ const POSTER='https://raw.githubusercontent.com/jgoldie1/amm-platform/main/publi
 
 export default function JudahSplash(){
   const videoRef=useRef<HTMLVideoElement>(null)
-  const openedAt=useRef(Date.now())
   const [open,setOpen]=useState(true)
   const [muted,setMuted]=useState(true)
   const [fallback,setFallback]=useState(false)
   const [canEnter,setCanEnter]=useState(false)
 
   useEffect(()=>{
-    const enterTimer=window.setTimeout(()=>setCanEnter(true),1200)
-    const hardStop=window.setTimeout(()=>setOpen(false),9000)
+    const enterTimer=window.setTimeout(()=>setCanEnter(true),500)
+    const hardStop=window.setTimeout(()=>setOpen(false),5000)
     const video=videoRef.current
     if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
       setFallback(true)
@@ -25,10 +24,7 @@ export default function JudahSplash(){
     return()=>{window.clearTimeout(enterTimer);window.clearTimeout(hardStop)}
   },[])
 
-  const finish=()=>{
-    const left=Math.max(0,4200-(Date.now()-openedAt.current))
-    window.setTimeout(()=>setOpen(false),left)
-  }
+  const finish=()=>setOpen(false)
 
   if(!open)return null
 
@@ -36,7 +32,7 @@ export default function JudahSplash(){
     <div style={{position:'absolute',inset:0,background:'radial-gradient(circle at 50% 45%,#4fe3ff28,transparent 34%),radial-gradient(circle at 50% 55%,#e8b94420,transparent 44%),#02040a'}}/>
     {fallback
       ? <img src={POSTER} alt="TRYAMM Lion of Judah holographic emblem" style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}/>
-      : <video ref={videoRef} src={VIDEO} poster={POSTER} autoPlay muted playsInline preload="auto" onEnded={finish} onError={()=>setFallback(true)} style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}/>}
+      : <video ref={videoRef} src={VIDEO} poster={POSTER} autoPlay muted playsInline preload="metadata" onEnded={finish} onError={()=>setFallback(true)} style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}/>}
     <div aria-hidden="true" style={{position:'absolute',inset:0,boxShadow:'inset 0 0 150px #000',background:'linear-gradient(180deg,#02040a0d,#02040a08 48%,#02040a88)',pointerEvents:'none'}}/>
     <div aria-hidden="true" style={{position:'absolute',left:'50%',bottom:'max(82px,calc(env(safe-area-inset-bottom) + 66px))',transform:'translateX(-50%)',zIndex:2,display:'grid',placeItems:'center',textAlign:'center',textShadow:'0 0 24px #000,0 0 30px #4fe3ff88',whiteSpace:'nowrap'}}>
       <span style={{color:'#e8b944',fontSize:26}}>♛</span>
