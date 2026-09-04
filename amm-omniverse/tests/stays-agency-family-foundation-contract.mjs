@@ -11,7 +11,7 @@ const required=[
   'TRYAMM LIVE',
   'PK/panels',
   'Creator Commerce',
-  'availability.held',
+  'reservation.held',
   'payment.authorized',
   'host.payout.settled',
   "complianceStatus!=='APPROVED'",
