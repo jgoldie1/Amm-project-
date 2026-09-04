@@ -1,5 +1,6 @@
-import {lazy,Suspense,useEffect,useMemo,useState} from 'react'
+import {lazy,Suspense,useCallback,useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react'
 import {announceStreetVerseProductionMode} from '../config/streetverseProductionMode'
+import {installStreetVerseJourneyQARuntime} from '../runtime/StreetVerseJourneyQARuntime'
 import StreetVerseMobilePlayableWorld from './StreetVerseMobilePlayableWorld'
 
 const StreetVersePlayableWorld=lazy(()=>import('./StreetVersePlayableWorld'))
@@ -38,7 +39,20 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const prepared=useMemo(()=>prepareSpawn(),[])
  const safe=useMemo(shouldUseIndependentSafeBoot,[])
  const [enhancementsReady,setEnhancementsReady]=useState(false)
+ const closingRef=useRef(false)
+ const closeStreetVerse=useCallback(()=>{
+  if(closingRef.current)return
+  closingRef.current=true
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-exit',{detail:{source:'streetverse-geo-spawn',safeMode:safe}}))
+  onClose()
+ },[onClose,safe])
 
+ useLayoutEffect(()=>installStreetVerseJourneyQARuntime(),[])
+ useEffect(()=>{
+  const requestClose=()=>closeStreetVerse()
+  window.addEventListener('tryamm:streetverse-request-close',requestClose)
+  return()=>window.removeEventListener('tryamm:streetverse-request-close',requestClose)
+ },[closeStreetVerse])
  useEffect(()=>{
   if(safe)return
   const timer=window.setTimeout(()=>setEnhancementsReady(true),650)
@@ -46,14 +60,14 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  },[safe])
 
  if(safe)return <>
-  <StreetVerseMobilePlayableWorld onClose={onClose}/>
+  <StreetVerseMobilePlayableWorld onClose={closeStreetVerse}/>
   <Suspense fallback={null}><StreetVerseReelEventBridge/></Suspense>
  </>
 
  return <>
-  <Suspense fallback={<StreetVerseMobilePlayableWorld onClose={onClose}/>}>
-   <StreetVersePlayableWorld onClose={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-request-close'))}/>
+  <Suspense fallback={<StreetVerseMobilePlayableWorld onClose={closeStreetVerse}/>}>
+   <StreetVersePlayableWorld onClose={closeStreetVerse}/>
   </Suspense>
-  {enhancementsReady&&<Suspense fallback={null}><StreetVerseFullWorldOverlays onClose={onClose} mapped={prepared.mapped}/><StreetVerseReelEventBridge/></Suspense>}
+  {enhancementsReady&&<Suspense fallback={null}><StreetVerseFullWorldOverlays onClose={closeStreetVerse} mapped={prepared.mapped}/><StreetVerseReelEventBridge/></Suspense>}
  </>
 }
