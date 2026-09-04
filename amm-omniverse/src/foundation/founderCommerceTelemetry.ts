@@ -67,6 +67,16 @@ export const isAuthorizedFounderTelemetryEvent = (
   event: FounderCommerceTelemetryEvent,
 ): boolean => eventAuthorities[event.type].includes(event.authority);
 
+const isIsoTimestamp = (value: string): boolean => {
+  if (!value || value.trim() !== value) return false;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
+};
+
+export const hasValidFounderTelemetryEnvelope = (
+  event: FounderCommerceTelemetryEvent,
+): boolean => event.id.trim().length > 0 && isIsoTimestamp(event.occurredAt);
+
 const zeroKpis = (): Record<CommerceKpi, number> => ({
   gmv: 0,
   tryammRevenue: 0,
@@ -106,13 +116,15 @@ const nonNegative = (value: number): number => Math.max(0, value);
  * StreetVerse, Vision QA, and other presentation clients are intentionally not
  * accepted authorities and therefore cannot mutate money, inventory, customs,
  * logistics, or settlement truth through this reducer.
- * Each accepted event type is additionally bound to its owning authority.
+ * Each accepted event type is additionally bound to its owning authority, and
+ * malformed event envelopes are rejected before deduplication or state changes.
  */
 export const reduceFounderCommerceTelemetry = (
   state: FounderCommerceTelemetryState,
   event: FounderCommerceTelemetryEvent,
 ): FounderCommerceTelemetryState => {
   if (!isAuthorizedFounderTelemetryEvent(event)) return state;
+  if (!hasValidFounderTelemetryEnvelope(event)) return state;
   if (state.processedEventIds.includes(event.id)) return state;
 
   const next: FounderCommerceTelemetryState = {
