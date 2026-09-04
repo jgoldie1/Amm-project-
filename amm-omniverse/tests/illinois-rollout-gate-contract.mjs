@@ -13,6 +13,7 @@ const requiredSignals = [
   'shipmentReconciled',
   'founderKpisComplete',
   'streetVerseAuthorityBoundaryVerified',
+  'visionQaReleaseGatePassed',
   'performanceGatePassed',
   'accessibilityGatePassed',
   'goldenOrderId',
@@ -27,6 +28,11 @@ for (const signal of requiredSignals) {
   if (!source.includes(signal)) {
     throw new Error(`Illinois rollout gate contract missing required signal: ${signal}`);
   }
+}
+
+const requiredBooleanBlock = source.match(/const REQUIRED_BOOLEAN_EVIDENCE[\s\S]*?= \[([\s\S]*?)\];/);
+if (!requiredBooleanBlock || !requiredBooleanBlock[1].includes("'visionQaReleaseGatePassed'")) {
+  throw new Error('Illinois rollout gate must require a passing Vision-assisted AAA release gate.');
 }
 
 if (/source\s*===?\s*['\"]streetverse['\"]\s*&&\s*authoritative\s*===?\s*true/.test(source)) {
