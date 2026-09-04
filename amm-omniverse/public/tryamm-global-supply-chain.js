@@ -1,9 +1,10 @@
 (()=>{
-  const VERSION='20260903-supply-v2'
+  const VERSION='20260903-supply-v3'
   const RECOVERED=['qvc-hsn-live-selling','shopify-product-builder','global-trade','vendor-creator-stores','seller-payouts','live-shopping','affiliate-commerce','delivery-tracking','proof-of-delivery','marketplace-fulfillment','yahavah-grocery','all-american-beauty','supply-plug-global']
   const LANES={
     ndaSourcing:{label:'NDA Sourcing Rooms',status:'software-ready',description:'Gate supplier briefs, samples, pricing, drawings and negotiations behind explicit confidentiality/permission records.'},
     quantumSourcing:{label:'Quantum Sourcing',status:'decision-layer',description:'Multi-supplier scoring for cost, MOQ, lead time, quality, geography, resilience and verified compliance. No claim of quantum-computer execution without a connected backend.'},
+    demandAggregation:{label:'Demand Pool / Reverse RFQ',status:'software-ready',description:'Aggregate small creator and buyer demand before inventory is purchased, then score verified supplier bids against MOQ, price, lead time, quality and compliance gates.'},
     quantumPallet:{label:'Quantum Pallet / Package Tracking',status:'software-ready',description:'Track shipment units through supplier, consolidation, freight, customs, warehouse, fulfillment and delivery events with provenance and chain of custody.'},
     lawfulTariff:{label:'Lawful Tariff Optimizer',status:'software-ready',description:'Compare landed-cost scenarios using classification, declared origin, trade agreements, bonded/FTZ options and drawback where legally applicable. Never misdeclare value, origin or classification.'},
     lowMoq:{label:'Low-MOQ Sourcing',status:'software-ready',description:'Match small sellers and creators to suppliers able to support samples, micro-runs, shared production and staged reorder quantities.'},
@@ -20,6 +21,7 @@
     digitalPassport:'Digital Product Passport: origin, materials, lot/batch, supplier attestations, custody and recall linkage.',
     landedCost:'Landed Cost Engine: goods + freight + duties + brokerage + storage + payment + pick/pack + returns + margin floor.',
     supplierRisk:'Supplier Reliability Score: defect rate, late rate, document completeness, disputes, concentration and geopolitical/logistics exposure.',
+    demandPool:'Demand Pool + Reverse RFQ: combine creator/customer demand before committing inventory, then make suppliers compete on price, MOQ, lead time, quality and compliance.',
     demandTwin:'Demand Twin: forecast by marketplace, LIVE event, creator campaign, geography and season before committing inventory.',
     splitOrder:'Smart Split Orders: divide one PO across suppliers/routes when it lowers risk without silently changing customer promises.',
     routeResilience:'Route Resilience: compare ocean, air, rail and truck alternatives and flag single-port/single-carrier dependencies.',
@@ -69,6 +71,13 @@
   window.addEventListener('tryamm:local-food-source-options',e=>window.dispatchEvent(new CustomEvent('tryamm:supply-chain-food-options',{detail:{...(e.detail||{}),supplyVersion:VERSION}})))
   if(location.pathname.includes('global-supply-chain')){
     const intake=document.createElement('script');intake.src='/tryamm-supply-chain-intake.js?v=20260903-intake-v1';intake.defer=true;document.head.appendChild(intake)
+    const demand=document.createElement('script');demand.src='/tryamm-demand-pool.js?v=20260903-demand-v1';demand.defer=true;document.head.appendChild(demand)
+    const addDemandCta=()=>{
+      if(document.getElementById('tryamm-demand-pool-cta'))return
+      const hero=document.querySelector('.hero');if(!hero)return
+      const a=document.createElement('a');a.id='tryamm-demand-pool-cta';a.href='/demand-pool';a.textContent='⚡ Open Demand Pool + Supplier RFQ';a.style.cssText='display:inline-flex;align-items:center;justify-content:center;min-height:44px;width:max-content;max-width:100%;padding:0 14px;border-radius:12px;border:1px solid #82eadf;background:#0b302c;color:#eafffb;font:900 12px/1 system-ui;text-decoration:none;box-shadow:0 8px 22px #0006';hero.appendChild(a)
+    }
+    document.readyState==='loading'?document.addEventListener('DOMContentLoaded',addDemandCta,{once:true}):addDemandCta()
   }
   window.dispatchEvent(new CustomEvent('tryamm:global-supply-chain-ready',{detail:{version:VERSION,lanes:Object.keys(LANES),recovered:RECOVERED,connections:{...state.connections},truthBoundary:'Software orchestration is present; external farms, processors, cold-chain providers, carriers, customs, warehouses, marketplaces and payment rails require verified provider connections.'}}))
 })()
