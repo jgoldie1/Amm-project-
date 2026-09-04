@@ -58,7 +58,14 @@ const hasValidEvidenceIds = (evidenceIds: string[]): boolean => {
 
 const hasValidVerificationTimestamp = (verifiedAt?: string): boolean => {
   if (!verifiedAt?.trim()) return false;
-  return Number.isFinite(Date.parse(verifiedAt));
+
+  const timestamp = Date.parse(verifiedAt);
+  if (!Number.isFinite(timestamp)) return false;
+
+  // Expansion evidence must already exist when the gate is evaluated. Reject
+  // future-dated proof so a malformed clock or pre-staged record cannot unlock
+  // geographic rollout before its verification actually occurred.
+  return timestamp <= Date.now();
 };
 
 export const evaluateIllinoisToUnitedStatesGate = (
