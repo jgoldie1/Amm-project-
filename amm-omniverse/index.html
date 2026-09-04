@@ -27,13 +27,14 @@
     <meta name="twitter:image" content="https://tryamm.online/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2" />
     <script>
       (()=>{
-        const KEY='tryamm-asset-recovery-v27'
+        document.documentElement.classList.toggle('tryamm-streetverse',location.pathname.startsWith('/streetverse'))
+        const KEY='tryamm-asset-recovery-v28'
         const recover=()=>{
           try{
             if(sessionStorage.getItem(KEY))return
             sessionStorage.setItem(KEY,'1')
             const u=new URL(location.href)
-            u.searchParams.set('_tryamm_recover','v27')
+            u.searchParams.set('_tryamm_recover','v28')
             location.replace(u.toString())
           }catch{location.reload()}
         }
@@ -50,6 +51,9 @@
       button[title^="Chat with Bennie"]{display:none!important}
       .tryamm-topbar [aria-hidden="true"]{font-size:0!important;background-image:url('/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2')!important;background-position:center!important;background-size:cover!important;background-repeat:no-repeat!important}
       .tryamm-world-hero aside>div:first-child>div:first-child{font-size:0!important;width:64px!important;height:64px!important;border-radius:18px;background-image:url('/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2')!important;background-position:center!important;background-size:cover!important;background-repeat:no-repeat!important}
+      html.tryamm-streetverse #root>div[style*="z-index: 16990"]{max-width:calc(100vw - 24px)!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;overscroll-behavior-x:contain;padding-bottom:4px!important;scrollbar-width:none}
+      html.tryamm-streetverse #root>div[style*="z-index: 16990"]::-webkit-scrollbar{display:none}
+      html.tryamm-streetverse #root>div[style*="z-index: 16990"]>button{flex:0 0 auto!important;min-height:44px!important;padding:8px 10px!important;font-size:10px!important;white-space:nowrap!important}
       #tryamm-accessibility-link{position:fixed;top:12px;right:12px;z-index:25000;background:#06131a;color:#9af0ff;border:2px solid #52dff5;border-radius:999px;padding:10px 14px;font:800 14px/1 system-ui,sans-serif;text-decoration:none;box-shadow:0 6px 24px #0009}
       #tryamm-accessibility-link:focus{outline:4px solid #fff;outline-offset:3px}
     </style>
@@ -90,7 +94,7 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {
-            const SW_VERSION='20260904-american-lion-v2'
+            const SW_VERSION='20260904-streetverse-play-v3'
             const RELEASE_KEY='tryamm-release-version'
             const previousRelease=localStorage.getItem(RELEASE_KEY)
             if (previousRelease !== SW_VERSION && 'caches' in window) {
