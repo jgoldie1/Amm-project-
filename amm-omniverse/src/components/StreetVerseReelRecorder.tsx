@@ -11,14 +11,19 @@ export default function StreetVerseReelRecorder({open,onClose}:{open:boolean;onC
 
  const stopStream=()=>{streamRef.current?.getTracks().forEach(t=>t.stop());streamRef.current=null}
  useEffect(()=>()=>{stopStream();if(url)URL.revokeObjectURL(url)},[url])
+ useEffect(()=>{if(open)window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-opened',{detail:{source:'streetverse-reel-recorder'}}))},[open])
  useEffect(()=>{
   const video=videoRef.current
   if(!video||!url)return
+  let announced=false
+  const previewReady=()=>{if(announced)return;announced=true;window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-preview-ready',{detail:{source:'streetverse-reel-recorder',localPreview:true}}))}
   video.srcObject=null
   video.src=url
   video.controls=true
   video.muted=false
+  video.addEventListener('loadeddata',previewReady,{once:true})
   video.load()
+  return()=>video.removeEventListener('loadeddata',previewReady)
  },[url])
  if(!open)return null
 
@@ -33,8 +38,9 @@ export default function StreetVerseReelRecorder({open,onClose}:{open:boolean;onC
    const recorder=new MediaRecorder(stream,mime?{mimeType:mime}:undefined)
    recorderRef.current=recorder;chunksRef.current=[]
    recorder.ondataavailable=e=>{if(e.data.size)chunksRef.current.push(e.data)}
-   recorder.onstop=()=>{const blob=new Blob(chunksRef.current,{type:recorder.mimeType||'video/webm'});const next=URL.createObjectURL(blob);setUrl(next);setRecording(false);stopStream()}
+   recorder.onstop=()=>{const blob=new Blob(chunksRef.current,{type:recorder.mimeType||'video/webm'});const next=URL.createObjectURL(blob);setUrl(next);setRecording(false);stopStream();window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-recorded',{detail:{source:'media-recorder',size:blob.size,type:blob.type}}))}
    recorder.start(500);setRecording(true)
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-recording-started',{detail:{source:'media-recorder',mimeType:recorder.mimeType||mime||'browser-default'}}))
   }catch(e){setError(e instanceof Error?e.message:'Camera access failed')}
  }
  const stopRecording=()=>{const recorder=recorderRef.current;if(recorder&&recorder.state!=='inactive')recorder.stop()}
@@ -43,8 +49,13 @@ export default function StreetVerseReelRecorder({open,onClose}:{open:boolean;onC
   try{
    const blob=await fetch(url).then(r=>r.blob())
    const file=new File([blob],`streetverse-reel-${Date.now()}.${blob.type.includes('mp4')?'mp4':'webm'}`,{type:blob.type})
-   if(navigator.share&&navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:'StreetVerse Reel'});return}
+   if(navigator.share&&navigator.canShare?.({files:[file]})){
+    await navigator.share({files:[file],title:'StreetVerse Reel'})
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-save-share-complete',{detail:{source:'streetverse-reel-recorder',action:'share',type:blob.type,size:blob.size}}))
+    return
+   }
    const a=document.createElement('a');a.href=url;a.download=file.name;a.rel='noopener';document.body.appendChild(a);a.click();a.remove()
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-save-share-complete',{detail:{source:'streetverse-reel-recorder',action:'download',type:blob.type,size:blob.size}}))
   }catch{setError('Save/share failed. Try IPHONE CAPTURE, then use the iPhone share sheet from the preview.')}
  }
  const onIPhoneCapture=(file?:File)=>{
@@ -52,6 +63,7 @@ export default function StreetVerseReelRecorder({open,onClose}:{open:boolean;onC
   setError('')
   if(url)URL.revokeObjectURL(url)
   stopStream();setRecording(false);setUrl(URL.createObjectURL(file))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-recorded',{detail:{source:'iphone-capture',size:file.size,type:file.type||'video/*'}}))
  }
  return <div style={{position:'fixed',inset:0,zIndex:22000,background:'#02050af4',color:'#fff',fontFamily:'system-ui',padding:16,overflow:'auto'}}>
   <div style={{maxWidth:620,margin:'0 auto'}}>
