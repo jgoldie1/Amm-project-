@@ -65,11 +65,27 @@ const requiredProtections = [
   'event.id.trim().length > 0',
   'Date.parse(value)',
   'new Date(parsed).toISOString() === value',
+  'numericTelemetryFields',
+  'hasOnlyFiniteNumericTelemetry(event)',
+  'Number.isFinite(value)',
 ];
 
 for (const protection of requiredProtections) {
   if (!source.includes(protection)) {
     throw new Error(`Missing telemetry protection: ${protection}`);
+  }
+}
+
+for (const numericField of [
+  'amount',
+  'platformRevenue',
+  'inventoryValue',
+  'sellerPayable',
+  'grossMargin',
+  'supplierRisk',
+]) {
+  if (!source.includes(`'${numericField}'`)) {
+    throw new Error(`Numeric telemetry field is not covered by finite-value validation: ${numericField}`);
   }
 }
 
@@ -112,4 +128,4 @@ for (const kpi of requiredKpis) {
   }
 }
 
-console.log('Founder commerce telemetry authority and envelope contract passed');
+console.log('Founder commerce telemetry authority, envelope, and finite numeric contract passed');
