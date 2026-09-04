@@ -22,8 +22,19 @@ export interface ConstructFrame {
   generatedAt: string
 }
 
+export interface ConstructHardwareTelemetry {
+  estopClear: boolean
+  outputsEnabled: boolean
+  uptimeMs: number
+  maxPwm: number
+  receivedAt: string
+}
+
 const MAX_DIMENSION_MM = 610
 const MAX_HAPTIC_INTENSITY = 0.35
+const HARDWARE_TELEMETRY_MAX_AGE_MS = 1500
+const EXPECTED_FIRMWARE_MAX_PWM = 90
+let latestHardwareTelemetry: ConstructHardwareTelemetry | null = null
 const emit = (name: string, detail: unknown) => window.dispatchEvent(new CustomEvent(name, { detail }))
 
 export function validateConstructRequest(input: ConstructRequest) {
@@ -52,14 +63,59 @@ export function compileConstruct(input: ConstructRequest): ConstructFrame {
   return frame
 }
 
+export function ingestConstructPrototypeLine(line: string) {
+  const value = line.trim()
+  if (!value.startsWith('SECS:STATUS:')) return { accepted: false, reason: 'unsupported-prototype-line' }
+
+  const fields: Record<string, string> = {}
+  for (const entry of value.slice('SECS:STATUS:'.length).split(';')) {
+    const separator = entry.indexOf('=')
+    if (separator <= 0) continue
+    fields[entry.slice(0, separator)] = entry.slice(separator + 1)
+  }
+
+  const uptimeMs = Number(fields.UPTIME_MS)
+  const maxPwm = Number(fields.MAX_PWM)
+  if (!Number.isFinite(uptimeMs) || uptimeMs < 0 || !Number.isFinite(maxPwm) || maxPwm <= 0) {
+    return { accepted: false, reason: 'invalid-hardware-telemetry' }
+  }
+
+  latestHardwareTelemetry = {
+    estopClear: fields.ESTOP === 'CLEAR',
+    outputsEnabled: fields.OUTPUTS === 'ON',
+    uptimeMs,
+    maxPwm,
+    receivedAt: new Date().toISOString(),
+  }
+  emit('tryamm:secs:hardware-telemetry', latestHardwareTelemetry)
+  emit('tryamm:secs:hardware-readiness', getConstructHardwareReadiness())
+  return { accepted: true, telemetry: latestHardwareTelemetry }
+}
+
+export function getConstructHardwareReadiness(nowMs = Date.now()) {
+  const reasons: string[] = []
+  if (!latestHardwareTelemetry) reasons.push('hardware-telemetry-missing')
+  if (latestHardwareTelemetry) {
+    const receivedAtMs = Date.parse(latestHardwareTelemetry.receivedAt)
+    const ageMs = nowMs - receivedAtMs
+    if (!Number.isFinite(receivedAtMs) || ageMs < 0) reasons.push('hardware-telemetry-invalid-time')
+    else if (ageMs > HARDWARE_TELEMETRY_MAX_AGE_MS) reasons.push('hardware-telemetry-stale')
+    if (!latestHardwareTelemetry.estopClear) reasons.push('hardware-estop-not-clear')
+    if (latestHardwareTelemetry.maxPwm !== EXPECTED_FIRMWARE_MAX_PWM) reasons.push('hardware-capability-mismatch')
+  }
+  return { ready: reasons.length === 0, reasons, telemetry: latestHardwareTelemetry }
+}
+
 export function sendConstructToPrototype(frame: ConstructFrame) {
-  if (!frame.safety.allowed) {
-    const denied = { sent: false, requestId: frame.requestId, reason: frame.safety.reasons.join(',') }
+  const hardwareReadiness = getConstructHardwareReadiness()
+  const reasons = [...frame.safety.reasons, ...hardwareReadiness.reasons]
+  if (!frame.safety.allowed || !hardwareReadiness.ready) {
+    const denied = { sent: false, requestId: frame.requestId, reason: reasons.join(','), hardwareReadiness }
     emit('tryamm:secs:prototype-denied', denied)
     return denied
   }
   const packet = {
-    version: 1,
+    version: 2,
     requestId: frame.requestId,
     geometry: frame.geometry,
     boundsMm: frame.boundsMm,
@@ -68,6 +124,9 @@ export function sendConstructToPrototype(frame: ConstructFrame) {
     haptics: frame.haptics,
     emergencyStopRequired: true,
     hardwareValidationRequired: true,
+    hardwareTelemetryRequired: true,
+    telemetryMaxAgeMs: HARDWARE_TELEMETRY_MAX_AGE_MS,
+    hardwareSnapshot: hardwareReadiness.telemetry,
   }
   emit('tryamm:secs:prototype-command', packet)
   return { sent: true, packet }
@@ -89,12 +148,16 @@ export function installSECSConstructRuntime() {
   const runtime = window as unknown as Record<string, unknown>
   runtime.__compileSECSConstruct = compileConstruct
   runtime.__sendSECSConstructToPrototype = sendConstructToPrototype
+  runtime.__ingestSECSPrototypeLine = ingestConstructPrototypeLine
+  runtime.__getSECSHardwareReadiness = getConstructHardwareReadiness
   runtime.__runSECSConstructSelfTest = runConstructSelfTest
   emit('tryamm:secs:ready', {
     status: 'software-prototype',
     chamberEnvelopeMm: { x: MAX_DIMENSION_MM, y: MAX_DIMENSION_MM, z: MAX_DIMENSION_MM },
     modes: ['simulation', 'prototype'],
     shapes: ['cube', 'sphere', 'button', 'steering-wheel'],
+    closedLoopHardwareTelemetryRequired: true,
+    hardwareTelemetryMaxAgeMs: HARDWARE_TELEMETRY_MAX_AGE_MS,
     hardwareClaim: 'requires physical prototype and lab validation',
   })
 }
