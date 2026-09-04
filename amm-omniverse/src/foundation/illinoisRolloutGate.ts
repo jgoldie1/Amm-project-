@@ -91,7 +91,12 @@ export const evaluateIllinoisToUnitedStatesGate = (
   evidence: IllinoisRolloutEvidence,
   options: IllinoisRolloutGateOptions = {},
 ): RolloutGateDecision => {
-  const missingEvidence = REQUIRED_BOOLEAN_EVIDENCE.filter((key) => evidence[key] !== true);
+  // The boolean evidence keys are only one subset of the strings that can be
+  // reported as missing. Widen explicitly so structural evidence such as
+  // goldenOrderId, evidenceIds, and verifiedAt can be added without unsafe casts.
+  const missingEvidence: string[] = REQUIRED_BOOLEAN_EVIDENCE.filter(
+    (key) => evidence[key] !== true,
+  );
   const nowMs = options.nowMs ?? Date.now();
   const maxEvidenceAgeMs = options.maxEvidenceAgeMs ?? DEFAULT_MAX_EVIDENCE_AGE_MS;
 
