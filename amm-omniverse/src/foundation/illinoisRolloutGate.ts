@@ -56,13 +56,16 @@ const REQUIRED_BOOLEAN_EVIDENCE: Array<
   'accessibilityGatePassed',
 ];
 
+const hasCanonicalId = (value: string): boolean => {
+  const trimmed = value.trim();
+  return trimmed.length > 0 && trimmed === value;
+};
+
 const hasValidEvidenceIds = (evidenceIds: string[]): boolean => {
   if (evidenceIds.length === 0) return false;
+  if (evidenceIds.some((id) => !hasCanonicalId(id))) return false;
 
-  const normalizedIds = evidenceIds.map((id) => id.trim());
-  if (normalizedIds.some((id) => id.length === 0)) return false;
-
-  return new Set(normalizedIds).size === normalizedIds.length;
+  return new Set(evidenceIds).size === evidenceIds.length;
 };
 
 const hasValidVerificationTimestamp = (
@@ -100,7 +103,7 @@ export const evaluateIllinoisToUnitedStatesGate = (
   const nowMs = options.nowMs ?? Date.now();
   const maxEvidenceAgeMs = options.maxEvidenceAgeMs ?? DEFAULT_MAX_EVIDENCE_AGE_MS;
 
-  if (!evidence.goldenOrderId.trim()) missingEvidence.push('goldenOrderId');
+  if (!hasCanonicalId(evidence.goldenOrderId)) missingEvidence.push('goldenOrderId');
   if (!hasValidEvidenceIds(evidence.evidenceIds)) missingEvidence.push('evidenceIds');
   if (!hasValidVerificationTimestamp(evidence.verifiedAt, nowMs, maxEvidenceAgeMs)) {
     missingEvidence.push('verifiedAt');
