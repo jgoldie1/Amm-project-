@@ -1,7 +1,7 @@
-import {lazy,Suspense,useMemo} from 'react'
+import {lazy,Suspense,useEffect,useMemo,useState} from 'react'
 import {announceStreetVerseProductionMode} from '../config/streetverseProductionMode'
+import StreetVerseMobilePlayableWorld from './StreetVerseMobilePlayableWorld'
 
-const StreetVerseMobilePlayableWorld=lazy(()=>import('./StreetVerseMobilePlayableWorld'))
 const StreetVersePlayableWorld=lazy(()=>import('./StreetVersePlayableWorld'))
 const StreetVerseFullWorldOverlays=lazy(()=>import('./StreetVerseFullWorldOverlays'))
 const StreetVerseReelEventBridge=lazy(()=>import('./StreetVerseReelEventBridge'))
@@ -37,9 +37,23 @@ function prepareSpawn(){announceStreetVerseProductionMode();let destination:Dest
 export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const prepared=useMemo(()=>prepareSpawn(),[])
  const safe=useMemo(shouldUseIndependentSafeBoot,[])
- if(safe)return <Suspense fallback={<div role='status' style={{position:'fixed',inset:0,display:'grid',placeItems:'center',background:'#07101b',color:'#fff',zIndex:16000}}>STREETVERSE CHICAGO • LOADING SAFE CITY…</div>}><StreetVerseMobilePlayableWorld onClose={onClose}/><StreetVerseReelEventBridge/></Suspense>
- return <Suspense fallback={<div role='status' style={{position:'fixed',inset:0,display:'grid',placeItems:'center',background:'#07101b',color:'#fff',zIndex:16000}}>STREETVERSE CHICAGO • LOADING…</div>}>
-  <StreetVersePlayableWorld onClose={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-request-close'))}/>
-  <Suspense fallback={null}><StreetVerseFullWorldOverlays onClose={onClose} mapped={prepared.mapped}/><StreetVerseReelEventBridge/></Suspense>
- </Suspense>
+ const [enhancementsReady,setEnhancementsReady]=useState(false)
+
+ useEffect(()=>{
+  if(safe)return
+  const timer=window.setTimeout(()=>setEnhancementsReady(true),650)
+  return()=>window.clearTimeout(timer)
+ },[safe])
+
+ if(safe)return <>
+  <StreetVerseMobilePlayableWorld onClose={onClose}/>
+  <Suspense fallback={null}><StreetVerseReelEventBridge/></Suspense>
+ </>
+
+ return <>
+  <Suspense fallback={<StreetVerseMobilePlayableWorld onClose={onClose}/>}>
+   <StreetVersePlayableWorld onClose={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-request-close'))}/>
+  </Suspense>
+  {enhancementsReady&&<Suspense fallback={null}><StreetVerseFullWorldOverlays onClose={onClose} mapped={prepared.mapped}/><StreetVerseReelEventBridge/></Suspense>}
+ </>
 }
