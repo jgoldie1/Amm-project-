@@ -56,8 +56,20 @@ export const evaluateIllinoisVisionQaReleaseGate = (
     missingEvidence.push('buildShaMismatch');
   }
 
-  if (evidence.evidenceRefs.length === 0) missingEvidence.push('evidenceRefs');
-  if (!evidence.verifiedAt.trim()) missingEvidence.push('verifiedAt');
+  if (evidence.evidenceRefs.length === 0) {
+    missingEvidence.push('evidenceRefs');
+  } else {
+    for (const [index, evidenceRef] of evidence.evidenceRefs.entries()) {
+      if (!evidenceRef.trim()) missingEvidence.push(`evidenceRef:${index}`);
+    }
+  }
+
+  const verifiedAt = evidence.verifiedAt.trim();
+  if (!verifiedAt) {
+    missingEvidence.push('verifiedAt');
+  } else if (Number.isNaN(Date.parse(verifiedAt))) {
+    missingEvidence.push('verifiedAtInvalid');
+  }
 
   const criticalFindingIds = evidence.run.findings
     .filter((finding) => finding.severity === 'critical')
