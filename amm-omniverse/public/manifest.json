@@ -14,14 +14,14 @@
   "dir": "ltr",
   "categories": ["social", "shopping", "business", "entertainment", "games", "music", "education", "productivity"],
   "icons": [
-    { "src": "/tryamm-lion-crown-america.svg?v=20260904-american-lion-v1", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ],
   "shortcuts": [
-    { "name": "TRYAMM Home", "short_name": "Home", "url": "/", "icons": [{ "src": "/tryamm-lion-crown-america.svg?v=20260904-american-lion-v1", "sizes": "any", "type": "image/svg+xml" }] },
-    { "name": "StreetVerse XR", "short_name": "StreetVerse XR", "description": "Launch StreetVerse with Meta Quest and WebXR capability detection.", "url": "/?screen=streetverse&source=meta-quest-xr", "icons": [{ "src": "/tryamm-lion-crown-america.svg?v=20260904-american-lion-v1", "sizes": "any", "type": "image/svg+xml" }] },
-    { "name": "Marketplace", "short_name": "Market", "url": "/?screen=marketplace", "icons": [{ "src": "/tryamm-lion-crown-america.svg?v=20260904-american-lion-v1", "sizes": "any", "type": "image/svg+xml" }] },
-    { "name": "LIVE", "short_name": "LIVE", "url": "/?action=live", "icons": [{ "src": "/tryamm-lion-crown-america.svg?v=20260904-american-lion-v1", "sizes": "any", "type": "image/svg+xml" }] },
-    { "name": "Living Worlds", "short_name": "Worlds", "url": "/?screen=city", "icons": [{ "src": "/tryamm-lion-crown-america.svg?v=20260904-american-lion-v1", "sizes": "any", "type": "image/svg+xml" }] }
+    { "name": "TRYAMM Home", "short_name": "Home", "url": "/", "icons": [{ "src": "/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2", "sizes": "any", "type": "image/svg+xml" }] },
+    { "name": "StreetVerse XR", "short_name": "StreetVerse XR", "description": "Launch StreetVerse with Meta Quest and WebXR capability detection.", "url": "/?screen=streetverse&source=meta-quest-xr", "icons": [{ "src": "/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2", "sizes": "any", "type": "image/svg+xml" }] },
+    { "name": "Marketplace", "short_name": "Market", "url": "/?screen=marketplace", "icons": [{ "src": "/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2", "sizes": "any", "type": "image/svg+xml" }] },
+    { "name": "LIVE", "short_name": "LIVE", "url": "/?action=live", "icons": [{ "src": "/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2", "sizes": "any", "type": "image/svg+xml" }] },
+    { "name": "Living Worlds", "short_name": "Worlds", "url": "/?screen=city", "icons": [{ "src": "/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2", "sizes": "any", "type": "image/svg+xml" }] }
   ],
   "prefer_related_applications": false,
   "share_target": {
