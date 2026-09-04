@@ -63,11 +63,15 @@ const requiredProtections = [
   'eventAuthorities[event.type].includes(event.authority)',
   'hasValidFounderTelemetryEnvelope(event)',
   'event.id.trim().length > 0',
+  'event.id.trim() === event.id',
   'Date.parse(value)',
   'new Date(parsed).toISOString() === value',
   'numericTelemetryFields',
   'hasOnlyFiniteNumericTelemetry(event)',
   'Number.isFinite(value)',
+  'textTelemetryFields',
+  'hasOnlyCanonicalOptionalTelemetryText(event)',
+  "typeof value === 'string' && value.length > 0 && value.trim() === value",
 ];
 
 for (const protection of requiredProtections) {
@@ -86,6 +90,12 @@ for (const numericField of [
 ]) {
   if (!source.includes(`'${numericField}'`)) {
     throw new Error(`Numeric telemetry field is not covered by finite-value validation: ${numericField}`);
+  }
+}
+
+for (const textField of ['orderId', 'supplierId', 'country', 'corridor']) {
+  if (!source.includes(`'${textField}'`)) {
+    throw new Error(`Telemetry identifier field is not covered by canonical text validation: ${textField}`);
   }
 }
 
@@ -128,4 +138,4 @@ for (const kpi of requiredKpis) {
   }
 }
 
-console.log('Founder commerce telemetry authority, envelope, and finite numeric contract passed');
+console.log('Founder commerce telemetry authority, envelope, canonical identifier, and finite numeric contract passed');

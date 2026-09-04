@@ -90,12 +90,32 @@ const hasOnlyFiniteNumericTelemetry = (
     return value === undefined || (typeof value === 'number' && Number.isFinite(value));
   });
 
+const textTelemetryFields: readonly (keyof FounderCommerceTelemetryEvent)[] = [
+  'orderId',
+  'supplierId',
+  'country',
+  'corridor',
+];
+
+const hasOnlyCanonicalOptionalTelemetryText = (
+  event: FounderCommerceTelemetryEvent,
+): boolean =>
+  textTelemetryFields.every((field) => {
+    const value = event[field];
+    return (
+      value === undefined ||
+      (typeof value === 'string' && value.length > 0 && value.trim() === value)
+    );
+  });
+
 export const hasValidFounderTelemetryEnvelope = (
   event: FounderCommerceTelemetryEvent,
 ): boolean =>
   event.id.trim().length > 0 &&
+  event.id.trim() === event.id &&
   isIsoTimestamp(event.occurredAt) &&
-  hasOnlyFiniteNumericTelemetry(event);
+  hasOnlyFiniteNumericTelemetry(event) &&
+  hasOnlyCanonicalOptionalTelemetryText(event);
 
 const zeroKpis = (): Record<CommerceKpi, number> => ({
   gmv: 0,
