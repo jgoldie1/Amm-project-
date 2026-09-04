@@ -40,6 +40,7 @@ for(const event of ['tryamm:streetverse-reel-opened','tryamm:streetverse-reel-re
 }
 if(!reel.includes("action:'share'")||!reel.includes("action:'download'"))throw new Error('Reel save/share QA must distinguish native share from local download')
 if(!bridge.includes('installStreetVerseJourneyQARuntime')||!bridge.includes('tryamm:streetverse-exit'))throw new Error('StreetVerse bridge must install journey QA and emit verified exit')
+if(!bridge.includes("tryamm:streetverse-world-ready")||!bridge.includes("mode:'mobile-safe'")||!bridge.includes('htmlCity:true'))throw new Error('StreetVerse safe-mode boot must emit real spawn readiness after the QA observer is installed')
 if(!reward.includes('tryamm:streetverse-mobile-reward-recorded'))throw new Error('StreetVerse reward ledger must expose verified reward evidence')
 if(!npc.includes('tryamm:streetverse-npc-conversation-open'))throw new Error('StreetVerse NPC interaction must expose conversation evidence')
 for(const event of ['tryamm:streetverse-player-position','tryamm:streetverse-vehicle-controlled','tryamm:streetverse-checkpoint','tryamm:streetverse-mission-complete','tryamm:open-reel-creator']){
