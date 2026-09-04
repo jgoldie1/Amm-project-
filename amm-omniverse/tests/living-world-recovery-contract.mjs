@@ -21,6 +21,9 @@ for(const token of ['responderNPCIndex=0','for(const npc of responderNPCs.values
 for(const token of ['EXPORT_SCHEMA = "tryamm.streetverse.blender-export.v1"','output.suffix.lower() != ".glb"','scene.unit_settings.system != "METRIC"','scale_length, 1.0','export_format="GLB"','export_yup=True','export_animations=True','"proofReference"','"commercialUse"','"derivativeUse"','"grantedByExporter": False','"requiresStreetVerseRightsRegistryReview": True']){
   if(!blender.includes(token))throw new Error(`Blender export safety contract missing ${token}`)
 }
+for(const token of ['--asset-kind','STREETVERSE_VEHICLE_FORWARD_AXIS = "+X"','--vehicle-front-marker','SV_FRONT','--vehicle-rear-marker','SV_REAR','validate_vehicle_forward','float(direction.x) < 0.95','"vehicleForwardAxis"','"orientation": vehicle_orientation']){
+  if(!blender.includes(token))throw new Error(`Blender vehicle orientation contract missing ${token}`)
+}
 if(!blender.includes('args.rights_status == "LICENSED" and not args.proof_reference'))throw new Error('Licensed Blender exports must require proof evidence')
 if(blender.includes('"grantedByExporter": True'))throw new Error('Blender exporter must never self-grant StreetVerse production clearance')
 console.log('Living World recovery contract PASS')
