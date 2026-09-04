@@ -58,11 +58,28 @@ export const GOLDEN_ORDER_EVENT_AUTHORITIES: Record<GoldenOrderEventName, readon
   'golden-order.refund.created': ['payment-provider', 'settlement-service'],
 };
 
+const hasNonEmptyIdentifier = (value: string): boolean => value.trim().length > 0;
+
+/**
+ * Structural integrity is a prerequisite for authority. This does not mutate,
+ * verify, settle, or reconcile commerce state; it only rejects malformed event
+ * envelopes before they can be treated as authoritative evidence.
+ */
+export const hasValidGoldenOrderEventIntegrity = (event: GoldenOrderEvent): boolean =>
+  hasNonEmptyIdentifier(event.eventId) &&
+  hasNonEmptyIdentifier(event.goldenOrderId) &&
+  hasNonEmptyIdentifier(event.correlationId) &&
+  Number.isFinite(Date.parse(event.occurredAt)) &&
+  event.payload !== null &&
+  typeof event.payload === 'object';
+
 export const isWorldProjectionOnly = (event: GoldenOrderEvent): boolean =>
   event.source === 'streetverse' && event.authoritative === false;
 
 export const isAuthorizedGoldenOrderEvent = (event: GoldenOrderEvent): boolean =>
-  event.authoritative === true && GOLDEN_ORDER_EVENT_AUTHORITIES[event.eventName].includes(event.source);
+  hasValidGoldenOrderEventIntegrity(event) &&
+  event.authoritative === true &&
+  GOLDEN_ORDER_EVENT_AUTHORITIES[event.eventName].includes(event.source);
 
 export const mayMutateCommerceTruth = (event: GoldenOrderEvent): boolean =>
   event.source !== 'streetverse' && isAuthorizedGoldenOrderEvent(event);
