@@ -56,13 +56,14 @@ const REQUIRED_BOOLEAN_EVIDENCE: Array<
   'accessibilityGatePassed',
 ];
 
-const hasCanonicalId = (value: string): boolean => {
+const hasCanonicalId = (value: unknown): value is string => {
+  if (typeof value !== 'string') return false;
   const trimmed = value.trim();
   return trimmed.length > 0 && trimmed === value;
 };
 
-const hasValidEvidenceIds = (evidenceIds: string[]): boolean => {
-  if (evidenceIds.length === 0) return false;
+const hasValidEvidenceIds = (evidenceIds: unknown): evidenceIds is string[] => {
+  if (!Array.isArray(evidenceIds) || evidenceIds.length === 0) return false;
   if (evidenceIds.some((id) => !hasCanonicalId(id))) return false;
 
   return new Set(evidenceIds).size === evidenceIds.length;
