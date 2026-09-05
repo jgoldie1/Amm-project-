@@ -57,6 +57,9 @@ if (!source.includes('event.authoritative === true')) {
 
 for (const integrityCheck of [
   'hasValidGoldenOrderEventIntegrity',
+  'isKnownGoldenOrderEventName',
+  "typeof value === 'string' && GOLDEN_ORDER_EVENTS.includes(value as GoldenOrderEventName)",
+  'isKnownGoldenOrderEventName(event.eventName)',
   'hasCanonicalIdentifier(event.eventId)',
   'hasCanonicalIdentifier(event.goldenOrderId)',
   'hasCanonicalIdentifier(event.correlationId)',
@@ -77,4 +80,4 @@ if (!source.includes('hasValidGoldenOrderEventIntegrity(event) &&')) {
   throw new Error('Golden Order authorization must require structural event integrity');
 }
 
-console.log('Golden Order event bridge canonical envelope and authority contract passed');
+console.log('Golden Order event bridge canonical envelope, known event-name, and authority contract passed');
