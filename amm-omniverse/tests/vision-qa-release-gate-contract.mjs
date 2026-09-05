@@ -36,6 +36,8 @@ const requiredSnippets = [
   'evidenceRefs',
   'evidenceRefSet',
   'new Set<string>()',
+  'evidenceRefSet.has(evidenceRef)',
+  'evidenceRefDuplicate:${evidenceRef}',
   'evidenceRefSet.add(evidenceRef)',
   'Array.isArray(evidence.evidenceRefs)',
   'evidenceRefsInvalid',
