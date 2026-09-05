@@ -97,6 +97,7 @@ export const evaluateIllinoisVisionQaReleaseGate = (
     missingEvidence.push('buildShaMismatch');
   }
 
+  const evidenceRefSet = new Set<string>();
   if (!Array.isArray(evidence.evidenceRefs)) {
     missingEvidence.push('evidenceRefsInvalid');
   } else if (evidence.evidenceRefs.length === 0) {
@@ -113,6 +114,8 @@ export const evaluateIllinoisVisionQaReleaseGate = (
         missingEvidence.push(`evidenceRef:${index}`);
       } else if (normalizedEvidenceRef !== evidenceRef) {
         missingEvidence.push(`evidenceRefInvalid:${index}`);
+      } else {
+        evidenceRefSet.add(evidenceRef);
       }
     }
   }
@@ -178,6 +181,8 @@ export const evaluateIllinoisVisionQaReleaseGate = (
       missingEvidence.push(`findingEvidenceRef:${finding.id}`);
     } else if (normalizedFindingEvidenceRef !== finding.evidenceRef) {
       missingEvidence.push(`findingEvidenceRefInvalid:${finding.id}`);
+    } else if (!evidenceRefSet.has(normalizedFindingEvidenceRef)) {
+      missingEvidence.push(`findingEvidenceRefUnlinked:${finding.id}`);
     }
   }
 
