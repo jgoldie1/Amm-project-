@@ -67,7 +67,9 @@ export const evaluateIllinoisVisionQaReleaseGate = (
     missingEvidence.push('buildShaMismatch');
   }
 
-  if (evidence.evidenceRefs.length === 0) {
+  if (!Array.isArray(evidence.evidenceRefs)) {
+    missingEvidence.push('evidenceRefsInvalid');
+  } else if (evidence.evidenceRefs.length === 0) {
     missingEvidence.push('evidenceRefs');
   } else {
     for (const [index, evidenceRef] of evidence.evidenceRefs.entries()) {
