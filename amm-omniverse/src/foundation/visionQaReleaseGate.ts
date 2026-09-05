@@ -54,18 +54,27 @@ export const evaluateIllinoisVisionQaReleaseGate = (
     if (!inspected.has(area)) missingEvidence.push(`inspectedArea:${area}`);
   }
 
-  const expectedBuildSha = evidence.expectedBuildSha.trim();
-  const runBuildSha = evidence.run.buildSha?.trim() ?? '';
+  const expectedBuildSha = typeof evidence.expectedBuildSha === 'string'
+    ? evidence.expectedBuildSha.trim()
+    : '';
+  const runBuildShaValue = evidence.run?.buildSha;
+  const runBuildSha = typeof runBuildShaValue === 'string'
+    ? runBuildShaValue.trim()
+    : '';
 
-  if (!expectedBuildSha) {
+  if (typeof evidence.expectedBuildSha !== 'string') {
+    missingEvidence.push('expectedBuildShaInvalid');
+  } else if (!expectedBuildSha) {
     missingEvidence.push('expectedBuildSha');
   } else if (expectedBuildSha !== evidence.expectedBuildSha || !BUILD_SHA_PATTERN.test(expectedBuildSha)) {
     missingEvidence.push('expectedBuildShaInvalid');
   }
 
-  if (!runBuildSha) {
+  if (typeof runBuildShaValue !== 'string') {
+    missingEvidence.push('run.buildShaInvalid');
+  } else if (!runBuildSha) {
     missingEvidence.push('run.buildSha');
-  } else if (runBuildSha !== evidence.run.buildSha || !BUILD_SHA_PATTERN.test(runBuildSha)) {
+  } else if (runBuildSha !== runBuildShaValue || !BUILD_SHA_PATTERN.test(runBuildSha)) {
     missingEvidence.push('run.buildShaInvalid');
   }
 
