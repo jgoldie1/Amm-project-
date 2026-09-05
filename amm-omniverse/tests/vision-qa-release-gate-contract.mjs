@@ -14,6 +14,8 @@ const requiredSnippets = [
   "'world-population-gaps'",
   'BUILD_SHA_PATTERN',
   '/^[0-9a-f]{7,64}$/i',
+  "typeof evidence !== 'object' || evidence === null || Array.isArray(evidence)",
+  "missingEvidence: ['evidenceInvalid']",
   'expectedBuildSha',
   "typeof evidence.expectedBuildSha === 'string'",
   "typeof evidence.expectedBuildSha !== 'string'",
