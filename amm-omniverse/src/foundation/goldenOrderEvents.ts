@@ -84,7 +84,8 @@ export const hasValidGoldenOrderEventIntegrity = (event: GoldenOrderEvent): bool
   hasCanonicalIdentifier(event.correlationId) &&
   isCanonicalIsoTimestamp(event.occurredAt) &&
   event.payload !== null &&
-  typeof event.payload === 'object';
+  typeof event.payload === 'object' &&
+  !Array.isArray(event.payload);
 
 export const isWorldProjectionOnly = (event: GoldenOrderEvent): boolean =>
   event.source === 'streetverse' && event.authoritative === false;
