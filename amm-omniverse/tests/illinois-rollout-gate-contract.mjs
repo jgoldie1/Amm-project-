@@ -23,6 +23,7 @@ const requiredSignals = [
   'hasValidEvidenceIds',
   'hasValidVerificationTimestamp',
   'Date.parse(verifiedAt)',
+  'new Date(timestamp).toISOString()',
   'Date.now()',
   'DEFAULT_MAX_EVIDENCE_AGE_MS',
   'maxEvidenceAgeMs',
@@ -61,6 +62,14 @@ if (!/new Set\(evidenceIds\)\.size === evidenceIds\.length/.test(source)) {
 
 if (!/Number\.isFinite\(timestamp\)/.test(source)) {
   throw new Error('Illinois rollout gate must require a parseable verification timestamp.');
+}
+
+if (!/verifiedAt\s*!==\s*verifiedAt\.trim\(\)/.test(source)) {
+  throw new Error('Illinois rollout gate must reject whitespace-padded verification timestamps.');
+}
+
+if (!/new Date\(timestamp\)\.toISOString\(\)\s*!==\s*verifiedAt/.test(source)) {
+  throw new Error('Illinois rollout gate must require canonical ISO-8601 UTC verification timestamps.');
 }
 
 if (!/timestamp\s*>\s*nowMs/.test(source)) {
