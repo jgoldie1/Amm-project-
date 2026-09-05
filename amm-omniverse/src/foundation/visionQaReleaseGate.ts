@@ -118,11 +118,19 @@ export const evaluateIllinoisVisionQaReleaseGate = (
     }
   }
 
-  const criticalFindingIds = evidence.run.findings
+  const runFindings = Array.isArray(evidence.run?.findings)
+    ? evidence.run.findings
+    : [];
+
+  if (!Array.isArray(evidence.run?.findings)) {
+    missingEvidence.push('run.findingsInvalid');
+  }
+
+  const criticalFindingIds = runFindings
     .filter((finding) => finding.severity === 'critical')
     .map((finding) => finding.id);
 
-  for (const finding of evidence.run.findings) {
+  for (const finding of runFindings) {
     if (finding.evidenceRef != null && typeof finding.evidenceRef !== 'string') {
       missingEvidence.push(`findingEvidenceRefInvalid:${finding.id}`);
       continue;
