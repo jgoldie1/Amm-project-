@@ -136,6 +136,7 @@ export const evaluateIllinoisVisionQaReleaseGate = (
     }
   }
 
+  const findingIdSet = new Set<string>();
   const runFindings = Array.isArray(evidence.run?.findings)
     ? evidence.run.findings.filter((finding, index): finding is VisionQaFinding => {
         if (typeof finding !== 'object' || finding === null || Array.isArray(finding)) {
@@ -147,6 +148,12 @@ export const evaluateIllinoisVisionQaReleaseGate = (
           missingEvidence.push(`run.findingIdInvalid:${index}`);
           return false;
         }
+
+        if (findingIdSet.has(finding.id)) {
+          missingEvidence.push(`run.findingIdDuplicate:${finding.id}`);
+          return false;
+        }
+        findingIdSet.add(finding.id);
 
         if (!VISION_QA_AREA_SET.has(finding.area)) {
           missingEvidence.push(`run.findingAreaInvalid:${index}`);
