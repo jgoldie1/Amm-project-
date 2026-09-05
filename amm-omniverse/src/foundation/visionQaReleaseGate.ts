@@ -1,4 +1,4 @@
-import type { VisionQaArea, VisionQaFinding, VisionQaRun } from './visionQaFoundation';
+import { VISION_QA_AREAS, type VisionQaArea, type VisionQaFinding, type VisionQaRun } from './visionQaFoundation';
 
 export const ILLINOIS_VISION_QA_REQUIRED_AREAS: readonly VisionQaArea[] = [
   'environment-quality',
@@ -14,6 +14,7 @@ export const ILLINOIS_VISION_QA_REQUIRED_AREAS: readonly VisionQaArea[] = [
 ] as const;
 
 const BUILD_SHA_PATTERN = /^[0-9a-f]{7,64}$/i;
+const VISION_QA_AREA_SET = new Set<string>(VISION_QA_AREAS);
 
 export interface VisionQaReleaseEvidence {
   run: VisionQaRun;
@@ -135,6 +136,11 @@ export const evaluateIllinoisVisionQaReleaseGate = (
 
         if (typeof finding.id !== 'string' || !finding.id.trim() || finding.id.trim() !== finding.id) {
           missingEvidence.push(`run.findingIdInvalid:${index}`);
+          return false;
+        }
+
+        if (!VISION_QA_AREA_SET.has(finding.area)) {
+          missingEvidence.push(`run.findingAreaInvalid:${index}`);
           return false;
         }
 
