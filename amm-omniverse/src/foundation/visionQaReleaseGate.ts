@@ -138,6 +138,11 @@ export const evaluateIllinoisVisionQaReleaseGate = (
           return false;
         }
 
+        if (finding.severity !== 'info' && finding.severity !== 'warning' && finding.severity !== 'critical') {
+          missingEvidence.push(`run.findingSeverityInvalid:${index}`);
+          return false;
+        }
+
         return true;
       })
     : [];
