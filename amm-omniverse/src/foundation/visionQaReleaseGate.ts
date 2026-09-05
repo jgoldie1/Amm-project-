@@ -1,4 +1,4 @@
-import type { VisionQaArea, VisionQaRun } from './visionQaFoundation';
+import type { VisionQaArea, VisionQaFinding, VisionQaRun } from './visionQaFoundation';
 
 export const ILLINOIS_VISION_QA_REQUIRED_AREAS: readonly VisionQaArea[] = [
   'environment-quality',
@@ -127,7 +127,14 @@ export const evaluateIllinoisVisionQaReleaseGate = (
   }
 
   const runFindings = Array.isArray(evidence.run?.findings)
-    ? evidence.run.findings
+    ? evidence.run.findings.filter((finding, index): finding is VisionQaFinding => {
+        if (typeof finding !== 'object' || finding === null || Array.isArray(finding)) {
+          missingEvidence.push(`run.findingInvalid:${index}`);
+          return false;
+        }
+
+        return true;
+      })
     : [];
 
   if (!Array.isArray(evidence.run?.findings)) {
