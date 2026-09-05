@@ -85,15 +85,19 @@ export const evaluateIllinoisVisionQaReleaseGate = (
     }
   }
 
-  const verifiedAt = evidence.verifiedAt.trim();
-  if (!verifiedAt) {
-    missingEvidence.push('verifiedAt');
+  if (typeof evidence.verifiedAt !== 'string') {
+    missingEvidence.push('verifiedAtInvalid');
   } else {
-    const verifiedAtMs = Date.parse(verifiedAt);
-    if (Number.isNaN(verifiedAtMs)) {
-      missingEvidence.push('verifiedAtInvalid');
-    } else if (verifiedAt !== evidence.verifiedAt || new Date(verifiedAtMs).toISOString() !== verifiedAt) {
-      missingEvidence.push('verifiedAtInvalid');
+    const verifiedAt = evidence.verifiedAt.trim();
+    if (!verifiedAt) {
+      missingEvidence.push('verifiedAt');
+    } else {
+      const verifiedAtMs = Date.parse(verifiedAt);
+      if (Number.isNaN(verifiedAtMs)) {
+        missingEvidence.push('verifiedAtInvalid');
+      } else if (verifiedAt !== evidence.verifiedAt || new Date(verifiedAtMs).toISOString() !== verifiedAt) {
+        missingEvidence.push('verifiedAtInvalid');
+      }
     }
   }
 
