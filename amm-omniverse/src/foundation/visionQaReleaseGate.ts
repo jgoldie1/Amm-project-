@@ -42,7 +42,13 @@ export const evaluateIllinoisVisionQaReleaseGate = (
   evidence: VisionQaReleaseEvidence,
 ): VisionQaReleaseDecision => {
   const missingEvidence: string[] = [];
-  const inspected = new Set(evidence.inspectedAreas);
+  const inspected = Array.isArray(evidence.inspectedAreas)
+    ? new Set(evidence.inspectedAreas)
+    : new Set<VisionQaArea>();
+
+  if (!Array.isArray(evidence.inspectedAreas)) {
+    missingEvidence.push('inspectedAreasInvalid');
+  }
 
   for (const area of ILLINOIS_VISION_QA_REQUIRED_AREAS) {
     if (!inspected.has(area)) missingEvidence.push(`inspectedArea:${area}`);
