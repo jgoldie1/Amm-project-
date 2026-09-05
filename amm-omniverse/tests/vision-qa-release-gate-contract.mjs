@@ -48,6 +48,8 @@ const requiredSnippets = [
   'run.findingInvalid:${index}',
   "typeof finding.id !== 'string' || !finding.id.trim() || finding.id.trim() !== finding.id",
   'run.findingIdInvalid:${index}',
+  "finding.severity !== 'info' && finding.severity !== 'warning' && finding.severity !== 'critical'",
+  'run.findingSeverityInvalid:${index}',
   'run.findingsInvalid',
   'criticalFindingIds',
   "finding.evidenceRef != null && typeof finding.evidenceRef !== 'string'",
