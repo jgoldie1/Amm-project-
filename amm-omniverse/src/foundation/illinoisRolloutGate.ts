@@ -79,6 +79,11 @@ const hasValidVerificationTimestamp = (
   const timestamp = Date.parse(verifiedAt);
   if (!Number.isFinite(timestamp)) return false;
 
+  // Rollout evidence is an auditable release artifact, so require one canonical
+  // UTC representation instead of accepting locale-dependent or ambiguous date
+  // strings that happen to be parseable by the JavaScript runtime.
+  if (verifiedAt !== verifiedAt.trim() || new Date(timestamp).toISOString() !== verifiedAt) return false;
+
   // Expansion evidence must already exist when the gate is evaluated. Reject
   // future-dated proof so a malformed clock or pre-staged record cannot unlock
   // geographic rollout before its verification actually occurred.
