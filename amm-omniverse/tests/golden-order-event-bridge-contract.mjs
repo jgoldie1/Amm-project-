@@ -70,6 +70,7 @@ for (const integrityCheck of [
   'new Date(parsed).toISOString() === value',
   "event.payload !== null",
   "typeof event.payload === 'object'",
+  '!Array.isArray(event.payload)',
 ]) {
   if (!source.includes(integrityCheck)) {
     throw new Error(`Golden Order event integrity guard missing: ${integrityCheck}`);
@@ -80,4 +81,4 @@ if (!source.includes('hasValidGoldenOrderEventIntegrity(event) &&')) {
   throw new Error('Golden Order authorization must require structural event integrity');
 }
 
-console.log('Golden Order event bridge canonical envelope, known event-name, and authority contract passed');
+console.log('Golden Order event bridge canonical envelope, object payload, known event-name, and authority contract passed');
