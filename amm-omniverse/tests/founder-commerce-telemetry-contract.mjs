@@ -60,7 +60,9 @@ const requiredProtections = [
   'Math.max(0, value)',
   'StreetVerse, Vision QA, and other presentation clients are intentionally not',
   'isAuthorizedFounderTelemetryEvent(event)',
-  'eventAuthorities[event.type].includes(event.authority)',
+  'const allowedAuthorities = eventAuthorities[event.type]',
+  'Array.isArray(allowedAuthorities)',
+  'allowedAuthorities.includes(event.authority)',
   'hasValidFounderTelemetryEnvelope(event)',
   'event.id.trim().length > 0',
   'event.id.trim() === event.id',
@@ -138,4 +140,4 @@ for (const kpi of requiredKpis) {
   }
 }
 
-console.log('Founder commerce telemetry authority, envelope, canonical identifier, and finite numeric contract passed');
+console.log('Founder commerce telemetry authority, fail-closed lookup, envelope, canonical identifier, and finite numeric contract passed');
