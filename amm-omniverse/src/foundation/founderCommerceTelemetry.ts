@@ -65,7 +65,10 @@ const eventAuthorities: Record<FounderCommerceTelemetryEventType, readonly Comme
 
 export const isAuthorizedFounderTelemetryEvent = (
   event: FounderCommerceTelemetryEvent,
-): boolean => eventAuthorities[event.type].includes(event.authority);
+): boolean => {
+  const allowedAuthorities = eventAuthorities[event.type];
+  return Array.isArray(allowedAuthorities) && allowedAuthorities.includes(event.authority);
+};
 
 const isIsoTimestamp = (value: string): boolean => {
   if (!value || value.trim() !== value) return false;
