@@ -71,7 +71,7 @@ export const isAuthorizedFounderTelemetryEvent = (
 };
 
 const isIsoTimestamp = (value: string): boolean => {
-  if (!value || value.trim() !== value) return false;
+  if (typeof value !== 'string' || !value || value.trim() !== value) return false;
   const parsed = Date.parse(value);
   return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
 };
@@ -114,8 +114,10 @@ const hasOnlyCanonicalOptionalTelemetryText = (
 export const hasValidFounderTelemetryEnvelope = (
   event: FounderCommerceTelemetryEvent,
 ): boolean =>
+  typeof event.id === 'string' &&
   event.id.trim().length > 0 &&
   event.id.trim() === event.id &&
+  typeof event.occurredAt === 'string' &&
   isIsoTimestamp(event.occurredAt) &&
   hasOnlyFiniteNumericTelemetry(event) &&
   hasOnlyCanonicalOptionalTelemetryText(event);
