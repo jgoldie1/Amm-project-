@@ -58,7 +58,16 @@ export const GOLDEN_ORDER_EVENT_AUTHORITIES: Record<GoldenOrderEventName, readon
   'golden-order.refund.created': ['payment-provider', 'settlement-service'],
 };
 
-const hasNonEmptyIdentifier = (value: string): boolean => value.trim().length > 0;
+const hasCanonicalIdentifier = (value: string): boolean => {
+  const trimmed = value.trim();
+  return trimmed.length > 0 && trimmed === value;
+};
+
+const isCanonicalIsoTimestamp = (value: string): boolean => {
+  if (!value || value.trim() !== value) return false;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
+};
 
 /**
  * Structural integrity is a prerequisite for authority. This does not mutate,
@@ -66,10 +75,10 @@ const hasNonEmptyIdentifier = (value: string): boolean => value.trim().length > 
  * envelopes before they can be treated as authoritative evidence.
  */
 export const hasValidGoldenOrderEventIntegrity = (event: GoldenOrderEvent): boolean =>
-  hasNonEmptyIdentifier(event.eventId) &&
-  hasNonEmptyIdentifier(event.goldenOrderId) &&
-  hasNonEmptyIdentifier(event.correlationId) &&
-  Number.isFinite(Date.parse(event.occurredAt)) &&
+  hasCanonicalIdentifier(event.eventId) &&
+  hasCanonicalIdentifier(event.goldenOrderId) &&
+  hasCanonicalIdentifier(event.correlationId) &&
+  isCanonicalIsoTimestamp(event.occurredAt) &&
   event.payload !== null &&
   typeof event.payload === 'object';
 
