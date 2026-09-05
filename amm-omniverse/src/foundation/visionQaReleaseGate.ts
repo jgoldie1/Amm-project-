@@ -133,6 +133,11 @@ export const evaluateIllinoisVisionQaReleaseGate = (
           return false;
         }
 
+        if (typeof finding.id !== 'string' || !finding.id.trim() || finding.id.trim() !== finding.id) {
+          missingEvidence.push(`run.findingIdInvalid:${index}`);
+          return false;
+        }
+
         return true;
       })
     : [];
