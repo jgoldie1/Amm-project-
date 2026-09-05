@@ -22,6 +22,8 @@ const requiredSignals = [
   'hasCanonicalId',
   'hasValidEvidenceIds',
   'hasValidVerificationTimestamp',
+  "typeof value !== 'string'",
+  'Array.isArray(evidenceIds)',
   'Date.parse(verifiedAt)',
   'new Date(timestamp).toISOString()',
   'Date.now()',
@@ -44,8 +46,16 @@ if (!requiredBooleanBlock || !requiredBooleanBlock[1].includes("'visionQaRelease
   throw new Error('Illinois rollout gate must require a passing Vision-assisted AAA release gate.');
 }
 
+if (!/typeof value\s*!==\s*['\"]string['\"]/.test(source)) {
+  throw new Error('Illinois rollout gate must reject non-string identifiers before trimming them.');
+}
+
 if (!/trimmed\.length\s*>\s*0\s*&&\s*trimmed\s*===\s*value/.test(source)) {
   throw new Error('Illinois rollout gate must require canonical non-whitespace-padded identifiers.');
+}
+
+if (!/Array\.isArray\(evidenceIds\)/.test(source)) {
+  throw new Error('Illinois rollout gate must reject non-array evidence ID collections.');
 }
 
 if (!/evidenceIds\.some\(\(id\) => !hasCanonicalId\(id\)\)/.test(source)) {
