@@ -41,6 +41,14 @@ export interface VisionQaReleaseDecision {
 export const evaluateIllinoisVisionQaReleaseGate = (
   evidence: VisionQaReleaseEvidence,
 ): VisionQaReleaseDecision => {
+  if (typeof evidence !== 'object' || evidence === null || Array.isArray(evidence)) {
+    return {
+      allowed: false,
+      missingEvidence: ['evidenceInvalid'],
+      criticalFindingIds: [],
+    };
+  }
+
   const missingEvidence: string[] = [];
   const inspected = Array.isArray(evidence.inspectedAreas)
     ? new Set(evidence.inspectedAreas)
