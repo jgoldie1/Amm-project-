@@ -69,6 +69,9 @@ const isCanonicalIsoTimestamp = (value: string): boolean => {
   return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
 };
 
+const isKnownGoldenOrderEventName = (value: unknown): value is GoldenOrderEventName =>
+  typeof value === 'string' && GOLDEN_ORDER_EVENTS.includes(value as GoldenOrderEventName);
+
 /**
  * Structural integrity is a prerequisite for authority. This does not mutate,
  * verify, settle, or reconcile commerce state; it only rejects malformed event
@@ -76,6 +79,7 @@ const isCanonicalIsoTimestamp = (value: string): boolean => {
  */
 export const hasValidGoldenOrderEventIntegrity = (event: GoldenOrderEvent): boolean =>
   hasCanonicalIdentifier(event.eventId) &&
+  isKnownGoldenOrderEventName(event.eventName) &&
   hasCanonicalIdentifier(event.goldenOrderId) &&
   hasCanonicalIdentifier(event.correlationId) &&
   isCanonicalIsoTimestamp(event.occurredAt) &&
