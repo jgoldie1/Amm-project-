@@ -19,6 +19,8 @@ const requiredSnippets = [
   'run.buildShaInvalid',
   'buildShaMismatch',
   'evidenceRefs',
+  'Array.isArray(evidence.evidenceRefs)',
+  'evidenceRefsInvalid',
   "typeof evidenceRef !== 'string'",
   'evidenceRef:${index}',
   'evidenceRefInvalid:${index}',
