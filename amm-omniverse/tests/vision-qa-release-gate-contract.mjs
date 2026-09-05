@@ -24,6 +24,7 @@ const requiredSnippets = [
   'evidenceRefInvalid:${index}',
   'normalizedEvidenceRef !== evidenceRef',
   'verifiedAt',
+  "typeof evidence.verifiedAt !== 'string'",
   'verifiedAtInvalid',
   'Date.parse(verifiedAt)',
   'new Date(verifiedAtMs).toISOString() !== verifiedAt',
