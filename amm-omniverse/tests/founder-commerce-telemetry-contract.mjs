@@ -64,8 +64,11 @@ const requiredProtections = [
   'Array.isArray(allowedAuthorities)',
   'allowedAuthorities.includes(event.authority)',
   'hasValidFounderTelemetryEnvelope(event)',
+  "typeof event.id === 'string'",
   'event.id.trim().length > 0',
   'event.id.trim() === event.id',
+  "typeof event.occurredAt === 'string'",
+  "typeof value !== 'string'",
   'Date.parse(value)',
   'new Date(parsed).toISOString() === value',
   'numericTelemetryFields',
@@ -140,4 +143,4 @@ for (const kpi of requiredKpis) {
   }
 }
 
-console.log('Founder commerce telemetry authority, fail-closed lookup, envelope, canonical identifier, and finite numeric contract passed');
+console.log('Founder commerce telemetry authority, fail-closed lookup, runtime envelope type, canonical identifier, and finite numeric contract passed');
