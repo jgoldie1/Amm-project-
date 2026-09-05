@@ -71,6 +71,11 @@ export const evaluateIllinoisVisionQaReleaseGate = (
     missingEvidence.push('evidenceRefs');
   } else {
     for (const [index, evidenceRef] of evidence.evidenceRefs.entries()) {
+      if (typeof evidenceRef !== 'string') {
+        missingEvidence.push(`evidenceRefInvalid:${index}`);
+        continue;
+      }
+
       const normalizedEvidenceRef = evidenceRef.trim();
       if (!normalizedEvidenceRef) {
         missingEvidence.push(`evidenceRef:${index}`);
@@ -97,6 +102,11 @@ export const evaluateIllinoisVisionQaReleaseGate = (
     .map((finding) => finding.id);
 
   for (const finding of evidence.run.findings) {
+    if (finding.evidenceRef != null && typeof finding.evidenceRef !== 'string') {
+      missingEvidence.push(`findingEvidenceRefInvalid:${finding.id}`);
+      continue;
+    }
+
     const normalizedFindingEvidenceRef = finding.evidenceRef?.trim() ?? '';
     if (!normalizedFindingEvidenceRef) {
       missingEvidence.push(`findingEvidenceRef:${finding.id}`);
