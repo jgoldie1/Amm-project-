@@ -64,6 +64,8 @@ const requiredProtections = [
   'Array.isArray(allowedAuthorities)',
   'allowedAuthorities.includes(event.authority)',
   'hasValidFounderTelemetryEnvelope(event)',
+  'isTelemetryEventObject(event)',
+  "Boolean(event) && typeof event === 'object' && !Array.isArray(event)",
   "typeof event.id === 'string'",
   'event.id.trim().length > 0',
   'event.id.trim() === event.id',
@@ -104,17 +106,17 @@ for (const textField of ['orderId', 'supplierId', 'country', 'corridor']) {
   }
 }
 
-const authorityCheckPosition = source.indexOf('if (!isAuthorizedFounderTelemetryEvent(event)) return state;');
 const envelopeCheckPosition = source.indexOf('if (!hasValidFounderTelemetryEnvelope(event)) return state;');
+const authorityCheckPosition = source.indexOf('if (!isAuthorizedFounderTelemetryEvent(event)) return state;');
 const processedIdPosition = source.indexOf('if (state.processedEventIds.includes(event.id)) return state;');
 if (
-  authorityCheckPosition < 0 ||
   envelopeCheckPosition < 0 ||
+  authorityCheckPosition < 0 ||
   processedIdPosition < 0 ||
-  authorityCheckPosition > envelopeCheckPosition ||
-  envelopeCheckPosition > processedIdPosition
+  envelopeCheckPosition > authorityCheckPosition ||
+  authorityCheckPosition > processedIdPosition
 ) {
-  throw new Error('Authority and envelope validation must happen before an event is recorded as processed');
+  throw new Error('Envelope and authority validation must happen before an event is recorded as processed');
 }
 
 const requiredKpis = [
@@ -143,4 +145,4 @@ for (const kpi of requiredKpis) {
   }
 }
 
-console.log('Founder commerce telemetry authority, fail-closed lookup, runtime envelope type, canonical identifier, and finite numeric contract passed');
+console.log('Founder commerce telemetry authority, malformed-object, fail-closed lookup, runtime envelope type, canonical identifier, and finite numeric contract passed');
