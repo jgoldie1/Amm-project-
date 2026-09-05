@@ -46,6 +46,8 @@ const requiredSnippets = [
   'Array.isArray(evidence.run?.findings)',
   "typeof finding !== 'object' || finding === null || Array.isArray(finding)",
   'run.findingInvalid:${index}',
+  "typeof finding.id !== 'string' || !finding.id.trim() || finding.id.trim() !== finding.id",
+  'run.findingIdInvalid:${index}',
   'run.findingsInvalid',
   'criticalFindingIds',
   "finding.evidenceRef != null && typeof finding.evidenceRef !== 'string'",
