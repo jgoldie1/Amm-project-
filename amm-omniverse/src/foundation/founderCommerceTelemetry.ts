@@ -63,9 +63,13 @@ const eventAuthorities: Record<FounderCommerceTelemetryEventType, readonly Comme
   'refund.completed': ['payment-provider', 'settlement-service'],
 };
 
+const isTelemetryEventObject = (event: FounderCommerceTelemetryEvent): boolean =>
+  Boolean(event) && typeof event === 'object' && !Array.isArray(event);
+
 export const isAuthorizedFounderTelemetryEvent = (
   event: FounderCommerceTelemetryEvent,
 ): boolean => {
+  if (!isTelemetryEventObject(event)) return false;
   const allowedAuthorities = eventAuthorities[event.type];
   return Array.isArray(allowedAuthorities) && allowedAuthorities.includes(event.authority);
 };
@@ -114,6 +118,7 @@ const hasOnlyCanonicalOptionalTelemetryText = (
 export const hasValidFounderTelemetryEnvelope = (
   event: FounderCommerceTelemetryEvent,
 ): boolean =>
+  isTelemetryEventObject(event) &&
   typeof event.id === 'string' &&
   event.id.trim().length > 0 &&
   event.id.trim() === event.id &&
@@ -168,8 +173,8 @@ export const reduceFounderCommerceTelemetry = (
   state: FounderCommerceTelemetryState,
   event: FounderCommerceTelemetryEvent,
 ): FounderCommerceTelemetryState => {
-  if (!isAuthorizedFounderTelemetryEvent(event)) return state;
   if (!hasValidFounderTelemetryEnvelope(event)) return state;
+  if (!isAuthorizedFounderTelemetryEvent(event)) return state;
   if (state.processedEventIds.includes(event.id)) return state;
 
   const next: FounderCommerceTelemetryState = {
