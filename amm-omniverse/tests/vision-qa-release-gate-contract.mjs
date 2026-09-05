@@ -34,6 +34,9 @@ const requiredSnippets = [
   'inspectedAreaInvalid:${index}',
   'inspectedArea:${area}',
   'evidenceRefs',
+  'evidenceRefSet',
+  'new Set<string>()',
+  'evidenceRefSet.add(evidenceRef)',
   'Array.isArray(evidence.evidenceRefs)',
   'evidenceRefsInvalid',
   "typeof evidenceRef !== 'string'",
@@ -62,6 +65,8 @@ const requiredSnippets = [
   "finding.evidenceRef != null && typeof finding.evidenceRef !== 'string'",
   'findingEvidenceRef:',
   'findingEvidenceRefInvalid:',
+  'evidenceRefSet.has(normalizedFindingEvidenceRef)',
+  'findingEvidenceRefUnlinked:',
   'normalizedFindingEvidenceRef !== finding.evidenceRef',
   'allowed: missingEvidence.length === 0 && criticalFindingIds.length === 0',
 ];
