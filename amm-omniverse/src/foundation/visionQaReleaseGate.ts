@@ -114,6 +114,8 @@ export const evaluateIllinoisVisionQaReleaseGate = (
         missingEvidence.push(`evidenceRef:${index}`);
       } else if (normalizedEvidenceRef !== evidenceRef) {
         missingEvidence.push(`evidenceRefInvalid:${index}`);
+      } else if (evidenceRefSet.has(evidenceRef)) {
+        missingEvidence.push(`evidenceRefDuplicate:${evidenceRef}`);
       } else {
         evidenceRefSet.add(evidenceRef);
       }
