@@ -57,6 +57,12 @@ export const evaluateIllinoisVisionQaReleaseGate = (
 
   if (!Array.isArray(evidence.inspectedAreas)) {
     missingEvidence.push('inspectedAreasInvalid');
+  } else {
+    for (const [index, inspectedArea] of evidence.inspectedAreas.entries()) {
+      if (typeof inspectedArea !== 'string' || !VISION_QA_AREA_SET.has(inspectedArea)) {
+        missingEvidence.push(`inspectedAreaInvalid:${index}`);
+      }
+    }
   }
 
   for (const area of ILLINOIS_VISION_QA_REQUIRED_AREAS) {
