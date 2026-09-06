@@ -146,7 +146,7 @@ for (const kpi of requiredKpis) {
 }
 
 const goldenOrderAdapterMatch = source.match(
-  /export const telemetryFromGoldenOrder = \([\s\S]*?\n\};/,
+  /export const telemetryFromGoldenOrder = \([\s\S]*?\n\}\);/,
 )?.[0];
 
 if (!goldenOrderAdapterMatch) {
