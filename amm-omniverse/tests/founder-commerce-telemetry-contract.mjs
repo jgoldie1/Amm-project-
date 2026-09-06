@@ -67,6 +67,9 @@ const requiredProtections = [
   'isTelemetryEventObject(event)',
   "Boolean(event) && typeof event === 'object' && !Array.isArray(event)",
   'MAX_TELEMETRY_TEXT_LENGTH = 256',
+  'TELEMETRY_CONTROL_CHARACTER_PATTERN',
+  '/[\\u0000-\\u001F\\u007F]/',
+  '!TELEMETRY_CONTROL_CHARACTER_PATTERN.test(value)',
   'isCanonicalTelemetryText',
   "typeof value === 'string'",
   'value.length > 0',
@@ -180,4 +183,4 @@ for (const mapping of requiredGoldenOrderMappings) {
   }
 }
 
-console.log('Founder commerce telemetry authority, malformed-object, fail-closed lookup, bounded canonical identifier, finite numeric, and Golden Order adapter boundary contract passed');
+console.log('Founder commerce telemetry authority, malformed-object, fail-closed lookup, bounded canonical identifier, control-character, finite numeric, and Golden Order adapter boundary contract passed');
