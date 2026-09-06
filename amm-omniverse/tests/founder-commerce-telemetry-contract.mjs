@@ -63,6 +63,9 @@ const requiredProtections = [
   'Boolean(state.kpis)',
   "typeof state.kpis === 'object'",
   '!Array.isArray(state.kpis)',
+  'hasOnlyFiniteKpis(state.kpis)',
+  'Object.values(kpis).every',
+  "typeof value === 'number' && Number.isFinite(value)",
   'Array.isArray(state.processedEventIds)',
   'Array.isArray(state.orderIds)',
   'Array.isArray(state.supplierIds)',
@@ -198,4 +201,4 @@ for (const mapping of requiredGoldenOrderMappings) {
   }
 }
 
-console.log('Founder commerce telemetry authority, malformed-state/object, fail-closed lookup, bounded canonical identifier, C0/C1 control-character, finite numeric, and Golden Order adapter boundary contract passed');
+console.log('Founder commerce telemetry authority, malformed-state/object, finite-KPI-state, fail-closed lookup, bounded canonical identifier, C0/C1 control-character, finite numeric, and Golden Order adapter boundary contract passed');
