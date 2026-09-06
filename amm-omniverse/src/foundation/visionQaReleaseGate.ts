@@ -17,6 +17,12 @@ const BUILD_SHA_PATTERN = /^[0-9a-f]{7,64}$/i;
 const MAX_EVIDENCE_IDENTIFIER_LENGTH = 256;
 const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f-\u009f]/;
 const VISION_QA_AREA_SET = new Set<string>(VISION_QA_AREAS);
+const VISION_QA_SOURCE_SET = new Set<string>([
+  'screenshot',
+  'video-frame',
+  'live-capture',
+  'asset-preview',
+]);
 
 const isCanonicalEvidenceIdentifier = (value: unknown): boolean =>
   typeof value === 'string'
@@ -24,6 +30,12 @@ const isCanonicalEvidenceIdentifier = (value: unknown): boolean =>
   && value.length <= MAX_EVIDENCE_IDENTIFIER_LENGTH
   && value.trim() === value
   && !CONTROL_CHARACTER_PATTERN.test(value);
+
+const isCanonicalIsoTimestamp = (value: unknown): boolean => {
+  if (typeof value !== 'string' || value.trim() !== value || !value) return false;
+  const timestampMs = Date.parse(value);
+  return !Number.isNaN(timestampMs) && new Date(timestampMs).toISOString() === value;
+};
 
 export interface VisionQaReleaseEvidence {
   run: VisionQaRun;
@@ -67,6 +79,18 @@ export const evaluateIllinoisVisionQaReleaseGate = (
 
   if (!run) {
     missingEvidence.push('runInvalid');
+  } else {
+    if (!isCanonicalEvidenceIdentifier(run.id)) {
+      missingEvidence.push('run.idInvalid');
+    }
+
+    if (!isCanonicalIsoTimestamp(run.createdAt)) {
+      missingEvidence.push('run.createdAtInvalid');
+    }
+
+    if (typeof run.source !== 'string' || !VISION_QA_SOURCE_SET.has(run.source)) {
+      missingEvidence.push('run.sourceInvalid');
+    }
   }
 
   if (!Array.isArray(evidence.inspectedAreas)) {
