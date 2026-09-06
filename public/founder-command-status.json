@@ -1,0 +1,29 @@
+{
+  "updatedAt": "2026-09-06T20:08:00Z",
+  "principle": "Architecturally comprehensive does not mean production-complete.",
+  "statuses": ["LIVE", "READY", "BUILDING", "LOCKED", "COMING SOON"],
+  "definitions": {
+    "LIVE": "Production deployed and required user-path tests passed.",
+    "READY": "Built and internally validated, but not yet released to production.",
+    "BUILDING": "Implementation or required validation is incomplete.",
+    "LOCKED": "Code or design may exist, but a required security, legal, rights, operations, payment, or dependency gate prevents activation.",
+    "COMING SOON": "Planned architecture that is not yet sufficiently implemented to call READY."
+  },
+  "systems": [
+    {"id":"core","name":"TRYAMM Core","status":"BUILDING","evidence":"Production site exists; full release-gate evidence is not yet attached to this manifest.","next":"Attach production smoke-test and deployment evidence."},
+    {"id":"streetverse","name":"StreetVerse","status":"BUILDING","evidence":"Repository contains StreetVerse journey QA work and safe-spawn tests.","next":"Verify the complete production journey and attach passing evidence."},
+    {"id":"business-passport","name":"Business Passport","status":"BUILDING","evidence":"Commercial and data architecture defined; production completion not yet verified.","next":"Implement canonical business identity schema and CRUD flow."},
+    {"id":"digital-twin","name":"Digital Twin","status":"BUILDING","evidence":"Architecture and commercial package defined; production completion not yet verified.","next":"Connect approved business assets, products, locations, offers and CTAs to Passport records."},
+    {"id":"smart-qr","name":"TRYAMM Smart QR / Internal Reader","status":"BUILDING","evidence":"Resolver, internal-reader and LaunchReady requirements defined; production flow not yet verified.","next":"Implement QR ID resolver, internal route handling, safe external-link warning and analytics events."},
+    {"id":"live","name":"TRYAMM Live","status":"BUILDING","evidence":"Core live-room, chat, WebRTC signaling, hearts and gifts code exists in server runtime.","next":"Add LiveReady checks, moderation, consent, accessibility and production validation."},
+    {"id":"pk","name":"PK / Multi-PK","status":"BUILDING","evidence":"Product architecture defined; complete server-authoritative PK scoring and FairPlay evidence not yet verified.","next":"Implement PK session model, authoritative scoring, anti-abuse controls and audit trail."},
+    {"id":"reels","name":"Reel Creator","status":"BUILDING","evidence":"Prior repository work exists; current production record/save/share flow must be re-verified.","next":"Run phone capture, save, playback and share tests."},
+    {"id":"my-world","name":"My World","status":"COMING SOON","evidence":"Architecture defined as user personal-world layer; production completion not verified.","next":"Define minimum shippable save/favorite/world experience."},
+    {"id":"starverse","name":"StarVerse","status":"BUILDING","evidence":"Creator/performance architecture defined; production completion not verified.","next":"Connect Creator Passport, Live, commerce and reusable media records."},
+    {"id":"business-network","name":"TRYAMM Global Business Network","status":"BUILDING","evidence":"Pricing, directory, Business+, Business Pass and dedicated Black Business Directory architecture defined.","next":"Implement inclusive directory taxonomy, claim/verify flow and pricing entitlements."},
+    {"id":"holo-ride","name":"Holo Ride","status":"COMING SOON","evidence":"Experience and pricing architecture defined; transportation operations are not production-ready.","next":"Complete regulatory, insurance, driver, payment, safety and dispatch foundations."},
+    {"id":"holo-delivery","name":"Holo Food Delivery","status":"COMING SOON","evidence":"Commercial model and StreetVerse connection defined; courier operations and unit economics are not locked.","next":"Model per-order economics and implement merchant/courier/settlement controls."},
+    {"id":"ride-karaoke","name":"Holo Ride Karaoke","status":"LOCKED","evidence":"Experience architecture defined; depends on Holo Ride plus music-rights, consent and DriveSafe controls.","next":"Unlock only after Holo Ride operational foundation and MUSIC RIGHTS READY gates pass."},
+    {"id":"launchready","name":"LaunchReady Assurance","status":"BUILDING","evidence":"System-wide acceptance framework and SOW requirements defined.","next":"Add machine-readable checklists for QRReady, TwinReady, CommerceReady, LiveReady, AccessibilityReady and AnalyticsReady."}
+  ]
+}
