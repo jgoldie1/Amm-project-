@@ -14,7 +14,16 @@ export const ILLINOIS_VISION_QA_REQUIRED_AREAS: readonly VisionQaArea[] = [
 ] as const;
 
 const BUILD_SHA_PATTERN = /^[0-9a-f]{7,64}$/i;
+const MAX_EVIDENCE_IDENTIFIER_LENGTH = 256;
+const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f-\u009f]/;
 const VISION_QA_AREA_SET = new Set<string>(VISION_QA_AREAS);
+
+const isCanonicalEvidenceIdentifier = (value: unknown): value is string =>
+  typeof value === 'string'
+  && value.length > 0
+  && value.length <= MAX_EVIDENCE_IDENTIFIER_LENGTH
+  && value.trim() === value
+  && !CONTROL_CHARACTER_PATTERN.test(value);
 
 export interface VisionQaReleaseEvidence {
   run: VisionQaRun;
@@ -118,11 +127,12 @@ export const evaluateIllinoisVisionQaReleaseGate = (
         continue;
       }
 
-      const normalizedEvidenceRef = evidenceRef.trim();
-      if (!normalizedEvidenceRef) {
-        missingEvidence.push(`evidenceRef:${index}`);
-      } else if (normalizedEvidenceRef !== evidenceRef) {
-        missingEvidence.push(`evidenceRefInvalid:${index}`);
+      if (!isCanonicalEvidenceIdentifier(evidenceRef)) {
+        if (!evidenceRef.trim()) {
+          missingEvidence.push(`evidenceRef:${index}`);
+        } else {
+          missingEvidence.push(`evidenceRefInvalid:${index}`);
+        }
       } else if (evidenceRefSet.has(evidenceRef)) {
         missingEvidence.push(`evidenceRefDuplicate:${evidenceRef}`);
       } else {
@@ -155,7 +165,7 @@ export const evaluateIllinoisVisionQaReleaseGate = (
           return false;
         }
 
-        if (typeof finding.id !== 'string' || !finding.id.trim() || finding.id.trim() !== finding.id) {
+        if (!isCanonicalEvidenceIdentifier(finding.id)) {
           missingEvidence.push(`run.findingIdInvalid:${index}`);
           return false;
         }
@@ -199,12 +209,12 @@ export const evaluateIllinoisVisionQaReleaseGate = (
       continue;
     }
 
-    const normalizedFindingEvidenceRef = finding.evidenceRef?.trim() ?? '';
-    if (!normalizedFindingEvidenceRef) {
+    const findingEvidenceRef = finding.evidenceRef ?? '';
+    if (!findingEvidenceRef.trim()) {
       missingEvidence.push(`findingEvidenceRef:${finding.id}`);
-    } else if (normalizedFindingEvidenceRef !== finding.evidenceRef) {
+    } else if (!isCanonicalEvidenceIdentifier(findingEvidenceRef)) {
       missingEvidence.push(`findingEvidenceRefInvalid:${finding.id}`);
-    } else if (!evidenceRefSet.has(normalizedFindingEvidenceRef)) {
+    } else if (!evidenceRefSet.has(findingEvidenceRef)) {
       missingEvidence.push(`findingEvidenceRefUnlinked:${finding.id}`);
     }
   }
