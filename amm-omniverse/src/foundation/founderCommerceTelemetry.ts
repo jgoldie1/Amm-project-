@@ -64,6 +64,7 @@ const eventAuthorities: Record<FounderCommerceTelemetryEventType, readonly Comme
 };
 
 const MAX_TELEMETRY_TEXT_LENGTH = 256;
+const TELEMETRY_CONTROL_CHARACTER_PATTERN = /[\u0000-\u001F\u007F]/;
 
 const isTelemetryEventObject = (event: FounderCommerceTelemetryEvent): boolean =>
   Boolean(event) && typeof event === 'object' && !Array.isArray(event);
@@ -110,7 +111,8 @@ const isCanonicalTelemetryText = (value: unknown): value is string =>
   typeof value === 'string' &&
   value.length > 0 &&
   value.length <= MAX_TELEMETRY_TEXT_LENGTH &&
-  value.trim() === value;
+  value.trim() === value &&
+  !TELEMETRY_CONTROL_CHARACTER_PATTERN.test(value);
 
 const hasOnlyCanonicalOptionalTelemetryText = (
   event: FounderCommerceTelemetryEvent,
