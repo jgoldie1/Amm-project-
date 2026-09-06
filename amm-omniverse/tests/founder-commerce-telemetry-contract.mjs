@@ -145,4 +145,35 @@ for (const kpi of requiredKpis) {
   }
 }
 
-console.log('Founder commerce telemetry authority, malformed-object, fail-closed lookup, runtime envelope type, canonical identifier, and finite numeric contract passed');
+const goldenOrderAdapterMatch = source.match(
+  /export const telemetryFromGoldenOrder = \([\s\S]*?\n\};/,
+)?.[0];
+
+if (!goldenOrderAdapterMatch) {
+  throw new Error('Founder telemetry Golden Order adapter is missing');
+}
+
+for (const authoritativeField of ['id', 'occurredAt', 'authority', 'type']) {
+  const pickPattern = new RegExp(`Pick<FounderCommerceTelemetryEvent,[^>]*'${authoritativeField}'`);
+  if (pickPattern.test(goldenOrderAdapterMatch)) {
+    throw new Error(`Golden Order adapter must not mint authoritative telemetry field: ${authoritativeField}`);
+  }
+}
+
+const requiredGoldenOrderMappings = [
+  'orderId: order.id',
+  'corridor: order.corridor',
+  'amount: order.gmv',
+  'platformRevenue: order.tryammRevenue',
+  'inventoryValue: order.inventoryValue',
+  'sellerPayable: order.sellerPayableBalance',
+  'grossMargin: order.grossMargin',
+];
+
+for (const mapping of requiredGoldenOrderMappings) {
+  if (!goldenOrderAdapterMatch.includes(mapping)) {
+    throw new Error(`Golden Order telemetry adapter mapping missing: ${mapping}`);
+  }
+}
+
+console.log('Founder commerce telemetry authority, malformed-object, fail-closed lookup, runtime envelope type, canonical identifier, finite numeric, and Golden Order adapter boundary contract passed');
