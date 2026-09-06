@@ -2,7 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const sourcePath = path.resolve('src/foundation/visionQaReleaseGate.ts');
+const foundationSourcePath = path.resolve('src/foundation/visionQaFoundation.ts');
 const source = fs.readFileSync(sourcePath, 'utf8');
+const foundationSource = fs.readFileSync(foundationSourcePath, 'utf8');
 
 const requiredSnippets = [
   'ILLINOIS_VISION_QA_REQUIRED_AREAS',
@@ -104,6 +106,25 @@ const duplicateRequiredAreas = requiredAreaEntries.filter(
 if (duplicateRequiredAreas.length > 0) {
   throw new Error(
     `Vision QA release gate contains duplicate Illinois required areas: ${[...new Set(duplicateRequiredAreas)].join(', ')}`,
+  );
+}
+
+const canonicalAreasBlock = foundationSource.match(
+  /VISION_QA_AREAS\s*=\s*\[([\s\S]*?)\]\s*as const/,
+)?.[1];
+
+if (!canonicalAreasBlock) {
+  throw new Error('Vision QA release gate contract could not parse canonical Vision QA areas');
+}
+
+const canonicalAreaSet = new Set(
+  [...canonicalAreasBlock.matchAll(/'([^']+)'/g)].map((match) => match[1]),
+);
+const unknownRequiredAreas = requiredAreaEntries.filter((area) => !canonicalAreaSet.has(area));
+
+if (unknownRequiredAreas.length > 0) {
+  throw new Error(
+    `Vision QA release gate contains Illinois required areas missing from the canonical registry: ${unknownRequiredAreas.join(', ')}`,
   );
 }
 
