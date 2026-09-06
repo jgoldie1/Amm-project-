@@ -58,9 +58,17 @@ export const GOLDEN_ORDER_EVENT_AUTHORITIES: Record<GoldenOrderEventName, readon
   'golden-order.refund.created': ['payment-provider', 'settlement-service'],
 };
 
-const hasCanonicalIdentifier = (value: string): boolean => {
+const MAX_GOLDEN_ORDER_IDENTIFIER_LENGTH = 256;
+const GOLDEN_ORDER_CONTROL_CHARACTER_PATTERN = /[\u0000-\u001F\u007F-\u009F]/;
+
+const hasCanonicalIdentifier = (value: unknown): value is string => {
+  if (typeof value !== 'string') return false;
   const trimmed = value.trim();
-  return trimmed.length > 0 && trimmed === value;
+  return (
+    trimmed.length > 0 && trimmed === value &&
+    value.length <= MAX_GOLDEN_ORDER_IDENTIFIER_LENGTH &&
+    !GOLDEN_ORDER_CONTROL_CHARACTER_PATTERN.test(value)
+  );
 };
 
 const isCanonicalIsoTimestamp = (value: string): boolean => {
