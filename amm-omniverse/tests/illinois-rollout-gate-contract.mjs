@@ -28,6 +28,8 @@ const requiredSignals = [
   'new Date(timestamp).toISOString()',
   'Date.now()',
   'DEFAULT_MAX_EVIDENCE_AGE_MS',
+  'MAX_CANONICAL_ID_LENGTH',
+  'CONTROL_CHARACTER_PATTERN',
   'maxEvidenceAgeMs',
   'nowMs - timestamp <= maxEvidenceAgeMs',
   "typeof evidence !== 'object' || evidence === null || Array.isArray(evidence)",
@@ -60,8 +62,16 @@ if (!/typeof value\s*!==\s*['\"]string['\"]/.test(source)) {
   throw new Error('Illinois rollout gate must reject non-string identifiers before trimming them.');
 }
 
-if (!/trimmed\.length\s*>\s*0\s*&&\s*trimmed\s*===\s*value/.test(source)) {
+if (!/trimmed\.length\s*>\s*0/.test(source) || !/trimmed\s*===\s*value/.test(source)) {
   throw new Error('Illinois rollout gate must require canonical non-whitespace-padded identifiers.');
+}
+
+if (!/trimmed\.length\s*<=\s*MAX_CANONICAL_ID_LENGTH/.test(source)) {
+  throw new Error('Illinois rollout gate must bound canonical identifier length.');
+}
+
+if (!/CONTROL_CHARACTER_PATTERN\.test\(value\)/.test(source)) {
+  throw new Error('Illinois rollout gate must reject control characters in canonical identifiers.');
 }
 
 if (!/Array\.isArray\(evidenceIds\)/.test(source)) {
