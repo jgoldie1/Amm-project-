@@ -18,7 +18,7 @@ const MAX_EVIDENCE_IDENTIFIER_LENGTH = 256;
 const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f-\u009f]/;
 const VISION_QA_AREA_SET = new Set<string>(VISION_QA_AREAS);
 
-const isCanonicalEvidenceIdentifier = (value: unknown): value is string =>
+const isCanonicalEvidenceIdentifier = (value: unknown): boolean =>
   typeof value === 'string'
   && value.length > 0
   && value.length <= MAX_EVIDENCE_IDENTIFIER_LENGTH
