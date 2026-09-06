@@ -147,6 +147,16 @@ if (duplicateCanonicalAreas.length > 0) {
   );
 }
 
+const invalidCanonicalAreas = canonicalAreaEntries.filter(
+  (area) => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(area),
+);
+
+if (invalidCanonicalAreas.length > 0) {
+  throw new Error(
+    `Vision QA foundation contains malformed canonical areas: ${invalidCanonicalAreas.join(', ')}`,
+  );
+}
+
 const canonicalAreaSet = new Set(canonicalAreaEntries);
 const unknownRequiredAreas = requiredAreaEntries.filter((area) => !canonicalAreaSet.has(area));
 
