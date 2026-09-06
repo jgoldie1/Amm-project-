@@ -177,6 +177,8 @@ export const evaluateIllinoisVisionQaReleaseGate = (
         missingEvidence.push('verifiedAtInvalid');
       } else if (verifiedAt !== evidence.verifiedAt || new Date(verifiedAtMs).toISOString() !== verifiedAt) {
         missingEvidence.push('verifiedAtInvalid');
+      } else if (run && isCanonicalIsoTimestamp(run.createdAt) && verifiedAtMs < Date.parse(run.createdAt)) {
+        missingEvidence.push('verifiedAtBeforeRun');
       }
     }
   }
