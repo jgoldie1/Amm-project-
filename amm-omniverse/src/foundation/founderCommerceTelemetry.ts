@@ -1,4 +1,4 @@
-import type { CommerceKpi, GoldenOrderSnapshot } from './aaaCommerceFoundation';
+import { COMMERCE_KPIS, type CommerceKpi, type GoldenOrderSnapshot } from './aaaCommerceFoundation';
 
 export type CommerceAuthority =
   | 'commerce-api'
@@ -69,8 +69,18 @@ const TELEMETRY_CONTROL_CHARACTER_PATTERN = /[\u0000-\u001F\u007F-\u009F]/;
 const isTelemetryEventObject = (event: FounderCommerceTelemetryEvent): boolean =>
   Boolean(event) && typeof event === 'object' && !Array.isArray(event);
 
-const hasOnlyFiniteKpis = (kpis: Record<CommerceKpi, number>): boolean =>
-  Object.values(kpis).every((value) => typeof value === 'number' && Number.isFinite(value));
+const hasExactFiniteKpiShape = (kpis: Record<CommerceKpi, number>): boolean => {
+  const kpiKeys = Object.keys(kpis);
+  return (
+    kpiKeys.length === COMMERCE_KPIS.length &&
+    COMMERCE_KPIS.every(
+      (kpi) =>
+        Object.prototype.hasOwnProperty.call(kpis, kpi) &&
+        typeof kpis[kpi] === 'number' &&
+        Number.isFinite(kpis[kpi]),
+    )
+  );
+};
 
 const isCanonicalTelemetryText = (value: unknown): value is string =>
   typeof value === 'string' &&
@@ -93,7 +103,7 @@ const hasValidFounderTelemetryStateEnvelope = (
   Boolean(state.kpis) &&
   typeof state.kpis === 'object' &&
   !Array.isArray(state.kpis) &&
-  hasOnlyFiniteKpis(state.kpis) &&
+  hasExactFiniteKpiShape(state.kpis) &&
   isCanonicalUniqueTelemetryTextList(state.processedEventIds) &&
   isCanonicalUniqueTelemetryTextList(state.orderIds) &&
   isCanonicalUniqueTelemetryTextList(state.supplierIds) &&
