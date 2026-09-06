@@ -100,6 +100,14 @@ export const evaluateIllinoisToUnitedStatesGate = (
   evidence: IllinoisRolloutEvidence,
   options: IllinoisRolloutGateOptions = {},
 ): RolloutGateDecision => {
+  if (typeof evidence !== 'object' || evidence === null || Array.isArray(evidence)) {
+    return {
+      currentScope: 'illinois',
+      allowed: false,
+      missingEvidence: ['illinoisEvidenceInvalid'],
+    };
+  }
+
   // The boolean evidence keys are only one subset of the strings that can be
   // reported as missing. Widen explicitly so structural evidence such as
   // goldenOrderId, evidenceIds, and verifiedAt can be added without unsafe casts.
