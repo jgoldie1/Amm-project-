@@ -66,11 +66,14 @@ const requiredProtections = [
   'hasOnlyFiniteKpis(state.kpis)',
   'Object.values(kpis).every',
   "typeof value === 'number' && Number.isFinite(value)",
-  'Array.isArray(state.processedEventIds)',
-  'Array.isArray(state.orderIds)',
-  'Array.isArray(state.supplierIds)',
-  'Array.isArray(state.countries)',
-  'Array.isArray(state.corridors)',
+  'isCanonicalUniqueTelemetryTextList',
+  'values.every(isCanonicalTelemetryText)',
+  'new Set(values).size === values.length',
+  'isCanonicalUniqueTelemetryTextList(state.processedEventIds)',
+  'isCanonicalUniqueTelemetryTextList(state.orderIds)',
+  'isCanonicalUniqueTelemetryTextList(state.supplierIds)',
+  'isCanonicalUniqueTelemetryTextList(state.countries)',
+  'isCanonicalUniqueTelemetryTextList(state.corridors)',
   'processedEventIds.includes(event.id)',
   'Math.max(0, value)',
   'StreetVerse, Vision QA, and other presentation clients are intentionally not',
@@ -201,4 +204,4 @@ for (const mapping of requiredGoldenOrderMappings) {
   }
 }
 
-console.log('Founder commerce telemetry authority, malformed-state/object, finite-KPI-state, fail-closed lookup, bounded canonical identifier, C0/C1 control-character, finite numeric, and Golden Order adapter boundary contract passed');
+console.log('Founder commerce telemetry authority, malformed-state/object, finite-KPI-state, canonical unique state-list, fail-closed lookup, bounded canonical identifier, C0/C1 control-character, finite numeric, and Golden Order adapter boundary contract passed');
