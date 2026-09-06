@@ -136,9 +136,18 @@ if (!canonicalAreasBlock) {
   throw new Error('Vision QA release gate contract could not parse canonical Vision QA areas');
 }
 
-const canonicalAreaSet = new Set(
-  [...canonicalAreasBlock.matchAll(/'([^']+)'/g)].map((match) => match[1]),
+const canonicalAreaEntries = [...canonicalAreasBlock.matchAll(/'([^']+)'/g)].map((match) => match[1]);
+const duplicateCanonicalAreas = canonicalAreaEntries.filter(
+  (area, index) => canonicalAreaEntries.indexOf(area) !== index,
 );
+
+if (duplicateCanonicalAreas.length > 0) {
+  throw new Error(
+    `Vision QA foundation contains duplicate canonical areas: ${[...new Set(duplicateCanonicalAreas)].join(', ')}`,
+  );
+}
+
+const canonicalAreaSet = new Set(canonicalAreaEntries);
 const unknownRequiredAreas = requiredAreaEntries.filter((area) => !canonicalAreaSet.has(area));
 
 if (unknownRequiredAreas.length > 0) {
