@@ -69,6 +69,8 @@ const requiredSnippets = [
   'run.findingAreaInvalid:${index}',
   "finding.severity !== 'info' && finding.severity !== 'warning' && finding.severity !== 'critical'",
   'run.findingSeverityInvalid:${index}',
+  "typeof finding.verifiedByHuman !== 'boolean'",
+  'run.findingVerifiedByHumanInvalid:${index}',
   'run.findingsInvalid',
   'criticalFindingIds',
   "finding.evidenceRef != null && typeof finding.evidenceRef !== 'string'",
