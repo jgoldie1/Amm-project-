@@ -147,6 +147,42 @@ if (unknownRequiredAreas.length > 0) {
   );
 }
 
+const approvedVisionQaSources = [
+  'screenshot',
+  'video-frame',
+  'live-capture',
+  'asset-preview',
+];
+const visionQaSourceSetBlock = source.match(
+  /VISION_QA_SOURCE_SET\s*=\s*new Set<string>\(\[([\s\S]*?)\]\)/,
+)?.[1];
+
+if (!visionQaSourceSetBlock) {
+  throw new Error('Vision QA release gate contract could not parse approved source registry');
+}
+
+const configuredVisionQaSources = [...visionQaSourceSetBlock.matchAll(/'([^']+)'/g)].map(
+  (match) => match[1],
+);
+const duplicateVisionQaSources = configuredVisionQaSources.filter(
+  (sourceName, index) => configuredVisionQaSources.indexOf(sourceName) !== index,
+);
+
+if (duplicateVisionQaSources.length > 0) {
+  throw new Error(
+    `Vision QA release gate contains duplicate approved sources: ${[...new Set(duplicateVisionQaSources)].join(', ')}`,
+  );
+}
+
+if (
+  configuredVisionQaSources.length !== approvedVisionQaSources.length
+  || approvedVisionQaSources.some((sourceName) => !configuredVisionQaSources.includes(sourceName))
+) {
+  throw new Error(
+    `Vision QA release gate approved sources drifted: ${configuredVisionQaSources.join(', ')}`,
+  );
+}
+
 if (!foundationSource.includes('export const VISION_QA_CAN_MUTATE_COMMERCE_TRUTH = false as const')) {
   throw new Error('Vision QA foundation must remain advisory and unable to mutate authoritative commerce truth');
 }
