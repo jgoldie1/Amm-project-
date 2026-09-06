@@ -20,6 +20,27 @@ function renderMetrics(metrics, infrastructure) {
     `<article><strong>${infrastructure.supabase ? 'Connected' : 'Local fallback'}</strong><span>database mode</span></article>`;
 }
 
+const STATUS_ORDER = ['LIVE', 'READY', 'BUILDING', 'LOCKED', 'COMING SOON'];
+
+function renderFounderCommand(payload) {
+  const systems = Array.isArray(payload.systems) ? payload.systems : [];
+  const counts = Object.fromEntries(STATUS_ORDER.map(status => [status, systems.filter(system => system.status === status).length]));
+  $('#command-updated').textContent = payload.updatedAt ? `Status manifest updated ${new Date(payload.updatedAt).toLocaleString()}` : '';
+  $('#command-summary').innerHTML = STATUS_ORDER.map(status => `<article><strong>${counts[status]}</strong><span>${escapeHtml(status)}</span></article>`).join('');
+  $('#command-systems').innerHTML = systems.map(system => `
+    <article class="system-card" data-status="${escapeHtml(system.status)}">
+      <div class="system-card-head"><h3>${escapeHtml(system.name)}</h3><span class="status-pill">${escapeHtml(system.status)}</span></div>
+      <p><strong>Evidence:</strong> ${escapeHtml(system.evidence || 'No evidence attached.')}</p>
+      <p><strong>Next:</strong> ${escapeHtml(system.next || 'Attach the next required gate.')}</p>
+    </article>`).join('') || '<p>No system status records found.</p>';
+}
+
+async function loadFounderCommand() {
+  const response = await fetch(`/founder-command-status.json?ts=${Date.now()}`, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`Founder Command status failed (${response.status})`);
+  renderFounderCommand(await response.json());
+}
+
 async function loadDashboard() {
   if (!token()) throw new Error('Paste your login session token first.');
   localStorage.setItem('tryammFounderToken', token());
@@ -37,6 +58,7 @@ async function loadOutputs(projectId) {
   $('#outputs').innerHTML = (payload.outputs || []).map(o => `<article class="output"><p class="channel">${escapeHtml(o.channel)}</p><h3>${escapeHtml(o.title)}</h3><pre>${escapeHtml(o.body)}</pre></article>`).join('') || '<p>No generated content yet.</p>';
 }
 
+$('#refresh-command').addEventListener('click', () => loadFounderCommand().catch(showError));
 $('#load').addEventListener('click', () => loadDashboard().catch(showError));
 $('#projects').addEventListener('click', event => {
   const projectId = event.target.dataset.project;
@@ -56,4 +78,5 @@ $('#project-form').addEventListener('submit', async event => {
 function showError(error) { statusNode.textContent = error.message; }
 
 tokenInput.value = localStorage.getItem('tryammFounderToken') || '';
+loadFounderCommand().catch(showError);
 if (tokenInput.value) loadDashboard().catch(showError);
