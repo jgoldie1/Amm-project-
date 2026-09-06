@@ -66,9 +66,13 @@ const requiredProtections = [
   'hasValidFounderTelemetryEnvelope(event)',
   'isTelemetryEventObject(event)',
   "Boolean(event) && typeof event === 'object' && !Array.isArray(event)",
-  "typeof event.id === 'string'",
-  'event.id.trim().length > 0',
-  'event.id.trim() === event.id',
+  'MAX_TELEMETRY_TEXT_LENGTH = 256',
+  'isCanonicalTelemetryText',
+  "typeof value === 'string'",
+  'value.length > 0',
+  'value.length <= MAX_TELEMETRY_TEXT_LENGTH',
+  'value.trim() === value',
+  'isCanonicalTelemetryText(event.id)',
   "typeof event.occurredAt === 'string'",
   "typeof value !== 'string'",
   'Date.parse(value)',
@@ -78,7 +82,7 @@ const requiredProtections = [
   'Number.isFinite(value)',
   'textTelemetryFields',
   'hasOnlyCanonicalOptionalTelemetryText(event)',
-  "typeof value === 'string' && value.length > 0 && value.trim() === value",
+  'value === undefined || isCanonicalTelemetryText(value)',
 ];
 
 for (const protection of requiredProtections) {
@@ -176,4 +180,4 @@ for (const mapping of requiredGoldenOrderMappings) {
   }
 }
 
-console.log('Founder commerce telemetry authority, malformed-object, fail-closed lookup, runtime envelope type, canonical identifier, finite numeric, and Golden Order adapter boundary contract passed');
+console.log('Founder commerce telemetry authority, malformed-object, fail-closed lookup, bounded canonical identifier, finite numeric, and Golden Order adapter boundary contract passed');
