@@ -51,9 +51,7 @@ export const evaluateIllinoisVisionQaReleaseGate = (
   }
 
   const missingEvidence: string[] = [];
-  const inspected = Array.isArray(evidence.inspectedAreas)
-    ? new Set(evidence.inspectedAreas)
-    : new Set<VisionQaArea>();
+  const inspected = new Set<VisionQaArea>();
 
   if (!Array.isArray(evidence.inspectedAreas)) {
     missingEvidence.push('inspectedAreasInvalid');
@@ -61,6 +59,10 @@ export const evaluateIllinoisVisionQaReleaseGate = (
     for (const [index, inspectedArea] of evidence.inspectedAreas.entries()) {
       if (typeof inspectedArea !== 'string' || !VISION_QA_AREA_SET.has(inspectedArea)) {
         missingEvidence.push(`inspectedAreaInvalid:${index}`);
+      } else if (inspected.has(inspectedArea as VisionQaArea)) {
+        missingEvidence.push(`inspectedAreaDuplicate:${inspectedArea}`);
+      } else {
+        inspected.add(inspectedArea as VisionQaArea);
       }
     }
   }
