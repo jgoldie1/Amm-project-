@@ -8,8 +8,16 @@
 </head>
 <body>
   <main class="shell">
-    <header><p class="eyebrow">TRYAMM · The Living Digital Universe</p><h1>Founder Content & Build Dashboard</h1><p>Turn every contractor, inventor, and development milestone into truthful, reusable content.</p></header>
-    <section class="auth"><label>Session token<input id="token" type="password" placeholder="Paste the token returned after login"></label><button id="load">Load dashboard</button></section>
+    <header><p class="eyebrow">TRYAMM · The Living Digital Universe</p><h1>Founder Command & Build Dashboard</h1><p>Truth first: architecturally comprehensive does not mean production-complete. Every system is labeled LIVE, READY, BUILDING, LOCKED, or COMING SOON from evidence.</p></header>
+
+    <section class="panel command-panel" aria-labelledby="command-title">
+      <div class="panel-heading"><div><p class="eyebrow">Founder Command</p><h2 id="command-title">System Truth Layer</h2></div><button id="refresh-command" type="button">Refresh status</button></div>
+      <p id="command-updated" class="muted"></p>
+      <div id="command-summary" class="metrics" aria-live="polite"></div>
+      <div id="command-systems" class="system-grid" aria-live="polite"></div>
+    </section>
+
+    <section class="auth"><label>Session token<input id="token" type="password" placeholder="Paste the token returned after login"></label><button id="load">Load private dashboard</button></section>
     <section id="metrics" class="metrics" aria-live="polite"></section>
     <section class="panel">
       <h2>Add a development update</h2>
