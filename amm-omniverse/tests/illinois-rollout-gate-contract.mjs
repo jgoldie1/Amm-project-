@@ -30,6 +30,8 @@ const requiredSignals = [
   'DEFAULT_MAX_EVIDENCE_AGE_MS',
   'maxEvidenceAgeMs',
   'nowMs - timestamp <= maxEvidenceAgeMs',
+  "typeof evidence !== 'object' || evidence === null || Array.isArray(evidence)",
+  "missingEvidence: ['illinoisEvidenceInvalid']",
   "nextScope: missingEvidence.length === 0 ? 'united-states' : undefined",
   "'national-expansion-evidence-not-yet-defined'",
   "'world-is-terminal-rollout-scope'",
@@ -44,6 +46,14 @@ for (const signal of requiredSignals) {
 const requiredBooleanBlock = source.match(/const REQUIRED_BOOLEAN_EVIDENCE[\s\S]*?= \[([\s\S]*?)\];/);
 if (!requiredBooleanBlock || !requiredBooleanBlock[1].includes("'visionQaReleaseGatePassed'")) {
   throw new Error('Illinois rollout gate must require a passing Vision-assisted AAA release gate.');
+}
+
+if (!/typeof evidence\s*!==\s*['\"]object['\"]\s*\|\|\s*evidence\s*===\s*null\s*\|\|\s*Array\.isArray\(evidence\)/.test(source)) {
+  throw new Error('Illinois rollout gate must reject malformed evidence envelopes before field access.');
+}
+
+if (!/missingEvidence:\s*\[['\"]illinoisEvidenceInvalid['\"]\]/.test(source)) {
+  throw new Error('Illinois rollout gate must fail closed with an explicit invalid-envelope signal.');
 }
 
 if (!/typeof value\s*!==\s*['\"]string['\"]/.test(source)) {
