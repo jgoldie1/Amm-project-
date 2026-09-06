@@ -75,6 +75,7 @@ const requiredSnippets = [
   'Date.parse(verifiedAt)',
   'new Date(verifiedAtMs).toISOString() !== verifiedAt',
   'verifiedAt !== evidence.verifiedAt',
+  'verifiedAtBeforeRun',
   'VisionQaFinding',
   'findingIdSet',
   'findingIdSet.has(finding.id)',
