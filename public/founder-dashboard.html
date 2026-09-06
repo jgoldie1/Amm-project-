@@ -8,9 +8,25 @@
 </head>
 <body>
   <main class="shell">
-    <header><p class="eyebrow">TRYAMM · The Living Digital Universe</p><h1>Founder Content & Build Dashboard</h1><p>Turn every contractor, inventor, and development milestone into truthful, reusable content.</p></header>
+    <header><p class="eyebrow">TRYAMM · The Living Digital Universe</p><h1>Founder Content & Build Dashboard</h1><p>Turn every contractor, inventor, development milestone and simulation into truthful, reusable decision support.</p></header>
     <section class="auth"><label>Session token<input id="token" type="password" placeholder="Paste the token returned after login"></label><button id="load">Load dashboard</button></section>
     <section id="metrics" class="metrics" aria-live="polite"></section>
+    <section class="panel" id="omnisim-panel">
+      <p class="eyebrow">SIMULATE → COMPARE → RISK → OPPORTUNITY → APPROVE → DEPLOY → MEASURE</p>
+      <h2>TRYAMM OmniSim</h2>
+      <p id="omnisim-status">Checking simulation engine status…</p>
+      <form id="omnisim-form">
+        <label>What do you want to simulate?<textarea name="question" required maxlength="1200" placeholder="Example: What happens if TRYAMM launches the Business Experience at $1,250 with a $149/month pass?"></textarea></label>
+        <label>Seed facts / assumptions<textarea name="seed" maxlength="4000" placeholder="Use confirmed facts, constraints, customer segments, costs or story material. Do not enter secrets."></textarea></label>
+        <div class="grid">
+          <label>Use case<select name="useCase"><option value="founder">Founder decision</option><option value="business">Business Digital Twin</option><option value="streetverse">StreetVerse</option><option value="movie">Movie / Drama</option><option value="holo-ads">Holo Ads</option><option value="global-market">Global Market</option><option value="mission">Mission Generator</option><option value="benny">Benny</option></select></label>
+          <label>Simulation rounds<input name="rounds" type="number" min="1" max="40" value="12"></label>
+        </div>
+        <label>Actors / audiences<input name="actors" maxlength="1000" placeholder="Comma-separated: customer, competitor, creator, sponsor"></label>
+        <button type="submit">Build simulation plan</button>
+      </form>
+      <div id="omnisim-result" aria-live="polite"></div>
+    </section>
     <section class="panel">
       <h2>Add a development update</h2>
       <form id="project-form">
