@@ -72,6 +72,18 @@ const isTelemetryEventObject = (event: FounderCommerceTelemetryEvent): boolean =
 const hasOnlyFiniteKpis = (kpis: Record<CommerceKpi, number>): boolean =>
   Object.values(kpis).every((value) => typeof value === 'number' && Number.isFinite(value));
 
+const isCanonicalTelemetryText = (value: unknown): value is string =>
+  typeof value === 'string' &&
+  value.length > 0 &&
+  value.length <= MAX_TELEMETRY_TEXT_LENGTH &&
+  value.trim() === value &&
+  !TELEMETRY_CONTROL_CHARACTER_PATTERN.test(value);
+
+const isCanonicalUniqueTelemetryTextList = (values: unknown): values is string[] =>
+  Array.isArray(values) &&
+  values.every(isCanonicalTelemetryText) &&
+  new Set(values).size === values.length;
+
 const hasValidFounderTelemetryStateEnvelope = (
   state: FounderCommerceTelemetryState,
 ): boolean =>
@@ -82,11 +94,11 @@ const hasValidFounderTelemetryStateEnvelope = (
   typeof state.kpis === 'object' &&
   !Array.isArray(state.kpis) &&
   hasOnlyFiniteKpis(state.kpis) &&
-  Array.isArray(state.processedEventIds) &&
-  Array.isArray(state.orderIds) &&
-  Array.isArray(state.supplierIds) &&
-  Array.isArray(state.countries) &&
-  Array.isArray(state.corridors);
+  isCanonicalUniqueTelemetryTextList(state.processedEventIds) &&
+  isCanonicalUniqueTelemetryTextList(state.orderIds) &&
+  isCanonicalUniqueTelemetryTextList(state.supplierIds) &&
+  isCanonicalUniqueTelemetryTextList(state.countries) &&
+  isCanonicalUniqueTelemetryTextList(state.corridors);
 
 export const isAuthorizedFounderTelemetryEvent = (
   event: FounderCommerceTelemetryEvent,
@@ -125,13 +137,6 @@ const textTelemetryFields: readonly (keyof FounderCommerceTelemetryEvent)[] = [
   'country',
   'corridor',
 ];
-
-const isCanonicalTelemetryText = (value: unknown): value is string =>
-  typeof value === 'string' &&
-  value.length > 0 &&
-  value.length <= MAX_TELEMETRY_TEXT_LENGTH &&
-  value.trim() === value &&
-  !TELEMETRY_CONTROL_CHARACTER_PATTERN.test(value);
 
 const hasOnlyCanonicalOptionalTelemetryText = (
   event: FounderCommerceTelemetryEvent,
