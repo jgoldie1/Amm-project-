@@ -52,6 +52,13 @@ export const evaluateIllinoisVisionQaReleaseGate = (
 
   const missingEvidence: string[] = [];
   const inspected = new Set<VisionQaArea>();
+  const run = typeof evidence.run === 'object' && evidence.run !== null && !Array.isArray(evidence.run)
+    ? evidence.run
+    : null;
+
+  if (!run) {
+    missingEvidence.push('runInvalid');
+  }
 
   if (!Array.isArray(evidence.inspectedAreas)) {
     missingEvidence.push('inspectedAreasInvalid');
@@ -74,7 +81,7 @@ export const evaluateIllinoisVisionQaReleaseGate = (
   const expectedBuildSha = typeof evidence.expectedBuildSha === 'string'
     ? evidence.expectedBuildSha.trim()
     : '';
-  const runBuildShaValue = evidence.run?.buildSha;
+  const runBuildShaValue = run?.buildSha;
   const runBuildSha = typeof runBuildShaValue === 'string'
     ? runBuildShaValue.trim()
     : '';
@@ -141,8 +148,8 @@ export const evaluateIllinoisVisionQaReleaseGate = (
   }
 
   const findingIdSet = new Set<string>();
-  const runFindings = Array.isArray(evidence.run?.findings)
-    ? evidence.run.findings.filter((finding, index): finding is VisionQaFinding => {
+  const runFindings = Array.isArray(run?.findings)
+    ? run.findings.filter((finding, index): finding is VisionQaFinding => {
         if (typeof finding !== 'object' || finding === null || Array.isArray(finding)) {
           missingEvidence.push(`run.findingInvalid:${index}`);
           return false;
@@ -178,7 +185,7 @@ export const evaluateIllinoisVisionQaReleaseGate = (
       })
     : [];
 
-  if (!Array.isArray(evidence.run?.findings)) {
+  if (!Array.isArray(run?.findings)) {
     missingEvidence.push('run.findingsInvalid');
   }
 
