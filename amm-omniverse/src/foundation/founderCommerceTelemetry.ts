@@ -64,7 +64,7 @@ const eventAuthorities: Record<FounderCommerceTelemetryEventType, readonly Comme
 };
 
 const MAX_TELEMETRY_TEXT_LENGTH = 256;
-const TELEMETRY_CONTROL_CHARACTER_PATTERN = /[\u0000-\u001F\u007F]/;
+const TELEMETRY_CONTROL_CHARACTER_PATTERN = /[\u0000-\u001F\u007F-\u009F]/;
 
 const isTelemetryEventObject = (event: FounderCommerceTelemetryEvent): boolean =>
   Boolean(event) && typeof event === 'object' && !Array.isArray(event);
