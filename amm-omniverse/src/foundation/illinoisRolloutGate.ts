@@ -30,6 +30,8 @@ export interface RolloutGateDecision {
 }
 
 const DEFAULT_MAX_EVIDENCE_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+const MAX_CANONICAL_ID_LENGTH = 256;
+const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f-\u009f]/;
 
 const REQUIRED_BOOLEAN_EVIDENCE: Array<
   keyof Pick<
@@ -59,7 +61,12 @@ const REQUIRED_BOOLEAN_EVIDENCE: Array<
 const hasCanonicalId = (value: unknown): value is string => {
   if (typeof value !== 'string') return false;
   const trimmed = value.trim();
-  return trimmed.length > 0 && trimmed === value;
+  return (
+    trimmed.length > 0 &&
+    trimmed.length <= MAX_CANONICAL_ID_LENGTH &&
+    trimmed === value &&
+    !CONTROL_CHARACTER_PATTERN.test(value)
+  );
 };
 
 const hasValidEvidenceIds = (evidenceIds: unknown): evidenceIds is string[] => {
