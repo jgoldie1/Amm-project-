@@ -69,6 +69,21 @@ const TELEMETRY_CONTROL_CHARACTER_PATTERN = /[\u0000-\u001F\u007F-\u009F]/;
 const isTelemetryEventObject = (event: FounderCommerceTelemetryEvent): boolean =>
   Boolean(event) && typeof event === 'object' && !Array.isArray(event);
 
+const hasValidFounderTelemetryStateEnvelope = (
+  state: FounderCommerceTelemetryState,
+): boolean =>
+  Boolean(state) &&
+  typeof state === 'object' &&
+  !Array.isArray(state) &&
+  Boolean(state.kpis) &&
+  typeof state.kpis === 'object' &&
+  !Array.isArray(state.kpis) &&
+  Array.isArray(state.processedEventIds) &&
+  Array.isArray(state.orderIds) &&
+  Array.isArray(state.supplierIds) &&
+  Array.isArray(state.countries) &&
+  Array.isArray(state.corridors);
+
 export const isAuthorizedFounderTelemetryEvent = (
   event: FounderCommerceTelemetryEvent,
 ): boolean => {
@@ -172,12 +187,13 @@ const nonNegative = (value: number): number => Math.max(0, value);
  * accepted authorities and therefore cannot mutate money, inventory, customs,
  * logistics, or settlement truth through this reducer.
  * Each accepted event type is additionally bound to its owning authority, and
- * malformed event envelopes are rejected before deduplication or state changes.
+ * malformed event/state envelopes are rejected before deduplication or state changes.
  */
 export const reduceFounderCommerceTelemetry = (
   state: FounderCommerceTelemetryState,
   event: FounderCommerceTelemetryEvent,
 ): FounderCommerceTelemetryState => {
+  if (!hasValidFounderTelemetryStateEnvelope(state)) return state;
   if (!hasValidFounderTelemetryEnvelope(event)) return state;
   if (!isAuthorizedFounderTelemetryEvent(event)) return state;
   if (state.processedEventIds.includes(event.id)) return state;
