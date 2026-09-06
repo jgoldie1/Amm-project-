@@ -20,6 +20,24 @@ function renderMetrics(metrics, infrastructure) {
     `<article><strong>${infrastructure.supabase ? 'Connected' : 'Local fallback'}</strong><span>database mode</span></article>`;
 }
 
+function renderOmniSimStatus(payload) {
+  const node = $('#omnisim-status');
+  const configured = payload.providerConfigured ? 'provider connected' : 'provider not connected';
+  node.textContent = `${payload.status} · ${payload.provider} · ${configured}. Simulation output is decision support, not a guaranteed prediction.`;
+}
+
+function renderOmniSimPlan(plan) {
+  const result = $('#omnisim-result');
+  result.innerHTML = `<article class="output"><p class="channel">${escapeHtml(plan.status)} · ${escapeHtml(plan.useCase)}</p><h3>${escapeHtml(plan.question)}</h3><p><b>Branches:</b> ${plan.scenarioBranches.map(escapeHtml).join(' · ')}</p><p><b>Rounds:</b> ${escapeHtml(plan.rounds)} · <b>Actors:</b> ${escapeHtml(plan.actors.length ? plan.actors.join(', ') : 'provider generated')}</p><p><b>Decision flow:</b> ${plan.decisionFlow.map(escapeHtml).join(' → ')}</p><p><b>Guardrail:</b> Human approval is required before production action. Simulated results must remain separate from measured production data.</p></article>`;
+}
+
+async function loadOmniSimStatus() {
+  const response = await fetch('/api/omnisim/status');
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(payload.error || `OmniSim status failed (${response.status})`);
+  renderOmniSimStatus(payload);
+}
+
 async function loadDashboard() {
   if (!token()) throw new Error('Paste your login session token first.');
   localStorage.setItem('tryammFounderToken', token());
@@ -42,6 +60,24 @@ $('#projects').addEventListener('click', event => {
   const projectId = event.target.dataset.project;
   if (projectId) loadOutputs(projectId).catch(showError);
 });
+$('#omnisim-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  try {
+    if (!token()) throw new Error('Paste your login session token before creating a simulation plan.');
+    const form = new FormData(event.currentTarget);
+    const actors = String(form.get('actors') || '').split(',').map(value => value.trim()).filter(Boolean);
+    const body = {
+      question: form.get('question'),
+      seed: form.get('seed'),
+      useCase: form.get('useCase'),
+      rounds: Number(form.get('rounds') || 12),
+      actors
+    };
+    const payload = await api('/api/omnisim/plan', { method: 'POST', body: JSON.stringify(body) });
+    renderOmniSimPlan(payload.plan);
+    statusNode.textContent = 'OmniSim planning pass created. No production action has been taken.';
+  } catch (error) { showError(error); }
+});
 $('#project-form').addEventListener('submit', async event => {
   event.preventDefault();
   try {
@@ -56,4 +92,5 @@ $('#project-form').addEventListener('submit', async event => {
 function showError(error) { statusNode.textContent = error.message; }
 
 tokenInput.value = localStorage.getItem('tryammFounderToken') || '';
+loadOmniSimStatus().catch(error => { $('#omnisim-status').textContent = error.message; });
 if (tokenInput.value) loadDashboard().catch(showError);
