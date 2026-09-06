@@ -28,6 +28,19 @@ if(main.includes(navAnchor)&&!main.includes("HOME • TRYAMM")){
 
 fs.writeFileSync(mainFile,main)
 
+// Make public realm URLs initialize the matching in-app screen. This makes StreetVerse
+// navigation to /marketplace and /music land on the actual realm instead of the intro screen.
+const appFile=path.resolve('src/App.tsx')
+let app=fs.readFileSync(appFile,'utf8')
+app=app.replace("import { lazy, Suspense, useState } from 'react'","import { lazy, Suspense, useEffect, useState } from 'react'")
+if(!app.includes('TRYAMM public realm deep-link routing')){
+  app=app.replace(
+    "  const screen = useGameStore(s => s.screen)",
+    "  const screen = useGameStore(s => s.screen)\n  const setScreen = useGameStore(s => s.setScreen)\n\n  // TRYAMM public realm deep-link routing\n  useEffect(() => {\n    const route = window.location.pathname.replace(/\\/$/, '') || '/'\n    const realm = ({'/marketplace':'marketplace','/music':'music','/sports':'sports','/faith':'faith','/blockchain':'blockchain','/city':'city'} as const)[route]\n    if (realm) setScreen(realm)\n  }, [setScreen])"
+  )
+}
+fs.writeFileSync(appFile,app)
+
 // Add lightweight procedural nature/animal landmarks to the no-WebGL city so older iPhones still show a living world.
 const mobileFile=path.resolve('src/components/StreetVerseMobilePlayableWorld.tsx')
 let mobile=fs.readFileSync(mobileFile,'utf8')
@@ -39,4 +52,4 @@ if(mobile.includes(dogMarker)&&!mobile.includes('StreetVerse procedural trees'))
 }
 fs.writeFileSync(mobileFile,mobile)
 
-console.log('StreetVerse entry recovery: GREEN')
+console.log('StreetVerse entry + realm deep-link recovery: GREEN')
