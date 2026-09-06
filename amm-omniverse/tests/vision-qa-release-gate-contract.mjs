@@ -83,6 +83,25 @@ for (const snippet of requiredSnippets) {
   }
 }
 
+const requiredAreasBlock = source.match(
+  /ILLINOIS_VISION_QA_REQUIRED_AREAS[^=]*=\s*\[([\s\S]*?)\]\s*as const/,
+)?.[1];
+
+if (!requiredAreasBlock) {
+  throw new Error('Vision QA release gate contract could not parse Illinois required areas');
+}
+
+const requiredAreaEntries = [...requiredAreasBlock.matchAll(/'([^']+)'/g)].map((match) => match[1]);
+const duplicateRequiredAreas = requiredAreaEntries.filter(
+  (area, index) => requiredAreaEntries.indexOf(area) !== index,
+);
+
+if (duplicateRequiredAreas.length > 0) {
+  throw new Error(
+    `Vision QA release gate contains duplicate Illinois required areas: ${[...new Set(duplicateRequiredAreas)].join(', ')}`,
+  );
+}
+
 if (!source.includes('cannot mutate') || !source.includes('authoritative commerce')) {
   throw new Error('Vision QA release gate must preserve commerce authority separation');
 }
