@@ -169,6 +169,11 @@ export const evaluateIllinoisVisionQaReleaseGate = (
           return false;
         }
 
+        if (typeof finding.verifiedByHuman !== 'boolean') {
+          missingEvidence.push(`run.findingVerifiedByHumanInvalid:${index}`);
+          return false;
+        }
+
         return true;
       })
     : [];
