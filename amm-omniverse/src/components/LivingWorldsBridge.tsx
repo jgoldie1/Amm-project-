@@ -8,6 +8,7 @@ import CommandNexusControlPlane from './CommandNexusControlPlane'
 import XRCommandGateway from './XRCommandGateway'
 import HoloLabGateway from './HoloLabGateway'
 import BookClubCenter from './BookClubCenter'
+import MovieStudioCenter from './MovieStudioCenter'
 import RouteCoordinator from '../navigation/RouteCoordinator'
 import {
   enterWorld,
@@ -35,6 +36,7 @@ export default function LivingWorldsBridge() {
   const [showXR,setShowXR]=useState(false)
   const [showHoloLab,setShowHoloLab]=useState(false)
   const [showBookClub,setShowBookClub]=useState(false)
+  const [showMovieStudio,setShowMovieStudio]=useState(false)
   const signedIn = screen !== 'intro' && screen !== 'login'
 
   useEffect(()=>{
@@ -43,27 +45,32 @@ export default function LivingWorldsBridge() {
     const openXR=()=>setShowXR(true)
     const openLab=()=>setShowHoloLab(true)
     const openBookClub=()=>setShowBookClub(true)
+    const openMovieStudio=()=>setShowMovieStudio(true)
     ;(window as any).__showCommandNexusV2=openNexus
     ;(window as any).__showHoloMusic=openMusic
     ;(window as any).__showXR=openXR
     ;(window as any).__showHoloLab=openLab
     ;(window as any).__showBookClub=openBookClub
+    ;(window as any).__showMovieStudio=openMovieStudio
     window.addEventListener('tryamm:open-command-nexus-v2',openNexus)
     window.addEventListener('tryamm:open-holo-music',openMusic)
     window.addEventListener('tryamm:open-xr',openXR)
     window.addEventListener('tryamm:open-holo-lab',openLab)
     window.addEventListener('tryamm:open-book-club',openBookClub)
+    window.addEventListener('tryamm:open-movie-studio',openMovieStudio)
     return()=>{
       window.removeEventListener('tryamm:open-command-nexus-v2',openNexus)
       window.removeEventListener('tryamm:open-holo-music',openMusic)
       window.removeEventListener('tryamm:open-xr',openXR)
       window.removeEventListener('tryamm:open-holo-lab',openLab)
       window.removeEventListener('tryamm:open-book-club',openBookClub)
+      window.removeEventListener('tryamm:open-movie-studio',openMovieStudio)
       if((window as any).__showCommandNexusV2===openNexus)delete (window as any).__showCommandNexusV2
       if((window as any).__showHoloMusic===openMusic)delete (window as any).__showHoloMusic
       if((window as any).__showXR===openXR)delete (window as any).__showXR
       if((window as any).__showHoloLab===openLab)delete (window as any).__showHoloLab
       if((window as any).__showBookClub===openBookClub)delete (window as any).__showBookClub
+      if((window as any).__showMovieStudio===openMovieStudio)delete (window as any).__showMovieStudio
     }
   },[])
 
@@ -153,5 +160,6 @@ export default function LivingWorldsBridge() {
     {showXR&&<XRCommandGateway onClose={()=>setShowXR(false)}/>} 
     {showHoloLab&&<HoloLabGateway onClose={()=>setShowHoloLab(false)}/>} 
     {showBookClub&&<BookClubCenter onClose={()=>setShowBookClub(false)}/>} 
+    {showMovieStudio&&<MovieStudioCenter onClose={()=>setShowMovieStudio(false)}/>} 
   </>
 }
