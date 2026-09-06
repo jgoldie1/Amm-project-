@@ -128,6 +128,10 @@ if (unknownRequiredAreas.length > 0) {
   );
 }
 
+if (!foundationSource.includes('export const VISION_QA_CAN_MUTATE_COMMERCE_TRUTH = false as const')) {
+  throw new Error('Vision QA foundation must remain advisory and unable to mutate authoritative commerce truth');
+}
+
 if (!source.includes('cannot mutate') || !source.includes('authoritative commerce')) {
   throw new Error('Vision QA release gate must preserve commerce authority separation');
 }
