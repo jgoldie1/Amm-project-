@@ -63,6 +63,8 @@ const eventAuthorities: Record<FounderCommerceTelemetryEventType, readonly Comme
   'refund.completed': ['payment-provider', 'settlement-service'],
 };
 
+const MAX_TELEMETRY_TEXT_LENGTH = 256;
+
 const isTelemetryEventObject = (event: FounderCommerceTelemetryEvent): boolean =>
   Boolean(event) && typeof event === 'object' && !Array.isArray(event);
 
@@ -104,24 +106,25 @@ const textTelemetryFields: readonly (keyof FounderCommerceTelemetryEvent)[] = [
   'corridor',
 ];
 
+const isCanonicalTelemetryText = (value: unknown): value is string =>
+  typeof value === 'string' &&
+  value.length > 0 &&
+  value.length <= MAX_TELEMETRY_TEXT_LENGTH &&
+  value.trim() === value;
+
 const hasOnlyCanonicalOptionalTelemetryText = (
   event: FounderCommerceTelemetryEvent,
 ): boolean =>
   textTelemetryFields.every((field) => {
     const value = event[field];
-    return (
-      value === undefined ||
-      (typeof value === 'string' && value.length > 0 && value.trim() === value)
-    );
+    return value === undefined || isCanonicalTelemetryText(value);
   });
 
 export const hasValidFounderTelemetryEnvelope = (
   event: FounderCommerceTelemetryEvent,
 ): boolean =>
   isTelemetryEventObject(event) &&
-  typeof event.id === 'string' &&
-  event.id.trim().length > 0 &&
-  event.id.trim() === event.id &&
+  isCanonicalTelemetryText(event.id) &&
   typeof event.occurredAt === 'string' &&
   isIsoTimestamp(event.occurredAt) &&
   hasOnlyFiniteNumericTelemetry(event) &&
