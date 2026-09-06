@@ -69,6 +69,9 @@ const TELEMETRY_CONTROL_CHARACTER_PATTERN = /[\u0000-\u001F\u007F-\u009F]/;
 const isTelemetryEventObject = (event: FounderCommerceTelemetryEvent): boolean =>
   Boolean(event) && typeof event === 'object' && !Array.isArray(event);
 
+const hasOnlyFiniteKpis = (kpis: Record<CommerceKpi, number>): boolean =>
+  Object.values(kpis).every((value) => typeof value === 'number' && Number.isFinite(value));
+
 const hasValidFounderTelemetryStateEnvelope = (
   state: FounderCommerceTelemetryState,
 ): boolean =>
@@ -78,6 +81,7 @@ const hasValidFounderTelemetryStateEnvelope = (
   Boolean(state.kpis) &&
   typeof state.kpis === 'object' &&
   !Array.isArray(state.kpis) &&
+  hasOnlyFiniteKpis(state.kpis) &&
   Array.isArray(state.processedEventIds) &&
   Array.isArray(state.orderIds) &&
   Array.isArray(state.supplierIds) &&
