@@ -3,23 +3,43 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>TRYAMM Founder Dashboard</title>
+  <title>TRYAMM Founder Command</title>
   <link rel="stylesheet" href="/founder-dashboard.css">
 </head>
 <body>
   <main class="shell">
-    <header><p class="eyebrow">TRYAMM · The Living Digital Universe</p><h1>Founder Content & Build Dashboard</h1><p>Turn every contractor, inventor, and development milestone into truthful, reusable content.</p></header>
+    <header>
+      <p class="eyebrow">TRYAMM · Founder Command</p>
+      <h1>Production Truth Dashboard</h1>
+      <p>Architecturally comprehensive does not mean production-complete. Every module is labeled by evidence: LIVE, READY, BUILDING, LOCKED, or COMING SOON.</p>
+    </header>
+    <section class="truth-legend" aria-label="TRYAMM status definitions">
+      <article><b class="status-chip live">LIVE</b><span>Production deployed and required smoke checks passed.</span></article>
+      <article><b class="status-chip ready">READY</b><span>Built and internally validated; not yet released.</span></article>
+      <article><b class="status-chip building">BUILDING</b><span>Implementation or required validation remains incomplete.</span></article>
+      <article><b class="status-chip locked">LOCKED</b><span>Intentionally unavailable because a dependency, safety, legal, security, or operations gate is not cleared.</span></article>
+      <article><b class="status-chip coming-soon">COMING SOON</b><span>Planned architecture without enough implementation evidence to call READY.</span></article>
+    </section>
     <section class="auth"><label>Session token<input id="token" type="password" placeholder="Paste the token returned after login"></label><button id="load">Load dashboard</button></section>
     <section id="metrics" class="metrics" aria-live="polite"></section>
     <section class="panel">
+      <div class="panel-heading"><div><p class="eyebrow">Truth layer</p><h2>System status</h2></div><p id="truth-summary">Load the dashboard to derive module status from recorded project evidence.</p></div>
+      <div id="system-health" class="system-health"><p>No evidence loaded yet.</p></div>
+    </section>
+    <section class="panel">
       <h2>Add a development update</h2>
+      <p class="helper">Only select LIVE when the production route and required functional checks have been verified. Use READY when it passes internally but is not released.</p>
       <form id="project-form">
         <label>Feature title<input name="title" required maxlength="140"></label>
         <label>Plain-language summary<textarea name="summary" required maxlength="1000"></textarea></label>
         <label>Problem solved<textarea name="problemSolved" maxlength="1000"></textarea></label>
-        <div class="grid"><label>Status<select name="status"><option>concept</option><option>prototype</option><option>alpha</option><option>beta</option><option>live</option></select></label><label>Contributor<input name="contributorName"></label><label>Contributor role<input name="contributorRole"></label></div>
-        <label>Known limitation<textarea name="limitation"></textarea></label>
-        <label>Next milestone<textarea name="nextMilestone"></textarea></label>
+        <div class="grid">
+          <label>Status<select name="status"><option value="COMING SOON">COMING SOON</option><option value="BUILDING" selected>BUILDING</option><option value="READY">READY</option><option value="LOCKED">LOCKED</option><option value="LIVE">LIVE</option></select></label>
+          <label>Contributor<input name="contributorName"></label>
+          <label>Contributor role<input name="contributorRole"></label>
+        </div>
+        <label>Evidence / known limitation<textarea name="limitation" placeholder="Production URL, test result, blocker, dependency, or known limitation"></textarea></label>
+        <label>Next milestone<textarea name="nextMilestone" placeholder="The next evidence required to advance status"></textarea></label>
         <button type="submit">Create project and content package</button>
       </form>
     </section>
