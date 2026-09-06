@@ -56,6 +56,18 @@ for (const [eventName, owners] of requiredEventOwners) {
 }
 
 const requiredProtections = [
+  'hasValidFounderTelemetryStateEnvelope(state)',
+  "Boolean(state) &&",
+  "typeof state === 'object'",
+  '!Array.isArray(state)',
+  'Boolean(state.kpis)',
+  "typeof state.kpis === 'object'",
+  '!Array.isArray(state.kpis)',
+  'Array.isArray(state.processedEventIds)',
+  'Array.isArray(state.orderIds)',
+  'Array.isArray(state.supplierIds)',
+  'Array.isArray(state.countries)',
+  'Array.isArray(state.corridors)',
   'processedEventIds.includes(event.id)',
   'Math.max(0, value)',
   'StreetVerse, Vision QA, and other presentation clients are intentionally not',
@@ -113,17 +125,20 @@ for (const textField of ['orderId', 'supplierId', 'country', 'corridor']) {
   }
 }
 
+const stateEnvelopeCheckPosition = source.indexOf('if (!hasValidFounderTelemetryStateEnvelope(state)) return state;');
 const envelopeCheckPosition = source.indexOf('if (!hasValidFounderTelemetryEnvelope(event)) return state;');
 const authorityCheckPosition = source.indexOf('if (!isAuthorizedFounderTelemetryEvent(event)) return state;');
 const processedIdPosition = source.indexOf('if (state.processedEventIds.includes(event.id)) return state;');
 if (
+  stateEnvelopeCheckPosition < 0 ||
   envelopeCheckPosition < 0 ||
   authorityCheckPosition < 0 ||
   processedIdPosition < 0 ||
+  stateEnvelopeCheckPosition > envelopeCheckPosition ||
   envelopeCheckPosition > authorityCheckPosition ||
   authorityCheckPosition > processedIdPosition
 ) {
-  throw new Error('Envelope and authority validation must happen before an event is recorded as processed');
+  throw new Error('State, event envelope, and authority validation must happen before an event is recorded as processed');
 }
 
 const requiredKpis = [
@@ -183,4 +198,4 @@ for (const mapping of requiredGoldenOrderMappings) {
   }
 }
 
-console.log('Founder commerce telemetry authority, malformed-object, fail-closed lookup, bounded canonical identifier, C0/C1 control-character, finite numeric, and Golden Order adapter boundary contract passed');
+console.log('Founder commerce telemetry authority, malformed-state/object, fail-closed lookup, bounded canonical identifier, C0/C1 control-character, finite numeric, and Golden Order adapter boundary contract passed');
