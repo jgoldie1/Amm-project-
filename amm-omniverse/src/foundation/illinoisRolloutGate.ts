@@ -58,6 +58,19 @@ const REQUIRED_BOOLEAN_EVIDENCE: Array<
   'accessibilityGatePassed',
 ];
 
+const ROLLOUT_EVIDENCE_FIELDS: Array<keyof IllinoisRolloutEvidence> = [
+  'goldenOrderId',
+  ...REQUIRED_BOOLEAN_EVIDENCE,
+  'evidenceIds',
+  'verifiedAt',
+];
+
+const hasDataOnlyEvidenceFields = (evidence: object): boolean =>
+  ROLLOUT_EVIDENCE_FIELDS.every((key) => {
+    const descriptor = Object.getOwnPropertyDescriptor(evidence, key);
+    return descriptor === undefined || ('value' in descriptor && descriptor.get === undefined && descriptor.set === undefined);
+  });
+
 const hasCanonicalId = (value: unknown): value is string => {
   if (typeof value !== 'string') return false;
   const trimmed = value.trim();
@@ -120,6 +133,17 @@ export const evaluateIllinoisToUnitedStatesGate = (
   // rollout proof contract or execute while the server-authoritative gate reads it.
   const evidencePrototype = Object.getPrototypeOf(evidence);
   if (evidencePrototype !== Object.prototype && evidencePrototype !== null) {
+    return {
+      currentScope: 'illinois',
+      allowed: false,
+      missingEvidence: ['illinoisEvidenceInvalid'],
+    };
+  }
+
+  // Serialized rollout proof must contain data properties only. Even a plain
+  // object can define accessor getters/setters; reject those descriptors before
+  // reading any evidence field so gate evaluation cannot execute untrusted code.
+  if (!hasDataOnlyEvidenceFields(evidence)) {
     return {
       currentScope: 'illinois',
       allowed: false,
