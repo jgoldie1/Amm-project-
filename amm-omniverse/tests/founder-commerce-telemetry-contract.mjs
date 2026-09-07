@@ -191,6 +191,11 @@ for (const authoritativeField of ['id', 'occurredAt', 'authority', 'type']) {
   if (pickPattern.test(goldenOrderAdapterMatch)) {
     throw new Error(`Golden Order adapter must not mint authoritative telemetry field: ${authoritativeField}`);
   }
+
+  const returnedFieldPattern = new RegExp(`(?:^|\\n)\\s*${authoritativeField}\\s*:`);
+  if (returnedFieldPattern.test(goldenOrderAdapterMatch)) {
+    throw new Error(`Golden Order adapter return body must not mint authoritative telemetry field: ${authoritativeField}`);
+  }
 }
 
 const requiredGoldenOrderMappings = [
@@ -209,4 +214,4 @@ for (const mapping of requiredGoldenOrderMappings) {
   }
 }
 
-console.log('Founder commerce telemetry authority, malformed-state/object, exact finite-KPI-state, canonical unique state-list, fail-closed lookup, bounded canonical identifier, C0/C1 control-character, finite numeric, and Golden Order adapter boundary contract passed');
+console.log('Founder commerce telemetry authority, malformed-state/object, exact finite-KPI-state, canonical unique state-list, fail-closed lookup, bounded canonical identifier, C0/C1 control-character, finite numeric, and Golden Order adapter authority boundary contract passed');
