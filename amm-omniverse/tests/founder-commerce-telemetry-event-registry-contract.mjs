@@ -23,6 +23,28 @@ if (duplicateAuthorities.length > 0) {
   );
 }
 
+const expectedServerAuthorities = [
+  'commerce-api',
+  'payment-provider',
+  'inventory-service',
+  'logistics-service',
+  'customs-service',
+  'settlement-service',
+];
+
+const unexpectedAuthorities = declaredAuthorities.filter(
+  (authority) => !expectedServerAuthorities.includes(authority),
+);
+const missingServerAuthorities = expectedServerAuthorities.filter(
+  (authority) => !declaredAuthorities.includes(authority),
+);
+
+if (unexpectedAuthorities.length > 0 || missingServerAuthorities.length > 0) {
+  throw new Error(
+    `Founder commerce telemetry authority boundary drifted; unexpected: ${unexpectedAuthorities.join(', ') || 'none'}; missing: ${missingServerAuthorities.join(', ') || 'none'}`,
+  );
+}
+
 const eventTypeBlock = source.match(
   /export type FounderCommerceTelemetryEventType\s*=([\s\S]*?);/,
 )?.[1];
