@@ -169,16 +169,32 @@ if (!/Array\.isArray\(evidenceIds\)/.test(source)) {
   throw new Error('Illinois rollout gate must reject non-array evidence ID collections.');
 }
 
-if (!/evidenceIds\.some\(\(id\) => !hasCanonicalId\(id\)\)/.test(source)) {
-  throw new Error('Illinois rollout gate must apply canonical identifier validation to every evidence ID.');
+if (!/Object\.getPrototypeOf\(evidenceIds\)\s*!==\s*Array\.prototype/.test(source)) {
+  throw new Error('Illinois rollout gate must reject custom-prototype evidence ID arrays.');
+}
+
+if (!/Object\.getOwnPropertyDescriptor\(evidenceIds, ['\"]length['\"]\)/.test(source)) {
+  throw new Error('Illinois rollout gate must inspect the evidence ID array length descriptor.');
+}
+
+if (!/Object\.getOwnPropertyDescriptor\(evidenceIds, String\(index\)\)/.test(source)) {
+  throw new Error('Illinois rollout gate must inspect each evidence ID element descriptor before reading it.');
+}
+
+if (!/hasCanonicalId\(descriptor\.value\)/.test(source)) {
+  throw new Error('Illinois rollout gate must apply canonical identifier validation to every evidence ID data value.');
+}
+
+if (!/Reflect\.ownKeys\(evidenceIds\)/.test(source)) {
+  throw new Error('Illinois rollout gate must reject hidden or unexpected evidence ID array properties.');
 }
 
 if (!/hasCanonicalId\(evidence\.goldenOrderId\)/.test(source)) {
   throw new Error('Illinois rollout gate must require a canonical Golden Order identifier.');
 }
 
-if (!/new Set\(evidenceIds\)\.size === evidenceIds\.length/.test(source)) {
-  throw new Error('Illinois rollout gate must reject duplicate evidence identifiers.');
+if (!/new Set\(reviewedIds\)\.size === reviewedIds\.length/.test(source)) {
+  throw new Error('Illinois rollout gate must reject duplicate reviewed evidence identifiers.');
 }
 
 if (!/Number\.isFinite\(timestamp\)/.test(source)) {
