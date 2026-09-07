@@ -132,6 +132,20 @@ const expectedAuthorityOwners = {
   'refund.completed': ['payment-provider', 'settlement-service'],
 };
 
+const expectedEventTypes = Object.keys(expectedAuthorityOwners);
+const missingExpectedAuthorityContracts = declaredEventTypes.filter(
+  (eventType) => !expectedEventTypes.includes(eventType),
+);
+const staleExpectedAuthorityContracts = expectedEventTypes.filter(
+  (eventType) => !declaredSet.has(eventType),
+);
+
+if (missingExpectedAuthorityContracts.length > 0 || staleExpectedAuthorityContracts.length > 0) {
+  throw new Error(
+    `Founder commerce telemetry expected authority contracts must match declared event types exactly; missing: ${missingExpectedAuthorityContracts.join(', ') || 'none'}; stale: ${staleExpectedAuthorityContracts.join(', ') || 'none'}`,
+  );
+}
+
 const declaredAuthoritySet = new Set(declaredAuthorities);
 for (const [, eventType, authorityList] of registryEntryMatches) {
   const owners = [...authorityList.matchAll(/'([^']+)'/g)].map((match) => match[1]);
@@ -168,4 +182,4 @@ for (const [, eventType, authorityList] of registryEntryMatches) {
   }
 }
 
-console.log('Founder commerce telemetry event-type naming, authority naming, exact authority ownership, and registry parity contract passed');
+console.log('Founder commerce telemetry event-type naming, authority naming, exact authority ownership, expected-contract parity, and registry parity contract passed');
