@@ -80,6 +80,12 @@ if (
   );
 }
 
+if (!/REQUIRED_BOOLEAN_EVIDENCE\.filter\(\s*\(key\)\s*=>\s*evidence\[key\]\s*!==\s*true,?\s*\)/.test(source)) {
+  throw new Error(
+    'Illinois rollout gate must require literal true for every boolean proof instead of accepting truthy values.',
+  );
+}
+
 const rolloutEvidenceFieldsBlock = source.match(
   /const ROLLOUT_EVIDENCE_FIELDS[\s\S]*?= \[([\s\S]*?)\];/,
 );
