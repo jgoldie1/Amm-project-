@@ -255,4 +255,38 @@ for (const mapping of requiredGoldenOrderMappings) {
   }
 }
 
-console.log('Founder commerce telemetry authority, malformed-state/object, exact finite-KPI-state, canonical unique state-list, fail-closed lookup, bounded canonical identifier, C0/C1 control-character, finite numeric, and exact Golden Order adapter projection/authority boundary contract passed');
+const goldenOrderReturnBody = goldenOrderAdapterMatch.match(/=>\s*\(\{([\s\S]*?)\}\);/)?.[1];
+
+if (!goldenOrderReturnBody) {
+  throw new Error('Golden Order telemetry adapter must return an explicit object projection');
+}
+
+if (goldenOrderReturnBody.includes('...') || goldenOrderReturnBody.includes('[')) {
+  throw new Error('Golden Order telemetry adapter return body must not use spreads or computed keys');
+}
+
+const returnedGoldenOrderFields = [
+  ...goldenOrderReturnBody.matchAll(/^\s*([A-Za-z_$][\w$]*)\s*:/gm),
+].map((match) => match[1]);
+const duplicateReturnedGoldenOrderFields = returnedGoldenOrderFields.filter(
+  (field, index) => returnedGoldenOrderFields.indexOf(field) !== index,
+);
+const missingReturnedGoldenOrderFields = expectedGoldenOrderProjectionFields.filter(
+  (field) => !returnedGoldenOrderFields.includes(field),
+);
+const unexpectedReturnedGoldenOrderFields = returnedGoldenOrderFields.filter(
+  (field) => !expectedGoldenOrderProjectionFields.includes(field),
+);
+
+if (
+  duplicateReturnedGoldenOrderFields.length > 0 ||
+  missingReturnedGoldenOrderFields.length > 0 ||
+  unexpectedReturnedGoldenOrderFields.length > 0 ||
+  returnedGoldenOrderFields.length !== expectedGoldenOrderProjectionFields.length
+) {
+  throw new Error(
+    `Golden Order telemetry return body drifted; duplicate: ${[...new Set(duplicateReturnedGoldenOrderFields)].join(', ') || 'none'}; missing: ${missingReturnedGoldenOrderFields.join(', ') || 'none'}; unexpected: ${unexpectedReturnedGoldenOrderFields.join(', ') || 'none'}`,
+  );
+}
+
+console.log('Founder commerce telemetry authority, malformed-state/object, exact finite-KPI-state, canonical unique state-list, fail-closed lookup, bounded canonical identifier, C0/C1 control-character, finite numeric, and exact Golden Order adapter projection/return-body/authority boundary contract passed');
