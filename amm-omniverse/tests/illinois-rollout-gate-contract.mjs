@@ -131,6 +131,20 @@ if (!/if\s*\(!hasDataOnlyEvidenceFields\(evidence\)\)/.test(source)) {
   throw new Error('Illinois rollout gate must reject accessor-backed evidence before proof field access.');
 }
 
+const evaluateGateBlock = source.match(
+  /export const evaluateIllinoisToUnitedStatesGate[\s\S]*?(?=\/\*\*)/,
+)?.[0];
+if (
+  !evaluateGateBlock ||
+  !/if\s*\(!hasDataOnlyEvidenceFields\(evidence\)\)[\s\S]*?REQUIRED_BOOLEAN_EVIDENCE\.filter\([\s\S]*?evidence\[key\]/.test(
+    evaluateGateBlock,
+  )
+) {
+  throw new Error(
+    'Illinois rollout gate must validate data-only descriptors before reading boolean proof fields.',
+  );
+}
+
 if (!/missingEvidence:\s*\[['\"]illinoisEvidenceInvalid['\"]\]/.test(source)) {
   throw new Error('Illinois rollout gate must fail closed with an explicit invalid-envelope signal.');
 }
