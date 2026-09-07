@@ -80,6 +80,27 @@ if (
   );
 }
 
+const rolloutEvidenceFieldsBlock = source.match(
+  /const ROLLOUT_EVIDENCE_FIELDS[\s\S]*?= \[([\s\S]*?)\];/,
+);
+if (!rolloutEvidenceFieldsBlock) {
+  throw new Error('Illinois rollout gate must declare its serialized evidence field allowlist.');
+}
+
+const declaredLiteralEvidenceFields = rolloutEvidenceFieldsBlock[1]
+  .match(/'([^']+)'/g)
+  ?.map((value) => value.slice(1, -1)) ?? [];
+const expectedLiteralEvidenceFields = ['goldenOrderId', 'evidenceIds', 'verifiedAt'];
+if (
+  declaredLiteralEvidenceFields.length !== expectedLiteralEvidenceFields.length ||
+  expectedLiteralEvidenceFields.some((key, index) => declaredLiteralEvidenceFields[index] !== key) ||
+  !rolloutEvidenceFieldsBlock[1].includes('...REQUIRED_BOOLEAN_EVIDENCE')
+) {
+  throw new Error(
+    'Illinois rollout gate serialized evidence field allowlist drifted from the reviewed Illinois proof envelope.',
+  );
+}
+
 if (!/typeof evidence\s*!==\s*['\"]object['\"]\s*\|\|\s*evidence\s*===\s*null\s*\|\|\s*Array\.isArray\(evidence\)/.test(source)) {
   throw new Error('Illinois rollout gate must reject malformed evidence envelopes before field access.');
 }
