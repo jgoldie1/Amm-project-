@@ -31,6 +31,7 @@ export interface RolloutGateDecision {
 
 const DEFAULT_MAX_EVIDENCE_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_CANONICAL_ID_LENGTH = 256;
+const MAX_EVIDENCE_IDS = 128;
 const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f-\u009f]/;
 
 const REQUIRED_BOOLEAN_EVIDENCE: Array<
@@ -91,7 +92,14 @@ const hasValidEvidenceIds = (evidenceIds: unknown): evidenceIds is string[] => {
   if (!Array.isArray(evidenceIds) || Object.getPrototypeOf(evidenceIds) !== Array.prototype) return false;
 
   const lengthDescriptor = Object.getOwnPropertyDescriptor(evidenceIds, 'length');
-  if (!lengthDescriptor || !('value' in lengthDescriptor) || lengthDescriptor.value === 0) return false;
+  if (
+    !lengthDescriptor ||
+    !('value' in lengthDescriptor) ||
+    lengthDescriptor.value === 0 ||
+    lengthDescriptor.value > MAX_EVIDENCE_IDS
+  ) {
+    return false;
+  }
 
   const reviewedIds: string[] = [];
   for (let index = 0; index < lengthDescriptor.value; index += 1) {
