@@ -65,6 +65,11 @@ const ROLLOUT_EVIDENCE_FIELDS: Array<keyof IllinoisRolloutEvidence> = [
   'verifiedAt',
 ];
 
+const hasOnlyReviewedEvidenceFields = (evidence: object): boolean =>
+  Reflect.ownKeys(evidence).every(
+    (key) => typeof key === 'string' && ROLLOUT_EVIDENCE_FIELDS.includes(key as keyof IllinoisRolloutEvidence),
+  );
+
 const hasDataOnlyEvidenceFields = (evidence: object): boolean =>
   ROLLOUT_EVIDENCE_FIELDS.every((key) => {
     const descriptor = Object.getOwnPropertyDescriptor(evidence, key);
@@ -133,6 +138,17 @@ export const evaluateIllinoisToUnitedStatesGate = (
   // rollout proof contract or execute while the server-authoritative gate reads it.
   const evidencePrototype = Object.getPrototypeOf(evidence);
   if (evidencePrototype !== Object.prototype && evidencePrototype !== null) {
+    return {
+      currentScope: 'illinois',
+      allowed: false,
+      missingEvidence: ['illinoisEvidenceInvalid'],
+    };
+  }
+
+  // Keep the proof envelope closed to the reviewed schema. Reflect.ownKeys also
+  // catches symbol and non-enumerable fields so hidden metadata cannot hitchhike
+  // through the Illinois expansion decision as if it were part of verified proof.
+  if (!hasOnlyReviewedEvidenceFields(evidence)) {
     return {
       currentScope: 'illinois',
       allowed: false,
