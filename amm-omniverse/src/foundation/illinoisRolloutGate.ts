@@ -115,6 +115,18 @@ export const evaluateIllinoisToUnitedStatesGate = (
     };
   }
 
+  // Evidence is a serialized release artifact. Reject class instances and
+  // custom-prototype objects so inherited getters/properties cannot satisfy the
+  // rollout proof contract or execute while the server-authoritative gate reads it.
+  const evidencePrototype = Object.getPrototypeOf(evidence);
+  if (evidencePrototype !== Object.prototype && evidencePrototype !== null) {
+    return {
+      currentScope: 'illinois',
+      allowed: false,
+      missingEvidence: ['illinoisEvidenceInvalid'],
+    };
+  }
+
   // The boolean evidence keys are only one subset of the strings that can be
   // reported as missing. Widen explicitly so structural evidence such as
   // goldenOrderId, evidenceIds, and verifiedAt can be added without unsafe casts.
