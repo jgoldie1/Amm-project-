@@ -198,6 +198,47 @@ for (const authoritativeField of ['id', 'occurredAt', 'authority', 'type']) {
   }
 }
 
+const goldenOrderPickFieldsBlock = goldenOrderAdapterMatch.match(
+  /Pick<FounderCommerceTelemetryEvent,\s*([^>]+)>/,
+)?.[1];
+
+if (!goldenOrderPickFieldsBlock) {
+  throw new Error('Golden Order telemetry adapter must declare an explicit Pick projection');
+}
+
+const goldenOrderPickFields = [...goldenOrderPickFieldsBlock.matchAll(/'([^']+)'/g)].map(
+  (match) => match[1],
+);
+const expectedGoldenOrderProjectionFields = [
+  'orderId',
+  'corridor',
+  'amount',
+  'platformRevenue',
+  'inventoryValue',
+  'sellerPayable',
+  'grossMargin',
+];
+const duplicateGoldenOrderProjectionFields = goldenOrderPickFields.filter(
+  (field, index) => goldenOrderPickFields.indexOf(field) !== index,
+);
+const missingGoldenOrderProjectionFields = expectedGoldenOrderProjectionFields.filter(
+  (field) => !goldenOrderPickFields.includes(field),
+);
+const unexpectedGoldenOrderProjectionFields = goldenOrderPickFields.filter(
+  (field) => !expectedGoldenOrderProjectionFields.includes(field),
+);
+
+if (
+  duplicateGoldenOrderProjectionFields.length > 0 ||
+  missingGoldenOrderProjectionFields.length > 0 ||
+  unexpectedGoldenOrderProjectionFields.length > 0 ||
+  goldenOrderPickFields.length !== expectedGoldenOrderProjectionFields.length
+) {
+  throw new Error(
+    `Golden Order telemetry projection drifted; duplicate: ${[...new Set(duplicateGoldenOrderProjectionFields)].join(', ') || 'none'}; missing: ${missingGoldenOrderProjectionFields.join(', ') || 'none'}; unexpected: ${unexpectedGoldenOrderProjectionFields.join(', ') || 'none'}`,
+  );
+}
+
 const requiredGoldenOrderMappings = [
   'orderId: order.id',
   'corridor: order.corridor',
@@ -214,4 +255,4 @@ for (const mapping of requiredGoldenOrderMappings) {
   }
 }
 
-console.log('Founder commerce telemetry authority, malformed-state/object, exact finite-KPI-state, canonical unique state-list, fail-closed lookup, bounded canonical identifier, C0/C1 control-character, finite numeric, and Golden Order adapter authority boundary contract passed');
+console.log('Founder commerce telemetry authority, malformed-state/object, exact finite-KPI-state, canonical unique state-list, fail-closed lookup, bounded canonical identifier, C0/C1 control-character, finite numeric, and exact Golden Order adapter projection/authority boundary contract passed');
