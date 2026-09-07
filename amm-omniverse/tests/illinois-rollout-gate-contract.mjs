@@ -50,6 +50,32 @@ if (!requiredBooleanBlock || !requiredBooleanBlock[1].includes("'visionQaRelease
   throw new Error('Illinois rollout gate must require a passing Vision-assisted AAA release gate.');
 }
 
+const expectedBooleanEvidence = [
+  'paidOrderVerified',
+  'settlementReconciled',
+  'inventoryReconciled',
+  'shipmentReconciled',
+  'founderKpisComplete',
+  'streetVerseAuthorityBoundaryVerified',
+  'visionQaReleaseGatePassed',
+  'performanceGatePassed',
+  'accessibilityGatePassed',
+];
+
+const declaredBooleanEvidence = requiredBooleanBlock?.[1]
+  .match(/'([^']+)'/g)
+  ?.map((value) => value.slice(1, -1));
+
+if (
+  !declaredBooleanEvidence ||
+  declaredBooleanEvidence.length !== expectedBooleanEvidence.length ||
+  expectedBooleanEvidence.some((key, index) => declaredBooleanEvidence[index] !== key)
+) {
+  throw new Error(
+    `Illinois rollout gate required boolean evidence drifted: expected ${expectedBooleanEvidence.join(', ')}`,
+  );
+}
+
 if (!/typeof evidence\s*!==\s*['\"]object['\"]\s*\|\|\s*evidence\s*===\s*null\s*\|\|\s*Array\.isArray\(evidence\)/.test(source)) {
   throw new Error('Illinois rollout gate must reject malformed evidence envelopes before field access.');
 }
