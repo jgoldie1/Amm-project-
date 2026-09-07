@@ -90,9 +90,31 @@ const isCanonicalTelemetryText = (value: unknown): value is string =>
   value.trim() === value &&
   !TELEMETRY_CONTROL_CHARACTER_PATTERN.test(value);
 
+const hasPlainDenseTelemetryArrayShape = (values: unknown[]): boolean => {
+  try {
+    if (Object.getPrototypeOf(values) !== Array.prototype) return false;
+
+    const ownKeys = Reflect.ownKeys(values);
+    if (ownKeys.length !== values.length + 1 || ownKeys[ownKeys.length - 1] !== 'length') {
+      return false;
+    }
+
+    for (let index = 0; index < values.length; index += 1) {
+      if (ownKeys[index] !== String(index)) return false;
+      const descriptor = Object.getOwnPropertyDescriptor(values, String(index));
+      if (!descriptor || !('value' in descriptor)) return false;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 const isCanonicalUniqueTelemetryTextList = (values: unknown): values is string[] =>
   Array.isArray(values) &&
   values.length <= MAX_TELEMETRY_STATE_LIST_LENGTH &&
+  hasPlainDenseTelemetryArrayShape(values) &&
   values.every(isCanonicalTelemetryText) &&
   new Set(values).size === values.length;
 
