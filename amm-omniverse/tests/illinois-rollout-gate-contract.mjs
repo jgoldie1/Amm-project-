@@ -30,6 +30,7 @@ const requiredSignals = [
   'DEFAULT_MAX_EVIDENCE_AGE_MS',
   'MAX_CANONICAL_ID_LENGTH',
   'CONTROL_CHARACTER_PATTERN',
+  'Object.getPrototypeOf(evidence)',
   'maxEvidenceAgeMs',
   'nowMs - timestamp <= maxEvidenceAgeMs',
   "typeof evidence !== 'object' || evidence === null || Array.isArray(evidence)",
@@ -78,6 +79,14 @@ if (
 
 if (!/typeof evidence\s*!==\s*['\"]object['\"]\s*\|\|\s*evidence\s*===\s*null\s*\|\|\s*Array\.isArray\(evidence\)/.test(source)) {
   throw new Error('Illinois rollout gate must reject malformed evidence envelopes before field access.');
+}
+
+if (!/Object\.getPrototypeOf\(evidence\)/.test(source)) {
+  throw new Error('Illinois rollout gate must inspect the evidence prototype before reading proof fields.');
+}
+
+if (!/evidencePrototype\s*!==\s*Object\.prototype\s*&&\s*evidencePrototype\s*!==\s*null/.test(source)) {
+  throw new Error('Illinois rollout gate must reject custom-prototype evidence envelopes.');
 }
 
 if (!/missingEvidence:\s*\[['\"]illinoisEvidenceInvalid['\"]\]/.test(source)) {
