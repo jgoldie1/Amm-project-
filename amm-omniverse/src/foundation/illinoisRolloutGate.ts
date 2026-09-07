@@ -88,10 +88,22 @@ const hasCanonicalId = (value: unknown): value is string => {
 };
 
 const hasValidEvidenceIds = (evidenceIds: unknown): evidenceIds is string[] => {
-  if (!Array.isArray(evidenceIds) || evidenceIds.length === 0) return false;
-  if (evidenceIds.some((id) => !hasCanonicalId(id))) return false;
+  if (!Array.isArray(evidenceIds) || Object.getPrototypeOf(evidenceIds) !== Array.prototype) return false;
 
-  return new Set(evidenceIds).size === evidenceIds.length;
+  const lengthDescriptor = Object.getOwnPropertyDescriptor(evidenceIds, 'length');
+  if (!lengthDescriptor || !('value' in lengthDescriptor) || lengthDescriptor.value === 0) return false;
+
+  const reviewedIds: string[] = [];
+  for (let index = 0; index < lengthDescriptor.value; index += 1) {
+    const descriptor = Object.getOwnPropertyDescriptor(evidenceIds, String(index));
+    if (!descriptor || !('value' in descriptor) || !hasCanonicalId(descriptor.value)) return false;
+    reviewedIds.push(descriptor.value);
+  }
+
+  const expectedKeys = new Set(['length', ...reviewedIds.map((_, index) => String(index))]);
+  if (Reflect.ownKeys(evidenceIds).some((key) => typeof key !== 'string' || !expectedKeys.has(key))) return false;
+
+  return new Set(reviewedIds).size === reviewedIds.length;
 };
 
 const hasValidVerificationTimestamp = (
