@@ -117,6 +117,21 @@ if (declaredEventTypes.length !== registryEventTypes.length) {
   throw new Error('Founder commerce telemetry event-type union and authority registry must remain one-to-one');
 }
 
+const expectedAuthorityOwners = {
+  'rfq.created': ['commerce-api'],
+  'supplier.verified': ['commerce-api'],
+  'po.opened': ['commerce-api'],
+  'payment.verified': ['payment-provider'],
+  'inventory.received': ['inventory-service'],
+  'shipment.departed': ['logistics-service'],
+  'customs.hold.opened': ['customs-service'],
+  'customs.hold.cleared': ['customs-service'],
+  'live.sale.completed': ['commerce-api'],
+  'delivery.confirmed': ['logistics-service'],
+  'settlement.created': ['settlement-service'],
+  'refund.completed': ['payment-provider', 'settlement-service'],
+};
+
 const declaredAuthoritySet = new Set(declaredAuthorities);
 for (const [, eventType, authorityList] of registryEntryMatches) {
   const owners = [...authorityList.matchAll(/'([^']+)'/g)].map((match) => match[1]);
@@ -137,6 +152,20 @@ for (const [, eventType, authorityList] of registryEntryMatches) {
       `Founder commerce telemetry event contains undeclared authority owners for ${eventType}: ${undeclaredOwners.join(', ')}`,
     );
   }
+
+  const expectedOwners = expectedAuthorityOwners[eventType];
+  if (!expectedOwners) {
+    throw new Error(`Founder commerce telemetry event is missing an expected authority contract: ${eventType}`);
+  }
+
+  if (
+    owners.length !== expectedOwners.length ||
+    owners.some((owner, index) => owner !== expectedOwners[index])
+  ) {
+    throw new Error(
+      `Founder commerce telemetry authority ownership drifted for ${eventType}; expected ${expectedOwners.join(', ')}, received ${owners.join(', ')}`,
+    );
+  }
 }
 
-console.log('Founder commerce telemetry event-type naming, authority naming, authority-owner, and registry parity contract passed');
+console.log('Founder commerce telemetry event-type naming, authority naming, exact authority ownership, and registry parity contract passed');
