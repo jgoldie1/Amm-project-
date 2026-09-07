@@ -22,6 +22,9 @@ const requiredSignals = [
   'hasCanonicalId',
   'hasValidEvidenceIds',
   'hasValidVerificationTimestamp',
+  'hasDataOnlyEvidenceFields',
+  'ROLLOUT_EVIDENCE_FIELDS',
+  'Object.getOwnPropertyDescriptor',
   "typeof value !== 'string'",
   'Array.isArray(evidenceIds)',
   'Date.parse(verifiedAt)',
@@ -87,6 +90,18 @@ if (!/Object\.getPrototypeOf\(evidence\)/.test(source)) {
 
 if (!/evidencePrototype\s*!==\s*Object\.prototype\s*&&\s*evidencePrototype\s*!==\s*null/.test(source)) {
   throw new Error('Illinois rollout gate must reject custom-prototype evidence envelopes.');
+}
+
+if (!/Object\.getOwnPropertyDescriptor\(evidence, key\)/.test(source)) {
+  throw new Error('Illinois rollout gate must inspect own property descriptors before reading proof fields.');
+}
+
+if (!/descriptor\s*===\s*undefined\s*\|\|\s*\(['\"]value['\"]\s+in\s+descriptor/.test(source)) {
+  throw new Error('Illinois rollout gate must allow only data descriptors for serialized evidence fields.');
+}
+
+if (!/if\s*\(!hasDataOnlyEvidenceFields\(evidence\)\)/.test(source)) {
+  throw new Error('Illinois rollout gate must reject accessor-backed evidence before proof field access.');
 }
 
 if (!/missingEvidence:\s*\[['\"]illinoisEvidenceInvalid['\"]\]/.test(source)) {
