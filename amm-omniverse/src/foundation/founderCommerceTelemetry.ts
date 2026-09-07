@@ -71,16 +71,25 @@ const isTelemetryEventObject = (event: FounderCommerceTelemetryEvent): boolean =
   Boolean(event) && typeof event === 'object' && !Array.isArray(event);
 
 const hasExactFiniteKpiShape = (kpis: Record<CommerceKpi, number>): boolean => {
-  const kpiKeys = Object.keys(kpis);
-  return (
-    kpiKeys.length === COMMERCE_KPIS.length &&
-    COMMERCE_KPIS.every(
-      (kpi) =>
-        Object.prototype.hasOwnProperty.call(kpis, kpi) &&
-        typeof kpis[kpi] === 'number' &&
-        Number.isFinite(kpis[kpi]),
-    )
-  );
+  try {
+    if (Object.getPrototypeOf(kpis) !== Object.prototype) return false;
+
+    const kpiKeys = Reflect.ownKeys(kpis);
+    if (kpiKeys.length !== COMMERCE_KPIS.length) return false;
+
+    return COMMERCE_KPIS.every((kpi) => {
+      if (!kpiKeys.includes(kpi)) return false;
+      const descriptor = Object.getOwnPropertyDescriptor(kpis, kpi);
+      return (
+        Boolean(descriptor) &&
+        'value' in descriptor! &&
+        typeof descriptor!.value === 'number' &&
+        Number.isFinite(descriptor!.value)
+      );
+    });
+  } catch {
+    return false;
+  }
 };
 
 const isCanonicalTelemetryText = (value: unknown): value is string =>
