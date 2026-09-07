@@ -1,0 +1,4 @@
+Vision-assisted AAA QA smoke contract:
+- node tests/vision-qa-foundation-contract.mjs
+
+This contract verifies the visual QA coverage areas, the critical-finding release gate, and the non-authoritative boundary between visual inspection and verified commerce truth.

@@ -288,7 +288,7 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
       signalLights.forEach(s=>{(s.lamp.material as THREE.MeshBasicMaterial).color.setHex(emergencySignals?0xff3f54:(s.axis==='x'?eastWestGreen:!eastWestGreen)?0x43ff7b:0xff3f54)})
       if(roadblockState.active){const flash=Math.floor(elapsed*6)%2===0;roadblockRoot.traverse(o=>{if(o.userData.roadblockBeacon&&o instanceof THREE.Mesh){const m=o.material as THREE.MeshBasicMaterial;m.opacity=flash?1:.18}})}
       if(responderVehicles.size){const flash=Math.floor(elapsed*8)%2===0;responderRoot.traverse(o=>{if(o instanceof THREE.Mesh&&o.userData.responderBeacon){const m=o.material as THREE.MeshBasicMaterial;m.opacity=o.userData.responderBeacon==='left'?(flash?1:.15):(flash?.15:1)}})}
-      responderNPCs.forEach((npc,i)=>{const moving=String(npc.userData.responderStatus||'').toLowerCase()==='moving';npc.position.y=moving?Math.sin(elapsed*9+i)*.035:0})
+      let responderNPCIndex=0;for(const npc of responderNPCs.values()){const moving=String(npc.userData.responderStatus||'').toLowerCase()==='moving';npc.position.y=moving?Math.sin(elapsed*9+responderNPCIndex)*.035:0;responderNPCIndex++}
       const input=inputRef.current;let dx=0,dz=0;if(keys.has('w')||keys.has('arrowup')||input.up)dz-=1;if(keys.has('s')||keys.has('arrowdown')||input.down)dz+=1;if(keys.has('a')||keys.has('arrowleft')||input.left)dx-=1;if(keys.has('d')||keys.has('arrowright')||input.right)dx+=1
       const gp=(navigator.getGamepads?.()||[])[0];if(gp){dx+=Math.abs(gp.axes[0]||0)>.18?(gp.axes[0]||0):0;dz+=Math.abs(gp.axes[1]||0)>.18?(gp.axes[1]||0):0}
 

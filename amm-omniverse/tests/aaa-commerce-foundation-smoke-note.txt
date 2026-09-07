@@ -1,0 +1,5 @@
+AAA commerce foundation smoke contracts:
+- node tests/aaa-commerce-foundation-contract.mjs
+- node tests/golden-order-event-bridge-contract.mjs
+
+These contracts are intentionally dependency-free so they can run in CI before the Vite production build. They verify the required AAA pillars, commerce KPI surface, Illinois -> United States -> world rollout order, Golden Order event vocabulary, and the rule that StreetVerse cannot mutate authoritative commerce truth.
