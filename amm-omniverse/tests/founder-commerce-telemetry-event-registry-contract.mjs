@@ -23,6 +23,12 @@ if (duplicateAuthorities.length > 0) {
   );
 }
 
+for (const authority of declaredAuthorities) {
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(authority)) {
+    throw new Error(`Founder commerce telemetry authority must remain lowercase kebab-case: ${authority}`);
+  }
+}
+
 const expectedServerAuthorities = [
   'commerce-api',
   'payment-provider',
@@ -62,6 +68,12 @@ if (duplicateEventTypes.length > 0) {
   throw new Error(
     `Founder commerce telemetry event-type union contains duplicates: ${[...new Set(duplicateEventTypes)].join(', ')}`,
   );
+}
+
+for (const eventType of declaredEventTypes) {
+  if (!/^[a-z0-9]+(?:\.[a-z0-9]+)+$/.test(eventType)) {
+    throw new Error(`Founder commerce telemetry event type must remain lowercase dot-case: ${eventType}`);
+  }
 }
 
 const authorityRegistryBlock = source.match(
@@ -127,4 +139,4 @@ for (const [, eventType, authorityList] of registryEntryMatches) {
   }
 }
 
-console.log('Founder commerce telemetry event-type, authority-owner, and registry parity contract passed');
+console.log('Founder commerce telemetry event-type naming, authority naming, authority-owner, and registry parity contract passed');
