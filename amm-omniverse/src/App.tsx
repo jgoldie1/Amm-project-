@@ -44,6 +44,7 @@ const QuantumBeatCenter = lazy(() => import('./components/QuantumBeatCenter'))
 const OTTIsaiahTV = lazy(() => import('./components/OTTIsaiahTV'))
 const PoyoAIStudio = lazy(() => import('./components/PoyoAIStudio'))
 const PropertyVerseCenter = lazy(() => import('./components/PropertyVerseCenter'))
+const StaysAgencyFamilyHub = lazy(() => import('./components/StaysAgencyFamilyHub'))
 
 export default function App() {
   const screen = useGameStore(s => s.screen)
@@ -77,6 +78,8 @@ export default function App() {
   const [showNextDevelopment, setShowNextDevelopment] = useState(false)
   const [showQuantumTag, setShowQuantumTag] = useState(false)
   const [showPropertyVerse, setShowPropertyVerse] = useState(false)
+  const [showStaysAgencyFamily, setShowStaysAgencyFamily] = useState(false)
+  const [staysAgencyFamilyInitialTab, setStaysAgencyFamilyInitialTab] = useState<'stays'|'passport'>('stays')
   const [showNexus, setShowNexus] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
@@ -88,6 +91,8 @@ export default function App() {
   ;(window as any).__showAdvancedWorlds = () => setShowAdvanced(true)
   ;(window as any).__showSpaceVerse = () => setShowAdvanced(true)
   ;(window as any).__showPropertyVerse = () => setShowPropertyVerse(true)
+  ;(window as any).__showStaysAgencyFamily = () => { setStaysAgencyFamilyInitialTab('stays'); setShowStaysAgencyFamily(true) }
+  ;(window as any).__showSetApartPassport = () => { setStaysAgencyFamilyInitialTab('passport'); setShowStaysAgencyFamily(true) }
   ;(window as any).__showKingdomsPress = () => setShowPress(true)
   ;(window as any).__showImmersiveWorlds = () => setShowImmersive(true)
   ;(window as any).__showAICafe = () => setShowCafe(true)
@@ -126,6 +131,8 @@ export default function App() {
     ['✉','QUANTUM EMAIL',()=>setShowConnect(true),'BETA'],
     ['◉','OMNIVERSE',()=>setShowOmniverse(true),'BETA'],
     ['🏠','PROPERTYVERSE',()=>setShowPropertyVerse(true),'BETA'],
+    ['🏡','STAYS · AGENCY · FAMILY',()=>{setStaysAgencyFamilyInitialTab('stays');setShowStaysAgencyFamily(true)},'BETA'],
+    ['✦','SET APART PASSPORT',()=>{setStaysAgencyFamilyInitialTab('passport');setShowStaysAgencyFamily(true)},'PROTECTED'],
     ['◎','HOLO CORE',()=>setShowHoloCore(true),'BETA'],
     ['✦','HOLO SERVICES',()=>setShowHoloServices(true),'BETA'],
     ['⌚','OMNIWEAR',()=>setShowOmniWear(true),'BETA'],
@@ -173,7 +180,7 @@ export default function App() {
           <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
             {nexusItems.map(([icon,label,action,status])=><button key={label} onClick={()=>{setShowNexus(false);action()}} style={{minHeight:74,textAlign:'left',padding:11,border:'1px solid #1c2c3e',borderRadius:14,background:'#0b111b',color:'#fff',cursor:'pointer'}}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><span style={{fontSize:18}}>{icon}</span><span style={{fontSize:8,color:status==='LIVE'?'#78ffb4':'#e8b944',fontWeight:900}}>{status}</span></div><div style={{fontSize:10,fontWeight:950,marginTop:9,letterSpacing:.5}}>{label}</div></button>)}
           </div>
-          <div style={{marginTop:10,fontSize:9,color:'#718096',lineHeight:1.5}}>Advanced systems stay available here without covering the main experience. Readiness labels distinguish live and beta features.</div>
+          <div style={{marginTop:10,fontSize:9,color:'#718096',lineHeight:1.5}}>Advanced systems stay available here without covering the main experience. Readiness labels distinguish live, protected and beta features.</div>
         </div>}
 
         {showPricing && <div style={{position:'fixed',inset:0,zIndex:9999,background:'#020212'}}><PricingScreen onClose={() => setShowPricing(false)} /></div>}
@@ -187,6 +194,7 @@ export default function App() {
         {showQuantumTag && <QuantumTagArena onClose={() => setShowQuantumTag(false)} />}
         {showOmniverse && <OmniverseCommandCenter onClose={() => setShowOmniverse(false)} />}
         {showPropertyVerse && <PropertyVerseCenter onClose={() => setShowPropertyVerse(false)} />}
+        {showStaysAgencyFamily && <StaysAgencyFamilyHub initialTab={staysAgencyFamilyInitialTab} onClose={() => setShowStaysAgencyFamily(false)} />}
         {showHoloCore && <HoloCoreCenter onClose={() => setShowHoloCore(false)} />}
         {showHoloServices && <HoloServicesHub onClose={() => setShowHoloServices(false)} />}
         {showOmniWear && <OmniWearCenter onClose={() => setShowOmniWear(false)} />}
