@@ -4,6 +4,25 @@ import path from 'node:path';
 const sourcePath = path.resolve('src/foundation/founderCommerceTelemetry.ts');
 const source = fs.readFileSync(sourcePath, 'utf8');
 
+const authorityTypeBlock = source.match(
+  /export type CommerceAuthority\s*=([\s\S]*?);/,
+)?.[1];
+
+if (!authorityTypeBlock) {
+  throw new Error('Founder commerce telemetry authority union is missing');
+}
+
+const declaredAuthorities = [...authorityTypeBlock.matchAll(/'([^']+)'/g)].map((match) => match[1]);
+const duplicateAuthorities = declaredAuthorities.filter(
+  (authority, index) => declaredAuthorities.indexOf(authority) !== index,
+);
+
+if (duplicateAuthorities.length > 0) {
+  throw new Error(
+    `Founder commerce telemetry authority union contains duplicates: ${[...new Set(duplicateAuthorities)].join(', ')}`,
+  );
+}
+
 const eventTypeBlock = source.match(
   /export type FounderCommerceTelemetryEventType\s*=([\s\S]*?);/,
 )?.[1];
@@ -31,9 +50,8 @@ if (!authorityRegistryBlock) {
   throw new Error('Founder commerce telemetry authority registry is missing');
 }
 
-const registryEventTypes = [...authorityRegistryBlock.matchAll(/^\s*'([^']+)'\s*:/gm)].map(
-  (match) => match[1],
-);
+const registryEntryMatches = [...authorityRegistryBlock.matchAll(/^\s*'([^']+)'\s*:\s*\[([^\]]*)\]/gm)];
+const registryEventTypes = registryEntryMatches.map((match) => match[1]);
 const duplicateRegistryEventTypes = registryEventTypes.filter(
   (eventType, index) => registryEventTypes.indexOf(eventType) !== index,
 );
@@ -65,4 +83,26 @@ if (declaredEventTypes.length !== registryEventTypes.length) {
   throw new Error('Founder commerce telemetry event-type union and authority registry must remain one-to-one');
 }
 
-console.log('Founder commerce telemetry event-type and authority registry parity contract passed');
+const declaredAuthoritySet = new Set(declaredAuthorities);
+for (const [, eventType, authorityList] of registryEntryMatches) {
+  const owners = [...authorityList.matchAll(/'([^']+)'/g)].map((match) => match[1]);
+  if (owners.length === 0) {
+    throw new Error(`Founder commerce telemetry event must have at least one authoritative owner: ${eventType}`);
+  }
+
+  const duplicateOwners = owners.filter((owner, index) => owners.indexOf(owner) !== index);
+  if (duplicateOwners.length > 0) {
+    throw new Error(
+      `Founder commerce telemetry event contains duplicate authority owners for ${eventType}: ${[...new Set(duplicateOwners)].join(', ')}`,
+    );
+  }
+
+  const undeclaredOwners = owners.filter((owner) => !declaredAuthoritySet.has(owner));
+  if (undeclaredOwners.length > 0) {
+    throw new Error(
+      `Founder commerce telemetry event contains undeclared authority owners for ${eventType}: ${undeclaredOwners.join(', ')}`,
+    );
+  }
+}
+
+console.log('Founder commerce telemetry event-type, authority-owner, and registry parity contract passed');
