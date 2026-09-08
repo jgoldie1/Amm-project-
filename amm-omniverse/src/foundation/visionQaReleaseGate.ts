@@ -15,6 +15,7 @@ export const ILLINOIS_VISION_QA_REQUIRED_AREAS: readonly VisionQaArea[] = [
 
 const BUILD_SHA_PATTERN = /^[0-9a-f]{7,64}$/i;
 const MAX_EVIDENCE_IDENTIFIER_LENGTH = 256;
+const MAX_RELEASE_EVIDENCE_REFS = 256;
 const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f-\u009f]/;
 const VISION_QA_AREA_SET = new Set<string>(VISION_QA_AREAS);
 const VISION_QA_SOURCE_SET = new Set<string>([
@@ -144,6 +145,8 @@ export const evaluateIllinoisVisionQaReleaseGate = (
     missingEvidence.push('evidenceRefsInvalid');
   } else if (evidence.evidenceRefs.length === 0) {
     missingEvidence.push('evidenceRefs');
+  } else if (evidence.evidenceRefs.length > MAX_RELEASE_EVIDENCE_REFS) {
+    missingEvidence.push('evidenceRefsTooLarge');
   } else {
     for (const [index, evidenceRef] of evidence.evidenceRefs.entries()) {
       if (typeof evidenceRef !== 'string') {
