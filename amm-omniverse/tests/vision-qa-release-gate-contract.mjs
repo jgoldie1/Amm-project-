@@ -26,6 +26,9 @@ const requiredSnippets = [
   'MAX_INSPECTED_AREAS = VISION_QA_AREAS.length',
   'evidence.inspectedAreas.length > MAX_INSPECTED_AREAS',
   "missingEvidence.push('inspectedAreasTooLarge')",
+  'MAX_RUN_FINDINGS = 256',
+  'run.findings.length > MAX_RUN_FINDINGS',
+  "missingEvidence.push('run.findingsTooLarge')",
   'CONTROL_CHARACTER_PATTERN',
   '/[\\u0000-\\u001f\\u007f-\\u009f]/',
   'isCanonicalEvidenceIdentifier',
@@ -134,6 +137,16 @@ if (
   || inspectedAreasCapIndex > inspectedAreasIterationIndex
 ) {
   throw new Error('Vision QA inspected-area cap must be enforced before per-entry validation');
+}
+
+const runFindingsCapIndex = source.indexOf('run.findings.length > MAX_RUN_FINDINGS');
+const runFindingsIterationIndex = source.indexOf('run.findings.filter(');
+if (
+  runFindingsCapIndex === -1
+  || runFindingsIterationIndex === -1
+  || runFindingsCapIndex > runFindingsIterationIndex
+) {
+  throw new Error('Vision QA finding cap must be enforced before per-entry validation');
 }
 
 const requiredAreasBlock = source.match(
