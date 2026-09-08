@@ -196,7 +196,10 @@ export const evaluateIllinoisVisionQaReleaseGate = (
     missingEvidence.push('run.findingsInvalid');
   } else if (run.findings.length > MAX_RUN_FINDINGS) {
     missingEvidence.push('run.findingsTooLarge');
-  } else if (run.findings.some((_, index) => !Object.prototype.hasOwnProperty.call(run.findings, index))) {
+  } else if (
+    Array.from({ length: run.findings.length }, (_, index) => index)
+      .some((index) => !Object.prototype.hasOwnProperty.call(run.findings, index))
+  ) {
     missingEvidence.push('run.findingsSparse');
   } else {
     runFindings = run.findings.filter((finding, index): finding is VisionQaFinding => {
