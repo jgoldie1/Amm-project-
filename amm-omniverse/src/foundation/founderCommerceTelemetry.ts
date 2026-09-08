@@ -66,6 +66,14 @@ const eventAuthorities: Record<FounderCommerceTelemetryEventType, readonly Comme
 const MAX_TELEMETRY_TEXT_LENGTH = 256;
 const MAX_TELEMETRY_STATE_LIST_LENGTH = 4096;
 const TELEMETRY_CONTROL_CHARACTER_PATTERN = /[\u0000-\u001F\u007F-\u009F]/;
+const FOUNDER_TELEMETRY_STATE_KEYS = [
+  'kpis',
+  'processedEventIds',
+  'orderIds',
+  'supplierIds',
+  'countries',
+  'corridors',
+] as const;
 
 const isTelemetryEventObject = (event: FounderCommerceTelemetryEvent): boolean =>
   Boolean(event) && typeof event === 'object' && !Array.isArray(event);
@@ -127,12 +135,32 @@ const isCanonicalUniqueTelemetryTextList = (values: unknown): values is string[]
   values.every(isCanonicalTelemetryText) &&
   new Set(values).size === values.length;
 
+const hasPlainFounderTelemetryStateShape = (
+  state: FounderCommerceTelemetryState,
+): boolean => {
+  try {
+    if (Object.getPrototypeOf(state) !== Object.prototype) return false;
+
+    const stateKeys = Reflect.ownKeys(state);
+    if (stateKeys.length !== FOUNDER_TELEMETRY_STATE_KEYS.length) return false;
+
+    return FOUNDER_TELEMETRY_STATE_KEYS.every((key) => {
+      if (!stateKeys.includes(key)) return false;
+      const descriptor = Object.getOwnPropertyDescriptor(state, key);
+      return Boolean(descriptor) && 'value' in descriptor!;
+    });
+  } catch {
+    return false;
+  }
+};
+
 const hasValidFounderTelemetryStateEnvelope = (
   state: FounderCommerceTelemetryState,
 ): boolean =>
   Boolean(state) &&
   typeof state === 'object' &&
   !Array.isArray(state) &&
+  hasPlainFounderTelemetryStateShape(state) &&
   Boolean(state.kpis) &&
   typeof state.kpis === 'object' &&
   !Array.isArray(state.kpis) &&
