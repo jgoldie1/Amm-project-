@@ -152,10 +152,20 @@ export const createEmptyCommerceFoundationState = (): CommerceFoundationState =>
   },
 });
 
+const MAX_ROLLOUT_COMPLETED_CRITERIA = 32;
+
 export const canAdvanceRollout = (
   current: RolloutScope,
   completedCriteria: string[],
 ): boolean => {
+  if (!Array.isArray(completedCriteria)) return false;
+  if (completedCriteria.length > MAX_ROLLOUT_COMPLETED_CRITERIA) return false;
+
+  for (let index = 0; index < completedCriteria.length; index += 1) {
+    if (!Object.prototype.hasOwnProperty.call(completedCriteria, index)) return false;
+    if (typeof completedCriteria[index] !== 'string') return false;
+  }
+
   const stage = WORLD_ROLLOUT.find((candidate) => candidate.id === current);
   if (!stage) return false;
   return stage.exitCriteria.every((criterion) => completedCriteria.includes(criterion));
