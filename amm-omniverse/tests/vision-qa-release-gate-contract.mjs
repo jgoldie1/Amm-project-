@@ -20,6 +20,9 @@ const requiredSnippets = [
   'BUILD_SHA_PATTERN',
   '/^[0-9a-f]{7,64}$/i',
   'MAX_EVIDENCE_IDENTIFIER_LENGTH = 256',
+  'MAX_RELEASE_EVIDENCE_REFS = 256',
+  'evidence.evidenceRefs.length > MAX_RELEASE_EVIDENCE_REFS',
+  "missingEvidence.push('evidenceRefsTooLarge')",
   'CONTROL_CHARACTER_PATTERN',
   '/[\\u0000-\\u001f\\u007f-\\u009f]/',
   'isCanonicalEvidenceIdentifier',
@@ -108,6 +111,16 @@ for (const snippet of requiredSnippets) {
   if (!source.includes(snippet)) {
     throw new Error(`Vision QA release gate contract missing: ${snippet}`);
   }
+}
+
+const evidenceRefsCapIndex = source.indexOf('evidence.evidenceRefs.length > MAX_RELEASE_EVIDENCE_REFS');
+const evidenceRefsIterationIndex = source.indexOf('evidence.evidenceRefs.entries()');
+if (
+  evidenceRefsCapIndex === -1
+  || evidenceRefsIterationIndex === -1
+  || evidenceRefsCapIndex > evidenceRefsIterationIndex
+) {
+  throw new Error('Vision QA evidence ref cap must be enforced before per-entry validation');
 }
 
 const requiredAreasBlock = source.match(
