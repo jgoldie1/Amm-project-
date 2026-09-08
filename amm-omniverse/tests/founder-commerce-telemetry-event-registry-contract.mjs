@@ -182,4 +182,33 @@ for (const [, eventType, authorityList] of registryEntryMatches) {
   }
 }
 
-console.log('Founder commerce telemetry event-type naming, authority naming, exact authority ownership, expected-contract parity, and registry parity contract passed');
+const reducerSwitchBlock = source.match(
+  /switch \(event\.type\) \{([\s\S]*?)\n  \}/,
+)?.[1];
+
+if (!reducerSwitchBlock) {
+  throw new Error('Founder commerce telemetry reducer event switch is missing');
+}
+
+const reducerCaseEventTypes = [...reducerSwitchBlock.matchAll(/case\s+'([^']+)'\s*:/g)].map(
+  (match) => match[1],
+);
+const duplicateReducerCases = reducerCaseEventTypes.filter(
+  (eventType, index) => reducerCaseEventTypes.indexOf(eventType) !== index,
+);
+const reducerCaseSet = new Set(reducerCaseEventTypes);
+const missingReducerCases = declaredEventTypes.filter((eventType) => !reducerCaseSet.has(eventType));
+const unknownReducerCases = reducerCaseEventTypes.filter((eventType) => !declaredSet.has(eventType));
+
+if (
+  duplicateReducerCases.length > 0 ||
+  missingReducerCases.length > 0 ||
+  unknownReducerCases.length > 0 ||
+  reducerCaseEventTypes.length !== declaredEventTypes.length
+) {
+  throw new Error(
+    `Founder commerce telemetry reducer switch must remain one-to-one with declared event types; duplicate: ${[...new Set(duplicateReducerCases)].join(', ') || 'none'}; missing: ${missingReducerCases.join(', ') || 'none'}; unknown: ${unknownReducerCases.join(', ') || 'none'}`,
+  );
+}
+
+console.log('Founder commerce telemetry event-type naming, authority naming, exact authority ownership, expected-contract parity, registry parity, and reducer switch parity contract passed');
