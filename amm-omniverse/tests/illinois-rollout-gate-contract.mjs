@@ -181,6 +181,10 @@ if (!/Object\.getOwnPropertyDescriptor\(evidenceIds, String\(index\)\)/.test(sou
   throw new Error('Illinois rollout gate must inspect each evidence ID element descriptor before reading it.');
 }
 
+if (!/descriptor\.enumerable\s*!==\s*true/.test(source)) {
+  throw new Error('Illinois rollout gate must reject non-enumerable evidence IDs that would disappear during serialization.');
+}
+
 if (!/hasCanonicalId\(descriptor\.value\)/.test(source)) {
   throw new Error('Illinois rollout gate must apply canonical identifier validation to every evidence ID data value.');
 }
