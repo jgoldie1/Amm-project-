@@ -73,6 +73,10 @@ if (!source.includes('Golden Order paid pilot is verified end-to-end')) {
   throw new Error('Illinois stage must be gated by a verified Golden Order paid pilot');
 }
 
+if (!source.includes('Performance and accessibility release gates pass')) {
+  throw new Error('Illinois rollout must require performance and accessibility release gates');
+}
+
 if (!source.includes('StreetVerse visual state never overrides authoritative money or inventory state')) {
   throw new Error('Foundation must preserve authoritative commerce state outside the game client');
 }
