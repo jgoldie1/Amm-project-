@@ -71,7 +71,7 @@ const hasOnlyReviewedEvidenceFields = (evidence: object): boolean =>
     (key) => typeof key === 'string' && ROLLOUT_EVIDENCE_FIELDS.includes(key as keyof IllinoisRolloutEvidence),
   );
 
-const hasSerializableDataEvidenceFields = (evidence: object): boolean =>
+const hasDataOnlyEvidenceFields = (evidence: object): boolean =>
   ROLLOUT_EVIDENCE_FIELDS.every((key) => {
     const descriptor = Object.getOwnPropertyDescriptor(evidence, key);
     return (
@@ -138,19 +138,8 @@ const hasValidVerificationTimestamp = (
   const timestamp = Date.parse(verifiedAt);
   if (!Number.isFinite(timestamp)) return false;
 
-  // Rollout evidence is an auditable release artifact, so require one canonical
-  // UTC representation instead of accepting locale-dependent or ambiguous date
-  // strings that happen to be parseable by the JavaScript runtime.
   if (verifiedAt !== verifiedAt.trim() || new Date(timestamp).toISOString() !== verifiedAt) return false;
-
-  // Expansion evidence must already exist when the gate is evaluated. Reject
-  // future-dated proof so a malformed clock or pre-staged record cannot unlock
-  // geographic rollout before its verification actually occurred.
   if (timestamp > nowMs) return false;
-
-  // Do not let an old Illinois verification remain a permanent expansion key.
-  // A configurable freshness window forces the paid-order/reconciliation/QA
-  // proof to be recent when U.S. expansion is proposed.
   return nowMs - timestamp <= maxEvidenceAgeMs;
 };
 
@@ -166,9 +155,6 @@ export const evaluateIllinoisToUnitedStatesGate = (
     };
   }
 
-  // Evidence is a serialized release artifact. Reject class instances and
-  // custom-prototype objects so inherited getters/properties cannot satisfy the
-  // rollout proof contract or execute while the server-authoritative gate reads it.
   const evidencePrototype = Object.getPrototypeOf(evidence);
   if (evidencePrototype !== Object.prototype && evidencePrototype !== null) {
     return {
@@ -178,9 +164,6 @@ export const evaluateIllinoisToUnitedStatesGate = (
     };
   }
 
-  // Keep the proof envelope closed to the reviewed schema. Reflect.ownKeys also
-  // catches symbol and non-enumerable fields so hidden metadata cannot hitchhike
-  // through the Illinois expansion decision as if it were part of verified proof.
   if (!hasOnlyReviewedEvidenceFields(evidence)) {
     return {
       currentScope: 'illinois',
@@ -193,7 +176,7 @@ export const evaluateIllinoisToUnitedStatesGate = (
   // what the gate saw. Reject accessor-backed or non-enumerable reviewed fields
   // before reading any evidence so hidden proof cannot unlock expansion and then
   // disappear from the persisted audit artifact.
-  if (!hasSerializableDataEvidenceFields(evidence)) {
+  if (!hasDataOnlyEvidenceFields(evidence)) {
     return {
       currentScope: 'illinois',
       allowed: false,
@@ -201,9 +184,6 @@ export const evaluateIllinoisToUnitedStatesGate = (
     };
   }
 
-  // The boolean evidence keys are only one subset of the strings that can be
-  // reported as missing. Widen explicitly so structural evidence such as
-  // goldenOrderId, evidenceIds, and verifiedAt can be added without unsafe casts.
   const missingEvidence: string[] = REQUIRED_BOOLEAN_EVIDENCE.filter(
     (key) => evidence[key] !== true,
   );
