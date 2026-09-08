@@ -104,7 +104,14 @@ const hasValidEvidenceIds = (evidenceIds: unknown): evidenceIds is string[] => {
   const reviewedIds: string[] = [];
   for (let index = 0; index < lengthDescriptor.value; index += 1) {
     const descriptor = Object.getOwnPropertyDescriptor(evidenceIds, String(index));
-    if (!descriptor || !('value' in descriptor) || !hasCanonicalId(descriptor.value)) return false;
+    if (
+      !descriptor ||
+      !('value' in descriptor) ||
+      descriptor.enumerable !== true ||
+      !hasCanonicalId(descriptor.value)
+    ) {
+      return false;
+    }
     reviewedIds.push(descriptor.value);
   }
 
