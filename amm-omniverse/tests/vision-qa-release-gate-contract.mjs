@@ -29,6 +29,8 @@ const requiredSnippets = [
   'MAX_RUN_FINDINGS = 256',
   'run.findings.length > MAX_RUN_FINDINGS',
   "missingEvidence.push('run.findingsTooLarge')",
+  "missingEvidence.push('run.findingsSparse')",
+  'Object.prototype.hasOwnProperty.call(run.findings, index)',
   'CONTROL_CHARACTER_PATTERN',
   '/[\\u0000-\\u001f\\u007f-\\u009f]/',
   'isCanonicalEvidenceIdentifier',
@@ -140,13 +142,16 @@ if (
 }
 
 const runFindingsCapIndex = source.indexOf('run.findings.length > MAX_RUN_FINDINGS');
+const runFindingsSparseIndex = source.indexOf("missingEvidence.push('run.findingsSparse')");
 const runFindingsIterationIndex = source.indexOf('run.findings.filter(');
 if (
   runFindingsCapIndex === -1
+  || runFindingsSparseIndex === -1
   || runFindingsIterationIndex === -1
-  || runFindingsCapIndex > runFindingsIterationIndex
+  || runFindingsCapIndex > runFindingsSparseIndex
+  || runFindingsSparseIndex > runFindingsIterationIndex
 ) {
-  throw new Error('Vision QA finding cap must be enforced before per-entry validation');
+  throw new Error('Vision QA finding validation order must remain cap -> sparse-shape check -> per-entry validation');
 }
 
 const requiredAreasBlock = source.match(
