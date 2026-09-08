@@ -43,10 +43,10 @@ if (
 if (
   arrayCheckPosition > capCheckPosition ||
   capCheckPosition > denseShapePosition ||
-  capCheckPosition > itemScanPosition ||
-  capCheckPosition > dedupePosition
+  denseShapePosition > itemScanPosition ||
+  denseShapePosition > dedupePosition
 ) {
-  throw new Error('Founder telemetry state-list cap must be checked before structural scanning, item scanning, or deduplication');
+  throw new Error('Founder telemetry state-list validation must stay ordered: array check, cap, dense-shape scan, then item scan/deduplication');
 }
 
 for (const stateList of [
@@ -61,4 +61,4 @@ for (const stateList of [
   }
 }
 
-console.log('Founder commerce telemetry bounded state-list performance contract passed');
+console.log('Founder commerce telemetry bounded state-list performance and validation-order contract passed');
