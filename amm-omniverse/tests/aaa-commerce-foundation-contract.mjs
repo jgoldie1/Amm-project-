@@ -81,4 +81,16 @@ if (!source.includes('StreetVerse visual state never overrides authoritative mon
   throw new Error('Foundation must preserve authoritative commerce state outside the game client');
 }
 
+const criteriaCap = source.indexOf('if (completedCriteria.length > MAX_ROLLOUT_COMPLETED_CRITERIA) return false;');
+const criteriaScan = source.indexOf('for (let index = 0; index < completedCriteria.length; index += 1)');
+const criteriaMembership = source.indexOf('stage.exitCriteria.every((criterion) => completedCriteria.includes(criterion))');
+
+if (criteriaCap < 0 || criteriaScan < 0 || criteriaMembership < 0) {
+  throw new Error('Rollout completion criteria must keep bounded validation before membership checks');
+}
+
+if (!(criteriaCap < criteriaScan && criteriaScan < criteriaMembership)) {
+  throw new Error('Rollout criteria cap and dense validation must run before repeated membership scans');
+}
+
 console.log('AAA commerce foundation contract passed');
