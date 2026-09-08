@@ -129,6 +129,13 @@ if (duplicateRequiredAreas.length > 0) {
   );
 }
 
+const REVIEWED_ILLINOIS_REQUIRED_AREA_COUNT = 10;
+if (requiredAreaEntries.length !== REVIEWED_ILLINOIS_REQUIRED_AREA_COUNT) {
+  throw new Error(
+    `Vision QA Illinois release scope changed without contract review: expected ${REVIEWED_ILLINOIS_REQUIRED_AREA_COUNT} required areas, found ${requiredAreaEntries.length}`,
+  );
+}
+
 const canonicalAreasBlock = foundationSource.match(
   /VISION_QA_AREAS\s*=\s*\[([\s\S]*?)\]\s*as const/,
 )?.[1];
