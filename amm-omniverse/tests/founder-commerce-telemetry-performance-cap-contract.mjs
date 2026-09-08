@@ -26,12 +26,14 @@ if (validatorStart < 0 || validatorEnd < 0) {
 const validator = source.slice(validatorStart, validatorEnd);
 const arrayCheckPosition = validator.indexOf('Array.isArray(values)');
 const capCheckPosition = validator.indexOf('values.length <= MAX_TELEMETRY_STATE_LIST_LENGTH');
+const denseShapePosition = validator.indexOf('hasPlainDenseTelemetryArrayShape(values)');
 const itemScanPosition = validator.indexOf('values.every(isCanonicalTelemetryText)');
 const dedupePosition = validator.indexOf('new Set(values).size === values.length');
 
 if (
   arrayCheckPosition < 0 ||
   capCheckPosition < 0 ||
+  denseShapePosition < 0 ||
   itemScanPosition < 0 ||
   dedupePosition < 0
 ) {
@@ -40,10 +42,11 @@ if (
 
 if (
   arrayCheckPosition > capCheckPosition ||
+  capCheckPosition > denseShapePosition ||
   capCheckPosition > itemScanPosition ||
   capCheckPosition > dedupePosition
 ) {
-  throw new Error('Founder telemetry state-list cap must be checked before item scanning or deduplication');
+  throw new Error('Founder telemetry state-list cap must be checked before structural scanning, item scanning, or deduplication');
 }
 
 for (const stateList of [
