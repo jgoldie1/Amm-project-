@@ -91,6 +91,7 @@ const hasExactFiniteKpiShape = (kpis: Record<CommerceKpi, number>): boolean => {
       return (
         Boolean(descriptor) &&
         'value' in descriptor! &&
+        descriptor!.enumerable === true &&
         typeof descriptor!.value === 'number' &&
         Number.isFinite(descriptor!.value)
       );
@@ -147,7 +148,7 @@ const hasPlainFounderTelemetryStateShape = (
     return FOUNDER_TELEMETRY_STATE_KEYS.every((key) => {
       if (!stateKeys.includes(key)) return false;
       const descriptor = Object.getOwnPropertyDescriptor(state, key);
-      return Boolean(descriptor) && 'value' in descriptor!;
+      return Boolean(descriptor) && 'value' in descriptor! && descriptor!.enumerable === true;
     });
   } catch {
     return false;
