@@ -71,10 +71,16 @@ const hasOnlyReviewedEvidenceFields = (evidence: object): boolean =>
     (key) => typeof key === 'string' && ROLLOUT_EVIDENCE_FIELDS.includes(key as keyof IllinoisRolloutEvidence),
   );
 
-const hasDataOnlyEvidenceFields = (evidence: object): boolean =>
+const hasSerializableDataEvidenceFields = (evidence: object): boolean =>
   ROLLOUT_EVIDENCE_FIELDS.every((key) => {
     const descriptor = Object.getOwnPropertyDescriptor(evidence, key);
-    return descriptor === undefined || ('value' in descriptor && descriptor.get === undefined && descriptor.set === undefined);
+    return (
+      descriptor === undefined ||
+      ('value' in descriptor &&
+        descriptor.get === undefined &&
+        descriptor.set === undefined &&
+        descriptor.enumerable === true)
+    );
   });
 
 const hasCanonicalId = (value: unknown): value is string => {
@@ -183,10 +189,11 @@ export const evaluateIllinoisToUnitedStatesGate = (
     };
   }
 
-  // Serialized rollout proof must contain data properties only. Even a plain
-  // object can define accessor getters/setters; reject those descriptors before
-  // reading any evidence field so gate evaluation cannot execute untrusted code.
-  if (!hasDataOnlyEvidenceFields(evidence)) {
+  // Rollout proof must survive normal JSON-style serialization without changing
+  // what the gate saw. Reject accessor-backed or non-enumerable reviewed fields
+  // before reading any evidence so hidden proof cannot unlock expansion and then
+  // disappear from the persisted audit artifact.
+  if (!hasSerializableDataEvidenceFields(evidence)) {
     return {
       currentScope: 'illinois',
       allowed: false,
