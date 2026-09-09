@@ -32,6 +32,14 @@ if (!source.includes('<button style={button} onClick={onClose}>')) {
   throw new Error('Command Nexus close control must remain a native keyboard-operable button');
 }
 
+if (!source.includes('role="status" aria-live="polite" aria-atomic="true"')) {
+  throw new Error('Command Nexus system status changes must remain politely announced to assistive technology');
+}
+
+if (!source.includes('{error&&<div role="alert"')) {
+  throw new Error('Command Nexus convergence errors must remain immediately announced to assistive technology');
+}
+
 if (!source.includes('minHeight:44')) {
   throw new Error('Command Nexus search target must retain its 44px minimum touch height');
 }
@@ -40,4 +48,4 @@ if (!source.includes('const button:React.CSSProperties={minHeight:40')) {
   throw new Error('Command Nexus primary controls must retain their minimum touch target height');
 }
 
-console.log('Command Nexus dialog semantics, accessible search naming, keyboard-native controls, and touch-target contract passed');
+console.log('Command Nexus dialog semantics, status/error announcements, accessible search naming, keyboard-native controls, and touch-target contract passed');
