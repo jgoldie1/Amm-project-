@@ -196,46 +196,53 @@ export const evaluateIllinoisVisionQaReleaseGate = (
     missingEvidence.push('run.findingsInvalid');
   } else if (run.findings.length > MAX_RUN_FINDINGS) {
     missingEvidence.push('run.findingsTooLarge');
-  } else if (
-    Array.from({ length: run.findings.length }, (_, index) => index)
-      .some((index) => !Object.prototype.hasOwnProperty.call(run.findings, index))
-  ) {
-    missingEvidence.push('run.findingsSparse');
   } else {
-    runFindings = run.findings.filter((finding, index): finding is VisionQaFinding => {
-      if (typeof finding !== 'object' || finding === null || Array.isArray(finding)) {
-        missingEvidence.push(`run.findingInvalid:${index}`);
-        return false;
+    let findingsSparse = false;
+    for (let index = 0; index < run.findings.length; index += 1) {
+      if (!Object.prototype.hasOwnProperty.call(run.findings, index)) {
+        findingsSparse = true;
+        break;
       }
+    }
 
-      if (!isCanonicalEvidenceIdentifier(finding.id)) {
-        missingEvidence.push(`run.findingIdInvalid:${index}`);
-        return false;
-      }
+    if (findingsSparse) {
+      missingEvidence.push('run.findingsSparse');
+    } else {
+      runFindings = run.findings.filter((finding, index): finding is VisionQaFinding => {
+        if (typeof finding !== 'object' || finding === null || Array.isArray(finding)) {
+          missingEvidence.push(`run.findingInvalid:${index}`);
+          return false;
+        }
 
-      if (findingIdSet.has(finding.id)) {
-        missingEvidence.push(`run.findingIdDuplicate:${finding.id}`);
-        return false;
-      }
-      findingIdSet.add(finding.id);
+        if (!isCanonicalEvidenceIdentifier(finding.id)) {
+          missingEvidence.push(`run.findingIdInvalid:${index}`);
+          return false;
+        }
 
-      if (!VISION_QA_AREA_SET.has(finding.area)) {
-        missingEvidence.push(`run.findingAreaInvalid:${index}`);
-        return false;
-      }
+        if (findingIdSet.has(finding.id)) {
+          missingEvidence.push(`run.findingIdDuplicate:${finding.id}`);
+          return false;
+        }
+        findingIdSet.add(finding.id);
 
-      if (finding.severity !== 'info' && finding.severity !== 'warning' && finding.severity !== 'critical') {
-        missingEvidence.push(`run.findingSeverityInvalid:${index}`);
-        return false;
-      }
+        if (!VISION_QA_AREA_SET.has(finding.area)) {
+          missingEvidence.push(`run.findingAreaInvalid:${index}`);
+          return false;
+        }
 
-      if (typeof finding.verifiedByHuman !== 'boolean') {
-        missingEvidence.push(`run.findingVerifiedByHumanInvalid:${index}`);
-        return false;
-      }
+        if (finding.severity !== 'info' && finding.severity !== 'warning' && finding.severity !== 'critical') {
+          missingEvidence.push(`run.findingSeverityInvalid:${index}`);
+          return false;
+        }
 
-      return true;
-    });
+        if (typeof finding.verifiedByHuman !== 'boolean') {
+          missingEvidence.push(`run.findingVerifiedByHumanInvalid:${index}`);
+          return false;
+        }
+
+        return true;
+      });
+    }
   }
 
   const criticalFindingIds = runFindings
