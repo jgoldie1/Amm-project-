@@ -61,4 +61,27 @@ for (const stateList of [
   }
 }
 
-console.log('Founder commerce telemetry bounded state-list performance and validation-order contract passed');
+const reducerStart = source.indexOf('export const reduceFounderCommerceTelemetry');
+const reducerEnd = source.indexOf('export const telemetryFromGoldenOrder', reducerStart);
+if (reducerStart < 0 || reducerEnd < 0) {
+  throw new Error('Founder commerce telemetry reducer is missing');
+}
+
+const reducer = source.slice(reducerStart, reducerEnd);
+const duplicateCheckPosition = reducer.indexOf('state.processedEventIds.includes(event.id)');
+const appendCapCheckPosition = reducer.indexOf(
+  'state.processedEventIds.length >= MAX_TELEMETRY_STATE_LIST_LENGTH',
+);
+const appendPosition = reducer.indexOf('processedEventIds: [...state.processedEventIds, event.id]');
+
+if (duplicateCheckPosition < 0 || appendCapCheckPosition < 0 || appendPosition < 0) {
+  throw new Error('Founder telemetry reducer is missing processed-event append cap protection');
+}
+
+if (duplicateCheckPosition > appendCapCheckPosition || appendCapCheckPosition > appendPosition) {
+  throw new Error(
+    'Founder telemetry reducer must dedupe first, reject new events at the processed-event cap, then append',
+  );
+}
+
+console.log('Founder commerce telemetry bounded state-list performance and append-cap contract passed');
