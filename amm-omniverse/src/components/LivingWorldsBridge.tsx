@@ -8,6 +8,7 @@ import CommandNexusControlPlane from './CommandNexusControlPlane'
 import XRCommandGateway from './XRCommandGateway'
 import HoloLabGateway from './HoloLabGateway'
 import BookClubCenter from './BookClubCenter'
+import LivingStoryMissionCenter from './LivingStoryMissionCenter'
 import MovieStudioCenter from './MovieStudioCenter'
 import RouteCoordinator from '../navigation/RouteCoordinator'
 import {
@@ -36,6 +37,7 @@ export default function LivingWorldsBridge() {
   const [showXR,setShowXR]=useState(false)
   const [showHoloLab,setShowHoloLab]=useState(false)
   const [showBookClub,setShowBookClub]=useState(false)
+  const [showLivingStory,setShowLivingStory]=useState(false)
   const [showMovieStudio,setShowMovieStudio]=useState(false)
   const signedIn = screen !== 'intro' && screen !== 'login'
 
@@ -45,18 +47,21 @@ export default function LivingWorldsBridge() {
     const openXR=()=>setShowXR(true)
     const openLab=()=>setShowHoloLab(true)
     const openBookClub=()=>setShowBookClub(true)
+    const openLivingStory=()=>setShowLivingStory(true)
     const openMovieStudio=()=>setShowMovieStudio(true)
     ;(window as any).__showCommandNexusV2=openNexus
     ;(window as any).__showHoloMusic=openMusic
     ;(window as any).__showXR=openXR
     ;(window as any).__showHoloLab=openLab
     ;(window as any).__showBookClub=openBookClub
+    ;(window as any).__showLivingStory=openLivingStory
     ;(window as any).__showMovieStudio=openMovieStudio
     window.addEventListener('tryamm:open-command-nexus-v2',openNexus)
     window.addEventListener('tryamm:open-holo-music',openMusic)
     window.addEventListener('tryamm:open-xr',openXR)
     window.addEventListener('tryamm:open-holo-lab',openLab)
     window.addEventListener('tryamm:open-book-club',openBookClub)
+    window.addEventListener('tryamm:open-living-story',openLivingStory)
     window.addEventListener('tryamm:open-movie-studio',openMovieStudio)
     return()=>{
       window.removeEventListener('tryamm:open-command-nexus-v2',openNexus)
@@ -64,12 +69,14 @@ export default function LivingWorldsBridge() {
       window.removeEventListener('tryamm:open-xr',openXR)
       window.removeEventListener('tryamm:open-holo-lab',openLab)
       window.removeEventListener('tryamm:open-book-club',openBookClub)
+      window.removeEventListener('tryamm:open-living-story',openLivingStory)
       window.removeEventListener('tryamm:open-movie-studio',openMovieStudio)
       if((window as any).__showCommandNexusV2===openNexus)delete (window as any).__showCommandNexusV2
       if((window as any).__showHoloMusic===openMusic)delete (window as any).__showHoloMusic
       if((window as any).__showXR===openXR)delete (window as any).__showXR
       if((window as any).__showHoloLab===openLab)delete (window as any).__showHoloLab
       if((window as any).__showBookClub===openBookClub)delete (window as any).__showBookClub
+      if((window as any).__showLivingStory===openLivingStory)delete (window as any).__showLivingStory
       if((window as any).__showMovieStudio===openMovieStudio)delete (window as any).__showMovieStudio
     }
   },[])
@@ -154,12 +161,16 @@ export default function LivingWorldsBridge() {
     <RouteCoordinator />
     <HoloGPTAssistant />
     <HoloDirectLaunchBridge />
-    {signedIn&&<button aria-label="Open AR VR Mixed Reality" onClick={()=>setShowXR(true)} style={{position:'fixed',left:12,bottom:18,zIndex:10031,border:'1px solid #a36cff99',borderRadius:999,padding:'12px 15px',background:'linear-gradient(135deg,#17102b,#071d2a)',color:'#d6b7ff',fontFamily:'monospace',fontWeight:950,fontSize:11,cursor:'pointer',boxShadow:'0 0 24px #a36cff22'}}>XR · AR/VR</button>}
+    {signedIn&&<>
+      <button aria-label="Open Living Story Missions" onClick={()=>setShowLivingStory(true)} style={{position:'fixed',right:12,bottom:18,zIndex:10031,border:'1px solid #77e9ff99',borderRadius:999,padding:'12px 15px',background:'linear-gradient(135deg,#07232d,#14111f)',color:'#dffbff',fontFamily:'monospace',fontWeight:950,fontSize:11,cursor:'pointer',boxShadow:'0 0 24px #77e9ff22'}}>★ MISSIONS</button>
+      <button aria-label="Open AR VR Mixed Reality" onClick={()=>setShowXR(true)} style={{position:'fixed',left:12,bottom:18,zIndex:10031,border:'1px solid #a36cff99',borderRadius:999,padding:'12px 15px',background:'linear-gradient(135deg,#17102b,#071d2a)',color:'#d6b7ff',fontFamily:'monospace',fontWeight:950,fontSize:11,cursor:'pointer',boxShadow:'0 0 24px #a36cff22'}}>XR · AR/VR</button>
+    </>}
     {showNexusV2&&<CommandNexusControlPlane onClose={()=>setShowNexusV2(false)}/>} 
     {showHoloMusic&&<HoloMusicStreaming onClose={()=>setShowHoloMusic(false)}/>} 
     {showXR&&<XRCommandGateway onClose={()=>setShowXR(false)}/>} 
     {showHoloLab&&<HoloLabGateway onClose={()=>setShowHoloLab(false)}/>} 
     {showBookClub&&<BookClubCenter onClose={()=>setShowBookClub(false)}/>} 
+    {showLivingStory&&<LivingStoryMissionCenter onClose={()=>setShowLivingStory(false)}/>} 
     {showMovieStudio&&<MovieStudioCenter onClose={()=>setShowMovieStudio(false)}/>} 
   </>
 }
