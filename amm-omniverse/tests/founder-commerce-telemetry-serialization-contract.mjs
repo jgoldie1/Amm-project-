@@ -49,4 +49,26 @@ for (const protection of [
   }
 }
 
-console.log('Founder commerce telemetry serialization contract passed: state and KPI fields remain enumerable data properties');
+const listShapeMatch = source.match(
+  /const hasPlainDenseTelemetryArrayShape = \([\s\S]*?\n\};/,
+)?.[0];
+
+if (!listShapeMatch) {
+  throw new Error('Founder telemetry list-shape guard is missing');
+}
+
+for (const protection of [
+  'Object.getPrototypeOf(values) !== Array.prototype',
+  'const ownKeys = Reflect.ownKeys(values)',
+  'ownKeys.length !== values.length + 1',
+  "ownKeys[ownKeys.length - 1] !== 'length'",
+  'ownKeys[index] !== String(index)',
+  "Object.getOwnPropertyDescriptor(values, String(index))",
+  "!('value' in descriptor)",
+]) {
+  if (!listShapeMatch.includes(protection)) {
+    throw new Error(`Founder telemetry lists must remain plain, dense data-property arrays: ${protection}`);
+  }
+}
+
+console.log('Founder commerce telemetry serialization contract passed: state, KPI, and list fields remain plain enumerable data properties');
