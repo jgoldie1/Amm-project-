@@ -4,11 +4,12 @@ import { addStreetVerseChicagoPhysicalWorld3D, type ChicagoPhysicalWorld3D } fro
 let installed=false
 const BRIDGE_FLAG=Symbol.for('tryamm.streetverse.city-engine-physical-bridge')
 
-type EngineWithInternals=AMMCityEngine & {
+type EngineWithInternals={
   scene?: import('three').Scene
   playerPos?: import('three').Vector3
   __tryammPhysicalWorld?:ChicagoPhysicalWorld3D
   __tryammPhysicalFrame?:number
+  [key:string|symbol]:unknown
 }
 
 export function installStreetVerseCityEnginePhysicalBridgeRuntime(){
