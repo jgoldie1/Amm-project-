@@ -6,6 +6,8 @@ const source = fs.readFileSync(sourcePath, 'utf8');
 
 const maxRunFindingsDeclaration = 'const MAX_RUN_FINDINGS = 256;';
 const capIndex = source.indexOf('run.findings.length > MAX_RUN_FINDINGS');
+const sparseScanIndex = source.indexOf('for (let index = 0; index < run.findings.length; index += 1)');
+const sparseOwnPropertyIndex = source.indexOf('Object.prototype.hasOwnProperty.call(run.findings, index)');
 const filterIndex = source.indexOf('run.findings.filter(');
 const criticalIdsIndex = source.indexOf('const criticalFindingIds = runFindings');
 const evidenceLoopIndex = source.indexOf('for (const finding of runFindings)');
@@ -19,6 +21,8 @@ if (capIndex === -1) {
 }
 
 for (const [label, index] of [
+  ['allocation-free sparse findings scan', sparseScanIndex],
+  ['sparse findings ownership check', sparseOwnPropertyIndex],
   ['per-finding validation', filterIndex],
   ['critical finding extraction', criticalIdsIndex],
   ['finding evidence traversal', evidenceLoopIndex],
@@ -32,8 +36,20 @@ for (const [label, index] of [
   }
 }
 
+if (sparseScanIndex > filterIndex || sparseOwnPropertyIndex > filterIndex) {
+  throw new Error('Sparse findings validation must run before per-finding filtering');
+}
+
+if (source.includes('Array.from(run.findings)')) {
+  throw new Error('Sparse findings validation must not allocate a temporary Array.from copy');
+}
+
 if (!source.includes("missingEvidence.push('run.findingsTooLarge')")) {
   throw new Error('Vision QA oversized findings must fail closed');
+}
+
+if (!source.includes("missingEvidence.push('run.findingsSparse')")) {
+  throw new Error('Vision QA sparse findings must fail closed');
 }
 
 if (source.includes('run.findings\n    .filter((finding) => finding.severity === \'critical\')')) {
