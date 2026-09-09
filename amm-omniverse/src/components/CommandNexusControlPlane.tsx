@@ -44,5 +44,5 @@ export default function CommandNexusControlPlane({onClose}:Props){
   </div>
 }
 const panel:React.CSSProperties={padding:15,border:'1px solid #28485d',borderRadius:16,background:'#07101bdd'}
-const button:React.CSSProperties={minHeight:40,padding:'0 12px',border:'1px solid #4fe3ff66',borderRadius:10,background:'#0b2634',color:'#fff',fontWeight:900,cursor:'pointer'}
+const button:React.CSSProperties={minHeight:44,padding:'0 12px',border:'1px solid #4fe3ff66',borderRadius:10,background:'#0b2634',color:'#fff',fontWeight:900,cursor:'pointer'}
 const launch:React.CSSProperties={minHeight:82,textAlign:'left',padding:12,border:'1px solid',borderRadius:14,background:'#08131f',color:'#fff',cursor:'pointer'}
