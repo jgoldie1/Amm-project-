@@ -278,6 +278,7 @@ export const reduceFounderCommerceTelemetry = (
   if (!hasValidFounderTelemetryEnvelope(event)) return state;
   if (!isAuthorizedFounderTelemetryEvent(event)) return state;
   if (state.processedEventIds.includes(event.id)) return state;
+  if (state.processedEventIds.length >= MAX_TELEMETRY_STATE_LIST_LENGTH) return state;
 
   const next: FounderCommerceTelemetryState = {
     ...state,
