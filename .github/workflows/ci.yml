@@ -34,6 +34,9 @@ jobs:
       - name: Lint, syntax, and smoke tests
         run: npm run check
 
+      - name: CI release boundary contract
+        run: node test/ci-release-boundary-contract.mjs
+
   omniverse-app:
     name: Omniverse app checks
     runs-on: ubuntu-latest
