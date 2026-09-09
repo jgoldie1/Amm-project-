@@ -24,8 +24,16 @@ if (!source.includes('aria-label="Search TRYAMM systems"')) {
   throw new Error('Command Nexus system search must retain an accessible name');
 }
 
-if (!source.includes('<button style={button} onClick={refresh}>')) {
-  throw new Error('Command Nexus refresh control must remain a native keyboard-operable button');
+const refreshControlTokens = [
+  '<button style={button} onClick={refresh}',
+  'disabled={loading}',
+  'aria-busy={loading}',
+];
+
+for (const token of refreshControlTokens) {
+  if (!source.includes(token)) {
+    throw new Error(`Command Nexus refresh control accessibility contract is missing: ${token}`);
+  }
 }
 
 if (!source.includes('<button style={button} onClick={onClose}>')) {
@@ -64,8 +72,8 @@ if (!source.includes('minHeight:44')) {
   throw new Error('Command Nexus search target must retain its 44px minimum touch height');
 }
 
-if (!source.includes('const button:React.CSSProperties={minHeight:40')) {
-  throw new Error('Command Nexus primary controls must retain their minimum touch target height');
+if (!source.includes('const button:React.CSSProperties={minHeight:44')) {
+  throw new Error('Command Nexus primary controls must retain their 44px minimum touch target height');
 }
 
-console.log('Command Nexus dialog semantics, Escape dismissal, status/error announcements, accessible search naming, logical keyboard order, keyboard-native controls, and touch-target contract passed');
+console.log('Command Nexus dialog semantics, Escape dismissal, status/error announcements, busy Refresh state, accessible search naming, logical keyboard order, keyboard-native controls, and 44px touch-target contract passed');
