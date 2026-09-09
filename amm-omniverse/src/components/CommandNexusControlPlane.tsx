@@ -24,6 +24,7 @@ export default function CommandNexusControlPlane({onClose}:Props){
   const [query,setQuery]=useState('')
   async function refresh(){setLoading(true);setError('');try{const r=await fetch('/api/system/convergence',{cache:'no-store'});const d=await r.json();setData(d);if(!r.ok&&!d)throw new Error(`Convergence API ${r.status}`)}catch(e){setError(e instanceof Error?e.message:'Convergence control plane unavailable')}finally{setLoading(false)}}
   useEffect(()=>{refresh();const id=window.setInterval(refresh,60_000);return()=>window.clearInterval(id)},[])
+  useEffect(()=>{const handleKeyDown=(event:KeyboardEvent)=>{if(event.key==='Escape')onClose()};window.addEventListener('keydown',handleKeyDown);return()=>window.removeEventListener('keydown',handleKeyDown)},[onClose])
   const rows=useMemo(()=>data?.registry?.rows||[],[data])
   const filtered=useMemo(()=>{const q=query.trim().toLowerCase();if(!q)return GROUPS;return GROUPS.map(g=>({...g,items:g.items.filter(([,label,path])=>`${label} ${path} ${g.title}`.toLowerCase().includes(q))})).filter(g=>g.items.length)},[query])
   function nav(path:string){const fn=(window as any).__tryammNavigate;if(typeof fn==='function')fn(path);else window.location.hash=path;onClose()}
