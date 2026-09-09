@@ -74,6 +74,11 @@ for (const integrityCheck of [
   'value.trim() !== value',
   'Date.parse(value)',
   'new Date(parsed).toISOString() === value',
+  'GOLDEN_ORDER_ACTOR_TYPES',
+  'isKnownGoldenOrderActorType',
+  'isKnownGoldenOrderActorType(event.actorType)',
+  'event.actorId === undefined || hasCanonicalIdentifier(event.actorId)',
+  "typeof event.authoritative === 'boolean'",
   "event.payload !== null",
   "typeof event.payload === 'object'",
   '!Array.isArray(event.payload)',
@@ -87,4 +92,4 @@ if (!source.includes('hasValidGoldenOrderEventIntegrity(event) &&')) {
   throw new Error('Golden Order authorization must require structural event integrity');
 }
 
-console.log('Golden Order event bridge bounded canonical identifier, C0/C1 control-character, object payload, known event-name, and authority contract passed');
+console.log('Golden Order event bridge bounded canonical identifier, actor envelope, C0/C1 control-character, object payload, known event-name, and authority contract passed');

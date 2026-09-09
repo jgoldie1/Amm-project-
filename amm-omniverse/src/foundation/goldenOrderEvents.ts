@@ -60,6 +60,15 @@ export const GOLDEN_ORDER_EVENT_AUTHORITIES: Record<GoldenOrderEventName, readon
 
 const MAX_GOLDEN_ORDER_IDENTIFIER_LENGTH = 256;
 const GOLDEN_ORDER_CONTROL_CHARACTER_PATTERN = /[\u0000-\u001F\u007F-\u009F]/;
+const GOLDEN_ORDER_ACTOR_TYPES = [
+  'seller',
+  'supplier',
+  'buyer',
+  'carrier',
+  'warehouse',
+  'customs',
+  'system',
+] as const;
 
 const hasCanonicalIdentifier = (value: unknown): value is string => {
   if (typeof value !== 'string') return false;
@@ -80,6 +89,9 @@ const isCanonicalIsoTimestamp = (value: string): boolean => {
 const isKnownGoldenOrderEventName = (value: unknown): value is GoldenOrderEventName =>
   typeof value === 'string' && GOLDEN_ORDER_EVENTS.includes(value as GoldenOrderEventName);
 
+const isKnownGoldenOrderActorType = (value: unknown): value is GoldenOrderEvent['actorType'] =>
+  typeof value === 'string' && GOLDEN_ORDER_ACTOR_TYPES.includes(value as GoldenOrderEvent['actorType']);
+
 /**
  * Structural integrity is a prerequisite for authority. This does not mutate,
  * verify, settle, or reconcile commerce state; it only rejects malformed event
@@ -91,6 +103,9 @@ export const hasValidGoldenOrderEventIntegrity = (event: GoldenOrderEvent): bool
   hasCanonicalIdentifier(event.goldenOrderId) &&
   hasCanonicalIdentifier(event.correlationId) &&
   isCanonicalIsoTimestamp(event.occurredAt) &&
+  isKnownGoldenOrderActorType(event.actorType) &&
+  (event.actorId === undefined || hasCanonicalIdentifier(event.actorId)) &&
+  typeof event.authoritative === 'boolean' &&
   event.payload !== null &&
   typeof event.payload === 'object' &&
   !Array.isArray(event.payload);
