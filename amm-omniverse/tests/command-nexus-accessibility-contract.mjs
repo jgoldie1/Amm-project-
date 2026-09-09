@@ -76,4 +76,8 @@ if (!source.includes('const button:React.CSSProperties={minHeight:44')) {
   throw new Error('Command Nexus primary controls must retain their 44px minimum touch target height');
 }
 
-console.log('Command Nexus dialog semantics, Escape dismissal, status/error announcements, busy Refresh state, accessible search naming, logical keyboard order, keyboard-native controls, and 44px touch-target contract passed');
+if (!source.includes('const launch:React.CSSProperties={minHeight:82')) {
+  throw new Error('Command Nexus launcher tiles must retain a touch target comfortably above the 44px minimum');
+}
+
+console.log('Command Nexus dialog semantics, Escape dismissal, status/error announcements, busy Refresh state, accessible search naming, logical keyboard order, keyboard-native controls, and minimum touch-target contract passed');
