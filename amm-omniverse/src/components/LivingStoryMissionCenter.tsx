@@ -28,7 +28,7 @@ export default function LivingStoryMissionCenter({onClose}:{onClose:()=>void}) {
 
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:12}}>
         {missions.map(m=><article key={m.id} style={{border:'1px solid #233449',borderRadius:18,padding:16,background:'linear-gradient(160deg,#0b1420,#080b12)'}}>
-          <div style={{display:'flex',justifyContent:'space-between',gap:10,alignItems:'center'}}><span style={{fontSize:10,textTransform:'uppercase',letterSpacing:1.5,color:'#7bdff2',fontWeight:900}}>{m.lane.replaceAll('-',' ')}</span><span style={{fontSize:9,fontWeight:950,color:m.status==='building'?'#ffd166':'#9ca7b7'}}>{m.status.toUpperCase()}</span></div>
+          <div style={{display:'flex',justifyContent:'space-between',gap:10,alignItems:'center'}}><span style={{fontSize:10,textTransform:'uppercase',letterSpacing:1.5,color:'#7bdff2',fontWeight:900}}>{m.lane.replace(/-/g,' ')}</span><span style={{fontSize:9,fontWeight:950,color:m.status==='building'?'#ffd166':'#9ca7b7'}}>{m.status.toUpperCase()}</span></div>
           <h2 style={{fontSize:20,margin:'10px 0 8px'}}>{m.title}</h2>
           <p style={{color:'#b7c3d2',lineHeight:1.5,fontSize:13,margin:0}}>{m.summary}</p>
           <div style={{marginTop:12,fontSize:11,color:'#8393a7'}}>Unlocks: {m.unlocks.join(' • ')}</div>
