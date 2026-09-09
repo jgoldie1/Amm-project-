@@ -32,6 +32,14 @@ if (!source.includes('<button style={button} onClick={onClose}>')) {
   throw new Error('Command Nexus close control must remain a native keyboard-operable button');
 }
 
+if (!source.includes('return <button key={`${label}-${path}`} onClick={()=>nav(path)}')) {
+  throw new Error('Command Nexus launcher tiles must remain native keyboard-operable buttons');
+}
+
+if (/tabIndex\s*=\s*["'{]?\s*[1-9]/.test(source)) {
+  throw new Error('Command Nexus must not introduce a positive tabIndex that overrides logical keyboard navigation order');
+}
+
 const escapeDismissalTokens = [
   "event.key==='Escape'",
   "window.addEventListener('keydown',handleKeyDown)",
@@ -60,4 +68,4 @@ if (!source.includes('const button:React.CSSProperties={minHeight:40')) {
   throw new Error('Command Nexus primary controls must retain their minimum touch target height');
 }
 
-console.log('Command Nexus dialog semantics, Escape dismissal, status/error announcements, accessible search naming, keyboard-native controls, and touch-target contract passed');
+console.log('Command Nexus dialog semantics, Escape dismissal, status/error announcements, accessible search naming, logical keyboard order, keyboard-native controls, and touch-target contract passed');
