@@ -57,7 +57,7 @@ export default function StreetVerseRealtimePresence(){
       localUserId=userId
       channel=sb.channel(CHANNEL,{config:{presence:{key:userId},broadcast:{self:false,ack:false}}})
       channelRef.current=channel
-      channel
+      ;(channel as any)
         .on('presence',{event:'sync'},()=>syncPresence(channel!.presenceState() as unknown as PresenceState))
         .on('presence',{event:'join'},()=>syncPresence(channel!.presenceState() as unknown as PresenceState))
         .on('presence',{event:'leave'},()=>syncPresence(channel!.presenceState() as unknown as PresenceState))
@@ -72,7 +72,7 @@ export default function StreetVerseRealtimePresence(){
           if(!action?.fromUserId||action.fromUserId===localUserId||action.toUserId!==localUserId)return
           window.dispatchEvent(new CustomEvent('tryamm:streetverse-player-action-received',{detail:action}))
         })
-        .subscribe(async status=>{
+        .subscribe(async (status:string)=>{
           if(cancelled)return
           if(status==='SUBSCRIBED'){
             setState('LIVE')
