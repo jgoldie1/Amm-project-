@@ -44,7 +44,7 @@ must(gameverse.includes('SEND TO MIDDLEVERSE'),'GameVerse must preserve a Middle
 must(home.includes('Commerce OS'),'homepage must surface Commerce OS')
 must(home.includes('TRYAMM LIVE'),'homepage must surface TRYAMM LIVE')
 must(home.includes('Stubbs AI'),'homepage must surface Stubbs AI')
-must(home.includes('Report, block, mute'),'homepage must surface trust and safety')
+must(home.includes('TRUST + SAFETY'),'homepage must surface trust and safety')
 must(app.includes("import('./components/LiveCenter')"),'LIVE Center must remain reachable from App')
 must(live.includes('installCallSafeLive'),'LiveKit connection must wire protected/call-safe LIVE')
 must(live.includes('RoomEvent.Disconnected'),'protected LIVE listeners must be cleaned up on disconnect')
