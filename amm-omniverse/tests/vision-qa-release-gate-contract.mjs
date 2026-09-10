@@ -23,6 +23,8 @@ const requiredSnippets = [
   'MAX_RELEASE_EVIDENCE_REFS = 256',
   'evidence.evidenceRefs.length > MAX_RELEASE_EVIDENCE_REFS',
   "missingEvidence.push('evidenceRefsTooLarge')",
+  "missingEvidence.push('evidenceRefsSparse')",
+  'Object.prototype.hasOwnProperty.call(evidence.evidenceRefs, index)',
   'MAX_INSPECTED_AREAS = VISION_QA_AREAS.length',
   'evidence.inspectedAreas.length > MAX_INSPECTED_AREAS',
   "missingEvidence.push('inspectedAreasTooLarge')",
@@ -122,13 +124,16 @@ for (const snippet of requiredSnippets) {
 }
 
 const evidenceRefsCapIndex = source.indexOf('evidence.evidenceRefs.length > MAX_RELEASE_EVIDENCE_REFS');
+const evidenceRefsSparseIndex = source.indexOf("missingEvidence.push('evidenceRefsSparse')");
 const evidenceRefsIterationIndex = source.indexOf('evidence.evidenceRefs.entries()');
 if (
   evidenceRefsCapIndex === -1
+  || evidenceRefsSparseIndex === -1
   || evidenceRefsIterationIndex === -1
-  || evidenceRefsCapIndex > evidenceRefsIterationIndex
+  || evidenceRefsCapIndex > evidenceRefsSparseIndex
+  || evidenceRefsSparseIndex > evidenceRefsIterationIndex
 ) {
-  throw new Error('Vision QA evidence ref cap must be enforced before per-entry validation');
+  throw new Error('Vision QA evidence ref validation order must remain cap -> sparse-shape check -> per-entry validation');
 }
 
 const inspectedAreasCapIndex = source.indexOf('evidence.inspectedAreas.length > MAX_INSPECTED_AREAS');
