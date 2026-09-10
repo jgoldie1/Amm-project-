@@ -116,6 +116,8 @@ export default function App() {
   ;(window as any).__showCommandNexus = () => setShowNexus(true)
 
   const signedIn = screen !== 'intro' && screen !== 'login'
+  const shellAvailable = screen !== 'login'
+  const isGameplay = screen === 'city'
   const nexusItems = [
     ['TAG','QUANTUM TAG',()=>setShowQuantumTag(true),'BETA'],
     ['∞','ECONOMIC LOOP',()=>setShowEconomicLoop(true),'BETA'],
@@ -152,7 +154,7 @@ export default function App() {
   return (
     <SwipeNavigator>
       <Suspense fallback={null}>
-      <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: '#020212' }}>
+      <div style={{ width: '100%', minHeight: '100dvh', height: isGameplay ? '100dvh' : 'auto', overflowX: 'hidden', overflowY: isGameplay ? 'hidden' : 'auto', WebkitOverflowScrolling: 'touch', background: '#020212' }}>
         <LivingWorldsBridge />
         {screen === 'intro' && <TryAMMHome />}
         {screen === 'city' && <CityView />}
@@ -163,12 +165,12 @@ export default function App() {
         {screen === 'blockchain' && <BlockchainRealm />}
         <NotifToast /><BennieButton /><InstallPrompt />
 
-        {signedIn && <>
+        {shellAvailable && <>
           <button type="button" aria-label="Open TryAMM LIVE Center" onClick={() => setShowLive(true)} style={{position:'fixed',left:12,bottom:72,zIndex:9000,background:'linear-gradient(135deg,#ff334e,#8f1744)',color:'#fff',border:'1px solid #ff8fa4aa',borderRadius:999,padding:'10px 14px',fontFamily:'monospace',fontSize:11,fontWeight:900,cursor:'pointer',boxShadow:'0 8px 28px #0008'}}>● LIVE</button>
           <button type="button" aria-label="Open Command Nexus" onClick={() => setShowNexus(v=>!v)} style={{position:'fixed',right:12,bottom:72,zIndex:9000,background:'linear-gradient(135deg,#0d2934,#181326)',color:'#e8b944',border:'1px solid #4fe3ff88',borderRadius:999,padding:'10px 14px',fontFamily:'monospace',fontSize:11,fontWeight:900,cursor:'pointer',boxShadow:'0 8px 28px #0008'}}>✦ COMMAND NEXUS</button>
         </>}
 
-        {showNexus && signedIn && <div role="dialog" aria-label="TRYAMM Command Nexus" style={{position:'fixed',right:12,bottom:118,zIndex:10010,width:'min(92vw,440px)',maxHeight:'68vh',overflowY:'auto',background:'linear-gradient(160deg,#09131f,#070710)',border:'1px solid #4fe3ff66',borderRadius:22,boxShadow:'0 24px 80px #000c',padding:14}}>
+        {showNexus && shellAvailable && <div role="dialog" aria-label="TRYAMM Command Nexus" style={{position:'fixed',right:12,bottom:118,zIndex:10010,width:'min(92vw,440px)',maxHeight:'68vh',overflowY:'auto',background:'linear-gradient(160deg,#09131f,#070710)',border:'1px solid #4fe3ff66',borderRadius:22,boxShadow:'0 24px 80px #000c',padding:14}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,padding:'4px 4px 12px'}}><div><div style={{color:'#4fe3ff',fontSize:10,fontWeight:900,letterSpacing:3}}>TRYAMM</div><div style={{fontSize:18,color:'#fff',fontWeight:950}}>Command Nexus</div></div><button aria-label="Close Command Nexus" onClick={()=>setShowNexus(false)} style={{width:34,height:34,borderRadius:'50%',border:'1px solid #394557',background:'#101522',color:'#fff',cursor:'pointer'}}>×</button></div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
             {nexusItems.map(([icon,label,action,status])=><button key={label} onClick={()=>{setShowNexus(false);action()}} style={{minHeight:74,textAlign:'left',padding:11,border:'1px solid #1c2c3e',borderRadius:14,background:'#0b111b',color:'#fff',cursor:'pointer'}}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><span style={{fontSize:18}}>{icon}</span><span style={{fontSize:8,color:status==='LIVE'?'#78ffb4':'#e8b944',fontWeight:900}}>{status}</span></div><div style={{fontSize:10,fontWeight:950,marginTop:9,letterSpacing:.5}}>{label}</div></button>)}
