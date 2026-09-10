@@ -13,6 +13,7 @@ assert.match(pkg.scripts.build, /repair-streetverse-entry\.mjs/, 'build must run
 assert.match(pkg.scripts.build, /npm run smoke/, 'build must retain the foundation smoke gate')
 assert.match(pkg.scripts.smoke, /streetverse-journey-qa-contract\.mjs/, 'main sync must retain the current main journey QA smoke gate')
 assert.match(pkg.scripts.smoke, /command-nexus-accessibility-contract\.mjs/, 'main sync must retain branch accessibility regression coverage')
+assert.match(pkg.scripts.smoke, /main-sync-preflight-contract\.mjs/, 'main sync preflight must remain attached to the aggregate smoke gate')
 
 assert.match(ciWorkflow, /pull_request:\s*\n\s*branches:\s*\[main, developer-vic\]/, 'main sync must preserve PR validation against main')
 assert.match(ciWorkflow, /push:\s*\n\s*branches:\s*\[main, developer-vic, foundation\/aaa-golden-order-world-rollout\]/, 'foundation branch pushes must continue attaching CI while reconciliation is in progress')
