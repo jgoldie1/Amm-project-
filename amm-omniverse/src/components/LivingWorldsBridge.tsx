@@ -9,6 +9,7 @@ import XRCommandGateway from './XRCommandGateway'
 import HoloLabGateway from './HoloLabGateway'
 import BookClubCenter from './BookClubCenter'
 import LivingStoryMissionCenter from './LivingStoryMissionCenter'
+import MiddleverseAIHub from './MiddleverseAIHub'
 import RouteCoordinator from '../navigation/RouteCoordinator'
 import {
   enterWorld,
@@ -37,6 +38,7 @@ export default function LivingWorldsBridge() {
   const [showHoloLab,setShowHoloLab]=useState(false)
   const [showBookClub,setShowBookClub]=useState(false)
   const [showLivingStory,setShowLivingStory]=useState(false)
+  const [showMiddleverseAI,setShowMiddleverseAI]=useState(false)
   const signedIn = screen !== 'intro' && screen !== 'login'
 
   useEffect(()=>{
@@ -46,18 +48,22 @@ export default function LivingWorldsBridge() {
     const openLab=()=>setShowHoloLab(true)
     const openBookClub=()=>setShowBookClub(true)
     const openLivingStory=()=>setShowLivingStory(true)
+    const openMiddleverseAI=()=>setShowMiddleverseAI(true)
     ;(window as any).__showCommandNexusV2=openNexus
     ;(window as any).__showHoloMusic=openMusic
     ;(window as any).__showXR=openXR
     ;(window as any).__showHoloLab=openLab
     ;(window as any).__showBookClub=openBookClub
     ;(window as any).__showLivingStory=openLivingStory
+    ;(window as any).__showMiddleverseWorkstation=openMiddleverseAI
+    ;(window as any).__showMiddleverseAI=openMiddleverseAI
     window.addEventListener('tryamm:open-command-nexus-v2',openNexus)
     window.addEventListener('tryamm:open-holo-music',openMusic)
     window.addEventListener('tryamm:open-xr',openXR)
     window.addEventListener('tryamm:open-holo-lab',openLab)
     window.addEventListener('tryamm:open-book-club',openBookClub)
     window.addEventListener('tryamm:open-living-story',openLivingStory)
+    window.addEventListener('tryamm:open-middleverse-ai',openMiddleverseAI)
     return()=>{
       window.removeEventListener('tryamm:open-command-nexus-v2',openNexus)
       window.removeEventListener('tryamm:open-holo-music',openMusic)
@@ -65,12 +71,15 @@ export default function LivingWorldsBridge() {
       window.removeEventListener('tryamm:open-holo-lab',openLab)
       window.removeEventListener('tryamm:open-book-club',openBookClub)
       window.removeEventListener('tryamm:open-living-story',openLivingStory)
+      window.removeEventListener('tryamm:open-middleverse-ai',openMiddleverseAI)
       if((window as any).__showCommandNexusV2===openNexus)delete (window as any).__showCommandNexusV2
       if((window as any).__showHoloMusic===openMusic)delete (window as any).__showHoloMusic
       if((window as any).__showXR===openXR)delete (window as any).__showXR
       if((window as any).__showHoloLab===openLab)delete (window as any).__showHoloLab
       if((window as any).__showBookClub===openBookClub)delete (window as any).__showBookClub
       if((window as any).__showLivingStory===openLivingStory)delete (window as any).__showLivingStory
+      if((window as any).__showMiddleverseWorkstation===openMiddleverseAI)delete (window as any).__showMiddleverseWorkstation
+      if((window as any).__showMiddleverseAI===openMiddleverseAI)delete (window as any).__showMiddleverseAI
     }
   },[])
 
@@ -157,6 +166,7 @@ export default function LivingWorldsBridge() {
     {signedIn&&<>
       <button aria-label="Open Living Story Missions" onClick={()=>setShowLivingStory(true)} style={{position:'fixed',right:12,bottom:18,zIndex:10031,border:'1px solid #77e9ff99',borderRadius:999,padding:'12px 15px',background:'linear-gradient(135deg,#07232d,#14111f)',color:'#dffbff',fontFamily:'monospace',fontWeight:950,fontSize:11,cursor:'pointer',boxShadow:'0 0 24px #77e9ff22'}}>★ MISSIONS</button>
       <button aria-label="Open AR VR Mixed Reality" onClick={()=>setShowXR(true)} style={{position:'fixed',left:12,bottom:18,zIndex:10031,border:'1px solid #a36cff99',borderRadius:999,padding:'12px 15px',background:'linear-gradient(135deg,#17102b,#071d2a)',color:'#d6b7ff',fontFamily:'monospace',fontWeight:950,fontSize:11,cursor:'pointer',boxShadow:'0 0 24px #a36cff22'}}>XR · AR/VR</button>
+      <button aria-label="Open Middleverse AI" onClick={()=>setShowMiddleverseAI(true)} style={{position:'fixed',left:'50%',transform:'translateX(-50%)',bottom:18,zIndex:10032,border:'1px solid #e8b94499',borderRadius:999,padding:'12px 16px',background:'linear-gradient(135deg,#201807,#071d2a)',color:'#fff2ba',fontFamily:'monospace',fontWeight:950,fontSize:11,cursor:'pointer',boxShadow:'0 0 24px #e8b94422'}}>∞ MIDDLEVERSE AI</button>
     </>}
     {showNexusV2&&<CommandNexusControlPlane onClose={()=>setShowNexusV2(false)}/>} 
     {showHoloMusic&&<HoloMusicStreaming onClose={()=>setShowHoloMusic(false)}/>} 
@@ -164,5 +174,6 @@ export default function LivingWorldsBridge() {
     {showHoloLab&&<HoloLabGateway onClose={()=>setShowHoloLab(false)}/>} 
     {showBookClub&&<BookClubCenter onClose={()=>setShowBookClub(false)}/>} 
     {showLivingStory&&<LivingStoryMissionCenter onClose={()=>setShowLivingStory(false)}/>} 
+    {showMiddleverseAI&&<MiddleverseAIHub onClose={()=>setShowMiddleverseAI(false)}/>} 
   </>
 }
