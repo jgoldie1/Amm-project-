@@ -31,8 +31,14 @@ jobs:
       - name: Install root dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Lint, syntax, and smoke tests
-        run: npm run check
+      - name: Root lint
+        run: npm run lint
+
+      - name: Root syntax
+        run: npm run syntax
+
+      - name: Root smoke tests
+        run: npm test
 
       - name: CI release boundary contract
         run: node test/ci-release-boundary-contract.mjs
