@@ -50,6 +50,32 @@ Competition formats may include:
 
 The Red Team is limited to the competition environment. Green/Blue Teams detect, contain, recover, document, and explain what happened.
 
+## Cyber Games Operating Model
+Each event should be reproducible and auditable:
+
+1. Publish challenge category, rules, eligibility, sponsor, prize pool, and judging criteria.
+2. Provision isolated disposable range environments for every team.
+3. Confirm identity/age/consent requirements before prize eligibility.
+4. Run preflight checks so challenges cannot route into real production systems.
+5. Start challenge clock and capture only the minimum telemetry needed for scoring, integrity, and safety.
+6. Score defense, recovery, explanation, teamwork, and repeat performance.
+7. Require teach-back before final mastery recognition.
+8. Run integrity review and human approval before high-value prizes.
+9. Publish opted-in winners and verified skills results.
+10. Expire eligible temporary competition telemetry under TRYAMM retention rules.
+
+## Competition Divisions
+- Youth / Student Division
+- College / Career Starter Division
+- Professional Division
+- Small Business Defense Division
+- Franchise Defense Division
+- AI Security Division
+- Privacy & Ephemeral Data Division
+- Team Championship Division
+
+Age-restricted or professional divisions must use eligibility controls and appropriate guardian/consent workflows where required.
+
 ## Sponsors, Advertising, and Prize Economy
 Approved sponsors may fund tournaments, scholarships, equipment, apprenticeships, cash prize pools, and training resources.
 
@@ -65,6 +91,23 @@ Commercial inventory may include:
 - challenge sponsorships
 
 Prize programs may include cash, scholarships, equipment, TRYAMM rewards, paid apprenticeships, and employer-sponsored training. Contest rules, eligibility, taxation, age restrictions, and prize administration require legal review before public launch.
+
+## Sponsor Ladder — Planning Model
+These are planning targets, not published offers until validated:
+- Challenge Sponsor: $2,500–$5,000
+- Division Sponsor: $10,000–$25,000
+- Championship Sponsor: $25,000–$100,000+
+- Scholarship / Apprenticeship Sponsor: custom
+- Recruiting Partner: recurring or event-based package
+
+Sponsor money should be separated into clearly accounted buckets for production, prize pool, scholarships, marketing, and TRYAMM/Jacobie Vision operating revenue.
+
+## Prize Ledger
+All prize economics must be server-authoritative:
+
+SPONSOR FUNDS → ESCROW/CONTROLLED PRIZE ACCOUNT → ELIGIBILITY VERIFIED → COMPETITION RESULT VERIFIED → FRAUD/INTEGRITY REVIEW → APPROVAL → PAYOUT → ACCOUNTING/TAX RECORD.
+
+The game client must never decide that real money is owed. Game rewards and real cash awards remain separate accounting classes.
 
 ## Verified Skills Profile™
 Participants may opt in to a portable verified-skills profile containing evidence such as:
@@ -84,6 +127,20 @@ Build a Jacobie Vision Cyber Career Fair™ connecting verified participants to 
 TRAIN → COMPETE → VERIFY SKILLS → BUILD PORTFOLIO → EMPLOYER INTRODUCTION → INTERVIEW → INTERNSHIP / APPRENTICESHIP / CONTRACT / FULL-TIME OPPORTUNITY.
 
 TRYAMM should promise access and opportunity, not guaranteed employment.
+
+## Employer Portal — Planned Capabilities
+Participating employers may:
+- sponsor a challenge
+- define skill categories they recruit for
+- browse only opted-in candidate profiles
+- request interviews
+- offer internships or apprenticeships
+- post approved cybersecurity opportunities
+- fund scholarships
+- host mentor sessions
+- invite candidates into supervised business-defense projects
+
+Candidates decide whether to disclose their real identity and profile to a recruiter.
 
 ## Jacobie Vision as a Business
 Jacobie Vision first protects TRYAMM through the TRYAMM Guardian Architecture™, then becomes a sellable cybersecurity service for businesses and franchises.
@@ -151,6 +208,19 @@ Core principles:
 - incident-response procedures
 - backup/recovery verification
 
+## Cyber Range Isolation Standard
+Competition systems must be separated from production using multiple controls:
+- separate cloud projects/accounts where practical
+- separate credentials and secrets
+- no production database credentials
+- outbound network restrictions appropriate to the exercise
+- per-team disposable environments
+- short-lived credentials
+- resource quotas/rate limits
+- logging for competition integrity
+- automatic environment teardown after the event
+- manual emergency kill switch
+
 ## TRYAMM Ephemeral Data Architecture™
 Security and privacy use data minimization by default.
 
@@ -192,20 +262,57 @@ The same All American University mastery engine can later power culinary, creato
 
 One student's business can generate another student's mission: restaurants need advertising, cybersecurity, content, logistics, packaging, and technology support. This creates an interconnected playable workforce economy.
 
-## Implementation Order
-1. Define mastery competency schema and AAU Career Passport.
-2. Build isolated cyber-range environment.
-3. Build defensive challenge engine and scoring.
-4. Add teach-back assessment.
-5. Add Verified Skills Profile with user-controlled sharing.
-6. Add sponsor/prize administration layer.
-7. Add employer/recruiter portal and career fair workflow.
-8. Add Jacobie Vision Guardian service dashboard.
-9. Integrate TRYAMM data-expiration controls and audit evidence.
-10. Pilot internally before public cash-prize competitions or paid cybersecurity services.
+## 30-Day Build Track
+Week 1 — Schema and safety foundations
+- AAU competency schema
+- Career Passport data model
+- challenge manifest format
+- competition rules template
+- prize ledger data model
+- retention classes
+
+Week 2 — Range and scoring prototype
+- disposable sandbox provisioning
+- first defensive challenge
+- scoring service
+- teach-back rubric
+- admin review workflow
+
+Week 3 — Career and sponsor layer
+- Verified Skills Profile
+- sponsor package data model
+- employer opt-in directory
+- candidate-sharing consent
+- prize eligibility workflow
+
+Week 4 — Pilot and hardening
+- internal pilot tournament
+- range escape tests
+- fraud/integrity tests
+- accessibility review
+- privacy/retention test
+- incident-response drill
+- go/no-go decision for public demo
 
 ## 2026 Opportunity
-NIST Cybersecurity Career Week is scheduled for October 19–24, 2026. A Jacobie Vision Cyber Games / career-awareness event can be planned to align with that week if TRYAMM can complete the legal, technical, sponsor, and safety requirements in time.
+NIST Cybersecurity Career Week is scheduled for October 19–24, 2026. NIST encourages activities including CTF competitions, career panels, workplace tours, mentoring, workshops, and career-pathway exploration. A Jacobie Vision Cyber Games / career-awareness event can be planned to align with that week if TRYAMM can complete the legal, technical, sponsor, accessibility, and safety requirements in time.
+
+NIST also lists a September 22, 2026 Cybersecurity Career Week kick-off event focused on the cyber workforce. TRYAMM can use the timing as a planning milestone, without implying NIST sponsorship, endorsement, or affiliation.
+
+## Public Pilot Definition
+A minimum viable public-facing pilot should contain:
+- 1 isolated cyber range
+- 3–5 defensive challenges
+- 1 teach-back assessment
+- team scoring
+- opt-in leaderboard
+- sponsor placement
+- prize rules and eligibility
+- Verified Skills Profile
+- employer-interest form
+- accessibility support
+- data-retention/deletion controls
+- post-event security review
 
 ## Definition of Done
 This architecture is not production-complete merely because this document exists. Public launch requires working code, isolated challenge infrastructure, security review, legal contest rules, sponsor agreements, payment/prize controls, privacy controls, testing, and deployment verification.
