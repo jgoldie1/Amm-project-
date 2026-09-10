@@ -8,10 +8,35 @@ const missionCenter = fs.readFileSync(new URL('../src/components/LivingStoryMiss
 const missionCatalog = fs.readFileSync(new URL('../src/data/livingStoryMissionCatalog.ts', import.meta.url), 'utf8')
 const ciWorkflow = fs.readFileSync(new URL('../../.github/workflows/ci.yml', import.meta.url), 'utf8')
 
+const currentMainSmokeContracts = [
+  'smoke-contracts.mjs',
+  'living-world-recovery-contract.mjs',
+  'streetverse-economy-contract.mjs',
+  'streetverse-visible-loop-contract.mjs',
+  'streetverse-control-deck-contract.mjs',
+  'asset-rights-contract.mjs',
+  'network-fast-xr-contract.mjs',
+  'aniyah-pay-contract.mjs',
+  'secs-construct-contract.mjs',
+  'mobility-blockchain-contract.mjs',
+  'omniverse-event-fabric-contract.mjs',
+  'performance-release-contract.mjs',
+  'biometric-avatar-privacy-contract.mjs',
+  'streetverse-vehicle-control-contract.mjs',
+  'streetverse-mobile-resident-conversation-contract.mjs',
+  'holo-forge-contract.mjs',
+  'streetverse-mobile-living-city-contract.mjs',
+  'poyo-holosocial-lazy-contract.mjs',
+  'streetverse-self-healing-contract.mjs',
+  'streetverse-journey-qa-contract.mjs',
+]
+
 assert.equal(pkg.engines?.node, '>=24 <25', 'main sync must preserve the current Node 24 runtime contract')
 assert.match(pkg.scripts.build, /repair-streetverse-entry\.mjs/, 'build must run the StreetVerse entry repair before smoke/build')
 assert.match(pkg.scripts.build, /npm run smoke/, 'build must retain the foundation smoke gate')
-assert.match(pkg.scripts.smoke, /streetverse-journey-qa-contract\.mjs/, 'main sync must retain the current main journey QA smoke gate')
+for (const contract of currentMainSmokeContracts) {
+  assert.match(pkg.scripts.smoke, new RegExp(contract.replaceAll('.', '\\.')), `main sync must retain current main smoke coverage: ${contract}`)
+}
 assert.match(pkg.scripts.smoke, /command-nexus-accessibility-contract\.mjs/, 'main sync must retain branch accessibility regression coverage')
 assert.match(pkg.scripts.smoke, /main-sync-preflight-contract\.mjs/, 'main sync preflight must remain attached to the aggregate smoke gate')
 
