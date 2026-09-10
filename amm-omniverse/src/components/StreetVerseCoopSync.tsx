@@ -35,7 +35,7 @@ export default function StreetVerseCoopSync(){
       userId=session?.user?.id||''
       if(!userId){setStatus('SIGNED_OUT');return}
       channel=sb.channel(CHANNEL,{config:{broadcast:{self:false,ack:false}}})
-      channel.on('broadcast',{event:'coop-state'},(event:Envelope)=>{
+      ;(channel as any).on('broadcast',{event:'coop-state'},(event:Envelope)=>{
         const p=event.payload
         if(!p?.userId||p.userId===userId)return
         if(p.type==='leave'){members.delete(p.userId)}else{members.set(p.userId,p)}
@@ -43,7 +43,7 @@ export default function StreetVerseCoopSync(){
         if(p.eventId===activeEventId&&Number.isFinite(Number(p.progress)))setProgress(v=>Math.max(v,Number(p.progress||0)))
         window.dispatchEvent(new CustomEvent('tryamm:streetverse-coop-peer',{detail:p}))
         emitState()
-      }).subscribe(state=>{if(state==='SUBSCRIBED')setStatus('LIVE');else if(state==='CHANNEL_ERROR'||state==='TIMED_OUT')setStatus('ERROR')})
+      }).subscribe((state:string)=>{if(state==='SUBSCRIBED')setStatus('LIVE');else if(state==='CHANNEL_ERROR'||state==='TIMED_OUT')setStatus('ERROR')})
     }
 
     const onJoin=(event:Event)=>{

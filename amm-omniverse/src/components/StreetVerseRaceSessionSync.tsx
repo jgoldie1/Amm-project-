@@ -31,13 +31,13 @@ export default function StreetVerseRaceSessionSync(){
       setSelfId(userId)
       if(!userId){setStatus('SIGNED_OUT');return}
       channel=sb.channel(CHANNEL,{config:{broadcast:{self:false,ack:false}}})
-      channel.on('broadcast',{event:'race-session'},(e:Envelope)=>{
+      ;(channel as any).on('broadcast',{event:'race-session'},(e:Envelope)=>{
         const p=e.payload
         if(!p?.userId||p.userId===userId||p.raceId!==RACE_ID)return
         if(p.type==='cancel')setRacers(prev=>{const next={...prev};delete next[p.userId];return next})
         else upsert(p)
         window.dispatchEvent(new CustomEvent('tryamm:streetverse-race-peer-state',{detail:p}))
-      }).subscribe(s=>{if(s==='SUBSCRIBED')setStatus('LIVE');else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT')setStatus('ERROR')})
+      }).subscribe((s:string)=>{if(s==='SUBSCRIBED')setStatus('LIVE');else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT')setStatus('ERROR')})
     }
 
     const onMissionStart=(e:Event)=>{
