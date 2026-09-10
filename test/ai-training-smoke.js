@@ -1,0 +1,21 @@
+'use strict';
+const assert=require('assert');
+const {healthSnapshot,evaluationPass,METHODS}=require('../lib/ai-training-routes');
+
+const snap=healthSnapshot({});
+assert.equal(snap.service,'Stubbs AI Training Control Plane');
+assert.equal(snap.architectureReady,true);
+assert.equal(snap.persistenceReady,true);
+assert.equal(typeof snap.soupExecutionConfigured,'boolean');
+assert.equal(snap.safeguards.rightsGate,true);
+assert.equal(snap.safeguards.piiReviewGate,true);
+assert.equal(snap.safeguards.evaluationGate,true);
+assert.equal(snap.safeguards.approvalGate,true);
+assert(METHODS.includes('sft'));
+assert(METHODS.includes('qlora'));
+assert(METHODS.includes('dpo'));
+assert.equal(evaluationPass({safetyScore:0.95,qualityScore:0.8,hallucinationRate:0.05}),true);
+assert.equal(evaluationPass({safetyScore:0.85,qualityScore:0.8,hallucinationRate:0.05}),false);
+assert.equal(evaluationPass({safetyScore:0.95,qualityScore:0.7,hallucinationRate:0.05}),false);
+assert.equal(evaluationPass({safetyScore:0.95,qualityScore:0.8,hallucinationRate:0.2}),false);
+console.log(`AI Training smoke: PASS (${METHODS.length} methods; Soup execution ${snap.soupExecutionConfigured?'configured':'not configured'})`);
