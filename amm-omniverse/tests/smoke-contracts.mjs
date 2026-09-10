@@ -24,7 +24,7 @@ must(main.includes('<GameVerseLauncher />'),'GameVerse launcher must be mounted 
 must(app.includes('<TryAMMHome />'),'new TRYAMM homepage must be mounted for intro screen')
 must(app.includes('COMMAND NEXUS'),'Command Nexus must replace the legacy button wall')
 must(home.includes('LivingWorldsUniverse'),'homepage must mount the Living Worlds universe')
-must(home.includes('11 CORE WORLDS'),'homepage must surface the 11 core Living Worlds')
+must(universe.includes('11 Core Game Worlds'),'Living Worlds universe must surface the 11 core Living Worlds')
 must(home.includes('AR • VR • MR'),'homepage must surface AR VR and Mixed Reality')
 must(home.includes('MUSIC UNIVERSE'),'homepage must surface Music universe')
 must(home.includes('Middleverse'),'homepage must surface Middleverse')
