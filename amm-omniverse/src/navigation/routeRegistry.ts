@@ -30,6 +30,7 @@ export const TRYAMM_ROUTES: TryammRoute[] = [
   { id:'servants-of-christ-network', path:'/servants-of-christ-network', label:'Servants of Christ Network', kind:'overlay', opener:'__showServantsOfChristNetwork', readiness:'beta' },
   { id:'jacobie-vision', path:'/jacobie-vision', label:'Jacobie Vision', kind:'overlay', opener:'__showJacobieVision', readiness:'beta' },
   { id:'holoverse', path:'/holoverse', label:'Holoverse', kind:'overlay', opener:'__showHoloverse', readiness:'beta' },
+  { id:'middleverse-ai', path:'/middleverse-ai', label:'Middleverse AI', kind:'overlay', opener:'__showMiddleverseAI', readiness:'beta' },
   { id:'command-nexus', path:'/command-nexus', label:'Command Nexus', kind:'overlay', opener:'__showCommandNexusV2', readiness:'beta' },
   { id:'holo-menu', path:'/holo-menu', label:'Holo Menu', kind:'overlay', opener:'__showCommandNexusV2', readiness:'beta' },
   { id:'holo-lab', path:'/holo-lab', label:'Holo Lab', kind:'overlay', opener:'__showHoloLab', readiness:'beta' },
