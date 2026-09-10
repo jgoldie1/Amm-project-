@@ -152,22 +152,34 @@ export const evaluateIllinoisVisionQaReleaseGate = (
   } else if (evidence.evidenceRefs.length > MAX_RELEASE_EVIDENCE_REFS) {
     missingEvidence.push('evidenceRefsTooLarge');
   } else {
-    for (const [index, evidenceRef] of evidence.evidenceRefs.entries()) {
-      if (typeof evidenceRef !== 'string') {
-        missingEvidence.push(`evidenceRefInvalid:${index}`);
-        continue;
+    let evidenceRefsSparse = false;
+    for (let index = 0; index < evidence.evidenceRefs.length; index += 1) {
+      if (!Object.prototype.hasOwnProperty.call(evidence.evidenceRefs, index)) {
+        evidenceRefsSparse = true;
+        break;
       }
+    }
 
-      if (!isCanonicalEvidenceIdentifier(evidenceRef)) {
-        if (!evidenceRef.trim()) {
-          missingEvidence.push(`evidenceRef:${index}`);
-        } else {
+    if (evidenceRefsSparse) {
+      missingEvidence.push('evidenceRefsSparse');
+    } else {
+      for (const [index, evidenceRef] of evidence.evidenceRefs.entries()) {
+        if (typeof evidenceRef !== 'string') {
           missingEvidence.push(`evidenceRefInvalid:${index}`);
+          continue;
         }
-      } else if (evidenceRefSet.has(evidenceRef)) {
-        missingEvidence.push(`evidenceRefDuplicate:${evidenceRef}`);
-      } else {
-        evidenceRefSet.add(evidenceRef);
+
+        if (!isCanonicalEvidenceIdentifier(evidenceRef)) {
+          if (!evidenceRef.trim()) {
+            missingEvidence.push(`evidenceRef:${index}`);
+          } else {
+            missingEvidence.push(`evidenceRefInvalid:${index}`);
+          }
+        } else if (evidenceRefSet.has(evidenceRef)) {
+          missingEvidence.push(`evidenceRefDuplicate:${evidenceRef}`);
+        } else {
+          evidenceRefSet.add(evidenceRef);
+        }
       }
     }
   }
