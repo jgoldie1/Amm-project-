@@ -28,6 +28,8 @@ const requiredSnippets = [
   'MAX_INSPECTED_AREAS = VISION_QA_AREAS.length',
   'evidence.inspectedAreas.length > MAX_INSPECTED_AREAS',
   "missingEvidence.push('inspectedAreasTooLarge')",
+  "missingEvidence.push('inspectedAreasSparse')",
+  'Object.prototype.hasOwnProperty.call(evidence.inspectedAreas, index)',
   'MAX_RUN_FINDINGS = 256',
   'run.findings.length > MAX_RUN_FINDINGS',
   "missingEvidence.push('run.findingsTooLarge')",
@@ -137,13 +139,16 @@ if (
 }
 
 const inspectedAreasCapIndex = source.indexOf('evidence.inspectedAreas.length > MAX_INSPECTED_AREAS');
+const inspectedAreasSparseIndex = source.indexOf("missingEvidence.push('inspectedAreasSparse')");
 const inspectedAreasIterationIndex = source.indexOf('evidence.inspectedAreas.entries()');
 if (
   inspectedAreasCapIndex === -1
+  || inspectedAreasSparseIndex === -1
   || inspectedAreasIterationIndex === -1
-  || inspectedAreasCapIndex > inspectedAreasIterationIndex
+  || inspectedAreasCapIndex > inspectedAreasSparseIndex
+  || inspectedAreasSparseIndex > inspectedAreasIterationIndex
 ) {
-  throw new Error('Vision QA inspected-area cap must be enforced before per-entry validation');
+  throw new Error('Vision QA inspected-area validation order must remain cap -> sparse-shape check -> per-entry validation');
 }
 
 const runFindingsCapIndex = source.indexOf('run.findings.length > MAX_RUN_FINDINGS');
