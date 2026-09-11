@@ -11,12 +11,16 @@ const source = fs.readFileSync(eventPath, 'utf8');
 
 const requiredEvents = [
   'golden-order.rfq.created',
+  'golden-order.quote.received',
   'golden-order.quote.accepted',
   'golden-order.po.opened',
   'golden-order.funded',
+  'golden-order.production.started',
   'golden-order.shipment.departed',
   'golden-order.customs.hold',
+  'golden-order.customs.released',
   'golden-order.warehouse.received',
+  'golden-order.inventory.reserved',
   'golden-order.live-sale.completed',
   'golden-order.delivery.confirmed',
   'golden-order.settlement.created',
