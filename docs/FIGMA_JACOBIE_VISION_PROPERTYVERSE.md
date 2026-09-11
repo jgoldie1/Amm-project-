@@ -69,9 +69,35 @@ Purpose: connect StreetVerse property gameplay, renovation/design learning and a
 - Property ledger
 - StreetVerse property ownership / access screen
 
+### Added PropertyVerse lanes
+
+#### Housing Choice Voucher / Affordable Housing
+
+Design the landlord/property workflow for voucher and affordable-housing participation: property readiness, program requirements, inspection status, rent-reasonableness status, documentation and tenant/agency handoff. The interface must never imply automatic eligibility, approval or guaranteed payment.
+
+#### FarmVerse
+
+Agricultural property mode for farmland, farm structures, equipment zones, crop/production planning, agritourism concepts, farm-business operations, accessibility and digital-twin walkthroughs. Real zoning, environmental, food, labor and agricultural rules remain external verified requirements.
+
+#### Land + Land Bank
+
+Lot discovery, vacant land, public/private land opportunities, due diligence, intended-use scenarios, development status and project tracking. Public land-bank acquisitions remain subject to the specific land bank's disposition rules and approvals.
+
+#### Short-Term Stays
+
+Furnished-rental and short-term-stay planning: turnover, cleaning, maintenance, guest experience, pricing scenarios, booking readiness, local-rule checklist and channel handoff. Airbnb and other third-party platforms remain external unless a real integration is verified.
+
+#### Property Finance + Ledger
+
+Budgeting, reserves, project costs, funding-option tracking and verified transaction records. TRYAMM does not present itself as a bank or lender merely because it maintains a project ledger. Deposits, loans, mortgages and regulated financial services remain with licensed institutions/partners.
+
+#### Holographic Property Experience
+
+Digital twin → AR walkthrough → VR/MR walkthrough → holographic presentation. Show renovation concepts, accessibility improvements, before/after states, property data and StreetVerse property experiences without representing the visualization as a legal appraisal or inspection.
+
 ### PropertyVerse simulation loop
 
-DISCOVER → INSPECT → ESTIMATE → DESIGN → BUDGET → FINANCE SCENARIO → RENOVATE SIMULATION → RE-INSPECT → STAGE → RENT / SELL SCENARIO → PROFIT-AND-LOSS REVIEW.
+DISCOVER → INSPECT → ESTIMATE → DESIGN → BUDGET → FINANCE SCENARIO → RENOVATE SIMULATION → RE-INSPECT → STAGE → RENT / SHORT-TERM STAY / SELL / OPERATE / FARM SCENARIO → PROFIT-AND-LOSS REVIEW.
 
 Estimated value, renovation cost, financing, rent, sale price and profit must be labeled as estimates/simulations until supported by real verified data and professionals.
 
@@ -83,25 +109,27 @@ Real property ownership and virtual property ownership must never be represented
 
 ### Home-flipping business pathway
 
-Real-world mode can become a project-management and lead marketplace:
-
 PROPERTY LEAD → DUE-DILIGENCE CHECKLIST → INSPECTION → SCOPE → ESTIMATES → FUNDING OPTIONS → CONTRACTORS → PROJECT TRACKING → STAGING → LISTING/RENTAL HANDOFF → VERIFIED ACCOUNTING.
 
 Licensed activities must route to appropriately licensed professionals where required.
 
 ## Shared Jacobie Vision + PropertyVerse opportunities
 
-Jacobie Vision can protect PropertyVerse accounts, business profiles, project documents and transaction workflows through security controls. PropertyVerse creates a practical business environment where cybersecurity awareness, identity protection, fraud prevention and secure document handling matter.
+Jacobie Vision can protect PropertyVerse accounts, business profiles, project documents and authorized transaction workflows through security controls. PropertyVerse creates a practical business environment where cybersecurity awareness, identity protection, fraud prevention and secure document handling matter.
 
 ## Figma workspace additions
-
-Add these pages to the master TRYAMM Figma workspace:
 
 20 Jacobie Vision Cybersecurity
 21 Jacobie Vision Labs-SOC
 22 PropertyVerse Core
 23 PropertyVerse Renovation
 24 PropertyVerse Business-Real World
+25 PropertyVerse Housing
+26 FarmVerse
+27 Land-Land Bank
+28 Short-Term Stays
+29 Property Finance-Ledger
+30 Holo Property / Digital Twin
 
 ## Design-to-production gate
 
