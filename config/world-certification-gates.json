@@ -1,0 +1,24 @@
+{
+  "policy": "deny-promotion-until-evidence",
+  "statuses": ["PLANNED", "DATA_READY", "CONSTRUCTING", "PLAYABLE", "ECONOMY_ENABLED", "PRODUCTION_CERTIFIED"],
+  "requiredEvidence": {
+    "DATA_READY": ["boundary-source", "rights-metadata", "source-freshness"],
+    "CONSTRUCTING": ["asset-plan", "streaming-budget", "accessibility-plan"],
+    "PLAYABLE": ["spawn-and-movement", "collision", "route-integrity", "performance-budget", "mobile-check"],
+    "ECONOMY_ENABLED": ["server-authoritative-ledger", "idempotency", "fraud-controls", "refund-or-reversal-path", "tax-and-legal-gate"],
+    "PRODUCTION_CERTIFIED": ["ci-green", "production-deployment-ready", "rollback-verified", "observability-ready", "security-review", "accessibility-check", "founder-evidence-record"]
+  },
+  "hardBlocks": {
+    "unlicensedSource": true,
+    "clientAuthoritativeMoney": true,
+    "missingRollback": true,
+    "missingObservability": true,
+    "unreviewedHighImpactAiChange": true
+  },
+  "performanceBudgets": {
+    "mobileInitialInteractiveMs": 5000,
+    "targetFrameRate": 30,
+    "maxCriticalRouteErrorRatePercent": 1,
+    "maxWorldChunkMegabytes": 25
+  }
+}
