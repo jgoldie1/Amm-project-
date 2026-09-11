@@ -32,6 +32,7 @@ const requiredSignals = [
   'Date.now()',
   'DEFAULT_MAX_EVIDENCE_AGE_MS',
   'MAX_CANONICAL_ID_LENGTH',
+  'MAX_EVIDENCE_IDS',
   'CONTROL_CHARACTER_PATTERN',
   'Object.getPrototypeOf(evidence)',
   'maxEvidenceAgeMs',
@@ -175,6 +176,10 @@ if (!/Object\.getPrototypeOf\(evidenceIds\)\s*!==\s*Array\.prototype/.test(sourc
 
 if (!/Object\.getOwnPropertyDescriptor\(evidenceIds, ['\"]length['\"]\)/.test(source)) {
   throw new Error('Illinois rollout gate must inspect the evidence ID array length descriptor.');
+}
+
+if (!/lengthDescriptor\.value\s*>\s*MAX_EVIDENCE_IDS/.test(source)) {
+  throw new Error('Illinois rollout gate must enforce a bounded evidence ID count.');
 }
 
 if (!/Object\.getOwnPropertyDescriptor\(evidenceIds, String\(index\)\)/.test(source)) {
