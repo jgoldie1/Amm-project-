@@ -8,9 +8,34 @@
 </head>
 <body>
   <main class="shell">
-    <header><p class="eyebrow">TRYAMM · The Living Digital Universe</p><h1>Founder Content & Build Dashboard</h1><p>Turn every contractor, inventor, and development milestone into truthful, reusable content.</p></header>
+    <header><p class="eyebrow">TRYAMM · The Living Digital Universe</p><h1>Founder Content & Build Dashboard</h1><p>Turn every contractor, inventor, development milestone, and AI improvement cycle into truthful, reusable evidence.</p></header>
     <section class="auth"><label>Session token<input id="token" type="password" placeholder="Paste the token returned after login"></label><button id="load">Load dashboard</button></section>
     <section id="metrics" class="metrics" aria-live="polite"></section>
+
+    <section class="panel" id="recursive-panel">
+      <div class="panel-heading"><div><p class="eyebrow">Controlled recursive improvement</p><h2>Stubbs AI Improvement Command Center</h2></div><span id="recursive-mode" class="badge">Load to verify policy</span></div>
+      <p>Run a guarded propose → test → evaluate → approve → measure cycle. Code-changing and high-impact work stays behind sandbox, approval, rollback, and immutable-boundary controls.</p>
+      <div id="power-ups" class="power-grid" aria-live="polite"></div>
+      <form id="improvement-form">
+        <label>Improvement objective<textarea name="objective" required maxlength="6000" placeholder="Example: reduce HoloGPT failed routing while preserving safety, accessibility, and response quality"></textarea></label>
+        <div class="grid">
+          <label>AI agent<select name="agent"><option value="stubbs_ai">Stubbs AI</option><option value="hologpt">HoloGPT</option><option value="middleverse_ai">Middleverse AI</option></select></label>
+          <label>Targets<input name="targets" placeholder="routing, accessibility, latency"></label>
+          <label>Evidence IDs<input name="evidenceIds" placeholder="test-123, deploy-456"></label>
+        </div>
+        <div class="check-grid">
+          <label class="check"><input type="checkbox" name="changesCode"> This cycle proposes code changes</label>
+          <label class="check"><input type="checkbox" name="highImpact"> Treat as high-impact</label>
+        </div>
+        <div class="score-grid">
+          <fieldset><legend>Baseline score (0–100)</legend><label>Quality<input type="number" min="0" max="100" name="baselineQuality" value="70"></label><label>Reliability<input type="number" min="0" max="100" name="baselineReliability" value="70"></label><label>Accessibility<input type="number" min="0" max="100" name="baselineAccessibility" value="70"></label><label>Safety<input type="number" min="0" max="100" name="baselineSafety" value="90"></label></fieldset>
+          <fieldset><legend>Candidate score (0–100)</legend><label>Quality<input type="number" min="0" max="100" name="candidateQuality" value="75"></label><label>Reliability<input type="number" min="0" max="100" name="candidateReliability" value="75"></label><label>Accessibility<input type="number" min="0" max="100" name="candidateAccessibility" value="75"></label><label>Safety<input type="number" min="0" max="100" name="candidateSafety" value="90"></label></fieldset>
+        </div>
+        <button type="submit">Run guarded improvement cycle</button>
+      </form>
+      <div id="improvement-result" class="cycle-result" aria-live="polite"><p>No improvement cycle run yet.</p></div>
+    </section>
+
     <section class="panel">
       <h2>Add a development update</h2>
       <form id="project-form">
