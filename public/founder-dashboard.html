@@ -12,6 +12,15 @@
     <section class="auth"><label>Session token<input id="token" type="password" placeholder="Paste the token returned after login"></label><button id="load">Load dashboard</button></section>
     <section id="metrics" class="metrics" aria-live="polite"></section>
 
+    <section class="panel velocity-panel" aria-labelledby="velocity-title">
+      <div class="panel-heading"><div><p class="eyebrow">Execution velocity</p><h2 id="velocity-title">Release Critical Path</h2><p>Benny shows what is live, what is building, what is locked, and the next release-critical step.</p></div><span id="velocity-mode" class="badge">Load dashboard</span></div>
+      <div id="velocity-summary" class="velocity-grid" aria-live="polite"></div>
+      <div class="world-progress">
+        <div class="panel-heading"><div><p class="eyebrow">Chicago 77</p><h3>World Certification Progress</h3></div><a class="command-link" href="/my-world.html">Open My World</a></div>
+        <div id="world-status" class="world-status" aria-live="polite"></div>
+      </div>
+    </section>
+
     <section class="panel holo-dashboard" id="holo-dashboard" aria-labelledby="holo-title">
       <div class="holo-scanline"></div>
       <div class="panel-heading"><div><p class="eyebrow">Holographic command surface</p><h2 id="holo-title">Benny · Founder Holo Dashboard</h2><p>One rotating control surface for AI, StreetVerse, business, media, payments, jobs, accessibility, release status, and recursive improvement.</p></div><span class="badge" id="holo-state">Holo standby</span></div>
