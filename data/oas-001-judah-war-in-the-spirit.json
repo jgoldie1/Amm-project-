@@ -1,0 +1,75 @@
+{
+  "oasId": "OAS-001",
+  "title": "JUDAH: WAR IN THE SPIRIT",
+  "productionModel": "human-authored-ai-assisted",
+  "artistInspiration": {
+    "status": "open",
+    "note": "User will add the original inspiration roster later."
+  },
+  "method": "instrumental-first",
+  "ecosystem": [
+    "Aniyah Virtual 64-Track Studio",
+    "TRYAMM",
+    "Holo Music",
+    "Isaiah AI TV",
+    "StarVerse",
+    "StreetVerse"
+  ],
+  "tracks": [
+    {"number":1,"title":"Sound the Trumpet","key":"D minor","bpm":142,"style":"Christian Chicago Drill x Gospel x Cinematic"},
+    {"number":2,"title":"Armor On","key":"F# minor","bpm":146,"style":"hard spiritual-warfare drill"},
+    {"number":3,"title":"Walk Through the Valley","key":"C minor","bpm":140,"style":"dark piano testimony drill"},
+    {"number":4,"title":"Bloodline of Judah","key":"E minor","bpm":144,"style":"orchestral gospel drill"},
+    {"number":5,"title":"No Weapon","key":"B minor","bpm":148,"style":"victory drill"},
+    {"number":6,"title":"Pray for the Block","key":"A minor","bpm":142,"style":"Chicago gospel drill"},
+    {"number":7,"title":"Prodigal","key":"F minor","bpm":138,"style":"melodic repentance"},
+    {"number":8,"title":"Set Apart","key":"C# minor","bpm":150,"style":"minimal cold drill"},
+    {"number":9,"title":"Kingdom Business","key":"G minor","bpm":145,"style":"motivational building drill"},
+    {"number":10,"title":"Father, Hear Me","key":"D minor","bpm":136,"style":"prayer piano gospel"},
+    {"number":11,"title":"Jericho","key":"Eb minor","bpm":148,"style":"choir-heavy anthem"},
+    {"number":12,"title":"Victory Belongs to Yahavah","key":"F minor to G minor","bpm":144,"style":"cinematic finale"},
+    {"number":13,"title":"Still Standing (Yahavah Kept Me)","key":"G minor","bpm":138,"style":"personal testimony gospel drill"}
+  ],
+  "workflow": [
+    "CREATE",
+    "LISTEN",
+    "HUMAN_EDIT",
+    "AUTHORSHIP_LOG",
+    "RIGHTS_SAMPLE_CHECK",
+    "APPROVE",
+    "RECORD",
+    "MIX",
+    "SPATIALIZE",
+    "BUILD_WORLD",
+    "VERIFY",
+    "MASTER",
+    "RELEASE"
+  ],
+  "masterVault": [
+    "Composition Master",
+    "Multitrack Master",
+    "Dry Performance Master",
+    "Stem Master",
+    "Stereo Mix Master",
+    "Instrumental Master",
+    "Performance Master",
+    "Clean Master",
+    "Spatial Master",
+    "AR/VR/MR Master",
+    "Archive Master",
+    "Distribution Master"
+  ],
+  "movieDirector": {
+    "enabled": true,
+    "binding": "BAR -> BEAT -> LYRIC -> INSTRUMENT -> CAMERA -> LIGHT -> ENVIRONMENT -> INTERACTION",
+    "outputs": ["2D Music Video","Vertical Reel","AR","VR/360","MR","StreetVerse"]
+  },
+  "accessibility": [
+    "timed captions",
+    "lyric sync",
+    "translation-ready text",
+    "audio-description plan",
+    "high-contrast lyric presentation",
+    "non-headset experience"
+  ]
+}
