@@ -120,7 +120,7 @@ const hasPlainDenseTelemetryArrayShape = (values: unknown[]): boolean => {
     for (let index = 0; index < values.length; index += 1) {
       if (ownKeys[index] !== String(index)) return false;
       const descriptor = Object.getOwnPropertyDescriptor(values, String(index));
-      if (!descriptor || !('value' in descriptor)) return false;
+      if (!descriptor || !('value' in descriptor) || descriptor.enumerable !== true) return false;
     }
 
     return true;
