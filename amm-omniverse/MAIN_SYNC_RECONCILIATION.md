@@ -96,3 +96,13 @@ Do not attempt a broad synchronization while GitHub reports `mergeable=false` an
 - `StreetVerseSafeWorld.tsx` has been staged on the foundation branch, but `App.tsx` does not yet wire that component into the runtime path. Current-main `App.tsx` also contains broader mobile-shell/runtime layout changes, so copying the whole file would risk overwriting foundation-only surfaces such as Stays/Agency/Family and Set Apart Passport routing.
 
 **Blocker:** the safe-world runtime integration cannot be treated as a blind file sync. The next safe code increment should isolate only the required mobile safe-mode wiring/layout behavior and preserve branch-only navigation/features, with CI attached to the resulting head. Until that targeted integration and explicit deployed-runtime verification are complete, release readiness must not be claimed.
+
+## 2026-09-11 CI-attachment drift checkpoint
+
+- Inspected PR head `a10b7c3fedf42ff7e506ee7077a019da76476d63` remains open, unmerged, and `mergeable=false`.
+- Current `main` advanced to `9014e458dcda1abe27674c3be1202098cc4af207`; GitHub compare reports the foundation branch is now 368 commits ahead / 92 commits behind, with the same merge base `ec6918c8204fd0ca3c5b9bad992851f23762f7e1`.
+- Both Vercel deployment status contexts for the inspected head report `success`.
+- The branch CI workflow still explicitly triggers on pushes to `foundation/aaa-golden-order-world-rollout` and pull requests targeting `main`, but the commit-associated workflow lookup returned no pull-request-triggered run for this head.
+- Because CI attachment is a release gate, Vercel success alone is insufficient evidence and release readiness must remain blocked until a new head has an attached, passing TryAMM Full CI run.
+
+**Blocker:** main drift expanded substantially and current-head GitHub Actions attachment is not proven. Do not force a 92-commit merge/rebase. The next safe step is to use a minimal branch-only commit to retrigger the configured CI path, verify Root platform checks, Omniverse app checks, and Release gate on that exact head, and only then continue with targeted release-relevant reconciliation.
