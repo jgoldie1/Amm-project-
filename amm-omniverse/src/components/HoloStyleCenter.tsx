@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
+import HoloStyleDevelopmentPipeline from './HoloStyleDevelopmentPipeline'
 
 type HoloStyleCenterProps = { onClose: () => void }
-type Section = 'studio' | 'academy' | 'brand' | 'source' | 'streetverse'
+type Section = 'studio' | 'development' | 'academy' | 'brand' | 'source' | 'streetverse'
 
 const academyTracks = [
   ['Fashion Foundations', 'Silhouette, color, textiles, construction and fit.'],
@@ -25,6 +26,7 @@ export default function HoloStyleCenter({ onClose }: HoloStyleCenterProps) {
 
   const tabs = useMemo(() => [
     ['studio', 'HOLOSTYLE'],
+    ['development', 'DEVELOPMENT'],
     ['academy', 'ACADEMY'],
     ['brand', 'BRAND'],
     ['source', 'QUANTUM SOURCE'],
@@ -53,6 +55,8 @@ export default function HoloStyleCenter({ onClose }: HoloStyleCenterProps) {
             <article style={card}><div style={eyebrow}>TRANSFORMATION STACK</div><h2 style={h2}>Self + world wrapping</h2><p style={body}>Avatar/body presentation, garments, shoes, jewelry, watches, glasses, hair, makeup, bags, accessories, vehicle, room, storefront, lighting and era can share one scene specification.</p><div style={flow}>BENNY → CONSTRUCT → AI TWIN → HOLO WRAP → SELL</div></article>
           </div>
         </section>}
+
+        {section === 'development' && <HoloStyleDevelopmentPipeline />}
 
         {section === 'academy' && <section><div style={eyebrow}>HOLOSTYLE FASHION ACADEMY</div><h2 style={sectionTitle}>Train creators to become launch-ready fashion businesses.</h2><div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:10}}>{academyTracks.map(([title,desc],i)=><article key={title} style={smallCard}><div style={{fontSize:10,color:'#79f1ff',fontWeight:900}}>TRACK {String(i+1).padStart(2,'0')}</div><h3 style={{margin:'7px 0',fontSize:16}}>{title}</h3><p style={body}>{desc}</p></article>)}</div><p style={{...body,marginTop:14}}>Badges and completion records are product credentials only; they must not be represented as accredited certifications unless separately authorized.</p></section>}
 
