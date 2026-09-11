@@ -6,6 +6,8 @@ const bridge = fs.readFileSync(new URL('../src/components/LivingWorldsBridge.tsx
 const repair = fs.readFileSync(new URL('../scripts/repair-streetverse-entry.mjs', import.meta.url), 'utf8')
 const missionCenter = fs.readFileSync(new URL('../src/components/LivingStoryMissionCenter.tsx', import.meta.url), 'utf8')
 const missionCatalog = fs.readFileSync(new URL('../src/data/livingStoryMissionCatalog.ts', import.meta.url), 'utf8')
+const questRuntime = fs.readFileSync(new URL('../src/runtime/StreetVerseQuestImmersiveRuntime.ts', import.meta.url), 'utf8')
+const creatorDistrict = fs.readFileSync(new URL('../src/runtime/StreetVerseCreatorDistrict3D.ts', import.meta.url), 'utf8')
 const ciWorkflow = fs.readFileSync(new URL('../../.github/workflows/ci.yml', import.meta.url), 'utf8')
 
 const currentMainSmokeContracts = [
@@ -57,5 +59,9 @@ assert.match(repair, /StreetVerseMobilePlayableWorld/, 'repair script must keep 
 assert.match(repair, /TRYAMM public realm deep-link routing/, 'repair script must keep public realm deep-link recovery')
 assert.match(missionCenter, /livingStoryMissionCatalog/, 'Living Story center must remain backed by the mission catalog')
 assert.ok(missionCatalog.length > 0, 'Living Story mission catalog must not be empty')
+
+assert.match(questRuntime, /renderer!\.xr\.getCamera\(\)/, 'main sync must retain the current Three WebXR camera API compatibility fix')
+assert.doesNotMatch(questRuntime, /renderer!\.xr\.getCamera\(camera\)/, 'main sync must not restore the obsolete WebXR camera call')
+assert.match(creatorDistrict, /o instanceof THREE\.Mesh&&o\.geometry instanceof THREE\.TorusGeometry/, 'main sync must keep animated geometry narrowed to mesh instances')
 
 console.log('main sync preflight contract: GREEN')
