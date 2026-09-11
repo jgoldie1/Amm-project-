@@ -67,3 +67,13 @@ Do not attempt a broad synchronization while GitHub reports `mergeable=false` an
 - Latest main commit `a19906bec08c1df33fc8a369f97fff64739c16e1` only removes the accidental root `__dummy__` placeholder. The foundation branch already has no `__dummy__` file, so no code port is necessary and recreating/removing it would add noise rather than reduce release risk.
 
 **Blocker:** the remaining 59-main-commit surface is still too broad for a safe blanket merge/rebase. Continue one release-relevant delta at a time. CI attachment is healthy, but runtime/deployment evidence and complete reconciliation are still outstanding release gates.
+
+## 2026-09-11 WebXR reconciliation checkpoint
+
+- Inspected PR head `faae60a4d07c15891247737e310c3aefde070577` remains open, unmerged, and `mergeable=false`.
+- Current `main` is `c1ae9b807a7b96cb6717ea1b2ba5975fb164e192`; GitHub compare reports the foundation branch 361 commits ahead / 63 commits behind main with merge base `ec6918c8204fd0ca3c5b9bad992851f23762f7e1`.
+- TryAMM Full CI run `34592098166` is attached to PR #171 and completed with conclusion `success` on this head.
+- Both Vercel status contexts on this head report `success`.
+- The current-main WebXR implementation and its `streetverse-webxr-contract.mjs` build gate have already been synchronized onto the foundation branch and protected by `main-sync-preflight-contract.mjs`.
+
+**Blocker:** the remaining 63-main-commit synchronization surface is still too broad for a safe blanket merge/rebase, and successful CI/Vercel status contexts alone are not runtime release-readiness evidence. Continue one release-relevant delta at a time, then collect explicit deployed-runtime evidence against the release gates before declaring readiness.
