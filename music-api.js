@@ -2,12 +2,30 @@
 
 module.exports = function registerMusicApi({ app, auth, clean, id, getStore, saveStore, io }) {
   const store = getStore();
-  for (const key of ['tracks','streamEvents','creatorLedger','chartSnapshots']) if (!Array.isArray(store[key])) store[key] = [];
+  for (const key of ['tracks','streamEvents','creatorLedger','chartSnapshots','oasVersions']) if (!Array.isArray(store[key])) store[key] = [];
+
+  const OAS_STAGES = ['CREATE','LISTEN','HUMAN_EDIT','AUTHORSHIP_LOG','RIGHTS_SAMPLE_CHECK','APPROVE','RECORD','MIX','SPATIALIZE','BUILD_WORLD','VERIFY','MASTER','RELEASE'];
+  const OAS_FORMATS = ['stereo','instrumental','performance','clean','spatial','2d-video','vertical','ar','vr-360','mr','streetverse'];
+
+  const publicOas = (track) => track.oas ? {
+    standard: track.oas.standard,
+    projectId: track.oas.projectId,
+    stage: track.oas.stage,
+    stageIndex: OAS_STAGES.indexOf(track.oas.stage),
+    artistInspirationStatus: track.oas.artistInspirationStatus,
+    humanAuthorshipStatus: track.oas.humanAuthorshipStatus,
+    rightsReviewStatus: track.oas.rightsReviewStatus,
+    formats: track.oas.formats,
+    movieDirectorEnabled: Boolean(track.oas.movieDirectorEnabled),
+    digitalMasterVaultEnabled: Boolean(track.oas.digitalMasterVaultEnabled),
+    updatedAt: track.oas.updatedAt
+  } : null;
 
   const publicTrack = (track) => ({
     id: track.id, creatorId: track.creatorId, artistName: track.artistName, title: track.title,
     album: track.album, genre: track.genre, explicit: track.explicit, coverUrl: track.coverUrl,
     audioUrl: track.audioUrl, videoUrl: track.videoUrl, immersive: track.immersive,
+    oas: publicOas(track),
     rightsStatus: track.rightsStatus, status: track.status, releaseDate: track.releaseDate,
     qualifiedStreams: track.qualifiedStreams || 0, uniqueListeners: track.uniqueListeners || 0,
     saves: track.saves || 0, shares: track.shares || 0, videoViews: track.videoViews || 0,
@@ -20,6 +38,8 @@ module.exports = function registerMusicApi({ app, auth, clean, id, getStore, sav
     }
     return true;
   };
+
+  const creatorOwnsTrack = (req, track) => req.user.role === 'admin' || track.creatorId === req.user.id;
 
   app.get('/api/music/tracks', (req, res) => {
     const q = clean(req.query.q, 120).toLowerCase();
@@ -51,6 +71,18 @@ module.exports = function registerMusicApi({ app, auth, clean, id, getStore, sav
         arUrl: clean(req.body.arUrl, 500), vrUrl: clean(req.body.vrUrl, 500), mrUrl: clean(req.body.mrUrl, 500),
         holographicUrl: clean(req.body.holographicUrl, 500), spatialAudioUrl: clean(req.body.spatialAudioUrl, 500)
       },
+      oas: req.body.enableOas === false ? null : {
+        standard: clean(req.body.oasStandard, 40) || 'OAS-1.0',
+        projectId: clean(req.body.oasProjectId, 80) || id('oas'),
+        stage: 'CREATE',
+        artistInspirationStatus: 'open',
+        humanAuthorshipStatus: 'draft',
+        rightsReviewStatus: 'pending',
+        formats: ['stereo'],
+        movieDirectorEnabled: Boolean(req.body.movieDirectorEnabled),
+        digitalMasterVaultEnabled: true,
+        createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+      },
       rightsStatus: 'creator-confirmed', status: req.body.publishNow === false ? 'draft' : 'published',
       releaseDate: clean(req.body.releaseDate, 30) || new Date().toISOString(),
       qualifiedStreams: 0, uniqueListeners: 0, saves: 0, shares: 0, videoViews: 0, immersiveSessions: 0,
@@ -58,6 +90,62 @@ module.exports = function registerMusicApi({ app, auth, clean, id, getStore, sav
     };
     store.tracks.push(track); await saveStore(); io.emit('music:changed');
     res.status(201).json({ track: publicTrack(track) });
+  });
+
+  app.get('/api/music/tracks/:trackId/oas', auth, (req, res) => {
+    const track = store.tracks.find((t) => t.id === req.params.trackId);
+    if (!track) return res.status(404).json({ error: 'Track not found' });
+    if (!creatorOwnsTrack(req, track) && track.status !== 'published') return res.status(403).json({ error: 'Not allowed' });
+    res.json({ oas: publicOas(track), stages: OAS_STAGES, supportedFormats: OAS_FORMATS });
+  });
+
+  app.post('/api/music/tracks/:trackId/oas', auth, async (req, res) => {
+    if (!ensureCreator(req, res)) return;
+    const track = store.tracks.find((t) => t.id === req.params.trackId);
+    if (!track) return res.status(404).json({ error: 'Track not found' });
+    if (!creatorOwnsTrack(req, track)) return res.status(403).json({ error: 'Only the creator can configure this OAS project' });
+    const now = new Date().toISOString();
+    track.oas = track.oas || {
+      standard: 'OAS-1.0', projectId: id('oas'), stage: 'CREATE', artistInspirationStatus: 'open',
+      humanAuthorshipStatus: 'draft', rightsReviewStatus: 'pending', formats: ['stereo'],
+      movieDirectorEnabled: false, digitalMasterVaultEnabled: true, createdAt: now, updatedAt: now
+    };
+    if (req.body.artistInspirationStatus) track.oas.artistInspirationStatus = clean(req.body.artistInspirationStatus, 30);
+    if (req.body.humanAuthorshipStatus) track.oas.humanAuthorshipStatus = clean(req.body.humanAuthorshipStatus, 30);
+    if (req.body.rightsReviewStatus) track.oas.rightsReviewStatus = clean(req.body.rightsReviewStatus, 30);
+    if (Array.isArray(req.body.formats)) track.oas.formats = [...new Set(req.body.formats.map((f) => clean(f, 30)).filter((f) => OAS_FORMATS.includes(f)))];
+    if (typeof req.body.movieDirectorEnabled === 'boolean') track.oas.movieDirectorEnabled = req.body.movieDirectorEnabled;
+    track.oas.digitalMasterVaultEnabled = true;
+    track.oas.updatedAt = now;
+    store.oasVersions.push({ id: id('oasv'), trackId: track.id, creatorId: track.creatorId, snapshot: JSON.parse(JSON.stringify(track.oas)), createdAt: now });
+    await saveStore(); io.emit('music:oas-changed', { trackId: track.id });
+    res.json({ oas: publicOas(track) });
+  });
+
+  app.post('/api/music/tracks/:trackId/oas/advance', auth, async (req, res) => {
+    if (!ensureCreator(req, res)) return;
+    const track = store.tracks.find((t) => t.id === req.params.trackId);
+    if (!track) return res.status(404).json({ error: 'Track not found' });
+    if (!creatorOwnsTrack(req, track)) return res.status(403).json({ error: 'Only the creator can advance this OAS project' });
+    if (!track.oas) return res.status(400).json({ error: 'Enable OAS on this track first' });
+    const current = OAS_STAGES.indexOf(track.oas.stage);
+    if (current < 0 || current >= OAS_STAGES.length - 1) return res.status(400).json({ error: 'OAS project is already at the final stage' });
+    const next = OAS_STAGES[current + 1];
+    if (next === 'APPROVE' && track.oas.humanAuthorshipStatus === 'draft') return res.status(400).json({ error: 'Complete the human authorship log before approval' });
+    if (next === 'MASTER' && track.oas.rightsReviewStatus !== 'cleared') return res.status(400).json({ error: 'Rights/sample review must be cleared before mastering' });
+    if (next === 'RELEASE' && track.status !== 'published') return res.status(400).json({ error: 'Publish the track before marking the OAS project released' });
+    const now = new Date().toISOString();
+    track.oas.stage = next; track.oas.updatedAt = now;
+    store.oasVersions.push({ id: id('oasv'), trackId: track.id, creatorId: track.creatorId, event: 'stage-advanced', stage: next, createdAt: now });
+    await saveStore(); io.emit('music:oas-changed', { trackId: track.id, stage: next });
+    res.json({ oas: publicOas(track) });
+  });
+
+  app.get('/api/music/creator/oas-projects', auth, (req, res) => {
+    const tracks = store.tracks.filter((t) => t.creatorId === req.user.id && t.oas).map((t) => ({
+      trackId: t.id, title: t.title, album: t.album, status: t.status, oas: publicOas(t)
+    }));
+    res.json({ projects: tracks });
   });
 
   app.post('/api/music/tracks/:trackId/stream', auth, async (req, res) => {
