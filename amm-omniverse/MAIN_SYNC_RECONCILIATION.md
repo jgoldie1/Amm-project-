@@ -58,3 +58,12 @@ Do not attempt a broad synchronization while GitHub reports `mergeable=false` an
 - The foundation branch already carries an equivalent explicit indexed `for...of responderNPCs.values()` loop, so copying that main change would be redundant and could overwrite a behaviorally equivalent branch implementation.
 
 **Blocker:** the remaining 57-commit synchronization surface is still broad. Continue reviewing one release-relevant main delta at a time; do not force a merge/rebase merely to reduce the numeric behind count. Runtime/deployment release evidence remains outstanding after synchronization and CI gates are complete.
+
+## 2026-09-11 late reconciliation checkpoint
+
+- Inspected PR head `5fb825bb18461739707cd0380ea9d289df07e409` remains open, unmerged, and `mergeable=false`.
+- Current `main` is `a19906bec08c1df33fc8a369f97fff64739c16e1`; GitHub compare reports the foundation branch 354 commits ahead / 59 commits behind main with merge base `ec6918c8204fd0ca3c5b9bad992851f23762f7e1`.
+- TryAMM Full CI run `34560443948` is attached to PR #171 head `5fb825bb18461739707cd0380ea9d289df07e409` and completed with conclusion `success`.
+- Latest main commit `a19906bec08c1df33fc8a369f97fff64739c16e1` only removes the accidental root `__dummy__` placeholder. The foundation branch already has no `__dummy__` file, so no code port is necessary and recreating/removing it would add noise rather than reduce release risk.
+
+**Blocker:** the remaining 59-main-commit surface is still too broad for a safe blanket merge/rebase. Continue one release-relevant delta at a time. CI attachment is healthy, but runtime/deployment evidence and complete reconciliation are still outstanding release gates.
