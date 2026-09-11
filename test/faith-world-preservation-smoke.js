@@ -2,12 +2,23 @@
 const assert=require('assert');
 const fs=require('fs');
 const contract=require('../config/faith-world-preservation.json');
+const chrono=require('../config/faith-chrono-experiences.json');
 const main=fs.readFileSync('amm-omniverse/src/main.tsx','utf8');
 const launch=fs.readFileSync('amm-omniverse/src/components/GlobalLaunchBar.tsx','utf8');
 const bible=fs.readFileSync('amm-omniverse/src/components/EthiopianBibleMetaverse.tsx','utf8');
+const faithChrono=fs.readFileSync('amm-omniverse/src/components/FaithChronoLauncher.tsx','utf8');
+const holoLab=fs.readFileSync('amm-omniverse/src/components/HoloLabGateway.tsx','utf8');
+const chronoRuntime=fs.readFileSync('amm-omniverse/src/runtime/ChronoExperienceRuntime.ts','utf8');
 const press=fs.readFileSync('amm-omniverse/src/components/KingdomsPressOperations.tsx','utf8');
 assert.strictEqual(contract.policy,'do-not-bury-core-faith-products');
-for(const route of ['/ethiopian-bible','/kingdoms-press']){assert(main.includes(route),`Missing route ${route}`);assert(launch.includes(route),`Missing launch-bar route ${route}`)}
-for(const token of ['TRYAMM 88-BOOK CURRICULUM','METAVERSE BIBLE','AUDIO + READ ALOUD','HEBREW SCHOOL','Content integrity gate']) assert(bible.includes(token),`Bible experience missing ${token}`);
+assert.strictEqual(chrono.product,'TRYAMM Faith Chrono Experiences');
+assert.strictEqual(chrono.timeMachinePolicy.physicalTimeTravelClaim,false);
+assert.strictEqual(chrono.timeMachinePolicy.divineCommunicationClaimProhibited,true);
+for(const route of ['/ethiopian-bible','/kingdoms-press','/holo-lab']) assert(launch.includes(route),`Missing launch-bar route ${route}`);
+for(const route of ['/ethiopian-bible','/kingdoms-press']) assert(main.includes(route),`Missing route ${route}`);
+for(const token of ['TRYAMM 88-BOOK CURRICULUM','METAVERSE BIBLE','FAITH CHRONO / TIME MACHINE','AUDIO + READ ALOUD','HEBREW SCHOOL','Content integrity gate']) assert(bible.includes(token),`Bible experience missing ${token}`);
+for(const token of ['Walk the Earth in the Time of the Messiah','Go Fishing on the Sea of Galilee','Prayer and Reflection with Yahavah','Ruach Study and Reflection','tryamm:chrono-run-started','generatedDialogue']) assert(faithChrono.includes(token),`Faith Chrono launcher missing ${token}`);
+for(const token of ['Faith Chrono · Ethiopian Bible Lab','CHRONO RECONSTRUCTION SOURCE-GATED','OPEN FAITH CHRONO LAB']) assert(holoLab.includes(token),`Holo Lab missing ${token}`);
+for(const token of ['physicalTimeTravel:false','evidenceLabels:true','savedReturnPoints:true','tryamm:chrono-run-started']) assert(chronoRuntime.includes(token),`Chrono runtime missing ${token}`);
 for(const token of ['Kingdoms Press Operations','Editorial','Rights','Print Works','HoloBook']) assert(press.includes(token),`Kingdoms Press missing ${token}`);
-console.log('Faith-world preservation, visibility, 88-book curriculum and Kingdoms Press checks passed');
+console.log('Faith-world, Faith Chrono, Holo Lab, 88-book curriculum and Kingdoms Press preservation checks passed');
