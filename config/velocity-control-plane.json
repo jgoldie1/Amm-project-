@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "mode": "release-critical-path-first",
+  "wipLimits": {"productionCritical": 3, "feature": 2, "experiment": 1},
+  "freezeRules": {
+    "freezeNewFeaturesWhenProductionRed": true,
+    "freezeExperimentsWhenReleaseBlocked": true,
+    "allowSecurityAndRollbackFixesDuringFreeze": true
+  },
+  "priorityOrder": [
+    "PRODUCTION_HEALTH",
+    "BROKEN_ROUTES_AND_BUTTONS",
+    "STREETVERSE_RENDERING",
+    "CHICAGO_PLAYABLE_VERTICAL_SLICE",
+    "MISSION_END_TO_END",
+    "REEL_PUBLISH_PIPELINE",
+    "CHECKOUT_SERVER_VERIFICATION",
+    "MY_WORLD_PERSISTENCE",
+    "BENNY_HOLO_COMMAND_CENTER",
+    "WORLD_GENERATION_AUTOMATION",
+    "NEW_FEATURES"
+  ],
+  "criticalPath": [
+    "CI_GREEN",
+    "DEPLOYMENT_READY",
+    "APP_SHELL_HEALTHY",
+    "STREETVERSE_LOADS",
+    "PLAYER_CAN_MOVE",
+    "MISSION_COMPLETES",
+    "REWARD_LEDGER_WRITES",
+    "CONTENT_PUBLISHES",
+    "CHECKOUT_VERIFIES",
+    "POST_DEPLOY_SMOKE"
+  ],
+  "automationTargets": {
+    "parallelizeIndependentChecks": true,
+    "reuseWorldCompiler": true,
+    "reuseCompetitionEngine": true,
+    "reuseLedgerServices": true,
+    "reuseCreatorPublishPipeline": true,
+    "cacheGeneratedWorldArtifacts": true,
+    "batchNeighborhoodJobs": true,
+    "incrementalValidation": true
+  },
+  "capabilities": [
+    {"id":"production-health","status":"LIVE","priority":1},
+    {"id":"chicago-77-registry","status":"LIVE","priority":2},
+    {"id":"my-world","status":"LIVE","priority":3},
+    {"id":"world-certification","status":"LIVE","priority":4},
+    {"id":"chicago-playable-slice","status":"BUILDING","priority":5},
+    {"id":"mission-to-ledger","status":"BUILDING","priority":6},
+    {"id":"reel-publish","status":"BUILDING","priority":7},
+    {"id":"checkout-server-verification","status":"BUILDING","priority":8},
+    {"id":"benny-holo-world-status","status":"BUILDING","priority":9},
+    {"id":"cesium-geospatial-adapter","status":"LOCKED","priority":10},
+    {"id":"holo-asset-generator-runtime","status":"LOCKED","priority":11}
+  ]
+}
