@@ -12,6 +12,25 @@
     <section class="auth"><label>Session token<input id="token" type="password" placeholder="Paste the token returned after login"></label><button id="load">Load dashboard</button></section>
     <section id="metrics" class="metrics" aria-live="polite"></section>
 
+    <section class="panel holo-dashboard" id="holo-dashboard" aria-labelledby="holo-title">
+      <div class="holo-scanline"></div>
+      <div class="panel-heading"><div><p class="eyebrow">Holographic command surface</p><h2 id="holo-title">Benny · Founder Holo Dashboard</h2><p>One rotating control surface for AI, StreetVerse, business, media, payments, jobs, accessibility, release status, and recursive improvement.</p></div><span class="badge" id="holo-state">Holo standby</span></div>
+      <div class="holo-stage">
+        <aside class="benny-host" aria-label="Benny holographic host">
+          <div class="benny-orbit"></div>
+          <div class="benny-core"><span>B</span></div>
+          <h3>Benny</h3><p id="benny-line">Ready to route founder commands.</p>
+          <button type="button" id="benny-refresh">Refresh Holo View</button>
+        </aside>
+        <div class="holo-carousel-wrap">
+          <button type="button" class="holo-nav" id="holo-prev" aria-label="Previous holographic panel">‹</button>
+          <div id="holo-carousel" class="holo-carousel" role="region" aria-live="polite"></div>
+          <button type="button" class="holo-nav" id="holo-next" aria-label="Next holographic panel">›</button>
+        </div>
+      </div>
+      <div id="holo-dots" class="holo-dots" aria-label="Holographic dashboard pages"></div>
+    </section>
+
     <section class="panel" id="recursive-panel">
       <div class="panel-heading"><div><p class="eyebrow">Controlled recursive improvement</p><h2>Stubbs AI Improvement Command Center</h2></div><span id="recursive-mode" class="badge">Load to verify policy</span></div>
       <p>Run a guarded propose → test → evaluate → approve → measure cycle. Code-changing and high-impact work stays behind sandbox, approval, rollback, and immutable-boundary controls.</p>
