@@ -77,3 +77,13 @@ Do not attempt a broad synchronization while GitHub reports `mergeable=false` an
 - The current-main WebXR implementation and its `streetverse-webxr-contract.mjs` build gate have already been synchronized onto the foundation branch and protected by `main-sync-preflight-contract.mjs`.
 
 **Blocker:** the remaining 63-main-commit synchronization surface is still too broad for a safe blanket merge/rebase, and successful CI/Vercel status contexts alone are not runtime release-readiness evidence. Continue one release-relevant delta at a time, then collect explicit deployed-runtime evidence against the release gates before declaring readiness.
+
+## 2026-09-11 health-probe verification checkpoint
+
+- Inspected PR head `9309acaa3aab97ce5d646c9c49daedf6faaf3a08` remains open, unmerged, and `mergeable=false`.
+- Current `main` is `ac0533a3fa685dc40423f47448c205f7de1fc053`; GitHub compare reports the branch 364 commits ahead / 64 commits behind main with merge base `ec6918c8204fd0ca3c5b9bad992851f23762f7e1`.
+- GitHub Actions run `34607624615` is attached to PR #171. `Omniverse app checks` and the `Release gate` completed successfully. `Production deploy` was skipped, which is expected for a non-main branch and is not production-runtime evidence.
+- Both Vercel status contexts on the inspected head report `success`.
+- `main-sync-preflight-contract.mjs` now protects the Render convergence default from regressing from `/api/health` back to the Render root URL.
+
+**Blocker:** reconciliation is still broad at 64 main commits behind, so a blanket merge/rebase remains unsafe. CI attachment and preview deployment evidence are healthy, but explicit release-runtime verification is still missing; production deploy being skipped on PR #171 must not be treated as release proof. Continue one release-relevant reconciliation delta at a time, then verify deployed runtime behavior against the release gates before declaring readiness.
