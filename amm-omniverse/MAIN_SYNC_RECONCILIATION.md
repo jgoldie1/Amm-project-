@@ -106,3 +106,12 @@ Do not attempt a broad synchronization while GitHub reports `mergeable=false` an
 - Because CI attachment is a release gate, Vercel success alone is insufficient evidence and release readiness must remain blocked until a new head has an attached, passing TryAMM Full CI run.
 
 **Blocker:** main drift expanded substantially and current-head GitHub Actions attachment is not proven. Do not force a 92-commit merge/rebase. The next safe step is to use a minimal branch-only commit to retrigger the configured CI path, verify Root platform checks, Omniverse app checks, and Release gate on that exact head, and only then continue with targeted release-relevant reconciliation.
+
+## 2026-09-11 CI recovery + main-drift checkpoint
+
+- Inspected PR head `d55a02fbed26dd85f1efde8b38fa52a43b3dc119` remains open, unmerged, and `mergeable=false`.
+- Current `main` advanced to `86700a0c6495a48093287244788b952c362b34ad`; GitHub compare reports the foundation branch is 369 commits ahead / 93 commits behind, with merge base `ec6918c8204fd0ca3c5b9bad992851f23762f7e1`.
+- TryAMM Full CI run `34636547739` is attached to this exact head and completed successfully. Root platform checks, Omniverse app checks, and the Release gate all passed. Production deploy was skipped, which is correct for the non-main foundation branch and is not production-runtime proof.
+- The newest main commit `86700a0c6495a48093287244788b952c362b34ad` only changes `amm-omniverse/src/components/HoloStyleCenter.tsx` to surface Quantum Source tariff-padding, proof-tracking, photo/video verification, and fulfillment controls. That component is not present on the foundation branch and is not part of the current release-blocker path for PR #171, so copying it now would introduce unrelated feature scope rather than reduce release risk.
+
+**Blocker:** CI attachment is recovered and green on the inspected head, but the branch remains 93 main commits behind and the safe-world runtime wiring plus explicit deployed-runtime evidence are still outstanding. Continue release-critical reconciliation only; defer HoloStyle feature expansion until the release path is stable.
