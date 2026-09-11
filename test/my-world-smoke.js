@@ -1,0 +1,13 @@
+'use strict';
+const assert=require('assert');
+const fs=require('fs');
+for(const file of ['public/my-world.html','public/my-world.css','public/my-world.js']) assert(fs.existsSync(file),`${file} missing`);
+const html=fs.readFileSync('public/my-world.html','utf8');
+const js=fs.readFileSync('public/my-world.js','utf8');
+const shell=fs.readFileSync('public/app-shell.js','utf8');
+for(const token of ['My World','Chicago 77','Neighborhood Compiler','OMNIVERSE AFTER DARK','StreetCredit']) assert(html.includes(token),`${token} missing from My World`);
+for(const token of ['Rogers Park','The Loop','Englewood','Edgewater','HOLO ASSET GENERATOR','CERTIFICATION']) assert(js.includes(token),`${token} missing from My World registry`);
+const areaEntries=(js.match(/\['[^']+'\s*,\s*'(?:north|west|south|central)'\]/g)||[]).length+(js.match(/\["O'Hare"\s*,\s*'north'\]/g)||[]).length;
+assert.strictEqual(areaEntries,77,'My World must expose all 77 Chicago community areas');
+assert(shell.includes('/my-world.html'),'My World entry missing from app shell');
+console.log('My World and Chicago 77 visible UI smoke checks passed');
