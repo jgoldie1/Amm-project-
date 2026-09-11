@@ -21,6 +21,7 @@ const releaseCritical = [
 const docsOrFeature = [
   /^docs\//,
   /^amm-omniverse\/docs\//,
+  /^amm-omniverse\/public\/founder-dashboard\.(css|html|js)$/,
   /^amm-omniverse\/src\/components\/(HoloStyle|LivingStory|MovieStudio|PropertyVerse|FamilyLegacy|Quantum|Poyo|OTT|ProAudio)/,
 ]
 
