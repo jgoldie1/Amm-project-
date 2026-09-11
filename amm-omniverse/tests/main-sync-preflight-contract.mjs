@@ -36,6 +36,10 @@ const currentMainSmokeContracts = [
 ]
 
 assert.equal(pkg.engines?.node, '>=24 <25', 'main sync must preserve the current Node 24 runtime contract')
+assert.ok(
+  pkg.dependencies?.['@vitejs/plugin-react'] || pkg.devDependencies?.['@vitejs/plugin-react'],
+  'main sync must preserve the Vite React plugin required by the Omniverse build',
+)
 assert.match(pkg.scripts.build, /repair-streetverse-entry\.mjs/, 'build must run the StreetVerse entry repair before smoke/build')
 assert.match(pkg.scripts.build, /npm run smoke/, 'build must retain the foundation smoke gate')
 for (const contract of currentMainSmokeContracts) {
