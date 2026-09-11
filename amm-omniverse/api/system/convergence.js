@@ -82,7 +82,7 @@ export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8')
   if (req.method !== 'GET') return res.status(405).json({ ok: false, error: 'method_not_allowed' })
 
-  const renderUrl = process.env.RENDER_HEALTH_URL || 'https://amm-project-1-rpz9.onrender.com/'
+  const renderUrl = process.env.RENDER_HEALTH_URL || 'https://amm-project-1-rpz9.onrender.com/api/health'
   const publicUrl = process.env.PUBLIC_APP_URL || 'https://tryamm.online/'
 
   const [registry, publicWeb, render] = await Promise.all([
