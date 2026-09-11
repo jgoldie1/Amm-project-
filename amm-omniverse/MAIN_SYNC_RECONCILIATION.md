@@ -87,3 +87,12 @@ Do not attempt a broad synchronization while GitHub reports `mergeable=false` an
 - `main-sync-preflight-contract.mjs` now protects the Render convergence default from regressing from `/api/health` back to the Render root URL.
 
 **Blocker:** reconciliation is still broad at 64 main commits behind, so a blanket merge/rebase remains unsafe. CI attachment and preview deployment evidence are healthy, but explicit release-runtime verification is still missing; production deploy being skipped on PR #171 must not be treated as release proof. Continue one release-relevant reconciliation delta at a time, then verify deployed runtime behavior against the release gates before declaring readiness.
+
+## 2026-09-11 safe-world staging checkpoint
+
+- Inspected PR head `3a0a2e3f40a79016e9660c12b3279388a4f99d6f` remains open, unmerged, and `mergeable=false`.
+- Current `main` remains `ac0533a3fa685dc40423f47448c205f7de1fc053`; GitHub compare reports the foundation branch 366 commits ahead / 64 commits behind main with merge base `ec6918c8204fd0ca3c5b9bad992851f23762f7e1`.
+- Root platform checks, Omniverse app checks, and the Release gate completed successfully on this head. Production deploy was skipped, which is expected for PR #171 and is not production-runtime evidence.
+- `StreetVerseSafeWorld.tsx` has been staged on the foundation branch, but `App.tsx` does not yet wire that component into the runtime path. Current-main `App.tsx` also contains broader mobile-shell/runtime layout changes, so copying the whole file would risk overwriting foundation-only surfaces such as Stays/Agency/Family and Set Apart Passport routing.
+
+**Blocker:** the safe-world runtime integration cannot be treated as a blind file sync. The next safe code increment should isolate only the required mobile safe-mode wiring/layout behavior and preserve branch-only navigation/features, with CI attached to the resulting head. Until that targeted integration and explicit deployed-runtime verification are complete, release readiness must not be claimed.
