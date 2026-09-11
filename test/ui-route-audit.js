@@ -48,9 +48,12 @@ auditLinks('public/jacobie-vision.html');
 auditLinks('public/spaceverse.html');
 auditLinks('public/moon-mission.html');
 auditLinks('public/el-saturn-space.html');
+auditLinks('public/founder-dashboard.html');
+auditLinks('public/my-world.html');
 
 auditButtonIds('public/index.html', ['public/app.js', 'public/judah-splash.js', 'public/install-app.js'], ['splashStart', 'splashSkip', 'splashReplay', 'installOpen', 'installConfirm', 'installDismiss']);
 auditButtonIds('public/propertyverse.html', ['public/propertyverse.js']);
+auditButtonIds('public/founder-dashboard.html', ['public/founder-dashboard.js']);
 auditDataControls('public/index.html', ['public/app.js'], 'data-open');
 auditDataControls('public/index.html', ['public/app.js'], 'data-gift');
 auditDataControls('public/index.html', ['public/app.js'], 'data-status');
@@ -58,5 +61,12 @@ auditDataControls('public/index.html', ['public/app.js'], 'data-status');
 auditButtonIds('public/spaceverse.html', ['public/spaceverse.js']);
 auditDataControls('public/spaceverse.html', ['public/spaceverse.js'], 'data-world');
 auditDataControls('public/spaceverse.html', ['public/spaceverse.js'], 'data-model');
+
+const founderHtml = read('public/founder-dashboard.html');
+const founderJs = read('public/founder-dashboard.js');
+assert(founderHtml.includes('Release Critical Path'), 'Founder dashboard must expose release critical path');
+assert(founderHtml.includes('Chicago 77'), 'Founder dashboard must expose Chicago 77 progress');
+assert(founderJs.includes('renderVelocity'), 'Founder dashboard must render velocity state');
+assert(founderJs.includes('nextCriticalPath'), 'Founder dashboard must surface next critical path');
 
 console.log('TRYAMM UI route/button audit passed');

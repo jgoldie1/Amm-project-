@@ -5,12 +5,22 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>TRYAMM Founder Dashboard</title>
   <link rel="stylesheet" href="/founder-dashboard.css">
+  <link rel="stylesheet" href="/founder-velocity.css">
 </head>
 <body>
   <main class="shell">
     <header><p class="eyebrow">TRYAMM · The Living Digital Universe</p><h1>Founder Content & Build Dashboard</h1><p>Turn every contractor, inventor, development milestone, and AI improvement cycle into truthful, reusable evidence.</p></header>
     <section class="auth"><label>Session token<input id="token" type="password" placeholder="Paste the token returned after login"></label><button id="load">Load dashboard</button></section>
     <section id="metrics" class="metrics" aria-live="polite"></section>
+
+    <section class="panel velocity-panel" aria-labelledby="velocity-title">
+      <div class="panel-heading"><div><p class="eyebrow">Execution velocity</p><h2 id="velocity-title">Release Critical Path</h2><p>Benny shows what is live, what is building, what is locked, and the next release-critical step.</p></div><span id="velocity-mode" class="badge">Load dashboard</span></div>
+      <div id="velocity-summary" class="velocity-grid" aria-live="polite"></div>
+      <div class="world-progress">
+        <div class="panel-heading"><div><p class="eyebrow">Chicago 77</p><h3>World Certification Progress</h3></div><a class="command-link" href="/my-world.html">Open My World</a></div>
+        <div id="world-status" class="world-status" aria-live="polite"></div>
+      </div>
+    </section>
 
     <section class="panel holo-dashboard" id="holo-dashboard" aria-labelledby="holo-title">
       <div class="holo-scanline"></div>

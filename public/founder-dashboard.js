@@ -41,6 +41,17 @@ function renderMetrics(metrics, infrastructure) {
     `<article><strong>${infrastructure.supabase ? 'Connected' : 'Local fallback'}</strong><span>database mode</span></article>`;
 }
 
+function renderVelocity(velocity = {}, world = {}) {
+  $('#velocity-mode').textContent = velocity.mode || 'velocity unavailable';
+  const statuses = velocity.statusCounts || {};
+  $('#velocity-summary').innerHTML = `<article><span>Next critical step</span><strong>${escapeHtml(velocity.nextCriticalPath || 'Critical path complete')}</strong></article>` +
+    Object.entries(statuses).map(([status, count]) => `<article><span>${escapeHtml(status)}</span><strong>${escapeHtml(count)}</strong></article>`).join('');
+  const counts = world.counts || {};
+  $('#world-status').innerHTML = Object.entries(counts).map(([status, count]) => `<article><strong>${escapeHtml(count)}</strong><span>${escapeHtml(status.replaceAll('_',' '))}</span></article>`).join('') || '<p>World status unavailable.</p>';
+  const next = velocity.nextCriticalPath || 'critical path complete';
+  $('#benny-line').textContent = `Velocity control plane linked. Next critical step: ${next}. Chicago registry: ${world.chicagoCommunityAreas || 0} areas.`;
+}
+
 function renderPowerUps(payload) {
   const policy = payload.policy || {};
   $('#recursive-mode').textContent = policy.mode || 'policy unavailable';
@@ -76,8 +87,10 @@ async function loadDashboard() {
     api('/api/stubbs/power-ups')
   ]);
   renderMetrics(dashboard.metrics, dashboard.infrastructure);
+  renderVelocity(dashboard.velocity, dashboard.world);
   renderPowerUps(powerUps);
   renderHoloDashboard();
+  renderVelocity(dashboard.velocity, dashboard.world);
   const projects = projectsPayload.projects || [];
   $('#projects').innerHTML = projects.length ? projects.map(p => `<article class="project"><h3>${escapeHtml(p.title)}</h3><p><b>${escapeHtml(p.status)}</b> · ${escapeHtml(p.contributor_name || 'TRYAMM team')}</p><p>${escapeHtml(p.summary)}</p><button data-project="${escapeHtml(p.id)}">View generated content</button></article>`).join('') : '<p>No development projects yet.</p>';
 }
@@ -90,7 +103,7 @@ async function loadOutputs(projectId) {
 $('#holo-prev').addEventListener('click', () => moveHolo(-1));
 $('#holo-next').addEventListener('click', () => moveHolo(1));
 $('#holo-dots').addEventListener('click', event => { if (event.target.dataset.holoIndex !== undefined) { holoIndex = Number(event.target.dataset.holoIndex); renderHoloDashboard(); } });
-$('#benny-refresh').addEventListener('click', () => { renderHoloDashboard(); statusNode.textContent = 'Benny holographic dashboard refreshed.'; });
+$('#benny-refresh').addEventListener('click', () => { loadDashboard().then(() => { statusNode.textContent = 'Benny holographic command center refreshed.'; }).catch(showError); });
 $('#load').addEventListener('click', () => loadDashboard().catch(showError));
 $('#projects').addEventListener('click', event => {
   const projectId = event.target.dataset.project;
