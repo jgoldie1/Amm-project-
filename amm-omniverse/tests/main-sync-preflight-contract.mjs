@@ -8,6 +8,7 @@ const missionCenter = fs.readFileSync(new URL('../src/components/LivingStoryMiss
 const missionCatalog = fs.readFileSync(new URL('../src/data/livingStoryMissionCatalog.ts', import.meta.url), 'utf8')
 const questRuntime = fs.readFileSync(new URL('../src/runtime/StreetVerseQuestImmersiveRuntime.ts', import.meta.url), 'utf8')
 const creatorDistrict = fs.readFileSync(new URL('../src/runtime/StreetVerseCreatorDistrict3D.ts', import.meta.url), 'utf8')
+const convergence = fs.readFileSync(new URL('../api/system/convergence.js', import.meta.url), 'utf8')
 const ciWorkflow = fs.readFileSync(new URL('../../.github/workflows/ci.yml', import.meta.url), 'utf8')
 
 const currentMainSmokeContracts = [
@@ -64,5 +65,8 @@ assert.ok(missionCatalog.length > 0, 'Living Story mission catalog must not be e
 assert.match(questRuntime, /renderer!\.xr\.getCamera\(\)/, 'main sync must retain the current Three WebXR camera API compatibility fix')
 assert.doesNotMatch(questRuntime, /renderer!\.xr\.getCamera\(camera\)/, 'main sync must not restore the obsolete WebXR camera call')
 assert.match(creatorDistrict, /o instanceof THREE\.Mesh&&o\.geometry instanceof THREE\.TorusGeometry/, 'main sync must keep animated geometry narrowed to mesh instances')
+
+assert.match(convergence, /RENDER_HEALTH_URL \|\| 'https:\/\/amm-project-1-rpz9\.onrender\.com\/api\/health'/, 'main sync must preserve the Render health endpoint used by convergence verification')
+assert.doesNotMatch(convergence, /RENDER_HEALTH_URL \|\| 'https:\/\/amm-project-1-rpz9\.onrender\.com\/'/, 'main sync must not restore the Render root URL as the default convergence probe')
 
 console.log('main sync preflight contract: GREEN')
