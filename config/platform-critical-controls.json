@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "principle": "safe-speed-through-guardrails",
+  "controls": {
+    "featureFlags": {"requiredForHighRiskFeatures": true, "defaultState": "off"},
+    "killSwitches": {"payments": true, "realMoneyCompetitions": true, "aiCodeChanges": true, "worldGeneration": true},
+    "observability": {"health": true, "structuredErrors": true, "deploymentEvidence": true, "worldProgress": true},
+    "rollback": {"requiredBeforeProductionCertification": true},
+    "idempotency": {"requiredForMoneyAndRewards": true},
+    "rateLimits": {"requiredForAuthMoneyAiAndGeneration": true},
+    "dataMinimization": {"defaultRetention": "minimum-necessary", "deleteOrDeidentify": true},
+    "accessibility": {"requiredForProductionCertification": true},
+    "sourceRights": {"requiredForWorldAssets": true},
+    "aiGovernance": {"humanApprovalForHighImpact": true, "immutableBoundaries": true, "selfDeployProhibited": true}
+  },
+  "releaseOrder": [
+    "CI_GREEN",
+    "SECURITY_AND_RIGHTS",
+    "ACCESSIBILITY",
+    "PERFORMANCE_BUDGET",
+    "OBSERVABILITY",
+    "ROLLBACK_READY",
+    "PREVIEW_VERIFIED",
+    "PRODUCTION_DEPLOY",
+    "POST_DEPLOY_SMOKE"
+  ]
+}
