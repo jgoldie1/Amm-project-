@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "worldName": "TRYAMM World",
+  "statusModel": ["PLANNED", "DATA_READY", "CONSTRUCTING", "PLAYABLE", "ECONOMY_ENABLED", "PRODUCTION_CERTIFIED"],
+  "mapPolicy": {
+    "globe": "real-geospatial-scale",
+    "flatWorldView": "equal-area",
+    "africaRepresentation": "true-relative-area",
+    "thirdPartyImagery": "reference-or-supported-api-only",
+    "permanentAssets": "TRYAMM-created-or-properly-licensed"
+  },
+  "generationPipeline": [
+    "BOUNDARIES",
+    "ROADS_TERRAIN",
+    "PERMITTED_BUILDING_DATA",
+    "REFERENCE_SLIDES",
+    "HOLO_ASSET_GENERATOR",
+    "NEIGHBORHOOD_COMPILER",
+    "STREAMING_LOD",
+    "POPULATION_TRAFFIC",
+    "BUSINESSES_PROPERTIES",
+    "MISSIONS_SPORTS",
+    "DAY_AFTER_DARK",
+    "ECONOMY_SUPPLY_CHAIN",
+    "VALIDATION",
+    "CERTIFICATION"
+  ],
+  "timeLayers": ["PAST_DOCUMENTED", "PRESENT", "FUTURE_SIMULATION"],
+  "economyLayers": ["STREET_CREDIT", "REWARD", "PAYABLE", "MARKETPLACE", "EXCHANGE", "BUSINESS_PASSPORT", "SUPPLY_CHAIN"],
+  "supplyChain": {
+    "nodes": ["PRODUCER", "MANUFACTURER", "WAREHOUSE", "PORT", "RAIL", "TRUCK", "AIR_CARGO", "DISTRIBUTION_CENTER", "LOCAL_BUSINESS", "DELIVERY", "CUSTOMER"],
+    "liveProviderDataRequiredForRealTransactions": true
+  },
+  "expansionOrder": [
+    "Chicago",
+    "Greenville University / Greenville Illinois",
+    "Illinois",
+    "St. Louis Missouri",
+    "Indiana",
+    "Detroit / Michigan",
+    "Atlanta / Georgia",
+    "United States - all 50 states",
+    "Global"
+  ],
+  "chicago": {
+    "officialCommunityAreaCount": 77,
+    "registryStatus": "DATA_READY",
+    "communityAreas": [
+      "Rogers Park", "West Ridge", "Uptown", "Lincoln Square", "North Center", "Lake View", "Lincoln Park", "Near North Side", "Edison Park", "Norwood Park", "Jefferson Park", "Forest Glen", "North Park", "Albany Park", "Portage Park", "Irving Park", "Dunning", "Montclare", "Belmont Cragin", "Hermosa", "Avondale", "Logan Square", "Humboldt Park", "West Town", "Austin", "West Garfield Park", "East Garfield Park", "Near West Side", "North Lawndale", "South Lawndale", "Lower West Side", "The Loop", "Near South Side", "Armour Square", "Douglas", "Oakland", "Fuller Park", "Grand Boulevard", "Kenwood", "Washington Park", "Hyde Park", "Woodlawn", "South Shore", "Chatham", "Avalon Park", "South Chicago", "Burnside", "Calumet Heights", "Roseland", "Pullman", "South Deering", "East Side", "West Pullman", "Riverdale", "Hegewisch", "Garfield Ridge", "Archer Heights", "Brighton Park", "McKinley Park", "Bridgeport", "New City", "West Elsdon", "Gage Park", "Clearing", "West Lawn", "Chicago Lawn", "West Englewood", "Englewood", "Greater Grand Crossing", "Ashburn", "Auburn Gresham", "Beverly", "Washington Heights", "Mount Greenwood", "Morgan Park", "O'Hare", "Edgewater"
+    ],
+    "certificationDimensions": [
+      "BOUNDARY_MAP",
+      "STREETS",
+      "BUILDINGS_LANDMARKS",
+      "RESIDENTIAL_PROPERTY",
+      "BUSINESSES",
+      "NPC_POPULATION",
+      "TRANSPORTATION",
+      "MISSIONS",
+      "SPORTSVERSE",
+      "JOBS",
+      "MARKETPLACE",
+      "HISTORY_CULTURE",
+      "ACCESSIBILITY",
+      "AFTER_DARK",
+      "OPTIMIZATION"
+    ]
+  }
+}
