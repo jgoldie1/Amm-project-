@@ -48,3 +48,13 @@ This verifies CI attachment and the branch validation workflow for the inspected
 ## Next safe reconciliation boundary
 
 Do not attempt a broad synchronization while GitHub reports `mergeable=false` and the branch remains behind main. The next synchronization increment must select one release-relevant main-only runtime/configuration change, compare it against the foundation branch, and either port it exactly or document why the branch already contains an equivalent or safer implementation. Documentation-only main drift stays deferred unless it becomes part of an explicit release gate.
+
+## 2026-09-11 reconciliation checkpoint
+
+- PR #171 remains open, unmerged, and `mergeable=false` at inspected head `fb2fd1d8caaf178354cd4f14a7ba3c945ce9c8c2`.
+- Current `main` is `24a61cc9dd4575349f1d7b2914e8d7eacd1f5e92`; GitHub compare reports the branch diverged at 351 commits ahead / 57 commits behind with merge base `ec6918c8204fd0ca3c5b9bad992851f23762f7e1`.
+- TryAMM Full CI run `34548911402` is attached to the inspected branch head and completed with conclusion `success`.
+- Main commit `cdf7b08130e8f89e13f662467941e3cc08eff63b` changes responder NPC animation iteration from a collection callback with an index parameter to indexed iteration over `responderNPCs.values()`.
+- The foundation branch already carries an equivalent explicit indexed `for...of responderNPCs.values()` loop, so copying that main change would be redundant and could overwrite a behaviorally equivalent branch implementation.
+
+**Blocker:** the remaining 57-commit synchronization surface is still broad. Continue reviewing one release-relevant main delta at a time; do not force a merge/rebase merely to reduce the numeric behind count. Runtime/deployment release evidence remains outstanding after synchronization and CI gates are complete.
