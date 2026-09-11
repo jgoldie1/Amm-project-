@@ -44,6 +44,7 @@ const QuantumBeatCenter = lazy(() => import('./components/QuantumBeatCenter'))
 const OTTIsaiahTV = lazy(() => import('./components/OTTIsaiahTV'))
 const PoyoAIStudio = lazy(() => import('./components/PoyoAIStudio'))
 const PropertyVerseCenter = lazy(() => import('./components/PropertyVerseCenter'))
+const HoloStyleCenter = lazy(() => import('./components/HoloStyleCenter'))
 
 export default function App() {
   const screen = useGameStore(s => s.screen)
@@ -77,6 +78,7 @@ export default function App() {
   const [showNextDevelopment, setShowNextDevelopment] = useState(false)
   const [showQuantumTag, setShowQuantumTag] = useState(false)
   const [showPropertyVerse, setShowPropertyVerse] = useState(false)
+  const [showHoloStyle, setShowHoloStyle] = useState(false)
   const [showNexus, setShowNexus] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
@@ -88,6 +90,7 @@ export default function App() {
   ;(window as any).__showAdvancedWorlds = () => setShowAdvanced(true)
   ;(window as any).__showSpaceVerse = () => setShowAdvanced(true)
   ;(window as any).__showPropertyVerse = () => setShowPropertyVerse(true)
+  ;(window as any).__showHoloStyle = () => setShowHoloStyle(true)
   ;(window as any).__showKingdomsPress = () => setShowPress(true)
   ;(window as any).__showImmersiveWorlds = () => setShowImmersive(true)
   ;(window as any).__showAICafe = () => setShowCafe(true)
@@ -119,6 +122,7 @@ export default function App() {
   const shellAvailable = screen !== 'login'
   const isGameplay = screen === 'city'
   const nexusItems = [
+    ['👗','HOLOSTYLE FASHION',()=>setShowHoloStyle(true),'BETA'],
     ['TAG','QUANTUM TAG',()=>setShowQuantumTag(true),'BETA'],
     ['∞','ECONOMIC LOOP',()=>setShowEconomicLoop(true),'BETA'],
     ['🛡','SECURITY',()=>setShowSecurity(true),'LIVE'],
@@ -189,6 +193,7 @@ export default function App() {
         {showQuantumTag && <QuantumTagArena onClose={() => setShowQuantumTag(false)} />}
         {showOmniverse && <OmniverseCommandCenter onClose={() => setShowOmniverse(false)} />}
         {showPropertyVerse && <PropertyVerseCenter onClose={() => setShowPropertyVerse(false)} />}
+        {showHoloStyle && <div style={{position:'fixed',inset:0,zIndex:10030,background:'#02020a'}}><HoloStyleCenter onClose={() => setShowHoloStyle(false)} /></div>}
         {showHoloCore && <HoloCoreCenter onClose={() => setShowHoloCore(false)} />}
         {showHoloServices && <HoloServicesHub onClose={() => setShowHoloServices(false)} />}
         {showOmniWear && <OmniWearCenter onClose={() => setShowOmniWear(false)} />}
