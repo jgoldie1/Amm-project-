@@ -42,11 +42,15 @@ function auditDataControls(htmlRel, jsRels, attribute) {
 }
 
 auditLinks('public/index.html');
+auditLinks('public/app-shell.html');
+auditLinks('public/propertyverse.html');
+auditLinks('public/jacobie-vision.html');
 auditLinks('public/spaceverse.html');
 auditLinks('public/moon-mission.html');
 auditLinks('public/el-saturn-space.html');
 
 auditButtonIds('public/index.html', ['public/app.js', 'public/judah-splash.js', 'public/install-app.js'], ['splashStart', 'splashSkip', 'splashReplay', 'installOpen', 'installConfirm', 'installDismiss']);
+auditButtonIds('public/propertyverse.html', ['public/propertyverse.js']);
 auditDataControls('public/index.html', ['public/app.js'], 'data-open');
 auditDataControls('public/index.html', ['public/app.js'], 'data-gift');
 auditDataControls('public/index.html', ['public/app.js'], 'data-status');
