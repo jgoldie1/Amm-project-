@@ -12,6 +12,7 @@ import GameVerseLauncher from './components/GameVerseLauncher'
 import UniversalAccessRuntime from './components/UniversalAccessRuntime'
 import StandaloneProductSite from './components/StandaloneProductSite'
 import GlobalLaunchBar from './components/GlobalLaunchBar'
+import StreetVerseFaithChronoPortal from './components/StreetVerseFaithChronoPortal'
 import { getStandaloneSite } from './data/standaloneSiteRegistry'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
@@ -147,6 +148,7 @@ const routeFallback=<div role="status" aria-live="polite" style={{position:'fixe
 
 const streetVerseRoute=<>
   <Suspense fallback={routeFallback}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense>
+  <StreetVerseFaithChronoPortal />
   <div style={{position:'fixed',left:12,top:12,zIndex:16990,display:'flex',gap:8,flexWrap:'wrap'}}>
     <button onClick={()=>{window.location.href='/streetverse/twin-world'}} style={{border:'1px solid #62b8ff99',borderRadius:999,padding:'10px 14px',background:'#071725',color:'#fff',fontWeight:950,cursor:'pointer'}}>🌎 TWIN WORLD • REAL CHICAGO</button>
     <button onClick={()=>{window.location.href='/streetverse/meet-the-stubbs'}} style={{border:'1px solid #e8b94499',borderRadius:999,padding:'10px 14px',background:'#17120a',color:'#fff',fontWeight:950,cursor:'pointer'}}>MEET THE STUBBS • 13 WORLD STORES</button>

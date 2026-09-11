@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "policy": "do-not-bury-core-faith-products",
+  "products": [
+    {
+      "id": "ethiopian-bible-metaverse",
+      "route": "/ethiopian-bible",
+      "status": "BUILDING",
+      "mustRemainVisible": true,
+      "requiredCapabilities": [
+        "source-verified Ethiopian biblical study",
+        "explicit 88-book curriculum manifest",
+        "book/chapter/passage navigation",
+        "audio and read-aloud",
+        "Hebrew learning",
+        "Strong's/KJV-linked lexical study where valid",
+        "maps and timelines",
+        "walkable immersive study worlds",
+        "accessible one-hand/keyboard/reduced-motion controls",
+        "clear separation of scripture, commentary, lexicon and AI explanation"
+      ]
+    },
+    {
+      "id": "kingdoms-press",
+      "route": "/kingdoms-press",
+      "status": "BUILDING",
+      "mustRemainVisible": true,
+      "requiredCapabilities": [
+        "editorial workflow",
+        "source and rights verification",
+        "accessibility review",
+        "translation workflow",
+        "print and POD editions",
+        "audio/interactive/HoloBook rights",
+        "royalties and sales",
+        "author events",
+        "Bible study guides and educational publishing"
+      ]
+    }
+  ],
+  "releaseRule": "A route existing in code does not make the full product production-complete. Content corpus, rights, live data, immersive scenes and end-to-end publishing proof are tracked separately."
+}

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "product": "TRYAMM Faith Chrono Experiences",
+  "status": "BUILDING",
+  "timeMachinePolicy": {
+    "physicalTimeTravelClaim": false,
+    "historicalReconstruction": true,
+    "simulationLabelRequired": true,
+    "scriptureAndSourceCitationRequired": true,
+    "generatedDialogueMustBeLabeled": true,
+    "divineCommunicationClaimProhibited": true
+  },
+  "experiences": [
+    {
+      "id": "walk-with-messiah",
+      "title": "Walk the Earth in the Time of the Messiah",
+      "mode": "RECONSTRUCTION",
+      "status": "BUILDING",
+      "description": "A source-grounded immersive reconstruction of places, travel, teaching settings and daily life associated with the earthly ministry of the Messiah. Users may explore scenes and ask questions through clearly labeled educational character simulation; generated responses are not presented as literal words from the historical or divine figure unless directly quoted from an identified scripture/source."
+    },
+    {
+      "id": "galilee-fishing",
+      "title": "Go Fishing on the Sea of Galilee",
+      "mode": "RECONSTRUCTION_ADVENTURE",
+      "status": "BUILDING",
+      "description": "An immersive fishing and discipleship-era educational experience using reconstructed boats, shoreline, fishing methods, weather, geography and source-backed narrative context."
+    },
+    {
+      "id": "prayer-reflection-yahavah",
+      "title": "Prayer and Reflection with Yahavah",
+      "mode": "DEVOTIONAL",
+      "status": "BUILDING",
+      "description": "A private prayer, scripture, journaling and reflection space. The system may organize scripture and prompts but must not claim that generated text is a direct message from Yahavah."
+    },
+    {
+      "id": "ruach-study-reflection",
+      "title": "Ruach Study and Reflection",
+      "mode": "DEVOTIONAL_STUDY",
+      "status": "BUILDING",
+      "description": "A scripture-grounded study and reflection lane about the Ruach, with source labels, commentary separation and optional immersive teaching scenes."
+    }
+  ],
+  "sharedSystems": [
+    "Quantum Time Machine",
+    "ChronoExperienceRuntime",
+    "Ethiopian Bible Metaverse",
+    "88-book curriculum manifest",
+    "Benny/Chronicle narration",
+    "HoloGPT study assistant",
+    "Pocket Dimension saved checkpoints",
+    "accessibility runtime"
+  ]
+}

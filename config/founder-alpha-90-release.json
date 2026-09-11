@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "release": "TRYAMM Founder Alpha 90",
+  "status": "BUILDING",
+  "purpose": "Convert the existing TRYAMM architecture into one demonstrable mobile-first production loop before expanding scope.",
+  "entryExperience": "TRYAMM -> My World -> StreetVerse -> Chicago playable slice",
+  "requiredLoops": {
+    "game": ["load StreetVerse", "spawn player", "move", "interact", "complete mission", "persist checkpoint"],
+    "economy": ["mission result verified", "reward ledger write", "wallet displays authoritative balance", "marketplace action", "server verification"],
+    "creator": ["capture", "compose", "publish", "confirm published content"],
+    "faith": ["enter Ethiopian Bible Faith World", "select chapter experience", "launch Chrono reconstruction", "complete learning objective", "save checkpoint", "return to StreetVerse"],
+    "command": ["Benny reads real release state", "Holo Dashboard shows LIVE READY BUILDING LOCKED COMING_SOON", "Founder can identify blockers"]
+  },
+  "releaseGates": [
+    "CI_GREEN",
+    "RIGHTS_AND_SOURCE_CHECK",
+    "SECURITY_CHECK",
+    "ACCESSIBILITY_CHECK",
+    "MOBILE_CHECK",
+    "PERFORMANCE_BUDGET",
+    "ROLLBACK_READY",
+    "PREVIEW_VERIFIED",
+    "PRODUCTION_DEPLOYED",
+    "POST_DEPLOY_SMOKE"
+  ],
+  "notRequiredFor90Percent": [
+    "all 77 Chicago community areas fully rendered",
+    "all Bible chapters fully immersive",
+    "all planned TRYAMM businesses and worlds",
+    "every future holographic hardware concept",
+    "every locked experimental feature"
+  ],
+  "scopeFreeze": {
+    "enabled": true,
+    "exceptions": ["release blocker", "security", "accessibility", "data integrity", "legal or rights issue", "rollback or observability"]
+  }
+}
