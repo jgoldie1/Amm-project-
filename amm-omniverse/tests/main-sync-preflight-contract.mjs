@@ -31,6 +31,7 @@ const currentMainSmokeContracts = [
   'poyo-holosocial-lazy-contract.mjs',
   'streetverse-self-healing-contract.mjs',
   'streetverse-journey-qa-contract.mjs',
+  'streetverse-webxr-contract.mjs',
 ]
 
 assert.equal(pkg.engines?.node, '>=24 <25', 'main sync must preserve the current Node 24 runtime contract')
