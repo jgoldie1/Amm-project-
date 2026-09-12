@@ -24,6 +24,7 @@ const docsOrFeature = [
   /^amm-omniverse\/public\/founder-dashboard\.(css|html|js)$/,
   /^public\/founder-(dashboard|velocity)\.(css|html|js)$/,
   /^test\/benny-velocity-command-center-smoke\.js$/,
+  /^amm-omniverse\/src\/components\/(EthiopianBibleMetaverse|FaithChronoLauncher)\.tsx$/,
   /^amm-omniverse\/src\/components\/(HoloStyle|LivingStory|MovieStudio|PropertyVerse|FamilyLegacy|Quantum|Poyo|OTT|ProAudio)/,
 ]
 
