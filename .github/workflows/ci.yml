@@ -64,8 +64,20 @@ jobs:
       - name: Install Omniverse dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Omniverse validation
-        run: npm run check
+      - name: Omniverse lint
+        run: npm run lint
+
+      - name: Omniverse security scan
+        run: npm run security
+
+      - name: Omniverse readiness and provider gates
+        run: npm run readiness
+
+      - name: Omniverse typecheck
+        run: npm run typecheck
+
+      - name: Omniverse build and smoke contracts
+        run: npm run build
 
   release-gate:
     name: Release gate
