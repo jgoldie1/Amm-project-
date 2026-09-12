@@ -143,10 +143,11 @@ jobs:
           node tests/production-bible-foundation-contract.mjs
           node tests/production-bible-persistence-contract.mjs
 
-      - name: Main synchronization and authoritative reward contracts
-        run: |
-          node tests/main-sync-preflight-contract.mjs
-          node tests/streetverse-authoritative-reward-contract.mjs
+      - name: Main synchronization preflight contract
+        run: node tests/main-sync-preflight-contract.mjs
+
+      - name: StreetVerse authoritative reward contract
+        run: node tests/streetverse-authoritative-reward-contract.mjs
 
       - name: Omniverse Vite production build
         run: npx vite build
