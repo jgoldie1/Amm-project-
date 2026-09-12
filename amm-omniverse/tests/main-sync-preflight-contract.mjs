@@ -10,6 +10,7 @@ const questRuntime = fs.readFileSync(new URL('../src/runtime/StreetVerseQuestImm
 const creatorDistrict = fs.readFileSync(new URL('../src/runtime/StreetVerseCreatorDistrict3D.ts', import.meta.url), 'utf8')
 const convergence = fs.readFileSync(new URL('../api/system/convergence.js', import.meta.url), 'utf8')
 const ciWorkflow = fs.readFileSync(new URL('../../.github/workflows/ci.yml', import.meta.url), 'utf8')
+const authoritativeRewardCheckpoint = fs.readFileSync(new URL('../docs/MAIN_SYNC_AUTHORITATIVE_REWARD_CHECKPOINT.md', import.meta.url), 'utf8')
 
 const currentMainSmokeContracts = [
   'smoke-contracts.mjs',
@@ -72,5 +73,22 @@ assert.match(creatorDistrict, /o instanceof THREE\.Mesh&&o\.geometry instanceof 
 
 assert.match(convergence, /RENDER_HEALTH_URL \|\| 'https:\/\/amm-project-1-rpz9\.onrender\.com\/api\/health'/, 'main sync must preserve the Render health endpoint used by convergence verification')
 assert.doesNotMatch(convergence, /RENDER_HEALTH_URL \|\| 'https:\/\/amm-project-1-rpz9\.onrender\.com\/'/, 'main sync must not restore the Render root URL as the default convergence probe')
+
+for (const authorityRule of [
+  'server-authoritative mission completion and reward state',
+  'idempotent reward claims',
+  'revision-checked player state',
+  '200 XP + 500 Holo Credits, and zero cash',
+  'do not enable real payouts or provider actions',
+  'do not permit localStorage or client events to become authoritative',
+]) {
+  assert.match(
+    authoritativeRewardCheckpoint,
+    new RegExp(authorityRule.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'),
+    `authoritative reward reconciliation checkpoint must preserve rule: ${authorityRule}`,
+  )
+}
+assert.match(authoritativeRewardCheckpoint, /server validation \+ idempotent claim reservation \+ authoritative returned player state \+ client read\/sync bridge \+ contract test/i, 'authoritative reward path must be reconciled as one reviewed unit')
+assert.match(authoritativeRewardCheckpoint, /Add the authoritative reward contract to the Omniverse smoke gate only after the complete authority path is present/i, 'reward smoke coverage must not be enabled before the complete authority path exists')
 
 console.log('main sync preflight contract: GREEN')
