@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Setup Node 24
         uses: actions/setup-node@v5
@@ -53,6 +55,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Setup Node 24
         uses: actions/setup-node@v5
@@ -142,6 +146,9 @@ jobs:
         run: |
           node tests/production-bible-foundation-contract.mjs
           node tests/production-bible-persistence-contract.mjs
+
+      - name: Main synchronization audit
+        run: node scripts/main-sync-audit.mjs
 
       - name: Main synchronization preflight contract
         run: node tests/main-sync-preflight-contract.mjs
