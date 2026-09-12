@@ -107,7 +107,7 @@ jobs:
           node tests/streetverse-self-healing-contract.mjs
           node tests/streetverse-journey-qa-contract.mjs
 
-      - name: Omniverse foundation and release smoke contracts
+      - name: Foundation commerce and Illinois release contracts
         run: |
           node tests/aaa-commerce-foundation-contract.mjs
           node tests/founder-commerce-telemetry-contract.mjs
@@ -118,11 +118,17 @@ jobs:
           node tests/illinois-rollout-gate-contract.mjs
           node tests/illinois-rollout-performance-cap-contract.mjs
           node tests/illinois-rollout-serialization-contract.mjs
+
+      - name: Vision-assisted AAA QA release contracts
+        run: |
           node tests/vision-qa-foundation-contract.mjs
           node tests/vision-qa-release-gate-contract.mjs
           node tests/vision-qa-findings-performance-contract.mjs
           node tests/vision-qa-inspected-area-sparse-contract.mjs
           node tests/vision-qa-evidence-refs-sparse-contract.mjs
+
+      - name: Foundation expansion and synchronization contracts
+        run: |
           node tests/farmer-motion-tracker-foundation-contract.mjs
           node tests/industrial-operations-foundation-contract.mjs
           node tests/epic-training-certification-contract.mjs
