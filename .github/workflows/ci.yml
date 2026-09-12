@@ -76,8 +76,17 @@ jobs:
       - name: Omniverse typecheck
         run: npm run typecheck
 
-      - name: Omniverse build and smoke contracts
-        run: npm run build
+      - name: Repair StreetVerse entry
+        run: node scripts/repair-streetverse-entry.mjs
+
+      - name: Inject StreetVerse hero spawn
+        run: node scripts/inject-streetverse-hero-spawn.mjs
+
+      - name: Omniverse smoke contracts
+        run: npm run smoke
+
+      - name: Omniverse Vite production build
+        run: npx vite build
 
   release-gate:
     name: Release gate
