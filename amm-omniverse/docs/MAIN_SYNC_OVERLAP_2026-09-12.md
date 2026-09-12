@@ -5,11 +5,11 @@ This checkpoint narrows the synchronization blocker for `foundation/aaa-golden-o
 ## Verified baseline
 
 - PR #171: open, unmerged, GitHub `mergeable=false`
-- Foundation head inspected: `9cf726b63fc0a72b205c48f418de5fe69277ed9b`
+- Foundation head inspected: `800256402f0a62ff509a12e8ed9e2e3f7651bf5b`
 - Current `main`: `07b4e4a61dccd94ed0e8fc326057c3f79baeefaf`
 - Merge base: `ec6918c8204fd0ca3c5b9bad992851f23762f7e1`
-- Divergence: 391 commits ahead / 116 commits behind
-- TryAMM Full CI run `34701027642`: failed specifically at `Main synchronization audit`; all preceding root, Omniverse lint/security/readiness/typecheck, foundation commerce + Illinois, Vision-assisted AAA QA, expansion, and production-bible validation stages passed.
+- Divergence: 392 commits ahead / 116 commits behind
+- No pull-request workflow run is attached to the inspected foundation head yet.
 
 Because the synchronization surface is broad, no blanket merge/rebase is safe merely to make `behind=0`.
 
@@ -58,6 +58,16 @@ Review these paths individually, starting with runtime/build authority boundarie
 5. root `lib/` routes and public shell/business assets
 
 For each path, either port the required current-main delta or record evidence that the foundation branch already contains an equivalent or safer implementation. Do not overwrite foundation-only Golden Order, founder KPI telemetry, Illinois-first rollout, Vision-assisted AAA QA, performance/accessibility gates, or test coverage simply to reduce divergence.
+
+## Root `package.json` reconciliation checkpoint
+
+The first build-authority overlap was reviewed directly against current `main`.
+
+Current `main` adds world/velocity and founder-release verification to root scripts, including `lib/world-compiler.js`, `lib/world-certification.js`, `lib/velocity-planner.js`, `test/world-compiler-smoke.js`, `test/world-certification-smoke.js`, `test/velocity-planner-smoke.js`, `test/my-world-smoke.js`, `test/benny-velocity-command-center-smoke.js`, `test/faith-world-preservation-smoke.js`, and `test/founder-alpha-90-release-smoke.js`.
+
+Those referenced files are not all present on the foundation branch yet; direct probes confirmed at least `lib/world-compiler.js` and `test/founder-alpha-90-release-smoke.js` are currently absent. Therefore copying `main`'s root `package.json` wholesale would make branch validation reference missing files and is not a safe synchronization step.
+
+Safe disposition: **blocked pending prerequisite file reconciliation**. Reconcile the required world/founder-release files (or prove equivalent branch coverage) before porting the associated root script entries. Do not weaken the current branch checks to make this overlap disappear.
 
 ## Authority boundary
 
