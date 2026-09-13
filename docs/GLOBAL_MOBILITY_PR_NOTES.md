@@ -1,0 +1,1 @@
+PR focus: wire a global mobility/economic operating slice without enabling regulated exchange activity. Includes U.S./African city mobility configs, StreetVerse controls, Business Passport, BPO/BPL flags, Stubbs AI economy summary, and internal hash-chain verification. Full recovered Chicago 3D rail runtime remains a follow-up reconciliation task.
