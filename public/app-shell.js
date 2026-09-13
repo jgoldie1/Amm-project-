@@ -15,7 +15,7 @@ if(reduceMotion){splash.hidden=true;splashReplay.hidden=false;}else{playSplash()
 splashVideo.addEventListener('ended',closeSplash);splashVideo.addEventListener('error',()=>{splashStart.hidden=false;});
 splashStart.addEventListener('click',()=>{splashVideo.currentTime=0;startFailsafe();requestSplashPlayback();});
 splashSkip.addEventListener('click',closeSplash);splashReplay.addEventListener('click',playSplash);
-const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function installMyWorldEntry(){
   const grid=document.querySelector('#worlds .feature-grid');
   if(!grid||grid.querySelector('[data-my-world]'))return;
