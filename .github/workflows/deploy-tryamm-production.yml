@@ -14,6 +14,7 @@ concurrency:
 env:
   VERCEL_ORG_ID: team_whGr4qRPOF6jMCRuQZ3Kbnry
   VERCEL_PROJECT_ID: prj_pjc4m9dRB2WAWAtbkpyjpdhrJRFg
+  VERCEL_SCOPE: jgoldie1s-projects
 
 jobs:
   verify-stage-promote:
@@ -62,23 +63,28 @@ jobs:
           npm install --global vercel@latest
           npx playwright install --with-deps chromium
 
+      - name: Reset stale local Vercel project link
+        run: |
+          rm -rf .vercel
+          echo "Using canonical Vercel project $VERCEL_PROJECT_ID in $VERCEL_SCOPE"
+
       - name: Pull canonical Vercel project configuration
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
+        run: vercel pull --yes --environment=preview --scope="$VERCEL_SCOPE" --project="$VERCEL_PROJECT_ID" --token="$VERCEL_TOKEN"
 
       - name: Build release candidate
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           TRYAMM_RELEASE_SHA: ${{ github.sha }}
-        run: vercel build --token="$VERCEL_TOKEN"
+        run: vercel build --scope="$VERCEL_SCOPE" --project="$VERCEL_PROJECT_ID" --token="$VERCEL_TOKEN"
 
       - name: Deploy staged release candidate
         id: preview
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          PREVIEW_URL=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")
+          PREVIEW_URL=$(vercel deploy --prebuilt --scope="$VERCEL_SCOPE" --project="$VERCEL_PROJECT_ID" --token="$VERCEL_TOKEN")
           echo "url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
           echo "Preview: $PREVIEW_URL"
 
@@ -139,7 +145,7 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           PREVIEW_URL: ${{ steps.preview.outputs.url }}
-        run: vercel promote "$PREVIEW_URL" --yes --token="$VERCEL_TOKEN"
+        run: vercel promote "$PREVIEW_URL" --yes --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN"
 
       - name: Verify exact production release and critical services
         id: proof
@@ -228,8 +234,8 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           echo "Post-promotion verification failed. Rolling production back."
-          vercel rollback --yes --token="$VERCEL_TOKEN"
-          vercel rollback status --token="$VERCEL_TOKEN" || true
+          vercel rollback --yes --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN"
+          vercel rollback status --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN" || true
 
       - name: Upload release proof and E2E evidence
         if: always()
