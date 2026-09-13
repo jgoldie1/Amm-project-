@@ -1,0 +1,31 @@
+const fs=require('fs')
+const assert=require('assert')
+
+const config=fs.readFileSync('amm-omniverse/src/config/streetverseCommunitySlices.ts','utf8')
+const hyde=fs.readFileSync('amm-omniverse/src/components/StreetVerseHydeParkMobileWorld.tsx','utf8')
+const safe=fs.readFileSync('amm-omniverse/src/components/StreetVerseSafeWorld.tsx','utf8')
+const geo=fs.readFileSync('amm-omniverse/src/components/StreetVerseGeoSpawnBridge.tsx','utf8')
+const playable=fs.readFileSync('amm-omniverse/src/components/StreetVersePlayableWorld.tsx','utf8')
+
+assert(config.includes("communityAreaNumber:'41'"))
+assert(config.includes("name:'Hyde Park'"))
+assert(config.includes("label:'53rd Street Creator District'"))
+assert(config.includes("label:'53rd Street Business District'"))
+assert(config.includes("label:'Lake Park & 53rd Transit Stop'"))
+assert(config.includes("label:'Hyde Park Lakefront Creator Stage'"))
+assert(config.includes("status:'BUILDING'"))
+
+assert(hyde.includes('HYDE_PARK_SLICE.missions'))
+assert(hyde.includes("communityAreaNumber:'41'"))
+assert(hyde.includes("communityAreaName:'Hyde Park'"))
+assert(hyde.includes("tryamm:streetverse-checkpoint"))
+assert(hyde.includes("tryamm:streetverse-mission-complete"))
+assert(hyde.includes("tryamm:open-reel-creator"))
+assert(hyde.includes('authoritative reward check is ready'))
+
+assert(safe.includes("slice?.communityAreaNumber==='41'"))
+assert(safe.includes('StreetVerseHydeParkMobileWorld'))
+assert(geo.includes('StreetVerseSafeWorld'))
+assert(playable.includes('StreetVerseSafeWorld'))
+
+console.log('Hyde Park neighborhood-specific mobile slice smoke checks passed')
