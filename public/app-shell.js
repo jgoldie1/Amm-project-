@@ -15,8 +15,19 @@ if(reduceMotion){splash.hidden=true;splashReplay.hidden=false;}else{playSplash()
 splashVideo.addEventListener('ended',closeSplash);splashVideo.addEventListener('error',()=>{splashStart.hidden=false;});
 splashStart.addEventListener('click',()=>{splashVideo.currentTime=0;startFailsafe();requestSplashPlayback();});
 splashSkip.addEventListener('click',closeSplash);splashReplay.addEventListener('click',playSplash);
-const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+function installMyWorldEntry(){
+  const grid=document.querySelector('#worlds .feature-grid');
+  if(!grid||grid.querySelector('[data-my-world]'))return;
+  const tile=document.createElement('a');
+  tile.className='tile feature';
+  tile.href='/my-world.html';
+  tile.dataset.myWorld='true';
+  tile.innerHTML='<span class="icon">◎</span><b>My World</b><span>Your persistent homes, properties, vehicles, businesses, teams, Chicago 77 progress and personal StreetVerse universe.</span><em>PERSONAL WORLD</em>';
+  grid.prepend(tile);
+}
 async function loadRooms(){try{const res=await fetch('/api/rooms');if(!res.ok)throw new Error('Unable to load rooms');const {rooms=[]}=await res.json();feed.innerHTML=rooms.length?rooms.map(room=>`<article class="room"><header><b>${escapeHtml(room.title)}</b><span class="live">● LIVE</span></header><p>${escapeHtml(room.category)} · ${Number(room.viewerCount||0)} watching</p><a href="/#live">Open room</a></article>`).join(''):'<p>No live rooms right now. Start the next one from the creator dashboard.</p>';}catch(error){feed.innerHTML=`<p>${escapeHtml(error.message)}. The app shell is still available offline.</p>`;}}
 function setNetwork(){network.textContent=navigator.onLine?'Online':'Offline';}
+installMyWorldEntry();
 window.addEventListener('online',()=>{setNetwork();loadRooms();});window.addEventListener('offline',setNetwork);setNetwork();loadRooms();
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js').catch(()=>{}));
