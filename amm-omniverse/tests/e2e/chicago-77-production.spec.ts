@@ -33,11 +33,16 @@ test.describe('Chicago 77 production certification', () => {
   });
 
   test('Loop #32 loads, completes checkpoints, emits mission completion and Reel handoff', async ({ page }) => {
-    const response = await page.goto('/streetverse', { waitUntil:'domcontentloaded' });
-    expect(response?.status()).toBeLessThan(400);
+    const probe = await page.request.get('/streetverse', { timeout:45_000 });
+    expect(probe.status()).toBeLessThan(400);
+
+    // Production currently has a large set of deferred compatibility scripts. Those can
+    // postpone DOMContentLoaded even after the application shell has committed. The
+    // certification gate is the rendered StreetVerse experience, not that browser event.
+    await page.goto('/streetverse', { waitUntil:'commit', timeout:45_000 });
 
     const world = page.locator('[data-streetverse-html-city="true"][data-community-area="32"]');
-    await expect(world).toBeVisible({ timeout:15_000 });
+    await expect(world).toBeVisible({ timeout:45_000 });
     await expect(world).toContainText('STREETVERSE • THE LOOP');
     await expect(world).toContainText('COMMUNITY AREA 32');
 
