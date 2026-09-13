@@ -147,9 +147,6 @@ jobs:
           node tests/production-bible-foundation-contract.mjs
           node tests/production-bible-persistence-contract.mjs
 
-      - name: Main synchronization audit
-        run: node scripts/main-sync-audit.mjs
-
       - name: Main synchronization preflight contract
         run: node tests/main-sync-preflight-contract.mjs
 
@@ -158,6 +155,9 @@ jobs:
 
       - name: Omniverse Vite production build
         run: npx vite build
+
+      - name: Main synchronization audit
+        run: node scripts/main-sync-audit.mjs
 
   release-gate:
     name: Release gate
