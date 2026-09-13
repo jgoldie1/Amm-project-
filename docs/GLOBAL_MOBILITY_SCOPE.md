@@ -1,0 +1,1 @@
+Global Mobility scope: connect locally appropriate transportation, business discovery, BPO/BPL, Omniverse Radio, Marketplace, MiddleVerse Jobs, Stubbs AI operational intelligence, and an internal verification ledger. Real-money settlement remains authoritative with regulated payment providers. Regulated exchange functionality is not enabled in this slice.
