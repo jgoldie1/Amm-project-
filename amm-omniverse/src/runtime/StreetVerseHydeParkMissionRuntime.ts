@@ -23,27 +23,34 @@ export function installStreetVerseHydeParkMissionRuntime(){
   if(String(detail.communityAreaNumber)!==HYDE_PARK_AREA_NUMBER)return
   state={...state,active:true}
   save(state)
-  emit('tryamm:hyde-park-mission-ready',{missionId:HYDE_PARK_MISSION_ID,checkpoints:HYDE_PARK_CHECKPOINTS,status:state.completed?'COMPLETED':'BUILDING'})
+  emit('tryamm:hyde-park-mission-ready',{missionId:HYDE_PARK_MISSION_ID,checkpoints:HYDE_PARK_CHECKPOINTS,status:state.completed?'COMPLETED':'BUILDING',visited:state.visited})
  }
  const onCheckpoint=(event:Event)=>{
   if(!state.active||state.completed)return
-  const checkpoint=String((event as CustomEvent).detail?.checkpoint||'') as Checkpoint
+  const detail=(event as CustomEvent).detail||{}
+  const checkpoint=String(detail.checkpoint||detail.id||'') as Checkpoint
   if(!HYDE_PARK_CHECKPOINTS.includes(checkpoint)||state.visited.includes(checkpoint))return
   state={...state,visited:[...state.visited,checkpoint]}
   state.completed=HYDE_PARK_CHECKPOINTS.every(id=>state.visited.includes(id))
   save(state)
-  emit('tryamm:hyde-park-mission-progress',{missionId:HYDE_PARK_MISSION_ID,checkpoint,visited:state.visited,progress:Math.round(state.visited.length/HYDE_PARK_CHECKPOINTS.length*100),completed:state.completed})
-  if(state.completed)emit('tryamm:hyde-park-mission-complete',{missionId:HYDE_PARK_MISSION_ID,visited:state.visited,reward:{xp:200,holoCredits:500,cashCents:0},requiresServerClaim:true,reelHandoff:true})
+  emit('tryamm:hyde-park-mission-progress',{missionId:HYDE_PARK_MISSION_ID,checkpoint,visited:state.visited,progress:Math.round(state.visited.length/HYDE_PARK_CHECKPOINTS.length*100),completed:state.completed,mobileSafeMode:Boolean(detail.mobileSafeMode),htmlCity:Boolean(detail.htmlCity)})
+  if(state.completed){
+   emit('tryamm:hyde-park-mission-complete',{missionId:HYDE_PARK_MISSION_ID,visited:state.visited,reward:{xp:200,holoCredits:500,cashCents:0},requiresServerClaim:true,reelHandoff:true})
+   emit('tryamm:toast',{message:'Hyde Park First Drop complete • reward ready to claim • 200 XP + 500 Holo Credits'})
+  }
  }
  const onClaim=async()=>{
-  if(!state.completed||state.rewardClaimed)return
+  if(!state.completed){emit('tryamm:hyde-park-reward-status',{ok:false,code:'MISSION_NOT_COMPLETE'});return}
+  if(state.rewardClaimed){emit('tryamm:hyde-park-reward-status',{ok:true,code:'ALREADY_CLAIMED',cashAwarded:false});return}
   const auth=token()
   if(!auth){emit('tryamm:hyde-park-reward-status',{ok:false,code:'SIGN_IN_REQUIRED'});return}
   try{
    const complete=await fetch('/api/get-paid-to-play/streetverse/complete',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${auth}`},body:JSON.stringify({missionId:HYDE_PARK_MISSION_ID,source:'streetverse-mobile-safe',visited:state.visited,total:HYDE_PARK_CHECKPOINTS.length,mobileSafeMode:false,htmlCity:false})})
    const completion=await complete.json()
    if(!complete.ok)throw new Error(completion.code||completion.error||'MISSION_COMPLETION_FAILED')
-   const claim=await fetch('/api/get-paid-to-play/claim',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${auth}`},body:JSON.stringify({programId:'streetverse_first_drop',evidence:{missionRunId:completion.missionRun?.id||completion.run?.id||completion.id}})})
+   const missionRunId=completion.missionRun?.id||completion.run?.id||completion.id
+   if(!missionRunId)throw new Error('MISSION_RUN_ID_MISSING')
+   const claim=await fetch('/api/get-paid-to-play/claim',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${auth}`},body:JSON.stringify({programId:'streetverse_first_drop',evidence:{missionRunId}})})
    const reward=await claim.json()
    if(!claim.ok)throw new Error(reward.code||reward.error||'REWARD_CLAIM_FAILED')
    state={...state,rewardClaimed:true};save(state)
@@ -51,8 +58,21 @@ export function installStreetVerseHydeParkMissionRuntime(){
    emit('tryamm:streetverse-reel-handoff',{source:'hyde-park-first-drop',missionId:HYDE_PARK_MISSION_ID,communityAreaNumber:HYDE_PARK_AREA_NUMBER})
   }catch(error){emit('tryamm:hyde-park-reward-status',{ok:false,code:error instanceof Error?error.message:'REWARD_FAILED'})}
  }
+ const onReset=()=>{
+  state={active:state.active,visited:[],completed:false,rewardClaimed:false}
+  save(state)
+  emit('tryamm:hyde-park-mission-ready',{missionId:HYDE_PARK_MISSION_ID,checkpoints:HYDE_PARK_CHECKPOINTS,status:'BUILDING',visited:[]})
+ }
  window.addEventListener('tryamm:streetverse-community-slice-ready',onSlice)
  window.addEventListener('tryamm:hyde-park-checkpoint',onCheckpoint)
+ window.addEventListener('tryamm:streetverse-checkpoint',onCheckpoint)
  window.addEventListener('tryamm:hyde-park-claim-reward',onClaim)
- return()=>{window.removeEventListener('tryamm:streetverse-community-slice-ready',onSlice);window.removeEventListener('tryamm:hyde-park-checkpoint',onCheckpoint);window.removeEventListener('tryamm:hyde-park-claim-reward',onClaim)}
+ window.addEventListener('tryamm:hyde-park-reset-mission',onReset)
+ return()=>{
+  window.removeEventListener('tryamm:streetverse-community-slice-ready',onSlice)
+  window.removeEventListener('tryamm:hyde-park-checkpoint',onCheckpoint)
+  window.removeEventListener('tryamm:streetverse-checkpoint',onCheckpoint)
+  window.removeEventListener('tryamm:hyde-park-claim-reward',onClaim)
+  window.removeEventListener('tryamm:hyde-park-reset-mission',onReset)
+ }
 }
