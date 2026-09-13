@@ -1,0 +1,42 @@
+'use strict';
+
+const assert = require('assert');
+const { createChicagoRegistry, compileChicago77, buildNeighborhoodJob } = require('../lib/world-compiler');
+const { SOURCE_POLICY, buildStreetViewReference, buildNeighborhoodSlice } = require('../lib/neighborhood-compiler');
+
+const registry = createChicagoRegistry();
+const hydePark = registry.find(area => area.name === 'Hyde Park');
+assert(hydePark, 'Hyde Park must exist in Chicago 77 registry');
+
+const reference = buildStreetViewReference(hydePark);
+assert.strictEqual(reference.mode, 'VISUAL_REFERENCE');
+assert.strictEqual(reference.compilerInput, false);
+assert.strictEqual(reference.machineInterpretation, false);
+assert.strictEqual(reference.deriveGeometry, false);
+assert.strictEqual(reference.attributionRequired, true);
+assert.strictEqual(reference.reportProblemLinkRequired, true);
+assert.strictEqual(SOURCE_POLICY.googleMaps.role, 'VISUALIZATION_REFERENCE_ONLY');
+assert.strictEqual(SOURCE_POLICY.googleMaps.extractionAllowed, false);
+assert(SOURCE_POLICY.googleMaps.prohibited.some(rule => rule.includes('machine vision')));
+
+const slice = buildNeighborhoodSlice(hydePark);
+for (const layer of ['ROADS','BUILDINGS','TRANSIT','BUSINESSES','NPC_POPULATION','TRAFFIC','MISSIONS','PROPERTIES','CREATOR_LOCATIONS','ECONOMY','STREAMING_LOD']) {
+  assert(slice.compile.layers.includes(layer), `${layer} missing from Neighborhood Compiler`);
+}
+assert.strictEqual(slice.compile.economy.authoritativeRewards, true);
+assert.strictEqual(slice.compile.economy.clientCashAwards, false);
+assert.strictEqual(slice.stream.strategy, 'ACTIVE_AREA_PLUS_NEIGHBORS');
+assert(slice.certification.required.includes('MOBILE_VIEWPORT_VALID'));
+assert(slice.certification.required.includes('REEL_HANDOFF_VALID'));
+
+const job = buildNeighborhoodJob(hydePark);
+assert.strictEqual(job.playableSlice.communityArea.name, 'Hyde Park');
+assert.strictEqual(job.geospatial.googleReferenceOnly, true);
+assert.strictEqual(job.geospatial.googleGeometryExtractionAllowed, false);
+
+const chicago = compileChicago77();
+assert.strictEqual(chicago.slices.length, 77);
+assert.deepStrictEqual(chicago.rollout.proofOrder, ['The Loop','Hyde Park','Austin','Rogers Park']);
+assert.strictEqual(chicago.rollout.allAreasMustPassSameCertification, true);
+
+console.log('Chicago 77 Neighborhood Compiler, Street View policy, gameplay layers and certification smoke checks passed');
