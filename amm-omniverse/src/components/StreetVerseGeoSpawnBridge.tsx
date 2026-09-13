@@ -1,6 +1,7 @@
 import {lazy,Suspense,useCallback,useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react'
 import {announceStreetVerseProductionMode} from '../config/streetverseProductionMode'
 import {installStreetVerseJourneyQARuntime} from '../runtime/StreetVerseJourneyQARuntime'
+import {installStreetVerseHydeParkMissionRuntime} from '../runtime/StreetVerseHydeParkMissionRuntime'
 import StreetVerseMobilePlayableWorld from './StreetVerseMobilePlayableWorld'
 
 const StreetVersePlayableWorld=lazy(()=>import('./StreetVersePlayableWorld'))
@@ -87,6 +88,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  },[onClose,safe])
 
  useLayoutEffect(()=>installStreetVerseJourneyQARuntime(),[])
+ useLayoutEffect(()=>installStreetVerseHydeParkMissionRuntime(),[])
  useEffect(()=>{
   const requestClose=()=>closeStreetVerse()
   window.addEventListener('tryamm:streetverse-request-close',requestClose)
