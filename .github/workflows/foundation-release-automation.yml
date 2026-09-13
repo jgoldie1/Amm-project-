@@ -1,0 +1,129 @@
+name: Foundation Release Automation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [foundation/aaa-golden-order-world-rollout]
+  schedule:
+    - cron: '17 * * * *'
+
+concurrency:
+  group: foundation-release-automation
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  sync-audit:
+    name: Main sync audit and conflict inventory
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout foundation branch
+        uses: actions/checkout@v5
+        with:
+          ref: foundation/aaa-golden-order-world-rollout
+          fetch-depth: 0
+
+      - name: Fetch current main
+        run: git fetch origin main --prune
+
+      - name: Record divergence
+        id: divergence
+        shell: bash
+        run: |
+          set -euo pipefail
+          BEHIND=$(git rev-list --count HEAD..origin/main)
+          AHEAD=$(git rev-list --count origin/main..HEAD)
+          BASE=$(git merge-base HEAD origin/main)
+          echo "ahead=$AHEAD" >> "$GITHUB_OUTPUT"
+          echo "behind=$BEHIND" >> "$GITHUB_OUTPUT"
+          echo "merge_base=$BASE" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Foundation synchronization status"
+            echo "- Foundation head: \`$(git rev-parse HEAD)\`"
+            echo "- Main head: \`$(git rev-parse origin/main)\`"
+            echo "- Ahead: **$AHEAD**"
+            echo "- Behind: **$BEHIND**"
+            echo "- Merge base: \`$BASE\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run intentional main synchronization gate
+        working-directory: amm-omniverse
+        run: node scripts/main-sync-audit.mjs
+
+  full-validation:
+    name: Full release validation
+    needs: sync-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact foundation head
+        uses: actions/checkout@v5
+        with:
+          ref: foundation/aaa-golden-order-world-rollout
+          fetch-depth: 0
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            amm-omniverse/package-lock.json
+
+      - name: Root install and validation
+        run: |
+          npm install --no-audit --no-fund
+          npm run lint
+          npm run syntax
+          npm test
+          node test/ci-release-boundary-contract.mjs
+
+      - name: Omniverse install
+        working-directory: amm-omniverse
+        run: npm install --no-audit --no-fund
+
+      - name: Omniverse release contracts
+        working-directory: amm-omniverse
+        run: |
+          npm run lint
+          npm run security
+          npm run readiness
+          npm run typecheck
+          node tests/aaa-commerce-foundation-contract.mjs
+          node tests/founder-commerce-telemetry-contract.mjs
+          node tests/golden-order-event-bridge-contract.mjs
+          node tests/illinois-rollout-gate-contract.mjs
+          node tests/vision-qa-release-gate-contract.mjs
+          node tests/streetverse-authoritative-reward-contract.mjs
+          npm run smoke
+
+      - name: Production build without deployment
+        working-directory: amm-omniverse
+        run: npx vite build
+
+      - name: Release candidate summary
+        run: |
+          {
+            echo "## Foundation release candidate"
+            echo "All synchronization, authority, smoke, and production-build gates passed."
+            echo "This workflow intentionally does **not** merge PR #171, deploy production, purchase assets, mutate provider state, or activate payouts."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  blocked-summary:
+    name: Safe blocker summary
+    if: ${{ always() && needs.sync-audit.result != 'success' }}
+    needs: sync-audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain safe stop
+        run: |
+          {
+            echo "## Automation stopped safely"
+            echo "The foundation branch is not synchronized with current main."
+            echo "No merge, deployment, provider mutation, inventory mutation, settlement, payout, or purchase was attempted."
+            echo "Resolve release-critical overlaps and rerun."
+          } >> "$GITHUB_STEP_SUMMARY"
