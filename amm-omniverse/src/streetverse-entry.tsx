@@ -1,16 +1,11 @@
-import { StrictMode, Suspense, lazy } from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './accessibility/accessibility.css'
-
-const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
-
-const routeFallback=<div role="status" aria-live="polite" style={{position:'fixed',inset:0,zIndex:15980,display:'grid',placeItems:'center',background:'#050505',color:'#fff',fontFamily:'system-ui,sans-serif',fontWeight:900}}>STREETVERSE LOADING…</div>
+import StreetVerseGeoSpawnBridge from './components/StreetVerseGeoSpawnBridge'
 
 function StreetVerseProductionEntry(){
  return <>
-  <Suspense fallback={routeFallback}>
-   <StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} />
-  </Suspense>
+  <StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} />
   <nav aria-label="StreetVerse quick navigation" style={{position:'fixed',left:12,top:12,zIndex:16990,display:'flex',gap:8,maxWidth:'calc(100vw - 24px)',overflowX:'auto'}}>
    <button onClick={()=>{window.location.href='/streetverse/twin-world'}} style={navButton}>🌎 TWIN WORLD</button>
    <button onClick={()=>{window.location.href='/streetverse/meet-the-stubbs'}} style={navButton}>MEET THE STUBBS</button>
