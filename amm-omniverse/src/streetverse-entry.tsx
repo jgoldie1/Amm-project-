@@ -33,6 +33,7 @@ const deferRuntimeBoot=()=>{
    import('./runtime/StreetVerseWorldMemory').then(m=>m.installStreetVerseWorldMemory),
    import('./runtime/StreetVerseCheckpointRuntime').then(m=>m.installStreetVerseCheckpointRuntime),
    import('./runtime/StreetVersePerformanceBudget').then(m=>m.installStreetVersePerformanceBudget),
+   import('./runtime/StreetVerseAdaptiveRenderFabric').then(m=>m.installStreetVerseAdaptiveRenderFabric),
    import('./runtime/StreetVerseResilienceRuntime').then(m=>m.installStreetVerseResilienceRuntime),
    import('./runtime/StreetVerseUnifiedProgressionRuntime').then(m=>m.installStreetVerseUnifiedProgressionRuntime),
    import('./runtime/StreetVerseGameModeRuntime').then(m=>m.installStreetVerseGameModeRuntime),
