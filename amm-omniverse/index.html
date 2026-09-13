@@ -65,11 +65,7 @@
   <body>
     <a id="tryamm-accessibility-link" href="/accessibility.html" aria-label="Open TRYAMM Accessibility Statement">♿ Accessibility</a>
     <div id="root"></div>
-    <script type="module">
-      const p=location.pathname
-      if(p==='/streetverse'||p==='/streetverse/') import('/src/streetverse-entry.tsx')
-      else import('/src/main.tsx')
-    </script>
+    <script type="module" src="/src/bootstrap.ts"></script>
     <script>
       (()=>{
         const scripts=[
