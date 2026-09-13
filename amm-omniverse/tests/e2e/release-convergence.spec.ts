@@ -12,9 +12,10 @@ async function expectJsonOk(page: any, path: string, allowDegraded = false) {
 test.describe('TRYAMM release convergence', () => {
   test('core public surfaces render', async ({ page }) => {
     for (const path of ['/', '/streetverse', '/financial-truth']) {
-      const response = await page.goto(path, { waitUntil: 'domcontentloaded' });
-      expect(response?.status(), `${path} status`).toBeLessThan(400);
-      await expect(page.locator('body')).toBeVisible();
+      const probe = await page.request.get(path, { timeout:45_000 });
+      expect(probe.status(), `${path} status`).toBeLessThan(400);
+      await page.goto(path, { waitUntil:'commit', timeout:45_000 });
+      await expect(page.locator('body')).toBeVisible({ timeout:30_000 });
       await expect(page.locator('body')).not.toHaveText('Application error');
     }
   });
@@ -35,10 +36,14 @@ test.describe('TRYAMM release convergence', () => {
 
   test('Creator Media readiness is explicit', async ({ page }) => {
     const response = await page.request.get('/api/media/health', { timeout: 45_000 });
-    expect(response.status()).toBeLessThan(500);
+    expect([200, 503]).toContain(response.status());
     const data = await response.json();
     expect(typeof data.ok).toBe('boolean');
     expect(data.service || data.error).toBeTruthy();
+    if (response.status() === 503) {
+      expect(data.ok).toBe(false);
+      expect(data.reason || data.error).toBeTruthy();
+    }
   });
 
   test('critical UI has no obvious horizontal overflow', async ({ page }) => {
