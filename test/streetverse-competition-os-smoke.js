@@ -1,0 +1,10 @@
+const fs=require('fs');const assert=require('assert');
+const client=fs.readFileSync('public/streetverse-competition-os.js','utf8');
+const routes=fs.readFileSync('lib/streetverse-competition-routes.js','utf8');
+['car','motorcycle','boat','jetski','trainer','airplane','jet','horse','spacecraft'].forEach(v=>assert(client.includes(v),`missing vehicle ${v}`));
+['tryamm:transit-line-active','tryamm:transit-operator-control','tryamm:l-train-doors','tryamm:player-district-transition','tryamm:tournament-finish-pending-verification','tryamm:big-boss-step'].forEach(e=>assert(client.includes(e),`missing event ${e}`));
+['qualifier_start','checkpoint','finish','boss_step','mobility_arrival'].forEach(e=>assert(routes.includes(e),`missing durable event ${e}`));
+assert(routes.includes('idempotencyKey required'));
+assert(routes.includes('sponsor_prize_minor: 0'));
+assert(routes.includes('requiresHumanPrizeApproval: true'));
+console.log('streetverse competition OS smoke: ok');
