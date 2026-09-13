@@ -25,7 +25,7 @@ concurrency:
 jobs:
   public-e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: amm-omniverse
@@ -43,8 +43,11 @@ jobs:
           cache: npm
           cache-dependency-path: amm-omniverse/package-lock.json
 
-      - name: Install dependencies
-        run: npm ci --no-audit --no-fund
+      - name: Install current package manifest without mutating repository lock
+        run: npm install --package-lock=false --no-audit --no-fund
+
+      - name: Install Playwright test runner without saving dependency state
+        run: npm install --no-save --package-lock=false @playwright/test@1.55.0
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
