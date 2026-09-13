@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "name": "TRYAMM Faith World Community Expansion",
+  "statusModel": ["LIVE", "READY", "BUILDING", "LOCKED", "COMING_SOON"],
+  "releaseRule": "Do not mark a capability LIVE without a verified production route or production-backed workflow.",
+  "capabilities": [
+    {"id":"streetverse-faith-portal","status":"LIVE","route":"/streetverse","notes":"Faith Chrono return portal is merged into the StreetVerse route; route delivery alone is not proof every immersive scene is complete."},
+    {"id":"ethiopian-bible-metaverse","status":"LIVE","route":"/ethiopian-bible","notes":"Visible source-labeled study surface with Hebrew learning, 88-book curriculum framework and Faith Chrono launcher."},
+    {"id":"bible-88-corpus","status":"BUILDING","notes":"Requires exact book manifest, source/edition, rights, chapters, audio, lexical availability and immersive-world status for every book."},
+    {"id":"hebrew-learning","status":"READY","notes":"Aleph-Bet, vowels, roots, Strong's-linked study where applicable, passage lab and quiz/memory path are defined; production-grade lesson corpus and learner persistence remain to be completed."},
+    {"id":"holo-lab-faith-chrono","status":"LIVE","route":"/holo-lab","notes":"Faith Chrono mode is source-gated and keeps generated dialogue clearly labeled as simulation."},
+    {"id":"benny-holographic-dashboard","status":"READY","notes":"Benny is connected to verified platform/velocity state; Faith World-specific chapter progress and evidence summaries still require deeper integration."},
+    {"id":"reusable-faith-assets","status":"BUILDING","notes":"Use shared trees, terrain, roads, water, boats, markets, dwellings, clothing, crowds, lighting and audio as reusable licensed or TRYAMM-created assets across chapters instead of rebuilding per scene."},
+    {"id":"fellowships","status":"BUILDING","notes":"Small-group study rooms, moderated discussions, LIVE classes, reading plans, service missions and ministry publishing require identity, moderation and community-safety controls."},
+    {"id":"steward-the-planet","status":"BUILDING","notes":"Faith-linked stewardship missions should connect service, ecology, food, cleanup, conservation and community-impact learning without fabricating real-world impact claims."},
+    {"id":"creator-publishing","status":"READY","notes":"Kingdoms Press provides editorial, rights, accessibility, translation, print/POD, HoloBook, royalty/sales and author-event workflows; provider-backed print submission remains gated."},
+    {"id":"faith-chapter-compiler","status":"COMING_SOON","notes":"Target compiler: BOOK -> CHAPTER -> VERIFIED TEXT -> LANGUAGE/LEXICON -> PEOPLE/PLACES/TIME -> HOLO LAB -> TIME MACHINE WORLD -> MISSION -> QUIZ -> ACCESSIBILITY -> HUMAN REVIEW -> CERTIFIED."}
+  ],
+  "chapterExperience": {
+    "flow": ["BOOK","CHAPTER","VERIFIED_TEXT","LANGUAGE_LEXICON","MAP_TIMELINE","TIME_MACHINE_RECONSTRUCTION","IMMERSIVE_MISSION","QUIZ","ACCESSIBILITY","HUMAN_REVIEW","CERTIFIED","RETURN_TO_STREETVERSE"],
+    "truthLabels": ["SCRIPTURE","HISTORICAL_EVIDENCE","RECONSTRUCTION","COMMENTARY","AI_GENERATED_DIALOGUE"],
+    "divineCommunicationClaim": false,
+    "physicalTimeTravelClaim": false
+  },
+  "reusableAssetPolicy": {
+    "sources": ["TRYAMM_CREATED","PROPERLY_LICENSED","PUBLIC_DOMAIN_WHERE_VERIFIED"],
+    "reuseCategories": ["TERRAIN","TREES","WATER","ROADS","BOATS","DWELLINGS","MARKETS","CLOTHING","PROPS","CROWDS","LIGHTING","AMBIENCE","ACCESSIBILITY_UI"],
+    "landmarksRequireHumanReview": true,
+    "sourceRightsRequired": true
+  },
+  "fellowshipSafety": {
+    "moderationRequired": true,
+    "ageAwareSpaces": true,
+    "reportingAndBlocking": true,
+    "humanReviewForTeachingPublication": true,
+    "noGeneratedTextPresentedAsDivineSpeech": true
+  },
+  "stewardThePlanet": {
+    "missions": ["CLEANUP","FOOD_SUPPORT","TREE_PLANTING_SIMULATION","WATER_STEWARDSHIP","WILDLIFE_EDUCATION","COMMUNITY_GARDEN","DISASTER_RELIEF_EDUCATION"],
+    "realWorldImpactRequiresEvidence": true,
+    "virtualAndRealImpactSeparated": true
+  },
+  "publishing": {
+    "pipeline": ["DRAFT","EDITORIAL_REVIEW","RIGHTS_CHECK","ACCESSIBILITY_REVIEW","SOURCE_CHECK","LAYOUT_OR_HOLOBOOK","PROVIDER_GATE","PUBLISH","ROYALTY_OR_SALES_LEDGER"],
+    "sourceLabelsPreserved": true,
+    "rightsRequiredBeforeDistribution": true
+  }
+}
