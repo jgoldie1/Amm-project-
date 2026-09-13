@@ -1,5 +1,6 @@
 import {lazy,Suspense,useCallback,useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react'
 import {announceStreetVerseProductionMode} from '../config/streetverseProductionMode'
+import {getStreetVerseCommunitySlice} from '../config/streetverseCommunitySlices'
 import {installStreetVerseJourneyQARuntime} from '../runtime/StreetVerseJourneyQARuntime'
 import {installStreetVerseHydeParkMissionRuntime} from '../runtime/StreetVerseHydeParkMissionRuntime'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
@@ -12,9 +13,6 @@ const DESTINATION_KEY_V2='tryamm.streetverse.chicago-destination.v2'
 const DESTINATION_KEY_V1='tryamm.streetverse.chicago-destination.v1'
 const SAVE_KEY='tryamm.streetverse.living.v1'
 const GAME_SPAWNS:Record<string,{x:number;z:number;label:string}>={loop:{x:0,z:0,label:'The Loop'},millennium:{x:38,z:38,label:'Millennium Park'},lakefront:{x:72,z:58,label:'Lakefront'},river:{x:28,z:-12,label:'Chicago River'},south:{x:-18,z:72,label:'South Side'},west:{x:-72,z:10,label:'West Side'},north:{x:12,z:-72,label:'North Side'},ohare:{x:-78,z:-78,label:"O'Hare Gateway"},midway:{x:-58,z:72,label:'Midway Gateway'}}
-const COMMUNITY_AREA_SPAWNS:Record<string,{x:number;z:number;label:string;certification:'BUILDING'|'CERTIFIED'}>={
- '41':{x:26,z:62,label:'Hyde Park',certification:'BUILDING'},
-}
 type Destination={id?:string;label?:string;name?:string;lon?:number;lat?:number;city?:string;type?:string;communityAreaNumber?:string|number}
 
 function hasUsableWebGL(){
@@ -47,12 +45,23 @@ function readDestination():Destination|undefined{
  }catch{return undefined}
 }
 
+function resolveCommunitySpawn(number:string){
+ const slice=getStreetVerseCommunitySlice(number)
+ if(!slice)return undefined
+ if(number==='32')return {x:0,z:0,label:slice.name,certification:slice.status,communityAreaNumber:number,kind:'community-area' as const}
+ if(number==='41')return {x:26,z:62,label:slice.name,certification:slice.status,communityAreaNumber:number,kind:'community-area' as const}
+ const n=Number(number)
+ const column=(n-1)%11
+ const row=Math.floor((n-1)/11)
+ return {x:(column-5)*16,z:(row-3)*18,label:slice.name,certification:slice.status,communityAreaNumber:number,kind:'community-area' as const}
+}
+
 function resolveSpawn(destination?:Destination){
  if(!destination)return undefined
  if(destination.type==='community-area'||destination.communityAreaNumber!==undefined){
   const number=String(destination.communityAreaNumber??destination.id?.replace(/^ca-/,''))
-  const community=COMMUNITY_AREA_SPAWNS[number]
-  if(community)return {...community,communityAreaNumber:number,kind:'community-area' as const}
+  const community=resolveCommunitySpawn(number)
+  if(community)return community
  }
  if(destination.id&&GAME_SPAWNS[destination.id])return {...GAME_SPAWNS[destination.id],kind:'landmark' as const}
  return undefined
