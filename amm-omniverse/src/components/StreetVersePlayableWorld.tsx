@@ -1,5 +1,5 @@
 import {Component,lazy,Suspense,useEffect,useMemo,useState,type ReactNode} from 'react'
-import StreetVerseMobilePlayableWorld from './StreetVerseMobilePlayableWorld'
+import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseMobileWalkControls from './StreetVerseMobileWalkControls'
 
 // Heavy three.js worlds are lazy-loaded. This keeps the guaranteed safe-mode
@@ -37,7 +37,7 @@ class StreetVerseWorldBoundary extends Component<{onClose:()=>void;children:Reac
  state={failed:false}
  static getDerivedStateFromError(){return {failed:true}}
  componentDidCatch(error:unknown){console.error('[StreetVerse] 3D world failed; keeping safe city visible',error)}
- render(){return this.state.failed?<StreetVerseMobilePlayableWorld onClose={this.props.onClose}/>:this.props.children}
+ render(){return this.state.failed?<StreetVerseSafeWorld onClose={this.props.onClose}/>:this.props.children}
 }
 
 function MobileRuntimeGuard({onClose,children}:{onClose:()=>void;children:ReactNode}){
@@ -83,14 +83,14 @@ function MobileRuntimeGuard({onClose,children}:{onClose:()=>void;children:ReactN
    window.removeEventListener('webglcontextlost',onContextLost,true)
   }
  },[safeFallback])
- if(safeFallback)return <StreetVerseMobilePlayableWorld onClose={onClose}/>
+ if(safeFallback)return <StreetVerseSafeWorld onClose={onClose}/>
  return <>{children}</>
 }
 
 export default function StreetVersePlayableWorld({onClose}:{onClose:()=>void}){
  const mobile=useMemo(isMobileDevice,[])
  const safe=useMemo(shouldUseStreetVerseSafeMode,[])
- if(safe)return <StreetVerseMobilePlayableWorld onClose={onClose}/>
- if(mobile)return <StreetVerseWorldBoundary onClose={onClose}><MobileRuntimeGuard onClose={onClose}><Suspense fallback={<StreetVerseMobilePlayableWorld onClose={onClose}/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense><StreetVerseMobileWalkControls/></MobileRuntimeGuard></StreetVerseWorldBoundary>
- return <StreetVerseWorldBoundary onClose={onClose}><Suspense fallback={<StreetVerseMobilePlayableWorld onClose={onClose}/>}><StreetVerseLivingWorld onClose={onClose}/></Suspense></StreetVerseWorldBoundary>
+ if(safe)return <StreetVerseSafeWorld onClose={onClose}/>
+ if(mobile)return <StreetVerseWorldBoundary onClose={onClose}><MobileRuntimeGuard onClose={onClose}><Suspense fallback={<StreetVerseSafeWorld onClose={onClose}/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense><StreetVerseMobileWalkControls/></MobileRuntimeGuard></StreetVerseWorldBoundary>
+ return <StreetVerseWorldBoundary onClose={onClose}><Suspense fallback={<StreetVerseSafeWorld onClose={onClose}/>}><StreetVerseLivingWorld onClose={onClose}/></Suspense></StreetVerseWorldBoundary>
 }

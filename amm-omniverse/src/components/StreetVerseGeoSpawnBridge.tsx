@@ -2,7 +2,7 @@ import {lazy,Suspense,useCallback,useEffect,useLayoutEffect,useMemo,useRef,useSt
 import {announceStreetVerseProductionMode} from '../config/streetverseProductionMode'
 import {installStreetVerseJourneyQARuntime} from '../runtime/StreetVerseJourneyQARuntime'
 import {installStreetVerseHydeParkMissionRuntime} from '../runtime/StreetVerseHydeParkMissionRuntime'
-import StreetVerseMobilePlayableWorld from './StreetVerseMobilePlayableWorld'
+import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 
 const StreetVersePlayableWorld=lazy(()=>import('./StreetVersePlayableWorld'))
 const StreetVerseFullWorldOverlays=lazy(()=>import('./StreetVerseFullWorldOverlays'))
@@ -106,12 +106,12 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  },[safe])
 
  if(safe)return <>
-  <StreetVerseMobilePlayableWorld onClose={closeStreetVerse}/>
+  <StreetVerseSafeWorld onClose={closeStreetVerse}/>
   <Suspense fallback={null}><StreetVerseReelEventBridge/></Suspense>
  </>
 
  return <>
-  <Suspense fallback={<StreetVerseMobilePlayableWorld onClose={closeStreetVerse}/>}>
+  <Suspense fallback={<StreetVerseSafeWorld onClose={closeStreetVerse}/>}>
    <StreetVersePlayableWorld onClose={closeStreetVerse}/>
   </Suspense>
   {enhancementsReady&&<Suspense fallback={null}><StreetVerseFullWorldOverlays onClose={closeStreetVerse} mapped={prepared.mapped}/><StreetVerseReelEventBridge/></Suspense>}
