@@ -7,9 +7,14 @@ const StreetVersePlayableWorld=lazy(()=>import('./StreetVersePlayableWorld'))
 const StreetVerseFullWorldOverlays=lazy(()=>import('./StreetVerseFullWorldOverlays'))
 const StreetVerseReelEventBridge=lazy(()=>import('./StreetVerseReelEventBridge'))
 
-const DESTINATION_KEY='tryamm.streetverse.chicago-destination.v1',SAVE_KEY='tryamm.streetverse.living.v1'
+const DESTINATION_KEY_V2='tryamm.streetverse.chicago-destination.v2'
+const DESTINATION_KEY_V1='tryamm.streetverse.chicago-destination.v1'
+const SAVE_KEY='tryamm.streetverse.living.v1'
 const GAME_SPAWNS:Record<string,{x:number;z:number;label:string}>={loop:{x:0,z:0,label:'The Loop'},millennium:{x:38,z:38,label:'Millennium Park'},lakefront:{x:72,z:58,label:'Lakefront'},river:{x:28,z:-12,label:'Chicago River'},south:{x:-18,z:72,label:'South Side'},west:{x:-72,z:10,label:'West Side'},north:{x:12,z:-72,label:'North Side'},ohare:{x:-78,z:-78,label:"O'Hare Gateway"},midway:{x:-58,z:72,label:'Midway Gateway'}}
-type Destination={id?:string;label?:string;lon?:number;lat?:number;city?:string}
+const COMMUNITY_AREA_SPAWNS:Record<string,{x:number;z:number;label:string;certification:'BUILDING'|'CERTIFIED'}>={
+ '41':{x:26,z:62,label:'Hyde Park',certification:'BUILDING'},
+}
+type Destination={id?:string;label?:string;name?:string;lon?:number;lat?:number;city?:string;type?:string;communityAreaNumber?:string|number}
 
 function hasUsableWebGL(){
  if(typeof document==='undefined')return false
@@ -33,7 +38,41 @@ function shouldUseIndependentSafeBoot(){
  return noWebGL||(appleMobile&&(olderIOS||narrow||constrained))||(!appleMobile&&narrow&&constrained)
 }
 
-function prepareSpawn(){announceStreetVerseProductionMode();let destination:Destination|undefined;try{destination=JSON.parse(localStorage.getItem(DESTINATION_KEY)||'null')||undefined}catch{}const mapped=destination?.id?GAME_SPAWNS[destination.id]:undefined;if(mapped){try{const previous=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');localStorage.setItem(SAVE_KEY,JSON.stringify({...previous,x:mapped.x,z:mapped.z,geoDestination:destination,geoSpawnLabel:mapped.label,updatedAt:new Date().toISOString()}))}catch{}window.dispatchEvent(new CustomEvent('tryamm:streetverse-geo-spawn-ready',{detail:{destination,mapped}}))}return {destination,mapped}}
+function readDestination():Destination|undefined{
+ try{
+  const current=JSON.parse(localStorage.getItem(DESTINATION_KEY_V2)||'null')
+  if(current)return current
+  return JSON.parse(localStorage.getItem(DESTINATION_KEY_V1)||'null')||undefined
+ }catch{return undefined}
+}
+
+function resolveSpawn(destination?:Destination){
+ if(!destination)return undefined
+ if(destination.type==='community-area'||destination.communityAreaNumber!==undefined){
+  const number=String(destination.communityAreaNumber??destination.id?.replace(/^ca-/,''))
+  const community=COMMUNITY_AREA_SPAWNS[number]
+  if(community)return {...community,communityAreaNumber:number,kind:'community-area' as const}
+ }
+ if(destination.id&&GAME_SPAWNS[destination.id])return {...GAME_SPAWNS[destination.id],kind:'landmark' as const}
+ return undefined
+}
+
+function prepareSpawn(){
+ announceStreetVerseProductionMode()
+ const destination=readDestination()
+ const mapped=resolveSpawn(destination)
+ if(mapped){
+  try{
+   const previous=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')
+   localStorage.setItem(SAVE_KEY,JSON.stringify({...previous,x:mapped.x,z:mapped.z,geoDestination:destination,geoSpawnLabel:mapped.label,communityAreaNumber:'communityAreaNumber'in mapped?mapped.communityAreaNumber:previous.communityAreaNumber,communitySliceStatus:'certification'in mapped?mapped.certification:previous.communitySliceStatus,updatedAt:new Date().toISOString()}))
+  }catch{}
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-geo-spawn-ready',{detail:{destination,mapped}}))
+  if(mapped.kind==='community-area')window.dispatchEvent(new CustomEvent('tryamm:streetverse-community-slice-ready',{detail:{communityAreaNumber:mapped.communityAreaNumber,name:mapped.label,status:mapped.certification,spawn:{x:mapped.x,z:mapped.z}}}))
+ }else if(destination?.type==='community-area'){
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-community-slice-unmapped',{detail:{destination,status:'BUILDING'}}))
+ }
+ return {destination,mapped}
+}
 
 export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const prepared=useMemo(()=>prepareSpawn(),[])
@@ -55,9 +94,9 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  },[closeStreetVerse])
  useEffect(()=>{
   if(!safe)return
-  const frame=window.requestAnimationFrame(()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-ready',{detail:{mode:'mobile-safe',mobileSafeMode:true,htmlCity:true,canvas:false,playable:true,source:'streetverse-geo-spawn'}})))
+  const frame=window.requestAnimationFrame(()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-ready',{detail:{mode:'mobile-safe',mobileSafeMode:true,htmlCity:true,canvas:false,playable:true,source:'streetverse-geo-spawn',communityArea:prepared.destination?.communityAreaNumber||null}})))
   return()=>window.cancelAnimationFrame(frame)
- },[safe])
+ },[safe,prepared.destination?.communityAreaNumber])
  useEffect(()=>{
   if(safe)return
   const timer=window.setTimeout(()=>setEnhancementsReady(true),650)
