@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tryamm.online/schemas/adaptive-render-policy.schema.json",
+  "title": "TRYAMM Adaptive Render Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["sessionClass", "worldId", "tier", "renderScale", "targetFps", "reconstruction", "frameGeneration", "sceneBudget", "transport"],
+  "properties": {
+    "sessionClass": {"type": "string", "enum": ["anonymous", "signed-in", "cloud-render"]},
+    "worldId": {"type": "string", "maxLength": 128},
+    "tier": {"type": "string", "enum": ["safe", "balanced", "high", "ultra", "cloud"]},
+    "renderScale": {"type": "number", "minimum": 0.5, "maximum": 1.0},
+    "targetFps": {"type": "integer", "minimum": 24, "maximum": 120},
+    "reconstruction": {"type": "string", "enum": ["none", "spatial", "temporal"]},
+    "frameGeneration": {"const": false},
+    "sceneBudget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["npc", "vehicles", "foliage", "particles"],
+      "properties": {
+        "npc": {"type": "integer", "minimum": 0, "maximum": 500},
+        "vehicles": {"type": "integer", "minimum": 0, "maximum": 300},
+        "foliage": {"type": "integer", "minimum": 0, "maximum": 10000},
+        "particles": {"type": "integer", "minimum": 0, "maximum": 10000}
+      }
+    },
+    "transport": {"type": "string", "enum": ["local", "edge", "cloud"]},
+    "latencyTargetMs": {"type": "integer", "minimum": 10, "maximum": 500},
+    "capabilityClass": {"type": "string", "maxLength": 64},
+    "expiresAt": {"type": "string", "format": "date-time"}
+  }
+}
