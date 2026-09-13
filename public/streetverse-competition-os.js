@@ -1,0 +1,26 @@
+(()=>{
+'use strict';
+const VEHICLES={
+ car:{domain:'ground',speed:120},motorcycle:{domain:'ground',speed:135},boat:{domain:'water',speed:90},jetski:{domain:'water',speed:105},trainer:{domain:'air',speed:145},airplane:{domain:'air',speed:210},jet:{domain:'air',speed:320},horse:{domain:'ground',speed:55},spacecraft:{domain:'space',speed:500}
+};
+const state={vehicle:'car',district:'Loop',race:null,bossStep:0};
+const emit=(name,detail={})=>window.dispatchEvent(new CustomEvent(name,{detail:{...detail,at:Date.now()}}));
+function selectVehicle(type){if(!VEHICLES[type])return false;state.vehicle=type;emit('tryamm:vehicle-selected',{type,spec:VEHICLES[type]});return true}
+function travel({district,lineId='red'}={}){if(district)state.district=district;emit('tryamm:player-district-transition',{district:state.district,lineId,vehicle:state.vehicle});return state.district}
+function startRace({id=`race-${Date.now()}`,kind='circuit',vehicle=state.vehicle,checkpoints=4}={}){if(!VEHICLES[vehicle])throw new Error('Unsupported vehicle');state.race={id,kind,vehicle,checkpoints,passed:0,startedAt:performance.now(),finished:false};emit('tryamm:tournament-started',{...state.race});return state.race}
+function checkpoint(){if(!state.race||state.race.finished)return null;state.race.passed=Math.min(state.race.checkpoints,state.race.passed+1);emit('tryamm:tournament-checkpoint',{id:state.race.id,passed:state.race.passed,total:state.race.checkpoints});if(state.race.passed===state.race.checkpoints)return finishRace();return state.race}
+function finishRace(){if(!state.race||state.race.finished)return state.race;state.race.finished=true;state.race.elapsedMs=Math.round(performance.now()-state.race.startedAt);emit('tryamm:tournament-finish-pending-verification',{id:state.race.id,vehicle:state.race.vehicle,elapsedMs:state.race.elapsedMs,clientReward:false,requiresServerVerification:true});return state.race}
+const BOSS=[
+ {mode:'rail',objective:'Reach the transit hub'}, {mode:'motorcycle',objective:'Cross the city'}, {mode:'boat',objective:'Complete the river rescue'}, {mode:'trainer',objective:'Complete airport flight sequence'}, {mode:'jet',objective:'Reach the global checkpoint'}, {mode:'spacecraft',objective:'Complete the fictional orbital finale'}
+];
+function bossNext(){const step=BOSS[state.bossStep];if(!step){emit('tryamm:big-boss-complete-pending-verification',{clientReward:false});return null}state.bossStep++;if(VEHICLES[step.mode])selectVehicle(step.mode);emit('tryamm:big-boss-step',{index:state.bossStep,total:BOSS.length,...step});return step}
+function bridgeMobility(){
+ window.addEventListener('tryamm:mobility-demo',e=>handleMobility(e.detail));
+ window.addEventListener('tryamm:mobility-authoritative',e=>handleMobility(e.detail?.event||e.detail));
+}
+function handleMobility(d={}){const kind=d.kind||d.event?.kind;const lineId=d.lineId||d.event?.lineId||'red';const district=d.districtId||d.event?.districtId||state.district;if(kind==='station-enter')emit('tryamm:transit-line-active',{lineId,stop:district,stopIndex:0});if(kind==='board'){emit('tryamm:l-train-doors',{lineId,open:true,station:district});setTimeout(()=>emit('tryamm:l-train-doors',{lineId,open:false,station:district}),900)}if(kind==='ride-complete')travel({district,lineId})}
+function panel(){const host=document.querySelector('main');if(!host||document.getElementById('competitionOS'))return;const el=document.createElement('section');el.id='competitionOS';el.className='global-mobility';el.innerHTML='<div class="gm-head"><div><small>STREETVERSE COMPETITION OS</small><h2>Race • Train • Air • Sea • Space</h2></div><span class="gm-status">ALPHA</span></div><div class="gm-grid"><label>Vehicle<select id="coVehicle"></select></label><label>Race<select id="coRace"><option>circuit</option><option>time-trial</option><option>water</option><option>air</option><option>horse</option><option>space</option></select></label></div><div class="gm-actions"><button id="coStart">START QUALIFIER</button><button id="coCheckpoint">CHECKPOINT</button><button id="coBoss">BIG BOSS NEXT</button></div><p class="gm-result" id="coResult">Sponsor-funded prizes require server verification; no client-side cash awards.</p>';host.appendChild(el);const sel=document.getElementById('coVehicle');sel.innerHTML=Object.keys(VEHICLES).map(v=>`<option value="${v}">${v.toUpperCase()}</option>`).join('');sel.onchange=()=>selectVehicle(sel.value);document.getElementById('coStart').onclick=()=>{const r=startRace({kind:document.getElementById('coRace').value,vehicle:sel.value});show(`Qualifier ${r.id} started.`)};document.getElementById('coCheckpoint').onclick=()=>{const r=checkpoint();show(r?.finished?`Finished in ${r.elapsedMs} ms; awaiting authoritative verification.`:`Checkpoint ${r?.passed||0}.`)};document.getElementById('coBoss').onclick=()=>{const s=bossNext();show(s?`${s.objective} (${state.bossStep}/${BOSS.length})`:'Boss sequence complete; awaiting verification.')};}
+function show(t){const el=document.getElementById('coResult');if(el)el.textContent=t;const b=document.getElementById('bennyText');if(b)b.textContent=t}
+window.StreetVerseCompetitionOS={VEHICLES,state,selectVehicle,travel,startRace,checkpoint,finishRace,bossNext};
+bridgeMobility();window.addEventListener('DOMContentLoaded',panel);
+})();
