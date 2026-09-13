@@ -1,0 +1,1 @@
+Validation target: lint, syntax, smoke tests, PR checks, then rendered/mobile verification before production certification.
