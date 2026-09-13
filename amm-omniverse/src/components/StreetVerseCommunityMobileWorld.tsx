@@ -1,4 +1,5 @@
 import {useEffect,useMemo,useState} from 'react'
+import type {CSSProperties} from 'react'
 import type {StreetVerseCommunitySlice} from '../config/streetverseCommunitySlices'
 
 type Props={slice:StreetVerseCommunitySlice;onClose:()=>void}
@@ -59,7 +60,7 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
     <div style={{fontSize:11,color:'#b9c9d6',marginTop:5}}>CHICAGO 77 • {slice.status} • AREA {slice.communityAreaNumber}</div>
    </section>
    <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:10}}>
-    {slice.missions.map(m=>{const complete=visited.includes(m.id);return <button key={m.id} onClick={()=>visit(m.id)} disabled={complete} style={{minHeight:118,textAlign:'left',padding:12,borderRadius:14,border:`1px solid ${complete?'#55e88a':'#ffd65a'}`,background:'#07131ff2',color:'#fff',opacity:complete?.82:1}}>
+    {slice.missions.map(m=>{const complete=visited.includes(m.id);return <button key={m.id} onClick={()=>visit(m.id)} disabled={complete} style={{minHeight:118,textAlign:'left',padding:12,borderRadius:14,border:`1px solid ${complete?'#55e88a':'#ffd65a'}`,background:'#07131ff2',color:'#fff',opacity:complete?0.82:1}}>
      <div style={{fontSize:18,fontWeight:900}}>{complete?'✓ ':'○ '}{m.label}</div>
      <div style={{fontSize:12,color:'#9fc7dd',marginTop:7}}>{m.reference}</div>
      <div style={{fontSize:10,color:'#b9c9d6',marginTop:8}}>{m.kind.toUpperCase()} • checkpoint ({m.x},{m.y})</div>
@@ -73,4 +74,4 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
  </div>
 }
 
-const buttonStyle:React.CSSProperties={minHeight:44,borderRadius:11,border:'1px solid #59e7ff',background:'#071b25',color:'#fff',fontWeight:900,padding:'0 10px'}
+const buttonStyle:CSSProperties={minHeight:44,borderRadius:11,border:'1px solid #59e7ff',background:'#071b25',color:'#fff',fontWeight:900,padding:'0 10px'}
