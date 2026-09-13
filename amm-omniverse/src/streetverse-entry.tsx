@@ -47,8 +47,10 @@ const deferRuntimeBoot=()=>{
  void boot()
 }
 
-if('requestIdleCallback' in window){
- ;(window as Window & {requestIdleCallback:(cb:()=>void,options?:{timeout:number})=>number}).requestIdleCallback(deferRuntimeBoot,{timeout:2500})
+type IdleWindow=Window&{requestIdleCallback?:(cb:()=>void,options?:{timeout:number})=>number}
+const idleWindow=window as IdleWindow
+if(typeof idleWindow.requestIdleCallback==='function'){
+ idleWindow.requestIdleCallback(deferRuntimeBoot,{timeout:2500})
 }else{
- window.setTimeout(deferRuntimeBoot,900)
+ globalThis.setTimeout(deferRuntimeBoot,900)
 }
