@@ -86,7 +86,8 @@ function prepareSpawn(){
 
 export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const prepared=useMemo(()=>prepareSpawn(),[])
- const safe=useMemo(shouldUseIndependentSafeBoot,[])
+ const selectedCommunityArea=prepared.mapped?.kind==='community-area'
+ const safe=useMemo(()=>selectedCommunityArea||shouldUseIndependentSafeBoot(),[selectedCommunityArea])
  const [enhancementsReady,setEnhancementsReady]=useState(false)
  const closingRef=useRef(false)
  const closeStreetVerse=useCallback(()=>{
