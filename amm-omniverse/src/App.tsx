@@ -37,6 +37,7 @@ const QuantumTagArena = lazy(() => import('./components/QuantumTagArena'))
 const ProAudioSuite = lazy(() => import('./components/ProAudioSuite'))
 const SignLanguageHub = lazy(() => import('./components/SignLanguageHub'))
 const AccessibilityRemoteHub = lazy(() => import('./components/AccessibilityRemoteHub'))
+const AbilityWorksCenter = lazy(() => import('./components/AbilityWorksCenter'))
 const LiveCenter = lazy(() => import('./components/LiveCenter'))
 const StreamStudioFX = lazy(() => import('./components/StreamStudioFX'))
 const QuantumLagBuster = lazy(() => import('./components/QuantumLagBuster'))
@@ -64,6 +65,7 @@ export default function App() {
   const [showQuantumEngine, setShowQuantumEngine] = useState(false)
   const [showSignLanguage, setShowSignLanguage] = useState(false)
   const [showAccessibilityRemote, setShowAccessibilityRemote] = useState(false)
+  const [showAbilityWorks, setShowAbilityWorks] = useState(false)
   const [showLive, setShowLive] = useState(false)
   const [showStreamFX, setShowStreamFX] = useState(false)
   const [showLagBuster, setShowLagBuster] = useState(false)
@@ -101,6 +103,7 @@ export default function App() {
   ;(window as any).__showQuantumEngine = () => setShowQuantumEngine(true)
   ;(window as any).__showSignLanguage = () => setShowSignLanguage(true)
   ;(window as any).__showOmniAccess = () => setShowAccessibilityRemote(true)
+  ;(window as any).__showAbilityWorks = () => setShowAbilityWorks(true)
   ;(window as any).__showTryAMMLive = () => setShowLive(true)
   ;(window as any).__showStreamStudioFX = () => setShowStreamFX(true)
   ;(window as any).__showQuantumLagBuster = () => setShowLagBuster(true)
@@ -146,6 +149,7 @@ export default function App() {
     ['⚛','QUANTUM ENGINE',()=>setShowQuantumEngine(true),'BETA'],
     ['🤟','SIGN LANGUAGE',()=>setShowSignLanguage(true),'BETA'],
     ['♿','OMNI ACCESS',()=>setShowAccessibilityRemote(true),'BETA'],
+    ['AW','ABILITYWORKS',()=>setShowAbilityWorks(true),'BUILDING'],
     ['✨','STREAM FX',()=>setShowStreamFX(true),'BETA'],
     ['⚡','LAG BUSTER',()=>setShowLagBuster(true),'BETA'],
     ['♫','QUANTUM BEAT',()=>setShowQuantumBeat(true),'BETA'],
@@ -179,7 +183,7 @@ export default function App() {
           <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
             {nexusItems.map(([icon,label,action,status])=><button key={label} onClick={()=>{setShowNexus(false);action()}} style={{minHeight:74,textAlign:'left',padding:11,border:'1px solid #1c2c3e',borderRadius:14,background:'#0b111b',color:'#fff',cursor:'pointer'}}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><span style={{fontSize:18}}>{icon}</span><span style={{fontSize:8,color:status==='LIVE'?'#78ffb4':'#e8b944',fontWeight:900}}>{status}</span></div><div style={{fontSize:10,fontWeight:950,marginTop:9,letterSpacing:.5}}>{label}</div></button>)}
           </div>
-          <div style={{marginTop:10,fontSize:9,color:'#718096',lineHeight:1.5}}>Advanced systems stay available here without covering the main experience. Readiness labels distinguish live and beta features.</div>
+          <div style={{marginTop:10,fontSize:9,color:'#718096',lineHeight:1.5}}>Advanced systems stay available here without covering the main experience. Readiness labels distinguish live, beta and building features.</div>
         </div>}
 
         {showPricing && <div style={{position:'fixed',inset:0,zIndex:9999,background:'#020212'}}><PricingScreen onClose={() => setShowPricing(false)} /></div>}
@@ -208,6 +212,7 @@ export default function App() {
         {showSecurity && <SecurityCenter onClose={() => setShowSecurity(false)} />}
         {showSignLanguage && <div style={{position:'fixed',inset:0,zIndex:10000,background:'#050816'}}><SignLanguageHub onClose={() => setShowSignLanguage(false)} /></div>}
         {showAccessibilityRemote && <AccessibilityRemoteHub onClose={() => setShowAccessibilityRemote(false)} />}
+        {showAbilityWorks && <AbilityWorksCenter onClose={() => setShowAbilityWorks(false)} />}
         {showLive && <div style={{position:'fixed',inset:0,zIndex:10020,background:'#030611'}}><LiveCenter onClose={() => setShowLive(false)} /></div>}
         {showStreamFX && <StreamStudioFX onClose={() => setShowStreamFX(false)} />}
         {showLagBuster && <QuantumLagBuster onClose={() => setShowLagBuster(false)} />}
