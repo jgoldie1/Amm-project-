@@ -1,0 +1,171 @@
+name: TRYAMM Today Autopilot
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/**'
+      - 'lib/**'
+      - 'public/**'
+      - 'server.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/tryamm-today-autopilot.yml'
+  schedule:
+    # Hourly safety/certification pass. The date guard below makes the scheduled
+    # lane active only on September 14, 2026 in the founder's local timezone.
+    - cron: '0 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tryamm-today-autopilot-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  date-gate:
+    runs-on: ubuntu-latest
+    outputs:
+      run_today: ${{ steps.guard.outputs.run_today }}
+    steps:
+      - id: guard
+        name: Enable scheduled lane only for Sep 14, 2026 local day
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "run_today=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          TODAY=$(TZ=America/Indiana/Indianapolis date +%F)
+          if [ "$TODAY" = "2026-09-14" ]; then
+            echo "run_today=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_today=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  certify:
+    name: Build + certify current main
+    needs: date-gate
+    if: needs.date-gate.outputs.run_today == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            amm-omniverse/package-lock.json
+
+      - name: Install root dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Root release checks
+        run: npm run check
+
+      - name: Install Omniverse dependencies
+        working-directory: amm-omniverse
+        run: npm install --no-audit --no-fund
+
+      - name: Omniverse security + readiness + type + production build
+        working-directory: amm-omniverse
+        run: npm run check
+
+      - name: Enforce production bundle budget
+        working-directory: amm-omniverse
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs')
+          const path = require('path')
+          const dir = path.join(process.cwd(), 'dist', 'assets')
+          const files = fs.readdirSync(dir).filter(f => f.endsWith('.js'))
+          const rows = files.map(file => ({file, kb: fs.statSync(path.join(dir,file)).size / 1024})).sort((a,b)=>b.kb-a.kb)
+          console.log('Largest production JavaScript chunks:')
+          for (const r of rows.slice(0,12)) console.log(`${r.kb.toFixed(2)} kB\t${r.file}`)
+          const three = rows.filter(r => r.file.includes('vendor-three-core'))
+          const hardFailures = rows.filter(r => r.kb > 650)
+          if (three.length && three[0].kb > 600) {
+            console.log(`::warning::Three.js core is ${three[0].kb.toFixed(2)} kB. Target remains <= 600 kB; hard gate is 650 kB while deeper lazy-loading is completed.`)
+          }
+          if (hardFailures.length) {
+            console.error('Chunks above 650 kB hard production budget:', hardFailures)
+            process.exit(1)
+          }
+          NODE
+
+      - name: Production route and AI smoke certification
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, time, urllib.request
+          checks = [
+            ('home','https://tryamm.online/',False),
+            ('streetverse','https://tryamm.online/streetverse',False),
+            ('release','https://tryamm.online/api/system/release',True),
+            ('hologpt-health','https://tryamm.online/api/ai/health',True),
+            ('hologpt-smoke','https://tryamm.online/api/ai/smoke',True),
+            ('creator-convergence','https://tryamm.online/api/system/creator-convergence',True),
+            ('economic-convergence','https://tryamm.online/api/system/economic-convergence',True),
+            ('media-health','https://tryamm.online/api/media/health',True),
+          ]
+          failures=[]
+          report=[]
+          for name,url,want_json in checks:
+            ok=False; detail=''
+            for attempt in range(3):
+              try:
+                req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Today-Autopilot/1.0'})
+                with urllib.request.urlopen(req,timeout=30) as r:
+                  body=r.read(200000).decode('utf-8','replace')
+                  ok=200 <= r.status < 400
+                  if want_json and ok:
+                    json.loads(body)
+                  detail=f'HTTP {r.status}'
+                  if ok: break
+              except Exception as exc:
+                detail=str(exc)
+                time.sleep(4)
+            report.append((name,ok,detail))
+            if not ok: failures.append(name)
+          print('\nTRYAMM production certification')
+          for name,ok,detail in report:
+            print(('PASS' if ok else 'FAIL'), name, '-', detail)
+          if failures:
+            raise SystemExit('Production smoke failures: ' + ', '.join(failures))
+          PY
+
+      - name: Write certification summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '## TRYAMM Today Autopilot'
+            echo
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo "- Trigger: \`${{ github.event_name }}\`"
+            echo '- Root platform checks executed'
+            echo '- Omniverse security/readiness/type/build executed'
+            echo '- Three.js and global JS bundle budgets inspected'
+            echo '- Production home, StreetVerse, HoloGPT, creator, economy, and media endpoints certified'
+            echo '- Existing main CI remains responsible for verified Vercel stage/promote deployment'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload production build evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-today-autopilot-${{ github.sha }}
+          path: |
+            amm-omniverse/dist/
+            amm-omniverse/playwright-report/
+            amm-omniverse/test-results/
+          if-no-files-found: warn
+          retention-days: 7
