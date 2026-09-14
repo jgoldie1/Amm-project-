@@ -5,6 +5,7 @@ const worldLabels: Record<TryammWorld,string> = {
   'streetverse':'StreetVerse',
   'we-are-the-world':'We Are the World',
   'starverse':'StarVerse',
+  'omniverse':'Omniverse',
 }
 
 export default function LivingStoryMissionCenter({onClose}:{onClose:()=>void}) {
