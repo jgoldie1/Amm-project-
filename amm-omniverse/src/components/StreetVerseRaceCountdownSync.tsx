@@ -3,6 +3,7 @@ import type { RealtimeChannel } from '@supabase/supabase-js'
 import { getSupabaseClient } from '../services/supabaseClient'
 
 type CountdownPayload={userId:string;raceId:string;startAt:number;sentAt:string}
+type Envelope={payload?:CountdownPayload}
 const CHANNEL='streetverse:chicago:district-01:race-countdown'
 const RACE_ID='chicago-circuit-01'
 
@@ -22,8 +23,8 @@ export default function StreetVerseRaceCountdownSync(){
       const userId=session?.user?.id||''; userRef.current=userId
       if(!userId){setStatus('SIGNED_OUT');return}
       channel=sb.channel(CHANNEL,{config:{broadcast:{self:true,ack:false}}}); channelRef.current=channel
-      channel.on('broadcast',{event:'race-countdown'},(event)=>{const p=(event as {payload?:CountdownPayload}).payload;if(!p||p.raceId!==RACE_ID)return;armCountdown(p.startAt)})
-        .subscribe(s=>{if(s==='SUBSCRIBED')setStatus('LIVE');else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT')setStatus('ERROR')})
+      ;(channel as any).on('broadcast',{event:'race-countdown'},(event:Envelope)=>{const p=event.payload;if(!p||p.raceId!==RACE_ID)return;armCountdown(p.startAt)})
+        .subscribe((s:string)=>{if(s==='SUBSCRIBED')setStatus('LIVE');else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT')setStatus('ERROR')})
     }
     void start()
     return()=>{cancelled=true;if(timerRef.current)clearInterval(timerRef.current);if(channel)void sb.removeChannel(channel);channelRef.current=null}
