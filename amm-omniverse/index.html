@@ -9,6 +9,7 @@
     <link rel="icon" type="image/svg+xml" href="/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2" />
     <link rel="shortcut icon" type="image/svg+xml" href="/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2" />
     <link rel="apple-touch-icon" href="/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2" />
+    <link rel="stylesheet" href="/streetverse-global-mobility.css?v=20260913-production-surface-v1" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -73,6 +74,8 @@
     <script src="/tryamm-retail-world.js?v=20260903-retail-world-v1" defer></script>
     <script src="/tryamm-immersive-store.js?v=20260903-immersive-store-v2" defer></script>
 
+    <script src="/streetverse-global-mobility.js?v=20260913-production-surface-v1" defer></script>
+    <script src="/streetverse-competition-os.js?v=20260913-production-surface-v1" defer></script>
     <script src="/streetverse-reel.js?v=20260903-streetverse-v26" defer></script>
     <script src="/streetverse-safe-mode.js?v=20260904-streetverse-v28" defer></script>
     <script src="/streetverse-mobile-life.js?v=20260903-streetverse-v26" defer></script>
@@ -96,7 +99,7 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {
-            const SW_VERSION='20260904-streetverse-play-v3'
+            const SW_VERSION='20260913-streetverse-production-surface-v1'
             const RELEASE_KEY='tryamm-release-version'
             const previousRelease=localStorage.getItem(RELEASE_KEY)
             if (previousRelease !== SW_VERSION && 'caches' in window) {
