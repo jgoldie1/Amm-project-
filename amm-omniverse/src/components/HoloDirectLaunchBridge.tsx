@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createHoloDelivery, requestHoloRide } from '../services/holoServices'
 import { evaluateDeliveryModes } from '../logistics/holoDelivery'
+import { useGameStore } from '../game/state/useGameStore'
 
 type Panel = 'ride'|'delivery'|'drone'|null
+
+function invoke(name:string){const fn=(window as any)[name];if(typeof fn==='function'){fn();return true}return false}
+function openStreetVerse(){useGameStore.getState().setScreen('city');if(window.location.hash!=='#/streetverse')window.location.hash='/streetverse'}
 
 export default function HoloDirectLaunchBridge(){
   const [panel,setPanel]=useState<Panel>(null)
@@ -14,17 +18,48 @@ export default function HoloDirectLaunchBridge(){
   const [busy,setBusy]=useState(false)
 
   useEffect(()=>{
-    ;(window as any).__showHoloRide=()=>setPanel('ride')
-    ;(window as any).__showHoloDelivery=()=>setPanel('delivery')
-    ;(window as any).__showHoloDrone=()=>setPanel('drone')
-    ;(window as any).__showAllAmericanNetwork=()=>window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{destination:'all-american-network'}}))
-    ;(window as any).__showServantsOfChristNetwork=()=>window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{destination:'servants-of-christ-network'}}))
+    const openRide=()=>setPanel('ride')
+    const openDelivery=()=>setPanel('delivery')
+    const openDrone=()=>setPanel('drone')
+    const openMediaStudio=()=>{if(!invoke('__showStreamStudioFX'))invoke('__showPoyoAI')}
+    const openMiddleverse=()=>{if(!invoke('__showOmniverse'))invoke('__showCommandNexusV2')}
+    const openJacobieVision=()=>{try{localStorage.setItem('tryamm_school_network_target','jacobie-vision')}catch{};invoke('__showSchoolNetwork')}
+    const openMeetTheStubbs=()=>invoke('__showFamilyLegacy')
+    const openPlayableBeta=()=>openStreetVerse()
+    const openAllAmericanNetwork=()=>{window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{destination:'all-american-network'}}));openMediaStudio()}
+    const openServantsNetwork=()=>{window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{destination:'servants-of-christ-network'}}));openMediaStudio()}
+
+    ;(window as any).__showHoloRide=openRide
+    ;(window as any).__showHoloDelivery=openDelivery
+    ;(window as any).__showHoloDrone=openDrone
+    ;(window as any).__showMediaStudio=openMediaStudio
+    ;(window as any).__showMiddleverseWorkstation=openMiddleverse
+    ;(window as any).__showJacobieVision=openJacobieVision
+    ;(window as any).__showMeetTheStubbs=openMeetTheStubbs
+    ;(window as any).__showPlayableBeta=openPlayableBeta
+    ;(window as any).__showAllAmericanNetwork=openAllAmericanNetwork
+    ;(window as any).__showServantsOfChristNetwork=openServantsNetwork
+
+    window.addEventListener('tryamm:media-studio-open',openMediaStudio)
+    window.addEventListener('tryamm:open-middleverse',openMiddleverse)
+    window.addEventListener('tryamm:open-jacobie-vision',openJacobieVision)
+    window.addEventListener('tryamm:open-meet-the-stubbs',openMeetTheStubbs)
+
     return()=>{
-      delete (window as any).__showHoloRide
-      delete (window as any).__showHoloDelivery
-      delete (window as any).__showHoloDrone
-      delete (window as any).__showAllAmericanNetwork
-      delete (window as any).__showServantsOfChristNetwork
+      window.removeEventListener('tryamm:media-studio-open',openMediaStudio)
+      window.removeEventListener('tryamm:open-middleverse',openMiddleverse)
+      window.removeEventListener('tryamm:open-jacobie-vision',openJacobieVision)
+      window.removeEventListener('tryamm:open-meet-the-stubbs',openMeetTheStubbs)
+      if((window as any).__showHoloRide===openRide)delete (window as any).__showHoloRide
+      if((window as any).__showHoloDelivery===openDelivery)delete (window as any).__showHoloDelivery
+      if((window as any).__showHoloDrone===openDrone)delete (window as any).__showHoloDrone
+      if((window as any).__showMediaStudio===openMediaStudio)delete (window as any).__showMediaStudio
+      if((window as any).__showMiddleverseWorkstation===openMiddleverse)delete (window as any).__showMiddleverseWorkstation
+      if((window as any).__showJacobieVision===openJacobieVision)delete (window as any).__showJacobieVision
+      if((window as any).__showMeetTheStubbs===openMeetTheStubbs)delete (window as any).__showMeetTheStubbs
+      if((window as any).__showPlayableBeta===openPlayableBeta)delete (window as any).__showPlayableBeta
+      if((window as any).__showAllAmericanNetwork===openAllAmericanNetwork)delete (window as any).__showAllAmericanNetwork
+      if((window as any).__showServantsOfChristNetwork===openServantsNetwork)delete (window as any).__showServantsOfChristNetwork
     }
   },[])
 
