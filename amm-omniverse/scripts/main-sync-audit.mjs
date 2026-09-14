@@ -1,7 +1,8 @@
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 
 const run = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim()
 const split = (value) => value ? value.split('\n').filter(Boolean) : []
+const differs = (path) => spawnSync('git', ['diff', '--quiet', 'HEAD', 'origin/main', '--', path]).status !== 0
 
 const releaseCritical = [
   /^\.github\/workflows\//,
@@ -56,8 +57,10 @@ const branchPaths = new Set(split(run('diff', '--name-only', `${mergeBase}..HEAD
 const mainPaths = new Set(split(run('diff', '--name-only', `${mergeBase}..origin/main`)))
 const overlapRows = [...branchPaths]
   .filter((path) => mainPaths.has(path))
-  .map((path) => ({ path, bucket: bucketFor(path) }))
+  .map((path) => ({ path, bucket: bucketFor(path), reconciled: !differs(path) }))
   .sort((a, b) => a.bucket.localeCompare(b.bucket) || a.path.localeCompare(b.path))
+const unresolvedOverlapRows = overlapRows.filter((row) => !row.reconciled)
+const reconciledOverlapRows = overlapRows.filter((row) => row.reconciled)
 
 const groups = Object.groupBy(rows, (row) => row.bucket)
 const printGroup = (name) => {
@@ -66,11 +69,17 @@ const printGroup = (name) => {
   for (const item of items) console.log(`${item.status}\t${item.path}`)
 }
 
-const overlapGroups = Object.groupBy(overlapRows, (row) => row.bucket)
+const overlapGroups = Object.groupBy(unresolvedOverlapRows, (row) => row.bucket)
+const reconciledGroups = Object.groupBy(reconciledOverlapRows, (row) => row.bucket)
 const printOverlapGroup = (name) => {
   const items = overlapGroups[name] || []
   console.log(`\nOVERLAP ${name.toUpperCase()} (${items.length})`)
   for (const item of items) console.log(`BOTH\t${item.path}`)
+}
+const printReconciledGroup = (name) => {
+  const items = reconciledGroups[name] || []
+  console.log(`\nRECONCILED ${name.toUpperCase()} (${items.length})`)
+  for (const item of items) console.log(`MATCH\t${item.path}`)
 }
 
 console.log(`main-sync audit: ahead=${ahead} behind=${behind} changed=${rows.length} merge-base=${mergeBase}`)
@@ -78,10 +87,13 @@ printGroup('release-critical')
 printGroup('review')
 printGroup('defer-feature-docs')
 
-console.log(`\nOVERLAP SUMMARY: files changed on both branch and main since merge-base=${overlapRows.length}`)
+console.log(`\nOVERLAP SUMMARY: files changed on both branch and main since merge-base=${overlapRows.length}; unresolved=${unresolvedOverlapRows.length}; reconciled=${reconciledOverlapRows.length}`)
 printOverlapGroup('release-critical')
 printOverlapGroup('review')
 printOverlapGroup('defer-feature-docs')
+printReconciledGroup('release-critical')
+printReconciledGroup('review')
+printReconciledGroup('defer-feature-docs')
 
 if (behind === 0) {
   console.log('\nSYNC STATUS: branch contains current main history.')
@@ -89,8 +101,8 @@ if (behind === 0) {
 }
 
 if ((overlapGroups['release-critical'] || []).length > 0) {
-  console.log('\nSYNC BLOCKER: release-critical paths changed on both sides. Reconcile those paths individually before any broad history synchronization.')
+  console.log('\nSYNC BLOCKER: unresolved release-critical paths changed on both sides. Reconcile those paths individually before any broad history synchronization.')
 }
 
-console.log('\nSYNC STATUS: reconciliation still required. Review release-critical files first; do not use a blanket ours merge merely to make behind=0.')
+console.log('\nSYNC STATUS: reconciliation still required. Review unresolved release-critical files first; do not use a blanket ours merge merely to make behind=0.')
 process.exitCode = 1
