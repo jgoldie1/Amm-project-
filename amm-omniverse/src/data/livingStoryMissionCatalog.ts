@@ -1,8 +1,9 @@
-export type TryammWorld = 'streetverse' | 'we-are-the-world' | 'starverse';
+export type TryammWorld = 'streetverse' | 'we-are-the-world' | 'starverse' | 'omniverse';
 export type MissionStatus = 'locked' | 'building' | 'ready' | 'live';
 export type MissionLane =
   | 'fire-rescue'
   | 'investigation'
+  | 'after-dark'
   | 'community-drama'
   | 'music-career'
   | 'media-business'
@@ -62,6 +63,21 @@ export const livingStoryMissionCatalog: MissionArc[] = [
     summary: 'Gather lawful clues, interview NPCs, follow evidence and resolve a fictional neighborhood case.',
     unlocks: ['detective reputation', 'new contacts', 'follow-on missions'],
     contentGuardrails: ['No real-person accusation mechanics', 'No copied police-show plots or characters'],
+  },
+  {
+    id: 'after-dark-white-night-file',
+    title: 'The White Night File',
+    worlds: ['streetverse', 'omniverse'],
+    lane: 'after-dark',
+    status: 'ready',
+    summary: 'A 21+ evidence-first fictional nightlife investigation with spy, detective, social and rescue approaches, protected-witness extraction and persistent reputation rewards.',
+    unlocks: ['investigator reputation', 'after-dark safety reputation', 'Evidence Before Accusation badge', 'Benny follow-on mystery thread'],
+    contentGuardrails: [
+      'Real public-event attendance never implies wrongdoing',
+      'Real-person cameos are disabled until source metadata and content review are complete',
+      'Invented crimes, suspects, incriminating evidence and witness knowledge use fictional characters',
+      'Mature nightlife themes remain non-explicit in the alpha mission',
+    ],
   },
   {
     id: 'sv-community-crossroads',
