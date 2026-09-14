@@ -4,29 +4,42 @@
 
 - PR: #171
 - Working branch: `foundation/aaa-golden-order-world-rollout`
-- Inspected branch head: `8627d919b8f8a976f43fc77a3e6b4430af05c003`
+- Inspected branch head: `64cf59a8a3859682ab43d475c2bb48efffee9774`
 - Current `main`: `a80c617571ca1fea4d72a01681c1d7d87c475b57`
 - Merge base: `ec6918c8204fd0ca3c5b9bad992851f23762f7e1`
-- Divergence: 445 commits ahead / 179 commits behind `main`
+- Divergence: 446 commits ahead / 179 commits behind `main`
 - GitHub mergeability: false
 
 ## Exact-head verification evidence
 
-GitHub check runs are attached to the inspected branch head.
+GitHub checks are attached to the inspected branch head.
 
-- `Release gate`: **failure**
-- `Production deploy`: **skipped** (expected for this non-main branch; not production evidence)
-- `Vercel Preview Comments`: **success**
-- `Vercel – amm-project`: **success**
-- `Vercel – amm-omniverse`: **success**
+- Root platform checks: **success**
+- Omniverse lint/security/readiness/typecheck: **success**
+- Foundation commerce and Illinois release contracts: **success**
+- Vision-assisted AAA QA release contracts: **success**
+- StreetVerse authoritative reward contract: **success**
+- Vite production build: **success**
+- Main synchronization audit: **failure**
+- Release gate: **failure**
+- Production deploy: **skipped**
+- Vercel Preview Comments: **success**
 
-Successful Vercel preview statuses do not override the failed release gate and do not prove production release readiness.
+Successful preview/build evidence does not override the failed synchronization/release gates and does not prove production release readiness.
 
 ## Synchronization decision
 
-A blanket merge or rebase from `main` is still unsafe because PR #171 remains non-mergeable and the branch is 179 commits behind with a broad overlapping runtime/configuration surface. No broad synchronization was attempted in this checkpoint.
+A blanket merge or rebase from `main` remains unsafe because PR #171 is non-mergeable and the branch is still 179 commits behind with a broad overlapping runtime/configuration surface.
 
-The inspected `public/app-shell.html` is not a clean one-file synchronization target: both `main` and the foundation branch have changed it since the merge base. The foundation branch carries Business District/Business Boost navigation while `main` carries PropertyVerse/Jacobie Vision/Holo Music shell expansion. Replacing either version wholesale would discard valid branch-specific behavior.
+Three synchronization-probe paths were rechecked in this run and are already byte-equivalent to current `main`, so they should not be treated as unresolved content conflicts:
+
+- `amm-omniverse/tsconfig.json`
+- `amm-omniverse/scripts/repair-streetverse-entry.mjs`
+- `config/world-certification-gates.json`
+
+`amm-omniverse/package.json` is a real overlap and is not safe to replace wholesale: the foundation branch contains release-audit scripts, foundation/Illinois/Vision contract coverage, asset tooling, navigation/physics dependencies, and stricter foundation-specific validation that current `main` does not contain, while `main` has additional XR/competition/runtime dependencies and tests. This file needs a targeted semantic merge with lockfile verification rather than copy-over.
+
+The previously inspected `public/app-shell.html` is also not a clean one-file synchronization target because both sides changed valid behavior since the merge base.
 
 ## Release boundary preserved
 
@@ -38,9 +51,6 @@ The inspected `public/app-shell.html` is not a clean one-file synchronization ta
 
 ## Next safe increment
 
-Select one unresolved release-critical overlapping file, compare `merge-base` vs `main` vs foundation head, and either:
-
-1. port the isolated main delta while preserving foundation-only behavior, or
-2. document equivalence/conflict and move to the next candidate.
+Target `amm-omniverse/package.json` only after comparing the corresponding lockfile and verifying that the main-only dependency/test additions can be incorporated without removing foundation release contracts or changing provider authority boundaries. If that cannot be proven safely, move to the next release-critical overlap instead of forcing synchronization.
 
 Release readiness remains blocked until synchronization is safely reconciled, the release gate passes on the exact head, and deployed runtime evidence is explicitly verified.
