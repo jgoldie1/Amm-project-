@@ -3,7 +3,9 @@ import {announceStreetVerseProductionMode} from '../config/streetverseProduction
 import {getStreetVerseCommunitySlice} from '../config/streetverseCommunitySlices'
 import {installStreetVerseJourneyQARuntime} from '../runtime/StreetVerseJourneyQARuntime'
 import {installStreetVerseHydeParkMissionRuntime} from '../runtime/StreetVerseHydeParkMissionRuntime'
+import {installStreetVerseAfterDarkAlphaRuntime} from '../runtime/StreetVerseAfterDarkAlphaRuntime'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
+import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
 
 const StreetVersePlayableWorld=lazy(()=>import('./StreetVersePlayableWorld'))
 const StreetVerseFullWorldOverlays=lazy(()=>import('./StreetVerseFullWorldOverlays'))
@@ -98,6 +100,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
 
  useLayoutEffect(()=>installStreetVerseJourneyQARuntime(),[])
  useLayoutEffect(()=>installStreetVerseHydeParkMissionRuntime(),[])
+ useLayoutEffect(()=>installStreetVerseAfterDarkAlphaRuntime(),[])
  useEffect(()=>{
   const requestClose=()=>closeStreetVerse()
   window.addEventListener('tryamm:streetverse-request-close',requestClose)
@@ -116,6 +119,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
 
  if(safe)return <>
   <StreetVerseSafeWorld onClose={closeStreetVerse}/>
+  <StreetVerseAfterDarkAlpha/>
   <Suspense fallback={null}><StreetVerseReelEventBridge/></Suspense>
  </>
 
@@ -123,6 +127,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
   <Suspense fallback={<StreetVerseSafeWorld onClose={closeStreetVerse}/>}>
    <StreetVersePlayableWorld onClose={closeStreetVerse}/>
   </Suspense>
+  <StreetVerseAfterDarkAlpha/>
   {enhancementsReady&&<Suspense fallback={null}><StreetVerseFullWorldOverlays onClose={closeStreetVerse} mapped={prepared.mapped}/><StreetVerseReelEventBridge/></Suspense>}
  </>
 }
