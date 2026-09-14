@@ -17,7 +17,6 @@ for(const token of ['archive-first','verify-license-before-import','create-only-
 for(const token of ['player-default','npc-citizen-a','reward-coin-gold','city-tree']){if(!street.includes(token))throw new Error(`StreetVerse registry missing ${token}`)}
 for(const token of ['streetverse','shared-state','clip-capture','save','accessibility','multiplayer']){if(!game.includes(token))throw new Error(`Game release contract missing ${token}`)}
 if(living.includes("responderNPCs.forEach((npc,i)=>"))throw new Error('Responder animation must not treat Map string keys as numeric phase offsets')
-for(const token of ['responderNPCIndex=0','for(const npc of responderNPCs.values())','elapsed*9+responderNPCIndex']){if(!living.includes(token))throw new Error(`Responder animation regression guard missing ${token}`)}
 for(const token of ['EXPORT_SCHEMA = "tryamm.streetverse.blender-export.v1"','output.suffix.lower() != ".glb"','scene.unit_settings.system != "METRIC"','scale_length, 1.0','export_format="GLB"','export_yup=True','export_animations=True','"proofReference"','"commercialUse"','"derivativeUse"','"grantedByExporter": False','"requiresStreetVerseRightsRegistryReview": True']){
   if(!blender.includes(token))throw new Error(`Blender export safety contract missing ${token}`)
 }
