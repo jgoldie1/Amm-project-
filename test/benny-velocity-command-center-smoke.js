@@ -1,0 +1,10 @@
+'use strict';
+const assert=require('assert');
+const fs=require('fs');
+const routes=fs.readFileSync('lib/content-engine-routes.js','utf8');
+const html=fs.readFileSync('public/founder-dashboard.html','utf8');
+const js=fs.readFileSync('public/founder-dashboard.js','utf8');
+for(const token of ["require('./world-compiler')","require('./velocity-planner')",'world,','velocity:']) assert(routes.includes(token),`Founder API missing ${token}`);
+for(const token of ['velocity-mode','velocity-summary','world-status','Release Critical Path','Chicago 77']) assert(html.includes(token),`Founder command center missing ${token}`);
+for(const token of ['renderVelocity','nextCriticalPath','dashboard.velocity','dashboard.world','Benny holographic command center refreshed']) assert(js.includes(token),`Benny velocity UI missing ${token}`);
+console.log('Benny velocity command center API and UI wiring checks passed');
