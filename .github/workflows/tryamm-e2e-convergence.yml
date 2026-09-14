@@ -75,6 +75,7 @@ jobs:
       - name: Run release convergence and Chicago 77 certification
         env:
           TRYAMM_BASE_URL: ${{ github.event_name == 'pull_request' && 'http://127.0.0.1:4173' || 'https://tryamm.online' }}
+          TRYAMM_API_BASE_URL: https://tryamm.online
         run: npx playwright test tests/e2e/release-convergence.spec.ts tests/e2e/chicago-77-production.spec.ts
 
       - name: Show pull-request preview log on failure
