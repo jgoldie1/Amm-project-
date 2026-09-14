@@ -56,7 +56,15 @@ export default defineConfig({
           if (id.includes('/src/data/')) return 'app-data'
           if (!id.includes('node_modules')) return
           if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('/scheduler/')) return 'vendor-react'
-          if (id.includes('/three/') || id.includes('/three-stdlib/')) return 'vendor-three'
+
+          // Keep optional Three.js utility/add-on code separate from the core renderer.
+          // Previously three + three-stdlib were forced into one ~671 kB minified chunk,
+          // which crossed Vite's 600 kB production warning threshold. Keeping stdlib in
+          // its own cacheable chunk reduces the core download and lets routes load the
+          // utility layer independently when they actually need it.
+          if (id.includes('/three-stdlib/')) return 'vendor-three-stdlib'
+          if (id.includes('/three/')) return 'vendor-three-core'
+
           if (id.includes('/@supabase/')) return 'vendor-supabase'
           if (id.includes('/livekit-client/') || id.includes('/@livekit/')) return 'vendor-livekit'
           if (id.includes('/howler/') || id.includes('/tone/') || id.includes('/lottie-web/') || id.includes('/@lottiefiles/')) return 'vendor-media'
