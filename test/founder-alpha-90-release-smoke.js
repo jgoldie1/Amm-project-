@@ -1,0 +1,14 @@
+'use strict';
+const assert=require('assert');
+const release=require('../config/founder-alpha-90-release.json');
+const velocity=require('../config/velocity-control-plane.json');
+assert.strictEqual(release.release,'TRYAMM Founder Alpha 90');
+assert.strictEqual(release.scopeFreeze.enabled,true);
+assert.strictEqual(velocity.releaseTarget.targetPercent,90);
+assert.strictEqual(velocity.wipLimits.feature,0);
+assert.strictEqual(velocity.wipLimits.experiment,0);
+for(const gate of ['CI_GREEN','ACCESSIBILITY_CHECK','MOBILE_CHECK','PERFORMANCE_BUDGET','PRODUCTION_DEPLOYED','POST_DEPLOY_SMOKE']) assert(release.releaseGates.includes(gate),`Missing release gate ${gate}`);
+for(const step of ['STREETVERSE_LOADS','PLAYER_CAN_MOVE','CHICAGO_SLICE_PLAYABLE','MISSION_COMPLETES','REWARD_LEDGER_WRITES','CONTENT_PUBLISHES','CHECKOUT_VERIFIES','MY_WORLD_PERSISTS','FAITH_CHAPTER_COMPLETES','FAITH_RETURN_PORTAL_WORKS']) assert(velocity.criticalPath.includes(step),`Missing critical path step ${step}`);
+assert(release.requiredLoops.game.includes('complete mission'));
+assert(release.requiredLoops.faith.includes('return to StreetVerse'));
+console.log('Founder Alpha 90 scope freeze and release critical path checks passed');
