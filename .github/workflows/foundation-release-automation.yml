@@ -51,7 +51,21 @@ jobs:
 
       - name: Run intentional main synchronization gate
         working-directory: amm-omniverse
-        run: node scripts/main-sync-audit.mjs
+        shell: bash
+        run: |
+          set +e
+          AUDIT_OUTPUT=$(node scripts/main-sync-audit.mjs 2>&1)
+          AUDIT_STATUS=$?
+          set -e
+          printf '%s\n' "$AUDIT_OUTPUT"
+          {
+            echo
+            echo "### Main synchronization audit detail"
+            echo '```text'
+            printf '%s\n' "$AUDIT_OUTPUT"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$AUDIT_STATUS"
 
   full-validation:
     name: Full release validation
