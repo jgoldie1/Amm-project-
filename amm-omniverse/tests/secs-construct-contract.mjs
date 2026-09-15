@@ -26,6 +26,16 @@ const requiredRuntimeTokens = [
   'emergencyStopRequired: true',
   'hardwareValidationRequired: true',
   'runConstructSelfTest',
+  'ConstructHardwareTelemetry',
+  'HARDWARE_TELEMETRY_MAX_AGE_MS',
+  'ingestConstructPrototypeLine',
+  'getConstructHardwareReadiness',
+  'hardware-telemetry-missing',
+  'hardware-telemetry-stale',
+  'hardware-estop-not-clear',
+  'hardware-capability-mismatch',
+  'hardwareTelemetryRequired: true',
+  '__ingestSECSPrototypeLine',
 ]
 
 for (const token of requiredRuntimeTokens) {
@@ -43,7 +53,18 @@ for (const token of ['NC E-STOP', 'hardwareValidationRequired', 'Acceptance crit
   if (!docs.includes(token)) throw new Error(`SECS engineering docs missing: ${token}`)
 }
 
-for (const token of ['ESTOP_PIN', 'COMMAND_TIMEOUT_MS', 'disableAllOutputs', 'MAX_PWM']) {
+for (const token of [
+  'ESTOP_PIN',
+  'COMMAND_TIMEOUT_MS',
+  'disableAllOutputs',
+  'MAX_PWM',
+  'STATUS_INTERVAL_MS',
+  'emitStatus',
+  'SECS:STATUS:ESTOP=',
+  ';OUTPUTS=',
+  ';UPTIME_MS=',
+  ';MAX_PWM=',
+]) {
   if (!firmware.includes(token)) throw new Error(`SECS firmware safety contract missing: ${token}`)
 }
 

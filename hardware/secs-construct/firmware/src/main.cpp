@@ -11,8 +11,10 @@ static constexpr uint8_t HAPTIC_PINS[] = {5, 6, 7, 8};
 static constexpr size_t HAPTIC_COUNT = sizeof(HAPTIC_PINS) / sizeof(HAPTIC_PINS[0]);
 static constexpr uint8_t MAX_PWM = 90; // conservative firmware-side ceiling
 static constexpr uint32_t COMMAND_TIMEOUT_MS = 750;
+static constexpr uint32_t STATUS_INTERVAL_MS = 250;
 
 uint32_t lastValidCommandAt = 0;
+uint32_t lastStatusAt = 0;
 bool outputsEnabled = false;
 
 bool estopClear() {
@@ -26,6 +28,17 @@ void disableAllOutputs() {
   for (size_t i = 0; i < HAPTIC_COUNT; ++i) {
     analogWrite(HAPTIC_PINS[i], 0);
   }
+}
+
+void emitStatus() {
+  Serial.print("SECS:STATUS:ESTOP=");
+  Serial.print(estopClear() ? "CLEAR" : "OPEN");
+  Serial.print(";OUTPUTS=");
+  Serial.print(outputsEnabled ? "ON" : "OFF");
+  Serial.print(";UPTIME_MS=");
+  Serial.print(millis());
+  Serial.print(";MAX_PWM=");
+  Serial.println(MAX_PWM);
 }
 
 void applyHaptics(uint8_t requestedPwm) {
@@ -46,11 +59,17 @@ void processLine(String line) {
   line.trim();
   if (line == "PING") {
     Serial.println("SECS:READY");
+    emitStatus();
+    return;
+  }
+  if (line == "STATUS") {
+    emitStatus();
     return;
   }
   if (line == "STOP") {
     disableAllOutputs();
     Serial.println("SECS:STOPPED");
+    emitStatus();
     return;
   }
   if (line.startsWith("HAPTIC:")) {
@@ -58,11 +77,13 @@ void processLine(String line) {
     if (value < 0 || value > 255 || !estopClear()) {
       disableAllOutputs();
       Serial.println("SECS:DENIED");
+      emitStatus();
       return;
     }
     applyHaptics(static_cast<uint8_t>(value));
     Serial.print("SECS:HAPTIC:");
     Serial.println(value > MAX_PWM ? MAX_PWM : value);
+    emitStatus();
     return;
   }
   Serial.println("SECS:INVALID");
@@ -77,6 +98,7 @@ void setup() {
   disableAllOutputs();
   Serial.begin(115200);
   Serial.println("SECS:BOOT");
+  emitStatus();
 }
 
 void loop() {
@@ -89,6 +111,12 @@ void loop() {
   if (outputsEnabled && millis() - lastValidCommandAt > COMMAND_TIMEOUT_MS) {
     disableAllOutputs();
     Serial.println("SECS:TIMEOUT");
+    emitStatus();
+  }
+
+  if (millis() - lastStatusAt >= STATUS_INTERVAL_MS) {
+    lastStatusAt = millis();
+    emitStatus();
   }
 
   if (Serial.available()) {

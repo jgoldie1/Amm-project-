@@ -1,1 +1,0 @@
-Release gate: do not call this PLAYABLE/LIVE until pull-request checks pass and the rendered StreetVerse controls are verified in browser/mobile production.

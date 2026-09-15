@@ -1,1 +1,0 @@
-Branch is ready for pull-request CI. Production merge must wait for checks and rendered verification.

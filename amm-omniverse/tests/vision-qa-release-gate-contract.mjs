@@ -1,0 +1,275 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
+const sourcePath = path.resolve('src/foundation/visionQaReleaseGate.ts');
+const foundationSourcePath = path.resolve('src/foundation/visionQaFoundation.ts');
+const source = fs.readFileSync(sourcePath, 'utf8');
+const foundationSource = fs.readFileSync(foundationSourcePath, 'utf8');
+
+const requiredSnippets = [
+  'ILLINOIS_VISION_QA_REQUIRED_AREAS',
+  "'vehicle-orientation-and-physics'",
+  "'crowd-density-and-behavior'",
+  "'traffic-flow'",
+  "'accessibility-contrast-and-legibility'",
+  "'collision-and-clipping'",
+  "'world-population-gaps'",
+  'VISION_QA_AREAS',
+  'VISION_QA_AREA_SET',
+  'VISION_QA_SOURCE_SET',
+  'BUILD_SHA_PATTERN',
+  '/^[0-9a-f]{7,64}$/i',
+  'MAX_EVIDENCE_IDENTIFIER_LENGTH = 256',
+  'MAX_RELEASE_EVIDENCE_REFS = 256',
+  'evidence.evidenceRefs.length > MAX_RELEASE_EVIDENCE_REFS',
+  "missingEvidence.push('evidenceRefsTooLarge')",
+  "missingEvidence.push('evidenceRefsSparse')",
+  'Object.prototype.hasOwnProperty.call(evidence.evidenceRefs, index)',
+  'MAX_INSPECTED_AREAS = VISION_QA_AREAS.length',
+  'evidence.inspectedAreas.length > MAX_INSPECTED_AREAS',
+  "missingEvidence.push('inspectedAreasTooLarge')",
+  "missingEvidence.push('inspectedAreasSparse')",
+  'Object.prototype.hasOwnProperty.call(evidence.inspectedAreas, index)',
+  'MAX_RUN_FINDINGS = 256',
+  'run.findings.length > MAX_RUN_FINDINGS',
+  "missingEvidence.push('run.findingsTooLarge')",
+  "missingEvidence.push('run.findingsSparse')",
+  'Object.prototype.hasOwnProperty.call(run.findings, index)',
+  'CONTROL_CHARACTER_PATTERN',
+  '/[\\u0000-\\u001f\\u007f-\\u009f]/',
+  'isCanonicalEvidenceIdentifier',
+  'value.length <= MAX_EVIDENCE_IDENTIFIER_LENGTH',
+  'value.trim() === value',
+  '!CONTROL_CHARACTER_PATTERN.test(value)',
+  'isCanonicalIsoTimestamp',
+  'Date.parse(value)',
+  'new Date(timestampMs).toISOString() === value',
+  "typeof evidence !== 'object' || evidence === null || Array.isArray(evidence)",
+  "missingEvidence: ['evidenceInvalid']",
+  "typeof evidence.run === 'object' && evidence.run !== null && !Array.isArray(evidence.run)",
+  "missingEvidence.push('runInvalid')",
+  'isCanonicalEvidenceIdentifier(run.id)',
+  'run.idInvalid',
+  'isCanonicalIsoTimestamp(run.createdAt)',
+  'run.createdAtInvalid',
+  "typeof run.source !== 'string' || !VISION_QA_SOURCE_SET.has(run.source)",
+  'run.sourceInvalid',
+  'expectedBuildSha',
+  "typeof evidence.expectedBuildSha === 'string'",
+  "typeof evidence.expectedBuildSha !== 'string'",
+  'expectedBuildShaInvalid',
+  'runBuildShaValue',
+  "typeof runBuildShaValue === 'string'",
+  "typeof runBuildShaValue !== 'string'",
+  'run.buildShaInvalid',
+  'buildShaMismatch',
+  'Array.isArray(evidence.inspectedAreas)',
+  'inspectedAreasInvalid',
+  'evidence.inspectedAreas.entries()',
+  "typeof inspectedArea !== 'string' || !VISION_QA_AREA_SET.has(inspectedArea)",
+  'inspectedAreaInvalid:${index}',
+  'inspected.has(inspectedArea as VisionQaArea)',
+  'inspectedAreaDuplicate:${inspectedArea}',
+  'inspected.add(inspectedArea as VisionQaArea)',
+  'inspectedArea:${area}',
+  'evidenceRefs',
+  'evidenceRefSet',
+  'new Set<string>()',
+  'evidenceRefSet.has(evidenceRef)',
+  'evidenceRefDuplicate:${evidenceRef}',
+  'evidenceRefSet.add(evidenceRef)',
+  'Array.isArray(evidence.evidenceRefs)',
+  'evidenceRefsInvalid',
+  "typeof evidenceRef !== 'string'",
+  'isCanonicalEvidenceIdentifier(evidenceRef)',
+  'evidenceRef:${index}',
+  'evidenceRefInvalid:${index}',
+  'verifiedAt',
+  "typeof evidence.verifiedAt !== 'string'",
+  'verifiedAtInvalid',
+  'Date.parse(verifiedAt)',
+  'new Date(verifiedAtMs).toISOString() !== verifiedAt',
+  'verifiedAt !== evidence.verifiedAt',
+  'verifiedAtBeforeRun',
+  'VisionQaFinding',
+  'findingIdSet',
+  'findingIdSet.has(finding.id)',
+  'findingIdSet.add(finding.id)',
+  'run.findingIdDuplicate:${finding.id}',
+  'runFindings',
+  'Array.isArray(run?.findings)',
+  "typeof finding !== 'object' || finding === null || Array.isArray(finding)",
+  'run.findingInvalid:${index}',
+  'isCanonicalEvidenceIdentifier(finding.id)',
+  'run.findingIdInvalid:${index}',
+  'VISION_QA_AREA_SET.has(finding.area)',
+  'run.findingAreaInvalid:${index}',
+  "finding.severity !== 'info' && finding.severity !== 'warning' && finding.severity !== 'critical'",
+  'run.findingSeverityInvalid:${index}',
+  "typeof finding.verifiedByHuman !== 'boolean'",
+  'run.findingVerifiedByHumanInvalid:${index}',
+  'run.findingsInvalid',
+  'criticalFindingIds',
+  "finding.evidenceRef != null && typeof finding.evidenceRef !== 'string'",
+  'findingEvidenceRef:',
+  'findingEvidenceRefInvalid:',
+  'isCanonicalEvidenceIdentifier(findingEvidenceRef)',
+  'evidenceRefSet.has(findingEvidenceRef)',
+  'findingEvidenceRefUnlinked:',
+  'allowed: missingEvidence.length === 0 && criticalFindingIds.length === 0',
+];
+
+for (const snippet of requiredSnippets) {
+  if (!source.includes(snippet)) {
+    throw new Error(`Vision QA release gate contract missing: ${snippet}`);
+  }
+}
+
+const evidenceRefsCapIndex = source.indexOf('evidence.evidenceRefs.length > MAX_RELEASE_EVIDENCE_REFS');
+const evidenceRefsSparseIndex = source.indexOf("missingEvidence.push('evidenceRefsSparse')");
+const evidenceRefsIterationIndex = source.indexOf('evidence.evidenceRefs.entries()');
+if (
+  evidenceRefsCapIndex === -1
+  || evidenceRefsSparseIndex === -1
+  || evidenceRefsIterationIndex === -1
+  || evidenceRefsCapIndex > evidenceRefsSparseIndex
+  || evidenceRefsSparseIndex > evidenceRefsIterationIndex
+) {
+  throw new Error('Vision QA evidence ref validation order must remain cap -> sparse-shape check -> per-entry validation');
+}
+
+const inspectedAreasCapIndex = source.indexOf('evidence.inspectedAreas.length > MAX_INSPECTED_AREAS');
+const inspectedAreasSparseIndex = source.indexOf("missingEvidence.push('inspectedAreasSparse')");
+const inspectedAreasIterationIndex = source.indexOf('evidence.inspectedAreas.entries()');
+if (
+  inspectedAreasCapIndex === -1
+  || inspectedAreasSparseIndex === -1
+  || inspectedAreasIterationIndex === -1
+  || inspectedAreasCapIndex > inspectedAreasSparseIndex
+  || inspectedAreasSparseIndex > inspectedAreasIterationIndex
+) {
+  throw new Error('Vision QA inspected-area validation order must remain cap -> sparse-shape check -> per-entry validation');
+}
+
+const runFindingsCapIndex = source.indexOf('run.findings.length > MAX_RUN_FINDINGS');
+const runFindingsSparseIndex = source.indexOf("missingEvidence.push('run.findingsSparse')");
+const runFindingsIterationIndex = source.indexOf('run.findings.filter(');
+if (
+  runFindingsCapIndex === -1
+  || runFindingsSparseIndex === -1
+  || runFindingsIterationIndex === -1
+  || runFindingsCapIndex > runFindingsSparseIndex
+  || runFindingsSparseIndex > runFindingsIterationIndex
+) {
+  throw new Error('Vision QA finding validation order must remain cap -> sparse-shape check -> per-entry validation');
+}
+
+const requiredAreasBlock = source.match(
+  /ILLINOIS_VISION_QA_REQUIRED_AREAS[^=]*=\s*\[([\s\S]*?)\]\s*as const/,
+)?.[1];
+
+if (!requiredAreasBlock) {
+  throw new Error('Vision QA release gate contract could not parse Illinois required areas');
+}
+
+const requiredAreaEntries = [...requiredAreasBlock.matchAll(/'([^']+)'/g)].map((match) => match[1]);
+const duplicateRequiredAreas = requiredAreaEntries.filter(
+  (area, index) => requiredAreaEntries.indexOf(area) !== index,
+);
+
+if (duplicateRequiredAreas.length > 0) {
+  throw new Error(
+    `Vision QA release gate contains duplicate Illinois required areas: ${[...new Set(duplicateRequiredAreas)].join(', ')}`,
+  );
+}
+
+const REVIEWED_ILLINOIS_REQUIRED_AREA_COUNT = 10;
+if (requiredAreaEntries.length !== REVIEWED_ILLINOIS_REQUIRED_AREA_COUNT) {
+  throw new Error(
+    `Vision QA Illinois release scope changed without contract review: expected ${REVIEWED_ILLINOIS_REQUIRED_AREA_COUNT} required areas, found ${requiredAreaEntries.length}`,
+  );
+}
+
+const canonicalAreasBlock = foundationSource.match(
+  /VISION_QA_AREAS\s*=\s*\[([\s\S]*?)\]\s*as const/,
+)?.[1];
+
+if (!canonicalAreasBlock) {
+  throw new Error('Vision QA release gate contract could not parse canonical Vision QA areas');
+}
+
+const canonicalAreaEntries = [...canonicalAreasBlock.matchAll(/'([^']+)'/g)].map((match) => match[1]);
+const duplicateCanonicalAreas = canonicalAreaEntries.filter(
+  (area, index) => canonicalAreaEntries.indexOf(area) !== index,
+);
+
+if (duplicateCanonicalAreas.length > 0) {
+  throw new Error(
+    `Vision QA foundation contains duplicate canonical areas: ${[...new Set(duplicateCanonicalAreas)].join(', ')}`,
+  );
+}
+
+const invalidCanonicalAreas = canonicalAreaEntries.filter(
+  (area) => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(area),
+);
+
+if (invalidCanonicalAreas.length > 0) {
+  throw new Error(
+    `Vision QA foundation contains malformed canonical areas: ${invalidCanonicalAreas.join(', ')}`,
+  );
+}
+
+const canonicalAreaSet = new Set(canonicalAreaEntries);
+const unknownRequiredAreas = requiredAreaEntries.filter((area) => !canonicalAreaSet.has(area));
+
+if (unknownRequiredAreas.length > 0) {
+  throw new Error(
+    `Vision QA release gate contains Illinois required areas missing from the canonical registry: ${unknownRequiredAreas.join(', ')}`,
+  );
+}
+
+const approvedVisionQaSources = [
+  'screenshot',
+  'video-frame',
+  'live-capture',
+  'asset-preview',
+];
+const visionQaSourceSetBlock = source.match(
+  /VISION_QA_SOURCE_SET\s*=\s*new Set<string>\(\[([\s\S]*?)\]\)/,
+)?.[1];
+
+if (!visionQaSourceSetBlock) {
+  throw new Error('Vision QA release gate contract could not parse approved source registry');
+}
+
+const configuredVisionQaSources = [...visionQaSourceSetBlock.matchAll(/'([^']+)'/g)].map(
+  (match) => match[1],
+);
+const duplicateVisionQaSources = configuredVisionQaSources.filter(
+  (sourceName, index) => configuredVisionQaSources.indexOf(sourceName) !== index,
+);
+
+if (duplicateVisionQaSources.length > 0) {
+  throw new Error(
+    `Vision QA release gate contains duplicate approved sources: ${[...new Set(duplicateVisionQaSources)].join(', ')}`,
+  );
+}
+
+if (
+  configuredVisionQaSources.length !== approvedVisionQaSources.length
+  || approvedVisionQaSources.some((sourceName) => !configuredVisionQaSources.includes(sourceName))
+) {
+  throw new Error(
+    `Vision QA release gate approved sources drifted: ${configuredVisionQaSources.join(', ')}`,
+  );
+}
+
+if (!foundationSource.includes('export const VISION_QA_CAN_MUTATE_COMMERCE_TRUTH = false as const')) {
+  throw new Error('Vision QA foundation must remain advisory and unable to mutate authoritative commerce truth');
+}
+
+if (!source.includes('cannot mutate') || !source.includes('authoritative commerce')) {
+  throw new Error('Vision QA release gate must preserve commerce authority separation');
+}
+
+console.log('vision-qa-release-gate-contract: PASS');

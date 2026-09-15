@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { useGameStore } from '../game/state/useGameStore'
 
-const StreetVerseGeoSpawnBridge=lazy(()=>import('./StreetVerseGeoSpawnBridge'))
+const StreetVerseOmniWorld=lazy(()=>import('./StreetVerseOmniWorld'))
 const GameVerseHub=lazy(()=>import('./GameVerseHub'))
 
 type GameVerseDetail={world?:string}
@@ -44,7 +44,7 @@ export default function GameVerseLauncher(){
 
   const closeStreetVerse=()=>{setPlayStreetVerse(false);if(PLAYABLE_PATHS.has(window.location.pathname))window.history.replaceState({},'',window.location.origin+'/')}
 
-  if(playStreetVerse)return <Suspense fallback={<div style={{position:'fixed',inset:0,zIndex:18000,background:'#04050e',color:'#fff',display:'grid',placeItems:'center'}}>Loading StreetVerse…</div>}><StreetVerseGeoSpawnBridge onClose={closeStreetVerse}/></Suspense>
+  if(playStreetVerse)return <Suspense fallback={<div style={{position:'fixed',inset:0,zIndex:12000,background:'#04050e'}}/>}><StreetVerseOmniWorld onClose={closeStreetVerse}/></Suspense>
   if(!open)return null
   return <Suspense fallback={<div style={{position:'fixed',inset:0,zIndex:12000,background:'#04050e'}}/>}><GameVerseHub initialWorld={world} onClose={()=>setOpen(false)} onEnterSports={()=>{setOpen(false);setScreen('sports')}} onEnterCity={()=>{setOpen(false);setScreen('city')}}/></Suspense>
 }
