@@ -134,6 +134,9 @@ jobs:
           node tests/streetverse-self-healing-contract.mjs
           node tests/streetverse-journey-qa-contract.mjs
 
+      - name: App release convergence contract
+        run: node tests/app-release-convergence-contract.mjs
+
       - name: Foundation commerce and Illinois release contracts
         run: |
           node tests/aaa-commerce-foundation-contract.mjs
