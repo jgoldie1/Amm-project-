@@ -6,9 +6,12 @@ on:
     branches: [main, developer-vic, foundation/aaa-golden-order-world-rollout]
   pull_request:
     branches: [main, developer-vic]
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened]
 
 concurrency:
-  group: tryamm-ci-${{ github.ref }}
+  group: tryamm-ci-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: true
 
 permissions:
@@ -17,10 +20,20 @@ permissions:
 jobs:
   root-platform:
     name: Root platform checks
+    if: ${{ github.event_name != 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      - name: Checkout exact PR head
+        if: ${{ github.event_name == 'pull_request_target' }}
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
       - name: Checkout
+        if: ${{ github.event_name != 'pull_request_target' }}
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
@@ -47,13 +60,23 @@ jobs:
 
   omniverse-app:
     name: Omniverse app checks
+    if: ${{ github.event_name != 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     defaults:
       run:
         working-directory: amm-omniverse
     steps:
+      - name: Checkout exact PR head
+        if: ${{ github.event_name == 'pull_request_target' }}
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
       - name: Checkout
+        if: ${{ github.event_name != 'pull_request_target' }}
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
