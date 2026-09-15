@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { bigBosses, livingStoryMissionCatalog, musicCompanies, type TryammWorld } from '../data/livingStoryMissionCatalog'
 
 const worldLabels: Record<TryammWorld,string> = {
+  'omniverse':'Omniverse',
   'streetverse':'StreetVerse',
   'we-are-the-world':'We Are the World',
   'starverse':'StarVerse',

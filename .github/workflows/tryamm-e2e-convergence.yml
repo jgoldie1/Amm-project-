@@ -2,9 +2,15 @@ name: TRYAMM E2E Convergence
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'amm-omniverse/**'
+      - '.github/workflows/tryamm-e2e-convergence.yml'
   push:
     branches:
-      - developer-vic
+      - main
     paths:
       - 'amm-omniverse/**'
       - '.github/workflows/tryamm-e2e-convergence.yml'
@@ -13,41 +19,68 @@ permissions:
   contents: read
 
 concurrency:
-  group: tryamm-e2e-convergence
+  group: tryamm-e2e-convergence-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   public-e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     defaults:
       run:
         working-directory: amm-omniverse
 
     steps:
-      - name: Checkout canonical source
-        uses: actions/checkout@v4
+      - name: Checkout tested source
+        uses: actions/checkout@v5
         with:
-          ref: developer-vic
           fetch-depth: 1
 
-      - name: Set up Node 22
-        uses: actions/setup-node@v4
+      - name: Set up Node 24
+        uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: amm-omniverse/package-lock.json
 
-      - name: Install dependencies
-        run: npm ci --no-audit --no-fund
+      - name: Install current package manifest without mutating repository lock
+        run: npm install --package-lock=false --no-audit --no-fund
+
+      - name: Install Playwright test runner without saving dependency state
+        run: npm install --no-save --package-lock=false @playwright/test@1.55.0
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run desktop and mobile convergence E2E against public TRYAMM
+      - name: Build pull-request candidate
+        if: github.event_name == 'pull_request'
+        run: npm run build
+
+      - name: Start pull-request candidate server
+        if: github.event_name == 'pull_request'
+        run: |
+          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/tryamm-preview.log 2>&1 &
+          echo $! > /tmp/tryamm-preview.pid
+          for attempt in {1..45}; do
+            if curl --fail --silent --show-error http://127.0.0.1:4173/ >/dev/null; then
+              echo "TRYAMM preview is ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "TRYAMM preview did not become ready"
+          cat /tmp/tryamm-preview.log || true
+          exit 1
+
+      - name: Run release convergence and Chicago 77 certification
         env:
-          TRYAMM_BASE_URL: https://tryamm.online
-        run: npx playwright test tests/e2e/release-convergence.spec.ts
+          TRYAMM_BASE_URL: ${{ github.event_name == 'pull_request' && 'http://127.0.0.1:4173' || 'https://tryamm.online' }}
+          TRYAMM_API_BASE_URL: https://tryamm.online
+        run: npx playwright test tests/e2e/release-convergence.spec.ts tests/e2e/chicago-77-production.spec.ts
+
+      - name: Show pull-request preview log on failure
+        if: failure() && github.event_name == 'pull_request'
+        run: cat /tmp/tryamm-preview.log || true
 
       - name: Upload E2E proof
         if: always()
