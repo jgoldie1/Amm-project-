@@ -7,9 +7,13 @@ const required = [
   ['mobile dynamic viewport', "minHeight: '100dvh'"],
   ['gameplay dynamic viewport', "height: isGameplay ? '100dvh' : 'auto'"],
   ['gameplay overflow ownership', "overflowY: isGameplay ? 'hidden' : 'auto'"],
+  ['mobile momentum scrolling', "WebkitOverflowScrolling: 'touch'"],
   ['shell outside login', "const shellAvailable = screen !== 'login'"],
   ['shell launcher availability', '{shellAvailable && <>'],
   ['shell dialog availability', '{showNexus && shellAvailable &&'],
+  ['Command Nexus accessible dialog', 'role="dialog" aria-label="TRYAMM Command Nexus"'],
+  ['LIVE launcher accessible name', 'aria-label="Open TryAMM LIVE Center"'],
+  ['Command Nexus launcher accessible name', 'aria-label="Open Command Nexus"'],
   ['HoloStyle lazy route', "const HoloStyleCenter = lazy(() => import('./components/HoloStyleCenter'))"],
   ['HoloStyle state', 'const [showHoloStyle, setShowHoloStyle] = useState(false)'],
   ['HoloStyle global launcher', '__showHoloStyle'],
@@ -27,4 +31,4 @@ const required = [
 const missing = required.filter(([, token]) => !app.includes(token)).map(([name]) => name)
 assert.deepEqual(missing, [], `App release convergence is incomplete: ${missing.join(', ')}`)
 
-console.log('PASS app-release-convergence-contract: current-main mobile/HoloStyle and foundation Stays/Passport behaviors coexist')
+console.log('PASS app-release-convergence-contract: current-main mobile/accessibility/HoloStyle and foundation Stays/Passport behaviors coexist')
