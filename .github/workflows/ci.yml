@@ -5,7 +5,7 @@ on:
   push:
     branches: [main, developer-vic, foundation/aaa-golden-order-world-rollout]
   pull_request:
-    branches: [main, developer-vic]
+    branches: [main, developer-vic, foundation/aaa-golden-order-world-rollout]
   pull_request_target:
     branches: [main]
     types: [opened, synchronize, reopened]
