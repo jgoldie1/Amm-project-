@@ -49,7 +49,7 @@ for (const contract of currentMainSmokeContracts) {
 assert.match(pkg.scripts.smoke, /command-nexus-accessibility-contract\.mjs/, 'main sync must retain branch accessibility regression coverage')
 assert.match(pkg.scripts.smoke, /main-sync-preflight-contract\.mjs/, 'main sync preflight must remain attached to the aggregate smoke gate')
 
-assert.match(ciWorkflow, /pull_request:\s*\n\s*branches:\s*\[main, developer-vic\]/, 'main sync must preserve PR validation against main')
+assert.match(ciWorkflow, /pull_request:\s*\n\s*branches:\s*\[main, developer-vic, foundation\/aaa-golden-order-world-rollout\]/, 'CI must preserve PR validation against main/developer-vic and attach validation to Foundation-targeted feature PRs')
 assert.match(ciWorkflow, /push:\s*\n\s*branches:\s*\[main, developer-vic, foundation\/aaa-golden-order-world-rollout\]/, 'foundation branch pushes must continue attaching CI while reconciliation is in progress')
 assert.match(ciWorkflow, /node test\/ci-release-boundary-contract\.mjs/, 'CI must preserve the release-boundary contract during main synchronization')
 assert.match(ciWorkflow, /github\.event_name == 'push' && github\.ref == 'refs\/heads\/main'/, 'production deploy must remain main-push-only during reconciliation')
