@@ -1,0 +1,61 @@
+name: OriginQ Quantum Lab
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/originq-quantum-adapter]
+    paths:
+      - 'docs/integrations/originq-quantum-adapter.md'
+      - 'quantum/**'
+      - '.github/workflows/originq-quantum-lab.yml'
+  pull_request:
+    paths:
+      - 'docs/integrations/originq-quantum-adapter.md'
+      - 'quantum/**'
+      - '.github/workflows/originq-quantum-lab.yml'
+
+concurrency:
+  group: originq-quantum-lab-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  isolation-contract:
+    name: Verify quantum lane isolation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Verify adapter contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f docs/integrations/originq-quantum-adapter.md
+          grep -q 'classical fallback' docs/integrations/originq-quantum-adapter.md
+          grep -q 'server-side' docs/integrations/originq-quantum-adapter.md
+          grep -q 'PR #171' docs/integrations/originq-quantum-adapter.md
+          grep -q 'Do not label TRYAMM a quantum computer' docs/integrations/originq-quantum-adapter.md
+
+      - name: Guard release bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_REF_NAME}" = "foundation/aaa-golden-order-world-rollout" ]; then
+            echo '::error::OriginQ lab workflow must not run as feature intake on the congested foundation release bridge.'
+            exit 1
+          fi
+
+      - name: Report admission state
+        run: |
+          {
+            echo '## OriginQ Quantum Lab'
+            echo '- Lane: isolated from PR #171'
+            echo '- Default execution: local simulator / classical fallback'
+            echo '- Remote quantum hardware: disabled until separately authorized and verified'
+            echo '- Release admission: blocked until foundation convergence + CI + deployment gates are green'
+          } >> "$GITHUB_STEP_SUMMARY"
