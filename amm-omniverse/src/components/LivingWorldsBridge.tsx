@@ -9,7 +9,6 @@ import XRCommandGateway from './XRCommandGateway'
 import HoloLabGateway from './HoloLabGateway'
 import BookClubCenter from './BookClubCenter'
 import LivingStoryMissionCenter from './LivingStoryMissionCenter'
-import MovieStudioCenter from './MovieStudioCenter'
 import MiddleverseAIHub from './MiddleverseAIHub'
 import RouteCoordinator from '../navigation/RouteCoordinator'
 import {
@@ -39,7 +38,6 @@ export default function LivingWorldsBridge() {
   const [showHoloLab,setShowHoloLab]=useState(false)
   const [showBookClub,setShowBookClub]=useState(false)
   const [showLivingStory,setShowLivingStory]=useState(false)
-  const [showMovieStudio,setShowMovieStudio]=useState(false)
   const [showMiddleverseAI,setShowMiddleverseAI]=useState(false)
   const signedIn = screen !== 'intro' && screen !== 'login'
 
@@ -50,7 +48,6 @@ export default function LivingWorldsBridge() {
     const openLab=()=>setShowHoloLab(true)
     const openBookClub=()=>setShowBookClub(true)
     const openLivingStory=()=>setShowLivingStory(true)
-    const openMovieStudio=()=>setShowMovieStudio(true)
     const openMiddleverseAI=()=>setShowMiddleverseAI(true)
     ;(window as any).__showCommandNexusV2=openNexus
     ;(window as any).__showHoloMusic=openMusic
@@ -58,7 +55,6 @@ export default function LivingWorldsBridge() {
     ;(window as any).__showHoloLab=openLab
     ;(window as any).__showBookClub=openBookClub
     ;(window as any).__showLivingStory=openLivingStory
-    ;(window as any).__showMovieStudio=openMovieStudio
     ;(window as any).__showMiddleverseWorkstation=openMiddleverseAI
     ;(window as any).__showMiddleverseAI=openMiddleverseAI
     window.addEventListener('tryamm:open-command-nexus-v2',openNexus)
@@ -67,7 +63,6 @@ export default function LivingWorldsBridge() {
     window.addEventListener('tryamm:open-holo-lab',openLab)
     window.addEventListener('tryamm:open-book-club',openBookClub)
     window.addEventListener('tryamm:open-living-story',openLivingStory)
-    window.addEventListener('tryamm:open-movie-studio',openMovieStudio)
     window.addEventListener('tryamm:open-middleverse-ai',openMiddleverseAI)
     return()=>{
       window.removeEventListener('tryamm:open-command-nexus-v2',openNexus)
@@ -76,7 +71,6 @@ export default function LivingWorldsBridge() {
       window.removeEventListener('tryamm:open-holo-lab',openLab)
       window.removeEventListener('tryamm:open-book-club',openBookClub)
       window.removeEventListener('tryamm:open-living-story',openLivingStory)
-      window.removeEventListener('tryamm:open-movie-studio',openMovieStudio)
       window.removeEventListener('tryamm:open-middleverse-ai',openMiddleverseAI)
       if((window as any).__showCommandNexusV2===openNexus)delete (window as any).__showCommandNexusV2
       if((window as any).__showHoloMusic===openMusic)delete (window as any).__showHoloMusic
@@ -84,7 +78,6 @@ export default function LivingWorldsBridge() {
       if((window as any).__showHoloLab===openLab)delete (window as any).__showHoloLab
       if((window as any).__showBookClub===openBookClub)delete (window as any).__showBookClub
       if((window as any).__showLivingStory===openLivingStory)delete (window as any).__showLivingStory
-      if((window as any).__showMovieStudio===openMovieStudio)delete (window as any).__showMovieStudio
       if((window as any).__showMiddleverseWorkstation===openMiddleverseAI)delete (window as any).__showMiddleverseWorkstation
       if((window as any).__showMiddleverseAI===openMiddleverseAI)delete (window as any).__showMiddleverseAI
     }
@@ -181,7 +174,6 @@ export default function LivingWorldsBridge() {
     {showHoloLab&&<HoloLabGateway onClose={()=>setShowHoloLab(false)}/>} 
     {showBookClub&&<BookClubCenter onClose={()=>setShowBookClub(false)}/>} 
     {showLivingStory&&<LivingStoryMissionCenter onClose={()=>setShowLivingStory(false)}/>} 
-    {showMovieStudio&&<MovieStudioCenter onClose={()=>setShowMovieStudio(false)}/>} 
     {showMiddleverseAI&&<MiddleverseAIHub onClose={()=>setShowMiddleverseAI(false)}/>} 
   </>
 }
