@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+const baseUrl=process.env.TRYAMM_BASE_URL||'';
+const localCandidate=/127\.0\.0\.1|localhost/.test(baseUrl);
+
 async function expectJsonOk(page: any, path: string, allowDegraded = false) {
   const response = await page.request.get(path, { timeout: 45_000 });
   expect(response.status(), `${path} status`).toBeLessThan(400);
@@ -12,14 +15,19 @@ async function expectJsonOk(page: any, path: string, allowDegraded = false) {
 test.describe('TRYAMM release convergence', () => {
   test('core public surfaces render', async ({ page }) => {
     for (const path of ['/', '/streetverse', '/financial-truth']) {
-      const response = await page.goto(path, { waitUntil: 'domcontentloaded' });
-      expect(response?.status(), `${path} status`).toBeLessThan(400);
-      await expect(page.locator('body')).toBeVisible();
-      await expect(page.locator('body')).not.toHaveText('Application error');
+      const probe = await page.request.get(path, { timeout:45_000 });
+      expect(probe.status(), `${path} status`).toBeLessThan(400);
+      await page.goto(path, { waitUntil:'commit', timeout:45_000 });
+      await page.waitForFunction(() => {
+        const root=document.getElementById('root');
+        return !!root && root.childElementCount>0 && root.textContent?.trim().length;
+      }, null, { timeout:30_000 });
+      await expect(page.locator('html')).not.toHaveText('Application error');
     }
   });
 
   test('HoloGPT shell and real-response smoke are distinguishable', async ({ page }) => {
+    test.skip(localCandidate, 'Vite preview does not host Vercel serverless API routes; deployed API health is certified after merge/deploy.');
     const health = await expectJsonOk(page, '/api/ai/health', true);
     expect(health.service).toBeTruthy();
 
@@ -34,11 +42,16 @@ test.describe('TRYAMM release convergence', () => {
   });
 
   test('Creator Media readiness is explicit', async ({ page }) => {
+    test.skip(localCandidate, 'Vite preview does not host Vercel serverless API routes; deployed API health is certified after merge/deploy.');
     const response = await page.request.get('/api/media/health', { timeout: 45_000 });
-    expect(response.status()).toBeLessThan(500);
+    expect([200, 503]).toContain(response.status());
     const data = await response.json();
     expect(typeof data.ok).toBe('boolean');
     expect(data.service || data.error).toBeTruthy();
+    if (response.status() === 503) {
+      expect(data.ok).toBe(false);
+      expect(data.reason || data.error).toBeTruthy();
+    }
   });
 
   test('critical UI has no obvious horizontal overflow', async ({ page }) => {
