@@ -1,0 +1,106 @@
+name: Foundation Throughput Bridge
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [foundation/aaa-golden-order-world-rollout]
+
+concurrency:
+  group: foundation-throughput-bridge
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  congestion-diagnostics:
+    name: Diagnose foundation release congestion
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout foundation head
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fetch current main
+        run: git fetch --no-tags origin main
+
+      - name: Measure bridge congestion
+        shell: bash
+        run: |
+          set -euo pipefail
+          HEAD_SHA="$(git rev-parse HEAD)"
+          MAIN_SHA="$(git rev-parse origin/main)"
+          MERGE_BASE="$(git merge-base HEAD origin/main)"
+          AHEAD="$(git rev-list --count origin/main..HEAD)"
+          BEHIND="$(git rev-list --count HEAD..origin/main)"
+          CHANGED="$(git diff --name-only origin/main...HEAD | wc -l | tr -d ' ')"
+
+          {
+            echo "## Foundation Throughput Bridge"
+            echo ""
+            echo "| Signal | Value |"
+            echo "|---|---:|"
+            echo "| Foundation head | \`$HEAD_SHA\` |"
+            echo "| Current main | \`$MAIN_SHA\` |"
+            echo "| Merge base | \`$MERGE_BASE\` |"
+            echo "| Commits ahead | $AHEAD |"
+            echo "| Commits behind | $BEHIND |"
+            echo "| Changed files vs main | $CHANGED |"
+            echo ""
+            echo "This workflow is diagnostic only. It never merges, rebases, deploys, or enables provider/payment actions."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # A large behind-count is a congestion signal, not an automatic failure:
+          # broad synchronization must be reviewed instead of forced.
+          if [ "$BEHIND" -gt 25 ]; then
+            echo "::warning::Foundation is $BEHIND commits behind main. Drain release-critical overlap in small reviewed increments; do not force a broad sync."
+          fi
+
+          if [ "$CHANGED" -gt 150 ]; then
+            echo "::warning::Foundation changes $CHANGED files relative to main. Keep this branch in stabilization/certification mode."
+          fi
+
+      - name: Identify release-critical overlap
+        shell: bash
+        run: |
+          set -euo pipefail
+          PATTERN='(^\.github/workflows/|^amm-omniverse/|^test/|^tests/|golden|commerce|telemetry|illinois|accessib|performance|vision|release|deploy)'
+          git diff --name-only HEAD..origin/main | grep -Ei "$PATTERN" > /tmp/main-critical.txt || true
+          git diff --name-only origin/main..HEAD | grep -Ei "$PATTERN" > /tmp/foundation-critical.txt || true
+          comm -12 <(sort -u /tmp/main-critical.txt) <(sort -u /tmp/foundation-critical.txt) > /tmp/overlap.txt || true
+
+          {
+            echo ""
+            echo "### Release-critical overlapping paths"
+            if [ -s /tmp/overlap.txt ]; then
+              sed 's/^/- `/' /tmp/overlap.txt | sed 's/$/`/'
+            else
+              echo "No release-critical path overlap detected by the conservative classifier."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify CI trigger contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f .github/workflows/ci.yml
+          grep -q 'foundation/aaa-golden-order-world-rollout' .github/workflows/ci.yml
+          grep -q 'pull_request_target:' .github/workflows/ci.yml
+          grep -q 'persist-credentials: false' .github/workflows/ci.yml
+          echo "CI trigger/credential-safety contract is present." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Throughput recommendation
+        shell: bash
+        run: |
+          {
+            echo ""
+            echo "### Next-lane rule"
+            echo "1. Reconcile one smallest release-critical overlap."
+            echo "2. Require exact-head CI evidence."
+            echo "3. Fix the first failing gate before admitting another synchronization increment."
+            echo "4. Keep PR #171 out of production until all release gates are evidenced green."
+          } >> "$GITHUB_STEP_SUMMARY"
