@@ -1,0 +1,3 @@
+INITIAL_SCOPE=diagnose,inspect,retry-tests,retry-health
+APPROVAL_SCOPE=production,security,deletion,real-money
+STATUS=BUILDING
