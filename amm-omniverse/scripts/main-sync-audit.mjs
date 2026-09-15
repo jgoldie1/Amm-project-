@@ -2,7 +2,10 @@ import { execFileSync, spawnSync } from 'node:child_process'
 
 const run = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim()
 const split = (value) => value ? value.split('\n').filter(Boolean) : []
-const differs = (path) => spawnSync('git', ['diff', '--quiet', 'HEAD', 'origin/main', '--', path]).status !== 0
+// This script runs from amm-omniverse in CI, while overlap paths are repository-root-relative.
+// Use Git's top-level pathspec magic so reconciled root files are compared against the
+// intended files rather than similarly named paths under amm-omniverse/.
+const differs = (path) => spawnSync('git', ['diff', '--quiet', 'HEAD', 'origin/main', '--', `:(top)${path}`]).status !== 0
 
 const releaseCritical = [
   /^\.github\/workflows\//,
