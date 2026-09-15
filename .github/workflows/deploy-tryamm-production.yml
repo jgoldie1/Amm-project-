@@ -1,4 +1,4 @@
-name: TRYAMM Production Deploy
+name: TRYAMM Production Certification
 
 on:
   workflow_dispatch:
@@ -8,16 +8,11 @@ permissions:
   contents: read
 
 concurrency:
-  group: tryamm-production
+  group: tryamm-production-certification
   cancel-in-progress: true
 
-env:
-  VERCEL_ORG_ID: team_whGr4qRPOF6jMCRuQZ3Kbnry
-  VERCEL_PROJECT_ID: prj_pjc4m9dRB2WAWAtbkpyjpdhrJRFg
-  VERCEL_SCOPE: jgoldie1s-projects
-
 jobs:
-  verify-stage-promote:
+  verify-native-production:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     defaults:
@@ -52,106 +47,43 @@ jobs:
         working-directory: amm-omniverse/amm-backend
         run: npm run check
 
-      - name: Require Vercel deployment token
+      - name: Install browser release tooling
+        run: npx playwright install --with-deps chromium
+
+      - name: Wait for native Vercel production deployment at exact SHA
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: |
-          test -n "$VERCEL_TOKEN" || (echo "Missing GitHub Actions secret: VERCEL_TOKEN" && exit 1)
-
-      - name: Install release tooling
-        run: |
-          npm install --global vercel@latest
-          npx playwright install --with-deps chromium
-
-      - name: Reset stale local Vercel project link
-        run: |
-          rm -rf .vercel
-          echo "Using canonical Vercel project $VERCEL_PROJECT_ID in $VERCEL_SCOPE"
-
-      - name: Pull canonical Vercel project configuration
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: vercel pull --yes --environment=preview --scope="$VERCEL_SCOPE" --project="$VERCEL_PROJECT_ID" --token="$VERCEL_TOKEN"
-
-      - name: Build release candidate
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          TRYAMM_RELEASE_SHA: ${{ github.sha }}
-        run: vercel build --scope="$VERCEL_SCOPE" --project="$VERCEL_PROJECT_ID" --token="$VERCEL_TOKEN"
-
-      - name: Deploy staged release candidate
-        id: preview
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: |
-          PREVIEW_URL=$(vercel deploy --prebuilt --scope="$VERCEL_SCOPE" --project="$VERCEL_PROJECT_ID" --token="$VERCEL_TOKEN")
-          echo "url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
-          echo "Preview: $PREVIEW_URL"
-
-      - name: Verify preview routes exact SHA and convergence contracts
-        env:
-          PREVIEW_URL: ${{ steps.preview.outputs.url }}
           EXPECTED_SHA: ${{ github.sha }}
         run: |
           python3 - <<'PY'
           import json, os, time, urllib.request
-          base=os.environ['PREVIEW_URL'].rstrip('/')
           expected=os.environ['EXPECTED_SHA']
-          paths=['/','/streetverse','/financial-truth','/api/ai/health','/api/ai/smoke','/api/media/health','/api/system/creator-convergence','/api/system/economic-convergence']
-          failures=[]
-          for path in paths:
-              ok=False; last=None
-              for _ in range(8):
-                  try:
-                      with urllib.request.urlopen(urllib.request.Request(base+path,headers={'User-Agent':'TRYAMM-Preview-Proof/5.0'}),timeout=45) as r:
-                          body=r.read(250000).decode('utf-8','replace')
-                          if 200 <= r.status < 400:
-                              ok=True
-                              if path=='/api/system/economic-convergence':
-                                  p=json.loads(body)
-                                  ok=bool(p.get('ok') and p.get('synthetic') and not p.get('movesRealMoney') and not p.get('issuesRealOwnership') and (p.get('wallet') or {}).get('withdrawableMinor')==0 and (p.get('ownership') or {}).get('settledUnits')==0 and (p.get('ownership') or {}).get('providerSettlementRequired'))
-                              if path=='/api/system/creator-convergence':
-                                  p=json.loads(body)
-                                  save=p.get('saveToPhone') or {}
-                                  reel=p.get('realReel') or {}
-                                  ok=bool(p.get('ok') and save.get('capabilityContract') and save.get('realDeviceProofRequired') and not save.get('realDeviceCertified') and reel.get('deviceProofRequired') and not p.get('fullGreenEligible'))
-                              if ok: break
-                  except Exception as exc:
-                      last=exc; time.sleep(5)
-              if not ok: failures.append(f'{path}: {last or "semantic convergence check failed"}')
-          try:
-              with urllib.request.urlopen(urllib.request.Request(base+'/api/system/release',headers={'User-Agent':'TRYAMM-SHA-Proof/5.0'}),timeout=45) as r:
-                  release=json.loads(r.read().decode())
-              actual=release.get('commitSha')
-              print('Expected SHA:',expected)
-              print('Preview SHA:',actual)
-              if actual != expected: failures.append(f'release-sha mismatch: expected {expected}, got {actual}')
-          except Exception as exc:
-              failures.append(f'release-sha: {exc}')
-          if failures:
-              print('STAGED RELEASE BLOCKED')
-              for f in failures: print(' -',f)
-              raise SystemExit(1)
-          print('PREVIEW SHA + CREATOR + ECONOMIC CONVERGENCE GREEN')
+          url='https://tryamm.online/api/system/release'
+          last='no response'
+          for attempt in range(1, 41):
+              try:
+                  req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Native-Deploy-Wait/6.0'})
+                  with urllib.request.urlopen(req,timeout=30) as r:
+                      payload=json.loads(r.read().decode())
+                  actual=payload.get('commitSha')
+                  env=payload.get('environment')
+                  branch=payload.get('branch')
+                  print(f'Attempt {attempt}: production SHA={actual} environment={env} branch={branch}')
+                  if payload.get('ok') and actual==expected and env=='production' and branch=='main':
+                      print('NATIVE VERCEL EXACT-SHA DEPLOYMENT OBSERVED')
+                      break
+                  last=f'observed sha={actual} environment={env} branch={branch}'
+              except Exception as exc:
+                  last=str(exc)
+                  print(f'Attempt {attempt}: {last}')
+              time.sleep(10)
+          else:
+              raise SystemExit(f'Native Vercel deployment did not converge to {expected}: {last}')
           PY
-
-      - name: Run desktop and mobile E2E on preview
-        env:
-          E2E_BASE_URL: ${{ steps.preview.outputs.url }}
-        run: npm run e2e
-
-      - name: Promote verified preview to production
-        id: promote
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          PREVIEW_URL: ${{ steps.preview.outputs.url }}
-        run: vercel promote "$PREVIEW_URL" --yes --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN"
 
       - name: Verify exact production release and critical services
         id: proof
         env:
           EXPECTED_SHA: ${{ github.sha }}
-          PREVIEW_URL: ${{ steps.preview.outputs.url }}
         run: |
           python3 - <<'PY'
           import datetime, json, os, time, urllib.request
@@ -176,7 +108,7 @@ jobs:
               ok=False; status=None; final_url=None; detail=None; parsed=None
               for _ in range(10):
                   try:
-                      req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Production-Proof/5.0'})
+                      req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Production-Proof/6.0'})
                       with urllib.request.urlopen(req,timeout=45) as r:
                           status=r.status; final_url=r.geturl(); body=r.read(250000).decode('utf-8','replace')
                           if want_json: parsed=json.loads(body)
@@ -197,15 +129,14 @@ jobs:
                   if not ok: detail='creator convergence did not preserve physical-device proof requirement'
               results.append({'gate':name,'url':url,'ok':ok,'status':status,'finalUrl':final_url,'error':detail})
               if not ok: failures.append(name)
-          production_green=not failures
           proof={
-              'schema':'tryamm.release-proof.v5',
+              'schema':'tryamm.release-proof.v6',
               'commitSha':expected,
-              'stagedDeployment':os.environ.get('PREVIEW_URL'),
+              'deploymentTransport':'vercel-native-git',
               'verifiedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),
-              'productionGreen':production_green,
+              'productionGreen':not failures,
               'exactShaProven':'release-sha' not in failures,
-              'crossDevicePreviewE2E':True,
+              'crossDeviceProductionE2E':False,
               'economicSandboxGreen':'economic-convergence' not in failures,
               'creatorContractGreen':'creator-convergence' not in failures,
               'realReelProof':'pending',
@@ -217,25 +148,29 @@ jobs:
           with open('../tryamm-release-proof.json','w') as f: json.dump(proof,f,indent=2)
           print(json.dumps(proof,indent=2))
           if failures:
-              print('PRODUCTION GREEN BLOCKED:',', '.join(failures))
-              raise SystemExit(1)
-          print('PRODUCTION GREEN WITH ECONOMIC + CREATOR CONTRACTS; REAL DEVICE REEL PROOF STILL REQUIRED')
+              raise SystemExit('PRODUCTION CERTIFICATION BLOCKED: '+', '.join(failures))
+          print('PRODUCTION ROUTE + ECONOMIC + CREATOR CONTRACTS GREEN; E2E NEXT')
           PY
 
       - name: Run desktop and mobile E2E on production
-        if: success()
         env:
           E2E_BASE_URL: https://tryamm.online
         run: npm run e2e
 
-      - name: Roll back failed promoted release
-        if: failure() && steps.promote.outcome == 'success'
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      - name: Finalize release proof after production E2E
         run: |
-          echo "Post-promotion verification failed. Rolling production back."
-          vercel rollback --yes --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN"
-          vercel rollback status --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN" || true
+          python3 - <<'PY'
+          import datetime, json
+          path='../tryamm-release-proof.json'
+          with open(path) as f: proof=json.load(f)
+          proof['crossDeviceProductionE2E']=True
+          proof['certificationGreen']=bool(proof.get('productionGreen') and proof.get('exactShaProven') and proof.get('economicSandboxGreen') and proof.get('creatorContractGreen'))
+          proof['certifiedAt']=datetime.datetime.now(datetime.timezone.utc).isoformat()
+          proof['fullGreen']=False
+          with open(path,'w') as f: json.dump(proof,f,indent=2)
+          print(json.dumps(proof,indent=2))
+          print('AUTOMATED PRODUCTION CERTIFICATION GREEN; PHYSICAL DEVICE REEL/SAVE PROOF REMAINS REQUIRED FOR FULL GREEN')
+          PY
 
       - name: Upload release proof and E2E evidence
         if: always()
