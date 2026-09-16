@@ -1,0 +1,12 @@
+import './academy-creator-jobs-preservation-contract.mjs';
+import './opportunity-center-contract.mjs';
+import './streamers-academy-curriculum-contract.mjs';
+import './skills-talent-passport-contract.mjs';
+import './academy-status-truth-contract.mjs';
+import './chicago77-opportunity-factory-contract.mjs';
+import './youth-family-academy-safety-contract.mjs';
+import './all-american-university-progression-contract.mjs';
+import './creator-agency-opportunity-contract.mjs';
+import './academy-creator-integration-map-contract.mjs';
+import './jacobie-cyber-academy-safety-contract.mjs';
+console.log('TRYAMM protected academy ecosystem contract: ok');
