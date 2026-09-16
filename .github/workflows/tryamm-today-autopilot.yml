@@ -13,8 +13,7 @@ on:
       - 'package-lock.json'
       - '.github/workflows/tryamm-today-autopilot.yml'
   schedule:
-    # Hourly safety/certification pass. The date guard below makes the scheduled
-    # lane active only on September 14, 2026 in the founder's local timezone.
+    # Hourly safety/certification pass. Keep this lane active every day.
     - cron: '0 * * * *'
 
 permissions:
@@ -25,30 +24,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  date-gate:
-    runs-on: ubuntu-latest
-    outputs:
-      run_today: ${{ steps.guard.outputs.run_today }}
-    steps:
-      - id: guard
-        name: Enable scheduled lane only for Sep 14, 2026 local day
-        shell: bash
-        run: |
-          if [ "${{ github.event_name }}" != "schedule" ]; then
-            echo "run_today=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          TODAY=$(TZ=America/Indiana/Indianapolis date +%F)
-          if [ "$TODAY" = "2026-09-14" ]; then
-            echo "run_today=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "run_today=false" >> "$GITHUB_OUTPUT"
-          fi
-
   certify:
     name: Build + certify current main
-    needs: date-gate
-    if: needs.date-gate.outputs.run_today == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
