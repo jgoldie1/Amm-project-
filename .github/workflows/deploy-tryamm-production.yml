@@ -99,9 +99,9 @@ jobs:
               ('hologpt-smoke','https://tryamm.online/api/ai/smoke',True),
               ('creator-media-health','https://tryamm.online/api/media/health',True),
               ('convergence','https://tryamm.online/api/system/convergence',True),
-              ('backend-health','https://amm-project-1-rpz9.onrender.com/api/health',True),
-              ('financial-truth-backend','https://amm-project-1-rpz9.onrender.com/api/financial-truth/health',True),
-              ('commerce-read','https://amm-project-1-rpz9.onrender.com/api/marketplace/products',True),
+              ('backend-health','https://amm-project-d3zu.onrender.com/api/health',True),
+              ('financial-truth-backend','https://amm-project-d3zu.onrender.com/api/financial-truth/health',True),
+              ('commerce-read','https://amm-project-d3zu.onrender.com/api/marketplace/products',True),
           ]
           results=[]; failures=[]
           for name,url,want_json in targets:

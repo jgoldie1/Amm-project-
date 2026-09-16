@@ -7,7 +7,7 @@ for(const file of [
   'public/music-hub.html','public/music-hub.js','public/music-hub.css','public/community-rules.html',
   'public/founder-dashboard.html','public/founder-dashboard.js','public/founder-dashboard.css',
   'public/app-shell.html','public/app-shell.js','public/app-shell.css','public/manifest.webmanifest','public/service-worker.js',
-  'lib/content-engine-routes.js','lib/operating-layer-routes.js','lib/content-engine-preload.js','lib/supabase-rest.js',
+  'lib/content-engine-routes.js','lib/operating-layer-routes.js','lib/content-engine-preload.js','lib/supabase-rest.js','lib/financial-marketplace-routes.js',
   'config/operating-layers.json','config/release-gates.json','docs/COMPANY_OPERATING_LAYERS_AND_GAP_ANALYSIS.md',
   'supabase/migrations/202608050001_content_engine.sql','render.yaml','.replit','.env.example','.gitignore'
 ]) assert(fs.existsSync(file),`${file} missing`);
@@ -43,5 +43,9 @@ const env=fs.readFileSync('.env.example','utf8');
 for(const key of ['BLOCKCHAIN_ENABLED=false','BLOCKCHAIN_AUDIT_STATUS=NOT_SUBMITTED','BLOCKCHAIN_AUDIT_REPORT_SHA256','BLOCKCHAIN_RELEASE_APPROVED_BY']) assert(env.includes(key),`${key} missing from environment template`);
 const gitignore=fs.readFileSync('.gitignore','utf8');
 for(const ignored of ['node_modules/','.env','data/store.json']) assert(gitignore.includes(ignored),`${ignored} should be ignored`);
+
+// PR #229 production routes are part of the normal root CI lane, not optional proof.
+require('./financial-marketplace-contract-runner');
+require('./financial-marketplace-no-fake-settlement-smoke');
 
 console.log('TryAMM operating layers, blockchain audit hold, mobile app, content engine, deployment and safety smoke checks passed');
