@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('assert');
+const fs=require('fs');
+const source=fs.readFileSync(require.resolve('../lib/financial-marketplace-routes'),'utf8');
+assert(source.includes('movesRealMoney:false'));
+assert(source.includes('issuesRealOwnership:false'));
+assert(source.includes('settlementRequired:true'));
+assert(source.includes('providerSettlementRequired:true'));
+assert(!source.includes('withdraw'));
+assert(!source.includes('settled:true'));
+console.log('financial-marketplace settlement safety: PASS');
