@@ -71,8 +71,8 @@ assert.match(questRuntime, /renderer!\.xr\.getCamera\(\)/, 'main sync must retai
 assert.doesNotMatch(questRuntime, /renderer!\.xr\.getCamera\(camera\)/, 'main sync must not restore the obsolete WebXR camera call')
 assert.match(creatorDistrict, /o instanceof THREE\.Mesh&&o\.geometry instanceof THREE\.TorusGeometry/, 'main sync must keep animated geometry narrowed to mesh instances')
 
-assert.match(convergence, /RENDER_HEALTH_URL \|\| 'https:\/\/amm-project-1-rpz9\.onrender\.com\/api\/health'/, 'main sync must preserve the Render health endpoint used by convergence verification')
-assert.doesNotMatch(convergence, /RENDER_HEALTH_URL \|\| 'https:\/\/amm-project-1-rpz9\.onrender\.com\/'/, 'main sync must not restore the Render root URL as the default convergence probe')
+assert.match(convergence, /RENDER_HEALTH_URL \|\| 'https:\/\/amm-project-d3zu\.onrender\.com\/api\/health'/, 'main sync must preserve the active Render health endpoint used by convergence verification')
+assert.doesNotMatch(convergence, /RENDER_HEALTH_URL \|\| 'https:\/\/amm-project-1-rpz9\.onrender\.com\/api\/health'/, 'main sync must not restore the retired Render health endpoint')
 
 for (const authorityRule of [
   'server-authoritative mission completion and reward state',
