@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('assert');
+const fs=require('fs');
+const source=fs.readFileSync(require.resolve('../server.js'),'utf8');
+const registration="require('./lib/financial-marketplace-routes')({app,getStore:()=>store});";
+const fallback="app.use('/api',(_req,res)=>res.status(404).json({error:'API route not found'}));";
+assert(source.includes(registration),'financial/marketplace route module must be registered');
+assert(source.includes(fallback),'API fallback contract missing');
+assert(source.indexOf(registration)<source.indexOf(fallback),'financial/marketplace routes must register before API 404 fallback');
+assert(source.includes('marketplaceProducts:[]'),'server store must initialize marketplaceProducts');
+console.log('financial-marketplace-server-wiring smoke: PASS');
