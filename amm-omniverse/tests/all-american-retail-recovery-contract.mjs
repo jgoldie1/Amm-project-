@@ -1,0 +1,4 @@
+import fs from 'node:fs';import assert from 'node:assert/strict'
+const src=fs.readFileSync(new URL('../src/foundation/allAmericanRetailRecovery.ts',import.meta.url),'utf8')
+for(const token of ['All American Store marketplace','Wigs + hair bundles','Braiding hair + protective-style supplies','Makeup + lashes + nails','Holo FON devices + accessories','Holo FON plans + activation','Pay My Holo FON Bill','Holo FON account + usage','clientMayMarkBillPaid:false','clientMayActivateTelecomService:false','clientMaySettleRealMoney:false','providerSettlementRequired:true','returnsAndRefundsServerAuthoritative:true','storehouseSeparateFromSellerRevenue:true','LIVE/PK OR STANDARD CART','HOLO DELIVERY / PICKUP']) assert.ok(src.includes(token),`retail recovery missing ${token}`)
+console.log('All American Store / Beauty / Holo FON recovery contract passed')
