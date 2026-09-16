@@ -1,0 +1,49 @@
+name: TRYAMM Academy Mastery Preservation
+
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/foundation/**'
+      - 'amm-omniverse/tests/**'
+      - '.github/workflows/academy-mastery-preservation.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/src/foundation/**'
+      - 'amm-omniverse/tests/**'
+      - '.github/workflows/academy-mastery-preservation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: academy-mastery-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  academy-mastery-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Run academy opportunity preservation contracts
+        working-directory: amm-omniverse
+        run: node tests/academy-opportunity-protection-suite.mjs
+      - name: Run StreetVerse adaptive mastery contracts
+        working-directory: amm-omniverse
+        run: node tests/streetverse-mastery-engine-contract.mjs
+
+  truth-gate:
+    runs-on: ubuntu-latest
+    needs: academy-mastery-contracts
+    steps:
+      - name: Preserve evidence boundaries
+        run: |
+          echo 'Academy/mastery contracts passed.'
+          echo 'This gate does not certify production UI, real employment, accredited credentials, real payments, or physical-device media evidence.'
