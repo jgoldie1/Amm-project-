@@ -40,9 +40,52 @@ export function verifyMusicProject(project: UniversalMusicProject) {
   return { ok: errors.length === 0, errors };
 }
 
+export type ProjectCheckpoint = {
+  checkpointId: string;
+  projectId: string;
+  createdAt: string;
+  label: string;
+  sourceVersion: number;
+  snapshot: UniversalMusicProject;
+};
+
+function cloneProject(project: UniversalMusicProject): UniversalMusicProject {
+  return JSON.parse(JSON.stringify(project)) as UniversalMusicProject;
+}
+
+export function createProjectCheckpoint(project: UniversalMusicProject, checkpointId: string, label = 'Autosave checkpoint'): ProjectCheckpoint {
+  return {
+    checkpointId,
+    projectId: project.id,
+    createdAt: new Date().toISOString(),
+    label,
+    sourceVersion: project.version,
+    snapshot: cloneProject(project),
+  };
+}
+
+export function rollbackProject(current: UniversalMusicProject, checkpoint: ProjectCheckpoint) {
+  if (checkpoint.projectId !== current.id) {
+    return { ok: false as const, error: 'checkpoint-project-mismatch', project: current };
+  }
+  const restored = cloneProject(checkpoint.snapshot);
+  restored.version = current.version + 1;
+  const verification = verifyMusicProject(restored);
+  if (!verification.ok) {
+    return { ok: false as const, error: 'checkpoint-failed-verification', details: verification.errors, project: current };
+  }
+  return {
+    ok: true as const,
+    project: restored,
+    rolledBackFromVersion: current.version,
+    restoredCheckpointVersion: checkpoint.sourceVersion,
+    newVersion: restored.version,
+  };
+}
+
 export type AbletonAgentCommand = {
   projectId: string;
-  operation: 'create-track'|'create-midi-clip'|'set-notes'|'set-tempo'|'set-arrangement-marker'|'set-device-parameter'|'read-state';
+  operation: 'create-track'|'create-midi-clip'|'set-notes'|'set-tempo'|'set-arrangement-marker'|'set-device-parameter'|'read-state'|'create-checkpoint'|'rollback';
   payload: Record<string, unknown>;
   expectedVersion: number;
 };
