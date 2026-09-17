@@ -7,8 +7,7 @@ function timeoutSignal(ms = DEFAULT_TIMEOUT_MS) {
   return { signal: controller.signal, clear: () => clearTimeout(timer) }
 }
 
-async function probe(name, url) {
-  if (!url) return { name, status: 'unverified', reason: 'not configured' }
+async function probeOnce(name, url) {
   const t = timeoutSignal()
   try {
     const response = await fetch(url, {
@@ -32,6 +31,24 @@ async function probe(name, url) {
     }
   } finally {
     t.clear()
+  }
+}
+
+async function probe(name, url, { retryTransient = false } = {}) {
+  if (!url) return { name, status: 'unverified', reason: 'not configured' }
+
+  const first = await probeOnce(name, url)
+  if (!retryTransient || first.status !== 'down') return first
+
+  const second = await probeOnce(name, url)
+  return {
+    ...second,
+    retry: {
+      attempted: true,
+      firstStatus: first.status,
+      firstReason: first.reason || null,
+      recovered: second.status !== 'down',
+    },
   }
 }
 
@@ -88,7 +105,7 @@ export default async function handler(req, res) {
   const [registry, publicWeb, render] = await Promise.all([
     readRegistry(),
     probe('tryamm-web', publicUrl),
-    probe('render', renderUrl),
+    probe('render', renderUrl, { retryTransient: true }),
   ])
 
   const services = [publicWeb, render]
