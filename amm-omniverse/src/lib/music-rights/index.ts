@@ -40,10 +40,15 @@ export function evaluateReleaseGate(passport: RightsPassport): { status: Release
       const expiresAt = parseTime(evidence.expiresAt)
       if (Number.isFinite(effectiveAt) && releaseTime < effectiveAt) findings.push({ code: 'RIGHTS_NOT_YET_EFFECTIVE', severity: 'BLOCK', message: `${sample.title}: rights evidence is not effective on the intended release date.` })
       if (Number.isFinite(expiresAt) && releaseTime > expiresAt) findings.push({ code: 'EVIDENCE_EXPIRED', severity: 'BLOCK', message: `${sample.title}: rights evidence expires before the intended release date.` })
-      if (requestedTerritories.length && evidence.territories?.length) {
-        const granted = new Set(evidence.territories.map(t => t.toUpperCase()))
-        const uncovered = requestedTerritories.filter(t => !granted.has(t.toUpperCase()))
-        if (uncovered.length) findings.push({ code: 'TERRITORY_NOT_CLEARED', severity: 'BLOCK', message: `${sample.title}: requested territories are not fully covered by the referenced rights evidence.` })
+      if (requestedTerritories.length) {
+        if (!evidence.territories?.length) {
+          findings.push({ code: 'TERRITORY_SCOPE_MISSING', severity: 'BLOCK', message: `${sample.title}: referenced rights evidence does not state which release territories are authorized.` })
+        } else {
+          const granted = new Set(evidence.territories.map(t => t.toUpperCase()))
+          const worldwide = granted.has('WORLDWIDE') || granted.has('WORLD') || granted.has('*')
+          const uncovered = worldwide ? [] : requestedTerritories.filter(t => !granted.has(t.toUpperCase()))
+          if (uncovered.length) findings.push({ code: 'TERRITORY_NOT_CLEARED', severity: 'BLOCK', message: `${sample.title}: requested territories are not fully covered by the referenced rights evidence.` })
+        }
       }
     }
   }
