@@ -1,0 +1,1 @@
+The promotional free fallback must be treated as temporary operational capacity. Before its provider promotion ends, re-certify a durable configured gateway model or owned/self-hosted model and remove any expired fallback identifier.
