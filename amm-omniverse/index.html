@@ -65,36 +65,45 @@
   <body>
     <a id="tryamm-accessibility-link" href="/accessibility.html" aria-label="Open TRYAMM Accessibility Statement">♿ Accessibility</a>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <script src="/tryamm-global-supply-chain.js?v=20260903-supply-v2" defer></script>
-    <script src="/tryamm-store-router.js?v=20260903-store-router-v2" defer></script>
-    <script src="/tryamm-local-food-network.js?v=20260903-local-food-v2" defer></script>
-    <script src="/tryamm-cold-pack.js?v=20260903-cold-pack-v1" defer></script>
-    <script src="/tryamm-delivery-options.js?v=20260903-delivery-v3" defer></script>
-    <script src="/tryamm-retail-world.js?v=20260903-retail-world-v1" defer></script>
-    <script src="/tryamm-immersive-store.js?v=20260903-immersive-store-v2" defer></script>
-
-    <script src="/streetverse-global-mobility.js?v=20260913-production-surface-v1" defer></script>
-    <script src="/streetverse-competition-os.js?v=20260913-production-surface-v1" defer></script>
-    <script src="/streetverse-reel.js?v=20260903-streetverse-v26" defer></script>
-    <script src="/streetverse-safe-mode.js?v=20260904-streetverse-v28" defer></script>
-    <script src="/streetverse-mobile-life.js?v=20260903-streetverse-v26" defer></script>
-    <script src="/streetverse-art-billboard.js?v=20260903-streetverse-v26" defer></script>
-    <script src="/streetverse-npc-conversation.js?v=20260904-streetverse-v29" defer></script>
-    <script src="/streetverse-mpc.js?v=20260903-streetverse-v26" defer></script>
-    <script src="/streetverse-ecology.js?v=20260903-streetverse-v26" defer></script>
-    <script src="/streetverse-ecology-lifecycle.js?v=20260903-streetverse-v26" defer></script>
-    <script src="/streetverse-marine-life.js?v=20260903-streetverse-v26" defer></script>
-    <script src="/streetverse-marine-lifecycle.js?v=20260903-streetverse-v26" defer></script>
-    <script src="/streetverse-apex-wildlife.js?v=20260903-streetverse-v26" defer></script>
-    <script src="/streetverse-savanna-wildlife.js?v=20260903-streetverse-v26" defer></script>
-    <script src="/streetverse-ecology-audio.js?v=20260903-streetverse-v26" defer></script>
-    <script src="/streetverse-outdoors.js?v=20260903-streetverse-v26" defer></script>
-    <script src="/streetverse-global-world.js?v=20260903-streetverse-v26" defer></script>
-    <script src="/streetverse-gps-world.js?v=20260903-streetverse-v26" defer></script>
-
-    <script src="/live-production-bridge.js?v=20260903-live-v1" defer></script>
-    <script src="/kenosha-memorial-race.js?v=20260903-race-v1" defer></script>
+    <script type="module" src="/src/bootstrap.ts"></script>
+    <script>
+      (()=>{
+        const scripts=[
+          '/tryamm-global-supply-chain.js?v=20260903-supply-v2',
+          '/tryamm-store-router.js?v=20260903-store-router-v2',
+          '/tryamm-local-food-network.js?v=20260903-local-food-v2',
+          '/tryamm-cold-pack.js?v=20260903-cold-pack-v1',
+          '/tryamm-delivery-options.js?v=20260903-delivery-v3',
+          '/tryamm-retail-world.js?v=20260903-retail-world-v1',
+          '/tryamm-immersive-store.js?v=20260903-immersive-store-v2',
+          '/streetverse-global-mobility.js?v=20260913-production-surface-v1',
+          '/streetverse-competition-os.js?v=20260913-production-surface-v1',
+          '/streetverse-reel.js?v=20260903-streetverse-v26',
+          '/streetverse-safe-mode.js?v=20260904-streetverse-v28',
+          '/streetverse-mobile-life.js?v=20260903-streetverse-v26',
+          '/streetverse-art-billboard.js?v=20260903-streetverse-v26',
+          '/streetverse-npc-conversation.js?v=20260904-streetverse-v29',
+          '/streetverse-mpc.js?v=20260903-streetverse-v26',
+          '/streetverse-ecology.js?v=20260903-streetverse-v26',
+          '/streetverse-ecology-lifecycle.js?v=20260903-streetverse-v26',
+          '/streetverse-marine-life.js?v=20260903-streetverse-v26',
+          '/streetverse-marine-lifecycle.js?v=20260903-streetverse-v26',
+          '/streetverse-apex-wildlife.js?v=20260903-streetverse-v26',
+          '/streetverse-savanna-wildlife.js?v=20260903-streetverse-v26',
+          '/streetverse-ecology-audio.js?v=20260903-streetverse-v26',
+          '/streetverse-outdoors.js?v=20260903-streetverse-v26',
+          '/streetverse-global-world.js?v=20260903-streetverse-v26',
+          '/streetverse-gps-world.js?v=20260903-streetverse-v26',
+          '/live-production-bridge.js?v=20260903-live-v1',
+          '/kenosha-memorial-race.js?v=20260903-race-v1'
+        ]
+        const load=()=>scripts.forEach(src=>{const script=document.createElement('script');script.src=src;script.async=true;document.body.appendChild(script)})
+        if(location.pathname.startsWith('/streetverse')){
+          if('requestIdleCallback' in window)requestIdleCallback(load,{timeout:3500})
+          else setTimeout(load,1800)
+        }else load()
+      })()
+    </script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
