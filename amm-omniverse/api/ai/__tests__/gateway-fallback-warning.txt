@@ -1,0 +1,1 @@
+Do not treat a promotional free gateway model as permanent HoloGPT capacity. Prefer configured provider capacity or owned/self-hosted inference for durable production operation.
