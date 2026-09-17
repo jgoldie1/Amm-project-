@@ -10,6 +10,7 @@ export interface PlayableCharacter {
   charisma: number
   starterGame: StreetVerseGameId
   origin?: string
+  storyRole?: string
 }
 
 export interface StreetVerseGame {
@@ -30,6 +31,7 @@ export const STREETVERSE_PLAYABLE_CAST: PlayableCharacter[] = [
   {id:'miles',name:'Miles',role:'SCOUT',speed:8,stamina:8,handling:8,charisma:7,starterGame:'DELIVERY_RUN'},
   {id:'nikki-france',name:'Nikki France',role:'CREATOR',speed:7,stamina:7,handling:6,charisma:9,starterGame:'MISSION_HUNT',origin:'Detroit'},
   {id:'tae-monroe',name:'Tae Monroe',role:'SCOUT',speed:8,stamina:8,handling:8,charisma:8,starterGame:'DELIVERY_RUN',origin:'Florida'},
+  {id:'tasha-ash',name:'Tasha Ash',role:'PLAYER',speed:7,stamina:9,handling:7,charisma:10,starterGame:'MISSION_HUNT',origin:'San Diego',storyRole:'Legacy Ally / Help Chain'},
 ]
 
 export const MEET_THE_STUBBS = Object.freeze({
@@ -39,6 +41,18 @@ export const MEET_THE_STUBBS = Object.freeze({
   objective: 'Meet the family and extended StreetVerse cast, learn their roles, and unlock connected missions across the world.',
   entryGame: 'MISSION_HUNT' as StreetVerseGameId,
   playableCastIds: STREETVERSE_PLAYABLE_CAST.map((character) => character.id),
+})
+
+export const TASHA_ASH_LEGACY_MISSION = Object.freeze({
+  id: 'TASHA_ASH_HELP_CHAIN',
+  title: 'The Call That Changed Everything',
+  location: 'San Diego',
+  characterId: 'tasha-ash',
+  theme: 'Recognize an emergency, contact trusted help, and keep the help chain moving.',
+  objective: 'Complete a fictionalized safety-and-community mission inspired by Tasha Ash alerting James’s mother to get help during his stroke.',
+  rewardType: 'XP_ONLY',
+  medicalAdvice: false,
+  emergencyServicesSimulationOnly: true,
 })
 
 export const STREETVERSE_GAMES: StreetVerseGame[] = [
