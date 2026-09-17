@@ -6,7 +6,7 @@ export default async function handler(req,res){
   res.setHeader('Cache-Control','no-store');
   if(req.method!=='GET')return res.status(405).json({ok:false,error:'Method not allowed'});
   const configured=String(process.env.HOLOGPT_GATEWAY_MODEL||'').trim();
-  const models=[configured,'inclusionai/ling-3.0-tiny-free','inclusionai/ling-3.0-flash-free','openai/gpt-5.4'].filter((v,i,a)=>v&&a.indexOf(v)===i);
+  const models=[configured,'inclusionai/ling-3.0-flash-sante-free','openai/gpt-5.4'].filter((v,i,a)=>v&&a.indexOf(v)===i);
   const errors=[];
   for(const model of models){
     try{
@@ -19,7 +19,7 @@ export default async function handler(req,res){
         abortSignal:AbortSignal.timeout(timeoutMs())
       });
       const text=String(result?.text||'').trim();
-      if(!text)throw new Error('empty_response');
+      if(text!=='HOLOGPT_READY')throw new Error(`unexpected_readiness_response:${text.slice(0,80)}`);
       return res.status(200).json({ok:true,degraded:false,provider:'vercel-ai-gateway-auto',model,response:text,time:new Date().toISOString()});
     }catch(error){errors.push(`${model}:${String(error?.message||error).slice(0,240)}`);}
   }
