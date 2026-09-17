@@ -1,0 +1,1 @@
+HoloGPT production certification requires a real model generation returning exactly HOLOGPT_READY. Diagnostic mode must remain degraded and cannot satisfy certification.
