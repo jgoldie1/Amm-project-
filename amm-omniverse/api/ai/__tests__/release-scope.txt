@@ -1,0 +1,1 @@
+Scope: HoloGPT gateway model fallback and real-generation certification only. No payment, auth, Supabase, telecom, economic-ledger, StreetVerse gameplay, or creator-media behavior is intentionally changed by this repair.
