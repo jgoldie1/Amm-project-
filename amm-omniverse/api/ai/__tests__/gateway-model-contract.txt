@@ -1,0 +1,1 @@
+configured model -> current temporary free fallback -> paid gateway fallback; owned self-host preference remains independently configurable; production health requires real generation evidence.
