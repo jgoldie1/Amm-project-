@@ -21,40 +21,65 @@ jobs:
     steps:
       - name: Probe production control plane
         shell: bash
+        env:
+          EXPECTED_PRODUCTION_SHA: ${{ github.event_name == 'workflow_dispatch' && '' || github.sha }}
         run: |
           set -uo pipefail
           python3 - <<'PY'
           import json
+          import os
           import sys
-          import urllib.error
           import urllib.request
 
           targets = [
               ("public-web", "https://tryamm.online/", True),
+              ("streetverse", "https://tryamm.online/streetverse", True),
               ("convergence-api", "https://tryamm.online/api/system/convergence", True),
-              ("render-backend", "https://amm-project-1-rpz9.onrender.com/", True),
+              ("render-backend", "https://amm-project-d3zu.onrender.com/api/health", True),
           ]
 
           failures = []
+          convergence = None
           for name, url, required in targets:
               try:
-                  req = urllib.request.Request(url, headers={"User-Agent": "TRYAMM-GitHub-Convergence/1.0"})
+                  req = urllib.request.Request(url, headers={"User-Agent": "TRYAMM-GitHub-Convergence/2.0"})
                   with urllib.request.urlopen(req, timeout=60) as response:
                       body = response.read(250000).decode("utf-8", "replace")
                       print(f"{name}: HTTP {response.status} {response.geturl()}")
+                      if response.status != 200 and required:
+                          failures.append(f"{name} returned HTTP {response.status}")
                       if name == "convergence-api":
                           try:
-                              payload = json.loads(body)
-                              print("control-plane overall:", payload.get("overall"))
-                              print("deployment commit:", (payload.get("deployment") or {}).get("commitSha"))
-                              if payload.get("overall") != "healthy":
-                                  failures.append(f"{name} reports {payload.get('overall')}")
+                              convergence = json.loads(body)
+                              overall = convergence.get("overall")
+                              deployment = convergence.get("deployment") or {}
+                              deployed_sha = deployment.get("commitSha")
+                              stale_count = ((convergence.get("registry") or {}).get("freshness") or {}).get("staleCount")
+                              print("control-plane overall:", overall)
+                              print("deployment commit:", deployed_sha)
+                              print("registry stale count:", stale_count)
+                              if overall != "healthy":
+                                  failures.append(f"{name} reports {overall}")
+                              if not deployed_sha:
+                                  failures.append("convergence API did not report a production commit SHA")
                           except Exception as exc:
                               failures.append(f"{name} returned invalid JSON: {exc}")
               except Exception as exc:
                   print(f"{name}: FAILED {exc}")
                   if required:
                       failures.append(f"{name}: {exc}")
+
+          # On push runs, require the public control plane to converge to the exact
+          # commit that triggered the workflow. Scheduled/manual runs verify that
+          # production reports a concrete SHA without falsely assuming github.sha
+          # is the currently deployed commit.
+          expected_sha = os.environ.get("EXPECTED_PRODUCTION_SHA", "").strip()
+          if convergence and expected_sha:
+              deployed_sha = (convergence.get("deployment") or {}).get("commitSha")
+              if deployed_sha != expected_sha:
+                  failures.append(
+                      f"production SHA mismatch: deployed={deployed_sha} expected={expected_sha}"
+                  )
 
           if failures:
               print("\nCONVERGENCE GATE FAILED")
