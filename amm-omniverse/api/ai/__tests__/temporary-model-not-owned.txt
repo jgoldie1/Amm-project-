@@ -1,0 +1,1 @@
+The Ling gateway fallback is third-party temporary capacity. It is not Stubbs AI-owned model infrastructure and must not be described as such. Owned HoloGPT inference remains the separately configured self-hosted OpenAI-compatible path.
