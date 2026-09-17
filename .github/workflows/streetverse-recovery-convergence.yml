@@ -1,0 +1,60 @@
+name: StreetVerse Recovery Convergence
+
+on:
+  push:
+    branches: [fix/recover-streetverse-playable-current-main]
+    paths:
+      - 'amm-omniverse/src/gameplay/**'
+      - 'amm-omniverse/src/commerce/**'
+      - 'amm-omniverse/src/components/StreetVerse**'
+      - 'amm-omniverse/src/components/GameVerseHub.tsx'
+      - 'amm-omniverse/src/holo/**'
+      - 'amm-omniverse/src/founder/**'
+      - 'amm-omniverse/src/memory/**'
+      - 'amm-omniverse/tests/streetverse-playable-recovery-contract.mjs'
+      - 'amm-omniverse/package.json'
+      - '.github/workflows/streetverse-recovery-convergence.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-recovery-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  convergence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install exact dependencies
+        working-directory: amm-omniverse
+        run: npm ci
+      - name: StreetVerse recovery contract
+        working-directory: amm-omniverse
+        run: node tests/streetverse-playable-recovery-contract.mjs
+      - name: Typecheck
+        working-directory: amm-omniverse
+        run: npm run typecheck
+      - name: Security scan
+        working-directory: amm-omniverse
+        run: npm run security
+      - name: Production build
+        working-directory: amm-omniverse
+        run: npm run build
+      - name: Convergence summary
+        if: always()
+        run: |
+          echo '### StreetVerse Recovery Convergence' >> "$GITHUB_STEP_SUMMARY"
+          echo '- SHA: `${{ github.sha }}`' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Contract + typecheck + security + production build are required.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- This workflow does not merge, deploy, settle money, or weaken provider gates.' >> "$GITHUB_STEP_SUMMARY"
