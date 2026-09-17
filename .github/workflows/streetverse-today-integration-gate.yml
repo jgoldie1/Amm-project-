@@ -1,0 +1,132 @@
+name: StreetVerse Today Integration Gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - fix/recover-streetverse-playable-current-main
+    paths:
+      - 'amm-omniverse/**'
+      - '.github/workflows/streetverse-today-integration-gate.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/**'
+      - '.github/workflows/streetverse-today-integration-gate.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-today-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  convergence:
+    name: Install + gameplay + visual + safety + build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: amm-omniverse
+
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v5
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+
+      - name: Exact dependency install
+        run: npm ci --no-audit --no-fund
+
+      - name: StreetVerse recovery contract
+        run: node tests/streetverse-playable-recovery-contract.mjs
+
+      - name: Full player journey contract
+        run: node tests/streetverse-journey-qa-contract.mjs
+
+      - name: Living-city population contract
+        run: node tests/streetverse-mobile-living-city-contract.mjs
+
+      - name: Vehicle and mission control contract
+        run: node tests/streetverse-vehicle-control-contract.mjs
+
+      - name: Visual presence source gate
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs=require('fs')
+          const read=p=>fs.readFileSync(p,'utf8')
+          const omni=read('src/components/StreetVerseOmniWorld.tsx')
+          const safe=read('src/components/StreetVerseMobilePlayableWorld.tsx')
+          const bridge=read('src/components/StreetVerseGeoSpawnBridge.tsx')
+          const requiredOmni=['NPC_NEAR_SPAWN','function vehicle(','function boat(','function person(','BASKETBALL_COURTS','MISSIONS','BUSINESSES']
+          const requiredSafe=['BUILDINGS','PEOPLE','SAFE_CAR_ID','DISTRICT COMPLETE','STREETVERSE • CHICAGO']
+          const requiredBridge=['StreetVersePlayableWorld','StreetVerseSafeWorld','StreetVerseFullWorldOverlays','tryamm:streetverse-world-ready']
+          const missing=[]
+          for(const x of requiredOmni)if(!omni.includes(x))missing.push(`OmniWorld:${x}`)
+          for(const x of requiredSafe)if(!safe.includes(x))missing.push(`MobileSafe:${x}`)
+          for(const x of requiredBridge)if(!bridge.includes(x))missing.push(`GeoBridge:${x}`)
+          if(missing.length){console.error('Missing visual-presence contracts:',missing);process.exit(1)}
+          console.log('StreetVerse visual presence source gate: PASS')
+          NODE
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Repository security scan
+        run: npm run security
+
+      - name: Production readiness
+        run: npm run readiness
+
+      - name: Production build
+        run: npm run build
+
+      - name: Bundle crash-risk budget
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs=require('fs'),path=require('path')
+          const dir=path.join(process.cwd(),'dist','assets')
+          const files=fs.existsSync(dir)?fs.readdirSync(dir).filter(f=>f.endsWith('.js')):[]
+          const rows=files.map(file=>({file,kb:fs.statSync(path.join(dir,file)).size/1024})).sort((a,b)=>b.kb-a.kb)
+          console.log('Largest JS chunks:')
+          rows.slice(0,12).forEach(r=>console.log(`${r.kb.toFixed(2)} kB\t${r.file}`))
+          const hard=rows.filter(r=>r.kb>650)
+          if(hard.length){console.error('Chunks above 650 kB hard budget:',hard);process.exit(1)}
+          NODE
+
+      - name: Integration evidence summary
+        if: always()
+        working-directory: .
+        shell: bash
+        run: |
+          {
+            echo '## StreetVerse Today Integration Gate'
+            echo
+            echo "- Candidate SHA: \`${GITHUB_SHA}\`"
+            echo '- Exact npm dependency lock enforced with npm ci'
+            echo '- Recovery + full journey + population + vehicle mission contracts checked'
+            echo '- Visible city source presence checked: people, vehicles, buildings, missions, businesses and world bridge'
+            echo '- TypeScript, security, readiness and production build checked'
+            echo '- JavaScript bundle hard budget checked to reduce crash risk'
+            echo '- This workflow does not merge or deploy a failing candidate'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload build evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-today-${{ github.sha }}
+          path: |
+            amm-omniverse/dist/
+            amm-omniverse/playwright-report/
+            amm-omniverse/test-results/
+          if-no-files-found: warn
+          retention-days: 7
