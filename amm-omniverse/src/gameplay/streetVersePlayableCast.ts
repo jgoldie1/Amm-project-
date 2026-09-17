@@ -9,6 +9,7 @@ export interface PlayableCharacter {
   handling: number
   charisma: number
   starterGame: StreetVerseGameId
+  origin?: string
 }
 
 export interface StreetVerseGame {
@@ -27,7 +28,18 @@ export const STREETVERSE_PLAYABLE_CAST: PlayableCharacter[] = [
   {id:'ace',name:'Ace',role:'DRIVER',speed:8,stamina:7,handling:10,charisma:6,starterGame:'STREET_RACE'},
   {id:'sky',name:'Sky',role:'ATHLETE',speed:9,stamina:9,handling:7,charisma:7,starterGame:'HOLO_HOOPS'},
   {id:'miles',name:'Miles',role:'SCOUT',speed:8,stamina:8,handling:8,charisma:7,starterGame:'DELIVERY_RUN'},
+  {id:'nikki-france',name:'Nikki France',role:'CREATOR',speed:7,stamina:7,handling:6,charisma:9,starterGame:'MISSION_HUNT',origin:'Detroit'},
+  {id:'tae-monroe',name:'Tae Monroe',role:'SCOUT',speed:8,stamina:8,handling:8,charisma:8,starterGame:'DELIVERY_RUN',origin:'Florida'},
 ]
+
+export const MEET_THE_STUBBS = Object.freeze({
+  id: 'MEET_THE_STUBBS',
+  name: 'Meet the Stubbs',
+  type: 'STORY_HUB',
+  objective: 'Meet the family and extended StreetVerse cast, learn their roles, and unlock connected missions across the world.',
+  entryGame: 'MISSION_HUNT' as StreetVerseGameId,
+  playableCastIds: STREETVERSE_PLAYABLE_CAST.map((character) => character.id),
+})
 
 export const STREETVERSE_GAMES: StreetVerseGame[] = [
   {id:'HOLO_HOOPS',name:'Holo Hoops',objective:'Score more baskets before the clock expires.',minPlayers:1,maxPlayers:6,rewardXp:350,playable:true},
