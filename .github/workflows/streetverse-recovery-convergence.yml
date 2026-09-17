@@ -1,19 +1,8 @@
-name: StreetVerse Recovery Convergence
+name: StreetVerse Release Convergence
 
 on:
   push:
     branches: [fix/recover-streetverse-playable-current-main]
-    paths:
-      - 'amm-omniverse/src/gameplay/**'
-      - 'amm-omniverse/src/commerce/**'
-      - 'amm-omniverse/src/components/StreetVerse**'
-      - 'amm-omniverse/src/components/GameVerseHub.tsx'
-      - 'amm-omniverse/src/holo/**'
-      - 'amm-omniverse/src/founder/**'
-      - 'amm-omniverse/src/memory/**'
-      - 'amm-omniverse/tests/streetverse-playable-recovery-contract.mjs'
-      - 'amm-omniverse/package.json'
-      - '.github/workflows/streetverse-recovery-convergence.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -22,39 +11,78 @@ permissions:
   contents: read
 
 concurrency:
-  group: streetverse-recovery-${{ github.ref }}
+  group: streetverse-release-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   convergence:
+    name: Release 1 convergence
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: amm-omniverse
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
           cache-dependency-path: amm-omniverse/package-lock.json
-      - name: Install exact dependencies
-        working-directory: amm-omniverse
-        run: npm ci
-      - name: StreetVerse recovery contract
-        working-directory: amm-omniverse
-        run: node tests/streetverse-playable-recovery-contract.mjs
-      - name: Typecheck
-        working-directory: amm-omniverse
-        run: npm run typecheck
-      - name: Security scan
-        working-directory: amm-omniverse
-        run: npm run security
-      - name: Production build
-        working-directory: amm-omniverse
-        run: npm run build
-      - name: Convergence summary
-        if: always()
+
+      - name: Verify dependency lock is synchronized
+        id: lock
+        shell: bash
         run: |
-          echo '### StreetVerse Recovery Convergence' >> "$GITHUB_STEP_SUMMARY"
+          set +e
+          npm ci
+          status=$?
+          set -e
+          if [ "$status" -ne 0 ]; then
+            echo "::error title=Dependency lockfile blocker::amm-omniverse/package-lock.json is not synchronized with package.json. Regenerate and commit the lockfile; this gate will not bypass npm ci."
+            echo "### Dependency lockfile blocker" >> "$GITHUB_STEP_SUMMARY"
+            echo "- npm ci failed. package-lock.json must be regenerated from package.json and committed." >> "$GITHUB_STEP_SUMMARY"
+            echo "- No downstream release result is valid until the exact install succeeds." >> "$GITHUB_STEP_SUMMARY"
+            exit "$status"
+          fi
+
+      - name: StreetVerse recovered feature contract
+        run: node tests/streetverse-playable-recovery-contract.mjs
+
+      - name: Full smoke and recovered visible-loop contracts
+        run: npm run smoke
+
+      - name: TypeScript certification
+        run: npm run typecheck
+
+      - name: Repository security certification
+        run: npm run security
+
+      - name: Provider and production-readiness gates
+        run: npm run readiness
+
+      - name: Production build
+        run: npm run build
+
+      - name: Install Chromium for UI certification
+        run: npx playwright install --with-deps chromium
+
+      - name: Desktop and mobile E2E certification
+        run: npx playwright test --project=desktop-chromium --project=mobile-chromium
+
+      - name: Release convergence summary
+        if: always()
+        working-directory: .
+        run: |
+          echo '### StreetVerse Release 1 Convergence' >> "$GITHUB_STEP_SUMMARY"
           echo '- SHA: `${{ github.sha }}`' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Contract + typecheck + security + production build are required.' >> "$GITHUB_STEP_SUMMARY"
-          echo '- This workflow does not merge, deploy, settle money, or weaken provider gates.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Exact dependency install: required' >> "$GITHUB_STEP_SUMMARY"
+          echo '- StreetVerse recovery contract: required' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Full smoke suite / visible city loop: required' >> "$GITHUB_STEP_SUMMARY"
+          echo '- TypeScript: required' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Repository security: required' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Provider/readiness safety gates: required' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Production build: required' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Desktop + mobile Chromium E2E: required' >> "$GITHUB_STEP_SUMMARY"
+          echo '- This workflow does not invent secrets, bypass provider gates, merge, deploy, settle money, or mark unverified hardware LIVE.' >> "$GITHUB_STEP_SUMMARY"
