@@ -1,0 +1,84 @@
+name: StreetVerse Today Mission
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - fix/recover-streetverse-playable-current-main
+    paths:
+      - 'amm-omniverse/**'
+      - '.github/workflows/streetverse-today-mission.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/**'
+      - '.github/workflows/streetverse-today-mission.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-today-mission-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lockfile:
+    name: Dependency lock gate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Verify exact lockfile
+        run: npm ci --no-audit --no-fund
+
+  certify:
+    name: Gameplay + visual + safety + production
+    needs: lockfile
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Recovery
+        run: node tests/streetverse-playable-recovery-contract.mjs
+      - name: Full player journey
+        run: node tests/streetverse-journey-qa-contract.mjs
+      - name: Living city
+        run: node tests/streetverse-mobile-living-city-contract.mjs
+      - name: Vehicles and missions
+        run: node tests/streetverse-vehicle-control-contract.mjs
+      - name: Full smoke suite
+        run: npm run smoke
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Security
+        run: npm run security
+      - name: Production readiness
+        run: npm run readiness
+      - name: Production build
+        run: npm run build
+      - name: Summary
+        if: always()
+        working-directory: .
+        run: |
+          {
+            echo '## StreetVerse Today Mission'
+            echo "- Candidate: \`${GITHUB_SHA}\`"
+            echo '- Goal: exact dependencies, playable journey, living city, vehicles/missions, smoke, typecheck, security, readiness, production build.'
+            echo '- No automatic merge or production promotion. Green evidence is required first.'
+          } >> "$GITHUB_STEP_SUMMARY"
