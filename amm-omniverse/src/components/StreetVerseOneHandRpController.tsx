@@ -8,16 +8,24 @@ export default function StreetVerseOneHandRpController(){
  const [hand,setHand]=useState<Hand>(()=>localStorage.getItem('tryamm.rp.hand')==='left'?'left':'right')
  const [choiceOpen,setChoiceOpen]=useState(false)
  const [title,setTitle]=useState('Choose your route')
+ const [campaignId,setCampaignId]=useState('')
+ const [routes,setRoutes]=useState<Partial<Record<Choice,string>>>({})
 
  useEffect(()=>{
-  const open=(event:Event)=>{const d=(event as CustomEvent).detail||{};setTitle(String(d.title||'Choose your route'));setChoiceOpen(true)}
+  const open=(event:Event)=>{
+   const d=(event as CustomEvent<{title?:string;campaignId?:string;routes?:Partial<Record<Choice,string>>}>).detail||{}
+   setTitle(String(d.title||'Choose your route'))
+   setCampaignId(String(d.campaignId||''))
+   setRoutes(d.routes||{})
+   setChoiceOpen(true)
+  }
   window.addEventListener('tryamm:rp-choice-open',open)
   return()=>window.removeEventListener('tryamm:rp-choice-open',open)
  },[])
 
  const choose=(choice:Choice)=>{
   const route=STREETVERSE_RP_CHOICE_MODEL[choice]
-  window.dispatchEvent(new CustomEvent('tryamm:rp-choice-selected',{detail:{choice,label:route.label,at:new Date().toISOString()}}))
+  window.dispatchEvent(new CustomEvent('tryamm:rp-choice-selected',{detail:{choice,label:route.label,campaignId,routeDescription:routes[choice]||route.description,at:new Date().toISOString()}}))
   setChoiceOpen(false)
  }
 
@@ -32,7 +40,7 @@ export default function StreetVerseOneHandRpController(){
   {choiceOpen&&<div role="dialog" aria-label="RP mission choice" style={{position:'fixed',left:'50%',bottom:20,transform:'translateX(-50%)',zIndex:17030,width:'min(92vw,620px)',padding:14,borderRadius:18,background:'#030914f5',border:'1px solid #4fe3ff77',color:'#fff'}}>
    <div style={{fontWeight:1000,fontSize:17}}>{title}</div>
    <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginTop:10}}>
-    {(['A','B','C'] as Choice[]).map(c=>{const r=STREETVERSE_RP_CHOICE_MODEL[c];return <button key={c} onClick={()=>choose(c)} style={{minHeight:96,padding:10,borderRadius:14,border:'1px solid #4fe3ff66',background:'#0a1723',color:'#fff',textAlign:'left'}}><b style={{fontSize:22}}>{c}</b><div style={{fontWeight:950,marginTop:4}}>{r.label}</div><div style={{fontSize:10,opacity:.75,marginTop:4}}>{r.description}</div></button>})}
+    {(['A','B','C'] as Choice[]).map(c=>{const r=STREETVERSE_RP_CHOICE_MODEL[c];return <button key={c} onClick={()=>choose(c)} style={{minHeight:96,padding:10,borderRadius:14,border:'1px solid #4fe3ff66',background:'#0a1723',color:'#fff',textAlign:'left'}}><b style={{fontSize:22}}>{c}</b><div style={{fontWeight:950,marginTop:4}}>{r.label}</div><div style={{fontSize:10,opacity:.75,marginTop:4}}>{routes[c]||r.description}</div></button>})}
    </div>
   </div>}
  </>
