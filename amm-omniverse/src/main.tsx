@@ -56,6 +56,10 @@ import { installStreetVerseRacingAfterDarkRuntime } from './runtime/StreetVerseR
 import { installStreetVerseMissionDiscoveryRuntime } from './runtime/StreetVerseMissionDiscoveryRuntime'
 import { installSECSConstructRuntime } from './runtime/SECSConstructRuntime'
 import { installOmniverseEventFabricRuntime } from './runtime/OmniverseEventFabricRuntime'
+import { installChronoExperienceRuntime } from './runtime/ChronoExperienceRuntime'
+import { installChronoWarpRuntime } from './runtime/ChronoWarpRuntime'
+import { installStreetVerseChicagoTimeMachineMissionsRuntime } from './runtime/StreetVerseChicagoTimeMachineMissionsRuntime'
+import { installStreetVerseHistoryCampaignRuntime } from './runtime/StreetVerseHistoryCampaignRuntime'
 
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 // Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
@@ -116,6 +120,10 @@ installStreetVerseRacingAfterDarkRuntime()
 installStreetVerseMissionDiscoveryRuntime()
 installSECSConstructRuntime()
 installOmniverseEventFabricRuntime()
+installChronoExperienceRuntime()
+installChronoWarpRuntime()
+installStreetVerseChicagoTimeMachineMissionsRuntime()
+installStreetVerseHistoryCampaignRuntime()
 
 const currentPath=window.location.pathname
 const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
