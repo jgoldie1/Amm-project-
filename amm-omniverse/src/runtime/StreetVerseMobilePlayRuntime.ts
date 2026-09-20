@@ -28,7 +28,8 @@ function mount(){
   window.dispatchEvent(new CustomEvent('tryamm:mobile-play-ready',{detail:{touchControls:true,phoneMode:true,questRequired:false}}))
 }
 
-function shouldShow(){return Boolean(document.querySelector('canvas'))&&/streetverse/i.test(document.body.innerText||'')}
+function isStreetVerseRoute(){const p=location.pathname.replace(/\/$/,'');return p==='/streetverse'||p.startsWith('/streetverse/')}
+function shouldShow(){return isStreetVerseRoute()&&Boolean(document.querySelector('canvas'))&&/streetverse/i.test(document.body.innerText||'')}
 function sync(){const existing=document.getElementById('tryamm-streetverse-mobile-controls');if(isPhone()&&shouldShow()){if(!existing)mount()}else existing?.remove()}
 
 export function installStreetVerseMobilePlayRuntime(){
