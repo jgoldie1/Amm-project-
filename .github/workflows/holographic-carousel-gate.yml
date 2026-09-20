@@ -18,43 +18,55 @@ concurrency:
 jobs:
   verify:
     name: Build and verify holographic carousel
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Setup Node from repository engine
-        uses: actions/setup-node@v4
+      - name: Setup Node 24
+        uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: '24'
           cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
 
-      - name: Install dependencies
+      - name: Install Omniverse dependencies
+        working-directory: amm-omniverse
         run: npm ci
 
-      - name: Require carousel implementation
+      - name: Require real carousel implementation
         shell: bash
         run: |
           set -euo pipefail
-          matches="$(grep -RilE 'holographic.?carousel|HolographicCarousel' src app components 2>/dev/null || true)"
-          if [ -z "$matches" ]; then
-            echo "::error::No holographic carousel implementation found in src/app/components."
-            exit 1
-          fi
-          echo "$matches"
+          test -f amm-omniverse/src/components/HoloClipScreenLayer.tsx
+          test -f amm-omniverse/src/holo/holoClip2.ts
+          grep -q "Holographic carousel" amm-omniverse/src/components/HoloClipScreenLayer.tsx
+          grep -q "HOLOGRAPHIC_CAROUSEL_PANELS" amm-omniverse/src/holo/holoClip2.ts
+          echo "Holographic carousel implementation found."
 
-      - name: Build production bundle
+      - name: Typecheck carousel integration
+        working-directory: amm-omniverse
+        run: npm run typecheck
+
+      - name: Run security and readiness gates
+        working-directory: amm-omniverse
+        run: |
+          npm run security
+          npm run readiness
+
+      - name: Build production Omniverse bundle
+        working-directory: amm-omniverse
         run: npm run build
 
       - name: Run carousel-focused tests when present
         shell: bash
         run: |
           set -euo pipefail
-          tests="$(find . -type f \( -iname '*carousel*.test.*' -o -iname '*carousel*.spec.*' \) -not -path './node_modules/*' -print)"
+          tests="$(find amm-omniverse -type f \( -iname '*carousel*.test.*' -o -iname '*carousel*.spec.*' -o -iname '*holo*clip*.test.*' -o -iname '*holo*clip*.spec.*' \) -not -path '*/node_modules/*' -print)"
           if [ -n "$tests" ]; then
             echo "$tests"
-            npm test -- --runInBand 2>/dev/null || npm test
+            npm --prefix amm-omniverse run smoke
           else
-            echo "::notice::No carousel-specific tests yet; build gate passed."
+            echo "::notice::No carousel-specific test file yet; typecheck/security/readiness/build remain mandatory."
           fi
