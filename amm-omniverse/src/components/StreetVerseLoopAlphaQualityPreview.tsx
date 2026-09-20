@@ -43,7 +43,7 @@ export default function StreetVerseLoopAlphaQualityPreview(){
    <div aria-hidden="true" style={{position:'absolute',left:0,right:0,top:'8%',height:'46%'}}>
     {BUILDINGS.map((b,i)=><div key={b.label} style={{position:'absolute',left:`${b.left}%`,bottom:0,width:`${b.width}%`,height:`${b.height}%`,minHeight:100,background:`linear-gradient(90deg,${b.tone},#111a22)`,border:'1px solid #0b1118',boxShadow:'0 12px 35px #0007'}}>
       <div style={{position:'absolute',left:5,right:5,top:8,fontSize:7,fontWeight:900,textAlign:'center',color:'#dff8ff',textShadow:'0 1px 4px #000'}}>{b.label}</div>
-      <div style={{position:'absolute',inset:'26px 7px 8px',opacity:night?.95:.62,background:night?'repeating-linear-gradient(90deg,#ffd46c 0 4px,transparent 4px 12px),repeating-linear-gradient(0deg,#79cfff88 0 4px,transparent 4px 13px)':'repeating-linear-gradient(90deg,#aee7ff 0 4px,transparent 4px 12px),repeating-linear-gradient(0deg,#d5ecff55 0 4px,transparent 4px 13px)'}}/>
+      <div style={{position:'absolute',inset:'26px 7px 8px',opacity:night ? 0.95 : 0.62,background:night?'repeating-linear-gradient(90deg,#ffd46c 0 4px,transparent 4px 12px),repeating-linear-gradient(0deg,#79cfff88 0 4px,transparent 4px 13px)':'repeating-linear-gradient(90deg,#aee7ff 0 4px,transparent 4px 12px),repeating-linear-gradient(0deg,#d5ecff55 0 4px,transparent 4px 13px)'}}/>
       {i===5&&<div style={{position:'absolute',left:'50%',top:-20,width:3,height:23,transform:'translateX(-50%)',background:'#a9d7e8'}}/>}
      </div>)}
    </div>
