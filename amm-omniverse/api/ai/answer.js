@@ -58,7 +58,7 @@ async function selfHosted(question,history){
 
 async function aiSdkGateway(question,history){
   const configured=clean(process.env.HOLOGPT_GATEWAY_MODEL,200);
-  const models=[configured,'inclusionai/ling-3.0-flash-sante-free','openai/gpt-5.4'].filter((value,index,array)=>value&&array.indexOf(value)===index);
+  const models=[configured,'inclusionai/ling-3.0-flash-sante-free','inclusionai/ling-3.0-flash-vl-free'].filter((value,index,array)=>value&&array.indexOf(value)===index);
   let lastError=null;
   for(const model of models){
     try{
