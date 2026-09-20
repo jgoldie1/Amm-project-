@@ -4,11 +4,33 @@
   const token=()=>localStorage.getItem('tryamm_token')||'';
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const root=document.createElement('div');root.id='hologptWidgetRoot';
-  root.innerHTML=`<button id="hologptFab" class="hologpt-fab" type="button" aria-haspopup="dialog" aria-controls="hologptPanel">HoloGPT</button><section id="hologptPanel" class="hologpt-panel" hidden role="dialog" aria-modal="false" aria-label="HoloGPT assistant"><header><div><strong>HoloGPT</strong><span id="hologptStatus">Checking intelligence…</span></div><button id="hologptClose" type="button" aria-label="Close HoloGPT">×</button></header><div id="hologptProgress" aria-live="polite" style="font-size:11px;letter-spacing:.08em;padding:6px 12px;min-height:16px"></div><div id="hologptMessages" class="hologpt-messages"><article class="hologpt-ai"><b>HoloGPT</b><p>I’m connected to TRYAMM. I can answer, route you through the platform, and recover from provider failures instead of silently stalling.</p></article></div><form id="hologptForm"><label class="sr-only" for="hologptInput">Message HoloGPT</label><textarea id="hologptInput" rows="3" maxlength="12000" placeholder="Ask HoloGPT or say: open StreetVerse…"></textarea><button id="hologptSend" type="submit">Send</button></form><p id="hologptHint" class="hologpt-hint"></p></section>`;
+  root.innerHTML=`<button id="hologptFab" class="hologpt-fab" type="button" aria-haspopup="dialog" aria-controls="hologptPanel">HoloGPT</button><section id="hologptPanel" class="hologpt-panel" hidden role="dialog" aria-modal="false" aria-label="HoloGPT assistant"><header><div><strong>HoloGPT</strong><span id="hologptStatus">Checking intelligence…</span></div><button id="hologptClose" type="button" aria-label="Close HoloGPT">×</button></header><div id="hologptProgress" aria-live="polite" style="font-size:11px;letter-spacing:.08em;padding:6px 12px;min-height:16px"></div><div id="hologptMessages" class="hologpt-messages"><article class="hologpt-ai"><b>HoloGPT</b><p>I’m connected to TRYAMM. I can answer, route you through the platform, and recover from provider failures instead of silently stalling.</p></article></div><form id="hologptForm"><label class="sr-only" for="hologptInput">Message HoloGPT</label><textarea id="hologptInput" rows="3" maxlength="12000" placeholder="Ask HoloGPT or say: open StreetVerse…"></textarea><button id="hologptMic" type="button" aria-label="Speak to HoloGPT">🎙</button><button id="hologptSend" type="submit">Send</button></form><p id="hologptHint" class="hologpt-hint"></p></section>`;
   document.body.append(root);
-  const panel=root.querySelector('#hologptPanel'),fab=root.querySelector('#hologptFab'),close=root.querySelector('#hologptClose'),form=root.querySelector('#hologptForm'),input=root.querySelector('#hologptInput'),send=root.querySelector('#hologptSend'),messages=root.querySelector('#hologptMessages'),statusEl=root.querySelector('#hologptStatus'),hint=root.querySelector('#hologptHint'),progress=root.querySelector('#hologptProgress');
+  const panel=root.querySelector('#hologptPanel'),fab=root.querySelector('#hologptFab'),close=root.querySelector('#hologptClose'),form=root.querySelector('#hologptForm'),input=root.querySelector('#hologptInput'),send=root.querySelector('#hologptSend'),messages=root.querySelector('#hologptMessages'),statusEl=root.querySelector('#hologptStatus'),hint=root.querySelector('#hologptHint'),progress=root.querySelector('#hologptProgress'),mic=root.querySelector('#hologptMic');
   const sessionId=crypto?.randomUUID?.()||`hs_${Date.now()}_${Math.random().toString(36).slice(2)}`;
   const CHECKPOINT_KEY='tryamm_hologpt_checkpoint_v1';
+
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SpeechRecognition)mic.hidden=true;
+  else{
+    let recognition=null;
+    mic.addEventListener('click',()=>{
+      if(recognition){try{recognition.stop()}catch{};recognition=null;stage('VOICE STOPPED');return;}
+      recognition=new SpeechRecognition();
+      recognition.lang=document.documentElement.lang||navigator.language||'en-US';
+      recognition.interimResults=true;
+      recognition.continuous=false;
+      recognition.onstart=()=>{stage('LISTENING · voice-first input');mic.setAttribute('aria-pressed','true');};
+      recognition.onresult=event=>{
+        let transcript='';
+        for(let i=event.resultIndex;i<event.results.length;i++)transcript+=event.results[i][0]?.transcript||'';
+        input.value=transcript.trim();
+      };
+      recognition.onerror=event=>{stage('VOICE FALLBACK · '+String(event.error||'unavailable'));};
+      recognition.onend=()=>{recognition=null;mic.setAttribute('aria-pressed','false');if(input.value.trim())stage('VOICE READY · tap Send');else stage('');};
+      try{recognition.start()}catch{recognition=null;stage('VOICE FALLBACK · unavailable');}
+    });
+  }
 
   function add(kind,text,meta=''){const a=document.createElement('article');a.className=kind==='user'?'hologpt-user':'hologpt-ai';a.innerHTML=`<b>${kind==='user'?'You':'HoloGPT'}</b><p>${esc(text).replace(/\n/g,'<br>')}</p>${meta?`<small>${esc(meta)}</small>`:''}`;messages.append(a);messages.scrollTop=messages.scrollHeight;}
   function stage(text){progress.textContent=text||'';window.dispatchEvent(new CustomEvent('tryamm:hologpt-progress',{detail:{stage:text,sessionId,time:Date.now()}}));}
