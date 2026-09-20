@@ -77,7 +77,7 @@ jobs:
       - name: Install Omniverse dependencies
         if: steps.window.outputs.active == 'true'
         working-directory: amm-omniverse
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Verify streaming and Lottie dependencies
         if: steps.window.outputs.active == 'true'
