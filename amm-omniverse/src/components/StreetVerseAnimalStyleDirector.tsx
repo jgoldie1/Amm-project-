@@ -31,7 +31,7 @@ export default function StreetVerseAnimalStyleDirector(){
   <button onClick={()=>setOpen(v=>!v)} style={{minHeight:52,padding:'8px 12px',borderRadius:14,border:'1px solid #72e08c88',background:'#07170def',color:'#fff',fontWeight:950}}>🐉 {active.name.toUpperCase()}</button>
   {open&&<section aria-label="Animal fighting style selector" style={{marginTop:7,width:'min(92vw,430px)',maxHeight:'68vh',overflow:'auto',padding:12,borderRadius:16,background:'#030b07f5',border:'1px solid #477e55',color:'#fff'}}>
    <div style={{fontSize:10,fontWeight:950,letterSpacing:1.3,color:'#8df2a6'}}>GREEN DRAGON ANIMAL STYLE LAB</div>
-   <div style={{fontSize:10,opacity:.7,margin:'5px 0 10px'}}>Eight documented Green Dragon animal systems + Dragon as a separately labeled legacy/game reconstruction.</div>
+   <div style={{fontSize:10,opacity:.7,margin:'5px 0 10px'}}>Eight animal systems listed in International Green Dragon Society published material + Dragon as a separately labeled advanced legacy/game reconstruction.</div>
    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(125px,1fr))',gap:7}}>
     {GREEN_DRAGON_ANIMAL_STYLES.map(style=><button key={style.id} onClick={()=>select(style.id)} style={{minHeight:72,padding:8,borderRadius:12,border:`1px solid ${style.id===active.id?'#8df2a6':'#31513a'}`,background:style.id===active.id?'#143d20':'#09150d',color:'#fff',textAlign:'left'}}>
       <b>{style.name}</b><div style={{fontSize:9,opacity:.68,marginTop:4}}>{style.gameIdentity}</div><div style={{fontSize:9,color:'#d9bd62',marginTop:3}}>XP {state.xp[style.id]||0}{state.mastered.includes(style.id)?' • MASTERED':''}</div>
