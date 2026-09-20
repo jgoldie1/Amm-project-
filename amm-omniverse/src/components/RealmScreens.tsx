@@ -18,6 +18,9 @@ const AMMDramaBox = lazy(() => import('./live/AMMDramaBox'))
 const SportVerseCombatAcademy = lazy(() => import('./SportVerseCombatAcademy'))
 const MMAGame = lazy(() => import('./games/MMABaseball').then(m => ({ default: m.MMAGame })))
 const BoxingGame = lazy(() => import('./games/BoxingGame'))
+const FootballGame = lazy(() => import('./games/FootballGame'))
+const BasketballGame = lazy(() => import('./games/BasketballGame'))
+const BaseballGame = lazy(() => import('./games/MMABaseball').then(m => ({ default: m.BaseballGame })))
 
 // ─── Shared ────────────────────────────────────────────────────────────────
 
@@ -125,6 +128,24 @@ export function SportsRealm() {
         <Suspense fallback={<div style={{color:'#ff4400',padding:20,textAlign:'center'}}>Loading Boxing...</div>}>
           <div style={{height:'calc(100vh - 120px)',width:'100%',margin:'0 -16px'}}>
             <BoxingGame onExit={()=>setActiveGame('combat-academy')} />
+          </div>
+        </Suspense>
+      ) : activeGame === 'football' ? (
+        <Suspense fallback={<div style={{color:'#00cc44',padding:20,textAlign:'center'}}>Loading Football...</div>}>
+          <div style={{height:'calc(100vh - 120px)',width:'100%',margin:'0 -16px'}}>
+            <FootballGame onExit={()=>setActiveGame(null)} />
+          </div>
+        </Suspense>
+      ) : activeGame === 'basketball' ? (
+        <Suspense fallback={<div style={{color:'#ff8800',padding:20,textAlign:'center'}}>Loading Basketball...</div>}>
+          <div style={{height:'calc(100vh - 120px)',width:'100%',margin:'0 -16px'}}>
+            <BasketballGame onExit={()=>setActiveGame(null)} />
+          </div>
+        </Suspense>
+      ) : activeGame === 'baseball' ? (
+        <Suspense fallback={<div style={{color:'#00ccff',padding:20,textAlign:'center'}}>Loading Baseball...</div>}>
+          <div style={{height:'calc(100vh - 120px)',width:'100%',margin:'0 -16px'}}>
+            <BaseballGame onExit={()=>setActiveGame(null)} />
           </div>
         </Suspense>
       ) : activeGame === 'tactical' ? (
