@@ -48,7 +48,7 @@ const COMBO_CHAINS: Record<string, { bonus: number; name: string }> = {
 export default function BoxingGame({ onExit }: { onExit: () => void }) {
   const store = useGameStore()
   const [round, setRound] = useState(1)
-  const [totalRounds] = useState(3)
+  const [totalRounds,setTotalRounds] = useState<3|6|12>(12)
   const [phase, setPhase] = useState<'intro' | 'fight' | 'roundEnd' | 'gameOver'>('intro')
   const [player, setPlayer] = useState<Fighter>({
     name: store.player.name || 'King James',
@@ -184,24 +184,28 @@ export default function BoxingGame({ onExit }: { onExit: () => void }) {
 
   const endRound = () => {
     if (timerRef.current) clearInterval(timerRef.current)
-    const playerWon = player.hp > ai.hp
-    setScores(s => [...s, { player: player.hp, ai: ai.hp }])
+    const nextScores=[...scores,{player:player.hp,ai:ai.hp}]
+    setScores(nextScores)
     if (round >= totalRounds || player.hp === 0 || ai.hp === 0) {
       setPhase('gameOver')
-      const won = player.hp > ai.hp
-      if (won) { store.earnCash(2000); store.earnXp(500); store.completeMission('m3') }
-      store.setNotif(won ? '🏆 YOU WIN! +$2,000 +500 XP' : '❌ KNOCKOUT! Rematch?')
+      const playerRounds=nextScores.filter(card=>card.player>card.ai).length
+      const aiRounds=nextScores.filter(card=>card.ai>card.player).length
+      const won=ai.hp===0?true:player.hp===0?false:playerRounds>=aiRounds
+      if (won) { store.earnCash(totalRounds===12?5000:totalRounds===6?3000:2000); store.earnXp(totalRounds===12?1200:totalRounds===6?800:500); store.completeMission('m3') }
+      window.dispatchEvent(new CustomEvent('tryamm:combat-result',{detail:{discipline:'boxing',won,xp:totalRounds===12?1200:totalRounds===6?800:500,rounds:round,totalRounds,decision:{player:playerRounds,ai:aiRounds}}}))
+      const method=ai.hp===0?'KO':player.hp===0?'TKO LOSS':`DECISION ${playerRounds}-${aiRounds}`
+      store.setNotif(won?`🏆 ${method}! Championship bout complete.`:`❌ ${method}. Rematch?`)
     } else {
       setPhase('roundEnd')
       setTimeout(() => {
         setRound(r => r + 1)
-        setPlayer(p => ({ ...p, hp: Math.min(p.maxHp, p.hp + 30), stamina: 100, state: 'idle' }))
-        setAI(a => ({ ...a, hp: Math.min(a.maxHp, a.hp + 20), stamina: 100, state: 'idle' }))
+        setPlayer(p => ({ ...p, hp: Math.min(p.maxHp, p.hp + 18), stamina: 100, state: 'idle' }))
+        setAI(a => ({ ...a, hp: Math.min(a.maxHp, a.hp + 14), stamina: 100, state: 'idle' }))
         setRoundTimer(60)
         setMoveHistory([])
         addLog(`Round ${round + 1} — FIGHT!`, 'neutral')
         setPhase('fight')
-      }, 3000)
+      }, 1800)
     }
   }
 
@@ -295,8 +299,11 @@ export default function BoxingGame({ onExit }: { onExit: () => void }) {
         {/* Phase overlays */}
         {phase === 'intro' && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.85)' }}>
-            <div style={{ color: '#ff4400', fontSize: 32, fontWeight: 900, marginBottom: 8 }}>🥊 ROUND {round}</div>
-            <div style={{ color: '#888', fontSize: 13, marginBottom: 20 }}>Use combos to deal bonus damage</div>
+            <div style={{ color: '#ff4400', fontSize: 32, fontWeight: 900, marginBottom: 8 }}>🥊 ROUND {round} / {totalRounds}</div>
+            <div style={{ color: '#888', fontSize: 13, marginBottom: 12 }}>Full bout structure • scorecards persist round by round</div>
+            {round===1&&<div style={{display:'flex',gap:7,marginBottom:14}}>
+              {([3,6,12] as const).map(n=><button key={n} onClick={()=>setTotalRounds(n)} style={{minWidth:72,minHeight:44,borderRadius:8,border:`1px solid ${totalRounds===n?'#ffd700':'#555'}`,background:totalRounds===n?'#2a1b00':'#111',color:totalRounds===n?'#ffd700':'#888',fontFamily:'monospace',fontWeight:900}}>{n===12?'12 RD TITLE':`${n} ROUNDS`}</button>)}
+            </div>}
             <button onClick={() => setPhase('fight')} style={{ background: '#ff440022', border: '2px solid #ff4400', color: '#ff4400', borderRadius: 8, padding: '12px 40px', cursor: 'pointer', fontFamily: 'monospace', fontWeight: 900, fontSize: 18 }}>
               FIGHT!
             </button>
@@ -308,7 +315,7 @@ export default function BoxingGame({ onExit }: { onExit: () => void }) {
             <div style={{ color: player.hp >= ai.hp ? '#ffd700' : '#ff4400', fontSize: 24, fontWeight: 900, marginBottom: 6 }}>
               {player.hp >= ai.hp ? 'CHAMPION!' : 'KNOCKED OUT!'}
             </div>
-            {player.hp >= ai.hp && <div style={{ color: '#00cc44', fontSize: 13, marginBottom: 16 }}>+$2,000 · +500 XP · Mission Complete!</div>}
+            {player.hp >= ai.hp && <div style={{ color: '#00cc44', fontSize: 13, marginBottom: 16 }}>{totalRounds===12?'Title fight complete • +$5,000 • +1200 XP':totalRounds===6?'+$3,000 • +800 XP':'+$2,000 • +500 XP'} </div>}
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={() => { setPlayer(p => ({ ...p, hp: 100, stamina: 100, state: 'idle' })); setAI(a => ({ ...a, hp: 100, stamina: 100, state: 'idle' })); setRound(1); setScores([]); setRoundTimer(60); setLog([{ id: 0, text: 'Round 1 - FIGHT!', type: 'neutral' }]); setPhase('intro') }}
                 style={{ background: '#ff440022', border: '1px solid #ff4400', color: '#ff4400', borderRadius: 6, padding: '10px 24px', cursor: 'pointer', fontFamily: 'monospace', fontWeight: 700 }}>REMATCH</button>
