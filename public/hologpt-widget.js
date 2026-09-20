@@ -35,7 +35,20 @@
   function executeLocalAction(match){
     const jarvis=window.__jarvis;
     const ok=jarvis&&typeof jarvis.execute==='function'?jarvis.execute({action:match.action,payload:{source:'hologpt'}}):false;
-    if(!ok)window.dispatchEvent(new CustomEvent('tryamm:jarvis-command',{detail:{action:match.action,payload:{source:'hologpt'}}}));
+    if(!ok){
+      window.dispatchEvent(new CustomEvent('tryamm:jarvis-command',{detail:{action:match.action,payload:{source:'hologpt'}}}));
+      const fallback={
+        'open-live':'/live',
+        'open-streetverse':'/streetverse',
+        'open-games':'/?open=gameverse',
+        'open-media':'/?open=media',
+        'open-access':'/accessibility',
+        'open-security':'/guardian',
+        'open-family':'/?open=family',
+        'open-omniverse':'/?open=omniverse'
+      }[match.action];
+      if(fallback)setTimeout(()=>{window.location.href=fallback},120);
+    }
     add('ai',`${match.label}. I handled this as a local TRYAMM action, so it did not wait on a cloud model.`,'Action-first · local route');
     stage('COMPLETE');
     checkpoint({status:'complete',action:match.action});
