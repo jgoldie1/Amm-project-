@@ -33,7 +33,7 @@ jobs:
 
       - name: Install Omniverse dependencies
         working-directory: amm-omniverse
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Require real carousel implementation
         shell: bash
