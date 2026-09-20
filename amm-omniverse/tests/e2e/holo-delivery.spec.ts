@@ -2,6 +2,11 @@ import { test, expect } from '@playwright/test';
 
 test('Holo Delivery launcher opens food package tracking and help flows', async ({ page }) => {
   await page.goto('/');
+  const splash = page.getByRole('dialog', { name:/TRYAMM Lion of Judah opening screen/i });
+  const enter = page.getByRole('button', { name:/ENTER TRYAMM/i });
+  await expect(enter).toBeVisible({ timeout:5_000 });
+  await enter.click();
+  await expect(splash).toBeHidden({ timeout:5_000 });
   const launcher = page.getByRole('button', { name: /open holo delivery/i });
   await expect(launcher).toBeVisible();
   await launcher.click();
