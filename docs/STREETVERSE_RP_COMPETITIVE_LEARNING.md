@@ -18,6 +18,37 @@ A likely adjacent public project is Swaggy's Evolutions / Swaggy Sity RP, which 
 
 The exact TikTok creator referenced by the founder has not been independently verified, so this document treats the public FiveM material only as adjacent-market learning, not as a claim about a specific TikTok account.
 
+## Chicago-specific adjacent benchmark: Windy City
+
+Public listings for Swaggy's Evolutions now include a Chicago-inspired FiveM environment called Windy City. Its public positioning is directly adjacent to StreetVerse Chicago: connected downtown corridors, neighborhood streets, suburbs, industrial/residential districts and RP-oriented city services.
+
+Publicly listed addon categories include examples such as police facilities, hospital, suburban expansion, convenience retail, fire service, church, maps/navigation and other server content.
+
+Important differentiation observations:
+- Windy City is distributed as FiveM content; StreetVerse is being built as its own web/mobile experience rather than requiring a GTA V/FiveM installation.
+- The public Windy City listing instructs users to maximize FiveM texture budget and use Normal texture quality. StreetVerse should instead use adaptive quality tiers and automatically fit the device budget.
+- Windy City sells the city and add-ons as content packages. StreetVerse should make buildings and districts programmable gameplay systems connected to residents, missions, creators, businesses and the authoritative ledger.
+- A free minimap with street names/postal variants demonstrates that navigation is part of the product experience. StreetVerse should ship first-party navigation, mission routing, accessible directions and transit-aware wayfinding.
+- Public Windy City messaging emphasizes civilian, business, law-enforcement and street-life RP. StreetVerse should support those broad role families while adding creator, athlete, performer, delivery/rideshare, education/work, accessibility and persistent resident-life loops.
+- StreetVerse should not reuse Windy City names, maps, layouts, models, GTA brands, fictional brands, screenshots or assets. The learning target is the abstract product pattern only.
+
+### Beat the map-pack model with a living-city model
+
+For every static RP map feature, StreetVerse should have a systemic equivalent:
+
+| Map/content pattern | StreetVerse living-system target |
+| --- | --- |
+| Police / fire / hospital building | service careers, schedules, missions, traffic priority, training simulations |
+| Convenience/store addon | player/business inventory, creator promotions, delivery, purchases and ledger |
+| Church/community building | scheduled gatherings, community missions, creator events and permitted ministry programming |
+| Studio/venue | recording/live performance, audience simulation, tickets, sponsor inventory and Reel capture |
+| Residential district | homes, resident schedules, relationships, errands, property/service loops |
+| Highway/road network | traffic graph, rideshare/delivery, transit, racing/drifting, event detours |
+| Mini map | accessible navigation, mission route, transit route, business discovery and district state |
+| City expansion | streamed district pack with a repeatable performance/accessibility/certification gate |
+
+StreetVerse wins this category only when the systems actually run reliably; visual breadth without collision, pathfinding, device performance and E2E proof is not enough.
+
 ## What StreetVerse should learn
 
 ### 1. A city must contain reasons to roleplay
