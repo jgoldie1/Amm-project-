@@ -12,6 +12,8 @@ import GameVerseLauncher from './components/GameVerseLauncher'
 import UniversalAccessRuntime from './components/UniversalAccessRuntime'
 import StandaloneProductSite from './components/StandaloneProductSite'
 import GlobalLaunchBar from './components/GlobalLaunchBar'
+import HoloDeliveryLauncher from './components/HoloDeliveryLauncher'
+import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import StreetVerseFaithChronoPortal from './components/StreetVerseFaithChronoPortal'
 import { getStandaloneSite } from './data/standaloneSiteRegistry'
 import './accessibility/accessibility.css'
@@ -187,6 +189,8 @@ const mainShell=<>
   <MiddleverseLauncher />
   <GameVerseLauncher />
   <GlobalLaunchBar />
+  <HoloDeliveryLauncher />
+  <HoloMarketplaceLauncher />
 </>
 
 let routeContent
