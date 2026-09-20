@@ -1,19 +1,25 @@
+import {publicDataApiProbe,userSupabaseReady} from '../_lib/supabase-user.js';
+
 export default async function handler(req,res){
   res.setHeader('Cache-Control','no-store');
   if(req.method!=='GET')return res.status(405).json({ok:false,error:'Method not allowed'});
-  const supabaseUrl=Boolean(process.env.VITE_SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL||process.env.SUPABASE_URL);
-  const serviceRole=Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
-  const storageConfigured=supabaseUrl&&serviceRole;
-  return res.status(storageConfigured?200:503).json({
-    ok:storageConfigured,
+  const configured=userSupabaseReady();
+  const probe=configured?await publicDataApiProbe():{ok:false,status:0,error:'supabase_public_config_missing'};
+  const ready=configured&&probe.ok;
+  return res.status(ready?200:503).json({
+    ok:ready,
     service:'TRYAMM Creator Media',
     bucket:'creator-media',
-    signedUploads:storageConfigured,
-    verifiedPlayback:storageConfigured,
+    authMode:'authenticated-user-rls',
+    serviceRoleRequired:false,
+    signedUploads:ready,
+    verifiedPlayback:ready,
+    dataApiReachable:probe.ok,
+    dataApiStatus:probe.status,
     maxUploadBytes:1024*1024*1024,
     supportedTypes:['video/mp4','video/webm','image/jpeg','image/png','image/webp','image/gif'],
     publicSecrets:false,
-    reason:storageConfigured?null:'Supabase URL and service-role configuration are required for signed creator-media storage.',
+    reason:ready?null:(probe.error||'Supabase URL and publishable-key configuration are required for creator media.'),
     time:new Date().toISOString()
   });
 }
