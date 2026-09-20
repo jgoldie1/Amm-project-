@@ -29,7 +29,9 @@ export function MMAGame({ onExit }: { onExit: () => void }) {
   const [aiHp, setAiHp] = useState(100)
   const [playerSta, setPlayerSta] = useState(100)
   const [round, setRound] = useState(1)
+  const [totalRounds,setTotalRounds] = useState<3|5>(3)
   const [roundTime, setRoundTime] = useState(90)
+  const [roundCards,setRoundCards] = useState<{player:number;ai:number}[]>([])
   const [phase, setPhase] = useState<'pregame'|'fight'|'roundEnd'|'gameover'>('pregame')
   const [log, setLog] = useState<string[]>([])
   const [lastMove, setLastMove] = useState<string|null>(null)
@@ -101,22 +103,31 @@ export function MMAGame({ onExit }: { onExit: () => void }) {
   const endByKO = (winner: 'player'|'ai') => {
     clearInterval(timerRef.current!); clearInterval(aiTimerRef.current!)
     setPhase('gameover')
-    if (winner === 'player') { store.earnCash(3000); store.earnXp(800); addLog('🥊 KO! YOU WIN! +$3,000') }
-    else addLog('💀 KO! You lost. Rematch?')
+    const won=winner==='player'
+    if (won) { store.earnCash(totalRounds===5?5000:3000); store.earnXp(totalRounds===5?1200:800); addLog(`🥊 FINISH! YOU WIN! +${totalRounds===5?'5,000':'3,000'}`) }
+    else addLog('💀 Fight stopped. Rematch?')
+    window.dispatchEvent(new CustomEvent('tryamm:combat-result',{detail:{discipline:'mma',won,xp:totalRounds===5?1200:800,rounds:round,totalRounds,method:'finish'}}))
   }
 
   const endRound = () => {
     clearInterval(timerRef.current!); clearInterval(aiTimerRef.current!)
-    if (round >= 3 || playerHp <= 0 || aiHp <= 0) {
+    const nextCards=[...roundCards,{player:playerHp,ai:aiHp}]
+    setRoundCards(nextCards)
+    if (round >= totalRounds || playerHp <= 0 || aiHp <= 0) {
       setPhase('gameover')
-      const won = playerHp > aiHp
-      if (won) { store.earnCash(3000); store.earnXp(800) }
+      const playerRounds=nextCards.filter(card=>card.player>card.ai).length
+      const aiRounds=nextCards.filter(card=>card.ai>card.player).length
+      const won=aiHp<=0?true:playerHp<=0?false:playerRounds>=aiRounds
+      if (won) { store.earnCash(totalRounds===5?5000:3000); store.earnXp(totalRounds===5?1200:800) }
+      window.dispatchEvent(new CustomEvent('tryamm:combat-result',{detail:{discipline:'mma',won,xp:totalRounds===5?1200:800,rounds:round,totalRounds,decision:{player:playerRounds,ai:aiRounds},method:'decision'}}))
+      addLog(`${won?'🏆':'📋'} Decision ${playerRounds}-${aiRounds}`)
     } else {
       setRound(r => r + 1); setRoundTime(90); setPosition('standing')
-      setPlayerHp(h => Math.min(100, h+20)); setAiHp(h => Math.min(100, h+15))
+      setPlayerHp(h => Math.min(100, h+12)); setAiHp(h => Math.min(100, h+10))
+      setPlayerSta(100)
       addLog(`End of Round ${round}`)
       setPhase('roundEnd')
-      setTimeout(() => setPhase('fight'), 2000)
+      setTimeout(() => setPhase('fight'), 1500)
     }
   }
 
@@ -134,7 +145,7 @@ export function MMAGame({ onExit }: { onExit: () => void }) {
             </div>
           </div>
           <div style={{ textAlign:'center' }}>
-            <div style={{ color:'#ffd700',fontSize:12,fontWeight:700 }}>R{round} · {roundTime}s</div>
+            <div style={{ color:'#ffd700',fontSize:12,fontWeight:700 }}>R{round}/{totalRounds} · {roundTime}s</div>
             <div style={{ color:'#555',fontSize:10 }}>{position.replace(/_/g,' ').toUpperCase()}</div>
           </div>
           <div style={{ textAlign:'right' }}>
@@ -165,7 +176,7 @@ export function MMAGame({ onExit }: { onExit: () => void }) {
             <div style={{ fontSize:48,marginBottom:8 }}>{playerHp>aiHp?'🏆':'💀'}</div>
             <div style={{ color:playerHp>aiHp?'#ffd700':'#ff4400',fontSize:22,fontWeight:900,marginBottom:8 }}>{playerHp>aiHp?'SUBMISSION WIN!':'TKO LOSS'}</div>
             <div style={{ display:'flex',gap:10 }}>
-              <button onClick={()=>{setPlayerHp(100);setAiHp(100);setPlayerSta(100);setRound(1);setRoundTime(90);setPosition('standing');setPhase('pregame');setLog([])}} style={{ background:'#8800ff22',border:'1px solid #8800ff',color:'#8800ff',borderRadius:6,padding:'8px 20px',cursor:'pointer',fontFamily:'monospace',fontWeight:700 }}>REMATCH</button>
+              <button onClick={()=>{setPlayerHp(100);setAiHp(100);setPlayerSta(100);setRound(1);setRoundTime(90);setRoundCards([]);setPosition('standing');setPhase('pregame');setLog([])}} style={{ background:'#8800ff22',border:'1px solid #8800ff',color:'#8800ff',borderRadius:6,padding:'8px 20px',cursor:'pointer',fontFamily:'monospace',fontWeight:700 }}>REMATCH</button>
               <button onClick={onExit} style={{ background:'#11111180',border:'1px solid #333',color:'#888',borderRadius:6,padding:'8px 20px',cursor:'pointer',fontFamily:'monospace' }}>EXIT</button>
             </div>
           </div>
@@ -177,7 +188,12 @@ export function MMAGame({ onExit }: { onExit: () => void }) {
       </div>
 
       <div style={{ padding:'8px 10px',background:'rgba(8,0,12,0.98)',borderTop:'1px solid #8800ff33' }}>
-        {phase === 'pregame' && <button onClick={()=>setPhase('fight')} style={{ width:'100%',background:'#8800ff22',border:'2px solid #8800ff',color:'#8800ff',borderRadius:8,padding:'14px',cursor:'pointer',fontFamily:'monospace',fontWeight:900,fontSize:16 }}>🥋 ENTER THE CAGE</button>}
+        {phase === 'pregame' && <div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7,marginBottom:8}}>
+            {([3,5] as const).map(n=><button key={n} onClick={()=>setTotalRounds(n)} style={{minHeight:46,borderRadius:8,border:`1px solid ${totalRounds===n?'#ffd700':'#44334f'}`,background:totalRounds===n?'#2a1900':'#130b18',color:totalRounds===n?'#ffd700':'#a78bb4',fontFamily:'monospace',fontWeight:900}}>{n===5?'5-ROUND TITLE FIGHT':'3-ROUND FIGHT'}</button>)}
+          </div>
+          <button onClick={()=>setPhase('fight')} style={{ width:'100%',background:'#8800ff22',border:'2px solid #8800ff',color:'#8800ff',borderRadius:8,padding:'14px',cursor:'pointer',fontFamily:'monospace',fontWeight:900,fontSize:16 }}>🥋 ENTER THE CAGE</button>
+        </div>}
         {phase === 'fight' && (
           <div>
             <div style={{ color:'#555',fontSize:9,marginBottom:5,letterSpacing:2 }}>POSITION: {position.replace(/_/g,' ').toUpperCase()} · STA {Math.round(playerSta)}%</div>
