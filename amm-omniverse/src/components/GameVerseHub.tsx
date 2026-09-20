@@ -19,6 +19,8 @@ export const GAMEVERSE_WORLDS:Game[]=[
   {slug:'living-laser',name:'Living Laser',icon:'🔦',genre:'Laser + Arena',status:'PLANNED',summary:'Fast holographic laser-grid competition with solo, team and spatial arena modes.',features:['Laser arenas','Team modes','Spatial play','Cross-world rewards'],entry:'planned'},
   {slug:'living-quest',name:'Living Quest',icon:'🗺️',genre:'Adventure + Quest',status:'PLANNED',summary:'Story-driven quests, exploration, puzzles, discoveries and persistent character progression.',features:['Quest chains','Exploration','Puzzles','Persistent characters'],entry:'planned'},
   {slug:'creator-world',name:'Creator World',icon:'🎬',genre:'Create + Build',status:'PLANNED',summary:'Build games, scenes, stories, characters, experiences and reusable assets that can connect across Living Games.',features:['World building','Character creation','Story tools','Creator assets'],entry:'planned'},
+  {slug:'quantum-tag',name:'Quantum Tag',icon:'◉',genre:'Spatial Tag',status:'PLANNED',summary:'Fast non-lethal phase-tag competition designed for phone, AR, VR and MR with team and Time Shift modes.',features:['Solo + team','Time Shift','Phase targets','AR / VR / MR path','Passport ranking'],entry:'planned'},
+  {slug:'quantum-pinball',name:'Quantum Pinball',icon:'🕹️',genre:'Holographic Arcade',status:'PLANNED',summary:'Original 3D pinball experience with physics, missions, creator-made tables, tournaments and holographic display modes.',features:['3D pinball physics','Four-view holographic mode','Creator tables','Touch + keyboard','Tournament path'],entry:'planned'},
 ]
 
 export default function GameVerseHub({onClose,onEnterSports,onEnterCity,initialWorld}:{onClose:()=>void;onEnterSports:()=>void;onEnterCity:()=>void;initialWorld?:string}){
