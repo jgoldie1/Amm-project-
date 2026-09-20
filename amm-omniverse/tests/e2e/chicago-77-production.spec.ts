@@ -16,7 +16,7 @@ test.describe('Chicago 77 production certification', () => {
 
       const original = HTMLCanvasElement.prototype.getContext;
       HTMLCanvasElement.prototype.getContext = function(type: any, ...args: any[]) {
-        if (String(type).startsWith('webgl')) return null;
+        if (String(type).includes('webgl')) return null;
         return (original as any).call(this, type, ...args);
       } as any;
 
@@ -33,10 +33,10 @@ test.describe('Chicago 77 production certification', () => {
   });
 
   test('Loop #32 loads, completes checkpoints, emits mission completion and Reel handoff', async ({ page }) => {
-    const probe = await page.request.get('/streetverse', { timeout:45_000 });
+    const probe = await page.request.get('/streetverse?communityArea=32&safe=1', { timeout:45_000 });
     expect(probe.status()).toBeLessThan(400);
 
-    await page.goto('/streetverse', { waitUntil:'commit', timeout:45_000 });
+    await page.goto('/streetverse?communityArea=32&safe=1', { waitUntil:'commit', timeout:45_000 });
 
     const world = page.locator('[data-streetverse-html-city="true"][data-community-area="32"]');
     await expect(world).toBeVisible({ timeout:45_000 });
