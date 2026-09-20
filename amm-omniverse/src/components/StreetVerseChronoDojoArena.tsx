@@ -105,7 +105,7 @@ export default function StreetVerseChronoDojoArena(){
       </section>
     </div>
     <div style={{position:'fixed',...side,bottom:18,zIndex:17410,display:'grid',gap:8,width:'min(280px,76vw)'}}>
-      {(['STRIKE','GUARD','EVADE'] as Action[]).map(action=><button key={action} onClick={()=>act(action)} disabled={completed} style={{minHeight:64,borderRadius:16,border:'1px solid #4fe3ff77',background:'#0a1c26',color:'#fff',fontSize:18,fontWeight:1000,touchAction:'manipulation',opacity:completed?.6:1}}>{action}</button>)}
+      {(['STRIKE','GUARD','EVADE'] as Action[]).map(action=><button key={action} onClick={()=>act(action)} disabled={completed} style={{minHeight:64,borderRadius:16,border:'1px solid #4fe3ff77',background:'#0a1c26',color:'#fff',fontSize:18,fontWeight:1000,touchAction:'manipulation',opacity:completed?0.6:1}}>{action}</button>)}
       <button onClick={()=>{const next=hand==='right'?'left':'right';setHand(next);localStorage.setItem('tryamm.dojo.hand',next)}} style={{minHeight:52,borderRadius:14,border:'1px solid #e8b94477',background:'#211907',color:'#ffe49b',fontWeight:950}}>MOVE CONTROLS TO {hand==='right'?'LEFT':'RIGHT'}</button>
     </div>
   </div>
