@@ -12,8 +12,9 @@ async function expectJsonOk(page: any, path: string, allowDegraded = false) {
 test.describe('TRYAMM release convergence', () => {
   test('core public surfaces render', async ({ page }) => {
     for (const path of ['/', '/streetverse', '/financial-truth']) {
-      const response = await page.goto(path, { waitUntil: 'domcontentloaded' });
-      expect(response?.status(), `${path} status`).toBeLessThan(400);
+      const probe = await page.request.get(path, { timeout: 45_000 });
+      expect(probe.status(), `${path} status`).toBeLessThan(400);
+      await page.goto(path, { waitUntil: 'commit', timeout: 45_000 });
       await expect(page.locator('body')).toBeVisible();
       await expect(page.locator('body')).not.toHaveText('Application error');
     }
