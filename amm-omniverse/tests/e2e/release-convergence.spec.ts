@@ -15,7 +15,8 @@ test.describe('TRYAMM release convergence', () => {
       const probe = await page.request.get(path, { timeout: 45_000 });
       expect(probe.status(), `${path} status`).toBeLessThan(400);
       await page.goto(path, { waitUntil: 'commit', timeout: 45_000 });
-      await expect(page.locator('body')).toBeVisible();
+      await expect(page.locator('#root')).toBeAttached();
+      await expect(page.locator('#root')).not.toBeEmpty();
       await expect(page.locator('body')).not.toHaveText('Application error');
     }
   });

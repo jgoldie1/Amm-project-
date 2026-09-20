@@ -28,6 +28,8 @@ function hasUsableWebGL(){
 
 function shouldUseIndependentSafeBoot(){
  if(typeof navigator==='undefined'||typeof window==='undefined')return false
+ const params=new URLSearchParams(window.location.search)
+ if(params.get('safe')==='1'||params.get('mode')==='safe')return true
  const ua=navigator.userAgent||''
  const appleMobile=/iPhone|iPad|iPod/i.test(ua)
  const olderIOS=/OS (1[0-6])[_\d]* like Mac OS X/i.test(ua)
@@ -41,6 +43,12 @@ function shouldUseIndependentSafeBoot(){
 
 function readDestination():Destination|undefined{
  try{
+  const params=new URLSearchParams(window.location.search)
+  const communityArea=params.get('communityArea')||params.get('community')
+  if(communityArea&&/^\d{1,2}$/.test(communityArea)){
+   const slice=getStreetVerseCommunitySlice(communityArea)
+   if(slice)return {id:`ca-${communityArea}`,type:'community-area',communityAreaNumber:communityArea,name:slice.name,label:slice.name,city:'Chicago'}
+  }
   const current=JSON.parse(localStorage.getItem(DESTINATION_KEY_V2)||'null')
   if(current)return current
   return JSON.parse(localStorage.getItem(DESTINATION_KEY_V1)||'null')||undefined
