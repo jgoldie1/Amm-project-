@@ -60,7 +60,6 @@ import { installChronoExperienceRuntime } from './runtime/ChronoExperienceRuntim
 import { installChronoWarpRuntime } from './runtime/ChronoWarpRuntime'
 import { installStreetVerseChicagoTimeMachineMissionsRuntime } from './runtime/StreetVerseChicagoTimeMachineMissionsRuntime'
 import { installStreetVerseHistoryCampaignRuntime } from './runtime/StreetVerseHistoryCampaignRuntime'
-import { installStreetVerseMartialArtsRuntime } from './runtime/StreetVerseMartialArtsRuntime'
 
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 // Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
@@ -125,7 +124,6 @@ installChronoExperienceRuntime()
 installChronoWarpRuntime()
 installStreetVerseChicagoTimeMachineMissionsRuntime()
 installStreetVerseHistoryCampaignRuntime()
-installStreetVerseMartialArtsRuntime()
 
 const currentPath=window.location.pathname
 const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
