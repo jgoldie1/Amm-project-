@@ -55,14 +55,14 @@ Core input vocabulary stays intentionally small:
 
 No required two-button chord.
 
-The one-hand RP controller can emit contextual combat actions, while the martial runtime decides what the selected style means.
+The existing StreetVerse martial-arts selector is the canonical engine. It applies style-specific action biases and signature game combinations, and the Chrono Dojo Arena reads the selected style during historical-simulation sparring.
 
 ## Game progression
 
 Players can progress:
 NOVICE → STUDENT → FIGHTER → INSTRUCTOR → MASTER → GRANDMASTER.
 
-Style XP and mastery persist.
+The canonical selector persists the chosen style. Progression/mastery hooks remain available for persistent dojo progression as the campaign expands.
 
 Possible rewards:
 - dojo titles;
