@@ -11,12 +11,20 @@ async function expectJsonOk(page: any, path: string, allowDegraded = false) {
 
 test.describe('TRYAMM release convergence', () => {
   test('core public surfaces render', async ({ page }) => {
-    for (const path of ['/', '/streetverse', '/financial-truth']) {
-      const response = await page.goto(path, { waitUntil: 'domcontentloaded' });
-      expect(response?.status(), `${path} status`).toBeLessThan(400);
-      await expect(page.locator('body')).toBeVisible();
+    for (const path of ['/', '/streetverse']) {
+      const probe = await page.request.get(path, { timeout: 45_000 });
+      expect(probe.status(), `${path} status`).toBeLessThan(400);
+      await page.goto(path, { waitUntil: 'commit', timeout: 45_000 });
+      await expect(page.locator('#root')).toBeAttached();
+      await expect(page.locator('#root')).not.toBeEmpty();
       await expect(page.locator('body')).not.toHaveText('Application error');
     }
+
+    const financialProbe = await page.request.get('/financial-truth', { timeout: 45_000 });
+    expect(financialProbe.status(), '/financial-truth status').toBeLessThan(400);
+    await page.goto('/financial-truth', { waitUntil: 'domcontentloaded', timeout: 45_000 });
+    await expect(page.getByRole('heading', { name:/One Financial Truth/i })).toBeVisible();
+    await expect(page.locator('body')).not.toHaveText('Application error');
   });
 
   test('HoloGPT shell and real-response smoke are distinguishable', async ({ page }) => {
