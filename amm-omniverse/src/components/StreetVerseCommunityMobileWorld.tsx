@@ -1,6 +1,7 @@
 import {useEffect,useMemo,useState} from 'react'
 import type {CSSProperties} from 'react'
 import type {StreetVerseCommunitySlice} from '../config/streetverseCommunitySlices'
+import StreetVerseLoopAlphaQualityPreview from './StreetVerseLoopAlphaQualityPreview'
 
 type Props={slice:StreetVerseCommunitySlice;onClose:()=>void}
 
@@ -55,6 +56,7 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
    </div>
   </header>
   <main style={{padding:14,maxWidth:760,margin:'0 auto'}}>
+   {slice.communityAreaNumber==='32'&&<StreetVerseLoopAlphaQualityPreview />}
    <section style={{padding:12,borderRadius:12,background:'#030914e8',border:'1px solid #4e7891',marginBottom:12}}>
     <b>{message}</b>
     <div style={{fontSize:11,color:'#b9c9d6',marginTop:5}}>CHICAGO 77 • {slice.status} • AREA {slice.communityAreaNumber}</div>
