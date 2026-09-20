@@ -31,6 +31,8 @@ const {raceProviders,classifyIntent}=require('../lib/hologpt-race');
   const widget=fs.readFileSync(path.join(root,'public/hologpt-widget.js'),'utf8');
   const omniAnswer=fs.readFileSync(path.join(root,'amm-omniverse/api/ai/answer.js'),'utf8');
   const omniRace=fs.readFileSync(path.join(root,'amm-omniverse/api/ai/_lib/holo-race.js'),'utf8');
+  const worldMemory=fs.readFileSync(path.join(root,'lib/hologpt-world-memory.js'),'utf8');
+  const routes=fs.readFileSync(path.join(root,'lib/stubbs-ai-routes.js'),'utf8');
 
   assert(chat.includes("require('./hologpt-race')"),'production HoloGPT must use race router');
   assert(chat.includes("orchestration:'hedged-model-race'"),'health must report race orchestration');
@@ -41,6 +43,11 @@ const {raceProviders,classifyIntent}=require('../lib/hologpt-race');
   assert(widget.includes("sessionStorage.setItem(CHECKPOINT_KEY"),'widget must save session checkpoint');
   assert(widget.includes("'open-streetverse':'/streetverse'"),'action-first fallback must open StreetVerse');
   assert(widget.includes("'open-live':'/live'"),'action-first fallback must open LIVE');
+  assert(widget.includes('SpeechRecognition'),'widget must support feature-detected voice input');
+  assert(widget.includes('LISTENING · voice-first input'),'widget must expose voice progress');
+  assert(worldMemory.includes("PREFIX='HOLOGPT_WORLD_V1:'"),'structured world-memory marker missing');
+  assert(worldMemory.includes('expiresAt'),'world memory must carry expiry metadata');
+  assert(routes.includes("/api/hologpt/world-memory"),'world-memory API route missing');
 
   const elapsed=Date.now()-started;
   console.log('HOLOGPT AI RACE PASS',JSON.stringify({elapsedMs:elapsed,winner:result.orchestration.winner}));
