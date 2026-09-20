@@ -54,7 +54,6 @@ export function installStreetVerseHistoryCampaignRuntime(){
   const completed=[...new Set([...state.completed,campaign.id])]
   const titles=[...new Set([...state.titles,String(campaign.unlocks?.[0]||'Chicago History Explorer')])]
   const choice=state.choices?.[campaign.id]
-  const selectedRoute=state.routes?.[campaign.id]
   const next={...state,completed,titles,affinity:state.affinity+1,lastEra:campaign.era,activeCampaignId:undefined}
   write(next)
   window.dispatchEvent(new CustomEvent('tryamm:history-present-day-unlock',{detail:{
