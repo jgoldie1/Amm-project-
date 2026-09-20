@@ -42,7 +42,7 @@ export async function installMetaQuestBridgeRuntime(){
   if(installed||typeof window==='undefined')return
   installed=true
   const state=await readState();persist(state)
-  if(state.questLike||state.xrAvailable)renderPanel(state)
+  if(state.questLike)renderPanel(state)
   window.addEventListener('tryamm:meta-quest-show',()=>renderPanel(state))
   window.addEventListener('tryamm:meta-quest-session-start',(e:Event)=>{const d=(e as CustomEvent<any>).detail||{};persist({...state,mode:'immersive-vr'});emit('tryamm:omniverse-submit',{source:'meta-quest',type:'xr.session.started',title:'Meta Quest immersive session started',metadata:d})})
   window.addEventListener('tryamm:meta-quest-controller',(e:Event)=>emit('tryamm:game-input',{source:'meta-quest-controller',...(e as CustomEvent<any>).detail}))
