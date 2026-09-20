@@ -28,13 +28,14 @@ export default function StreetVerseMartialArtsStyleSelector(){
     const cost=action==='BURST'?16:action==='STEP'?8:action==='COUNTER'?7:action==='FLOW'?5:action==='GUARD'?3:-14
     const nextStamina=Math.max(0,Math.min(100,stamina-cost))
     const history=[...last.slice(-2),action]
-    let bonus=4
+    const bias=Number(style.actionBias[action]||1)
+    let bonus=Math.max(2,Math.round(4*bias))
     for(const move of style.signatureGameMoves){
       const tail=history.slice(-move.input.length)
       if(tail.join('|')===move.input.join('|')){bonus+=18;window.dispatchEvent(new CustomEvent('tryamm:martial-signature',{detail:{styleId,move}}))}
     }
     setStamina(nextStamina);setLast(history);setMeter(m=>Math.min(100,m+bonus))
-    window.dispatchEvent(new CustomEvent('tryamm:martial-action',{detail:{styleId,action,stamina:nextStamina,meter:Math.min(100,meter+bonus),nonlethal:true}}))
+    window.dispatchEvent(new CustomEvent('tryamm:martial-action',{detail:{styleId,action,bias,stamina:nextStamina,meter:Math.min(100,meter+bonus),nonlethal:true}}))
   }
 
   if(!open)return <button aria-label="Open Chicago martial arts" onClick={()=>setOpen(true)} style={{position:'fixed',right:12,bottom:340,zIndex:17025,width:48,height:48,borderRadius:'50%',border:'1px solid #d8b85b88',background:'#101412ef',color:'#fff',fontWeight:950}}>🥋</button>
