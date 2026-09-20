@@ -13,7 +13,7 @@ export async function requireUser(req,res){
   if(!auth.startsWith('Bearer ')) {res.status(401).json({error:'Authentication required'});return null;}
   const token=auth.slice(7).trim();
   if(!token||!SUPABASE_URL()) {res.status(503).json({error:'Authentication service unavailable'});return null;}
-  const r=await fetch(`${SUPABASE_URL().replace(/\/$/,'')}/auth/v1/user`,{headers:{apikey:process.env.VITE_SUPABASE_ANON_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'',authorization:`Bearer ${token}`}});
+  const r=await fetch(`${SUPABASE_URL().replace(/\/$/,'')}/auth/v1/user`,{headers:{apikey:process.env.VITE_SUPABASE_ANON_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||process.env.SUPABASE_PUBLISHABLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||'',authorization:`Bearer ${token}`}});
   if(!r.ok){res.status(401).json({error:'Invalid or expired session'});return null;}
   const user=await r.json(),claims=tokenClaims(token),authAt=authTimestamp(claims);
   user.__security={authAt,authAgeSeconds:authAt?Math.max(0,Math.floor(Date.now()/1000-authAt)):Number.POSITIVE_INFINITY,aal:claims.aal||null,amr:claims.amr||[]};
