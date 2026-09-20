@@ -5,7 +5,7 @@ export type AnimalStyleId =
 export type AnimalStyle = {
   id: AnimalStyleId
   name: string
-  historicalLabel: 'documented-green-dragon-animal-system'|'separate-legacy-reconstruction'
+  historicalLabel: 'society-published-green-dragon-animal-system'|'separate-legacy-reconstruction'
   gameIdentity: string
   strengths: string[]
   tradeoffs: string[]
@@ -16,7 +16,7 @@ export type AnimalStyle = {
 export const GREEN_DRAGON_ANIMAL_STYLES: AnimalStyle[] = [
   {
     id:'panther',name:'Black Panther',
-    historicalLabel:'documented-green-dragon-animal-system',
+    historicalLabel:'society-published-green-dragon-animal-system',
     gameIdentity:'mobility / stealth / angle changes',
     strengths:['fast reposition','quiet approach bonus','short burst combo window'],
     tradeoffs:['lower stagger','shorter guard window'],
@@ -25,7 +25,7 @@ export const GREEN_DRAGON_ANIMAL_STYLES: AnimalStyle[] = [
   },
   {
     id:'leopard',name:'Leopard',
-    historicalLabel:'documented-green-dragon-animal-system',
+    historicalLabel:'society-published-green-dragon-animal-system',
     gameIdentity:'speed / chaining / pressure',
     strengths:['fast combo meter','quick recovery','creator-friendly flashy chains'],
     tradeoffs:['lower guard stability','less crowd control'],
@@ -34,7 +34,7 @@ export const GREEN_DRAGON_ANIMAL_STYLES: AnimalStyle[] = [
   },
   {
     id:'wild-boar',name:'Wild Boar',
-    historicalLabel:'documented-green-dragon-animal-system',
+    historicalLabel:'society-published-green-dragon-animal-system',
     gameIdentity:'stability / forward pressure / resilience',
     strengths:['high poise','strong block meter','push-through environmental obstacles in game'],
     tradeoffs:['slower direction changes','lower combo speed'],
@@ -43,7 +43,7 @@ export const GREEN_DRAGON_ANIMAL_STYLES: AnimalStyle[] = [
   },
   {
     id:'black-cobra',name:'Black Cobra / Snake',
-    historicalLabel:'documented-green-dragon-animal-system',
+    historicalLabel:'society-published-green-dragon-animal-system',
     gameIdentity:'precision / timing / counter windows',
     strengths:['large perfect-timing bonus','quick counter prompt','high focus meter gain'],
     tradeoffs:['small timing window outside assist mode','low crowd pressure'],
@@ -52,7 +52,7 @@ export const GREEN_DRAGON_ANIMAL_STYLES: AnimalStyle[] = [
   },
   {
     id:'praying-mantis',name:'Praying Mantis',
-    historicalLabel:'documented-green-dragon-animal-system',
+    historicalLabel:'society-published-green-dragon-animal-system',
     gameIdentity:'parry / control / rhythm disruption',
     strengths:['parry meter','interrupt windows','mission-control bonuses'],
     tradeoffs:['requires timing','lower raw impact'],
@@ -61,7 +61,7 @@ export const GREEN_DRAGON_ANIMAL_STYLES: AnimalStyle[] = [
   },
   {
     id:'white-crane',name:'White Crane',
-    historicalLabel:'documented-green-dragon-animal-system',
+    historicalLabel:'society-published-green-dragon-animal-system',
     gameIdentity:'balance / evasion / spacing',
     strengths:['best balance recovery','wide evade arc','movement puzzle bonus'],
     tradeoffs:['low stagger','requires spacing'],
@@ -70,7 +70,7 @@ export const GREEN_DRAGON_ANIMAL_STYLES: AnimalStyle[] = [
   },
   {
     id:'eagle',name:'Eagle',
-    historicalLabel:'documented-green-dragon-animal-system',
+    historicalLabel:'society-published-green-dragon-animal-system',
     gameIdentity:'reach / positioning / control',
     strengths:['long interaction reach in game','strong positional control','good vertical-layer mobility challenges'],
     tradeoffs:['slower close-range chain','higher stamina use'],
@@ -79,7 +79,7 @@ export const GREEN_DRAGON_ANIMAL_STYLES: AnimalStyle[] = [
   },
   {
     id:'white-tiger',name:'White Tiger',
-    historicalLabel:'documented-green-dragon-animal-system',
+    historicalLabel:'society-published-green-dragon-animal-system',
     gameIdentity:'power / courage / stagger',
     strengths:['high stagger','strong finisher meter','boss/tournament pressure'],
     tradeoffs:['slower recovery','higher stamina use'],
