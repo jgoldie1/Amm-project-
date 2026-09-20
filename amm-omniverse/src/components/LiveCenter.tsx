@@ -102,7 +102,7 @@ export default function LiveCenter({ onClose }: { onClose: () => void }) {
     setError('')
     try {
       stageRef.current?.replaceChildren()
-      const { room } = await connectLiveRoom({
+      const { room, session } = await connectLiveRoom({
         roomName,
         role,
         displayName,
