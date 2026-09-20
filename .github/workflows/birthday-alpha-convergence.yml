@@ -1,0 +1,136 @@
+name: Birthday Alpha Convergence
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/streetverse-chicago-premium-world-20260919
+    paths:
+      - 'amm-omniverse/**'
+      - 'lib/**'
+      - 'public/**'
+      - 'test/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/birthday-alpha-convergence.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: birthday-alpha-convergence
+  cancel-in-progress: false
+
+jobs:
+  converge:
+    name: Oct 2 birthday alpha convergence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    env:
+      ALPHA_BRANCH: feature/streetverse-chicago-premium-world-20260919
+      ALPHA_DEADLINE: '2026-10-02'
+      TZ: America/Chicago
+
+    steps:
+      - name: Check birthday alpha window
+        id: window
+        shell: bash
+        run: |
+          set -euo pipefail
+          today="$(date +%F)"
+          echo "today=$today" >> "$GITHUB_OUTPUT"
+          if [[ "$today" > "$ALPHA_DEADLINE" ]]; then
+            echo "active=false" >> "$GITHUB_OUTPUT"
+            echo "Birthday alpha convergence window closed after $ALPHA_DEADLINE." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "active=true" >> "$GITHUB_OUTPUT"
+            echo "## TRYAMM Birthday Alpha Convergence" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Chicago date: $today" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Deadline: $ALPHA_DEADLINE" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Target branch: $ALPHA_BRANCH" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Checkout birthday alpha branch
+        if: steps.window.outputs.active == 'true'
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ env.ALPHA_BRANCH }}
+          fetch-depth: 0
+
+      - name: Setup Node 24
+        if: steps.window.outputs.active == 'true'
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            amm-omniverse/package-lock.json
+
+      - name: Verify branch is synchronized with main
+        if: steps.window.outputs.active == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main --no-tags
+          behind="$(git rev-list --count HEAD..origin/main)"
+          ahead="$(git rev-list --count origin/main..HEAD)"
+          sha="$(git rev-parse HEAD)"
+          echo "- Exact head: `$sha`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Ahead of main: $ahead" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Behind main: $behind" >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$behind" -ne 0 ]]; then
+            echo "::error::Birthday alpha branch is $behind commit(s) behind main. Synchronize before adding scope."
+            exit 1
+          fi
+
+      - name: Verify birthday alpha playable-slice files
+        if: steps.window.outputs.active == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            "amm-omniverse/src/components/GameVerseHub.tsx"
+            "amm-omniverse/src/components/StreetVerseGeoSpawnBridge.tsx"
+            "amm-omniverse/src/components/StreetVerseOneHandRpController.tsx"
+            "amm-omniverse/src/components/StreetVerseVehicleSalvageGarage.tsx"
+            "amm-omniverse/src/components/StreetVerseChronoDojoArena.tsx"
+            "amm-omniverse/src/config/holoRacingAndPinball.ts"
+            "amm-omniverse/src/data/gameVerseReleaseRegistry.ts"
+          )
+          for file in "${required[@]}"; do
+            test -f "$file" || { echo "::error::Missing alpha slice file: $file"; exit 1; }
+          done
+          echo "- Playable-slice file contract: PASS" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Install root dependencies
+        if: steps.window.outputs.active == 'true'
+        run: npm ci
+
+      - name: Root platform checks
+        if: steps.window.outputs.active == 'true'
+        run: npm run check
+
+      - name: Install Omniverse dependencies
+        if: steps.window.outputs.active == 'true'
+        working-directory: amm-omniverse
+        run: npm ci
+
+      - name: Omniverse security readiness type build
+        if: steps.window.outputs.active == 'true'
+        working-directory: amm-omniverse
+        run: npm run check
+
+      - name: Main synchronization audit
+        if: steps.window.outputs.active == 'true'
+        working-directory: amm-omniverse
+        run: npm run sync:audit
+
+      - name: Mark convergence pass
+        if: steps.window.outputs.active == 'true' && success()
+        shell: bash
+        run: |
+          echo "### Hourly result: GREEN" >> "$GITHUB_STEP_SUMMARY"
+          echo "The birthday-alpha branch remains synchronized, buildable, contract-clean, and release-gate ready at this checkpoint." >> "$GITHUB_STEP_SUMMARY"
