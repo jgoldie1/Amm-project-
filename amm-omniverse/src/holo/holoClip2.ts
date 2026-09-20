@@ -16,7 +16,7 @@ export interface HoloClip2DisplayProfile {
 export const HOLO_CLIP_2_DISPLAY: HoloClip2DisplayProfile = Object.freeze({
   id: 'HOLO_CLIP_2',
   mode: 'SOFTWARE_DISPLAY',
-  surfaces: ['FOUNDER_DASHBOARD','STREETVERSE','LIVE','PK','REELS','CREATOR_STUDIO'],
+  surfaces: ['FOUNDER_DASHBOARD','STREETVERSE','LIVE','PK','REELS','CREATOR_STUDIO'] as const,
   carousel: true,
   liveVideo: true,
   pkPanels: true,
