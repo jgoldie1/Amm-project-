@@ -4,7 +4,7 @@ Status: EXPERIMENTAL / DRAFT PR #251
 
 ## Historical labeling
 
-The International Green Dragon Society's own published material describes eight Chi Tao Chuan animal systems:
+The International Green Dragon Society's own published material lists eight Chi Tao Chuan animal systems. This is a primary/source-claim record from the Society itself, not independent verification of every lineage claim:
 - Leopard
 - White Crane
 - Panther
