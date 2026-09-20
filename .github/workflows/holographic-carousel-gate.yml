@@ -1,0 +1,60 @@
+name: Holographic Carousel Gate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches:
+      - feature/holographic-carousel
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: holographic-carousel-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Build and verify holographic carousel
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node from repository engine
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Require carousel implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          matches="$(grep -RilE 'holographic.?carousel|HolographicCarousel' src app components 2>/dev/null || true)"
+          if [ -z "$matches" ]; then
+            echo "::error::No holographic carousel implementation found in src/app/components."
+            exit 1
+          fi
+          echo "$matches"
+
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Run carousel-focused tests when present
+        shell: bash
+        run: |
+          set -euo pipefail
+          tests="$(find . -type f \( -iname '*carousel*.test.*' -o -iname '*carousel*.spec.*' \) -not -path './node_modules/*' -print)"
+          if [ -n "$tests" ]; then
+            echo "$tests"
+            npm test -- --runInBand 2>/dev/null || npm test
+          else
+            echo "::notice::No carousel-specific tests yet; build gate passed."
+          fi
