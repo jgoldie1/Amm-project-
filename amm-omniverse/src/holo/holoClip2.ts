@@ -3,7 +3,7 @@ export type HoloClipSurface = 'FOUNDER_DASHBOARD' | 'STREETVERSE' | 'LIVE' | 'PK
 export interface HoloClip2DisplayProfile {
   id: 'HOLO_CLIP_2'
   mode: 'SOFTWARE_DISPLAY' | 'DEVICE_COMPANION'
-  surfaces: HoloClipSurface[]
+  surfaces: readonly HoloClipSurface[]
   carousel: boolean
   liveVideo: boolean
   pkPanels: boolean
