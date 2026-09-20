@@ -125,6 +125,7 @@ export default function LiveCenter({ onClose }: { onClose: () => void }) {
         }
       }
       setConnected(true)
+      window.dispatchEvent(new CustomEvent('tryamm:live-session',{detail:{type:'live',roomName:session.room,role:session.role,participant:session.participant,connected:true}}))
     } catch (e: any) {
       setError(e.message || 'Could not join LIVE room')
     } finally {
@@ -138,6 +139,7 @@ export default function LiveCenter({ onClose }: { onClose: () => void }) {
     stageRef.current?.replaceChildren()
     setConnected(false)
     setParticipants(0)
+    window.dispatchEvent(new CustomEvent('tryamm:live-session-end',{detail:{roomName,role}}))
   }
 
   async function toggleMic() {
