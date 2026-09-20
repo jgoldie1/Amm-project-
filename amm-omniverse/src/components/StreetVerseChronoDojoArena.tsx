@@ -1,4 +1,5 @@
 import {useEffect,useRef,useState} from 'react'
+import {STREETVERSE_CHICAGO_MARTIAL_STYLES,type StreetVerseMartialStyleId} from '../config/streetverseChicagoMartialArtsStyles'
 
 type Hand='left'|'right'
 type Cue='OPENING'|'ATTACK'|'FEINT'
@@ -48,12 +49,17 @@ export default function StreetVerseChronoDojoArena(){
   },[open])
 
   const act=(action:Action)=>{
-    const delta=scoreFor(cue,action)
+    const styleId=((localStorage.getItem('tryamm.streetverse.martial-style.v1') as StreetVerseMartialStyleId)||'neutral-dojo')
+    const style=STREETVERSE_CHICAGO_MARTIAL_STYLES[styleId]||STREETVERSE_CHICAGO_MARTIAL_STYLES['neutral-dojo']
+    const mapped=action==='STRIKE'?'BURST':action==='GUARD'?'GUARD':'STEP'
+    const bias=Number(style.actionBias[mapped]||1)
+    const base=scoreFor(cue,action)
+    const delta=base>0&&bias>=1.25?base+1:base
     const nextScore=Math.max(0,score+delta)
     const nextDiscipline=Math.max(0,Math.min(100,discipline+(delta>0?2:-5)))
     setScore(nextScore);setDiscipline(nextDiscipline)
     setMessage(delta===2?'Perfect read • +2':delta===1?'Safe response • +1':delta===0?'Neutral reset':'Mistimed • discipline -5')
-    window.dispatchEvent(new CustomEvent('tryamm:dojo-sparring-action',{detail:{cue,action,delta,score:nextScore,discipline:nextDiscipline,round}}))
+    window.dispatchEvent(new CustomEvent('tryamm:dojo-sparring-action',{detail:{cue,action,delta,score:nextScore,discipline:nextDiscipline,round,styleId,style:style.label,bias}}))
     if(nextScore>=12){
       window.clearInterval(timer.current)
       window.dispatchEvent(new CustomEvent('tryamm:dojo-training-completed',{detail:{score:nextScore,discipline:nextDiscipline,rounds:round,mode:'nonlethal-historical-simulation'}}))
@@ -73,6 +79,7 @@ export default function StreetVerseChronoDojoArena(){
       <section style={{marginTop:22,padding:18,border:'1px solid #35515d',borderRadius:20,background:'#08121a'}}>
         <div style={{fontSize:11,opacity:.66}}>ROUND {round}</div>
         <div aria-live="polite" style={{fontSize:'clamp(34px,8vw,68px)',fontWeight:1000,margin:'18px 0',textAlign:'center'}}>{cue}</div>
+        <div style={{textAlign:'center',fontSize:11,opacity:.68,marginTop:-10,marginBottom:12}}>ACTIVE STYLE • {STREETVERSE_CHICAGO_MARTIAL_STYLES[((localStorage.getItem('tryamm.streetverse.martial-style.v1') as StreetVerseMartialStyleId)||'neutral-dojo')]?.label||'Chicago Dojo • Balanced'}</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
           <div style={{padding:12,border:'1px solid #263d49',borderRadius:14}}>POINTS<br/><b style={{fontSize:28}}>{score}</b> / 12</div>
           <div style={{padding:12,border:'1px solid #263d49',borderRadius:14}}>DISCIPLINE<br/><b style={{fontSize:28}}>{discipline}%</b></div>
