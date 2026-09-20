@@ -15,6 +15,9 @@ const BennieChat         = lazy(() => import('./BennieChat'))
 const RecordingStudio    = lazy(() => import('./RecordingStudio'))
 const ProAudioSuite      = lazy(() => import('./ProAudioSuite'))
 const AMMDramaBox = lazy(() => import('./live/AMMDramaBox'))
+const SportVerseCombatAcademy = lazy(() => import('./SportVerseCombatAcademy'))
+const MMAGame = lazy(() => import('./games/MMABaseball').then(m => ({ default: m.MMAGame })))
+const BoxingGame = lazy(() => import('./games/BoxingGame'))
 
 // ─── Shared ────────────────────────────────────────────────────────────────
 
@@ -60,6 +63,7 @@ export function SportsRealm() {
   const [round, setRound] = useState(1)
 
   const games = [
+    { id: 'combat-academy', label: '🥋 Combat Academy', desc: 'Shared StreetVerse / SportVerse / GameVerse combat passport: MMA, boxing, grappling, traditional arts and animal-style mastery.', color: '#c790ff' },
     { id: 'boxing', label: '🥊 Championship Boxing', desc: '12-round bout. AI opponent adapts to your strategy.', color: '#ff4400' },
     { id: 'football', label: '🏈 AI Football', desc: 'Omniverse Super Bowl qualifier. 4 downs, real scoring.', color: '#00cc44' },
     { id: 'basketball', label: '🏀 Street Basketball', desc: '3-on-3 holographic court. Creator team vs City Stars.', color: '#ff8800' },
@@ -101,7 +105,29 @@ export function SportsRealm() {
         <Card color="#00ccff"><Stat label="YOUR RANK" value={`#${Math.floor(Math.random() * 500) + 1}`} color="#00ccff" /></Card>
       </div>
 
-      {activeGame === 'tactical' ? (
+      {activeGame === 'combat-academy' ? (
+        <Suspense fallback={<div style={{color:'#c790ff',padding:20,textAlign:'center'}}>Loading Combat Academy...</div>}>
+          <div style={{minHeight:'calc(100vh - 120px)',width:'100%',margin:'0 -16px'}}>
+            <SportVerseCombatAcademy
+              onLaunchMma={()=>setActiveGame('mma')}
+              onLaunchBoxing={()=>setActiveGame('boxing')}
+              onExit={()=>setActiveGame(null)}
+            />
+          </div>
+        </Suspense>
+      ) : activeGame === 'mma' ? (
+        <Suspense fallback={<div style={{color:'#8800ff',padding:20,textAlign:'center'}}>Loading MMA...</div>}>
+          <div style={{height:'calc(100vh - 120px)',width:'100%',margin:'0 -16px'}}>
+            <MMAGame onExit={()=>setActiveGame('combat-academy')} />
+          </div>
+        </Suspense>
+      ) : activeGame === 'boxing' ? (
+        <Suspense fallback={<div style={{color:'#ff4400',padding:20,textAlign:'center'}}>Loading Boxing...</div>}>
+          <div style={{height:'calc(100vh - 120px)',width:'100%',margin:'0 -16px'}}>
+            <BoxingGame onExit={()=>setActiveGame('combat-academy')} />
+          </div>
+        </Suspense>
+      ) : activeGame === 'tactical' ? (
         <Suspense fallback={<div style={{color:'#00ffcc',padding:20,textAlign:'center'}}>Loading Tactical Realms...</div>}>
           <div style={{height:'calc(100vh - 120px)',width:'100%',margin:'0 -16px'}}>
             <TacticalRealms onExit={() => setActiveGame(null)} />
