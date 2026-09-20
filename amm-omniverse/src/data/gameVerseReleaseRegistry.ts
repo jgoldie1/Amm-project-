@@ -17,7 +17,7 @@ export const GAMEVERSE_RELEASES:GameRelease[]=[
 
 export const SHARED_GAME_CONTRACT=[
   'one-user','one-avatar','shared-xp-level','shared-inventory','world-checkpoints','accessibility-passport','language-runtime',
-  'save-resume','multiplayer','matchmaking','leaderboards','replay','clip-capture','moderation','anti-cheat','creator-attribution','combat-passport','omnideck-spatial-play'
+  'save-resume','multiplayer','matchmaking','leaderboards','replay','clip-capture','moderation','anti-cheat','creator-attribution','combat-passport','omnideck-spatial-play','universal-campaign-fabric','cross-game-event-state','monthly-release-train'
 ] as const
 
 export const PRODUCTION_GATE=['build-green','auth-live','database-live','multiplayer-live','save-live','device-controls-tested','accessibility-tested','performance-budget','release-sha-proven'] as const
