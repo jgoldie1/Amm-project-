@@ -16,7 +16,7 @@ test.describe('Chicago 77 production certification', () => {
 
       const original = HTMLCanvasElement.prototype.getContext;
       HTMLCanvasElement.prototype.getContext = function(type: any, ...args: any[]) {
-        if (String(type).startsWith('webgl')) return null;
+        if (String(type).includes('webgl')) return null;
         return (original as any).call(this, type, ...args);
       } as any;
 
