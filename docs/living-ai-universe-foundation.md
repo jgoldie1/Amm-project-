@@ -56,6 +56,13 @@ Quantum is a top-level gateway whose second ring includes:
 - Quantum Security
 - Quantum Entertainment
 
+### Quantum Search naming contract
+**Quantum Search** is the public-facing canonical TRYAMM product name. **OmniSearch** is reserved as the internal universal-search engine/capability name beneath Quantum Search.
+
+This gives the product two clean layers:
+- Quantum Search = the user-visible destination and brand.
+- OmniSearch Engine = the federated retrieval/orchestration layer that can search permitted sources and return evidence to Quantum Search.
+
 Quantum Search is the canonical TRYAMM name for the unified search and answer experience across permitted TRYAMM data, worlds, businesses, creators, Marketplace, AAU, AI Cafe, jobs, music, games, messages/files where authorized, and external web/search providers where integrated. The name does not imply quantum-computing speedup unless a real quantum backend is integrated and verified.
 
 Quantum Sandbox is the protected experimental chamber for AI/game/world candidates, self-healing repair reproduction, provider/model evaluation, simulations and pre-production testing.
