@@ -37,6 +37,7 @@ export function installStreetVerseHistoryCampaignRuntime(){
   const next={...state,choices:{...(state.choices||{}),[d.campaignId]:d.choice}}
   write(next)
   window.dispatchEvent(new CustomEvent('tryamm:history-route-locked',{detail:{campaignId:d.campaignId,choice:d.choice,routeDescription:d.routeDescription||''}}))
+  window.dispatchEvent(new CustomEvent('tryamm:history-route-selected',{detail:{campaignId:d.campaignId,choice:d.choice,routeDescription:d.routeDescription||''}}))
  })
  window.addEventListener('tryamm:time-machine-enter',(event:Event)=>{
   const d=(event as CustomEvent<any>).detail||{}
