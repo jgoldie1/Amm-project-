@@ -53,7 +53,7 @@ function scoreRunner(runner,intent){
   const reliability=health.successRate;
   const latency=1-clamp((health.latencyMs-500)/9500,0,.9);
   const privacy=runner.local?.12:0;
-  return capability*.54+reliability*.3+latency*.16+privacy;
+  return capability*.54+reliability*.3+latency*.16+privacy+Number(runner.priority||0);
 }
 
 function delay(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
