@@ -61,6 +61,7 @@ import { installChronoWarpRuntime } from './runtime/ChronoWarpRuntime'
 import { installStreetVerseChicagoTimeMachineMissionsRuntime } from './runtime/StreetVerseChicagoTimeMachineMissionsRuntime'
 import { installStreetVerseHistoryCampaignRuntime } from './runtime/StreetVerseHistoryCampaignRuntime'
 import { installStreetVerseMartialArtsRuntime } from './runtime/StreetVerseMartialArtsRuntime'
+import { installStreetVerseDojoBusinessRuntime } from './runtime/StreetVerseDojoBusinessRuntime'
 import { installStreetVerseChicagoCultureBossMissions } from './runtime/StreetVerseChicagoCultureBossMissionsRuntime'
 import { installCombatSportPassportRuntime } from './runtime/CombatSportPassportRuntime'
 
@@ -128,6 +129,7 @@ installChronoWarpRuntime()
 installStreetVerseChicagoTimeMachineMissionsRuntime()
 installStreetVerseHistoryCampaignRuntime()
 installStreetVerseMartialArtsRuntime()
+installStreetVerseDojoBusinessRuntime()
 installStreetVerseChicagoCultureBossMissions()
 installCombatSportPassportRuntime()
 
