@@ -15,8 +15,11 @@ The birthday alpha should prove this loop once, end to end, before expanding all
 
 ## Holographic carousel
 Top-level destinations:
+- My World
 - StreetVerse
+- HoloVerse
 - GameVerse
+- Global Trade / Africa
 - LIVE
 - PK
 - Reels
@@ -25,15 +28,45 @@ Top-level destinations:
 - All American University (AAU)
 - AI Cafe
 - Jobs
+- Quantum
 - Creator
 - HoloGPT
 - Wallet
 - Time Machine
 
+The carousel is a navigation layer, not a deletion list. Existing TRYAMM worlds and systems remain part of the architecture even when grouped beneath a top-level destination.
+
+### HoloVerse
+HoloVerse is the immersive/spatial gateway for holographic presence, AR/VR/MR-ready experiences, Holo Social, spatial communication, HoloGPT/Benny presence and compatible future display experiences.
+
+### My World
+My World is the user's persistent personal universe: identity, spaces, permitted progression, creations, relationships, missions, collections and portals into the wider Living AI Universe.
+
+### Global Trade / Africa
+Global Trade / Africa preserves the Africa Trade Kingdom and cross-border business vision as a first-class commerce and cultural bridge. Initial geographic priorities such as Lagos and Abuja are product targets, not claims of current deployment. Commerce, payments, logistics and regulated activity must use verified partners and jurisdiction-appropriate compliance.
+
+### Quantum
+Quantum is a top-level gateway whose second ring includes:
+- Quantum Sandbox
+- Quantum Search
+- Quantum Email
+- Quantum Time
+- Quantum Labs
+- Quantum Simulation
+- Quantum Security
+- Quantum Entertainment
+
+Quantum Search is the canonical TRYAMM name for the unified search and answer experience across permitted TRYAMM data, worlds, businesses, creators, Marketplace, AAU, AI Cafe, jobs, music, games, messages/files where authorized, and external web/search providers where integrated. The name does not imply quantum-computing speedup unless a real quantum backend is integrated and verified.
+
+Quantum Sandbox is the protected experimental chamber for AI/game/world candidates, self-healing repair reproduction, provider/model evaluation, simulations and pre-production testing.
+
+## AAU
 AAU is an education platform/program environment unless and until accreditation, degree-granting authority, state approval or institutional partnerships are independently obtained and verified. It must not present completion records as accredited degrees or professional licenses without verified authority.
 
 ## Living Universe connective tissue
 The universe should share a privacy-respecting Passport for identity, permitted progression, achievements, reputation, accessibility preferences and eligible inventory. Money/accounting remains separate and server-authoritative.
+
+The architecture preserves the wider TRYAMM creation rather than replacing it: StreetVerse, HoloVerse, GameVerse, Living Worlds, My World, Time Machine, SportVerse, Global Trade/Africa, creator/music/TV experiences, Marketplace and delivery, education/workforce systems, Holo Fon/communications, Quantum systems, Passport, ledgers, Command Nexus, accessibility and resilience systems can connect through shared contracts while retaining independent release states.
 
 ## Universe Event System
 A single fictional or approved event may create coordinated experiences across multiple destinations. Example: a major fictional Chicago storm can produce rescue missions in StreetVerse, wet-road racing challenges, logistics/business missions, AAU science lessons, AI Cafe exercises, LIVE coverage, creator challenges and GameVerse unlocks.
@@ -58,7 +91,7 @@ Tri-Brain roles:
 
 ## Self-healing and evolution
 Use:
-OBSERVE -> DIAGNOSE -> REPAIR CANDIDATE -> SANDBOX -> TEST -> VERIFY -> CANARY -> PROMOTE OR ROLLBACK.
+OBSERVE -> DIAGNOSE -> REPAIR CANDIDATE -> QUANTUM SANDBOX -> TEST -> VERIFY -> CANARY -> PROMOTE OR ROLLBACK.
 
 AI may create candidates. AI may not certify itself. Security, privacy, financial, human-approval and rollback controls remain outside the self-modifiable plane.
 
