@@ -193,3 +193,71 @@ Signature visual language: Lion + Crown + Scroll + Light. A FaithVerse transitio
 FaithVerse must preserve phone-first access, one-hand navigation, voice control, captions, screen-reader semantics, large touch targets, reduced motion and simplified A/B/C interaction.
 
 Release truth applies independently to every FaithVerse capability. This section locks the product/implementation contract; it does not claim the 88-book corpus, source editions, audio, immersive worlds, publishing pipeline or routes are production-live.
+
+
+## Canon Lens, Universal Language Layer and Living Book expansion
+
+FaithVerse must support a transparent Canon & Ancient Writings Library rather than silently treating every historical collection as identical. The Canon Lens can show how a documented book or writing is classified in a selected tradition or edition, with source and rights metadata.
+
+Study classifications may include:
+SCRIPTURE IN SELECTED TRADITION | APOCRYPHA IN SELECTED EDITION | DEUTEROCANONICAL | HISTORICAL WRITING | PSEUDEPIGRAPHA / ATTRIBUTED ANCIENT WRITING | STUDY SOURCE.
+
+The KJV 1611 study experience may include its historically published Apocrypha section when a legally usable edition/source is integrated. Ethiopian/Ethiopic collections must identify the actual source collection and must not be forced into a book count that the source itself does not claim.
+
+Universal Language Layer:
+- translate eligible interface, commentary, lessons, captions, narration and licensed/public-domain text into supported languages
+- preserve the source text beside translations where appropriate
+- label machine/AI translations as AI TRANSLATION until human/editorial verification
+- never present an AI translation as an original manuscript, authoritative ancient-language witness or certified translation
+- support text-to-speech, pronunciation, subtitles and accessibility variants where available
+- preserve book/chapter/verse and Living Book Passport provenance across language changes
+
+Living Book platform contract:
+HOLOGRAPHIC METAVERSE BIBLE -> LIVING BOOK ENGINE -> LIVING BOOK PASSPORT -> KINGDOM BOOK BUILDER -> KINGDOM HOLOPRESS -> LIVING BOOK LIBRARY.
+
+The Holographic Metaverse Bible is the flagship Living Book implementation. The Living Book Engine is reusable for approved educational, historical, children's, music, biography, fiction and other original/licensed publications. "First of its kind" is a research target, not an unqualified production marketing claim until a documented prior-art review supports the exact claim.
+
+## Aniyah Global Pay and Financial Literacy
+
+Aniyah Global Pay is the working product concept for a cross-border payment, financial-literacy and commerce layer connected to TRYAMM. It must be designed to differentiate through education and ecosystem integration rather than making an unsupported claim that it is better than another payment service.
+
+Canonical loop:
+LEARN -> PRACTICE WITH SIMULATED MONEY -> BUDGET -> EARN ELIGIBLE INCOME -> RECEIVE -> SAVE -> SPEND -> SEND -> BUSINESS -> GLOBAL TRADE.
+
+Target capabilities, subject to regulated-partner and jurisdiction availability:
+- send, receive and request money
+- QR and business payments
+- transparent fee, exchange-rate and recipient-receives preview
+- multi-currency/cross-border transfer interfaces
+- creator and eligible marketplace payouts
+- family wallet/savings-goal experiences with age-appropriate controls
+- financial-literacy lessons attached to real-world concepts
+- simulated financial practice before regulated real-money actions
+- business money education, invoicing and commerce connections
+- accessibility, multilingual UI and clear transaction confirmations
+
+Real-money movement, custody, stored value, cards, foreign exchange, remittance, KYC/AML, sanctions screening and other regulated functions must use appropriately authorized providers/partners and server-authoritative records. XP, simulated money and educational rewards must remain clearly separated from real payable balances.
+
+## StarVerse
+
+StarVerse is preserved as a first-class entertainment/cosmic world within the Living AI Universe. It connects music, film, creator performance, spatial/holographic shows, fan experiences and original cosmic storytelling without replacing HoloVerse or GameVerse.
+
+Target loop:
+PASSPORT -> STARVERSE -> ARTIST / CREATOR -> MUSIC OR FILM EXPERIENCE -> HOLOGRAPHIC PERFORMANCE -> FAN / LEARNING / CREATOR ACTION -> REEL -> MARKETPLACE / ELIGIBLE COMMERCE -> PERSISTENT PROGRESS.
+
+StarVerse may connect to Holo Music, Time Machine, Creator, LIVE/PK/Reels, GameVerse, FaithVerse-approved music experiences, Marketplace and the publishing/media systems. Third-party likenesses, recordings, trademarks and copyrighted material require appropriate rights.
+
+## All American Records and Spectra Entertainment
+
+All American Records and Spectra Entertainment are preserved as working TRYAMM entertainment/label ecosystem concepts, subject to entity/name/trademark and rights verification.
+
+All American Records is the music-label/artist-development lane. Target functions include artist onboarding, original music releases, rights/clearance workflow, credits, metadata, publishing/PRO education, distribution integrations, Holo Music performances, StarVerse events, creator commerce and transparent eligible earnings ledgers.
+
+Spectra Entertainment is the broader entertainment-production lane for approved original/licensed music, film, television/FAST/OTT, live events, creator productions and immersive media.
+
+Connected entertainment pipeline:
+ARTIST / CREATOR -> RIGHTS + IDENTITY -> CREATE -> CLEARANCE / CREDITS -> ALL AMERICAN RECORDS / SPECTRA ENTERTAINMENT -> HOLO MUSIC / STARVERSE -> LIVE / PK / REELS -> FILM / TV / IMMERSIVE EXPERIENCE -> MARKETPLACE / TICKETS / ELIGIBLE COMMERCE -> SERVER-AUTHORITATIVE LEDGER.
+
+Product placement and holographic product placement may be supported only with clear sponsorship/ad disclosure, brand/asset rights, age-appropriate rules and auditable campaign contracts. The system must distinguish editorial/creative content from paid placement.
+
+These additions are implementation contracts. They preserve and connect the existing vision but do not claim regulated payments, label/distribution agreements, entertainment rights, StarVerse runtime routes, translations or publishing systems are production-live.
