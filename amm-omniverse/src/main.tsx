@@ -209,11 +209,29 @@ try {
   routeContent = <App />
 }
 
-createRoot(document.getElementById('root')!).render(
+const rootElement = document.getElementById('root')
+if (!rootElement) throw new Error('[TRYAMM] Missing #root mount element')
+
+const root = createRoot(rootElement)
+// Mount the selected public route first. Optional global launchers must never be
+// able to prevent the TRYAMM shell or StreetVerse from becoming visible.
+root.render(
   <StrictMode>
-    <UniversalAccessRuntime />
-    <HoloExperienceLauncher />
-    <Suspense fallback={null}><UnifiedCommerceHub /></Suspense>
     {routeContent}
   </StrictMode>
 )
+
+queueMicrotask(() => {
+  try {
+    root.render(
+      <StrictMode>
+        <UniversalAccessRuntime />
+        <HoloExperienceLauncher />
+        <Suspense fallback={null}><UnifiedCommerceHub /></Suspense>
+        {routeContent}
+      </StrictMode>
+    )
+  } catch (error) {
+    console.error('[TRYAMM] Optional global UI failed after core mount; preserving public route.', error)
+  }
+})
