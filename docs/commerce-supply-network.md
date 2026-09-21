@@ -143,3 +143,21 @@ The first end-to-end vertical slice is one consenting test business:
 QR/Passport -> guided capture -> owner-approved storefront -> menu/catalog -> plan selection -> StreetVerse/Marketplace listing -> real inventory test -> OmniReel -> referral attribution -> test order -> server-authoritative reservation/payment -> fulfillment -> delivery state -> separate merchant/creator/TRYAMM ledgers -> refund/reversal test.
 
 Scale only after this loop is observable and repeatable.
+
+
+## Web3 / Digital Ownership / NFT 1369
+
+TRYAMM uses a hybrid Web3 architecture rather than treating a public chain as the application database or bank.
+
+Flow:
+PASSPORT -> WALLET -> INTERNAL PROOF/LEDGER LAYER -> WEB3 GATEWAY -> DIGITAL ITEM PASSPORT / NFT 1369 -> STREETVERSE / HOLOVERSE / GAMEVERSE UTILITY -> COMMERCE -> SERVER-AUTHORITATIVE SETTLEMENT -> ACCOUNTING RECONCILIATION -> AUTHORIZED PAYOUT PROVIDER
+
+Digital Item Passports may describe eligible NFT 1369 items, holographic assets, game items, tickets, memberships, and digital-twin assets. The passport records issuer/provenance, media hash, authorized utility, transfer policy, and configured royalty information. Token ownership does not silently grant copyright, master, publishing, trademark, privacy/publicity, or commercial-use rights; those rights require an explicit rights record.
+
+NFT 1369 is bounded to serials 1..1369 when issued as the 1369 series. Utility should not depend on speculative resale and may include authorized collection, display, game, holographic, membership, event, creator, or world experiences.
+
+“Last One, Everyone Gets Paid” remains a configurable settlement mechanism, not an unconditional promise. Before any public paid release, eligibility, funding source, distribution formula, refund/chargeback handling, fraud/Sybil controls, taxes, jurisdiction/age/identity requirements where applicable, and legal/compliance review must be finalized and disclosed. No distribution may exceed a verified funded amount.
+
+Production controls include wallet recovery, key security, rights/IP registry, idempotency/double-pay protection, server-authoritative settlement, refund/reversal handling, chain-to-accounting reconciliation, treasury separation, fraud/Sybil controls, privacy/data minimization, tax/audit records, emergency pause controls, observability, and disaster recovery.
+
+XP and Holo Credits remain non-cash. Blockchain/public-chain records are proof/ownership records; the conventional accounting ledger determines real-money obligations; authorized payment providers move real money. Sensitive personal/payment data must remain off public chains.
