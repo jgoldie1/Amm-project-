@@ -78,6 +78,8 @@ const EthiopianBibleMetaverse=lazy(()=>import('./components/EthiopianBibleMetave
 const KingdomsPressOperations=lazy(()=>import('./components/KingdomsPressOperations'))
 const UnifiedCommerceHub=lazy(()=>import('./components/UnifiedCommerceHub'))
 
+let routeContent: React.ReactNode = null
+
 try {
   installProductionHealthMonitor()
   installMediaCloudBridge()
@@ -179,7 +181,6 @@ try {
     <HoloMarketplaceLauncher />
   </>
   
-  let routeContent
   if(isAccessibility)routeContent=<AccessibilityStatement />
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
   else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter onClose={()=>{window.location.href='/'}} /></Suspense>
