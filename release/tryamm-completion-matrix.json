@@ -1,0 +1,22 @@
+{
+  "schema": "tryamm.completion-matrix.v1",
+  "definition": "A lane is complete only when its required evidence is satisfied. CI must not synthesize external approvals or physical-device evidence.",
+  "lanes": [
+    {"id":"foundation","name":"Living AI Universe Foundation","state":"CI_GREEN_BASELINE","automatable":true,"evidence":["source","build","contracts"]},
+    {"id":"streetverse","name":"StreetVerse Core","state":"BUILDING","automatable":true,"evidence":["build","route","mission","passport","save_load","mobile"]},
+    {"id":"hologpt","name":"HoloGPT / Benny","state":"BUILDING","automatable":true,"evidence":["health","provider_routing","safe_actions","fallbacks"]},
+    {"id":"live_pk","name":"LIVE / PK / Reels","state":"PREVIEW_CERTIFIED_BRANCH","automatable":true,"evidence":["build","livekit","pk","gifts","replay","media_health"]},
+    {"id":"commerce_passport","name":"Business Passport / Scan-to-Twin","state":"DESIGN_COMMITTED","automatable":true,"evidence":["consent","capture","draft","owner_approval","publish"]},
+    {"id":"marketplace","name":"Marketplace / Orders","state":"BUILDING_GATED","automatable":true,"evidence":["inventory_authority","cart","order","refund","idempotency"]},
+    {"id":"supply","name":"Virtual Warehouse / Storage / Fridge / Cold Vault","state":"DESIGN_COMMITTED","automatable":true,"evidence":["inventory_states","reservation","fulfillment","replenishment"]},
+    {"id":"creator_army","name":"Creator Army / Scout Attribution","state":"DESIGN_COMMITTED","automatable":true,"evidence":["referral","campaign_budget","commission","reversal","fraud"]},
+    {"id":"economy","name":"XP / Holo Credits / Omni Cash Separation","state":"GATED","automatable":true,"evidence":["ledger_separation","no_fake_settlement","refund_reversal","provider_gate"]},
+    {"id":"delivery","name":"Holo Delivery","state":"INTEGRATED_GATED","automatable":false,"evidence":["provider","quote_dispatch","tracking","proof_of_delivery","compliance"]},
+    {"id":"accessibility","name":"Accessibility / One-Hand / Mobile","state":"BUILDING","automatable":false,"evidence":["keyboard","screen_reader","reduced_motion","one_hand","physical_device"]},
+    {"id":"native_apps","name":"Android / iOS","state":"GATED","automatable":false,"evidence":["signed_builds","store_listing","privacy","store_approval"]},
+    {"id":"global_trade","name":"Global Trade / Aniyah Pay","state":"GATED","automatable":false,"evidence":["licensed_partner","kyc_aml","country_rules","settlement"]},
+    {"id":"omnicare","name":"OmniCare 360","state":"GATED","automatable":false,"evidence":["provider_contracts","privacy","jurisdiction","clinical_boundaries"]},
+    {"id":"regulated_services","name":"Legal / Tax / Insurance / Realty / Notary","state":"GATED","automatable":false,"evidence":["licensed_professionals","jurisdiction","contracts","compliance"]},
+    {"id":"production","name":"Production Release","state":"NOT_CERTIFIED_COMPLETE","automatable":false,"evidence":["main_merged","deploy_ready","routes","monitoring","rollback","device_evidence"]}
+  ]
+}
