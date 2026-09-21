@@ -52,6 +52,7 @@ jobs:
           node tests/inventory-authority-contract.mjs
           node tests/commerce-transaction-ledger-contract.mjs
           node tests/omni-after-dark-mission-contract.mjs
+          node tests/education-mission-task-assessment-contract.mjs
 
   completion-contract:
     runs-on: ubuntu-latest
