@@ -66,6 +66,7 @@ jobs:
           node tests/hologpt-quantum-speed-contract.mjs
           node tests/hologpt-human-authority-contract.mjs
           node tests/hologpt-consciousness-protocol-contract.mjs
+          node tests/hologpt-last-mile-orchestrator-contract.mjs
           node tests/streetverse-one-hand-integration-contract.mjs
 
   completion-contract:
