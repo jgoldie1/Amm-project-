@@ -49,7 +49,7 @@ const StaysAgencyFamilyHub = lazy(() => import('./components/StaysAgencyFamilyHu
 
 export default function App() {
   const screen = useGameStore(s => s.screen)
-  const setScreen = useGameStore(s => s.goTo)
+  const setScreen = useGameStore(s => s.setScreen)
   const [showPricing, setShowPricing] = useState(false)
   const [showHoloverse, setShowHoloverse] = useState(false)
   const [showBennie, setShowBennie] = useState(false)
