@@ -9,7 +9,7 @@ type Props={
 
 const LABELS:Record<string,string>={
   CHARACTERS:'Characters',MISSIONS:'Missions',LIVE:'LIVE',PK:'PK Battle',REELS:'Reels',
-  STREETVERSE_WORLD:'StreetVerse',WORLD_DATA:'World Data',CREATOR_COMMERCE:'Creator Commerce',
+  STREETVERSE_WORLD:'StreetVerse',VERSE_DIRECTORY:'All Verses',WORLD_DATA:'World Data',CREATOR_COMMERCE:'Creator Commerce',
   BENNY_HOLOGPT:'Benny / HoloGPT',RELEASE_CENTER:'Release Center',
 }
 
