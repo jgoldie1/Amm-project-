@@ -2,7 +2,6 @@ import {
   authorizeAction,
   consciousnessCanIncreaseAuthority,
   HUMAN_AUTHORITY_KERNEL,
-  type AuthorityRequest,
 } from '../src/runtime/HoloGPTHumanAuthorityKernel.ts';
 
 function assert(condition, message) {
