@@ -1,5 +1,13 @@
 import FaithChronoLauncher from './FaithChronoLauncher'
 
+const canonLens=[
+ ['KJV 1611','Old Testament • historically published Apocrypha section • New Testament','Edition/source metadata required before text is presented.'],
+ ['ETHIOPIAN / ETHIOPIC','Source-defined collection','Show the actual source tradition/edition and its own book manifest rather than forcing a universal count.'],
+ ['ANCIENT WRITINGS','Deuterocanonical • historical • attributed ancient writings • study sources','Classification must be visible and tradition-specific.'],
+]
+
+const livingBookFlow='SOURCE -> STUDY -> TRANSLATE -> HEAR -> MAP -> TIMELINE -> EXPERIENCE -> RETURN -> CREATE -> PUBLISH'
+
 const lanes=[
  ['📖','ETHIOPIAN BIBLE STUDY','Reading plans, study notes, cross-references and teaching layers built around source-verified Ethiopian biblical texts and canon metadata.'],
  ['✡️','HEBREW SCHOOL','Alphabet, vowel points, roots, vocabulary, transliteration, pronunciation practice, quizzes and passage-based lessons.'],
@@ -9,7 +17,7 @@ const lanes=[
  ['🌍','METAVERSE BIBLE','Walkable study worlds for places, journeys, eras and teaching scenes. World scenes are educational visualizations, not claims that a reconstruction is historically exact.'],
  ['⏳','FAITH CHRONO / TIME MACHINE','Source-grounded historical reconstruction, devotional study and immersive missions connected to the existing TRYAMM Chrono runtime and saved StreetVerse return portals.'],
  ['🎧','AUDIO + READ ALOUD','Accessible narration, chapter listening, adjustable speed and screen-reader friendly study controls.'],
- ['🌐','HOLOLingo','Translation-ready study UI with original-language/source labels preserved when verified text providers are connected.'],
+ ['🌐','UNIVERSAL LANGUAGE / HOLOLingo','Translate eligible UI, commentary, lessons, captions, narration and authorized text into supported languages while preserving the source edition. AI translations stay visibly labeled until human/editorial verification.'],
  ['♿','HOLO ACCESS','Large text, high contrast, reduced motion, one-hand navigation, keyboard support, captions/transcripts and voice-ready controls.'],
  ['📝','KINGDOMS PRESS','Study guides, devotionals, teaching notes and HoloBook editions can move through the Kingdoms Press rights/editorial pipeline.'],
  ['⛪','SERVANTS OF CHRIST','Bible studies, reading plans, classes and LIVE teachings can publish into the ministry network with human review.'],
@@ -43,6 +51,15 @@ export default function EthiopianBibleMetaverse(){
    <header style={{padding:'58px 0 26px'}}><div style={{fontSize:11,letterSpacing:3,fontWeight:950,color:'#e5c56a'}}>TRYAMM FAITH WORLD • SOURCE-VERIFIED STUDY</div><h1 style={{fontSize:'clamp(42px,8vw,88px)',lineHeight:.94,margin:'10px 0 16px'}}>ETHIOPIAN BIBLE<br/>METAVERSE</h1><p style={{maxWidth:900,fontSize:18,lineHeight:1.65,color:'#d9cfb3'}}>An immersive Bible-study school combining Ethiopian biblical tradition, Hebrew learning, KJV 1611 comparison, Strong’s-style concordance study, accessibility, teaching, translation, living-world exploration and the TRYAMM Time Machine for source-grounded historical reconstruction.</p></header>
 
    <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(235px,1fr))',gap:12}}>{lanes.map(([icon,title,copy])=><article key={title} style={card}><div style={{fontSize:28}}>{icon}</div><h2 style={{fontSize:17}}>{title}</h2><p style={muted}>{copy}</p></article>)}</section>
+
+   <section style={{...card,marginTop:18,borderColor:'#8d7435'}}>
+    <div style={{fontSize:11,letterSpacing:2,color:'#e5c56a',fontWeight:900}}>FAITHVERSE • LIVING BOOK ENGINE</div>
+    <h2>Canon Lens + Universal Language Layer</h2>
+    <p style={muted}>Compare documented traditions without silently merging them. A translated study surface always preserves its source and classification, and an AI translation is never presented as an original manuscript or authoritative ancient-language witness.</p>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:10}}>{canonLens.map(([name,scope,note])=><article key={name} style={{...card,background:'#0b0a06'}}><strong>{name}</strong><p style={muted}>{scope}</p><small style={{color:'#bdaF8a'}}>{note}</small></article>)}</div>
+    <p style={{...muted,fontWeight:900,marginTop:16}}>{livingBookFlow}</p>
+    <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><a href='/kingdoms-press' style={pill}>KINGDOM HOLOPRESS / BOOK BUILDER</a><a href='/starverse' style={pill}>STARVERSE</a><a href='/all-american-records' style={pill}>ALL AMERICAN RECORDS</a><a href='/aniyah-pay' style={pill}>ANIYAH GLOBAL PAY</a></div>
+   </section>
 
    <FaithChronoLauncher />
 

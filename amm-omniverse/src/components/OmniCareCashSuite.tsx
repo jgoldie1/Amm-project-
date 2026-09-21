@@ -2,7 +2,7 @@ const products=[
   {path:'/omnicare-360',name:'OmniCare 360',eyebrow:'CARE',description:'Accessibility-first care navigation, appointment coordination, benefits guidance and provider discovery across TRYAMM.',status:'Provider integrations required for live care actions.',features:['Accessible care navigation','Appointment and care coordination','Benefits and provider discovery','Caregiver-friendly workflows']},
   {path:'/omnicare-rx',name:'OmniCare Prescription Discount',eyebrow:'RX SAVINGS',description:'Prescription savings and pharmacy price-comparison gateway designed to connect verified discount-card and pharmacy-pricing partners.',status:'Discount pricing and pharmacy transactions remain partner-gated until verified feeds are connected.',features:['Prescription savings search','Pharmacy price comparison','Discount-card partner bridge','Accessible medication lookup']},
   {path:'/omni-cash',name:'Omni Cash',eyebrow:'WALLET',description:'TRYAMM wallet and money hub for balances, payouts, creator earnings and provider-connected payment rails.',status:'Real balances, deposits, withdrawals and money movement require verified financial/payment providers.',features:['Wallet overview','Creator and mission earnings','Payout routing','Domestic and global rail bridge']},
-  {path:'/aniyah-pay',name:'Aniyah Cross-Border Payments',eyebrow:'GLOBAL PAY',description:'Cross-border payment experience connecting TRYAMM commerce to compliant global and African payment rails.',status:'Transfers are disabled until provider credentials, KYC/AML, settlement and country rules are verified.',features:['Cross-border send/receive','FX and fee preview','Recipient and payout routing','Africa payment rail orchestration']},
+  {path:'/aniyah-pay',name:'Aniyah Cross-Border Payments',eyebrow:'GLOBAL PAY',description:'Cross-border payment experience connecting TRYAMM commerce to compliant global and African payment rails.',status:'Transfers are disabled until provider credentials, KYC/AML, settlement and country rules are verified.',features:['Cross-border send/receive','FX and fee preview','Recipient and payout routing','Africa payment rail orchestration','Financial literacy with each money concept','Budgeting and savings goals','Simulated-money practice before regulated actions','Creator and business commerce education']},
 ]
 
 const africaRails=['Flutterwave','Paystack','Monnify','Moniepoint','Remita','Squad (GTCO)','OPay','Paga','Cellulant / Tingg','Fincra','Kora','SeerBit','M-Pesa']
@@ -31,12 +31,17 @@ export default function OmniCareCashSuite(){
         {active.features.map(feature=><article key={feature} style={{padding:18,border:'1px solid #28394d',borderRadius:18,background:'#08111c'}}><strong>{feature}</strong><p style={{color:'#aebed2',fontSize:14}}>Product surface restored. Live provider-backed execution is enabled only after verification.</p></article>)}
       </section>
 
-      {active.path==='/aniyah-pay'&&<section style={{marginTop:20,padding:22,border:'1px solid #315d4c',borderRadius:22,background:'#081813'}}>
+      {active.path==='/aniyah-pay'&&<><section style={{marginTop:20,padding:22,border:'1px solid #315d4c',borderRadius:22,background:'#081813'}}>
+        <div style={{fontSize:12,fontWeight:950,letterSpacing:1.6,color:'#7df0bb'}}>ANIYAH FINANCIAL LITERACY</div>
+        <h2 style={{margin:'8px 0'}}>Learn → practice → understand → transact when eligible</h2>
+        <p style={{color:'#bdd4c9'}}>Educational mode explains budgeting, savings, fees, exchange rates, recipient amounts and business-money basics. Simulation uses clearly labeled practice money and never becomes a real payable balance.</p>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{['BUDGET','SAVE','FX','FEES','SEND','RECEIVE','BUSINESS','GLOBAL TRADE'].map(x=><span key={x} style={{padding:'9px 11px',borderRadius:999,background:'#0d261d',border:'1px solid #2f6c52',fontWeight:850,fontSize:12}}>{x}</span>)}</div>
+       </section><section style={{marginTop:20,padding:22,border:'1px solid #315d4c',borderRadius:22,background:'#081813'}}>
         <div style={{fontSize:12,fontWeight:950,letterSpacing:1.6,color:'#7df0bb'}}>AFRICA PAYMENT RAILS</div>
         <h2 style={{margin:'8px 0'}}>Recovered rail registry</h2>
         <p style={{color:'#bdd4c9'}}>These are the African payment providers you specified for the orchestration layer. Listing them here does not claim active API credentials or live settlement.</p>
         <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:14}}>{africaRails.map(rail=><span key={rail} style={{padding:'9px 11px',borderRadius:999,background:'#0d261d',border:'1px solid #2f6c52',fontWeight:850,fontSize:12}}>{rail}</span>)}</div>
-      </section>}
+      </section></>}
     </div>
   </main>
 }
