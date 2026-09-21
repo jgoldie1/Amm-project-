@@ -51,6 +51,7 @@ jobs:
           node tests/business-passport-storefront-contract.mjs
           node tests/inventory-authority-contract.mjs
           node tests/commerce-transaction-ledger-contract.mjs
+          node tests/omni-after-dark-mission-contract.mjs
 
   completion-contract:
     runs-on: ubuntu-latest
