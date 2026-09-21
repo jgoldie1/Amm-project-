@@ -15,10 +15,12 @@ export default function HoloExperienceLauncher(){
 
   useEffect(()=>{
     const openClip=()=>setClipOpen(true)
+    const openCarousel=()=>setCarouselOpen(true)
     const openSocial=(event:Event)=>{const d=(event as CustomEvent<{mode?:SocialMode}>).detail||{};setSocialMode(d.mode||'feed');setSocialOpen(true)}
     window.addEventListener('tryamm:holo-clip-open',openClip)
+    window.addEventListener('tryamm:holo-carousel-open',openCarousel)
     window.addEventListener('tryamm:holo-social-open',openSocial)
-    return()=>{window.removeEventListener('tryamm:holo-clip-open',openClip);window.removeEventListener('tryamm:holo-social-open',openSocial)}
+    return()=>{window.removeEventListener('tryamm:holo-clip-open',openClip);window.removeEventListener('tryamm:holo-carousel-open',openCarousel);window.removeEventListener('tryamm:holo-social-open',openSocial)}
   },[])
 
   const launch=(panel:string)=>{
