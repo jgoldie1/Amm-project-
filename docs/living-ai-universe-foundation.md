@@ -122,3 +122,74 @@ Every capability must be labeled with one of:
 DESIGN -> VERTICAL SLICE -> ALPHA -> BETA -> RELEASE CANDIDATE -> CERTIFIED -> LIVE.
 
 Calendar dates never override certification. Preview-ready is not production-live. A feature is not complete until evidence verifies its route, behavior and required integrations.
+
+
+## FaithVerse and Kingdom HoloPress
+
+FaithVerse is a first-class Living AI Universe world for Scripture study, faith education, publishing and clearly labeled immersive historical reconstruction. It preserves the existing Holographic Metaverse Bible and Kingdom publishing work rather than replacing it.
+
+Canonical path:
+FAITHVERSE -> HOLOGRAPHIC METAVERSE BIBLE -> LIVING SCROLL -> 88-BOOK LIBRARY -> ETHIOPIAN LIBRARY -> LANGUAGE / CONCORDANCE STUDY -> MAPS / TIMELINES / GENEALOGY -> HOLOGRAPHIC BIBLE WORLDS -> KINGDOM HOLOPRESS.
+
+### Holographic Metaverse Bible study contract
+
+The protected Scripture/study experience is designed around synchronized panels for:
+- King James 1611 study text/edition where legally and technically available
+- Paleo-Hebrew study layer
+- Ethiopian Bible/source/tradition study layer
+- Strong's / concordance and lexical study
+- transliteration
+- pronunciation/audio
+- cross-references
+- maps, timelines and genealogy/context visualization
+- notes, lessons, quizzes, classrooms and workbooks
+- Time Machine / HoloVerse historical reconstruction experiences
+
+The target library is the previously specified 88-book collection. Exact edition, translation, manuscript/source and rights metadata must be explicit; the product must not imply that distinct textual traditions are identical or that a study reconstruction is the underlying Scripture text.
+
+Study loop:
+READ -> HEAR -> UNDERSTAND -> HEBREW -> PALEO-HEBREW -> WRITE -> SPEAK -> WORD STUDY -> STRONG'S -> 1611 STUDY -> ETHIOPIAN SOURCES -> CROSS-REFERENCES -> MAP -> TIMELINE -> TEACH -> PRACTICE -> QUIZ -> WATCH -> EXPERIENCE.
+
+Immersive loop:
+READ -> HEAR -> SEE -> EXPLORE -> STUDY -> EXPERIENCE -> RETURN.
+
+Every item must preserve provenance and visibly distinguish:
+SCRIPTURE | TRANSLATION | HISTORICAL SOURCE | LEXICON / CONCORDANCE | COMMENTARY / INTERPRETATION | AI EXPLANATION | HISTORICAL RECONSTRUCTION | CREATIVE / FICTIONAL EXPANSION.
+
+A user returning from an immersive environment should return to the same book/chapter/verse and permitted study state.
+
+### Kingdom HoloPress Living Library
+
+Kingdom HoloPress is a working product name pending appropriate name/trademark clearance. It is the publishing system for approved original and licensed content, including:
+- study Bibles and Scripture study resources
+- books and study guides
+- devotionals and journals
+- curricula and workbooks
+- children's and family learning materials
+- history/culture works
+- fiction and graphic/interactive stories
+- audiobooks and narrated editions
+- digital editions and HoloBooks
+- immersive publications connected to FaithVerse, Time Machine, HoloVerse, Holo Music, AAU, AI Cafe, GameVerse and Marketplace
+
+The 88-book Scripture collection remains a protected canonical library. User-authored books, commentary, AI explanations and creative reconstructions may be linked beside it but must never silently become Scripture.
+
+### Kingdom Book Builder
+
+Reusable authoring pipeline:
+IDEA -> RESEARCH -> SOURCES -> OUTLINE -> MANUSCRIPT -> FACT / RIGHTS REVIEW -> EDIT -> ILLUSTRATE -> AUDIO -> HOLOGRAPHIC EXPERIENCE -> ACCESSIBILITY -> HUMAN APPROVAL -> KINGDOM HOLOPRESS -> PRINT / DIGITAL / AUDIO / HOLOBOOK -> MARKETPLACE.
+
+The Book Builder may help assemble chapters, citations, illustrations, narration, maps, timelines, glossaries, workbook questions and multimedia, but it does not auto-publish. Human approval, provenance and rights checks are release gates.
+
+Each publication should have a Living Book Passport recording author/creator, edition, sources, rights/provenance, revisions, translations, audio assets, lessons and connected experiences. Supplemental experiences can evolve without silently rewriting the source edition.
+
+Publishing flywheel:
+READ -> STUDY -> EXPERIENCE -> LEARN -> CREATE -> PUBLISH -> SHARE.
+
+### FaithVerse presentation and accessibility
+
+Signature visual language: Lion + Crown + Scroll + Light. A FaithVerse transition may use a holographic scroll, manuscript characters, chronological rings and a portal into a selected study environment, with reduced-motion and instant-travel alternatives.
+
+FaithVerse must preserve phone-first access, one-hand navigation, voice control, captions, screen-reader semantics, large touch targets, reduced motion and simplified A/B/C interaction.
+
+Release truth applies independently to every FaithVerse capability. This section locks the product/implementation contract; it does not claim the 88-book corpus, source editions, audio, immersive worlds, publishing pipeline or routes are production-live.
