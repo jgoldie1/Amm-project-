@@ -58,6 +58,7 @@ import { installStreetVerseRacingAfterDarkRuntime } from './runtime/StreetVerseR
 import { installStreetVerseMissionDiscoveryRuntime } from './runtime/StreetVerseMissionDiscoveryRuntime'
 import { installSECSConstructRuntime } from './runtime/SECSConstructRuntime'
 import { installOmniverseEventFabricRuntime } from './runtime/OmniverseEventFabricRuntime'
+import { installLivingLearningMissionBridge } from './runtime/LivingLearningMissionBridge'
 
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 // Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
@@ -119,6 +120,7 @@ installStreetVerseRacingAfterDarkRuntime()
 installStreetVerseMissionDiscoveryRuntime()
 installSECSConstructRuntime()
 installOmniverseEventFabricRuntime()
+installLivingLearningMissionBridge()
 
 const currentPath=window.location.pathname
 const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
