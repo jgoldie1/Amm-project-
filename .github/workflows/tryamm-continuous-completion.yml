@@ -63,6 +63,9 @@ jobs:
           node tests/hologpt-universal-intake-context-contract.mjs
           node tests/hologpt-autonomous-repair-contract.mjs
           node tests/hologpt-founder-command-contract.mjs
+          node tests/hologpt-quantum-speed-contract.mjs
+          node tests/hologpt-human-authority-contract.mjs
+          node tests/hologpt-consciousness-protocol-contract.mjs
           node tests/streetverse-one-hand-integration-contract.mjs
 
   completion-contract:
