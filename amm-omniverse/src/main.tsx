@@ -15,6 +15,7 @@ import GlobalLaunchBar from './components/GlobalLaunchBar'
 import HoloDeliveryLauncher from './components/HoloDeliveryLauncher'
 import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import StreetVerseFaithChronoPortal from './components/StreetVerseFaithChronoPortal'
+import HoloExperienceLauncher from './components/HoloExperienceLauncher'
 import { getStandaloneSite } from './data/standaloneSiteRegistry'
 import './accessibility/accessibility.css'
 import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
@@ -202,6 +203,7 @@ else routeContent=mainShell
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <UniversalAccessRuntime />
+    <HoloExperienceLauncher />
     <Suspense fallback={null}><UnifiedCommerceHub /></Suspense>
     {routeContent}
   </StrictMode>
