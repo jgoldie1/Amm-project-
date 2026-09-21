@@ -7,6 +7,7 @@ on:
       - main
       - feature/living-ai-universe-foundation
       - feature/commerce-supply-network
+      - feature/hologpt-sovereign-intent-fabric
   pull_request:
   schedule:
     - cron: '10 * * * *'
@@ -58,6 +59,11 @@ jobs:
           node tests/living-learning-mission-integration-contract.mjs
           node tests/complete-education-gameplay-package-contract.mjs
           node tests/learning-progress-orchestrator-contract.mjs
+          node tests/hologpt-build-guardian-contract.mjs
+          node tests/hologpt-universal-intake-context-contract.mjs
+          node tests/hologpt-autonomous-repair-contract.mjs
+          node tests/hologpt-founder-command-contract.mjs
+          node tests/streetverse-one-hand-integration-contract.mjs
 
   completion-contract:
     runs-on: ubuntu-latest
