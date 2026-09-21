@@ -3,6 +3,7 @@ import HoloClipScreenLayer from './HoloClipScreenLayer'
 import HoloSocialEngine from './HoloSocialEngine'
 import HoloClipStudio from './HoloClipStudio'
 import HoloLivePkLottieOverlay from './HoloLivePkLottieOverlay'
+import {TRYAMM_VERSE_DIRECTORY} from '../holo/holoClip2'
 
 type SocialMode='feed'|'live'|'pk'|'world'
 
@@ -26,6 +27,7 @@ export default function HoloExperienceLauncher(){
     if(panel==='PK'){setSocialMode('pk');setSocialOpen(true);setCarouselOpen(false);return}
     if(panel==='REELS'){window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'holo-carousel'}}));setCarouselOpen(false);return}
     if(panel==='STREETVERSE_WORLD'){window.location.href='/streetverse';return}
+    if(panel==='VERSE_DIRECTORY'){window.dispatchEvent(new CustomEvent('tryamm:verse-directory-open',{detail:{verses:TRYAMM_VERSE_DIRECTORY,source:'holo-carousel'}}));setSocialMode('world');setSocialOpen(true);setCarouselOpen(false);return}
     if(panel==='CREATOR_COMMERCE'){window.dispatchEvent(new CustomEvent('tryamm:creator-commerce-open',{detail:{source:'holo-carousel'}}));setCarouselOpen(false);return}
     if(panel==='BENNY_HOLOGPT'){window.dispatchEvent(new CustomEvent('tryamm:hologpt-open',{detail:{source:'holo-carousel'}}));setCarouselOpen(false);return}
     if(panel==='MISSIONS'){window.location.href='/streetverse';return}
