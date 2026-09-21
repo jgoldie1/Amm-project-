@@ -55,6 +55,7 @@ jobs:
           node tests/education-mission-task-assessment-contract.mjs
           node tests/student-mission-classroom-contract.mjs
           node tests/living-learning-mission-integration-contract.mjs
+          node tests/complete-education-gameplay-package-contract.mjs
 
   completion-contract:
     runs-on: ubuntu-latest
