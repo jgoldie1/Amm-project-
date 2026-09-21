@@ -78,7 +78,7 @@ const EthiopianBibleMetaverse=lazy(()=>import('./components/EthiopianBibleMetave
 const KingdomsPressOperations=lazy(()=>import('./components/KingdomsPressOperations'))
 const UnifiedCommerceHub=lazy(()=>import('./components/UnifiedCommerceHub'))
 
-let routeContent: React.ReactNode = null
+let routeContent: React.ReactNode = <App />
 
 try {
   installProductionHealthMonitor()
@@ -205,6 +205,8 @@ try {
   
 } catch (error) {
   console.error('[TRYAMM] Optional runtime installer failed before React mount; continuing with core UI.', error)
+  // Keep the public shell renderable even when an optional installer aborts startup.
+  routeContent = <App />
 }
 
 createRoot(document.getElementById('root')!).render(
