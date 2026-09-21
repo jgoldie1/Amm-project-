@@ -44,6 +44,9 @@ jobs:
         run: |
           npm install --no-audit --no-fund
           npm run check
+      - name: Business Passport Scan-to-Twin contract
+        working-directory: amm-omniverse
+        run: node tests/business-passport-scan-to-twin-contract.mjs
 
   completion-contract:
     runs-on: ubuntu-latest
