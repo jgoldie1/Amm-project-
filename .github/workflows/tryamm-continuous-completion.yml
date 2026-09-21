@@ -1,0 +1,169 @@
+name: TRYAMM Continuous Completion Convergence
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - feature/living-ai-universe-foundation
+      - feature/commerce-supply-network
+  pull_request:
+  schedule:
+    - cron: '10 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tryamm-continuous-completion-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  certify-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            amm-omniverse/package-lock.json
+      - name: Root install and full checks
+        run: |
+          npm install --no-audit --no-fund
+          npm run check
+      - name: Financial and marketplace safety contracts
+        run: |
+          node test/financial-marketplace-contract-runner.js
+          node test/financial-marketplace-no-fake-settlement-smoke.js
+      - name: Omniverse install and full checks
+        working-directory: amm-omniverse
+        run: |
+          npm install --no-audit --no-fund
+          npm run check
+      - name: Business Passport Scan-to-Twin contract
+        working-directory: amm-omniverse
+        run: |
+          node tests/business-passport-scan-to-twin-contract.mjs
+          node tests/business-passport-storefront-contract.mjs
+          node tests/inventory-authority-contract.mjs
+          node tests/commerce-transaction-ledger-contract.mjs
+          node tests/web3-ownership-settlement-contract.mjs
+          node tests/omni-after-dark-mission-contract.mjs
+          node tests/education-mission-task-assessment-contract.mjs
+          node tests/student-mission-classroom-contract.mjs
+          node tests/living-learning-mission-integration-contract.mjs
+          node tests/complete-education-gameplay-package-contract.mjs
+          node tests/learning-progress-orchestrator-contract.mjs
+
+  completion-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Enforce release-truth contract
+        shell: bash
+        run: |
+          test -f docs/living-ai-universe-foundation.md
+          test -f release/tryamm-completion-matrix.json
+          python3 - <<'PY'
+          import json
+          p='release/tryamm-completion-matrix.json'
+          d=json.load(open(p))
+          assert d.get('schema') == 'tryamm.completion-matrix.v1'
+          lanes=d.get('lanes',[])
+          assert len(lanes) >= 16
+          ids={x.get('id') for x in lanes}
+          required={'streetverse','hologpt','live_pk','commerce_passport','marketplace','supply','creator_army','economy','delivery','accessibility','native_apps','production'}
+          missing=sorted(required-ids)
+          assert not missing, 'missing completion lanes: '+', '.join(missing)
+          print('completion matrix lanes:', len(lanes))
+          PY
+          if [ -f docs/commerce-supply-network.md ]; then
+            grep -q 'DESIGN -> COMMITTED -> CI-GREEN -> MERGED -> DEPLOYED -> LIVE' docs/commerce-supply-network.md
+            grep -q 'QR/Passport -> guided capture' docs/commerce-supply-network.md
+            grep -q 'Holo Credits' docs/commerce-supply-network.md
+            grep -q 'Virtual Warehouse' docs/commerce-supply-network.md
+          fi
+
+  production-observation:
+    if: github.ref == 'refs/heads/main' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Probe production truth
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import datetime, json, urllib.error, urllib.request
+          targets=[
+            ('home','https://tryamm.online/',False,True),
+            ('streetverse','https://tryamm.online/streetverse',False,True),
+            ('release','https://tryamm.online/api/system/release',True,True),
+            ('creator-convergence','https://tryamm.online/api/system/creator-convergence',True,True),
+            ('economic-convergence','https://tryamm.online/api/system/economic-convergence',True,True),
+            ('hologpt-health','https://tryamm.online/api/ai/health',True,True),
+            ('creator-media-health','https://tryamm.online/api/media/health',True,False),
+            ('render-health','https://amm-project-d3zu.onrender.com/api/health',True,True),
+            ('render-financial-truth','https://amm-project-d3zu.onrender.com/api/financial-truth/health',True,True),
+            ('render-marketplace','https://amm-project-d3zu.onrender.com/api/marketplace/products',True,True),
+          ]
+          results=[]; hard=[]; blockers=[]
+          for name,url,want_json,hard_gate in targets:
+            status=None; parsed=None; detail=None; ok=False
+            try:
+              req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Continuous-Convergence/2.0','Cache-Control':'no-cache'})
+              with urllib.request.urlopen(req,timeout=45) as r:
+                status=r.status; body=r.read(250000).decode('utf-8','replace')
+                if want_json: parsed=json.loads(body)
+                ok=200 <= status < 400
+            except urllib.error.HTTPError as exc:
+              status=exc.code; detail=str(exc)
+              try: parsed=json.loads(exc.read().decode('utf-8','replace'))
+              except Exception: pass
+            except Exception as exc: detail=str(exc)
+            if name=='render-financial-truth' and ok:
+              ok=bool(parsed and parsed.get('ok') is True and parsed.get('authority')=='server' and parsed.get('movesRealMoney') is False and parsed.get('issuesRealOwnership') is False and parsed.get('providerSettlementRequired') is True)
+            if name=='render-marketplace' and ok:
+              ok=bool(parsed and parsed.get('ok') is True and parsed.get('authority')=='server' and parsed.get('inventoryAuthoritative') is True and parsed.get('clientMayMutateInventory') is False)
+            if name=='economic-convergence' and ok:
+              p=parsed or {}; w=p.get('wallet') or {}; o=p.get('ownership') or {}
+              ok=bool(p.get('ok') and p.get('synthetic') and not p.get('movesRealMoney') and not p.get('issuesRealOwnership') and w.get('withdrawableMinor')==0 and o.get('settledUnits')==0)
+            row={'gate':name,'ok':ok,'status':status,'hardGate':hard_gate,'error':detail}
+            results.append(row)
+            if not ok: (hard if hard_gate else blockers).append(name)
+          proof={
+            'schema':'tryamm.continuous-completion.v2',
+            'observedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            'hardFailures':hard,
+            'knownBlockers':blockers,
+            'fullGreen':not hard and not blockers,
+            'gates':results,
+            'releaseTruth':'CI can certify; it cannot truthfully declare the entire product complete without defined acceptance criteria and production/device evidence.'
+          }
+          with open('tryamm-continuous-convergence.json','w') as f: json.dump(proof,f,indent=2)
+          print(json.dumps(proof,indent=2))
+          if hard: raise SystemExit('HARD RELEASE REGRESSION: '+', '.join(hard))
+          PY
+      - name: Continuous completion summary
+        if: always()
+        run: |
+          {
+            echo '## TRYAMM Continuous Completion Convergence'
+            echo
+            echo '- Runs hourly and on relevant pushes/PRs; there is no date cutoff.'
+            echo '- CI certifies source, contracts, and observable production gates.'
+            echo '- It never fabricates device evidence, moves real money, creates credentials, weakens security, or auto-declares the whole app complete.'
+            echo '- Failed gates remain blockers until corrected by a reviewed code/configuration change.'
+            echo '- Completion means all explicitly defined acceptance gates are green, production routes are verified, and required physical-device evidence exists.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload convergence evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-continuous-convergence-${{ github.run_id }}
+          path: tryamm-continuous-convergence.json
+          if-no-files-found: warn
+          retention-days: 30

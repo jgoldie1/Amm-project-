@@ -58,6 +58,8 @@ import { installStreetVerseRacingAfterDarkRuntime } from './runtime/StreetVerseR
 import { installStreetVerseMissionDiscoveryRuntime } from './runtime/StreetVerseMissionDiscoveryRuntime'
 import { installSECSConstructRuntime } from './runtime/SECSConstructRuntime'
 import { installOmniverseEventFabricRuntime } from './runtime/OmniverseEventFabricRuntime'
+import { installLivingLearningMissionBridge } from './runtime/LivingLearningMissionBridge'
+import { installLearningProgressOrchestrator } from './runtime/LearningProgressOrchestrator'
 
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 // Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
@@ -76,6 +78,7 @@ const SpectraStudioCommandCenter=lazy(()=>import('./components/SpectraStudioComm
 const EthiopianBibleMetaverse=lazy(()=>import('./components/EthiopianBibleMetaverse'))
 const KingdomsPressOperations=lazy(()=>import('./components/KingdomsPressOperations'))
 const UnifiedCommerceHub=lazy(()=>import('./components/UnifiedCommerceHub'))
+const StudentMissionClassroom=lazy(()=>import('./components/StudentMissionClassroom'))
 
 installProductionHealthMonitor()
 installMediaCloudBridge()
@@ -118,11 +121,14 @@ installStreetVerseRacingAfterDarkRuntime()
 installStreetVerseMissionDiscoveryRuntime()
 installSECSConstructRuntime()
 installOmniverseEventFabricRuntime()
+installLivingLearningMissionBridge()
+installLearningProgressOrchestrator()
 
 const currentPath=window.location.pathname
 const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
 const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
 const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
+const isStudentClassroom=['/learn','/learn/','/student','/student/','/academy/classroom','/academy/classroom/'].includes(currentPath)
 const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
 const isLive=currentPath==='/live'||currentPath==='/live/'
 const isGuardian=currentPath==='/guardian'||currentPath==='/guardian/'
@@ -179,6 +185,7 @@ const mainShell=<>
 
 let routeContent
 if(isAccessibility)routeContent=<AccessibilityStatement />
+else if(isStudentClassroom)routeContent=<Suspense fallback={routeFallback}><StudentMissionClassroom /></Suspense>
 else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
 else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter onClose={()=>{window.location.href='/'}} /></Suspense>
 else if(isGuardian)routeContent=<Suspense fallback={routeFallback}><GuardianCommandCenter /></Suspense>
