@@ -37,6 +37,8 @@ export function recordLearningMissionEvidence(input:{mission:LivingLearningMissi
  const score=Math.max(0,Math.min(100,input.scorePercent))
  const completed=completeStreetVerseMission(input.mission.missionId,{learningEvidence:true,skillId:input.mission.skillId,scorePercent:score})
  const passport=input.passport??createLearningPassport({userId:'local-student'})
+ const studentId=passport.userId||input.mission.missionId.split(':').at(-1)||'local-student'
+ if(typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:learning:mission-result',{detail:{missionId:input.mission.missionId,studentId,skillId:input.mission.skillId,scorePercent:score,completed:true,submittedAt:new Date().toISOString()}}))
  return {completed,passport,evidence:{missionId:input.mission.missionId,skillId:input.mission.skillId,scorePercent:score,simulation:input.mission.realLifeSimulation}}
 }
 
