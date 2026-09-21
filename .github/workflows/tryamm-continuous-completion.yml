@@ -54,6 +54,7 @@ jobs:
           node tests/omni-after-dark-mission-contract.mjs
           node tests/education-mission-task-assessment-contract.mjs
           node tests/student-mission-classroom-contract.mjs
+          node tests/living-learning-mission-integration-contract.mjs
 
   completion-contract:
     runs-on: ubuntu-latest
