@@ -8,12 +8,13 @@ export default function StudentMissionClassroom(){
  const [profile]=useState(demoProfile)
  const [question,setQuestion]=useState('')
  const [status,setStatus]=useState('Choose Today, Homework, Missions, Test, Progress, or Ask Benny / JARVIS.')
+ const launchMission=()=>{window.dispatchEvent(new CustomEvent('tryamm:learning:mission-request',{detail:{skillId:'budget-builder',studentId:profile.studentId}}));setStatus('StreetVerse learning mission requested. Mission Discovery will compile the simulation from your current skill.')}
  const study=useMemo(()=>buildStudyPlan(profile),[profile])
  const ask=()=>{const gate=homeworkSupportBoundary(question);setStatus(gate.allowed?'Tutor mode: explain the concept, give a hint, review my attempt, then create similar practice.':gate.reason)}
  const actions=[
   ['TODAY',()=>setStatus(study.today.length?study.today.join(' • '):'No assigned tasks yet. Start with DIAGNOSE → TEACH → PRACTICE.')],
   ['HOMEWORK',()=>setStatus('Homework mode: understand → attempt → hint → feedback → retry. Student authors the submitted work.')],
-  ['MISSIONS',()=>setStatus('Mission mode: apply the skill inside StreetVerse, then preserve evidence in the Learning Passport.')],
+  ['MISSIONS',launchMission],
   ['TEST',()=>setStatus('Assessment mode: quiz/test evidence. Proctored or human-grade work stays with the authorized assessor.')],
   ['PROGRESS',()=>setStatus('Progress mode: mastery evidence → reteach gaps → different retry → Learning Passport.')],
  ]
