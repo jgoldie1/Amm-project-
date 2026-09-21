@@ -51,6 +51,7 @@ jobs:
           node tests/business-passport-storefront-contract.mjs
           node tests/inventory-authority-contract.mjs
           node tests/commerce-transaction-ledger-contract.mjs
+          node tests/web3-ownership-settlement-contract.mjs
           node tests/omni-after-dark-mission-contract.mjs
           node tests/education-mission-task-assessment-contract.mjs
           node tests/student-mission-classroom-contract.mjs
