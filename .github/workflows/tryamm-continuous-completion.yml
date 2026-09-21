@@ -53,6 +53,20 @@ jobs:
         shell: bash
         run: |
           test -f docs/living-ai-universe-foundation.md
+          test -f release/tryamm-completion-matrix.json
+          python3 - <<'PY'
+          import json
+          p='release/tryamm-completion-matrix.json'
+          d=json.load(open(p))
+          assert d.get('schema') == 'tryamm.completion-matrix.v1'
+          lanes=d.get('lanes',[])
+          assert len(lanes) >= 16
+          ids={x.get('id') for x in lanes}
+          required={'streetverse','hologpt','live_pk','commerce_passport','marketplace','supply','creator_army','economy','delivery','accessibility','native_apps','production'}
+          missing=sorted(required-ids)
+          assert not missing, 'missing completion lanes: '+', '.join(missing)
+          print('completion matrix lanes:', len(lanes))
+          PY
           if [ -f docs/commerce-supply-network.md ]; then
             grep -q 'DESIGN -> COMMITTED -> CI-GREEN -> MERGED -> DEPLOYED -> LIVE' docs/commerce-supply-network.md
             grep -q 'QR/Passport -> guided capture' docs/commerce-supply-network.md
