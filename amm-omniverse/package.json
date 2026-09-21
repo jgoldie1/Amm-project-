@@ -21,7 +21,8 @@
     "e2e:install": "playwright install chromium",
     "asset:optimize": "gltf-transform optimize",
     "asset:inspect": "gltf-transform inspect",
-    "check": "npm run lint && npm run security && npm run readiness && npm run typecheck && npm run build"
+    "check": "npm run lint && npm run security && npm run readiness && npm run test:hologpt-foundation && npm run typecheck && npm run build",
+    "test:hologpt-foundation": "node tests/hologpt-build-guardian-contract.mjs && node tests/hologpt-universal-intake-context-contract.mjs && node tests/hologpt-autonomous-repair-contract.mjs && node tests/hologpt-founder-command-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
