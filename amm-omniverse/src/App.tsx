@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { useGameStore } from './game/state/useGameStore'
 import { NotifToast } from './components/UIScreens'
 import TryAMMHome from './components/TryAMMHome'
@@ -49,7 +49,6 @@ const StaysAgencyFamilyHub = lazy(() => import('./components/StaysAgencyFamilyHu
 
 export default function App() {
   const screen = useGameStore(s => s.screen)
-  const setScreen = useGameStore(s => s.setScreen)
   const [showPricing, setShowPricing] = useState(false)
   const [showHoloverse, setShowHoloverse] = useState(false)
   const [showBennie, setShowBennie] = useState(false)
@@ -85,19 +84,6 @@ export default function App() {
   const [staysAgencyFamilyInitialTab, setStaysAgencyFamilyInitialTab] = useState<'stays'|'passport'>('stays')
   const [showNexus, setShowNexus] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
-
-  // Installed TRYAMM must always open at the gateway instead of resuming a stale StreetVerse screen.
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('source') !== 'pwa') return
-
-    setScreen('intro')
-
-    // Normalize legacy PWA launch parameters while preserving the explicit PWA marker.
-    if (params.has('screen') || params.has('action')) {
-      window.history.replaceState({}, '', `${window.location.pathname}?source=pwa${window.location.hash}`)
-    }
-  }, [setScreen])
 
   ;(window as any).__showPricing = () => setShowPricing(true)
   ;(window as any).__showHoloverse = () => setShowHoloverse(true)
