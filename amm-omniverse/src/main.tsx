@@ -18,47 +18,6 @@ import StreetVerseFaithChronoPortal from './components/StreetVerseFaithChronoPor
 import HoloExperienceLauncher from './components/HoloExperienceLauncher'
 import { getStandaloneSite } from './data/standaloneSiteRegistry'
 import './accessibility/accessibility.css'
-import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
-import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
-import { installStreetVerseLivingWorldRuntime } from './runtime/StreetVerseLivingWorldRuntime'
-import { installStreetVerseWorldMemory } from './runtime/StreetVerseWorldMemory'
-import { installStreetVerseCheckpointRuntime } from './runtime/StreetVerseCheckpointRuntime'
-import { installStreetVersePerformanceBudget } from './runtime/StreetVersePerformanceBudget'
-import { installStreetVerseCharacterMissionRuntime } from './runtime/StreetVerseCharacterMissionRuntime'
-import { installGuardianMissionProgressRuntime } from './runtime/GuardianMissionProgressRuntime'
-import { installPublicServiceCareerRuntime } from './runtime/PublicServiceCareerRuntime'
-import { installStreetVerseCareerExtractionRuntime } from './runtime/StreetVerseCareerExtractionRuntime'
-import { installDynamicDispatchRuntime } from './runtime/DynamicDispatchRuntime'
-import { installStreetVerseResilienceRuntime } from './runtime/StreetVerseResilienceRuntime'
-import { installStreetVerseUnifiedProgressionRuntime } from './runtime/StreetVerseUnifiedProgressionRuntime'
-import { installStreetVerseGameModeRuntime } from './runtime/StreetVerseGameModeRuntime'
-import { installStreetVerseCommerceWorldRuntime } from './runtime/StreetVerseCommerceWorldRuntime'
-import { installCommerceJobTrainingRuntime } from './runtime/CommerceJobTrainingRuntime'
-import { installRegulatedBusinessNetworkRuntime } from './runtime/RegulatedBusinessNetworkRuntime'
-import { installWorldEconomyOrchestratorRuntime } from './runtime/WorldEconomyOrchestratorRuntime'
-import { installLearnWorkBusinessBridgeRuntime } from './runtime/LearnWorkBusinessBridgeRuntime'
-import { installFaithLifeSimulationRuntime } from './runtime/FaithLifeSimulationRuntime'
-import { installGlobalCityVerseRuntime } from './runtime/GlobalCityVerseRuntime'
-import { installGlobalWorldHierarchyRuntime } from './runtime/GlobalWorldHierarchyRuntime'
-import { installGlobalTravelExperienceRuntime } from './runtime/GlobalTravelExperienceRuntime'
-import { installNiaSourceRuntime } from './runtime/NiaSourceRuntime'
-import { installQuantumSourcingRuntime } from './runtime/QuantumSourcingRuntime'
-import { installMetaverseBusinessBuilderRuntime } from './runtime/MetaverseBusinessBuilderRuntime'
-import { installAIWebsiteBusinessBuilderRuntime } from './runtime/AIWebsiteBusinessBuilderRuntime'
-import { installBusinessTemplateFranchiseRuntime } from './runtime/BusinessTemplateFranchiseRuntime'
-import { installAICafeMultiAgentRuntime } from './runtime/AICafeMultiAgentRuntime'
-import { installMiddleverseRemoteWorkRuntime } from './runtime/MiddleverseRemoteWorkRuntime'
-import { installBroadcastStudioRuntime } from './runtime/BroadcastStudioRuntime'
-import { installStubbsHarmonyAIRuntime } from './runtime/StubbsHarmonyAIRuntime'
-import { installCreatorExperienceRuntime } from './runtime/CreatorExperienceRuntime'
-import { installCreatorCommerceOrchestrator } from './runtime/CreatorCommerceOrchestrator'
-import { installSocialShareBridge } from './runtime/SocialShareBridge'
-import { installJarvisOrchestratorRuntime } from './runtime/JarvisOrchestratorRuntime'
-import { installStreetVerseGrowthNetworkRuntime } from './runtime/StreetVerseGrowthNetworkRuntime'
-import { installStreetVerseRacingAfterDarkRuntime } from './runtime/StreetVerseRacingAfterDarkRuntime'
-import { installStreetVerseMissionDiscoveryRuntime } from './runtime/StreetVerseMissionDiscoveryRuntime'
-import { installSECSConstructRuntime } from './runtime/SECSConstructRuntime'
-import { installOmniverseEventFabricRuntime } from './runtime/OmniverseEventFabricRuntime'
 
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 // Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
@@ -81,47 +40,6 @@ const UnifiedCommerceHub=lazy(()=>import('./components/UnifiedCommerceHub'))
 let routeContent: React.ReactNode = <App />
 
 try {
-  installProductionHealthMonitor()
-  installMediaCloudBridge()
-  installStreetVerseLivingWorldRuntime()
-  installStreetVerseWorldMemory()
-  installStreetVerseCheckpointRuntime()
-  installStreetVersePerformanceBudget()
-  installStreetVerseCharacterMissionRuntime()
-  installGuardianMissionProgressRuntime()
-  installPublicServiceCareerRuntime()
-  installStreetVerseCareerExtractionRuntime()
-  installDynamicDispatchRuntime()
-  installStreetVerseResilienceRuntime()
-  installStreetVerseUnifiedProgressionRuntime()
-  installStreetVerseGameModeRuntime()
-  installStreetVerseCommerceWorldRuntime()
-  installCommerceJobTrainingRuntime()
-  installRegulatedBusinessNetworkRuntime()
-  installWorldEconomyOrchestratorRuntime()
-  installLearnWorkBusinessBridgeRuntime()
-  installFaithLifeSimulationRuntime()
-  installGlobalCityVerseRuntime()
-  installGlobalWorldHierarchyRuntime()
-  installGlobalTravelExperienceRuntime()
-  installNiaSourceRuntime()
-  installQuantumSourcingRuntime()
-  installMetaverseBusinessBuilderRuntime()
-  installAIWebsiteBusinessBuilderRuntime()
-  installBusinessTemplateFranchiseRuntime()
-  installAICafeMultiAgentRuntime()
-  installMiddleverseRemoteWorkRuntime()
-  installBroadcastStudioRuntime()
-  installStubbsHarmonyAIRuntime()
-  installCreatorExperienceRuntime()
-  installCreatorCommerceOrchestrator()
-  installSocialShareBridge()
-  installJarvisOrchestratorRuntime()
-  installStreetVerseGrowthNetworkRuntime()
-  installStreetVerseRacingAfterDarkRuntime()
-  installStreetVerseMissionDiscoveryRuntime()
-  installSECSConstructRuntime()
-  installOmniverseEventFabricRuntime()
   
   const currentPath=window.location.pathname
   const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
@@ -213,6 +131,51 @@ const rootElement = document.getElementById('root')
 if (!rootElement) throw new Error('[TRYAMM] Missing #root mount element')
 
 const root = createRoot(rootElement)
+// Runtime installers are loaded only after the core bundle has evaluated and a mount target exists.
+// A broken optional runtime module can no longer abort JavaScript bootstrap before React renders.
+const installOptionalRuntimes = () => {
+  import('./runtime/ProductionHealthMonitor').then(m => m.installProductionHealthMonitor()).catch(error => console.error('[TRYAMM] Optional runtime installProductionHealthMonitor failed after core mount.', error))
+  import('./runtime/mediaCloudBridge').then(m => m.installMediaCloudBridge()).catch(error => console.error('[TRYAMM] Optional runtime installMediaCloudBridge failed after core mount.', error))
+  import('./runtime/StreetVerseLivingWorldRuntime').then(m => m.installStreetVerseLivingWorldRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseLivingWorldRuntime failed after core mount.', error))
+  import('./runtime/StreetVerseWorldMemory').then(m => m.installStreetVerseWorldMemory()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseWorldMemory failed after core mount.', error))
+  import('./runtime/StreetVerseCheckpointRuntime').then(m => m.installStreetVerseCheckpointRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseCheckpointRuntime failed after core mount.', error))
+  import('./runtime/StreetVersePerformanceBudget').then(m => m.installStreetVersePerformanceBudget()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVersePerformanceBudget failed after core mount.', error))
+  import('./runtime/StreetVerseCharacterMissionRuntime').then(m => m.installStreetVerseCharacterMissionRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseCharacterMissionRuntime failed after core mount.', error))
+  import('./runtime/GuardianMissionProgressRuntime').then(m => m.installGuardianMissionProgressRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installGuardianMissionProgressRuntime failed after core mount.', error))
+  import('./runtime/PublicServiceCareerRuntime').then(m => m.installPublicServiceCareerRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installPublicServiceCareerRuntime failed after core mount.', error))
+  import('./runtime/StreetVerseCareerExtractionRuntime').then(m => m.installStreetVerseCareerExtractionRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseCareerExtractionRuntime failed after core mount.', error))
+  import('./runtime/DynamicDispatchRuntime').then(m => m.installDynamicDispatchRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installDynamicDispatchRuntime failed after core mount.', error))
+  import('./runtime/StreetVerseResilienceRuntime').then(m => m.installStreetVerseResilienceRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseResilienceRuntime failed after core mount.', error))
+  import('./runtime/StreetVerseUnifiedProgressionRuntime').then(m => m.installStreetVerseUnifiedProgressionRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseUnifiedProgressionRuntime failed after core mount.', error))
+  import('./runtime/StreetVerseGameModeRuntime').then(m => m.installStreetVerseGameModeRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseGameModeRuntime failed after core mount.', error))
+  import('./runtime/StreetVerseCommerceWorldRuntime').then(m => m.installStreetVerseCommerceWorldRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseCommerceWorldRuntime failed after core mount.', error))
+  import('./runtime/CommerceJobTrainingRuntime').then(m => m.installCommerceJobTrainingRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installCommerceJobTrainingRuntime failed after core mount.', error))
+  import('./runtime/RegulatedBusinessNetworkRuntime').then(m => m.installRegulatedBusinessNetworkRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installRegulatedBusinessNetworkRuntime failed after core mount.', error))
+  import('./runtime/WorldEconomyOrchestratorRuntime').then(m => m.installWorldEconomyOrchestratorRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installWorldEconomyOrchestratorRuntime failed after core mount.', error))
+  import('./runtime/LearnWorkBusinessBridgeRuntime').then(m => m.installLearnWorkBusinessBridgeRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installLearnWorkBusinessBridgeRuntime failed after core mount.', error))
+  import('./runtime/FaithLifeSimulationRuntime').then(m => m.installFaithLifeSimulationRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installFaithLifeSimulationRuntime failed after core mount.', error))
+  import('./runtime/GlobalCityVerseRuntime').then(m => m.installGlobalCityVerseRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installGlobalCityVerseRuntime failed after core mount.', error))
+  import('./runtime/GlobalWorldHierarchyRuntime').then(m => m.installGlobalWorldHierarchyRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installGlobalWorldHierarchyRuntime failed after core mount.', error))
+  import('./runtime/GlobalTravelExperienceRuntime').then(m => m.installGlobalTravelExperienceRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installGlobalTravelExperienceRuntime failed after core mount.', error))
+  import('./runtime/NiaSourceRuntime').then(m => m.installNiaSourceRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installNiaSourceRuntime failed after core mount.', error))
+  import('./runtime/QuantumSourcingRuntime').then(m => m.installQuantumSourcingRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installQuantumSourcingRuntime failed after core mount.', error))
+  import('./runtime/MetaverseBusinessBuilderRuntime').then(m => m.installMetaverseBusinessBuilderRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installMetaverseBusinessBuilderRuntime failed after core mount.', error))
+  import('./runtime/AIWebsiteBusinessBuilderRuntime').then(m => m.installAIWebsiteBusinessBuilderRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installAIWebsiteBusinessBuilderRuntime failed after core mount.', error))
+  import('./runtime/BusinessTemplateFranchiseRuntime').then(m => m.installBusinessTemplateFranchiseRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installBusinessTemplateFranchiseRuntime failed after core mount.', error))
+  import('./runtime/AICafeMultiAgentRuntime').then(m => m.installAICafeMultiAgentRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installAICafeMultiAgentRuntime failed after core mount.', error))
+  import('./runtime/MiddleverseRemoteWorkRuntime').then(m => m.installMiddleverseRemoteWorkRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installMiddleverseRemoteWorkRuntime failed after core mount.', error))
+  import('./runtime/BroadcastStudioRuntime').then(m => m.installBroadcastStudioRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installBroadcastStudioRuntime failed after core mount.', error))
+  import('./runtime/StubbsHarmonyAIRuntime').then(m => m.installStubbsHarmonyAIRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStubbsHarmonyAIRuntime failed after core mount.', error))
+  import('./runtime/CreatorExperienceRuntime').then(m => m.installCreatorExperienceRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installCreatorExperienceRuntime failed after core mount.', error))
+  import('./runtime/CreatorCommerceOrchestrator').then(m => m.installCreatorCommerceOrchestrator()).catch(error => console.error('[TRYAMM] Optional runtime installCreatorCommerceOrchestrator failed after core mount.', error))
+  import('./runtime/SocialShareBridge').then(m => m.installSocialShareBridge()).catch(error => console.error('[TRYAMM] Optional runtime installSocialShareBridge failed after core mount.', error))
+  import('./runtime/JarvisOrchestratorRuntime').then(m => m.installJarvisOrchestratorRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installJarvisOrchestratorRuntime failed after core mount.', error))
+  import('./runtime/StreetVerseGrowthNetworkRuntime').then(m => m.installStreetVerseGrowthNetworkRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseGrowthNetworkRuntime failed after core mount.', error))
+  import('./runtime/StreetVerseRacingAfterDarkRuntime').then(m => m.installStreetVerseRacingAfterDarkRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseRacingAfterDarkRuntime failed after core mount.', error))
+  import('./runtime/StreetVerseMissionDiscoveryRuntime').then(m => m.installStreetVerseMissionDiscoveryRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseMissionDiscoveryRuntime failed after core mount.', error))
+  import('./runtime/SECSConstructRuntime').then(m => m.installSECSConstructRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installSECSConstructRuntime failed after core mount.', error))
+  import('./runtime/OmniverseEventFabricRuntime').then(m => m.installOmniverseEventFabricRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installOmniverseEventFabricRuntime failed after core mount.', error))
+}
 // Mount the selected public route first. Optional global launchers must never be
 // able to prevent the TRYAMM shell or StreetVerse from becoming visible.
 root.render(
@@ -222,6 +185,7 @@ root.render(
 )
 
 queueMicrotask(() => {
+  installOptionalRuntimes()
   try {
     root.render(
       <StrictMode>
