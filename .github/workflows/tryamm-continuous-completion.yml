@@ -49,6 +49,7 @@ jobs:
         run: |
           node tests/business-passport-scan-to-twin-contract.mjs
           node tests/business-passport-storefront-contract.mjs
+          node tests/inventory-authority-contract.mjs
 
   completion-contract:
     runs-on: ubuntu-latest
