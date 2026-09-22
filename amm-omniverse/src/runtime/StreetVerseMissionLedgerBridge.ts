@@ -14,6 +14,7 @@ type MissionCompleteDetail={
 
 const CLIENT_MISSION_ID='district-01-mobile-safe'
 const PROGRAM_ID='streetverse_first_drop'
+const RECEIPT_KEY='tryamm.streetverse.authoritative-reward.v1'
 let installed=false
 let inFlight=false
 
@@ -26,6 +27,7 @@ function emitStatus(detail:Record<string,unknown>){
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-reward-status',{detail}))
 }
 
+function saveReceipt(detail:Record<string,unknown>){try{localStorage.setItem(RECEIPT_KEY,JSON.stringify({...detail,savedAt:new Date().toISOString()}))}catch{}}
 function toast(message:string){
   window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message}}))
 }
@@ -87,6 +89,7 @@ async function settleMission(detail:MissionCompleteDetail){
       serverDetermined:true,
     }
     emitStatus(authoritative)
+    saveReceipt(authoritative)
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-authoritative-reward',{detail:authoritative}))
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-handoff',{detail:{source:'streetverse-first-drop',missionId:CLIENT_MISSION_ID,missionRunId,programId:PROGRAM_ID}}))
     window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'streetverse-first-drop',missionId:CLIENT_MISSION_ID,missionRunId,verified:true}}))
@@ -107,6 +110,7 @@ async function settleMission(detail:MissionCompleteDetail){
 export function installStreetVerseMissionLedgerBridge(){
   if(installed)return
   installed=true
+  try{const saved=JSON.parse(localStorage.getItem(RECEIPT_KEY)||'null');if(saved?.serverDetermined===true){queueMicrotask(()=>{emitStatus({...saved,status:'RESTORED_VERIFIED_RECEIPT',restored:true});window.dispatchEvent(new CustomEvent('tryamm:streetverse-authoritative-reward-restored',{detail:{...saved,restored:true}}))})}}catch{}
   window.addEventListener('tryamm:streetverse-mission-complete',event=>{
     const detail=(event as CustomEvent<MissionCompleteDetail>).detail||{}
     const missionId=detail.id||detail.missionId||''
