@@ -11,7 +11,7 @@ export default function StreetVerseMobileWalkControls(){
  const releaseAll=()=>{active.current={up:false,down:false,left:false,right:false};emit()}
  useEffect(()=>{const release=()=>releaseAll();window.addEventListener('blur',release);window.addEventListener('pointercancel',release);document.addEventListener('visibilitychange',release);return()=>{window.removeEventListener('blur',release);window.removeEventListener('pointercancel',release);document.removeEventListener('visibilitychange',release)}},[])
  if(!mobile)return null
- return <div aria-label="StreetVerse mobile walking controls" style={{position:'fixed',left:10,bottom:'max(18px, env(safe-area-inset-bottom))',zIndex:17030,width:172,height:150,pointerEvents:'none',fontFamily:'system-ui',userSelect:'none',WebkitUserSelect:'none'}}>
+ return <div aria-label="StreetVerse mobile walking controls" style={{position:'fixed',left:'max(10px, env(safe-area-inset-left))',bottom:'max(14px, env(safe-area-inset-bottom))',zIndex:19000,width:172,height:150,pointerEvents:'none',fontFamily:'system-ui',userSelect:'none',WebkitUserSelect:'none'}}>
    <div style={{position:'absolute',left:55,top:0}}><Pad label="▲" dir="up" onSet={set}/></div>
    <div style={{position:'absolute',left:0,top:50}}><Pad label="◀" dir="left" onSet={set}/></div>
    <div style={{position:'absolute',left:110,top:50}}><Pad label="▶" dir="right" onSet={set}/></div>
@@ -21,5 +21,5 @@ export default function StreetVerseMobileWalkControls(){
 }
 
 function Pad({label,dir,onSet}:{label:string;dir:Dir;onSet:(d:Dir,v:boolean)=>void}){
- return <button aria-label={`Move ${dir}`} onContextMenu={e=>e.preventDefault()} onPointerDown={e=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);onSet(dir,true)}} onPointerUp={e=>{try{e.currentTarget.releasePointerCapture(e.pointerId)}catch{};onSet(dir,false)}} onPointerCancel={()=>onSet(dir,false)} onPointerLeave={e=>{if(e.buttons===0)onSet(dir,false)}} style={{pointerEvents:'auto',width:58,height:48,borderRadius:14,border:'1px solid #66dcff99',background:'rgba(4,20,31,.9)',color:'#dffaff',fontSize:20,fontWeight:950,touchAction:'none',WebkitTapHighlightColor:'transparent',boxShadow:'0 6px 18px #0008'}}>{label}</button>
+ return <button aria-label={`Move ${dir}`} onContextMenu={e=>e.preventDefault()} onPointerDown={e=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);onSet(dir,true)}} onPointerUp={e=>{try{e.currentTarget.releasePointerCapture(e.pointerId)}catch{};onSet(dir,false)}} onPointerCancel={()=>onSet(dir,false)} onPointerLeave={e=>{if(e.buttons===0)onSet(dir,false)}} style={{pointerEvents:'auto',width:58,height:48,borderRadius:14,border:'1px solid #66dcff99',background:'rgba(4,20,31,.72)',color:'#dffaff',fontSize:20,fontWeight:950,touchAction:'none',WebkitTapHighlightColor:'transparent',boxShadow:'0 6px 18px #0008'}}>{label}</button>
 }
