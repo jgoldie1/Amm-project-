@@ -36,6 +36,7 @@ export function installStreetVerseHydeParkMissionRuntime(){
   emit('tryamm:hyde-park-mission-progress',{missionId:HYDE_PARK_MISSION_ID,checkpoint,visited:state.visited,progress:Math.round(state.visited.length/HYDE_PARK_CHECKPOINTS.length*100),completed:state.completed,mobileSafeMode:Boolean(detail.mobileSafeMode),htmlCity:Boolean(detail.htmlCity)})
   if(state.completed){
    emit('tryamm:hyde-park-mission-complete',{missionId:HYDE_PARK_MISSION_ID,visited:state.visited,reward:{xp:200,holoCredits:500,cashCents:0},requiresServerClaim:true,reelHandoff:true})
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{id:HYDE_PARK_MISSION_ID,missionId:HYDE_PARK_MISSION_ID,source:'streetverse-mobile-lite',visited:state.visited,total:HYDE_PARK_CHECKPOINTS.length,mobileSafeMode:false,htmlCity:false}}))
    emit('tryamm:streetverse-gameplay-action',{source:'hyde-park-first-drop',missionId:HYDE_PARK_MISSION_ID,action:'complete-delivery'})
    emit('tryamm:toast',{message:'Hyde Park First Drop complete • reward ready to claim • 200 XP + 500 Holo Credits'})
   }
