@@ -1,4 +1,6 @@
-import { create } from 'zustand'\n\nconst STREETVERSE_HANDOFF_KEY = 'tryamm:streetverse-handoff:v1'
+import { create } from 'zustand'
+
+const STREETVERSE_HANDOFF_KEY = 'tryamm:streetverse-handoff:v1'
 
 export type Screen = 'intro' | 'login' | 'city' | 'portal' | 'sports' | 'marketplace' | 'music' | 'faith' | 'blockchain'
 
@@ -133,7 +135,29 @@ const DEFAULT_NPCS: NPC[] = [
     dialogue: ['Keep it clean out here.', 'Wanted level: watch yourself.', 'AMM City police — move along.'] },
 ]
 
-function readStreetVerseHandoff(): Partial<GameState> {\n  if (typeof window === 'undefined') return {}\n  try {\n    const raw = sessionStorage.getItem(STREETVERSE_HANDOFF_KEY)\n    if (!raw) return {}\n    sessionStorage.removeItem(STREETVERSE_HANDOFF_KEY)\n    const saved = JSON.parse(raw)\n    return {\n      ...(saved.player ? { player: saved.player } : {}),\n      ...(saved.missions ? { missions: saved.missions } : {}),\n      ...(saved.vehicles ? { vehicles: saved.vehicles } : {}),\n      ...(typeof saved.walletConnected === 'boolean' ? { walletConnected: saved.walletConnected } : {}),\n      ...(typeof saved.walletAddress === 'string' ? { walletAddress: saved.walletAddress } : {}),\n      ...(typeof saved.nftCount === 'number' ? { nftCount: saved.nftCount } : {}),\n    }\n  } catch {\n    return {}\n  }\n}\n\nconst STREETVERSE_HANDOFF = readStreetVerseHandoff()\n\nexport const useGameStore = create<GameState>((set, get) => ({
+function readStreetVerseHandoff(): Partial<GameState> {
+  if (typeof window === 'undefined') return {}
+  try {
+    const raw = sessionStorage.getItem(STREETVERSE_HANDOFF_KEY)
+    if (!raw) return {}
+    sessionStorage.removeItem(STREETVERSE_HANDOFF_KEY)
+    const saved = JSON.parse(raw)
+    return {
+      ...(saved.player ? { player: saved.player } : {}),
+      ...(saved.missions ? { missions: saved.missions } : {}),
+      ...(saved.vehicles ? { vehicles: saved.vehicles } : {}),
+      ...(typeof saved.walletConnected === 'boolean' ? { walletConnected: saved.walletConnected } : {}),
+      ...(typeof saved.walletAddress === 'string' ? { walletAddress: saved.walletAddress } : {}),
+      ...(typeof saved.nftCount === 'number' ? { nftCount: saved.nftCount } : {}),
+    }
+  } catch {
+    return {}
+  }
+}
+
+const STREETVERSE_HANDOFF = readStreetVerseHandoff()
+
+export const useGameStore = create<GameState>((set, get) => ({
   screen: 'intro',
   activeMusic: null,
   radioStation: 0,
