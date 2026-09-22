@@ -6,6 +6,7 @@ import {installStreetVerseHydeParkMissionRuntime} from '../runtime/StreetVerseHy
 import {installStreetVerseAfterDarkAlphaRuntime} from '../runtime/StreetVerseAfterDarkAlphaRuntime'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
+import StreetVerseMobileGameShell from './StreetVerseMobileGameShell'
 
 const StreetVersePlayableWorld=lazy(()=>import('./StreetVersePlayableWorld'))
 const StreetVerseFullWorldOverlays=lazy(()=>import('./StreetVerseFullWorldOverlays'))
@@ -129,12 +130,14 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  },[safe])
 
  if(safe)return <>
+  <StreetVerseMobileGameShell onClose={closeStreetVerse}/>
   <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>
   <StreetVerseAfterDarkAlpha/>
   <Suspense fallback={null}><StreetVerseReelEventBridge/></Suspense>
  </>
 
  return <>
+  <StreetVerseMobileGameShell onClose={closeStreetVerse}/>
   <Suspense fallback={<StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>}>
    <StreetVersePlayableWorld onClose={closeStreetVerse}/>
   </Suspense>
