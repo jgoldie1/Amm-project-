@@ -17,6 +17,8 @@ const CHARACTERS:Character[]=[
  {name:'Shawndell Shelton',role:'Sister / Legacy',color:0xa68bff,skin:0x9b6647,accent:0xe9dcff,x:6,z:3},
  {name:'Deon Ham',role:'Family / StreetVerse',color:0xff8b5c,skin:0x815039,accent:0x252a33,x:12,z:-5},
  {name:'Asia Watson',role:'Family / StreetVerse',color:0x59e7ff,skin:0x9a674d,accent:0xf2ffff,x:18,z:2},
+ {name:'Benny',role:'Family / Omni Host',color:0x66f0c2,skin:0x86563d,accent:0xeafff8,x:24,z:-5},
+ {name:'Simone J',role:'Family / Postal Worker',color:0x5b8cff,skin:0x8f5b40,accent:0xffffff,x:30,z:2},
 ]
 const DIALOGUE:Record<string,string[]>={
  BJ:['StreetVerse is moving. Pick a mission and build your lane.','The family district connects to the whole TRYAMM world.'],
@@ -26,6 +28,8 @@ const DIALOGUE:Record<string,string[]>={
  'Shawndell Shelton':['This family world should feel alive, not like a menu.','Walk with me, then check the CreatorVerse storefront.'],
  'Deon Ham':['GameVerse is open. Bring the competition into the family district.','Movement, missions and business should all connect.'],
  'Asia Watson':['The HoloVerse storefronts are part of the story now.','Explore first. The map should reveal itself through people.'],
+ Benny:['I can guide you through the Omni systems and connect the family story to the wider world.','Every world needs a host who can help people find the next experience.'],
+ 'Simone J':['The post office connects every neighborhood. A letter or package can become a real StreetVerse mission.','Mail routes can connect homes, businesses, creators and family stories across the city.'],
 }
 const WORLD_STORES:WorldStore[]=[
  {world:'StreetVerse',store:'All American Marketplace',description:'Walkable city commerce, missions, creators and local businesses.',action:()=>{(window as any).__showHoloMarketplace?.()}},
