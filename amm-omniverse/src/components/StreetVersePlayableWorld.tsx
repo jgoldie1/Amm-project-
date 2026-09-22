@@ -24,13 +24,15 @@ export function shouldUseStreetVerseSafeMode(){
  if(typeof navigator==='undefined'||typeof window==='undefined')return false
  const ua=navigator.userAgent||''
  const appleMobile=/iPhone|iPad|iPod/i.test(ua)
- const olderIOS=/OS (1[0-6])[_\d]* like Mac OS X/i.test(ua)
  const memory=Number((navigator as Navigator & {deviceMemory?:number}).deviceMemory||0)
  const cores=Number(navigator.hardwareConcurrency||0)
  const narrow=Math.min(window.innerWidth||9999,window.innerHeight||9999)<=480
  const constrained=(memory>0&&memory<=4)||(cores>0&&cores<=4)
  if(!hasUsableWebGL())return true
- return appleMobile&&(olderIOS||narrow||constrained)||(!appleMobile&&narrow&&constrained)
+ // Match the route-level boot policy: a WebGL-capable iPhone gets the
+ // mobile playable world first. RuntimeGuard still self-heals to SafeWorld
+ // if the canvas fails, loses context, or stops producing heartbeats.
+ return !appleMobile&&narrow&&constrained
 }
 
 class StreetVerseWorldBoundary extends Component<{onClose:()=>void;children:ReactNode},{failed:boolean}>{
