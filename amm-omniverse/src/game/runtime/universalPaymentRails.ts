@@ -64,6 +64,7 @@ export function isWithdrawableWallet(wallet: WalletKind): boolean {
 
 export function canSettleMoneyEvent(event: UniversalMoneyEvent, rail: PaymentRail): boolean {
   return event.provider === rail.id &&
+    rail.supportsPayout &&
     event.wallet === 'omni-cash' &&
     event.state === 'verified' &&
     event.amountMinor > 0 &&
