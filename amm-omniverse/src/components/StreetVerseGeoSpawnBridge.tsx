@@ -4,6 +4,7 @@ import {getStreetVerseCommunitySlice} from '../config/streetverseCommunitySlices
 import {installStreetVerseJourneyQARuntime} from '../runtime/StreetVerseJourneyQARuntime'
 import {installStreetVerseHydeParkMissionRuntime} from '../runtime/StreetVerseHydeParkMissionRuntime'
 import {installStreetVerseAfterDarkAlphaRuntime} from '../runtime/StreetVerseAfterDarkAlphaRuntime'
+import {installStreetVerseMissionLedgerBridge} from '../runtime/StreetVerseMissionLedgerBridge'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
 import StreetVerseMobileGameShell from './StreetVerseMobileGameShell'
@@ -118,6 +119,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>installStreetVerseJourneyQARuntime(),[])
  useLayoutEffect(()=>installStreetVerseHydeParkMissionRuntime(),[])
  useLayoutEffect(()=>installStreetVerseAfterDarkAlphaRuntime(),[])
+ useLayoutEffect(()=>{installStreetVerseMissionLedgerBridge()},[])
  useEffect(()=>{
   const destination=prepared.destination
   const mapped=prepared.mapped
