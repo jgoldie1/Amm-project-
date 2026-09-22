@@ -30,6 +30,29 @@ function toast(message:string){
   window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message}}))
 }
 
+async function getJson(path:string,token:string){
+  const response=await fetch(`${apiBase()}${path}`,{headers:{Authorization:`Bearer ${token}`}})
+  const data=await response.json().catch(()=>({}))
+  if(!response.ok)throw new Error(String(data?.error||`Request failed (${response.status})`))
+  return data
+}
+
+async function restoreAuthoritativeState(){
+  try{
+    const token=await getAccessToken()
+    if(!token)return
+    const [state,history]=await Promise.all([
+      getJson('/api/get-paid-to-play/player-state',token),
+      getJson('/api/get-paid-to-play/history',token),
+    ])
+    const claims=Array.isArray(history?.claims)?history.claims:[]
+    const claim=claims.find((row:any)=>String(row?.program_id||row?.programId||'')===PROGRAM_ID&&String(row?.status||'')==='verified')||null
+    const detail={status:claim?'RESTORED_VERIFIED':'RESTORED_STATE',programId:PROGRAM_ID,claim,playerState:state?.playerState||null,serverDetermined:true,restored:true}
+    emitStatus(detail)
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-authoritative-reward',{detail}))
+  }catch{}
+}
+
 async function postJson(path:string,token:string,body:unknown){
   const response=await fetch(`${apiBase()}${path}`,{
     method:'POST',
@@ -107,6 +130,7 @@ async function settleMission(detail:MissionCompleteDetail){
 export function installStreetVerseMissionLedgerBridge(){
   if(installed)return
   installed=true
+  queueMicrotask(()=>{void restoreAuthoritativeState()})
   window.addEventListener('tryamm:streetverse-mission-complete',event=>{
     const detail=(event as CustomEvent<MissionCompleteDetail>).detail||{}
     const missionId=detail.id||detail.missionId||''
