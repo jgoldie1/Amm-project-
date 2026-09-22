@@ -93,6 +93,6 @@ export default function StreetVersePlayableWorld({onClose}:{onClose:()=>void}){
  const mobile=useMemo(isMobileDevice,[])
  const safe=useMemo(shouldUseStreetVerseSafeMode,[])
  if(safe)return <StreetVerseSafeWorld onClose={onClose}/>
- if(mobile)return <StreetVerseWorldBoundary onClose={onClose}><MobileRuntimeGuard onClose={onClose}><Suspense fallback={<StreetVerseSafeWorld onClose={onClose}/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense><StreetVerseMobileWalkControls/></MobileRuntimeGuard></StreetVerseWorldBoundary>
+ if(mobile)return <StreetVerseWorldBoundary onClose={onClose}><MobileRuntimeGuard onClose={onClose}><Suspense fallback={<StreetVerseSafeWorld onClose={onClose}/>}><StreetVerseMobileWorld onClose={onClose}/><StreetVerseMobileWalkControls/></Suspense></MobileRuntimeGuard></StreetVerseWorldBoundary>
  return <StreetVerseWorldBoundary onClose={onClose}><Suspense fallback={<StreetVerseSafeWorld onClose={onClose}/>}><StreetVerseLivingWorld onClose={onClose}/></Suspense></StreetVerseWorldBoundary>
 }
