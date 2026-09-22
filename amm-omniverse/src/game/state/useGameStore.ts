@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { consequenceFor, type GameplayAction, type GameplayConsequence } from '../simulation/gameplaySimulationBridge'
+import { applyLcsAction, createChicagoLcs, type LcsWorld } from '../simulation/livingCitySimulation'
 
 const STREETVERSE_HANDOFF_KEY = 'tryamm:streetverse-handoff:v1'
 
@@ -65,6 +66,7 @@ export interface GameState {
   nftCount: number
   notif: string | null
   cityConsequences: GameplayConsequence
+  livingCity: LcsWorld
 
   // actions
   setScreen: (s: Screen) => void
@@ -181,6 +183,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   nftCount: 0,
   notif: null,
   cityConsequences: { jobs: 0, businesses: 0, population: 0, traffic: 0, culture: 0, reputation: 0, cashReward: 0, xpReward: 0 },
+  livingCity: createChicagoLcs(),
   player: {
     name: '',
     avatar: 'king',
@@ -251,19 +254,26 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   applyCityConsequence: (action) => {
     const consequence = consequenceFor(action)
-    set(s => ({
-      cityConsequences: {
-        jobs: s.cityConsequences.jobs + consequence.jobs,
-        businesses: s.cityConsequences.businesses + consequence.businesses,
-        population: s.cityConsequences.population + consequence.population,
-        traffic: s.cityConsequences.traffic + consequence.traffic,
-        culture: s.cityConsequences.culture + consequence.culture,
-        reputation: s.cityConsequences.reputation + consequence.reputation,
-        cashReward: s.cityConsequences.cashReward + consequence.cashReward,
-        xpReward: s.cityConsequences.xpReward + consequence.xpReward,
-      },
-      player: { ...s.player, rep: s.player.rep + consequence.reputation }
-    }))
+    set(s => {
+      let livingCity=s.livingCity
+      if(consequence.jobs>0) livingCity=applyLcsAction(livingCity,{type:'ADD_JOBS',cityId:'chicago',neighborhoodId:'south-side',amount:consequence.jobs})
+      if(consequence.businesses>0) livingCity=applyLcsAction(livingCity,{type:'OPEN_BUSINESS',cityId:'chicago',neighborhoodId:'south-side',jobs:Math.max(1,consequence.jobs)})
+      if(consequence.culture>0) livingCity=applyLcsAction(livingCity,{type:'HOST_CULTURAL_EVENT',cityId:'chicago',neighborhoodId:'south-side',impact:consequence.culture})
+      return {
+        livingCity,
+        cityConsequences: {
+          jobs: s.cityConsequences.jobs + consequence.jobs,
+          businesses: s.cityConsequences.businesses + consequence.businesses,
+          population: s.cityConsequences.population + consequence.population,
+          traffic: s.cityConsequences.traffic + consequence.traffic,
+          culture: s.cityConsequences.culture + consequence.culture,
+          reputation: s.cityConsequences.reputation + consequence.reputation,
+          cashReward: s.cityConsequences.cashReward + consequence.cashReward,
+          xpReward: s.cityConsequences.xpReward + consequence.xpReward,
+        },
+        player: { ...s.player, rep: s.player.rep + consequence.reputation }
+      }
+    })
   },
 
   completeMission: (id) => {
