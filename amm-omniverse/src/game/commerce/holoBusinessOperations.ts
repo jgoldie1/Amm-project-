@@ -11,14 +11,15 @@ export type DeliveryDispatch={id:string;orderId:string;channel:HoloCommerceOrder
 export type EarningsLedgerEntry={id:string;businessId:string;orderId:string;grossCents:number;feesCents:number;netCents:number;status:'pending-verification'|'verified'|'payable'|'paid'|'reversed';verifiedBy?:string}
 
 export function foodSafetyFlags(items:HoloInventoryItem[],now=Date.now()):FoodSafetyFlag[]{
- return items.flatMap(item=>{
-  if(!item.expiresAt)return[]
+ const flags:FoodSafetyFlag[]=[]
+ for(const item of items){
+  if(!item.expiresAt)continue
   const expiry=Date.parse(item.expiresAt)
-  if(!Number.isFinite(expiry))return[{itemId:item.id,severity:'warning' as const,reason:'invalid-expiration-date'}]
-  if(expiry<=now)return[{itemId:item.id,severity:'block' as const,reason:'expired'}]
-  if(expiry-now<=72*60*60*1000)return[{itemId:item.id,severity:'warning' as const,reason:'expires-within-72-hours'}]
-  return[]
- })
+  if(!Number.isFinite(expiry)){flags.push({itemId:item.id,severity:'warning',reason:'invalid-expiration-date'});continue}
+  if(expiry<=now){flags.push({itemId:item.id,severity:'block',reason:'expired'});continue}
+  if(expiry-now<=72*60*60*1000)flags.push({itemId:item.id,severity:'warning',reason:'expires-within-72-hours'})
+ }
+ return flags
 }
 
 export function proposeReorders(inventory:HoloBusinessInventory,suppliers:HoloSupplier[]):ReorderProposal[]{
