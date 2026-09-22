@@ -3,6 +3,7 @@ import { consequenceFor, type GameplayAction, type GameplayConsequence } from '.
 import { applyLcsAction, createChicagoLcs, type LcsWorld } from '../simulation/livingCitySimulation'
 
 const STREETVERSE_HANDOFF_KEY = 'tryamm:streetverse-handoff:v1'
+const LCS_STORAGE_KEY = 'tryamm:lcs:chicago:v1'
 
 export type Screen = 'intro' | 'login' | 'city' | 'portal' | 'sports' | 'marketplace' | 'music' | 'faith' | 'blockchain'
 
@@ -67,9 +68,12 @@ export interface GameState {
   notif: string | null
   cityConsequences: GameplayConsequence
   livingCity: LcsWorld
+  currentCityId: string
+  currentNeighborhoodId: string
 
   // actions
   setScreen: (s: Screen) => void
+  setLocationContext: (cityId: string, neighborhoodId: string) => void
   setPlayer: (p: Partial<Player>) => void
   earnCash: (amount: number) => void
   earnXp: (amount: number) => void
@@ -162,6 +166,23 @@ function readStreetVerseHandoff(): Partial<GameState> {
 
 const STREETVERSE_HANDOFF = readStreetVerseHandoff()
 
+function readLivingCity(): LcsWorld {
+  if (typeof window === 'undefined') return createChicagoLcs()
+  try {
+    const raw = localStorage.getItem(LCS_STORAGE_KEY)
+    if (!raw) return createChicagoLcs()
+    const parsed = JSON.parse(raw) as LcsWorld
+    return parsed?.version === 1 && Array.isArray(parsed.cities) ? parsed : createChicagoLcs()
+  } catch {
+    return createChicagoLcs()
+  }
+}
+
+function persistLivingCity(world: LcsWorld) {
+  if (typeof window === 'undefined') return
+  try { localStorage.setItem(LCS_STORAGE_KEY, JSON.stringify(world)) } catch { /* storage may be unavailable */ }
+}
+
 export const useGameStore = create<GameState>((set, get) => ({
   screen: 'intro',
   activeMusic: null,
@@ -183,7 +204,9 @@ export const useGameStore = create<GameState>((set, get) => ({
   nftCount: 0,
   notif: null,
   cityConsequences: { jobs: 0, businesses: 0, population: 0, traffic: 0, culture: 0, reputation: 0, cashReward: 0, xpReward: 0 },
-  livingCity: createChicagoLcs(),
+  livingCity: readLivingCity(),
+  currentCityId: 'chicago',
+  currentNeighborhoodId: 'south-side',
   player: {
     name: '',
     avatar: 'king',
@@ -204,6 +227,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   npcs: DEFAULT_NPCS,
 
   setScreen: (screen) => set({ screen }),
+  setLocationContext: (currentCityId, currentNeighborhoodId) => set({ currentCityId, currentNeighborhoodId }),
   setPlayer: (p) => set(s => ({ player: { ...s.player, ...p } })),
 
   earnCash: (amount) => set(s => ({
@@ -255,10 +279,13 @@ export const useGameStore = create<GameState>((set, get) => ({
   applyCityConsequence: (action) => {
     const consequence = consequenceFor(action)
     set(s => {
+      const cityId=s.currentCityId
+      const neighborhoodId=s.currentNeighborhoodId
       let livingCity=s.livingCity
-      if(consequence.jobs>0) livingCity=applyLcsAction(livingCity,{type:'ADD_JOBS',cityId:'chicago',neighborhoodId:'south-side',amount:consequence.jobs})
-      if(consequence.businesses>0) livingCity=applyLcsAction(livingCity,{type:'OPEN_BUSINESS',cityId:'chicago',neighborhoodId:'south-side',jobs:Math.max(1,consequence.jobs)})
-      if(consequence.culture>0) livingCity=applyLcsAction(livingCity,{type:'HOST_CULTURAL_EVENT',cityId:'chicago',neighborhoodId:'south-side',impact:consequence.culture})
+      if(consequence.jobs>0) livingCity=applyLcsAction(livingCity,{type:'ADD_JOBS',cityId,neighborhoodId,amount:consequence.jobs})
+      if(consequence.businesses>0) livingCity=applyLcsAction(livingCity,{type:'OPEN_BUSINESS',cityId,neighborhoodId,jobs:Math.max(1,consequence.jobs)})
+      if(consequence.culture>0) livingCity=applyLcsAction(livingCity,{type:'HOST_CULTURAL_EVENT',cityId,neighborhoodId,impact:consequence.culture})
+      persistLivingCity(livingCity)
       return {
         livingCity,
         cityConsequences: {
