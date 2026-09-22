@@ -35,7 +35,7 @@ export function installStreetVerseHydeParkMissionRuntime(){
   save(state)
   emit('tryamm:hyde-park-mission-progress',{missionId:HYDE_PARK_MISSION_ID,checkpoint,visited:state.visited,progress:Math.round(state.visited.length/HYDE_PARK_CHECKPOINTS.length*100),completed:state.completed,mobileSafeMode:Boolean(detail.mobileSafeMode),htmlCity:Boolean(detail.htmlCity)})
   if(state.completed){
-   emit('tryamm:hyde-park-mission-complete',{missionId:HYDE_PARK_MISSION_ID,visited:state.visited,reward:{xp:200,holoCredits:500,cashCents:0},requiresServerClaim:true,reelHandoff:true})
+   emit('tryamm:hyde-park-mission-complete',{missionId:HYDE_PARK_MISSION_ID,visited:state.visited,reward:{xp:200,holoCredits:500,cashCents:0},requiresServerClaim:true,reelHandoff:true})\n   emit('tryamm:streetverse-gameplay-action',{source:'hyde-park-first-drop',missionId:HYDE_PARK_MISSION_ID,action:'complete-delivery'})
    emit('tryamm:toast',{message:'Hyde Park First Drop complete • reward ready to claim • 200 XP + 500 Holo Credits'})
   }
  }
@@ -55,7 +55,7 @@ export function installStreetVerseHydeParkMissionRuntime(){
    if(!claim.ok)throw new Error(reward.code||reward.error||'REWARD_CLAIM_FAILED')
    state={...state,rewardClaimed:true};save(state)
    emit('tryamm:hyde-park-reward-status',{ok:true,reward,cashAwarded:false})
-   emit('tryamm:streetverse-reel-handoff',{source:'hyde-park-first-drop',missionId:HYDE_PARK_MISSION_ID,communityAreaNumber:HYDE_PARK_AREA_NUMBER})
+   emit('tryamm:streetverse-reel-handoff',{source:'hyde-park-first-drop',missionId:HYDE_PARK_MISSION_ID,communityAreaNumber:HYDE_PARK_AREA_NUMBER})\n   emit('tryamm:open-reel-creator',{source:'hyde-park-first-drop',missionId:HYDE_PARK_MISSION_ID})
   }catch(error){emit('tryamm:hyde-park-reward-status',{ok:false,code:error instanceof Error?error.message:'REWARD_FAILED'})}
  }
  const onReset=()=>{
