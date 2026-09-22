@@ -131,6 +131,20 @@ const rootElement = document.getElementById('root')
 if (!rootElement) throw new Error('[TRYAMM] Missing #root mount element')
 
 const root = createRoot(rootElement)
+
+// Production route diagnostic: this sits at the application entry level, outside
+// StreetVerse world/fallback implementations, so device visibility proves which
+// Vite entry and pathname the browser is actually rendering.
+const entryDiagnostic = (() => {
+  const ua = navigator.userAgent || ''
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(ua) || window.innerWidth <= 600
+  if (!isMobile || !window.location.pathname.startsWith('/streetverse')) return null
+  return (
+    <div data-tryamm-entry-diagnostic="streetverse-main-v1" style={{position:'fixed',right:8,bottom:'calc(env(safe-area-inset-bottom, 0px) + 8px)',zIndex:2147483647,pointerEvents:'none',padding:'7px 9px',borderRadius:8,background:'#ffea00',color:'#111',font:'900 11px/1.15 system-ui,sans-serif',boxShadow:'0 2px 12px #0008'}}>
+      SV ENTRY V1 • {window.location.pathname}
+    </div>
+  )
+})()
 // Runtime installers are loaded only after the core bundle has evaluated and a mount target exists.
 // A broken optional runtime module can no longer abort JavaScript bootstrap before React renders.
 const installOptionalRuntimes = () => {
@@ -181,6 +195,7 @@ const installOptionalRuntimes = () => {
 root.render(
   <StrictMode>
     {routeContent}
+    {entryDiagnostic}
   </StrictMode>
 )
 
@@ -193,6 +208,7 @@ queueMicrotask(() => {
         <HoloExperienceLauncher />
         <Suspense fallback={null}><UnifiedCommerceHub /></Suspense>
         {routeContent}
+        {entryDiagnostic}
       </StrictMode>
     )
   } catch (error) {
