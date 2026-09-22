@@ -7,6 +7,7 @@ import {installStreetVerseAfterDarkAlphaRuntime} from '../runtime/StreetVerseAft
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
 import StreetVerseMobileGameShell from './StreetVerseMobileGameShell'
+import {useGameStore} from '../game/state/useGameStore'
 
 const StreetVersePlayableWorld=lazy(()=>import('./StreetVersePlayableWorld'))
 const StreetVerseFullWorldOverlays=lazy(()=>import('./StreetVerseFullWorldOverlays'))
@@ -102,6 +103,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const prepared=useMemo(()=>prepareSpawn(),[])
  const safe=useMemo(shouldUseIndependentSafeBoot,[])
  const [enhancementsReady,setEnhancementsReady]=useState(false)
+ const setLocationContext=useGameStore(state=>state.setLocationContext)
  const closingRef=useRef(false)
  const closeStreetVerse=useCallback(()=>{
   if(closingRef.current)return
@@ -113,6 +115,15 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>installStreetVerseJourneyQARuntime(),[])
  useLayoutEffect(()=>installStreetVerseHydeParkMissionRuntime(),[])
  useLayoutEffect(()=>installStreetVerseAfterDarkAlphaRuntime(),[])
+ useEffect(()=>{
+  const destination=prepared.destination
+  const mapped=prepared.mapped
+  if(!destination&&!mapped)return
+  const label=(mapped?.label||destination?.name||destination?.label||'').toLowerCase()
+  const neighborhoodId=label.includes('west')?'west-side':label.includes('loop')||label.includes('downtown')||label.includes('millennium')||label.includes('river')?'downtown':'south-side'
+  setLocationContext('chicago',neighborhoodId)
+  window.dispatchEvent(new CustomEvent('tryamm:lcs-location-context',{detail:{cityId:'chicago',neighborhoodId,source:'streetverse-geo-spawn'}}))
+ },[prepared.destination,prepared.mapped,setLocationContext])
  useEffect(()=>{
   const requestClose=()=>closeStreetVerse()
   window.addEventListener('tryamm:streetverse-request-close',requestClose)
