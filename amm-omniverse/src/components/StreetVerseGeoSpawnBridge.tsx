@@ -8,6 +8,7 @@ import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
 import StreetVerseMobileGameShell from './StreetVerseMobileGameShell'
 import {useGameStore} from '../game/state/useGameStore'
+import {chooseQuantumSpeedMode,QUANTUM_SPEED_BUDGETS,type QuantumSpeedMode} from '../game/runtime/quantumSpeedEngine'
 
 const StreetVersePlayableWorld=lazy(()=>import('./StreetVersePlayableWorld'))
 const StreetVerseFullWorldOverlays=lazy(()=>import('./StreetVerseFullWorldOverlays'))
@@ -103,6 +104,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const prepared=useMemo(()=>prepareSpawn(),[])
  const safe=useMemo(shouldUseIndependentSafeBoot,[])
  const [enhancementsReady,setEnhancementsReady]=useState(false)
+ const [quantumMode,setQuantumMode]=useState<QuantumSpeedMode>('balanced')
  const setLocationContext=useGameStore(state=>state.setLocationContext)
  const applyCityConsequence=useGameStore(state=>state.applyCityConsequence)
  const closingRef=useRef(false)
@@ -141,15 +143,37 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
   return()=>window.removeEventListener('tryamm:streetverse-request-close',requestClose)
  },[closeStreetVerse])
  useEffect(()=>{
+  if(safe){setQuantumMode('eco');return}
+  let frames=0
+  let start=performance.now()
+  let raf=0
+  const sample=(now:number)=>{
+   frames+=1
+   const elapsed=now-start
+   if(elapsed>=1000){
+    const fps=frames*1000/elapsed
+    const frameMs=elapsed/Math.max(frames,1)
+    const mode=chooseQuantumSpeedMode({fps,frameMs})
+    setQuantumMode(mode)
+    window.dispatchEvent(new CustomEvent('tryamm:quantum-speed-mode',{detail:{mode,budget:QUANTUM_SPEED_BUDGETS[mode],fps,frameMs,source:'streetverse-geo-spawn'}}))
+    frames=0;start=now
+   }
+   raf=requestAnimationFrame(sample)
+  }
+  raf=requestAnimationFrame(sample)
+  return()=>cancelAnimationFrame(raf)
+ },[safe])
+ useEffect(()=>{
   if(!safe)return
   const frame=window.requestAnimationFrame(()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-ready',{detail:{mode:'mobile-safe',mobileSafeMode:true,htmlCity:true,canvas:false,playable:true,source:'streetverse-geo-spawn',communityArea:prepared.destination?.communityAreaNumber||null}})))
   return()=>window.cancelAnimationFrame(frame)
  },[safe,prepared.destination?.communityAreaNumber])
  useEffect(()=>{
   if(safe)return
-  const timer=window.setTimeout(()=>setEnhancementsReady(true),650)
+  const delay=quantumMode==='boost'?250:quantumMode==='balanced'?650:1400
+  const timer=window.setTimeout(()=>setEnhancementsReady(true),delay)
   return()=>window.clearTimeout(timer)
- },[safe])
+ },[safe,quantumMode])
 
  if(safe)return <>
   <StreetVerseMobileGameShell onClose={closeStreetVerse}/>
