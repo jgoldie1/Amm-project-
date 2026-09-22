@@ -88,6 +88,8 @@ async function settleMission(detail:MissionCompleteDetail){
     }
     emitStatus(authoritative)
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-authoritative-reward',{detail:authoritative}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-handoff',{detail:{source:'streetverse-first-drop',missionId:CLIENT_MISSION_ID,missionRunId,programId:PROGRAM_ID}}))
+    window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'streetverse-first-drop',missionId:CLIENT_MISSION_ID,missionRunId,verified:true}}))
     const xp=Number(reward?.claim?.xp??reward?.claim?.xp_awarded??0)
     const credits=Number(reward?.claim?.holoCredits??reward?.claim?.holo_credits_awarded??0)
     toast(reward?.applied===false
