@@ -34,3 +34,28 @@ export function finishStubbsFamilyMission(missionId:string,context:{cityId:strin
  const recorded=completeStubbsCharacterMission(mission.characterId,mission.id,{milestone:mission.milestone,...context})
  return {mission,recorded}
 }
+
+export type StubbsFamilyMissionProgress={missionId:string;status:'active'|'complete';startedAt:string;completedAt?:string}
+export const STUBBS_FAMILY_MISSION_PROGRESS_KEY='tryamm:stubbs-family.missions.v1'
+export function readStubbsFamilyMissionProgress():Record<string,StubbsFamilyMissionProgress>{
+ if(typeof localStorage==='undefined')return {}
+ try{return JSON.parse(localStorage.getItem(STUBBS_FAMILY_MISSION_PROGRESS_KEY)||'{}')}catch{return {}}
+}
+export function acceptStubbsFamilyMission(missionId:string){
+ const mission=STUBBS_FAMILY_MISSIONS.find(m=>m.id===missionId)
+ if(!mission)return
+ const progress=readStubbsFamilyMissionProgress()
+ if(progress[missionId]?.status==='complete')return progress[missionId]
+ const next:StubbsFamilyMissionProgress=progress[missionId]||{missionId,status:'active',startedAt:new Date().toISOString()}
+ progress[missionId]=next
+ localStorage.setItem(STUBBS_FAMILY_MISSION_PROGRESS_KEY,JSON.stringify(progress))
+ return next
+}
+export function markStubbsFamilyMissionComplete(missionId:string,context:{cityId:string;neighborhoodId:string}){
+ const result=finishStubbsFamilyMission(missionId,context)
+ if(!result)return
+ const progress=readStubbsFamilyMissionProgress()
+ progress[missionId]={missionId,status:'complete',startedAt:progress[missionId]?.startedAt||new Date().toISOString(),completedAt:new Date().toISOString()}
+ localStorage.setItem(STUBBS_FAMILY_MISSION_PROGRESS_KEY,JSON.stringify(progress))
+ return {...result,progress:progress[missionId]}
+}
