@@ -130,7 +130,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useEffect(()=>{
   const onGameplayAction=(event:Event)=>{
    const detail=(event as CustomEvent).detail||{}
-   if(detail.source!=='meet-the-stubbs'||!detail.action)return
+   if(!detail.action)return
    applyCityConsequence(detail.action)
    window.dispatchEvent(new CustomEvent('tryamm:lcs-gameplay-consequence-applied',{detail:{action:detail.action,missionId:detail.missionId,source:detail.source}}))
   }
