@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 
+const STREETVERSE_HANDOFF_KEY = 'tryamm:streetverse-handoff:v1'
+
 export type Screen = 'intro' | 'login' | 'city' | 'portal' | 'sports' | 'marketplace' | 'music' | 'faith' | 'blockchain'
 
 export type MissionStatus = 'locked' | 'available' | 'active' | 'complete'
@@ -132,6 +134,28 @@ const DEFAULT_NPCS: NPC[] = [
   { id: 'n5', name: 'Officer Knox', role: 'cop', x: 0, z: -60,
     dialogue: ['Keep it clean out here.', 'Wanted level: watch yourself.', 'AMM City police — move along.'] },
 ]
+
+function readStreetVerseHandoff(): Partial<GameState> {
+  if (typeof window === 'undefined') return {}
+  try {
+    const raw = sessionStorage.getItem(STREETVERSE_HANDOFF_KEY)
+    if (!raw) return {}
+    sessionStorage.removeItem(STREETVERSE_HANDOFF_KEY)
+    const saved = JSON.parse(raw)
+    return {
+      ...(saved.player ? { player: saved.player } : {}),
+      ...(saved.missions ? { missions: saved.missions } : {}),
+      ...(saved.vehicles ? { vehicles: saved.vehicles } : {}),
+      ...(typeof saved.walletConnected === 'boolean' ? { walletConnected: saved.walletConnected } : {}),
+      ...(typeof saved.walletAddress === 'string' ? { walletAddress: saved.walletAddress } : {}),
+      ...(typeof saved.nftCount === 'number' ? { nftCount: saved.nftCount } : {}),
+    }
+  } catch {
+    return {}
+  }
+}
+
+const STREETVERSE_HANDOFF = readStreetVerseHandoff()
 
 export const useGameStore = create<GameState>((set, get) => ({
   screen: 'intro',
