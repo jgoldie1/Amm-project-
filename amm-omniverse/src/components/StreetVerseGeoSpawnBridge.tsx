@@ -32,13 +32,16 @@ function shouldUseIndependentSafeBoot(){
  if(params.get('safe')==='1'||params.get('mode')==='safe')return true
  const ua=navigator.userAgent||''
  const appleMobile=/iPhone|iPad|iPod/i.test(ua)
- const olderIOS=/OS (1[0-6])[_\d]* like Mac OS X/i.test(ua)
  const memory=Number((navigator as Navigator & {deviceMemory?:number}).deviceMemory||0)
  const cores=Number(navigator.hardwareConcurrency||0)
  const narrow=Math.min(window.innerWidth||9999,window.innerHeight||9999)<=480
  const noWebGL=!hasUsableWebGL()
  const constrained=(memory>0&&memory<=4)||(cores>0&&cores<=4)
- return noWebGL||(appleMobile&&(olderIOS||narrow||constrained))||(!appleMobile&&narrow&&constrained)
+ // Do not force capable iPhones into the HTML-only SafeWorld solely because
+ // they run iOS 16 or have a narrow screen. The playable world gets first
+ // attempt whenever WebGL is genuinely available; SafeWorld remains the
+ // fallback for devices that cannot create a usable WebGL context.
+ return noWebGL||(!appleMobile&&narrow&&constrained)
 }
 
 function readDestination():Destination|undefined{
