@@ -50,3 +50,30 @@ export function aiHoloLabPlan(state:HoloLabAiState,speed:QuantumSpeedSample,lag:
 export function buildHoloLabSession(primary:VolcanoDisplayCapability,companions:VolcanoDisplayCapability[]):VolcanoExperienceSession{
  return createVolcanoExperienceSession(primary,companions)
 }
+
+
+export type HoloLabAuthorityState={operatorId:string;simulationRunning:boolean;emergencyStopped:boolean;aiAutonomy:'advisory-only'|'bounded';lastStopAt?:string}
+
+export function createHoloLabAuthority(operatorId:string):HoloLabAuthorityState{
+ return{operatorId,simulationRunning:false,emergencyStopped:false,aiAutonomy:'advisory-only'}
+}
+
+export function startHoloLabSimulation(state:HoloLabAuthorityState,operatorId:string){
+ if(state.operatorId!==operatorId||state.emergencyStopped)return state
+ return{...state,simulationRunning:true}
+}
+
+export function stopHoloLabSimulation(state:HoloLabAuthorityState,operatorId:string){
+ if(state.operatorId!==operatorId)return state
+ return{...state,simulationRunning:false,lastStopAt:new Date().toISOString()}
+}
+
+export function emergencyStopHoloLab(state:HoloLabAuthorityState,operatorId:string){
+ if(state.operatorId!==operatorId)return state
+ return{...state,simulationRunning:false,emergencyStopped:true,lastStopAt:new Date().toISOString()}
+}
+
+export function resetHoloLabEmergencyStop(state:HoloLabAuthorityState,operatorId:string){
+ if(state.operatorId!==operatorId)return state
+ return{...state,emergencyStopped:false,simulationRunning:false}
+}
