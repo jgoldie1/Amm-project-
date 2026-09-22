@@ -104,6 +104,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const safe=useMemo(shouldUseIndependentSafeBoot,[])
  const [enhancementsReady,setEnhancementsReady]=useState(false)
  const setLocationContext=useGameStore(state=>state.setLocationContext)
+ const applyCityConsequence=useGameStore(state=>state.applyCityConsequence)
  const closingRef=useRef(false)
  const closeStreetVerse=useCallback(()=>{
   if(closingRef.current)return
@@ -124,6 +125,16 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
   setLocationContext('chicago',neighborhoodId)
   window.dispatchEvent(new CustomEvent('tryamm:lcs-location-context',{detail:{cityId:'chicago',neighborhoodId,source:'streetverse-geo-spawn'}}))
  },[prepared.destination,prepared.mapped,setLocationContext])
+ useEffect(()=>{
+  const onGameplayAction=(event:Event)=>{
+   const detail=(event as CustomEvent).detail||{}
+   if(detail.source!=='meet-the-stubbs'||!detail.action)return
+   applyCityConsequence(detail.action)
+   window.dispatchEvent(new CustomEvent('tryamm:lcs-gameplay-consequence-applied',{detail:{action:detail.action,missionId:detail.missionId,source:detail.source}}))
+  }
+  window.addEventListener('tryamm:streetverse-gameplay-action',onGameplayAction)
+  return()=>window.removeEventListener('tryamm:streetverse-gameplay-action',onGameplayAction)
+ },[applyCityConsequence])
  useEffect(()=>{
   const requestClose=()=>closeStreetVerse()
   window.addEventListener('tryamm:streetverse-request-close',requestClose)
