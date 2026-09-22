@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { consequenceFor, type GameplayAction, type GameplayConsequence } from '../simulation/gameplaySimulationBridge'
 
 const STREETVERSE_HANDOFF_KEY = 'tryamm:streetverse-handoff:v1'
 
@@ -63,6 +64,7 @@ export interface GameState {
   walletAddress: string
   nftCount: number
   notif: string | null
+  cityConsequences: GameplayConsequence
 
   // actions
   setScreen: (s: Screen) => void
@@ -74,6 +76,7 @@ export interface GameState {
   buyVehicle: (id: string) => void
   startMission: (id: string) => void
   completeMission: (id: string) => void
+  applyCityConsequence: (action: GameplayAction) => void
   connectWallet: () => void
   sendChat: (text: string) => void
   setActiveMusic: (track: string | null) => void
@@ -177,6 +180,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   walletAddress: '',
   nftCount: 0,
   notif: null,
+  cityConsequences: { jobs: 0, businesses: 0, population: 0, traffic: 0, culture: 0, reputation: 0, cashReward: 0, xpReward: 0 },
   player: {
     name: '',
     avatar: 'king',
@@ -245,6 +249,23 @@ export const useGameStore = create<GameState>((set, get) => ({
     get().setNotif('🎯 Mission started! Check your objectives.')
   },
 
+  applyCityConsequence: (action) => {
+    const consequence = consequenceFor(action)
+    set(s => ({
+      cityConsequences: {
+        jobs: s.cityConsequences.jobs + consequence.jobs,
+        businesses: s.cityConsequences.businesses + consequence.businesses,
+        population: s.cityConsequences.population + consequence.population,
+        traffic: s.cityConsequences.traffic + consequence.traffic,
+        culture: s.cityConsequences.culture + consequence.culture,
+        reputation: s.cityConsequences.reputation + consequence.reputation,
+        cashReward: s.cityConsequences.cashReward + consequence.cashReward,
+        xpReward: s.cityConsequences.xpReward + consequence.xpReward,
+      },
+      player: { ...s.player, rep: s.player.rep + consequence.reputation }
+    }))
+  },
+
   completeMission: (id) => {
     const { missions } = get()
     const m = missions.find(x => x.id === id)
@@ -258,6 +279,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       }
     }))
     get().earnXp(m.xp)
+    // City missions now produce a persistent simulation consequence contract.
+    if (m.realm === 'city') get().applyCityConsequence('complete-delivery')
     // unlock next mission
     const order = ['m1','m2','m3','m4','m5','m6']
     const idx = order.indexOf(id)
