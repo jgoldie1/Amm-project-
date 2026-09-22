@@ -26,3 +26,20 @@ export function shouldDeferQuantumJob(kind:QuantumWorkClass,sample:QuantumSpeedS
  const mode=chooseQuantumSpeedMode(sample)
  return mode==='eco'&&(kind==='asset'||kind==='simulation')
 }
+
+
+export type QuantumLagSignal={frameSpikeMs:number;networkRttMs:number;inputDelayMs:number;queuedJobs:number}
+export type QuantumLagAction='none'|'defer-background'|'reduce-simulation'|'reduce-stream-radius'|'recover'
+
+export function quantumLagActions(signal:QuantumLagSignal):QuantumLagAction[]{
+ const actions:QuantumLagAction[]=[]
+ if(signal.frameSpikeMs>45||signal.inputDelayMs>120)actions.push('defer-background')
+ if(signal.frameSpikeMs>70||signal.queuedJobs>8)actions.push('reduce-simulation')
+ if(signal.networkRttMs>250||signal.queuedJobs>12)actions.push('reduce-stream-radius')
+ return actions.length?actions:['none']
+}
+
+export function quantumLagRecovery(signal:QuantumLagSignal){
+ const stable=signal.frameSpikeMs<24&&signal.networkRttMs<160&&signal.inputDelayMs<70&&signal.queuedJobs<4
+ return {stable,action:stable?'recover' as const:'none' as const}
+}
