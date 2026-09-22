@@ -12,6 +12,8 @@ export type StubbsFamilyMission={
  minMeetings:number
 }
 export const STUBBS_FAMILY_MISSIONS:StubbsFamilyMission[]=[
+ {id:'stubbs-benny-omni-guide',characterId:'benny',title:'Omni Guide',objective:'Guide a player from the family district into a connected TRYAMM experience.',action:'host-creator-event',milestone:'omni-guide',minMeetings:1},
+ {id:'stubbs-simone-postal-route',characterId:'simone-j',title:'Family Postal Route',objective:'Complete a neighborhood mail and package route connecting homes and businesses.',action:'complete-delivery',milestone:'postal-connector',minMeetings:1},
  {id:'stubbs-alb-block-purpose',characterId:'al-b',title:'Purpose on the Block',objective:'Complete a neighborhood business-building mission.',action:'open-business',milestone:'block-builder',minMeetings:1},
  {id:'stubbs-asia-holo-explorer',characterId:'asia-watson',title:'Explore the Holo Lane',objective:'Host a creator event connecting the family district to HoloVerse.',action:'host-creator-event',milestone:'holo-explorer',minMeetings:1},
  {id:'stubbs-deon-game-run',characterId:'deon-ham',title:'Family Game Run',objective:'Complete a neighborhood delivery challenge through GameVerse.',action:'complete-delivery',milestone:'game-runner',minMeetings:1},
