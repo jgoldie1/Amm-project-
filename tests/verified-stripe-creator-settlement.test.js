@@ -1,0 +1,6 @@
+'use strict';
+const assert=require('node:assert/strict');const p=require('../../lib/payment-routes.js');
+const session={id:'cs_test_1',payment_status:'paid',amount_total:1000,currency:'usd',metadata:{kind:'live-gift',creatorId:'creator_1',roomId:'room_1',platformShareBps:'2500'}};
+const input=p.buildVerifiedSettlementInput({session,eventId:'evt_1'});assert.equal(input.providerVerified,true);assert.equal(input.providerEventId,'evt_1');assert.equal(input.amountMinor,1000);
+const store={users:[{id:'creator_1'}]};const first=p.applyVerifiedCreatorSettlement({store,session,eventId:'evt_1',now:'2026-09-23T00:00:00Z'});assert.equal(first.creatorMinor,750);assert.equal(first.platformMinor,250);const second=p.applyVerifiedCreatorSettlement({store,session,eventId:'evt_1',now:'later'});assert.equal(store.settlements.length,1);assert.equal(second.providerEventId,'evt_1');
+assert.throws(()=>p.buildVerifiedSettlementInput({session:{...session,metadata:{...session.metadata,platformShareBps:'15000'}},eventId:'evt_bad'}));console.log('Verified Stripe creator settlement bridge: PASS');
