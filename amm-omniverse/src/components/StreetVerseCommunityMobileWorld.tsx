@@ -9,6 +9,7 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
  const [vehicle,setVehicle]=useState(false)
  const [message,setMessage]=useState(`${slice.name} StreetVerse active • move with the directional pad or tap checkpoints.`)
  const [pos,setPos]=useState({x:50,y:62})
+ const [hudOpen,setHudOpen]=useState(false)
  const posRef=useRef(pos)
  const held=useRef({up:false,down:false,left:false,right:false})
  const total=slice.missions.length
@@ -47,40 +48,41 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
 
  const openReel=()=>window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'streetverse-community-mobile',missionProgress:`${visited.length}/${total}`,communityAreaNumber:slice.communityAreaNumber,communityAreaName:slice.name,vehicle,mobileSafeMode:true,htmlCity:true}}))
  const reset=()=>{setVisited([]);setPos({x:50,y:62});setMessage(`${slice.name} StreetVerse reset • move or complete checkpoints.`)}
- const moveButton=(label:string,key:keyof typeof held.current)=><button aria-label={`Move ${key}`} onPointerDown={e=>{e.preventDefault();held.current[key]=true}} onPointerUp={()=>held.current[key]=false} onPointerCancel={()=>held.current[key]=false} onPointerLeave={()=>held.current[key]=false} style={{...buttonStyle,width:54,height:50,fontSize:20,touchAction:'none'}}>{label}</button>
+ const nudge=(key:keyof typeof held.current)=>{const d={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]}[key];const p=posRef.current;const next={x:Math.max(5,Math.min(95,p.x+d[0]*7)),y:Math.max(8,Math.min(92,p.y+d[1]*7))};posRef.current=next;setPos(next);window.dispatchEvent(new CustomEvent('tryamm:streetverse-player-position',{detail:{x:next.x,y:next.y,mobileSafeMode:true,htmlCity:true,input:'tap'}}))}
+ const moveButton=(label:string,key:keyof typeof held.current)=><button aria-label={`Move ${key}`} onTouchStart={e=>{e.preventDefault();held.current[key]=true;nudge(key)}} onTouchEnd={e=>{e.preventDefault();held.current[key]=false}} onPointerDown={e=>{if(e.pointerType!=='touch'){e.preventDefault();held.current[key]=true;nudge(key)}}} onPointerUp={()=>held.current[key]=false} onPointerCancel={()=>held.current[key]=false} onPointerLeave={()=>held.current[key]=false} style={{...buttonStyle,width:58,height:54,fontSize:22,touchAction:'none',userSelect:'none',WebkitUserSelect:'none'}}>{label}</button>
  const status=useMemo(()=>done?'COMPLETE':`${visited.length}/${total}`,[done,visited.length,total])
 
  return <div data-streetverse-html-city="true" data-community-area={slice.communityAreaNumber} style={{position:'fixed',inset:0,zIndex:18000,background:'linear-gradient(#5998bd 0 30%,#d6bd91 30% 36%,#18252f 36% 100%)',color:'#fff',fontFamily:'system-ui',overflow:'auto'}}>
-  <header style={{position:'sticky',top:0,zIndex:20,minHeight:68,display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,padding:'8px 10px',background:'#020712f3',borderBottom:'1px solid #274963'}}>
-   <div><b>STREETVERSE • {slice.name.toUpperCase()}</b><div style={{fontSize:11,color:'#8effb7'}}>COMMUNITY AREA {slice.communityAreaNumber} • {vehicle?'DRIVE':'WALK'} • {status}</div></div>
+  <header style={{position:'sticky',top:0,zIndex:20,minHeight:48,display:'flex',alignItems:'center',justifyContent:'space-between',gap:6,padding:'5px 8px',background:'#020712e8',borderBottom:'1px solid #274963'}}>
+   <div><b>STREETVERSE</b><div style={{fontSize:10,color:'#8effb7'}}>{vehicle?'DRIVE':'WALK'} • {status}</div></div>
    <div style={{display:'flex',gap:6,flexWrap:'wrap',justifyContent:'flex-end'}}>
-    <button onClick={()=>setVehicle(v=>!v)} style={buttonStyle}>{vehicle?'EXIT CAR':'ENTER CAR'}</button>
+    <button aria-label={vehicle?'Exit car':'Open car door and enter'} onClick={()=>{setVehicle(v=>!v);setMessage(vehicle?'Exited vehicle • WALK mode active.':'Car door opened • DRIVE mode active.')}} style={buttonStyle}>{vehicle?'EXIT CAR':'🚗 OPEN / ENTER'}</button>
     <button onClick={openReel} style={buttonStyle}>● REEL</button>
-    <button onClick={reset} style={buttonStyle}>RESET</button>
+    <button onClick={()=>setHudOpen(v=>!v)} style={buttonStyle}>{hudOpen?'HIDE CITY':'CITY'}</button>
     <button onClick={onClose} aria-label={`Close ${slice.name} StreetVerse`} style={{...buttonStyle,width:44}}>×</button>
    </div>
   </header>
-  <main style={{padding:14,maxWidth:760,margin:'0 auto'}}>
+  <main style={{padding:8,maxWidth:760,margin:'0 auto'}}>
    <section aria-label="StreetVerse movement area" style={{height:180,position:'relative',borderRadius:14,background:'linear-gradient(#24485e 0 35%,#18252f 35% 100%)',border:'1px solid #4e7891',marginBottom:12,overflow:'hidden'}}>
     <div aria-label="Player" style={{position:'absolute',left:`${pos.x}%`,top:`${pos.y}%`,transform:'translate(-50%,-50%)',width:24,height:34,borderRadius:10,background:'#23d9f4',border:'2px solid #fff'}} />
     <div style={{position:'absolute',left:10,bottom:10,display:'grid',gridTemplateColumns:'54px 54px 54px',gap:5}}><span/>{moveButton('▲','up')}<span/>{moveButton('◀','left')}{moveButton('▼','down')}{moveButton('▶','right')}</div>
     <div style={{position:'absolute',right:10,bottom:10,fontSize:11,color:'#bfefff'}}>MOVE • all 4 directions</div>
    </section>
-   <section style={{padding:12,borderRadius:12,background:'#030914e8',border:'1px solid #4e7891',marginBottom:12}}>
+   {hudOpen&&<section style={{padding:12,borderRadius:12,background:'#030914e8',border:'1px solid #4e7891',marginBottom:12}}>
     <b>{message}</b>
     <div style={{fontSize:11,color:'#b9c9d6',marginTop:5}}>CHICAGO 77 • {slice.status} • AREA {slice.communityAreaNumber}</div>
-   </section>
-   <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:10}}>
+   </section>}
+   {hudOpen&&<section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:10}}>
     {slice.missions.map(m=>{const complete=visited.includes(m.id);return <button key={m.id} onClick={()=>visit(m.id)} disabled={complete} style={{minHeight:118,textAlign:'left',padding:12,borderRadius:14,border:`1px solid ${complete?'#55e88a':'#ffd65a'}`,background:'#07131ff2',color:'#fff',opacity:complete?0.82:1}}>
      <div style={{fontSize:18,fontWeight:900}}>{complete?'✓ ':'○ '}{m.label}</div>
      <div style={{fontSize:12,color:'#9fc7dd',marginTop:7}}>{m.reference}</div>
      <div style={{fontSize:10,color:'#b9c9d6',marginTop:8}}>{m.kind.toUpperCase()} • checkpoint ({m.x},{m.y})</div>
     </button>})}
-   </section>
-   <section style={{marginTop:12,padding:12,borderRadius:12,background:'#030914df',border:'1px solid #34566d',fontSize:12,lineHeight:1.45}}>
+   </section>}
+   {hudOpen&&<section style={{marginTop:12,padding:12,borderRadius:12,background:'#030914df',border:'1px solid #34566d',fontSize:12,lineHeight:1.45}}>
     <b style={{color:'#8effb7'}}>MOBILE SAFE WORLD • {slice.name.toUpperCase()}</b><br/>
     Chicago 77 mission metadata, checkpoint events, reward completion event and Reel handoff are active for this community-area slice.
-   </section>
+   </section>}
   </main>
  </div>
 }
