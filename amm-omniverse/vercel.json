@@ -86,11 +86,11 @@
     },
     {
       "src": "/streetverse",
-      "dest": "/index.html"
+      "dest": "/streetverse-safe.html"
     },
     {
       "src": "/streetverse/",
-      "dest": "/index.html"
+      "dest": "/streetverse-safe.html"
     },
     {
       "handle": "filesystem"
