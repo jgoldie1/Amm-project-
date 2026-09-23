@@ -63,9 +63,19 @@ try {
   const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
   const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs&&!isTwinWorld
   const streetVerseParams=new URLSearchParams(window.location.search)
+  // Certification/fallback routes must be decided from the initial URL before any
+  // optional runtime can mutate history or replace the selected world.
+  const initialSearch=window.location.search
   const isStreetVerseSafe=isStreetVerse&&(streetVerseParams.get('safe')==='1'||streetVerseParams.get('mode')==='safe')
   preserveDeterministicSafeRoute=isStreetVerseSafe
   const safeCommunityArea=streetVerseParams.get('communityArea')||streetVerseParams.get('community')||undefined
+  if(isStreetVerseSafe){
+    // Expose the exact route decision for production diagnostics without changing
+    // the certification DOM contract.
+    document.documentElement.dataset.tryammStreetverseSafe='true'
+    document.documentElement.dataset.tryammStreetverseCommunity=String(safeCommunityArea||'')
+    document.documentElement.dataset.tryammStreetverseInitialSearch=initialSearch
+  }
   const isBusinessDirectory=currentPath==='/business'||currentPath==='/business/'
   const businessMatch=currentPath.match(/^\/business\/([^/]+)\/?$/)
   const businessSlug=businessMatch?.[1]||''
