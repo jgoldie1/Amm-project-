@@ -1,11 +1,9 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import StreetVerseSafeWorld from './components/StreetVerseSafeWorld'
+import StreetVerseReelEventBridge from './components/StreetVerseReelEventBridge'
 import './accessibility/accessibility.css'
 
-// Minimal Release-1 certification entry. This file intentionally excludes the
-// full TRYAMM runtime graph so the deterministic HTML Chicago world can mount
-// before any optional 3D, media, commerce, or global runtime code is evaluated.
 const params = new URLSearchParams(window.location.search)
 const communityAreaNumber = params.get('communityArea') || params.get('community') || undefined
 
@@ -22,5 +20,6 @@ createRoot(rootElement).render(
       communityAreaNumber={communityAreaNumber}
       onClose={() => { window.location.href = '/' }}
     />
+    <StreetVerseReelEventBridge />
   </StrictMode>,
 )

@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useState} from 'react'
+import {useEffect,useMemo,useRef,useState} from 'react'
 import type {CSSProperties} from 'react'
 import type {StreetVerseCommunitySlice} from '../config/streetverseCommunitySlices'
 
@@ -7,8 +7,13 @@ type Props={slice:StreetVerseCommunitySlice;onClose:()=>void}
 export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
  const [visited,setVisited]=useState<string[]>([])
  const [vehicle,setVehicle]=useState(false)
- const [message,setMessage]=useState(`${slice.name} StreetVerse active • complete all checkpoints.`)
+ const [message,setMessage]=useState(`${slice.name} StreetVerse active • move with the directional pad or tap checkpoints.`)
+ const [pos,setPos]=useState({x:50,y:62})
+ const posRef=useRef(pos)
+ const held=useRef({up:false,down:false,left:false,right:false})
  const total=slice.missions.length
+ useEffect(()=>{posRef.current=pos},[pos])
+ useEffect(()=>{let raf=0,last=performance.now();const tick=(now:number)=>{const dt=Math.min(.05,(now-last)/1000);last=now;const h=held.current;let dx=(h.right?1:0)-(h.left?1:0),dy=(h.down?1:0)-(h.up?1:0);if(dx||dy){const len=Math.hypot(dx,dy)||1;dx/=len;dy/=len;const p=posRef.current;const next={x:Math.max(5,Math.min(95,p.x+dx*28*dt)),y:Math.max(8,Math.min(92,p.y+dy*28*dt))};posRef.current=next;setPos(next);window.dispatchEvent(new CustomEvent('tryamm:streetverse-player-position',{detail:{x:next.x,y:next.y,mobileSafeMode:true,htmlCity:true}}))}raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);return()=>cancelAnimationFrame(raf)},[])
  const done=visited.length===total
  const saveKey=`tryamm.streetverse.community-${slice.communityAreaNumber}.mobile.v1`
 
@@ -41,7 +46,8 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
  }
 
  const openReel=()=>window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'streetverse-community-mobile',missionProgress:`${visited.length}/${total}`,communityAreaNumber:slice.communityAreaNumber,communityAreaName:slice.name,vehicle,mobileSafeMode:true,htmlCity:true}}))
- const reset=()=>{setVisited([]);setMessage(`${slice.name} StreetVerse reset • complete all checkpoints.`)}
+ const reset=()=>{setVisited([]);setPos({x:50,y:62});setMessage(`${slice.name} StreetVerse reset • move or complete checkpoints.`)}
+ const moveButton=(label:string,key:keyof typeof held.current)=><button aria-label={`Move ${key}`} onPointerDown={e=>{e.preventDefault();held.current[key]=true}} onPointerUp={()=>held.current[key]=false} onPointerCancel={()=>held.current[key]=false} onPointerLeave={()=>held.current[key]=false} style={{...buttonStyle,width:54,height:50,fontSize:20,touchAction:'none'}}>{label}</button>
  const status=useMemo(()=>done?'COMPLETE':`${visited.length}/${total}`,[done,visited.length,total])
 
  return <div data-streetverse-html-city="true" data-community-area={slice.communityAreaNumber} style={{position:'fixed',inset:0,zIndex:18000,background:'linear-gradient(#5998bd 0 30%,#d6bd91 30% 36%,#18252f 36% 100%)',color:'#fff',fontFamily:'system-ui',overflow:'auto'}}>
@@ -55,6 +61,11 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
    </div>
   </header>
   <main style={{padding:14,maxWidth:760,margin:'0 auto'}}>
+   <section aria-label="StreetVerse movement area" style={{height:180,position:'relative',borderRadius:14,background:'linear-gradient(#24485e 0 35%,#18252f 35% 100%)',border:'1px solid #4e7891',marginBottom:12,overflow:'hidden'}}>
+    <div aria-label="Player" style={{position:'absolute',left:`${pos.x}%`,top:`${pos.y}%`,transform:'translate(-50%,-50%)',width:24,height:34,borderRadius:10,background:'#23d9f4',border:'2px solid #fff'}} />
+    <div style={{position:'absolute',left:10,bottom:10,display:'grid',gridTemplateColumns:'54px 54px 54px',gap:5}}><span/>{moveButton('▲','up')}<span/>{moveButton('◀','left')}{moveButton('▼','down')}{moveButton('▶','right')}</div>
+    <div style={{position:'absolute',right:10,bottom:10,fontSize:11,color:'#bfefff'}}>MOVE • all 4 directions</div>
+   </section>
    <section style={{padding:12,borderRadius:12,background:'#030914e8',border:'1px solid #4e7891',marginBottom:12}}>
     <b>{message}</b>
     <div style={{fontSize:11,color:'#b9c9d6',marginTop:5}}>CHICAGO 77 • {slice.status} • AREA {slice.communityAreaNumber}</div>
