@@ -39,6 +39,7 @@ const KingdomsPressOperations=lazy(()=>import('./components/KingdomsPressOperati
 const UnifiedCommerceHub=lazy(()=>import('./components/UnifiedCommerceHub'))
 
 let routeContent: React.ReactNode = <App />
+let preserveDeterministicSafeRoute = false
 
 try {
   
@@ -63,6 +64,7 @@ try {
   const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs&&!isTwinWorld
   const streetVerseParams=new URLSearchParams(window.location.search)
   const isStreetVerseSafe=isStreetVerse&&(streetVerseParams.get('safe')==='1'||streetVerseParams.get('mode')==='safe')
+  preserveDeterministicSafeRoute=isStreetVerseSafe
   const safeCommunityArea=streetVerseParams.get('communityArea')||streetVerseParams.get('community')||undefined
   const isBusinessDirectory=currentPath==='/business'||currentPath==='/business/'
   const businessMatch=currentPath.match(/^\/business\/([^/]+)\/?$/)
@@ -204,6 +206,10 @@ root.render(
 )
 
 queueMicrotask(() => {
+  // Explicit safe-mode URLs are the production fallback and certification surface.
+  // Keep the first successful StreetVerse render mounted: optional global runtimes/UI
+  // must not replace or unmount it after bootstrap.
+  if (preserveDeterministicSafeRoute) return
   installOptionalRuntimes()
   try {
     root.render(
