@@ -15,6 +15,7 @@ import GlobalLaunchBar from './components/GlobalLaunchBar'
 import HoloDeliveryLauncher from './components/HoloDeliveryLauncher'
 import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import StreetVerseFaithChronoPortal from './components/StreetVerseFaithChronoPortal'
+import StreetVerseSafeWorld from './components/StreetVerseSafeWorld'
 import HoloExperienceLauncher from './components/HoloExperienceLauncher'
 import { getStandaloneSite } from './data/standaloneSiteRegistry'
 import './accessibility/accessibility.css'
@@ -60,6 +61,9 @@ try {
   const isTwinWorld=currentPath.startsWith('/streetverse/twin-world')
   const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
   const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs&&!isTwinWorld
+  const streetVerseParams=new URLSearchParams(window.location.search)
+  const isStreetVerseSafe=isStreetVerse&&(streetVerseParams.get('safe')==='1'||streetVerseParams.get('mode')==='safe')
+  const safeCommunityArea=streetVerseParams.get('communityArea')||streetVerseParams.get('community')||undefined
   const isBusinessDirectory=currentPath==='/business'||currentPath==='/business/'
   const businessMatch=currentPath.match(/^\/business\/([^/]+)\/?$/)
   const businessSlug=businessMatch?.[1]||''
@@ -70,7 +74,7 @@ try {
   
   const routeFallback=<div role="status" aria-live="polite" style={{position:'fixed',inset:0,zIndex:15980,display:'grid',placeItems:'center',background:'#050505',color:'#fff',fontFamily:'system-ui,sans-serif',fontWeight:900}}>LOADING…</div>
   
-  const streetVerseRoute=<>
+  const streetVerseRoute=isStreetVerseSafe?<StreetVerseSafeWorld communityAreaNumber={safeCommunityArea} onClose={()=>{window.location.href='/'}} />:<>
     <Suspense fallback={routeFallback}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense>
     <StreetVerseFaithChronoPortal />
     <div style={{position:'fixed',left:12,top:12,zIndex:16990,display:'flex',gap:8,flexWrap:'wrap'}}>
