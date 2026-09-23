@@ -77,8 +77,20 @@
       "dest": "https://amm-project-1-rpz9.onrender.com/api/creator/earnings"
     },
     {
-      "src": "/financial-truth/?",
+      "src": "/financial-truth",
       "dest": "/financial-truth.html"
+    },
+    {
+      "src": "/financial-truth/",
+      "dest": "/financial-truth.html"
+    },
+    {
+      "src": "/streetverse",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/streetverse/",
+      "dest": "/index.html"
     },
     {
       "handle": "filesystem"
