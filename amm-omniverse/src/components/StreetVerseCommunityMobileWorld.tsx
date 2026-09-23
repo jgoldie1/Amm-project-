@@ -54,7 +54,7 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
 
  return <div data-streetverse-html-city="true" data-community-area={slice.communityAreaNumber} style={{position:'fixed',inset:0,zIndex:18000,background:'linear-gradient(#5998bd 0 30%,#d6bd91 30% 36%,#18252f 36% 100%)',color:'#fff',fontFamily:'system-ui',overflow:'auto'}}>
   <header style={{position:'sticky',top:0,zIndex:20,minHeight:48,display:'flex',alignItems:'center',justifyContent:'space-between',gap:6,padding:'5px 8px',background:'#020712e8',borderBottom:'1px solid #274963'}}>
-   <div><b>STREETVERSE</b><div style={{fontSize:10,color:'#8effb7'}}>{vehicle?'DRIVE':'WALK'} • {status}</div></div>
+   <div><b>STREETVERSE • {slice.name.toUpperCase()}</b><div style={{fontSize:10,color:'#8effb7'}}>COMMUNITY AREA {slice.communityAreaNumber} • {vehicle?'DRIVE':'WALK'} • {status}</div></div>
    <div style={{display:'flex',gap:6,flexWrap:'wrap',justifyContent:'flex-end'}}>
     <button aria-label={vehicle?'Exit car':'Open car door and enter'} onClick={()=>{setVehicle(v=>!v);setMessage(vehicle?'Exited vehicle • WALK mode active.':'Car door opened • DRIVE mode active.')}} style={buttonStyle}>{vehicle?'EXIT CAR':'🚗 OPEN / ENTER'}</button>
     <button onClick={openReel} style={buttonStyle}>● REEL</button>
