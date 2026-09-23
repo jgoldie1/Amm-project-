@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
   plugins: [react()],
@@ -20,6 +21,13 @@ export default defineConfig({
       },
     },
     rollupOptions: {
+      // Vercel routes /streetverse to streetverse-safe.html. Declare both HTML
+      // documents as Vite build inputs so the safe entry and its hashed module
+      // graph are emitted into dist for the production deployment.
+      input: {
+        main: fileURLToPath(new URL('./index.html', import.meta.url)),
+        streetverseSafe: fileURLToPath(new URL('./streetverse-safe.html', import.meta.url)),
+      },
       output: {
         manualChunks(id, { getModuleInfo }) {
           // Transitively follow STATIC imports to detect first-party modules
