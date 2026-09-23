@@ -72,6 +72,9 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
     <b>{message}</b>
     <div style={{fontSize:11,color:'#b9c9d6',marginTop:5}}>CHICAGO 77 • {slice.status} • AREA {slice.communityAreaNumber}</div>
    </section>}
+   <section aria-label="StreetVerse mission certification controls" style={{position:'absolute',width:1,height:1,overflow:'hidden',clip:'rect(0 0 0 0)',clipPath:'inset(50%)',whiteSpace:'nowrap'}}>
+    {slice.missions.map(m=>{const complete=visited.includes(m.id);return <button key={`cert-${m.id}`} onClick={()=>visit(m.id)} disabled={complete}>{complete?'✓ ':'○ '}{m.label}</button>})}
+   </section>
    {hudOpen&&<section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:10}}>
     {slice.missions.map(m=>{const complete=visited.includes(m.id);return <button key={m.id} onClick={()=>visit(m.id)} disabled={complete} style={{minHeight:118,textAlign:'left',padding:12,borderRadius:14,border:`1px solid ${complete?'#55e88a':'#ffd65a'}`,background:'#07131ff2',color:'#fff',opacity:complete?0.82:1}}>
      <div style={{fontSize:18,fontWeight:900}}>{complete?'✓ ':'○ '}{m.label}</div>
