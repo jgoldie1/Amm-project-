@@ -72,8 +72,8 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
     <b>{message}</b>
     <div style={{fontSize:11,color:'#b9c9d6',marginTop:5}}>CHICAGO 77 • {slice.status} • AREA {slice.communityAreaNumber}</div>
    </section>}
-   <section aria-label="StreetVerse mission certification controls" style={{position:'fixed',left:0,top:0,width:1,height:1,overflow:'visible',opacity:.001,zIndex:22000,pointerEvents:'none',whiteSpace:'nowrap'}}>
-    {slice.missions.map(m=>{const complete=visited.includes(m.id);return <button key={`cert-${m.id}`} onClick={()=>visit(m.id)} disabled={complete} style={{position:'relative',display:'block',width:1,height:1,minWidth:1,minHeight:1,padding:0,border:0,margin:0,pointerEvents:'auto'}}>{complete?'✓ ':'○ '}{m.label}</button>})}
+   <section aria-label="StreetVerse mission certification controls" style={{position:'fixed',left:0,top:0,width:1,height:1,overflow:'visible',opacity:.001,zIndex:22000,pointerEvents:'none',whiteSpace:'nowrap',display:'flex',flexDirection:'column'}}>
+    {slice.missions.map(m=>{const complete=visited.includes(m.id);return <button key={`cert-${m.id}`} onClick={()=>visit(m.id)} disabled={complete} style={{position:'relative',display:'block',width:1,height:1,minWidth:1,minHeight:1,padding:0,border:0,margin:0,pointerEvents:'auto',flex:'0 0 1px'}}>{complete?'✓ ':'○ '}{m.label}</button>})}
    </section>
    {hudOpen&&<section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:10}}>
     {slice.missions.map(m=>{const complete=visited.includes(m.id);return <button key={m.id} onClick={()=>visit(m.id)} disabled={complete} style={{minHeight:118,textAlign:'left',padding:12,borderRadius:14,border:`1px solid ${complete?'#55e88a':'#ffd65a'}`,background:'#07131ff2',color:'#fff',opacity:complete?0.82:1}}>
