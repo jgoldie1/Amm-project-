@@ -8,6 +8,8 @@ export default function StreetVerseReelRecorder({open,onClose}:{open:boolean;onC
  const [recording,setRecording]=useState(false)
  const [url,setUrl]=useState('')
  const [error,setError]=useState('')
+ const [publishing,setPublishing]=useState(false)
+ const [published,setPublished]=useState(false)
 
  const stopStream=()=>{streamRef.current?.getTracks().forEach(t=>t.stop());streamRef.current=null}
  useEffect(()=>()=>{stopStream();if(url)URL.revokeObjectURL(url)},[url])
@@ -58,6 +60,23 @@ export default function StreetVerseReelRecorder({open,onClose}:{open:boolean;onC
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-save-share-complete',{detail:{source:'streetverse-reel-recorder',action:'download',type:blob.type,size:blob.size}}))
   }catch{setError('Save/share failed. Try IPHONE CAPTURE, then use the iPhone share sheet from the preview.')}
  }
+ const publish=async()=>{
+  if(!url||publishing)return
+  setPublishing(true);setPublished(false);setError('')
+  try{
+   const blob=await fetch(url).then(r=>r.blob())
+   const ext=blob.type.includes('mp4')?'mp4':'webm',fileName=`streetverse-reel-${Date.now()}.${ext}`
+   const intent=await fetch('/api/media/upload-intent',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({fileName,contentType:blob.type||'video/mp4',sizeBytes:blob.size,title:'StreetVerse Reel',caption:'Created in StreetVerse'})})
+   const intentBody=await intent.json();if(!intent.ok)throw new Error(intentBody?.error||'Could not start Reel upload')
+   const uploaded=await fetch(intentBody.upload.url,{method:'PUT',headers:{'content-type':blob.type||'video/mp4'},body:blob});if(!uploaded.ok)throw new Error('Reel storage upload failed')
+   const complete=await fetch('/api/media/upload-complete',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({mediaId:intentBody.media.id})})
+   const completeBody=await complete.json();if(!complete.ok)throw new Error(completeBody?.error||'Reel upload verification failed')
+   const pub=await fetch('/api/media/publish',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({mediaId:intentBody.media.id,destinations:['reel','creator-profile','omnibox']})})
+   const pubBody=await pub.json();if(!pub.ok)throw new Error(pubBody?.error||'Reel publishing failed')
+   setPublished(true);window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-published',{detail:{mediaId:intentBody.media.id,destinations:['reel','creator-profile','omnibox']}}))
+  }catch(e){setError(e instanceof Error?e.message:'Reel publishing failed')}
+  finally{setPublishing(false)}
+ }
  const onIPhoneCapture=(file?:File)=>{
   if(!file)return
   setError('')
@@ -71,11 +90,12 @@ export default function StreetVerseReelRecorder({open,onClose}:{open:boolean;onC
    <video ref={videoRef} playsInline muted style={{width:'100%',aspectRatio:'9/16',maxHeight:'70vh',marginTop:12,background:'#000',borderRadius:16,objectFit:'cover'}}/>
    <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:12}}>
     {!recording?<button onClick={startCamera} style={btn}>● START RECORDING</button>:<button onClick={stopRecording} style={{...btn,borderColor:'#ff6378',background:'#2a0b12'}}>■ STOP RECORDING</button>}
+    {url&&<button onClick={publish} disabled={publishing} style={{...btn,borderColor:'#8effb7',background:'#082a18'}}>{publishing?'PUBLISHING…':published?'✓ PUBLISHED':'PUBLISH TO TRYAMM'}</button>}
     {url&&<button onClick={share} style={{...btn,borderColor:'#65e8ff',background:'#08202a'}}>SAVE / SHARE</button>}
     <label style={btn}>IPHONE CAPTURE<input type='file' accept='video/*' capture='environment' style={{display:'none'}} onChange={e=>onIPhoneCapture(e.target.files?.[0])}/></label>
    </div>
    {error&&<p role='alert' style={{color:'#ffd27a'}}>{error}</p>}
-   <p style={{fontSize:12,color:'#b9c7d3'}}>On Safari/iPhone, tap IPHONE CAPTURE if browser recording is unavailable. After capture, the clip now opens in the preview above. Videos stay local until you choose SAVE / SHARE; cloud publishing is a separate upload step.</p>
+   <p style={{fontSize:12,color:'#b9c7d3'}}>On Safari/iPhone, tap IPHONE CAPTURE if browser recording is unavailable. After capture, the clip now opens in the preview above. Tap PUBLISH TO TRYAMM to upload and queue the Reel to the Reel feed, creator profile and OmniBox. SAVE / SHARE still uses the iPhone share sheet.</p>
   </div>
  </div>
 }
