@@ -176,6 +176,9 @@ jobs:
       - name: StreetVerse authoritative reward contract
         run: node tests/streetverse-authoritative-reward-contract.mjs
 
+      - name: Server-authoritative Stripe contract
+        run: node tests/server-authoritative-stripe-contract.mjs
+
       - name: Omniverse Vite production build
         run: npx vite build
 
