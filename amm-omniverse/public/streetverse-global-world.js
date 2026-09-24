@@ -14,7 +14,7 @@
     openOcean:{label:'Open Ocean • Yacht',biome:'open-ocean',marine:true,savanna:false,apex:false,yacht:true,climate:'ocean'}
   }
   let current=localStorage.getItem(KEY)||'chicago';if(!regions[current])current='chicago'
-  let mounted=false,lastSource='manual'
+  let mounted=false,lastSource='manual',weatherState=null
   const css=`
   #sv-world-open{position:absolute;left:12px;top:158px;z-index:23;min-height:44px;padding:0 11px;border-radius:12px;border:1px solid #7bdfff;background:#071426e8;color:#fff;font:900 10px/1 system-ui;box-shadow:0 6px 18px #0008;pointer-events:auto}
   #sv-world-panel{position:absolute;left:10px;right:10px;bottom:12px;z-index:31;display:none;max-height:56%;overflow:auto;border-radius:14px;border:1px solid #7bdfff;background:#04101df4;color:#fff;padding:10px;box-shadow:0 10px 30px #000c;pointer-events:auto;font-family:system-ui,sans-serif}
@@ -32,6 +32,14 @@
   body[data-sv-apex="false"] #sv-apex-wildlife{display:none!important}
   body[data-sv-biome="open-ocean"] [data-streetverse-html-city="true"] main,
   body[data-sv-biome="island-ocean"] [data-streetverse-html-city="true"] main{background-image:linear-gradient(#12385833,#0a466655)!important}
+  #sv-weather-fx{position:absolute;inset:0;z-index:3;pointer-events:none;display:none}
+  #sv-weather-chip{position:absolute;left:12px;top:207px;z-index:23;max-width:72%;padding:7px 9px;border-radius:999px;border:1px solid #7bdfff88;background:#04101de8;color:#dffaff;font:900 9px/1.2 system-ui;pointer-events:none}
+  body[data-sv-weather="rain"] #sv-weather-fx,body[data-sv-weather="storm"] #sv-weather-fx{display:block;background:repeating-linear-gradient(108deg,transparent 0 14px,#bcecff55 15px 16px,transparent 17px 31px);background-size:180px 180px;animation:sv-rain .42s linear infinite}
+  body[data-sv-weather="snow"] #sv-weather-fx{display:block;background-image:radial-gradient(circle,#fff 0 2px,transparent 2.5px),radial-gradient(circle,#eaf8ff 0 1.5px,transparent 2px);background-size:36px 44px,55px 62px;animation:sv-snow 5s linear infinite}
+  body[data-sv-weather="fog"] #sv-weather-fx{display:block;background:linear-gradient(#bdc8cedd,#87949bbb);backdrop-filter:blur(2px)}
+  body[data-sv-weather="clouds"] [data-streetverse-html-city="true"] main{filter:saturate(.78) brightness(.78)}
+  body[data-sv-weather="storm"] [data-streetverse-html-city="true"] main{filter:saturate(.7) brightness(.55)}
+  @keyframes sv-rain{to{background-position:-28px 180px}}@keyframes sv-snow{to{background-position:18px 180px,-24px 220px}}
   #sv-world-panel button:focus,#sv-world-open:focus{outline:3px solid #fff;outline-offset:2px}
   `
   function emit(){
@@ -52,14 +60,14 @@
     const open=document.createElement('button');open.id='sv-world-open';open.type='button';open.textContent='🌍 WORLD';open.setAttribute('aria-controls','sv-world-panel');open.setAttribute('aria-expanded','false')
     const panel=document.createElement('section');panel.id='sv-world-panel';panel.dataset.open='false';panel.setAttribute('aria-label','StreetVerse global world travel')
     panel.innerHTML=`<button class="close" type="button" aria-label="Close world travel">✕</button><h3>STREETVERSE GLOBAL WORLD</h3><p>Virtual travel across cities, coasts, islands, ocean and wildlife reserves. Manual travel works without GPS; optional GPS controls can suggest the nearest game region.</p><div class="grid">${Object.entries(regions).map(([id,r])=>`<button type="button" data-region="${id}">${r.yacht?'🛥️ ':r.savanna?'🌍 ':'📍 '}${r.label}</button>`).join('')}</div><div class="sv-world-status" aria-live="polite"></div>`
-    const yacht=document.createElement('div');yacht.id='sv-yacht';yacht.setAttribute('aria-hidden','true')
+    const yacht=document.createElement('div');yacht.id='sv-yacht';yacht.setAttribute('aria-hidden','true');const weatherFx=document.createElement('div');weatherFx.id='sv-weather-fx';weatherFx.setAttribute('aria-hidden','true');const weatherChip=document.createElement('div');weatherChip.id='sv-weather-chip';weatherChip.setAttribute('aria-live','polite');weatherChip.textContent='WEATHER • CONNECTING'
     const setOpen=v=>{panel.dataset.open=String(v);open.setAttribute('aria-expanded',String(v))}
     const status=panel.querySelector('.sv-world-status')
-    function sync(){const r=regions[current];status.textContent=`Current world: ${r.label} • biome ${r.biome}${r.yacht?' • yacht available':''}${lastSource==='gps'?' • GPS selected':''}.`;apply()}
+    function sync(){const r=regions[current];const weather=weatherState&&weatherState.regionId===current?' • '+String(weatherState.summary||weatherState.label||'weather synced'):'';status.textContent=`Current world: ${r.label} • biome ${r.biome}${r.yacht?' • yacht available':''}${lastSource==='gps'?' • GPS selected':''}${weather}.`;apply()}
     open.addEventListener('click',()=>setOpen(panel.dataset.open!=='true'));panel.querySelector('.close')?.addEventListener('click',()=>setOpen(false))
     panel.querySelectorAll('[data-region]').forEach(btn=>btn.addEventListener('click',()=>{current=btn.dataset.region;lastSource='manual';sync();setOpen(false)}))
-    main.append(yacht,open,panel);sync()
-    window.StreetVerseGlobalWorld={regions:JSON.parse(JSON.stringify(regions)),current:()=>({id:current,...regions[current],selectionSource:lastSource}),travel:(id,source='manual')=>{if(!regions[id])return false;current=id;lastSource=source==='gps'?'gps':'manual';sync();return true}}
+    main.append(weatherFx,yacht,open,weatherChip,panel);sync()
+    const onWeather=event=>{const d=event.detail||{};weatherState=d;const temp=Number.isFinite(Number(d.temperature))?Math.round(Number(d.temperature))+'°':'--';weatherChip.textContent='WEATHER • '+String(d.regionLabel||regions[current].label)+' • '+String((document.body.dataset.svWeather||'unavailable').toUpperCase())+' • '+temp+(d.current&&!d.simulated&&!d.unavailable?' • LIVE':' • GATED');sync()};addEventListener('tryamm:streetverse-weather-state',onWeather);window.StreetVerseGlobalWorld={regions:JSON.parse(JSON.stringify(regions)),current:()=>({id:current,...regions[current],selectionSource:lastSource}),travel:(id,source='manual')=>{if(!regions[id])return false;current=id;lastSource=source==='gps'?'gps':'manual';sync();return true}}
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-global-world-ready',{detail:{regions:Object.keys(regions),current,source:'virtual-game-world',gpsOptional:true,yachtRegions:Object.entries(regions).filter(([,r])=>r.yacht).map(([id])=>id)}}))
   }
   const observer=new MutationObserver(mount);observer.observe(document.documentElement,{subtree:true,childList:true});mount()
