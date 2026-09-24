@@ -7,11 +7,21 @@ const webhook = read('../api/commerce/stripe-webhook.js');
 const admin = read('../api/_lib/supabase-admin.js');
 const migration = read('../supabase/migrations/20260924144500_server_authoritative_stripe_commerce.sql');
 const pkg = JSON.parse(read('../package.json'));
+const lock = JSON.parse(read('../package-lock.json'));
 
 assert.equal(pkg.dependencies?.stripe, '^18.5.0', 'Stripe SDK must remain a server runtime dependency');
+assert.equal(lock.packages?.['']?.dependencies?.stripe, '^18.5.0', 'package-lock root must include Stripe');
+assert.equal(lock.packages?.['node_modules/stripe']?.version, '18.5.0', 'package-lock must contain Stripe package metadata');
 
 assert.match(checkout, /stripe\.checkout\.sessions\.create\(/, 'checkout must create Stripe sessions on the server');
 assert.match(checkout, /CATALOG\.get\(line\.id\)/, 'checkout pricing must come from the trusted catalog');
+assert.match(checkout, /verifyOrderChildren\(order,priced,total\)/, 'existing and new orders must verify child persistence before charging');
+assert.match(checkout, /ORDER_REQUIRES_REPAIR/, 'partial order persistence must block charging');
+assert.match(checkout, /provider_session_id:'is\.null'/, 'Stripe session binding must not silently overwrite an existing session');
+assert.match(checkout, /checkout\.sessions\.retrieve/, 'retries must inspect an already-bound Stripe session');
+assert.match(checkout, /session\.status==='expired'/, 'only an explicitly expired Stripe session may be treated as expired');
+assert.match(checkout, /PAYMENT_PROCESSING/, 'complete or unresolved sessions must wait for webhook finalization');
+assert.match(checkout, /CHECKOUT_RETRYABLE/, 'Stripe retrieval failures must be retryable without creating a second charge');
 assert.match(checkout, /tryamm_order_id/, 'checkout must bind the Stripe session to the persisted order');
 assert.match(checkout, /tryamm_buyer_id/, 'checkout must bind the Stripe session to the authenticated buyer');
 assert.match(checkout, /authority:'stripe_webhook_only'/, 'checkout response must declare webhook-only purchase authority');
