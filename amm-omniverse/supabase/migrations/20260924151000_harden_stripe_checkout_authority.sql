@@ -108,8 +108,11 @@ begin
       where order_id=p_order_id
       group by seller_key
     ) i
-    full join public.commerce_seller_allocations a
-      on a.order_id=p_order_id and a.seller_key=i.seller_key
+    full join (
+      select seller_key,gross_cents,seller_net_cents,platform_fee_cents
+      from public.commerce_seller_allocations
+      where order_id=p_order_id
+    ) a on a.seller_key=i.seller_key
   ) reconciled
   where item_gross <> allocation_gross or allocation_parts <> allocation_gross;
 
