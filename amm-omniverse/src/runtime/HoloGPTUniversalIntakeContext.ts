@@ -1,4 +1,4 @@
-import type { HoloInputKind } from './HoloGPTSovereignIntentFabric'
+import type { HoloInputKind } from './HoloGPTSovereignIntentFabric.ts'
 
 export type IntakeSource='UPLOAD'|'CAMERA'|'VOICE'|'REPOSITORY'|'CLOUD'|'GENERATED'
 export type IntakeState='RECEIVED'|'QUARANTINED'|'INDEXED'|'READY'|'REJECTED'|'EXPIRED'
