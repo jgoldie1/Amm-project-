@@ -74,7 +74,7 @@ async function resolveProduct(id){
  };
  if(!UUID.test(id))return null;
 
- const listingRows=await adminRest('commerce_listings',{query:{id:'eq.'+id,status:'eq.published',limit:1}});
+ const listingRows=await adminRest('commerce_listings',{query:{id:'eq.'+id,status:'eq.active',limit:1}});
  const listing=listingRows?.[0];
  if(!listing||listing?.safety_flags?.blocked===true)return null;
  if(String(listing?.attributes?.commerceKind||'')!=='asset')return null;
