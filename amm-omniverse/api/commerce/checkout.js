@@ -101,7 +101,7 @@ export default async function handler(req,res){
      cancel_url:`${baseUrl}/?checkout=cancelled&order_id=${encodeURIComponent(order.id)}`
    },{idempotencyKey:`tryamm_checkout_${order.id}`});
    if(!session?.id||!session?.url)throw new Error('stripe_session_missing_url');
-   const bound=await adminRest('commerce_orders',{method:'PATCH',query:{id:`eq.${order.id}`,status:'in.(pending_payment,checkout_created)'},body:{status:'checkout_created',payment_provider:'stripe',provider_session_id:session.id,updated_at:new Date().toISOString()}});
+   const bound=await adminRest('commerce_orders',{method:'PATCH',query:{id:`eq.${order.id}`,status:'in.(pending_payment,payment_processing)'},body:{status:'payment_processing',payment_provider:'stripe',provider_session_id:session.id,updated_at:new Date().toISOString()}});
    if(!bound?.[0]||bound[0].provider_session_id!==session.id)throw new Error('stripe_session_binding_failed');
    await audit(user.id,'commerce_checkout_session_created','info',{orderId:order.id,sessionId:session.id,total,currency:'usd'});
    return json(res,200,{ok:true,state:'CHECKOUT_READY',orderId:order.id,clientOrderId,sessionId:session.id,checkoutUrl:session.url});
