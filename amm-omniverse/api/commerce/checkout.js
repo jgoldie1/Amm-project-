@@ -75,7 +75,7 @@ async function inspectExistingCheckout(order,user){
  let session;
  try{session=await stripe.checkout.sessions.retrieve(String(order.provider_session_id))}
  catch{return {state:'CHECKOUT_STATUS_UNAVAILABLE',session:null};}
- if(String(session?.metadata?.tryamm_order_id||'')!==String(order.id)||String(session?.metadata?.tryamm_buyer_id||'')!==String(user.id)){
+ if(String(session?.metadata?.tryamm_order_id||'')!==String(order.id)||String(session?.metadata?.tryamm_buyer_id||'')!==String(user.id)||String(session?.client_reference_id||'')!==String(order.id)){
    throw new Error('stripe_session_binding_mismatch');
  }
  if(String(session.payment_status||'')==='paid'||String(session.status||'')==='complete'){
