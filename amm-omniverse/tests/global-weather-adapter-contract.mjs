@@ -25,12 +25,12 @@ try{
   process.env.GLOBAL_WEATHER_ENABLED='false'
   process.env.OPEN_METEO_COMMERCIAL_LICENSE_VERIFIED='false'
   process.env.OPEN_METEO_PRODUCTION_VERIFIED='false'
-  process.env.OPEN_METEO_API_KEY='test-commercial-key'
+  delete process.env.OPEN_METEO_API_KEY
 
   assert.equal(GLOBAL_WEATHER_BASE,'https://customer-api.open-meteo.com')
   assert.equal(globalWeatherStatus().adapterReady,false)
   assert.equal(globalWeatherStatus().liveDataAllowed,false)
-  assert.equal(JSON.stringify(globalWeatherStatus()).includes('test-commercial-key'),false)
+  assert.equal(globalWeatherStatus().configured,false)
 
   assert.deepEqual(normalizeGlobalCoordinates('6.5244','3.3792'),{lat:6.5244,lon:3.3792})
   assert.deepEqual(normalizeGlobalCoordinates('-33.8688','151.2093'),{lat:-33.8688,lon:151.2093})
@@ -43,6 +43,7 @@ try{
 }
 
 try{
+  assert.equal(JSON.stringify(globalWeatherStatus()).includes('test-commercial-key'),false)
   const built=buildForecastUrl({lat:6.5244,lon:3.3792,days:20})
   assert.equal(built.url.origin,GLOBAL_WEATHER_BASE)
   assert.equal(built.url.pathname,'/v1/forecast')
