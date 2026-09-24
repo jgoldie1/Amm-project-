@@ -6,6 +6,7 @@ import fs from 'node:fs'
 const require=createRequire(import.meta.url)
 const crawlerModule=require(path.resolve('../lib/quantum-crawler.js'))
 const {createQuantumCrawler,safeUrl,isBlockedHost,isPrivateAddress,extractMetadata}=crawlerModule
+const {createOmniNewsOracleManager}=require(path.resolve('../lib/omni-news-oracle-manager.js'))
 
 assert.equal(isBlockedHost('localhost'),true)
 assert.equal(isBlockedHost('127.0.0.1'),true)
@@ -83,6 +84,50 @@ await assert.rejects(
   /CRAWL_DNS_PRIVATE_ADDRESS_PROHIBITED/
 )
 
+
+const manager=createOmniNewsOracleManager()
+const sourceRecord=manager.registerSource({
+  name:'Contract News Feed',
+  type:'rss_atom',
+  ingestionMode:'rss_atom',
+  region:'Chicago',
+  geographies:['Chicago'],
+  lanes:['local_chicago'],
+  desks:['local_news'],
+  purposes:['newsroom','sparrow_map'],
+  retentionHours:1,
+  license:{
+    commercialUse:true,
+    reviewedAt:'2026-09-24T00:00:00Z',
+    termsUrl:'https://news.example.com/terms'
+  }
+})
+manager.approveSource(sourceRecord.id)
+assert.throws(()=>manager.ingest({
+  sourceId:sourceRecord.id,
+  headline:'Wrong geography',
+  url:'https://news.example.com/wrong',
+  region:'New York',
+  lane:'local_chicago',
+  desk:'local_news',
+  purposes:['newsroom']
+}),/SOURCE_GEOGRAPHY_NOT_APPROVED/)
+
+const pendingItem=manager.ingest({
+  sourceId:sourceRecord.id,
+  headline:'Chicago verified story',
+  url:'https://news.example.com/chicago',
+  region:'Chicago',
+  lane:'local_chicago',
+  desk:'local_news',
+  purposes:['newsroom','sparrow_map'],
+  verificationStatus:'verified'
+}).item
+assert.ok(pendingItem.expiresAt,'normalized Oracle items must carry an expiration')
+assert.equal(manager.reviewItem(pendingItem.id,{verificationStatus:'verified',publish:true}).live,false,'approved but inactive source must not publish live')
+manager.activateSource(sourceRecord.id)
+assert.equal(manager.reviewItem(pendingItem.id,{verificationStatus:'verified',publish:true}).live,true,'activated verified source may publish live after review')
+
 const routeSource=fs.readFileSync(path.resolve('../lib/quantum-crawler-routes.js'),'utf8')
 assert.match(routeSource,/QUANTUM_CRAWLER_ENABLED/)
 assert.match(routeSource,/crawler -> Oracle ingest -> verification\/editorial queue -> approved product routing/)
@@ -100,5 +145,8 @@ assert.match(managerSource,/PUBLIC_SAFETY_PURPOSE_LIMIT_REQUIRED/)
 assert.match(managerSource,/SOURCE_DESK_NOT_APPROVED/)
 assert.match(managerSource,/SOURCE_GEOGRAPHY_NOT_APPROVED/)
 assert.match(managerSource,/geographyApproved\(source,region\)/)
+assert.match(managerSource,/source\.live && \['verified','confirmed','official'\]/)
+assert.match(managerSource,/expiresAt: new Date\(Date\.now\(\) \+ Math\.max\(1, Number\(source\.retentionHours\)/)
+assert.match(managerSource,/function purgeExpiredItems\(/)
 
 console.log('Quantum Crawler approved-source, SSRF guard, robots review, metadata-only retention, Oracle handoff and admin-gated control-plane contract passed')
