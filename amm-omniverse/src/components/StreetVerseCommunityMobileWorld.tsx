@@ -11,6 +11,7 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
  const [pos,setPos]=useState({x:50,y:62})
  const [trafficTick,setTrafficTick]=useState(0)
  const [hudOpen,setHudOpen]=useState(false)
+ const [reelOpen,setReelOpen]=useState(false)
  const traffic=useMemo(()=>[
   {id:'c1',lane:46,start:8,speed:7,icon:'🚙'},
   {id:'c2',lane:54,start:38,speed:5,icon:'🚗'},
@@ -54,7 +55,8 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
   }
  }
 
- const openReel=()=>window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'streetverse-community-mobile',missionProgress:`${visited.length}/${total}`,communityAreaNumber:slice.communityAreaNumber,communityAreaName:slice.name,vehicle,mobileSafeMode:true,htmlCity:true}}))
+ const reelDetail={source:'streetverse-community-mobile',missionProgress:`${visited.length}/${total}`,communityAreaNumber:slice.communityAreaNumber,communityAreaName:slice.name,vehicle,mobileSafeMode:true,htmlCity:true,destinations:['reel','creator-profile'],suggestedCaption:`${slice.name} StreetVerse • ${visited.length}/${total} checkpoints • #TRYAMM #StreetVerse #Chicago77`}
+ const openReel=()=>{setReelOpen(true);window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:reelDetail}))}
  const reset=()=>{setVisited([]);setPos({x:50,y:62});setMessage(`${slice.name} StreetVerse reset • move or complete checkpoints.`)}
  const nudge=(key:keyof typeof held.current)=>{const d={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]}[key];const p=posRef.current;const step=vehicle?10:7;const next={x:Math.max(5,Math.min(95,p.x+d[0]*step)),y:Math.max(8,Math.min(92,p.y+d[1]*step))};posRef.current=next;setPos(next);window.dispatchEvent(new CustomEvent('tryamm:streetverse-player-position',{detail:{x:next.x,y:next.y,mobileSafeMode:true,htmlCity:true,input:'tap'}}))}
  const moveButton=(label:string,key:keyof typeof held.current)=><button aria-label={`Move ${key}`} onTouchStart={e=>{e.preventDefault();held.current[key]=true;nudge(key)}} onTouchEnd={e=>{e.preventDefault();held.current[key]=false}} onPointerDown={e=>{if(e.pointerType!=='touch'){e.preventDefault();held.current[key]=true;nudge(key)}}} onPointerUp={()=>held.current[key]=false} onPointerCancel={()=>held.current[key]=false} onPointerLeave={()=>held.current[key]=false} style={{...buttonStyle,width:58,height:54,fontSize:22,touchAction:'none',userSelect:'none',WebkitUserSelect:'none'}}>{label}</button>
@@ -70,6 +72,16 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
     <button onClick={onClose} aria-label={`Close ${slice.name} StreetVerse`} style={{...buttonStyle,width:44}}>×</button>
    </div>
   </header>
+  {reelOpen&&<section role="dialog" aria-modal="true" aria-label="TRYAMM Reel Studio" style={{position:'fixed',inset:0,zIndex:24000,background:'#02050bf2',display:'grid',placeItems:'center',padding:16}}>
+   <div style={{width:'min(520px,100%)',border:'1px solid #59e7ff',borderRadius:18,background:'#07131f',padding:16,boxShadow:'0 20px 60px #000b'}}>
+    <div style={{display:'flex',justifyContent:'space-between',gap:8,alignItems:'center'}}><div><b style={{fontSize:20}}>TRYAMM REEL STUDIO</b><div style={{fontSize:11,color:'#8effb7'}}>STREETVERSE • ${slice.name.toUpperCase()} • ${visited.length}/${total}</div></div><button onClick={()=>setReelOpen(false)} aria-label="Close Reel Studio" style={{...buttonStyle,width:44}}>×</button></div>
+    <div style={{marginTop:14,aspectRatio:'9 / 16',maxHeight:'52vh',borderRadius:16,border:'1px solid #315d72',background:'radial-gradient(circle at 50% 30%,#234b62,#07131f 62%,#02050b)',display:'grid',placeItems:'center',textAlign:'center',padding:18}}><div><div style={{fontSize:42}}>●</div><b>Capture your StreetVerse moment</b><div style={{fontSize:12,color:'#b9c9d6',marginTop:8}}>Vertical 9:16 • mission progress and Chicago community metadata travel with the Reel.</div></div></div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginTop:12}}><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:reel-capture-request',{detail:reelDetail}))} style={{...buttonStyle,minHeight:52}}>● CAPTURE</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:reel-upload-request',{detail:reelDetail}))} style={{...buttonStyle,minHeight:52}}>＋ UPLOAD</button></div>
+    <div style={{marginTop:10,padding:10,borderRadius:10,background:'#020914',fontSize:12,color:'#d9f7ff'}}>{reelDetail.suggestedCaption}</div>
+    <button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:reel-publish-request',{detail:reelDetail}))} style={{...buttonStyle,width:'100%',minHeight:52,marginTop:10,background:'#0b3a2b',borderColor:'#8effb7'}}>PUBLISH TO REELS + PROFILE</button>
+    <div style={{fontSize:10,color:'#9fb4c0',marginTop:8}}>Publish requests use the authenticated media pipeline; the UI must not claim success until the server returns a real publication record.</div>
+   </div>
+  </section>}
   <main style={{padding:8,maxWidth:760,margin:'0 auto'}}>
    <section aria-label="StreetVerse movement area" style={{height:180,position:'relative',borderRadius:14,background:'linear-gradient(#24485e 0 35%,#18252f 35% 100%)',border:'1px solid #4e7891',marginBottom:12,overflow:'hidden'}}>
     <div aria-hidden="true" style={{position:'absolute',left:0,right:0,top:'42%',height:'18%',background:'#101820',borderTop:'2px dashed #b7c3ca',borderBottom:'2px dashed #b7c3ca'}} />
