@@ -43,24 +43,24 @@ const layerColor:Record<LayerId,string>={
   alerts:'#ff6b7a',
 }
 
-const defaultStyle:any={
+const offlineStyle:any={
   version:8,
-  sources:{
-    osm:{
-      type:'raster',
-      tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-      tileSize:256,
-      attribution:'© OpenStreetMap contributors',
-    },
-  },
-  layers:[{id:'osm',type:'raster',source:'osm'}],
+  sources:{},
+  layers:[{id:'privacy-background',type:'background',paint:{'background-color':'#07121e'}}],
 }
 
 export default function SparrowMapCenter({onClose}:{onClose:()=>void}){
+  const dialogRef=useRef<HTMLDivElement|null>(null)
+  const closeButtonRef=useRef<HTMLButtonElement|null>(null)
   const containerRef=useRef<HTMLDivElement|null>(null)
   const mapRef=useRef<MapLibreMap|null>(null)
+  const onCloseRef=useRef(onClose)
+  onCloseRef.current=onClose
   const [selectedId,setSelectedId]=useState<string>(FEATURES[0].id)
   const [mapReady,setMapReady]=useState(false)
+  const [mapError,setMapError]=useState<string|null>(null)
+  const configuredStyle=String((import.meta as any).env?.VITE_SPARROW_MAP_STYLE_URL||'').trim()
+  const configuredProvider=String((import.meta as any).env?.VITE_SPARROW_MAP_PROVIDER_LABEL||'Approved configured map provider').trim()
   const [enabled,setEnabled]=useState<Record<LayerId,boolean>>({
     business:true,mobility:true,environment:true,missions:true,infrastructure:true,alerts:true,
   })
@@ -68,15 +68,52 @@ export default function SparrowMapCenter({onClose}:{onClose:()=>void}){
   const selected=useMemo(()=>FEATURES.find(x=>x.id===selectedId)||FEATURES[0],[selectedId])
 
   useEffect(()=>{
+    const dialog=dialogRef.current
+    const previousFocus=document.activeElement instanceof HTMLElement?document.activeElement:null
+    const siblings=dialog?.parentElement
+      ? Array.from(dialog.parentElement.children).filter(node=>node!==dialog&&node instanceof HTMLElement) as HTMLElement[]
+      : []
+    const priorInert=siblings.map(node=>node.inert)
+    siblings.forEach(node=>{node.inert=true})
+    const focusTimer=window.setTimeout(()=>closeButtonRef.current?.focus(),0)
+    const handleKeyDown=(event:KeyboardEvent)=>{
+      if(event.key==='Escape'){event.preventDefault();onCloseRef.current();return}
+      if(event.key!=='Tab'||!dialog)return
+      const focusable=Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]),input:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])'))
+        .filter(node=>node.offsetParent!==null)
+      if(!focusable.length){event.preventDefault();dialog.focus();return}
+      const first=focusable[0],last=focusable[focusable.length-1]
+      if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+      else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+    }
+    document.addEventListener('keydown',handleKeyDown)
+    return()=>{
+      window.clearTimeout(focusTimer)
+      document.removeEventListener('keydown',handleKeyDown)
+      siblings.forEach((node,index)=>{node.inert=priorInert[index]})
+      previousFocus?.focus()
+    }
+  },[])
+
+  useEffect(()=>{
     if(!containerRef.current||mapRef.current)return
-    const configuredStyle=(import.meta as any).env?.VITE_SPARROW_MAP_STYLE_URL
-    const map=new maplibregl.Map({
-      container:containerRef.current,
-      style:configuredStyle||defaultStyle,
-      center:CHICAGO_CENTER,
-      zoom:10.8,
-      attributionControl:true,
-    })
+    if(typeof maplibregl.supported==='function'&&!maplibregl.supported()){
+      setMapError('Interactive map graphics are unavailable on this device. The intelligence list remains usable.')
+      return
+    }
+    let map:MapLibreMap
+    try{
+      map=new maplibregl.Map({
+        container:containerRef.current,
+        style:configuredStyle||offlineStyle,
+        center:CHICAGO_CENTER,
+        zoom:10.8,
+        attributionControl:Boolean(configuredStyle),
+      })
+    }catch{
+      setMapError('Interactive map graphics could not start. The intelligence list remains usable.')
+      return
+    }
     mapRef.current=map
     map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right')
     map.on('load',()=>{
@@ -114,7 +151,7 @@ export default function SparrowMapCenter({onClose}:{onClose:()=>void}){
       setMapReady(true)
     })
     return()=>{map.remove();mapRef.current=null}
-  },[])
+  },[configuredStyle])
 
   useEffect(()=>{
     const map=mapRef.current
@@ -135,21 +172,23 @@ export default function SparrowMapCenter({onClose}:{onClose:()=>void}){
     if(typeof nav==='function'){onClose();nav(path)}
   }
 
-  return <div role="dialog" aria-modal="true" aria-label="TRYAMM Sparrow Map" style={{position:'fixed',inset:0,zIndex:10060,background:'#020711',color:'#fff',display:'grid',gridTemplateRows:'auto 1fr',fontFamily:'Inter,system-ui,sans-serif'}}>
+  return <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label="TRYAMM Sparrow Map" style={{position:'fixed',inset:0,zIndex:10060,background:'#020711',color:'#fff',display:'grid',gridTemplateRows:'auto 1fr',fontFamily:'Inter,system-ui,sans-serif'}}>
     <header style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,padding:'12px 14px',borderBottom:'1px solid #193244',background:'linear-gradient(90deg,#07131f,#111022)'}}>
       <div>
         <div style={{fontSize:10,letterSpacing:2.5,fontWeight:900,color:'#4fe3ff'}}>TRYAMM • STREETVERSE</div>
         <div style={{fontSize:20,fontWeight:950}}>Sparrow Situational Map <span style={{fontSize:9,color:'#ffd15c',verticalAlign:'middle'}}>BETA</span></div>
       </div>
-      <button type="button" aria-label="Close Sparrow Map" onClick={onClose} style={{width:44,height:44,borderRadius:'50%',border:'1px solid #365063',background:'#0b1722',color:'#fff',fontSize:22,cursor:'pointer'}}>×</button>
+      <button ref={closeButtonRef} type="button" aria-label="Close Sparrow Map" onClick={onClose} style={{width:44,height:44,borderRadius:'50%',border:'1px solid #365063',background:'#0b1722',color:'#fff',fontSize:22,cursor:'pointer'}}>×</button>
     </header>
 
     <div style={{minHeight:0,display:'grid',gridTemplateColumns:'minmax(0,1fr) min(360px,38vw)'}}>
       <section style={{position:'relative',minHeight:0}}>
-        <div ref={containerRef} aria-label="Interactive Chicago Sparrow map" style={{position:'absolute',inset:0}} />
+        {!mapError&&<div ref={containerRef} aria-label="Interactive Chicago Sparrow map" style={{position:'absolute',inset:0}} />}
+        {mapError&&<div role="status" style={{position:'absolute',inset:0,display:'grid',placeItems:'center',padding:30,textAlign:'center',background:'#07121e',color:'#c7d8e5'}}><div><div style={{fontWeight:950,color:'#ffd15c'}}>MAP GRAPHICS FALLBACK</div><div style={{fontSize:12,lineHeight:1.5,marginTop:8,maxWidth:420}}>{mapError}</div></div></div>}
         <div style={{position:'absolute',left:12,top:12,zIndex:3,maxWidth:330,background:'#07121ee8',border:'1px solid #2b5369',borderRadius:14,padding:10,boxShadow:'0 12px 34px #0009'}}>
           <div style={{fontSize:10,fontWeight:900,color:'#75ffa1'}}>PRIVACY-FIRST MODE</div>
           <div style={{fontSize:11,lineHeight:1.45,color:'#c7d8e5',marginTop:4}}>Public, consented or simulated situational data only. No private-person tracking and no live law-enforcement or camera-avoidance feed.</div>
+          <div style={{fontSize:9,lineHeight:1.4,color:'#8395a4',marginTop:6}}>{configuredStyle?`Basemap: ${configuredProvider}`:'Basemap network requests are OFF until an approved provider is configured.'}</div>
         </div>
       </section>
 
