@@ -1,5 +1,5 @@
 import {useEffect} from 'react'
-import type {StreetVerseWeatherState} from '../runtime/StreetVerseWeatherRuntime'
+import {weatherVisualFromState,type StreetVerseWeatherState} from '../runtime/StreetVerseWeatherRuntime'
 
 type WeatherPoint={id:string;label:string;lat:number;lon:number;scope:'local'|'global'}
 
@@ -23,6 +23,9 @@ const REFRESH_MS=15*60*1000
 
 function dispatch(state:StreetVerseWeatherState){
   try{localStorage.setItem(CACHE_KEY,JSON.stringify(state))}catch{}
+  const visual=weatherVisualFromState(state)
+  document.body.dataset.svWeather=visual.kind
+  document.body.dataset.svWeatherLive=String(state.current&&!state.simulated&&!state.unavailable)
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-weather-state',{detail:state}))
 }
 
@@ -83,6 +86,7 @@ export async function refreshStreetVerseWeather(point:WeatherPoint){
 export default function StreetVerseWeatherSync(){
   useEffect(()=>{
     let point=LOCAL_POINT
+    try{const savedRegion=localStorage.getItem('tryamm.streetverse.global-world.v1');if(savedRegion&&STREETVERSE_GLOBAL_WEATHER_POINTS[savedRegion])point=STREETVERSE_GLOBAL_WEATHER_POINTS[savedRegion]}catch{}
     let timer=0
     let disposed=false
     let requestId=0
@@ -118,6 +122,8 @@ export default function StreetVerseWeatherSync(){
       window.removeEventListener('tryamm:streetverse-global-region',onRegion)
       window.removeEventListener('tryamm:streetverse-local-weather',onLocal)
       delete document.body.dataset.svWeatherRegion
+      delete document.body.dataset.svWeather
+      delete document.body.dataset.svWeatherLive
     }
   },[])
   return null
