@@ -62,6 +62,10 @@ try{
   process.env.GLOBAL_WEATHER_ENABLED='true'
   process.env.OPEN_METEO_COMMERCIAL_LICENSE_VERIFIED='true'
   process.env.OPEN_METEO_PRODUCTION_VERIFIED='false'
+  process.env.OPEN_METEO_API_KEY='   '
+  assert.equal(globalWeatherStatus().configured,false)
+  assert.equal(globalWeatherStatus().certificationReady,false)
+
   process.env.OPEN_METEO_API_KEY='certification-test-key'
 
   const preflight=globalWeatherStatus()
@@ -80,6 +84,12 @@ try{
   const validation=validateGlobalWeatherCertificationForecast(candidate)
   assert.equal(validation.pass,true)
   assert.equal(Object.values(validation.checks).every(Boolean),true)
+
+  for(const field of ['temperature','weatherCode','windSpeed']){
+    const broken=structuredClone(candidate)
+    broken.current[field]=null
+    assert.equal(validateGlobalWeatherCertificationForecast(broken).pass,false,'missing '+field+' must fail certification')
+  }
 
   assert.deepEqual(
     GLOBAL_WEATHER_CERTIFICATION_LOCATIONS,
