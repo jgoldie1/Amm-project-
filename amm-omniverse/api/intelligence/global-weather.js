@@ -31,6 +31,10 @@ export default async function handler(req,res){
   if(action==='status')return json(res,200,{ok:true,status,bridge:globalWeatherOracleBridgeStatus(),locations:publicStreetVerseWeatherLocations()});
   if(!['data','oracle'].includes(format))return json(res,400,{error:'unsupported_format',allowed:['data','oracle']});
   if(action!=='forecast')return json(res,400,{error:'unsupported_action',allowed:['status','forecast']});
+  if(req.query?.lat!==undefined||req.query?.lon!==undefined)return json(res,400,{ok:false,error:'global_weather_direct_coordinates_prohibited'});
+  const allowedQueryKeys=new Set(['action','format','location']);
+  const unexpectedQueryKeys=Object.keys(req.query||{}).filter(key=>!allowedQueryKeys.has(key));
+  if(unexpectedQueryKeys.length)return json(res,400,{ok:false,error:'global_weather_unexpected_query_parameter'});
   if(!status.adapterReady){
     return json(res,503,{
       ok:false,
@@ -40,12 +44,11 @@ export default async function handler(req,res){
     });
   }
   try{
-    if(req.query?.lat!==undefined||req.query?.lon!==undefined)return json(res,400,{ok:false,error:'global_weather_direct_coordinates_prohibited'});
     const location=getStreetVerseWeatherLocation(req.query?.location);
     res.setHeader('Cache-Control','public, s-maxage=600, stale-while-revalidate=300');
     const data=await cachedForecast(location);
     if(format==='oracle'){
-      const signals=globalForecastToOracleSignals(data,{region:req.query?.region||location.label});
+      const signals=globalForecastToOracleSignals(data,{region:location.label});
       return json(res,200,{ok:true,action,format,source:data.source,signals,control:globalWeatherOracleBridgeStatus()});
     }
     return json(res,200,{ok:true,action,format,location:{id:location.id,label:location.label,scope:location.scope},data});
