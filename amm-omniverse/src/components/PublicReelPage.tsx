@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useState} from 'react'
+import {useEffect,useMemo,useRef,useState} from 'react'
 import {getAccessToken} from '../services/supabaseClient'
 
 type PublicReelPayload={publication:{public_slug:string;caption?:string;destination:string;delivered_at?:string};media:{id:string;title?:string;mediaType?:string};share:{slug:string;path:string}}
@@ -7,6 +7,8 @@ export default function PublicReelPage({slug}:{slug:string}){
   const [data,setData]=useState<PublicReelPayload|null>(null)
   const [error,setError]=useState('')
   const [busy,setBusy]=useState(true)
+  const videoRef=useRef<HTMLVideoElement|null>(null)
+  const [pipStatus,setPipStatus]=useState('')
   const shareUrl=useMemo(()=>data?new URL(data.share.path,window.location.origin).toString():'',[data])
   useEffect(()=>{let alive=true;(async()=>{try{
     const token=await getAccessToken();if(!token)throw new Error('Sign in to open this TRYAMM Reel.')
@@ -14,6 +16,7 @@ export default function PublicReelPage({slug}:{slug:string}){
     const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body?.error||'Reel unavailable')
     if(alive)setData(body)
   }catch(e){if(alive)setError(e instanceof Error?e.message:'Reel unavailable')}finally{if(alive)setBusy(false)}})();return()=>{alive=false}},[slug])
+  const enterPiP=async()=>{const video=videoRef.current;if(!video)return;try{const pipVideo=video as HTMLVideoElement & {requestPictureInPicture?:()=>Promise<unknown>};if(document.pictureInPictureElement){await document.exitPictureInPicture();setPipStatus('Picture in Picture closed.');return}if(pipVideo.requestPictureInPicture){await pipVideo.requestPictureInPicture();setPipStatus('Picture in Picture active.');return}setPipStatus('Use the iPhone video player Picture in Picture control when playback is available.')}catch{setPipStatus('Picture in Picture is not available for this video.') }}
   const share=async()=>{if(!shareUrl)return;try{
     if(navigator.share){await navigator.share({title:data?.media.title||'TRYAMM Reel',text:data?.publication.caption||'Watch this TRYAMM Reel',url:shareUrl});return}
     await navigator.clipboard.writeText(shareUrl);alert('Reel link copied.')
@@ -27,8 +30,11 @@ export default function PublicReelPage({slug}:{slug:string}){
       {error&&<p role="alert">{error}</p>}
       {data&&<section aria-label="Delivered TRYAMM Reel">
         <div style={{aspectRatio:'9 / 16',border:'1px solid #ffffff33',borderRadius:24,display:'grid',placeItems:'center',background:'#111',padding:20,textAlign:'center'}}>
-          <div><strong>{data.media.title||'Published Reel'}</strong><p>{data.publication.caption||'Delivered to TRYAMM.'}</p><small>Media {data.media.id}</small></div>
+          <video ref={videoRef} controls playsInline preload="metadata" aria-label={data.media.title||'TRYAMM Reel'} style={{display:'none',width:'100%',height:'100%',objectFit:'contain'}} />
+          <div><strong>{data.media.title||'Published Reel'}</strong><p>{data.publication.caption||'Delivered to TRYAMM.'}</p><small>Media {data.media.id}</small><p style={{opacity:.7}}>Playback activates when the verified media URL is connected.</p></div>
         </div>
+        <button onClick={enterPiP} style={{width:'100%',minHeight:56,borderRadius:16,fontWeight:950,fontSize:17,marginTop:10}}>PICTURE IN PICTURE</button>
+        {pipStatus&&<p role="status">{pipStatus}</p>}
         <p role="status">✓ DELIVERED · {data.publication.destination}</p>
         <button onClick={share} style={{width:'100%',minHeight:56,borderRadius:16,fontWeight:950,fontSize:17}}>SHARE REEL</button>
         <p style={{overflowWrap:'anywhere',opacity:.72}}>{shareUrl}</p>
