@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import StreetVerseSafeWorld from './components/StreetVerseSafeWorld'
 import StreetVerseReelEventBridge from './components/StreetVerseReelEventBridge'
+import StreetVerseWeatherSync from './components/StreetVerseWeatherSync'
 import './accessibility/accessibility.css'
 
 const params = new URLSearchParams(window.location.search)
@@ -16,6 +17,7 @@ if (!rootElement) throw new Error('[TRYAMM] Missing #root mount element')
 
 createRoot(rootElement).render(
   <StrictMode>
+    <StreetVerseWeatherSync />
     <StreetVerseSafeWorld
       communityAreaNumber={communityAreaNumber}
       onClose={() => { window.location.href = '/' }}

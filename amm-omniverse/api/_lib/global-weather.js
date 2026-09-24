@@ -1,6 +1,7 @@
 const GLOBAL_WEATHER_BASE='https://customer-api.open-meteo.com';
 const truthy=value=>String(value||'').toLowerCase()==='true';
 const clampText=(value,max)=>String(value||'').trim().slice(0,max);
+const nullableNumber=value=>value===null||value===undefined||value===''?null:(Number.isFinite(Number(value))?Number(value):null);
 
 export function globalWeatherStatus(){
   const enabled=truthy(process.env.GLOBAL_WEATHER_ENABLED);
@@ -112,26 +113,26 @@ export async function fetchGlobalForecast({lat,lon,days=7}){
       retrievedAt:new Date().toISOString()
     },
     location:{
-      latitude:Number(payload?.latitude),
-      longitude:Number(payload?.longitude),
-      elevation:Number.isFinite(Number(payload?.elevation))?Number(payload.elevation):null,
+      latitude:nullableNumber(payload?.latitude),
+      longitude:nullableNumber(payload?.longitude),
+      elevation:nullableNumber(payload?.elevation),
       timezone:clampText(payload?.timezone,80),
       timezoneAbbreviation:clampText(payload?.timezone_abbreviation,20),
-      utcOffsetSeconds:Number.isFinite(Number(payload?.utc_offset_seconds))?Number(payload.utc_offset_seconds):null
+      utcOffsetSeconds:nullableNumber(payload?.utc_offset_seconds)
     },
     current:payload?.current?{
       time:payload.current.time||null,
-      temperature:Number.isFinite(Number(payload.current.temperature_2m))?Number(payload.current.temperature_2m):null,
-      apparentTemperature:Number.isFinite(Number(payload.current.apparent_temperature))?Number(payload.current.apparent_temperature):null,
-      relativeHumidity:Number.isFinite(Number(payload.current.relative_humidity_2m))?Number(payload.current.relative_humidity_2m):null,
-      precipitation:Number.isFinite(Number(payload.current.precipitation))?Number(payload.current.precipitation):null,
-      rain:Number.isFinite(Number(payload.current.rain))?Number(payload.current.rain):null,
-      snowfall:Number.isFinite(Number(payload.current.snowfall))?Number(payload.current.snowfall):null,
-      weatherCode:Number.isFinite(Number(payload.current.weather_code))?Number(payload.current.weather_code):null,
-      cloudCover:Number.isFinite(Number(payload.current.cloud_cover))?Number(payload.current.cloud_cover):null,
-      windSpeed:Number.isFinite(Number(payload.current.wind_speed_10m))?Number(payload.current.wind_speed_10m):null,
-      windDirection:Number.isFinite(Number(payload.current.wind_direction_10m))?Number(payload.current.wind_direction_10m):null,
-      windGusts:Number.isFinite(Number(payload.current.wind_gusts_10m))?Number(payload.current.wind_gusts_10m):null
+      temperature:nullableNumber(payload.current.temperature_2m),
+      apparentTemperature:nullableNumber(payload.current.apparent_temperature),
+      relativeHumidity:nullableNumber(payload.current.relative_humidity_2m),
+      precipitation:nullableNumber(payload.current.precipitation),
+      rain:nullableNumber(payload.current.rain),
+      snowfall:nullableNumber(payload.current.snowfall),
+      weatherCode:nullableNumber(payload.current.weather_code),
+      cloudCover:nullableNumber(payload.current.cloud_cover),
+      windSpeed:nullableNumber(payload.current.wind_speed_10m),
+      windDirection:nullableNumber(payload.current.wind_direction_10m),
+      windGusts:nullableNumber(payload.current.wind_gusts_10m)
     }:null,
     days:dates.map((date,index)=>({
       date,
@@ -157,4 +158,4 @@ export async function fetchGlobalForecast({lat,lon,days=7}){
   };
 }
 
-export {GLOBAL_WEATHER_BASE,buildForecastUrl};
+export {GLOBAL_WEATHER_BASE,buildForecastUrl,nullableNumber};
