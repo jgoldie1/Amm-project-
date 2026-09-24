@@ -8,6 +8,7 @@ const listings = read('../api/commerce/listings.js');
 const refunds = read('../api/commerce/refunds.js');
 const orders = read('../api/commerce/orders.js');
 const entitlements = read('../api/commerce/entitlements.js');
+const digitalFulfillment = read('../supabase/migrations/20260924213641_allow_digital_commerce_fulfillment.sql');
 
 assert.ok(checkout.includes("adminRest('commerce_listings'"), 'checkout must resolve listings server-side');
 assert.ok(checkout.includes("status:'eq.active'"), 'checkout must accept published listings only');
@@ -40,5 +41,6 @@ assert.ok(!refunds.includes('stripe.refunds.create') && !refunds.includes('refun
 
 assert.ok(orders.includes('requireUser'), 'order history must require authentication');
 assert.ok(entitlements.includes('requireUser'), 'entitlement history must require authentication');
+assert.ok(digitalFulfillment.includes("'digital'"), 'commerce orders must allow digital fulfillment for asset entitlements');
 
 console.log('Asset commerce convergence contract: PASS');
