@@ -1,0 +1,184 @@
+export const ORACLE_PROVIDER_CATALOG=[
+  {
+    id:'nws-weather-us',
+    label:'National Weather Service API',
+    providerClass:'official_open_api',
+    status:'candidate_open_data',
+    baseUrl:'https://api.weather.gov',
+    documentationUrl:'https://www.weather.gov/documentation/services-web-api',
+    geographies:['United States'],
+    lanes:['weather_environment','us_national','local_chicago'],
+    desks:['weather','local_news','national_news'],
+    purposes:['newsroom','sparrow_map','environment_context','public_alert'],
+    ingestionMode:'official_feed',
+    live:false,
+    activationAllowed:false,
+    notes:'Official U.S. government weather, alerts, forecasts and observations. Rate-limit and production reliability checks still apply.',
+    releaseGates:[
+      'server-side adapter',
+      'user-agent/contact policy',
+      'rate-limit/backoff behavior',
+      'provider timestamp preservation',
+      'severe-weather source labeling',
+      'retention policy',
+      'production health test'
+    ]
+  },
+  {
+    id:'chicago-open-data',
+    label:'City of Chicago Data Portal',
+    providerClass:'official_open_data_portal',
+    status:'candidate_dataset_terms_required',
+    baseUrl:'https://data.cityofchicago.org',
+    documentationUrl:'https://data.cityofchicago.org',
+    geographies:['Chicago','Illinois'],
+    lanes:['local_chicago','mobility_logistics','business_funding','weather_environment','public_safety'],
+    desks:['local_news','traffic','business','community','public_safety'],
+    purposes:['newsroom','sparrow_map','streetverse_mission','business_opportunity','mobility_routing','public_alert'],
+    ingestionMode:'public_open_data',
+    live:false,
+    activationAllowed:false,
+    notes:'Each dataset must be reviewed individually for license, attribution, freshness, privacy and permitted reuse before activation.',
+    releaseGates:[
+      'dataset-specific license review',
+      'dataset-specific attribution review',
+      'freshness SLA',
+      'privacy review',
+      'field allowlist',
+      'retention policy',
+      'server-side normalization'
+    ]
+  },
+  {
+    id:'cta-transit',
+    label:'Chicago Transit Authority developer data',
+    providerClass:'official_transit_data',
+    status:'candidate_terms_required',
+    baseUrl:'https://www.transitchicago.com/developers/',
+    documentationUrl:'https://www.transitchicago.com/developers/',
+    geographies:['Chicago','Illinois'],
+    lanes:['local_chicago','mobility_logistics'],
+    desks:['traffic','local_news'],
+    purposes:['newsroom','sparrow_map','mobility_routing','streetverse_mission'],
+    ingestionMode:'licensed_api',
+    live:false,
+    activationAllowed:false,
+    notes:'Transit feeds belong in the mobility layer only after API/developer terms, keys, quotas and attribution are reviewed.',
+    releaseGates:[
+      'developer terms review',
+      'API/feed choice',
+      'credential configuration if required',
+      'quota/backoff behavior',
+      'freshness labeling',
+      'route-use review',
+      'production health test'
+    ]
+  },
+  {
+    id:'local-news-licensed',
+    label:'Licensed local news provider',
+    providerClass:'licensed_publisher',
+    status:'provider_selection_required',
+    baseUrl:null,
+    documentationUrl:null,
+    geographies:['Chicago','Illinois'],
+    lanes:['local_chicago'],
+    desks:['local_news','community','entertainment','sports','business'],
+    purposes:['newsroom','sparrow_map','streetverse_mission'],
+    ingestionMode:'licensed_api_or_rss',
+    live:false,
+    activationAllowed:false,
+    notes:'No local publisher is pre-approved. Choose a provider and review commercial use, excerpts, redistribution, attribution and rate limits.',
+    releaseGates:['provider selection','commercial license','attribution rules','redistribution rules','retention policy','verification workflow']
+  },
+  {
+    id:'national-news-licensed',
+    label:'Licensed U.S. national news provider',
+    providerClass:'licensed_publisher',
+    status:'provider_selection_required',
+    baseUrl:null,
+    documentationUrl:null,
+    geographies:['United States'],
+    lanes:['us_national','business_funding','sports_culture'],
+    desks:['national_news','business','sports','entertainment'],
+    purposes:['newsroom','daily_brief'],
+    ingestionMode:'licensed_api_or_rss',
+    live:false,
+    activationAllowed:false,
+    notes:'National publisher/newswire access remains provider-gated until commercial terms are reviewed.',
+    releaseGates:['provider selection','commercial license','attribution rules','redistribution rules','retention policy','verification workflow']
+  },
+  {
+    id:'international-news-licensed',
+    label:'Licensed global/international news provider',
+    providerClass:'licensed_publisher',
+    status:'provider_selection_required',
+    baseUrl:null,
+    documentationUrl:null,
+    geographies:['Africa/Nigeria','BRICS/emerging markets','Global/international'],
+    lanes:['africa_nigeria','brics_emerging_markets','global_international'],
+    desks:['international_news','business','sports','entertainment'],
+    purposes:['newsroom','daily_brief','streetverse_mission'],
+    ingestionMode:'licensed_api_or_rss',
+    live:false,
+    activationAllowed:false,
+    notes:'International coverage requires provider selection plus region, translation, rights and attribution review.',
+    releaseGates:['provider selection','commercial license','regional coverage review','translation policy','attribution rules','retention policy','verification workflow']
+  },
+  {
+    id:'entertainment-licensed',
+    label:'Licensed entertainment + events provider',
+    providerClass:'licensed_content_metadata',
+    status:'provider_selection_required',
+    baseUrl:null,
+    documentationUrl:null,
+    geographies:['Chicago','United States','Global/international'],
+    lanes:['creator_economy','sports_culture','local_chicago','global_international'],
+    desks:['entertainment','creator_culture'],
+    purposes:['newsroom','sparrow_map','streetverse_mission'],
+    ingestionMode:'licensed_api_or_rss',
+    live:false,
+    activationAllowed:false,
+    notes:'Entertainment/creator/event data remains metadata-first until provider rights are reviewed.',
+    releaseGates:['provider selection','commercial license','event/media rights review','attribution rules','retention policy']
+  },
+  {
+    id:'soundthinking-shotspotter',
+    label:'SoundThinking ShotSpotter partner feed',
+    providerClass:'restricted_partner_feed',
+    status:'provider_gated_not_connected',
+    baseUrl:null,
+    documentationUrl:null,
+    geographies:['contract-defined'],
+    lanes:['public_safety'],
+    desks:['public_safety'],
+    purposes:['public_alert','sparrow_map'],
+    ingestionMode:'partner_push_only',
+    live:false,
+    activationAllowed:false,
+    notes:'No scraping. No live access is assumed. Requires authorized partner/agency integration and strict purpose/retention controls.',
+    releaseGates:[
+      'licensed agency/partner access',
+      'official integration documentation',
+      'server-side authentication',
+      'signed event verification',
+      'purpose limitation',
+      'retention/deletion policy',
+      'production security review'
+    ]
+  }
+];
+
+export function providerCatalogSummary(){
+  const total=ORACLE_PROVIDER_CATALOG.length;
+  const providerSelectionRequired=ORACLE_PROVIDER_CATALOG.filter(x=>x.status==='provider_selection_required').length;
+  const officialCandidates=ORACLE_PROVIDER_CATALOG.filter(x=>x.providerClass.startsWith('official_')).length;
+  return {
+    total,
+    live:ORACLE_PROVIDER_CATALOG.filter(x=>x.live).length,
+    activationAllowed:ORACLE_PROVIDER_CATALOG.filter(x=>x.activationAllowed).length,
+    officialCandidates,
+    providerSelectionRequired,
+    policy:'Catalog entries are discovery/configuration records only. They do not authorize ingestion or live publication.'
+  };
+}
