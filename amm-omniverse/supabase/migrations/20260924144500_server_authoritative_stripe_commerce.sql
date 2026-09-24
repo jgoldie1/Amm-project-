@@ -152,7 +152,7 @@ create or replace function public.apply_verified_stripe_checkout(
   p_event_payload jsonb default '{}'::jsonb
 ) returns jsonb
 language plpgsql
-security definer
+security invoker
 set search_path = public
 as $$
 declare
