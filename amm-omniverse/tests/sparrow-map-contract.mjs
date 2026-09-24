@@ -27,6 +27,15 @@ for(const token of [
   'VITE_SPARROW_MAP_STYLE_URL',
   "import * as maplibregl from 'maplibre-gl'",
   'maplibre-gl',
+  'offlineStyle',
+  "Basemap network requests are OFF until an approved provider is configured.",
+  "typeof maplibregl.supported==='function'",
+  'MAP GRAPHICS FALLBACK',
+  'ref={dialogRef} tabIndex={-1}',
+  "event.key==='Escape'",
+  "event.key!=='Tab'",
+  'siblings.forEach(node=>{node.inert=true})',
+  'previousFocus?.focus()',
 ]){
   if(!component.includes(token))throw new Error(`Sparrow safety/accessibility contract missing: ${token}`)
 }
@@ -45,3 +54,7 @@ if(!routes.includes("{ id:'sparrow-map', path:'/sparrow-map', label:'Sparrow Sit
 }
 
 console.log('Sparrow situational map route, layers, accessibility and privacy-first data boundary contract passed')
+
+if(component.includes('tile.openstreetmap.org')){
+  throw new Error('Sparrow must not make an implicit third-party OSM basemap request')
+}
