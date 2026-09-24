@@ -43,9 +43,10 @@ const source={
 
 let fetchCount=0
 const publicResolver=async()=>[{address:'93.184.216.34',family:4}]
-const crawler=createQuantumCrawler({resolveHost:publicResolver,fetchImpl:async url=>{
+const crawler=createQuantumCrawler({resolveHost:publicResolver,fetchImpl:async (url,_options,pinned)=>{
   fetchCount+=1
   assert.equal(String(url),'https://news.example.com/news/story')
+  assert.deepEqual(pinned,{address:'93.184.216.34',family:4})
   return new Response(html,{status:200,headers:{'content-type':'text/html; charset=utf-8'}})
 }})
 
@@ -54,7 +55,9 @@ assert.equal(plan.targetCount,1)
 assert.equal(plan.profile,'local_headlines')
 assert.equal(plan.extraction,'metadata-first')
 assert.equal(plan.robotsRequired,true)
-assert.throws(()=>crawler.plan(source,{urls:['https://evil.example.net/news/story']}),/CRAWL_HOST_NOT_APPROVED/)
+assert.throws(()=>crawler.plan(source,{urls:['https://evil.example.net/news/story']}),/CRAWL_ORIGIN_NOT_APPROVED/)
+assert.throws(()=>crawler.plan(source,{urls:['http://news.example.com/news/story']}),/CRAWL_ORIGIN_NOT_APPROVED/)
+assert.throws(()=>crawler.plan(source,{urls:['https://news.example.com:8443/news/story']}),/CRAWL_ORIGIN_NOT_APPROVED/)
 assert.throws(()=>crawler.plan(source,{urls:['https://news.example.com/private/story']}),/CRAWL_PATH_NOT_APPROVED/)
 assert.throws(()=>crawler.plan(source,{urls:['https://news.example.com/newsletter/story']}),/CRAWL_PATH_NOT_APPROVED/)
 assert.throws(()=>crawler.plan(source,{urls:['https://news.example.com/news-private/story']}),/CRAWL_PATH_NOT_APPROVED/)
@@ -136,6 +139,7 @@ assert.match(routeSource,/const adminOnly = \[auth, admin\]\.filter\(Boolean\)/)
 assert.match(routeSource,/verificationStatus: 'ingested'/)
 assert.match(routeSource,/rawHtmlStored: false/)
 assert.match(routeSource,/fullArticleStored: false/)
+assert.doesNotMatch(routeSource,/lastRunBySource\.delete\(source\.id\)/)
 
 const managerSource=fs.readFileSync(path.resolve('../lib/omni-news-oracle-manager.js'),'utf8')
 assert.match(managerSource,/HTML_SCRAPING_GLOBALLY_DISABLED/)
@@ -148,5 +152,14 @@ assert.match(managerSource,/geographyApproved\(source,region\)/)
 assert.match(managerSource,/source\.live && \['verified','confirmed','official'\]/)
 assert.match(managerSource,/expiresAt: new Date\(Date\.now\(\) \+ Math\.max\(1, Number\(source\.retentionHours\)/)
 assert.match(managerSource,/function purgeExpiredItems\(/)
+
+const crawlerSource=fs.readFileSync(path.resolve('../lib/quantum-crawler.js'),'utf8')
+assert.match(crawlerSource,/function sameApprovedOrigin\(/)
+assert.match(crawlerSource,/base\.protocol===target\.protocol/)
+assert.match(crawlerSource,/effectivePort\(base\)===effectivePort\(target\)/)
+assert.match(crawlerSource,/async function pinnedRequest\(/)
+assert.match(crawlerSource,/lookup:\(_hostname,options,callback\)=>/)
+assert.match(crawlerSource,/servername:url\.protocol==='https:'\?url\.hostname:undefined/)
+assert.match(crawlerSource,/const pinned=resolutions\[0\]/)
 
 console.log('Quantum Crawler approved-source, SSRF guard, robots review, metadata-only retention, Oracle handoff and admin-gated control-plane contract passed')
