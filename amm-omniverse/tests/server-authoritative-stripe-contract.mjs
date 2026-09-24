@@ -3,7 +3,8 @@ import fs from 'node:fs';
 
 const checkout=fs.readFileSync(new URL('../api/commerce/checkout.js',import.meta.url),'utf8');
 const webhook=fs.readFileSync(new URL('../api/commerce/stripe-webhook.js',import.meta.url),'utf8');
-const migration=fs.readFileSync(new URL('../supabase/migrations/20260924210000_release1_server_authoritative_stripe.sql',import.meta.url),'utf8');
+const migration=fs.readFileSync(new URL('../supabase/migrations/20260924150622_release1_server_authoritative_stripe.sql',import.meta.url),'utf8');
+const cleanup=fs.readFileSync(new URL('../supabase/migrations/20260924150822_disable_duplicate_stripe_finalizer.sql',import.meta.url),'utf8');
 const pkg=JSON.parse(fs.readFileSync(new URL('../package.json',import.meta.url),'utf8'));
 
 assert.equal(pkg.dependencies?.stripe,'^18.5.0','Omniverse runtime must include the Stripe server SDK');
@@ -63,6 +64,8 @@ assert.match(migration,/grant select on table[\s\S]*public\.commerce_entitlement
 assert.match(migration,/grant select, insert, update, delete on table[\s\S]*public\.commerce_entitlements[\s\S]*to service_role;/,'Server role must receive explicit Data API write grants');
 assert(!migration.toLowerCase().includes('security definer'),'Stripe finalizer does not need definer privileges');
 assert(!migration.includes('public.commerce_transactions'),'Do not fork the live payment model into a parallel commerce_transactions table');
+assert(cleanup.includes("apply_verified_stripe_checkout"),'Duplicate Stripe finalizer cleanup must name the stray RPC');
+assert.match(cleanup,/from service_role/,'Duplicate Stripe finalizer must be disabled even for service_role');
 assert(migration.includes("'payment_processing','paid'"),'Finalizer must accept only the live pre-payment state or an idempotent paid retry');
 
 console.log('Server-authoritative Stripe checkout → verified event → transaction → entitlement → ledger contract: GREEN');
