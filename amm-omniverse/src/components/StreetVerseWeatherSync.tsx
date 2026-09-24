@@ -19,6 +19,7 @@ export const STREETVERSE_GLOBAL_WEATHER_POINTS:Record<string,WeatherPoint>={
 }
 
 const CACHE_KEY='tryamm.streetverse.weather.v1'
+const DEST_KEY='tryamm.streetverse.weather-destination.v1'
 const REFRESH_MS=15*60*1000
 const nullableNumber=(value:unknown)=>value===null||value===undefined||value===''?null:(Number.isFinite(Number(value))?Number(value):null)
 
@@ -41,11 +42,12 @@ function unavailable(point:WeatherPoint,message:string):StreetVerseWeatherState{
 function normalize(point:WeatherPoint,payload:any):StreetVerseWeatherState{
   const current=payload?.data?.current||null
   const source=payload?.data?.source||{}
+  const location=payload?.location||{}
   if(!current)return unavailable(point,'Current weather is not available yet.')
   return {
-    scope:point.scope,
-    regionId:point.id,
-    regionLabel:point.label,
+    scope:location?.scope==='local'?'local':'global',
+    regionId:String(location?.id||point.id),
+    regionLabel:String(location?.label||point.label),
     provider:String(source?.id||'open-meteo-global-commercial'),
     sourceTimestamp:current?.time||null,
     retrievedAt:String(source?.retrievedAt||new Date().toISOString()),
@@ -79,7 +81,7 @@ export async function refreshStreetVerseWeather(point:WeatherPoint){
 export default function StreetVerseWeatherSync(){
   useEffect(()=>{
     let point=LOCAL_POINT
-    try{const savedRegion=localStorage.getItem('tryamm.streetverse.global-world.v1');if(savedRegion&&STREETVERSE_GLOBAL_WEATHER_POINTS[savedRegion])point=STREETVERSE_GLOBAL_WEATHER_POINTS[savedRegion]}catch{}
+    try{const savedDestination=JSON.parse(localStorage.getItem(DEST_KEY)||'null') as WeatherPoint|null;if(savedDestination?.id&&savedDestination?.label)point={id:String(savedDestination.id),label:String(savedDestination.label),scope:'global'};else{const savedRegion=localStorage.getItem('tryamm.streetverse.global-world.v1');if(savedRegion&&STREETVERSE_GLOBAL_WEATHER_POINTS[savedRegion])point=STREETVERSE_GLOBAL_WEATHER_POINTS[savedRegion]}}catch{}
     let timer=0
     let disposed=false
     let requestId=0
@@ -101,11 +103,20 @@ export default function StreetVerseWeatherSync(){
     const onRegion=(event:Event)=>{
       const detail=(event as CustomEvent<{regionId?:string}>).detail||{}
       const next=STREETVERSE_GLOBAL_WEATHER_POINTS[String(detail.regionId||'')]
-      if(next)void refresh(next)
+      if(next){try{localStorage.removeItem(DEST_KEY)}catch{};void refresh(next)}
     }
-    const onLocal=()=>void refresh(LOCAL_POINT)
+    const onDestination=(event:Event)=>{
+      const detail=(event as CustomEvent<{id?:string;label?:string}>).detail||{}
+      const id=String(detail.id||'').trim(),label=String(detail.label||'').trim().slice(0,120)
+      if(!id||!label)return
+      const next:WeatherPoint={id,label,scope:'global'}
+      try{localStorage.setItem(DEST_KEY,JSON.stringify(next))}catch{}
+      void refresh(next)
+    }
+    const onLocal=()=>{try{localStorage.removeItem(DEST_KEY)}catch{};void refresh(LOCAL_POINT)}
 
     window.addEventListener('tryamm:streetverse-global-region',onRegion)
+    window.addEventListener('tryamm:streetverse-weather-destination',onDestination)
     window.addEventListener('tryamm:streetverse-local-weather',onLocal)
     void refresh(point)
     timer=window.setInterval(()=>void refresh(point),REFRESH_MS)
@@ -114,6 +125,7 @@ export default function StreetVerseWeatherSync(){
       disposed=true
       window.clearInterval(timer)
       window.removeEventListener('tryamm:streetverse-global-region',onRegion)
+      window.removeEventListener('tryamm:streetverse-weather-destination',onDestination)
       window.removeEventListener('tryamm:streetverse-local-weather',onLocal)
       delete document.body.dataset.svWeatherRegion
       delete document.body.dataset.svWeather
