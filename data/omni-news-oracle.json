@@ -175,5 +175,180 @@
     "captioning and translation",
     "Holo5DX map and explainer scenes",
     "Sparrow situational map"
-  ]
+  ],
+  "newsroom_desks": [
+    "local_news",
+    "national_news",
+    "international_news",
+    "entertainment",
+    "weather",
+    "traffic",
+    "sports",
+    "business",
+    "community",
+    "public_safety",
+    "creator_culture"
+  ],
+  "newsroom_programming": {
+    "local_news_host": {
+      "desk": "local_news",
+      "scope": [
+        "Chicago",
+        "Illinois",
+        "neighborhood/community"
+      ],
+      "outputs": [
+        "local newscast",
+        "breaking local card",
+        "Sparrow map context",
+        "community interview"
+      ]
+    },
+    "national_news_anchor": {
+      "desk": "national_news",
+      "scope": [
+        "United States"
+      ],
+      "outputs": [
+        "national rundown",
+        "policy/economy explainer",
+        "breaking national card"
+      ]
+    },
+    "international_news_anchor": {
+      "desk": "international_news",
+      "scope": [
+        "Africa/Nigeria",
+        "BRICS/emerging markets",
+        "global"
+      ],
+      "outputs": [
+        "world rundown",
+        "regional comparison",
+        "international breaking card"
+      ]
+    },
+    "entertainment_host": {
+      "desk": "entertainment",
+      "scope": [
+        "local creators",
+        "music",
+        "film",
+        "TV",
+        "celebrity/public entertainment",
+        "festivals"
+      ],
+      "outputs": [
+        "entertainment rundown",
+        "creator spotlight",
+        "event card"
+      ]
+    },
+    "weather_host": {
+      "desk": "weather",
+      "scope": [
+        "current conditions",
+        "forecast",
+        "severe weather",
+        "air quality/environment"
+      ],
+      "outputs": [
+        "weather segment",
+        "Sparrow weather layer",
+        "StreetVerse environment context"
+      ]
+    },
+    "traffic_mobility_host": {
+      "desk": "traffic",
+      "scope": [
+        "traffic",
+        "transit",
+        "rideshare",
+        "delivery",
+        "road closures"
+      ],
+      "outputs": [
+        "mobility segment",
+        "Sparrow mobility layer",
+        "route context"
+      ]
+    },
+    "sports_host": {
+      "desk": "sports",
+      "scope": [
+        "local",
+        "national",
+        "international sports"
+      ],
+      "outputs": [
+        "sports rundown",
+        "scores/results card",
+        "SportsVerse event seed"
+      ]
+    },
+    "business_funding_host": {
+      "desk": "business",
+      "scope": [
+        "business",
+        "grants",
+        "contracts",
+        "funding",
+        "markets",
+        "creator economy"
+      ],
+      "outputs": [
+        "business brief",
+        "funding opportunity",
+        "StreetVerse business mission seed"
+      ]
+    },
+    "community_correspondent": {
+      "desk": "community",
+      "scope": [
+        "schools",
+        "churches",
+        "nonprofits",
+        "neighborhoods",
+        "local events"
+      ],
+      "outputs": [
+        "community report",
+        "verified submission",
+        "mission/event seed"
+      ]
+    },
+    "public_safety_desk": {
+      "desk": "public_safety",
+      "scope": [
+        "official public alerts",
+        "emergency management",
+        "verified partner signals"
+      ],
+      "outputs": [
+        "verified public alert",
+        "Sparrow public-safety context"
+      ],
+      "restrictions": [
+        "no private-person tracking",
+        "no tactical tracking",
+        "no camera/police avoidance routing"
+      ]
+    },
+    "creator_culture_host": {
+      "desk": "creator_culture",
+      "scope": [
+        "TRYAMM creators",
+        "local culture",
+        "fashion",
+        "music",
+        "reels",
+        "live"
+      ],
+      "outputs": [
+        "creator spotlight",
+        "culture rundown",
+        "LIVE/REELS discovery card"
+      ]
+    }
+  }
 }
