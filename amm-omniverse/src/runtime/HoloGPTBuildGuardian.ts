@@ -1,4 +1,4 @@
-import type { HoloCapability, HoloInputKind, IntentPlan, IntentStep } from './HoloGPTSovereignIntentFabric'
+import type { HoloCapability, HoloInputKind, IntentPlan, IntentStep } from './HoloGPTSovereignIntentFabric.ts'
 
 export type ProblemClass =
   | 'LOST_WORK' | 'DEPLOYMENT_DRIFT' | 'FALSE_COMPLETION' | 'CI_FAILURE' | 'PROVIDER_OUTAGE'
