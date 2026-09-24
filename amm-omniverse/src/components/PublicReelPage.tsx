@@ -1,7 +1,7 @@
 import {useEffect,useMemo,useRef,useState} from 'react'
 import {getAccessToken} from '../services/supabaseClient'
 
-type PublicReelPayload={publication:{public_slug:string;caption?:string;destination:string;delivered_at?:string};media:{id:string;title?:string;mediaType?:string};share:{slug:string;path:string}}
+type PublicReelPayload={publication:{public_slug:string;caption?:string;destination:string;delivered_at?:string};media:{id:string;title?:string;mediaType?:string;playbackUrl:string};share:{slug:string;path:string}}
 
 export default function PublicReelPage({slug}:{slug:string}){
   const [data,setData]=useState<PublicReelPayload|null>(null)
@@ -37,15 +37,14 @@ export default function PublicReelPage({slug}:{slug:string}){
       {error&&<p role="alert">{error}</p>}
       {data&&<section aria-label="Delivered TRYAMM Reel">
         <div style={{aspectRatio:'9 / 16',border:'1px solid #ffffff33',borderRadius:24,display:'grid',placeItems:'center',background:'#111',padding:20,textAlign:'center'}}>
-          <video ref={videoRef} controls playsInline preload="metadata" aria-label={data.media.title||'TRYAMM Reel'} style={{display:'none',width:'100%',height:'100%',objectFit:'contain'}} />
-          <div><strong>{data.media.title||'Published Reel'}</strong><p>{data.publication.caption||'Delivered to TRYAMM.'}</p><small>Media {data.media.id}</small><p style={{opacity:.7}}>Playback activates when the verified media URL is connected.</p></div>
+          <video ref={videoRef} src={data.media.playbackUrl} controls playsInline preload={bufferPolicy==='PAUSED'?'none':bufferPolicy==='BUFFER AHEAD'||bufferPolicy==='CONTINUITY'?'auto':'metadata'} aria-label={data.media.title||'TRYAMM Reel'} style={{width:'100%',height:'100%',objectFit:'contain',borderRadius:18}} />
         </div>
         <div style={{display:'flex',gap:8,alignItems:'center',justifyContent:'space-between',marginTop:10}}><strong>⚡ QUANTUM LAG BUSTER</strong><button onClick={openLagBuster} style={{minHeight:44,borderRadius:14,fontWeight:900}}>TUNE · {lagStatus}</button></div>
         <p style={{opacity:.7,fontSize:12}}>Reel/PiP playback can react to TRYAMM network quality signals and degrade gracefully instead of pretending latency can be eliminated.</p><p role="status" style={{fontSize:12}}><strong>BUFFER POLICY:</strong> {bufferPolicy} · weak connections can favor buffer-ahead/continuity while controls stay responsive.</p><p style={{fontSize:12}}><strong>TIME-WARP PRELOAD:</strong> {warpPolicy} · prepares destination assets/state without claiming real-world time travel.</p>
         <button onClick={enterPiP} style={{width:'100%',minHeight:56,borderRadius:16,fontWeight:950,fontSize:17,marginTop:10}}>PICTURE IN PICTURE</button>
         {pipStatus&&<p role="status">{pipStatus}</p>}
         <p role="status">✓ DELIVERED · {data.publication.destination}</p>
-        <p style={{opacity:.72}}>⚡ Quantum Lag Buster: {lagMode.toUpperCase()} · Reel playback will use adaptive preload/buffering policy when the verified media URL is connected.</p>
+        <p style={{opacity:.72}}>⚡ Quantum Lag Buster: {lagMode.toUpperCase()} · Reel playback uses adaptive preload/buffering policy with the verified signed media URL.</p>
         <button onClick={share} style={{width:'100%',minHeight:56,borderRadius:16,fontWeight:950,fontSize:17}}>SHARE REEL</button>
         <p style={{overflowWrap:'anywhere',opacity:.72}}>{shareUrl}</p>
       </section>}
