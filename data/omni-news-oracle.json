@@ -350,5 +350,154 @@
         "LIVE/REELS discovery card"
       ]
     }
+  },
+  "scraper_profiles": {
+    "local_headlines": {
+      "desks": [
+        "local_news",
+        "community"
+      ],
+      "lanes": [
+        "local_chicago"
+      ],
+      "extract": [
+        "headline",
+        "summary/excerpt",
+        "publishedAt",
+        "canonicalUrl",
+        "author",
+        "section"
+      ],
+      "mode": "metadata-first",
+      "notes": "Use RSS/API first; HTML only when terms explicitly allow it."
+    },
+    "national_headlines": {
+      "desks": [
+        "national_news",
+        "business",
+        "sports"
+      ],
+      "lanes": [
+        "us_national",
+        "business_funding",
+        "sports_culture"
+      ],
+      "extract": [
+        "headline",
+        "summary/excerpt",
+        "publishedAt",
+        "canonicalUrl",
+        "author",
+        "section"
+      ],
+      "mode": "metadata-first"
+    },
+    "international_headlines": {
+      "desks": [
+        "international_news",
+        "business",
+        "sports"
+      ],
+      "lanes": [
+        "africa_nigeria",
+        "brics_emerging_markets",
+        "global_international"
+      ],
+      "extract": [
+        "headline",
+        "summary/excerpt",
+        "publishedAt",
+        "canonicalUrl",
+        "region",
+        "author"
+      ],
+      "mode": "metadata-first"
+    },
+    "entertainment_events": {
+      "desks": [
+        "entertainment",
+        "creator_culture"
+      ],
+      "lanes": [
+        "creator_economy",
+        "sports_culture",
+        "local_chicago",
+        "global_international"
+      ],
+      "extract": [
+        "headline",
+        "event title",
+        "date/time",
+        "venue/city",
+        "summary/excerpt",
+        "canonicalUrl"
+      ],
+      "mode": "events-and-metadata"
+    },
+    "business_funding": {
+      "desks": [
+        "business"
+      ],
+      "lanes": [
+        "business_funding",
+        "us_national",
+        "africa_nigeria",
+        "brics_emerging_markets",
+        "global_international"
+      ],
+      "extract": [
+        "opportunity title",
+        "issuer",
+        "amount/range",
+        "deadline",
+        "eligibility",
+        "canonicalUrl",
+        "publishedAt"
+      ],
+      "mode": "opportunity-metadata"
+    },
+    "creator_culture": {
+      "desks": [
+        "creator_culture",
+        "entertainment"
+      ],
+      "lanes": [
+        "creator_economy",
+        "local_chicago",
+        "global_international"
+      ],
+      "extract": [
+        "headline",
+        "creator/event",
+        "summary/excerpt",
+        "publishedAt",
+        "canonicalUrl"
+      ],
+      "mode": "metadata-first"
+    },
+    "metadata_only": {
+      "desks": [
+        "local_news",
+        "national_news",
+        "international_news",
+        "entertainment",
+        "business",
+        "community",
+        "creator_culture"
+      ],
+      "extract": [
+        "headline",
+        "summary/excerpt",
+        "publishedAt",
+        "canonicalUrl"
+      ],
+      "mode": "strict-metadata-only"
+    }
+  },
+  "non_scrape_sources": {
+    "weather": "Use official/provider API or licensed data feed; do not scrape forecast pages for operational weather.",
+    "traffic_mobility": "Use official transit/traffic/open-data or licensed routing feeds.",
+    "public_safety": "Use official public alerts/open data or licensed partner push/API only.",
+    "soundthinking_shotspotter": "Partner-feed/API only after contractual authorization; never scrape vendor dashboards."
   }
 }
