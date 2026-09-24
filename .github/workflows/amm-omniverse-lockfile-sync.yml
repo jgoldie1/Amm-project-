@@ -1,0 +1,46 @@
+name: AMM Omniverse lockfile sync
+
+on:
+  push:
+    branches:
+      - 'payments/**'
+    paths:
+      - 'amm-omniverse/package.json'
+      - '.github/workflows/amm-omniverse-lockfile-sync.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync-lockfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout payment branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Use Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+
+      - name: Regenerate exact npm lockfile
+        working-directory: amm-omniverse
+        run: npm install --package-lock-only --ignore-scripts
+
+      - name: Commit synchronized lockfile
+        shell: bash
+        run: |
+          if git diff --quiet -- amm-omniverse/package-lock.json; then
+            echo "Lockfile already synchronized."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add amm-omniverse/package-lock.json
+          git commit -m "chore: sync amm-omniverse lockfile"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
