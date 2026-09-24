@@ -61,8 +61,18 @@ export default async function handler(req,res){
        throw new Error('verified_refund_evidence_incomplete');
      }
      if(event.type==='refund.failed'||refundStatus==='failed'){
-       await markEventProcessed(eventId,null);
-       return json(res,200,{ok:true,type:event.type,state:'REFUND_FAILED',refundId});
+       const result=await adminRpc('apply_verified_stripe_refund_failure',{
+         p_provider_event_id:eventId,
+         p_provider_refund_id:refundId,
+         p_provider_payment_id:paymentIntent,
+         p_amount_cents:amountCents,
+         p_currency:currency,
+         p_reason:String(session?.reason||''),
+         p_verified_at:new Date().toISOString(),
+         p_event_payload:minimalPayload(event)
+       });
+       if(result?.orderId)await markEventProcessed(eventId,String(result.orderId));
+       return json(res,200,{ok:true,type:event.type,matched:true,state:'REFUND_FAILED',authority:'verified_stripe_refund_failure',result});
      }
      if(refundStatus!=='succeeded'){
        await markEventProcessed(eventId,null);
