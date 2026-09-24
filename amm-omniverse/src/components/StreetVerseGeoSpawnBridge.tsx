@@ -179,6 +179,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  },[safe,quantumMode])
 
  if(safe)return <>
+  <StreetVerseWeatherSync/>
   <StreetVerseMobileGameShell onClose={closeStreetVerse}/>
   <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>
   <StreetVerseAfterDarkAlpha/>
@@ -187,7 +188,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
 
  return <>
   <StreetVerseMobileGameShell onClose={closeStreetVerse}/>
-  <Suspense fallback={<StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>}>
+  <Suspense fallback={<><StreetVerseWeatherSync/><StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/></>}>
    <StreetVersePlayableWorld onClose={closeStreetVerse}/>
   </Suspense>
   <StreetVerseAfterDarkAlpha/>
