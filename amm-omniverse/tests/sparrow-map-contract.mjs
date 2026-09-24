@@ -35,7 +35,10 @@ for(const token of [
   "event.key==='Escape'",
   "event.key!=='Tab'",
   'siblings.forEach(node=>{node.inert=true})',
-  'previousFocus?.focus()',
+  "map.on('error',handleMapError)",
+  "if(loaded)return",
+  "button[aria-label=\"Open Command Nexus\"]",
+  "previousFocus&&previousFocus!==document.body&&previousFocus.isConnected",
 ]){
   if(!component.includes(token))throw new Error(`Sparrow safety/accessibility contract missing: ${token}`)
 }
