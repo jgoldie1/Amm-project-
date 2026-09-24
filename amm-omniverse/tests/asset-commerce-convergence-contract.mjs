@@ -10,7 +10,7 @@ const orders = read('../api/commerce/orders.js');
 const entitlements = read('../api/commerce/entitlements.js');
 
 assert.ok(checkout.includes("adminRest('commerce_listings'"), 'checkout must resolve listings server-side');
-assert.ok(checkout.includes("status:'eq.published'"), 'checkout must accept published listings only');
+assert.ok(checkout.includes("status:'eq.active'"), 'checkout must accept published listings only');
 assert.ok(checkout.includes("provenance_status:'eq.verified'"), 'checkout must recheck provenance');
 assert.ok(checkout.includes("rights_status:'eq.verified'"), 'checkout must recheck rights');
 assert.ok(checkout.includes("certification_status:'eq.verified'"), 'checkout must recheck certification');
@@ -28,10 +28,11 @@ for (const token of ["provenance_status:'pending'","rights_status:'pending'","ce
 assert.ok(assets.includes('TRYAMM_INTERNAL_COMPLIANCE_SECRET'), 'asset verification must require compliance secret');
 assert.ok(assets.includes('timingSafeEqual'), 'internal secret comparison must be timing-safe');
 
-assert.ok(listings.includes("status:'review'"), 'new asset listings must enter review');
+assert.ok(listings.includes("status:'draft'"), 'new asset listings must enter draft review');
+assert.ok(listings.includes("listing_type:'digital'"), 'asset listings must use the digital listing type');
 assert.ok(listings.includes('verifiedAsset(asset)'), 'listing creation must require certification');
 assert.ok(listings.includes('TRYAMM_INTERNAL_COMPLIANCE_SECRET'), 'publication must require compliance authorization');
-assert.ok(listings.includes("status==='published'"), 'publication must recheck certification');
+assert.ok(listings.includes("requestedStatus==='published'"), 'publication must recheck certification');
 
 assert.ok(refunds.includes("reason:'refund_request'"), 'refunds must enter durable review');
 assert.ok(refunds.includes('Money is not moved until the provider refund and reversal are verified server-side.'), 'refund endpoint must not claim settlement');
