@@ -91,7 +91,9 @@ export default function SparrowMapCenter({onClose}:{onClose:()=>void}){
       window.clearTimeout(focusTimer)
       document.removeEventListener('keydown',handleKeyDown)
       siblings.forEach((node,index)=>{node.inert=priorInert[index]})
-      previousFocus?.focus()
+      const persistentOpener=document.querySelector<HTMLElement>('button[aria-label="Open Command Nexus"]')
+      if(previousFocus&&previousFocus!==document.body&&previousFocus.isConnected)previousFocus.focus()
+      else persistentOpener?.focus()
     }
   },[])
 
@@ -115,8 +117,17 @@ export default function SparrowMapCenter({onClose}:{onClose:()=>void}){
       return
     }
     mapRef.current=map
+    let loaded=false
+    const handleMapError=()=>{
+      if(loaded)return
+      setMapError('Interactive map graphics could not load the configured map style. The intelligence list remains usable.')
+      if(mapRef.current===map)mapRef.current=null
+      try{map.remove()}catch{}
+    }
+    map.on('error',handleMapError)
     map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right')
     map.on('load',()=>{
+      loaded=true
       const sourceData:any={
         type:'FeatureCollection',
         features:FEATURES.map(feature=>({
@@ -150,7 +161,11 @@ export default function SparrowMapCenter({onClose}:{onClose:()=>void}){
       }
       setMapReady(true)
     })
-    return()=>{map.remove();mapRef.current=null}
+    return()=>{
+      try{map.off('error',handleMapError)}catch{}
+      if(mapRef.current===map)mapRef.current=null
+      try{map.remove()}catch{}
+    }
   },[configuredStyle])
 
   useEffect(()=>{
