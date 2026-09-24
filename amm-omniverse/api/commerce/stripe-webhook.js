@@ -7,8 +7,19 @@ async function readRaw(req){const chunks=[];for await(const chunk of req)chunks.
 const stripeClient=()=>new Stripe(process.env.STRIPE_SECRET_KEY,{maxNetworkRetries:2});
 const paymentIntentId=session=>typeof session?.payment_intent==='string'?session.payment_intent:String(session?.payment_intent?.id||'');
 const minimalPayload=event=>{
- const session=event?.data?.object||{};
- return {id:String(event?.id||''),type:String(event?.type||''),created:Number(event?.created||0),livemode:Boolean(event?.livemode),object:{id:String(session?.id||''),client_reference_id:String(session?.client_reference_id||''),metadata:session?.metadata||{},amount_total:Number(session?.amount_total||0),currency:String(session?.currency||''),payment_status:String(session?.payment_status||''),payment_intent:paymentIntentId(session)}};
+ const object=event?.data?.object||{};
+ const isRefund=String(event?.type||'').startsWith('refund.');
+ if(isRefund){
+   return {
+     id:String(event?.id||''),type:String(event?.type||''),created:Number(event?.created||0),livemode:Boolean(event?.livemode),
+     object:{
+       id:String(object?.id||''),object:'refund',amount:Number(object?.amount||0),currency:String(object?.currency||''),
+       status:String(object?.status||''),reason:String(object?.reason||''),payment_intent:paymentIntentId(object),
+       charge:typeof object?.charge==='string'?object.charge:String(object?.charge?.id||''),metadata:object?.metadata||{}
+     }
+   };
+ }
+ return {id:String(event?.id||''),type:String(event?.type||''),created:Number(event?.created||0),livemode:Boolean(event?.livemode),object:{id:String(object?.id||''),client_reference_id:String(object?.client_reference_id||''),metadata:object?.metadata||{},amount_total:Number(object?.amount_total||0),currency:String(object?.currency||''),payment_status:String(object?.payment_status||''),payment_intent:paymentIntentId(object)}};
 };
 
 async function ensureEventRow(event){
@@ -39,6 +50,48 @@ export default async function handler(req,res){
    await ensureEventRow(event);
 
    const session=event?.data?.object||{};
+
+   if(event.type==='refund.created'||event.type==='refund.updated'||event.type==='refund.failed'){
+     const refundId=String(session?.id||'');
+     const paymentIntent=paymentIntentId(session);
+     const amountCents=Number(session?.amount||0);
+     const currency=String(session?.currency||'').toUpperCase();
+     const refundStatus=String(session?.status||'');
+     if(!refundId||!paymentIntent||!Number.isSafeInteger(amountCents)||amountCents<=0||!currency){
+       throw new Error('verified_refund_evidence_incomplete');
+     }
+     if(event.type==='refund.failed'||refundStatus==='failed'){
+       const result=await adminRpc('apply_verified_stripe_refund_failure',{
+         p_provider_event_id:eventId,
+         p_provider_refund_id:refundId,
+         p_provider_payment_id:paymentIntent,
+         p_amount_cents:amountCents,
+         p_currency:currency,
+         p_reason:String(session?.reason||''),
+         p_verified_at:new Date().toISOString(),
+         p_event_payload:minimalPayload(event)
+       });
+       if(result?.orderId)await markEventProcessed(eventId,String(result.orderId));
+       return json(res,200,{ok:true,type:event.type,matched:true,state:'REFUND_FAILED',authority:'verified_stripe_refund_failure',result});
+     }
+     if(refundStatus!=='succeeded'){
+       await markEventProcessed(eventId,null);
+       return json(res,200,{ok:true,type:event.type,state:'REFUND_PENDING',refundId,status:refundStatus||'pending'});
+     }
+     const result=await adminRpc('apply_verified_stripe_refund',{
+       p_provider_event_id:eventId,
+       p_provider_refund_id:refundId,
+       p_provider_payment_id:paymentIntent,
+       p_amount_cents:amountCents,
+       p_currency:currency,
+       p_reason:String(session?.reason||''),
+       p_verified_at:new Date().toISOString(),
+       p_event_payload:minimalPayload(event)
+     });
+     if(result?.orderId)await markEventProcessed(eventId,String(result.orderId));
+     return json(res,200,{ok:true,type:event.type,matched:true,authority:'verified_stripe_refund',result});
+   }
+
    const orderId=String(session?.metadata?.tryamm_order_id||'');
    if(orderId&&String(session?.client_reference_id||'')!==orderId)throw new Error('stripe_client_reference_mismatch');
 

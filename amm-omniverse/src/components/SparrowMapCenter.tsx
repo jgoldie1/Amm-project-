@@ -99,7 +99,7 @@ export default function SparrowMapCenter({onClose}:{onClose:()=>void}){
 
   useEffect(()=>{
     if(!containerRef.current||mapRef.current)return
-    if(typeof maplibregl.supported==='function'&&!maplibregl.supported()){
+    if(typeof window==='undefined'||!('WebGLRenderingContext' in window)){
       setMapError('Interactive map graphics are unavailable on this device. The intelligence list remains usable.')
       return
     }
@@ -110,7 +110,7 @@ export default function SparrowMapCenter({onClose}:{onClose:()=>void}){
         style:configuredStyle||offlineStyle,
         center:CHICAGO_CENTER,
         zoom:10.8,
-        attributionControl:Boolean(configuredStyle),
+        attributionControl:configuredStyle?{}:false,
       })
     }catch{
       setMapError('Interactive map graphics could not start. The intelligence list remains usable.')
