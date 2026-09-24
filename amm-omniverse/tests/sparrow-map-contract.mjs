@@ -25,6 +25,7 @@ for(const token of [
   'No private-person tracking',
   'no live law-enforcement or camera-avoidance feed',
   'VITE_SPARROW_MAP_STYLE_URL',
+  "import * as maplibregl from 'maplibre-gl'",
   'maplibre-gl',
 ]){
   if(!component.includes(token))throw new Error(`Sparrow safety/accessibility contract missing: ${token}`)
