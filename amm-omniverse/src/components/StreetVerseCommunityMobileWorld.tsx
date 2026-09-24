@@ -89,8 +89,9 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
     <input ref={reelFileInput} type="file" accept="video/*" capture="environment" onChange={chooseReel} style={{display:'none'}} />
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginTop:12}}><button disabled={reelBusy} onClick={()=>reelFileInput.current?.click()} style={{...buttonStyle,minHeight:52}}>● CAPTURE / CHOOSE</button><button disabled={reelBusy} onClick={uploadReel} style={{...buttonStyle,minHeight:52}}>＋ {reelBusy?'WORKING…':'UPLOAD'}</button></div>
     <div style={{marginTop:10,padding:10,borderRadius:10,background:'#020914',fontSize:12,color:'#d9f7ff'}}>{reelDetail.suggestedCaption}</div>
-    <button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:reel-publish-request',{detail:reelDetail}))} style={{...buttonStyle,width:'100%',minHeight:52,marginTop:10,background:'#0b3a2b',borderColor:'#8effb7'}}>PUBLISH TO REELS + PROFILE</button>
-    <div style={{fontSize:10,color:'#9fb4c0',marginTop:8}}>Publish requests use the authenticated media pipeline; the UI must not claim success until the server returns a real publication record.</div>
+    <div role="status" aria-live="polite" style={{marginTop:10,padding:10,borderRadius:10,background:'#071019',fontSize:12,color:'#bfefff'}}>{reelStatus}</div>
+    <button disabled={reelBusy||!reelMediaId} onClick={publishReel} style={{...buttonStyle,width:'100%',minHeight:52,marginTop:10,background:'#0b3a2b',borderColor:'#8effb7',opacity:reelMediaId&&!reelBusy?1:.55}}>PUBLISH TO REELS + PROFILE</button>
+    <div style={{fontSize:10,color:'#9fb4c0',marginTop:8}}>A queued job is not called published. TRYAMM waits for confirmed destination delivery before showing a public Reel/share record.</div>
    </div>
   </section>}
   <main style={{padding:8,maxWidth:760,margin:'0 auto'}}>
