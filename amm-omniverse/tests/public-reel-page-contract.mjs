@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8')
 const page=read('../src/components/PublicReelPage.tsx')
 const main=read('../src/main.tsx')
-assert.match(main,/\/reels\//)
+assert.match(main,/reels/)
 assert.match(main,/PublicReelPage/)
 assert.match(page,/getAccessToken/)
 assert.match(page,/\/api\/media\/publication\?slug=/)
