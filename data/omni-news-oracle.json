@@ -1,48 +1,118 @@
 {
-  "name": "OmniNews Oracle",
-  "version": "0.1.0",
-  "tagline": "Verified local-to-national news intelligence for TryAMM",
+  "name": "OmniNews + StreetVerse Global Oracle",
+  "version": "1.0.0",
+  "tagline": "Verified local-to-global intelligence for TRYAMM, StreetVerse and Sparrow",
+  "geographic_lanes": [
+    "Chicago and Illinois",
+    "United States",
+    "Africa with Nigeria priority",
+    "BRICS and emerging markets",
+    "Global / international"
+  ],
+  "intelligence_lanes": [
+    "local_chicago",
+    "us_national",
+    "africa_nigeria",
+    "brics_emerging_markets",
+    "global_international",
+    "business_funding",
+    "creator_economy",
+    "mobility_logistics",
+    "weather_environment",
+    "public_safety",
+    "sports_culture",
+    "streetverse_missions"
+  ],
   "source_classes": [
     "licensed_news_api",
     "rss_atom",
     "local_publisher_feed",
+    "official_public_feed",
+    "public_open_data",
+    "licensed_partner_push",
     "creator_community_submission",
     "sports_data",
-    "weather_data",
-    "finance_data"
+    "weather_environment_data",
+    "finance_business_data",
+    "mobility_transit_data"
+  ],
+  "preferred_ingestion_order": [
+    "official API / public open data",
+    "licensed commercial feed",
+    "RSS / Atom",
+    "contracted partner push",
+    "approved publisher metadata feed",
+    "community submission with review",
+    "HTML scraping only when site terms and rights explicitly permit it"
   ],
   "rules": [
-    "No source is enabled until license, attribution, redistribution and rate-limit terms are recorded.",
+    "No source is enabled until license, attribution, redistribution, retention and rate-limit terms are recorded.",
+    "Do not bypass paywalls, robots controls, authentication, CAPTCHAs or technical access controls.",
     "Do not scrape full copyrighted articles unless a contract, license or site terms explicitly permit it.",
     "Prefer metadata, excerpts and links when full-content rights are absent.",
     "Community submissions remain unverified until editorial review and source corroboration.",
-    "Weather, finance and sports values must retain provider timestamps and source attribution.",
-    "AI may summarize and cluster but cannot upgrade an unverified item to verified without an authorized review step."
+    "Weather, finance, sports, mobility and public-safety values must retain provider timestamps and source attribution.",
+    "AI may summarize, translate, cluster and rank but cannot upgrade an unverified item to verified without an authorized review step.",
+    "Public-safety partner feeds require contractual access, server-side authentication, purpose limitation and retention controls.",
+    "No private-person tracking, private plate publication, doxxing, camera-avoidance routing or live tactical tracking."
   ],
+  "public_safety_provider_policy": {
+    "shotspotter_soundthinking": {
+      "status": "provider_gated_not_connected",
+      "ingestion_mode": "official partner push/API only",
+      "requirements": [
+        "licensed agency or partner access",
+        "official vendor integration documentation",
+        "server-side authentication",
+        "explicit permitted uses",
+        "retention and deletion policy",
+        "source and timestamp labeling"
+      ],
+      "prohibited": [
+        "scraping vendor dashboards",
+        "claiming live coverage without authorization",
+        "tracking private individuals",
+        "camera or police avoidance routing"
+      ]
+    }
+  },
   "pipeline": [
     "source_registration",
     "license_policy_check",
     "ingest",
     "normalize",
     "deduplicate_cluster",
-    "region_category_tagging",
+    "geography_lane_tagging",
+    "product_purpose_tagging",
     "source_reliability_scoring",
+    "freshness_scoring",
     "fact_and_media_checks",
-    "editorial_queue",
-    "anchor_script_draft",
-    "human_approval",
-    "publish_web_free_tv_fast_social_holo"
+    "editorial_or_system_queue",
+    "streetverse_sparrow_routing",
+    "human_or_authorized_review",
+    "publish_web_free_tv_fast_social_holo_map_missions"
   ],
   "oracle_outputs": [
+    "sparrow_map_signal",
+    "streetverse_mission_seed",
     "local_alert",
     "breaking_news_card",
+    "global_news_card",
     "daily_brief",
+    "business_opportunity",
+    "mobility_context",
+    "environment_context",
     "anchor_script",
     "ticker",
     "fast_channel_rundown",
     "source_comparison",
     "correction_update"
   ],
+  "retention_policy": {
+    "raw_payload": "Keep only for the shortest practical normalization/audit window, then delete or irreversibly de-identify unless a legal or contractual requirement applies.",
+    "normalized_signal": "Retain only product, audit, safety and compliance fields that remain necessary.",
+    "precise_location": "Reduce to neighborhood or city precision unless precise coordinates are contractually permitted and necessary for the product purpose."
+  },
   "anchor_pathway": {
     "name": "OmniNews Anchor Pathway",
     "levels": [
@@ -50,25 +120,46 @@
         "level": 1,
         "name": "Community Correspondent",
         "scope": "neighborhood, school, church, nonprofit, creator and local event coverage",
-        "requirements": ["Passport identity", "ethics and source training", "mobile reporting basics", "submission review"]
+        "requirements": [
+          "Passport identity",
+          "ethics and source training",
+          "mobile reporting basics",
+          "submission review"
+        ]
       },
       {
         "level": 2,
         "name": "Local Anchor",
         "scope": "city and county daily briefs, interviews, weather and local public-interest coverage",
-        "requirements": ["verified track record", "teleprompter training", "corrections policy", "live safety training"]
+        "requirements": [
+          "verified track record",
+          "teleprompter training",
+          "corrections policy",
+          "live safety training"
+        ]
       },
       {
         "level": 3,
         "name": "Regional Anchor",
         "scope": "multi-city and state/regional broadcasts",
-        "requirements": ["regional source network", "producer approval", "live desk certification", "editorial standards review"]
+        "requirements": [
+          "regional source network",
+          "producer approval",
+          "live desk certification",
+          "editorial standards review"
+        ]
       },
       {
         "level": 4,
-        "name": "National OmniNews Anchor",
-        "scope": "national programs, breaking-news desk, major interviews and specials",
-        "requirements": ["national editorial board approval", "legal and standards training", "crisis/breaking-news certification", "auditable corrections history"]
+        "name": "Global OmniNews Anchor",
+        "scope": "U.S., Africa/Nigeria, BRICS and international programs, breaking-news desk, major interviews and specials",
+        "requirements": [
+          "global editorial approval",
+          "legal and standards training",
+          "crisis/breaking-news certification",
+          "auditable corrections history",
+          "regional source literacy"
+        ]
       }
     ]
   },
@@ -82,6 +173,7 @@
     "lower-thirds and ticker",
     "live rundown",
     "captioning and translation",
-    "Holo5DX map and explainer scenes"
+    "Holo5DX map and explainer scenes",
+    "Sparrow situational map"
   ]
 }
