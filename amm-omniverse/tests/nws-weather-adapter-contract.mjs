@@ -14,6 +14,7 @@ import {
 const originalEnv={
   reviewed:process.env.NWS_PROVIDER_REVIEWED,
   enabled:process.env.NWS_WEATHER_ENABLED,
+  production:process.env.NWS_PRODUCTION_VERIFIED,
   userAgent:process.env.NWS_USER_AGENT
 }
 const originalFetch=globalThis.fetch
@@ -21,6 +22,7 @@ const originalFetch=globalThis.fetch
 try{
   process.env.NWS_PROVIDER_REVIEWED='false'
   process.env.NWS_WEATHER_ENABLED='false'
+  process.env.NWS_PRODUCTION_VERIFIED='false'
   process.env.NWS_USER_AGENT='TRYAMM-Test/1.0 (https://tryamm.online)'
 
   assert.equal(NWS_BASE,'https://api.weather.gov')
@@ -32,11 +34,16 @@ try{
   assert.equal(normalizeArea('il'),'IL')
   assert.throws(()=>normalizeArea('ILL'),/NWS_AREA_INVALID/)
   assert.equal(assertNwsUrl('/points/41.8781,-87.6298').origin,NWS_BASE)
+  assert.throws(()=>assertNwsUrl('',{allowRelative:false}),/NWS_URL_REQUIRED/)
+  assert.throws(()=>assertNwsUrl('/gridpoints/LOT/74,76/forecast',{allowRelative:false}),/NWS_ABSOLUTE_URL_REQUIRED/)
   assert.throws(()=>assertNwsUrl('https://example.com/forecast'),/NWS_ORIGIN_NOT_ALLOWED/)
   await assert.rejects(()=>fetchNwsForecast({lat:41.8781,lon:-87.6298}),/NWS_PROVIDER_NOT_ENABLED/)
 
   process.env.NWS_PROVIDER_REVIEWED='true'
   process.env.NWS_WEATHER_ENABLED='true'
+  assert.equal(nwsWeatherStatus().adapterReady,false)
+  assert.equal(nwsWeatherStatus().productionVerified,false)
+  process.env.NWS_PRODUCTION_VERIFIED='true'
   assert.equal(nwsWeatherStatus().adapterReady,true)
 
   let calls=[]
@@ -107,6 +114,14 @@ try{
   }
   await assert.rejects(()=>fetchNwsForecast({lat:41.8781,lon:-87.6298}),/NWS_ORIGIN_NOT_ALLOWED/)
 
+  globalThis.fetch=async url=>{
+    if(String(url).startsWith('https://api.weather.gov/points/')){
+      return new Response(JSON.stringify({properties:{forecast:'/gridpoints/LOT/74,76/forecast'}}),{status:200})
+    }
+    throw new Error('unexpected')
+  }
+  await assert.rejects(()=>fetchNwsForecast({lat:41.8781,lon:-87.6298}),/NWS_ABSOLUTE_URL_REQUIRED/)
+
   const endpointSource=fs.readFileSync(path.resolve('api/intelligence/weather.js'),'utf8')
   assert.match(endpointSource,/action==='status'/)
   assert.match(endpointSource,/if\(!status\.adapterReady\)/)
@@ -116,6 +131,7 @@ try{
 }finally{
   if(originalEnv.reviewed===undefined)delete process.env.NWS_PROVIDER_REVIEWED;else process.env.NWS_PROVIDER_REVIEWED=originalEnv.reviewed
   if(originalEnv.enabled===undefined)delete process.env.NWS_WEATHER_ENABLED;else process.env.NWS_WEATHER_ENABLED=originalEnv.enabled
+  if(originalEnv.production===undefined)delete process.env.NWS_PRODUCTION_VERIFIED;else process.env.NWS_PRODUCTION_VERIFIED=originalEnv.production
   if(originalEnv.userAgent===undefined)delete process.env.NWS_USER_AGENT;else process.env.NWS_USER_AGENT=originalEnv.userAgent
   globalThis.fetch=originalFetch
 }
