@@ -14,7 +14,7 @@ export default async function handler(req,res){
       ok:false,
       error:'nws_provider_not_enabled',
       status,
-      note:'The NWS adapter is installed but remains disabled until provider review and the explicit server-side enable flag are both set.'
+      note:'The NWS adapter is installed but remains disabled until provider review, the explicit server-side enable flag, and production verification are all set.'
     });
   }
   try{
