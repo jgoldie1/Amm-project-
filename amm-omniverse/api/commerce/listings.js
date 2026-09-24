@@ -47,7 +47,7 @@ export default async function handler(req,res){
         const rows=await adminRest('commerce_listings',{query:{seller_user_id:'eq.'+user.id,order:'updated_at.desc',limit:100}});
         return json(res,200,{ok:true,listings:(rows||[]).map(publicListing)});
       }
-      const rows=await adminRest('commerce_listings',{query:{status:'eq.published',order:'updated_at.desc',limit:100}});
+      const rows=await adminRest('commerce_listings',{query:{status:'eq.active',order:'updated_at.desc',limit:100}});
       const safe=(rows||[]).filter(row=>row?.safety_flags?.blocked!==true);
       return json(res,200,{ok:true,listings:safe.map(publicListing)});
     }catch{
@@ -74,8 +74,8 @@ export default async function handler(req,res){
         seller_user_id:user.id,
         title,
         description,
-        listing_type:'fixed',
-        status:'review',
+        listing_type:'digital',
+        status:'draft',
         currency:'USD',
         price,
         quantity_available:null,
@@ -106,12 +106,14 @@ export default async function handler(req,res){
     if(!process.env.TRYAMM_INTERNAL_COMPLIANCE_SECRET)return json(res,503,{error:'Compliance review service is not configured'});
     if(!internalAuthorized(req))return json(res,403,{error:'Compliance authorization required'});
     const listingId=trim(req.body?.listingId,80);
-    const status=trim(req.body?.status,20);
-    if(!listingId||!['published','suspended','retired'].includes(status))return json(res,400,{error:'listingId and a valid status are required'});
+    const requestedStatus=trim(req.body?.status,20);
+    const statusMap={published:'active',suspended:'paused',retired:'removed'};
+    const status=statusMap[requestedStatus];
+    if(!listingId||!status)return json(res,400,{error:'listingId and a valid status are required'});
     try{
       const rows=await adminRest('commerce_listings',{query:{id:'eq.'+listingId,limit:1}});
       const listing=rows?.[0];if(!listing)return json(res,404,{error:'Listing not found'});
-      if(status==='published'){
+      if(requestedStatus==='published'){
         const assetRegistryId=String(listing?.attributes?.assetRegistryId||'');
         const assets=await adminRest('commerce_asset_registry',{query:{id:'eq.'+assetRegistryId,owner_user_id:'eq.'+listing.seller_user_id,limit:1}});
         if(!verifiedAsset(assets?.[0]))return json(res,423,{error:'Asset certification is no longer valid'});
