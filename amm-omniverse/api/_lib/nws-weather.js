@@ -5,14 +5,16 @@ const clampText=(value,max)=>String(value||'').trim().slice(0,max);
 export function nwsWeatherStatus(){
   const enabled=truthy(process.env.NWS_WEATHER_ENABLED);
   const providerReviewed=truthy(process.env.NWS_PROVIDER_REVIEWED);
+  const productionVerified=truthy(process.env.NWS_PRODUCTION_VERIFIED);
   const userAgent=String(process.env.NWS_USER_AGENT||'TRYAMM/1.0 (https://tryamm.online)').trim();
-  const adapterReady=enabled&&providerReviewed&&Boolean(userAgent);
+  const adapterReady=enabled&&providerReviewed&&productionVerified&&Boolean(userAgent);
   return {
     id:'nws-weather-us',
     provider:'National Weather Service',
     baseUrl:NWS_BASE,
     enabled,
     providerReviewed,
+    productionVerified,
     userAgentConfigured:Boolean(userAgent),
     adapterReady,
     liveDataAllowed:adapterReady,
@@ -23,6 +25,7 @@ export function nwsWeatherStatus(){
     releaseGates:[
       'NWS_PROVIDER_REVIEWED=true',
       'NWS_WEATHER_ENABLED=true',
+      'NWS_PRODUCTION_VERIFIED=true',
       'server-side user agent/contact policy',
       'rate-limit/backoff handling',
       'provider timestamps retained',
@@ -47,9 +50,12 @@ export function normalizeArea(areaValue){
   return area;
 }
 
-function assertNwsUrl(value){
+function assertNwsUrl(value,{allowRelative=true}={}){
+  const raw=String(value||'').trim();
+  if(!raw)throw new Error('NWS_URL_REQUIRED');
+  if(!allowRelative&&!/^https:\/\//i.test(raw))throw new Error('NWS_ABSOLUTE_URL_REQUIRED');
   let url;
-  try{url=new URL(String(value||''),NWS_BASE)}catch{throw new Error('NWS_URL_INVALID')}
+  try{url=new URL(raw,NWS_BASE)}catch{throw new Error('NWS_URL_INVALID')}
   if(url.origin!==NWS_BASE)throw new Error('NWS_ORIGIN_NOT_ALLOWED');
   return url;
 }
@@ -87,7 +93,7 @@ async function nwsFetchJson(value,{timeoutMs=10000}={}){
 export async function fetchNwsForecast({lat,lon}){
   const coords=normalizeCoordinates(lat,lon);
   const point=await nwsFetchJson(`/points/${coords.lat},${coords.lon}`);
-  const forecastUrl=assertNwsUrl(point?.properties?.forecast);
+  const forecastUrl=assertNwsUrl(point?.properties?.forecast,{allowRelative:false});
   const forecast=await nwsFetchJson(forecastUrl.toString());
   const periods=(forecast?.properties?.periods||[]).slice(0,14).map(period=>({
     number:Number(period?.number)||null,
