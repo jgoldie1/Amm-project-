@@ -37,6 +37,7 @@ const SpectraStudioCommandCenter=lazy(()=>import('./components/SpectraStudioComm
 const EthiopianBibleMetaverse=lazy(()=>import('./components/EthiopianBibleMetaverse'))
 const KingdomsPressOperations=lazy(()=>import('./components/KingdomsPressOperations'))
 const UnifiedCommerceHub=lazy(()=>import('./components/UnifiedCommerceHub'))
+const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
 
 let routeContent: React.ReactNode = <App />
 let preserveDeterministicSafeRoute = false
@@ -46,6 +47,7 @@ try {
   const currentPath=window.location.pathname
   const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
   const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
+  const reelMatch=currentPath.match(/^\/reels\/([^/]+)\/?$/)
   const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
   const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
   const isLive=currentPath==='/live'||currentPath==='/live/'
@@ -115,7 +117,8 @@ try {
     <HoloMarketplaceLauncher />
   </>
   
-  if(isAccessibility)routeContent=<AccessibilityStatement />
+  if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
+  else if(isAccessibility)routeContent=<AccessibilityStatement />
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
   else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isGuardian)routeContent=<Suspense fallback={routeFallback}><GuardianCommandCenter /></Suspense>
