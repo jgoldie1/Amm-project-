@@ -9,6 +9,7 @@ export default function PublicReelPage({slug}:{slug:string}){
   const [busy,setBusy]=useState(true)
   const videoRef=useRef<HTMLVideoElement|null>(null)
   const [pipStatus,setPipStatus]=useState('')
+  const [lagStatus,setLagStatus]=useState('ADAPTIVE')
   const [lagMode,setLagMode]=useState('adaptive')
   const shareUrl=useMemo(()=>data?new URL(data.share.path,window.location.origin).toString():'',[data])
   useEffect(()=>{let alive=true;(async()=>{try{
@@ -19,6 +20,8 @@ export default function PublicReelPage({slug}:{slug:string}){
   }catch(e){if(alive)setError(e instanceof Error?e.message:'Reel unavailable')}finally{if(alive)setBusy(false)}})();return()=>{alive=false}},[slug])
   const enterPiP=async()=>{const video=videoRef.current;if(!video)return;try{const pipVideo=video as HTMLVideoElement & {requestPictureInPicture?:()=>Promise<unknown>};if(document.pictureInPictureElement){await document.exitPictureInPicture();setPipStatus('Picture in Picture closed.');return}if(pipVideo.requestPictureInPicture){await pipVideo.requestPictureInPicture();setPipStatus('Picture in Picture active.');return}setPipStatus('Use the iPhone video player Picture in Picture control when playback is available.')}catch{setPipStatus('Picture in Picture is not available for this video.') }}
   useEffect(()=>{const apply=(event:Event)=>{const detail=(event as CustomEvent).detail||{};if(detail.enabled)setLagMode(String(detail.mode||'adaptive'))};window.addEventListener('tryamm:quantum-lag-buster',apply);return()=>window.removeEventListener('tryamm:quantum-lag-buster',apply)},[])
+  useEffect(()=>{const sync=(event:Event)=>{const detail=(event as CustomEvent).detail||{};if(detail.enabled===false){setLagStatus('OFF');return}const rtt=detail.metrics?.rtt,jitter=detail.metrics?.jitter;setLagStatus(!detail.metrics?.online?'OFFLINE':rtt!=null&&(rtt>160||jitter>35)?'DATA SAVER':detail.mode==='streaming'?'STREAMING':'ADAPTIVE')};window.addEventListener('tryamm:quantum-lag-buster',sync);return()=>window.removeEventListener('tryamm:quantum-lag-buster',sync)},[])
+  const openLagBuster=()=>window.dispatchEvent(new CustomEvent('tryamm:open-quantum-lag-buster'))
   const share=async()=>{if(!shareUrl)return;try{
     if(navigator.share){await navigator.share({title:data?.media.title||'TRYAMM Reel',text:data?.publication.caption||'Watch this TRYAMM Reel',url:shareUrl});return}
     await navigator.clipboard.writeText(shareUrl);alert('Reel link copied.')
@@ -35,6 +38,8 @@ export default function PublicReelPage({slug}:{slug:string}){
           <video ref={videoRef} controls playsInline preload="metadata" aria-label={data.media.title||'TRYAMM Reel'} style={{display:'none',width:'100%',height:'100%',objectFit:'contain'}} />
           <div><strong>{data.media.title||'Published Reel'}</strong><p>{data.publication.caption||'Delivered to TRYAMM.'}</p><small>Media {data.media.id}</small><p style={{opacity:.7}}>Playback activates when the verified media URL is connected.</p></div>
         </div>
+        <div style={{display:'flex',gap:8,alignItems:'center',justifyContent:'space-between',marginTop:10}}><strong>⚡ QUANTUM LAG BUSTER</strong><button onClick={openLagBuster} style={{minHeight:44,borderRadius:14,fontWeight:900}}>TUNE · {lagStatus}</button></div>
+        <p style={{opacity:.7,fontSize:12}}>Reel/PiP playback can react to TRYAMM network quality signals and degrade gracefully instead of pretending latency can be eliminated.</p>
         <button onClick={enterPiP} style={{width:'100%',minHeight:56,borderRadius:16,fontWeight:950,fontSize:17,marginTop:10}}>PICTURE IN PICTURE</button>
         {pipStatus&&<p role="status">{pipStatus}</p>}
         <p role="status">✓ DELIVERED · {data.publication.destination}</p>
