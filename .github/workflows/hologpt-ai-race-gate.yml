@@ -1,0 +1,132 @@
+name: HoloGPT AI Race Gate
+
+on:
+  schedule:
+    - cron: '23 * 20-30 9 *'
+    - cron: '23 * 1-3 10 *'
+  pull_request:
+    branches: [main]
+  push:
+    branches:
+      - feature/hologpt-ai-race
+    paths:
+      - 'lib/hologpt-*.js'
+      - 'lib/stubbs-ai-routes.js'
+      - 'public/hologpt-widget.js'
+      - 'test/hologpt-*.js'
+      - 'amm-omniverse/api/ai/**'
+      - 'package.json'
+      - '.github/workflows/hologpt-ai-race-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hologpt-ai-race-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  certify:
+    name: Certify Never-Stall HoloGPT
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    env:
+      RELEASE_DEADLINE: '2026-10-02'
+      TZ: America/Chicago
+
+    steps:
+      - name: Check alpha race window
+        id: window
+        shell: bash
+        run: |
+          set -euo pipefail
+          today="$(date +%F)"
+          if [[ "$today" > "$RELEASE_DEADLINE" ]]; then
+            echo "active=false" >> "$GITHUB_OUTPUT"
+            echo "HoloGPT AI-race convergence window closed after $RELEASE_DEADLINE." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "active=true" >> "$GITHUB_OUTPUT"
+            echo "## HoloGPT AI Race Gate" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Date: $today" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Deadline: $RELEASE_DEADLINE" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Checkout
+        if: steps.window.outputs.active == 'true'
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node 24
+        if: steps.window.outputs.active == 'true'
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      - name: Keep AI race branch synchronized with main
+        if: steps.window.outputs.active == 'true' && github.ref == 'refs/heads/feature/hologpt-ai-race'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main --no-tags
+          behind="$(git rev-list --count HEAD..origin/main)"
+          ahead="$(git rev-list --count origin/main..HEAD)"
+          echo "- Ahead of main: $ahead" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Behind main: $behind" >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$behind" -ne 0 ]]; then
+            echo "::error::HoloGPT AI race branch is $behind commit(s) behind main."
+            exit 1
+          fi
+
+      - name: Install root dependencies
+        if: steps.window.outputs.active == 'true'
+        run: npm install --no-audit --no-fund
+
+      - name: Run HoloGPT AI race contract
+        if: steps.window.outputs.active == 'true'
+        run: node test/hologpt-ai-race-smoke.js
+
+      - name: Run root syntax and AI tests
+        if: steps.window.outputs.active == 'true'
+        run: |
+          npm run syntax
+          npm run test:stubbs-ai
+
+      - name: Install Omniverse dependencies
+        if: steps.window.outputs.active == 'true'
+        working-directory: amm-omniverse
+        run: npm install --no-audit --no-fund
+
+      - name: Verify Omniverse HoloGPT router syntax
+        if: steps.window.outputs.active == 'true'
+        working-directory: amm-omniverse
+        run: |
+          node --check api/ai/answer.js
+          node --check api/ai/_lib/holo-race.js
+          node api/ai/__tests__/selftest-model-policy.test.js
+
+      - name: Omniverse security readiness and typecheck
+        if: steps.window.outputs.active == 'true'
+        working-directory: amm-omniverse
+        run: |
+          npm run security
+          npm run readiness
+          npm run typecheck
+
+      - name: Omniverse production build
+        if: steps.window.outputs.active == 'true'
+        working-directory: amm-omniverse
+        run: npm run build
+
+      - name: Mark AI race certified
+        if: steps.window.outputs.active == 'true' && success()
+        shell: bash
+        run: |
+          sha="$(git rev-parse HEAD)"
+          echo "### GREEN" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Exact head: `$sha`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Hedged model race: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Never-Stall checkpoint/retry UI: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Action-first deterministic routes: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Root AI + Omniverse security/readiness/type/build: PASS" >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,94 @@
+name: HoloGPT Five Sense Gate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches:
+      - feature/hologpt-five-sense-foundation
+    paths:
+      - 'lib/hologpt-sensory-fusion.js'
+      - 'lib/hologpt-world-memory.js'
+      - 'lib/hologpt-chat.js'
+      - 'lib/stubbs-ai-routes.js'
+      - 'public/hologpt-widget.js'
+      - 'test/hologpt-five-sense-smoke.js'
+      - 'test/hologpt-ai-race-smoke.js'
+      - 'package.json'
+      - '.github/workflows/hologpt-five-sense-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hologpt-five-sense-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  certify:
+    name: Certify HoloGPT multisensory foundation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      - name: Synchronization guard
+        if: github.ref == 'refs/heads/feature/hologpt-five-sense-foundation'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main --no-tags
+          behind="$(git rev-list --count HEAD..origin/main)"
+          echo "behind_main=$behind" >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$behind" -ne 0 ]]; then
+            echo "::error::Five-sense branch is $behind commit(s) behind main."
+            exit 1
+          fi
+
+      - name: Install root dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Five-sense truth-boundary contract
+        run: npm run test:hologpt-senses
+
+      - name: AI race and Stubbs AI contracts
+        run: npm run test:stubbs-ai
+
+      - name: Root syntax
+        run: npm run syntax
+
+      - name: Verify multisensory architecture markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "external-chemical-sensor" lib/hologpt-sensory-fusion.js
+          grep -q "smell_cannot_be_inferred_from_camera" <(node -e "const {normalizeObservation}=require('./lib/hologpt-sensory-fusion');try{normalizeObservation({sense:'smell',sourceType:'camera',value:'x'})}catch(e){console.log(e.message)}")
+          grep -q "/api/hologpt/senses/fuse" lib/stubbs-ai-routes.js
+          grep -q "sensoryAccepted" lib/stubbs-ai-routes.js
+
+      - name: Install Omniverse dependencies
+        working-directory: amm-omniverse
+        run: npm install --no-audit --no-fund
+
+      - name: Omniverse security readiness typecheck build
+        working-directory: amm-omniverse
+        run: |
+          npm run security
+          npm run readiness
+          npm run typecheck
+          npm run build
+
+      - name: Mark multisensory gate green
+        if: success()
+        shell: bash
+        run: |
+          echo "### GREEN" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Vision/hearing/touch sensory interfaces: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Smell/taste external-sensor truth boundary: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- HoloGPT sensory fusion + memory integration: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- AI Race + root/Omniverse certification: PASS" >> "$GITHUB_STEP_SUMMARY"

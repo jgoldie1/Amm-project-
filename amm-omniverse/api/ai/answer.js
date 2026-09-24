@@ -1,5 +1,6 @@
 import {generateText} from 'ai';
 import {requireUser} from '../_lib/security.js';
+import {raceHoloProviders} from './_lib/holo-race.js';
 
 const clean=(v,n=12000)=>String(v||'').trim().slice(0,n);
 const timeoutMs=()=>Math.max(3000,Math.min(60000,Number(process.env.HOLOGPT_TIMEOUT_MS||25000)));
@@ -159,25 +160,44 @@ export default async function handler(req,res){
   const authorization=String(req.headers.authorization||'');
   let user=null;
   if(authorization.startsWith('Bearer ')){user=await requireUser(req,res);if(!user)return;}
-  const errors=[];
   const ownFirst=String(process.env.HOLOGPT_SELFHOST_PREFERRED||'').toLowerCase()==='true';
-  const cloudRunners=[
-    ()=>aiSdkGateway(question,history),
-    ()=>vercelGateway(question,history),
-    ()=>openai(question,history),
-    ()=>gemini(question,history),
-    ()=>claude(question,history),
-    ()=>glm(question,history)
+  const runners=[
+    {name:'gateway-auto',run:()=>aiSdkGateway(question,history)},
+    {name:'vercel-gateway',run:()=>vercelGateway(question,history)},
+    {name:'openai',run:()=>openai(question,history)},
+    {name:'gemini',run:()=>gemini(question,history)},
+    {name:'claude',run:()=>claude(question,history)},
+    {name:'glm',run:()=>glm(question,history)},
+    {name:'hologpt-selfhost',local:true,priority:ownFirst?.24:0,run:()=>selfHosted(question,history)},
+    {name:'deepseek',run:()=>deepseek(question,history)},
+    {name:'amm-backend',priority:.06,run:()=>ammBackend(question,history,authorization)}
   ];
-  const runners=ownFirst
-    ?[()=>selfHosted(question,history),...cloudRunners,()=>deepseek(question,history),()=>ammBackend(question,history,authorization)]
-    :[...cloudRunners,()=>selfHosted(question,history),()=>deepseek(question,history),()=>ammBackend(question,history,authorization)];
-  for(const runner of runners){
-    try{
-      const result=await runner();
-      if(result)return res.status(200).json({ok:true,...result,degraded:false,authenticated:Boolean(user),userId:user?.id||null,time:new Date().toISOString()});
-    }catch(error){errors.push(clean(error?.message,300));}
+  try{
+    const result=await raceHoloProviders({
+      question,
+      runners,
+      hedgeDelayMs:Math.max(250,Math.min(1800,Number(process.env.HOLOGPT_HEDGE_DELAY_MS||650))),
+      maxParallel:Math.max(2,Math.min(4,Number(process.env.HOLOGPT_RACE_WIDTH||3)))
+    });
+    return res.status(200).json({ok:true,...result,degraded:false,authenticated:Boolean(user),userId:user?.id||null,time:new Date().toISOString()});
+  }catch(error){
+    const attempts=Array.isArray(error?.attempts)?error.attempts:[];
+    const errors=attempts.filter(x=>!x.ok).map(x=>`${x.provider}:${x.error}`);
+    const fallback=diagnostic(question,errors);
+    return res.status(200).json({
+      ok:true,
+      ...fallback,
+      degraded:true,
+      authenticated:Boolean(user),
+      userId:user?.id||null,
+      providerErrors:errors,
+      orchestration:{
+        mode:'diagnostic-recovery',
+        intent:error?.intent||'general',
+        attempted:attempts,
+        progress:['UNDERSTANDING','ROUTING','RACING_MODELS','RECOVERY_MODE']
+      },
+      time:new Date().toISOString()
+    });
   }
-  const fallback=diagnostic(question,errors);
-  return res.status(200).json({ok:true,...fallback,degraded:true,authenticated:Boolean(user),userId:user?.id||null,providerErrors:errors,time:new Date().toISOString()});
 }
