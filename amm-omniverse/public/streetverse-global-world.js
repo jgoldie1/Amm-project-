@@ -14,7 +14,7 @@
     openOcean:{label:'Open Ocean • Yacht',biome:'open-ocean',marine:true,savanna:false,apex:false,yacht:true,climate:'ocean'}
   }
   let current=localStorage.getItem(KEY)||'chicago';if(!regions[current])current='chicago'
-  let mounted=false,lastSource='manual',weatherState=null
+  let mounted=false,lastSource='manual',weatherState=null,weatherDestination=null,weatherLocations=[]
   const css=`
   #sv-world-open{position:absolute;left:12px;top:158px;z-index:23;min-height:44px;padding:0 11px;border-radius:12px;border:1px solid #7bdfff;background:#071426e8;color:#fff;font:900 10px/1 system-ui;box-shadow:0 6px 18px #0008;pointer-events:auto}
   #sv-world-panel{position:absolute;left:10px;right:10px;bottom:12px;z-index:31;display:none;max-height:56%;overflow:auto;border-radius:14px;border:1px solid #7bdfff;background:#04101df4;color:#fff;padding:10px;box-shadow:0 10px 30px #000c;pointer-events:auto;font-family:system-ui,sans-serif}
@@ -40,7 +40,13 @@
   body[data-sv-weather="clouds"] [data-streetverse-html-city="true"] main{filter:saturate(.78) brightness(.78)}
   body[data-sv-weather="storm"] [data-streetverse-html-city="true"] main{filter:saturate(.7) brightness(.55)}
   @keyframes sv-rain{to{background-position:-28px 180px}}@keyframes sv-snow{to{background-position:18px 180px,-24px 220px}}
-  #sv-world-panel button:focus,#sv-world-open:focus{outline:3px solid #fff;outline-offset:2px}
+  .sv-weather-search-wrap{margin-top:10px;padding-top:9px;border-top:1px solid #2b5b70}
+  .sv-weather-search-title{font:900 10px/1.2 system-ui;color:#9ceeff;margin-bottom:6px}
+  #sv-weather-city-search{width:100%;box-sizing:border-box;min-height:42px;border-radius:10px;border:1px solid #5ccae5;background:#061725;color:#fff;padding:8px 10px;font:800 11px system-ui}
+  #sv-weather-city-results{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}
+  #sv-weather-city-results button{min-height:46px;text-align:left}
+  .sv-weather-city-empty{grid-column:1/-1;padding:8px;border-radius:8px;background:#071a2b;color:#b9d6e3;font:700 9px/1.3 system-ui}
+  #sv-world-panel button:focus,#sv-world-open:focus,#sv-weather-city-search:focus{outline:3px solid #fff;outline-offset:2px}
   `
   function emit(){
     const r=regions[current]
@@ -59,15 +65,30 @@
     const style=document.createElement('style');style.id='sv-global-world-style';style.textContent=css;document.head.appendChild(style)
     const open=document.createElement('button');open.id='sv-world-open';open.type='button';open.textContent='🌍 WORLD';open.setAttribute('aria-controls','sv-world-panel');open.setAttribute('aria-expanded','false')
     const panel=document.createElement('section');panel.id='sv-world-panel';panel.dataset.open='false';panel.setAttribute('aria-label','StreetVerse global world travel')
-    panel.innerHTML=`<button class="close" type="button" aria-label="Close world travel">✕</button><h3>STREETVERSE GLOBAL WORLD</h3><p>Virtual travel across cities, coasts, islands, ocean and wildlife reserves. Manual travel works without GPS; optional GPS controls can suggest the nearest game region.</p><div class="grid">${Object.entries(regions).map(([id,r])=>`<button type="button" data-region="${id}">${r.yacht?'🛥️ ':r.savanna?'🌍 ':'📍 '}${r.label}</button>`).join('')}</div><div class="sv-world-status" aria-live="polite"></div>`
+    panel.innerHTML=`<button class="close" type="button" aria-label="Close world travel">✕</button><h3>STREETVERSE GLOBAL WORLD</h3><p>Virtual travel across cities, coasts, islands, ocean and wildlife reserves. Manual travel works without GPS; optional GPS controls can suggest the nearest game region.</p><div class="grid">${Object.entries(regions).map(([id,r])=>`<button type="button" data-region="${id}">${r.yacht?'🛥️ ':r.savanna?'🌍 ':'📍 '}${r.label}</button>`).join('')}</div><div class="sv-weather-search-wrap"><div class="sv-weather-search-title">GLOBAL WEATHER CITY</div><input id="sv-weather-city-search" type="search" inputmode="search" autocomplete="off" placeholder="Search approved city or country" aria-label="Search global weather cities"/><div id="sv-weather-city-results" aria-live="polite"></div></div><div class="sv-world-status" aria-live="polite"></div>`
     const yacht=document.createElement('div');yacht.id='sv-yacht';yacht.setAttribute('aria-hidden','true');const weatherFx=document.createElement('div');weatherFx.id='sv-weather-fx';weatherFx.setAttribute('aria-hidden','true');const weatherChip=document.createElement('div');weatherChip.id='sv-weather-chip';weatherChip.setAttribute('aria-live','polite');weatherChip.textContent='WEATHER • CONNECTING'
     const setOpen=v=>{panel.dataset.open=String(v);open.setAttribute('aria-expanded',String(v))}
     const status=panel.querySelector('.sv-world-status')
-    function sync(){const r=regions[current];const weather=weatherState&&weatherState.regionId===current?' • '+String(weatherState.summary||weatherState.label||'weather synced'):'';status.textContent=`Current world: ${r.label} • biome ${r.biome}${r.yacht?' • yacht available':''}${lastSource==='gps'?' • GPS selected':''}${weather}.`;apply()}
+    function updateStatus(){const r=regions[current];const destination=weatherDestination?' • weather '+weatherDestination.label:'';status.textContent=`Current world: ${r.label} • biome ${r.biome}${r.yacht?' • yacht available':''}${lastSource==='gps'?' • GPS selected':''}${destination}.`}
+    function syncWorld(){updateStatus();apply()}
     open.addEventListener('click',()=>setOpen(panel.dataset.open!=='true'));panel.querySelector('.close')?.addEventListener('click',()=>setOpen(false))
-    panel.querySelectorAll('[data-region]').forEach(btn=>btn.addEventListener('click',()=>{current=btn.dataset.region;lastSource='manual';sync();setOpen(false)}))
-    main.append(weatherFx,yacht,open,weatherChip,panel);sync()
-    const onWeather=event=>{const d=event.detail||{};weatherState=d;const temp=Number.isFinite(Number(d.temperature))?Math.round(Number(d.temperature))+'°':'--';weatherChip.textContent='WEATHER • '+String(d.regionLabel||regions[current].label)+' • '+String((document.body.dataset.svWeather||'unavailable').toUpperCase())+' • '+temp+(d.current&&!d.simulated&&!d.unavailable?' • LIVE':' • GATED');sync()};addEventListener('tryamm:streetverse-weather-state',onWeather);window.StreetVerseGlobalWorld={regions:JSON.parse(JSON.stringify(regions)),current:()=>({id:current,...regions[current],selectionSource:lastSource}),travel:(id,source='manual')=>{if(!regions[id])return false;current=id;lastSource=source==='gps'?'gps':'manual';sync();return true}}
+    panel.querySelectorAll('[data-region]').forEach(btn=>btn.addEventListener('click',()=>{current=btn.dataset.region;lastSource='manual';weatherDestination=null;syncWorld();setOpen(false)}))
+    const search=panel.querySelector('#sv-weather-city-search'),cityResults=panel.querySelector('#sv-weather-city-results')
+    const featured=['lagos','abuja','newYork','london','tokyo','sydney','toronto','saoPaulo','dubai','nairobi','paris','singapore']
+    function renderWeatherCities(query=''){
+      if(!cityResults)return
+      cityResults.replaceChildren()
+      const q=String(query||'').trim().toLowerCase()
+      const ordered=[...weatherLocations].sort((a,b)=>{const ai=featured.indexOf(a.id),bi=featured.indexOf(b.id);if(!q&&ai!==bi){if(ai<0)return 1;if(bi<0)return -1;return ai-bi}return String(a.label).localeCompare(String(b.label))})
+      const matches=ordered.filter(item=>item.kind==='city'&&(!q||[item.label,item.country,item.continent].some(value=>String(value||'').toLowerCase().includes(q)))).slice(0,14)
+      if(!matches.length){const empty=document.createElement('div');empty.className='sv-weather-city-empty';empty.textContent=weatherLocations.length?'No approved city matches that search.':'City weather catalog is loading…';cityResults.appendChild(empty);return}
+      matches.forEach(item=>{const button=document.createElement('button');button.type='button';button.dataset.weatherLocation=item.id;button.textContent='🌦️ '+item.label+' • '+item.country;button.addEventListener('click',()=>{weatherDestination={id:item.id,label:item.label};weatherChip.textContent='WEATHER • '+item.label+' • CONNECTING';updateStatus();window.dispatchEvent(new CustomEvent('tryamm:streetverse-weather-destination',{detail:{id:item.id,label:item.label,scope:'global',country:item.country,continent:item.continent}}));setOpen(false)});cityResults.appendChild(button)})
+    }
+    search?.addEventListener('input',()=>renderWeatherCities(search.value))
+    fetch('/api/intelligence/global-weather?action=status',{headers:{accept:'application/json'}}).then(response=>response.json()).then(payload=>{weatherLocations=Array.isArray(payload?.locations)?payload.locations:[];renderWeatherCities(search?.value||'')}).catch(()=>{weatherLocations=[];renderWeatherCities(search?.value||'')})
+    renderWeatherCities()
+    main.append(weatherFx,yacht,open,weatherChip,panel);syncWorld()
+    const onWeather=event=>{const d=event.detail||{};weatherState=d;weatherDestination=d.regionId&&d.regionId!==current?{id:String(d.regionId),label:String(d.regionLabel||d.regionId)}:null;const temp=d.temperature===null||d.temperature===undefined?'--':Math.round(Number(d.temperature))+'°';weatherChip.textContent='WEATHER • '+String(d.regionLabel||regions[current].label)+' • '+String((document.body.dataset.svWeather||'unavailable').toUpperCase())+' • '+temp+(d.current&&!d.simulated&&!d.unavailable?' • LIVE':' • GATED');updateStatus()};addEventListener('tryamm:streetverse-weather-state',onWeather);window.StreetVerseGlobalWorld={regions:JSON.parse(JSON.stringify(regions)),current:()=>({id:current,...regions[current],selectionSource:lastSource}),travel:(id,source='manual')=>{if(!regions[id])return false;current=id;lastSource=source==='gps'?'gps':'manual';weatherDestination=null;syncWorld();return true},weatherLocations:()=>weatherLocations.map(({id,label,scope,kind,country,continent})=>({id,label,scope,kind,country,continent}))}
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-global-world-ready',{detail:{regions:Object.keys(regions),current,source:'virtual-game-world',gpsOptional:true,yachtRegions:Object.entries(regions).filter(([,r])=>r.yacht).map(([id])=>id)}}))
   }
   const observer=new MutationObserver(mount);observer.observe(document.documentElement,{subtree:true,childList:true});mount()
