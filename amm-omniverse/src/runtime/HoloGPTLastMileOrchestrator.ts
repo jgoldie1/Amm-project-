@@ -1,4 +1,4 @@
-import { authorizeAction, type AuthorityRequest, type AuthorityDecision } from './HoloGPTHumanAuthorityKernel';
+import { authorizeAction, type AuthorityRequest, type AuthorityDecision } from './HoloGPTHumanAuthorityKernel.ts';
 
 export type LastMileState =
   | 'THINKING'
