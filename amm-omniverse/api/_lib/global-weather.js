@@ -7,8 +7,10 @@ export function globalWeatherStatus(){
   const enabled=truthy(process.env.GLOBAL_WEATHER_ENABLED);
   const licenseVerified=truthy(process.env.OPEN_METEO_COMMERCIAL_LICENSE_VERIFIED);
   const productionVerified=truthy(process.env.OPEN_METEO_PRODUCTION_VERIFIED);
-  const configured=Boolean(process.env.OPEN_METEO_API_KEY);
-  const adapterReady=enabled&&licenseVerified&&productionVerified&&configured;
+  const configured=String(process.env.OPEN_METEO_API_KEY||'').trim().length>0;
+  const configurationReady=enabled&&licenseVerified&&configured;
+  const certificationReady=configurationReady;
+  const adapterReady=configurationReady&&productionVerified;
   return {
     id:'open-meteo-global-commercial',
     provider:'Open-Meteo commercial weather API',
@@ -17,6 +19,8 @@ export function globalWeatherStatus(){
     licenseVerified,
     productionVerified,
     configured,
+    configurationReady,
+    certificationReady,
     adapterReady,
     liveDataAllowed:adapterReady,
     mode:adapterReady?'enabled_gated':'disabled_gated',
@@ -96,9 +100,7 @@ async function fetchJson(url,{timeoutMs=10000}={}){
 
 const indexed=(obj,key,index)=>Array.isArray(obj?.[key])?obj[key][index]:null;
 
-export async function fetchGlobalForecast({lat,lon,days=7}){
-  const status=globalWeatherStatus();
-  if(!status.adapterReady)throw new Error('GLOBAL_WEATHER_PROVIDER_NOT_ENABLED');
+async function fetchGlobalForecastCore({lat,lon,days=7}){
   const {url,coords,forecastDays}=buildForecastUrl({lat,lon,days});
   const payload=await fetchJson(url);
   const daily=payload?.daily||{};
@@ -156,6 +158,18 @@ export async function fetchGlobalForecast({lat,lon,days=7}){
       forecastDays
     }
   };
+}
+
+export async function fetchGlobalForecast({lat,lon,days=7}){
+  const status=globalWeatherStatus();
+  if(!status.adapterReady)throw new Error('GLOBAL_WEATHER_PROVIDER_NOT_ENABLED');
+  return await fetchGlobalForecastCore({lat,lon,days});
+}
+
+export async function fetchGlobalForecastForCertification({lat,lon,days=2}){
+  const status=globalWeatherStatus();
+  if(!status.certificationReady)throw new Error('GLOBAL_WEATHER_CERTIFICATION_NOT_READY');
+  return await fetchGlobalForecastCore({lat,lon,days});
 }
 
 export {GLOBAL_WEATHER_BASE,buildForecastUrl,nullableNumber};
