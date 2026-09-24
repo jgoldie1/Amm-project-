@@ -5,12 +5,15 @@ import fs from 'node:fs'
 
 const require=createRequire(import.meta.url)
 const crawlerModule=require(path.resolve('../lib/quantum-crawler.js'))
-const {createQuantumCrawler,safeUrl,isBlockedHost,extractMetadata}=crawlerModule
+const {createQuantumCrawler,safeUrl,isBlockedHost,isPrivateAddress,extractMetadata}=crawlerModule
 
 assert.equal(isBlockedHost('localhost'),true)
 assert.equal(isBlockedHost('127.0.0.1'),true)
 assert.equal(isBlockedHost('10.1.2.3'),true)
 assert.equal(isBlockedHost('192.168.1.9'),true)
+assert.equal(isPrivateAddress('100.64.1.1'),true)
+assert.equal(isPrivateAddress('fd00::1'),true)
+assert.equal(isPrivateAddress('93.184.216.34'),false)
 assert.throws(()=>safeUrl('file:///etc/passwd'),/CRAWL_PROTOCOL_NOT_ALLOWED/)
 assert.throws(()=>safeUrl('http://169.254.169.254/latest/meta-data'),/CRAWL_PRIVATE_HOST_PROHIBITED/)
 assert.throws(()=>safeUrl('https://user:pass@example.com/news'),/CRAWL_CREDENTIAL_URL_PROHIBITED/)
@@ -38,7 +41,8 @@ const source={
 }
 
 let fetchCount=0
-const crawler=createQuantumCrawler({fetchImpl:async url=>{
+const publicResolver=async()=>[{address:'93.184.216.34',family:4}]
+const crawler=createQuantumCrawler({resolveHost:publicResolver,fetchImpl:async url=>{
   fetchCount+=1
   assert.equal(String(url),'https://news.example.com/news/story')
   return new Response(html,{status:200,headers:{'content-type':'text/html; charset=utf-8'}})
@@ -66,6 +70,15 @@ await assert.rejects(
 await assert.rejects(
   ()=>crawler.crawlOne({...source,publicSafety:true},'https://news.example.com/news/story'),
   /PUBLIC_SAFETY_SCRAPING_PROHIBITED/
+)
+
+const dnsBlocked=createQuantumCrawler({
+  resolveHost:async()=>[{address:'10.0.0.5',family:4}],
+  fetchImpl:async()=>{throw new Error('fetch_must_not_run_for_private_dns')}
+})
+await assert.rejects(
+  ()=>dnsBlocked.crawlOne(source,'https://news.example.com/news/story'),
+  /CRAWL_DNS_PRIVATE_ADDRESS_PROHIBITED/
 )
 
 const routeSource=fs.readFileSync(path.resolve('../lib/quantum-crawler-routes.js'),'utf8')
