@@ -7,7 +7,8 @@ const webhook = read('../api/commerce/stripe-webhook.js');
 const admin = read('../api/_lib/supabase-admin.js');
 const migration = read('../supabase/migrations/20260924144500_server_authoritative_stripe_commerce.sql');
 const hardening = read('../supabase/migrations/20260924151000_harden_stripe_checkout_authority.sql');
-const authoritySql = `${migration}\n${hardening}`;
+const assetCommerce = read('../supabase/migrations/20260924213313_asset_commerce_convergence.sql');
+const authoritySql = `${migration}\n${hardening}\n${assetCommerce}`;
 const pkg = JSON.parse(read('../package.json'));
 const lock = JSON.parse(read('../package-lock.json'));
 
@@ -55,6 +56,10 @@ assert.match(authoritySql, /commerce_ledger_unbalanced/, 'ledger postings must b
 assert.match(hardening, /stripe_session_mismatch/, 'finalization must match the persisted Stripe Checkout Session');
 assert.match(hardening, /order_items_mismatch/, 'finalization must reject missing or arithmetically inconsistent order items');
 assert.match(hardening, /seller_allocation_breakdown_mismatch/, 'seller allocations must reconcile to the item seller breakdown');
+assert.match(assetCommerce, /reserve_cents integer not null default 0/i, 'asset commerce must persist reserve allocation separately');
+assert.match(assetCommerce, /seller_net_cents,platform_fee_cents,reserve_cents/i, 'finalizer must reconcile seller, platform, and reserve allocation parts');
+assert.match(assetCommerce, /'commerce_reserve','credit',allocation_row\.reserve_cents/i, 'verified payment must post reserve credit to the commerce ledger');
+assert.match(assetCommerce, /coalesce\(item_row\.metadata,'\{\}'::jsonb\)/i, 'entitlements must carry the server-certified asset snapshot');
 assert.match(hardening, /full join\s*\(\s*select seller_key,gross_cents,seller_net_cents,platform_fee_cents\s*from public\.commerce_seller_allocations\s*where order_id=p_order_id\s*\) a\s*on a\.seller_key=i\.seller_key/i, 'allocation reconciliation must filter seller allocations to the current order before the full join');
 assert.match(hardening, /entitlement_count_mismatch/, 'every paid order item must produce exactly one entitlement before commit');
 assert.match(authoritySql, /revoke all on function public\.apply_verified_stripe_checkout[\s\S]*from authenticated;/i, 'browser roles must not execute the payment transition');
