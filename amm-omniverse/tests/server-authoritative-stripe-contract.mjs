@@ -29,6 +29,7 @@ assert.match(admin, /adminRpc/, 'server must expose a service-role RPC adapter')
 for (const table of ['commerce_payment_transactions','commerce_entitlements','commerce_ledger_entries']) {
   assert.match(migration, new RegExp(`create table if not exists public\\.${table}`), `${table} must be persisted`);
 }
+assert.match(migration, /security invoker/i, 'payment transition must run with the service-role caller privileges, not SECURITY DEFINER');
 assert.match(migration, /for update;/i, 'order must be locked during verified payment application');
 assert.match(migration, /stripe_amount_mismatch/, 'verified amount must match the server order');
 assert.match(migration, /stripe_currency_mismatch/, 'verified currency must match the server order');
