@@ -1,5 +1,5 @@
-import {adaptOneHandInput,type OneHandTouchFrame,type WorldInputFrame} from './OneHandInputAdapter'
-import {DEFAULT_ONE_HAND_PROFILE,type OneHandProfile} from './OneHandGameplayAccessibility'
+import {adaptOneHandInput,type OneHandTouchFrame,type WorldInputFrame} from './OneHandInputAdapter.ts'
+import {DEFAULT_ONE_HAND_PROFILE,type OneHandProfile} from './OneHandGameplayAccessibility.ts'
 
 export type StreetVerseControllerPort={
  applyInput(frame:WorldInputFrame):void|Promise<void>
