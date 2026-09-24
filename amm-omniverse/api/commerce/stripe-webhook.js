@@ -1,35 +1,92 @@
-import crypto from 'node:crypto';
+import Stripe from 'stripe';
 import {adminRest,json} from '../_lib/supabase-admin.js';
 
 export const config={api:{bodyParser:false}};
 
 async function readRaw(req){const chunks=[];for await(const chunk of req)chunks.push(Buffer.isBuffer(chunk)?chunk:Buffer.from(chunk));return Buffer.concat(chunks)}
-function parseSig(header){const out={t:null,v1:[]};for(const part of String(header||'').split(',')){const [k,v]=part.split('=',2);if(k==='t')out.t=Number(v);if(k==='v1'&&v)out.v1.push(v)}return out}
-function safeEqualHex(a,b){try{const A=Buffer.from(String(a),'hex'),B=Buffer.from(String(b),'hex');return A.length===B.length&&A.length>0&&crypto.timingSafeEqual(A,B)}catch{return false}}
-function verifyStripe(raw,header,secret,tolerance=300){const sig=parseSig(header);if(!sig.t||!sig.v1.length)return false;if(Math.abs(Math.floor(Date.now()/1000)-sig.t)>tolerance)return false;const expected=crypto.createHmac('sha256',secret).update(`${sig.t}.${raw.toString('utf8')}`).digest('hex');return sig.v1.some(v=>safeEqualHex(v,expected))}
+const paymentIntentId=session=>typeof session?.payment_intent==='string'?session.payment_intent:String(session?.payment_intent?.id||'');
+const minimalPayload=event=>{
+ const session=event?.data?.object||{};
+ return {
+   id:String(event?.id||''),
+   type:String(event?.type||''),
+   created:Number(event?.created||0),
+   livemode:Boolean(event?.livemode),
+   object:{
+     id:String(session?.id||''),
+     client_reference_id:String(session?.client_reference_id||''),
+     metadata:session?.metadata||{},
+     amount_total:Number(session?.amount_total||0),
+     currency:String(session?.currency||''),
+     payment_status:String(session?.payment_status||''),
+     payment_intent:paymentIntentId(session)
+   }
+ };
+};
 
-async function markPaid(session,eventId,payload){
- const orderId=String(session?.metadata?.tryamm_order_id||'');if(!orderId)return {matched:false};
- const orders=await adminRest('commerce_orders',{query:{id:`eq.${orderId}`,limit:1}});const order=orders?.[0];if(!order)return {matched:false};
- const amount=Number(session?.amount_total||0),currency=String(session?.currency||'').toUpperCase();if(amount!==Number(order.subtotal_cents)||currency!==String(order.currency||'').toUpperCase())throw new Error('stripe_amount_mismatch');
- await adminRest('commerce_orders',{method:'PATCH',query:{id:`eq.${orderId}`},body:{status:'paid',payment_provider:'stripe',provider_session_id:String(session.id||''),provider_payment_id:String(session.payment_intent||''),updated_at:new Date().toISOString(),metadata:{...(order.metadata||{}),stripe_event_id:eventId,payment_status:String(session.payment_status||'paid')}}});
- await adminRest('commerce_seller_allocations',{method:'PATCH',query:{order_id:`eq.${orderId}`,transfer_status:'eq.blocked'},body:{transfer_status:'ready',updated_at:new Date().toISOString()}});
+async function finalizePaidCheckout(event){
+ const session=event?.data?.object||{};
+ const orderId=String(session?.metadata?.tryamm_order_id||'');
+ const buyerId=String(session?.metadata?.tryamm_buyer_id||'');
+ if(!orderId||!buyerId)return {matched:false,reason:'not_tryamm_checkout'};
+ if(String(session.client_reference_id||'')!==orderId)throw new Error('stripe_client_reference_mismatch');
+ const result=await adminRest('rpc/commerce_finalize_stripe_checkout',{method:'POST',body:{
+   p_order_id:orderId,
+   p_buyer_id:buyerId,
+   p_client_reference_id:String(session.client_reference_id||''),
+   p_provider_event_id:String(event.id||''),
+   p_event_type:String(event.type||''),
+   p_provider_session_id:String(session.id||''),
+   p_provider_payment_id:paymentIntentId(session),
+   p_amount_cents:Number(session.amount_total||0),
+   p_currency:String(session.currency||'').toUpperCase(),
+   p_payment_status:String(session.payment_status||''),
+   p_event_payload:minimalPayload(event)
+ }});
+ return Array.isArray(result)?result[0]:result;
+}
+
+async function recordFailedCheckout(event){
+ const session=event?.data?.object||{};
+ const orderId=String(session?.metadata?.tryamm_order_id||'');
+ const buyerId=String(session?.metadata?.tryamm_buyer_id||'');
+ if(!orderId||!buyerId)return {matched:false,reason:'not_tryamm_checkout'};
+ const prior=await adminRest('commerce_payment_events',{query:{provider_event_id:`eq.${String(event.id||'')}`,limit:1}});
+ let eventRow=prior?.[0];
+ if(!eventRow){
+   const rows=await adminRest('commerce_payment_events',{method:'POST',body:{provider:'stripe',provider_event_id:String(event.id||''),event_type:String(event.type||'unknown'),verified:true,order_id:orderId,payload:minimalPayload(event)}});
+   eventRow=rows?.[0];
+ }
+ await adminRest('commerce_orders',{method:'PATCH',query:{id:`eq.${orderId}`,buyer_id:`eq.${buyerId}`,status:'in.(pending_payment,checkout_created)'},body:{status:'payment_failed',updated_at:new Date().toISOString()}});
+ if(eventRow?.id)await adminRest('commerce_payment_events',{method:'PATCH',query:{id:`eq.${eventRow.id}`},body:{processed_at:new Date().toISOString()}});
  return {matched:true,orderId};
 }
 
 export default async function handler(req,res){
  if(req.method!=='POST')return json(res,405,{error:'Method not allowed'});
- const secret=process.env.STRIPE_WEBHOOK_SECRET;if(!secret)return json(res,503,{error:'Stripe webhook secret not configured'});
- const raw=await readRaw(req);const signature=req.headers['stripe-signature'];if(!verifyStripe(raw,signature,secret))return json(res,400,{error:'Invalid Stripe signature'});
- let event;try{event=JSON.parse(raw.toString('utf8'))}catch{return json(res,400,{error:'Invalid JSON'});}
- const eventId=String(event?.id||'');if(!eventId)return json(res,400,{error:'Missing event id'});
- const prior=await adminRest('commerce_payment_events',{query:{provider_event_id:`eq.${eventId}`,limit:1}});if(prior?.[0]?.processed_at)return json(res,200,{ok:true,duplicate:true});
- let eventRow=prior?.[0];if(!eventRow){const rows=await adminRest('commerce_payment_events',{method:'POST',body:{provider:'stripe',provider_event_id:eventId,event_type:String(event.type||'unknown'),verified:true,payload:event}});eventRow=rows?.[0];}
+ const secretKey=process.env.STRIPE_SECRET_KEY,webhookSecret=process.env.STRIPE_WEBHOOK_SECRET;
+ if(!secretKey||!webhookSecret)return json(res,503,{error:'Stripe webhook is not configured'});
+ const raw=await readRaw(req),signature=req.headers['stripe-signature'];
+ if(!signature)return json(res,400,{error:'Missing Stripe signature'});
+ const stripe=new Stripe(secretKey,{maxNetworkRetries:2});
+ let event;try{event=stripe.webhooks.constructEvent(raw,signature,webhookSecret)}catch{return json(res,400,{error:'Invalid Stripe signature'});}
+ if(!event?.id)return json(res,400,{error:'Missing event id'});
  try{
-   let result={matched:false};if(event.type==='checkout.session.completed'&&event?.data?.object?.payment_status==='paid')result=await markPaid(event.data.object,eventId,event);
-   if(event.type==='checkout.session.async_payment_succeeded')result=await markPaid(event.data.object,eventId,event);
-   if(event.type==='checkout.session.async_payment_failed'){const orderId=String(event?.data?.object?.metadata?.tryamm_order_id||'');if(orderId)await adminRest('commerce_orders',{method:'PATCH',query:{id:`eq.${orderId}`},body:{status:'payment_failed',updated_at:new Date().toISOString()}});result={matched:Boolean(orderId),orderId};}
-   if(eventRow?.id)await adminRest('commerce_payment_events',{method:'PATCH',query:{id:`eq.${eventRow.id}`},body:{order_id:result.orderId||null,processed_at:new Date().toISOString()}});
-   return json(res,200,{ok:true,type:event.type,matched:result.matched});
- }catch(error){return json(res,400,{error:String(error?.message||'Webhook processing failed')});}
+   if(event.type==='checkout.session.completed'){
+     if(event?.data?.object?.payment_status!=='paid')return json(res,200,{ok:true,type:event.type,matched:false,state:'AWAITING_PAYMENT'});
+     const result=await finalizePaidCheckout(event);
+     return json(res,200,{ok:true,type:event.type,matched:Boolean(result?.matched??result?.transaction_id),result});
+   }
+   if(event.type==='checkout.session.async_payment_succeeded'){
+     const result=await finalizePaidCheckout(event);
+     return json(res,200,{ok:true,type:event.type,matched:Boolean(result?.matched??result?.transaction_id),result});
+   }
+   if(event.type==='checkout.session.async_payment_failed'){
+     const result=await recordFailedCheckout(event);
+     return json(res,200,{ok:true,type:event.type,matched:Boolean(result?.matched),result});
+   }
+   return json(res,200,{ok:true,type:event.type,matched:false,ignored:true});
+ }catch(error){
+   return json(res,500,{error:'Verified Stripe event could not be finalized',code:String(error?.message||'stripe_finalize_failed').slice(0,160)});
+ }
 }
