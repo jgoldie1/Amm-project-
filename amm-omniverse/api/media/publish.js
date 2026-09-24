@@ -13,6 +13,10 @@ export default async function handler(req,res){
     const mediaRows=await userRest(req,'media_catalog',{query:{id:`eq.${mediaId}`,owner_id:`eq.${user.id}`,select:'*',limit:1}}),media=mediaRows?.[0];if(!media)return json(res,404,{error:'media_not_found'});
     const destinations=[...new Set((Array.isArray(req.body?.destinations)?req.body.destinations:[]).map(x=>String(x||'').trim()).filter(x=>DESTINATIONS.has(x)))];if(!destinations.length)return json(res,400,{error:'destination_required'});
     const ready=media.processing_status==='ready'&&Boolean(media.storage_path||media.manifest?.storage_path),status=ready?'queued':'blocked',errorCode=ready?null:'MEDIA_PROCESSING_NOT_READY';
+    const existing=await userRest(req,'media_publish_jobs',{query:{media_id:`eq.${media.id}`,owner_id:`eq.${user.id}`,select:'*',order:'created_at.desc',limit:20}});
+    const sameDestinations=(a,b)=>Array.isArray(a)&&a.length===b.length&&[...a].sort().every((value,index)=>value===[...b].sort()[index]);
+    const active=(Array.isArray(existing)?existing:[]).find(row=>['queued','processing'].includes(String(row.status||''))&&sameDestinations(row.destinations,destinations));
+    if(active)return json(res,200,{ok:true,job:active,reused:true,destinations:destinations.map(id=>({id,label:DESTINATION_LABELS[id]})),next:'An equivalent publication job is already active. TRYAMM reused it instead of creating a duplicate.'});
     const rows=await userRest(req,'media_publish_jobs',{method:'POST',body:{media_id:media.id,owner_id:user.id,destinations,status,moderation_status:'pending',monetization_status:'gated',error_code:errorCode}}),job=rows?.[0];
     return json(res,status==='blocked'?202:201,{ok:true,job,destinations:destinations.map(id=>({id,label:DESTINATION_LABELS[id]})),next:status==='blocked'?'Complete production upload/processing before publishing.':'Publishing job queued for moderation and destination delivery.'});
   }catch(error){return json(res,error.status||500,{error:error.message||'media_publish_failed'})}
