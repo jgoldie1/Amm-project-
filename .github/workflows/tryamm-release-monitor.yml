@@ -23,14 +23,19 @@ jobs:
         run: |
           set +e
           ROOT_CODE=$(curl -L -sS -o /tmp/root.html -w '%{http_code}' --max-time 20 https://tryamm.online/)
+          STREET_CODE=$(curl -L -sS -o /tmp/streetverse.html -w '%{http_code}' --max-time 30 https://tryamm.online/streetverse)
           HEALTH_CODE=$(curl -L -sS -o /tmp/health.json -w '%{http_code}' --max-time 30 https://tryamm.online/api/ai/health)
           SELFTEST_CODE=$(curl -L -sS -o /tmp/selftest.json -w '%{http_code}' --max-time 45 https://tryamm.online/api/ai/selftest)
 
           ROOT_OK=false
+          STREET_OK=false
           HEALTH_OK=false
           AI_OK=false
 
-          if [ "$ROOT_CODE" = "200" ] && grep -qi '<div id="root"></div>' /tmp/root.html; then ROOT_OK=true; fi
+          # Do not require an empty React root. Production intentionally renders a
+          # startup canary inside #root before the application bundle hydrates.
+          if [ "$ROOT_CODE" = "200" ] && grep -Eqi '<div[^>]+id="root"' /tmp/root.html; then ROOT_OK=true; fi
+          if [ "$STREET_CODE" = "200" ] && grep -Eqi 'TRYAMM StreetVerse Safe World|streetverseSafe-' /tmp/streetverse.html; then STREET_OK=true; fi
           if [ "$HEALTH_CODE" = "200" ] && jq -e '.ok == true' /tmp/health.json >/dev/null 2>&1; then HEALTH_OK=true; fi
           if [ "$SELFTEST_CODE" = "200" ] && jq -e '.ok == true and .degraded == false' /tmp/selftest.json >/dev/null 2>&1; then AI_OK=true; fi
 
@@ -39,11 +44,12 @@ jobs:
           ERROR=$(jq -r '(.errors // []) | join(" | ")' /tmp/selftest.json 2>/dev/null || true)
 
           STATUS=GREEN
-          if [ "$ROOT_OK" != true ] || [ "$HEALTH_OK" != true ] || [ "$AI_OK" != true ]; then STATUS=BLOCKED; fi
+          if [ "$ROOT_OK" != true ] || [ "$STREET_OK" != true ] || [ "$HEALTH_OK" != true ] || [ "$AI_OK" != true ]; then STATUS=BLOCKED; fi
 
           {
             echo "status=$STATUS"
             echo "root_ok=$ROOT_OK"
+            echo "street_ok=$STREET_OK"
             echo "health_ok=$HEALTH_OK"
             echo "ai_ok=$AI_OK"
             echo "provider=$PROVIDER"
@@ -54,13 +60,14 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
           echo "TRYAMM release monitor: $STATUS"
-          echo "root=$ROOT_OK health=$HEALTH_OK ai=$AI_OK provider=$PROVIDER model=$MODEL"
+          echo "root=$ROOT_OK streetverse=$STREET_OK health=$HEALTH_OK ai=$AI_OK provider=$PROVIDER model=$MODEL"
 
       - name: Open or update release blocker issue
         if: steps.probe.outputs.status != 'GREEN'
         env:
           GH_TOKEN: ${{ github.token }}
           ROOT_OK: ${{ steps.probe.outputs.root_ok }}
+          STREET_OK: ${{ steps.probe.outputs.street_ok }}
           HEALTH_OK: ${{ steps.probe.outputs.health_ok }}
           AI_OK: ${{ steps.probe.outputs.ai_ok }}
           PROVIDER: ${{ steps.probe.outputs.provider }}
@@ -72,7 +79,8 @@ jobs:
           ISSUE=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "$TITLE in:title" --json number,title --jq '.[0].number // empty')
           BODY=$(printf '%s\n\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n\n%s' \
             'Automated 15-minute production check detected a release blocker.' \
-            "- StreetVerse/app shell reachable: **$ROOT_OK**" \
+            "- App shell reachable: **$ROOT_OK**" \
+            "- StreetVerse reachable: **$STREET_OK**" \
             "- HoloGPT health endpoint healthy: **$HEALTH_OK**" \
             "- HoloGPT real model self-test GREEN: **$AI_OK**" \
             "- Provider: **$PROVIDER**" \
