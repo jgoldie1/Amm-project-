@@ -12,6 +12,19 @@ export type IntelligenceLane =
   | 'sports_culture'
   | 'streetverse_missions'
 
+export type NewsDesk =
+  | 'local_news'
+  | 'national_news'
+  | 'international_news'
+  | 'entertainment'
+  | 'weather'
+  | 'traffic'
+  | 'sports'
+  | 'business'
+  | 'community'
+  | 'public_safety'
+  | 'creator_culture'
+
 export type OraclePurpose =
   | 'sparrow_map'
   | 'streetverse_mission'
@@ -27,6 +40,7 @@ export type VerificationState='unverified'|'corroborated'|'verified'|'official'
 export type OracleSignal={
   id:string
   lane:IntelligenceLane
+  desk:NewsDesk
   purposes:OraclePurpose[]
   headline:string
   summary:string
@@ -63,6 +77,23 @@ export const STREETVERSE_ORACLE_PROFILE={
     'business_funding','creator_economy','mobility_logistics','weather_environment','public_safety',
     'sports_culture','streetverse_missions',
   ] as IntelligenceLane[],
+  newsroomDesks:[
+    'local_news','national_news','international_news','entertainment','weather','traffic',
+    'sports','business','community','public_safety','creator_culture',
+  ] as NewsDesk[],
+  hostRoles:[
+    'Local News Host',
+    'National News Anchor',
+    'International News Anchor',
+    'Entertainment Host',
+    'Weather Host / Meteorologist',
+    'Traffic + Mobility Host',
+    'Sports Host',
+    'Business + Funding Host',
+    'Community Correspondent',
+    'Public Safety Desk Host',
+    'Creator + Culture Host',
+  ],
   outputs:[
     'Sparrow map signal',
     'StreetVerse mission seed',
@@ -126,6 +157,7 @@ export function normalizeOracleSignal(input:Partial<OracleSignal>&Pick<OracleSig
   return {
     id:input.id,
     lane:input.lane,
+    desk:input.desk||'international_news',
     purposes:input.purposes||['newsroom'],
     headline:String(input.headline).slice(0,240),
     summary:String(input.summary).slice(0,1200),
