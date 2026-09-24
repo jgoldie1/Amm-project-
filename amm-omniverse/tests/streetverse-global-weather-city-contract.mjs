@@ -44,4 +44,9 @@ assert.doesNotMatch(weatherCallback,/syncWorld\(\)/,'weather updates must not re
 assert.doesNotMatch(globalWorld,/latitude/)
 assert.doesNotMatch(globalWorld,/longitude/)
 
+const mainHtml=fs.readFileSync(path.resolve('index.html'),'utf8')
+const safeHtml=fs.readFileSync(path.resolve('streetverse-safe.html'),'utf8')
+assert.match(mainHtml,/\/streetverse-global-world\.js/)
+assert.match(safeHtml,/\/streetverse-global-world\.js/)
+
 console.log('StreetVerse approved global weather city catalog and picker contract passed')
