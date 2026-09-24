@@ -1,0 +1,14 @@
+import fs from 'node:fs'
+import assert from 'node:assert/strict'
+const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8')
+const page=read('../src/components/PublicReelPage.tsx')
+const main=read('../src/main.tsx')
+assert.match(main,/\/reels\//)
+assert.match(main,/PublicReelPage/)
+assert.match(page,/getAccessToken/)
+assert.match(page,/\/api\/media\/publication\?slug=/)
+assert.match(page,/navigator\.share/)
+assert.match(page,/navigator\.clipboard\.writeText/)
+assert.match(page,/SHARE REEL/)
+assert.match(page,/safe-area-inset-top/)
+console.log('Public Reel iPhone route contract passed: stable slug, authenticated lookup, share sheet + clipboard fallback')
