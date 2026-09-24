@@ -22,6 +22,7 @@ assert(!checkout.includes("req.body?.amount"),'Checkout must not accept a client
 assert(!checkout.includes("req.body?.price"),'Checkout must not accept a client-supplied price');
 assert(!checkout.includes("status:'paid'"),'Checkout request must never mark its own order paid');
 assert(!checkout.includes('commerce_entitlements'), 'Checkout request must never mint an entitlement');
+assert(checkout.includes('stripe_session_binding_failed'),'Checkout must durably bind the order to the Stripe session before redirecting');
 
 assert(webhook.includes("bodyParser:false"),'Stripe webhook must preserve the raw request body');
 assert(webhook.includes("stripe.webhooks.constructEvent"),'Webhook signature must be verified by Stripe SDK');
@@ -38,6 +39,9 @@ for(const token of [
   "raise exception 'stripe_amount_mismatch'",
   "raise exception 'stripe_currency_mismatch'",
   "raise exception 'stripe_buyer_mismatch'",
+  "raise exception 'stripe_session_mismatch'",
+  'security invoker',
+  "set search_path = ''",
   'grant execute on function public.commerce_finalize_stripe_checkout',
   'to service_role'
 ]) assert(migration.toLowerCase().includes(token.toLowerCase()),`Stripe authority migration missing ${token}`);
@@ -49,7 +53,9 @@ assert(transactionInsert>=0&&entitlementInsert>transactionInsert&&ledgerPost>ent
 
 assert.match(migration,/revoke all on function public\.commerce_finalize_stripe_checkout[\s\S]*from anon;/,'Anonymous users must not execute payment finalization');
 assert.match(migration,/revoke all on function public\.commerce_finalize_stripe_checkout[\s\S]*from authenticated;/,'Authenticated clients must not execute payment finalization');
-assert.match(migration,/revoke insert, update, delete on public\.commerce_entitlements from anon, authenticated;/,'Clients must not directly mint or mutate entitlements');
-assert.match(migration,/revoke insert, update, delete on public\.commerce_transactions from anon, authenticated;/,'Clients must not directly create or mutate transactions');
+assert.match(migration,/revoke all on table[\s\S]*public\.commerce_entitlements[\s\S]*from anon, authenticated;/,'Client table privileges must be removed before least-privilege grants');
+assert.match(migration,/grant select on table[\s\S]*public\.commerce_entitlements[\s\S]*to authenticated;/,'Authenticated clients may read only RLS-owned commerce records');
+assert.match(migration,/grant select, insert, update, delete on table[\s\S]*public\.commerce_entitlements[\s\S]*to service_role;/,'Server role must receive explicit Data API write grants');
+assert(!migration.toLowerCase().includes('security definer'),'Stripe finalizer does not need definer privileges');
 
 console.log('Server-authoritative Stripe checkout → verified event → transaction → entitlement → ledger contract: GREEN');
