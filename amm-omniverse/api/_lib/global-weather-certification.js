@@ -5,7 +5,7 @@ export const GLOBAL_WEATHER_CERTIFICATION_LOCATIONS=Object.freeze([
   'chicago','lagos','abuja','london','tokyo','sydney'
 ]);
 
-const finite=value=>Number.isFinite(Number(value));
+const finite=value=>value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value));
 const text=value=>typeof value==='string'&&value.trim().length>0;
 const validDate=value=>text(value)&&Number.isFinite(Date.parse(value));
 
