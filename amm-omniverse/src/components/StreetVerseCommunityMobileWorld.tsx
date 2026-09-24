@@ -1,4 +1,5 @@
-import {useEffect,useMemo,useRef,useState} from 'react'\nimport type {ChangeEvent} from 'react'
+import {useEffect,useMemo,useRef,useState} from 'react'
+import type {ChangeEvent} from 'react'
 import type {CSSProperties} from 'react'
 import type {StreetVerseCommunitySlice} from '../config/streetverseCommunitySlices'
 
@@ -11,7 +12,12 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
  const [pos,setPos]=useState({x:50,y:62})
  const [trafficTick,setTrafficTick]=useState(0)
  const [hudOpen,setHudOpen]=useState(false)
- const [reelOpen,setReelOpen]=useState(false)\n const [reelFile,setReelFile]=useState<File|null>(null)\n const [reelStatus,setReelStatus]=useState('Choose or capture a video, then upload it.')\n const [reelBusy,setReelBusy]=useState(false)\n const [reelMediaId,setReelMediaId]=useState('')\n const reelFileInput=useRef<HTMLInputElement|null>(null)
+ const [reelOpen,setReelOpen]=useState(false)
+ const [reelFile,setReelFile]=useState<File|null>(null)
+ const [reelStatus,setReelStatus]=useState('Choose or capture a video, then upload it.')
+ const [reelBusy,setReelBusy]=useState(false)
+ const [reelMediaId,setReelMediaId]=useState('')
+ const reelFileInput=useRef<HTMLInputElement|null>(null)
  const traffic=useMemo(()=>[
   {id:'c1',lane:46,start:8,speed:7,icon:'🚙'},
   {id:'c2',lane:54,start:38,speed:5,icon:'🚗'},
