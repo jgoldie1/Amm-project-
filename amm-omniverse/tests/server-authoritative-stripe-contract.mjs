@@ -16,7 +16,9 @@ assert.equal(lock.packages?.['']?.dependencies?.stripe, '^18.5.0', 'package-lock
 assert.ok(lock.packages?.['node_modules/stripe']?.version, 'package-lock must contain the installed Stripe package');
 
 assert.match(checkout, /stripe\.checkout\.sessions\.create\(/, 'checkout must create Stripe sessions on the server');
-assert.match(checkout, /CATALOG\.get\(line\.id\)/, 'checkout pricing must come from the trusted catalog');
+assert.match(checkout, /CATALOG\.get\(id\)/, 'static checkout pricing must come from the trusted server catalog');
+assert.match(checkout, /adminRest\('commerce_listings'/, 'dynamic checkout pricing must load published listings on the server');
+assert.match(checkout, /Math\.round\(Number\(listing\.price\)\*100\)/, 'dynamic listing price must be calculated on the server');
 assert.match(checkout, /tryamm_order_id/, 'checkout must bind the Stripe session to the persisted order');
 assert.match(checkout, /tryamm_buyer_id/, 'checkout must bind the Stripe session to the authenticated buyer');
 assert.match(checkout, /authority:'stripe_webhook_only'/, 'checkout response must declare webhook-only purchase authority');
