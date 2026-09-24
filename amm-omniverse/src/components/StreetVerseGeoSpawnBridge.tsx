@@ -6,6 +6,7 @@ import {installStreetVerseHydeParkMissionRuntime} from '../runtime/StreetVerseHy
 import {installStreetVerseAfterDarkAlphaRuntime} from '../runtime/StreetVerseAfterDarkAlphaRuntime'
 import {installStreetVerseMissionLedgerBridge} from '../runtime/StreetVerseMissionLedgerBridge'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
+import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
 import StreetVerseMobileGameShell from './StreetVerseMobileGameShell'
 import {useGameStore} from '../game/state/useGameStore'
