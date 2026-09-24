@@ -153,8 +153,6 @@ export function createStreetVerseWeatherRenderer(
       scene.remove(precipitation)
       geometry.dispose()
       material.dispose()
-      delete document.body.dataset.svWeather
-      delete document.body.dataset.svWeatherLive
     }
   }
 }
