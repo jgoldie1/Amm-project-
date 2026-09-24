@@ -33,6 +33,9 @@ assert.match(globalWorld,/weatherLocations=Array\.isArray\(payload\?\.locations\
 assert.match(globalWorld,/weatherLocations:\(\)=>weatherLocations\.map/)
 assert.match(globalWorld,/function updateStatus\(\)/)
 assert.match(globalWorld,/function syncWorld\(\)/)
+assert.match(globalWorld,/data-streetverse-world-root/)
+assert.match(globalWorld,/\[role="dialog"\]\[aria-label\^="StreetVerse"\]/)
+assert.match(globalWorld,/if\(htmlCity\)main\.append\(weatherFx,yacht\)/)
 
 const weatherCallbackStart=globalWorld.indexOf('const onWeather=event=>')
 const weatherCallbackEnd=globalWorld.indexOf(';addEventListener(\'tryamm:streetverse-weather-state\'',weatherCallbackStart)
@@ -43,6 +46,9 @@ assert.doesNotMatch(weatherCallback,/syncWorld\(\)/,'weather updates must not re
 
 assert.doesNotMatch(globalWorld,/latitude/)
 assert.doesNotMatch(globalWorld,/longitude/)
+
+const mobileWorld=fs.readFileSync(path.resolve('src/components/StreetVerseMobileWorld.tsx'),'utf8')
+assert.match(mobileWorld,/data-streetverse-world-root="true"/)
 
 const mainHtml=fs.readFileSync(path.resolve('index.html'),'utf8')
 const safeHtml=fs.readFileSync(path.resolve('streetverse-safe.html'),'utf8')
