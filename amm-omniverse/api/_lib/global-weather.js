@@ -7,7 +7,7 @@ export function globalWeatherStatus(){
   const enabled=truthy(process.env.GLOBAL_WEATHER_ENABLED);
   const licenseVerified=truthy(process.env.OPEN_METEO_COMMERCIAL_LICENSE_VERIFIED);
   const productionVerified=truthy(process.env.OPEN_METEO_PRODUCTION_VERIFIED);
-  const configured=Boolean(process.env.OPEN_METEO_API_KEY);
+  const configured=String(process.env.OPEN_METEO_API_KEY||'').trim().length>0;
   const configurationReady=enabled&&licenseVerified&&configured;
   const certificationReady=configurationReady;
   const adapterReady=configurationReady&&productionVerified;
