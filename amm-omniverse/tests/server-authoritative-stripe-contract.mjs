@@ -9,8 +9,11 @@ const migration = read('../supabase/migrations/20260924144500_server_authoritati
 const hardening = read('../supabase/migrations/20260924151000_harden_stripe_checkout_authority.sql');
 const authoritySql = `${migration}\n${hardening}`;
 const pkg = JSON.parse(read('../package.json'));
+const lock = JSON.parse(read('../package-lock.json'));
 
 assert.equal(pkg.dependencies?.stripe, '^18.5.0', 'Stripe SDK must remain a server runtime dependency');
+assert.equal(lock.packages?.['']?.dependencies?.stripe, '^18.5.0', 'package-lock root must pin the Stripe dependency declared by package.json');
+assert.ok(lock.packages?.['node_modules/stripe']?.version, 'package-lock must contain the installed Stripe package');
 
 assert.match(checkout, /stripe\.checkout\.sessions\.create\(/, 'checkout must create Stripe sessions on the server');
 assert.match(checkout, /CATALOG\.get\(line\.id\)/, 'checkout pricing must come from the trusted catalog');
@@ -21,6 +24,7 @@ assert.doesNotMatch(checkout, /req\.body\?\.(price|amount|unitAmount|total)/, 'c
 assert.match(checkout, /validatePersistedOrder/, 'persisted order items and allocations must be revalidated before checkout');
 assert.match(checkout, /persisted_order_snapshot_mismatch/, 'partial order persistence must fail closed');
 assert.match(checkout, /checkout\.sessions\.retrieve\(/, 'existing Stripe sessions must be inspected before creating another charge');
+assert.match(checkout, /client_reference_id\|\|''\)\!==String\(order\.id\)/, 'reused Stripe sessions must match the persisted order client_reference_id');
 assert.match(checkout, /PAYMENT_PROCESSING/, 'completed or paid Stripe sessions must stay in processing rather than create a duplicate charge');
 assert.match(checkout, /CHECKOUT_STATUS_UNAVAILABLE/, 'Stripe retrieval failures must be retryable without creating a duplicate charge');
 assert.match(checkout, /provider_session_id:'is\.null'/, 'Stripe session binding must not overwrite an existing session');
@@ -49,6 +53,7 @@ assert.match(authoritySql, /commerce_ledger_unbalanced/, 'ledger postings must b
 assert.match(hardening, /stripe_session_mismatch/, 'finalization must match the persisted Stripe Checkout Session');
 assert.match(hardening, /order_items_mismatch/, 'finalization must reject missing or arithmetically inconsistent order items');
 assert.match(hardening, /seller_allocation_breakdown_mismatch/, 'seller allocations must reconcile to the item seller breakdown');
+assert.match(hardening, /full join\s*\(\s*select seller_key,gross_cents,seller_net_cents,platform_fee_cents\s*from public\.commerce_seller_allocations\s*where order_id=p_order_id\s*\) a\s*on a\.seller_key=i\.seller_key/i, 'allocation reconciliation must filter seller allocations to the current order before the full join');
 assert.match(hardening, /entitlement_count_mismatch/, 'every paid order item must produce exactly one entitlement before commit');
 assert.match(authoritySql, /revoke all on function public\.apply_verified_stripe_checkout[\s\S]*from authenticated;/i, 'browser roles must not execute the payment transition');
 assert.match(authoritySql, /grant execute on function public\.apply_verified_stripe_checkout[\s\S]*to service_role;/i, 'only the service role may execute the payment transition');
