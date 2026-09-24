@@ -80,7 +80,13 @@ assert.match(mobile,/createStreetVerseWeatherRenderer/)
 assert.match(mobile,/weatherDriveMultiplier/)
 assert.match(mobile,/tryamm:streetverse-weather-state/)
 assert.match(mobile,/weatherRenderer\.tick\(dt,focus\.position\)/)
+assert.match(mobile,/sun\.intensity=1\.8\*weatherVisual\.lightMultiplier/)
+assert.match(mobile,/hemi\.intensity=2\.2\*weatherVisual\.lightMultiplier/)
 assert.match(mobile,/WEATHER •/)
+
+const runtimeSource=fs.readFileSync(path.resolve('src/runtime/StreetVerseWeatherRuntime.ts'),'utf8')
+assert.doesNotMatch(runtimeSource,/delete document\.body\.dataset\.svWeather/)
+assert.doesNotMatch(runtimeSource,/delete document\.body\.dataset\.svWeatherLive/)
 
 const safeGlobal=fs.readFileSync(path.resolve('public/streetverse-global-world.js'),'utf8')
 assert.match(safeGlobal,/sv-weather-fx/)
