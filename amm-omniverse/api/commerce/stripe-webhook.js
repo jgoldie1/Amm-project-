@@ -57,7 +57,7 @@ async function recordFailedCheckout(event){
    const rows=await adminRest('commerce_payment_events',{method:'POST',body:{provider:'stripe',provider_event_id:String(event.id||''),event_type:String(event.type||'unknown'),verified:true,order_id:orderId,payload:minimalPayload(event)}});
    eventRow=rows?.[0];
  }
- await adminRest('commerce_orders',{method:'PATCH',query:{id:`eq.${orderId}`,buyer_id:`eq.${buyerId}`,status:'in.(pending_payment,checkout_created)'},body:{status:'payment_failed',updated_at:new Date().toISOString()}});
+ await adminRest('commerce_orders',{method:'PATCH',query:{id:`eq.${orderId}`,buyer_id:`eq.${buyerId}`,status:'in.(pending_payment,payment_processing)'},body:{status:'payment_failed',updated_at:new Date().toISOString()}});
  if(eventRow?.id)await adminRest('commerce_payment_events',{method:'PATCH',query:{id:`eq.${eventRow.id}`},body:{processed_at:new Date().toISOString()}});
  return {matched:true,orderId};
 }
