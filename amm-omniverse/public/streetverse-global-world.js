@@ -16,8 +16,8 @@
   let current=localStorage.getItem(KEY)||'chicago';if(!regions[current])current='chicago'
   let mounted=false,lastSource='manual',weatherState=null,weatherDestination=null,weatherLocations=[]
   const css=`
-  #sv-world-open{position:absolute;left:12px;top:158px;z-index:23;min-height:44px;padding:0 11px;border-radius:12px;border:1px solid #7bdfff;background:#071426e8;color:#fff;font:900 10px/1 system-ui;box-shadow:0 6px 18px #0008;pointer-events:auto}
-  #sv-world-panel{position:absolute;left:10px;right:10px;bottom:12px;z-index:31;display:none;max-height:56%;overflow:auto;border-radius:14px;border:1px solid #7bdfff;background:#04101df4;color:#fff;padding:10px;box-shadow:0 10px 30px #000c;pointer-events:auto;font-family:system-ui,sans-serif}
+  #sv-world-open{position:absolute;left:12px;top:158px;z-index:30500;min-height:44px;padding:0 11px;border-radius:12px;border:1px solid #7bdfff;background:#071426e8;color:#fff;font:900 10px/1 system-ui;box-shadow:0 6px 18px #0008;pointer-events:auto}
+  #sv-world-panel{position:absolute;left:10px;right:10px;bottom:12px;z-index:30600;display:none;max-height:56%;overflow:auto;border-radius:14px;border:1px solid #7bdfff;background:#04101df4;color:#fff;padding:10px;box-shadow:0 10px 30px #000c;pointer-events:auto;font-family:system-ui,sans-serif}
   #sv-world-panel[data-open="true"]{display:block}
   #sv-world-panel h3{margin:0 0 4px;color:#a8efff;font-size:14px}#sv-world-panel p{margin:0 0 8px;color:#d5f6ff;font-size:10px;line-height:1.35}
   #sv-world-panel .grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
@@ -33,7 +33,7 @@
   body[data-sv-biome="open-ocean"] [data-streetverse-html-city="true"] main,
   body[data-sv-biome="island-ocean"] [data-streetverse-html-city="true"] main{background-image:linear-gradient(#12385833,#0a466655)!important}
   #sv-weather-fx{position:absolute;inset:0;z-index:3;pointer-events:none;display:none}
-  #sv-weather-chip{position:absolute;left:12px;top:207px;z-index:23;max-width:72%;padding:7px 9px;border-radius:999px;border:1px solid #7bdfff88;background:#04101de8;color:#dffaff;font:900 9px/1.2 system-ui;pointer-events:none}
+  #sv-weather-chip{position:absolute;left:12px;top:207px;z-index:30500;max-width:72%;padding:7px 9px;border-radius:999px;border:1px solid #7bdfff88;background:#04101de8;color:#dffaff;font:900 9px/1.2 system-ui;pointer-events:none}
   body[data-sv-weather="rain"] #sv-weather-fx,body[data-sv-weather="storm"] #sv-weather-fx{display:block;background:repeating-linear-gradient(108deg,transparent 0 14px,#bcecff55 15px 16px,transparent 17px 31px);background-size:180px 180px;animation:sv-rain .42s linear infinite}
   body[data-sv-weather="snow"] #sv-weather-fx{display:block;background-image:radial-gradient(circle,#fff 0 2px,transparent 2.5px),radial-gradient(circle,#eaf8ff 0 1.5px,transparent 2px);background-size:36px 44px,55px 62px;animation:sv-snow 5s linear infinite}
   body[data-sv-weather="fog"] #sv-weather-fx{display:block;background:linear-gradient(#bdc8cedd,#87949bbb);backdrop-filter:blur(2px)}
@@ -59,8 +59,10 @@
   }
   function mount(){
     if(mounted)return
-    const city=document.querySelector('[data-streetverse-html-city="true"]');if(!city)return
-    const main=city.querySelector('main');if(!main)return
+    const htmlCity=document.querySelector('[data-streetverse-html-city="true"]')
+    const worldRoot=htmlCity||document.querySelector('[data-streetverse-world-root="true"]')||document.querySelector('[role="dialog"][aria-label^="StreetVerse"]')
+    if(!worldRoot)return
+    const main=worldRoot.querySelector('main')||worldRoot
     mounted=true
     const style=document.createElement('style');style.id='sv-global-world-style';style.textContent=css;document.head.appendChild(style)
     const open=document.createElement('button');open.id='sv-world-open';open.type='button';open.textContent='🌍 WORLD';open.setAttribute('aria-controls','sv-world-panel');open.setAttribute('aria-expanded','false')
@@ -87,7 +89,7 @@
     search?.addEventListener('input',()=>renderWeatherCities(search.value))
     fetch('/api/intelligence/global-weather?action=status',{headers:{accept:'application/json'}}).then(response=>response.json()).then(payload=>{weatherLocations=Array.isArray(payload?.locations)?payload.locations:[];renderWeatherCities(search?.value||'')}).catch(()=>{weatherLocations=[];renderWeatherCities(search?.value||'')})
     renderWeatherCities()
-    main.append(weatherFx,yacht,open,weatherChip,panel);syncWorld()
+    if(htmlCity)main.append(weatherFx,yacht);main.append(open,weatherChip,panel);syncWorld()
     const onWeather=event=>{const d=event.detail||{};weatherState=d;weatherDestination=d.regionId&&d.regionId!==current?{id:String(d.regionId),label:String(d.regionLabel||d.regionId)}:null;const temp=d.temperature===null||d.temperature===undefined?'--':Math.round(Number(d.temperature))+'°';weatherChip.textContent='WEATHER • '+String(d.regionLabel||regions[current].label)+' • '+String((document.body.dataset.svWeather||'unavailable').toUpperCase())+' • '+temp+(d.current&&!d.simulated&&!d.unavailable?' • LIVE':' • GATED');updateStatus()};addEventListener('tryamm:streetverse-weather-state',onWeather);window.StreetVerseGlobalWorld={regions:JSON.parse(JSON.stringify(regions)),current:()=>({id:current,...regions[current],selectionSource:lastSource}),travel:(id,source='manual')=>{if(!regions[id])return false;current=id;lastSource=source==='gps'?'gps':'manual';weatherDestination=null;syncWorld();return true},weatherLocations:()=>weatherLocations.map(({id,label,scope,kind,country,continent})=>({id,label,scope,kind,country,continent}))}
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-global-world-ready',{detail:{regions:Object.keys(regions),current,source:'virtual-game-world',gpsOptional:true,yachtRegions:Object.entries(regions).filter(([,r])=>r.yacht).map(([id])=>id)}}))
   }
