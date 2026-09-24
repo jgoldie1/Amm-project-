@@ -44,11 +44,10 @@ export default async function handler(req,res){
     for(const destination of destinations){
       const existing=await userRest(req,'media_publications',{query:{media_id:`eq.${media.id}`,owner_id:`eq.${user.id}`,destination:`eq.${destination}`,select:'*',limit:1}});
       if(existing?.[0]?.status==='delivered'){delivered.push(existing[0]);continue}
-      const body={media_id:media.id,owner_id:user.id,publish_job_id:job.id,destination,status:'delivered',public_slug:slug(media.id,destination),caption:String(media.manifest?.caption||''),moderation_status:media.moderation_status,monetization_status:'gated',reason_code:null,evidence:{source:'release1-delivery-processor',storage_verified:true},delivered_at:new Date().toISOString(),updated_at:new Date().toISOString()};
-      const rows=existing?.[0]
-        ?await userRest(req,'media_publications',{method:'PATCH',query:{id:`eq.${existing[0].id}`,owner_id:`eq.${user.id}`},body})
-        :await userRest(req,'media_publications',{method:'POST',body});
-      delivered.push(rows?.[0]||body);
+      const rpc=await userRest(req,'rpc/release1_deliver_publication',{method:'POST',body:{p_job_id:job.id,p_destination:destination,p_public_slug:slug(media.id,destination),p_caption:String(media.manifest?.caption||'')}});
+      const publication=Array.isArray(rpc)?rpc[0]:rpc;
+      if(!publication||publication.status!=='delivered')throw Object.assign(new Error('trusted_publication_transition_failed'),{status:502});
+      delivered.push(publication);
     }
     const done=await userRest(req,'media_publish_jobs',{method:'PATCH',query:{id:`eq.${job.id}`,owner_id:`eq.${user.id}`},body:{status:'delivered',moderation_status:media.moderation_status,error_code:null}});
     return json(res,200,{ok:true,job:done?.[0]||job,publications:delivered,next:'Destination delivery records are confirmed. Public routes may now resolve these slugs.'});
