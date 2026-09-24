@@ -190,6 +190,24 @@ begin
 
   select * into v_order from public.commerce_orders where id=p_order_id for update;
   if not found then raise exception 'commerce_order_not_found'; end if;
+
+  -- Re-check idempotency after acquiring the order lock. Two verified Stripe
+  -- deliveries can arrive concurrently; the second must observe the first
+  -- committed transaction instead of racing into the unique constraint.
+  select order_id,id into v_existing_order_id,v_transaction_id
+  from public.commerce_payment_transactions
+  where (provider='stripe' and provider_event_id=p_provider_event_id)
+     or (provider='stripe' and provider_session_id=p_provider_session_id)
+  order by created_at asc
+  limit 1;
+  if v_transaction_id is not null then
+    if v_existing_order_id <> p_order_id then raise exception 'stripe_evidence_reuse_detected'; end if;
+    update public.commerce_payment_events
+      set order_id=p_order_id,processed_at=coalesce(processed_at,now())
+      where provider='stripe' and provider_event_id=p_provider_event_id;
+    return jsonb_build_object('applied',false,'duplicate',true,'transactionId',v_transaction_id);
+  end if;
+
   if v_order.buyer_id is distinct from p_buyer_id then raise exception 'stripe_buyer_mismatch'; end if;
   if v_order.subtotal_cents is distinct from p_amount_cents then raise exception 'stripe_amount_mismatch'; end if;
   if upper(coalesce(v_order.currency,'')) <> upper(p_currency) then raise exception 'stripe_currency_mismatch'; end if;
