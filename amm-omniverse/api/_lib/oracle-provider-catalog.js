@@ -1,5 +1,52 @@
 export const ORACLE_PROVIDER_CATALOG=[
   {
+    id:'open-meteo-global-commercial',
+    label:'Open-Meteo commercial global forecast API',
+    providerClass:'commercial_weather_api',
+    status:'adapter_installed_license_required',
+    baseUrl:'https://customer-api.open-meteo.com',
+    documentationUrl:'https://open-meteo.com/en/docs',
+    geographies:['Global/international'],
+    lanes:['weather_environment','global_international'],
+    desks:['weather','international_news'],
+    purposes:['newsroom','sparrow_map','environment_context','streetverse_mission'],
+    ingestionMode:'licensed_api',
+    live:false,
+    activationAllowed:false,
+    notes:'TRYAMM production must use the commercial customer endpoint with a paid commercial-use licence. The free Open-Meteo endpoint is not approved for TRYAMM production.',
+    releaseGates:[
+      'commercial subscription/licence',
+      'server-side API key',
+      'attribution review',
+      'rate-limit/backoff behavior',
+      'production health verification',
+      'Oracle routing review'
+    ]
+  },
+  {
+    id:'ecmwf-open-data-global',
+    label:'ECMWF Open Data global forecast fallback',
+    providerClass:'official_open_data_global',
+    status:'candidate_open_data_fallback',
+    baseUrl:'https://data.ecmwf.int',
+    documentationUrl:'https://www.ecmwf.int/en/forecasts/datasets/open-data',
+    geographies:['Global/international'],
+    lanes:['weather_environment','global_international'],
+    desks:['weather','international_news'],
+    purposes:['newsroom','environment_context','model_validation'],
+    ingestionMode:'public_open_data',
+    live:false,
+    activationAllowed:false,
+    notes:'ECMWF Open Data permits commercial reuse under CC BY 4.0 with attribution, but TRYAMM still needs a decoding/normalization pipeline and production reliability review before activation.',
+    releaseGates:[
+      'CC BY 4.0 attribution implementation',
+      'GRIB/open-data decoding pipeline',
+      'model/run timestamp handling',
+      'normalization tests',
+      'production health verification'
+    ]
+  },
+  {
     id:'nws-weather-us',
     label:'National Weather Service API',
     providerClass:'official_open_api',
