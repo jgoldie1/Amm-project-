@@ -1,4 +1,4 @@
-import {DEFAULT_ONE_HAND_PROFILE,type OneHandProfile} from './OneHandGameplayAccessibility'
+import {DEFAULT_ONE_HAND_PROFILE,type OneHandProfile} from './OneHandGameplayAccessibility.ts'
 export type Vec2={x:number;y:number}
 export type WorldInputFrame={move:Vec2;look:Vec2;interact:boolean;primary:boolean;secondary:boolean;ability:boolean;jump:boolean;sprint:boolean;brake:boolean;pause:boolean}
 export type OneHandTouchFrame={stick?:Vec2;actionPressed?:boolean;combatPressed?:boolean;abilityPressed?:boolean;menuPressed?:boolean;brakePressed?:boolean;context:'ON_FOOT'|'COMBAT'|'VEHICLE'|'DIALOGUE'}
