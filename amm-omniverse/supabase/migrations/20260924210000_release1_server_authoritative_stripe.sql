@@ -136,12 +136,33 @@ do $$ begin
     for select to authenticated using ((select auth.uid()) = buyer_id);
 exception when duplicate_object then null; end $$;
 
-revoke insert, update, delete on public.commerce_orders from anon, authenticated;
-revoke insert, update, delete on public.commerce_order_items from anon, authenticated;
-revoke insert, update, delete on public.commerce_seller_allocations from anon, authenticated;
-revoke all on public.commerce_payment_events from anon, authenticated;
-revoke insert, update, delete on public.commerce_transactions from anon, authenticated;
-revoke insert, update, delete on public.commerce_entitlements from anon, authenticated;
+-- Explicit Data API grants: current Supabase projects may not auto-expose new tables.
+-- Clients get read-only access only where RLS provides an ownership policy.
+revoke all on table
+  public.commerce_orders,
+  public.commerce_order_items,
+  public.commerce_seller_allocations,
+  public.commerce_payment_events,
+  public.commerce_transactions,
+  public.commerce_entitlements
+from anon, authenticated;
+
+grant select on table
+  public.commerce_orders,
+  public.commerce_order_items,
+  public.commerce_transactions,
+  public.commerce_entitlements
+to authenticated;
+
+-- All commerce mutations are server-side and require the server-only Supabase role.
+grant select, insert, update, delete on table
+  public.commerce_orders,
+  public.commerce_order_items,
+  public.commerce_seller_allocations,
+  public.commerce_payment_events,
+  public.commerce_transactions,
+  public.commerce_entitlements
+to service_role;
 
 create or replace function public.commerce_finalize_stripe_checkout(
   p_order_id uuid,
@@ -157,8 +178,8 @@ create or replace function public.commerce_finalize_stripe_checkout(
   p_event_payload jsonb default '{}'::jsonb
 ) returns jsonb
 language plpgsql
-security definer
-set search_path = public
+security invoker
+set search_path = ''
 as $$
 declare
   v_order public.commerce_orders%rowtype;
@@ -183,6 +204,10 @@ begin
   if not found then raise exception 'commerce_order_not_found'; end if;
   if v_order.buyer_id <> p_buyer_id then raise exception 'stripe_buyer_mismatch'; end if;
   if coalesce(p_client_reference_id,'') <> p_order_id::text then raise exception 'stripe_client_reference_mismatch'; end if;
+  if coalesce(v_order.payment_provider,'') <> 'stripe' then raise exception 'stripe_order_provider_mismatch'; end if;
+  if coalesce(v_order.provider_session_id,'') = '' then raise exception 'stripe_session_not_bound'; end if;
+  if v_order.provider_session_id <> p_provider_session_id then raise exception 'stripe_session_mismatch'; end if;
+  if v_order.status not in ('checkout_created','paid') then raise exception 'stripe_order_state_invalid'; end if;
   if p_amount_cents <> v_order.subtotal_cents then raise exception 'stripe_amount_mismatch'; end if;
   if upper(coalesce(p_currency,'')) <> upper(v_order.currency) then raise exception 'stripe_currency_mismatch'; end if;
   if lower(coalesce(p_payment_status,'')) <> 'paid' then raise exception 'stripe_payment_not_paid'; end if;
