@@ -1,4 +1,5 @@
 import {nwsWeatherStatus} from './nws-weather.js';
+import {globalWeatherStatus} from './global-weather.js';
 const truthy=value=>String(value||'').toLowerCase()==='true';
 
 export const STREETVERSE_INTELLIGENCE_LANES=[
@@ -124,6 +125,7 @@ export function intelligenceProviderStatus(){
     providers:[
       globalNewsProviderStatus(),
       nwsWeatherStatus(),
+      globalWeatherStatus(),
       weatherProviderStatus(),
       soundThinkingProviderStatus(),
       {
