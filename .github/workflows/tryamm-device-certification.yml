@@ -100,8 +100,8 @@ jobs:
             ('creator-convergence','https://tryamm.online/api/system/creator-convergence'),
             ('economic-convergence','https://tryamm.online/api/system/economic-convergence'),
             ('flywheel-convergence','https://tryamm.online/api/system/flywheel-convergence'),
-            ('financial-truth-api','https://amm-project-1-rpz9.onrender.com/api/financial-truth/health'),
-            ('backend-health','https://amm-project-1-rpz9.onrender.com/api/health'),
+            ('financial-truth-api','https://amm-project-d3zu.onrender.com/api/financial-truth/health'),
+            ('backend-health','https://amm-project-d3zu.onrender.com/api/health'),
           ]
           results=[]
           for name,url in targets:
