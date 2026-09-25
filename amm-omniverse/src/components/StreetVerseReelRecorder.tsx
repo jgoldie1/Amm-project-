@@ -23,7 +23,7 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
  const [published,setPublished]=useState(false)
  const missionLabel=String(context.missionLabel||'').trim()
  const caption=missionLabel?`${missionLabel} • Created in StreetVerse • #TRYAMM #StreetVerse`:'Created in StreetVerse • #TRYAMM #StreetVerse'
- const missionContext=useMemo(()=>({source:context.source||'streetverse-reel-recorder',missionId:context.missionId||'',missionLabel,missionSource:context.missionSource||'',missionRunId:context.missionRunId||'',programId:context.programId||'',rewardStatus:context.verified?'verified':context.rewardStatus||'pending',verified:context.verified===true}),[context.source,context.missionId,context.missionLabel,context.missionSource,context.missionRunId,context.programId,context.rewardStatus,context.verified,missionLabel])
+ const missionContext=useMemo(()=>({handoffSource:context.source||'',missionId:context.missionId||'',missionLabel,missionSource:context.missionSource||'',missionRunId:context.missionRunId||'',programId:context.programId||'',rewardStatus:context.verified?'verified':context.rewardStatus||'pending',verified:context.verified===true}),[context.source,context.missionId,context.missionLabel,context.missionSource,context.missionRunId,context.programId,context.rewardStatus,context.verified,missionLabel])
 
  const stopStream=()=>{streamRef.current?.getTracks().forEach(t=>t.stop());streamRef.current=null}
  useEffect(()=>()=>{stopStream();if(url)URL.revokeObjectURL(url)},[url])
