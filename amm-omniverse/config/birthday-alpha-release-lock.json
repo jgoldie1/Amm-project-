@@ -14,5 +14,29 @@
     "google-play-data-safety-and-iarc",
     "signed-aab-and-closed-test"
   ],
-  "releaseTruth": "Alpha ships only what passes production and device/store gates; broader verses continue after alpha."
+  "releaseTruth": "Alpha ships only what passes production and device/store gates; broader verses continue after alpha.",
+  "releaseController": ".github/workflows/tryamm-release-0-to-5.yml",
+  "releaseStages": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "googlePlay": {
+    "birthdayTargetGroups": [
+      "13-15",
+      "16-17",
+      "18+"
+    ],
+    "defaultFirstTrack": "internal",
+    "productionRequires": [
+      "signed-aab",
+      "exact-sha-iphone-proof",
+      "exact-sha-android-proof",
+      "play-console-ready",
+      "explicit-production-confirmation"
+    ]
+  }
 }
