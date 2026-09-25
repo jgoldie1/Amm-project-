@@ -5,6 +5,8 @@ export type StreetVersePlayableCharacter={id:string;label:string;index:number;ro
 
 const ROSTER:StreetVersePlayableCharacter[]=[
   {id:'you',label:'YOU',index:-1,role:'Founder / Explorer'},
+  {id:'bj-stubbs',label:'BJ STUBBS',index:24,role:'Security / Shadow Ops / Family'},
+  {id:'marcus-stubbs',label:'MARCUS STUBBS',index:25,role:'Family / StreetVerse'},
   ...Array.from({length:24},(_,i)=>({id:`resident-${i+1}`,label:`RESIDENT ${String(i+1).padStart(2,'0')}`,index:i,role:i%4===0?'Creator':i%4===1?'Athlete':i%4===2?'Builder':'Entrepreneur'}))
 ]
 
