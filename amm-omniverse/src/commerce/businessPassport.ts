@@ -88,6 +88,7 @@ export function validateCaptureAsset(asset: CaptureAsset, consent: BusinessCaptu
   if (asset.consentId !== consent.id) return { ok: false, reason: 'Capture is not bound to active consent' } as const
   if (consent.revokedAt) return { ok: false, reason: 'Capture consent was revoked' } as const
   if (!consent.scope.includes(asset.surface)) return { ok: false, reason: 'Capture surface is outside consent scope' } as const
+  if (!consent.permitsAiDraft) return { ok: false, reason: 'Consent does not permit AI draft processing' } as const
   if (!asset.approvedForAi) return { ok: false, reason: 'Asset is not approved for AI processing' } as const
   return { ok: true, reason: 'Capture accepted for draft processing' } as const
 }
