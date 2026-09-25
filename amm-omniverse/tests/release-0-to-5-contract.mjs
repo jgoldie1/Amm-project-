@@ -16,7 +16,7 @@ must(plan.productionRequirements.includes('iPhone device certificate artifact fo
 must(plan.productionRequirements.includes('Android device certificate artifact for exact SHA'),'production must require exact-SHA Android proof')
 
 const workflow=read('../.github/workflows/tryamm-release-0-to-5.yml')
-for(const stage of ['stage-0-freeze','stage-1-certify','stage-2-package','stage-3-store-gate','stage-4-publish','stage-5-proof']){
+for(const stage of ['stage_0_freeze','stage_1_certify','stage_2_package','stage_3_store_gate','stage_4_publish','stage_5_proof']){
   must(workflow.includes(stage+':'),`workflow missing ${stage}`)
 }
 must(workflow.includes("test \"\${{ github.ref }}\" = \"refs/heads/main\""),'release controller must only dispatch from main')
