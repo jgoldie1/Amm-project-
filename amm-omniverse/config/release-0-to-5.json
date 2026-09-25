@@ -1,0 +1,76 @@
+{
+  "schema": "tryamm.release-0-to-5.v1",
+  "release": "TRYAMM Birthday Alpha",
+  "targetDate": "2026-10-02",
+  "packageName": "online.tryamm.app",
+  "playAudienceGroups": [
+    "13-15",
+    "16-17",
+    "18+"
+  ],
+  "targetSdk": 36,
+  "stages": [
+    {
+      "stage": 0,
+      "name": "Freeze",
+      "purpose": "Pin exact main SHA, release config, public policy URLs, performance/mobile contracts, and required credentials without changing gameplay scope."
+    },
+    {
+      "stage": 1,
+      "name": "Certify",
+      "purpose": "Run exact-SHA production certification, backend financial-truth checks, desktop/mobile E2E, and preserve low-tier mobile performance."
+    },
+    {
+      "stage": 2,
+      "name": "Package",
+      "purpose": "Generate Capacitor Android shell, inject unique Play versionCode/versionName, API 36, camera/mic permissions, build APK/AAB, sign AAB, and verify signature."
+    },
+    {
+      "stage": 3,
+      "name": "Store Gate",
+      "purpose": "Verify Play Console readiness, policy/deletion URLs, developer/package registration attestation, and require exact-SHA iPhone + Android device proof before production."
+    },
+    {
+      "stage": 4,
+      "name": "Publish",
+      "purpose": "Upload the signed AAB to the selected Google Play track with release notes; testing tracks can publish directly, production requires an explicit release confirmation."
+    },
+    {
+      "stage": 5,
+      "name": "Proof",
+      "purpose": "Emit a durable release proof artifact with SHA, version, selected track, stage results, Play edit ID when available, and post-release monitoring handoff."
+    }
+  ],
+  "graphicsReleaseRule": {
+    "lowTierMobile": "Keep phone shadows disabled and preserve mobile performance contracts; improve art via geometry, materials, textures, LODs, animation and streaming rather than expensive real-time shadows.",
+    "premiumPath": "Higher-capability devices may gain richer quality through device-tier rendering after the alpha baseline remains playable."
+  },
+  "requiredSecrets": {
+    "signing": [
+      "ANDROID_KEYSTORE_BASE64",
+      "ANDROID_KEYSTORE_PASSWORD",
+      "ANDROID_KEY_ALIAS",
+      "ANDROID_KEY_PASSWORD"
+    ],
+    "googlePlay": [
+      "GOOGLE_PLAY_SERVICE_ACCOUNT_JSON"
+    ]
+  },
+  "playConsoleManualPrerequisites": [
+    "Google Play developer identity verification complete",
+    "Package online.tryamm.app registered/created in Play Console",
+    "Google Play Android Developer API enabled",
+    "Service account invited to Play Console with app release permissions",
+    "For the first API-driven release, the Play app/package must already exist and be associated with the developer account",
+    "IARC, Data safety, privacy policy, app access and store listing declarations completed before production review"
+  ],
+  "productionRequirements": [
+    "exact main SHA is live at tryamm.online",
+    "automated production certification green",
+    "signed AAB",
+    "iPhone device certificate artifact for exact SHA",
+    "Android device certificate artifact for exact SHA",
+    "explicit RELEASE TRYAMM confirmation",
+    "Play Console readiness attestation"
+  ]
+}
