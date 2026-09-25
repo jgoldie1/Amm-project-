@@ -45,3 +45,43 @@ export const CREATOR_ENGINES:CreatorEngine[]=[
 ]
 
 export function enginesFor(kind:CreatorEngineKind){return CREATOR_ENGINES.filter(engine=>engine.kinds.includes(kind))}
+
+
+export type OmniBoxVisualMedium =
+  | 'photoreal-human'
+  | 'cinematic-live-action'
+  | 'anime'
+  | 'cartoon-2d'
+  | 'animation-3d'
+  | 'comic-graphic-novel'
+  | 'clay-stop-motion'
+  | 'fantasy'
+  | 'sci-fi'
+  | 'game-cinematic'
+  | 'mixed-media'
+  | 'holographic'
+
+export const OMNIBOX_MOVIE_CAPABILITIES = {
+  workflow: ['idea','script','storyboard','character-bible','scene-bible','voice','music','sfx','generate','edit','render','omnibox','distribute'],
+  formats: ['reel','short-film','episode','feature-film','music-video','animation','holographic-video','holographic-animation'],
+  media: ['2d','3d','stereoscopic','spatial','volumetric','transparent-layer','depth-map','alpha-video'],
+  continuity: ['persistent-characters','persistent-locations','wardrobe-continuity','voice-continuity','style-continuity'],
+  outputs: ['9:16','16:9','1:1','cinema','spatial-display','holo-stage'],
+  distribution: ['tryamm-reels','omnibox','isaiah-ai-tv','all-american-network','servants-of-christ-network','free-global-tv','holo-theater-ppv'],
+  safeguards: ['real-person-likeness-consent','voice-consent','synthetic-media-disclosure','provenance-metadata','minor-safety','rights-metadata'],
+} as const
+
+export const OMNIBOX_VISUAL_MEDIA:ReadonlyArray<{id:OmniBoxVisualMedium;label:string;description:string}> = [
+  {id:'photoreal-human',label:'Photoreal Human',description:'Human-looking cinematic characters and performances with consent controls for real-person likenesses.'},
+  {id:'cinematic-live-action',label:'Cinematic Live Action',description:'Film-style scenes, lighting, lenses and camera movement.'},
+  {id:'anime',label:'Anime',description:'Anime-inspired character and environment animation.'},
+  {id:'cartoon-2d',label:'2D Cartoon',description:'Illustrated and hand-drawn-style animation workflows.'},
+  {id:'animation-3d',label:'3D Animation',description:'CG characters, environments and animated camera scenes.'},
+  {id:'comic-graphic-novel',label:'Comic / Graphic Novel',description:'Panel, ink and graphic-novel visual treatments.'},
+  {id:'clay-stop-motion',label:'Clay / Stop Motion',description:'Tactile miniature and frame-animation looks.'},
+  {id:'fantasy',label:'Fantasy',description:'Stylized fantasy worlds, creatures and effects.'},
+  {id:'sci-fi',label:'Sci-Fi',description:'Futuristic worlds, vehicles, interfaces and effects.'},
+  {id:'game-cinematic',label:'Game Cinematic',description:'Realtime-game-inspired cinematic sequences.'},
+  {id:'mixed-media',label:'Mixed Media',description:'Blend live action, animation, illustration and generated media scene by scene.'},
+  {id:'holographic',label:'Holographic / Spatial',description:'Depth-aware, transparent, stereoscopic or volumetric-ready video and animation outputs for Holo experiences.'},
+]
