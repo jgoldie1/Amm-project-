@@ -11,6 +11,7 @@ create table if not exists public.account_deletion_requests (
 alter table public.account_deletion_requests enable row level security;
 revoke all on public.account_deletion_requests from anon;
 revoke all on public.account_deletion_requests from authenticated;
+grant select, insert, update on public.account_deletion_requests to service_role;
 
 create index if not exists account_deletion_requests_user_idx
   on public.account_deletion_requests(user_id,requested_at desc);
