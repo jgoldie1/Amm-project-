@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "feature": "holo-theater-distribution",
+  "status": "alpha-contract",
+  "principles": {
+    "serverAuthoritativeMoney": true,
+    "blockchainRole": "audit-receipt-and-allocation-record",
+    "paymentProviderRemainsMonetaryAuthority": true,
+    "sensitivePaymentDataOnChain": false,
+    "participantSplitsRequireContracts": true
+  },
+  "defaultDistribution": {
+    "basis": "net_distributable_revenue",
+    "tryammPlatformPercent": 15,
+    "rightsHolderPercent": 85,
+    "perTitleOverrideAllowed": true
+  },
+  "tryammProducedIllustrativeParticipation": {
+    "productionStudioPercent": 40,
+    "castPercent": 15,
+    "productionCrewPercent": 15,
+    "writerDirectorProducersPercent": 10,
+    "musicParticipatingArtistsPercent": 5,
+    "note": "Illustrative allocation of the rights-holder side only when adopted in signed production contracts."
+  },
+  "distributionWindows": [
+    "ppv-premiere",
+    "rental",
+    "purchase",
+    "subscription",
+    "all-american-network",
+    "isaiah-ai-tv",
+    "servants-of-christ-network",
+    "free-global-tv-fast",
+    "archive-library"
+  ],
+  "transactionFlow": [
+    "verified-payment-event",
+    "holo-theater-entitlement",
+    "revenue-split-engine",
+    "tryamm-internal-ledger",
+    "blockchain-receipt-hash",
+    "participant-payable-balances",
+    "approved-payout"
+  ],
+  "blockchainReceipt": {
+    "fields": [
+      "transaction_id",
+      "title_id",
+      "rights_holder_id",
+      "entitlement_id",
+      "gross_amount",
+      "permitted_deductions",
+      "net_distributable_amount",
+      "split_contract_version",
+      "participant_allocations",
+      "timestamp",
+      "cryptographic_hash"
+    ],
+    "prohibitedFields": [
+      "card_number",
+      "bank_account_number",
+      "personal_sensitive_information",
+      "unreleased_contract_text",
+      "payment_credentials"
+    ]
+  },
+  "movieLedger": {
+    "viewerEntitlementRequired": true,
+    "creatorViews": [
+      "gross_receipts",
+      "permitted_deductions",
+      "net_distributable_revenue",
+      "contractual_share",
+      "pending_balance",
+      "payable_balance",
+      "paid_balance"
+    ]
+  },
+  "holoFonMediaArchitecture": {
+    "isaiahAiTv": "ai-powered television interface and discovery layer",
+    "allAmericanNetwork": "general entertainment and creator network",
+    "servantsOfChristNetwork": "faith network",
+    "freeGlobalTv": "free authorized global FAST/OTT viewing layer",
+    "holoTheater": "film premieres, PPV, rental, purchase and distribution",
+    "holoInternet": "interactive internet/services layer beside media",
+    "holoGpt": "conversational interface for authorized media metadata and navigation"
+  },
+  "releaseRule": "Do not mark payment, payout, streaming network, blockchain settlement, or participant allocation LIVE until its production implementation and acceptance tests pass."
+}
