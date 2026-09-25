@@ -17,6 +17,7 @@ import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import StreetVerseFaithChronoPortal from './components/StreetVerseFaithChronoPortal'
 import StreetVerseSafeWorld from './components/StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './components/StreetVerseWeatherSync'
+import InstallPrompt from './components/InstallPrompt'
 import HoloExperienceLauncher from './components/HoloExperienceLauncher'
 import { getStandaloneSite } from './data/standaloneSiteRegistry'
 import './accessibility/accessibility.css'
@@ -94,7 +95,11 @@ try {
   const streetVerseRoute=isStreetVerseSafe?<><StreetVerseWeatherSync/><StreetVerseSafeWorld communityAreaNumber={safeCommunityArea} onClose={()=>{window.location.href='/'}} /></>:<>
     <Suspense fallback={routeFallback}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense>
     <StreetVerseFaithChronoPortal />
-    <div style={{position:'fixed',left:12,top:12,zIndex:16990,display:'flex',gap:8,flexWrap:'wrap'}}>
+    <InstallPrompt />
+    <div aria-label="StreetVerse mobile release controls" style={{position:'fixed',left:12,top:12,zIndex:16990,display:'flex',gap:8,flexWrap:'wrap',maxWidth:'calc(100vw - 24px)'}}>
+      <button onClick={()=>window.dispatchEvent(new Event('tryamm:install-open'))} style={{border:'1px solid #4FE3FF99',borderRadius:999,padding:'10px 14px',background:'#071d27',color:'#4FE3FF',fontWeight:950,cursor:'pointer'}}>📱 INSTALL APP</button>
+      <button onClick={()=>{window.location.href='/?open=holoverse'}} style={{border:'1px solid #E8B94499',borderRadius:999,padding:'10px 14px',background:'#211907',color:'#ffe49b',fontWeight:950,cursor:'pointer'}}>🌐 HOLOVERSE</button>
+      <button onClick={()=>{window.location.href='/?open=carousel'}} style={{border:'1px solid #8c6cff99',borderRadius:999,padding:'10px 14px',background:'#160d28',color:'#d9c7ff',fontWeight:950,cursor:'pointer'}}>✦ VERSE CAROUSEL</button>
       <button onClick={()=>{window.location.href='/streetverse/twin-world'}} style={{border:'1px solid #62b8ff99',borderRadius:999,padding:'10px 14px',background:'#071725',color:'#fff',fontWeight:950,cursor:'pointer'}}>🌎 TWIN WORLD • REAL CHICAGO</button>
       <button onClick={()=>{window.location.href='/streetverse/meet-the-stubbs'}} style={{border:'1px solid #e8b94499',borderRadius:999,padding:'10px 14px',background:'#17120a',color:'#fff',fontWeight:950,cursor:'pointer'}}>MEET THE STUBBS • 13 WORLD STORES</button>
       <button onClick={()=>{window.location.href='/global-trade'}} style={{border:'1px solid #7fe8c799',borderRadius:999,padding:'10px 14px',background:'#071b16',color:'#fff',fontWeight:950,cursor:'pointer'}}>GLOBAL TRADE • SUPPLY CHAIN</button>
