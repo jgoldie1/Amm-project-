@@ -3,6 +3,7 @@ import type {ChangeEvent} from 'react'
 import type {CSSProperties} from 'react'
 import type {StreetVerseCommunitySlice} from '../config/streetverseCommunitySlices'
 import {getAccessToken} from '../services/supabaseClient'
+import useStreetVerseMobileShellMounted from '../hooks/useStreetVerseMobileShellMounted'
 
 type Props={slice:StreetVerseCommunitySlice;onClose:()=>void}
 
@@ -18,6 +19,7 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
  const [reelStatus,setReelStatus]=useState('Choose or capture a video, then upload it.')
  const [reelBusy,setReelBusy]=useState(false)
  const [reelMediaId,setReelMediaId]=useState('')
+ const shellControls=useStreetVerseMobileShellMounted()
  const reelFileInput=useRef<HTMLInputElement|null>(null)
  const traffic=useMemo(()=>[
   {id:'c1',lane:46,start:8,speed:7,icon:'🚙'},
@@ -26,11 +28,20 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
   {id:'c4',lane:54,start:88,speed:4,icon:'🚐'}
  ],[])
  const posRef=useRef(pos)
+ const vehicleRef=useRef(vehicle)
  const held=useRef({up:false,down:false,left:false,right:false})
  const total=slice.missions.length
  useEffect(()=>{posRef.current=pos},[pos])
- useEffect(()=>{let raf=0,last=performance.now();const tick=(now:number)=>{const dt=Math.min(.05,(now-last)/1000);last=now;const h=held.current;let dx=(h.right?1:0)-(h.left?1:0),dy=(h.down?1:0)-(h.up?1:0);if(dx||dy){const len=Math.hypot(dx,dy)||1;dx/=len;dy/=len;const p=posRef.current;const next={x:Math.max(5,Math.min(95,p.x+dx*(vehicle?42:28)*dt)),y:Math.max(8,Math.min(92,p.y+dy*(vehicle?42:28)*dt))};posRef.current=next;setPos(next);window.dispatchEvent(new CustomEvent('tryamm:streetverse-player-position',{detail:{x:next.x,y:next.y,mobileSafeMode:true,htmlCity:true}}))}raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);return()=>cancelAnimationFrame(raf)},[])
+ useEffect(()=>{vehicleRef.current=vehicle},[vehicle])
+ useEffect(()=>{let raf=0,last=performance.now();const tick=(now:number)=>{const dt=Math.min(.05,(now-last)/1000);last=now;const h=held.current;let dx=(h.right?1:0)-(h.left?1:0),dy=(h.down?1:0)-(h.up?1:0);if(dx||dy){const len=Math.hypot(dx,dy)||1;dx/=len;dy/=len;const p=posRef.current;const next={x:Math.max(5,Math.min(95,p.x+dx*(vehicleRef.current?42:28)*dt)),y:Math.max(8,Math.min(92,p.y+dy*(vehicleRef.current?42:28)*dt))};posRef.current=next;setPos(next);window.dispatchEvent(new CustomEvent('tryamm:streetverse-player-position',{detail:{x:next.x,y:next.y,mobileSafeMode:true,htmlCity:true}}))}raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);return()=>cancelAnimationFrame(raf)},[])
  useEffect(()=>{let raf=0,last=performance.now();const animate=(now:number)=>{if(now-last>80){last=now;setTrafficTick(now/1000)}raf=requestAnimationFrame(animate)};raf=requestAnimationFrame(animate);return()=>cancelAnimationFrame(raf)},[])
+ useEffect(()=>{
+  const onShellInput=(event:Event)=>{const d=(event as CustomEvent<{throttle?:number;brake?:number;steer?:number}>).detail||{};held.current.up=Number(d.throttle||0)>.05;held.current.down=Number(d.brake||0)>.05;held.current.left=Number(d.steer||0)<-.1;held.current.right=Number(d.steer||0)>.1}
+  const onVehicleInteract=()=>{setVehicle(current=>{const next=!current;vehicleRef.current=next;setMessage(next?'Car door opened • DRIVE mode active.':'Exited vehicle • WALK mode active.');return next})}
+  window.addEventListener('tryamm:streetverse-vehicle-input',onShellInput)
+  window.addEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract)
+  return()=>{window.removeEventListener('tryamm:streetverse-vehicle-input',onShellInput);window.removeEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract)}
+ },[])
  const done=visited.length===total
  const saveKey=`tryamm.streetverse.community-${slice.communityAreaNumber}.mobile.v1`
 
@@ -101,8 +112,8 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
     <div aria-hidden="true" style={{position:'absolute',left:0,right:0,top:'42%',height:'18%',background:'#101820',borderTop:'2px dashed #b7c3ca',borderBottom:'2px dashed #b7c3ca'}} />
     {traffic.map((car,i)=>{const x=(car.start+trafficTick*car.speed)%112-6;return <div key={car.id} aria-label="Civilian traffic vehicle" style={{position:'absolute',left:`${x}%`,top:`${car.lane}%`,transform:`translate(-50%,-50%) ${i%2?'scaleX(-1)':''}`,fontSize:22,filter:'drop-shadow(0 2px 2px #0008)',pointerEvents:'none'}}>{car.icon}</div>})}
     <div aria-label={vehicle?'Player vehicle':'Player'} style={{position:'absolute',left:`${pos.x}%`,top:`${pos.y}%`,transform:'translate(-50%,-50%)',width:vehicle?34:24,height:vehicle?24:34,borderRadius:10,background:vehicle?'#ffd65a':'#23d9f4',border:'2px solid #fff',display:'grid',placeItems:'center',fontSize:vehicle?18:0}}>{vehicle?'🚗':''}</div>
-    <div style={{position:'absolute',left:10,bottom:10,display:'grid',gridTemplateColumns:'54px 54px 54px',gap:5}}><span/>{moveButton('▲','up')}<span/>{moveButton('◀','left')}{moveButton('▼','down')}{moveButton('▶','right')}</div>
-    <div style={{position:'absolute',right:10,bottom:10,fontSize:11,color:'#bfefff'}}>MOVE • all 4 directions</div>
+    {!shellControls&&<div style={{position:'absolute',left:10,bottom:10,display:'grid',gridTemplateColumns:'54px 54px 54px',gap:5}}><span/>{moveButton('▲','up')}<span/>{moveButton('◀','left')}{moveButton('▼','down')}{moveButton('▶','right')}</div>}
+    {!shellControls&&<div style={{position:'absolute',right:10,bottom:10,fontSize:11,color:'#bfefff'}}>MOVE • all 4 directions</div>}
    </section>
    {hudOpen&&<section style={{padding:12,borderRadius:12,background:'#030914e8',border:'1px solid #4e7891',marginBottom:12}}>
     <b>{message}</b>
