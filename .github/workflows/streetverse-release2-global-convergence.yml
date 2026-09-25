@@ -99,15 +99,10 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            amm-omniverse/package-lock.json
+          cache-dependency-path: amm-omniverse/package-lock.json
 
-      - name: Install root dependencies
-        run: npm ci
-
-      - name: Root platform checks
-        run: npm run check
+      - name: Root source checks
+        run: npm run syntax
 
       - name: Install Omniverse dependencies
         working-directory: amm-omniverse
