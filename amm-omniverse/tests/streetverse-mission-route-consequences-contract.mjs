@@ -51,6 +51,7 @@ assert.match(fame,/tryamm:streetverse-fame-world-reaction/,'fame must publish vi
 assert.match(fame,/tryamm:streetverse-reel-published/,'published Reels must feed fame progression')
 assert.match(fame,/CALL YOUR PRODUCER CONNECTION/,'star relationships must be able to unlock the contextual D producer route')
 assert.match(fame,/USE YOUR BUZZ/,'creator fame must be able to unlock a contextual D fame route')
+assert.match(entry,/installStreetVerseMissionDiscoveryRuntime/,'canonical StreetVerse entry must install the mission-choice runtime')
 assert.match(entry,/installStreetVerseFameRuntime/,'canonical StreetVerse entry must install the fame runtime')
 
 assert.doesNotMatch(fame,/awardCash|withdrawable|payableBalance|stripe/i,'fame progression must not create client-side financial authority')
