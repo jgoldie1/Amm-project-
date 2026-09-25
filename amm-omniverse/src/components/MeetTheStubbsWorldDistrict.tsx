@@ -29,6 +29,8 @@ const CHARACTERS:Character[]=[
  {name:'Ace',role:'StreetVerse / Missions',color:0xffa64f,skin:0x82513a,accent:0xffefd9,x:-46,z:2},
  {name:'Sky',role:'StreetVerse / Missions',color:0x55cfff,skin:0x98634a,accent:0xe5f8ff,x:46,z:-5},
  {name:'Miles',role:'StreetVerse / Missions',color:0x77c96b,skin:0x89583f,accent:0xefffea,x:50,z:2},
+ {name:'Michael',role:'Las Vegas / StreetVerse',color:0xc39bff,skin:0x8b5940,accent:0xf4edff,x:52,z:-5},
+ {name:'Alphonso',role:'CNA Worker / Caregiving / Las Vegas',color:0x58c7a6,skin:0x8d5b42,accent:0xeafff6,x:-50,z:-5},
 ]
 const DIALOGUE:Record<string,string[]>={
  'BJ Stubbs':['StreetVerse is moving. Pick a mission and build your lane.','Security, intelligence and family missions connect through Shadow Ops.'],
@@ -50,6 +52,8 @@ const DIALOGUE:Record<string,string[]>={
  Ace:['Free-roam can turn into a challenge at any corner.'],
  Sky:['StreetVerse has more than one route through every story.'],
  Miles:['Build your reputation and the city will remember what you did.'],
+ Michael:['Las Vegas becomes another connected StreetVerse story lane.','Regional characters can connect Chicago to jobs, businesses, entertainment and everyday life in another city.'],
+ Alphonso:['Care work is real work. My missions are about helping fictional residents safely through everyday needs.','The Las Vegas care lane can connect caregiving, jobs, community resources and responsible choices.'],
 }
 const WORLD_STORES:WorldStore[]=[
  {world:'StreetVerse',store:'All American Marketplace',description:'Walkable city commerce, missions, creators and local businesses.',action:()=>{(window as any).__showHoloMarketplace?.()}},
