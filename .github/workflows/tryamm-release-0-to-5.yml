@@ -55,7 +55,7 @@ env:
   PACKAGE_NAME: online.tryamm.app
 
 jobs:
-  stage-0-freeze:
+  stage_0_freeze:
     name: '0 · Freeze exact release'
     runs-on: ubuntu-latest
     timeout-minutes: 35
@@ -153,15 +153,15 @@ jobs:
           test -n "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON"
           echo "Signing + Google Play credentials are present (values not printed)."
 
-  stage-1-certify:
+  stage_1_certify:
     name: '1 · Certify exact production'
-    needs: [stage-0-freeze]
+    needs: [stage_0_freeze]
     uses: ./.github/workflows/deploy-tryamm-production.yml
     secrets: inherit
 
-  stage-2-package:
+  stage_2_package:
     name: '2 · Package + sign Android'
-    needs: [stage-0-freeze, stage-1-certify]
+    needs: [stage_0_freeze, stage_1_certify]
     runs-on: ubuntu-latest
     timeout-minutes: 45
     outputs:
@@ -173,7 +173,7 @@ jobs:
       - name: Checkout exact release SHA
         uses: actions/checkout@v5
         with:
-          ref: ${{ needs.stage-0-freeze.outputs.release_sha }}
+          ref: ${{ needs.stage_0_freeze.outputs.release_sha }}
           fetch-depth: 0
 
       - name: Set up Node 24
@@ -208,8 +208,8 @@ jobs:
 
       - name: Generate versioned native shell
         env:
-          TRYAMM_VERSION_CODE: ${{ needs.stage-0-freeze.outputs.version_code }}
-          TRYAMM_VERSION_NAME: ${{ needs.stage-0-freeze.outputs.version_name }}
+          TRYAMM_VERSION_CODE: ${{ needs.stage_0_freeze.outputs.version_code }}
+          TRYAMM_VERSION_NAME: ${{ needs.stage_0_freeze.outputs.version_name }}
         shell: bash
         run: |
           set -euo pipefail
@@ -269,7 +269,7 @@ jobs:
       - name: Upload complete Android candidate
         uses: actions/upload-artifact@v4
         with:
-          name: tryamm-android-0-to-5-${{ needs.stage-0-freeze.outputs.release_sha }}
+          name: tryamm-android-0-to-5-${{ needs.stage_0_freeze.outputs.release_sha }}
           path: |
             amm-omniverse/android/app/build/outputs/apk/debug/*.apk
             amm-omniverse/android/app/build/outputs/bundle/release/*.aab
@@ -281,26 +281,26 @@ jobs:
         if: ${{ steps.sign.outputs.signed == 'true' }}
         uses: actions/upload-artifact@v4
         with:
-          name: tryamm-play-aab-${{ needs.stage-0-freeze.outputs.release_sha }}
+          name: tryamm-play-aab-${{ needs.stage_0_freeze.outputs.release_sha }}
           path: amm-omniverse/release-output/tryamm-release-signed.aab
           if-no-files-found: error
           retention-days: 90
 
-  stage-3-store-gate:
+  stage_3_store_gate:
     name: '3 · Store + device gate'
-    needs: [stage-0-freeze, stage-1-certify, stage-2-package]
+    needs: [stage_0_freeze, stage_1_certify, stage_2_package]
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
       - name: Checkout exact release
         uses: actions/checkout@v5
         with:
-          ref: ${{ needs.stage-0-freeze.outputs.release_sha }}
+          ref: ${{ needs.stage_0_freeze.outputs.release_sha }}
           fetch-depth: 1
 
       - name: Verify exact live SHA and store-facing policy URLs
         env:
-          EXPECTED_SHA: ${{ needs.stage-0-freeze.outputs.release_sha }}
+          EXPECTED_SHA: ${{ needs.stage_0_freeze.outputs.release_sha }}
         shell: bash
         run: |
           set -euo pipefail
@@ -345,7 +345,7 @@ jobs:
         if: ${{ inputs.release_track == 'production' }}
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_SHA: ${{ needs.stage-0-freeze.outputs.release_sha }}
+          RELEASE_SHA: ${{ needs.stage_0_freeze.outputs.release_sha }}
         shell: bash
         run: |
           set -euo pipefail
@@ -368,25 +368,25 @@ jobs:
             echo "- Phone rendering baseline: expensive real-time shadows remain disabled on the lightweight mobile renderer"
           } >> "$GITHUB_STEP_SUMMARY"
 
-  stage-4-publish:
+  stage_4_publish:
     name: '4 · Publish to Google Play'
     if: ${{ inputs.release_track != 'certify-only' }}
-    needs: [stage-0-freeze, stage-2-package, stage-3-store-gate]
+    needs: [stage_0_freeze, stage_2_package, stage_3_store_gate]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     outputs:
-      committed_edit_id: ${{ steps.publish-test.outputs.committedEditId || steps.publish-prod-staged.outputs.committedEditId || steps.publish-prod-full.outputs.committedEditId }}
+      committed_edit_id: ${{ steps.publish_test.outputs.committedEditId || steps.publish_prod_staged.outputs.committedEditId || steps.publish_prod_full.outputs.committedEditId }}
     steps:
       - name: Checkout release metadata
         uses: actions/checkout@v5
         with:
-          ref: ${{ needs.stage-0-freeze.outputs.release_sha }}
+          ref: ${{ needs.stage_0_freeze.outputs.release_sha }}
           fetch-depth: 1
 
       - name: Download signed AAB
         uses: actions/download-artifact@v4
         with:
-          name: tryamm-play-aab-${{ needs.stage-0-freeze.outputs.release_sha }}
+          name: tryamm-play-aab-${{ needs.stage_0_freeze.outputs.release_sha }}
           path: play-aab
 
       - name: Verify signed AAB exists
@@ -397,7 +397,7 @@ jobs:
           jarsigner -verify play-aab/tryamm-release-signed.aab
 
       - name: Publish testing track
-        id: publish-test
+        id: publish_test
         if: ${{ inputs.release_track != 'production' }}
         uses: r0adkll/upload-google-play@v1.1.5
         with:
@@ -405,14 +405,14 @@ jobs:
           packageName: online.tryamm.app
           releaseFiles: play-aab/tryamm-release-signed.aab
           tracks: ${{ inputs.release_track }}
-          releaseName: TRYAMM ${{ needs.stage-0-freeze.outputs.version_name }}
+          releaseName: TRYAMM ${{ needs.stage_0_freeze.outputs.version_name }}
           status: completed
           inAppUpdatePriority: ${{ inputs.update_priority }}
           whatsNewDirectory: amm-omniverse/distribution/whatsnew
           changesNotSentForReview: false
 
       - name: Publish staged production rollout
-        id: publish-prod-staged
+        id: publish_prod_staged
         if: ${{ inputs.release_track == 'production' && inputs.production_rollout != '1.00' }}
         uses: r0adkll/upload-google-play@v1.1.5
         with:
@@ -420,7 +420,7 @@ jobs:
           packageName: online.tryamm.app
           releaseFiles: play-aab/tryamm-release-signed.aab
           tracks: production
-          releaseName: TRYAMM ${{ needs.stage-0-freeze.outputs.version_name }}
+          releaseName: TRYAMM ${{ needs.stage_0_freeze.outputs.version_name }}
           status: inProgress
           userFraction: ${{ inputs.production_rollout }}
           inAppUpdatePriority: ${{ inputs.update_priority }}
@@ -428,7 +428,7 @@ jobs:
           changesNotSentForReview: false
 
       - name: Publish full production rollout
-        id: publish-prod-full
+        id: publish_prod_full
         if: ${{ inputs.release_track == 'production' && inputs.production_rollout == '1.00' }}
         uses: r0adkll/upload-google-play@v1.1.5
         with:
@@ -436,7 +436,7 @@ jobs:
           packageName: online.tryamm.app
           releaseFiles: play-aab/tryamm-release-signed.aab
           tracks: production
-          releaseName: TRYAMM ${{ needs.stage-0-freeze.outputs.version_name }}
+          releaseName: TRYAMM ${{ needs.stage_0_freeze.outputs.version_name }}
           status: completed
           inAppUpdatePriority: ${{ inputs.update_priority }}
           whatsNewDirectory: amm-omniverse/distribution/whatsnew
@@ -448,33 +448,33 @@ jobs:
           {
             echo "## Stage 4 · Google Play"
             echo "- Track: `${{ inputs.release_track }}`"
-            echo "- Version: `${{ needs.stage-0-freeze.outputs.version_name }}`"
-            echo "- versionCode: `${{ needs.stage-0-freeze.outputs.version_code }}`"
+            echo "- Version: `${{ needs.stage_0_freeze.outputs.version_name }}`"
+            echo "- versionCode: `${{ needs.stage_0_freeze.outputs.version_code }}`"
             echo "- Production rollout: `${{ inputs.production_rollout }}`"
             echo "- Upload action: r0adkll/upload-google-play@v1.1.5"
           } >> "$GITHUB_STEP_SUMMARY"
 
-  stage-5-proof:
+  stage_5_proof:
     name: '5 · Release proof'
     if: ${{ always() }}
-    needs: [stage-0-freeze, stage-1-certify, stage-2-package, stage-3-store-gate, stage-4-publish]
+    needs: [stage_0_freeze, stage_1_certify, stage_2_package, stage_3_store_gate, stage_4_publish]
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
       - name: Build 0-to-5 release proof
         env:
-          RELEASE_SHA: ${{ needs.stage-0-freeze.outputs.release_sha }}
-          VERSION_CODE: ${{ needs.stage-0-freeze.outputs.version_code }}
-          VERSION_NAME: ${{ needs.stage-0-freeze.outputs.version_name }}
+          RELEASE_SHA: ${{ needs.stage_0_freeze.outputs.release_sha }}
+          VERSION_CODE: ${{ needs.stage_0_freeze.outputs.version_code }}
+          VERSION_NAME: ${{ needs.stage_0_freeze.outputs.version_name }}
           TRACK: ${{ inputs.release_track }}
           ROLLOUT: ${{ inputs.production_rollout }}
           UPDATE_PRIORITY: ${{ inputs.update_priority }}
-          FREEZE_RESULT: ${{ needs.stage-0-freeze.result }}
-          CERTIFY_RESULT: ${{ needs.stage-1-certify.result }}
-          PACKAGE_RESULT: ${{ needs.stage-2-package.result }}
-          STORE_RESULT: ${{ needs.stage-3-store-gate.result }}
-          PUBLISH_RESULT: ${{ needs.stage-4-publish.result }}
-          PLAY_EDIT_ID: ${{ needs.stage-4-publish.outputs.committed_edit_id }}
+          FREEZE_RESULT: ${{ needs.stage_0_freeze.result }}
+          CERTIFY_RESULT: ${{ needs.stage_1_certify.result }}
+          PACKAGE_RESULT: ${{ needs.stage_2_package.result }}
+          STORE_RESULT: ${{ needs.stage_3_store_gate.result }}
+          PUBLISH_RESULT: ${{ needs.stage_4_publish.result }}
+          PLAY_EDIT_ID: ${{ needs.stage_4_publish.outputs.committed_edit_id }}
         shell: bash
         run: |
           set -euo pipefail
@@ -526,7 +526,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: tryamm-release-0-to-5-${{ needs.stage-0-freeze.outputs.release_sha || github.sha }}
+          name: tryamm-release-0-to-5-${{ needs.stage_0_freeze.outputs.release_sha || github.sha }}
           path: tryamm-release-0-to-5-proof.json
           if-no-files-found: warn
           retention-days: 90
@@ -541,7 +541,7 @@ jobs:
             echo "- Stage 1 Production Certification: GREEN"
             echo "- Stage 2 Android Package: GREEN"
             echo "- Stage 3 Store/Device Gate: GREEN"
-            echo "- Stage 4 Google Play: `${{ needs.stage-4-publish.result }}`"
+            echo "- Stage 4 Google Play: `${{ needs.stage_4_publish.result }}`"
             echo "- Stage 5 Proof: GREEN"
             echo "- Track: `${{ inputs.release_track }}`"
           } >> "$GITHUB_STEP_SUMMARY"
