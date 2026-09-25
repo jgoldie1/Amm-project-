@@ -10,6 +10,7 @@ export type SecretAreaState = 'hidden' | 'discovered' | 'unlocked' | 'completed'
 export interface MissionDiscovery {missionId:string;title:string;rarity:MissionRarity;category:MissionCategory;playerId:string;locationId?:string;clue?:string;adultOnly?:boolean;crossVerseDestination?:'streetverse'|'spaceverse'|'starverse'|'kingdoms-press'|'living-scroll'|'holoverse'|'64-track-studio'|'after-dark';metadata?:Record<string,unknown>}
 export interface SecretTrigger {secretId:string;playerId:string;type:SecretTriggerType;value:string;locationId?:string;adultOnly?:boolean;ageVerified18Plus?:boolean;afterDarkOptIn?:boolean}
 export interface MissionRouteSelection {choice:MissionRouteChoice;missionId?:string;title?:string;label?:string;routeDescription?:string;objective?:string;source?:string;mode?:string;hand?:string}
+type StreetVerseWorldCompletion={id?:string;missionId?:string;label?:string;source?:string;visited?:string[];total?:number;vehicle?:boolean;mobileSafeMode?:boolean;htmlCity?:boolean;mobileLite?:boolean;communityAreaNumber?:string|number;communityAreaName?:string}
 
 const ROUTE_STORAGE_KEY='tryamm.streetverse.mission-routes.v1'
 const ROUTE_PREFERENCES:Record<MissionRouteChoice,MissionCategory[]>={
@@ -22,7 +23,7 @@ const ROUTE_LABELS:Record<MissionRouteChoice,string>={A:'ACTION',B:'BUILD / BUSI
 const emit=(name:string,detail:unknown)=>window.dispatchEvent(new CustomEvent(name,{detail}))
 const missionState=new Map<string,MissionDiscovery&{status:'discovered'|'completed';discoveredAt:string;completedAt?:string;outcome?:Record<string,unknown>}>()
 const secretState=new Map<string,{state:SecretAreaState;updatedAt:string}>()
-const missionRouteState=new Map<string,MissionRouteSelection&{missionId:string;selectedAt:string}>()
+const missionRouteState=new Map<string,MissionRouteSelection&{missionId:string;selectedAt:string;consumedAt?:string}>()
 const adultGate=(input:{adultOnly?:boolean;ageVerified18Plus?:boolean;afterDarkOptIn?:boolean})=>!input.adultOnly||(input.ageVerified18Plus===true&&input.afterDarkOptIn===true)
 const isRouteChoice=(value:unknown):value is MissionRouteChoice=>value==='A'||value==='B'||value==='C'
 
@@ -43,11 +44,21 @@ function loadMissionRoutes(){
 }
 function resolveMissionRoute(missionId:string){
   const exact=missionRouteState.get(missionId)
-  if(exact)return exact
-  const pending=missionRouteState.get('session-active')
-  if(!pending)return undefined
-  missionRouteState.delete('session-active')
-  const rebound={...pending,missionId}
+  if(exact&&!exact.consumedAt){
+    const consumed={...exact,consumedAt:new Date().toISOString()}
+    missionRouteState.set(missionId,consumed);persistMissionRoutes();return consumed
+  }
+  let sourceKey='session-active'
+  let pending=missionRouteState.get(sourceKey)
+  if(!pending||pending.consumedAt){
+    const latest=[...missionRouteState.entries()]
+      .filter(([,route])=>!route.consumedAt)
+      .sort((a,b)=>Date.parse(b[1].selectedAt)-Date.parse(a[1].selectedAt))[0]
+    if(!latest)return undefined
+    sourceKey=latest[0];pending=latest[1]
+  }
+  missionRouteState.delete(sourceKey)
+  const rebound={...pending,missionId,consumedAt:new Date().toISOString()}
   missionRouteState.set(missionId,rebound)
   persistMissionRoutes()
   return rebound
@@ -88,6 +99,35 @@ export function completeStreetVerseMission(missionId:string,outcome:Record<strin
   emit('tryamm:mission:next-candidate',{sourceMissionId:missionId,routeChoice:route?.choice,reason:route?'completed-player-route':'mission-complete',prefer})
   return record
 }
+export function bridgeStreetVerseWorldCompletion(detail:StreetVerseWorldCompletion){
+  const missionId=String(detail.missionId||detail.id||'')
+  if(!missionId)return{completed:false,reason:'missing-world-mission-id'}
+  const existing=missionState.get(missionId)
+  if(existing?.status==='completed')return existing
+  if(!existing){
+    discoverStreetVerseMission({
+      missionId,
+      title:String(detail.label||'StreetVerse World Mission'),
+      rarity:'common',
+      category:'exploration',
+      playerId:'streetverse-player',
+      locationId:detail.communityAreaNumber?String(detail.communityAreaNumber):undefined,
+      metadata:{source:detail.source||'streetverse-world',communityAreaName:detail.communityAreaName,mobileSafeMode:Boolean(detail.mobileSafeMode),htmlCity:Boolean(detail.htmlCity),mobileLite:Boolean(detail.mobileLite)},
+    })
+  }
+  const worldCompletion={
+    source:detail.source||'streetverse-world',
+    visited:Array.isArray(detail.visited)?detail.visited.map(String):[],
+    total:Number(detail.total||0),
+    vehicle:Boolean(detail.vehicle),
+    mobileSafeMode:Boolean(detail.mobileSafeMode),
+    htmlCity:Boolean(detail.htmlCity),
+    mobileLite:Boolean(detail.mobileLite),
+    communityAreaNumber:detail.communityAreaNumber,
+    communityAreaName:detail.communityAreaName,
+  }
+  return completeStreetVerseMission(missionId,{sourceEvent:'tryamm:streetverse-mission-complete',worldCompletion})
+}
 export function buildLivingMysteryContext(input:{playerId:string;timeOfDay?:string;weather?:string;neighborhood?:string;reputation?:number;crewId?:string;relationshipStates?:string[];businessStates?:string[];worldMemoryKeys?:string[]}){const context={...input,generatedAt:new Date().toISOString(),directors:['time','weather','location','reputation','crew','relationships','business-state','world-memory']};emit('tryamm:living-mystery:context',context);return context}
 export function buildRealityQuest(input:{questId:string;playerId:string;virtualStart:string;optionalRealWorldClue?:string;approvedLocationId?:string;xrEncounter?:string;accessibilityVirtualAlternative:string}){const quest={...input,stages:['virtual-discovery','optional-reality-bridge','ar-xr-encounter','streetverse-return','world-memory'],rightsAndLocationApprovalRequired:Boolean(input.approvedLocationId),generatedAt:new Date().toISOString()};emit('tryamm:reality-quest:created',quest);return quest}
 export function getStreetVerseMissionDiscoveryState(){return{missions:[...missionState.values()],routes:[...missionRouteState.values()],secrets:[...secretState.entries()].map(([secretId,value])=>({secretId,...value}))}}
@@ -101,10 +141,12 @@ export function installStreetVerseMissionDiscoveryRuntime(){
   runtime.__triggerStreetVerseSecret=triggerStreetVerseSecret
   runtime.__selectStreetVerseMissionRoute=selectStreetVerseMissionRoute
   runtime.__completeStreetVerseMission=completeStreetVerseMission
+  runtime.__bridgeStreetVerseWorldCompletion=bridgeStreetVerseWorldCompletion
   runtime.__getStreetVerseMissionDiscoveryState=getStreetVerseMissionDiscoveryState
   runtime.__buildStreetVerseLivingMysteryContext=buildLivingMysteryContext
   runtime.__buildStreetVerseRealityQuest=buildRealityQuest
   window.addEventListener('tryamm:streetverse-mission-route-selected',(event:Event)=>selectStreetVerseMissionRoute((event as CustomEvent<MissionRouteSelection>).detail))
+  window.addEventListener('tryamm:streetverse-mission-complete',(event:Event)=>bridgeStreetVerseWorldCompletion((event as CustomEvent<StreetVerseWorldCompletion>).detail||{}))
   installBennyOmniHostRuntime()
   installFounderPocketDimensionRuntime()
   emit('tryamm:mission-discovery:ready',{rarities:['common','uncommon','rare','legendary','secret','mythic'],systems:['mission-compiler','living-mystery-director','mission-route-consequences','easter-eggs','secret-areas','cross-verse-clues','world-memory','reality-quests','adult-gated-after-dark','benny-omnihost','founder-pocket-dimension','all-american-app-store'],interfaceLadder:['phone-3d','ar','vr-mr','spatial-display','compatible-holographic-display','haptics','experimental-construct-interface'],boundaries:{adultLane18Plus:true,noMinorsInAdultLane:true,nonGraphicAdultPresentationOnly:true,noPublicIntimateTelemetry:true,noIntimateAdTargeting:true,physicalHologramClaimsRequireHardwareValidation:true,appStoreDistributionRequiresPlatformApproval:true}})
