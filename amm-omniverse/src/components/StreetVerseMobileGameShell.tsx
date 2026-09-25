@@ -36,7 +36,13 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const [specialUnlock,setSpecialUnlock]=useState<MissionSpecialUnlock|null>(null)
  const [fame,setFame]=useState<FameSnapshot>(()=>readFameSnapshot())
  const active=useRef<Record<Dir,boolean>>({up:false,down:false,left:false,right:false})
- const emit=()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-input',{detail:{throttle:active.current.up?1:0,brake:active.current.down?1:0,steer:active.current.left?-1:active.current.right?1:0,horn:false,exit:false,source:'mobile-game-shell'}}))
+ const emit=()=>{
+  const detail={throttle:active.current.up?1:0,brake:active.current.down?1:0,steer:active.current.left?-1:active.current.right?1:0,horn:false,exit:false,source:'mobile-game-shell'}
+  // Keep the vehicle-input contract for existing worlds and also publish the
+  // explicit mobile movement contract so walking does not depend on vehicle semantics.
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-input',{detail}))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-mobile-movement',{detail:{up:active.current.up,down:active.current.down,left:active.current.left,right:active.current.right,source:'mobile-game-shell'}}))
+ }
  const set=(direction:Dir,pressed:boolean)=>{active.current[direction]=pressed;emit()}
  const release=()=>{active.current={up:false,down:false,left:false,right:false};emit()}
  useEffect(()=>{
