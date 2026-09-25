@@ -1,17 +1,6 @@
-import {useEffect,useMemo,useRef,useState} from 'react'
+import {useEffect,useRef,useState} from 'react'
 
-export type StreetVerseReelContext={
- source?:string
- missionId?:string
- missionLabel?:string
- missionSource?:string
- missionRunId?:string
- programId?:string
- verified?:boolean
- rewardStatus?:string
-}
-
-export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:boolean;onClose:()=>void;context?:StreetVerseReelContext}){
+export default function StreetVerseReelRecorder({open,onClose}:{open:boolean;onClose:()=>void}){
  const videoRef=useRef<HTMLVideoElement|null>(null)
  const streamRef=useRef<MediaStream|null>(null)
  const recorderRef=useRef<MediaRecorder|null>(null)
@@ -19,15 +8,10 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
  const [recording,setRecording]=useState(false)
  const [url,setUrl]=useState('')
  const [error,setError]=useState('')
- const [publishing,setPublishing]=useState(false)
- const [published,setPublished]=useState(false)
- const missionLabel=String(context.missionLabel||'').trim()
- const caption=missionLabel?`${missionLabel} • Created in StreetVerse • #TRYAMM #StreetVerse`:'Created in StreetVerse • #TRYAMM #StreetVerse'
- const missionContext=useMemo(()=>({handoffSource:context.source||'',missionId:context.missionId||'',missionLabel,missionSource:context.missionSource||'',missionRunId:context.missionRunId||'',programId:context.programId||'',rewardStatus:context.verified?'verified':context.rewardStatus||'pending',verified:context.verified===true}),[context.source,context.missionId,context.missionLabel,context.missionSource,context.missionRunId,context.programId,context.rewardStatus,context.verified,missionLabel])
 
  const stopStream=()=>{streamRef.current?.getTracks().forEach(t=>t.stop());streamRef.current=null}
  useEffect(()=>()=>{stopStream();if(url)URL.revokeObjectURL(url)},[url])
- useEffect(()=>{if(open)window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-opened',{detail:{source:'streetverse-reel-recorder',...missionContext}}))},[open,missionContext])
+ useEffect(()=>{if(open)window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-opened',{detail:{source:'streetverse-reel-recorder'}}))},[open])
  useEffect(()=>{
   const video=videoRef.current
   if(!video||!url)return
@@ -60,37 +44,19 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
   }catch(e){setError(e instanceof Error?e.message:'Camera access failed')}
  }
  const stopRecording=()=>{const recorder=recorderRef.current;if(recorder&&recorder.state!=='inactive')recorder.stop()}
- const returnToWorld=()=>{if(recording)stopRecording();stopStream();onClose()}
  const share=async()=>{
   if(!url)return
   try{
    const blob=await fetch(url).then(r=>r.blob())
    const file=new File([blob],`streetverse-reel-${Date.now()}.${blob.type.includes('mp4')?'mp4':'webm'}`,{type:blob.type})
    if(navigator.share&&navigator.canShare?.({files:[file]})){
-    await navigator.share({files:[file],title:missionLabel||'StreetVerse Reel',text:caption})
-    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-save-share-complete',{detail:{source:'streetverse-reel-recorder',action:'share',type:blob.type,size:blob.size,...missionContext}}))
+    await navigator.share({files:[file],title:'StreetVerse Reel'})
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-save-share-complete',{detail:{source:'streetverse-reel-recorder',action:'share',type:blob.type,size:blob.size}}))
     return
    }
    const a=document.createElement('a');a.href=url;a.download=file.name;a.rel='noopener';document.body.appendChild(a);a.click();a.remove()
-   window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-save-share-complete',{detail:{source:'streetverse-reel-recorder',action:'download',type:blob.type,size:blob.size,...missionContext}}))
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-save-share-complete',{detail:{source:'streetverse-reel-recorder',action:'download',type:blob.type,size:blob.size}}))
   }catch{setError('Save/share failed. Try IPHONE CAPTURE, then use the iPhone share sheet from the preview.')}
- }
- const publish=async()=>{
-  if(!url||publishing)return
-  setPublishing(true);setPublished(false);setError('')
-  try{
-   const blob=await fetch(url).then(r=>r.blob())
-   const ext=blob.type.includes('mp4')?'mp4':'webm',fileName=`streetverse-reel-${Date.now()}.${ext}`
-   const intent=await fetch('/api/media/upload-intent',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({fileName,contentType:blob.type||'video/mp4',sizeBytes:blob.size,title:missionLabel||'StreetVerse Reel',caption,composition:{...missionContext,creatorSurface:'streetverse-reel-recorder'}})})
-   const intentBody=await intent.json();if(!intent.ok)throw new Error(intentBody?.error||'Could not start Reel upload')
-   const uploaded=await fetch(intentBody.upload.url,{method:'PUT',headers:{'content-type':blob.type||'video/mp4'},body:blob});if(!uploaded.ok)throw new Error('Reel storage upload failed')
-   const complete=await fetch('/api/media/upload-complete',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({mediaId:intentBody.media.id})})
-   const completeBody=await complete.json();if(!complete.ok)throw new Error(completeBody?.error||'Reel upload verification failed')
-   const pub=await fetch('/api/media/publish',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({mediaId:intentBody.media.id,destinations:['reel','creator-profile','omnibox']})})
-   const pubBody=await pub.json();if(!pub.ok)throw new Error(pubBody?.error||'Reel publishing failed')
-   setPublished(true);window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-published',{detail:{mediaId:intentBody.media.id,destinations:['reel','creator-profile','omnibox'],caption,...missionContext}}))
-  }catch(e){setError(e instanceof Error?e.message:'Reel publishing failed')}
-  finally{setPublishing(false)}
  }
  const onIPhoneCapture=(file?:File)=>{
   if(!file)return
@@ -101,17 +67,15 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
  }
  return <div style={{position:'fixed',inset:0,zIndex:22000,background:'#02050af4',color:'#fff',fontFamily:'system-ui',padding:16,overflow:'auto'}}>
   <div style={{maxWidth:620,margin:'0 auto'}}>
-   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12}}><div><b>STREETVERSE REEL</b>{context.missionId&&<div style={{fontSize:10,color:'#59e7ff',fontWeight:900,marginTop:3}}>MISSION • {missionLabel||context.missionId} • {context.verified?'REWARD VERIFIED':'REWARD PENDING'}</div>}<div aria-live='polite' style={{fontSize:12,color:recording?'#ff8798':'#8effb7'}}>{recording?'● RECORDING • tap STOP when finished':url?'CLIP READY • preview, then save/share':'Camera • record • preview • save • share'}</div></div><button onClick={returnToWorld} aria-label="Return to StreetVerse" style={btn}>×</button></div>
+   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12}}><div><b>STREETVERSE REEL</b><div aria-live='polite' style={{fontSize:12,color:recording?'#ff8798':'#8effb7'}}>{recording?'● RECORDING • tap STOP when finished':url?'CLIP READY • preview, then save/share':'Camera • record • preview • save • share'}</div></div><button onClick={()=>{if(recording)stopRecording();stopStream();onClose()}} style={btn}>×</button></div>
    <video ref={videoRef} playsInline muted style={{width:'100%',aspectRatio:'9/16',maxHeight:'70vh',marginTop:12,background:'#000',borderRadius:16,objectFit:'cover'}}/>
    <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:12}}>
     {!recording?<button onClick={startCamera} style={btn}>● START RECORDING</button>:<button onClick={stopRecording} style={{...btn,borderColor:'#ff6378',background:'#2a0b12'}}>■ STOP RECORDING</button>}
-    {url&&<button onClick={publish} disabled={publishing} style={{...btn,borderColor:'#8effb7',background:'#082a18'}}>{publishing?'PUBLISHING…':published?'✓ PUBLISHED':'PUBLISH TO TRYAMM'}</button>}
     {url&&<button onClick={share} style={{...btn,borderColor:'#65e8ff',background:'#08202a'}}>SAVE / SHARE</button>}
     <label style={btn}>IPHONE CAPTURE<input type='file' accept='video/*' capture='environment' style={{display:'none'}} onChange={e=>onIPhoneCapture(e.target.files?.[0])}/></label>
-    <button onClick={returnToWorld} style={{...btn,borderColor:'#ffd65a',background:'#241b06'}}>← RETURN TO STREETVERSE</button>
    </div>
    {error&&<p role='alert' style={{color:'#ffd27a'}}>{error}</p>}
-   <p style={{fontSize:12,color:'#b9c7d3'}}>On Safari/iPhone, tap IPHONE CAPTURE if browser recording is unavailable. After capture, the clip now opens in the preview above. Tap PUBLISH TO TRYAMM to upload and queue the Reel to the Reel feed, creator profile and OmniBox. SAVE / SHARE still uses the iPhone share sheet.</p>
+   <p style={{fontSize:12,color:'#b9c7d3'}}>On Safari/iPhone, tap IPHONE CAPTURE if browser recording is unavailable. After capture, the clip now opens in the preview above. Videos stay local until you choose SAVE / SHARE; cloud publishing is a separate upload step.</p>
   </div>
  </div>
 }

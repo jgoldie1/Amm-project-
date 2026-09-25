@@ -26,10 +26,6 @@ export function createMobileResidentPopulation(scene:THREE.Scene):MobileResident
     {axis:'z',fixed:39,phase:39,speed:4.7},
     {axis:'z',fixed:-9,phase:64,speed:5.2},
     {axis:'z',fixed:9,phase:87,speed:4.9},
-    {axis:'x',fixed:-24,phase:11,speed:4.5},
-    {axis:'x',fixed:24,phase:57,speed:4.7},
-    {axis:'z',fixed:-24,phase:33,speed:4.6},
-    {axis:'z',fixed:24,phase:81,speed:4.4},
   ]
   const residents=routes.map((route,index)=>{
     const group=new THREE.Group()

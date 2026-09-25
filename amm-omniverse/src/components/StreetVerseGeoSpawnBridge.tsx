@@ -4,15 +4,8 @@ import {getStreetVerseCommunitySlice} from '../config/streetverseCommunitySlices
 import {installStreetVerseJourneyQARuntime} from '../runtime/StreetVerseJourneyQARuntime'
 import {installStreetVerseHydeParkMissionRuntime} from '../runtime/StreetVerseHydeParkMissionRuntime'
 import {installStreetVerseAfterDarkAlphaRuntime} from '../runtime/StreetVerseAfterDarkAlphaRuntime'
-import {installStreetVerseMissionLedgerBridge} from '../runtime/StreetVerseMissionLedgerBridge'
-import {installStreetVerseMissionDiscoveryRuntime} from '../runtime/StreetVerseMissionDiscoveryRuntime'
-import {installStreetVerseFameRuntime} from '../runtime/StreetVerseFameRuntime'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
-import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
-import StreetVerseMobileGameShell from './StreetVerseMobileGameShell'
-import {useGameStore} from '../game/state/useGameStore'
-import {chooseQuantumSpeedMode,QUANTUM_SPEED_BUDGETS,type QuantumSpeedMode} from '../game/runtime/quantumSpeedEngine'
 
 const StreetVersePlayableWorld=lazy(()=>import('./StreetVersePlayableWorld'))
 const StreetVerseFullWorldOverlays=lazy(()=>import('./StreetVerseFullWorldOverlays'))
@@ -39,16 +32,13 @@ function shouldUseIndependentSafeBoot(){
  if(params.get('safe')==='1'||params.get('mode')==='safe')return true
  const ua=navigator.userAgent||''
  const appleMobile=/iPhone|iPad|iPod/i.test(ua)
+ const olderIOS=/OS (1[0-6])[_\d]* like Mac OS X/i.test(ua)
  const memory=Number((navigator as Navigator & {deviceMemory?:number}).deviceMemory||0)
  const cores=Number(navigator.hardwareConcurrency||0)
  const narrow=Math.min(window.innerWidth||9999,window.innerHeight||9999)<=480
  const noWebGL=!hasUsableWebGL()
  const constrained=(memory>0&&memory<=4)||(cores>0&&cores<=4)
- // Do not force capable iPhones into the HTML-only SafeWorld solely because
- // they run iOS 16 or have a narrow screen. The playable world gets first
- // attempt whenever WebGL is genuinely available; SafeWorld remains the
- // fallback for devices that cannot create a usable WebGL context.
- return noWebGL||(!appleMobile&&narrow&&constrained)
+ return noWebGL||(appleMobile&&(olderIOS||narrow||constrained))||(!appleMobile&&narrow&&constrained)
 }
 
 function readDestination():Destination|undefined{
@@ -108,9 +98,6 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const prepared=useMemo(()=>prepareSpawn(),[])
  const safe=useMemo(shouldUseIndependentSafeBoot,[])
  const [enhancementsReady,setEnhancementsReady]=useState(false)
- const [quantumMode,setQuantumMode]=useState<QuantumSpeedMode>('balanced')
- const setLocationContext=useGameStore(state=>state.setLocationContext)
- const applyCityConsequence=useGameStore(state=>state.applyCityConsequence)
  const closingRef=useRef(false)
  const closeStreetVerse=useCallback(()=>{
   if(closingRef.current)return
@@ -122,54 +109,11 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>installStreetVerseJourneyQARuntime(),[])
  useLayoutEffect(()=>installStreetVerseHydeParkMissionRuntime(),[])
  useLayoutEffect(()=>installStreetVerseAfterDarkAlphaRuntime(),[])
- useLayoutEffect(()=>{installStreetVerseMissionLedgerBridge()},[])
- useLayoutEffect(()=>{installStreetVerseMissionDiscoveryRuntime()},[])
- useLayoutEffect(()=>{installStreetVerseFameRuntime()},[])
- useEffect(()=>{
-  const destination=prepared.destination
-  const mapped=prepared.mapped
-  if(!destination&&!mapped)return
-  const label=(mapped?.label||destination?.name||destination?.label||'').toLowerCase()
-  const neighborhoodId=label.includes('west')?'west-side':label.includes('loop')||label.includes('downtown')||label.includes('millennium')||label.includes('river')?'downtown':'south-side'
-  setLocationContext('chicago',neighborhoodId)
-  window.dispatchEvent(new CustomEvent('tryamm:lcs-location-context',{detail:{cityId:'chicago',neighborhoodId,source:'streetverse-geo-spawn'}}))
- },[prepared.destination,prepared.mapped,setLocationContext])
- useEffect(()=>{
-  const onGameplayAction=(event:Event)=>{
-   const detail=(event as CustomEvent).detail||{}
-   if(!detail.action)return
-   applyCityConsequence(detail.action)
-   window.dispatchEvent(new CustomEvent('tryamm:lcs-gameplay-consequence-applied',{detail:{action:detail.action,missionId:detail.missionId,source:detail.source}}))
-  }
-  window.addEventListener('tryamm:streetverse-gameplay-action',onGameplayAction)
-  return()=>window.removeEventListener('tryamm:streetverse-gameplay-action',onGameplayAction)
- },[applyCityConsequence])
  useEffect(()=>{
   const requestClose=()=>closeStreetVerse()
   window.addEventListener('tryamm:streetverse-request-close',requestClose)
   return()=>window.removeEventListener('tryamm:streetverse-request-close',requestClose)
  },[closeStreetVerse])
- useEffect(()=>{
-  if(safe){setQuantumMode('eco');return}
-  let frames=0
-  let start=performance.now()
-  let raf=0
-  const sample=(now:number)=>{
-   frames+=1
-   const elapsed=now-start
-   if(elapsed>=1000){
-    const fps=frames*1000/elapsed
-    const frameMs=elapsed/Math.max(frames,1)
-    const mode=chooseQuantumSpeedMode({fps,frameMs})
-    setQuantumMode(mode)
-    window.dispatchEvent(new CustomEvent('tryamm:quantum-speed-mode',{detail:{mode,budget:QUANTUM_SPEED_BUDGETS[mode],fps,frameMs,source:'streetverse-geo-spawn'}}))
-    frames=0;start=now
-   }
-   raf=requestAnimationFrame(sample)
-  }
-  raf=requestAnimationFrame(sample)
-  return()=>cancelAnimationFrame(raf)
- },[safe])
  useEffect(()=>{
   if(!safe)return
   const frame=window.requestAnimationFrame(()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-ready',{detail:{mode:'mobile-safe',mobileSafeMode:true,htmlCity:true,canvas:false,playable:true,source:'streetverse-geo-spawn',communityArea:prepared.destination?.communityAreaNumber||null}})))
@@ -177,22 +121,18 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  },[safe,prepared.destination?.communityAreaNumber])
  useEffect(()=>{
   if(safe)return
-  const delay=quantumMode==='boost'?250:quantumMode==='balanced'?650:1400
-  const timer=window.setTimeout(()=>setEnhancementsReady(true),delay)
+  const timer=window.setTimeout(()=>setEnhancementsReady(true),650)
   return()=>window.clearTimeout(timer)
- },[safe,quantumMode])
+ },[safe])
 
  if(safe)return <>
-  <StreetVerseWeatherSync/>
-  <StreetVerseMobileGameShell onClose={closeStreetVerse}/>
   <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>
   <StreetVerseAfterDarkAlpha/>
   <Suspense fallback={null}><StreetVerseReelEventBridge/></Suspense>
  </>
 
  return <>
-  <StreetVerseMobileGameShell onClose={closeStreetVerse}/>
-  <Suspense fallback={<><StreetVerseWeatherSync/><StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/></>}>
+  <Suspense fallback={<StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>}>
    <StreetVersePlayableWorld onClose={closeStreetVerse}/>
   </Suspense>
   <StreetVerseAfterDarkAlpha/>

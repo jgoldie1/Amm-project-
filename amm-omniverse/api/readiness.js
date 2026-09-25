@@ -1,6 +1,5 @@
 export default async function handler(req, res) {
   const present = (name) => Boolean(process.env[name] && String(process.env[name]).trim());
-  const enabled = (name) => String(process.env[name] || '').trim().toLowerCase() === 'true';
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
   const supabasePublicKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
   const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
@@ -24,14 +23,6 @@ export default async function handler(req, res) {
     stt_provider: present('TRYAMM_STT_ENDPOINT') && present('TRYAMM_STT_API_KEY'),
     tts_provider: present('TRYAMM_TTS_ENDPOINT') && present('TRYAMM_TTS_API_KEY'),
     hologpt_provider: present('OPENAI_API_KEY') || present('TRYAMM_AI_API_KEY') || present('TRYAMM_AI_PROVIDER_KEY')
-  };
-
-  const commerceChecks = {
-    stripe_secret: present('STRIPE_SECRET_KEY'),
-    stripe_webhook_secret: present('STRIPE_WEBHOOK_SECRET'),
-    live_charging_enabled: enabled('TRYAMM_LIVE_CHARGING_ENABLED'),
-    seller_transfers_verified: enabled('TRYAMM_SELLER_TRANSFERS_VERIFIED'),
-    reconciliation_verified: enabled('TRYAMM_RECONCILIATION_VERIFIED')
   };
 
   const criticalKeys = [
@@ -71,22 +62,6 @@ export default async function handler(req, res) {
     } catch (_) {}
   }
 
-  let commerceSchemaReachable = false;
-  let commerceSchemaStatus = null;
-  if (supabaseUrl && supabaseServiceRole) {
-    try {
-      const response = await fetch(`${supabaseUrl.replace(/\/$/, '')}/rest/v1/commerce_payment_transactions?select=id&limit=1`, {
-        headers: {
-          apikey: supabaseServiceRole,
-          Authorization: `Bearer ${supabaseServiceRole}`,
-          Accept: 'application/json'
-        }
-      });
-      commerceSchemaStatus = response.status;
-      commerceSchemaReachable = response.ok;
-    } catch (_) {}
-  }
-
   let twilioAccountValid = false;
   let twilioAccountStatus = null;
   let twilioNumberOwned = false;
@@ -121,14 +96,10 @@ export default async function handler(req, res) {
     twilioAccountValid &&
     twilioNumberOwned;
 
-  const commerceReady =
-    commerceSchemaReachable &&
-    Object.values(commerceChecks).every(Boolean);
-
   const ready = criticalPassed === criticalKeys.length && providerValidationPassed;
   res.setHeader('Cache-Control', 'no-store');
   return res.status(ready ? 200 : 503).json({
-    release: 'live-vite-readiness-5',
+    release: 'live-vite-readiness-4',
     site: 'tryamm.online',
     ready,
     criticalPassed,
@@ -143,16 +114,6 @@ export default async function handler(req, res) {
       twilioAccountStatus,
       twilioNumberOwned,
       twilioNumberStatus
-    },
-    commerce: {
-      ready: commerceReady,
-      checks: commerceChecks,
-      liveChecks: {
-        commerceSchemaReachable,
-        commerceSchemaStatus
-      },
-      authority: 'checkout -> verified Stripe event -> transaction -> entitlement -> ledger',
-      gateRule: 'Charging is ready only when Stripe secrets, webhook verification, seller-transfer verification, reconciliation verification, and the authoritative payment schema are all ready.'
     },
     gateRule: 'Green requires all critical variables plus successful live Supabase public/service-role and Twilio account/number validation.',
     note: 'Secret values and provider response bodies are never returned.'

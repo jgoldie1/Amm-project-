@@ -1,5 +1,4 @@
 import {useEffect,useMemo,useRef,useState} from 'react'
-import useStreetVerseMobileShellMounted from '../hooks/useStreetVerseMobileShellMounted'
 
 const SAVE_KEY='tryamm.streetverse.mobile-playable.v2'
 const MISSIONS=[
@@ -36,7 +35,6 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
  const [visited,setVisited]=useState<string[]>(loadVisited)
  const visitedRef=useRef(visited)
  const [message,setMessage]=useState('StreetVerse City is active • walk to a mission beacon or enter the blue car near your spawn.')
- const shellControls=useStreetVerseMobileShellMounted()
  const held=useRef({up:false,down:false,left:false,right:false})
  const roadShift=useMemo(()=>clamp((pos.x-50)*.45,-22,22),[pos.x])
  const forwardShift=useMemo(()=>clamp((68-pos.y)*.3,-18,18),[pos.y])
@@ -132,12 +130,6 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
  },[])
 
  useEffect(()=>{
-  const onShellInput=(event:Event)=>{const d=(event as CustomEvent<{throttle?:number;brake?:number;steer?:number}>).detail||{};held.current.up=Number(d.throttle||0)>.05;held.current.down=Number(d.brake||0)>.05;held.current.left=Number(d.steer||0)<-.1;held.current.right=Number(d.steer||0)>.1}
-  window.addEventListener('tryamm:streetverse-vehicle-input',onShellInput)
-  return()=>window.removeEventListener('tryamm:streetverse-vehicle-input',onShellInput)
- },[])
-
- useEffect(()=>{
   const map:Record<string,keyof typeof held.current>={arrowup:'up',w:'up',arrowdown:'down',s:'down',arrowleft:'left',a:'left',arrowright:'right',d:'right'}
   const set=(e:KeyboardEvent,v:boolean)=>{const raw=e.key.toLowerCase();if(raw==='e'&&v&&!e.repeat){e.preventDefault();window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:!vehicleRef.current,source:'keyboard'}}));return}const k=map[raw];if(k){e.preventDefault();held.current[k]=v}}
   const kd=(e:KeyboardEvent)=>set(e,true),ku=(e:KeyboardEvent)=>set(e,false)
@@ -168,7 +160,7 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
     {MISSIONS.map((m,i)=>{const done=visited.includes(m.id);return <div key={m.id} title={m.label} style={{position:'absolute',left:`${18+i*21}%`,top:`${28+(i%2)*13}%`,zIndex:9,textAlign:'center',transform:`translateX(${roadShift*(i%2?.15:-.15)}px)`}}><div style={{width:14,height:14,margin:'auto',borderRadius:'50%',background:done?'#55e88a':'#ffd65a',border:'2px solid #fff',boxShadow:done?'0 0 0 8px #55e88a22,0 0 20px #55e88a':'0 0 0 8px #ffd65a33,0 0 25px #ffd65a'}}>{done?<span style={{fontSize:9,color:'#06120b'}}>✓</span>:null}</div><div style={{marginTop:7,padding:'4px 6px',borderRadius:7,background:'#030914d9',fontSize:8,fontWeight:800,whiteSpace:'nowrap'}}>{done?'✓ ':''}{m.label}</div></div>})}
    </div>
    <div aria-live="polite" style={{position:'absolute',left:10,right:10,top:10,zIndex:30,padding:'9px 11px',borderRadius:12,background:'#030914e8',border:'1px solid #4e7891',fontSize:12,boxShadow:'0 6px 20px #0007'}}>{message}<div style={{marginTop:5,fontSize:10,color:visited.length===MISSIONS.length?'#8effb7':'#b9c9d6'}}>{visited.length}/{MISSIONS.length} DISTRICT CHECKPOINTS {visited.length===MISSIONS.length?'• COMPLETE ✓':nearMission?'• CHECKPOINT ACTIVE':''}</div></div>
-   {!shellControls&&<div style={{position:'absolute',left:14,bottom:18,zIndex:35,display:'grid',gridTemplateColumns:'58px 58px 58px',gap:7}}><span/>{btn('↑','up')}<span/>{btn('←','left')}{btn('↓','down')}{btn('→','right')}</div>}
+   <div style={{position:'absolute',left:14,bottom:18,zIndex:35,display:'grid',gridTemplateColumns:'58px 58px 58px',gap:7}}><span/>{btn('↑','up')}<span/>{btn('←','left')}{btn('↓','down')}{btn('→','right')}</div>
    <div style={{position:'absolute',right:12,bottom:18,zIndex:35,maxWidth:180,padding:9,borderRadius:12,background:'#030914df',border:'1px solid #34566d',fontSize:10,lineHeight:1.35}}>HTML CITY MODE<br/><b style={{color:'#8effb7'}}>No WebGL required.</b><br/>People • traffic • dog • {visited.length}/{MISSIONS.length} missions • Reel • {vehicle?'blue car under control':`blue car ${Math.round(carDistance)}m away`}.</div>
   </main>
  </div>

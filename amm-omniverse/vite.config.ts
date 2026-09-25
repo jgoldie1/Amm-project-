@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
   plugins: [react()],
@@ -15,20 +14,12 @@ export default defineConfig({
         // download/parse cost during first paint.
         return deps.filter(dep =>
           !dep.includes('vendor-three') &&
-          !dep.includes('vendor-maplibre') &&
           !dep.includes('streetverse-creator-3d') &&
           !dep.includes('streetverse-3d-runtime')
         )
       },
     },
     rollupOptions: {
-      // Vercel routes /streetverse to streetverse-safe.html. Declare both HTML
-      // documents as Vite build inputs so the safe entry and its hashed module
-      // graph are emitted into dist for the production deployment.
-      input: {
-        main: fileURLToPath(new URL('./index.html', import.meta.url)),
-        streetverseSafe: fileURLToPath(new URL('./streetverse-safe.html', import.meta.url)),
-      },
       output: {
         manualChunks(id, { getModuleInfo }) {
           // Transitively follow STATIC imports to detect first-party modules
@@ -64,9 +55,6 @@ export default defineConfig({
           if (id.includes('/src/runtime/')) return 'app-runtime'
           if (id.includes('/src/data/')) return 'app-data'
           if (!id.includes('node_modules')) return
-          // Sparrow Map is a lazy feature. Keep MapLibre isolated so the map engine
-          // never inflates the Sparrow component chunk or the initial app graph.
-          if (id.includes('/maplibre-gl/')) return 'vendor-maplibre'
           if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('/scheduler/')) return 'vendor-react'
 
           // Keep optional Three.js utility/add-on code separate from the core renderer.

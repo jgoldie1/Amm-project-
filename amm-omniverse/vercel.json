@@ -3,105 +3,24 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "routes": [
-    {
-      "src": "/accessibility/?",
-      "dest": "/accessibility.html"
-    },
-    {
-      "src": "/accessibility.html",
-      "dest": "/accessibility.html"
-    },
-    {
-      "src": "/world-seasons/?",
-      "dest": "/world-seasons.html"
-    },
-    {
-      "src": "/all-american-university/?",
-      "dest": "/all-american-university.html"
-    },
-    {
-      "src": "/global-supply-chain/?",
-      "dest": "/global-supply-chain.html"
-    },
-    {
-      "src": "/supply-chain-pilot/?",
-      "dest": "/supply-chain-pilot.html"
-    },
-    {
-      "src": "/supply-chain-growth/?",
-      "dest": "/supply-chain-growth.html"
-    },
-    {
-      "src": "/demand-pool/?",
-      "dest": "/demand-pool.html"
-    },
-    {
-      "src": "/studio-release/?",
-      "dest": "/studio-release.html"
-    },
-    {
-      "src": "/shipping-receiving/?",
-      "dest": "/shipping-receiving.html"
-    },
-    {
-      "src": "/stores/?",
-      "dest": "/store-network.html"
-    },
-    {
-      "src": "/api/payments/status",
-      "dest": "https://amm-project-1-rpz9.onrender.com/api/payments/status"
-    },
-    {
-      "src": "/api/checkout",
-      "methods": [
-        "POST"
-      ],
-      "dest": "https://amm-project-1-rpz9.onrender.com/api/checkout"
-    },
-    {
-      "src": "/api/payments/verify-checkout",
-      "methods": [
-        "POST"
-      ],
-      "dest": "https://amm-project-1-rpz9.onrender.com/api/payments/verify-checkout"
-    },
-    {
-      "src": "/api/stripe/webhook",
-      "methods": [
-        "POST"
-      ],
-      "dest": "https://amm-project-1-rpz9.onrender.com/api/stripe/webhook"
-    },
-    {
-      "src": "/api/creator/earnings",
-      "dest": "https://amm-project-1-rpz9.onrender.com/api/creator/earnings"
-    },
-    {
-      "src": "/financial-truth",
-      "dest": "/financial-truth.html"
-    },
-    {
-      "src": "/financial-truth/",
-      "dest": "/financial-truth.html"
-    },
-    {
-      "src": "/streetverse",
-      "dest": "/streetverse-safe.html"
-    },
-    {
-      "src": "/streetverse/",
-      "dest": "/streetverse-safe.html"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/assets/.*",
-      "status": 404
-    },
-    {
-      "src": "/.*",
-      "dest": "/index.html"
-    }
+    { "src": "/accessibility/?", "dest": "/accessibility.html" },
+    { "src": "/accessibility.html", "dest": "/accessibility.html" },
+    { "src": "/world-seasons/?", "dest": "/world-seasons.html" },
+    { "src": "/all-american-university/?", "dest": "/all-american-university.html" },
+    { "src": "/global-supply-chain/?", "dest": "/global-supply-chain.html" },
+    { "src": "/supply-chain-pilot/?", "dest": "/supply-chain-pilot.html" },
+    { "src": "/supply-chain-growth/?", "dest": "/supply-chain-growth.html" },
+    { "src": "/demand-pool/?", "dest": "/demand-pool.html" },
+    { "src": "/studio-release/?", "dest": "/studio-release.html" },
+    { "src": "/shipping-receiving/?", "dest": "/shipping-receiving.html" },
+    { "src": "/stores/?", "dest": "/store-network.html" },
+    { "src": "/api/payments/status", "dest": "https://amm-project-1-rpz9.onrender.com/api/payments/status" },
+    { "src": "/api/checkout", "methods": ["POST"], "dest": "https://amm-project-1-rpz9.onrender.com/api/checkout" },
+    { "src": "/api/payments/verify-checkout", "methods": ["POST"], "dest": "https://amm-project-1-rpz9.onrender.com/api/payments/verify-checkout" },
+    { "src": "/api/stripe/webhook", "methods": ["POST"], "dest": "https://amm-project-1-rpz9.onrender.com/api/stripe/webhook" },
+    { "src": "/api/creator/earnings", "dest": "https://amm-project-1-rpz9.onrender.com/api/creator/earnings" },
+    { "handle": "filesystem" },
+    { "src": "/assets/.*", "status": 404 },
+    { "src": "/.*", "dest": "/index.html" }
   ]
 }

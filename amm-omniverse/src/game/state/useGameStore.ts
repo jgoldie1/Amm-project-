@@ -1,9 +1,4 @@
 import { create } from 'zustand'
-import { consequenceFor, type GameplayAction, type GameplayConsequence } from '../simulation/gameplaySimulationBridge'
-import { applyLcsAction, createChicagoLcs, type LcsWorld } from '../simulation/livingCitySimulation'
-
-const STREETVERSE_HANDOFF_KEY = 'tryamm:streetverse-handoff:v1'
-const LCS_STORAGE_KEY = 'tryamm:lcs:chicago:v1'
 
 export type Screen = 'intro' | 'login' | 'city' | 'portal' | 'sports' | 'marketplace' | 'music' | 'faith' | 'blockchain'
 
@@ -66,14 +61,9 @@ export interface GameState {
   walletAddress: string
   nftCount: number
   notif: string | null
-  cityConsequences: GameplayConsequence
-  livingCity: LcsWorld
-  currentCityId: string
-  currentNeighborhoodId: string
 
   // actions
   setScreen: (s: Screen) => void
-  setLocationContext: (cityId: string, neighborhoodId: string) => void
   setPlayer: (p: Partial<Player>) => void
   earnCash: (amount: number) => void
   earnXp: (amount: number) => void
@@ -82,7 +72,6 @@ export interface GameState {
   buyVehicle: (id: string) => void
   startMission: (id: string) => void
   completeMission: (id: string) => void
-  applyCityConsequence: (action: GameplayAction) => void
   connectWallet: () => void
   sendChat: (text: string) => void
   setActiveMusic: (track: string | null) => void
@@ -144,45 +133,6 @@ const DEFAULT_NPCS: NPC[] = [
     dialogue: ['Keep it clean out here.', 'Wanted level: watch yourself.', 'AMM City police — move along.'] },
 ]
 
-function readStreetVerseHandoff(): Partial<GameState> {
-  if (typeof window === 'undefined') return {}
-  try {
-    const raw = sessionStorage.getItem(STREETVERSE_HANDOFF_KEY)
-    if (!raw) return {}
-    sessionStorage.removeItem(STREETVERSE_HANDOFF_KEY)
-    const saved = JSON.parse(raw)
-    return {
-      ...(saved.player ? { player: saved.player } : {}),
-      ...(saved.missions ? { missions: saved.missions } : {}),
-      ...(saved.vehicles ? { vehicles: saved.vehicles } : {}),
-      ...(typeof saved.walletConnected === 'boolean' ? { walletConnected: saved.walletConnected } : {}),
-      ...(typeof saved.walletAddress === 'string' ? { walletAddress: saved.walletAddress } : {}),
-      ...(typeof saved.nftCount === 'number' ? { nftCount: saved.nftCount } : {}),
-    }
-  } catch {
-    return {}
-  }
-}
-
-const STREETVERSE_HANDOFF = readStreetVerseHandoff()
-
-function readLivingCity(): LcsWorld {
-  if (typeof window === 'undefined') return createChicagoLcs()
-  try {
-    const raw = localStorage.getItem(LCS_STORAGE_KEY)
-    if (!raw) return createChicagoLcs()
-    const parsed = JSON.parse(raw) as LcsWorld
-    return parsed?.version === 1 && Array.isArray(parsed.cities) ? parsed : createChicagoLcs()
-  } catch {
-    return createChicagoLcs()
-  }
-}
-
-function persistLivingCity(world: LcsWorld) {
-  if (typeof window === 'undefined') return
-  try { localStorage.setItem(LCS_STORAGE_KEY, JSON.stringify(world)) } catch { /* storage may be unavailable */ }
-}
-
 export const useGameStore = create<GameState>((set, get) => ({
   screen: 'intro',
   activeMusic: null,
@@ -203,10 +153,6 @@ export const useGameStore = create<GameState>((set, get) => ({
   walletAddress: '',
   nftCount: 0,
   notif: null,
-  cityConsequences: { jobs: 0, businesses: 0, population: 0, traffic: 0, culture: 0, reputation: 0, cashReward: 0, xpReward: 0 },
-  livingCity: readLivingCity(),
-  currentCityId: 'chicago',
-  currentNeighborhoodId: 'south-side',
   player: {
     name: '',
     avatar: 'king',
@@ -227,7 +173,6 @@ export const useGameStore = create<GameState>((set, get) => ({
   npcs: DEFAULT_NPCS,
 
   setScreen: (screen) => set({ screen }),
-  setLocationContext: (currentCityId, currentNeighborhoodId) => set({ currentCityId, currentNeighborhoodId }),
   setPlayer: (p) => set(s => ({ player: { ...s.player, ...p } })),
 
   earnCash: (amount) => set(s => ({
@@ -276,33 +221,6 @@ export const useGameStore = create<GameState>((set, get) => ({
     get().setNotif('🎯 Mission started! Check your objectives.')
   },
 
-  applyCityConsequence: (action) => {
-    const consequence = consequenceFor(action)
-    set(s => {
-      const cityId=s.currentCityId
-      const neighborhoodId=s.currentNeighborhoodId
-      let livingCity=s.livingCity
-      if(consequence.jobs>0) livingCity=applyLcsAction(livingCity,{type:'ADD_JOBS',cityId,neighborhoodId,amount:consequence.jobs})
-      if(consequence.businesses>0) livingCity=applyLcsAction(livingCity,{type:'OPEN_BUSINESS',cityId,neighborhoodId,jobs:Math.max(1,consequence.jobs)})
-      if(consequence.culture>0) livingCity=applyLcsAction(livingCity,{type:'HOST_CULTURAL_EVENT',cityId,neighborhoodId,impact:consequence.culture})
-      persistLivingCity(livingCity)
-      return {
-        livingCity,
-        cityConsequences: {
-          jobs: s.cityConsequences.jobs + consequence.jobs,
-          businesses: s.cityConsequences.businesses + consequence.businesses,
-          population: s.cityConsequences.population + consequence.population,
-          traffic: s.cityConsequences.traffic + consequence.traffic,
-          culture: s.cityConsequences.culture + consequence.culture,
-          reputation: s.cityConsequences.reputation + consequence.reputation,
-          cashReward: s.cityConsequences.cashReward + consequence.cashReward,
-          xpReward: s.cityConsequences.xpReward + consequence.xpReward,
-        },
-        player: { ...s.player, rep: s.player.rep + consequence.reputation }
-      }
-    })
-  },
-
   completeMission: (id) => {
     const { missions } = get()
     const m = missions.find(x => x.id === id)
@@ -316,8 +234,6 @@ export const useGameStore = create<GameState>((set, get) => ({
       }
     }))
     get().earnXp(m.xp)
-    // City missions now produce a persistent simulation consequence contract.
-    if (m.realm === 'city') get().applyCityConsequence('complete-delivery')
     // unlock next mission
     const order = ['m1','m2','m3','m4','m5','m6']
     const idx = order.indexOf(id)

@@ -68,20 +68,12 @@ jobs:
           console.log('Largest production JavaScript chunks:')
           for (const r of rows.slice(0,12)) console.log(`${r.kb.toFixed(2)} kB\t${r.file}`)
           const three = rows.filter(r => r.file.includes('vendor-three-core'))
-          const maplibre = rows.filter(r => r.file.includes('vendor-maplibre'))
-          // General app/runtime chunks stay under the 650 kB hard cap. MapLibre is
-          // an explicitly isolated, lazy-only mapping engine and gets its own cap.
-          const hardFailures = rows.filter(r => r.kb > 650 && !r.file.includes('vendor-maplibre'))
-          const maplibreFailures = maplibre.filter(r => r.kb > 1024)
+          const hardFailures = rows.filter(r => r.kb > 650)
           if (three.length && three[0].kb > 600) {
             console.log(`::warning::Three.js core is ${three[0].kb.toFixed(2)} kB. Target remains <= 600 kB; hard gate is 650 kB while deeper lazy-loading is completed.`)
           }
-          if (maplibre.length && maplibre[0].kb > 900) {
-            console.log(`::warning::Lazy MapLibre engine is ${maplibre[0].kb.toFixed(2)} kB. It is excluded from initial preload and must remain <= 1024 kB.`)
-          }
-          if (hardFailures.length || maplibreFailures.length) {
-            if (hardFailures.length) console.error('Chunks above 650 kB hard production budget:', hardFailures)
-            if (maplibreFailures.length) console.error('Lazy MapLibre chunk above 1024 kB hard budget:', maplibreFailures)
+          if (hardFailures.length) {
+            console.error('Chunks above 650 kB hard production budget:', hardFailures)
             process.exit(1)
           }
           NODE

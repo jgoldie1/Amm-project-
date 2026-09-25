@@ -46,7 +46,6 @@ const PoyoAIStudio = lazy(() => import('./components/PoyoAIStudio'))
 const PropertyVerseCenter = lazy(() => import('./components/PropertyVerseCenter'))
 const HoloStyleCenter = lazy(() => import('./components/HoloStyleCenter'))
 const StaysAgencyFamilyHub = lazy(() => import('./components/StaysAgencyFamilyHub'))
-const SparrowMapCenter = lazy(() => import('./components/SparrowMapCenter'))
 
 export default function App() {
   const screen = useGameStore(s => s.screen)
@@ -84,7 +83,6 @@ export default function App() {
   const [showStaysAgencyFamily, setShowStaysAgencyFamily] = useState(false)
   const [staysAgencyFamilyInitialTab, setStaysAgencyFamilyInitialTab] = useState<'stays'|'passport'>('stays')
   const [showNexus, setShowNexus] = useState(false)
-  const [showSparrowMap, setShowSparrowMap] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
   ;(window as any).__showPricing = () => setShowPricing(true)
@@ -124,7 +122,6 @@ export default function App() {
   ;(window as any).__showNextDevelopment = () => setShowNextDevelopment(true)
   ;(window as any).__showQuantumTag = () => setShowQuantumTag(true)
   ;(window as any).__showCommandNexus = () => setShowNexus(true)
-  ;(window as any).__showSparrowMap = () => setShowSparrowMap(true)
 
   const signedIn = screen !== 'intro' && screen !== 'login'
   const shellAvailable = screen !== 'login'
@@ -150,7 +147,6 @@ export default function App() {
     ['◈','MY WORLD / IMMERSIVE',()=>setShowImmersive(true),'BETA'],
     ['SPACE','SPACEVERSE • TIME',()=>setShowAdvanced(true),'BETA'],
     ['🔭','QUANTUM ZOOM',()=>setShowQuantumZoom(true),'BETA'],
-    ['MAP','SPARROW MAP',()=>setShowSparrowMap(true),'BETA'],
     ['ROAD','NEXT BUILD',()=>setShowNextDevelopment(true),'BETA'],
     ['📚','KINGDOMS PRESS',()=>setShowPress(true),'BETA'],
     ['♜','FAMILY LEGACY',()=>setShowFamilyLegacy(true),'BETA'],
@@ -206,7 +202,6 @@ export default function App() {
         {showPropertyVerse && <PropertyVerseCenter onClose={() => setShowPropertyVerse(false)} />}
         {showHoloStyle && <div style={{position:'fixed',inset:0,zIndex:10030,background:'#02020a'}}><HoloStyleCenter onClose={() => setShowHoloStyle(false)} /></div>}
         {showStaysAgencyFamily && <StaysAgencyFamilyHub initialTab={staysAgencyFamilyInitialTab} onClose={() => setShowStaysAgencyFamily(false)} />}
-        {showSparrowMap && <SparrowMapCenter onClose={() => setShowSparrowMap(false)} />}
         {showHoloCore && <HoloCoreCenter onClose={() => setShowHoloCore(false)} />}
         {showHoloServices && <HoloServicesHub onClose={() => setShowHoloServices(false)} />}
         {showOmniWear && <OmniWearCenter onClose={() => setShowOmniWear(false)} />}

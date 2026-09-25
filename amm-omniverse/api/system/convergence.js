@@ -38,12 +38,8 @@ async function probe(name, url, { retryTransient = false } = {}) {
   if (!url) return { name, status: 'unverified', reason: 'not configured' }
 
   const first = await probeOnce(name, url)
-  if (!retryTransient || !['down', 'degraded'].includes(first.status)) return first
+  if (!retryTransient || first.status !== 'down') return first
 
-  // Production health providers can briefly return 5xx while waking or routing.
-  // Retry both transport failures and HTTP degradation once before declaring
-  // the convergence control plane unavailable.
-  await new Promise(resolve => setTimeout(resolve, 750))
   const second = await probeOnce(name, url)
   return {
     ...second,
@@ -51,8 +47,7 @@ async function probe(name, url, { retryTransient = false } = {}) {
       attempted: true,
       firstStatus: first.status,
       firstReason: first.reason || null,
-      firstHttpStatus: first.httpStatus || null,
-      recovered: !['down', 'degraded'].includes(second.status),
+      recovered: second.status !== 'down',
     },
   }
 }
@@ -109,7 +104,7 @@ export default async function handler(req, res) {
 
   const [registry, publicWeb, render] = await Promise.all([
     readRegistry(),
-    probe('tryamm-web', publicUrl, { retryTransient: true }),
+    probe('tryamm-web', publicUrl),
     probe('render', renderUrl, { retryTransient: true }),
   ])
 

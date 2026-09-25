@@ -42,8 +42,11 @@ for (const token of requiredRuntimeTokens) {
   if (!runtime.includes(token)) throw new Error(`SECS runtime contract missing: ${token}`)
 }
 
-if (!main.includes("import('./runtime/SECSConstructRuntime')") || !main.includes('m.installSECSConstructRuntime()')) {
-  throw new Error('SECS runtime is not dynamically loaded after core bootstrap')
+if (!main.includes("import { installSECSConstructRuntime } from './runtime/SECSConstructRuntime'")) {
+  throw new Error('SECS runtime is not imported by main.tsx')
+}
+if (!main.includes('installSECSConstructRuntime()')) {
+  throw new Error('SECS runtime is not installed at startup')
 }
 
 for (const token of ['NC E-STOP', 'hardwareValidationRequired', 'Acceptance criteria']) {

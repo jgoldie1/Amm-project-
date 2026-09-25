@@ -1,6 +1,5 @@
 import {useEffect,useMemo,useRef,useState} from 'react'
 import {HYDE_PARK_SLICE} from '../config/streetverseCommunitySlices'
-import useStreetVerseMobileShellMounted from '../hooks/useStreetVerseMobileShellMounted'
 
 const SAVE_KEY='tryamm.streetverse.hyde-park.mobile.v1'
 type Pos={x:number;y:number}
@@ -17,7 +16,6 @@ export default function StreetVerseHydeParkMobileWorld({onClose}:{onClose:()=>vo
  const [heading,setHeading]=useState(Number(saved.heading)||0)
  const [visited,setVisited]=useState<string[]>(()=>Array.isArray(saved.visited)?saved.visited.filter(id=>missions.some(m=>m.id===id)):[])
  const [message,setMessage]=useState('Hyde Park StreetVerse active • reach the four neighborhood checkpoints.')
- const shellControls=useStreetVerseMobileShellMounted()
  const posRef=useRef(pos),carRef=useRef(car),vehicleRef=useRef(vehicle),headingRef=useRef(heading),visitedRef=useRef(visited)
  const held=useRef({up:false,down:false,left:false,right:false})
  const near=useMemo(()=>missions.find(m=>Math.hypot(pos.x-m.x,pos.y-m.y)<6)||null,[pos,missions])
@@ -48,13 +46,6 @@ export default function StreetVerseHydeParkMobileWorld({onClose}:{onClose:()=>vo
 
  const interactVehicle=()=>{if(!vehicleRef.current){if(carDistance>10){setMessage(`Blue car is ${Math.round(carDistance)}m away • move closer.`);return}vehicleRef.current=true;setVehicle(true);posRef.current={...carRef.current};setPos({...carRef.current});setMessage('DRIVE MODE • HYDE PARK')}else{vehicleRef.current=false;setVehicle(false);setMessage('WALK MODE • HYDE PARK')}}
  useEffect(()=>{const map:Record<string,keyof typeof held.current>={arrowup:'up',w:'up',arrowdown:'down',s:'down',arrowleft:'left',a:'left',arrowright:'right',d:'right'};const kd=(e:KeyboardEvent)=>{if(e.key.toLowerCase()==='e'&&!e.repeat){e.preventDefault();interactVehicle();return}const k=map[e.key.toLowerCase()];if(k){e.preventDefault();held.current[k]=true}};const ku=(e:KeyboardEvent)=>{const k=map[e.key.toLowerCase()];if(k)held.current[k]=false};window.addEventListener('keydown',kd);window.addEventListener('keyup',ku);return()=>{window.removeEventListener('keydown',kd);window.removeEventListener('keyup',ku)}},[carDistance])
- useEffect(()=>{
-  const onShellInput=(event:Event)=>{const d=(event as CustomEvent<{throttle?:number;brake?:number;steer?:number}>).detail||{};held.current.up=Number(d.throttle||0)>.05;held.current.down=Number(d.brake||0)>.05;held.current.left=Number(d.steer||0)<-.1;held.current.right=Number(d.steer||0)>.1}
-  const onShellVehicle=(event:Event)=>{const d=(event as CustomEvent<{entered?:boolean}>).detail||{};const desired=typeof d.entered==='boolean'?d.entered:!vehicleRef.current;if(desired!==vehicleRef.current)interactVehicle()}
-  window.addEventListener('tryamm:streetverse-vehicle-input',onShellInput)
-  window.addEventListener('tryamm:streetverse-vehicle-interact',onShellVehicle)
-  return()=>{window.removeEventListener('tryamm:streetverse-vehicle-input',onShellInput);window.removeEventListener('tryamm:streetverse-vehicle-interact',onShellVehicle)}
- },[carDistance])
  const press=(k:keyof typeof held.current,v:boolean)=>{held.current[k]=v}
  const control=(label:string,k:keyof typeof held.current)=><button aria-label={label} onPointerDown={e=>{e.preventDefault();press(k,true)}} onPointerUp={()=>press(k,false)} onPointerCancel={()=>press(k,false)} onPointerLeave={()=>press(k,false)} style={{width:58,height:58,borderRadius:17,border:'1px solid #7be9ff99',background:'#07131ff2',color:'#fff',fontSize:24,fontWeight:900,touchAction:'none'}}>{label}</button>
  const openReel=()=>window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'streetverse-hyde-park-mobile',missionProgress:`${visited.length}/${missions.length}`,communityAreaNumber:'41',communityAreaName:'Hyde Park',vehicle,mobileSafeMode:true,htmlCity:true}}))
@@ -67,7 +58,7 @@ export default function StreetVerseHydeParkMobileWorld({onClose}:{onClose:()=>vo
    {missions.map((m,i)=>{const done=visited.includes(m.id);return <div key={m.id} title={m.reference} style={{position:'absolute',left:`${18+i*21}%`,top:`${31+(i%2)*17}%`,zIndex:12,textAlign:'center',transform:'translateX(-50%)'}}><div style={{width:18,height:18,margin:'auto',borderRadius:'50%',background:done?'#55e88a':'#ffd65a',border:'2px solid white',boxShadow:done?'0 0 18px #55e88a':'0 0 20px #ffd65a'}}>{done?'✓':''}</div><div style={{marginTop:6,padding:'5px 7px',borderRadius:7,background:'#030914e8',fontSize:9,fontWeight:800,maxWidth:150}}>{m.label}<div style={{fontSize:7,color:'#9fc7dd',marginTop:2}}>{m.reference}</div></div></div>})}
    <div aria-label={vehicle?'Player driving blue StreetVerse car':'Player'} style={{position:'absolute',left:'50%',bottom:'17%',width:vehicle?46:28,height:vehicle?64:48,transform:`translateX(-50%) rotate(${vehicle?heading:0}deg)`,zIndex:14,borderRadius:vehicle?11:14,background:vehicle?'#36a9e8':'#23d9f4',border:'3px solid #fff',boxShadow:'0 0 22px #23d9f488'}}/>
    {!vehicle&&<div aria-label={`Parked blue car ${Math.round(carDistance)} meters away`} style={{position:'absolute',left:`${clamp(50+(car.x-pos.x)*1.1,10,90)}%`,top:`${clamp(60+(car.y-pos.y)*.7,28,80)}%`,width:30,height:44,transform:'translate(-50%,-50%)',borderRadius:8,background:'#36a9e8',border:'2px solid #dff8ff'}}/>}
-   {!shellControls&&<div style={{position:'absolute',left:14,bottom:18,zIndex:35,display:'grid',gridTemplateColumns:'58px 58px 58px',gap:7}}><span/>{control('↑','up')}<span/>{control('←','left')}{control('↓','down')}{control('→','right')}</div>}
+   <div style={{position:'absolute',left:14,bottom:18,zIndex:35,display:'grid',gridTemplateColumns:'58px 58px 58px',gap:7}}><span/>{control('↑','up')}<span/>{control('←','left')}{control('↓','down')}{control('→','right')}</div>
    <div style={{position:'absolute',right:12,bottom:18,zIndex:35,maxWidth:190,padding:9,borderRadius:12,background:'#030914df',border:'1px solid #34566d',fontSize:10,lineHeight:1.35}}>MOBILE SAFE WORLD<br/><b style={{color:'#8effb7'}}>HYDE PARK</b><br/>Neighborhood-specific mission labels and area-41 event metadata active.</div>
   </main>
  </div>

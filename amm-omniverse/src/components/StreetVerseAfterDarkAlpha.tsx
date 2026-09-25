@@ -1,5 +1,4 @@
 import {useEffect,useMemo,useState} from 'react'
-import {readStoredAudienceBand,type AudienceBand} from './SocialAgeSafetyGate'
 import {
   AFTER_DARK_ALPHA_MISSION,
   AFTER_DARK_EVIDENCE,
@@ -21,7 +20,6 @@ export default function StreetVerseAfterDarkAlpha(){
   const [open,setOpen]=useState(false)
   const [state,setState]=useState<AfterDarkMissionState>(()=>loadAfterDarkMissionState())
   const [result,setResult]=useState<string>('')
-  const [audienceBand,setAudienceBand]=useState<AudienceBand|null>(()=>readStoredAudienceBand())
   const evidence=useMemo(()=>AFTER_DARK_EVIDENCE.filter(item=>state.evidenceIds.includes(item.id)),[state.evidenceIds])
 
   useEffect(()=>{
@@ -29,17 +27,14 @@ export default function StreetVerseAfterDarkAlpha(){
       const detail=(event as CustomEvent<AfterDarkMissionState>).detail
       if(detail?.missionId==='after-dark-white-night-file')setState(detail)
     }
-    const openMission=()=>{if(audienceBand==='adult'||audienceBand===null)setOpen(true)}
-    const onAudience=(event:Event)=>{const band=(event as CustomEvent<{band?:AudienceBand|null}>).detail?.band??null;setAudienceBand(band);if(band&&band!=='adult')setOpen(false)}
+    const openMission=()=>setOpen(true)
     window.addEventListener('tryamm:after-dark-state',sync)
     window.addEventListener('tryamm:open-after-dark-alpha',openMission)
-    window.addEventListener('tryamm:audience-band',onAudience)
     return()=>{
       window.removeEventListener('tryamm:after-dark-state',sync)
       window.removeEventListener('tryamm:open-after-dark-alpha',openMission)
-      window.removeEventListener('tryamm:audience-band',onAudience)
     }
-  },[audienceBand])
+  },[])
 
   const choose=(approach:AfterDarkApproach)=>{
     setState(chooseAfterDarkApproach(approach))
@@ -54,8 +49,6 @@ export default function StreetVerseAfterDarkAlpha(){
       ? `Mission complete: +${validation.xp} XP, +${validation.softCurrency} credits, Evidence Before Accusation unlocked.`
       : 'Mission objectives incomplete. Collect at least 3 fictional evidence items, protect Maya Cross, and avoid unsupported accusations.')
   }
-
-  if(audienceBand&&audienceBand!=='adult')return null
 
   return <>
     <button type="button" aria-label="Open After Dark Alpha mission" onClick={()=>setOpen(true)} style={{position:'fixed',left:12,bottom:118,zIndex:9010,border:'1px solid #d58cff88',borderRadius:999,background:'linear-gradient(135deg,#24102d,#11101d)',color:'#f6d9ff',padding:'10px 14px',fontFamily:'monospace',fontSize:10,fontWeight:950,cursor:'pointer',boxShadow:'0 8px 28px #0009'}}>🌙 AFTER DARK α</button>

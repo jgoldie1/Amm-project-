@@ -2,7 +2,7 @@
 // Network-first app shell with stale-asset self recovery.
 // 2026-09-04 StreetVerse immediate-play release.
 
-const RELEASE = '20260921-ios-holo-release-v1'
+const RELEASE = '20260904-streetverse-play-v3'
 const CACHE_NAME = 'tryamm-shell-' + RELEASE
 const STATIC_ASSETS = ['/manifest.json?v=20260904-american-lion-v2','/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2']
 

@@ -15,11 +15,57 @@ import GlobalLaunchBar from './components/GlobalLaunchBar'
 import HoloDeliveryLauncher from './components/HoloDeliveryLauncher'
 import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import StreetVerseFaithChronoPortal from './components/StreetVerseFaithChronoPortal'
-import StreetVerseSafeWorld from './components/StreetVerseSafeWorld'
-import StreetVerseWeatherSync from './components/StreetVerseWeatherSync'
-import HoloExperienceLauncher from './components/HoloExperienceLauncher'
 import { getStandaloneSite } from './data/standaloneSiteRegistry'
 import './accessibility/accessibility.css'
+import { installProductionHealthMonitor } from './runtime/ProductionHealthMonitor'
+import { installMediaCloudBridge } from './runtime/mediaCloudBridge'
+import { installStreetVerseLivingWorldRuntime } from './runtime/StreetVerseLivingWorldRuntime'
+import { installStreetVerseWorldMemory } from './runtime/StreetVerseWorldMemory'
+import { installStreetVerseCheckpointRuntime } from './runtime/StreetVerseCheckpointRuntime'
+import { installStreetVersePerformanceBudget } from './runtime/StreetVersePerformanceBudget'
+import { installStreetVerseCharacterMissionRuntime } from './runtime/StreetVerseCharacterMissionRuntime'
+import { installGuardianMissionProgressRuntime } from './runtime/GuardianMissionProgressRuntime'
+import { installPublicServiceCareerRuntime } from './runtime/PublicServiceCareerRuntime'
+import { installStreetVerseCareerExtractionRuntime } from './runtime/StreetVerseCareerExtractionRuntime'
+import { installDynamicDispatchRuntime } from './runtime/DynamicDispatchRuntime'
+import { installStreetVerseResilienceRuntime } from './runtime/StreetVerseResilienceRuntime'
+import { installStreetVerseUnifiedProgressionRuntime } from './runtime/StreetVerseUnifiedProgressionRuntime'
+import { installStreetVerseGameModeRuntime } from './runtime/StreetVerseGameModeRuntime'
+import { installStreetVerseCommerceWorldRuntime } from './runtime/StreetVerseCommerceWorldRuntime'
+import { installCommerceJobTrainingRuntime } from './runtime/CommerceJobTrainingRuntime'
+import { installRegulatedBusinessNetworkRuntime } from './runtime/RegulatedBusinessNetworkRuntime'
+import { installWorldEconomyOrchestratorRuntime } from './runtime/WorldEconomyOrchestratorRuntime'
+import { installLearnWorkBusinessBridgeRuntime } from './runtime/LearnWorkBusinessBridgeRuntime'
+import { installFaithLifeSimulationRuntime } from './runtime/FaithLifeSimulationRuntime'
+import { installGlobalCityVerseRuntime } from './runtime/GlobalCityVerseRuntime'
+import { installGlobalWorldHierarchyRuntime } from './runtime/GlobalWorldHierarchyRuntime'
+import { installGlobalTravelExperienceRuntime } from './runtime/GlobalTravelExperienceRuntime'
+import { installNiaSourceRuntime } from './runtime/NiaSourceRuntime'
+import { installQuantumSourcingRuntime } from './runtime/QuantumSourcingRuntime'
+import { installMetaverseBusinessBuilderRuntime } from './runtime/MetaverseBusinessBuilderRuntime'
+import { installAIWebsiteBusinessBuilderRuntime } from './runtime/AIWebsiteBusinessBuilderRuntime'
+import { installBusinessTemplateFranchiseRuntime } from './runtime/BusinessTemplateFranchiseRuntime'
+import { installAICafeMultiAgentRuntime } from './runtime/AICafeMultiAgentRuntime'
+import { installMiddleverseRemoteWorkRuntime } from './runtime/MiddleverseRemoteWorkRuntime'
+import { installBroadcastStudioRuntime } from './runtime/BroadcastStudioRuntime'
+import { installStubbsHarmonyAIRuntime } from './runtime/StubbsHarmonyAIRuntime'
+import { installCreatorExperienceRuntime } from './runtime/CreatorExperienceRuntime'
+import { installCreatorCommerceOrchestrator } from './runtime/CreatorCommerceOrchestrator'
+import { installSocialShareBridge } from './runtime/SocialShareBridge'
+import { installJarvisOrchestratorRuntime } from './runtime/JarvisOrchestratorRuntime'
+import { installStreetVerseGrowthNetworkRuntime } from './runtime/StreetVerseGrowthNetworkRuntime'
+import { installStreetVerseRacingAfterDarkRuntime } from './runtime/StreetVerseRacingAfterDarkRuntime'
+import { installStreetVerseMissionDiscoveryRuntime } from './runtime/StreetVerseMissionDiscoveryRuntime'
+import { installSECSConstructRuntime } from './runtime/SECSConstructRuntime'
+import { installOmniverseEventFabricRuntime } from './runtime/OmniverseEventFabricRuntime'
+import { installChronoExperienceRuntime } from './runtime/ChronoExperienceRuntime'
+import { installChronoWarpRuntime } from './runtime/ChronoWarpRuntime'
+import { installStreetVerseChicagoTimeMachineMissionsRuntime } from './runtime/StreetVerseChicagoTimeMachineMissionsRuntime'
+import { installStreetVerseHistoryCampaignRuntime } from './runtime/StreetVerseHistoryCampaignRuntime'
+import { installStreetVerseMartialArtsRuntime } from './runtime/StreetVerseMartialArtsRuntime'
+import { installStreetVerseDojoBusinessRuntime } from './runtime/StreetVerseDojoBusinessRuntime'
+import { installStreetVerseChicagoCultureBossMissions } from './runtime/StreetVerseChicagoCultureBossMissionsRuntime'
+import { installCombatSportPassportRuntime } from './runtime/CombatSportPassportRuntime'
 
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 // Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
@@ -32,213 +78,147 @@ const OmniCareCashSuite=lazy(()=>import('./components/OmniCareCashSuite'))
 const GlobalTradeWorldHub=lazy(()=>import('./components/GlobalTradeWorldHub'))
 const LiveCenter=lazy(()=>import('./components/LiveCenter'))
 const GuardianCommandCenter=lazy(()=>import('./components/GuardianCommandCenter'))
-const AccountPrivacyCenter=lazy(()=>import('./components/AccountPrivacyCenter'))
 const HoloDramaHub=lazy(()=>import('./components/HoloDramaHub'))
 const HoloDeliveryRideEntertainmentHub=lazy(()=>import('./components/HoloDeliveryRideEntertainmentHub'))
 const SpectraStudioCommandCenter=lazy(()=>import('./components/SpectraStudioCommandCenter'))
 const EthiopianBibleMetaverse=lazy(()=>import('./components/EthiopianBibleMetaverse'))
 const KingdomsPressOperations=lazy(()=>import('./components/KingdomsPressOperations'))
 const UnifiedCommerceHub=lazy(()=>import('./components/UnifiedCommerceHub'))
-const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
 
-let routeContent: React.ReactNode = <App />
-let preserveDeterministicSafeRoute = false
+installProductionHealthMonitor()
+installMediaCloudBridge()
+installStreetVerseLivingWorldRuntime()
+installStreetVerseWorldMemory()
+installStreetVerseCheckpointRuntime()
+installStreetVersePerformanceBudget()
+installStreetVerseCharacterMissionRuntime()
+installGuardianMissionProgressRuntime()
+installPublicServiceCareerRuntime()
+installStreetVerseCareerExtractionRuntime()
+installDynamicDispatchRuntime()
+installStreetVerseResilienceRuntime()
+installStreetVerseUnifiedProgressionRuntime()
+installStreetVerseGameModeRuntime()
+installStreetVerseCommerceWorldRuntime()
+installCommerceJobTrainingRuntime()
+installRegulatedBusinessNetworkRuntime()
+installWorldEconomyOrchestratorRuntime()
+installLearnWorkBusinessBridgeRuntime()
+installFaithLifeSimulationRuntime()
+installGlobalCityVerseRuntime()
+installGlobalWorldHierarchyRuntime()
+installGlobalTravelExperienceRuntime()
+installNiaSourceRuntime()
+installQuantumSourcingRuntime()
+installMetaverseBusinessBuilderRuntime()
+installAIWebsiteBusinessBuilderRuntime()
+installBusinessTemplateFranchiseRuntime()
+installAICafeMultiAgentRuntime()
+installMiddleverseRemoteWorkRuntime()
+installBroadcastStudioRuntime()
+installStubbsHarmonyAIRuntime()
+installCreatorExperienceRuntime()
+installCreatorCommerceOrchestrator()
+installSocialShareBridge()
+installJarvisOrchestratorRuntime()
+installStreetVerseGrowthNetworkRuntime()
+installStreetVerseRacingAfterDarkRuntime()
+installStreetVerseMissionDiscoveryRuntime()
+installSECSConstructRuntime()
+installOmniverseEventFabricRuntime()
+installChronoExperienceRuntime()
+installChronoWarpRuntime()
+installStreetVerseChicagoTimeMachineMissionsRuntime()
+installStreetVerseHistoryCampaignRuntime()
+installStreetVerseMartialArtsRuntime()
+installStreetVerseDojoBusinessRuntime()
+installStreetVerseChicagoCultureBossMissions()
+installCombatSportPassportRuntime()
 
-try {
-  
-  const currentPath=window.location.pathname
-  const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
-  const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
-  const reelMatch=currentPath.match(/^\/reels\/([^/]+)\/?$/)
-  const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
-  const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
-  const isLive=currentPath==='/live'||currentPath==='/live/'
-  const isGuardian=currentPath==='/guardian'||currentPath==='/guardian/'
-  const isAccountDeletion=currentPath==='/account-deletion'||currentPath==='/account-deletion/'
-  const isHoloDrama=currentPath==='/holo-drama'||currentPath==='/holo-drama/'
-  const isSpectraStudios=currentPath==='/spectra-studios'||currentPath==='/spectra-studios/'
-  const isEthiopianBible=currentPath==='/ethiopian-bible'||currentPath==='/ethiopian-bible/'
-  const isKingdomsPress=currentPath==='/kingdoms-press'||currentPath==='/kingdoms-press/'
-  const isRecoveredSurface=['/spectra-entertainment','/spectra-entertainment/','/all-american-records','/all-american-records/','/set-apart','/set-apart/','/christian-rap','/christian-rap/','/holo-music','/holo-music/','/holo-food','/holo-food/','/holo-ride-share','/holo-ride-share/'].includes(currentPath)
-  const isNetwork=['/network','/network/','/free-tv','/free-tv/','/isaiah-ai-tv','/isaiah-ai-tv/','/starverse','/starverse/'].includes(currentPath)
-  const isServantsOfChrist=currentPath==='/servants-of-christ'||currentPath==='/servants-of-christ/'
-  const isCareCash=['/omnicare-360','/omnicare-360/','/omnicare-rx','/omnicare-rx/','/omni-cash','/omni-cash/','/aniyah-pay','/aniyah-pay/'].includes(currentPath)
-  const isGlobalTradeWorld=['/global-trade','/global-trade/','/my-world','/my-world/','/we-are-the-world','/we-are-the-world/','/kingdom','/kingdom/'].includes(currentPath)
-  const isTwinWorld=currentPath.startsWith('/streetverse/twin-world')
-  const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
-  const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs&&!isTwinWorld
-  const streetVerseParams=new URLSearchParams(window.location.search)
-  // Certification/fallback routes must be decided from the initial URL before any
-  // optional runtime can mutate history or replace the selected world.
-  const initialSearch=window.location.search
-  const isStreetVerseSafe=isStreetVerse&&(streetVerseParams.get('safe')==='1'||streetVerseParams.get('mode')==='safe')
-  preserveDeterministicSafeRoute=isStreetVerseSafe
-  const safeCommunityArea=streetVerseParams.get('communityArea')||streetVerseParams.get('community')||undefined
-  if(isStreetVerseSafe){
-    // Expose the exact route decision for production diagnostics without changing
-    // the certification DOM contract.
-    document.documentElement.dataset.tryammStreetverseSafe='true'
-    document.documentElement.dataset.tryammStreetverseCommunity=String(safeCommunityArea||'')
-    document.documentElement.dataset.tryammStreetverseInitialSearch=initialSearch
-  }
-  const isBusinessDirectory=currentPath==='/business'||currentPath==='/business/'
-  const businessMatch=currentPath.match(/^\/business\/([^/]+)\/?$/)
-  const businessSlug=businessMatch?.[1]||''
-  
-  if(!isStreetVerse){
-    void import('./runtime/StreetVerseCreatorDistrict3D').then(({installStreetVerseCreatorDistrict3D})=>installStreetVerseCreatorDistrict3D())
-  }
-  
-  const routeFallback=<div role="status" aria-live="polite" style={{position:'fixed',inset:0,zIndex:15980,display:'grid',placeItems:'center',background:'#050505',color:'#fff',fontFamily:'system-ui,sans-serif',fontWeight:900}}>LOADING…</div>
-  
-  const streetVerseRoute=isStreetVerseSafe?<><StreetVerseWeatherSync/><StreetVerseSafeWorld communityAreaNumber={safeCommunityArea} onClose={()=>{window.location.href='/'}} /></>:<>
-    <Suspense fallback={routeFallback}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense>
-    <StreetVerseFaithChronoPortal />
-    <div style={{position:'fixed',left:12,top:12,zIndex:16990,display:'flex',gap:8,flexWrap:'wrap'}}>
-      <button onClick={()=>{window.location.href='/streetverse/twin-world'}} style={{border:'1px solid #62b8ff99',borderRadius:999,padding:'10px 14px',background:'#071725',color:'#fff',fontWeight:950,cursor:'pointer'}}>🌎 TWIN WORLD • REAL CHICAGO</button>
-      <button onClick={()=>{window.location.href='/streetverse/meet-the-stubbs'}} style={{border:'1px solid #e8b94499',borderRadius:999,padding:'10px 14px',background:'#17120a',color:'#fff',fontWeight:950,cursor:'pointer'}}>MEET THE STUBBS • 13 WORLD STORES</button>
-      <button onClick={()=>{window.location.href='/global-trade'}} style={{border:'1px solid #7fe8c799',borderRadius:999,padding:'10px 14px',background:'#071b16',color:'#fff',fontWeight:950,cursor:'pointer'}}>GLOBAL TRADE • SUPPLY CHAIN</button>
-      <button onClick={()=>{window.location.href='/live'}} style={{border:'1px solid #ff6b8799',borderRadius:999,padding:'10px 14px',background:'#221019',color:'#fff',fontWeight:950,cursor:'pointer'}}>● TRYAMM LIVE</button>
-      <button onClick={()=>{window.location.href='/holo-drama'}} style={{border:'1px solid #ff7ce899',borderRadius:999,padding:'10px 14px',background:'#251027',color:'#fff',fontWeight:950,cursor:'pointer'}}>🎬 HOLO DRAMA</button>
-      <button onClick={()=>{window.location.href='/spectra-studios'}} style={{border:'1px solid #d594ff99',borderRadius:999,padding:'10px 14px',background:'#1b1025',color:'#fff',fontWeight:950,cursor:'pointer'}}>🎞 SPECTRA STUDIOS</button>
-      <button onClick={()=>{window.location.href='/holo-food'}} style={{border:'1px solid #ffba6899',borderRadius:999,padding:'10px 14px',background:'#25190d',color:'#fff',fontWeight:950,cursor:'pointer'}}>🍽 HOLO FOOD</button>
-      <button onClick={()=>{window.location.href='/holo-ride-share'}} style={{border:'1px solid #76c7ff99',borderRadius:999,padding:'10px 14px',background:'#0b1a25',color:'#fff',fontWeight:950,cursor:'pointer'}}>🚘 HOLO RIDE</button>
-      <button onClick={()=>{window.location.href='/guardian'}} style={{border:'1px solid #79e6c499',borderRadius:999,padding:'10px 14px',background:'#0a1d19',color:'#fff',fontWeight:950,cursor:'pointer'}}>🛡 GUARDIAN CENTER</button>
-    </div>
-  </>
-  
-  // Release compatibility marker required by the Omniverse shell smoke contract: <OmniverseCoreLoopHUD />
-  const mainShell=<>
-    <JudahSplash />
-    <App />
-    <HoloGPTEventAlias />
-    <UniversalSafetyLauncher />
-    <MiddleverseLauncher />
-    <GameVerseLauncher />
-    <GlobalLaunchBar />
-    <HoloDeliveryLauncher />
-    <HoloMarketplaceLauncher />
-  </>
-  
-  if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
-  else if(isAccessibility)routeContent=<AccessibilityStatement />
-  else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
-  else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter onClose={()=>{window.location.href='/'}} /></Suspense>
-  else if(isGuardian)routeContent=<Suspense fallback={routeFallback}><GuardianCommandCenter /></Suspense>
-  else if(isAccountDeletion)routeContent=<Suspense fallback={routeFallback}><AccountPrivacyCenter onClose={()=>{window.location.href='/'}} /></Suspense>
-  else if(isHoloDrama)routeContent=<Suspense fallback={routeFallback}><HoloDramaHub /></Suspense>
-  else if(isSpectraStudios)routeContent=<Suspense fallback={routeFallback}><SpectraStudioCommandCenter /></Suspense>
-  else if(isEthiopianBible)routeContent=<Suspense fallback={routeFallback}><EthiopianBibleMetaverse /></Suspense>
-  else if(isKingdomsPress)routeContent=<Suspense fallback={routeFallback}><KingdomsPressOperations onClose={()=>{window.location.href='/'}} /></Suspense>
-  else if(isRecoveredSurface)routeContent=<Suspense fallback={routeFallback}><HoloDeliveryRideEntertainmentHub /></Suspense>
-  else if(isNetwork)routeContent=<Suspense fallback={routeFallback}><AllAmericanNetworkHub /></Suspense>
-  else if(isServantsOfChrist)routeContent=<Suspense fallback={routeFallback}><ServantsOfChristMinistry /></Suspense>
-  else if(isCareCash)routeContent=<Suspense fallback={routeFallback}><OmniCareCashSuite /></Suspense>
-  else if(isGlobalTradeWorld)routeContent=<Suspense fallback={routeFallback}><GlobalTradeWorldHub /></Suspense>
-  else if(standaloneSite)routeContent=<StandaloneProductSite site={standaloneSite} />
-  else if(isBusinessDirectory)routeContent=<FamilyBusinessDirectory />
-  else if(businessSlug)routeContent=<FamilyBusinessPublicSite slug={businessSlug} onClose={()=>{window.location.href='/business'}} />
-  else if(isTwinWorld)routeContent=<Suspense fallback={routeFallback}><StreetVerseTwinWorld onClose={()=>{window.location.href='/'}} /></Suspense>
-  else if(isMeetStubbs)routeContent=<Suspense fallback={routeFallback}><MeetTheStubbsWorldDistrict onClose={()=>{window.location.href='/streetverse'}} /></Suspense>
-  else if(isStreetVerse)routeContent=streetVerseRoute
-  else routeContent=mainShell
-  
-  
-} catch (error) {
-  console.error('[TRYAMM] Optional runtime installer failed before React mount; continuing with core UI.', error)
-  // Keep the public shell renderable even when an optional installer aborts startup.
-  routeContent = <App />
+const currentPath=window.location.pathname
+const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
+const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
+const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
+const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
+const isLive=currentPath==='/live'||currentPath==='/live/'
+const isGuardian=currentPath==='/guardian'||currentPath==='/guardian/'
+const isHoloDrama=currentPath==='/holo-drama'||currentPath==='/holo-drama/'
+const isSpectraStudios=currentPath==='/spectra-studios'||currentPath==='/spectra-studios/'
+const isEthiopianBible=currentPath==='/ethiopian-bible'||currentPath==='/ethiopian-bible/'
+const isKingdomsPress=currentPath==='/kingdoms-press'||currentPath==='/kingdoms-press/'
+const isRecoveredSurface=['/spectra-entertainment','/spectra-entertainment/','/all-american-records','/all-american-records/','/set-apart','/set-apart/','/christian-rap','/christian-rap/','/holo-music','/holo-music/','/holo-food','/holo-food/','/holo-ride-share','/holo-ride-share/'].includes(currentPath)
+const isNetwork=['/network','/network/','/free-tv','/free-tv/','/isaiah-ai-tv','/isaiah-ai-tv/','/starverse','/starverse/'].includes(currentPath)
+const isServantsOfChrist=currentPath==='/servants-of-christ'||currentPath==='/servants-of-christ/'
+const isCareCash=['/omnicare-360','/omnicare-360/','/omnicare-rx','/omnicare-rx/','/omni-cash','/omni-cash/','/aniyah-pay','/aniyah-pay/'].includes(currentPath)
+const isGlobalTradeWorld=['/global-trade','/global-trade/','/my-world','/my-world/','/we-are-the-world','/we-are-the-world/','/kingdom','/kingdom/'].includes(currentPath)
+const isTwinWorld=currentPath.startsWith('/streetverse/twin-world')
+const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
+const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs&&!isTwinWorld
+const isBusinessDirectory=currentPath==='/business'||currentPath==='/business/'
+const businessMatch=currentPath.match(/^\/business\/([^/]+)\/?$/)
+const businessSlug=businessMatch?.[1]||''
+
+if(!isStreetVerse){
+  void import('./runtime/StreetVerseCreatorDistrict3D').then(({installStreetVerseCreatorDistrict3D})=>installStreetVerseCreatorDistrict3D())
 }
 
-const rootElement = document.getElementById('root')
-if (!rootElement) throw new Error('[TRYAMM] Missing #root mount element')
+const routeFallback=<div role="status" aria-live="polite" style={{position:'fixed',inset:0,zIndex:15980,display:'grid',placeItems:'center',background:'#050505',color:'#fff',fontFamily:'system-ui,sans-serif',fontWeight:900}}>LOADING…</div>
 
-const root = createRoot(rootElement)
+const streetVerseRoute=<>
+  <Suspense fallback={routeFallback}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense>
+  <StreetVerseFaithChronoPortal />
+  <div style={{position:'fixed',left:12,top:12,zIndex:16990,display:'flex',gap:8,flexWrap:'wrap'}}>
+    <button onClick={()=>{window.location.href='/streetverse/twin-world'}} style={{border:'1px solid #62b8ff99',borderRadius:999,padding:'10px 14px',background:'#071725',color:'#fff',fontWeight:950,cursor:'pointer'}}>🌎 TWIN WORLD • REAL CHICAGO</button>
+    <button onClick={()=>{window.location.href='/streetverse/meet-the-stubbs'}} style={{border:'1px solid #e8b94499',borderRadius:999,padding:'10px 14px',background:'#17120a',color:'#fff',fontWeight:950,cursor:'pointer'}}>MEET THE STUBBS • 13 WORLD STORES</button>
+    <button onClick={()=>{window.location.href='/global-trade'}} style={{border:'1px solid #7fe8c799',borderRadius:999,padding:'10px 14px',background:'#071b16',color:'#fff',fontWeight:950,cursor:'pointer'}}>GLOBAL TRADE • SUPPLY CHAIN</button>
+    <button onClick={()=>{window.location.href='/live'}} style={{border:'1px solid #ff6b8799',borderRadius:999,padding:'10px 14px',background:'#221019',color:'#fff',fontWeight:950,cursor:'pointer'}}>● TRYAMM LIVE</button>
+    <button onClick={()=>{window.location.href='/holo-drama'}} style={{border:'1px solid #ff7ce899',borderRadius:999,padding:'10px 14px',background:'#251027',color:'#fff',fontWeight:950,cursor:'pointer'}}>🎬 HOLO DRAMA</button>
+    <button onClick={()=>{window.location.href='/spectra-studios'}} style={{border:'1px solid #d594ff99',borderRadius:999,padding:'10px 14px',background:'#1b1025',color:'#fff',fontWeight:950,cursor:'pointer'}}>🎞 SPECTRA STUDIOS</button>
+    <button onClick={()=>{window.location.href='/holo-food'}} style={{border:'1px solid #ffba6899',borderRadius:999,padding:'10px 14px',background:'#25190d',color:'#fff',fontWeight:950,cursor:'pointer'}}>🍽 HOLO FOOD</button>
+    <button onClick={()=>{window.location.href='/holo-ride-share'}} style={{border:'1px solid #76c7ff99',borderRadius:999,padding:'10px 14px',background:'#0b1a25',color:'#fff',fontWeight:950,cursor:'pointer'}}>🚘 HOLO RIDE</button>
+    <button onClick={()=>{window.location.href='/guardian'}} style={{border:'1px solid #79e6c499',borderRadius:999,padding:'10px 14px',background:'#0a1d19',color:'#fff',fontWeight:950,cursor:'pointer'}}>🛡 GUARDIAN CENTER</button>
+  </div>
+</>
 
-// Production route diagnostic: this sits at the application entry level, outside
-// StreetVerse world/fallback implementations, so device visibility proves which
-// Vite entry and pathname the browser is actually rendering.
-const entryDiagnostic = (() => {
-  const ua = navigator.userAgent || ''
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(ua) || window.innerWidth <= 600
-  if (!isMobile || !window.location.pathname.startsWith('/streetverse')) return null
-  return (
-    <div data-tryamm-entry-diagnostic="streetverse-main-v1" style={{position:'fixed',right:8,bottom:'calc(env(safe-area-inset-bottom, 0px) + 8px)',zIndex:2147483647,pointerEvents:'none',padding:'7px 9px',borderRadius:8,background:'#ffea00',color:'#111',font:'900 11px/1.15 system-ui,sans-serif',boxShadow:'0 2px 12px #0008'}}>
-      SV ENTRY V1 • {window.location.pathname}
-    </div>
-  )
-})()
-// Runtime installers are loaded only after the core bundle has evaluated and a mount target exists.
-// A broken optional runtime module can no longer abort JavaScript bootstrap before React renders.
-const installOptionalRuntimes = () => {
-  import('./runtime/ProductionHealthMonitor').then(m => m.installProductionHealthMonitor()).catch(error => console.error('[TRYAMM] Optional runtime installProductionHealthMonitor failed after core mount.', error))
-  import('./runtime/mediaCloudBridge').then(m => m.installMediaCloudBridge()).catch(error => console.error('[TRYAMM] Optional runtime installMediaCloudBridge failed after core mount.', error))
-  import('./runtime/StreetVerseLivingWorldRuntime').then(m => m.installStreetVerseLivingWorldRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseLivingWorldRuntime failed after core mount.', error))
-  import('./runtime/StreetVerseWorldMemory').then(m => m.installStreetVerseWorldMemory()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseWorldMemory failed after core mount.', error))
-  import('./runtime/StreetVerseCheckpointRuntime').then(m => m.installStreetVerseCheckpointRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseCheckpointRuntime failed after core mount.', error))
-  import('./runtime/StreetVersePerformanceBudget').then(m => m.installStreetVersePerformanceBudget()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVersePerformanceBudget failed after core mount.', error))
-  import('./runtime/StreetVerseCharacterMissionRuntime').then(m => m.installStreetVerseCharacterMissionRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseCharacterMissionRuntime failed after core mount.', error))
-  import('./runtime/GuardianMissionProgressRuntime').then(m => m.installGuardianMissionProgressRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installGuardianMissionProgressRuntime failed after core mount.', error))
-  import('./runtime/PublicServiceCareerRuntime').then(m => m.installPublicServiceCareerRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installPublicServiceCareerRuntime failed after core mount.', error))
-  import('./runtime/StreetVerseCareerExtractionRuntime').then(m => m.installStreetVerseCareerExtractionRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseCareerExtractionRuntime failed after core mount.', error))
-  import('./runtime/DynamicDispatchRuntime').then(m => m.installDynamicDispatchRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installDynamicDispatchRuntime failed after core mount.', error))
-  import('./runtime/StreetVerseResilienceRuntime').then(m => m.installStreetVerseResilienceRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseResilienceRuntime failed after core mount.', error))
-  import('./runtime/StreetVerseUnifiedProgressionRuntime').then(m => m.installStreetVerseUnifiedProgressionRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseUnifiedProgressionRuntime failed after core mount.', error))
-  import('./runtime/StreetVerseGameModeRuntime').then(m => m.installStreetVerseGameModeRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseGameModeRuntime failed after core mount.', error))
-  import('./runtime/StreetVerseCommerceWorldRuntime').then(m => m.installStreetVerseCommerceWorldRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseCommerceWorldRuntime failed after core mount.', error))
-  import('./runtime/CommerceJobTrainingRuntime').then(m => m.installCommerceJobTrainingRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installCommerceJobTrainingRuntime failed after core mount.', error))
-  import('./runtime/RegulatedBusinessNetworkRuntime').then(m => m.installRegulatedBusinessNetworkRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installRegulatedBusinessNetworkRuntime failed after core mount.', error))
-  import('./runtime/WorldEconomyOrchestratorRuntime').then(m => m.installWorldEconomyOrchestratorRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installWorldEconomyOrchestratorRuntime failed after core mount.', error))
-  import('./runtime/LearnWorkBusinessBridgeRuntime').then(m => m.installLearnWorkBusinessBridgeRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installLearnWorkBusinessBridgeRuntime failed after core mount.', error))
-  import('./runtime/FaithLifeSimulationRuntime').then(m => m.installFaithLifeSimulationRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installFaithLifeSimulationRuntime failed after core mount.', error))
-  import('./runtime/GlobalCityVerseRuntime').then(m => m.installGlobalCityVerseRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installGlobalCityVerseRuntime failed after core mount.', error))
-  import('./runtime/GlobalWorldHierarchyRuntime').then(m => m.installGlobalWorldHierarchyRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installGlobalWorldHierarchyRuntime failed after core mount.', error))
-  import('./runtime/GlobalTravelExperienceRuntime').then(m => m.installGlobalTravelExperienceRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installGlobalTravelExperienceRuntime failed after core mount.', error))
-  import('./runtime/NiaSourceRuntime').then(m => m.installNiaSourceRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installNiaSourceRuntime failed after core mount.', error))
-  import('./runtime/QuantumSourcingRuntime').then(m => m.installQuantumSourcingRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installQuantumSourcingRuntime failed after core mount.', error))
-  import('./runtime/MetaverseBusinessBuilderRuntime').then(m => m.installMetaverseBusinessBuilderRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installMetaverseBusinessBuilderRuntime failed after core mount.', error))
-  import('./runtime/AIWebsiteBusinessBuilderRuntime').then(m => m.installAIWebsiteBusinessBuilderRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installAIWebsiteBusinessBuilderRuntime failed after core mount.', error))
-  import('./runtime/BusinessTemplateFranchiseRuntime').then(m => m.installBusinessTemplateFranchiseRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installBusinessTemplateFranchiseRuntime failed after core mount.', error))
-  import('./runtime/AICafeMultiAgentRuntime').then(m => m.installAICafeMultiAgentRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installAICafeMultiAgentRuntime failed after core mount.', error))
-  import('./runtime/MiddleverseRemoteWorkRuntime').then(m => m.installMiddleverseRemoteWorkRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installMiddleverseRemoteWorkRuntime failed after core mount.', error))
-  import('./runtime/BroadcastStudioRuntime').then(m => m.installBroadcastStudioRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installBroadcastStudioRuntime failed after core mount.', error))
-  import('./runtime/StubbsHarmonyAIRuntime').then(m => m.installStubbsHarmonyAIRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStubbsHarmonyAIRuntime failed after core mount.', error))
-  import('./runtime/CreatorExperienceRuntime').then(m => m.installCreatorExperienceRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installCreatorExperienceRuntime failed after core mount.', error))
-  import('./runtime/CreatorCommerceOrchestrator').then(m => m.installCreatorCommerceOrchestrator()).catch(error => console.error('[TRYAMM] Optional runtime installCreatorCommerceOrchestrator failed after core mount.', error))
-  import('./runtime/SocialShareBridge').then(m => m.installSocialShareBridge()).catch(error => console.error('[TRYAMM] Optional runtime installSocialShareBridge failed after core mount.', error))
-  import('./runtime/JarvisOrchestratorRuntime').then(m => m.installJarvisOrchestratorRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installJarvisOrchestratorRuntime failed after core mount.', error))
-  import('./runtime/StreetVerseGrowthNetworkRuntime').then(m => m.installStreetVerseGrowthNetworkRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseGrowthNetworkRuntime failed after core mount.', error))
-  import('./runtime/StreetVerseRacingAfterDarkRuntime').then(m => m.installStreetVerseRacingAfterDarkRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseRacingAfterDarkRuntime failed after core mount.', error))
-  import('./runtime/StreetVerseMissionDiscoveryRuntime').then(m => m.installStreetVerseMissionDiscoveryRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseMissionDiscoveryRuntime failed after core mount.', error))
-  import('./runtime/SECSConstructRuntime').then(m => m.installSECSConstructRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installSECSConstructRuntime failed after core mount.', error))
-  import('./runtime/OmniverseEventFabricRuntime').then(m => m.installOmniverseEventFabricRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installOmniverseEventFabricRuntime failed after core mount.', error))
-}
-// Mount the selected public route first. Optional global launchers must never be
-// able to prevent the TRYAMM shell or StreetVerse from becoming visible.
-root.render(
+// Release compatibility marker required by the Omniverse shell smoke contract: <OmniverseCoreLoopHUD />
+const mainShell=<>
+  <JudahSplash />
+  <App />
+  <HoloGPTEventAlias />
+  <UniversalSafetyLauncher />
+  <MiddleverseLauncher />
+  <GameVerseLauncher />
+  <GlobalLaunchBar />
+  <HoloDeliveryLauncher />
+  <HoloMarketplaceLauncher />
+</>
+
+let routeContent
+if(isAccessibility)routeContent=<AccessibilityStatement />
+else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
+else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter onClose={()=>{window.location.href='/'}} /></Suspense>
+else if(isGuardian)routeContent=<Suspense fallback={routeFallback}><GuardianCommandCenter /></Suspense>
+else if(isHoloDrama)routeContent=<Suspense fallback={routeFallback}><HoloDramaHub /></Suspense>
+else if(isSpectraStudios)routeContent=<Suspense fallback={routeFallback}><SpectraStudioCommandCenter /></Suspense>
+else if(isEthiopianBible)routeContent=<Suspense fallback={routeFallback}><EthiopianBibleMetaverse /></Suspense>
+else if(isKingdomsPress)routeContent=<Suspense fallback={routeFallback}><KingdomsPressOperations onClose={()=>{window.location.href='/'}} /></Suspense>
+else if(isRecoveredSurface)routeContent=<Suspense fallback={routeFallback}><HoloDeliveryRideEntertainmentHub /></Suspense>
+else if(isNetwork)routeContent=<Suspense fallback={routeFallback}><AllAmericanNetworkHub /></Suspense>
+else if(isServantsOfChrist)routeContent=<Suspense fallback={routeFallback}><ServantsOfChristMinistry /></Suspense>
+else if(isCareCash)routeContent=<Suspense fallback={routeFallback}><OmniCareCashSuite /></Suspense>
+else if(isGlobalTradeWorld)routeContent=<Suspense fallback={routeFallback}><GlobalTradeWorldHub /></Suspense>
+else if(standaloneSite)routeContent=<StandaloneProductSite site={standaloneSite} />
+else if(isBusinessDirectory)routeContent=<FamilyBusinessDirectory />
+else if(businessSlug)routeContent=<FamilyBusinessPublicSite slug={businessSlug} onClose={()=>{window.location.href='/business'}} />
+else if(isTwinWorld)routeContent=<Suspense fallback={routeFallback}><StreetVerseTwinWorld onClose={()=>{window.location.href='/'}} /></Suspense>
+else if(isMeetStubbs)routeContent=<Suspense fallback={routeFallback}><MeetTheStubbsWorldDistrict onClose={()=>{window.location.href='/streetverse'}} /></Suspense>
+else if(isStreetVerse)routeContent=streetVerseRoute
+else routeContent=mainShell
+
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <UniversalAccessRuntime />
+    <Suspense fallback={null}><UnifiedCommerceHub /></Suspense>
     {routeContent}
-    {entryDiagnostic}
   </StrictMode>
 )
-
-queueMicrotask(() => {
-  // Explicit safe-mode URLs are the production fallback and certification surface.
-  // Keep the first successful StreetVerse render mounted: optional global runtimes/UI
-  // must not replace or unmount it after bootstrap.
-  if (preserveDeterministicSafeRoute) return
-  installOptionalRuntimes()
-  try {
-    root.render(
-      <StrictMode>
-        <UniversalAccessRuntime />
-        <HoloExperienceLauncher />
-        <Suspense fallback={null}><UnifiedCommerceHub /></Suspense>
-        {routeContent}
-        {entryDiagnostic}
-      </StrictMode>
-    )
-  } catch (error) {
-    console.error('[TRYAMM] Optional global UI failed after core mount; preserving public route.', error)
-  }
-})

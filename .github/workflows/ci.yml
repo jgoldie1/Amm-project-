@@ -6,9 +6,12 @@ on:
     branches: [main, developer-vic, foundation/aaa-golden-order-world-rollout]
   pull_request:
     branches: [main, developer-vic, foundation/aaa-golden-order-world-rollout]
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened]
 
 concurrency:
-  group: tryamm-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: tryamm-ci-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: true
 
 permissions:

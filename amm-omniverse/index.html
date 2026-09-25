@@ -64,8 +64,8 @@
   </head>
   <body>
     <a id="tryamm-accessibility-link" href="/accessibility.html" aria-label="Open TRYAMM Accessibility Statement">♿ Accessibility</a>
-    <div id="root"><div id="tryamm-bootstrap-canary" role="status" aria-live="polite" style="min-height:100vh;display:grid;place-items:center;background:#04050e;color:#fff;font:800 18px/1.4 system-ui,sans-serif;text-align:center;padding:24px">TRYAMM is starting…</div></div>
-    <script type="module" src="/src/bootstrap.ts"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
     <script src="/tryamm-global-supply-chain.js?v=20260903-supply-v2" defer></script>
     <script src="/tryamm-store-router.js?v=20260903-store-router-v2" defer></script>
     <script src="/tryamm-local-food-network.js?v=20260903-local-food-v2" defer></script>
@@ -99,7 +99,7 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {
-            const SW_VERSION='20260921-ios-holo-release-v1'
+            const SW_VERSION='20260913-streetverse-production-surface-v1'
             const RELEASE_KEY='tryamm-release-version'
             const previousRelease=localStorage.getItem(RELEASE_KEY)
             if (previousRelease !== SW_VERSION && 'caches' in window) {
@@ -109,12 +109,8 @@
             }
             const registration = await navigator.serviceWorker.register('/sw.js?v=' + SW_VERSION, { updateViaCache: 'none' })
             await registration.update()
-            if (registration.waiting && !location.pathname.startsWith('/streetverse')) registration.waiting.postMessage({type:'SKIP_WAITING'})
+            if (registration.waiting) registration.waiting.postMessage({type:'SKIP_WAITING'})
             navigator.serviceWorker.addEventListener('controllerchange', () => {
-              // Never destroy an already-rendered StreetVerse session just because
-              // a newer service worker took control. Safari/iOS can otherwise
-              // reload the WebGL world immediately after first paint.
-              if (location.pathname.startsWith('/streetverse')) return
               const key = 'tryamm-sw-refresh-' + SW_VERSION
               if (!sessionStorage.getItem(key)) {
                 sessionStorage.setItem(key, '1')

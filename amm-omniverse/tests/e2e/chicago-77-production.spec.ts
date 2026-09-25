@@ -43,10 +43,6 @@ test.describe('Chicago 77 production certification', () => {
     await expect(world).toContainText('STREETVERSE • THE LOOP');
     await expect(world).toContainText('COMMUNITY AREA 32');
 
-    await world.getByRole('button', { name: /^CITY$/i }).click();
-    const missionControls = world.getByRole('region', { name: /StreetVerse mission controls/i });
-    await expect(missionControls).toBeVisible();
-
     const missions = [
       'The Loop Business Scout',
       'The Loop Mobility Hub',
@@ -55,7 +51,7 @@ test.describe('Chicago 77 production certification', () => {
     ];
 
     for (const mission of missions) {
-      const button = missionControls.getByRole('button', { name: new RegExp(mission, 'i') });
+      const button = world.getByRole('button', { name: new RegExp(mission, 'i') });
       await expect(button).toBeVisible();
       await button.click();
     }

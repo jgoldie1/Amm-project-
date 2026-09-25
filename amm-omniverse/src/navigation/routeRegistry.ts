@@ -33,7 +33,6 @@ export const TRYAMM_ROUTES: TryammRoute[] = [
   { id:'holoverse', path:'/holoverse', label:'Holoverse', kind:'overlay', opener:'__showHoloverse', readiness:'beta' },
   { id:'middleverse-ai', path:'/middleverse-ai', label:'Middleverse AI', kind:'overlay', opener:'__showMiddleverseAI', readiness:'beta' },
   { id:'command-nexus', path:'/command-nexus', label:'Command Nexus', kind:'overlay', opener:'__showCommandNexusV2', readiness:'beta' },
-  { id:'sparrow-map', path:'/sparrow-map', label:'Sparrow Situational Map', kind:'overlay', opener:'__showSparrowMap', readiness:'beta' },
   { id:'holo-menu', path:'/holo-menu', label:'Holo Menu', kind:'overlay', opener:'__showCommandNexusV2', readiness:'beta' },
   { id:'holo-lab', path:'/holo-lab', label:'Holo Lab', kind:'overlay', opener:'__showHoloLab', readiness:'beta' },
   { id:'xr', path:'/xr', label:'AR VR Mixed Reality', kind:'overlay', opener:'__showXR', readiness:'beta' },

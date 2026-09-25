@@ -37,12 +37,6 @@ app.post('/api/rooms/:roomId/gifts',auth,async(req,res)=>{const room=store.rooms
 app.post('/api/checkout',auth,async(req,res)=>{if(!process.env.STRIPE_SECRET_KEY)return res.status(503).json({error:'Stripe is not configured yet',code:'STRIPE_NOT_CONFIGURED',required:['STRIPE_SECRET_KEY','STRIPE_WEBHOOK_SECRET','APP_URL']});const Stripe=require('stripe'),stripe=new Stripe(process.env.STRIPE_SECRET_KEY),room=store.rooms.find(r=>r.id===clean(req.body.roomId,80));if(!room)return res.status(404).json({error:'Room not found'});const amount=room.ticketPriceCents||1000,checkout=await stripe.checkout.sessions.create({mode:'payment',customer_email:req.user.email,line_items:[{quantity:1,price_data:{currency:'usd',unit_amount:amount,product_data:{name:`TryAMM: ${room.title}`}}}],metadata:{roomId:room.id,buyerId:req.user.id,creatorId:room.hostId},success_url:`${APP_URL}/?payment=success`,cancel_url:`${APP_URL}/?payment=cancelled`});res.json({url:checkout.url})});
 app.get('/api/admin/summary',auth,admin,(_req,res)=>{const gross=store.purchases.reduce((s,p)=>s+p.amountCents,0),fees=store.purchases.reduce((s,p)=>s+p.platformFeeCents,0);res.json({users:store.users.length,creators:store.users.filter(u=>u.isCreator).length,liveRooms:store.rooms.filter(r=>r.status==='live').length,tracks:store.tracks.length,purchases:store.purchases.length,grossCents:gross,platformRevenueCents:fees,reports:store.reports.filter(r=>r.status==='open').length})});
 app.post('/api/reports',auth,async(req,res)=>{const report={id:id('rpt'),reporterId:req.user.id,roomId:clean(req.body.roomId,80),reason:clean(req.body.reason,300),status:'open',createdAt:new Date().toISOString()};if(!report.reason)return res.status(400).json({error:'Reason is required'});store.reports.push(report);await saveStore();res.status(201).json({report})});
-const {createOmniNewsOracleManager}=require('./lib/omni-news-oracle-manager');
-const {registerOmniNewsOracleRoutes}=require('./lib/omni-news-oracle-routes');
-const {registerQuantumCrawlerRoutes}=require('./lib/quantum-crawler-routes');
-const omniNewsOracleManager=createOmniNewsOracleManager();
-registerOmniNewsOracleRoutes({app,manager:omniNewsOracleManager,auth,admin});
-registerQuantumCrawlerRoutes({app,manager:omniNewsOracleManager,auth,admin});
 require('./music-api')({app,auth,clean,id,getStore:()=>store,saveStore,io});
 require('./lib/omniverse-radio-routes')({app,auth,clean,id,getStore:()=>store,saveStore,io});
 require('./lib/daily-business-boost-routes')({app,auth,clean,id,getStore:()=>store,saveStore,io});

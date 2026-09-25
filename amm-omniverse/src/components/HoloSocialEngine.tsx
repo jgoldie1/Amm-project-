@@ -4,13 +4,13 @@ import HoloGiftEngine from './HoloGiftEngine'
 import GlobalGiftPassport from './GlobalGiftPassport'
 import FaceGiftStudio from './FaceGiftStudio'
 
+type Props={onClose:()=>void}
 type Mode='feed'|'live'|'pk'|'world'
-type Props={onClose:()=>void;initialMode?:Mode}
 type GiftLane='holo'|'global'|'face'
 
-export default function HoloSocialEngine({onClose,initialMode='feed'}:Props){
+export default function HoloSocialEngine({onClose}:Props){
   const mountRef=useRef<HTMLDivElement|null>(null)
-  const [mode,setMode]=useState<Mode>(initialMode)
+  const [mode,setMode]=useState<Mode>('feed')
   const [clipSeconds,setClipSeconds]=useState(30)
   const [giftLane,setGiftLane]=useState<GiftLane>('holo')
   const [status,setStatus]=useState('HOLO SOCIAL ENGINE READY')
@@ -44,11 +44,9 @@ export default function HoloSocialEngine({onClose,initialMode='feed'}:Props){
     return()=>{cancelAnimationFrame(raf);ro.disconnect();renderer.dispose();particles.dispose();cyan.dispose();gold.dispose();mount.removeChild(renderer.domElement)}
   },[])
 
-  useEffect(()=>{setMode(initialMode)},[initialMode])
-
   useEffect(()=>{const onGift=(event:Event)=>{const detail=(event as CustomEvent<any>).detail;setStatus(`${String(detail?.giftType||'GIFT').toUpperCase()} EFFECT • ${detail?.settlementStatus||'VISUAL'}`)};window.addEventListener('tryamm:holo-gift',onGift);return()=>window.removeEventListener('tryamm:holo-gift',onGift)},[])
 
-  const launch=(target:string)=>{setStatus(`${target.toUpperCase()} HANDOFF`);if(target==='live'){const show=(window as any).__showTryAMMLive;if(typeof show==='function')show();else window.location.href='/live'}if(target==='studio')(window as any).__showPoyoAI?.();if(target==='media')window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'holo-social'}}));if(target==='lottie')window.dispatchEvent(new CustomEvent('tryamm:holo-clip-open',{detail:{source:'holo-social',mode}}))}
+  const launch=(target:string)=>{setStatus(`${target.toUpperCase()} HANDOFF`);if(target==='live')(window as any).__showTryAMMLive?.();if(target==='studio')(window as any).__showPoyoAI?.();if(target==='media')window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'holo-social'}}))}
   const makeClip=()=>{setStatus(`${clipSeconds}s CLIP → MEDIA STUDIO`);window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'holo-social',presetSeconds:clipSeconds,kind:'clip'}}))}
 
   const cards={
@@ -67,7 +65,7 @@ export default function HoloSocialEngine({onClose,initialMode='feed'}:Props){
       <div style={{marginTop:18,display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:12}}>{cards[mode].map(([title,body])=><section key={title} style={{minHeight:150,border:'1px solid #21405a',borderRadius:20,background:'linear-gradient(155deg,#081521e8,#05070ddb)',padding:18,boxShadow:'0 20px 50px #0008, inset 0 0 30px #4fe3ff09'}}><div style={{fontSize:12,color:'#4fe3ff',fontWeight:950,letterSpacing:1.5}}>{title}</div><p style={{fontSize:13,lineHeight:1.55,color:'#c8d5e4'}}>{body}</p></section>)}</div>
       {(mode==='live'||mode==='pk')&&<section style={{marginTop:14}}><div style={{display:'flex',gap:7,flexWrap:'wrap',marginBottom:8}}>{([['holo','HOLO GIFTS'],['global','GLOBAL PASSPORT'],['face','FACE GIFTS']] as const).map(([id,label])=><button key={id} onClick={()=>setGiftLane(id)} style={{...action,background:giftLane===id?'linear-gradient(135deg,#0e4354,#30213d)':'#08111a',padding:'9px 11px'}}>{label}</button>)}</div>{giftLane==='holo'&&<HoloGiftEngine recipientId={recipientId}/>} {giftLane==='global'&&<GlobalGiftPassport recipientId={recipientId}/>} {giftLane==='face'&&<FaceGiftStudio recipientId={recipientId}/>}</section>}
       <section style={{marginTop:14,border:'1px solid #4fe3ff55',borderRadius:18,background:'#06111ce8',padding:14}}><div style={{fontSize:10,letterSpacing:2,color:'#4fe3ff',fontWeight:950}}>INSTANT CLIP</div><div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:9}}>{[15,30,60].map(seconds=><button key={seconds} onClick={()=>setClipSeconds(seconds)} style={{...action,background:clipSeconds===seconds?'linear-gradient(135deg,#0e4354,#30213d)':'#08111a'}}>{seconds}s</button>)}<button onClick={makeClip} style={{...action,flex:'1 1 180px'}}>✂ MAKE {clipSeconds}s CLIP</button></div><div style={{fontSize:10,color:'#9fb0bd',marginTop:8}}>Clip → edit → Lottie/holographic effects → caption/music → render → save to phone or publish.</div></section>
-      <div style={{marginTop:18,display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(170px,1fr))',gap:10}}><button onClick={()=>launch('live')} style={action}>● OPEN LIVE CENTER</button><button onClick={()=>launch('studio')} style={action}>✦ OPEN POYO AI MAX</button><button onClick={()=>launch('media')} style={action}>🎬 OPEN REEL STUDIO</button><button onClick={()=>launch('lottie')} style={action}>✦ LOTTIE / HOLO FX</button></div>
+      <div style={{marginTop:18,display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(170px,1fr))',gap:10}}><button onClick={()=>launch('live')} style={action}>● OPEN LIVE CENTER</button><button onClick={()=>launch('studio')} style={action}>✦ OPEN POYO AI MAX</button><button onClick={()=>launch('media')} style={action}>🎬 OPEN REEL STUDIO</button></div>
       <div style={{marginTop:20,padding:16,borderRadius:18,border:'1px solid #e8b94455',background:'#110d05cc',fontSize:12,lineHeight:1.6,color:'#e8ddbd'}}>Architecture target: FEED → LIVE/PK → GLOBAL/FACE/HOLO GIFTS → CLIP → LOTTIE/HOLO FX → AI REMIX → REEL/MOVIE → WORLD PORTAL → CREATOR ATTRIBUTION → COMMERCE → VERIFIED LEDGER/WALLET → RETURN. Visual effects are immediate; real tips remain non-withdrawable until payment-provider and ledger settlement succeed.</div>
     </div>
   </div>
