@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { useGameStore } from './game/state/useGameStore'
 import { NotifToast } from './components/UIScreens'
 import TryAMMHome from './components/TryAMMHome'
@@ -86,6 +86,22 @@ export default function App() {
   const [showNexus, setShowNexus] = useState(false)
   const [showSparrowMap, setShowSparrowMap] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
+
+  // Cross-route mobile release intent: StreetVerse buttons return to the main shell
+  // with ?open=... so the requested destination must be consumed after App mounts.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const open = params.get('open')
+    if (!open) return
+
+    if (open === 'holoverse') setShowHoloverse(true)
+    else if (open === 'carousel') window.dispatchEvent(new Event('tryamm:holo-carousel-open'))
+    else return
+
+    params.delete('open')
+    const search = params.toString()
+    window.history.replaceState({}, '', window.location.pathname + (search ? '?' + search : '') + window.location.hash)
+  }, [])
 
   ;(window as any).__showPricing = () => setShowPricing(true)
   ;(window as any).__showHoloverse = () => setShowHoloverse(true)
