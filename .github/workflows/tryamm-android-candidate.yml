@@ -2,6 +2,11 @@ name: TRYAMM Android Launch Candidate
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/**'
+      - '.github/workflows/tryamm-android-candidate.yml'
   push:
     branches: [main]
     paths:
@@ -37,11 +42,14 @@ jobs:
           rm -rf android
           npx cap add android
           npx cap sync android
+          node scripts/prepare-android-release.mjs
       - name: Verify target SDK
         run: |
           grep -R "targetSdkVersion" android/variables.gradle android/app/build.gradle
           grep -R "36" android/variables.gradle android/app/build.gradle
           grep -R "online.tryamm.app" android/app/build.gradle android/app/src/main/AndroidManifest.xml || true
+          grep -F 'android.permission.CAMERA' android/app/src/main/AndroidManifest.xml
+          grep -F 'android.permission.RECORD_AUDIO' android/app/src/main/AndroidManifest.xml
       - name: Build debug APK
         run: cd android && ./gradlew assembleDebug
       - name: Build unsigned release bundle
