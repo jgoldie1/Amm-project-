@@ -67,7 +67,7 @@ jobs:
             "amm-omniverse/src/components/StreetVerseWeatherSync.tsx"
             "amm-omniverse/src/components/StreetVerseWorldEvents.tsx"
             "amm-omniverse/src/components/StreetVerseMobileWalkControls.tsx"
-            "amm-omniverse/src/components/StreetVerseOneHandRpController.tsx"
+            "amm-omniverse/src/components/StreetVerseMobileSafeWorld.tsx"
             "amm-omniverse/src/components/SparrowMapCenter.tsx"
           )
           for file in "${required[@]}"; do
