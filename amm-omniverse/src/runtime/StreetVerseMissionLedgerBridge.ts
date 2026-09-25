@@ -30,6 +30,12 @@ function toast(message:string){
   window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message}}))
 }
 
+function openMissionReel(detail:MissionCompleteDetail){
+  const reelDetail={source:'streetverse-first-drop',missionId:CLIENT_MISSION_ID,missionLabel:detail.label||'StreetVerse Chicago District 01',missionSource:detail.source||'streetverse',verified:false,rewardStatus:'pending'}
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-handoff',{detail:reelDetail}))
+  window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:reelDetail}))
+}
+
 async function getJson(path:string,token:string){
   const response=await fetch(`${apiBase()}${path}`,{headers:{Authorization:`Bearer ${token}`}})
   const data=await response.json().catch(()=>({}))
@@ -111,8 +117,7 @@ async function settleMission(detail:MissionCompleteDetail){
     }
     emitStatus(authoritative)
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-authoritative-reward',{detail:authoritative}))
-    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-handoff',{detail:{source:'streetverse-first-drop',missionId:CLIENT_MISSION_ID,missionRunId,programId:PROGRAM_ID}}))
-    window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'streetverse-first-drop',missionId:CLIENT_MISSION_ID,missionRunId,verified:true}}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-reward-update',{detail:{source:'streetverse-first-drop',missionId:CLIENT_MISSION_ID,missionRunId,programId:PROGRAM_ID,verified:true,claim:reward?.claim||null,playerState:reward?.playerState||null}}))
     const xp=Number(reward?.claim?.xp??reward?.claim?.xp_awarded??0)
     const credits=Number(reward?.claim?.holoCredits??reward?.claim?.holo_credits_awarded??0)
     toast(reward?.applied===false
@@ -135,6 +140,7 @@ export function installStreetVerseMissionLedgerBridge(){
     const detail=(event as CustomEvent<MissionCompleteDetail>).detail||{}
     const missionId=detail.id||detail.missionId||''
     if(missionId!==CLIENT_MISSION_ID)return
+    openMissionReel(detail)
     void settleMission(detail)
   })
 }
