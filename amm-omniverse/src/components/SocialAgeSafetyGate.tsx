@@ -23,7 +23,7 @@ export function bandForAge(age:number):AudienceBand{
   return 'adult'
 }
 
-function readStoredBand():AudienceBand|null{
+export function readStoredAudienceBand():AudienceBand|null{
   try{
     const parsed=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null')
     const band=String(parsed?.band||'')
@@ -33,6 +33,7 @@ function readStoredBand():AudienceBand|null{
 
 function saveBand(band:AudienceBand){
   try{localStorage.setItem(PROFILE_KEY,JSON.stringify({band,evaluatedAt:new Date().toISOString(),retained:'age-band-only'}))}catch{}
+  window.dispatchEvent(new CustomEvent('tryamm:audience-band',{detail:{band,source:'age-safety-gate'}}))
 }
 
 function readAck(band:AudienceBand,intent:SocialIntent){
@@ -51,14 +52,14 @@ function saveAck(band:AudienceBand,intent:SocialIntent){
 }
 
 export default function SocialAgeSafetyGate({open,intent,onAllow,onClose}:{open:boolean;intent:SocialIntent;onAllow:(decision:SocialSafetyDecision)=>void;onClose:()=>void}){
-  const [band,setBand]=useState<AudienceBand|null>(()=>typeof localStorage==='undefined'?null:readStoredBand())
+  const [band,setBand]=useState<AudienceBand|null>(()=>typeof localStorage==='undefined'?null:readStoredAudienceBand())
   const [birthDate,setBirthDate]=useState('')
   const [error,setError]=useState('')
   const [confirmed,setConfirmed]=useState(false)
 
   useEffect(()=>{
     if(!open)return
-    const stored=readStoredBand()
+    const stored=readStoredAudienceBand()
     setBand(stored)
     setConfirmed(stored?readAck(stored,intent):false)
     setError('')
@@ -93,7 +94,7 @@ export default function SocialAgeSafetyGate({open,intent,onAllow,onClose}:{open:
 
   const resetAge=()=>{
     try{localStorage.removeItem(PROFILE_KEY);localStorage.removeItem(SAFETY_ACK_KEY)}catch{}
-    setBand(null);setBirthDate('');setConfirmed(false);setError('')
+    setBand(null);setBirthDate('');setConfirmed(false);setError('');window.dispatchEvent(new CustomEvent('tryamm:audience-band',{detail:{band:null,source:'age-safety-reset'}}))
   }
 
   return <div role="dialog" aria-modal="true" aria-label={copy.title} style={{position:'fixed',inset:0,zIndex:24050,display:'grid',placeItems:'center',padding:18,background:'#02040bea',color:'#fff',fontFamily:'system-ui,sans-serif'}}>
