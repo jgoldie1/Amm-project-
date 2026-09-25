@@ -31,6 +31,8 @@ export const STUBBS_FAMILY_MISSIONS:StubbsFamilyMission[]=[
  {id:'stubbs-ace-free-roam',characterId:'ace',title:'Corner Challenge',objective:'Discover and complete three optional free-roam activities.',action:'complete-delivery',milestone:'free-roam-discovery',minMeetings:1,objectiveTarget:3},
  {id:'stubbs-sky-alternate-route',characterId:'sky',title:'Another Way',objective:'Complete three objectives using alternate StreetVerse routes.',action:'complete-transit-mission',milestone:'alternate-route',minMeetings:1,objectiveTarget:3},
  {id:'stubbs-miles-reputation',characterId:'miles',title:'City Remembers',objective:'Complete three positive world interactions that build persistent reputation.',action:'open-business',milestone:'reputation-builder',minMeetings:1,objectiveTarget:3},
+ {id:'stubbs-michael-vegas-connection',characterId:'michael',title:'Vegas Connection',objective:'Complete a regional StreetVerse route connecting people, jobs and businesses in the Las Vegas story lane.',action:'complete-transit-mission',milestone:'vegas-connector',minMeetings:1,objectiveTarget:3},
+ {id:'stubbs-alphonso-care-route',characterId:'alphonso',title:'Care Shift',objective:'Complete three fictional caregiving support objectives while protecting dignity, safety and privacy.',action:'complete-delivery',milestone:'care-support',minMeetings:1,objectiveTarget:3},
 ]
 export function availableStubbsFamilyMissions(characterNameOrId:string){
  const passport=getStubbsPassport(characterNameOrId)
