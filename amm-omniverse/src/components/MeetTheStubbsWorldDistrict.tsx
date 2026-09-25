@@ -20,6 +20,15 @@ const CHARACTERS:Character[]=[
  {name:'Asia Watson',role:'Family / StreetVerse',color:0x59e7ff,skin:0x9a674d,accent:0xf2ffff,x:18,z:2},
  {name:'Benny',role:'Family / Omni Host',color:0x66f0c2,skin:0x86563d,accent:0xeafff8,x:24,z:-5},
  {name:'Simone J',role:'Family / Postal Worker',color:0x5b8cff,skin:0x8f5b40,accent:0xffffff,x:30,z:2},
+ {name:'Nikki Frances',role:'Regional Companion / Detroit',color:0xd45cff,skin:0x8c5b43,accent:0xffe6ff,x:34,z:-5},
+ {name:'Tae Monroe',role:'Regional Companion / Florida',color:0x42d7b6,skin:0x8a5a42,accent:0xeafff8,x:38,z:2},
+ {name:'Tasha Ash',role:'Legacy Ally / Help Chain',color:0xff7c7c,skin:0x915e45,accent:0xffeeee,x:-34,z:-5},
+ {name:'Sarah',role:'Mother / Social Worker',color:0xb64f35,skin:0xe2b091,accent:0xf7e1d4,x:-38,z:2},
+ {name:'Jay',role:'StreetVerse / Missions',color:0x4f8cff,skin:0x85543b,accent:0xe7f0ff,x:-42,z:-5},
+ {name:'Nova',role:'StreetVerse / Missions',color:0x9f65ff,skin:0x9a684e,accent:0xf1e9ff,x:42,z:2},
+ {name:'Ace',role:'StreetVerse / Missions',color:0xffa64f,skin:0x82513a,accent:0xffefd9,x:-46,z:2},
+ {name:'Sky',role:'StreetVerse / Missions',color:0x55cfff,skin:0x98634a,accent:0xe5f8ff,x:46,z:-5},
+ {name:'Miles',role:'StreetVerse / Missions',color:0x77c96b,skin:0x89583f,accent:0xefffea,x:50,z:2},
 ]
 const DIALOGUE:Record<string,string[]>={
  'BJ Stubbs':['StreetVerse is moving. Pick a mission and build your lane.','Security, intelligence and family missions connect through Shadow Ops.'],
@@ -32,6 +41,15 @@ const DIALOGUE:Record<string,string[]>={
  'Asia Watson':['The HoloVerse storefronts are part of the story now.','Explore first. The map should reveal itself through people.'],
  Benny:['I can guide you through the Omni systems and connect the family story to the wider world.','Every world needs a host who can help people find the next experience.'],
  'Simone J':['The post office connects every neighborhood. A letter or package can become a real StreetVerse mission.','Mail routes can connect homes, businesses, creators and family stories across the city.'],
+ 'Nikki Frances':['Detroit is another doorway into StreetVerse Global.','Regional stories should connect without losing who people are.'],
+ 'Tae Monroe':['Florida has its own StreetVerse stories and relationships.','Adult story lanes stay separated from youth and family experiences.'],
+ 'Tasha Ash':['Sometimes one call changes everything. Help can become part of the legacy.','Look for the Help Chain mission when somebody in the world needs support.'],
+ Sarah:['Family services can be missions about helping people find resources, stability and a path forward.','My social-work missions focus on families, community resources and responsible choices.'],
+ Jay:['I have missions waiting across the city.','Your A B C D decisions can change what opens next.'],
+ Nova:['Explore first. Some missions only appear when the world remembers your choices.'],
+ Ace:['Free-roam can turn into a challenge at any corner.'],
+ Sky:['StreetVerse has more than one route through every story.'],
+ Miles:['Build your reputation and the city will remember what you did.'],
 }
 const WORLD_STORES:WorldStore[]=[
  {world:'StreetVerse',store:'All American Marketplace',description:'Walkable city commerce, missions, creators and local businesses.',action:()=>{(window as any).__showHoloMarketplace?.()}},
