@@ -1,9 +1,12 @@
-import {useEffect,useState} from 'react'
+import {lazy,Suspense,useEffect,useState} from 'react'
 import HoloClipScreenLayer from './HoloClipScreenLayer'
 import HoloSocialEngine from './HoloSocialEngine'
 import HoloClipStudio from './HoloClipStudio'
 import HoloLivePkLottieOverlay from './HoloLivePkLottieOverlay'
 import {TRYAMM_VERSE_DIRECTORY} from '../holo/holoClip2'
+import SocialAgeSafetyGate,{type SocialIntent,type SocialSafetyDecision} from './SocialAgeSafetyGate'
+
+const LiveCenter=lazy(()=>import('./LiveCenter'))
 
 type SocialMode='feed'|'live'|'pk'|'world'
 
@@ -12,21 +15,41 @@ export default function HoloExperienceLauncher(){
   const [socialOpen,setSocialOpen]=useState(false)
   const [socialMode,setSocialMode]=useState<SocialMode>('feed')
   const [clipOpen,setClipOpen]=useState(false)
+  const [safetyIntent,setSafetyIntent]=useState<SocialIntent|null>(null)
+  const [liveCenterOpen,setLiveCenterOpen]=useState(false)
+  const [liveCenterMode,setLiveCenterMode]=useState<SocialIntent>('live')
+  const [youthViewerOnly,setYouthViewerOnly]=useState(false)
+
+  const requestLivePk=(mode:SocialIntent,source='holo')=>{
+    setLiveCenterMode(mode)
+    setSafetyIntent(mode)
+    window.dispatchEvent(new CustomEvent('tryamm:holo-livepk-requested',{detail:{mode,source}}))
+  }
+
+  const allowLivePk=(decision:SocialSafetyDecision)=>{
+    setYouthViewerOnly(decision.youthViewerOnly)
+    setSafetyIntent(null)
+    setCarouselOpen(false)
+    setSocialOpen(false)
+    setLiveCenterOpen(true)
+  }
 
   useEffect(()=>{
     const openClip=()=>setClipOpen(true)
     const openCarousel=()=>setCarouselOpen(true)
-    const openSocial=(event:Event)=>{const d=(event as CustomEvent<{mode?:SocialMode}>).detail||{};setSocialMode(d.mode||'feed');setSocialOpen(true)}
+    const openSocial=(event:Event)=>{const d=(event as CustomEvent<{mode?:SocialMode;source?:string}>).detail||{};const mode=d.mode||'feed';if(mode==='live'||mode==='pk'){requestLivePk(mode,d.source||'holo-social-event');return}setSocialMode(mode);setSocialOpen(true)}
+    const openStreetVerseLivePk=(event:Event)=>{const d=(event as CustomEvent<{mode?:SocialIntent}>).detail||{};requestLivePk(d.mode==='pk'?'pk':'live','streetverse')}
     window.addEventListener('tryamm:holo-clip-open',openClip)
     window.addEventListener('tryamm:holo-carousel-open',openCarousel)
     window.addEventListener('tryamm:holo-social-open',openSocial)
-    return()=>{window.removeEventListener('tryamm:holo-clip-open',openClip);window.removeEventListener('tryamm:holo-carousel-open',openCarousel);window.removeEventListener('tryamm:holo-social-open',openSocial)}
+    window.addEventListener('tryamm:streetverse-holo-livepk',openStreetVerseLivePk)
+    return()=>{window.removeEventListener('tryamm:holo-clip-open',openClip);window.removeEventListener('tryamm:holo-carousel-open',openCarousel);window.removeEventListener('tryamm:holo-social-open',openSocial);window.removeEventListener('tryamm:streetverse-holo-livepk',openStreetVerseLivePk)}
   },[])
 
   const launch=(panel:string)=>{
     window.dispatchEvent(new CustomEvent('tryamm:holo-carousel-launch',{detail:{panel}}))
-    if(panel==='LIVE'){window.location.href='/live';return}
-    if(panel==='PK'){setSocialMode('pk');setSocialOpen(true);setCarouselOpen(false);return}
+    if(panel==='LIVE'){requestLivePk('live','holo-carousel');return}
+    if(panel==='PK'){requestLivePk('pk','holo-carousel');return}
     if(panel==='REELS'){window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'holo-carousel'}}));setCarouselOpen(false);return}
     if(panel==='STREETVERSE_WORLD'){window.location.href='/streetverse';return}
     if(panel==='FAITHVERSE'){window.location.href='/faithverse';return}
@@ -49,5 +72,7 @@ export default function HoloExperienceLauncher(){
     <HoloClipScreenLayer open={carouselOpen} onClose={()=>setCarouselOpen(false)} onLaunch={launch}/>
     {socialOpen&&<HoloSocialEngine key={socialMode} initialMode={socialMode} onClose={()=>setSocialOpen(false)}/>}
     {clipOpen&&<HoloClipStudio onClose={()=>setClipOpen(false)}/>}
+    <SocialAgeSafetyGate open={Boolean(safetyIntent)} intent={safetyIntent||'live'} onAllow={allowLivePk} onClose={()=>setSafetyIntent(null)}/>
+    {liveCenterOpen&&<Suspense fallback={null}><LiveCenter initialMode={liveCenterMode} initialRole={youthViewerOnly?'viewer':'host'} youthViewerOnly={youthViewerOnly} onClose={()=>setLiveCenterOpen(false)}/></Suspense>}
   </>
 }
