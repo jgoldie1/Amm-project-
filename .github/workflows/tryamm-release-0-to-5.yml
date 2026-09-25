@@ -89,6 +89,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          git fetch origin main --no-tags
           release_sha="$(git rev-parse HEAD)"
           main_sha="$(git rev-parse origin/main)"
           test "$release_sha" = "$main_sha"
