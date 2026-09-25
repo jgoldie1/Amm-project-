@@ -1,6 +1,6 @@
 {
-  "appId": "com.tryamm.omniverse",
-  "appName": "AMM Omniverse",
+  "appId": "online.tryamm.app",
+  "appName": "TRYAMM",
   "webDir": "dist",
   "server": {
     "androidScheme": "https"
@@ -25,7 +25,11 @@
       "resizeOnFullScreen": true
     },
     "PushNotifications": {
-      "presentationOptions": ["badge", "sound", "alert"]
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
     },
     "Haptics": {},
     "Geolocation": {
