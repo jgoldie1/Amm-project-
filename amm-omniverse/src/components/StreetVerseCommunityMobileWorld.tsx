@@ -110,7 +110,7 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
    <section aria-label="StreetVerse mission certification controls" style={{position:'fixed',left:0,top:0,width:1,height:1,overflow:'visible',opacity:.001,zIndex:22000,pointerEvents:'none',whiteSpace:'nowrap',display:'flex',flexDirection:'column'}}>
     {slice.missions.map(m=>{const complete=visited.includes(m.id);return <button key={`cert-${m.id}`} onClick={()=>visit(m.id)} disabled={complete} style={{position:'relative',display:'block',width:1,height:1,minWidth:1,minHeight:1,padding:0,border:0,margin:0,pointerEvents:'auto',flex:'0 0 1px'}}>{complete?'✓ ':'○ '}{m.label}</button>})}
    </section>
-   {hudOpen&&<section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:10}}>
+   {hudOpen&&<section role="region" aria-label="StreetVerse mission controls" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:10}}>
     {slice.missions.map(m=>{const complete=visited.includes(m.id);return <button key={m.id} onClick={()=>visit(m.id)} disabled={complete} style={{minHeight:118,textAlign:'left',padding:12,borderRadius:14,border:`1px solid ${complete?'#55e88a':'#ffd65a'}`,background:'#07131ff2',color:'#fff',opacity:complete?0.82:1}}>
      <div style={{fontSize:18,fontWeight:900}}>{complete?'✓ ':'○ '}{m.label}</div>
      <div style={{fontSize:12,color:'#9fc7dd',marginTop:7}}>{m.reference}</div>
