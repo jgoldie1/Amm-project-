@@ -37,7 +37,7 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
  useEffect(()=>{let raf=0,last=performance.now();const animate=(now:number)=>{if(now-last>80){last=now;setTrafficTick(now/1000)}raf=requestAnimationFrame(animate)};raf=requestAnimationFrame(animate);return()=>cancelAnimationFrame(raf)},[])
  useEffect(()=>{
   const onShellInput=(event:Event)=>{const d=(event as CustomEvent<{throttle?:number;brake?:number;steer?:number}>).detail||{};held.current.up=Number(d.throttle||0)>.05;held.current.down=Number(d.brake||0)>.05;held.current.left=Number(d.steer||0)<-.1;held.current.right=Number(d.steer||0)>.1}
-  const onVehicleInteract=()=>{setVehicle(current=>{const next=!current;vehicleRef.current=next;setMessage(next?'Car door opened • DRIVE mode active.':'Exited vehicle • WALK mode active.');return next})}
+  const onVehicleInteract=(event:Event)=>{const d=(event as CustomEvent<{entered?:boolean}>).detail||{};setVehicle(current=>{const next=typeof d.entered==='boolean'?d.entered:!current;vehicleRef.current=next;setMessage(next?'Car door opened • DRIVE mode active.':'Exited vehicle • WALK mode active.');return next})}
   window.addEventListener('tryamm:streetverse-vehicle-input',onShellInput)
   window.addEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract)
   return()=>{window.removeEventListener('tryamm:streetverse-vehicle-input',onShellInput);window.removeEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract)}
