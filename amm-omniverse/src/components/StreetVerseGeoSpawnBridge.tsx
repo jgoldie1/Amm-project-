@@ -5,6 +5,8 @@ import {installStreetVerseJourneyQARuntime} from '../runtime/StreetVerseJourneyQ
 import {installStreetVerseHydeParkMissionRuntime} from '../runtime/StreetVerseHydeParkMissionRuntime'
 import {installStreetVerseAfterDarkAlphaRuntime} from '../runtime/StreetVerseAfterDarkAlphaRuntime'
 import {installStreetVerseMissionLedgerBridge} from '../runtime/StreetVerseMissionLedgerBridge'
+import {installStreetVerseMissionDiscoveryRuntime} from '../runtime/StreetVerseMissionDiscoveryRuntime'
+import {installStreetVerseFameRuntime} from '../runtime/StreetVerseFameRuntime'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
@@ -121,6 +123,8 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>installStreetVerseHydeParkMissionRuntime(),[])
  useLayoutEffect(()=>installStreetVerseAfterDarkAlphaRuntime(),[])
  useLayoutEffect(()=>{installStreetVerseMissionLedgerBridge()},[])
+ useLayoutEffect(()=>{installStreetVerseMissionDiscoveryRuntime()},[])
+ useLayoutEffect(()=>{installStreetVerseFameRuntime()},[])
  useEffect(()=>{
   const destination=prepared.destination
   const mapped=prepared.mapped
