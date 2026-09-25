@@ -1,0 +1,547 @@
+name: TRYAMM Release 0 to 5
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_track:
+        description: 'Stage 4 destination. certify-only runs 0-3 and proof without uploading to Google Play.'
+        required: true
+        type: choice
+        default: certify-only
+        options:
+          - certify-only
+          - internal
+          - alpha
+          - beta
+          - production
+      production_rollout:
+        description: 'Production rollout fraction. Ignored outside production.'
+        required: true
+        type: choice
+        default: '0.10'
+        options:
+          - '0.05'
+          - '0.10'
+          - '0.25'
+          - '0.50'
+          - '1.00'
+      update_priority:
+        description: 'Google Play in-app update priority (0-5).'
+        required: true
+        type: choice
+        default: '2'
+        options: ['0','1','2','3','4','5']
+      play_console_ready:
+        description: 'I verified Play developer identity/package registration, Android Publisher API, service-account access, IARC/Data safety/app-access/store declarations.'
+        required: true
+        type: boolean
+        default: false
+      production_confirmation:
+        description: 'For production only, type RELEASE TRYAMM'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: tryamm-release-0-to-5
+  cancel-in-progress: false
+
+env:
+  TZ: America/Chicago
+  PACKAGE_NAME: online.tryamm.app
+
+jobs:
+  stage-0-freeze:
+    name: '0 · Freeze exact release'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    outputs:
+      release_sha: ${{ steps.version.outputs.release_sha }}
+      version_code: ${{ steps.version.outputs.version_code }}
+      version_name: ${{ steps.version.outputs.version_name }}
+    steps:
+      - name: Require main branch dispatch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${{ github.ref }}" = "refs/heads/main"
+          echo "Stage 0 requires workflow dispatch from main."
+
+      - name: Checkout exact main SHA
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+
+      - name: Freeze SHA and deterministic Play version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          release_sha="$(git rev-parse HEAD)"
+          main_sha="$(git rev-parse origin/main)"
+          test "$release_sha" = "$main_sha"
+
+          base_version="$(node -p "require('./amm-omniverse/package.json').version")"
+          short_sha="${release_sha:0:8}"
+
+          # Monotonic high-range versionCode:
+          # 2,000,000,000 + (days since 2020-01-01 UTC * 2000) + minute of UTC day.
+          # This stays below Google Play's 2,100,000,000 maximum for decades.
+          now_epoch="$(date -u +%s)"
+          epoch_2020=1577836800
+          days="$(( (now_epoch - epoch_2020) / 86400 ))"
+          hour="$(date -u +%H)"; minute="$(date -u +%M)"
+          minute_of_day="$((10#$hour * 60 + 10#$minute))"
+          version_code="$((2000000000 + days * 2000 + minute_of_day))"
+          test "$version_code" -gt 0
+          test "$version_code" -le 2100000000
+          version_name="${base_version}-alpha.${short_sha}"
+
+          echo "release_sha=$release_sha" >> "$GITHUB_OUTPUT"
+          echo "version_code=$version_code" >> "$GITHUB_OUTPUT"
+          echo "version_name=$version_name" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Stage 0 · Freeze"
+            echo "- SHA: `$release_sha`"
+            echo "- Version: `$version_name`"
+            echo "- versionCode: `$version_code`"
+            echo "- Track request: `${{ inputs.release_track }}`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Install app dependencies
+        working-directory: amm-omniverse
+        run: npm ci
+
+      - name: Run release contracts and preserve phone performance
+        working-directory: amm-omniverse
+        run: |
+          npm run check
+          grep -F 'renderer.shadowMap.enabled=false' src/components/StreetVerseMobileWorld.tsx
+          node tests/streetverse-mobile-visible-city-contract.mjs
+          node tests/performance-release-contract.mjs
+          node tests/google-play-release-contract.mjs
+          node tests/account-deletion-release-contract.mjs
+
+      - name: Require publishing credentials when Play upload requested
+        if: ${{ inputs.release_track != 'certify-only' }}
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$ANDROID_KEYSTORE_BASE64"
+          test -n "$ANDROID_KEYSTORE_PASSWORD"
+          test -n "$ANDROID_KEY_ALIAS"
+          test -n "$ANDROID_KEY_PASSWORD"
+          test -n "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON"
+          echo "Signing + Google Play credentials are present (values not printed)."
+
+  stage-1-certify:
+    name: '1 · Certify exact production'
+    needs: [stage-0-freeze]
+    uses: ./.github/workflows/deploy-tryamm-production.yml
+    secrets: inherit
+
+  stage-2-package:
+    name: '2 · Package + sign Android'
+    needs: [stage-0-freeze, stage-1-certify]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    outputs:
+      signed: ${{ steps.sign.outputs.signed }}
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - name: Checkout exact release SHA
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.stage-0-freeze.outputs.release_sha }}
+          fetch-depth: 0
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install Android 16 / API 36 SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          ANDROID_SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          SDKMANAGER="$(find "$ANDROID_SDK_ROOT/cmdline-tools" -type f -path '*/bin/sdkmanager' | sort -V | tail -n 1)"
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0'
+
+      - name: Build certified web bundle
+        run: |
+          npm ci
+          npm run typecheck
+          node tests/google-play-release-contract.mjs
+          npm run build
+
+      - name: Generate versioned native shell
+        env:
+          TRYAMM_VERSION_CODE: ${{ needs.stage-0-freeze.outputs.version_code }}
+          TRYAMM_VERSION_NAME: ${{ needs.stage-0-freeze.outputs.version_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf android release-output
+          npx cap add android
+          npx cap sync android
+          node scripts/prepare-android-release.mjs
+          grep -F "versionCode ${TRYAMM_VERSION_CODE}" android/app/build.gradle
+          grep -F "versionName \"${TRYAMM_VERSION_NAME}\"" android/app/build.gradle
+          grep -R "targetSdkVersion" android/variables.gradle android/app/build.gradle
+          grep -R "36" android/variables.gradle android/app/build.gradle
+          grep -F 'android.permission.CAMERA' android/app/src/main/AndroidManifest.xml
+          grep -F 'android.permission.RECORD_AUDIO' android/app/src/main/AndroidManifest.xml
+
+      - name: Build APK and release AAB
+        run: |
+          cd android
+          ./gradlew assembleDebug
+          ./gradlew bundleRelease
+
+      - name: Sign Play AAB when signing credentials exist
+        id: sign
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          PLAY_REQUESTED: ${{ inputs.release_track != 'certify-only' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release-output
+          AAB="$(find android/app/build/outputs/bundle/release -maxdepth 1 -name '*.aab' | head -n 1)"
+          test -n "$AAB"
+
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$ANDROID_KEYSTORE_PASSWORD" ] || [ -z "$ANDROID_KEY_ALIAS" ] || [ -z "$ANDROID_KEY_PASSWORD" ]; then
+            cp "$AAB" release-output/tryamm-release-unsigned.aab
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            if [ "$PLAY_REQUESTED" = "true" ]; then
+              echo "::error::Google Play upload requested but Android signing secrets are missing."
+              exit 1
+            fi
+            echo "Certify-only candidate remains unsigned."
+            exit 0
+          fi
+
+          KEYSTORE="$RUNNER_TEMP/tryamm-upload-key.jks"
+          SIGNED="release-output/tryamm-release-signed.aab"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE"
+          cp "$AAB" "$SIGNED"
+          jarsigner -keystore "$KEYSTORE" -storepass "$ANDROID_KEYSTORE_PASSWORD" -keypass "$ANDROID_KEY_PASSWORD" "$SIGNED" "$ANDROID_KEY_ALIAS"
+          jarsigner -verify "$SIGNED"
+          rm -f "$KEYSTORE"
+          echo "signed=true" >> "$GITHUB_OUTPUT"
+          echo "Signed AAB verified."
+
+      - name: Upload complete Android candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-android-0-to-5-${{ needs.stage-0-freeze.outputs.release_sha }}
+          path: |
+            amm-omniverse/android/app/build/outputs/apk/debug/*.apk
+            amm-omniverse/android/app/build/outputs/bundle/release/*.aab
+            amm-omniverse/release-output/*.aab
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload signed Play artifact
+        if: ${{ steps.sign.outputs.signed == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-play-aab-${{ needs.stage-0-freeze.outputs.release_sha }}
+          path: amm-omniverse/release-output/tryamm-release-signed.aab
+          if-no-files-found: error
+          retention-days: 90
+
+  stage-3-store-gate:
+    name: '3 · Store + device gate'
+    needs: [stage-0-freeze, stage-1-certify, stage-2-package]
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout exact release
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.stage-0-freeze.outputs.release_sha }}
+          fetch-depth: 1
+
+      - name: Verify exact live SHA and store-facing policy URLs
+        env:
+          EXPECTED_SHA: ${{ needs.stage-0-freeze.outputs.release_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, urllib.request
+          expected=os.environ['EXPECTED_SHA']
+          def get(url):
+              req=urllib.request.Request(url,headers={'User-Agent':'TRYAMM-Release-0-to-5/1.0','Cache-Control':'no-cache'})
+              with urllib.request.urlopen(req,timeout=45) as r:
+                  return r.status,r.read(300000).decode('utf-8','replace')
+          status,body=get('https://tryamm.online/api/system/release')
+          payload=json.loads(body)
+          assert status==200 and payload.get('commitSha')==expected, (status,payload.get('commitSha'),expected)
+          for url,needle in [
+              ('https://tryamm.online/privacy.html','13–15'),
+              ('https://tryamm.online/terms.html','13–15'),
+              ('https://tryamm.online/account-deletion.html','Open Account Privacy Center'),
+              ('https://tryamm.online/streetverse','TRYAMM StreetVerse Safe World'),
+          ]:
+              s,b=get(url)
+              assert s==200 and needle in b, (url,s,needle)
+          print('Exact production SHA + policy/deletion/StreetVerse surfaces: PASS')
+          PY
+
+      - name: Require Play Console readiness for any upload
+        if: ${{ inputs.release_track != 'certify-only' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${{ inputs.play_console_ready }}" = "true"
+          echo "Play Console readiness attested for package $PACKAGE_NAME."
+
+      - name: Require explicit production release confirmation
+        if: ${{ inputs.release_track == 'production' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${{ inputs.production_confirmation }}" = "RELEASE TRYAMM"
+          echo "Production confirmation accepted."
+
+      - name: Require exact-SHA iPhone and Android device certificates for production
+        if: ${{ inputs.release_track == 'production' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ needs.stage-0-freeze.outputs.release_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for device in iphone-safari android-chrome; do
+            name="tryamm-device-proof-${RELEASE_SHA}-${device}"
+            count="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=${name}&per_page=100" --jq '[.artifacts[] | select(.expired == false)] | length')"
+            echo "${device}: ${count} non-expired exact-SHA certificate artifact(s)"
+            test "$count" -gt 0
+          done
+          echo "Physical iPhone + Android release matrix: PASS"
+
+      - name: Mark stage 3
+        shell: bash
+        run: |
+          {
+            echo "## Stage 3 · Store + Device Gate"
+            echo "- Exact live SHA: PASS"
+            echo "- Public Privacy/Terms/Delete/StreetVerse: PASS"
+            echo "- Requested Play track: `${{ inputs.release_track }}`"
+            echo "- Phone rendering baseline: expensive real-time shadows remain disabled on the lightweight mobile renderer"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  stage-4-publish:
+    name: '4 · Publish to Google Play'
+    if: ${{ inputs.release_track != 'certify-only' }}
+    needs: [stage-0-freeze, stage-2-package, stage-3-store-gate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      committed_edit_id: ${{ steps.publish-test.outputs.committedEditId || steps.publish-prod-staged.outputs.committedEditId || steps.publish-prod-full.outputs.committedEditId }}
+    steps:
+      - name: Checkout release metadata
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.stage-0-freeze.outputs.release_sha }}
+          fetch-depth: 1
+
+      - name: Download signed AAB
+        uses: actions/download-artifact@v4
+        with:
+          name: tryamm-play-aab-${{ needs.stage-0-freeze.outputs.release_sha }}
+          path: play-aab
+
+      - name: Verify signed AAB exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f play-aab/tryamm-release-signed.aab
+          jarsigner -verify play-aab/tryamm-release-signed.aab
+
+      - name: Publish testing track
+        id: publish-test
+        if: ${{ inputs.release_track != 'production' }}
+        uses: r0adkll/upload-google-play@v1.1.5
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: online.tryamm.app
+          releaseFiles: play-aab/tryamm-release-signed.aab
+          tracks: ${{ inputs.release_track }}
+          releaseName: TRYAMM ${{ needs.stage-0-freeze.outputs.version_name }}
+          status: completed
+          inAppUpdatePriority: ${{ inputs.update_priority }}
+          whatsNewDirectory: amm-omniverse/distribution/whatsnew
+          changesNotSentForReview: false
+
+      - name: Publish staged production rollout
+        id: publish-prod-staged
+        if: ${{ inputs.release_track == 'production' && inputs.production_rollout != '1.00' }}
+        uses: r0adkll/upload-google-play@v1.1.5
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: online.tryamm.app
+          releaseFiles: play-aab/tryamm-release-signed.aab
+          tracks: production
+          releaseName: TRYAMM ${{ needs.stage-0-freeze.outputs.version_name }}
+          status: inProgress
+          userFraction: ${{ inputs.production_rollout }}
+          inAppUpdatePriority: ${{ inputs.update_priority }}
+          whatsNewDirectory: amm-omniverse/distribution/whatsnew
+          changesNotSentForReview: false
+
+      - name: Publish full production rollout
+        id: publish-prod-full
+        if: ${{ inputs.release_track == 'production' && inputs.production_rollout == '1.00' }}
+        uses: r0adkll/upload-google-play@v1.1.5
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: online.tryamm.app
+          releaseFiles: play-aab/tryamm-release-signed.aab
+          tracks: production
+          releaseName: TRYAMM ${{ needs.stage-0-freeze.outputs.version_name }}
+          status: completed
+          inAppUpdatePriority: ${{ inputs.update_priority }}
+          whatsNewDirectory: amm-omniverse/distribution/whatsnew
+          changesNotSentForReview: false
+
+      - name: Record Play upload
+        shell: bash
+        run: |
+          {
+            echo "## Stage 4 · Google Play"
+            echo "- Track: `${{ inputs.release_track }}`"
+            echo "- Version: `${{ needs.stage-0-freeze.outputs.version_name }}`"
+            echo "- versionCode: `${{ needs.stage-0-freeze.outputs.version_code }}`"
+            echo "- Production rollout: `${{ inputs.production_rollout }}`"
+            echo "- Upload action: r0adkll/upload-google-play@v1.1.5"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  stage-5-proof:
+    name: '5 · Release proof'
+    if: ${{ always() }}
+    needs: [stage-0-freeze, stage-1-certify, stage-2-package, stage-3-store-gate, stage-4-publish]
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Build 0-to-5 release proof
+        env:
+          RELEASE_SHA: ${{ needs.stage-0-freeze.outputs.release_sha }}
+          VERSION_CODE: ${{ needs.stage-0-freeze.outputs.version_code }}
+          VERSION_NAME: ${{ needs.stage-0-freeze.outputs.version_name }}
+          TRACK: ${{ inputs.release_track }}
+          ROLLOUT: ${{ inputs.production_rollout }}
+          UPDATE_PRIORITY: ${{ inputs.update_priority }}
+          FREEZE_RESULT: ${{ needs.stage-0-freeze.result }}
+          CERTIFY_RESULT: ${{ needs.stage-1-certify.result }}
+          PACKAGE_RESULT: ${{ needs.stage-2-package.result }}
+          STORE_RESULT: ${{ needs.stage-3-store-gate.result }}
+          PUBLISH_RESULT: ${{ needs.stage-4-publish.result }}
+          PLAY_EDIT_ID: ${{ needs.stage-4-publish.outputs.committed_edit_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import datetime, json, os
+          track=os.environ['TRACK']
+          publish=os.environ['PUBLISH_RESULT']
+          required={
+            'stage0':os.environ['FREEZE_RESULT'],
+            'stage1':os.environ['CERTIFY_RESULT'],
+            'stage2':os.environ['PACKAGE_RESULT'],
+            'stage3':os.environ['STORE_RESULT'],
+          }
+          ok=all(v=='success' for v in required.values())
+          if track=='certify-only':
+              ok=ok and publish=='skipped'
+          else:
+              ok=ok and publish=='success'
+          proof={
+            'schema':'tryamm.release-0-to-5.proof.v1',
+            'releaseSha':os.environ['RELEASE_SHA'],
+            'versionCode':int(os.environ['VERSION_CODE']) if os.environ['VERSION_CODE'] else None,
+            'versionName':os.environ['VERSION_NAME'] or None,
+            'track':track,
+            'productionRollout':os.environ['ROLLOUT'],
+            'updatePriority':int(os.environ['UPDATE_PRIORITY']),
+            'stages':{
+              '0-freeze':os.environ['FREEZE_RESULT'],
+              '1-certify':os.environ['CERTIFY_RESULT'],
+              '2-package':os.environ['PACKAGE_RESULT'],
+              '3-store-device-gate':os.environ['STORE_RESULT'],
+              '4-google-play':publish,
+              '5-proof':'success' if ok else 'blocked',
+            },
+            'googlePlayCommittedEditId':os.environ.get('PLAY_EDIT_ID') or None,
+            'graphicsRule':'low-tier mobile shadows stay off; visual quality improves through optimized art/LOD/material/animation/streaming paths',
+            'proofGeneratedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            'releaseControllerGreen':ok,
+            'postReleaseWatch':'scheduled workflow tryamm-post-release-watch.yml remains active',
+          }
+          with open('tryamm-release-0-to-5-proof.json','w') as f:
+              json.dump(proof,f,indent=2)
+          print(json.dumps(proof,indent=2))
+          if not ok:
+              raise SystemExit('TRYAMM 0-to-5 release controller is BLOCKED')
+          PY
+
+      - name: Upload durable release proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-release-0-to-5-${{ needs.stage-0-freeze.outputs.release_sha || github.sha }}
+          path: tryamm-release-0-to-5-proof.json
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Final summary
+        if: success()
+        shell: bash
+        run: |
+          {
+            echo "## TRYAMM Release 0 → 5 GREEN"
+            echo "- Stage 0 Freeze: GREEN"
+            echo "- Stage 1 Production Certification: GREEN"
+            echo "- Stage 2 Android Package: GREEN"
+            echo "- Stage 3 Store/Device Gate: GREEN"
+            echo "- Stage 4 Google Play: `${{ needs.stage-4-publish.result }}`"
+            echo "- Stage 5 Proof: GREEN"
+            echo "- Track: `${{ inputs.release_track }}`"
+          } >> "$GITHUB_STEP_SUMMARY"
