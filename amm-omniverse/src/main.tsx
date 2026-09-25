@@ -32,6 +32,7 @@ const OmniCareCashSuite=lazy(()=>import('./components/OmniCareCashSuite'))
 const GlobalTradeWorldHub=lazy(()=>import('./components/GlobalTradeWorldHub'))
 const LiveCenter=lazy(()=>import('./components/LiveCenter'))
 const GuardianCommandCenter=lazy(()=>import('./components/GuardianCommandCenter'))
+const AccountPrivacyCenter=lazy(()=>import('./components/AccountPrivacyCenter'))
 const HoloDramaHub=lazy(()=>import('./components/HoloDramaHub'))
 const HoloDeliveryRideEntertainmentHub=lazy(()=>import('./components/HoloDeliveryRideEntertainmentHub'))
 const SpectraStudioCommandCenter=lazy(()=>import('./components/SpectraStudioCommandCenter'))
@@ -53,6 +54,7 @@ try {
   const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
   const isLive=currentPath==='/live'||currentPath==='/live/'
   const isGuardian=currentPath==='/guardian'||currentPath==='/guardian/'
+  const isAccountDeletion=currentPath==='/account-deletion'||currentPath==='/account-deletion/'
   const isHoloDrama=currentPath==='/holo-drama'||currentPath==='/holo-drama/'
   const isSpectraStudios=currentPath==='/spectra-studios'||currentPath==='/spectra-studios/'
   const isEthiopianBible=currentPath==='/ethiopian-bible'||currentPath==='/ethiopian-bible/'
@@ -123,6 +125,7 @@ try {
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
   else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isGuardian)routeContent=<Suspense fallback={routeFallback}><GuardianCommandCenter /></Suspense>
+  else if(isAccountDeletion)routeContent=<Suspense fallback={routeFallback}><AccountPrivacyCenter onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isHoloDrama)routeContent=<Suspense fallback={routeFallback}><HoloDramaHub /></Suspense>
   else if(isSpectraStudios)routeContent=<Suspense fallback={routeFallback}><SpectraStudioCommandCenter /></Suspense>
   else if(isEthiopianBible)routeContent=<Suspense fallback={routeFallback}><EthiopianBibleMetaverse /></Suspense>
