@@ -20,5 +20,13 @@ export default function StreetVerseReelEventBridge(){
   window.addEventListener('tryamm:streetverse-reel-reward-update',rewardHandler)
   return()=>{window.removeEventListener('tryamm:open-reel-creator',openHandler);window.removeEventListener('tryamm:streetverse-reel-reward-update',rewardHandler)}
  },[])
- return <Suspense fallback={null}><StreetVerseReelRecorder open={open} context={context} onClose={()=>setOpen(false)}/></Suspense>
+ const closeAndReturn=()=>{
+  const detail={source:'streetverse-reel-event-bridge',missionId:context.missionId||'',missionLabel:context.missionLabel||'',missionRunId:context.missionRunId||'',rewardStatus:context.verified?'verified':context.rewardStatus||'pending',returnedToWorld:true,continuityPreserved:true,at:new Date().toISOString()}
+  setOpen(false)
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-closed',{detail}))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-returned-to-world',{detail}))
+  window.dispatchEvent(new CustomEvent('tryamm:accessibility-announce',{detail:{text:'Returned to StreetVerse with mission progress preserved.'}}))
+  setContext({})
+ }
+ return <Suspense fallback={null}><StreetVerseReelRecorder open={open} context={context} onClose={closeAndReturn}/></Suspense>
 }
