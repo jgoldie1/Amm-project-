@@ -10,7 +10,8 @@ type Rig={root:THREE.Group;leftArm:THREE.Group;rightArm:THREE.Group;leftLeg:THRE
 
 const SAVE_KEY='tryamm.stubbs-family.playable.v2'
 const CHARACTERS:Character[]=[
- {name:'BJ',role:'Family / StreetVerse',color:0x4fe3ff,skin:0x8a5638,accent:0xffffff,x:-18,z:2},
+ {name:'BJ Stubbs',role:'Security / Shadow Ops / Family',color:0x111820,skin:0x8a5638,accent:0xffffff,x:-18,z:2},
+ {name:'Marcus Stubbs',role:'Family / StreetVerse',color:0x6b8cff,skin:0x87583d,accent:0xe9efff,x:-15,z:7},
  {name:'Al B',role:'Family / StreetVerse',color:0xe8b944,skin:0x7a472f,accent:0x20242b,x:-12,z:-5},
  {name:'Kenosha',role:'Mom / Legacy',color:0xff6fae,skin:0x9a6443,accent:0xffd8e8,x:-6,z:3},
  {name:'Raymond Jarreau',role:'Uncle / Legacy',color:0x77d98b,skin:0x75472f,accent:0xf3efe6,x:0,z:-5},
@@ -21,7 +22,8 @@ const CHARACTERS:Character[]=[
  {name:'Simone J',role:'Family / Postal Worker',color:0x5b8cff,skin:0x8f5b40,accent:0xffffff,x:30,z:2},
 ]
 const DIALOGUE:Record<string,string[]>={
- BJ:['StreetVerse is moving. Pick a mission and build your lane.','The family district connects to the whole TRYAMM world.'],
+ 'BJ Stubbs':['StreetVerse is moving. Pick a mission and build your lane.','Security, intelligence and family missions connect through Shadow Ops.'],
+ 'Marcus Stubbs':['Every family member can have a life, missions and relationships in StreetVerse.','Meet me in the district and the world can remember what we build together.'],
  'Al B':['Every block needs a purpose. Explore the stores and bring something back.','Try a race, a business mission, then capture the moment.'],
  Kenosha:['Legacy means people can walk through the story, not only read it.','Come home, build, learn and leave something for the next generation.'],
  'Raymond Jarreau':['There is always another route through the city.','Talk to everybody. The world should remember who you met.'],
