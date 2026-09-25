@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Verify web app
-        run: npm run typecheck && node tests/google-play-12plus-release-contract.mjs && npm run build
+        run: npm run typecheck && node tests/google-play-release-contract.mjs && npm run build
       - name: Generate Android shell
         run: |
           rm -rf android
@@ -58,8 +58,40 @@ jobs:
           grep -F 'android.permission.RECORD_AUDIO' android/app/src/main/AndroidManifest.xml
       - name: Build debug APK
         run: cd android && ./gradlew assembleDebug
-      - name: Build unsigned release bundle
+      - name: Build release bundle
         run: cd android && ./gradlew bundleRelease
+      - name: Sign release bundle when Play upload key is configured
+        id: sign_bundle
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          AAB="$(find android/app/build/outputs/bundle/release -maxdepth 1 -name '*.aab' | head -n 1)"
+          test -n "$AAB"
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$ANDROID_KEYSTORE_PASSWORD" ] || [ -z "$ANDROID_KEY_ALIAS" ] || [ -z "$ANDROID_KEY_PASSWORD" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "### Android signing" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Upload key not configured; PR candidate remains unsigned." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          KEYSTORE="$RUNNER_TEMP/tryamm-upload-key.jks"
+          SIGNED="android/app/build/outputs/bundle/release/tryamm-release-signed.aab"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE"
+          cp "$AAB" "$SIGNED"
+          jarsigner -keystore "$KEYSTORE" -storepass "$ANDROID_KEYSTORE_PASSWORD" -keypass "$ANDROID_KEY_PASSWORD" "$SIGNED" "$ANDROID_KEY_ALIAS"
+          jarsigner -verify "$SIGNED"
+          rm -f "$KEYSTORE"
+          echo "configured=true" >> "$GITHUB_OUTPUT"
+          echo "signed_aab=$SIGNED" >> "$GITHUB_OUTPUT"
+          echo "### Android signing" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Upload-key-signed AAB verified with jarsigner." >> "$GITHUB_STEP_SUMMARY"
+      - name: Require signed AAB for manual Play release
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          test "${{ steps.sign_bundle.outputs.configured }}" = "true"
+          echo "Manual Play release signing gate: PASS"
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
         with:
