@@ -88,13 +88,13 @@ export default function InstallPrompt() {
         <div><div style={{color:'#4FE3FF',fontSize:11,fontWeight:950,letterSpacing:2}}>INSTALL TRYAMM</div><div style={{fontSize:18,fontWeight:950,marginTop:3}}>No App Store needed</div></div>
         <button aria-label="Close install instructions" onClick={handleDismiss} style={{background:'#111827',border:'1px solid #334155',color:'#fff',width:36,height:36,borderRadius:'50%',cursor:'pointer'}}>×</button>
       </div>
-      <p style={{color:'#aeb9c8',fontSize:13,lineHeight:1.55}}>On iPhone or iPad, install TRYAMM directly from Safari:</p>
+      <p style={{color:'#aeb9c8',fontSize:13,lineHeight:1.55}}>Apple does not provide a website install button on this iPhone version. Use Safari's Share menu:</p>
       <div style={{display:'grid',gap:9,fontSize:13}}>
         <div style={{padding:12,borderRadius:12,background:'#0b1320'}}>1. Tap <strong style={{color:'#4FE3FF'}}>Share</strong> in Safari.</div>
         <div style={{padding:12,borderRadius:12,background:'#0b1320'}}>2. Choose <strong style={{color:'#4FE3FF'}}>Add to Home Screen</strong>.</div>
         <div style={{padding:12,borderRadius:12,background:'#0b1320'}}>3. Tap <strong style={{color:'#E8B944'}}>Add</strong>. TRYAMM opens like an app.</div>
       </div>
-      <div style={{marginTop:12,color:'#718096',fontSize:10}}>Installable web app • Full-screen launch • Updates from tryamm.online</div>
+      <button onClick={()=>{setShowBanner(false);window.location.href='/streetverse'}} style={{width:'100%',marginTop:12,border:0,borderRadius:13,padding:'14px 16px',background:'linear-gradient(135deg,#4FE3FF,#66A6FF)',color:'#04111a',fontWeight:950,cursor:'pointer'}}>🎮 CONTINUE TO STREETVERSE</button><div style={{marginTop:12,color:'#718096',fontSize:10}}>Safari Share icon is usually a square with an upward arrow. If Add to Home Screen is hidden, scroll the Share sheet actions. • Full-screen launch • Updates from tryamm.online</div>
     </div>
   )
 
