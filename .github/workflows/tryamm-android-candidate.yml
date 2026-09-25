@@ -3,7 +3,7 @@ name: TRYAMM Android Launch Candidate
 on:
   workflow_dispatch:
   push:
-    branches: [developer-vic]
+    branches: [main]
     paths:
       - 'amm-omniverse/**'
       - '.github/workflows/tryamm-android-candidate.yml'
@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22.13.0'
+          node-version: '24'
           cache: npm
           cache-dependency-path: amm-omniverse/package-lock.json
       - uses: actions/setup-java@v4
@@ -31,14 +31,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Verify web app
-        run: npm run typecheck && npm run build
+        run: npm run typecheck && node tests/google-play-12plus-release-contract.mjs && npm run build
       - name: Generate Android shell
         run: |
           rm -rf android
           npx cap add android
           npx cap sync android
       - name: Verify target SDK
-        run: grep -R "targetSdkVersion" android/variables.gradle android/app/build.gradle || true
+        run: |
+          grep -R "targetSdkVersion" android/variables.gradle android/app/build.gradle
+          grep -R "36" android/variables.gradle android/app/build.gradle
+          grep -R "online.tryamm.app" android/app/build.gradle android/app/src/main/AndroidManifest.xml || true
       - name: Build debug APK
         run: cd android && ./gradlew assembleDebug
       - name: Build unsigned release bundle
