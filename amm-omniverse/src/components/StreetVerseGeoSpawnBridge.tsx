@@ -4,7 +4,7 @@ import {getStreetVerseCommunitySlice} from '../config/streetverseCommunitySlices
 import {installStreetVerseJourneyQARuntime} from '../runtime/StreetVerseJourneyQARuntime'
 import {installStreetVerseHydeParkMissionRuntime} from '../runtime/StreetVerseHydeParkMissionRuntime'
 import {installStreetVerseAfterDarkAlphaRuntime} from '../runtime/StreetVerseAfterDarkAlphaRuntime'
-import {installStreetVerseMissionLedgerBridge} from '../runtime/StreetVerseMissionLedgerBridge'
+import {installStreetVerseMissionLedgerBridge} from '../runtime/StreetVerseMissionLedgerBridge'\nimport {installStreetVerseFameRuntime} from '../runtime/StreetVerseFameRuntime'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
@@ -120,7 +120,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>installStreetVerseJourneyQARuntime(),[])
  useLayoutEffect(()=>installStreetVerseHydeParkMissionRuntime(),[])
  useLayoutEffect(()=>installStreetVerseAfterDarkAlphaRuntime(),[])
- useLayoutEffect(()=>{installStreetVerseMissionLedgerBridge()},[])
+ useLayoutEffect(()=>{installStreetVerseMissionLedgerBridge()},[])\n useLayoutEffect(()=>{installStreetVerseFameRuntime()},[])
  useEffect(()=>{
   const destination=prepared.destination
   const mapped=prepared.mapped
