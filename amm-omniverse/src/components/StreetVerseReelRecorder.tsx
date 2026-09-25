@@ -60,6 +60,7 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
   }catch(e){setError(e instanceof Error?e.message:'Camera access failed')}
  }
  const stopRecording=()=>{const recorder=recorderRef.current;if(recorder&&recorder.state!=='inactive')recorder.stop()}
+ const returnToWorld=()=>{if(recording)stopRecording();stopStream();onClose()}
  const share=async()=>{
   if(!url)return
   try{
@@ -100,13 +101,14 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
  }
  return <div style={{position:'fixed',inset:0,zIndex:22000,background:'#02050af4',color:'#fff',fontFamily:'system-ui',padding:16,overflow:'auto'}}>
   <div style={{maxWidth:620,margin:'0 auto'}}>
-   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12}}><div><b>STREETVERSE REEL</b>{context.missionId&&<div style={{fontSize:10,color:'#59e7ff',fontWeight:900,marginTop:3}}>MISSION • {missionLabel||context.missionId} • {context.verified?'REWARD VERIFIED':'REWARD PENDING'}</div>}<div aria-live='polite' style={{fontSize:12,color:recording?'#ff8798':'#8effb7'}}>{recording?'● RECORDING • tap STOP when finished':url?'CLIP READY • preview, then save/share':'Camera • record • preview • save • share'}</div></div><button onClick={()=>{if(recording)stopRecording();stopStream();onClose()}} style={btn}>×</button></div>
+   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12}}><div><b>STREETVERSE REEL</b>{context.missionId&&<div style={{fontSize:10,color:'#59e7ff',fontWeight:900,marginTop:3}}>MISSION • {missionLabel||context.missionId} • {context.verified?'REWARD VERIFIED':'REWARD PENDING'}</div>}<div aria-live='polite' style={{fontSize:12,color:recording?'#ff8798':'#8effb7'}}>{recording?'● RECORDING • tap STOP when finished':url?'CLIP READY • preview, then save/share':'Camera • record • preview • save • share'}</div></div><button onClick={returnToWorld} aria-label="Return to StreetVerse" style={btn}>×</button></div>
    <video ref={videoRef} playsInline muted style={{width:'100%',aspectRatio:'9/16',maxHeight:'70vh',marginTop:12,background:'#000',borderRadius:16,objectFit:'cover'}}/>
    <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:12}}>
     {!recording?<button onClick={startCamera} style={btn}>● START RECORDING</button>:<button onClick={stopRecording} style={{...btn,borderColor:'#ff6378',background:'#2a0b12'}}>■ STOP RECORDING</button>}
     {url&&<button onClick={publish} disabled={publishing} style={{...btn,borderColor:'#8effb7',background:'#082a18'}}>{publishing?'PUBLISHING…':published?'✓ PUBLISHED':'PUBLISH TO TRYAMM'}</button>}
     {url&&<button onClick={share} style={{...btn,borderColor:'#65e8ff',background:'#08202a'}}>SAVE / SHARE</button>}
     <label style={btn}>IPHONE CAPTURE<input type='file' accept='video/*' capture='environment' style={{display:'none'}} onChange={e=>onIPhoneCapture(e.target.files?.[0])}/></label>
+    <button onClick={returnToWorld} style={{...btn,borderColor:'#ffd65a',background:'#241b06'}}>← RETURN TO STREETVERSE</button>
    </div>
    {error&&<p role='alert' style={{color:'#ffd27a'}}>{error}</p>}
    <p style={{fontSize:12,color:'#b9c7d3'}}>On Safari/iPhone, tap IPHONE CAPTURE if browser recording is unavailable. After capture, the clip now opens in the preview above. Tap PUBLISH TO TRYAMM to upload and queue the Reel to the Reel feed, creator profile and OmniBox. SAVE / SHARE still uses the iPhone share sheet.</p>
