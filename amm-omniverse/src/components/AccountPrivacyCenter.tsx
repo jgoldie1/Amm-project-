@@ -54,7 +54,7 @@ export default function AccountPrivacyCenter({onClose}:{onClose:()=>void}){
         <p style={{fontSize:13,lineHeight:1.6}}>Deletion removes or irreversibly de-identifies account data that TRYAMM is not legally required to retain. Transaction, fraud/security, tax, safety, contractual or other records may be retained only for their required period. Public content may take time to disappear from caches or copies.</p>
         <p style={{fontSize:13,lineHeight:1.6}}>Type <b>{ACCOUNT_DELETE_CONFIRM}</b> to confirm. This creates a tracked deletion request; it does not falsely claim that every backend record vanished instantly.</p>
         <input aria-label="Deletion confirmation" value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder={ACCOUNT_DELETE_CONFIRM} autoComplete="off" style={field}/>
-        <button disabled={busy||confirm!==ACCOUNT_DELETE_CONFIRM||Boolean(request)} onClick={()=>void submit()} style={{...danger,opacity:busy||confirm!==ACCOUNT_DELETE_CONFIRM||request?.status==='requested'?.55:1}}>{busy?'Submitting…':request?'Deletion request already open':'Request account deletion'}</button>
+        <button disabled={busy||confirm!==ACCOUNT_DELETE_CONFIRM||Boolean(request)} onClick={()=>void submit()} style={{...danger,opacity:(busy||confirm!==ACCOUNT_DELETE_CONFIRM||Boolean(request))?0.55:1}}>{busy?'Submitting…':request?'Deletion request already open':'Request account deletion'}</button>
       </section>
 
       <section style={card}>
