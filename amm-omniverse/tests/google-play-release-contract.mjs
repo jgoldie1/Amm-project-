@@ -16,6 +16,15 @@ must(String(config.ratingAuthority).includes('IARC'),'content rating must remain
 must(String(config.ratingRule).includes('Do not hardcode'),'must not falsely promise a regional store rating before review')
 must(config.androidSigning.requiredForPlayUpload===true,'signed AAB must remain required for Play upload')
 
+const privacy=read('public/privacy.html')
+const terms=read('public/terms.html')
+for(const [label,page] of [['privacy',privacy],['terms',terms]]){
+  must(page.includes('13–15')&&page.includes('16–17')&&page.includes('18+'),`${label} page must match the birthday Play target groups`)
+  must(page.includes('does not provide an exact age-12-only target bucket'),`${label} page must explain the age-12 Play targeting limitation`)
+  must(!page.includes('Android candidate is designed for an intended audience beginning at age 12'),`${label} page must not advertise the Play candidate as 12+`)
+  must(!page.includes('current Android candidate is intended to begin at age 12'),`${label} page must not advertise the Play candidate as 12+`)
+}
+
 const capTs=read('capacitor.config.ts')
 const capJson=JSON.parse(read('capacitor.config.json'))
 must(capTs.includes("appId: 'online.tryamm.app'"),'TypeScript Capacitor config package ID mismatch')
