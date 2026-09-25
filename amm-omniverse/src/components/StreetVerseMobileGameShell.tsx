@@ -5,14 +5,18 @@ type Dir='up'|'down'|'left'|'right'
 type ControlMode='one-hand'|'two-hand'
 type Hand='left'|'right'
 type MissionChoice='A'|'B'|'C'|'D'
-type MissionSpecialUnlock={missionId?:string;kind?:string;label:string;description:string;source?:string;unlockedAt?:string}\ntype MissionPrompt={missionId?:string;title:string;objective?:string;routes?:Partial<Record<MissionChoice,string>>;specialRoute?:MissionSpecialUnlock}\ntype FameSnapshot={fame:number;rank:string;fanbase:number;viralScore:number;momentum:number}
+type MissionSpecialUnlock={missionId?:string;kind?:string;label:string;description:string;source?:string;unlockedAt?:string}
+type MissionPrompt={missionId?:string;title:string;objective?:string;routes?:Partial<Record<MissionChoice,string>>;specialRoute?:MissionSpecialUnlock}
+type FameSnapshot={fame:number;rank:string;fanbase:number;viralScore:number;momentum:number}
 
 const MODE_KEY='tryamm:streetverse-control-mode'
-const HAND_KEY='tryamm:streetverse-one-hand-side'\nconst FAME_KEY='tryamm.streetverse.fame.v1'
+const HAND_KEY='tryamm:streetverse-one-hand-side'
+const FAME_KEY='tryamm.streetverse.fame.v1'
 const CHOICE_MODEL={
  A:{label:'ACTION',description:'Physical gameplay, driving, rescue, timed objective or high-energy route.'},
  B:{label:'BUILD / BUSINESS',description:'Commerce, negotiation, repair, delivery, ownership, team or community route.'},
  C:{label:'LEARN / TEST',description:'Lesson, investigation, puzzle, skill test, certification or knowledge route.'},
+ D:{label:'SPECIAL / EARNED',description:'A contextual route unlocked by fame, skill, relationship, item, business, education, reputation, faith, or discovered information.'},
 } as const
 
 function readFameSnapshot():FameSnapshot{
@@ -28,7 +32,9 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const [hand,setHand]=useState<Hand>('right')
  const [activeMission,setActiveMission]=useState<MissionPrompt>({title:'Choose your StreetVerse route'})
  const [choicePrompt,setChoicePrompt]=useState<MissionPrompt>({title:'Choose your StreetVerse route'})
- const [choiceOpen,setChoiceOpen]=useState(false)\n const [specialUnlock,setSpecialUnlock]=useState<MissionSpecialUnlock|null>(null)\n const [fame,setFame]=useState<FameSnapshot>(()=>readFameSnapshot())
+ const [choiceOpen,setChoiceOpen]=useState(false)
+ const [specialUnlock,setSpecialUnlock]=useState<MissionSpecialUnlock|null>(null)
+ const [fame,setFame]=useState<FameSnapshot>(()=>readFameSnapshot())
  const active=useRef<Record<Dir,boolean>>({up:false,down:false,left:false,right:false})
  const emit=()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-input',{detail:{throttle:active.current.up?1:0,brake:active.current.down?1:0,steer:active.current.left?-1:active.current.right?1:0,horn:false,exit:false,source:'mobile-game-shell'}}))
  const set=(direction:Dir,pressed:boolean)=>{active.current[direction]=pressed;emit()}
@@ -44,8 +50,8 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
   window.addEventListener('blur',stop);window.addEventListener('pointercancel',stop);document.addEventListener('visibilitychange',stop)
   const missionContextEvents=['tryamm:streetverse-mission-start','tryamm:chicago-activity-start','tryamm:streetverse-checkpoint','tryamm:streetverse-mobile-mission-zone','tryamm:mission:discovered','tryamm:justice-mission-start','tryamm:time-machine-enter'] as const
   missionContextEvents.forEach(name=>window.addEventListener(name,rememberMission))
-  window.addEventListener('tryamm:rp-choice-open',openChoice);window.addEventListener('tryamm:mission-choice-open',openChoice)
-  return()=>{window.removeEventListener('blur',stop);window.removeEventListener('pointercancel',stop);document.removeEventListener('visibilitychange',stop);missionContextEvents.forEach(name=>window.removeEventListener(name,rememberMission));window.removeEventListener('tryamm:rp-choice-open',openChoice);window.removeEventListener('tryamm:mission-choice-open',openChoice)}
+  window.addEventListener('tryamm:rp-choice-open',openChoice);window.addEventListener('tryamm:mission-choice-open',openChoice);window.addEventListener('tryamm:mission:special-route-unlocked',onSpecialUnlock);window.addEventListener('tryamm:streetverse-special-route-unlock',onSpecialUnlock);window.addEventListener('tryamm:streetverse-fame-state',onFame)
+  return()=>{window.removeEventListener('blur',stop);window.removeEventListener('pointercancel',stop);document.removeEventListener('visibilitychange',stop);missionContextEvents.forEach(name=>window.removeEventListener(name,rememberMission));window.removeEventListener('tryamm:rp-choice-open',openChoice);window.removeEventListener('tryamm:mission-choice-open',openChoice);window.removeEventListener('tryamm:mission:special-route-unlocked',onSpecialUnlock);window.removeEventListener('tryamm:streetverse-special-route-unlock',onSpecialUnlock);window.removeEventListener('tryamm:streetverse-fame-state',onFame)}
  },[])
  if(!mobile)return null
  const changeMode=(next:ControlMode)=>{release();setMode(next);try{localStorage.setItem(MODE_KEY,next)}catch{};window.dispatchEvent(new CustomEvent('tryamm:streetverse-control-mode',{detail:{mode:next}}))}
@@ -64,6 +70,7 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
    <button aria-pressed={mode==='one-hand'} onClick={()=>changeMode('one-hand')} style={modeButton(mode==='one-hand')}>1 HAND</button>
    <button aria-pressed={mode==='two-hand'} onClick={()=>changeMode('two-hand')} style={modeButton(mode==='two-hand')}>2 HAND</button>
    {mode==='one-hand'&&<button aria-label="Switch one hand side" onClick={changeHand} style={{...modeButton(true),borderColor:'#8effb7'}}>{hand.toUpperCase()} HAND</button>}
+   <div aria-label={`StreetVerse fame rank ${fame.rank}`} style={{minHeight:44,padding:'5px 9px',borderRadius:12,border:'1px solid #ff74c888',background:'#220a1eee',display:'grid',alignContent:'center',lineHeight:1.05}}><b style={{fontSize:9,color:'#ff9fda'}}>FAME • {fame.rank.toUpperCase()}</b><span style={{fontSize:8,color:'#fff',opacity:.78}}>{fame.fame} • {fame.fanbase.toLocaleString()} FANS</span></div>
   </div>
   <button onClick={onClose} aria-label="Exit StreetVerse" style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',right:'max(10px,env(safe-area-inset-right))',width:44,height:44,borderRadius:22,border:'1px solid #567',background:'#07131fee',color:'#fff',fontSize:20,pointerEvents:'auto'}}>×</button>
   <div aria-label="StreetVerse movement controls" style={{position:'absolute',...movementSide,bottom,display:'grid',gridTemplateColumns:'56px 56px 56px',gap:6,pointerEvents:'auto'}}>
