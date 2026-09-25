@@ -24,7 +24,15 @@
     "UGC terms, report, block, and moderation controls",
     "camera and microphone disclosure and runtime permission handling",
     "signed Android App Bundle",
-    "Play Console internal or closed testing before production"
+    "Play Console internal or closed testing before production",
+    "in-app and web account deletion request path"
   ],
-  "truthRule": "Build-ready is not Play-approved. Store age rating and approval remain pending until Google Play Console review completes."
+  "truthRule": "Build-ready is not Play-approved. Store age rating and approval remain pending until Google Play Console review completes.",
+  "accountDeletion": {
+    "inAppPath": "/account-deletion",
+    "webResource": "/account-deletion.html",
+    "api": "/api/privacy/delete-request",
+    "persistence": "server-only account_deletion_requests",
+    "status": "implemented-and-database-migration-applied"
+  }
 }
