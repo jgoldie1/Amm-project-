@@ -6,7 +6,16 @@ import { useGameStore } from '../game/state/useGameStore'
 type Panel = 'ride'|'delivery'|'drone'|null
 
 function invoke(name:string){const fn=(window as any)[name];if(typeof fn==='function'){fn();return true}return false}
-function openStreetVerse(){useGameStore.getState().setScreen('city');if(window.location.hash!=='#/streetverse')window.location.hash='/streetverse'}
+function openStreetVerse(){
+  // StreetVerse has one canonical production entry: /streetverse.
+  // Do not mix the legacy Zustand "city" screen with the old #/streetverse hash route;
+  // on iOS that can leave the shell and URL disagreeing about which world owns input.
+  if(window.location.pathname==='/streetverse'){
+    window.location.reload()
+    return
+  }
+  window.location.assign('/streetverse')
+}
 
 export default function HoloDirectLaunchBridge(){
   const [panel,setPanel]=useState<Panel>(null)
