@@ -15,6 +15,7 @@ export default defineConfig({
         // download/parse cost during first paint.
         return deps.filter(dep =>
           !dep.includes('vendor-three') &&
+          !dep.includes('vendor-maplibre') &&
           !dep.includes('streetverse-creator-3d') &&
           !dep.includes('streetverse-3d-runtime')
         )
@@ -63,6 +64,9 @@ export default defineConfig({
           if (id.includes('/src/runtime/')) return 'app-runtime'
           if (id.includes('/src/data/')) return 'app-data'
           if (!id.includes('node_modules')) return
+          // Sparrow Map is a lazy feature. Keep MapLibre isolated so the map engine
+          // never inflates the Sparrow component chunk or the initial app graph.
+          if (id.includes('/maplibre-gl/')) return 'vendor-maplibre'
           if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('/scheduler/')) return 'vendor-react'
 
           // Keep optional Three.js utility/add-on code separate from the core renderer.
