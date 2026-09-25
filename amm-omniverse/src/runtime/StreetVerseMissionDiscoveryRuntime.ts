@@ -9,7 +9,9 @@ export type SecretAreaState = 'hidden' | 'discovered' | 'unlocked' | 'completed'
 
 export interface MissionDiscovery {missionId:string;title:string;rarity:MissionRarity;category:MissionCategory;playerId:string;locationId?:string;clue?:string;adultOnly?:boolean;crossVerseDestination?:'streetverse'|'spaceverse'|'starverse'|'kingdoms-press'|'living-scroll'|'holoverse'|'64-track-studio'|'after-dark';metadata?:Record<string,unknown>}
 export interface SecretTrigger {secretId:string;playerId:string;type:SecretTriggerType;value:string;locationId?:string;adultOnly?:boolean;ageVerified18Plus?:boolean;afterDarkOptIn?:boolean}
-export type MissionSpecialUnlockKind='skill'|'relationship'|'item'|'business'|'education'|'reputation'|'faith'|'information'|'fame'\nexport interface MissionRouteSelection {choice:MissionRouteChoice;missionId?:string;title?:string;label?:string;routeDescription?:string;objective?:string;source?:string;mode?:string;hand?:string;specialUnlocked?:boolean;unlockKind?:MissionSpecialUnlockKind;unlockSource?:string}\nexport interface MissionSpecialRouteUnlock {missionId?:string;kind:MissionSpecialUnlockKind;label:string;description:string;source?:string;oneTime?:boolean;unlockedAt?:string}
+export type MissionSpecialUnlockKind='skill'|'relationship'|'item'|'business'|'education'|'reputation'|'faith'|'information'|'fame'
+export interface MissionRouteSelection {choice:MissionRouteChoice;missionId?:string;title?:string;label?:string;routeDescription?:string;objective?:string;source?:string;mode?:string;hand?:string;specialUnlocked?:boolean;unlockKind?:MissionSpecialUnlockKind;unlockSource?:string}
+export interface MissionSpecialRouteUnlock {missionId?:string;kind:MissionSpecialUnlockKind;label:string;description:string;source?:string;oneTime?:boolean;unlockedAt?:string}
 type StreetVerseWorldCompletion={id?:string;missionId?:string;label?:string;source?:string;visited?:string[];total?:number;vehicle?:boolean;mobileSafeMode?:boolean;htmlCity?:boolean;mobileLite?:boolean;communityAreaNumber?:string|number;communityAreaName?:string}
 
 const ROUTE_STORAGE_KEY='tryamm.streetverse.mission-routes.v1'
@@ -17,6 +19,7 @@ const ROUTE_PREFERENCES:Record<MissionRouteChoice,MissionCategory[]>={
   A:['story','racing','drift','motorcycle','exploration'],
   B:['business','delivery','crew','relationship','story'],
   C:['puzzle','exploration','reality-quest','cross-verse','story'],
+  D:['relationship','business','cross-verse','reality-quest','story'],
 }
 const ROUTE_LABELS:Record<MissionRouteChoice,string>={A:'ACTION',B:'BUILD / BUSINESS',C:'LEARN / TEST',D:'SPECIAL / EARNED'}
 
@@ -24,6 +27,7 @@ const emit=(name:string,detail:unknown)=>window.dispatchEvent(new CustomEvent(na
 const missionState=new Map<string,MissionDiscovery&{status:'discovered'|'completed';discoveredAt:string;completedAt?:string;outcome?:Record<string,unknown>}>()
 const secretState=new Map<string,{state:SecretAreaState;updatedAt:string}>()
 const missionRouteState=new Map<string,MissionRouteSelection&{missionId:string;selectedAt:string;consumedAt?:string}>()
+const specialRouteUnlockState=new Map<string,MissionSpecialRouteUnlock&{missionId:string;unlockedAt:string}>()
 const adultGate=(input:{adultOnly?:boolean;ageVerified18Plus?:boolean;afterDarkOptIn?:boolean})=>!input.adultOnly||(input.ageVerified18Plus===true&&input.afterDarkOptIn===true)
 const isRouteChoice=(value:unknown):value is MissionRouteChoice=>value==='A'||value==='B'||value==='C'||value==='D'
 
@@ -168,11 +172,13 @@ export function installStreetVerseMissionDiscoveryRuntime(){
   runtime.__discoverStreetVerseMission=discoverStreetVerseMission
   runtime.__triggerStreetVerseSecret=triggerStreetVerseSecret
   runtime.__selectStreetVerseMissionRoute=selectStreetVerseMissionRoute
+  runtime.__unlockStreetVerseMissionRouteD=unlockStreetVerseMissionRouteD
   runtime.__completeStreetVerseMission=completeStreetVerseMission
   runtime.__bridgeStreetVerseWorldCompletion=bridgeStreetVerseWorldCompletion
   runtime.__getStreetVerseMissionDiscoveryState=getStreetVerseMissionDiscoveryState
   runtime.__buildStreetVerseLivingMysteryContext=buildLivingMysteryContext
   runtime.__buildStreetVerseRealityQuest=buildRealityQuest
+  window.addEventListener('tryamm:streetverse-special-route-unlock',(event:Event)=>unlockStreetVerseMissionRouteD((event as CustomEvent<MissionSpecialRouteUnlock>).detail||({kind:'information',label:'SPECIAL / EARNED',description:'Earned StreetVerse route'} as MissionSpecialRouteUnlock)))
   window.addEventListener('tryamm:streetverse-mission-route-selected',(event:Event)=>selectStreetVerseMissionRoute((event as CustomEvent<MissionRouteSelection>).detail))
   window.addEventListener('tryamm:streetverse-mission-complete',(event:Event)=>bridgeStreetVerseWorldCompletion((event as CustomEvent<StreetVerseWorldCompletion>).detail||{}))
   installBennyOmniHostRuntime()
