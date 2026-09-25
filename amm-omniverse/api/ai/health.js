@@ -10,6 +10,7 @@ export default async function handler(req,res){
   const claude=Boolean(process.env.ANTHROPIC_API_KEY);
   const glm=Boolean(process.env.ZAI_API_KEY||process.env.GLM_API_KEY);
   const deepseek=Boolean(process.env.DEEPSEEK_API_KEY);
+  const actionExecutor=Boolean(process.env.HOLOGPT_ACTION_EXECUTOR_URL&&process.env.HOLOGPT_ACTION_EXECUTOR_SECRET);
   const backend=String(process.env.VITE_API_URL||process.env.AMM_BACKEND_URL||'').trim();
   const backendProxy=Boolean(backend&&/^https?:\/\//.test(backend)&&!backend.includes('your-amm-backend.example.com')&&!backend.includes('tryamm.online'));
   const providers={selfHosted,vercelGateway:gateway,openai,gemini,claude,glm,deepseek,ammBackend:backendProxy};
@@ -25,6 +26,7 @@ export default async function handler(req,res){
     reviewer:'senior-engineer-gate',
     verifier:'evidence-only-green',
     auth:'supabase-when-session-present',
+    actionAuthority:{enabled:true,authenticatedUserRequired:true,passkeyStepUpForProtectedActions:true,directFinancialActionsDenied:true,selfEscalationDenied:true,executorConfigured:actionExecutor,evidenceRequiredForVerifiedState:true},
     message:degraded?'HoloGPT shell is healthy. No generative provider is reachable yet. It is now ready for an owned OpenAI-compatible inference server, with cloud providers including GLM 5.2 as fallbacks.':'HoloGPT has at least one generative provider configured.',
     time:new Date().toISOString()
   });
