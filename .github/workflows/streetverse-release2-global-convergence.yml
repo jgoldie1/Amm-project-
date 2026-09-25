@@ -1,0 +1,135 @@
+name: StreetVerse Release 2 Global Convergence
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - release2/streetverse-global-convergence
+    paths:
+      - 'amm-omniverse/**'
+      - '.github/workflows/streetverse-release2-global-convergence.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-release2-global-convergence-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release2-contract:
+    name: StreetVerse Chicago + Global release contract
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      ALPHA_TARGET: '2026-10-02'
+      RELEASE2_BUDGET_HOURS: '24'
+      TZ: America/Chicago
+
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Record exact release state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main --no-tags
+          sha="$(git rev-parse HEAD)"
+          behind="$(git rev-list --count HEAD..origin/main)"
+          ahead="$(git rev-list --count origin/main..HEAD)"
+          {
+            echo "## StreetVerse Release 2 convergence"
+            echo "- Exact SHA: `$sha`"
+            echo "- Alpha target: $ALPHA_TARGET"
+            echo "- Release 2 engineering budget: $RELEASE2_BUDGET_HOURS hours"
+            echo "- Budget accounting: implementation/testing evidence only; CI waiting time is never engineering time"
+            echo "- Ahead of main: $ahead"
+            echo "- Behind main: $behind"
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$behind" -ne 0 ]]; then
+            echo "::error::Release 2 branch is $behind commit(s) behind main. Synchronize before adding scope."
+            exit 1
+          fi
+
+      - name: Verify StreetVerse Chicago living-world contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            "amm-omniverse/src/components/StreetVerseLivingWorld.tsx"
+            "amm-omniverse/src/components/StreetVerseLivingWorldEntry.tsx"
+            "amm-omniverse/src/components/StreetVerseChicagoActivityDirector.tsx"
+            "amm-omniverse/src/components/StreetVerseChicagoStorefronts.tsx"
+            "amm-omniverse/src/components/StreetVerseAmbientLife.tsx"
+            "amm-omniverse/src/components/StreetVerseWeatherSync.tsx"
+            "amm-omniverse/src/components/StreetVerseWorldEvents.tsx"
+            "amm-omniverse/src/components/StreetVerseMobileWalkControls.tsx"
+            "amm-omniverse/src/components/StreetVerseOneHandRpController.tsx"
+            "amm-omniverse/src/components/SparrowMapCenter.tsx"
+          )
+          for file in "${required[@]}"; do
+            test -f "$file" || { echo "::error::Missing Chicago living-world contract file: $file"; exit 1; }
+          done
+          echo "- Chicago living-world contract: PASS" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify global and Holo integration contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            "amm-omniverse/src/components/StreetVerseOmniWorld.tsx"
+            "amm-omniverse/src/components/StreetVerseGeoSpawnBridge.tsx"
+            "amm-omniverse/src/components/StreetVerseRealtimePresence.tsx"
+            "amm-omniverse/src/components/StreetVerseSharedWorldAvatars.tsx"
+            "amm-omniverse/src/components/HoloDirectLaunchBridge.tsx"
+            "amm-omniverse/src/components/HoloGPTAssistant.tsx"
+            "amm-omniverse/src/components/HoloWatermark.tsx"
+            "amm-omniverse/src/data/holoTechnologyRegistry.ts"
+          )
+          for file in "${required[@]}"; do
+            test -f "$file" || { echo "::error::Missing global/Holo contract file: $file"; exit 1; }
+          done
+          echo "- Global/Holo integration contract: PASS" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            amm-omniverse/package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Root platform checks
+        run: npm run check
+
+      - name: Install Omniverse dependencies
+        working-directory: amm-omniverse
+        run: npm ci
+
+      - name: Omniverse checks
+        working-directory: amm-omniverse
+        run: npm run check
+
+      - name: Main synchronization audit
+        working-directory: amm-omniverse
+        run: npm run sync:audit
+
+      - name: Release 2 convergence summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "### Release 2 scope"
+            echo "- Chicago Living World: population/activity, businesses, mobility, weather, events, Sparrow Map, one-hand controls"
+            echo "- StreetVerse Global foundation: reusable geography/presence/world contract for additional cities"
+            echo "- Holo integration: HoloBridge/HoloLink registry, HoloGPT/Benny path, Holo watermark/provenance surface"
+            echo "- Oct 2 Alpha rule: Chicago must remain the first certified playable city; incomplete global cities stay BUILDING/COMING SOON"
+            echo "- This workflow certifies code/build contracts only. It does not claim public deployment or physical iPhone verification."
+          } >> "$GITHUB_STEP_SUMMARY"
