@@ -20,6 +20,8 @@ export const MEET_THE_STUBBS_FAMILY_FRIENDS:StubbsCharacterPassport[]=[
 {id:'ace',displayName:'Ace',relationship:'friend',roles:['StreetVerse','Missions'],worlds:['StreetVerse','MeetTheStubbs'],referencePolicy:'original-generated',persistent:true},
 {id:'sky',displayName:'Sky',relationship:'friend',roles:['StreetVerse','Missions'],worlds:['StreetVerse','MeetTheStubbs'],referencePolicy:'original-generated',persistent:true},
 {id:'miles',displayName:'Miles',relationship:'friend',roles:['StreetVerse','Missions'],worlds:['StreetVerse','MeetTheStubbs'],referencePolicy:'original-generated',persistent:true},
+{id:'michael',displayName:'Michael',relationship:'friend',roles:['StreetVerse','Las Vegas Story'],worlds:['StreetVerse','MeetTheStubbs'],referencePolicy:'authorized-reference',persistent:true},
+{id:'alphonso',displayName:'Alphonso',relationship:'friend',roles:['CNA Worker','Caregiving','Las Vegas Story'],worlds:['StreetVerse','MeetTheStubbs'],referencePolicy:'authorized-reference',persistent:true},
 ]
 export function getStubbsPassport(nameOrId:string){const key=nameOrId.trim().toLowerCase();return MEET_THE_STUBBS_FAMILY_FRIENDS.find(x=>x.id===key||x.displayName.toLowerCase()===key)}
 export function familyFriendsByRelationship(kind:StubbsRelationshipKind){return MEET_THE_STUBBS_FAMILY_FRIENDS.filter(x=>x.relationship===kind)}
