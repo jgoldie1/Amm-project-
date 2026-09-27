@@ -58,7 +58,7 @@ try {
   const isAccountDeletion=currentPath==='/account-deletion'||currentPath==='/account-deletion/'
   const isHoloDrama=currentPath==='/holo-drama'||currentPath==='/holo-drama/'
   const isSpectraStudios=currentPath==='/spectra-studios'||currentPath==='/spectra-studios/'
-  const isEthiopianBible=currentPath==='/ethiopian-bible'||currentPath==='/ethiopian-bible/'
+  const isEthiopianBible=['/ethiopian-bible','/ethiopian-bible/','/faithverse','/faithverse/'].includes(currentPath)
   const isKingdomsPress=currentPath==='/kingdoms-press'||currentPath==='/kingdoms-press/'
   const isRecoveredSurface=['/spectra-entertainment','/spectra-entertainment/','/all-american-records','/all-american-records/','/set-apart','/set-apart/','/christian-rap','/christian-rap/','/holo-music','/holo-music/','/holo-food','/holo-food/','/holo-ride-share','/holo-ride-share/'].includes(currentPath)
   const isNetwork=['/network','/network/','/free-tv','/free-tv/','/isaiah-ai-tv','/isaiah-ai-tv/','/starverse','/starverse/'].includes(currentPath)
