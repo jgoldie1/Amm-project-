@@ -8,7 +8,12 @@ let main=fs.readFileSync(mainFile,'utf8')
 // The richer StreetVerse 3D runtime must install on StreetVerse routes, not everywhere except StreetVerse.
 main=main.replace("if(!isStreetVerse){\n  void import('./runtime/StreetVerseCreatorDistrict3D')", "if(isStreetVerse){\n  void import('./runtime/StreetVerseCreatorDistrict3D')")
 
-// Keep canonical StreetVerse on the playable app while the lazy 3D bridge downloads.\n// Do not inject the legacy arrow-controlled safe world into the normal route.\nconst legacyWorld="<Suspense fallback={<StreetVerseMobilePlayableWorld onClose={()=>{window.location.href='/'}} />}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense>"\nconst cleanWorld="<Suspense fallback={routeFallback}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense>"\nmain=main.replace(legacyWorld,cleanWorld)\n
+// Keep canonical StreetVerse on the playable app while the lazy 3D bridge downloads.
+// Do not inject the legacy arrow-controlled safe world into the normal route.
+const legacyWorld="<Suspense fallback={<StreetVerseMobilePlayableWorld onClose={()=>{window.location.href='/'}} />}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense>"
+const cleanWorld="<Suspense fallback={routeFallback}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense>"
+main=main.replace(legacyWorld,cleanWorld)
+
 // Keep essential navigation reachable even while the world is starting.
 const navAnchor="<div style={{position:'fixed',left:12,top:12,zIndex:16990,display:'flex',gap:8,flexWrap:'wrap'}}>"
 if(main.includes(navAnchor)&&!main.includes("HOME • TRYAMM")){
