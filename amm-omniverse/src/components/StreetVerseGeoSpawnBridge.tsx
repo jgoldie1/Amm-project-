@@ -191,7 +191,6 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  </>
 
  return <>
-  <StreetVerseMobileGameShell onClose={closeStreetVerse}/>
   <Suspense fallback={<><StreetVerseWeatherSync/><StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/></>}>
    <StreetVersePlayableWorld onClose={closeStreetVerse}/>
   </Suspense>
