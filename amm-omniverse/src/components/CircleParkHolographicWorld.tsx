@@ -8,8 +8,8 @@ const BLOCKERS:Zone[]=[{minX:-43,maxX:-7,minZ:-34,maxZ:24},{minX:7,maxX:43,minZ:
 const inside=(x:number,z:number,b:Zone)=>x>b.minX&&x<b.maxX&&z>b.minZ&&z<b.maxZ
 
 export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void}){
- const mountRef=useRef<HTMLDivElement|null>(null),input=useRef({x:0,z:0}),nearEntrance=useRef(false),insideDemo=useRef(false)
- const [message,setMessage]=useState('Walk to the glowing entrance.'),[canOpen,setCanOpen]=useState(false),[interior,setInterior]=useState(false)
+ const mountRef=useRef<HTMLDivElement|null>(null),input=useRef({x:0,z:0}),nearEntrance=useRef(false),insideDemo=useRef(false),nearElevator=useRef(false)
+ const [message,setMessage]=useState('Walk to the glowing entrance.'),[canOpen,setCanOpen]=useState(false),[interior,setInterior]=useState(false),[canElevator,setCanElevator]=useState(false),[floorLevel,setFloorLevel]=useState(1)
  useEffect(()=>{
   const mount=mountRef.current;if(!mount)return
   const scene=new THREE.Scene();scene.background=new THREE.Color(0x050b14);scene.fog=new THREE.Fog(0x050b14,55,150)
@@ -24,18 +24,21 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
   camera.position.set(0,7,-57);let raf=0,last=performance.now(),doorOpen=0
   const resize=()=>{const w=mount.clientWidth,h=mount.clientHeight||innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()};resize();addEventListener('resize',resize)
   const tick=(now:number)=>{const dt=Math.min(.05,(now-last)/1000);last=now;const nx=THREE.MathUtils.clamp(player.position.x+input.current.x*9*dt,-43,43),nz=THREE.MathUtils.clamp(player.position.z+input.current.z*9*dt,-48,31);if(insideDemo.current||!BLOCKERS.some(b=>inside(nx,nz,b))){player.position.x=nx;player.position.z=nz}
-   const near=player.position.distanceTo(new THREE.Vector3(0,1.4,-35))<4;if(near!==nearEntrance.current){nearEntrance.current=near;setCanOpen(near);setMessage(near?'Entrance reached • OPEN is available.':'Explore Circle Park • building collision is active.')}
+   const near=player.position.distanceTo(new THREE.Vector3(0,1.4,-35))<4;if(near!==nearEntrance.current){nearEntrance.current=near;setCanOpen(near);if(!insideDemo.current)setMessage(near?'Entrance reached • OPEN is available.':'Explore Circle Park • building collision is active.')}
+   const elev=insideDemo.current&&player.position.distanceTo(new THREE.Vector3(3,1.4,-16))<3.5;if(elev!==nearElevator.current){nearElevator.current=elev;setCanElevator(elev);if(elev)setMessage('Elevator reached • RIDE ELEVATOR is available.')}
    doorOpen=THREE.MathUtils.lerp(doorOpen,insideDemo.current?1:0,.08);door.position.x=doorOpen*3.5;floor.visible=stairs.visible=elevator.visible=insideDemo.current
    camera.position.lerp(new THREE.Vector3(player.position.x,player.position.y+5,player.position.z-11),.08);camera.lookAt(player.position.x,player.position.y+1,player.position.z+4);renderer.render(scene,camera);raf=requestAnimationFrame(tick)}
   raf=requestAnimationFrame(tick);return()=>{cancelAnimationFrame(raf);removeEventListener('resize',resize);renderer.dispose();renderer.domElement.remove()}
  },[])
- const move=(x:number,z:number)=>{input.current={x,z}},stop=()=>{input.current={x:0,z:0}}
+ const stop=()=>{input.current={x:0,z:0}}
+ const joystick=(e:React.PointerEvent<HTMLDivElement>)=>{e.currentTarget.setPointerCapture(e.pointerId);const r=e.currentTarget.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),radius=r.width*.38,mag=Math.hypot(dx,dy)||1,scale=Math.min(1,radius/mag);input.current={x:(dx*scale)/radius,z:(-dy*scale)/radius}}
  const open=()=>{if(!nearEntrance.current)return setMessage('Move closer to the entrance first.');insideDemo.current=true;setInterior(true);setMessage('Interior demo entered • stairs + elevator mockup active.')}
- const exitInterior=()=>{insideDemo.current=false;setInterior(false);setMessage('Returned outside • source-backed interior geometry remains pending authorization.')}
- const btn=(label:string,x:number,z:number)=><button aria-label={label} onPointerDown={()=>move(x,z)} onPointerUp={stop} onPointerLeave={stop} onPointerCancel={stop} style={{width:58,height:58,borderRadius:29,border:'1px solid #00ffcc',background:'#06131bdd',color:'#fff',fontSize:22,touchAction:'none'}}>{label}</button>
+ const exitInterior=()=>{insideDemo.current=false;nearElevator.current=false;setCanElevator(false);setInterior(false);setFloorLevel(1);setMessage('Returned outside • source-backed interior geometry remains pending authorization.')}
+ const rideElevator=()=>{if(!nearElevator.current)return;setFloorLevel(v=>v===1?2:1);setMessage('Elevator demo moved between conceptual floors • verified interior geometry remains pending.')}
  return <div style={{position:'fixed',inset:0,zIndex:2500,background:'#050b14'}}><div ref={mountRef} style={{position:'absolute',inset:0}}/>
-  <div style={{position:'absolute',top:12,left:12,right:12,padding:12,border:'1px solid #00ffcc88',borderRadius:14,background:'#07131dcc',color:'#eaffff',fontFamily:'system-ui'}}><b>CIRCLE PARK • HOLOGRAPHIC DIGITAL TWIN</b><div style={{fontSize:12,opacity:.82}}>Conceptual massing • collision + interaction prototype • CAD/BIM accuracy pending verified sources.</div><div style={{fontSize:12,marginTop:5}}>{message}</div></div>
-  <div aria-label="Circle Park movement controls" style={{position:'absolute',left:18,bottom:20,display:'grid',gridTemplateColumns:'58px 58px 58px',gap:5}}><span/>{btn('Forward',0,1)}<span/>{btn('Left',-1,0)}{btn('Back',0,-1)}{btn('Right',1,0)}</div>
+  <div style={{position:'absolute',top:12,left:12,right:12,padding:12,border:'1px solid #00ffcc88',borderRadius:14,background:'#07131dcc',color:'#eaffff',fontFamily:'system-ui'}}><b>CIRCLE PARK • HOLOGRAPHIC DIGITAL TWIN</b><div style={{fontSize:12,opacity:.82}}>Conceptual massing • collision + interaction prototype • CAD/BIM accuracy pending verified sources.</div><div style={{fontSize:12,marginTop:5}}>{message}{interior?` • FLOOR ${floorLevel}`:''}</div></div>
+  <div aria-label="Circle Park analog movement joystick" onPointerDown={joystick} onPointerMove={e=>{if(e.buttons)joystick(e)}} onPointerUp={stop} onPointerCancel={stop} onLostPointerCapture={stop} style={{position:'absolute',left:18,bottom:20,width:124,height:124,borderRadius:'50%',border:'2px solid #00ffcc',background:'#06131bcc',touchAction:'none',boxShadow:'inset 0 0 28px #00ffcc33'}}><div style={{position:'absolute',left:44,top:44,width:32,height:32,borderRadius:'50%',background:'#eaffff',boxShadow:'0 0 18px #00ffcc'}}/></div>
+  {interior&&<button disabled={!canElevator} onClick={rideElevator} style={{position:'absolute',right:16,bottom:144,padding:'12px 16px',borderRadius:999,border:'1px solid #aa66ff',background:'#0b1020dd',color:'#fff',opacity:canElevator?1:.45}}>RIDE ELEVATOR</button>}
   <button disabled={!canOpen&&!interior} onClick={interior?exitInterior:open} style={{position:'absolute',right:16,bottom:82,padding:'12px 16px',borderRadius:999,border:'1px solid #00ffcc',background:'#06131bdd',color:'#fff',opacity:canOpen||interior?1:.45}}>{interior?'EXIT INTERIOR':'OPEN'}</button>
   <button onClick={onClose} style={{position:'absolute',right:16,bottom:20,padding:'12px 18px',borderRadius:999,border:'1px solid #00ffcc',background:'#06131b',color:'#fff'}}>EXIT WORLD</button>
  </div>
