@@ -81,6 +81,6 @@ const geoSpawn=fs.readFileSync(path.resolve('src/components/StreetVerseGeoSpawnB
 assert.match(geoSpawn,/import StreetVerseWeatherSync from '\.\/StreetVerseWeatherSync'/)
 assert.match(geoSpawn,/if\(safe\)return <>\s*<StreetVerseWeatherSync\/>/)
 assert.equal(geoSpawn.includes('fallback={<><StreetVerseWeatherSync/><StreetVerseSafeWorld'),false,'normal StreetVerse loading must not restore the safe-world overlay')
-assert.equal(geoSpawn.includes("fallback={<div style={{position:'fixed'"),true,'normal StreetVerse loading must use the neutral loading surface')
+assert.equal(geoSpawn.includes('aria-label="StreetVerse playable world loading"'),true,'normal StreetVerse loading must use the neutral loading surface')
 
 console.log('StreetVerse approved global weather city catalog and picker contract passed')
