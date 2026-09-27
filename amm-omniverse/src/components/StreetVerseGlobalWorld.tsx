@@ -1,9 +1,11 @@
 import {useMemo} from 'react'
 import {STREETVERSE_GLOBAL_CITIES,getStreetVerseCity} from '../data/StreetVerseGlobalRegistry'
+import {compileGlobalWorld,GLOBAL_WORLD_COMPILER} from '../data/GlobalWorldCompiler'
 
 export default function StreetVerseGlobalWorld({onClose,onEnterChicago}:{onClose:()=>void;onEnterChicago?:()=>void}){
  const params=typeof window!=='undefined'?new URLSearchParams(window.location.search):new URLSearchParams()
  const city=useMemo(()=>getStreetVerseCity(params.get('city')||'chicago'),[])
+ const plan=useMemo(()=>compileGlobalWorld(city.id),[city.id])
  const openCity=(id:string)=>{
   if(id==='chicago'&&onEnterChicago){onEnterChicago();return}
   const url=new URL(window.location.href)
@@ -20,6 +22,11 @@ export default function StreetVerseGlobalWorld({onClose,onEnterChicago}:{onClose
    <div style={{fontSize:11,color:'#9bc8e8'}}>CURRENT CITY</div>
    <h2 style={{margin:'4px 0'}}>{city.name}, {city.country}</h2>
    <div style={{fontSize:12,opacity:.8}}>Status: {city.status}. Shared TRYAMM Passport, media, commerce, Radio/News, Holo Ads and ledger follow the user between eligible cities.</div>
+  </section>
+  <section style={{marginTop:14,padding:12,border:'1px solid #4a3d74',borderRadius:14,background:'#100b20'}}>
+   <b style={{color:'#c7a8ff'}}>GLOBAL WORLD COMPILER</b>
+   <div style={{fontSize:11,lineHeight:1.5,marginTop:5}}>Mode: {GLOBAL_WORLD_COMPILER.mode} • {plan.modules.length} shared build stages • {plan.sharedSystems.length} shared platform systems. City-specific work stays in manifests instead of forking separate games.</div>
+   <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:8}}>{plan.modules.map(m=><span key={m.stage} style={{fontSize:9,padding:'4px 7px',border:'1px solid #443864',borderRadius:999}}>{m.stage.toUpperCase()}</span>)}</div>
   </section>
   <h2 style={{fontSize:17,marginTop:18}}>CITY GRID</h2>
   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:10}}>
