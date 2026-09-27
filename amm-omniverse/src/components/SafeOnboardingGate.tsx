@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getSessionUser, isSupabaseConfigured, signInWithGoogle, type AuthUser } from '../game/auth/googleAuth'
+import { getSessionUser, isSupabaseConfigured, sendPhoneOtp, signInWithApple, signInWithGoogle, verifyPhoneOtp, type AuthUser } from '../game/auth/googleAuth'
 import { useGameStore } from '../game/state/useGameStore'
 
 type Avatar = 'king'|'queen'|'prophet'|'warrior'
@@ -13,6 +13,11 @@ export default function SafeOnboardingGate() {
   const [guestName, setGuestName] = useState('')
   const [authUser, setAuthUser] = useState<AuthUser|null>(null)
   const [googleLoading, setGoogleLoading] = useState(false)
+  const [appleLoading, setAppleLoading] = useState(false)
+  const [phone, setPhone] = useState('')
+  const [smsCode, setSmsCode] = useState('')
+  const [smsSent, setSmsSent] = useState(false)
+  const [smsLoading, setSmsLoading] = useState(false)
   const [avatar, setAvatar] = useState<Avatar>('king')
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus|null>(null)
   const configured = isSupabaseConfigured()
@@ -38,6 +43,27 @@ export default function SafeOnboardingGate() {
     if (user) { setAuthUser(user); setName(user.name); setStage('plan') }
     setGoogleLoading(false)
   }
+  const continueApple = async () => {
+    setAppleLoading(true)
+    const { user, error } = await signInWithApple()
+    if (error) { store.setNotif(`❌ ${error}`); setAppleLoading(false); return }
+    if (user) { setAuthUser(user); setName(user.name); setStage('plan') }
+    setAppleLoading(false)
+  }
+  const requestSms = async () => {
+    setSmsLoading(true)
+    const { error } = await sendPhoneOtp(phone)
+    if (error) store.setNotif(`❌ ${error}`)
+    else { setSmsSent(true); store.setNotif('📱 Verification code sent by SMS.') }
+    setSmsLoading(false)
+  }
+  const verifySms = async () => {
+    setSmsLoading(true)
+    const { user, error } = await verifyPhoneOtp(phone, smsCode)
+    if (error) store.setNotif(`❌ ${error}`)
+    else if (user) { setAuthUser(user); setName(user.name); setStage('plan') }
+    setSmsLoading(false)
+  }
   const enterWorld = () => {
     store.setPlayer({ name: name || authUser?.name || 'Creator', avatar })
     store.setNotif('🌐 Welcome to TRYAMM. Free access is active. Paid access requires provider-verified checkout.')
@@ -50,7 +76,14 @@ export default function SafeOnboardingGate() {
       <div style={{width:'100%',maxWidth:480,background:'#070719',border:'1px solid #00ffcc55',borderRadius:18,padding:24,boxShadow:'0 20px 70px #000b'}}>
         <div style={{textAlign:'center',marginBottom:20}}><div style={{fontSize:30}}>🌐</div><div style={{color:'#00ffcc',fontWeight:900,letterSpacing:3,marginTop:8}}>TRYAMM PASSPORT</div><div style={{color:'#667085',fontSize:10,marginTop:5}}>Safe onboarding · provider-verified payments only</div></div>
         {stage === 'account' && <>
-          <button onClick={continueGoogle} disabled={googleLoading} style={{width:'100%',padding:12,borderRadius:9,border:'1px solid #ddd',background:'#fff',color:'#111',fontFamily:'monospace',fontWeight:800,cursor:'pointer',marginBottom:10}}>{googleLoading ? 'CONNECTING…' : configured ? 'CONTINUE WITH GOOGLE' : 'DEMO GOOGLE LOGIN'}</button>
+          <button onClick={continueGoogle} disabled={googleLoading || !configured} style={{width:'100%',padding:12,borderRadius:9,border:'1px solid #ddd',background:'#fff',color:'#111',fontFamily:'monospace',fontWeight:800,cursor:'pointer',marginBottom:10}}>{googleLoading ? 'CONNECTING…' : 'CONTINUE WITH GOOGLE'}</button>
+          <button onClick={continueApple} disabled={appleLoading || !configured} style={{width:'100%',padding:12,borderRadius:9,border:'1px solid #777',background:'#000',color:'#fff',fontFamily:'monospace',fontWeight:800,cursor:'pointer',marginBottom:10}}>{appleLoading ? 'CONNECTING…' : 'CONTINUE WITH APPLE'}</button>
+          <input inputMode="tel" autoComplete="tel" value={phone} onChange={e=>setPhone(e.target.value)} placeholder="Mobile number (example +1 312 555 0123)" style={{width:'100%',boxSizing:'border-box',padding:12,borderRadius:9,border:'1px solid #26324a',background:'#0a0d1e',color:'#fff',fontFamily:'monospace',marginBottom:8}} />
+          {!smsSent ? <button onClick={requestSms} disabled={smsLoading || !configured} style={{width:'100%',padding:12,borderRadius:9,border:'1px solid #6aa7ff88',background:'#6aa7ff18',color:'#9bc2ff',fontFamily:'monospace',fontWeight:900,cursor:'pointer',marginBottom:10}}>{smsLoading ? 'SENDING…' : 'TEXT ME A LOGIN CODE'}</button> : <>
+            <input inputMode="numeric" autoComplete="one-time-code" value={smsCode} onChange={e=>setSmsCode(e.target.value.replace(/\\D/g,'').slice(0,8))} placeholder="SMS verification code" style={{width:'100%',boxSizing:'border-box',padding:12,borderRadius:9,border:'1px solid #26324a',background:'#0a0d1e',color:'#fff',fontFamily:'monospace',marginBottom:8}} />
+            <button onClick={verifySms} disabled={smsLoading || !smsCode} style={{width:'100%',padding:12,borderRadius:9,border:'1px solid #6aa7ff88',background:'#6aa7ff18',color:'#9bc2ff',fontFamily:'monospace',fontWeight:900,cursor:'pointer',marginBottom:10}}>{smsLoading ? 'VERIFYING…' : 'VERIFY & CONTINUE'}</button>
+          </>}
+          {!configured && <div style={{color:'#ffcc66',fontSize:10,lineHeight:1.45,marginBottom:10}}>Secure sign-in providers are not configured in this deployment yet. Guest access remains available.</div>}
           <input value={guestName} onChange={e=>setGuestName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&continueGuest()} placeholder="Creator name" style={{width:'100%',boxSizing:'border-box',padding:12,borderRadius:9,border:'1px solid #26324a',background:'#0a0d1e',color:'#fff',fontFamily:'monospace',marginBottom:10}} />
           <button onClick={continueGuest} style={{width:'100%',padding:12,borderRadius:9,border:'1px solid #00ffcc88',background:'#00ffcc18',color:'#00ffcc',fontFamily:'monospace',fontWeight:900,cursor:'pointer'}}>CONTINUE AS GUEST →</button>
         </>}
