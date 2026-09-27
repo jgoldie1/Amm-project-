@@ -1,4 +1,5 @@
 import {useEffect,useRef,useState} from 'react'
+import {StreetVerseOneHandController} from '../runtime/StreetVerseOneHandController'
 
 type Props={onClose:()=>void}
 type Dir='up'|'down'|'left'|'right'
@@ -36,7 +37,16 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const [specialUnlock,setSpecialUnlock]=useState<MissionSpecialUnlock|null>(null)
  const [fame,setFame]=useState<FameSnapshot>(()=>readFameSnapshot())
  const active=useRef<Record<Dir,boolean>>({up:false,down:false,left:false,right:false})
+ const oneHandController=useRef<StreetVerseOneHandController|null>(null)
  const emit=()=>{
+  if(!oneHandController.current){
+   oneHandController.current=new StreetVerseOneHandController({
+    applyInput:(frame)=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-input',{detail:{...frame,source:'one-hand-controller'}})),
+    setCameraAssist:(enabled)=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-camera-assist',{detail:{enabled,source:'one-hand-controller'}})),
+    setGameSpeed:(scale)=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-game-speed',{detail:{scale,source:'one-hand-controller'}})),
+   })
+  }
+  if(mode==='one-hand')void oneHandController.current.update({stick:{x:(active.current.right?1:0)-(active.current.left?1:0),y:(active.current.down?1:0)-(active.current.up?1:0)},context:'ON_FOOT'})
   const detail={throttle:active.current.up?1:0,brake:active.current.down?1:0,steer:active.current.left?-1:active.current.right?1:0,horn:false,exit:false,source:'mobile-game-shell'}
   // Keep the vehicle-input contract for existing worlds and also publish the
   // explicit mobile movement contract so walking does not depend on vehicle semantics.
