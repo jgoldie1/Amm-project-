@@ -80,6 +80,7 @@ assert.match(mainEntry,/isStreetVerseSafe\?<><StreetVerseWeatherSync\/><StreetVe
 const geoSpawn=fs.readFileSync(path.resolve('src/components/StreetVerseGeoSpawnBridge.tsx'),'utf8')
 assert.match(geoSpawn,/import StreetVerseWeatherSync from '\.\/StreetVerseWeatherSync'/)
 assert.match(geoSpawn,/if\(safe\)return <>\s*<StreetVerseWeatherSync\/>/)
-assert.match(geoSpawn,/fallback=\{<><StreetVerseWeatherSync\/><StreetVerseSafeWorld/)
+assert.doesNotMatch(geoSpawn,/fallback=\\{<><StreetVerseWeatherSync\\/><StreetVerseSafeWorld/,'normal StreetVerse loading must not restore the safe-world overlay')
+assert.match(geoSpawn,/fallback=\\{<div style=\\{\\{position:'fixed'/,'normal StreetVerse loading must use the neutral loading surface')
 
 console.log('StreetVerse approved global weather city catalog and picker contract passed')
