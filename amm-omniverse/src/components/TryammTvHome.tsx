@@ -4,7 +4,8 @@ type Channel={id:string;name:string;category:string;now:string;next:string;live:
 
 const CHANNELS:Channel[]=[
  {id:'soc',name:'Servants of Christ Network',category:'FaithVerse',now:'Worship & Teaching',next:'Scripture Study',live:true},
- {id:'aan',name:'All American Network',category:'Showcase',now:'All American Showcase',next:'Creator Spotlight',live:true},
+ {id:'aan',name:'All American Network',category:'Showcase • Creators • Business • Culture',now:'All American Showcase LIVE',next:'Anyone Can Be a Star • Creator Spotlight',live:true},
+ {id:'isaiah',name:'Isaiah AI TV',category:'StarVerse • Talent',now:'Anyone Can Be a Star',next:'StarVerse Showcase',live:true},
  {id:'street',name:'StreetVerse TV',category:'Local',now:'Chicago LIVE',next:'Community Business',live:true},
  {id:'news',name:'TRYAMM Global News',category:'News',now:'World Update',next:'Weather Around the World',live:true},
  {id:'music',name:'MusicVerse',category:'Music',now:'Holo Music LIVE',next:'Artist PK',live:true},
@@ -25,8 +26,8 @@ export default function TryammTvHome({onClose}:{onClose:()=>void}){
    <h2 style={{margin:'6px 0'}}>{channel.name}</h2>
    <div><b>NOW</b> {channel.now}</div><div style={{opacity:.75,marginTop:4}}><b>NEXT</b> {channel.next}</div>
    <div style={{display:'flex',gap:8,marginTop:12,flexWrap:'wrap'}}>
-    <button disabled title="Broadcast player connection is the next integration">WATCH {channel.live?'LIVE':'NOW'}</button>
-    <button disabled title="Replay catalog connection is the next integration">REPLAY / VOD</button>
+    <button onClick={()=>{const open=(window as any).__showTryAMMLive;if(typeof open==='function')open()}} title="Open TRYAMM Holo LIVE player">WATCH {channel.live?'LIVE':'NOW'}</button>
+    <button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:replay-open',{detail:{channelId:channel.id}}))} title="Open this channel in the TRYAMM replay catalog">REPLAY / VOD</button>
    </div>
   </section>
   <h2 style={{fontSize:16}}>LIVE GUIDE</h2>
