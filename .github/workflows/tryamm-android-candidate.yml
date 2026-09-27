@@ -87,6 +87,12 @@ jobs:
           echo "signed_aab=$SIGNED" >> "$GITHUB_OUTPUT"
           echo "### Android signing" >> "$GITHUB_STEP_SUMMARY"
           echo "- Upload-key-signed AAB verified with jarsigner." >> "$GITHUB_STEP_SUMMARY"
+      - name: Android upload signing configured
+        if: steps.sign_bundle.outputs.configured == 'true'
+        run: echo "ANDROID PLAY UPLOAD KEY • CONFIGURED"
+      - name: Android upload signing missing
+        if: steps.sign_bundle.outputs.configured != 'true'
+        run: echo "ANDROID PLAY UPLOAD KEY • MISSING"
       - name: Require signed AAB for manual Play release
         if: github.event_name == 'workflow_dispatch'
         run: |
