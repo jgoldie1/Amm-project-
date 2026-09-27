@@ -27,18 +27,16 @@ export default function RouteCoordinator(){
   const screen=useGameStore(s=>s.screen)
 
   useEffect(()=>{
-    ;(window as any).__tryammNavigate=(path:string)=>{
-      const normalized=normalizeRoutePath(path)
-      if(window.location.hash!==`#${normalized}`)window.location.hash=normalized
-      else openCurrentRoute()
-    }
+    // App owns the canonical TRYAMM navigator. RouteCoordinator only consumes
+    // legacy/direct hash routes so it cannot downgrade /streetverse into the
+    // old Zustand city screen after App has installed canonical route handling.
     ;(window as any).__showHoloGPT=()=>window.dispatchEvent(new CustomEvent('tryamm:open-hologpt'))
     const onRoute=()=>openCurrentRoute()
     window.addEventListener('hashchange',onRoute)
     window.addEventListener('popstate',onRoute)
     // Run after App assigns its overlay openers. Pathname fallback keeps direct /streetverse links working.
     const timer=window.setTimeout(onRoute,0)
-    return()=>{window.clearTimeout(timer);window.removeEventListener('hashchange',onRoute);window.removeEventListener('popstate',onRoute);delete (window as any).__tryammNavigate}
+    return()=>{window.clearTimeout(timer);window.removeEventListener('hashchange',onRoute);window.removeEventListener('popstate',onRoute)}
   },[])
 
   useEffect(()=>{
