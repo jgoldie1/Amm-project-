@@ -11,7 +11,10 @@ const generic=read('../src/components/StreetVerseMobilePlayableWorld.tsx')
 assert.match(hook,/data-streetverse-mobile-shell/,'shell detection must use the unified mobile-shell marker')
 assert.match(hook,/MutationObserver/,'shell detection must notice the shell after mobile capability resolves')
 
-for(const [name,source] of Object.entries({mobile3d,community,hyde,generic})){
+assert.match(mobile3d,/StreetVerse analog joystick/,'mobile 3D world must expose the direct analog joystick')
+assert.match(mobile3d,/analogInput\.current/,'mobile 3D world must feed analog input directly into its render loop')
+assert.doesNotMatch(mobile3d,/StreetVerse legacy movement controls/,'mobile 3D world must not overlay the retired arrow pad')
+for(const [name,source] of Object.entries({community,hyde,generic})){
  assert.match(source,/useStreetVerseMobileShellMounted/,`${name} must detect unified mobile controls`)
  assert.match(source,/!shellControls/,`${name} must retain its fallback pad only when the unified shell is absent`)
 }
