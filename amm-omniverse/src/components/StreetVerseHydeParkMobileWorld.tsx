@@ -1,6 +1,5 @@
 import {useEffect,useMemo,useRef,useState} from 'react'
 import {HYDE_PARK_SLICE} from '../config/streetverseCommunitySlices'
-import useStreetVerseMobileShellMounted from '../hooks/useStreetVerseMobileShellMounted'
 
 const SAVE_KEY='tryamm.streetverse.hyde-park.mobile.v1'
 type Pos={x:number;y:number}
@@ -17,7 +16,6 @@ export default function StreetVerseHydeParkMobileWorld({onClose}:{onClose:()=>vo
  const [heading,setHeading]=useState(Number(saved.heading)||0)
  const [visited,setVisited]=useState<string[]>(()=>Array.isArray(saved.visited)?saved.visited.filter(id=>missions.some(m=>m.id===id)):[])
  const [message,setMessage]=useState('Hyde Park StreetVerse active • reach the four neighborhood checkpoints.')
- const shellControls=useStreetVerseMobileShellMounted()
  const posRef=useRef(pos),carRef=useRef(car),vehicleRef=useRef(vehicle),headingRef=useRef(heading),visitedRef=useRef(visited)
  const held=useRef({up:false,down:false,left:false,right:false})
  const near=useMemo(()=>missions.find(m=>Math.hypot(pos.x-m.x,pos.y-m.y)<6)||null,[pos,missions])
@@ -67,7 +65,6 @@ export default function StreetVerseHydeParkMobileWorld({onClose}:{onClose:()=>vo
    {missions.map((m,i)=>{const done=visited.includes(m.id);return <div key={m.id} title={m.reference} style={{position:'absolute',left:`${18+i*21}%`,top:`${31+(i%2)*17}%`,zIndex:12,textAlign:'center',transform:'translateX(-50%)'}}><div style={{width:18,height:18,margin:'auto',borderRadius:'50%',background:done?'#55e88a':'#ffd65a',border:'2px solid white',boxShadow:done?'0 0 18px #55e88a':'0 0 20px #ffd65a'}}>{done?'✓':''}</div><div style={{marginTop:6,padding:'5px 7px',borderRadius:7,background:'#030914e8',fontSize:9,fontWeight:800,maxWidth:150}}>{m.label}<div style={{fontSize:7,color:'#9fc7dd',marginTop:2}}>{m.reference}</div></div></div>})}
    <div aria-label={vehicle?'Player driving blue StreetVerse car':'Player'} style={{position:'absolute',left:'50%',bottom:'17%',width:vehicle?46:28,height:vehicle?64:48,transform:`translateX(-50%) rotate(${vehicle?heading:0}deg)`,zIndex:14,borderRadius:vehicle?11:14,background:vehicle?'#36a9e8':'#23d9f4',border:'3px solid #fff',boxShadow:'0 0 22px #23d9f488'}}/>
    {!vehicle&&<div aria-label={`Parked blue car ${Math.round(carDistance)} meters away`} style={{position:'absolute',left:`${clamp(50+(car.x-pos.x)*1.1,10,90)}%`,top:`${clamp(60+(car.y-pos.y)*.7,28,80)}%`,width:30,height:44,transform:'translate(-50%,-50%)',borderRadius:8,background:'#36a9e8',border:'2px solid #dff8ff'}}/>}
-   {!shellControls&&<div style={{position:'absolute',left:14,bottom:18,zIndex:35,display:'grid',gridTemplateColumns:'58px 58px 58px',gap:7}}><span/>{control('↑','up')}<span/>{control('←','left')}{control('↓','down')}{control('→','right')}</div>}
    <div style={{position:'absolute',right:12,bottom:18,zIndex:35,maxWidth:190,padding:9,borderRadius:12,background:'#030914df',border:'1px solid #34566d',fontSize:10,lineHeight:1.35}}>MOBILE SAFE WORLD<br/><b style={{color:'#8effb7'}}>HYDE PARK</b><br/>Neighborhood-specific mission labels and area-41 event metadata active.</div>
   </main>
  </div>

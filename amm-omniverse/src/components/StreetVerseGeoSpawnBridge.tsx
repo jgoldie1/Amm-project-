@@ -10,7 +10,6 @@ import {installStreetVerseFameRuntime} from '../runtime/StreetVerseFameRuntime'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
-import StreetVerseMobileGameShell from './StreetVerseMobileGameShell'
 import {useGameStore} from '../game/state/useGameStore'
 import {chooseQuantumSpeedMode,QUANTUM_SPEED_BUDGETS,type QuantumSpeedMode} from '../game/runtime/quantumSpeedEngine'
 
@@ -184,15 +183,13 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
 
  if(safe)return <>
   <StreetVerseWeatherSync/>
-  <StreetVerseMobileGameShell onClose={closeStreetVerse}/>
   <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>
   <StreetVerseAfterDarkAlpha/>
   <Suspense fallback={null}><StreetVerseReelEventBridge/></Suspense>
  </>
 
  return <>
-  <StreetVerseMobileGameShell onClose={closeStreetVerse}/>
-  <Suspense fallback={<><StreetVerseWeatherSync/><StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/></>}>
+  <Suspense fallback={<div aria-label="StreetVerse playable world loading" style={{position:'fixed',inset:0,zIndex:14990,display:'grid',placeItems:'center',background:'#07101d',color:'#fff',fontFamily:'system-ui',fontWeight:900}}>STREETVERSE • LOADING PLAYABLE WORLD…</div>}>
    <StreetVersePlayableWorld onClose={closeStreetVerse}/>
   </Suspense>
   <StreetVerseAfterDarkAlpha/>

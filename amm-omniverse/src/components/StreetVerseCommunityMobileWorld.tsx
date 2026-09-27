@@ -3,7 +3,6 @@ import type {ChangeEvent} from 'react'
 import type {CSSProperties} from 'react'
 import type {StreetVerseCommunitySlice} from '../config/streetverseCommunitySlices'
 import {getAccessToken} from '../services/supabaseClient'
-import useStreetVerseMobileShellMounted from '../hooks/useStreetVerseMobileShellMounted'
 
 type Props={slice:StreetVerseCommunitySlice;onClose:()=>void}
 
@@ -19,7 +18,6 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
  const [reelStatus,setReelStatus]=useState('Choose or capture a video, then upload it.')
  const [reelBusy,setReelBusy]=useState(false)
  const [reelMediaId,setReelMediaId]=useState('')
- const shellControls=useStreetVerseMobileShellMounted()
  const reelFileInput=useRef<HTMLInputElement|null>(null)
  const traffic=useMemo(()=>[
   {id:'c1',lane:46,start:8,speed:7,icon:'🚙'},
@@ -112,8 +110,6 @@ export default function StreetVerseCommunityMobileWorld({slice,onClose}:Props){
     <div aria-hidden="true" style={{position:'absolute',left:0,right:0,top:'42%',height:'18%',background:'#101820',borderTop:'2px dashed #b7c3ca',borderBottom:'2px dashed #b7c3ca'}} />
     {traffic.map((car,i)=>{const x=(car.start+trafficTick*car.speed)%112-6;return <div key={car.id} aria-label="Civilian traffic vehicle" style={{position:'absolute',left:`${x}%`,top:`${car.lane}%`,transform:`translate(-50%,-50%) ${i%2?'scaleX(-1)':''}`,fontSize:22,filter:'drop-shadow(0 2px 2px #0008)',pointerEvents:'none'}}>{car.icon}</div>})}
     <div aria-label={vehicle?'Player vehicle':'Player'} style={{position:'absolute',left:`${pos.x}%`,top:`${pos.y}%`,transform:'translate(-50%,-50%)',width:vehicle?34:24,height:vehicle?24:34,borderRadius:10,background:vehicle?'#ffd65a':'#23d9f4',border:'2px solid #fff',display:'grid',placeItems:'center',fontSize:vehicle?18:0}}>{vehicle?'🚗':''}</div>
-    {!shellControls&&<div style={{position:'absolute',left:10,bottom:10,display:'grid',gridTemplateColumns:'54px 54px 54px',gap:5}}><span/>{moveButton('▲','up')}<span/>{moveButton('◀','left')}{moveButton('▼','down')}{moveButton('▶','right')}</div>}
-    {!shellControls&&<div style={{position:'absolute',right:10,bottom:10,fontSize:11,color:'#bfefff'}}>MOVE • all 4 directions</div>}
    </section>
    {hudOpen&&<section style={{padding:12,borderRadius:12,background:'#030914e8',border:'1px solid #4e7891',marginBottom:12}}>
     <b>{message}</b>

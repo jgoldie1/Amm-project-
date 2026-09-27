@@ -85,14 +85,6 @@
       "dest": "/financial-truth.html"
     },
     {
-      "src": "/streetverse",
-      "dest": "/streetverse-safe.html"
-    },
-    {
-      "src": "/streetverse/",
-      "dest": "/streetverse-safe.html"
-    },
-    {
       "handle": "filesystem"
     },
     {

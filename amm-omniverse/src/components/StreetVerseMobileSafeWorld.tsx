@@ -47,6 +47,7 @@ export default function StreetVerseMobileSafeWorld({onClose}:{onClose:()=>void})
   return()=>{cancelAnimationFrame(raf);removeEventListener('keydown',kd);removeEventListener('keyup',ku);ro.disconnect();renderer.dispose();renderer.domElement.remove();window.dispatchEvent(new CustomEvent('tryamm:streetverse-exit',{detail:{mobileSafe:true}}))}
  },[])
  const press=(key:keyof typeof moveRef.current,value:boolean)=>{moveRef.current={...moveRef.current,[key]:value}}
+ useEffect(()=>{const onWorldInput=(e:Event)=>{const d=(e as CustomEvent<any>).detail||{},move=d.move||{};moveRef.current={up:Number(move.y||0)<-.08,down:Number(move.y||0)>.08,left:Number(move.x||0)<-.08,right:Number(move.x||0)>.08}};addEventListener('tryamm:streetverse-world-input',onWorldInput);return()=>removeEventListener('tryamm:streetverse-world-input',onWorldInput)},[])
  const hold=(key:keyof typeof moveRef.current)=>(e:React.PointerEvent)=>{e.preventDefault();(e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);press(key,true)}
  const release=(key:keyof typeof moveRef.current)=>(e:React.PointerEvent)=>{e.preventDefault();press(key,false)}
  if(webglFailed)return <StreetVerseMobilePlayableWorld onClose={onClose}/>

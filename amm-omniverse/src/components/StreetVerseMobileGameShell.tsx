@@ -1,4 +1,5 @@
 import {useEffect,useRef,useState} from 'react'
+import {StreetVerseOneHandController} from '../runtime/StreetVerseOneHandController'
 
 type Props={onClose:()=>void}
 type Dir='up'|'down'|'left'|'right'
@@ -36,7 +37,16 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const [specialUnlock,setSpecialUnlock]=useState<MissionSpecialUnlock|null>(null)
  const [fame,setFame]=useState<FameSnapshot>(()=>readFameSnapshot())
  const active=useRef<Record<Dir,boolean>>({up:false,down:false,left:false,right:false})
+ const oneHandController=useRef<StreetVerseOneHandController|null>(null)
  const emit=()=>{
+  if(!oneHandController.current){
+   oneHandController.current=new StreetVerseOneHandController({
+    applyInput:(frame)=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-input',{detail:{...frame,source:'one-hand-controller'}}))},
+    setCameraAssist:(enabled)=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-camera-assist',{detail:{enabled,source:'one-hand-controller'}}))},
+    setGameSpeed:(scale)=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-game-speed',{detail:{scale,source:'one-hand-controller'}}))},
+   })
+  }
+  if(mode==='one-hand')void oneHandController.current.update({stick:{x:(active.current.right?1:0)-(active.current.left?1:0),y:(active.current.down?1:0)-(active.current.up?1:0)},context:'ON_FOOT'})
   const detail={throttle:active.current.up?1:0,brake:active.current.down?1:0,steer:active.current.left?-1:active.current.right?1:0,horn:false,exit:false,source:'mobile-game-shell'}
   // Keep the vehicle-input contract for existing worlds and also publish the
   // explicit mobile movement contract so walking does not depend on vehicle semantics.
@@ -79,6 +89,7 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
    {mode==='one-hand'&&<button aria-label="Switch one hand side" onClick={changeHand} style={{...modeButton(true),borderColor:'#8effb7'}}>{hand.toUpperCase()} HAND</button>}
    <div aria-label={`StreetVerse fame rank ${fame.rank}`} style={{minHeight:44,padding:'5px 9px',borderRadius:12,border:'1px solid #ff74c888',background:'#220a1eee',display:'grid',alignContent:'center',lineHeight:1.05}}><b style={{fontSize:9,color:'#ff9fda'}}>FAME • {fame.rank.toUpperCase()}</b><span style={{fontSize:8,color:'#fff',opacity:.78}}>{fame.fame} • {fame.fanbase.toLocaleString()} FANS</span></div>
   </div>
+  <button aria-label="Open Holo FON" onClick={()=>{release();window.dispatchEvent(new CustomEvent('tryamm:holo-fon-open',{detail:{source:'streetverse-mobile-game-shell',preserveWorld:true}}))}} style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',right:'max(62px,calc(env(safe-area-inset-right) + 62px))',width:46,height:46,borderRadius:23,border:'2px solid #69e9ff',background:'#061826ee',color:'#fff',fontSize:22,pointerEvents:'auto',boxShadow:'0 0 16px #00d9ff66',touchAction:'manipulation'}}>📱</button>
   <button onClick={onClose} aria-label="Exit StreetVerse" style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',right:'max(10px,env(safe-area-inset-right))',width:44,height:44,borderRadius:22,border:'1px solid #567',background:'#07131fee',color:'#fff',fontSize:20,pointerEvents:'auto'}}>×</button>
   <div aria-label="StreetVerse Holographic LIVE and PK controls" style={{position:'absolute',top:'max(60px,calc(env(safe-area-inset-top) + 60px))',right:'max(10px,env(safe-area-inset-right))',display:'grid',gap:7,pointerEvents:'auto'}}>
    <button aria-label="Open Holographic LIVE from StreetVerse" onClick={()=>openHolo('live')} style={{...modeButton(true),minWidth:92,borderColor:'#ff6b87'}}>● HOLO LIVE</button>
