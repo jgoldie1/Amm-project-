@@ -94,22 +94,6 @@ try {
   
   const streetVerseRoute=isStreetVerseSafe?<><StreetVerseWeatherSync/><StreetVerseSafeWorld communityAreaNumber={safeCommunityArea} onClose={()=>{window.location.href='/'}} /></>:<>
     <Suspense fallback={routeFallback}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense>
-    <StreetVerseFaithChronoPortal />
-    <InstallPrompt />
-    <div aria-label="StreetVerse mobile release controls" style={{position:'fixed',left:12,top:12,zIndex:16990,display:'flex',gap:8,flexWrap:'wrap',maxWidth:'calc(100vw - 24px)'}}>
-      <button onClick={()=>window.dispatchEvent(new Event('tryamm:install-open'))} style={{border:'1px solid #4FE3FF99',borderRadius:999,padding:'10px 14px',background:'#071d27',color:'#4FE3FF',fontWeight:950,cursor:'pointer'}}>📱 INSTALL APP</button>
-      <button onClick={()=>{window.location.href='/?open=holoverse'}} style={{border:'1px solid #E8B94499',borderRadius:999,padding:'10px 14px',background:'#211907',color:'#ffe49b',fontWeight:950,cursor:'pointer'}}>🌐 HOLOVERSE</button>
-      <button onClick={()=>{window.location.href='/?open=carousel'}} style={{border:'1px solid #8c6cff99',borderRadius:999,padding:'10px 14px',background:'#160d28',color:'#d9c7ff',fontWeight:950,cursor:'pointer'}}>✦ VERSE CAROUSEL</button>
-      <button onClick={()=>{window.location.href='/streetverse/twin-world'}} style={{border:'1px solid #62b8ff99',borderRadius:999,padding:'10px 14px',background:'#071725',color:'#fff',fontWeight:950,cursor:'pointer'}}>🌎 TWIN WORLD • REAL CHICAGO</button>
-      <button onClick={()=>{window.location.href='/streetverse/meet-the-stubbs'}} style={{border:'1px solid #e8b94499',borderRadius:999,padding:'10px 14px',background:'#17120a',color:'#fff',fontWeight:950,cursor:'pointer'}}>MEET THE STUBBS • 13 WORLD STORES</button>
-      <button onClick={()=>{window.location.href='/global-trade'}} style={{border:'1px solid #7fe8c799',borderRadius:999,padding:'10px 14px',background:'#071b16',color:'#fff',fontWeight:950,cursor:'pointer'}}>GLOBAL TRADE • SUPPLY CHAIN</button>
-      <button onClick={()=>{window.location.href='/live'}} style={{border:'1px solid #ff6b8799',borderRadius:999,padding:'10px 14px',background:'#221019',color:'#fff',fontWeight:950,cursor:'pointer'}}>● TRYAMM LIVE</button>
-      <button onClick={()=>{window.location.href='/holo-drama'}} style={{border:'1px solid #ff7ce899',borderRadius:999,padding:'10px 14px',background:'#251027',color:'#fff',fontWeight:950,cursor:'pointer'}}>🎬 HOLO DRAMA</button>
-      <button onClick={()=>{window.location.href='/spectra-studios'}} style={{border:'1px solid #d594ff99',borderRadius:999,padding:'10px 14px',background:'#1b1025',color:'#fff',fontWeight:950,cursor:'pointer'}}>🎞 SPECTRA STUDIOS</button>
-      <button onClick={()=>{window.location.href='/holo-food'}} style={{border:'1px solid #ffba6899',borderRadius:999,padding:'10px 14px',background:'#25190d',color:'#fff',fontWeight:950,cursor:'pointer'}}>🍽 HOLO FOOD</button>
-      <button onClick={()=>{window.location.href='/holo-ride-share'}} style={{border:'1px solid #76c7ff99',borderRadius:999,padding:'10px 14px',background:'#0b1a25',color:'#fff',fontWeight:950,cursor:'pointer'}}>🚘 HOLO RIDE</button>
-      <button onClick={()=>{window.location.href='/guardian'}} style={{border:'1px solid #79e6c499',borderRadius:999,padding:'10px 14px',background:'#0a1d19',color:'#fff',fontWeight:950,cursor:'pointer'}}>🛡 GUARDIAN CENTER</button>
-    </div>
   </>
   
   // Release compatibility marker required by the Omniverse shell smoke contract: <OmniverseCoreLoopHUD />
@@ -166,7 +150,8 @@ const root = createRoot(rootElement)
 const entryDiagnostic = (() => {
   const ua = navigator.userAgent || ''
   const isMobile = /iPhone|iPad|iPod|Android/i.test(ua) || window.innerWidth <= 600
-  if (!isMobile || !window.location.pathname.startsWith('/streetverse')) return null
+  // Keep production diagnostics out of the playable mobile surface.
+  if (!isMobile || window.location.pathname.startsWith('/streetverse')) return null
   return (
     <div data-tryamm-entry-diagnostic="streetverse-main-v1" style={{position:'fixed',right:8,bottom:'calc(env(safe-area-inset-bottom, 0px) + 8px)',zIndex:2147483647,pointerEvents:'none',padding:'7px 9px',borderRadius:8,background:'#ffea00',color:'#111',font:'900 11px/1.15 system-ui,sans-serif',boxShadow:'0 2px 12px #0008'}}>
       SV ENTRY V1 • {window.location.pathname}
@@ -232,6 +217,9 @@ queueMicrotask(() => {
   // Keep the first successful StreetVerse render mounted: optional global runtimes/UI
   // must not replace or unmount it after bootstrap.
   if (preserveDeterministicSafeRoute) return
+  // StreetVerse owns its mobile canvas and controls. Global UI/runtimes are
+  // intentionally excluded here so they cannot cover the playable world.
+  if (window.location.pathname.startsWith('/streetverse')) return
   installOptionalRuntimes()
   try {
     root.render(
