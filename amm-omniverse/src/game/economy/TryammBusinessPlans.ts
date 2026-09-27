@@ -1,4 +1,4 @@
-export type BusinessPlanId='free'|'preview'|'experience'|'digital-twin'|'business-pass'
+export type BusinessPlanId='free'|'starter'|'growth'|'preview'|'experience'|'digital-twin'|'business-pass'
 export interface BusinessPlan{
  id:BusinessPlanId; name:string; priceMinor:number; billing:'free'|'one-time'|'monthly'
  description:string; includes:string[]; example:string
@@ -6,6 +6,8 @@ export interface BusinessPlan{
 
 export const TRYAMM_BUSINESS_PLANS:BusinessPlan[]=[
  {id:'free',name:'Free Listing',priceMinor:0,billing:'free',description:'Claim a basic TRYAMM Business Passport and see how the network works before buying.',includes:['basic listing','business QR','category and contact details','StreetVerse directory eligibility','plan examples'],example:'See a sample business card/listing and QR entry point.'},
+ {id:'starter',name:'Starter',priceMinor:2900,billing:'monthly',description:'Affordable step up from the free listing for businesses ready to manage a stronger TRYAMM presence.',includes:['enhanced listing','QR conversion tracking','basic analytics','campaign-ready profile','Scout attribution'],example:'See scans, conversions and a richer business presence without buying a full experience.'},
+ {id:'growth',name:'Growth',priceMinor:4900,billing:'monthly',description:'Growth tools for businesses ready to market and convert more customers.',includes:['Starter features','conversion follow-up tools','enhanced analytics','Holo Ads campaign readiness','media and Business Twin upgrade path'],example:'Track the funnel and prepare campaigns across eligible TRYAMM surfaces.'},
  {id:'preview',name:'TRYAMM Preview',priceMinor:49900,billing:'one-time',description:'A richer preview of how the business can appear across TRYAMM.',includes:['enhanced profile','media preview','Business Twin concept preview','QR campaign setup'],example:'Preview the business as a richer TRYAMM destination before a larger build.'},
  {id:'experience',name:'TRYAMM Experience',priceMinor:125000,billing:'one-time',description:'Interactive business experience package.',includes:['interactive experience setup','media placement setup','StreetVerse experience configuration','campaign launch assistance'],example:'Customer enters an interactive branded experience from QR or StreetVerse.'},
  {id:'digital-twin',name:'Digital Twin',priceMinor:250000,billing:'one-time',description:'Higher-detail digital business representation.',includes:['digital twin production scope','interactive location','commerce/media connection','StreetVerse integration scope'],example:'A business becomes a navigable interactive destination subject to asset/source availability.'},
