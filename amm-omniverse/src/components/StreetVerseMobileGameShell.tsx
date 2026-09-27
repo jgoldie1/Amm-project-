@@ -41,9 +41,9 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const emit=()=>{
   if(!oneHandController.current){
    oneHandController.current=new StreetVerseOneHandController({
-    applyInput:(frame)=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-input',{detail:{...frame,source:'one-hand-controller'}})),
-    setCameraAssist:(enabled)=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-camera-assist',{detail:{enabled,source:'one-hand-controller'}})),
-    setGameSpeed:(scale)=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-game-speed',{detail:{scale,source:'one-hand-controller'}})),
+    applyInput:(frame)=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-input',{detail:{...frame,source:'one-hand-controller'}}))},
+    setCameraAssist:(enabled)=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-camera-assist',{detail:{enabled,source:'one-hand-controller'}}))},
+    setGameSpeed:(scale)=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-game-speed',{detail:{scale,source:'one-hand-controller'}}))},
    })
   }
   if(mode==='one-hand')void oneHandController.current.update({stick:{x:(active.current.right?1:0)-(active.current.left?1:0),y:(active.current.down?1:0)-(active.current.up?1:0)},context:'ON_FOOT'})
