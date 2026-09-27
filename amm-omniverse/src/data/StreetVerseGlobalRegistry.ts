@@ -14,7 +14,9 @@ export const STREETVERSE_GLOBAL_CITIES:StreetVerseCity[]=[
  {id:'los-angeles',name:'Los Angeles',country:'United States',region:'California',status:'planned',spawn:{x:0,z:0},features:['film','music','creator economy']},
  {id:'accra',name:'Accra',country:'Ghana',region:'Greater Accra',status:'planned',spawn:{x:0,z:0},features:['business','culture','music']},
  {id:'nairobi',name:'Nairobi',country:'Kenya',region:'Nairobi County',status:'planned',spawn:{x:0,z:0},features:['technology','business','culture']},
- {id:'johannesburg',name:'Johannesburg',country:'South Africa',region:'Gauteng',status:'planned',spawn:{x:0,z:0},features:['business','music','creator economy']},
+ {id:'johannesburg',name:'Johannesburg',country:'South Africa',region:'Gauteng',status:'building',spawn:{x:0,z:0},features:['business','music','creator economy','StreetVerse Global','marketplace']},
+ {id:'cape-town',name:'Cape Town',country:'South Africa',region:'Western Cape',status:'planned',spawn:{x:0,z:0},features:['tourism','business','culture','creator economy']},
+ {id:'addis-ababa',name:'Addis Ababa',country:'Ethiopia',region:'Addis Ababa',status:'building',spawn:{x:0,z:0},features:['culture','business','FaithVerse connections','creator economy','StreetVerse Global']},
 ]
 
 export const getStreetVerseCity=(id:string|undefined)=>
