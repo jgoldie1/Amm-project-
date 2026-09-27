@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const CHANGES=[
   ['🎮','StreetVerse playable entry','Play the public StreetVerse beta from the app or /play.'],
@@ -15,9 +15,10 @@ const CHANGES=[
   ['🎓','Greenville University Class of 2031','Signed-in students, family and friends can submit moderated welcome messages.'],
 ] as const
 
-export default function ReleaseChangesPanel(){
+export default function ReleaseChangesPanel({launcher=true}:{launcher?:boolean}={}){
   const [open,setOpen]=useState(false)
-  if(!open)return <button type="button" onClick={()=>setOpen(true)} aria-label="Open TRYAMM latest changes" style={{position:'fixed',left:12,bottom:170,zIndex:8992,border:'1px solid #4fe3ff77',borderRadius:999,padding:'10px 14px',background:'linear-gradient(135deg,#071a25,#171124)',color:'#4FE3FF',fontSize:10,fontWeight:950,letterSpacing:1,cursor:'pointer'}}>✨ WHAT'S NEW</button>
+  useEffect(()=>{const show=()=>setOpen(true);window.addEventListener('tryamm:release-center-open',show);(window as any).__showReleaseCenter=show;return()=>{window.removeEventListener('tryamm:release-center-open',show);if((window as any).__showReleaseCenter===show)delete (window as any).__showReleaseCenter}},[])
+  if(!open)return launcher?<button type="button" onClick={()=>setOpen(true)} aria-label="Open TRYAMM latest changes" style={{position:'fixed',left:12,bottom:170,zIndex:8992,border:'1px solid #4fe3ff77',borderRadius:999,padding:'10px 14px',background:'linear-gradient(135deg,#071a25,#171124)',color:'#4FE3FF',fontSize:10,fontWeight:950,letterSpacing:1,cursor:'pointer'}}>✨ WHAT'S NEW</button>:null
 
   const run=(name:'play'|'media'|'campus'|'hologpt'|'jacobie')=>{
     if(name==='play'){(window as any).__showPlayableBeta?.();return}

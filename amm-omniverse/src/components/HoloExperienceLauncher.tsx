@@ -51,15 +51,17 @@ export default function HoloExperienceLauncher(){
     if(panel==='LIVE'){requestLivePk('live','holo-carousel');return}
     if(panel==='PK'){requestLivePk('pk','holo-carousel');return}
     if(panel==='REELS'){window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'holo-carousel'}}));setCarouselOpen(false);return}
+    if(panel==='CHARACTERS'){window.location.href='/streetverse/meet-the-stubbs';return}
     if(panel==='STREETVERSE_WORLD'){window.location.href='/streetverse';return}
     if(panel==='FAITHVERSE'){window.location.href='/faithverse';return}
     if(panel==='TIME_MACHINE'){window.location.href='/time-machine';return}
     if(panel==='VERSE_DIRECTORY'){window.dispatchEvent(new CustomEvent('tryamm:verse-directory-open',{detail:{verses:TRYAMM_VERSE_DIRECTORY,source:'holo-carousel'}}));setSocialMode('world');setSocialOpen(true);setCarouselOpen(false);return}
-    if(panel==='CREATOR_COMMERCE'){window.dispatchEvent(new CustomEvent('tryamm:creator-commerce-open',{detail:{source:'holo-carousel'}}));setCarouselOpen(false);return}
+    if(panel==='CREATOR_COMMERCE'){const nav=(window as any).__tryammNavigate;if(typeof nav==='function')nav('/marketplace');else window.location.href='/marketplace';setCarouselOpen(false);return}
     if(panel==='BENNY_HOLOGPT'){window.dispatchEvent(new CustomEvent('tryamm:hologpt-open',{detail:{source:'holo-carousel'}}));setCarouselOpen(false);return}
     if(panel==='MISSIONS'){window.location.href='/streetverse';return}
     if(panel==='RELEASE_CENTER'){window.dispatchEvent(new CustomEvent('tryamm:release-center-open',{detail:{source:'holo-carousel'}}));setCarouselOpen(false);return}
-    setSocialMode(panel==='WORLD_DATA'?'world':'feed')
+    if(panel==='WORLD_DATA'){const show=(window as any).__showSparrowMap;if(typeof show==='function')show();else window.location.href='/?open=sparrow';setCarouselOpen(false);return}
+    setSocialMode('feed')
     setSocialOpen(true)
     setCarouselOpen(false)
   }

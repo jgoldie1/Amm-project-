@@ -3,6 +3,8 @@ import { useGameStore } from '../game/state/useGameStore'
 import { getAuthenticatedUserId, isSupabaseConfigured } from '../services/supabaseClient'
 import HoloGPTAssistant from './HoloGPTAssistant'
 import HoloDirectLaunchBridge from './HoloDirectLaunchBridge'
+import MediaStudioLauncher from './MediaStudioLauncher'
+import ReleaseChangesPanel from './ReleaseChangesPanel'
 import HoloMusicStreaming from './HoloMusicStreaming'
 import CommandNexusControlPlane from './CommandNexusControlPlane'
 import XRCommandGateway from './XRCommandGateway'
@@ -52,6 +54,7 @@ export default function LivingWorldsBridge() {
     const openLivingStory=()=>setShowLivingStory(true)
     const openMovieStudio=()=>setShowMovieStudio(true)
     const openMiddleverseAI=()=>setShowMiddleverseAI(true)
+    const openCreatorCommerce=()=>useGameStore.getState().setScreen('marketplace')
     ;(window as any).__showCommandNexusV2=openNexus
     ;(window as any).__showHoloMusic=openMusic
     ;(window as any).__showXR=openXR
@@ -61,6 +64,7 @@ export default function LivingWorldsBridge() {
     ;(window as any).__showMovieStudio=openMovieStudio
     ;(window as any).__showMiddleverseWorkstation=openMiddleverseAI
     ;(window as any).__showMiddleverseAI=openMiddleverseAI
+    ;(window as any).__showCreatorCommerce=openCreatorCommerce
     window.addEventListener('tryamm:open-command-nexus-v2',openNexus)
     window.addEventListener('tryamm:open-holo-music',openMusic)
     window.addEventListener('tryamm:open-xr',openXR)
@@ -69,6 +73,7 @@ export default function LivingWorldsBridge() {
     window.addEventListener('tryamm:open-living-story',openLivingStory)
     window.addEventListener('tryamm:open-movie-studio',openMovieStudio)
     window.addEventListener('tryamm:open-middleverse-ai',openMiddleverseAI)
+    window.addEventListener('tryamm:creator-commerce-open',openCreatorCommerce)
     return()=>{
       window.removeEventListener('tryamm:open-command-nexus-v2',openNexus)
       window.removeEventListener('tryamm:open-holo-music',openMusic)
@@ -78,6 +83,7 @@ export default function LivingWorldsBridge() {
       window.removeEventListener('tryamm:open-living-story',openLivingStory)
       window.removeEventListener('tryamm:open-movie-studio',openMovieStudio)
       window.removeEventListener('tryamm:open-middleverse-ai',openMiddleverseAI)
+      window.removeEventListener('tryamm:creator-commerce-open',openCreatorCommerce)
       if((window as any).__showCommandNexusV2===openNexus)delete (window as any).__showCommandNexusV2
       if((window as any).__showHoloMusic===openMusic)delete (window as any).__showHoloMusic
       if((window as any).__showXR===openXR)delete (window as any).__showXR
@@ -87,6 +93,7 @@ export default function LivingWorldsBridge() {
       if((window as any).__showMovieStudio===openMovieStudio)delete (window as any).__showMovieStudio
       if((window as any).__showMiddleverseWorkstation===openMiddleverseAI)delete (window as any).__showMiddleverseWorkstation
       if((window as any).__showMiddleverseAI===openMiddleverseAI)delete (window as any).__showMiddleverseAI
+      if((window as any).__showCreatorCommerce===openCreatorCommerce)delete (window as any).__showCreatorCommerce
     }
   },[])
 
@@ -167,6 +174,8 @@ export default function LivingWorldsBridge() {
     <RouteCoordinator />
     <HoloGPTAssistant />
     <HoloDirectLaunchBridge />
+    <MediaStudioLauncher />
+    <ReleaseChangesPanel launcher={false} />
     {signedIn&&<>
       <button aria-label="Open Living Story Missions" onClick={()=>setShowLivingStory(true)} style={{position:'fixed',right:12,bottom:18,zIndex:10031,border:'1px solid #77e9ff99',borderRadius:999,padding:'12px 15px',background:'linear-gradient(135deg,#07232d,#14111f)',color:'#dffbff',fontFamily:'monospace',fontWeight:950,fontSize:11,cursor:'pointer',boxShadow:'0 0 24px #77e9ff22'}}>★ MISSIONS</button>
       <button aria-label="Open AR VR Mixed Reality" onClick={()=>setShowXR(true)} style={{position:'fixed',left:12,bottom:18,zIndex:10031,border:'1px solid #a36cff99',borderRadius:999,padding:'12px 15px',background:'linear-gradient(135deg,#17102b,#071d2a)',color:'#d6b7ff',fontFamily:'monospace',fontWeight:950,fontSize:11,cursor:'pointer',boxShadow:'0 0 24px #a36cff22'}}>XR · AR/VR</button>
