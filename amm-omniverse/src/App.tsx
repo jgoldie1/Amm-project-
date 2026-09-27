@@ -42,6 +42,7 @@ const StreamStudioFX = lazy(() => import('./components/StreamStudioFX'))
 const QuantumLagBuster = lazy(() => import('./components/QuantumLagBuster'))
 const QuantumBeatCenter = lazy(() => import('./components/QuantumBeatCenter'))
 const OTTIsaiahTV = lazy(() => import('./components/OTTIsaiahTV'))
+const TryammTvHome = lazy(() => import('./components/TryammTvHome'))
 const PoyoAIStudio = lazy(() => import('./components/PoyoAIStudio'))
 const PropertyVerseCenter = lazy(() => import('./components/PropertyVerseCenter'))
 const HoloStyleCenter = lazy(() => import('./components/HoloStyleCenter'))
@@ -72,6 +73,7 @@ export default function App() {
   const [showLagBuster, setShowLagBuster] = useState(false)
   const [showQuantumBeat, setShowQuantumBeat] = useState(false)
   const [showOTT, setShowOTT] = useState(false)
+  const [showTryammTv, setShowTryammTv] = useState(false)
   const [showSecurity, setShowSecurity] = useState(false)
   const [showOmniWear, setShowOmniWear] = useState(false)
   const [showConnect, setShowConnect] = useState(false)
@@ -107,6 +109,8 @@ export default function App() {
     if (route === '/educationverse') { setShowSchoolNetwork(true); return }
     if (route === '/legacyverse') { setShowFamilyLegacy(true); return }
     if (route === '/connect') { setShowConnect(true); return }
+    if (route === '/tv' || route === '/tryamm-tv') { setShowTryammTv(true); return }
+    if (route === '/isaiah-ai-tv') { setShowOTT(true); return }
     if (route === '/gameverse') {
       const show = (window as any).__showGameVerse
       if (typeof show === 'function') show()
@@ -132,7 +136,7 @@ export default function App() {
       '/marketplace','/music','/musicverse','/sports','/sportverse','/faith','/blockchain','/city',
       '/propertyverse','/holoverse','/spaceverse','/cyberverse','/creatorverse','/businessverse',
       '/educationverse','/gameverse','/middleverse','/metaverse','/multiverse','/time-machine',
-      '/legacyverse','/connect'
+      '/legacyverse','/connect','/tv','/tryamm-tv','/isaiah-ai-tv'
     ])
     if (routeAliases.has(route)) navigateTryAMM(route)
 
@@ -140,6 +144,8 @@ export default function App() {
     const open = params.get('open')
     if (open === 'holoverse') setShowHoloverse(true)
     else if (open === 'holofon') setShowConnect(true)
+    else if (open === 'tv') setShowTryammTv(true)
+    else if (open === 'isaiah-ai-tv') setShowOTT(true)
     else if (open === 'sparrow') setShowSparrowMap(true)
     else if (open === 'carousel') window.setTimeout(() => window.dispatchEvent(new Event('tryamm:holo-carousel-open')), 0)
     else if (open === 'gameverse') window.setTimeout(() => window.dispatchEvent(new CustomEvent('tryamm:gameverse-open')), 0)
@@ -179,6 +185,7 @@ export default function App() {
   ;(window as any).__showQuantumLagBuster = () => setShowLagBuster(true)
   ;(window as any).__showQuantumBeat = () => setShowQuantumBeat(true)
   ;(window as any).__showIsaiahTV = () => setShowOTT(true)
+  ;(window as any).__showTryammTV = () => setShowTryammTv(true)
   ;(window as any).__showSecurityCenter = () => setShowSecurity(true)
   ;(window as any).__showOmniWear = () => setShowOmniWear(true)
   ;(window as any).__showTryAMMConnect = () => setShowConnect(true)
@@ -226,7 +233,8 @@ export default function App() {
     ['✨','STREAM FX',()=>setShowStreamFX(true),'BETA'],
     ['⚡','LAG BUSTER',()=>setShowLagBuster(true),'BETA'],
     ['♫','QUANTUM BEAT',()=>setShowQuantumBeat(true),'BETA'],
-    ['▣','ISAIAH AI TV',()=>setShowOTT(true),'BETA'],
+    ['▣','TRYAMM TV',()=>setShowTryammTv(true),'BETA'],
+    ['★','ISAIAH AI TV',()=>setShowOTT(true),'BETA'],
     ['💿','PRO AUDIO',()=>setShowProAudio(true),'BETA'],
     ['🌐','HOLOVERSE',()=>setShowHoloverse(true),'BETA'],
     ['$','PRICING',()=>setShowPricing(true),'LIVE'],
@@ -292,6 +300,7 @@ export default function App() {
         {showLagBuster && <QuantumLagBuster onClose={() => setShowLagBuster(false)} />}
         {showQuantumBeat && <QuantumBeatCenter onClose={() => setShowQuantumBeat(false)} />}
         {showOTT && <OTTIsaiahTV onClose={() => setShowOTT(false)} />}
+        {showTryammTv && <TryammTvHome onClose={() => setShowTryammTv(false)} />}
 
         {showSwipeTip && signedIn && <SwipeTutorial onDismiss={() => {setShowSwipeTip(false);localStorage.setItem('amm_swiped','1')}} />}
       </div>
