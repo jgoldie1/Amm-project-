@@ -41,3 +41,35 @@ export const GLOBAL_70X70_RULES={
  certificationRequiresEvidence:true,
  securityPrivacyRightsAndPaymentsCannotBeWaived:true,
 } as const
+
+
+export const GLOBAL_70X70_CRITICAL_GATES=[
+ 'identity-auth','city-routing','geospatial-sources','rights-provenance','missions','business-passports',
+ 'holo-ads','music-rights','tryamm-tv','local-news','holo-live-pk','checkout','webhook-verification',
+ 'entitlements','ledger','localization','one-hand-accessibility','mobile-performance','android-release',
+ 'ios-release','security','privacy-retention','moderation-minors','observability','ci-certification',
+ 'deployment-verification','disaster-recovery',
+] as const
+
+export function auditMatrixIntegrity(){
+ const matrix=createGlobal70x70AuditMatrix()
+ const keys=new Set(matrix.map(x=>`${x.region}::${x.dimension}`))
+ const dimensionsUnique=new Set(GLOBAL_70X70_AUDIT_DIMENSIONS).size===GLOBAL_70X70_AUDIT_DIMENSIONS.length
+ const regionsUnique=new Set(GLOBAL_70X70_REGIONS).size===GLOBAL_70X70_REGIONS.length
+ return{
+  dimensions:GLOBAL_70X70_AUDIT_DIMENSIONS.length,
+  regions:GLOBAL_70X70_REGIONS.length,
+  checks:matrix.length,
+  uniqueChecks:keys.size,
+  dimensionsUnique,regionsUnique,
+  valid:GLOBAL_70X70_AUDIT_DIMENSIONS.length===70&&GLOBAL_70X70_REGIONS.length===70&&matrix.length===4900&&keys.size===4900&&dimensionsUnique&&regionsUnique,
+ }
+}
+
+export function summarizeGlobal70x70(findings:GlobalAuditFinding[]){
+ const counts={implemented:0,partial:0,planned:0,blocked:0,'not-applicable':0}
+ for(const f of findings)counts[f.status]++
+ const missingEvidence=findings.filter(f=>(f.status==='implemented'||f.status==='partial')&&!f.evidence)
+ const criticalBlocked=findings.filter(f=>f.status==='blocked'&&(GLOBAL_70X70_CRITICAL_GATES as readonly string[]).includes(f.dimension))
+ return{total:findings.length,counts,missingEvidence,criticalBlocked,canCertify:findings.length===4900&&missingEvidence.length===0&&criticalBlocked.length===0}
+}
