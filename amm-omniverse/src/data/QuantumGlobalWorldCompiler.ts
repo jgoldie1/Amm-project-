@@ -28,7 +28,7 @@ export function createQuantumGlobalBuildQueue():QuantumBuildJob[]{
    cityId:world.cityId,
    stage,
    dependencies:dependencies(world.cityId,stage),
-   state:stageIndex===0?'ready':'blocked',
+   state:(stageIndex===0?'ready':'blocked') as QuantumJobState,
    cacheKey:`global-world-v1:${world.cityId}:${stage}`,
    priority:(world.cityId==='chicago'?100:80)-cityIndex+Math.max(0,10-stageIndex),
   }))
