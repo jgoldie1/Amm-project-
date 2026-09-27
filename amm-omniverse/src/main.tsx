@@ -20,6 +20,7 @@ import StreetVerseWeatherSync from './components/StreetVerseWeatherSync'
 import InstallPrompt from './components/InstallPrompt'
 import HoloExperienceLauncher from './components/HoloExperienceLauncher'
 import { getStandaloneSite } from './data/standaloneSiteRegistry'
+import { completeAuthCallback } from './services/supabaseClient'
 import './accessibility/accessibility.css'
 
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
@@ -48,6 +49,10 @@ let preserveDeterministicSafeRoute = false
 try {
   
   const currentPath=window.location.pathname
+  if(currentPath==='/auth/callback'||currentPath==='/auth/callback/'){
+    void completeAuthCallback().then(()=>{window.location.replace('/')}).catch(error=>console.error('[TRYAMM] Auth callback failed.',error))
+    routeContent=<div role="status" aria-live="polite" style={{position:'fixed',inset:0,display:'grid',placeItems:'center',background:'#050505',color:'#fff',fontFamily:'system-ui,sans-serif',fontWeight:900}}>COMPLETING SECURE SIGN IN…</div>
+  }
   const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
   const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
   const reelMatch=currentPath.match(/^\/reels\/([^/]+)\/?$/)
