@@ -40,3 +40,27 @@ export const ORG_GOVERNANCE={
  execution:'Every department head works through the Founder/AI CEO policy, budget, evidence and approval system.',
  humanBoundary:'Legal advice, tax sign-off, regulated professional work and other legally human-required decisions route to qualified people.',
 }
+
+
+export type EngineeringLevel='junior'|'engineer'|'senior'|'staff'|'principal'|'distinguished'
+export interface EngineeringSpecialist{displayName:string;level:EngineeringLevel;domain:string;reportsTo:string;scope:string[]}
+export const TRYAMM_ENGINEERING_LADDER:EngineeringSpecialist[]=[
+ {displayName:'Patch',level:'junior',domain:'Product Engineering',reportsTo:'Forge',scope:['small fixes','tests','documentation','low-risk UI work']},
+ {displayName:'Stack',level:'engineer',domain:'Full-Stack Product',reportsTo:'Forge',scope:['React/TypeScript','API integration','Supabase','feature delivery']},
+ {displayName:'Vector',level:'senior',domain:'World & Runtime',reportsTo:'Forge',scope:['Three.js/WebXR','OmniWorldRuntime','performance','mobile runtime','AR/VR']},
+ {displayName:'Relay',level:'senior',domain:'Commerce & Platform',reportsTo:'Forge',scope:['Stripe','webhooks','entitlements','ledger','idempotency','reconciliation']},
+ {displayName:'Beacon',level:'senior',domain:'Media & Realtime',reportsTo:'Forge',scope:['Holo LIVE/PK','WebRTC','TV/VOD','replay','stream reliability']},
+ {displayName:'Vault',level:'staff',domain:'Data, Identity & Security',reportsTo:'Forge',scope:['Supabase','auth','RBAC','privacy','security','observability']},
+ {displayName:'Orbit',level:'staff',domain:'Mobile & Delivery',reportsTo:'Forge',scope:['PWA','Capacitor','Android','iOS','CI/CD','release engineering']},
+ {displayName:'Quanta',level:'principal',domain:'AI, Agents & Optimization',reportsTo:'Forge',scope:['AI Studio','agent orchestration','Quantum Speed Engine','hybrid optimizer','evaluation']},
+ {displayName:'Foundry',level:'principal',domain:'Assets & Simulation',reportsTo:'Forge',scope:['Asset Forge','3D pipeline','LOD','animation','population','traffic','digital twins']},
+ {displayName:'Apex',level:'distinguished',domain:'TRYAMM Systems Architecture',reportsTo:'James — Founder / technical strategy with Forge',scope:['cross-stack architecture','hard technical incidents','system convergence','performance ceilings','platform standards','architecture review']},
+]
+
+export const ENGINEERING_ESCALATION={
+ junior:'bounded tasks with review',
+ senior:'owns production features and mentors lower levels',
+ staff:'owns cross-team platform areas',
+ principal:'owns multi-system technical strategy and complex architecture',
+ distinguished:'handles company-wide architecture, novel systems and the hardest cross-stack problems; does not bypass Founder policy, safety, rights, commerce or release gates.',
+}
