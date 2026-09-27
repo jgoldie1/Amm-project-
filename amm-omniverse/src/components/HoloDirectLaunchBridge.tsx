@@ -30,18 +30,16 @@ export default function HoloDirectLaunchBridge(){
     const openRide=()=>setPanel('ride')
     const openDelivery=()=>setPanel('delivery')
     const openDrone=()=>setPanel('drone')
-    const openMediaStudio=()=>{if(!invoke('__showStreamStudioFX'))invoke('__showPoyoAI')}
     const openMiddleverse=()=>{if(!invoke('__showOmniverse'))invoke('__showCommandNexusV2')}
     const openJacobieVision=()=>{try{localStorage.setItem('tryamm_school_network_target','jacobie-vision')}catch{};invoke('__showSchoolNetwork')}
     const openMeetTheStubbs=()=>invoke('__showFamilyLegacy')
     const openPlayableBeta=()=>openStreetVerse()
-    const openAllAmericanNetwork=()=>{window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{destination:'all-american-network'}}));openMediaStudio()}
-    const openServantsNetwork=()=>{window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{destination:'servants-of-christ-network'}}));openMediaStudio()}
+    const openAllAmericanNetwork=()=>window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{destination:'all-american-network'}}))
+    const openServantsNetwork=()=>window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{destination:'servants-of-christ-network'}}))
 
     ;(window as any).__showHoloRide=openRide
     ;(window as any).__showHoloDelivery=openDelivery
     ;(window as any).__showHoloDrone=openDrone
-    ;(window as any).__showMediaStudio=openMediaStudio
     ;(window as any).__showMiddleverseWorkstation=openMiddleverse
     ;(window as any).__showJacobieVision=openJacobieVision
     ;(window as any).__showMeetTheStubbs=openMeetTheStubbs
@@ -49,20 +47,17 @@ export default function HoloDirectLaunchBridge(){
     ;(window as any).__showAllAmericanNetwork=openAllAmericanNetwork
     ;(window as any).__showServantsOfChristNetwork=openServantsNetwork
 
-    window.addEventListener('tryamm:media-studio-open',openMediaStudio)
     window.addEventListener('tryamm:open-middleverse',openMiddleverse)
     window.addEventListener('tryamm:open-jacobie-vision',openJacobieVision)
     window.addEventListener('tryamm:open-meet-the-stubbs',openMeetTheStubbs)
 
     return()=>{
-      window.removeEventListener('tryamm:media-studio-open',openMediaStudio)
       window.removeEventListener('tryamm:open-middleverse',openMiddleverse)
       window.removeEventListener('tryamm:open-jacobie-vision',openJacobieVision)
       window.removeEventListener('tryamm:open-meet-the-stubbs',openMeetTheStubbs)
       if((window as any).__showHoloRide===openRide)delete (window as any).__showHoloRide
       if((window as any).__showHoloDelivery===openDelivery)delete (window as any).__showHoloDelivery
       if((window as any).__showHoloDrone===openDrone)delete (window as any).__showHoloDrone
-      if((window as any).__showMediaStudio===openMediaStudio)delete (window as any).__showMediaStudio
       if((window as any).__showMiddleverseWorkstation===openMiddleverse)delete (window as any).__showMiddleverseWorkstation
       if((window as any).__showJacobieVision===openJacobieVision)delete (window as any).__showJacobieVision
       if((window as any).__showMeetTheStubbs===openMeetTheStubbs)delete (window as any).__showMeetTheStubbs
