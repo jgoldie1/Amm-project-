@@ -22,7 +22,7 @@ export const ecologyBudget=(c:EcologyContext):EcologyBudget=>{
  const active=c.distanceToPlayer<=45||c.missionRelevant
  if(!active)return{ambientAnimals:0,missionAnimals:0,insectMode:'off',simulateOffscreen:true}
  const base=c.mobile?STREETVERSE_ECOLOGY_RULES.mobileVisibleAmbientAnimals:STREETVERSE_ECOLOGY_RULES.desktopVisibleAmbientAnimals
- const zoneFactor:c['zone'] extends never?never:number=({ 'dense-city':.2,residential:.45,park:1,lakefront:.8,wooded:1,rural:1,interior:0 } as Record<EcologyZone,number>)[c.zone]
+ const zoneFactor:number=({ 'dense-city':.2,residential:.45,park:1,lakefront:.8,wooded:1,rural:1,interior:0 } as Record<EcologyZone,number>)[c.zone]
  const reserved=c.companionPresent?1:0
  return{ambientAnimals:Math.max(0,Math.floor(base*zoneFactor)-reserved),missionAnimals:c.missionRelevant?2:0,insectMode:c.zone==='park'||c.zone==='lakefront'||c.zone==='wooded'||c.zone==='rural'?'ambient-particles':'off',simulateOffscreen:true}
 }
