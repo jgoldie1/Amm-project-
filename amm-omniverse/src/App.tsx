@@ -50,6 +50,7 @@ const SparrowMapCenter = lazy(() => import('./components/SparrowMapCenter'))
 
 export default function App() {
   const screen = useGameStore(s => s.screen)
+  const setScreen = useGameStore(s => s.setScreen)
   const [showPricing, setShowPricing] = useState(false)
   const [showHoloverse, setShowHoloverse] = useState(false)
   const [showBennie, setShowBennie] = useState(false)
@@ -87,20 +88,69 @@ export default function App() {
   const [showSparrowMap, setShowSparrowMap] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
-  // Cross-route mobile release intent: StreetVerse buttons return to the main shell
-  // with ?open=... so the requested destination must be consumed after App mounts.
+  const navigateTryAMM = (path:string) => {
+    const route = (path || '/').replace(/\/+$/, '') || '/'
+    if (route === '/') { setScreen('intro'); return }
+    if (route === '/streetverse' || route === '/faithverse' || route === '/starverse' || route === '/kingdom' || route === '/my-world' || route === '/we-are-the-world') { window.location.href = route; return }
+    if (route === '/marketplace') { setScreen('marketplace'); return }
+    if (route === '/music' || route === '/musicverse') { setScreen('music'); return }
+    if (route === '/sports' || route === '/sportverse') { setScreen('sports'); return }
+    if (route === '/faith') { setScreen('faith'); return }
+    if (route === '/blockchain') { setScreen('blockchain'); return }
+    if (route === '/city') { setScreen('city'); return }
+    if (route === '/propertyverse') { setShowPropertyVerse(true); return }
+    if (route === '/holoverse') { setShowHoloverse(true); return }
+    if (route === '/spaceverse' || route === '/metaverse' || route === '/multiverse' || route === '/time-machine') { setShowAdvanced(true); return }
+    if (route === '/cyberverse') { setShowSecurity(true); return }
+    if (route === '/creatorverse') { setShowPoyo(true); return }
+    if (route === '/businessverse') { window.location.href = '/business'; return }
+    if (route === '/educationverse') { setShowSchoolNetwork(true); return }
+    if (route === '/legacyverse') { setShowFamilyLegacy(true); return }
+    if (route === '/connect') { setShowConnect(true); return }
+    if (route === '/gameverse') {
+      const show = (window as any).__showGameVerse
+      if (typeof show === 'function') show()
+      else window.setTimeout(() => window.dispatchEvent(new CustomEvent('tryamm:gameverse-open')), 0)
+      return
+    }
+    if (route === '/middleverse') {
+      const show = (window as any).__showMiddleverseWorkstation
+      if (typeof show === 'function') show()
+      else window.setTimeout(() => window.dispatchEvent(new Event('tryamm:middleverse-open')), 0)
+      return
+    }
+    window.location.href = path
+  }
+  ;(window as any).__tryammNavigate = navigateTryAMM
+
+  // TRYAMM public realm deep-link routing + cross-route mobile release intent.
+  // StreetVerse stays clean; its compact controls return here only when a full
+  // shell surface is requested.
   useEffect(() => {
+    const route = (window.location.pathname || '/').replace(/\/+$/, '') || '/'
+    const routeAliases = new Set([
+      '/marketplace','/music','/musicverse','/sports','/sportverse','/faith','/blockchain','/city',
+      '/propertyverse','/holoverse','/spaceverse','/cyberverse','/creatorverse','/businessverse',
+      '/educationverse','/gameverse','/middleverse','/metaverse','/multiverse','/time-machine',
+      '/legacyverse','/connect'
+    ])
+    if (routeAliases.has(route)) navigateTryAMM(route)
+
     const params = new URLSearchParams(window.location.search)
     const open = params.get('open')
-    if (!open) return
-
     if (open === 'holoverse') setShowHoloverse(true)
-    else if (open === 'carousel') window.dispatchEvent(new Event('tryamm:holo-carousel-open'))
-    else return
+    else if (open === 'holofon') setShowConnect(true)
+    else if (open === 'sparrow') setShowSparrowMap(true)
+    else if (open === 'carousel') window.setTimeout(() => window.dispatchEvent(new Event('tryamm:holo-carousel-open')), 0)
+    else if (open === 'gameverse') window.setTimeout(() => window.dispatchEvent(new CustomEvent('tryamm:gameverse-open')), 0)
+    else if (open === 'middleverse') window.setTimeout(() => window.dispatchEvent(new Event('tryamm:middleverse-open')), 0)
+    else if (open) return
 
-    params.delete('open')
-    const search = params.toString()
-    window.history.replaceState({}, '', window.location.pathname + (search ? '?' + search : '') + window.location.hash)
+    if (open) {
+      params.delete('open')
+      const search = params.toString()
+      window.history.replaceState({}, '', window.location.pathname + (search ? '?' + search : '') + window.location.hash)
+    }
   }, [])
 
   ;(window as any).__showPricing = () => setShowPricing(true)
