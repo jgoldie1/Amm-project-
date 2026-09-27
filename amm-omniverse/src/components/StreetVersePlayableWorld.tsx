@@ -2,7 +2,8 @@ import {Component,lazy,Suspense,useEffect,useMemo,useState,type ReactNode} from 
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 
-const StreetVerseLivingWorldEntry=lazy(()=>import('./StreetVerseLivingWorldEntry'))
+const StreetVerseMobileWorld=lazy(()=>import('./StreetVerseMobileWorld'))
+const StreetVerseLivingWorld=lazy(()=>import('./StreetVerseLivingWorld'))
 
 function isMobileDevice(){if(typeof navigator==='undefined')return false;return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent||'')}
 function hasUsableWebGL(){if(typeof document==='undefined')return false;try{const canvas=document.createElement('canvas');return !!(canvas.getContext('webgl2',{failIfMajorPerformanceCaveat:true})||canvas.getContext('webgl',{failIfMajorPerformanceCaveat:true})||canvas.getContext('experimental-webgl'))}catch{return false}}
@@ -12,5 +13,7 @@ function MobileRuntimeGuard({onClose,children}:{onClose:()=>void;children:ReactN
 export default function StreetVersePlayableWorld({onClose}:{onClose:()=>void}){
  const safe=useMemo(shouldUseStreetVerseSafeMode,[])
  if(safe)return <><StreetVerseWeatherSync/><StreetVerseSafeWorld onClose={onClose}/></>
- return <><StreetVerseWeatherSync/><StreetVerseWorldBoundary onClose={onClose}><MobileRuntimeGuard onClose={onClose}><Suspense fallback={<StreetVerseSafeWorld onClose={onClose}/>}><StreetVerseLivingWorldEntry onClose={onClose}/></Suspense></MobileRuntimeGuard></StreetVerseWorldBoundary></>
+ const mobile=useMemo(isMobileDevice,[])
+ if(mobile)return <><StreetVerseWeatherSync/><StreetVerseWorldBoundary onClose={onClose}><MobileRuntimeGuard onClose={onClose}><Suspense fallback={<StreetVerseSafeWorld onClose={onClose}/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense></MobileRuntimeGuard></StreetVerseWorldBoundary></>
+ return <><StreetVerseWeatherSync/><StreetVerseWorldBoundary onClose={onClose}><Suspense fallback={<StreetVerseSafeWorld onClose={onClose}/>}><StreetVerseLivingWorld onClose={onClose}/></Suspense></StreetVerseWorldBoundary></>
 }
