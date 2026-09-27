@@ -9,7 +9,7 @@ export const GLOBAL_70X70_AUDIT_DIMENSIONS=[
  'splits-royalties','refunds-reversals','analytics','conversion-followup','localization','translation',
  'one-hand-accessibility','voice-accessibility','captions','reduced-motion','mobile-performance','pwa',
  'android-release','ios-release','security','privacy-retention','moderation-minors','observability',
- 'ci-certification','deployment-verification','disaster-recovery',
+ 'ci-certification','deployment-verification',
 ] as const
 
 export const GLOBAL_70X70_REGIONS=[
