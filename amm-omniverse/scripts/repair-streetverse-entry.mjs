@@ -4,22 +4,11 @@ import path from 'node:path'
 const mainFile=path.resolve('src/main.tsx')
 let main=fs.readFileSync(mainFile,'utf8')
 
-const mobileImport="import StreetVerseMobilePlayableWorld from './components/StreetVerseMobilePlayableWorld'"
-if(!main.includes(mobileImport)){
-  main=main.replace(
-    "const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))",
-    `${mobileImport}\nconst StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))`
-  )
-}
 
 // The richer StreetVerse 3D runtime must install on StreetVerse routes, not everywhere except StreetVerse.
 main=main.replace("if(!isStreetVerse){\n  void import('./runtime/StreetVerseCreatorDistrict3D')", "if(isStreetVerse){\n  void import('./runtime/StreetVerseCreatorDistrict3D')")
 
-// Never show an empty/permanent LOADING screen while the lazy 3D bridge is downloading.
-const oldWorld="<Suspense fallback={routeFallback}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense>"
-const newWorld="<Suspense fallback={<StreetVerseMobilePlayableWorld onClose={()=>{window.location.href='/'}} />}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense>"
-main=main.replace(oldWorld,newWorld)
-
+// Keep canonical StreetVerse on the playable app while the lazy 3D bridge downloads.\n// Do not inject the legacy arrow-controlled safe world into the normal route.\nconst legacyWorld="<Suspense fallback={<StreetVerseMobilePlayableWorld onClose={()=>{window.location.href='/'}} />}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense>"\nconst cleanWorld="<Suspense fallback={routeFallback}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense>"\nmain=main.replace(legacyWorld,cleanWorld)\n
 // Keep essential navigation reachable even while the world is starting.
 const navAnchor="<div style={{position:'fixed',left:12,top:12,zIndex:16990,display:'flex',gap:8,flexWrap:'wrap'}}>"
 if(main.includes(navAnchor)&&!main.includes("HOME • TRYAMM")){
