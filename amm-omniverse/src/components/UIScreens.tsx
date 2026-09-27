@@ -180,9 +180,11 @@ export function LoginScreen() {
 
   const handleGoogle = async () => {
     setGoogleLoading(true)
-    const { user, error } = await signInWithGoogle()
-    if(error){ store.setNotif(`❌ ${error}`); setGoogleLoading(false); return }
-    if(user){ setAuthUser(user); setName(user.name); setMode('google'); setStep('payment') }
+    const result = await signInWithGoogle()
+    if(result.error){ store.setNotif(`❌ ${result.error}`); setGoogleLoading(false); return }
+    // OAuth navigates away to the provider. A returned user is only possible for a future non-redirect adapter.
+    const returnedUser = result.user as AuthUser | null
+    if(returnedUser){ setAuthUser(returnedUser); setName(returnedUser.name); setMode('google'); setStep('payment') }
     setGoogleLoading(false)
   }
   const handleGuest = () => {
