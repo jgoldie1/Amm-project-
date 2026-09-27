@@ -208,6 +208,7 @@ export default function App() {
     ['∞','ECONOMIC LOOP',()=>setShowEconomicLoop(true),'BETA'],
     ['🛡','SECURITY',()=>setShowSecurity(true),'LIVE'],
     ['AI','POYO AI STUDIO',()=>setShowPoyo(true),'BETA'],
+    ['LAB','HOLO LABS',()=>setShowNextDevelopment(true),'BETA'],
     ['📡','TRYAMM CONNECT',()=>setShowConnect(true),'BETA'],
     ['📱','HOLO FON',()=>setShowConnect(true),'BETA'],
     ['✉','QUANTUM EMAIL',()=>setShowConnect(true),'BETA'],
