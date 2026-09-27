@@ -10,7 +10,6 @@ import {installStreetVerseFameRuntime} from '../runtime/StreetVerseFameRuntime'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
-import StreetVerseMobileGameShell from './StreetVerseMobileGameShell'
 import {useGameStore} from '../game/state/useGameStore'
 import {chooseQuantumSpeedMode,QUANTUM_SPEED_BUDGETS,type QuantumSpeedMode} from '../game/runtime/quantumSpeedEngine'
 
@@ -184,7 +183,6 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
 
  if(safe)return <>
   <StreetVerseWeatherSync/>
-  <StreetVerseMobileGameShell onClose={closeStreetVerse}/>
   <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>
   <StreetVerseAfterDarkAlpha/>
   <Suspense fallback={null}><StreetVerseReelEventBridge/></Suspense>
