@@ -94,8 +94,9 @@ export default function App() {
     const open = params.get('open')
     if (!open) return
 
-    if (open === 'holoverse') setShowHoloverse(true)
-    else if (open === 'carousel') window.dispatchEvent(new Event('tryamm:holo-carousel-open'))
+    if (open === 'holoverse' || open === 'carousel') setShowHoloverse(true)
+    else if (open === 'holofon') setShowConnect(true)
+    else if (open === 'sparrow-map') setShowSparrowMap(true)
     else return
 
     params.delete('open')
