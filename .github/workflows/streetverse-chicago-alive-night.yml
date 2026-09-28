@@ -13,17 +13,21 @@ on:
           - alive-pass-1
           - visual-pass-2
           - visual-pass-3
+          - traffic-pass-4
   push:
     branches:
       - feature/streetverse-chicago-alive-v2-20260928
       - feature/streetverse-chicago-visual-pass-3-20260928
+      - feature/streetverse-chicago-traffic-life-pass-4-20260928
       - main
     paths:
       - 'amm-omniverse/src/components/StreetVerseMobileWorld.tsx'
       - 'amm-omniverse/src/runtime/StreetVerseChicagoAliveMobileRuntime.ts'
       - 'amm-omniverse/src/runtime/StreetVerseChicagoVisualLifeRuntime.ts'
+      - 'amm-omniverse/src/runtime/StreetVerseChicagoTrafficLifeRuntime.ts'
       - 'amm-omniverse/tests/streetverse-chicago-alive-contract.mjs'
       - 'amm-omniverse/tests/streetverse-chicago-visual-pass-3-contract.mjs'
+      - 'amm-omniverse/tests/streetverse-chicago-traffic-life-pass-4-contract.mjs'
       - 'amm-omniverse/package.json'
       - '.github/workflows/streetverse-chicago-alive-night.yml'
   schedule:
@@ -144,7 +148,45 @@ jobs:
           echo "- Time-aware night visibility: PASS" >> "$GITHUB_STEP_SUMMARY"
           echo "- Real-time phone shadow maps remain disabled" >> "$GITHUB_STEP_SUMMARY"
 
+  traffic-pass-4:
+    needs: visual-pass-3
+    if: needs.visual-pass-3.result == 'success' && (github.event_name != 'workflow_dispatch' || inputs.phase == 'all' || inputs.phase == 'traffic-pass-4')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install Omniverse dependencies
+        run: npm ci
+      - name: Chicago Traffic Life focused contract
+        run: node tests/streetverse-chicago-traffic-life-pass-4-contract.mjs
+      - name: Verify Traffic Pass 4 mobile budget
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "trafficLifeDensity:'chicago-traffic-v1'" src/components/StreetVerseMobileWorld.tsx
+          grep -q "trafficObeysSignals:true" src/components/StreetVerseMobileWorld.tsx
+          grep -q "streetverse-mobile-traffic-signal-heads" src/runtime/StreetVerseChicagoTrafficLifeRuntime.ts
+          grep -q "getTrafficMultiplier" src/runtime/StreetVerseChicagoTrafficLifeRuntime.ts
+          grep -q "renderer.shadowMap.enabled=false" src/components/StreetVerseMobileWorld.tsx
+          echo "Traffic Pass 4 source budget PASS"
+      - name: Report Traffic Pass 4
+        run: |
+          echo "## StreetVerse Chicago Traffic Pass 4 — GREEN" >> "$GITHUB_STEP_SUMMARY"
+          echo "- 9 signalized intersections: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- 36 lightweight traffic signal heads: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- AI traffic stop/go cycle: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Vehicle heading matches travel direction: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Weather speed multiplier preserved: PASS" >> "$GITHUB_STEP_SUMMARY"
+
   production-certification:
     if: github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
-    needs: [alive-pass-1, visual-pass-2, visual-pass-3]
+    needs: [alive-pass-1, visual-pass-2, visual-pass-3, traffic-pass-4]
     uses: ./.github/workflows/deploy-tryamm-production.yml
