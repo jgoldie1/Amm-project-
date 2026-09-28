@@ -12,14 +12,18 @@ on:
           - all
           - alive-pass-1
           - visual-pass-2
+          - visual-pass-3
   push:
     branches:
       - feature/streetverse-chicago-alive-v2-20260928
+      - feature/streetverse-chicago-visual-pass-3-20260928
       - main
     paths:
       - 'amm-omniverse/src/components/StreetVerseMobileWorld.tsx'
       - 'amm-omniverse/src/runtime/StreetVerseChicagoAliveMobileRuntime.ts'
+      - 'amm-omniverse/src/runtime/StreetVerseChicagoVisualLifeRuntime.ts'
       - 'amm-omniverse/tests/streetverse-chicago-alive-contract.mjs'
+      - 'amm-omniverse/tests/streetverse-chicago-visual-pass-3-contract.mjs'
       - 'amm-omniverse/package.json'
       - '.github/workflows/streetverse-chicago-alive-night.yml'
   schedule:
@@ -102,7 +106,45 @@ jobs:
           echo "- Mobile performance guard: PASS" >> "$GITHUB_STEP_SUMMARY"
           echo "- Ready for exact-SHA production certification after merge to main" >> "$GITHUB_STEP_SUMMARY"
 
+  visual-pass-3:
+    needs: visual-pass-2
+    if: needs.visual-pass-2.result == 'success' && (github.event_name != 'workflow_dispatch' || inputs.phase == 'all' || inputs.phase == 'visual-pass-3')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install Omniverse dependencies
+        run: npm ci
+      - name: Chicago Visual Life focused contract
+        run: node tests/streetverse-chicago-visual-pass-3-contract.mjs
+      - name: Verify Visual Pass 3 mobile budget
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "visualLifeDensity:'chicago-visual-v3'" src/components/StreetVerseMobileWorld.tsx
+          grep -q "renderer.shadowMap.enabled=false" src/components/StreetVerseMobileWorld.tsx
+          grep -q "streetverse-mobile-facade-accents" src/runtime/StreetVerseChicagoVisualLifeRuntime.ts
+          grep -q "streetverse-mobile-bus-shelter-roofs" src/runtime/StreetVerseChicagoVisualLifeRuntime.ts
+          grep -q "streetverse-mobile-social-resident-bodies" src/runtime/StreetVerseChicagoVisualLifeRuntime.ts
+          echo "Visual Pass 3 source budget PASS"
+      - name: Report Visual Pass 3
+        run: |
+          echo "## StreetVerse Chicago Visual Pass 3 — GREEN" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Building facade accents + awnings: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Benches + bins + bus shelters + street signs: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Social resident clusters: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Time-aware night visibility: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Real-time phone shadow maps remain disabled" >> "$GITHUB_STEP_SUMMARY"
+
   production-certification:
     if: github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
-    needs: [alive-pass-1, visual-pass-2]
+    needs: [alive-pass-1, visual-pass-2, visual-pass-3]
     uses: ./.github/workflows/deploy-tryamm-production.yml
