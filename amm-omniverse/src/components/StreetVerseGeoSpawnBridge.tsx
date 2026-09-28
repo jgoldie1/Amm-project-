@@ -18,6 +18,7 @@ import {installHolographicInternetBridge} from '../runtime/HolographicInternetGo
 import {installBennyCursorConstructBridge} from '../runtime/BennyCursorConstructBridge'
 import {installUniversalLanguageBridge} from '../runtime/UniversalLanguageSignBridge'
 import {installAccessibleConversationBridge} from '../runtime/AccessibleConversationBridge'
+import {installUniversalAccessOrchestrator} from '../runtime/UniversalAccessOrchestrator'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
@@ -146,6 +147,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>installBennyCursorConstructBridge(),[])
  useLayoutEffect(()=>installUniversalLanguageBridge(),[])
  useLayoutEffect(()=>installAccessibleConversationBridge(),[])
+ useLayoutEffect(()=>installUniversalAccessOrchestrator(),[])
  useEffect(()=>{
   const connection=(navigator as Navigator & {connection?:{downlink?:number}}).connection
   const mode=chooseAccessMode({webgl:hasUsableWebGL(),bandwidthMbps:connection?.downlink,ownedDevice:true})
