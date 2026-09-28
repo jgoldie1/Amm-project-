@@ -20,8 +20,8 @@ import {installUniversalLanguageBridge} from '../runtime/UniversalLanguageSignBr
 import {installAccessibleConversationBridge} from '../runtime/AccessibleConversationBridge'
 import {installUniversalAccessOrchestrator} from '../runtime/UniversalAccessOrchestrator'
 import {installUniversalIntentRouter} from '../runtime/UniversalIntentRouter'
-import {loadPassportAccess} from '../runtime/PassportAccessibilityMemory'
-import {startGuidedRoute} from '../runtime/BennyNavigationAssistRuntime'
+import {installPassportAccessibilityHydrationRuntime} from '../runtime/PassportAccessibilityHydrationRuntime'
+import {installOmniAccessibilityGlobalRuntime} from '../runtime/OmniAccessibilityGlobalRuntime'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
@@ -152,6 +152,8 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>installAccessibleConversationBridge(),[])
  useLayoutEffect(()=>installUniversalAccessOrchestrator(),[])
  useLayoutEffect(()=>installUniversalIntentRouter(),[])
+ useLayoutEffect(()=>installOmniAccessibilityGlobalRuntime(),[])
+ useLayoutEffect(()=>installPassportAccessibilityHydrationRuntime(),[])
  useEffect(()=>{
   const connection=(navigator as Navigator & {connection?:{downlink?:number}}).connection
   const mode=chooseAccessMode({webgl:hasUsableWebGL(),bandwidthMbps:connection?.downlink,ownedDevice:true})
