@@ -1,5 +1,5 @@
 export type OneHandAction='MOVE'|'CAMERA'|'INTERACT'|'ATTACK'|'BLOCK'|'DODGE'|'JUMP'|'SPRINT'|'ENTER_VEHICLE'|'DRIVE'|'BRAKE'|'MENU'|'ABILITY'
-export type OneHandMode='LEFT_HAND'|'RIGHT_HAND'|'TOUCH_ONLY'|'SINGLE_STICK'|'VOICE_ASSIST'
+export type OneHandMode='AUTO'|'LEFT_HAND'|'RIGHT_HAND'|'TOUCH_ONLY'|'SINGLE_STICK'|'VOICE_ASSIST'
 
 export type OneHandProfile={
  mode:OneHandMode
@@ -18,13 +18,19 @@ export type OneHandProfile={
 }
 
 export const DEFAULT_ONE_HAND_PROFILE:OneHandProfile={
- mode:'LEFT_HAND',autoCamera:true,cameraSnap:true,autoSprint:true,autoAccelerate:true,autoTarget:true,
+ mode:'AUTO',autoCamera:true,cameraSnap:true,autoSprint:true,autoAccelerate:true,autoTarget:true,
  contextualAction:true,holdToToggle:true,comboAssist:true,qteAssist:true,gameSpeed:0.85,largeTouchTargets:true,voiceCommands:true,
 }
 
 export function validateOneHandProfile(p:OneHandProfile){
  if(p.gameSpeed<0.5||p.gameSpeed>1)throw new Error('one-hand game speed must be between 0.5 and 1')
  return p
+}
+
+export function resolveOneHandMode(hand?:'left'|'right'|'either'):OneHandMode{
+ if(hand==='left')return 'LEFT_HAND'
+ if(hand==='right')return 'RIGHT_HAND'
+ return 'AUTO'
 }
 
 export const ONE_HAND_GAMEPLAY_CONTRACT={
