@@ -1,0 +1,108 @@
+name: StreetVerse Chicago Alive Night Shift
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: "Night-shift gate to run"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - all
+          - alive-pass-1
+          - visual-pass-2
+  push:
+    branches:
+      - feature/streetverse-chicago-alive-v2-20260928
+      - main
+    paths:
+      - 'amm-omniverse/src/components/StreetVerseMobileWorld.tsx'
+      - 'amm-omniverse/src/runtime/StreetVerseChicagoAliveMobileRuntime.ts'
+      - 'amm-omniverse/tests/streetverse-chicago-alive-contract.mjs'
+      - 'amm-omniverse/package.json'
+      - '.github/workflows/streetverse-chicago-alive-night.yml'
+  schedule:
+    - cron: '15 3 28 9 *'
+      timezone: 'America/Chicago'
+    - cron: '30 6 28 9 *'
+      timezone: 'America/Chicago'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-chicago-alive-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  alive-pass-1:
+    if: github.event_name != 'workflow_dispatch' || inputs.phase == 'all' || inputs.phase == 'alive-pass-1'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install Omniverse dependencies
+        run: npm ci
+      - name: Chicago Alive focused contract
+        run: node tests/streetverse-chicago-alive-contract.mjs
+      - name: Type + lint + test gate
+        run: npm run check
+      - name: Report Alive Pass 1
+        run: |
+          echo "## StreetVerse Chicago Alive Pass 1 — GREEN" >> "$GITHUB_STEP_SUMMARY"
+          echo "- 28 additional instanced ambient residents wired" >> "$GITHUB_STEP_SUMMARY"
+          echo "- 18 parked vehicles wired" >> "$GITHUB_STEP_SUMMARY"
+          echo "- 16 storefront lights + 26 curb props + crosswalks wired" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Mobile camera moved closer to gameplay" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Mobile real-time shadows remain disabled for performance" >> "$GITHUB_STEP_SUMMARY"
+
+  visual-pass-2:
+    needs: alive-pass-1
+    if: needs.alive-pass-1.result == 'success' && (github.event_name != 'workflow_dispatch' || inputs.phase == 'all' || inputs.phase == 'visual-pass-2')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install Omniverse dependencies
+        run: npm ci
+      - name: Verify living-city performance contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "aliveDensity:'alive-v1'" src/components/StreetVerseMobileWorld.tsx
+          grep -q "visualDensity:'chicago-visual-v2'" src/components/StreetVerseMobileWorld.tsx
+          grep -q "ambientResidents:crowdCount" src/runtime/StreetVerseChicagoAliveMobileRuntime.ts
+          grep -q "parkedVehicles:parkedPositions.length" src/runtime/StreetVerseChicagoAliveMobileRuntime.ts
+          grep -q "crosswalkStripes:stripeIndex" src/runtime/StreetVerseChicagoAliveMobileRuntime.ts
+          grep -q "renderer.shadowMap.enabled=false" src/components/StreetVerseMobileWorld.tsx
+          echo "Living-city source budget PASS"
+      - name: Re-run focused contract
+        run: node tests/streetverse-chicago-alive-contract.mjs
+      - name: Report Visual Pass 2
+        run: |
+          echo "## StreetVerse Chicago Visual Pass 2 — GREEN" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Living-city density contract: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Mobile performance guard: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Ready for exact-SHA production certification after merge to main" >> "$GITHUB_STEP_SUMMARY"
+
+  production-certification:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    needs: [alive-pass-1, visual-pass-2]
+    uses: ./.github/workflows/deploy-tryamm-production.yml
