@@ -244,3 +244,47 @@ export const certifyGlobalCityConvergence=(cityId:string):GlobalCityConvergenceC
 }
 
 export const GLOBAL_CITY_CONVERGENCE_CERTIFICATIONS=STREETVERSE_GLOBAL_CITIES.map(city=>certifyGlobalCityConvergence(city.id))
+
+
+export type TryammLoadMode='NORMAL'|'BUSY'|'HIGH_LOAD'|'SURVIVAL'|'RECOVERY'
+export type TryammWorkloadClass='critical-transaction'|'realtime'|'interactive'|'background-heavy'
+
+export const TRYAMM_LOAD_STABILITY_POLICY={
+ priority:[
+  'critical-transaction: auth, verified checkout, entitlements and ledger',
+  'realtime: Holo LIVE, PK, safety and moderation',
+  'interactive: StreetVerse gameplay, Marketplace and business onboarding',
+  'background-heavy: AI generation, video transcode, 3D generation and world compilation',
+ ],
+ invariants:[
+  'background-heavy work cannot consume capacity reserved for critical transactions',
+  'queues are bounded and stale work expires instead of growing without limit',
+  'retries use bounded exponential backoff with jitter',
+  'dependency failures trigger circuit breaking and graceful degradation',
+  'SURVIVAL mode preserves auth, payments, ledger, safety and core realtime functions first',
+  'release certification requires mixed-workload load testing at established capacity limits',
+ ],
+ modes:{
+  NORMAL:'all certified capabilities available within workload budgets',
+  BUSY:'defer non-urgent background work and reduce speculative prefetch',
+  HIGH_LOAD:'throttle expensive generation, reduce noncritical simulation and protect realtime capacity',
+  SURVIVAL:'shed noncritical work and preserve critical transactions, safety and core realtime functions',
+  RECOVERY:'restore capacity gradually while draining only valid queued work',
+ } satisfies Record<TryammLoadMode,string>,
+} as const
+
+export interface TryammLoadCertificationEvidence{
+ mode:TryammLoadMode
+ boundedQueues:boolean
+ workloadBudgets:boolean
+ retryLimits:boolean
+ gracefulDegradation:boolean
+ criticalCapacityReserved:boolean
+ mixedLoadTestPassed:boolean
+ certifiable:boolean
+}
+
+export const certifyTryammLoadStability=(evidence:Omit<TryammLoadCertificationEvidence,'certifiable'>):TryammLoadCertificationEvidence=>({
+ ...evidence,
+ certifiable:evidence.boundedQueues&&evidence.workloadBudgets&&evidence.retryLimits&&evidence.gracefulDegradation&&evidence.criticalCapacityReserved&&evidence.mixedLoadTestPassed,
+})
