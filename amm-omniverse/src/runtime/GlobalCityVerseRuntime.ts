@@ -114,3 +114,49 @@ export const getGlobalCitySystemsEvidence=(cityId:string):GlobalCitySystemsEvide
 }
 
 export const GLOBAL_CITY_SYSTEMS_EVIDENCE=STREETVERSE_GLOBAL_CITIES.map(city=>getGlobalCitySystemsEvidence(city.id))
+
+
+export interface GlobalCityActivityEvidence{
+ cityId:string
+ population:{ready:boolean;rules:string[]}
+ business:{ready:boolean;capabilities:string[];rules:string[]}
+ media:{ready:boolean;channels:string[];rules:string[]}
+}
+
+export const getGlobalCityActivityEvidence=(cityId:string):GlobalCityActivityEvidence=>{
+ const manifest=GLOBAL_CITY_RUNTIME_MANIFESTS.find(item=>item.city.id===cityId)
+ if(!manifest)throw new Error(`Unknown StreetVerse city: ${cityId}`)
+ const {profile}=manifest
+ return{
+  cityId,
+  population:{
+   ready:profile.districts.length>0,
+   rules:[
+    'synthetic population represents gameplay activity and is not presented as real resident tracking',
+    'population density uses aggregated or licensed city-level evidence only',
+    'no private-resident identity, home-location or sensitive movement profile is generated from runtime data',
+   ],
+  },
+  business:{
+   ready:true,
+   capabilities:['Business Passport','owner-authorized digital twin','QR onboarding','Scout attribution','Marketplace hooks','Delivery hooks'],
+   rules:[
+    'persistent business twins require owner authorization or a lawful public-data basis',
+    'Scout attribution records consent and provenance',
+    'business status and offers require server verification before monetized presentation',
+   ],
+  },
+  media:{
+   ready:true,
+   channels:['local news','national news','global news','entertainment','weather','StreetVerse Radio','TRYAMM TV','Holo LIVE','Reels'],
+   rules:[
+    'current news and weather require timestamped source-backed provider data',
+    'persistent media assets require rights metadata',
+    'synthetic hosts must not imply that generated reporting is eyewitness reporting',
+    'localization preserves source attribution and does not change factual meaning',
+   ],
+  },
+ }
+}
+
+export const GLOBAL_CITY_ACTIVITY_EVIDENCE=STREETVERSE_GLOBAL_CITIES.map(city=>getGlobalCityActivityEvidence(city.id))
