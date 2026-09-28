@@ -196,7 +196,7 @@ export function createStreetVerseChicagoVisualLife(
   const socialHeadMaterial=new THREE.MeshLambertMaterial({color:0xffffff})
   const socialBodies=new THREE.InstancedMesh(socialBodyGeometry,socialBodyMaterial,SOCIAL_SPOTS.length)
   const socialHeads=new THREE.InstancedMesh(socialHeadGeometry,socialHeadMaterial,SOCIAL_SPOTS.length)
-  SOCIAL_SPOTS.forEach(([, ,],i)=>{
+  SOCIAL_SPOTS.forEach((_,i)=>{
     tint.setHex(BODY_COLORS[i%BODY_COLORS.length]);socialBodies.setColorAt(i,tint)
     tint.setHex(SKIN_COLORS[i%SKIN_COLORS.length]);socialHeads.setColorAt(i,tint)
   })
