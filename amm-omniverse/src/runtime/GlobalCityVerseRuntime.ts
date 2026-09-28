@@ -376,3 +376,53 @@ export const FAITHVERSE_IMMERSIVE_SCRIPTURE_LIBRARY={
  distribution:['FaithVerse','Kingdom Press','All American App Store'],
  certification:'BUILDING does not imply that source texts, scans, translations, audio or XR scenes are rights-cleared or production-certified',
 } as const
+
+
+export type RightsLicenseState='NOT_NEEDED'|'NEEDED'|'AI_PREPARING'|'FOUNDER_REVIEW'|'SIGNATURE_REQUIRED'|'SUBMITTED'|'PENDING'|'APPROVED'|'EXPIRING'|'RENEWAL_DUE'|'DENIED'
+export type PublicationSurface='Kingdom Press'|'FaithVerse'|'GameVerse'|'All American App Store'|'TRYAMM TV'|'Holo LIVE'|'Reels'
+
+export interface RightsLicenseRecord{
+ id:string
+ assetId:string
+ owner:string
+ source:string
+ state:RightsLicenseState
+ territories:string[]
+ allowedUses:string[]
+ prohibitedUses:string[]
+ attribution?:string
+ effectiveAt?:string
+ expiresAt?:string
+ evidenceRef?:string
+ founderApproval:boolean
+ surfaces:PublicationSurface[]
+}
+
+export interface PublicationGateResult{
+ publishable:boolean
+ blockers:string[]
+}
+
+export const evaluatePublicationRights=(records:RightsLicenseRecord[],surface:PublicationSurface,now=new Date()):PublicationGateResult=>{
+ const applicable=records.filter(r=>r.surfaces.includes(surface))
+ const blockers:string[]=[]
+ if(!applicable.length) blockers.push('no rights record exists for publication surface')
+ for(const r of applicable){
+  if(r.state!=='APPROVED'&&r.state!=='NOT_NEEDED') blockers.push(`${r.id}: rights state is ${r.state}`)
+  if(r.state==='APPROVED'&&!r.evidenceRef) blockers.push(`${r.id}: approved rights require evidence reference`)
+  if(r.state==='APPROVED'&&!r.founderApproval) blockers.push(`${r.id}: founder approval missing`)
+  if(r.expiresAt&&new Date(r.expiresAt)<=now) blockers.push(`${r.id}: license expired`)
+  if(!r.territories.length) blockers.push(`${r.id}: territory not established`)
+  if(!r.allowedUses.length) blockers.push(`${r.id}: allowed uses not established`)
+ }
+ return {publishable:blockers.length===0,blockers}
+}
+
+export const RIGHTS_LICENSING_REGISTRY_POLICY={
+ failClosed:true,
+ rule:'no verified rights record means no commercial publication',
+ aiMay:['inventory assets','identify likely rights categories','prepare forms and permission requests','track evidence, expirations and renewals'],
+ founderRequired:['legal signature','attestation','identity verification','contract acceptance','payment authorization','final publication approval'],
+ separateRights:['source text','translation','scan/image','audio/narration','annotation','art/3D','film/video adaptation','game adaptation','XR adaptation','music/sync','AI training'],
+ protectedSurfaces:['Kingdom Press','FaithVerse','GameVerse','All American App Store','TRYAMM TV','Holo LIVE','Reels'] as PublicationSurface[],
+} as const
