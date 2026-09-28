@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "system": "tryamm-six-gate-quantum-speed",
+  "meaning": "performance governance; not quantum computing",
+  "governors": [
+    "performance",
+    "memory",
+    "network",
+    "release"
+  ],
+  "gates": [
+    {
+      "id": 1,
+      "name": "streetverse_chicago",
+      "qse": [
+        "chunk_streaming",
+        "lod",
+        "instancing",
+        "pooling",
+        "distance_ai_ticks",
+        "lazy_interiors",
+        "adaptive_density"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "ui",
+      "qse": [
+        "lazy_panels",
+        "input_priority",
+        "route_prefetch",
+        "ui_frame_budget",
+        "panel_eviction"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "core_journey",
+      "qse": [
+        "next_route_prefetch",
+        "safe_static_cache",
+        "deferred_noncritical_telemetry"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "hologpt_pk_commerce",
+      "qse": [
+        "lazy_media",
+        "connection_reuse",
+        "backpressure",
+        "telemetry_batching",
+        "bundle_splitting"
+      ],
+      "serverAuthoritativeMoney": true
+    },
+    {
+      "id": 5,
+      "name": "characters_campus_events",
+      "qse": [
+        "proximity_asset_loading",
+        "event_asset_loading",
+        "mission_templates",
+        "asset_eviction"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "global_life_engine",
+      "qse": [
+        "regional_shards",
+        "timezone_scheduling",
+        "event_deltas",
+        "relevance_selection",
+        "local_cache"
+      ]
+    }
+  ],
+  "progression": "red_repair_mobile_visible_test_green_checkpoint_next_gate",
+  "guards": {
+    "inputPriority": true,
+    "mobileRealtimeShadowsDefault": false,
+    "authBypass": false,
+    "commerceBypass": false,
+    "privacyBypass": false
+  }
+}
