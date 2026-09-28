@@ -20,6 +20,7 @@ import {installUniversalLanguageBridge} from '../runtime/UniversalLanguageSignBr
 import {installAccessibleConversationBridge} from '../runtime/AccessibleConversationBridge'
 import {installUniversalAccessOrchestrator} from '../runtime/UniversalAccessOrchestrator'
 import {installUniversalIntentRouter} from '../runtime/UniversalIntentRouter'
+import {installAccessibilityControlIntentRuntime} from '../runtime/AccessibilityControlIntentRuntime'
 import {installPassportAccessibilityHydrationRuntime} from '../runtime/PassportAccessibilityHydrationRuntime'
 import {installOmniAccessibilityGlobalRuntime} from '../runtime/OmniAccessibilityGlobalRuntime'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
@@ -152,6 +153,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>installAccessibleConversationBridge(),[])
  useLayoutEffect(()=>installUniversalAccessOrchestrator(),[])
  useLayoutEffect(()=>installUniversalIntentRouter(),[])
+ useLayoutEffect(()=>installAccessibilityControlIntentRuntime(),[])
  useLayoutEffect(()=>installOmniAccessibilityGlobalRuntime(),[])
  useLayoutEffect(()=>installPassportAccessibilityHydrationRuntime(),[])
  useEffect(()=>{
