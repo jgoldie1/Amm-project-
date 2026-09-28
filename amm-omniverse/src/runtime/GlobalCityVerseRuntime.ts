@@ -1,3 +1,4 @@
+import {STREETVERSE_GLOBAL_CITIES,getStreetVerseCity,type StreetVerseCity} from '../data/StreetVerseGlobalRegistry'
 export type CityProfile={city:string;country:string;region?:string;theme:string;districts:string[];landmarks:string[];transit:string[];cultureTags:string[];creatorTags:string[];safetyFocus:string[];diasporaTags?:string[]}
 const CITY_KEY='tryamm_global_city_profile_v2'
 const CURATED:Record<string,CityProfile>={
@@ -31,3 +32,39 @@ function save(profile:CityProfile){try{localStorage.setItem(CITY_KEY,JSON.string
 function publish(profile:CityProfile){save(profile);document.documentElement.dataset.streetverseCity=profile.city;document.documentElement.dataset.streetverseCityTheme=profile.theme;window.dispatchEvent(new CustomEvent('tryamm:global-city-state',{detail:profile}));window.dispatchEvent(new CustomEvent('tryamm:world-city-changed',{detail:profile}));window.dispatchEvent(new CustomEvent('tryamm:world-location-changed',{detail:{city:profile.city,country:profile.country,region:profile.region,theme:profile.theme}}))}
 let installed=false
 export function installGlobalCityVerseRuntime(){if(installed||typeof window==='undefined')return;installed=true;let initial:CityProfile|null=null;try{initial=JSON.parse(localStorage.getItem(CITY_KEY)||'null')}catch{};const start=(initial&&typeof initial.city==='string'&&typeof initial.country==='string')?initial:CURATED['chicago|united states'];queueMicrotask(()=>publish(start));window.addEventListener('tryamm:global-city-select',(event:Event)=>{const d=(event as CustomEvent<any>).detail||{},city=String(d.city||'Chicago').trim(),country=String(d.country||'United States').trim(),region=d.region?String(d.region):undefined;publish(CURATED[key(city,country)]||generic(city,country,region))});window.addEventListener('tryamm:global-city-request',()=>publish(start))}
+
+export interface GlobalCityRuntimeEvidence{
+ cityId:string
+ profileSource:'curated'|'registry-fallback'
+ registryStatus:StreetVerseCity['status']
+ runtimeProfileReady:boolean
+ evidence:string[]
+}
+
+const profileForRegistryCity=(city:StreetVerseCity):{profile:CityProfile;source:'curated'|'registry-fallback'}=>{
+ const curated=CURATED[key(city.name,city.country)]
+ return curated?{profile:curated,source:'curated'}:{profile:generic(city.name,city.country,city.region),source:'registry-fallback'}
+}
+
+export const getGlobalCityRuntimeEvidence=(cityId:string):GlobalCityRuntimeEvidence=>{
+ const city=getStreetVerseCity(cityId)
+ const resolved=profileForRegistryCity(city)
+ return{
+  cityId:city.id,
+  profileSource:resolved.source,
+  registryStatus:city.status,
+  runtimeProfileReady:Boolean(resolved.profile.city&&resolved.profile.country&&resolved.profile.theme),
+  evidence:[
+   'global registry city resolves to a runtime profile',
+   resolved.source==='curated'?'curated city profile present':'safe generic runtime fallback used',
+   'runtime selection does not require precise user location',
+   'registry status remains authoritative; runtime profile does not imply production certification',
+  ],
+ }
+}
+
+export const GLOBAL_CITY_RUNTIME_MANIFESTS=STREETVERSE_GLOBAL_CITIES.map(city=>({
+ city,
+ ...profileForRegistryCity(city),
+ evidence:getGlobalCityRuntimeEvidence(city.id),
+}))
