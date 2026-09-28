@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "id": "family-friends-release-calendar-2026",
+  "status": "foundation",
+  "events": [
+    {
+      "date": "2026-10-06",
+      "type": "birthday_spotlight",
+      "character": "Pastor Kofi",
+      "missionFamilies": [
+        "faith",
+        "community",
+        "leadership",
+        "service",
+        "celebration"
+      ],
+      "notes": "Character likeness/voice requires consent."
+    },
+    {
+      "date": "2026-10-08",
+      "type": "birthday_spotlight",
+      "character": "Brielle R",
+      "aliases": [
+        "Brielle Ryan"
+      ],
+      "relationship": "close_friend",
+      "missionFamilies": [
+        "hospitality_bartending",
+        "fitness_instruction",
+        "distance_running",
+        "juice_creator",
+        "vegan_food",
+        "wellness_creator",
+        "friendship"
+      ],
+      "notes": "Bartending content must remain age-gated; no alcohol promotion to minors. Health/fitness missions are educational/gameplay, not medical advice."
+    },
+    {
+      "date": "2026-11-20",
+      "type": "heirs_family_friends_drop",
+      "anchorCharacter": "Jacobie",
+      "components": [
+        "jacobie_birthday",
+        "campus_orientation",
+        "family_friend_character_release",
+        "collegebook_invites",
+        "major_missions",
+        "crossverse_pk",
+        "holo_live",
+        "skills_passport"
+      ]
+    }
+  ],
+  "brielleMissionArc": [
+    {
+      "id": "brielle-welcome",
+      "title": "Meet Brielle",
+      "goals": [
+        "friend_intro",
+        "choose_activity"
+      ]
+    },
+    {
+      "id": "brielle-run-club",
+      "title": "Run the City",
+      "goals": [
+        "training_plan_gameplay",
+        "5k_10k_marathon_progression",
+        "community_run_event"
+      ]
+    },
+    {
+      "id": "brielle-fit-class",
+      "title": "Coach the Class",
+      "goals": [
+        "build_virtual_fitness_class",
+        "accessibility_variants",
+        "holo_live_session"
+      ]
+    },
+    {
+      "id": "brielle-juice-lab",
+      "title": "Juice Creator",
+      "goals": [
+        "recipe_creator",
+        "virtual_shop",
+        "branding",
+        "creator_reel"
+      ]
+    },
+    {
+      "id": "brielle-vegan-pop-up",
+      "title": "Vegan Pop-Up",
+      "goals": [
+        "menu_design",
+        "inventory_simulation",
+        "customer_service",
+        "marketplace_event"
+      ]
+    },
+    {
+      "id": "brielle-hospitality",
+      "title": "Hospitality Shift",
+      "ageGate": "21+ alcohol-related lane; non-alcoholic/mocktail variant available",
+      "goals": [
+        "customer_service",
+        "mocktail_mixology",
+        "event_hosting",
+        "responsible_service_simulation"
+      ]
+    },
+    {
+      "id": "brielle-birthday-10-08",
+      "title": "Brielle Birthday Challenge",
+      "goals": [
+        "community_run",
+        "fitness_pk",
+        "juice_pop_up",
+        "creator_stream",
+        "birthday_event"
+      ]
+    }
+  ],
+  "releaseRules": {
+    "independentCharacterProgress": true,
+    "consentForLikenessVoice": true,
+    "privacyMinimization": true,
+    "ageAppropriateLanes": true,
+    "serverAuthoritativeRewards": true
+  }
+}
