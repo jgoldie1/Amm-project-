@@ -175,3 +175,63 @@ export const createQuantumSharedWorkItems=(cities:StreetVerseCity[]):QuantumShar
   ],
  }))
 }
+
+
+export interface QuantumDependencyWave{
+ index:number
+ stages:WorldCompilerStage[]
+ jobs:string[]
+ cacheKeys:string[]
+}
+
+export const createDependencySafeStageWaves=(cities:StreetVerseCity[]):QuantumDependencyWave[]=>{
+ const jobs=scheduleQuantumGlobalJobs(cities)
+ const remaining=new Map(jobs.map(job=>[`${job.cityId}:${job.stage}`,job]))
+ const verifiedStages=new Map<string,Set<WorldCompilerStage>>()
+ const waves:QuantumDependencyWave[]=[]
+ let index=0
+ while(remaining.size){
+  const ready=[...remaining.entries()].filter(([,job])=>
+   job.dependsOn.every(dep=>verifiedStages.get(job.cityId)?.has(dep))
+  )
+  if(!ready.length)throw new Error('Global compiler dependency graph contains an unresolved cycle')
+  const stages=[...new Set(ready.map(([,job])=>job.stage))]
+  waves.push({
+   index:index++,
+   stages,
+   jobs:ready.map(([id])=>id),
+   cacheKeys:ready.map(([,job])=>job.cacheKey),
+  })
+  for(const [id,job] of ready){
+   remaining.delete(id)
+   const done=verifiedStages.get(job.cityId)??new Set<WorldCompilerStage>()
+   done.add(job.stage);verifiedStages.set(job.cityId,done)
+  }
+ }
+ return waves
+}
+
+export interface QuantumCacheEvidence{
+ cacheKey:string
+ inputDigest:string
+ policyDigest:string
+ artifactDigest:string
+ verifiedAt:string
+}
+
+export const canReuseQuantumCache=(
+ job:QuantumCityJob,
+ cached:QuantumCacheEvidence|undefined,
+ current:{inputDigest:string;policyDigest:string},
+)=>
+ Boolean(cached&&cached.cacheKey===job.cacheKey&&cached.inputDigest===current.inputDigest&&
+  cached.policyDigest===current.policyDigest&&cached.artifactDigest&&cached.verifiedAt)
+
+export const QUANTUM_CACHE_POLICY={
+ rule:'A cache hit accelerates compilation only; it never creates certification evidence.',
+ invalidateOn:[
+  'source or rights metadata change','privacy/security policy change','accessibility policy change',
+  'payment/ledger contract change','dependency artifact change','compiler/template version change',
+ ],
+ certification:'Certification must consume current verified evidence for every required dependency and release gate.',
+} as const
