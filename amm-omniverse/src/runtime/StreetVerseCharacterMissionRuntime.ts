@@ -1,4 +1,4 @@
-export type CharacterGroup='founder'|'security'|'global-security'|'legacy-kids'|'friends'|'artists'|'community'|'chicago-music'
+export type CharacterGroup='founder'|'security'|'global-security'|'legacy-kids'|'friends'|'artists'|'community'|'chicago-music'|'chicago-music-history'
 export type MissionType='peacekeeping'|'mentorship'|'rescue'|'creative'|'education'|'community'|'exploration'|'disaster-response'|'cyber-safety'|'event-safety'
 
 export type StreetVerseCharacter={
@@ -29,6 +29,7 @@ export const STREETVERSE_CHARACTERS:StreetVerseCharacter[]=[
   {id:'friends',name:'Friends Crew',title:'Community Allies',group:'friends',missionIds:['neighborhood-help','event-support','welcome-team']},
   {id:'artists',name:'Artist Collective',title:'Creators / Performers',group:'artists',missionIds:['create-not-destroy','open-mic-peace','city-soundtrack']},
   {id:'chicago-music',name:'Chicago Music Challenge',title:'Rappers / Singers / DJs / Producers',group:'chicago-music',missionIds:['chi-open-mic-qualifier','chi-flow-rhythm','chi-studio-session','chi-city-cypher','chi-holo-headliner']},
+  {id:'chicago-music-history',name:'Chicago Music Time Machine',title:'History / Independent Music / Afrofuturism',group:'chicago-music-history',missionIds:['chi-history-sound-map','el-saturn-independent-label','sun-ra-chicago-time-machine','alton-abraham-archive','chi-history-to-future']},
 ]
 
 export const STREETVERSE_MISSIONS:StreetVerseMission[]=[
@@ -59,6 +60,11 @@ export const STREETVERSE_MISSIONS:StreetVerseMission[]=[
   {id:'chi-studio-session',title:'Studio to StreetVerse',description:'Build an original track with a producer, record a performance, clear the required rights metadata, create cover art, and cut a promotional Reel.',type:'creative',assignedTo:['chicago-music','artists'],rewardXP:500,repeatable:true,localizesToCity:true},
   {id:'chi-city-cypher',title:'Chicago City Cypher',description:'Form a four-player crew across rapper, singer, DJ, producer, dancer or creator roles and complete rotating call-and-response, rhythm, collaboration and crowd objectives.',type:'creative',assignedTo:['chicago-music','artists'],rewardXP:650,repeatable:true,localizesToCity:true},
   {id:'chi-holo-headliner',title:'Holo Headliner',description:'Finale mission: qualify through the Chicago circuit, assemble a show, pass rights and safety checks, complete a Holo LIVE performance, capture a Reel, and finish the chapter with a cooperative headliner score.',type:'creative',assignedTo:['chicago-music','artists'],rewardXP:1000,repeatable:true,localizesToCity:true},
+  {id:'chi-history-sound-map',title:'Sounds Born in Chicago',description:'Explore sourced Chicago music-history checkpoints and connect artists, neighborhoods, venues, labels and musical movements. Historical claims require provenance before display.',type:'creative',assignedTo:['chicago-music-history','artists'],rewardXP:350,repeatable:true,localizesToCity:true},
+  {id:'el-saturn-independent-label',title:'Build It Yourself: El Saturn',description:'Learn how Sun Ra and Alton Abraham built an independent recording and distribution operation in Chicago, then complete an original TRYAMM label challenge covering recording, artwork, promotion, distribution and rights.',type:'creative',assignedTo:['chicago-music-history','chicago-music'],rewardXP:600,repeatable:true,localizesToCity:true},
+  {id:'sun-ra-chicago-time-machine',title:'Sun Ra: Chicago to Saturn',description:'Enter a sourced Time Machine chapter about Sun Ra’s Chicago years, the Arkestra, Afrofuturist ideas and independent music-making. Archive facts stay distinct from fictional interactive scenes.',type:'creative',assignedTo:['chicago-music-history'],rewardXP:700,repeatable:true,localizesToCity:true},
+  {id:'alton-abraham-archive',title:'Alton Abraham: Behind the Independent Machine',description:'Follow a provenance-backed archive trail about Alton Abraham as Sun Ra’s friend and business associate, his work with Saturn Records, promotion, distribution, research and Chicago operations; finish by building a modern ethical indie-release plan.',type:'creative',assignedTo:['chicago-music-history'],rewardXP:700,repeatable:true,localizesToCity:true},
+  {id:'chi-history-to-future',title:'Chicago History to Future',description:'Finale: combine verified history with an original song, visual, business plan or performance concept that carries a Chicago musical influence into the player’s own future without copying protected recordings or artist likenesses.',type:'creative',assignedTo:['chicago-music-history','chicago-music','artists'],rewardXP:1000,repeatable:true,localizesToCity:true},
 ]
 
 let installed=false
