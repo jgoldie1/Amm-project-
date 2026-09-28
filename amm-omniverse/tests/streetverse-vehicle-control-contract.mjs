@@ -13,8 +13,8 @@ for(const name of worlds){
 }
 
 const mobile=read('../src/components/StreetVerseMobileWorld.tsx')
-assert.match(mobile,/let activeCar:THREE\.Mesh\|null=null/,
-  'StreetVerseMobileWorld: mobile WebGL must control a real scene car, not only flip HUD state')
+assert.match(mobile,/let activeCar:THREE\.(?:Mesh|Group)\|null=null/,
+  'StreetVerseMobileWorld: mobile WebGL must control a real scene vehicle object, not only flip HUD state')
 assert.match(mobile,/const nearestCar=/,
   'StreetVerseMobileWorld: ENTER VEHICLE must resolve a nearby scene vehicle')
 assert.match(mobile,/activeCar\.position\.(?:x|z)/,

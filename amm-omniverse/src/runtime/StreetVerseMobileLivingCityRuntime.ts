@@ -9,8 +9,12 @@ export type MobileResident={
   speed:number
 }
 
-const BODY_GEOMETRY=new THREE.BoxGeometry(.9,1.85,.58)
+const BODY_GEOMETRY=new THREE.CapsuleGeometry(.38,1.05,3,6)
 const HEAD_GEOMETRY=new THREE.SphereGeometry(.34,8,6)
+const ARM_GEOMETRY=new THREE.CapsuleGeometry(.09,.62,2,5)
+const LEG_GEOMETRY=new THREE.CapsuleGeometry(.12,.72,2,5)
+const HAIR_GEOMETRY=new THREE.SphereGeometry(.355,8,6,0,Math.PI*2,0,Math.PI*.48)
+const SHOE_GEOMETRY=new THREE.BoxGeometry(.52,.16,.58)
 const BODY_COLORS=[0x3aa6ff,0xf06b8f,0x8d6ce8,0xf0b64a,0x54c58a,0xc97c4a,0x6ab6c9,0xb7d44f]
 const SKIN_COLORS=[0x7a4d32,0x9f6947,0xbf815b,0x6f432e,0xd79a70,0x8b5a3c,0xc88d68,0xa36b4b]
 
@@ -34,9 +38,16 @@ export function createMobileResidentPopulation(scene:THREE.Scene):MobileResident
   const residents=routes.map((route,index)=>{
     const group=new THREE.Group()
     group.name=`streetverse-mobile-resident-${index+1}`
-    const body=new THREE.Mesh(BODY_GEOMETRY,mat(BODY_COLORS[index%BODY_COLORS.length]));body.position.y=1.35;group.add(body)
-    const head=new THREE.Mesh(HEAD_GEOMETRY,mat(SKIN_COLORS[index%SKIN_COLORS.length]));head.position.y=2.62;group.add(head)
-    group.scale.setScalar(.92)
+    const skin=mat(SKIN_COLORS[index%SKIN_COLORS.length])
+    const body=new THREE.Mesh(BODY_GEOMETRY,mat(BODY_COLORS[index%BODY_COLORS.length]));body.position.y=1.45;group.add(body)
+    const head=new THREE.Mesh(HEAD_GEOMETRY,skin);head.position.y=2.72;group.add(head)
+    const hair=new THREE.Mesh(HAIR_GEOMETRY,mat([0x16120f,0x2d1c15,0x493227][index%3]));hair.position.y=2.85;group.add(hair)
+    for(const side of [-1,1]){
+      const arm=new THREE.Mesh(ARM_GEOMETRY,skin);arm.position.set(side*.48,1.5,0);arm.rotation.z=side*.12;group.add(arm)
+      const leg=new THREE.Mesh(LEG_GEOMETRY,mat([0x202936,0x283548,0x35313c,0x172d3d][index%4]));leg.position.set(side*.17,.52,0);group.add(leg)
+    }
+    const shoes=new THREE.Mesh(SHOE_GEOMETRY,mat(0x15171b));shoes.position.set(0,.12,-.06);group.add(shoes)
+    group.scale.setScalar(.94)
     group.userData.residentId=`mobile-resident-${index+1}`
     group.userData.streetverseResident=true
     scene.add(group)
