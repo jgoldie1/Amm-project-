@@ -15,12 +15,14 @@ on:
           - visual-pass-3
           - traffic-pass-4
           - identity-interaction-pass-5
+          - pedestrian-routines-pass-6
   push:
     branches:
       - feature/streetverse-chicago-alive-v2-20260928
       - feature/streetverse-chicago-visual-pass-3-20260928
       - feature/streetverse-chicago-traffic-life-pass-4-20260928
       - feature/streetverse-chicago-identity-interaction-pass-5-20260928
+      - feature/streetverse-chicago-pedestrian-routines-pass-6-20260928
       - main
     paths:
       - 'amm-omniverse/src/components/StreetVerseMobileWorld.tsx'
@@ -28,10 +30,12 @@ on:
       - 'amm-omniverse/src/runtime/StreetVerseChicagoVisualLifeRuntime.ts'
       - 'amm-omniverse/src/runtime/StreetVerseChicagoTrafficLifeRuntime.ts'
       - 'amm-omniverse/src/runtime/StreetVerseChicagoIdentityInteractionRuntime.ts'
+      - 'amm-omniverse/src/runtime/StreetVerseChicagoPedestrianRoutineRuntime.ts'
       - 'amm-omniverse/tests/streetverse-chicago-alive-contract.mjs'
       - 'amm-omniverse/tests/streetverse-chicago-visual-pass-3-contract.mjs'
       - 'amm-omniverse/tests/streetverse-chicago-traffic-life-pass-4-contract.mjs'
       - 'amm-omniverse/tests/streetverse-chicago-identity-interaction-pass-5-contract.mjs'
+      - 'amm-omniverse/tests/streetverse-chicago-pedestrian-routines-pass-6-contract.mjs'
       - 'amm-omniverse/package.json'
       - '.github/workflows/streetverse-chicago-alive-night.yml'
   schedule:
@@ -229,7 +233,45 @@ jobs:
           echo "- Vehicle ENTER / EXIT prompt integration: PASS" >> "$GITHUB_STEP_SUMMARY"
           echo "- Mobile shadow-map guard preserved" >> "$GITHUB_STEP_SUMMARY"
 
+  pedestrian-routines-pass-6:
+    needs: identity-interaction-pass-5
+    if: needs.identity-interaction-pass-5.result == 'success' && (github.event_name != 'workflow_dispatch' || inputs.phase == 'all' || inputs.phase == 'pedestrian-routines-pass-6')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install Omniverse dependencies
+        run: npm ci
+      - name: Chicago Pedestrian Routines focused contract
+        run: node tests/streetverse-chicago-pedestrian-routines-pass-6-contract.mjs
+      - name: Verify Pedestrian Pass 6 mobile budget
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "pedestrianLifePass:'v6'" src/components/StreetVerseMobileWorld.tsx
+          grep -q "pedestriansObeySignals:true" src/components/StreetVerseMobileWorld.tsx
+          grep -q "streetverse-mobile-crossing-resident-bodies" src/runtime/StreetVerseChicagoPedestrianRoutineRuntime.ts
+          grep -q "streetverse-mobile-pedestrian-walk-signals" src/runtime/StreetVerseChicagoPedestrianRoutineRuntime.ts
+          grep -q "renderer.shadowMap.enabled=false" src/components/StreetVerseMobileWorld.tsx
+          echo "Pedestrian Pass 6 source budget PASS"
+      - name: Report Pedestrian Routines Pass 6
+        run: |
+          echo "## StreetVerse Chicago Pedestrian Routines Pass 6 — GREEN" >> "$GITHUB_STEP_SUMMARY"
+          echo "- 18 signal-aware crossing residents: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Pedestrian walk/stop indicators: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Commuter / shopper / delivery / visitor routines: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Crosswalk wait/cross behavior: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Mobile instancing + shadow-map guard: PASS" >> "$GITHUB_STEP_SUMMARY"
+
   production-certification:
     if: github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
-    needs: [alive-pass-1, visual-pass-2, visual-pass-3, traffic-pass-4, identity-interaction-pass-5]
+    needs: [alive-pass-1, visual-pass-2, visual-pass-3, traffic-pass-4, identity-interaction-pass-5, pedestrian-routines-pass-6]
     uses: ./.github/workflows/deploy-tryamm-production.yml
