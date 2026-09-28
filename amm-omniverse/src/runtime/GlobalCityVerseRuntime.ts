@@ -426,3 +426,42 @@ export const RIGHTS_LICENSING_REGISTRY_POLICY={
  separateRights:['source text','translation','scan/image','audio/narration','annotation','art/3D','film/video adaptation','game adaptation','XR adaptation','music/sync','AI training'],
  protectedSurfaces:['Kingdom Press','FaithVerse','GameVerse','All American App Store','TRYAMM TV','Holo LIVE','Reels'] as PublicationSurface[],
 } as const
+
+
+export type FounderActionKind='SIGNATURE'|'ATTESTATION'|'IDENTITY_VERIFICATION'|'PAYMENT_AUTHORIZATION'|'CONTRACT_ACCEPTANCE'|'FINAL_PUBLICATION_APPROVAL'|'COUNSEL_REVIEW'
+export type ComplianceWorkflowState='DISCOVERED'|'AI_PREPARING'|'FOUNDER_ACTION'|'SUBMITTED'|'PENDING'|'APPROVED'|'REJECTED'|'RENEWAL_DUE'
+
+export interface FounderComplianceItem{
+ id:string
+ title:string
+ authorityOrRightsholder:string
+ state:ComplianceWorkflowState
+ founderAction?:FounderActionKind
+ dueAt?:string
+ evidenceRefs:string[]
+ relatedRightsRecordIds:string[]
+ releaseBlocking:boolean
+}
+
+export const getFounderActionQueue=(items:FounderComplianceItem[])=>items
+ .filter(item=>item.state==='FOUNDER_ACTION'&&item.founderAction)
+ .sort((a,b)=>{
+  if(a.releaseBlocking!==b.releaseBlocking) return a.releaseBlocking?-1:1
+  return (a.dueAt??'9999').localeCompare(b.dueAt??'9999')
+ })
+
+export const FOUNDER_COMPLIANCE_COMMAND_CENTER={
+ status:'BUILDING',
+ objective:'AI prepares and tracks compliance work while legally significant founder actions remain human-authorized',
+ workflow:['DISCOVERED','AI_PREPARING','FOUNDER_ACTION','SUBMITTED','PENDING','APPROVED','REJECTED','RENEWAL_DUE'] as ComplianceWorkflowState[],
+ founderActions:['SIGNATURE','ATTESTATION','IDENTITY_VERIFICATION','PAYMENT_AUTHORIZATION','CONTRACT_ACCEPTANCE','FINAL_PUBLICATION_APPROVAL','COUNSEL_REVIEW'] as FounderActionKind[],
+ aiResponsibilities:[
+  'discover likely licensing and compliance requirements',
+  'assemble checklists and supporting evidence references',
+  'prepare draft forms and permission requests',
+  'surface only unresolved founder actions',
+  'track submission, approval, expiration and renewal state',
+  'keep publication and release gates locked while required evidence is unresolved',
+ ],
+ rule:'AI preparation never substitutes for a required legal signature, attestation, identity verification, payment authorization, contract acceptance, counsel review or final founder approval',
+} as const
