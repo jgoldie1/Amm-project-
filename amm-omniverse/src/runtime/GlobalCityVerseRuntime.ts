@@ -68,3 +68,49 @@ export const GLOBAL_CITY_RUNTIME_MANIFESTS=STREETVERSE_GLOBAL_CITIES.map(city=>(
  ...profileForRegistryCity(city),
  evidence:getGlobalCityRuntimeEvidence(city.id),
 }))
+
+
+export interface GlobalCitySystemsEvidence{
+ cityId:string
+ environment:{ready:boolean;weatherMode:'city-level-provider';rules:string[]}
+ mobility:{ready:boolean;modes:string[];rules:string[]}
+ accessibility:{ready:boolean;capabilities:string[];rules:string[]}
+}
+
+export const getGlobalCitySystemsEvidence=(cityId:string):GlobalCitySystemsEvidence=>{
+ const manifest=GLOBAL_CITY_RUNTIME_MANIFESTS.find(item=>item.city.id===cityId)
+ if(!manifest)throw new Error(`Unknown StreetVerse city: ${cityId}`)
+ const {city,profile}=manifest
+ return{
+  cityId,
+  environment:{
+   ready:Boolean(profile.theme&&profile.landmarks.length),
+   weatherMode:'city-level-provider',
+   rules:[
+    'weather must come from a current city-level provider before presentation as current conditions',
+    'weather may alter atmosphere, lighting and effects but never certifies a city by itself',
+    'persistent environment assets require source and rights metadata',
+   ],
+  },
+  mobility:{
+   ready:profile.transit.length>0,
+   modes:[...profile.transit],
+   rules:[
+    'mobility routes use public or authorized source data',
+    'no private or sensitive access routes are exposed',
+    'one-hand and reduced-motion navigation alternatives remain available',
+   ],
+  },
+  accessibility:{
+   ready:true,
+   capabilities:['one-hand navigation','keyboard navigation','screen-reader labels','captions','reduced motion','high-contrast compatible UI'],
+   rules:[
+    'accessibility evidence is required before production certification',
+    'city-specific visuals cannot remove shared accessibility controls',
+    'runtime readiness does not substitute for device-level accessibility testing',
+   ],
+  },
+ }
+}
+
+export const GLOBAL_CITY_SYSTEMS_EVIDENCE=STREETVERSE_GLOBAL_CITIES.map(city=>getGlobalCitySystemsEvidence(city.id))
