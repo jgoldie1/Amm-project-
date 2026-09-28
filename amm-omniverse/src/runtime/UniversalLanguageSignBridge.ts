@@ -1,3 +1,4 @@
+import {resolveSignExpression} from './GoogloplexSignVocabularyMemory'
 export type TranslationModality='text'|'speech'|'captions'|'sign-avatar'|'sign-video'
 export type LanguageCapability={tag:string;name:string;modalities:TranslationModality[];certified:boolean;signLanguage?:boolean;region?:string}
 const capabilities=new Map<string,LanguageCapability>()
@@ -10,6 +11,7 @@ export function planTranslation(input:{sourceTag:string;targetTag:string;preferr
  if(!modality)return {status:'fallback' as const,targetTag:input.targetTag,modality:'captions' as const,reason:'no-certified-output-modality'}
  return {status:'ready' as const,targetTag:target.tag,modality,signLanguage:Boolean(target.signLanguage)}
 }
+export function planSignedVocabulary(input:{signLanguageTag:string;term:string;region?:string}){return resolveSignExpression(input)}
 export function installUniversalLanguageBridge(){
  if(typeof window==='undefined')return()=>{}
  const handler=(e:Event)=>{const d=(e as CustomEvent<{sourceTag:string;targetTag:string;preferred:TranslationModality[];contentType?:string}>).detail;if(!d)return
