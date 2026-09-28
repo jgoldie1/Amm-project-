@@ -3,6 +3,7 @@ const must=(ok,msg)=>{if(!ok)throw new Error('PWA RELEASE CONTRACT FAIL: '+msg)}
 const manifest=JSON.parse(fs.readFileSync('public/manifest.json','utf8'))
 const sw=fs.readFileSync('public/sw.js','utf8')
 const install=fs.readFileSync('src/components/InstallPrompt.tsx','utf8')
+const index=fs.readFileSync('index.html','utf8')
 must(manifest.name && manifest.short_name==='TRYAMM','manifest identity')
 must(manifest.start_url && manifest.scope==='/' && manifest.display==='standalone','standalone install contract')
 must(Array.isArray(manifest.icons)&&manifest.icons.length>0,'install icon required')
@@ -12,4 +13,7 @@ must(/iphone\|ipad\|ipod/i.test(install),'iOS detection required')
 must(install.includes('Add to Home Screen'),'iPhone Safari Add to Home Screen instructions required')
 must(install.includes('Share'),'iPhone Safari Share instruction required')
 must(install.includes('display-mode: standalone'),'installed-state detection required')
+const swVersion=sw.match(/const RELEASE = '([^']+)'/)?.[1]
+const indexVersion=index.match(/const SW_VERSION='([^']+)'/)?.[1]
+must(Boolean(swVersion)&&swVersion===indexVersion,'service-worker and app-shell release versions must match so installed iPhones receive current visuals')
 console.log('PWA RELEASE CONTRACT PASS: TRYAMM install path certified for iPhone/iPad Safari and install-capable Android browsers.')
