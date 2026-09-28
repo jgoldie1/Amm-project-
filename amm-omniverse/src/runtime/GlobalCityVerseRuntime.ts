@@ -206,3 +206,41 @@ export const getGlobalCityMissionEconomyEvidence=(cityId:string):GlobalCityMissi
 }
 
 export const GLOBAL_CITY_MISSION_ECONOMY_EVIDENCE=STREETVERSE_GLOBAL_CITIES.map(city=>getGlobalCityMissionEconomyEvidence(city.id))
+
+
+export type GlobalCityCertificationStatus='BUILDING'|'READY'|'CERTIFIABLE'
+export interface GlobalCityConvergenceCertification{
+ cityId:string
+ status:GlobalCityCertificationStatus
+ checks:{runtime:boolean;environment:boolean;mobility:boolean;accessibility:boolean;population:boolean;business:boolean;media:boolean;missions:boolean;economy:boolean}
+ blockers:string[]
+ rule:string
+}
+
+export const certifyGlobalCityConvergence=(cityId:string):GlobalCityConvergenceCertification=>{
+ const runtime=getGlobalCityRuntimeEvidence(cityId)
+ const systems=getGlobalCitySystemsEvidence(cityId)
+ const activity=getGlobalCityActivityEvidence(cityId)
+ const missionEconomy=getGlobalCityMissionEconomyEvidence(cityId)
+ const checks={
+  runtime:runtime.runtimeProfileReady,
+  environment:systems.environment.ready,
+  mobility:systems.mobility.ready,
+  accessibility:systems.accessibility.ready,
+  population:activity.population.ready,
+  business:activity.business.ready,
+  media:activity.media.ready,
+  missions:missionEconomy.missions.ready,
+  economy:missionEconomy.economy.ready,
+ }
+ const blockers=Object.entries(checks).filter(([,ok])=>!ok).map(([name])=>`${name} evidence incomplete`)
+ const evidenceReady=blockers.length===0
+ // Runtime evidence can make a city READY, but production certification still requires external release/device/source evidence.
+ const status:GlobalCityCertificationStatus=!checks.runtime?'BUILDING':evidenceReady?'READY':'BUILDING'
+ return{
+  cityId,status,checks,blockers,
+  rule:'CERTIFIABLE is reserved for a separate fail-closed release certification that verifies source/rights, privacy, security, accessibility, payments, ledger, device performance and deployment evidence; runtime evidence alone never promotes a city to CERTIFIABLE.',
+ }
+}
+
+export const GLOBAL_CITY_CONVERGENCE_CERTIFICATIONS=STREETVERSE_GLOBAL_CITIES.map(city=>certifyGlobalCityConvergence(city.id))
