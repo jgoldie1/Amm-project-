@@ -2,7 +2,7 @@ import type {SupabaseClient} from '@supabase/supabase-js'
 
 export type PassportCommunicationPreference='text'|'voice'|'video'|'email'|'none'
 export type PassportAccessPrefs={
- languageTag:string;signLanguageTag?:string;oneHand?:'left'|'right';captions?:boolean;voice?:boolean;
+ languageTag:string;signLanguageTag?:string;oneHand?:'left'|'right';oneHandedMode?:boolean;captions?:boolean;voice?:boolean;
  switchControl?:boolean;screenReader?:boolean;largeTargets?:boolean;reducedMotion?:boolean;highContrast?:boolean;
  plainLanguage?:boolean;keyboardOnly?:boolean;largeText?:boolean;transcripts?:boolean;audioDescription?:boolean;
  speechToText?:boolean;textToSpeech?:boolean;simplifiedUI?:boolean;extraProcessingTime?:boolean;
@@ -10,7 +10,7 @@ export type PassportAccessPrefs={
 }
 const cache=new Map<string,PassportAccessPrefs>()
 const row=(p:PassportAccessPrefs)=>({
- language_tag:p.languageTag,sign_language_tag:p.signLanguageTag??null,one_hand:p.oneHand??null,
+ language_tag:p.languageTag,sign_language_tag:p.signLanguageTag??null,one_hand:p.oneHand??null,one_handed_mode:!!p.oneHandedMode,
  captions:!!p.captions,voice:!!p.voice,switch_control:!!p.switchControl,screen_reader:!!p.screenReader,
  large_targets:!!p.largeTargets,reduced_motion:!!p.reducedMotion,high_contrast:!!p.highContrast,
  plain_language:!!p.plainLanguage,keyboard_only:!!p.keyboardOnly,large_text:!!p.largeText,
@@ -20,7 +20,7 @@ const row=(p:PassportAccessPrefs)=>({
  updated_at:new Date().toISOString()
 })
 const prefs=(r:any):PassportAccessPrefs=>({
- languageTag:r.language_tag??'en-US',signLanguageTag:r.sign_language_tag??undefined,oneHand:r.one_hand??undefined,
+ languageTag:r.language_tag??'en-US',signLanguageTag:r.sign_language_tag??undefined,oneHand:r.one_hand??undefined,oneHandedMode:!!r.one_handed_mode,
  captions:!!r.captions,voice:!!r.voice,switchControl:!!r.switch_control,screenReader:!!r.screen_reader,
  largeTargets:!!r.large_targets,reducedMotion:!!r.reduced_motion,highContrast:!!r.high_contrast,plainLanguage:!!r.plain_language,
  keyboardOnly:!!r.keyboard_only,largeText:!!r.large_text,transcripts:!!r.transcripts,audioDescription:!!r.audio_description,
