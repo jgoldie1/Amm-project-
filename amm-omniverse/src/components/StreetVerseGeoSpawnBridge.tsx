@@ -13,6 +13,7 @@ import {installStreetVerseCabinLifeRuntime} from '../runtime/StreetVerseCabinLif
 import {installStreetVersePhysicalVehicleRigRuntime} from '../runtime/StreetVersePhysicalVehicleRigRuntime'
 import {installStreetVerseNPCSocialRuntime} from '../runtime/StreetVerseNPCSocialRuntime'
 import {chooseAccessMode} from '../runtime/StreetVerseAccessBridge'
+import {installStreetVersePerformanceDirector} from '../runtime/StreetVersePerformanceDirectorRuntime'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
@@ -136,6 +137,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>{installStreetVerseCabinLifeRuntime()},[])
  useLayoutEffect(()=>{installStreetVersePhysicalVehicleRigRuntime()},[])
  useLayoutEffect(()=>{installStreetVerseNPCSocialRuntime()},[])
+ useLayoutEffect(()=>installStreetVersePerformanceDirector(),[])
  useEffect(()=>{
   const connection=(navigator as Navigator & {connection?:{downlink?:number}}).connection
   const mode=chooseAccessMode({webgl:hasUsableWebGL(),bandwidthMbps:connection?.downlink,ownedDevice:true})
