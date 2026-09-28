@@ -465,3 +465,31 @@ export const FOUNDER_COMPLIANCE_COMMAND_CENTER={
  ],
  rule:'AI preparation never substitutes for a required legal signature, attestation, identity verification, payment authorization, contract acceptance, counsel review or final founder approval',
 } as const
+
+
+export const TRYAMM_MARKET_INTELLIGENCE_PRODUCT={
+ status:'BUILDING',
+ positioning:'evidence-first financial intelligence, education and simulation; no guaranteed returns',
+ packages:[
+  {id:'money-free',priceMonthlyUsd:0,features:['financial and crypto news','basic watchlists','financial education','limited AI explanations']},
+  {id:'money-plus',priceMonthlyUsd:11.25,features:['Market Memory','AI news summaries','alerts','historical comparisons']},
+  {id:'quantum-market-pro',priceMonthlyUsd:29.99,features:['Time Machine','historical analogs','counterexamples','scenario analysis','confidence history','paper trading']},
+  {id:'quantum-elite',priceMonthlyUsd:79.99,features:['Strategy Lab','backtesting','risk analytics','portfolio simulation','advanced market intelligence']},
+  {id:'business-intelligence',priceMonthlyUsd:149,features:['economic intelligence','industry monitoring','business scenarios','team dashboard']},
+ ],
+ integrity:{
+  predictionRecord:['timestamp','input evidence snapshot','model version','scenario assumptions','confidence band','subsequent outcome'],
+  requiredOutput:['historical analogs','counterexamples','methodology','limitations','key assumptions','data freshness','scenario range','model calibration history'],
+  rules:[
+   'never describe hypothetical or backtested results as actual performance',
+   'never imply historical similarity guarantees recurrence',
+   'never promise profit or guaranteed returns',
+   'evidence confidence is not automatically an outcome probability',
+   'regulated personalized advice, brokerage, custody and automated real-money trading remain locked until compliance authorization is verified',
+  ],
+ },
+ profitControls:{
+  unitEconomics:['subscription revenue','licensed data cost','AI/GPU cost','streaming/storage','payment fees','support cost','customer acquisition cost'],
+  rule:'a package is not economically healthy unless measured contribution margin is positive after variable service costs',
+ },
+} as const
