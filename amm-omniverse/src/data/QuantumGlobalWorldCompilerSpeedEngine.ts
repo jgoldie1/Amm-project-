@@ -1,4 +1,4 @@
-import {STREETVERSE_GLOBALIZATION_WAVES,type StreetVerseCity} from './StreetVerseGlobalRegistry'
+import {STREETVERSE_GLOBALIZATION_WAVES,GLOBAL_CONVERGENCE_REQUIREMENTS,type StreetVerseCity} from './StreetVerseGlobalRegistry'
 import {compileGlobalWorld,type WorldCompilerStage} from './GlobalWorldCompiler'
 
 export type QuantumCompilerPriority='critical'|'high'|'normal'
@@ -48,3 +48,32 @@ export const QUANTUM_GLOBAL_WORLD_COMPILER_SPEED_ENGINE={
   'certification remains serial/fail-closed after required dependencies','no deployed/live claim without verified release evidence',
  ],
 } as const
+
+
+export interface QuantumWaveExecutionPlan{
+ wave:1|2|3|4|5|6|7
+ cityIds:string[]
+ batches:Record<WorldCompilerStage,string[]>
+ convergenceRequirements:readonly string[]
+ hardGates:readonly string[]
+}
+
+const HARD_GLOBAL_GATES=[
+ 'rights/source validation','privacy','accessibility','security',
+ 'server-authoritative payment verification','ledger verification','release certification',
+] as const
+
+export const createQuantumWaveExecutionPlans=(cities:StreetVerseCity[]):QuantumWaveExecutionPlan[]=>{
+ const cityById=new Map(cities.map(city=>[city.id,city]))
+ return ([1,2,3,4,5,6,7] as const).map(wave=>{
+  const cityIds=(STREETVERSE_GLOBALIZATION_WAVES[wave] as readonly string[]).filter(id=>cityById.has(id))
+  const jobs=scheduleQuantumGlobalJobs(cityIds.map(id=>cityById.get(id)!))
+  const batches={} as Record<WorldCompilerStage,string[]>
+  for(const job of jobs)(batches[job.stage]??=[]).push(`${job.cityId}:${job.stage}`)
+  return{
+   wave,cityIds,batches,
+   convergenceRequirements:wave===7?GLOBAL_CONVERGENCE_REQUIREMENTS:[],
+   hardGates:HARD_GLOBAL_GATES,
+  }
+ })
+}
