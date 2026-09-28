@@ -20,8 +20,8 @@ This file is the branch-local launch clock and evidence ledger. It tracks engine
 | Gate | State | Evidence / next proof |
 |---|---|---|
 | Core StreetVerse playable loop | BUILDING | certify spawn → mission → repair → enter → drive → finish → verified reward |
-| NPC social / dance runtime | BUILDING | event bridge exists; bind real animation clips + world update loop |
-| Performance + motion catalog | BUILDING | shared registry foundation |
+| NPC social / dance runtime | BUILDING | event bridge exists; rights-safe discovery/oracle/edit queue added; bind approved animation clips + world update loop |
+| Performance + motion catalog | BUILDING | shared registry + quantum metadata discovery + rights oracle + clip edit recipes added |
 | IRL / low-tech access | BUILDING | opt-in access modes + hub/QR/SMS capability registry |
 | Payments / entitlements / ledger | VERIFY | preserve existing server-authoritative chain; no client awards |
 | Accessibility | VERIFY | touch/keyboard/voice/switch/one-hand/captions/low-tech evidence |
@@ -38,3 +38,10 @@ This file is the branch-local launch clock and evidence ledger. It tracks engine
 
 ## Launch rule
 Do not mark LIVE, PRODUCTION-COMPLETE, or RELEASED from architecture alone. Require executable evidence and passing gates.
+
+
+## 2026-09-28 session evidence
+- Added rights-safe Quantum performance discovery planner. It discovers metadata/references; it does not authorize copying.
+- Added Oracle rights gate: approve-processing / reference-only / manual-rights-review / reject.
+- Added approved clip processing recipe: trim, root-motion normalization, loop seam, foot lock, retarget, full/mobile/crowd LOD, compression, preview, attribution manifest.
+- Next proof: connect approved asset storage/worker, GLTF NPC mixer binding, and tests; do not mark animation library complete until actual licensed/owned clips render in StreetVerse.
