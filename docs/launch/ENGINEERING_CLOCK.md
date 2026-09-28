@@ -48,3 +48,5 @@ Do not mark LIVE, PRODUCTION-COMPLETE, or RELEASED from architecture alone. Requ
 
 - Mind Over Matter v1 added: transformed motion blueprints + similarity/originality review gate.
 - Revenue product intents added for motion packs, creator licenses, business experiences, tickets, production services, bookings, sponsored missions, training and device access. Settlement remains server-authoritative.
+
+- Library Assessor added: inventory/routing for motion, models, textures, audio, VFX/SFX, video, images and environments; duplicate hashing, provenance/rights, skeleton/species compatibility, mobile optimization and data-minimization retention decisions.
