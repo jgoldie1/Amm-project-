@@ -1,4 +1,5 @@
 import {STREETVERSE_GLOBAL_CITIES,getStreetVerseCity,type StreetVerseCity} from '../data/StreetVerseGlobalRegistry'
+import {SERVER_SETTLEMENT_SEQUENCE,SETTLEMENT_SECURITY_RULES} from '../game/economy/RevenueSettlementContract'
 export type CityProfile={city:string;country:string;region?:string;theme:string;districts:string[];landmarks:string[];transit:string[];cultureTags:string[];creatorTags:string[];safetyFocus:string[];diasporaTags?:string[]}
 const CITY_KEY='tryamm_global_city_profile_v2'
 const CURATED:Record<string,CityProfile>={
@@ -160,3 +161,48 @@ export const getGlobalCityActivityEvidence=(cityId:string):GlobalCityActivityEvi
 }
 
 export const GLOBAL_CITY_ACTIVITY_EVIDENCE=STREETVERSE_GLOBAL_CITIES.map(city=>getGlobalCityActivityEvidence(city.id))
+
+
+export interface GlobalCityMissionEconomyEvidence{
+ cityId:string
+ missions:{ready:boolean;capabilities:string[];rules:string[]}
+ economy:{ready:boolean;sequence:readonly string[];verification:string[]}
+}
+
+export const getGlobalCityMissionEconomyEvidence=(cityId:string):GlobalCityMissionEconomyEvidence=>{
+ const manifest=GLOBAL_CITY_RUNTIME_MANIFESTS.find(item=>item.city.id===cityId)
+ if(!manifest)throw new Error(`Unknown StreetVerse city: ${cityId}`)
+ const {profile}=manifest
+ return{
+  cityId,
+  missions:{
+   ready:profile.districts.length>0,
+   capabilities:['city missions','jobs','creator challenges','business challenges','tourism and culture missions'],
+   rules:[
+    'missions use synthetic gameplay actors unless a participant has explicitly opted in',
+    'jobs and paid challenges must disclose eligibility, compensation and sponsor terms before acceptance',
+    'culture and tourism missions require source and rights review for persistent assets',
+    'mission completion never directly creates a payable balance on the client',
+   ],
+  },
+  economy:{
+   ready:Boolean(
+    SETTLEMENT_SECURITY_RULES.webhookMustBeSignatureVerified&&
+    SETTLEMENT_SECURITY_RULES.webhookMustBeIdempotent&&
+    SETTLEMENT_SECURITY_RULES.browserCannotPostLedgerEntries&&
+    SETTLEMENT_SECURITY_RULES.browserCannotCreatePayableBalance
+   ),
+   sequence:SERVER_SETTLEMENT_SEQUENCE,
+   verification:[
+    'checkout is only an initiation signal and does not prove payment',
+    'processor webhook signature and event idempotency are server verified',
+    'amount, currency, product and approved split contract are server validated',
+    'entitlements are created only after verified transaction evidence',
+    'ledger entries and payable balances are server-authoritative',
+    'refunds, disputes and chargebacks can reverse ledger state',
+   ],
+  },
+ }
+}
+
+export const GLOBAL_CITY_MISSION_ECONOMY_EVIDENCE=STREETVERSE_GLOBAL_CITIES.map(city=>getGlobalCityMissionEconomyEvidence(city.id))
