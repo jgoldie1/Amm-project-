@@ -11,6 +11,7 @@ import {installStreetVerseVehicleRepairStreamerRuntime} from '../runtime/StreetV
 import {installStreetVerseFirstRideLoveStoryRuntime} from '../runtime/StreetVerseFirstRideLoveStoryRuntime'
 import {installStreetVerseCabinLifeRuntime} from '../runtime/StreetVerseCabinLifeRuntime'
 import {installStreetVersePhysicalVehicleRigRuntime} from '../runtime/StreetVersePhysicalVehicleRigRuntime'
+import {installStreetVerseNPCSocialRuntime} from '../runtime/StreetVerseNPCSocialRuntime'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
@@ -133,6 +134,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>{installStreetVerseFirstRideLoveStoryRuntime()},[])
  useLayoutEffect(()=>{installStreetVerseCabinLifeRuntime()},[])
  useLayoutEffect(()=>{installStreetVersePhysicalVehicleRigRuntime()},[])
+ useLayoutEffect(()=>{installStreetVerseNPCSocialRuntime()},[])
  useEffect(()=>{
   const destination=prepared.destination
   const mapped=prepared.mapped
