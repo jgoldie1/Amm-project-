@@ -68,8 +68,10 @@ jobs:
           cache-dependency-path: amm-omniverse/package-lock.json
       - name: Install Omniverse dependencies
         run: npm ci
-      - name: Chicago Alive focused contract
-        run: node tests/streetverse-chicago-alive-contract.mjs
+      - name: Chicago Alive focused contracts
+        run: |
+          node tests/streetverse-chicago-alive-contract.mjs
+          node tests/streetverse-mobile-control-reliability-contract.mjs
       - name: Type + lint + test gate
         run: npm run check
       - name: Report Alive Pass 1
