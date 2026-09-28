@@ -19,6 +19,7 @@ import {installBennyCursorConstructBridge} from '../runtime/BennyCursorConstruct
 import {installUniversalLanguageBridge} from '../runtime/UniversalLanguageSignBridge'
 import {installAccessibleConversationBridge} from '../runtime/AccessibleConversationBridge'
 import {installUniversalAccessOrchestrator} from '../runtime/UniversalAccessOrchestrator'
+import {installUniversalIntentRouter} from '../runtime/UniversalIntentRouter'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
@@ -148,6 +149,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>installUniversalLanguageBridge(),[])
  useLayoutEffect(()=>installAccessibleConversationBridge(),[])
  useLayoutEffect(()=>installUniversalAccessOrchestrator(),[])
+ useLayoutEffect(()=>installUniversalIntentRouter(),[])
  useEffect(()=>{
   const connection=(navigator as Navigator & {connection?:{downlink?:number}}).connection
   const mode=chooseAccessMode({webgl:hasUsableWebGL(),bandwidthMbps:connection?.downlink,ownedDevice:true})
