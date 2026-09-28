@@ -8,6 +8,7 @@ if(!profile.includes("mode:'AUTO'"))throw new Error('one-hand profile must defau
 if(profile.includes("mode:'LEFT_HAND',autoCamera"))throw new Error('left-hand default must not return')
 if(!shell.includes("useState<ControlMode>('two-hand')"))throw new Error('mobile controls must default to two-hand')
 for(const x of ['LEFT HAND','RIGHT HAND',"oneHandedMode:true","oneHandedMode:false"])if(!shell.includes(x))throw new Error('explicit handed control missing: '+x)
+if(!shell.includes("addEventListener('tryamm:streetverse-control-mode',syncControlMode)"))throw new Error('external voice/sign control mode must update the mobile shell immediately')
 if(shell.includes("oneHandedMode:false,oneHand:hand"))throw new Error('two-hand mode must not persist an unchosen hand')
 for(const x of ['preferredHand','Use my left hand','Use my right hand','Ask me / either hand'])if(!passport.includes(x))throw new Error('Passport hand selector missing: '+x)
 if(!hydration.includes("p.oneHandedMode?'one-hand'"))throw new Error('preferred hand must not enable one-hand mode by itself')
