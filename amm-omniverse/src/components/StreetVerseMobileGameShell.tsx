@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState} from 'react'
 import {StreetVerseOneHandController} from '../runtime/StreetVerseOneHandController'
+import {DEFAULT_ONE_HAND_PROFILE,resolveOneHandMode} from '../runtime/OneHandGameplayAccessibility'
 
 type Props={onClose:()=>void}
 type Dir='up'|'down'|'left'|'right'
@@ -29,7 +30,7 @@ function readFameSnapshot():FameSnapshot{
 
 export default function StreetVerseMobileGameShell({onClose}:Props){
  const [mobile,setMobile]=useState(false)
- const [mode,setMode]=useState<ControlMode>('one-hand')
+ const [mode,setMode]=useState<ControlMode>('two-hand')
  const [hand,setHand]=useState<Hand>('right')
  const [activeMission,setActiveMission]=useState<MissionPrompt>({title:'Choose your StreetVerse route'})
  const [choicePrompt,setChoicePrompt]=useState<MissionPrompt>({title:'Choose your StreetVerse route'})
@@ -46,7 +47,10 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
     setGameSpeed:(scale)=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-game-speed',{detail:{scale,source:'one-hand-controller'}}))},
    })
   }
-  if(mode==='one-hand')void oneHandController.current.update({stick:{x:(active.current.right?1:0)-(active.current.left?1:0),y:(active.current.down?1:0)-(active.current.up?1:0)},context:'ON_FOOT'})
+  if(mode==='one-hand'){
+   oneHandController.current.setProfile({...DEFAULT_ONE_HAND_PROFILE,mode:resolveOneHandMode(hand)})
+   void oneHandController.current.update({stick:{x:(active.current.right?1:0)-(active.current.left?1:0),y:(active.current.down?1:0)-(active.current.up?1:0)},context:'ON_FOOT'})
+  }
   const detail={throttle:active.current.up?1:0,brake:active.current.down?1:0,steer:active.current.left?-1:active.current.right?1:0,horn:false,exit:false,source:'mobile-game-shell'}
   // Keep the vehicle-input contract for existing worlds and also publish the
   // explicit mobile movement contract so walking does not depend on vehicle semantics.
@@ -57,7 +61,13 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const release=()=>{active.current={up:false,down:false,left:false,right:false};emit()}
  useEffect(()=>{
   setMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||'')||Math.min(window.innerWidth,window.innerHeight)<=600)
-  try{const saved=localStorage.getItem(MODE_KEY);if(saved==='one-hand'||saved==='two-hand')setMode(saved);const savedHand=localStorage.getItem(HAND_KEY);if(savedHand==='left'||savedHand==='right')setHand(savedHand)}catch{}
+  try{
+   const saved=localStorage.getItem(MODE_KEY)
+   const savedHand=localStorage.getItem(HAND_KEY)
+   if(savedHand==='left'||savedHand==='right')setHand(savedHand)
+   if(saved==='one-hand'&&(savedHand==='left'||savedHand==='right'))setMode('one-hand')
+   else if(saved==='two-hand')setMode('two-hand')
+  }catch{}
   const stop=()=>release()
   const rememberMission=(event:Event)=>{const d=(event as CustomEvent<Record<string,unknown>>).detail||{};const missionId=String(d.missionId||d.id||d.eventId||'')||undefined;const title=String(d.title||d.label||d.mission||'Active StreetVerse mission');const objective=String(d.objective||'')||undefined;const routes=d.routes&&typeof d.routes==='object'?d.routes as Partial<Record<MissionChoice,string>>:undefined;setActiveMission({missionId,title,objective,routes})}
   const openChoice=(event:Event)=>{const d=(event as CustomEvent<Record<string,unknown>>).detail||{};const missionId=String(d.missionId||d.campaignId||d.id||'')||undefined;const title=String(d.title||d.label||'Choose your StreetVerse route');const objective=String(d.objective||'')||undefined;const routes=d.routes&&typeof d.routes==='object'?d.routes as Partial<Record<MissionChoice,string>>:undefined;const eventSpecial=d.specialRoute&&typeof d.specialRoute==='object'?d.specialRoute as MissionSpecialUnlock:undefined;const contextual=specialUnlock&&(!specialUnlock.missionId||specialUnlock.missionId==='session-active'||specialUnlock.missionId===missionId)?specialUnlock:undefined;setChoicePrompt({missionId,title,objective,routes,specialRoute:eventSpecial||contextual});setChoiceOpen(true)}
@@ -66,27 +76,28 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
   window.addEventListener('blur',stop);window.addEventListener('pointercancel',stop);document.addEventListener('visibilitychange',stop)
   const missionContextEvents=['tryamm:streetverse-mission-start','tryamm:chicago-activity-start','tryamm:streetverse-checkpoint','tryamm:streetverse-mobile-mission-zone','tryamm:mission:discovered','tryamm:justice-mission-start','tryamm:time-machine-enter'] as const
   missionContextEvents.forEach(name=>window.addEventListener(name,rememberMission))
-  window.addEventListener('tryamm:rp-choice-open',openChoice);window.addEventListener('tryamm:mission-choice-open',openChoice);window.addEventListener('tryamm:mission:special-route-unlocked',onSpecialUnlock);window.addEventListener('tryamm:streetverse-special-route-unlock',onSpecialUnlock);window.addEventListener('tryamm:streetverse-fame-state',onFame)
-  return()=>{window.removeEventListener('blur',stop);window.removeEventListener('pointercancel',stop);document.removeEventListener('visibilitychange',stop);missionContextEvents.forEach(name=>window.removeEventListener(name,rememberMission));window.removeEventListener('tryamm:rp-choice-open',openChoice);window.removeEventListener('tryamm:mission-choice-open',openChoice);window.removeEventListener('tryamm:mission:special-route-unlocked',onSpecialUnlock);window.removeEventListener('tryamm:streetverse-special-route-unlock',onSpecialUnlock);window.removeEventListener('tryamm:streetverse-fame-state',onFame)}
+  const syncAccessibility=(event:Event)=>{const d=(event as CustomEvent<{mobility?:string;handedness?:string}>).detail||{};if(d.mobility==='one-hand'){if(d.handedness==='left'||d.handedness==='right'){setHand(d.handedness);setMode('one-hand');try{localStorage.setItem(HAND_KEY,d.handedness);localStorage.setItem(MODE_KEY,'one-hand')}catch{}}else{setMode('two-hand');window.dispatchEvent(new CustomEvent('tryamm:one-hand-side-required',{detail:{source:'passport',reason:'explicit-side-required'}}))}}else if(d.mobility==='standard'){setMode('two-hand')}}
+  window.addEventListener('tryamm:rp-choice-open',openChoice);window.addEventListener('tryamm:mission-choice-open',openChoice);window.addEventListener('tryamm:mission:special-route-unlocked',onSpecialUnlock);window.addEventListener('tryamm:streetverse-special-route-unlock',onSpecialUnlock);window.addEventListener('tryamm:streetverse-fame-state',onFame);window.addEventListener('tryamm:accessibility-apply',syncAccessibility)
+  return()=>{window.removeEventListener('blur',stop);window.removeEventListener('pointercancel',stop);document.removeEventListener('visibilitychange',stop);missionContextEvents.forEach(name=>window.removeEventListener(name,rememberMission));window.removeEventListener('tryamm:rp-choice-open',openChoice);window.removeEventListener('tryamm:mission-choice-open',openChoice);window.removeEventListener('tryamm:mission:special-route-unlocked',onSpecialUnlock);window.removeEventListener('tryamm:streetverse-special-route-unlock',onSpecialUnlock);window.removeEventListener('tryamm:streetverse-fame-state',onFame);window.removeEventListener('tryamm:accessibility-apply',syncAccessibility)}
  },[])
  if(!mobile)return null
- const changeMode=(next:ControlMode)=>{release();setMode(next);try{localStorage.setItem(MODE_KEY,next)}catch{};window.dispatchEvent(new CustomEvent('tryamm:streetverse-control-mode',{detail:{mode:next}}))}
- const changeHand=()=>{const next:Hand=hand==='left'?'right':'left';release();setHand(next);try{localStorage.setItem(HAND_KEY,next)}catch{};window.dispatchEvent(new CustomEvent('tryamm:streetverse-one-hand-side',{detail:{hand:next,source:'mobile-game-shell'}}))}
+ const activateTwoHand=()=>{release();setMode('two-hand');try{localStorage.setItem(MODE_KEY,'two-hand')}catch{};window.dispatchEvent(new CustomEvent('tryamm:streetverse-control-mode',{detail:{mode:'two-hand'}}));window.dispatchEvent(new CustomEvent('tryamm:passport-access-save',{detail:{oneHandedMode:false,oneHand:hand}}))}
+ const activateOneHand=(next:Hand)=>{release();setHand(next);setMode('one-hand');try{localStorage.setItem(MODE_KEY,'one-hand');localStorage.setItem(HAND_KEY,next)}catch{};window.dispatchEvent(new CustomEvent('tryamm:streetverse-control-mode',{detail:{mode:'one-hand',hand:next}}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-one-hand-side',{detail:{hand:next,source:'mobile-game-shell'}}));window.dispatchEvent(new CustomEvent('tryamm:passport-access-save',{detail:{oneHandedMode:true,oneHand:next}}))}
  const control=(label:string,direction:Dir)=><button aria-label={`StreetVerse ${direction}`} onPointerDown={e=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);set(direction,true)}} onPointerUp={e=>{try{e.currentTarget.releasePointerCapture(e.pointerId)}catch{};set(direction,false)}} onPointerCancel={()=>set(direction,false)} onPointerLeave={e=>{if(e.buttons===0)set(direction,false)}} style={{width:56,height:52,borderRadius:15,border:'2px solid #7be9ff',background:'#020914ee',color:'#fff',fontSize:24,fontWeight:900,touchAction:'none',boxShadow:'0 0 14px #00d9ff66'}}>{label}</button>
- const action=()=>{if(navigator.vibrate)try{navigator.vibrate(12)}catch{};window.dispatchEvent(new CustomEvent('tryamm:streetverse-action',{detail:{source:'mobile-game-shell',mode,hand}}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{source:'mobile-game-shell',mode,hand}}))}
+ const action=()=>{if(navigator.vibrate)try{navigator.vibrate(12)}catch{};window.dispatchEvent(new CustomEvent('tryamm:streetverse-action',{detail:{source:'mobile-game-shell',mode,hand:mode==='one-hand'?hand:undefined}}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{source:'mobile-game-shell',mode,hand:mode==='one-hand'?hand:undefined}}))}
  const camera=(direction:'left'|'right')=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-camera-input',{detail:{direction,source:'mobile-game-shell'}}))
  const openHolo=(liveMode:'live'|'pk')=>{release();window.dispatchEvent(new CustomEvent('tryamm:streetverse-holo-livepk',{detail:{mode:liveMode,source:'streetverse-mobile-game-shell',preserveWorld:true}}));if(navigator.vibrate)try{navigator.vibrate(16)}catch{}}
- const openMissionChoice=()=>{const contextual=specialUnlock&&(!specialUnlock.missionId||specialUnlock.missionId==='session-active'||specialUnlock.missionId===activeMission.missionId)?specialUnlock:undefined;const prompt={...activeMission,title:activeMission.title||'Choose your StreetVerse route',specialRoute:contextual};setChoicePrompt(prompt);setChoiceOpen(true);window.dispatchEvent(new CustomEvent('tryamm:mission-choice-opened',{detail:{...prompt,mode,hand,source:'mobile-game-shell'}}))}
- const chooseMissionRoute=(choice:MissionChoice)=>{const model=CHOICE_MODEL[choice];const special=choice==='D'?choicePrompt.specialRoute:undefined;if(choice==='D'&&!special)return;const routeDescription=choicePrompt.routes?.[choice]||special?.description||model.description;const detail={choice,label:special?.label||model.label,routeDescription,missionId:choicePrompt.missionId,title:choicePrompt.title,objective:choicePrompt.objective,mode,hand,source:'mobile-game-shell',specialUnlocked:choice==='D'?Boolean(special):undefined,unlockKind:special?.kind,unlockSource:special?.source};window.dispatchEvent(new CustomEvent('tryamm:rp-choice-selected',{detail}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-route-selected',{detail}));if(choice==='D')setSpecialUnlock(null);if(navigator.vibrate)try{navigator.vibrate(18)}catch{};setChoiceOpen(false)}
+ const openMissionChoice=()=>{const contextual=specialUnlock&&(!specialUnlock.missionId||specialUnlock.missionId==='session-active'||specialUnlock.missionId===activeMission.missionId)?specialUnlock:undefined;const prompt={...activeMission,title:activeMission.title||'Choose your StreetVerse route',specialRoute:contextual};setChoicePrompt(prompt);setChoiceOpen(true);window.dispatchEvent(new CustomEvent('tryamm:mission-choice-opened',{detail:{...prompt,mode,hand:mode==='one-hand'?hand:undefined,source:'mobile-game-shell'}}))}
+ const chooseMissionRoute=(choice:MissionChoice)=>{const model=CHOICE_MODEL[choice];const special=choice==='D'?choicePrompt.specialRoute:undefined;if(choice==='D'&&!special)return;const routeDescription=choicePrompt.routes?.[choice]||special?.description||model.description;const detail={choice,label:special?.label||model.label,routeDescription,missionId:choicePrompt.missionId,title:choicePrompt.title,objective:choicePrompt.objective,mode,hand:mode==='one-hand'?hand:undefined,source:'mobile-game-shell',specialUnlocked:choice==='D'?Boolean(special):undefined,unlockKind:special?.kind,unlockSource:special?.source};window.dispatchEvent(new CustomEvent('tryamm:rp-choice-selected',{detail}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-route-selected',{detail}));if(choice==='D')setSpecialUnlock(null);if(navigator.vibrate)try{navigator.vibrate(18)}catch{};setChoiceOpen(false)}
  const bottom='max(16px,env(safe-area-inset-bottom))'
  const selectedSide=hand==='left'?{left:'max(12px,env(safe-area-inset-left))'}:{right:'max(12px,env(safe-area-inset-right))'}
  const movementSide=mode==='one-hand'?selectedSide:{left:'max(12px,env(safe-area-inset-left))'}
  const actionSide=mode==='one-hand'?selectedSide:{right:'max(14px,env(safe-area-inset-right))'}
- return <div data-streetverse-mobile-shell="v4" data-control-mode={mode} data-one-hand-side={hand} style={{position:'fixed',inset:0,zIndex:32000,pointerEvents:'none',fontFamily:'system-ui',userSelect:'none',WebkitUserSelect:'none'}}>
+ return <div data-streetverse-mobile-shell="v4" data-control-mode={mode} data-one-hand-side={mode==='one-hand'?hand:'none'} style={{position:'fixed',inset:0,zIndex:32000,pointerEvents:'none',fontFamily:'system-ui',userSelect:'none',WebkitUserSelect:'none'}}>
   <div style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',left:'max(10px,env(safe-area-inset-left))',display:'flex',gap:6,pointerEvents:'auto',flexWrap:'wrap',maxWidth:'calc(100vw - 70px)'}}>
-   <button aria-pressed={mode==='one-hand'} onClick={()=>changeMode('one-hand')} style={modeButton(mode==='one-hand')}>1 HAND</button>
-   <button aria-pressed={mode==='two-hand'} onClick={()=>changeMode('two-hand')} style={modeButton(mode==='two-hand')}>2 HAND</button>
-   {mode==='one-hand'&&<button aria-label="Switch one hand side" onClick={changeHand} style={{...modeButton(true),borderColor:'#8effb7'}}>{hand.toUpperCase()} HAND</button>}
+   <button aria-pressed={mode==='one-hand'&&hand==='left'} onClick={()=>activateOneHand('left')} style={modeButton(mode==='one-hand'&&hand==='left')}>LEFT HAND</button>
+   <button aria-pressed={mode==='one-hand'&&hand==='right'} onClick={()=>activateOneHand('right')} style={modeButton(mode==='one-hand'&&hand==='right')}>RIGHT HAND</button>
+   <button aria-pressed={mode==='two-hand'} onClick={activateTwoHand} style={modeButton(mode==='two-hand')}>2 HAND</button>
    <div aria-label={`StreetVerse fame rank ${fame.rank}`} style={{minHeight:44,padding:'5px 9px',borderRadius:12,border:'1px solid #ff74c888',background:'#220a1eee',display:'grid',alignContent:'center',lineHeight:1.05}}><b style={{fontSize:9,color:'#ff9fda'}}>FAME • {fame.rank.toUpperCase()}</b><span style={{fontSize:8,color:'#fff',opacity:.78}}>{fame.fame} • {fame.fanbase.toLocaleString()} FANS</span></div>
   </div>
   <button aria-label="Open Holo FON" onClick={()=>{release();window.dispatchEvent(new CustomEvent('tryamm:holo-fon-open',{detail:{source:'streetverse-mobile-game-shell',preserveWorld:true}}))}} style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',right:'max(62px,calc(env(safe-area-inset-right) + 62px))',width:46,height:46,borderRadius:23,border:'2px solid #69e9ff',background:'#061826ee',color:'#fff',fontSize:22,pointerEvents:'auto',boxShadow:'0 0 16px #00d9ff66',touchAction:'manipulation'}}>📱</button>
