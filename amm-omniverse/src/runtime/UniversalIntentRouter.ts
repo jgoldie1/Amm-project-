@@ -1,5 +1,5 @@
 export type IntentSource='touch'|'keyboard'|'voice'|'sign'|'aac'|'switch'|'cursor'|'benny'
-export type UniversalIntent='navigate'|'enter-vehicle'|'exit-vehicle'|'open-mission'|'open-store'|'call-benny'|'translate'|'construct-proposal'|'undo'|'escape'
+export type UniversalIntent='navigate'|'enter-vehicle'|'exit-vehicle'|'open-mission'|'open-store'|'call-benny'|'translate'|'construct-proposal'|'set-left-hand'|'set-right-hand'|'set-two-hand'|'toggle-captions'|'reduce-motion'|'open-accessibility'|'undo'|'escape'
 export type IntentRequest={id:string;source:IntentSource;intent:UniversalIntent;targetId?:string;utterance?:string;confidence?:number}
 const highRisk=new Set<UniversalIntent>(['construct-proposal'])
 export function routeUniversalIntent(r:IntentRequest){
