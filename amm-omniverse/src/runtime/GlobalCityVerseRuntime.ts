@@ -288,3 +288,33 @@ export const certifyTryammLoadStability=(evidence:Omit<TryammLoadCertificationEv
  ...evidence,
  certifiable:evidence.boundedQueues&&evidence.workloadBudgets&&evidence.retryLimits&&evidence.gracefulDegradation&&evidence.criticalCapacityReserved&&evidence.mixedLoadTestPassed,
 })
+
+
+export const TRYAMM_PLATFORM_SURFACES={
+ allAmericanAppStore:{
+  status:'BUILDING',
+  purpose:'TRYAMM discovery and distribution surface for approved apps, games, creator tools, business experiences and installable web experiences',
+  requirements:[
+   'developer identity and ownership verification',
+   'package/version/signature metadata',
+   'rights, privacy, security, accessibility and age-rating review',
+   'malware and prohibited-content scanning before publication',
+   'server-verified purchases, entitlements, refunds and ledger settlement',
+   'clear distinction between TRYAMM catalog distribution and Apple App Store or Google Play publication',
+  ],
+ },
+ gameVerse:{
+  status:'BUILDING',
+  purpose:'shared gaming hub for TRYAMM-native games, StreetVerse missions, tournaments, creator games and cross-verse play',
+  sharedInfrastructure:[
+   'TRYAMM Passport identity',
+   'server-authoritative entitlements and ledger',
+   'Holo LIVE and Reels',
+   'creator and tournament services',
+   'accessibility controls',
+   'Quantum Load Governor workload protection',
+  ],
+  loadClass:'interactive',
+  degradation:'preserve core gameplay and transactions; reduce background AI, spectators, effects and nonessential simulation under pressure',
+ },
+} as const
