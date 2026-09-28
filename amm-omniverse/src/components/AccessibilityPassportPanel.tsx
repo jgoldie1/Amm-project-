@@ -180,10 +180,10 @@ export default function AccessibilityPassportPanel() {
 
             <footer style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 10, marginTop: 28 }}>
               <button type="button" onClick={() => {
-                const reset = createAccessibilityPassport();
+                const reset = saveAccessibilityPassport(createAccessibilityPassport());
                 setPassport(reset);
-                saveAccessibilityPassport(reset);
                 setSaved(true);
+                window.dispatchEvent(new CustomEvent('tryamm:accessibility-passport-updated', { detail: reset }));
               }} style={{ minHeight: 48, padding: '0 16px', borderRadius: 12, border: '1px solid rgba(255,255,255,.18)', background: 'transparent', color: '#fff', cursor: 'pointer' }}>
                 Reset preferences
               </button>
