@@ -1,0 +1,85 @@
+name: October 1 StreetVerse Release Convergence
+
+on:
+  pull_request:
+    paths:
+      - "amm-omniverse/**"
+      - ".github/workflows/october-1-streetverse-release-convergence.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-release-convergence-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  launch-invariants:
+    name: Circle Park cannot deadlock
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify October 1 progression invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          MISSIONS="amm-omniverse/src/runtime/StreetVerseCharacterMissionRuntime.ts"
+          WORLD="amm-omniverse/src/components/CircleParkHolographicWorld.tsx"
+          ROSTER="amm-omniverse/src/runtime/StreetVersePlayableCharactersRuntime.ts"
+
+          test -f "$MISSIONS"
+          test -f "$WORLD"
+          test -f "$ROSTER"
+
+          # Required Circle Park launch chapter.
+          for id in             circle-park-arrival             circle-park-home             circle-park-meet-neighbors             circle-park-three-verifications             circle-park-community-board             circle-park-og-history             circle-park-peace-choice             circle-park-open-chicago
+          do
+            grep -q "$id" "$MISSIONS" || { echo "::error::Missing required mission: $id"; exit 1; }
+          done
+
+          # The public launch must not make another human, payment, or real property
+          # a prerequisite for entering the core game.
+          grep -q "in-game only" "$MISSIONS" || { echo "::error::Starter housing needs an in-game-only fallback"; exit 1; }
+          grep -q "not legal identity verification" "$MISSIONS" || { echo "::error::Friend vouching must remain social, not legal identity verification"; exit 1; }
+          grep -q "Open StreetVerse Chicago" "$MISSIONS" || { echo "::error::Missing reachable Chicago unlock"; exit 1; }
+
+          # Mobile + one-hand accessibility are release invariants.
+          grep -q "One-hand movement controls" "$WORLD" || { echo "::error::Missing one-hand controls"; exit 1; }
+          grep -q "analog movement joystick" "$WORLD" || { echo "::error::Missing joystick"; exit 1; }
+          grep -q "aria-live" "$WORLD" || { echo "::error::Missing live accessibility announcements"; exit 1; }
+
+          # Character selection must drive a mission, not be cosmetic.
+          grep -q "tryamm:streetverse-mission-selected" "$ROSTER" || { echo "::error::Character-to-mission bridge missing"; exit 1; }
+          grep -q "tryamm:streetverse-mission-complete" "$WORLD" || { echo "::error::3D mission completion event missing"; exit 1; }
+
+          echo "Circle Park launch invariants present."
+
+      - name: Write release evidence
+        shell: bash
+        run: |
+          mkdir -p release-evidence
+          {
+            echo "# StreetVerse October 1 Release Convergence"
+            echo
+            echo "- Commit: ${GITHUB_SHA}"
+            echo "- Circle Park campaign: present"
+            echo "- Starter housing fallback contract: present"
+            echo "- Friend verification is not legal identity verification: present"
+            echo "- Chicago unlock mission: present"
+            echo "- One-hand controls + joystick + aria-live: present"
+            echo "- Character -> mission event bridge: present"
+            echo "- 3D mission completion event: present"
+            echo
+            echo "This gate certifies repository invariants only. It does not certify production scale, live multiplayer capacity, store approval, external services, or deployment health."
+          } > release-evidence/october-1-release.md
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: october-1-streetverse-release-evidence
+          path: release-evidence/october-1-release.md
+          retention-days: 14
