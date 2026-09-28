@@ -8,6 +8,7 @@ import {installStreetVerseMissionLedgerBridge} from '../runtime/StreetVerseMissi
 import {installStreetVerseMissionDiscoveryRuntime} from '../runtime/StreetVerseMissionDiscoveryRuntime'
 import {installStreetVerseFameRuntime} from '../runtime/StreetVerseFameRuntime'
 import {installStreetVerseVehicleRepairStreamerRuntime} from '../runtime/StreetVerseVehicleRepairStreamerRuntime'
+import {installStreetVerseFirstRideLoveStoryRuntime} from '../runtime/StreetVerseFirstRideLoveStoryRuntime'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
@@ -127,6 +128,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>{installStreetVerseMissionDiscoveryRuntime()},[])
  useLayoutEffect(()=>{installStreetVerseFameRuntime()},[])
  useLayoutEffect(()=>{installStreetVerseVehicleRepairStreamerRuntime()},[])
+ useLayoutEffect(()=>{installStreetVerseFirstRideLoveStoryRuntime()},[])
  useEffect(()=>{
   const destination=prepared.destination
   const mapped=prepared.mapped
