@@ -12,6 +12,8 @@ assert.match(world,/visibilitychange/,'Movement must reset when the app becomes 
 assert.match(world,/onWindowBlur/,'Movement must reset when the browser loses focus')
 assert.match(world,/joystickKnobRef/,'Joystick thumb position must have visible feedback')
 assert.match(world,/collisionGuard:true/,'World-ready contract must expose collision protection')
+assert.match(world,/spawnCollisionRecovery:true/,'Invalid saved positions must recover to a safe spawn')
+assert.match(world,/savedSpawnValid/,'Saved spawn coordinates must be validated before use')
 assert.match(world,/joystickPointerCapture:true/,'World-ready contract must certify pointer capture')
 assert.match(world,/joystickBlurFailsafe:true/,'World-ready contract must certify input fail-safe')
 assert.match(world,/const canTraverse=/,'Walking and vehicle movement must use the traversal guard')
