@@ -45,3 +45,6 @@ Do not mark LIVE, PRODUCTION-COMPLETE, or RELEASED from architecture alone. Requ
 - Added Oracle rights gate: approve-processing / reference-only / manual-rights-review / reject.
 - Added approved clip processing recipe: trim, root-motion normalization, loop seam, foot lock, retarget, full/mobile/crowd LOD, compression, preview, attribution manifest.
 - Next proof: connect approved asset storage/worker, GLTF NPC mixer binding, and tests; do not mark animation library complete until actual licensed/owned clips render in StreetVerse.
+
+- Mind Over Matter v1 added: transformed motion blueprints + similarity/originality review gate.
+- Revenue product intents added for motion packs, creator licenses, business experiences, tickets, production services, bookings, sponsored missions, training and device access. Settlement remains server-authoritative.
