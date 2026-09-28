@@ -10,7 +10,7 @@ function browserLanguage(){
 }
 function needsFor(p:PassportAccessPrefs):AccessNeed[]{
  const needs=new Set<AccessNeed>()
- if(p.oneHandedMode||p.oneHand||p.switchControl||p.largeTargets)needs.add('mobility')
+ if(p.oneHandedMode||p.switchControl||p.largeTargets)needs.add('mobility')
  if(p.screenReader||p.highContrast||p.largeText||p.audioDescription)needs.add('vision')
  if(p.captions||p.transcripts||p.signLanguageTag)needs.add('hearing')
  if(p.speechToText||p.textToSpeech||p.communicationPreference==='text')needs.add('speech')
@@ -19,7 +19,7 @@ function needsFor(p:PassportAccessPrefs):AccessNeed[]{
 }
 function toAdaptiveProfile(p:PassportAccessPrefs):AdaptiveAccessProfile{
  return {
-  languageTag:p.languageTag||browserLanguage(),needs:needsFor(p),oneHand:p.oneHand,voiceControl:p.voice,
+  languageTag:p.languageTag||browserLanguage(),needs:needsFor(p),oneHand:p.oneHandedMode?p.oneHand:undefined,voiceControl:p.voice,
   switchControl:p.switchControl,screenReader:p.screenReader,largeTargets:p.largeTargets,reducedMotion:p.reducedMotion,
   highContrast:p.highContrast,captions:p.captions,textToSpeech:p.textToSpeech,speechToText:p.speechToText,
   simpleLanguage:Boolean(p.plainLanguage||p.simplifiedUI),signLanguageTag:p.signLanguageTag
@@ -33,7 +33,7 @@ function toLegacyPassport(userId:string,p:PassportAccessPrefs):AccessibilityPass
   opportunityNeeds:p.opportunityNeeds??current.opportunityNeeds,
   preferences:{
    ...current.preferences,screenReader:!!p.screenReader,keyboardOnly:!!p.keyboardOnly,switchAccess:!!p.switchControl,
-   voiceControl:!!p.voice,oneHandedMode:!!(p.oneHandedMode||p.oneHand),largeTargets:!!p.largeTargets,largeText:!!p.largeText,
+   voiceControl:!!p.voice,oneHandedMode:!!p.oneHandedMode,largeTargets:!!p.largeTargets,largeText:!!p.largeText,
    highContrast:!!p.highContrast,reducedMotion:!!p.reducedMotion,captions:!!p.captions,transcripts:!!p.transcripts,
    audioDescription:!!p.audioDescription,speechToText:!!p.speechToText,textToSpeech:!!p.textToSpeech,
    simplifiedUI:!!(p.simplifiedUI||p.plainLanguage),extraProcessingTime:!!p.extraProcessingTime
@@ -57,7 +57,7 @@ function applyHydratedPreferences(userId:string,p:PassportAccessPrefs){
  if(typeof window==='undefined')return
  window.dispatchEvent(new CustomEvent('tryamm:access-profile',{detail:toAdaptiveProfile(p)}))
  window.dispatchEvent(new CustomEvent('tryamm:accessibility-update',{detail:{
-  mobility:(p.oneHandedMode||p.oneHand)?'one-hand':p.switchControl?'switch':p.voice?'voice':'standard',
+  mobility:p.oneHandedMode?'one-hand':p.switchControl?'switch':p.voice?'voice':'standard',
   vision:p.screenReader?'screen-reader':p.highContrast?'high-contrast':p.largeText?'large-text':'standard',
   hearing:p.captions?'captions':'standard',cognitive:(p.simplifiedUI||p.plainLanguage)?'simplified':'standard',
   speech:p.textToSpeech?'text-to-speech':'standard',motion:p.reducedMotion?'reduced':'standard',
