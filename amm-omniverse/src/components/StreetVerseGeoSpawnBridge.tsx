@@ -20,6 +20,8 @@ import {installUniversalLanguageBridge} from '../runtime/UniversalLanguageSignBr
 import {installAccessibleConversationBridge} from '../runtime/AccessibleConversationBridge'
 import {installUniversalAccessOrchestrator} from '../runtime/UniversalAccessOrchestrator'
 import {installUniversalIntentRouter} from '../runtime/UniversalIntentRouter'
+import {loadPassportAccess} from '../runtime/PassportAccessibilityMemory'
+import {startGuidedRoute} from '../runtime/BennyNavigationAssistRuntime'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
