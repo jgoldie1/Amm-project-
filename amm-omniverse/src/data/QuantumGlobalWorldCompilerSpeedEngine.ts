@@ -118,3 +118,28 @@ export const QUANTUM_HOURLY_MULTITASK_POLICY={
  ],
  stopCondition:'Stop unnecessary changes only after all seven waves have verified production-complete certification evidence.',
 } as const
+
+
+export interface QuantumCycleEvidenceSummary{
+ totalJobs:number
+ verifiedJobs:number
+ failedJobs:number
+ blockedJobs:number
+ eligibleJobs:number
+ completionPercent:number
+ productionComplete:boolean
+}
+
+export const summarizeQuantumCycleEvidence=(cities:StreetVerseCity[],evidence:Record<string,QuantumStageEvidence>={}):QuantumCycleEvidenceSummary=>{
+ const cycle=planQuantumHourlyCycle(cities,evidence)
+ const totalJobs=cycle.complete.length+cycle.failed.length+cycle.blocked.length+cycle.eligible.length
+ const verifiedJobs=cycle.complete.length
+ return{
+  totalJobs,verifiedJobs,
+  failedJobs:cycle.failed.length,
+  blockedJobs:cycle.blocked.length,
+  eligibleJobs:cycle.eligible.length,
+  completionPercent:totalJobs===0?0:Math.floor((verifiedJobs/totalJobs)*100),
+  productionComplete:totalJobs>0&&verifiedJobs===totalJobs&&cycle.failed.length===0&&cycle.blocked.length===0&&cycle.eligible.length===0,
+ }
+}
