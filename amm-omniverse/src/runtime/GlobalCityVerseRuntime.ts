@@ -340,3 +340,39 @@ export const KINGDOM_PRESS_RUNTIME={
  accessibility:['screen-reader semantics','keyboard and one-hand navigation','captions/transcripts for timed media','reflowable text where format permits','reduced-motion alternatives'],
  certification:'BUILDING does not imply published, store-approved, rights-cleared or production-certified',
 } as const
+
+
+export const FAITHVERSE_IMMERSIVE_SCRIPTURE_LIBRARY={
+ status:'BUILDING',
+ purpose:'source-aware immersive scripture, manuscript comparison and language-learning experience',
+ collections:[
+  {id:'ethiopian-canon',label:'Ethiopian biblical canon',mode:'edition-and-canon-aware'},
+  {id:'dead-sea-scrolls',label:'Dead Sea Scrolls study collection',mode:'licensed-source-and-fragment-aware'},
+  {id:'kjv-1611',label:'1611 King James Bible edition',mode:'edition-aware'},
+  {id:'paleo-hebrew',label:'Paleo-Hebrew script and language study',mode:'educational-comparative'},
+ ],
+ experiences:[
+  'parallel passage and manuscript comparison',
+  'read-along narration and pronunciation practice',
+  'letter and script tracing',
+  'historical maps, timelines and immersive reconstructed settings',
+  'searchable study notes with source and edition labels',
+  'HoloLab-authored XR lessons and device-neutral immersive presentation',
+ ],
+ scholarlyGuardrails:[
+  'distinguish source text, transcription, translation, reconstruction, commentary and faith interpretation',
+  'identify manuscript, edition, language, script, provenance and uncertainty where known',
+  'do not present reconstructed pronunciation or translation choices as uniquely proven',
+  'do not imply that Paleo-Hebrew script by itself establishes a single historically certain spoken pronunciation',
+  'license or obtain permission for modern scans, photographs, translations, annotations and recordings when required',
+ ],
+ accessibility:[
+  'screen-reader compatible text alternatives',
+  'captions and transcripts',
+  'one-hand and keyboard navigation',
+  'adjustable text size and contrast',
+  'non-XR equivalent for immersive lessons',
+ ],
+ distribution:['FaithVerse','Kingdom Press','All American App Store'],
+ certification:'BUILDING does not imply that source texts, scans, translations, audio or XR scenes are rights-cleared or production-certified',
+} as const
