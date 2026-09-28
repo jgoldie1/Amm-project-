@@ -1,4 +1,4 @@
-import {STREETVERSE_GLOBAL_CITIES,type StreetVerseCity} from './StreetVerseGlobalRegistry'
+import {STREETVERSE_GLOBAL_CITIES,STREETVERSE_GLOBALIZATION_WAVES,GLOBAL_CONVERGENCE_REQUIREMENTS,type StreetVerseCity} from './StreetVerseGlobalRegistry'
 
 export type WorldCompilerStage=
  |'registry'|'geospatial'|'environment'|'mobility'|'population'
@@ -72,7 +72,8 @@ export const GLOBAL_WORLD_COMPILER={
  mode:'parallel-city-build',
  referenceCity:'chicago',
  firstGlobalWave:['lagos','abuja','accra','nairobi','johannesburg','addis-ababa'],
- secondWave:['cape-town','new-york','los-angeles'],
+ waves:STREETVERSE_GLOBALIZATION_WAVES,
+ convergenceRequirements:GLOBAL_CONVERGENCE_REQUIREMENTS,
  principle:'One shared engine and service fabric; city manifests provide local identity rather than forking separate games.',
  modules:MODULES,
  sharedSystems:SHARED_SYSTEMS,
