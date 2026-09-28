@@ -86,7 +86,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q "visualDensity:'alive-v1'" src/components/StreetVerseMobileWorld.tsx
+          grep -q "aliveDensity:'alive-v1'" src/components/StreetVerseMobileWorld.tsx
+          grep -q "visualDensity:'chicago-visual-v2'" src/components/StreetVerseMobileWorld.tsx
           grep -q "ambientResidents:crowdCount" src/runtime/StreetVerseChicagoAliveMobileRuntime.ts
           grep -q "parkedVehicles:parkedPositions.length" src/runtime/StreetVerseChicagoAliveMobileRuntime.ts
           grep -q "crosswalkStripes:stripeIndex" src/runtime/StreetVerseChicagoAliveMobileRuntime.ts
