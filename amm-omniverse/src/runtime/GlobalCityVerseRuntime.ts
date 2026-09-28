@@ -493,3 +493,51 @@ export const TRYAMM_MARKET_INTELLIGENCE_PRODUCT={
   rule:'a package is not economically healthy unless measured contribution margin is positive after variable service costs',
  },
 } as const
+
+
+export type TryammIpClassification='TRADEMARK'|'COPYRIGHT'|'PATENT_REVIEW'|'TRADE_SECRET'|'LICENSED'|'OPEN_SOURCE'|'PUBLIC'
+export type TryammIpReviewState='INVENTORIED'|'FOUNDER_REVIEW'|'COUNSEL_REVIEW'|'PROTECTED'|'APPROVED_FOR_DISCLOSURE'|'BLOCKED'
+
+export interface TryammIpAssetRecord{
+ assetId:string
+ title:string
+ classification:TryammIpClassification[]
+ state:TryammIpReviewState
+ ownerOrLicensor:string
+ provenanceRefs:string[]
+ publicDisclosureApproved:boolean
+ repositoryExposure:'PUBLIC'|'RESTRICTED'|'NOT_APPLICABLE'
+ founderApproval:boolean
+}
+
+export const TRYAMM_BRAND_IP_SHIELD={
+ status:'BUILDING',
+ principle:'public experience, private advantage',
+ controls:{
+  brand:['trademark clearance','priority filing review','domain and app-store monitoring','social/web confusion monitoring','evidence package for founder/counsel'],
+  invention:['invention register before public disclosure','patentability review for genuinely novel technical inventions','do not treat general ideas as patent ownership'],
+  ownership:['employee/contractor IP assignment tracking','confidentiality tracking','code/model/data/music/art/3D/publication provenance'],
+  tradeSecrets:['keep model configuration, proprietary transformations, fraud thresholds, signing keys and production credentials restricted','never ship secrets to the browser'],
+  softwareSupplyChain:['protected branches','least-privilege production access','signed release/provenance evidence','dependency/SBOM inventory','security scanning'],
+  evidenceMoat:['timestamp model predictions before outcomes','retain model version/evidence/assumptions/confidence/outcome/calibration','do not rewrite historical predictions'],
+  ecosystem:['interoperable Passport, entitlements, ledger, creator, business, publishing, gaming and intelligence surfaces','do not rely on artificial customer lock-in'],
+ },
+} as const
+
+export function evaluateTryammPublicDisclosure(asset:TryammIpAssetRecord){
+ const blockers:string[]=[]
+ if(!asset.classification.length) blockers.push('IP classification required')
+ if(!asset.ownerOrLicensor) blockers.push('owner or licensor required')
+ if(!asset.provenanceRefs.length) blockers.push('provenance evidence required')
+ if(asset.classification.includes('PATENT_REVIEW') && !['PROTECTED','APPROVED_FOR_DISCLOSURE'].includes(asset.state)) blockers.push('patent-review asset not cleared for disclosure')
+ if(asset.classification.includes('TRADE_SECRET') && asset.repositoryExposure==='PUBLIC') blockers.push('trade secret cannot be exposed in public repository')
+ if(!asset.publicDisclosureApproved) blockers.push('public disclosure approval required')
+ if(!asset.founderApproval) blockers.push('founder approval required')
+ return {allowed:blockers.length===0,blockers}
+}
+
+export const TRYAMM_PUBLIC_DISCLOSURE_GATE={
+ failClosed:true,
+ rule:'no major proprietary module is intentionally exposed publicly until ownership, provenance, IP classification and founder disclosure approval are recorded',
+ humanAuthority:'AI may inventory, monitor and prepare evidence; founder/counsel control filings, signatures, legal assertions and enforcement decisions',
+} as const
