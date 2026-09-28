@@ -318,3 +318,25 @@ export const TRYAMM_PLATFORM_SURFACES={
   degradation:'preserve core gameplay and transactions; reduce background AI, spectators, effects and nonessential simulation under pressure',
  },
 } as const
+
+
+export const KINGDOM_PRESS_RUNTIME={
+ status:'BUILDING',
+ purpose:'rights-aware TRYAMM publishing and distribution surface',
+ formats:['books','magazines','articles','educational publications','faith publications','audiobooks','interactive editions'],
+ distribution:['TRYAMM app','All American App Store','entitled web experiences'],
+ sharedServices:['TRYAMM Passport','accessibility platform','verified checkout','entitlements','internal ledger','Holo LIVE','Reels','TRYAMM TV'],
+ rights:{
+  requiredBeforePublication:['publisher authority','author/contributor rights','asset provenance','territory and term'],
+  separatelyLicensed:['audiobook','translation','film/video','game adaptation','music/sync','AI training','interactive/holographic adaptation'],
+  rule:'publication rights never imply adaptation, AI-training, game, film, music, translation or audiobook rights',
+ },
+ commerce:{
+  checkout:'server-authoritative',
+  entitlement:'created only after verified transaction',
+  settlement:'internal ledger records validated publisher/creator splits',
+  reversals:'refunds, disputes and chargebacks can reverse entitlement and ledger state when contractually required',
+ },
+ accessibility:['screen-reader semantics','keyboard and one-hand navigation','captions/transcripts for timed media','reflowable text where format permits','reduced-motion alternatives'],
+ certification:'BUILDING does not imply published, store-approved, rights-cleared or production-certified',
+} as const
