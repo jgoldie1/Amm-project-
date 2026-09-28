@@ -143,3 +143,35 @@ export const summarizeQuantumCycleEvidence=(cities:StreetVerseCity[],evidence:Re
   productionComplete:totalJobs>0&&verifiedJobs===totalJobs&&cycle.failed.length===0&&cycle.blocked.length===0&&cycle.eligible.length===0,
  }
 }
+
+
+export interface QuantumSharedWorkItem{
+ id:string
+ stage:WorldCompilerStage
+ cityIds:string[]
+ cacheKey:string
+ priority:QuantumCompilerPriority
+ verification:string[]
+}
+
+export const createQuantumSharedWorkItems=(cities:StreetVerseCity[]):QuantumSharedWorkItem[]=>{
+ const jobs=scheduleQuantumGlobalJobs(cities)
+ const grouped=new Map<string,QuantumCityJob[]>()
+ for(const job of jobs){
+  const key=`${job.wave}:${job.stage}`
+  grouped.set(key,[...(grouped.get(key)??[]),job])
+ }
+ return [...grouped.entries()].map(([id,batch])=>({
+  id,stage:batch[0].stage,
+  cityIds:[...new Set(batch.map(job=>job.cityId))],
+  cacheKey:`global-shared:v1:${id}:${batch.map(job=>job.cacheKey).sort().join('|')}`,
+  priority:batch.some(job=>job.priority==='critical')?'critical':batch.some(job=>job.priority==='high')?'high':'normal',
+  verification:[
+   'all city inputs for the batch resolve',
+   'shared output is deterministic and reusable',
+   'rights/source, privacy, accessibility and security policies remain fail-closed',
+   ...(batch[0].stage==='economy'?['server-authoritative payment and ledger verification pass']:[]),
+   ...(batch[0].stage==='certification'?['every required city-stage evidence item is verified']:[]),
+  ],
+ }))
+}
