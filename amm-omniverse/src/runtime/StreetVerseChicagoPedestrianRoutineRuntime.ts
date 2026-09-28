@@ -204,9 +204,9 @@ export function createStreetVerseChicagoPedestrianRoutines(
 
       if(resident.routine==='delivery'){
         matrix.position.set(
-          x+(resident.axis==='x'?.28:0),
+          x+(resident.axis==='x' ? 0.28 : 0),
           1.25+bob,
-          z+(resident.axis==='z'?.28:0),
+          z+(resident.axis==='z' ? 0.28 : 0),
         )
         matrix.rotation.set(0,heading,0)
         matrix.scale.set(1,1,1)
