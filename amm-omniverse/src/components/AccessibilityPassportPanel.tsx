@@ -148,6 +148,25 @@ export default function AccessibilityPassportPanel() {
               ))}
             </div>
 
+            {passport.preferences.oneHandedMode && <div style={{ marginTop: 18 }}>
+              <label htmlFor="a11y-preferred-hand" style={{ display: 'block', fontWeight: 800, marginBottom: 6 }}>One-hand control side</label>
+              <p style={{ margin: '0 0 8px', color: '#b7b9c8', fontSize: 13 }}>Choose the hand you want to use for StreetVerse controls. TRYAMM will not assume which hand is limited.</p>
+              <select
+                id="a11y-preferred-hand"
+                aria-label="Preferred hand for one-hand controls"
+                value={passport.preferredHand ?? 'either'}
+                onChange={(event) => setPassport(createAccessibilityPassport({
+                  ...passport,
+                  preferredHand: event.target.value as AccessibilityPassport['preferredHand'],
+                }))}
+                style={{ minHeight: 48, width: '100%', borderRadius: 12, padding: '0 12px', background: '#111326', color: '#fff', border: '1px solid rgba(255,255,255,.15)' }}
+              >
+                <option value="either">Ask me / either hand</option>
+                <option value="left">Use my left hand</option>
+                <option value="right">Use my right hand</option>
+              </select>
+            </div>}
+
             <h3 style={{ marginTop: 26 }}>Accessibility Match needs</h3>
             <p style={{ color: '#b7b9c8' }}>Select only what you want TRYAMM to consider when matching jobs, grants, programs and creator opportunities.</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
