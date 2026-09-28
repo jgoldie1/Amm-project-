@@ -1,11 +1,19 @@
 const KEY='tryamm.streetverse.playable-character.v1'
 let installed=false
 
-export type StreetVersePlayableCharacter={id:string;label:string;index:number;role:string}
+export type StreetVersePlayableCharacter={id:string;label:string;index:number;role:string;missionLane?:string}
 
+const RESIDENT_ROLES=[
+  ['RAPPER','Chicago Rap / Open Mic'],['SINGER','Chicago Singer / Live Stage'],['ARTIST','Visual Artist / Mural'],['PRODUCER','Music Producer / Studio'],
+  ['DJ','DJ / Holo LIVE'],['DANCER','Dance / Performance'],['CREATOR','Reels Creator'],['FILMMAKER','Film / Video'],
+  ['ATHLETE','Sports / Training'],['COACH','Coach / Mentor'],['BUILDER','Builder / Restoration'],['ENTREPRENEUR','Business / Marketplace'],
+  ['CHEF','Food / Delivery'],['DRIVER','Transit / Delivery'],['SECURITY','Event Safety'],['TECH','AI / Technology'],
+  ['CYBER','Cyber Safety'],['REPORTER','Chicago News'],['HOST','TV / Podcast'],['DESIGNER','Fashion / Design'],
+  ['MERCHANT','Retail / Marketplace'],['SCOUT','Business Scout'],['MENTOR','Youth / Community'],['EXPLORER','Chicago Explorer']
+] as const
 const ROSTER:StreetVersePlayableCharacter[]=[
-  {id:'you',label:'YOU',index:-1,role:'Founder / Explorer'},
-  ...Array.from({length:24},(_,i)=>({id:`resident-${i+1}`,label:`RESIDENT ${String(i+1).padStart(2,'0')}`,index:i,role:i%4===0?'Creator':i%4===1?'Athlete':i%4===2?'Builder':'Entrepreneur'}))
+  {id:'you',label:'YOU',index:-1,role:'Founder / Explorer',missionLane:'Founder'},
+  ...RESIDENT_ROLES.map(([role,missionLane],i)=>({id:`resident-${i+1}`,label:`RESIDENT ${String(i+1).padStart(2,'0')}`,index:i,role,missionLane}))
 ]
 
 function emit(name:string,detail:any={}){window.dispatchEvent(new CustomEvent(name,{detail}))}
