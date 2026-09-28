@@ -1,4 +1,4 @@
-export type CharacterGroup='founder'|'security'|'global-security'|'legacy-kids'|'friends'|'artists'|'community'
+export type CharacterGroup='founder'|'security'|'global-security'|'legacy-kids'|'friends'|'artists'|'community'|'chicago-music'
 export type MissionType='peacekeeping'|'mentorship'|'rescue'|'creative'|'education'|'community'|'exploration'|'disaster-response'|'cyber-safety'|'event-safety'
 
 export type StreetVerseCharacter={
@@ -28,6 +28,7 @@ export const STREETVERSE_CHARACTERS:StreetVerseCharacter[]=[
   {id:'legacy-kids',name:'Legacy Kids',title:'Next Generation Crew',group:'legacy-kids',missionIds:['safe-route','future-builders','community-story']},
   {id:'friends',name:'Friends Crew',title:'Community Allies',group:'friends',missionIds:['neighborhood-help','event-support','welcome-team']},
   {id:'artists',name:'Artist Collective',title:'Creators / Performers',group:'artists',missionIds:['create-not-destroy','open-mic-peace','city-soundtrack']},
+  {id:'chicago-music',name:'Chicago Music Challenge',title:'Rappers / Singers / DJs / Producers',group:'chicago-music',missionIds:['chi-open-mic-qualifier','chi-flow-rhythm','chi-studio-session','chi-city-cypher','chi-holo-headliner']},
 ]
 
 export const STREETVERSE_MISSIONS:StreetVerseMission[]=[
@@ -53,6 +54,11 @@ export const STREETVERSE_MISSIONS:StreetVerseMission[]=[
   {id:'create-not-destroy',title:'Create, Don’t Destroy',description:'Turn neighborhood conflict into music, film, murals, dance, games, podcasts, and live performances instead of violence.',type:'creative',assignedTo:['artists'],rewardXP:450,repeatable:true},
   {id:'open-mic-peace',title:'Open Mic for Peace',description:'Host a performance event where rival groups compete through art, music, dance, debate, gaming, and storytelling instead of fighting.',type:'creative',assignedTo:['artists','stubbs','al-b','global-security-force'],rewardXP:600,repeatable:true},
   {id:'city-soundtrack',title:'City Soundtrack',description:'Create a location-specific soundtrack and visual reel that reflects the culture of the city you are visiting.',type:'creative',assignedTo:['artists'],rewardXP:375,repeatable:true},
+  {id:'chi-open-mic-qualifier',title:'Chicago Open Mic Qualifier',description:'Choose an original or properly licensed beat, build a clean performance set, hit timing targets, and earn enough crowd energy to unlock the Chicago music circuit.',type:'creative',assignedTo:['chicago-music','artists'],rewardXP:300,repeatable:true,localizesToCity:true},
+  {id:'chi-flow-rhythm',title:'Windy City Flow Challenge',description:'Complete an original rhythm-and-flow challenge with timing lanes, streaks, breath control, difficulty levels, accessibility assists, and a score based on player performance rather than copying any commercial rhythm game.',type:'creative',assignedTo:['chicago-music'],rewardXP:450,repeatable:true,localizesToCity:true},
+  {id:'chi-studio-session',title:'Studio to StreetVerse',description:'Build an original track with a producer, record a performance, clear the required rights metadata, create cover art, and cut a promotional Reel.',type:'creative',assignedTo:['chicago-music','artists'],rewardXP:500,repeatable:true,localizesToCity:true},
+  {id:'chi-city-cypher',title:'Chicago City Cypher',description:'Form a four-player crew across rapper, singer, DJ, producer, dancer or creator roles and complete rotating call-and-response, rhythm, collaboration and crowd objectives.',type:'creative',assignedTo:['chicago-music','artists'],rewardXP:650,repeatable:true,localizesToCity:true},
+  {id:'chi-holo-headliner',title:'Holo Headliner',description:'Finale mission: qualify through the Chicago circuit, assemble a show, pass rights and safety checks, complete a Holo LIVE performance, capture a Reel, and finish the chapter with a cooperative headliner score.',type:'creative',assignedTo:['chicago-music','artists'],rewardXP:1000,repeatable:true,localizesToCity:true},
 ]
 
 let installed=false
