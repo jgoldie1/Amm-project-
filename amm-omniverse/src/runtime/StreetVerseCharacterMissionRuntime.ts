@@ -1,4 +1,4 @@
-export type CharacterGroup='founder'|'security'|'global-security'|'legacy-kids'|'friends'|'artists'|'community'|'chicago-music'|'chicago-music-history'
+export type CharacterGroup='founder'|'security'|'global-security'|'legacy-kids'|'friends'|'artists'|'community'|'chicago-music'|'chicago-music-history'|'mib-space'
 export type MissionType='peacekeeping'|'mentorship'|'rescue'|'creative'|'education'|'community'|'exploration'|'disaster-response'|'cyber-safety'|'event-safety'
 
 export type StreetVerseCharacter={
@@ -30,6 +30,7 @@ export const STREETVERSE_CHARACTERS:StreetVerseCharacter[]=[
   {id:'artists',name:'Artist Collective',title:'Creators / Performers',group:'artists',missionIds:['create-not-destroy','open-mic-peace','city-soundtrack']},
   {id:'chicago-music',name:'Chicago Music Challenge',title:'Rappers / Singers / DJs / Producers',group:'chicago-music',missionIds:['chi-open-mic-qualifier','chi-flow-rhythm','chi-studio-session','chi-city-cypher','chi-holo-headliner']},
   {id:'chicago-music-history',name:'Chicago Music Time Machine',title:'History / Independent Music / Afrofuturism',group:'chicago-music-history',missionIds:['chi-history-sound-map','el-saturn-independent-label','sun-ra-chicago-time-machine','alton-abraham-archive','chi-history-to-future']},
+  {id:'brad-markus-space',name:'Brad Markus',title:'MIB / Space Research Ambassador',group:'mib-space',missionIds:['brad-el-saturn-briefing','mib-saturn-signal','mib-space-tech-lab']},
 ]
 
 export const STREETVERSE_MISSIONS:StreetVerseMission[]=[
@@ -65,6 +66,9 @@ export const STREETVERSE_MISSIONS:StreetVerseMission[]=[
   {id:'sun-ra-chicago-time-machine',title:'Sun Ra: Chicago to Saturn',description:'Enter a sourced Time Machine chapter about Sun Ra’s Chicago years, the Arkestra, Afrofuturist ideas and independent music-making. Archive facts stay distinct from fictional interactive scenes.',type:'creative',assignedTo:['chicago-music-history'],rewardXP:700,repeatable:true,localizesToCity:true},
   {id:'alton-abraham-archive',title:'Alton Abraham: Behind the Independent Machine',description:'Follow a provenance-backed archive trail about Alton Abraham as Sun Ra’s friend and business associate, his work with Saturn Records, promotion, distribution, research and Chicago operations; finish by building a modern ethical indie-release plan.',type:'creative',assignedTo:['chicago-music-history'],rewardXP:700,repeatable:true,localizesToCity:true},
   {id:'chi-history-to-future',title:'Chicago History to Future',description:'Finale: combine verified history with an original song, visual, business plan or performance concept that carries a Chicago musical influence into the player’s own future without copying protected recordings or artist likenesses.',type:'creative',assignedTo:['chicago-music-history','chicago-music','artists'],rewardXP:1000,repeatable:true,localizesToCity:true},
+  {id:'brad-el-saturn-briefing',title:'Brad Markus: El Saturn Briefing',description:'Research Sun Ra and El Saturn through sourced archive clues, then compare documented history with Brad Markus’s attributed space and contact interpretations. Keep verified history, personal testimony and fictional gameplay visibly separated.',type:'creative',assignedTo:['mib-space','chicago-music-history'],rewardXP:550,repeatable:true,localizesToCity:true},
+  {id:'mib-saturn-signal',title:'MIB: Signal from Saturn',description:'A fictional MIB investigation inspired by Afrofuturism: decode a strange signal, inspect evidence, interview fictional witnesses and decide which clues are scientific data, cultural history, testimony or deliberate game fiction.',type:'creative',assignedTo:['mib-space'],rewardXP:750,repeatable:true,localizesToCity:true},
+  {id:'mib-space-tech-lab',title:'MIB: Space Age Technology Lab',description:'Build and test fictional future-tech prototypes through safe simulation challenges involving communications, robotics, sensors, navigation, energy efficiency and space-habitat systems; label speculative technology as speculative.',type:'creative',assignedTo:['mib-space'],rewardXP:900,repeatable:true,localizesToCity:true},
 ]
 
 let installed=false
