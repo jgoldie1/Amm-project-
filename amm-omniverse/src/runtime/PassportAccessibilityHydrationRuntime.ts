@@ -28,7 +28,7 @@ function toAdaptiveProfile(p:PassportAccessPrefs):AdaptiveAccessProfile{
 function toLegacyPassport(userId:string,p:PassportAccessPrefs):AccessibilityPassport{
  const current=loadAccessibilityPassport()
  return createAccessibilityPassport({
-  ...current,userId,
+  ...current,userId,preferredHand:p.oneHand??'either',
   communicationPreference:p.communicationPreference??current.communicationPreference??'none',
   opportunityNeeds:p.opportunityNeeds??current.opportunityNeeds,
   preferences:{
@@ -43,7 +43,8 @@ function toLegacyPassport(userId:string,p:PassportAccessPrefs):AccessibilityPass
 function fromLegacyPassport(passport:AccessibilityPassport,current?:PassportAccessPrefs):PassportAccessPrefs{
  const q=passport.preferences
  return {
-  ...current,languageTag:current?.languageTag||browserLanguage(),signLanguageTag:current?.signLanguageTag,oneHand:current?.oneHand,
+  ...current,languageTag:current?.languageTag||browserLanguage(),signLanguageTag:current?.signLanguageTag,
+  oneHand:passport.preferredHand==='left'||passport.preferredHand==='right'?passport.preferredHand:undefined,
   oneHandedMode:q.oneHandedMode,captions:q.captions,voice:q.voiceControl,switchControl:q.switchAccess,screenReader:q.screenReader,
   largeTargets:q.largeTargets,reducedMotion:q.reducedMotion,highContrast:q.highContrast,plainLanguage:q.simplifiedUI,
   keyboardOnly:q.keyboardOnly,largeText:q.largeText,transcripts:q.transcripts,audioDescription:q.audioDescription,
