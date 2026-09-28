@@ -4,7 +4,9 @@ import fs from 'node:fs'
 const shell=fs.readFileSync(new URL('../src/components/StreetVerseMobileGameShell.tsx',import.meta.url),'utf8')
 
 assert.match(shell,/HAND_KEY='tryamm:streetverse-one-hand-side'/,'one-hand side must persist')
-assert.match(shell,/data-one-hand-side=\{hand\}/,'mobile shell must expose its active hand side')
+assert.ok(shell.includes("data-one-hand-side={mode==='one-hand'?hand:'none'}"),'mobile shell must expose a hand side only while one-hand mode is active')
+assert.ok(shell.includes("useState<ControlMode>('two-hand')"),'mobile shell must default to neutral two-hand controls')
+assert.ok(shell.includes("LEFT HAND")&&shell.includes("RIGHT HAND"),'one-hand mode must require an explicit usable hand choice')
 assert.match(shell,/LEFT|left/,'left-hand controls must be supported')
 assert.match(shell,/RIGHT|right/,'right-hand controls must be supported')
 assert.match(shell,/StreetVerse mission choices/,'one-hand shell must expose a mission-choice control')
