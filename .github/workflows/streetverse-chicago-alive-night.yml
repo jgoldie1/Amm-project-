@@ -14,7 +14,7 @@ on:
           - visual-pass-2
   push:
     branches:
-      - feature/streetverse-chicago-alive-20260928
+      - feature/streetverse-chicago-alive-v2-20260928
       - main
     paths:
       - 'amm-omniverse/src/components/StreetVerseMobileWorld.tsx'
