@@ -219,7 +219,14 @@ queueMicrotask(() => {
   if (preserveDeterministicSafeRoute) return
   // StreetVerse owns its mobile canvas and controls. Global UI/runtimes are
   // intentionally excluded here so they cannot cover the playable world.
-  if (window.location.pathname.startsWith('/streetverse')) return
+  if (window.location.pathname.startsWith('/streetverse')) {
+    // Keep StreetVerse lightweight while still installing its release-critical
+    // Circle Park progression. Heavy global launchers remain excluded.
+    import('./runtime/CircleParkProgressionRuntime')
+      .then(m => m.installCircleParkProgressionRuntime())
+      .catch(error => console.error('[TRYAMM] Circle Park progression failed after StreetVerse mount.', error))
+    return
+  }
   installOptionalRuntimes()
   try {
     root.render(
