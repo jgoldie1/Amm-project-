@@ -1,11 +1,13 @@
 import {useMemo} from 'react'
 import {STREETVERSE_GLOBAL_CITIES,getStreetVerseCity} from '../data/StreetVerseGlobalRegistry'
 import {compileGlobalWorld,GLOBAL_WORLD_COMPILER} from '../data/GlobalWorldCompiler'
+import {resolveGlobalCityVerseRuntime} from '../runtime/GlobalCityVerseRuntime'
 
 export default function StreetVerseGlobalWorld({onClose,onEnterChicago}:{onClose:()=>void;onEnterChicago?:()=>void}){
  const params=typeof window!=='undefined'?new URLSearchParams(window.location.search):new URLSearchParams()
  const city=useMemo(()=>getStreetVerseCity(params.get('city')||'chicago'),[])
  const plan=useMemo(()=>compileGlobalWorld(city.id),[city.id])
+ const runtime=useMemo(()=>resolveGlobalCityVerseRuntime(city.id),[city.id])
  const openCity=(id:string)=>{
   if(id==='chicago'&&onEnterChicago){onEnterChicago();return}
   const url=new URL(window.location.href)
@@ -22,6 +24,13 @@ export default function StreetVerseGlobalWorld({onClose,onEnterChicago}:{onClose
    <div style={{fontSize:11,color:'#9bc8e8'}}>CURRENT CITY</div>
    <h2 style={{margin:'4px 0'}}>{city.name}, {city.country}</h2>
    <div style={{fontSize:12,opacity:.8}}>Status: {city.status}. Shared TRYAMM Passport, media, commerce, Radio/News, Holo Ads and ledger follow the user between eligible cities.</div>
+   <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:9}}>
+    <span style={runtimeChip}>Runtime: {runtime.profileSource.toUpperCase()}</span>
+    <span style={runtimeChip}>Weather: {runtime.systems.environmentWeather.state}</span>
+    <span style={runtimeChip}>Mobility: {runtime.systems.mobility.state}</span>
+    <span style={runtimeChip}>Accessibility: {runtime.systems.accessibility.state}</span>
+   </div>
+   <div style={{fontSize:10,opacity:.65,marginTop:7}}>Runtime evidence is shown separately from release certification; a city is not labeled production-ready from registry/runtime data alone.</div>
   </section>
   <section style={{marginTop:14,padding:12,border:'1px solid #4a3d74',borderRadius:14,background:'#100b20'}}>
    <b style={{color:'#c7a8ff'}}>GLOBAL WORLD COMPILER</b>
@@ -45,3 +54,5 @@ export default function StreetVerseGlobalWorld({onClose,onEnterChicago}:{onClose
 }
 const closeBtn:React.CSSProperties={width:44,height:44,borderRadius:13,border:'1px solid #3a4d60',background:'#0c1420',color:'#fff',fontSize:24}
 const actionBtn:React.CSSProperties={width:'100%',marginTop:10,border:'1px solid #3f718d',borderRadius:10,padding:'10px 8px',background:'#10283a',color:'#fff',fontSize:10,fontWeight:900}
+
+const runtimeChip:React.CSSProperties={fontSize:9,padding:'4px 7px',border:'1px solid #31526b',borderRadius:999,background:'#091a28'}
