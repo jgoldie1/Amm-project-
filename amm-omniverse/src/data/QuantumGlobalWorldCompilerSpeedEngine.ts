@@ -77,3 +77,44 @@ export const createQuantumWaveExecutionPlans=(cities:StreetVerseCity[]):QuantumW
   }
  })
 }
+
+
+export type QuantumStageEvidence=Partial<Record<WorldCompilerStage,'verified'|'failed'>>
+export interface QuantumHourlyCycle{
+ cycleMinutes:60
+ eligible:string[]
+ blocked:string[]
+ failed:string[]
+ complete:string[]
+ nextBatch:string[]
+}
+
+export const planQuantumHourlyCycle=(cities:StreetVerseCity[],evidence:Record<string,QuantumStageEvidence>={}):QuantumHourlyCycle=>{
+ const jobs=scheduleQuantumGlobalJobs(cities)
+ const complete:string[]=[],failed:string[]=[],eligible:string[]=[],blocked:string[]=[]
+ for(const job of jobs){
+  const state=evidence[job.cityId]?.[job.stage]
+  if(state==='verified'){complete.push(`${job.cityId}:${job.stage}`);continue}
+  if(state==='failed'){failed.push(`${job.cityId}:${job.stage}`);continue}
+  const depsVerified=job.dependsOn.every(stage=>evidence[job.cityId]?.[stage]==='verified')
+  ;(depsVerified?eligible:blocked).push(`${job.cityId}:${job.stage}`)
+ }
+ // Failed work is intentionally excluded from nextBatch: repair evidence first, then reschedule.
+ return{
+  cycleMinutes:60,eligible,blocked,failed,complete,
+  nextBatch:eligible.slice(0,Math.max(1,Math.min(eligible.length,16))),
+ }
+}
+
+export const QUANTUM_HOURLY_MULTITASK_POLICY={
+ cycleMinutes:60,
+ behavior:[
+  'inspect current branch head and CI before scheduling work',
+  'repair failed certification or CI work before feature expansion',
+  'select the highest-priority dependency-ready jobs across all waves',
+  'multitask independent city jobs while reusing shared compiler outputs',
+  'record verified, failed and blocked evidence instead of assuming completion',
+  'finish each cycle with automated verification and a truthful status report',
+ ],
+ stopCondition:'Stop unnecessary changes only after all seven waves have verified production-complete certification evidence.',
+} as const
