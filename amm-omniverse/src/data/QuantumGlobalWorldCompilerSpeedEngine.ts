@@ -215,17 +215,80 @@ export interface QuantumCacheEvidence{
  cacheKey:string
  inputDigest:string
  policyDigest:string
+ dependencyDigest:string
+ compilerVersion:string
+ templateVersion:string
  artifactDigest:string
  verifiedAt:string
+}
+
+export interface QuantumCacheContext{
+ inputDigest:string
+ policyDigest:string
+ dependencyDigest:string
+ compilerVersion:string
+ templateVersion:string
+}
+
+export type QuantumCacheInvalidationReason=
+ |'cache-miss'|'cache-key-changed'|'input-changed'|'policy-changed'
+ |'dependency-artifact-changed'|'compiler-version-changed'|'template-version-changed'
+ |'artifact-missing'|'verification-missing'
+
+export const explainQuantumCacheReuse=(
+ job:QuantumCityJob,
+ cached:QuantumCacheEvidence|undefined,
+ current:QuantumCacheContext,
+):{reusable:boolean;reason?:QuantumCacheInvalidationReason}=>{
+ if(!cached)return{reusable:false,reason:'cache-miss'}
+ if(cached.cacheKey!==job.cacheKey)return{reusable:false,reason:'cache-key-changed'}
+ if(cached.inputDigest!==current.inputDigest)return{reusable:false,reason:'input-changed'}
+ if(cached.policyDigest!==current.policyDigest)return{reusable:false,reason:'policy-changed'}
+ if(cached.dependencyDigest!==current.dependencyDigest)return{reusable:false,reason:'dependency-artifact-changed'}
+ if(cached.compilerVersion!==current.compilerVersion)return{reusable:false,reason:'compiler-version-changed'}
+ if(cached.templateVersion!==current.templateVersion)return{reusable:false,reason:'template-version-changed'}
+ if(!cached.artifactDigest)return{reusable:false,reason:'artifact-missing'}
+ if(!cached.verifiedAt)return{reusable:false,reason:'verification-missing'}
+ return{reusable:true}
 }
 
 export const canReuseQuantumCache=(
  job:QuantumCityJob,
  cached:QuantumCacheEvidence|undefined,
- current:{inputDigest:string;policyDigest:string},
-)=>
- Boolean(cached&&cached.cacheKey===job.cacheKey&&cached.inputDigest===current.inputDigest&&
-  cached.policyDigest===current.policyDigest&&cached.artifactDigest&&cached.verifiedAt)
+ current:QuantumCacheContext,
+)=>explainQuantumCacheReuse(job,cached,current).reusable
+
+const REQUIRED_WORLD_STAGES:WorldCompilerStage[]=[
+ 'registry','geospatial','environment','mobility','population','business',
+ 'missions','media','economy','accessibility','certification',
+]
+
+export interface QuantumProductionCompletion{
+ productionComplete:boolean
+ verifiedCities:string[]
+ incompleteCities:string[]
+ incompleteWaves:number[]
+}
+
+export const summarizeQuantumProductionCompletion=(
+ cities:StreetVerseCity[],
+ evidence:Record<string,QuantumStageEvidence>={},
+):QuantumProductionCompletion=>{
+ const cityComplete=(city:StreetVerseCity)=>
+  REQUIRED_WORLD_STAGES.every(stage=>evidence[city.id]?.[stage]==='verified')
+ const verifiedCities=cities.filter(cityComplete).map(city=>city.id)
+ const incompleteCities=cities.filter(city=>!cityComplete(city)).map(city=>city.id)
+ const byId=new Set(cities.map(city=>city.id))
+ const incompleteWaves=([1,2,3,4,5,6,7] as const).filter(wave=>
+  (STREETVERSE_GLOBALIZATION_WAVES[wave] as readonly string[])
+   .filter(id=>byId.has(id))
+   .some(id=>!verifiedCities.includes(id))
+ )
+ return{
+  productionComplete:cities.length>0&&incompleteCities.length===0&&incompleteWaves.length===0,
+  verifiedCities,incompleteCities,incompleteWaves,
+ }
+}
 
 export const QUANTUM_CACHE_POLICY={
  rule:'A cache hit accelerates compilation only; it never creates certification evidence.',
