@@ -1,13 +1,14 @@
 import {useMemo} from 'react'
 import {STREETVERSE_GLOBAL_CITIES,getStreetVerseCity} from '../data/StreetVerseGlobalRegistry'
 import {compileGlobalWorld,GLOBAL_WORLD_COMPILER} from '../data/GlobalWorldCompiler'
-import {resolveGlobalCityVerseRuntime} from '../runtime/GlobalCityVerseRuntime'
+import {getGlobalCityRuntimeEvidence,getGlobalCitySystemsEvidence} from '../runtime/GlobalCityVerseRuntime'
 
 export default function StreetVerseGlobalWorld({onClose,onEnterChicago}:{onClose:()=>void;onEnterChicago?:()=>void}){
  const params=typeof window!=='undefined'?new URLSearchParams(window.location.search):new URLSearchParams()
  const city=useMemo(()=>getStreetVerseCity(params.get('city')||'chicago'),[])
  const plan=useMemo(()=>compileGlobalWorld(city.id),[city.id])
- const runtime=useMemo(()=>resolveGlobalCityVerseRuntime(city.id),[city.id])
+ const runtime=useMemo(()=>getGlobalCityRuntimeEvidence(city.id),[city.id])
+ const systems=useMemo(()=>getGlobalCitySystemsEvidence(city.id),[city.id])
  const openCity=(id:string)=>{
   if(id==='chicago'&&onEnterChicago){onEnterChicago();return}
   const url=new URL(window.location.href)
@@ -26,9 +27,9 @@ export default function StreetVerseGlobalWorld({onClose,onEnterChicago}:{onClose
    <div style={{fontSize:12,opacity:.8}}>Status: {city.status}. Shared TRYAMM Passport, media, commerce, Radio/News, Holo Ads and ledger follow the user between eligible cities.</div>
    <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:9}}>
     <span style={runtimeChip}>Runtime: {runtime.profileSource.toUpperCase()}</span>
-    <span style={runtimeChip}>Weather: {runtime.systems.environmentWeather.state}</span>
-    <span style={runtimeChip}>Mobility: {runtime.systems.mobility.state}</span>
-    <span style={runtimeChip}>Accessibility: {runtime.systems.accessibility.state}</span>
+    <span style={runtimeChip}>Environment: {systems.environment.ready?'READY':'BUILDING'}</span>
+    <span style={runtimeChip}>Mobility: {systems.mobility.ready?'READY':'BUILDING'}</span>
+    <span style={runtimeChip}>Accessibility: {systems.accessibility.ready?'READY':'BUILDING'}</span>
    </div>
    <div style={{fontSize:10,opacity:.65,marginTop:7}}>Runtime evidence is shown separately from release certification; a city is not labeled production-ready from registry/runtime data alone.</div>
   </section>
