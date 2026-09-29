@@ -1,5 +1,6 @@
 import {completePocketEdgeJob,heartbeatPocketEdgeNode,leasePocketEdgeJobs,registerPocketEdgeNode} from '../services/edgeNode'
 import {readEdgeLocalState,refreshTryammPocketEdgeState,writeEdgeLocalState,type EdgeCapabilitySnapshot} from './TryammPocketEdgeRuntime'
+import {paidGridEligibility,readEdgeGridPreferences} from './TryammEdgeGridPreferences'
 
 const ENABLE_KEY='tryamm_pocket_edge_enabled_v1'
 const NODE_KEY='tryamm_pocket_edge_node_id_v1'
@@ -10,6 +11,7 @@ export type EdgeLeasedJob={
   required_capability:string
   payload_ref:string|null
   payload_hash:string|null
+  work_order_id?:string|null
 }
 
 export function pocketEdgeEnabled(){
@@ -77,11 +79,19 @@ export async function runPocketEdgeCycle(){
     await heartbeatPocketEdgeNode(id,capabilities)
   }
 
-  const leased:any=await leasePocketEdgeJobs(id,capabilities)
+  const paidPrefs=readEdgeGridPreferences()
+  const leased:any=await leasePocketEdgeJobs(id,capabilities,{paidGridOptIn:paidPrefs.paidGridOptIn,allowedPaidWork:paidPrefs.allowedPaidWork,maxParallelPaidJobs:paidPrefs.maxParallelPaidJobs})
   const jobs:Array<EdgeLeasedJob>=Array.isArray(leased?.jobs)?leased.jobs:[]
   let completed=0
   for(const job of jobs){
     try{
+      if(job.work_order_id){
+        const eligibility=paidGridEligibility({batteryLevel:capabilities.batteryLevel,charging:capabilities.charging,jobClass:job.job_class})
+        if(!eligibility.allowed){
+          window.dispatchEvent(new CustomEvent('tryamm:edge-paid-job-skipped',{detail:{jobId:job.id,blockers:eligibility.blockers}}))
+          continue
+        }
+      }
       const resultRef=await executePocketEdgeJob(job,capabilities)
       await completePocketEdgeJob(id,job.id,resultRef)
       completed+=1
@@ -121,4 +131,6 @@ export const POCKET_EDGE_WORKER_POLICY={
   unknownJobsRejected:true,
   secretJobsAllowed:false,
   backgroundMining:false,
+  paidWorkRequiresSecondOptIn:true,
+  paidWorkRechecksUserResourcePolicy:true,
 } as const
