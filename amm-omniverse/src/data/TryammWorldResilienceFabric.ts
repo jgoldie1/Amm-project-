@@ -47,6 +47,7 @@ export const TRYAMM_WORLD_RESILIENCE_FABRIC={
     'distributed idempotency for high-impact creation',
     'graceful degradation and health/readiness reporting',
     'data minimization and disposal',
+    'Pocket Edge Node local cache/sync/approved compute with workstation/cafe/business/cloud fallback',
   ],
 } as const
 
