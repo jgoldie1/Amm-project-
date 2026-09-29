@@ -132,3 +132,29 @@ Do not rename already-applied migration files blindly. Reconcile repository migr
 - Native Chicago output is labeled Chicago-inspired / not an exact digital twin unless source-backed certification exists.
 - Asset publish remains fail-closed pending human visual review, Asset Passport certification and target-device performance evidence.
 - Meshy remains available as an optional server-side provider; baseline generation works without `MESHY_API_KEY`.
+
+## Native Foundry → live Circle Park runtime integration
+- Native Foundry is now part of the actual web build, not only a CI artifact.
+- `npm run build` now runs `npm run native:assets` first and generates assets into `public/generated-assets/native`.
+- Added runtime catalog with deterministic URLs for:
+  - brick building module
+  - street lamp
+  - tree
+  - bench
+  - hydrant
+  - holo wayfinder
+  - vehicle blockout
+  - street-and-sidewalk module
+- Added resilient GLTFLoader runtime that:
+  - loads unique assets in parallel
+  - clones them into Circle Park placements
+  - records failed loads
+  - never crashes StreetVerse when a generated asset is missing
+  - marks preview assets visual-only
+  - preserves existing gameplay primitives as collision authority
+  - disposes GPU resources when leaving the world
+- Circle Park now loads the TRYAMM native GLB preview layer and exposes visible NATIVE ASSETS state: LOADING / READY / FALLBACK.
+- Added native asset certification registry: PREVIEW cannot become CERTIFIED without human visual review, Asset Passport, runtime performance evidence, evidence refs and explicit collision-promotion review.
+- Added `tryamm-native-runtime-asset-contract.mjs` to prove Foundry output names match runtime catalog URLs and Circle Park loader integration.
+- Morning Mega Convergence now requires the native Foundry contract + runtime integration contract.
+- Generated public assets are ignored from Git so normal builds do not dirty the working tree.
