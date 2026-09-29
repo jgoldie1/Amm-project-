@@ -194,10 +194,60 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
   }
   raf=requestAnimationFrame(tick);return()=>{nativeLayerCancelled=true;cancelAnimationFrame(raf);removeEventListener('resize',resize);if(nativeLayer){scene.remove(nativeLayer);disposeNativeAssetLayer(nativeLayer)}renderer.dispose();renderer.domElement.remove()}
  },[])
- const stop=()=>{input.current={x:0,z:0}}
+ const stop=()=>{input.current={x:0,z:0};if(joystickKnob.current)joystickKnob.current.style.transform='translate(0px,0px)'}
  const move=(x:number,z:number)=>{input.current={x,z}}
  const keyDown=(e:React.KeyboardEvent<HTMLDivElement>)=>{if(e.key==='ArrowUp'||e.key==='w')move(0,1);else if(e.key==='ArrowDown'||e.key==='s')move(0,-1);else if(e.key==='ArrowLeft'||e.key==='a')move(-1,0);else if(e.key==='ArrowRight'||e.key==='d')move(1,0)}
- const joystick=(e:React.PointerEvent<HTMLDivElement>)=>{e.currentTarget.setPointerCapture(e.pointerId);const r=e.currentTarget.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),radius=r.width*.38,mag=Math.hypot(dx,dy)||1,scale=Math.min(1,radius/mag);input.current={x:(dx*scale)/radius,z:(-dy*scale)/radius}}
+ const joystick=(e:React.PointerEvent<HTMLDivElement>)=>{e.currentTarget.setPointerCapture(e.pointerId);const r=e.currentTarget.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),radius=r.width*.38,mag=Math.hypot(dx,dy)||1,scale=Math.min(1,radius/mag),jx=dx*scale,jy=dy*scale;input.current={x:jx/radius,z:-jy/radius};if(joystickKnob.current)joystickKnob.current.style.transform=`translate(${jx}px,${jy}px)`}
+ const pickUpTrash=()=>{
+  if(carryingRef.current)return setMessage('You are already carrying trash • take it to the dumpster.')
+  const id=nearWasteId
+  if(!id)return setMessage('Move closer to visible trash first.')
+  carryingRef.current=id;setCarrying(id);setMessage('TRASH PICKED UP • carry it to the glowing dumpster.')
+ }
+ const disposeTrash=()=>{
+  const id=carryingRef.current
+  if(!id)return setMessage('Pick up trash before using the dumpster.')
+  if(!nearDump)return setMessage('Move closer to the dumpster.')
+  const next=[...new Set([...disposedRef.current,id])]
+  disposedRef.current=next;setDisposed(next);carryingRef.current=null;setCarrying(null);setXp(v=>v+20)
+  if(next.length>=CIRCLE_PARK_WASTE_PICKUPS.length){setXp(v=>v+75);setMessage('CIRCLE PARK CLEANUP COMPLETE • all trash disposed • +135 XP total cleanup reward. NEXT: GET REPAIR KIT.')}
+  else setMessage(`TRASH DISPOSED • +20 XP • ${next.length}/${CIRCLE_PARK_WASTE_PICKUPS.length} cleaned.`)
+ }
+ const pickRepairKit=()=>{
+  if(repairKitRef.current)return
+  if(!nearKit)return setMessage('Move closer to the glowing repair kit.')
+  repairKitRef.current=true;setRepairKit(true);setMessage('REPAIR KIT ACQUIRED • go to the blue starter car. You can open its doors, but it will not drive until repaired.')
+ }
+ const toggleCarDoors=()=>{
+  if(!nearCar&&!drivingRef.current)return setMessage('Move closer to the blue starter car.')
+  doorsOpenRef.current=!doorsOpenRef.current;setDoorsOpen(doorsOpenRef.current)
+  setMessage(doorsOpenRef.current?'VEHICLE DOORS OPEN • car is still disabled until repaired.':'VEHICLE DOORS CLOSED.')
+ }
+ const repairCar=()=>{
+  if(!nearCar)return setMessage('Move closer to the blue starter car.')
+  if(!repairKitRef.current)return setMessage('You need the repair kit first.')
+  if(drivingRef.current)return setMessage('Exit the vehicle before repairing it.')
+  if(repairStepRef.current>=3)return setMessage('Vehicle repair is complete • ENTER VEHICLE.')
+  const next=repairStepRef.current+1;repairStepRef.current=next;setRepairStep(next)
+  const labels=['OPEN HOOD','FIX ENGINE','CLOSE HOOD']
+  if(next<3)setMessage(`${labels[next-1]} COMPLETE • NEXT: ${labels[next]}.`)
+  else{setXp(v=>v+125);setMessage('VEHICLE REPAIR COMPLETE • +125 XP • NEXT: ENTER VEHICLE and drive to ROOSEVELT ROAD.')}
+ }
+ const toggleVehicle=()=>{
+  if(drivingRef.current){
+    drivingRef.current=false;setDriving(false);doorsOpenRef.current=true;setDoorsOpen(true)
+    playerRef.current?.position.set(repairCarPositionRef.current[0]+2,1.4,repairCarPositionRef.current[2])
+    setMessage('VEHICLE EXITED • car remains parked and repaired.')
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-controlled',{detail:{entered:false,vehicleType:'car',controlledVehicleId:'circle-park-repair-car'}}))
+    return
+  }
+  if(!nearCar)return setMessage('Move closer to the blue starter car.')
+  if(repairStepRef.current<3)return setMessage('CAR DISABLED • complete OPEN HOOD → FIX ENGINE → CLOSE HOOD before driving.')
+  drivingRef.current=true;setDriving(true);doorsOpenRef.current=false;setDoorsOpen(false)
+  playerRef.current?.position.set(...repairCarPositionRef.current)
+  setMessage(`DRIVE MODE ACTIVE • NEXT: ${STREETVERSE_CHICAGO_ROUTE[routeIndexRef.current]?.label||'Pilsen'}.`)
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-controlled',{detail:{entered:true,vehicleType:'car',controlledVehicleId:'circle-park-repair-car'}}))
+ }
  const open=()=>{if(!nearEntrance.current)return setMessage('Move closer to the entrance first.');insideDemo.current=true;setInterior(true);if(!missionComplete){const reward=selectedMission?.rewardXP||100;setMissionComplete(true);setXp(v=>v+reward);setMessage(`MISSION COMPLETE • ${selectedMission?.title||'Circle Park Arrival'} • +${reward} XP. Interior demo entered.`);window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{mission:selectedMission||{id:'circle-park-arrival',title:'Circle Park Arrival',rewardXP:100},character:selectedCharacter,rewardXP:reward}}))}else setMessage('Interior demo entered • stairs + elevator mockup active.')}
  const exitInterior=()=>{insideDemo.current=false;nearElevator.current=false;setCanElevator(false);setInterior(false);setFloorLevel(1);setMessage('Returned outside • source-backed interior geometry remains pending authorization.')}
  const rideElevator=()=>{if(!nearElevator.current)return;setFloorLevel(v=>v===1?2:1);setMessage('Elevator demo moved between conceptual floors • verified interior geometry remains pending.')}
