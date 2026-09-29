@@ -186,9 +186,11 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   addEventListener('tryamm:streetverse-fame-state',onFameReaction)
   try{const cachedFame=JSON.parse(localStorage.getItem('tryamm.streetverse.fame.v1')||'null');if(cachedFame)applyFameReaction(cachedFame)}catch{}
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-resident-population-ready',{detail:{mode:'mobile-lite',residentCount:residents.length,lightweight:true}}))
-  let activeCar:THREE.Group|null=null,driveHeading=0,oneHandDriveAssist=(()=>{try{return localStorage.getItem('tryamm:streetverse-control-mode')==='one-hand'}catch{return false}})(),nativeRepairStep=0,nativeDoorsOpen=false
+  let activeCar:THREE.Group|null=null,driveHeading=0,oneHandDriveAssist=(()=>{try{return localStorage.getItem('tryamm:streetverse-control-mode')==='one-hand'}catch{return false}})(),oneHandCruise=false,nativeRepairStep=0,nativeDoorsOpen=false
   const onControlMode=(event:Event)=>{const d=(event as CustomEvent<{mode?:string}>).detail||{};oneHandDriveAssist=d.mode==='one-hand';if(oneHandDriveAssist)setMessage('ONE-HAND DRIVE ASSIST • slower speed + gentler steering enabled.')}
   addEventListener('tryamm:streetverse-control-mode',onControlMode)
+  const onCruise=(event:Event)=>{const d=(event as CustomEvent<{active?:boolean}>).detail||{};oneHandCruise=Boolean(d.active)&&Boolean(activeCar);setMessage(oneHandCruise?'ONE-HAND CRUISE ON • steer with the joystick • EXIT cancels cruise.':'ONE-HAND CRUISE OFF.')}
+  addEventListener('tryamm:streetverse-cruise',onCruise)
   const onRepairStep=(event:Event)=>{const d=(event as CustomEvent<{vehicleId?:string;step?:number}>).detail||{};if(String(d.vehicleId||'')==='first-repair-car')nativeRepairStep=Math.max(0,Math.min(3,Number(d.step||0)))}
   const onVehicleDoor=(event:Event)=>{const d=(event as CustomEvent<{vehicleId?:string;open?:boolean}>).detail||{};if(String(d.vehicleId||'')==='first-repair-car')nativeDoorsOpen=d.open===true}
   addEventListener('tryamm:streetverse-repair-step',onRepairStep);addEventListener('tryamm:streetverse-vehicle-door',onVehicleDoor)
