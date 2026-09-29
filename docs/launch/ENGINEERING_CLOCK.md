@@ -205,3 +205,26 @@ Do not rename already-applied migration files blindly. Reconcile repository migr
 - Dashboard treats signals as indicators, not proof that a person is malicious.
 - `RED_HAT_TELEMETRY_PEPPER` is a server-only optional stable HMAC secret; without it, process-ephemeral hashing prevents cross-restart correlation.
 - Red Hat Sentinel is defensive only and has no hack-back capability.
+
+## Jacobie Edge DDoS + Origin Shield — 2026-09-29
+- Vercel remains the public edge for TRYAMM and provides platform-level automatic DDoS mitigation.
+- Removed public direct Render rewrites from `amm-omniverse/vercel.json` for:
+  - `/api/payments/status`
+  - `/api/checkout`
+  - `/api/payments/verify-checkout`
+  - `/api/creator/earnings`
+  - `/api/stripe/webhook`
+- Added same-origin Vercel Functions for those legacy routes.
+- Added HMAC-SHA-256 Vercel → Render Origin Shield with timestamp, request ID and raw-body digest binding.
+- Added staged monitor/enforce mode so the deployment does not break before the shared secret is configured on both Vercel and Render.
+- Added root Render swarm throttling for auth, commerce, realtime, admin and normal traffic classes.
+- Added Vercel static security headers and CDN caching for generated native GLBs.
+- Added `tryamm-edge-ddos-contract.mjs`: no direct Render rewrite, signed proxy contract, timeout, security headers, log-first WAF, no automatic firewall publish.
+- Added manual workflow `tryamm-edge-ddos-firewall-stage.yml`:
+  - inspect current Vercel Firewall state
+  - optionally stage log-first exploit/API burst rules
+  - show firewall diff
+  - never publish automatically
+- Added runbook `docs/security/JACOBIE_EDGE_DDOS_RUNBOOK.md`.
+- Emergency Vercel Attack Mode remains a human-confirmed production action.
+- Hard Origin Shield enforcement remains pending the same `TRYAMM_EDGE_ORIGIN_SECRET` on Vercel + Render, followed by `TRYAMM_EDGE_ORIGIN_SHIELD_ENFORCE=true` on Render.
