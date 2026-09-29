@@ -17,6 +17,7 @@ const { createLiveRouter } = require('./routes/live')
 const { createModerationRouter } = require('./routes/moderation')
 const { createWorkforceRouter } = require('./routes/workforce')
 const { createMiddleverseRouter } = require('./routes/middleverse')
+const { createAssetForgeRouter } = require('./routes/asset-forge')
 const { postCheckoutToTreasury, postInvoiceToTreasury, postRefundToTreasury, postDisputeToTreasury } = require('./lib/treasury-ledger')
 const signLanguage = require('./signLanguageService')
 
@@ -39,7 +40,7 @@ app.get('/api/health', async (_req,res)=>{
   try { const { error }=await supabase.from('worlds').select('id').limit(1); database=!error } catch(_) {}
   try { const { error }=await supabase.from('release_registry').select('id').limit(1); releaseRegistry=!error } catch(_) {}
   try { const { error }=await supabase.from('release_health_samples').select('id').limit(1); releaseHealth=!error } catch(_) {}
-  res.json({ ok:true, ts:Date.now(), version:'1.11.0-release-control', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, financialTruth:true, releaseControl:true, releaseRegistry, releaseHealth, autoLedger:true, signLanguage:true, signRecognitionProvider:Boolean(process.env.SIGN_LANGUAGE_PROVIDER_URL), tryammLive:true, moderationReporting:true, workforce:true, middleverse:true, repoWorkstation:true } })
+  res.json({ ok:true, ts:Date.now(), version:'1.11.0-release-control', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, financialTruth:true, releaseControl:true, releaseRegistry, releaseHealth, autoLedger:true, signLanguage:true, signRecognitionProvider:Boolean(process.env.SIGN_LANGUAGE_PROVIDER_URL), tryammLive:true, moderationReporting:true, workforce:true, middleverse:true, assetForge:true, meshyAssetForge:Boolean(process.env.MESHY_API_KEY), repoWorkstation:true } })
 })
 
 app.use('/api/omniverse', createOmniverseRouter({ supabase }))
@@ -54,6 +55,7 @@ app.use('/api/live', createLiveRouter({ supabase }))
 app.use('/api/moderation', createModerationRouter({ supabase }))
 app.use('/api/workforce', createWorkforceRouter({ supabase }))
 app.use('/api/middleverse', createMiddleverseRouter({ supabase }))
+app.use('/api/asset-forge', createAssetForgeRouter({ supabase }))
 app.use('/api/ai', createAIRouter({ supabase }))
 app.use('/api', createLegacySecureRouter({ supabase, stripe }))
 
@@ -137,6 +139,8 @@ app.listen(PORT,()=>{
   console.log('   Moderation API: /api/moderation/*')
   console.log('   Workforce API: /api/workforce/*')
   console.log('   Middleverse API: /api/middleverse/*')
+  console.log(`   Asset Forge / Meshy: ${process.env.MESHY_API_KEY?'✅ configured':'⚠️ MESHY_API_KEY missing'}`)
+  console.log('   Asset Forge API: /api/asset-forge/*')
   console.log('   Omniverse API: /api/omniverse/*')
   console.log('   Holo Core API: /api/holo-core/*')
   console.log('   University API: /api/university/*')
