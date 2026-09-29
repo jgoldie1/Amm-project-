@@ -305,3 +305,24 @@ Do not rename already-applied migration files blindly. Reconcile repository migr
 - GameVerse/Living Worlds surfaces isolated-world failure semantics.
 - Metaverse Business Builder surfaces MiddleWear-protected/idempotent/provider-isolated semantics.
 - Morning Mega Convergence now requires the world resilience contract.
+
+## TRYAMM Pocket Edge Node — phone-size edge compute continuum
+- Added truthful "phone-size data center" vision as TRYAMM Pocket Edge Node; phones are edge compute/cache/sync nodes, not hyperscale data centers.
+- Node continuum: pocket → tablet → workstation → AI cafe → business server → cloud.
+- Phone runtime detects CPU concurrency, optional device memory, WebGPU, WebCodecs, storage estimate, network state and optional battery state.
+- Low-battery uncharged devices pause edge leasing below 25%.
+- Edge work is opt-in by default; no hidden background mining.
+- Browser Pocket Edge only accepts an allowlist of safe work classes.
+- Same-origin cache prefetch is built in; other approved work types require explicit app handlers.
+- Unknown work classes are rejected.
+- Pocket Edge v1 leases same-owner jobs only and does not claim hardware attestation.
+- Raw secrets, auth tokens, private keys, raw biometric/health data and unrestricted customer data are forbidden from Pocket Edge job metadata.
+- Added backend Edge Node coordinator: register, heartbeat, enqueue, lease and complete.
+- Installation identifiers are random locally; only HMAC hashes are persisted.
+- Added live Supabase backend-only tables: tryamm_edge_nodes and tryamm_edge_jobs.
+- RLS enabled; anon/authenticated SELECT denied; service role verified.
+- Added 24-hour job expiry, expired lease recovery, expired data disposal and stale-node offline marking.
+- Added Swarm Shield edge-compute budget and dedicated MiddleWear resilience bulkhead.
+- Added log-first Vercel WAF observation for /api/edge-node.
+- Middleverse AI now exposes Pocket Edge ON/OFF and capability status.
+- Morning Mega Convergence now requires the Pocket Edge contract.
