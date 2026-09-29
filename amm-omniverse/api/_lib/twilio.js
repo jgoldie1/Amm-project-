@@ -22,14 +22,35 @@ export function formBody(req){
   return {}
 }
 
+// TWILIO_LEGACY_HMAC_SHA1_COMPAT:
+ // Twilio's legacy/default X-Twilio-Signature scheme requires HMAC-SHA1.
+ // This path verifies an external provider signature only; TRYAMM does not use SHA-1
+ // for its own hashes, tokens, storage integrity, signing, or key derivation.
+ // Prefer TWILIO_WEBHOOK_SIGNATURE_ALGORITHM=sha256 with a Twilio SharedKey when configured.
 export function validateTwilio(req,params=formBody(req)){
-  const token=process.env.TWILIO_AUTH_TOKEN
+  const authToken=process.env.TWILIO_AUTH_TOKEN
   const signature=String(req.headers['x-twilio-signature']||'')
-  if(!token||!signature)return false
+  if(!signature)return false
+
+  const requested=String(process.env.TWILIO_WEBHOOK_SIGNATURE_ALGORITHM||'sha1').trim().toLowerCase()
+  const algorithm=requested==='sha256'?'sha256':'sha1'
+  const sharedKeySid=String(process.env.TWILIO_WEBHOOK_SHARED_KEY_SID||'').trim()
+  const sharedKeySecret=String(process.env.TWILIO_WEBHOOK_SHARED_KEY_SECRET||'')
+  const signatureKeySid=String(req.headers['x-twilio-signature-key-sid']||'').trim()
+
+  let secret=authToken
+  if(algorithm==='sha256'){
+    if(!sharedKeySid||!sharedKeySecret||signatureKeySid!==sharedKeySid)return false
+    secret=sharedKeySecret
+  }
+  if(!secret)return false
+
   const ordered=Object.keys(params).sort().map(k=>`${k}${params[k]??''}`).join('')
-  const expected=crypto.createHmac('sha1',token).update(`${requestUrl(req)}${ordered}`,'utf8').digest('base64')
+  const expected=crypto.createHmac(algorithm,secret).update(`${requestUrl(req)}${ordered}`,'utf8').digest('base64')
   try{
-    return crypto.timingSafeEqual(Buffer.from(expected),Buffer.from(signature))
+    const expectedBuffer=Buffer.from(expected)
+    const signatureBuffer=Buffer.from(signature)
+    return expectedBuffer.length===signatureBuffer.length&&crypto.timingSafeEqual(expectedBuffer,signatureBuffer)
   }catch{return false}
 }
 
