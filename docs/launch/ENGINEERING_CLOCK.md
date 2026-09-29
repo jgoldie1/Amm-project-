@@ -158,3 +158,15 @@ Do not rename already-applied migration files blindly. Reconcile repository migr
 - Added `tryamm-native-runtime-asset-contract.mjs` to prove Foundry output names match runtime catalog URLs and Circle Park loader integration.
 - Morning Mega Convergence now requires the native Foundry contract + runtime integration contract.
 - Generated public assets are ignored from Git so normal builds do not dirty the working tree.
+
+## Self-contained runtime resource completion
+- Native Foundry now participates in the actual Vite build through `npm run native:assets`.
+- Circle Park runtime catalog + GLTFLoader consume generated same-origin GLBs.
+- Runtime placements cover buildings, lamps, trees, benches, hydrants, holo wayfinders and vehicle blockouts.
+- Existing gameplay primitives remain authoritative collision/mission geometry until native assets are certified.
+- Runtime failures fall back safely instead of blocking StreetVerse.
+- Circle Park HUD reports native asset state: LOADING / READY / FALLBACK.
+- Native runtime certification registry requires visual review, Asset Passport, performance evidence, evidence refs and collision-promotion review.
+- PWA service worker now caches GLB/GLTF/BIN assets after fetch and falls back to cached copies offline.
+- Service worker release advanced to `20260929-native-asset-foundry-v1`.
+- Morning Mega Convergence now requires native Foundry, runtime integration and PWA asset-cache contracts.
