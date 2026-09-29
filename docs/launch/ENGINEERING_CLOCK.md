@@ -326,3 +326,18 @@ Do not rename already-applied migration files blindly. Reconcile repository migr
 - Added log-first Vercel WAF observation for /api/edge-node.
 - Middleverse AI now exposes Pocket Edge ON/OFF and capability status.
 - Morning Mega Convergence now requires the Pocket Edge contract.
+
+## TRYAMM Edge Grid earnings + Private Relay
+- Edge earnings are now separated from VPN/network traffic.
+- Added server-authoritative funded Edge work orders and pending earnings ledger.
+- Client-created personal Edge jobs remain non-earning.
+- Funded earning-eligible jobs create a pending receipt at completion; node execution alone cannot make funds payable.
+- Earnings ledger supports pending / verified / payable / processing / paid / reversed states.
+- Middleverse AI now displays pending, payable and paid Edge earnings.
+- Live Supabase tables tryamm_edge_work_orders and tryamm_edge_earnings_ledger are RLS-enabled and backend-only by grants.
+- Added TRYAMM Private Relay / VPN architecture and visible readiness center.
+- PWA truth: HTTPS/TLS only; no claim of system-wide VPN.
+- iOS truth: native Personal VPN/Network Extension entitlement + user authorization + native compile/store review still required.
+- Android truth: native VpnService + foreground-service behavior + Play declaration/disclosure/consent still required.
+- VPN traffic is never an Edge earning source and is not monetized/redirected for ads.
+- Morning Mega Convergence now requires the Private Relay contract.
