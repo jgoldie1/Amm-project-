@@ -10,6 +10,8 @@ for(const id of ['sample-a-reality-restore','sample-b-chicago-documentary','samp
 }
 must(engine.includes('exactly-four-samples-required'),'selection must require exactly four candidates')
 must(engine.includes('Oracle rights/source review'),'Oracle rights/source gate missing')
+must(engine.includes("map(oracleAssetReferenceReview)"),'Oracle must execute against structured asset references')
+must(engine.includes('oracleReferenceBlockers'),'Oracle blockers must flow into production promotion state')
 must(engine.includes('Quantum Crawler'),'Quantum Crawler reference discovery missing')
 must(engine.includes('Mind Over Matter'),'Mind Over Matter transformation/originality gate missing')
 must(engine.includes('maxParallelSamples:4'),'four-way Quantum buffer missing')
