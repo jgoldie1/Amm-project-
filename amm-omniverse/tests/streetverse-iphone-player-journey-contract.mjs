@@ -24,7 +24,7 @@ must(dock.includes("/faithverse#reader"),'Faith Bible button must deep-link to t
 must(shell.includes("▶ CRUISE")&&shell.includes("■ STOP CRUISE"),'one-hand cruise controls missing')
 must(shell.includes(">EXIT VEHICLE<"),'persistent vehicle exit control missing')
 must(shell.includes("tryamm:streetverse-cruise"),'one-hand cruise must command authoritative world state')
-must(world.includes("let oneHandCruise=false"),'mobile renderer cruise state missing')
+must(world.includes("oneHandCruise=false"),'mobile renderer cruise state missing')
 must(world.includes("input.current.up||oneHandCruise"),'vehicle throttle must honor one-hand cruise while steering')
 must(world.includes("tryamm:streetverse-cruise-state"),'vehicle exit must report cruise cancellation')
 
