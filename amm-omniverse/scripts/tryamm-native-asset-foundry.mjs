@@ -87,6 +87,38 @@ function addHydrant(group,x,z,mats){
   side.rotation.z=deg(90)
 }
 
+function addTrashCan(group,x,z,mats){
+  addCylinder(group,'trash-can-body',.38,.9,[x,.45,z],mats.trash,18,'trash-receptacle')
+  addCylinder(group,'trash-can-lid',.43,.12,[x,.96,z],mats.metal,18,'trash-receptacle-lid')
+}
+
+function addRecyclingBin(group,x,z,mats){
+  addBox(group,'recycling-bin',[.72,.95,.72],[x,.475,z],mats.recycle,undefined,'recycling-receptacle')
+  addBox(group,'recycling-lid',[.78,.10,.78],[x,.99,z],mats.recycle)
+}
+
+function addDumpster(group,x,z,mats){
+  addBox(group,'dumpster-body',[2.2,1.35,1.35],[x,.675,z],mats.dumpster,undefined,'garbage-disposal-dumpster')
+  addBox(group,'dumpster-lid-left',[1.06,.10,1.42],[x-.55,1.42,z],mats.metal,[0,0,deg(-8)],'dumpster-lid')
+  addBox(group,'dumpster-lid-right',[1.06,.10,1.42],[x+.55,1.42,z],mats.metal,[0,0,deg(8)],'dumpster-lid')
+  addBox(group,'dumpster-wheel-left',[.18,.28,.18],[x-.78,.12,z+.55],mats.tire)
+  addBox(group,'dumpster-wheel-right',[.18,.28,.18],[x+.78,.12,z+.55],mats.tire)
+}
+
+function addGarbageBag(group,x,z,mats,scale=1){
+  const bag=new THREE.Mesh(new THREE.SphereGeometry(.42*scale,12,10),mats.garbageBag)
+  bag.name='garbage-bag';bag.position.set(x,.38*scale,z);bag.scale.set(1,.9,1)
+  bag.userData={semantic:'collectible-garbage',collision:'none',pickup:true,generatedBy:'tryamm-native-asset-foundry'}
+  group.add(bag)
+  const tie=addCylinder(group,'garbage-bag-tie',.05*scale,.18*scale,[x,.83*scale,z],mats.garbageTie,8,'garbage-bag-tie')
+  tie.userData.pickup=true
+}
+
+function addLitterCluster(group,x,z,mats){
+  addBox(group,'litter-paper',[.46,.025,.32],[x,.025,z],mats.litterPaper,[0,deg(18),0],'collectible-litter')
+  addCylinder(group,'litter-can',.10,.27,[x+.34,.12,z-.18],mats.litterCan,10,'collectible-litter')
+}
+
 function addCarBlockout(group,x,z,mats){
   addBox(group,'vehicle-body',[3.8,.62,1.72],[x,.62,z],mats.car,undefined,'parked-vehicle')
   addBox(group,'vehicle-cabin',[1.9,.72,1.46],[x-.2,1.23,z],mats.glass)
@@ -132,6 +164,13 @@ function build(profile){
     wood:mat('wood',0x704b2f,.82,0),
     leaf:mat('leaf',0x315f34,.88,0),
     hydrant:mat('hydrant',0xb32622,.48,.35),
+    trash:mat('trash-can',0x343a3f,.72,.45),
+    recycle:mat('recycling-bin',0x226a4b,.7,.25),
+    dumpster:mat('dumpster',0x325641,.7,.38),
+    garbageBag:mat('garbage-bag',0x111315,.95,0),
+    garbageTie:mat('garbage-tie',0x34383b,.85,0),
+    litterPaper:mat('litter-paper',0xd8d0b9,.96,0),
+    litterCan:mat('litter-can',0xb6b9ba,.42,.7),
     glass:mat('glass',0x263946,.16,.35),
     car:mat('car-paint',0x294f84,.22,.72),
     tire:mat('rubber',0x090a0b,1,0),
@@ -154,6 +193,8 @@ function build(profile){
   for(const x of [-14,-5,4,13])addStreetLamp(group,x,-8.25,mats,profile.holo)
   addBench(group,-5,12.2,mats);addBench(group,6.5,12.2,mats)
   addHydrant(group,10,9.9,mats)
+  addTrashCan(group,-6,10,mats);addRecyclingBin(group,6,10,mats);addDumpster(group,5,27,mats)
+  addGarbageBag(group,3,12,mats,.9);addGarbageBag(group,-4,-20,mats,1);addLitterCluster(group,1,23,mats)
   addCarBlockout(group,-6,4.2,mats);addCarBlockout(group,7,-4.2,mats)
 
   if(profile.holo>.3){
@@ -211,6 +252,13 @@ const kitMats={
   wood:mat('wood',0x704b2f,.82,0),
   leaf:mat('leaf',0x315f34,.88,0),
   hydrant:mat('hydrant',0xb32622,.48,.35),
+  trash:mat('trash-can',0x343a3f,.72,.45),
+  recycle:mat('recycling-bin',0x226a4b,.7,.25),
+  dumpster:mat('dumpster',0x325641,.7,.38),
+  garbageBag:mat('garbage-bag',0x111315,.95,0),
+  garbageTie:mat('garbage-tie',0x34383b,.85,0),
+  litterPaper:mat('litter-paper',0xd8d0b9,.96,0),
+  litterCan:mat('litter-can',0xb6b9ba,.42,.7),
   glass:mat('glass',0x263946,.16,.35),
   car:mat('car-paint',0x294f84,.22,.72),
   tire:mat('rubber',0x090a0b,1,0),
@@ -260,6 +308,26 @@ const kitBuilders={
     const ring=new THREE.Mesh(new THREE.TorusGeometry(.55,.035,8,32),kitMats.holo)
     ring.position.set(0,2.0,0);ring.rotation.x=deg(90);ring.userData={semantic:'holographic-ring',collision:'none'}
     g.add(ring);return g
+  },
+  'trash-can':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-trash-can'
+    addTrashCan(g,0,0,kitMats);return g
+  },
+  'recycling-bin':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-recycling-bin'
+    addRecyclingBin(g,0,0,kitMats);return g
+  },
+  'dumpster':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-dumpster'
+    addDumpster(g,0,0,kitMats);return g
+  },
+  'garbage-bag':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-garbage-bag'
+    addGarbageBag(g,0,0,kitMats,1);return g
+  },
+  'litter-cluster':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-litter-cluster'
+    addLitterCluster(g,0,0,kitMats);return g
   },
 }
 
