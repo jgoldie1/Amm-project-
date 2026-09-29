@@ -11,7 +11,7 @@ type WorldStore={world:string;store:string;description:string;action?:()=>void}
 type Rig={root:THREE.Group;leftArm:THREE.Group;rightArm:THREE.Group;leftLeg:THREE.Group;rightLeg:THREE.Group;head:THREE.Group}
 
 const SAVE_KEY='tryamm.stubbs-family.playable.v2'
-const NATIVE_CHARACTER_CYCLE:TryammNativeRuntimeAssetKey[]=['residentA','residentB','residentC']
+const NATIVE_CHARACTER_CYCLE:TryammNativeRuntimeAssetKey[]=['residentA','residentB','residentC','residentD','residentE','residentF','residentG','residentH']
 const nativeCharacterAsset=(index:number):TryammNativeRuntimeAssetKey=>index===0?'heroPlayer':NATIVE_CHARACTER_CYCLE[(index-1)%NATIVE_CHARACTER_CYCLE.length]
 const nativeCharacterLabel=(index:number)=>`meet-stubbs-native-character-${String(index+1).padStart(2,'0')}`
 const SOCIAL_CREATOR_CHARACTERS:Character[]=Array.from({length:10},(_,i)=>({
