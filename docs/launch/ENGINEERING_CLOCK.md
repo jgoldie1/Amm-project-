@@ -69,3 +69,29 @@ Do not mark LIVE, PRODUCTION-COMPLETE, or RELEASED from architecture alone. Requ
 4. Replace/verify placeholder visual assets with rights-cleared production assets and validate real performance on target devices.
 5. Shoot the actual Circle Park source footage and secure releases/permissions before editorial certification.
 6. Runtime-test AAN/Holo Drama upload/player/distribution before calling those surfaces LIVE.
+
+## Completion-grade mega-action expansion — 2026-09-28/29
+- Commit: `cde466c351f030742987a4b2def00f8fab101917`
+- Branch reconciliation is now a hard gate instead of a warning.
+- Added Supabase migration-version uniqueness gate.
+- Added full `amm-backend` authority/economic/financial checks.
+- Added branch-safe Playwright desktop + mobile E2E for core launchers, Holo Delivery and Chicago production gameplay.
+- Added Android API 36 shell generation, sync, debug APK and release AAB build.
+- Added iOS native shell generation/sync + unsigned simulator compile on macOS.
+- Added live Supabase Security Advisor gate using `SUPABASE_ACCESS_TOKEN` secret and project ref `fxluchtdfpediivhoksl`.
+- Morning release gate now requires every completion lane, including source-truth/reconciliation.
+
+### Newly verified live database blockers
+Supabase project is ACTIVE_HEALTHY, but the current Security Advisor is not release-clean:
+- 2 WARN findings: anonymous users can execute SECURITY DEFINER functions.
+- 14 WARN findings: authenticated users can execute SECURITY DEFINER functions.
+- 19 INFO findings: RLS enabled with no policy; each must be reviewed against intended internal/deny-by-default access.
+Performance Advisor currently also reports WARN classes for RLS init-plan usage, multiple permissive policies and duplicate indexes; these are optimization/review items, while security WARN/ERROR findings remain hard blockers.
+
+### Repository migration blocker
+The branch currently contains duplicate numeric migration versions, including:
+- `20260818_*` (2 files)
+- `20260928_*` (2 files)
+- `202608120011_*` (2 files)
+
+Do not rename already-applied migration files blindly. Reconcile repository migration history against the live Supabase migration history before changing versions.
