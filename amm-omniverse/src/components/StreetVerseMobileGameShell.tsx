@@ -55,6 +55,7 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const vehicleActiveRef=useRef(false)
  const cruiseRef=useRef(false)
  const oneHandController=useRef<StreetVerseOneHandController|null>(null)
+ const shellJoystickKnobRef=useRef<HTMLDivElement|null>(null)
  const emit=()=>{
   if(!oneHandController.current){
    oneHandController.current=new StreetVerseOneHandController({
@@ -107,6 +108,8 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const activateTwoHand=()=>{release();setMode('two-hand');try{localStorage.setItem(MODE_KEY,'two-hand')}catch{};window.dispatchEvent(new CustomEvent('tryamm:streetverse-control-mode',{detail:{mode:'two-hand'}}));window.dispatchEvent(new CustomEvent('tryamm:passport-access-save',{detail:{oneHandedMode:false}}))}
  const activateOneHand=(next:Hand)=>{release();setHand(next);setMode('one-hand');try{localStorage.setItem(MODE_KEY,'one-hand');localStorage.setItem(HAND_KEY,next)}catch{};window.dispatchEvent(new CustomEvent('tryamm:streetverse-control-mode',{detail:{mode:'one-hand',hand:next}}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-one-hand-side',{detail:{hand:next,source:'mobile-game-shell'}}));window.dispatchEvent(new CustomEvent('tryamm:passport-access-save',{detail:{oneHandedMode:true,oneHand:next}}))}
  const control=(label:string,direction:Dir)=><button aria-label={`StreetVerse ${direction}`} onPointerDown={e=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);set(direction,true)}} onPointerUp={e=>{try{e.currentTarget.releasePointerCapture(e.pointerId)}catch{};set(direction,false)}} onPointerCancel={()=>set(direction,false)} onPointerLeave={e=>{if(e.buttons===0)set(direction,false)}} style={{width:56,height:52,borderRadius:15,border:'2px solid #7be9ff',background:'#020914ee',color:'#fff',fontSize:24,fontWeight:900,touchAction:'none',boxShadow:'0 0 14px #00d9ff66'}}>{label}</button>
+ const shellJoystick=(e:React.PointerEvent<HTMLDivElement>)=>{e.preventDefault();const rect=e.currentTarget.getBoundingClientRect();const x=Math.max(-1,Math.min(1,(e.clientX-(rect.left+rect.width/2))/(rect.width*.36)));const y=Math.max(-1,Math.min(1,(e.clientY-(rect.top+rect.height/2))/(rect.height*.36)));active.current={up:y<-.14,down:y>.14,left:x<-.14,right:x>.14};emit();window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-input',{detail:{move:{x,y},source:'mobile-game-shell-visible-joystick'}}));if(shellJoystickKnobRef.current)shellJoystickKnobRef.current.style.transform=`translate3d(${Math.round(x*30)}px,${Math.round(y*30)}px,0)`}
+ const stopShellJoystick=()=>{active.current={up:false,down:false,left:false,right:false};emit();window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-input',{detail:{move:{x:0,y:0},source:'mobile-game-shell-visible-joystick'}}));if(shellJoystickKnobRef.current)shellJoystickKnobRef.current.style.transform='translate3d(0,0,0)'}
  const action=()=>{if(navigator.vibrate)try{navigator.vibrate(12)}catch{};window.dispatchEvent(new CustomEvent('tryamm:streetverse-action',{detail:{source:'mobile-game-shell',mode,hand:mode==='one-hand'?hand:undefined}}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{source:'mobile-game-shell',mode,hand:mode==='one-hand'?hand:undefined}}))}
  const toggleCruise=()=>{if(!inVehicle)return;const next=!cruiseRef.current;cruiseRef.current=next;setCruise(next);active.current.up=false;window.dispatchEvent(new CustomEvent('tryamm:streetverse-cruise',{detail:{active:next,source:'mobile-game-shell'}}));window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:next?'ONE-HAND CRUISE ON • steer with one finger':'ONE-HAND CRUISE OFF'}}))}
  const exitVehicle=()=>{cruiseRef.current=false;setCruise(false);active.current.up=false;window.dispatchEvent(new CustomEvent('tryamm:streetverse-cruise',{detail:{active:false,source:'mobile-game-shell-exit'}}));emit();window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:false,source:'mobile-game-shell-exit'}}))}
@@ -148,7 +151,7 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const selectedSide=hand==='left'?{left:'max(12px,env(safe-area-inset-left))'}:{right:'max(12px,env(safe-area-inset-right))'}
  const movementSide=mode==='one-hand'?selectedSide:{left:'max(12px,env(safe-area-inset-left))'}
  const actionSide=mode==='one-hand'?selectedSide:{right:'max(14px,env(safe-area-inset-right))'}
- return <><div data-streetverse-mobile-shell="v4" data-control-mode={mode} data-one-hand-side={mode==='one-hand'?hand:'none'} style={{position:'fixed',inset:0,zIndex:32000,pointerEvents:'none',fontFamily:'system-ui',userSelect:'none',WebkitUserSelect:'none'}}>
+ return <><div data-streetverse-mobile-shell="v5" data-direct-analog={directAnalog?'world':'fallback'} data-control-mode={mode} data-one-hand-side={mode==='one-hand'?hand:'none'} style={{position:'fixed',inset:0,zIndex:52000,pointerEvents:'none',fontFamily:'system-ui',userSelect:'none',WebkitUserSelect:'none'}}>
   <div style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',left:'max(10px,env(safe-area-inset-left))',display:'flex',gap:6,pointerEvents:'auto',flexWrap:'wrap',maxWidth:'calc(100vw - 70px)'}}>
    <button aria-pressed={mode==='one-hand'&&hand==='left'} onClick={()=>activateOneHand('left')} style={modeButton(mode==='one-hand'&&hand==='left')}>LEFT HAND</button>
    <button aria-pressed={mode==='one-hand'&&hand==='right'} onClick={()=>activateOneHand('right')} style={modeButton(mode==='one-hand'&&hand==='right')}>RIGHT HAND</button>
@@ -172,9 +175,10 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
    <button onClick={openRideShare} style={quickRailButton('#66e6ff')}>🚕 RIDE</button>
    <button onClick={openBible} style={quickRailButton('#e5c56a')}>📖 BIBLE</button>
   </div>
-  {!directAnalog&&<div aria-label="StreetVerse fallback movement controls" style={{position:'absolute',...movementSide,bottom,display:'grid',gridTemplateColumns:'56px 56px 56px',gap:6,pointerEvents:'auto'}}>
-   <span/>{control('↑','up')}<span/>{control('←','left')}{control('↓','down')}{control('→','right')}
-  </div>}
+  <div aria-label="StreetVerse always visible joystick" onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);shellJoystick(e)}} onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))shellJoystick(e)}} onPointerUp={e=>{try{e.currentTarget.releasePointerCapture(e.pointerId)}catch{};stopShellJoystick()}} onPointerCancel={stopShellJoystick} onLostPointerCapture={stopShellJoystick} style={{position:'absolute',...movementSide,bottom,zIndex:52010,width:132,height:132,borderRadius:'50%',border:'3px solid #7be9ff',background:'rgba(2,12,22,.82)',boxShadow:'0 0 28px #00d9ff88',display:'grid',placeItems:'center',pointerEvents:'auto',touchAction:'none'}}>
+   <div ref={shellJoystickKnobRef} aria-hidden="true" style={{width:58,height:58,borderRadius:'50%',background:'linear-gradient(145deg,#baf7ff,#46dfff)',border:'3px solid #effdff',boxShadow:'0 0 18px #63eaffaa',pointerEvents:'none',transition:'transform 35ms linear',willChange:'transform'}}/>
+   <span aria-hidden="true" style={{position:'absolute',bottom:-18,left:'50%',transform:'translateX(-50%)',fontSize:8,fontWeight:950,letterSpacing:1.4,color:'#bff8ff',whiteSpace:'nowrap',textShadow:'0 1px 4px #000'}}>MOVE / STEER</span>
+  </div>
   {mode==='two-hand'&&<div aria-label="StreetVerse camera controls" style={{position:'absolute',right:'max(14px,env(safe-area-inset-right))',bottom:'max(164px,calc(env(safe-area-inset-bottom) + 164px))',display:'flex',gap:8,pointerEvents:'auto'}}>
    <button aria-label="Look left" onClick={()=>camera('left')} style={secondaryButton}>↶</button>
    <button aria-label="Look right" onClick={()=>camera('right')} style={secondaryButton}>↷</button>
