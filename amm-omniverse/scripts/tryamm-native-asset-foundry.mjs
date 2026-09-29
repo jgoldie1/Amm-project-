@@ -269,11 +269,24 @@ function addBuilding(group,x,z,w,h,d,mats,index,density){
   const cols=Math.max(2,Math.floor(w/2.3*density))
   for(let f=0;f<floors;f++)for(let c=0;c<cols;c++){
     const wx=x-w/2+1+(c*(w-2)/Math.max(1,cols-1))
-    const wy=1.5+f*2.55
-    addBox(group,'window',[.72,1.15,.045],[wx,wy,z+d/2+.03],mats.glass,undefined,'window')
+    const wy=1.55+f*2.55
+    addBox(group,'window',[.76,1.18,.05],[wx,wy,z+d/2+.035],mats.glass,undefined,'window')
+    addBox(group,'window-sill',[.92,.08,.12],[wx,wy-.66,z+d/2+.07],mats.concrete,undefined,'facade-trim')
+    addBox(group,'window-lintel',[.94,.08,.12],[wx,wy+.66,z+d/2+.07],mats.concrete,undefined,'facade-trim')
   }
-  addBox(group,'building-door',[1.05,2.15,.07],[x,1.08,z+d/2+.05],mats.metal,undefined,'entrance')
-  addBox(group,'roof-cap',[w+.18,.16,d+.18],[x,h+.08,z],mats.concrete)
+  const sideFloors=Math.max(2,Math.min(4,floors))
+  for(let f=0;f<sideFloors;f++)for(const dz of [-d*.24,d*.24]){
+    addBox(group,'side-window',[.05,1.04,.78],[x+w/2+.035,1.65+f*2.55,z+dz],mats.glass,undefined,'window')
+  }
+  addBox(group,'storefront-glass',[Math.max(2.5,w*.42),1.72,.06],[x-w*.19,.96,z+d/2+.045],mats.glass,undefined,'storefront')
+  addBox(group,'building-door',[1.05,2.15,.08],[x+w*.24,1.08,z+d/2+.055],mats.metal,undefined,'entrance')
+  addBox(group,'entry-stoop',[2.15,.18,1.05],[x+w*.24,.09,z+d/2+.5],mats.concrete,undefined,'entrance-stoop')
+  addBox(group,'storefront-awning',[Math.max(3.4,w*.5),.18,.92],[x-w*.12,2.15,z+d/2+.48],index%2?mats.metal:mats.holo,undefined,'storefront-awning')
+  addBox(group,'facade-band',[w*.9,.18,.16],[x,h*.36,z+d/2+.08],mats.concrete,undefined,'facade-band')
+  addBox(group,'cornice',[w+.28,.28,d+.22],[x,h-.12,z],mats.concrete,undefined,'cornice')
+  addBox(group,'roof-cap',[w+.38,.18,d+.38],[x,h+.09,z],mats.concrete,undefined,'roof-cap')
+  addBox(group,'rooftop-hvac',[Math.max(1.2,w*.18),.72,Math.max(1.1,d*.22)],[x-w*.18,h+.48,z],mats.metal,undefined,'rooftop-equipment')
+  addBox(group,'rooftop-hvac',[Math.max(1,w*.14),.58,Math.max(.9,d*.18)],[x+w*.2,h+.39,z+d*.14],mats.metal,undefined,'rooftop-equipment')
 }
 
 function build(profile){
