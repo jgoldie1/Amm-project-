@@ -1,13 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { recordMobilityEvent, verifyOmniverseLedger } from '../runtime/OmniverseAssetLedger'
 import {STREETVERSE_MOBILITY_ECONOMY} from '../data/StreetVerseMobilityEconomy'
 import {CHICAGO_AMBIENT_MOBILITY_JOBS} from '../runtime/StreetVerseLivingMobilityRuntime'
 
-export default function HoloMobilityLauncher(){
+export default function HoloMobilityLauncher({launcher=true}:{launcher?:boolean}={}){
   const [open,setOpen]=useState(false)
   const [status,setStatus]=useState('Provider connections are gated until real transport/drone providers and compliance credentials are connected.')
   const [ledger,setLedger]=useState('Internal ledger audit not run yet.')
   const [selectedJob,setSelectedJob]=useState(0)
+  useEffect(()=>{const openFromWorld=()=>setOpen(true);window.addEventListener('tryamm:holo-mobility-open',openFromWorld);return()=>window.removeEventListener('tryamm:holo-mobility-open',openFromWorld)},[])
 
   const dispatchStreetVerse=(kind:'rideshare'|'car-share'|'rental'|'delivery'|'recovery'|'air-taxi')=>{
     const candidates=CHICAGO_AMBIENT_MOBILITY_JOBS.filter(job=>kind==='car-share'?job.kind==='car-share':kind==='recovery'?job.kind==='recovery':kind==='delivery'?job.kind==='delivery':job.kind==='rideshare')
@@ -25,7 +26,7 @@ export default function HoloMobilityLauncher(){
   }
 
   return <>
-    <button type="button" onClick={()=>setOpen(true)} aria-label="Open Holo mobility" style={{position:'fixed',right:12,bottom:176,zIndex:9001,border:'1px solid #78ffb477',background:'linear-gradient(135deg,#0d3f31,#172438)',color:'#fff',borderRadius:999,padding:'10px 14px',fontWeight:950,cursor:'pointer',boxShadow:'0 8px 30px #0008'}}>✦ HOLO RIDE + DRONE</button>
+    {launcher&&<button type="button" onClick={()=>setOpen(true)} aria-label="Open Holo mobility" style={{position:'fixed',right:12,bottom:176,zIndex:9001,border:'1px solid #78ffb477',background:'linear-gradient(135deg,#0d3f31,#172438)',color:'#fff',borderRadius:999,padding:'10px 14px',fontWeight:950,cursor:'pointer',boxShadow:'0 8px 30px #0008'}}>✦ HOLO RIDE + DRONE</button>}
     {open&&<section role="dialog" aria-modal="true" aria-label="Holo Ride Share and Drone" style={{position:'fixed',inset:0,zIndex:21000,overflow:'auto',background:'#02050ef7',color:'#fff',fontFamily:'Inter,system-ui,sans-serif'}}>
       <div style={{maxWidth:920,margin:'0 auto',padding:'28px 16px 80px'}}>
         <div style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'center'}}><div><div style={{fontSize:10,letterSpacing:3,color:'#4FE3FF',fontWeight:950}}>STUBBS AI MOBILITY NETWORK</div><h1 style={{margin:'6px 0'}}>Holo Ride Share + Holo Drone</h1></div><button onClick={()=>setOpen(false)} style={closeBtn}>×</button></div>
