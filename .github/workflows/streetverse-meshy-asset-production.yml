@@ -1,0 +1,142 @@
+name: StreetVerse Meshy Asset Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: Asset profile to generate. all-first-wave creates four paid Meshy assets.
+        required: true
+        type: choice
+        default: hero-player
+        options:
+          - hero-player
+          - premium-resident-a
+          - sport-sedan
+          - city-transit-train
+          - chicago-storefront-module
+          - all-first-wave
+      geometry_resolution:
+        description: Mesh geometry resolution
+        required: true
+        type: choice
+        default: 2k
+        options:
+          - 2k
+          - 4k
+      texture_resolution:
+        description: PBR texture resolution
+        required: true
+        type: choice
+        default: 2k
+        options:
+          - 2k
+          - 4k
+      confirm_paid_generation:
+        description: Type YES to confirm Meshy credit use. Anything else fails closed.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-meshy-asset-production
+  cancel-in-progress: false
+
+jobs:
+  produce:
+    name: Produce reviewed-candidate GLBs
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Require explicit paid-generation confirmation
+        shell: bash
+        run: |
+          if [ "${{ inputs.confirm_paid_generation }}" != "YES" ]; then
+            echo "Paid generation was not explicitly confirmed. No Meshy request will be made."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      - name: Require Meshy server secret
+        shell: bash
+        env:
+          MESHY_API_KEY: ${{ secrets.MESHY_API_KEY }}
+        run: |
+          if [ -z "$MESHY_API_KEY" ]; then
+            echo "MESHY_API_KEY is not configured as a GitHub Actions secret."
+            exit 1
+          fi
+
+      - name: Install Omniverse dependencies
+        working-directory: amm-omniverse
+        run: npm ci --ignore-scripts
+
+      - name: Generate Meshy preview, refine to PBR, and download GLB
+        working-directory: amm-omniverse
+        env:
+          MESHY_API_KEY: ${{ secrets.MESHY_API_KEY }}
+          CONFIRM_PAID_GENERATION: YES
+        run: |
+          node scripts/streetverse-meshy-asset-production.mjs \
+            --profile="${{ inputs.profile }}" \
+            --geometry-resolution="${{ inputs.geometry_resolution }}" \
+            --texture-resolution="${{ inputs.texture_resolution }}" \
+            --confirm-paid-generation=YES \
+            --output=../release-evidence/streetverse-meshy-production
+
+      - name: Inspect generated GLBs
+        shell: bash
+        run: |
+          shopt -s globstar nullglob
+          count=0
+          for file in release-evidence/streetverse-meshy-production/**/*.glb; do
+            echo "Inspecting $file"
+            npx --prefix amm-omniverse gltf-transform inspect "$file"
+            count=$((count+1))
+          done
+          test "$count" -gt 0
+          echo "Validated $count Meshy GLB candidate(s)."
+
+      - name: Enforce review-before-publish truth
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs=require('fs')
+          const p='release-evidence/streetverse-meshy-production/batch-manifest.json'
+          const batch=JSON.parse(fs.readFileSync(p,'utf8'))
+          if(batch.productionPublishAllowed!==false)throw new Error('Meshy batch must remain non-production until review gates pass')
+          for(const item of batch.profiles){
+            if(item.gates?.humanVisualReview!==false)throw new Error('human visual review must remain pending')
+            if(item.gates?.assetPassportCertified!==false)throw new Error('Asset Passport must remain pending')
+            if(item.gates?.productionPublishAllowed!==false)throw new Error('candidate must not auto-publish')
+          }
+          console.log('Meshy candidates are generated but fail-closed from live publication until review/certification.')
+          NODE
+
+      - name: Upload Meshy production candidates
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-meshy-production-${{ inputs.profile }}
+          path: release-evidence/streetverse-meshy-production/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish production truth
+        shell: bash
+        run: |
+          {
+            echo "## StreetVerse Meshy Asset Production"
+            echo "- Profile: ${{ inputs.profile }}"
+            echo "- Geometry: ${{ inputs.geometry_resolution }}"
+            echo "- PBR textures: ${{ inputs.texture_resolution }}"
+            echo "- Real GLB candidates: generated and inspected."
+            echo "- Live publication: BLOCKED pending human visual review, Asset Passport/provenance, runtime budget, collision/interaction, and target-device evidence."
+          } >> "$GITHUB_STEP_SUMMARY"

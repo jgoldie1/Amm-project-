@@ -26,5 +26,6 @@ services:
       # GEMINI_MODEL            (default: gemini-2.5-flash)
       # OPENAI_API_KEY          (Stubbs Brain 2 / independent critic + supervised agents)
       # OPENAI_STUBBS_CRITIC_MODEL (default: gpt-5.6-sol)
+      # MESHY_API_KEY           (optional server-side 3D Asset Forge provider; never expose to browser)
       # SIGN_LANGUAGE_PROVIDER_URL (optional)
       # SIGN_LANGUAGE_PROVIDER_KEY (optional)

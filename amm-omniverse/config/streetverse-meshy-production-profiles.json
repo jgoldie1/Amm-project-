@@ -1,0 +1,49 @@
+{
+  "schema": "tryamm.streetverse.meshy-production-profiles.v1",
+  "provider": "meshy",
+  "model": "meshy-7.1",
+  "profiles": [
+    {
+      "id": "hero-player",
+      "kind": "character",
+      "targetPath": "public/generated-assets/provider/hero-player.glb",
+      "targetPolycount": 60000,
+      "poseMode": "a-pose",
+      "prompt": "Original StreetVerse open-world hero character, modern Chicago streetwear, realistic adult proportions, clean neutral A-pose, detailed face and hands, layered jacket shirt pants and sneakers, game-ready silhouette, no logos, no copyrighted character likeness, physically plausible materials.",
+      "texturePrompt": "Realistic dark and neutral streetwear fabrics, natural skin response, subtle wear, physically plausible PBR materials, no logos or text."
+    },
+    {
+      "id": "premium-resident-a",
+      "kind": "character",
+      "targetPath": "public/generated-assets/provider/premium-resident-a.glb",
+      "targetPolycount": 42000,
+      "poseMode": "a-pose",
+      "prompt": "Original diverse urban resident for StreetVerse Chicago, realistic adult human proportions, everyday contemporary clothing, clean neutral A-pose, expressive but generic face, game-ready topology target, no logos, no celebrity likeness.",
+      "texturePrompt": "Natural skin and hair response, realistic everyday clothing fabrics, subtle color variation and wear, PBR materials, no logos."
+    },
+    {
+      "id": "sport-sedan",
+      "kind": "vehicle",
+      "targetPath": "public/generated-assets/provider/sport-sedan.glb",
+      "targetPolycount": 65000,
+      "prompt": "Original unbranded modern four-door sport sedan for an open-world driving game, realistic road-going proportions, detailed wheels tires glass lamps mirrors doors and body seams, premium but not based on a specific commercial vehicle, clean game-ready exterior, no logos or trademarks.",
+      "texturePrompt": "Deep metallic automotive paint, realistic glass rubber brushed metal and lamp materials, subtle road wear, clean PBR maps, no logos."
+    },
+    {
+      "id": "city-transit-train",
+      "kind": "vehicle",
+      "targetPath": "public/generated-assets/provider/city-transit-train.glb",
+      "targetPolycount": 70000,
+      "prompt": "Original urban elevated rapid-transit train car for StreetVerse Chicago, rounded stainless-steel body, realistic doors windows bogies wheels couplers and lights, believable city transit proportions, no agency logos, no trademarks, game-ready exterior.",
+      "texturePrompt": "Brushed stainless steel, dark safety glass, rubber, painted accent panels, subtle city wear and grime, physically plausible PBR materials, no logos or route branding."
+    },
+    {
+      "id": "chicago-storefront-module",
+      "kind": "building",
+      "targetPath": "public/generated-assets/provider/chicago-storefront-module.glb",
+      "targetPolycount": 80000,
+      "prompt": "Original Chicago-inspired mixed-use brick storefront building module for StreetVerse, believable street-level shop facade with upper apartments, masonry lintels cornice windows doors awning mounts utility details and accessible entrance, no real business signs, no private interior details, game-ready modular exterior.",
+      "texturePrompt": "Weathered red and tan brick, concrete stone painted metal glass and subtle urban wear, physically plausible PBR materials, no real business names or logos."
+    }
+  ]
+}
