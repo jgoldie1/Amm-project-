@@ -30,11 +30,19 @@ export const ASSET_PROVIDER_POLICY={
  requireLicenseReview:true,
  requireProvenance:true,
  requireHumanApprovalForRealPersonLikeness:true,
- fallbackOrder:['owned-model','licensed-provider','manual-artist'] as const,
+ fallbackOrder:['tryamm-native','owned-model','licensed-provider','manual-artist'] as const,
 }
 
+export const SELF_CONTAINED_ASSET_POLICY={
+ nativeBaseline:'TRYAMM Native Asset Foundry is the default zero-credit baseline for procedural environment/prop generation.',
+ externalProviders:'Optional accelerators must beat the native baseline on reviewed quality/performance and remain replaceable.',
+ nativeFirst:true,
+ requireRealArtifactEvidence:true,
+ noExternalDependencyForBaseline:true,
+} as const
+
 export const FUTURE_ASSET_FORGE_ROADMAP=[
- 'owned procedural buildings and streets',
+ 'owned procedural buildings and streets','owned modular street furniture/props','owned PBR material recipes','owned holographic interaction geometry',
  'owned character identity and wardrobe consistency',
  'owned rig validation and animation retargeting',
  'owned topology and mobile LOD optimization',
