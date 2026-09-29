@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { getTryammReadiness } from '../services/middlewear'
 import {detectTryammEdgeCapabilities} from '../runtime/TryammPocketEdgeRuntime'
 import {pocketEdgeEnabled,runPocketEdgeCycle,setPocketEdgeEnabled} from '../runtime/TryammPocketEdgeWorker'
+import {getPocketEdgeEarnings} from '../services/edgeNode'
 
 const cyan = '#4FE3FF'
 const gold = '#E8B944'
@@ -31,7 +32,8 @@ export default function MiddleverseAIHub({ onClose }: Props) {
   const [edgeEnabled,setEdgeEnabled]=useState(()=>pocketEdgeEnabled())
   const [edgeCap,setEdgeCap]=useState<any>(null)
   const [edgeNotice,setEdgeNotice]=useState('Detecting local edge capability…')
-  useEffect(()=>{let active=true;getTryammReadiness().then(x=>{if(active)setResilience(x.ok?'READY':'DEGRADED')}).catch(()=>{if(active)setResilience('DEGRADED')});detectTryammEdgeCapabilities().then(x=>{if(active){setEdgeCap(x);setEdgeNotice(`${x.nodeClass.toUpperCase()} • ${x.safeWork.length} SAFE WORK TYPES`)}}).catch(()=>{if(active)setEdgeNotice('LOCAL EDGE CAPABILITY UNAVAILABLE')});return()=>{active=false}},[])
+  const [edgeEarnings,setEdgeEarnings]=useState<any>(null)
+  useEffect(()=>{let active=true;getTryammReadiness().then(x=>{if(active)setResilience(x.ok?'READY':'DEGRADED')}).catch(()=>{if(active)setResilience('DEGRADED')});detectTryammEdgeCapabilities().then(x=>{if(active){setEdgeCap(x);setEdgeNotice(`${x.nodeClass.toUpperCase()} • ${x.safeWork.length} SAFE WORK TYPES`)}}).catch(()=>{if(active)setEdgeNotice('LOCAL EDGE CAPABILITY UNAVAILABLE')});getPocketEdgeEarnings().then((x:any)=>{if(active)setEdgeEarnings(x?.summary||null)}).catch(()=>{});return()=>{active=false}},[])
   const destinations = useMemo<Destination[]>(() => [
     { icon: '✦', title: 'Benny Stubbs AI', description: 'Open the female AI guide for navigation, help and creation.', action: () => openGlobal('__showBennie'), status: 'READY' },
     { icon: '●', title: 'LIVE / PK / Debate', description: 'Move into live creation, collaboration, debate and commerce.', action: () => openGlobal('__showTryAMMLive'), status: 'READY' },
@@ -75,6 +77,23 @@ export default function MiddleverseAIHub({ onClose }: Props) {
         </div>
         {edgeCap&&<div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:12,fontSize:9,color:'#b9c7d5'}}><span>CPU {edgeCap.hardwareConcurrency}</span><span>•</span><span>WEBGPU {edgeCap.webGPU?'YES':'NO'}</span><span>•</span><span>WEBCODECS {edgeCap.webCodecs?'YES':'NO'}</span><span>•</span><span>PARALLEL {edgeCap.maxParallel}</span><span>•</span><span>{edgeCap.safeWork.join(' · ')||'cache/sync only'}</span></div>}
         <div style={{fontSize:9,color:'#71869f',marginTop:10}}>OPT-IN • BATTERY-AWARE • NO BACKGROUND MINING • SAME-OWNER JOBS • HEAVY WORK FALLS BACK TO WORKSTATION/CAFE/BUSINESS/CLOUD</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(120px,1fr))',gap:8,marginTop:12}}>
+          {[['PENDING',edgeEarnings?.pendingCents],['PAYABLE',edgeEarnings?.payableCents],['PAID',edgeEarnings?.paidCents]].map(([label,cents]:any)=><div key={label} style={{padding:'9px 10px',border:'1px solid #1e3549',borderRadius:12,background:'#09131e'}}><div style={{fontSize:8,color:'#7f93a8',fontWeight:950}}>{label}</div><div style={{fontSize:15,fontWeight:950,marginTop:3}}>{typeof cents==='number'?('
+      </section>
+
+      <section style={{marginTop:18,display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:11}}>
+        {destinations.map(item => <button key={item.title} onClick={() => launch(item)} style={{minHeight:160,textAlign:'left',padding:18,border:'1px solid #1e3549',borderRadius:20,background:'linear-gradient(155deg,#0b1420,#070912)',color:'#fff',cursor:'pointer'}}>
+          <div style={{display:'flex',justifyContent:'space-between',gap:8,alignItems:'center'}}><span style={{fontSize:26}}>{item.icon}</span><span style={{fontSize:8,fontWeight:950,letterSpacing:1,color:item.status==='READY'?'#8fffc1':'#ffe49b'}}>{item.status}</span></div>
+          <div style={{fontSize:18,fontWeight:950,marginTop:14}}>{item.title}</div>
+          <div style={{fontSize:11,color:'#9eafc0',lineHeight:1.5,marginTop:7}}>{item.description}</div>
+          <div style={{fontSize:9,color:cyan,fontWeight:950,marginTop:12}}>{item.status==='READY'?'OPEN →':'PRESERVED • RECONNECT →'}</div>
+        </button>)}
+      </section>
+    </div>
+  </div>
+}+(cents/100).toFixed(2)):'—'}</div></div>)}
+        </div>
+        <div style={{fontSize:9,color:'#8da0b4',marginTop:8}}>Only funded, independently verified customer work can become payable. Personal cache/sync jobs do not generate earnings.</div>
       </section>
 
       <section style={{marginTop:18,display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:11}}>
