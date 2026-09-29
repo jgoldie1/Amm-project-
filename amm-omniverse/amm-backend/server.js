@@ -25,6 +25,8 @@ const { createRedHatSentinel } = require('./lib/red-hat-sentinel')
 const { createRedHatSentinelRouter } = require('./routes/red-hat-sentinel')
 const { createJacobieSwarmShield } = require('./lib/jacobie-swarm-shield')
 const { createMiddleWearSecurityGateway } = require('./lib/middlewear-security-gateway')
+const { createMiddleWearResilience } = require('./lib/middlewear-resilience')
+const http = require('http')
 
 const app = express()
 
@@ -34,17 +36,28 @@ const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SEC
 const redHatSentinel = createRedHatSentinel({ supabase })
 const jacobieSwarmShield = createJacobieSwarmShield()
 const middleWearSecurity = createMiddleWearSecurityGateway({ supabase })
+const middleWearResilience = createMiddleWearResilience()
 
 app.disable('x-powered-by')
+app.set('trust proxy', 1)
 app.use(jacobieSecurityHeaders)
 app.use(redHatSentinel.middleware)
 app.use(jacobieSwarmShield.middleware)
+app.use(middleWearResilience.middleware)
 app.use(cors({ origin:['https://tryamm.online','https://www.tryamm.online','https://amm-omniverse.vercel.app','http://localhost:5173',process.env.FRONTEND_URL].filter(Boolean), credentials:true }))
 app.use('/api/stripe/webhook', noStoreSensitive, express.raw({ type:'application/json' }))
 app.use(express.json({ limit:'2mb' }))
 for (const path of redHatSentinel.canaryPaths) app.all(path, redHatSentinel.decoyHandler)
 
 app.get('/', (_req,res)=>res.json({ name:'AMM Omniverse Backend', status:'online', version:'1.11.0-release-control', systems:['stripe','supabase','livekit','living-worlds','ai-cafe','workforce','middleverse','kingdoms-press','app-store','stubbs-ai','hologpt','holo-services','holo-core','all-american-university','family-legacy','heirs-legacy-kids','omni-treasury','financial-truth','release-control','release-observability','reserve-buckets','auto-ledger','sign-language','tryamm-live','moderation-reporting'] }))
+app.get('/api/livez', (_req,res)=>res.status(200).json({ok:true,service:'amm-backend',processAlive:true,ts:Date.now()}))
+app.get('/api/readyz', async (_req,res)=>{
+  let database=false
+  try{const {error}=await supabase.from('worlds').select('id').limit(1);database=!error}catch(_){database=false}
+  const critical={database,serviceKey:Boolean(process.env.SUPABASE_SERVICE_KEY),supabaseUrl:Boolean(process.env.SUPABASE_URL)}
+  const ready=Object.values(critical).every(Boolean)
+  return res.status(ready?200:503).json({ok:ready,critical,resilience:middleWearResilience.status(),ts:Date.now()})
+})
 app.get('/api/health', async (_req,res)=>{
   let database=false
   let releaseRegistry=false
@@ -52,7 +65,7 @@ app.get('/api/health', async (_req,res)=>{
   try { const { error }=await supabase.from('worlds').select('id').limit(1); database=!error } catch(_) {}
   try { const { error }=await supabase.from('release_registry').select('id').limit(1); releaseRegistry=!error } catch(_) {}
   try { const { error }=await supabase.from('release_health_samples').select('id').limit(1); releaseHealth=!error } catch(_) {}
-  res.json({ ok:true, ts:Date.now(), version:'1.11.0-release-control', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, financialTruth:true, releaseControl:true, releaseRegistry, releaseHealth, autoLedger:true, signLanguage:true, signRecognitionProvider:Boolean(process.env.SIGN_LANGUAGE_PROVIDER_URL), tryammLive:true, moderationReporting:true, workforce:true, middleverse:true, assetForge:true, meshyAssetForge:Boolean(process.env.MESHY_API_KEY), redHatSentinel:true, jacobieQuantumShield:true, jacobieSwarmShield:true, middleWearSecurity:true, repoWorkstation:true } })
+  res.json({ ok:true, ts:Date.now(), version:'1.11.0-release-control', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, financialTruth:true, releaseControl:true, releaseRegistry, releaseHealth, autoLedger:true, signLanguage:true, signRecognitionProvider:Boolean(process.env.SIGN_LANGUAGE_PROVIDER_URL), tryammLive:true, moderationReporting:true, workforce:true, middleverse:true, assetForge:true, meshyAssetForge:Boolean(process.env.MESHY_API_KEY), redHatSentinel:true, jacobieQuantumShield:true, jacobieSwarmShield:true, middleWearSecurity:true, middleWearResilience:true, repoWorkstation:true } })
 })
 
 app.use('/api/privacy', noStoreSensitive)
@@ -148,7 +161,29 @@ app.get('/api/businesses/:id',async(req,res)=>{ try{ const {data,error}=await su
 app.get('/api/music/tracks',async(req,res)=>{ try{ const {genre,creatorId}=req.query; let q=supabase.from('tracks').select('*').order('created_at',{ascending:false}); if(genre)q=q.eq('genre',String(genre).slice(0,80)); if(creatorId)q=q.eq('creator_id',creatorId); const {data,error}=await q.limit(100); if(error)throw error; res.json({tracks:data||[]}) }catch(err){res.status(500).json({error:err.message})} })
 
 const PORT=process.env.PORT||4000
-app.listen(PORT,()=>{
+const server=http.createServer(app)
+server.requestTimeout=30_000
+server.headersTimeout=35_000
+server.keepAliveTimeout=65_000
+server.maxRequestsPerSocket=1000
+
+let shuttingDown=false
+async function gracefulShutdown(signal){
+  if(shuttingDown)return
+  shuttingDown=true
+  console.warn(`TRYAMM graceful shutdown started: ${signal}`)
+  const force=setTimeout(()=>process.exit(1),15_000)
+  force.unref?.()
+  server.close(error=>{
+    clearTimeout(force)
+    if(error){console.error('TRYAMM graceful shutdown error',error);process.exit(1)}
+    process.exit(0)
+  })
+}
+process.on('SIGTERM',()=>void gracefulShutdown('SIGTERM'))
+process.on('SIGINT',()=>void gracefulShutdown('SIGINT'))
+
+server.listen(PORT,()=>{
   console.log(`\n✅ AMM Backend running on port ${PORT}`)
   console.log(`   Stripe: ${stripe?'✅ connected':'❌ STRIPE_SECRET_KEY missing'}`)
   console.log('   Supabase: ✅ connected')
@@ -165,6 +200,7 @@ app.listen(PORT,()=>{
   console.log('   Red Hat Sentinel operator API: /api/security/red-hat/*')
   console.log('   Jacobie Swarm Shield: ✅ per-source/principal/resource throttling + graceful degradation')
   console.log('   MiddleWear Security Gateway: ✅ identity + risk + provider + audit + operator review')
+  console.log('   MiddleWear Resilience: ✅ deadlines + bulkheads + circuit breakers + overload shedding')
   console.log('   Omniverse API: /api/omniverse/*')
   console.log('   Holo Core API: /api/holo-core/*')
   console.log('   University API: /api/university/*')
