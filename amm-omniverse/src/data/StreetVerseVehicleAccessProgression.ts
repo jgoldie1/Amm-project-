@@ -86,7 +86,7 @@ export const STREETVERSE_MOBILITY_CREDENTIALS:StreetVerseMobilityCredential[]=[
     tier:'future-air',
     unlockLevel:10,
     requiredMissions:['rotorcraft-pilot','fixed-wing-pilot','future-air-safety-course','air-corridor-checkride'],
-    allowedVehicleClasses:['evtol','flying-car','evtol-shuttle'],
+    allowedVehicleClasses:['evtol','flying-bike','flying-car','evtol-shuttle'],
     ownership:'restricted-future',
     notes:['ultra-rare class','approved future-air corridors only','rental/test fleet before personal ownership','game certification only'],
   },
@@ -166,6 +166,12 @@ export const STREETVERSE_SPECIAL_VEHICLE_ASSIGNMENTS={
     allowedRoles:['future-air','air-taxi','mobility-test','aviation-business'],
     ownership:'future-air-fleet-first',
     passengerAccess:true,
+  },
+  'flying-bike':{
+    credential:'future-air-mobility',
+    allowedRoles:['future-air','mobility-test','advanced-personal-mobility'],
+    ownership:'rental-test-first-then-approved-personal',
+    passengerAccess:false,
   },
   'flying-car':{
     credential:'future-air-mobility',
