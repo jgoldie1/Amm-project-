@@ -49,7 +49,8 @@ jobs:
           } > release-evidence/source-truth.md
           echo "Ahead=${AHEAD}; Behind=${BEHIND}"
           if [ "${BEHIND}" -gt 0 ]; then
-            echo "::warning::Working branch is ${BEHIND} commit(s) behind main. Reconciliation remains a release blocker."
+            echo "::error::Working branch is ${BEHIND} commit(s) behind main. Reconcile main before release."
+            exit 1
           fi
 
       - uses: actions/upload-artifact@v4
@@ -230,6 +231,222 @@ jobs:
           path: release-evidence/circle-park-production.md
           retention-days: 14
 
+
+  migration-integrity:
+    name: Supabase migration history integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: Reject duplicate migration versions
+        shell: python
+        run: |
+          from pathlib import Path
+          from collections import defaultdict
+          root=Path("amm-omniverse/supabase/migrations")
+          groups=defaultdict(list)
+          for path in sorted(root.glob("*.sql")):
+              version=path.name.split("_",1)[0]
+              if version.isdigit():
+                  groups[version].append(path.name)
+          dup={k:v for k,v in groups.items() if len(v)>1}
+          if dup:
+              print("::error::Duplicate Supabase migration versions detected.")
+              for version,files in dup.items():
+                  print(f"::error::version {version}: {', '.join(files)}")
+              raise SystemExit(1)
+          print(f"Migration versions unique: {sum(len(v) for v in groups.values())} files")
+
+  backend-authority:
+    name: Backend authority + financial/economic checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: amm-omniverse/amm-backend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/amm-backend/package-lock.json
+      - name: Install backend dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Backend full check
+        run: npm run check
+
+  browser-e2e:
+    name: Desktop + mobile branch E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install app dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install Playwright tooling
+        run: |
+          npm install --no-save --no-package-lock @playwright/test@1.63.0
+          npx playwright install --with-deps chromium
+      - name: Build branch candidate
+        run: npm run build
+      - name: Run branch-safe UI/game E2E
+        run: npx playwright test tests/e2e/core-launchers.spec.ts tests/e2e/holo-delivery.spec.ts tests/e2e/chicago-77-production.spec.ts
+      - name: Upload branch E2E evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-branch-e2e
+          path: |
+            amm-omniverse/playwright-report/
+            amm-omniverse/test-results/
+          if-no-files-found: warn
+          retention-days: 14
+
+  android-native-candidate:
+    name: Android API 36 native candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Install Android API 36
+        shell: bash
+        run: |
+          set -euo pipefail
+          ANDROID_SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          SDKMANAGER="$(find "$ANDROID_SDK_ROOT/cmdline-tools" -type f -path '*/bin/sdkmanager' | sort -V | tail -n 1)"
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+      - name: Build web candidate
+        run: |
+          npm ci --no-audit --no-fund
+          node tests/google-play-release-contract.mjs
+          npm run build
+      - name: Generate and sync Android shell
+        run: |
+          rm -rf android
+          npx cap add android
+          npx cap sync android
+          node scripts/prepare-android-release.mjs
+      - name: Verify canonical package + permissions
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -R "online.tryamm.app" android/app/build.gradle android/app/src/main/AndroidManifest.xml || true
+          grep -F "android.permission.CAMERA" android/app/src/main/AndroidManifest.xml
+          grep -F "android.permission.RECORD_AUDIO" android/app/src/main/AndroidManifest.xml
+      - name: Build debug APK + release AAB
+        run: |
+          cd android
+          ./gradlew assembleDebug
+          ./gradlew bundleRelease
+      - name: Upload Android unsigned candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-android-native-candidate
+          path: |
+            amm-omniverse/android/app/build/outputs/apk/debug/*.apk
+            amm-omniverse/android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
+          retention-days: 14
+
+  ios-native-simulator:
+    name: iOS simulator native-shell compile
+    runs-on: macos-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: Build web candidate
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+      - name: Generate and sync iOS shell
+        run: |
+          rm -rf ios
+          npx cap add ios
+          npx cap sync ios
+      - name: Compile unsigned simulator app
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -d ios/App/App.xcworkspace ]; then
+            xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build
+          else
+            xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build
+          fi
+
+  supabase-live-security:
+    name: Live Supabase security advisor
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: fxluchtdfpediivhoksl
+    steps:
+      - name: Require management-token configuration
+        shell: bash
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+            echo "::error::SUPABASE_ACCESS_TOKEN GitHub secret is required for full live-database certification."
+            exit 1
+          fi
+      - name: Fetch live security advisors
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release-evidence
+          curl --fail --silent --show-error             -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN"             "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/advisors/security"             > release-evidence/supabase-security-advisors.json
+          python3 - <<'PY'
+          import json
+          p="release-evidence/supabase-security-advisors.json"
+          with open(p) as f: data=json.load(f)
+          lints=data.get("lints",[])
+          blockers=[x for x in lints if str(x.get("level","")).upper() in {"WARN","ERROR"}]
+          print(f"Supabase security advisor: {len(blockers)} WARN/ERROR finding(s)")
+          for item in blockers:
+              print(f"::error::{item.get('name')}: {item.get('detail') or item.get('description')}")
+          if blockers:
+              raise SystemExit(1)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: supabase-live-security-advisors
+          path: release-evidence/supabase-security-advisors.json
+          if-no-files-found: warn
+          retention-days: 14
+
   morning-release-gate:
     name: Morning release gate
     if: ${{ always() }}
@@ -240,6 +457,12 @@ jobs:
       - omniverse-full
       - aaa-evidence
       - media-production
+      - migration-integrity
+      - backend-authority
+      - browser-e2e
+      - android-native-candidate
+      - ios-native-simulator
+      - supabase-live-security
     runs-on: ubuntu-latest
     steps:
       - name: Publish consolidated status
@@ -250,6 +473,12 @@ jobs:
           OMNIVERSE_FULL: ${{ needs.omniverse-full.result }}
           AAA_EVIDENCE: ${{ needs.aaa-evidence.result }}
           MEDIA_PRODUCTION: ${{ needs.media-production.result }}
+          MIGRATION_INTEGRITY: ${{ needs.migration-integrity.result }}
+          BACKEND_AUTHORITY: ${{ needs.backend-authority.result }}
+          BROWSER_E2E: ${{ needs.browser-e2e.result }}
+          ANDROID_NATIVE: ${{ needs.android-native-candidate.result }}
+          IOS_NATIVE: ${{ needs.ios-native-simulator.result }}
+          SUPABASE_LIVE_SECURITY: ${{ needs.supabase-live-security.result }}
         shell: bash
         run: |
           {
@@ -263,6 +492,12 @@ jobs:
             echo "| Omniverse full check/build | ${OMNIVERSE_FULL} |"
             echo "| AAA evidence | ${AAA_EVIDENCE} |"
             echo "| Circle Park production contract | ${MEDIA_PRODUCTION} |"
+            echo "| Migration integrity | ${MIGRATION_INTEGRITY} |"
+            echo "| Backend authority | ${BACKEND_AUTHORITY} |"
+            echo "| Branch-safe browser E2E | ${BROWSER_E2E} |"
+            echo "| Android native candidate | ${ANDROID_NATIVE} |"
+            echo "| iOS simulator compile | ${IOS_NATIVE} |"
+            echo "| Live Supabase security advisor | ${SUPABASE_LIVE_SECURITY} |"
             echo
             echo "## Morning physical checks still owned by the founder"
             echo "- Install/open on iPhone."
@@ -278,10 +513,17 @@ jobs:
             echo "- Verify AAN/Holo Drama surfaces do not claim LIVE without runtime proof."
           } >> "${GITHUB_STEP_SUMMARY}"
 
+          test "${SOURCE_TRUTH}" = "success"
           test "${ROOT_PLATFORM}" = "success"
           test "${STREETVERSE_CONTRACTS}" = "success"
           test "${OMNIVERSE_FULL}" = "success"
           test "${AAA_EVIDENCE}" = "success"
           test "${MEDIA_PRODUCTION}" = "success"
+          test "${MIGRATION_INTEGRITY}" = "success"
+          test "${BACKEND_AUTHORITY}" = "success"
+          test "${BROWSER_E2E}" = "success"
+          test "${ANDROID_NATIVE}" = "success"
+          test "${IOS_NATIVE}" = "success"
+          test "${SUPABASE_LIVE_SECURITY}" = "success"
 
           echo "Repository/build gates passed. Physical-device and real-footage certification remain separate."
