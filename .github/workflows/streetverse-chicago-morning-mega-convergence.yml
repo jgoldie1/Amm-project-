@@ -479,6 +479,7 @@ jobs:
           mkdir -p ../release-evidence/jacobie-security
           node tests/repository-security-scan.mjs
           node tests/jacobie-quantum-shield-contract.mjs
+          node tests/tryamm-edge-ddos-contract.mjs
           node scripts/jacobie-crypto-inventory.mjs ../release-evidence/jacobie-security/crypto-inventory.json
 
       - name: Audit Omniverse production dependencies
@@ -499,7 +500,6 @@ jobs:
           npm run test:jacobie-security
           npm run test:red-hat
           npm run test:swarm-shield
-          npm run test:red-hat
 
       - name: Bind security evidence to commit
         shell: bash
