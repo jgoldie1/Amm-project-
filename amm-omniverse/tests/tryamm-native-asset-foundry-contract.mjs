@@ -33,4 +33,7 @@ must(script.includes("legacyCatalogId:'vehicle-blockout',realismReplacement:true
 must(script.includes('holo-wayfinder'),'native reusable kit missing holo-wayfinder')
 must(script.includes('productionPublishAllowed:false'),'native assets must remain certification-gated')
 must(script.includes('exactDigitalTwin:false'),'native Chicago-inspired assets must not claim exact geography')
+for(const detail of ['storefront-glass','storefront-awning','window-sill','window-lintel','facade-band','cornice','rooftop-hvac']){
+  must(script.includes(detail),'native building realism detail missing '+detail)
+}
 console.log('TRYAMM NATIVE ASSET FOUNDRY CONTRACT PASS: owned 4x GLB baseline generator + holographic winner + no external API/credits')

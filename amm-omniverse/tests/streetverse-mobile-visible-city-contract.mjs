@@ -29,6 +29,18 @@ assert.match(world,/tryamm:streetverse-world-builder-state/,'mobile StreetVerse 
 assert.match(world,/assetGenerator:'tryamm-native-asset-foundry'/,'mobile StreetVerse must identify the native asset generator driving the visual layer')
 assert.match(world,/trafficCars:nativeTrafficCars\.length/,'mobile StreetVerse must measure generated traffic-car replacement coverage')
 assert.match(world,/worldBuilderPublishable:worldBuild\?canPublishWorld\(worldBuild\):false/,'world-ready evidence must expose truthful world-builder publishability')
+assert.match(world,/NATIVE_CITY_BLOCKS\.forEach/,'mobile world must place generated buildings across the complete city-block layout')
+assert.match(world,/nativeBuildings=Array\.from\(\{length:NATIVE_CITY_BLOCKS\.length\}/,'mobile world must measure generated building replacement coverage')
+assert.match(world,/getObjectByName\(nativeBuildingLabel\(i\)\)/,'generated building binding must preserve canonical and legacy labels')
+assert.match(world,/mobile-native-building-west-spawn/,'legacy west-spawn building alias must remain visible to journey contracts')
+assert.match(world,/mobile-native-building-east-spawn/,'legacy east-spawn building alias must remain visible to journey contracts')
+assert.match(world,/primitiveBuildingVisuals\[i\]\?\.forEach\(part=>\{part\.visible=false\}\)/,'generated buildings must suppress primitive building visuals when available')
+assert.match(world,/nativeBuildingReplacementCount:nativeBuildings\.length/,'world-ready evidence must report generated building coverage')
+assert.match(world,/advanceLiveWorldBuild\('collision'/,'world builder must certify collision from live traversal evidence')
+assert.match(world,/advanceLiveWorldBuild\('persistence'/,'world builder must certify persistence from storage evidence')
+assert.match(world,/advanceLiveWorldBuild\('movement'/,'world builder must certify movement only after actual displacement')
+assert.match(world,/advanceLiveWorldBuild\('economy'/,'world builder must certify economy from applied gameplay consequences')
+assert.match(world,/applyWorldEconomy\('host-creator-event','district-01-mobile-safe'\)/,'district completion must feed the living-city economy')
 
 assert.match(worldBuilder,/WORLD_CERTIFICATION_CHECKS\.every\(check=>manifest\.checks\[check\]===true\)/,'world builder must require the complete certification checklist before publish')
 
