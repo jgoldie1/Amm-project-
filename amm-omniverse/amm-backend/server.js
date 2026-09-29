@@ -20,6 +20,7 @@ const { createMiddleverseRouter } = require('./routes/middleverse')
 const { createAssetForgeRouter } = require('./routes/asset-forge')
 const { postCheckoutToTreasury, postInvoiceToTreasury, postRefundToTreasury, postDisputeToTreasury } = require('./lib/treasury-ledger')
 const signLanguage = require('./signLanguageService')
+const { jacobieSecurityHeaders, noStoreSensitive } = require('./lib/jacobie-security-headers')
 
 const app = express()
 
@@ -28,8 +29,9 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null
 
 app.disable('x-powered-by')
+app.use(jacobieSecurityHeaders)
 app.use(cors({ origin:['https://tryamm.online','https://www.tryamm.online','https://amm-omniverse.vercel.app','http://localhost:5173',process.env.FRONTEND_URL].filter(Boolean), credentials:true }))
-app.use('/api/stripe/webhook', express.raw({ type:'application/json' }))
+app.use('/api/stripe/webhook', noStoreSensitive, express.raw({ type:'application/json' }))
 app.use(express.json({ limit:'2mb' }))
 
 app.get('/', (_req,res)=>res.json({ name:'AMM Omniverse Backend', status:'online', version:'1.11.0-release-control', systems:['stripe','supabase','livekit','living-worlds','ai-cafe','workforce','middleverse','kingdoms-press','app-store','stubbs-ai','hologpt','holo-services','holo-core','all-american-university','family-legacy','heirs-legacy-kids','omni-treasury','financial-truth','release-control','release-observability','reserve-buckets','auto-ledger','sign-language','tryamm-live','moderation-reporting'] }))
@@ -60,6 +62,11 @@ app.use('/api/ai', createAIRouter({ supabase }))
 app.use('/api', createLegacySecureRouter({ supabase, stripe }))
 
 const signBuckets = new Map()
+app.use('/api/privacy', noStoreSensitive)
+app.use('/api/security', noStoreSensitive)
+app.use('/api/financial-truth', noStoreSensitive)
+app.use('/api/treasury', noStoreSensitive)
+app.use('/api/asset-forge', noStoreSensitive)
 app.use('/api/accessibility/sign', (req,res,next)=>{
   const key=req.ip||'unknown'; const now=Date.now(); const entry=signBuckets.get(key)||{start:now,count:0}
   if(now-entry.start>60000){entry.start=now;entry.count=0}
