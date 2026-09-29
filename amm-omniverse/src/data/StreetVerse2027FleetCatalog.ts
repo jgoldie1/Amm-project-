@@ -68,7 +68,7 @@ export const STREETVERSE_2027_FLEET:StreetVerse2027FleetEntry[]=[
   })),
   {id:'sv27-sport-bike',label:'TRYAMM 2027 Sport Motorcycle',domain:'motorcycle',segment:'sport-bike',powertrain:'electric',seats:2,rarity:'uncommon',cityRole:'personal mobility',accessClass:'sport-bike',originalDesign:true},
   {id:'sv27-cruiser-bike',label:'TRYAMM 2027 Cruiser Motorcycle',domain:'motorcycle',segment:'cruiser',powertrain:'hybrid',seats:2,rarity:'uncommon',cityRole:'personal mobility',accessClass:'cruiser-bike',originalDesign:true},
-  {id:'sv27-adventure-bike',label:'TRYAMM 2027 Adventure Motorcycle',domain:'motorcycle',segment:'adventure',powertrain:'electric',seats:2,rarity:'uncommon',cityRole:'personal/off-road mobility',originalDesign:true},
+  {id:'sv27-adventure-bike',label:'TRYAMM 2027 Adventure Motorcycle',domain:'motorcycle',segment:'adventure',powertrain:'electric',seats:2,rarity:'uncommon',cityRole:'personal/off-road mobility',accessClass:'adventure-bike',originalDesign:true},
   {id:'sv27-scooter',label:'TRYAMM 2027 Urban Scooter',domain:'motorcycle',segment:'scooter',powertrain:'electric',seats:2,rarity:'common',cityRole:'last-mile mobility',accessClass:'scooter',originalDesign:true},
   {id:'sv27-delivery-bike',label:'TRYAMM 2027 Delivery Motorcycle',domain:'motorcycle',segment:'delivery-bike',powertrain:'electric',seats:1,rarity:'uncommon',cityRole:'delivery',accessClass:'motorcycle',originalDesign:true},
   {id:'sv27-city-bus',label:'TRYAMM 2027 Electric City Bus',domain:'transit',segment:'city-bus',powertrain:'electric',seats:42,rarity:'common',cityRole:'public transit',accessClass:'city-bus',originalDesign:true},
