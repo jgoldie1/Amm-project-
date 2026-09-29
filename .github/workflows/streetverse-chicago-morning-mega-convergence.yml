@@ -100,6 +100,7 @@ jobs:
           node tests/streetverse-character-scale-contract.mjs
           node tests/tryamm-world-resilience-contract.mjs
           node tests/tryamm-pocket-edge-contract.mjs
+          node tests/tryamm-private-relay-contract.mjs
           node tests/tryamm-native-runtime-asset-contract.mjs
           node tests/tryamm-native-pwa-asset-cache-contract.mjs
           node tests/streetverse-chicago-grid-reality-contract.mjs
