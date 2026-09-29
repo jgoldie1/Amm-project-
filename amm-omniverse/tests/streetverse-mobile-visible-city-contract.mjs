@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 
 const world=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
+const worldBuilder=fs.readFileSync(new URL('../src/game/simulation/worldBuilderPipeline.ts',import.meta.url),'utf8')
 
 assert.match(world,/streetTreePositions:\[number,number\]\[\]/,'mobile world must declare a deterministic street-tree layout')
 assert.match(world,/new THREE\.InstancedMesh\(/,'mobile trees must use instancing to protect phone performance')
@@ -23,5 +24,12 @@ assert.match(world,/crosswalkMat/,'mobile Chicago streets must render crosswalk 
 assert.match(world,/const bridge=new THREE\.Mesh/,'mobile Riverwalk must include a visible bridge deck')
 assert.match(world,/SCAN MAP/,'mobile quick navigation must expose the working scan-map action')
 assert.match(world,/camY=activeCar\?8\.2:9\.2/,'mobile third-person camera must remain closer to the player than the old distant prototype camera')
+assert.match(world,/WORLD_REGISTRY,advanceWorldBuild,canPublishWorld,queueWorldBuild/,'mobile StreetVerse must activate the shared world-builder pipeline')
+assert.match(world,/tryamm:streetverse-world-builder-state/,'mobile StreetVerse must publish live world-builder state')
+assert.match(world,/assetGenerator:'tryamm-native-asset-foundry'/,'mobile StreetVerse must identify the native asset generator driving the visual layer')
+assert.match(world,/trafficCars:nativeTrafficCars\.length/,'mobile StreetVerse must measure generated traffic-car replacement coverage')
+assert.match(world,/worldBuilderPublishable:worldBuild\?canPublishWorld\(worldBuild\):false/,'world-ready evidence must expose truthful world-builder publishability')
+
+assert.match(worldBuilder,/WORLD_CERTIFICATION_CHECKS\.every\(check=>manifest\.checks\[check\]===true\)/,'world builder must require the complete certification checklist before publish')
 
 console.log('StreetVerse mobile visible-city parity contract: PASS')

@@ -51,6 +51,18 @@ function addCylinder(group,name,radius,height,pos,material,segments=16,semantic)
   group.add(mesh);return mesh
 }
 
+function addRoundedShell(group,name,length,radius,width,pos,material,semantic){
+  const mesh=new THREE.Mesh(new THREE.CapsuleGeometry(radius,length,6,20),material)
+  mesh.name=name
+  mesh.rotation.z=deg(90)
+  mesh.scale.z=width/(radius*2)
+  mesh.position.set(...pos)
+  mesh.castShadow=true;mesh.receiveShadow=true
+  mesh.userData={semantic:semantic||name,collision:'rounded-proxy',generatedBy:'tryamm-native-asset-foundry',realismShell:true}
+  group.add(mesh)
+  return mesh
+}
+
 function addTree(group,x,z,scale,mats){
   addCylinder(group,'tree-trunk',.23*scale,2.8*scale,[x,1.4*scale,z],mats.wood,12,'vegetation-trunk')
   const crown=new THREE.Mesh(new THREE.IcosahedronGeometry(1.25*scale,2),mats.leaf)
@@ -130,9 +142,9 @@ function addCarBlockout(group,x,z,mats){
 
 function add2027SportSedan(group,x,z,mats){
   group.userData={...group.userData,semantic:'drivable-vehicle',modelYear:2027,originalTryammDesign:true}
-  addBox(group,'chassis',[4.45,.46,1.86],[x,.56,z],mats.car,undefined,'vehicle-chassis')
-  addBox(group,'lower-body',[4.2,.34,1.8],[x,.82,z],mats.car,undefined,'vehicle-body')
-  addBox(group,'cabin',[2.18,.72,1.58],[x-.18,1.34,z],mats.glass,[0,0,0],'vehicle-cabin')
+  addRoundedShell(group,'chassis',3.55,.46,1.9,[x,.57,z],mats.car,'vehicle-chassis')
+  const lower=addRoundedShell(group,'lower-body',3.25,.40,1.82,[x,.84,z],mats.car,'vehicle-body');lower.scale.y=.82
+  const cabin=addRoundedShell(group,'cabin',1.12,.47,1.55,[x-.2,1.36,z],mats.glass,'vehicle-cabin');cabin.scale.y=.82
   addBox(group,'front-bumper',[.36,.28,1.72],[x+2.12,.48,z],mats.metal,undefined,'vehicle-bumper')
   addBox(group,'rear-bumper',[.36,.28,1.72],[x-2.12,.48,z],mats.metal,undefined,'vehicle-bumper')
 
@@ -177,7 +189,7 @@ function add2027SportSedan(group,x,z,mats){
 function add2027CustomBoxTruck(group,x,z,mats){
   group.userData={...group.userData,semantic:'drivable-commercial-vehicle',modelYear:2027,originalTryammDesign:true,streetStyle:'custom-box-truck'}
   addBox(group,'box-truck-chassis',[6.8,.42,2.35],[x,.55,z],mats.metal,undefined,'vehicle-chassis')
-  addBox(group,'box-truck-cab',[2.15,1.9,2.2],[x+2.05,1.45,z],mats.car,undefined,'vehicle-cab')
+  const cab=addRoundedShell(group,'box-truck-cab',1.1,.78,2.16,[x+2.05,1.45,z],mats.car,'vehicle-cab');cab.scale.y=1.15
   addBox(group,'box-truck-cargo',[4.35,2.75,2.3],[x-.8,2.0,z],mat('cargo-box',0xe6e6e6,.62,.15),undefined,'cargo-box')
   addBox(group,'box-truck-windshield',[.08,.72,1.78],[x+3.12,1.72,z],mats.glass,undefined,'vehicle-glass')
   addBox(group,'box-truck-bumper',[.28,.35,2.18],[x+3.35,.45,z],mats.metal,undefined,'vehicle-bumper')
@@ -422,7 +434,9 @@ const kitBuilders={
   },
   'vehicle-blockout':()=>{
     const g=new THREE.Group();g.name='TRYAMM-vehicle-blockout'
-    addCarBlockout(g,0,0,kitMats);return g
+    add2027SportSedan(g,0,0,kitMats)
+    g.userData={...g.userData,semantic:'traffic-sedan-visual',legacyCatalogId:'vehicle-blockout',realismReplacement:true}
+    return g
   },
   'tryamm-2027-sport-sedan':()=>{
     const g=new THREE.Group();g.name='TRYAMM-2027-sport-sedan'
@@ -517,7 +531,7 @@ const manifest={
   kitArtifacts,
   reviewedWinner:{...winner,file:path.basename(winnerTarget)},
   resources:{
-    geometry:'TRYAMM procedural generator + reusable modular GLB kit',
+    geometry:'TRYAMM procedural generator + reusable modular GLB kit with rounded vehicle/transit/humanoid realism shells',
     materials:'TRYAMM PBR parameter recipes',
     collision:'semantic primitive collision metadata',
     holographics:'integrated emissive/interaction anchor geometry',

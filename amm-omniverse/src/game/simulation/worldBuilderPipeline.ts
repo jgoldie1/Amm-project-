@@ -44,7 +44,9 @@ export function advanceWorldBuild(manifest: BuildManifest, check: string, passed
 }
 
 export function canPublishWorld(manifest: BuildManifest): boolean {
-  return manifest.stage==='playable' && Object.values(manifest.checks).every(Boolean)
+  return manifest.stage==='playable'
+    && WORLD_CERTIFICATION_CHECKS.every(check=>manifest.checks[check]===true)
+    && Object.values(manifest.checks).every(Boolean)
 }
 
 /**
