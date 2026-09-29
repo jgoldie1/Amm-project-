@@ -10,6 +10,8 @@ type MissionChoice='A'|'B'|'C'|'D'
 type MissionSpecialUnlock={missionId?:string;kind?:string;label:string;description:string;source?:string;unlockedAt?:string}
 type MissionPrompt={missionId?:string;title:string;objective?:string;routes?:Partial<Record<MissionChoice,string>>;specialRoute?:MissionSpecialUnlock}
 type FameSnapshot={fame:number;rank:string;fanbase:number;viralScore:number;momentum:number}
+type FirstJourneyPhase='idle'|'active'|'ready'|'complete'
+type RepairContext={vehicleId:string;label:string}
 
 const MODE_KEY='tryamm:streetverse-control-mode'
 const HAND_KEY='tryamm:streetverse-one-hand-side'
@@ -39,6 +41,9 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const [fame,setFame]=useState<FameSnapshot>(()=>readFameSnapshot())
  const [inVehicle,setInVehicle]=useState(false)
  const [cruise,setCruise]=useState(false)
+ const [firstJourneyPhase,setFirstJourneyPhase]=useState<FirstJourneyPhase>('idle')
+ const [repairContext,setRepairContext]=useState<RepairContext|null>(null)
+ const [repairStep,setRepairStep]=useState(0)
  const active=useRef<Record<Dir,boolean>>({up:false,down:false,left:false,right:false})
  const vehicleActiveRef=useRef(false)
  const cruiseRef=useRef(false)
@@ -78,13 +83,17 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
   const openChoice=(event:Event)=>{const d=(event as CustomEvent<Record<string,unknown>>).detail||{};const missionId=String(d.missionId||d.campaignId||d.id||'')||undefined;const title=String(d.title||d.label||'Choose your StreetVerse route');const objective=String(d.objective||'')||undefined;const routes=d.routes&&typeof d.routes==='object'?d.routes as Partial<Record<MissionChoice,string>>:undefined;const eventSpecial=d.specialRoute&&typeof d.specialRoute==='object'?d.specialRoute as MissionSpecialUnlock:undefined;const contextual=specialUnlock&&(!specialUnlock.missionId||specialUnlock.missionId==='session-active'||specialUnlock.missionId===missionId)?specialUnlock:undefined;setChoicePrompt({missionId,title,objective,routes,specialRoute:eventSpecial||contextual});setChoiceOpen(true)}
   const onSpecialUnlock=(event:Event)=>{const d=(event as CustomEvent<MissionSpecialUnlock>).detail;if(!d?.label||!d?.description)return;setSpecialUnlock(d);window.dispatchEvent(new CustomEvent('tryamm:accessibility-announce',{detail:{text:`Special mission route unlocked: ${d.label}`}}))}
   const onFame=(event:Event)=>{const d=(event as CustomEvent<Record<string,unknown>>).detail||{};setFame({fame:Number(d.fame||0),rank:String(d.rank||'Unknown'),fanbase:Number(d.fanbase||0),viralScore:Number(d.viralScore||0),momentum:Number(d.momentum||0)})}
+  const onFirstJourneyReady=()=>setFirstJourneyPhase('ready')
+  const onFirstJourneyComplete=()=>{setFirstJourneyPhase('complete');setRepairContext(null);setRepairStep(3)}
+  const onInteractionContext=(event:Event)=>{const d=(event as CustomEvent<{kind?:string;vehicleId?:string;label?:string;broken?:boolean}>).detail||{};if(d.kind==='vehicle'&&d.broken&&d.vehicleId){setRepairContext({vehicleId:String(d.vehicleId),label:String(d.label||'Repair Mission Car')});setRepairStep(step=>Math.min(step,2))}}
+  const onVehicleRepaired=(event:Event)=>{const d=(event as CustomEvent<{vehicleId?:string}>).detail||{};if(String(d.vehicleId||'')==='first-repair-car')setRepairStep(3)}
   window.addEventListener('blur',stop);window.addEventListener('pointercancel',stop);document.addEventListener('visibilitychange',stop);window.addEventListener('tryamm:streetverse-vehicle-controlled',onVehicleControlled)
   const missionContextEvents=['tryamm:streetverse-mission-start','tryamm:chicago-activity-start','tryamm:streetverse-checkpoint','tryamm:streetverse-mobile-mission-zone','tryamm:mission:discovered','tryamm:justice-mission-start','tryamm:time-machine-enter'] as const
   missionContextEvents.forEach(name=>window.addEventListener(name,rememberMission))
   const syncControlMode=(event:Event)=>{const d=(event as CustomEvent<{mode?:string;hand?:string}>).detail||{};if(d.mode==='one-hand'&&(d.hand==='left'||d.hand==='right')){setHand(d.hand);setMode('one-hand');try{localStorage.setItem(HAND_KEY,d.hand);localStorage.setItem(MODE_KEY,'one-hand')}catch{}}else if(d.mode==='two-hand'){setMode('two-hand');try{localStorage.setItem(MODE_KEY,'two-hand')}catch{}}}
   const syncAccessibility=(event:Event)=>{const d=(event as CustomEvent<{mobility?:string;handedness?:string}>).detail||{};if(d.mobility==='one-hand'){if(d.handedness==='left'||d.handedness==='right'){setHand(d.handedness);setMode('one-hand');try{localStorage.setItem(HAND_KEY,d.handedness);localStorage.setItem(MODE_KEY,'one-hand')}catch{}}else{setMode('two-hand');try{localStorage.setItem(MODE_KEY,'two-hand')}catch{};window.dispatchEvent(new CustomEvent('tryamm:one-hand-side-required',{detail:{source:'passport',reason:'explicit-side-required'}}))}}else if(d.mobility==='standard'){setMode('two-hand');try{localStorage.setItem(MODE_KEY,'two-hand')}catch{}}}
-  window.addEventListener('tryamm:rp-choice-open',openChoice);window.addEventListener('tryamm:mission-choice-open',openChoice);window.addEventListener('tryamm:mission:special-route-unlocked',onSpecialUnlock);window.addEventListener('tryamm:streetverse-special-route-unlock',onSpecialUnlock);window.addEventListener('tryamm:streetverse-fame-state',onFame);window.addEventListener('tryamm:accessibility-apply',syncAccessibility);window.addEventListener('tryamm:streetverse-control-mode',syncControlMode)
-  return()=>{window.removeEventListener('blur',stop);window.removeEventListener('pointercancel',stop);document.removeEventListener('visibilitychange',stop);window.removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicleControlled);missionContextEvents.forEach(name=>window.removeEventListener(name,rememberMission));window.removeEventListener('tryamm:rp-choice-open',openChoice);window.removeEventListener('tryamm:mission-choice-open',openChoice);window.removeEventListener('tryamm:mission:special-route-unlocked',onSpecialUnlock);window.removeEventListener('tryamm:streetverse-special-route-unlock',onSpecialUnlock);window.removeEventListener('tryamm:streetverse-fame-state',onFame);window.removeEventListener('tryamm:accessibility-apply',syncAccessibility);window.removeEventListener('tryamm:streetverse-control-mode',syncControlMode)}
+  window.addEventListener('tryamm:rp-choice-open',openChoice);window.addEventListener('tryamm:mission-choice-open',openChoice);window.addEventListener('tryamm:mission:special-route-unlocked',onSpecialUnlock);window.addEventListener('tryamm:streetverse-special-route-unlock',onSpecialUnlock);window.addEventListener('tryamm:streetverse-fame-state',onFame);window.addEventListener('tryamm:accessibility-apply',syncAccessibility);window.addEventListener('tryamm:streetverse-control-mode',syncControlMode);window.addEventListener('tryamm:streetverse-first-journey-ready-to-complete',onFirstJourneyReady);window.addEventListener('tryamm:streetverse-first-journey-complete',onFirstJourneyComplete);window.addEventListener('tryamm:streetverse-interaction-context',onInteractionContext);window.addEventListener('tryamm:streetverse-vehicle-repaired',onVehicleRepaired)
+  return()=>{window.removeEventListener('blur',stop);window.removeEventListener('pointercancel',stop);document.removeEventListener('visibilitychange',stop);window.removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicleControlled);missionContextEvents.forEach(name=>window.removeEventListener(name,rememberMission));window.removeEventListener('tryamm:rp-choice-open',openChoice);window.removeEventListener('tryamm:mission-choice-open',openChoice);window.removeEventListener('tryamm:mission:special-route-unlocked',onSpecialUnlock);window.removeEventListener('tryamm:streetverse-special-route-unlock',onSpecialUnlock);window.removeEventListener('tryamm:streetverse-fame-state',onFame);window.removeEventListener('tryamm:accessibility-apply',syncAccessibility);window.removeEventListener('tryamm:streetverse-control-mode',syncControlMode);window.removeEventListener('tryamm:streetverse-first-journey-ready-to-complete',onFirstJourneyReady);window.removeEventListener('tryamm:streetverse-first-journey-complete',onFirstJourneyComplete);window.removeEventListener('tryamm:streetverse-interaction-context',onInteractionContext);window.removeEventListener('tryamm:streetverse-vehicle-repaired',onVehicleRepaired)}
  },[])
  if(!mobile)return null
  const activateTwoHand=()=>{release();setMode('two-hand');try{localStorage.setItem(MODE_KEY,'two-hand')}catch{};window.dispatchEvent(new CustomEvent('tryamm:streetverse-control-mode',{detail:{mode:'two-hand'}}));window.dispatchEvent(new CustomEvent('tryamm:passport-access-save',{detail:{oneHandedMode:false}}))}
@@ -97,6 +106,33 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const openHolo=(liveMode:'live'|'pk')=>{release();window.dispatchEvent(new CustomEvent('tryamm:streetverse-holo-livepk',{detail:{mode:liveMode,source:'streetverse-mobile-game-shell',preserveWorld:true}}));if(navigator.vibrate)try{navigator.vibrate(16)}catch{}}
  const openMissionChoice=()=>{const contextual=specialUnlock&&(!specialUnlock.missionId||specialUnlock.missionId==='session-active'||specialUnlock.missionId===activeMission.missionId)?specialUnlock:undefined;const prompt={...activeMission,title:activeMission.title||'Choose your StreetVerse route',specialRoute:contextual};setChoicePrompt(prompt);setChoiceOpen(true);window.dispatchEvent(new CustomEvent('tryamm:mission-choice-opened',{detail:{...prompt,mode,hand:mode==='one-hand'?hand:undefined,source:'mobile-game-shell'}}))}
  const chooseMissionRoute=(choice:MissionChoice)=>{const model=CHOICE_MODEL[choice];const special=choice==='D'?choicePrompt.specialRoute:undefined;if(choice==='D'&&!special)return;const routeDescription=choicePrompt.routes?.[choice]||special?.description||model.description;const detail={choice,label:special?.label||model.label,routeDescription,missionId:choicePrompt.missionId,title:choicePrompt.title,objective:choicePrompt.objective,mode,hand:mode==='one-hand'?hand:undefined,source:'mobile-game-shell',specialUnlocked:choice==='D'?Boolean(special):undefined,unlockKind:special?.kind,unlockSource:special?.source};window.dispatchEvent(new CustomEvent('tryamm:rp-choice-selected',{detail}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-route-selected',{detail}));if(choice==='D')setSpecialUnlock(null);if(navigator.vibrate)try{navigator.vibrate(18)}catch{};setChoiceOpen(false)}
+ const startFirstJourney=()=>{
+  release()
+  const mission={missionId:'iphone-first-journey',title:'First Ride • Repair, Drive, Meet the Guide',objective:'Follow the gold beacon, repair the orange car, enter and drive it, exit, then talk to the First Journey Guide.'}
+  setFirstJourneyPhase('active');setRepairContext({vehicleId:'first-repair-car',label:'Repair Mission Car'});setRepairStep(0);setActiveMission(mission)
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail:{source:'mobile-game-shell'}}))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{...mission,source:'mobile-game-shell'}}))
+  window.dispatchEvent(new CustomEvent('tryamm:accessibility-announce',{detail:{text:'First Ride mission started. Follow the gold beacon to the repair car.'}}))
+ }
+ const completeFirstJourney=()=>{
+  if(firstJourneyPhase!=='ready')return
+  const detail={id:'iphone-first-journey',missionId:'iphone-first-journey',title:'First Ride • Repair, Drive, Meet the Guide',label:'First Ride',source:'streetverse-mobile-game-shell',xp:500,rewardStatus:'pending',verified:false}
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-complete',{detail}))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail}))
+  window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'FIRST RIDE COMPLETE • +500 XP pending verification • Reel ready'}}))
+  setFirstJourneyPhase('complete');setActiveMission({missionId:'iphone-first-journey',title:'First Ride complete',objective:'Create a Reel or choose your next StreetVerse mission.'})
+ }
+ const runRepairStep=()=>{
+  if(!repairContext||repairStep>=3)return
+  const next=repairStep+1;setRepairStep(next)
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-repair-step',{detail:{vehicleId:repairContext.vehicleId,step:next,source:'mobile-game-shell'}}))
+  if(next===3)window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-repaired',{detail:{vehicleId:repairContext.vehicleId,source:'mobile-game-shell'}}))
+  if(navigator.vibrate)try{navigator.vibrate(16)}catch{}
+ }
+ const openReel=()=>window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'streetverse-mobile-game-shell',missionId:activeMission.missionId||'',missionLabel:activeMission.title||'StreetVerse Reel',missionSource:'streetverse-mobile',rewardStatus:firstJourneyPhase==='complete'?'pending':'draft',verified:false}}))
+ const openRideShare=()=>window.dispatchEvent(new CustomEvent('tryamm:holo-mobility-open',{detail:{source:'streetverse-mobile-game-shell'}}))
+ const openBible=()=>{try{localStorage.setItem('tryamm.faith.return','/streetverse')}catch{};window.location.href='/ethiopian-bible?return=%2Fstreetverse'}
+ const repairLabel=repairStep===0?'OPEN HOOD':repairStep===1?'FIX ENGINE':repairStep===2?'CLOSE HOOD':'REPAIRED ✓'
  const bottom='max(16px,env(safe-area-inset-bottom))'
  const selectedSide=hand==='left'?{left:'max(12px,env(safe-area-inset-left))'}:{right:'max(12px,env(safe-area-inset-right))'}
  const movementSide=mode==='one-hand'?selectedSide:{left:'max(12px,env(safe-area-inset-left))'}
@@ -113,6 +149,16 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
   <div aria-label="StreetVerse Holographic LIVE and PK controls" style={{position:'absolute',top:'max(60px,calc(env(safe-area-inset-top) + 60px))',right:'max(10px,env(safe-area-inset-right))',display:'grid',gap:7,pointerEvents:'auto'}}>
    <button aria-label="Open Holographic LIVE from StreetVerse" onClick={()=>openHolo('live')} style={{...modeButton(true),minWidth:92,borderColor:'#ff6b87'}}>● HOLO LIVE</button>
    <button aria-label="Open Holographic PK Battle from StreetVerse" onClick={()=>openHolo('pk')} style={{...modeButton(true),minWidth:92,borderColor:'#ff74c8'}}>⚔ PK BATTLE</button>
+  </div>
+  <div aria-label="StreetVerse quick action rail" style={{position:'absolute',left:'50%',transform:'translateX(-50%)',top:'max(62px,calc(env(safe-area-inset-top) + 62px))',display:'flex',gap:6,pointerEvents:'auto',maxWidth:'94vw',overflowX:'auto',padding:'3px 5px'}}>
+   {firstJourneyPhase==='idle'&&<button onClick={startFirstJourney} style={quickRailButton('#8effb7')}>▶ START MISSION</button>}
+   {firstJourneyPhase==='active'&&<button disabled style={quickRailButton('#ffe47f')}>MISSION ACTIVE</button>}
+   {firstJourneyPhase==='ready'&&<button onClick={completeFirstJourney} style={quickRailButton('#8effb7')}>✓ COMPLETE MISSION</button>}
+   {firstJourneyPhase==='complete'&&<button onClick={startFirstJourney} style={quickRailButton('#8effb7')}>↻ NEW FIRST RIDE</button>}
+   {repairContext&&firstJourneyPhase!=='idle'&&repairStep<3&&<button onClick={runRepairStep} style={quickRailButton('#ffd65a')}>🛠 {repairLabel}</button>}
+   <button onClick={openReel} style={quickRailButton('#ff8fd9')}>🎬 REEL</button>
+   <button onClick={openRideShare} style={quickRailButton('#66e6ff')}>🚕 RIDE</button>
+   <button onClick={openBible} style={quickRailButton('#e5c56a')}>📖 BIBLE</button>
   </div>
   <div aria-label="StreetVerse movement controls" style={{position:'absolute',...movementSide,bottom,display:'grid',gridTemplateColumns:'56px 56px 56px',gap:6,pointerEvents:'auto'}}>
    <span/>{control('↑','up')}<span/>{control('←','left')}{control('↓','down')}{control('→','right')}
@@ -135,3 +181,4 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
 
 const modeButton=(active:boolean)=>({minHeight:44,padding:'0 10px',borderRadius:12,border:`1px solid ${active?'#ffd65a':'#456'}`,background:active?'#221900ee':'#07131fee',color:'#fff',fontSize:10,fontWeight:900,touchAction:'manipulation'} as const)
 const secondaryButton={width:52,height:48,borderRadius:16,border:'1px solid #7be9ff',background:'#020914dd',color:'#fff',fontSize:22,fontWeight:900,touchAction:'manipulation'} as const
+const quickRailButton=(color:string)=>({minHeight:44,padding:'8px 11px',borderRadius:12,border:`1px solid ${color}`,background:'#07131fee',color:'#fff',fontSize:9,fontWeight:950,whiteSpace:'nowrap',touchAction:'manipulation'} as const)
