@@ -171,6 +171,8 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
    {firstJourneyPhase==='complete'&&<button onClick={startFirstJourney} style={quickRailButton('#8effb7')}>↻ NEW FIRST RIDE</button>}
    {repairContext&&firstJourneyPhase!=='idle'&&repairStep<3&&<button onClick={runRepairStep} style={quickRailButton('#ffd65a')}>🛠 {repairLabel}</button>}
    {repairStep>=3&&!inVehicle&&firstJourneyPhase==='active'&&<button onClick={enterCar} style={quickRailButton('#8effb7')}>🚗 ENTER CAR</button>}
+   {!inVehicle&&<button onClick={enterCar} aria-label="Drive nearest StreetVerse vehicle" style={quickRailButton('#7be9ff')}>🚘 DRIVE</button>}
+   {inVehicle&&<button disabled aria-label="Driving active" style={quickRailButton('#8effb7')}>DRIVING • USE JOYSTICK</button>}
    <button onClick={openReel} style={quickRailButton('#ff8fd9')}>🎬 REEL</button>
    <button onClick={openRideShare} style={quickRailButton('#66e6ff')}>🚕 RIDE</button>
    <button onClick={openBible} style={quickRailButton('#e5c56a')}>📖 BIBLE</button>
