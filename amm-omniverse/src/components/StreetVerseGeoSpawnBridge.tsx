@@ -35,6 +35,11 @@ const StreetVerseFullWorldOverlays=lazy(()=>import('./StreetVerseFullWorldOverla
 const StreetVerseReelEventBridge=lazy(()=>import('./StreetVerseReelEventBridge'))
 const StreetVerseActionCarousel=lazy(()=>import('./StreetVerseActionCarousel'))
 const StreetVerseMobileProofDock=lazy(()=>import('./StreetVerseMobileProofDock'))
+const StreetVerseCoreGameplayDock=lazy(()=>import('./StreetVerseCoreGameplayDock'))
+const StreetVerseMissionWorldBridge=lazy(()=>import('./StreetVerseMissionWorldBridge'))
+const StreetVerseTouchDriveControls=lazy(()=>import('./StreetVerseTouchDriveControls'))
+const HoloMobilityLauncher=lazy(()=>import('./HoloMobilityLauncher'))
+const StreetVerseFaithChronoPortal=lazy(()=>import('./StreetVerseFaithChronoPortal'))
 
 const DESTINATION_KEY_V2='tryamm.streetverse.chicago-destination.v2'
 const DESTINATION_KEY_V1='tryamm.streetverse.chicago-destination.v1'
@@ -224,7 +229,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
   <StreetVerseWeatherSync/>
   <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>
   <StreetVerseAfterDarkAlpha/>
-  <Suspense fallback={null}><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseMobileProofDock/></Suspense>
+  <Suspense fallback={null}><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseMobileProofDock/></Suspense>
  </>
 
  return <>
@@ -232,7 +237,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
    <StreetVersePlayableWorld onClose={closeStreetVerse}/>
   </Suspense>
   <StreetVerseAfterDarkAlpha/>
-  <Suspense fallback={null}><StreetVerseReelEventBridge/></Suspense>
-  {enhancementsReady&&<Suspense fallback={null}><StreetVerseFullWorldOverlays onClose={closeStreetVerse} mapped={prepared.mapped}/><StreetVerseActionCarousel/></Suspense>}
+  <Suspense fallback={null}><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/></Suspense>
+  {enhancementsReady&&<Suspense fallback={null}><StreetVerseFullWorldOverlays onClose={closeStreetVerse} mapped={prepared.mapped}/></Suspense>}
  </>
 }
