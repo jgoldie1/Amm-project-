@@ -63,7 +63,7 @@ function safeBodyDigest(body){
 function inspectRequest(req){
   const path=normalizePath(req)
   const query=String(req.originalUrl||req.url||path).split('?').slice(1).join('?').slice(0,800)
-  const inspectText=safeDecode(path+'?'+query)
+  const inspectText=safeDecode(query?path+'?'+query:path)
   const signalCodes=[]
   let riskScore=0
 
