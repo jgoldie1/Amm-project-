@@ -199,6 +199,87 @@ for(const profile of PROFILES){
   })
 }
 
+
+const kitProfile=PROFILES.find(p=>p.id==='sample-c-holo-reality-fusion')
+const kitMats={
+  asphalt:mat('asphalt',0x292a2c,.96,0),
+  concrete:mat('concrete',0x9d9990,.9,0),
+  curb:mat('curb',0xb8b4aa,.88,0),
+  brickA:mat('brick-red',0x7e392f,.86,0),
+  brickB:mat('brick-tan',0x9c7553,.84,0),
+  metal:mat('painted-metal',0x202429,.52,.55),
+  wood:mat('wood',0x704b2f,.82,0),
+  leaf:mat('leaf',0x315f34,.88,0),
+  hydrant:mat('hydrant',0xb32622,.48,.35),
+  glass:mat('glass',0x263946,.16,.35),
+  car:mat('car-paint',0x294f84,.22,.72),
+  tire:mat('rubber',0x090a0b,1,0),
+  light:mat('warm-light',0xffe2a3,.22,0,0xffc86a,1.8),
+  holo:mat('streetverse-holo',0x14373a,.22,.35,0x00ffd0,2.2*kitProfile.holo),
+}
+
+const kitBuilders={
+  'street-and-sidewalk':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-street-and-sidewalk'
+    addBox(g,'road',[20,.22,12],[0,-.11,0],kitMats.asphalt,undefined,'drivable-road')
+    addBox(g,'sidewalk-left',[20,.26,3],[0,.02,-7.5],kitMats.concrete,undefined,'walkable-sidewalk')
+    addBox(g,'sidewalk-right',[20,.26,3],[0,.02,7.5],kitMats.concrete,undefined,'walkable-sidewalk')
+    addBox(g,'curb-left',[20,.22,.34],[0,.18,-6.05],kitMats.curb)
+    addBox(g,'curb-right',[20,.22,.34],[0,.18,6.05],kitMats.curb)
+    return g
+  },
+  'brick-building-module':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-brick-building-module'
+    addBuilding(g,0,0,8.4,9.4,5.4,kitMats,1,1.18)
+    return g
+  },
+  'street-lamp':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-street-lamp'
+    addStreetLamp(g,0,0,kitMats,.72);return g
+  },
+  'bench':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-bench'
+    addBench(g,0,0,kitMats);return g
+  },
+  'hydrant':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-hydrant'
+    addHydrant(g,0,0,kitMats);return g
+  },
+  'tree':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-tree'
+    addTree(g,0,0,1,kitMats);return g
+  },
+  'vehicle-blockout':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-vehicle-blockout'
+    addCarBlockout(g,0,0,kitMats);return g
+  },
+  'holo-wayfinder':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-holo-wayfinder'
+    const beacon=addCylinder(g,'holo-wayfinder',.06,2.1,[0,1.05,0],kitMats.holo,12,'holographic-wayfinder')
+    beacon.userData.interactionAnchor=true
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(.55,.035,8,32),kitMats.holo)
+    ring.position.set(0,2.0,0);ring.rotation.x=deg(90);ring.userData={semantic:'holographic-ring',collision:'none'}
+    g.add(ring);return g
+  },
+}
+
+const kitArtifacts=[]
+const kitDir=path.join(OUT,'kit')
+fs.mkdirSync(kitDir,{recursive:true})
+for(const [id,builder] of Object.entries(kitBuilders)){
+  const file=path.join(kitDir,`${id}.glb`)
+  const bytes=await exportGlb(builder(),file)
+  kitArtifacts.push({
+    id,
+    file:path.relative(OUT,file),
+    bytes,
+    generator:'tryamm-native-asset-foundry',
+    reusable:true,
+    externalApi:false,
+    creditsUsed:0,
+  })
+}
+
 const winner=[...artifacts].sort((a,b)=>b.reviewedScore-a.reviewedScore)[0]
 const winnerSource=path.join(OUT,winner.file)
 const winnerTarget=path.join(OUT,'production-review-holo-reality-fusion.glb')
@@ -212,9 +293,10 @@ const manifest={
   cityStyle:'Chicago-inspired',
   exactDigitalTwin:false,
   artifacts,
+  kitArtifacts,
   reviewedWinner:{...winner,file:path.basename(winnerTarget)},
   resources:{
-    geometry:'TRYAMM procedural generator',
+    geometry:'TRYAMM procedural generator + reusable modular GLB kit',
     materials:'TRYAMM PBR parameter recipes',
     collision:'semantic primitive collision metadata',
     holographics:'integrated emissive/interaction anchor geometry',
@@ -229,4 +311,4 @@ const manifest={
   truth:'These are real TRYAMM-generated GLB baseline candidates. They are not called production-certified until visual, Asset Passport and runtime evidence pass.',
 }
 fs.writeFileSync(path.join(OUT,'manifest.json'),JSON.stringify(manifest,null,2))
-console.log(JSON.stringify({output:OUT,winner:manifest.reviewedWinner,artifacts:artifacts.length},null,2))
+console.log(JSON.stringify({output:OUT,winner:manifest.reviewedWinner,artifacts:artifacts.length,kitArtifacts:kitArtifacts.length},null,2))
