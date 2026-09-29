@@ -31,7 +31,7 @@ export function buildChicago2027Fleet(seed=2027,count=120):StreetVerseFleetSpawn
   return result
 }
 
-export const CHICAGO_2027_DEFAULT_FLEET=buildChicago2027Fleet(2027,120)
+export const CHICAGO_2027_DEFAULT_FLEET=buildChicago2027Fleet(2027,600)
 
 export function fleetComposition(spawns=CHICAGO_2027_DEFAULT_FLEET){
   const counts=Object.fromEntries(Object.keys(STREETVERSE_2027_SPAWN_MIX).map(key=>[key,0])) as Record<string,number>
