@@ -98,7 +98,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     asset:'building',
     position:[x,0,z],
     rotationY:i%2?Math.PI:0,
-    scale:i%4===0?[1.18,1.22,1.12]:i%4===1?[1.05,1.08,1.18]:i%4===2?[1.12,1.16,1.05]:[1,1,1],
+    scale:i%4===0?1.18:i%4===1?1.08:i%4===2?1.12:1,
     label:`mobile-native-building-${i+1}`,
   }))
   const nativeResidentCycle=['residentA','residentB','residentC'] as const
