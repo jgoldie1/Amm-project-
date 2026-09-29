@@ -28,7 +28,6 @@ for(const detail of ['wardrobe-jacket','hair-cap-accessory','wardrobe-chain','fa
 for(const pivot of ['character-rig-hero','character-rig-resident','rig-pelvis','rig-spine','rig-head','rig-left-arm','rig-right-arm','rig-left-leg','rig-right-leg'])must(script.includes(pivot),'native character hierarchical rig missing '+pivot)
 for(const face of ['eye-white-left','iris-left','pupil-left','brow-left','upper-lip','lower-lip','jaw','ear-left'])must(script.includes(face),'native facial anatomy v2 missing '+face)
 for(const hair of ['hair-close-crop','hair-fade','hair-afro','hair-braided-base','hair-braid'])must(script.includes(hair),'native hair silhouette missing '+hair)
-must(script.includes("rigState:'hierarchical-procedural-v2'"),'native humans must declare realism-v2 hierarchical rig state')
 must(script.includes("rigState:'hierarchical-procedural-v3'"),'native humans must declare realism-v3 hierarchical rig state')
 must(script.includes('facialDetailV3:true'),'native humans must declare facial-detail v3 evidence')
 must(script.includes('blinkReady:true'),'native humans must expose blink-ready facial controls')
