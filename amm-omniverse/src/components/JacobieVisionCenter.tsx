@@ -9,9 +9,12 @@ type Lab = { id:string; title:string; track:Track; level:number; evidence:string
 
 const labs:Lab[] = [
   {id:'phish-101',title:'Phishing Detection + Reporting',track:'cyber-defense',level:1,evidence:['screenshot','short incident note'],paidEligible:false},
+  {id:'pqc-201',title:'Post-Quantum Readiness + Crypto Inventory',track:'cyber-defense',level:2,evidence:['crypto inventory','provider ownership map','PQC migration blockers','long-lived data review'],paidEligible:true},
+  {id:'supply-201',title:'Software Supply-Chain Defense',track:'cyber-defense',level:2,evidence:['dependency audit','SBOM review','secret scan','artifact hash evidence'],paidEligible:true},
   {id:'api-auth-201',title:'API Auth + Session Security QA',track:'appsec-qa',level:2,evidence:['test checklist','bug report'],paidEligible:true},
   {id:'privacy-201',title:'Privacy Review + Data Minimization',track:'privacy-compliance',level:2,evidence:['data map','risk notes'],paidEligible:true},
   {id:'ir-301',title:'Incident Response Tabletop',track:'incident-response',level:3,evidence:['timeline','containment plan','postmortem'],paidEligible:true},
+  {id:'ir-quantum-401',title:'Quantum-era Credential + Crypto Migration Drill',track:'incident-response',level:4,evidence:['affected-system inventory','credential revocation','key rotation plan','algorithm migration plan','recovery evidence'],paidEligible:true},
   {id:'flip-201',title:'Property Deal Analysis: ARV + Rehab + Carry',track:'real-estate-analysis',level:2,evidence:['comps','ARV worksheet','repair budget'],paidEligible:true},
   {id:'flip-301',title:'Flip Operations: Budget + Media + Holo Listing',track:'real-estate-analysis',level:3,evidence:['scope of work','budget','project log','property media','marketing plan'],paidEligible:true},
   {id:'lead-301',title:'Team Lead: Review + Coach + Approve Evidence',track:'team-leadership',level:3,evidence:['review notes','coaching plan'],paidEligible:true},
@@ -49,13 +52,15 @@ export default function JacobieVisionCenter({onClose}:{onClose:()=>void}){
   return <section style={{position:'fixed',inset:0,zIndex:10120,overflowY:'auto',background:'radial-gradient(circle at 20% 0,#102b42,#03060d 55%)',color:'#fff',fontFamily:'Inter,system-ui,sans-serif'}}>
     <div style={{maxWidth:1180,margin:'0 auto',padding:'22px 18px 110px'}}>
       <header style={{display:'flex',justifyContent:'space-between',gap:14,alignItems:'start',flexWrap:'wrap'}}>
-        <div><div style={{color:'#53ddff',fontSize:10,fontWeight:950,letterSpacing:3}}>POWERED BY STUBBS AI</div><h1 style={{fontSize:'clamp(34px,6vw,64px)',margin:'6px 0'}}>Jacobie Vision</h1><p style={{maxWidth:820,color:'#a9bbca',lineHeight:1.6}}>Build a defensive cybersecurity + real-estate analysis team through guided labs, supervised work, evidence, portfolio progression and approved paid assignments.</p></div>
+        <div><div style={{color:'#53ddff',fontSize:10,fontWeight:950,letterSpacing:3}}>POWERED BY STUBBS AI</div><h1 style={{fontSize:'clamp(34px,6vw,64px)',margin:'6px 0'}}>Jacobie Vision</h1><p style={{maxWidth:820,color:'#a9bbca',lineHeight:1.6}}>Build a defensive cybersecurity + real-estate analysis team through guided labs, supervised work, evidence, portfolio progression and approved paid assignments. Jacobie Quantum Shield adds crypto inventory, post-quantum migration readiness, software supply-chain defense and incident containment without claiming the platform is unhackable.</p></div>
         <button style={btn} onClick={onClose}>← Back</button>
       </header>
 
       {message&&<div style={{...card,marginTop:12,borderColor:'#53ddff66'}}>{message}</div>}
 
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:10,marginTop:16}}>{tracks.map(([id,title,copy])=><button key={id} style={{...card,textAlign:'left',color:'#fff',cursor:'pointer',borderColor:id===activeTrack?'#53ddff':'#173653'}} onClick={()=>setActiveTrack(id)}><div style={{fontWeight:950}}>{title}</div><div style={{fontSize:11,color:'#9fb0bf',lineHeight:1.5,marginTop:7}}>{copy}</div></button>)}</div>
+
+      {activeTrack==='cyber-defense'&&<article style={{...card,marginTop:14,borderColor:'#53ddff66',background:'linear-gradient(145deg,#061725,#07111e)'}}><div style={{color:'#53ddff',fontSize:10,fontWeight:950,letterSpacing:2}}>JACOBIE QUANTUM SHIELD</div><h2 style={{margin:'7px 0'}}>Defend today • migrate for tomorrow</h2><p style={{color:'#a9bbca',lineHeight:1.6}}>Inventory cryptography, protect secrets and sessions, scan dependencies, generate SBOM evidence, contain incidents and track migration toward NIST ML-KEM / ML-DSA / SLH-DSA where providers and clients support them.</p><div style={{fontSize:11,color:'#8fffc1'}}>DEFENSIVE ONLY • AUTHORIZED SYSTEMS • EVIDENCE REQUIRED • NO “UNHACKABLE” CLAIMS</div></article>}
 
       {activeTrack==='real-estate-analysis'&&<article style={{...card,marginTop:14,borderColor:'#e8b94466',background:'linear-gradient(145deg,#171207,#07111e)'}}><div style={{color:'#e8b944',fontSize:10,fontWeight:950,letterSpacing:2}}>HOUSE FLIPPING OPERATIONS</div><h2 style={{margin:'7px 0'}}>From comp research to Holo listing</h2><p style={{color:'#a9bbca',lineHeight:1.6}}>Run best/base/worst-case deal models, construction budgets, project documentation, property photography/video, 3D scans, Holo listings, marketing, cybersecurity for property records and administrative project support.</p><button style={btn} onClick={()=>setShowFlipLab(true)}>🏠 Open House Flipping Lab</button></article>}
 
