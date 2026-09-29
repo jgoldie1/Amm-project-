@@ -12,9 +12,12 @@ import {createStreetVerseChicagoPedestrianRoutines} from '../runtime/StreetVerse
 import {disposeNativeAssetLayer,loadTryammNativeCircleParkLayer} from '../runtime/TryammNativeAssetRuntime'
 import type {NativePlacement} from '../data/TryammNativeRuntimeAssetCatalog'
 import {WORLD_REGISTRY,advanceWorldBuild,canPublishWorld,queueWorldBuild} from '../game/simulation/worldBuilderPipeline'
+import {useGameStore} from '../game/state/useGameStore'
+import type {GameplayAction} from '../game/simulation/gameplaySimulationBridge'
 
 
 const SAVE_KEY='tryamm.streetverse.living.v1'
+const NATIVE_CITY_BLOCKS=[[-70,-70],[-70,-25],[-70,25],[-70,70],[-25,-70],[-25,-25],[-25,25],[-25,70],[25,-70],[25,-25],[25,25],[25,70],[70,-70],[70,-25],[70,25],[70,70]] as const
 const clamp=(v:number)=>THREE.MathUtils.clamp(v,-82,82)
 
 export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
@@ -46,19 +49,23 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     worldBuild=advanceWorldBuild(worldBuild,check,passed)
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-builder-state',{detail:{...worldBuild,publishable:canPublishWorld(worldBuild),assetGenerator:'tryamm-native-asset-foundry',quantumSpeedEngine:true,source:'streetverse-mobile-world'}}))
   }
-  let nativeLayer:THREE.Group|null=null,nativeHero:THREE.Object3D|null=null,nativeTrain:THREE.Object3D|null=null,nativeStarterCar:THREE.Object3D|null=null,nativeRepairCar:THREE.Object3D|null=null,nativeResidents:THREE.Object3D[]=[],nativeTrafficCars:THREE.Object3D[]=[],nativeDriverDoorPivot:THREE.Object3D|null=null,nativePassengerDoorPivot:THREE.Object3D|null=null,nativeHoodPivot:THREE.Object3D|null=null,nativeCancelled=false
+  const applyWorldEconomy=(action:GameplayAction,source:string)=>{
+    const before=useGameStore.getState().cityConsequences
+    useGameStore.getState().applyCityConsequence(action)
+    const after=useGameStore.getState().cityConsequences
+    const changed=after.jobs!==before.jobs||after.businesses!==before.businesses||after.population!==before.population||after.traffic!==before.traffic||after.culture!==before.culture||after.reputation!==before.reputation||after.cashReward!==before.cashReward||after.xpReward!==before.xpReward
+    if(changed)advanceLiveWorldBuild('economy',true)
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-economy-evidence',{detail:{action,source,changed,before,after}}))
+    return changed
+  }
+  const onGameplayAction=(event:Event)=>{const detail=(event as CustomEvent<{action?:GameplayAction;source?:string}>).detail||{};if(detail.action)applyWorldEconomy(detail.action,String(detail.source||'streetverse-gameplay-action'))}
+  addEventListener('tryamm:streetverse-gameplay-action',onGameplayAction)
+  let nativeLayer:THREE.Group|null=null,nativeHero:THREE.Object3D|null=null,nativeTrain:THREE.Object3D|null=null,nativeStarterCar:THREE.Object3D|null=null,nativeRepairCar:THREE.Object3D|null=null,nativeResidents:THREE.Object3D[]=[],nativeTrafficCars:THREE.Object3D[]=[],nativeBuildings:THREE.Object3D[]=[],primitiveBuildingVisuals:THREE.Object3D[][]=[],nativeDriverDoorPivot:THREE.Object3D|null=null,nativePassengerDoorPivot:THREE.Object3D|null=null,nativeHoodPivot:THREE.Object3D|null=null,nativeCancelled=false
   const mobileNativePlacements:NativePlacement[]=[
     {asset:'sportSedan2027',position:[-8,0,50],rotationY:0,label:'mobile-repair-car-native'},
     {asset:'boxTruckCustom2027',position:[32,0,-24],rotationY:Math.PI/2,label:'mobile-custom-box-truck'},
     {asset:'vehicleBlockout',position:[8,0,54],rotationY:0,label:'mobile-parked-car-a'},
     {asset:'vehicleBlockout',position:[-5,0,34],rotationY:Math.PI,label:'mobile-parked-car-b'},
-
-    {asset:'building',position:[-29,0,26],rotationY:Math.PI,label:'mobile-native-building-west'},
-    {asset:'building',position:[29,0,26],rotationY:Math.PI,label:'mobile-native-building-east'},
-    {asset:'building',position:[-29,0,54],rotationY:Math.PI,label:'mobile-native-building-west-spawn'},
-    {asset:'building',position:[29,0,54],rotationY:Math.PI,label:'mobile-native-building-east-spawn'},
-    {asset:'building',position:[-29,0,-18],rotationY:Math.PI,label:'mobile-native-building-west-south'},
-    {asset:'building',position:[29,0,-18],rotationY:Math.PI,label:'mobile-native-building-east-south'},
 
     {asset:'tree',position:[-16,0,18],scale:1.05,label:'mobile-native-tree-west'},
     {asset:'tree',position:[16,0,18],scale:1.05,label:'mobile-native-tree-east'},
@@ -87,6 +94,13 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     {asset:'sportSedan2027',position:[6,0,50],rotationY:0,label:'mobile-starter-car-native'},
     {asset:'cityTransitTrain',position:[-70,6.1,-35],rotationY:0,label:'mobile-native-train'},
   ]
+  NATIVE_CITY_BLOCKS.forEach(([x,z],i)=>mobileNativePlacements.push({
+    asset:'building',
+    position:[x,0,z],
+    rotationY:i%2?Math.PI:0,
+    scale:i%4===0?[1.18,1.22,1.12]:i%4===1?[1.05,1.08,1.18]:i%4===2?[1.12,1.16,1.05]:[1,1,1],
+    label:`mobile-native-building-${i+1}`,
+  }))
   const nativeResidentCycle=['residentA','residentB','residentC'] as const
   for(let i=0;i<12;i++)mobileNativePlacements.push({asset:nativeResidentCycle[i%nativeResidentCycle.length],position:[0,0,0],label:`mobile-native-resident-${i+1}`})
   for(let i=0;i<14;i++)mobileNativePlacements.push({asset:'sportSedan2027',position:[0,0,0],label:`mobile-native-traffic-car-${i+1}`})
@@ -99,6 +113,8 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     nativeRepairCar=result.group.getObjectByName('mobile-repair-car-native')||null
     nativeResidents=Array.from({length:12},(_,i)=>result.group.getObjectByName(`mobile-native-resident-${i+1}`)).filter((item):item is THREE.Object3D=>Boolean(item))
     nativeTrafficCars=Array.from({length:14},(_,i)=>result.group.getObjectByName(`mobile-native-traffic-car-${i+1}`)).filter((item):item is THREE.Object3D=>Boolean(item))
+    nativeBuildings=Array.from({length:NATIVE_CITY_BLOCKS.length},(_,i)=>result.group.getObjectByName(`mobile-native-building-${i+1}`)).filter((item):item is THREE.Object3D=>Boolean(item))
+    nativeBuildings.forEach((_,i)=>primitiveBuildingVisuals[i]?.forEach(part=>{part.visible=false}))
     nativeDriverDoorPivot=nativeRepairCar?.getObjectByName('driver-door-pivot')||null
     nativePassengerDoorPivot=nativeRepairCar?.getObjectByName('passenger-door-pivot')||null
     nativeHoodPivot=nativeRepairCar?.getObjectByName('hood-pivot')||null
@@ -110,6 +126,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       train:Boolean(nativeTrain),
       starterCar:Boolean(nativeStarterCar),
       repairCar:Boolean(nativeRepairCar),
+      buildings:nativeBuildings.length,
     }
     advanceLiveWorldBuild('geography',result.loaded>0)
     advanceLiveWorldBuild('spawn',nativeCoverage.hero&&nativeCoverage.repairCar)
