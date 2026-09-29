@@ -101,6 +101,9 @@ jobs:
       - name: Omniverse typecheck
         run: npm run typecheck
 
+      - name: Vercel parity build from pristine checkout
+        run: npm run build
+
       - name: Repair StreetVerse entry
         run: node scripts/repair-streetverse-entry.mjs
 
