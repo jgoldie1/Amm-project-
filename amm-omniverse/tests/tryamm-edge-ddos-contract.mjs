@@ -26,6 +26,8 @@ must(serialized.includes('X-Content-Type-Options'),'Vercel frontend nosniff head
 console.log('TRYAMM EDGE DDoS CONTRACT PASS: Vercel front door + signed origin proxies + no direct Render rewrites')
 
 must(firewall.includes('LOG-FIRST'),'firewall staging must be explicitly log-first')
+must(firewall.includes('TRYAMM edge node burst observation'),'Edge Node WAF observation rule missing')
+must(firewall.includes('/api/edge-node'),'Edge Node API must be included in WAF staging')
 must(firewall.includes('--rate-limit-action log'),'rate-limit rules must begin in observation mode')
 must(!firewall.includes('firewall publish'),'staging script must never publish firewall drafts')
 must(firewallWorkflow.includes('stage-log-rules'),'manual staging workflow input missing')
