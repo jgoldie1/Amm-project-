@@ -12,6 +12,12 @@ type MissionPrompt={missionId?:string;title:string;objective?:string;routes?:Par
 type FameSnapshot={fame:number;rank:string;fanbase:number;viralScore:number;momentum:number}
 type FirstJourneyPhase='idle'|'active'|'ready'|'complete'
 type RepairContext={vehicleId:string;label:string}
+type RepairRuntimeAction='inspect'|'open-hood'|'diagnose'|'use-repair-kit'|'repair'|'verify'
+const REPAIR_TAP_ACTIONS:ReadonlyArray<ReadonlyArray<{action:RepairRuntimeAction;repairKitId?:string}>>=[
+ [{action:'inspect'},{action:'open-hood'}],
+ [{action:'diagnose'},{action:'use-repair-kit',repairKitId:'starter-repair-kit'},{action:'repair'}],
+ [{action:'verify'}],
+]
 
 const MODE_KEY='tryamm:streetverse-control-mode'
 const HAND_KEY='tryamm:streetverse-one-hand-side'
@@ -88,7 +94,7 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
   const onFirstJourneyReady=()=>setFirstJourneyPhase('ready')
   const onFirstJourneyComplete=()=>{setFirstJourneyPhase('complete');setRepairContext(null);setRepairStep(3)}
   const onInteractionContext=(event:Event)=>{const d=(event as CustomEvent<{kind?:string;vehicleId?:string;label?:string;broken?:boolean}>).detail||{};if(d.kind==='vehicle'&&d.broken&&d.vehicleId){setRepairContext({vehicleId:String(d.vehicleId),label:String(d.label||'Repair Mission Car')});setRepairStep(step=>Math.min(step,2))}}
-  const onVehicleRepaired=(event:Event)=>{const d=(event as CustomEvent<{vehicleId?:string}>).detail||{};if(String(d.vehicleId||'')==='first-repair-car')setRepairStep(3)}
+  const onVehicleRepaired=(event:Event)=>{const d=(event as CustomEvent<{vehicleId?:string}>).detail||{};if(String(d.vehicleId||'')==='first-repair-car'){setRepairStep(3);window.dispatchEvent(new CustomEvent('tryamm:streetverse-repair-step',{detail:{vehicleId:'first-repair-car',step:3,source:'authoritative-repair-confirmation'}}))}}
   window.addEventListener('blur',stop);window.addEventListener('pointercancel',stop);document.addEventListener('visibilitychange',stop);window.addEventListener('tryamm:streetverse-vehicle-controlled',onVehicleControlled);window.addEventListener('tryamm:streetverse-world-ready',onWorldReady)
   const missionContextEvents=['tryamm:streetverse-mission-start','tryamm:chicago-activity-start','tryamm:streetverse-checkpoint','tryamm:streetverse-mobile-mission-zone','tryamm:mission:discovered','tryamm:justice-mission-start','tryamm:time-machine-enter'] as const
   missionContextEvents.forEach(name=>window.addEventListener(name,rememberMission))
@@ -126,16 +132,18 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  }
  const runRepairStep=()=>{
   if(!repairContext||repairStep>=3)return
-  const next=repairStep+1;setRepairStep(next)
-  window.dispatchEvent(new CustomEvent('tryamm:streetverse-repair-step',{detail:{vehicleId:repairContext.vehicleId,step:next,source:'mobile-game-shell'}}))
-  if(next===3){window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-repaired',{detail:{vehicleId:repairContext.vehicleId,source:'mobile-game-shell'}}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-door',{detail:{vehicleId:repairContext.vehicleId,open:true,source:'mobile-game-shell'}}))}
+  const actions=REPAIR_TAP_ACTIONS[repairStep]||[]
+  const next=repairStep+1
+  if(next<3){setRepairStep(next);window.dispatchEvent(new CustomEvent('tryamm:streetverse-repair-step',{detail:{vehicleId:repairContext.vehicleId,step:next,source:'mobile-game-shell'}}))}
+  for(const item of actions)window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-repair-action',{detail:{vehicleId:repairContext.vehicleId,action:item.action,repairKitId:item.repairKitId,source:'mobile-game-shell-3tap'}}))
+  if(next===3)window.dispatchEvent(new CustomEvent('tryamm:accessibility-announce',{detail:{text:'Verifying repair. Driving unlocks only after the repair runtime confirms all six actions.'}}))
   if(navigator.vibrate)try{navigator.vibrate(16)}catch{}
  }
  const openReel=()=>window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'streetverse-mobile-game-shell',missionId:activeMission.missionId||'',missionLabel:activeMission.title||'StreetVerse Reel',missionSource:'streetverse-mobile',rewardStatus:firstJourneyPhase==='complete'?'pending':'draft',verified:false}}))
  const enterCar=()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:true,source:'mobile-game-shell-direct'}}))
  const openRideShare=()=>window.dispatchEvent(new CustomEvent('tryamm:holo-mobility-open',{detail:{source:'streetverse-mobile-game-shell'}}))
  const openBible=()=>{try{localStorage.setItem('tryamm.faith.return','/streetverse')}catch{};window.location.href='/faithverse#reader'}
- const repairLabel=repairStep===0?'OPEN HOOD':repairStep===1?'FIX ENGINE':repairStep===2?'CLOSE HOOD':'REPAIRED ✓'
+ const repairLabel=repairStep===0?'OPEN HOOD + INSPECT':repairStep===1?'DIAGNOSE + FIX':repairStep===2?'VERIFY + CLOSE':'REPAIRED ✓'
  const bottom='max(16px,env(safe-area-inset-bottom))'
  const selectedSide=hand==='left'?{left:'max(12px,env(safe-area-inset-left))'}:{right:'max(12px,env(safe-area-inset-right))'}
  const movementSide=mode==='one-hand'?selectedSide:{left:'max(12px,env(safe-area-inset-left))'}
