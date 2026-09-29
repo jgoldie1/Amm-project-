@@ -18,6 +18,14 @@ import type {GameplayAction} from '../game/simulation/gameplaySimulationBridge'
 
 const SAVE_KEY='tryamm.streetverse.living.v1'
 const NATIVE_CITY_BLOCKS=[[-70,-70],[-70,-25],[-70,25],[-70,70],[-25,-70],[-25,-25],[-25,25],[-25,70],[25,-70],[25,-25],[25,25],[25,70],[70,-70],[70,-25],[70,25],[70,70]] as const
+const nativeBuildingLabel=(i:number)=>({
+  5:'mobile-native-building-west-south',
+  6:'mobile-native-building-west',
+  7:'mobile-native-building-west-spawn',
+  9:'mobile-native-building-east-south',
+  10:'mobile-native-building-east',
+  11:'mobile-native-building-east-spawn',
+} as Record<number,string>)[i]||`mobile-native-building-${i+1}`
 const clamp=(v:number)=>THREE.MathUtils.clamp(v,-82,82)
 
 export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
@@ -99,7 +107,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     position:[x,0,z],
     rotationY:i%2?Math.PI:0,
     scale:i%4===0?1.18:i%4===1?1.08:i%4===2?1.12:1,
-    label:`mobile-native-building-${i+1}`,
+    label:nativeBuildingLabel(i),
   }))
   const nativeResidentCycle=['residentA','residentB','residentC'] as const
   for(let i=0;i<12;i++)mobileNativePlacements.push({asset:nativeResidentCycle[i%nativeResidentCycle.length],position:[0,0,0],label:`mobile-native-resident-${i+1}`})
@@ -113,7 +121,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     nativeRepairCar=result.group.getObjectByName('mobile-repair-car-native')||null
     nativeResidents=Array.from({length:12},(_,i)=>result.group.getObjectByName(`mobile-native-resident-${i+1}`)).filter((item):item is THREE.Object3D=>Boolean(item))
     nativeTrafficCars=Array.from({length:14},(_,i)=>result.group.getObjectByName(`mobile-native-traffic-car-${i+1}`)).filter((item):item is THREE.Object3D=>Boolean(item))
-    nativeBuildings=Array.from({length:NATIVE_CITY_BLOCKS.length},(_,i)=>result.group.getObjectByName(`mobile-native-building-${i+1}`)).filter((item):item is THREE.Object3D=>Boolean(item))
+    nativeBuildings=Array.from({length:NATIVE_CITY_BLOCKS.length},(_,i)=>result.group.getObjectByName(nativeBuildingLabel(i))).filter((item):item is THREE.Object3D=>Boolean(item))
     nativeBuildings.forEach((_,i)=>primitiveBuildingVisuals[i]?.forEach(part=>{part.visible=false}))
     nativeDriverDoorPivot=nativeRepairCar?.getObjectByName('driver-door-pivot')||null
     nativePassengerDoorPivot=nativeRepairCar?.getObjectByName('passenger-door-pivot')||null
