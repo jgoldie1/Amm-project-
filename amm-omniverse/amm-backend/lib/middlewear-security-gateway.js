@@ -1,5 +1,7 @@
 'use strict'
 
+const {createMiddleWearIdempotency}=require('./middlewear-idempotency')
+
 function bearer(req){
   const header=String(req.headers?.authorization||'')
   return header.startsWith('Bearer ')?header.slice(7).trim():''
@@ -75,6 +77,7 @@ const MIDDLEWEAR_MAX_MUTATION_BYTES=128*1024
 
 function createMiddleWearSecurityGateway({supabase}){
   if(!supabase)throw new Error('MIDDLEWEAR_SUPABASE_REQUIRED')
+  const idempotency=createMiddleWearIdempotency({supabase})
 
   async function authenticate(req,res,next){
     const token=bearer(req)
@@ -174,6 +177,36 @@ function createMiddleWearSecurityGateway({supabase}){
       })
     }
 
+    if(policy.highImpact||policy.moneySensitive){
+      let lock
+      try{lock=await idempotency.acquire(req,req.user.id)}
+      catch(error){
+        await writeAudit(supabase,{
+          user:req.user,eventType:'middlewear.idempotency_unavailable',severity:'high',
+          requestId:req.middleWearSecurity?.requestId,
+          metadata:{routeKey,reason:'idempotency-store-unavailable'},
+        })
+        return res.status(503).json({error:'High-impact request replay protection is unavailable',gate:'middlewear-idempotency'})
+      }
+      if(!lock.acquired&&lock.pending){
+        return res.status(409).json({error:'Equivalent high-impact request is already in progress',gate:'middlewear-idempotency',retryable:true})
+      }
+      if(lock.replay&&lock.resourceId){
+        const {data:existing,error:existingError}=await supabase
+          .from('middleverse_handoffs').select('*')
+          .eq('id',lock.resourceId).eq('user_id',req.user.id).maybeSingle()
+        if(existingError)return res.status(503).json({error:'Could not restore idempotent handoff result',gate:'middlewear-idempotency'})
+        if(existing)req.middleWearReplayHandoff=existing
+      }
+      req.middleWearSecurity.idempotency={
+        rowId:lock.row?.id||null,
+        acquired:Boolean(lock.acquired),
+        replay:Boolean(lock.replay),
+        resourceId:lock.resourceId||null,
+        rawKeyStored:false,
+      }
+    }
+
     req.middleWearSecurity.routePolicy={routeKey,riskBand,...policy}
     req.middleWearSecurity.providerGate={
       targetSystem:route.target_system,
@@ -259,6 +292,16 @@ function createMiddleWearSecurityGateway({supabase}){
     next()
   }
 
+  async function completeIdempotency(req,resourceId){
+    const rowId=req.middleWearSecurity?.idempotency?.rowId
+    if(rowId&&req.middleWearSecurity?.idempotency?.acquired)await idempotency.complete(rowId,resourceId)
+  }
+
+  async function failIdempotency(req){
+    const rowId=req.middleWearSecurity?.idempotency?.rowId
+    if(rowId&&req.middleWearSecurity?.idempotency?.acquired)await idempotency.fail(rowId)
+  }
+
   function middleware(){
     return [authenticate,loadRoutePolicy,guardHighImpactCompletion]
   }
@@ -268,6 +311,8 @@ function createMiddleWearSecurityGateway({supabase}){
     authenticate,
     loadRoutePolicy,
     guardHighImpactCompletion,
+    completeIdempotency,
+    failIdempotency,
     classifyRoute,
     providerReadiness,
     policy:{
@@ -280,6 +325,7 @@ function createMiddleWearSecurityGateway({supabase}){
         'Middleverse route risk policy',
         'provider readiness gate',
         'security audit persistence',
+        'distributed idempotency/replay protection for high-impact creation',
         'human/operator review for high-impact completion',
       ],
       rawAuthorizationStored:false,
