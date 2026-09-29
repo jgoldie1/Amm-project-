@@ -1,0 +1,75 @@
+name: TRYAMM Private Relay Android Candidate
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/scripts/prepare-private-relay-android.mjs'
+      - 'amm-omniverse/src/services/privateRelay.ts'
+      - 'amm-omniverse/config/private-relay-release.json'
+      - 'amm-omniverse/tests/private-relay-*.mjs'
+      - '.github/workflows/tryamm-private-relay-android-candidate.yml'
+
+jobs:
+  private-relay-android:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install Android 16 SDK
+        run: |
+          ANDROID_SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          SDKMANAGER="$(find "$ANDROID_SDK_ROOT/cmdline-tools" -type f -path '*/bin/sdkmanager' | sort -V | tail -n 1)"
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify Private Relay contracts
+        run: |
+          node tests/private-relay-store-contract.mjs
+          node tests/private-relay-android-native-contract.mjs
+          npm run typecheck
+          npm run build
+      - name: Generate VPN-specific Android shell
+        env:
+          TRYAMM_ENABLE_PRIVATE_RELAY: 'true'
+        run: |
+          rm -rf android
+          npx cap add android
+          npx cap sync android
+          node scripts/prepare-android-release.mjs
+          node scripts/prepare-private-relay-android.mjs
+          grep -R 'registerPlugin(TryammPrivateRelayPlugin' android/app/src/main/java
+          grep -R 'Ikev2VpnProfile' android/app/src/main/java
+      - name: Compile Private Relay debug candidate
+        run: cd android && ./gradlew assembleDebug
+      - name: Truth summary
+        run: |
+          {
+            echo '## TRYAMM Private Relay Android candidate'
+            echo
+            echo '- Uses Android platform VpnManager + Ikev2VpnProfile.'
+            echo '- Requires OS user consent.'
+            echo '- Does not implement custom packet interception.'
+            echo '- This compile candidate is NOT a Play-approved VPN release.'
+            echo '- Play VPN declaration, prominent disclosure, privacy listing and gateway certification remain release gates.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-private-relay-android-candidate
+          path: amm-omniverse/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
