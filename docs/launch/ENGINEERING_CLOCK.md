@@ -95,3 +95,20 @@ The branch currently contains duplicate numeric migration versions, including:
 - `202608120011_*` (2 files)
 
 Do not rename already-applied migration files blindly. Reconcile repository migration history against the live Supabase migration history before changing versions.
+
+## Genie-in-the-Bottle asset transformation tournament — 2026-09-29
+- Added `GenieBottleAssetTransformationEngine.ts`.
+- Added exactly four reviewed transformation recipes:
+  1. Reality Restore
+  2. Chicago Documentary
+  3. Holo Reality Fusion
+  4. Cinematic Hero
+- Weighted production scoring prioritizes realism, Chicago authenticity, holographic depth, gameplay readability, mobile performance, accessibility and originality.
+- Reviewed recipe winner: **Holo Reality Fusion**.
+- Added Circle Park production asset wave: hero character, park/ground, Roosevelt street kit, Taylor/Pilsen building kit, street furniture/signage, vegetation, vehicles, crowd, repair/garage interactions, interiors, night/wet-surface kit and holographic/AR interaction anchors.
+- Added Quantum Asset Tournament Buffer: four-way parallel software scheduling, content-addressed caching, winner-first optimization and bounded retry policy.
+- Quantum Crawler remains metadata-first/approved-source only; Oracle/rights review remains fail-closed.
+- Mind Over Matter motion generation/originality review is part of the animation transformation path.
+- Added tournament evidence script and contract.
+- Added mega-action lane `asset-transformation-tournament` that uploads all four scores + selected winner as evidence.
+- Production truth remains fail-closed: the recipe winner cannot publish until a real artifact URL, Asset Passport certification, performance evidence and human visual review exist.
