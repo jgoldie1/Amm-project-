@@ -497,6 +497,7 @@ jobs:
           npm audit --omit=dev --audit-level=high
           npm sbom --sbom-format cyclonedx > ../../release-evidence/jacobie-security/backend-sbom.cdx.json
           npm run test:jacobie-security
+          npm run test:red-hat
 
       - name: Bind security evidence to commit
         shell: bash
