@@ -1,3 +1,5 @@
+import { MEET_THE_STUBBS_FAMILY_FRIENDS } from '../game/characters/meetTheStubbsFamilyFriends'
+
 const KEY='tryamm.streetverse.playable-character.v1'
 let installed=false
 
@@ -28,8 +30,20 @@ const LANE_MISSIONS:Record<string,{id:string;title:string;rewardXP:number}>={
   'TV / Podcast':{id:'community-story',title:'Tell Our Story',rewardXP:325},
   'Chicago Explorer':{id:'chi-history-sound-map',title:'Sounds Born in Chicago',rewardXP:350}
 }
-const ROSTER:StreetVersePlayableCharacter[]=[
+const FEATURED_PLAYABLE:StreetVersePlayableCharacter[]=[
   {id:'you',label:'YOU',index:-1,role:'Founder / Explorer',missionLane:'Founder'},
+  {id:'marcus',label:'MARCUS',index:-2,role:'StreetVerse Protagonist',missionLane:'Chicago Explorer'},
+  {id:'nikki-frances',label:'NIKKI FRANCES',index:-3,role:'Creator / Family Friend',missionLane:'Reels Creator'},
+  {id:'tae-monroe',label:'TAE MONROE',index:-4,role:'Creator / Family Friend',missionLane:'Reels Creator'},
+]
+const FAMILY_PLAYABLE:StreetVersePlayableCharacter[]=MEET_THE_STUBBS_FAMILY_FRIENDS.map((person,i)=>({
+  id:person.id,label:person.displayName.toUpperCase(),index:-10-i,
+  role:person.roles.filter(r=>r!=='StreetVerse').join(' / ')||'Meet the Stubbs',
+  missionLane:person.id==='bj-stubbs'?'Founder':'Chicago Explorer'
+}))
+const ROSTER:StreetVersePlayableCharacter[]=[
+  ...FEATURED_PLAYABLE,
+  ...FAMILY_PLAYABLE,
   ...RESIDENT_ROLES.map(([role,missionLane],i)=>({id:`resident-${i+1}`,label:`RESIDENT ${String(i+1).padStart(2,'0')}`,index:i,role,missionLane}))
 ]
 
