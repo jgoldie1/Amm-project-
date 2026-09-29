@@ -1,0 +1,39 @@
+export const MIDDLEWEAR_SECURITY_ARCHITECTURE={
+  name:'TRYAMM MiddleWear Security Gateway',
+  purpose:'A single defensive doorway between user-facing TRYAMM surfaces and deeper Middleverse orchestration.',
+  orderedRequestPath:[
+    'Vercel edge / CDN / WAF / DDoS mitigation',
+    'Jacobie security headers + request ID',
+    'Red Hat Sentinel deception/probe detection',
+    'Jacobie Swarm Shield rate/resource controls',
+    'Supabase Auth server-side identity validation',
+    'Middleverse route risk classification',
+    'provider readiness gate',
+    'durable security audit for state-changing/high-impact actions',
+    'human/operator review for high-impact completion',
+    'Middleverse orchestration',
+  ] as const,
+  failClosedOn:[
+    'invalid session',
+    'oversized handoff',
+    'high-impact route without explicit risk review',
+    'required provider unavailable',
+    'high-impact audit persistence unavailable',
+    'high-impact completion without operator review',
+  ] as const,
+  privacy:{
+    rawAuthorizationStored:false,
+    rawIpStoredInMiddleWearAudit:false,
+    responseCache:'no-store',
+    safeReadAuditSampling:'no durable identity row for ordinary GET/HEAD/OPTIONS',
+  },
+  availability:{
+    edgeMitigationStillRequired:true,
+    appSwarmShieldStillRequired:true,
+    providerFailureDoesNotAuthorizeBypass:true,
+  },
+  accessibility:{
+    noMandatoryVisualCaptchaInMiddleWear:true,
+    oneHandAndAssistiveFlowsPreserved:true,
+  },
+} as const
