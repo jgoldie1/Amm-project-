@@ -8,6 +8,7 @@ const skip=new Set(['node_modules','dist','.git','build','coverage','public/gene
 const textExt=/\.(js|jsx|ts|tsx|mjs|cjs|json|yml|yaml|toml)$/i
 const rows=[]
 const blocked=[]
+const providerCompatibility=[]
 
 const patterns=[
   ['RSA',/\bRSA\b|rsa[-_]?sha|createPrivateKey\([^\n]{0,100}rsa/i],
@@ -39,13 +40,28 @@ function walk(dir){
 
 function scan(file){
   const rel=path.relative(root,file).split(path.sep).join('/')
+  // Do not self-scan the detector's own regular-expression source as application crypto.
+  if(rel==='scripts/jacobie-crypto-inventory.mjs')return
   let text=''
   try{text=fs.readFileSync(file,'utf8')}catch{return}
   for(const [name,re] of patterns){
     if(re.test(text))rows.push({file:rel,signal:name})
   }
   for(const [name,re] of insecure){
-    if(re.test(text))blocked.push({file:rel,finding:name})
+    if(!re.test(text))continue
+    const twilioLegacyVerifier=name==='SHA-1 cryptographic use'
+      && rel==='api/_lib/twilio.js'
+      && text.includes('TWILIO_LEGACY_HMAC_SHA1_COMPAT')
+    if(twilioLegacyVerifier){
+      providerCompatibility.push({
+        file:rel,
+        finding:name,
+        reason:'Twilio legacy/default webhook signature verification requires provider-defined HMAC-SHA1; migration path supports HMAC-SHA256 SharedKey.',
+        scope:'verification-only',
+      })
+      continue
+    }
+    blocked.push({file:rel,finding:name})
   }
 }
 
@@ -62,6 +78,7 @@ const manifest={
   note:'Inventory records crypto usage signals only; it intentionally never records cryptographic key material.',
   standardsTargets:['FIPS 203 ML-KEM','FIPS 204 ML-DSA','FIPS 205 SLH-DSA'],
   inventory,
+  providerCompatibility,
   blockers,
 }
 
@@ -69,7 +86,7 @@ fs.mkdirSync(path.dirname(output),{recursive:true})
 fs.writeFileSync(output,JSON.stringify(manifest,null,2))
 const hash=crypto.createHash('sha256').update(fs.readFileSync(output)).digest('hex')
 fs.writeFileSync(output+'.sha256',hash+'  '+path.basename(output)+'\n')
-console.log(`Jacobie crypto inventory: ${inventory.length} usage signal(s), ${blockers.length} blocking insecure crypto finding(s)`)
+console.log(`Jacobie crypto inventory: ${inventory.length} usage signal(s), ${providerCompatibility.length} provider compatibility exception(s), ${blockers.length} blocking insecure crypto finding(s)`)
 if(blockers.length){
   for(const item of blockers)console.error(`::error::${item.finding} in ${item.file}`)
   process.exit(1)
