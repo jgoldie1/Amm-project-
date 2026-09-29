@@ -1,5 +1,6 @@
 import {getAccessToken} from './supabaseClient'
 import type {EdgeCapabilitySnapshot} from '../runtime/TryammPocketEdgeRuntime'
+import {getTryammEdgeInstallId} from '../runtime/TryammPocketEdgeRuntime'
 
 const API=(import.meta.env.VITE_API_URL as string|undefined)?.replace(/\/$/,'')||''
 
@@ -16,7 +17,7 @@ async function request<T>(path:string,init:RequestInit={}):Promise<T>{
   return data as T
 }
 
-export const registerPocketEdgeNode=(capabilities:EdgeCapabilitySnapshot)=>request('/api/edge-node/register',{method:'POST',body:JSON.stringify({capabilities})})
+export const registerPocketEdgeNode=(capabilities:EdgeCapabilitySnapshot)=>request('/api/edge-node/register',{method:'POST',body:JSON.stringify({installId:getTryammEdgeInstallId(),capabilities})})
 export const heartbeatPocketEdgeNode=(nodeId:string,capabilities:EdgeCapabilitySnapshot)=>request('/api/edge-node/heartbeat',{method:'POST',body:JSON.stringify({nodeId,capabilities})})
 export const leasePocketEdgeJobs=(nodeId:string,capabilities:EdgeCapabilitySnapshot)=>request('/api/edge-node/lease',{method:'POST',body:JSON.stringify({nodeId,capabilities})})
 export const completePocketEdgeJob=(nodeId:string,jobId:string,resultRef?:string)=>request(`/api/edge-node/jobs/${encodeURIComponent(jobId)}/complete`,{method:'POST',body:JSON.stringify({nodeId,resultRef})})
