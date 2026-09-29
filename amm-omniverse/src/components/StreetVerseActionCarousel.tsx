@@ -1,14 +1,14 @@
 import {useEffect,useMemo,useState} from 'react'
 
 type SortMode='smart'|'nearby'|'mission'|'price'|'owned'
-type ActionId='quick'|'use'|'give'|'buy'|'sell'|'trade'|'pickup'|'drop'|'inspect'|'repair'|'open'|'enter'|'fuel'|'upgrade'|'customize'|'work'|'mission'|'call'|'dance'|'wave'|'tip'|'live'|'reel'
+type ActionId='quick'|'use'|'give'|'buy'|'sell'|'trade'|'pickup'|'drop'|'inspect'|'diagnose'|'repair'|'verify'|'open'|'enter'|'fuel'|'upgrade'|'customize'|'work'|'mission'|'call'|'dance'|'wave'|'tip'|'live'|'reel'
 type Context={kind?:string;vehicleId?:string;npcId?:string;label?:string;broken?:boolean;repairKit?:boolean;drivable?:boolean;price?:number;owned?:boolean;missionId?:string}
 
 const ACTIONS:Array<{id:ActionId;icon:string;label:string;tone:string}>=[
  {id:'quick',icon:'⚡',label:'QUICK',tone:'#ffe66d'},{id:'use',icon:'🧰',label:'USE',tone:'#67e8f9'},{id:'give',icon:'🤝',label:'GIVE',tone:'#c4b5fd'},
  {id:'buy',icon:'🛒',label:'BUY',tone:'#86efac'},{id:'sell',icon:'💰',label:'SELL',tone:'#fde68a'},{id:'trade',icon:'🔄',label:'TRADE',tone:'#93c5fd'},
  {id:'pickup',icon:'🎒',label:'PICK UP',tone:'#f9a8d4'},{id:'drop',icon:'📦',label:'DROP',tone:'#d8b4fe'},{id:'inspect',icon:'🔍',label:'INSPECT',tone:'#a5f3fc'},
- {id:'repair',icon:'🔧',label:'REPAIR',tone:'#fb923c'},{id:'open',icon:'🚪',label:'OPEN',tone:'#fca5a5'},{id:'enter',icon:'🚗',label:'ENTER',tone:'#60a5fa'},
+ {id:'diagnose',icon:'🧪',label:'DIAGNOSE',tone:'#f0abfc'},{id:'repair',icon:'🔧',label:'REPAIR',tone:'#fb923c'},{id:'verify',icon:'✅',label:'VERIFY',tone:'#86efac'},{id:'open',icon:'🚪',label:'OPEN',tone:'#fca5a5'},{id:'enter',icon:'🚗',label:'ENTER',tone:'#60a5fa'},
  {id:'fuel',icon:'⛽',label:'FUEL',tone:'#fcd34d'},{id:'upgrade',icon:'⬆️',label:'UPGRADE',tone:'#a7f3d0'},{id:'customize',icon:'🎨',label:'CUSTOMIZE',tone:'#f0abfc'},
  {id:'work',icon:'💼',label:'WORK',tone:'#bfdbfe'},{id:'mission',icon:'📍',label:'MISSION',tone:'#fda4af'},{id:'call',icon:'📱',label:'CALL',tone:'#ddd6fe'},{id:'dance',icon:'💃',label:'DANCE',tone:'#f9a8d4'},{id:'wave',icon:'👋',label:'WAVE',tone:'#a7f3d0'},{id:'tip',icon:'🪙',label:'TIP',tone:'#fde68a'},
  {id:'live',icon:'🔴',label:'LIVE',tone:'#f87171'},{id:'reel',icon:'🎥',label:'REEL',tone:'#e879f9'},
@@ -18,7 +18,7 @@ function relevant(ctx:Context){
  if(ctx.kind==='npc'||ctx.npcId)return ['quick','wave','dance','tip','give','mission','live','reel'] as ActionId[]
  if(ctx.kind==='vehicle'||ctx.vehicleId){
   return ctx.broken
-   ? ['quick','inspect','open','use','repair','buy','mission','live','reel'] as ActionId[]
+   ? ['quick','inspect','open','diagnose','use','repair','verify','mission','live','reel'] as ActionId[]
    : ['quick','enter','open','inspect','fuel','upgrade','customize','buy','sell','live','reel'] as ActionId[]
  }
  return ACTIONS.map(a=>a.id)
@@ -59,7 +59,7 @@ export default function StreetVerseActionCarousel(){
   if(id==='tip'&&ctx.npcId){dispatchEvent(new CustomEvent('tryamm:streetverse-npc-tip-request',{detail:{npcId:ctx.npcId,label:ctx.label,source:'action-carousel',serverAuthoritative:true}}));return}
   if((id==='dance'||id==='wave')&&ctx.npcId){dispatchEvent(new CustomEvent('tryamm:streetverse-context-action',{detail:{action:id,...ctx,source:'action-carousel'}}));return}
   if(id==='enter'&&ctx.broken){dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-denied',{detail:{vehicleId,reason:'repair-required'}}));return}
-  if(['inspect','open','use','repair'].includes(id)&&vehicleId){
+  if(['inspect','open','diagnose','use','repair','verify'].includes(id)&&vehicleId){
    const action=id==='open'?'open-hood':id==='use'?'use-repair-kit':id
    dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-repair-action',{detail:{vehicleId,action,repairKitId:id==='use'&&ctx.repairKit?'repair-kit':''}}))
   }
