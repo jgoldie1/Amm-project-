@@ -174,6 +174,31 @@ function add2027SportSedan(group,x,z,mats){
   group.add(holo)
 }
 
+function add2027CustomBoxTruck(group,x,z,mats){
+  group.userData={...group.userData,semantic:'drivable-commercial-vehicle',modelYear:2027,originalTryammDesign:true,streetStyle:'custom-box-truck'}
+  addBox(group,'box-truck-chassis',[6.8,.42,2.35],[x,.55,z],mats.metal,undefined,'vehicle-chassis')
+  addBox(group,'box-truck-cab',[2.15,1.9,2.2],[x+2.05,1.45,z],mats.car,undefined,'vehicle-cab')
+  addBox(group,'box-truck-cargo',[4.35,2.75,2.3],[x-.8,2.0,z],mat('cargo-box',0xe6e6e6,.62,.15),undefined,'cargo-box')
+  addBox(group,'box-truck-windshield',[.08,.72,1.78],[x+3.12,1.72,z],mats.glass,undefined,'vehicle-glass')
+  addBox(group,'box-truck-bumper',[.28,.35,2.18],[x+3.35,.45,z],mats.metal,undefined,'vehicle-bumper')
+  addBox(group,'box-truck-rear-step',[.34,.3,2.12],[x-3.35,.42,z],mats.metal,undefined,'vehicle-step')
+
+  const wheelPositions=[
+    [x+2.0,z-.98],[x+2.0,z+.98],
+    [x-2.05,z-.98],[x-2.05,z+.98],
+  ]
+  for(const [wx,wz] of wheelPositions){
+    const tire=addCylinder(group,'box-truck-wheel',.54,.32,[wx,.52,wz],mats.tire,24,'vehicle-wheel');tire.rotation.x=deg(90)
+    const rim=addCylinder(group,'wire-spoke-rim',.36,.335,[wx,.52,wz],mat('chrome-wire',0xe9edf2,.16,.95),32,'vehicle-wheel-rim');rim.rotation.x=deg(90)
+    const spinner=addCylinder(group,'spinner-cap',.16,.355,[wx,.52,wz],mat('spinner-chrome',0xf7f8fb,.1,1),8,'vehicle-spinner-visual');spinner.rotation.x=deg(90)
+    spinner.userData={...spinner.userData,cosmeticSpinner:true,independentVisualSpin:true}
+  }
+
+  const sideGlow=new THREE.Mesh(new THREE.BoxGeometry(3.1,.05,.08),mats.holo)
+  sideGlow.name='box-truck-holo-side';sideGlow.position.set(x-.6,.48,z-1.19);sideGlow.userData={semantic:'vehicle-holographic-accent',collision:'none'};group.add(sideGlow)
+  const sideGlow2=sideGlow.clone();sideGlow2.position.z=z+1.19;group.add(sideGlow2)
+}
+
 function addBuilding(group,x,z,w,h,d,mats,index,density){
   addBox(group,`building-${index}`,[w,h,d],[x,h/2,z],index%2?mats.brickA:mats.brickB,undefined,'building-shell')
   const floors=Math.max(2,Math.floor(h/2.8))
@@ -350,6 +375,11 @@ const kitBuilders={
   'tryamm-2027-sport-sedan':()=>{
     const g=new THREE.Group();g.name='TRYAMM-2027-sport-sedan'
     add2027SportSedan(g,0,0,kitMats)
+    return g
+  },
+  'tryamm-2027-custom-box-truck':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-2027-custom-box-truck'
+    add2027CustomBoxTruck(g,0,0,kitMats)
     return g
   },
   'holo-wayfinder':()=>{
