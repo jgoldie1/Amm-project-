@@ -28,6 +28,7 @@ import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
 import {useGameStore} from '../game/state/useGameStore'
 import {chooseQuantumSpeedMode,QUANTUM_SPEED_BUDGETS,type QuantumSpeedMode} from '../game/runtime/quantumSpeedEngine'
+import {CIRCLE_PARK_SPAWN} from '../data/StreetVerseChicagoGrid'
 
 const StreetVersePlayableWorld=lazy(()=>import('./StreetVersePlayableWorld'))
 const StreetVerseFullWorldOverlays=lazy(()=>import('./StreetVerseFullWorldOverlays'))
@@ -37,7 +38,7 @@ const StreetVerseActionCarousel=lazy(()=>import('./StreetVerseActionCarousel'))
 const DESTINATION_KEY_V2='tryamm.streetverse.chicago-destination.v2'
 const DESTINATION_KEY_V1='tryamm.streetverse.chicago-destination.v1'
 const SAVE_KEY='tryamm.streetverse.living.v1'
-const GAME_SPAWNS:Record<string,{x:number;z:number;label:string}>={loop:{x:0,z:0,label:'The Loop'},millennium:{x:38,z:38,label:'Millennium Park'},lakefront:{x:72,z:58,label:'Lakefront'},river:{x:28,z:-12,label:'Chicago River'},south:{x:-18,z:72,label:'South Side'},west:{x:-72,z:10,label:'West Side'},north:{x:12,z:-72,label:'North Side'},ohare:{x:-78,z:-78,label:"O'Hare Gateway"},midway:{x:-58,z:72,label:'Midway Gateway'}}
+const GAME_SPAWNS:Record<string,{x:number;z:number;label:string}>={'circle-park-abla':{x:CIRCLE_PARK_SPAWN.x,z:CIRCLE_PARK_SPAWN.z,label:CIRCLE_PARK_SPAWN.label},loop:{x:0,z:0,label:'The Loop'},millennium:{x:38,z:38,label:'Millennium Park'},lakefront:{x:72,z:58,label:'Lakefront'},river:{x:28,z:-12,label:'Chicago River'},south:{x:-18,z:72,label:'South Side'},west:{x:-72,z:10,label:'West Side'},north:{x:12,z:-72,label:'North Side'},ohare:{x:-78,z:-78,label:"O'Hare Gateway"},midway:{x:-58,z:72,label:'Midway Gateway'}}
 type Destination={id?:string;label?:string;name?:string;lon?:number;lat?:number;city?:string;type?:string;communityAreaNumber?:string|number}
 
 function hasUsableWebGL(){
@@ -105,7 +106,7 @@ function resolveSpawn(destination?:Destination){
 
 function prepareSpawn(){
  announceStreetVerseProductionMode()
- const destination=readDestination()
+ const destination=readDestination()??{id:CIRCLE_PARK_SPAWN.id,label:CIRCLE_PARK_SPAWN.label,name:CIRCLE_PARK_SPAWN.label,city:'Chicago',type:'streetverse-spawn'}
  const mapped=resolveSpawn(destination)
  if(mapped){
   try{
