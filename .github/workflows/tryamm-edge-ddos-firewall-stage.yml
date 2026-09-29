@@ -72,7 +72,7 @@ jobs:
             echo
             echo "- Vercel platform DDoS mitigation remains automatic."
             echo "- This workflow may stage LOG-FIRST WAF rules only."
-            echo "- It never runs vercel firewall publish."
+            echo "- Firewall drafts are never published by this workflow."
             echo "- Review matched traffic before moving a rule to challenge/rate-limit/deny."
             echo "- Attack Mode remains a human-confirmed emergency action."
           } >> "$GITHUB_STEP_SUMMARY"
