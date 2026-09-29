@@ -16,6 +16,7 @@ export const TRYAMM_NATIVE_RUNTIME_ASSETS={
   hydrant:{id:'hydrant',url:'/generated-assets/native/kit/hydrant.glb',state:'PREVIEW',semantic:'street-prop',collisionAuthority:'visual-only'},
   holoWayfinder:{id:'holo-wayfinder',url:'/generated-assets/native/kit/holo-wayfinder.glb',state:'PREVIEW',semantic:'holographic-wayfinder',collisionAuthority:'visual-only'},
   vehicleBlockout:{id:'vehicle-blockout',url:'/generated-assets/native/kit/vehicle-blockout.glb',state:'PREVIEW',semantic:'vehicle-visual',collisionAuthority:'visual-only'},
+  sportSedan2027:{id:'tryamm-2027-sport-sedan',url:'/generated-assets/native/kit/tryamm-2027-sport-sedan.glb',state:'PREVIEW',semantic:'drivable-vehicle-visual',collisionAuthority:'visual-only'},
   streetAndSidewalk:{id:'street-and-sidewalk',url:'/generated-assets/native/kit/street-and-sidewalk.glb',state:'PREVIEW',semantic:'street-visual-module',collisionAuthority:'visual-only'},
   trashCan:{id:'trash-can',url:'/generated-assets/native/kit/trash-can.glb',state:'PREVIEW',semantic:'trash-receptacle',collisionAuthority:'visual-only'},
   recyclingBin:{id:'recycling-bin',url:'/generated-assets/native/kit/recycling-bin.glb',state:'PREVIEW',semantic:'recycling-receptacle',collisionAuthority:'visual-only'},
@@ -65,6 +66,7 @@ export const CIRCLE_PARK_NATIVE_PREVIEW_PLACEMENTS:NativePlacement[]=[
 
   {asset:'vehicleBlockout',position:[-4,0,5],rotationY:Math.PI/2},
   {asset:'vehicleBlockout',position:[4,0,-14],rotationY:-Math.PI/2},
+  {asset:'sportSedan2027',position:[3,0,-1],rotationY:Math.PI/2,label:'circle-park-repair-car-native'},
 
   {asset:'trashCan',position:[-6,0,10],label:'circle-park-trash-can'},
   {asset:'recyclingBin',position:[6,0,10],label:'circle-park-recycling-bin'},
