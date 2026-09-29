@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { getTryammReadiness } from '../services/middlewear'
 
 const cyan = '#4FE3FF'
 const gold = '#E8B944'
@@ -24,6 +25,8 @@ function openGlobal(name: string) {
 
 export default function MiddleverseAIHub({ onClose }: Props) {
   const [notice, setNotice] = useState('Middleverse AI is your context and routing layer across TRYAMM.')
+  const [resilience,setResilience]=useState<'READY'|'DEGRADED'|'CHECKING'>('CHECKING')
+  useEffect(()=>{let active=true;getTryammReadiness().then(x=>{if(active)setResilience(x.ok?'READY':'DEGRADED')}).catch(()=>{if(active)setResilience('DEGRADED')});return()=>{active=false}},[])
   const destinations = useMemo<Destination[]>(() => [
     { icon: '✦', title: 'Benny Stubbs AI', description: 'Open the female AI guide for navigation, help and creation.', action: () => openGlobal('__showBennie'), status: 'READY' },
     { icon: '●', title: 'LIVE / PK / Debate', description: 'Move into live creation, collaboration, debate and commerce.', action: () => openGlobal('__showTryAMMLive'), status: 'READY' },
@@ -55,8 +58,8 @@ export default function MiddleverseAIHub({ onClose }: Props) {
       </header>
 
       <section style={{marginTop:18,padding:'clamp(22px,5vw,42px)',border:'1px solid #24465e',borderRadius:28,background:'linear-gradient(145deg,rgba(10,28,47,.94),rgba(7,7,17,.94))',boxShadow:'0 28px 90px #0008'}}>
-        <div style={{display:'flex',alignItems:'center',gap:13}}><div style={{width:58,height:58,borderRadius:18,display:'grid',placeItems:'center',border:`1px solid ${cyan}88`,background:'#071d27',fontSize:28}}>∞</div><div><div style={{fontSize:11,color:cyan,fontWeight:950,letterSpacing:2}}>ONE INTENT → RIGHT TRYAMM SYSTEM</div><h1 style={{margin:'4px 0 0',fontSize:'clamp(30px,7vw,54px)',lineHeight:.95}}>Your context follows you.</h1></div></div>
-        <p style={{maxWidth:760,color:'#b9c7d5',fontSize:15,lineHeight:1.65,margin:'20px 0 0'}}>Middleverse AI connects Benny, worlds, LIVE, learning, work, business, commerce, accessibility and future scan/supply-chain gateways without forcing users to learn where every feature lives.</p>
+        <div style={{display:'flex',alignItems:'center',gap:13}}><div style={{width:58,height:58,borderRadius:18,display:'grid',placeItems:'center',border:`1px solid ${cyan}88`,background:'#071d27',fontSize:28}}>∞</div><div><div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}><div style={{fontSize:11,color:cyan,fontWeight:950,letterSpacing:2}}>ONE INTENT → RIGHT TRYAMM SYSTEM</div><span style={{fontSize:8,fontWeight:950,letterSpacing:1,padding:'4px 7px',borderRadius:999,border:'1px solid #4fe3ff55',color:resilience==='READY'?'#8fffc1':resilience==='DEGRADED'?'#ffe49b':'#b7c3d0'}}>RESILIENT ROUTING • {resilience}</span></div><h1 style={{margin:'4px 0 0',fontSize:'clamp(30px,7vw,54px)',lineHeight:.95}}>Your context follows you.</h1></div></div>
+        <p style={{maxWidth:760,color:'#b9c7d5',fontSize:15,lineHeight:1.65,margin:'20px 0 0'}}>Middleverse AI connects Benny, worlds, LIVE, learning, work, business, commerce, accessibility and future scan/supply-chain gateways without forcing users to learn where every feature lives. MiddleWear isolates provider/world failures, applies risk and identity gates, and keeps healthy destinations available when one path degrades.</p>
         <div aria-live="polite" style={{marginTop:18,padding:'12px 14px',borderRadius:14,border:`1px solid ${gold}44`,background:'#171208',color:'#ead79f',fontSize:12,lineHeight:1.5}}>{notice}</div>
       </section>
 
