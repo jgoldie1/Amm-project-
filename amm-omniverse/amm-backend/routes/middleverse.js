@@ -1,6 +1,6 @@
 const express=require('express')
 
-function createMiddleverseRouter({supabase}){
+function createMiddleverseRouter({supabase,middleWearSecurity}){
   const router=express.Router()
 
   router.get('/status',async(_req,res)=>{
@@ -27,6 +27,13 @@ function createMiddleverseRouter({supabase}){
 
   router.post('/handoffs',async(req,res)=>{
     try{
+      if(req.middleWearReplayHandoff){
+        return res.status(200).json({
+          handoff:req.middleWearReplayHandoff,
+          replayed:true,
+          middleWear:{secured:true,idempotentReplay:true,requestId:req.middleWearSecurity?.requestId||null},
+        })
+      }
       const routeKey=String(req.body?.routeKey||'').trim()
       const taskSummary=String(req.body?.taskSummary||'').trim().slice(0,4000)
       if(!routeKey||!taskSummary)return res.status(400).json({error:'routeKey and taskSummary are required'})
@@ -45,6 +52,7 @@ function createMiddleverseRouter({supabase}){
         target_ref:req.body?.targetRef?String(req.body.targetRef).slice(0,500):null,
       }).select('*').single()
       if(error)throw error
+      if(middleWearSecurity?.completeIdempotency)await middleWearSecurity.completeIdempotency(req,data.id)
       res.status(201).json({
         handoff:data,
         route,
@@ -57,7 +65,10 @@ function createMiddleverseRouter({supabase}){
           requestId:req.middleWearSecurity?.requestId||null,
         },
       })
-    }catch(err){res.status(500).json({error:err.message||'Could not create handoff'})}
+    }catch(err){
+      try{if(middleWearSecurity?.failIdempotency)await middleWearSecurity.failIdempotency(req)}catch(_){}
+      res.status(500).json({error:err.message||'Could not create handoff'})
+    }
   })
 
   router.post('/handoffs/:id/status',async(req,res)=>{
