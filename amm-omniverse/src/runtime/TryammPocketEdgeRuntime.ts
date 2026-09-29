@@ -69,6 +69,18 @@ export async function detectTryammEdgeCapabilities():Promise<EdgeCapabilitySnaps
 }
 
 const KEY='tryamm_pocket_edge_state_v1'
+const INSTALL_KEY='tryamm_pocket_edge_install_v1'
+export function getTryammEdgeInstallId(){
+  try{
+    let id=localStorage.getItem(INSTALL_KEY)||''
+    if(!id){
+      id=crypto.randomUUID()
+      localStorage.setItem(INSTALL_KEY,id)
+    }
+    return id
+  }catch{return crypto.randomUUID()}
+}
+
 export type EdgeLocalState={version:1;nodeId?:string;lastSyncAt?:number;pending:number;mode:'online'|'offline'|'battery-save'|'degraded'}
 
 export function readEdgeLocalState():EdgeLocalState{
@@ -81,6 +93,7 @@ export function writeEdgeLocalState(state:EdgeLocalState){
 }
 
 export async function refreshTryammPocketEdgeState(){
+  const installId=getTryammEdgeInstallId()
   const cap=await detectTryammEdgeCapabilities()
   const previous=readEdgeLocalState()
   const batterySave=cap.batteryLevel!==null&&!cap.charging&&cap.batteryLevel<.25
@@ -90,7 +103,7 @@ export async function refreshTryammPocketEdgeState(){
     lastSyncAt:Date.now(),
   }
   writeEdgeLocalState(next)
-  return{state:next,capabilities:cap}
+  return{state:next,capabilities:cap,installId}
 }
 
 export const POCKET_EDGE_RUNTIME_POLICY={
