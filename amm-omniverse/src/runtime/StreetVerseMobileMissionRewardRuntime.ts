@@ -1,11 +1,11 @@
 import {ensureOmniverseGenesis,loadOmniverseEconomy,recordMissionReward} from './OmniverseAssetLedger'
 
 const REWARD_KEY='tryamm.streetverse.mobile-rewards.v1'
-const REWARDS:Record<string,number>={studio:20,market:25,river:35,stage:30}
+const REWARDS:Record<string,number>={studio:20,market:25,river:35,stage:30,'first-journey':75}
 let installed=false
 const pending=new Set<string>()
 
-type CheckpointDetail={id?:string;label?:string;mobileSafeMode?:boolean;htmlCity?:boolean;visited?:number;total?:number;vehicle?:boolean}
+type CheckpointDetail={id?:string;label?:string;mobileSafeMode?:boolean;htmlCity?:boolean;mobileLite?:boolean;visited?:number;total?:number;vehicle?:boolean}
 
 function readRewarded(){
   try{const value=JSON.parse(localStorage.getItem(REWARD_KEY)||'[]');return new Set<string>(Array.isArray(value)?value.map(String):[])}catch{return new Set<string>()}
@@ -26,7 +26,7 @@ function showReceipt(text:string){
 }
 
 async function awardCheckpoint(detail:CheckpointDetail){
-  if(!detail.mobileSafeMode||!detail.htmlCity)return
+  if(!(detail.mobileSafeMode&&detail.htmlCity)&&!detail.mobileLite)return
   const id=String(detail.id||'')
   const amount=REWARDS[id]
   if(!amount||pending.has(id))return
@@ -43,7 +43,7 @@ async function awardCheckpoint(detail:CheckpointDetail){
     const economy=await recordMissionReward(amount,mission)
     rewarded.add(id);saveRewarded(rewarded)
     const receipt=economy.ledger[economy.ledger.length-1]
-    const result={id,label:String(detail.label||id),amountCredits:amount,balance:Math.round(economy.playerBalance),mission,receiptIndex:receipt?.index??-1,receiptHash:receipt?.hash||'',mobileSafeMode:true,htmlCity:true,vehicle:!!detail.vehicle}
+    const result={id,label:String(detail.label||id),amountCredits:amount,balance:Math.round(economy.playerBalance),mission,receiptIndex:receipt?.index??-1,receiptHash:receipt?.hash||'',mobileSafeMode:!!detail.mobileSafeMode,htmlCity:!!detail.htmlCity,mobileLite:!!detail.mobileLite,vehicle:!!detail.vehicle}
     const text=`MISSION REWARD +${amount} DEMO CREDITS • BALANCE ${result.balance} • LEDGER #${result.receiptIndex}`
     showReceipt(text)
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-mobile-reward-recorded',{detail:result}))
@@ -60,5 +60,9 @@ export function installStreetVerseMobileMissionRewardRuntime(){
   window.addEventListener('tryamm:streetverse-checkpoint',(event:Event)=>{
     const detail=(event as CustomEvent<CheckpointDetail>).detail||{}
     void awardCheckpoint(detail)
+  })
+  window.addEventListener('tryamm:streetverse-first-journey-complete',(event:Event)=>{
+    const detail=(event as CustomEvent<CheckpointDetail>).detail||{}
+    void awardCheckpoint({id:'first-journey',label:String(detail.label||'First Ride • Repair & Drive'),mobileLite:true,vehicle:true})
   })
 }
