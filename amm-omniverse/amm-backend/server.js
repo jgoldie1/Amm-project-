@@ -23,6 +23,7 @@ const signLanguage = require('./signLanguageService')
 const { jacobieSecurityHeaders, noStoreSensitive } = require('./lib/jacobie-security-headers')
 const { createRedHatSentinel } = require('./lib/red-hat-sentinel')
 const { createRedHatSentinelRouter } = require('./routes/red-hat-sentinel')
+const { createJacobieSwarmShield } = require('./lib/jacobie-swarm-shield')
 
 const app = express()
 
@@ -30,10 +31,12 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) throw new Er
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null
 const redHatSentinel = createRedHatSentinel({ supabase })
+const jacobieSwarmShield = createJacobieSwarmShield()
 
 app.disable('x-powered-by')
 app.use(jacobieSecurityHeaders)
 app.use(redHatSentinel.middleware)
+app.use(jacobieSwarmShield.middleware)
 app.use(cors({ origin:['https://tryamm.online','https://www.tryamm.online','https://amm-omniverse.vercel.app','http://localhost:5173',process.env.FRONTEND_URL].filter(Boolean), credentials:true }))
 app.use('/api/stripe/webhook', noStoreSensitive, express.raw({ type:'application/json' }))
 app.use(express.json({ limit:'2mb' }))
@@ -47,7 +50,7 @@ app.get('/api/health', async (_req,res)=>{
   try { const { error }=await supabase.from('worlds').select('id').limit(1); database=!error } catch(_) {}
   try { const { error }=await supabase.from('release_registry').select('id').limit(1); releaseRegistry=!error } catch(_) {}
   try { const { error }=await supabase.from('release_health_samples').select('id').limit(1); releaseHealth=!error } catch(_) {}
-  res.json({ ok:true, ts:Date.now(), version:'1.11.0-release-control', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, financialTruth:true, releaseControl:true, releaseRegistry, releaseHealth, autoLedger:true, signLanguage:true, signRecognitionProvider:Boolean(process.env.SIGN_LANGUAGE_PROVIDER_URL), tryammLive:true, moderationReporting:true, workforce:true, middleverse:true, assetForge:true, meshyAssetForge:Boolean(process.env.MESHY_API_KEY), redHatSentinel:true, jacobieQuantumShield:true, repoWorkstation:true } })
+  res.json({ ok:true, ts:Date.now(), version:'1.11.0-release-control', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, financialTruth:true, releaseControl:true, releaseRegistry, releaseHealth, autoLedger:true, signLanguage:true, signRecognitionProvider:Boolean(process.env.SIGN_LANGUAGE_PROVIDER_URL), tryammLive:true, moderationReporting:true, workforce:true, middleverse:true, assetForge:true, meshyAssetForge:Boolean(process.env.MESHY_API_KEY), redHatSentinel:true, jacobieQuantumShield:true, jacobieSwarmShield:true, repoWorkstation:true } })
 })
 
 app.use('/api/omniverse', createOmniverseRouter({ supabase }))
@@ -156,6 +159,7 @@ app.listen(PORT,()=>{
   console.log('   Asset Forge API: /api/asset-forge/*')
   console.log('   Red Hat Sentinel: ✅ defensive canaries + privacy-minimized telemetry')
   console.log('   Red Hat Sentinel operator API: /api/security/red-hat/*')
+  console.log('   Jacobie Swarm Shield: ✅ per-source/principal/resource throttling + graceful degradation')
   console.log('   Omniverse API: /api/omniverse/*')
   console.log('   Holo Core API: /api/holo-core/*')
   console.log('   University API: /api/university/*')
