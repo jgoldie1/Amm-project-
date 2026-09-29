@@ -17,6 +17,11 @@ export const TRYAMM_NATIVE_RUNTIME_ASSETS={
   holoWayfinder:{id:'holo-wayfinder',url:'/generated-assets/native/kit/holo-wayfinder.glb',state:'PREVIEW',semantic:'holographic-wayfinder',collisionAuthority:'visual-only'},
   vehicleBlockout:{id:'vehicle-blockout',url:'/generated-assets/native/kit/vehicle-blockout.glb',state:'PREVIEW',semantic:'vehicle-visual',collisionAuthority:'visual-only'},
   streetAndSidewalk:{id:'street-and-sidewalk',url:'/generated-assets/native/kit/street-and-sidewalk.glb',state:'PREVIEW',semantic:'street-visual-module',collisionAuthority:'visual-only'},
+  trashCan:{id:'trash-can',url:'/generated-assets/native/kit/trash-can.glb',state:'PREVIEW',semantic:'trash-receptacle',collisionAuthority:'visual-only'},
+  recyclingBin:{id:'recycling-bin',url:'/generated-assets/native/kit/recycling-bin.glb',state:'PREVIEW',semantic:'recycling-receptacle',collisionAuthority:'visual-only'},
+  dumpster:{id:'dumpster',url:'/generated-assets/native/kit/dumpster.glb',state:'PREVIEW',semantic:'garbage-disposal-dumpster',collisionAuthority:'visual-only'},
+  garbageBag:{id:'garbage-bag',url:'/generated-assets/native/kit/garbage-bag.glb',state:'PREVIEW',semantic:'collectible-garbage',collisionAuthority:'visual-only'},
+  litterCluster:{id:'litter-cluster',url:'/generated-assets/native/kit/litter-cluster.glb',state:'PREVIEW',semantic:'collectible-litter',collisionAuthority:'visual-only'},
 } as const satisfies Record<string,NativeRuntimeAsset>
 
 export type TryammNativeRuntimeAssetKey=keyof typeof TRYAMM_NATIVE_RUNTIME_ASSETS
@@ -60,6 +65,13 @@ export const CIRCLE_PARK_NATIVE_PREVIEW_PLACEMENTS:NativePlacement[]=[
 
   {asset:'vehicleBlockout',position:[-4,0,5],rotationY:Math.PI/2},
   {asset:'vehicleBlockout',position:[4,0,-14],rotationY:-Math.PI/2},
+
+  {asset:'trashCan',position:[-6,0,10],label:'circle-park-trash-can'},
+  {asset:'recyclingBin',position:[6,0,10],label:'circle-park-recycling-bin'},
+  {asset:'dumpster',position:[5,0,27],rotationY:Math.PI,label:'circle-park-disposal-dumpster'},
+  {asset:'garbageBag',position:[3,0,12],scale:.9,label:'garbage-pickup-a'},
+  {asset:'garbageBag',position:[-4,0,-20],label:'garbage-pickup-b'},
+  {asset:'litterCluster',position:[1,0,23],label:'garbage-pickup-c'},
 ]
 
 export const NATIVE_RUNTIME_POLICY={
