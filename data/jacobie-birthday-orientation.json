@@ -1,0 +1,133 @@
+{
+  "version": 1,
+  "id": "jacobie-birthday-orientation",
+  "status": "foundation",
+  "launch": {
+    "month": 11,
+    "day": 20,
+    "anchorCharacter": "Jacobie",
+    "campus": "Greenville University",
+    "officialPartnership": false
+  },
+  "goals": [
+    "celebrate_birthday",
+    "teach_app_by_playing",
+    "create_character",
+    "discover_collegebook",
+    "choose_major_or_interest",
+    "complete_first_mission",
+    "join_crossverse_pk",
+    "learn_holo_live",
+    "start_skills_passport",
+    "invite_classmates"
+  ],
+  "acts": [
+    {
+      "id": "arrival",
+      "tasks": [
+        "enter_campus",
+        "meet_jacobie",
+        "meet_independent_girlfriend_character",
+        "meet_student_guides",
+        "accessibility_setup"
+      ]
+    },
+    {
+      "id": "passport",
+      "tasks": [
+        "create_or_load_character",
+        "privacy_choices",
+        "choose_major_interest",
+        "join_collegebook"
+      ]
+    },
+    {
+      "id": "party",
+      "tasks": [
+        "birthday_event",
+        "music_or_dj",
+        "photo_reel_station",
+        "student_creator_booths",
+        "friendly_pk",
+        "campus_club_discovery"
+      ]
+    },
+    {
+      "id": "first_mission",
+      "tasks": [
+        "assign_major_mission",
+        "form_cross_major_team",
+        "complete_skill_challenge",
+        "save_evidence_to_skills_passport"
+      ]
+    },
+    {
+      "id": "broadcast",
+      "tasks": [
+        "choose_host_producer_commentator_editor_graphics_audio_caption_or_competitor_role",
+        "holo_live_practice",
+        "create_highlight_reel"
+      ]
+    },
+    {
+      "id": "graduation_gate",
+      "tasks": [
+        "unlock_next_major_mission",
+        "unlock_collegebook_groups",
+        "unlock_crossverse_pk_qualifier",
+        "unlock_middleverse_career_preview"
+      ]
+    }
+  ],
+  "studentRoles": [
+    "chapter_leader",
+    "streamer",
+    "pk_competitor",
+    "producer",
+    "ambassador",
+    "student_entrepreneur",
+    "mission_creator",
+    "host",
+    "commentator",
+    "editor",
+    "graphics",
+    "audio_dj",
+    "accessibility_caption"
+  ],
+  "relationshipRules": {
+    "girlfriendIndependent": true,
+    "breakupPreservesCharacter": true,
+    "breakupState": "ex",
+    "preserve": [
+      "missions",
+      "skills",
+      "followers",
+      "friends",
+      "businesses",
+      "school_history",
+      "creator_portfolio"
+    ]
+  },
+  "campusTemplates": [
+    "small_private_university",
+    "private_hbcu",
+    "public_hbcu",
+    "research_technology",
+    "comprehensive_research",
+    "community_college",
+    "regional_public",
+    "international"
+  ],
+  "reuse": {
+    "familyBusinessGrowthEngine": true,
+    "futureSiblingLaunches": true
+  },
+  "safeguards": [
+    "consent_for_likeness_voice",
+    "age_appropriate_lanes",
+    "no_official_school_endorsement_without_authorization",
+    "data_minimization",
+    "server_authoritative_money",
+    "student_athlete_nil_compliance_gate"
+  ]
+}

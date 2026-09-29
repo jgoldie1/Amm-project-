@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "system": "campusverse",
+  "launchAnchor": {
+    "character": "Jacobie",
+    "date": "11-20",
+    "campus": "Greenville University"
+  },
+  "modules": [
+    "persistent_identity",
+    "relationship_graph",
+    "campus_mission_engine",
+    "collegebook",
+    "crossverse_pk",
+    "holo_live_student_broadcast",
+    "skills_passport",
+    "community_college_transfer",
+    "middleverse_jobs"
+  ],
+  "relationshipPolicy": {
+    "independentCharacters": true,
+    "preserveProgressAfterBreakup": true,
+    "states": [
+      "friend",
+      "dating",
+      "partner",
+      "ex",
+      "classmate",
+      "teammate",
+      "alumni"
+    ]
+  },
+  "pkFormats": [
+    "1v1",
+    "team_v_team",
+    "major_v_major",
+    "club_v_club",
+    "campus_v_campus",
+    "community_college_v_university",
+    "regional",
+    "national",
+    "international",
+    "verse_v_verse"
+  ],
+  "missionFamilies": [
+    "business",
+    "computing_ai_cybersecurity",
+    "engineering",
+    "science",
+    "criminal_justice_civic",
+    "digital_media",
+    "education",
+    "equine_agriculture",
+    "exercise_sport",
+    "music",
+    "leadership",
+    "psychology_research",
+    "theology_religious_studies",
+    "humanities_languages_math_physics",
+    "pre_professional"
+  ],
+  "broadcastRoles": [
+    "host",
+    "commentator",
+    "producer",
+    "camera",
+    "editor",
+    "graphics",
+    "statistics",
+    "social_reels",
+    "audio_dj",
+    "accessibility_caption"
+  ],
+  "progression": [
+    "campus_mission",
+    "skills_passport",
+    "portfolio",
+    "internship_project",
+    "middleverse_jobs",
+    "alumni_career"
+  ],
+  "compliance": {
+    "institutionalAuthorizationRequired": true,
+    "studentAthleteNILGate": true,
+    "serverAuthoritativeMoney": true,
+    "privacyDataMinimization": true,
+    "consentForLikenessVoice": true
+  }
+}
