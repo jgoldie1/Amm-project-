@@ -1,14 +1,31 @@
 const KEY='tryamm.streetverse.playable-character.v1'
 let installed=false
 
-export type StreetVersePlayableCharacter={id:string;label:string;index:number;role:string;missionLane?:string}
+export type StreetVersePlayableCharacter={id:string;label:string;index:number;role:string;missionLane?:string;presentation?:'male'|'female'|'neutral'|'pending'}
+export type CreatorRolePreset={id:string;label:string;missionLane:string}
+
+const CREATOR_ASSIGNMENTS_KEY='tryamm.streetverse.creator-cast.assignments.v1'
+export const CREATOR_ROLE_PRESETS:CreatorRolePreset[]=[
+  {id:'rapper',label:'Rapper',missionLane:'Chicago Rap / Open Mic'},
+  {id:'singer',label:'Singer',missionLane:'Chicago Singer / Live Stage'},
+  {id:'producer',label:'Music Producer',missionLane:'Music Producer / Studio'},
+  {id:'dj',label:'DJ',missionLane:'DJ / Holo LIVE'},
+  {id:'dancer',label:'Dancer',missionLane:'Dance / Performance'},
+  {id:'streamer',label:'BIGO/TikTok Streamer',missionLane:'Live Stream Creator'},
+  {id:'actor',label:'Actor',missionLane:'Acting / Holo Drama'},
+  {id:'filmmaker',label:'Filmmaker',missionLane:'Film / Video'},
+  {id:'fashion',label:'Fashion Designer',missionLane:'Fashion / Design'},
+  {id:'beauty',label:'Beauty Creator',missionLane:'Beauty / Style'},
+  {id:'entrepreneur',label:'Entrepreneur',missionLane:'Business / Marketplace'},
+  {id:'host',label:'TV / Podcast Host',missionLane:'TV / Podcast'},
+]
 
 const RESIDENT_ROLES=[
   ['RAPPER','Chicago Rap / Open Mic'],['SINGER','Chicago Singer / Live Stage'],['ARTIST','Visual Artist / Mural'],['PRODUCER','Music Producer / Studio'],
-  ['DJ','DJ / Holo LIVE'],['DANCER','Dance / Performance'],['CREATOR','Reels Creator'],['FILMMAKER','Film / Video'],
+  ['DJ','DJ / Holo LIVE'],['DANCER','Dance / Performance'],['CREATOR','Reels Creator'],['STREAMER','Live Stream Creator'],['ACTOR','Acting / Holo Drama'],['FILMMAKER','Film / Video'],
   ['ATHLETE','Sports / Training'],['COACH','Coach / Mentor'],['BUILDER','Builder / Restoration'],['ENTREPRENEUR','Business / Marketplace'],
   ['CHEF','Food / Delivery'],['DRIVER','Transit / Delivery'],['SECURITY','Event Safety'],['TECH','AI / Technology'],
-  ['CYBER','Cyber Safety'],['REPORTER','Chicago News'],['HOST','TV / Podcast'],['DESIGNER','Fashion / Design'],
+  ['CYBER','Cyber Safety'],['REPORTER','Chicago News'],['HOST','TV / Podcast'],['DESIGNER','Fashion / Design'],['BEAUTY','Beauty / Style'],
   ['MERCHANT','Retail / Marketplace'],['SCOUT','Business Scout'],['MENTOR','Youth / Community'],['EXPLORER','Chicago Explorer']
 ] as const
 const LANE_MISSIONS:Record<string,{id:string;title:string;rewardXP:number}>={
@@ -19,7 +36,11 @@ const LANE_MISSIONS:Record<string,{id:string;title:string;rewardXP:number}>={
   'DJ / Holo LIVE':{id:'chi-city-cypher',title:'Chicago City Cypher',rewardXP:650},
   'Dance / Performance':{id:'chi-city-cypher',title:'Chicago City Cypher',rewardXP:650},
   'Reels Creator':{id:'city-soundtrack',title:'City Soundtrack',rewardXP:375},
+  'Live Stream Creator':{id:'creator-live-street-session',title:'Go Live in StreetVerse',rewardXP:425},
+  'Acting / Holo Drama':{id:'holo-drama-scene',title:'Shoot a Holo Drama Scene',rewardXP:450},
   'Film / Video':{id:'city-soundtrack',title:'City Soundtrack',rewardXP:375},
+  'Fashion / Design':{id:'street-style-showcase',title:'Street Style Showcase',rewardXP:400},
+  'Beauty / Style':{id:'beauty-creator-showcase',title:'Beauty Creator Showcase',rewardXP:400},
   'Business / Marketplace':{id:'world-builder',title:'Build the Block',rewardXP:500},
   'Event Safety':{id:'safe-event-command',title:'Safe Event Command',rewardXP:600},
   'AI / Technology':{id:'mib-space-tech-lab',title:'MIB: Space Age Technology Lab',rewardXP:900},
@@ -29,7 +50,7 @@ const LANE_MISSIONS:Record<string,{id:string;title:string;rewardXP:number}>={
   'Chicago Explorer':{id:'chi-history-sound-map',title:'Sounds Born in Chicago',rewardXP:350}
 }
 const NAMED_CAST:StreetVersePlayableCharacter[]=[
-  {id:'bj-stubbs',label:'BJ STUBBS',index:-1,role:'Founder / Explorer',missionLane:'Founder'},
+  {id:'bj-stubbs',label:'BJ STUBBS',index:-1,role:'Founder / Explorer',missionLane:'Founder',presentation:'male'},
   {id:'marcus',label:'MARCUS',index:0,role:'StreetVerse Friend',missionLane:'Chicago Explorer'},
   {id:'al-b',label:'AL B',index:1,role:'StreetVerse Family',missionLane:'Business / Marketplace'},
   {id:'tatti',label:'TATTI',index:2,role:'Creator • role pending',missionLane:'Reels Creator'},
@@ -45,6 +66,7 @@ const SOCIAL_CREATOR_CAST:StreetVersePlayableCharacter[]=Array.from({length:10},
   index:100+i,
   role:'BIGO/TikTok creator • identity/role pending',
   missionLane:'Reels Creator',
+  presentation:'pending',
 }))
 const ROSTER:StreetVersePlayableCharacter[]=[
   ...NAMED_CAST,
@@ -54,10 +76,29 @@ const ROSTER:StreetVersePlayableCharacter[]=[
 
 function emit(name:string,detail:any={}){window.dispatchEvent(new CustomEvent(name,{detail}))}
 function read(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return {}}}
+function readCreatorAssignments():Record<string,Partial<StreetVersePlayableCharacter>>{try{return JSON.parse(localStorage.getItem(CREATOR_ASSIGNMENTS_KEY)||'{}')}catch{return {}}}
+function applyCreatorAssignments(){
+ const assignments=readCreatorAssignments()
+ for(const character of ROSTER){const patch=assignments[character.id];if(patch)Object.assign(character,patch)}
+}
+function assignCreator(detail:{characterId:string;displayName?:string;role?:string;missionLane?:string;presentation?:StreetVersePlayableCharacter['presentation']}){
+ const character=ROSTER.find(item=>item.id===detail.characterId);if(!character)return
+ const patch:Partial<StreetVersePlayableCharacter>={}
+ if(detail.displayName)patch.label=detail.displayName.toUpperCase()
+ if(detail.role)patch.role=detail.role
+ if(detail.missionLane)patch.missionLane=detail.missionLane
+ if(detail.presentation)patch.presentation=detail.presentation
+ Object.assign(character,patch)
+ const assignments=readCreatorAssignments();assignments[character.id]={...(assignments[character.id]||{}),...patch}
+ try{localStorage.setItem(CREATOR_ASSIGNMENTS_KEY,JSON.stringify(assignments))}catch{}
+ emit('tryamm:streetverse-creator-cast-assigned',{character,mission:missionFor(character)})
+ return character
+}
 function save(character:StreetVersePlayableCharacter){try{localStorage.setItem(KEY,JSON.stringify({character,updatedAt:new Date().toISOString()}))}catch{}}
 function missionFor(character:StreetVersePlayableCharacter){return LANE_MISSIONS[character.missionLane||'']||{id:'neighborhood-help',title:'Neighborhood Help',rewardXP:275}}
 
 function mount(){
+  applyCreatorAssignments()
   if(document.getElementById('tryamm-playable-character-switcher'))return
   const root=document.createElement('div');root.id='tryamm-playable-character-switcher';root.setAttribute('aria-label','StreetVerse playable character switcher')
   Object.assign(root.style,{position:'fixed',right:'12px',top:'86px',zIndex:'2147482400',display:'none',fontFamily:'Inter,system-ui,sans-serif'})
@@ -76,5 +117,6 @@ function mount(){
 export function installStreetVersePlayableCharactersRuntime(){
   if(installed||typeof window==='undefined'||typeof document==='undefined')return;installed=true
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount()
-  queueMicrotask(()=>emit('tryamm:streetverse-playable-roster-ready',{count:ROSTER.length,characters:ROSTER}))
+  window.addEventListener('tryamm:streetverse-creator-cast-assign',(event:Event)=>assignCreator((event as CustomEvent<any>).detail||{}))
+  queueMicrotask(()=>emit('tryamm:streetverse-playable-roster-ready',{count:ROSTER.length,characters:ROSTER,creatorRolePresets:CREATOR_ROLE_PRESETS}))
 }
