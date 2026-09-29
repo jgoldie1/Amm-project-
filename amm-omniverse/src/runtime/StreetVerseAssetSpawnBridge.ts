@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { HoloForgeAssetManifest } from './HoloForgeAssetRuntime'
 
 export type StreetVerseSpawnedAsset={id:string;kind:HoloForgeAssetManifest['kind'];object:THREE.Object3D;manifest:HoloForgeAssetManifest;createdAt:number}
@@ -34,18 +35,60 @@ function safePosition(scene:THREE.Scene,index:number){
  const ring=20+Math.floor(index/8)*7;const angle=(index%8)/8*Math.PI*2;return new THREE.Vector3(Math.cos(angle)*ring,0,Math.sin(angle)*ring+8)
 }
 
+function artifactUrlFromManifest(manifest:HoloForgeAssetManifest){
+ const output=manifest.output
+ if(typeof output==='string'&&/\.(?:glb|gltf)(?:\?|$)/i.test(output))return output
+ if(!output||typeof output!=='object')return null
+ const value=output as Record<string,unknown>
+ for(const key of ['artifactUrl','modelUrl','url']){
+  const candidate=value[key]
+  if(typeof candidate==='string'&&/\.(?:glb|gltf)(?:\?|$)/i.test(candidate))return candidate
+ }
+ for(const key of ['modelUrls','model_urls']){
+  const urls=value[key]
+  if(urls&&typeof urls==='object'){
+   const glb=(urls as Record<string,unknown>).glb
+   if(typeof glb==='string')return glb
+  }
+ }
+ const result=value.result
+ if(result&&typeof result==='object'){
+  const nested=result as Record<string,unknown>
+  const candidate=nested.artifactUrl??nested.modelUrl??nested.url
+  if(typeof candidate==='string'&&/\.(?:glb|gltf)(?:\?|$)/i.test(candidate))return candidate
+  const urls=nested.modelUrls??nested.model_urls
+  if(urls&&typeof urls==='object'&&typeof (urls as Record<string,unknown>).glb==='string')return String((urls as Record<string,unknown>).glb)
+ }
+ return null
+}
+
+function configureLoadedAsset(root:THREE.Object3D){
+ root.traverse(object=>{const mesh=object as THREE.Mesh;if(mesh.isMesh){mesh.castShadow=true;mesh.receiveShadow=true;mesh.frustumCulled=true}})
+ return root
+}
+
 export function installStreetVerseAssetSpawnBridge(scene:THREE.Scene,buildingBoxes:THREE.Box3[],treeColliders:THREE.Box3[]){
  const spawned=new Map<string,StreetVerseSpawnedAsset>()
- const onSpawn=(event:Event)=>{
-  const manifest=(event as CustomEvent<HoloForgeAssetManifest>).detail
-  if(!manifest?.id||spawned.has(manifest.id)||!manifest.integration?.spawnable)return
-  const object=primitive(manifest);const position=safePosition(scene,spawned.size);object.position.x+=position.x;object.position.z+=position.z;object.userData={...object.userData,holoforgeAssetId:manifest.id,assetKind:manifest.kind,worldSessionId:manifest.worldSessionId,missionId:manifest.missionId,tags:manifest.tags,generated:true}
+ const pending=new Set<string>()
+ const loader=new GLTFLoader()
+ const materialize=async(manifest:HoloForgeAssetManifest)=>{
+  if(!manifest?.id||spawned.has(manifest.id)||pending.has(manifest.id)||!manifest.integration?.spawnable)return
+  pending.add(manifest.id)
+  const artifactUrl=artifactUrlFromManifest(manifest)
+  let object:THREE.Object3D|null=null
+  let fallback=true
+  if(artifactUrl){
+   try{const gltf=await loader.loadAsync(artifactUrl);object=configureLoadedAsset(gltf.scene);fallback=false}catch(error){window.dispatchEvent(new CustomEvent('tryamm:streetverse-asset-load-fallback',{detail:{assetId:manifest.id,artifactUrl,message:String((error as Error)?.message||error)}}))}
+  }
+  if(!object)object=primitive(manifest)
+  const position=safePosition(scene,spawned.size);object.position.x+=position.x;object.position.z+=position.z;object.userData={...object.userData,holoforgeAssetId:manifest.id,assetKind:manifest.kind,worldSessionId:manifest.worldSessionId,missionId:manifest.missionId,tags:manifest.tags,generated:true,artifactUrl,primitiveFallback:fallback}
   scene.add(object)
   if(manifest.integration.collision){const box=new THREE.Box3().setFromObject(object).expandByScalar(.35);if(manifest.kind==='building')buildingBoxes.push(box);else if(['prop','road'].includes(manifest.kind))treeColliders.push(box)}
-  const entry={id:manifest.id,kind:manifest.kind,object,manifest,createdAt:Date.now()};spawned.set(manifest.id,entry)
-  window.dispatchEvent(new CustomEvent('tryamm:streetverse-asset-materialized',{detail:{assetId:manifest.id,kind:manifest.kind,worldSessionId:manifest.worldSessionId,missionId:manifest.missionId,position:{x:object.position.x,y:object.position.y,z:object.position.z},integration:manifest.integration}}))
+  const entry={id:manifest.id,kind:manifest.kind,object,manifest,createdAt:Date.now()};spawned.set(manifest.id,entry);pending.delete(manifest.id)
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-asset-materialized',{detail:{assetId:manifest.id,kind:manifest.kind,artifactUrl,fallback,worldSessionId:manifest.worldSessionId,missionId:manifest.missionId,position:{x:object.position.x,y:object.position.y,z:object.position.z},integration:manifest.integration}}))
  }
+ const onSpawn=(event:Event)=>{const manifest=(event as CustomEvent<HoloForgeAssetManifest>).detail;void materialize(manifest)}
  window.addEventListener('tryamm:streetverse-asset-spawn-request',onSpawn)
- window.dispatchEvent(new CustomEvent('tryamm:streetverse-asset-spawn-ready',{detail:{ready:true,capabilities:['materialize','collision','world-session','mission-binding','generated-metadata']}}))
- return {spawned,dispose(){window.removeEventListener('tryamm:streetverse-asset-spawn-request',onSpawn);spawned.forEach(entry=>{scene.remove(entry.object);entry.object.traverse(o=>{const mesh=o as THREE.Mesh;if(mesh.isMesh){mesh.geometry?.dispose();const mats=Array.isArray(mesh.material)?mesh.material:[mesh.material];mats.forEach(m=>m?.dispose())}})});spawned.clear()}}
+ window.dispatchEvent(new CustomEvent('tryamm:streetverse-asset-spawn-ready',{detail:{ready:true,capabilities:['materialize-glb','primitive-fallback','collision','world-session','mission-binding','generated-metadata']}}))
+ return {spawned,dispose(){window.removeEventListener('tryamm:streetverse-asset-spawn-request',onSpawn);pending.clear();spawned.forEach(entry=>{scene.remove(entry.object);entry.object.traverse(o=>{const mesh=o as THREE.Mesh;if(mesh.isMesh){mesh.geometry?.dispose();const mats=Array.isArray(mesh.material)?mesh.material:[mesh.material];mats.forEach(m=>m?.dispose())}})});spawned.clear()}}
 }
