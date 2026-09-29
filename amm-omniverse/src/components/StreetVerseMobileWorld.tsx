@@ -42,13 +42,39 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const mobileNativePlacements:NativePlacement[]=[
     {asset:'sportSedan2027',position:[-8,0,50],rotationY:0,label:'mobile-repair-car-native'},
     {asset:'boxTruckCustom2027',position:[32,0,-24],rotationY:Math.PI/2,label:'mobile-custom-box-truck'},
+    {asset:'vehicleBlockout',position:[8,0,54],rotationY:0,label:'mobile-parked-car-a'},
+    {asset:'vehicleBlockout',position:[-5,0,34],rotationY:Math.PI,label:'mobile-parked-car-b'},
+
     {asset:'building',position:[-29,0,26],rotationY:Math.PI,label:'mobile-native-building-west'},
     {asset:'building',position:[29,0,26],rotationY:Math.PI,label:'mobile-native-building-east'},
+    {asset:'building',position:[-29,0,54],rotationY:Math.PI,label:'mobile-native-building-west-spawn'},
+    {asset:'building',position:[29,0,54],rotationY:Math.PI,label:'mobile-native-building-east-spawn'},
+    {asset:'building',position:[-29,0,-18],rotationY:Math.PI,label:'mobile-native-building-west-south'},
+    {asset:'building',position:[29,0,-18],rotationY:Math.PI,label:'mobile-native-building-east-south'},
+
     {asset:'tree',position:[-16,0,18],scale:1.05,label:'mobile-native-tree-west'},
     {asset:'tree',position:[16,0,18],scale:1.05,label:'mobile-native-tree-east'},
+    {asset:'tree',position:[-16,0,42],scale:.95,label:'mobile-native-tree-west-spawn'},
+    {asset:'tree',position:[16,0,42],scale:1.08,label:'mobile-native-tree-east-spawn'},
+    {asset:'tree',position:[-16,0,62],scale:1.02,label:'mobile-native-tree-west-north'},
+    {asset:'tree',position:[16,0,62],scale:.98,label:'mobile-native-tree-east-north'},
+
     {asset:'streetLamp',position:[-8,0,40],label:'mobile-native-lamp-west'},
     {asset:'streetLamp',position:[8,0,40],label:'mobile-native-lamp-east'},
+    {asset:'streetLamp',position:[-8,0,58],label:'mobile-native-lamp-west-spawn'},
+    {asset:'streetLamp',position:[8,0,58],label:'mobile-native-lamp-east-spawn'},
+    {asset:'streetLamp',position:[-8,0,20],label:'mobile-native-lamp-west-south'},
+    {asset:'streetLamp',position:[8,0,20],label:'mobile-native-lamp-east-south'},
+
+    {asset:'bench',position:[-13,0,46],rotationY:Math.PI/2,label:'mobile-native-bench-west'},
+    {asset:'bench',position:[13,0,46],rotationY:-Math.PI/2,label:'mobile-native-bench-east'},
+    {asset:'hydrant',position:[10,0,44],label:'mobile-native-hydrant-a'},
+    {asset:'hydrant',position:[-10,0,30],label:'mobile-native-hydrant-b'},
+    {asset:'trashCan',position:[-12,0,52],label:'mobile-native-trash-can'},
+    {asset:'recyclingBin',position:[12,0,52],label:'mobile-native-recycling-bin'},
+
     {asset:'holoWayfinder',position:[0,0,34],label:'mobile-native-wayfinder'},
+    {asset:'holoWayfinder',position:[0,0,58],label:'mobile-native-wayfinder-spawn'},
   ]
   void loadTryammNativeCircleParkLayer({placements:mobileNativePlacements}).then(result=>{
     if(nativeCancelled){disposeNativeAssetLayer(result.group);return}
