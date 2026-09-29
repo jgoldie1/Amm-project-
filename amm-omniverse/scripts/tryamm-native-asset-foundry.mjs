@@ -199,6 +199,58 @@ function add2027CustomBoxTruck(group,x,z,mats){
   const sideGlow2=sideGlow.clone();sideGlow2.position.z=z+1.19;group.add(sideGlow2)
 }
 
+
+function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
+  const skinPalette=[0x7a4d32,0xa36b4b,0xc88d68,0xd79a70]
+  const outfitPalette=[0x284c7a,0x7a3545,0x315e43,0x72572e]
+  const skin=mat(`skin-${variant}`,skinPalette[variant%skinPalette.length],.58,0)
+  const outfit=mat(`outfit-${variant}`,outfitPalette[variant%outfitPalette.length],.72,.05)
+  const pants=mat(`pants-${variant}`,variant%2?0x202936:0x2f3138,.82,.02)
+  const hair=mat(`hair-${variant}`,variant%2?0x2d1c15:0x15110f,.88,0)
+  const body=new THREE.Mesh(new THREE.CapsuleGeometry(hero?.42:.38,hero?1.18:1.05,5,10),outfit)
+  body.name=hero?'hero-torso':'resident-torso';body.position.set(x,1.42,z);body.castShadow=true;body.userData={semantic:hero?'hero-body':'resident-body',generatedBy:'tryamm-native-asset-foundry'};group.add(body)
+  const head=new THREE.Mesh(new THREE.SphereGeometry(hero?.34:.31,18,14),skin)
+  head.name=hero?'hero-head':'resident-head';head.position.set(x,2.52,z);head.scale.set(.92,1.08,.9);head.castShadow=true;group.add(head)
+  const hairCap=new THREE.Mesh(new THREE.SphereGeometry(hero?.35:.32,16,10,0,Math.PI*2,0,Math.PI*.5),hair)
+  hairCap.name='hair';hairCap.position.set(x,2.69,z);hairCap.scale.set(1,variant%3===0?1.14:.96,1);group.add(hairCap)
+  const nose=new THREE.Mesh(new THREE.ConeGeometry(.045,.12,8),skin);nose.name='nose';nose.rotation.x=deg(90);nose.position.set(x,2.49,z+.29);group.add(nose)
+  const eyeMat=mat('eyes',0x14171a,.35,.05)
+  for(const side of [-1,1]){
+    const arm=new THREE.Mesh(new THREE.CapsuleGeometry(.085,.72,4,8),skin);arm.name='arm';arm.position.set(x+side*.48,1.47,z);arm.rotation.z=side*.08;group.add(arm)
+    const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.11,.78,4,8),pants);leg.name='leg';leg.position.set(x+side*.17,.5,z);group.add(leg)
+    const eye=new THREE.Mesh(new THREE.SphereGeometry(.032,8,6),eyeMat);eye.name='eye';eye.position.set(x+side*.11,2.55,z+.285);group.add(eye)
+    const shoe=new THREE.Mesh(new THREE.CapsuleGeometry(.105,.22,3,8),mats.tire);shoe.name='shoe';shoe.rotation.z=deg(90);shoe.position.set(x+side*.17,.09,z+.08);group.add(shoe)
+  }
+  if(hero){
+    const jacket=new THREE.Mesh(new THREE.TorusGeometry(.44,.055,8,24,Math.PI),mats.holo);jacket.name='hero-holo-collar';jacket.rotation.x=deg(90);jacket.position.set(x,1.83,z-.22);group.add(jacket)
+  }
+  group.userData={...group.userData,semantic:hero?'player-character':'crowd-resident',rigState:'procedural-static-baseline',originalTryammDesign:true}
+}
+
+function addTransitTrain(group,x,z,mats){
+  const shellMat=mat('cta-shell',0xd7dbdf,.28,.72)
+  const stripeMat=mat('cta-accent',0x1e8fc6,.36,.32,0x0b4c69,.35)
+  const windowMat=mat('cta-window',0x203744,.16,.42)
+  const wheelMat=mats.tire
+  group.userData={...group.userData,semantic:'city-transit-train',originalTryammDesign:true}
+  for(let i=0;i<3;i++){
+    const cx=x+i*11.35
+    const shell=new THREE.Mesh(new THREE.CapsuleGeometry(1.18,8.7,6,16),shellMat)
+    shell.name=`train-car-${i+1}`;shell.rotation.z=deg(90);shell.position.set(cx,1.52,z);shell.scale.set(1,1,1.08);shell.castShadow=true;group.add(shell)
+    const stripe=new THREE.Mesh(new THREE.CapsuleGeometry(.08,8.2,3,10),stripeMat)
+    stripe.name='train-stripe';stripe.rotation.z=deg(90);stripe.position.set(cx,1.42,z+1.18);group.add(stripe)
+    for(let w=-3;w<=3;w+=1.5){
+      const window=new THREE.Mesh(new THREE.PlaneGeometry(1.05,.62),windowMat)
+      window.name='train-window';window.position.set(cx+w,1.78,z+1.205);group.add(window)
+    }
+    for(const wx of [-3.35,3.35])for(const side of [-1,1]){
+      const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.18,18),wheelMat)
+      wheel.name='train-wheel';wheel.rotation.x=deg(90);wheel.position.set(cx+wx,.42,z+side*.98);group.add(wheel)
+    }
+    const door=new THREE.Mesh(new THREE.PlaneGeometry(1.08,1.58),mats.metal);door.name='train-door';door.position.set(cx,1.32,z+1.215);group.add(door)
+  }
+}
+
 function addBuilding(group,x,z,w,h,d,mats,index,density){
   addBox(group,`building-${index}`,[w,h,d],[x,h/2,z],index%2?mats.brickA:mats.brickB,undefined,'building-shell')
   const floors=Math.max(2,Math.floor(h/2.8))
@@ -381,6 +433,26 @@ const kitBuilders={
     const g=new THREE.Group();g.name='TRYAMM-2027-custom-box-truck'
     add2027CustomBoxTruck(g,0,0,kitMats)
     return g
+  },
+  'streetverse-hero-player':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-StreetVerse-Hero-Player'
+    addResidentArchetype(g,0,0,kitMats,0,true);return g
+  },
+  'resident-archetype-a':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-Resident-Archetype-A'
+    addResidentArchetype(g,0,0,kitMats,0,false);return g
+  },
+  'resident-archetype-b':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-Resident-Archetype-B'
+    addResidentArchetype(g,0,0,kitMats,1,false);return g
+  },
+  'resident-archetype-c':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-Resident-Archetype-C'
+    addResidentArchetype(g,0,0,kitMats,2,false);return g
+  },
+  'city-transit-train':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-City-Transit-Train'
+    addTransitTrain(g,0,0,kitMats);return g
   },
   'holo-wayfinder':()=>{
     const g=new THREE.Group();g.name='TRYAMM-holo-wayfinder'
