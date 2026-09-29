@@ -99,7 +99,7 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
   stopStream();setRecording(false);setUrl(URL.createObjectURL(file))
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-recorded',{detail:{source:'iphone-capture',size:file.size,type:file.type||'video/*'}}))
  }
- return <div style={{position:'fixed',inset:0,zIndex:22000,background:'#02050af4',color:'#fff',fontFamily:'system-ui',padding:16,overflow:'auto'}}>
+ return <div style={{position:'fixed',inset:0,zIndex:46000,background:'#02050af4',color:'#fff',fontFamily:'system-ui',padding:16,overflow:'auto'}}>
   <div style={{maxWidth:620,margin:'0 auto'}}>
    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12}}><div><b>STREETVERSE REEL</b>{context.missionId&&<div style={{fontSize:10,color:'#59e7ff',fontWeight:900,marginTop:3}}>MISSION • {missionLabel||context.missionId} • {context.verified?'REWARD VERIFIED':'REWARD PENDING'}</div>}<div aria-live='polite' style={{fontSize:12,color:recording?'#ff8798':'#8effb7'}}>{recording?'● RECORDING • tap STOP when finished':url?'CLIP READY • preview, then save/share':'Camera • record • preview • save • share'}</div></div><button onClick={returnToWorld} aria-label="Return to StreetVerse" style={btn}>×</button></div>
    <video ref={videoRef} playsInline muted style={{width:'100%',aspectRatio:'9/16',maxHeight:'70vh',marginTop:12,background:'#000',borderRadius:16,objectFit:'cover'}}/>
