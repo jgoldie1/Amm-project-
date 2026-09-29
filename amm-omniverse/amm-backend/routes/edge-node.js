@@ -153,6 +153,11 @@ function createEdgeNodeRouter({supabase}){
       await edgeHousekeeping(supabase,req.user.id)
       const nodeId=String(req.body?.nodeId||'')
       const current=sanitizeCapabilities(req.body?.capabilities||{})
+      const paidGrid={
+        paidGridOptIn:req.body?.paidGrid?.paidGridOptIn===true,
+        allowedPaidWork:Array.isArray(req.body?.paidGrid?.allowedPaidWork)?req.body.paidGrid.allowedPaidWork.map(String).filter(x=>SAFE_CAPABILITIES.has(x)).slice(0,10):[],
+        maxParallelPaidJobs:Math.max(1,Math.min(4,Number(req.body?.paidGrid?.maxParallelPaidJobs)||1)),
+      }
       const {data:node,error:nodeError}=await supabase.from('tryamm_edge_nodes')
         .select('id,owner_user_id,node_class,status,trust_state,capabilities,lease_limit,last_seen_at')
         .eq('id',nodeId).eq('owner_user_id',req.user.id).maybeSingle()
@@ -171,6 +176,12 @@ function createEdgeNodeRouter({supabase}){
       for(const candidate of candidates||[]){
         if(jobs.length>=Number(node.lease_limit||1))break
         if(!safe.has(candidate.required_capability))continue
+        if(candidate.work_order_id){
+          if(!paidGrid.paidGridOptIn)continue
+          if(!paidGrid.allowedPaidWork.includes(candidate.job_class))continue
+          const paidAlready=jobs.filter(x=>x.work_order_id).length
+          if(paidAlready>=paidGrid.maxParallelPaidJobs)continue
+        }
         const leaseExpiresAt=new Date(Date.now()+2*60*1000).toISOString()
         const {data:leased,error:leaseError}=await supabase.from('tryamm_edge_jobs').update({
           status:'leased',leased_node_id:node.id,lease_expires_at:leaseExpiresAt,updated_at:new Date().toISOString(),
@@ -178,7 +189,7 @@ function createEdgeNodeRouter({supabase}){
         if(leaseError)throw leaseError
         if(leased)jobs.push(leased)
       }
-      res.json({jobs,nodeId:node.id,leaseSeconds:120,hardwareAttested:false,sameOwnerOnly:true})
+      res.json({jobs,nodeId:node.id,leaseSeconds:120,hardwareAttested:false,sameOwnerOnly:true,paidGridConsentRequired:true})
     }catch(error){res.status(500).json({error:'Could not lease Edge Node jobs'})}
   })
 
