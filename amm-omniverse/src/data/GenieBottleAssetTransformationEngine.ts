@@ -1,5 +1,6 @@
 import type {AssetKind} from './TryammAssetForge'
 import {createAssetFactoryJob} from './TryammAssetForge'
+import {oracleAssetReferenceReview,type AssetReferenceCandidate} from '../runtime/StreetVersePerformanceOracle'
 
 export type TransformationSampleId='sample-a-reality-restore'|'sample-b-chicago-documentary'|'sample-c-holo-reality-fusion'|'sample-d-cinematic-hero'
 export type ProductionEvidenceState='recipe-only'|'artifact-generated'|'reviewed'|'certified'
@@ -16,6 +17,7 @@ export interface AssetTransformationRequest{
   holographicLevel:'subtle'|'integrated'|'hero'
   referenceIds:string[]
   oracleApprovedReferenceIds:string[]
+  referenceCandidates?:AssetReferenceCandidate[]
 }
 
 export interface TransformationSample{
@@ -160,6 +162,9 @@ export function createProductionTransformationManifest(request:AssetTransformati
   const job=createAssetFactoryJob(`${request.id}:production`,request.kind,request.target)
   const samples=createFourTransformationSamples(request)
   const {winner,ranked}=selectProductionWinner(samples)
+  const oracleDecisions=(request.referenceCandidates??[]).map(oracleAssetReferenceReview)
+  const approvedReferenceIds=oracleDecisions.filter(item=>item.decision==='approve-processing').map(item=>item.candidateId)
+  const oracleReferenceBlockers=oracleDecisions.filter(item=>item.decision!=='approve-processing').length
   return {
     schema:'tryamm.streetverse.asset-transformation-tournament.v1',
     request,
@@ -167,13 +172,18 @@ export function createProductionTransformationManifest(request:AssetTransformati
     samples,
     rankedSampleIds:ranked.map(item=>item.id),
     recipeWinner:winner,
+    oracleDecisions,
+    approvedReferenceIds,
+    oracleReferenceBlockers,
     promotion:{
       evidenceState:'recipe-only' as ProductionEvidenceState,
       artifactUrl:null as string|null,
       assetPassportCertified:false,
       humanVisualReview:false,
       productionPublishAllowed:false,
-      reason:'A recipe winner is not a generated/certified asset. Provider artifact + Asset Passport + human review are required.',
+      reason:oracleReferenceBlockers>0
+        ?'Reference review has blockers; provider generation/publish is fail-closed.'
+        :'A recipe winner is not a generated/certified asset. Provider artifact + Asset Passport + human review are required.',
     },
   }
 }
