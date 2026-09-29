@@ -1,8 +1,11 @@
 const crypto = require('crypto')
+const { createProviderResilience } = require('./provider-resilience')
 
 const OPENAI_MODEL = process.env.OPENAI_STUBBS_CRITIC_MODEL || 'gpt-5.6-sol'
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
 const MAX_MEMORY = Math.max(1, Math.min(20, Number(process.env.STUBBS_MEMORY_LIMIT || 8)))
+const geminiResilience = createProviderResilience({ provider:'gemini', timeoutMs:20_000, maxConcurrent:10, failureThreshold:5, resetMs:30_000, maxRetries:0 })
+const openaiResilience = createProviderResilience({ provider:'openai', timeoutMs:25_000, maxConcurrent:10, failureThreshold:5, resetMs:30_000, maxRetries:0 })
 
 function clamp01(n){ return Math.max(0, Math.min(1, Number(n) || 0)) }
 function uniq(xs){ return [...new Set((xs || []).filter(Boolean).map(String))] }
@@ -116,10 +119,10 @@ async function geminiExecutive({ apiKey, question, ageLane, mode, context, memor
   ].join(' ')
   const prompt = `${system}\nMode:${mode}\nContext:${JSON.stringify(context).slice(0,8000)}\nMemory:${JSON.stringify(memory).slice(0,8000)}\nUser:${question}`
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(apiKey)}`
-  const response = await fetch(url, {
+  const response = await geminiResilience.fetch(url, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.25, maxOutputTokens: 1800, responseMimeType: 'application/json' } }),
-  })
+  }, { retrySafe:false })
   const body = await response.json().catch(() => ({}))
   if (!response.ok) throw new Error(`Executive provider failed (${response.status})`)
   const text = body?.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('').trim()
@@ -138,11 +141,11 @@ async function openAICritic({ apiKey, question, ageLane, mode, context, memory }
     'Output only JSON with answer, conclusionKey, confidence, evidenceIds, uncertainties, assumptions.',
   ].join(' ')
   const input = `Mode:${mode}\nContext:${JSON.stringify(context).slice(0,8000)}\nMemory:${JSON.stringify(memory).slice(0,8000)}\nUser:${question}`
-  const response = await fetch('https://api.openai.com/v1/responses', {
+  const response = await openaiResilience.fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ model: OPENAI_MODEL, instructions, input, max_output_tokens: 1800, reasoning: { effort: 'medium' } }),
-  })
+  }, { retrySafe:false })
   const body = await response.json().catch(() => ({}))
   if (!response.ok) throw new Error(body?.error?.message || `Critic provider failed (${response.status})`)
   const text = (body.output || []).flatMap(i => i.content || []).filter(c => c.type === 'output_text').map(c => c.text || '').join('\n').trim()
@@ -232,4 +235,4 @@ async function answerWithTriBrain({ supabase, userId, question, ageLane, mode = 
   return result
 }
 
-module.exports = { classifyRisk, spiderSense, normalizeBrain, compareBrains, answerWithTriBrain }
+module.exports = { classifyRisk, spiderSense, normalizeBrain, compareBrains, answerWithTriBrain, providerResilienceStatus:()=>({gemini:geminiResilience.status(),openai:openaiResilience.status()}) }
