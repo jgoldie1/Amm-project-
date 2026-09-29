@@ -99,6 +99,7 @@ jobs:
           set -euo pipefail
           node tests/streetverse-character-scale-contract.mjs
           node tests/tryamm-native-runtime-asset-contract.mjs
+          node tests/tryamm-native-pwa-asset-cache-contract.mjs
           node tests/streetverse-chicago-grid-reality-contract.mjs
           node tests/streetverse-mobile-repair-visibility-contract.mjs
           node tests/streetverse-journey-qa-contract.mjs
