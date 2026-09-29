@@ -112,3 +112,23 @@ Do not rename already-applied migration files blindly. Reconcile repository migr
 - Added tournament evidence script and contract.
 - Added mega-action lane `asset-transformation-tournament` that uploads all four scores + selected winner as evidence.
 - Production truth remains fail-closed: the recipe winner cannot publish until a real artifact URL, Asset Passport certification, performance evidence and human visual review exist.
+
+## TRYAMM Native Asset Foundry — self-contained baseline
+- TRYAMM Native Asset Foundry is now the default asset baseline; optional external generators are accelerators, not required dependencies.
+- Native foundry generates four actual GLB scene candidates in CI with zero generation credits and no external API.
+- Native reviewed direction remains Holo Reality Fusion.
+- Native modular GLB resource pack now includes:
+  - street-and-sidewalk
+  - brick-building-module
+  - street-lamp
+  - bench
+  - hydrant
+  - tree
+  - vehicle-blockout
+  - holo-wayfinder
+- Together with four scene candidates + reviewed-winner copy, the CI lane requires at least 13 actual GLB outputs.
+- Every generated GLB is inspected and optimized with glTF Transform before artifact upload.
+- Native generator embeds semantic/collision metadata, PBR material parameters and holographic interaction anchors.
+- Native Chicago output is labeled Chicago-inspired / not an exact digital twin unless source-backed certification exists.
+- Asset publish remains fail-closed pending human visual review, Asset Passport certification and target-device performance evidence.
+- Meshy remains available as an optional server-side provider; baseline generation works without `MESHY_API_KEY`.
