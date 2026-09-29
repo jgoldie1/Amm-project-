@@ -24,6 +24,7 @@ const { jacobieSecurityHeaders, noStoreSensitive } = require('./lib/jacobie-secu
 const { createRedHatSentinel } = require('./lib/red-hat-sentinel')
 const { createRedHatSentinelRouter } = require('./routes/red-hat-sentinel')
 const { createJacobieSwarmShield } = require('./lib/jacobie-swarm-shield')
+const { createMiddleWearSecurityGateway } = require('./lib/middlewear-security-gateway')
 
 const app = express()
 
@@ -32,6 +33,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null
 const redHatSentinel = createRedHatSentinel({ supabase })
 const jacobieSwarmShield = createJacobieSwarmShield()
+const middleWearSecurity = createMiddleWearSecurityGateway({ supabase })
 
 app.disable('x-powered-by')
 app.use(jacobieSecurityHeaders)
@@ -50,7 +52,7 @@ app.get('/api/health', async (_req,res)=>{
   try { const { error }=await supabase.from('worlds').select('id').limit(1); database=!error } catch(_) {}
   try { const { error }=await supabase.from('release_registry').select('id').limit(1); releaseRegistry=!error } catch(_) {}
   try { const { error }=await supabase.from('release_health_samples').select('id').limit(1); releaseHealth=!error } catch(_) {}
-  res.json({ ok:true, ts:Date.now(), version:'1.11.0-release-control', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, financialTruth:true, releaseControl:true, releaseRegistry, releaseHealth, autoLedger:true, signLanguage:true, signRecognitionProvider:Boolean(process.env.SIGN_LANGUAGE_PROVIDER_URL), tryammLive:true, moderationReporting:true, workforce:true, middleverse:true, assetForge:true, meshyAssetForge:Boolean(process.env.MESHY_API_KEY), redHatSentinel:true, jacobieQuantumShield:true, jacobieSwarmShield:true, repoWorkstation:true } })
+  res.json({ ok:true, ts:Date.now(), version:'1.11.0-release-control', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, financialTruth:true, releaseControl:true, releaseRegistry, releaseHealth, autoLedger:true, signLanguage:true, signRecognitionProvider:Boolean(process.env.SIGN_LANGUAGE_PROVIDER_URL), tryammLive:true, moderationReporting:true, workforce:true, middleverse:true, assetForge:true, meshyAssetForge:Boolean(process.env.MESHY_API_KEY), redHatSentinel:true, jacobieQuantumShield:true, jacobieSwarmShield:true, middleWearSecurity:true, repoWorkstation:true } })
 })
 
 app.use('/api/privacy', noStoreSensitive)
@@ -70,7 +72,7 @@ app.use('/api/release-control', createReleaseControlRouter({ supabase }))
 app.use('/api/live', createLiveRouter({ supabase }))
 app.use('/api/moderation', createModerationRouter({ supabase }))
 app.use('/api/workforce', createWorkforceRouter({ supabase }))
-app.use('/api/middleverse', createMiddleverseRouter({ supabase }))
+app.use('/api/middleverse', ...middleWearSecurity.middleware(), createMiddleverseRouter({ supabase }))
 app.use('/api/asset-forge', createAssetForgeRouter({ supabase }))
 app.use('/api/security/red-hat', noStoreSensitive, createRedHatSentinelRouter({ supabase, sentinel:redHatSentinel }))
 app.use('/api/ai', createAIRouter({ supabase }))
@@ -161,6 +163,7 @@ app.listen(PORT,()=>{
   console.log('   Red Hat Sentinel: ✅ defensive canaries + privacy-minimized telemetry')
   console.log('   Red Hat Sentinel operator API: /api/security/red-hat/*')
   console.log('   Jacobie Swarm Shield: ✅ per-source/principal/resource throttling + graceful degradation')
+  console.log('   MiddleWear Security Gateway: ✅ identity + risk + provider + audit + operator review')
   console.log('   Omniverse API: /api/omniverse/*')
   console.log('   Holo Core API: /api/holo-core/*')
   console.log('   University API: /api/university/*')
