@@ -27,7 +27,7 @@ export default function HoloMobilityLauncher({launcher=true}:{launcher?:boolean}
 
   return <>
     {launcher&&<button type="button" onClick={()=>setOpen(true)} aria-label="Open Holo mobility" style={{position:'fixed',right:12,bottom:176,zIndex:9001,border:'1px solid #78ffb477',background:'linear-gradient(135deg,#0d3f31,#172438)',color:'#fff',borderRadius:999,padding:'10px 14px',fontWeight:950,cursor:'pointer',boxShadow:'0 8px 30px #0008'}}>✦ HOLO RIDE + DRONE</button>}
-    {open&&<section role="dialog" aria-modal="true" aria-label="Holo Ride Share and Drone" style={{position:'fixed',inset:0,zIndex:21000,overflow:'auto',background:'#02050ef7',color:'#fff',fontFamily:'Inter,system-ui,sans-serif'}}>
+    {open&&<section role="dialog" aria-modal="true" aria-label="Holo Ride Share and Drone" style={{position:'fixed',inset:0,zIndex:46020,overflow:'auto',background:'#02050ef7',color:'#fff',fontFamily:'Inter,system-ui,sans-serif'}}>
       <div style={{maxWidth:920,margin:'0 auto',padding:'28px 16px 80px'}}>
         <div style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'center'}}><div><div style={{fontSize:10,letterSpacing:3,color:'#4FE3FF',fontWeight:950}}>STUBBS AI MOBILITY NETWORK</div><h1 style={{margin:'6px 0'}}>Holo Ride Share + Holo Drone</h1></div><button onClick={()=>setOpen(false)} style={closeBtn}>×</button></div>
         <p style={{color:'#9fb2c8',lineHeight:1.6}}>One mobility layer connects StreetVerse destinations, local businesses, delivery missions, ride discovery, peer car sharing, digital rentals, vehicle recovery and approved drone/air workflows. StreetVerse jobs are simulation; real-world dispatch remains locked until the necessary provider, identity, insurance and regulatory gates are complete.</p>
