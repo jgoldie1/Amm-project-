@@ -451,6 +451,94 @@ jobs:
 
 
 
+
+  jacobie-quantum-security:
+    name: Jacobie Quantum Shield + supply-chain gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            amm-omniverse/package-lock.json
+            amm-omniverse/amm-backend/package-lock.json
+
+      - name: Install Omniverse dependencies
+        working-directory: amm-omniverse
+        run: npm ci --no-audit --no-fund
+
+      - name: Run Jacobie security + crypto agility checks
+        working-directory: amm-omniverse
+        run: |
+          set -euo pipefail
+          mkdir -p ../release-evidence/jacobie-security
+          node tests/repository-security-scan.mjs
+          node tests/jacobie-quantum-shield-contract.mjs
+          node scripts/jacobie-crypto-inventory.mjs ../release-evidence/jacobie-security/crypto-inventory.json
+
+      - name: Audit Omniverse production dependencies
+        working-directory: amm-omniverse
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Generate Omniverse SBOM
+        working-directory: amm-omniverse
+        run: npm sbom --sbom-format cyclonedx > ../release-evidence/jacobie-security/omniverse-sbom.cdx.json
+
+      - name: Install + audit backend production dependencies
+        working-directory: amm-omniverse/amm-backend
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm audit --omit=dev --audit-level=high
+          npm sbom --sbom-format cyclonedx > ../../release-evidence/jacobie-security/backend-sbom.cdx.json
+          npm run test:jacobie-security
+
+      - name: Bind security evidence to commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd release-evidence/jacobie-security
+          sha256sum crypto-inventory.json omniverse-sbom.cdx.json backend-sbom.cdx.json > evidence.sha256
+          {
+            echo "schema=tryamm.jacobie.security-evidence.v1"
+            echo "commit=${GITHUB_SHA}"
+            echo "generated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "pqc_targets=FIPS203-ML-KEM,FIPS204-ML-DSA,FIPS205-SLH-DSA"
+            echo "claim=crypto-agile-and-pqc-migration-ready-architecture-not-unhackable"
+          } > evidence.meta
+          cat evidence.sha256
+
+      - name: Publish Jacobie security truth
+        shell: bash
+        run: |
+          {
+            echo "## Jacobie Cybersecurity • Quantum Shield"
+            echo
+            echo "- Repository malware/exfiltration scan: required"
+            echo "- Crypto inventory: required"
+            echo "- MD5/SHA-1 cryptographic use: blocked"
+            echo "- Hard-coded private keys: blocked"
+            echo "- Production dependency high/critical audit: blocking"
+            echo "- Omniverse + backend SBOMs: generated"
+            echo "- Evidence: SHA-256 bound to this commit"
+            echo "- PQC migration targets: ML-KEM, ML-DSA, SLH-DSA"
+            echo "- Provider/browser cryptography remains PROVIDER-DEPENDENT until verified"
+            echo "- No claim that TRYAMM is unhackable or already end-to-end PQC"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jacobie-quantum-security-evidence
+          path: release-evidence/jacobie-security/
+          if-no-files-found: warn
+          retention-days: 30
+
   native-asset-foundry:
     name: TRYAMM native self-contained 4x GLB foundry
     runs-on: ubuntu-latest
@@ -569,6 +657,7 @@ jobs:
       - android-native-candidate
       - ios-native-simulator
       - supabase-live-security
+      - jacobie-quantum-security
       - native-asset-foundry
       - asset-transformation-tournament
     runs-on: ubuntu-latest
@@ -587,6 +676,7 @@ jobs:
           ANDROID_NATIVE: ${{ needs.android-native-candidate.result }}
           IOS_NATIVE: ${{ needs.ios-native-simulator.result }}
           SUPABASE_LIVE_SECURITY: ${{ needs.supabase-live-security.result }}
+          JACOBIE_SECURITY: ${{ needs.jacobie-quantum-security.result }}
           NATIVE_ASSET_FOUNDRY: ${{ needs.native-asset-foundry.result }}
           ASSET_TOURNAMENT: ${{ needs.asset-transformation-tournament.result }}
         shell: bash
@@ -608,6 +698,7 @@ jobs:
             echo "| Android native candidate | ${ANDROID_NATIVE} |"
             echo "| iOS simulator compile | ${IOS_NATIVE} |"
             echo "| Live Supabase security advisor | ${SUPABASE_LIVE_SECURITY} |"
+            echo "| Jacobie Quantum Shield / supply chain | ${JACOBIE_SECURITY} |"
             echo "| TRYAMM native 4x GLB foundry | ${NATIVE_ASSET_FOUNDRY} |"
             echo "| Four-sample asset tournament | ${ASSET_TOURNAMENT} |"
             echo
@@ -637,6 +728,7 @@ jobs:
           test "${ANDROID_NATIVE}" = "success"
           test "${IOS_NATIVE}" = "success"
           test "${SUPABASE_LIVE_SECURITY}" = "success"
+          test "${JACOBIE_SECURITY}" = "success"
           test "${NATIVE_ASSET_FOUNDRY}" = "success"
           test "${ASSET_TOURNAMENT}" = "success"
 
