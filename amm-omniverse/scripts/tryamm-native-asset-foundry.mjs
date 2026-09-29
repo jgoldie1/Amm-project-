@@ -213,8 +213,8 @@ function add2027CustomBoxTruck(group,x,z,mats){
 
 
 function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
-  const skinPalette=[0x7a4d32,0xa36b4b,0xc88d68,0xd79a70]
-  const outfitPalette=[0x284c7a,0x7a3545,0x315e43,0x72572e]
+  const skinPalette=[0x6a402c,0x7a4d32,0x8c5a3d,0xa36b4b,0xb87a56,0xc88d68,0xd79a70,0xe0aa86]
+  const outfitPalette=[0x284c7a,0x7a3545,0x315e43,0x72572e,0x5b3f78,0x1f5b62,0x8a4b2d,0x36415d]
   const skin=mat(`skin-${variant}`,skinPalette[variant%skinPalette.length],.58,0)
   const outfit=mat(`outfit-${variant}`,outfitPalette[variant%outfitPalette.length],.72,.05)
   const pants=mat(`pants-${variant}`,variant%2?0x202936:0x2f3138,.82,.02)
@@ -232,6 +232,23 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
     const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.11,.78,4,8),pants);leg.name='leg';leg.position.set(x+side*.17,.5,z);group.add(leg)
     const eye=new THREE.Mesh(new THREE.SphereGeometry(.032,8,6),eyeMat);eye.name='eye';eye.position.set(x+side*.11,2.55,z+.285);group.add(eye)
     const shoe=new THREE.Mesh(new THREE.CapsuleGeometry(.105,.22,3,8),mats.tire);shoe.name='shoe';shoe.rotation.z=deg(90);shoe.position.set(x+side*.17,.09,z+.08);group.add(shoe)
+  }
+  if(!hero&&variant%2===1){
+    const jacket=new THREE.Mesh(new THREE.CapsuleGeometry(.405,1.08,5,10),mat(`jacket-${variant}`,outfitPalette[(variant+3)%outfitPalette.length],.62,.08))
+    jacket.name='wardrobe-jacket';jacket.position.set(x,1.44,z-.025);jacket.scale.set(1.04,.96,1.06);group.add(jacket)
+  }
+  if(!hero&&variant%3===1){
+    const cap=new THREE.Mesh(new THREE.SphereGeometry(.335,16,8,0,Math.PI*2,0,Math.PI*.34),mat(`cap-${variant}`,0x1d2530,.72,.05))
+    cap.name='hair-cap-accessory';cap.position.set(x,2.79,z);cap.scale.set(1.04,.62,1.05);group.add(cap)
+    addBox(group,'cap-visor',[.28,.045,.24],[x,2.77,z+.3],mat(`cap-visor-${variant}`,0x1d2530,.72,.05),undefined,'wardrobe-accessory')
+  }
+  if(!hero&&variant%4===2){
+    const chain=new THREE.Mesh(new THREE.TorusGeometry(.19,.018,8,24,Math.PI),mat(`chain-${variant}`,0xd5b75c,.25,.72))
+    chain.name='wardrobe-chain';chain.rotation.x=deg(90);chain.position.set(x,1.92,z+.35);group.add(chain)
+  }
+  if(!hero&&variant%5===3){
+    const beard=new THREE.Mesh(new THREE.SphereGeometry(.27,14,8,0,Math.PI*2,Math.PI*.48,Math.PI*.38),hair)
+    beard.name='facial-hair';beard.position.set(x,2.39,z+.11);beard.scale.set(.9,.72,.9);group.add(beard)
   }
   if(hero){
     const jacket=new THREE.Mesh(new THREE.TorusGeometry(.44,.055,8,24,Math.PI),mats.holo);jacket.name='hero-holo-collar';jacket.rotation.x=deg(90);jacket.position.set(x,1.83,z-.22);group.add(jacket)
@@ -476,6 +493,26 @@ const kitBuilders={
   'resident-archetype-c':()=>{
     const g=new THREE.Group();g.name='TRYAMM-Resident-Archetype-C'
     addResidentArchetype(g,0,0,kitMats,2,false);return g
+  },
+  'resident-archetype-d':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-Resident-Archetype-D'
+    addResidentArchetype(g,0,0,kitMats,3,false);return g
+  },
+  'resident-archetype-e':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-Resident-Archetype-E'
+    addResidentArchetype(g,0,0,kitMats,4,false);return g
+  },
+  'resident-archetype-f':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-Resident-Archetype-F'
+    addResidentArchetype(g,0,0,kitMats,5,false);return g
+  },
+  'resident-archetype-g':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-Resident-Archetype-G'
+    addResidentArchetype(g,0,0,kitMats,6,false);return g
+  },
+  'resident-archetype-h':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-Resident-Archetype-H'
+    addResidentArchetype(g,0,0,kitMats,7,false);return g
   },
   'city-transit-train':()=>{
     const g=new THREE.Group();g.name='TRYAMM-City-Transit-Train'
