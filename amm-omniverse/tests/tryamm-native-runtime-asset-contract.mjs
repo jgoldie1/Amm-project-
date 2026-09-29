@@ -11,7 +11,7 @@ const must=(ok,msg)=>{if(!ok)throw new Error('TRYAMM NATIVE RUNTIME ASSET CONTRA
 must(pkg.scripts['native:assets']==='node scripts/tryamm-native-asset-foundry.mjs public/generated-assets/native','native assets must be generated into Vite public build input')
 must(String(pkg.scripts.build).startsWith('npm run native:assets &&'),'native generation must run before the normal build')
 
-for(const id of ['brick-building-module','street-lamp','tree','bench','hydrant','holo-wayfinder','vehicle-blockout','tryamm-2027-sport-sedan','street-and-sidewalk']){
+for(const id of ['brick-building-module','street-lamp','tree','bench','hydrant','holo-wayfinder','vehicle-blockout','tryamm-2027-sport-sedan','street-and-sidewalk','streetverse-hero-player','resident-archetype-a','resident-archetype-b','resident-archetype-c','city-transit-train']){
   must(catalog.includes(`id:'${id}'`),'runtime catalog missing '+id)
   must(catalog.includes(`/generated-assets/native/kit/${id}.glb`),'runtime URL mismatch for '+id)
   must(foundry.includes(`'${id}'`),'foundry does not generate runtime asset '+id)
@@ -34,4 +34,6 @@ must(catalog.includes("label:'circle-park-repair-car-native'"),'Circle Park nati
 must(world.includes("getObjectByName('circle-park-repair-car-native')"),'Circle Park must bind native 2027 sedan to repair/drive runtime')
 must(world.includes("getObjectByName('hood-pivot')"),'native sedan hood repair animation missing')
 
-console.log('TRYAMM NATIVE RUNTIME ASSET CONTRACT PASS: foundry -> public build -> catalog -> parallel GLB load -> visual-only fallback-safe Circle Park runtime')
+must(foundry.includes('addResidentArchetype'),'foundry must generate reusable humanoid GLB visuals')
+must(foundry.includes('addTransitTrain'),'foundry must generate a reusable non-box transit GLB visual')
+console.log('TRYAMM NATIVE RUNTIME ASSET CONTRACT PASS: foundry -> public build -> catalog -> parallel GLB load -> generated hero/resident/vehicle/train visual layer')
