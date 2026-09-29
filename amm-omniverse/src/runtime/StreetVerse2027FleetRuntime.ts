@@ -38,3 +38,35 @@ export function fleetComposition(spawns=CHICAGO_2027_DEFAULT_FLEET){
   for(const spawn of spawns)counts[spawn.domain]=(counts[spawn.domain]||0)+1
   return{total:spawns.length,counts,sourceVehicles:STREETVERSE_2027_FLEET.length}
 }
+
+export function streamChicagoFleetWindow(input:{
+  playerX:number
+  playerZ:number
+  maxGround?:number
+  maxAir?:number
+  spawns?:StreetVerseFleetSpawn[]
+}){
+  const source=input.spawns||CHICAGO_2027_DEFAULT_FLEET
+  const ground=source
+    .filter(x=>x.domain!=='air'&&x.domain!=='experimental-air')
+    .map(x=>({...x,distance:Math.hypot(x.x-input.playerX,x.z-input.playerZ)}))
+    .sort((a,b)=>a.distance-b.distance)
+    .slice(0,input.maxGround??18)
+  const air=source
+    .filter(x=>x.domain==='air'||x.domain==='experimental-air')
+    .map(x=>({...x,distance:Math.hypot(x.x-input.playerX,x.z-input.playerZ)}))
+    .sort((a,b)=>a.distance-b.distance)
+    .slice(0,input.maxAir??2)
+  return{ground,air,totalLogical:source.length,rendered:ground.length+air.length}
+}
+
+export const STREETVERSE_2027_STREAMING_POLICY={
+  logicalCityFleet:600,
+  mobileGroundRenderBudget:18,
+  mobileAirRenderBudget:2,
+  desktopGroundRenderBudget:48,
+  desktopAirRenderBudget:5,
+  distantVehiclesUseImpostorsOrTelemetryOnly:true,
+  aircraftUseSeparatedAltitudeCorridors:true,
+  experimentalAirNeverGroundTraffic:true,
+} as const
