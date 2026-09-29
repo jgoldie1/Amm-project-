@@ -14,7 +14,7 @@ const SAVE_KEY='tryamm.stubbs-family.playable.v2'
 const NATIVE_CHARACTER_CYCLE:TryammNativeRuntimeAssetKey[]=['residentA','residentB','residentC','residentD','residentE','residentF','residentG','residentH']
 const nativeCharacterAsset=(index:number):TryammNativeRuntimeAssetKey=>index===0?'heroPlayer':NATIVE_CHARACTER_CYCLE[(index-1)%NATIVE_CHARACTER_CYCLE.length]
 type NativeHumanoidRig={head:THREE.Object3D|null;spine:THREE.Object3D|null;leftArm:THREE.Object3D|null;rightArm:THREE.Object3D|null;leftLeg:THREE.Object3D|null;rightLeg:THREE.Object3D|null}
-const nativeHumanoidRig=(visual:THREE.Object3D):NativeHumanoidRig=>({head:visual.getObjectByName('rig-head'),spine:visual.getObjectByName('rig-spine'),leftArm:visual.getObjectByName('rig-left-arm'),rightArm:visual.getObjectByName('rig-right-arm'),leftLeg:visual.getObjectByName('rig-left-leg'),rightLeg:visual.getObjectByName('rig-right-leg')})
+const nativeHumanoidRig=(visual:THREE.Object3D):NativeHumanoidRig=>({head:visual.getObjectByName('rig-head')||null,spine:visual.getObjectByName('rig-spine')||null,leftArm:visual.getObjectByName('rig-left-arm')||null,rightArm:visual.getObjectByName('rig-right-arm')||null,leftLeg:visual.getObjectByName('rig-left-leg')||null,rightLeg:visual.getObjectByName('rig-right-leg')||null})
 const animateNativeHumanoid=(rig:NativeHumanoidRig|undefined,moving:boolean,run:boolean,t:number,phase:number)=>{
  if(!rig)return
  const rate=run?10:6.8,amp=moving?(run?.88:.58):.035,swing=Math.sin(t*rate+phase)*amp
