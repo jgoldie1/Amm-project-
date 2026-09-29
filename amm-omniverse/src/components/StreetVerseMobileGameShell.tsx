@@ -1,7 +1,6 @@
 import {useEffect,useRef,useState} from 'react'
 import {StreetVerseOneHandController} from '../runtime/StreetVerseOneHandController'
 import {DEFAULT_ONE_HAND_PROFILE,resolveOneHandMode} from '../runtime/OneHandGameplayAccessibility'
-import HoloMobilityLauncher from './HoloMobilityLauncher'
 import StreetVerseReelEventBridge from './StreetVerseReelEventBridge'
 
 type Props={onClose:()=>void}
@@ -134,13 +133,13 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const openReel=()=>window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'streetverse-mobile-game-shell',missionId:activeMission.missionId||'',missionLabel:activeMission.title||'StreetVerse Reel',missionSource:'streetverse-mobile',rewardStatus:firstJourneyPhase==='complete'?'pending':'draft',verified:false}}))
  const enterCar=()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:true,source:'mobile-game-shell-direct'}}))
  const openRideShare=()=>window.dispatchEvent(new CustomEvent('tryamm:holo-mobility-open',{detail:{source:'streetverse-mobile-game-shell'}}))
- const openBible=()=>{try{localStorage.setItem('tryamm.faith.return','/streetverse')}catch{};window.location.href='/ethiopian-bible?return=%2Fstreetverse'}
+ const openBible=()=>{try{localStorage.setItem('tryamm.faith.return','/streetverse')}catch{};window.location.href='/faithverse#reader'}
  const repairLabel=repairStep===0?'OPEN HOOD':repairStep===1?'FIX ENGINE':repairStep===2?'CLOSE HOOD':'REPAIRED ✓'
  const bottom='max(16px,env(safe-area-inset-bottom))'
  const selectedSide=hand==='left'?{left:'max(12px,env(safe-area-inset-left))'}:{right:'max(12px,env(safe-area-inset-right))'}
  const movementSide=mode==='one-hand'?selectedSide:{left:'max(12px,env(safe-area-inset-left))'}
  const actionSide=mode==='one-hand'?selectedSide:{right:'max(14px,env(safe-area-inset-right))'}
- return <><HoloMobilityLauncher launcher={false}/><StreetVerseReelEventBridge/><div data-streetverse-mobile-shell="v4" data-control-mode={mode} data-one-hand-side={mode==='one-hand'?hand:'none'} style={{position:'fixed',inset:0,zIndex:32000,pointerEvents:'none',fontFamily:'system-ui',userSelect:'none',WebkitUserSelect:'none'}}>
+ return <><StreetVerseReelEventBridge/><div data-streetverse-mobile-shell="v4" data-control-mode={mode} data-one-hand-side={mode==='one-hand'?hand:'none'} style={{position:'fixed',inset:0,zIndex:32000,pointerEvents:'none',fontFamily:'system-ui',userSelect:'none',WebkitUserSelect:'none'}}>
   <div style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',left:'max(10px,env(safe-area-inset-left))',display:'flex',gap:6,pointerEvents:'auto',flexWrap:'wrap',maxWidth:'calc(100vw - 70px)'}}>
    <button aria-pressed={mode==='one-hand'&&hand==='left'} onClick={()=>activateOneHand('left')} style={modeButton(mode==='one-hand'&&hand==='left')}>LEFT HAND</button>
    <button aria-pressed={mode==='one-hand'&&hand==='right'} onClick={()=>activateOneHand('right')} style={modeButton(mode==='one-hand'&&hand==='right')}>RIGHT HAND</button>
