@@ -447,6 +447,45 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+
+  asset-transformation-tournament:
+    name: Four-sample AAA + holographic asset tournament
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Verify Genie transformation contract
+        run: node tests/streetverse-genie-asset-tournament-contract.mjs
+      - name: Generate four-sample ranking evidence
+        run: node scripts/streetverse-asset-tournament.mjs ../release-evidence/streetverse-asset-tournament.json
+      - name: Explain promotion truth
+        shell: bash
+        run: |
+          {
+            echo "## StreetVerse Asset Transformation Tournament"
+            echo
+            echo "- Four candidates are generated as transformation recipes."
+            echo "- Reviewed recipe winner: Holo Reality Fusion."
+            echo "- Quantum buffer means parallel software scheduling/caching, not quantum-computer execution."
+            echo "- Quantum Crawler references remain approved-source / metadata-first."
+            echo "- Oracle/rights review remains fail-closed."
+            echo "- Mind Over Matter motion transformation must pass originality review."
+            echo "- A recipe winner is NOT a generated AAA asset."
+            echo "- Production publish remains blocked until a real artifact, Asset Passport, performance evidence and human visual review exist."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-four-sample-asset-tournament
+          path: release-evidence/streetverse-asset-tournament.json
+          if-no-files-found: error
+          retention-days: 14
+
   morning-release-gate:
     name: Morning release gate
     if: ${{ always() }}
@@ -463,6 +502,7 @@ jobs:
       - android-native-candidate
       - ios-native-simulator
       - supabase-live-security
+      - asset-transformation-tournament
     runs-on: ubuntu-latest
     steps:
       - name: Publish consolidated status
@@ -479,6 +519,7 @@ jobs:
           ANDROID_NATIVE: ${{ needs.android-native-candidate.result }}
           IOS_NATIVE: ${{ needs.ios-native-simulator.result }}
           SUPABASE_LIVE_SECURITY: ${{ needs.supabase-live-security.result }}
+          ASSET_TOURNAMENT: ${{ needs.asset-transformation-tournament.result }}
         shell: bash
         run: |
           {
@@ -498,6 +539,7 @@ jobs:
             echo "| Android native candidate | ${ANDROID_NATIVE} |"
             echo "| iOS simulator compile | ${IOS_NATIVE} |"
             echo "| Live Supabase security advisor | ${SUPABASE_LIVE_SECURITY} |"
+            echo "| Four-sample asset tournament | ${ASSET_TOURNAMENT} |"
             echo
             echo "## Morning physical checks still owned by the founder"
             echo "- Install/open on iPhone."
@@ -525,5 +567,6 @@ jobs:
           test "${ANDROID_NATIVE}" = "success"
           test "${IOS_NATIVE}" = "success"
           test "${SUPABASE_LIVE_SECURITY}" = "success"
+          test "${ASSET_TOURNAMENT}" = "success"
 
           echo "Repository/build gates passed. Physical-device and real-footage certification remain separate."
