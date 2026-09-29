@@ -11,6 +11,8 @@ export default function StreetVerseMobileProofDock(){
   const [repairStep,setRepairStep]=useState(0)
   const [repaired,setRepaired]=useState(false)
   const [inVehicle,setInVehicle]=useState(false)
+  const [doorsOpen,setDoorsOpen]=useState(false)
+  const [doorOpenedOnce,setDoorOpenedOnce]=useState(false)
   const [enteredOnce,setEnteredOnce]=useState(false)
   const [exitedOnce,setExitedOnce]=useState(false)
   const [npcInteracted,setNpcInteracted]=useState(false)
@@ -48,20 +50,21 @@ export default function StreetVerseMobileProofDock(){
     }
   },[])
 
-  const ready=repaired&&enteredOnce&&exitedOnce&&npcInteracted
+  const ready=repaired&&doorOpenedOnce&&enteredOnce&&exitedOnce&&npcInteracted
   const status=useMemo(()=>{
     if(phase==='idle')return'PRESS START MISSION'
     if(!repaired)return`REPAIR • ${repairLabels[Math.min(repairStep,2)]}`
+    if(!doorOpenedOnce)return'OPEN THE CAR DOOR'
     if(!enteredOnce)return'ENTER THE REPAIRED CAR'
     if(inVehicle)return'DRIVE • THEN EXIT VEHICLE'
     if(!exitedOnce)return'EXIT VEHICLE'
     if(!npcInteracted)return'WALK TO A PERSON / GUIDE • TAP INTERACT NPC'
     if(phase==='complete')return'MISSION COMPLETE • REEL READY'
     return'COMPLETE MISSION'
-  },[phase,repaired,enteredOnce,inVehicle,exitedOnce,npcInteracted,repairStep])
+  },[phase,repaired,doorOpenedOnce,enteredOnce,inVehicle,exitedOnce,npcInteracted,repairStep])
 
   const startMission=()=>{
-    setPhase('repair');setRepairStep(0);setRepaired(false);setInVehicle(false);setEnteredOnce(false);setExitedOnce(false);setNpcInteracted(false);setReward('');setOpen(true)
+    setPhase('repair');setRepairStep(0);setRepaired(false);setInVehicle(false);setDoorsOpen(false);setDoorOpenedOnce(false);setEnteredOnce(false);setExitedOnce(false);setNpcInteracted(false);setReward('');setOpen(true)
     const detail={id:missionId,missionId,title:'FIRST RIDE • REPAIR & DRIVE',objective:'Follow the gold beacon to the orange Repair Mission Car. Repair it, enter, drive, exit, interact with a Chicago NPC, then complete the mission.',source:'iphone-proof-dock',waypoint:{x:-8,z:50,label:'Repair Mission Car'}}
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail}))
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail}))
@@ -80,14 +83,15 @@ export default function StreetVerseMobileProofDock(){
     }
   }
 
-  const toggleVehicle=()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:!inVehicle,source:'iphone-proof-dock'}}))
+  const toggleDoors=()=>{const next=!doorsOpen;setDoorsOpen(next);if(next)setDoorOpenedOnce(true);window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-door',{detail:{vehicleId:'first-repair-car',open:next,source:'iphone-proof-dock'}}))}
+  const toggleVehicle=()=>{if(!inVehicle&&!doorOpenedOnce)return;window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:!inVehicle,source:'iphone-proof-dock'}}))}
   const interactNpc=()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-input',{detail:{move:{x:0,y:0},interact:true,source:'iphone-proof-dock'}}))
   const openRideShare=()=>window.dispatchEvent(new CustomEvent('tryamm:holo-mobility-open',{detail:{source:'iphone-proof-dock'}}))
   const openFaith=()=>{window.location.href='/faithverse#reader'}
   const complete=()=>{
     if(!ready)return
     setPhase('complete')
-    const detail={id:missionId,missionId,label:'First Ride • Repair & Drive',title:'First Ride • Repair & Drive',source:'iphone-proof-dock',mobileLite:true,verified:true,xp:500,rewardCredits:75,steps:{repaired,enteredOnce,exitedOnce,npcInteracted}}
+    const detail={id:missionId,missionId,label:'First Ride • Repair & Drive',title:'First Ride • Repair & Drive',source:'iphone-proof-dock',mobileLite:true,verified:true,xp:500,rewardCredits:75,steps:{repaired,doorOpenedOnce,enteredOnce,exitedOnce,npcInteracted}}
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail}))
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-complete',{detail}))
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-xp-award',{detail:{missionId,amount:500,source:'iphone-proof-dock'}}))
@@ -103,7 +107,8 @@ export default function StreetVerseMobileProofDock(){
       <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7,marginTop:9}}>
         {phase==='idle'?<button onClick={startMission} style={{...btn,gridColumn:'1 / -1',borderColor:'#8effb7'}}>START MISSION</button>:<>
           {!repaired&&<button onClick={repair} style={{...btn,borderColor:'#ffd75e'}}>{repairLabels[Math.min(repairStep,2)]}</button>}
-          {repaired&&<button onClick={toggleVehicle} style={{...btn,borderColor:'#7be9ff'}}>{inVehicle?'EXIT VEHICLE':'ENTER VEHICLE'}</button>}
+          {repaired&&<button onClick={toggleDoors} style={{...btn,borderColor:'#ffd75e'}}>{doorsOpen?'CLOSE DOORS':'OPEN DOORS'}</button>}
+          {repaired&&<button disabled={!inVehicle&&!doorOpenedOnce} onClick={toggleVehicle} style={{...btn,borderColor:'#7be9ff',opacity:inVehicle||doorOpenedOnce?1:.45}}>{inVehicle?'EXIT VEHICLE':'ENTER VEHICLE'}</button>}
           <button onClick={interactNpc} style={btn}>INTERACT NPC</button>
           <button onClick={openRideShare} style={btn}>RIDE SHARE</button>
           <button onClick={()=>setReelOpen(true)} style={btn}>REEL</button>
@@ -111,7 +116,7 @@ export default function StreetVerseMobileProofDock(){
           <button disabled={!ready||phase==='complete'} onClick={complete} style={{...btn,gridColumn:'1 / -1',opacity:ready&&phase!=='complete'?1:.45,borderColor:'#8effb7'}}>COMPLETE MISSION</button>
         </>}
       </div>
-      {phase!=='idle'&&<div style={{fontSize:9,lineHeight:1.45,color:'#9eb0bf',marginTop:8}}>✓ repair {repaired?'DONE':'WAIT'} • ✓ enter {enteredOnce?'DONE':'WAIT'} • ✓ exit {exitedOnce?'DONE':'WAIT'} • ✓ NPC {npcInteracted?'DONE':'WAIT'}{reward&&<><br/><span style={{color:'#8fffc1',fontWeight:950}}>{reward}</span></>}</div>}
+      {phase!=='idle'&&<div style={{fontSize:9,lineHeight:1.45,color:'#9eb0bf',marginTop:8}}>✓ repair {repaired?'DONE':'WAIT'} • ✓ door {doorOpenedOnce?'DONE':'WAIT'} • ✓ enter {enteredOnce?'DONE':'WAIT'} • ✓ exit {exitedOnce?'DONE':'WAIT'} • ✓ NPC {npcInteracted?'DONE':'WAIT'}{reward&&<><br/><span style={{color:'#8fffc1',fontWeight:950}}>{reward}</span></>}</div>}
     </section>}
     <HoloMobilityLauncher launcher={false}/>
     <StreetVerseReelRecorder open={reelOpen} onClose={()=>setReelOpen(false)} context={{source:'iphone-proof-dock',missionId,missionLabel:'First Ride • Repair & Drive',verified:phase==='complete',rewardStatus:phase==='complete'?'verified':'pending'}}/>
