@@ -2,7 +2,7 @@
 // Network-first app shell with stale-asset self recovery.
 // 2026-09-04 StreetVerse immediate-play release.
 
-const RELEASE = '20260921-ios-holo-release-v1'
+const RELEASE = '20260929-native-asset-foundry-v1'
 const CACHE_NAME = 'tryamm-shell-' + RELEASE
 const STATIC_ASSETS = ['/manifest.json?v=20260904-american-lion-v2','/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2']
 
@@ -103,7 +103,7 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  if (url.pathname.match(/\.(js|css|woff2?|png|jpg|jpeg|webp|svg|ico)$/i)) {
+  if (url.pathname.match(/\.(js|css|woff2?|png|jpg|jpeg|webp|svg|ico|glb|gltf|bin)$/i)) {
     event.respondWith(fetch(request, { cache: 'no-store' }).then(response => {
       if (response.ok) {
         const clone = response.clone()
