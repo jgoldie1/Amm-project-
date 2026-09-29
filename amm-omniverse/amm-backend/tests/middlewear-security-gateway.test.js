@@ -64,8 +64,19 @@ async function run(){
     assert.equal(next,true)
     assert.equal(request.user.id,'user-1')
     assert.equal(request.middleWearSecurity.identityVerified,true)
-    assert.equal(supabase.auditRows.length,1)
-    assert.equal(supabase.auditRows[0].metadata.raw_authorization_stored,false)
+    assert.equal(supabase.auditRows.length,0,'safe reads should not create audit noise')
+  }
+
+  {
+    const route={route_key:'ai-to-workforce',target_system:'workforce',high_impact:false,capabilities:{}}
+    const supabase=createSupabase({route})
+    const gateway=createMiddleWearSecurityGateway({supabase})
+    const request=req('/handoffs','POST',{routeKey:route.route_key,riskBand:'green',sourceContext:{blob:'x'.repeat(140000)}})
+    const response=res()
+    await gateway.authenticate(request,response,()=>{})
+    await gateway.loadRoutePolicy(request,response,()=>{})
+    assert.equal(response.code,413)
+    assert.equal(response.body.gate,'middlewear-resource-limit')
   }
 
   {
