@@ -1,4 +1,5 @@
 import FaithChronoLauncher from './FaithChronoLauncher'
+import FaithScriptureReader from './FaithScriptureReader'
 
 const lanes=[
  ['📖','ETHIOPIAN BIBLE STUDY','Reading plans, study notes, cross-references and teaching layers built around source-verified Ethiopian biblical texts and canon metadata.'],
@@ -41,6 +42,8 @@ export default function EthiopianBibleMetaverse(){
   <div style={{maxWidth:1120,margin:'0 auto'}}>
    <nav style={{display:'flex',gap:8,flexWrap:'wrap'}}><a href='/' style={pill}>TRYAMM HOME</a><a href='/servants-of-christ' style={pill}>SERVANTS OF CHRIST</a><a href='/kingdoms-press' style={pill}>KINGDOMS PRESS</a><a href='/holo-lab' style={pill}>HOLO LAB</a><a href='/streetverse' style={pill}>STREETVERSE</a><a href='/accessibility' style={pill}>ACCESSIBILITY</a></nav>
    <header style={{padding:'58px 0 26px'}}><div style={{fontSize:11,letterSpacing:3,fontWeight:950,color:'#e5c56a'}}>TRYAMM FAITH WORLD • SOURCE-VERIFIED STUDY</div><h1 style={{fontSize:'clamp(42px,8vw,88px)',lineHeight:.94,margin:'10px 0 16px'}}>ETHIOPIAN BIBLE<br/>METAVERSE</h1><p style={{maxWidth:900,fontSize:18,lineHeight:1.65,color:'#d9cfb3'}}>An immersive Bible-study school combining Ethiopian biblical tradition, Hebrew learning, KJV 1611 comparison, Strong’s-style concordance study, accessibility, teaching, translation, living-world exploration and the TRYAMM Time Machine for source-grounded historical reconstruction.</p></header>
+
+   <FaithScriptureReader />
 
    <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(235px,1fr))',gap:12}}>{lanes.map(([icon,title,copy])=><article key={title} style={card}><div style={{fontSize:28}}>{icon}</div><h2 style={{fontSize:17}}>{title}</h2><p style={muted}>{copy}</p></article>)}</section>
 
