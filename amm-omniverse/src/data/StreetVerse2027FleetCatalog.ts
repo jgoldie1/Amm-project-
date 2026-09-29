@@ -88,6 +88,7 @@ export const STREETVERSE_2027_FLEET:StreetVerse2027FleetEntry[]=[
   {id:'sv27-commuter-plane',label:'TRYAMM 2027 Regional Commuter Plane',domain:'air',segment:'regional-fixed-wing',powertrain:'aviation',seats:30,rarity:'rare',cityRole:'regional passenger',accessClass:'commuter-plane',originalDesign:true},
   {id:'sv27-cargo-plane',label:'TRYAMM 2027 Regional Cargo Plane',domain:'air',segment:'cargo-fixed-wing',powertrain:'aviation',seats:2,rarity:'rare',cityRole:'regional cargo',accessClass:'cargo-plane',originalDesign:true},
   {id:'sv27-evtol-taxi',label:'TRYAMM 2027 eVTOL Air Taxi',domain:'experimental-air',segment:'evtol',powertrain:'experimental-electric',seats:4,rarity:'ultra-rare',cityRole:'future air mobility',accessClass:'evtol',originalDesign:true},
+  {id:'sv27-flying-bike',label:'TRYAMM 2027 Flying Bike',domain:'experimental-air',segment:'flying-bike',powertrain:'experimental-electric',seats:1,rarity:'ultra-rare',cityRole:'future personal mobility',accessClass:'flying-bike',originalDesign:true},
   {id:'sv27-flying-coupe',label:'TRYAMM 2027 Flying Coupe',domain:'experimental-air',segment:'flying-car',powertrain:'experimental-electric',seats:2,rarity:'ultra-rare',cityRole:'future personal mobility',accessClass:'flying-car',originalDesign:true},
   {id:'sv27-flying-shuttle',label:'TRYAMM 2027 Flying Shuttle',domain:'experimental-air',segment:'evtol-shuttle',powertrain:'experimental-electric',seats:8,rarity:'ultra-rare',cityRole:'future shuttle',accessClass:'evtol-shuttle',originalDesign:true},
 ]
