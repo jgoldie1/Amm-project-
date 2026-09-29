@@ -40,16 +40,8 @@ function createVehicleRecoveryRouter({supabase}){
     next()
   })
 
-  async function isRecoveryAgent(userId){
-    if(OPERATOR_ROLES.has(role({app_metadata:reqAppMetadata})))return true
-    const {data,error}=await supabase.from('tryamm_mobility_credentials')
-      .select('id').eq('user_id',userId).eq('credential_id',RECOVERY_CREDENTIAL).eq('status','active').limit(1)
-    if(error)throw error
-    return Boolean((data||[])[0])
-  }
-
-  async function canReportVehicle(userId,vehicle,reason){
-    if(OPERATOR_ROLES.has(currentRole))return true
+  async function canReportVehicle(userId,vehicle,reason,requestRole){
+    if(OPERATOR_ROLES.has(requestRole))return true
     if(reason==='overdue-rental'||reason==='fraud-hold'||reason==='owner-recall')return false
     if(String(vehicle.owner_user_id||'')===String(userId))return true
     const [{data:grantRows,error:grantError},{data:rentalRows,error:rentalError}]=await Promise.all([
@@ -60,10 +52,6 @@ function createVehicleRecoveryRouter({supabase}){
     return Boolean((grantRows||[])[0]||(rentalRows||[])[0])
   }
 
-  let currentRole=''
-  let reqAppMetadata={}
-  router.use((req,_res,next)=>{currentRole=role(req.user);reqAppMetadata=req.user?.app_metadata||{};next()})
-
   router.post('/report',async(req,res)=>{
     try{
       const vehicleId=safeText(req.body?.vehicleId,80)
@@ -72,7 +60,7 @@ function createVehicleRecoveryRouter({supabase}){
       const {data:vehicle,error:vehicleError}=await supabase.from('tryamm_vehicle_inventory').select('*').eq('id',vehicleId).maybeSingle()
       if(vehicleError)throw vehicleError
       if(!vehicle)return res.status(404).json({error:'Vehicle not found'})
-      if(!(await canReportVehicle(req.user.id,vehicle,reason)))return res.status(403).json({error:'You are not authorized to report this vehicle'})
+      if(!(await canReportVehicle(req.user.id,vehicle,reason,role(req.user))))return res.status(403).json({error:'You are not authorized to report this vehicle'})
       const ownerUserId=String(vehicle.owner_user_id||'tryamm-system')
       const rewardXP=reason==='stolen'?350:220
       const rewardCredits=reason==='stolen'?650:400
@@ -100,7 +88,7 @@ function createVehicleRecoveryRouter({supabase}){
 
   router.get('/open',async(req,res)=>{
     try{
-      const operator=OPERATOR_ROLES.has(currentRole)
+      const operator=OPERATOR_ROLES.has(role(req.user))
       let agent=operator
       if(!agent){
         const {data,error}=await supabase.from('tryamm_mobility_credentials').select('id')
@@ -120,7 +108,7 @@ function createVehicleRecoveryRouter({supabase}){
 
   router.post('/:id/accept',async(req,res)=>{
     try{
-      const operator=OPERATOR_ROLES.has(currentRole)
+      const operator=OPERATOR_ROLES.has(role(req.user))
       let agent=operator
       if(!agent){
         const {data,error}=await supabase.from('tryamm_mobility_credentials').select('id')
@@ -144,7 +132,7 @@ function createVehicleRecoveryRouter({supabase}){
       const {data:item,error:readError}=await supabase.from('tryamm_vehicle_recovery_cases').select('*').eq('id',req.params.id).maybeSingle()
       if(readError)throw readError
       if(!item)return res.status(404).json({error:'Recovery case not found'})
-      const operator=OPERATOR_ROLES.has(currentRole)
+      const operator=OPERATOR_ROLES.has(role(req.user))
       const actorIsAgent=String(item.assigned_agent_user_id||'')===String(req.user.id)
       const actorIsOwner=String(item.owner_user_id||'')===String(req.user.id)
       if(!operator&&!actorIsAgent&&!actorIsOwner)return res.status(403).json({error:'Not authorized for this recovery case'})
