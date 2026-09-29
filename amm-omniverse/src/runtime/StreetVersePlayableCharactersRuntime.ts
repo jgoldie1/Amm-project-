@@ -28,9 +28,28 @@ const LANE_MISSIONS:Record<string,{id:string;title:string;rewardXP:number}>={
   'TV / Podcast':{id:'community-story',title:'Tell Our Story',rewardXP:325},
   'Chicago Explorer':{id:'chi-history-sound-map',title:'Sounds Born in Chicago',rewardXP:350}
 }
+const NAMED_CAST:StreetVersePlayableCharacter[]=[
+  {id:'bj-stubbs',label:'BJ STUBBS',index:-1,role:'Founder / Explorer',missionLane:'Founder'},
+  {id:'marcus',label:'MARCUS',index:0,role:'StreetVerse Friend',missionLane:'Chicago Explorer'},
+  {id:'al-b',label:'AL B',index:1,role:'StreetVerse Family',missionLane:'Business / Marketplace'},
+  {id:'tatti',label:'TATTI',index:2,role:'Creator • role pending',missionLane:'Reels Creator'},
+  {id:'brielle',label:'BRIELLE',index:3,role:'Creator • role pending',missionLane:'Reels Creator'},
+  {id:'mike',label:'MIKE',index:4,role:'StreetVerse Friend • role pending',missionLane:'Chicago Explorer'},
+  {id:'alphonso',label:'ALPHONSO',index:5,role:'StreetVerse Friend • role pending',missionLane:'Chicago Explorer'},
+  {id:'jasmine',label:'JASMINE',index:6,role:'Creator • role pending',missionLane:'Reels Creator'},
+  {id:'tae-monroe',label:'TAE MONROE',index:7,role:'Creator • role pending',missionLane:'Reels Creator'},
+]
+const SOCIAL_CREATOR_CAST:StreetVersePlayableCharacter[]=Array.from({length:10},(_,i)=>({
+  id:`social-creator-${String(i+1).padStart(2,'0')}`,
+  label:`CREATOR SLOT ${String(i+1).padStart(2,'0')}`,
+  index:100+i,
+  role:'BIGO/TikTok creator • identity/role pending',
+  missionLane:'Reels Creator',
+}))
 const ROSTER:StreetVersePlayableCharacter[]=[
-  {id:'you',label:'YOU',index:-1,role:'Founder / Explorer',missionLane:'Founder'},
-  ...RESIDENT_ROLES.map(([role,missionLane],i)=>({id:`resident-${i+1}`,label:`RESIDENT ${String(i+1).padStart(2,'0')}`,index:i,role,missionLane}))
+  ...NAMED_CAST,
+  ...SOCIAL_CREATOR_CAST,
+  ...RESIDENT_ROLES.map(([role,missionLane],i)=>({id:`resident-${i+1}`,label:`RESIDENT ${String(i+1).padStart(2,'0')}`,index:200+i,role,missionLane}))
 ]
 
 function emit(name:string,detail:any={}){window.dispatchEvent(new CustomEvent(name,{detail}))}
