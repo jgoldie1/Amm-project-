@@ -488,7 +488,7 @@ jobs:
             npx gltf-transform optimize "$f" "$out"
             npx gltf-transform inspect "$out" >/dev/null
           done
-          test "$count" -ge 5
+          test "$count" -ge 13
           echo "TRYAMM native foundry generated and validated $count GLB files."
       - name: Publish native-foundry truth
         shell: bash
