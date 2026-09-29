@@ -26,6 +26,31 @@ add_log_rule "TRYAMM log exploit probes"   --condition '{"type":"path","op":"inc
 
 add_log_rule "TRYAMM AI burst observation"   --condition '{"type":"path","op":"pre","value":"/api/ai"}'   --condition '{"type":"method","op":"eq","value":"POST"}'   --action rate_limit   --rate-limit-window 60   --rate-limit-requests 300   --rate-limit-keys ip   --rate-limit-action log
 
+add_log_rule "TRYAMM Asset Forge burst observation" \
+  --condition '{"type":"path","op":"pre","value":"/api/asset-forge"}' \
+  --action rate_limit \
+  --rate-limit-window 60 \
+  --rate-limit-requests 80 \
+  --rate-limit-keys ip \
+  --rate-limit-action log
+
+add_log_rule "TRYAMM Middleverse burst observation" \
+  --condition '{"type":"path","op":"pre","value":"/api/middleverse"}' \
+  --action rate_limit \
+  --rate-limit-window 60 \
+  --rate-limit-requests 240 \
+  --rate-limit-keys ip \
+  --rate-limit-action log
+
+add_log_rule "TRYAMM LIVE token burst observation" \
+  --condition '{"type":"path","op":"pre","value":"/api/live/token"}' \
+  --condition '{"type":"method","op":"eq","value":"POST"}' \
+  --action rate_limit \
+  --rate-limit-window 60 \
+  --rate-limit-requests 300 \
+  --rate-limit-keys ip \
+  --rate-limit-action log
+
 add_log_rule "TRYAMM media burst observation"   --condition '{"type":"path","op":"pre","value":"/api/media"}'   --condition '{"type":"method","op":"eq","value":"POST"}'   --action rate_limit   --rate-limit-window 60   --rate-limit-requests 240   --rate-limit-keys ip   --rate-limit-action log
 
 add_log_rule "TRYAMM commerce burst observation"   --condition '{"type":"path","op":"pre","value":"/api/commerce"}'   --condition '{"type":"method","op":"eq","value":"POST"}'   --action rate_limit   --rate-limit-window 60   --rate-limit-requests 180   --rate-limit-keys ip   --rate-limit-action log
