@@ -170,3 +170,42 @@ app.post('/api/stripe/webhook', async (req,res)=>{
 app.get('/api/marketplace/products',async(req,res)=>{ try{ const {category,search}=req.query; let q=supabase.from('products').select('*').eq('status','active').order('created_at',{ascending:false}); if(category&&category!=='all')q=q.eq('category',category); if(search)q=q.ilike('name',`%${String(search).slice(0,100)}%`); const {data,error}=await q.limit(100); if(error)throw error; res.json({products:data||[]}) }catch(err){res.status(500).json({error:err.message})} })
 app.get('/api/businesses',async(req,res)=>{ try{ const {category,city,search}=req.query; let q=supabase.from('businesses').select('*').eq('status','active').order('name'); if(category)q=q.eq('category',String(category).slice(0,80)); if(city)q=q.ilike('city',`%${String(city).slice(0,80)}%`); if(search)q=q.or(`name.ilike.%${String(search).slice(0,100)}%,description.ilike.%${String(search).slice(0,100)}%`); const {data,error}=await q.limit(100); if(error)throw error; res.json({businesses:data||[]}) }catch(err){res.status(500).json({error:err.message})} })
 app.get('/api/businesses/:id',async(req,res)=>{ try{ const {data,error}=await supabase.from('businesses').select('*, reviews(*)').eq('id',req.params.id).eq('status','active').maybeSingle(); if(error)throw error; if(!data)return res.status(404).json({error:'Business not found'}); res.json({business:data}) }catch(err){res.status(500).json({error:err.message})} })
+
+const server=http.createServer(app)
+server.requestTimeout=30_000
+server.headersTimeout=35_000
+server.keepAliveTimeout=65_000
+server.maxRequestsPerSocket=1_000
+
+let shuttingDown=false
+function gracefulShutdown(signal='shutdown'){
+  if(shuttingDown)return
+  shuttingDown=true
+  console.log(`TRYAMM graceful shutdown requested: ${signal}`)
+  server.close(error=>{
+    if(error){
+      console.error('TRYAMM HTTP server close error',error)
+      process.exitCode=1
+    }
+  })
+  server.closeIdleConnections?.()
+  const forceTimer=setTimeout(()=>{
+    console.error('TRYAMM graceful shutdown deadline reached; closing remaining connections')
+    server.closeAllConnections?.()
+  },10_000)
+  forceTimer.unref?.()
+}
+
+server.on('clientError',(error,socket)=>{
+  console.warn('TRYAMM HTTP client error',String(error?.code||error?.message||error))
+  if(socket.writable)socket.end('HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n')
+})
+
+if(require.main===module){
+  const port=Number(process.env.PORT||3001)
+  server.listen(port,()=>console.log(`AMM Omniverse Backend listening on ${port}`))
+  process.once('SIGTERM',()=>gracefulShutdown('SIGTERM'))
+  process.once('SIGINT',()=>gracefulShutdown('SIGINT'))
+}
+
+module.exports={app,server,gracefulShutdown}
