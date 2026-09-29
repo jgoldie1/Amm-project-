@@ -50,7 +50,7 @@ export function quoteTryammRental(vehicleClass:string,hours:number){
   const fullDays=Math.floor(h/24)
   const remainder=h%24
   const grossUsd=fullDays*rate.dailyUsd+(remainder?Math.min(rate.dailyUsd,remainder*rate.hourlyUsd):0)
-  return{vehicleClass,hours:h,grossUsd:Number(grossUsd.toFixed(2)),depositUsd:rate.depositUsd,...rate}
+  return{...rate,hours:h,grossUsd:Number(grossUsd.toFixed(2))}
 }
 
 export function rentalRevenueSplit(grossCents:number,vehicleOwner:'tryamm'|'business'|'creator'='tryamm'){
