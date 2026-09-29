@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useState} from 'react'
 import {canUseStreetVerseVehicle,type MobilityProfile} from '../runtime/StreetVerseVehicleAccessRuntime'
+import {STREETVERSE_MOBILITY_CREDENTIALS} from '../data/StreetVerseVehicleAccessProgression'
 
 type Ride={id:string;label:string;wheels:number;className:string;grip:number;steer:number;roll:number;stunts:string[];vehicleClass:string}
 const RIDES:Ride[]=[
@@ -20,6 +21,7 @@ export default function StreetVersePowersportsGarage(){
  const [active,setActive]=useState('sport-bike')
  const [open,setOpen]=useState(false)
  const [notice,setNotice]=useState('')
+ const [academyOpen,setAcademyOpen]=useState(false)
  const ride=useMemo(()=>RIDES.find(r=>r.id===active)||RIDES[0],[active])
  const mobilityProfile=useMemo<MobilityProfile>(()=>{
   try{
@@ -38,13 +40,16 @@ export default function StreetVersePowersportsGarage(){
  },[active,ride])
  useEffect(()=>{
   const onRequest=()=>setOpen(true)
+  const onAcademy=()=>{setOpen(true);setAcademyOpen(true)}
   addEventListener('tryamm:streetverse-powersports-open',onRequest)
-  return()=>removeEventListener('tryamm:streetverse-powersports-open',onRequest)
+  addEventListener('tryamm:streetverse-mobility-academy-open',onAcademy)
+  return()=>{removeEventListener('tryamm:streetverse-powersports-open',onRequest);removeEventListener('tryamm:streetverse-mobility-academy-open',onAcademy)}
  },[])
  if(!open)return <button onClick={()=>setOpen(true)} style={{position:'fixed',right:12,bottom:78,zIndex:16997,border:'1px solid #59e7ff66',borderRadius:12,padding:'9px 11px',background:'rgba(4,12,20,.88)',color:'#fff',fontSize:10,fontWeight:900}}>POWERSPORTS</button>
  return <div style={{position:'fixed',right:12,bottom:78,zIndex:16998,width:'min(360px,calc(100vw - 24px))',padding:12,borderRadius:16,background:'rgba(3,10,18,.95)',border:'1px solid #59e7ff77',color:'#fff',fontFamily:'system-ui',boxShadow:'0 18px 50px #0008'}}>
   <div style={{display:'flex',justifyContent:'space-between',gap:10,alignItems:'center'}}><div><div style={{fontSize:9,color:'#59e7ff',fontWeight:950,letterSpacing:1.4}}>STREETVERSE POWERSPORTS GARAGE</div><div style={{fontWeight:950,fontSize:16,marginTop:2}}>{ride.label}</div></div><button onClick={()=>setOpen(false)} style={{border:'1px solid #496170',borderRadius:10,background:'#0c1722',color:'#fff',width:34,height:34}}>×</button></div>
-  <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:6,marginTop:10,maxHeight:300,overflowY:'auto'}}>{RIDES.map(r=><button key={r.id} onClick={()=>setActive(r.id)} style={{textAlign:'left',border:`1px solid ${r.id===active?'#59e7ff':'#34495a'}`,borderRadius:10,padding:'8px 9px',background:r.id===active?'#102536':'#0a141e',color:'#fff',fontSize:9,fontWeight:850}}>{r.label}<br/><span style={{opacity:.64,fontWeight:650}}>{r.className} • {r.wheels} wheels</span></button>)}</div>
+  <div style={{display:'flex',gap:7,marginTop:10}}><button onClick={()=>setAcademyOpen(false)} style={{flex:1,minHeight:38,border:'1px solid #35566d',borderRadius:10,background:!academyOpen?'#102536':'#09121b',color:'#fff',fontSize:9,fontWeight:950}}>RIDES</button><button onClick={()=>setAcademyOpen(true)} style={{flex:1,minHeight:38,border:'1px solid #8a6b2d',borderRadius:10,background:academyOpen?'#2a210d':'#09121b',color:'#ffe49b',fontSize:9,fontWeight:950}}>MOBILITY ACADEMY</button></div>
+  {!academyOpen?<div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:6,marginTop:10,maxHeight:300,overflowY:'auto'}}>{RIDES.map(r=><button key={r.id} onClick={()=>setActive(r.id)} style={{textAlign:'left',border:`1px solid ${r.id===active?'#59e7ff':'#34495a'}`,borderRadius:10,padding:'8px 9px',background:r.id===active?'#102536':'#0a141e',color:'#fff',fontSize:9,fontWeight:850}}>{r.label}<br/><span style={{opacity:.64,fontWeight:650}}>{r.className} • {r.wheels} wheels</span></button>)}</div>:<div style={{marginTop:10,maxHeight:330,overflowY:'auto',display:'grid',gap:7}}>{STREETVERSE_MOBILITY_CREDENTIALS.map(cred=>{const unlocked=mobilityProfile.level>=cred.unlockLevel&&(mobilityProfile.credentials.includes(cred.id)||cred.requiredMissions.every(m=>mobilityProfile.completedMissions.includes(m)));return <div key={cred.id} style={{padding:10,border:`1px solid ${unlocked?'#2d7652':'#5a4b2c'}`,borderRadius:11,background:'#08121b'}}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><b style={{fontSize:10}}>{cred.label}</b><span style={{fontSize:8,color:unlocked?'#8fffc1':'#ffe49b',fontWeight:950}}>{unlocked?'UNLOCKED':`LEVEL ${cred.unlockLevel}`}</span></div><div style={{fontSize:8,color:'#9eb0bf',marginTop:5,lineHeight:1.45}}>WHO GETS IT • {cred.ownership.toUpperCase()}<br/>VEHICLES • {cred.allowedVehicleClasses.join(' • ').toUpperCase()}<br/>TRAINING • {cred.requiredMissions.join(' → ').toUpperCase()}</div></div>})}</div>}
   <div style={{marginTop:10,padding:9,borderRadius:11,background:'#07131d',fontSize:9,lineHeight:1.55,color:'#cfe8f5'}}>GRIP {ride.grip.toFixed(2)} • STEER {ride.steer.toFixed(2)} • BODY {ride.roll.toFixed(2)}<br/>STUNTS • {ride.stunts.join(' • ').toUpperCase()}<br/><span style={{color:access.allowed?'#8fffc1':'#ffe49b',fontWeight:950}}>{access.allowed?'UNLOCKED':'TRAINING REQUIRED'} • {access.credentialId||'UNREGISTERED'}</span></div>
   {notice&&<div style={{marginTop:7,fontSize:9,color:'#ffe49b'}}>{notice}</div>}
   <button onClick={()=>{
