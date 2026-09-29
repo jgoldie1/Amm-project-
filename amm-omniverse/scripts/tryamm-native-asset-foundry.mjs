@@ -136,12 +136,17 @@ function add2027SportSedan(group,x,z,mats){
   addBox(group,'front-bumper',[.36,.28,1.72],[x+2.12,.48,z],mats.metal,undefined,'vehicle-bumper')
   addBox(group,'rear-bumper',[.36,.28,1.72],[x-2.12,.48,z],mats.metal,undefined,'vehicle-bumper')
 
-  const hood=addBox(group,'hood',[1.24,.12,1.74],[x+1.15,1.05,z],mats.car,undefined,'vehicle-hood')
-  hood.userData.interaction='hood'
-  const driverDoor=addBox(group,'driver-door',[1.38,.72,.10],[x-.15,1.05,z-.93],mats.car,undefined,'vehicle-door')
-  driverDoor.userData.interaction='driver-door'
-  const passengerDoor=addBox(group,'passenger-door',[1.38,.72,.10],[x-.15,1.05,z+.93],mats.car,undefined,'vehicle-door')
-  passengerDoor.userData.interaction='passenger-door'
+  const hoodPivot=new THREE.Group();hoodPivot.name='hood-pivot';hoodPivot.position.set(x+.52,1.05,z);hoodPivot.userData={semantic:'vehicle-hood-pivot',interaction:'hood'}
+  const hood=addBox(hoodPivot,'hood',[1.24,.12,1.74],[.63,0,0],mats.car,undefined,'vehicle-hood')
+  hood.userData.interaction='hood';group.add(hoodPivot)
+
+  const driverDoorPivot=new THREE.Group();driverDoorPivot.name='driver-door-pivot';driverDoorPivot.position.set(x-.84,1.05,z-.93);driverDoorPivot.userData={semantic:'vehicle-door-pivot',interaction:'driver-door'}
+  const driverDoor=addBox(driverDoorPivot,'driver-door',[1.38,.72,.10],[.69,0,0],mats.car,undefined,'vehicle-door')
+  driverDoor.userData.interaction='driver-door';group.add(driverDoorPivot)
+
+  const passengerDoorPivot=new THREE.Group();passengerDoorPivot.name='passenger-door-pivot';passengerDoorPivot.position.set(x-.84,1.05,z+.93);passengerDoorPivot.userData={semantic:'vehicle-door-pivot',interaction:'passenger-door'}
+  const passengerDoor=addBox(passengerDoorPivot,'passenger-door',[1.38,.72,.10],[.69,0,0],mats.car,undefined,'vehicle-door')
+  passengerDoor.userData.interaction='passenger-door';group.add(passengerDoorPivot)
 
   const windshield=addBox(group,'windshield',[.12,.64,1.48],[x+.64,1.47,z],mats.glass,[0,0,deg(-20)],'vehicle-glass')
   windshield.userData.transparentVisual=true
