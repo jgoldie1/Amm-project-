@@ -3,7 +3,7 @@ export type ChicagoStreetVersePlace={
 }
 export const CHICAGO_WORLD_MIN=-82
 export const CHICAGO_WORLD_MAX=82
-export const CIRCLE_PARK_SPAWN:ChicagoStreetVersePlace={id:'circle-park-abla',label:'CIRCLE PARK / ABLA',kind:'spawn',x:0,z:54,radius:14}
+export const CIRCLE_PARK_SPAWN:ChicagoStreetVersePlace={id:'circle-park-abla',label:'CIRCLE PARK / ABLA',kind:'spawn',x:-24,z:48,radius:16}
 export const CHICAGO_STREETVERSE_PLACES:ChicagoStreetVersePlace[]=[
  CIRCLE_PARK_SPAWN,
  {id:'circle-park-apartments',label:'Circle Park Apartments',kind:'district',x:-48,z:40,radius:16},
