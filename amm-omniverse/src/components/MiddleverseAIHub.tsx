@@ -3,6 +3,7 @@ import { getTryammReadiness } from '../services/middlewear'
 import {detectTryammEdgeCapabilities} from '../runtime/TryammPocketEdgeRuntime'
 import {pocketEdgeEnabled,runPocketEdgeCycle,setPocketEdgeEnabled} from '../runtime/TryammPocketEdgeWorker'
 import {getPocketEdgeEarnings} from '../services/edgeNode'
+import TryammPrivateRelayCenter from './TryammPrivateRelayCenter'
 
 const cyan = '#4FE3FF'
 const gold = '#E8B944'
@@ -33,6 +34,7 @@ export default function MiddleverseAIHub({ onClose }: Props) {
   const [edgeCap,setEdgeCap]=useState<any>(null)
   const [edgeNotice,setEdgeNotice]=useState('Detecting local edge capability…')
   const [edgeEarnings,setEdgeEarnings]=useState<any>(null)
+  const [relayOpen,setRelayOpen]=useState(false)
   useEffect(()=>{let active=true;getTryammReadiness().then(x=>{if(active)setResilience(x.ok?'READY':'DEGRADED')}).catch(()=>{if(active)setResilience('DEGRADED')});detectTryammEdgeCapabilities().then(x=>{if(active){setEdgeCap(x);setEdgeNotice(`${x.nodeClass.toUpperCase()} • ${x.safeWork.length} SAFE WORK TYPES`)}}).catch(()=>{if(active)setEdgeNotice('LOCAL EDGE CAPABILITY UNAVAILABLE')});getPocketEdgeEarnings().then((x:any)=>{if(active)setEdgeEarnings(x?.summary||null)}).catch(()=>{});return()=>{active=false}},[])
   const destinations = useMemo<Destination[]>(() => [
     { icon: '✦', title: 'Benny Stubbs AI', description: 'Open the female AI guide for navigation, help and creation.', action: () => openGlobal('__showBennie'), status: 'READY' },
@@ -41,6 +43,7 @@ export default function MiddleverseAIHub({ onClose }: Props) {
     { icon: '◈', title: 'My World', description: 'Open the personal immersive world workspace.', action: () => openGlobal('__showImmersiveWorlds'), status: 'READY' },
     { icon: '🎓', title: 'All American Universities', description: 'Route into learning, career and workforce pathways.', action: () => { localStorage.setItem('tryamm_school_network_target','aau'); openGlobal('__showSchoolNetwork') }, status: 'READY' },
     { icon: '📡', title: 'Holo FON', description: 'Open TRYAMM Connect and device/connectivity services.', action: () => openGlobal('__showHoloFon'), status: 'READY' },
+    { icon: '🛡️', title: 'Private Relay / VPN', description: 'Open the security tunnel readiness center. VPN traffic never creates Edge earnings.', action: () => setRelayOpen(true), status: 'READY' },
     { icon: '🧪', title: 'Holo Lab / Construct', description: 'Open the creation and experiment gateway.', action: () => openGlobal('__showHoloLab'), status: 'READY' },
     { icon: '📦', title: 'Global Supply Chain', description: 'Supplier-to-order-to-delivery orchestration gateway.', status: 'RECONNECTING' },
     { icon: '🌍', title: 'Africa Gateway', description: 'Africa business, creator, education, commerce and supply-chain gateway.', status: 'RECONNECTING' },
@@ -90,6 +93,7 @@ export default function MiddleverseAIHub({ onClose }: Props) {
         </button>)}
       </section>
     </div>
+    {relayOpen&&<TryammPrivateRelayCenter onClose={()=>setRelayOpen(false)}/>}
   </div>
 }+(cents/100).toFixed(2)):'—'}</div></div>)}
         </div>
