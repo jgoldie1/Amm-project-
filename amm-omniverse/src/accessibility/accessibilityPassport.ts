@@ -20,6 +20,7 @@ export type AccessibilityPreferences = {
 export type AccessibilityPassport = {
   version: 1;
   userId?: string;
+  preferredHand?: 'left' | 'right' | 'either';
   preferences: AccessibilityPreferences;
   communicationPreference?: 'text' | 'voice' | 'video' | 'email' | 'none';
   opportunityNeeds: string[];
@@ -50,6 +51,7 @@ export const createAccessibilityPassport = (
 ): AccessibilityPassport => ({
   version: 1,
   preferences: { ...defaultAccessibilityPreferences, ...partial.preferences },
+  preferredHand: partial.preferredHand ?? 'either',
   opportunityNeeds: partial.opportunityNeeds ?? [],
   communicationPreference: partial.communicationPreference ?? 'none',
   userId: partial.userId,

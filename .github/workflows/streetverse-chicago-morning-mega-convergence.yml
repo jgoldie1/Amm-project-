@@ -1,0 +1,760 @@
+name: StreetVerse Chicago Morning Mega Convergence
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/tryamm-world-tv-clean
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "amm-omniverse/**"
+      - "docs/launch/**"
+      - ".github/workflows/streetverse-chicago-morning-mega-convergence.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-chicago-morning-mega-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-truth:
+    name: Source truth + branch reconciliation gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Compare working branch with main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main --no-tags
+          AHEAD="$(git rev-list --count origin/main..HEAD)"
+          BEHIND="$(git rev-list --count HEAD..origin/main)"
+          mkdir -p release-evidence
+          {
+            echo "# StreetVerse Chicago source truth"
+            echo
+            echo "- Commit: ${GITHUB_SHA}"
+            echo "- Ref: ${GITHUB_REF}"
+            echo "- Ahead of main: ${AHEAD}"
+            echo "- Behind main: ${BEHIND}"
+            echo "- Release truth: architecture is not production certification"
+          } > release-evidence/source-truth.md
+          echo "Ahead=${AHEAD}; Behind=${BEHIND}"
+          if [ "${BEHIND}" -gt 0 ]; then
+            echo "::error::Working branch is ${BEHIND} commit(s) behind main. Reconcile main before release."
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-source-truth
+          path: release-evidence/source-truth.md
+          retention-days: 14
+
+  root-platform:
+    name: Root app lint + syntax + smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Install root dependencies
+        run: npm install --no-audit --no-fund
+      - name: Root full check
+        run: npm run check
+
+  streetverse-contracts:
+    name: Circle Park playable loop + Chicago/mobile contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install Omniverse dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Morning mega contract
+        run: node tests/streetverse-chicago-morning-mega-contract.mjs
+
+      - name: Critical playable-loop contracts
+        run: |
+          set -euo pipefail
+          node tests/streetverse-character-scale-contract.mjs
+          node tests/tryamm-world-resilience-contract.mjs
+          node tests/tryamm-pocket-edge-contract.mjs
+          node tests/private-relay-store-contract.mjs
+          node tests/private-relay-android-native-contract.mjs
+          node tests/tryamm-edge-grid-preferences-contract.mjs
+          node tests/tryamm-native-runtime-asset-contract.mjs
+          node tests/tryamm-native-pwa-asset-cache-contract.mjs
+          node tests/streetverse-chicago-grid-reality-contract.mjs
+          node tests/streetverse-mobile-repair-visibility-contract.mjs
+          node tests/streetverse-journey-qa-contract.mjs
+          node tests/streetverse-mobile-living-city-contract.mjs
+          node tests/streetverse-one-hand-integration-contract.mjs
+          node tests/streetverse-one-hand-mission-choice-contract.mjs
+          node tests/streetverse-unified-mobile-controls-contract.mjs
+          node tests/streetverse-mobile-mission-completion-bridge-contract.mjs
+          node tests/streetverse-mission-reel-handoff-contract.mjs
+          node tests/streetverse-reel-return-to-world-contract.mjs
+          node tests/streetverse-authoritative-reward-contract.mjs
+          node tests/inventory-authority-contract.mjs
+          node tests/commerce-transaction-ledger-contract.mjs
+          node tests/business-passport-visible-builder-contract.mjs
+
+      - name: App + release contracts
+        run: |
+          set -euo pipefail
+          node tests/pwa-install-release-contract.mjs
+          node tests/google-play-release-contract.mjs
+          node tests/account-deletion-release-contract.mjs
+          node tests/mobile-navigation-carousel-repair-contract.mjs
+          node tests/holo-carousel-real-destinations-contract.mjs
+          node tests/canonical-navigation-owner-contract.mjs
+          node tests/streetverse-holo-live-pk-launch-contract.mjs
+          node tests/holo-live-pk-integration-contract.mjs
+
+  omniverse-full:
+    name: Omniverse full lint + security + readiness + typecheck + build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install Omniverse dependencies
+        run: npm install --no-audit --no-fund
+      - name: Full Omniverse check
+        run: npm run check
+      - name: Package web release candidate
+        run: tar -czf ../streetverse-chicago-web-candidate.tgz dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-chicago-web-candidate
+          path: streetverse-chicago-web-candidate.tgz
+          retention-days: 14
+
+  aaa-evidence:
+    name: AAA vertical-slice evidence audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - name: Audit visual/runtime foundations
+        shell: bash
+        run: |
+          set -euo pipefail
+          REQUIRED=(
+            "amm-omniverse/src/data/StreetVerseChicagoAAAVerticalSlice.ts"
+            "amm-omniverse/src/data/AssetLodStreamingEngine.ts"
+            "amm-omniverse/src/data/ExtremeRealityRenderingEngine.ts"
+            "amm-omniverse/src/data/LivingCityEngine.ts"
+            "amm-omniverse/src/runtime/StreetVerseHumanScale.ts"
+            "amm-omniverse/src/runtime/StreetVersePhysicalVehicleRigRuntime.ts"
+            "amm-omniverse/src/runtime/StreetVerseVehicleRepairStreamerRuntime.ts"
+            "amm-omniverse/src/components/CircleParkHolographicWorld.tsx"
+          )
+          for file in "${REQUIRED[@]}"; do
+            test -f "${file}" || { echo "::error::Missing required AAA foundation: ${file}"; exit 1; }
+          done
+          mkdir -p release-evidence
+          {
+            echo "# StreetVerse Chicago AAA evidence"
+            echo
+            echo "- Benchmark: Circle Park → Roosevelt → Taylor → Pilsen"
+            echo "- Production geometry/materials/lighting remain asset-and-runtime proof gates."
+            echo "- Physical iPhone verification is intentionally not claimed by CI."
+            echo "- AAA principles target is not a claim of parity with any named commercial title."
+            echo
+            echo "## Required visual gates"
+            grep -o '"[a-z0-9-]*"' amm-omniverse/src/data/StreetVerseChicagoAAAVerticalSlice.ts | sort -u
+          } > release-evidence/aaa-evidence.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-chicago-aaa-evidence
+          path: release-evidence/aaa-evidence.md
+          retention-days: 14
+
+  media-production:
+    name: Circle Park TV/Reels/LIVE/movie/game production contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Validate production pipeline contract
+        run: node tests/streetverse-chicago-morning-mega-contract.mjs
+      - name: Write shoot/edit checklist
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ../release-evidence
+          cat > ../release-evidence/circle-park-production.md <<'EOF'
+          # Circle Park Episode 1 production handoff
+
+          Pipeline:
+          Phone shoot → confessionals → 22-minute episode → 8–10 Reels → LIVE aftershow → All American Network/Holo Drama → separate StreetVerse Chicago Movie Chapter 1 edit → playable Circle Park mission bridge.
+
+          Human/physical work still required:
+          - Capture 60–90 minutes of usable footage and B-roll.
+          - Record clean confessionals.
+          - Secure appearance/guardian/location/music/art/logo/footage permissions as applicable.
+          - Perform the editorial cuts from actual source footage.
+          - Perform physical-device checks on the target iPhone and any release Android device.
+          - Do not mark AAN/Holo Drama distribution LIVE until the actual upload/player/distribution path passes runtime testing.
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: circle-park-production-handoff
+          path: release-evidence/circle-park-production.md
+          retention-days: 14
+
+
+  migration-integrity:
+    name: Supabase migration history integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: Reject duplicate migration versions
+        shell: python
+        run: |
+          from pathlib import Path
+          from collections import defaultdict
+          root=Path("amm-omniverse/supabase/migrations")
+          groups=defaultdict(list)
+          for path in sorted(root.glob("*.sql")):
+              version=path.name.split("_",1)[0]
+              if version.isdigit():
+                  groups[version].append(path.name)
+          dup={k:v for k,v in groups.items() if len(v)>1}
+          if dup:
+              print("::error::Duplicate Supabase migration versions detected.")
+              for version,files in dup.items():
+                  print(f"::error::version {version}: {', '.join(files)}")
+              raise SystemExit(1)
+          print(f"Migration versions unique: {sum(len(v) for v in groups.values())} files")
+
+  backend-authority:
+    name: Backend authority + financial/economic checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: amm-omniverse/amm-backend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/amm-backend/package-lock.json
+      - name: Install backend dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Backend full check
+        run: npm run check
+
+  browser-e2e:
+    name: Desktop + mobile branch E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install app dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install Playwright tooling
+        run: |
+          npm install --no-save --no-package-lock @playwright/test@1.63.0
+          npx playwright install --with-deps chromium
+      - name: Build branch candidate
+        run: npm run build
+      - name: Run branch-safe UI/game E2E
+        run: npx playwright test tests/e2e/core-launchers.spec.ts tests/e2e/holo-delivery.spec.ts tests/e2e/chicago-77-production.spec.ts
+      - name: Upload branch E2E evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-branch-e2e
+          path: |
+            amm-omniverse/playwright-report/
+            amm-omniverse/test-results/
+          if-no-files-found: warn
+          retention-days: 14
+
+  android-native-candidate:
+    name: Android API 36 native candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Install Android API 36
+        shell: bash
+        run: |
+          set -euo pipefail
+          ANDROID_SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          SDKMANAGER="$(find "$ANDROID_SDK_ROOT/cmdline-tools" -type f -path '*/bin/sdkmanager' | sort -V | tail -n 1)"
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+      - name: Build web candidate
+        run: |
+          npm ci --no-audit --no-fund
+          node tests/google-play-release-contract.mjs
+          npm run build
+      - name: Generate and sync Android shell
+        run: |
+          rm -rf android
+          npx cap add android
+          npx cap sync android
+          node scripts/prepare-android-release.mjs
+      - name: Verify canonical package + permissions
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -R "online.tryamm.app" android/app/build.gradle android/app/src/main/AndroidManifest.xml || true
+          grep -F "android.permission.CAMERA" android/app/src/main/AndroidManifest.xml
+          grep -F "android.permission.RECORD_AUDIO" android/app/src/main/AndroidManifest.xml
+      - name: Build debug APK + release AAB
+        run: |
+          cd android
+          ./gradlew assembleDebug
+          ./gradlew bundleRelease
+      - name: Upload Android unsigned candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-android-native-candidate
+          path: |
+            amm-omniverse/android/app/build/outputs/apk/debug/*.apk
+            amm-omniverse/android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
+          retention-days: 14
+
+  ios-native-simulator:
+    name: iOS simulator native-shell compile
+    runs-on: macos-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: Build web candidate
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+      - name: Generate and sync iOS shell
+        run: |
+          rm -rf ios
+          npx cap add ios
+          npx cap sync ios
+      - name: Compile unsigned simulator app
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -d ios/App/App.xcworkspace ]; then
+            xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build
+          else
+            xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build
+          fi
+
+  supabase-live-security:
+    name: Supabase security advisor policy gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: fxluchtdfpediivhoksl
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Fetch live security advisors when configured
+        id: advisor
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release-evidence
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+            echo "::warning::SUPABASE_ACCESS_TOKEN is not configured. Live Management API advisor certification is skipped for this run."
+            cat > release-evidence/supabase-security-advisors.json <<JSON
+          {"tryamm_status":"MISSING_MANAGEMENT_TOKEN","project_ref":"$SUPABASE_PROJECT_REF"}
+          JSON
+            echo "live=false" >> "$GITHUB_OUTPUT"
+          else
+            curl --fail --silent --show-error \
+              -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+              "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/advisors/security" \
+              > release-evidence/supabase-security-advisors.json
+            echo "live=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Enforce Supabase advisor policy
+        working-directory: amm-omniverse
+        run: node scripts/supabase-security-advisor-policy.mjs ../release-evidence/supabase-security-advisors.json
+      - name: Publish advisor truth
+        shell: bash
+        run: |
+          {
+            echo "## Supabase security advisor policy"
+            if [ "${{ steps.advisor.outputs.live }}" = "true" ]; then
+              echo "- Live Management API advisor: VERIFIED"
+              echo "- ERROR findings: blocking"
+              echo "- Anonymous SECURITY DEFINER exposure: blocking"
+              echo "- Authenticated SECURITY DEFINER exposure: exact reviewed allowlist only"
+            else
+              echo "- Live Management API advisor: NOT RUN (SUPABASE_ACCESS_TOKEN missing)"
+              echo "- This job validates policy/configuration but does not claim live advisor certification."
+              echo "- Add the repository secret SUPABASE_ACCESS_TOKEN to enable live certification."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: supabase-security-advisor-policy
+          path: release-evidence/supabase-security-advisors.json
+          if-no-files-found: warn
+          retention-days: 14
+
+
+
+
+  jacobie-quantum-security:
+    name: Jacobie Quantum Shield + supply-chain gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            amm-omniverse/package-lock.json
+            amm-omniverse/amm-backend/package-lock.json
+
+      - name: Install Omniverse dependencies
+        working-directory: amm-omniverse
+        run: npm ci --no-audit --no-fund
+
+      - name: Run Jacobie security + crypto agility checks
+        working-directory: amm-omniverse
+        run: |
+          set -euo pipefail
+          mkdir -p ../release-evidence/jacobie-security
+          node tests/repository-security-scan.mjs
+          node tests/jacobie-quantum-shield-contract.mjs
+          node tests/tryamm-edge-ddos-contract.mjs
+          node scripts/jacobie-crypto-inventory.mjs ../release-evidence/jacobie-security/crypto-inventory.json
+
+      - name: Audit Omniverse production dependencies
+        working-directory: amm-omniverse
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Generate Omniverse SBOM
+        working-directory: amm-omniverse
+        run: npm sbom --sbom-format cyclonedx > ../release-evidence/jacobie-security/omniverse-sbom.cdx.json
+
+      - name: Install + audit backend production dependencies
+        working-directory: amm-omniverse/amm-backend
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm audit --omit=dev --audit-level=high
+          npm sbom --sbom-format cyclonedx > ../../release-evidence/jacobie-security/backend-sbom.cdx.json
+          npm run test:jacobie-security
+          npm run test:red-hat
+          npm run test:swarm-shield
+
+      - name: Bind security evidence to commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd release-evidence/jacobie-security
+          sha256sum crypto-inventory.json omniverse-sbom.cdx.json backend-sbom.cdx.json > evidence.sha256
+          {
+            echo "schema=tryamm.jacobie.security-evidence.v1"
+            echo "commit=${GITHUB_SHA}"
+            echo "generated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "pqc_targets=FIPS203-ML-KEM,FIPS204-ML-DSA,FIPS205-SLH-DSA"
+            echo "claim=crypto-agile-and-pqc-migration-ready-architecture-not-unhackable"
+          } > evidence.meta
+          cat evidence.sha256
+
+      - name: Publish Jacobie security truth
+        shell: bash
+        run: |
+          {
+            echo "## Jacobie Cybersecurity • Quantum Shield"
+            echo
+            echo "- Repository malware/exfiltration scan: required"
+            echo "- Crypto inventory: required"
+            echo "- MD5/SHA-1 cryptographic use: blocked"
+            echo "- Hard-coded private keys: blocked"
+            echo "- Production dependency high/critical audit: blocking"
+            echo "- Omniverse + backend SBOMs: generated"
+            echo "- Evidence: SHA-256 bound to this commit"
+            echo "- PQC migration targets: ML-KEM, ML-DSA, SLH-DSA"
+            echo "- Provider/browser cryptography remains PROVIDER-DEPENDENT until verified"
+            echo "- No claim that TRYAMM is unhackable or already end-to-end PQC"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jacobie-quantum-security-evidence
+          path: release-evidence/jacobie-security/
+          if-no-files-found: warn
+          retention-days: 30
+
+  native-asset-foundry:
+    name: TRYAMM native self-contained 4x GLB foundry
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install Omniverse dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify owned foundry + runtime contracts
+        run: |
+          node tests/tryamm-native-asset-foundry-contract.mjs
+          node tests/tryamm-native-runtime-asset-contract.mjs
+      - name: Generate four owned GLB candidates
+        run: node scripts/tryamm-native-asset-foundry.mjs ../release-evidence/tryamm-native-asset-foundry
+      - name: Inspect and optimize generated GLBs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ../release-evidence/tryamm-native-asset-foundry/optimized
+          shopt -s globstar nullglob
+          count=0
+          for f in ../release-evidence/tryamm-native-asset-foundry/**/*.glb; do
+            case "$f" in
+              */optimized/*) continue ;;
+            esac
+            count=$((count+1))
+            echo "Inspecting $f"
+            npx gltf-transform inspect "$f" >/dev/null
+            base="$(basename "$f" .glb)"
+            out="../release-evidence/tryamm-native-asset-foundry/optimized/${base}-${count}.glb"
+            npx gltf-transform optimize "$f" "$out"
+            npx gltf-transform inspect "$out" >/dev/null
+          done
+          test "$count" -ge 13
+          echo "TRYAMM native foundry generated and validated $count GLB files."
+      - name: Publish native-foundry truth
+        shell: bash
+        run: |
+          {
+            echo "## TRYAMM Native Asset Foundry"
+            echo
+            echo "- External API required: NO"
+            echo "- Generation credits required: NO"
+            echo "- Four actual GLB candidates generated in CI."
+            echo "- Reviewed direction: Holo Reality Fusion."
+            echo "- Geometry/material/collision/holographic metadata are TRYAMM-authored procedural outputs."
+            echo "- Optional external providers may compete against the native baseline; they are not required for baseline generation."
+            echo "- Production publish still requires Asset Passport, visual review and target-device performance evidence."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-native-asset-foundry
+          path: release-evidence/tryamm-native-asset-foundry/
+          if-no-files-found: error
+          retention-days: 30
+
+  asset-transformation-tournament:
+    name: Four-sample AAA + holographic asset tournament
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Verify Genie transformation contract
+        run: node tests/streetverse-genie-asset-tournament-contract.mjs
+      - name: Generate four-sample ranking evidence
+        run: node scripts/streetverse-asset-tournament.mjs ../release-evidence/streetverse-asset-tournament.json
+      - name: Explain promotion truth
+        shell: bash
+        run: |
+          {
+            echo "## StreetVerse Asset Transformation Tournament"
+            echo
+            echo "- Four candidates are generated as transformation recipes."
+            echo "- Reviewed recipe winner: Holo Reality Fusion."
+            echo "- Quantum buffer means parallel software scheduling/caching, not quantum-computer execution."
+            echo "- Quantum Crawler references remain approved-source / metadata-first."
+            echo "- Oracle/rights review remains fail-closed."
+            echo "- Mind Over Matter motion transformation must pass originality review."
+            echo "- A recipe winner is NOT a generated AAA asset."
+            echo "- Production publish remains blocked until a real artifact, Asset Passport, performance evidence and human visual review exist."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-four-sample-asset-tournament
+          path: release-evidence/streetverse-asset-tournament.json
+          if-no-files-found: error
+          retention-days: 14
+
+  morning-release-gate:
+    name: Morning release gate
+    if: ${{ always() }}
+    needs:
+      - source-truth
+      - root-platform
+      - streetverse-contracts
+      - omniverse-full
+      - aaa-evidence
+      - media-production
+      - migration-integrity
+      - backend-authority
+      - browser-e2e
+      - android-native-candidate
+      - ios-native-simulator
+      - supabase-live-security
+      - jacobie-quantum-security
+      - native-asset-foundry
+      - asset-transformation-tournament
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish consolidated status
+        env:
+          SOURCE_TRUTH: ${{ needs.source-truth.result }}
+          ROOT_PLATFORM: ${{ needs.root-platform.result }}
+          STREETVERSE_CONTRACTS: ${{ needs.streetverse-contracts.result }}
+          OMNIVERSE_FULL: ${{ needs.omniverse-full.result }}
+          AAA_EVIDENCE: ${{ needs.aaa-evidence.result }}
+          MEDIA_PRODUCTION: ${{ needs.media-production.result }}
+          MIGRATION_INTEGRITY: ${{ needs.migration-integrity.result }}
+          BACKEND_AUTHORITY: ${{ needs.backend-authority.result }}
+          BROWSER_E2E: ${{ needs.browser-e2e.result }}
+          ANDROID_NATIVE: ${{ needs.android-native-candidate.result }}
+          IOS_NATIVE: ${{ needs.ios-native-simulator.result }}
+          SUPABASE_LIVE_SECURITY: ${{ needs.supabase-live-security.result }}
+          JACOBIE_SECURITY: ${{ needs.jacobie-quantum-security.result }}
+          NATIVE_ASSET_FOUNDRY: ${{ needs.native-asset-foundry.result }}
+          ASSET_TOURNAMENT: ${{ needs.asset-transformation-tournament.result }}
+        shell: bash
+        run: |
+          {
+            echo "# StreetVerse Chicago Morning Mega Convergence"
+            echo
+            echo "| Gate | Result |"
+            echo "|---|---|"
+            echo "| Source truth | ${SOURCE_TRUTH} |"
+            echo "| Root platform | ${ROOT_PLATFORM} |"
+            echo "| Playable/mobile contracts | ${STREETVERSE_CONTRACTS} |"
+            echo "| Omniverse full check/build | ${OMNIVERSE_FULL} |"
+            echo "| AAA evidence | ${AAA_EVIDENCE} |"
+            echo "| Circle Park production contract | ${MEDIA_PRODUCTION} |"
+            echo "| Migration integrity | ${MIGRATION_INTEGRITY} |"
+            echo "| Backend authority | ${BACKEND_AUTHORITY} |"
+            echo "| Branch-safe browser E2E | ${BROWSER_E2E} |"
+            echo "| Android native candidate | ${ANDROID_NATIVE} |"
+            echo "| iOS simulator compile | ${IOS_NATIVE} |"
+            echo "| Supabase advisor policy gate | ${SUPABASE_LIVE_SECURITY} |"
+            echo "| Jacobie Quantum Shield / supply chain | ${JACOBIE_SECURITY} |"
+            echo "| TRYAMM native 4x GLB foundry | ${NATIVE_ASSET_FOUNDRY} |"
+            echo "| Four-sample asset tournament | ${ASSET_TOURNAMENT} |"
+            echo
+            echo "## Morning physical checks still owned by the founder"
+            echo "- Install/open on iPhone."
+            echo "- Spawn into Circle Park."
+            echo "- Confirm correct character scale."
+            echo "- Confirm joystick/one-hand controls."
+            echo "- Find a mission marker."
+            echo "- Start mission and repair vehicle."
+            echo "- Open door, enter vehicle, drive, park and exit."
+            echo "- Verify map/player grid and navigation."
+            echo "- Open Reel capture and complete save/share."
+            echo "- Verify carousel destinations."
+            echo "- Verify AAN/Holo Drama surfaces do not claim LIVE without runtime proof."
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          test "${SOURCE_TRUTH}" = "success"
+          test "${ROOT_PLATFORM}" = "success"
+          test "${STREETVERSE_CONTRACTS}" = "success"
+          test "${OMNIVERSE_FULL}" = "success"
+          test "${AAA_EVIDENCE}" = "success"
+          test "${MEDIA_PRODUCTION}" = "success"
+          test "${MIGRATION_INTEGRITY}" = "success"
+          test "${BACKEND_AUTHORITY}" = "success"
+          test "${BROWSER_E2E}" = "success"
+          test "${ANDROID_NATIVE}" = "success"
+          test "${IOS_NATIVE}" = "success"
+          test "${SUPABASE_LIVE_SECURITY}" = "success"
+          test "${JACOBIE_SECURITY}" = "success"
+          test "${NATIVE_ASSET_FOUNDRY}" = "success"
+          test "${ASSET_TOURNAMENT}" = "success"
+
+          echo "Repository/build gates passed. Physical-device and real-footage certification remain separate."

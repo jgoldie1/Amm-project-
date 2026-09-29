@@ -1,0 +1,39 @@
+{
+  "schema": "tryamm.private-relay.release.v1",
+  "coreStoreProfile": {
+    "name": "TRYAMM Core",
+    "systemWideVpnBundled": false,
+    "webProtection": ["HTTPS/TLS", "Origin Shield", "MiddleWear security", "Pocket Edge secure APIs"],
+    "reason": "The normal App Store/Play candidate must not accidentally ship an undeclared or unreviewed system VPN capability."
+  },
+  "vpnStoreProfile": {
+    "name": "TRYAMM Private Relay",
+    "state": "NATIVE_CERTIFICATION_REQUIRED",
+    "android": {
+      "minimumApi": 30,
+      "preferredApi": "android.net.VpnManager + android.net.Ikev2VpnProfile",
+      "systemConsentRequired": true,
+      "playDeclarationRequired": true,
+      "prominentDisclosureRequired": true,
+      "trafficMonetizationForbidden": true,
+      "organizationAccountRequiredForVpnServiceClassApps": true
+    },
+    "ios": {
+      "preferredApi": "NetworkExtension.NEVPNManager",
+      "protocol": "IKEv2",
+      "entitlementKey": "com.apple.developer.networking.vpn.api",
+      "entitlementValue": "allow-vpn",
+      "userAuthorizationRequired": true,
+      "organizationDeveloperRequired": true,
+      "preUseDataDisclosureRequired": true,
+      "vpnTrafficSaleOrThirdPartyUseForbidden": true
+    }
+  },
+  "distribution": {
+    "appleAppStore": "core profile now; VPN profile only after entitlement/review certification",
+    "googlePlay": "core profile now; VPN profile only after Play VPN declaration/review certification",
+    "allAmericanAppStore": "may distribute TRYAMM packages, but cannot bypass Android/iOS platform permissions, entitlements, user consent or security rules",
+    "pwa": "TRYAMM-only HTTPS/private API path; no system-wide VPN"
+  },
+  "earningsBoundary": "VPN traffic never earns Pocket Edge money. Only verified funded compute jobs can create Edge earnings."
+}

@@ -1,0 +1,57 @@
+import fs from 'node:fs'
+
+const playable=fs.readFileSync(new URL('../src/components/StreetVersePlayableWorld.tsx',import.meta.url),'utf8')
+const geo=fs.readFileSync(new URL('../src/components/StreetVerseGeoSpawnBridge.tsx',import.meta.url),'utf8')
+const dock=fs.readFileSync(new URL('../src/components/StreetVerseMobileProofDock.tsx',import.meta.url),'utf8')
+const shell=fs.readFileSync(new URL('../src/components/StreetVerseMobileGameShell.tsx',import.meta.url),'utf8')
+const world=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
+const main=fs.readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8')
+const bible=fs.readFileSync(new URL('../src/components/EthiopianBibleMetaverse.tsx',import.meta.url),'utf8')
+const reader=fs.readFileSync(new URL('../src/components/FaithScriptureReader.tsx',import.meta.url),'utf8')
+
+const must=(ok,msg)=>{if(!ok)throw new Error('STREETVERSE IPHONE PLAYER JOURNEY CONTRACT FAIL: '+msg)}
+
+must(playable.includes("StreetVerseMobileGameShell")&&playable.includes("StreetVerseMobileProofDock"),'real mobile route must mount one-hand shell and iPhone action dock')
+must(geo.includes("StreetVerseMobileProofDock")&&!geo.includes("StreetVerseMobileGameShell"),'safe fallback must retain the iPhone action dock without mounting the retired duplicate shell')
+must(dock.includes("useState(true)"),'iPhone first-journey actions must open visibly by default')
+for(const action of ['START MISSION','OPEN HOOD','FIX ENGINE','CLOSE HOOD','ENTER VEHICLE','EXIT VEHICLE','INTERACT NPC','RIDE SHARE','REEL','FAITH BIBLE','COMPLETE MISSION'])must(dock.includes(action),'missing visible action '+action)
+must(dock.includes("tryamm:streetverse-first-journey-start"),'mission start event missing')
+must(dock.includes("tryamm:streetverse-first-journey-complete"),'mission complete event missing')
+must(dock.includes("tryamm:holo-mobility-open"),'Ride Share launch event missing')
+must(dock.includes("StreetVerseReelRecorder"),'Reel recorder must be mounted from the action dock')
+must(dock.includes("/faithverse#reader"),'Faith Bible button must deep-link to the reader')
+
+must(shell.includes("▶ CRUISE")&&shell.includes("■ STOP CRUISE"),'one-hand cruise controls missing')
+must(shell.includes('PARK / EXIT'),'persistent one-hand park/exit control missing')
+must(shell.includes("tryamm:streetverse-cruise"),'one-hand cruise must command authoritative world state')
+must(shell.includes('directAnalog'),'shell must detect the direct analog 3D world')
+must(shell.includes('StreetVerse fallback movement controls'),'arrow controls must be fallback-only')
+must(shell.includes("mobile-game-shell-auto-one-hand"),'entering a car in saved one-hand mode must auto-enable cruise assist')
+must(!shell.includes("import StreetVerseReelEventBridge"),'mobile shell must not mount a duplicate Reel event bridge')
+must(geo.includes('<StreetVerseReelEventBridge/>'),'GeoSpawnBridge must provide the single playable Reel event bridge')
+must(shell.includes('StreetVerse quick action rail'),'visible mobile quick-action rail missing')
+for(const action of ['START MISSION','COMPLETE MISSION','OPEN HOOD','ENTER CAR','🎬 REEL','🚕 RIDE','📖 BIBLE'])must(shell.includes(action),'missing shell quick action '+action)
+must(shell.includes("tryamm:open-reel-creator"),'shell Reel button must open reel event bridge')
+must(shell.includes("tryamm:holo-mobility-open"),'shell Ride button must open mobility center')
+must(shell.includes("/faithverse#reader"),'shell Bible button must deep-link to FaithVerse reader')
+must(world.includes("oneHandCruise=false"),'mobile renderer cruise state missing')
+must(world.includes("input.current.up||oneHandCruise"),'vehicle throttle must honor one-hand cruise while steering')
+must(world.includes("tryamm:streetverse-cruise-state"),'vehicle exit must report cruise cancellation')
+
+must(world.includes("tryamm:streetverse-first-journey-start"),'mobile world must listen for first-journey start')
+must(world.includes("label:'REPAIR CAR'"),'first mission guide must point to repair car')
+must(world.includes("label:'ENTER REPAIRED CAR'"),'mission guide must advance to vehicle entry')
+must(world.includes("label:'TALK TO GUIDE'"),'mission guide must advance to NPC interaction')
+must(world.includes("GUIDE CHECK-IN COMPLETE"),'NPC interaction must visibly unlock mission completion')
+must(world.includes('TAP TO START / FOCUS'),'mission marker must be tappable to start/focus the mission')
+must(world.includes("tryamm:streetverse-first-journey-ready-to-complete"),'guide interaction must unlock COMPLETE MISSION')
+
+for(const asset of ['mobile-native-building-west-spawn','mobile-native-building-east-spawn','mobile-native-bench-west','mobile-native-trash-can','mobile-native-recycling-bin','mobile-parked-car-a'])must(world.includes(asset),'native visual-density placement missing '+asset)
+
+must(main.includes("'/faithverse'")&&main.includes('<EthiopianBibleMetaverse />'),'FaithVerse route must render Ethiopian Bible Metaverse')
+must(bible.includes('<FaithScriptureReader />'),'Bible Metaverse must mount scripture reader')
+must(reader.includes('id="reader"'),'scripture reader deep-link anchor missing')
+must(reader.includes('bible-api.com'),'working online KJV reader provider missing')
+must(reader.includes('READ ALOUD'),'accessible scripture read-aloud missing')
+
+console.log('STREETVERSE IPHONE PLAYER JOURNEY CONTRACT PASS: visible mission start/end + repair + one-hand drive + Reel + Ride Share + Faith Bible + denser native scene')

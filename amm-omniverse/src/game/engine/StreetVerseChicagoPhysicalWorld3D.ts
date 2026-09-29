@@ -1,10 +1,11 @@
 import * as THREE from 'three'
+import {normalizeStreetVerseHumanHeight,STREETVERSE_HUMAN_HEIGHT_METERS} from '../../runtime/StreetVerseHumanScale'
 
 type Trigger={id:string;center:THREE.Vector3;radius:number;event:string;detail:Record<string,unknown>}
 export type ChicagoPhysicalWorld3D={group:THREE.Group;triggers:Trigger[];update:(player:THREE.Vector3)=>void;tick:(time:number)=>void;dispose:()=>void}
 
 const mat=(color:number,roughness=.8,metalness=0,emissive=0,emissiveIntensity=0,transparent=false,opacity=1)=>new THREE.MeshStandardMaterial({color,roughness,metalness,emissive:new THREE.Color(emissive),emissiveIntensity,transparent,opacity})
-const person=(color:number)=>{const g=new THREE.Group();const b=new THREE.Mesh(new THREE.CapsuleGeometry(.26,.72,3,6),mat(color));b.position.y=1;const h=new THREE.Mesh(new THREE.SphereGeometry(.23,8,8),mat(0x8a5a44));h.position.y=1.72;g.add(b,h);return g}
+const person=(color:number)=>{const g=new THREE.Group();const b=new THREE.Mesh(new THREE.CapsuleGeometry(.26,.72,3,6),mat(color));b.position.y=1;const h=new THREE.Mesh(new THREE.SphereGeometry(.23,8,8),mat(0x8a5a44));h.position.y=1.72;g.add(b,h);normalizeStreetVerseHumanHeight(g,STREETVERSE_HUMAN_HEIGHT_METERS.adultResident);return g}
 function labelSprite(text:string){const canvas=document.createElement('canvas');canvas.width=512;canvas.height=128;const ctx=canvas.getContext('2d')!;ctx.fillStyle='rgba(5,22,36,.94)';ctx.fillRect(0,0,512,128);ctx.strokeStyle='#7ec8ff';ctx.lineWidth=5;ctx.strokeRect(4,4,504,120);ctx.fillStyle='#fff';ctx.font='700 48px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,256,64);const tex=new THREE.CanvasTexture(canvas);const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true}));sprite.scale.set(8,2,1);return sprite}
 
 export function addStreetVerseChicagoPhysicalWorld3D(scene:THREE.Scene):ChicagoPhysicalWorld3D{

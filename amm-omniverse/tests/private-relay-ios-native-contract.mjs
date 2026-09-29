@@ -1,0 +1,17 @@
+import fs from 'node:fs'
+const swift=fs.readFileSync(new URL('../native/private-relay/ios/TryammPrivateRelayManager.swift',import.meta.url),'utf8')
+const ent=fs.readFileSync(new URL('../native/private-relay/ios/TryammPrivateRelay.entitlements',import.meta.url),'utf8')
+const cfg=JSON.parse(fs.readFileSync(new URL('../config/private-relay-release.json',import.meta.url),'utf8'))
+const must=(ok,msg)=>{if(!ok)throw new Error('TRYAMM IOS PRIVATE RELAY CONTRACT FAIL: '+msg)}
+must(swift.includes('NEVPNManager.shared()'),'NEVPNManager missing')
+must(swift.includes('NEVPNProtocolIKEv2'),'IKEv2 profile missing')
+must(swift.includes('SecItemAdd'),'Keychain storage missing')
+must(swift.includes('kSecReturnPersistentRef'),'VPN password persistent reference missing')
+must(swift.includes('passwordReference = credentialRef'),'plaintext password must not be assigned to VPN config')
+must(swift.includes('startVPNTunnel'),'native tunnel start missing')
+must(swift.includes('stopVPNTunnel'),'native tunnel stop missing')
+must(ent.includes('com.apple.developer.networking.vpn.api'),'Personal VPN entitlement key missing')
+must(ent.includes('allow-vpn'),'Personal VPN entitlement value missing')
+must(cfg.coreStoreProfile.systemWideVpnBundled===false,'core iOS store profile must remain entitlement-free')
+must(cfg.vpnStoreProfile.ios.organizationDeveloperRequired===true,'Apple organization requirement missing')
+console.log('TRYAMM IOS PRIVATE RELAY CONTRACT PASS: NEVPNManager + IKEv2 + Keychain credential reference + entitlement template')

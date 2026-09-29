@@ -17,21 +17,51 @@ const { createLiveRouter } = require('./routes/live')
 const { createModerationRouter } = require('./routes/moderation')
 const { createWorkforceRouter } = require('./routes/workforce')
 const { createMiddleverseRouter } = require('./routes/middleverse')
+const { createAssetForgeRouter } = require('./routes/asset-forge')
+const { createEdgeNodeRouter } = require('./routes/edge-node')
+const { createEdgeGridRouter } = require('./routes/edge-grid')
+const { createVehicleRentalRouter } = require('./routes/vehicle-rentals')
+const { createVehicleRecoveryRouter } = require('./routes/vehicle-recovery')
 const { postCheckoutToTreasury, postInvoiceToTreasury, postRefundToTreasury, postDisputeToTreasury } = require('./lib/treasury-ledger')
 const signLanguage = require('./signLanguageService')
+const { jacobieSecurityHeaders, noStoreSensitive } = require('./lib/jacobie-security-headers')
+const { createRedHatSentinel } = require('./lib/red-hat-sentinel')
+const { createRedHatSentinelRouter } = require('./routes/red-hat-sentinel')
+const { createJacobieSwarmShield } = require('./lib/jacobie-swarm-shield')
+const { createMiddleWearSecurityGateway } = require('./lib/middlewear-security-gateway')
+const { createMiddleWearResilience } = require('./lib/middlewear-resilience')
+const http = require('http')
 
 const app = express()
 
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) throw new Error('SUPABASE_URL and SUPABASE_SERVICE_KEY are required')
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
-const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null
+const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY,{maxNetworkRetries:2,timeout:10_000}) : null
+const redHatSentinel = createRedHatSentinel({ supabase })
+const jacobieSwarmShield = createJacobieSwarmShield()
+const middleWearSecurity = createMiddleWearSecurityGateway({ supabase })
+const middleWearResilience = createMiddleWearResilience()
 
 app.disable('x-powered-by')
+app.set('trust proxy', 1)
+app.use(jacobieSecurityHeaders)
+app.use(redHatSentinel.middleware)
+app.use(jacobieSwarmShield.middleware)
+app.use(middleWearResilience.middleware)
 app.use(cors({ origin:['https://tryamm.online','https://www.tryamm.online','https://amm-omniverse.vercel.app','http://localhost:5173',process.env.FRONTEND_URL].filter(Boolean), credentials:true }))
-app.use('/api/stripe/webhook', express.raw({ type:'application/json' }))
+app.use('/api/stripe/webhook', noStoreSensitive, express.raw({ type:'application/json' }))
 app.use(express.json({ limit:'2mb' }))
+for (const path of redHatSentinel.canaryPaths) app.all(path, redHatSentinel.decoyHandler)
 
 app.get('/', (_req,res)=>res.json({ name:'AMM Omniverse Backend', status:'online', version:'1.11.0-release-control', systems:['stripe','supabase','livekit','living-worlds','ai-cafe','workforce','middleverse','kingdoms-press','app-store','stubbs-ai','hologpt','holo-services','holo-core','all-american-university','family-legacy','heirs-legacy-kids','omni-treasury','financial-truth','release-control','release-observability','reserve-buckets','auto-ledger','sign-language','tryamm-live','moderation-reporting'] }))
+app.get('/api/livez', (_req,res)=>res.status(200).json({ok:true,service:'amm-backend',processAlive:true,ts:Date.now()}))
+app.get('/api/readyz', async (_req,res)=>{
+  let database=false
+  try{const {error}=await supabase.from('worlds').select('id').limit(1);database=!error}catch(_){database=false}
+  const critical={database,serviceKey:Boolean(process.env.SUPABASE_SERVICE_KEY),supabaseUrl:Boolean(process.env.SUPABASE_URL)}
+  const ready=Object.values(critical).every(Boolean)
+  return res.status(ready?200:503).json({ok:ready,critical,resilience:middleWearResilience.status(),ts:Date.now()})
+})
 app.get('/api/health', async (_req,res)=>{
   let database=false
   let releaseRegistry=false
@@ -39,8 +69,19 @@ app.get('/api/health', async (_req,res)=>{
   try { const { error }=await supabase.from('worlds').select('id').limit(1); database=!error } catch(_) {}
   try { const { error }=await supabase.from('release_registry').select('id').limit(1); releaseRegistry=!error } catch(_) {}
   try { const { error }=await supabase.from('release_health_samples').select('id').limit(1); releaseHealth=!error } catch(_) {}
-  res.json({ ok:true, ts:Date.now(), version:'1.11.0-release-control', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, financialTruth:true, releaseControl:true, releaseRegistry, releaseHealth, autoLedger:true, signLanguage:true, signRecognitionProvider:Boolean(process.env.SIGN_LANGUAGE_PROVIDER_URL), tryammLive:true, moderationReporting:true, workforce:true, middleverse:true, repoWorkstation:true } })
+  res.json({ ok:true, ts:Date.now(), version:'1.11.0-release-control', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, financialTruth:true, releaseControl:true, releaseRegistry, releaseHealth, autoLedger:true, signLanguage:true, signRecognitionProvider:Boolean(process.env.SIGN_LANGUAGE_PROVIDER_URL), tryammLive:true, moderationReporting:true, workforce:true, middleverse:true, assetForge:true, meshyAssetForge:Boolean(process.env.MESHY_API_KEY), redHatSentinel:true, jacobieQuantumShield:true, jacobieSwarmShield:true, middleWearSecurity:true, middleWearResilience:true, pocketEdgeNode:true, edgeGridMarketplace:true, mobilityRental:true, vehicleRecovery:true, repoWorkstation:true } })
 })
+
+app.use('/api/privacy', noStoreSensitive)
+app.use('/api/security', noStoreSensitive)
+app.use('/api/financial-truth', noStoreSensitive)
+app.use('/api/treasury', noStoreSensitive)
+app.use('/api/asset-forge', noStoreSensitive)
+app.use('/api/edge-node', noStoreSensitive)
+app.use('/api/edge-grid', noStoreSensitive)
+app.use('/api/middleverse', noStoreSensitive)
+app.use('/api/vehicle-rentals', noStoreSensitive)
+app.use('/api/vehicle-recovery', noStoreSensitive)
 
 app.use('/api/omniverse', createOmniverseRouter({ supabase }))
 app.use('/api/holo-core', createHoloCoreRouter({ supabase, stripe }))
@@ -53,7 +94,13 @@ app.use('/api/release-control', createReleaseControlRouter({ supabase }))
 app.use('/api/live', createLiveRouter({ supabase }))
 app.use('/api/moderation', createModerationRouter({ supabase }))
 app.use('/api/workforce', createWorkforceRouter({ supabase }))
-app.use('/api/middleverse', createMiddleverseRouter({ supabase }))
+app.use('/api/middleverse', ...middleWearSecurity.middleware(), createMiddleverseRouter({ supabase, middleWearSecurity }))
+app.use('/api/asset-forge', createAssetForgeRouter({ supabase }))
+app.use('/api/edge-node', createEdgeNodeRouter({ supabase }))
+app.use('/api/edge-grid', createEdgeGridRouter({ supabase }))
+app.use('/api/vehicle-rentals', createVehicleRentalRouter({ supabase }))
+app.use('/api/vehicle-recovery', createVehicleRecoveryRouter({ supabase }))
+app.use('/api/security/red-hat', noStoreSensitive, createRedHatSentinelRouter({ supabase, sentinel:redHatSentinel }))
 app.use('/api/ai', createAIRouter({ supabase }))
 app.use('/api', createLegacySecureRouter({ supabase, stripe }))
 
@@ -123,28 +170,42 @@ app.post('/api/stripe/webhook', async (req,res)=>{
 app.get('/api/marketplace/products',async(req,res)=>{ try{ const {category,search}=req.query; let q=supabase.from('products').select('*').eq('status','active').order('created_at',{ascending:false}); if(category&&category!=='all')q=q.eq('category',category); if(search)q=q.ilike('name',`%${String(search).slice(0,100)}%`); const {data,error}=await q.limit(100); if(error)throw error; res.json({products:data||[]}) }catch(err){res.status(500).json({error:err.message})} })
 app.get('/api/businesses',async(req,res)=>{ try{ const {category,city,search}=req.query; let q=supabase.from('businesses').select('*').eq('status','active').order('name'); if(category)q=q.eq('category',String(category).slice(0,80)); if(city)q=q.ilike('city',`%${String(city).slice(0,80)}%`); if(search)q=q.or(`name.ilike.%${String(search).slice(0,100)}%,description.ilike.%${String(search).slice(0,100)}%`); const {data,error}=await q.limit(100); if(error)throw error; res.json({businesses:data||[]}) }catch(err){res.status(500).json({error:err.message})} })
 app.get('/api/businesses/:id',async(req,res)=>{ try{ const {data,error}=await supabase.from('businesses').select('*, reviews(*)').eq('id',req.params.id).eq('status','active').maybeSingle(); if(error)throw error; if(!data)return res.status(404).json({error:'Business not found'}); res.json({business:data}) }catch(err){res.status(500).json({error:err.message})} })
-app.get('/api/music/tracks',async(req,res)=>{ try{ const {genre,creatorId}=req.query; let q=supabase.from('tracks').select('*').order('created_at',{ascending:false}); if(genre)q=q.eq('genre',String(genre).slice(0,80)); if(creatorId)q=q.eq('creator_id',creatorId); const {data,error}=await q.limit(100); if(error)throw error; res.json({tracks:data||[]}) }catch(err){res.status(500).json({error:err.message})} })
 
-const PORT=process.env.PORT||4000
-app.listen(PORT,()=>{
-  console.log(`\n✅ AMM Backend running on port ${PORT}`)
-  console.log(`   Stripe: ${stripe?'✅ connected':'❌ STRIPE_SECRET_KEY missing'}`)
-  console.log('   Supabase: ✅ connected')
-  console.log(`   LiveKit: ${process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL?'✅ connected':'❌ LiveKit configuration incomplete'}`)
-  console.log(`   Stubbs AI/HoloGPT: ${process.env.GEMINI_API_KEY?'✅ connected':'⚠️ local fallback'}`)
-  console.log(`   Sign language: ${process.env.SIGN_LANGUAGE_PROVIDER_URL?'✅ provider configured':'⚠️ fallback translation only'}`)
-  console.log('   LIVE API: /api/live/*')
-  console.log('   Moderation API: /api/moderation/*')
-  console.log('   Workforce API: /api/workforce/*')
-  console.log('   Middleverse API: /api/middleverse/*')
-  console.log('   Omniverse API: /api/omniverse/*')
-  console.log('   Holo Core API: /api/holo-core/*')
-  console.log('   University API: /api/university/*')
-  console.log('   Family Legacy API: /api/family/*')
-  console.log('   Heirs & Legacy Kids API: /api/legacy/*')
-  console.log('   Omni Treasury API: /api/treasury/*')
-  console.log('   Financial Truth API: /api/financial-truth/*')
-  console.log('   Release Control API: /api/release-control/*')
-  console.log('   Sign Language API: /api/accessibility/sign/*')
-  console.log('   HoloGPT / Stubbs AI API: POST /api/ai/answer\n')
+const server=http.createServer(app)
+server.requestTimeout=30_000
+server.headersTimeout=35_000
+server.keepAliveTimeout=65_000
+server.maxRequestsPerSocket=1_000
+
+let shuttingDown=false
+function gracefulShutdown(signal='shutdown'){
+  if(shuttingDown)return
+  shuttingDown=true
+  console.log(`TRYAMM graceful shutdown requested: ${signal}`)
+  server.close(error=>{
+    if(error){
+      console.error('TRYAMM HTTP server close error',error)
+      process.exitCode=1
+    }
+  })
+  server.closeIdleConnections?.()
+  const forceTimer=setTimeout(()=>{
+    console.error('TRYAMM graceful shutdown deadline reached; closing remaining connections')
+    server.closeAllConnections?.()
+  },10_000)
+  forceTimer.unref?.()
+}
+
+server.on('clientError',(error,socket)=>{
+  console.warn('TRYAMM HTTP client error',String(error?.code||error?.message||error))
+  if(socket.writable)socket.end('HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n')
 })
+
+if(require.main===module){
+  const port=Number(process.env.PORT||3001)
+  server.listen(port,()=>console.log(`AMM Omniverse Backend listening on ${port}`))
+  process.once('SIGTERM',()=>gracefulShutdown('SIGTERM'))
+  process.once('SIGINT',()=>gracefulShutdown('SIGINT'))
+}
+
+module.exports={app,server,gracefulShutdown}

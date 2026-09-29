@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
+import {normalizeStreetVerseHumanHeight,STREETVERSE_HUMAN_HEIGHT_METERS,residentHeight} from '../runtime/StreetVerseHumanScale'
 import {
   ensureOmniverseGenesis,
   loadOmniverseEconomy,
@@ -182,6 +183,7 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
     head.position.y=4.25
     head.castShadow=true
     avatar.add(head)
+    normalizeStreetVerseHumanHeight(avatar,STREETVERSE_HUMAN_HEIGHT_METERS.adultHero)
     avatar.position.set(saved.x??START.x,0,saved.z??START.z)
     scene.add(avatar)
 
@@ -222,12 +224,14 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
       const npc=new THREE.Mesh(new THREE.CapsuleGeometry(.45,1.2,4,8),new THREE.MeshStandardMaterial({color:i%2?0xff77aa:0xffc05f}))
       npc.position.set(-60+i*13,1.2,(i%2?8:-8))
       npc.castShadow=true
+      normalizeStreetVerseHumanHeight(npc,residentHeight(i))
       scene.add(npc)
       npcs.push(npc)
     }
     const merchant=new THREE.Mesh(new THREE.CapsuleGeometry(.5,1.35,4,8),new THREE.MeshStandardMaterial({color:0x79ffad}))
     merchant.position.set(businesses[0].x-3,1.3,businesses[0].z)
     merchant.castShadow=true
+    normalizeStreetVerseHumanHeight(merchant,STREETVERSE_HUMAN_HEIGHT_METERS.adultResident)
     scene.add(merchant)
 
     const makeCar=(color:number,scale=1)=>{
@@ -416,9 +420,9 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
         setNearbyBusiness(nextBusiness)
       }
 
-      desiredCam.set(avatar.position.x,10,avatar.position.z+15)
+      desiredCam.set(avatar.position.x,6.5,avatar.position.z+10)
       camera.position.lerp(desiredCam,1-Math.pow(.001,dt))
-      camera.lookAt(avatar.position.x,2.4,avatar.position.z-4)
+      camera.lookAt(avatar.position.x,1.4,avatar.position.z-2.8)
 
       const now=performance.now()
       if(now-lastSave>900){

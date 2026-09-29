@@ -53,7 +53,7 @@ export default function LivingWorldsUniverse({onSports,onCity,onMusic}:{onSports
       <div>
         <div style={{color:cyan,fontSize:10,fontWeight:950,letterSpacing:3}}>GAMEVERSE • LIVING WORLDS</div>
         <h2 id="living-worlds-universe" style={{margin:'6px 0 4px',fontSize:'clamp(28px,5vw,44px)'}}>11 Core Game Worlds. One Passport.</h2>
-        <div style={{color:'#91a4ba',fontSize:12,maxWidth:760,lineHeight:1.6}}>Every world opens through the GameVerse Nexus and is designed to share identity, progression and future cross-world systems while remaining an original TRYAMM experience. Prototype and planned labels show current readiness.</div>
+        <div style={{color:'#91a4ba',fontSize:12,maxWidth:760,lineHeight:1.6}}>Every world opens through the GameVerse Nexus and is designed to share identity, progression and future cross-world systems while remaining an original TRYAMM experience. MiddleWear keeps world sessions isolated so one failing or overloaded world does not have to take down the others. Prototype and planned labels show current readiness.</div>
       </div>
       <button onClick={()=>openGameVerse()} style={{border:`1px solid ${cyan}77`,background:'#071722',color:cyan,borderRadius:12,padding:'11px 15px',fontWeight:900,cursor:'pointer'}}>OPEN GAMEVERSE NEXUS →</button>
     </div>
@@ -70,7 +70,7 @@ export default function LivingWorldsUniverse({onSports,onCity,onMusic}:{onSports
 
     <div style={{marginTop:28,display:'flex',alignItems:'end',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}>
       <div><div style={{color:gold,fontSize:10,fontWeight:950,letterSpacing:3}}>BEYOND THE 11</div><h3 style={{margin:'5px 0 0',fontSize:26}}>AR • VR • Mixed Reality • Music • Creator Worlds</h3></div>
-      <div style={{fontSize:10,color:'#738198'}}>Same TRYAMM identity • cross-world architecture • device-aware experiences</div>
+      <div style={{fontSize:10,color:'#738198'}}>Same TRYAMM identity • cross-world architecture • device-aware experiences • ISOLATED WORLD FAILURE</div>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:10,marginTop:12}}>
       {immersive.map(item=><button key={item.title} onClick={item.action} style={{textAlign:'left',padding:16,minHeight:148,border:'1px solid #243044',borderRadius:18,background:'linear-gradient(145deg,#10101c,#080911)',color:'#fff',cursor:'pointer'}}>

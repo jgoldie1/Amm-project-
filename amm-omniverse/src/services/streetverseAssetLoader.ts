@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three-stdlib'
 import { getStreetVerseAsset } from '../data/streetverseAssetRegistry'
 import { evaluateProductionClearance } from '../data/assetRightsRegistry'
+import { normalizeStreetVerseHumanHeight } from '../runtime/StreetVerseHumanScale'
 
 const loader=new GLTFLoader()
 type CachedModel={scene:THREE.Group;animations:THREE.AnimationClip[]}
@@ -73,6 +74,7 @@ export async function replacePrimitiveWithStreetVerseAsset(options:{
   scale?:number
   requireClearance?:boolean
   transformLoadedModel?:(model:THREE.Group)=>void|Promise<void>
+  targetHeightMeters?:number
 }){
   const asset=getStreetVerseAsset(options.id)
   if(!asset){keepFallbackVisible(options.fallback,options.id,'ASSET_NOT_REGISTERED');return false}
@@ -94,6 +96,7 @@ export async function replacePrimitiveWithStreetVerseAsset(options:{
     if(node instanceof THREE.Mesh){node.castShadow=true;node.receiveShadow=true}
   })
   if(options.transformLoadedModel)await options.transformLoadedModel(model)
+  if(options.targetHeightMeters)normalizeStreetVerseHumanHeight(model,options.targetHeightMeters)
   startEmbeddedAnimation(model,loaded.animations)
 
   const preserveControlRoot=options.id==='player-default'&&options.fallback instanceof THREE.Group

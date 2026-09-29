@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import * as THREE from 'three'
+import {normalizeStreetVerseHumanHeight,STREETVERSE_HUMAN_HEIGHT_METERS} from '../runtime/StreetVerseHumanScale'
 import { subscribeStreetVerseScene } from '../game/streetverseSceneRegistry'
 
 type RemotePlayer={userId:string;x:number;z:number;heading?:number;vehicle?:boolean;vehicleType?:string;rideLabel?:string}
@@ -21,7 +22,7 @@ function bodyFor(player:RemotePlayer){
   }else{
     const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.42,1.05,4,8),new THREE.MeshStandardMaterial({color:0x65d8ff,roughness:.68}));torso.position.y=1.52;g.add(torso)
     const head=new THREE.Mesh(new THREE.SphereGeometry(.38,12,10),new THREE.MeshStandardMaterial({color:0xb97955,roughness:.6}));head.position.y=2.78;g.add(head)
-    for(const side of [-1,1]){const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.14,.74,3,6),new THREE.MeshStandardMaterial({color:0x202936,roughness:.84}));leg.position.set(side*.2,.5,0);g.add(leg)}
+    for(const side of [-1,1]){const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.14,.74,3,6),new THREE.MeshStandardMaterial({color:0x202936,roughness:.84}));leg.position.set(side*.2,.5,0);g.add(leg)};normalizeStreetVerseHumanHeight(g,STREETVERSE_HUMAN_HEIGHT_METERS.adultResident)
   }
   g.userData.streetverseRemotePlayer=true
   g.userData.remoteUserId=player.userId

@@ -6,7 +6,7 @@ type PlayerPosition={x?:number;z?:number;vehicle?:boolean;vehicleType?:string;ri
 type PresencePayload={userId:string;x:number;z:number;heading:number;vehicle:boolean;vehicleType:string;rideId?:string;rideLabel?:string;updatedAt:string}
 type PresenceState=Record<string,PresencePayload[]>
 type MotionEnvelope={payload?:PresencePayload}
-type PlayerAction={fromUserId:string;toUserId:string;action:'wave'|'crew-invite'|'race-challenge';sentAt:string}
+type PlayerAction={fromUserId:string;toUserId:string;action:'wave'|'crew-invite'|'race-challenge'|'drop-request'|'drop-accept'|'drop-decline';sentAt:string;x?:number;z?:number}
 type ActionEnvelope={payload?:PlayerAction}
 
 const CHANNEL='streetverse:chicago:district-01'
@@ -113,7 +113,7 @@ export default function StreetVerseRealtimePresence(){
     const onPlayerAction=(event:Event)=>{
       const detail=(event as CustomEvent<{toUserId?:string;action?:PlayerAction['action']}>).detail||{}
       if(!localUserId||!detail.toUserId||!detail.action)return
-      sendAction({fromUserId:localUserId,toUserId:String(detail.toUserId),action:detail.action,sentAt:new Date().toISOString()})
+      const current=latestRef.current;const action:PlayerAction={fromUserId:localUserId,toUserId:String(detail.toUserId),action:detail.action,sentAt:new Date().toISOString()};if(detail.action==='drop-accept'&&current){action.x=current.x;action.z=current.z}sendAction(action)
     }
     addEventListener('tryamm:streetverse-player-position',onPosition)
     addEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)

@@ -1,0 +1,51 @@
+export const TRYAMM_EDGE_EARNINGS_ARCHITECTURE={
+  product:'TRYAMM Edge Earnings',
+  principle:'Nodes earn only from funded, server-authorized work orders whose results are independently verified.',
+  nonEarningWork:[
+    'personal cache-sync',
+    'personal world-state-sync',
+    'offline reconciliation',
+    'self-created test jobs',
+  ] as const,
+  earningFlow:[
+    'customer/business funds an approved work order',
+    'MiddleWear creates one or more earning-eligible edge jobs',
+    'trusted scheduler leases work to eligible nodes',
+    'node submits result reference + evidence',
+    'server/validator verifies result and resource accounting',
+    'server posts immutable earnings receipt',
+    'verified receipt moves to payable balance',
+    'approved payout rail settles to the node owner',
+  ] as const,
+  antiFraud:[
+    'nodes cannot make their own job earning-eligible',
+    'work-order budget is server-authoritative',
+    'one payable receipt per edge job',
+    'idempotent completion',
+    'result verification before payable state',
+    'reversal path for invalid/fraudulent work',
+    'rate cards are server-controlled and versioned',
+    'same-owner personal jobs never generate earnings',
+  ] as const,
+  payoutRails:{
+    initial:['Stripe Connect / bank-capable payout adapter after onboarding and compliance certification'],
+    optionalFuture:['business ACH/payroll-style settlement','regional payout partners'],
+    notRequired:['cryptocurrency'],
+  },
+  appStoreSafety:{
+    noHiddenMining:true,
+    noPaymentForRedirectingOtherAppsTraffic:true,
+    vpnTrafficNeverMonetized:true,
+    participationOptIn:true,
+    storeBuildsRespectBackgroundExecutionLimits:true,
+  },
+  economics:{
+    configurableBps:true,
+    suggestedPilotRange:{
+      nodeProviderShareBps:[6500,8000],
+      platformShareBps:[1500,3000],
+      reliabilityReserveBps:[0,1000],
+    },
+    note:'Pilot ranges are pricing hypotheses, not guaranteed earnings. Real rates depend on customer demand, device class, power/network cost, verification cost and payout fees.',
+  },
+} as const

@@ -7,20 +7,44 @@ import {installStreetVerseAfterDarkAlphaRuntime} from '../runtime/StreetVerseAft
 import {installStreetVerseMissionLedgerBridge} from '../runtime/StreetVerseMissionLedgerBridge'
 import {installStreetVerseMissionDiscoveryRuntime} from '../runtime/StreetVerseMissionDiscoveryRuntime'
 import {installStreetVerseFameRuntime} from '../runtime/StreetVerseFameRuntime'
+import {installStreetVerseVehicleRepairStreamerRuntime} from '../runtime/StreetVerseVehicleRepairStreamerRuntime'
+import {installStreetVerseFirstRideLoveStoryRuntime} from '../runtime/StreetVerseFirstRideLoveStoryRuntime'
+import {installStreetVerseCabinLifeRuntime} from '../runtime/StreetVerseCabinLifeRuntime'
+import {installStreetVersePhysicalVehicleRigRuntime} from '../runtime/StreetVersePhysicalVehicleRigRuntime'
+import {installStreetVerseNPCSocialRuntime} from '../runtime/StreetVerseNPCSocialRuntime'
+import {chooseAccessMode} from '../runtime/StreetVerseAccessBridge'
+import {installStreetVersePerformanceDirector} from '../runtime/StreetVersePerformanceDirectorRuntime'
+import {installHolographicInternetBridge} from '../runtime/HolographicInternetGoogloplexBridge'
+import {installBennyCursorConstructBridge} from '../runtime/BennyCursorConstructBridge'
+import {installUniversalLanguageBridge} from '../runtime/UniversalLanguageSignBridge'
+import {installAccessibleConversationBridge} from '../runtime/AccessibleConversationBridge'
+import {installUniversalAccessOrchestrator} from '../runtime/UniversalAccessOrchestrator'
+import {installUniversalIntentRouter} from '../runtime/UniversalIntentRouter'
+import {installAccessibilityControlIntentRuntime} from '../runtime/AccessibilityControlIntentRuntime'
+import {installPassportAccessibilityHydrationRuntime} from '../runtime/PassportAccessibilityHydrationRuntime'
+import {installOmniAccessibilityGlobalRuntime} from '../runtime/OmniAccessibilityGlobalRuntime'
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
 import {useGameStore} from '../game/state/useGameStore'
 import {chooseQuantumSpeedMode,QUANTUM_SPEED_BUDGETS,type QuantumSpeedMode} from '../game/runtime/quantumSpeedEngine'
+import {CIRCLE_PARK_SPAWN} from '../data/StreetVerseChicagoGrid'
 
 const StreetVersePlayableWorld=lazy(()=>import('./StreetVersePlayableWorld'))
 const StreetVerseFullWorldOverlays=lazy(()=>import('./StreetVerseFullWorldOverlays'))
 const StreetVerseReelEventBridge=lazy(()=>import('./StreetVerseReelEventBridge'))
+const StreetVerseActionCarousel=lazy(()=>import('./StreetVerseActionCarousel'))
+const StreetVerseMobileProofDock=lazy(()=>import('./StreetVerseMobileProofDock'))
+const StreetVerseCoreGameplayDock=lazy(()=>import('./StreetVerseCoreGameplayDock'))
+const StreetVerseMissionWorldBridge=lazy(()=>import('./StreetVerseMissionWorldBridge'))
+const StreetVerseTouchDriveControls=lazy(()=>import('./StreetVerseTouchDriveControls'))
+const HoloMobilityLauncher=lazy(()=>import('./HoloMobilityLauncher'))
+const StreetVerseFaithChronoPortal=lazy(()=>import('./StreetVerseFaithChronoPortal'))
 
 const DESTINATION_KEY_V2='tryamm.streetverse.chicago-destination.v2'
 const DESTINATION_KEY_V1='tryamm.streetverse.chicago-destination.v1'
 const SAVE_KEY='tryamm.streetverse.living.v1'
-const GAME_SPAWNS:Record<string,{x:number;z:number;label:string}>={loop:{x:0,z:0,label:'The Loop'},millennium:{x:38,z:38,label:'Millennium Park'},lakefront:{x:72,z:58,label:'Lakefront'},river:{x:28,z:-12,label:'Chicago River'},south:{x:-18,z:72,label:'South Side'},west:{x:-72,z:10,label:'West Side'},north:{x:12,z:-72,label:'North Side'},ohare:{x:-78,z:-78,label:"O'Hare Gateway"},midway:{x:-58,z:72,label:'Midway Gateway'}}
+const GAME_SPAWNS:Record<string,{x:number;z:number;label:string}>={'circle-park-abla':{x:CIRCLE_PARK_SPAWN.x,z:CIRCLE_PARK_SPAWN.z,label:CIRCLE_PARK_SPAWN.label},loop:{x:0,z:0,label:'The Loop'},millennium:{x:38,z:38,label:'Millennium Park'},lakefront:{x:72,z:58,label:'Lakefront'},river:{x:28,z:-12,label:'Chicago River'},south:{x:-18,z:72,label:'South Side'},west:{x:-72,z:10,label:'West Side'},north:{x:12,z:-72,label:'North Side'},ohare:{x:-78,z:-78,label:"O'Hare Gateway"},midway:{x:-58,z:72,label:'Midway Gateway'}}
 type Destination={id?:string;label?:string;name?:string;lon?:number;lat?:number;city?:string;type?:string;communityAreaNumber?:string|number}
 
 function hasUsableWebGL(){
@@ -88,7 +112,7 @@ function resolveSpawn(destination?:Destination){
 
 function prepareSpawn(){
  announceStreetVerseProductionMode()
- const destination=readDestination()
+ const destination=readDestination()??{id:CIRCLE_PARK_SPAWN.id,label:CIRCLE_PARK_SPAWN.label,name:CIRCLE_PARK_SPAWN.label,city:'Chicago',type:'streetverse-spawn'}
  const mapped=resolveSpawn(destination)
  if(mapped){
   try{
@@ -124,6 +148,26 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>{installStreetVerseMissionLedgerBridge()},[])
  useLayoutEffect(()=>{installStreetVerseMissionDiscoveryRuntime()},[])
  useLayoutEffect(()=>{installStreetVerseFameRuntime()},[])
+ useLayoutEffect(()=>{installStreetVerseVehicleRepairStreamerRuntime()},[])
+ useLayoutEffect(()=>{installStreetVerseFirstRideLoveStoryRuntime()},[])
+ useLayoutEffect(()=>{installStreetVerseCabinLifeRuntime()},[])
+ useLayoutEffect(()=>{installStreetVersePhysicalVehicleRigRuntime()},[])
+ useLayoutEffect(()=>{installStreetVerseNPCSocialRuntime()},[])
+ useLayoutEffect(()=>installStreetVersePerformanceDirector(),[])
+ useLayoutEffect(()=>installHolographicInternetBridge(),[])
+ useLayoutEffect(()=>installBennyCursorConstructBridge(),[])
+ useLayoutEffect(()=>installUniversalLanguageBridge(),[])
+ useLayoutEffect(()=>installAccessibleConversationBridge(),[])
+ useLayoutEffect(()=>installUniversalAccessOrchestrator(),[])
+ useLayoutEffect(()=>installUniversalIntentRouter(),[])
+ useLayoutEffect(()=>installAccessibilityControlIntentRuntime(),[])
+ useLayoutEffect(()=>installOmniAccessibilityGlobalRuntime(),[])
+ useLayoutEffect(()=>installPassportAccessibilityHydrationRuntime(),[])
+ useEffect(()=>{
+  const connection=(navigator as Navigator & {connection?:{downlink?:number}}).connection
+  const mode=chooseAccessMode({webgl:hasUsableWebGL(),bandwidthMbps:connection?.downlink,ownedDevice:true})
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-access-mode',{detail:{...mode,source:'streetverse-geo-spawn'}}))
+ },[])
  useEffect(()=>{
   const destination=prepared.destination
   const mapped=prepared.mapped
@@ -185,7 +229,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
   <StreetVerseWeatherSync/>
   <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>
   <StreetVerseAfterDarkAlpha/>
-  <Suspense fallback={null}><StreetVerseReelEventBridge/></Suspense>
+  <Suspense fallback={null}><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseMobileProofDock/></Suspense>
  </>
 
  return <>
@@ -193,6 +237,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
    <StreetVersePlayableWorld onClose={closeStreetVerse}/>
   </Suspense>
   <StreetVerseAfterDarkAlpha/>
-  {enhancementsReady&&<Suspense fallback={null}><StreetVerseFullWorldOverlays onClose={closeStreetVerse} mapped={prepared.mapped}/><StreetVerseReelEventBridge/></Suspense>}
+  <Suspense fallback={null}><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/></Suspense>
+  {enhancementsReady&&<Suspense fallback={null}><StreetVerseFullWorldOverlays onClose={closeStreetVerse} mapped={prepared.mapped}/></Suspense>}
  </>
 }

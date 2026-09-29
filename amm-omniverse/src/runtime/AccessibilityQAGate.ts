@@ -1,0 +1,2 @@
+export type AccessCheck={id:string;pass:boolean;detail?:string}
+export function evaluateAccessibilityRelease(checks:AccessCheck[]){const required=['keyboard','one-hand','large-targets','captions','reduced-motion','screen-reader','escape','translation-fallback'];const by=new Map(checks.map(c=>[c.id,c]));const missing=required.filter(id=>!by.get(id)?.pass);return {pass:missing.length===0,missing,releaseBlocking:missing.length>0}}

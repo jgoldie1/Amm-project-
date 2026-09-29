@@ -48,35 +48,6 @@
       "dest": "/store-network.html"
     },
     {
-      "src": "/api/payments/status",
-      "dest": "https://amm-project-1-rpz9.onrender.com/api/payments/status"
-    },
-    {
-      "src": "/api/checkout",
-      "methods": [
-        "POST"
-      ],
-      "dest": "https://amm-project-1-rpz9.onrender.com/api/checkout"
-    },
-    {
-      "src": "/api/payments/verify-checkout",
-      "methods": [
-        "POST"
-      ],
-      "dest": "https://amm-project-1-rpz9.onrender.com/api/payments/verify-checkout"
-    },
-    {
-      "src": "/api/stripe/webhook",
-      "methods": [
-        "POST"
-      ],
-      "dest": "https://amm-project-1-rpz9.onrender.com/api/stripe/webhook"
-    },
-    {
-      "src": "/api/creator/earnings",
-      "dest": "https://amm-project-1-rpz9.onrender.com/api/creator/earnings"
-    },
-    {
       "src": "/financial-truth",
       "dest": "/financial-truth.html"
     },
@@ -94,6 +65,42 @@
     {
       "src": "/.*",
       "dest": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(self), microphone=(self), geolocation=(self), payment=(self)"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        }
+      ]
+    },
+    {
+      "source": "/generated-assets/native/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, s-maxage=604800, stale-while-revalidate=86400"
+        }
+      ]
     }
   ]
 }

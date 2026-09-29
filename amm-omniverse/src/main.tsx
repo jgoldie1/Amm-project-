@@ -61,7 +61,7 @@ try {
   const isEthiopianBible=['/ethiopian-bible','/ethiopian-bible/','/faithverse','/faithverse/'].includes(currentPath)
   const isKingdomsPress=currentPath==='/kingdoms-press'||currentPath==='/kingdoms-press/'
   const isRecoveredSurface=['/spectra-entertainment','/spectra-entertainment/','/all-american-records','/all-american-records/','/set-apart','/set-apart/','/christian-rap','/christian-rap/','/holo-music','/holo-music/','/holo-food','/holo-food/','/holo-ride-share','/holo-ride-share/'].includes(currentPath)
-  const isNetwork=['/network','/network/','/free-tv','/free-tv/','/isaiah-ai-tv','/isaiah-ai-tv/','/starverse','/starverse/'].includes(currentPath)
+  const isNetwork=['/network','/network/','/free-tv','/free-tv/','/isaiah-ai-tv','/isaiah-ai-tv/','/starverse','/starverse/','/reality-tv','/reality-tv/'].includes(currentPath)
   const isServantsOfChrist=currentPath==='/servants-of-christ'||currentPath==='/servants-of-christ/'
   const isCareCash=['/omnicare-360','/omnicare-360/','/omnicare-rx','/omnicare-rx/','/omni-cash','/omni-cash/','/aniyah-pay','/aniyah-pay/'].includes(currentPath)
   const isGlobalTradeWorld=['/global-trade','/global-trade/','/my-world','/my-world/','/we-are-the-world','/we-are-the-world/','/kingdom','/kingdom/'].includes(currentPath)
@@ -219,7 +219,14 @@ queueMicrotask(() => {
   if (preserveDeterministicSafeRoute) return
   // StreetVerse owns its mobile canvas and controls. Global UI/runtimes are
   // intentionally excluded here so they cannot cover the playable world.
-  if (window.location.pathname.startsWith('/streetverse')) return
+  if (window.location.pathname.startsWith('/streetverse')) {
+    // Keep StreetVerse lightweight while still installing its release-critical
+    // Circle Park progression. Heavy global launchers remain excluded.
+    import('./runtime/CircleParkProgressionRuntime')
+      .then(m => m.installCircleParkProgressionRuntime())
+      .catch(error => console.error('[TRYAMM] Circle Park progression failed after StreetVerse mount.', error))
+    return
+  }
   installOptionalRuntimes()
   try {
     root.render(

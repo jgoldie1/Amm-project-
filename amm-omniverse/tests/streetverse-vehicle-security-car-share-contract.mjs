@@ -1,0 +1,15 @@
+import fs from 'node:fs'
+const security=fs.readFileSync(new URL('../src/runtime/StreetVerseVehicleSecurityRuntime.ts',import.meta.url),'utf8')
+const hosting=fs.readFileSync(new URL('../src/data/StreetVerseCarShareHosting.ts',import.meta.url),'utf8')
+const rental=fs.readFileSync(new URL('../amm-backend/routes/vehicle-rentals.js',import.meta.url),'utf8')
+const must=(ok,msg)=>{if(!ok)throw new Error('STREETVERSE VEHICLE SECURITY / CAR SHARE CONTRACT FAIL: '+msg)}
+must(security.includes('realVehicleRemoteImmobilization:false'),'real-world immobilization boundary missing')
+must(security.includes('unauthorizedAttemptThreshold:3'),'anti-theft attempt threshold missing')
+must(security.includes('autoRecoveryCaseAfterThreshold:true'),'automatic recovery trigger missing')
+must(security.includes('noPhysicalConfrontationRequired:true'),'safe recovery boundary missing')
+must(hosting.includes("product:'All American Car Share'"),'car-share host product missing')
+must(hosting.includes('digitalGameVehicleSharing:true'),'digital-sharing boundary missing')
+must(hosting.includes('realWorldPeerToPeerSharingLive:false'),'real-world car-share truth boundary missing')
+must(rental.includes("router.post('/host/list'"),'player host listing endpoint missing')
+must(rental.includes('host earnings'),'host earnings truth missing')
+console.log('STREETVERSE VEHICLE SECURITY / CAR SHARE CONTRACT PASS: digital keys + anti-theft + player hosting')

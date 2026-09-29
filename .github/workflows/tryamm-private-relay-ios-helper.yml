@@ -1,0 +1,44 @@
+name: TRYAMM Private Relay iOS Native Helper
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/native/private-relay/ios/**'
+      - 'amm-omniverse/config/private-relay-release.json'
+      - 'amm-omniverse/tests/private-relay-ios-native-contract.mjs'
+      - '.github/workflows/tryamm-private-relay-ios-helper.yml'
+
+jobs:
+  ios-private-relay-helper:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Verify release and native contracts
+        run: |
+          node tests/private-relay-store-contract.mjs
+          node tests/private-relay-ios-native-contract.mjs
+      - name: Typecheck Swift helper against iOS Simulator SDK
+        run: |
+          SDK="$(xcrun --sdk iphonesimulator --show-sdk-path)"
+          xcrun swiftc -typecheck             -sdk "$SDK"             -target arm64-apple-ios15.0-simulator             native/private-relay/ios/TryammPrivateRelayManager.swift
+      - name: Validate Personal VPN entitlement template
+        run: plutil -lint native/private-relay/ios/TryammPrivateRelay.entitlements
+      - name: Truth summary
+        run: |
+          {
+            echo '## TRYAMM Private Relay iOS helper'
+            echo
+            echo '- NEVPNManager + IKEv2 helper typechecked.'
+            echo '- Password stored via Keychain persistent reference.'
+            echo '- Personal VPN entitlement template validated.'
+            echo '- This is NOT an App Store-certified VPN build.'
+            echo '- Organization enrollment, Personal VPN capability, provisioning profile, disclosure, review and real gateway testing remain release gates.'
+          } >> "$GITHUB_STEP_SUMMARY"

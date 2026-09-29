@@ -1,0 +1,23 @@
+import fs from 'node:fs'
+
+const grid=fs.readFileSync(new URL('../src/data/StreetVerseChicagoGrid.ts',import.meta.url),'utf8')
+const geo=fs.readFileSync(new URL('../src/components/StreetVerseGeoSpawnBridge.tsx',import.meta.url),'utf8')
+const mobile=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
+const presence=fs.readFileSync(new URL('../src/components/StreetVerseRealtimePresence.tsx',import.meta.url),'utf8')
+const playerMap=fs.readFileSync(new URL('../src/components/StreetVersePlayerGridMap.tsx',import.meta.url),'utf8')
+const overlays=fs.readFileSync(new URL('../src/components/StreetVerseFullWorldOverlays.tsx',import.meta.url),'utf8')
+const lingua=fs.readFileSync(new URL('../src/components/StreetVerseRPLinguaCoach.tsx',import.meta.url),'utf8')
+const reality=fs.readFileSync(new URL('../src/data/AllAmericanRealityFormats.ts',import.meta.url),'utf8')
+const network=fs.readFileSync(new URL('../src/components/AllAmericanNetworkHub.tsx',import.meta.url),'utf8')
+const main=fs.readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8')
+
+for(const x of ['circle-park-abla','Taylor Street','Roosevelt Road','Pilsen Gateway','worldToChicagoGridCell'])if(!grid.includes(x))throw new Error('Chicago grid missing: '+x)
+for(const x of ['CIRCLE_PARK_SPAWN',"type:'streetverse-spawn'"])if(!geo.includes(x))throw new Error('Circle Park default route missing: '+x)
+for(const x of ['CHICAGO_ROAD_CORRIDORS','PILSEN CONNECTOR','CIRCLE PARK / ABLA','pilsenArt','tryamm:streetverse-drop-to-player'])if(!mobile.includes(x)&&!grid.includes(x))throw new Error('visible Chicago slice/drop path missing: '+x)
+for(const x of ['drop-request','drop-accept','drop-decline'])if(!presence.includes(x)||!playerMap.includes(x))throw new Error('consented drop-in action missing: '+x)
+for(const x of ['StreetVerseRealtimePresence','StreetVersePlayerGridMap','StreetVerseRPLinguaCoach'])if(!overlays.includes(x))throw new Error('mobile multiplayer/RP overlay missing: '+x)
+for(const x of ['IN CHARACTER','OUT OF CHARACTER','CONSENT CHECK','DROP-IN'])if(!lingua.includes(x))throw new Error('RP Lingua term missing: '+x)
+for(const x of ['streetverse-reality-v1','live-aftershow','creator licensing','consent and privacy zones'])if(!reality.includes(x))throw new Error('reality format missing: '+x)
+if(!network.includes("mode==='reality-tv'"))throw new Error('reality network mode not rendered')
+if(!main.includes("'/reality-tv'"))throw new Error('reality route missing')
+console.log('Chicago spawn + grid + multiplayer drop-in + RP Lingua + reality TV contract: PASS')

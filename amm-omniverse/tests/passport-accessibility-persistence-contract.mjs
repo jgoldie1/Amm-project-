@@ -1,0 +1,10 @@
+import fs from 'node:fs'
+const memory=fs.readFileSync(new URL('../src/runtime/PassportAccessibilityMemory.ts',import.meta.url),'utf8')
+const hydration=fs.readFileSync(new URL('../src/runtime/PassportAccessibilityHydrationRuntime.ts',import.meta.url),'utf8')
+const world=fs.readFileSync(new URL('../src/components/StreetVerseGeoSpawnBridge.tsx',import.meta.url),'utf8')
+const migration=fs.readFileSync(new URL('../supabase/migrations/20260928_passport_accessibility_preferences.sql',import.meta.url),'utf8')
+for(const x of ['passport_accessibility_preferences','enable row level security','auth.uid()=user_id'])if(!migration.includes(x))throw new Error('durable passport migration missing: '+x)
+for(const x of ['savePassportAccessDurable','loadPassportAccessDurable',"client.auth.getUser()","upsert({user_id:user.id"])if(!memory.includes(x))throw new Error('durable passport memory missing: '+x)
+for(const x of ['onAuthStateChange','INITIAL_SESSION','SIGNED_IN','tryamm:access-profile','tryamm:accessibility-update','tryamm:accessibility-passport-updated'])if(!hydration.includes(x))throw new Error('passport hydration runtime missing: '+x)
+for(const x of ['installPassportAccessibilityHydrationRuntime','installOmniAccessibilityGlobalRuntime'])if(!world.includes(x))throw new Error('StreetVerse durable accessibility wiring missing: '+x)
+console.log('Durable Passport accessibility hydration + RLS contract: PASS')

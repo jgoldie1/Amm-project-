@@ -6,7 +6,7 @@ export default [
     ignores: ['node_modules/**','dist/**','coverage/**','.vercel/**'],
   },
   {
-    files: ['src/**/*.{ts,tsx}','api/**/*.js','tests/**/*.mjs'],
+    files: ['src/**/*.{js,ts,tsx}','api/**/*.js','tests/**/*.mjs'],
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
