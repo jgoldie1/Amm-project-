@@ -6,6 +6,7 @@ const mobility=fs.readFileSync(new URL('../src/components/HoloMobilityLauncher.t
 const faith=fs.readFileSync(new URL('../src/components/EthiopianBibleMetaverse.tsx',import.meta.url),'utf8')
 const reader=fs.readFileSync(new URL('../src/components/FaithScriptureReader.tsx',import.meta.url),'utf8')
 const rewards=fs.readFileSync(new URL('../src/runtime/StreetVerseMobileMissionRewardRuntime.ts',import.meta.url),'utf8')
+const reel=fs.readFileSync(new URL('../src/components/StreetVerseReelRecorder.tsx',import.meta.url),'utf8')
 const must=(ok,msg)=>{if(!ok)throw new Error('STREETVERSE IPHONE FIRST JOURNEY CONTRACT FAIL: '+msg)}
 for(const label of ['START MISSION','OPEN HOOD','FIX ENGINE','CLOSE HOOD','ENTER VEHICLE','EXIT VEHICLE','INTERACT NPC','RIDE SHARE','REEL','FAITH BIBLE','COMPLETE MISSION'])must(dock.includes(label),'missing phone action '+label)
 must(overlays.includes('<StreetVerseMobileProofDock/>'),'phone dock not mounted in lightweight mobile overlay')
@@ -29,4 +30,8 @@ must(mobile.includes('syncNativeRepairCar();const focus=activeCar||avatar'),'nat
 must(mobile.includes("label:'TALK TO GUIDE'"),'first journey guide waypoint missing')
 must(mobile.includes("if(prompt.id==='first-journey-guide')"),'visible TALK button guide handler missing')
 must(mobile.includes("firstJourneyNeedsGuide?'NEXT • walk to the glowing guide and tap TALK.'"),'exit instruction must point to guide')
+must(mobile.includes("localStorage.getItem('tryamm:streetverse-control-mode')==='one-hand'"),'saved one-hand mode must enable drive assist on world startup')
+must(dock.includes('OPEN DOORS'),'door-open step missing from iPhone mission')
+must(reel.includes('zIndex:46000'),'Reel recorder must render above mobile gameplay controls')
+must(mobility.includes('zIndex:46020'),'Ride Share dialog must render above mobile gameplay controls')
 console.log('STREETVERSE IPHONE FIRST JOURNEY CONTRACT PASS: start → repair → enter/drive/exit → NPC → complete → reward → Reel + Ride Share + Faith reader')
