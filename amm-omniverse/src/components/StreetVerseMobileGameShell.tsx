@@ -143,7 +143,7 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const enterCar=()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:true,source:'mobile-game-shell-direct'}}))
  const openRideShare=()=>window.dispatchEvent(new CustomEvent('tryamm:holo-mobility-open',{detail:{source:'streetverse-mobile-game-shell'}}))
  const openBible=()=>{try{localStorage.setItem('tryamm.faith.return','/streetverse')}catch{};window.location.href='/faithverse#reader'}
- const repairLabel=repairStep===0?'OPEN + INSPECT':repairStep===1?'DIAGNOSE + FIX':repairStep===2?'VERIFY + CLOSE':'REPAIRED ✓'
+ const repairLabel=repairStep===0?'OPEN HOOD + INSPECT':repairStep===1?'DIAGNOSE + FIX':repairStep===2?'VERIFY + CLOSE':'REPAIRED ✓'
  const bottom='max(16px,env(safe-area-inset-bottom))'
  const selectedSide=hand==='left'?{left:'max(12px,env(safe-area-inset-left))'}:{right:'max(12px,env(safe-area-inset-right))'}
  const movementSide=mode==='one-hand'?selectedSide:{left:'max(12px,env(safe-area-inset-left))'}
