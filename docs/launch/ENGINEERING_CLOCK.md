@@ -243,3 +243,51 @@ Do not rename already-applied migration files blindly. Reconcile repository migr
 - Middleverse responses are now `Cache-Control: no-store, private`.
 - Added `middlewear-security-gateway.test.js` to backend authority checks.
 - Current runtime health exposes `middleWearSecurity:true`.
+
+## Industry-tough MiddleWear resilience stack — 2026-09-29
+- MiddleWear Security Gateway is the enforced doorway for Middleverse.
+- Ordered controls now include:
+  - Jacobie security headers
+  - Red Hat Sentinel
+  - Jacobie Swarm Shield
+  - request-class resilience bulkhead/deadline/circuit breaker
+  - Supabase identity verification
+  - Middleverse route risk policy
+  - provider readiness gate
+  - security audit persistence
+  - distributed idempotency/replay protection for high-impact creation
+  - authorized operator review for high-impact completion
+- Added backend liveness and readiness endpoints:
+  - `/api/livez` = process alive
+  - `/api/readyz` = critical Supabase/config readiness + resilience state
+- Added HTTP server durability:
+  - request timeout 30s
+  - headers timeout 35s
+  - keep-alive timeout 65s
+  - max 1000 requests per socket
+  - graceful SIGTERM/SIGINT shutdown with 15s forced-exit ceiling
+- Added MiddleWear bulkheads, request deadlines, overload shedding and circuit breakers.
+- Added distributed high-impact request idempotency using backend-only hashed keys.
+  - migration: `20260929120000_middlewear_idempotency_keys.sql`
+  - public/anon/authenticated access revoked; backend service role only
+  - raw idempotency keys are never persisted
+- Added provider isolation:
+  - Meshy: timeout + max concurrency + circuit breaker; GET status retry only
+  - Gemini/OpenAI: timeout + max concurrency + circuit breaker; generative POSTs do not blindly retry
+  - Stripe: bounded network retries + 10s timeout
+- Expanded Vercel WAF log-first staging for:
+  - AI
+  - media
+  - commerce
+  - security
+  - Asset Forge
+  - Middleverse
+  - LIVE token creation
+  - legacy protected origin routes
+- Added `tryamm-industry-resilience-contract.mjs`, now part of `npm run security`.
+- Production truth:
+  - Vercel platform DDoS mitigation is the edge baseline.
+  - Custom WAF rules remain log-first drafts until traffic is reviewed and a human publishes them.
+  - Origin Shield enforcement requires shared secret configuration + enforcement toggle.
+  - MiddleWear idempotency table is committed but must be applied through the normal database migration path before production high-impact handoffs depend on it.
+  - No claim that TRYAMM is unhackable.
