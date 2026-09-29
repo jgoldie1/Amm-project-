@@ -98,6 +98,7 @@ jobs:
         run: |
           set -euo pipefail
           node tests/streetverse-character-scale-contract.mjs
+          node tests/tryamm-native-runtime-asset-contract.mjs
           node tests/streetverse-chicago-grid-reality-contract.mjs
           node tests/streetverse-mobile-repair-visibility-contract.mjs
           node tests/streetverse-journey-qa-contract.mjs
@@ -465,8 +466,10 @@ jobs:
           cache-dependency-path: amm-omniverse/package-lock.json
       - name: Install Omniverse dependencies
         run: npm ci --no-audit --no-fund
-      - name: Verify owned foundry contract
-        run: node tests/tryamm-native-asset-foundry-contract.mjs
+      - name: Verify owned foundry + runtime contracts
+        run: |
+          node tests/tryamm-native-asset-foundry-contract.mjs
+          node tests/tryamm-native-runtime-asset-contract.mjs
       - name: Generate four owned GLB candidates
         run: node scripts/tryamm-native-asset-foundry.mjs ../release-evidence/tryamm-native-asset-foundry
       - name: Inspect and optimize generated GLBs
