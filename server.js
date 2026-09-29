@@ -1,12 +1,14 @@
 'use strict';
 const express=require('express'),http=require('http'),path=require('path'),fs=require('fs'),crypto=require('crypto');
 const {Server}=require('socket.io');
+const {requireTryammEdge}=require('./lib/tryamm-origin-shield');
+const {rootSwarmShield}=require('./lib/jacobie-root-swarm-shield');
 const PORT=Number(process.env.PORT||10000),APP_URL=process.env.APP_URL||`http://localhost:${PORT}`;
 const ADMIN_EMAIL=(process.env.ADMIN_EMAIL||'theammonmiverse@gmail.com').toLowerCase();
 const DATA_FILE=process.env.DATA_FILE||path.join(__dirname,'data','store.json');
 const SESSION_TTL_MS=1000*60*60*24*14,PLATFORM_FEE_BPS=Number(process.env.PLATFORM_FEE_BPS||2500);
 const app=express(),server=http.createServer(app),io=new Server(server,{cors:{origin:true,credentials:true}});
-app.disable('x-powered-by');app.use(express.json({limit:'2mb'}));app.use(express.urlencoded({extended:false}));
+app.disable('x-powered-by');app.use(rootSwarmShield);app.use(express.json({limit:'2mb',verify:(req,_res,buf)=>{req.rawBody=Buffer.from(buf)}}));app.use(express.urlencoded({extended:false,verify:(req,_res,buf)=>{req.rawBody=Buffer.from(buf)}}));app.use(requireTryammEdge);
 app.use((req,res,next)=>{res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('X-Frame-Options','SAMEORIGIN');res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');res.setHeader('Permissions-Policy','camera=(self), microphone=(self), geolocation=()');next()});
 app.use(express.static(path.join(__dirname,'public'),{extensions:['html']}));
 function initialStore(){return{users:[],sessions:[],rooms:[],purchases:[],reports:[],events:[],tracks:[],streamEvents:[],creatorLedger:[],chartSnapshots:[],radioStations:[],radioRequests:[],radioCalls:[],radioAds:[],radioPlayEvents:[],musicLicenses:[],businessProfiles:[],businessBoosts:[],businessBoostEvents:[],marketplaceProducts:[]}}
