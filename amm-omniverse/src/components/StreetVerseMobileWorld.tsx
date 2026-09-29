@@ -158,23 +158,26 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   CHICAGO_STREETVERSE_PLACES.forEach(place=>{const label=makeLabel(place.label.toUpperCase());label.position.set(place.x,4.2,place.z);scene.add(label);placeLabels.push(label)})
   const pilsenArt=new THREE.Group();pilsenArt.position.set(-57,0,-50);const muralColors=[0xff5b79,0x4cc9f0,0xffc857,0x7ae582,0xc77dff,0xff8c42];for(let i=0;i<6;i++){const panel=new THREE.Mesh(new THREE.BoxGeometry(4.4,4.8,.25),new THREE.MeshLambertMaterial({color:muralColors[i]}));panel.position.set(i*4.5,2.4,0);pilsenArt.add(panel);const accent=new THREE.Mesh(new THREE.BoxGeometry(2.6,.45,.28),new THREE.MeshBasicMaterial({color:muralColors[(i+2)%muralColors.length]}));accent.position.set(i*4.5,2.5+(i%3-1)*.8,-.15);accent.rotation.z=(i%2?.24:-.24);pilsenArt.add(accent)}scene.add(pilsenArt)
   const colors=[0x24425b,0x41345a,0x31513f,0x5c4032,0x31566b,0x56354e]
-  const blocks=[[-70,-70],[-70,-25],[-70,25],[-70,70],[-25,-70],[-25,-25],[-25,25],[-25,70],[25,-70],[25,-25],[25,25],[25,70],[70,-70],[70,-25],[70,25],[70,70]]
+  const blocks=NATIVE_CITY_BLOCKS
   const windowWarm=new THREE.MeshBasicMaterial({color:0xffd58a}),windowCool=new THREE.MeshBasicMaterial({color:0x7fd9ff})
   const buildingColliders:{minX:number,maxX:number,minZ:number,maxZ:number}[]=[]
   blocks.forEach(([x,z],i)=>{
    const h=10+(i*7)%22,w=15+(i%3)*2,d=15+((i+1)%3)*2
    buildingColliders.push({minX:x-w/2-.7,maxX:x+w/2+.7,minZ:z-d/2-.7,maxZ:z+d/2+.7})
-   const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(colors[i%colors.length]));b.position.set(x,h/2,z);scene.add(b)
-   const roof=new THREE.Mesh(new THREE.BoxGeometry(w*.72,.5,d*.72),mat(0x151c24));roof.position.set(x,h+.25,z);scene.add(roof)
-   const rooftop=new THREE.Mesh(new THREE.BoxGeometry(Math.max(2,w*.28),.85,Math.max(2,d*.25)),mat(0x2c343b));rooftop.position.set(x,h+.92,z);scene.add(rooftop)
-   const entrance=new THREE.Mesh(new THREE.BoxGeometry(Math.min(3.4,w*.28),2.5,.16),new THREE.MeshBasicMaterial({color:i%2?0x6bc9e8:0xffc16b}));entrance.position.set(x,1.35,z+d/2+.1);scene.add(entrance)
+   const visualParts:THREE.Object3D[]=[]
+   const addPrimitiveBuildingPart=(part:THREE.Object3D)=>{scene.add(part);visualParts.push(part)}
+   const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(colors[i%colors.length]));b.position.set(x,h/2,z);addPrimitiveBuildingPart(b)
+   const roof=new THREE.Mesh(new THREE.BoxGeometry(w*.72,.5,d*.72),mat(0x151c24));roof.position.set(x,h+.25,z);addPrimitiveBuildingPart(roof)
+   const rooftop=new THREE.Mesh(new THREE.BoxGeometry(Math.max(2,w*.28),.85,Math.max(2,d*.25)),mat(0x2c343b));rooftop.position.set(x,h+.92,z);addPrimitiveBuildingPart(rooftop)
+   const entrance=new THREE.Mesh(new THREE.BoxGeometry(Math.min(3.4,w*.28),2.5,.16),new THREE.MeshBasicMaterial({color:i%2?0x6bc9e8:0xffc16b}));entrance.position.set(x,1.35,z+d/2+.1);addPrimitiveBuildingPart(entrance)
    const lit=(i%3===0?windowWarm:windowCool)
    const levels=Math.max(1,Math.min(4,Math.floor(h/5)))
    for(let level=0;level<levels;level++){
     const y=3.2+level*4.8
-    const front=new THREE.Mesh(new THREE.BoxGeometry(w*.62,.38,.08),lit);front.position.set(x,y,z+d/2+.05);scene.add(front)
-    const side=new THREE.Mesh(new THREE.BoxGeometry(.08,.38,d*.52),lit);side.position.set(x+w/2+.05,y,z);scene.add(side)
+    const front=new THREE.Mesh(new THREE.BoxGeometry(w*.62,.38,.08),lit);front.position.set(x,y,z+d/2+.05);addPrimitiveBuildingPart(front)
+    const side=new THREE.Mesh(new THREE.BoxGeometry(.08,.38,d*.52),lit);side.position.set(x+w/2+.05,y,z);addPrimitiveBuildingPart(side)
    }
+   primitiveBuildingVisuals.push(visualParts)
   })
   const skylineDefs:[number,number,number,number][]=[[-91,-84,12,44],[-91,-38,10,58],[-91,18,13,50],[-91,72,11,64],[91,-72,13,54],[91,-18,11,46],[91,38,12,62],[91,82,10,48]]
   skylineDefs.forEach(([x,z,w,h],i)=>{const tower=new THREE.Mesh(new THREE.BoxGeometry(w,h,w*.82),mat(i%2?0x26394c:0x314153));tower.position.set(x,h/2,z);scene.add(tower);const crown=new THREE.Mesh(new THREE.BoxGeometry(w*.58,.65,w*.52),new THREE.MeshBasicMaterial({color:i%2?0x63cfff:0xffcf7d}));crown.position.set(x,h+.35,z);scene.add(crown)})
