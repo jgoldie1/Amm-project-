@@ -156,6 +156,48 @@ function createVehicleRentalRouter({supabase}){
     }catch(error){res.status(error.statusCode||500).json({error:error.message||'Could not create vehicle rental'})}
   })
 
+  router.post('/host/list',async(req,res)=>{
+    try{
+      const vehicleId=safeText(req.body?.vehicleId,80)
+      if(!vehicleId)return res.status(400).json({error:'vehicleId required'})
+      const {data:vehicle,error:vehicleError}=await supabase.from('tryamm_vehicle_inventory').select('*').eq('id',vehicleId).maybeSingle()
+      if(vehicleError)throw vehicleError
+      if(!vehicle)return res.status(404).json({error:'Vehicle not found'})
+      let ownerOk=String(vehicle.owner_user_id||'')===String(req.user.id)
+      if(!ownerOk){
+        const {data:grantRows,error:grantError}=await supabase.from('tryamm_vehicle_grants')
+          .select('id,grant_kind,status').eq('recipient_user_id',req.user.id).eq('inventory_vehicle_id',vehicle.id).eq('status','active').limit(1)
+        if(grantError)throw grantError
+        ownerOk=Boolean((grantRows||[])[0])
+      }
+      if(!ownerOk)return res.status(403).json({error:'Only the digital vehicle owner or active gift recipient can list this vehicle'})
+      if(!RATES[vehicle.vehicle_class])return res.status(409).json({error:'This vehicle class is not share-enabled'})
+      if(['rented','reserved','maintenance','retired'].includes(vehicle.status))return res.status(409).json({error:'Vehicle is not currently shareable'})
+      const hostPlan=['community','balanced','max-earnings'].includes(String(req.body?.hostPlan))?String(req.body.hostPlan):'balanced'
+      const {data,error}=await supabase.from('tryamm_vehicle_inventory').update({
+        owner_type:'user',
+        owner_user_id:req.user.id,
+        rental_enabled:true,
+        metadata:{...(vehicle.metadata||{}),carShareHost:true,hostPlan,hostListedAt:new Date().toISOString()},
+        updated_at:new Date().toISOString(),
+      }).eq('id',vehicle.id).select('*').single()
+      if(error)throw error
+      res.json({vehicle:data,listed:true,hostPlan,hostEarnings:'pending until a completed verified rental'})
+    }catch(error){res.status(500).json({error:error.message||'Could not list vehicle for car sharing'})}
+  })
+
+  router.get('/host/earnings',async(req,res)=>{
+    try{
+      const {data,error}=await supabase.from('tryamm_vehicle_share_earnings')
+        .select('id,rental_id,vehicle_id,gross_cents,host_cents,tryamm_cents,reserve_cents,currency,verification_status,payout_status,created_at')
+        .eq('host_user_id',req.user.id).order('created_at',{ascending:false}).limit(100)
+      if(error)throw error
+      const rows=data||[]
+      const total=(status)=>rows.filter(x=>x.payout_status===status).reduce((sum,x)=>sum+Number(x.host_cents||0),0)
+      res.json({earnings:rows,summary:{blockedCents:total('blocked'),payableCents:total('payable'),paidCents:total('paid')}})
+    }catch(error){res.status(500).json({error:'Host earnings unavailable'})}
+  })
+
   router.post('/founder/comp',async(req,res)=>{
     try{
       if(!FOUNDER_ROLES.has(role(req.user)))return res.status(403).json({error:'Founder owner role required'})
@@ -229,8 +271,27 @@ function createVehicleRentalRouter({supabase}){
       const nextStatus=damage?'damage-hold':'completed'
       const {data,error:updateError}=await supabase.from('tryamm_vehicle_rentals').update({status:nextStatus,return_state:returnState,updated_at:new Date().toISOString()}).eq('id',rental.id).select('*').single()
       if(updateError)throw updateError
+
+      const {data:vehicle,error:vehicleError}=await supabase.from('tryamm_vehicle_inventory').select('*').eq('id',rental.vehicle_id).maybeSingle()
+      if(vehicleError)throw vehicleError
       await supabase.from('tryamm_vehicle_inventory').update({status:damage?'maintenance':'available',updated_at:new Date().toISOString()}).eq('id',rental.vehicle_id)
-      res.json({rental:data,vehicleState:damage?'maintenance':'available'})
+
+      let hostEarnings=null
+      if(!damage&&!rental.founder_comp&&vehicle?.owner_type==='user'&&vehicle.owner_user_id&&Number(rental.quoted_cents)>0){
+        const gross=Number(rental.quoted_cents)
+        const host=Math.floor(gross*.80),tryamm=Math.floor(gross*.15),reserve=gross-host-tryamm
+        const {data:earning,error:earningError}=await supabase.from('tryamm_vehicle_share_earnings').upsert({
+          rental_id:rental.id,vehicle_id:rental.vehicle_id,host_user_id:vehicle.owner_user_id,
+          gross_cents:gross,host_cents:host,tryamm_cents:tryamm,reserve_cents:reserve,
+          currency:rental.currency||'USD',verification_status:'verified',payout_status:'payable',
+          metadata:{completedRental:true,damage:false,hostPlan:vehicle.metadata?.hostPlan||'balanced'},
+          updated_at:new Date().toISOString(),
+        },{onConflict:'rental_id'}).select('*').single()
+        if(earningError)throw earningError
+        hostEarnings=earning
+      }
+
+      res.json({rental:data,vehicleState:damage?'maintenance':'available',hostEarnings})
     }catch(error){res.status(500).json({error:'Could not return rental'})}
   })
 
