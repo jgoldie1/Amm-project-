@@ -1,8 +1,28 @@
 export type StubbsRelationshipKind='core-family'|'extended-family'|'next-generation'|'friend'|'family-connected'|'community'
 export type StubbsCharacterPassport={id:string;displayName:string;relationship:StubbsRelationshipKind;roles:string[];worlds:string[];referencePolicy:'authorized-reference'|'original-generated';persistent:boolean}
+
+export const SOCIAL_CREATOR_PLACEHOLDERS:StubbsCharacterPassport[]=Array.from({length:10},(_,index)=>{
+ const slot=String(index+1).padStart(2,'0')
+ return {
+  id:`social-creator-${slot}`,
+  displayName:`Social Creator ${slot}`,
+  relationship:'community',
+  roles:['BIGO/TikTok Creator','Role Pending'],
+  worlds:['StreetVerse','MeetTheStubbs','CreatorVerse'],
+  referencePolicy:'original-generated',
+  persistent:true,
+ }
+})
 export const MEET_THE_STUBBS_FAMILY_FRIENDS:StubbsCharacterPassport[]=[
 {id:'bj-stubbs',displayName:'BJ Stubbs',relationship:'core-family',roles:['StreetVerse','Family'],worlds:['StreetVerse','MeetTheStubbs'],referencePolicy:'authorized-reference',persistent:true},
 {id:'al-b',displayName:'Al B',relationship:'family-connected',roles:['StreetVerse','Family'],worlds:['StreetVerse','MeetTheStubbs'],referencePolicy:'authorized-reference',persistent:true},
+{id:'marcus',displayName:'Marcus',relationship:'friend',roles:['StreetVerse','Friend','Role Pending'],worlds:['StreetVerse','MeetTheStubbs'],referencePolicy:'original-generated',persistent:true},
+{id:'tatti',displayName:'Tatti',relationship:'friend',roles:['StreetVerse','Creator','Role Pending'],worlds:['StreetVerse','MeetTheStubbs','CreatorVerse'],referencePolicy:'original-generated',persistent:true},
+{id:'brielle',displayName:'Brielle',relationship:'friend',roles:['StreetVerse','Creator','Role Pending'],worlds:['StreetVerse','MeetTheStubbs','CreatorVerse'],referencePolicy:'original-generated',persistent:true},
+{id:'mike',displayName:'Mike',relationship:'friend',roles:['StreetVerse','Friend','Role Pending'],worlds:['StreetVerse','MeetTheStubbs'],referencePolicy:'original-generated',persistent:true},
+{id:'alphonso',displayName:'Alphonso',relationship:'friend',roles:['StreetVerse','Friend','Role Pending'],worlds:['StreetVerse','MeetTheStubbs'],referencePolicy:'original-generated',persistent:true},
+{id:'jasmine',displayName:'Jasmine',relationship:'friend',roles:['StreetVerse','Creator','Role Pending'],worlds:['StreetVerse','MeetTheStubbs','CreatorVerse'],referencePolicy:'original-generated',persistent:true},
+{id:'tae-monroe',displayName:'Tae Monroe',relationship:'friend',roles:['StreetVerse','Creator','Role Pending'],worlds:['StreetVerse','MeetTheStubbs','CreatorVerse'],referencePolicy:'original-generated',persistent:true},
 {id:'kenosha-pennifor',displayName:'Kenosha Pennifor',relationship:'core-family',roles:['Sister','Legacy','Memorial Legacy'],worlds:['StreetVerse','MeetTheStubbs','TimeMachine'],referencePolicy:'authorized-reference',persistent:true},
 {id:'raymond-jarreau',displayName:'Raymond Jarreau',relationship:'extended-family',roles:['Uncle','Legacy'],worlds:['StreetVerse','MeetTheStubbs','TimeMachine'],referencePolicy:'authorized-reference',persistent:true},
 {id:'shawndell-shelton',displayName:'Shawndell Shelton',relationship:'core-family',roles:['Sister','Legacy'],worlds:['StreetVerse','MeetTheStubbs'],referencePolicy:'authorized-reference',persistent:true},
@@ -11,7 +31,8 @@ export const MEET_THE_STUBBS_FAMILY_FRIENDS:StubbsCharacterPassport[]=[
 {id:'benny',displayName:'Benny',relationship:'family-connected',roles:['Family','Omni Host'],worlds:['StreetVerse','MeetTheStubbs'],referencePolicy:'authorized-reference',persistent:true},
 {id:'kenny-stubbs',displayName:'Kenny Stubbs',relationship:'extended-family',roles:['Family','Legacy'],worlds:['StreetVerse','MeetTheStubbs','TimeMachine'],referencePolicy:'authorized-reference',persistent:true},
 {id:'don-cario-stubbs',displayName:'Don Cario Stubbs',relationship:'extended-family',roles:['Family','Legacy'],worlds:['StreetVerse','MeetTheStubbs'],referencePolicy:'authorized-reference',persistent:true},
-{id:'simone-johnson',displayName:'Simone Johnson',relationship:'extended-family',roles:['Aunt','Family','Postal Worker'],worlds:['StreetVerse','MeetTheStubbs','TimeMachine'],referencePolicy:'authorized-reference',persistent:true},
+{id:'simone-johnson',displayName:'Simone Johnson',relationship:'extended-family',roles:['Aunt','Family','Postal Worker'],worlds:['StreetVerse','MeetTheStubbs','TimeMachine'],referencePolicy:'authorized-reference',persistent:true},,
+...SOCIAL_CREATOR_PLACEHOLDERS,
 ]
 export function getStubbsPassport(nameOrId:string){const key=nameOrId.trim().toLowerCase();return MEET_THE_STUBBS_FAMILY_FRIENDS.find(x=>x.id===key||x.displayName.toLowerCase()===key)}
 export function familyFriendsByRelationship(kind:StubbsRelationshipKind){return MEET_THE_STUBBS_FAMILY_FRIENDS.filter(x=>x.relationship===kind)}
