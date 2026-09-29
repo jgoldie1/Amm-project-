@@ -84,6 +84,22 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
   const shopMarker=new THREE.Mesh(new THREE.CylinderGeometry(.75,.75,.15,20),new THREE.MeshStandardMaterial({color:0xffd75e,emissive:0xaa7700,emissiveIntensity:.8}));shopMarker.position.set(9,.16,-7);scene.add(shopMarker)
   const npc=new THREE.Mesh(new THREE.CapsuleGeometry(.5,1,4,8),new THREE.MeshStandardMaterial({color:0xffcc66,emissive:0x553300,emissiveIntensity:.25}));npc.position.set(-4,1.2,-37);scene.add(npc)
 
+  const ambientPersonCount=18
+  const ambientPeople=new THREE.InstancedMesh(new THREE.CapsuleGeometry(.34,.72,4,8),new THREE.MeshStandardMaterial({color:0x8fd9ff,emissive:0x12384c,emissiveIntensity:.22}),ambientPersonCount)
+  ambientPeople.instanceMatrix.setUsage(THREE.DynamicDrawUsage);scene.add(ambientPeople)
+  const peopleSeed=Array.from({length:ambientPersonCount},(_,i)=>({side:i%2===0?-1:1,offset:(i*7)%68-34,speed:.35+(i%5)*.08}))
+
+  const ambientCarCount=10
+  const ambientCars=new THREE.InstancedMesh(new THREE.BoxGeometry(1.85,.78,3.7),new THREE.MeshStandardMaterial({color:0x6aa9ff,metalness:.3,roughness:.52}),ambientCarCount)
+  ambientCars.instanceMatrix.setUsage(THREE.DynamicDrawUsage);scene.add(ambientCars)
+  const carSeed=Array.from({length:ambientCarCount},(_,i)=>({lane:i%2===0?-3:3,offset:(i*11)%76-38,speed:5+(i%4)}))
+
+  const ambientMotoCount=4
+  const ambientMotos=new THREE.InstancedMesh(new THREE.BoxGeometry(.65,.8,1.9),new THREE.MeshStandardMaterial({color:0xff7d52,metalness:.25,roughness:.45}),ambientMotoCount)
+  ambientMotos.instanceMatrix.setUsage(THREE.DynamicDrawUsage);scene.add(ambientMotos)
+  const motoSeed=Array.from({length:ambientMotoCount},(_,i)=>({lane:i%2===0?-1.8:1.8,offset:(i*17)%70-35,speed:8+(i%3)}))
+  const instanceDummy=new THREE.Object3D()
+
   const mobilityBeacon=new THREE.Group();mobilityBeacon.name='streetverse-mobility-beacon';mobilityBeacon.visible=false
   const mobilityColumn=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,5.5,12),new THREE.MeshBasicMaterial({color:0xffc84d,transparent:true,opacity:.7}));mobilityColumn.position.y=2.75;mobilityBeacon.add(mobilityColumn)
   const mobilityRing=new THREE.Mesh(new THREE.TorusGeometry(1.25,.09,10,32),new THREE.MeshBasicMaterial({color:0xffd75e}));mobilityRing.rotation.x=Math.PI/2;mobilityRing.position.y=.1;mobilityBeacon.add(mobilityRing)
@@ -155,6 +171,30 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
    car.position.z=-8+((now*.006)%58)-29;car.position.x=3;car.rotation.y=0
    traffic2.position.z=22-((now*.005)%58);traffic2.position.x=-3;traffic2.rotation.y=Math.PI
    npc.position.x=-4+Math.sin(now*.0007)*1.2
+
+   for(let i=0;i<ambientPersonCount;i++){
+     const seed=peopleSeed[i],travel=((now*.001*seed.speed+seed.offset+38)%76)-38
+     instanceDummy.position.set(seed.side*11.2,1.15,seed.side<0?travel:-travel)
+     instanceDummy.rotation.set(0,seed.side<0?0:Math.PI,0);instanceDummy.scale.set(1,1,1);instanceDummy.updateMatrix()
+     ambientPeople.setMatrixAt(i,instanceDummy.matrix)
+   }
+   ambientPeople.instanceMatrix.needsUpdate=true
+
+   for(let i=0;i<ambientCarCount;i++){
+     const seed=carSeed[i],travel=((now*.001*seed.speed+seed.offset+42)%84)-42
+     instanceDummy.position.set(seed.lane,.55,seed.lane<0?travel:-travel)
+     instanceDummy.rotation.set(0,seed.lane<0?0:Math.PI,0);instanceDummy.scale.set(1,1,1);instanceDummy.updateMatrix()
+     ambientCars.setMatrixAt(i,instanceDummy.matrix)
+   }
+   ambientCars.instanceMatrix.needsUpdate=true
+
+   for(let i=0;i<ambientMotoCount;i++){
+     const seed=motoSeed[i],travel=((now*.001*seed.speed+seed.offset+40)%80)-40
+     instanceDummy.position.set(seed.lane,.5,seed.lane<0?travel:-travel)
+     instanceDummy.rotation.set(0,seed.lane<0?0:Math.PI,0);instanceDummy.scale.set(1,1,1);instanceDummy.updateMatrix()
+     ambientMotos.setMatrixAt(i,instanceDummy.matrix)
+   }
+   ambientMotos.instanceMatrix.needsUpdate=true
 
    leftDoorPivot.rotation.y=THREE.MathUtils.lerp(leftDoorPivot.rotation.y,doorsOpenRef.current?-1.08:0,.12)
    rightDoorPivot.rotation.y=THREE.MathUtils.lerp(rightDoorPivot.rotation.y,doorsOpenRef.current?1.08:0,.12)
@@ -314,7 +354,7 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
  const nextObjective=mobilityJob&&mobilityStage!=='complete'?(mobilityStage==='pickup'?mobilityJob.label:(mobilityJob.kind==='recovery'?'TOW VEHICLE TO IMPOUND':'GO TO DESTINATION')):baseNextObjective
  const repairAction=['OPEN HOOD','FIX ENGINE','CLOSE HOOD'][repairStep]||'REPAIR COMPLETE'
  return <div tabIndex={0} onKeyDown={keyDown} onKeyUp={stop} aria-label="Playable StreetVerse Chicago Circle Park world" style={{position:'fixed',inset:0,zIndex:2500,background:'#050b14',outline:'none'}}><div ref={mountRef} style={{position:'absolute',inset:0}}/>
-  <div style={{position:'absolute',top:12,left:12,right:12,padding:12,border:'1px solid #00ffcc88',borderRadius:14,background:'#07131dcc',color:'#eaffff',fontFamily:'system-ui'}}><b>STREETVERSE CHICAGO • CIRCLE PARK</b><div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:5,fontSize:11}}><span>PLAYER: {selectedCharacter}</span><span>MISSION: {missionComplete?'COMPLETE':selectedMission?.title||'REACH THE GLOWING ENTRANCE'}</span><span>REWARD: {selectedMission?`+${selectedMission.rewardXP} XP`:'+100 XP'}</span><span>MISSION XP: {xp}</span><span>CIRCLE XP: {circleXp}/1000</span><span>HOME: {starterHome?'CLAIMED':'FIND IT'}</span><span>CHICAGO: {chicagoUnlocked?'UNLOCKED':'LOCKED'}</span><span>CITY ACTIVITY: ACTIVE</span><span>BUSINESS: {businessComplete?'CHECKED IN':'DISCOVER'}</span><span>NATIVE ASSETS: {nativeAssets.state} • {nativeAssets.loaded} LOADED{nativeAssets.failed?` • ${nativeAssets.failed} FALLBACK`:''}</span><span>2027 FLEET: ACTIVE • RARE AIR TRAFFIC</span><span>MOBILITY: {mobilityJob?mobilityStage.toUpperCase():'AVAILABLE'}</span></div><div style={{fontSize:12,opacity:.82}}>Chicago-inspired playable district • TRYAMM native GLB preview layer + authoritative gameplay primitives • conceptual massing, not survey/CAD geometry.</div><div style={{fontSize:12,marginTop:5}}>{message}{interior?` • FLOOR ${floorLevel}`:''}</div><div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:7,fontSize:11,fontWeight:900}}><span>CLEANUP: {disposed.length}/{CIRCLE_PARK_WASTE_PICKUPS.length}{carrying?' • CARRYING':''}</span><span>CAR: {driving?'DRIVING':repairStep>=3?'REPAIRED':repairKit?`REPAIR ${repairStep}/3`:'BROKEN'}</span><span>ROUTE: {Math.min(routeIndex,STREETVERSE_CHICAGO_ROUTE.length)}/{STREETVERSE_CHICAGO_ROUTE.length}</span><span style={{color:'#ffd75e'}}>NEXT: {nextObjective}</span></div></div>
+  <div style={{position:'absolute',top:12,left:12,right:12,padding:12,border:'1px solid #00ffcc88',borderRadius:14,background:'#07131dcc',color:'#eaffff',fontFamily:'system-ui'}}><b>STREETVERSE CHICAGO • CIRCLE PARK</b><div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:5,fontSize:11}}><span>PLAYER: {selectedCharacter}</span><span>MISSION: {missionComplete?'COMPLETE':selectedMission?.title||'REACH THE GLOWING ENTRANCE'}</span><span>REWARD: {selectedMission?`+${selectedMission.rewardXP} XP`:'+100 XP'}</span><span>MISSION XP: {xp}</span><span>CIRCLE XP: {circleXp}/1000</span><span>HOME: {starterHome?'CLAIMED':'FIND IT'}</span><span>CHICAGO: {chicagoUnlocked?'UNLOCKED':'LOCKED'}</span><span>CITY ACTIVITY: 18 PEDS • 10 CARS • 4 MOTOS + JOB TRAFFIC</span><span>BUSINESS: {businessComplete?'CHECKED IN':'DISCOVER'}</span><span>NATIVE ASSETS: {nativeAssets.state} • {nativeAssets.loaded} LOADED{nativeAssets.failed?` • ${nativeAssets.failed} FALLBACK`:''}</span><span>2027 FLEET: ACTIVE • RARE AIR TRAFFIC</span><span>MOBILITY: {mobilityJob?mobilityStage.toUpperCase():'AVAILABLE'}</span></div><div style={{fontSize:12,opacity:.82}}>Chicago-inspired playable district • TRYAMM native GLB preview layer + authoritative gameplay primitives • conceptual massing, not survey/CAD geometry.</div><div style={{fontSize:12,marginTop:5}}>{message}{interior?` • FLOOR ${floorLevel}`:''}</div><div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:7,fontSize:11,fontWeight:900}}><span>CLEANUP: {disposed.length}/{CIRCLE_PARK_WASTE_PICKUPS.length}{carrying?' • CARRYING':''}</span><span>CAR: {driving?'DRIVING':repairStep>=3?'REPAIRED':repairKit?`REPAIR ${repairStep}/3`:'BROKEN'}</span><span>ROUTE: {Math.min(routeIndex,STREETVERSE_CHICAGO_ROUTE.length)}/{STREETVERSE_CHICAGO_ROUTE.length}</span><span style={{color:'#ffd75e'}}>NEXT: {nextObjective}</span></div></div>
   <div aria-live="polite" style={{position:'absolute',width:1,height:1,overflow:'hidden',clip:'rect(0 0 0 0)'}}>{message}</div>
   <div aria-label="Circle Park analog movement joystick" onPointerDown={joystick} onPointerMove={e=>{if(e.buttons)joystick(e)}} onPointerUp={stop} onPointerCancel={stop} onLostPointerCapture={stop} style={{position:'absolute',left:18,bottom:20,width:124,height:124,borderRadius:'50%',border:'2px solid #00ffcc',background:'#06131bcc',touchAction:'none',boxShadow:'inset 0 0 28px #00ffcc33'}}><div ref={joystickKnob} style={{position:'absolute',left:44,top:44,width:32,height:32,borderRadius:'50%',background:'#eaffff',boxShadow:'0 0 18px #00ffcc',transition:'transform 35ms linear'}}/></div>
   <div aria-label="One-hand movement controls" style={{position:'absolute',left:18,bottom:152,display:'grid',gridTemplateColumns:'repeat(3,38px)',gap:4}}><span/><button aria-label="Move forward" onPointerDown={()=>move(0,1)} onPointerUp={stop} onPointerCancel={stop} style={moveBtn}>▲</button><span/><button aria-label="Move left" onPointerDown={()=>move(-1,0)} onPointerUp={stop} onPointerCancel={stop} style={moveBtn}>◀</button><button aria-label="Stop movement" onClick={stop} style={moveBtn}>■</button><button aria-label="Move right" onPointerDown={()=>move(1,0)} onPointerUp={stop} onPointerCancel={stop} style={moveBtn}>▶</button><span/><button aria-label="Move backward" onPointerDown={()=>move(0,-1)} onPointerUp={stop} onPointerCancel={stop} style={moveBtn}>▼</button><span/></div>
