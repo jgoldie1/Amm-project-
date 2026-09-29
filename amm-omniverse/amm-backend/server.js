@@ -53,6 +53,12 @@ app.get('/api/health', async (_req,res)=>{
   res.json({ ok:true, ts:Date.now(), version:'1.11.0-release-control', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, financialTruth:true, releaseControl:true, releaseRegistry, releaseHealth, autoLedger:true, signLanguage:true, signRecognitionProvider:Boolean(process.env.SIGN_LANGUAGE_PROVIDER_URL), tryammLive:true, moderationReporting:true, workforce:true, middleverse:true, assetForge:true, meshyAssetForge:Boolean(process.env.MESHY_API_KEY), redHatSentinel:true, jacobieQuantumShield:true, jacobieSwarmShield:true, repoWorkstation:true } })
 })
 
+app.use('/api/privacy', noStoreSensitive)
+app.use('/api/security', noStoreSensitive)
+app.use('/api/financial-truth', noStoreSensitive)
+app.use('/api/treasury', noStoreSensitive)
+app.use('/api/asset-forge', noStoreSensitive)
+
 app.use('/api/omniverse', createOmniverseRouter({ supabase }))
 app.use('/api/holo-core', createHoloCoreRouter({ supabase, stripe }))
 app.use('/api/university', createUniversityRouter({ supabase }))
@@ -71,11 +77,6 @@ app.use('/api/ai', createAIRouter({ supabase }))
 app.use('/api', createLegacySecureRouter({ supabase, stripe }))
 
 const signBuckets = new Map()
-app.use('/api/privacy', noStoreSensitive)
-app.use('/api/security', noStoreSensitive)
-app.use('/api/financial-truth', noStoreSensitive)
-app.use('/api/treasury', noStoreSensitive)
-app.use('/api/asset-forge', noStoreSensitive)
 app.use('/api/accessibility/sign', (req,res,next)=>{
   const key=req.ip||'unknown'; const now=Date.now(); const entry=signBuckets.get(key)||{start:now,count:0}
   if(now-entry.start>60000){entry.start=now;entry.count=0}
