@@ -123,3 +123,68 @@ export function mobilityCredential(id:string){
 export function credentialForVehicleClass(vehicleClass:string){
   return STREETVERSE_MOBILITY_CREDENTIALS.find(x=>x.allowedVehicleClasses.includes(vehicleClass))
 }
+
+export const STREETVERSE_SPECIAL_VEHICLE_ASSIGNMENTS={
+  'news-helicopter':{
+    credential:'rotorcraft-pilot',
+    allowedRoles:['news','media','creator-media','tryamm-tv'],
+    ownership:'media-business-or-network-fleet',
+    passengerAccess:true,
+  },
+  'rescue-helicopter':{
+    credential:'rotorcraft-pilot',
+    allowedRoles:['ems','fire','rescue','emergency-response'],
+    ownership:'emergency-role-fleet',
+    passengerAccess:true,
+  },
+  'business-helicopter':{
+    credential:'rotorcraft-pilot',
+    allowedRoles:['business-owner','charter','corporate-transport','aviation-club'],
+    ownership:'business-charter-or-club',
+    passengerAccess:true,
+  },
+  'light-plane':{
+    credential:'fixed-wing-pilot',
+    allowedRoles:['aviation-club','private-aviation','training'],
+    ownership:'club-or-approved-personal',
+    passengerAccess:true,
+  },
+  'commuter-plane':{
+    credential:'fixed-wing-pilot',
+    allowedRoles:['airline','regional-air','aviation-business'],
+    ownership:'airline-or-regional-business',
+    passengerAccess:true,
+  },
+  'cargo-plane':{
+    credential:'fixed-wing-pilot',
+    allowedRoles:['logistics','cargo-air','aviation-business'],
+    ownership:'logistics-or-cargo-business',
+    passengerAccess:false,
+  },
+  evtol:{
+    credential:'future-air-mobility',
+    allowedRoles:['future-air','air-taxi','mobility-test','aviation-business'],
+    ownership:'future-air-fleet-first',
+    passengerAccess:true,
+  },
+  'flying-car':{
+    credential:'future-air-mobility',
+    allowedRoles:['future-air','mobility-test','advanced-personal-mobility'],
+    ownership:'rental-test-first-then-approved-personal',
+    passengerAccess:true,
+  },
+  'evtol-shuttle':{
+    credential:'future-air-mobility',
+    allowedRoles:['future-air','air-taxi','transit-operator'],
+    ownership:'transit-or-air-taxi-fleet',
+    passengerAccess:true,
+  },
+} as const
+
+export const STREETVERSE_ASSIGNMENT_TRUTH={
+  ordinaryPassengersDoNotNeedPilotCredential:true,
+  operatingAircraftRequiresGameCredential:true,
+  roleFleetVehiclesNeedActiveAssignment:true,
+  realWorldAviationAuthorizationNotRepresented:true,
+  gameOnlySimulation:true,
+} as const
