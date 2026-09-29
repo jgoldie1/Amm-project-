@@ -60,6 +60,7 @@ app.use('/api/security', noStoreSensitive)
 app.use('/api/financial-truth', noStoreSensitive)
 app.use('/api/treasury', noStoreSensitive)
 app.use('/api/asset-forge', noStoreSensitive)
+app.use('/api/middleverse', noStoreSensitive)
 
 app.use('/api/omniverse', createOmniverseRouter({ supabase }))
 app.use('/api/holo-core', createHoloCoreRouter({ supabase, stripe }))
