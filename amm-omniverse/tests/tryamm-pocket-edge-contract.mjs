@@ -1,0 +1,27 @@
+import fs from 'node:fs'
+
+const arch=fs.readFileSync(new URL('../src/data/TryammPocketEdgeArchitecture.ts',import.meta.url),'utf8')
+const runtime=fs.readFileSync(new URL('../src/runtime/TryammPocketEdgeRuntime.ts',import.meta.url),'utf8')
+const worker=fs.readFileSync(new URL('../src/runtime/TryammPocketEdgeWorker.ts',import.meta.url),'utf8')
+const service=fs.readFileSync(new URL('../src/services/edgeNode.ts',import.meta.url),'utf8')
+const route=fs.readFileSync(new URL('../amm-backend/routes/edge-node.js',import.meta.url),'utf8')
+const migration=fs.readFileSync(new URL('../supabase/migrations/20260929123000_tryamm_edge_node_registry.sql',import.meta.url),'utf8')
+
+const must=(ok,msg)=>{if(!ok)throw new Error('TRYAMM POCKET EDGE CONTRACT FAIL: '+msg)}
+must(arch.includes("visionName:'phone-size data center'"),'vision label missing')
+must(arch.includes('not a hyperscale data center'),'truth boundary missing')
+must(arch.includes("leasePolicy:'same-owner"),'same-owner lease boundary missing')
+must(arch.includes('rawSecretsOnEdge:false'),'raw-secret prohibition missing')
+must(runtime.includes('batteryLevel<.25'),'battery safety threshold missing')
+must(runtime.includes('crypto.randomUUID()'),'privacy-preserving install identity missing')
+must(worker.includes("optInDefault:false"),'edge worker must be opt-in')
+must(worker.includes("document.visibilityState==='hidden'"),'hidden-page work pause missing')
+must(worker.includes("EDGE_CACHE_CROSS_ORIGIN_BLOCKED"),'same-origin cache enforcement missing')
+must(worker.includes("backgroundMining:false"),'background-mining prohibition missing')
+must(service.includes('/api/edge-node/lease'),'lease client missing')
+must(route.includes("sameOwnerOnly:true"),'server same-owner lease proof missing')
+must(route.includes("forbiddenOnPocket"),'forbidden sensitive workload declaration missing')
+must(route.includes("batteryLevel<.25"),'server low-battery lease block missing')
+must(migration.includes('revoke all on table public.tryamm_edge_jobs from anon, authenticated'),'edge jobs must be backend-only')
+must(migration.includes("interval '24 hours'"),'edge-job retention expiry missing')
+console.log('TRYAMM POCKET EDGE CONTRACT PASS: opt-in, battery-aware, same-owner, secret-free edge compute + cloud fallback')
