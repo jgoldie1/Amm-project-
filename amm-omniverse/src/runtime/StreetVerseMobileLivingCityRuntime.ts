@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import {normalizeStreetVerseHumanHeight,residentHeight} from './StreetVerseHumanScale'
 
 export type MobileResident={
   id:string
@@ -36,7 +37,7 @@ export function createMobileResidentPopulation(scene:THREE.Scene):MobileResident
     group.name=`streetverse-mobile-resident-${index+1}`
     const body=new THREE.Mesh(BODY_GEOMETRY,mat(BODY_COLORS[index%BODY_COLORS.length]));body.position.y=1.35;group.add(body)
     const head=new THREE.Mesh(HEAD_GEOMETRY,mat(SKIN_COLORS[index%SKIN_COLORS.length]));head.position.y=2.62;group.add(head)
-    group.scale.setScalar(.92)
+    normalizeStreetVerseHumanHeight(group,residentHeight(index))
     group.userData.residentId=`mobile-resident-${index+1}`
     group.userData.streetverseResident=true
     scene.add(group)
