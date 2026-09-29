@@ -291,3 +291,17 @@ Do not rename already-applied migration files blindly. Reconcile repository migr
   - Origin Shield enforcement requires shared secret configuration + enforcement toggle.
   - MiddleWear idempotency table is committed but must be applied through the normal database migration path before production high-impact handoffs depend on it.
   - No claim that TRYAMM is unhackable.
+
+## Industry-tough MiddleWear resilience across Middleverse / Multiverse / Metaverse
+- Added backend bulkheads, circuit breakers, request deadlines, overload shedding and graceful degradation.
+- Added /api/livez and /api/readyz plus graceful SIGTERM/SIGINT shutdown and HTTP server timeout limits.
+- Added distributed, backend-only idempotency locks for high-impact Middleverse handoff creation; raw idempotency keys are never persisted.
+- Added provider-resilience wrapper with per-provider concurrency, timeouts, bounded safe retries and circuit breakers.
+- Meshy / Asset Forge now uses provider isolation.
+- Stubbs AI Gemini/OpenAI providers now use provider isolation; unsafe POST generation calls are not automatically retried.
+- Stripe networking now has bounded timeout/retry settings.
+- Added TRYAMM World Resilience Fabric covering Middleverse AI, Multiverse, Metaverse, StreetVerse, Holoverse and GameVerse.
+- Middleverse AI Hub shows READY/DEGRADED resilient-routing state.
+- GameVerse/Living Worlds surfaces isolated-world failure semantics.
+- Metaverse Business Builder surfaces MiddleWear-protected/idempotent/provider-isolated semantics.
+- Morning Mega Convergence now requires the world resilience contract.
