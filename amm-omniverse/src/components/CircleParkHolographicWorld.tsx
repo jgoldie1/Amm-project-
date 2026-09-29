@@ -36,6 +36,10 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
   const world=createCircleParkHologram('interactive-demo');scene.add(world);scene.add(createTwinDebugOverlay(CIRCLE_PARK_TWIN))
 
   let nativeLayer:THREE.Group|null=null
+  let nativeRepairCar:THREE.Object3D|null=null
+  let nativeDriverDoorPivot:THREE.Object3D|null=null
+  let nativePassengerDoorPivot:THREE.Object3D|null=null
+  let nativeHoodPivot:THREE.Object3D|null=null
   let nativeLayerCancelled=false
   void loadTryammNativeCircleParkLayer().then(result=>{
     if(nativeLayerCancelled){
@@ -43,6 +47,10 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
       return
     }
     nativeLayer=result.group
+    nativeRepairCar=result.group.getObjectByName('circle-park-repair-car-native')||null
+    nativeDriverDoorPivot=nativeRepairCar?.getObjectByName('driver-door-pivot')||null
+    nativePassengerDoorPivot=nativeRepairCar?.getObjectByName('passenger-door-pivot')||null
+    nativeHoodPivot=nativeRepairCar?.getObjectByName('hood-pivot')||null
     scene.add(result.group)
     setNativeAssets({
       state:result.loaded>0?'READY':'FALLBACK',
@@ -111,6 +119,16 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
    }else{
     player.visible=true
     repairCarPositionRef.current=[repairCar.position.x,repairCar.position.y,repairCar.position.z]
+   }
+
+   repairCar.visible=!nativeRepairCar
+   if(nativeRepairCar){
+    nativeRepairCar.position.set(repairCar.position.x,0,repairCar.position.z)
+    nativeRepairCar.rotation.y=repairCar.rotation.y+Math.PI/2
+    nativeDriverDoorPivot&&(nativeDriverDoorPivot.rotation.y=THREE.MathUtils.lerp(nativeDriverDoorPivot.rotation.y,doorsOpenRef.current?-1.05:0,.12))
+    nativePassengerDoorPivot&&(nativePassengerDoorPivot.rotation.y=THREE.MathUtils.lerp(nativePassengerDoorPivot.rotation.y,doorsOpenRef.current?1.05:0,.12))
+    const nativeHoodTarget=repairStepRef.current>0&&repairStepRef.current<3?-.9:0
+    nativeHoodPivot&&(nativeHoodPivot.rotation.z=THREE.MathUtils.lerp(nativeHoodPivot.rotation.z,nativeHoodTarget,.12))
    }
 
    if(companionCommand.current==='follow'||companionCommand.current==='return'){
