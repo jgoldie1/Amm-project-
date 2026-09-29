@@ -1,5 +1,7 @@
 'use strict'
 
+const {createProviderResilience}=require('./provider-resilience')
+
 const DEFAULT_BASE_URL='https://api.meshy.ai'
 const ALLOWED_TEXTURE_RESOLUTIONS=new Set(['2k','4k','8k'])
 
@@ -20,17 +22,18 @@ function createMeshyAssetProvider({apiKey=process.env.MESHY_API_KEY,fetchImpl=gl
   if(typeof fetchImpl!=='function')throw new Error('MESHY_FETCH_UNAVAILABLE')
   const configured=Boolean(String(apiKey||'').trim())
   const root=String(baseUrl||DEFAULT_BASE_URL).replace(/\/$/,'')
+  const resilience=createProviderResilience({provider:'meshy',fetchImpl,timeoutMs:20_000,maxConcurrent:4,failureThreshold:4,resetMs:45_000,maxRetries:1})
 
   async function request(path,{method='GET',body}={}){
     if(!configured)throw Object.assign(new Error('MESHY_NOT_CONFIGURED'),{statusCode:503})
-    const response=await fetchImpl(root+path,{
+    const response=await resilience.fetch(root+path,{
       method,
       headers:{
         Authorization:`Bearer ${apiKey}`,
         ...(body?{'Content-Type':'application/json'}:{}),
       },
       ...(body?{body:JSON.stringify(body)}:{}),
-    })
+    },{retrySafe:method==='GET',maxRetries:method==='GET'?1:0})
     let data=null
     try{data=await response.json()}catch{}
     if(!response.ok){
@@ -94,6 +97,7 @@ function createMeshyAssetProvider({apiKey=process.env.MESHY_API_KEY,fetchImpl=gl
     createPreview,
     createRefine,
     getTask,
+    resilienceStatus:resilience.status,
   }
 }
 
