@@ -171,34 +171,49 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const placeLabels:THREE.Sprite[]=[]
   CHICAGO_STREETVERSE_PLACES.forEach(place=>{const label=makeLabel(place.label.toUpperCase());label.position.set(place.x,4.2,place.z);scene.add(label);placeLabels.push(label)})
   const pilsenArt=new THREE.Group();pilsenArt.position.set(-57,0,-50);const muralColors=[0xff5b79,0x4cc9f0,0xffc857,0x7ae582,0xc77dff,0xff8c42];for(let i=0;i<6;i++){const panel=new THREE.Mesh(new THREE.BoxGeometry(4.4,4.8,.25),new THREE.MeshLambertMaterial({color:muralColors[i]}));panel.position.set(i*4.5,2.4,0);pilsenArt.add(panel);const accent=new THREE.Mesh(new THREE.BoxGeometry(2.6,.45,.28),new THREE.MeshBasicMaterial({color:muralColors[(i+2)%muralColors.length]}));accent.position.set(i*4.5,2.5+(i%3-1)*.8,-.15);accent.rotation.z=(i%2?.24:-.24);pilsenArt.add(accent)}scene.add(pilsenArt)
-  const circleParkReality=new THREE.Group();circleParkReality.name='streetverse-circle-park-reality-layer-v1'
-  const brick=new THREE.MeshLambertMaterial({color:0x8a4e39}),brickDark=new THREE.MeshLambertMaterial({color:0x663a2d}),stone=new THREE.MeshLambertMaterial({color:0xc2b7a2}),glass=new THREE.MeshStandardMaterial({color:0x9fc6d6,roughness:.2,metalness:.05}),courtMat=new THREE.MeshLambertMaterial({color:0x365a45}),playMat=new THREE.MeshLambertMaterial({color:0x8b3d35})
+  const circleParkReality=new THREE.Group();circleParkReality.name='streetverse-circle-park-reality-layer-v2'
+  const brick=new THREE.MeshLambertMaterial({color:0x8a4e39}),brickDark=new THREE.MeshLambertMaterial({color:0x663a2d}),concrete=new THREE.MeshStandardMaterial({color:0x9f9a90,roughness:.82,metalness:0}),concreteDark=new THREE.MeshStandardMaterial({color:0x77746f,roughness:.86,metalness:0}),stone=new THREE.MeshLambertMaterial({color:0xc2b7a2}),glass=new THREE.MeshStandardMaterial({color:0x7ea9bc,roughness:.12,metalness:.08}),courtBlue=new THREE.MeshLambertMaterial({color:0x4c9bd2}),courtGreen=new THREE.MeshLambertMaterial({color:0x4d8162}),playMat=new THREE.MeshLambertMaterial({color:0x8b3d35}),lawnMat=new THREE.MeshLambertMaterial({color:0x496f42})
   const addCircleBox=(name:string,size:[number,number,number],pos:[number,number,number],material:THREE.Material)=>{const mesh=new THREE.Mesh(new THREE.BoxGeometry(...size),material);mesh.name=name;mesh.position.set(...pos);circleParkReality.add(mesh);return mesh}
-  // Original TRYAMM reconstruction based on the public Circle Park address, 8-level massing,
-  // apartment/townhome mix, playground, picnic/landscaping and basketball amenities.
-  const mainSlab=addCircleBox('circle-park-main-apartment-slab',[20,24,10],[-38,12,44],brick)
-  const mainWing=addCircleBox('circle-park-main-apartment-wing',[10,18,18],[-47,9,46],brickDark)
-  const seniorWing=addCircleBox('circle-park-senior-wing',[10,14,11],[-31,7,49],brickDark)
-  for(const facade of [mainSlab,mainWing,seniorWing]){
-    for(let y=3;y<=facade.scale.y*0+18;y+=3){void y}
+  // Original TRYAMM reconstruction derived from public Circle Park photos and property references:
+  // gray concrete mid-rise + horizontal window bands, recessed 1111 entrance and landscaped circular drive.
+  const mainSlab=addCircleBox('circle-park-main-apartment-slab',[23,24,10],[-39,12,44],concrete)
+  const mainWing=addCircleBox('circle-park-main-apartment-wing',[10,18,19],[-48,9,46],concreteDark)
+  const seniorWing=addCircleBox('circle-park-senior-wing',[10,14,12],[-30,7,48],concrete)
+  for(let floor=0;floor<8;floor++){
+    const y=2.6+floor*2.75
+    const band=addCircleBox('circle-park-window-band',[19.6,1.25,.14],[-39,y,49.08],glass);band.renderOrder=1
+    const sill=addCircleBox('circle-park-facade-sill',[20.2,.16,.22],[-39,y-.78,49.12],concreteDark);void sill
+    for(let mullion=0;mullion<6;mullion++)addCircleBox('circle-park-window-mullion',[.12,1.3,.18],[-47+mullion*3.2,y,49.18],concreteDark)
   }
-  for(let floor=0;floor<7;floor++)for(let bay=0;bay<5;bay++){
-    const w=addCircleBox('circle-park-window',[2.2,.55,.12],[-45+bay*3.2,3+floor*2.9,49.08],glass);w.renderOrder=1
-  }
+  for(const x of [-49.2,-28.8])addCircleBox('circle-park-vertical-pilaster',[.55,23.3,.55],[x,11.7,49.05],concreteDark)
+  const entranceVoid=addCircleBox('circle-park-recessed-entry',[6.6,3.2,.7],[-39,1.65,49.52],new THREE.MeshStandardMaterial({color:0x22282c,roughness:.3,metalness:.08}))
+  const entryGlass=addCircleBox('circle-park-entry-glass',[5.6,2.45,.08],[-39,1.55,49.9],glass);entryGlass.renderOrder=2
+  const canopy=addCircleBox('circle-park-entry-canopy',[7.4,.34,2.3],[-39,3.35,50.35],concreteDark)
+  const address1111=makeLabel('1111');address1111.position.set(-39,4.3,50.7);address1111.scale.set(4.4,1.1,1);circleParkReality.add(address1111)
+  const driveRing=new THREE.Mesh(new THREE.TorusGeometry(7.3,1.2,10,42),new THREE.MeshLambertMaterial({color:0x31353a}));driveRing.name='circle-park-circular-drive';driveRing.rotation.x=Math.PI/2;driveRing.position.set(-39,.12,57.5);circleParkReality.add(driveRing)
+  const driveIsland=new THREE.Mesh(new THREE.CylinderGeometry(4.8,4.8,.28,32),lawnMat);driveIsland.name='circle-park-landscaped-drive-island';driveIsland.position.set(-39,.18,57.5);circleParkReality.add(driveIsland)
+  const entranceSign=makeLabel('CIRCLE PARK APARTMENTS');entranceSign.position.set(-39,2.6,57.5);entranceSign.scale.set(8.5,1.6,1);circleParkReality.add(entranceSign)
   const townhomeRows:[number,number,number][]=[[-17,46,0],[-9,46,0],[-1,46,0],[-17,37,Math.PI],[-9,37,Math.PI],[-1,37,Math.PI]]
   townhomeRows.forEach(([x,z,rot],i)=>{const home=new THREE.Group();home.name='circle-park-townhome-'+(i+1);const body=new THREE.Mesh(new THREE.BoxGeometry(6.2,5.8,7.4),i%2?brick:brickDark);body.position.y=2.9;home.add(body);const roof=new THREE.Mesh(new THREE.BoxGeometry(6.5,.45,7.7),stone);roof.position.y=6;home.add(roof);const porch=new THREE.Mesh(new THREE.BoxGeometry(3.8,.3,1.6),stone);porch.position.set(0,.18,4.2);home.add(porch);for(const side of [-1,1]){const win=new THREE.Mesh(new THREE.BoxGeometry(1.25,1.25,.12),glass);win.position.set(side*1.7,3.2,3.76);home.add(win)}home.position.set(x,0,z);home.rotation.y=rot;circleParkReality.add(home)})
-  const courtyard=addCircleBox('circle-park-courtyard',[24,.18,17],[-20,.13,58],new THREE.MeshLambertMaterial({color:0x607b4a}))
-  const court=addCircleBox('circle-park-basketball-court',[15,.12,8],[-48,.17,61],courtMat)
-  for(const z of [57.2,64.8]){const pole=addCircleBox('circle-park-hoop-pole',[.18,3.1,.18],[-48,1.55,z],stone);const back=addCircleBox('circle-park-backboard',[2.1,1.25,.12],[-48,3,z+(z<61?1:-1)*.3],stone);void pole;void back}
+  const courtyard=addCircleBox('circle-park-courtyard',[25,.18,18],[-20,.13,58],lawnMat)
+  const court=addCircleBox('circle-park-basketball-court',[16,.12,9],[-48,.17,61],courtBlue)
+  const courtInset=addCircleBox('circle-park-basketball-key',[6,.03,7.6],[-48,.25,61],courtGreen)
+  for(const z of [56.8,65.2]){const pole=addCircleBox('circle-park-hoop-pole',[.18,3.1,.18],[-48,1.55,z],stone);const back=addCircleBox('circle-park-backboard',[2.1,1.25,.12],[-48,3,z+(z<61?1:-1)*.3],stone);void pole;void back}
+  const fenceMat=new THREE.MeshLambertMaterial({color:0x20292b})
+  for(let x=-56;x<=-40;x+=4){addCircleBox('circle-park-court-fence-post',[.09,3.4,.09],[x,1.7,56.35],fenceMat);addCircleBox('circle-park-court-fence-post',[.09,3.4,.09],[x,1.7,65.65],fenceMat)}
+  for(const z of [56.35,65.65])addCircleBox('circle-park-court-fence-rail',[16,.08,.08],[-48,3.15,z],fenceMat)
+  for(const x of [-56,-40])addCircleBox('circle-park-court-fence-rail',[.08,.08,9.3],[x,3.15,61],fenceMat)
   const playground=addCircleBox('circle-park-playground-pad',[8,.16,7],[-15,.18,61],playMat)
   const playTower=addCircleBox('circle-park-play-tower',[2.2,2.6,2.2],[-15,1.45,61],new THREE.MeshLambertMaterial({color:0xe8b844}))
   const slide=new THREE.Mesh(new THREE.BoxGeometry(1.1,.18,4.8),new THREE.MeshLambertMaterial({color:0x4f9bd7}));slide.name='circle-park-slide';slide.position.set(-12.8,1,61);slide.rotation.z=-.36;circleParkReality.add(slide)
+  const circleTreeMat=new THREE.MeshLambertMaterial({color:0x2e633c}),circleTrunkMat=new THREE.MeshLambertMaterial({color:0x65472f})
+  for(const [x,z,s] of [[-55,52,1.4],[-53,68,1.25],[-36,68,1.35],[-24,66,1.2],[-12,53,1.28],[-8,64,1.18]] as [number,number,number][]){const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.18*s,.26*s,3*s,8),circleTrunkMat);trunk.name='circle-park-mature-tree-trunk';trunk.position.set(x,1.5*s,z);circleParkReality.add(trunk);const crown=new THREE.Mesh(new THREE.DodecahedronGeometry(1.65*s,1),circleTreeMat);crown.name='circle-park-mature-tree-crown';crown.position.set(x,4.4*s,z);circleParkReality.add(crown)}
   const picnicMat=new THREE.MeshLambertMaterial({color:0x6d5138})
   for(const [x,z] of [[-26,62],[-22,64],[-18,55],[-28,55]] as [number,number][]){const table=addCircleBox('circle-park-picnic-table',[2.3,.18,1.2],[x,.85,z],picnicMat);const legA=addCircleBox('circle-park-picnic-leg',[.18,1.2,.18],[x-.65,.45,z],picnicMat);const legB=addCircleBox('circle-park-picnic-leg',[.18,1.2,.18],[x+.65,.45,z],picnicMat);void table;void legA;void legB}
   const heritageSign=makeLabel('CIRCLE PARK • ABLA • ASHLAND / LAFLIN');heritageSign.position.set(-25,7.5,52);heritageSign.scale.set(18,3.1,1);circleParkReality.add(heritageSign)
   const driveSign=makeLabel('CIRCLE PARK DRIVE • S. LAFLIN');driveSign.position.set(-24,5.7,20);driveSign.scale.set(15,2.7,1);circleParkReality.add(driveSign)
   const historySign=makeLabel('JANE ADDAMS / ABLA HISTORY');historySign.position.set(24,5.5,42);historySign.scale.set(15,2.7,1);circleParkReality.add(historySign)
-  circleParkReality.userData={source:'public-reference-reconstruction',originalTryammGeometry:true,addressAnchor:'1111 S Ashland / 1111 S Laflin',circleParkDriveHistoricalAnchor:true,amenities:['townhomes','playground','picnic','basketball','landscaping']}
+  circleParkReality.userData={source:'public-reference-reconstruction',originalTryammGeometry:true,addressAnchor:'1111 S Ashland / 1111 S Laflin',circleParkDriveHistoricalAnchor:true,fidelityPass:'v2-public-photo-massing',referenceFeatures:['gray-concrete-midrise','horizontal-window-bands','recessed-1111-entry','circular-drive-island','blue-green-fenced-court','mature-lawn-trees'],amenities:['townhomes','playground','picnic','basketball','landscaping']}
   scene.add(circleParkReality)
   const colors=[0x24425b,0x41345a,0x31513f,0x5c4032,0x31566b,0x56354e]
   const blocks=NATIVE_CITY_BLOCKS
