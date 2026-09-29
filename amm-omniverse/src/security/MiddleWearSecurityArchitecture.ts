@@ -8,6 +8,7 @@ export const MIDDLEWEAR_SECURITY_ARCHITECTURE={
     'Jacobie Swarm Shield rate/resource controls',
     'Supabase Auth server-side identity validation',
     'Middleverse route risk classification',
+    'Pocket Edge same-owner/trusted-node lease gate for eligible local compute',
     'provider readiness gate',
     'durable security audit for state-changing/high-impact actions',
     'human/operator review for high-impact completion',
@@ -20,6 +21,7 @@ export const MIDDLEWEAR_SECURITY_ARCHITECTURE={
     'required provider unavailable',
     'high-impact audit persistence unavailable',
     'high-impact completion without operator review',
+    'Pocket Edge workload outside the safe capability allowlist',
   ] as const,
   privacy:{
     rawAuthorizationStored:false,
@@ -31,6 +33,8 @@ export const MIDDLEWEAR_SECURITY_ARCHITECTURE={
     edgeMitigationStillRequired:true,
     appSwarmShieldStillRequired:true,
     providerFailureDoesNotAuthorizeBypass:true,
+    pocketEdgeHeavyWorkFallsBackToManagedNodeOrCloud:true,
+    pocketEdgeBackgroundMining:false,
   },
   accessibility:{
     noMandatoryVisualCaptchaInMiddleWear:true,
