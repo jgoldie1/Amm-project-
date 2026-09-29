@@ -32,7 +32,7 @@ const app = express()
 
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) throw new Error('SUPABASE_URL and SUPABASE_SERVICE_KEY are required')
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
-const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null
+const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY,{maxNetworkRetries:2,timeout:10_000}) : null
 const redHatSentinel = createRedHatSentinel({ supabase })
 const jacobieSwarmShield = createJacobieSwarmShield()
 const middleWearSecurity = createMiddleWearSecurityGateway({ supabase })
@@ -158,57 +158,3 @@ app.post('/api/stripe/webhook', async (req,res)=>{
 app.get('/api/marketplace/products',async(req,res)=>{ try{ const {category,search}=req.query; let q=supabase.from('products').select('*').eq('status','active').order('created_at',{ascending:false}); if(category&&category!=='all')q=q.eq('category',category); if(search)q=q.ilike('name',`%${String(search).slice(0,100)}%`); const {data,error}=await q.limit(100); if(error)throw error; res.json({products:data||[]}) }catch(err){res.status(500).json({error:err.message})} })
 app.get('/api/businesses',async(req,res)=>{ try{ const {category,city,search}=req.query; let q=supabase.from('businesses').select('*').eq('status','active').order('name'); if(category)q=q.eq('category',String(category).slice(0,80)); if(city)q=q.ilike('city',`%${String(city).slice(0,80)}%`); if(search)q=q.or(`name.ilike.%${String(search).slice(0,100)}%,description.ilike.%${String(search).slice(0,100)}%`); const {data,error}=await q.limit(100); if(error)throw error; res.json({businesses:data||[]}) }catch(err){res.status(500).json({error:err.message})} })
 app.get('/api/businesses/:id',async(req,res)=>{ try{ const {data,error}=await supabase.from('businesses').select('*, reviews(*)').eq('id',req.params.id).eq('status','active').maybeSingle(); if(error)throw error; if(!data)return res.status(404).json({error:'Business not found'}); res.json({business:data}) }catch(err){res.status(500).json({error:err.message})} })
-app.get('/api/music/tracks',async(req,res)=>{ try{ const {genre,creatorId}=req.query; let q=supabase.from('tracks').select('*').order('created_at',{ascending:false}); if(genre)q=q.eq('genre',String(genre).slice(0,80)); if(creatorId)q=q.eq('creator_id',creatorId); const {data,error}=await q.limit(100); if(error)throw error; res.json({tracks:data||[]}) }catch(err){res.status(500).json({error:err.message})} })
-
-const PORT=process.env.PORT||4000
-const server=http.createServer(app)
-server.requestTimeout=30_000
-server.headersTimeout=35_000
-server.keepAliveTimeout=65_000
-server.maxRequestsPerSocket=1000
-
-let shuttingDown=false
-async function gracefulShutdown(signal){
-  if(shuttingDown)return
-  shuttingDown=true
-  console.warn(`TRYAMM graceful shutdown started: ${signal}`)
-  const force=setTimeout(()=>process.exit(1),15_000)
-  force.unref?.()
-  server.close(error=>{
-    clearTimeout(force)
-    if(error){console.error('TRYAMM graceful shutdown error',error);process.exit(1)}
-    process.exit(0)
-  })
-}
-process.on('SIGTERM',()=>void gracefulShutdown('SIGTERM'))
-process.on('SIGINT',()=>void gracefulShutdown('SIGINT'))
-
-server.listen(PORT,()=>{
-  console.log(`\n✅ AMM Backend running on port ${PORT}`)
-  console.log(`   Stripe: ${stripe?'✅ connected':'❌ STRIPE_SECRET_KEY missing'}`)
-  console.log('   Supabase: ✅ connected')
-  console.log(`   LiveKit: ${process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL?'✅ connected':'❌ LiveKit configuration incomplete'}`)
-  console.log(`   Stubbs AI/HoloGPT: ${process.env.GEMINI_API_KEY?'✅ connected':'⚠️ local fallback'}`)
-  console.log(`   Sign language: ${process.env.SIGN_LANGUAGE_PROVIDER_URL?'✅ provider configured':'⚠️ fallback translation only'}`)
-  console.log('   LIVE API: /api/live/*')
-  console.log('   Moderation API: /api/moderation/*')
-  console.log('   Workforce API: /api/workforce/*')
-  console.log('   Middleverse API: /api/middleverse/*')
-  console.log(`   Asset Forge / Meshy: ${process.env.MESHY_API_KEY?'✅ configured':'⚠️ MESHY_API_KEY missing'}`)
-  console.log('   Asset Forge API: /api/asset-forge/*')
-  console.log('   Red Hat Sentinel: ✅ defensive canaries + privacy-minimized telemetry')
-  console.log('   Red Hat Sentinel operator API: /api/security/red-hat/*')
-  console.log('   Jacobie Swarm Shield: ✅ per-source/principal/resource throttling + graceful degradation')
-  console.log('   MiddleWear Security Gateway: ✅ identity + risk + provider + audit + operator review')
-  console.log('   MiddleWear Resilience: ✅ deadlines + bulkheads + circuit breakers + overload shedding')
-  console.log('   Omniverse API: /api/omniverse/*')
-  console.log('   Holo Core API: /api/holo-core/*')
-  console.log('   University API: /api/university/*')
-  console.log('   Family Legacy API: /api/family/*')
-  console.log('   Heirs & Legacy Kids API: /api/legacy/*')
-  console.log('   Omni Treasury API: /api/treasury/*')
-  console.log('   Financial Truth API: /api/financial-truth/*')
-  console.log('   Release Control API: /api/release-control/*')
-  console.log('   Sign Language API: /api/accessibility/sign/*')
-  console.log('   HoloGPT / Stubbs AI API: POST /api/ai/answer\n')
-})
