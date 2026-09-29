@@ -5,6 +5,7 @@ const DEFAULTS={
   middleverse:{maxConcurrent:50,timeoutMs:10_000,failureThreshold:6,resetMs:20_000,degradeable:false},
   'ai-expensive':{maxConcurrent:12,timeoutMs:20_000,failureThreshold:5,resetMs:30_000,degradeable:true},
   'asset-expensive':{maxConcurrent:4,timeoutMs:30_000,failureThreshold:4,resetMs:45_000,degradeable:true},
+  'edge-compute':{maxConcurrent:20,timeoutMs:8_000,failureThreshold:6,resetMs:20_000,degradeable:true},
   'live-realtime':{maxConcurrent:80,timeoutMs:8_000,failureThreshold:8,resetMs:15_000,degradeable:true},
   'financial-sensitive':{maxConcurrent:24,timeoutMs:8_000,failureThreshold:4,resetMs:30_000,degradeable:false},
   'security-sensitive':{maxConcurrent:30,timeoutMs:8_000,failureThreshold:4,resetMs:30_000,degradeable:false},
