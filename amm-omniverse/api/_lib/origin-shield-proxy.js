@@ -12,13 +12,12 @@ function rawBody(req){
 
 export async function proxyProtectedOrigin(req,res,targetPath,{raw=false}={}){
   const secret=SECRET()
-  if(!secret)return res.status(503).json({error:'TRYAMM edge origin shield is not configured'})
   const body=rawBody(req)
   const ts=Date.now()
   const requestId=crypto.randomUUID()
   const hash=crypto.createHash('sha256').update(body).digest('hex')
   const canonical=[String(req.method||'GET').toUpperCase(),targetPath,String(ts),requestId,hash].join('\n')
-  const signature=crypto.createHmac('sha256',secret).update(canonical).digest('hex')
+  const signature=secret?crypto.createHmac('sha256',secret).update(canonical).digest('hex'):''
 
   const headers={}
   for(const [key,value] of Object.entries(req.headers||{})){
@@ -29,7 +28,7 @@ export async function proxyProtectedOrigin(req,res,targetPath,{raw=false}={}){
   }
   headers['x-tryamm-edge-timestamp']=String(ts)
   headers['x-tryamm-edge-request-id']=requestId
-  headers['x-tryamm-edge-signature']=signature
+  if(signature)headers['x-tryamm-edge-signature']=signature
 
   const controller=new AbortController()
   const timeout=setTimeout(()=>controller.abort(),12_000)
@@ -47,7 +46,7 @@ export async function proxyProtectedOrigin(req,res,targetPath,{raw=false}={}){
       if(['connection','transfer-encoding','content-encoding','content-length'].includes(lower))continue
       res.setHeader(key,value)
     }
-    res.setHeader('X-TRYAMM-Origin-Shield','vercel-signed')
+    res.setHeader('X-TRYAMM-Origin-Shield',secret?'vercel-signed':'vercel-monitor-unconfigured')
     const out=Buffer.from(await response.arrayBuffer())
     return res.send(out)
   }catch(error){
