@@ -14,8 +14,9 @@ function queryResult(data,error=null){
 
 function createSupabase({route,handOff,auditFail=false,userRole='member'}={}){
   const auditRows=[]
+  const idempotencyRows=[]
   return{
-    auditRows,
+    auditRows,idempotencyRows,
     auth:{
       getUser:async token=>token==='valid-token'
         ?{data:{user:{id:'user-1',app_metadata:{role:userRole}}},error:null}
@@ -27,6 +28,27 @@ function createSupabase({route,handOff,auditFail=false,userRole='member'}={}){
       }
       if(table==='middleverse_routes')return queryResult(route||null)
       if(table==='middleverse_handoffs')return queryResult(handOff||null)
+      if(table==='middlewear_idempotency_keys'){
+        let filters=[]
+        const api={
+          insert:row=>{
+            const duplicate=idempotencyRows.find(x=>x.user_id===row.user_id&&x.operation===row.operation&&x.key_hash===row.key_hash)
+            if(duplicate)return{select:()=>({maybeSingle:async()=>({data:null,error:{code:'23505'}})})}
+            const data={id:'idem-'+(idempotencyRows.length+1),...row};idempotencyRows.push(data)
+            return{select:()=>({maybeSingle:async()=>({data,error:null})})}
+          },
+          select(){return api},
+          eq(k,v){filters.push([k,v]);return api},
+          gt(){return api},
+          maybeSingle:async()=>{
+            const data=idempotencyRows.find(row=>filters.every(([k,v])=>row[k]===v))||null
+            filters=[]
+            return{data,error:null}
+          },
+          update:patch=>({eq:async(k,v)=>{for(const row of idempotencyRows)if(row[k]===v)Object.assign(row,patch);return{error:null}}}),
+        }
+        return api
+      }
       throw new Error('unexpected table '+table)
     },
   }
