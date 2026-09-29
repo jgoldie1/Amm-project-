@@ -31,7 +31,7 @@ export const MEET_THE_STUBBS_FAMILY_FRIENDS:StubbsCharacterPassport[]=[
 {id:'benny',displayName:'Benny',relationship:'family-connected',roles:['Family','Omni Host'],worlds:['StreetVerse','MeetTheStubbs'],referencePolicy:'authorized-reference',persistent:true},
 {id:'kenny-stubbs',displayName:'Kenny Stubbs',relationship:'extended-family',roles:['Family','Legacy'],worlds:['StreetVerse','MeetTheStubbs','TimeMachine'],referencePolicy:'authorized-reference',persistent:true},
 {id:'don-cario-stubbs',displayName:'Don Cario Stubbs',relationship:'extended-family',roles:['Family','Legacy'],worlds:['StreetVerse','MeetTheStubbs'],referencePolicy:'authorized-reference',persistent:true},
-{id:'simone-johnson',displayName:'Simone Johnson',relationship:'extended-family',roles:['Aunt','Family','Postal Worker'],worlds:['StreetVerse','MeetTheStubbs','TimeMachine'],referencePolicy:'authorized-reference',persistent:true},,
+{id:'simone-johnson',displayName:'Simone Johnson',relationship:'extended-family',roles:['Aunt','Family','Postal Worker'],worlds:['StreetVerse','MeetTheStubbs','TimeMachine'],referencePolicy:'authorized-reference',persistent:true},
 ...SOCIAL_CREATOR_PLACEHOLDERS,
 ]
 export function getStubbsPassport(nameOrId:string){const key=nameOrId.trim().toLowerCase();return MEET_THE_STUBBS_FAMILY_FRIENDS.find(x=>x.id===key||x.displayName.toLowerCase()===key)}
