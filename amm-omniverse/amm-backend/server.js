@@ -20,6 +20,7 @@ const { createMiddleverseRouter } = require('./routes/middleverse')
 const { createAssetForgeRouter } = require('./routes/asset-forge')
 const { createEdgeNodeRouter } = require('./routes/edge-node')
 const { createEdgeGridRouter } = require('./routes/edge-grid')
+const { createVehicleRentalRouter } = require('./routes/vehicle-rentals')
 const { postCheckoutToTreasury, postInvoiceToTreasury, postRefundToTreasury, postDisputeToTreasury } = require('./lib/treasury-ledger')
 const signLanguage = require('./signLanguageService')
 const { jacobieSecurityHeaders, noStoreSensitive } = require('./lib/jacobie-security-headers')
@@ -67,7 +68,7 @@ app.get('/api/health', async (_req,res)=>{
   try { const { error }=await supabase.from('worlds').select('id').limit(1); database=!error } catch(_) {}
   try { const { error }=await supabase.from('release_registry').select('id').limit(1); releaseRegistry=!error } catch(_) {}
   try { const { error }=await supabase.from('release_health_samples').select('id').limit(1); releaseHealth=!error } catch(_) {}
-  res.json({ ok:true, ts:Date.now(), version:'1.11.0-release-control', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, financialTruth:true, releaseControl:true, releaseRegistry, releaseHealth, autoLedger:true, signLanguage:true, signRecognitionProvider:Boolean(process.env.SIGN_LANGUAGE_PROVIDER_URL), tryammLive:true, moderationReporting:true, workforce:true, middleverse:true, assetForge:true, meshyAssetForge:Boolean(process.env.MESHY_API_KEY), redHatSentinel:true, jacobieQuantumShield:true, jacobieSwarmShield:true, middleWearSecurity:true, middleWearResilience:true, pocketEdgeNode:true, edgeGridMarketplace:true, repoWorkstation:true } })
+  res.json({ ok:true, ts:Date.now(), version:'1.11.0-release-control', services:{ supabase:Boolean(process.env.SUPABASE_URL), livingWorldsSchema:database, stripe:Boolean(stripe), livekit:Boolean(process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET&&process.env.LIVEKIT_URL), gemini:Boolean(process.env.GEMINI_API_KEY), holoCore:true, hologpt:true, university:true, familyLegacy:true, heirsLegacy:true, omniTreasury:true, financialTruth:true, releaseControl:true, releaseRegistry, releaseHealth, autoLedger:true, signLanguage:true, signRecognitionProvider:Boolean(process.env.SIGN_LANGUAGE_PROVIDER_URL), tryammLive:true, moderationReporting:true, workforce:true, middleverse:true, assetForge:true, meshyAssetForge:Boolean(process.env.MESHY_API_KEY), redHatSentinel:true, jacobieQuantumShield:true, jacobieSwarmShield:true, middleWearSecurity:true, middleWearResilience:true, pocketEdgeNode:true, edgeGridMarketplace:true, mobilityRental:true, repoWorkstation:true } })
 })
 
 app.use('/api/privacy', noStoreSensitive)
@@ -78,6 +79,7 @@ app.use('/api/asset-forge', noStoreSensitive)
 app.use('/api/edge-node', noStoreSensitive)
 app.use('/api/edge-grid', noStoreSensitive)
 app.use('/api/middleverse', noStoreSensitive)
+app.use('/api/vehicle-rentals', noStoreSensitive)
 
 app.use('/api/omniverse', createOmniverseRouter({ supabase }))
 app.use('/api/holo-core', createHoloCoreRouter({ supabase, stripe }))
@@ -94,6 +96,7 @@ app.use('/api/middleverse', ...middleWearSecurity.middleware(), createMiddlevers
 app.use('/api/asset-forge', createAssetForgeRouter({ supabase }))
 app.use('/api/edge-node', createEdgeNodeRouter({ supabase }))
 app.use('/api/edge-grid', createEdgeGridRouter({ supabase }))
+app.use('/api/vehicle-rentals', createVehicleRentalRouter({ supabase }))
 app.use('/api/security/red-hat', noStoreSensitive, createRedHatSentinelRouter({ supabase, sentinel:redHatSentinel }))
 app.use('/api/ai', createAIRouter({ supabase }))
 app.use('/api', createLegacySecureRouter({ supabase, stripe }))
