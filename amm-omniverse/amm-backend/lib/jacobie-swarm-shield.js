@@ -25,6 +25,7 @@ function pathClass(req){
   if(p.startsWith('/api/edge-node'))return'edge-compute'
   if(p.startsWith('/api/edge-grid'))return'edge-marketplace'
   if(p.startsWith('/api/vehicle-rentals'))return'vehicle-rental'
+  if(p.startsWith('/api/vehicle-recovery'))return'vehicle-recovery'
   if(p.startsWith('/api/accessibility/sign/recognize'))return'media-expensive'
   if(p.startsWith('/api/live'))return'live-realtime'
   if(p.startsWith('/api/security'))return'security-sensitive'
@@ -42,6 +43,7 @@ const POLICIES={
   'edge-compute':{capacity:30,refillPerSec:.5,cost:2,degradeable:true},
   'edge-marketplace':{capacity:20,refillPerSec:.25,cost:3,degradeable:false},
   'vehicle-rental':{capacity:24,refillPerSec:.35,cost:2,degradeable:false},
+  'vehicle-recovery':{capacity:20,refillPerSec:.25,cost:3,degradeable:false},
   'media-expensive':{capacity:10,refillPerSec:.16,cost:3,degradeable:true},
   'live-realtime':{capacity:60,refillPerSec:1,cost:1,degradeable:true},
   'security-sensitive':{capacity:20,refillPerSec:.33,cost:2,degradeable:false},
