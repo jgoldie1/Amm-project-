@@ -18,7 +18,8 @@ type NativeRelayPlugin={
 const NativeRelay=registerPlugin<NativeRelayPlugin>('TryammPrivateRelay')
 
 export async function getPrivateRelayStatus():Promise<PrivateRelayStatus>{
-  const platform=Capacitor.getPlatform()
+  const rawPlatform=Capacitor.getPlatform()
+  const platform:PrivateRelayStatus['platform']=rawPlatform==='ios'||rawPlatform==='android'?rawPlatform:'web'
   if(!Capacitor.isNativePlatform())return{platform:'web',available:false,state:'HTTPS_ONLY',nativeCertified:false}
   if(!Capacitor.isPluginAvailable('TryammPrivateRelay'))return{platform,available:false,state:'NATIVE_PLUGIN_NOT_BUNDLED',nativeCertified:false}
   const result=await NativeRelay.status().catch(()=>({state:'UNAVAILABLE',provisioned:false}))
