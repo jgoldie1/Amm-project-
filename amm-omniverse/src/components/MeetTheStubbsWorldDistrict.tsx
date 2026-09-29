@@ -9,9 +9,25 @@ type WorldStore={world:string;store:string;description:string;action?:()=>void}
 type Rig={root:THREE.Group;leftArm:THREE.Group;rightArm:THREE.Group;leftLeg:THREE.Group;rightLeg:THREE.Group;head:THREE.Group}
 
 const SAVE_KEY='tryamm.stubbs-family.playable.v2'
+const SOCIAL_CREATOR_CHARACTERS:Character[]=Array.from({length:10},(_,i)=>({
+ name:`Social Creator ${String(i+1).padStart(2,'0')}`,
+ role:'BIGO/TikTok Creator • role pending',
+ color:[0x58e8ff,0xff6f9e,0xffcf67,0x75e08e,0xa68bff][i%5],
+ skin:[0x7a4d32,0xa36b4b,0xc88d68,0xd79a70][i%4],
+ accent:0xffffff,
+ x:-36+(i%5)*18,
+ z:i<5?28:36,
+}))
 const CHARACTERS:Character[]=[
- {name:'BJ',role:'Family / StreetVerse',color:0x4fe3ff,skin:0x8a5638,accent:0xffffff,x:-18,z:2},
+ {name:'BJ Stubbs',role:'Founder / StreetVerse',color:0x4fe3ff,skin:0x8a5638,accent:0xffffff,x:-18,z:2},
+ {name:'Marcus',role:'StreetVerse Friend • role pending',color:0x72d8ff,skin:0x8b5a3c,accent:0xe8f8ff,x:-15,z:-7},
  {name:'Al B',role:'Family / StreetVerse',color:0xe8b944,skin:0x7a472f,accent:0x20242b,x:-12,z:-5},
+ {name:'Tatti',role:'Creator • role pending',color:0xff6fae,skin:0xa36b4b,accent:0xffe6f2,x:-9,z:4},
+ {name:'Brielle',role:'Creator • role pending',color:0xa68bff,skin:0xc88d68,accent:0xf1eaff,x:-3,z:-6},
+ {name:'Mike',role:'StreetVerse Friend • role pending',color:0x66d9a8,skin:0xc88d68,accent:0xf5fff9,x:3,z:4},
+ {name:'Alphonso',role:'StreetVerse Friend • role pending',color:0xffa65c,skin:0x815039,accent:0x2a2520,x:9,z:-6},
+ {name:'Jasmine',role:'Creator • role pending',color:0xe86cff,skin:0x9a674d,accent:0xffeaff,x:15,z:4},
+ {name:'Tae Monroe',role:'Creator • role pending',color:0x5be7ff,skin:0x8f5b40,accent:0xeaffff,x:21,z:-6},
  {name:'Kenosha',role:'Mom / Legacy',color:0xff6fae,skin:0x9a6443,accent:0xffd8e8,x:-6,z:3},
  {name:'Raymond Jarreau',role:'Uncle / Legacy',color:0x77d98b,skin:0x75472f,accent:0xf3efe6,x:0,z:-5},
  {name:'Shawndell Shelton',role:'Sister / Legacy',color:0xa68bff,skin:0x9b6647,accent:0xe9dcff,x:6,z:3},
@@ -19,9 +35,17 @@ const CHARACTERS:Character[]=[
  {name:'Asia Watson',role:'Family / StreetVerse',color:0x59e7ff,skin:0x9a674d,accent:0xf2ffff,x:18,z:2},
  {name:'Benny',role:'Family / Omni Host',color:0x66f0c2,skin:0x86563d,accent:0xeafff8,x:24,z:-5},
  {name:'Simone J',role:'Family / Postal Worker',color:0x5b8cff,skin:0x8f5b40,accent:0xffffff,x:30,z:2},
+ ...SOCIAL_CREATOR_CHARACTERS,
 ]
 const DIALOGUE:Record<string,string[]>={
- BJ:['StreetVerse is moving. Pick a mission and build your lane.','The family district connects to the whole TRYAMM world.'],
+ 'BJ Stubbs':['StreetVerse is moving. Pick a mission and build your lane.','The family district connects to the whole TRYAMM world.'],
+ Marcus:['The city opens through people, missions and movement. Let me show you the next stop.','Start with the block, then build outward.'],
+ Tatti:['My creator lane is ready. Assign my final role later and the story can grow with it.','Let the mission create a Reel when we finish.'],
+ Brielle:['I am in the world now; my final business and mission lane can be assigned later.','Creators should have a reason to move through the city, not just stand around.'],
+ Mike:['Give me a final role later; for now I can meet the player and connect to the next mission.','The world should remember our interactions.'],
+ Alphonso:['I am ready for a future role, business and mission chain.','Give every character a place in the living city.'],
+ Jasmine:['My creator slot is live now and can become a business, beauty, fashion or other mission lane later.','Build the character first, then deepen the story.'],
+ 'Tae Monroe':['My creator character is live now; name, story and mission hooks can keep expanding.','BIGO, TikTok, Reels and StreetVerse should connect through the same character.'],
  'Al B':['Every block needs a purpose. Explore the stores and bring something back.','Try a race, a business mission, then capture the moment.'],
  Kenosha:['Legacy means people can walk through the story, not only read it.','Come home, build, learn and leave something for the next generation.'],
  'Raymond Jarreau':['There is always another route through the city.','Talk to everybody. The world should remember who you met.'],
@@ -70,14 +94,14 @@ function streetLight(scene:THREE.Scene,x:number,z:number){const g=new THREE.Grou
 
 export default function MeetTheStubbsWorldDistrict({onClose}:{onClose:()=>void}){
  const mount=useRef<HTMLDivElement|null>(null);const input=useRef({u:false,d:false,l:false,r:false});const saved=readSave()
- const [selected,setSelected]=useState<WorldStore>(WORLD_STORES[0]);const [offeredMission,setOfferedMission]=useState<any>(null);const [activeCharacter,setActiveCharacter]=useState(saved.character||CHARACTERS[0].name);const [message,setMessage]=useState('Meet the Stubbs is now a living family world. Walk, run, talk, explore the home and enter the 13 world storefronts.');const [quality,setQuality]=useState('FULL')
+ const [selected,setSelected]=useState<WorldStore>(WORLD_STORES[0]);const [offeredMission,setOfferedMission]=useState<any>(null);const [activeCharacter,setActiveCharacter]=useState(saved.character==='BJ'? 'BJ Stubbs' : saved.character||CHARACTERS[0].name);const [message,setMessage]=useState('Meet the Stubbs is now a living family world. Walk, run, talk, explore the home and enter the 13 world storefronts.');const [quality,setQuality]=useState('FULL')
  useEffect(()=>{const root=mount.current;if(!root)return;const low=((navigator as any).deviceMemory&&Number((navigator as any).deviceMemory)<=4)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4)||matchMedia('(pointer:coarse)').matches&&innerWidth<700;setQuality(low?'PERFORMANCE':'FULL')
   const scene=new THREE.Scene();scene.background=new THREE.Color(0x07111d);scene.fog=new THREE.FogExp2(0x07111d,.012);const camera=new THREE.PerspectiveCamera(57,1,.1,260);const renderer=new THREE.WebGLRenderer({antialias:!low,powerPreference:'high-performance'});renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.setPixelRatio(Math.min(devicePixelRatio,low?1.1:1.6));renderer.shadowMap.enabled=!low;root.appendChild(renderer.domElement)
   scene.add(new THREE.HemisphereLight(0xa9dcff,0x241a1b,2.4));const sun=new THREE.DirectionalLight(0xffe1bf,2.7);sun.position.set(35,55,18);sun.castShadow=!low;scene.add(sun)
   const ground=new THREE.Mesh(new THREE.PlaneGeometry(118,92),mat(0x172218,0,.98));ground.rotation.x=-Math.PI/2;ground.receiveShadow=!low;scene.add(ground);const road=new THREE.Mesh(new THREE.BoxGeometry(116,.12,11),mat(0x252932,0,.98));road.position.set(0,.06,12);scene.add(road);for(let x=-52;x<=52;x+=10){const dash=new THREE.Mesh(new THREE.BoxGeometry(5,.03,.17),new THREE.MeshBasicMaterial({color:0xe9da7a}));dash.position.set(x,.13,12);scene.add(dash)}
   const home=house(scene);for(const [x,z] of [[-30,-27],[-23,-15],[25,-25],[31,-12],[-42,26],[42,26]] as [number,number][])tree(scene,x,z);for(const x of [-45,-28,-10,10,28,45])streetLight(scene,x,7)
   const rigs=CHARACTERS.map(c=>{const r=characterRig(c);r.root.position.set(c.x,0,c.z);scene.add(r.root);return r});const stores:THREE.Group[]=[];WORLD_STORES.forEach((s,i)=>{const a=(i/WORLD_STORES.length)*Math.PI*2;const g=storeBuilding(i,s);g.position.set(Math.cos(a)*43,0,23+Math.sin(a)*26);g.rotation.y=-a+Math.PI/2;scene.add(g);stores.push(g)})
-  let controlledIndex=Math.max(0,CHARACTERS.findIndex(c=>c.name===(saved.character||CHARACTERS[0].name))),controlled=rigs[controlledIndex];if(Number.isFinite(saved.x)&&Number.isFinite(saved.z))controlled.root.position.set(saved.x,0,saved.z);const mark=()=>rigs.forEach((r,i)=>{const ring=r.root.getObjectByName('player-ring');if(ring)ring.visible=i===controlledIndex});mark()
+  const savedCharacter=saved.character==='BJ'?'BJ Stubbs':saved.character;let controlledIndex=Math.max(0,CHARACTERS.findIndex(c=>c.name===(savedCharacter||CHARACTERS[0].name))),controlled=rigs[controlledIndex];if(Number.isFinite(saved.x)&&Number.isFinite(saved.z))controlled.root.position.set(saved.x,0,saved.z);const mark=()=>rigs.forEach((r,i)=>{const ring=r.root.getObjectByName('player-ring');if(ring)ring.visible=i===controlledIndex});mark()
   const select=(name:string)=>{const i=CHARACTERS.findIndex(c=>c.name===name);if(i<0)return;controlledIndex=i;controlled=rigs[i];mark();setActiveCharacter(name);setMessage(`${name} is now playable. Walk to family members, the home or a world storefront and press E / INTERACT.`);dispatchEvent(new CustomEvent('tryamm:stubbs-family-character-controlled',{detail:{name,index:i,role:CHARACTERS[i].role}}))};const onSelect=(e:Event)=>select(String((e as CustomEvent).detail?.name||''));addEventListener('tryamm:stubbs-family-character-select',onSelect)
   const keys=new Set<string>();const down=(e:KeyboardEvent)=>{const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift','e'].includes(k)){e.preventDefault();if(k==='e')interact();else keys.add(k)}};const up=(e:KeyboardEvent)=>keys.delete(e.key.toLowerCase());addEventListener('keydown',down,{passive:false});addEventListener('keyup',up)
   let lastInteraction=0;const interact=()=>{const now=performance.now();if(now-lastInteraction<300)return;lastInteraction=now;let best={d:Infinity,type:'none',index:-1};rigs.forEach((r,i)=>{if(i===controlledIndex)return;const d=r.root.position.distanceTo(controlled.root.position);if(d<best.d)best={d,type:'family',index:i}});stores.forEach((s,i)=>{const d=s.position.distanceTo(controlled.root.position);if(d<best.d)best={d,type:'store',index:i}});const homeD=home.position.distanceTo(controlled.root.position);if(homeD<best.d)best={d:homeD,type:'home',index:0};if(best.d>7){setMessage('Move closer to a family member, home entrance or storefront.');return}if(best.type==='family'){const c=CHARACTERS[best.index],lines=DIALOGUE[c.name]||['Welcome to the family district.'];const line=lines[Math.floor(now/1200)%lines.length],passport=getStubbsPassport(c.name),memory=passport?rememberStubbsInteraction(passport.id,line):undefined;const mission=availableStubbsFamilyMissions(c.name)[0];setMessage(`${c.name}: “${line}”${memory?.metCount&&memory.metCount>1?` • Met ${memory.metCount} times`:''}${mission?` • Mission: ${mission.title}`:''}`);dispatchEvent(new CustomEvent('tryamm:stubbs-family-interaction',{detail:{type:'family',name:c.name,passport,line,memory,mission}}));setOfferedMission(mission||null);if(mission)dispatchEvent(new CustomEvent('tryamm:stubbs-family-mission-offered',{detail:{...mission,characterName:c.name}}))}else if(best.type==='store'){const s=WORLD_STORES[best.index];setSelected(s);setMessage(`${s.world} • ${s.store}: ${s.description}`);dispatchEvent(new CustomEvent('tryamm:stubbs-family-interaction',{detail:{type:'store',world:s.world,store:s.store}}))}else{setMessage('Stubbs Family Home • Living-room, legacy and family-story interior gateway.');dispatchEvent(new CustomEvent('tryamm:stubbs-family-interaction',{detail:{type:'home'}}))}}

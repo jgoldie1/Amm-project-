@@ -1,9 +1,18 @@
 import {useEffect,useMemo,useState} from 'react'
+import {CHICAGO_MUSIC_LEGACY_ARTISTS,chicagoMusicLegacyMissionId,createChicagoMusicLegacySteps} from '../data/ChicagoMusicLegacyMissionRegistry'
 
 type Pos={x?:number;z?:number}
 type Step={speaker:string;text:string;objective:string;x:number;z:number}
-type Mission={id:string;title:string;lane:'CELEBRITY BOSS'|'RAPPER';xp:number;steps:Step[]}
+type Mission={id:string;title:string;lane:'CELEBRITY BOSS'|'RAPPER'|'SINGER'|'MUSIC LEGACY';xp:number;steps:Step[];rightsGated?:boolean}
 
+const MUSIC_LEGACY_MISSIONS:Mission[]=CHICAGO_MUSIC_LEGACY_ARTISTS.map((artist,index)=>({
+ id:chicagoMusicLegacyMissionId(artist.id),
+ title:`Chicago Music Legacy: ${artist.displayName} — ${artist.legacyLabel}`,
+ lane:artist.missionLane,
+ xp:420+(index%4)*25,
+ steps:createChicagoMusicLegacySteps(artist),
+ rightsGated:true,
+}))
 const MISSIONS:Mission[]=[
  {id:'celebrity-boss-01',title:'Celebrity Boss: The Headliner',lane:'CELEBRITY BOSS',xp:420,steps:[
   {speaker:'Bennie',text:'Big arrival in the city. Keep the route clean, get the headliner to soundcheck, and make the moment worth clipping.',objective:'Meet the headliner convoy',x:34,z:-8},
@@ -18,7 +27,8 @@ const MISSIONS:Mission[]=[
   {speaker:'Bennie',text:'The single is finished. Now turn the whole city into the rollout.',objective:'Meet the artist at the Riverwalk',x:28,z:-12},
   {speaker:'Jett South',text:'One verse, three locations, no dead energy. We shoot it moving.',objective:'Shoot the downtown Reel moment',x:20,z:28},
   {speaker:'Jett South',text:'Now take it to the neighborhood. I want the business stop in the video too.',objective:'Hit the West Side business stop',x:-72,z:10},
-  {speaker:'Bennie',text:'Rollout complete. Push the final moment to Reels and close the mission.',objective:'Finish at the creator stage',x:38,z:38}]}
+  {speaker:'Bennie',text:'Rollout complete. Push the final moment to Reels and close the mission.',objective:'Finish at the creator stage',x:38,z:38}]},
+ ...MUSIC_LEGACY_MISSIONS,
 ]
 
 const emitDialogue=(mission:Mission,index:number)=>{const line=mission.steps[index];if(!line)return;dispatchEvent(new CustomEvent('tryamm:streetverse-dialogue',{detail:{missionId:mission.id,speaker:line.speaker,text:line.text,objective:line.objective,step:index}}))}
@@ -28,11 +38,11 @@ export default function StreetVerseCelebrityRapperMissions(){
  useEffect(()=>{const fn=(e:Event)=>{const d=(e as CustomEvent<Pos>).detail||{};setPos({x:Number(d.x||0),z:Number(d.z||0)})};addEventListener('tryamm:streetverse-player-position',fn);return()=>removeEventListener('tryamm:streetverse-player-position',fn)},[])
  const current=mission?.steps[step],distance=current?Math.hypot(pos.x-current.x,pos.z-current.z):999
  const nearest=useMemo(()=>MISSIONS.map(m=>({...m,d:Math.hypot(pos.x-m.steps[0].x,pos.z-m.steps[0].z)})).sort((a,b)=>a.d-b.d)[0],[pos])
- const start=(m:Mission)=>{setMission(m);setStep(0);setOpen(true);dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{missionId:m.id,label:m.title,financialReward:false,lane:m.lane,xp:m.xp}}));emitDialogue(m,0)}
+ const start=(m:Mission)=>{setMission(m);setStep(0);setOpen(true);dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{missionId:m.id,label:m.title,financialReward:false,lane:m.lane,xp:m.xp,rightsGated:Boolean(m.rightsGated),originalMissionWriting:true}}));emitDialogue(m,0)}
  const advance=()=>{if(!mission||!current||distance>10)return;dispatchEvent(new CustomEvent('tryamm:streetverse-objective-complete',{detail:{missionId:mission.id,step,objective:current.objective,x:current.x,z:current.z}}));if(step<mission.steps.length-1){const next=step+1;setStep(next);emitDialogue(mission,next)}else{dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{missionId:mission.id,label:mission.title,xp:mission.xp,financialReward:false,lane:mission.lane}}));dispatchEvent(new CustomEvent('tryamm:streetverse-reel-moment',{detail:{missionId:mission.id,title:mission.title,lane:mission.lane}}));dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'streetverse-star-mission',missionId:mission.id,title:`${mission.title} Highlight`,caption:`${mission.title} complete in StreetVerse • #TRYAMM #StreetVerse`}}));setMission(null);setStep(0);setOpen(false)}}
  return <div style={{position:'fixed',left:12,top:330,zIndex:16996,fontFamily:'system-ui',color:'#fff'}}>
   {!mission&&!open&&<button onClick={()=>setOpen(true)} style={btn('#ff74c8')}>🎤 STAR MISSIONS</button>}
-  {open&&!mission&&<div style={panel}><b>🎤 CELEBRITY + RAPPER MISSIONS</b><div style={{opacity:.72,fontSize:11,margin:'5px 0 8px'}}>Dialogue missions • original in-world stars</div><div style={{fontSize:10,opacity:.65,marginBottom:4}}>Nearest: {nearest.title} • {Math.round(nearest.d)}m</div>{MISSIONS.map(m=><button key={m.id} onClick={()=>start(m)} style={{...btn(m.lane==='CELEBRITY BOSS'?'#ffd36b':'#77e7ff'),display:'block',width:'100%',marginTop:6,textAlign:'left'}}>{m.title} • {m.xp} XP</button>)}<button onClick={()=>setOpen(false)} style={{...btn('#ddd'),marginTop:8}}>CLOSE</button></div>}
+  {open&&!mission&&<div style={panel}><b>🎤 CELEBRITY + RAPPER MISSIONS</b><div style={{opacity:.72,fontSize:11,margin:'5px 0 8px'}}>Dialogue missions • original in-world stars + rights-gated Chicago music legacy routes</div><div style={{fontSize:10,opacity:.65,marginBottom:4}}>Nearest: {nearest.title} • {Math.round(nearest.d)}m</div>{MISSIONS.map(m=><button key={m.id} onClick={()=>start(m)} style={{...btn(m.lane==='CELEBRITY BOSS'?'#ffd36b':m.lane==='SINGER'?'#ff9be6':m.lane==='MUSIC LEGACY'?'#c9a7ff':'#77e7ff'),display:'block',width:'100%',marginTop:6,textAlign:'left'}}>{m.title} • {m.xp} XP{m.rightsGated?' • ORIGINAL/CLEARED MEDIA ONLY':''}</button>)}<button onClick={()=>setOpen(false)} style={{...btn('#ddd'),marginTop:8}}>CLOSE</button></div>}
   {mission&&current&&<div style={panel}><b>{mission.title}</b><div style={{fontSize:11,opacity:.7,marginTop:3}}>STEP {step+1}/{mission.steps.length} • {Math.round(distance)}m</div><div style={{marginTop:8,fontWeight:900,color:'#ffd36b'}}>{current.speaker}</div><div style={{fontSize:12,lineHeight:1.35,marginTop:3}}>{current.text}</div><div style={{fontSize:11,marginTop:8,opacity:.8}}>OBJECTIVE: {current.objective}</div><button disabled={distance>10} onClick={advance} style={{...btn(distance<=10?'#88ffad':'#777'),marginTop:9,width:'100%'}}>{distance<=10?(step===mission.steps.length-1?'COMPLETE + OPEN REEL':'COMPLETE OBJECTIVE'):'GO TO OBJECTIVE'}</button></div>}
  </div>
 }

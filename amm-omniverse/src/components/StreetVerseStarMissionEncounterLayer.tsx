@@ -3,6 +3,15 @@ import {useEffect,useState} from 'react'
 type Dialogue={missionId?:string;speaker?:string;objective?:string;step?:number}
 type Pos={x?:number;z?:number}
 const targetFor=(missionId:string|undefined,step=0)=>{
+ if(missionId?.startsWith('chicago-music-legacy-')){
+  const legacy=[
+   {x:28,z:-12,label:'CHICAGO MUSIC LEGACY MARKER'},
+   {x:-42,z:-30,label:'64-TRACK STUDIO LEARNING STOP'},
+   {x:20,z:28,label:'ORIGINAL CREATOR MOMENT'},
+   {x:38,z:38,label:'CREATOR STAGE'},
+  ]
+  return legacy[step]
+ }
  const map:Record<string,{x:number;z:number;label:string}[]>={
   'celebrity-boss-01':[
    {x:34,z:-8,label:'HEADLINER CONVOY'},{x:-34,z:34,label:'VENUE / SOUNDCHECK'},{x:-42,z:-30,label:'PRODUCTION CRATE'},{x:38,z:38,label:'PERFORMANCE STAGE'}],
