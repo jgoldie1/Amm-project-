@@ -1,0 +1,35 @@
+{
+  "schema": "tryamm.private-relay.release.v1",
+  "product": "TRYAMM Private Relay / VPN",
+  "storeReleaseEnabled": false,
+  "pwa": {
+    "mode": "HTTPS_ONLY",
+    "systemWideVpn": false
+  },
+  "ios": {
+    "mode": "NATIVE_CAPABILITY_REQUIRED",
+    "personalVpnEntitlement": "com.apple.developer.networking.vpn.api",
+    "networkExtensionEntitlementMayBeRequired": true,
+    "explicitUserAuthorization": true,
+    "nativeCompileCertified": false,
+    "appStoreReviewCertified": false,
+    "exportComplianceReviewRequired": true
+  },
+  "android": {
+    "mode": "NATIVE_SERVICE_REQUIRED",
+    "vpnServiceRequired": true,
+    "bindPermission": "android.permission.BIND_VPN_SERVICE",
+    "foregroundServiceBehaviorRequired": true,
+    "playConsoleVpnDeclarationRequired": true,
+    "prominentDisclosureAndConsentRequired": true,
+    "nativeCompileCertified": false,
+    "playReviewCertified": false
+  },
+  "privacy": {
+    "monetizeVpnTraffic": false,
+    "redirectOtherAppsTrafficForAdsOrMonetization": false,
+    "edgeEarningsFromVpnTraffic": false,
+    "trafficContentLoggingByDefault": false,
+    "minimalSecurityMetadataRetention": true
+  }
+}
