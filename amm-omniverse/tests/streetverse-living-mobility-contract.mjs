@@ -1,0 +1,16 @@
+import fs from 'node:fs'
+const economy=fs.readFileSync(new URL('../src/data/StreetVerseMobilityEconomy.ts',import.meta.url),'utf8')
+const recovery=fs.readFileSync(new URL('../src/runtime/StreetVerseVehicleRecoveryRuntime.ts',import.meta.url),'utf8')
+const life=fs.readFileSync(new URL('../src/runtime/StreetVerseLivingMobilityRuntime.ts',import.meta.url),'utf8')
+const launcher=fs.readFileSync(new URL('../src/components/HoloMobilityLauncher.tsx',import.meta.url),'utf8')
+const must=(ok,msg)=>{if(!ok)throw new Error('STREETVERSE LIVING MOBILITY CONTRACT FAIL: '+msg)}
+for(const x of ['Holo Ride Share','All American Car Share','TRYAMM Auto Lot Rental','Holo Delivery','Vehicle Recovery'])must(economy.includes(x),'missing mobility mode '+x)
+must(recovery.includes('nonviolentOnly:true'),'recovery must be nonviolent')
+must(recovery.includes('ownerOrServerAuthorizationRequired:true'),'recovery authorization gate missing')
+must(recovery.includes('overdueRentalCanBeRecovered:true'),'overdue rental recovery missing')
+must(life.includes('npcRideDemand:true'),'NPC ride demand missing')
+must(life.includes('recoveryMissions:true'),'ambient recovery jobs missing')
+must(launcher.includes('STREETVERSE MOBILITY'),'visible StreetVerse Mobility center missing')
+must(launcher.includes('REPO / RECOVERY'),'visible recovery card missing')
+must(launcher.includes('CAR SHARE'),'visible car-share card missing')
+console.log('STREETVERSE LIVING MOBILITY CONTRACT PASS: rideshare + car-share + rental + delivery + safe recovery')
