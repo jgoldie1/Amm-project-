@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import {createCircleParkHologram} from '../game/holographic/CircleParkHolographicPrototype'
 import {CIRCLE_PARK_TWIN,createTwinDebugOverlay} from '../game/holographic/DigitalTwinPipeline'
 import type {CompanionCommand} from '../data/StreetVerseCompanionEcologyEngine'
+import {disposeNativeAssetLayer,loadTryammNativeCircleParkLayer} from '../runtime/TryammNativeAssetRuntime'
 
 type Zone={minX:number;maxX:number;minZ:number;maxZ:number}
 type SelectedMission={id:string;title:string;rewardXP:number}
@@ -14,7 +15,7 @@ const inside=(x:number,z:number,b:Zone)=>x>b.minX&&x<b.maxX&&z>b.minZ&&z<b.maxZ
 
 export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void}){
  const mountRef=useRef<HTMLDivElement|null>(null),input=useRef({x:0,z:0}),nearEntrance=useRef(false),insideDemo=useRef(false),nearElevator=useRef(false),companionCommand=useRef<CompanionCommand>('follow'),playerRef=useRef<THREE.Mesh|null>(null),dogRef=useRef<THREE.Group|null>(null)
- const [message,setMessage]=useState('Walk to the glowing entrance.'),[canOpen,setCanOpen]=useState(false),[interior,setInterior]=useState(false),[canElevator,setCanElevator]=useState(false),[floorLevel,setFloorLevel]=useState(1),[dogCommand,setDogCommand]=useState<CompanionCommand>('follow'),[missionComplete,setMissionComplete]=useState(false),[xp,setXp]=useState(0),[shareMessage,setShareMessage]=useState(''),[businessNear,setBusinessNear]=useState(false),[businessComplete,setBusinessComplete]=useState(false),[selectedMission,setSelectedMission]=useState<SelectedMission|null>(null),[selectedCharacter,setSelectedCharacter]=useState('YOU'),[circleXp,setCircleXp]=useState(0),[starterHome,setStarterHome]=useState(false),[chicagoUnlocked,setChicagoUnlocked]=useState(false),[homeNear,setHomeNear]=useState(false)
+ const [message,setMessage]=useState('Walk to the glowing entrance.'),[nativeAssets,setNativeAssets]=useState<{state:'LOADING'|'READY'|'FALLBACK';loaded:number;failed:number}>({state:'LOADING',loaded:0,failed:0}),[canOpen,setCanOpen]=useState(false),[interior,setInterior]=useState(false),[canElevator,setCanElevator]=useState(false),[floorLevel,setFloorLevel]=useState(1),[dogCommand,setDogCommand]=useState<CompanionCommand>('follow'),[missionComplete,setMissionComplete]=useState(false),[xp,setXp]=useState(0),[shareMessage,setShareMessage]=useState(''),[businessNear,setBusinessNear]=useState(false),[businessComplete,setBusinessComplete]=useState(false),[selectedMission,setSelectedMission]=useState<SelectedMission|null>(null),[selectedCharacter,setSelectedCharacter]=useState('YOU'),[circleXp,setCircleXp]=useState(0),[starterHome,setStarterHome]=useState(false),[chicagoUnlocked,setChicagoUnlocked]=useState(false),[homeNear,setHomeNear]=useState(false)
  useEffect(()=>{
   const onMission=(event:Event)=>{const detail=(event as CustomEvent).detail||{};if(detail.mission){setSelectedMission(detail.mission);setMessage(`MISSION LOADED • ${detail.mission.title}`)}}
   const onCharacter=(event:Event)=>{const detail=(event as CustomEvent).detail||{};if(detail.label)setSelectedCharacter(detail.label)}
@@ -31,6 +32,28 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
   const camera=new THREE.PerspectiveCamera(62,1,.1,220),renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;mount.appendChild(renderer.domElement)
   scene.add(new THREE.HemisphereLight(0x8fefff,0x101018,2.2));const key=new THREE.DirectionalLight(0xffffff,2.4);key.position.set(-20,35,-20);scene.add(key)
   const world=createCircleParkHologram('interactive-demo');scene.add(world);scene.add(createTwinDebugOverlay(CIRCLE_PARK_TWIN))
+
+  let nativeLayer:THREE.Group|null=null
+  let nativeLayerCancelled=false
+  void loadTryammNativeCircleParkLayer().then(result=>{
+    if(nativeLayerCancelled){
+      disposeNativeAssetLayer(result.group)
+      return
+    }
+    nativeLayer=result.group
+    scene.add(result.group)
+    setNativeAssets({
+      state:result.loaded>0?'READY':'FALLBACK',
+      loaded:result.loaded,
+      failed:result.failed.length,
+    })
+    if(result.failed.length)console.warn('TRYAMM native visual layer partial fallback',result.failed)
+  }).catch(error=>{
+    if(nativeLayerCancelled)return
+    console.warn('TRYAMM native visual layer fallback',error)
+    setNativeAssets({state:'FALLBACK',loaded:0,failed:1})
+  })
+
   const player=new THREE.Mesh(new THREE.CapsuleGeometry(.65,1.25,4,8),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0x00ccff,emissiveIntensity:.45}));player.position.set(0,1.4,-46);scene.add(player);playerRef.current=player
   const dog=new THREE.Group();const body=new THREE.Mesh(new THREE.BoxGeometry(1.35,.75,2),new THREE.MeshStandardMaterial({color:0x8a5a34}));body.position.y=.65;dog.add(body);const head=new THREE.Mesh(new THREE.BoxGeometry(.85,.85,.85),new THREE.MeshStandardMaterial({color:0x9b6840}));head.position.set(0,1,-1.15);dog.add(head);dog.position.set(-2,0,-44);scene.add(dog);dogRef.current=dog
   const road=new THREE.Mesh(new THREE.PlaneGeometry(18,82),new THREE.MeshStandardMaterial({color:0x151b22,roughness:.95}));road.rotation.x=-Math.PI/2;road.position.set(0,.015,-7);scene.add(road)
@@ -62,7 +85,7 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
    const elev=insideDemo.current&&player.position.distanceTo(new THREE.Vector3(3,1.4,-16))<3.5;if(elev!==nearElevator.current){nearElevator.current=elev;setCanElevator(elev);if(elev)setMessage('Elevator reached • RIDE ELEVATOR is available.')}
    doorOpen=THREE.MathUtils.lerp(doorOpen,insideDemo.current?1:0,.08);door.position.x=doorOpen*3.5;floor.visible=stairs.visible=elevator.visible=insideDemo.current
    camera.position.lerp(new THREE.Vector3(player.position.x,player.position.y+5,player.position.z-11),.08);camera.lookAt(player.position.x,player.position.y+1,player.position.z+4);renderer.render(scene,camera);raf=requestAnimationFrame(tick)}
-  raf=requestAnimationFrame(tick);return()=>{cancelAnimationFrame(raf);removeEventListener('resize',resize);renderer.dispose();renderer.domElement.remove()}
+  raf=requestAnimationFrame(tick);return()=>{nativeLayerCancelled=true;cancelAnimationFrame(raf);removeEventListener('resize',resize);if(nativeLayer){scene.remove(nativeLayer);disposeNativeAssetLayer(nativeLayer)}renderer.dispose();renderer.domElement.remove()}
  },[])
  const stop=()=>{input.current={x:0,z:0}}
  const move=(x:number,z:number)=>{input.current={x,z}}
@@ -76,7 +99,7 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
  const captureMission=async()=>{if(!missionComplete)return;const share={title:'StreetVerse Chicago',text:`I completed ${selectedMission?.title||'Circle Park Arrival'} in StreetVerse Chicago • +${selectedMission?.rewardXP||100} XP`};try{if(navigator.share){await navigator.share(share);setShareMessage('Share sheet opened • choose Reels, LIVE, Messages or another app.')}else{await navigator.clipboard?.writeText(share.text);setShareMessage('Mission highlight copied • ready for TRYAMM Reels/Holo LIVE composer.')}}catch{setShareMessage('Share cancelled • mission highlight remains ready.')}}
  const commandDog=(cmd:CompanionCommand)=>{companionCommand.current=cmd;setDogCommand(cmd);const labels:Record<CompanionCommand,string>={follow:'Companion following.',stay:'Companion staying here.',search:'Companion searching the nearby mission area.',help:'Companion ready to assist/rescue.',defend:'Companion guarding during fictional gameplay danger.',return:'Companion returning to you.'};setMessage(labels[cmd])}
  return <div tabIndex={0} onKeyDown={keyDown} onKeyUp={stop} aria-label="Playable StreetVerse Chicago Circle Park world" style={{position:'fixed',inset:0,zIndex:2500,background:'#050b14',outline:'none'}}><div ref={mountRef} style={{position:'absolute',inset:0}}/>
-  <div style={{position:'absolute',top:12,left:12,right:12,padding:12,border:'1px solid #00ffcc88',borderRadius:14,background:'#07131dcc',color:'#eaffff',fontFamily:'system-ui'}}><b>STREETVERSE CHICAGO • CIRCLE PARK</b><div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:5,fontSize:11}}><span>PLAYER: {selectedCharacter}</span><span>MISSION: {missionComplete?'COMPLETE':selectedMission?.title||'REACH THE GLOWING ENTRANCE'}</span><span>REWARD: {selectedMission?`+${selectedMission.rewardXP} XP`:'+100 XP'}</span><span>MISSION XP: {xp}</span><span>CIRCLE XP: {circleXp}/1000</span><span>HOME: {starterHome?'CLAIMED':'FIND IT'}</span><span>CHICAGO: {chicagoUnlocked?'UNLOCKED':'LOCKED'}</span><span>CITY ACTIVITY: ACTIVE</span><span>BUSINESS: {businessComplete?'CHECKED IN':'DISCOVER'}</span></div><div style={{fontSize:12,opacity:.82}}>Chicago-inspired playable district • lightweight mobile streetscape • conceptual massing, not survey/CAD geometry.</div><div style={{fontSize:12,marginTop:5}}>{message}{interior?` • FLOOR ${floorLevel}`:''}</div></div>
+  <div style={{position:'absolute',top:12,left:12,right:12,padding:12,border:'1px solid #00ffcc88',borderRadius:14,background:'#07131dcc',color:'#eaffff',fontFamily:'system-ui'}}><b>STREETVERSE CHICAGO • CIRCLE PARK</b><div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:5,fontSize:11}}><span>PLAYER: {selectedCharacter}</span><span>MISSION: {missionComplete?'COMPLETE':selectedMission?.title||'REACH THE GLOWING ENTRANCE'}</span><span>REWARD: {selectedMission?`+${selectedMission.rewardXP} XP`:'+100 XP'}</span><span>MISSION XP: {xp}</span><span>CIRCLE XP: {circleXp}/1000</span><span>HOME: {starterHome?'CLAIMED':'FIND IT'}</span><span>CHICAGO: {chicagoUnlocked?'UNLOCKED':'LOCKED'}</span><span>CITY ACTIVITY: ACTIVE</span><span>BUSINESS: {businessComplete?'CHECKED IN':'DISCOVER'}</span><span>NATIVE ASSETS: {nativeAssets.state} • {nativeAssets.loaded} LOADED{nativeAssets.failed?` • ${nativeAssets.failed} FALLBACK`:''}</span></div><div style={{fontSize:12,opacity:.82}}>Chicago-inspired playable district • TRYAMM native GLB preview layer + authoritative gameplay primitives • conceptual massing, not survey/CAD geometry.</div><div style={{fontSize:12,marginTop:5}}>{message}{interior?` • FLOOR ${floorLevel}`:''}</div></div>
   <div aria-live="polite" style={{position:'absolute',width:1,height:1,overflow:'hidden',clip:'rect(0 0 0 0)'}}>{message}</div>
   <div aria-label="Circle Park analog movement joystick" onPointerDown={joystick} onPointerMove={e=>{if(e.buttons)joystick(e)}} onPointerUp={stop} onPointerCancel={stop} onLostPointerCapture={stop} style={{position:'absolute',left:18,bottom:20,width:124,height:124,borderRadius:'50%',border:'2px solid #00ffcc',background:'#06131bcc',touchAction:'none',boxShadow:'inset 0 0 28px #00ffcc33'}}><div style={{position:'absolute',left:44,top:44,width:32,height:32,borderRadius:'50%',background:'#eaffff',boxShadow:'0 0 18px #00ffcc'}}/></div>
   <div aria-label="One-hand movement controls" style={{position:'absolute',left:18,bottom:152,display:'grid',gridTemplateColumns:'repeat(3,38px)',gap:4}}><span/><button aria-label="Move forward" onPointerDown={()=>move(0,1)} onPointerUp={stop} onPointerCancel={stop} style={moveBtn}>▲</button><span/><button aria-label="Move left" onPointerDown={()=>move(-1,0)} onPointerUp={stop} onPointerCancel={stop} style={moveBtn}>◀</button><button aria-label="Stop movement" onClick={stop} style={moveBtn}>■</button><button aria-label="Move right" onPointerDown={()=>move(1,0)} onPointerUp={stop} onPointerCancel={stop} style={moveBtn}>▶</button><span/><button aria-label="Move backward" onPointerDown={()=>move(0,-1)} onPointerUp={stop} onPointerCancel={stop} style={moveBtn}>▼</button><span/></div>
