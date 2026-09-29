@@ -1,0 +1,287 @@
+name: StreetVerse Chicago Morning Mega Convergence
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/tryamm-world-tv-clean
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "amm-omniverse/**"
+      - "docs/launch/**"
+      - ".github/workflows/streetverse-chicago-morning-mega-convergence.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-chicago-morning-mega-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-truth:
+    name: Source truth + branch reconciliation gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Compare working branch with main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main --no-tags
+          AHEAD="$(git rev-list --count origin/main..HEAD)"
+          BEHIND="$(git rev-list --count HEAD..origin/main)"
+          mkdir -p release-evidence
+          {
+            echo "# StreetVerse Chicago source truth"
+            echo
+            echo "- Commit: ${GITHUB_SHA}"
+            echo "- Ref: ${GITHUB_REF}"
+            echo "- Ahead of main: ${AHEAD}"
+            echo "- Behind main: ${BEHIND}"
+            echo "- Release truth: architecture is not production certification"
+          } > release-evidence/source-truth.md
+          echo "Ahead=${AHEAD}; Behind=${BEHIND}"
+          if [ "${BEHIND}" -gt 0 ]; then
+            echo "::warning::Working branch is ${BEHIND} commit(s) behind main. Reconciliation remains a release blocker."
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-source-truth
+          path: release-evidence/source-truth.md
+          retention-days: 14
+
+  root-platform:
+    name: Root app lint + syntax + smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Install root dependencies
+        run: npm install --no-audit --no-fund
+      - name: Root full check
+        run: npm run check
+
+  streetverse-contracts:
+    name: Circle Park playable loop + Chicago/mobile contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install Omniverse dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Morning mega contract
+        run: node tests/streetverse-chicago-morning-mega-contract.mjs
+
+      - name: Critical playable-loop contracts
+        run: |
+          set -euo pipefail
+          node tests/streetverse-character-scale-contract.mjs
+          node tests/streetverse-chicago-grid-reality-contract.mjs
+          node tests/streetverse-mobile-repair-visibility-contract.mjs
+          node tests/streetverse-journey-qa-contract.mjs
+          node tests/streetverse-mobile-living-city-contract.mjs
+          node tests/streetverse-one-hand-integration-contract.mjs
+          node tests/streetverse-one-hand-mission-choice-contract.mjs
+          node tests/streetverse-unified-mobile-controls-contract.mjs
+          node tests/streetverse-mobile-mission-completion-bridge-contract.mjs
+          node tests/streetverse-mission-reel-handoff-contract.mjs
+          node tests/streetverse-reel-return-to-world-contract.mjs
+          node tests/streetverse-authoritative-reward-contract.mjs
+          node tests/inventory-authority-contract.mjs
+          node tests/commerce-transaction-ledger-contract.mjs
+          node tests/business-passport-visible-builder-contract.mjs
+
+      - name: App + release contracts
+        run: |
+          set -euo pipefail
+          node tests/pwa-install-release-contract.mjs
+          node tests/google-play-release-contract.mjs
+          node tests/account-deletion-release-contract.mjs
+          node tests/mobile-navigation-carousel-repair-contract.mjs
+          node tests/holo-carousel-real-destinations-contract.mjs
+          node tests/canonical-navigation-owner-contract.mjs
+          node tests/streetverse-holo-live-pk-launch-contract.mjs
+          node tests/holo-live-pk-integration-contract.mjs
+
+  omniverse-full:
+    name: Omniverse full lint + security + readiness + typecheck + build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install Omniverse dependencies
+        run: npm install --no-audit --no-fund
+      - name: Full Omniverse check
+        run: npm run check
+      - name: Package web release candidate
+        run: tar -czf ../streetverse-chicago-web-candidate.tgz dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-chicago-web-candidate
+          path: streetverse-chicago-web-candidate.tgz
+          retention-days: 14
+
+  aaa-evidence:
+    name: AAA vertical-slice evidence audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - name: Audit visual/runtime foundations
+        shell: bash
+        run: |
+          set -euo pipefail
+          REQUIRED=(
+            "amm-omniverse/src/data/StreetVerseChicagoAAAVerticalSlice.ts"
+            "amm-omniverse/src/data/AssetLodStreamingEngine.ts"
+            "amm-omniverse/src/data/ExtremeRealityRenderingEngine.ts"
+            "amm-omniverse/src/data/LivingCityEngine.ts"
+            "amm-omniverse/src/runtime/StreetVerseHumanScale.ts"
+            "amm-omniverse/src/runtime/StreetVersePhysicalVehicleRigRuntime.ts"
+            "amm-omniverse/src/runtime/StreetVerseVehicleRepairStreamerRuntime.ts"
+            "amm-omniverse/src/components/CircleParkHolographicWorld.tsx"
+          )
+          for file in "${REQUIRED[@]}"; do
+            test -f "${file}" || { echo "::error::Missing required AAA foundation: ${file}"; exit 1; }
+          done
+          mkdir -p release-evidence
+          {
+            echo "# StreetVerse Chicago AAA evidence"
+            echo
+            echo "- Benchmark: Circle Park → Roosevelt → Taylor → Pilsen"
+            echo "- Production geometry/materials/lighting remain asset-and-runtime proof gates."
+            echo "- Physical iPhone verification is intentionally not claimed by CI."
+            echo "- AAA principles target is not a claim of parity with any named commercial title."
+            echo
+            echo "## Required visual gates"
+            grep -o '"[a-z0-9-]*"' amm-omniverse/src/data/StreetVerseChicagoAAAVerticalSlice.ts | sort -u
+          } > release-evidence/aaa-evidence.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-chicago-aaa-evidence
+          path: release-evidence/aaa-evidence.md
+          retention-days: 14
+
+  media-production:
+    name: Circle Park TV/Reels/LIVE/movie/game production contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Validate production pipeline contract
+        run: node tests/streetverse-chicago-morning-mega-contract.mjs
+      - name: Write shoot/edit checklist
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ../release-evidence
+          cat > ../release-evidence/circle-park-production.md <<'EOF'
+          # Circle Park Episode 1 production handoff
+
+          Pipeline:
+          Phone shoot → confessionals → 22-minute episode → 8–10 Reels → LIVE aftershow → All American Network/Holo Drama → separate StreetVerse Chicago Movie Chapter 1 edit → playable Circle Park mission bridge.
+
+          Human/physical work still required:
+          - Capture 60–90 minutes of usable footage and B-roll.
+          - Record clean confessionals.
+          - Secure appearance/guardian/location/music/art/logo/footage permissions as applicable.
+          - Perform the editorial cuts from actual source footage.
+          - Perform physical-device checks on the target iPhone and any release Android device.
+          - Do not mark AAN/Holo Drama distribution LIVE until the actual upload/player/distribution path passes runtime testing.
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: circle-park-production-handoff
+          path: release-evidence/circle-park-production.md
+          retention-days: 14
+
+  morning-release-gate:
+    name: Morning release gate
+    if: ${{ always() }}
+    needs:
+      - source-truth
+      - root-platform
+      - streetverse-contracts
+      - omniverse-full
+      - aaa-evidence
+      - media-production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish consolidated status
+        env:
+          SOURCE_TRUTH: ${{ needs.source-truth.result }}
+          ROOT_PLATFORM: ${{ needs.root-platform.result }}
+          STREETVERSE_CONTRACTS: ${{ needs.streetverse-contracts.result }}
+          OMNIVERSE_FULL: ${{ needs.omniverse-full.result }}
+          AAA_EVIDENCE: ${{ needs.aaa-evidence.result }}
+          MEDIA_PRODUCTION: ${{ needs.media-production.result }}
+        shell: bash
+        run: |
+          {
+            echo "# StreetVerse Chicago Morning Mega Convergence"
+            echo
+            echo "| Gate | Result |"
+            echo "|---|---|"
+            echo "| Source truth | ${SOURCE_TRUTH} |"
+            echo "| Root platform | ${ROOT_PLATFORM} |"
+            echo "| Playable/mobile contracts | ${STREETVERSE_CONTRACTS} |"
+            echo "| Omniverse full check/build | ${OMNIVERSE_FULL} |"
+            echo "| AAA evidence | ${AAA_EVIDENCE} |"
+            echo "| Circle Park production contract | ${MEDIA_PRODUCTION} |"
+            echo
+            echo "## Morning physical checks still owned by the founder"
+            echo "- Install/open on iPhone."
+            echo "- Spawn into Circle Park."
+            echo "- Confirm correct character scale."
+            echo "- Confirm joystick/one-hand controls."
+            echo "- Find a mission marker."
+            echo "- Start mission and repair vehicle."
+            echo "- Open door, enter vehicle, drive, park and exit."
+            echo "- Verify map/player grid and navigation."
+            echo "- Open Reel capture and complete save/share."
+            echo "- Verify carousel destinations."
+            echo "- Verify AAN/Holo Drama surfaces do not claim LIVE without runtime proof."
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          test "${ROOT_PLATFORM}" = "success"
+          test "${STREETVERSE_CONTRACTS}" = "success"
+          test "${OMNIVERSE_FULL}" = "success"
+          test "${AAA_EVIDENCE}" = "success"
+          test "${MEDIA_PRODUCTION}" = "success"
+
+          echo "Repository/build gates passed. Physical-device and real-footage certification remain separate."
