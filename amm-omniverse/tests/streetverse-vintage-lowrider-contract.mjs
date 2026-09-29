@@ -1,0 +1,15 @@
+import fs from 'node:fs'
+const cat=fs.readFileSync(new URL('../src/data/StreetVerseVintageLowriderCatalog.ts',import.meta.url),'utf8')
+const hydro=fs.readFileSync(new URL('../src/runtime/StreetVerseHydraulicsRuntime.ts',import.meta.url),'utf8')
+const garage=fs.readFileSync(new URL('../src/data/StreetVerseVintageGarage.ts',import.meta.url),'utf8')
+const must=(ok,msg)=>{if(!ok)throw new Error('STREETVERSE VINTAGE LOWRIDER CONTRACT FAIL: '+msg)}
+for(const x of ['1948 Ambassador-Era Streamliner','1948 Boulevard Fleet Coupe','1957 Tailfin Deluxe','1964 Soul Cruiser','1978 Glasshouse Coupe','1987 Grand Cruiser','1994 Boulevard Coupe'])must(cat.includes(x),'missing '+x)
+must(cat.includes('exactLicensedBrandModels:false'),'license boundary missing')
+must(cat.includes('hydraulicEligible:true'),'hydraulic vehicle coverage missing')
+for(const mode of ['front-up','rear-up','three-wheel-left','three-wheel-right','show-hop'])must(hydro.includes(mode),'hydraulic mode missing '+mode)
+must(hydro.includes('showHopOnlyInDesignatedShowZones:true'),'show-zone safety missing')
+must(hydro.includes('noRealWorldInstallationInstructions:true'),'simulation boundary missing')
+must(garage.includes('Restore the 1948 Streamliner'),'1948 restoration mission missing')
+must(garage.includes('Chicago Cruise Night'),'cruise mission missing')
+must(garage.includes('StreetVerse Car Show'),'car-show mission missing')
+console.log('STREETVERSE VINTAGE LOWRIDER CONTRACT PASS: 1940s-1990s classics + restoration + game-only hydraulics + car culture')
