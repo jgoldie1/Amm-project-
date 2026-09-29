@@ -1,0 +1,37 @@
+export const JACOBIE_SWARM_DEFENSE={
+  product:'Jacobie Cybersecurity • Swarm Shield',
+  threatClasses:[
+    'distributed request floods',
+    'credential stuffing and automated account abuse',
+    'bot signup / scraping swarms',
+    'expensive AI, media and asset-generation exhaustion',
+    'payment and business-flow automation abuse',
+    'coordinated reconnaissance hiding inside high request volume',
+    'provider-cost amplification',
+    'malicious dependency / build-pipeline compromise',
+  ] as const,
+  layers:[
+    'edge/CDN/WAF network absorption',
+    'Red Hat Sentinel canary/probe detection',
+    'source + principal + route token buckets',
+    'stricter budgets for expensive/provider-backed operations',
+    'payload/operation size limits',
+    'zero-trust auth/authorization for every sensitive resource',
+    'global backpressure and graceful degradation',
+    'provider spending ceilings and billing alerts',
+    'circuit breakers around downstream providers',
+    'queue/concurrency limits for media and AI jobs',
+    'incident containment, credential revocation and secret rotation',
+    'crypto agility and post-quantum migration inventory',
+  ] as const,
+  accessibility:{
+    avoidMandatoryVisualCaptcha:true,
+    preferRiskBasedFriction:true,
+    preserveOneHandVoiceAndAssistiveFlows:true,
+  },
+  truth:{
+    cannotMakeUnhackable:true,
+    instanceRateLimitsDoNotReplaceEdgeDdosProtection:true,
+    postQuantumReadinessDoesNotMeanAllProvidersUsePqc:true,
+  },
+} as const
