@@ -1,4 +1,4 @@
-import {credentialForVehicleClass,STREETVERSE_VEHICLE_ACCESS_POLICY} from '../data/StreetVerseVehicleAccessProgression'
+import {credentialForVehicleClass,STREETVERSE_SPECIAL_VEHICLE_ASSIGNMENTS,STREETVERSE_VEHICLE_ACCESS_POLICY} from '../data/StreetVerseVehicleAccessProgression'
 
 export type MobilityProfile={
   level:number
@@ -27,8 +27,11 @@ export function canUseStreetVerseVehicle(vehicleClass:string,profile:MobilityPro
   }
   const missing=credential.requiredMissions.filter(id=>!profile.completedMissions.includes(id)&&!profile.credentials.includes(id))
   const levelOk=profile.level>=credential.unlockLevel
-  const roleRequired=credential.tier==='emergency-role'
-  const roleOk=!roleRequired||profile.activeRoles.some(role=>['police','sheriff','ems','fire','rescue','security-training'].includes(role))
+  const specialAssignment=(STREETVERSE_SPECIAL_VEHICLE_ASSIGNMENTS as Record<string,{allowedRoles:readonly string[];credential:string}>)[vehicleClass]
+  const roleRequired=credential.tier==='emergency-role'||Boolean(specialAssignment)
+  const emergencyRoleOk=credential.tier!=='emergency-role'||profile.activeRoles.some(role=>['police','sheriff','ems','fire','rescue','security-training'].includes(role))
+  const specialRoleOk=!specialAssignment||profile.activeRoles.some(role=>specialAssignment.allowedRoles.includes(role))
+  const roleOk=emergencyRoleOk&&specialRoleOk
   const credentialOk=profile.credentials.includes(credential.id)||missing.length===0
 
   if(!levelOk)return{allowed:false,reason:'LEVEL_REQUIRED',credentialId:credential.id,missingMissions:missing,levelRequired:credential.unlockLevel,roleRequired}
