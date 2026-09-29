@@ -12,7 +12,7 @@ const reader=fs.readFileSync(new URL('../src/components/FaithScriptureReader.tsx
 const must=(ok,msg)=>{if(!ok)throw new Error('STREETVERSE IPHONE PLAYER JOURNEY CONTRACT FAIL: '+msg)}
 
 must(playable.includes("StreetVerseMobileGameShell")&&playable.includes("StreetVerseMobileProofDock"),'real mobile route must mount one-hand shell and iPhone action dock')
-must(geo.includes("StreetVerseMobileProofDock")&&geo.includes("StreetVerseMobileGameShell"),'safe fallback must retain first-journey actions')
+must(geo.includes("StreetVerseMobileProofDock")&&!geo.includes("StreetVerseMobileGameShell"),'safe fallback must retain the iPhone action dock without mounting the retired duplicate shell')
 must(dock.includes("useState(true)"),'iPhone first-journey actions must open visibly by default')
 for(const action of ['START MISSION','OPEN HOOD','FIX ENGINE','CLOSE HOOD','ENTER VEHICLE','EXIT VEHICLE','INTERACT NPC','RIDE SHARE','REEL','FAITH BIBLE','COMPLETE MISSION'])must(dock.includes(action),'missing visible action '+action)
 must(dock.includes("tryamm:streetverse-first-journey-start"),'mission start event missing')
