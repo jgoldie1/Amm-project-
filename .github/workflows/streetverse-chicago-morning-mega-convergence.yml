@@ -448,6 +448,69 @@ jobs:
           retention-days: 14
 
 
+
+  native-asset-foundry:
+    name: TRYAMM native self-contained 4x GLB foundry
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install Omniverse dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify owned foundry contract
+        run: node tests/tryamm-native-asset-foundry-contract.mjs
+      - name: Generate four owned GLB candidates
+        run: node scripts/tryamm-native-asset-foundry.mjs ../release-evidence/tryamm-native-asset-foundry
+      - name: Inspect and optimize generated GLBs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ../release-evidence/tryamm-native-asset-foundry/optimized
+          shopt -s globstar nullglob
+          count=0
+          for f in ../release-evidence/tryamm-native-asset-foundry/**/*.glb; do
+            case "$f" in
+              */optimized/*) continue ;;
+            esac
+            count=$((count+1))
+            echo "Inspecting $f"
+            npx gltf-transform inspect "$f" >/dev/null
+            base="$(basename "$f" .glb)"
+            out="../release-evidence/tryamm-native-asset-foundry/optimized/${base}-${count}.glb"
+            npx gltf-transform optimize "$f" "$out"
+            npx gltf-transform inspect "$out" >/dev/null
+          done
+          test "$count" -ge 5
+          echo "TRYAMM native foundry generated and validated $count GLB files."
+      - name: Publish native-foundry truth
+        shell: bash
+        run: |
+          {
+            echo "## TRYAMM Native Asset Foundry"
+            echo
+            echo "- External API required: NO"
+            echo "- Generation credits required: NO"
+            echo "- Four actual GLB candidates generated in CI."
+            echo "- Reviewed direction: Holo Reality Fusion."
+            echo "- Geometry/material/collision/holographic metadata are TRYAMM-authored procedural outputs."
+            echo "- Optional external providers may compete against the native baseline; they are not required for baseline generation."
+            echo "- Production publish still requires Asset Passport, visual review and target-device performance evidence."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-native-asset-foundry
+          path: release-evidence/tryamm-native-asset-foundry/
+          if-no-files-found: error
+          retention-days: 30
+
   asset-transformation-tournament:
     name: Four-sample AAA + holographic asset tournament
     runs-on: ubuntu-latest
@@ -502,6 +565,7 @@ jobs:
       - android-native-candidate
       - ios-native-simulator
       - supabase-live-security
+      - native-asset-foundry
       - asset-transformation-tournament
     runs-on: ubuntu-latest
     steps:
@@ -519,6 +583,7 @@ jobs:
           ANDROID_NATIVE: ${{ needs.android-native-candidate.result }}
           IOS_NATIVE: ${{ needs.ios-native-simulator.result }}
           SUPABASE_LIVE_SECURITY: ${{ needs.supabase-live-security.result }}
+          NATIVE_ASSET_FOUNDRY: ${{ needs.native-asset-foundry.result }}
           ASSET_TOURNAMENT: ${{ needs.asset-transformation-tournament.result }}
         shell: bash
         run: |
@@ -539,6 +604,7 @@ jobs:
             echo "| Android native candidate | ${ANDROID_NATIVE} |"
             echo "| iOS simulator compile | ${IOS_NATIVE} |"
             echo "| Live Supabase security advisor | ${SUPABASE_LIVE_SECURITY} |"
+            echo "| TRYAMM native 4x GLB foundry | ${NATIVE_ASSET_FOUNDRY} |"
             echo "| Four-sample asset tournament | ${ASSET_TOURNAMENT} |"
             echo
             echo "## Morning physical checks still owned by the founder"
@@ -567,6 +633,7 @@ jobs:
           test "${ANDROID_NATIVE}" = "success"
           test "${IOS_NATIVE}" = "success"
           test "${SUPABASE_LIVE_SECURITY}" = "success"
+          test "${NATIVE_ASSET_FOUNDRY}" = "success"
           test "${ASSET_TOURNAMENT}" = "success"
 
           echo "Repository/build gates passed. Physical-device and real-footage certification remain separate."
