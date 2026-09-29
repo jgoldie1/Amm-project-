@@ -1,12 +1,14 @@
 import { useMemo } from 'react'
+import {REALITY_EPISODE_TEMPLATE,STREETVERSE_REALITY_FORMAT} from '../data/AllAmericanRealityFormats'
 
-type Mode='network'|'free-tv'|'isaiah-ai-tv'|'starverse'
+type Mode='network'|'free-tv'|'isaiah-ai-tv'|'starverse'|'reality-tv'
 
 const routes:{mode:Mode;label:string;path:string;status:'LIVE'|'BETA'}[]=[
   {mode:'network',label:'All American Network',path:'/network',status:'LIVE'},
   {mode:'free-tv',label:'Free TV',path:'/free-tv',status:'BETA'},
   {mode:'isaiah-ai-tv',label:'Isaiah AI TV',path:'/isaiah-ai-tv',status:'BETA'},
   {mode:'starverse',label:'StarVerse • Anyone Can Be a Star',path:'/starverse',status:'BETA'},
+  {mode:'reality-tv',label:'StreetVerse Reality',path:'/reality-tv',status:'BETA'},
 ]
 
 const info:Record<Mode,{eyebrow:string;title:string;copy:string;features:string[]}>= {
@@ -14,11 +16,12 @@ const info:Record<Mode,{eyebrow:string;title:string;copy:string;features:string[
   'free-tv':{eyebrow:'FREE TV • BETA',title:'Free TV',copy:'A viewer-facing television hub for free channels, community programming, creator shows, news, music, sports and family-safe entertainment. Real channel playback remains provider/feed-gated until a verified stream source is attached.',features:['FAST-style channel guide','Creator and community channels','News, music, sports and family lanes','Captions and screen-reader labels','Language preferences','Save and continue watching','Share to supported apps']},
   'isaiah-ai-tv':{eyebrow:'ISAIAH AI TV • BETA',title:'Isaiah AI TV',copy:'The TRYAMM media desk for StreetVerse highlights, StarVerse winners, creator battles, sports results, business stories and upcoming events. AI-assisted segments require an approved AI/video provider and human publish approval.',features:['StreetVerse highlights','StarVerse results','Creator interviews','Sports and community desk','Business spotlight','Reel-to-TV publishing','Human approval before publish']},
   starverse:{eyebrow:'STARVERSE • BETA',title:'Anyone Can Be a Star',copy:'A talent and showcase system where creators can audition, perform, receive audience feedback, build a profile and connect winning moments to Isaiah AI TV and OmniReel.',features:['Talent profiles and auditions','Showcase stages','Audience voting','Judges/host workflow','Youth/parent safety lane','Accessible performance controls','Winning clips to Isaiah AI TV and Reels']},
+  'reality-tv':{eyebrow:'ALL AMERICAN ORIGINALS • REALITY',title:STREETVERSE_REALITY_FORMAT.title,copy:STREETVERSE_REALITY_FORMAT.tagline,features:['IRL + StreetVerse connected episodes','Confessionals + missions + business building','LIVE moderated aftershow','Audience chooses missions, not participant boundaries','Creator attribution and verified earnings','Captions, translation and sign-language routing','Reels + Holo Drama + network distribution']},
 }
 
 export default function AllAmericanNetworkHub(){
   const path=window.location.pathname
-  const mode:Mode=path.startsWith('/free-tv')?'free-tv':path.startsWith('/isaiah-ai-tv')?'isaiah-ai-tv':path.startsWith('/starverse')?'starverse':'network'
+  const mode:Mode=path.startsWith('/free-tv')?'free-tv':path.startsWith('/isaiah-ai-tv')?'isaiah-ai-tv':path.startsWith('/starverse')?'starverse':path.startsWith('/reality-tv')?'reality-tv':'network'
   const current=useMemo(()=>info[mode],[mode])
   const share=async()=>{const data={title:current.title,text:current.copy,url:window.location.href};if(navigator.share){try{await navigator.share(data);return}catch{}}try{await navigator.clipboard.writeText(window.location.href);window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'Link copied'}}))}catch{}}
   return <main style={{minHeight:'100vh',background:'radial-gradient(circle at 20% 0,#3a173d 0,#0b0b18 38%,#020308 100%)',color:'#fff',fontFamily:'Inter,system-ui,sans-serif'}}>
@@ -28,6 +31,11 @@ export default function AllAmericanNetworkHub(){
       </nav>
       <section style={{padding:'70px 0 28px'}}><div style={{fontSize:11,letterSpacing:3,color:'#ff77e8',fontWeight:950}}>{current.eyebrow}</div><h1 style={{fontSize:'clamp(42px,8vw,88px)',lineHeight:.95,margin:'10px 0 18px'}}>{current.title}</h1><p style={{maxWidth:800,color:'#c0b8ce',fontSize:18,lineHeight:1.65}}>{current.copy}</p><div style={{display:'flex',gap:10,flexWrap:'wrap'}}><button onClick={share} style={button}>SHARE</button><a href="/workstation" style={{...button,textDecoration:'none'}}>CREATE / PUBLISH</a><a href="/accessibility" style={{...button,textDecoration:'none'}}>ACCESSIBILITY</a></div></section>
       <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:12}}>{current.features.map(x=><article key={x} style={card}><strong>{x}</strong></article>)}</section>
+      {mode==='reality-tv'&&<section style={{...card,marginTop:20}}>
+        <h2 style={{marginTop:0}}>Episode blueprint • {STREETVERSE_REALITY_FORMAT.episodeMinutes} min • {STREETVERSE_REALITY_FORMAT.seasonEpisodes} episodes</h2>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:9}}>{REALITY_EPISODE_TEMPLATE.map(segment=><article key={segment.order} style={{padding:12,borderRadius:14,background:'#15101d',border:'1px solid #4b3855'}}><b>{segment.order}. {segment.label} • {segment.minutes} MIN</b><p style={{color:'#c0b8ce',fontSize:12,lineHeight:1.45,marginBottom:0}}>{segment.purpose}</p></article>)}</div>
+        <p style={{color:'#c0b8ce',lineHeight:1.6}}>Cast target: {STREETVERSE_REALITY_FORMAT.castSize.min}–{STREETVERSE_REALITY_FORMAT.castSize.max}. Production remains rights-, consent-, moderation- and payment-verification gated before any LIVE or monetized release.</p>
+      </section>}
       <section aria-labelledby="network-status" style={{...card,marginTop:20}}><h2 id="network-status" style={{marginTop:0}}>Production status</h2><p style={{color:'#c0b8ce',lineHeight:1.6}}>The network shell and navigation are connected. Features marked BETA do not claim real 24/7 channel feeds, licensed programming, AI-generated broadcasts, payments or distribution until the required providers, rights and backend jobs are verified.</p><div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{routes.map(r=><span key={r.mode} style={{...pill,color:r.status==='LIVE'?'#7dffb2':'#ffd166'}}>{r.label}: {r.status}</span>)}</div></section>
       <section style={{...card,marginTop:20}}><h2 style={{marginTop:0}}>Global access</h2><p style={{color:'#c0b8ce',lineHeight:1.6}}>Designed to inherit TRYAMM account preferences for captions, reduced motion, high contrast, screen-reader optimization, voice control, large touch targets and preferred translation languages, with Web Share/clipboard fallback for cross-platform sharing.</p></section>
     </div>
