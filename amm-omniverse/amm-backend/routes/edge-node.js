@@ -41,6 +41,23 @@ function sanitizeCapabilities(input={}){
 }
 function leaseLimit(cap){return cap.nodeClass==='workstation'?Math.min(4,cap.maxParallel):1}
 
+async function edgeHousekeeping(supabase,userId){
+  const nowIso=new Date().toISOString()
+  const staleIso=new Date(Date.now()-5*60*1000).toISOString()
+  try{
+    await supabase.from('tryamm_edge_jobs').update({
+      status:'queued',leased_node_id:null,lease_expires_at:null,updated_at:nowIso,
+    }).eq('owner_user_id',userId).eq('status','leased').lt('lease_expires_at',nowIso).gt('expires_at',nowIso)
+  }catch(_){}
+  try{
+    await supabase.from('tryamm_edge_jobs').delete().eq('owner_user_id',userId).lt('expires_at',nowIso)
+  }catch(_){}
+  try{
+    await supabase.from('tryamm_edge_nodes').update({status:'offline',updated_at:nowIso})
+      .eq('owner_user_id',userId).eq('status','online').lt('last_seen_at',staleIso)
+  }catch(_){}
+}
+
 function createEdgeNodeRouter({supabase}){
   const router=express.Router()
 
@@ -64,6 +81,7 @@ function createEdgeNodeRouter({supabase}){
 
   router.post('/register',async(req,res)=>{
     try{
+      await edgeHousekeeping(supabase,req.user.id)
       const installId=String(req.body?.installId||'').trim()
       if(!/^[A-Za-z0-9._:-]{12,128}$/.test(installId))return res.status(400).json({error:'Valid installId required'})
       const capabilities=sanitizeCapabilities(req.body?.capabilities||{})
@@ -87,6 +105,7 @@ function createEdgeNodeRouter({supabase}){
 
   router.post('/heartbeat',async(req,res)=>{
     try{
+      await edgeHousekeeping(supabase,req.user.id)
       const nodeId=String(req.body?.nodeId||'')
       const capabilities=sanitizeCapabilities(req.body?.capabilities||{})
       const {data,error}=await supabase.from('tryamm_edge_nodes').update({
@@ -130,6 +149,7 @@ function createEdgeNodeRouter({supabase}){
 
   router.post('/lease',async(req,res)=>{
     try{
+      await edgeHousekeeping(supabase,req.user.id)
       const nodeId=String(req.body?.nodeId||'')
       const current=sanitizeCapabilities(req.body?.capabilities||{})
       const {data:node,error:nodeError}=await supabase.from('tryamm_edge_nodes')
@@ -183,4 +203,4 @@ function createEdgeNodeRouter({supabase}){
   return router
 }
 
-module.exports={createEdgeNodeRouter,sanitizeCapabilities,hashInstall,JOB_CLASSES,SAFE_CAPABILITIES}
+module.exports={createEdgeNodeRouter,sanitizeCapabilities,hashInstall,edgeHousekeeping,JOB_CLASSES,SAFE_CAPABILITIES}
