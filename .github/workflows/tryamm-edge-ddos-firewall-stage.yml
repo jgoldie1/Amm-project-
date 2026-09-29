@@ -1,0 +1,87 @@
+name: TRYAMM Edge DDoS Firewall Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "Inspect firewall diff or stage log-first defensive rules"
+        required: true
+        default: "diff"
+        type: choice
+        options:
+          - diff
+          - stage-log-rules
+
+permissions:
+  contents: read
+
+jobs:
+  vercel-firewall:
+    name: Vercel WAF log-first staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_SCOPE: jgoldie1s-projects
+      VERCEL_PROJECT: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Require Vercel token
+        shell: bash
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "::error::VERCEL_TOKEN GitHub secret is required to inspect/stage Vercel Firewall rules."
+            exit 1
+          fi
+
+      - name: Install pinned-major Vercel CLI
+        run: npm install --global vercel@50
+
+      - name: Link firewall workspace
+        working-directory: amm-omniverse
+        run: vercel link --yes --project "$VERCEL_PROJECT" --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN"
+
+      - name: Show current firewall overview
+        working-directory: amm-omniverse
+        run: |
+          vercel firewall overview --json --token "$VERCEL_TOKEN" > ../vercel-firewall-overview.json
+          cat ../vercel-firewall-overview.json
+
+      - name: Stage log-first defensive rules
+        if: ${{ inputs.operation == 'stage-log-rules' }}
+        working-directory: amm-omniverse
+        run: bash scripts/stage-vercel-ddos-firewall.sh
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Show draft diff
+        working-directory: amm-omniverse
+        run: |
+          vercel firewall diff --token "$VERCEL_TOKEN" | tee ../vercel-firewall-diff.txt
+
+      - name: Publish safety boundary
+        shell: bash
+        run: |
+          {
+            echo "## TRYAMM Edge DDoS Firewall"
+            echo
+            echo "- Vercel platform DDoS mitigation remains automatic."
+            echo "- This workflow may stage LOG-FIRST WAF rules only."
+            echo "- It never runs vercel firewall publish."
+            echo "- Review matched traffic before moving a rule to challenge/rate-limit/deny."
+            echo "- Attack Mode remains a human-confirmed emergency action."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-vercel-firewall-staging
+          path: |
+            vercel-firewall-overview.json
+            vercel-firewall-diff.txt
+          if-no-files-found: warn
+          retention-days: 14
