@@ -24,7 +24,8 @@
     "asset:inspect": "gltf-transform inspect",
     "check": "npm run lint && npm run security && npm run readiness && npm run typecheck && npm run build",
     "native:assets": "node scripts/tryamm-native-asset-foundry.mjs public/generated-assets/native",
-    "test:industry-resilience": "node tests/tryamm-industry-resilience-contract.mjs"
+    "test:industry-resilience": "node tests/tryamm-industry-resilience-contract.mjs",
+    "asset:meshy:produce": "node scripts/streetverse-meshy-asset-production.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
