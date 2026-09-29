@@ -18,11 +18,21 @@ function createAssetForgeRouter({supabase,provider=createMeshyAssetProvider()}){
 
   router.get('/health',(_req,res)=>res.json({
     ok:true,
-    provider:'meshy',
-    configured:provider.configured,
-    capabilities:provider.capabilities,
+    nativeProvider:{
+      id:'tryamm-native',
+      configured:true,
+      externalApiRequired:false,
+      creditsRequired:false,
+      mode:'build-time/CI procedural GLB foundry',
+    },
+    optionalProvider:{
+      id:'meshy',
+      configured:provider.configured,
+      capabilities:provider.capabilities,
+    },
+    providerPriority:['tryamm-native','meshy','manual-artist'],
     publishAuthority:false,
-    truth:'Generation output remains uncertified until Asset Passport + rights + performance + human visual review pass.',
+    truth:'Native or external generation output remains uncertified until Asset Passport + rights + performance + human visual review pass.',
   }))
 
   async function requireAssetOperator(req,res,next){
