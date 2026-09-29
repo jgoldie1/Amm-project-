@@ -22,6 +22,7 @@ function pathClass(req){
   const p=String(req.path||req.url||'/').split('?')[0]
   if(p.startsWith('/api/ai'))return'ai-expensive'
   if(p.startsWith('/api/asset-forge'))return'asset-expensive'
+  if(p.startsWith('/api/edge-node'))return'edge-compute'
   if(p.startsWith('/api/accessibility/sign/recognize'))return'media-expensive'
   if(p.startsWith('/api/live'))return'live-realtime'
   if(p.startsWith('/api/security'))return'security-sensitive'
@@ -36,6 +37,7 @@ function pathClass(req){
 const POLICIES={
   'ai-expensive':{capacity:12,refillPerSec:.2,cost:3,degradeable:true},
   'asset-expensive':{capacity:8,refillPerSec:.1,cost:4,degradeable:true},
+  'edge-compute':{capacity:30,refillPerSec:.5,cost:2,degradeable:true},
   'media-expensive':{capacity:10,refillPerSec:.16,cost:3,degradeable:true},
   'live-realtime':{capacity:60,refillPerSec:1,cost:1,degradeable:true},
   'security-sensitive':{capacity:20,refillPerSec:.33,cost:2,degradeable:false},
