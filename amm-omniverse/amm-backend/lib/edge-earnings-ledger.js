@@ -64,4 +64,53 @@ async function getEdgeEarningsSummary({supabase,userId}){
   }
 }
 
-module.exports={splitBudget,createPendingEdgeEarnings,getEdgeEarningsSummary}
+module.exports={splitBudget,createPendingEdgeEarnings,getEdgeEarningsSummary,verifyEdgeEarnings,reverseEdgeEarnings}
+
+async function verifyEdgeEarnings({supabase,workOrderId,evidence={}}){
+  const {data:order,error:orderError}=await supabase.from('tryamm_edge_work_orders')
+    .select('id,status,dispatched_job_id').eq('id',workOrderId).maybeSingle()
+  if(orderError)throw orderError
+  if(!order)throw new Error('EDGE_WORK_ORDER_NOT_FOUND')
+  if(!['dispatching','completed'].includes(order.status))throw new Error('EDGE_WORK_ORDER_NOT_READY_FOR_VERIFICATION')
+  const {data:receipt,error:receiptError}=await supabase.from('tryamm_edge_earnings_ledger')
+    .select('*').eq('work_order_id',workOrderId).maybeSingle()
+  if(receiptError)throw receiptError
+  if(!receipt)throw new Error('EDGE_EARNINGS_RECEIPT_NOT_FOUND')
+  if(receipt.verification_status==='reversed'||receipt.payout_status==='reversed')throw new Error('EDGE_EARNINGS_ALREADY_REVERSED')
+  if(receipt.verification_status==='verified'&&receipt.payout_status==='payable'){
+    return{receipt,duplicate:true}
+  }
+  const now=new Date().toISOString()
+  const mergedEvidence={...(receipt.evidence||{}),...evidence,verificationSource:'edge-grid-validator',selfReportedPayable:false}
+  const {data:verified,error}=await supabase.from('tryamm_edge_earnings_ledger').update({
+    verification_status:'verified',
+    payout_status:'payable',
+    evidence:mergedEvidence,
+    verified_at:now,
+    updated_at:now,
+  }).eq('id',receipt.id).neq('verification_status','reversed').select('*').maybeSingle()
+  if(error)throw error
+  if(!verified)throw new Error('EDGE_EARNINGS_VERIFICATION_RACE')
+  await supabase.from('tryamm_edge_work_orders').update({status:'completed',updated_at:now}).eq('id',workOrderId)
+  return{receipt:verified,duplicate:false}
+}
+
+async function reverseEdgeEarnings({supabase,workOrderId,reason,actorUserId}){
+  const {data:receipt,error:receiptError}=await supabase.from('tryamm_edge_earnings_ledger')
+    .select('*').eq('work_order_id',workOrderId).maybeSingle()
+  if(receiptError)throw receiptError
+  if(!receipt)throw new Error('EDGE_EARNINGS_RECEIPT_NOT_FOUND')
+  if(receipt.payout_status==='paid')throw new Error('EDGE_PAID_RECEIPT_REQUIRES_SETTLEMENT_REVERSAL_WORKFLOW')
+  if(receipt.verification_status==='reversed'&&receipt.payout_status==='reversed')return{receipt,duplicate:true}
+  const now=new Date().toISOString()
+  const evidence={...(receipt.evidence||{}),reversal:{reason:String(reason||'').slice(0,500),actorUserId:actorUserId||null,at:now}}
+  const {data:reversed,error}=await supabase.from('tryamm_edge_earnings_ledger').update({
+    verification_status:'reversed',
+    payout_status:'reversed',
+    evidence,
+    updated_at:now,
+  }).eq('id',receipt.id).select('*').single()
+  if(error)throw error
+  await supabase.from('tryamm_edge_work_orders').update({status:'reversed',updated_at:now}).eq('id',workOrderId)
+  return{receipt:reversed,duplicate:false}
+}
