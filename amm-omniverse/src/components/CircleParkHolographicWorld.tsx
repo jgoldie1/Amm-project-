@@ -56,7 +56,7 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
     setNativeAssets({state:'FALLBACK',loaded:0,failed:1})
   })
 
-  const player=new THREE.Mesh(new THREE.CapsuleGeometry(.65,1.25,4,8),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0x00ccff,emissiveIntensity:.45}));player.position.set(0,1.4,-46);scene.add(player);playerRef.current=player
+  const player=new THREE.Mesh(new THREE.CapsuleGeometry(.42,.92,4,8),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0x00ccff,emissiveIntensity:.45}));player.position.set(0,1.4,-46);scene.add(player);playerRef.current=player
   const dog=new THREE.Group();const body=new THREE.Mesh(new THREE.BoxGeometry(1.35,.75,2),new THREE.MeshStandardMaterial({color:0x8a5a34}));body.position.y=.65;dog.add(body);const head=new THREE.Mesh(new THREE.BoxGeometry(.85,.85,.85),new THREE.MeshStandardMaterial({color:0x9b6840}));head.position.set(0,1,-1.15);dog.add(head);dog.position.set(-2,0,-44);scene.add(dog);dogRef.current=dog
   const road=new THREE.Mesh(new THREE.PlaneGeometry(18,82),new THREE.MeshStandardMaterial({color:0x151b22,roughness:.95}));road.rotation.x=-Math.PI/2;road.position.set(0,.015,-7);scene.add(road)
   for(let z=-43;z<30;z+=8){const lane=new THREE.Mesh(new THREE.PlaneGeometry(.16,3.4),new THREE.MeshBasicMaterial({color:0xffdf70}));lane.rotation.x=-Math.PI/2;lane.position.set(0,.025,z);scene.add(lane)}
@@ -69,6 +69,25 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
   const npc=new THREE.Mesh(new THREE.CapsuleGeometry(.5,1,4,8),new THREE.MeshStandardMaterial({color:0xffcc66,emissive:0x553300,emissiveIntensity:.25}));npc.position.set(-4,1.2,-37);scene.add(npc)
   const traffic2=new THREE.Mesh(new THREE.BoxGeometry(2,1,3.8),new THREE.MeshStandardMaterial({color:0xffb347,metalness:.3,roughness:.5}));traffic2.position.set(-3,.7,16);scene.add(traffic2)
   const car=new THREE.Mesh(new THREE.BoxGeometry(2.2,1,4.2),new THREE.MeshStandardMaterial({color:0x3aa8ff,metalness:.35,roughness:.45}));car.position.set(0,.7,-8);scene.add(car)
+
+  const repairCar=new THREE.Group();repairCar.name='circle-park-repair-car'
+  const repairCarMat=new THREE.MeshStandardMaterial({color:0x244862,metalness:.45,roughness:.48})
+  const repairBody=new THREE.Mesh(new THREE.BoxGeometry(2.25,.8,4.25),repairCarMat);repairBody.position.y=.65;repairCar.add(repairBody)
+  const cabin=new THREE.Mesh(new THREE.BoxGeometry(1.75,.68,1.9),new THREE.MeshStandardMaterial({color:0x213746,metalness:.25,roughness:.25}));cabin.position.set(0,1.25,-.25);repairCar.add(cabin)
+  const leftDoorPivot=new THREE.Group();leftDoorPivot.position.set(-1.14,.9,-.15);const leftDoor=new THREE.Mesh(new THREE.BoxGeometry(.08,.72,1.45),repairCarMat);leftDoor.position.z=.42;leftDoorPivot.add(leftDoor);repairCar.add(leftDoorPivot)
+  const rightDoorPivot=new THREE.Group();rightDoorPivot.position.set(1.14,.9,-.15);const rightDoor=new THREE.Mesh(new THREE.BoxGeometry(.08,.72,1.45),repairCarMat);rightDoor.position.z=.42;rightDoorPivot.add(rightDoor);repairCar.add(rightDoorPivot)
+  const hoodPivot=new THREE.Group();hoodPivot.position.set(0,1.05,-1.35);const hood=new THREE.Mesh(new THREE.BoxGeometry(2.05,.12,1.35),repairCarMat);hood.position.z=-.55;hoodPivot.add(hood);repairCar.add(hoodPivot)
+  repairCar.position.set(...CIRCLE_PARK_REPAIR_CAR.position);scene.add(repairCar)
+
+  const repairKitMesh=new THREE.Group();const kitBox=new THREE.Mesh(new THREE.BoxGeometry(.7,.32,.5),new THREE.MeshStandardMaterial({color:0xffd75e,emissive:0xaa7700,emissiveIntensity:.55}));kitBox.position.y=.22;repairKitMesh.add(kitBox);const kitHandle=new THREE.Mesh(new THREE.TorusGeometry(.18,.04,6,12,Math.PI),new THREE.MeshStandardMaterial({color:0x222222}));kitHandle.rotation.z=Math.PI;kitHandle.position.y=.48;repairKitMesh.add(kitHandle);repairKitMesh.position.set(...CIRCLE_PARK_REPAIR_KIT.position);scene.add(repairKitMesh)
+
+  const carriedTrash=new THREE.Mesh(new THREE.SphereGeometry(.34,10,8),new THREE.MeshStandardMaterial({color:0x111315,roughness:1}));carriedTrash.visible=false;scene.add(carriedTrash)
+  const trashMarkers=new Map<string,THREE.Group>()
+  for(const pickup of CIRCLE_PARK_WASTE_PICKUPS){const marker=new THREE.Group();marker.name=`mission-${pickup.id}`;const bag=new THREE.Mesh(new THREE.SphereGeometry(.35,10,8),new THREE.MeshStandardMaterial({color:0x151719,roughness:1}));bag.position.y=.35;marker.add(bag);const ring=new THREE.Mesh(new THREE.TorusGeometry(.62,.05,8,24),new THREE.MeshBasicMaterial({color:0xffd75e}));ring.rotation.x=Math.PI/2;ring.position.y=.06;marker.add(ring);marker.position.set(...pickup.position);scene.add(marker);trashMarkers.set(pickup.id,marker)}
+  const dumpsterBeacon=new THREE.Mesh(new THREE.TorusGeometry(1.1,.07,8,32),new THREE.MeshBasicMaterial({color:0x79ffad}));dumpsterBeacon.rotation.x=Math.PI/2;dumpsterBeacon.position.set(...CIRCLE_PARK_DISPOSAL_POINT.position);scene.add(dumpsterBeacon)
+
+  const routeMarkers=STREETVERSE_CHICAGO_ROUTE.map((checkpoint,index)=>{const group=new THREE.Group();group.name=`route-${checkpoint.id}`;const column=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,5,12),new THREE.MeshBasicMaterial({color:index===0?0xffd75e:0x4fe3ff,transparent:true,opacity:.6}));column.position.y=2.5;group.add(column);const ring=new THREE.Mesh(new THREE.TorusGeometry(1.35,.09,10,36),new THREE.MeshBasicMaterial({color:index===0?0xffd75e:0x4fe3ff}));ring.rotation.x=Math.PI/2;ring.position.y=.1;group.add(ring);group.position.set(...checkpoint.position);scene.add(group);return group})
+
   const businessMarker=new THREE.Mesh(new THREE.CylinderGeometry(.8,.8,.18,24),new THREE.MeshStandardMaterial({color:0x79ffad,emissive:0x19aa66,emissiveIntensity:.7}));businessMarker.position.set(0,.18,-35);scene.add(businessMarker)
   const door=new THREE.Mesh(new THREE.BoxGeometry(3.6,5,.35),new THREE.MeshStandardMaterial({color:0x00d9ff,emissive:0x00aacc,emissiveIntensity:.6,transparent:true,opacity:.7}));door.position.set(0,2.5,-34);scene.add(door)
   const floor=new THREE.Mesh(new THREE.BoxGeometry(12,.25,18),new THREE.MeshStandardMaterial({color:0x102936}));floor.position.set(0,.05,-22);floor.visible=false;scene.add(floor)
