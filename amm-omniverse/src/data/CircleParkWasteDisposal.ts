@@ -9,9 +9,9 @@ export interface CircleParkWastePickup{
 }
 
 export const CIRCLE_PARK_WASTE_PICKUPS:CircleParkWastePickup[]=[
-  {id:'garbage-a',kind:'garbage',label:'Garbage bag near the park path',position:[3,1.2,12],rewardXP:20},
-  {id:'garbage-b',kind:'garbage',label:'Garbage bag near the south block',position:[-4,1.2,-20],rewardXP:20},
-  {id:'litter-c',kind:'litter',label:'Loose litter near the north path',position:[1,1.2,23],rewardXP:20},
+  {id:'garbage-pickup-a',kind:'garbage',label:'Garbage bag near the park path',position:[3,1.2,12],rewardXP:20},
+  {id:'garbage-pickup-b',kind:'garbage',label:'Garbage bag near the south block',position:[-4,1.2,-20],rewardXP:20},
+  {id:'garbage-pickup-c',kind:'litter',label:'Loose litter near the north path',position:[1,1.2,23],rewardXP:20},
 ]
 
 export const CIRCLE_PARK_DISPOSAL_POINT={
