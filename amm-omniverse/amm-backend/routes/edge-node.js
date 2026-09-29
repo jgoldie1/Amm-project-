@@ -2,6 +2,7 @@
 
 const express=require('express')
 const crypto=require('node:crypto')
+const {createPendingEdgeEarnings,getEdgeEarningsSummary}=require('../lib/edge-earnings-ledger')
 
 const JOB_CLASSES=new Set(['cache-sync','world-state-sync','light-ai','media-thumbnail','asset-optimize','offline-reconcile','telemetry-aggregate'])
 const BROWSER_NODE_CLASSES=new Set(['pocket','tablet','workstation'])
@@ -162,7 +163,7 @@ function createEdgeNodeRouter({supabase}){
       if(!safe.size)return res.json({jobs:[],mode:'no-safe-capability'})
 
       const {data:candidates,error}=await supabase.from('tryamm_edge_jobs')
-        .select('id,job_class,required_capability,payload_ref,payload_hash,status,expires_at,created_at')
+        .select('id,job_class,required_capability,payload_ref,payload_hash,status,expires_at,created_at,work_order_id')
         .eq('owner_user_id',req.user.id).eq('status','queued')
         .gt('expires_at',new Date().toISOString()).order('created_at',{ascending:true}).limit(Math.max(1,Number(node.lease_limit||1)*3))
       if(error)throw error
@@ -173,7 +174,7 @@ function createEdgeNodeRouter({supabase}){
         const leaseExpiresAt=new Date(Date.now()+2*60*1000).toISOString()
         const {data:leased,error:leaseError}=await supabase.from('tryamm_edge_jobs').update({
           status:'leased',leased_node_id:node.id,lease_expires_at:leaseExpiresAt,updated_at:new Date().toISOString(),
-        }).eq('id',candidate.id).eq('owner_user_id',req.user.id).eq('status','queued').select('id,job_class,required_capability,payload_ref,payload_hash,status,lease_expires_at').maybeSingle()
+        }).eq('id',candidate.id).eq('owner_user_id',req.user.id).eq('status','queued').select('id,job_class,required_capability,payload_ref,payload_hash,status,lease_expires_at,work_order_id').maybeSingle()
         if(leaseError)throw leaseError
         if(leased)jobs.push(leased)
       }
@@ -190,13 +191,23 @@ function createEdgeNodeRouter({supabase}){
       const {data,error}=await supabase.from('tryamm_edge_jobs').update({
         status:'completed',result_ref:resultRef,completed_at:new Date().toISOString(),updated_at:new Date().toISOString(),
       }).eq('id',req.params.id).eq('owner_user_id',req.user.id).eq('leased_node_id',node.id).eq('status','leased').gt('lease_expires_at',new Date().toISOString())
-        .select('id,status,result_ref,completed_at').maybeSingle()
+        .select('id,status,result_ref,completed_at,work_order_id').maybeSingle()
       if(error)throw error
       if(!data)return res.status(409).json({error:'Edge job lease expired or ownership mismatch'})
-      res.json({job:data})
+      const earnings=await createPendingEdgeEarnings({supabase,job:data,nodeId:node.id,userId:req.user.id})
+      res.json({job:data,earnings})
     }catch(error){
       const code=String(error?.message||'').includes('UNSAFE_EDGE_PAYLOAD_REFERENCE')?400:500
       res.status(code).json({error:code===400?'Unsafe edge result reference':'Could not complete Edge Node job'})
+    }
+  })
+
+  router.get('/earnings',async(req,res)=>{
+    try{
+      const summary=await getEdgeEarningsSummary({supabase,userId:req.user.id})
+      res.json({ok:true,summary})
+    }catch(error){
+      res.status(500).json({error:'Could not load Edge earnings summary'})
     }
   })
 
