@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import JacobieFlipLab from './JacobieFlipLab'
+import RedHatSentinelPanel from './RedHatSentinelPanel'
 
 type Track = 'cyber-defense'|'privacy-compliance'|'appsec-qa'|'incident-response'|'real-estate-analysis'|'team-leadership'
 
@@ -60,7 +61,7 @@ export default function JacobieVisionCenter({onClose}:{onClose:()=>void}){
 
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:10,marginTop:16}}>{tracks.map(([id,title,copy])=><button key={id} style={{...card,textAlign:'left',color:'#fff',cursor:'pointer',borderColor:id===activeTrack?'#53ddff':'#173653'}} onClick={()=>setActiveTrack(id)}><div style={{fontWeight:950}}>{title}</div><div style={{fontSize:11,color:'#9fb0bf',lineHeight:1.5,marginTop:7}}>{copy}</div></button>)}</div>
 
-      {activeTrack==='cyber-defense'&&<article style={{...card,marginTop:14,borderColor:'#53ddff66',background:'linear-gradient(145deg,#061725,#07111e)'}}><div style={{color:'#53ddff',fontSize:10,fontWeight:950,letterSpacing:2}}>JACOBIE QUANTUM SHIELD</div><h2 style={{margin:'7px 0'}}>Defend today • migrate for tomorrow</h2><p style={{color:'#a9bbca',lineHeight:1.6}}>Inventory cryptography, protect secrets and sessions, scan dependencies, generate SBOM evidence, contain incidents and track migration toward NIST ML-KEM / ML-DSA / SLH-DSA where providers and clients support them.</p><div style={{fontSize:11,color:'#8fffc1'}}>DEFENSIVE ONLY • AUTHORIZED SYSTEMS • EVIDENCE REQUIRED • NO “UNHACKABLE” CLAIMS</div></article>}
+      {activeTrack==='cyber-defense'&&<div style={{display:'grid',gap:12,marginTop:14}}><RedHatSentinelPanel/><article style={{...card,marginTop:14,borderColor:'#53ddff66',background:'linear-gradient(145deg,#061725,#07111e)'}}><div style={{color:'#53ddff',fontSize:10,fontWeight:950,letterSpacing:2}}>JACOBIE QUANTUM SHIELD</div><h2 style={{margin:'7px 0'}}>Defend today • migrate for tomorrow</h2><p style={{color:'#a9bbca',lineHeight:1.6}}>Inventory cryptography, protect secrets and sessions, scan dependencies, generate SBOM evidence, contain incidents and track migration toward NIST ML-KEM / ML-DSA / SLH-DSA where providers and clients support them.</p><div style={{fontSize:11,color:'#8fffc1'}}>DEFENSIVE ONLY • AUTHORIZED SYSTEMS • EVIDENCE REQUIRED • NO “UNHACKABLE” CLAIMS</div></article></div>}
 
       {activeTrack==='real-estate-analysis'&&<article style={{...card,marginTop:14,borderColor:'#e8b94466',background:'linear-gradient(145deg,#171207,#07111e)'}}><div style={{color:'#e8b944',fontSize:10,fontWeight:950,letterSpacing:2}}>HOUSE FLIPPING OPERATIONS</div><h2 style={{margin:'7px 0'}}>From comp research to Holo listing</h2><p style={{color:'#a9bbca',lineHeight:1.6}}>Run best/base/worst-case deal models, construction budgets, project documentation, property photography/video, 3D scans, Holo listings, marketing, cybersecurity for property records and administrative project support.</p><button style={btn} onClick={()=>setShowFlipLab(true)}>🏠 Open House Flipping Lab</button></article>}
 
