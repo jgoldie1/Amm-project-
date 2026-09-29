@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import assert from 'node:assert/strict'
 
 const world=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
+const shell=fs.readFileSync(new URL('../src/components/StreetVerseMobileGameShell.tsx',import.meta.url),'utf8')
 
 assert.match(world,/data-streetverse-world-root="true"/,'Mobile world root must remain present')
 assert.match(world,/aria-label="StreetVerse analog joystick"/,'Mobile analog joystick must remain visible')
@@ -25,5 +26,11 @@ assert.match(world,/buildingColliders/,'Buildings must contribute collision foot
 assert.match(world,/const onBridge=Math\.abs\(x\)<=5\.2/,'River crossing must remain constrained to the bridge')
 assert.match(world,/qsePerformanceGovernor:true/,'Quantum Speed performance governor must remain active')
 assert.match(world,/renderer\.shadowMap\.enabled=false/,'Phone shadow maps must remain disabled by default')
+assert.match(shell,/data-streetverse-mobile-shell="v5"/,'mobile shell must use the visible-controller v5 contract')
+assert.match(shell,/zIndex:52000/,'mobile shell must remain above StreetVerse world overlays')
+assert.match(shell,/aria-label="StreetVerse always visible joystick"/,'mobile shell must always expose a circular movement joystick')
+assert.match(shell,/mobile-game-shell-visible-joystick/,'visible shell joystick must publish movement into the StreetVerse world')
+assert.match(shell,/setPointerCapture/,'visible shell joystick must capture the active pointer')
+assert.match(shell,/MOVE \/ STEER/,'visible shell joystick must be labeled for phone users')
 
 console.log('StreetVerse mobile control reliability contract: PASS')
