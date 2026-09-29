@@ -34,6 +34,8 @@ const StreetVersePlayableWorld=lazy(()=>import('./StreetVersePlayableWorld'))
 const StreetVerseFullWorldOverlays=lazy(()=>import('./StreetVerseFullWorldOverlays'))
 const StreetVerseReelEventBridge=lazy(()=>import('./StreetVerseReelEventBridge'))
 const StreetVerseActionCarousel=lazy(()=>import('./StreetVerseActionCarousel'))
+const StreetVerseMobileGameShell=lazy(()=>import('./StreetVerseMobileGameShell'))
+const StreetVerseMobileProofDock=lazy(()=>import('./StreetVerseMobileProofDock'))
 
 const DESTINATION_KEY_V2='tryamm.streetverse.chicago-destination.v2'
 const DESTINATION_KEY_V1='tryamm.streetverse.chicago-destination.v1'
@@ -223,7 +225,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
   <StreetVerseWeatherSync/>
   <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>
   <StreetVerseAfterDarkAlpha/>
-  <Suspense fallback={null}><StreetVerseReelEventBridge/><StreetVerseActionCarousel/></Suspense>
+  <Suspense fallback={null}><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseMobileGameShell onClose={closeStreetVerse}/><StreetVerseMobileProofDock/></Suspense>
  </>
 
  return <>
