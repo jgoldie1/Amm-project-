@@ -128,6 +128,47 @@ function addCarBlockout(group,x,z,mats){
   }
 }
 
+function add2027SportSedan(group,x,z,mats){
+  group.userData={...group.userData,semantic:'drivable-vehicle',modelYear:2027,originalTryammDesign:true}
+  addBox(group,'chassis',[4.45,.46,1.86],[x,.56,z],mats.car,undefined,'vehicle-chassis')
+  addBox(group,'lower-body',[4.2,.34,1.8],[x,.82,z],mats.car,undefined,'vehicle-body')
+  addBox(group,'cabin',[2.18,.72,1.58],[x-.18,1.34,z],mats.glass,[0,0,0],'vehicle-cabin')
+  addBox(group,'front-bumper',[.36,.28,1.72],[x+2.12,.48,z],mats.metal,undefined,'vehicle-bumper')
+  addBox(group,'rear-bumper',[.36,.28,1.72],[x-2.12,.48,z],mats.metal,undefined,'vehicle-bumper')
+
+  const hood=addBox(group,'hood',[1.24,.12,1.74],[x+1.15,1.05,z],mats.car,undefined,'vehicle-hood')
+  hood.userData.interaction='hood'
+  const driverDoor=addBox(group,'driver-door',[1.38,.72,.10],[x-.15,1.05,z-.93],mats.car,undefined,'vehicle-door')
+  driverDoor.userData.interaction='driver-door'
+  const passengerDoor=addBox(group,'passenger-door',[1.38,.72,.10],[x-.15,1.05,z+.93],mats.car,undefined,'vehicle-door')
+  passengerDoor.userData.interaction='passenger-door'
+
+  const windshield=addBox(group,'windshield',[.12,.64,1.48],[x+.64,1.47,z],mats.glass,[0,0,deg(-20)],'vehicle-glass')
+  windshield.userData.transparentVisual=true
+  const rearGlass=addBox(group,'rear-window',[.12,.58,1.44],[x-1.0,1.43,z],mats.glass,[0,0,deg(18)],'vehicle-glass')
+  rearGlass.userData.transparentVisual=true
+
+  for(const dx of [-1.42,1.42])for(const dz of [-.89,.89]){
+    const wheel=addCylinder(group,'wheel',.39,.24,[x+dx,.4,z+dz],mats.tire,20,'vehicle-wheel')
+    wheel.rotation.x=deg(90)
+    const rim=addCylinder(group,'wheel-rim',.22,.245,[x+dx,.4,z+dz],mats.metal,16,'vehicle-wheel-rim')
+    rim.rotation.x=deg(90)
+  }
+
+  for(const dz of [-.56,.56]){
+    const head=new THREE.Mesh(new THREE.BoxGeometry(.08,.22,.42),mats.light)
+    head.name='headlight';head.position.set(x+2.19,.78,z+dz);head.userData={semantic:'vehicle-headlight'}
+    group.add(head)
+    const tail=new THREE.Mesh(new THREE.BoxGeometry(.08,.20,.40),mat('tail-light',0x7b1018,.25,.35,0xff1525,1.6))
+    tail.name='tail-light';tail.position.set(x-2.19,.76,z+dz);tail.userData={semantic:'vehicle-tail-light'}
+    group.add(tail)
+  }
+
+  const holo=new THREE.Mesh(new THREE.TorusGeometry(.58,.025,8,32),mats.holo)
+  holo.name='vehicle-holo-id-ring';holo.position.set(x,1.95,z);holo.rotation.x=deg(90);holo.userData={semantic:'vehicle-holographic-identity',collision:'none'}
+  group.add(holo)
+}
+
 function addBuilding(group,x,z,w,h,d,mats,index,density){
   addBox(group,`building-${index}`,[w,h,d],[x,h/2,z],index%2?mats.brickA:mats.brickB,undefined,'building-shell')
   const floors=Math.max(2,Math.floor(h/2.8))
@@ -300,6 +341,11 @@ const kitBuilders={
   'vehicle-blockout':()=>{
     const g=new THREE.Group();g.name='TRYAMM-vehicle-blockout'
     addCarBlockout(g,0,0,kitMats);return g
+  },
+  'tryamm-2027-sport-sedan':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-2027-sport-sedan'
+    add2027SportSedan(g,0,0,kitMats)
+    return g
   },
   'holo-wayfinder':()=>{
     const g=new THREE.Group();g.name='TRYAMM-holo-wayfinder'
