@@ -4,6 +4,7 @@ import {detectTryammEdgeCapabilities} from '../runtime/TryammPocketEdgeRuntime'
 import {pocketEdgeEnabled,runPocketEdgeCycle,setPocketEdgeEnabled} from '../runtime/TryammPocketEdgeWorker'
 import {getPocketEdgeEarnings} from '../services/edgeNode'
 import TryammPrivateRelayCenter from './TryammPrivateRelayCenter'
+import {readEdgeGridPreferences,writeEdgeGridPreferences,type EdgeGridPreferences} from '../runtime/TryammEdgeGridPreferences'
 
 const cyan='#4FE3FF'
 const gold='#E8B944'
@@ -34,6 +35,7 @@ export default function MiddleverseAIHub({onClose}:Props){
   const [edgeNotice,setEdgeNotice]=useState('Detecting local edge capability…')
   const [edgeEarnings,setEdgeEarnings]=useState<any>(null)
   const [relayOpen,setRelayOpen]=useState(false)
+  const [gridPrefs,setGridPrefs]=useState<EdgeGridPreferences>(()=>readEdgeGridPreferences())
 
   useEffect(()=>{
     let active=true
@@ -127,7 +129,14 @@ export default function MiddleverseAIHub({onClose}:Props){
           <span>{edgeCap.safeWork.join(' · ')||'cache/sync only'}</span>
         </div>}
 
-        <div style={{fontSize:9,color:'#71869f',marginTop:10}}>OPT-IN • BATTERY-AWARE • NO BACKGROUND MINING • SAME-OWNER JOBS IN V1 • HEAVY WORK FALLS BACK TO WORKSTATION / AI CAFE / BUSINESS / CLOUD</div>
+        <div style={{fontSize:9,color:'#71869f',marginTop:10}}>OPT-IN • BATTERY-AWARE • NO BACKGROUND MINING • PERSONAL EDGE AND PAID GRID ARE SEPARATE • HEAVY WORK FALLS BACK TO WORKSTATION / AI CAFE / BUSINESS / CLOUD</div>
+
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))',gap:8,marginTop:12}}>
+          <button onClick={()=>{const next=writeEdgeGridPreferences({paidGridOptIn:!gridPrefs.paidGridOptIn});setGridPrefs(next)}} style={{minHeight:44,padding:'10px 12px',borderRadius:12,border:'1px solid #725f2e',background:gridPrefs.paidGridOptIn?'#2a2410':'#0b1420',color:gridPrefs.paidGridOptIn?'#ffe49b':'#fff',fontWeight:950,cursor:'pointer'}}>EARN WITH GRID • {gridPrefs.paidGridOptIn?'ON':'OFF'}</button>
+          <button onClick={()=>{const next=writeEdgeGridPreferences({chargingOnlyForPaidWork:!gridPrefs.chargingOnlyForPaidWork});setGridPrefs(next)}} style={{minHeight:44,padding:'10px 12px',borderRadius:12,border:'1px solid #31495c',background:'#0b1420',color:'#fff',fontWeight:900,cursor:'pointer'}}>CHARGING ONLY • {gridPrefs.chargingOnlyForPaidWork?'ON':'OFF'}</button>
+          <button onClick={()=>{const next=writeEdgeGridPreferences({wifiOnlyForPaidWork:!gridPrefs.wifiOnlyForPaidWork});setGridPrefs(next)}} style={{minHeight:44,padding:'10px 12px',borderRadius:12,border:'1px solid #31495c',background:'#0b1420',color:'#fff',fontWeight:900,cursor:'pointer'}}>WI-FI ONLY • {gridPrefs.wifiOnlyForPaidWork?'ON':'OFF'}</button>
+        </div>
+        <div style={{fontSize:9,color:'#8da0b4',marginTop:8}}>Paid Grid defaults OFF. Charging-only and Wi-Fi-only default ON. If the device cannot verify Wi-Fi state, paid work fails closed until the user changes that setting.</div>
 
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(120px,1fr))',gap:8,marginTop:12}}>
           {([
