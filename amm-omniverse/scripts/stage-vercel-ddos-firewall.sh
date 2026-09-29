@@ -55,6 +55,8 @@ add_log_rule "TRYAMM media burst observation"   --condition '{"type":"path","op"
 
 add_log_rule "TRYAMM commerce burst observation"   --condition '{"type":"path","op":"pre","value":"/api/commerce"}'   --condition '{"type":"method","op":"eq","value":"POST"}'   --action rate_limit   --rate-limit-window 60   --rate-limit-requests 180   --rate-limit-keys ip   --rate-limit-action log
 
+add_log_rule "TRYAMM edge node burst observation"   --condition '{"type":"path","op":"pre","value":"/api/edge-node"}'   --action rate_limit   --rate-limit-window 60   --rate-limit-requests 180   --rate-limit-keys ip   --rate-limit-action log
+
 add_log_rule "TRYAMM security route burst observation"   --condition '{"type":"path","op":"pre","value":"/api/security"}'   --action rate_limit   --rate-limit-window 60   --rate-limit-requests 120   --rate-limit-keys ip   --rate-limit-action log
 
 add_log_rule "TRYAMM legacy edge proxy burst observation"   --condition '{"type":"path","op":"inc","value":["/api/checkout","/api/payments/status","/api/payments/verify-checkout","/api/creator/earnings","/api/stripe/webhook"]}'   --action rate_limit   --rate-limit-window 60   --rate-limit-requests 120   --rate-limit-keys ip   --rate-limit-action log
