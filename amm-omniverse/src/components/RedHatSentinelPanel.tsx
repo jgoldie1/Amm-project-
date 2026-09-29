@@ -22,8 +22,8 @@ export default function RedHatSentinelPanel(){
 
   return <article style={box}>
     <div style={{fontSize:10,letterSpacing:2.2,color:'#ff667a',fontWeight:950}}>RED HAT SENTINEL • DEFENSIVE ONLY</div>
-    <h3 style={{margin:'7px 0'}}>Bad-actor probe tracker</h3>
-    <p style={{fontSize:11,lineHeight:1.55,color:'#cbb8bd'}}>Canary routes and suspicious request patterns are correlated with privacy-minimized fingerprints. Raw IP addresses, passwords, tokens, cookies and raw exploit payloads are not shown or retained by this dashboard.</p>
+    <h3 style={{margin:'7px 0'}}>Suspicious / bad-actor probe tracker</h3>
+    <p style={{fontSize:11,lineHeight:1.55,color:'#cbb8bd'}}>Canary routes and suspicious request patterns are correlated with privacy-minimized fingerprints. A signal is an indicator, not proof that a person is malicious. Raw IP addresses, passwords, tokens, cookies and raw exploit payloads are not shown or retained by this dashboard.</p>
     {message&&<div role="status" style={{fontSize:11,color:'#e7b8bf'}}>{message}</div>}
     {summary&&<>
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:8,marginTop:10}}>
