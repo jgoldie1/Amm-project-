@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { getTryammReadiness } from '../services/middlewear'
+import {detectTryammEdgeCapabilities} from '../runtime/TryammPocketEdgeRuntime'
+import {pocketEdgeEnabled,runPocketEdgeCycle,setPocketEdgeEnabled} from '../runtime/TryammPocketEdgeWorker'
 
 const cyan = '#4FE3FF'
 const gold = '#E8B944'
@@ -26,7 +28,10 @@ function openGlobal(name: string) {
 export default function MiddleverseAIHub({ onClose }: Props) {
   const [notice, setNotice] = useState('Middleverse AI is your context and routing layer across TRYAMM.')
   const [resilience,setResilience]=useState<'READY'|'DEGRADED'|'CHECKING'>('CHECKING')
-  useEffect(()=>{let active=true;getTryammReadiness().then(x=>{if(active)setResilience(x.ok?'READY':'DEGRADED')}).catch(()=>{if(active)setResilience('DEGRADED')});return()=>{active=false}},[])
+  const [edgeEnabled,setEdgeEnabled]=useState(()=>pocketEdgeEnabled())
+  const [edgeCap,setEdgeCap]=useState<any>(null)
+  const [edgeNotice,setEdgeNotice]=useState('Detecting local edge capability…')
+  useEffect(()=>{let active=true;getTryammReadiness().then(x=>{if(active)setResilience(x.ok?'READY':'DEGRADED')}).catch(()=>{if(active)setResilience('DEGRADED')});detectTryammEdgeCapabilities().then(x=>{if(active){setEdgeCap(x);setEdgeNotice(`${x.nodeClass.toUpperCase()} • ${x.safeWork.length} SAFE WORK TYPES`)}}).catch(()=>{if(active)setEdgeNotice('LOCAL EDGE CAPABILITY UNAVAILABLE')});return()=>{active=false}},[])
   const destinations = useMemo<Destination[]>(() => [
     { icon: '✦', title: 'Benny Stubbs AI', description: 'Open the female AI guide for navigation, help and creation.', action: () => openGlobal('__showBennie'), status: 'READY' },
     { icon: '●', title: 'LIVE / PK / Debate', description: 'Move into live creation, collaboration, debate and commerce.', action: () => openGlobal('__showTryAMMLive'), status: 'READY' },
@@ -61,6 +66,15 @@ export default function MiddleverseAIHub({ onClose }: Props) {
         <div style={{display:'flex',alignItems:'center',gap:13}}><div style={{width:58,height:58,borderRadius:18,display:'grid',placeItems:'center',border:`1px solid ${cyan}88`,background:'#071d27',fontSize:28}}>∞</div><div><div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}><div style={{fontSize:11,color:cyan,fontWeight:950,letterSpacing:2}}>ONE INTENT → RIGHT TRYAMM SYSTEM</div><span style={{fontSize:8,fontWeight:950,letterSpacing:1,padding:'4px 7px',borderRadius:999,border:'1px solid #4fe3ff55',color:resilience==='READY'?'#8fffc1':resilience==='DEGRADED'?'#ffe49b':'#b7c3d0'}}>RESILIENT ROUTING • {resilience}</span></div><h1 style={{margin:'4px 0 0',fontSize:'clamp(30px,7vw,54px)',lineHeight:.95}}>Your context follows you.</h1></div></div>
         <p style={{maxWidth:760,color:'#b9c7d5',fontSize:15,lineHeight:1.65,margin:'20px 0 0'}}>Middleverse AI connects Benny, worlds, LIVE, learning, work, business, commerce, accessibility and future scan/supply-chain gateways without forcing users to learn where every feature lives. MiddleWear isolates provider/world failures, applies risk and identity gates, and keeps healthy destinations available when one path degrades.</p>
         <div aria-live="polite" style={{marginTop:18,padding:'12px 14px',borderRadius:14,border:`1px solid ${gold}44`,background:'#171208',color:'#ead79f',fontSize:12,lineHeight:1.5}}>{notice}</div>
+      </section>
+
+      <section style={{marginTop:18,padding:16,border:'1px solid #24465e',borderRadius:20,background:'#07111d'}}>
+        <div style={{display:'flex',justifyContent:'space-between',gap:14,alignItems:'center',flexWrap:'wrap'}}>
+          <div><div style={{fontSize:9,color:gold,fontWeight:950,letterSpacing:2}}>POCKET EDGE NODE</div><div style={{fontSize:18,fontWeight:950,marginTop:4}}>Phone-size edge compute • {edgeEnabled?'ON':'OFF'}</div><div style={{fontSize:11,color:'#9eafc0',marginTop:5}}>{edgeNotice}</div></div>
+          <button onClick={async()=>{const next=!edgeEnabled;setPocketEdgeEnabled(next);setEdgeEnabled(next);if(next){setEdgeNotice('Starting protected edge cycle…');try{const result:any=await runPocketEdgeCycle();setEdgeNotice(`EDGE ${String(result.state||'online').toUpperCase()} • ${Number(result.completed||0)} JOBS COMPLETED`)}catch(e:any){setEdgeNotice(e?.message||'Edge registration unavailable')}}else setEdgeNotice('Pocket Edge disabled by user')}} style={{minHeight:44,padding:'10px 15px',borderRadius:12,border:'1px solid #4fe3ff66',background:edgeEnabled?'#0b3024':'#0c1420',color:edgeEnabled?'#8fffc1':'#fff',fontWeight:950,cursor:'pointer'}}>{edgeEnabled?'DISABLE EDGE NODE':'ENABLE EDGE NODE'}</button>
+        </div>
+        {edgeCap&&<div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:12,fontSize:9,color:'#b9c7d5'}}><span>CPU {edgeCap.hardwareConcurrency}</span><span>•</span><span>WEBGPU {edgeCap.webGPU?'YES':'NO'}</span><span>•</span><span>WEBCODECS {edgeCap.webCodecs?'YES':'NO'}</span><span>•</span><span>PARALLEL {edgeCap.maxParallel}</span><span>•</span><span>{edgeCap.safeWork.join(' · ')||'cache/sync only'}</span></div>}
+        <div style={{fontSize:9,color:'#71869f',marginTop:10}}>OPT-IN • BATTERY-AWARE • NO BACKGROUND MINING • SAME-OWNER JOBS • HEAVY WORK FALLS BACK TO WORKSTATION/CAFE/BUSINESS/CLOUD</div>
       </section>
 
       <section style={{marginTop:18,display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:11}}>
