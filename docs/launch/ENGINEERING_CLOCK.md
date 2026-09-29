@@ -228,3 +228,18 @@ Do not rename already-applied migration files blindly. Reconcile repository migr
 - Added runbook `docs/security/JACOBIE_EDGE_DDOS_RUNBOOK.md`.
 - Emergency Vercel Attack Mode remains a human-confirmed production action.
 - Hard Origin Shield enforcement remains pending the same `TRYAMM_EDGE_ORIGIN_SECRET` on Vercel + Render, followed by `TRYAMM_EDGE_ORIGIN_SHIELD_ENFORCE=true` on Render.
+
+## MiddleWear Security Gateway → Middleverse
+- Added one ordered security doorway in front of `/api/middleverse`.
+- Request order: Jacobie security headers → Red Hat Sentinel → Jacobie Swarm Shield → server-validated Supabase identity → route risk classification → provider readiness gate → durable audit → operator review → Middleverse.
+- Removed duplicated per-endpoint auth from the Middleverse router; the router now consumes the verified MiddleWear security context.
+- Live Middleverse route metadata is used for policy:
+  - high-impact routes require explicit non-green risk review;
+  - money-sensitive routes are treated as provider-dependent + human-review-required;
+  - high-impact/money-sensitive mutations fail closed if security-audit persistence is unavailable.
+- High-impact handoffs cannot be marked completed by a normal member; an authorized owner/admin/security/ops/release role is required.
+- Added a 128 KiB MiddleWear mutation ceiling to reduce resource-abuse risk.
+- Ordinary safe reads do not create durable audit noise; mutations and high-impact decisions do.
+- Middleverse responses are now `Cache-Control: no-store, private`.
+- Added `middlewear-security-gateway.test.js` to backend authority checks.
+- Current runtime health exposes `middleWearSecurity:true`.
