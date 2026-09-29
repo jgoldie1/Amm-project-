@@ -170,3 +170,38 @@ Do not rename already-applied migration files blindly. Reconcile repository migr
 - PWA service worker now caches GLB/GLTF/BIN assets after fetch and falls back to cached copies offline.
 - Service worker release advanced to `20260929-native-asset-foundry-v1`.
 - Morning Mega Convergence now requires native Foundry, runtime integration and PWA asset-cache contracts.
+
+## TRYAMM Red Hat Sentinel — defensive deception + attacker telemetry
+- Added defensive-only Red Hat Sentinel under Jacobie Cybersecurity.
+- Detects privacy-safe signals for:
+  - canary/decoy route contact
+  - secret-file probing
+  - path traversal probes
+  - SQL injection probe patterns
+  - XSS probe patterns
+  - shell/command probe patterns
+  - common framework/admin scanning
+  - unusual TRACE/CONNECT methods
+  - excessive request velocity
+- High-risk requests can receive a temporary 429 block.
+- Canary endpoints always return ordinary 404 responses and do not reveal that they are defensive decoys.
+- Event telemetry intentionally stores:
+  - event type / risk score / signal codes
+  - route class and HTTP method
+  - HMAC source fingerprint (not raw IP)
+  - HMAC user-agent fingerprint + coarse user-agent class
+  - request fingerprint
+  - payload SHA-256 + byte count, never raw payload
+  - request ID and expiry timestamp
+- Explicitly does NOT store:
+  - passwords or credentials
+  - Authorization headers
+  - cookies/session tokens
+  - raw IP addresses
+  - raw exploit bodies
+- Default retention: 14 days with opportunistic expiry cleanup.
+- Service-role-only telemetry table with RLS and no client-facing policies.
+- Owner/admin/security/release roles can read a 24-hour aggregate summary through Jacobie Vision.
+- Dashboard treats signals as indicators, not proof that a person is malicious.
+- `RED_HAT_TELEMETRY_PEPPER` is a server-only optional stable HMAC secret; without it, process-ephemeral hashing prevents cross-restart correlation.
+- Red Hat Sentinel is defensive only and has no hack-back capability.
