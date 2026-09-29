@@ -21,3 +21,4 @@ export const registerPocketEdgeNode=(capabilities:EdgeCapabilitySnapshot)=>reque
 export const heartbeatPocketEdgeNode=(nodeId:string,capabilities:EdgeCapabilitySnapshot)=>request('/api/edge-node/heartbeat',{method:'POST',body:JSON.stringify({nodeId,capabilities})})
 export const leasePocketEdgeJobs=(nodeId:string,capabilities:EdgeCapabilitySnapshot)=>request('/api/edge-node/lease',{method:'POST',body:JSON.stringify({nodeId,capabilities})})
 export const completePocketEdgeJob=(nodeId:string,jobId:string,resultRef?:string)=>request(`/api/edge-node/jobs/${encodeURIComponent(jobId)}/complete`,{method:'POST',body:JSON.stringify({nodeId,resultRef})})
+export const getPocketEdgeEarnings=()=>request('/api/edge-node/earnings',{method:'GET'})
