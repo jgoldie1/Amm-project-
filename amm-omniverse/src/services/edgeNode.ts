@@ -19,6 +19,6 @@ async function request<T>(path:string,init:RequestInit={}):Promise<T>{
 
 export const registerPocketEdgeNode=(capabilities:EdgeCapabilitySnapshot)=>request('/api/edge-node/register',{method:'POST',body:JSON.stringify({installId:getTryammEdgeInstallId(),capabilities})})
 export const heartbeatPocketEdgeNode=(nodeId:string,capabilities:EdgeCapabilitySnapshot)=>request('/api/edge-node/heartbeat',{method:'POST',body:JSON.stringify({nodeId,capabilities})})
-export const leasePocketEdgeJobs=(nodeId:string,capabilities:EdgeCapabilitySnapshot)=>request('/api/edge-node/lease',{method:'POST',body:JSON.stringify({nodeId,capabilities})})
+export const leasePocketEdgeJobs=(nodeId:string,capabilities:EdgeCapabilitySnapshot,paidGrid?:{paidGridOptIn:boolean;allowedPaidWork:string[];maxParallelPaidJobs:number})=>request('/api/edge-node/lease',{method:'POST',body:JSON.stringify({nodeId,capabilities,paidGrid})})
 export const completePocketEdgeJob=(nodeId:string,jobId:string,resultRef?:string)=>request(`/api/edge-node/jobs/${encodeURIComponent(jobId)}/complete`,{method:'POST',body:JSON.stringify({nodeId,resultRef})})
 export const getPocketEdgeEarnings=()=>request('/api/edge-node/earnings',{method:'GET'})
