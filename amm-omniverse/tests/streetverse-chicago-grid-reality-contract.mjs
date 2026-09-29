@@ -11,9 +11,9 @@ const reality=fs.readFileSync(new URL('../src/data/AllAmericanRealityFormats.ts'
 const network=fs.readFileSync(new URL('../src/components/AllAmericanNetworkHub.tsx',import.meta.url),'utf8')
 const main=fs.readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8')
 
-for(const x of ['circle-park-abla','Taylor Street','Roosevelt Road','Pilsen Gateway','worldToChicagoGridCell'])if(!grid.includes(x))throw new Error('Chicago grid missing: '+x)
+for(const x of ['circle-park-abla','Circle Park Apartments','Circle Park Drive / Laflin','Taylor Street','Fillmore Street','Grenshaw Street','Roosevelt Road','Ashland Avenue','Loomis Street','Throop Street','Racine Avenue','Jane Addams / Public Housing Museum','Roosevelt Square','Pilsen Gateway','worldToChicagoGridCell'])if(!grid.includes(x))throw new Error('Chicago grid missing: '+x)
 for(const x of ['CIRCLE_PARK_SPAWN',"type:'streetverse-spawn'"])if(!geo.includes(x))throw new Error('Circle Park default route missing: '+x)
-for(const x of ['CHICAGO_ROAD_CORRIDORS','PILSEN CONNECTOR','CIRCLE PARK / ABLA','pilsenArt','tryamm:streetverse-drop-to-player'])if(!mobile.includes(x)&&!grid.includes(x))throw new Error('visible Chicago slice/drop path missing: '+x)
+for(const x of ['CHICAGO_ROAD_CORRIDORS','CIRCLE PARK DR / LAFLIN','ASHLAND AVE','ROOSEVELT RD','CIRCLE PARK / ABLA','streetverse-circle-park-reality-layer-v1','circle-park-main-apartment-slab','circle-park-townhome','circle-park-basketball-court','circle-park-playground-pad','pilsenArt','tryamm:streetverse-drop-to-player'])if(!mobile.includes(x)&&!grid.includes(x))throw new Error('visible Chicago slice/drop path missing: '+x)
 for(const x of ['drop-request','drop-accept','drop-decline'])if(!presence.includes(x)||!playerMap.includes(x))throw new Error('consented drop-in action missing: '+x)
 for(const x of ['StreetVerseRealtimePresence','StreetVersePlayerGridMap','StreetVerseRPLinguaCoach'])if(!overlays.includes(x))throw new Error('mobile multiplayer/RP overlay missing: '+x)
 for(const x of ['IN CHARACTER','OUT OF CHARACTER','CONSENT CHECK','DROP-IN'])if(!lingua.includes(x))throw new Error('RP Lingua term missing: '+x)
