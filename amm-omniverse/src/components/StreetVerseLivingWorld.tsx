@@ -55,6 +55,7 @@ function makeResident(i:number){
     const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.15,.78,3,6),material(pants,0,.85));leg.position.set(side*.2,.52,0);g.add(leg)
   }
   const shoes=new THREE.Mesh(new THREE.BoxGeometry(.62,.18,.72),material(0x15171b,.05,.92));shoes.position.set(0,.12,-.08);g.add(shoes)
+  normalizeStreetVerseHumanHeight(g,residentHeight(i))
   return g
 }
 
@@ -119,6 +120,7 @@ function makeResponderNPC(roleRaw:string,agencyRaw:string){
   if(isEMS){const bag=new THREE.Mesh(new THREE.BoxGeometry(.5,.42,.32),material(0xe13b3b,.1,.7));bag.position.set(.5,.75,.15);g.add(bag)}
   if(isFire){const tank=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,.7,8),material(0x495159,.5,.35));tank.position.set(0,1.45,-.34);g.add(tank)}
   g.userData.responderRole=roleRaw;g.userData.responderAgency=agencyRaw;g.userData.responderNPC=true
+  normalizeStreetVerseHumanHeight(g,STREETVERSE_HUMAN_HEIGHT_METERS.adultResident)
   return g
 }
 
@@ -206,7 +208,7 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
     const streetLights:THREE.Group[]=[];for(let i=0;i<18;i++){const g=new THREE.Group();const pole=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,6,8),material(0x353b45,.7,.3));pole.position.y=3;g.add(pole);const lamp=new THREE.PointLight(0xffd7a0,5,18,2);lamp.position.y=6.2;g.add(lamp);g.position.set(i%2?10:-10,0,-76+i*9);scene.add(g);streetLights.push(g)}
 
     const avatar=new THREE.Group();const body=new THREE.Mesh(new THREE.CapsuleGeometry(1.05,2.2,5,10),material(0x58e8ff,.38,.32));body.position.y=2.2;body.castShadow=true;avatar.add(body);const head=new THREE.Mesh(new THREE.SphereGeometry(.78,18,14),material(0xc98e67,0,.58));head.position.y=4.25;avatar.add(head);normalizeStreetVerseHumanHeight(avatar,STREETVERSE_HUMAN_HEIGHT_METERS.adultHero);avatar.position.set(saved.x??START.x,0,saved.z??START.z);scene.add(avatar)
-    replacePrimitiveWithStreetVerseAsset({id:'player-default',fallback:avatar,scene,position:avatar.position.clone()}).then(ok=>ok&&setAssetStatus('PLAYER GLB • RESIDENT GLB GATE ACTIVE • 20 VEHICLES • CHICAGO TRANSIT/AIRPORT DEPTH'))
+    replacePrimitiveWithStreetVerseAsset({id:'player-default',fallback:avatar,scene,position:avatar.position.clone(),targetHeightMeters:STREETVERSE_HUMAN_HEIGHT_METERS.adultHero}).then(ok=>ok&&setAssetStatus('PLAYER GLB • RESIDENT GLB GATE ACTIVE • 20 VEHICLES • CHICAGO TRANSIT/AIRPORT DEPTH'))
 
     const npcs:THREE.Group[]=[]
     for(let i=0;i<24;i++){
@@ -214,7 +216,7 @@ export default function StreetVerseLivingWorld({onClose}:{onClose:()=>void}){
       const horizontal=i<16;const dir=(i%2===0?1:-1) as 1|-1;const route:ResidentRoute=horizontal?{axis:'x',fixed:i<8?-18:18,dir,speed:1.7+(i%5)*.18,phase:i*9}:{axis:'z',fixed:i<20?-18:18,dir,speed:1.55+(i%4)*.2,phase:i*11};anchor.userData.route=route
       if(route.axis==='x')anchor.position.set(wrap(-78+route.phase),0,route.fixed);else anchor.position.set(route.fixed,0,wrap(-78+route.phase));scene.add(anchor);npcs.push(anchor)
       const id=RESIDENT_ASSETS[i%RESIDENT_ASSETS.length]
-      replacePrimitiveWithStreetVerseAsset({id,fallback,scene,parent:anchor,position:new THREE.Vector3(0,0,0),requireClearance:true}).then(ok=>{if(ok)setAssetStatus('GLB RESIDENTS • SMART CROSSWALKS • 20 VEHICLES • CHICAGO TRANSIT/AIRPORT DEPTH')})
+      replacePrimitiveWithStreetVerseAsset({id,fallback,scene,parent:anchor,position:new THREE.Vector3(0,0,0),requireClearance:true,targetHeightMeters:residentHeight(i)}).then(ok=>{if(ok)setAssetStatus('GLB RESIDENTS • SMART CROSSWALKS • 20 VEHICLES • CHICAGO TRANSIT/AIRPORT DEPTH')})
     }
 
     let controlled:THREE.Group=avatar
