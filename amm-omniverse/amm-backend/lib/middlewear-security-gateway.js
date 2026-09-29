@@ -71,6 +71,8 @@ async function writeAudit(supabase,{user,eventType,severity='info',requestId,met
   }
 }
 
+const MIDDLEWEAR_MAX_MUTATION_BYTES=128*1024
+
 function createMiddleWearSecurityGateway({supabase}){
   if(!supabase)throw new Error('MIDDLEWEAR_SUPABASE_REQUIRED')
 
@@ -91,13 +93,19 @@ function createMiddleWearSecurityGateway({supabase}){
       auditReady:false,
     }
 
+    const method=String(req.method||'GET').toUpperCase()
+    if(['GET','HEAD','OPTIONS'].includes(method)){
+      req.middleWearSecurity.auditReady=true
+      return next()
+    }
+
     const auditReady=await writeAudit(supabase,{
       user:req.user,
       eventType:'middlewear.identity_verified',
       severity:'info',
       requestId:req.middleWearSecurity.requestId,
       metadata:{
-        method:String(req.method||'GET').slice(0,12),
+        method:method.slice(0,12),
         path:String(req.path||'').slice(0,240),
         swarmClass:req.middleWearSecurity.swarmClass,
         redHatRisk:req.middleWearSecurity.redHatRisk,
@@ -109,6 +117,14 @@ function createMiddleWearSecurityGateway({supabase}){
 
   async function loadRoutePolicy(req,res,next){
     if(req.method!=='POST'||req.path!=='/handoffs')return next()
+    const payloadBytes=Buffer.byteLength(JSON.stringify(req.body||{}))
+    if(payloadBytes>MIDDLEWEAR_MAX_MUTATION_BYTES){
+      return res.status(413).json({
+        error:'MiddleWear handoff payload exceeds protected size limit',
+        maxBytes:MIDDLEWEAR_MAX_MUTATION_BYTES,
+        gate:'middlewear-resource-limit',
+      })
+    }
     const routeKey=String(req.body?.routeKey||'').trim()
     if(!routeKey)return res.status(400).json({error:'routeKey is required',gate:'middlewear-route-policy'})
 
@@ -278,4 +294,5 @@ module.exports={
   classifyRoute,
   providerReadiness,
   operatorRole,
+  MIDDLEWEAR_MAX_MUTATION_BYTES,
 }
