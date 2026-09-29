@@ -11,7 +11,7 @@ const must=(ok,msg)=>{if(!ok)throw new Error('TRYAMM NATIVE RUNTIME ASSET CONTRA
 must(pkg.scripts['native:assets']==='node scripts/tryamm-native-asset-foundry.mjs public/generated-assets/native','native assets must be generated into Vite public build input')
 must(String(pkg.scripts.build).startsWith('npm run native:assets &&'),'native generation must run before the normal build')
 
-for(const id of ['brick-building-module','street-lamp','tree','bench','hydrant','holo-wayfinder','vehicle-blockout','street-and-sidewalk']){
+for(const id of ['brick-building-module','street-lamp','tree','bench','hydrant','holo-wayfinder','vehicle-blockout','tryamm-2027-sport-sedan','street-and-sidewalk']){
   must(catalog.includes(`id:'${id}'`),'runtime catalog missing '+id)
   must(catalog.includes(`/generated-assets/native/kit/${id}.glb`),'runtime URL mismatch for '+id)
   must(foundry.includes(`'${id}'`),'foundry does not generate runtime asset '+id)
@@ -30,5 +30,8 @@ must(world.includes("disposeNativeAssetLayer"),'Circle Park must clean up TRYAMM
 must(world.includes("NATIVE ASSETS:"),'Circle Park must expose native asset load state')
 must(world.includes("state:result.loaded>0?'READY':'FALLBACK'"),'Circle Park must fall back instead of crashing when assets are unavailable')
 must(world.includes("TRYAMM native GLB preview layer + authoritative gameplay primitives"),'Circle Park must truthfully distinguish visual preview from gameplay authority')
+must(catalog.includes("label:'circle-park-repair-car-native'"),'Circle Park native 2027 sedan placement missing')
+must(world.includes("getObjectByName('circle-park-repair-car-native')"),'Circle Park must bind native 2027 sedan to repair/drive runtime')
+must(world.includes("getObjectByName('hood-pivot')"),'native sedan hood repair animation missing')
 
 console.log('TRYAMM NATIVE RUNTIME ASSET CONTRACT PASS: foundry -> public build -> catalog -> parallel GLB load -> visual-only fallback-safe Circle Park runtime')
