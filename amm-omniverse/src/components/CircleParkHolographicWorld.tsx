@@ -93,19 +93,105 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
   const floor=new THREE.Mesh(new THREE.BoxGeometry(12,.25,18),new THREE.MeshStandardMaterial({color:0x102936}));floor.position.set(0,.05,-22);floor.visible=false;scene.add(floor)
   const stairs=new THREE.Group();for(let i=0;i<6;i++){const s=new THREE.Mesh(new THREE.BoxGeometry(4,.35,1.2),new THREE.MeshStandardMaterial({color:0x48d8ff}));s.position.set(-3,.2+i*.35,-17+i*.7);stairs.add(s)}stairs.visible=false;scene.add(stairs)
   const elevator=new THREE.Mesh(new THREE.BoxGeometry(3,5,3),new THREE.MeshStandardMaterial({color:0x242b35,emissive:0x8844ff,emissiveIntensity:.35}));elevator.position.set(3,2.5,-16);elevator.visible=false;scene.add(elevator)
-  camera.position.set(0,7,-57);let raf=0,last=performance.now(),doorOpen=0
+  camera.position.set(0,7,-57);let raf=0,last=performance.now(),doorOpen=0,lastTelemetry=0
   const resize=()=>{const w=mount.clientWidth,h=mount.clientHeight||innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()};resize();addEventListener('resize',resize)
-  const tick=(now:number)=>{const dt=Math.min(.05,(now-last)/1000);last=now;const nx=THREE.MathUtils.clamp(player.position.x+input.current.x*9*dt,-43,43),nz=THREE.MathUtils.clamp(player.position.z+input.current.z*9*dt,-48,31);if(insideDemo.current||!BLOCKERS.some(b=>inside(nx,nz,b))){player.position.x=nx;player.position.z=nz}
-   if(companionCommand.current==='follow'||companionCommand.current==='return'){const target=new THREE.Vector3(player.position.x-1.8,0,player.position.z-1.8),d=dog.position.distanceTo(target);if(d>.3)dog.position.lerp(target,Math.min(1,dt*3.2));if(companionCommand.current==='return'&&d<1){companionCommand.current='follow';setDogCommand('follow')}}
+  const tick=(now:number)=>{
+   const dt=Math.min(.05,(now-last)/1000);last=now
+   const speed=drivingRef.current?17:9
+   const maxX=drivingRef.current?6:43
+   const nx=THREE.MathUtils.clamp(player.position.x+input.current.x*speed*dt,-maxX,maxX)
+   const nz=THREE.MathUtils.clamp(player.position.z+input.current.z*speed*dt,-48,31)
+   if(drivingRef.current||insideDemo.current||!BLOCKERS.some(b=>inside(nx,nz,b))){player.position.x=nx;player.position.z=nz}
+
+   if(drivingRef.current){
+    player.visible=false
+    repairCar.position.x=player.position.x;repairCar.position.z=player.position.z
+    repairCarPositionRef.current=[repairCar.position.x,repairCar.position.y,repairCar.position.z]
+    if(Math.abs(input.current.x)+Math.abs(input.current.z)>.05)repairCar.rotation.y=Math.atan2(input.current.x,input.current.z)
+   }else{
+    player.visible=true
+    repairCarPositionRef.current=[repairCar.position.x,repairCar.position.y,repairCar.position.z]
+   }
+
+   if(companionCommand.current==='follow'||companionCommand.current==='return'){
+    const target=new THREE.Vector3(player.position.x-1.8,0,player.position.z-1.8),d=dog.position.distanceTo(target)
+    if(d>.3)dog.position.lerp(target,Math.min(1,dt*3.2))
+    if(companionCommand.current==='return'&&d<1){companionCommand.current='follow';setDogCommand('follow')}
+   }
+
    car.position.z=-8+((now*.006)%58)-29;car.position.x=3;car.rotation.y=0
    traffic2.position.z=22-((now*.005)%58);traffic2.position.x=-3;traffic2.rotation.y=Math.PI
    npc.position.x=-4+Math.sin(now*.0007)*1.2
-   const near=player.position.distanceTo(MISSION_TARGET)<4;if(near!==nearEntrance.current){nearEntrance.current=near;setCanOpen(near);if(!insideDemo.current)setMessage(near?'Entrance reached • OPEN is available.':'Explore Circle Park • building collision is active.')}
-   const homeClose=!insideDemo.current&&player.position.distanceTo(HOME_TARGET)<6;if(homeClose!==homeNear){setHomeNear(homeClose);if(homeClose&&!starterHome)setMessage('Starter home marker reached • CLAIM HOME is available.')}
-   const shopNear=!insideDemo.current&&player.position.distanceTo(BUSINESS_TARGET)<6;if(shopNear!==businessNear){setBusinessNear(shopNear);if(shopNear&&!businessComplete)setMessage('Local business discovered • CHECK IN is available.')}
-   const elev=insideDemo.current&&player.position.distanceTo(new THREE.Vector3(3,1.4,-16))<3.5;if(elev!==nearElevator.current){nearElevator.current=elev;setCanElevator(elev);if(elev)setMessage('Elevator reached • RIDE ELEVATOR is available.')}
+
+   leftDoorPivot.rotation.y=THREE.MathUtils.lerp(leftDoorPivot.rotation.y,doorsOpenRef.current?-1.08:0,.12)
+   rightDoorPivot.rotation.y=THREE.MathUtils.lerp(rightDoorPivot.rotation.y,doorsOpenRef.current?1.08:0,.12)
+   const hoodTarget=repairStepRef.current>0&&repairStepRef.current<3?-.9:0
+   hoodPivot.rotation.x=THREE.MathUtils.lerp(hoodPivot.rotation.x,hoodTarget,.12)
+   repairCarMat.color.setHex(repairStepRef.current>=3?0x247fbd:0x244862)
+   repairCarMat.emissive.setHex(repairStepRef.current>=3?0x001c2d:0x000000)
+   repairKitMesh.visible=!repairKitRef.current
+
+   carriedTrash.visible=Boolean(carryingRef.current)
+   if(carryingRef.current)carriedTrash.position.set(player.position.x+.65,player.position.y+.25,player.position.z+.2)
+   for(const pickup of CIRCLE_PARK_WASTE_PICKUPS){
+    const hidden=disposedRef.current.includes(pickup.id)||carryingRef.current===pickup.id
+    const marker=trashMarkers.get(pickup.id);if(marker)marker.visible=!hidden
+    const native=nativeLayer?.getObjectByName(pickup.id);if(native)native.visible=!hidden
+   }
+   dumpsterBeacon.scale.setScalar(carryingRef.current?1+.12*Math.sin(now*.006):.82)
+
+   routeMarkers.forEach((marker,index)=>{
+    const active=!routeCompleteRef.current&&repairStepRef.current>=3&&index===routeIndexRef.current
+    marker.visible=repairStepRef.current>=3&&!routeCompleteRef.current
+    marker.scale.setScalar(active?1.05+.12*Math.sin(now*.008):.72)
+    marker.children.forEach(child=>{const mat=(child as THREE.Mesh).material as THREE.Material&{opacity?:number};if('opacity'in mat)mat.opacity=active?.92:.35})
+   })
+
+   const p:[number,number,number]=[player.position.x,player.position.y,player.position.z]
+   const waste=nearestWaste(p,disposedRef.current,carryingRef.current)
+   setNearWasteId(waste?.item.id||null)
+   setNearDump(nearDisposal(p))
+   setNearKit(!repairKitRef.current&&nearRepairKit(p))
+   setNearCar(nearRepairCar(p,repairCarPositionRef.current))
+
+   if(drivingRef.current&&repairStepRef.current>=3&&!routeCompleteRef.current){
+    const checkpoint=STREETVERSE_CHICAGO_ROUTE[routeIndexRef.current]
+    if(checkpoint&&Math.hypot(player.position.x-checkpoint.position[0],player.position.z-checkpoint.position[2])<4.2){
+      setXp(v=>v+checkpoint.rewardXP)
+      const next=routeIndexRef.current+1
+      if(next>=STREETVERSE_CHICAGO_ROUTE.length){
+        routeCompleteRef.current=true;setRouteComplete(true);setRouteIndex(STREETVERSE_CHICAGO_ROUTE.length)
+        setXp(v=>v+250)
+        setMessage(`CHICAGO SLICE COMPLETE • ${checkpoint.label} reached • Circle Park → Roosevelt → Taylor → Pilsen • +${checkpoint.rewardXP+250} XP.`)
+        window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{mission:{id:'circle-park-roosevelt-taylor-pilsen',title:'Circle Park → Roosevelt → Taylor → Pilsen',rewardXP:550},character:selectedCharacter,routeComplete:true}}))
+      }else{
+        routeIndexRef.current=next;setRouteIndex(next)
+        setMessage(`CHECKPOINT • ${checkpoint.label} • +${checkpoint.rewardXP} XP • NEXT: ${STREETVERSE_CHICAGO_ROUTE[next].label}.`)
+      }
+    }
+   }
+
+   const near=player.position.distanceTo(MISSION_TARGET)<4
+   if(near!==nearEntrance.current){nearEntrance.current=near;setCanOpen(near);if(!insideDemo.current&&!drivingRef.current)setMessage(near?'Entrance reached • OPEN is available.':'Explore Circle Park • follow the active objective.')}
+   const homeClose=!insideDemo.current&&player.position.distanceTo(HOME_TARGET)<6
+   if(homeClose!==homeNear){setHomeNear(homeClose);if(homeClose&&!starterHome&&!drivingRef.current)setMessage('Starter home marker reached • CLAIM HOME is available.')}
+   const shopNear=!insideDemo.current&&player.position.distanceTo(BUSINESS_TARGET)<6
+   if(shopNear!==businessNear){setBusinessNear(shopNear);if(shopNear&&!businessComplete&&!drivingRef.current)setMessage('Local business discovered • CHECK IN is available.')}
+   const elev=insideDemo.current&&player.position.distanceTo(new THREE.Vector3(3,1.4,-16))<3.5
+   if(elev!==nearElevator.current){nearElevator.current=elev;setCanElevator(elev);if(elev)setMessage('Elevator reached • RIDE ELEVATOR is available.')}
+
    doorOpen=THREE.MathUtils.lerp(doorOpen,insideDemo.current?1:0,.08);door.position.x=doorOpen*3.5;floor.visible=stairs.visible=elevator.visible=insideDemo.current
-   camera.position.lerp(new THREE.Vector3(player.position.x,player.position.y+5,player.position.z-11),.08);camera.lookAt(player.position.x,player.position.y+1,player.position.z+4);renderer.render(scene,camera);raf=requestAnimationFrame(tick)}
+
+   if(now-lastTelemetry>300){
+    lastTelemetry=now
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-player-position',{detail:{x:player.position.x,z:player.position.z,speed:Math.hypot(input.current.x,input.current.z)*speed,vehicle:drivingRef.current,vehicleType:drivingRef.current?'car':undefined,district:'circle-park'}}))
+   }
+
+   camera.position.lerp(new THREE.Vector3(player.position.x,player.position.y+(drivingRef.current?4.4:5),player.position.z-(drivingRef.current?13:11)),.08)
+   camera.lookAt(player.position.x,player.position.y+1,player.position.z+4)
+   renderer.render(scene,camera)
+   raf=requestAnimationFrame(tick)
+  }
   raf=requestAnimationFrame(tick);return()=>{nativeLayerCancelled=true;cancelAnimationFrame(raf);removeEventListener('resize',resize);if(nativeLayer){scene.remove(nativeLayer);disposeNativeAssetLayer(nativeLayer)}renderer.dispose();renderer.domElement.remove()}
  },[])
  const stop=()=>{input.current={x:0,z:0}}
