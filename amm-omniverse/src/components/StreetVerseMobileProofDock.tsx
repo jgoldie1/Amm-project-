@@ -5,7 +5,7 @@ import HoloMobilityLauncher from './HoloMobilityLauncher'
 type Phase='idle'|'repair'|'drive'|'npc'|'ready'|'complete'
 
 export default function StreetVerseMobileProofDock(){
-  const [open,setOpen]=useState(false)
+  const [open,setOpen]=useState(true)
   const [reelOpen,setReelOpen]=useState(false)
   const [phase,setPhase]=useState<Phase>('idle')
   const [repairStep,setRepairStep]=useState(0)
