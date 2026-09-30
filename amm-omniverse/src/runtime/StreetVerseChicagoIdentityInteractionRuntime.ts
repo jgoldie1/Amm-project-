@@ -199,6 +199,16 @@ const TARGETS:Target[]=[
     detail:{habitat:'trash-recycling-zone',location:'circle-park',source:'context-prompt'},
     accent:0xb47745,
   },
+  {
+    id:'circle-park-rodent-check',
+    label:'Circle Park Rat / Mouse Check',
+    action:'RODENT CHECK',
+    kind:'explore',
+    x:-10,z:54,radius:7,
+    event:'tryamm:rodent-check-request',
+    detail:{habitat:'trash-recycling-service-zone',location:'circle-park',source:'context-prompt'},
+    accent:0x8a7568,
+  },
 ]
 
 const DISTRICTS=[
