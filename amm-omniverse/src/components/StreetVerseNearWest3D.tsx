@@ -7,6 +7,7 @@ import {useEffect,useRef,useState} from 'react'
 import * as THREE from 'three'
 import {STREETVERSE_FUTURE_VEHICLES} from '../data/streetVerseFutureVehicles'
 import StreetVerseFutureVehicleDealer from './StreetVerseFutureVehicleDealer'
+import {StreetVerseHitFx} from './StreetVerseHitFx'
 import GreenvilleCampusVerseScene from './GreenvilleCampusVerseScene'
 
 function RoadMeshes(){
@@ -90,6 +91,7 @@ export default function StreetVerseNearWest3D(){
  const [playerSpawn,setPlayerSpawn]=useState({x:-650,z:700})
  const [vehicleAmmo,setVehicleAmmo]=useState(12)
  const [vehicleAimSide,setVehicleAimSide]=useState<'left'|'right'>('left')
+ const [hitFx,setHitFx]=useState<{id:number;position:[number,number,number]}|null>(null)
  const drivenPosition=useRef({x:-650,z:700})
  const [nearby,setNearby]=useState<{kind:'npc'|'business'|'vehicle';id:string;label:string;mission?:string}|null>(null)
  const lastNearby=useRef('')
@@ -112,6 +114,10 @@ export default function StreetVerseNearWest3D(){
  const vehicleFire=()=>{
   if(!driving||vehicleAmmo<=0)return
   setVehicleAmmo(a=>Math.max(0,a-1))
+  const origin=drivenPosition.current
+  const candidates=NEAR_WEST_NPCS.map(n=>({n,d:Math.hypot(n.position.x-origin.x,n.position.z-origin.z)})).filter(x=>x.d<34).sort((a,b)=>a.d-b.d)
+  const target=candidates[0]?.n
+  if(target){setHitFx({id:Date.now(),position:[target.position.x,1.15,target.position.z]});window.dispatchEvent(new CustomEvent('tryamm:streetverse-npc-hit',{detail:{targetId:target.id,damage:25,source:'fictional-vehicle-gameplay'}}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-npc-consequence',{detail:{targetId:target.id,reaction:'stagger',missionConsequence:true}}))}
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-action',{detail:{action:'fictional-fire',vehicleId:driving,side:vehicleAimSide,ammoAfter:vehicleAmmo-1,source:'vehicle-gameplay'}}))
  }
  const doAction=()=>{
@@ -149,7 +155,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><TaylorLots/><PopulationMeshes/><FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}}/>}
+   <RoadMeshes/><TaylorLots/><PopulationMeshes/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}}/>}
   </Canvas>
  </div>
 }
