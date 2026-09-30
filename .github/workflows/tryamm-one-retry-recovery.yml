@@ -1,0 +1,52 @@
+name: TRYAMM One-Retry Recovery
+
+on:
+  workflow_run:
+    workflows:
+      - "TryAMM Full CI"
+      - "StreetVerse Finish Line Fastlane"
+      - "StreetVerse Chicago Morning Mega Convergence"
+      - "TRYAMM Android Candidate"
+      - "TRYAMM Smart Finish Router"
+      - "StreetVerse Visual Evidence"
+    types: [completed]
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: tryamm-one-retry-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
+
+jobs:
+  rerun-failed-once:
+    name: Re-run failed jobs once
+    if: >-
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Re-run only failed jobs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Retrying failed jobs once for run $RUN_ID in $REPO"
+          gh api             --method POST             -H "Accept: application/vnd.github+json"             "/repos/$REPO/actions/runs/$RUN_ID/rerun-failed-jobs"
+
+      - name: Write recovery summary
+        run: |
+          {
+            echo '## TRYAMM one-retry recovery'
+            echo
+            echo "- Workflow: \`${{ github.event.workflow_run.name }}\`"
+            echo "- Run: \`${{ github.event.workflow_run.id }}\`"
+            echo "- Original attempt: \`${{ github.event.workflow_run.run_attempt }}\`"
+            echo '- Action: re-ran failed jobs once'
+            echo '- A second failure is treated as a real blocker and is not auto-retried.'
+          } >> "$GITHUB_STEP_SUMMARY"
