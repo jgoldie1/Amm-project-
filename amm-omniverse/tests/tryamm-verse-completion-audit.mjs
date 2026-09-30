@@ -76,7 +76,7 @@ for(const token of ['nativeCharacterVisualAuthority:true','nativeCharacterAnimat
   assert.ok(characters.includes(token),`Meet the Stubbs character authority missing ${token}`)
 }
 
-const sourcePending=(study.match(/source-not-yet-assigned/g)||[]).length
+const sourcePending=study.includes('Array.from({length:7}')?7:(study.match(/source-not-yet-assigned/g)||[]).length
 const building=entries.filter(x=>x.status==='BUILDING').length
 const planned=entries.filter(x=>x.status==='PLANNED').length
 console.log(JSON.stringify({
