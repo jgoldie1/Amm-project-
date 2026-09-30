@@ -51,6 +51,7 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const [repairContext,setRepairContext]=useState<RepairContext|null>(null)
  const [repairStep,setRepairStep]=useState(0)
  const [directAnalog,setDirectAnalog]=useState(false)
+ const [moreOpen,setMoreOpen]=useState(false)
  const active=useRef<Record<Dir,boolean>>({up:false,down:false,left:false,right:false})
  const vehicleActiveRef=useRef(false)
  const cruiseRef=useRef(false)
@@ -145,38 +146,53 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const openReel=()=>window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'streetverse-mobile-game-shell',missionId:activeMission.missionId||'',missionLabel:activeMission.title||'StreetVerse Reel',missionSource:'streetverse-mobile',rewardStatus:firstJourneyPhase==='complete'?'pending':'draft',verified:false}}))
  const enterCar=()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:true,source:'mobile-game-shell-direct'}}))
  const openRideShare=()=>window.dispatchEvent(new CustomEvent('tryamm:holo-mobility-open',{detail:{source:'streetverse-mobile-game-shell'}}))
- const openBible=()=>{try{localStorage.setItem('tryamm.faith.return','/streetverse')}catch{};window.location.href='/faithverse#reader'}
+ const openBible=()=>{try{localStorage.setItem('tryamm.faith.return','/streetverse')}catch{};window.location.href='/ethiopian-bible#reader'}
+ const openTimeMachine=()=>{setMoreOpen(false);window.dispatchEvent(new CustomEvent('tryamm:streetverse-time-machine-open',{detail:{source:'streetverse-mobile-focus-hud'}}))}
+ const openGrid=()=>{setMoreOpen(false);window.dispatchEvent(new CustomEvent('tryamm:streetverse-grid-open',{detail:{source:'streetverse-mobile-focus-hud'}}))}
+ const openRP=()=>{setMoreOpen(false);window.dispatchEvent(new CustomEvent('tryamm:streetverse-rp-open',{detail:{source:'streetverse-mobile-focus-hud'}}))}
+ const openFon=()=>{setMoreOpen(false);release();window.dispatchEvent(new CustomEvent('tryamm:holo-fon-open',{detail:{source:'streetverse-mobile-focus-hud',preserveWorld:true}}))}
  const repairLabel=repairStep===0?'OPEN HOOD + INSPECT':repairStep===1?'DIAGNOSE + FIX':repairStep===2?'VERIFY + CLOSE':'REPAIRED ✓'
  const bottom='max(16px,env(safe-area-inset-bottom))'
  const selectedSide=hand==='left'?{left:'max(12px,env(safe-area-inset-left))'}:{right:'max(12px,env(safe-area-inset-right))'}
  const movementSide=mode==='one-hand'?selectedSide:{left:'max(12px,env(safe-area-inset-left))'}
  const actionSide=mode==='one-hand'?selectedSide:{right:'max(14px,env(safe-area-inset-right))'}
- return <><div data-streetverse-mobile-shell="v5" data-direct-analog={directAnalog?'world':'fallback'} data-control-mode={mode} data-one-hand-side={mode==='one-hand'?hand:'none'} style={{position:'fixed',inset:0,zIndex:52000,pointerEvents:'none',fontFamily:'system-ui',userSelect:'none',WebkitUserSelect:'none'}}>
-  <div style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',left:'max(10px,env(safe-area-inset-left))',display:'flex',gap:6,pointerEvents:'auto',flexWrap:'wrap',maxWidth:'calc(100vw - 70px)'}}>
-   <button aria-pressed={mode==='one-hand'&&hand==='left'} onClick={()=>activateOneHand('left')} style={modeButton(mode==='one-hand'&&hand==='left')}>LEFT HAND</button>
-   <button aria-pressed={mode==='one-hand'&&hand==='right'} onClick={()=>activateOneHand('right')} style={modeButton(mode==='one-hand'&&hand==='right')}>RIGHT HAND</button>
-   <button aria-pressed={mode==='two-hand'} onClick={activateTwoHand} style={modeButton(mode==='two-hand')}>2 HAND</button>
-   <div aria-label={`StreetVerse fame rank ${fame.rank}`} style={{minHeight:44,padding:'5px 9px',borderRadius:12,border:'1px solid #ff74c888',background:'#220a1eee',display:'grid',alignContent:'center',lineHeight:1.05}}><b style={{fontSize:9,color:'#ff9fda'}}>FAME • {fame.rank.toUpperCase()}</b><span style={{fontSize:8,color:'#fff',opacity:.78}}>{fame.fame} • {fame.fanbase.toLocaleString()} FANS</span></div>
+ return <><div data-streetverse-mobile-shell="v6" data-streetverse-focus-hud="v1" data-direct-analog={directAnalog?'world':'fallback'} data-control-mode={mode} data-one-hand-side={mode==='one-hand'?hand:'none'} style={{position:'fixed',inset:0,zIndex:52000,pointerEvents:'none',fontFamily:'system-ui',userSelect:'none',WebkitUserSelect:'none'}}>
+  <div aria-label="StreetVerse mobile focus bar" style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',left:'max(10px,env(safe-area-inset-left))',right:'max(62px,calc(env(safe-area-inset-right) + 62px))',display:'flex',gap:7,alignItems:'center',pointerEvents:'auto'}}>
+   <button aria-expanded={moreOpen} aria-label="Open StreetVerse more controls" onClick={()=>setMoreOpen(v=>!v)} style={{minHeight:44,minWidth:86,padding:'0 12px',borderRadius:22,border:'2px solid #7be9ff',background:'#061826ee',color:'#fff',fontSize:10,fontWeight:950,boxShadow:'0 0 14px #00d9ff55',touchAction:'manipulation'}}>☰ MORE</button>
+   <div aria-label="StreetVerse movement status" style={{minHeight:40,padding:'4px 9px',borderRadius:20,border:'1px solid #486071',background:'#07131fd9',display:'grid',alignContent:'center',lineHeight:1.05,color:'#fff',pointerEvents:'none'}}>
+    <b style={{fontSize:9,color:inVehicle?'#8effb7':'#bff8ff'}}>{inVehicle?'DRIVING':'WALKING'} • {mode==='one-hand'?hand.toUpperCase()+' HAND':'2 HAND'}</b>
+    <span style={{fontSize:7,opacity:.72}}>FAME {fame.fame} • {fame.rank.toUpperCase()}</span>
+   </div>
   </div>
-  <button aria-label="Open Holo FON" onClick={()=>{release();window.dispatchEvent(new CustomEvent('tryamm:holo-fon-open',{detail:{source:'streetverse-mobile-game-shell',preserveWorld:true}}))}} style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',right:'max(62px,calc(env(safe-area-inset-right) + 62px))',width:46,height:46,borderRadius:23,border:'2px solid #69e9ff',background:'#061826ee',color:'#fff',fontSize:22,pointerEvents:'auto',boxShadow:'0 0 16px #00d9ff66',touchAction:'manipulation'}}>📱</button>
   <button onClick={onClose} aria-label="Exit StreetVerse" style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',right:'max(10px,env(safe-area-inset-right))',width:44,height:44,borderRadius:22,border:'1px solid #567',background:'#07131fee',color:'#fff',fontSize:20,pointerEvents:'auto'}}>×</button>
-  <div aria-label="StreetVerse Holographic LIVE and PK controls" style={{position:'absolute',top:'max(60px,calc(env(safe-area-inset-top) + 60px))',right:'max(10px,env(safe-area-inset-right))',display:'grid',gap:7,pointerEvents:'auto'}}>
-   <button aria-label="Open Holographic LIVE from StreetVerse" onClick={()=>openHolo('live')} style={{...modeButton(true),minWidth:92,borderColor:'#ff6b87'}}>● HOLO LIVE</button>
-   <button aria-label="Open Holographic PK Battle from StreetVerse" onClick={()=>openHolo('pk')} style={{...modeButton(true),minWidth:92,borderColor:'#ff74c8'}}>⚔ PK BATTLE</button>
-  </div>
-  <div aria-label="StreetVerse quick action rail" style={{position:'absolute',left:'50%',transform:'translateX(-50%)',top:'max(62px,calc(env(safe-area-inset-top) + 62px))',display:'flex',gap:6,pointerEvents:'auto',maxWidth:'94vw',overflowX:'auto',padding:'3px 5px'}}>
+
+  <div aria-label="StreetVerse contextual step" style={{position:'absolute',left:'50%',transform:'translateX(-50%)',top:'max(60px,calc(env(safe-area-inset-top) + 60px))',display:'flex',gap:6,pointerEvents:'auto',maxWidth:'92vw',overflowX:'auto',padding:'2px 4px'}}>
    {firstJourneyPhase==='idle'&&<button onClick={startFirstJourney} style={quickRailButton('#8effb7')}>▶ START MISSION</button>}
    {firstJourneyPhase==='active'&&<button disabled style={quickRailButton('#ffe47f')}>MISSION ACTIVE</button>}
-   {firstJourneyPhase==='ready'&&<button onClick={completeFirstJourney} style={quickRailButton('#8effb7')}>✓ COMPLETE MISSION</button>}
-   {firstJourneyPhase==='complete'&&<button onClick={startFirstJourney} style={quickRailButton('#8effb7')}>↻ NEW FIRST RIDE</button>}
+   {firstJourneyPhase==='ready'&&<button onClick={completeFirstJourney} style={quickRailButton('#8effb7')}>✓ COMPLETE</button>}
+   {firstJourneyPhase==='complete'&&<button onClick={startFirstJourney} style={quickRailButton('#8effb7')}>↻ NEW MISSION</button>}
    {repairContext&&firstJourneyPhase!=='idle'&&repairStep<3&&<button onClick={runRepairStep} style={quickRailButton('#ffd65a')}>🛠 {repairLabel}</button>}
-   {repairStep>=3&&!inVehicle&&firstJourneyPhase==='active'&&<button onClick={enterCar} style={quickRailButton('#8effb7')}>🚗 ENTER CAR</button>}
    {!inVehicle&&<button onClick={enterCar} aria-label="Drive nearest StreetVerse vehicle" style={quickRailButton('#7be9ff')}>🚘 DRIVE</button>}
-   {inVehicle&&<button disabled aria-label="Driving active" style={quickRailButton('#8effb7')}>DRIVING • USE JOYSTICK</button>}
-   <button onClick={openReel} style={quickRailButton('#ff8fd9')}>🎬 REEL</button>
-   <button onClick={openRideShare} style={quickRailButton('#66e6ff')}>🚕 RIDE</button>
-   <button onClick={openBible} style={quickRailButton('#e5c56a')}>📖 BIBLE</button>
+   {inVehicle&&<button disabled aria-label="Driving active" style={quickRailButton('#8effb7')}>DRIVING • JOYSTICK</button>}
   </div>
+
+  {moreOpen&&<section role="dialog" aria-modal="false" aria-label="StreetVerse more controls" style={{position:'absolute',top:'max(60px,calc(env(safe-area-inset-top) + 60px))',left:'max(10px,env(safe-area-inset-left))',width:'min(300px,calc(100vw - 20px))',maxHeight:'min(58vh,430px)',overflowY:'auto',padding:10,borderRadius:18,border:'1px solid #4fe3ff88',background:'#030b12f5',color:'#fff',pointerEvents:'auto',boxShadow:'0 18px 55px #000d'}}>
+   <div style={{display:'flex',justifyContent:'space-between',gap:8,alignItems:'center'}}><div><b style={{fontSize:11}}>STREETVERSE • MORE</b><div style={{fontSize:8,opacity:.7}}>Open a tool only when you need it.</div></div><button aria-label="Close more controls" onClick={()=>setMoreOpen(false)} style={{width:40,height:40,borderRadius:20,border:'1px solid #567',background:'#101923',color:'#fff'}}>×</button></div>
+   <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7,marginTop:9}}>
+    <button onClick={openBible} style={drawerButton('#e5c56a')}>📖 BIBLE</button>
+    <button onClick={openTimeMachine} style={drawerButton('#b994ff')}>⏳ TIME MACHINE</button>
+    <button onClick={()=>{setMoreOpen(false);openReel()}} style={drawerButton('#ff8fd9')}>🎬 REEL</button>
+    <button onClick={()=>{setMoreOpen(false);openRideShare()}} style={drawerButton('#66e6ff')}>🚕 RIDE</button>
+    <button onClick={openGrid} style={drawerButton('#70ffb0')}>🗺 GRID</button>
+    <button onClick={openRP} style={drawerButton('#b58cff')}>💬 RP</button>
+    <button onClick={()=>{setMoreOpen(false);openHolo('live')}} style={drawerButton('#ff6b87')}>● HOLO LIVE</button>
+    <button onClick={()=>{setMoreOpen(false);openHolo('pk')}} style={drawerButton('#ff74c8')}>⚔ PK BATTLE</button>
+    <button onClick={openFon} style={drawerButton('#69e9ff')}>📱 HOLO FON</button>
+    <button onClick={()=>{activateOneHand('left');setMoreOpen(false)}} style={drawerButton(mode==='one-hand'&&hand==='left'?'#ffd65a':'#567')}>LEFT HAND</button>
+    <button onClick={()=>{activateOneHand('right');setMoreOpen(false)}} style={drawerButton(mode==='one-hand'&&hand==='right'?'#ffd65a':'#567')}>RIGHT HAND</button>
+    <button onClick={()=>{activateTwoHand();setMoreOpen(false)}} style={drawerButton(mode==='two-hand'?'#ffd65a':'#567')}>2 HAND</button>
+   </div>
+  </section>}
   <div aria-label="StreetVerse always visible joystick" onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);shellJoystick(e)}} onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))shellJoystick(e)}} onPointerUp={e=>{try{e.currentTarget.releasePointerCapture(e.pointerId)}catch{};stopShellJoystick()}} onPointerCancel={stopShellJoystick} onLostPointerCapture={stopShellJoystick} style={{position:'absolute',...movementSide,bottom,zIndex:52010,width:132,height:132,borderRadius:'50%',border:'3px solid #7be9ff',background:'rgba(2,12,22,.82)',boxShadow:'0 0 28px #00d9ff88',display:'grid',placeItems:'center',pointerEvents:'auto',touchAction:'none'}}>
    <div ref={shellJoystickKnobRef} aria-hidden="true" style={{width:58,height:58,borderRadius:'50%',background:'linear-gradient(145deg,#baf7ff,#46dfff)',border:'3px solid #effdff',boxShadow:'0 0 18px #63eaffaa',pointerEvents:'none',transition:'transform 35ms linear',willChange:'transform'}}/>
    <span aria-hidden="true" style={{position:'absolute',bottom:-18,left:'50%',transform:'translateX(-50%)',fontSize:8,fontWeight:950,letterSpacing:1.4,color:'#bff8ff',whiteSpace:'nowrap',textShadow:'0 1px 4px #000'}}>MOVE / STEER</span>
@@ -199,4 +215,5 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
 
 const modeButton=(active:boolean)=>({minHeight:44,padding:'0 10px',borderRadius:12,border:`1px solid ${active?'#ffd65a':'#456'}`,background:active?'#221900ee':'#07131fee',color:'#fff',fontSize:10,fontWeight:900,touchAction:'manipulation'} as const)
 const secondaryButton={width:52,height:48,borderRadius:16,border:'1px solid #7be9ff',background:'#020914dd',color:'#fff',fontSize:22,fontWeight:900,touchAction:'manipulation'} as const
-const quickRailButton=(color:string)=>({minHeight:44,padding:'8px 11px',borderRadius:12,border:`1px solid ${color}`,background:'#07131fee',color:'#fff',fontSize:9,fontWeight:950,whiteSpace:'nowrap',touchAction:'manipulation'} as const)
+const quickRailButton=(color:string)=>({minHeight:42,padding:'7px 10px',borderRadius:21,border:`1px solid ${color}`,background:'#07131fee',color:'#fff',fontSize:9,fontWeight:950,whiteSpace:'nowrap',touchAction:'manipulation'} as const)
+const drawerButton=(color:string)=>({minHeight:48,padding:'8px 9px',borderRadius:13,border:`1px solid ${color}`,background:'#07131fee',color:'#fff',fontSize:9,fontWeight:950,touchAction:'manipulation'} as const)
