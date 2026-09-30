@@ -51,6 +51,7 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const [repairContext,setRepairContext]=useState<RepairContext|null>(null)
  const [repairStep,setRepairStep]=useState(0)
  const [directAnalog,setDirectAnalog]=useState(false)
+ const [focusMenuOpen,setFocusMenuOpen]=useState(false)
  const active=useRef<Record<Dir,boolean>>({up:false,down:false,left:false,right:false})
  const vehicleActiveRef=useRef(false)
  const cruiseRef=useRef(false)
@@ -147,48 +148,57 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const openRideShare=()=>window.dispatchEvent(new CustomEvent('tryamm:holo-mobility-open',{detail:{source:'streetverse-mobile-game-shell'}}))
  const openBible=()=>{try{localStorage.setItem('tryamm.faith.return','/streetverse')}catch{};window.location.href='/faithverse#reader'}
  const repairLabel=repairStep===0?'OPEN HOOD + INSPECT':repairStep===1?'DIAGNOSE + FIX':repairStep===2?'VERIFY + CLOSE':'REPAIRED ✓'
+ const focusActionLabel=inVehicle?'PARK / EXIT':firstJourneyPhase==='idle'?'START MISSION':firstJourneyPhase==='ready'?'COMPLETE MISSION':repairContext&&firstJourneyPhase!=='idle'&&repairStep<3?repairLabel:repairStep>=3&&firstJourneyPhase==='active'?'ENTER CAR':firstJourneyPhase==='complete'?'MAKE REEL':'ACTION'
+ const focusAction=()=>{
+  if(inVehicle){exitVehicle();return}
+  if(firstJourneyPhase==='idle'){startFirstJourney();return}
+  if(firstJourneyPhase==='ready'){completeFirstJourney();return}
+  if(repairContext&&firstJourneyPhase!=='idle'&&repairStep<3){runRepairStep();return}
+  if(repairStep>=3&&firstJourneyPhase==='active'){enterCar();return}
+  if(firstJourneyPhase==='complete'){openReel();return}
+  action()
+ }
  const bottom='max(16px,env(safe-area-inset-bottom))'
  const selectedSide=hand==='left'?{left:'max(12px,env(safe-area-inset-left))'}:{right:'max(12px,env(safe-area-inset-right))'}
  const movementSide=mode==='one-hand'?selectedSide:{left:'max(12px,env(safe-area-inset-left))'}
  const actionSide=mode==='one-hand'?selectedSide:{right:'max(14px,env(safe-area-inset-right))'}
- return <><div data-streetverse-mobile-shell="v5" data-direct-analog={directAnalog?'world':'fallback'} data-control-mode={mode} data-one-hand-side={mode==='one-hand'?hand:'none'} style={{position:'fixed',inset:0,zIndex:52000,pointerEvents:'none',fontFamily:'system-ui',userSelect:'none',WebkitUserSelect:'none'}}>
-  <div style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',left:'max(10px,env(safe-area-inset-left))',display:'flex',gap:6,pointerEvents:'auto',flexWrap:'wrap',maxWidth:'calc(100vw - 70px)'}}>
-   <button aria-pressed={mode==='one-hand'&&hand==='left'} onClick={()=>activateOneHand('left')} style={modeButton(mode==='one-hand'&&hand==='left')}>LEFT HAND</button>
-   <button aria-pressed={mode==='one-hand'&&hand==='right'} onClick={()=>activateOneHand('right')} style={modeButton(mode==='one-hand'&&hand==='right')}>RIGHT HAND</button>
-   <button aria-pressed={mode==='two-hand'} onClick={activateTwoHand} style={modeButton(mode==='two-hand')}>2 HAND</button>
-   <div aria-label={`StreetVerse fame rank ${fame.rank}`} style={{minHeight:44,padding:'5px 9px',borderRadius:12,border:'1px solid #ff74c888',background:'#220a1eee',display:'grid',alignContent:'center',lineHeight:1.05}}><b style={{fontSize:9,color:'#ff9fda'}}>FAME • {fame.rank.toUpperCase()}</b><span style={{fontSize:8,color:'#fff',opacity:.78}}>{fame.fame} • {fame.fanbase.toLocaleString()} FANS</span></div>
-  </div>
-  <button aria-label="Open Holo FON" onClick={()=>{release();window.dispatchEvent(new CustomEvent('tryamm:holo-fon-open',{detail:{source:'streetverse-mobile-game-shell',preserveWorld:true}}))}} style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',right:'max(62px,calc(env(safe-area-inset-right) + 62px))',width:46,height:46,borderRadius:23,border:'2px solid #69e9ff',background:'#061826ee',color:'#fff',fontSize:22,pointerEvents:'auto',boxShadow:'0 0 16px #00d9ff66',touchAction:'manipulation'}}>📱</button>
-  <button onClick={onClose} aria-label="Exit StreetVerse" style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',right:'max(10px,env(safe-area-inset-right))',width:44,height:44,borderRadius:22,border:'1px solid #567',background:'#07131fee',color:'#fff',fontSize:20,pointerEvents:'auto'}}>×</button>
-  <div aria-label="StreetVerse Holographic LIVE and PK controls" style={{position:'absolute',top:'max(60px,calc(env(safe-area-inset-top) + 60px))',right:'max(10px,env(safe-area-inset-right))',display:'grid',gap:7,pointerEvents:'auto'}}>
-   <button aria-label="Open Holographic LIVE from StreetVerse" onClick={()=>openHolo('live')} style={{...modeButton(true),minWidth:92,borderColor:'#ff6b87'}}>● HOLO LIVE</button>
-   <button aria-label="Open Holographic PK Battle from StreetVerse" onClick={()=>openHolo('pk')} style={{...modeButton(true),minWidth:92,borderColor:'#ff74c8'}}>⚔ PK BATTLE</button>
-  </div>
-  <div aria-label="StreetVerse quick action rail" style={{position:'absolute',left:'50%',transform:'translateX(-50%)',top:'max(62px,calc(env(safe-area-inset-top) + 62px))',display:'flex',gap:6,pointerEvents:'auto',maxWidth:'94vw',overflowX:'auto',padding:'3px 5px'}}>
-   {firstJourneyPhase==='idle'&&<button onClick={startFirstJourney} style={quickRailButton('#8effb7')}>▶ START MISSION</button>}
-   {firstJourneyPhase==='active'&&<button disabled style={quickRailButton('#ffe47f')}>MISSION ACTIVE</button>}
-   {firstJourneyPhase==='ready'&&<button onClick={completeFirstJourney} style={quickRailButton('#8effb7')}>✓ COMPLETE MISSION</button>}
-   {firstJourneyPhase==='complete'&&<button onClick={startFirstJourney} style={quickRailButton('#8effb7')}>↻ NEW FIRST RIDE</button>}
-   {repairContext&&firstJourneyPhase!=='idle'&&repairStep<3&&<button onClick={runRepairStep} style={quickRailButton('#ffd65a')}>🛠 {repairLabel}</button>}
-   {repairStep>=3&&!inVehicle&&firstJourneyPhase==='active'&&<button onClick={enterCar} style={quickRailButton('#8effb7')}>🚗 ENTER CAR</button>}
-   {!inVehicle&&<button onClick={enterCar} aria-label="Drive nearest StreetVerse vehicle" style={quickRailButton('#7be9ff')}>🚘 DRIVE</button>}
-   {inVehicle&&<button disabled aria-label="Driving active" style={quickRailButton('#8effb7')}>DRIVING • USE JOYSTICK</button>}
-   <button onClick={openReel} style={quickRailButton('#ff8fd9')}>🎬 REEL</button>
-   <button onClick={openRideShare} style={quickRailButton('#66e6ff')}>🚕 RIDE</button>
-   <button onClick={openBible} style={quickRailButton('#e5c56a')}>📖 BIBLE</button>
-  </div>
-  <div aria-label="StreetVerse always visible joystick" onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);shellJoystick(e)}} onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))shellJoystick(e)}} onPointerUp={e=>{try{e.currentTarget.releasePointerCapture(e.pointerId)}catch{};stopShellJoystick()}} onPointerCancel={stopShellJoystick} onLostPointerCapture={stopShellJoystick} style={{position:'absolute',...movementSide,bottom,zIndex:52010,width:132,height:132,borderRadius:'50%',border:'3px solid #7be9ff',background:'rgba(2,12,22,.82)',boxShadow:'0 0 28px #00d9ff88',display:'grid',placeItems:'center',pointerEvents:'auto',touchAction:'none'}}>
+ const actionBottom=mode==='one-hand'?'max(166px,calc(env(safe-area-inset-bottom) + 166px))':'max(28px,env(safe-area-inset-bottom))'
+ const menuAction=(run:()=>void)=>{setFocusMenuOpen(false);run()}
+ return <><div data-streetverse-mobile-shell="v6-focus" data-focus-hud="true" data-direct-analog={directAnalog?'world':'fallback'} data-control-mode={mode} data-one-hand-side={mode==='one-hand'?hand:'none'} style={{position:'fixed',inset:0,zIndex:52000,pointerEvents:'none',fontFamily:'system-ui',userSelect:'none',WebkitUserSelect:'none'}}>
+  <div aria-live="polite" style={{position:'absolute',top:'max(10px,env(safe-area-inset-top))',left:'50%',transform:'translateX(-50%)',maxWidth:'58vw',padding:'7px 11px',borderRadius:999,border:'1px solid #ffd65a66',background:'rgba(4,12,20,.76)',color:'#fff',fontSize:9,fontWeight:900,textAlign:'center',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',pointerEvents:'none',boxShadow:'0 4px 18px #0008'}}>{firstJourneyPhase==='idle'?'STREETVERSE • READY':activeMission.title}</div>
+  <button aria-label="Open StreetVerse focus menu" aria-expanded={focusMenuOpen} onClick={()=>setFocusMenuOpen(v=>!v)} style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',right:'max(60px,calc(env(safe-area-inset-right) + 60px))',width:46,height:46,borderRadius:23,border:'2px solid #78ffb4',background:'#071c17ee',color:'#fff',fontSize:25,fontWeight:950,pointerEvents:'auto',boxShadow:'0 0 16px #39ff9a44',touchAction:'manipulation'}}>⋯</button>
+  <button onClick={onClose} aria-label="Exit StreetVerse" style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',right:'max(10px,env(safe-area-inset-right))',width:44,height:44,borderRadius:22,border:'1px solid #567',background:'#07131fee',color:'#fff',fontSize:20,pointerEvents:'auto',touchAction:'manipulation'}}>×</button>
+
+  {focusMenuOpen&&<section role="dialog" aria-modal="true" aria-label="StreetVerse focus menu" style={{position:'absolute',top:'max(60px,calc(env(safe-area-inset-top) + 60px))',right:'max(10px,env(safe-area-inset-right))',width:'min(82vw,300px)',maxHeight:'calc(100vh - 86px - env(safe-area-inset-bottom))',overflowY:'auto',padding:10,borderRadius:18,border:'1px solid #69e9ff88',background:'rgba(3,13,22,.97)',boxShadow:'0 18px 50px #000d',pointerEvents:'auto'}}>
+   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:8,marginBottom:8}}><div><b style={{fontSize:11,color:'#9ef1ff'}}>FOCUS HUD</b><div style={{fontSize:9,color:'#fff',opacity:.68}}>Extra controls stay here until you need them.</div></div><button aria-label="Close focus menu" onClick={()=>setFocusMenuOpen(false)} style={{width:38,height:38,borderRadius:19,border:'1px solid #567',background:'#111925',color:'#fff',fontSize:18}}>×</button></div>
+   <div aria-label={`StreetVerse fame rank ${fame.rank}`} style={{minHeight:42,padding:'6px 9px',borderRadius:12,border:'1px solid #ff74c855',background:'#220a1e99',display:'grid',alignContent:'center',lineHeight:1.05,marginBottom:8}}><b style={{fontSize:9,color:'#ff9fda'}}>FAME • {fame.rank.toUpperCase()}</b><span style={{fontSize:8,color:'#fff',opacity:.78}}>{fame.fame} • {fame.fanbase.toLocaleString()} FANS</span></div>
+   <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:6,marginBottom:8}}>
+    <button aria-pressed={mode==='one-hand'&&hand==='left'} onClick={()=>activateOneHand('left')} style={modeButton(mode==='one-hand'&&hand==='left')}>LEFT</button>
+    <button aria-pressed={mode==='one-hand'&&hand==='right'} onClick={()=>activateOneHand('right')} style={modeButton(mode==='one-hand'&&hand==='right')}>RIGHT</button>
+    <button aria-pressed={mode==='two-hand'} onClick={activateTwoHand} style={modeButton(mode==='two-hand')}>2 HAND</button>
+   </div>
+   <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7}}>
+    <button onClick={()=>menuAction(openMissionChoice)} style={quickRailButton('#8effb7')}>MISSION ROUTES</button>
+    <button onClick={()=>menuAction(openReel)} style={quickRailButton('#ff8fd9')}>🎬 REEL</button>
+    <button onClick={()=>menuAction(openRideShare)} style={quickRailButton('#66e6ff')}>🚕 RIDE</button>
+    <button onClick={()=>menuAction(openBible)} style={quickRailButton('#e5c56a')}>📖 BIBLE</button>
+    <button onClick={()=>menuAction(()=>openHolo('live'))} style={quickRailButton('#ff6b87')}>● HOLO LIVE</button>
+    <button onClick={()=>menuAction(()=>openHolo('pk'))} style={quickRailButton('#ff74c8')}>⚔ PK BATTLE</button>
+    <button onClick={()=>menuAction(()=>{release();window.dispatchEvent(new CustomEvent('tryamm:holo-fon-open',{detail:{source:'streetverse-mobile-game-shell',preserveWorld:true}}))})} style={quickRailButton('#69e9ff')}>📱 HOLO FON</button>
+    {inVehicle&&<button aria-pressed={cruise} onClick={()=>toggleCruise()} style={quickRailButton(cruise?'#8effb7':'#7be9ff')}>{cruise?'■ STOP CRUISE':'▶ CRUISE'}</button>}
+    {mode==='two-hand'&&<button onClick={()=>camera('left')} style={quickRailButton('#7be9ff')}>↶ LOOK LEFT</button>}
+    {mode==='two-hand'&&<button onClick={()=>camera('right')} style={quickRailButton('#7be9ff')}>↷ LOOK RIGHT</button>}
+    {firstJourneyPhase==='complete'&&<button onClick={()=>menuAction(startFirstJourney)} style={quickRailButton('#8effb7')}>↻ NEW FIRST RIDE</button>}
+   </div>
+  </section>}
+
+  <div aria-label="StreetVerse focus joystick" onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);shellJoystick(e)}} onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))shellJoystick(e)}} onPointerUp={e=>{try{e.currentTarget.releasePointerCapture(e.pointerId)}catch{};stopShellJoystick()}} onPointerCancel={stopShellJoystick} onLostPointerCapture={stopShellJoystick} style={{position:'absolute',...movementSide,bottom,zIndex:52010,width:132,height:132,borderRadius:'50%',border:'3px solid #7be9ff',background:'rgba(2,12,22,.76)',boxShadow:'0 0 24px #00d9ff77',display:'grid',placeItems:'center',pointerEvents:'auto',touchAction:'none'}}>
    <div ref={shellJoystickKnobRef} aria-hidden="true" style={{width:58,height:58,borderRadius:'50%',background:'linear-gradient(145deg,#baf7ff,#46dfff)',border:'3px solid #effdff',boxShadow:'0 0 18px #63eaffaa',pointerEvents:'none',transition:'transform 35ms linear',willChange:'transform'}}/>
    <span aria-hidden="true" style={{position:'absolute',bottom:-18,left:'50%',transform:'translateX(-50%)',fontSize:8,fontWeight:950,letterSpacing:1.4,color:'#bff8ff',whiteSpace:'nowrap',textShadow:'0 1px 4px #000'}}>MOVE / STEER</span>
   </div>
-  {mode==='two-hand'&&<div aria-label="StreetVerse camera controls" style={{position:'absolute',right:'max(14px,env(safe-area-inset-right))',bottom:'max(164px,calc(env(safe-area-inset-bottom) + 164px))',display:'flex',gap:8,pointerEvents:'auto'}}>
-   <button aria-label="Look left" onClick={()=>camera('left')} style={secondaryButton}>↶</button>
-   <button aria-label="Look right" onClick={()=>camera('right')} style={secondaryButton}>↷</button>
-  </div>}
-  <button aria-label="StreetVerse mission choices" onClick={openMissionChoice} style={{position:'absolute',...actionSide,bottom:mode==='one-hand'?'max(244px,calc(env(safe-area-inset-bottom) + 244px))':'max(98px,calc(env(safe-area-inset-bottom) + 98px))',minWidth:104,height:54,borderRadius:27,border:'2px solid #8effb7',background:'#082a18ee',color:'#fff',fontWeight:900,pointerEvents:'auto',touchAction:'manipulation'}}>MISSION</button>
-  {inVehicle&&<div aria-label="One hand driving assistance" style={{position:'absolute',...actionSide,bottom:mode==='one-hand'?'max(310px,calc(env(safe-area-inset-bottom) + 310px))':'max(164px,calc(env(safe-area-inset-bottom) + 164px))',display:'grid',gap:7,pointerEvents:'auto'}}><button aria-pressed={cruise} onClick={toggleCruise} style={{minWidth:116,height:52,borderRadius:26,border:`2px solid ${cruise?'#8effb7':'#7be9ff'}`,background:cruise?'#0b3520ee':'#07131fee',color:'#fff',fontWeight:950,touchAction:'manipulation'}}>{cruise?'■ STOP CRUISE':'▶ CRUISE'}</button><button onClick={exitVehicle} style={{minWidth:116,height:52,borderRadius:26,border:'2px solid #ffd65a',background:'#2a1707ee',color:'#fff',fontWeight:950,touchAction:'manipulation'}}>PARK / EXIT</button></div>}
-  <button aria-label="StreetVerse smart action" onClick={action} style={{position:'absolute',...actionSide,bottom:mode==='one-hand'?'max(178px,calc(env(safe-area-inset-bottom) + 178px))':'max(28px,env(safe-area-inset-bottom))',minWidth:104,height:58,borderRadius:29,border:'2px solid #ffd65a',background:'#221900ee',color:'#fff',fontWeight:900,pointerEvents:'auto',touchAction:'manipulation'}}>ACTION</button>
-  {choiceOpen&&<section role="dialog" aria-modal="true" aria-label="StreetVerse mission route choice" style={{position:'absolute',left:'50%',bottom:'max(314px,calc(env(safe-area-inset-bottom) + 314px))',transform:'translateX(-50%)',width:'min(94vw,420px)',padding:12,borderRadius:18,border:'1px solid #4fe3ff99',background:'#030914f5',color:'#fff',pointerEvents:'auto',boxShadow:'0 18px 60px #000d'}}>
+  <button aria-label={`StreetVerse smart action: ${focusActionLabel}`} onClick={focusAction} style={{position:'absolute',...actionSide,bottom:actionBottom,minWidth:132,maxWidth:176,height:64,padding:'0 14px',borderRadius:32,border:'3px solid #ffd65a',background:'#221900f2',color:'#fff',fontSize:12,fontWeight:950,pointerEvents:'auto',touchAction:'manipulation',boxShadow:'0 0 22px #ffd65a55'}}>{focusActionLabel}</button>
+
+  {choiceOpen&&<section role="dialog" aria-modal="true" aria-label="StreetVerse mission route choice" style={{position:'absolute',left:'50%',bottom:'max(228px,calc(env(safe-area-inset-bottom) + 228px))',transform:'translateX(-50%)',width:'min(92vw,420px)',padding:12,borderRadius:18,border:'1px solid #4fe3ff99',background:'#030914f5',color:'#fff',pointerEvents:'auto',boxShadow:'0 18px 60px #000d'}}>
    <div style={{display:'flex',justifyContent:'space-between',gap:8,alignItems:'start'}}><div><b>{choicePrompt.title}</b>{choicePrompt.objective&&<div style={{fontSize:11,opacity:.75,marginTop:4}}>{choicePrompt.objective}</div>}</div><button aria-label="Close mission choices" onClick={()=>setChoiceOpen(false)} style={{width:38,height:38,borderRadius:19,border:'1px solid #567',background:'#111925',color:'#fff'}}>×</button></div>
    <div style={{display:'grid',gridTemplateColumns:choicePrompt.specialRoute?'repeat(2,minmax(0,1fr))':'repeat(3,minmax(0,1fr))',gap:7,marginTop:10}}>
     {(Object.keys(CHOICE_MODEL) as MissionChoice[]).filter(choice=>choice!=='D'||Boolean(choicePrompt.specialRoute||choicePrompt.routes?.D)).map(choice=>{const route=CHOICE_MODEL[choice];const special=choice==='D'?choicePrompt.specialRoute:undefined;return <button key={choice} onClick={()=>chooseMissionRoute(choice)} style={{minHeight:96,padding:9,borderRadius:13,border:choice==='D'?'1px solid #ff74c8aa':'1px solid #4fe3ff66',background:choice==='D'?'#281020':'#0a1723',color:'#fff',textAlign:'left',touchAction:'manipulation'}}><b style={{fontSize:22}}>{choice}</b><div style={{fontSize:10,fontWeight:950,marginTop:4}}>{special?.label||route.label}</div><div style={{fontSize:9,opacity:.72,marginTop:4,lineHeight:1.25}}>{choicePrompt.routes?.[choice]||special?.description||route.description}</div>{choice==='D'&&<div style={{fontSize:8,color:'#ff9fda',fontWeight:900,marginTop:5}}>EARNED • CONTEXTUAL</div>}</button>})}
