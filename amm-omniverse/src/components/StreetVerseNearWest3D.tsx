@@ -32,7 +32,7 @@ function TaylorLots(){
 
 
 type MoveState={x:number;z:number}
-function NearWestPlayer({move}:{move:React.MutableRefObject<MoveState>}){
+function NearWestPlayer({move,onPosition}:{move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void}){
  const ref=useRef<THREE.Group>(null)
  const {camera}=useThree()
  useFrame((_,dt)=>{
@@ -43,6 +43,7 @@ function NearWestPlayer({move}:{move:React.MutableRefObject<MoveState>}){
   if(Math.abs(move.current.x)+Math.abs(move.current.z)>.05)p.rotation.y=Math.atan2(move.current.x,move.current.z)
   const target=new THREE.Vector3(p.position.x,p.position.y+9,p.position.z+18)
   camera.position.lerp(target,Math.min(1,dt*4));camera.lookAt(p.position.x,1.2,p.position.z)
+  onPosition(p.position.x,p.position.z)
  })
  return <group ref={ref} position={[-650,0,700]}>
   <mesh position={[0,.95,0]} castShadow><capsuleGeometry args={[.34,1.05,5,10]}/><meshStandardMaterial color="#172c55"/></mesh>
@@ -58,13 +59,34 @@ function PopulationMeshes(){return <group>
 export default function StreetVerseNearWest3D(){
  const [collegeBookOpen,setCollegeBookOpen]=useState(false)
  const [greenvilleOpen,setGreenvilleOpen]=useState(false)
+ const [nearby,setNearby]=useState<{kind:'npc'|'business'|'vehicle';id:string;label:string;mission?:string}|null>(null)
+ const lastNearby=useRef('')
  const move=useRef<MoveState>({x:0,z:0})
  const setMove=(x:number,z:number)=>{move.current={x,z}}
  const stopMove=()=>{move.current={x:0,z:0}}
+ const senseNearby=(x:number,z:number)=>{
+  const targets=[
+   ...NEAR_WEST_NPCS.map(n=>({kind:'npc' as const,id:n.id,label:n.displayName,mission:n.missionHook,x:n.position.x,z:n.position.z})),
+   ...NEAR_WEST_TRAFFIC.map(v=>({kind:'vehicle' as const,id:v.id,label:v.kind==='bus'?'Bus':'Vehicle',x:v.position.x,z:v.position.z})),
+   ...TAYLOR_STREET_CORRIDOR.blocks.flatMap(block=>block.businesses.map(b=>({kind:'business' as const,id:b.id,label:b.name||'Taylor Street Business',mission:b.missionIds?.[0],x:block.origin.x+b.lot.x,z:block.origin.z+b.lot.z})))
+  ]
+  let best:any=null,dist=999
+  for(const t of targets){const d=Math.hypot(t.x-x,t.z-z);if(d<dist){best=t;dist=d}}
+  const next=best&&dist<14?{kind:best.kind,id:best.id,label:best.label,mission:best.mission}:null
+  const key=next?next.kind+':'+next.id:''
+  if(key!==lastNearby.current){lastNearby.current=key;setNearby(next)}
+ }
+ const doAction=()=>{
+  if(!nearby)return
+  const action=nearby.kind==='npc'?'talk':nearby.kind==='business'?'enter':'enter-vehicle'
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-action',{detail:{action,target:nearby,source:'near-west-context-action'}}))
+  if(nearby.mission)window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{missionId:nearby.mission,target:nearby.id}}))
+ }
  const travelToGreenville=()=>{window.dispatchEvent(new CustomEvent('tryamm:campusverse-travel',{detail:{from:'uic',to:'greenville',character:'Jacobie',source:'streetverse-uic-gateway'}}));setGreenvilleOpen(true)}
  useEffect(()=>{const open=(e:Event)=>{const d=(e as CustomEvent).detail||{};if(d.to==='greenville')setGreenvilleOpen(true)};window.addEventListener('tryamm:campusverse-travel',open);return()=>window.removeEventListener('tryamm:campusverse-travel',open)},[])
  if(greenvilleOpen)return <GreenvilleCampusVerseScene onReturn={()=>setGreenvilleOpen(false)}/>
  return <div aria-label="StreetVerse Near West 3D" style={{width:'100%',height:'100%',minHeight:420}}>
+  {nearby&&<button aria-label="Context action" onClick={doAction} style={{position:'absolute',right:12,bottom:190,zIndex:22,minWidth:162,minHeight:52,padding:'10px 14px',borderRadius:16,fontWeight:950,fontSize:16}}>ACTION • {nearby.kind==='npc'?'TALK':nearby.kind==='business'?'ENTER':'RIDE'}<small style={{display:'block',fontSize:10}}>{nearby.label}</small></button>}
   <div aria-label="One hand movement controls" style={{position:'absolute',right:12,bottom:18,zIndex:21,display:'grid',gridTemplateColumns:'54px 54px 54px',gridTemplateRows:'54px 54px 54px',gap:5,touchAction:'none'}}>
    <span/><button aria-label="Walk forward" onPointerDown={()=>setMove(0,-1)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{gridColumn:2,fontSize:24,borderRadius:14}}>▲</button><span/>
    <button aria-label="Walk left" onPointerDown={()=>setMove(-1,0)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{fontSize:24,borderRadius:14}}>◀</button>
@@ -81,7 +103,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><TaylorLots/><PopulationMeshes/><NearWestPlayer move={move}/>
+   <RoadMeshes/><TaylorLots/><PopulationMeshes/><NearWestPlayer move={move} onPosition={senseNearby}/>
   </Canvas>
  </div>
 }
