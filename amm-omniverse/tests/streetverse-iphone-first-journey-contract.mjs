@@ -9,7 +9,9 @@ const rewards=fs.readFileSync(new URL('../src/runtime/StreetVerseMobileMissionRe
 const reel=fs.readFileSync(new URL('../src/components/StreetVerseReelRecorder.tsx',import.meta.url),'utf8')
 const must=(ok,msg)=>{if(!ok)throw new Error('STREETVERSE IPHONE FIRST JOURNEY CONTRACT FAIL: '+msg)}
 for(const label of ['START MISSION','OPEN HOOD','FIX ENGINE','CLOSE HOOD','ENTER VEHICLE','EXIT VEHICLE','INTERACT NPC','RIDE SHARE','REEL','FAITH BIBLE','COMPLETE MISSION'])must(dock.includes(label),'missing phone action '+label)
-must(overlays.includes('<StreetVerseMobileProofDock/>'),'phone dock not mounted in lightweight mobile overlay')
+must(!overlays.includes('<StreetVerseMobileProofDock/>'),'legacy phone proof dock must not cover lightweight mobile world')
+must(overlays.includes('<HoloMobilityLauncher launcher={false}/>'),'hidden Ride Share engine not mounted for compact mobile menu')
+must(mobile.includes('🚕 RIDE SHARE')&&mobile.includes("tryamm:holo-mobility-open"),'compact Ride Share menu action missing')
 must(mobility.includes("tryamm:holo-mobility-open"),'Ride Share cannot be opened from StreetVerse dock')
 must(mobile.includes('firstJourneyBeacon'),'gold repair-car mission beacon missing')
 must(mobile.includes('FOLLOW GOLD BEACON'),'mission waypoint instruction missing')
@@ -34,4 +36,4 @@ must(mobile.includes("localStorage.getItem('tryamm:streetverse-control-mode')===
 must(dock.includes('OPEN DOORS'),'door-open step missing from iPhone mission')
 must(reel.includes('zIndex:46000'),'Reel recorder must render above mobile gameplay controls')
 must(mobility.includes('zIndex:46020'),'Ride Share dialog must render above mobile gameplay controls')
-console.log('STREETVERSE IPHONE FIRST JOURNEY CONTRACT PASS: start → repair → enter/drive/exit → NPC → complete → reward → Reel + Ride Share + Faith reader')
+console.log('STREETVERSE IPHONE FIRST JOURNEY CONTRACT PASS: clean HUD + start → repair → enter/drive/exit → NPC → complete → reward → Reel + on-demand Ride Share + Faith reader')
