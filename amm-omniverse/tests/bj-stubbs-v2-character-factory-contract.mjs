@@ -17,5 +17,5 @@ for(const x of ['tryamm:character-development-award-request','serverValidate:tru
 for(const x of ['BJ CHARACTER DEVELOPMENT','StreetVerseCharacterDevelopmentPanel'])if(!pocket.includes(x))throw new Error('Pocket Dimension character access missing '+x)
 for(const x of ['LEVEL {state.level}','Skill Development','CHARACTER FACTORY READY'])if(!panel.includes(x))throw new Error('Character development panel missing '+x)
 for(const x of ['installStreetVerseCharacterDevelopmentRuntime','namedCharacterDevelopment:true',"namedCharacterDevelopmentAuthority:'SERVER'"])if(!world.includes(x))throw new Error('Mobile character development mount missing '+x)
-for(const x of ["assetVersion:'bj-realism-v2'","likenessState:'REFERENCE_LOCKED_PROCEDURAL_V2'","bj-nose-bridge","bj-nose-tip","bj-beard-side-left","bj-eye-catchlight-left","characterFactoryCompatible:true"])if(!foundry.includes(x))throw new Error('BJ V2 foundry detail missing '+x)
-console.log('BJ Stubbs V2 + reusable Character Factory contract: PASS')
+for(const x of ["bj-nose-bridge","bj-nose-tip","bj-beard-side-left","bj-eye-catchlight-left","characterFactoryCompatible:true","rigContract:'streetverse-character-dna-v1'"])if(!foundry.includes(x))throw new Error('BJ reusable foundry detail missing '+x)
+console.log('BJ reusable Character Factory contract: PASS')
