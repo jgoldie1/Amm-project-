@@ -9,6 +9,7 @@ import {STREETVERSE_FUTURE_VEHICLES} from '../data/streetVerseFutureVehicles'
 import StreetVerseFutureVehicleDealer from './StreetVerseFutureVehicleDealer'
 import StreetVerseMyGarage,{type OwnedVehicle} from './StreetVerseMyGarage'
 import {StreetVerseHitFx} from './StreetVerseHitFx'
+import StreetVerseLiveRpPanel from './StreetVerseLiveRpPanel'
 import {NEAR_WEST_BIRTHDAY_MISSIONS,requestMissionReward,type StreetVerseMission} from '../data/streetVerseBirthdayMissions'
 import GreenvilleCampusVerseScene from './GreenvilleCampusVerseScene'
 
@@ -92,6 +93,7 @@ export default function StreetVerseNearWest3D(){
  const [greenvilleOpen,setGreenvilleOpen]=useState(false)
  const [dealerOpen,setDealerOpen]=useState(false)
  const [garageOpen,setGarageOpen]=useState(false)
+ const [liveRpOpen,setLiveRpOpen]=useState(false)
  const [driving,setDriving]=useState<string|null>(null)
  const [playerSpawn,setPlayerSpawn]=useState({x:-650,z:700})
  const [vehicleAmmo,setVehicleAmmo]=useState(12)
@@ -152,8 +154,10 @@ export default function StreetVerseNearWest3D(){
  if(greenvilleOpen)return <GreenvilleCampusVerseScene onReturn={()=>setGreenvilleOpen(false)}/>
  return <div aria-label="StreetVerse Near West 3D" style={{width:'100%',height:'100%',minHeight:420}}>
   <div style={{position:'absolute',left:12,top:12,zIndex:22,display:'flex',gap:6,flexWrap:'wrap'}}>
+   <button aria-label="Open StreetVerse LIVE RP" onClick={()=>setLiveRpOpen(true)} style={{minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🔴 LIVE • PK</button>
    <button aria-label="Open My Garage" onClick={()=>setGarageOpen(true)} style={{minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🏠 MY GARAGE</button>
    <button aria-label="Open Future Mobility dealership" onClick={()=>setDealerOpen(true)} style={{position:'absolute',left:12,top:12,zIndex:22,minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🚘 FUTURE MOBILITY • BUY</button></div>
+  {liveRpOpen&&<StreetVerseLiveRpPanel onClose={()=>setLiveRpOpen(false)}/>}
   {dealerOpen&&<StreetVerseFutureVehicleDealer onClose={()=>setDealerOpen(false)}/>} 
   {garageOpen&&<StreetVerseMyGarage onClose={()=>setGarageOpen(false)} onSpawn={(o:OwnedVehicle)=>{setGarageOpen(false);setDriving(o.vehicleId);window.dispatchEvent(new CustomEvent('tryamm:vehicle-spawn-request',{detail:{ownershipId:o.ownershipId,vehicleId:o.vehicleId,position:playerSpawn}}))}}/>}
   {driving&&<div aria-label="Vehicle action controls" style={{position:'absolute',left:12,top:70,zIndex:23,display:'grid',gap:6,width:170}}>
