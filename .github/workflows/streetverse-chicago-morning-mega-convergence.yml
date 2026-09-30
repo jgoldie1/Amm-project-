@@ -4,9 +4,6 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - feat/tryamm-world-tv-clean
-  pull_request:
-    branches:
       - main
     paths:
       - "amm-omniverse/**"
