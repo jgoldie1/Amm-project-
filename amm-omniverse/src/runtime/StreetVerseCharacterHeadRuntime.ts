@@ -104,6 +104,13 @@ export function installStreetVerseCharacterHeadRuntime(characterRoot:THREE.Objec
  }
  const proceduralNodes=collectProceduralHead(headRig)
  const proceduralBaseline=captureBaseline(headRig)
+ const blushMaterial=new THREE.MeshBasicMaterial({color:0xc54b55,transparent:true,opacity:0,depthWrite:false})
+ const blushLeft=new THREE.Mesh(new THREE.SphereGeometry(.085,12,8),blushMaterial.clone())
+ blushLeft.name='character-blush-left';blushLeft.position.set(-.17,-.055,.30);blushLeft.scale.set(1.2,.65,.34);headRig.add(blushLeft)
+ const blushRight=new THREE.Mesh(new THREE.SphereGeometry(.085,12,8),blushMaterial.clone())
+ blushRight.name='character-blush-right';blushRight.position.set(.17,-.055,.30);blushRight.scale.set(1.2,.65,.34);headRig.add(blushRight)
+ const pupilNodes=['pupil-left','pupil-right'].map(name=>headRig.getObjectByName(name)).filter((x):x is THREE.Object3D=>Boolean(x))
+ const pupilBaseline=pupilNodes.map(node=>node.scale.clone())
  let activeReplacement:THREE.Object3D|null=null
  let activeAssetId='procedural-v4'
  let activeEra='current'
@@ -168,6 +175,18 @@ export function installStreetVerseCharacterHeadRuntime(characterRoot:THREE.Objec
   if(detail.era)activeEra=detail.era
   restoreProcedural()
  }
+ const onAffectVisual=(event:Event)=>{
+  const detail=(event as CustomEvent<{characterId?:string;blush?:number;pupilDilation?:number}>).detail||{}
+  if(detail.characterId&&detail.characterId!==characterId)return
+  const blush=THREE.MathUtils.clamp(Number(detail.blush||0),0,1)
+  ;(blushLeft.material as THREE.MeshBasicMaterial).opacity=blush*.34
+  ;(blushRight.material as THREE.MeshBasicMaterial).opacity=blush*.34
+  const dilation=THREE.MathUtils.clamp(Number(detail.pupilDilation||0),-.25,.35)
+  pupilNodes.forEach((node,i)=>{
+   const base=pupilBaseline[i]
+   if(base)node.scale.set(base.x*(1+dilation),base.y*(1+dilation),base.z)
+  })
+ }
  const onPose=(event:Event)=>{
   const detail=(event as CustomEvent<{characterId?:string;pose?:StreetVerseFacePose}>).detail||{}
   if(detail.characterId&&detail.characterId!==characterId)return
@@ -181,6 +200,7 @@ export function installStreetVerseCharacterHeadRuntime(characterRoot:THREE.Objec
  window.addEventListener('tryamm:character-head-replace',onReplace)
  window.addEventListener('tryamm:character-head-restore-procedural',onRestore)
  window.addEventListener('tryamm:character-face-pose',onPose)
+ window.addEventListener('tryamm:character-affect-visual',onAffectVisual)
 
  window.dispatchEvent(new CustomEvent('tryamm:character-head-ready',{detail:{characterId,assetId:activeAssetId,era:activeEra,photoMatched:false,headSlotVersion:'v5',source:'v5-head-runtime'}}))
 
@@ -193,9 +213,10 @@ export function installStreetVerseCharacterHeadRuntime(characterRoot:THREE.Objec
    window.removeEventListener('tryamm:character-head-replace',onReplace)
    window.removeEventListener('tryamm:character-head-restore-procedural',onRestore)
    window.removeEventListener('tryamm:character-face-pose',onPose)
+   window.removeEventListener('tryamm:character-affect-visual',onAffectVisual)
    removeReplacement()
    setProceduralVisible(true)
-   slot?.removeFromParent()
+   blushLeft.geometry.dispose();blushRight.geometry.dispose();(blushLeft.material as THREE.Material).dispose();(blushRight.material as THREE.Material).dispose();slot?.removeFromParent()
   }
  }
 }
