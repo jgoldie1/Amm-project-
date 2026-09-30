@@ -189,6 +189,16 @@ const TARGETS:Target[]=[
     detail:{habitat:'garden',location:'circle-park',source:'context-prompt'},
     accent:0xe6d85c,
   },
+  {
+    id:'circle-park-roach-check',
+    label:'Circle Park Sanitation Check',
+    action:'ROACH CHECK',
+    kind:'explore',
+    x:12,z:52,radius:6,
+    event:'tryamm:roach-check-request',
+    detail:{habitat:'trash-recycling-zone',location:'circle-park',source:'context-prompt'},
+    accent:0xb47745,
+  },
 ]
 
 const DISTRICTS=[
