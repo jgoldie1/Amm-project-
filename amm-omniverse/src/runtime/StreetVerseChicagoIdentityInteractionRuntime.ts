@@ -169,6 +169,16 @@ const TARGETS:Target[]=[
     detail:{activity:'social',mode:'courtyard',source:'circle-park-recreation'},
     accent:0x7ae582,
   },
+  {
+    id:'circle-park-senior-commons',
+    label:'Circle Park Senior Commons',
+    action:'ENTER COMMONS',
+    kind:'explore',
+    x:-31,z:41,radius:7,
+    event:'tryamm:senior-commons-open',
+    detail:{location:'circle-park',streetVersePlacement:'roosevelt-side',source:'context-prompt'},
+    accent:0xd7c68a,
+  },
 ]
 
 const DISTRICTS=[
