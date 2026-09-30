@@ -6,6 +6,7 @@ import CampusVerseCollegeBookBridge from './CampusVerseCollegeBookBridge'
 import {useEffect,useRef,useState} from 'react'
 import * as THREE from 'three'
 import {STREETVERSE_FUTURE_VEHICLES} from '../data/streetVerseFutureVehicles'
+import StreetVerseFutureVehicleDealer from './StreetVerseFutureVehicleDealer'
 import GreenvilleCampusVerseScene from './GreenvilleCampusVerseScene'
 
 function RoadMeshes(){
@@ -74,6 +75,8 @@ function PopulationMeshes(){return <group>
 export default function StreetVerseNearWest3D(){
  const [collegeBookOpen,setCollegeBookOpen]=useState(false)
  const [greenvilleOpen,setGreenvilleOpen]=useState(false)
+ const [dealerOpen,setDealerOpen]=useState(false)
+ const [driving,setDriving]=useState<string|null>(null)
  const [nearby,setNearby]=useState<{kind:'npc'|'business'|'vehicle';id:string;label:string;mission?:string}|null>(null)
  const lastNearby=useRef('')
  const move=useRef<MoveState>({x:0,z:0})
@@ -95,6 +98,7 @@ export default function StreetVerseNearWest3D(){
  const doAction=()=>{
   if(!nearby)return
   const action=nearby.kind==='npc'?'talk':nearby.kind==='business'?'enter':'enter-vehicle'
+  if(nearby.kind==='vehicle')setDriving(nearby.id)
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-action',{detail:{action,target:nearby,source:'near-west-context-action'}}))
   if(nearby.mission)window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{missionId:nearby.mission,target:nearby.id}}))
  }
@@ -102,13 +106,16 @@ export default function StreetVerseNearWest3D(){
  useEffect(()=>{const open=(e:Event)=>{const d=(e as CustomEvent).detail||{};if(d.to==='greenville')setGreenvilleOpen(true)};window.addEventListener('tryamm:campusverse-travel',open);return()=>window.removeEventListener('tryamm:campusverse-travel',open)},[])
  if(greenvilleOpen)return <GreenvilleCampusVerseScene onReturn={()=>setGreenvilleOpen(false)}/>
  return <div aria-label="StreetVerse Near West 3D" style={{width:'100%',height:'100%',minHeight:420}}>
-  {nearby&&<button aria-label="Context action" onClick={doAction} style={{position:'absolute',right:12,bottom:190,zIndex:22,minWidth:162,minHeight:52,padding:'10px 14px',borderRadius:16,fontWeight:950,fontSize:16}}>ACTION • {nearby.kind==='npc'?'TALK':nearby.kind==='business'?'ENTER':'RIDE'}<small style={{display:'block',fontSize:10}}>{nearby.label}</small></button>}
-  <div aria-label="One hand movement controls" style={{position:'absolute',right:12,bottom:18,zIndex:21,display:'grid',gridTemplateColumns:'54px 54px 54px',gridTemplateRows:'54px 54px 54px',gap:5,touchAction:'none'}}>
-   <span/><button aria-label="Walk forward" onPointerDown={()=>setMove(0,-1)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{gridColumn:2,fontSize:24,borderRadius:14}}>▲</button><span/>
-   <button aria-label="Walk left" onPointerDown={()=>setMove(-1,0)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{fontSize:24,borderRadius:14}}>◀</button>
+  <button aria-label="Open Future Mobility dealership" onClick={()=>setDealerOpen(true)} style={{position:'absolute',left:12,top:12,zIndex:22,minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🚘 FUTURE MOBILITY • BUY</button>
+  {dealerOpen&&<StreetVerseFutureVehicleDealer onClose={()=>setDealerOpen(false)}/>}
+  {driving&&<button aria-label="Exit vehicle" onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-action',{detail:{action:'exit-vehicle',vehicleId:driving}}));setDriving(null)}} style={{position:'absolute',right:12,top:12,zIndex:22,minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>EXIT VEHICLE</button>}
+  {nearby&&!driving&&<button aria-label="Context action" onClick={doAction} style={{position:'absolute',right:12,bottom:190,zIndex:22,minWidth:162,minHeight:52,padding:'10px 14px',borderRadius:16,fontWeight:950,fontSize:16}}>ACTION • {nearby.kind==='npc'?'TALK':nearby.kind==='business'?'ENTER':'RIDE'}<small style={{display:'block',fontSize:10}}>{nearby.label}</small></button>}
+  <div aria-label={driving?'One hand driving controls':'One hand movement controls'} style={{position:'absolute',right:12,bottom:18,zIndex:21,display:'grid',gridTemplateColumns:'54px 54px 54px',gridTemplateRows:'54px 54px 54px',gap:5,touchAction:'none'}}>
+   <span/><button aria-label="Walk forward" onPointerDown={()=>setMove(0,driving?-2:-1)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{gridColumn:2,fontSize:24,borderRadius:14}}>▲</button><span/>
+   <button aria-label="Walk left" onPointerDown={()=>setMove(driving?-1.4:-1,0)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{fontSize:24,borderRadius:14}}>◀</button>
    <button aria-label="Stop walking" onClick={stopMove} style={{fontSize:12,fontWeight:900,borderRadius:14}}>STOP</button>
-   <button aria-label="Walk right" onPointerDown={()=>setMove(1,0)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{fontSize:24,borderRadius:14}}>▶</button>
-   <span/><button aria-label="Walk backward" onPointerDown={()=>setMove(0,1)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{gridColumn:2,fontSize:24,borderRadius:14}}>▼</button><span/>
+   <button aria-label="Walk right" onPointerDown={()=>setMove(driving?1.4:1,0)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{fontSize:24,borderRadius:14}}>▶</button>
+   <span/><button aria-label="Walk backward" onPointerDown={()=>setMove(0,driving?1.2:1)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{gridColumn:2,fontSize:24,borderRadius:14}}>▼</button><span/>
   </div>
   <div style={{position:'absolute',left:12,bottom:18,zIndex:20,display:'grid',gap:7,maxWidth:260}}>
    <button aria-label="Open UIC CollegeBook gateway" onClick={()=>setCollegeBookOpen(v=>!v)} style={{padding:'11px 12px',borderRadius:12,fontWeight:900}}>🎓 UIC • COLLEGEBOOK</button>
