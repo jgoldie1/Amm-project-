@@ -464,7 +464,13 @@ function addBJStubbsCharacter(group,x,z,mats){
   if(heroTorso){heroTorso.scale.x*=.965;heroTorso.scale.z*=.96}
   group.traverse(object=>{
     if(!(object instanceof THREE.Mesh))return
-    if(object.name==='upper-arm'||object.name==='forearm'){object.scale.x*=.90;object.scale.z*=.90;object.userData={...object.userData,characterRealism:'bj-v3-arm-slim'}}
+    if(object.name==='upper-arm'){object.scale.x*=.86;object.scale.z*=.86;object.userData={...object.userData,characterRealism:'bj-v5-natural-upper-arm'}}
+    if(object.name==='forearm'){object.scale.x*=.91;object.scale.z*=.91;object.userData={...object.userData,characterRealism:'bj-v5-natural-forearm'}}
+    if(object.name==='elbow'){object.scale.set(.92,.92,.92)}
+    if(object.name==='waist-silhouette'){object.scale.x*=.78;object.scale.z*=.88;object.userData={...object.userData,characterRealism:'bj-v5-tapered-waist'}}
+    if(object.name==='pelvis-shell'){object.scale.x*=.92;object.scale.z*=.92}
+    if(object.name==='thigh'){object.scale.x*=.94;object.scale.z*=.94}
+    if(object.name==='shin'){object.scale.x*=.92;object.scale.z*=.92}
     if(object.name==='hero-layered-jacket'){object.visible=false;object.userData={...object.userData,outfitSlot:'tactical-outerwear',equippedByDefault:false}}
     if(object.name==='hero-holo-collar')object.visible=false
   })
@@ -556,9 +562,12 @@ function addBJStubbsCharacter(group,x,z,mats){
     fleck.name='bj-beard-gray-fleck';fleck.position.set(gx,gy,gz);fleck.rotation.z=(i%2?-.35:.35);headPivot.add(fleck)
   })
 
-  // BJ V3 current-era default: fitted black tee + small pendant. Tactical pieces remain optional outfit slots.
-  const currentTee=addBox(spine,'bj-current-tee',[.73,.92,.34],[0,.40,.02],blackFabric,undefined,'character-shirt')
-  currentTee.scale.set(.96,1,.92);currentTee.userData={...currentTee.userData,characterId:'bj-stubbs',outfitId:'bj-current-video-tee',equippedByDefault:true,signatureText:'ONLY YAHAVAH CAN JUDGE ME'}
+  // BJ current-era default: rounded fitted black tee + small pendant.
+  // Keep the shirt as a curved shell instead of the old rectangular chest box.
+  const currentTee=new THREE.Mesh(new THREE.CapsuleGeometry(.315,.50,8,20),blackFabric)
+  currentTee.name='bj-current-tee';currentTee.position.set(0,.42,.015);currentTee.scale.set(1.08,1.02,.86);currentTee.castShadow=true
+  currentTee.userData={semantic:'character-shirt',characterId:'bj-stubbs',outfitId:'bj-current-video-tee',equippedByDefault:true,signatureText:'ONLY YAHAVAH CAN JUDGE ME',bodySilhouette:'rounded-fitted-v5'}
+  spine.add(currentTee)
 
   const teeNeckline=new THREE.Mesh(new THREE.TorusGeometry(.145,.018,8,24,Math.PI),blackFabric)
   teeNeckline.name='bj-v4-tee-neckline';teeNeckline.rotation.x=deg(90);teeNeckline.position.set(0,.79,.19);spine.add(teeNeckline)
@@ -626,10 +635,10 @@ function addBJStubbsCharacter(group,x,z,mats){
     wardrobe:'current-video-black-tee-small-gold-pendant',
     signatureTextPlanned:'ONLY YAHAVAH CAN JUDGE ME',
     referenceSource:'user-authorized-current-walking-video',
-    silhouetteTarget:'lean-current-bj',
+    silhouetteTarget:'lean-current-bj-rounded-v5',
     tacticalOutfitDefault:false,
     handDetailPass:'five-finger-v1',
-    clothingFitPass:'current-tee-v2',
+    clothingFitPass:'rounded-fitted-tee-v5',
     locDetailPass:'long-locs-v2',
     beardBlendPass:'salt-pepper-v2',
     proceduralPreview:true,
