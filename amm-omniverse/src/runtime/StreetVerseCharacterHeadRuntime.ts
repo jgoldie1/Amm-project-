@@ -57,6 +57,32 @@ function applyMorphPose(root:THREE.Object3D,pose:StreetVerseFacePose){
  return matches
 }
 
+function captureBaseline(root:THREE.Object3D){
+ const names=['jaw','upper-lip','lower-lip','cheek-left','cheek-right','brow-left','brow-right','eyelid-left','eyelid-right','iris-left','iris-right','pupil-left','pupil-right']
+ const map=new Map<string,{position:THREE.Vector3;rotation:THREE.Euler;scale:THREE.Vector3}>()
+ for(const name of names){const o=root.getObjectByName(name);if(o)map.set(name,{position:o.position.clone(),rotation:o.rotation.clone(),scale:o.scale.clone()})}
+ return map
+}
+
+function applyProceduralPose(root:THREE.Object3D,baseline:ReturnType<typeof captureBaseline>,pose:StreetVerseFacePose){
+ const set=(name:string,fn:(o:THREE.Object3D,b:{position:THREE.Vector3;rotation:THREE.Euler;scale:THREE.Vector3})=>void)=>{const o=root.getObjectByName(name),b=baseline.get(name);if(o&&b)fn(o,b)}
+ const jawOpen=THREE.MathUtils.clamp(pose.jawOpen??0,0,1)
+ set('jaw',(o,b)=>{o.rotation.x=b.rotation.x+jawOpen*.18})
+ const smile=THREE.MathUtils.clamp(pose.mouthSmile??0,0,1),frown=THREE.MathUtils.clamp(pose.mouthFrown??0,0,1),wide=THREE.MathUtils.clamp(pose.mouthWide??0,0,1),narrow=THREE.MathUtils.clamp(pose.mouthNarrow??0,0,1)
+ for(const name of ['upper-lip','lower-lip'])set(name,(o,b)=>{o.scale.x=b.scale.x*(1+wide*.24-narrow*.18);o.position.y=b.position.y+(smile*.012-frown*.012)*(name==='upper-lip'?1:-.65)})
+ const cheek=THREE.MathUtils.clamp(pose.cheekRaise??0,0,1)
+ for(const name of ['cheek-left','cheek-right'])set(name,(o,b)=>{o.position.y=b.position.y+cheek*.018;o.scale.y=b.scale.y*(1+cheek*.08)})
+ const inner=THREE.MathUtils.clamp(pose.browInnerUp??0,0,1),bdl=THREE.MathUtils.clamp(pose.browDownLeft??0,0,1),bdr=THREE.MathUtils.clamp(pose.browDownRight??0,0,1)
+ set('brow-left',(o,b)=>{o.position.y=b.position.y+inner*.025-bdl*.018;o.rotation.z=b.rotation.z-bdl*.10})
+ set('brow-right',(o,b)=>{o.position.y=b.position.y+inner*.025-bdr*.018;o.rotation.z=b.rotation.z+bdr*.10})
+ const bl=THREE.MathUtils.clamp(pose.blinkLeft??0,0,1),br=THREE.MathUtils.clamp(pose.blinkRight??0,0,1)
+ set('eyelid-left',(o,b)=>{o.scale.y=b.scale.y*(1+bl*2.8);o.position.y=b.position.y-bl*.016})
+ set('eyelid-right',(o,b)=>{o.scale.y=b.scale.y*(1+br*2.8);o.position.y=b.position.y-br*.016})
+ const lookX=(THREE.MathUtils.clamp(pose.lookRight??0,0,1)-THREE.MathUtils.clamp(pose.lookLeft??0,0,1))*.20
+ const lookY=(THREE.MathUtils.clamp(pose.lookUp??0,0,1)-THREE.MathUtils.clamp(pose.lookDown??0,0,1))*.12
+ for(const name of ['iris-left','iris-right','pupil-left','pupil-right'])set(name,(o,b)=>{o.rotation.y=b.rotation.y+lookX;o.rotation.x=b.rotation.x-lookY})
+}
+
 function collectProceduralHead(root:THREE.Object3D){
  const nodes:THREE.Object3D[]=[]
  root.traverse(object=>{
@@ -77,6 +103,7 @@ export function installStreetVerseCharacterHeadRuntime(characterRoot:THREE.Objec
   headRig.add(slot)
  }
  const proceduralNodes=collectProceduralHead(headRig)
+ const proceduralBaseline=captureBaseline(headRig)
  let activeReplacement:THREE.Object3D|null=null
  let activeAssetId='procedural-v4'
  let activeEra='current'
@@ -147,7 +174,8 @@ export function installStreetVerseCharacterHeadRuntime(characterRoot:THREE.Objec
   if(!detail.pose)return
   const target=activeReplacement||headRig
   const morphMatches=applyMorphPose(target,detail.pose)
-  window.dispatchEvent(new CustomEvent('tryamm:character-face-pose-applied',{detail:{characterId,assetId:activeAssetId,morphMatches,source:'v5-head-runtime'}}))
+  if(!activeReplacement||morphMatches===0)applyProceduralPose(headRig,proceduralBaseline,detail.pose)
+  window.dispatchEvent(new CustomEvent('tryamm:character-face-pose-applied',{detail:{characterId,assetId:activeAssetId,morphMatches,proceduralFallback:!activeReplacement||morphMatches===0,source:'v5-head-runtime'}}))
  }
 
  window.addEventListener('tryamm:character-head-replace',onReplace)
@@ -158,7 +186,7 @@ export function installStreetVerseCharacterHeadRuntime(characterRoot:THREE.Objec
 
  return{
   getState:()=>({characterId,activeAssetId,activeEra,photoMatched:Boolean(activeReplacement?.userData?.photoMatched),hasReplacement:Boolean(activeReplacement)}),
-  applyPose:(pose:StreetVerseFacePose)=>applyMorphPose(activeReplacement||headRig,pose),
+  applyPose:(pose:StreetVerseFacePose)=>{const matches=applyMorphPose(activeReplacement||headRig,pose);if(!activeReplacement||matches===0)applyProceduralPose(headRig,proceduralBaseline,pose);return matches},
   restoreProcedural,
   dispose:()=>{
    disposed=true
