@@ -215,6 +215,22 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const slide=new THREE.Mesh(new THREE.BoxGeometry(1.1,.18,4.8),new THREE.MeshLambertMaterial({color:0x4f9bd7}));slide.name='circle-park-slide';slide.position.set(-12.8,1,61);slide.rotation.z=-.36;circleParkReality.add(slide)
   const picnicMat=new THREE.MeshLambertMaterial({color:0x6d5138})
   for(const [x,z] of [[-26,62],[-22,64],[-18,55],[-28,55]] as [number,number][]){const table=addCircleBox('circle-park-picnic-table',[2.3,.18,1.2],[x,.85,z],picnicMat);const legA=addCircleBox('circle-park-picnic-leg',[.18,1.2,.18],[x-.65,.45,z],picnicMat);const legB=addCircleBox('circle-park-picnic-leg',[.18,1.2,.18],[x+.65,.45,z],picnicMat);void table;void legA;void legB}
+  const poolDeckMat=new THREE.MeshLambertMaterial({color:0xb8b7ad}),poolWaterMat=new THREE.MeshStandardMaterial({color:0x2e9fd0,roughness:.16,metalness:.05,transparent:true,opacity:.78}),tennisMat=new THREE.MeshLambertMaterial({color:0x477b58}),tennisLineMat=new THREE.MeshBasicMaterial({color:0xf4f1da}),grillMat=new THREE.MeshStandardMaterial({color:0x25272a,metalness:.55,roughness:.5})
+  addCircleBox('circle-park-pool-deck',[17,.16,11],[5,.17,63],poolDeckMat)
+  const circleParkPool=addCircleBox('circle-park-swimming-pool',[14,.12,8],[5,.24,63],poolWaterMat);circleParkPool.userData={streetVerseAddition:true,notVerifiedRealWorldAmenity:true}
+  for(const x of [-1,11])for(const z of [59.7,66.3])addCircleBox('circle-park-pool-fence-post',[.1,1.5,.1],[x,.75,z],circleMetal)
+  const tennisCourt=addCircleBox('circle-park-tennis-court',[18,.12,9],[22,.17,61],tennisMat);tennisCourt.userData={streetVerseAddition:true,notVerifiedRealWorldAmenity:true}
+  addCircleBox('circle-park-tennis-net',[.12,1.05,8.2],[22,.7,61],new THREE.MeshLambertMaterial({color:0xdadada}))
+  for(const x of [13.3,22,30.7])addCircleBox('circle-park-tennis-line',[.08,.025,8.2],[x,.245,61],tennisLineMat)
+  for(const z of [57.1,64.9])addCircleBox('circle-park-tennis-baseline',[17.2,.025,.08],[22,.245,z],tennisLineMat)
+  const basketballBall=new THREE.Mesh(new THREE.SphereGeometry(.32,10,8),new THREE.MeshLambertMaterial({color:0xd86b28}));basketballBall.name='circle-park-basketball-ball';basketballBall.position.set(-48,.5,61);circleParkReality.add(basketballBall)
+  const tennisBall=new THREE.Mesh(new THREE.SphereGeometry(.16,8,6),new THREE.MeshBasicMaterial({color:0xd8ff55}));tennisBall.name='circle-park-tennis-ball';tennisBall.position.set(18,.45,61);circleParkReality.add(tennisBall)
+  const grillSmoke:THREE.Mesh[]=[]
+  for(const [x,z] of [[-25,69],[-19,69]] as [number,number][]){
+    const grillBase=new THREE.Mesh(new THREE.CylinderGeometry(.55,.48,.82,10),grillMat);grillBase.name='circle-park-grill';grillBase.position.set(x,.62,z);circleParkReality.add(grillBase)
+    const grillTop=new THREE.Mesh(new THREE.CylinderGeometry(.7,.7,.18,12),grillMat);grillTop.position.set(x,1.05,z);circleParkReality.add(grillTop)
+    for(let i=0;i<3;i++){const puff=new THREE.Mesh(new THREE.SphereGeometry(.18+i*.05,6,5),new THREE.MeshBasicMaterial({color:0xc9c9c9,transparent:true,opacity:0}));puff.name='circle-park-grill-smoke';puff.position.set(x,1.4+i*.35,z);circleParkReality.add(puff);grillSmoke.push(puff)}
+  }
   const heritageSign=makeLabel('CIRCLE PARK • ABLA • ASHLAND / LAFLIN');heritageSign.position.set(-25,7.5,52);heritageSign.scale.set(18,3.1,1);circleParkReality.add(heritageSign)
   const driveSign=makeLabel('CIRCLE PARK DRIVE • S. LAFLIN');driveSign.position.set(-24,5.7,20);driveSign.scale.set(15,2.7,1);circleParkReality.add(driveSign)
   const historySign=makeLabel('JANE ADDAMS / ABLA HISTORY');historySign.position.set(24,5.5,42);historySign.scale.set(15,2.7,1);circleParkReality.add(historySign)
@@ -228,7 +244,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   for(let i=0;i<12;i++){const post=new THREE.Mesh(fencePostGeometry,fencePostMaterial);post.name='circle-park-court-fence-post';post.position.set(-55+i*1.28,1.05,56.5);circleParkReality.add(post)}
   for(const y of [.55,1.6])addCircleBox('circle-park-court-fence-rail',[14.2,.08,.08],[-48, y,56.5],circleMetal)
   for(const [x,z] of [[-31,57],[-24,57],[-31,63],[-24,63]] as [number,number][]){const bench=addCircleBox('circle-park-bench-seat',[2.7,.20,.72],[x,.72,z],circleMetal);const back=addCircleBox('circle-park-bench-back',[2.7,.82,.14],[x,1.25,z-.32],circleMetal);void bench;void back}
-  circleParkReality.userData={source:'public-reference-reconstruction',version:'reality-max-v2',originalTryammGeometry:true,addressAnchor:'1111 S Ashland Ave',circleParkDriveHistoricalAnchor:true,architecturalReferences:['horizontal glazing','ribbed concrete','recessed entry','brick-and-stone townhomes'],amenities:['townhomes','playground','picnic','basketball','landscaping','parking','sidewalks'],heritage:['ABLA','Jane Addams public-housing history','original public-art marker']}
+  circleParkReality.userData={source:'public-reference-reconstruction',version:'reality-max-v2',originalTryammGeometry:true,addressAnchor:'1111 S Ashland Ave',circleParkDriveHistoricalAnchor:true,architecturalReferences:['horizontal glazing','ribbed concrete','recessed entry','brick-and-stone townhomes'],amenities:['townhomes','playground','picnic','basketball','barbecue','swimming','tennis','courtyard','landscaping','parking','sidewalks'],heritage:['ABLA','Jane Addams public-housing history','original public-art marker']}
   scene.add(circleParkReality)
   const circleParkTimeLayers=new THREE.Group();circleParkTimeLayers.name='circle-park-time-machine-world-layers'
   const historyBrick=new THREE.MeshLambertMaterial({color:0x7d4a38}),historyTan=new THREE.MeshLambertMaterial({color:0xa58a69}),historyConcrete=new THREE.MeshLambertMaterial({color:0x77736b}),historyWeathered=new THREE.MeshLambertMaterial({color:0x595b5c}),historyGrass=new THREE.MeshLambertMaterial({color:0x526f43})
