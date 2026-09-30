@@ -1,0 +1,222 @@
+name: TRYAMM Smart Finish Router
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/src/**'
+      - 'amm-omniverse/scripts/**'
+      - 'amm-omniverse/tests/**'
+      - 'amm-omniverse/package.json'
+      - 'amm-omniverse/package-lock.json'
+      - '.github/workflows/tryamm-smart-finish-router.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tryamm-smart-finish-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect:
+    name: Detect changed finish-line lane
+    runs-on: ubuntu-latest
+    outputs:
+      controls: ${{ steps.classify.outputs.controls }}
+      world: ${{ steps.classify.outputs.world }}
+      characters: ${{ steps.classify.outputs.characters }}
+      missions: ${{ steps.classify.outputs.missions }}
+      economy: ${{ steps.classify.outputs.economy }}
+      compile: ${{ steps.classify.outputs.compile }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - id: classify
+        name: Route changed files
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE="$(git rev-parse HEAD^)"
+          fi
+          FILES="$(git diff --name-only "$BASE"...HEAD || true)"
+          printf '%s\n' "$FILES"
+          controls=false
+          world=false
+          characters=false
+          missions=false
+          economy=false
+          compile=false
+
+          if grep -Eq 'StreetVerseMobile(GameShell|World)|StreetVerseChicagoGrid|[Vv]ehicle|[Cc]ontrol|one-hand|iphone' <<<"$FILES"; then controls=true; fi
+          if grep -Eq 'StreetVerseMobileWorld|StreetVerseChicagoGrid|TryammNative|native-asset-foundry|worldBuilder|livingCity|game/simulation|Circle|circle' <<<"$FILES"; then world=true; fi
+          if grep -Eq 'MeetTheStubbs|[Cc]haracter|TryammNative|native-asset-foundry|resident|avatar' <<<"$FILES"; then characters=true; fi
+          if grep -Eq '[Mm]ission|[Rr]eel|FirstRide|MobileGameShell|creator' <<<"$FILES"; then missions=true; fi
+          if grep -Eq '[Ee]conomy|[Rr]eward|ledger|payment|Stripe|commerce|gameplaySimulationBridge|useGameStore' <<<"$FILES"; then economy=true; fi
+          if grep -Eq '^amm-omniverse/(src|scripts)/|^amm-omniverse/package(-lock)?\.json$' <<<"$FILES"; then compile=true; fi
+
+          if grep -Eq '^amm-omniverse/tests/|^\.github/workflows/tryamm-smart-finish-router\.yml$' <<<"$FILES"; then
+            controls=true
+            world=true
+            characters=true
+            missions=true
+            economy=true
+            compile=true
+          fi
+
+          {
+            echo "controls=$controls"
+            echo "world=$world"
+            echo "characters=$characters"
+            echo "missions=$missions"
+            echo "economy=$economy"
+            echo "compile=$compile"
+          } | tee "$GITHUB_OUTPUT"
+
+  controls-driving:
+    name: Fast controls + driving
+    needs: detect
+    if: needs.detect.outputs.controls == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - name: Run control/vehicle contracts
+        run: |
+          set -euo pipefail
+          node tests/streetverse-mobile-control-reliability-contract.mjs
+          node tests/streetverse-unified-mobile-controls-contract.mjs
+          node tests/streetverse-vehicle-access-contract.mjs
+          node tests/streetverse-vehicle-control-contract.mjs
+          node tests/streetverse-iphone-first-journey-contract.mjs
+          node tests/streetverse-iphone-player-journey-contract.mjs
+          node tests/streetverse-one-hand-integration-contract.mjs
+
+  world-characters:
+    name: Fast world + character visuals
+    needs: detect
+    if: needs.detect.outputs.world == 'true' || needs.detect.outputs.characters == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install once
+        run: npm ci --no-audit --no-fund
+      - name: Generate native assets once
+        run: npm run native:assets
+      - name: Run world/character contracts
+        run: |
+          set -euo pipefail
+          node tests/tryamm-native-asset-foundry-contract.mjs
+          node tests/streetverse-mobile-visible-city-contract.mjs
+          node tests/streetverse-chicago-grid-reality-contract.mjs
+          node tests/streetverse-character-scale-contract.mjs
+          node tests/meet-the-stubbs-native-character-visuals-contract.mjs
+          node tests/circle-park-chicago-completion-contract.mjs
+      - name: Character asset footprint
+        shell: bash
+        run: |
+          find public/generated-assets/native/kit -maxdepth 1 -type f \( -name 'resident-archetype-*.glb' -o -name 'streetverse-hero-player.glb' \) -printf '%f %s bytes\n' | sort
+
+  missions-reels:
+    name: Fast missions + Reels
+    needs: detect
+    if: needs.detect.outputs.missions == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - name: Run mission/Reel contracts
+        run: |
+          set -euo pipefail
+          node tests/streetverse-mobile-mission-completion-bridge-contract.mjs
+          node tests/streetverse-mission-reel-handoff-contract.mjs
+          node tests/streetverse-reel-return-to-world-contract.mjs
+          node tests/streetverse-reel-mission-context-contract.mjs
+          node tests/streetverse-mobile-reel-last-mile-contract.mjs
+          node tests/streetverse-journey-qa-contract.mjs
+
+  economy-rewards:
+    name: Fast economy + reward authority
+    needs: detect
+    if: needs.detect.outputs.economy == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - name: Run economy/reward contracts
+        run: |
+          set -euo pipefail
+          node tests/streetverse-economy-contract.mjs
+          node tests/streetverse-authoritative-reward-contract.mjs
+          node tests/streetverse-mission-route-consequences-contract.mjs
+
+  compile:
+    name: Shared typecheck + production compile
+    needs: detect
+    if: needs.detect.outputs.compile == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install once
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Generate native assets
+        run: npm run native:assets
+      - name: Production compile
+        run: npx vite build
+
+  smart-finish-green:
+    name: Smart Finish GREEN
+    needs: [detect, controls-driving, world-characters, missions-reels, economy-rewards, compile]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Accept success or skipped lanes
+        env:
+          DETECT: ${{ needs.detect.result }}
+          CONTROLS: ${{ needs.controls-driving.result }}
+          WORLD: ${{ needs.world-characters.result }}
+          MISSIONS: ${{ needs.missions-reels.result }}
+          ECONOMY: ${{ needs.economy-rewards.result }}
+          COMPILE: ${{ needs.compile.result }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$DETECT" = "success"
+          for result in "$CONTROLS" "$WORLD" "$MISSIONS" "$ECONOMY" "$COMPILE"; do
+            test "$result" = "success" || test "$result" = "skipped"
+          done
+          echo "TRYAMM SMART FINISH ROUTER GREEN"
