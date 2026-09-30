@@ -56,10 +56,10 @@ function NearWestPlayer({move,onPosition,hidden=false,startPosition}:{move:React
 
 
 
-function DrivenVehicle({vehicleId,move,onPosition}:{vehicleId:string;move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void}){
+function DrivenVehicle({vehicleId,move,onPosition,onHeading}:{vehicleId:string;move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void;onHeading:(yaw:number)=>void}){
  const v=STREETVERSE_FUTURE_VEHICLES.find(x=>x.id===vehicleId)
  const ref=useRef<THREE.Group>(null);const {camera}=useThree()
- useFrame((_,dt)=>{const g=ref.current;if(!g||!v)return;const throttle=-move.current.z;const steer=move.current.x;g.rotation.y-=steer*v.handling*1.45*dt;const forward=new THREE.Vector3(Math.sin(g.rotation.y),0,Math.cos(g.rotation.y));g.position.addScaledVector(forward,throttle*v.speed*dt);g.position.x=THREE.MathUtils.clamp(g.position.x,-1180,560);g.position.z=THREE.MathUtils.clamp(g.position.z,380,1160);const chase=new THREE.Vector3(g.position.x-forward.x*11,g.position.y+6,g.position.z-forward.z*11);camera.position.lerp(chase,Math.min(1,dt*4));camera.lookAt(g.position.x,g.position.y+1,g.position.z);onPosition(g.position.x,g.position.z)})
+ useFrame((_,dt)=>{const g=ref.current;if(!g||!v)return;const throttle=-move.current.z;const steer=move.current.x;g.rotation.y-=steer*v.handling*1.45*dt;const forward=new THREE.Vector3(Math.sin(g.rotation.y),0,Math.cos(g.rotation.y));g.position.addScaledVector(forward,throttle*v.speed*dt);g.position.x=THREE.MathUtils.clamp(g.position.x,-1180,560);g.position.z=THREE.MathUtils.clamp(g.position.z,380,1160);const chase=new THREE.Vector3(g.position.x-forward.x*11,g.position.y+6,g.position.z-forward.z*11);camera.position.lerp(chase,Math.min(1,dt*4));camera.lookAt(g.position.x,g.position.y+1,g.position.z);onPosition(g.position.x,g.position.z);onHeading(g.rotation.y)})
  if(!v)return null
  const long=v.kind==='armored-utility'?5.6:v.kind==='cyber-shuttle'?5.2:v.kind==='hypercar'?4.8:2.7
  return <group ref={ref} position={[v.spawn.x,0,v.spawn.z]}><mesh castShadow position={[0,.9,0]}><boxGeometry args={[long,v.kind==='ring-bike'?.75:1.15,v.kind==='ring-bike'?1.1:2.15]}/><meshStandardMaterial color={v.visual.body} metalness={.7} roughness={.25}/></mesh><mesh position={[0,.8,-1.1]}><boxGeometry args={[long*.65,.12,.08]}/><meshStandardMaterial color={v.visual.accent} emissive={v.visual.accent} emissiveIntensity={.5}/></mesh></group>
@@ -93,6 +93,7 @@ export default function StreetVerseNearWest3D(){
  const [vehicleAimSide,setVehicleAimSide]=useState<'left'|'right'>('left')
  const [hitFx,setHitFx]=useState<{id:number;position:[number,number,number]}|null>(null)
  const drivenPosition=useRef({x:-650,z:700})
+ const drivenHeading=useRef(0)
  const [nearby,setNearby]=useState<{kind:'npc'|'business'|'vehicle';id:string;label:string;mission?:string}|null>(null)
  const lastNearby=useRef('')
  const move=useRef<MoveState>({x:0,z:0})
@@ -114,10 +115,13 @@ export default function StreetVerseNearWest3D(){
  const vehicleFire=()=>{
   if(!driving||vehicleAmmo<=0)return
   setVehicleAmmo(a=>Math.max(0,a-1))
-  const origin=drivenPosition.current
-  const candidates=NEAR_WEST_NPCS.map(n=>({n,d:Math.hypot(n.position.x-origin.x,n.position.z-origin.z)})).filter(x=>x.d<34).sort((a,b)=>a.d-b.d)
+  const origin=drivenPosition.current,yaw=drivenHeading.current
+  const forward={x:Math.sin(yaw),z:Math.cos(yaw)}
+  const side=vehicleAimSide==='left'?-1:1
+  const aim={x:forward.x*.45+forward.z*side*.89,z:forward.z*.45-forward.x*side*.89}
+  const candidates=NEAR_WEST_NPCS.map(n=>{const dx=n.position.x-origin.x,dz=n.position.z-origin.z,dist=Math.hypot(dx,dz)||1;return {n,dist,dot:(dx/dist)*aim.x+(dz/dist)*aim.z}}).filter(x=>x.dist<38&&x.dot>.86).sort((a,b)=>b.dot-a.dot||a.dist-b.dist)
   const target=candidates[0]?.n
-  if(target){setHitFx({id:Date.now(),position:[target.position.x,1.15,target.position.z]});window.dispatchEvent(new CustomEvent('tryamm:streetverse-npc-hit',{detail:{targetId:target.id,damage:25,source:'fictional-vehicle-gameplay'}}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-npc-consequence',{detail:{targetId:target.id,reaction:'stagger',missionConsequence:true}}))}
+  if(target){setHitFx({id:Date.now(),position:[target.position.x,1.15,target.position.z]});window.dispatchEvent(new CustomEvent('tryamm:streetverse-npc-hit',{detail:{targetId:target.id,damage:25,source:'fictional-vehicle-gameplay',aimSide:vehicleAimSide}}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-npc-consequence',{detail:{targetId:target.id,reaction:'stagger',missionConsequence:true}}))}
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-action',{detail:{action:'fictional-fire',vehicleId:driving,side:vehicleAimSide,ammoAfter:vehicleAmmo-1,source:'vehicle-gameplay'}}))
  }
  const doAction=()=>{
@@ -155,7 +159,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><TaylorLots/><PopulationMeshes/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}}/>}
+   <RoadMeshes/><TaylorLots/><PopulationMeshes/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
   </Canvas>
  </div>
 }
