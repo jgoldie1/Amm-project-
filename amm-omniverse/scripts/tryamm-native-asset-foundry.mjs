@@ -227,6 +227,7 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
   const eyeWhite=mat(`eye-white-${variant}`,0xf0eee8,.42,0)
   const iris=mat(`iris-${variant}`,variant%3===0?0x3b281c:variant%3===1?0x4a3522:0x2f241f,.34,.02)
   const pupil=mat(`pupil-${variant}`,0x090909,.28,.04)
+  const femininePresentation=[2,3,6,7].includes(variant%8)
   const proportions=[
     {h:1.00,shoulder:1.00,torso:1.00,leg:1.00,head:1.00},
     {h:1.04,shoulder:1.07,torso:.96,leg:1.06,head:.98},
@@ -238,7 +239,7 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
     {h:1.05,shoulder:1.09,torso:.98,leg:1.05,head:.99},
   ][variant%8]
   const H=hero?1.05:proportions.h
-  const shoulder=(hero?.56:.52)*proportions.shoulder
+  const shoulder=(hero?.56:.52)*proportions.shoulder*(femininePresentation?.95:1)
   const rig=new THREE.Group()
   rig.name=hero?'character-rig-hero':'character-rig-resident'
   rig.position.set(x,0,z)
@@ -252,11 +253,12 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
 
   const pelvis=new THREE.Group();pelvis.name='rig-pelvis';pelvis.position.y=.88*H;rig.add(pelvis)
   const hips=new THREE.Mesh(new THREE.CapsuleGeometry(.28*proportions.torso,.34,4,10),pants)
-  hips.name='pelvis-shell';hips.rotation.z=deg(90);hips.scale.z=1.12;hips.castShadow=true;pelvis.add(hips)
+  hips.name='pelvis-shell';hips.rotation.z=deg(90);hips.scale.set(1,femininePresentation?.96:1,femininePresentation?1.20:1.12);hips.castShadow=true;pelvis.add(hips)
 
   const spine=new THREE.Group();spine.name='rig-spine';spine.position.y=.43*H;pelvis.add(spine)
   const torso=new THREE.Mesh(new THREE.CapsuleGeometry((hero?.42:.39)*proportions.torso,.82*H,6,14),outfit)
-  torso.name=hero?'hero-torso':'resident-torso';torso.position.y=.40*H;torso.scale.set(proportions.shoulder,1,.88);torso.castShadow=true;spine.add(torso)
+  torso.name=hero?'hero-torso':'resident-torso';torso.position.y=.40*H;torso.scale.set(proportions.shoulder*(femininePresentation?.94:1),1,femininePresentation?.84:.88);torso.castShadow=true;spine.add(torso)
+  if(femininePresentation&&!hero){const waistBand=addBox(spine,'m5-femme-waist-layer',[.64,.10,.55],[0,.09*H,.02],accent,undefined,'fitted-waist-layer');waistBand.scale.x=.88}
   const shoulderLine=new THREE.Mesh(new THREE.CapsuleGeometry(.12,.72*shoulder,4,10),outfit)
   shoulderLine.name='shoulder-line';shoulderLine.rotation.z=deg(90);shoulderLine.position.y=.78*H;shoulderLine.castShadow=true;spine.add(shoulderLine)
   const neck=addCylinder(spine,'neck',.13,.22,[0,.98*H,0],skin,14,'character-neck')
@@ -284,9 +286,27 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
     const eyelid=new THREE.Mesh(new THREE.SphereGeometry(.052,12,8),skin);eyelid.name=side<0?'eyelid-left':'eyelid-right';eyelid.position.set(side*.112,.108,.314);eyelid.scale.set(1.08,.16,.46);eyelid.userData={facialControl:'blink',m5Layer:'face'};headPivot.add(eyelid)
   }
   const upperLip=new THREE.Mesh(new THREE.CapsuleGeometry(.018,.13,3,8),lip);upperLip.name='upper-lip';upperLip.rotation.z=deg(90);upperLip.position.set(0,-.13,.31);upperLip.scale.y=.7;headPivot.add(upperLip)
-  const lowerLip=upperLip.clone();lowerLip.name='lower-lip';lowerLip.position.y=-.158;lowerLip.scale.set(1.02,.9,1);headPivot.add(lowerLip)
+  const lowerLip=upperLip.clone();lowerLip.name='lower-lip';lowerLip.position.y=-.158;lowerLip.scale.set(1.02,femininePresentation?1.08:.9,1);headPivot.add(lowerLip)
+  if(femininePresentation&&!hero){
+    for(const side of [-1,1]){
+      const lash=addBox(headPivot,side<0?'m5-lash-left':'m5-lash-right',[.105,.012,.018],[side*.112,.125,.337],hair,[0,0,side*.08],'beauty-lash')
+      lash.castShadow=false
+      const liner=addBox(headPivot,side<0?'m5-liner-left':'m5-liner-right',[.13,.010,.014],[side*.112,.112,.339],hair,[0,0,side*.04],'beauty-liner')
+      liner.castShadow=false
+    }
+    const gloss=new THREE.Mesh(new THREE.CapsuleGeometry(.019,.14,3,8),mat(`lip-gloss-${variant}`,0xb85f70,.24,.02));gloss.name='m5-lip-gloss';gloss.rotation.z=deg(90);gloss.position.set(0,-.155,.326);gloss.scale.y=.92;headPivot.add(gloss)
+  }
 
   const hairStyle=variant%4
+  if(femininePresentation&&!hero){
+    const crown=new THREE.Mesh(new THREE.SphereGeometry(.35*proportions.head,20,14,0,Math.PI*2,0,Math.PI*.52),hair)
+    crown.name=variant%2?'m5-femme-curly-crown':'m5-femme-silk-crown';crown.position.y=.12;crown.scale.set(1.04,.88,1.04);headPivot.add(crown)
+    if(variant%2===0){
+      for(const side of [-1,1]){const fall=new THREE.Mesh(new THREE.CapsuleGeometry(.055,.78,5,8),hair);fall.name='m5-long-hair-fall';fall.position.set(side*.25,-.20,-.05);fall.rotation.z=side*.07;headPivot.add(fall)}
+    }else{
+      for(let row=0;row<4;row++){const curl=new THREE.Mesh(new THREE.TorusGeometry(.07,.018,6,12,Math.PI*1.5),hair);curl.name='m5-curl-lock';curl.position.set((row-1.5)*.10,-.12-row*.035,-.02);curl.rotation.y=row*.45;headPivot.add(curl)}
+    }
+  }
   if(hairStyle===0){
     const crop=new THREE.Mesh(new THREE.SphereGeometry((hero?.36:.335)*proportions.head,20,12,0,Math.PI*2,0,Math.PI*.48),hair)
     crop.name='hair-close-crop';crop.position.y=.10;crop.scale.set(1.02,.82,1.02);headPivot.add(crop)
@@ -312,7 +332,7 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
     const elbow=new THREE.Mesh(new THREE.SphereGeometry(.095,10,8),skin);elbow.name='elbow';elbow.position.y=-.48*H;armPivot.add(elbow)
     const forearm=new THREE.Mesh(new THREE.CapsuleGeometry(.082,.34*H,4,10),skin);forearm.name='forearm';forearm.position.y=-.67*H;armPivot.add(forearm)
     const hand=new THREE.Mesh(new THREE.SphereGeometry(.105,12,8),skin);hand.name='hand';hand.position.y=-.91*H;hand.scale.set(.82,1.18,.68);armPivot.add(hand)
-    for(let finger=0;finger<4;finger++){const digit=new THREE.Mesh(new THREE.CapsuleGeometry(.016,.085,3,6),skin);digit.name='finger-detail';digit.position.set((finger-1.5)*.026,-1.01*H,.035);digit.rotation.z=(finger-1.5)*.05;armPivot.add(digit)}
+    for(let finger=0;finger<4;finger++){const digit=new THREE.Mesh(new THREE.CapsuleGeometry(.016,.085,3,6),skin);digit.name='finger-detail';digit.position.set((finger-1.5)*.026,-1.01*H,.035);digit.rotation.z=(finger-1.5)*.05;armPivot.add(digit);if(femininePresentation&&!hero){const nail=addBox(armPivot,'m5-manicure-nail',[.018,.026,.010],[(finger-1.5)*.026,-1.058*H,.073],mat(`nail-${variant}`,variant%2?0xcf6989:0xe9d7c2,.35,.03),undefined,'beauty-nail');nail.castShadow=false}}
     const thumb=new THREE.Mesh(new THREE.CapsuleGeometry(.018,.07,3,6),skin);thumb.name='thumb-detail';thumb.position.set(side*.06,-.985*H,.03);thumb.rotation.z=side*.55;armPivot.add(thumb)
     if(side<0&&variant%3!==2){const watch=addCylinder(armPivot,'street-watch',.10,.045,[0,-.82*H,0],mat(`watch-${variant}`,0xc7d1dc,.12,.95),12,'wearable-watch');watch.rotation.x=deg(90)}
 
@@ -331,7 +351,8 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
     const zipper=addBox(spine,'jacket-zipper',[.025,.62,.03],[0,.42*H,.37],mats.metal,undefined,'wardrobe-detail');zipper.castShadow=false
     if(variant%4===1){for(const side of [-1,1])addBox(spine,'varsity-stripe',[.08,.55,.025],[side*.31,.43*H,.38],mat(`stripe-${variant}`,0xf0ece2,.58,.02),undefined,'wardrobe-stripe')}
   }
-  if(!hero&&variant%4===0){const hood=new THREE.Mesh(new THREE.TorusGeometry(.29,.065,8,24,Math.PI*1.45),accent);hood.name='m5-hoodie-hood';hood.rotation.x=deg(90);hood.position.set(0,.82*H,-.10);spine.add(hood)}
+  if(!hero&&variant%4===0){const hood=new THREE.Mesh(new THREE.TorusGeometry(.29,.065,8,24,Math.PI*1.45),accent);hood.name=femininePresentation?'m5-femme-cropped-hoodie':'m5-hoodie-hood';hood.rotation.x=deg(90);hood.position.set(0,.82*H,-.10);spine.add(hood)}
+  if(femininePresentation&&!hero&&variant%2===0){const coat=addBox(spine,'m5-femme-longline-jacket',[.78,.72,.48],[0,.40*H,-.03],accent,undefined,'fashion-jacket');coat.scale.x=.90}
   if(!hero&&variant%3===1){
     const cap=new THREE.Mesh(new THREE.SphereGeometry(.345*proportions.head,18,10,0,Math.PI*2,0,Math.PI*.34),accent)
     cap.name='hair-cap-accessory';cap.position.set(0,.26,0);cap.scale.set(1.04,.62,1.05);headPivot.add(cap)
@@ -347,14 +368,15 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
     beard.name='facial-hair';beard.position.set(0,-.16,.095);beard.scale.set(.9,.72,.9);headPivot.add(beard)
   }
   if(variant%4===1||hero){for(const side of [-1,1]){const lens=new THREE.Mesh(new THREE.BoxGeometry(.15,.07,.025),mat(`shade-${variant}`,0x101923,.08,.65));lens.name='m5-shades-lens';lens.position.set(side*.105,.09,.337);headPivot.add(lens)}addBox(headPivot,'m5-shades-bridge',[.07,.018,.022],[0,.09,.337],mats.metal,undefined,'eyewear-bridge')}
-  if(variant%3===0&&!hero){for(const side of [-1,1]){const earring=new THREE.Mesh(new THREE.TorusGeometry(.022,.006,6,10),mat(`earring-${variant}`,0xe7c95e,.10,.95));earring.name='m5-earring';earring.position.set(side*.305,-.02,.01);earring.rotation.y=deg(90);headPivot.add(earring)}}
+  if(variant%3===0&&!hero){for(const side of [-1,1]){const earring=new THREE.Mesh(new THREE.TorusGeometry(femininePresentation?.034:.022,.006,6,12),mat(`earring-${variant}`,0xe7c95e,.10,.95));earring.name=femininePresentation?'m5-hoop-earring':'m5-earring';earring.position.set(side*.305,-.02,.01);earring.rotation.y=deg(90);headPivot.add(earring)}}
+  if(femininePresentation&&!hero&&variant%2===1){const purseStrap=new THREE.Mesh(new THREE.TorusGeometry(.42,.024,8,26,Math.PI*1.25),accent);purseStrap.name='m5-femme-purse-strap';purseStrap.rotation.set(deg(70),0,deg(-24));purseStrap.position.set(-.06,.38*H,.08);spine.add(purseStrap);addBox(spine,'m5-femme-mini-bag',[.34,.30,.16],[-.26,.20*H,.36],accent,undefined,'fashion-bag')}
   if(variant%4===3&&!hero){const strap=new THREE.Mesh(new THREE.TorusGeometry(.46,.028,8,28,Math.PI*1.2),accent);strap.name='m5-crossbody-strap';strap.rotation.set(deg(72),0,deg(28));strap.position.set(.06,.38*H,.08);spine.add(strap);addBox(spine,'m5-crossbody-bag',[.38,.42,.18],[.28,.22*H,.38],accent,undefined,'crossbody-bag')}
   if(hero){
     const collar=new THREE.Mesh(new THREE.TorusGeometry(.44,.055,8,24,Math.PI),mats.holo);collar.name='hero-holo-collar';collar.rotation.x=deg(90);collar.position.set(0,.66*H,-.22);spine.add(collar)
     const founderChain=new THREE.Mesh(new THREE.TorusGeometry(.22,.024,8,28,Math.PI),mat('founder-chain',0xe8c75a,.14,.92));founderChain.name='m5-founder-chain';founderChain.rotation.x=deg(90);founderChain.position.set(0,.62*H,.36);spine.add(founderChain)
   }
 
-  group.userData={...group.userData,semantic:hero?'player-character':'crowd-resident',rigState:'m5-max-character-stack-v1',animationReady:true,facialDetailM5:true,dripLayerM5:true,swaggerReady:true,styleProfile,originalTryammDesign:true,originalTryammStreetwear:true}
+  group.userData={...group.userData,semantic:hero?'player-character':'crowd-resident',rigState:'m5-max-character-stack-v1',animationReady:true,facialDetailM5:true,dripLayerM5:true,beautyLayerM5:femininePresentation,swaggerReady:true,styleProfile,femininePresentation:femininePresentation?'beauty-streetwear':'standard-streetwear',originalTryammDesign:true,originalTryammStreetwear:true}
 }
 
 function addTransitTrain(group,x,z,mats){
