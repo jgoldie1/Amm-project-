@@ -22,6 +22,7 @@ export default function StreetVersePocketDimension({onClose}:{onClose:()=>void})
  const [favorites,setFavorites]=useState<string[]>(()=>readList(FAV_KEY))
  const [quick,setQuick]=useState<string[]>(()=>readList(QUICK_KEY).slice(0,4))
  const [notice,setNotice]=useState('Pocket Dimension keeps player assets organized without changing ownership truth.')
+ const [actionQty,setActionQty]=useState(1)
 
  useEffect(()=>{
   const sync=(e:Event)=>{
@@ -53,6 +54,7 @@ export default function StreetVersePocketDimension({onClose}:{onClose:()=>void})
  }).sort((a,b)=>(favorites.includes(b.id)?1:0)-(favorites.includes(a.id)?1:0)||a.name.localeCompare(b.name)),[items,category,query,favorites])
 
  const selected=items.find(x=>x.id===selectedId)||null
+ useEffect(()=>{setActionQty(1)},[selectedId])
  const suggested=useMemo(()=>pocketDimensionSuggestions(items.filter(x=>x.quickSlotCompatible),6),[items])
 
  const persist=(key:string,value:string[])=>{try{localStorage.setItem(key,JSON.stringify(value))}catch{}}
@@ -67,12 +69,13 @@ export default function StreetVersePocketDimension({onClose}:{onClose:()=>void})
  const requestAction=(asset:PocketDimensionAsset,action:PocketDimensionAction)=>{
   if(action==='favorite'){toggleFavorite(asset.id);return}
   if(action==='quick-slot'){toggleQuick(asset.id);return}
-  const detail={assetId:asset.id,assetName:asset.name,kind:asset.kind,quantity:1,action,serverValidate:['give','drop'].includes(action),source:'pocket-dimension'}
+  const quantity=Math.max(1,Math.min(asset.quantity,actionQty))
+  const detail={assetId:asset.id,assetName:asset.name,kind:asset.kind,quantity,action,serverValidate:['give','drop'].includes(action),source:'pocket-dimension'}
   window.dispatchEvent(new CustomEvent('tryamm:pocket-dimension-action-request',{detail}))
   if(asset.id==='reel-camera'&&action==='use')window.dispatchEvent(new CustomEvent('tryamm:reel-capture-toggle'))
   if(asset.id==='faith-reader'&&action==='use')window.location.href='/faithverse'
   if(asset.id==='streetverse-phone'&&action==='use')window.dispatchEvent(new CustomEvent('tryamm:holofon-open',{detail:{source:'pocket-dimension'}}))
-  setNotice(['give','drop'].includes(action)?`${action.toUpperCase()} REQUESTED • server validation required.`:`${action.toUpperCase()} • ${asset.name}`)
+  setNotice(['give','drop'].includes(action)?`${action.toUpperCase()} x${quantity} REQUESTED • server validation required.`:`${action.toUpperCase()} x${quantity} • ${asset.name}`)
  }
 
  const actionsFor=(asset:PocketDimensionAsset)=>{
@@ -128,6 +131,12 @@ export default function StreetVersePocketDimension({onClose}:{onClose:()=>void})
     <div style={{height:72,display:'grid',placeItems:'center',fontSize:44,borderRadius:16,background:'#102634'}}>{selected.icon}</div>
     <div><small style={{color:'#7be9ff',fontWeight:950}}>{selected.kind.toUpperCase()}</small><h2 style={{margin:'2px 0'}}>{selected.name}</h2><div style={{fontSize:10,color:'#9db0bf'}}>{selected.source||'player asset'} • {selected.authority}</div></div>
    </div>
+   {selected.quantity>1&&<div aria-label="Pocket Dimension quantity" style={{display:'grid',gridTemplateColumns:'48px 1fr 48px 64px',gap:7,marginTop:10,alignItems:'center'}}>
+    <button onClick={()=>setActionQty(q=>Math.max(1,q-1))} style={btn}>−</button>
+    <div style={{minHeight:44,display:'grid',placeItems:'center',borderRadius:11,border:'1px solid #355365',background:'#08151e',fontWeight:950}}>QTY • {actionQty} / {selected.quantity}</div>
+    <button onClick={()=>setActionQty(q=>Math.min(selected.quantity,q+1))} style={btn}>+</button>
+    <button onClick={()=>setActionQty(selected.quantity)} style={btn}>MAX</button>
+   </div>}
    <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:8,marginTop:10}}>
     {actionsFor(selected).map(action=><button key={action} onClick={()=>requestAction(selected,action)} style={{...btn,minHeight:50}}>{action==='quick-slot'?(quick.includes(selected.id)?'REMOVE QUICK':'ADD QUICK'):action.toUpperCase()}</button>)}
     <button onClick={()=>requestAction(selected,'favorite')} style={{...btn,minHeight:50}}>{favorites.includes(selected.id)?'★ FAVORITE':'☆ FAVORITE'}</button>
