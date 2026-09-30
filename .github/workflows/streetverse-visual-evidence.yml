@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   mobile-visual-proof:
-    name: Phone visual proof — Circle Park + joystick + DRIVE
+    name: Phone visual proof — Circle Park + HUD overlap + DRIVE
     runs-on: ubuntu-latest
     timeout-minutes: 18
     defaults:
@@ -76,4 +76,7 @@ jobs:
             echo '- DRIVE action rendered'
             echo '- Vehicle entry reached DRIVING state'
             echo '- On-foot and driving screenshots uploaded as artifacts'
+            echo '- Visible shell controls stay under the phone-screen coverage budget'
+            echo '- Essential controls do not overlap'
+            echo '- Bible / Time / LIVE / PK stay collapsed until TOOLS opens'
           } >> "$GITHUB_STEP_SUMMARY"
