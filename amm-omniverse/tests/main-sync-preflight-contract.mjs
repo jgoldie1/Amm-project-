@@ -42,7 +42,9 @@ assert.ok(
   'main sync must preserve the Vite React plugin required by the Omniverse build',
 )
 assert.match(pkg.scripts.build, /repair-streetverse-entry\.mjs/, 'build must run the StreetVerse entry repair before smoke/build')
-assert.match(pkg.scripts.build, /npm run smoke/, 'build must retain the foundation smoke gate')
+assert.doesNotMatch(pkg.scripts.build, /npm run smoke/, 'deploy build must stay independent from the full legacy smoke suite so previews can compile')
+assert.match(pkg.scripts.check, /npm run smoke/, 'full validation check must retain the foundation smoke gate')
+assert.match(pkg.scripts.check, /npm run build/, 'full validation check must still exercise the deploy build')
 for (const contract of currentMainSmokeContracts) {
   assert.match(pkg.scripts.smoke, new RegExp(contract.replaceAll('.', '\\.')), `main sync must retain current main smoke coverage: ${contract}`)
 }
