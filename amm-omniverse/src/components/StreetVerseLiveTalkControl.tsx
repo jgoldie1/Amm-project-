@@ -25,7 +25,7 @@ export default function StreetVerseLiveTalkControl(){
 
  const label=snap.state==='requesting'?'MIC…':listening?'TALKING':'TALK'
  const status=snap.state==='denied'?'MIC PERMISSION DENIED':snap.state==='unsupported'?'MIC NOT AVAILABLE':snap.state==='error'?'MIC ERROR':listening?(snap.speechRecognitionAvailable?'VOICE + DIALOGUE':'VOICE LIP-SYNC'):'TAP TO TALK IRL'
- const spoken=(snap.interim||snap.transcript.split(/(?<=[.!?])\s+/).slice(-1)[0]||'').trim()
+ const spoken=(snap.interim||snap.transcript.split(/[.!?]\s+/).slice(-1)[0]||'').trim()
 
  return <>
   <button
