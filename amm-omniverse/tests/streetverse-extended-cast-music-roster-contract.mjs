@@ -14,7 +14,7 @@ const artists=[
  'Rockie Fresh','Joey Purp','Kanye West','R. Kelly'
 ]
 for(const name of artists)assert.ok(music.includes(`displayName:'${name}'`),`missing Chicago music artist: ${name}`)
-assert.equal((music.match(/displayName:/g)||[]).length,33,'Chicago music registry must preserve 33 entries')
+assert.equal((music.match(/\{id:'[^']+',displayName:/g)||[]).length,artists.length,'Chicago music registry must preserve every protected artist entry')
 assert.ok(star.includes('CHICAGO_MUSIC_LEGACY_ARTISTS.map'),'music registry must materialize into playable missions')
 assert.ok(encounter.includes("missionId?.startsWith('chicago-music-legacy-')"),'legacy missions must have encounter navigation')
 

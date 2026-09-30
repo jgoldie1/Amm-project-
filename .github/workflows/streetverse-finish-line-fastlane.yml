@@ -1,0 +1,180 @@
+name: StreetVerse Finish Line Fastlane
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "amm-omniverse/src/components/StreetVerse**"
+      - "amm-omniverse/src/runtime/StreetVerse**"
+      - "amm-omniverse/src/data/StreetVerse**"
+      - "amm-omniverse/src/data/TryammNative**"
+      - "amm-omniverse/src/game/**"
+      - "amm-omniverse/scripts/tryamm-native-asset-foundry.mjs"
+      - "amm-omniverse/tests/streetverse-*.mjs"
+      - "amm-omniverse/tests/meet-the-stubbs-*.mjs"
+      - "amm-omniverse/tests/tryamm-native-*.mjs"
+      - ".github/workflows/streetverse-finish-line-fastlane.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-finish-line-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  playable-loop:
+    name: Playable loop — joystick → drive → mission → reward → Reel
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Run focused playable-loop contracts
+        run: |
+          set -euo pipefail
+          node tests/streetverse-mobile-control-reliability-contract.mjs
+          node tests/streetverse-unified-mobile-controls-contract.mjs
+          node tests/streetverse-vehicle-access-contract.mjs
+          node tests/streetverse-vehicle-control-contract.mjs
+          node tests/streetverse-mobile-repair-visibility-contract.mjs
+          node tests/streetverse-iphone-first-journey-contract.mjs
+          node tests/streetverse-iphone-player-journey-contract.mjs
+          node tests/streetverse-journey-qa-contract.mjs
+          node tests/streetverse-mobile-mission-completion-bridge-contract.mjs
+          node tests/streetverse-authoritative-reward-contract.mjs
+          node tests/streetverse-mission-reel-handoff-contract.mjs
+          node tests/streetverse-reel-return-to-world-contract.mjs
+          node tests/streetverse-core-gameplay-dock-contract.mjs
+          node tests/streetverse-one-hand-integration-contract.mjs
+      - name: Write playable-loop result
+        run: |
+          mkdir -p ../release-evidence
+          {
+            echo "# StreetVerse Finish Line — Playable Loop"
+            echo
+            echo "- SHA: ${GITHUB_SHA}"
+            echo "- Joystick/control contracts: PASS"
+            echo "- Vehicle enter/drive contracts: PASS"
+            echo "- Repair/mission completion contracts: PASS"
+            echo "- Reward/Reel handoff contracts: PASS"
+            echo "- One-hand control contract: PASS"
+          } > ../release-evidence/finish-line-playable-loop.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: finish-line-playable-loop
+          path: release-evidence/finish-line-playable-loop.md
+          retention-days: 14
+
+  world-character-visuals:
+    name: Circle Park + world + character visual authority
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Generate native assets
+        run: npm run native:assets
+      - name: Run visual/world contracts
+        run: |
+          set -euo pipefail
+          node tests/tryamm-native-asset-foundry-contract.mjs
+          node tests/tryamm-native-pwa-asset-cache-contract.mjs
+          node tests/streetverse-mobile-visible-city-contract.mjs
+          node tests/streetverse-chicago-grid-reality-contract.mjs
+          node tests/streetverse-character-scale-contract.mjs
+          node tests/meet-the-stubbs-native-character-visuals-contract.mjs
+          node tests/streetverse-chicago-visual-pass-3-contract.mjs
+          node tests/streetverse-chicago-traffic-life-pass-4-contract.mjs
+          node tests/streetverse-chicago-identity-interaction-pass-5-contract.mjs
+          node tests/streetverse-chicago-pedestrian-routines-pass-6-contract.mjs
+          node tests/streetverse-extended-cast-music-roster-contract.mjs
+      - name: Audit generated character footprint
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ../release-evidence
+          {
+            echo "# Native character asset footprint"
+            echo
+            find public/generated-assets/native/kit -maxdepth 1 -type f \( -name 'resident-archetype-*.glb' -o -name 'streetverse-hero-player.glb' \) -printf '%f %s bytes\n' | sort
+          } | tee ../release-evidence/finish-line-character-assets.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: finish-line-world-character-visuals
+          path: release-evidence/finish-line-character-assets.md
+          retention-days: 14
+
+  fast-production-compile:
+    name: Fast production compile — typecheck + native assets + Vite
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Generate native assets
+        run: npm run native:assets
+      - name: Run StreetVerse entry repair/injection
+        run: |
+          node scripts/repair-streetverse-entry.mjs
+          node scripts/inject-streetverse-hero-spawn.mjs
+      - name: Fast Vite production compile
+        run: npx vite build
+      - name: Report dist size
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ../release-evidence
+          du -sh dist | tee ../release-evidence/finish-line-dist-size.txt
+          find dist/assets -type f -printf '%s %p\n' 2>/dev/null | sort -nr | head -25 >> ../release-evidence/finish-line-dist-size.txt || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: finish-line-fast-compile
+          path: release-evidence/finish-line-dist-size.txt
+          retention-days: 14
+
+  finish-line-green:
+    name: Finish Line GREEN
+    needs: [playable-loop, world-character-visuals, fast-production-compile]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce focused completion gates
+        env:
+          PLAYABLE: ${{ needs.playable-loop.result }}
+          VISUALS: ${{ needs.world-character-visuals.result }}
+          COMPILE: ${{ needs.fast-production-compile.result }}
+        run: |
+          echo "Playable loop: $PLAYABLE"
+          echo "World/characters: $VISUALS"
+          echo "Fast production compile: $COMPILE"
+          test "$PLAYABLE" = "success"
+          test "$VISUALS" = "success"
+          test "$COMPILE" = "success"
+          echo "STREETVERSE FINISH LINE FASTLANE GREEN"
