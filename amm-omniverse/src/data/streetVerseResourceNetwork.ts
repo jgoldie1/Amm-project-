@@ -28,6 +28,7 @@ export const STREETVERSE_RESOURCE_EVENTS:Record<string,StreetVerseResourceCatego
  'tryamm:streetverse-commerce-open':'business',
  'tryamm:streetverse-mission-complete':'jobs',
  'tryamm:insect-ecology-discovered':'ecology',
+ 'tryamm:urban-rodent-discovered':'ecology',
  'tryamm:streetverse-sanitation-mission-open':'jobs',
 } as const
 
