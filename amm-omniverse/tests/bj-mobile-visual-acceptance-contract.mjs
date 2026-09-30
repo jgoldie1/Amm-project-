@@ -20,5 +20,7 @@ must(world.includes("addressLabel.scale.set(6.4,1.15,1)"),'Circle Park address l
 must(photo.includes("version:'bj-approved-reference-shell-v2-front'"),'front-facing BJ photo-head version missing')
 must(photo.includes("frontFacingReference:true"),'photo-head evidence must record front-facing authority')
 must(photo.includes("emissiveIntensity:.10"),'photo-head must remain readable under mobile scene lighting')
+must(photo.includes('featherPhotoTexture'),'approved photo must use feathered edge blending')
+must(photo.includes('featheredPhotoBlend:true'),'photo-head readiness evidence must report feathered blend')
 
 console.log('BJ MOBILE VISUAL ACCEPTANCE CONTRACT PASS: front-facing head + rounded body + non-blocking labels')
