@@ -27,8 +27,8 @@ export default function StreetVerseReelCaptureOverlay(){
  }
  if(state==='unsupported')return <div aria-label="Reel capture unsupported" style={{position:'fixed',right:18,bottom:100,zIndex:43000,padding:'8px 10px',borderRadius:12,background:'#111d',color:'#fff',font:'800 10px system-ui'}}>REEL • DEVICE CAPTURE UNAVAILABLE</div>
  return <>
-  <button aria-label={state==='recording'?'Stop StreetVerse Reel recording':'Start StreetVerse Reel recording'} onClick={toggle} style={{position:'fixed',right:'max(18px,env(safe-area-inset-right))',bottom:'max(102px,calc(env(safe-area-inset-bottom) + 92px))',zIndex:43000,minWidth:126,minHeight:52,padding:'9px 12px',borderRadius:15,border:'2px solid #ff4f6d',background:state==='recording'?'#8b1026ee':'#180a10ee',color:'#fff',font:'950 12px system-ui',boxShadow:'0 0 20px #ff315755',touchAction:'manipulation'}}>
-   {state==='recording'?'■ STOP REEL • '+seconds+'s':'● REEL CAPTURE'}
+  <button aria-label={state==='recording'?'Stop StreetVerse Reel recording':'Start StreetVerse Reel recording'} onClick={toggle} style={{position:'fixed',top:'max(12px,calc(env(safe-area-inset-top) + 12px))',right:'max(126px,calc(env(safe-area-inset-right) + 126px))',zIndex:43000,minWidth:state==='recording'?88:46,width:state==='recording'?88:46,height:46,padding:'6px',borderRadius:23,border:'2px solid #ff4f6d',background:state==='recording'?'#8b1026ee':'#180a10ee',color:'#fff',font:'950 12px system-ui',boxShadow:'0 0 20px #ff315755',touchAction:'manipulation'}}>
+   {state==='recording'?'■ '+seconds+'s':'🎥'}
   </button>
   {ready&&state==='ready'&&<section aria-label="StreetVerse Reel ready" style={{position:'fixed',inset:12,zIndex:48000,overflow:'auto',padding:14,borderRadius:18,background:'#070c12f7',color:'#fff'}}>
    <h2>REEL READY</h2>
