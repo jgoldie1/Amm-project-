@@ -16,8 +16,6 @@ for(const x of [
 ])if(!profile.includes(x))throw new Error('BJ current reference lock missing: '+x)
 
 for(const x of [
- "assetVersion:'bj-realism-v3'",
- "likenessState:'REFERENCE_LOCKED_PROCEDURAL_V3_VIDEO'",
  "hairstyle:'long-pulled-back-locs'",
  "facialHair:'gray-forward-salt-and-pepper-beard'",
  "wardrobe:'current-video-black-tee-small-gold-pendant'",
@@ -28,7 +26,7 @@ for(const x of [
  "bj-gray-beard-side-left",
  "outfitSlot:'tactical-backpack'",
  "equippedByDefault:false",
-])if(!foundry.includes(x))throw new Error('BJ V3 foundry missing: '+x)
+])if(!foundry.includes(x))throw new Error('BJ current-video continuity missing: '+x)
 
-if(!factory.includes("templateVersion:'bj-realism-v3'"))throw new Error('Character Factory did not promote BJ V3')
-console.log('BJ V3 current-video realism contract: PASS')
+if(!factory.includes("templateVersion:'bj-realism-v4'"))throw new Error('Character Factory did not promote current BJ master')
+console.log('BJ current-video reference continuity contract: PASS')
