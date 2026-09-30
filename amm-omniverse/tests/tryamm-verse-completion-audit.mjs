@@ -69,7 +69,7 @@ for(const token of ['Chicago Time Machine','ENTER ERA','COMPLETE TIME OBJECTIVE'
 for(const token of ['StreetVerse always visible joystick','Drive nearest StreetVerse vehicle','DRIVING • USE JOYSTICK','REEL']){
   assert.ok(shell.includes(token),`StreetVerse phone task missing ${token}`)
 }
-for(const token of ['streetverse-circle-park-reality-layer-v1',"vehicleTraversal:'road-aware-v2'","circleParkRealityLayer:true","nativeHumanoidRigAnimation:true"]){
+for(const token of ['streetverse-circle-park-reality-layer-v2',"vehicleTraversal:'road-aware-v2'","circleParkRealityLayer:true","nativeHumanoidRigAnimation:true"]){
   assert.ok(street.includes(token),`StreetVerse visible/runtime completion marker missing ${token}`)
 }
 for(const token of ['nativeCharacterVisualAuthority:true','nativeCharacterAnimationAuthority:true']){
