@@ -14,7 +14,7 @@
     "security": "node tests/repository-security-scan.mjs && node tests/jacobie-quantum-shield-contract.mjs && node tests/red-hat-sentinel-contract.mjs && node scripts/jacobie-crypto-inventory.mjs ../release-evidence/jacobie-crypto-inventory.json && node tests/tryamm-edge-ddos-contract.mjs && node tests/tryamm-industry-resilience-contract.mjs",
     "provider-gates": "node tests/provider-gates.mjs",
     "readiness": "node tests/production-readiness.mjs && npm run provider-gates",
-    "build": "npm run native:assets && node scripts/repair-streetverse-entry.mjs && node scripts/inject-streetverse-hero-spawn.mjs && npm run smoke && vite build",
+    "build": "npm run typecheck && npm run native:assets && node scripts/repair-streetverse-entry.mjs && node scripts/inject-streetverse-hero-spawn.mjs && vite build",
     "preview": "vite preview",
     "certify:global-weather": "node scripts/certify-global-weather.mjs",
     "typecheck": "tsc --noEmit",
@@ -22,7 +22,7 @@
     "e2e:install": "playwright install chromium",
     "asset:optimize": "gltf-transform optimize",
     "asset:inspect": "gltf-transform inspect",
-    "check": "npm run lint && npm run security && npm run readiness && npm run typecheck && npm run build",
+    "check": "npm run lint && npm run security && npm run readiness && npm run typecheck && npm run smoke && npm run build",
     "native:assets": "node scripts/tryamm-native-asset-foundry.mjs public/generated-assets/native",
     "test:industry-resilience": "node tests/tryamm-industry-resilience-contract.mjs"
   },
