@@ -386,7 +386,7 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
 
 
 function addBJStubbsCharacter(group,x,z,mats){
-  // BJ Stubbs V3 is the first named StreetVerse hero. This procedural pass
+  // BJ Stubbs V4 is the first named StreetVerse hero. This procedural pass
   // establishes stable proportions, hair/beard silhouette and wardrobe so a
   // later authorized photo-matched head can replace the face without replacing
   // gameplay identity, rig names, missions or progression.
@@ -415,6 +415,8 @@ function addBJStubbsCharacter(group,x,z,mats){
   const iris=new THREE.MeshStandardMaterial({name:'bj-iris',color:0x2b1b14,roughness:.28,metalness:0})
   const lipNatural=new THREE.MeshStandardMaterial({name:'bj-lip-natural',color:0x6f3d36,roughness:.46,metalness:0})
   const eyeCatch=new THREE.MeshBasicMaterial({name:'bj-eye-catchlight',color:0xffffff})
+  const skinShadow=new THREE.MeshStandardMaterial({name:'bj-skin-shadow',color:0x5f3929,roughness:.58,metalness:0})
+  const beardMid=new THREE.MeshStandardMaterial({name:'bj-beard-mid-gray',color:0x69635f,roughness:.93,metalness:0})
 
   const skinNames=new Set(['hero-head','jaw','chin','cheek-left','cheek-right','ear-left','ear-right','nose','eyelid-left','eyelid-right','neck','elbow','forearm','hand','finger-detail','clavicle-line'])
   const blackNames=new Set(['hero-torso','hero-layered-jacket','upper-arm'])
@@ -425,6 +427,7 @@ function addBJStubbsCharacter(group,x,z,mats){
     if(object.name==='eye-white-left'||object.name==='eye-white-right')object.material=eyeWhite
     if(object.name==='iris-left'||object.name==='iris-right')object.material=iris
     if(object.name==='hair-close-crop')object.visible=false
+    if(object.name==='finger-detail')object.visible=false
     if(object.name==='hero-holo-collar')object.visible=false
     if(object.name==='hero-undershirt')object.material=charcoalFabric
     if(object.name==='pelvis-shell'||object.name==='thigh'||object.name==='knee'||object.name==='shin')object.material=charcoalFabric
@@ -471,7 +474,12 @@ function addBJStubbsCharacter(group,x,z,mats){
   const noseBridge=new THREE.Mesh(new THREE.CapsuleGeometry(.027,.105,4,10),skin)
   noseBridge.name='bj-nose-bridge';noseBridge.position.set(0,.035,.286);noseBridge.rotation.x=deg(4);headPivot.add(noseBridge)
   const noseTip=new THREE.Mesh(new THREE.SphereGeometry(.052,14,10),skin)
-  noseTip.name='bj-nose-tip';noseTip.position.set(0,-.050,.345);noseTip.scale.set(1.08,.70,.78);headPivot.add(noseTip)
+  noseTip.name='bj-nose-tip';noseTip.position.set(0,-.050,.345);noseTip.scale.set(1.02,.68,.76);headPivot.add(noseTip)
+  for(const side of [-1,1]){
+    const earInner=new THREE.Mesh(new THREE.TorusGeometry(.027,.007,6,12),skinShadow)
+    earInner.name=side<0?'bj-v4-ear-inner-left':'bj-v4-ear-inner-right'
+    earInner.position.set(side*.315,.015,-.010);earInner.rotation.y=deg(90);headPivot.add(earInner)
+  }
   for(const side of [-1,1]){
     const sideBeard=new THREE.Mesh(new THREE.SphereGeometry(.105,16,10),hair)
     sideBeard.name=side<0?'bj-beard-side-left':'bj-beard-side-right'
@@ -482,6 +490,17 @@ function addBJStubbsCharacter(group,x,z,mats){
   }
   const beardChin=new THREE.Mesh(new THREE.SphereGeometry(.145,16,10),hair)
   beardChin.name='bj-beard-chin';beardChin.position.set(0,-.255,.205);beardChin.scale.set(.86,.92,.70);headPivot.add(beardChin)
+
+  for(const side of [-1,1]){
+    const underEye=new THREE.Mesh(new THREE.CapsuleGeometry(.012,.095,3,8),skinShadow)
+    underEye.name=side<0?'bj-under-eye-left':'bj-under-eye-right'
+    underEye.position.set(side*.105,.040,.318);underEye.rotation.z=deg(90);underEye.scale.set(1,.45,.42);headPivot.add(underEye)
+    const beardBlend=new THREE.Mesh(new THREE.SphereGeometry(.092,14,10),beardMid)
+    beardBlend.name=side<0?'bj-beard-blend-left':'bj-beard-blend-right'
+    beardBlend.position.set(side*.155,-.168,.248);beardBlend.scale.set(.72,.92,.52);headPivot.add(beardBlend)
+  }
+  const jawBlend=new THREE.Mesh(new THREE.CapsuleGeometry(.032,.22,4,10),skinShadow)
+  jawBlend.name='bj-jaw-shadow';jawBlend.position.set(0,-.235,.236);jawBlend.rotation.z=deg(90);jawBlend.scale.set(1.65,.45,.45);headPivot.add(jawBlend)
 
   // Pulled-back locs: close crown + swept loc rows + rear tied bundle.
   const locCrown=new THREE.Mesh(new THREE.SphereGeometry(.355,24,14,0,Math.PI*2,0,Math.PI*.48),hair)
@@ -498,6 +517,15 @@ function addBJStubbsCharacter(group,x,z,mats){
   })
   const tie=new THREE.Mesh(new THREE.TorusGeometry(.105,.018,8,20),gold)
   tie.name='bj-loc-tie';tie.rotation.x=deg(90);tie.position.set(0,-.075,-.33);headPivot.add(tie)
+
+  for(const side of [-1,1]){
+    for(let i=0;i<3;i++){
+      const loc=new THREE.Mesh(new THREE.CapsuleGeometry(.024,.94+i*.10,4,8),hair)
+      loc.name='bj-v4-shoulder-loc'
+      loc.position.set(side*(.16+i*.035),-.55-i*.055,-.29-i*.025)
+      loc.rotation.z=side*(.08+i*.02);loc.rotation.x=deg(3);headPivot.add(loc)
+    }
+  }
   for(let i=0;i<6;i++){
     const angle=(i/6)*Math.PI*2
     const strand=new THREE.Mesh(new THREE.CapsuleGeometry(.026,.82+(i%3)*.14,4,8),hair)
@@ -531,6 +559,28 @@ function addBJStubbsCharacter(group,x,z,mats){
   // BJ V3 current-era default: fitted black tee + small pendant. Tactical pieces remain optional outfit slots.
   const currentTee=addBox(spine,'bj-current-tee',[.73,.92,.34],[0,.40,.02],blackFabric,undefined,'character-shirt')
   currentTee.scale.set(.96,1,.92);currentTee.userData={...currentTee.userData,characterId:'bj-stubbs',outfitId:'bj-current-video-tee',equippedByDefault:true,signatureText:'ONLY YAHAVAH CAN JUDGE ME'}
+
+  const teeNeckline=new THREE.Mesh(new THREE.TorusGeometry(.145,.018,8,24,Math.PI),blackFabric)
+  teeNeckline.name='bj-v4-tee-neckline';teeNeckline.rotation.x=deg(90);teeNeckline.position.set(0,.79,.19);spine.add(teeNeckline)
+  const teeHem=addBox(spine,'bj-v4-tee-hem',[.61,.035,.30],[0,-.035,.02],blackFabric,undefined,'character-shirt-hem')
+  teeHem.scale.x=.96
+  for(const side of [-1,1]){
+    const sleeve=new THREE.Mesh(new THREE.CapsuleGeometry(.105,.22,4,10),blackFabric)
+    sleeve.name=side<0?'bj-v4-tee-sleeve-left':'bj-v4-tee-sleeve-right'
+    sleeve.position.set(side*.385,.64,.015);sleeve.rotation.z=side*deg(8);spine.add(sleeve)
+    const arm=group.getObjectByName(side<0?'rig-left-arm':'rig-right-arm')
+    if(arm){
+      const palm=new THREE.Mesh(new THREE.SphereGeometry(.103,16,12),skin)
+      palm.name=side<0?'bj-v4-palm-left':'bj-v4-palm-right';palm.position.set(0,-.91,0);palm.scale.set(.74,1.12,.60);arm.add(palm)
+      const fingerXs=[-.048,-.016,.016,.048]
+      fingerXs.forEach((fx,i)=>{
+        const digit=new THREE.Mesh(new THREE.CapsuleGeometry(.011,.10-(i===0||i===3?.008:0),3,7),skin)
+        digit.name='bj-v4-finger';digit.position.set(fx,-1.015,.018);digit.rotation.z=(i-1.5)*.025;arm.add(digit)
+      })
+      const thumb=new THREE.Mesh(new THREE.CapsuleGeometry(.013,.075,3,7),skin)
+      thumb.name='bj-v4-thumb';thumb.position.set(side<0?.086:-.086,-.965,.035);thumb.rotation.z=side<0?-.62:.62;arm.add(thumb)
+    }
+  }
   const shirtPrintGold=addBox(spine,'bj-shirt-print-yahavah',[.42,.10,.025],[0,.48,.205],gold,undefined,'shirt-print')
   const shirtPrintWhiteTop=addBox(spine,'bj-shirt-print-only',[.32,.045,.026],[0,.58,.207],eyeWhite,undefined,'shirt-print')
   const shirtPrintWhiteBottom=addBox(spine,'bj-shirt-print-judge',[.38,.045,.026],[0,.37,.207],eyeWhite,undefined,'shirt-print')
@@ -555,13 +605,13 @@ function addBJStubbsCharacter(group,x,z,mats){
     displayName:'BJ Stubbs',
     namedCharacter:true,
     era:'current',
-    likenessState:'REFERENCE_LOCKED_PROCEDURAL_V3_VIDEO',
+    likenessState:'REFERENCE_LOCKED_PROCEDURAL_V4_VIDEO',
     role:'Security & Operations',
     affiliation:'Stubbs Family / StreetVerse Security',
     referenceConsistencyLocked:true,
     photoMatchedHead:false,
     characterFactoryCompatible:true,
-    facialDetailPass:'bj-v3-current-video',
+    facialDetailPass:'bj-v4-current-video',
     rigContract:'streetverse-character-dna-v1',
   }
   group.userData={
@@ -569,7 +619,7 @@ function addBJStubbsCharacter(group,x,z,mats){
     characterId:'bj-stubbs',
     displayName:'BJ Stubbs',
     namedCharacter:true,
-    assetVersion:'bj-realism-v3',
+    assetVersion:'bj-realism-v4',
     identityContinuityKey:'bj-stubbs',
     hairstyle:'long-pulled-back-locs',
     facialHair:'gray-forward-salt-and-pepper-beard',
@@ -578,6 +628,10 @@ function addBJStubbsCharacter(group,x,z,mats){
     referenceSource:'user-authorized-current-walking-video',
     silhouetteTarget:'lean-current-bj',
     tacticalOutfitDefault:false,
+    handDetailPass:'five-finger-v1',
+    clothingFitPass:'current-tee-v2',
+    locDetailPass:'long-locs-v2',
+    beardBlendPass:'salt-pepper-v2',
     proceduralPreview:true,
     photoMatchedHead:false,
     characterFactoryCompatible:true,
