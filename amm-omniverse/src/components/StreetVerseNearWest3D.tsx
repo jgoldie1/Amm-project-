@@ -100,6 +100,7 @@ export default function StreetVerseNearWest3D(){
  const [safeZone,setSafeZone]=useState<string|null>(null)
  const [activeMission,setActiveMission]=useState<StreetVerseMission|null>(null)
  const [missionReady,setMissionReady]=useState(false)
+ const [missionStep,setMissionStep]=useState<'talk'|'repair'|'drive'|'deliver'>('talk')
  const [npcReaction,setNpcReaction]=useState<{id:string;reaction:'stagger'|'downed'}|null>(null)
  const drivenPosition=useRef({x:-650,z:700})
  const drivenHeading=useRef(0)
@@ -109,7 +110,7 @@ export default function StreetVerseNearWest3D(){
  const setMove=(x:number,z:number)=>{move.current={x,z}}
  const stopMove=()=>{move.current={x:0,z:0}}
  const senseNearby=(x:number,z:number)=>{
-  if(activeMission){const d=Math.hypot(activeMission.objective.x-x,activeMission.objective.z-z);setMissionReady(prev=>prev===(d<16)?prev:d<16)}
+  if(activeMission&&missionStep==='deliver'){const d=Math.hypot(activeMission.objective.x-x,activeMission.objective.z-z);setMissionReady(prev=>prev===(d<16)?prev:d<16)}
   const protectedArea=(x>-900&&x<-560&&z>500&&z<850)?'UIC CAMPUS SAFE ZONE':(x>-560&&x<-250&&z>500&&z<860)?'MEDICAL DISTRICT SAFE ZONE':null
   setSafeZone(prev=>prev===protectedArea?prev:protectedArea)
   const targets=[
@@ -138,6 +139,9 @@ export default function StreetVerseNearWest3D(){
  }
  const doAction=()=>{
   if(!nearby)return
+  if(activeMission&&missionStep==='talk'&&nearby.kind==='npc'){setMissionStep('repair');window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-step',{detail:{missionId:activeMission.id,step:'talk-complete',targetId:nearby.id}}));return}
+  if(activeMission&&missionStep==='repair'&&nearby.kind==='vehicle'){setMissionStep('drive');window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-step',{detail:{missionId:activeMission.id,step:'repair-complete',vehicleId:nearby.id}}));return}
+  if(activeMission&&missionStep==='drive'&&nearby.kind==='vehicle'){setMissionStep('deliver');setDriving(nearby.id);window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-step',{detail:{missionId:activeMission.id,step:'drive-started',vehicleId:nearby.id}}));return}
   const action=nearby.kind==='npc'?'talk':nearby.kind==='business'?'enter':'enter-vehicle'
   if(nearby.kind==='vehicle')setDriving(nearby.id)
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-action',{detail:{action,target:nearby,source:'near-west-context-action'}}))
@@ -157,7 +161,7 @@ export default function StreetVerseNearWest3D(){
    <button aria-label="Use fictional vehicle weapon" disabled={vehicleAmmo<=0||!!safeZone} onClick={vehicleFire} style={{minHeight:48,borderRadius:12,fontWeight:950}}>{safeZone?'SAFE ZONE':`FIRE • ${vehicleAmmo}`}</button>
   </div>}
   {driving&&<button aria-label="Exit vehicle" onClick={()=>{const p=drivenPosition.current;setPlayerSpawn({x:p.x+3,z:p.z});window.dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-action',{detail:{action:'exit-vehicle',vehicleId:driving,position:p}}));setDriving(null)}} style={{position:'absolute',right:12,top:12,zIndex:22,minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>EXIT VEHICLE</button>}
-  {nearby&&!driving&&<button aria-label="Context action" onClick={doAction} style={{position:'absolute',right:12,bottom:190,zIndex:22,minWidth:162,minHeight:52,padding:'10px 14px',borderRadius:16,fontWeight:950,fontSize:16}}>ACTION • {nearby.kind==='npc'?'TALK':nearby.kind==='business'?'ENTER':'RIDE'}<small style={{display:'block',fontSize:10}}>{nearby.label}</small></button>}
+  {nearby&&!driving&&<button aria-label="Context action" onClick={doAction} style={{position:'absolute',right:12,bottom:190,zIndex:22,minWidth:162,minHeight:52,padding:'10px 14px',borderRadius:16,fontWeight:950,fontSize:16}}>ACTION • {activeMission&&missionStep==='repair'&&nearby.kind==='vehicle'?'REPAIR':activeMission&&missionStep==='drive'&&nearby.kind==='vehicle'?'DRIVE':nearby.kind==='npc'?'TALK':nearby.kind==='business'?'ENTER':'RIDE'}<small style={{display:'block',fontSize:10}}>{nearby.label}</small></button>}
   <div aria-label={driving?'One hand driving controls':'One hand movement controls'} style={{position:'absolute',right:12,bottom:18,zIndex:21,display:'grid',gridTemplateColumns:'54px 54px 54px',gridTemplateRows:'54px 54px 54px',gap:5,touchAction:'none'}}>
    <span/><button aria-label="Walk forward" onPointerDown={()=>setMove(0,driving?-2:-1)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{gridColumn:2,fontSize:24,borderRadius:14}}>▲</button><span/>
    <button aria-label="Walk left" onPointerDown={()=>setMove(driving?-1.4:-1,0)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{fontSize:24,borderRadius:14}}>◀</button>
