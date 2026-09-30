@@ -3,7 +3,8 @@ import {compileNearWestRoadMeshes} from '../data/streetVerseNearWestRoadNetwork'
 import {TAYLOR_STREET_CORRIDOR} from '../data/streetVerseCartesianNeighborhood'
 import {NEAR_WEST_NPCS,NEAR_WEST_TRAFFIC} from '../data/streetVerseNearWestPopulation'
 import CampusVerseCollegeBookBridge from './CampusVerseCollegeBookBridge'
-import {useState} from 'react'
+import {useEffect,useState} from 'react'
+import GreenvilleCampusVerseScene from './GreenvilleCampusVerseScene'
 
 function RoadMeshes(){
  const roads=compileNearWestRoadMeshes()
@@ -35,7 +36,10 @@ function PopulationMeshes(){return <group>
 
 export default function StreetVerseNearWest3D(){
  const [collegeBookOpen,setCollegeBookOpen]=useState(false)
- const travelToGreenville=()=>window.dispatchEvent(new CustomEvent('tryamm:campusverse-travel',{detail:{from:'uic',to:'greenville',character:'Jacobie',source:'streetverse-uic-gateway'}}))
+ const [greenvilleOpen,setGreenvilleOpen]=useState(false)
+ const travelToGreenville=()=>{window.dispatchEvent(new CustomEvent('tryamm:campusverse-travel',{detail:{from:'uic',to:'greenville',character:'Jacobie',source:'streetverse-uic-gateway'}}));setGreenvilleOpen(true)}
+ useEffect(()=>{const open=(e:Event)=>{const d=(e as CustomEvent).detail||{};if(d.to==='greenville')setGreenvilleOpen(true)};window.addEventListener('tryamm:campusverse-travel',open);return()=>window.removeEventListener('tryamm:campusverse-travel',open)},[])
+ if(greenvilleOpen)return <GreenvilleCampusVerseScene onReturn={()=>setGreenvilleOpen(false)}/>
  return <div aria-label="StreetVerse Near West 3D" style={{width:'100%',height:'100%',minHeight:420}}>
   <div style={{position:'absolute',left:12,bottom:18,zIndex:20,display:'grid',gap:7,maxWidth:260}}>
    <button aria-label="Open UIC CollegeBook gateway" onClick={()=>setCollegeBookOpen(v=>!v)} style={{padding:'11px 12px',borderRadius:12,fontWeight:900}}>🎓 UIC • COLLEGEBOOK</button>
