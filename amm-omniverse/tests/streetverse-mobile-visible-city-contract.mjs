@@ -66,7 +66,7 @@ assert.match(world,/activeCircleParkEra==='present'/,'present-day Circle Park mu
 for(const detail of ['circle-park-horizontal-window-band','circle-park-ribbed-concrete-fin','circle-park-1111-lobby-glass','circle-park-1111-entry-canopy','circle-park-entry-drive','circle-park-parking-stripe','circle-park-sidewalk','circle-park-landscape-bed','circle-park-shrub','circle-park-court-fence-post','circle-park-bench-seat','abla-animal-court-heritage-marker-original']){
   assert.match(world,new RegExp(detail),'Circle Park Reality MAX v2 missing visible detail: '+detail)
 }
-assert.match(world,/circleParkAmenityCount:7/,'Circle Park world-ready evidence must report the expanded amenity layer')
+assert.match(world,/circleParkAmenityCount:12/,'Circle Park world-ready evidence must report the current expanded amenity layer')
 assert.match(world,/circleParkStreetAnchorCount:CHICAGO_ROAD_CORRIDORS\.length/,'Circle Park world-ready evidence must report mapped street anchors')
 assert.match(world,/driveActionAlwaysAvailable:true/,'world-ready evidence must certify the permanent phone DRIVE action')
 assert.match(world,/animateNativeHumanoid\(nativeResidentRigs\[i\],true,false,now,i\*\.57,facialDetail\)/,'generated mobile residents must visibly animate with distance-based face detail')
