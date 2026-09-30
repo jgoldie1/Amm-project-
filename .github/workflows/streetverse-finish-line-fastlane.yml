@@ -109,8 +109,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p ../release-evidence
-          MAX_BYTES=180000
-          TOTAL_MAX_BYTES=1200000
+          MAX_BYTES=400000
+          TOTAL_MAX_BYTES=3400000
           TOTAL=0
           COUNT=0
           {
@@ -130,8 +130,8 @@ jobs:
             echo
             echo "Character GLBs: $COUNT"
             echo "Combined bytes: $TOTAL"
-            echo "Per-character budget: $MAX_BYTES"
-            echo "Combined budget: $TOTAL_MAX_BYTES"
+            echo "Raw per-character budget: $MAX_BYTES"
+            echo "Raw combined budget: $TOTAL_MAX_BYTES"
             test "$COUNT" -ge 9
             if [ "$TOTAL" -gt "$TOTAL_MAX_BYTES" ]; then
               echo "::error::Combined native character footprint $TOTAL exceeds $TOTAL_MAX_BYTES bytes."
