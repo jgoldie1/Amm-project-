@@ -56,6 +56,10 @@ export const BJ_STUBBS_CURRENT_REFERENCE_LOCK={
  excludedFromDefault:['beanie','eyeglasses','bulky tactical backpack','oversized tactical jacket'],
  useForCurrentEraConsistency:true,
  photoMatchedHeadStillRequiredForCertifiedLikeness:true,
+ currentProceduralVersion:'bj-realism-v4',
+ mobileFallbackVersion:'bj-v4-mobile',
+ conversationRealism:true,
+ outfitIdentitySeparated:true,
 } as const
 
 export const BJ_STUBBS_ASSET_IDS={
