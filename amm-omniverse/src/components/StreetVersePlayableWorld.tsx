@@ -2,7 +2,6 @@ import {Component,lazy,Suspense,useEffect,useMemo,useState,type ReactNode} from 
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseMobileGameShell from './StreetVerseMobileGameShell'
-import StreetVerseMobileProofDock from './StreetVerseMobileProofDock'
 
 const StreetVerseMobileWorld=lazy(()=>import('./StreetVerseMobileWorld'))
 const StreetVerseLivingWorld=lazy(()=>import('./StreetVerseLivingWorld'))
@@ -16,7 +15,7 @@ function MobileRuntimeGuard({onClose,children}:{onClose:()=>void;children:ReactN
 export default function StreetVersePlayableWorld({onClose}:{onClose:()=>void}){
  const safe=useMemo(shouldUseStreetVerseSafeMode,[])
  const mobile=useMemo(isMobileDevice,[])
- if(safe)return <><StreetVerseWeatherSync/><StreetVerseSafeWorld onClose={onClose}/><StreetVerseMobileGameShell onClose={onClose}/><StreetVerseMobileProofDock/></>
- if(mobile)return <><StreetVerseWeatherSync/><StreetVerseWorldBoundary onClose={onClose}><MobileRuntimeGuard onClose={onClose}><Suspense fallback={<MobileLoading/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense></MobileRuntimeGuard></StreetVerseWorldBoundary><StreetVerseMobileGameShell onClose={onClose}/><StreetVerseMobileProofDock/></>
+ if(safe)return <><StreetVerseWeatherSync/><StreetVerseSafeWorld onClose={onClose}/><StreetVerseMobileGameShell onClose={onClose}/></>
+ if(mobile)return <><StreetVerseWeatherSync/><StreetVerseWorldBoundary onClose={onClose}><MobileRuntimeGuard onClose={onClose}><Suspense fallback={<MobileLoading/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense></MobileRuntimeGuard></StreetVerseWorldBoundary><StreetVerseMobileGameShell onClose={onClose}/></>
  return <><StreetVerseWeatherSync/><StreetVerseWorldBoundary onClose={onClose}><Suspense fallback={<MobileLoading/>}><StreetVerseLivingWorld onClose={onClose}/></Suspense></StreetVerseWorldBoundary></>
 }
