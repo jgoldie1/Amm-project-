@@ -73,7 +73,7 @@ export function requestPhotoMatchUpgrade(detail:{
 
 export const STREETVERSE_CHARACTER_FACTORY={
  templateCharacterId:'bj-stubbs',
- templateVersion:'bj-realism-v2',
+ templateVersion:'bj-realism-v3',
  dnaVersion:'character-dna-v1',
  sameRigForNamedCharacters:true,
  sameDevelopmentRuntimeForNamedCharacters:true,
