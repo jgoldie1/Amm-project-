@@ -7,6 +7,7 @@ import {useEffect,useRef,useState} from 'react'
 import * as THREE from 'three'
 import {STREETVERSE_FUTURE_VEHICLES} from '../data/streetVerseFutureVehicles'
 import StreetVerseFutureVehicleDealer from './StreetVerseFutureVehicleDealer'
+import StreetVerseMyGarage,{type OwnedVehicle} from './StreetVerseMyGarage'
 import {StreetVerseHitFx} from './StreetVerseHitFx'
 import GreenvilleCampusVerseScene from './GreenvilleCampusVerseScene'
 
@@ -87,6 +88,7 @@ export default function StreetVerseNearWest3D(){
  const [collegeBookOpen,setCollegeBookOpen]=useState(false)
  const [greenvilleOpen,setGreenvilleOpen]=useState(false)
  const [dealerOpen,setDealerOpen]=useState(false)
+ const [garageOpen,setGarageOpen]=useState(false)
  const [driving,setDriving]=useState<string|null>(null)
  const [playerSpawn,setPlayerSpawn]=useState({x:-650,z:700})
  const [vehicleAmmo,setVehicleAmmo]=useState(12)
@@ -139,8 +141,11 @@ export default function StreetVerseNearWest3D(){
  useEffect(()=>{const open=(e:Event)=>{const d=(e as CustomEvent).detail||{};if(d.to==='greenville')setGreenvilleOpen(true)};window.addEventListener('tryamm:campusverse-travel',open);return()=>window.removeEventListener('tryamm:campusverse-travel',open)},[])
  if(greenvilleOpen)return <GreenvilleCampusVerseScene onReturn={()=>setGreenvilleOpen(false)}/>
  return <div aria-label="StreetVerse Near West 3D" style={{width:'100%',height:'100%',minHeight:420}}>
-  <button aria-label="Open Future Mobility dealership" onClick={()=>setDealerOpen(true)} style={{position:'absolute',left:12,top:12,zIndex:22,minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🚘 FUTURE MOBILITY • BUY</button>
-  {dealerOpen&&<StreetVerseFutureVehicleDealer onClose={()=>setDealerOpen(false)}/>}
+  <div style={{position:'absolute',left:12,top:12,zIndex:22,display:'flex',gap:6,flexWrap:'wrap'}}>
+   <button aria-label="Open My Garage" onClick={()=>setGarageOpen(true)} style={{minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🏠 MY GARAGE</button>
+   <button aria-label="Open Future Mobility dealership" onClick={()=>setDealerOpen(true)} style={{position:'absolute',left:12,top:12,zIndex:22,minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🚘 FUTURE MOBILITY • BUY</button></div>
+  {dealerOpen&&<StreetVerseFutureVehicleDealer onClose={()=>setDealerOpen(false)}/>} 
+  {garageOpen&&<StreetVerseMyGarage onClose={()=>setGarageOpen(false)} onSpawn={(o:OwnedVehicle)=>{setGarageOpen(false);setDriving(o.vehicleId);window.dispatchEvent(new CustomEvent('tryamm:vehicle-spawn-request',{detail:{ownershipId:o.ownershipId,vehicleId:o.vehicleId,position:playerSpawn}}))}}/>}
   {driving&&<div aria-label="Vehicle action controls" style={{position:'absolute',left:12,top:70,zIndex:23,display:'grid',gap:6,width:170}}>
    <button aria-label="Switch vehicle aim side" onClick={()=>setVehicleAimSide(v=>v==='left'?'right':'left')} style={{minHeight:44,borderRadius:12,fontWeight:900}}>LEAN • {vehicleAimSide.toUpperCase()}</button>
    <button aria-label="Use fictional vehicle weapon" disabled={vehicleAmmo<=0||!!safeZone} onClick={vehicleFire} style={{minHeight:48,borderRadius:12,fontWeight:950}}>{safeZone?'SAFE ZONE':`FIRE • ${vehicleAmmo}`}</button>
