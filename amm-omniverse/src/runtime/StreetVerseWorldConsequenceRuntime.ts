@@ -22,6 +22,7 @@ export type StreetVerseWorldConsequenceState=Readonly<{
  severity:number
  windIntensity:number
  gustIntensity:number
+ windDirection:number
  precipitationIntensity:number
  businessDisruption:number
  trafficDisruption:number
@@ -43,7 +44,7 @@ export function installStreetVerseWorldConsequenceRuntime(characterId='bj-stubbs
  let lastMissionKey=''
  let activeMission:StreetVerseWorldConsequenceMission|null=null
  let state:StreetVerseWorldConsequenceState={
-  incidentId:null,weatherKind:'unavailable',severity:0,windIntensity:0,gustIntensity:0,
+  incidentId:null,weatherKind:'unavailable',severity:0,windIntensity:0,gustIntensity:0,windDirection:0,
   precipitationIntensity:0,businessDisruption:0,trafficDisruption:0,bodyStress:0,activeMission:null,
  }
 
@@ -56,6 +57,7 @@ export function installStreetVerseWorldConsequenceRuntime(characterId='bj-stubbs
   const visual=weatherVisualFromState(weather)
   const windIntensity=clamp01(Number(weather.windSpeed||0)/45)
   const gustIntensity=clamp01(Number(weather.windGusts||0)/65)
+  const windDirection=((Number(weather.windDirection||0)%360)+360)%360
   const precipitationIntensity=clamp01(visual.precipitationIntensity)
   const tempStress=weather.apparentTemperature==null?0:clamp01(Math.abs(Number(weather.apparentTemperature)-68)/55)
   const weatherBase=visual.kind==='storm'?1:visual.kind==='snow'?0.72:visual.kind==='rain'?0.55:visual.kind==='fog'?0.42:visual.kind==='mixed'?0.50:0
@@ -79,7 +81,7 @@ export function installStreetVerseWorldConsequenceRuntime(characterId='bj-stubbs
    customerTrafficMultiplier:Math.max(.45,1-businessDisruption*.48),source:'world-consequence-engine',
   }}))
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-environment-sense',{detail:{
-   kind:visual.kind,severity,windIntensity,gustIntensity,precipitationIntensity,
+   kind:visual.kind,severity,windIntensity,gustIntensity,windDirection,precipitationIntensity,
    hapticIntensity:clamp01(gustIntensity*.6+severity*.35),source:'world-consequence-engine',
   }}))
 
@@ -95,7 +97,7 @@ export function installStreetVerseWorldConsequenceRuntime(characterId='bj-stubbs
    activeMission=null
   }
 
-  state={incidentId,weatherKind:visual.kind,severity,windIntensity,gustIntensity,precipitationIntensity,businessDisruption,trafficDisruption,bodyStress,activeMission}
+  state={incidentId,weatherKind:visual.kind,severity,windIntensity,gustIntensity,windDirection,precipitationIntensity,businessDisruption,trafficDisruption,bodyStress,activeMission}
   publish()
  }
 
