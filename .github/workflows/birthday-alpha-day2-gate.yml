@@ -41,7 +41,7 @@ jobs:
           echo "## StreetVerse Birthday Alpha Day 2" >> "$GITHUB_STEP_SUMMARY"
           echo "Release target: October 2, 2026" >> "$GITHUB_STEP_SUMMARY"
           echo "Priority loop: spawn -> move -> mission -> repair/enter -> drive -> exit -> NPC -> reward -> reel" >> "$GITHUB_STEP_SUMMARY"
-          echo "Today's freeze: Circle Park readability, one-hand controls, mission discoverability, vehicle loop, reels, verse navigation, FaithVerse entry, character-era plumbing." >> "$GITHUB_STEP_SUMMARY"
+          echo "Today's freeze: Circle Park readability, single-layer iPhone HUD, one-hand controls, mission discoverability, vehicle loop, reels, verse navigation, FaithVerse entry, character-era plumbing." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Setup Node 24
         uses: actions/setup-node@v5
@@ -59,7 +59,8 @@ jobs:
           required=(
             "amm-omniverse/src/components/GameVerseHub.tsx"
             "amm-omniverse/src/components/StreetVerseGeoSpawnBridge.tsx"
-            "amm-omniverse/src/components/StreetVerseOneHandRpController.tsx"
+            "amm-omniverse/src/components/StreetVerseMobileGameShell.tsx"
+            "amm-omniverse/src/components/StreetVerseMobileWorld.tsx"
             "amm-omniverse/src/components/StreetVerseVehicleSalvageGarage.tsx"
             "amm-omniverse/src/data/gameVerseReleaseRegistry.ts"
           )
@@ -110,5 +111,6 @@ jobs:
           echo "5. NPC interaction completes mission and awards XP/reward." >> "$GITHUB_STEP_SUMMARY"
           echo "6. Reel capture is visible and usable." >> "$GITHUB_STEP_SUMMARY"
           echo "7. Verse navigation does not dead-end; FaithVerse entry opens." >> "$GITHUB_STEP_SUMMARY"
-          echo "8. No Benny/Construct/LIVE panel blocks core controls." >> "$GITHUB_STEP_SUMMARY"
+          echo "8. No duplicate shell/proof/action overlays or Benny/Construct/LIVE panel blocks core controls." >> "$GITHUB_STEP_SUMMARY"
+          echo "9. Daylight Circle Park and player camera are visibly closer/brighter than the prior mobile build." >> "$GITHUB_STEP_SUMMARY"
           echo "A green CI run is necessary but does not replace this physical-device test." >> "$GITHUB_STEP_SUMMARY"
