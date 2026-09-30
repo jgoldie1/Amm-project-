@@ -9,7 +9,10 @@ import {STREETVERSE_FUTURE_VEHICLES} from '../data/streetVerseFutureVehicles'
 import StreetVerseFutureVehicleDealer from './StreetVerseFutureVehicleDealer'
 import StreetVerseMyGarage,{type OwnedVehicle} from './StreetVerseMyGarage'
 import {StreetVerseHitFx} from './StreetVerseHitFx'
+import {NEAR_WEST_BIRTHDAY_MISSIONS,requestMissionReward,type StreetVerseMission} from '../data/streetVerseBirthdayMissions'
 import GreenvilleCampusVerseScene from './GreenvilleCampusVerseScene'
+
+function MissionMarker({mission}:{mission:StreetVerseMission|null}){if(!mission)return null;return <group position={[mission.objective.x,0,mission.objective.z]}><mesh position={[0,2.5,0]}><cylinderGeometry args={[.7,.7,5,12]}/><meshStandardMaterial color="#f3c84b" emissive="#f3c84b" emissiveIntensity={.5} transparent opacity={.7}/></mesh><mesh position={[0,5.7,0]}><sphereGeometry args={[.9,12,10]}/><meshStandardMaterial color="#fff2a3" emissive="#f3c84b" emissiveIntensity={.8}/></mesh></group>}
 
 function RoadMeshes(){
  const roads=compileNearWestRoadMeshes()
@@ -95,6 +98,8 @@ export default function StreetVerseNearWest3D(){
  const [vehicleAimSide,setVehicleAimSide]=useState<'left'|'right'>('left')
  const [hitFx,setHitFx]=useState<{id:number;position:[number,number,number]}|null>(null)
  const [safeZone,setSafeZone]=useState<string|null>(null)
+ const [activeMission,setActiveMission]=useState<StreetVerseMission|null>(null)
+ const [missionReady,setMissionReady]=useState(false)
  const [npcReaction,setNpcReaction]=useState<{id:string;reaction:'stagger'|'downed'}|null>(null)
  const drivenPosition=useRef({x:-650,z:700})
  const drivenHeading=useRef(0)
@@ -104,6 +109,7 @@ export default function StreetVerseNearWest3D(){
  const setMove=(x:number,z:number)=>{move.current={x,z}}
  const stopMove=()=>{move.current={x:0,z:0}}
  const senseNearby=(x:number,z:number)=>{
+  if(activeMission){const d=Math.hypot(activeMission.objective.x-x,activeMission.objective.z-z);setMissionReady(prev=>prev===(d<16)?prev:d<16)}
   const protectedArea=(x>-900&&x<-560&&z>500&&z<850)?'UIC CAMPUS SAFE ZONE':(x>-560&&x<-250&&z>500&&z<860)?'MEDICAL DISTRICT SAFE ZONE':null
   setSafeZone(prev=>prev===protectedArea?prev:protectedArea)
   const targets=[
@@ -168,7 +174,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><TaylorLots/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
+   <RoadMeshes/><MissionMarker mission={activeMission}/><TaylorLots/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
   </Canvas>
  </div>
 }
