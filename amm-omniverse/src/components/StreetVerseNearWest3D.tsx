@@ -78,8 +78,8 @@ function FutureVehicleMeshes({exclude}:{exclude?:string}){return <group>{STREETV
  </group>
 })}</group>}
 
-function PopulationMeshes(){return <group>
- {NEAR_WEST_NPCS.map((n,i)=><group key={n.id} position={[n.position.x,0,n.position.z]}><mesh position={[0,.9,0]} castShadow><capsuleGeometry args={[.28,.95,4,8]}/><meshStandardMaterial color={i%3===0?'#315b7a':i%3===1?'#704936':'#485b3b'}/></mesh><mesh position={[0,1.75,0]}><sphereGeometry args={[.25,10,8]}/><meshStandardMaterial color="#8f654c"/></mesh></group>)}
+function PopulationMeshes({reaction}:{reaction:{id:string;reaction:'stagger'|'downed'}|null}){return <group>
+ {NEAR_WEST_NPCS.map((n,i)=><group key={n.id} rotation={[0,0,reaction?.id===n.id?(reaction.reaction==='downed'?1.45:.28):0]} position={[n.position.x,0,n.position.z]}><mesh position={[0,.9,0]} castShadow><capsuleGeometry args={[.28,.95,4,8]}/><meshStandardMaterial color={i%3===0?'#315b7a':i%3===1?'#704936':'#485b3b'}/></mesh><mesh position={[0,1.75,0]}><sphereGeometry args={[.25,10,8]}/><meshStandardMaterial color="#8f654c"/></mesh></group>)}
  {NEAR_WEST_TRAFFIC.map((v,i)=><mesh key={v.id} position={[v.position.x,.55,v.position.z]} castShadow><boxGeometry args={[v.kind==='bus'?7:4.2,1.1,v.kind==='bus'?2.4:1.9]}/><meshStandardMaterial color={i%2?'#314c66':'#742f2f'}/></mesh>)}
  </group>}
 
@@ -92,6 +92,8 @@ export default function StreetVerseNearWest3D(){
  const [vehicleAmmo,setVehicleAmmo]=useState(12)
  const [vehicleAimSide,setVehicleAimSide]=useState<'left'|'right'>('left')
  const [hitFx,setHitFx]=useState<{id:number;position:[number,number,number]}|null>(null)
+ const [safeZone,setSafeZone]=useState<string|null>(null)
+ const [npcReaction,setNpcReaction]=useState<{id:string;reaction:'stagger'|'downed'}|null>(null)
  const drivenPosition=useRef({x:-650,z:700})
  const drivenHeading=useRef(0)
  const [nearby,setNearby]=useState<{kind:'npc'|'business'|'vehicle';id:string;label:string;mission?:string}|null>(null)
@@ -100,6 +102,8 @@ export default function StreetVerseNearWest3D(){
  const setMove=(x:number,z:number)=>{move.current={x,z}}
  const stopMove=()=>{move.current={x:0,z:0}}
  const senseNearby=(x:number,z:number)=>{
+  const protectedArea=(x>-900&&x<-560&&z>500&&z<850)?'UIC CAMPUS SAFE ZONE':(x>-560&&x<-250&&z>500&&z<860)?'MEDICAL DISTRICT SAFE ZONE':null
+  setSafeZone(prev=>prev===protectedArea?prev:protectedArea)
   const targets=[
    ...NEAR_WEST_NPCS.map(n=>({kind:'npc' as const,id:n.id,label:n.displayName,mission:n.missionHook,x:n.position.x,z:n.position.z})),
    ...NEAR_WEST_TRAFFIC.map(v=>({kind:'vehicle' as const,id:v.id,label:v.kind==='bus'?'Bus':'Vehicle',x:v.position.x,z:v.position.z})),
@@ -113,7 +117,7 @@ export default function StreetVerseNearWest3D(){
   if(key!==lastNearby.current){lastNearby.current=key;setNearby(next)}
  }
  const vehicleFire=()=>{
-  if(!driving||vehicleAmmo<=0)return
+  if(!driving||vehicleAmmo<=0||safeZone)return
   setVehicleAmmo(a=>Math.max(0,a-1))
   const origin=drivenPosition.current,yaw=drivenHeading.current
   const forward={x:Math.sin(yaw),z:Math.cos(yaw)}
@@ -121,7 +125,7 @@ export default function StreetVerseNearWest3D(){
   const aim={x:forward.x*.45+forward.z*side*.89,z:forward.z*.45-forward.x*side*.89}
   const candidates=NEAR_WEST_NPCS.map(n=>{const dx=n.position.x-origin.x,dz=n.position.z-origin.z,dist=Math.hypot(dx,dz)||1;return {n,dist,dot:(dx/dist)*aim.x+(dz/dist)*aim.z}}).filter(x=>x.dist<38&&x.dot>.86).sort((a,b)=>b.dot-a.dot||a.dist-b.dist)
   const target=candidates[0]?.n
-  if(target){setHitFx({id:Date.now(),position:[target.position.x,1.15,target.position.z]});window.dispatchEvent(new CustomEvent('tryamm:streetverse-npc-hit',{detail:{targetId:target.id,damage:25,source:'fictional-vehicle-gameplay',aimSide:vehicleAimSide}}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-npc-consequence',{detail:{targetId:target.id,reaction:'stagger',missionConsequence:true}}))}
+  if(target){setNpcReaction({id:target.id,reaction:'stagger'});window.setTimeout(()=>setNpcReaction(r=>r?.id===target.id?{id:target.id,reaction:'downed'}:r),420);window.setTimeout(()=>setNpcReaction(r=>r?.id===target.id?null:r),5000);setHitFx({id:Date.now(),position:[target.position.x,1.15,target.position.z]});window.dispatchEvent(new CustomEvent('tryamm:streetverse-npc-hit',{detail:{targetId:target.id,damage:25,source:'fictional-vehicle-gameplay',aimSide:vehicleAimSide}}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-npc-consequence',{detail:{targetId:target.id,reaction:'stagger',missionConsequence:true}}))}
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-action',{detail:{action:'fictional-fire',vehicleId:driving,side:vehicleAimSide,ammoAfter:vehicleAmmo-1,source:'vehicle-gameplay'}}))
  }
  const doAction=()=>{
@@ -139,7 +143,7 @@ export default function StreetVerseNearWest3D(){
   {dealerOpen&&<StreetVerseFutureVehicleDealer onClose={()=>setDealerOpen(false)}/>}
   {driving&&<div aria-label="Vehicle action controls" style={{position:'absolute',left:12,top:70,zIndex:23,display:'grid',gap:6,width:170}}>
    <button aria-label="Switch vehicle aim side" onClick={()=>setVehicleAimSide(v=>v==='left'?'right':'left')} style={{minHeight:44,borderRadius:12,fontWeight:900}}>LEAN • {vehicleAimSide.toUpperCase()}</button>
-   <button aria-label="Use fictional vehicle weapon" disabled={vehicleAmmo<=0} onClick={vehicleFire} style={{minHeight:48,borderRadius:12,fontWeight:950}}>FIRE • {vehicleAmmo}</button>
+   <button aria-label="Use fictional vehicle weapon" disabled={vehicleAmmo<=0||!!safeZone} onClick={vehicleFire} style={{minHeight:48,borderRadius:12,fontWeight:950}}>{safeZone?'SAFE ZONE':`FIRE • ${vehicleAmmo}`}</button>
   </div>}
   {driving&&<button aria-label="Exit vehicle" onClick={()=>{const p=drivenPosition.current;setPlayerSpawn({x:p.x+3,z:p.z});window.dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-action',{detail:{action:'exit-vehicle',vehicleId:driving,position:p}}));setDriving(null)}} style={{position:'absolute',right:12,top:12,zIndex:22,minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>EXIT VEHICLE</button>}
   {nearby&&!driving&&<button aria-label="Context action" onClick={doAction} style={{position:'absolute',right:12,bottom:190,zIndex:22,minWidth:162,minHeight:52,padding:'10px 14px',borderRadius:16,fontWeight:950,fontSize:16}}>ACTION • {nearby.kind==='npc'?'TALK':nearby.kind==='business'?'ENTER':'RIDE'}<small style={{display:'block',fontSize:10}}>{nearby.label}</small></button>}
@@ -159,7 +163,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><TaylorLots/><PopulationMeshes/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
+   <RoadMeshes/><TaylorLots/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
   </Canvas>
  </div>
 }
