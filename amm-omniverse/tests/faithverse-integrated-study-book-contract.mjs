@@ -9,6 +9,7 @@ const hologpt=fs.readFileSync(path.join(root,'src/components/HoloGPTAssistant.ts
 const holoLab=fs.readFileSync(path.join(root,'src/components/HoloLabGateway.tsx'),'utf8')
 const ministry=fs.readFileSync(path.join(root,'src/components/ServantsOfChristMinistry.tsx'),'utf8')
 const reader=fs.readFileSync(path.join(root,'src/components/FaithScriptureReader.tsx'),'utf8')
+const streetverseShell=fs.readFileSync(path.join(root,'src/components/StreetVerseMobileGameShell.tsx'),'utf8')
 
 const requiredLibrary=[
  'ETHIOPIAN_ORTHODOX_CANON_81','oldTestamentCount:46','newTestamentCount:35','total:81',
@@ -41,5 +42,7 @@ for(const token of ['tryamm:hologpt-study-context','setInput(String(detail.promp
 }
 if(!holoLab.includes('integrated FaithVerse HoloBook'))throw new Error('Holo Lab FaithVerse integration missing')
 if(!ministry.includes('OPEN BIBLE STUDY'))throw new Error('Servants of Christ direct Bible-study path missing')
+if(!streetverseShell.includes("/faithverse#reader"))throw new Error('StreetVerse Bible action must open the working FaithVerse reader')
+if(!streetverseShell.includes('Read Ethiopian Bible'))throw new Error('StreetVerse compact tools drawer must visibly expose the Bible')
 
 console.log('FaithVerse integrated study book contract passed')
