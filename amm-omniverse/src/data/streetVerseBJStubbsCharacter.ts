@@ -57,9 +57,14 @@ export const BJ_STUBBS_CURRENT_REFERENCE_LOCK={
  useForCurrentEraConsistency:true,
  photoMatchedHeadStillRequiredForCertifiedLikeness:true,
  currentProceduralVersion:'bj-realism-v4',
+ currentArchitectureVersion:'bj-v5-photo-match-ready',
  mobileFallbackVersion:'bj-v4-mobile',
  conversationRealism:true,
  outfitIdentitySeparated:true,
+ liveMicLipSync:true,
+ spokenDialogueInput:true,
+ replaceableHeadSlot:true,
+ facialMorphReady:true,
 } as const
 
 export const BJ_STUBBS_ASSET_IDS={
