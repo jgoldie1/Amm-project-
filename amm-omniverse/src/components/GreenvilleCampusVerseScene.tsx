@@ -1,5 +1,6 @@
 import {useEffect} from 'react'
 import {JACOBIE_CAMPUS_PATH,CAMPUSVERSE_COLLEGEBOOK_LIBRARY} from '../data/campusVerseUicGreenvilleBridge'
+import IllinoisCampusVerseNetwork from './IllinoisCampusVerseNetwork'
 
 export default function GreenvilleCampusVerseScene({onReturn}:{onReturn:()=>void}){
  useEffect(()=>{window.dispatchEvent(new CustomEvent('tryamm:campusverse-scene-ready',{detail:{campus:'greenville',character:'Jacobie',source:'greenville-campus-scene'}}))},[])
@@ -15,6 +16,7 @@ export default function GreenvilleCampusVerseScene({onReturn}:{onReturn:()=>void
    </div>
    <h2>CollegeBook</h2>
    {books.map(book=><button key={book.id} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:collegebook-open',{detail:book}))} style={{display:'block',width:'100%',margin:'7px 0',padding:12,borderRadius:10,textAlign:'left'}}><strong>{book.title}</strong><small style={{display:'block'}}>{book.subject} • {book.access}</small></button>)}
+   <h2>Illinois University Network</h2><IllinoisCampusVerseNetwork/>
    <h2>Progression</h2><p>{JACOBIE_CAMPUS_PATH.flow.join(' → ')}</p>
   </section>
  </main>
