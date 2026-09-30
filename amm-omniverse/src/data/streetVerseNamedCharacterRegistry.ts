@@ -1,7 +1,11 @@
-import {BJ_STUBBS_CHARACTER,BJ_STUBBS_ASSET_IDS} from './streetVerseBJStubbsCharacter'
+import {BJ_STUBBS_CHARACTER,BJ_STUBBS_ASSET_IDS,BJ_STUBBS_DNA} from './streetVerseBJStubbsCharacter'
 
 export const STREETVERSE_NAMED_CHARACTERS={
  'bj-stubbs':BJ_STUBBS_CHARACTER,
+} as const
+
+export const STREETVERSE_CHARACTER_DNA_REGISTRY={
+ 'bj-stubbs':BJ_STUBBS_DNA,
 } as const
 
 export type StreetVerseNamedCharacterId=keyof typeof STREETVERSE_NAMED_CHARACTERS
@@ -37,4 +41,9 @@ export function announceStreetVerseCharacterReady(detail:{
   identityContinuityKey:character.id,
   source:detail.source,
  }}))
+}
+
+
+export function getStreetVerseCharacterDNA(id:string){
+ return STREETVERSE_CHARACTER_DNA_REGISTRY[id as keyof typeof STREETVERSE_CHARACTER_DNA_REGISTRY]
 }
