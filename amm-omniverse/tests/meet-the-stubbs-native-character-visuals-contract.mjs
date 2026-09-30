@@ -17,6 +17,7 @@ assert.match(district,/faceFill=new THREE\.DirectionalLight/,'family district mu
 assert.match(district,/nativeHumanoidRig\(visual\)/,'loaded character GLBs must cache hierarchical rig pivots')
 assert.match(district,/animateNativeHumanoid\(nativeCharacterRigs\[i\],walk,run,t,i\*\.61,facialDetail\)/,'visible GLBs must animate from gameplay movement state with facial LOD')
 assert.match(district,/nativeCharacterRealismV4Max:true/,'family world must report realism-v4-max authority')
+assert.match(district,/nativeCharacterStyleStack:'v4-max\+m5'/,'family world must report M5 style layers on the v4-max rig')
 assert.match(district,/nativeCharacterBlinking:true/,'family world must report native blinking')
 assert.match(district,/nativeCharacterBreathing:true/,'family world must report native breathing')
 assert.match(district,/nativeCharacterEyeSaccade:true/,'family world must report eye movement')
