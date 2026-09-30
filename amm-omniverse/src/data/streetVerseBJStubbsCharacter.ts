@@ -1,3 +1,5 @@
+import {createStreetVerseCharacterDNA} from './streetVerseCharacterDNA'
+
 export type StreetVerseCharacterEra='current'|'younger'
 export type StreetVerseCharacterStatus='PREVIEW'|'REFERENCE_LOCKED'|'LIKELINESS_PASS'|'CERTIFIED'
 
@@ -47,3 +49,59 @@ export const BJ_STUBBS_ASSET_IDS={
  current:'streetverse-hero-player',
  futurePhotoMatched:'streetverse-bj-stubbs-photomatched',
 } as const
+
+
+export const BJ_STUBBS_DNA=createStreetVerseCharacterDNA({
+ id:'bj-stubbs',
+ displayName:'BJ Stubbs',
+ role:'Security & Operations',
+ identityContinuityKey:'bj-stubbs',
+ body:{
+  heightScale:1.02,
+  shoulderScale:1.08,
+  torsoScale:1.03,
+  legScale:1.00,
+  headScale:[.94,1.09,.91],
+ },
+ face:{
+  jawWidth:1.08,
+  chinWidth:1.04,
+  cheekWidth:1.02,
+  eyeSpacing:1.00,
+  eyeScale:.98,
+  noseWidth:1.03,
+  noseLength:1.05,
+  browHeight:1.00,
+  mouthWidth:1.02,
+ },
+ appearance:{
+  skinHex:0x70462f,
+  hairHex:0x17110f,
+  eyeHex:0x2b1b14,
+  hairPreset:'pulled-back-locs',
+  facialHairPreset:'full-beard',
+  grayHairAmount:.12,
+ },
+ wardrobe:{
+  primary:'black layered streetwear',
+  secondary:'charcoal tactical layer',
+  accent:'gold',
+  signatureItems:['gold chain / pendant','black tactical backpack','ONLY YAHAVAH CAN JUDGE ME tee'],
+ },
+ animation:{
+  idleStyle:'guarded',
+  walkStyle:'grounded',
+  talkStyle:'calm',
+  facial:['blink','eye-saccade','jaw-talk','brow-focus','subtle-smile'],
+ },
+ eras:[
+  {id:'current',label:'Current BJ',assetId:'streetverse-hero-player'},
+  {id:'younger',label:'Younger BJ'},
+ ],
+ progression:{
+  skillTracks:['Protection','Undercover','Intelligence','Logistics','Leadership','Mentoring'],
+  outfitUnlocks:true,
+  eraUnlocks:true,
+  relationshipProgression:true,
+ },
+})
