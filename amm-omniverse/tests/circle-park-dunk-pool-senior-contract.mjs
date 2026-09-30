@@ -1,0 +1,10 @@
+import fs from 'node:fs'
+const d=fs.readFileSync(new URL('../src/data/circleParkBasketballGame.ts',import.meta.url),'utf8')
+const p=fs.readFileSync(new URL('../src/data/streetVersePoolActivities.ts',import.meta.url),'utf8')
+const s=fs.readFileSync(new URL('../src/data/circleParkSeniorCommons.ts',import.meta.url),'utf8')
+const w=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
+for(const x of ['ft-one-hand-1985','ft-double-clutch-1988','homageOnly:true'])if(!d.includes(x))throw new Error('missing '+x)
+for(const x of ['free-swim','lap-race','relay','water-basketball','pool-party-live','oneButtonLaneAssist:true'])if(!p.includes(x))throw new Error('missing '+x)
+for(const x of ['Senior Commons','Roosevelt-side entry','oral-history','tech-help','oneHandControls:true'])if(!s.includes(x))throw new Error('missing '+x)
+for(const x of ['StreetVersePoolGame','CircleParkSeniorCommonsPanel','circle-park-senior-commons-glass','tryamm:pool-open','tryamm:senior-commons-open'])if(!w.includes(x))throw new Error('missing '+x)
+console.log('Circle Park dunk pool senior hub contract: PASS')
