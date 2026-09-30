@@ -61,7 +61,6 @@ jobs:
             "amm-omniverse/src/components/StreetVerseGeoSpawnBridge.tsx"
             "amm-omniverse/src/components/StreetVerseMobileGameShell.tsx"
             "amm-omniverse/src/components/StreetVerseMobileWorld.tsx"
-            "amm-omniverse/src/components/StreetVerseVehicleSalvageGarage.tsx"
             "amm-omniverse/src/data/gameVerseReleaseRegistry.ts"
           )
           for f in "${required[@]}"; do
