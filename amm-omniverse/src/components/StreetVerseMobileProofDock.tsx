@@ -5,7 +5,7 @@ import HoloMobilityLauncher from './HoloMobilityLauncher'
 type Phase='idle'|'repair'|'drive'|'npc'|'ready'|'complete'
 
 export default function StreetVerseMobileProofDock(){
-  const [open,setOpen]=useState(true)
+  const [open,setOpen]=useState(false)
   const [reelOpen,setReelOpen]=useState(false)
   const [phase,setPhase]=useState<Phase>('idle')
   const [repairStep,setRepairStep]=useState(0)
@@ -64,7 +64,7 @@ export default function StreetVerseMobileProofDock(){
   },[phase,repaired,doorOpenedOnce,enteredOnce,inVehicle,exitedOnce,npcInteracted,repairStep])
 
   const startMission=()=>{
-    setPhase('repair');setRepairStep(0);setRepaired(false);setInVehicle(false);setDoorsOpen(false);setDoorOpenedOnce(false);setEnteredOnce(false);setExitedOnce(false);setNpcInteracted(false);setReward('');setOpen(true)
+    setPhase('repair');setRepairStep(0);setRepaired(false);setInVehicle(false);setDoorsOpen(false);setDoorOpenedOnce(false);setEnteredOnce(false);setExitedOnce(false);setNpcInteracted(false);setReward('');setOpen(false)
     const detail={id:missionId,missionId,title:'FIRST RIDE • REPAIR & DRIVE',objective:'Follow the gold beacon to the orange Repair Mission Car. Repair it, enter, drive, exit, interact with a Chicago NPC, then complete the mission.',source:'iphone-proof-dock',waypoint:{x:-8,z:50,label:'Repair Mission Car'}}
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail}))
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail}))
@@ -99,10 +99,11 @@ export default function StreetVerseMobileProofDock(){
     setReelOpen(true)
   }
 
-  const btn:React.CSSProperties={minHeight:48,borderRadius:13,border:'1px solid #4fe3ff88',background:'#071722ee',color:'#fff',font:'900 10px system-ui',padding:'8px 10px',touchAction:'manipulation'}
+  const btn:React.CSSProperties={minHeight:46,borderRadius:13,border:'1px solid #4fe3ff88',background:'#071722ee',color:'#fff',font:'900 10px system-ui',padding:'8px 10px',touchAction:'manipulation'}
+  const dockLabel=phase==='idle'?'MISSION • START':phase==='complete'?'MISSION • DONE':phase==='drive'?'MISSION • DRIVE':phase==='npc'?'MISSION • TALK':phase==='ready'?'MISSION • FINISH':'MISSION • STEP'
   return <>
-    <button aria-label="Open StreetVerse iPhone action dock" onClick={()=>setOpen(v=>!v)} style={{position:'fixed',left:'50%',transform:'translateX(-50%)',bottom:'max(14px,env(safe-area-inset-bottom))',zIndex:43000,minWidth:142,height:48,borderRadius:24,border:'2px solid #ffd75e',background:'#211800ee',color:'#fff',font:'950 11px system-ui',boxShadow:'0 0 18px #ffd75e55',touchAction:'manipulation'}}>ACTIONS • {phase==='idle'?'START':phase==='complete'?'DONE':'MISSION'}</button>
-    {open&&<section aria-label="StreetVerse iPhone mission actions" style={{position:'fixed',left:'50%',transform:'translateX(-50%)',bottom:'max(70px,calc(env(safe-area-inset-bottom) + 70px))',zIndex:42990,width:'min(94vw,430px)',padding:11,borderRadius:18,border:'1px solid #4fe3ff88',background:'#030b12f4',color:'#fff',boxShadow:'0 20px 60px #000d'}}>
+    <button aria-label="Open StreetVerse iPhone mission dock" aria-expanded={open} onClick={()=>setOpen(v=>!v)} style={{position:'fixed',left:'50%',transform:'translateX(-50%)',bottom:'max(14px,env(safe-area-inset-bottom))',zIndex:43000,minWidth:112,height:42,borderRadius:21,border:'1px solid #ffd75e',background:'#181306e8',color:'#fff',font:'950 10px system-ui',boxShadow:'0 0 12px #ffd75e33',touchAction:'manipulation'}}>{dockLabel}</button>
+    {open&&<section aria-label="StreetVerse iPhone mission actions" style={{position:'fixed',left:'50%',transform:'translateX(-50%)',bottom:'max(64px,calc(env(safe-area-inset-bottom) + 64px))',zIndex:42990,width:'min(92vw,360px)',maxHeight:'52vh',overflowY:'auto',padding:10,borderRadius:16,border:'1px solid #4fe3ff88',background:'#030b12f2',color:'#fff',boxShadow:'0 18px 46px #000d'}}>
       <div style={{display:'flex',justifyContent:'space-between',gap:8,alignItems:'center'}}><div><b style={{fontSize:12}}>IPHONE FIRST JOURNEY</b><div style={{fontSize:9,color:'#ffd75e',marginTop:3}}>{status}</div></div><button onClick={()=>setOpen(false)} style={{...btn,minWidth:44}}>×</button></div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7,marginTop:9}}>
         {phase==='idle'?<button onClick={startMission} style={{...btn,gridColumn:'1 / -1',borderColor:'#8effb7'}}>START MISSION</button>:<>
