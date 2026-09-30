@@ -42,10 +42,7 @@ const v = (x: number, y: number, z: number): StreetVerseVec3 => ({ x, y, z });
 
 /**
  * Birthday-alpha Taylor Street seed.
- *
- * These coordinates are deterministic local gameplay coordinates, not claims
- * about surveyed parcel boundaries. Verified real-world business/address data
- * can be attached later without changing the gameplay coordinate contract.
+ * Coordinates are deterministic local gameplay coordinates, not surveyed parcels.
  */
 export const TAYLOR_STREET_CORRIDOR: StreetVerseCorridor = {
   id: "chicago-taylor-alpha",
@@ -86,29 +83,38 @@ export const TAYLOR_STREET_CORRIDOR: StreetVerseCorridor = {
       grid: { column: 1, row: 0 },
       origin: v(100, 0, 0),
       sizeMeters: { width: 100, depth: 80 },
-      businesses: [\n        {\n          id: "taylor-alpha-storefront-02",\n          blockId: "taylor-alpha-block-01",\n          displayName: "Taylor Street Business 02",\n          category: "food",\n          streetAddressLabel: "Taylor Street",\n          lot: v(20, 0, 18),\n          entrance: { id: "door-taylor-alpha-02", exterior: v(20, 0, 8), interiorId: "interior-taylor-alpha-02", interiorSpawn: v(0, 0, 4), exitReturn: v(20, 0, 10) },\n          deliveryPickup: v(25, 0, 12),\n          missionIds: ["taylor-food-delivery-intro"],\n        },\n      ],
+      businesses: [
+        {
+          id: "taylor-alpha-storefront-02",
+          blockId: "taylor-alpha-block-01",
+          displayName: "Taylor Street Business 02",
+          category: "food",
+          streetAddressLabel: "Taylor Street",
+          lot: v(20, 0, 18),
+          entrance: {
+            id: "door-taylor-alpha-02",
+            exterior: v(20, 0, 8),
+            interiorId: "interior-taylor-alpha-02",
+            interiorSpawn: v(0, 0, 4),
+            exitReturn: v(20, 0, 10),
+          },
+          deliveryPickup: v(25, 0, 12),
+          missionIds: ["taylor-food-delivery-intro"],
+        },
+      ],
     },
   ],
 };
 
-export function worldPosition(
-  block: StreetVerseBlock,
-  local: StreetVerseVec3,
-): StreetVerseVec3 {
-  return v(
-    block.origin.x + local.x,
-    block.origin.y + local.y,
-    block.origin.z + local.z,
-  );
+export function worldPosition(block: StreetVerseBlock, local: StreetVerseVec3): StreetVerseVec3 {
+  return v(block.origin.x + local.x, block.origin.y + local.y, block.origin.z + local.z);
 }
 
 export function getStreetVerseBlock(blockId: string): StreetVerseBlock | undefined {
   return TAYLOR_STREET_CORRIDOR.blocks.find((block) => block.id === blockId);
 }
 
-export function getStreetVerseBusiness(
-  businessId: string,
-): StreetVerseBusinessLot | undefined {
+export function getStreetVerseBusiness(businessId: string): StreetVerseBusinessLot | undefined {
   for (const block of TAYLOR_STREET_CORRIDOR.blocks) {
     const business = block.businesses.find((candidate) => candidate.id === businessId);
     if (business) return business;
