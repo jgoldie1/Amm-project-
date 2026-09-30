@@ -20,6 +20,34 @@ const PROCEDURAL_FACE_PARTS=new Set([
   'bj-full-beard','bj-moustache','bj-gray-chin-panel','bj-beard-gray-fleck'
 ])
 
+function featherPhotoTexture(source:THREE.Texture){
+  const image=source.image as CanvasImageSource|undefined
+  if(!image)return source
+  const canvas=document.createElement('canvas')
+  canvas.width=256;canvas.height=256
+  const ctx=canvas.getContext('2d',{willReadFrequently:true})
+  if(!ctx)return source
+  ctx.clearRect(0,0,256,256)
+  ctx.drawImage(image,0,0,256,256)
+  const pixels=ctx.getImageData(0,0,256,256)
+  const d=pixels.data
+  for(let y=0;y<256;y++)for(let x=0;x<256;x++){
+    const nx=(x-128)/(256*.49)
+    const ny=(y-132)/(256*.53)
+    const ellipse=nx*nx+ny*ny
+    const edge=THREE.MathUtils.clamp((1.08-ellipse)/.22,0,1)
+    const forehead=THREE.MathUtils.clamp((y-2)/22,0,1)
+    const chin=THREE.MathUtils.clamp((254-y)/20,0,1)
+    d[(y*256+x)*4+3]=Math.round(255*edge*forehead*chin)
+  }
+  ctx.putImageData(pixels,0,0)
+  const feathered=new THREE.CanvasTexture(canvas)
+  feathered.colorSpace=THREE.SRGBColorSpace
+  feathered.anisotropy=4
+  feathered.needsUpdate=true
+  return feathered
+}
+
 export type BJPhotoMatchedHeadHandle={
   mesh:THREE.Mesh
   ready:Promise<boolean>
@@ -73,17 +101,19 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
         if(disposed){texture.dispose();resolve(false);return}
         texture.colorSpace=THREE.SRGBColorSpace
         texture.anisotropy=4
-        material.map=texture
-        material.emissiveMap=texture
+        const feathered=featherPhotoTexture(texture)
+        material.map=feathered
+        material.emissiveMap=feathered
         material.opacity=1
         material.needsUpdate=true
+        if(feathered!==texture)texture.dispose()
         hero.traverse(object=>{
           if(object===mesh||!PROCEDURAL_FACE_PARTS.has(object.name))return
           hidden.push({object,visible:object.visible})
           object.visible=false
         })
         hero.userData={...hero.userData,photoMatchedHeadActive:true,photoMatchedAssetId:BJ_PHOTOMATCH_ASSET.id,photoReferenceTextureAuthority:true}
-        window.dispatchEvent(new CustomEvent('tryamm:bj-photomatched-head-ready',{detail:{characterId:'bj-stubbs',assetId:BJ_PHOTOMATCH_ASSET.id,active3DMesh:true,approvedReferencePixels:true,frontFacingReference:true,proceduralFaceHidden:true,certifiedLikeness:false}}))
+        window.dispatchEvent(new CustomEvent('tryamm:bj-photomatched-head-ready',{detail:{characterId:'bj-stubbs',assetId:BJ_PHOTOMATCH_ASSET.id,active3DMesh:true,approvedReferencePixels:true,frontFacingReference:true,featheredPhotoBlend:true,proceduralFaceHidden:true,certifiedLikeness:false}}))
         resolve(true)
       },
       undefined,
