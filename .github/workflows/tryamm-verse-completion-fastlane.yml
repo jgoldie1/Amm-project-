@@ -1,0 +1,221 @@
+name: TRYAMM Verse Completion Fastlane
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "amm-omniverse/src/**"
+      - "amm-omniverse/tests/**"
+      - "amm-omniverse/scripts/**"
+      - ".github/workflows/tryamm-verse-completion-fastlane.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tryamm-verse-fastlane-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verse-routing-cta:
+    name: Verse routes + carousel CTAs
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Audit every canonical Verse route and CTA
+        run: |
+          set -euo pipefail
+          node tests/tryamm-verse-completion-audit.mjs
+          node tests/mobile-navigation-carousel-repair-contract.mjs
+          node tests/holo-carousel-real-destinations-contract.mjs
+          node tests/canonical-navigation-owner-contract.mjs
+
+  faithverse:
+    name: FaithVerse Bible + study + Holo Lab + ministry
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Verify readable Bible and integrated study tasks
+        run: |
+          set -euo pipefail
+          node tests/faithverse-integrated-study-book-contract.mjs
+          node tests/production-bible-foundation-contract.mjs
+          node tests/production-bible-persistence-contract.mjs
+          grep -q "LOAD CHAPTER" src/components/FaithScriptureReader.tsx
+          grep -q "READ ALOUD" src/components/FaithScriptureReader.tsx
+          grep -q "OPEN HOLO LAB" src/components/FaithHoloBook.tsx
+          grep -q "OPEN SERVANTS OF CHRIST" src/components/FaithHoloBook.tsx
+
+  streetverse-playable:
+    name: StreetVerse — move + drive + mission + reward + Reel
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Verify the playable phone journey
+        run: |
+          set -euo pipefail
+          node tests/streetverse-mobile-control-reliability-contract.mjs
+          node tests/streetverse-unified-mobile-controls-contract.mjs
+          node tests/streetverse-vehicle-access-contract.mjs
+          node tests/streetverse-vehicle-control-contract.mjs
+          node tests/streetverse-iphone-first-journey-contract.mjs
+          node tests/streetverse-iphone-player-journey-contract.mjs
+          node tests/streetverse-mobile-mission-completion-bridge-contract.mjs
+          node tests/streetverse-authoritative-reward-contract.mjs
+          node tests/streetverse-mission-reel-handoff-contract.mjs
+          node tests/streetverse-reel-return-to-world-contract.mjs
+
+  world-character-reality:
+    name: Circle Park + generated world + character quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Generate current native GLBs
+        run: npm run native:assets
+      - name: Verify Circle Park and character visual authority
+        run: |
+          set -euo pipefail
+          node tests/tryamm-native-asset-foundry-contract.mjs
+          node tests/streetverse-mobile-visible-city-contract.mjs
+          node tests/streetverse-chicago-grid-reality-contract.mjs
+          node tests/streetverse-character-scale-contract.mjs
+          node tests/meet-the-stubbs-native-character-visuals-contract.mjs
+          node tests/streetverse-chicago-visual-pass-3-contract.mjs
+          node tests/streetverse-chicago-traffic-life-pass-4-contract.mjs
+          node tests/streetverse-chicago-identity-interaction-pass-5-contract.mjs
+          node tests/streetverse-chicago-pedestrian-routines-pass-6-contract.mjs
+      - name: Enforce phone-safe character asset budget
+        shell: bash
+        run: |
+          set -euo pipefail
+          MAX=450000
+          TOTAL=0
+          COUNT=0
+          while read -r file; do
+            bytes="$(stat -c %s "$file")"
+            test "$bytes" -le "$MAX"
+            TOTAL=$((TOTAL+bytes))
+            COUNT=$((COUNT+1))
+          done < <(find public/generated-assets/native/kit -maxdepth 1 -type f \( -name 'resident-archetype-*.glb' -o -name 'streetverse-hero-player.glb' \) | sort)
+          test "$COUNT" -ge 9
+          test "$TOTAL" -le 3800000
+          echo "Native character GLBs: $COUNT / $TOTAL bytes"
+
+  time-machine-and-network:
+    name: Time Machine + Servants of Christ network tasks
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Verify immersive/time/network CTAs
+        run: |
+          set -euo pipefail
+          grep -q "ENTER ERA" src/runtime/StreetVerseChicagoTimeMachineMissionsRuntime.ts
+          grep -q "COMPLETE TIME OBJECTIVE" src/runtime/StreetVerseChicagoTimeMachineMissionsRuntime.ts
+          grep -q "tryamm:time-machine-enter" src/runtime/StreetVerseChicagoTimeMachineMissionsRuntime.ts
+          grep -q "tryamm:mission-completed" src/runtime/StreetVerseChicagoTimeMachineMissionsRuntime.ts
+          grep -q "OPEN BIBLE STUDY" src/components/ServantsOfChristMinistry.tsx
+          grep -q "OPEN FAITH CHRONO LAB" src/components/HoloLabGateway.tsx
+
+  mobile-focus-and-build:
+    name: Mobile focus + accessibility + production compile
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: One-hand/accessibility/mobile navigation contracts
+        run: |
+          set -euo pipefail
+          node tests/streetverse-one-hand-integration-contract.mjs
+          node tests/accessibility-handedness-intent-contract.mjs
+          node tests/mobile-navigation-carousel-repair-contract.mjs
+          node tests/streetverse-core-gameplay-dock-contract.mjs
+      - name: Typecheck + production Vite compile
+        run: |
+          npm run typecheck
+          npm run native:assets
+          node scripts/repair-streetverse-entry.mjs
+          node scripts/inject-streetverse-hero-spawn.mjs
+          npx vite build
+
+  completion-green:
+    name: Verse Completion GREEN
+    needs:
+      - verse-routing-cta
+      - faithverse
+      - streetverse-playable
+      - world-character-reality
+      - time-machine-and-network
+      - mobile-focus-and-build
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce all six finish lanes
+        env:
+          ROUTES: ${{ needs.verse-routing-cta.result }}
+          FAITH: ${{ needs.faithverse.result }}
+          STREET: ${{ needs.streetverse-playable.result }}
+          WORLD: ${{ needs.world-character-reality.result }}
+          TIME: ${{ needs.time-machine-and-network.result }}
+          MOBILE: ${{ needs.mobile-focus-and-build.result }}
+        run: |
+          printf '%-34s %s\n' "Verse routes + CTAs" "$ROUTES"
+          printf '%-34s %s\n' "FaithVerse" "$FAITH"
+          printf '%-34s %s\n' "StreetVerse playable" "$STREET"
+          printf '%-34s %s\n' "World + characters" "$WORLD"
+          printf '%-34s %s\n' "Time Machine + ministry" "$TIME"
+          printf '%-34s %s\n' "Mobile focus + build" "$MOBILE"
+          test "$ROUTES" = success
+          test "$FAITH" = success
+          test "$STREET" = success
+          test "$WORLD" = success
+          test "$TIME" = success
+          test "$MOBILE" = success
+          echo "TRYAMM VERSE COMPLETION FASTLANE GREEN"
