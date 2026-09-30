@@ -9,7 +9,7 @@ const MODES:LabMode[]=[
   {id:'core',label:'Holo Core Lab',description:'Exercise the canonical Holo Core services, profiles and backend contracts.','route':'/holo-core','gate':'BETA'},
   {id:'services',label:'Holo Services Lab',description:'Test Holo Search, Ride, Delivery, Logistics, Advertising, Lingo, Guardian and Builder workflows.','route':'/holo-services','gate':'BETA'},
   {id:'worlds',label:'Immersive World Lab',description:'Test shared world state, portals, avatars and 2D/3D fallback behavior.','route':'/immersive-worlds','gate':'BETA'},
-  {id:'faith-chrono',label:'Faith Chrono · Ethiopian Bible Lab',description:'Launch source-grounded Bible-world reconstruction, Galilee fishing, scripture-linked study, prayer/reflection and saved StreetVerse return portals through the existing Chrono runtime.','route':'/ethiopian-bible','gate':'SOURCE'},
+  {id:'faith-chrono',label:'Faith Chrono · Ethiopian Bible Lab',description:'Launch the integrated FaithVerse HoloBook: Ethiopian Orthodox 81-book canon metadata, TRYAMM 88-book curriculum, KJV/1611 comparison, Strong’s study, Hebrew/Paleo-script learning and source-grounded immersive reconstruction.','route':'/ethiopian-bible','gate':'SOURCE'},
   {id:'engine',label:'Quantum / Holographic Engine Lab',description:'Exercise simulation, holographic overlays and sandbox-only experimental systems without silently promoting regulated actions.','route':'/quantum-engine','gate':'SANDBOX'},
   {id:'media',label:'Holo Media Lab',description:'Test Holo Music, Holo Video, Reel creation and network publishing surfaces.','route':'/holo-music','gate':'RIGHTS'},
 ]

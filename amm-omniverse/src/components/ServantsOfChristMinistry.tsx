@@ -25,6 +25,7 @@ export default function ServantsOfChristMinistry(){
         <article style={card}><h2>💝 Giving</h2><p>Verified ministries can receive donations through their own verified payment/accounting destination. A donation is never shown as tax-deductible unless that treatment is verified.</p><strong>PAYMENT PROVIDER: GATED</strong></article>
         <article style={card}><h2>🤝 Ministry Services</h2><p>Ministries may also receive payment for clearly identified services where lawful. Service payments are tracked separately from charitable donations and are not labeled tax-deductible.</p><strong>DONATION / SERVICE SPLIT: ENFORCED</strong></article>
         <article style={card}><h2>📺 Sermons & LIVE</h2><p>Published teachings and verified ministry livestreams can connect to captions, translation, panels, community events and All American Network programming.</p><a href="/live" style={button}>OPEN TRYAMM LIVE</a></article>
+        <article style={card}><h2>📖 FaithVerse HoloBook</h2><p>Open the Ethiopian-canon study library, KJV reader, Strong’s lane, Hebrew/Paleo-script lessons and Holo Lab teaching tools.</p><a href="/ethiopian-bible" style={button}>OPEN BIBLE STUDY</a></article>
         <article style={card}><h2>🏙 StreetVerse</h2><p>Faith/community missions and the Servants of Christ Charity Cup can connect to StreetVerse without claiming any unverified physical location.</p><a href="/streetverse" style={button}>OPEN STREETVERSE</a></article>
       </section>
 
