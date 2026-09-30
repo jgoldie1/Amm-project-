@@ -37,6 +37,48 @@ test.describe('StreetVerse iPhone visual evidence', () => {
     expect(canvasBox?.width || 0).toBeGreaterThan(250);
     expect(canvasBox?.height || 0).toBeGreaterThan(250);
 
+    const toolsButton = page.getByRole('button', { name: '☰ TOOLS' });
+    await expect(toolsButton).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Read Ethiopian Bible' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Open Chicago Time Machine' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Open Holographic LIVE from StreetVerse' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Open Holographic PK Battle from StreetVerse' })).toHaveCount(0);
+
+    const essentialControls = [
+      joystick,
+      drive,
+      toolsButton,
+      page.getByRole('button', { name: 'StreetVerse mission choices' }),
+      page.getByRole('button', { name: 'StreetVerse smart action' }),
+      page.getByRole('button', { name: 'Exit StreetVerse' }),
+    ];
+    const boxes = (await Promise.all(essentialControls.map(async locator => {
+      await expect(locator).toBeVisible();
+      return locator.boundingBox();
+    }))).filter((box): box is NonNullable<typeof box> => Boolean(box));
+
+    const viewportArea = 390 * 844;
+    const summedControlArea = boxes.reduce((sum, box) => sum + box.width * box.height, 0);
+    expect(summedControlArea / viewportArea).toBeLessThan(0.24);
+
+    const overlaps = (a: NonNullable<typeof boxes[number]>, b: NonNullable<typeof boxes[number]>) =>
+      Math.max(0, Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x)) *
+      Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y));
+    for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++){
+      expect(overlaps(boxes[i],boxes[j])).toBeLessThan(120);
+    }
+
+    await toolsButton.click();
+    const toolsDrawer = page.getByRole('dialog', { name: 'StreetVerse tools drawer' });
+    await expect(toolsDrawer).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Read Ethiopian Bible' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Open Chicago Time Machine' })).toBeVisible();
+    const drawerBox = await toolsDrawer.boundingBox();
+    expect((drawerBox?.width || 0)).toBeLessThanOrEqual(370);
+    expect((drawerBox?.height || 0)).toBeLessThan(410);
+    await page.getByRole('button', { name: 'Close StreetVerse tools' }).click();
+    await expect(toolsDrawer).toHaveCount(0);
+
     await page.waitForTimeout(2500);
     await page.screenshot({
       path: testInfo.outputPath('streetverse-circle-park-iphone-on-foot.png'),
