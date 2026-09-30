@@ -2,9 +2,13 @@ import {useEffect,useState} from 'react'
 import {STREETVERSE_RESOURCE_NETWORK,requestResourcePassportReward,type StreetVerseResourceCategory} from '../data/streetVerseResourceNetwork'
 import {STREETVERSE_RESOURCE_PASSPORT_KEY} from '../runtime/StreetVerseResourcePassportRuntime'
 
+function readUsed(){
+ try{return new Set<StreetVerseResourceCategory>(JSON.parse(localStorage.getItem(STREETVERSE_RESOURCE_PASSPORT_KEY)||'[]'))}
+ catch{return new Set<StreetVerseResourceCategory>()}
+}
 export default function StreetVerseResourcePassport({onClose}:{onClose:()=>void}){
- const [used,setUsed]=useState<Set<StreetVerseResourceCategory>>(()=>new Set())
- useEffect(()=>{const handlers=Object.entries(STREETVERSE_RESOURCE_EVENTS).map(([event,category])=>{const fn=()=>setUsed(prev=>{const next=new Set(prev);next.add(category);return next});window.addEventListener(event,fn);return[event,fn] as const});return()=>handlers.forEach(([event,fn])=>window.removeEventListener(event,fn))},[])
+ const [used,setUsed]=useState<Set<StreetVerseResourceCategory>>(readUsed)
+ useEffect(()=>{const sync=(e:Event)=>{const d=(e as CustomEvent<{used?:StreetVerseResourceCategory[]}>).detail||{};setUsed(new Set(d.used||[]))};window.addEventListener('tryamm:resource-passport-updated',sync);return()=>window.removeEventListener('tryamm:resource-passport-updated',sync)},[])
  const all=STREETVERSE_RESOURCE_NETWORK.length,done=used.size,next=STREETVERSE_RESOURCE_NETWORK.find(x=>!used.has(x.id))
  return <section aria-label="StreetVerse Resource Passport" style={{position:'fixed',inset:12,zIndex:47000,overflow:'auto',padding:14,borderRadius:18,background:'#07151cf5',color:'#fff'}}>
   <button onClick={onClose} style={{minHeight:44,borderRadius:12,fontWeight:900}}>← GAME</button>
