@@ -1,13 +1,31 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('StreetVerse visual evidence', () => {
-  test('mobile Circle Park controls and driving are visibly rendered', async ({ page }, testInfo) => {
+test.use({
+  userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_7_16 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6.2 Mobile/15E148 Safari/604.1',
+  viewport: { width: 390, height: 844 },
+  deviceScaleFactor: 2,
+  isMobile: true,
+  hasTouch: true,
+  launchOptions: {
+    args: ['--use-angle=swiftshader', '--enable-webgl', '--ignore-gpu-blocklist'],
+  },
+});
+
+test.describe('StreetVerse iPhone visual evidence', () => {
+  test('Circle Park controls and driving are visibly rendered in the 3D iPhone path', async ({ page }, testInfo) => {
+    await page.addInitScript(() => {
+      try {
+        Object.defineProperty(navigator, 'hardwareConcurrency', { configurable: true, get: () => 8 });
+        Object.defineProperty(navigator, 'deviceMemory', { configurable: true, get: () => 8 });
+      } catch {}
+    });
+
     await page.goto('/streetverse', { waitUntil: 'domcontentloaded', timeout: 45_000 });
     await expect(page.locator('#root')).toBeAttached();
     await expect(page.locator('#root')).not.toBeEmpty();
 
     const canvas = page.locator('canvas').first();
-    await expect(canvas).toBeVisible({ timeout: 20_000 });
+    await expect(canvas).toBeVisible({ timeout: 25_000 });
 
     const joystick = page.getByLabel('StreetVerse always visible joystick');
     await expect(joystick).toBeVisible({ timeout: 20_000 });
@@ -21,7 +39,7 @@ test.describe('StreetVerse visual evidence', () => {
 
     await page.waitForTimeout(2500);
     await page.screenshot({
-      path: testInfo.outputPath('streetverse-circle-park-mobile-on-foot.png'),
+      path: testInfo.outputPath('streetverse-circle-park-iphone-on-foot.png'),
       fullPage: true,
     });
 
@@ -35,7 +53,7 @@ test.describe('StreetVerse visual evidence', () => {
 
     await page.waitForTimeout(1200);
     await page.screenshot({
-      path: testInfo.outputPath('streetverse-circle-park-mobile-driving.png'),
+      path: testInfo.outputPath('streetverse-circle-park-iphone-driving.png'),
       fullPage: true,
     });
 
