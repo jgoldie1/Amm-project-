@@ -15,3 +15,18 @@ export const CIRCLE_PARK_BASKETBALL={
 } as const
 export type CircleParkBasketballMove=keyof typeof CIRCLE_PARK_BASKETBALL.moves
 export const requestBasketballReward=(detail:Record<string,unknown>)=>window.dispatchEvent(new CustomEvent('tryamm:circle-park-basketball-reward-request',{detail:{...detail,serverValidate:true}}))
+
+
+export const CIRCLE_PARK_DUNK_STYLES=[
+ {id:'power-two-hand',label:'Two-Hand Power',makeModifier:.06,staminaCost:1,highlight:1},
+ {id:'tomahawk-one-hand',label:'One-Hand Tomahawk',makeModifier:.02,staminaCost:2,highlight:2},
+ {id:'windmill',label:'Windmill',makeModifier:-.04,staminaCost:3,highlight:3},
+ {id:'reverse',label:'Reverse',makeModifier:-.02,staminaCost:2,highlight:2},
+ {id:'360',label:'360',makeModifier:-.07,staminaCost:4,highlight:4},
+ {id:'double-clutch',label:'Double-Clutch',makeModifier:-.05,staminaCost:3,highlight:3},
+ {id:'self-alley-oop',label:'Self Alley-Oop',makeModifier:-.08,staminaCost:4,highlight:4},
+ {id:'teammate-alley-oop',label:'Teammate Alley-Oop',makeModifier:-.06,staminaCost:3,highlight:4},
+ {id:'off-backboard-alley-oop',label:'Off-Backboard Alley-Oop',makeModifier:-.10,staminaCost:5,highlight:5},
+ {id:'reverse-windmill',label:'Reverse Windmill',makeModifier:-.11,staminaCost:5,highlight:5},
+] as const
+export type CircleParkDunkStyleId=typeof CIRCLE_PARK_DUNK_STYLES[number]['id']
