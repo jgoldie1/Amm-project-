@@ -7,3 +7,14 @@ export const STREETVERSE_FUTURE_VEHICLES:readonly StreetVerseFutureVehicle[]=[
  {id:'sv-guardian-utility-01',name:'Guardian Utility',kind:'armored-utility',spawn:{x:-400,y:0,z:720},speed:31,handling:.62,seats:4,missionHooks:['utility-rescue','storm-supply-run'],visual:{body:'#514b3e',accent:'#59d7e8',wheel:'#171717'}},
  {id:'sv-vector-shuttle-01',name:'Vector Cyber Shuttle',kind:'cyber-shuttle',spawn:{x:-300,y:0,z:700},speed:39,handling:.78,seats:4,missionHooks:['future-taxi','campus-shuttle'],visual:{body:'#c7a57e',accent:'#e45454',wheel:'#171717'}},
 ]
+
+
+export type StreetVerseVehicleListing=Readonly<{vehicleId:string;price:number;currency:'SV_CREDITS';stock:number;dealer:'tryamm-future-mobility';delivery:'player-garage';tradable:boolean}>
+export const STREETVERSE_FUTURE_VEHICLE_LISTINGS:readonly StreetVerseVehicleListing[]=[
+ {vehicleId:'sv-aurora-hyper-01',price:185000,currency:'SV_CREDITS',stock:8,dealer:'tryamm-future-mobility',delivery:'player-garage',tradable:true},
+ {vehicleId:'sv-orbit-bike-01',price:72000,currency:'SV_CREDITS',stock:12,dealer:'tryamm-future-mobility',delivery:'player-garage',tradable:true},
+ {vehicleId:'sv-guardian-utility-01',price:128000,currency:'SV_CREDITS',stock:10,dealer:'tryamm-future-mobility',delivery:'player-garage',tradable:true},
+ {vehicleId:'sv-vector-shuttle-01',price:110000,currency:'SV_CREDITS',stock:10,dealer:'tryamm-future-mobility',delivery:'player-garage',tradable:true},
+]
+/** Client requests only. Server must validate listing, authoritative price, balance, stock and ownership before ledger debit + garage grant. */
+export const requestFutureVehiclePurchase=(vehicleId:string)=>window.dispatchEvent(new CustomEvent('tryamm:vehicle-purchase-request',{detail:{vehicleId,dealer:'tryamm-future-mobility'}}))
