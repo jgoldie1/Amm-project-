@@ -11,6 +11,7 @@ import StreetVerseMyGarage,{type OwnedVehicle} from './StreetVerseMyGarage'
 import {StreetVerseHitFx} from './StreetVerseHitFx'
 import StreetVerseLiveRpPanel from './StreetVerseLiveRpPanel'
 import StreetVerseCreatorGrowthPanel from './StreetVerseCreatorGrowthPanel'
+import StreetVerseDiscordPanel from './StreetVerseDiscordPanel'
 import {NEAR_WEST_BIRTHDAY_MISSIONS,requestMissionReward,type StreetVerseMission} from '../data/streetVerseBirthdayMissions'
 import GreenvilleCampusVerseScene from './GreenvilleCampusVerseScene'
 
@@ -96,6 +97,7 @@ export default function StreetVerseNearWest3D(){
  const [garageOpen,setGarageOpen]=useState(false)
  const [liveRpOpen,setLiveRpOpen]=useState(false)
  const [creatorGrowthOpen,setCreatorGrowthOpen]=useState(false)
+ const [discordOpen,setDiscordOpen]=useState(false)
  const [driving,setDriving]=useState<string|null>(null)
  const [playerSpawn,setPlayerSpawn]=useState({x:-650,z:700})
  const [vehicleAmmo,setVehicleAmmo]=useState(12)
@@ -156,10 +158,12 @@ export default function StreetVerseNearWest3D(){
  if(greenvilleOpen)return <GreenvilleCampusVerseScene onReturn={()=>setGreenvilleOpen(false)}/>
  return <div aria-label="StreetVerse Near West 3D" style={{width:'100%',height:'100%',minHeight:420}}>
   <div style={{position:'absolute',left:12,top:12,zIndex:22,display:'flex',gap:6,flexWrap:'wrap'}}>
+   <button aria-label="Open Quantum Discord" onClick={()=>setDiscordOpen(true)} style={{minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>💬 QUANTUM DISCORD</button>
    <button aria-label="Open StreetVerse creator pass" onClick={()=>setCreatorGrowthOpen(true)} style={{minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🌍 CREATOR PASS</button>
    <button aria-label="Open StreetVerse LIVE RP" onClick={()=>setLiveRpOpen(true)} style={{minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🔴 LIVE • PK</button>
    <button aria-label="Open My Garage" onClick={()=>setGarageOpen(true)} style={{minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🏠 MY GARAGE</button>
    <button aria-label="Open Future Mobility dealership" onClick={()=>setDealerOpen(true)} style={{position:'absolute',left:12,top:12,zIndex:22,minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🚘 FUTURE MOBILITY • BUY</button></div>
+  {discordOpen&&<StreetVerseDiscordPanel onClose={()=>setDiscordOpen(false)}/>}
   {creatorGrowthOpen&&<StreetVerseCreatorGrowthPanel onClose={()=>setCreatorGrowthOpen(false)}/>}
   {liveRpOpen&&<StreetVerseLiveRpPanel onClose={()=>setLiveRpOpen(false)}/>}
   {dealerOpen&&<StreetVerseFutureVehicleDealer onClose={()=>setDealerOpen(false)}/>} 
