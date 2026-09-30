@@ -102,7 +102,7 @@ export function installStreetVerseThreatResponseRuntime(
 
   window.dispatchEvent(new CustomEvent('tryamm:character-affect-set',{detail:{
    characterId,
-   affect:threat.active?(threatLevel>.68?'afraid':'serious'):'calm',
+   affect:threat.active?(threatLevel>.68?'afraid':'surprised'):'calm',
    source:'threat-response',
   }}))
   window.dispatchEvent(new CustomEvent('tryamm:character-body-state-change-request',{detail:{
