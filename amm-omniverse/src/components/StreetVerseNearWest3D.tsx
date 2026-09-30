@@ -88,6 +88,8 @@ export default function StreetVerseNearWest3D(){
  const [dealerOpen,setDealerOpen]=useState(false)
  const [driving,setDriving]=useState<string|null>(null)
  const [playerSpawn,setPlayerSpawn]=useState({x:-650,z:700})
+ const [vehicleAmmo,setVehicleAmmo]=useState(12)
+ const [vehicleAimSide,setVehicleAimSide]=useState<'left'|'right'>('left')
  const drivenPosition=useRef({x:-650,z:700})
  const [nearby,setNearby]=useState<{kind:'npc'|'business'|'vehicle';id:string;label:string;mission?:string}|null>(null)
  const lastNearby=useRef('')
@@ -107,6 +109,11 @@ export default function StreetVerseNearWest3D(){
   const key=next?next.kind+':'+next.id:''
   if(key!==lastNearby.current){lastNearby.current=key;setNearby(next)}
  }
+ const vehicleFire=()=>{
+  if(!driving||vehicleAmmo<=0)return
+  setVehicleAmmo(a=>Math.max(0,a-1))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-action',{detail:{action:'fictional-fire',vehicleId:driving,side:vehicleAimSide,ammoAfter:vehicleAmmo-1,source:'vehicle-gameplay'}}))
+ }
  const doAction=()=>{
   if(!nearby)return
   const action=nearby.kind==='npc'?'talk':nearby.kind==='business'?'enter':'enter-vehicle'
@@ -120,6 +127,10 @@ export default function StreetVerseNearWest3D(){
  return <div aria-label="StreetVerse Near West 3D" style={{width:'100%',height:'100%',minHeight:420}}>
   <button aria-label="Open Future Mobility dealership" onClick={()=>setDealerOpen(true)} style={{position:'absolute',left:12,top:12,zIndex:22,minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🚘 FUTURE MOBILITY • BUY</button>
   {dealerOpen&&<StreetVerseFutureVehicleDealer onClose={()=>setDealerOpen(false)}/>}
+  {driving&&<div aria-label="Vehicle action controls" style={{position:'absolute',left:12,top:70,zIndex:23,display:'grid',gap:6,width:170}}>
+   <button aria-label="Switch vehicle aim side" onClick={()=>setVehicleAimSide(v=>v==='left'?'right':'left')} style={{minHeight:44,borderRadius:12,fontWeight:900}}>LEAN • {vehicleAimSide.toUpperCase()}</button>
+   <button aria-label="Use fictional vehicle weapon" disabled={vehicleAmmo<=0} onClick={vehicleFire} style={{minHeight:48,borderRadius:12,fontWeight:950}}>FIRE • {vehicleAmmo}</button>
+  </div>}
   {driving&&<button aria-label="Exit vehicle" onClick={()=>{const p=drivenPosition.current;setPlayerSpawn({x:p.x+3,z:p.z});window.dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-action',{detail:{action:'exit-vehicle',vehicleId:driving,position:p}}));setDriving(null)}} style={{position:'absolute',right:12,top:12,zIndex:22,minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>EXIT VEHICLE</button>}
   {nearby&&!driving&&<button aria-label="Context action" onClick={doAction} style={{position:'absolute',right:12,bottom:190,zIndex:22,minWidth:162,minHeight:52,padding:'10px 14px',borderRadius:16,fontWeight:950,fontSize:16}}>ACTION • {nearby.kind==='npc'?'TALK':nearby.kind==='business'?'ENTER':'RIDE'}<small style={{display:'block',fontSize:10}}>{nearby.label}</small></button>}
   <div aria-label={driving?'One hand driving controls':'One hand movement controls'} style={{position:'absolute',right:12,bottom:18,zIndex:21,display:'grid',gridTemplateColumns:'54px 54px 54px',gridTemplateRows:'54px 54px 54px',gap:5,touchAction:'none'}}>
