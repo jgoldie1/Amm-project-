@@ -17,6 +17,7 @@ assert.match(district,/faceFill=new THREE\.DirectionalLight/,'family district mu
 assert.match(district,/nativeHumanoidRig\(visual\)/,'loaded character GLBs must cache hierarchical rig pivots')
 assert.match(district,/animateNativeHumanoid\(nativeCharacterRigs\[i\],walk,run,t,i\*\.61,facialDetail\)/,'visible GLBs must animate from gameplay movement state with facial LOD')
 assert.match(district,/nativeCharacterRealismV4Max:true/,'family world must report realism-v4-max authority')
+assert.match(district,/nativeCharacterStyleStack:'v4-max\+m5'/,'family world must report M5 style layers on the v4-max rig')
 assert.match(district,/nativeCharacterBlinking:true/,'family world must report native blinking')
 assert.match(district,/nativeCharacterBreathing:true/,'family world must report native breathing')
 assert.match(district,/nativeCharacterEyeSaccade:true/,'family world must report eye movement')
@@ -29,6 +30,6 @@ assert.match(district,/generatedOriginals:true,realPersonLikeness:false/,'charac
 
 for(const key of ['residentD','residentE','residentF','residentG','residentH'])assert.ok(catalog.includes(`${key}:{id:'resident-archetype-${key.slice(-1).toLowerCase()}'`),`missing runtime resident asset ${key}`)
 for(const id of ['resident-archetype-d','resident-archetype-e','resident-archetype-f','resident-archetype-g','resident-archetype-h'])assert.ok(foundry.includes(`'${id}'`),`missing foundry archetype ${id}`)
-for(const detail of ['wardrobe-jacket','hair-cap-accessory','wardrobe-chain','facial-hair','hair-loc-crown','hair-curl-base','hero-layered-jacket','finger-detail'])assert.ok(foundry.includes(detail),`missing generated character variety detail ${detail}`)
+for(const detail of ['m5-varsity-jacket','m5-layered-jacket','hair-cap-accessory','m5-chain','facial-hair','hair-loc-crown','hair-curl-base','hero-layered-jacket','finger-detail','m5-sneaker-upper','m5-set-apart-tunic'])assert.ok(foundry.includes(detail),`missing generated character variety detail ${detail}`)
 
 console.log('Meet the Stubbs native character visual authority contract: PASS')

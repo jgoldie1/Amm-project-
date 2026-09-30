@@ -39,6 +39,7 @@ assert.match(world,/nativeBuildingReplacementCount:nativeBuildings\.length/,'wor
 assert.match(world,/residentA','residentB','residentC','residentD','residentE','residentF','residentG','residentH'/,'mobile crowd must cycle through all eight native resident variants')
 assert.match(world,/nativeHumanoidRigAnimation:true/,'mobile world-ready evidence must report native humanoid rig animation')
 assert.match(world,/nativeCharacterRealismV4Max:true/,'mobile world-ready evidence must report realism-v4-max characters')
+assert.match(world,/nativeCharacterStyleStack:'v4-max\+m5'/,'mobile world-ready evidence must report M5 style layers on the v4-max rig')
 assert.match(world,/nativeHumanoidBlinking:true/,'mobile world-ready evidence must report generated-character blinking')
 assert.match(world,/nativeHumanoidBreathing:true/,'mobile world-ready evidence must report generated-character breathing')
 assert.match(world,/nativeHumanoidEyeSaccade:true/,'mobile world-ready evidence must report generated-character eye movement')
