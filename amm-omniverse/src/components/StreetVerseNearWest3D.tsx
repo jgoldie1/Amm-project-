@@ -34,7 +34,7 @@ function TaylorLots(){
 
 
 type MoveState={x:number;z:number}
-function NearWestPlayer({move,onPosition}:{move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void}){
+function NearWestPlayer({move,onPosition,hidden=false,startPosition}:{move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void;hidden?:boolean;startPosition?:{x:number;z:number}}){
  const ref=useRef<THREE.Group>(null)
  const {camera}=useThree()
  useFrame((_,dt)=>{
@@ -47,14 +47,24 @@ function NearWestPlayer({move,onPosition}:{move:React.MutableRefObject<MoveState
   camera.position.lerp(target,Math.min(1,dt*4));camera.lookAt(p.position.x,1.2,p.position.z)
   onPosition(p.position.x,p.position.z)
  })
- return <group ref={ref} position={[-650,0,700]}>
+ return <group ref={ref} visible={!hidden} position={[startPosition?.x??-650,0,startPosition?.z??700]}>
   <mesh position={[0,.95,0]} castShadow><capsuleGeometry args={[.34,1.05,5,10]}/><meshStandardMaterial color="#172c55"/></mesh>
   <mesh position={[0,1.9,0]} castShadow><sphereGeometry args={[.28,12,10]}/><meshStandardMaterial color="#79513c"/></mesh>
  </group>
 }
 
 
-function FutureVehicleMeshes(){return <group>{STREETVERSE_FUTURE_VEHICLES.map(v=>{
+
+function DrivenVehicle({vehicleId,move,onPosition}:{vehicleId:string;move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void}){
+ const v=STREETVERSE_FUTURE_VEHICLES.find(x=>x.id===vehicleId)
+ const ref=useRef<THREE.Group>(null);const {camera}=useThree()
+ useFrame((_,dt)=>{const g=ref.current;if(!g||!v)return;const throttle=-move.current.z;const steer=move.current.x;g.rotation.y-=steer*v.handling*1.45*dt;const forward=new THREE.Vector3(Math.sin(g.rotation.y),0,Math.cos(g.rotation.y));g.position.addScaledVector(forward,throttle*v.speed*dt);g.position.x=THREE.MathUtils.clamp(g.position.x,-1180,560);g.position.z=THREE.MathUtils.clamp(g.position.z,380,1160);const chase=new THREE.Vector3(g.position.x-forward.x*11,g.position.y+6,g.position.z-forward.z*11);camera.position.lerp(chase,Math.min(1,dt*4));camera.lookAt(g.position.x,g.position.y+1,g.position.z);onPosition(g.position.x,g.position.z)})
+ if(!v)return null
+ const long=v.kind==='armored-utility'?5.6:v.kind==='cyber-shuttle'?5.2:v.kind==='hypercar'?4.8:2.7
+ return <group ref={ref} position={[v.spawn.x,0,v.spawn.z]}><mesh castShadow position={[0,.9,0]}><boxGeometry args={[long,v.kind==='ring-bike'?.75:1.15,v.kind==='ring-bike'?1.1:2.15]}/><meshStandardMaterial color={v.visual.body} metalness={.7} roughness={.25}/></mesh><mesh position={[0,.8,-1.1]}><boxGeometry args={[long*.65,.12,.08]}/><meshStandardMaterial color={v.visual.accent} emissive={v.visual.accent} emissiveIntensity={.5}/></mesh></group>
+}
+
+function FutureVehicleMeshes({exclude}:{exclude?:string}){return <group>{STREETVERSE_FUTURE_VEHICLES.filter(v=>v.id!==exclude).map(v=>{
  const long=v.kind==='armored-utility'?5.6:v.kind==='cyber-shuttle'?5.2:v.kind==='hypercar'?4.8:2.7
  const high=v.kind==='armored-utility'?1.55:v.kind==='ring-bike'?.75:1.05
  return <group key={v.id} position={[v.spawn.x,0,v.spawn.z]}>
@@ -77,6 +87,8 @@ export default function StreetVerseNearWest3D(){
  const [greenvilleOpen,setGreenvilleOpen]=useState(false)
  const [dealerOpen,setDealerOpen]=useState(false)
  const [driving,setDriving]=useState<string|null>(null)
+ const [playerSpawn,setPlayerSpawn]=useState({x:-650,z:700})
+ const drivenPosition=useRef({x:-650,z:700})
  const [nearby,setNearby]=useState<{kind:'npc'|'business'|'vehicle';id:string;label:string;mission?:string}|null>(null)
  const lastNearby=useRef('')
  const move=useRef<MoveState>({x:0,z:0})
@@ -108,7 +120,7 @@ export default function StreetVerseNearWest3D(){
  return <div aria-label="StreetVerse Near West 3D" style={{width:'100%',height:'100%',minHeight:420}}>
   <button aria-label="Open Future Mobility dealership" onClick={()=>setDealerOpen(true)} style={{position:'absolute',left:12,top:12,zIndex:22,minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🚘 FUTURE MOBILITY • BUY</button>
   {dealerOpen&&<StreetVerseFutureVehicleDealer onClose={()=>setDealerOpen(false)}/>}
-  {driving&&<button aria-label="Exit vehicle" onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-action',{detail:{action:'exit-vehicle',vehicleId:driving}}));setDriving(null)}} style={{position:'absolute',right:12,top:12,zIndex:22,minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>EXIT VEHICLE</button>}
+  {driving&&<button aria-label="Exit vehicle" onClick={()=>{const p=drivenPosition.current;setPlayerSpawn({x:p.x+3,z:p.z});window.dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-action',{detail:{action:'exit-vehicle',vehicleId:driving,position:p}}));setDriving(null)}} style={{position:'absolute',right:12,top:12,zIndex:22,minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>EXIT VEHICLE</button>}
   {nearby&&!driving&&<button aria-label="Context action" onClick={doAction} style={{position:'absolute',right:12,bottom:190,zIndex:22,minWidth:162,minHeight:52,padding:'10px 14px',borderRadius:16,fontWeight:950,fontSize:16}}>ACTION • {nearby.kind==='npc'?'TALK':nearby.kind==='business'?'ENTER':'RIDE'}<small style={{display:'block',fontSize:10}}>{nearby.label}</small></button>}
   <div aria-label={driving?'One hand driving controls':'One hand movement controls'} style={{position:'absolute',right:12,bottom:18,zIndex:21,display:'grid',gridTemplateColumns:'54px 54px 54px',gridTemplateRows:'54px 54px 54px',gap:5,touchAction:'none'}}>
    <span/><button aria-label="Walk forward" onPointerDown={()=>setMove(0,driving?-2:-1)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{gridColumn:2,fontSize:24,borderRadius:14}}>▲</button><span/>
@@ -126,7 +138,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><TaylorLots/><PopulationMeshes/><FutureVehicleMeshes/><NearWestPlayer move={move} onPosition={senseNearby}/>
+   <RoadMeshes/><TaylorLots/><PopulationMeshes/><FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}}/>}
   </Canvas>
  </div>
 }
