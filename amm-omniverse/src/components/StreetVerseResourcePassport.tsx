@@ -1,5 +1,6 @@
 import {useEffect,useState} from 'react'
-import {STREETVERSE_RESOURCE_EVENTS,STREETVERSE_RESOURCE_NETWORK,requestResourcePassportReward,type StreetVerseResourceCategory} from '../data/streetVerseResourceNetwork'
+import {STREETVERSE_RESOURCE_NETWORK,requestResourcePassportReward,type StreetVerseResourceCategory} from '../data/streetVerseResourceNetwork'
+import {STREETVERSE_RESOURCE_PASSPORT_KEY} from '../runtime/StreetVerseResourcePassportRuntime'
 
 export default function StreetVerseResourcePassport({onClose}:{onClose:()=>void}){
  const [used,setUsed]=useState<Set<StreetVerseResourceCategory>>(()=>new Set())
