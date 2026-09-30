@@ -1,0 +1,114 @@
+name: Birthday Alpha Day 2 Gate
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/**'
+      - 'lib/**'
+      - 'public/**'
+      - 'test/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/birthday-alpha-day2-gate.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: birthday-alpha-day2-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  birthday-alpha:
+    name: StreetVerse Oct 2 playable slice
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    env:
+      TZ: America/Chicago
+      RELEASE_DEADLINE: '2026-10-02'
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Release scope contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "## StreetVerse Birthday Alpha Day 2" >> "$GITHUB_STEP_SUMMARY"
+          echo "Release target: October 2, 2026" >> "$GITHUB_STEP_SUMMARY"
+          echo "Priority loop: spawn -> move -> mission -> repair/enter -> drive -> exit -> NPC -> reward -> reel" >> "$GITHUB_STEP_SUMMARY"
+          echo "Today's freeze: Circle Park readability, one-hand controls, mission discoverability, vehicle loop, reels, verse navigation, FaithVerse entry, character-era plumbing." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            amm-omniverse/package-lock.json
+
+      - name: Require birthday playable systems
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            "amm-omniverse/src/components/GameVerseHub.tsx"
+            "amm-omniverse/src/components/StreetVerseGeoSpawnBridge.tsx"
+            "amm-omniverse/src/components/StreetVerseOneHandRpController.tsx"
+            "amm-omniverse/src/components/StreetVerseVehicleSalvageGarage.tsx"
+            "amm-omniverse/src/data/gameVerseReleaseRegistry.ts"
+          )
+          for f in "${required[@]}"; do
+            test -f "$f" || { echo "::error::Missing required birthday-alpha system: $f"; exit 1; }
+          done
+
+      - name: Root install and checks
+        run: |
+          npm ci
+          npm run check
+
+      - name: Omniverse install and checks
+        working-directory: amm-omniverse
+        run: |
+          npm ci
+          npm run check
+          npm run sync:audit
+
+      - name: Mobile UI collision scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -RInE 'position:[[:space:]]*fixed|z-index|zIndex' amm-omniverse/src/components --include='*.tsx' > /tmp/mobile-overlays.txt; then
+            echo "### Mobile overlay audit" >> "$GITHUB_STEP_SUMMARY"
+            echo "Overlay declarations found; review on physical iPhone before release." >> "$GITHUB_STEP_SUMMARY"
+            head -80 /tmp/mobile-overlays.txt >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No obvious fixed overlay declarations found." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Character timeline data safety
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Character reference policy: source photos remain reference inputs; generated runtime assets must use stable repo/CDN paths, not temporary chat paths." >> "$GITHUB_STEP_SUMMARY"
+          echo "Era model contract: one character identity may map to younger/current visual variants without duplicating progression identity." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Birthday release summary
+        if: always()
+        shell: bash
+        run: |
+          echo "### Physical iPhone acceptance test" >> "$GITHUB_STEP_SUMMARY"
+          echo "1. Spawn visibly in Circle Park/ABLA." >> "$GITHUB_STEP_SUMMARY"
+          echo "2. Move comfortably one-handed." >> "$GITHUB_STEP_SUMMARY"
+          echo "3. Mission marker is obvious and starts a mission." >> "$GITHUB_STEP_SUMMARY"
+          echo "4. Repair/open/enter/drive/exit vehicle is obvious." >> "$GITHUB_STEP_SUMMARY"
+          echo "5. NPC interaction completes mission and awards XP/reward." >> "$GITHUB_STEP_SUMMARY"
+          echo "6. Reel capture is visible and usable." >> "$GITHUB_STEP_SUMMARY"
+          echo "7. Verse navigation does not dead-end; FaithVerse entry opens." >> "$GITHUB_STEP_SUMMARY"
+          echo "8. No Benny/Construct/LIVE panel blocks core controls." >> "$GITHUB_STEP_SUMMARY"
+          echo "A green CI run is necessary but does not replace this physical-device test." >> "$GITHUB_STEP_SUMMARY"
