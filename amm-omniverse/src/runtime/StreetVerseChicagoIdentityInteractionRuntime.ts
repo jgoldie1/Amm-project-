@@ -179,6 +179,16 @@ const TARGETS:Target[]=[
     detail:{location:'circle-park',streetVersePlacement:'roosevelt-side',source:'context-prompt'},
     accent:0xd7c68a,
   },
+  {
+    id:'circle-park-insect-garden',
+    label:'Circle Park Insect Garden',
+    action:'INSECT SCAN',
+    kind:'explore',
+    x:-35,z:35.5,radius:6,
+    event:'tryamm:insect-scan-request',
+    detail:{habitat:'garden',location:'circle-park',source:'context-prompt'},
+    accent:0xe6d85c,
+  },
 ]
 
 const DISTRICTS=[
