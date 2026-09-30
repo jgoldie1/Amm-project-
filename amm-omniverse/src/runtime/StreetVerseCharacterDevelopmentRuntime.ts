@@ -73,12 +73,14 @@ export function installStreetVerseCharacterDevelopmentRuntime(characterId:string
 
  const onRepair=()=>requestCharacterDevelopmentAward({characterId,source:'vehicle-repair',skill:'Logistics',xp:40})
  const onSecurity=()=>requestCharacterDevelopmentAward({characterId,source:'security-mission',skill:'Protection',xp:80})
+ const onStatusRequest=(e:Event)=>{const id=String((e as CustomEvent<{characterId?:string}>).detail?.characterId||'');if(!id||id===characterId)publish()}
 
  window.addEventListener('tryamm:character-development-sync',onSync)
  window.addEventListener('tryamm:streetverse-mission-complete',onMission)
  window.addEventListener('tryamm:streetverse-character-interaction-complete',onInteraction)
  window.addEventListener('tryamm:streetverse-repair-complete',onRepair)
  window.addEventListener('tryamm:streetverse-security-mission-complete',onSecurity)
+ window.addEventListener('tryamm:character-development-status-request',onStatusRequest)
  queueMicrotask(publish)
 
  return{
@@ -89,6 +91,7 @@ export function installStreetVerseCharacterDevelopmentRuntime(characterId:string
    window.removeEventListener('tryamm:streetverse-character-interaction-complete',onInteraction)
    window.removeEventListener('tryamm:streetverse-repair-complete',onRepair)
    window.removeEventListener('tryamm:streetverse-security-mission-complete',onSecurity)
+   window.removeEventListener('tryamm:character-development-status-request',onStatusRequest)
   }
  }
 }
