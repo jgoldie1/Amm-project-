@@ -24,7 +24,7 @@ for(const title of ['Jubilee','Enoch','Sirate Tsion (Book of Order)','Book of Cl
  if(!library.includes(title))throw new Error('Ethiopian canon manifest missing '+title)
 }
 
-for(const token of ['FaithHoloBook','<FaithHoloBook />','ETHIOPIAN 81 + TRYAMM 88 CURRICULUM']){
+for(const token of ['FaithHoloBook','<FaithHoloBook />','TRYAMM 88-BOOK CURRICULUM','official Ethiopian Orthodox Tewahedo 81-book canon metadata']){
  if(!metaverse.includes(token))throw new Error('Ethiopian Bible Metaverse missing '+token)
 }
 
