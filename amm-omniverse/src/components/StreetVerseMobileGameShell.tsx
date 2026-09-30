@@ -43,6 +43,7 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const [activeMission,setActiveMission]=useState<MissionPrompt>({title:'Choose your StreetVerse route'})
  const [choicePrompt,setChoicePrompt]=useState<MissionPrompt>({title:'Choose your StreetVerse route'})
  const [choiceOpen,setChoiceOpen]=useState(false)
+ const [toolsOpen,setToolsOpen]=useState(false)
  const [specialUnlock,setSpecialUnlock]=useState<MissionSpecialUnlock|null>(null)
  const [fame,setFame]=useState<FameSnapshot>(()=>readFameSnapshot())
  const [inVehicle,setInVehicle]=useState(false)
@@ -146,6 +147,7 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
  const enterCar=()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:true,source:'mobile-game-shell-direct'}}))
  const openRideShare=()=>window.dispatchEvent(new CustomEvent('tryamm:holo-mobility-open',{detail:{source:'streetverse-mobile-game-shell'}}))
  const openBible=()=>{try{localStorage.setItem('tryamm.faith.return','/streetverse')}catch{};window.location.href='/faithverse#reader'}
+ const openTimeMachine=()=>{setToolsOpen(false);window.dispatchEvent(new CustomEvent('tryamm:time-machine-toggle',{detail:{source:'streetverse-mobile-game-shell'}}))}
  const repairLabel=repairStep===0?'OPEN HOOD + INSPECT':repairStep===1?'DIAGNOSE + FIX':repairStep===2?'VERIFY + CLOSE':'REPAIRED ✓'
  const bottom='max(16px,env(safe-area-inset-bottom))'
  const selectedSide=hand==='left'?{left:'max(12px,env(safe-area-inset-left))'}:{right:'max(12px,env(safe-area-inset-right))'}
@@ -160,10 +162,6 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
   </div>
   <button aria-label="Open Holo FON" onClick={()=>{release();window.dispatchEvent(new CustomEvent('tryamm:holo-fon-open',{detail:{source:'streetverse-mobile-game-shell',preserveWorld:true}}))}} style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',right:'max(62px,calc(env(safe-area-inset-right) + 62px))',width:46,height:46,borderRadius:23,border:'2px solid #69e9ff',background:'#061826ee',color:'#fff',fontSize:22,pointerEvents:'auto',boxShadow:'0 0 16px #00d9ff66',touchAction:'manipulation'}}>📱</button>
   <button onClick={onClose} aria-label="Exit StreetVerse" style={{position:'absolute',top:'max(8px,env(safe-area-inset-top))',right:'max(10px,env(safe-area-inset-right))',width:44,height:44,borderRadius:22,border:'1px solid #567',background:'#07131fee',color:'#fff',fontSize:20,pointerEvents:'auto'}}>×</button>
-  <div aria-label="StreetVerse Holographic LIVE and PK controls" style={{position:'absolute',top:'max(60px,calc(env(safe-area-inset-top) + 60px))',right:'max(10px,env(safe-area-inset-right))',display:'grid',gap:7,pointerEvents:'auto'}}>
-   <button aria-label="Open Holographic LIVE from StreetVerse" onClick={()=>openHolo('live')} style={{...modeButton(true),minWidth:92,borderColor:'#ff6b87'}}>● HOLO LIVE</button>
-   <button aria-label="Open Holographic PK Battle from StreetVerse" onClick={()=>openHolo('pk')} style={{...modeButton(true),minWidth:92,borderColor:'#ff74c8'}}>⚔ PK BATTLE</button>
-  </div>
   <div aria-label="StreetVerse quick action rail" style={{position:'absolute',left:'50%',transform:'translateX(-50%)',top:'max(62px,calc(env(safe-area-inset-top) + 62px))',display:'flex',gap:6,pointerEvents:'auto',maxWidth:'94vw',overflowX:'auto',padding:'3px 5px'}}>
    {firstJourneyPhase==='idle'&&<button onClick={startFirstJourney} style={quickRailButton('#8effb7')}>▶ START MISSION</button>}
    {firstJourneyPhase==='active'&&<button disabled style={quickRailButton('#ffe47f')}>MISSION ACTIVE</button>}
@@ -173,10 +171,17 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
    {repairStep>=3&&!inVehicle&&firstJourneyPhase==='active'&&<button onClick={enterCar} style={quickRailButton('#8effb7')}>🚗 ENTER CAR</button>}
    {!inVehicle&&<button onClick={enterCar} aria-label="Drive nearest StreetVerse vehicle" style={quickRailButton('#7be9ff')}>🚘 DRIVE</button>}
    {inVehicle&&<button disabled aria-label="Driving active" style={quickRailButton('#8effb7')}>DRIVING • USE JOYSTICK</button>}
-   <button onClick={openReel} style={quickRailButton('#ff8fd9')}>🎬 REEL</button>
-   <button onClick={openRideShare} style={quickRailButton('#66e6ff')}>🚕 RIDE</button>
-   <button onClick={openBible} style={quickRailButton('#e5c56a')}>📖 BIBLE</button>
+   <button aria-expanded={toolsOpen} onClick={()=>setToolsOpen(v=>!v)} style={quickRailButton('#c8b6ff')}>☰ TOOLS</button>
   </div>
+  {toolsOpen&&<section role="dialog" aria-label="StreetVerse tools drawer" style={{position:'absolute',left:'50%',top:'max(116px,calc(env(safe-area-inset-top) + 116px))',transform:'translateX(-50%)',width:'min(92vw,360px)',padding:10,borderRadius:16,border:'1px solid #7be9ff88',background:'#030914f7',display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8,pointerEvents:'auto',boxShadow:'0 18px 60px #000d'}}>
+   <button aria-label="Open Chicago Time Machine" onClick={openTimeMachine} style={toolDrawerButton('#c8b6ff')}>⏳ TIME</button>
+   <button aria-label="Read Ethiopian Bible" onClick={openBible} style={toolDrawerButton('#e5c56a')}>📖 BIBLE</button>
+   <button aria-label="Open Reel creator" onClick={()=>{setToolsOpen(false);openReel()}} style={toolDrawerButton('#ff8fd9')}>🎬 REEL</button>
+   <button aria-label="Open ride share" onClick={()=>{setToolsOpen(false);openRideShare()}} style={toolDrawerButton('#66e6ff')}>🚕 RIDE</button>
+   <button aria-label="Open Holographic LIVE from StreetVerse" onClick={()=>{setToolsOpen(false);openHolo('live')}} style={toolDrawerButton('#ff6b87')}>● HOLO LIVE</button>
+   <button aria-label="Open Holographic PK Battle from StreetVerse" onClick={()=>{setToolsOpen(false);openHolo('pk')}} style={toolDrawerButton('#ff74c8')}>⚔ PK BATTLE</button>
+   <button aria-label="Close StreetVerse tools" onClick={()=>setToolsOpen(false)} style={{...toolDrawerButton('#789'),gridColumn:'1 / -1'}}>CLOSE TOOLS</button>
+  </section>}
   <div aria-label="StreetVerse always visible joystick" onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);shellJoystick(e)}} onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))shellJoystick(e)}} onPointerUp={e=>{try{e.currentTarget.releasePointerCapture(e.pointerId)}catch{};stopShellJoystick()}} onPointerCancel={stopShellJoystick} onLostPointerCapture={stopShellJoystick} style={{position:'absolute',...movementSide,bottom,zIndex:52010,width:132,height:132,borderRadius:'50%',border:'3px solid #7be9ff',background:'rgba(2,12,22,.82)',boxShadow:'0 0 28px #00d9ff88',display:'grid',placeItems:'center',pointerEvents:'auto',touchAction:'none'}}>
    <div ref={shellJoystickKnobRef} aria-hidden="true" style={{width:58,height:58,borderRadius:'50%',background:'linear-gradient(145deg,#baf7ff,#46dfff)',border:'3px solid #effdff',boxShadow:'0 0 18px #63eaffaa',pointerEvents:'none',transition:'transform 35ms linear',willChange:'transform'}}/>
    <span aria-hidden="true" style={{position:'absolute',bottom:-18,left:'50%',transform:'translateX(-50%)',fontSize:8,fontWeight:950,letterSpacing:1.4,color:'#bff8ff',whiteSpace:'nowrap',textShadow:'0 1px 4px #000'}}>MOVE / STEER</span>
@@ -200,3 +205,4 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
 const modeButton=(active:boolean)=>({minHeight:44,padding:'0 10px',borderRadius:12,border:`1px solid ${active?'#ffd65a':'#456'}`,background:active?'#221900ee':'#07131fee',color:'#fff',fontSize:10,fontWeight:900,touchAction:'manipulation'} as const)
 const secondaryButton={width:52,height:48,borderRadius:16,border:'1px solid #7be9ff',background:'#020914dd',color:'#fff',fontSize:22,fontWeight:900,touchAction:'manipulation'} as const
 const quickRailButton=(color:string)=>({minHeight:44,padding:'8px 11px',borderRadius:12,border:`1px solid ${color}`,background:'#07131fee',color:'#fff',fontSize:9,fontWeight:950,whiteSpace:'nowrap',touchAction:'manipulation'} as const)
+const toolDrawerButton=(color:string)=>({minHeight:48,padding:'9px 10px',borderRadius:12,border:`1px solid ${color}`,background:'#07131fee',color:'#fff',fontSize:10,fontWeight:950,touchAction:'manipulation'} as const)
