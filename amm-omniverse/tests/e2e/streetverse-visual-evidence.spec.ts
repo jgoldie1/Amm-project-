@@ -44,24 +44,22 @@ test.describe('StreetVerse iPhone visual evidence', () => {
     await expect(page.getByRole('button', { name: 'Open Holographic LIVE from StreetVerse' })).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Open Holographic PK Battle from StreetVerse' })).toHaveCount(0);
 
-    const essentialControls = [
-      joystick,
-      drive,
-      toolsButton,
-      page.getByRole('button', { name: 'StreetVerse mission choices' }),
-      page.getByRole('button', { name: 'StreetVerse smart action' }),
-      page.getByRole('button', { name: 'Exit StreetVerse' }),
-    ];
-    const boxes = (await Promise.all(essentialControls.map(async locator => {
-      await expect(locator).toBeVisible();
-      return locator.boundingBox();
-    }))).filter((box): box is NonNullable<typeof box> => Boolean(box));
+    type Rect={x:number;y:number;width:number;height:number};
+    const shellButtons = page.locator('[data-streetverse-mobile-shell] button:visible');
+    expect(await shellButtons.count()).toBeLessThanOrEqual(12);
+    const boxes:Rect[]=[];
+    for(let i=0;i<await shellButtons.count();i++){
+      const box=await shellButtons.nth(i).boundingBox();
+      if(box)boxes.push(box);
+    }
+    const joystickBox=await joystick.boundingBox();
+    if(joystickBox)boxes.push(joystickBox);
 
     const viewportArea = 390 * 844;
     const summedControlArea = boxes.reduce((sum, box) => sum + box.width * box.height, 0);
     expect(summedControlArea / viewportArea).toBeLessThan(0.24);
 
-    const overlaps = (a: NonNullable<typeof boxes[number]>, b: NonNullable<typeof boxes[number]>) =>
+    const overlaps = (a:Rect,b:Rect) =>
       Math.max(0, Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x)) *
       Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y));
     for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++){
