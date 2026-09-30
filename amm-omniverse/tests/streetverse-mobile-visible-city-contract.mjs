@@ -52,7 +52,14 @@ assert.match(world,/nativeResidentReadabilityScaleVariants:nativeResidentVisualS
 assert.match(world,/characterCameraPass:'close-third-person-v1'/,'world-ready evidence must report the close character camera pass')
 assert.match(world,/circleParkRealityLayer:true/,'world-ready evidence must report the Circle Park reality layer')
 assert.match(world,/circleParkRealitySource:'public-reference-reconstruction'/,'Circle Park layer must identify itself as an original public-reference reconstruction')
-assert.match(world,/circleParkAmenityCount:5/,'Circle Park world-ready evidence must report the core amenity layer')
+assert.match(world,/circleParkRealityVersion:'reality-max-v2'/,'world-ready evidence must report Circle Park Reality MAX v2')
+assert.match(world,/circleParkFacadeSystem:'1111-horizontal-glazing-ribbed-concrete'/,'world-ready evidence must report the 1111 facade reference system')
+assert.match(world,/circleParkEntryDrive:true/,'world-ready evidence must report the reconstructed Circle Park entry drive')
+assert.match(world,/circleParkHeritageMarker:true/,'world-ready evidence must report the original ABLA/Jane Addams heritage marker')
+for(const detail of ['circle-park-horizontal-window-band','circle-park-ribbed-concrete-fin','circle-park-1111-lobby-glass','circle-park-1111-entry-canopy','circle-park-entry-drive','circle-park-parking-stripe','circle-park-sidewalk','circle-park-landscape-bed','circle-park-shrub','circle-park-court-fence-post','circle-park-bench-seat','abla-animal-court-heritage-marker-original']){
+  assert.match(world,new RegExp(detail),'Circle Park Reality MAX v2 missing visible detail: '+detail)
+}
+assert.match(world,/circleParkAmenityCount:7/,'Circle Park world-ready evidence must report the expanded amenity layer')
 assert.match(world,/circleParkStreetAnchorCount:CHICAGO_ROAD_CORRIDORS\.length/,'Circle Park world-ready evidence must report mapped street anchors')
 assert.match(world,/driveActionAlwaysAvailable:true/,'world-ready evidence must certify the permanent phone DRIVE action')
 assert.match(world,/animateNativeHumanoid\(nativeResidentRigs\[i\],true,false,now,i\*\.57,facialDetail\)/,'generated mobile residents must visibly animate with distance-based face detail')
