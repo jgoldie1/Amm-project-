@@ -28,6 +28,7 @@ export const STREETVERSE_RESOURCE_EVENTS:Record<string,StreetVerseResourceCatego
  'tryamm:streetverse-commerce-open':'business',
  'tryamm:streetverse-mission-complete':'jobs',
  'tryamm:insect-ecology-discovered':'ecology',
+ 'tryamm:streetverse-sanitation-mission-open':'jobs',
 } as const
 
 export const requestResourcePassportReward=(used:string[])=>window.dispatchEvent(new CustomEvent('tryamm:resource-passport-reward-request',{detail:{used,serverValidate:true}}))
