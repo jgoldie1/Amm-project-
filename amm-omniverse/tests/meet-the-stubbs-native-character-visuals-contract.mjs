@@ -30,6 +30,6 @@ assert.match(district,/generatedOriginals:true,realPersonLikeness:false/,'charac
 
 for(const key of ['residentD','residentE','residentF','residentG','residentH'])assert.ok(catalog.includes(`${key}:{id:'resident-archetype-${key.slice(-1).toLowerCase()}'`),`missing runtime resident asset ${key}`)
 for(const id of ['resident-archetype-d','resident-archetype-e','resident-archetype-f','resident-archetype-g','resident-archetype-h'])assert.ok(foundry.includes(`'${id}'`),`missing foundry archetype ${id}`)
-for(const detail of ['wardrobe-jacket','hair-cap-accessory','wardrobe-chain','facial-hair','hair-loc-crown','hair-curl-base','hero-layered-jacket','finger-detail'])assert.ok(foundry.includes(detail),`missing generated character variety detail ${detail}`)
+for(const detail of ['m5-varsity-jacket','m5-layered-jacket','hair-cap-accessory','m5-chain','facial-hair','hair-loc-crown','hair-curl-base','hero-layered-jacket','finger-detail','m5-sneaker-upper','m5-set-apart-tunic'])assert.ok(foundry.includes(detail),`missing generated character variety detail ${detail}`)
 
 console.log('Meet the Stubbs native character visual authority contract: PASS')
