@@ -243,7 +243,7 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
   const rig=new THREE.Group()
   rig.name=hero?'character-rig-hero':'character-rig-resident'
   rig.position.set(x,0,z)
-  const styleProfiles=['street-lux','creator-drip','athletic-clean','classic-fresh','future-holo','neighborhood-fly','performance-fit','legacy-premium']
+  const styleProfiles=['street-lux','creator-drip','set-apart-regal','classic-fresh','future-holo','set-apart-modest','performance-fit','legacy-premium']
   const styleProfile=hero?'founder-signature':styleProfiles[variant%styleProfiles.length]
   rig.userData={semantic:hero?'hero-character-rig':'resident-character-rig',animationReady:true,generatedBy:'tryamm-native-asset-foundry',m5Character:true,styleProfile,swaggerSeed:variant%4,originalTryammStreetwear:true}
   group.add(rig)
@@ -352,7 +352,22 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
     if(variant%4===1){for(const side of [-1,1])addBox(spine,'varsity-stripe',[.08,.55,.025],[side*.31,.43*H,.38],mat(`stripe-${variant}`,0xf0ece2,.58,.02),undefined,'wardrobe-stripe')}
   }
   if(!hero&&variant%4===0){const hood=new THREE.Mesh(new THREE.TorusGeometry(.29,.065,8,24,Math.PI*1.45),accent);hood.name=femininePresentation?'m5-femme-cropped-hoodie':'m5-hoodie-hood';hood.rotation.x=deg(90);hood.position.set(0,.82*H,-.10);spine.add(hood)}
+  const setApartProfile=styleProfile==='set-apart-regal'||styleProfile==='set-apart-modest'
+  if(setApartProfile&&!hero){
+    const tunic=addBox(spine,'m5-set-apart-tunic',[.92,.92,.52],[0,.28*H,.01],accent,undefined,'set-apart-tunic')
+    tunic.scale.set(femininePresentation?.92:1,1.18,.96)
+    const sash=addBox(spine,'m5-set-apart-sash',[.12,.84,.035],[femininePresentation?-.24:.24,.32*H,.29],mat(`set-apart-sash-${variant}`,0xd8bf6a,.34,.20),[0,0,femininePresentation?.12:-.12],'set-apart-sash')
+    sash.castShadow=false
+    const hemBand=addBox(spine,'m5-set-apart-hem-band',[.86,.08,.04],[0,-.12*H,.29],mat(`set-apart-band-${variant}`,0xe3d3a2,.42,.08),undefined,'set-apart-trim')
+    hemBand.castShadow=false
+    for(const side of [-1,1]){const sleeveTrim=addBox(spine,'m5-set-apart-sleeve-trim',[.14,.06,.04],[side*.45,.52*H,.27],mat(`set-apart-sleeve-${variant}`,0xe3d3a2,.42,.08),undefined,'set-apart-trim');sleeveTrim.castShadow=false}
+  }
   if(femininePresentation&&!hero&&variant%2===0){const coat=addBox(spine,'m5-femme-longline-jacket',[.78,.72,.48],[0,.40*H,-.03],accent,undefined,'fashion-jacket');coat.scale.x=.90}
+  if(setApartProfile&&femininePresentation&&!hero){
+    const modestLayer=addBox(spine,'m5-set-apart-modest-layer',[.86,1.05,.50],[0,.20*H,-.02],outfit,undefined,'set-apart-modest-outerwear')
+    modestLayer.scale.set(.94,1.10,.94)
+    const headWrap=new THREE.Mesh(new THREE.TorusGeometry(.28,.055,8,24,Math.PI*1.7),accent);headWrap.name='m5-set-apart-headwrap';headWrap.rotation.x=deg(90);headWrap.position.set(0,.22,.01);headPivot.add(headWrap)
+  }
   if(!hero&&variant%3===1){
     const cap=new THREE.Mesh(new THREE.SphereGeometry(.345*proportions.head,18,10,0,Math.PI*2,0,Math.PI*.34),accent)
     cap.name='hair-cap-accessory';cap.position.set(0,.26,0);cap.scale.set(1.04,.62,1.05);headPivot.add(cap)
@@ -374,9 +389,11 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
   if(hero){
     const collar=new THREE.Mesh(new THREE.TorusGeometry(.44,.055,8,24,Math.PI),mats.holo);collar.name='hero-holo-collar';collar.rotation.x=deg(90);collar.position.set(0,.66*H,-.22);spine.add(collar)
     const founderChain=new THREE.Mesh(new THREE.TorusGeometry(.22,.024,8,28,Math.PI),mat('founder-chain',0xe8c75a,.14,.92));founderChain.name='m5-founder-chain';founderChain.rotation.x=deg(90);founderChain.position.set(0,.62*H,.36);spine.add(founderChain)
+    const founderSetApart=addBox(spine,'m5-founder-set-apart-overlayer',[.90,.70,.50],[0,.30*H,-.02],accent,undefined,'founder-set-apart-layer');founderSetApart.scale.set(1,1.08,.96)
+    const founderSash=addBox(spine,'m5-founder-set-apart-sash',[.11,.78,.035],[.25,.34*H,.29],mat('founder-set-apart-sash',0xe0c76c,.28,.26),[0,0,-.12],'founder-set-apart-sash');founderSash.castShadow=false
   }
 
-  group.userData={...group.userData,semantic:hero?'player-character':'crowd-resident',rigState:'m5-max-character-stack-v1',animationReady:true,facialDetailM5:true,dripLayerM5:true,beautyLayerM5:femininePresentation,swaggerReady:true,styleProfile,femininePresentation:femininePresentation?'beauty-streetwear':'standard-streetwear',originalTryammDesign:true,originalTryammStreetwear:true}
+  group.userData={...group.userData,semantic:hero?'player-character':'crowd-resident',rigState:'m5-max-character-stack-v1',animationReady:true,facialDetailM5:true,dripLayerM5:true,beautyLayerM5:femininePresentation,setApartLayerM5:setApartProfile||hero,swaggerReady:true,styleProfile,femininePresentation:femininePresentation?'beauty-streetwear':'standard-streetwear',originalTryammDesign:true,originalTryammStreetwear:true}
 }
 
 function addTransitTrain(group,x,z,mats){
