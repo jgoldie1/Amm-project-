@@ -442,6 +442,8 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
         else if(basketballDunkStyle==='teammate-alley-oop'){basketballBall.position.set(-52+t*4,.9+arc*4.4,60+t*4.7)}
         else if(basketballDunkStyle==='off-backboard-alley-oop'){const bounce=t<.55?t/.55:(1-t)/.45;basketballBall.position.set(-48,.8+Math.max(0,bounce)*4.6,59.4+t*5.3)}
         else if(basketballDunkStyle==='tomahawk-one-hand'){basketballBall.position.set(-48,.7+arc*4.0,61+t*3.9-Math.sin(Math.PI*t)*.35)}
+        else if(basketballDunkStyle==='ft-one-hand-1985'){basketballBall.position.set(-48,.65+arc*4.35,55.3+t*9.2)}
+        else if(basketballDunkStyle==='ft-double-clutch-1988'){basketballBall.position.set(-48+Math.sin(Math.PI*t)*.45,.7+arc*4.55,55.1+t*9.4-Math.sin(Math.PI*2*t)*.28)}
         else{basketballBall.position.set(-48,.6+arc*3.35,61+t*3.7)}
       }
       else if(basketballMove==='layup'){basketballBall.position.x=-48+Math.sin(Math.min(Math.PI,age*.003))*1.2;basketballBall.position.y=.55+Math.sin(Math.min(Math.PI,age*.003))*2.6;basketballBall.position.z=61+Math.min(3.1,age*.0015)}
