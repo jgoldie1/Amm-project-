@@ -109,10 +109,34 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p ../release-evidence
+          MAX_BYTES=400000
+          TOTAL_MAX_BYTES=3400000
+          TOTAL=0
+          COUNT=0
           {
             echo "# Native character asset footprint"
             echo
-            find public/generated-assets/native/kit -maxdepth 1 -type f \( -name 'resident-archetype-*.glb' -o -name 'streetverse-hero-player.glb' \) -printf '%f %s bytes\n' | sort
+            while read -r file; do
+              bytes="$(stat -c %s "$file")"
+              name="$(basename "$file")"
+              echo "$name $bytes bytes"
+              COUNT=$((COUNT+1))
+              TOTAL=$((TOTAL+bytes))
+              if [ "$bytes" -gt "$MAX_BYTES" ]; then
+                echo "::error::$name is $bytes bytes; mobile character budget is $MAX_BYTES bytes per GLB."
+                exit 1
+              fi
+            done < <(find public/generated-assets/native/kit -maxdepth 1 -type f \( -name 'resident-archetype-*.glb' -o -name 'streetverse-hero-player.glb' \) | sort)
+            echo
+            echo "Character GLBs: $COUNT"
+            echo "Combined bytes: $TOTAL"
+            echo "Raw per-character budget: $MAX_BYTES"
+            echo "Raw combined budget: $TOTAL_MAX_BYTES"
+            test "$COUNT" -ge 9
+            if [ "$TOTAL" -gt "$TOTAL_MAX_BYTES" ]; then
+              echo "::error::Combined native character footprint $TOTAL exceeds $TOTAL_MAX_BYTES bytes."
+              exit 1
+            fi
           } | tee ../release-evidence/finish-line-character-assets.md
       - uses: actions/upload-artifact@v4
         with:
