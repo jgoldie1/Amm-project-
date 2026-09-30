@@ -86,7 +86,7 @@ export const TAYLOR_STREET_CORRIDOR: StreetVerseCorridor = {
       grid: { column: 1, row: 0 },
       origin: v(100, 0, 0),
       sizeMeters: { width: 100, depth: 80 },
-      businesses: [],
+      businesses: [\n        {\n          id: "taylor-alpha-storefront-02",\n          blockId: "taylor-alpha-block-01",\n          displayName: "Taylor Street Business 02",\n          category: "food",\n          streetAddressLabel: "Taylor Street",\n          lot: v(20, 0, 18),\n          entrance: { id: "door-taylor-alpha-02", exterior: v(20, 0, 8), interiorId: "interior-taylor-alpha-02", interiorSpawn: v(0, 0, 4), exitReturn: v(20, 0, 10) },\n          deliveryPickup: v(25, 0, 12),\n          missionIds: ["taylor-food-delivery-intro"],\n        },\n      ],
     },
   ],
 };
