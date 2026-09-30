@@ -28,5 +28,15 @@ export const CIRCLE_PARK_DUNK_STYLES=[
  {id:'teammate-alley-oop',label:'Teammate Alley-Oop',makeModifier:-.06,staminaCost:3,highlight:4},
  {id:'off-backboard-alley-oop',label:'Off-Backboard Alley-Oop',makeModifier:-.10,staminaCost:5,highlight:5},
  {id:'reverse-windmill',label:'Reverse Windmill',makeModifier:-.11,staminaCost:5,highlight:5},
+ {id:'ft-one-hand-1985',label:'1985 One-Hand Free-Throw Glide',makeModifier:-.13,staminaCost:6,highlight:5},
+ {id:'ft-double-clutch-1988',label:"Chicago '88 Double-Clutch Free-Throw Glide",makeModifier:-.15,staminaCost:7,highlight:5},
 ] as const
 export type CircleParkDunkStyleId=typeof CIRCLE_PARK_DUNK_STYLES[number]['id']
+
+
+export const CIRCLE_PARK_DUNK_HERITAGE_NOTE={
+ source:'NBA historical record',
+ homageOnly:true,
+ noEndorsement:true,
+ note:"Free-throw-line styles are historical basketball homages. They do not imply Michael Jordan, NBA, Bulls, or Nike endorsement."
+} as const
