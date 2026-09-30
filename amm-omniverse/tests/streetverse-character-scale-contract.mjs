@@ -9,7 +9,9 @@ const shared=fs.readFileSync(new URL('../src/components/StreetVerseSharedWorldAv
 const remote=fs.readFileSync(new URL('../src/components/StreetVerseNativeRemotePlayers.tsx',import.meta.url),'utf8')
 
 for(const x of ['adultHero:1.82','adultResident:1.76','normalizeStreetVerseHumanHeight','residentHeight'])if(!human.includes(x))throw new Error('human scale contract missing: '+x)
-for(const x of ['normalizeStreetVerseHumanHeight(avatar,STREETVERSE_HUMAN_HEIGHT_METERS.adultHero)','const camY=activeCar?6.8:5.2','const accessibilityCamY=activeCar?8.4:5.8','accessibilityCamBack=activeCar?14.5:8.8'])if(!mobile.includes(x))throw new Error('mobile character framing missing: '+x)
+if(!mobile.includes('normalizeStreetVerseHumanHeight(avatar,STREETVERSE_HUMAN_HEIGHT_METERS.adultHero)'))throw new Error('mobile hero height normalization missing')
+if(!/const camY=activeCar\?6\.8:\(heroTalking\?4\.35:5\.2\),camBack=activeCar\?12\.5:\(heroTalking\?5\.35:7\.6\)/.test(mobile))throw new Error('mobile close third-person camera missing')
+if(!/const accessibilityCamY=activeCar\?8\.4:\(heroTalking\?4\.8:5\.8\),accessibilityCamBack=activeCar\?14\.5:\(heroTalking\?6\.2:8\.8\)/.test(mobile))throw new Error('mobile accessible camera framing missing')
 if(!residents.includes('normalizeStreetVerseHumanHeight(group,residentHeight(index))'))throw new Error('mobile residents must use normalized human heights')
 for(const x of ['targetHeightMeters:STREETVERSE_HUMAN_HEIGHT_METERS.adultHero','targetHeightMeters:residentHeight(i)','desiredCam.set(controlled.position.x,6.8,controlled.position.z+10.8)'])if(!living.includes(x))throw new Error('desktop scale/framing missing: '+x)
 for(const x of ['targetHeightMeters?:number','normalizeStreetVerseHumanHeight(model,options.targetHeightMeters)'])if(!loader.includes(x))throw new Error('loaded GLB target height normalization missing: '+x)
@@ -17,4 +19,4 @@ if(!shared.includes("clamp(1.3-p.distance/150,.68,1.22)"))throw new Error('share
 if(!shared.includes('width:46,height:84'))throw new Error('shared avatar base visual size must stay readable')
 if(!remote.includes('normalizeStreetVerseHumanHeight(g,STREETVERSE_HUMAN_HEIGHT_METERS.adultResident)'))throw new Error('native remote player height normalization missing')
 
-console.log('StreetVerse human height + camera readability contract: PASS')
+console.log('StreetVerse human height + current close-camera readability contract: PASS')
