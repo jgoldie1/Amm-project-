@@ -23,6 +23,7 @@ function localIntent(question:string){
     [/holoverse/, '__showHoloverse','Opening Holoverse.'],
     [/holo menu|command nexus|all holo|holo functions|menu/, '__showCommandNexusV2','Opening the organized Holo Command Nexus.'],
     [/concierge|what can i do|help me choose/, '__showHoloConcierge','Opening Holo Concierge.'],
+    [/bible|scripture|ethiopian canon|hebrew|strong.?s concordance|paleo.?hebrew/, '__showEthiopianBible','Opening the Ethiopian Bible Metaverse study world.'],
     [/healthy|grocery|food basket|yahavah/, '__showYahavahGrocery','Opening YAHAVAH Grocery.'],
     [/wig|bundle|extension|beauty supply|makeup|nail/, '__showAllAmericanBeauty','Opening All American Beauty Supply.'],
   ]
@@ -50,9 +51,11 @@ export default function HoloGPTAssistant(){
   useEffect(()=>{try{localStorage.setItem(KEY,JSON.stringify(messages.slice(-20)))}catch{};end.current?.scrollIntoView({behavior:'smooth'})},[messages])
   useEffect(()=>{
     const openAssistant=()=>setOpen(true)
+    const openStudyContext=(event:Event)=>{const detail=(event as CustomEvent<{prompt?:string}>).detail||{};if(detail.prompt)setInput(String(detail.prompt));setOpen(true)}
     window.addEventListener('tryamm:open-hologpt',openAssistant)
+    window.addEventListener('tryamm:hologpt-study-context',openStudyContext)
     ;(window as any).__showHoloGPT=openAssistant
-    return()=>{window.removeEventListener('tryamm:open-hologpt',openAssistant);if((window as any).__showHoloGPT===openAssistant)delete (window as any).__showHoloGPT}
+    return()=>{window.removeEventListener('tryamm:open-hologpt',openAssistant);window.removeEventListener('tryamm:hologpt-study-context',openStudyContext);if((window as any).__showHoloGPT===openAssistant)delete (window as any).__showHoloGPT}
   },[])
   useEffect(()=>{let cancelled=false;fetch('/api/ai/health',{cache:'no-store'}).then(async r=>({r,d:await readJson(r)})).then(({r,d})=>{if(!cancelled)setHealth({...d,ok:r.ok&&d.ok&&!d.degraded,degraded:Boolean(d.degraded)})}).catch(e=>{if(!cancelled)setHealth({ok:false,degraded:true,error:e instanceof Error?e.message:'AI connection unavailable'})});return()=>{cancelled=true}},[])
 
