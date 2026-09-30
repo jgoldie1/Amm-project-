@@ -34,9 +34,9 @@ const clamp01=(n:number)=>Math.max(0,Math.min(1,n))
 const missionFor=(kind:StreetVerseWeatherKind,severity:number,now:number):StreetVerseWorldConsequenceMission=>{
  const base={kind:'weather-response' as const,weatherKind:kind,severity,expiresAt:now+12*60_000}
  if(kind==='snow')return{...base,id:'weather-snow-walkway-'+Math.floor(now/300000),title:'SNOW RESPONSE',objective:'Reach the Circle Park entry and clear the main walkway for residents.',targetLabel:'CIRCLE PARK ENTRY',x:-38,z:40,reward:225,xp:150,reputation:4}
- if(kind==='rain'||kind==='mixed')return{...base,id:'weather-rain-check-'+Math.floor(now/300000),title:'FLOOD CHECK',objective:'Inspect the Circle Park entry drive and report standing water or blocked access.',targetLabel:'CIRCLE PARK ENTRY DRIVE',x:-38,z:34,reward:190,xp:125,reputation:3}
- if(kind==='fog')return{...base,id:'weather-fog-safety-'+Math.floor(now/300000),title:'LOW VISIBILITY',objective:'Reach the main wayfinder and help mark a safer pedestrian route.',targetLabel:'CIRCLE PARK WAYFINDER',x:0,z:34,reward:170,xp:115,reputation:3}
- return{...base,id:'weather-storm-secure-'+Math.floor(now/300000),title:'STORM RESPONSE',objective:'Reach the courtyard and secure loose community equipment before conditions worsen.',targetLabel:'CIRCLE PARK COURTYARD',x:-20,z:58,reward:260,xp:175,reputation:5}
+ if(kind==='rain'||kind==='mixed')return{...base,id:'weather-rain-check-'+Math.floor(now/300000),title:'FLOOD CHECK',objective:'Inspect the Circle Park entry drive and report standing water or blocked access.',targetLabel:'CIRCLE PARK ENTRY DRIVE',x:-38,z:34,reward:190,xp:125,reputation:4}
+ if(kind==='fog')return{...base,id:'weather-fog-safety-'+Math.floor(now/300000),title:'LOW VISIBILITY',objective:'Reach the main wayfinder and help mark a safer pedestrian route.',targetLabel:'CIRCLE PARK WAYFINDER',x:0,z:34,reward:170,xp:115,reputation:4}
+ return{...base,id:'weather-storm-secure-'+Math.floor(now/300000),title:'STORM RESPONSE',objective:'Reach the courtyard and secure loose community equipment before conditions worsen.',targetLabel:'CIRCLE PARK COURTYARD',x:-20,z:58,reward:260,xp:175,reputation:4}
 }
 
 export function installStreetVerseWorldConsequenceRuntime(characterId='bj-stubbs'){
@@ -58,7 +58,7 @@ export function installStreetVerseWorldConsequenceRuntime(characterId='bj-stubbs
   const gustIntensity=clamp01(Number(weather.windGusts||0)/65)
   const precipitationIntensity=clamp01(visual.precipitationIntensity)
   const tempStress=weather.apparentTemperature==null?0:clamp01(Math.abs(Number(weather.apparentTemperature)-68)/55)
-  const weatherBase=visual.kind==='storm'?1:visual.kind==='snow'?.72:visual.kind==='rain'?.55:visual.kind==='fog'?.42:visual.kind==='mixed'?.50:0
+  const weatherBase=visual.kind==='storm'?1:visual.kind==='snow'?0.72:visual.kind==='rain'?0.55:visual.kind==='fog'?0.42:visual.kind==='mixed'?0.50:0
   const severity=clamp01(weatherBase*.62+windIntensity*.17+gustIntensity*.12+precipitationIntensity*.07+tempStress*.02)
   const businessDisruption=clamp01(severity*.72+precipitationIntensity*.12)
   const trafficDisruption=clamp01(1-visual.trafficSpeedMultiplier)
