@@ -7,7 +7,7 @@ const lanes=[
  ['✡️','HEBREW SCHOOL','Alphabet, vowel points, roots, vocabulary, transliteration, pronunciation practice, quizzes and passage-based lessons.'],
  ['🔎','STRONG’S CONCORDANCE','Strong’s-number lookup for KJV-linked Hebrew and Greek words, with lemma, transliteration, gloss, root relationships and occurrence links when a verified concordance dataset is connected.'],
  ['👑','KING JAMES 1611 STUDY','A source-labeled 1611 KJV study lane with original-edition comparison, spelling-aware reading support, Apocrypha visibility and modern-readable comparison tools.'],
- ['📚','ETHIOPIAN 81 + TRYAMM 88 CURRICULUM','The official Ethiopian Orthodox Tewahedo canon is displayed as 81 books. TRYAMM can separately maintain an 88-book study curriculum with every supplement source-labeled.'],
+ ['📚','TRYAMM 88-BOOK CURRICULUM','Custom 88-book learning collection built around the official Ethiopian Orthodox Tewahedo 81-book canon metadata plus seven source-pending study supplements. The app keeps the official 81-book canon and the custom 88-book curriculum clearly separated.'],
  ['🌍','METAVERSE BIBLE','Walkable study worlds for places, journeys, eras and teaching scenes. World scenes are educational visualizations, not claims that a reconstruction is historically exact.'],
  ['⏳','FAITH CHRONO / TIME MACHINE','Source-grounded historical reconstruction, devotional study and immersive missions connected to the existing TRYAMM Chrono runtime and saved StreetVerse return portals.'],
  ['🎧','AUDIO + READ ALOUD','Accessible narration, chapter listening, adjustable speed and screen-reader friendly study controls.'],
