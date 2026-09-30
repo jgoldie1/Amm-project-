@@ -5,6 +5,7 @@ import {NEAR_WEST_NPCS,NEAR_WEST_TRAFFIC} from '../data/streetVerseNearWestPopul
 import CampusVerseCollegeBookBridge from './CampusVerseCollegeBookBridge'
 import {useEffect,useRef,useState} from 'react'
 import * as THREE from 'three'
+import {STREETVERSE_FUTURE_VEHICLES} from '../data/streetVerseFutureVehicles'
 import GreenvilleCampusVerseScene from './GreenvilleCampusVerseScene'
 
 function RoadMeshes(){
@@ -51,6 +52,20 @@ function NearWestPlayer({move,onPosition}:{move:React.MutableRefObject<MoveState
  </group>
 }
 
+
+function FutureVehicleMeshes(){return <group>{STREETVERSE_FUTURE_VEHICLES.map(v=>{
+ const long=v.kind==='armored-utility'?5.6:v.kind==='cyber-shuttle'?5.2:v.kind==='hypercar'?4.8:2.7
+ const high=v.kind==='armored-utility'?1.55:v.kind==='ring-bike'?.75:1.05
+ return <group key={v.id} position={[v.spawn.x,0,v.spawn.z]}>
+  <mesh castShadow position={[0,high/2+.35,0]}><boxGeometry args={[long,high,v.kind==='ring-bike'?1.1:2.15]}/><meshStandardMaterial color={v.visual.body} metalness={.65} roughness={.28}/></mesh>
+  {v.kind==='ring-bike'?<>
+   <mesh rotation={[Math.PI/2,0,0]} position={[-.9,.75,0]}><torusGeometry args={[.72,.11,10,24]}/><meshStandardMaterial color={v.visual.accent} emissive={v.visual.accent} emissiveIntensity={.4}/></mesh>
+   <mesh rotation={[Math.PI/2,0,0]} position={[.9,.75,0]}><torusGeometry args={[.72,.11,10,24]}/><meshStandardMaterial color={v.visual.accent} emissive={v.visual.accent} emissiveIntensity={.4}/></mesh>
+  </>:([-1,1] as const).flatMap(side=>([-1,1] as const).map(front=><mesh key={side+':'+front} rotation={[Math.PI/2,0,0]} position={[front*long*.32,.48,side*1.02]}><cylinderGeometry args={[.48,.48,.28,16]}/><meshStandardMaterial color={v.visual.wheel}/></mesh>))}
+  <mesh position={[0,.78,-1.09]}><boxGeometry args={[long*.65,.13,.08]}/><meshStandardMaterial color={v.visual.accent} emissive={v.visual.accent} emissiveIntensity={.5}/></mesh>
+ </group>
+})}</group>}
+
 function PopulationMeshes(){return <group>
  {NEAR_WEST_NPCS.map((n,i)=><group key={n.id} position={[n.position.x,0,n.position.z]}><mesh position={[0,.9,0]} castShadow><capsuleGeometry args={[.28,.95,4,8]}/><meshStandardMaterial color={i%3===0?'#315b7a':i%3===1?'#704936':'#485b3b'}/></mesh><mesh position={[0,1.75,0]}><sphereGeometry args={[.25,10,8]}/><meshStandardMaterial color="#8f654c"/></mesh></group>)}
  {NEAR_WEST_TRAFFIC.map((v,i)=><mesh key={v.id} position={[v.position.x,.55,v.position.z]} castShadow><boxGeometry args={[v.kind==='bus'?7:4.2,1.1,v.kind==='bus'?2.4:1.9]}/><meshStandardMaterial color={i%2?'#314c66':'#742f2f'}/></mesh>)}
@@ -68,6 +83,7 @@ export default function StreetVerseNearWest3D(){
   const targets=[
    ...NEAR_WEST_NPCS.map(n=>({kind:'npc' as const,id:n.id,label:n.displayName,mission:n.missionHook,x:n.position.x,z:n.position.z})),
    ...NEAR_WEST_TRAFFIC.map(v=>({kind:'vehicle' as const,id:v.id,label:v.kind==='bus'?'Bus':'Vehicle',x:v.position.x,z:v.position.z})),
+   ...STREETVERSE_FUTURE_VEHICLES.map(v=>({kind:'vehicle' as const,id:v.id,label:v.name,mission:v.missionHooks[0],x:v.spawn.x,z:v.spawn.z})),
    ...TAYLOR_STREET_CORRIDOR.blocks.flatMap(block=>block.businesses.map(b=>({kind:'business' as const,id:b.id,label:b.name||'Taylor Street Business',mission:b.missionIds?.[0],x:block.origin.x+b.lot.x,z:block.origin.z+b.lot.z})))
   ]
   let best:any=null,dist=999
@@ -103,7 +119,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><TaylorLots/><PopulationMeshes/><NearWestPlayer move={move} onPosition={senseNearby}/>
+   <RoadMeshes/><TaylorLots/><PopulationMeshes/><FutureVehicleMeshes/><NearWestPlayer move={move} onPosition={senseNearby}/>
   </Canvas>
  </div>
 }
