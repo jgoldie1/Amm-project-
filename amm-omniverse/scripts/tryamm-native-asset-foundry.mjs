@@ -413,6 +413,8 @@ function addBJStubbsCharacter(group,x,z,mats){
   const gold=new THREE.MeshStandardMaterial({name:'bj-gold-accent',color:0xc49a44,roughness:.28,metalness:.78})
   const eyeWhite=new THREE.MeshStandardMaterial({name:'bj-eye-white',color:0xe9e4db,roughness:.4,metalness:0})
   const iris=new THREE.MeshStandardMaterial({name:'bj-iris',color:0x2b1b14,roughness:.28,metalness:0})
+  const lipNatural=new THREE.MeshStandardMaterial({name:'bj-lip-natural',color:0x6f3d36,roughness:.46,metalness:0})
+  const eyeCatch=new THREE.MeshBasicMaterial({name:'bj-eye-catchlight',color:0xffffff})
 
   const skinNames=new Set(['hero-head','jaw','chin','cheek-left','cheek-right','ear-left','ear-right','nose','eyelid-left','eyelid-right','neck','elbow','forearm','hand','finger-detail','clavicle-line'])
   const blackNames=new Set(['hero-torso','hero-layered-jacket','upper-arm'])
@@ -431,9 +433,49 @@ function addBJStubbsCharacter(group,x,z,mats){
   const head=group.getObjectByName('hero-head')
   const jaw=group.getObjectByName('jaw')
   const chin=group.getObjectByName('chin')
+  const nose=group.getObjectByName('nose')
+  const cheekLeft=group.getObjectByName('cheek-left')
+  const cheekRight=group.getObjectByName('cheek-right')
+  const upperLip=group.getObjectByName('upper-lip')
+  const lowerLip=group.getObjectByName('lower-lip')
+  const eyeWhiteLeft=group.getObjectByName('eye-white-left')
+  const eyeWhiteRight=group.getObjectByName('eye-white-right')
+  const irisLeft=group.getObjectByName('iris-left')
+  const irisRight=group.getObjectByName('iris-right')
+  const browLeft=group.getObjectByName('brow-left')
+  const browRight=group.getObjectByName('brow-right')
+  const shoulderLine=group.getObjectByName('shoulder-line')
+  const heroTorso=group.getObjectByName('hero-torso')
   if(head)head.scale.set(.94,1.09,.91)
   if(jaw){jaw.scale.x*=1.08;jaw.scale.y*=.95;jaw.position.y=-.17}
   if(chin){chin.scale.x*=1.04;chin.position.y=-.286}
+  if(nose){nose.scale.set(1.05,1.06,1.02);nose.position.y=-.020;nose.position.z=.314}
+  for(const cheek of [cheekLeft,cheekRight])if(cheek){cheek.scale.x*=1.03;cheek.scale.y*=.96;cheek.position.y=-.061}
+  if(upperLip instanceof THREE.Mesh){upperLip.material=lipNatural;upperLip.scale.x*=1.03;upperLip.position.y=-.132}
+  if(lowerLip instanceof THREE.Mesh){lowerLip.material=lipNatural;lowerLip.scale.x*=1.05;lowerLip.scale.y*=1.08;lowerLip.position.y=-.160}
+  for(const eye of [eyeWhiteLeft,eyeWhiteRight])if(eye){eye.scale.x*=1.02;eye.scale.y*=.94}
+  for(const eye of [irisLeft,irisRight])if(eye){eye.scale.x*=1.03;eye.scale.y*=1.02}
+  if(browLeft){browLeft.position.y=.182;browLeft.rotation.z=.035}
+  if(browRight){browRight.position.y=.182;browRight.rotation.z=-.035}
+  if(shoulderLine)shoulderLine.scale.x*=1.08
+  if(heroTorso)heroTorso.scale.x*=1.035
+
+  // BJ V2 facial topology accents. These remain lightweight procedural geometry
+  // until the authorized photo-matched head replaces the preview face.
+  const noseBridge=new THREE.Mesh(new THREE.CapsuleGeometry(.027,.105,4,10),skin)
+  noseBridge.name='bj-nose-bridge';noseBridge.position.set(0,.035,.286);noseBridge.rotation.x=deg(4);headPivot.add(noseBridge)
+  const noseTip=new THREE.Mesh(new THREE.SphereGeometry(.052,14,10),skin)
+  noseTip.name='bj-nose-tip';noseTip.position.set(0,-.050,.345);noseTip.scale.set(1.08,.70,.78);headPivot.add(noseTip)
+  for(const side of [-1,1]){
+    const sideBeard=new THREE.Mesh(new THREE.SphereGeometry(.105,16,10),hair)
+    sideBeard.name=side<0?'bj-beard-side-left':'bj-beard-side-right'
+    sideBeard.position.set(side*.185,-.115,.205);sideBeard.scale.set(.72,1.10,.55);headPivot.add(sideBeard)
+    const catchlight=new THREE.Mesh(new THREE.SphereGeometry(.0065,6,5),eyeCatch)
+    catchlight.name=side<0?'bj-eye-catchlight-left':'bj-eye-catchlight-right'
+    catchlight.position.set(side*.102,.096,.352);headPivot.add(catchlight)
+  }
+  const beardChin=new THREE.Mesh(new THREE.SphereGeometry(.145,16,10),hair)
+  beardChin.name='bj-beard-chin';beardChin.position.set(0,-.255,.205);beardChin.scale.set(.86,.92,.70);headPivot.add(beardChin)
 
   // Pulled-back locs: close crown + swept loc rows + rear tied bundle.
   const locCrown=new THREE.Mesh(new THREE.SphereGeometry(.355,24,14,0,Math.PI*2,0,Math.PI*.48),hair)
@@ -494,18 +536,21 @@ function addBJStubbsCharacter(group,x,z,mats){
     displayName:'BJ Stubbs',
     namedCharacter:true,
     era:'current',
-    likenessState:'REFERENCE_LOCKED_PROCEDURAL_V1',
+    likenessState:'REFERENCE_LOCKED_PROCEDURAL_V2',
     role:'Security & Operations',
     affiliation:'Stubbs Family / StreetVerse Security',
     referenceConsistencyLocked:true,
     photoMatchedHead:false,
+    characterFactoryCompatible:true,
+    facialDetailPass:'bj-v2',
+    rigContract:'streetverse-character-dna-v1',
   }
   group.userData={
     ...group.userData,
     characterId:'bj-stubbs',
     displayName:'BJ Stubbs',
     namedCharacter:true,
-    assetVersion:'bj-realism-v1',
+    assetVersion:'bj-realism-v2',
     identityContinuityKey:'bj-stubbs',
     hairstyle:'pulled-back-locs',
     facialHair:'full-salt-and-pepper-beard',
@@ -513,6 +558,9 @@ function addBJStubbsCharacter(group,x,z,mats){
     signatureTextPlanned:'ONLY YAHAVAH CAN JUDGE ME',
     proceduralPreview:true,
     photoMatchedHead:false,
+    characterFactoryCompatible:true,
+    facialDetailPass:'bj-v2',
+    rigContract:'streetverse-character-dna-v1',
   }
 }
 
