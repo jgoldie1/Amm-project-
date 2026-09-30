@@ -1,6 +1,7 @@
 import {useEffect,useMemo,useState,type CSSProperties} from 'react'
 import {useGameStore} from '../game/state/useGameStore'
 import {POCKET_DIMENSION_CATALOG,pocketCatalogItem,pocketDimensionSuggestions,type PocketDimensionAction,type PocketDimensionAsset,type PocketDimensionKind} from '../data/streetVersePocketDimension'
+import StreetVerseCharacterDevelopmentPanel from './StreetVerseCharacterDevelopmentPanel'
 
 const FAV_KEY='tryamm:pocket-dimension:favorites:v1'
 const QUICK_KEY='tryamm:pocket-dimension:quick-slots:v1'
@@ -23,6 +24,7 @@ export default function StreetVersePocketDimension({onClose}:{onClose:()=>void})
  const [quick,setQuick]=useState<string[]>(()=>readList(QUICK_KEY).slice(0,4))
  const [notice,setNotice]=useState('Pocket Dimension keeps player assets organized without changing ownership truth.')
  const [actionQty,setActionQty]=useState(1)
+ const [characterDevelopmentOpen,setCharacterDevelopmentOpen]=useState(false)
 
  useEffect(()=>{
   const sync=(e:Event)=>{
@@ -95,6 +97,8 @@ export default function StreetVersePocketDimension({onClose}:{onClose:()=>void})
    <button onClick={onClose} aria-label="Close Pocket Dimension" style={circleBtn}>×</button>
   </header>
 
+  {characterDevelopmentOpen&&<StreetVerseCharacterDevelopmentPanel onClose={()=>setCharacterDevelopmentOpen(false)}/>}
+  <button onClick={()=>setCharacterDevelopmentOpen(true)} style={{...btn,width:'100%',minHeight:52,marginBottom:10,borderColor:'#7d6634',background:'linear-gradient(135deg,#1c1710,#252015)'}}>🧬 BJ CHARACTER DEVELOPMENT</button>
   <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:8}}>
    <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search assets…" aria-label="Search Pocket Dimension" style={{minHeight:48,borderRadius:13,border:'1px solid #315269',background:'#0b1923',color:'#fff',padding:'0 13px',fontSize:16}}/>
    <button onClick={()=>{setQuery('');setCategory('all')}} style={{...btn,minWidth:64}}>RESET</button>
