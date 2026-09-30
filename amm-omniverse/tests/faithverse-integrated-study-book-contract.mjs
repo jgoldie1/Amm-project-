@@ -32,7 +32,7 @@ for(const token of ['FAITHVERSE HOLOBOOK','ETHIOPIAN CANON • 81','TRYAMM CURRI
  if(!holobook.includes(token))throw new Error('FaithVerse HoloBook missing '+token)
 }
 
-if(!holobook.includes("faithFraming"))throw new Error('Faith-study framing metadata must be visible to the HoloBook source contract')
+if(!library.includes("faithFraming:true"))throw new Error('Faith-study framing metadata must remain explicit in the study library')
 if(!holobook.includes("verified text source required"))throw new Error('Source-pending Ethiopian texts must not be fabricated')
 if(!reader.includes('bible-api.com'))throw new Error('Working KJV reader source disappeared')
 
