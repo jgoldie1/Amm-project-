@@ -94,7 +94,7 @@ export function installStreetVerseEmotionalIntelligenceRuntime(characterId='bj-s
   if(d.characterId&&d.characterId!==characterId)return
   if(d.consensualFlirt)setAffect('flirtatious','dialogue')
   else if(d.sentiment==='positive')setAffect('happy','dialogue')
-  else if(d.sentiment==='negative')setAffect('serious','dialogue' as any)
+  else if(d.sentiment==='negative')setAffect('sad','dialogue')
  }
  const onCelebrate=(event:Event)=>{
   const d=(event as CustomEvent<{characterId?:string}>).detail||{}
@@ -104,7 +104,7 @@ export function installStreetVerseEmotionalIntelligenceRuntime(characterId='bj-s
  const onDamage=(event:Event)=>{
   const d=(event as CustomEvent<{characterId?:string}>).detail||{}
   if(d.characterId&&d.characterId!==characterId)return
-  setAffect('concerned','damage' as any)
+  setAffect('afraid','damage')
  }
 
  window.addEventListener('tryamm:character-affect-set',onSet)
