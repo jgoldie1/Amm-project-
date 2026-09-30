@@ -9,7 +9,7 @@ const shared=fs.readFileSync(new URL('../src/components/StreetVerseSharedWorldAv
 const remote=fs.readFileSync(new URL('../src/components/StreetVerseNativeRemotePlayers.tsx',import.meta.url),'utf8')
 
 for(const x of ['adultHero:1.82','adultResident:1.76','normalizeStreetVerseHumanHeight','residentHeight'])if(!human.includes(x))throw new Error('human scale contract missing: '+x)
-for(const x of ['normalizeStreetVerseHumanHeight(avatar,STREETVERSE_HUMAN_HEIGHT_METERS.adultHero)','activeCar?11:6.6','activeCar?18:9.6'])if(!mobile.includes(x))throw new Error('mobile character framing missing: '+x)
+for(const x of ['normalizeStreetVerseHumanHeight(avatar,STREETVERSE_HUMAN_HEIGHT_METERS.adultHero)','const camY=activeCar?6.8:5.2','const accessibilityCamY=activeCar?8.4:5.8','accessibilityCamBack=activeCar?14.5:8.8'])if(!mobile.includes(x))throw new Error('mobile character framing missing: '+x)
 if(!residents.includes('normalizeStreetVerseHumanHeight(group,residentHeight(index))'))throw new Error('mobile residents must use normalized human heights')
 for(const x of ['targetHeightMeters:STREETVERSE_HUMAN_HEIGHT_METERS.adultHero','targetHeightMeters:residentHeight(i)','desiredCam.set(controlled.position.x,6.8,controlled.position.z+10.8)'])if(!living.includes(x))throw new Error('desktop scale/framing missing: '+x)
 for(const x of ['targetHeightMeters?:number','normalizeStreetVerseHumanHeight(model,options.targetHeightMeters)'])if(!loader.includes(x))throw new Error('loaded GLB target height normalization missing: '+x)
