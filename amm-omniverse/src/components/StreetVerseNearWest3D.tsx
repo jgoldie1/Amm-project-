@@ -123,7 +123,7 @@ export default function StreetVerseNearWest3D(){
    ...NEAR_WEST_NPCS.map(n=>({kind:'npc' as const,id:n.id,label:n.displayName,mission:n.missionHook,x:n.position.x,z:n.position.z})),
    ...NEAR_WEST_TRAFFIC.map(v=>({kind:'vehicle' as const,id:v.id,label:v.kind==='bus'?'Bus':'Vehicle',x:v.position.x,z:v.position.z})),
    ...STREETVERSE_FUTURE_VEHICLES.map(v=>({kind:'vehicle' as const,id:v.id,label:v.name,mission:v.missionHooks[0],x:v.spawn.x,z:v.spawn.z})),
-   ...TAYLOR_STREET_CORRIDOR.blocks.flatMap(block=>block.businesses.map(b=>({kind:'business' as const,id:b.id,label:b.name||'Taylor Street Business',mission:b.missionIds?.[0],x:block.origin.x+b.lot.x,z:block.origin.z+b.lot.z})))
+   ...TAYLOR_STREET_CORRIDOR.blocks.flatMap(block=>block.businesses.map(b=>({kind:'business' as const,id:b.id,label:b.displayName||'Taylor Street Business',mission:b.missionIds?.[0],x:block.origin.x+b.lot.x,z:block.origin.z+b.lot.z})))
   ]
   let best:any=null,dist=999
   for(const t of targets){const d=Math.hypot(t.x-x,t.z-z);if(d<dist){best=t;dist=d}}
