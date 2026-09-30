@@ -56,6 +56,13 @@ assert.match(world,/circleParkRealityVersion:'reality-max-v2'/,'world-ready evid
 assert.match(world,/circleParkFacadeSystem:'1111-horizontal-glazing-ribbed-concrete'/,'world-ready evidence must report the 1111 facade reference system')
 assert.match(world,/circleParkEntryDrive:true/,'world-ready evidence must report the reconstructed Circle Park entry drive')
 assert.match(world,/circleParkHeritageMarker:true/,'world-ready evidence must report the original ABLA/Jane Addams heritage marker')
+assert.match(world,/circleParkTimeMachineLayer:true/,'world-ready evidence must report the Circle Park Time Machine world layer')
+assert.match(world,/circleParkHistoricalEras:3/,'Circle Park Time Machine must expose three historical reconstruction eras plus present')
+assert.match(world,/circleParkHistoricalEvidenceLabels:true/,'historical Circle Park layers must preserve evidence labels')
+for(const era of ['circle-park-era-1938-jane-addams','circle-park-era-1955-grace-abbott','circle-park-era-1996-abla'])assert.match(world,new RegExp(era),'Circle Park Time Machine missing visible era group: '+era)
+assert.match(world,/tryamm:circle-park-time-era/,'StreetVerse must listen for Time Machine era changes')
+assert.match(world,/tryamm:circle-park-era-applied/,'StreetVerse must publish visible era-application evidence')
+assert.match(world,/activeCircleParkEra==='present'/,'present-day Circle Park must remain the default visible world layer')
 for(const detail of ['circle-park-horizontal-window-band','circle-park-ribbed-concrete-fin','circle-park-1111-lobby-glass','circle-park-1111-entry-canopy','circle-park-entry-drive','circle-park-parking-stripe','circle-park-sidewalk','circle-park-landscape-bed','circle-park-shrub','circle-park-court-fence-post','circle-park-bench-seat','abla-animal-court-heritage-marker-original']){
   assert.match(world,new RegExp(detail),'Circle Park Reality MAX v2 missing visible detail: '+detail)
 }
