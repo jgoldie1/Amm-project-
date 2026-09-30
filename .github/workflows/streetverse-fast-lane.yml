@@ -1,0 +1,181 @@
+name: StreetVerse Fast Lane
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/src/components/StreetVerse**'
+      - 'amm-omniverse/src/game/**'
+      - 'amm-omniverse/src/runtime/**'
+      - 'amm-omniverse/src/data/StreetVerse**'
+      - 'amm-omniverse/src/data/TryammNative**'
+      - 'amm-omniverse/scripts/tryamm-native-asset-foundry.mjs'
+      - 'amm-omniverse/tests/streetverse-**'
+      - 'amm-omniverse/tests/circle-park-**'
+      - 'amm-omniverse/tests/meet-the-stubbs-**'
+      - 'amm-omniverse/tests/tryamm-native-**'
+      - '.github/workflows/streetverse-fast-lane.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-fast-lane-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  controls-driving:
+    name: Controls + driving
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Verify phone controls and vehicle loop
+        run: |
+          node tests/streetverse-mobile-control-reliability-contract.mjs
+          node tests/streetverse-unified-mobile-controls-contract.mjs
+          node tests/streetverse-one-hand-integration-contract.mjs
+          node tests/streetverse-vehicle-access-contract.mjs
+          node tests/streetverse-vehicle-control-contract.mjs
+          node tests/streetverse-iphone-first-journey-contract.mjs
+          node tests/streetverse-iphone-player-journey-contract.mjs
+          node tests/streetverse-character-scale-contract.mjs
+
+  circle-park-world:
+    name: Circle Park + living world
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Verify Circle Park and visible Chicago world
+        run: |
+          node tests/circle-park-chicago-completion-contract.mjs
+          node tests/streetverse-chicago-grid-reality-contract.mjs
+          node tests/streetverse-chicago-alive-contract.mjs
+          node tests/streetverse-mobile-visible-city-contract.mjs
+          node tests/streetverse-mobile-living-city-contract.mjs
+          node tests/streetverse-visible-loop-contract.mjs
+
+  mission-loop:
+    name: Mission → reward → Reel loop
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Verify player journey
+        run: |
+          node tests/streetverse-mobile-repair-visibility-contract.mjs
+          node tests/streetverse-journey-qa-contract.mjs
+          node tests/streetverse-mobile-mission-completion-bridge-contract.mjs
+          node tests/streetverse-mission-route-consequences-contract.mjs
+          node tests/streetverse-mission-reel-handoff-contract.mjs
+          node tests/streetverse-mobile-reel-last-mile-contract.mjs
+          node tests/streetverse-reel-mission-context-contract.mjs
+          node tests/streetverse-reel-return-to-world-contract.mjs
+
+  character-assets:
+    name: Characters + GLB foundry
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify native character contracts
+        run: |
+          node tests/meet-the-stubbs-native-character-visuals-contract.mjs
+          node tests/tryamm-native-asset-foundry-contract.mjs
+          node tests/tryamm-native-runtime-asset-contract.mjs
+      - name: Generate and inspect native GLBs
+        run: |
+          rm -rf /tmp/tryamm-fast-assets
+          node scripts/tryamm-native-asset-foundry.mjs /tmp/tryamm-fast-assets
+          count=0
+          while IFS= read -r -d '' f; do
+            npx gltf-transform inspect "$f" >/dev/null
+            count=$((count+1))
+          done < <(find /tmp/tryamm-fast-assets -name '*.glb' -print0)
+          test "$count" -ge 13
+          echo "Validated $count generated GLBs"
+
+  fast-build:
+    name: Typecheck + production Vite build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Generate native assets
+        run: npm run native:assets
+      - name: Build without the full legacy smoke matrix
+        run: npx vite build
+
+  fast-gate:
+    name: Fast Lane GREEN
+    if: ${{ always() }}
+    needs: [controls-driving, circle-park-world, mission-loop, character-assets, fast-build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consolidate result
+        env:
+          CONTROLS: ${{ needs.controls-driving.result }}
+          CIRCLE_PARK: ${{ needs.circle-park-world.result }}
+          MISSION_LOOP: ${{ needs.mission-loop.result }}
+          CHARACTERS: ${{ needs.character-assets.result }}
+          BUILD: ${{ needs.fast-build.result }}
+        run: |
+          {
+            echo "## StreetVerse Fast Lane"
+            echo
+            echo "| Lane | Result |"
+            echo "|---|---|"
+            echo "| Controls + driving | $CONTROLS |"
+            echo "| Circle Park + world | $CIRCLE_PARK |"
+            echo "| Mission → Reel loop | $MISSION_LOOP |"
+            echo "| Characters + GLBs | $CHARACTERS |"
+            echo "| Typecheck + Vite build | $BUILD |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          test "$CONTROLS" = "success"
+          test "$CIRCLE_PARK" = "success"
+          test "$MISSION_LOOP" = "success"
+          test "$CHARACTERS" = "success"
+          test "$BUILD" = "success"
+          echo "StreetVerse Fast Lane is GREEN"
