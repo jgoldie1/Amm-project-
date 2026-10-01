@@ -19,9 +19,11 @@ for(const token of [
   'SV_BODY_FEMALE_BASE_V1.glb',
   'startCircleParkBootstrapWave',
   "wave:'james-female-circle-park-v1'",
-  "sequence:'James body base → reusable female body base → four Circle Park residents in parallel'"
+  "sequence:'James boy/youth body base → Black/mixed-global female body base → four Circle Park residents in parallel'"
 ])assert.ok(factory.includes(token),'bootstrap factory missing '+token)
 
+assert.ok(factory.includes("ageLane:'youth'"),'James must not be configured as an adult')
+assert.ok(factory.includes("Black and mixed-heritage global character system"),'female base must support Black/mixed-global character creation')
 assert.ok(factory.indexOf("assetId:'sv-james-body-base-v1'")<factory.indexOf("assetId:'sv-female-body-base-v1'"),'James must be first')
 assert.ok(factory.includes("dependsOn:'previous'"),'female base must depend on James')
 assert.ok((factory.match(/dependsOn:'female'/g)||[]).length>=4,'Circle Park resident jobs must wait for female base')
