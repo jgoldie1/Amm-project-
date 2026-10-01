@@ -9,7 +9,8 @@ export type PublishedMeshyAsset={
   completedAt?:string|null
 }
 
-const cache=new Map<string,Promise<PublishedMeshyAsset[]>>()
+const cache=new Map<string,{at:number;promise:Promise<PublishedMeshyAsset[]>}>()
+const CACHE_TTL_MS=30_000
 
 export function resetPublishedMeshyManifest(){
   cache.clear()
@@ -17,17 +18,18 @@ export function resetPublishedMeshyManifest(){
 
 export async function loadPublishedMeshyManifest(cityScope='global'){
   const scope=String(cityScope||'global').trim()||'global'
-  if(!cache.has(scope)){
-    cache.set(scope,(async()=>{
+  const cached=cache.get(scope)
+  if(!cached||Date.now()-cached.at>CACHE_TTL_MS){
+    cache.set(scope,{at:Date.now(),promise:(async()=>{
       try{
         const response=await fetch(`/api/meshy/asset-manifest?city=${encodeURIComponent(scope)}`,{cache:'no-store'})
         if(!response.ok)return[]
         const payload=await response.json()
         return Array.isArray(payload?.assets)?payload.assets.filter((a:PublishedMeshyAsset)=>a?.ready&&a?.assetId&&a?.url):[]
       }catch{return[]}
-    })())
+    })()})
   }
-  return cache.get(scope)!
+  return cache.get(scope)!.promise
 }
 
 export async function resolvePublishedMeshyAsset(assetId:string,cityScope='global'){
