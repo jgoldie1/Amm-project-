@@ -64,6 +64,16 @@ function retrievalPacket(mode,context){
     historicalStatus:clean(context?.historicalStatus,80)
   };
 }
+function retrievalSources(packet){
+  return (packet?.rows||[]).filter(r=>r?.url).slice(0,8).map(r=>({
+    label:clean(r.lane==='HISTORICAL-INTERNET'?'OPEN ARCHIVE':'OPEN SOURCE',40),
+    title:clean(r.title,180),
+    url:clean(r.url,900),
+    capturedAt:clean(r.capturedAt,80)||null,
+    verification:clean(r.verification,80)||null,
+    provider:clean(r.provider||r.source,100)||null
+  }))
+}
 function groundedQuestion(question,packet){
   if(!packet?.rows?.length)return question;
   const evidence=packet.rows.map((r,i)=>'['+(i+1)+'] '+r.lane+' | '+r.title+' | '+r.source+(r.verification?' | verification='+r.verification:'')+(r.capturedAt?' | captured='+r.capturedAt:'')+(r.digest?' | digest='+r.digest:'')+(r.provider?' | provider='+r.provider:'')+(r.url?' | '+r.url:'')+'\n'+r.summary).join('\n\n');
@@ -213,9 +223,9 @@ export default async function handler(req,res){
   for(const runner of runners){
     try{
       const result=await runner();
-      if(result)return res.status(200).json({ok:true,...result,degraded:false,sourceMode:retrieval.mode,retrievalCount:retrieval.rows.length,crawler:retrieval.crawler,authenticated:Boolean(user),userId:user?.id||null,time:new Date().toISOString()});
+      if(result)return res.status(200).json({ok:true,...result,degraded:false,sourceMode:retrieval.mode,retrievalCount:retrieval.rows.length,sources:retrievalSources(retrieval),crawler:retrieval.crawler,authenticated:Boolean(user),userId:user?.id||null,time:new Date().toISOString()});
     }catch(error){errors.push(clean(error?.message,300));}
   }
   const fallback=diagnostic(question,errors);
-  return res.status(200).json({ok:true,...fallback,degraded:true,sourceMode:retrieval.mode,retrievalCount:retrieval.rows.length,crawler:retrieval.crawler,authenticated:Boolean(user),userId:user?.id||null,providerErrors:errors,time:new Date().toISOString()});
+  return res.status(200).json({ok:true,...fallback,degraded:true,sourceMode:retrieval.mode,retrievalCount:retrieval.rows.length,sources:retrievalSources(retrieval),crawler:retrieval.crawler,authenticated:Boolean(user),userId:user?.id||null,providerErrors:errors,time:new Date().toISOString()});
 }
