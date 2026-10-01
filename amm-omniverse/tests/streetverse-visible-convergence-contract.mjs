@@ -34,6 +34,7 @@ must(world.includes("StreetVerseResponderNPCController"),'responder NPCs must be
 must(world.includes("StreetVerseDialogueHUD"),'dialogue HUD must be mounted')
 must(world.includes("HoloGPTAssistant showLauncher={false}"),'HoloGPT must be mounted behind the one-hand StreetVerse menu')
 must(world.includes("['hologpt','◈ HOLOGPT']"),'HoloGPT must be reachable from the one-hand StreetVerse menu')
+must(world.includes("['time','⏳ TIME MACHINE']"),'TIME MACHINE must be reachable from the one-hand StreetVerse menu')
 must(world.includes("tryamm:world-player-signal"),'mobile world must feed the living-world scheduler')
 must(world.includes("tryamm:world-clock"),'mobile world must publish day/night clock state')
 must(world.includes("tryamm:world-weather"),'mobile world must publish weather state')
@@ -61,7 +62,7 @@ for(const key of [
 
 must(sound.includes("onQuantumBeat")&&sound.includes("quantumBeatClock"),'automatic sound bank must use Quantum Beat timing')
 must(sound.includes("idleBpm:84")&&sound.includes("walkBpm:108")&&sound.includes("driveBpm:124")&&sound.includes("emergencyBpm:138"),'Quantum Beat must adapt to idle walk drive and emergency states')
-must(hologpt.includes("AUTO")&&hologpt.includes("HOLO")&&hologpt.includes("ORACLE")&&hologpt.includes("OLD WEB INDEX"),'HoloGPT must expose AUTO HOLO ORACLE and OLD WEB INDEX source modes')
+must(hologpt.includes("AUTO")&&hologpt.includes("HOLO")&&hologpt.includes("ORACLE")&&hologpt.includes("'old-web'")&&hologpt.includes("HISTORY"),'HoloGPT must expose AUTO HOLO ORACLE OLD WEB and HISTORY source modes')
 must(hologpt.includes("/api/oracle/search")&&hologpt.includes("tryamm:holo-internet-query"),'HoloGPT must query both Oracle index and Holographic Internet')
 must(oracleSearch.includes("/api/omni-news/items")&&oracleSearch.includes("/api/quantum-crawler/status"),'Oracle search API must bridge indexed items and Quantum Crawler status')
 must(aiAnswer.includes("retrievalPacket")&&aiAnswer.includes("groundedQuestion"),'HoloGPT answer API must ground model answers in selected retrieval context')
