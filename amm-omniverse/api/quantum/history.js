@@ -1,10 +1,9 @@
+import {normalizeHistoricalUrl,validHistoricalUrl} from '../_lib/historicalInternetSafety.js'
 import {persistQuantumTimeDocuments,readQuantumTimeVersions} from '../_lib/quantumTimeStore.js'
 const clean=(v,n=1200)=>String(v||'').trim().slice(0,n)
 const ARCHIVE='https://web.archive.org/cdx/search/cdx'
 const CC_COLLECTIONS='https://index.commoncrawl.org/collinfo.json'
 
-function validHttpUrl(value){
-  try{const u=new URL(value);return /^https?:$/.test(u.protocol)&&!u.username&&!u.password}catch{return false}
 }
 function stampToIso(stamp){
   const s=String(stamp||'')
@@ -117,12 +116,13 @@ export default async function handler(req,res){
   res.setHeader('Cache-Control','no-store')
   if(!['GET','POST'].includes(req.method))return res.status(405).json({ok:false,error:'Method not allowed'})
   const input=req.method==='GET'?req.query:req.body||{}
-  const url=clean(input.url,1200)
+  const rawUrl=clean(input.url,1200)
+  const url=validHistoricalUrl(rawUrl)?normalizeHistoricalUrl(rawUrl):rawUrl
   const year=yearFrom(input.year)
   const from=yearFrom(input.from)||(year?year:'')
   const to=yearFrom(input.to)||(year?year:'')
   const limit=Math.min(Math.max(Number(input.limit)||24,1),50)
-  if(!validHttpUrl(url))return res.status(400).json({ok:false,error:'Valid public http(s) URL required'})
+  if(!validHistoricalUrl(url))return res.status(400).json({ok:false,error:'Valid public http(s) URL required'})
 
   const [archive,commonCrawl]=await Promise.all([
     archiveSnapshots(url,{from,to,limit}),
