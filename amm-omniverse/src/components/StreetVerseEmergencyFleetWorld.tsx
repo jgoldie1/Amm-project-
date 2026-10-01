@@ -44,6 +44,20 @@ function makeFire(){
   for(let i=0;i<3;i++){const compartment=new THREE.Mesh(new THREE.BoxGeometry(.8,.8,.06),paint(0xdddddd));compartment.position.set(-2+i*.95,1.35,-1.11);g.add(compartment)}
   wheels(g,2.05,-1.8);lightBar(g,'fire');g.userData.kind='fire';g.userData.playerDrivable=false;g.userData.emergencyMissionVehicle=true;g.userData.ladderRigTarget=true;return g
 }
+function makeResponseHub(){
+  const g=new THREE.Group();g.name='streetverse-west-side-response-hub'
+  const slab=new THREE.Mesh(new THREE.BoxGeometry(26,.2,14),paint(0x4e5357));slab.position.set(-64,.1,34);g.add(slab)
+  const rear=new THREE.Mesh(new THREE.BoxGeometry(26,5,.4),paint(0x6d655c));rear.position.set(-64,2.5,40.8);g.add(rear)
+  for(const x of [-72,-64,-56]){
+    const side=new THREE.Mesh(new THREE.BoxGeometry(.35,5,13),paint(0x77716a));side.position.set(x-4,2.5,34);g.add(side)
+    const roof=new THREE.Mesh(new THREE.BoxGeometry(8,.35,13),paint(0x3c4146));roof.position.set(x,5,34);g.add(roof)
+  }
+  const fireMark=new THREE.Mesh(new THREE.BoxGeometry(6,.8,.18),red);fireMark.position.set(-70,4.0,27.4);g.add(fireMark)
+  const emsMark=new THREE.Mesh(new THREE.BoxGeometry(6,.8,.18),white);emsMark.position.set(-64,4.0,27.4);g.add(emsMark)
+  const policeMark=new THREE.Mesh(new THREE.BoxGeometry(6,.8,.18),blue);policeMark.position.set(-58,4.0,27.4);g.add(policeMark)
+  g.userData={label:'West Side Emergency Response Hub',services:['fire','ambulance','police'],walkableApron:true}
+  return g
+}
 function build(kind:Kind){return kind==='fire'?makeFire():kind==='ambulance'?makeAmbulance():makePolice()}
 const speedFor=(kind:Kind)=>kind==='fire'?14:kind==='ambulance'?16:18
 const spawnFor=(kind:Kind)=>kind==='fire'?{x:-70,z:36}:kind==='ambulance'?{x:-64,z:31}:{x:-58,z:36}
@@ -51,7 +65,7 @@ const spawnFor=(kind:Kind)=>kind==='fire'?{x:-70,z:36}:kind==='ambulance'?{x:-64
 export default function StreetVerseEmergencyFleetWorld(){
   useEffect(()=>{
     const units=new Map<Kind,Unit>()
-    let scene:THREE.Scene|null=null,raf=0,last=performance.now(),flashClock=0
+    let scene:THREE.Scene|null=null,station:THREE.Group|null=null,raf=0,last=performance.now(),flashClock=0
 
     const ensure=(kind:Kind)=>{
       let unit=units.get(kind)
@@ -64,9 +78,10 @@ export default function StreetVerseEmergencyFleetWorld(){
     }
 
     const unsub=subscribeStreetVerseScene(handle=>{
-      if(scene)for(const unit of units.values())scene.remove(unit.group)
-      units.clear();scene=handle?.scene||null
+      if(scene){for(const unit of units.values())scene.remove(unit.group);if(station)scene.remove(station)}
+      units.clear();if(station&&scene)scene.remove(station);station=null;scene=handle?.scene||null
       if(!scene)return
+      station=makeResponseHub();scene.add(station)
       ensure('police');ensure('ambulance');ensure('fire')
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-emergency-fleet-ready',{detail:{police:true,ambulance:true,fireTruck:true,station:'west-side-response-hub',worldMeshes:true}}))
     })
