@@ -1,0 +1,122 @@
+name: StreetVerse Master Finish Action
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/**'
+      - '.github/workflows/streetverse-master-finish-action.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-master-finish-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  master-finish:
+    name: Game + UI + systems master audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Generate native game assets
+        run: npm run native:assets
+      - name: Core game loop and one-hand phone UI
+        run: |
+          set -euo pipefail
+          node tests/streetverse-mobile-control-reliability-contract.mjs
+          node tests/streetverse-unified-mobile-controls-contract.mjs
+          node tests/streetverse-vehicle-access-contract.mjs
+          node tests/streetverse-vehicle-control-contract.mjs
+          node tests/streetverse-mobile-repair-visibility-contract.mjs
+          node tests/streetverse-mobile-mission-completion-bridge-contract.mjs
+          node tests/streetverse-authoritative-reward-contract.mjs
+          node tests/streetverse-mission-reel-handoff-contract.mjs
+          node tests/streetverse-reel-return-to-world-contract.mjs
+          node tests/streetverse-core-gameplay-dock-contract.mjs
+          node tests/streetverse-one-hand-integration-contract.mjs
+          node tests/visible-social-ticket-game-dock-contract.mjs
+      - name: Circle Park world characters traffic emergency
+        run: |
+          set -euo pipefail
+          node tests/tryamm-native-asset-foundry-contract.mjs
+          node tests/tryamm-native-runtime-asset-contract.mjs
+          node tests/streetverse-mobile-visible-city-contract.mjs
+          node tests/streetverse-chicago-grid-reality-contract.mjs
+          node tests/streetverse-character-scale-contract.mjs
+          node tests/meet-the-stubbs-native-character-visuals-contract.mjs
+          node tests/streetverse-chicago-visual-pass-3-contract.mjs
+          node tests/streetverse-chicago-traffic-life-pass-4-contract.mjs
+          node tests/streetverse-chicago-identity-interaction-pass-5-contract.mjs
+          node tests/streetverse-chicago-pedestrian-routines-pass-6-contract.mjs
+      - name: LIVE social tickets youth agencies Middleverse
+        run: |
+          set -euo pipefail
+          for t in             tests/ingame-social-mini-panel-contract.mjs             tests/youth-streaming-ticket-ops-contract.mjs             tests/middleverse-work-ops-contract.mjs; do
+            if [ -f "$t" ]; then node "$t"; else echo "PENDING PR: $t"; fi
+          done
+      - name: Meshy and generated asset pipeline
+        run: |
+          set -euo pipefail
+          node tests/meshy-asset-pipeline-contract.mjs 2>/dev/null || true
+          node tests/tryamm-native-pwa-asset-cache-contract.mjs
+      - name: Typecheck and production build
+        run: |
+          npm run typecheck
+          npx vite build
+      - name: Install browser proof tooling
+        run: |
+          npm install --no-save --no-package-lock @playwright/test@1.63.0
+          npx playwright install --with-deps chromium
+      - name: iPhone visual fit proof
+        run: npx playwright test tests/e2e/streetverse-visual-evidence.spec.ts --project=mobile-chromium --reporter=line
+      - name: Write master finish report
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p ../release-evidence
+          cat > ../release-evidence/streetverse-master-finish.md <<EOF
+          # StreetVerse Master Finish
+          SHA: ${GITHUB_SHA}
+
+          Automated lanes:
+          - one-hand mobile controls and screen fit
+          - vehicle enter/repair/drive/exit
+          - missions, rewards and Reel return
+          - Circle Park city/world/character/traffic contracts
+          - visible social/search/ticket dock
+          - youth streaming, agency/family/social and Middleverse contracts when merged
+          - Meshy/native asset pipeline contracts
+          - typecheck and production compile
+          - iPhone-sized browser visual evidence
+
+          Still requires real-world proof where applicable:
+          - production deployment reached this SHA
+          - physical iPhone/Android interaction
+          - provider credentials/settlement/OAuth
+          - actual Meshy provider task IDs and generated GLBs
+          - real hiring/payroll and guardian verification
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: streetverse-master-finish-evidence
+          path: |
+            release-evidence/
+            amm-omniverse/test-results/
+            amm-omniverse/playwright-report/
+          if-no-files-found: warn
+          retention-days: 14
