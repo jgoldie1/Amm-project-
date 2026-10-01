@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { getAccessToken } from '../services/supabaseClient'
 
 type Msg={role:'user'|'assistant';content:string;provider?:string}
-type SourceMode='auto'|'holo'|'oracle'|'old-web'
-type RetrievalItem={title?:string;headline?:string;summary?:string;sourceName?:string;sourceUrl?:string|null;verification?:string;kind?:string;city?:string;representation?:string}
+type SourceMode='auto'|'holo'|'oracle'|'quantum'|'historical'|'old-web'
+type RetrievalItem={title?:string;headline?:string;summary?:string;sourceName?:string;sourceUrl?:string|null;verification?:string;kind?:string;city?:string;representation?:string;capturedAt?:string|null;digest?:string|null;provider?:string}
 type Props={showLauncher?:boolean}
 type Health={ok:boolean;provider?:string;model?:string;error?:string;degraded?:boolean}
 const KEY='tryamm_hologpt_history_v1'
@@ -60,6 +60,70 @@ async function oracleSearch(question:string){
   if(!r.ok)throw new Error(d.error||`Oracle API ${r.status}`)
   return d
 }
+
+async function quantumSearch(question:string,mode:'search'|'research'|'academic'='search'){
+  const r=await fetch('/api/quantum/search',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({q:question,mode}),cache:'no-store'})
+  const d=await readJson(r)
+  if(!r.ok)throw new Error(d.error||`Quantum Internet API ${r.status}`)
+  return d
+}
+function extractHistoricalUrl(question:string){
+  const direct=question.match(/https?:\/\/[^\s"'<>]+/i)?.[0]
+  if(direct)return direct.replace(/[),.;]+$/,'')
+  const bare=question.match(/\b(?:www\.)?[a-z0-9][a-z0-9.-]+\.(?:com|org|net|edu|gov|io|co|ai|us|tv|store|online)(?:\/[^\s"'<>]*)?/i)?.[0]
+  return bare?`https://${bare.replace(/[),.;]+$/,'')}`:''
+}
+function extractHistoricalYear(question:string){
+  return question.match(/\b(?:19|20)\d{2}\b/)?.[0]||''
+}
+function historicalIntent(question:string){
+  return /\b(?:19\d{2}|20[01]\d|archive|archived|history|historical|old internet|past|then vs now|used to|time machine|advertis|campaign|mandela)\b/i.test(question)
+}
+async function historicalSearch(question:string){
+  let url=extractHistoricalUrl(question)
+  const year=extractHistoricalYear(question)
+  let discovery:any=null
+  if(!url){
+    discovery=await quantumSearch(question,'search').catch(()=>null)
+    const candidate=(Array.isArray(discovery?.results)?discovery.results:[]).find((x:any)=>/^https?:\/\//i.test(String(x?.url||x?.sourceUrl||'')))
+    url=String(candidate?.url||candidate?.sourceUrl||'')
+  }
+  if(!url)return {configured:false,status:'URL_REQUIRED',url:'',year,results:[],history:null,snapshot:null}
+  const r=await fetch('/api/quantum/history',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({url,year,limit:30}),cache:'no-store'})
+  const history=await readJson(r)
+  if(!r.ok)throw new Error(history.error||`Historical Internet API ${r.status}`)
+  const chosen=history.nearest||(Array.isArray(history.snapshots)?history.snapshots.find((x:any)=>x.provider==='internet-archive'):null)
+  let snapshot:any=null
+  if(chosen?.archiveTimestamp&&chosen?.sourceUrl){
+    snapshot=await fetch('/api/quantum/snapshot',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({url:chosen.sourceUrl,timestamp:chosen.archiveTimestamp}),cache:'no-store'}).then(readJson).catch(()=>null)
+  }
+  const captures=(Array.isArray(history.snapshots)?history.snapshots:[]).slice(0,12).map((x:any)=>({
+    title:`Archived capture ${String(x.capturedAt||x.archiveTimestamp||'').slice(0,10)}`,
+    summary:`${x.provider||'archive'} capture${x.digest?` • digest ${x.digest}`:''}`,
+    sourceName:x.sourceLabel||x.provider||'ARCHIVED',
+    sourceUrl:x.archiveUrl||x.sourceUrl||null,
+    verification:'dated-capture',
+    capturedAt:x.capturedAt||null,
+    digest:x.digest||null,
+    provider:x.provider||null,
+  }))
+  if(snapshot?.title||snapshot?.description||snapshot?.marketingSignals?.length){
+    captures.unshift({
+      title:snapshot.title||`Inspected archived capture ${year||''}`,
+      summary:[
+        snapshot.description,
+        ...(Array.isArray(snapshot.marketingSignals)?snapshot.marketingSignals.slice(0,5).map((s:any)=>`PROMO SIGNAL [${s.term}]: ${s.snippet}`):[])
+      ].filter(Boolean).join(' • ').slice(0,1800),
+      sourceName:'ARCHIVED SNAPSHOT INSPECTION',
+      sourceUrl:chosen?.archiveUrl||chosen?.sourceUrl||null,
+      verification:'captured-page-text',
+      capturedAt:history.nearest?.capturedAt||chosen?.capturedAt||null,
+      digest:chosen?.digest||null,
+      provider:'internet-archive',
+    })
+  }
+  return {configured:true,status:'OK',url,year,results:captures,history,snapshot,discovery}
+}
 async function holoSearch(question:string):Promise<RetrievalItem[]>{
   return await new Promise(resolve=>{
     let done=false
@@ -83,6 +147,9 @@ function compactRetrieval(items:RetrievalItem[],limit=8){
     verification:item.verification||null,
     city:item.city||null,
     representation:item.representation||null,
+    capturedAt:item.capturedAt||null,
+    digest:item.digest||null,
+    provider:item.provider||null,
   }))
 }
 
@@ -116,13 +183,29 @@ export default function HoloGPTAssistant({showLauncher=true}:Props){
     setBusy(true)
     try{
       setRetrievalStatus('SEARCHING '+sourceMode.toUpperCase())
-      let retrievalContext:any={mode:sourceMode,holo:[],oracle:[],crawler:null}
+      let retrievalContext:any={mode:sourceMode,holo:[],oracle:[],quantum:[],historical:[],crawler:null,historySummary:null}
       if(sourceMode==='holo'||sourceMode==='auto')retrievalContext.holo=compactRetrieval(await holoSearch(question))
       if(sourceMode==='oracle'||sourceMode==='old-web'||sourceMode==='auto'){
         const oracle=await oracleSearch(question)
         retrievalContext.oracle=compactRetrieval(Array.isArray(oracle.results)?oracle.results:[])
         retrievalContext.crawler=oracle.crawler||null
         retrievalContext.oracleConfigured=oracle.configured!==false
+      }
+      if(sourceMode==='quantum'||sourceMode==='auto'){
+        const quantum=await quantumSearch(question,'search').catch(()=>null)
+        retrievalContext.quantum=compactRetrieval(Array.isArray(quantum?.results)?quantum.results.map((x:any)=>({
+          title:x.title,summary:x.summary,sourceName:x.sourceLabel||x.sourceType,sourceUrl:x.url,verification:x.verified?'verified-source':x.sourceType||null
+        })):[])
+        retrievalContext.quantumConfigured=quantum?.configured!==false
+        retrievalContext.quantumProviders=quantum?.providers||null
+      }
+      if(sourceMode==='historical'||(sourceMode==='auto'&&historicalIntent(question))){
+        const historical=await historicalSearch(question).catch(()=>null)
+        retrievalContext.historical=compactRetrieval(Array.isArray(historical?.results)?historical.results:[],12)
+        retrievalContext.historySummary=historical?.history?.summary||null
+        retrievalContext.historicalUrl=historical?.url||null
+        retrievalContext.historicalYear=historical?.year||null
+        retrievalContext.historicalStatus=historical?.status||null
       }
       setRetrievalStatus('')
       const token=await getAccessToken()
@@ -148,9 +231,10 @@ export default function HoloGPTAssistant({showLauncher=true}:Props){
       <div onClick={e=>e.stopPropagation()} style={{width:'min(96vw,460px)',height:'min(82vh,690px)',background:'linear-gradient(160deg,#06101a,#080615)',border:'1px solid #4fe3ff77',borderRadius:22,display:'flex',flexDirection:'column',overflow:'hidden',boxShadow:'0 28px 90px #000d'}}>
         <header style={{padding:'14px 16px',borderBottom:'1px solid #4fe3ff22',display:'flex',alignItems:'center',gap:10}}><div style={{fontSize:27}}>◈</div><div style={{flex:1}}><div style={{color:'#fff',fontWeight:950}}>HoloGPT</div><div style={{fontSize:9,color:statusColor,fontFamily:'monospace'}}>{status}{health?.provider?` · ${health.provider}`:''}</div></div><button aria-label="Close HoloGPT" onClick={()=>setOpen(false)} style={{background:'transparent',border:'1px solid #334',color:'#fff',borderRadius:'50%',width:34,height:34,cursor:'pointer'}}>×</button></header>
         {health?.degraded&&<div style={{margin:'10px 12px 0',padding:'9px 10px',border:'1px solid #e8b94455',borderRadius:11,background:'#e8b9440d',fontSize:10,color:'#ffe281',lineHeight:1.45}}>Generative AI is not connected on this deployment yet. Holo navigation remains usable and HoloGPT now fails softly instead of showing a raw runtime-error message.</div>}
-        <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(0,1fr))',gap:5,padding:'9px 12px 0'}}>
-          {([['auto','AUTO'],['holo','HOLO'],['oracle','ORACLE'],['old-web','OLD WEB INDEX']] as const).map(([id,label])=><button key={id} onClick={()=>setSourceMode(id)} style={{minHeight:34,borderRadius:9,border:sourceMode===id?'1px solid #4fe3ff':'1px solid #253647',background:sourceMode===id?'#0d3043':'#091019',color:'#dffaff',fontSize:8,fontWeight:950}}>{label}</button>)}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:5,padding:'9px 12px 0'}}>
+          {([['auto','AUTO'],['holo','HOLO'],['oracle','ORACLE'],['quantum','QUANTUM'],['historical','HISTORY'],['old-web','OLD INDEX']] as const).map(([id,label])=><button key={id} onClick={()=>setSourceMode(id)} style={{minHeight:34,borderRadius:9,border:sourceMode===id?'1px solid #4fe3ff':'1px solid #253647',background:sourceMode===id?'#0d3043':'#091019',color:'#dffaff',fontSize:8,fontWeight:950}}>{label}</button>)}
         </div>
+        {sourceMode==='historical'&&<div style={{padding:'6px 12px 0',fontSize:8,color:'#d6c4ff',fontFamily:'monospace'}}>HISTORY MODE: include a website/domain and year when you can — example: “nike.com 1998 advertising”.</div>}
         {retrievalStatus&&<div style={{padding:'6px 12px 0',fontSize:8,color:'#6fe8ff',fontFamily:'monospace'}}>{retrievalStatus}</div>}
         <div style={{flex:1,overflowY:'auto',padding:14}}>
           {messages.length===0&&<div style={{padding:16,border:'1px solid #4fe3ff22',borderRadius:14,color:'#b8cfda',lineHeight:1.6,fontSize:12}}>Ask HoloGPT a question or use it as a Holo launcher. Try “open Holoverse”, “open StreetVerse”, “open Holo Services”, “open Holo Music”, or “open Command Nexus”.</div>}
