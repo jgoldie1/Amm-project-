@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import {subscribeStreetVerseScene} from '../game/streetverseSceneRegistry'
 
 type Kind='police'|'ambulance'|'fire'
-type Unit={id:string;kind:Kind;group:THREE.Group;x:number;z:number;targetX:number;targetZ:number;speed:number;active:boolean}
+type Unit={id:string;kind:Kind;group:THREE.Group;x:number;z:number;targetX:number;targetZ:number;speed:number;active:boolean;arrived:boolean}
 
 const paint=(color:number)=>new THREE.MeshStandardMaterial({color,roughness:.42,metalness:.28})
 const dark=paint(0x11151a),glass=paint(0x6d96ad),white=paint(0xf1f4f6),red=paint(0xc9231d),blue=paint(0x203d74)
@@ -72,7 +72,7 @@ export default function StreetVerseEmergencyFleetWorld(){
       if(unit)return unit
       if(!scene)return null
       const group=build(kind),spawn=spawnFor(kind);group.position.set(spawn.x,0,spawn.z);scene.add(group)
-      unit={id:'west-side-'+kind+'-01',kind,group,x:spawn.x,z:spawn.z,targetX:spawn.x,targetZ:spawn.z,speed:speedFor(kind),active:false};units.set(kind,unit)
+      unit={id:'west-side-'+kind+'-01',kind,group,x:spawn.x,z:spawn.z,targetX:spawn.x,targetZ:spawn.z,speed:speedFor(kind),active:false,arrived:false};units.set(kind,unit)
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-emergency-world-unit-ready',{detail:{id:unit.id,kind,x:unit.x,z:unit.z,actualWorldMesh:true}}))
       return unit
     }
@@ -88,7 +88,7 @@ export default function StreetVerseEmergencyFleetWorld(){
 
     const dispatchUnit=(kind:Kind,x:number,z:number)=>{
       const unit=ensure(kind);if(!unit)return
-      unit.targetX=THREE.MathUtils.clamp(x,-80,80);unit.targetZ=THREE.MathUtils.clamp(z,-80,80);unit.active=true
+      unit.targetX=THREE.MathUtils.clamp(x,-80,80);unit.targetZ=THREE.MathUtils.clamp(z,-80,80);unit.active=true;unit.arrived=false
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-emergency-vehicle-dispatched',{detail:{id:unit.id,kind,x:unit.x,z:unit.z,targetX:unit.targetX,targetZ:unit.targetZ,worldMesh:true}}))
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-sound-event',{detail:{kind:'emergency-siren',service:kind,source:'world-emergency-fleet'}}))
     }
@@ -96,11 +96,11 @@ export default function StreetVerseEmergencyFleetWorld(){
     const onEmergency=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};dispatchUnit(normalize(String(d.type||d.kind||d.service||d.agency||'police')),Number(d.x||0),Number(d.z||0))}
     const onResponder=(event:Event)=>{
       const d=(event as CustomEvent<any>).detail||{};const kind=normalize(String(d.agency||d.kind||'police'));const unit=ensure(kind);if(!unit||d.active===false)return
-      if(Number.isFinite(Number(d.x)))unit.targetX=Number(d.x);if(Number.isFinite(Number(d.z)))unit.targetZ=Number(d.z);unit.active=true
+      if(Number.isFinite(Number(d.x)))unit.targetX=Number(d.x);if(Number.isFinite(Number(d.z)))unit.targetZ=Number(d.z);unit.active=true;unit.arrived=false
     }
     const onCollision=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};if(Number(d.speed||d.impact||0)>12)dispatchUnit('ambulance',Number(d.x||0),Number(d.z||0))}
     const onFire=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};if(d.burning!==false)dispatchUnit('fire',Number(d.x||0),Number(d.z||0))}
-    const onCleared=()=>{for(const unit of units.values()){const home=spawnFor(unit.kind);unit.targetX=home.x;unit.targetZ=home.z;unit.active=false}}
+    const onCleared=()=>{for(const unit of units.values()){const home=spawnFor(unit.kind);unit.targetX=home.x;unit.targetZ=home.z;unit.active=false;unit.arrived=false}}
 
     addEventListener('tryamm:streetverse-emergency-response',onEmergency)
     addEventListener('tryamm:streetverse-responder-world-position',onResponder)
@@ -119,7 +119,7 @@ export default function StreetVerseEmergencyFleetWorld(){
         const a=unit.group.userData.flashA as THREE.Mesh|undefined,b=unit.group.userData.flashB as THREE.Mesh|undefined
         if(a&&(a.material as THREE.MeshBasicMaterial).opacity!==undefined)(a.material as THREE.MeshBasicMaterial).opacity=on?1:.18
         if(b&&(b.material as THREE.MeshBasicMaterial).opacity!==undefined)(b.material as THREE.MeshBasicMaterial).opacity=on?.18:1
-        if(dist<1&&unit.active)window.dispatchEvent(new CustomEvent('tryamm:streetverse-emergency-unit-arrived',{detail:{id:unit.id,kind:unit.kind,x:unit.x,z:unit.z,worldMesh:true}}))
+        if(dist<1&&unit.active&&!unit.arrived){unit.arrived=true;window.dispatchEvent(new CustomEvent('tryamm:streetverse-emergency-unit-arrived',{detail:{id:unit.id,kind:unit.kind,x:unit.x,z:unit.z,worldMesh:true}}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-responder-staged',{detail:{id:unit.id,agency:unit.kind,x:unit.x,z:unit.z,worldMesh:true}}))}
       }
       raf=requestAnimationFrame(tick)
     }
