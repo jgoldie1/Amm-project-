@@ -35,6 +35,7 @@ for(const token of [
 assert.ok(mobile.includes('registerStreetVerseScene'),'mobile world must expose its real Three.js scene to world layers')
 assert.ok(mobile.includes('<StreetVerseEmergencyFleetWorld/>'),'mobile StreetVerse must mount actual emergency fleet')
 assert.ok(mobile.includes('<StreetVerseThomasJeffersonSchool/>'),'mobile StreetVerse must mount the school campus')
+assert.ok(mobile.includes("['school','🏫 SCHOOL']")&&mobile.includes("tryamm:school-route-request"),'phone quick menu must provide one-tap school routing')
 assert.ok(mobile.includes('externalCollisionBoxes'),'school walls must participate in mobile player collision')
 assert.ok(overlays.includes('<StreetVerseEmergencyFleetWorld/>')&&overlays.includes('<StreetVerseThomasJeffersonSchool/>'),'full world overlays must include school and emergency fleet')
 
