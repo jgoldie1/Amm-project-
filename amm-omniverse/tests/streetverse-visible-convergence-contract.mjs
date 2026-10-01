@@ -5,6 +5,9 @@ const main=read('src/main.tsx')
 const world=read('src/components/StreetVerseMobileWorld.tsx')
 const sound=read('src/runtime/StreetVerseSoundBankRuntime.ts')
 const cafe=read('src/runtime/StreetVerseAICafeBridgeRuntime.ts')
+const hologpt=read('src/components/HoloGPTAssistant.tsx')
+const oracleSearch=read('api/oracle/search.js')
+const aiAnswer=read('api/ai/answer.js')
 
 const must=(ok,msg)=>{if(!ok)throw new Error('STREETVERSE CONVERGENCE CONTRACT FAIL: '+msg)}
 
@@ -58,6 +61,11 @@ for(const key of [
 
 must(sound.includes("onQuantumBeat")&&sound.includes("quantumBeatClock"),'automatic sound bank must use Quantum Beat timing')
 must(sound.includes("idleBpm:84")&&sound.includes("walkBpm:108")&&sound.includes("driveBpm:124")&&sound.includes("emergencyBpm:138"),'Quantum Beat must adapt to idle walk drive and emergency states')
+must(hologpt.includes("AUTO")&&hologpt.includes("HOLO")&&hologpt.includes("ORACLE")&&hologpt.includes("OLD WEB INDEX"),'HoloGPT must expose AUTO HOLO ORACLE and OLD WEB INDEX source modes')
+must(hologpt.includes("/api/oracle/search")&&hologpt.includes("tryamm:holo-internet-query"),'HoloGPT must query both Oracle index and Holographic Internet')
+must(oracleSearch.includes("/api/omni-news/items")&&oracleSearch.includes("/api/quantum-crawler/status"),'Oracle search API must bridge indexed items and Quantum Crawler status')
+must(aiAnswer.includes("retrievalPacket")&&aiAnswer.includes("groundedQuestion"),'HoloGPT answer API must ground model answers in selected retrieval context')
+must(aiAnswer.includes("UNTRUSTED RETRIEVAL CONTEXT"),'retrieved old-web content must be treated as untrusted data rather than instructions')
 must(cafe.includes("tryamm:ai-cafe-task"),'StreetVerse AI Cafe bridge must create real agent tasks')
 must(cafe.includes("tryamm:streetverse-world-ready"),'AI Cafe must audit the visible world after mount')
 
