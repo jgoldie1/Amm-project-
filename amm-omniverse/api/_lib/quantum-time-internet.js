@@ -187,18 +187,67 @@ export function extractHistoricalPageSignals(html){
   }
 }
 
+async function fetchArchiveSameHost(url,signal,depth=0){
+  const r=await fetch(url,{headers:{accept:'text/html,application/xhtml+xml','user-agent':'TRYAMM-Quantum-Time/1.0 (+https://tryamm.online)'},signal,redirect:'manual',cache:'no-store'})
+  if(r.status>=300&&r.status<400&&depth<2){
+    const location=r.headers.get('location')
+    if(!location)throw new Error('archive_redirect_without_location')
+    const next=new URL(location,url)
+    if(next.hostname!=='web.archive.org')throw new Error('archive_redirect_blocked')
+    return fetchArchiveSameHost(next.toString(),signal,depth+1)
+  }
+  return r
+}
+
 export async function fetchInternetArchiveCapture(capture){
   if(!capture?.timestamp||!capture?.original)throw Object.assign(new Error('archive_capture_required'),{status:400})
   const raw=`https://web.archive.org/web/${capture.timestamp}id_/${capture.original}`
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000)
   try{
-    const r=await fetch(raw,{headers:{accept:'text/html,application/xhtml+xml','user-agent':'TRYAMM-Quantum-Time/1.0'},signal:controller.signal,redirect:'follow',cache:'no-store'})
+    const r=await fetchArchiveSameHost(raw,controller.signal)
     if(!r.ok)throw new Error(`archive_capture_${r.status}`)
     const type=String(r.headers.get('content-type')||'')
     if(!type.includes('html')&&!type.includes('text'))return {...capture,title:'',description:'',headings:[],contentExcerpt:'',adSignals:[],contentHash:sha256(capture.digest||capture.timestamp)}
     const html=await readLimitedText(r)
     return {...capture,...extractHistoricalPageSignals(html)}
   }finally{clearTimeout(timer)}
+}
+
+export async function storedHistoricalTimeline(rawUrl,{fromYear,toYear,limit=50}={}){
+  if(!adminReady())return []
+  const canonical=normalizeHistoricalUrl(rawUrl)
+  const query={
+    select:'id,canonical_url,source_url,source_type,captured_at,archive_timestamp,title,description,content_excerpt,content_hash,business_name,ad_signals,provenance,verification_status,supersedes',
+    canonical_url:`eq.${canonical}`,
+    order:'captured_at.asc',
+    limit:String(Math.min(Math.max(Number(limit)||50,1),100)),
+  }
+  if(fromYear)query.captured_at=`gte.${String(fromYear).slice(0,4)}-01-01T00:00:00Z`
+  const rows=await adminRest('quantum_time_documents',{query}).catch(()=>[])
+  return (Array.isArray(rows)?rows:[]).filter(row=>{
+    const y=Number(String(row.captured_at||'').slice(0,4))
+    return (!fromYear||y>=Number(fromYear))&&(!toYear||y<=Number(toYear))
+  }).map(row=>({
+    id:row.id,
+    provider:row.source_type,
+    sourceType:'archive',
+    sourceLabel:'DURABLE TIME INDEX',
+    timestamp:String(row.archive_timestamp||''),
+    capturedAt:row.captured_at,
+    original:row.canonical_url,
+    status:200,
+    mime:'',
+    digest:String(row?.provenance?.digest||row?.provenance?.providerDigest||row.content_hash||''),
+    archiveUrl:String(row.source_url||'').includes('web.archive.org')?row.source_url:null,
+    title:row.title||'',
+    description:row.description||'',
+    headings:[],
+    contentExcerpt:row.content_excerpt||'',
+    adSignals:Array.isArray(row.ad_signals)?row.ad_signals:[],
+    contentHash:row.content_hash||'',
+    provenance:{...(row.provenance||{}),durableId:row.id,verificationStatus:row.verification_status,supersedes:row.supersedes||null},
+    durable:true,
+  }))
 }
 
 export async function persistHistoricalCapture(rawUrl,capture,businessName=''){
