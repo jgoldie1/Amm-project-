@@ -1,5 +1,11 @@
+import {persistQuantumTimeDocument} from '../_lib/quantumTimeStore.js'
 const clean=(v,n=2000)=>String(v||'').trim().slice(0,n)
 
+function stampToIso(stamp){
+  const s=String(stamp||'')
+  if(!/^\d{14}$/.test(s))return null
+  return s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6,8)+'T'+s.slice(8,10)+':'+s.slice(10,12)+':'+s.slice(12,14)+'Z'
+}
 function validHttpUrl(value){
   try{const u=new URL(value);return /^https?:$/.test(u.protocol)&&!u.username&&!u.password}catch{return false}
 }
@@ -72,10 +78,24 @@ export default async function handler(req,res){
   try{
     const html=await fetchArchived(timestamp,url)
     const text=textify(html).slice(0,12000)
+    const title=extractTitle(html),description=extractDescription(html),signals=marketingSignals(text)
+    const persistence=await persistQuantumTimeDocument({
+      sourceUrl:url,
+      sourceType:'internet-archive',
+      capturedAt:stampToIso(timestamp),
+      archiveTimestamp:timestamp,
+      title,
+      description,
+      textSample:clean(text,6000),
+      adSignals:signals,
+      digest:'',
+      provenance:{provider:'internet-archive',timestamp,inspection:'text-only-no-script-execution'},
+      verificationStatus:'captured-page-text'
+    }).catch(error=>({configured:true,saved:false,error:clean(error?.message,300)}))
     return res.status(200).json({
       ok:true,mode:'historical-snapshot-inspection',source:'internet-archive',
-      sourceUrl:url,capturedAt:timestamp,title:extractTitle(html),description:extractDescription(html),
-      textSample:clean(text,6000),marketingSignals:marketingSignals(text),
+      sourceUrl:url,capturedAt:timestamp,title,description,
+      textSample:clean(text,6000),marketingSignals:signals,persistence,
       evidencePolicy:{
         snapshotTextIsUntrusted:true,
         scriptsNeverExecuted:true,
