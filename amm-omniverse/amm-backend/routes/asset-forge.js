@@ -13,6 +13,16 @@ function hasAssetForgeRole(user){
   return ['owner','admin','ops','release','asset'].includes(role)
 }
 
+
+const CIRCLE_PARK_PRODUCTION_WAVE=Object.freeze([
+  {id:'sv-black-man-adult-01',kind:'character',prompt:'Game-ready realistic Black Chicago adult man, everyday contemporary streetwear, neutral A-pose, full body, clean silhouette, mobile game NPC, no logos',poseMode:'a-pose',targetPolycount:45000},
+  {id:'sv-black-woman-adult-01',kind:'character',prompt:'Game-ready realistic Black Chicago adult woman, everyday contemporary streetwear, neutral A-pose, full body, clean silhouette, mobile game NPC, no logos',poseMode:'a-pose',targetPolycount:45000},
+  {id:'sv-black-man-senior-01',kind:'character',prompt:'Game-ready realistic Black Chicago senior man, casual neighborhood clothing, neutral A-pose, full body, clean silhouette, mobile game NPC, no logos',poseMode:'a-pose',targetPolycount:45000},
+  {id:'sv-black-woman-senior-01',kind:'character',prompt:'Game-ready realistic Black Chicago senior woman, casual neighborhood clothing, neutral A-pose, full body, clean silhouette, mobile game NPC, no logos',poseMode:'a-pose',targetPolycount:45000},
+  {id:'sv-chicago-sedan-01',kind:'vehicle',prompt:'Realistic unbranded modern four-door Chicago street sedan, game-ready exterior, closed doors, clean topology, neutral materials, mobile open-world game asset',targetPolycount:50000},
+  {id:'sv-chicago-suv-01',kind:'vehicle',prompt:'Realistic unbranded modern midsize SUV for a Chicago neighborhood, game-ready exterior, closed doors, clean topology, neutral materials, mobile open-world game asset',targetPolycount:50000},
+])
+
 function createAssetForgeRouter({supabase,provider=createMeshyAssetProvider()}){
   const router=express.Router()
 
@@ -46,6 +56,33 @@ function createAssetForgeRouter({supabase,provider=createMeshyAssetProvider()}){
   }
 
   router.use(requireAssetOperator)
+
+  router.get('/production-wave',(_req,res)=>res.json({
+    schema:'tryamm.circle-park-production-wave.v1',
+    mode:'credit-guarded',
+    jobs:CIRCLE_PARK_PRODUCTION_WAVE,
+    count:CIRCLE_PARK_PRODUCTION_WAVE.length,
+    bjV6:{mode:'image-reference-only',publishPath:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6.glb'},
+    nativeFirst:['buildings','roads','sidewalks','trees','grass','benches','lights','repeatable-props'],
+  }))
+
+  router.post('/production-wave/start',async(req,res)=>{
+    const requested=Array.isArray(req.body?.ids)?new Set(req.body.ids.map(String)):null
+    const jobs=CIRCLE_PARK_PRODUCTION_WAVE.filter(job=>!requested||requested.has(job.id))
+    if(!jobs.length)return res.status(400).json({error:'No approved production-wave jobs selected'})
+    if(jobs.length>6)return res.status(400).json({error:'Production-wave hard cap exceeded'})
+    const submitted=[]
+    for(const job of jobs){
+      try{
+        const task=await provider.createPreview({prompt:job.prompt,targetPolycount:job.targetPolycount,poseMode:job.poseMode})
+        submitted.push({...job,taskId:task.taskId,status:'submitted'})
+      }catch(error){
+        submitted.push({...job,status:'failed',error:String(error.message||error)})
+        break
+      }
+    }
+    res.status(202).json({schema:'tryamm.circle-park-production-wave-start.v1',submitted,creditGuard:{maxJobs:6,noAutomaticRefine:true},certified:false,publishAllowed:false})
+  })
 
   router.post('/text-to-3d/preview',async(req,res)=>{
     try{
