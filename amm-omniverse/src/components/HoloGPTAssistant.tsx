@@ -136,6 +136,7 @@ export default function HoloGPTAssistant({showLauncher=true}:Props){
   const [historyUrl,setHistoryUrl]=useState('')
   const [historyFrom,setHistoryFrom]=useState('')
   const [historyTo,setHistoryTo]=useState('')
+  const [historyEvidence,setHistoryEvidence]=useState<RetrievalItem[]>([])
   const end=useRef<HTMLDivElement>(null)
   const history=useMemo(()=>messages.slice(-10).map(m=>({role:m.role,content:m.content})),[messages])
 
@@ -171,6 +172,7 @@ export default function HoloGPTAssistant({showLauncher=true}:Props){
         const historical=await historicalSearch(question,historyUrl,historyFrom,historyTo)
         retrievalContext.historical=compactRetrieval(historical.results,10)
         retrievalContext.historicalRaw=historical.raw
+        setHistoryEvidence(historical.results.slice(0,12))
       }
       setRetrievalStatus('')
       const token=await getAccessToken()
@@ -208,7 +210,13 @@ export default function HoloGPTAssistant({showLauncher=true}:Props){
           </div>
           <div style={{fontSize:8,color:'#6f8794',marginTop:5}}>One date = inspect capture • two dates = THEN ↔ NOW • missing captures stay labeled missing.</div>
         </div>}
-        {retrievalStatus&&<div style={{padding:'6px 12px 0',fontSize:8,color:'#6fe8ff',fontFamily:'monospace'}}>{retrievalStatus}</div>}
+        {retrievalStatus&&<div style={{padding:'6px 12px 0',fontSize:8,color:'#6fe8ff',fontFamily:'monospace'}}>{retrievalStatus}</div>}        {sourceMode==='historical'&&historyEvidence.length>0&&<div style={{padding:'7px 12px 0',display:'grid',gap:5,maxHeight:150,overflowY:'auto'}}>
+          {historyEvidence.slice(0,6).map((item,i)=><div key={i} style={{border:'1px solid #27495a',borderRadius:9,padding:7,background:'#071019'}}>
+            <div style={{fontSize:8,fontWeight:950,color:'#a8efff'}}>{String(item.title||'ARCHIVED CAPTURE')}</div>
+            <div style={{fontSize:8,color:'#7f9fac',marginTop:2}}>{String(item.sourceName||'archive')} • {String(item.verification||'source-capture')}</div>
+            {item.sourceUrl&&<a href={String(item.sourceUrl)} target="_blank" rel="noopener noreferrer" style={{display:'inline-block',marginTop:4,fontSize:8,color:'#76e8ff',fontWeight:950}}>OPEN ARCHIVE ↗</a>}
+          </div>)}
+        </div>}
         <div style={{flex:1,overflowY:'auto',padding:14}}>
           {messages.length===0&&<div style={{padding:16,border:'1px solid #4fe3ff22',borderRadius:14,color:'#b8cfda',lineHeight:1.6,fontSize:12}}>Ask HoloGPT a question or use it as a Holo launcher. Try “open Holoverse”, “open StreetVerse”, “open Holo Services”, “open Holo Music”, or “open Command Nexus”.</div>}
           {messages.map((m,i)=><div key={i} style={{display:'flex',justifyContent:m.role==='user'?'flex-end':'flex-start',margin:'10px 0'}}><div style={{maxWidth:'88%',whiteSpace:'pre-wrap',lineHeight:1.55,fontSize:12,padding:'10px 12px',borderRadius:14,background:m.role==='user'?'#e8b94418':'#4fe3ff12',border:`1px solid ${m.role==='user'?'#e8b94444':'#4fe3ff33'}`,color:m.role==='user'?'#ffe7a0':'#e8faff'}}>{m.content}{m.provider&&<div style={{marginTop:7,fontSize:8,color:'#6f8d9e',fontFamily:'monospace'}}>{m.provider}</div>}</div></div>)}
