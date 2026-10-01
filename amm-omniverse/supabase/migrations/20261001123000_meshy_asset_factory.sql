@@ -7,6 +7,9 @@ create table if not exists public.meshy_asset_jobs (
   asset_id text not null,
   filename text not null,
   city_scope text not null default 'global',
+  wave_id uuid,
+  sequence_index integer,
+  depends_on_job_id uuid references public.meshy_asset_jobs(id) on delete set null,
   generation_type text not null check (generation_type in ('text-to-3d','image-to-3d','multi-image-to-3d')),
   prompt text,
   source_image_url text,
@@ -38,6 +41,8 @@ create index if not exists meshy_asset_jobs_asset_stage_idx
   on public.meshy_asset_jobs(asset_id,stage,created_at desc);
 create index if not exists meshy_asset_jobs_scope_ready_idx
   on public.meshy_asset_jobs(city_scope,stage,updated_at desc);
+create index if not exists meshy_asset_jobs_wave_idx
+  on public.meshy_asset_jobs(wave_id,sequence_index,created_at);
 create unique index if not exists meshy_asset_jobs_generation_task_uidx
   on public.meshy_asset_jobs(provider_generation_task_id)
   where provider_generation_task_id is not null;
