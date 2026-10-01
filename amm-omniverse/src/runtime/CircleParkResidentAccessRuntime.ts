@@ -48,9 +48,10 @@ export function installCircleParkResidentAccessRuntime(){
     const target=[-31,0,56] as [number,number,number]
 
     if(method==='guard-sign-in'){
-      state={...state,signedIn:true}
-      publish({method,allowed:true,signedIn:true,residentKey:state.residentKey,target})
-      window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'SIGNED IN • SECURITY WAVES YOU THROUGH'}}))
+      window.dispatchEvent(new CustomEvent('tryamm:circle-park-guard-checkin-open',{detail:{
+        source:'circle-park-resident-access',
+        patrolShift:circleParkPatrolShiftForHour(new Date().getHours()),
+      }}))
       return
     }
 
@@ -88,6 +89,22 @@ export function installCircleParkResidentAccessRuntime(){
     }
   }
 
+  const onGuardCheckInComplete=(event:Event)=>{
+    const detail=(event as CustomEvent<{visitorName?:string;visitingName?:string;unitLabel?:string}>).detail||{}
+    state={...state,signedIn:true}
+    const target=[-31,0,56] as [number,number,number]
+    publish({method:'guard-sign-in',allowed:true,signedIn:true,residentKey:state.residentKey,target})
+    window.dispatchEvent(new CustomEvent('tryamm:circle-park-visitor-log',{detail:{
+      visitorName:String(detail.visitorName||'Visitor').slice(0,60),
+      visitingName:String(detail.visitingName||'Resident').slice(0,60),
+      unitLabel:String(detail.unitLabel||'').slice(0,32),
+      signedInAt:Date.now(),
+      retention:'local-7-day-memory',
+      source:'circle-park-security-desk',
+    }}))
+    window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'SIGNED IN • SECURITY WAVES YOU THROUGH'}}))
+  }
+
   const onSignOut=()=>{
     state={...state,signedIn:false}
     saveState(state)
@@ -95,6 +112,7 @@ export function installCircleParkResidentAccessRuntime(){
   }
 
   addEventListener('tryamm:circle-park-entry',onEntry)
+  addEventListener('tryamm:circle-park-guard-checkin-complete',onGuardCheckInComplete)
   addEventListener('tryamm:circle-park-sign-out',onSignOut)
   queueMicrotask(()=>window.dispatchEvent(new CustomEvent('tryamm:circle-park-resident-access-state',{detail:{
     ...state,
@@ -104,6 +122,7 @@ export function installCircleParkResidentAccessRuntime(){
 
   return()=>{
     removeEventListener('tryamm:circle-park-entry',onEntry)
+    removeEventListener('tryamm:circle-park-guard-checkin-complete',onGuardCheckInComplete)
     removeEventListener('tryamm:circle-park-sign-out',onSignOut)
     installed=false
   }
