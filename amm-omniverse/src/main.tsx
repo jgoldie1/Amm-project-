@@ -261,6 +261,9 @@ queueMicrotask(() => {
     import('./runtime/StreetVerseGrowthNetworkRuntime')
       .then(m => m.installStreetVerseGrowthNetworkRuntime())
       .catch(error => console.error('[TRYAMM] StreetVerse growth network failed after StreetVerse mount.', error))
+    import('./runtime/HolographicInternetGoogloplexBridge')
+      .then(m => m.installHolographicInternetBridge())
+      .catch(error => console.error('[TRYAMM] Holographic Internet failed after StreetVerse mount.', error))
     return
   }
   installOptionalRuntimes()
