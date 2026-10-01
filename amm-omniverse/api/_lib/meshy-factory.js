@@ -6,8 +6,8 @@ import {persistRemoteGlb} from './streetverse-asset-storage.js';
 export const ASSET_FACTORY_ROLES=['founder','admin','superadmin','platform-admin','asset-admin','ai-cto'];
 
 const CATALOG=[
- {assetId:'sv-james-body-base-v1',filename:'SV_HERO_JAMES_BODY_BASE_V1.glb',generationType:'text-to-3d',height:1.80,heritage:'identity-neutral',ageLane:'adult',role:'James body base; neutral face until an approved reference image is supplied',prompt:'game-ready realistic adult male hero body base, neutral non-identifying face, balanced athletic-average build, full body, A-pose for humanoid rigging, PBR textures, clean mobile-web topology, no celebrity likeness, no logos, StreetVerse hero body base'},
- {assetId:'sv-female-body-base-v1',filename:'SV_BODY_FEMALE_BASE_V1.glb',generationType:'text-to-3d',height:1.68,heritage:'identity-neutral',ageLane:'adult',role:'reusable adult female body base for StreetVerse character creation',prompt:'game-ready realistic adult female body base, neutral non-identifying face, balanced natural proportions, full body, A-pose for humanoid rigging, PBR textures, clean mobile-web topology, no celebrity likeness, no logos, reusable StreetVerse female character base'},
+ {assetId:'sv-james-body-base-v1',filename:'SV_HERO_JAMES_BODY_BASE_V1.glb',generationType:'text-to-3d',height:1.55,heritage:'identity-neutral',ageLane:'youth',role:'James boy/youth body base; neutral face until an approved reference image is supplied; final height/age proportions are reference-tuned',prompt:'game-ready realistic boy/youth male hero body base, neutral non-identifying face, age-appropriate youthful proportions, no adult physique, full body, A-pose for humanoid rigging, PBR textures, clean mobile-web topology, no celebrity likeness, no logos, StreetVerse youth character body base'},
+ {assetId:'sv-female-body-base-v1',filename:'SV_BODY_FEMALE_BASE_V1.glb',generationType:'text-to-3d',height:1.68,heritage:'configurable-black-mixed-global',ageLane:'adult',role:'reusable adult female body base for Black, mixed-heritage and multinational StreetVerse characters; identity comes from configurable head, skin, hair and styling variants',prompt:'game-ready realistic adult female body base for a diverse Black and mixed-heritage global character system, neutral non-identifying face, balanced natural proportions, full body, A-pose for humanoid rigging, PBR textures, clean mobile-web topology, configurable skin tone hair face and wardrobe modules, avoid stereotyped features, no celebrity likeness, no logos, reusable StreetVerse female character base'},
  {assetId:'sv-bj-stubbs-v6',filename:'SV_HERO_BJ_STUBBS_V6.glb',generationType:'image-to-3d',height:1.82,heritage:'reference-authorized',ageLane:'adult',role:'hero/founder character',prompt:null},
  {assetId:'sv-black-man-youngadult-01',filename:'SV_NPC_BLACK_MAN_YOUNGADULT_01.glb',generationType:'text-to-3d',height:1.80,heritage:'Black',ageLane:'young-adult',role:'resident creator athlete driver'},
  {assetId:'sv-black-woman-youngadult-01',filename:'SV_NPC_BLACK_WOMAN_YOUNGADULT_01.glb',generationType:'text-to-3d',height:1.68,heritage:'Black',ageLane:'young-adult',role:'resident creator merchant medical worker'},
@@ -143,7 +143,7 @@ export async function startCircleParkBootstrapWave(user){
   requireFactoryAuthority(user);
   const waveId=crypto.randomUUID();
   const sequence=[
-    {assetId:'sv-james-body-base-v1',cityScope:'global',sequenceIndex:1,dependsOn:null,label:'James body base'},
+    {assetId:'sv-james-body-base-v1',cityScope:'global',sequenceIndex:1,dependsOn:null,label:'James boy/youth body base'},
     {assetId:'sv-female-body-base-v1',cityScope:'global',sequenceIndex:2,dependsOn:'previous',label:'Reusable female body base'},
     {assetId:'sv-black-man-youngadult-01',cityScope:'chicago-circle-park',sequenceIndex:3,dependsOn:'female',label:'Circle Park young adult male resident'},
     {assetId:'sv-black-woman-youngadult-01',cityScope:'chicago-circle-park',sequenceIndex:4,dependsOn:'female',label:'Circle Park young adult female resident'},
@@ -170,7 +170,7 @@ export async function startCircleParkBootstrapWave(user){
     if(item.assetId==='sv-female-body-base-v1')femaleJob=job;
   }
   const started=jamesJob?await submitQueuedFactoryJob(jamesJob):null;
-  return {waveId,jobs:created.map(job=>job.id),firstJob:started,sequence:'James body base → reusable female body base → four Circle Park residents in parallel'};
+  return {waveId,jobs:created.map(job=>job.id),firstJob:started,sequence:'James boy/youth body base → Black/mixed-global female body base → four Circle Park residents in parallel'};
 }
 
 export async function startMeshyFactoryJob(user,{assetId,imageUrl,cityScope='global'}={}){
