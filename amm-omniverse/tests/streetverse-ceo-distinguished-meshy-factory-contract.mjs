@@ -5,6 +5,8 @@ const factory=fs.readFileSync(new URL('../api/_lib/meshy-factory.js',import.meta
 const storage=fs.readFileSync(new URL('../api/_lib/streetverse-asset-storage.js',import.meta.url),'utf8')
 const control=fs.readFileSync(new URL('../api/meshy/factory.js',import.meta.url),'utf8')
 const manifestApi=fs.readFileSync(new URL('../api/meshy/asset-manifest.js',import.meta.url),'utf8')
+const worker=fs.readFileSync(new URL('../api/meshy/factory-worker.js',import.meta.url),'utf8')
+const health=fs.readFileSync(new URL('../api/meshy/factory-health.js',import.meta.url),'utf8')
 const runtime=fs.readFileSync(new URL('../src/runtime/StreetVerseMeshyAssetManifest.ts',import.meta.url),'utf8')
 const executive=fs.readFileSync(new URL('../src/runtime/StreetVerseAssetExecutiveRuntime.ts',import.meta.url),'utf8')
 const bj=fs.readFileSync(new URL('../src/runtime/StreetVerseMeshyBJHeroRuntime.ts',import.meta.url),'utf8')
@@ -27,7 +29,10 @@ for(const token of ['requireUser','action===\'start\'','action===\'tick\''])
   assert.ok(control.includes(token),'factory API missing '+token)
 
 assert.ok(manifestApi.includes('publicMeshyFactoryManifest'),'public manifest must project only ready factory assets')
+assert.ok(worker.includes('MESHY_FACTORY_WORKER_SECRET')&&worker.includes('tickMeshyFactoryJobInternal'),'background worker must be secret-gated and only advance founder-started jobs')
+for(const token of ['providerConfigured','durableJobStoreReady','backgroundWorkerSecretConfigured','blockers'])assert.ok(health.includes(token),'factory health diagnostics missing '+token)
 assert.ok(runtime.includes('/api/meshy/asset-manifest'),'runtime must resolve published provider assets')
+assert.ok(runtime.includes('CACHE_TTL_MS=30_000'),'runtime manifest must refresh after new GLBs publish')
 assert.ok(bj.includes("resolvePublishedMeshyAsset('sv-bj-stubbs-v6'"),'BJ must resolve real published rig before static fallback')
 assert.ok(bj.includes("published?.walkUrl")&&bj.includes("published?.runUrl"),'BJ must load published walk/run animation companions')
 assert.ok(npc.includes('resolvePublishedMeshyAsset(slot.id'),'NPC runtime must resolve real published rigs')
@@ -36,7 +41,7 @@ assert.ok(globalWorld.includes('Rigged characters: {rigPack.length} READY'),'Str
 for(const token of ['AI CEO','Distinguished Engineer','Release Guardian','real Meshy generation task id','real Meshy rig task id'])
   assert.ok(executive.includes(token),'executive chain missing '+token)
 
-for(const token of ['START 4 NPC RIGS','START BJ V6','AUTO ADVANCE','GEN TASK:','RIG TASK:','Provider tasks may consume Meshy credits'])
+for(const token of ['START 4 NPC RIGS','START BJ V6','AUTO ADVANCE','GEN TASK:','RIG TASK:','Provider tasks may consume Meshy credits','FACTORY READINESS:'])
   assert.ok(panel.includes(token),'factory UI missing '+token)
 
 for(const token of ['create table if not exists public.meshy_asset_jobs','enable row level security','grant select,insert,update,delete on table public.meshy_asset_jobs to service_role',"insert into storage.buckets"])
