@@ -1,6 +1,6 @@
 export type CircleParkEntranceMethod='guard-sign-in'|'resident-key'|'gate-vault'
 export type CircleParkPatrolShift='day'|'evening'|'overnight'
-export type CircleParkIncidentKind='disturbance'|'fight'|'noise'|'trespass'|'medical'|'property-damage'|'lost-person'|'assist-request'
+export type CircleParkIncidentKind='disturbance'|'fight'|'noise'|'trespass'|'medical'|'injury'|'gunshot'|'property-damage'|'lost-person'|'assist-request'
 
 export const CIRCLE_PARK_RESIDENT_ENTRANCE={
   schema:'tryamm.circle-park.resident-entrance.v1',
@@ -63,6 +63,8 @@ export const CIRCLE_PARK_COMMUNITY_SAFETY={
     fight:{severity:3,response:['separate-if-safe','protect-bystanders','request-help','incident-report']},
     trespass:{severity:2,response:['verify-access','ask-to-leave-or-check-in','incident-report']},
     medical:{severity:4,response:['protect-scene','request-medical-help','guide-responders']},
+    injury:{severity:3,response:['protect-scene','request-ems','keep-route-clear','guide-responders']},
+    gunshot:{severity:5,response:['take-cover','protect-bystanders','request-police-and-ems','keep-route-clear','incident-report']},
     'property-damage':{severity:2,response:['protect-area','document','incident-report']},
     'lost-person':{severity:2,response:['assist','reunification','community-note']},
     'assist-request':{severity:1,response:['assist','community-note']},
