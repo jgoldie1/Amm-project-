@@ -149,6 +149,7 @@ export default function HoloGPTAssistant({showLauncher=true}:Props){
   const [historyFrom,setHistoryFrom]=useState('')
   const [historyTo,setHistoryTo]=useState('')
   const [historyEvidence,setHistoryEvidence]=useState<RetrievalItem[]>([])
+  const [quantumEvidence,setQuantumEvidence]=useState<RetrievalItem[]>([])
   const end=useRef<HTMLDivElement>(null)
   const history=useMemo(()=>messages.slice(-10).map(m=>({role:m.role,content:m.content})),[messages])
 
@@ -174,22 +175,35 @@ export default function HoloGPTAssistant({showLauncher=true}:Props){
     try{
       setRetrievalStatus('SEARCHING '+sourceMode.toUpperCase())
       let retrievalContext:any={mode:sourceMode,holo:[],oracle:[],quantum:[],historical:[],crawler:null}
-      if(sourceMode==='holo'||sourceMode==='auto')retrievalContext.holo=compactRetrieval(await holoSearch(question))
-      if(sourceMode==='oracle'||sourceMode==='old-web'||sourceMode==='auto'){
-        const oracle=await oracleSearch(question)
-        retrievalContext.oracle=compactRetrieval(Array.isArray(oracle.results)?oracle.results:[])
-        retrievalContext.crawler=oracle.crawler||null
-        retrievalContext.oracleConfigured=oracle.configured!==false
+      const applyOracle=(oracle:any)=>{
+        retrievalContext.oracle=compactRetrieval(Array.isArray(oracle?.results)?oracle.results:[])
+        retrievalContext.crawler=oracle?.crawler||null
+        retrievalContext.oracleConfigured=oracle?.configured!==false
       }
-      if(sourceMode==='quantum'||sourceMode==='auto'){
-        const quantum=await quantumSearch(question,'search').catch(()=>null)
-        retrievalContext.quantum=compactRetrieval(Array.isArray(quantum?.results)?quantum.results.map((x:any)=>({
+      const applyQuantum=(quantum:any)=>{
+        const evidence:Array<RetrievalItem>=Array.isArray(quantum?.results)?quantum.results.map((x:any)=>({
           title:x.title,summary:x.summary,sourceName:x.sourceLabel||x.sourceType,sourceUrl:x.url,
           verification:x.verified?'verified-source':x.sourceType||null,provider:x.provider||null
-        })):[],10)
+        })):[]
+        retrievalContext.quantum=compactRetrieval(evidence,10)
         retrievalContext.quantumConfigured=quantum?.configured!==false
         retrievalContext.quantumProviders=quantum?.providers||null
         retrievalContext.quantumDiversity=quantum?.diversity||null
+        if(sourceMode==='quantum')setQuantumEvidence(evidence.slice(0,12))
+      }
+      if(sourceMode==='auto'){
+        const [holo,oracle,quantum]=await Promise.all([
+          holoSearch(question).catch(()=>[]),
+          oracleSearch(question).catch(()=>null),
+          quantumSearch(question,'search').catch(()=>null),
+        ])
+        retrievalContext.holo=compactRetrieval(holo)
+        applyOracle(oracle)
+        applyQuantum(quantum)
+      }else{
+        if(sourceMode==='holo')retrievalContext.holo=compactRetrieval(await holoSearch(question))
+        if(sourceMode==='oracle'||sourceMode==='old-web')applyOracle(await oracleSearch(question))
+        if(sourceMode==='quantum')applyQuantum(await quantumSearch(question,'search').catch(()=>null))
       }
       const autoHistory=sourceMode==='auto'&&Boolean(extractLikelyUrl(question))&&/(archive|history|historical|old (?:web|website|internet)|past|then|advertis|campaign|mandela|what .*looked like|\b(?:18|19|20)\d{2}\b)/i.test(question)
       if(sourceMode==='historical'||autoHistory){
@@ -235,7 +249,14 @@ export default function HoloGPTAssistant({showLauncher=true}:Props){
           </div>
           <div style={{fontSize:8,color:'#6f8794',marginTop:5}}>One date = inspect capture • two dates = THEN ↔ NOW • missing captures stay labeled missing.</div>
         </div>}
-        {retrievalStatus&&<div style={{padding:'6px 12px 0',fontSize:8,color:'#6fe8ff',fontFamily:'monospace'}}>{retrievalStatus}</div>}        {sourceMode==='historical'&&historyEvidence.length>0&&<div style={{padding:'7px 12px 0',display:'grid',gap:5,maxHeight:150,overflowY:'auto'}}>
+        {retrievalStatus&&<div style={{padding:'6px 12px 0',fontSize:8,color:'#6fe8ff',fontFamily:'monospace'}}>{retrievalStatus}</div>}        {sourceMode==='quantum'&&quantumEvidence.length>0&&<div style={{padding:'7px 12px 0',display:'grid',gap:5,maxHeight:135,overflowY:'auto'}}>
+          {quantumEvidence.slice(0,5).map((item,i)=><div key={i} style={{border:'1px solid #23596a',borderRadius:9,padding:7,background:'#06151d'}}>
+            <div style={{fontSize:8,fontWeight:950,color:'#a8efff'}}>{String(item.title||'QUANTUM SOURCE')}</div>
+            <div style={{fontSize:8,color:'#7f9fac',marginTop:2}}>{String(item.sourceName||item.provider||'source')} • {String(item.verification||'source-labeled')}</div>
+            {item.sourceUrl&&<a href={String(item.sourceUrl)} target="_blank" rel="noopener noreferrer" style={{display:'inline-block',marginTop:4,fontSize:8,color:'#76e8ff',fontWeight:950}}>OPEN SOURCE ↗</a>}
+          </div>)}
+        </div>}
+        {sourceMode==='historical'&&historyEvidence.length>0&&<div style={{padding:'7px 12px 0',display:'grid',gap:5,maxHeight:150,overflowY:'auto'}}>
           {historyEvidence.slice(0,6).map((item,i)=><div key={i} style={{border:'1px solid #27495a',borderRadius:9,padding:7,background:'#071019'}}>
             <div style={{fontSize:8,fontWeight:950,color:'#a8efff'}}>{String(item.title||'ARCHIVED CAPTURE')}</div>
             <div style={{fontSize:8,color:'#7f9fac',marginTop:2}}>{String(item.sourceName||'archive')} • {String(item.verification||'source-capture')}</div>
