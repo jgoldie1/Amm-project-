@@ -45,7 +45,7 @@ export function installCircleParkResidentAccessRuntime(){
     const detail=(event as CustomEvent<{method?:CircleParkAccessResult['method']}>).detail||{}
     const method=detail.method
     if(!method)return
-    const target=[-15,0,54] as [number,number,number]
+    const target=[-31,0,56] as [number,number,number]
 
     if(method==='guard-sign-in'){
       state={...state,signedIn:true}
