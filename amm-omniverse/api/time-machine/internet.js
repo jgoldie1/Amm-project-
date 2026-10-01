@@ -1,4 +1,4 @@
-import {internetArchiveTimeline,commonCrawlTimeline,fetchInternetArchiveCapture,persistHistoricalCapture,nearestCapture,evidenceDifference,normalizeHistoricalUrl} from '../_lib/quantum-time-internet.js'
+import {internetArchiveTimeline,commonCrawlTimeline,fetchInternetArchiveCapture,persistHistoricalCapture,readPersistedHistoricalCaptures,nearestCapture,evidenceDifference,normalizeHistoricalUrl} from '../_lib/quantum-time-internet.js'
 
 const clean=(v,n=1000)=>String(v??'').trim().slice(0,n)
 const yearOf=v=>{const m=String(v||'').match(/\b(18|19|20|21)\d{2}\b/);return m?Number(m[0]):undefined}
@@ -20,12 +20,39 @@ async function timeline(url,body={}){
 
 async function detailedCapture(url,date,businessName=''){
   const y=yearOf(date)
-  const captures=await internetArchiveTimeline(url,{fromYear:y,toYear:y,limit:60})
-  const chosen=nearestCapture(captures,date)
-  if(!chosen)return {found:false,date,url:normalizeHistoricalUrl(url),reason:'no_verified_snapshot_found'}
-  const detail=await fetchInternetArchiveCapture(chosen)
-  const persistence=await persistHistoricalCapture(url,detail,businessName)
-  return {found:true,dateRequested:date,capture:detail,persistence}
+  let internetArchive=[],commonCrawl=[],providerErrors=[]
+  try{internetArchive=await internetArchiveTimeline(url,{fromYear:y,toYear:y,limit:60})}catch(error){providerErrors.push(String(error?.message||'internet_archive_unavailable'))}
+  if(!internetArchive.length){
+    try{commonCrawl=await commonCrawlTimeline(url,{fromYear:y,toYear:y,limit:20})}catch(error){providerErrors.push(String(error?.message||'common_crawl_unavailable'))}
+  }
+  let chosen=nearestCapture(internetArchive,date)||nearestCapture(commonCrawl,date)
+  let source='provider'
+  if(!chosen){
+    const persisted=await readPersistedHistoricalCaptures(url,{year:y,limit:40})
+    chosen=nearestCapture(persisted,date)
+    if(chosen)source='durable-index'
+  }
+  if(!chosen)return {
+    found:false,
+    date,
+    url:normalizeHistoricalUrl(url),
+    reason:providerErrors.length?'archive_provider_temporarily_unavailable':'no_verified_snapshot_found',
+    degraded:providerErrors.length>0,
+    providerErrors,
+  }
+  let detail
+  if(chosen.provider==='internet-archive')detail=await fetchInternetArchiveCapture(chosen)
+  else detail={...chosen,contentUnavailable:Boolean(chosen.contentUnavailable??true),contentStatus:chosen.contentStatus||'metadata-only',contentHash:chosen.contentHash||chosen.digest||''}
+  const persistence=source==='durable-index'?{stored:true,existing:true,source:'durable-index'}:await persistHistoricalCapture(url,detail,businessName)
+  return {
+    found:true,
+    dateRequested:date,
+    capture:detail,
+    persistence,
+    degraded:Boolean(detail.contentUnavailable||providerErrors.length),
+    source,
+    providerErrors,
+  }
 }
 
 export default async function handler(req,res){
