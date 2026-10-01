@@ -3,7 +3,7 @@ import {getAccessToken} from '../services/supabaseClient'
 
 type CatalogItem={assetId:string;filename:string;generationType:string;height:number;ageLane:string;role:string}
 type Job={id:string;asset_id:string;filename:string;stage:string;progress:number;provider_generation_task_id?:string;provider_rig_task_id?:string;public_url?:string;walking_public_url?:string;running_public_url?:string;error_message?:string;created_at?:string}
-type FactoryHealth={ok:boolean;providerConfigured:boolean;supabaseAdminConfigured:boolean;durableJobStoreReady:boolean;backgroundWorkerSecretConfigured:boolean;readyAssets:number;activeJobs:number;blockers:string[]}
+type FactoryHealth={ok:boolean;providerConfigured:boolean;supabaseAdminConfigured:boolean;durableJobStoreReady:boolean;backgroundWorkerSecretConfigured:boolean;readyAssets:number;activeJobs:number;recoveryRequiredJobs:number;blockers:string[]}
 
 const btn:React.CSSProperties={minHeight:44,borderRadius:12,border:'1px solid #3a647a',background:'#091823',color:'#fff',fontWeight:900,fontSize:10,padding:'9px 11px',touchAction:'manipulation'}
 const statusColor=(stage:string)=>stage==='ready'?'#8effb7':stage==='failed'?'#ff9a9a':'#8edcff'
@@ -86,7 +86,7 @@ export default function MeshyFactoryControlPanel(){
       </section>
 
       <section style={{marginTop:12,padding:12,border:`1px solid ${health?.ok?'#2f6c4a':'#704b35'}`,borderRadius:16,background:health?.ok?'#07170fdd':'#1a1008dd'}}>
-        <div style={{display:'flex',justifyContent:'space-between',gap:8,flexWrap:'wrap'}}><div><b style={{fontSize:12}}>FACTORY READINESS: {health?.ok?'READY':'CHECKING / BLOCKED'}</b><div style={{fontSize:9,color:'#a8bdca',marginTop:4}}>Meshy key: {health?.providerConfigured?'YES':'NO'} • durable jobs: {health?.durableJobStoreReady?'YES':'NO'} • background worker: {health?.backgroundWorkerSecretConfigured?'YES':'NO'} • ready assets: {health?.readyAssets??0} • active: {health?.activeJobs??0}</div></div></div>
+        <div style={{display:'flex',justifyContent:'space-between',gap:8,flexWrap:'wrap'}}><div><b style={{fontSize:12}}>FACTORY READINESS: {health?.ok?'READY':'CHECKING / BLOCKED'}</b><div style={{fontSize:9,color:'#a8bdca',marginTop:4}}>Meshy key: {health?.providerConfigured?'YES':'NO'} • durable jobs: {health?.durableJobStoreReady?'YES':'NO'} • background worker: {health?.backgroundWorkerSecretConfigured?'YES':'NO'} • ready assets: {health?.readyAssets??0} • active: {health?.activeJobs??0} • recovery: {health?.recoveryRequiredJobs??0}</div></div></div>
         {Boolean(health?.blockers?.length)&&<div style={{display:'grid',gap:4,marginTop:7}}>{health!.blockers.map(blocker=><div key={blocker} style={{fontSize:9,color:'#ffc69c'}}>• {blocker}</div>)}</div>}
       </section>
 
