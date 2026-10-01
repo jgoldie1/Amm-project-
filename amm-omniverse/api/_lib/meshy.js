@@ -67,3 +67,30 @@ export function summarizeMeshyTask(task,type){
     usdz:modelUrls.usdz||null,
   };
 }
+
+
+export async function createMeshyTask(type,payload){
+  const endpoint=ENDPOINTS[type];
+  if(!endpoint||!['image-to-3d','multi-image-to-3d'].includes(type)){
+    throw Object.assign(new Error('Unsupported Meshy generation type'),{status:400,code:'unsupported_meshy_type'});
+  }
+  const body={...payload};
+  if(type==='image-to-3d'){
+    const imageUrl=String(body.image_url||'').trim();
+    if(!imageUrl)throw Object.assign(new Error('image_url is required'),{status:400,code:'meshy_image_required'});
+    body.image_url=imageUrl;
+  }
+  if(type==='multi-image-to-3d'){
+    const urls=Array.isArray(body.image_urls)?body.image_urls.map(v=>String(v||'').trim()).filter(Boolean):[];
+    if(urls.length<2||urls.length>4)throw Object.assign(new Error('image_urls must contain 2 to 4 images'),{status:400,code:'meshy_multi_image_count'});
+    body.image_urls=urls;
+  }
+  body.target_formats=['glb'];
+  body.should_texture=body.should_texture!==false;
+  body.enable_pbr=body.enable_pbr!==false;
+  if(!body.ai_model)body.ai_model='meshy-7.1';
+  const {data}=await request(endpoint,{method:'POST',body});
+  const id=String(data?.result||data?.id||'');
+  if(!id)throw Object.assign(new Error('Meshy did not return a task id'),{status:502,code:'meshy_missing_task_id',provider:data});
+  return {id,type};
+}
