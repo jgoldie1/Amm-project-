@@ -228,6 +228,15 @@ queueMicrotask(() => {
     import('./runtime/StreetVerseChicagoTimeMachineMissionsRuntime')
       .then(m => m.installStreetVerseChicagoTimeMachineMissionsRuntime())
       .catch(error => console.error('[TRYAMM] Chicago Time Machine failed after StreetVerse mount.', error))
+    import('./runtime/AICafeMultiAgentRuntime')
+      .then(m => m.installAICafeMultiAgentRuntime())
+      .catch(error => console.error('[TRYAMM] StreetVerse AI Café failed after StreetVerse mount.', error))
+    import('./runtime/DynamicDispatchRuntime')
+      .then(m => m.installDynamicDispatchRuntime())
+      .catch(error => console.error('[TRYAMM] StreetVerse dynamic dispatch failed after StreetVerse mount.', error))
+    import('./runtime/StreetVerseWorldMemory')
+      .then(m => m.installStreetVerseWorldMemory())
+      .catch(error => console.error('[TRYAMM] StreetVerse world memory failed after StreetVerse mount.', error))
     return
   }
   installOptionalRuntimes()
