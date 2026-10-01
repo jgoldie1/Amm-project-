@@ -95,9 +95,15 @@ export async function listMeshyFactoryJobs(user,{limit=30}={}){
 
 export async function tickMeshyFactoryJob(user,jobId){
   requireFactoryAuthority(user);
+  const owned=await rowById(jobId);
+  if(!owned)throw Object.assign(new Error('meshy_factory_job_not_found'),{status:404,code:'meshy_factory_job_not_found'});
+  if(owned.owner_user_id!==user.id&&!hasFactoryAuthority(user))throw Object.assign(new Error('meshy_factory_job_forbidden'),{status:403,code:'meshy_factory_job_forbidden'});
+  return tickMeshyFactoryJobInternal(jobId);
+}
+
+export async function tickMeshyFactoryJobInternal(jobId){
   let job=await rowById(jobId);
   if(!job)throw Object.assign(new Error('meshy_factory_job_not_found'),{status:404,code:'meshy_factory_job_not_found'});
-  if(job.owner_user_id!==user.id&&!hasFactoryAuthority(user))throw Object.assign(new Error('meshy_factory_job_forbidden'),{status:403,code:'meshy_factory_job_forbidden'});
   const spec=specFor(job.asset_id);
   try{
     if(job.stage==='generating'){
