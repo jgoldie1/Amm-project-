@@ -47,11 +47,22 @@ function marketingSignals(text){
   }
   return out
 }
+async function archiveFetch(url,signal,depth=0){
+  const r=await fetch(url,{headers:{accept:'text/html,application/xhtml+xml;q=.9,text/plain;q=.8','user-agent':'TRYAMM-Historical-Inspector/1.0'},cache:'no-store',signal,redirect:'manual'})
+  if(r.status>=300&&r.status<400&&depth<2){
+    const location=r.headers.get('location')
+    if(!location)throw new Error('archive_redirect_without_location')
+    const next=new URL(location,url)
+    if(next.hostname!=='web.archive.org')throw new Error('archive_redirect_blocked')
+    return archiveFetch(next.toString(),signal,depth+1)
+  }
+  return r
+}
 async function fetchArchived(timestamp,url){
   const archive='https://web.archive.org/web/'+timestamp+'id_/'+url
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),9000)
   try{
-    const r=await fetch(archive,{headers:{accept:'text/html,application/xhtml+xml;q=.9,text/plain;q=.8','user-agent':'TRYAMM-Historical-Inspector/1.0'},cache:'no-store',signal:controller.signal,redirect:'manual'})
+    const r=await archiveFetch(archive,controller.signal)
     if(!r.ok)throw new Error('archive_'+r.status)
     const type=String(r.headers.get('content-type')||'').toLowerCase()
     if(!type.includes('text/html')&&!type.includes('text/plain')&&!type.includes('application/xhtml'))throw new Error('archive_non_text')
@@ -85,7 +96,7 @@ export default async function handler(req,res){
       archiveTimestamp:timestamp,
       title,
       description,
-      textSample:clean(text,6000),
+      textSample:clean(text,2500),
       adSignals:signals,
       digest:'',
       provenance:{provider:'internet-archive',timestamp,inspection:'text-only-no-script-execution'},
