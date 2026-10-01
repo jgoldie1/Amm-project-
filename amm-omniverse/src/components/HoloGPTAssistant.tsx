@@ -144,10 +144,12 @@ export default function HoloGPTAssistant({showLauncher=true}:Props){
   useEffect(()=>{
     const openAssistant=()=>setOpen(true)
     const openStudyContext=(event:Event)=>{const detail=(event as CustomEvent<{prompt?:string}>).detail||{};if(detail.prompt)setInput(String(detail.prompt));setOpen(true)}
+    const openHistoricalInternet=(event:Event)=>{const detail=(event as CustomEvent<{url?:string;from?:string;to?:string}>).detail||{};setSourceMode('historical');if(detail.url)setHistoryUrl(String(detail.url));if(detail.from)setHistoryFrom(String(detail.from));if(detail.to)setHistoryTo(String(detail.to));setOpen(true)}
     window.addEventListener('tryamm:open-hologpt',openAssistant)
     window.addEventListener('tryamm:hologpt-study-context',openStudyContext)
+    window.addEventListener('tryamm:hologpt-history-open',openHistoricalInternet)
     ;(window as any).__showHoloGPT=openAssistant
-    return()=>{window.removeEventListener('tryamm:open-hologpt',openAssistant);window.removeEventListener('tryamm:hologpt-study-context',openStudyContext);if((window as any).__showHoloGPT===openAssistant)delete (window as any).__showHoloGPT}
+    return()=>{window.removeEventListener('tryamm:open-hologpt',openAssistant);window.removeEventListener('tryamm:hologpt-study-context',openStudyContext);window.removeEventListener('tryamm:hologpt-history-open',openHistoricalInternet);if((window as any).__showHoloGPT===openAssistant)delete (window as any).__showHoloGPT}
   },[])
   useEffect(()=>{let cancelled=false;fetch('/api/ai/health',{cache:'no-store'}).then(async r=>({r,d:await readJson(r)})).then(({r,d})=>{if(!cancelled)setHealth({...d,ok:r.ok&&d.ok&&!d.degraded,degraded:Boolean(d.degraded)})}).catch(e=>{if(!cancelled)setHealth({ok:false,degraded:true,error:e instanceof Error?e.message:'AI connection unavailable'})});return()=>{cancelled=true}},[])
 
