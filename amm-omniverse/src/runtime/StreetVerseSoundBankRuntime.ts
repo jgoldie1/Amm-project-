@@ -8,12 +8,9 @@ type RescueKind=
 type EmergencyKind='police'|'sheriff'|'ambulance'|'fire'
 
 let installed=false
-let fireLoop:number|undefined
-let sirenTimers:number[]=[]
 let enabled=true
 let volume=.68
 let lastPosition={x:0,z:54,at:0}
-let lastFootstepAt=0
 let lastVehicleToneAt=0
 let weather:'clear'|'rain'|'wind'='clear'
 let dayPhase:'day'|'night'='day'
@@ -21,6 +18,9 @@ let moving=false
 let inVehicle=false
 let vehicleSpeed=0
 let emergencyActive=false
+let emergencyKind:EmergencyKind|null=null
+let emergencyUntil=0
+let fireActive=false
 let lastQuantumBpm=0
 
 const play=(key:SoundKey,caption?:string)=>{
@@ -29,18 +29,13 @@ const play=(key:SoundKey,caption?:string)=>{
   if(caption)window.dispatchEvent(new CustomEvent('tryamm:audio-caption',{detail:{speaker:'SFX',text:caption,key}}))
 }
 
-const clearSirens=()=>{sirenTimers.forEach(clearTimeout);sirenTimers=[]}
-const repeat=(fn:()=>void,count:number,spacing:number)=>{
-  for(let i=0;i<count;i++)sirenTimers.push(window.setTimeout(fn,i*spacing))
+const emergencySiren=(kind:EmergencyKind)=>{
+  if(kind==='police')play('police_siren')
+  else if(kind==='sheriff')play('sheriff_siren')
+  else if(kind==='ambulance')play('ambulance_siren')
+  else play('firetruck_siren')
 }
 
-const emergencySound=(kind:EmergencyKind)=>{
-  play('radio_chirp',`${kind} radio chirp`)
-  if(kind==='police')repeat(()=>play('police_siren'),3,720)
-  else if(kind==='sheriff')repeat(()=>play('sheriff_siren'),3,780)
-  else if(kind==='ambulance')repeat(()=>play('ambulance_siren'),3,720)
-  else repeat(()=>play('firetruck_siren'),3,860)
-}
 
 const rescueStart=(kind:RescueKind)=>{
   play('dispatch_tone','rescue dispatch tone')
@@ -53,10 +48,8 @@ const rescueStart=(kind:RescueKind)=>{
 }
 
 const setFire=(burning:boolean)=>{
-  if(!burning){if(fireLoop)clearInterval(fireLoop);fireLoop=undefined;return}
-  if(fireLoop)return
-  play('fire_crackle','fire crackle')
-  fireLoop=window.setInterval(()=>play('fire_crackle'),520)
+  fireActive=burning
+  if(burning)play('fire_crackle','fire crackle')
 }
 
 const setQuantumTempo=(bpm:number)=>{
@@ -69,24 +62,36 @@ const setQuantumTempo=(bpm:number)=>{
 const onQuantumStreetBeat=(event:QuantumBeatEvent)=>{
   if(!enabled||event.mode!=='game')return
   const phase=event.phase
+  const emergencyNow=emergencyActive&&performance.now()<emergencyUntil
+  if(emergencyActive&&!emergencyNow){
+    emergencyActive=false
+    emergencyKind=null
+    setQuantumTempo(inVehicle&&vehicleSpeed>1?124:moving?108:84)
+  }
+
   if(phase===0){
-    if(weather==='rain')play('rain')
+    if(fireActive)play('fire_crackle')
+    else if(weather==='rain')play('rain')
     else if(weather==='wind')play('wind')
     else play('city_ambient')
+    if(emergencyNow&&emergencyKind)emergencySiren(emergencyKind)
   }
   if(phase===1){
     if(inVehicle&&vehicleSpeed>1)play(vehicleSpeed>14?'engine_rev':'engine_idle')
     else if(moving)play('footstep')
   }
   if(phase===2){
-    if(emergencyActive)play('radio_chirp')
+    if(emergencyNow)play('radio_chirp')
+    else if(fireActive)play('fire_crackle')
     else if(Math.random()<.58)play('crowd_ambient')
   }
   if(phase===3){
-    if(dayPhase==='day'&&Math.random()<.20)play('footstep')
+    if(fireActive&&Math.random()<.45)play('debris_fall')
+    else if(dayPhase==='day'&&Math.random()<.20)play('footstep')
     else if(weather==='clear'&&Math.random()<.16)play('wind')
   }
 }
+
 
 export function installStreetVerseSoundBankRuntime(){
   if(installed||typeof window==='undefined')return()=>{}
@@ -119,9 +124,11 @@ export function installStreetVerseSoundBankRuntime(){
     const kind=(event as CustomEvent<{kind?:EmergencyKind}>).detail?.kind
     if(kind){
       emergencyActive=true
+      emergencyKind=kind
+      emergencyUntil=performance.now()+14000
       setQuantumTempo(138)
-      emergencySound(kind)
-      window.setTimeout(()=>{emergencyActive=false;setQuantumTempo(inVehicle&&vehicleSpeed>1?124:moving?108:84)},14000)
+      play('radio_chirp',`${kind} radio chirp`)
+      emergencySiren(kind)
     }
   }
   const onFire=(event:Event)=>setFire(Boolean((event as CustomEvent<{burning?:boolean}>).detail?.burning))
@@ -150,6 +157,11 @@ export function installStreetVerseSoundBankRuntime(){
     setTimeout(()=>play('heartbeat_close'),260)
     setTimeout(()=>play('soft_breathing'),520)
   }
+  const onFirstGesture=()=>{
+    soundEngine.play('city_ambient')
+    removeEventListener('pointerdown',onFirstGesture)
+    removeEventListener('keydown',onFirstGesture)
+  }
   const onAICafe=(event:Event)=>{
     const d=(event as CustomEvent<{task?:{title?:string}}>).detail||{}
     if(d.task?.title)play('notification','AI Café task assigned')
@@ -177,6 +189,8 @@ export function installStreetVerseSoundBankRuntime(){
     dayPhase=raw.includes('night')||raw.includes('evening')?'night':'day'
   }
 
+  addEventListener('pointerdown',onFirstGesture,{once:true})
+  addEventListener('keydown',onFirstGesture,{once:true})
   addEventListener('tryamm:streetverse-player-position',onPlayerPosition)
   addEventListener('tryamm:streetverse-weather-state',onWeather)
   addEventListener('tryamm:world-weather',onWeather)
@@ -209,10 +223,10 @@ export function installStreetVerseSoundBankRuntime(){
   }})))
 
   return()=>{
-    if(fireLoop)clearInterval(fireLoop)
     removeQuantumBeat()
     quantumBeatClock.stop()
-    clearSirens()
+    removeEventListener('pointerdown',onFirstGesture)
+    removeEventListener('keydown',onFirstGesture)
     removeEventListener('tryamm:streetverse-player-position',onPlayerPosition)
     removeEventListener('tryamm:streetverse-weather-state',onWeather)
     removeEventListener('tryamm:world-weather',onWeather)
