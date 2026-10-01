@@ -5,8 +5,9 @@ export const BJ_STUBBS_BODY_PROFILE={
   weightLb:175,
   weightKg:79.3787,
   waistInches:36,
-  inseamInches:32,
-  inseamMeters:0.8128,
+  pantsInseamInches:32,
+  pantsInseamMeters:0.8128,
+  anatomicalLegCalibration:'pants-inseam-starting-estimate',
   pantsSize:'36W32',
   calibration:{
     preserveLegLength:true,
