@@ -2,7 +2,7 @@ import {adminRest} from './supabase-admin.js';
 import {createMeshyTask,getMeshyTask,summarizeMeshyTask,createMeshyRiggingTask,getMeshyRiggingTask,summarizeMeshyRiggingTask} from './meshy.js';
 import {persistRemoteGlb} from './streetverse-asset-storage.js';
 
-export const ASSET_FACTORY_ROLES=['founder','admin','superadmin','platform-admin','asset-admin','ai-cto'] as const;
+export const ASSET_FACTORY_ROLES=['founder','admin','superadmin','platform-admin','asset-admin','ai-cto'];
 
 const CATALOG=[
  {assetId:'sv-bj-stubbs-v6',filename:'SV_HERO_BJ_STUBBS_V6.glb',generationType:'image-to-3d',height:1.82,heritage:'reference-authorized',ageLane:'adult',role:'hero/founder character',prompt:null},
