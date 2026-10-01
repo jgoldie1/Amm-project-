@@ -1,7 +1,8 @@
-import {useMemo} from 'react'
+import {useEffect,useMemo,useState} from 'react'
 import {STREETVERSE_GLOBAL_CITIES,getStreetVerseCity} from '../data/StreetVerseGlobalRegistry'
 import {compileGlobalWorld,GLOBAL_WORLD_COMPILER} from '../data/GlobalWorldCompiler'
 import {getGlobalCityRuntimeEvidence,getGlobalCitySystemsEvidence} from '../runtime/GlobalCityVerseRuntime'
+import {loadPublishedMeshyManifest,type PublishedMeshyAsset} from '../runtime/StreetVerseMeshyAssetManifest'
 
 export default function StreetVerseGlobalWorld({onClose,onEnterChicago}:{onClose:()=>void;onEnterChicago?:()=>void}){
  const params=typeof window!=='undefined'?new URLSearchParams(window.location.search):new URLSearchParams()
@@ -9,6 +10,8 @@ export default function StreetVerseGlobalWorld({onClose,onEnterChicago}:{onClose
  const plan=useMemo(()=>compileGlobalWorld(city.id),[city.id])
  const runtime=useMemo(()=>getGlobalCityRuntimeEvidence(city.id),[city.id])
  const systems=useMemo(()=>getGlobalCitySystemsEvidence(city.id),[city.id])
+ const [rigPack,setRigPack]=useState<PublishedMeshyAsset[]>([])
+ useEffect(()=>{let active=true;void loadPublishedMeshyManifest(city.id).then(items=>{if(active)setRigPack(items)});return()=>{active=false}},[city.id])
  const openCity=(id:string)=>{
   if(id==='chicago'&&onEnterChicago){onEnterChicago();return}
   const url=new URL(window.location.href)
@@ -30,8 +33,10 @@ export default function StreetVerseGlobalWorld({onClose,onEnterChicago}:{onClose
     <span style={runtimeChip}>Environment: {systems.environment.ready?'READY':'BUILDING'}</span>
     <span style={runtimeChip}>Mobility: {systems.mobility.ready?'READY':'BUILDING'}</span>
     <span style={runtimeChip}>Accessibility: {systems.accessibility.ready?'READY':'BUILDING'}</span>
+    <span style={runtimeChip}>Rigged characters: {rigPack.length} READY</span>
    </div>
    <div style={{fontSize:10,opacity:.65,marginTop:7}}>Runtime evidence is shown separately from release certification; a city is not labeled production-ready from registry/runtime data alone.</div>
+   <div style={{fontSize:10,color:'#a7e7ff',marginTop:6}}>Character assets use one global certified rig pack first, then optional city-specific additions. Chicago, Lagos, Abuja and later cities do not need separate copies of the same base humans.</div>
   </section>
   <section style={{marginTop:14,padding:12,border:'1px solid #4a3d74',borderRadius:14,background:'#100b20'}}>
    <b style={{color:'#c7a8ff'}}>GLOBAL WORLD COMPILER</b>
