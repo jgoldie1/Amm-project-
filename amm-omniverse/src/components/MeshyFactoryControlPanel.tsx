@@ -1,5 +1,5 @@
 import {useEffect,useMemo,useState} from 'react'
-import {getAccessToken} from '../services/supabaseClient'
+import {getAccessToken,getSupabaseClient} from '../services/supabaseClient'
 
 type CatalogItem={assetId:string;filename:string;generationType:string;height:number;ageLane:string;role:string}
 type Job={id:string;asset_id:string;filename:string;stage:string;progress:number;provider_generation_task_id?:string;provider_rig_task_id?:string;public_url?:string;walking_public_url?:string;running_public_url?:string;error_message?:string;created_at?:string}
@@ -29,6 +29,9 @@ export default function MeshyFactoryControlPanel(){
   const [providerTasks,setProviderTasks]=useState<ProviderTask[]>([])
   const [selectedExistingTaskId,setSelectedExistingTaskId]=useState('')
   const [selectedExistingAssetId,setSelectedExistingAssetId]=useState('sv-bj-stubbs-v6')
+  const [manualAssetId,setManualAssetId]=useState('sv-bj-stubbs-v6')
+  const [manualFile,setManualFile]=useState<File|null>(null)
+  const [uploadNote,setUploadNote]=useState('')
 
   const refresh=async()=>{
     try{
@@ -87,6 +90,41 @@ export default function MeshyFactoryControlPanel(){
       await refresh()
     }catch(e){setError(e instanceof Error?e.message:String(e))}
     finally{setBusy('')}
+  }
+
+  const uploadManualGlb=async()=>{
+    if(!manualFile||!manualAssetId)return
+    setBusy('manual-upload');setError('');setUploadNote('Requesting secure upload…')
+    try{
+      const intent=await authFetch('/api/meshy/upload-intent',{method:'POST',body:JSON.stringify({
+        assetId:manualAssetId,
+        filename:manualFile.name,
+        size:manualFile.size,
+        cityScope:'global'
+      })})
+      const supabase=getSupabaseClient()
+      if(!supabase)throw new Error('Supabase client is not configured on this device.')
+      setUploadNote('Uploading GLB directly to StreetVerse storage…')
+      const {error:uploadError}=await supabase.storage.from(String(intent.bucket)).uploadToSignedUrl(
+        String(intent.path),
+        String(intent.token),
+        manualFile,
+        {contentType:'model/gltf-binary',cacheControl:'3600'}
+      )
+      if(uploadError)throw uploadError
+      setUploadNote('Validating GLB and publishing to StreetVerse…')
+      await authFetch('/api/meshy/upload-finalize',{method:'POST',body:JSON.stringify({
+        assetId:manualAssetId,
+        path:intent.path,
+        cityScope:'global'
+      })})
+      setUploadNote('Published. StreetVerse can now discover this asset.')
+      setManualFile(null)
+      await refresh()
+    }catch(e){
+      setUploadNote('')
+      setError(e instanceof Error?e.message:String(e))
+    }finally{setBusy('')}
   }
 
   const waveIds=useMemo(()=>['sv-black-man-youngadult-01','sv-black-woman-youngadult-01','sv-black-man-adult-01','sv-black-woman-adult-01'],[])
@@ -158,6 +196,29 @@ export default function MeshyFactoryControlPanel(){
           {busy==='import-existing'?'IMPORTING + STARTING RIG…':'IMPORT EXISTING MODEL → RIG + PUBLISH'}
         </button>
         <div style={{fontSize:8,color:'#78909f',marginTop:6}}>Generation credits are reused; Meshy may still apply provider charges for any new rig/animation operation.</div>
+      </section>
+
+      <section style={{marginTop:12,padding:12,border:'1px solid #4a5377',borderRadius:16,background:'#0b1020dd'}}>
+        <b style={{fontSize:12,color:'#b6c8ff'}}>UPLOAD DOWNLOADED MESHY GLB</b>
+        <div style={{fontSize:10,color:'#aab4d2',lineHeight:1.45,marginTop:4}}>
+          Use this when a Meshy model is already downloaded on your iPhone. The file uploads directly to Supabase using a short-lived signed token; the Supabase service-role key and Meshy API key never reach the browser.
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:7,marginTop:9}}>
+          <label style={{fontSize:9,color:'#bdc8e4'}}>GLB FILE
+            <input aria-label="Downloaded Meshy GLB" type="file" accept=".glb,model/gltf-binary,application/octet-stream" onChange={e=>setManualFile(e.target.files?.[0]||null)} style={{display:'block',width:'100%',marginTop:5,color:'#fff',fontSize:10}}/>
+          </label>
+          <label style={{fontSize:9,color:'#bdc8e4'}}>STREETVERSE SLOT
+            <select aria-label="Manual GLB StreetVerse slot" value={manualAssetId} onChange={e=>setManualAssetId(e.target.value)} style={{width:'100%',minHeight:44,borderRadius:10,border:'1px solid #46547b',background:'#090e1a',color:'#fff',padding:'0 8px',marginTop:4}}>
+              {catalog.map(item=><option key={item.assetId} value={item.assetId}>{item.filename}</option>)}
+            </select>
+          </label>
+        </div>
+        {manualFile&&<div style={{fontSize:9,color:'#b6c8ff',marginTop:7}}>{manualFile.name} • {(manualFile.size/1024/1024).toFixed(2)} MB</div>}
+        <button disabled={Boolean(busy)||!manualFile||!manualAssetId} onClick={()=>void uploadManualGlb()} style={{...btn,marginTop:9,width:'100%',borderColor:'#6978b2'}}>
+          {busy==='manual-upload'?'UPLOADING + PUBLISHING…':'UPLOAD GLB → PUBLISH TO STREETVERSE'}
+        </button>
+        {uploadNote&&<div aria-live="polite" style={{fontSize:9,color:'#8effb7',marginTop:6}}>{uploadNote}</div>}
+        <div style={{fontSize:8,color:'#77819e',marginTop:6}}>Maximum 100 MB. The server validates the GLB header before adding it to the public character manifest.</div>
       </section>
 
       <section style={{marginTop:12,padding:12,border:'1px solid #5c4a24',borderRadius:16,background:'#171207dd'}}>
