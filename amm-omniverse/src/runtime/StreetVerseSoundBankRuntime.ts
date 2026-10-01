@@ -11,6 +11,12 @@ let fireLoop:number|undefined
 let sirenTimers:number[]=[]
 let enabled=true
 let volume=.68
+let lastPosition={x:0,z:54,at:0}
+let lastFootstepAt=0
+let lastVehicleToneAt=0
+let ambientTimer:number|undefined
+let weather:'clear'|'rain'|'wind'='clear'
+let dayPhase:'day'|'night'='day'
 
 const play=(key:SoundKey,caption?:string)=>{
   if(!enabled)return
@@ -46,6 +52,19 @@ const setFire=(burning:boolean)=>{
   if(fireLoop)return
   play('fire_crackle','fire crackle')
   fireLoop=window.setInterval(()=>play('fire_crackle'),520)
+}
+
+const startNaturalAmbience=()=>{
+  if(ambientTimer)return
+  ambientTimer=window.setInterval(()=>{
+    if(!enabled)return
+    const roll=Math.random()
+    if(weather==='rain'){play('rain');return}
+    if(weather==='wind'&&roll<.72){play('wind');return}
+    if(roll<.46)play('city_ambient')
+    else if(roll<.72)play('crowd_ambient')
+    else if(dayPhase==='day'&&roll<.82)play('footstep')
+  },1350)
 }
 
 export function installStreetVerseSoundBankRuntime(){
@@ -110,7 +129,41 @@ export function installStreetVerseSoundBankRuntime(){
     if(d.task?.title)play('notification','AI Café task assigned')
   }
 
-  addEventListener('tryamm:streetverse-sound-bank-settings',onSettings)
+  const onPlayerPosition=(event:Event)=>{
+    const d=(event as CustomEvent<{x?:number;z?:number;speed?:number;vehicle?:boolean}>).detail||{}
+    const x=Number(d.x),z=Number(d.z),now=performance.now()
+    if(!Number.isFinite(x)||!Number.isFinite(z))return
+    const distance=Math.hypot(x-lastPosition.x,z-lastPosition.z)
+    const elapsed=Math.max(1,now-lastPosition.at)
+    const moving=distance>.05
+    if(moving&&!d.vehicle&&now-lastFootstepAt>310){
+      play('footstep')
+      lastFootstepAt=now
+    }
+    if(d.vehicle&&moving&&now-lastVehicleToneAt>420){
+      const speed=Math.abs(Number(d.speed||0))
+      play(speed>14?'engine_rev':'engine_idle')
+      if(speed>16&&Math.random()<.08)play('tire_screech')
+      lastVehicleToneAt=now
+    }
+    lastPosition={x,z,at:now}
+    void elapsed
+  }
+  const onWeather=(event:Event)=>{
+    const raw=String((event as CustomEvent<{weather?:string}>).detail?.weather||'clear').toLowerCase()
+    weather=raw.includes('rain')||raw.includes('storm')?'rain':raw.includes('wind')?'wind':'clear'
+  }
+  const onDayPhase=(event:Event)=>{
+    const raw=String((event as CustomEvent<{phase?:string;timeOfDay?:string}>).detail?.phase||(event as CustomEvent<{timeOfDay?:string}>).detail?.timeOfDay||'day').toLowerCase()
+    dayPhase=raw.includes('night')||raw.includes('evening')?'night':'day'
+  }
+
+  addEventListener('tryamm:streetverse-player-position',onPlayerPosition)
+  addEventListener('tryamm:streetverse-weather-state',onWeather)
+  addEventListener('tryamm:world-weather',onWeather)
+  addEventListener('tryamm:world-day-phase',onDayPhase)
+  startNaturalAmbience()
+    addEventListener('tryamm:streetverse-sound-bank-settings',onSettings)
   addEventListener('tryamm:streetverse-sound-preview',onPreview)
   addEventListener('tryamm:streetverse-rescue-incident-start',onRescue)
   addEventListener('tryamm:streetverse-emergency-response',onEmergency)
@@ -134,7 +187,13 @@ export function installStreetVerseSoundBankRuntime(){
 
   return()=>{
     if(fireLoop)clearInterval(fireLoop)
+    if(ambientTimer)clearInterval(ambientTimer)
+    ambientTimer=undefined
     clearSirens()
+    removeEventListener('tryamm:streetverse-player-position',onPlayerPosition)
+    removeEventListener('tryamm:streetverse-weather-state',onWeather)
+    removeEventListener('tryamm:world-weather',onWeather)
+    removeEventListener('tryamm:world-day-phase',onDayPhase)
     removeEventListener('tryamm:streetverse-sound-bank-settings',onSettings)
     removeEventListener('tryamm:streetverse-sound-preview',onPreview)
     removeEventListener('tryamm:streetverse-rescue-incident-start',onRescue)
