@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import {adminRest} from './supabase-admin.js';
 import {createMeshyTask,getMeshyTask,summarizeMeshyTask,createMeshyRiggingTask,getMeshyRiggingTask,summarizeMeshyRiggingTask} from './meshy.js';
 import {persistRemoteGlb} from './streetverse-asset-storage.js';
@@ -5,6 +6,8 @@ import {persistRemoteGlb} from './streetverse-asset-storage.js';
 export const ASSET_FACTORY_ROLES=['founder','admin','superadmin','platform-admin','asset-admin','ai-cto'];
 
 const CATALOG=[
+ {assetId:'sv-james-body-base-v1',filename:'SV_HERO_JAMES_BODY_BASE_V1.glb',generationType:'text-to-3d',height:1.80,heritage:'identity-neutral',ageLane:'adult',role:'James body base; neutral face until an approved reference image is supplied',prompt:'game-ready realistic adult male hero body base, neutral non-identifying face, balanced athletic-average build, full body, A-pose for humanoid rigging, PBR textures, clean mobile-web topology, no celebrity likeness, no logos, StreetVerse hero body base'},
+ {assetId:'sv-female-body-base-v1',filename:'SV_BODY_FEMALE_BASE_V1.glb',generationType:'text-to-3d',height:1.68,heritage:'identity-neutral',ageLane:'adult',role:'reusable adult female body base for StreetVerse character creation',prompt:'game-ready realistic adult female body base, neutral non-identifying face, balanced natural proportions, full body, A-pose for humanoid rigging, PBR textures, clean mobile-web topology, no celebrity likeness, no logos, reusable StreetVerse female character base'},
  {assetId:'sv-bj-stubbs-v6',filename:'SV_HERO_BJ_STUBBS_V6.glb',generationType:'image-to-3d',height:1.82,heritage:'reference-authorized',ageLane:'adult',role:'hero/founder character',prompt:null},
  {assetId:'sv-black-man-youngadult-01',filename:'SV_NPC_BLACK_MAN_YOUNGADULT_01.glb',generationType:'text-to-3d',height:1.80,heritage:'Black',ageLane:'young-adult',role:'resident creator athlete driver'},
  {assetId:'sv-black-woman-youngadult-01',filename:'SV_NPC_BLACK_WOMAN_YOUNGADULT_01.glb',generationType:'text-to-3d',height:1.68,heritage:'Black',ageLane:'young-adult',role:'resident creator merchant medical worker'},
@@ -99,10 +102,81 @@ async function attachProviderTask(jobId,stage,body){
   return null;
 }
 
+async function submitQueuedFactoryJob(job){
+  if(!job||job.stage!=='queued')return job;
+  if(job.depends_on_job_id){
+    const dependency=await rowById(job.depends_on_job_id);
+    if(!dependency||dependency.stage!=='ready')return job;
+  }
+  const spec=specFor(job.asset_id);
+  const prompt=job.prompt||spec.prompt||defaultPrompt(spec);
+  const sourceImageUrl=String(job.source_image_url||'').trim();
+  const payload=spec.generationType==='image-to-3d'
+    ?{image_url:sourceImageUrl,ai_model:'meshy-7.1',target_formats:['glb'],should_texture:true,enable_pbr:true,should_remesh:true,target_polycount:45000,pose_mode:'a-pose'}
+    :{prompt,ai_model:'meshy-7.1',target_formats:['glb'],should_texture:true,enable_pbr:true,should_remesh:true,target_polycount:45000,pose_mode:'a-pose'};
+  if(spec.generationType==='image-to-3d'&&!sourceImageUrl)return failed(job,'approved_reference_image_required','Approved reference image is required before an identity-based Meshy job can start.');
+
+  const submitting=await claim(job.id,'queued',{stage:'generation-submitting',progress:1,evidence:{...(job.evidence||{}),dependencySatisfiedAt:new Date().toISOString(),generationSubmissionClaimedAt:new Date().toISOString()}});
+  if(!submitting)return await rowById(job.id);
+
+  let task;
+  try{
+    task=await createMeshyTask(spec.generationType,payload);
+  }catch(error){
+    if(retryableError(error)){
+      return await claim(job.id,'generation-submitting',{stage:'queued',progress:0,error_code:'retryable_generation_submit',error_message:String(error?.message||error).slice(0,1000),evidence:{...(submitting.evidence||{}),retryableGenerationSubmitAt:new Date().toISOString()}})||await rowById(job.id);
+    }
+    return failed(submitting,error?.code||'meshy_generation_submit_failed',error?.message||String(error));
+  }
+
+  try{
+    return await attachProviderTask(job.id,'generation-submitting',{
+      stage:'generating',progress:2,provider_generation_task_id:task.id,error_code:null,error_message:null,
+      evidence:{...(submitting.evidence||{}),generationSubmittedAt:new Date().toISOString(),generationTaskId:task.id}
+    })||{...submitting,provider_generation_task_id:task.id,recovery_required:true};
+  }catch(error){
+    return {...submitting,provider_generation_task_id:task.id,recovery_required:true,recovery_error:String(error?.message||error)};
+  }
+}
+
+export async function startCircleParkBootstrapWave(user){
+  requireFactoryAuthority(user);
+  const waveId=crypto.randomUUID();
+  const sequence=[
+    {assetId:'sv-james-body-base-v1',cityScope:'global',sequenceIndex:1,dependsOn:null,label:'James body base'},
+    {assetId:'sv-female-body-base-v1',cityScope:'global',sequenceIndex:2,dependsOn:'previous',label:'Reusable female body base'},
+    {assetId:'sv-black-man-youngadult-01',cityScope:'chicago-circle-park',sequenceIndex:3,dependsOn:'female',label:'Circle Park young adult male resident'},
+    {assetId:'sv-black-woman-youngadult-01',cityScope:'chicago-circle-park',sequenceIndex:4,dependsOn:'female',label:'Circle Park young adult female resident'},
+    {assetId:'sv-black-man-adult-01',cityScope:'chicago-circle-park',sequenceIndex:5,dependsOn:'female',label:'Circle Park adult male resident'},
+    {assetId:'sv-black-woman-adult-01',cityScope:'chicago-circle-park',sequenceIndex:6,dependsOn:'female',label:'Circle Park adult female resident'},
+  ];
+  const created=[];
+  let jamesJob=null;
+  let femaleJob=null;
+  for(const item of sequence){
+    const spec=specFor(item.assetId);
+    const prompt=spec.prompt||defaultPrompt(spec);
+    const dependsOnJobId=item.dependsOn==='previous'?jamesJob?.id:item.dependsOn==='female'?femaleJob?.id:null;
+    const rows=await adminRest('meshy_asset_jobs',{method:'POST',body:{
+      owner_user_id:user.id,asset_id:spec.assetId,filename:spec.filename,city_scope:item.cityScope,
+      wave_id:waveId,sequence_index:item.sequenceIndex,depends_on_job_id:dependsOnJobId||null,
+      generation_type:spec.generationType,prompt,source_image_url:null,stage:'queued',progress:0,
+      evidence:{authority:'founder-or-admin',ceoObjective:'product-readiness',distinguishedEngineeringOwner:true,provider:'meshy.ai',wave:'james-female-circle-park-v1',waveLabel:item.label,queuedAt:new Date().toISOString()}
+    }});
+    const job=rows?.[0];
+    if(!job)throw Object.assign(new Error('meshy_wave_job_persist_failed'),{status:503,code:'meshy_wave_job_persist_failed'});
+    created.push(job);
+    if(item.assetId==='sv-james-body-base-v1')jamesJob=job;
+    if(item.assetId==='sv-female-body-base-v1')femaleJob=job;
+  }
+  const started=jamesJob?await submitQueuedFactoryJob(jamesJob):null;
+  return {waveId,jobs:created.map(job=>job.id),firstJob:started,sequence:'James body base → reusable female body base → four Circle Park residents in parallel'};
+}
+
 export async function startMeshyFactoryJob(user,{assetId,imageUrl,cityScope='global'}={}){
   requireFactoryAuthority(user);
   const spec=specFor(assetId);
-  const prompt=spec.generationType==='text-to-3d'?defaultPrompt(spec):null;
+  const prompt=spec.generationType==='text-to-3d'?(spec.prompt||defaultPrompt(spec)):null;
   const payload=spec.generationType==='image-to-3d'
     ?{image_url:String(imageUrl||'').trim(),ai_model:'meshy-7.1',target_formats:['glb'],should_texture:true,enable_pbr:true,should_remesh:true,target_polycount:45000,pose_mode:'a-pose'}
     :{prompt,ai_model:'meshy-7.1',target_formats:['glb'],should_texture:true,enable_pbr:true,should_remesh:true,target_polycount:45000,pose_mode:'a-pose'};
@@ -163,6 +237,7 @@ export async function tickMeshyFactoryJobInternal(jobId){
   if(!job)throw Object.assign(new Error('meshy_factory_job_not_found'),{status:404,code:'meshy_factory_job_not_found'});
   const spec=specFor(job.asset_id);
   try{
+    if(job.stage==='queued')return submitQueuedFactoryJob(job);
     if(job.stage==='generating'){
       const snapshot=summarizeMeshyTask(await getMeshyTask(job.generation_type,job.provider_generation_task_id),job.generation_type);
       if(isFailure(snapshot.status))return failed(job,'meshy_generation_failed',snapshot.status);
