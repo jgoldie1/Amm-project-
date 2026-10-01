@@ -55,3 +55,21 @@ export const FUTURE_ASSET_FORGE_ROADMAP=[
  'optional licensed generator adapters',
  'eventual internally trained generators only on data TRYAMM is entitled to use',
 ] as const
+
+export const CIRCLE_PARK_RELEASE_DEMAND:readonly AssetDemand[]=[
+ {cityId:'chicago-circle-park',kind:'character',quantity:4,stylePack:'circle-park-core-residents',priority:100},
+ {cityId:'chicago-circle-park',kind:'vehicle',quantity:2,stylePack:'circle-park-core-traffic',priority:90},
+]
+
+export const CIRCLE_PARK_RELEASE_POLICY={
+ externalGenerationHardCap:6,
+ automaticRefine:false,
+ nativeWorldBuilderKinds:['building','environment','prop'] as const,
+ reserveCreditsForBJ:true,
+ bjPublishPath:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6.glb',
+ purpose:'Commercial-release convergence: spend external credits only on hero/high-readability assets; reuse native world building for repeated geometry.',
+} as const
+
+export function createCircleParkReleaseQueue(){
+ return createCityAssetQueue([...CIRCLE_PARK_RELEASE_DEMAND])
+}
