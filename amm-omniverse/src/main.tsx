@@ -41,6 +41,7 @@ const EthiopianBibleMetaverse=lazy(()=>import('./components/EthiopianBibleMetave
 const KingdomsPressOperations=lazy(()=>import('./components/KingdomsPressOperations'))
 const UnifiedCommerceHub=lazy(()=>import('./components/UnifiedCommerceHub'))
 const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
+const MeshyFactoryControlPanel=lazy(()=>import('./components/MeshyFactoryControlPanel'))
 
 let routeContent: React.ReactNode = <App />
 let preserveDeterministicSafeRoute = false
@@ -52,6 +53,7 @@ try {
   const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
   const reelMatch=currentPath.match(/^\/reels\/([^/]+)\/?$/)
   const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
+  const isAssetFactory=['/asset-factory','/asset-factory/','/meshy-factory','/meshy-factory/'].includes(currentPath)
   const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
   const isLive=currentPath==='/live'||currentPath==='/live/'
   const isGuardian=currentPath==='/guardian'||currentPath==='/guardian/'
@@ -110,6 +112,7 @@ try {
   </>
   
   if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
+  else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
   else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter onClose={()=>{window.location.href='/'}} /></Suspense>
@@ -162,6 +165,7 @@ const entryDiagnostic = (() => {
 // A broken optional runtime module can no longer abort JavaScript bootstrap before React renders.
 const installOptionalRuntimes = () => {
   import('./runtime/ProductionHealthMonitor').then(m => m.installProductionHealthMonitor()).catch(error => console.error('[TRYAMM] Optional runtime installProductionHealthMonitor failed after core mount.', error))
+  import('./runtime/StreetVerseAssetExecutiveRuntime').then(m => m.installStreetVerseAssetExecutiveRuntime()).catch(error => console.error('[TRYAMM] Optional asset executive runtime failed after core mount.', error))
   import('./runtime/mediaCloudBridge').then(m => m.installMediaCloudBridge()).catch(error => console.error('[TRYAMM] Optional runtime installMediaCloudBridge failed after core mount.', error))
   import('./runtime/StreetVerseLivingWorldRuntime').then(m => m.installStreetVerseLivingWorldRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseLivingWorldRuntime failed after core mount.', error))
   import('./runtime/StreetVerseWorldMemory').then(m => m.installStreetVerseWorldMemory()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseWorldMemory failed after core mount.', error))
@@ -222,6 +226,9 @@ queueMicrotask(() => {
   if (window.location.pathname.startsWith('/streetverse')) {
     // Keep StreetVerse lightweight while still installing only release-critical
     // Circle Park progression and the Chicago Time Machine. Heavy global launchers remain excluded.
+    import('./runtime/StreetVerseAssetExecutiveRuntime')
+      .then(m => m.installStreetVerseAssetExecutiveRuntime())
+      .catch(error => console.error('[TRYAMM] StreetVerse asset executive runtime failed after mount.', error))
     import('./runtime/CircleParkProgressionRuntime')
       .then(m => m.installCircleParkProgressionRuntime())
       .catch(error => console.error('[TRYAMM] Circle Park progression failed after StreetVerse mount.', error))
