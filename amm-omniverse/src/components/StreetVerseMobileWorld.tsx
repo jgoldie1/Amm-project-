@@ -336,7 +336,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   for(let i=0;i<2;i++){
     const patrol=new THREE.Group();patrol.name='circle-park-security-patrol-'+(i+1)
     const patrolBody=new THREE.Mesh(new THREE.CapsuleGeometry(.30,1.02,3,8),new THREE.MeshLambertMaterial({color:0x202936}));patrolBody.position.y=1.18;patrol.add(patrolBody)
-    const patrolHead=new THREE.Mesh(new THREE.SphereGeometry(.24,9,7),skinMat);patrolHead.position.y=2.17;patrol.add(patrolHead)
+    const patrolHead=new THREE.Mesh(new THREE.SphereGeometry(.24,9,7),new THREE.MeshLambertMaterial({color:0x70462f}));patrolHead.position.y=2.17;patrol.add(patrolHead)
     const patrolVest=new THREE.Mesh(new THREE.BoxGeometry(.66,.78,.12),new THREE.MeshLambertMaterial({color:0x3b4c5f}));patrolVest.position.set(0,1.45,.30);patrol.add(patrolVest)
     normalizeStreetVerseHumanHeight(patrol,i===0?1.82:1.74)
     patrol.userData={role:'community-security',doctrine:'keep-the-peace',patrolIndex:i,realWorldAuthority:false}
