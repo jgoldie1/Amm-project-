@@ -121,14 +121,9 @@ export async function startMeshyFactoryJob(user,{assetId,imageUrl,cityScope='glo
   const submitting=await claim(queued.id,'queued',{stage:'generation-submitting',progress:1,evidence:{...(queued.evidence||{}),generationSubmissionClaimedAt:new Date().toISOString()}});
   if(!submitting)return await rowById(queued.id);
 
+  let task;
   try{
-    const task=await createMeshyTask(spec.generationType,payload);
-    const attached=await attachProviderTask(queued.id,'generation-submitting',{
-      stage:'generating',progress:2,provider_generation_task_id:task.id,
-      evidence:{...(submitting.evidence||{}),generationSubmittedAt:new Date().toISOString(),generationTaskId:task.id}
-    });
-    if(attached)return attached;
-    return {...submitting,provider_generation_task_id:task.id,recovery_required:true};
+    task=await createMeshyTask(spec.generationType,payload);
   }catch(error){
     if(retryableError(error)){
       await claim(queued.id,'generation-submitting',{stage:'queued',progress:0,error_code:'retryable_generation_submit',error_message:String(error?.message||error).slice(0,1000),evidence:{...(submitting.evidence||{}),retryableGenerationSubmitAt:new Date().toISOString()}});
@@ -136,6 +131,18 @@ export async function startMeshyFactoryJob(user,{assetId,imageUrl,cityScope='glo
     }
     return failed(submitting,error?.code||'meshy_generation_submit_failed',error?.message||String(error));
   }
+  try{
+    const attached=await attachProviderTask(queued.id,'generation-submitting',{
+      stage:'generating',progress:2,provider_generation_task_id:task.id,
+      evidence:{...(submitting.evidence||{}),generationSubmittedAt:new Date().toISOString(),generationTaskId:task.id}
+    });
+    if(attached)return attached;
+  }catch(error){
+    // Provider task already exists. Never reset to queued here or a retry could
+    // spend credits twice. Return the real provider ID for recovery instead.
+    return {...submitting,provider_generation_task_id:task.id,recovery_required:true,recovery_error:String(error?.message||error)};
+  }
+  return {...submitting,provider_generation_task_id:task.id,recovery_required:true};
 }
 
 export async function listMeshyFactoryJobs(user,{limit=30}={}){
@@ -165,17 +172,24 @@ export async function tickMeshyFactoryJobInternal(jobId){
         evidence:{...(job.evidence||{}),generationStatus:snapshot.status,generationCompletedAt:new Date().toISOString(),rigSubmissionClaimedAt:new Date().toISOString()}
       });
       if(!claimed)return await rowById(job.id);
+      let rig;
       try{
-        const rig=await createMeshyRiggingTask({modelUrl:snapshot.glb,heightMeters:spec.height});
-        return await attachProviderTask(job.id,'rig-submitting',{
-          stage:'rigging',progress:58,provider_rig_task_id:rig.id,error_code:null,error_message:null,
-          evidence:{...(claimed.evidence||{}),rigSubmittedAt:new Date().toISOString(),rigTaskId:rig.id}
-        })||{...claimed,provider_rig_task_id:rig.id,recovery_required:true};
+        rig=await createMeshyRiggingTask({modelUrl:snapshot.glb,heightMeters:spec.height});
       }catch(error){
         if(retryableError(error)){
           return await claim(job.id,'rig-submitting',{stage:'generating',progress:56,error_code:'retryable_rig_submit',error_message:String(error?.message||error).slice(0,1000),evidence:{...(claimed.evidence||{}),retryableRigSubmitAt:new Date().toISOString()}})||await rowById(job.id);
         }
         return failed(claimed,error?.code||'meshy_rig_submit_failed',error?.message||String(error));
+      }
+      try{
+        return await attachProviderTask(job.id,'rig-submitting',{
+          stage:'rigging',progress:58,provider_rig_task_id:rig.id,error_code:null,error_message:null,
+          evidence:{...(claimed.evidence||{}),rigSubmittedAt:new Date().toISOString(),rigTaskId:rig.id}
+        })||{...claimed,provider_rig_task_id:rig.id,recovery_required:true};
+      }catch(error){
+        // Rig task already exists. Keep the claimed stage so another tick cannot
+        // submit and charge a duplicate rig. Surface the real provider ID.
+        return {...claimed,provider_rig_task_id:rig.id,recovery_required:true,recovery_error:String(error?.message||error)};
       }
     }
     if(job.stage==='rigging'){
