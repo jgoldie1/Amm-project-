@@ -1,0 +1,271 @@
+name: TRYAMM Right Now Mega Repair
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_production:
+        description: "Deploy verified candidate to Vercel production"
+        required: false
+        default: false
+        type: boolean
+  pull_request:
+    branches: [main]
+    paths:
+      - "amm-omniverse/**"
+      - "package*.json"
+      - ".github/workflows/tryamm-right-now-mega-repair.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tryamm-right-now-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22.13.0"
+
+jobs:
+  repo-truth:
+    name: Repository + workflow truth
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with: { fetch-depth: 0 }
+      - name: Diagnose source tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p repair-evidence
+          git status --short > repair-evidence/git-status.txt
+          git log -20 --oneline > repair-evidence/recent-commits.txt
+          find .github/workflows -maxdepth 1 -type f -print | sort > repair-evidence/workflows.txt
+          test -d amm-omniverse
+          test -f amm-omniverse/package.json
+          test -f amm-omniverse/package-lock.json
+          echo "commit=${GITHUB_SHA}" >> repair-evidence/truth.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: repo-truth
+          path: repair-evidence/
+
+  root-check:
+    name: Root install + check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: "22.13.0", package-manager-cache: false }
+      - run: npm install --no-audit --no-fund
+      - run: npm run check
+
+  streetverse-build:
+    name: StreetVerse full compile + contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults: { run: { working-directory: amm-omniverse } }
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Full check
+        run: npm run check
+      - name: Critical player journey
+        shell: bash
+        run: |
+          set -euo pipefail
+          for t in             streetverse-character-scale-contract.mjs             streetverse-chicago-grid-reality-contract.mjs             streetverse-mobile-living-city-contract.mjs             streetverse-one-hand-integration-contract.mjs             streetverse-one-hand-mission-choice-contract.mjs             streetverse-unified-mobile-controls-contract.mjs             streetverse-mobile-repair-visibility-contract.mjs             streetverse-mobile-mission-completion-bridge-contract.mjs             streetverse-mission-reel-handoff-contract.mjs             streetverse-reel-return-to-world-contract.mjs             streetverse-authoritative-reward-contract.mjs             mobile-navigation-carousel-repair-contract.mjs             holo-carousel-real-destinations-contract.mjs             canonical-navigation-owner-contract.mjs             pwa-install-release-contract.mjs; do
+              test -f "tests/$t" || { echo "::error::Missing contract tests/$t"; exit 1; }
+              node "tests/$t"
+          done
+      - name: Build production candidate
+        run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-dist
+          path: amm-omniverse/dist/
+          if-no-files-found: error
+          retention-days: 14
+
+  backend:
+    name: Backend authority + ledger
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: amm-omniverse/amm-backend } }
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+          cache: npm
+          cache-dependency-path: amm-omniverse/amm-backend/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm run check
+      - name: Security suites
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run test:jacobie-security
+          npm run test:red-hat
+          npm run test:swarm-shield
+
+  migrations:
+    name: Database migration integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Reject duplicate Supabase versions
+        shell: python
+        run: |
+          from pathlib import Path
+          from collections import defaultdict
+          root=Path("amm-omniverse/supabase/migrations")
+          groups=defaultdict(list)
+          for p in root.glob("*.sql"):
+              v=p.name.split("_",1)[0]
+              if v.isdigit(): groups[v].append(p.name)
+          bad={k:v for k,v in groups.items() if len(v)>1}
+          if bad:
+              print("Duplicate migration versions:", bad)
+              raise SystemExit(1)
+          print("Migration history unique.")
+
+  browser-mobile-e2e:
+    name: Browser + iPhone-size journey
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults: { run: { working-directory: amm-omniverse } }
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm install --no-save --no-package-lock @playwright/test@1.63.0
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - name: Run existing E2E
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILES=()
+          for f in tests/e2e/core-launchers.spec.ts tests/e2e/holo-delivery.spec.ts tests/e2e/chicago-77-production.spec.ts; do
+            [ -f "$f" ] && FILES+=("$f")
+          done
+          [ ${#FILES[@]} -gt 0 ] || { echo "::error::No core E2E specs found"; exit 1; }
+          npx playwright test "${FILES[@]}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-mobile-evidence
+          path: |
+            amm-omniverse/playwright-report/
+            amm-omniverse/test-results/
+          if-no-files-found: warn
+          retention-days: 14
+
+  native-assets:
+    name: Character + vehicle + city GLB foundry
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: amm-omniverse } }
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: node tests/tryamm-native-asset-foundry-contract.mjs
+      - run: node tests/tryamm-native-runtime-asset-contract.mjs
+      - run: node scripts/tryamm-native-asset-foundry.mjs ../repair-evidence/native-assets
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-assets
+          path: repair-evidence/native-assets/
+          if-no-files-found: error
+          retention-days: 30
+
+  security:
+    name: Supply-chain + repository security
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: amm-omniverse } }
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: node tests/repository-security-scan.mjs
+      - run: npm audit --omit=dev --audit-level=high
+
+  release-gate:
+    name: One release truth gate
+    if: ${{ always() }}
+    needs: [repo-truth, root-check, streetverse-build, backend, migrations, browser-mobile-e2e, native-assets, security]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consolidate
+        env:
+          A: ${{ needs.repo-truth.result }}
+          B: ${{ needs.root-check.result }}
+          C: ${{ needs.streetverse-build.result }}
+          D: ${{ needs.backend.result }}
+          E: ${{ needs.migrations.result }}
+          F: ${{ needs.browser-mobile-e2e.result }}
+          G: ${{ needs.native-assets.result }}
+          H: ${{ needs.security.result }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "# TRYAMM Right Now Mega Repair"
+            echo "| Gate | Result |"
+            echo "|---|---|"
+            echo "| Repository truth | $A |"
+            echo "| Root check | $B |"
+            echo "| StreetVerse compile/contracts | $C |"
+            echo "| Backend/ledger | $D |"
+            echo "| Database migrations | $E |"
+            echo "| Browser/mobile E2E | $F |"
+            echo "| Native assets | $G |"
+            echo "| Security | $H |"
+            echo
+            echo "CI can prove software/build behavior; final physical iPhone driving and visual-quality approval remain device checks."
+          } >> "$GITHUB_STEP_SUMMARY"
+          for x in "$A" "$B" "$C" "$D" "$E" "$F" "$G" "$H"; do test "$x" = success; done
+
+  vercel-production:
+    name: Verified Vercel production deploy
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy_production && needs.release-gate.result == 'success' }}
+    needs: [release-gate]
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: amm-omniverse } }
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: "22.13.0" }
+      - name: Require Vercel secrets
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        shell: bash
+        run: |
+          test -n "$VERCEL_TOKEN"
+          test -n "$VERCEL_ORG_ID"
+          test -n "$VERCEL_PROJECT_ID"
+      - run: npm install -g vercel@latest
+      - name: Pull production environment
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build exact candidate
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy prebuilt
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
