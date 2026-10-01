@@ -54,6 +54,7 @@ jobs:
           set -euo pipefail
           node tests/tryamm-native-asset-foundry-contract.mjs
           node tests/tryamm-native-runtime-asset-contract.mjs
+          node tests/native-first-meshy-optional-character-contract.mjs
           node tests/streetverse-mobile-visible-city-contract.mjs
           node tests/streetverse-chicago-grid-reality-contract.mjs
           node tests/streetverse-character-scale-contract.mjs
