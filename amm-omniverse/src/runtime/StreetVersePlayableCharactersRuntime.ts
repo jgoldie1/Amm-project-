@@ -1,7 +1,7 @@
 const KEY='tryamm.streetverse.playable-character.v1'
 let installed=false
 
-export type StreetVersePlayableCharacter={id:string;label:string;index:number;role:string;missionLane?:string;presentation?:'male'|'female'|'neutral'|'pending'}
+export type StreetVersePlayableCharacter={id:string;label:string;index:number;role:string;missionLane?:string;presentation?:'male'|'female'|'neutral'|'pending';assetId?:string;visualStatus?:'published-rig'|'body-base'|'fallback'}
 export type CreatorRolePreset={id:string;label:string;missionLane:string}
 
 const CREATOR_ASSIGNMENTS_KEY='tryamm.streetverse.creator-cast.assignments.v1'
@@ -50,7 +50,8 @@ const LANE_MISSIONS:Record<string,{id:string;title:string;rewardXP:number}>={
   'Chicago Explorer':{id:'chi-history-sound-map',title:'Sounds Born in Chicago',rewardXP:350}
 }
 const NAMED_CAST:StreetVersePlayableCharacter[]=[
-  {id:'bj-stubbs',label:'BJ STUBBS',index:-1,role:'Founder / Explorer',missionLane:'Founder',presentation:'male'},
+  {id:'james-stubbs',label:'JAMES',index:-2,role:'Founder / Explorer',missionLane:'Founder',presentation:'male',assetId:'sv-james-body-base-v1',visualStatus:'body-base'},
+  {id:'bj-stubbs',label:'BJ STUBBS',index:-1,role:'Founder / Explorer',missionLane:'Founder',presentation:'male',assetId:'sv-bj-stubbs-v6',visualStatus:'published-rig'},
   {id:'marcus',label:'MARCUS',index:0,role:'StreetVerse Friend',missionLane:'Chicago Explorer'},
   {id:'al-b',label:'AL B',index:1,role:'StreetVerse Family',missionLane:'Business / Marketplace'},
   {id:'tatti',label:'TATTI',index:2,role:'Creator • role pending',missionLane:'Reels Creator'},
@@ -106,7 +107,7 @@ function mount(){
   const panel=document.createElement('div');Object.assign(panel.style,{display:'none',marginTop:'7px',width:'min(86vw,320px)',maxHeight:'62vh',overflowY:'auto',padding:'10px',border:'1px solid #31536a',borderRadius:'16px',background:'#050b13f4',boxShadow:'0 18px 55px #000b'})
   const title=document.createElement('div');title.textContent='PLAYABLE STREETVERSE ROSTER';Object.assign(title.style,{fontSize:'10px',color:'#59e7ff',fontWeight:'950',letterSpacing:'1.5px',padding:'4px 5px 9px'});panel.appendChild(title)
   const grid=document.createElement('div');Object.assign(grid.style,{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:'6px'})
-  ROSTER.forEach(character=>{const b=document.createElement('button');b.type='button';b.innerHTML=`<strong>${character.label}</strong><br><span style="opacity:.7;font-size:9px">${character.role}</span>`;Object.assign(b.style,{textAlign:'left',padding:'10px',border:'1px solid #23394b',borderRadius:'11px',background:'#0b1520',color:'#fff',cursor:'pointer',minHeight:'55px'});b.addEventListener('click',()=>{save(character);const mission=missionFor(character);emit('tryamm:streetverse-character-select',{...character,source:'roster',mission});emit('tryamm:streetverse-mission-selected',{characterId:character.id,missionLane:character.missionLane,mission});emit('tryamm:accessibility-announce',{text:`Now playing as ${character.label}. Mission: ${mission.title}.`});panel.style.display='none';button.textContent=`👥 ${character.label}`});grid.appendChild(b)});panel.appendChild(grid)
+  ROSTER.forEach(character=>{const b=document.createElement('button');b.type='button';b.innerHTML=`<strong>${character.label}</strong><br><span style="opacity:.7;font-size:9px">${character.role}</span>`;Object.assign(b.style,{textAlign:'left',padding:'10px',border:'1px solid #23394b',borderRadius:'11px',background:'#0b1520',color:'#fff',cursor:'pointer',minHeight:'55px'});b.addEventListener('click',()=>{save(character);const mission=missionFor(character);emit('tryamm:streetverse-character-select',{...character,source:'roster',mission});if(character.assetId)emit('tryamm:streetverse-player-asset-select',{characterId:character.id,label:character.label,assetId:character.assetId,visualStatus:character.visualStatus,source:'roster'});emit('tryamm:streetverse-mission-selected',{characterId:character.id,missionLane:character.missionLane,mission});emit('tryamm:accessibility-announce',{text:`Now playing as ${character.label}. Mission: ${mission.title}.`});panel.style.display='none';button.textContent=`👥 ${character.label}`});grid.appendChild(b)});panel.appendChild(grid)
   button.addEventListener('click',()=>panel.style.display=panel.style.display==='none'?'block':'none')
   root.append(button,panel);document.body.appendChild(root)
 
