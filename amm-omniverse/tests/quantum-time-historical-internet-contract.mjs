@@ -5,6 +5,7 @@ const hologpt=read('src/components/HoloGPTAssistant.tsx')
 const helper=read('api/_lib/quantum-time-internet.js')
 const endpoint=read('api/time-machine/internet.js')
 const ai=read('api/ai/answer.js')
+const timeMachine=read('src/runtime/StreetVerseChicagoTimeMachineMissionsRuntime.ts')
 const migration=read('supabase/migrations/20261001065619_quantum_time_historical_internet_index.sql')
 const hardening=read('supabase/migrations/20261001065658_quantum_time_historical_internet_hardening.sql')
 
@@ -14,6 +15,7 @@ must(hologpt.includes("'historical'")&&hologpt.includes("HISTORY"),'HoloGPT must
 must(hologpt.includes('/api/time-machine/internet'),'HoloGPT HISTORY must call the Time Machine Internet API')
 must(hologpt.includes('THEN')&&hologpt.includes('NOW / COMPARE'),'HoloGPT must expose THEN ↔ NOW comparison controls')
 must(hologpt.includes('OPEN ARCHIVE'),'HISTORY mode must expose direct archive evidence links')
+must(hologpt.includes('tryamm:hologpt-history-open'),'Time Machine must be able to open HoloGPT directly in HISTORY mode')
 must(hologpt.includes('No verified historical snapshot found'),'missing archive evidence must remain explicit')
 
 must(helper.includes('web.archive.org/cdx/search/cdx'),'historical engine must use Internet Archive CDX')
@@ -31,6 +33,7 @@ must(endpoint.includes('Archived webpage changes are evidence of observed webpag
 must(ai.includes("lane:'HISTORICAL INTERNET'"),'HoloGPT answer grounding must preserve historical lane')
 must(ai.includes('does not by itself prove a Mandela effect'),'HoloGPT must not turn webpage differences into altered-reality claims')
 must(ai.includes('Missing archive captures are unknown evidence'),'HoloGPT must treat archive gaps as unknown evidence')
+must(timeMachine.includes('HISTORICAL INTERNET')&&timeMachine.includes('tryamm:hologpt-history-open'),'Chicago Time Machine must expose the Historical Internet bridge')
 
 must(migration.includes('quantum_time_documents'),'durable historical index table must be versioned in repository')
 must(migration.includes('enable row level security'),'historical index must enable RLS')
