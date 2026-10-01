@@ -4,6 +4,7 @@ import {createMobileResidentPopulation,disposeMobileResidentPopulation,tickMobil
 import {createStreetVerseWeatherRenderer,weatherBadge,type StreetVerseWeatherState} from '../runtime/StreetVerseWeatherRuntime'
 import {normalizeStreetVerseHumanHeight,STREETVERSE_HUMAN_HEIGHT_METERS,residentHeight} from '../runtime/StreetVerseHumanScale'
 import {CIRCLE_PARK_SPAWN,CHICAGO_ROAD_CORRIDORS,CHICAGO_STREETVERSE_PLACES,nearestChicagoPlace,worldToChicagoGridCell} from '../data/StreetVerseChicagoGrid'
+import {CIRCLE_PARK_RESIDENT_ENTRANCE} from '../data/CircleParkResidentEntrance'
 import {createStreetVerseChicagoAliveMobile} from '../runtime/StreetVerseChicagoAliveMobileRuntime'
 import {createStreetVerseChicagoVisualLife} from '../runtime/StreetVerseChicagoVisualLifeRuntime'
 import {createStreetVerseChicagoTrafficLife,type StreetVerseTrafficAxis,type StreetVerseTrafficDirection} from '../runtime/StreetVerseChicagoTrafficLifeRuntime'
@@ -281,6 +282,19 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const addressLabel=makeLabel('1111 • CIRCLE PARK');addressLabel.position.set(-38,5.05,50.55);addressLabel.scale.set(6.4,1.15,1);circleParkReality.add(addressLabel);const mobileWorldLabels=[...placeLabels,seniorCommonsLabel,addressLabel]
   const entryDrive=addCircleBox('circle-park-entry-drive',[25,.12,12],[-38,.12,34],circleAsphalt)
   const entryWalk=addCircleBox('circle-park-entry-sidewalk',[25,.16,3.0],[-38,.18,40.8],circleCurb)
+  const [guardX,,guardZ]=CIRCLE_PARK_RESIDENT_ENTRANCE.anchors.guardGate.position
+  const [sideGateX,,sideGateZ]=CIRCLE_PARK_RESIDENT_ENTRANCE.anchors.residentSideGate.position
+  const [hillX,hillY,hillZ]=CIRCLE_PARK_RESIDENT_ENTRANCE.anchors.hill.position
+  const securityBooth=addCircleBox('circle-park-security-booth',[4.8,3.1,3.8],[guardX-4,1.55,guardZ-1.5],circleConcreteDark)
+  const securityWindow=addCircleBox('circle-park-security-booth-window',[2.8,1.35,.12],[guardX-4,1.85,guardZ+.45],glass);securityWindow.renderOrder=2
+  const mainGateLeft=addCircleBox('circle-park-main-gate-left',[6.6,2.1,.16],[guardX-4.1,1.05,guardZ+2.2],circleMetal)
+  const mainGateRight=addCircleBox('circle-park-main-gate-right',[6.6,2.1,.16],[guardX+4.1,1.05,guardZ+2.2],circleMetal)
+  const sideGate=addCircleBox('circle-park-resident-side-gate',[3.2,2.1,.16],[sideGateX,1.05,sideGateZ],circleMetal)
+  sideGate.userData={residentKey:true,gameplayGate:true,exactRealWorldSecurity:false}
+  const gateLabel=makeLabel('SECURITY • SIGN IN / RESIDENT KEY');gateLabel.position.set(guardX,4.7,guardZ+1.4);gateLabel.scale.set(11.5,1.65,1);circleParkReality.add(gateLabel);mobileWorldLabels.push(gateLabel)
+  const hillMat=new THREE.MeshLambertMaterial({color:0x58784a})
+  const grillHill=new THREE.Mesh(new THREE.SphereGeometry(8.8,20,12,0,Math.PI*2,0,Math.PI*.52),hillMat);grillHill.name='circle-park-grill-hill';grillHill.position.set(hillX,hillY-2.8,hillZ);grillHill.scale.set(1.35,.62,1.15);circleParkReality.add(grillHill)
+  void securityBooth;void mainGateLeft;void mainGateRight
   for(let stall=0;stall<7;stall++)addCircleBox('circle-park-parking-stripe',[.12,.035,4.5],[-47+stall*3.0,.205,33.4],stone)
   for(const [x,z,w,d] of [[-52,40,3,18],[-24,40,3,18],[-38,53,29,2.2]] as [number,number,number,number][])addCircleBox('circle-park-sidewalk',[w,.15,d],[x,.18,z],circleCurb)
   for(const [x,z] of [[-49,42],[-46,42],[-30,42],[-27,42],[-45,53],[-40,53],[-35,53],[-30,53]] as [number,number][]){
@@ -299,7 +313,12 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   for(const [x,z] of [[-26,62],[-22,64],[-18,55],[-28,55]] as [number,number][]){const table=addCircleBox('circle-park-picnic-table',[2.3,.18,1.2],[x,.85,z],picnicMat);const legA=addCircleBox('circle-park-picnic-leg',[.18,1.2,.18],[x-.65,.45,z],picnicMat);const legB=addCircleBox('circle-park-picnic-leg',[.18,1.2,.18],[x+.65,.45,z],picnicMat);void table;void legA;void legB}
   const poolDeckMat=new THREE.MeshLambertMaterial({color:0xb8b7ad}),poolWaterMat=new THREE.MeshStandardMaterial({color:0x2e9fd0,roughness:.16,metalness:.05,transparent:true,opacity:.78}),tennisMat=new THREE.MeshLambertMaterial({color:0x477b58}),tennisLineMat=new THREE.MeshBasicMaterial({color:0xf4f1da}),grillMat=new THREE.MeshStandardMaterial({color:0x25272a,metalness:.55,roughness:.5})
   addCircleBox('circle-park-pool-deck',[17,.16,11],[5,.17,63],poolDeckMat)
-  const circleParkPool=addCircleBox('circle-park-swimming-pool',[14,.12,8],[5,.24,63],poolWaterMat);circleParkPool.userData={streetVerseAddition:true,notVerifiedRealWorldAmenity:true}
+  const poolHouse=addCircleBox('circle-park-indoor-pool-house',[18,4.8,10],[5,2.4,63],new THREE.MeshStandardMaterial({color:0xb7c0c2,roughness:.72,metalness:0,transparent:true,opacity:.42}))
+  const poolGlassSouth=addCircleBox('circle-park-indoor-pool-glass',[14,2.9,.15],[5,2.2,68.05],new THREE.MeshStandardMaterial({color:0x83bdd3,roughness:.18,transparent:true,opacity:.48}))
+  const poolDeckOutside=addCircleBox('circle-park-pool-outdoor-deck',[8,.18,10],[17,.18,63],poolDeckMat)
+  poolHouse.userData={userDirectedLayout:true,indoorPool:true,outdoorDeck:true,notSurveyed:true}
+  void poolGlassSouth;void poolDeckOutside
+  const circleParkPool=addCircleBox('circle-park-swimming-pool',[14,.12,8],[5,.24,63],poolWaterMat);circleParkPool.userData={userDirectedLayout:true,indoorPool:true,outdoorDeck:true,notSurveyed:true}
   for(const x of [-1,11])for(const z of [59.7,66.3])addCircleBox('circle-park-pool-fence-post',[.1,1.5,.1],[x,.75,z],circleMetal)
   const tennisCourt=addCircleBox('circle-park-tennis-court',[18,.12,9],[22,.17,61],tennisMat);tennisCourt.userData={streetVerseAddition:true,notVerifiedRealWorldAmenity:true}
   addCircleBox('circle-park-tennis-net',[.12,1.05,8.2],[22,.7,61],new THREE.MeshLambertMaterial({color:0xdadada}))
