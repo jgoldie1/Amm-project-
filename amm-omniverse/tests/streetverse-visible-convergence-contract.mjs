@@ -19,6 +19,7 @@ must(main.includes("GuardianMissionProgressRuntime")&&main.includes("installGuar
 must(main.includes("StreetVerseTemporalConsequencesRuntime")&&main.includes("installStreetVerseTemporalConsequencesRuntime"),'Time Machine consequences must mount on /streetverse')
 must(main.includes("StreetVerseCommerceWorldRuntime")&&main.includes("installStreetVerseCommerceWorldRuntime"),'commerce missions must mount on /streetverse')
 must(main.includes("StreetVerseGrowthNetworkRuntime")&&main.includes("installStreetVerseGrowthNetworkRuntime"),'business growth network must mount on /streetverse')
+must(main.includes("HolographicInternetGoogloplexBridge")&&main.includes("installHolographicInternetBridge"),'Holographic Internet bridge must mount on /streetverse')
 
 must(world.includes("installStreetVerseSoundBankRuntime"),'automatic sound bank must mount in the mobile world')
 must(world.includes("installStreetVerseAICafeBridgeRuntime"),'StreetVerse AI Cafe bridge must mount in the mobile world')
@@ -28,6 +29,8 @@ must(world.includes("StreetVerseEmergencyCallHUD"),'GAME 911 must be visible in 
 must(world.includes("StreetVerseEmergencyVehicles"),'emergency vehicles must be mounted')
 must(world.includes("StreetVerseResponderNPCController"),'responder NPCs must be mounted')
 must(world.includes("StreetVerseDialogueHUD"),'dialogue HUD must be mounted')
+must(world.includes("HoloGPTAssistant showLauncher={false}"),'HoloGPT must be mounted behind the one-hand StreetVerse menu')
+must(world.includes("['hologpt','◈ HOLOGPT']"),'HoloGPT must be reachable from the one-hand StreetVerse menu')
 must(world.includes("tryamm:world-player-signal"),'mobile world must feed the living-world scheduler')
 must(world.includes("tryamm:world-clock"),'mobile world must publish day/night clock state')
 must(world.includes("tryamm:world-weather"),'mobile world must publish weather state')
