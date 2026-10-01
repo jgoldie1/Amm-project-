@@ -22,7 +22,10 @@ export default function StreetVerseAfterDarkAlpha(){
   const [state,setState]=useState<AfterDarkMissionState>(()=>loadAfterDarkMissionState())
   const [result,setResult]=useState<string>('')
   const [audienceBand,setAudienceBand]=useState<AudienceBand|null>(()=>readStoredAudienceBand())
+  const [phone,setPhone]=useState(false)
   const evidence=useMemo(()=>AFTER_DARK_EVIDENCE.filter(item=>state.evidenceIds.includes(item.id)),[state.evidenceIds])
+
+  useEffect(()=>{setPhone(Math.min(window.innerWidth,window.innerHeight)<=720)},[])
 
   useEffect(()=>{
     const sync=(event:Event)=>{
@@ -58,7 +61,7 @@ export default function StreetVerseAfterDarkAlpha(){
   if(audienceBand&&audienceBand!=='adult')return null
 
   return <>
-    <button type="button" aria-label="Open After Dark Alpha mission" onClick={()=>setOpen(true)} style={{position:'fixed',left:12,bottom:118,zIndex:9010,border:'1px solid #d58cff88',borderRadius:999,background:'linear-gradient(135deg,#24102d,#11101d)',color:'#f6d9ff',padding:'10px 14px',fontFamily:'monospace',fontSize:10,fontWeight:950,cursor:'pointer',boxShadow:'0 8px 28px #0009'}}>🌙 AFTER DARK α</button>
+    {!phone&&<button type="button" aria-label="Open After Dark Alpha mission" onClick={()=>setOpen(true)} style={{position:'fixed',left:12,bottom:118,zIndex:9010,border:'1px solid #d58cff88',borderRadius:999,background:'linear-gradient(135deg,#24102d,#11101d)',color:'#f6d9ff',padding:'10px 14px',fontFamily:'monospace',fontSize:10,fontWeight:950,cursor:'pointer',boxShadow:'0 8px 28px #0009'}}>🌙 AFTER DARK α</button>}
 
     {open&&<div role="dialog" aria-modal="true" aria-label="After Dark Alpha Mission" style={{position:'fixed',inset:0,zIndex:12000,background:'#030207ee',display:'grid',placeItems:'center',padding:14}}>
       <div style={{width:'min(96vw,760px)',maxHeight:'90dvh',overflowY:'auto',background:'linear-gradient(160deg,#100b16,#07070c)',border:'1px solid #8c62a2',borderRadius:22,padding:18,color:'#fff',boxShadow:'0 28px 90px #000'}}>
