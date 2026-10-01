@@ -64,6 +64,7 @@ jobs:
           node tests/streetverse-chicago-pedestrian-routines-pass-6-contract.mjs
           node tests/circle-park-west-side-jefferson-emergency-contract.mjs
           node tests/west-side-school-day-emergency-missions-contract.mjs
+          node tests/streetverse-family-character-production-contract.mjs
       - name: LIVE social tickets youth agencies Middleverse
         run: |
           set -euo pipefail
