@@ -42,9 +42,11 @@ app.post('/api/reports',auth,async(req,res)=>{const report={id:id('rpt'),reporte
 const {createOmniNewsOracleManager}=require('./lib/omni-news-oracle-manager');
 const {registerOmniNewsOracleRoutes}=require('./lib/omni-news-oracle-routes');
 const {registerQuantumCrawlerRoutes}=require('./lib/quantum-crawler-routes');
+const registerQuantumInternet=require('./lib/quantum-internet-routes');
 const omniNewsOracleManager=createOmniNewsOracleManager();
 registerOmniNewsOracleRoutes({app,manager:omniNewsOracleManager,auth,admin});
 registerQuantumCrawlerRoutes({app,manager:omniNewsOracleManager,auth,admin});
+registerQuantumInternet({app,auth,getStore:()=>store});
 require('./music-api')({app,auth,clean,id,getStore:()=>store,saveStore,io});
 require('./lib/omniverse-radio-routes')({app,auth,clean,id,getStore:()=>store,saveStore,io});
 require('./lib/daily-business-boost-routes')({app,auth,clean,id,getStore:()=>store,saveStore,io});
