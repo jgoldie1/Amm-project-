@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 const dock=fs.readFileSync(new URL('../src/components/StreetVerseCoreGameplayDock.tsx',import.meta.url),'utf8')
 const panels=fs.readFileSync(new URL('../src/components/StreetVerseInGamePanels.tsx',import.meta.url),'utf8')
 const bridge=fs.readFileSync(new URL('../src/components/StreetVerseGeoSpawnBridge.tsx',import.meta.url),'utf8')
+const mobile=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
 
 for(const k of ['tryamm:mini-panel-open','tryamm:user-search-open','tryamm:stream-ticket-center-open','SOCIAL','PEOPLE','TICKETS',"'people','live','families','agencies','games'"])assert.ok(dock.includes(k),k)
 assert.ok(dock.includes("StreetVerseInGamePanels"),'visible panel host is not mounted by gameplay dock')
@@ -21,7 +22,8 @@ for(const k of [
   'No server search results loaded yet'
 ])assert.ok(panels.includes(k),'visible panel missing '+k)
 
-assert.ok(bridge.includes("mobile?<><StreetVerseReelEventBridge/><StreetVerseCoreGameplayDock/></>"),'capable mobile StreetVerse must mount the visible gameplay dock')
+assert.ok(bridge.includes("{mobile?<StreetVerseReelEventBridge/>:"),'capable mobile route must stay free of the desktop gameplay overlay stack')
+for(const k of ['StreetVerseInGamePanels','StreetVerse mobile social shortcuts','Open StreetVerse social panel','Open StreetVerse people search','Open StreetVerse stream tickets'])assert.ok(mobile.includes(k),'mobile visible shortcut missing '+k)
 assert.ok(panels.includes("maxHeight:'min(46dvh,390px)'"),'panel must stay bounded inside phone viewport')
 assert.ok(panels.includes("overflowY:'auto'"),'panel must scroll internally instead of covering the game')
 assert.ok(!panels.includes('viewerCount:'),'panel must not fabricate viewer counts')
