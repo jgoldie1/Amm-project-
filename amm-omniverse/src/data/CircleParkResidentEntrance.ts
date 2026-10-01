@@ -6,14 +6,14 @@ export const CIRCLE_PARK_RESIDENT_ENTRANCE={
   schema:'tryamm.circle-park.resident-entrance.v1',
   coordinatePolicy:'fictionalized-gameplay-local-not-a-security-map',
   anchors:{
-    publicApproach:{id:'circle-park-public-approach',position:[-30,0,46] as const,label:'Public approach'},
-    guardGate:{id:'circle-park-guard-gate',position:[-25,0,48] as const,label:'Guard gate / visitor check-in'},
-    residentSideGate:{id:'circle-park-resident-side-gate',position:[-19,0,51] as const,label:'Resident side gate'},
-    seniorBuilding:{id:'circle-park-senior-building',position:[-10,0,58] as const,label:'Senior building'},
-    hill:{id:'circle-park-grill-hill',position:[-5,1.8,64] as const,label:'Hill behind senior building'},
-    grill:{id:'circle-park-hill-grill',position:[-2,2,66] as const,label:'Grill / gathering area'},
+    publicApproach:{id:'circle-park-public-approach',position:[-38,0,31] as const,label:'Public approach'},
+    guardGate:{id:'circle-park-guard-gate',position:[-38,0,42] as const,label:'Guard gate / visitor check-in'},
+    residentSideGate:{id:'circle-park-resident-side-gate',position:[-29,0,54] as const,label:'Resident side gate'},
+    seniorBuilding:{id:'circle-park-senior-building',position:[-31,0,49] as const,label:'Senior building'},
+    hill:{id:'circle-park-grill-hill',position:[-25,1.8,64] as const,label:'Hill behind senior building'},
+    grill:{id:'circle-park-hill-grill',position:[-25,2,69] as const,label:'Grill / gathering area'},
     poolIndoor:{id:'circle-park-indoor-pool',position:[6,0,63] as const,label:'Indoor pool'},
-    poolDeck:{id:'circle-park-pool-deck',position:[10,0,63] as const,label:'Outdoor pool deck'},
+    poolDeck:{id:'circle-park-pool-deck',position:[11,0,63] as const,label:'Outdoor pool deck'},
   },
   methods:{
     guardSignIn:{
