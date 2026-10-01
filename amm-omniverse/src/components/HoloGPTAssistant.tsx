@@ -2,6 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { getAccessToken } from '../services/supabaseClient'
 
 type Msg={role:'user'|'assistant';content:string;provider?:string}
+type SourceMode='auto'|'holo'|'oracle'|'old-web'
+type RetrievalItem={title?:string;headline?:string;summary?:string;sourceName?:string;sourceUrl?:string|null;verification?:string;kind?:string;city?:string;representation?:string}
+type Props={showLauncher?:boolean}
 type Health={ok:boolean;provider?:string;model?:string;error?:string;degraded?:boolean}
 const KEY='tryamm_hologpt_history_v1'
 
@@ -39,12 +42,58 @@ function fallbackAnswer(question:string,error?:string){
 }
 async function readJson(r:Response){const text=await r.text();try{return text?JSON.parse(text):{}}catch{return {error:text||`API ${r.status}`}}}
 
-export default function HoloGPTAssistant(){
+function clientCapabilities(){
+  const nav=navigator as Navigator&{deviceMemory?:number;connection?:{effectiveType?:string}}
+  const effective=String(nav.connection?.effectiveType||'4g')
+  return {
+    webgl:true,
+    webxr:'xr'in navigator,
+    bandwidth:(effective.includes('2g')?'low':effective.includes('3g')?'medium':'high') as 'low'|'medium'|'high',
+    deviceMemoryGB:Number(nav.deviceMemory||2),
+    audio:true,
+    haptics:Boolean(navigator.vibrate),
+  }
+}
+async function oracleSearch(question:string){
+  const r=await fetch('/api/oracle/search',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({q:question}),cache:'no-store'})
+  const d=await readJson(r)
+  if(!r.ok)throw new Error(d.error||`Oracle API ${r.status}`)
+  return d
+}
+async function holoSearch(question:string):Promise<RetrievalItem[]>{
+  return await new Promise(resolve=>{
+    let done=false
+    const finish=(items:RetrievalItem[])=>{if(done)return;done=true;removeEventListener('tryamm:holo-internet-results',onResults);clearTimeout(timer);resolve(items)}
+    const onResults=(event:Event)=>{
+      const d=(event as CustomEvent<{query?:string;results?:RetrievalItem[]}>).detail||{}
+      if(String(d.query||'')===question)finish(Array.isArray(d.results)?d.results:[])
+    }
+    addEventListener('tryamm:holo-internet-results',onResults)
+    const timer=window.setTimeout(()=>finish([]),900)
+    window.dispatchEvent(new CustomEvent('tryamm:holo-internet-query',{detail:{query:question,capabilities:clientCapabilities()}}))
+  })
+}
+function compactRetrieval(items:RetrievalItem[],limit=8){
+  return items.slice(0,limit).map((item,i)=>({
+    n:i+1,
+    title:String(item.title||item.headline||'Untitled').slice(0,180),
+    summary:String(item.summary||'').slice(0,500),
+    source:String(item.sourceName||item.kind||'Holo Internet').slice(0,120),
+    url:item.sourceUrl||null,
+    verification:item.verification||null,
+    city:item.city||null,
+    representation:item.representation||null,
+  }))
+}
+
+export default function HoloGPTAssistant({showLauncher=true}:Props){
   const [open,setOpen]=useState(false)
   const [messages,setMessages]=useState<Msg[]>(loadHistory)
   const [input,setInput]=useState('')
   const [busy,setBusy]=useState(false)
   const [health,setHealth]=useState<Health|null>(null)
+  const [sourceMode,setSourceMode]=useState<SourceMode>('auto')
+  const [retrievalStatus,setRetrievalStatus]=useState('')
   const end=useRef<HTMLDivElement>(null)
   const history=useMemo(()=>messages.slice(-10).map(m=>({role:m.role,content:m.content})),[messages])
 
@@ -66,8 +115,18 @@ export default function HoloGPTAssistant(){
     if(action){setMessages(m=>[...m,{role:'assistant',content:`${action}\n\nNavigation is active. Consequential actions such as payments, physical rides, deliveries and drones still remain behind their safety and verification gates.`,provider:'holo-router'}]);return}
     setBusy(true)
     try{
+      setRetrievalStatus('SEARCHING '+sourceMode.toUpperCase())
+      let retrievalContext:any={mode:sourceMode,holo:[],oracle:[],crawler:null}
+      if(sourceMode==='holo'||sourceMode==='auto')retrievalContext.holo=compactRetrieval(await holoSearch(question))
+      if(sourceMode==='oracle'||sourceMode==='old-web'||sourceMode==='auto'){
+        const oracle=await oracleSearch(question)
+        retrievalContext.oracle=compactRetrieval(Array.isArray(oracle.results)?oracle.results:[])
+        retrievalContext.crawler=oracle.crawler||null
+        retrievalContext.oracleConfigured=oracle.configured!==false
+      }
+      setRetrievalStatus('')
       const token=await getAccessToken()
-      const r=await fetch('/api/ai/answer',{method:'POST',headers:{'content-type':'application/json',...(token?{authorization:`Bearer ${token}`}:{})},body:JSON.stringify({question,history})})
+      const r=await fetch('/api/ai/answer',{method:'POST',headers:{'content-type':'application/json',...(token?{authorization:`Bearer ${token}`}:{})},body:JSON.stringify({question,history,sourceMode,retrievalContext})})
       const data=await readJson(r)
       if(!r.ok)throw new Error(data.error||`AI API ${r.status}`)
       const answer=String(data.answer||'').trim()||fallbackAnswer(question,'No answer returned by the AI service.')
@@ -77,18 +136,22 @@ export default function HoloGPTAssistant(){
       const reason=e?.message||'AI connection unavailable'
       setHealth({ok:false,degraded:true,error:reason,provider:'local-recovery'})
       setMessages(m=>[...m,{role:'assistant',content:fallbackAnswer(question,reason),provider:'local-recovery'}])
-    } finally {setBusy(false)}
+    } finally {setRetrievalStatus('');setBusy(false)}
   }
 
   const disabled=busy||!input.trim()
   const status=health?.ok?'INTELLIGENCE ONLINE':health?.degraded?'RECOVERY MODE':'CHECKING AI'
   const statusColor=health?.ok?'#78ffb4':'#e8b944'
   return <>
-    <button aria-label="Open HoloGPT" onClick={()=>setOpen(true)} style={{position:'fixed',right:12,bottom:18,zIndex:10030,border:'1px solid #4fe3ffaa',borderRadius:999,padding:'12px 16px',background:'linear-gradient(135deg,#061c29,#171128)',color:'#4fe3ff',fontFamily:'monospace',fontWeight:950,fontSize:11,cursor:'pointer',boxShadow:'0 0 28px #4fe3ff33'}}>◈ HOLOGPT</button>
+    {showLauncher&&<button aria-label="Open HoloGPT" onClick={()=>setOpen(true)} style={{position:'fixed',right:12,bottom:18,zIndex:10030,border:'1px solid #4fe3ffaa',borderRadius:999,padding:'12px 16px',background:'linear-gradient(135deg,#061c29,#171128)',color:'#4fe3ff',fontFamily:'monospace',fontWeight:950,fontSize:11,cursor:'pointer',boxShadow:'0 0 28px #4fe3ff33'}}>◈ HOLOGPT</button>}
     {open&&<div role="dialog" aria-label="HoloGPT" style={{position:'fixed',inset:0,zIndex:12000,background:'rgba(1,3,10,.82)',backdropFilter:'blur(8px)',display:'flex',alignItems:'flex-end',justifyContent:'flex-end',padding:12}} onClick={()=>setOpen(false)}>
       <div onClick={e=>e.stopPropagation()} style={{width:'min(96vw,460px)',height:'min(82vh,690px)',background:'linear-gradient(160deg,#06101a,#080615)',border:'1px solid #4fe3ff77',borderRadius:22,display:'flex',flexDirection:'column',overflow:'hidden',boxShadow:'0 28px 90px #000d'}}>
         <header style={{padding:'14px 16px',borderBottom:'1px solid #4fe3ff22',display:'flex',alignItems:'center',gap:10}}><div style={{fontSize:27}}>◈</div><div style={{flex:1}}><div style={{color:'#fff',fontWeight:950}}>HoloGPT</div><div style={{fontSize:9,color:statusColor,fontFamily:'monospace'}}>{status}{health?.provider?` · ${health.provider}`:''}</div></div><button aria-label="Close HoloGPT" onClick={()=>setOpen(false)} style={{background:'transparent',border:'1px solid #334',color:'#fff',borderRadius:'50%',width:34,height:34,cursor:'pointer'}}>×</button></header>
         {health?.degraded&&<div style={{margin:'10px 12px 0',padding:'9px 10px',border:'1px solid #e8b94455',borderRadius:11,background:'#e8b9440d',fontSize:10,color:'#ffe281',lineHeight:1.45}}>Generative AI is not connected on this deployment yet. Holo navigation remains usable and HoloGPT now fails softly instead of showing a raw runtime-error message.</div>}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(0,1fr))',gap:5,padding:'9px 12px 0'}}>
+          {([['auto','AUTO'],['holo','HOLO'],['oracle','ORACLE'],['old-web','OLD WEB INDEX']] as const).map(([id,label])=><button key={id} onClick={()=>setSourceMode(id)} style={{minHeight:34,borderRadius:9,border:sourceMode===id?'1px solid #4fe3ff':'1px solid #253647',background:sourceMode===id?'#0d3043':'#091019',color:'#dffaff',fontSize:8,fontWeight:950}}>{label}</button>)}
+        </div>
+        {retrievalStatus&&<div style={{padding:'6px 12px 0',fontSize:8,color:'#6fe8ff',fontFamily:'monospace'}}>{retrievalStatus}</div>}
         <div style={{flex:1,overflowY:'auto',padding:14}}>
           {messages.length===0&&<div style={{padding:16,border:'1px solid #4fe3ff22',borderRadius:14,color:'#b8cfda',lineHeight:1.6,fontSize:12}}>Ask HoloGPT a question or use it as a Holo launcher. Try “open Holoverse”, “open StreetVerse”, “open Holo Services”, “open Holo Music”, or “open Command Nexus”.</div>}
           {messages.map((m,i)=><div key={i} style={{display:'flex',justifyContent:m.role==='user'?'flex-end':'flex-start',margin:'10px 0'}}><div style={{maxWidth:'88%',whiteSpace:'pre-wrap',lineHeight:1.55,fontSize:12,padding:'10px 12px',borderRadius:14,background:m.role==='user'?'#e8b94418':'#4fe3ff12',border:`1px solid ${m.role==='user'?'#e8b94444':'#4fe3ff33'}`,color:m.role==='user'?'#ffe7a0':'#e8faff'}}>{m.content}{m.provider&&<div style={{marginTop:7,fontSize:8,color:'#6f8d9e',fontFamily:'monospace'}}>{m.provider}</div>}</div></div>)}
