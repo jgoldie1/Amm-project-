@@ -35,6 +35,9 @@ const ENDPOINTS={
   'text-to-3d':'/text-to-3d',
 };
 
+const RIGGING_ENDPOINT='/rigging';
+const ANIMATION_ENDPOINT='/animations';
+
 export async function listMeshyTasks(type='image-to-3d',pageSize=20){
   const endpoint=ENDPOINTS[type];
   if(!endpoint)throw Object.assign(new Error('Unsupported Meshy task type'),{status:400,code:'unsupported_meshy_type'});
@@ -98,4 +101,83 @@ export async function createMeshyTask(type,payload){
   const id=String(data?.result||data?.id||'');
   if(!id)throw Object.assign(new Error('Meshy did not return a task id'),{status:502,code:'meshy_missing_task_id',provider:data});
   return {id,type};
+}
+
+
+export async function createMeshyRiggingTask({inputTaskId,modelUrl,heightMeters=1.7}={}){
+  const body={height_meters:Math.max(.5,Math.min(2.6,Number(heightMeters)||1.7))};
+  if(String(inputTaskId||'').trim())body.input_task_id=String(inputTaskId).trim();
+  else if(String(modelUrl||'').trim())body.model_url=String(modelUrl).trim();
+  else throw Object.assign(new Error('input_task_id or model_url is required'),{status:400,code:'meshy_rig_source_required'});
+  const {data}=await request(RIGGING_ENDPOINT,{method:'POST',body});
+  const id=String(data?.result||data?.id||'');
+  if(!id)throw Object.assign(new Error('Meshy did not return a rigging task id'),{status:502,code:'meshy_missing_rig_task_id',provider:data});
+  return {id,type:'rig'};
+}
+
+export async function getMeshyRiggingTask(id){
+  if(!/^[A-Za-z0-9_-]{8,120}$/.test(String(id||'')))throw Object.assign(new Error('Invalid Meshy rigging task id'),{status:400,code:'invalid_meshy_rig_task_id'});
+  const {data}=await request(`${RIGGING_ENDPOINT}/${encodeURIComponent(id)}`);
+  return data;
+}
+
+export function summarizeMeshyRiggingTask(task){
+  const result=task?.result||{};
+  const basic=result?.basic_animations||{};
+  return {
+    id:String(task?.id||''),
+    type:'rig',
+    status:String(task?.status||'UNKNOWN'),
+    progress:Number(task?.progress||0),
+    createdAt:task?.created_at||null,
+    finishedAt:task?.finished_at||null,
+    expiresAt:task?.expires_at||null,
+    consumedCredits:Number(task?.consumed_credits||0),
+    error:task?.task_error?.message||null,
+    riggedGlb:result?.rigged_character_glb_url||null,
+    riggedFbx:result?.rigged_character_fbx_url||null,
+    walkingGlb:basic?.walking_glb_url||null,
+    runningGlb:basic?.running_glb_url||null,
+    precedingTasks:Number(task?.preceding_tasks||0),
+  };
+}
+
+export async function createMeshyAnimationTask({rigTaskId,actionId,actionIds,motionTaskId,fps}={}){
+  const rig=String(rigTaskId||'').trim();
+  if(!rig)throw Object.assign(new Error('rig_task_id is required'),{status:400,code:'meshy_animation_rig_required'});
+  const body={rig_task_id:rig};
+  const many=Array.isArray(actionIds)?actionIds.map(Number).filter(Number.isFinite):[];
+  if(many.length)body.action_ids=many.slice(0,10);
+  else if(Number.isFinite(Number(actionId)))body.action_id=Number(actionId);
+  else if(String(motionTaskId||'').trim())body.motion_task_id=String(motionTaskId).trim();
+  else throw Object.assign(new Error('action_id, action_ids or motion_task_id is required'),{status:400,code:'meshy_animation_action_required'});
+  if([24,25,30,60].includes(Number(fps)))body.post_process={operation_type:'change_fps',fps:Number(fps)};
+  const {data}=await request(ANIMATION_ENDPOINT,{method:'POST',body});
+  const id=String(data?.result||data?.id||'');
+  if(!id)throw Object.assign(new Error('Meshy did not return an animation task id'),{status:502,code:'meshy_missing_animation_task_id',provider:data});
+  return {id,type:'animation'};
+}
+
+export async function getMeshyAnimationTask(id){
+  if(!/^[A-Za-z0-9_-]{8,120}$/.test(String(id||'')))throw Object.assign(new Error('Invalid Meshy animation task id'),{status:400,code:'invalid_meshy_animation_task_id'});
+  const {data}=await request(`${ANIMATION_ENDPOINT}/${encodeURIComponent(id)}`);
+  return data;
+}
+
+export function summarizeMeshyAnimationTask(task){
+  const result=task?.result||{};
+  return {
+    id:String(task?.id||''),
+    type:'animation',
+    status:String(task?.status||'UNKNOWN'),
+    progress:Number(task?.progress||0),
+    createdAt:task?.created_at||null,
+    finishedAt:task?.finished_at||null,
+    expiresAt:task?.expires_at||null,
+    consumedCredits:Number(task?.consumed_credits||0),
+    error:task?.task_error?.message||null,
+    animationGlb:result?.animation_glb_url||null,
+    animationFbx:result?.animation_fbx_url||null,
+    precedingTasks:Number(task?.preceding_tasks||0),
+  };
 }
