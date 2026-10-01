@@ -101,7 +101,7 @@ export default function MeshyFactoryControlPanel(){
 
       <section style={{marginTop:12,padding:12,border:'1px solid #5c4a24',borderRadius:16,background:'#171207dd'}}>
         <div style={{display:'flex',justifyContent:'space-between',gap:10,alignItems:'center',flexWrap:'wrap'}}>
-          <div><b style={{fontSize:12,color:'#ffe49a'}}>JAMES → FEMALE BASE → CIRCLE PARK</b><div style={{fontSize:10,color:'#cbbd98',marginTop:4,lineHeight:1.45}}>One founder-authorized sequence. First build a rigged James body base with a neutral face, then a reusable rigged female body base, then start four Circle Park residents in parallel. The exact James facial likeness still waits for an approved reference image.</div></div>
+          <div><b style={{fontSize:12,color:'#ffe49a'}}>JAMES → FEMALE BASE → CIRCLE PARK</b><div style={{fontSize:10,color:'#cbbd98',marginTop:4,lineHeight:1.45}}>One founder-authorized sequence. First build a rigged James boy/youth body base with a neutral face, then a reusable female base for Black, mixed-heritage and multinational characters, then start four Circle Park residents in parallel. James is not an adult model; exact face, age proportions and height are refined from an approved reference.</div></div>
           <button disabled={Boolean(busy)} onClick={()=>void startBootstrapWave()} style={btn}>{busy==='bootstrap-wave'?'STARTING WAVE…':'START BOOTSTRAP WAVE'}</button>
         </div>
       </section>
