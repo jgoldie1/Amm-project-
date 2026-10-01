@@ -1,6 +1,6 @@
 import {json} from '../_lib/supabase-admin.js';
 import {requireUser} from '../_lib/security.js';
-import {MESHY_FACTORY_CATALOG,startMeshyFactoryJob,listMeshyFactoryJobs,tickMeshyFactoryJob} from '../_lib/meshy-factory.js';
+import {MESHY_FACTORY_CATALOG,startMeshyFactoryJob,startCircleParkBootstrapWave,listMeshyFactoryJobs,tickMeshyFactoryJob} from '../_lib/meshy-factory.js';
 
 export default async function handler(req,res){
   const user=await requireUser(req,res);if(!user)return;
@@ -15,6 +15,10 @@ export default async function handler(req,res){
       if(action==='start'){
         const job=await startMeshyFactoryJob(user,{assetId:body.assetId,imageUrl:body.imageUrl,cityScope:body.cityScope});
         return json(res,202,{ok:true,schema:'tryamm.meshy.factory.v1',action:'start',job});
+      }
+      if(action==='start-circle-park-wave'){
+        const wave=await startCircleParkBootstrapWave(user);
+        return json(res,202,{ok:true,schema:'tryamm.meshy.factory.v1',action:'start-circle-park-wave',wave});
       }
       if(action==='tick'){
         const job=await tickMeshyFactoryJob(user,String(body.jobId||''));
