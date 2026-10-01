@@ -4,7 +4,6 @@ const clean=(v,n=1200)=>String(v||'').trim().slice(0,n)
 const ARCHIVE='https://web.archive.org/cdx/search/cdx'
 const CC_COLLECTIONS='https://index.commoncrawl.org/collinfo.json'
 
-}
 function stampToIso(stamp){
   const s=String(stamp||'')
   if(!/^\d{14}$/.test(s))return null
