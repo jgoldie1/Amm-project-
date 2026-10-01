@@ -42,7 +42,9 @@ for(const key of [
   must(sound.includes(key),'sound bank missing '+key)
 }
 
+must(sound.includes("onQuantumBeat")&&sound.includes("quantumBeatClock"),'automatic sound bank must use Quantum Beat timing')
+must(sound.includes("idleBpm:84")&&sound.includes("walkBpm:108")&&sound.includes("driveBpm:124")&&sound.includes("emergencyBpm:138"),'Quantum Beat must adapt to idle walk drive and emergency states')
 must(cafe.includes("tryamm:ai-cafe-task"),'StreetVerse AI Cafe bridge must create real agent tasks')
 must(cafe.includes("tryamm:streetverse-world-ready"),'AI Cafe must audit the visible world after mount')
 
-console.log('STREETVERSE CONVERGENCE CONTRACT PASS: automatic SFX + AI Cafe + dispatch + memory + rescue + guards are mounted on the playable mobile route')
+console.log('STREETVERSE CONVERGENCE CONTRACT PASS: Quantum Beat automatic SFX + AI Cafe + dispatch + memory + rescue + guards are mounted on the playable mobile route')
