@@ -185,7 +185,7 @@ export default async function handler(req,res){
     ()=>openai(grounded,history),
     ()=>gemini(grounded,history),
     ()=>claude(grounded,history),
-    ()=>glm(question,history)
+    ()=>glm(grounded,history)
   ];
   const runners=ownFirst
     ?[()=>selfHosted(grounded,history),...cloudRunners,()=>deepseek(grounded,history),()=>ammBackend(grounded,history,authorization)]
