@@ -5,7 +5,10 @@ async function adminFetch(path,{method='GET',body,query,prefer='return=represent
   if(!adminReady())throw new Error('supabase_admin_not_configured');
   const u=new URL(`${url().replace(/\/$/,'')}/rest/v1/${path}`);
   if(query)for(const [k,v] of Object.entries(query))if(v!==undefined&&v!==null)u.searchParams.set(k,String(v));
-  const res=await fetch(u,{method,headers:{apikey:key(),authorization:`Bearer ${key()}`,'content-type':'application/json',prefer},body:body===undefined?undefined:JSON.stringify(body)});
+  const apiKey=key();
+  const headers={apikey:apiKey,'content-type':'application/json',prefer};
+  if(!apiKey.startsWith('sb_secret_'))headers.authorization=`Bearer ${apiKey}`;
+  const res=await fetch(u,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});
   const text=await res.text();let data=null;try{data=text?JSON.parse(text):null}catch{data=text}
   if(!res.ok){const err=new Error(data?.message||data?.error||`supabase_${res.status}`);err.status=res.status;err.details=data;throw err}
   return data;
