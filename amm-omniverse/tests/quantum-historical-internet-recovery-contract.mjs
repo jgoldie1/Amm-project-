@@ -23,6 +23,7 @@ must(snapshot.includes('marketingSignals'),'historical snapshot must extract lim
 must(snapshot.includes('persistQuantumTimeDocument'),'inspected snapshot must persist provenance and ad signals')
 
 must(admin.includes('SUPABASE_SECRET_KEY')&&admin.includes('SUPABASE_SERVICE_ROLE_KEY'),'shared server admin helper must support current secret key and legacy service-role key during migration')
+must(admin.includes("apiKey.startsWith('sb_secret_')")&&admin.includes("headers.authorization"),'new Supabase secret key must not be sent as a bearer JWT while legacy service role still can be')
 must(store.includes('quantum_time_documents'),'server store must use hardened Quantum Time table')
 must(store.includes('supersedes'),'durable historical versions must preserve supersession chain')
 must(!admin.includes('VITE_SUPABASE_SERVICE_ROLE_KEY'),'privileged database key must never use a browser-prefixed env name')
@@ -33,6 +34,8 @@ must(hologpt.includes("['historical','HISTORY']"),'HoloGPT must expose Historica
 must(hologpt.includes('/api/quantum/history')&&hologpt.includes('/api/quantum/snapshot'),'HoloGPT history mode must query timeline and selected capture')
 must(hologpt.includes('extractHistoricalYears')&&hologpt.includes('extractHistoricalUrl'),'HoloGPT must infer date/domain from normal questions')
 must(hologpt.includes('historicalComparison')&&hologpt.includes('TIME MACHINE COMPARE'),'HoloGPT must support two-period historical comparison')
+must(hologpt.includes('OPEN ARCHIVE')||aiAnswer.includes('OPEN ARCHIVE'),'HoloGPT historical answers must expose inspectable archive links')
+must(aiAnswer.includes('retrievalSources'),'AI answer API must return source evidence separately from generated prose')
 
 must(answer.includes("lane:'HISTORICAL-INTERNET'"),'AI grounding must label historical evidence separately')
 must(answer.includes('Absence from an archive is NOT proof'),'AI grounding must preserve archive incompleteness warning')
