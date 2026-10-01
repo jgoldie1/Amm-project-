@@ -34,6 +34,7 @@ must(world.includes("StreetVerseResponderNPCController"),'responder NPCs must be
 must(world.includes("StreetVerseDialogueHUD"),'dialogue HUD must be mounted')
 must(world.includes("HoloGPTAssistant showLauncher={false}"),'HoloGPT must be mounted behind the one-hand StreetVerse menu')
 must(world.includes("['hologpt','◈ HOLOGPT']"),'HoloGPT must be reachable from the one-hand StreetVerse menu')
+must(world.includes("['time','⏳ TIME MACHINE']"),'TIME MACHINE must be reachable from the one-hand StreetVerse menu')
 must(world.includes("tryamm:world-player-signal"),'mobile world must feed the living-world scheduler')
 must(world.includes("tryamm:world-clock"),'mobile world must publish day/night clock state')
 must(world.includes("tryamm:world-weather"),'mobile world must publish weather state')
