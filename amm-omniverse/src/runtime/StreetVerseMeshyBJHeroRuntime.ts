@@ -1,13 +1,14 @@
 import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
-import {normalizeStreetVerseHumanHeight,STREETVERSE_HUMAN_HEIGHT_METERS} from './StreetVerseHumanScale'
+import {normalizeStreetVerseHumanHeight} from './StreetVerseHumanScale'
+import {BJ_STUBBS_BODY_PROFILE} from '../data/StreetVerseBJBodyProfile'
 
 export const BJ_MESHY_V6_ASSET={
   id:'streetverse-bj-stubbs-meshy-v6',
   characterId:'bj-stubbs',
   filename:'SV_HERO_BJ_STUBBS_V6.glb',
   url:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6.glb',
-  targetHeightMeters:STREETVERSE_HUMAN_HEIGHT_METERS.adultHero,
+  targetHeightMeters:BJ_STUBBS_BODY_PROFILE.heightMeters,
   authority:'meshy-rigged-glb',
   fallback:'streetverse-bj-stubbs-photomatched',
   photoLikenessAuthorized:true,

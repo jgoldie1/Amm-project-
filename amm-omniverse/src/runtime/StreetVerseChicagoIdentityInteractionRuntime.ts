@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import {CIRCLE_PARK_RESIDENT_ENTRANCE} from '../data/CircleParkResidentEntrance'
 
 export type StreetVerseInteractionKind='mission'|'shop'|'talk'|'ride'|'explore'
 
@@ -110,6 +111,42 @@ const TARGETS:Target[]=[
     accent:0x78ffb4,
   },
   {
+    id:'circle-park-guard-gate',
+    label:'Circle Park Guard Gate',
+    action:'SIGN IN',
+    kind:'talk',
+    x:CIRCLE_PARK_RESIDENT_ENTRANCE.anchors.guardGate.position[0],
+    z:CIRCLE_PARK_RESIDENT_ENTRANCE.anchors.guardGate.position[2],
+    radius:6,
+    event:'tryamm:circle-park-entry',
+    detail:{method:'guard-sign-in',source:'circle-park-resident-entrance'},
+    accent:0x78ffb4,
+  },
+  {
+    id:'circle-park-resident-side-gate',
+    label:'Circle Park Resident Side Gate',
+    action:'USE RESIDENT KEY',
+    kind:'explore',
+    x:CIRCLE_PARK_RESIDENT_ENTRANCE.anchors.residentSideGate.position[0],
+    z:CIRCLE_PARK_RESIDENT_ENTRANCE.anchors.residentSideGate.position[2],
+    radius:5,
+    event:'tryamm:circle-park-entry',
+    detail:{method:'resident-key',source:'circle-park-resident-entrance'},
+    accent:0x5be7ff,
+  },
+  {
+    id:'circle-park-gate-vault',
+    label:'Circle Park Gate',
+    action:'VAULT GATE (GAME)',
+    kind:'explore',
+    x:CIRCLE_PARK_RESIDENT_ENTRANCE.anchors.residentSideGate.position[0]+3,
+    z:CIRCLE_PARK_RESIDENT_ENTRANCE.anchors.residentSideGate.position[2]+1,
+    radius:3.5,
+    event:'tryamm:circle-park-entry',
+    detail:{method:'gate-vault',gameplayOnly:true,realWorldInstruction:false,source:'circle-park-resident-entrance'},
+    accent:0xffb35b,
+  },
+  {
     id:'circle-park-basketball',
     label:'Circle Park Basketball Court',
     action:'PLAY BALL',
@@ -141,12 +178,12 @@ const TARGETS:Target[]=[
   },
   {
     id:'circle-park-pool',
-    label:'StreetVerse Circle Park Pool',
-    action:'SWIM',
+    label:'Circle Park Indoor Pool / Outside Deck',
+    action:'SWIM / DECK',
     kind:'explore',
     x:5,z:63,radius:7,
     event:'tryamm:circle-park-activity',
-    detail:{activity:'swimming',mode:'free-swim',fictionalAmenity:true,source:'circle-park-recreation'},
+    detail:{activity:'swimming',mode:'indoor-pool-outdoor-deck',userDirectedLayout:true,source:'circle-park-recreation'},
     accent:0x38c9ff,
   },
   {
