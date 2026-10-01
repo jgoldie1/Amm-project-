@@ -71,7 +71,7 @@ export function summarizeMeshyTask(task,type){
 
 export async function createMeshyTask(type,payload){
   const endpoint=ENDPOINTS[type];
-  if(!endpoint||!['image-to-3d','multi-image-to-3d'].includes(type)){
+  if(!endpoint||!['image-to-3d','multi-image-to-3d','text-to-3d'].includes(type)){
     throw Object.assign(new Error('Unsupported Meshy generation type'),{status:400,code:'unsupported_meshy_type'});
   }
   const body={...payload};
@@ -84,6 +84,11 @@ export async function createMeshyTask(type,payload){
     const urls=Array.isArray(body.image_urls)?body.image_urls.map(v=>String(v||'').trim()).filter(Boolean):[];
     if(urls.length<2||urls.length>4)throw Object.assign(new Error('image_urls must contain 2 to 4 images'),{status:400,code:'meshy_multi_image_count'});
     body.image_urls=urls;
+  }
+  if(type==='text-to-3d'){
+    const prompt=String(body.prompt||'').trim();
+    if(!prompt)throw Object.assign(new Error('prompt is required'),{status:400,code:'meshy_prompt_required'});
+    body.prompt=prompt;
   }
   body.target_formats=['glb'];
   body.should_texture=body.should_texture!==false;
