@@ -3,6 +3,7 @@ import {getAccessToken} from '../services/supabaseClient'
 
 type CatalogItem={assetId:string;filename:string;generationType:string;height:number;ageLane:string;role:string}
 type Job={id:string;asset_id:string;filename:string;stage:string;progress:number;provider_generation_task_id?:string;provider_rig_task_id?:string;public_url?:string;walking_public_url?:string;running_public_url?:string;error_message?:string;created_at?:string}
+type ProviderTask={id:string;type:string;status:string;progress:number;createdAt?:string|null;thumbnailUrl?:string|null;glb?:string|null;consumedCredits?:number}
 type FactoryHealth={ok:boolean;providerConfigured:boolean;supabaseAdminConfigured:boolean;durableJobStoreReady:boolean;backgroundWorkerSecretConfigured:boolean;readyAssets:number;activeJobs:number;recoveryRequiredJobs:number;blockers:string[]}
 
 const btn:React.CSSProperties={minHeight:44,borderRadius:12,border:'1px solid #3a647a',background:'#091823',color:'#fff',fontWeight:900,fontSize:10,padding:'9px 11px',touchAction:'manipulation'}
@@ -25,6 +26,9 @@ export default function MeshyFactoryControlPanel(){
   const [error,setError]=useState('')
   const [auto,setAuto]=useState(true)
   const [health,setHealth]=useState<FactoryHealth|null>(null)
+  const [providerTasks,setProviderTasks]=useState<ProviderTask[]>([])
+  const [selectedExistingTaskId,setSelectedExistingTaskId]=useState('')
+  const [selectedExistingAssetId,setSelectedExistingAssetId]=useState('sv-bj-stubbs-v6')
 
   const refresh=async()=>{
     try{
@@ -32,6 +36,15 @@ export default function MeshyFactoryControlPanel(){
       setCatalog(Array.isArray(data.catalog)?data.catalog:[])
       setJobs(Array.isArray(data.jobs)?data.jobs:[])
       setHealth(healthData as FactoryHealth)
+      let importedTasks:ProviderTask[]=[]
+      if(Boolean(healthData?.providerConfigured)){
+        try{
+          const taskData=await authFetch('/api/meshy/tasks?type=all&page_size=50')
+          importedTasks=Array.isArray(taskData?.tasks)?taskData.tasks.filter((task:ProviderTask)=>task?.id&&String(task.status).toUpperCase()==='SUCCEEDED'&&task.glb):[]
+        }catch{}
+      }
+      setProviderTasks(importedTasks)
+      if(importedTasks.length&&!selectedExistingTaskId)setSelectedExistingTaskId(importedTasks[0].id)
       setError('')
     }catch(e){setError(e instanceof Error?e.message:String(e))}
   }
@@ -54,6 +67,23 @@ export default function MeshyFactoryControlPanel(){
     try{
       const imageUrl=assetId==='sv-bj-stubbs-v6'?referenceUrl.trim():undefined
       await authFetch('/api/meshy/factory',{method:'POST',body:JSON.stringify({action:'start',assetId,imageUrl,cityScope:'global'})})
+      await refresh()
+    }catch(e){setError(e instanceof Error?e.message:String(e))}
+    finally{setBusy('')}
+  }
+
+  const importExisting=async()=>{
+    const task=providerTasks.find(item=>item.id===selectedExistingTaskId)
+    if(!task||!selectedExistingAssetId)return
+    setBusy('import-existing');setError('')
+    try{
+      await authFetch('/api/meshy/factory',{method:'POST',body:JSON.stringify({
+        action:'import-existing',
+        assetId:selectedExistingAssetId,
+        taskId:task.id,
+        type:task.type,
+        cityScope:'global'
+      })})
       await refresh()
     }catch(e){setError(e instanceof Error?e.message:String(e))}
     finally{setBusy('')}
@@ -97,6 +127,37 @@ export default function MeshyFactoryControlPanel(){
       <section style={{marginTop:12,padding:12,border:`1px solid ${health?.ok?'#2f6c4a':'#704b35'}`,borderRadius:16,background:health?.ok?'#07170fdd':'#1a1008dd'}}>
         <div style={{display:'flex',justifyContent:'space-between',gap:8,flexWrap:'wrap'}}><div><b style={{fontSize:12}}>FACTORY READINESS: {health?.ok?'READY':'CHECKING / BLOCKED'}</b><div style={{fontSize:9,color:'#a8bdca',marginTop:4}}>Meshy key: {health?.providerConfigured?'YES':'NO'} • durable jobs: {health?.durableJobStoreReady?'YES':'NO'} • background worker: {health?.backgroundWorkerSecretConfigured?'YES':'NO'} • ready assets: {health?.readyAssets??0} • active: {health?.activeJobs??0} • recovery: {health?.recoveryRequiredJobs??0}</div></div></div>
         {Boolean(health?.blockers?.length)&&<div style={{display:'grid',gap:4,marginTop:7}}>{health!.blockers.map(blocker=><div key={blocker} style={{fontSize:9,color:'#ffc69c'}}>• {blocker}</div>)}</div>}
+      </section>
+
+      <section style={{marginTop:12,padding:12,border:'1px solid #3b5d77',borderRadius:16,background:'#07131ddd'}}>
+        <div style={{display:'flex',justifyContent:'space-between',gap:10,alignItems:'flex-start',flexWrap:'wrap'}}>
+          <div>
+            <b style={{fontSize:12,color:'#9fe8ff'}}>REUSE EXISTING MESHY MODELS</b>
+            <div style={{fontSize:10,color:'#a8bdca',lineHeight:1.45,marginTop:4}}>
+              Completed Meshy API generations can be adopted without spending generation credits again. TRYAMM will attach the existing GLB to a StreetVerse asset slot, rig it, publish it to durable storage, and make it discoverable by the live game.
+            </div>
+            <div style={{fontSize:9,color:health?.providerConfigured?'#8effb7':'#ffbd91',marginTop:5}}>
+              {health?.providerConfigured?`${providerTasks.length} completed Meshy task(s) available for import`:'MESHY_API_KEY is not configured in production yet'}
+            </div>
+          </div>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:7,marginTop:9}}>
+          <label style={{fontSize:9,color:'#aac0ce'}}>MESHY TASK
+            <select aria-label="Existing Meshy task" value={selectedExistingTaskId} onChange={e=>setSelectedExistingTaskId(e.target.value)} style={{width:'100%',minHeight:44,borderRadius:10,border:'1px solid #365a70',background:'#07111a',color:'#fff',padding:'0 8px',marginTop:4}}>
+              <option value="">Select completed generation…</option>
+              {providerTasks.map(task=><option key={task.id} value={task.id}>{task.type} • {task.id.slice(0,10)}… • {task.consumedCredits??0} credits</option>)}
+            </select>
+          </label>
+          <label style={{fontSize:9,color:'#aac0ce'}}>STREETVERSE SLOT
+            <select aria-label="StreetVerse asset slot" value={selectedExistingAssetId} onChange={e=>setSelectedExistingAssetId(e.target.value)} style={{width:'100%',minHeight:44,borderRadius:10,border:'1px solid #365a70',background:'#07111a',color:'#fff',padding:'0 8px',marginTop:4}}>
+              {catalog.map(item=><option key={item.assetId} value={item.assetId}>{item.filename}</option>)}
+            </select>
+          </label>
+        </div>
+        <button disabled={Boolean(busy)||!health?.providerConfigured||!selectedExistingTaskId||!selectedExistingAssetId} onClick={()=>void importExisting()} style={{...btn,marginTop:9,width:'100%',borderColor:'#4b88a8'}}>
+          {busy==='import-existing'?'IMPORTING + STARTING RIG…':'IMPORT EXISTING MODEL → RIG + PUBLISH'}
+        </button>
+        <div style={{fontSize:8,color:'#78909f',marginTop:6}}>Generation credits are reused; Meshy may still apply provider charges for any new rig/animation operation.</div>
       </section>
 
       <section style={{marginTop:12,padding:12,border:'1px solid #5c4a24',borderRadius:16,background:'#171207dd'}}>
