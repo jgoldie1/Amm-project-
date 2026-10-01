@@ -102,7 +102,7 @@ async function historicalSearch(question:string,urlInput:string,fromInput:string
       title:`${label} • ${String(cap.capturedAt||cap.timestamp||'unknown date')}`,
       summary:[cap.title,cap.description,ads,cap.contentExcerpt].filter(Boolean).join(' — ').slice(0,1200),
       sourceName:cap.provider==='common-crawl'?'Common Crawl':'Internet Archive',
-      sourceUrl:cap.archiveUrl||cap.original||null,
+      sourceUrl:cap.archiveUrl||null,
       verification:'archived-source-capture',
     })
   }
