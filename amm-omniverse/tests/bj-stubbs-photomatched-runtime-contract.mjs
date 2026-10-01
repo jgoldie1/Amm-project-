@@ -7,7 +7,7 @@ const must=(ok,msg)=>{if(!ok)throw new Error('BJ PHOTOMATCH RUNTIME CONTRACT FAI
 
 must(runtime.includes("id:'streetverse-bj-stubbs-photomatched'"),'reserved BJ photo-matched asset id must be active')
 must(runtime.includes("BJ_PHOTOMATCH_TEXTURE_DATA_URI='data:image/webp;base64,"),'approved reference pixels must ship as the runtime texture')
-must(runtime.includes("new THREE.PlaneGeometry(.68,.78,18,22)"),'photo head must be a real curved 3D mesh, not a DOM image')
+must(runtime.includes("new THREE.PlaneGeometry(.62,.72,22,26)"),'photo head must be a real curved 3D mesh, not a DOM image')
 must(runtime.includes("headPivot.add(mesh)"),'photo head must attach to the live rig-head')
 must(runtime.includes("PROCEDURAL_FACE_PARTS")&&runtime.includes("object.visible=false"),'procedural facial geometry must hide only after photo head activation')
 must(runtime.includes("tryamm:bj-photomatched-head-ready"),'photo-head readiness evidence event missing')
