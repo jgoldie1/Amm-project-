@@ -42,14 +42,28 @@ export function archiveTimestampToIso(value){
   return Number.isFinite(Date.parse(iso))?iso:null
 }
 
-async function fetchJson(url,timeout=9000){
-  const controller=new AbortController()
-  const timer=setTimeout(()=>controller.abort(),timeout)
-  try{
-    const r=await fetch(url,{headers:{accept:'application/json','user-agent':'TRYAMM-Quantum-Time/1.0 (+https://tryamm.online)'},signal:controller.signal,cache:'no-store'})
-    if(!r.ok)throw new Error(`archive_provider_${r.status}`)
-    return await r.json()
-  }finally{clearTimeout(timer)}
+const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))
+const RETRYABLE_ARCHIVE_STATUS=new Set([429,502,503,504])
+
+async function fetchJson(url,timeout=9000,attempts=3){
+  let lastError=null
+  for(let attempt=0;attempt<Math.max(1,attempts);attempt++){
+    const controller=new AbortController()
+    const timer=setTimeout(()=>controller.abort(),timeout)
+    try{
+      const r=await fetch(url,{headers:{accept:'application/json','user-agent':'TRYAMM-Quantum-Time/1.0 (+https://tryamm.online)'},signal:controller.signal,cache:'no-store'})
+      if(r.ok)return await r.json()
+      lastError=new Error(`archive_provider_${r.status}`)
+      if(!RETRYABLE_ARCHIVE_STATUS.has(r.status)||attempt===attempts-1)throw lastError
+      const retryAfter=Math.min(2000,Math.max(0,Number(r.headers.get('retry-after')||0)*1000))
+      await wait(retryAfter||[250,750,1500][attempt]||1500)
+    }catch(error){
+      lastError=error
+      if(attempt===attempts-1)throw error
+      await wait([250,750,1500][attempt]||1500)
+    }finally{clearTimeout(timer)}
+  }
+  throw lastError||new Error('archive_provider_unavailable')
 }
 
 export async function internetArchiveTimeline(rawUrl,{fromYear,toYear,limit=40}={}){
@@ -190,15 +204,38 @@ export function extractHistoricalPageSignals(html){
 export async function fetchInternetArchiveCapture(capture){
   if(!capture?.timestamp||!capture?.original)throw Object.assign(new Error('archive_capture_required'),{status:400})
   const raw=`https://web.archive.org/web/${capture.timestamp}id_/${capture.original}`
-  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000)
-  try{
-    const r=await fetch(raw,{headers:{accept:'text/html,application/xhtml+xml','user-agent':'TRYAMM-Quantum-Time/1.0'},signal:controller.signal,redirect:'follow',cache:'no-store'})
-    if(!r.ok)throw new Error(`archive_capture_${r.status}`)
-    const type=String(r.headers.get('content-type')||'')
-    if(!type.includes('html')&&!type.includes('text'))return {...capture,title:'',description:'',headings:[],contentExcerpt:'',adSignals:[],contentHash:sha256(capture.digest||capture.timestamp)}
-    const html=await readLimitedText(r)
-    return {...capture,...extractHistoricalPageSignals(html)}
-  }finally{clearTimeout(timer)}
+  let lastStatus=0,lastError=''
+  for(let attempt=0;attempt<3;attempt++){
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000)
+    try{
+      const r=await fetch(raw,{headers:{accept:'text/html,application/xhtml+xml','user-agent':'TRYAMM-Quantum-Time/1.0 (+https://tryamm.online)'},signal:controller.signal,redirect:'follow',cache:'no-store'})
+      lastStatus=r.status
+      if(!r.ok){
+        lastError=`archive_capture_${r.status}`
+        if(RETRYABLE_ARCHIVE_STATUS.has(r.status)&&attempt<2){await wait([300,900][attempt]||900);continue}
+        break
+      }
+      const type=String(r.headers.get('content-type')||'')
+      if(!type.includes('html')&&!type.includes('text'))return {...capture,title:'',description:'',headings:[],contentExcerpt:'',adSignals:[],contentHash:sha256(capture.digest||capture.timestamp),contentUnavailable:false,contentStatus:'non-text-capture'}
+      const html=await readLimitedText(r)
+      return {...capture,...extractHistoricalPageSignals(html),contentUnavailable:false,contentStatus:'replay-fetched'}
+    }catch(error){
+      lastError=clean(error?.message||'archive_capture_failed',160)
+      if(attempt<2){await wait([300,900][attempt]||900);continue}
+    }finally{clearTimeout(timer)}
+  }
+  return {
+    ...capture,
+    title:'',
+    description:'',
+    headings:[],
+    contentExcerpt:'',
+    adSignals:[],
+    contentHash:sha256(capture.digest||capture.timestamp),
+    contentUnavailable:true,
+    contentStatus:'metadata-only',
+    contentError:lastError||`archive_capture_${lastStatus||'unavailable'}`,
+  }
 }
 
 export async function persistHistoricalCapture(rawUrl,capture,businessName=''){
@@ -233,7 +270,7 @@ export async function persistHistoricalCapture(rawUrl,capture,businessName=''){
       business_name:clean(businessName,240)||null,
       ad_signals:Array.isArray(capture.adSignals)?capture.adSignals.slice(0,20):[],
       provenance:{...(capture.provenance||{}),observedAt:new Date().toISOString(),completeHistory:false},
-      verification_status:'source-capture',
+      verification_status:capture.contentUnavailable?'source-capture-metadata-only':'source-capture',
       supersedes:Array.isArray(previous)&&previous[0]?.id?previous[0].id:null,
     }
     const inserted=await adminRest('quantum_time_documents',{method:'POST',body:row})
