@@ -74,6 +74,15 @@ export default function MeshyFactoryControlPanel(){
     setError('')
   }
 
+  const startBootstrapWave=async()=>{
+    setBusy('bootstrap-wave');setError('')
+    try{
+      await authFetch('/api/meshy/factory',{method:'POST',body:JSON.stringify({action:'start-circle-park-wave'})})
+      await refresh()
+    }catch(e){setError(e instanceof Error?e.message:String(e))}
+    finally{setBusy('')}
+  }
+
   return <main aria-label="StreetVerse Meshy Asset Factory" style={{minHeight:'100dvh',background:'linear-gradient(#02070c,#07111b)',color:'#fff',fontFamily:'system-ui,sans-serif',padding:'max(16px,env(safe-area-inset-top)) 12px max(30px,env(safe-area-inset-bottom))'}}>
     <div style={{maxWidth:1050,margin:'0 auto'}}>
       <header style={{display:'flex',justifyContent:'space-between',gap:10,flexWrap:'wrap',alignItems:'flex-start'}}>
@@ -88,6 +97,13 @@ export default function MeshyFactoryControlPanel(){
       <section style={{marginTop:12,padding:12,border:`1px solid ${health?.ok?'#2f6c4a':'#704b35'}`,borderRadius:16,background:health?.ok?'#07170fdd':'#1a1008dd'}}>
         <div style={{display:'flex',justifyContent:'space-between',gap:8,flexWrap:'wrap'}}><div><b style={{fontSize:12}}>FACTORY READINESS: {health?.ok?'READY':'CHECKING / BLOCKED'}</b><div style={{fontSize:9,color:'#a8bdca',marginTop:4}}>Meshy key: {health?.providerConfigured?'YES':'NO'} • durable jobs: {health?.durableJobStoreReady?'YES':'NO'} • background worker: {health?.backgroundWorkerSecretConfigured?'YES':'NO'} • ready assets: {health?.readyAssets??0} • active: {health?.activeJobs??0} • recovery: {health?.recoveryRequiredJobs??0}</div></div></div>
         {Boolean(health?.blockers?.length)&&<div style={{display:'grid',gap:4,marginTop:7}}>{health!.blockers.map(blocker=><div key={blocker} style={{fontSize:9,color:'#ffc69c'}}>• {blocker}</div>)}</div>}
+      </section>
+
+      <section style={{marginTop:12,padding:12,border:'1px solid #5c4a24',borderRadius:16,background:'#171207dd'}}>
+        <div style={{display:'flex',justifyContent:'space-between',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+          <div><b style={{fontSize:12,color:'#ffe49a'}}>JAMES → FEMALE BASE → CIRCLE PARK</b><div style={{fontSize:10,color:'#cbbd98',marginTop:4,lineHeight:1.45}}>One founder-authorized sequence. First build a rigged James body base with a neutral face, then a reusable rigged female body base, then start four Circle Park residents in parallel. The exact James facial likeness still waits for an approved reference image.</div></div>
+          <button disabled={Boolean(busy)} onClick={()=>void startBootstrapWave()} style={btn}>{busy==='bootstrap-wave'?'STARTING WAVE…':'START BOOTSTRAP WAVE'}</button>
+        </div>
       </section>
 
       <section style={{marginTop:12,padding:12,border:'1px solid #294456',borderRadius:16,background:'#06121bdd'}}>
