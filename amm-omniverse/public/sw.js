@@ -2,7 +2,7 @@
 // Network-first app shell with stale-asset self recovery.
 // 2026-09-04 StreetVerse immediate-play release.
 
-const RELEASE = '20260929-streetverse-first-journey-v3'
+const RELEASE = '20261001-birthday-alpha-production-v1'
 const CACHE_NAME = 'tryamm-shell-' + RELEASE
 const STATIC_ASSETS = ['/manifest.json?v=20260904-american-lion-v2','/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2']
 
@@ -12,7 +12,7 @@ async function notifyStaleAsset(url) {
 }
 
 function recoveryModule(url) {
-  const source = `(()=>{const k='tryamm-stale-asset-v28';try{if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('_tryamm_recover','v28');location.replace(u.toString())}}catch{location.reload()}})();export {};\n//# sourceURL=tryamm-stale-asset-recovery.js`
+  const source = `(()=>{const k='tryamm-stale-asset-v29';try{if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('_tryamm_recover','v29');location.replace(u.toString())}}catch{location.reload()}})();export {};\n//# sourceURL=tryamm-stale-asset-recovery.js`
   return new Response(source, {
     status: 200,
     headers: {
