@@ -23,7 +23,7 @@ assert.match(world,/DodecahedronGeometry/,'street trees must use a compact natur
 assert.match(world,/crosswalkMat/,'mobile Chicago streets must render crosswalk markings')
 assert.match(world,/const bridge=new THREE\.Mesh/,'mobile Riverwalk must include a visible bridge deck')
 assert.match(world,/SCAN MAP/,'mobile quick navigation must expose the working scan-map action')
-assert.match(world,/camY=activeCar\?8\.2:6\.9,camBack=activeCar\?15:10\.2/,'mobile walking camera must stay close enough for generated character detail to read on phone')
+assert.match(world,/const camY=activeCar\?6\.8:\(heroTalking\?4\.35:5\.2\),camBack=activeCar\?12\.5:\(heroTalking\?5\.35:7\.6\)/,'mobile walking/dialogue camera must stay close enough for generated character detail to read on phone')
 assert.match(world,/WORLD_REGISTRY,advanceWorldBuild,canPublishWorld,queueWorldBuild/,'mobile StreetVerse must activate the shared world-builder pipeline')
 assert.match(world,/tryamm:streetverse-world-builder-state/,'mobile StreetVerse must publish live world-builder state')
 assert.match(world,/assetGenerator:'tryamm-native-asset-foundry'/,'mobile StreetVerse must identify the native asset generator driving the visual layer')
@@ -66,11 +66,11 @@ assert.match(world,/activeCircleParkEra==='present'/,'present-day Circle Park mu
 for(const detail of ['circle-park-horizontal-window-band','circle-park-ribbed-concrete-fin','circle-park-1111-lobby-glass','circle-park-1111-entry-canopy','circle-park-entry-drive','circle-park-parking-stripe','circle-park-sidewalk','circle-park-landscape-bed','circle-park-shrub','circle-park-court-fence-post','circle-park-bench-seat','abla-animal-court-heritage-marker-original']){
   assert.match(world,new RegExp(detail),'Circle Park Reality MAX v2 missing visible detail: '+detail)
 }
-assert.match(world,/circleParkAmenityCount:7/,'Circle Park world-ready evidence must report the expanded amenity layer')
+assert.match(world,/circleParkAmenityCount:12/,'Circle Park world-ready evidence must report the current expanded amenity layer')
 assert.match(world,/circleParkStreetAnchorCount:CHICAGO_ROAD_CORRIDORS\.length/,'Circle Park world-ready evidence must report mapped street anchors')
 assert.match(world,/driveActionAlwaysAvailable:true/,'world-ready evidence must certify the permanent phone DRIVE action')
-assert.match(world,/animateNativeHumanoid\(nativeResidentRigs\[i\],true,false,now,i\*\.57,facialDetail\)/,'generated mobile residents must visibly animate with distance-based face detail')
-assert.match(world,/animateNativeHumanoid\(nativeHeroRig,moving&&!activeCar,false,now,0,true\)/,'generated mobile hero must keep full facial detail while visible')
+assert.match(world,/animateNativeHumanoid\(nativeResidentRigs\[i\],true,false,now,i\*\.57,facialDetail/,'generated mobile residents must visibly animate with distance-based face detail')
+assert.match(world,/animateNativeHumanoid\(nativeHeroRig,moving&&!activeCar,false,now,0,true/,'generated mobile hero must keep full facial detail while visible')
 assert.match(world,/const facialDetail=visual\.position\.distanceTo\(camera\.position\)<18/,'mobile crowd must use near-field facial LOD')
 assert.match(world,/faceFill=new THREE\.DirectionalLight/,'mobile scene must include lightweight face-readable fill lighting')
 assert.match(world,/advanceLiveWorldBuild\('collision'/,'world builder must certify collision from live traversal evidence')

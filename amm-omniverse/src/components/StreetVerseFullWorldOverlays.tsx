@@ -3,10 +3,12 @@
 // (nor the three.js it transitively imports) sits in the initial StreetVerse
 // route chunk. On constrained iOS 16 Safari the safe-mode HTML city renders
 // from a three-free chunk; these overlays only download when full mode runs.
-import type {ReactElement} from 'react'
+import {useEffect,useState,type ReactElement} from 'react'
 import StreetVerseNextLevelHUD from './StreetVerseNextLevelHUD'
 import StreetVerseLiveBuildBadge from './StreetVerseLiveBuildBadge'
 import StreetVerseRealtimePresence from './StreetVerseRealtimePresence'
+import StreetVersePlayerGridMap from './StreetVersePlayerGridMap'
+import StreetVerseRPLinguaCoach from './StreetVerseRPLinguaCoach'
 import StreetVerseNearbyPlayers from './StreetVerseNearbyPlayers'
 import StreetVerseRemotePlayerMarkers from './StreetVerseRemotePlayerMarkers'
 import StreetVersePlayerInteractions from './StreetVersePlayerInteractions'
@@ -57,17 +59,21 @@ import StreetVerseCityMissionPack from './StreetVerseCityMissionPack'
 import StreetVerseTransitBossMission from './StreetVerseTransitBossMission'
 import StreetVerseTransitLineMissionSelector from './StreetVerseTransitLineMissionSelector'
 import StreetVerseTransitSafetyDirector from './StreetVerseTransitSafetyDirector'
-import StreetVersePlayerGridMap from './StreetVersePlayerGridMap'
-import StreetVerseRPLinguaCoach from './StreetVerseRPLinguaCoach'
-import StreetVerseMobileProofDock from './StreetVerseMobileProofDock'
+import HoloMobilityLauncher from './HoloMobilityLauncher'
 
 type Mapped={x:number;z:number;label:string}|undefined
 
 export default function StreetVerseFullWorldOverlays({onClose,mapped}:{onClose:()=>void;mapped:Mapped}):ReactElement{
   const mobile=typeof navigator!=='undefined'&&/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||'')
+  const [mobileSocialTools,setMobileSocialTools]=useState(false)
+  useEffect(()=>{
+    const toggle=(e:Event)=>{const d=(e as CustomEvent<{open?:boolean}>).detail||{};setMobileSocialTools(v=>typeof d.open==='boolean'?d.open:!v)}
+    window.addEventListener('tryamm:streetverse-social-tools-toggle',toggle)
+    return()=>window.removeEventListener('tryamm:streetverse-social-tools-toggle',toggle)
+  },[])
   // Mobile gameplay gets a deliberately minimal visual stack. The full desktop
   // overlay suite was covering the 3D city and controls on narrow screens.
   // Keep driving input + transition available; defer dense HUD/mission panels.
-  if(mobile)return <><StreetVerseRealtimePresence/><StreetVersePlayerGridMap/><StreetVerseRPLinguaCoach/><StreetVerseGamepadBridge/><StreetVerseMobileProofDock/><StreetVerseSceneTransition onClose={onClose}/></>
+  if(mobile)return <><StreetVerseRealtimePresence/><HoloMobilityLauncher launcher={false}/>{mobileSocialTools&&<><StreetVersePlayerGridMap/><StreetVerseRPLinguaCoach/></>}<StreetVerseGamepadBridge/><StreetVerseSceneTransition onClose={onClose}/></>
   return <><StreetVerseLiveBuildBadge/><StreetVerseRealtimePresence/><StreetVerseNearbyPlayers/><StreetVerseRemotePlayerMarkers/><StreetVersePlayerInteractions/><StreetVerseSharedWorldAvatars/><StreetVerseNativeRemotePlayers/><StreetVerseWorldEvents/><StreetVerseCoopSync/><StreetVerseRaceSessionSync/><StreetVerseRaceCountdownSync/><StreetVerseCrewPersistence/><StreetVersePartyBeacon/><StreetVerseRiggedPlayerFallback/><StreetVerseLivingLayer/><StreetVerseSoundEngine/><StreetVerseAmbientLife/><StreetVerseEmergencyLighting/><StreetVerseCityReaction/><StreetVerseEmergencyIncidentLifecycle/><StreetVerseLawEnforcementComms/><StreetVerseRoadblockController/><StreetVerseResponderStaging/><StreetVerseResponderNPCController/><StreetVersePursuitController/><StreetVerseProgressSync/><StreetVerseGameplayStateCoordinator/><StreetVerseStarMissions/><StreetVerseDialogueHUD/><StreetVerseStarMissionEncounterLayer/><StreetVerseDriveStatus/><StreetVerseGamepadBridge/><StreetVerseDriveMission/><StreetVerseRaceMissionGiver/><StreetVerseRaceNavigator/><StreetVerseMissionExpansion/><StreetVerseChicagoActivityDirector/><StreetVerseChicagoStorefronts/><StreetVerseChicagoInteriors/><StreetVerseShoppingCore/><StreetVerseLOperatorMission/><StreetVerseTransitLineMissionSelector/><StreetVerseTransitSafetyDirector/><StreetVerseCityMissionPack/><StreetVerseTransitBossMission/><StreetVerseAdvancedDrivingSystems/><StreetVerseVehicleEffects/><StreetVerseAIRacerLayer/><StreetVerseMotorcycleSystems/><StreetVersePowersportsGarage/><StreetVerseNativePowersportAdapter/><StreetVerseSceneTransition onClose={onClose}/><StreetVerseNextLevelHUD district={mapped?.label?`CHICAGO • ${mapped.label.toUpperCase()}`:'CHICAGO • DISTRICT 01'} assetStatus="WORLD ACTIVE • SAFE MOBILE PLAY + STAR ENCOUNTERS + STAR MISSIONS + DIALOGUE HUD + PERSISTENT GAMEPLAY + TRANSIT SAFETY + ALL-LINE MISSIONS + TRANSIT BOSS + FULL RAIL/SUBWAY + CITY MISSIONS + PASSENGERS + SHOPPING + MULTIPLAYER + SERVER XP + RESPONDERS"/>{mapped&&<div style={{position:'fixed',left:12,bottom:12,zIndex:16995,maxWidth:300,padding:'10px 12px',borderRadius:12,background:'rgba(3,12,20,.84)',border:'1px solid #62b8ff77',color:'#fff',fontFamily:'system-ui',fontSize:12}}><strong>CHICAGO NAV SPAWN</strong><br/>{mapped.label}<br/><span style={{opacity:.75}}>Selected from Twin World • real-world destination mapped into the playable district.</span></div>}</>
 }

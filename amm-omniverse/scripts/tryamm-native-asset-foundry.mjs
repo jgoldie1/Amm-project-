@@ -384,6 +384,271 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
   group.userData={...group.userData,semantic:hero?'player-character':'crowd-resident',rigState:'hierarchical-procedural-v4-max',animationReady:true,facialDetailV4:true,blinkReady:true,breathingReady:true,eyeSaccadeReady:true,faceProfileCount:faceProfiles.length,hairStyleCount:6,layeredWardrobe:true,fingerDetail:true,materialResponse:'skin-cloth-separated',originalTryammDesign:true}
 }
 
+
+function addBJStubbsCharacter(group,x,z,mats){
+  // BJ Stubbs V4 is the first named StreetVerse hero. This procedural pass
+  // establishes stable proportions, hair/beard silhouette and wardrobe so a
+  // later authorized photo-matched head can replace the face without replacing
+  // gameplay identity, rig names, missions or progression.
+  addResidentArchetype(group,x,z,mats,0,true)
+
+  const rig=group.getObjectByName('character-rig-hero')
+  const headPivot=group.getObjectByName('rig-head')
+  const spine=group.getObjectByName('rig-spine')
+  if(!rig||!headPivot||!spine)return
+
+  const skin=new THREE.MeshPhysicalMaterial({
+    name:'bj-skin-current',
+    color:0x70462f,
+    roughness:.46,
+    metalness:0,
+    clearcoat:.025,
+    clearcoatRoughness:.82,
+  })
+  skin.userData={surface:'skin',characterId:'bj-stubbs',referenceLocked:true,subsurfaceApproximation:true}
+  const hair=new THREE.MeshStandardMaterial({name:'bj-hair',color:0x17110f,roughness:.84,metalness:0})
+  const beardGray=new THREE.MeshStandardMaterial({name:'bj-beard-gray',color:0xa7a19b,roughness:.92,metalness:0})
+  const blackFabric=new THREE.MeshStandardMaterial({name:'bj-black-fabric',color:0x111419,roughness:.86,metalness:.015})
+  const charcoalFabric=new THREE.MeshStandardMaterial({name:'bj-charcoal-fabric',color:0x242830,roughness:.8,metalness:.02})
+  const gold=new THREE.MeshStandardMaterial({name:'bj-gold-accent',color:0xc49a44,roughness:.28,metalness:.78})
+  const eyeWhite=new THREE.MeshStandardMaterial({name:'bj-eye-white',color:0xe9e4db,roughness:.4,metalness:0})
+  const iris=new THREE.MeshStandardMaterial({name:'bj-iris',color:0x2b1b14,roughness:.28,metalness:0})
+  const lipNatural=new THREE.MeshStandardMaterial({name:'bj-lip-natural',color:0x6f3d36,roughness:.46,metalness:0})
+  const eyeCatch=new THREE.MeshBasicMaterial({name:'bj-eye-catchlight',color:0xffffff})
+  const skinShadow=new THREE.MeshStandardMaterial({name:'bj-skin-shadow',color:0x5f3929,roughness:.58,metalness:0})
+  const beardMid=new THREE.MeshStandardMaterial({name:'bj-beard-mid-gray',color:0x69635f,roughness:.93,metalness:0})
+
+  const skinNames=new Set(['hero-head','jaw','chin','cheek-left','cheek-right','ear-left','ear-right','nose','eyelid-left','eyelid-right','neck','elbow','forearm','hand','finger-detail','clavicle-line'])
+  const blackNames=new Set(['hero-torso','hero-layered-jacket','upper-arm'])
+  group.traverse(object=>{
+    if(!(object instanceof THREE.Mesh))return
+    if(skinNames.has(object.name))object.material=skin
+    if(blackNames.has(object.name))object.material=blackFabric
+    if(object.name==='eye-white-left'||object.name==='eye-white-right')object.material=eyeWhite
+    if(object.name==='iris-left'||object.name==='iris-right')object.material=iris
+    if(object.name==='hair-close-crop')object.visible=false
+    if(object.name==='finger-detail')object.visible=false
+    if(object.name==='hero-holo-collar')object.visible=false
+    if(object.name==='hero-undershirt')object.material=charcoalFabric
+    if(object.name==='pelvis-shell'||object.name==='thigh'||object.name==='knee'||object.name==='shin')object.material=charcoalFabric
+  })
+
+  const head=group.getObjectByName('hero-head')
+  const jaw=group.getObjectByName('jaw')
+  const chin=group.getObjectByName('chin')
+  const nose=group.getObjectByName('nose')
+  const cheekLeft=group.getObjectByName('cheek-left')
+  const cheekRight=group.getObjectByName('cheek-right')
+  const upperLip=group.getObjectByName('upper-lip')
+  const lowerLip=group.getObjectByName('lower-lip')
+  const eyeWhiteLeft=group.getObjectByName('eye-white-left')
+  const eyeWhiteRight=group.getObjectByName('eye-white-right')
+  const irisLeft=group.getObjectByName('iris-left')
+  const irisRight=group.getObjectByName('iris-right')
+  const browLeft=group.getObjectByName('brow-left')
+  const browRight=group.getObjectByName('brow-right')
+  const shoulderLine=group.getObjectByName('shoulder-line')
+  const heroTorso=group.getObjectByName('hero-torso')
+  if(head)head.scale.set(.93,1.07,.90)
+  if(jaw){jaw.scale.x*=1.00;jaw.scale.y*=.94;jaw.position.y=-.17}
+  if(chin){chin.scale.x*=.98;chin.position.y=-.286}
+  if(nose){nose.scale.set(.99,1.04,1.01);nose.position.y=-.020;nose.position.z=.314}
+  for(const cheek of [cheekLeft,cheekRight])if(cheek){cheek.scale.x*=.97;cheek.scale.y*=.94;cheek.position.y=-.061}
+  if(upperLip instanceof THREE.Mesh){upperLip.material=lipNatural;upperLip.scale.x*=1.03;upperLip.position.y=-.132}
+  if(lowerLip instanceof THREE.Mesh){lowerLip.material=lipNatural;lowerLip.scale.x*=1.05;lowerLip.scale.y*=1.08;lowerLip.position.y=-.160}
+  for(const eye of [eyeWhiteLeft,eyeWhiteRight])if(eye){eye.scale.x*=1.02;eye.scale.y*=.94}
+  for(const eye of [irisLeft,irisRight])if(eye){eye.scale.x*=1.03;eye.scale.y*=1.02}
+  if(browLeft){browLeft.position.y=.182;browLeft.rotation.z=.035}
+  if(browRight){browRight.position.y=.182;browRight.rotation.z=-.035}
+  if(shoulderLine)shoulderLine.scale.x*=1.015
+  if(heroTorso){heroTorso.scale.x*=.965;heroTorso.scale.z*=.96}
+  group.traverse(object=>{
+    if(!(object instanceof THREE.Mesh))return
+    if(object.name==='upper-arm'){object.scale.x*=.86;object.scale.z*=.86;object.userData={...object.userData,characterRealism:'bj-v5-natural-upper-arm'}}
+    if(object.name==='forearm'){object.scale.x*=.91;object.scale.z*=.91;object.userData={...object.userData,characterRealism:'bj-v5-natural-forearm'}}
+    if(object.name==='elbow'){object.scale.set(.92,.92,.92)}
+    if(object.name==='waist-silhouette'){object.scale.x*=.78;object.scale.z*=.88;object.userData={...object.userData,characterRealism:'bj-v5-tapered-waist'}}
+    if(object.name==='pelvis-shell'){object.scale.x*=.92;object.scale.z*=.92}
+    if(object.name==='thigh'){object.scale.x*=.94;object.scale.z*=.94}
+    if(object.name==='shin'){object.scale.x*=.92;object.scale.z*=.92}
+    if(object.name==='hero-layered-jacket'){object.visible=false;object.userData={...object.userData,outfitSlot:'tactical-outerwear',equippedByDefault:false}}
+    if(object.name==='hero-holo-collar')object.visible=false
+  })
+
+  // BJ V2 facial topology accents. These remain lightweight procedural geometry
+  // until the authorized photo-matched head replaces the preview face.
+  const noseBridge=new THREE.Mesh(new THREE.CapsuleGeometry(.027,.105,4,10),skin)
+  noseBridge.name='bj-nose-bridge';noseBridge.position.set(0,.035,.286);noseBridge.rotation.x=deg(4);headPivot.add(noseBridge)
+  const noseTip=new THREE.Mesh(new THREE.SphereGeometry(.052,14,10),skin)
+  noseTip.name='bj-nose-tip';noseTip.position.set(0,-.050,.345);noseTip.scale.set(1.02,.68,.76);headPivot.add(noseTip)
+  for(const side of [-1,1]){
+    const earInner=new THREE.Mesh(new THREE.TorusGeometry(.027,.007,6,12),skinShadow)
+    earInner.name=side<0?'bj-v4-ear-inner-left':'bj-v4-ear-inner-right'
+    earInner.position.set(side*.315,.015,-.010);earInner.rotation.y=deg(90);headPivot.add(earInner)
+  }
+  for(const side of [-1,1]){
+    const sideBeard=new THREE.Mesh(new THREE.SphereGeometry(.105,16,10),hair)
+    sideBeard.name=side<0?'bj-beard-side-left':'bj-beard-side-right'
+    sideBeard.position.set(side*.185,-.115,.205);sideBeard.scale.set(.72,1.10,.55);headPivot.add(sideBeard)
+    const catchlight=new THREE.Mesh(new THREE.SphereGeometry(.0065,6,5),eyeCatch)
+    catchlight.name=side<0?'bj-eye-catchlight-left':'bj-eye-catchlight-right'
+    catchlight.position.set(side*.102,.096,.352);headPivot.add(catchlight)
+  }
+  const beardChin=new THREE.Mesh(new THREE.SphereGeometry(.145,16,10),hair)
+  beardChin.name='bj-beard-chin';beardChin.position.set(0,-.255,.205);beardChin.scale.set(.86,.92,.70);headPivot.add(beardChin)
+
+  for(const side of [-1,1]){
+    const underEye=new THREE.Mesh(new THREE.CapsuleGeometry(.012,.095,3,8),skinShadow)
+    underEye.name=side<0?'bj-under-eye-left':'bj-under-eye-right'
+    underEye.position.set(side*.105,.040,.318);underEye.rotation.z=deg(90);underEye.scale.set(1,.45,.42);headPivot.add(underEye)
+    const beardBlend=new THREE.Mesh(new THREE.SphereGeometry(.092,14,10),beardMid)
+    beardBlend.name=side<0?'bj-beard-blend-left':'bj-beard-blend-right'
+    beardBlend.position.set(side*.155,-.168,.248);beardBlend.scale.set(.72,.92,.52);headPivot.add(beardBlend)
+  }
+  const jawBlend=new THREE.Mesh(new THREE.CapsuleGeometry(.032,.22,4,10),skinShadow)
+  jawBlend.name='bj-jaw-shadow';jawBlend.position.set(0,-.235,.236);jawBlend.rotation.z=deg(90);jawBlend.scale.set(1.65,.45,.45);headPivot.add(jawBlend)
+
+  // Pulled-back locs: close crown + swept loc rows + rear tied bundle.
+  const locCrown=new THREE.Mesh(new THREE.SphereGeometry(.355,24,14,0,Math.PI*2,0,Math.PI*.48),hair)
+  locCrown.name='bj-loc-crown';locCrown.position.set(0,.11,-.018);locCrown.scale.set(.99,.72,1.03);headPivot.add(locCrown)
+  const locXs=[-.23,-.15,-.075,0,.075,.15,.23]
+  locXs.forEach((lx,i)=>{
+    const strand=new THREE.Mesh(new THREE.CapsuleGeometry(.024+(i%2)*.004,.42+(i%3)*.055,4,8),hair)
+    strand.name='bj-pulled-loc'
+    strand.position.set(lx,.08-Math.abs(lx)*.17,-.205-Math.abs(lx)*.12)
+    strand.rotation.x=deg(58)
+    strand.rotation.z=-lx*.45
+    strand.scale.set(1,1,1.05)
+    headPivot.add(strand)
+  })
+  const tie=new THREE.Mesh(new THREE.TorusGeometry(.105,.018,8,20),gold)
+  tie.name='bj-loc-tie';tie.rotation.x=deg(90);tie.position.set(0,-.075,-.33);headPivot.add(tie)
+
+  for(const side of [-1,1]){
+    for(let i=0;i<3;i++){
+      const loc=new THREE.Mesh(new THREE.CapsuleGeometry(.024,.94+i*.10,4,8),hair)
+      loc.name='bj-v4-shoulder-loc'
+      loc.position.set(side*(.16+i*.035),-.55-i*.055,-.29-i*.025)
+      loc.rotation.z=side*(.08+i*.02);loc.rotation.x=deg(3);headPivot.add(loc)
+    }
+  }
+  for(let i=0;i<6;i++){
+    const angle=(i/6)*Math.PI*2
+    const strand=new THREE.Mesh(new THREE.CapsuleGeometry(.026,.82+(i%3)*.14,4,8),hair)
+    strand.name='bj-rear-loc-bundle'
+    strand.position.set(Math.cos(angle)*.085,-.48-(i%2)*.06, -.35+Math.sin(angle)*.06)
+    strand.rotation.z=Math.cos(angle)*.12
+    strand.rotation.x=deg(5)+Math.sin(angle)*.06
+    headPivot.add(strand)
+  }
+
+  // Full beard with subtle gray flecks, plus moustache.
+  const beard=new THREE.Mesh(new THREE.SphereGeometry(.292,24,16,0,Math.PI*2,Math.PI*.42,Math.PI*.47),hair)
+  beard.name='bj-full-beard';beard.position.set(0,-.165,.105);beard.scale.set(.96,.91,.93);headPivot.add(beard)
+  for(const side of [-1,1]){
+    const moustache=new THREE.Mesh(new THREE.CapsuleGeometry(.016,.11,3,8),hair)
+    moustache.name='bj-moustache';moustache.rotation.z=deg(90)+side*.09;moustache.position.set(side*.055,-.112,.342);headPivot.add(moustache)
+  }
+  const grayChin=new THREE.Mesh(new THREE.SphereGeometry(.128,18,12),beardGray)
+  grayChin.name='bj-gray-chin-panel';grayChin.position.set(0,-.268,.222);grayChin.scale.set(.82,.78,.60);headPivot.add(grayChin)
+  for(const side of [-1,1]){
+    const graySide=new THREE.Mesh(new THREE.SphereGeometry(.075,14,10),beardGray)
+    graySide.name=side<0?'bj-gray-beard-side-left':'bj-gray-beard-side-right'
+    graySide.position.set(side*.135,-.205,.255);graySide.scale.set(.75,1.0,.48);headPivot.add(graySide)
+  }
+  const grayFlecks=[[-.16,-.18,.30],[-.13,-.215,.318],[-.10,-.245,.326],[-.075,-.255,.326],[-.035,-.272,.334],[.03,-.275,.33],[.075,-.258,.326],[.105,-.235,.319],[.145,-.205,.305],[.17,-.17,.286],[-.02,-.205,.344]]
+  grayFlecks.forEach(([gx,gy,gz],i)=>{
+    const fleck=new THREE.Mesh(new THREE.CapsuleGeometry(.006,.035+(i%2)*.012,2,5),beardGray)
+    fleck.name='bj-beard-gray-fleck';fleck.position.set(gx,gy,gz);fleck.rotation.z=(i%2?-.35:.35);headPivot.add(fleck)
+  })
+
+  // BJ current-era default: rounded fitted black tee + small pendant.
+  // Keep the shirt as a curved shell instead of the old rectangular chest box.
+  const currentTee=new THREE.Mesh(new THREE.CapsuleGeometry(.315,.50,8,20),blackFabric)
+  currentTee.name='bj-current-tee';currentTee.position.set(0,.42,.015);currentTee.scale.set(1.08,1.02,.86);currentTee.castShadow=true
+  currentTee.userData={semantic:'character-shirt',characterId:'bj-stubbs',outfitId:'bj-current-video-tee',equippedByDefault:true,signatureText:'ONLY YAHAVAH CAN JUDGE ME',bodySilhouette:'rounded-fitted-v5'}
+  spine.add(currentTee)
+
+  const teeNeckline=new THREE.Mesh(new THREE.TorusGeometry(.145,.018,8,24,Math.PI),blackFabric)
+  teeNeckline.name='bj-v4-tee-neckline';teeNeckline.rotation.x=deg(90);teeNeckline.position.set(0,.79,.19);spine.add(teeNeckline)
+  const teeHem=addBox(spine,'bj-v4-tee-hem',[.61,.035,.30],[0,-.035,.02],blackFabric,undefined,'character-shirt-hem')
+  teeHem.scale.x=.96
+  for(const side of [-1,1]){
+    const sleeve=new THREE.Mesh(new THREE.CapsuleGeometry(.105,.22,4,10),blackFabric)
+    sleeve.name=side<0?'bj-v4-tee-sleeve-left':'bj-v4-tee-sleeve-right'
+    sleeve.position.set(side*.385,.64,.015);sleeve.rotation.z=side*deg(8);spine.add(sleeve)
+    const arm=group.getObjectByName(side<0?'rig-left-arm':'rig-right-arm')
+    if(arm){
+      const palm=new THREE.Mesh(new THREE.SphereGeometry(.103,16,12),skin)
+      palm.name=side<0?'bj-v4-palm-left':'bj-v4-palm-right';palm.position.set(0,-.91,0);palm.scale.set(.74,1.12,.60);arm.add(palm)
+      const fingerXs=[-.048,-.016,.016,.048]
+      fingerXs.forEach((fx,i)=>{
+        const digit=new THREE.Mesh(new THREE.CapsuleGeometry(.011,.10-(i===0||i===3?.008:0),3,7),skin)
+        digit.name='bj-v4-finger';digit.position.set(fx,-1.015,.018);digit.rotation.z=(i-1.5)*.025;arm.add(digit)
+      })
+      const thumb=new THREE.Mesh(new THREE.CapsuleGeometry(.013,.075,3,7),skin)
+      thumb.name='bj-v4-thumb';thumb.position.set(side<0?.086:-.086,-.965,.035);thumb.rotation.z=side<0?-.62:.62;arm.add(thumb)
+    }
+  }
+  const shirtPrintGold=addBox(spine,'bj-shirt-print-yahavah',[.42,.10,.025],[0,.48,.205],gold,undefined,'shirt-print')
+  const shirtPrintWhiteTop=addBox(spine,'bj-shirt-print-only',[.32,.045,.026],[0,.58,.207],eyeWhite,undefined,'shirt-print')
+  const shirtPrintWhiteBottom=addBox(spine,'bj-shirt-print-judge',[.38,.045,.026],[0,.37,.207],eyeWhite,undefined,'shirt-print')
+  for(const p of [shirtPrintGold,shirtPrintWhiteTop,shirtPrintWhiteBottom])p.userData={...p.userData,signatureTextProxy:true}
+  const leftHarness=addBox(spine,'bj-harness-left',[.075,.78,.045],[-.20,.43,.405],blackFabric,[0,0,deg(18)],'character-harness')
+  const rightHarness=addBox(spine,'bj-harness-right',[.075,.78,.045],[.20,.43,.405],blackFabric,[0,0,deg(-18)],'character-harness')
+  leftHarness.userData={...leftHarness.userData,characterId:'bj-stubbs',outfitSlot:'tactical-harness',equippedByDefault:false};rightHarness.userData={...rightHarness.userData,characterId:'bj-stubbs',outfitSlot:'tactical-harness',equippedByDefault:false};leftHarness.visible=false;rightHarness.visible=false
+  const chestBand=addBox(spine,'bj-chest-band',[.53,.06,.045],[0,.44,.418],gold,undefined,'wardrobe-accent')
+  chestBand.castShadow=false;chestBand.visible=false;chestBand.userData={...chestBand.userData,outfitSlot:'tactical-accent',equippedByDefault:false}
+  const backpack=addBox(spine,'bj-backpack',[.58,.72,.19],[0,.40,-.39],blackFabric,undefined,'character-backpack')
+  backpack.scale.x=.92;backpack.visible=false;backpack.userData={...backpack.userData,outfitSlot:'tactical-backpack',equippedByDefault:false}
+  const chain=new THREE.Mesh(new THREE.TorusGeometry(.19,.014,8,28,Math.PI),gold)
+  chain.name='bj-gold-chain';chain.rotation.x=deg(90);chain.position.set(0,.61,.255);chain.scale.set(.68,.68,.68);spine.add(chain)
+  const pendant=new THREE.Mesh(new THREE.DodecahedronGeometry(.065,0),gold)
+  pendant.name='bj-gold-pendant';pendant.position.set(0,.46,.275);pendant.scale.set(.62,.72,.34);spine.add(pendant)
+  const patch=new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.025,6),gold)
+  patch.name='bj-lion-crown-emblem-placeholder';patch.rotation.x=deg(90);patch.position.set(.23,.55,.42);patch.visible=false;patch.userData={outfitSlot:'tactical-emblem',equippedByDefault:false};spine.add(patch)
+
+  rig.userData={
+    ...rig.userData,
+    characterId:'bj-stubbs',
+    displayName:'BJ Stubbs',
+    namedCharacter:true,
+    era:'current',
+    likenessState:'REFERENCE_LOCKED_PROCEDURAL_V4_VIDEO',
+    role:'Security & Operations',
+    affiliation:'Stubbs Family / StreetVerse Security',
+    referenceConsistencyLocked:true,
+    photoMatchedHead:false,
+    characterFactoryCompatible:true,
+    facialDetailPass:'bj-v4-current-video',
+    rigContract:'streetverse-character-dna-v1',
+  }
+  group.userData={
+    ...group.userData,
+    characterId:'bj-stubbs',
+    displayName:'BJ Stubbs',
+    namedCharacter:true,
+    assetVersion:'bj-realism-v4',
+    identityContinuityKey:'bj-stubbs',
+    hairstyle:'long-pulled-back-locs',
+    facialHair:'gray-forward-salt-and-pepper-beard',
+    wardrobe:'current-video-black-tee-small-gold-pendant',
+    signatureTextPlanned:'ONLY YAHAVAH CAN JUDGE ME',
+    referenceSource:'user-authorized-current-walking-video',
+    silhouetteTarget:'lean-current-bj-rounded-v5',
+    tacticalOutfitDefault:false,
+    handDetailPass:'five-finger-v1',
+    clothingFitPass:'rounded-fitted-tee-v5',
+    locDetailPass:'long-locs-v2',
+    beardBlendPass:'salt-pepper-v2',
+    proceduralPreview:true,
+    photoMatchedHead:false,
+    characterFactoryCompatible:true,
+    facialDetailPass:'bj-v2',
+    rigContract:'streetverse-character-dna-v1',
+  }
+}
+
 function addTransitTrain(group,x,z,mats){
   const shellMat=mat('cta-shell',0xd7dbdf,.28,.72)
   const stripeMat=mat('cta-accent',0x1e8fc6,.36,.32,0x0b4c69,.35)
@@ -608,7 +873,7 @@ const kitBuilders={
   },
   'streetverse-hero-player':()=>{
     const g=new THREE.Group();g.name='TRYAMM-StreetVerse-Hero-Player'
-    addResidentArchetype(g,0,0,kitMats,0,true);return g
+    addBJStubbsCharacter(g,0,0,kitMats);return g
   },
   'resident-archetype-a':()=>{
     const g=new THREE.Group();g.name='TRYAMM-Resident-Archetype-A'
