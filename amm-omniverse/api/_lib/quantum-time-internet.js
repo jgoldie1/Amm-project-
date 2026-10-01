@@ -238,6 +238,45 @@ export async function fetchInternetArchiveCapture(capture){
   }
 }
 
+export async function readPersistedHistoricalCaptures(rawUrl,{year,limit=20}={}){
+  if(!adminReady())return []
+  const canonical=normalizeHistoricalUrl(rawUrl)
+  const query={
+    select:'id,canonical_url,source_url,source_type,captured_at,archive_timestamp,title,description,content_excerpt,content_hash,business_name,ad_signals,provenance,verification_status,supersedes',
+    canonical_url:`eq.${canonical}`,
+    order:'captured_at.desc',
+    limit:String(Math.min(Math.max(Number(limit)||20,1),100)),
+  }
+  if(year){
+    const y=Number(year)
+    if(Number.isFinite(y))query.and=`(captured_at.gte.${y}-01-01T00:00:00Z,captured_at.lt.${y+1}-01-01T00:00:00Z)`
+  }
+  try{
+    const rows=await adminRest('quantum_time_documents',{query})
+    return (Array.isArray(rows)?rows:[]).map(row=>({
+      id:row.id,
+      provider:'tryamm-durable-index',
+      sourceType:row.source_type||'archive',
+      sourceLabel:'TRYAMM HISTORICAL INDEX',
+      timestamp:row.archive_timestamp||null,
+      capturedAt:row.captured_at,
+      original:row.canonical_url,
+      archiveUrl:String(row.source_url||'').includes('web.archive.org')?row.source_url:null,
+      title:row.title||'',
+      description:row.description||'',
+      contentExcerpt:row.content_excerpt||'',
+      contentHash:row.content_hash||'',
+      businessName:row.business_name||null,
+      adSignals:Array.isArray(row.ad_signals)?row.ad_signals:[],
+      provenance:{...(row.provenance||{}),durableIndex:true},
+      verificationStatus:row.verification_status||'source-capture',
+      supersedes:row.supersedes||null,
+      contentUnavailable:row.verification_status==='source-capture-metadata-only',
+      contentStatus:row.verification_status==='source-capture-metadata-only'?'metadata-only':'persisted-capture',
+    }))
+  }catch{return []}
+}
+
 export async function persistHistoricalCapture(rawUrl,capture,businessName=''){
   if(!adminReady()||!capture?.capturedAt)return {stored:false,reason:'supabase_admin_not_configured'}
   const canonical=normalizeHistoricalUrl(rawUrl)
@@ -273,7 +312,7 @@ export async function persistHistoricalCapture(rawUrl,capture,businessName=''){
       verification_status:capture.contentUnavailable?'source-capture-metadata-only':'source-capture',
       supersedes:Array.isArray(previous)&&previous[0]?.id?previous[0].id:null,
     }
-    const inserted=await adminRest('quantum_time_documents',{method:'POST',body:row})
+    const inserted=await adminRest('quantum_time_documents',{method:'POST',query:{on_conflict:'canonical_url,source_type,captured_at'},prefer:'resolution=merge-duplicates,return=representation',body:row})
     return {stored:true,id:Array.isArray(inserted)?inserted[0]?.id:null}
   }catch(error){return {stored:false,reason:clean(error?.message,260)}}
 }
