@@ -1,3 +1,4 @@
+import {circleParkGameplayStaffForHour} from '../data/CircleParkResidentEntrance'
 import {useEffect,useMemo,useState} from 'react'
 
 type VisitRecord={
@@ -38,6 +39,7 @@ export default function CircleParkGuardCheckInHUD(){
   const [visitingName,setVisitingName]=useState('')
   const [unitLabel,setUnitLabel]=useState('')
   const returning=useMemo(()=>Boolean(memory?.visitorName),[memory])
+  const guardName=useMemo(()=>circleParkGameplayStaffForHour(new Date().getHours()).find(member=>member.role==='security')?.name||'Circle Park Security',[])
 
   useEffect(()=>{
     const onOpen=()=>{
@@ -48,11 +50,11 @@ export default function CircleParkGuardCheckInHUD(){
         setVisitingName(saved.visitingName)
         setUnitLabel(saved.unitLabel)
         const line=`Welcome back ${saved.visitorName}. Are you going to see ${saved.visitingName||'the same resident'} again?`
-        window.dispatchEvent(new CustomEvent('tryamm:streetverse-dialogue',{detail:{speaker:'Circle Park Security',text:line}}))
+        window.dispatchEvent(new CustomEvent('tryamm:streetverse-dialogue',{detail:{speaker:guardName,text:line}}))
         speak(line)
       }else{
         const line="Good day. What's your name, who are you here to see, and which building or unit?"
-        window.dispatchEvent(new CustomEvent('tryamm:streetverse-dialogue',{detail:{speaker:'Circle Park Security',text:line}}))
+        window.dispatchEvent(new CustomEvent('tryamm:streetverse-dialogue',{detail:{speaker:guardName,text:line}}))
         speak(line)
       }
       setOpen(true)
@@ -72,7 +74,7 @@ export default function CircleParkGuardCheckInHUD(){
     setMemory(record)
     setOpen(false)
     const line=`Okay ${record.visitorName}. You're signed in to visit ${record.visitingName}. Have a good visit.`
-    window.dispatchEvent(new CustomEvent('tryamm:streetverse-dialogue',{detail:{speaker:'Circle Park Security',text:line}}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-dialogue',{detail:{speaker:guardName,text:line}}))
     window.dispatchEvent(new CustomEvent('tryamm:circle-park-guard-checkin-complete',{detail:{
       visitorName:record.visitorName,
       visitingName:record.visitingName,
@@ -86,7 +88,7 @@ export default function CircleParkGuardCheckInHUD(){
   if(!open)return null
   return <div role="dialog" aria-modal="true" aria-label="Circle Park security check in" style={{position:'fixed',inset:0,zIndex:47050,display:'grid',placeItems:'center',padding:14,background:'rgba(2,7,12,.78)',backdropFilter:'blur(5px)'}}>
     <section style={{width:'min(94vw,520px)',maxHeight:'86dvh',overflowY:'auto',borderRadius:20,border:'1px solid #6de9ff77',background:'#07141df7',color:'#fff',padding:16,fontFamily:'system-ui',boxShadow:'0 24px 80px #000d'}}>
-      <div style={{fontSize:10,letterSpacing:2,color:'#80e8ff',fontWeight:950}}>CIRCLE PARK • SECURITY DESK</div>
+      <div style={{fontSize:10,letterSpacing:2,color:'#80e8ff',fontWeight:950}}>CIRCLE PARK • SECURITY DESK • {guardName.toUpperCase()}</div>
       <h2 style={{margin:'6px 0 4px'}}>Visitor Check-In</h2>
       <p style={{margin:'0 0 12px',fontSize:12,color:'#bdd0db',lineHeight:1.5}}>The guard can remember your in-game visit for up to 7 days so returning visitors do not have to re-enter everything. No real gate codes or real security schedules are stored.</p>
       {returning&&<button onClick={()=>finish(true)} style={primaryButton}>WELCOME BACK • USE LAST VISIT</button>}
