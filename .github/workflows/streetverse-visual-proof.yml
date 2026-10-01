@@ -1,0 +1,56 @@
+name: StreetVerse Visual Proof
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/src/components/StreetVerse**'
+      - 'amm-omniverse/src/data/StreetVerse**'
+      - 'amm-omniverse/src/runtime/TryammNative**'
+      - 'amm-omniverse/scripts/tryamm-native-asset-foundry.mjs'
+      - 'amm-omniverse/tests/e2e/streetverse-visual-proof.spec.ts'
+      - '.github/workflows/streetverse-visual-proof.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-visual-proof-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phone-visual-proof:
+    name: Phone Circle Park visual proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Generate native assets
+        run: npm run native:assets
+      - name: Build StreetVerse candidate
+        run: npx vite build
+      - name: Run iPhone-sized visual proof
+        run: npx playwright test tests/e2e/streetverse-visual-proof.spec.ts --project=mobile-chromium
+      - name: Upload visual proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-phone-visual-proof-${{ github.sha }}
+          path: |
+            amm-omniverse/test-results
+            amm-omniverse/playwright-report
+          if-no-files-found: warn
+          retention-days: 14
