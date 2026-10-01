@@ -1,0 +1,100 @@
+name: TRYAMM StreetVerse Visual Proof
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/src/components/StreetVerse**'
+      - 'amm-omniverse/src/runtime/StreetVerse**'
+      - 'amm-omniverse/src/data/StreetVerse**'
+      - 'amm-omniverse/scripts/tryamm-native-asset-foundry.mjs'
+      - '.github/workflows/tryamm-visual-proof.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tryamm-visual-proof-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mobile-visual-proof:
+    name: Capture mobile StreetVerse proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install app dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Generate native GLBs
+        run: npm run native:assets
+      - name: Compile StreetVerse candidate
+        run: npx vite build
+      - name: Install visual proof tooling
+        run: |
+          npm install --no-save --no-package-lock @playwright/test@1.63.0
+          npx playwright install --with-deps chromium
+      - name: Start local production preview
+        run: |
+          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/tryamm-visual-preview.log 2>&1 &
+          for i in {1..40}; do
+            if curl -fsS http://127.0.0.1:4173/streetverse >/dev/null; then exit 0; fi
+            sleep 2
+          done
+          cat /tmp/tryamm-visual-preview.log
+          exit 1
+      - name: Capture phone proof
+        run: |
+          mkdir -p visual-proof
+          node --input-type=module <<'NODE'
+          import { chromium } from '@playwright/test'
+          const browser=await chromium.launch({headless:true})
+          const context=await browser.newContext({
+            viewport:{width:390,height:844},
+            deviceScaleFactor:2,
+            isMobile:true,
+            hasTouch:true,
+            userAgent:'TRYAMM-Visual-Proof iPhone'
+          })
+          const page=await context.newPage()
+          const errors=[]
+          page.on('pageerror',e=>errors.push(String(e)))
+          await page.goto('http://127.0.0.1:4173/streetverse',{waitUntil:'networkidle',timeout:60000})
+          await page.waitForTimeout(8000)
+          const body=await page.locator('body').innerText().catch(()=> '')
+          const joystick=await page.getByLabel('StreetVerse always visible joystick').count()
+          const drive=await page.getByLabel('Drive nearest StreetVerse vehicle').count()
+          await page.screenshot({path:'visual-proof/streetverse-mobile.png',fullPage:true})
+          await page.locator('body').screenshot({path:'visual-proof/streetverse-viewport.png'})
+          const proof={
+            url:page.url(),
+            joystickVisible:joystick>0,
+            driveActionVisible:drive>0,
+            hasCirclePark:/CIRCLE PARK|ABLA/i.test(body),
+            pageErrors:errors
+          }
+          await import('node:fs').then(fs=>fs.writeFileSync('visual-proof/visual-proof.json',JSON.stringify(proof,null,2)))
+          console.log(proof)
+          if(!proof.joystickVisible) throw new Error('Visible StreetVerse joystick missing from rendered phone proof')
+          if(!proof.driveActionVisible) throw new Error('Direct DRIVE action missing from rendered phone proof')
+          if(!proof.hasCirclePark) throw new Error('Circle Park / ABLA identity missing from rendered phone proof')
+          if(errors.length) console.warn('Page errors captured:',errors)
+          await browser.close()
+          NODE
+      - name: Upload visual proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-mobile-visual-proof-${{ github.sha }}
+          path: amm-omniverse/visual-proof/
+          if-no-files-found: error
+          retention-days: 14

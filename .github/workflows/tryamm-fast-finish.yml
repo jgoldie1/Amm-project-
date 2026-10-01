@@ -1,0 +1,130 @@
+name: TRYAMM Fast Finish Lane
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/src/components/StreetVerse**'
+      - 'amm-omniverse/src/runtime/StreetVerse**'
+      - 'amm-omniverse/src/data/StreetVerse**'
+      - 'amm-omniverse/src/game/**'
+      - 'amm-omniverse/scripts/tryamm-native-asset-foundry.mjs'
+      - 'amm-omniverse/tests/streetverse-*.mjs'
+      - '.github/workflows/tryamm-fast-finish.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/src/components/StreetVerse**'
+      - 'amm-omniverse/src/runtime/StreetVerse**'
+      - 'amm-omniverse/src/data/StreetVerse**'
+      - 'amm-omniverse/src/game/**'
+      - 'amm-omniverse/scripts/tryamm-native-asset-foundry.mjs'
+      - '.github/workflows/tryamm-fast-finish.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tryamm-fast-finish-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  playable-journey:
+    name: Mission → repair → drive → reward → reel
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Critical phone journey contracts
+        run: |
+          set -euo pipefail
+          node tests/streetverse-mobile-control-reliability-contract.mjs
+          node tests/streetverse-unified-mobile-controls-contract.mjs
+          node tests/streetverse-iphone-first-journey-contract.mjs
+          node tests/streetverse-iphone-player-journey-contract.mjs
+          node tests/streetverse-mobile-repair-visibility-contract.mjs
+          node tests/streetverse-journey-qa-contract.mjs
+          node tests/streetverse-mobile-mission-completion-bridge-contract.mjs
+          node tests/streetverse-mission-reel-handoff-contract.mjs
+          node tests/streetverse-reel-return-to-world-contract.mjs
+          node tests/streetverse-authoritative-reward-contract.mjs
+
+  circle-park-world:
+    name: Circle Park + living city + native assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Generate current native assets
+        run: npm run native:assets
+      - name: World and visual contracts
+        run: |
+          set -euo pipefail
+          node tests/streetverse-chicago-grid-reality-contract.mjs
+          node tests/streetverse-mobile-visible-city-contract.mjs
+          node tests/streetverse-character-scale-contract.mjs
+          node tests/tryamm-native-asset-foundry-contract.mjs
+          node tests/tryamm-native-runtime-asset-contract.mjs
+          node tests/streetverse-mobile-living-city-contract.mjs
+          node tests/streetverse-chicago-alive-contract.mjs
+
+  compile-fast:
+    name: Typecheck + direct Vite compile
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Generate assets without full smoke suite
+        run: npm run native:assets
+      - name: Direct production compile
+        run: npx vite build
+
+  fast-finish-gate:
+    name: Fast finish gate
+    if: ${{ always() }}
+    needs: [playable-journey, circle-park-world, compile-fast]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all focused lanes
+        env:
+          JOURNEY: ${{ needs.playable-journey.result }}
+          WORLD: ${{ needs.circle-park-world.result }}
+          COMPILE: ${{ needs.compile-fast.result }}
+        run: |
+          echo "Journey: $JOURNEY"
+          echo "Circle Park/world: $WORLD"
+          echo "Compile: $COMPILE"
+          test "$JOURNEY" = success
+          test "$WORLD" = success
+          test "$COMPILE" = success
+          echo "FAST FINISH GREEN"
