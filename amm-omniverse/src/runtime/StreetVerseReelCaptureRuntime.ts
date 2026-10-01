@@ -26,6 +26,7 @@ export function installStreetVerseReelCapture(canvas:HTMLCanvasElement){
  let stopTimer:number|undefined
  let lastUrl=''
  let disposed=false
+ let privacyBlocked=false
 
  const emitState=(state:StreetVerseReelCaptureState,detail:Record<string,unknown>={})=>
   window.dispatchEvent(new CustomEvent('tryamm:reel-capture-state',{detail:{state,...detail}}))
@@ -38,6 +39,7 @@ export function installStreetVerseReelCapture(canvas:HTMLCanvasElement){
 
  const start=()=>{
   if(disposed||recorder?.state==='recording')return
+  if(privacyBlocked){emitState('idle',{blocked:true,reason:'school-privacy-zone'});window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'REEL CAPTURE OFF • privacy zone'}}));return}
   if(typeof MediaRecorder==='undefined'||typeof canvas.captureStream!=='function'){emitState('unsupported');return}
   const stream=canvas.captureStream(24)
   const mimeType=chooseMimeType()
@@ -68,13 +70,15 @@ export function installStreetVerseReelCapture(canvas:HTMLCanvasElement){
  const onToggle=()=>toggle()
  const onStop=()=>stop()
  const onMoment=(e:Event)=>{if(recorder?.state==='recording')window.dispatchEvent(new CustomEvent('tryamm:reel-marker-recorded',{detail:{...(e as CustomEvent).detail,atMs:Math.round(performance.now()-startedAt)}}))}
+ const onPrivacyZone=(e:Event)=>{const d=(e as CustomEvent<{active?:boolean;reelCapture?:boolean;cameraCapture?:boolean}>).detail||{};privacyBlocked=d.active===true||d.reelCapture===false||d.cameraCapture===false;if(privacyBlocked&&recorder?.state==='recording'){stop();window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'REEL STOPPED • entered privacy zone'}}))}}
  window.addEventListener('tryamm:reel-capture-toggle',onToggle)
  window.addEventListener('tryamm:reel-capture-stop',onStop)
  window.addEventListener('tryamm:reel-moment',onMoment)
+ window.addEventListener('tryamm:school-privacy-zone',onPrivacyZone)
  emitState(typeof MediaRecorder!=='undefined'&&typeof canvas.captureStream==='function'?'idle':'unsupported')
 
  return{
   start,stop,toggle,
-  dispose:()=>{disposed=true;if(stopTimer)window.clearTimeout(stopTimer);if(recorder?.state==='recording')recorder.stop();window.removeEventListener('tryamm:reel-capture-toggle',onToggle);window.removeEventListener('tryamm:reel-capture-stop',onStop);window.removeEventListener('tryamm:reel-moment',onMoment);cleanupUrl()}
+  dispose:()=>{disposed=true;if(stopTimer)window.clearTimeout(stopTimer);if(recorder?.state==='recording')recorder.stop();window.removeEventListener('tryamm:reel-capture-toggle',onToggle);window.removeEventListener('tryamm:reel-capture-stop',onStop);window.removeEventListener('tryamm:reel-moment',onMoment);window.removeEventListener('tryamm:school-privacy-zone',onPrivacyZone);cleanupUrl()}
  }
 }
