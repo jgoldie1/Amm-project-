@@ -18,6 +18,8 @@ must(hologpt.includes('No verified historical snapshot found'),'missing archive 
 
 must(helper.includes('web.archive.org/cdx/search/cdx'),'historical engine must use Internet Archive CDX')
 must(helper.includes('index.commoncrawl.org/collinfo.json'),'historical engine must use Common Crawl collection metadata')
+must(helper.includes('for(const collection of chosen)')&&helper.includes('setTimeout(resolve,250)'),'Common Crawl collection queries must be sequential and rate-limited')
+must(!helper.includes('Promise.all(chosen.map'),'Common Crawl collection queries must not run in a parallel burst')
 must(helper.includes('MAX_ARCHIVE_BYTES=750000'),'archive body reads must remain bounded')
 must(helper.includes('completeHistory:false'),'persisted provenance must never claim complete Internet history')
 must(helper.includes('adSignals'),'historical capture extraction must retain bounded promotional/ad signals')
