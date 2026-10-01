@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {normalizeStreetVerseHumanHeight} from './StreetVerseHumanScale'
 import {BJ_STUBBS_BODY_PROFILE} from '../data/StreetVerseBJBodyProfile'
+import {resolvePublishedMeshyAsset,resetPublishedMeshyManifest} from './StreetVerseMeshyAssetManifest'
 
 export const BJ_MESHY_V6_ASSET={
   id:'streetverse-bj-stubbs-meshy-v6',
@@ -28,11 +29,11 @@ export type StreetVerseMeshyBJHeroHandle={
 const loader=new GLTFLoader()
 let availabilityPromise:Promise<boolean>|null=null
 
-async function assetExists(){
+async function assetExists(url:string){
   if(!availabilityPromise){
     availabilityPromise=(async()=>{
       try{
-        const response=await fetch(BJ_MESHY_V6_ASSET.url,{method:'HEAD',cache:'no-store'})
+        const response=await fetch(url,{method:'HEAD',cache:'no-store'})
         return response.ok
       }catch{return false}
     })()
@@ -83,18 +84,21 @@ function disposeObject(root:THREE.Object3D){
 }
 
 export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHeroHandle|null>{
-  if(!(await assetExists())){
+  const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
+  const published=await resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope)
+  const sourceUrl=published?.url||BJ_MESHY_V6_ASSET.url
+  if(!(await assetExists(sourceUrl))){
     window.dispatchEvent(new CustomEvent('tryamm:bj-meshy-v6-unavailable',{detail:{
       characterId:BJ_MESHY_V6_ASSET.characterId,
       assetId:BJ_MESHY_V6_ASSET.id,
-      url:BJ_MESHY_V6_ASSET.url,
+      url:sourceUrl,
       fallback:BJ_MESHY_V6_ASSET.fallback,
     }}))
     return null
   }
 
   try{
-    const gltf=await loader.loadAsync(BJ_MESHY_V6_ASSET.url)
+    const gltf=await loader.loadAsync(sourceUrl)
     const object=gltf.scene
     object.name='meshy-bj-stubbs-v6'
     normalizeStreetVerseHumanHeight(object,BJ_MESHY_V6_ASSET.targetHeightMeters)
@@ -117,7 +121,15 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       meshyV6:true,
     }
 
-    const clips=gltf.animations||[]
+    const companionClips:THREE.AnimationClip[]=[]
+    for(const [url,name] of [[published?.walkUrl,'walk'],[published?.runUrl,'run']] as const){
+      if(!url)continue
+      try{
+        const companion=await loader.loadAsync(url)
+        for(const clip of companion.animations||[]){const cloned=clip.clone();cloned.name=name;companionClips.push(cloned)}
+      }catch{}
+    }
+    const clips=[...(gltf.animations||[]),...companionClips]
     const mixer=clips.length?new THREE.AnimationMixer(object):null
     const animations=materializeAnimationMap(clips)
     const morphs=collectMorphMeshes(object)
@@ -160,7 +172,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     window.dispatchEvent(new CustomEvent('tryamm:bj-meshy-v6-ready',{detail:{
       characterId:BJ_MESHY_V6_ASSET.characterId,
       assetId:BJ_MESHY_V6_ASSET.id,
-      url:BJ_MESHY_V6_ASSET.url,
+      url:sourceUrl,
       clipNames:clips.map(clip=>clip.name),
       morphTargetNames:morphs.names,
       targetHeightMeters:BJ_MESHY_V6_ASSET.targetHeightMeters,
@@ -192,4 +204,5 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
 
 export function resetStreetVerseMeshyBJAvailability(){
   availabilityPromise=null
+  resetPublishedMeshyManifest()
 }
