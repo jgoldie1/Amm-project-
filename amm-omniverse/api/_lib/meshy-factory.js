@@ -5,6 +5,8 @@ import {persistRemoteGlb} from './streetverse-asset-storage.js';
 export const ASSET_FACTORY_ROLES=['founder','admin','superadmin','platform-admin','asset-admin','ai-cto'];
 
 const CATALOG=[
+ {assetId:'sv-james-body-base-v1',filename:'SV_HERO_JAMES_BODY_BASE_V1.glb',generationType:'text-to-3d',height:1.80,heritage:'identity-neutral',ageLane:'adult',role:'James body base; neutral face until an approved reference image is supplied',prompt:'game-ready realistic adult male hero body base, neutral non-identifying face, balanced athletic-average build, full body, A-pose for humanoid rigging, PBR textures, clean mobile-web topology, no celebrity likeness, no logos, StreetVerse hero body base'},
+ {assetId:'sv-female-body-base-v1',filename:'SV_BODY_FEMALE_BASE_V1.glb',generationType:'text-to-3d',height:1.68,heritage:'identity-neutral',ageLane:'adult',role:'reusable adult female body base for StreetVerse character creation',prompt:'game-ready realistic adult female body base, neutral non-identifying face, balanced natural proportions, full body, A-pose for humanoid rigging, PBR textures, clean mobile-web topology, no celebrity likeness, no logos, reusable StreetVerse female character base'},
  {assetId:'sv-bj-stubbs-v6',filename:'SV_HERO_BJ_STUBBS_V6.glb',generationType:'image-to-3d',height:1.82,heritage:'reference-authorized',ageLane:'adult',role:'hero/founder character',prompt:null},
  {assetId:'sv-black-man-youngadult-01',filename:'SV_NPC_BLACK_MAN_YOUNGADULT_01.glb',generationType:'text-to-3d',height:1.80,heritage:'Black',ageLane:'young-adult',role:'resident creator athlete driver'},
  {assetId:'sv-black-woman-youngadult-01',filename:'SV_NPC_BLACK_WOMAN_YOUNGADULT_01.glb',generationType:'text-to-3d',height:1.68,heritage:'Black',ageLane:'young-adult',role:'resident creator merchant medical worker'},
@@ -102,7 +104,7 @@ async function attachProviderTask(jobId,stage,body){
 export async function startMeshyFactoryJob(user,{assetId,imageUrl,cityScope='global'}={}){
   requireFactoryAuthority(user);
   const spec=specFor(assetId);
-  const prompt=spec.generationType==='text-to-3d'?defaultPrompt(spec):null;
+  const prompt=spec.generationType==='text-to-3d'?(spec.prompt||defaultPrompt(spec)):null;
   const payload=spec.generationType==='image-to-3d'
     ?{image_url:String(imageUrl||'').trim(),ai_model:'meshy-7.1',target_formats:['glb'],should_texture:true,enable_pbr:true,should_remesh:true,target_polycount:45000,pose_mode:'a-pose'}
     :{prompt,ai_model:'meshy-7.1',target_formats:['glb'],should_texture:true,enable_pbr:true,should_remesh:true,target_polycount:45000,pose_mode:'a-pose'};
