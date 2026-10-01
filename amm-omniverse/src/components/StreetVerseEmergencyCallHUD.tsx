@@ -21,14 +21,14 @@ export default function StreetVerseEmergencyCallHUD(){
     const {x,z}=position.current
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-emergency-response',{detail:{kind,x,z,severity,reason,source:'streetverse-game-emergency-call',gameplayOnly:true}}))
   }
-  const call=(kind:'police'|'ambulance'|'fire',severity:number,reason:string)=>{
-    dispatch(kind,severity,reason)
+  const call=(kind:'police'|'ambulance'|'fire',severity:number,reason:string,rescueKind?:string)=>{
+    if(rescueKind)window.dispatchEvent(new CustomEvent('tryamm:streetverse-rescue-incident-start',{detail:{kind:rescueKind,x:position.current.x,z:position.current.z,source:'game-911'}}))
+    else dispatch(kind,severity,reason)
     setOpen(false)
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-dialogue',{detail:{speaker:'Dispatch',text:`${kind.toUpperCase()} units are being sent to your location for ${reason}.`}}))
   }
   const shot=()=>{
-    dispatch('ambulance',4,'person shot')
-    dispatch('police',4,'person shot')
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-rescue-incident-start',{detail:{kind:'gunshot-victim',x:position.current.x,z:position.current.z,source:'game-911'}}))
     setOpen(false)
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-dialogue',{detail:{speaker:'Dispatch',text:'Police and EMS are being sent to your location for a person-shot emergency.'}}))
   }
@@ -41,9 +41,9 @@ export default function StreetVerseEmergencyCallHUD(){
       <p style={{fontSize:12,lineHeight:1.5,color:'#c7d0d6'}}>This dispatches StreetVerse simulation responders only. For a real emergency, use your phone's real emergency service.</p>
       <div style={{display:'grid',gap:8}}>
         <button style={button} onClick={shot}>🚑 + 🚓 PERSON SHOT</button>
-        <button style={button} onClick={()=>call('ambulance',3,'person hurt')}>🚑 PERSON HURT / MEDICAL</button>
-        <button style={button} onClick={()=>call('police',2,'disturbance or fight')}>🚓 DISTURBANCE / FIGHT</button>
-        <button style={button} onClick={()=>call('fire',3,'fire or smoke')}>🚒 FIRE / SMOKE</button>
+        <button style={button} onClick={()=>call('ambulance',3,'person hurt','stroke-emergency')}>🚑 PERSON HURT / MEDICAL</button>
+        <button style={button} onClick={()=>call('police',2,'disturbance or fight','assault')}>🚓 DISTURBANCE / FIGHT</button>
+        <button style={button} onClick={()=>call('fire',3,'fire or smoke','structure-fire')}>🚒 FIRE / SMOKE</button>
         <button style={{...button,borderColor:'#526777',background:'#13202a'}} onClick={()=>setOpen(false)}>CANCEL</button>
       </div>
     </section>
