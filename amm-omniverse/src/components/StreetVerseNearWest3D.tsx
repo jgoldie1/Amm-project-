@@ -41,6 +41,27 @@ function TaylorLots(){
 }
 
 
+function JeffersonLegacyCampusMesh(){
+ return <group position={[-820,0,575]}>
+  <mesh castShadow receiveShadow position={[0,5,0]}><boxGeometry args={[42,10,28]}/><meshStandardMaterial color="#8b4a3b"/></mesh>
+  <mesh position={[0,2,-14.1]}><boxGeometry args={[8,4,.25]}/><meshStandardMaterial color="#27485c"/></mesh>
+  <mesh position={[0,9.2,-14.25]}><boxGeometry args={[26,1.5,.18]}/><meshStandardMaterial color="#e7dfcf"/></mesh>
+  <mesh receiveShadow position={[25,.08,3]}><boxGeometry args={[18,.14,24]}/><meshStandardMaterial color="#d49b55"/></mesh>
+  <mesh position={[25,.14,3]} rotation={[-Math.PI/2,0,0]}><torusGeometry args={[3,.12,6,36]}/><meshStandardMaterial color="#f7f3dd"/></mesh>
+  <mesh position={[16,3.1,3]}><boxGeometry args={[.2,4.4,4]}/><meshStandardMaterial color="#f3f5ef"/></mesh>
+  <mesh position={[34,3.1,3]}><boxGeometry args={[.2,4.4,4]}/><meshStandardMaterial color="#f3f5ef"/></mesh>
+ </group>
+}
+
+function CircleParkWestSideMarker(){
+ return <group position={[-850,0,835]}>
+  <mesh receiveShadow position={[0,.2,0]}><cylinderGeometry args={[16,16,.35,32]}/><meshStandardMaterial color="#5c7a4f"/></mesh>
+  <mesh position={[0,1.4,0]}><torusGeometry args={[9,.35,10,40]}/><meshStandardMaterial color="#e8c86a"/></mesh>
+  <mesh position={[0,3,0]}><cylinderGeometry args={[.4,.4,6,10]}/><meshStandardMaterial color="#2f3b45"/></mesh>
+ </group>
+}
+
+
 type MoveState={x:number;z:number}
 function NearWestPlayer({move,onPosition,hidden=false,startPosition}:{move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void;hidden?:boolean;startPosition?:{x:number;z:number}}){
  const ref=useRef<THREE.Group>(null)
@@ -190,7 +211,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><MissionMarker mission={activeMission}/><TaylorLots/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
+   <RoadMeshes/><MissionMarker mission={activeMission}/><TaylorLots/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
   </Canvas>
  </div>
 }
