@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { getAccessToken } from '../services/supabaseClient'
 
 type Msg={role:'user'|'assistant';content:string;provider?:string}
-type SourceMode='auto'|'holo'|'oracle'|'old-web'|'historical'
-type RetrievalItem={title?:string;headline?:string;summary?:string;sourceName?:string;sourceUrl?:string|null;verification?:string;kind?:string;city?:string;representation?:string}
+type SourceMode='auto'|'holo'|'oracle'|'quantum'|'old-web'|'historical'
+type RetrievalItem={title?:string;headline?:string;summary?:string;sourceName?:string;sourceUrl?:string|null;verification?:string;kind?:string;city?:string;representation?:string;capturedAt?:string|null;digest?:string|null;provider?:string}
 type Props={showLauncher?:boolean}
 type Health={ok:boolean;provider?:string;model?:string;error?:string;degraded?:boolean}
 const KEY='tryamm_hologpt_history_v1'
@@ -60,6 +60,12 @@ async function oracleSearch(question:string){
   if(!r.ok)throw new Error(d.error||`Oracle API ${r.status}`)
   return d
 }
+async function quantumSearch(question:string,mode:'search'|'research'|'academic'='search'){
+  const r=await fetch('/api/quantum/search',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({q:question,mode}),cache:'no-store'})
+  const d=await readJson(r)
+  if(!r.ok)throw new Error(d.error||`Quantum Internet API ${r.status}`)
+  return d
+}
 async function holoSearch(question:string):Promise<RetrievalItem[]>{
   return await new Promise(resolve=>{
     let done=false
@@ -104,6 +110,9 @@ async function historicalSearch(question:string,urlInput:string,fromInput:string
       sourceName:cap.provider==='common-crawl'?'Common Crawl':'Internet Archive',
       sourceUrl:cap.archiveUrl||null,
       verification:'archived-source-capture',
+      capturedAt:cap.capturedAt||null,
+      digest:cap.digest||null,
+      provider:cap.provider||null,
     })
   }
   if(action==='compare'){if(d.before?.found)addCapture('THEN',d.before);if(d.after?.found)addCapture('NOW/COMPARE',d.after);if(d.difference)results.push({title:'Observed archived difference',summary:`Added terms: ${(d.difference.added||[]).slice(0,25).join(', ')}. Removed terms: ${(d.difference.removed||[]).slice(0,25).join(', ')}. ${d.difference.interpretation||''}`,sourceName:'TRYAMM Time Machine',verification:'derived-from-archive-captures'})}
@@ -122,6 +131,9 @@ function compactRetrieval(items:RetrievalItem[],limit=8){
     verification:item.verification||null,
     city:item.city||null,
     representation:item.representation||null,
+    capturedAt:item.capturedAt||null,
+    digest:item.digest||null,
+    provider:item.provider||null,
   }))
 }
 
@@ -161,13 +173,23 @@ export default function HoloGPTAssistant({showLauncher=true}:Props){
     setBusy(true)
     try{
       setRetrievalStatus('SEARCHING '+sourceMode.toUpperCase())
-      let retrievalContext:any={mode:sourceMode,holo:[],oracle:[],historical:[],crawler:null}
+      let retrievalContext:any={mode:sourceMode,holo:[],oracle:[],quantum:[],historical:[],crawler:null}
       if(sourceMode==='holo'||sourceMode==='auto')retrievalContext.holo=compactRetrieval(await holoSearch(question))
       if(sourceMode==='oracle'||sourceMode==='old-web'||sourceMode==='auto'){
         const oracle=await oracleSearch(question)
         retrievalContext.oracle=compactRetrieval(Array.isArray(oracle.results)?oracle.results:[])
         retrievalContext.crawler=oracle.crawler||null
         retrievalContext.oracleConfigured=oracle.configured!==false
+      }
+      if(sourceMode==='quantum'||sourceMode==='auto'){
+        const quantum=await quantumSearch(question,'search').catch(()=>null)
+        retrievalContext.quantum=compactRetrieval(Array.isArray(quantum?.results)?quantum.results.map((x:any)=>({
+          title:x.title,summary:x.summary,sourceName:x.sourceLabel||x.sourceType,sourceUrl:x.url,
+          verification:x.verified?'verified-source':x.sourceType||null,provider:x.provider||null
+        })):[],10)
+        retrievalContext.quantumConfigured=quantum?.configured!==false
+        retrievalContext.quantumProviders=quantum?.providers||null
+        retrievalContext.quantumDiversity=quantum?.diversity||null
       }
       const autoHistory=sourceMode==='auto'&&Boolean(extractLikelyUrl(question))&&/(archive|history|historical|old (?:web|website|internet)|past|then|advertis|campaign|mandela|what .*looked like|\b(?:18|19|20)\d{2}\b)/i.test(question)
       if(sourceMode==='historical'||autoHistory){
@@ -200,9 +222,10 @@ export default function HoloGPTAssistant({showLauncher=true}:Props){
       <div onClick={e=>e.stopPropagation()} style={{width:'min(96vw,460px)',height:'min(82vh,690px)',background:'linear-gradient(160deg,#06101a,#080615)',border:'1px solid #4fe3ff77',borderRadius:22,display:'flex',flexDirection:'column',overflow:'hidden',boxShadow:'0 28px 90px #000d'}}>
         <header style={{padding:'14px 16px',borderBottom:'1px solid #4fe3ff22',display:'flex',alignItems:'center',gap:10}}><div style={{fontSize:27}}>◈</div><div style={{flex:1}}><div style={{color:'#fff',fontWeight:950}}>HoloGPT</div><div style={{fontSize:9,color:statusColor,fontFamily:'monospace'}}>{status}{health?.provider?` · ${health.provider}`:''}</div></div><button aria-label="Close HoloGPT" onClick={()=>setOpen(false)} style={{background:'transparent',border:'1px solid #334',color:'#fff',borderRadius:'50%',width:34,height:34,cursor:'pointer'}}>×</button></header>
         {health?.degraded&&<div style={{margin:'10px 12px 0',padding:'9px 10px',border:'1px solid #e8b94455',borderRadius:11,background:'#e8b9440d',fontSize:10,color:'#ffe281',lineHeight:1.45}}>Generative AI is not connected on this deployment yet. Holo navigation remains usable and HoloGPT now fails softly instead of showing a raw runtime-error message.</div>}
-        <div style={{display:'grid',gridTemplateColumns:'repeat(5,minmax(0,1fr))',gap:5,padding:'9px 12px 0'}}>
-          {([['auto','AUTO'],['holo','HOLO'],['oracle','ORACLE'],['old-web','OLD WEB'],['historical','HISTORY']] as const).map(([id,label])=><button key={id} onClick={()=>setSourceMode(id)} style={{minHeight:34,borderRadius:9,border:sourceMode===id?'1px solid #4fe3ff':'1px solid #253647',background:sourceMode===id?'#0d3043':'#091019',color:'#dffaff',fontSize:8,fontWeight:950}}>{label}</button>)}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:5,padding:'9px 12px 0'}}>
+          {([['auto','AUTO'],['holo','HOLO'],['oracle','ORACLE'],['quantum','QUANTUM'],['old-web','OLD WEB'],['historical','HISTORY']] as const).map(([id,label])=><button key={id} onClick={()=>setSourceMode(id)} style={{minHeight:34,borderRadius:9,border:sourceMode===id?'1px solid #4fe3ff':'1px solid #253647',background:sourceMode===id?'#0d3043':'#091019',color:'#dffaff',fontSize:8,fontWeight:950}}>{label}</button>)}
         </div>
+        {sourceMode==='quantum'&&<div style={{padding:'6px 12px 0',fontSize:8,color:'#91e5ff',fontFamily:'monospace'}}>QUANTUM searches TRYAMM + configured live web + academic + independent/community lanes with source provenance.</div>}
         {sourceMode==='historical'&&<div style={{padding:'8px 12px 0'}}>
           <div style={{fontSize:8,color:'#9bd8e8',fontFamily:'monospace',marginBottom:5}}>INTERNET TIME MACHINE • archived observations, not complete Internet history</div>
           <input aria-label="Historical website or domain" value={historyUrl} onChange={e=>setHistoryUrl(e.target.value)} placeholder="Website/domain • example.com" style={{width:'100%',boxSizing:'border-box',minHeight:38,borderRadius:9,border:'1px solid #29495a',background:'#07111b',color:'#fff',padding:'7px 9px',fontSize:11}}/>
