@@ -2,7 +2,7 @@ import {json} from '../_lib/supabase-admin.js';
 import {requireUser} from '../_lib/security.js';
 import {createMeshyTask} from '../_lib/meshy.js';
 
-const ALLOWED=['image-to-3d','multi-image-to-3d'];
+const ALLOWED=['image-to-3d','multi-image-to-3d','text-to-3d'];
 
 export default async function handler(req,res){
   if(req.method!=='POST'){
@@ -16,7 +16,7 @@ export default async function handler(req,res){
     if(!ALLOWED.includes(type))return json(res,400,{error:'unsupported_meshy_type'});
 
     const payload={
-      ...(type==='image-to-3d'?{image_url:body.image_url}:{image_urls:body.image_urls}),
+      ...(type==='image-to-3d'?{image_url:body.image_url}:type==='multi-image-to-3d'?{image_urls:body.image_urls}:{prompt:String(body.prompt||'')}),
       ai_model:String(body.ai_model||'meshy-7.1'),
       target_formats:['glb'],
       should_texture:body.should_texture!==false,
