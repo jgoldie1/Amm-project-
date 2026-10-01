@@ -18,6 +18,7 @@ export default async function handler(req,res){
     const payload={
       ...(type==='image-to-3d'?{image_url:body.image_url}:{image_urls:body.image_urls}),
       ai_model:String(body.ai_model||'meshy-7.1'),
+      target_formats:['glb'],
       should_texture:body.should_texture!==false,
       enable_pbr:body.enable_pbr!==false,
       should_remesh:body.should_remesh!==false,
