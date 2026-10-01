@@ -58,6 +58,13 @@ export default function StreetVerseCoreGameplayDock(){
 
   const ride=()=>{dispatchEvent(new Event('tryamm:holo-mobility-open'));setMessage('RIDE SHARE OPEN')}
   const reel=()=>{dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'streetverse-core-dock',missionId:mission?.id||'',missionLabel:mission?.label||''}}));setMessage('REEL OPEN')}
+  const liveCast=()=>{
+    dispatchEvent(new CustomEvent('tryamm:streetverse-live-cast-open',{detail:{source:'streetverse-core-dock',missionId:mission?.id||'',mode:'gamecast'}}))
+    dispatchEvent(new CustomEvent('tryamm:live-center-open',{detail:{source:'streetverse-core-dock',format:'gamecast'}}))
+    dispatchEvent(new CustomEvent('tryamm:volcano-holocast-open',{detail:{source:'streetverse-core-dock',keepGameplayActive:true}}))
+    dispatchEvent(new CustomEvent('tryamm:accessibility-announce',{detail:{text:'Live and cast controls opened. StreetVerse gameplay stays active while you choose streaming and display destinations.'}}))
+    setMessage('LIVE / CAST OPEN')
+  }
   const faith=()=>{window.location.href='/faithverse'}
   const exit=()=>{
     dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-input',{detail:{throttle:0,brake:1,steer:0,horn:false,exit:true}}))
@@ -69,11 +76,12 @@ export default function StreetVerseCoreGameplayDock(){
   const status=mission?'ACTIVE • '+mission.label:message
   return <aside aria-label="StreetVerse core gameplay controls" style={{position:'fixed',left:8,right:8,bottom:'max(8px, env(safe-area-inset-bottom))',zIndex:47000,pointerEvents:'none',fontFamily:'system-ui,sans-serif'}}>
     <div style={{pointerEvents:'auto',margin:'0 auto',maxWidth:620,border:'1px solid #4fe3ff66',borderRadius:18,padding:7,background:'#030b12e8',boxShadow:'0 12px 36px #000b'}}>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(6,minmax(0,1fr))',gap:5}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(0,1fr))',gap:5}}>
         <button onClick={missionAction} style={{...btn,color:'#ffe47f'}}>📍<br/>MISSION</button>
         <button onClick={repair} style={{...btn,color:'#ffb36b'}}>🔧<br/>REPAIR</button>
         <button onClick={ride} style={{...btn,color:'#8effb7'}}>🚕<br/>RIDE</button>
         <button onClick={reel} style={{...btn,color:'#f3a6ff'}}>🎥<br/>REEL</button>
+        <button onClick={liveCast} style={{...btn,color:'#7fe9ff'}}>📡<br/>LIVE/CAST</button>
         <button onClick={faith} style={{...btn,color:'#e5c56a'}}>📖<br/>FAITH</button>
         <button onClick={exit} disabled={!inVehicle} style={{...btn,color:inVehicle?'#ffcf6b':'#687785',opacity:inVehicle?1:.55}}>🚪<br/>EXIT</button>
       </div>
