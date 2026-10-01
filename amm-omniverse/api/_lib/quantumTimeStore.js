@@ -1,8 +1,8 @@
 import crypto from 'node:crypto'
+import {adminReady,adminRest} from './supabase-admin.js'
 
 const clean=(v,n=4000)=>String(v??'').trim().slice(0,n)
-const base=()=>String(process.env.SUPABASE_URL||process.env.VITE_SUPABASE_URL||'').trim().replace(/\/$/,'')
-const secret=()=>String(process.env.SUPABASE_SECRET_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY||'').trim()
+const sha256=value=>crypto.createHash('sha256').update(String(value||'')).digest('hex')
 
 function canonicalizeUrl(raw){
   const u=new URL(raw)
@@ -12,27 +12,7 @@ function canonicalizeUrl(raw){
   if((u.protocol==='https:'&&u.port==='443')||(u.protocol==='http:'&&u.port==='80'))u.port=''
   return u.toString()
 }
-const sha256=value=>crypto.createHash('sha256').update(String(value||'')).digest('hex')
-const configured=()=>Boolean(base()&&secret())
 
-async function rest(path,options={}){
-  if(!configured())throw new Error('quantum_time_store_not_configured')
-  const key=secret()
-  const r=await fetch(base()+'/rest/v1/'+path,{
-    ...options,
-    headers:{
-      apikey:key,
-      authorization:'Bearer '+key,
-      'content-type':'application/json',
-      accept:'application/json',
-      ...(options.headers||{})
-    }
-  })
-  const text=await r.text();let data
-  try{data=text?JSON.parse(text):null}catch{data=null}
-  if(!r.ok)throw new Error(data?.message||data?.error||'quantum_time_store_'+r.status)
-  return data
-}
 
 async function previousVersion(canonicalUrl,capturedAt){
   const q=new URLSearchParams({
@@ -42,12 +22,12 @@ async function previousVersion(canonicalUrl,capturedAt){
     order:'captured_at.desc',
     limit:'1'
   })
-  const rows=await rest('quantum_time_documents?'+q)
+  const rows=await adminRest('quantum_time_documents',{query:Object.fromEntries(q.entries())})
   return Array.isArray(rows)?rows[0]||null:null
 }
 
 export async function persistQuantumTimeDocument(input={}){
-  if(!configured())return {configured:false,saved:false}
+  if(!adminReady())return {configured:false,saved:false}
   const sourceUrl=clean(input.sourceUrl||input.url,1600)
   if(!/^https?:\/\//i.test(sourceUrl))return {configured:true,saved:false,error:'invalid_source_url'}
   const canonicalUrl=canonicalizeUrl(input.canonicalUrl||sourceUrl)
@@ -77,16 +57,16 @@ export async function persistQuantumTimeDocument(input={}){
     updated_at:new Date().toISOString()
   }
   const q=new URLSearchParams({on_conflict:'canonical_url,source_type,captured_at'})
-  const rows=await rest('quantum_time_documents?'+q,{
+  const rows=await adminRest('quantum_time_documents',{
     method:'POST',
-    headers:{Prefer:'resolution=merge-duplicates,return=representation'},
-    body:JSON.stringify(row)
+    query:Object.fromEntries(q.entries()),
+    body:row
   })
   return {configured:true,saved:true,row:Array.isArray(rows)?rows[0]||null:rows,previous}
 }
 
 export async function readQuantumTimeVersions(url,limit=20){
-  if(!configured())return {configured:false,rows:[]}
+  if(!adminReady())return {configured:false,rows:[]}
   const canonicalUrl=canonicalizeUrl(url)
   const q=new URLSearchParams({
     select:'id,canonical_url,source_url,source_type,captured_at,archive_timestamp,title,description,content_excerpt,content_hash,business_name,ad_signals,provenance,verification_status,supersedes',
@@ -94,13 +74,13 @@ export async function readQuantumTimeVersions(url,limit=20){
     order:'captured_at.desc',
     limit:String(Math.min(Math.max(Number(limit)||20,1),100))
   })
-  const rows=await rest('quantum_time_documents?'+q)
+  const rows=await adminRest('quantum_time_documents?'+q)
   return {configured:true,rows:Array.isArray(rows)?rows:[]}
 }
 
 
 export async function persistQuantumTimeDocuments(items=[]){
-  if(!configured())return {configured:false,saved:0}
+  if(!adminReady())return {configured:false,saved:0}
   const rows=[]
   for(const input of Array.isArray(items)?items.slice(0,50):[]){
     const sourceUrl=clean(input.sourceUrl||input.url,1600)
@@ -130,10 +110,10 @@ export async function persistQuantumTimeDocuments(items=[]){
   }
   if(!rows.length)return {configured:true,saved:0}
   const q=new URLSearchParams({on_conflict:'canonical_url,source_type,captured_at'})
-  const saved=await rest('quantum_time_documents?'+q,{
+  const saved=await adminRest('quantum_time_documents',{
     method:'POST',
-    headers:{Prefer:'resolution=merge-duplicates,return=minimal'},
-    body:JSON.stringify(rows)
+    query:Object.fromEntries(q.entries()),
+    body:rows
   })
   return {configured:true,saved:rows.length,result:saved}
 }
