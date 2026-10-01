@@ -2,7 +2,7 @@ import {json} from '../_lib/supabase-admin.js';
 import {requireUser} from '../_lib/security.js';
 import {listMeshyTasks,summarizeMeshyTask} from '../_lib/meshy.js';
 
-const TYPES=['image-to-3d','multi-image-to-3d'];
+const TYPES=['image-to-3d','multi-image-to-3d','text-to-3d'];
 
 export default async function handler(req,res){
   if(req.method!=='GET'){
