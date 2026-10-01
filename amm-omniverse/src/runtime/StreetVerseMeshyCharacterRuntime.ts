@@ -6,6 +6,7 @@ import {
   type StreetVerseMeshyCharacterSlot,
 } from '../data/streetVerseMeshyCharacterSlots'
 import {normalizeStreetVerseHumanHeight} from './StreetVerseHumanScale'
+import {resolvePublishedMeshyAsset,resetPublishedMeshyManifest} from './StreetVerseMeshyAssetManifest'
 
 const loader=new GLTFLoader()
 const availability=new Map<string,Promise<boolean>>()
@@ -31,7 +32,9 @@ export type StreetVerseMeshyLoadedCharacter=Readonly<{
 export async function loadStreetVerseMeshyCharacter(slotId:string):Promise<StreetVerseMeshyLoadedCharacter|null>{
   const slot=STREETVERSE_MESHY_CHARACTER_SLOTS.find(x=>x.id===slotId)
   if(!slot)return null
-  const sourceUrl=streetVerseMeshyCharacterUrl(slot)
+  const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
+  const published=await resolvePublishedMeshyAsset(slot.id,cityScope)
+  const sourceUrl=published?.url||streetVerseMeshyCharacterUrl(slot)
   if(!(await assetExists(sourceUrl)))return null
   try{
     const gltf=await loader.loadAsync(sourceUrl)
@@ -87,4 +90,5 @@ export async function loadAvailableStreetVerseMeshyCharacters(limit=8){
 
 export function resetStreetVerseMeshyAvailabilityCache(){
   availability.clear()
+  resetPublishedMeshyManifest()
 }
