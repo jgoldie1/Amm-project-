@@ -1,3 +1,4 @@
+import {onQuantumBeat,quantumBeatClock,type QuantumBeatEvent} from '../services/quantumBeat'
 import {soundEngine,type SoundKey} from '../game/audio/SoundEngine'
 
 type RescueKind=
@@ -14,9 +15,13 @@ let volume=.68
 let lastPosition={x:0,z:54,at:0}
 let lastFootstepAt=0
 let lastVehicleToneAt=0
-let ambientTimer:number|undefined
 let weather:'clear'|'rain'|'wind'='clear'
 let dayPhase:'day'|'night'='day'
+let moving=false
+let inVehicle=false
+let vehicleSpeed=0
+let emergencyActive=false
+let lastQuantumBpm=0
 
 const play=(key:SoundKey,caption?:string)=>{
   if(!enabled)return
@@ -54,17 +59,33 @@ const setFire=(burning:boolean)=>{
   fireLoop=window.setInterval(()=>play('fire_crackle'),520)
 }
 
-const startNaturalAmbience=()=>{
-  if(ambientTimer)return
-  ambientTimer=window.setInterval(()=>{
-    if(!enabled)return
-    const roll=Math.random()
-    if(weather==='rain'){play('rain');return}
-    if(weather==='wind'&&roll<.72){play('wind');return}
-    if(roll<.46)play('city_ambient')
-    else if(roll<.72)play('crowd_ambient')
-    else if(dayPhase==='day'&&roll<.82)play('footstep')
-  },1350)
+const setQuantumTempo=(bpm:number)=>{
+  const next=Math.max(60,Math.min(150,Math.round(bpm)))
+  if(next===lastQuantumBpm)return
+  lastQuantumBpm=next
+  quantumBeatClock.configure({mode:'game',bpm:next,beatsPerBar:4})
+}
+
+const onQuantumStreetBeat=(event:QuantumBeatEvent)=>{
+  if(!enabled||event.mode!=='game')return
+  const phase=event.phase
+  if(phase===0){
+    if(weather==='rain')play('rain')
+    else if(weather==='wind')play('wind')
+    else play('city_ambient')
+  }
+  if(phase===1){
+    if(inVehicle&&vehicleSpeed>1)play(vehicleSpeed>14?'engine_rev':'engine_idle')
+    else if(moving)play('footstep')
+  }
+  if(phase===2){
+    if(emergencyActive)play('radio_chirp')
+    else if(Math.random()<.58)play('crowd_ambient')
+  }
+  if(phase===3){
+    if(dayPhase==='day'&&Math.random()<.20)play('footstep')
+    else if(weather==='clear'&&Math.random()<.16)play('wind')
+  }
 }
 
 export function installStreetVerseSoundBankRuntime(){
@@ -96,7 +117,12 @@ export function installStreetVerseSoundBankRuntime(){
   }
   const onEmergency=(event:Event)=>{
     const kind=(event as CustomEvent<{kind?:EmergencyKind}>).detail?.kind
-    if(kind)emergencySound(kind)
+    if(kind){
+      emergencyActive=true
+      setQuantumTempo(138)
+      emergencySound(kind)
+      window.setTimeout(()=>{emergencyActive=false;setQuantumTempo(inVehicle&&vehicleSpeed>1?124:moving?108:84)},14000)
+    }
   }
   const onFire=(event:Event)=>setFire(Boolean((event as CustomEvent<{burning?:boolean}>).detail?.burning))
   const onRescueAction=(event:Event)=>{
@@ -134,20 +160,13 @@ export function installStreetVerseSoundBankRuntime(){
     const x=Number(d.x),z=Number(d.z),now=performance.now()
     if(!Number.isFinite(x)||!Number.isFinite(z))return
     const distance=Math.hypot(x-lastPosition.x,z-lastPosition.z)
-    const elapsed=Math.max(1,now-lastPosition.at)
-    const moving=distance>.05
-    if(moving&&!d.vehicle&&now-lastFootstepAt>310){
-      play('footstep')
-      lastFootstepAt=now
-    }
-    if(d.vehicle&&moving&&now-lastVehicleToneAt>420){
-      const speed=Math.abs(Number(d.speed||0))
-      play(speed>14?'engine_rev':'engine_idle')
-      if(speed>16&&Math.random()<.08)play('tire_screech')
-      lastVehicleToneAt=now
-    }
+    moving=distance>.05
+    inVehicle=Boolean(d.vehicle)
+    vehicleSpeed=Math.abs(Number(d.speed||0))
+    const targetBpm=emergencyActive?138:inVehicle&&vehicleSpeed>1?124:moving?108:84
+    setQuantumTempo(targetBpm)
+    if(inVehicle&&vehicleSpeed>16&&now-lastVehicleToneAt>1800&&Math.random()<.08){play('tire_screech');lastVehicleToneAt=now}
     lastPosition={x,z,at:now}
-    void elapsed
   }
   const onWeather=(event:Event)=>{
     const raw=String((event as CustomEvent<{weather?:string}>).detail?.weather||'clear').toLowerCase()
@@ -162,7 +181,10 @@ export function installStreetVerseSoundBankRuntime(){
   addEventListener('tryamm:streetverse-weather-state',onWeather)
   addEventListener('tryamm:world-weather',onWeather)
   addEventListener('tryamm:world-day-phase',onDayPhase)
-  startNaturalAmbience()
+  const removeQuantumBeat=onQuantumBeat(onQuantumStreetBeat)
+  quantumBeatClock.configure({mode:'game',bpm:84,beatsPerBar:4,latencyCompensationMs:0})
+  quantumBeatClock.start()
+  setQuantumTempo(84)
     addEventListener('tryamm:streetverse-sound-bank-settings',onSettings)
   addEventListener('tryamm:streetverse-sound-preview',onPreview)
   addEventListener('tryamm:streetverse-rescue-incident-start',onRescue)
@@ -180,6 +202,7 @@ export function installStreetVerseSoundBankRuntime(){
     enabled,volume,
     procedural:true,
     categories:['city','vehicle','accident','fire','police','sheriff','ambulance','firefighter','weather','crowd','rescue','21+-private-non-graphic'],
+    quantumBeat:{enabled:true,mode:'game',idleBpm:84,walkBpm:108,driveBpm:124,emergencyBpm:138,beatsPerBar:4},
     fictionalPublicSafetyAudio:true,
     realScannerAudio:false,
     realAgencyRadioTraffic:false,
@@ -187,8 +210,8 @@ export function installStreetVerseSoundBankRuntime(){
 
   return()=>{
     if(fireLoop)clearInterval(fireLoop)
-    if(ambientTimer)clearInterval(ambientTimer)
-    ambientTimer=undefined
+    removeQuantumBeat()
+    quantumBeatClock.stop()
     clearSirens()
     removeEventListener('tryamm:streetverse-player-position',onPlayerPosition)
     removeEventListener('tryamm:streetverse-weather-state',onWeather)
