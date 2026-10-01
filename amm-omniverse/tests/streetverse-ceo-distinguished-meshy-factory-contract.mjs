@@ -18,7 +18,7 @@ const migration=fs.readFileSync(new URL('../supabase/migrations/20261001123000_m
 for(const token of [
   'startMeshyFactoryJob','tickMeshyFactoryJob','createMeshyTask','createMeshyRiggingTask',
   "stage:'generating'","stage:'rigging'","stage:'publishing'","stage:'ready'",
-  'provider_generation_task_id','provider_rig_task_id','persistRemoteGlb',
+  'provider_generation_task_id','provider_rig_task_id','persistRemoteGlb','generation-submitting','rig-submitting',
   'asset_factory_founder_or_admin_required','approved_reference_image_url_required_for_bj'
 ])assert.ok(factory.includes(token),'factory missing '+token)
 
@@ -47,5 +47,10 @@ for(const token of ['START 4 NPC RIGS','START BJ V6','AUTO ADVANCE','GEN TASK:',
 for(const token of ['create table if not exists public.meshy_asset_jobs','enable row level security','grant select,insert,update,delete on table public.meshy_asset_jobs to service_role',"insert into storage.buckets"])
   assert.ok(migration.includes(token),'durable factory migration missing '+token)
 
+assert.ok(factory.indexOf("stage:'queued'")<factory.indexOf('createMeshyTask(spec.generationType,payload)'),'durable queued job must exist before paid Meshy generation call')
+assert.ok(factory.includes("claim(job.id,'generating'")&&factory.includes("stage:'rig-submitting'"),'rig submission must atomically claim generation completion')
+assert.ok(factory.includes("characters/\${scope}/\${version}/\${job.filename}"),'published GLBs must be immutable and namespaced by scope/job')
+assert.ok(factory.includes('retryable_infrastructure_error'),'transient provider/storage failures must remain retryable')
+assert.ok(factory.includes('Never reset to queued here')||factory.includes('Never reset to queued'),'accepted paid generation must never be silently resubmitted')
 assert.ok(!factory.includes('fake-task'),'factory must never fabricate provider task IDs')
 console.log('STREETVERSE CEO + DISTINGUISHED MESHY FACTORY CONTRACT PASS')
