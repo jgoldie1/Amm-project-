@@ -46,7 +46,7 @@ async function fetchJson(url,timeout=9000){
   const controller=new AbortController()
   const timer=setTimeout(()=>controller.abort(),timeout)
   try{
-    const r=await fetch(url,{headers:{accept:'application/json','user-agent':'TRYAMM-Quantum-Time/1.0'},signal:controller.signal,cache:'no-store'})
+    const r=await fetch(url,{headers:{accept:'application/json','user-agent':'TRYAMM-Quantum-Time/1.0 (+https://tryamm.online)'},signal:controller.signal,cache:'no-store'})
     if(!r.ok)throw new Error(`archive_provider_${r.status}`)
     return await r.json()
   }finally{clearTimeout(timer)}
@@ -98,27 +98,31 @@ export async function commonCrawlTimeline(rawUrl,{fromYear,toYear,limit=12}={}){
   const from=Number(fromYear)||0,to=Number(toYear)||9999
   const chosen=collections.filter(c=>{const y=collectionYear(c.id);return y>=from&&y<=to}).slice(0,4)
   const per=Math.max(1,Math.min(5,Math.ceil((Number(limit)||12)/Math.max(1,chosen.length))))
-  const batches=await Promise.all(chosen.map(async c=>{
-    const api=c['cdx-api']||c.cdxApi||`https://index.commoncrawl.org/${c.id}-index`
+  const batches=[]
+  for(const collection of chosen){
+    const api=collection['cdx-api']||collection.cdxApi||`https://index.commoncrawl.org/${collection.id}-index`
     const params=new URLSearchParams({url,output:'json',filter:'status:200',limit:String(per)})
     try{
       const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),6500)
-      const r=await fetch(`${api}?${params}`,{headers:{accept:'application/json','user-agent':'TRYAMM-Quantum-Time/1.0'},signal:controller.signal,cache:'no-store'})
+      const r=await fetch(`${api}?${params}`,{headers:{accept:'application/json','user-agent':'TRYAMM-Quantum-Time/1.0 (+https://tryamm.online)'},signal:controller.signal,cache:'no-store'})
       clearTimeout(timer)
-      if(!r.ok)return []
+      if(r.status===503){await new Promise(resolve=>setTimeout(resolve,750));continue}
+      if(!r.ok){await new Promise(resolve=>setTimeout(resolve,250));continue}
       const text=await r.text()
-      return text.split('\n').filter(Boolean).slice(0,per).map(line=>{
+      const rows=text.split('\n').filter(Boolean).slice(0,per).map(line=>{
         const row=JSON.parse(line),capturedAt=archiveTimestampToIso(row.timestamp)
         return {
           provider:'common-crawl',sourceType:'archive',sourceLabel:'COMMON CRAWL',
           timestamp:String(row.timestamp||''),capturedAt,original:String(row.url||url),
           status:Number(row.status||200),mime:String(row.mime||''),digest:String(row.digest||''),
           length:Number(row.length||0),archiveUrl:null,
-          provenance:{provider:'common-crawl',collection:c.id,digest:row.digest,filename:row.filename,offset:row.offset,length:row.length},
+          provenance:{provider:'common-crawl',collection:collection.id,digest:row.digest,filename:row.filename,offset:row.offset,length:row.length},
         }
       }).filter(x=>x.capturedAt)
-    }catch{return []}
-  }))
+      batches.push(rows)
+    }catch{}
+    await new Promise(resolve=>setTimeout(resolve,250))
+  }
   return batches.flat().sort((a,b)=>String(a.capturedAt).localeCompare(String(b.capturedAt))).slice(0,Math.min(Number(limit)||12,30))
 }
 
