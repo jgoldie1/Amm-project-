@@ -128,9 +128,8 @@ export default async function handler(req,res){
     archiveSnapshots(url,{from,to,limit}),
     commonCrawlSnapshots(url,{year,limit:8})
   ])
-  const snapshots=dedupe([...archive,...commonCrawl])
-  const summary=temporalSummary(snapshots)
-  const persistence=await persistQuantumTimeDocuments(snapshots.map(x=>({
+  const externalSnapshots=dedupe([...archive,...commonCrawl])
+  const persistence=await persistQuantumTimeDocuments(externalSnapshots.map(x=>({
     sourceUrl:x.sourceUrl,
     sourceType:x.provider,
     capturedAt:x.capturedAt,
@@ -139,7 +138,24 @@ export default async function handler(req,res){
     provenance:x.provenance,
     verificationStatus:'source-capture'
   }))).catch(error=>({configured:true,saved:0,error:clean(error?.message,300)}))
-  const durable=await readQuantumTimeVersions(url,30).catch(()=>({configured:false,rows:[]}))
+  const durable=await readQuantumTimeVersions(url,50).catch(()=>({configured:false,rows:[]}))
+  const durableSnapshots=(Array.isArray(durable?.rows)?durable.rows:[]).map(row=>({
+    provider:row.source_type,
+    sourceLabel:'DURABLE TIME INDEX',
+    sourceUrl:row.source_url,
+    capturedAt:row.captured_at,
+    archiveTimestamp:row.archive_timestamp||null,
+    archiveUrl:row.source_type==='internet-archive'&&row.archive_timestamp?'https://web.archive.org/web/'+row.archive_timestamp+'/'+row.source_url:null,
+    status:200,
+    digest:row?.provenance?.providerDigest||row.content_hash||null,
+    mime:null,
+    title:row.title||null,
+    description:row.description||null,
+    marketingSignals:Array.isArray(row.ad_signals)?row.ad_signals:[],
+    provenance:{...(row.provenance||{}),durableId:row.id,contentHash:row.content_hash,verificationStatus:row.verification_status}
+  }))
+  const snapshots=dedupe([...externalSnapshots,...durableSnapshots])
+  const summary=temporalSummary(snapshots)
   return res.status(200).json({
     ok:true,
     mode:'historical-internet',
@@ -149,6 +165,7 @@ export default async function handler(req,res){
     snapshots:snapshots.slice(0,50),
     persistence,
     durableVersions:Array.isArray(durable?.rows)?durable.rows:[],
+    externalProvidersAvailable:{internetArchive:archive.length>0,commonCrawl:commonCrawl.length>0},
     evidencePolicy:{
       archiveCaptureIsEvidenceOfCapture:true,
       absenceIsNotProofOfNonexistence:true,
