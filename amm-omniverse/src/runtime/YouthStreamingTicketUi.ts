@@ -1,0 +1,1 @@
+export const YOUTH_TICKET_UI={label:'Youth Streaming',guardianStatusVisible:true,safetyAdminBadgeVisible:true,privateAdultDmDisabledNotice:true,reportButtonAlwaysVisible:true,blockButtonAlwaysVisible:true,leaveLiveAlwaysVisible:true} as const
