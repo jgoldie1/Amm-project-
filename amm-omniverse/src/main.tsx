@@ -41,6 +41,7 @@ const EthiopianBibleMetaverse=lazy(()=>import('./components/EthiopianBibleMetave
 const KingdomsPressOperations=lazy(()=>import('./components/KingdomsPressOperations'))
 const UnifiedCommerceHub=lazy(()=>import('./components/UnifiedCommerceHub'))
 const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
+const TryammProductDirectory=lazy(()=>import('./components/TryammProductDirectory'))
 
 let routeContent: React.ReactNode = <App />
 let preserveDeterministicSafeRoute = false
@@ -52,6 +53,7 @@ try {
   const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
   const reelMatch=currentPath.match(/^\/reels\/([^/]+)\/?$/)
   const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
+  const isProductDirectory=['/features','/features/','/product-map','/product-map/'].includes(currentPath)
   const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
   const isLive=currentPath==='/live'||currentPath==='/live/'
   const isGuardian=currentPath==='/guardian'||currentPath==='/guardian/'
@@ -110,6 +112,7 @@ try {
   </>
   
   if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
+  else if(isProductDirectory)routeContent=<Suspense fallback={routeFallback}><TryammProductDirectory /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
   else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter onClose={()=>{window.location.href='/'}} /></Suspense>
