@@ -1,5 +1,18 @@
 const API='https://api.meshy.ai/openapi/v1';
 
+function validImageInput(value){
+  const raw=String(value||'').trim();
+  if(!raw)return '';
+  if(/^https:\/\//i.test(raw))return raw.slice(0,12000);
+  if(/^data:image\/(png|jpe?g);base64,/i.test(raw)&&raw.length<=8_000_000)return raw;
+  return '';
+}
+
+function normalizeModel(value){
+  const model=String(value||'').trim();
+  return ['latest','meshy-7.1','meshy-6','meshy-6-lite'].includes(model)?model:'meshy-7.1';
+}
+
 export function meshyKey(){
   return String(process.env.MESHY_API_KEY||'').trim();
 }
@@ -79,14 +92,22 @@ export async function createMeshyTask(type,payload){
   }
   const body={...payload};
   if(type==='image-to-3d'){
-    const imageUrl=String(body.image_url||'').trim();
-    if(!imageUrl)throw Object.assign(new Error('image_url is required'),{status:400,code:'meshy_image_required'});
+    const imageUrl=validImageInput(body.image_url);
+    if(!imageUrl)throw Object.assign(new Error('image_url must be an HTTPS URL or PNG/JPEG data URI'),{status:400,code:'meshy_image_required'});
     body.image_url=imageUrl;
+    body.geometry_resolution=['standard','2k','4k'].includes(String(body.geometry_resolution||''))?String(body.geometry_resolution):'4k';
+    body.pose_mode=['a-pose','t-pose'].includes(String(body.pose_mode||''))?String(body.pose_mode):'a-pose';
+    body.should_remesh=body.should_remesh!==false;
+    body.target_polycount=Math.max(10_000,Math.min(100_000,Number(body.target_polycount)||60_000));
   }
   if(type==='multi-image-to-3d'){
-    const urls=Array.isArray(body.image_urls)?body.image_urls.map(v=>String(v||'').trim()).filter(Boolean):[];
-    if(urls.length<2||urls.length>4)throw Object.assign(new Error('image_urls must contain 2 to 4 images'),{status:400,code:'meshy_multi_image_count'});
+    const urls=Array.isArray(body.image_urls)?body.image_urls.map(validImageInput).filter(Boolean):[];
+    if(urls.length<2||urls.length>4)throw Object.assign(new Error('image_urls must contain 2 to 4 valid HTTPS URLs or PNG/JPEG data URIs'),{status:400,code:'meshy_multi_image_count'});
     body.image_urls=urls;
+    body.geometry_resolution=['standard','2k'].includes(String(body.geometry_resolution||''))?String(body.geometry_resolution):'2k';
+    delete body.pose_mode;
+    delete body.should_remesh;
+    delete body.target_polycount;
   }
   if(type==='text-to-3d'){
     const prompt=String(body.prompt||'').trim();
@@ -96,7 +117,7 @@ export async function createMeshyTask(type,payload){
   body.target_formats=['glb'];
   body.should_texture=body.should_texture!==false;
   body.enable_pbr=body.enable_pbr!==false;
-  if(!body.ai_model)body.ai_model='meshy-7.1';
+  body.ai_model=normalizeModel(body.ai_model);
   const {data}=await request(endpoint,{method:'POST',body});
   const id=String(data?.result||data?.id||'');
   if(!id)throw Object.assign(new Error('Meshy did not return a task id'),{status:502,code:'meshy_missing_task_id',provider:data});
