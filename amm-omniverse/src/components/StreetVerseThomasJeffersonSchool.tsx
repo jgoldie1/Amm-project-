@@ -173,6 +173,7 @@ export default function StreetVerseThomasJeffersonSchool(){
       unsub();removeEventListener('tryamm:streetverse-player-position',onPosition);removeEventListener('tryamm:streetverse-action',onAction)
       if(group&&scene)scene.remove(group)
       if(collisionOwner)for(const box of installedBoxes){const i=collisionOwner.indexOf(box);if(i>=0)collisionOwner.splice(i,1)}
+      if(privacyRoomRef.current){privacyRoomRef.current=false;window.dispatchEvent(new CustomEvent('tryamm:school-privacy-zone',{detail:{campusId:CAMPUS.id,roomId:null,active:false,cameraCapture:true,reelCapture:true,privacySafe:true}}))}
     }
   },[])
 
