@@ -91,5 +91,33 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
       path:testInfo.outputPath('streetverse-compact-quick-menu.png'),
       fullPage:true,
     });
+
+    await quickMenu.click();
+    const socialShortcut=page.getByRole('button',{name:'Open StreetVerse social panel'});
+    const peopleShortcut=page.getByRole('button',{name:'Open StreetVerse people search'});
+    const ticketShortcut=page.getByRole('button',{name:'Open StreetVerse stream tickets'});
+    await expect(socialShortcut).toBeVisible();
+    await expect(peopleShortcut).toBeVisible();
+    await expect(ticketShortcut).toBeVisible();
+
+    await socialShortcut.click();
+    const socialPanel=page.getByRole('region',{name:'StreetVerse social panel'});
+    await expect(socialPanel).toBeVisible();
+    const socialBox=await socialPanel.boundingBox();
+    expect(socialBox?.width||0).toBeLessThanOrEqual(374);
+    expect(socialBox?.height||0).toBeLessThanOrEqual(390);
+    expect((socialBox?.y||0)+(socialBox?.height||0)).toBeLessThanOrEqual(844);
+    await page.screenshot({path:testInfo.outputPath('streetverse-social-panel-iphone.png'),fullPage:true});
+    await page.getByRole('button',{name:'Close StreetVerse panel'}).click();
+
+    await peopleShortcut.click();
+    await expect(page.getByRole('region',{name:'StreetVerse people search panel'})).toBeVisible();
+    await expect(page.getByRole('textbox',{name:'Search StreetVerse users and groups'})).toBeVisible();
+    await page.getByRole('button',{name:'Close StreetVerse panel'}).click();
+
+    await ticketShortcut.click();
+    await expect(page.getByRole('region',{name:'StreetVerse stream ticket center'})).toBeVisible();
+    await expect(page.getByText('No authoritative ticket records loaded. The panel will not invent approvals or access.')).toBeVisible();
+    await page.screenshot({path:testInfo.outputPath('streetverse-ticket-panel-iphone.png'),fullPage:true});
   });
 });
