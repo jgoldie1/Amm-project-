@@ -13,6 +13,7 @@ const must=(ok,msg)=>{if(!ok)throw new Error('QUANTUM TIME HISTORICAL INTERNET C
 must(hologpt.includes("'historical'")&&hologpt.includes("HISTORY"),'HoloGPT must expose HISTORY source mode')
 must(hologpt.includes('/api/time-machine/internet'),'HoloGPT HISTORY must call the Time Machine Internet API')
 must(hologpt.includes('THEN')&&hologpt.includes('NOW / COMPARE'),'HoloGPT must expose THEN ↔ NOW comparison controls')
+must(hologpt.includes('OPEN ARCHIVE'),'HISTORY mode must expose direct archive evidence links')
 must(hologpt.includes('No verified historical snapshot found'),'missing archive evidence must remain explicit')
 
 must(helper.includes('web.archive.org/cdx/search/cdx'),'historical engine must use Internet Archive CDX')
