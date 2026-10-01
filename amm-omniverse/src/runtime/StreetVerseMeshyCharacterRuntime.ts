@@ -23,11 +23,15 @@ async function assetExists(url:string){
   return availability.get(url)!
 }
 
-export type StreetVerseMeshyLoadedCharacter=Readonly<{
+export type StreetVerseMeshyLoadedCharacter={
   slot:StreetVerseMeshyCharacterSlot
   object:THREE.Object3D
   sourceUrl:string
-}>
+  mixer:THREE.AnimationMixer|null
+  clips:THREE.AnimationClip[]
+  tick:(nowMs:number,state:{moving:boolean;running?:boolean})=>void
+  dispose:()=>void
+}
 
 export async function loadStreetVerseMeshyCharacter(slotId:string):Promise<StreetVerseMeshyLoadedCharacter|null>{
   const slot=STREETVERSE_MESHY_CHARACTER_SLOTS.find(x=>x.id===slotId)
@@ -58,6 +62,45 @@ export async function loadStreetVerseMeshyCharacter(slotId:string):Promise<Stree
         node.frustumCulled=true
       }
     })
+    const companionClips:THREE.AnimationClip[]=[]
+    for(const [url,name] of [[published?.walkUrl,'walk'],[published?.runUrl,'run']] as const){
+      if(!url)continue
+      try{
+        const companion=await loader.loadAsync(url)
+        for(const clip of companion.animations||[]){const cloned=clip.clone();cloned.name=name;companionClips.push(cloned)}
+      }catch{}
+    }
+    const clips=[...(gltf.animations||[]),...companionClips]
+    const mixer=clips.length?new THREE.AnimationMixer(object):null
+    const find=(patterns:RegExp[])=>clips.find(clip=>patterns.some(pattern=>pattern.test(clip.name)))
+    const animationMap={
+      idle:find([/idle/i,/stand/i,/breath/i]),
+      walk:find([/walk/i,/locomotion/i]),
+      run:find([/run/i,/jog/i,/sprint/i]),
+    }
+    let active='';let activeAction:THREE.AnimationAction|null=null;let previousNow=performance.now()
+    const tick=(nowMs:number,state:{moving:boolean;running?:boolean})=>{
+      const motion=state.running?'run':state.moving?'walk':'idle'
+      if(mixer&&active!==motion){
+        const clip=animationMap[motion]||animationMap.walk||animationMap.idle||clips[0]
+        if(clip){
+          const next=mixer.clipAction(clip);next.enabled=true;next.reset().play()
+          if(activeAction&&activeAction!==next)activeAction.crossFadeTo(next,.16,false)
+          activeAction=next;active=motion
+        }
+      }
+      const dt=THREE.MathUtils.clamp((nowMs-previousNow)/1000,0,.05);previousNow=nowMs;mixer?.update(dt)
+    }
+    const dispose=()=>{
+      mixer?.stopAllAction()
+      object.traverse(node=>{
+        if(!(node instanceof THREE.Mesh))return
+        node.geometry?.dispose()
+        const mats=Array.isArray(node.material)?node.material:[node.material]
+        mats.forEach(material=>material?.dispose())
+      })
+      object.removeFromParent()
+    }
     window.dispatchEvent(new CustomEvent('tryamm:meshy-character-ready',{detail:{
       slotId:slot.id,
       filename:slot.filename,
@@ -65,8 +108,10 @@ export async function loadStreetVerseMeshyCharacter(slotId:string):Promise<Stree
       adultLaneEligible:slot.adultLaneEligible,
       targetHeightMeters:slot.targetHeightMeters,
       sourceUrl,
+      clipNames:clips.map(clip=>clip.name),
+      animated:Boolean(mixer),
     }}))
-    return {slot,object,sourceUrl}
+    return {slot,object,sourceUrl,mixer,clips,tick,dispose}
   }catch(error){
     window.dispatchEvent(new CustomEvent('tryamm:meshy-character-fallback',{detail:{
       slotId:slot.id,

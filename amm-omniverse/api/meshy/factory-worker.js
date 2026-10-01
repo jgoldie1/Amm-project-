@@ -14,7 +14,7 @@ export default async function handler(req,res){
   }
   if(!authorized(req))return json(res,401,{error:'worker_authorization_required'});
   try{
-    const jobs=await adminRest('meshy_asset_jobs',{query:{stage:'in.(generating,rigging,publishing)',order:'updated_at.asc',limit:6}})||[];
+    const jobs=await adminRest('meshy_asset_jobs',{query:{stage:'in.(queued,generating,rigging,publishing)',order:'updated_at.asc',limit:6}})||[];
     const results=[];
     for(const job of jobs){
       const next=await tickMeshyFactoryJobInternal(job.id);
