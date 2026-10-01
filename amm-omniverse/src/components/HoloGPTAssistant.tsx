@@ -98,8 +98,12 @@ async function historicalSearch(question:string){
     snapshot=await fetch('/api/quantum/snapshot',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({url:chosen.sourceUrl,timestamp:chosen.archiveTimestamp}),cache:'no-store'}).then(readJson).catch(()=>null)
   }
   const captures=(Array.isArray(history.snapshots)?history.snapshots:[]).slice(0,12).map((x:any)=>({
-    title:`Archived capture ${String(x.capturedAt||x.archiveTimestamp||'').slice(0,10)}`,
-    summary:`${x.provider||'archive'} capture${x.digest?` • digest ${x.digest}`:''}`,
+    title:x.title||`Archived capture ${String(x.capturedAt||x.archiveTimestamp||'').slice(0,10)}`,
+    summary:[
+      x.description,
+      ...(Array.isArray(x.marketingSignals)?x.marketingSignals.slice(0,4).map((s:any)=>`PROMO SIGNAL [${s.term}]: ${s.snippet}`):[]),
+      `${x.provider||'archive'} capture${x.digest?` • digest ${x.digest}`:''}`
+    ].filter(Boolean).join(' • ').slice(0,1800),
     sourceName:x.sourceLabel||x.provider||'ARCHIVED',
     sourceUrl:x.archiveUrl||x.sourceUrl||null,
     verification:'dated-capture',
@@ -141,7 +145,7 @@ function compactRetrieval(items:RetrievalItem[],limit=8){
   return items.slice(0,limit).map((item,i)=>({
     n:i+1,
     title:String(item.title||item.headline||'Untitled').slice(0,180),
-    summary:String(item.summary||'').slice(0,500),
+    summary:String(item.summary||'').slice(0,1200),
     source:String(item.sourceName||item.kind||'Holo Internet').slice(0,120),
     url:item.sourceUrl||null,
     verification:item.verification||null,
