@@ -19,6 +19,8 @@ must(history.includes('readQuantumTimeVersions'),'history lookup must merge dura
 
 must(snapshot.includes("redirect:'manual'"),'archived snapshot inspection must not follow arbitrary redirects')
 must(snapshot.includes("replace(/<script"),'archived scripts must be stripped rather than executed')
+must(snapshot.includes("next.hostname!=='web.archive.org'"),'snapshot inspector may follow only same-host Wayback redirects')
+must(snapshot.includes("textSample:clean(text,2500)"),'durable historical excerpts must stay minimized while ad signals remain structured')
 must(snapshot.includes('marketingSignals'),'historical snapshot must extract limited promotional/ad signals')
 must(snapshot.includes('persistQuantumTimeDocument'),'inspected snapshot must persist provenance and ad signals')
 
