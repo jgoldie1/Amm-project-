@@ -11,7 +11,7 @@ create table if not exists public.meshy_asset_jobs (
   prompt text,
   source_image_url text,
   stage text not null default 'queued'
-    check (stage in ('queued','generating','rigging','publishing','ready','failed','cancelled')),
+    check (stage in ('queued','generation-submitting','generating','rig-submitting','rigging','publishing','ready','failed','cancelled')),
   progress integer not null default 0 check (progress between 0 and 100),
   provider_generation_task_id text,
   provider_rig_task_id text,
@@ -38,6 +38,12 @@ create index if not exists meshy_asset_jobs_asset_stage_idx
   on public.meshy_asset_jobs(asset_id,stage,created_at desc);
 create index if not exists meshy_asset_jobs_scope_ready_idx
   on public.meshy_asset_jobs(city_scope,stage,updated_at desc);
+create unique index if not exists meshy_asset_jobs_generation_task_uidx
+  on public.meshy_asset_jobs(provider_generation_task_id)
+  where provider_generation_task_id is not null;
+create unique index if not exists meshy_asset_jobs_rig_task_uidx
+  on public.meshy_asset_jobs(provider_rig_task_id)
+  where provider_rig_task_id is not null;
 
 alter table public.meshy_asset_jobs enable row level security;
 revoke all on table public.meshy_asset_jobs from public, anon, authenticated;
