@@ -7,6 +7,8 @@ export const CHICAGO_NEAR_WEST_ROAD_NODES:readonly RoadNode[]=[
  {id:'roosevelt-halsted',label:'Roosevelt & Halsted',position:{x:-650,y:0,z:900}},
  {id:'taylor-halsted',label:'Taylor & Halsted',position:{x:-650,y:0,z:700}},
  {id:'harrison-halsted',label:'Harrison & Halsted',position:{x:-760,y:0,z:420}},
+ {id:'fillmore-jefferson',label:'Fillmore / Thomas Jefferson legacy campus',position:{x:-820,y:0,z:575}},
+ {id:'circle-park-ashland',label:'Circle Park / Ashland',position:{x:-850,y:0,z:835}},
  {id:'taylor-uic-west',label:'Taylor / UIC West connector',position:{x:0,y:0,z:900}},
  {id:'polk-uic-med',label:'Polk / UIC Medical connector',position:{x:160,y:0,z:940}},
  {id:'ogden-stroger',label:'Ogden / Stroger connector',position:{x:430,y:0,z:1120}},
@@ -16,6 +18,9 @@ export const CHICAGO_NEAR_WEST_ROADS:readonly RoadSegment[]=[
  {id:'taylor-east-west-01',from:'taylor-halsted',to:'taylor-uic-west',street:'Taylor Street',lanes:2,sidewalks:true,driveable:true,walkable:true},
  {id:'halsted-south-01',from:'harrison-halsted',to:'taylor-halsted',street:'Halsted Street',lanes:4,sidewalks:true,driveable:true,walkable:true},
  {id:'halsted-south-02',from:'taylor-halsted',to:'roosevelt-halsted',street:'Halsted Street',lanes:4,sidewalks:true,driveable:true,walkable:true},
+ {id:'fillmore-west-01',from:'fillmore-jefferson',to:'taylor-halsted',street:'Fillmore / Near West connector',lanes:2,sidewalks:true,driveable:true,walkable:true},
+ {id:'circle-park-west-01',from:'circle-park-ashland',to:'roosevelt-halsted',street:'Circle Park / Roosevelt connector',lanes:2,sidewalks:true,driveable:true,walkable:true},
+ {id:'circle-park-fillmore-01',from:'fillmore-jefferson',to:'circle-park-ashland',street:'West Side neighborhood connector',lanes:2,sidewalks:true,driveable:true,walkable:true},
  {id:'medical-link-01',from:'taylor-uic-west',to:'polk-uic-med',street:'UIC Medical Connector',lanes:2,sidewalks:true,driveable:true,walkable:true},
  {id:'medical-link-02',from:'polk-uic-med',to:'ogden-stroger',street:'Medical District Connector',lanes:2,sidewalks:true,driveable:true,walkable:true},
 ]
