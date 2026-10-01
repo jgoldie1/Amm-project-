@@ -3,7 +3,7 @@ import { getSupabaseClient, isSupabaseConfigured } from '../../services/supabase
 
 export type AuthProvider = 'google' | 'apple' | 'email' | 'phone' | 'mock'
 export interface AuthUser { id:string; name:string; email:string; phone:string; avatar_url:string|null; provider:AuthProvider }
-const redirect=()=>`${window.location.origin}/`
+const redirect=()=>`${window.location.origin}/auth/callback`
 const normalizePhone=(v:string)=>v.replace(/[\s().-]/g,'')
 
 async function signInWithProvider(provider:'google'|'apple') {
