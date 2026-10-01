@@ -97,3 +97,43 @@ export async function readQuantumTimeVersions(url,limit=20){
   const rows=await rest('quantum_time_documents?'+q)
   return {configured:true,rows:Array.isArray(rows)?rows:[]}
 }
+
+
+export async function persistQuantumTimeDocuments(items=[]){
+  if(!configured())return {configured:false,saved:0}
+  const rows=[]
+  for(const input of Array.isArray(items)?items.slice(0,50):[]){
+    const sourceUrl=clean(input.sourceUrl||input.url,1600)
+    if(!/^https?:\/\//i.test(sourceUrl)||!input.capturedAt)continue
+    let canonicalUrl
+    try{canonicalUrl=canonicalizeUrl(input.canonicalUrl||sourceUrl)}catch{continue}
+    const sourceType=clean(input.sourceType||input.provider||'manual',40)
+    if(!['internet-archive','common-crawl','current','tryamm','manual'].includes(sourceType))continue
+    const excerpt=clean(input.contentExcerpt||input.textSample,8000)
+    const digest=clean(input.digest,500)
+    rows.push({
+      canonical_url:canonicalUrl,
+      source_url:sourceUrl,
+      source_type:sourceType,
+      captured_at:clean(input.capturedAt,80),
+      archive_timestamp:clean(input.archiveTimestamp,30)||null,
+      title:clean(input.title,500)||null,
+      description:clean(input.description,1200)||null,
+      content_excerpt:excerpt,
+      content_hash:sha256([canonicalUrl,sourceType,input.capturedAt,digest,excerpt].join('|')),
+      business_name:clean(input.businessName,300)||(()=>{try{return new URL(canonicalUrl).hostname}catch{return''}})()||null,
+      ad_signals:Array.isArray(input.adSignals)?input.adSignals.slice(0,24):[],
+      provenance:{...(input.provenance&&typeof input.provenance==='object'?input.provenance:{}),providerDigest:digest||null},
+      verification_status:clean(input.verificationStatus||'source-capture',80),
+      updated_at:new Date().toISOString()
+    })
+  }
+  if(!rows.length)return {configured:true,saved:0}
+  const q=new URLSearchParams({on_conflict:'canonical_url,source_type,captured_at'})
+  const saved=await rest('quantum_time_documents?'+q,{
+    method:'POST',
+    headers:{Prefer:'resolution=merge-duplicates,return=minimal'},
+    body:JSON.stringify(rows)
+  })
+  return {configured:true,saved:rows.length,result:saved}
+}
