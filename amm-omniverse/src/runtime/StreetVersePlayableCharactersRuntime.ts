@@ -1,3 +1,4 @@
+import {STREETVERSE_FAMILY_CHARACTER_PRODUCTION} from '../data/StreetVerseFamilyCharacterProduction'
 const KEY='tryamm.streetverse.playable-character.v1'
 let installed=false
 
@@ -69,8 +70,23 @@ const SOCIAL_CREATOR_CAST:StreetVersePlayableCharacter[]=Array.from({length:10},
   missionLane:'Reels Creator',
   presentation:'pending',
 }))
+
+const NAMED_CAST_IDS=new Set(NAMED_CAST.map(character=>character.id))
+const FAMILY_FRIEND_CAST:StreetVersePlayableCharacter[]=STREETVERSE_FAMILY_CHARACTER_PRODUCTION
+  .filter(character=>!NAMED_CAST_IDS.has(character.characterId))
+  .map((character,index)=>({
+    id:character.characterId,
+    label:character.displayName.toUpperCase(),
+    index:300+index,
+    role:[character.relationship,...character.roles].join(' • '),
+    missionLane:character.roles.some(role=>/creator|studio|tv/i.test(role))?'Reels Creator':'Chicago Explorer',
+    presentation:'pending',
+    assetId:character.visualSlot,
+    visualStatus:character.standInUntilAuthorizedReference?'fallback':'published-rig',
+  }))
 const ROSTER:StreetVersePlayableCharacter[]=[
   ...NAMED_CAST,
+  ...FAMILY_FRIEND_CAST,
   ...SOCIAL_CREATOR_CAST,
   ...RESIDENT_ROLES.map(([role,missionLane],i)=>({id:`resident-${i+1}`,label:`RESIDENT ${String(i+1).padStart(2,'0')}`,index:200+i,role,missionLane}))
 ]
