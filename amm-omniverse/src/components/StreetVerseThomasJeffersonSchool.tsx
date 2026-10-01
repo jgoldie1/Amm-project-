@@ -131,12 +131,14 @@ export default function StreetVerseThomasJeffersonSchool(){
   const room=useMemo(()=>ROOMS.find(r=>r.id===roomId)||null,[roomId])
   const nearRef=useRef(false)
   const roomRef=useRef<Room|null>(null)
+  const privacyRoomRef=useRef(false)
 
   useEffect(()=>{
     let scene:THREE.Scene|null=null,group:THREE.Group|null=null,collisionOwner:THREE.Box3[]|null=null,installedBoxes:THREE.Box3[]=[]
     const unsub=subscribeStreetVerseScene(handle=>{
       if(group&&scene)scene.remove(group)
       if(collisionOwner)for(const box of installedBoxes){const i=collisionOwner.indexOf(box);if(i>=0)collisionOwner.splice(i,1)}
+      if(privacyRoomRef.current){privacyRoomRef.current=false;window.dispatchEvent(new CustomEvent('tryamm:school-privacy-zone',{detail:{campusId:CAMPUS.id,roomId:null,active:false,cameraCapture:true,reelCapture:true,privacySafe:true}}))}
       scene=handle?.scene||null;group=null;installedBoxes=[];collisionOwner=handle?.collisionBoxes||null
       if(!handle)return
       const built=buildSchool();group=built.group;installedBoxes=built.collisionBoxes;handle.scene.add(group);handle.collisionBoxes.push(...installedBoxes)
@@ -147,6 +149,8 @@ export default function StreetVerseThomasJeffersonSchool(){
       const d=(event as CustomEvent<{x?:number;z?:number}>).detail||{};const x=Number(d.x),z=Number(d.z);if(!Number.isFinite(x)||!Number.isFinite(z))return
       const isNear=Math.hypot(x+46,z-54)<=14;nearRef.current=isNear;setNear(isNear)
       const active=ROOMS.find(r=>contains(r,x,z))||null;roomRef.current=active
+      const privacyActive=active?.id==='locker-shower'
+      if(privacyActive!==privacyRoomRef.current){privacyRoomRef.current=privacyActive;window.dispatchEvent(new CustomEvent('tryamm:school-privacy-zone',{detail:{campusId:CAMPUS.id,roomId:privacyActive?'locker-shower':null,active:privacyActive,cameraCapture:!privacyActive,reelCapture:!privacyActive,privacySafe:true}}))}
       setRoomId(prev=>{
         if(prev===active?.id)return prev
         if(active)window.dispatchEvent(new CustomEvent('tryamm:school-room-enter',{detail:{campusId:CAMPUS.id,roomId:active.id,label:active.label,subject:active.subject}}))
