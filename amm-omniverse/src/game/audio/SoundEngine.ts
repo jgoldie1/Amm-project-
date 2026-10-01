@@ -29,6 +29,12 @@ export type SoundKey =
   | 'face_scan_beep' | 'avatar_select' | 'avatar_confirm'
   // Ambient
   | 'city_ambient' | 'crowd_ambient' | 'rain' | 'wind'
+  // StreetVerse Rescue / Public Safety / Accident bank
+  | 'fire_crackle' | 'fire_alarm' | 'police_siren' | 'sheriff_siren' | 'ambulance_siren' | 'firetruck_siren'
+  | 'radio_chirp' | 'dispatch_tone' | 'glass_break' | 'metal_crunch' | 'debris_fall' | 'water_hose'
+  | 'crowd_gasp' | 'distant_shot' | 'gate_buzzer' | 'gate_open' | 'rescue_success'
+  // 21+ private, non-graphic ambience only
+  | 'adult_room_ambience' | 'soft_breathing' | 'heartbeat_close'
 
 class SoundEngine {
   private ctx: AudioContext | null = null
@@ -219,6 +225,28 @@ class SoundEngine {
     face_scan_beep: () => { this.tone(1200, 0.05, 'sine', 0.2); setTimeout(() => this.tone(1600, 0.05, 'sine', 0.15), 200) },
     avatar_select:  () => { this.sweep(400, 800, 0.15, 'sine', 0.2) },
     avatar_confirm: () => { this.chord([523,659,784,1047], 0.5, 'sine', 0.25) },
+
+    // StreetVerse Rescue / Public Safety / Accident bank
+    fire_crackle:   () => { this.noise(0.22, 0.10, 900); this.tone(86, 0.08, 'triangle', 0.05) },
+    fire_alarm:     () => { this.sequence([[880,0.18,0],[880,0.18,260],[880,0.18,520]], 'square') },
+    police_siren:   () => { this.sweep(720,1120,.32,'sine',.22); setTimeout(()=>this.sweep(1120,720,.32,'sine',.22),340) },
+    sheriff_siren:  () => { this.sweep(650,980,.38,'triangle',.20); setTimeout(()=>this.sweep(980,650,.38,'triangle',.20),400) },
+    ambulance_siren:() => { this.sweep(540,920,.34,'square',.18); setTimeout(()=>this.sweep(920,540,.34,'square',.18),360) },
+    firetruck_siren:() => { this.sweep(420,760,.42,'sawtooth',.20); setTimeout(()=>this.sweep(760,420,.42,'sawtooth',.20),440) },
+    radio_chirp:    () => { this.noise(.06,.05,2400); this.sequence([[1150,.035,0],[820,.04,45]],'square') },
+    dispatch_tone:  () => { this.sequence([[620,.08,0],[820,.08,90],[620,.08,180]],'sine') },
+    glass_break:    () => { this.noise(.24,.22,3200); this.sequence([[2100,.04,0],[1600,.035,45],[1200,.03,90]],'triangle') },
+    metal_crunch:   () => { this.noise(.38,.28,650); this.sweep(170,55,.34,'sawtooth',.24) },
+    debris_fall:    () => { this.noise(.30,.22,520); setTimeout(()=>this.noise(.16,.14,900),120) },
+    water_hose:     () => { this.noise(.55,.10,1800); this.tone(110,.45,'sine',.025) },
+    crowd_gasp:     () => { this.noise(.28,.09,650); this.chord([180,210,250],.18,'triangle',.08) },
+    distant_shot:   () => { this.noise(.07,.34,1500); this.tone(82,.16,'sine',.13); setTimeout(()=>this.noise(.12,.08,500),80) },
+    gate_buzzer:    () => { this.tone(180,.16,'square',.18); setTimeout(()=>this.tone(180,.16,'square',.14),210) },
+    gate_open:      () => { this.sweep(260,105,.42,'sawtooth',.10); this.noise(.24,.06,700) },
+    rescue_success: () => { this.sequence([[523,.09,0],[659,.09,90],[784,.16,180]],'sine') },
+    adult_room_ambience: () => { this.noise(.45,.018,260); this.tone(64,.4,'sine',.012) },
+    soft_breathing: () => { this.noise(.34,.018,420); setTimeout(()=>this.noise(.24,.012,360),380) },
+    heartbeat_close:() => { this.tone(58,.08,'sine',.10); setTimeout(()=>this.tone(52,.07,'sine',.075),120) },
 
     // Ambient (looping)
     city_ambient:  () => { this.noise(0.5, 0.04, 200) },
