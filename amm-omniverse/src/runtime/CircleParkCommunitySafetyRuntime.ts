@@ -61,7 +61,7 @@ export function installCircleParkCommunitySafetyRuntime(){
       source:detail.source||'circle-park',
     }
     window.dispatchEvent(new CustomEvent('tryamm:circle-park-safety-response',{detail:response}))
-    window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:writeUp?\`SECURITY RESPONSE • \${kind.toUpperCase()} • GAME WRITE-UP\`:\`SECURITY RESPONSE • \${kind.toUpperCase()}\`}}))
+    window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:writeUp?'SECURITY RESPONSE • '+kind.toUpperCase()+' • GAME WRITE-UP':'SECURITY RESPONSE • '+kind.toUpperCase()}}))
     publish({lastResponse:response})
   }
 
@@ -71,7 +71,7 @@ export function installCircleParkCommunitySafetyRuntime(){
     if(!CIRCLE_PARK_COMMUNITY_SAFETY.standing.positive.includes(action as any))return
     state.standing+=1
     state.commendations+=1
-    window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:\`COMMUNITY UPVOTE • \${action.replaceAll('-',' ').toUpperCase()}\`}}))
+    window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'COMMUNITY UPVOTE • '+action.replaceAll('-',' ').toUpperCase()}}))
     publish({positiveAction:action,source:detail.source||'circle-park'})
   }
 
