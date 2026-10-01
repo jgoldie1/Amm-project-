@@ -60,6 +60,7 @@ export async function persistQuantumTimeDocument(input={}){
   const rows=await adminRest('quantum_time_documents',{
     method:'POST',
     query:Object.fromEntries(q.entries()),
+    prefer:'resolution=merge-duplicates,return=representation',
     body:row
   })
   return {configured:true,saved:true,row:Array.isArray(rows)?rows[0]||null:rows,previous}
@@ -74,7 +75,7 @@ export async function readQuantumTimeVersions(url,limit=20){
     order:'captured_at.desc',
     limit:String(Math.min(Math.max(Number(limit)||20,1),100))
   })
-  const rows=await adminRest('quantum_time_documents?'+q)
+  const rows=await adminRest('quantum_time_documents',{query:Object.fromEntries(q.entries())})
   return {configured:true,rows:Array.isArray(rows)?rows:[]}
 }
 
@@ -113,6 +114,7 @@ export async function persistQuantumTimeDocuments(items=[]){
   const saved=await adminRest('quantum_time_documents',{
     method:'POST',
     query:Object.fromEntries(q.entries()),
+    prefer:'resolution=merge-duplicates,return=minimal',
     body:rows
   })
   return {configured:true,saved:rows.length,result:saved}
