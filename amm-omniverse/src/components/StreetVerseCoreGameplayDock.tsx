@@ -65,6 +65,9 @@ export default function StreetVerseCoreGameplayDock(){
     dispatchEvent(new CustomEvent('tryamm:accessibility-announce',{detail:{text:'Live and cast controls opened. StreetVerse gameplay stays active while you choose streaming and display destinations.'}}))
     setMessage('LIVE / CAST OPEN')
   }
+  const social=()=>{dispatchEvent(new CustomEvent('tryamm:mini-panel-open',{detail:{tab:'social',source:'streetverse-core-dock'}}));setMessage('SOCIAL PANEL OPEN')}
+  const tickets=()=>{dispatchEvent(new CustomEvent('tryamm:stream-ticket-center-open',{detail:{source:'streetverse-core-dock'}}));setMessage('STREAM TICKETS OPEN')}
+  const people=()=>{dispatchEvent(new CustomEvent('tryamm:user-search-open',{detail:{source:'streetverse-core-dock',scope:['people','live','families','agencies','games']}}));setMessage('SEARCH OPEN')}
   const faith=()=>{window.location.href='/faithverse'}
   const exit=()=>{
     dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-input',{detail:{throttle:0,brake:1,steer:0,horn:false,exit:true}}))
@@ -82,6 +85,9 @@ export default function StreetVerseCoreGameplayDock(){
         <button onClick={ride} style={{...btn,color:'#8effb7'}}>🚕<br/>RIDE</button>
         <button onClick={reel} style={{...btn,color:'#f3a6ff'}}>🎥<br/>REEL</button>
         <button onClick={liveCast} style={{...btn,color:'#7fe9ff'}}>📡<br/>LIVE/CAST</button>
+        <button onClick={social} style={{...btn,color:'#ff9ecf'}}>❤️<br/>SOCIAL</button>
+        <button onClick={people} style={{...btn,color:'#9fc8ff'}}>🔎<br/>PEOPLE</button>
+        <button onClick={tickets} style={{...btn,color:'#b7ffa2'}}>🎟️<br/>TICKETS</button>
         <button onClick={faith} style={{...btn,color:'#e5c56a'}}>📖<br/>FAITH</button>
         <button onClick={exit} disabled={!inVehicle} style={{...btn,color:inVehicle?'#ffcf6b':'#687785',opacity:inVehicle?1:.55}}>🚪<br/>EXIT</button>
       </div>
