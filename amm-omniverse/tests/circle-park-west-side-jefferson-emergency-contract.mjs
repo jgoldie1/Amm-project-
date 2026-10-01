@@ -29,7 +29,7 @@ for(const token of [
  "kind='police'","kind='ambulance'","kind='fire'",
  'emergencyMissionVehicle=true','ladderRigTarget=true',
  'tryamm:streetverse-emergency-response','tryamm:streetverse-structure-fire-state',
- 'tryamm:streetverse-emergency-unit-arrived'
+ 'tryamm:streetverse-emergency-unit-arrived','streetverse-west-side-response-hub','West Side Emergency Response Hub'
 ])assert.ok(fleet.includes(token),'emergency world fleet missing '+token)
 
 assert.ok(mobile.includes('registerStreetVerseScene'),'mobile world must expose its real Three.js scene to world layers')
