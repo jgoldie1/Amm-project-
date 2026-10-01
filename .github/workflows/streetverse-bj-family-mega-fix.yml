@@ -1,0 +1,91 @@
+name: StreetVerse BJ Family Mega Fix
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/**'
+      - '.github/workflows/streetverse-bj-family-mega-fix.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-bj-family-mega-fix-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mega-fix:
+    name: BJ + family + Circle Park + app/game convergence
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    env:
+      TRYAMM_BASE_URL: https://tryamm.online
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Run one-pass mega fix
+        shell: bash
+        run: bash scripts/streetverse-bj-family-mega-fix.sh
+
+      - name: Install Playwright proof tooling
+        run: |
+          npm install --no-save --no-package-lock @playwright/test@1.63.0
+          npx playwright install --with-deps chromium
+
+      - name: iPhone StreetVerse visual proof
+        run: npx playwright test tests/e2e/streetverse-visual-evidence.spec.ts --project=mobile-chromium --reporter=line
+
+      - name: Family roster proof
+        shell: bash
+        run: |
+          node tests/streetverse-family-character-production-contract.mjs
+
+      - name: Write action verdict
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p ../release-evidence
+          {
+            echo
+            echo "ACTION=StreetVerse BJ Family Mega Fix"
+            echo "SHA=${GITHUB_SHA}"
+            echo "Automated repair/gates include:"
+            echo "- generated native assets"
+            echo "- BJ + family/friend playable roster"
+            echo "- Circle Park + West Side + Jefferson School"
+            echo "- police / ambulance / fire world response"
+            echo "- one-hand iPhone controls and visual evidence"
+            echo "- app/game boundary and social/LIVE bridge checks"
+            echo "- Meshy generation/rig/publish integration checks"
+            echo "- typecheck + production Vite build"
+            echo
+            echo "External proof still cannot be fabricated:"
+            echo "- actual Meshy provider task IDs and returned GLBs"
+            echo "- authorized real-person likeness references"
+            echo "- provider OAuth/payment/settlement state"
+          } >> ../release-evidence/streetverse-bj-family-mega-fix.txt
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: streetverse-bj-family-mega-fix-evidence
+          path: |
+            release-evidence/
+            amm-omniverse/test-results/
+            amm-omniverse/playwright-report/
+          if-no-files-found: warn
+          retention-days: 30
