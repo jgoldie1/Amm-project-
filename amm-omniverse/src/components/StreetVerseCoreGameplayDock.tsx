@@ -76,11 +76,11 @@ export default function StreetVerseCoreGameplayDock(){
     setMessage('EXIT VEHICLE')
   }
 
-  const btn:React.CSSProperties={minHeight:50,borderRadius:14,border:'1px solid #5e7f93',background:'#071622ee',color:'#fff',fontSize:10,fontWeight:950,padding:'7px 8px',touchAction:'manipulation',WebkitTapHighlightColor:'transparent'}
+  const btn:React.CSSProperties={minHeight:46,borderRadius:14,border:'1px solid #5e7f93',background:'#071622ee',color:'#fff',fontSize:10,fontWeight:950,padding:'7px 8px',touchAction:'manipulation',WebkitTapHighlightColor:'transparent'}
   const status=mission?'ACTIVE • '+mission.label:message
   return <><StreetVerseInGamePanels/><aside aria-label="StreetVerse core gameplay controls" style={{position:'fixed',left:8,right:8,bottom:'max(8px, env(safe-area-inset-bottom))',zIndex:47000,pointerEvents:'none',fontFamily:'system-ui,sans-serif'}}>
     <div style={{pointerEvents:'auto',margin:'0 auto',maxWidth:620,border:'1px solid #4fe3ff66',borderRadius:18,padding:7,background:'#030b12e8',boxShadow:'0 12px 36px #000b'}}>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(0,1fr))',gap:5}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(5,minmax(0,1fr))',gap:5}}>
         <button onClick={missionAction} style={{...btn,color:'#ffe47f'}}>📍<br/>MISSION</button>
         <button onClick={repair} style={{...btn,color:'#ffb36b'}}>🔧<br/>REPAIR</button>
         <button onClick={ride} style={{...btn,color:'#8effb7'}}>🚕<br/>RIDE</button>
