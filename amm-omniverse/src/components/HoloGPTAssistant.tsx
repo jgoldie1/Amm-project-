@@ -73,22 +73,16 @@ function extractHistoricalUrl(question:string){
   const bare=question.match(/\b(?:www\.)?[a-z0-9][a-z0-9.-]+\.(?:com|org|net|edu|gov|io|co|ai|us|tv|store|online)(?:\/[^\s"'<>]*)?/i)?.[0]
   return bare?`https://${bare.replace(/[),.;]+$/,'')}`:''
 }
+function extractHistoricalYears(question:string){
+  return [...new Set(question.match(/\b(?:19|20)\d{2}\b/g)||[])].slice(0,2)
+}
 function extractHistoricalYear(question:string){
-  return question.match(/\b(?:19|20)\d{2}\b/)?.[0]||''
+  return extractHistoricalYears(question)[0]||''
 }
 function historicalIntent(question:string){
   return /\b(?:19\d{2}|20[01]\d|archive|archived|history|historical|old internet|past|then vs now|used to|time machine|advertis|campaign|mandela)\b/i.test(question)
 }
-async function historicalSearch(question:string){
-  let url=extractHistoricalUrl(question)
-  const year=extractHistoricalYear(question)
-  let discovery:any=null
-  if(!url){
-    discovery=await quantumSearch(question,'search').catch(()=>null)
-    const candidate=(Array.isArray(discovery?.results)?discovery.results:[]).find((x:any)=>/^https?:\/\//i.test(String(x?.url||x?.sourceUrl||'')))
-    url=String(candidate?.url||candidate?.sourceUrl||'')
-  }
-  if(!url)return {configured:false,status:'URL_REQUIRED',url:'',year,results:[],history:null,snapshot:null}
+async function historicalPoint(url:string,year:string){
   const r=await fetch('/api/quantum/history',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({url,year,limit:30}),cache:'no-store'})
   const history=await readJson(r)
   if(!r.ok)throw new Error(history.error||`Historical Internet API ${r.status}`)
@@ -97,7 +91,7 @@ async function historicalSearch(question:string){
   if(chosen?.archiveTimestamp&&chosen?.sourceUrl){
     snapshot=await fetch('/api/quantum/snapshot',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({url:chosen.sourceUrl,timestamp:chosen.archiveTimestamp}),cache:'no-store'}).then(readJson).catch(()=>null)
   }
-  const captures=(Array.isArray(history.snapshots)?history.snapshots:[]).slice(0,12).map((x:any)=>({
+  const captures=(Array.isArray(history.snapshots)?history.snapshots:[]).slice(0,7).map((x:any)=>({
     title:x.title||`Archived capture ${String(x.capturedAt||x.archiveTimestamp||'').slice(0,10)}`,
     summary:[
       x.description,
@@ -126,7 +120,66 @@ async function historicalSearch(question:string){
       provider:'internet-archive',
     })
   }
-  return {configured:true,status:'OK',url,year,results:captures,history,snapshot,discovery}
+  return {year,history,chosen,snapshot,captures}
+}
+function comparisonTokens(value:any){
+  return new Set(String(value||'').toLowerCase().match(/[a-z0-9$%][a-z0-9$%'-]{2,}/g)||[])
+}
+function historicalComparison(before:any,after:any){
+  if(!before?.snapshot||!after?.snapshot)return null
+  const beforeText=[
+    before.snapshot.title,before.snapshot.description,
+    ...(Array.isArray(before.snapshot.marketingSignals)?before.snapshot.marketingSignals.map((s:any)=>s.snippet):[])
+  ].filter(Boolean).join(' ')
+  const afterText=[
+    after.snapshot.title,after.snapshot.description,
+    ...(Array.isArray(after.snapshot.marketingSignals)?after.snapshot.marketingSignals.map((s:any)=>s.snippet):[])
+  ].filter(Boolean).join(' ')
+  const a=comparisonTokens(beforeText),b=comparisonTokens(afterText)
+  const added=[...b].filter(x=>!a.has(x)).slice(0,35)
+  const removed=[...a].filter(x=>!b.has(x)).slice(0,35)
+  return {
+    title:`TIME MACHINE COMPARE • ${before.year} → ${after.year}`,
+    summary:[
+      `Observed archived-page text comparison only; this does not establish that offline reality or human memory changed.`,
+      `BEFORE TITLE: ${String(before.snapshot.title||'not captured').slice(0,180)}`,
+      `AFTER TITLE: ${String(after.snapshot.title||'not captured').slice(0,180)}`,
+      added.length?`ADDED TERMS: ${added.join(', ')}`:'',
+      removed.length?`REMOVED TERMS: ${removed.join(', ')}`:''
+    ].filter(Boolean).join(' • ').slice(0,1900),
+    sourceName:'QUANTUM TIME COMPARISON',
+    sourceUrl:after.chosen?.archiveUrl||after.chosen?.sourceUrl||null,
+    verification:'two-dated-captures',
+    capturedAt:after.chosen?.capturedAt||null,
+    digest:[before.chosen?.digest,after.chosen?.digest].filter(Boolean).join(' → '),
+    provider:'internet-archive',
+  }
+}
+async function historicalSearch(question:string){
+  let url=extractHistoricalUrl(question)
+  const years=extractHistoricalYears(question)
+  const year=years[0]||''
+  let discovery:any=null
+  if(!url){
+    discovery=await quantumSearch(question,'search').catch(()=>null)
+    const candidate=(Array.isArray(discovery?.results)?discovery.results:[]).find((x:any)=>/^https?:\/\//i.test(String(x?.url||x?.sourceUrl||'')))
+    url=String(candidate?.url||candidate?.sourceUrl||'')
+  }
+  if(!url)return {configured:false,status:'URL_REQUIRED',url:'',year,years,results:[],history:null,snapshot:null}
+  const points=years.length>=2
+    ?await Promise.all(years.map(y=>historicalPoint(url,y)))
+    :[await historicalPoint(url,year)]
+  const results=points.flatMap(point=>point.captures)
+  if(points.length>=2){
+    const compare=historicalComparison(points[0],points[1])
+    if(compare)results.unshift(compare)
+  }
+  const primary=points[0]
+  return {
+    configured:true,status:points.length>=2?'COMPARE_OK':'OK',url,year,years,results,
+    history:primary?.history||null,snapshot:primary?.snapshot||null,discovery,
+    comparison:points.length>=2?{from:points[0]?.year,to:points[1]?.year}:null
+  }
 }
 async function holoSearch(question:string):Promise<RetrievalItem[]>{
   return await new Promise(resolve=>{
