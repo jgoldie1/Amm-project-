@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useState} from 'react'
+import {useEffect,useMemo,useRef,useState} from 'react'
 import * as THREE from 'three'
 import {subscribeStreetVerseScene} from '../game/streetverseSceneRegistry'
 
@@ -129,6 +129,8 @@ export default function StreetVerseThomasJeffersonSchool(){
   const [near,setNear]=useState(false)
   const [roomId,setRoomId]=useState<RoomId|null>(null)
   const room=useMemo(()=>ROOMS.find(r=>r.id===roomId)||null,[roomId])
+  const nearRef=useRef(false)
+  const roomRef=useRef<Room|null>(null)
 
   useEffect(()=>{
     let scene:THREE.Scene|null=null,group:THREE.Group|null=null,collisionOwner:THREE.Box3[]|null=null,installedBoxes:THREE.Box3[]=[]
@@ -143,8 +145,8 @@ export default function StreetVerseThomasJeffersonSchool(){
 
     const onPosition=(event:Event)=>{
       const d=(event as CustomEvent<{x?:number;z?:number}>).detail||{};const x=Number(d.x),z=Number(d.z);if(!Number.isFinite(x)||!Number.isFinite(z))return
-      setNear(Math.hypot(x+46,z-54)<=14)
-      const active=ROOMS.find(r=>contains(r,x,z))||null
+      const isNear=Math.hypot(x+46,z-54)<=14;nearRef.current=isNear;setNear(isNear)
+      const active=ROOMS.find(r=>contains(r,x,z))||null;roomRef.current=active
       setRoomId(prev=>{
         if(prev===active?.id)return prev
         if(active)window.dispatchEvent(new CustomEvent('tryamm:school-room-enter',{detail:{campusId:CAMPUS.id,roomId:active.id,label:active.label,subject:active.subject}}))
@@ -153,11 +155,12 @@ export default function StreetVerseThomasJeffersonSchool(){
     }
 
     const onAction=()=>{
-      if(room){
-        if(room.id==='gym')window.dispatchEvent(new CustomEvent('tryamm:basketball-open',{detail:{court:'thomas-jefferson-gym',source:'thomas-jefferson-school'}}))
-        else if(room.id==='locker-shower')window.dispatchEvent(new CustomEvent('tryamm:school-privacy-zone',{detail:{campusId:CAMPUS.id,roomId:room.id,cameraCapture:false,privacySafe:true}}))
-        else window.dispatchEvent(new CustomEvent('tryamm:school-learning-activity',{detail:{campusId:CAMPUS.id,roomId:room.id,label:room.label,subject:room.subject}}))
-      }else if(near)window.dispatchEvent(new CustomEvent('tryamm:school-campus-enter',{detail:{campusId:CAMPUS.id,label:CAMPUS.label}}))
+      const active=roomRef.current
+      if(active){
+        if(active.id==='gym')window.dispatchEvent(new CustomEvent('tryamm:basketball-open',{detail:{court:'thomas-jefferson-gym',source:'thomas-jefferson-school'}}))
+        else if(active.id==='locker-shower')window.dispatchEvent(new CustomEvent('tryamm:school-privacy-zone',{detail:{campusId:CAMPUS.id,roomId:active.id,cameraCapture:false,privacySafe:true}}))
+        else window.dispatchEvent(new CustomEvent('tryamm:school-learning-activity',{detail:{campusId:CAMPUS.id,roomId:active.id,label:active.label,subject:active.subject}}))
+      }else if(nearRef.current)window.dispatchEvent(new CustomEvent('tryamm:school-campus-enter',{detail:{campusId:CAMPUS.id,label:CAMPUS.label}}))
     }
 
     addEventListener('tryamm:streetverse-player-position',onPosition)
@@ -167,7 +170,7 @@ export default function StreetVerseThomasJeffersonSchool(){
       if(group&&scene)scene.remove(group)
       if(collisionOwner)for(const box of installedBoxes){const i=collisionOwner.indexOf(box);if(i>=0)collisionOwner.splice(i,1)}
     }
-  },[room?.id,near])
+  },[])
 
   if(!near&&!room)return null
   return <div aria-live="polite" style={{position:'fixed',left:'50%',top:'calc(env(safe-area-inset-top,0px) + 68px)',transform:'translateX(-50%)',zIndex:41020,maxWidth:'min(84vw,430px)',padding:'7px 10px',borderRadius:999,background:'#06121dea',border:'1px solid #e9d28d99',color:'#fff',fontFamily:'system-ui',fontSize:9,fontWeight:900,pointerEvents:'none',textAlign:'center'}}>
