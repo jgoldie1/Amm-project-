@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { getAccessToken } from '../services/supabaseClient'
 
-type Msg={role:'user'|'assistant';content:string;provider?:string}
+type SourceRef={label:string;title?:string;url:string;capturedAt?:string|null;verification?:string|null;provider?:string|null}
+type Msg={role:'user'|'assistant';content:string;provider?:string;sources?:SourceRef[]}
 type SourceMode='auto'|'holo'|'oracle'|'quantum'|'historical'|'old-web'
 type RetrievalItem={title?:string;headline?:string;summary?:string;sourceName?:string;sourceUrl?:string|null;verification?:string;kind?:string;city?:string;representation?:string;capturedAt?:string|null;digest?:string|null;provider?:string}
 type Props={showLauncher?:boolean}
@@ -270,7 +271,7 @@ export default function HoloGPTAssistant({showLauncher=true}:Props){
       const data=await readJson(r)
       if(!r.ok)throw new Error(data.error||`AI API ${r.status}`)
       const answer=String(data.answer||'').trim()||fallbackAnswer(question,'No answer returned by the AI service.')
-      setMessages(m=>[...m,{role:'assistant',content:answer,provider:data.provider||'diagnostic'}])
+      setMessages(m=>[...m,{role:'assistant',content:answer,provider:data.provider||'diagnostic',sources:Array.isArray(data.sources)?data.sources.slice(0,8):[]}])
       setHealth({ok:data.degraded!==true,degraded:Boolean(data.degraded),provider:data.provider,model:data.model,error:data.degraded?'Generative provider not configured; local recovery mode is active.':undefined})
     }catch(e:any){
       const reason=e?.message||'AI connection unavailable'
@@ -291,11 +292,11 @@ export default function HoloGPTAssistant({showLauncher=true}:Props){
         <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:5,padding:'9px 12px 0'}}>
           {([['auto','AUTO'],['holo','HOLO'],['oracle','ORACLE'],['quantum','QUANTUM'],['historical','HISTORY'],['old-web','OLD INDEX']] as const).map(([id,label])=><button key={id} onClick={()=>setSourceMode(id)} style={{minHeight:34,borderRadius:9,border:sourceMode===id?'1px solid #4fe3ff':'1px solid #253647',background:sourceMode===id?'#0d3043':'#091019',color:'#dffaff',fontSize:8,fontWeight:950}}>{label}</button>)}
         </div>
-        {sourceMode==='historical'&&<div style={{padding:'6px 12px 0',fontSize:8,color:'#d6c4ff',fontFamily:'monospace'}}>HISTORY MODE: include a website/domain and year when you can — example: “nike.com 1998 advertising”.</div>}
+        {sourceMode==='historical'&&<div style={{padding:'6px 12px 0',fontSize:8,color:'#d6c4ff',fontFamily:'monospace'}}>HISTORY MODE: include a website/domain and year — example: “nike.com 1998 advertising” or “nike.com 1998 vs 2008”.</div>}
         {retrievalStatus&&<div style={{padding:'6px 12px 0',fontSize:8,color:'#6fe8ff',fontFamily:'monospace'}}>{retrievalStatus}</div>}
         <div style={{flex:1,overflowY:'auto',padding:14}}>
           {messages.length===0&&<div style={{padding:16,border:'1px solid #4fe3ff22',borderRadius:14,color:'#b8cfda',lineHeight:1.6,fontSize:12}}>Ask HoloGPT a question or use it as a Holo launcher. Try “open Holoverse”, “open StreetVerse”, “open Holo Services”, “open Holo Music”, or “open Command Nexus”.</div>}
-          {messages.map((m,i)=><div key={i} style={{display:'flex',justifyContent:m.role==='user'?'flex-end':'flex-start',margin:'10px 0'}}><div style={{maxWidth:'88%',whiteSpace:'pre-wrap',lineHeight:1.55,fontSize:12,padding:'10px 12px',borderRadius:14,background:m.role==='user'?'#e8b94418':'#4fe3ff12',border:`1px solid ${m.role==='user'?'#e8b94444':'#4fe3ff33'}`,color:m.role==='user'?'#ffe7a0':'#e8faff'}}>{m.content}{m.provider&&<div style={{marginTop:7,fontSize:8,color:'#6f8d9e',fontFamily:'monospace'}}>{m.provider}</div>}</div></div>)}
+          {messages.map((m,i)=><div key={i} style={{display:'flex',justifyContent:m.role==='user'?'flex-end':'flex-start',margin:'10px 0'}}><div style={{maxWidth:'88%',whiteSpace:'pre-wrap',lineHeight:1.55,fontSize:12,padding:'10px 12px',borderRadius:14,background:m.role==='user'?'#e8b94418':'#4fe3ff12',border:`1px solid ${m.role==='user'?'#e8b94444':'#4fe3ff33'}`,color:m.role==='user'?'#ffe7a0':'#e8faff'}}>{m.content}{m.sources?.length?<div style={{display:'grid',gap:6,marginTop:9}}>{m.sources.map((s,j)=><a key={j} href={s.url} target="_blank" rel="noopener noreferrer" style={{display:'block',minHeight:38,padding:'7px 9px',boxSizing:'border-box',borderRadius:9,border:'1px solid #5de5ff44',background:'#071b25',color:'#aef4ff',textDecoration:'none',fontSize:9,fontWeight:900,whiteSpace:'normal'}}>{s.label}{s.capturedAt?` • ${String(s.capturedAt).slice(0,10)}`:''}<span style={{display:'block',marginTop:2,color:'#8ca9b7',fontSize:8,fontWeight:600}}>{String(s.title||s.provider||'Evidence').slice(0,120)}</span></a>)}</div>:null}{m.provider&&<div style={{marginTop:7,fontSize:8,color:'#6f8d9e',fontFamily:'monospace'}}>{m.provider}</div>}</div></div>)}
           {busy&&<div style={{color:'#4fe3ff',fontFamily:'monospace',fontSize:11}}>HOLOGPT IS THINKING…</div>}<div ref={end}/>
         </div>
         <div style={{padding:12,borderTop:'1px solid #4fe3ff22',display:'flex',gap:8}}><textarea aria-label="Message HoloGPT" value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}}} placeholder="Ask HoloGPT or say open Holoverse…" rows={2} style={{flex:1,resize:'none',borderRadius:12,border:'1px solid #334b5b',background:'#050912',color:'#fff',padding:10,fontFamily:'inherit'}}/><button onClick={send} disabled={disabled} style={{border:0,borderRadius:12,padding:'0 15px',background:'#4fe3ff',color:'#041018',fontWeight:950,cursor:disabled?'not-allowed':'pointer',opacity:disabled?.55:1}}>SEND</button></div>
