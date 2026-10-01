@@ -7,7 +7,6 @@ function stampToIso(stamp){
   if(!/^\d{14}$/.test(s))return null
   return s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6,8)+'T'+s.slice(8,10)+':'+s.slice(10,12)+':'+s.slice(12,14)+'Z'
 }
-}
 function entityDecode(s){
   return String(s||'')
     .replace(/&nbsp;/gi,' ').replace(/&amp;/gi,'&').replace(/&quot;/gi,'"')
@@ -71,7 +70,8 @@ export default async function handler(req,res){
   res.setHeader('Cache-Control','no-store')
   if(!['GET','POST'].includes(req.method))return res.status(405).json({ok:false,error:'Method not allowed'})
   const input=req.method==='GET'?req.query:req.body||{}
-  const url=clean(input.url,1200),timestamp=clean(input.timestamp,20)
+  const rawUrl=clean(input.url,1200),timestamp=clean(input.timestamp,20)
+  const url=validHistoricalUrl(rawUrl)?normalizeHistoricalUrl(rawUrl):rawUrl
   if(!validHistoricalUrl(url))return res.status(400).json({ok:false,error:'Valid public http(s) URL required'})
   if(!/^\d{14}$/.test(timestamp))return res.status(400).json({ok:false,error:'14-digit archive timestamp required'})
   try{
