@@ -1,3 +1,4 @@
+import {persistQuantumTimeDocuments,readQuantumTimeVersions} from '../_lib/quantumTimeStore.js'
 const clean=(v,n=1200)=>String(v||'').trim().slice(0,n)
 const ARCHIVE='https://web.archive.org/cdx/search/cdx'
 const CC_COLLECTIONS='https://index.commoncrawl.org/collinfo.json'
@@ -129,6 +130,16 @@ export default async function handler(req,res){
   ])
   const snapshots=dedupe([...archive,...commonCrawl])
   const summary=temporalSummary(snapshots)
+  const persistence=await persistQuantumTimeDocuments(snapshots.map(x=>({
+    sourceUrl:x.sourceUrl,
+    sourceType:x.provider,
+    capturedAt:x.capturedAt,
+    archiveTimestamp:x.archiveTimestamp,
+    digest:x.digest,
+    provenance:x.provenance,
+    verificationStatus:'source-capture'
+  }))).catch(error=>({configured:true,saved:0,error:clean(error?.message,300)}))
+  const durable=await readQuantumTimeVersions(url,30).catch(()=>({configured:false,rows:[]}))
   return res.status(200).json({
     ok:true,
     mode:'historical-internet',
@@ -136,6 +147,8 @@ export default async function handler(req,res){
     summary,
     nearest:year?nearest(snapshots,year):null,
     snapshots:snapshots.slice(0,50),
+    persistence,
+    durableVersions:Array.isArray(durable?.rows)?durable.rows:[],
     evidencePolicy:{
       archiveCaptureIsEvidenceOfCapture:true,
       absenceIsNotProofOfNonexistence:true,
