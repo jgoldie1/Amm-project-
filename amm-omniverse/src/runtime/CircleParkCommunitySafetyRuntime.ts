@@ -39,14 +39,15 @@ export function installCircleParkCommunitySafetyRuntime(){
   }
 
   const onIncident=(event:Event)=>{
-    const detail=(event as CustomEvent<{kind?:CircleParkIncidentKind;source?:string}>).detail||{}
+    const detail=(event as CustomEvent<{kind?:CircleParkIncidentKind;source?:string;x?:number;z?:number}>).detail||{}
     const kind=detail.kind
     if(!kind)return
     const policy=CIRCLE_PARK_COMMUNITY_SAFETY.incidents[kind]
     if(!policy)return
+    const x=Number(detail.x||0),z=Number(detail.z||0)
     state={...state,lastIncident:kind}
     const writeUp=kind==='fight'||kind==='property-damage'||kind==='trespass'
-    const standingDelta=kind==='medical'||kind==='lost-person'||kind==='assist-request'?0:-(policy.severity>=3?2:1)
+    const standingDelta=['medical','injury','gunshot','fire','lost-person','assist-request'].includes(kind)?0:-(policy.severity>=3?2:1)
     state.standing+=standingDelta
     if(writeUp)state.writeUps+=1
     const response={
@@ -61,6 +62,14 @@ export function installCircleParkCommunitySafetyRuntime(){
       source:detail.source||'circle-park',
     }
     window.dispatchEvent(new CustomEvent('tryamm:circle-park-safety-response',{detail:response}))
+    if(kind==='gunshot'){
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-emergency-response',{detail:{kind:'ambulance',x,z,severity:5,reason:'person shot',source:'game-emergency-auto',gameplayOnly:true}}))
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-emergency-response',{detail:{kind:'police',x,z,severity:5,reason:'person shot',source:'game-emergency-auto',gameplayOnly:true}}))
+    }else if(kind==='injury'||kind==='medical'){
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-emergency-response',{detail:{kind:'ambulance',x,z,severity:policy.severity,reason:kind,source:'game-emergency-auto',gameplayOnly:true}}))
+    }else if(kind==='fire'){
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-emergency-response',{detail:{kind:'fire',x,z,severity:5,reason:'fire or smoke',source:'game-emergency-auto',gameplayOnly:true}}))
+    }
     window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:writeUp?'SECURITY RESPONSE • '+kind.toUpperCase()+' • GAME WRITE-UP':'SECURITY RESPONSE • '+kind.toUpperCase()}}))
     publish({lastResponse:response})
   }

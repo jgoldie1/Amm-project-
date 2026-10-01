@@ -21,7 +21,7 @@ export default function StreetVerseEmergencyIncidentLifecycle(){
     progress=Math.min(100,progress+5)
     const next:Phase=progress<15?'dispatch':progress<48?'approach':progress<63?'onscene':isLaw(kind)&&progress<76?'perimeter':federal(kind)&&progress<86?'handoff':progress<94?'resolve':'clear'
     if(next!==phase){phase=next;window.dispatchEvent(new CustomEvent('tryamm:streetverse-emergency-lifecycle',{detail:{kind,phase,x,z,progress,severity}}))
-      if(phase==='onscene')window.dispatchEvent(new CustomEvent('tryamm:streetverse-emergency-onscene',{detail:{kind,x,z,severity}}))
+      if(phase==='onscene'){window.dispatchEvent(new CustomEvent('tryamm:streetverse-emergency-onscene',{detail:{kind,x,z,severity}}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-responder-staged',{detail:{id:`${kind}-${Date.now()}`,agency:kind,x,z,severity}}))}
       if(phase==='perimeter'){window.dispatchEvent(new CustomEvent('tryamm:streetverse-roadblock-request',{detail:{kind,x,z,radius:federal(kind)?34:kind==='sheriff'?28:22}}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-law-radio',{detail:{agency:kind.toUpperCase(),status:'PERIMETER',x,z}}))}
       if(phase==='handoff')window.dispatchEvent(new CustomEvent('tryamm:streetverse-federal-handoff',{detail:{kind,x,z,classification:kind==='fbi'?'FEDERAL CASE':kind==='cia'?'INTELLIGENCE CASE':'SPECIAL CASE'}}))
       if(phase==='resolve'){
