@@ -50,7 +50,7 @@ const LANE_MISSIONS:Record<string,{id:string;title:string;rewardXP:number}>={
   'Chicago Explorer':{id:'chi-history-sound-map',title:'Sounds Born in Chicago',rewardXP:350}
 }
 const NAMED_CAST:StreetVersePlayableCharacter[]=[
-  {id:'james-stubbs',label:'JAMES',index:-2,role:'Founder / Explorer',missionLane:'Founder',presentation:'male',assetId:'sv-james-body-base-v1',visualStatus:'body-base'},
+  {id:'james-stubbs',label:'JAMES',index:-2,role:'Youth Explorer / Family',missionLane:'Chicago Explorer',presentation:'male',assetId:'sv-james-body-base-v1',visualStatus:'body-base'},
   {id:'bj-stubbs',label:'BJ STUBBS',index:-1,role:'Founder / Explorer',missionLane:'Founder',presentation:'male',assetId:'sv-bj-stubbs-v6',visualStatus:'published-rig'},
   {id:'marcus',label:'MARCUS',index:0,role:'StreetVerse Friend',missionLane:'Chicago Explorer'},
   {id:'al-b',label:'AL B',index:1,role:'StreetVerse Family',missionLane:'Business / Marketplace'},

@@ -28,8 +28,8 @@ export const MESHY_RIG_FACTORY={
 } as const
 
 export const STREETVERSE_CHARACTER_RIG_QUEUE:readonly MeshyRigFactoryItem[]=[
-  {assetId:'sv-james-body-base-v1',filename:'SV_HERO_JAMES_BODY_BASE_V1.glb',targetHeightMeters:1.80,ageLane:'adult',rolePool:['hero-body-base','founder-avatar-base','mission-character']},
-  {assetId:'sv-female-body-base-v1',filename:'SV_BODY_FEMALE_BASE_V1.glb',targetHeightMeters:1.68,ageLane:'adult',rolePool:['female-body-base','resident-base','creator-character-base']},
+  {assetId:'sv-james-body-base-v1',filename:'SV_HERO_JAMES_BODY_BASE_V1.glb',targetHeightMeters:1.55,ageLane:'youth',rolePool:['youth-hero-body-base','family-avatar-base','youth-mission-character']},
+  {assetId:'sv-female-body-base-v1',filename:'SV_BODY_FEMALE_BASE_V1.glb',targetHeightMeters:1.68,ageLane:'adult',rolePool:['black-mixed-global-female-base','resident-base','creator-character-base']},
   {assetId:'sv-bj-stubbs-v6',filename:'SV_HERO_BJ_STUBBS_V6.glb',targetHeightMeters:1.82,ageLane:'adult',rolePool:['hero','founder-character','mission-character']},
   ...STREETVERSE_MESHY_CHARACTER_SLOTS.map(slot=>({
     assetId:slot.id,

@@ -6,8 +6,8 @@ import {normalizeStreetVerseHumanHeight} from './StreetVerseHumanScale'
 export type PublishedBodyBaseId='sv-james-body-base-v1'|'sv-female-body-base-v1'
 
 const SPECS:Record<PublishedBodyBaseId,{name:string;height:number}>={
-  'sv-james-body-base-v1':{name:'James body base',height:1.80},
-  'sv-female-body-base-v1':{name:'Female body base',height:1.68},
+  'sv-james-body-base-v1':{name:'James boy/youth body base',height:1.55},
+  'sv-female-body-base-v1':{name:'Black/mixed-global female body base',height:1.68},
 }
 
 export type StreetVersePublishedBodyHandle={

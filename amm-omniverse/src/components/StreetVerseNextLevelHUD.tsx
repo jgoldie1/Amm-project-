@@ -8,7 +8,7 @@ type HudTab='play'|'create'|'system'
 type LauncherAction={label:string;icon:string;names?:string[];run?:()=>void;hint:string;accent?:boolean}
 
 export default function StreetVerseNextLevelHUD({district='CHICAGO • DISTRICT 01',assetStatus='WORLD ACTIVE',visited=0,totalMissions=4}:Props){
- const [open,setOpen]=useState(true)
+ const [open,setOpen]=useState(()=>typeof window==='undefined'?false:Math.min(window.innerWidth,window.innerHeight)>720)
  const [showAniyahPay,setShowAniyahPay]=useState(false)
  const [showVolcano,setShowVolcano]=useState(false)
  const [showBennie,setShowBennie]=useState(false)

@@ -14,10 +14,13 @@ const clamp=(n:number)=>Math.max(-88,Math.min(88,Number.isFinite(n)?n:0))
 
 export default function StreetVerseRealtimePresence(){
   const [online,setOnline]=useState(0)
+  const [phone,setPhone]=useState(false)
   const [state,setState]=useState<'SIGNED_OUT'|'CONNECTING'|'LIVE'|'ERROR'>('CONNECTING')
   const channelRef=useRef<RealtimeChannel|null>(null)
   const latestRef=useRef<PresencePayload|null>(null)
   const lastBroadcastRef=useRef(0)
+
+  useEffect(()=>{setPhone(Math.min(window.innerWidth,window.innerHeight)<=720)},[])
 
   useEffect(()=>{
     const sb=getSupabaseClient()
@@ -130,6 +133,7 @@ export default function StreetVerseRealtimePresence(){
     }
   },[])
 
+  if(phone&&state!=='LIVE')return null
   return <div aria-live="polite" style={{position:'fixed',left:12,top:72,zIndex:16994,padding:'7px 10px',borderRadius:999,background:'#04131ddd',border:`1px solid ${state==='LIVE'?'#70ffb077':'#5f718077'}`,color:state==='LIVE'?'#bfffd8':'#bfd0d8',fontFamily:'monospace',fontSize:9,fontWeight:950,letterSpacing:.5,pointerEvents:'none'}}>
     MULTIPLAYER • {state==='LIVE'?`${online} ONLINE • LOW-LATENCY`:state==='SIGNED_OUT'?'SIGN IN TO JOIN':state}
   </div>

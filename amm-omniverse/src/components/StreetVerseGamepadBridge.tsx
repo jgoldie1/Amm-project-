@@ -35,6 +35,7 @@ export default function StreetVerseGamepadBridge(){
     return()=>{cancelAnimationFrame(raf);window.removeEventListener('tryamm:streetverse-vehicle-controlled',onControlled)}
   },[driving])
 
+  if(!connected)return null
   return <div aria-live="polite" style={{position:'fixed',right:14,top:134,zIndex:16996,pointerEvents:'none',padding:'6px 9px',borderRadius:999,background:'#03111ddd',border:'1px solid #8effb744',color:connected?'#8effb7':'#a8b5c2',fontSize:9,fontWeight:900,fontFamily:'system-ui,sans-serif'}}>
     {connected?(driving?'🎮 CONTROLLER • DRIVING':'🎮 CONTROLLER • READY'):'🎮 CONTROLLER • DISCONNECTED'}
   </div>

@@ -239,7 +239,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     const activatePublishedBody=async(assetId:string,label:string)=>{
       if(assetId!=='sv-james-body-base-v1')return
       const handle=await loadStreetVersePublishedBodyBase('sv-james-body-base-v1','global')
-      if(!handle){setMessage('JAMES BODY BASE • waiting for the real published Meshy rig');return}
+      if(!handle){setMessage('JAMES YOUTH BODY BASE • waiting for the real published Meshy rig');return}
       if(nativeCancelled||!nativeLayer){handle.dispose();return}
       publishedHeroBody?.dispose()
       publishedHeroBody=handle
@@ -253,7 +253,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       nativeHero.rotation.y=avatar.rotation.y
       nativeHeroRig=nativeHumanoidRig(nativeHero)
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail:{characterId:'james-stubbs',displayName:label||'JAMES',assetId:'sv-james-body-base-v1',authoritative3DMesh:true,identityNeutralBodyBase:true,finalFacialLikeness:false,proceduralFallbackSuppressed:true}}))
-      setMessage('JAMES BODY BASE LIVE • rigged Meshy body loaded • final face still needs approved reference image')
+      setMessage('JAMES YOUTH BODY BASE LIVE • rigged Meshy body loaded • final face and exact height still need approved reference tuning')
     }
     onPlayerAssetSelect=(event:Event)=>{
       const d=(event as CustomEvent<{assetId?:string;label?:string}>).detail||{}

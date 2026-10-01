@@ -19,22 +19,25 @@ for(const token of [
   'SV_BODY_FEMALE_BASE_V1.glb',
   'startCircleParkBootstrapWave',
   "wave:'james-female-circle-park-v1'",
-  "sequence:'James body base → reusable female body base → four Circle Park residents in parallel'"
+  "sequence:'James boy/youth body base → Black/mixed-global female body base → four Circle Park residents in parallel'"
 ])assert.ok(factory.includes(token),'bootstrap factory missing '+token)
 
+assert.ok(factory.includes("ageLane:'youth'"),'James must not be configured as an adult')
+assert.ok(factory.includes("Black and mixed-heritage global character system"),'female base must support Black/mixed-global character creation')
 assert.ok(factory.indexOf("assetId:'sv-james-body-base-v1'")<factory.indexOf("assetId:'sv-female-body-base-v1'"),'James must be first')
 assert.ok(factory.includes("dependsOn:'previous'"),'female base must depend on James')
 assert.ok((factory.match(/dependsOn:'female'/g)||[]).length>=4,'Circle Park resident jobs must wait for female base')
 assert.ok(worker.includes("stage:'in.(queued,generating,rigging,publishing)'"),'worker must advance dependency-ready queued jobs')
 assert.ok(panel.includes('START BOOTSTRAP WAVE'),'founder needs one-tap bootstrap control')
-assert.ok(panel.includes('The exact James facial likeness still waits for an approved reference image.'),'UI must not misrepresent the identity-neutral body as final likeness')
+assert.ok(panel.includes('James is not an adult model'),'factory UI must identify James as youth')
+assert.ok(panel.includes('Black, mixed-heritage and multinational characters'),'factory UI must state the intended female character system')
 assert.ok(rigFactory.indexOf("sv-james-body-base-v1")<rigFactory.indexOf("sv-female-body-base-v1"),'rig queue order must keep James first')
 assert.ok(migration.includes('depends_on_job_id uuid references public.meshy_asset_jobs'),'durable dependency chain required')
 assert.ok(migration.includes('wave_id uuid'),'wave provenance required')
 
 assert.ok(playable.includes("id:'james-stubbs'")&&playable.includes("assetId:'sv-james-body-base-v1'"),'James must be selectable and mapped to the published body base')
 assert.ok(bodyRuntime.includes("resolvePublishedMeshyAsset(assetId,cityScope)"),'James/female body loader must use the real published manifest')
-assert.ok(mobile.includes("tryamm:streetverse-player-asset-select")&&mobile.includes("JAMES BODY BASE LIVE"),'mobile world must live-swap James when the rig is published')
+assert.ok(mobile.includes("tryamm:streetverse-player-asset-select")&&mobile.includes("JAMES YOUTH BODY BASE LIVE"),'mobile world must live-swap James when the rig is published')
 for(const slot of ['sv-black-man-youngadult-01','sv-black-woman-youngadult-01','sv-black-man-adult-01','sv-black-woman-adult-01'])assert.ok(mobile.includes(slot),'Circle Park live-swap missing '+slot)
 assert.ok(mobile.includes('tryamm:circle-park-meshy-resident-live'),'Circle Park must emit real resident-rig evidence')
 assert.ok(residentRuntime.includes('published?.walkUrl')&&residentRuntime.includes('published?.runUrl'),'resident rigs must consume Meshy walk/run companions')
