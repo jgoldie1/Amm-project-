@@ -66,9 +66,38 @@ const update=async(id,body)=>{
   const rows=await adminRest('meshy_asset_jobs',{method:'PATCH',query:{id:`eq.${id}`},body:{...body,updated_at:new Date().toISOString()}});
   return rows?.[0]||await rowById(id);
 }
+const claim=async(id,expectedStage,body)=>{
+  const rows=await adminRest('meshy_asset_jobs',{method:'PATCH',query:{id:`eq.${id}`,stage:`eq.${expectedStage}`},body:{...body,updated_at:new Date().toISOString()}});
+  return rows?.[0]||null;
+}
 const failed=async(job,code,message)=>update(job.id,{stage:'failed',error_code:String(code||'meshy_factory_failed').slice(0,120),error_message:String(message||'Meshy asset factory failed').slice(0,1000),evidence:{...(job.evidence||{}),failedAt:new Date().toISOString()}});
 const isSuccess=status=>['SUCCEEDED','SUCCESS','COMPLETED'].includes(String(status||'').toUpperCase());
 const isFailure=status=>['FAILED','FAILURE','ERROR','CANCELED','CANCELLED','EXPIRED'].includes(String(status||'').toUpperCase());
+const retryableError=error=>{
+  const status=Number(error?.status||error?.statusCode||0);
+  const code=String(error?.code||'').toLowerCase();
+  const message=String(error?.message||'').toLowerCase();
+  return !status||status===408||status===425||status===429||status>=500||code.includes('timeout')||code.includes('network')||message.includes('timeout')||message.includes('fetch failed')||message.includes('temporar');
+}
+const retryable=async(job,error)=>update(job.id,{
+  error_code:'retryable_infrastructure_error',
+  error_message:String(error?.message||error||'Temporary provider/storage error').slice(0,1000),
+  evidence:{...(job.evidence||{}),lastRetryableErrorAt:new Date().toISOString(),retryable:true}
+});
+const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function attachProviderTask(jobId,stage,body){
+  let lastError=null;
+  for(let attempt=1;attempt<=3;attempt++){
+    try{
+      const attached=await claim(jobId,stage,body);
+      if(attached)return attached;
+      const current=await rowById(jobId);
+      if(current)return current;
+    }catch(error){lastError=error;if(attempt<3)await sleep(120*attempt)}
+  }
+  if(lastError)throw lastError;
+  return null;
+}
 
 export async function startMeshyFactoryJob(user,{assetId,imageUrl,cityScope='global'}={}){
   requireFactoryAuthority(user);
@@ -78,14 +107,35 @@ export async function startMeshyFactoryJob(user,{assetId,imageUrl,cityScope='glo
     ?{image_url:String(imageUrl||'').trim(),ai_model:'meshy-7.1',target_formats:['glb'],should_texture:true,enable_pbr:true,should_remesh:true,target_polycount:45000,pose_mode:'a-pose'}
     :{prompt,ai_model:'meshy-7.1',target_formats:['glb'],should_texture:true,enable_pbr:true,should_remesh:true,target_polycount:45000,pose_mode:'a-pose'};
   if(spec.generationType==='image-to-3d'&&!payload.image_url)throw Object.assign(new Error('approved_reference_image_url_required_for_bj'),{status:400,code:'approved_reference_image_url_required_for_bj'});
-  const task=await createMeshyTask(spec.generationType,payload);
-  const evidence={authority:'founder-or-admin',ceoObjective:'product-readiness',distinguishedEngineeringOwner:true,provider:'meshy.ai',generationSubmittedAt:new Date().toISOString(),generationTaskId:task.id};
-  const rows=await adminRest('meshy_asset_jobs',{method:'POST',body:{
+
+  // Persist before any credit-consuming provider call. A paid provider task can
+  // therefore never exist without a durable TRYAMM recovery row.
+  const queuedRows=await adminRest('meshy_asset_jobs',{method:'POST',body:{
     owner_user_id:user.id,asset_id:spec.assetId,filename:spec.filename,city_scope:String(cityScope||'global').slice(0,80),
     generation_type:spec.generationType,prompt,source_image_url:spec.generationType==='image-to-3d'?payload.image_url:null,
-    stage:'generating',progress:1,provider_generation_task_id:task.id,evidence
+    stage:'queued',progress:0,evidence:{authority:'founder-or-admin',ceoObjective:'product-readiness',distinguishedEngineeringOwner:true,provider:'meshy.ai',queuedAt:new Date().toISOString()}
   }});
-  return rows?.[0];
+  const queued=queuedRows?.[0];
+  if(!queued)throw Object.assign(new Error('meshy_factory_queue_persist_failed'),{status:503,code:'meshy_factory_queue_persist_failed'});
+
+  const submitting=await claim(queued.id,'queued',{stage:'generation-submitting',progress:1,evidence:{...(queued.evidence||{}),generationSubmissionClaimedAt:new Date().toISOString()}});
+  if(!submitting)return await rowById(queued.id);
+
+  try{
+    const task=await createMeshyTask(spec.generationType,payload);
+    const attached=await attachProviderTask(queued.id,'generation-submitting',{
+      stage:'generating',progress:2,provider_generation_task_id:task.id,
+      evidence:{...(submitting.evidence||{}),generationSubmittedAt:new Date().toISOString(),generationTaskId:task.id}
+    });
+    if(attached)return attached;
+    return {...submitting,provider_generation_task_id:task.id,recovery_required:true};
+  }catch(error){
+    if(retryableError(error)){
+      await claim(queued.id,'generation-submitting',{stage:'queued',progress:0,error_code:'retryable_generation_submit',error_message:String(error?.message||error).slice(0,1000),evidence:{...(submitting.evidence||{}),retryableGenerationSubmitAt:new Date().toISOString()}});
+      throw error;
+    }
+    return failed(submitting,error?.code||'meshy_generation_submit_failed',error?.message||String(error));
+  }
 }
 
 export async function listMeshyFactoryJobs(user,{limit=30}={}){
@@ -109,27 +159,45 @@ export async function tickMeshyFactoryJobInternal(jobId){
     if(job.stage==='generating'){
       const snapshot=summarizeMeshyTask(await getMeshyTask(job.generation_type,job.provider_generation_task_id),job.generation_type);
       if(isFailure(snapshot.status))return failed(job,'meshy_generation_failed',snapshot.status);
-      if(!isSuccess(snapshot.status)||!snapshot.glb)return update(job.id,{progress:Math.max(1,Math.min(55,Math.round(Number(snapshot.progress||0)*.55))),provider_credits:snapshot.consumedCredits,evidence:{...(job.evidence||{}),generationStatus:snapshot.status,lastProviderPollAt:new Date().toISOString()}});
-      const rig=await createMeshyRiggingTask({modelUrl:snapshot.glb,heightMeters:spec.height});
-      job=await update(job.id,{stage:'rigging',progress:58,generation_glb_url:snapshot.glb,provider_generation_task_id:snapshot.id,provider_rig_task_id:rig.id,provider_credits:snapshot.consumedCredits,evidence:{...(job.evidence||{}),generationStatus:snapshot.status,rigSubmittedAt:new Date().toISOString(),rigTaskId:rig.id}});
-      return job;
+      if(!isSuccess(snapshot.status)||!snapshot.glb)return update(job.id,{progress:Math.max(2,Math.min(55,Math.round(Number(snapshot.progress||0)*.55))),provider_credits:snapshot.consumedCredits,error_code:null,error_message:null,evidence:{...(job.evidence||{}),generationStatus:snapshot.status,lastProviderPollAt:new Date().toISOString()}});
+      const claimed=await claim(job.id,'generating',{
+        stage:'rig-submitting',progress:57,generation_glb_url:snapshot.glb,provider_credits:snapshot.consumedCredits,
+        evidence:{...(job.evidence||{}),generationStatus:snapshot.status,generationCompletedAt:new Date().toISOString(),rigSubmissionClaimedAt:new Date().toISOString()}
+      });
+      if(!claimed)return await rowById(job.id);
+      try{
+        const rig=await createMeshyRiggingTask({modelUrl:snapshot.glb,heightMeters:spec.height});
+        return await attachProviderTask(job.id,'rig-submitting',{
+          stage:'rigging',progress:58,provider_rig_task_id:rig.id,error_code:null,error_message:null,
+          evidence:{...(claimed.evidence||{}),rigSubmittedAt:new Date().toISOString(),rigTaskId:rig.id}
+        })||{...claimed,provider_rig_task_id:rig.id,recovery_required:true};
+      }catch(error){
+        if(retryableError(error)){
+          return await claim(job.id,'rig-submitting',{stage:'generating',progress:56,error_code:'retryable_rig_submit',error_message:String(error?.message||error).slice(0,1000),evidence:{...(claimed.evidence||{}),retryableRigSubmitAt:new Date().toISOString()}})||await rowById(job.id);
+        }
+        return failed(claimed,error?.code||'meshy_rig_submit_failed',error?.message||String(error));
+      }
     }
     if(job.stage==='rigging'){
       const snapshot=summarizeMeshyRiggingTask(await getMeshyRiggingTask(job.provider_rig_task_id));
       if(isFailure(snapshot.status))return failed(job,'meshy_rigging_failed',snapshot.error||snapshot.status);
-      if(!isSuccess(snapshot.status)||!snapshot.riggedGlb)return update(job.id,{progress:Math.max(58,Math.min(85,58+Math.round(Number(snapshot.progress||0)*.27))),provider_credits:Number(job.provider_credits||0)+Number(snapshot.consumedCredits||0),evidence:{...(job.evidence||{}),rigStatus:snapshot.status,lastProviderPollAt:new Date().toISOString()}});
-      return update(job.id,{stage:'publishing',progress:88,rigged_glb_url:snapshot.riggedGlb,walking_glb_url:snapshot.walkingGlb,running_glb_url:snapshot.runningGlb,provider_credits:Number(job.provider_credits||0)+Number(snapshot.consumedCredits||0),evidence:{...(job.evidence||{}),rigStatus:snapshot.status,rigCompletedAt:new Date().toISOString()}});
+      if(!isSuccess(snapshot.status)||!snapshot.riggedGlb)return update(job.id,{progress:Math.max(58,Math.min(85,58+Math.round(Number(snapshot.progress||0)*.27))),provider_credits:Number(job.provider_credits||0)+Number(snapshot.consumedCredits||0),error_code:null,error_message:null,evidence:{...(job.evidence||{}),rigStatus:snapshot.status,lastProviderPollAt:new Date().toISOString()}});
+      const claimed=await claim(job.id,'rigging',{stage:'publishing',progress:88,rigged_glb_url:snapshot.riggedGlb,walking_glb_url:snapshot.walkingGlb,running_glb_url:snapshot.runningGlb,provider_credits:Number(job.provider_credits||0)+Number(snapshot.consumedCredits||0),error_code:null,error_message:null,evidence:{...(job.evidence||{}),rigStatus:snapshot.status,rigCompletedAt:new Date().toISOString()}});
+      return claimed||await rowById(job.id);
     }
     if(job.stage==='publishing'){
-      const base=`characters/${job.filename}`;
+      const scope=String(job.city_scope||'global').replace(/[^a-zA-Z0-9_-]/g,'-')||'global';
+      const version=String(job.id).replace(/[^a-zA-Z0-9_-]/g,'');
+      const base=`characters/${scope}/${version}/${job.filename}`;
       const main=await persistRemoteGlb(job.rigged_glb_url,base);
       const stem=job.filename.replace(/\.glb$/i,'');
-      const walk=job.walking_glb_url?await persistRemoteGlb(job.walking_glb_url,`characters/${stem}.walk.glb`):null;
-      const run=job.running_glb_url?await persistRemoteGlb(job.running_glb_url,`characters/${stem}.run.glb`):null;
-      return update(job.id,{stage:'ready',progress:100,published_path:main.path,public_url:main.url,walking_public_url:walk?.url||null,running_public_url:run?.url||null,completed_at:new Date().toISOString(),error_code:null,error_message:null,evidence:{...(job.evidence||{}),publishedAt:new Date().toISOString(),publishedBytes:main.bytes,walkingPublished:Boolean(walk),runningPublished:Boolean(run),releaseEvidence:'real provider task + validated GLB + durable storage'}});
+      const walk=job.walking_glb_url?await persistRemoteGlb(job.walking_glb_url,`characters/${scope}/${version}/${stem}.walk.glb`):null;
+      const run=job.running_glb_url?await persistRemoteGlb(job.running_glb_url,`characters/${scope}/${version}/${stem}.run.glb`):null;
+      return update(job.id,{stage:'ready',progress:100,published_path:main.path,public_url:main.url,walking_public_url:walk?.url||null,running_public_url:run?.url||null,completed_at:new Date().toISOString(),error_code:null,error_message:null,evidence:{...(job.evidence||{}),publishedAt:new Date().toISOString(),publishedBytes:main.bytes,walkingPublished:Boolean(walk),runningPublished:Boolean(run),immutableAssetVersion:version,releaseEvidence:'real provider task + validated GLB + durable storage'}});
     }
     return job;
   }catch(error){
+    if(retryableError(error))return retryable(job,error);
     return failed(job,error?.code||'meshy_factory_tick_failed',error?.message||String(error));
   }
 }
@@ -148,7 +216,8 @@ export function publicFactoryManifestRow(job){
 }
 
 export async function publicMeshyFactoryManifest({cityScope='global'}={}){
-  const rows=await adminRest('meshy_asset_jobs',{query:{stage:'eq.ready',city_scope:`in.(global,${String(cityScope||'global').replace(/[^a-zA-Z0-9_-]/g,'')})`,order:'completed_at.desc',limit:100}});
+  const scope=String(cityScope||'global').replace(/[^a-zA-Z0-9_-]/g,'')||'global';
+  const rows=await adminRest('meshy_asset_jobs',{query:{stage:'eq.ready',city_scope:`in.(global,${scope})`,order:'completed_at.desc',limit:100}});
   const seen=new Set();
   return (rows||[]).filter(row=>{if(seen.has(row.asset_id))return false;seen.add(row.asset_id);return true}).map(publicFactoryManifestRow);
 }
