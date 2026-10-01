@@ -1,31 +1,46 @@
-import {internetArchiveTimeline,commonCrawlTimeline,fetchInternetArchiveCapture,persistHistoricalCapture,nearestCapture,evidenceDifference,normalizeHistoricalUrl} from '../_lib/quantum-time-internet.js'
+import {internetArchiveTimeline,commonCrawlTimeline,storedHistoricalTimeline,fetchInternetArchiveCapture,persistHistoricalCapture,nearestCapture,evidenceDifference,normalizeHistoricalUrl} from '../_lib/quantum-time-internet.js'
 
 const clean=(v,n=1000)=>String(v??'').trim().slice(0,n)
 const yearOf=v=>{const m=String(v||'').match(/\b(18|19|20|21)\d{2}\b/);return m?Number(m[0]):undefined}
 
 async function timeline(url,body={}){
   const fromYear=yearOf(body.from||body.fromYear),toYear=yearOf(body.to||body.toYear)
-  const [wayback,commonCrawl]=await Promise.all([
+  const [wayback,commonCrawl,durable]=await Promise.all([
     internetArchiveTimeline(url,{fromYear,toYear,limit:body.limit||50}).catch(()=>[]),
     commonCrawlTimeline(url,{fromYear,toYear,limit:body.commonCrawlLimit||12}).catch(()=>[]),
+    storedHistoricalTimeline(url,{fromYear,toYear,limit:body.limit||50}).catch(()=>[]),
   ])
+  const seen=new Set(),captures=[]
+  for(const item of [...wayback,...commonCrawl,...durable].sort((a,b)=>String(a.capturedAt).localeCompare(String(b.capturedAt)))){
+    const key=[item.provider,item.capturedAt,item.digest||item.contentHash||''].join('|')
+    if(seen.has(key))continue
+    seen.add(key);captures.push(item)
+  }
   return {
     url:normalizeHistoricalUrl(url),
     completeness:'partial-observed-captures-only',
     warning:'Archives only show captures that actually exist. Missing captures are not evidence that a page or advertisement did not exist.',
-    providers:{internetArchive:wayback.length,commonCrawl:commonCrawl.length},
-    captures:[...wayback,...commonCrawl].sort((a,b)=>String(a.capturedAt).localeCompare(String(b.capturedAt))),
+    providers:{internetArchive:wayback.length,commonCrawl:commonCrawl.length,durableSaved:durable.length},
+    externalProvidersAvailable:{internetArchive:wayback.length>0,commonCrawl:commonCrawl.length>0},
+    captures,
   }
 }
 
 async function detailedCapture(url,date,businessName=''){
   const y=yearOf(date)
-  const captures=await internetArchiveTimeline(url,{fromYear:y,toYear:y,limit:60})
-  const chosen=nearestCapture(captures,date)
-  if(!chosen)return {found:false,date,url:normalizeHistoricalUrl(url),reason:'no_verified_snapshot_found'}
-  const detail=await fetchInternetArchiveCapture(chosen)
-  const persistence=await persistHistoricalCapture(url,detail,businessName)
-  return {found:true,dateRequested:date,capture:detail,persistence}
+  const [external,durable]=await Promise.all([
+    internetArchiveTimeline(url,{fromYear:y,toYear:y,limit:60}).catch(()=>[]),
+    storedHistoricalTimeline(url,{fromYear:y,toYear:y,limit:60}).catch(()=>[]),
+  ])
+  const chosen=nearestCapture(external,date)
+  if(chosen){
+    const detail=await fetchInternetArchiveCapture(chosen)
+    const persistence=await persistHistoricalCapture(url,detail,businessName)
+    return {found:true,dateRequested:date,capture:detail,persistence,source:'live-archive'}
+  }
+  const saved=nearestCapture(durable,date)
+  if(saved)return {found:true,dateRequested:date,capture:saved,persistence:{stored:true,existing:true,id:saved.id||null},source:'durable-time-index'}
+  return {found:false,date,url:normalizeHistoricalUrl(url),reason:'no_verified_snapshot_found'}
 }
 
 export default async function handler(req,res){
