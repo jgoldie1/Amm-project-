@@ -28,7 +28,7 @@ export default function StreetVerseWestSideMissionDirector(){
     const onOpen=()=>setOpen(true)
     const onPosition=(event:Event)=>{const d=(event as CustomEvent<{x?:number;z?:number}>).detail||{};if(Number.isFinite(Number(d.x))&&Number.isFinite(Number(d.z)))setPosition({x:Number(d.x),z:Number(d.z)})}
     const onClass=()=>advance('CLASS COMPLETE')
-    const onSchoolRoom=(event:Event)=>{const d=(event as CustomEvent<{roomId?:string}>).detail||{};if(mission?.id==='school-day'&&stageRef.current===2&&d.roomId==='gym')advance('GYM REACHED')}
+    const onSchoolRoom=(event:Event)=>{const d=(event as CustomEvent<{roomId?:string}>).detail||{};if(mission?.id==='school-day'&&stageRef.current===2&&d.roomId==='gym')finish('SCHOOL DAY COMPLETE • GYM REACHED')}
     const onUnit=(event:Event)=>{const d=(event as CustomEvent<{kind?:string}>).detail||{};const kind=String(d.kind||'');if(mission?.id==='fire-response'&&stageRef.current===1&&kind==='fire')advance('FIRE UNIT ON SCENE');if(mission?.id==='ems-crash'&&stageRef.current===1&&kind==='ambulance')advance('EMS ON SCENE');if(mission?.id==='traffic-safety'&&stageRef.current===1&&kind==='police')advance('POLICE ON SCENE')}
     const onResolved=(event:Event)=>{const d=(event as CustomEvent<{kind?:string}>).detail||{};if(mission?.id==='fire-response'&&stageRef.current>=2&&String(d.kind||'').includes('fire'))finish('FIRE INCIDENT CLEARED');if(mission?.id==='ems-crash'&&stageRef.current>=2)finish('EMS INCIDENT CLEARED')}
     const onRescueResolved=(event:Event)=>{const d=(event as CustomEvent<{kind?:string}>).detail||{};if(mission?.id==='fire-response'&&String(d.kind||'').includes('fire'))finish('FIRE RESCUE COMPLETE');if(mission?.id==='ems-crash'&&String(d.kind||'').includes('car-wreck'))finish('CRASH RESCUE COMPLETE')}
@@ -76,6 +76,12 @@ export default function StreetVerseWestSideMissionDirector(){
     if(stageRef.current===0&&dist<11)advance('ARRIVED AT OBJECTIVE')
   },[position.x,position.z,mission?.id,mission?.complete])
 
+  const routeToMission=()=>{
+    if(!mission)return
+    const target=mission.id==='school-day'?TARGETS.school:mission.id==='fire-response'?TARGETS.fire:mission.id==='ems-crash'?TARGETS.crash:TARGETS.traffic
+    window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{missionId:mission.id,...target,source:'west-side-mission-director'}}))
+  }
+
   const trafficAction=()=>{
     if(mission?.id!=='traffic-safety'||mission.complete)return
     if(stageRef.current===2){
@@ -105,6 +111,7 @@ export default function StreetVerseWestSideMissionDirector(){
         <button aria-label="Close mission card" onClick={()=>setMission(null)} style={{minWidth:36,minHeight:36,borderRadius:10,border:'1px solid #365469',background:'#0b1a25',color:'#fff'}}>×</button>
       </div>
       <div style={{fontSize:9,color:'#b9c8d1',marginTop:5}}>{mission.complete?'✓ COMPLETE':details?.steps[mission.stage]||'MISSION ACTIVE'}{note?' • '+note:''}</div>
+      {!mission.complete&&<button onClick={routeToMission} style={{...button,minHeight:40,marginTop:7,width:'100%',borderColor:'#68d7ff'}}>🧭 ROUTE ME TO OBJECTIVE</button>}
       {mission.id==='traffic-safety'&&!mission.complete&&mission.stage===2&&<button onClick={trafficAction} style={{...button,minHeight:42,marginTop:7,width:'100%'}}>SET SAFE TRAFFIC CONTROL</button>}
       {mission.complete&&<div style={{fontSize:8,color:'#9effbc',marginTop:5}}>300 XP pending server verification • choose another neighborhood mission from the quick menu.</div>}
     </section>}
