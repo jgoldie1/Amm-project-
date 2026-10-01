@@ -219,6 +219,77 @@ export async function startMeshyFactoryJob(user,{assetId,imageUrl,cityScope='glo
   return {...submitting,provider_generation_task_id:task.id,recovery_required:true};
 }
 
+export async function importExistingMeshyTask(user,{assetId,taskId,type='image-to-3d',cityScope='global'}={}){
+  requireFactoryAuthority(user);
+  const spec=specFor(assetId);
+  const providerType=['image-to-3d','multi-image-to-3d','text-to-3d'].includes(String(type||''))?String(type):'image-to-3d';
+  const providerTaskId=String(taskId||'').trim();
+  if(!providerTaskId)throw Object.assign(new Error('meshy_existing_task_id_required'),{status:400,code:'meshy_existing_task_id_required'});
+
+  const duplicate=await adminRest('meshy_asset_jobs',{query:{provider_generation_task_id:`eq.${providerTaskId}`,limit:1}});
+  if(duplicate?.[0])return duplicate[0];
+
+  const snapshot=summarizeMeshyTask(await getMeshyTask(providerType,providerTaskId),providerType);
+  if(!isSuccess(snapshot.status)||!snapshot.glb){
+    throw Object.assign(new Error(`Meshy task is not ready for import (${snapshot.status||'UNKNOWN'})`),{status:409,code:'meshy_existing_task_not_ready'});
+  }
+
+  const rows=await adminRest('meshy_asset_jobs',{method:'POST',body:{
+    owner_user_id:user.id,
+    asset_id:spec.assetId,
+    filename:spec.filename,
+    city_scope:String(cityScope||'global').slice(0,80),
+    generation_type:providerType,
+    prompt:spec.prompt||null,
+    source_image_url:null,
+    stage:'rig-submitting',
+    progress:57,
+    provider_generation_task_id:providerTaskId,
+    generation_glb_url:snapshot.glb,
+    provider_credits:snapshot.consumedCredits,
+    evidence:{
+      authority:'founder-or-admin',
+      provider:'meshy.ai',
+      importedExistingTask:true,
+      importedAt:new Date().toISOString(),
+      originalProviderStatus:snapshot.status,
+      generationTaskId:providerTaskId,
+      reusedGenerationCredits:true
+    }
+  }});
+  const imported=rows?.[0];
+  if(!imported)throw Object.assign(new Error('meshy_existing_task_import_persist_failed'),{status:503,code:'meshy_existing_task_import_persist_failed'});
+
+  let rig;
+  try{
+    rig=await createMeshyRiggingTask({modelUrl:snapshot.glb,heightMeters:spec.height});
+  }catch(error){
+    if(retryableError(error)){
+      return await update(imported.id,{
+        stage:'generating',
+        progress:56,
+        error_code:'retryable_import_rig_submit',
+        error_message:String(error?.message||error).slice(0,1000),
+        evidence:{...(imported.evidence||{}),retryableImportRigSubmitAt:new Date().toISOString()}
+      });
+    }
+    return failed(imported,error?.code||'meshy_import_rig_submit_failed',error?.message||String(error));
+  }
+
+  try{
+    return await attachProviderTask(imported.id,'rig-submitting',{
+      stage:'rigging',
+      progress:58,
+      provider_rig_task_id:rig.id,
+      error_code:null,
+      error_message:null,
+      evidence:{...(imported.evidence||{}),rigSubmittedAt:new Date().toISOString(),rigTaskId:rig.id,importedExistingTask:true}
+    })||{...imported,provider_rig_task_id:rig.id,recovery_required:true};
+  }catch(error){
+    return {...imported,provider_rig_task_id:rig.id,recovery_required:true,recovery_error:String(error?.message||error)};
+  }
+}
+
 export async function listMeshyFactoryJobs(user,{limit=30}={}){
   requireFactoryAuthority(user);
   return await adminRest('meshy_asset_jobs',{query:{owner_user_id:`eq.${user.id}`,order:'created_at.desc',limit:Math.max(1,Math.min(100,Number(limit)||30))}})||[];
