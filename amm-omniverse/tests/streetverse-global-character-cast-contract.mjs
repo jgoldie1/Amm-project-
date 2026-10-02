@@ -5,6 +5,7 @@ const read=rel=>fs.readFileSync(new URL(rel,import.meta.url),'utf8')
 const registry=read('../src/data/StreetVerseGlobalCharacterRegistry.ts')
 const world=read('../src/components/StreetVerseGlobalWorld.tsx')
 const globalRegistry=read('../src/data/StreetVerseGlobalRegistry.ts')
+const mobile=read('../src/components/StreetVerseMobileWorld.tsx')
 
 for(const city of ['chicago','lagos','abuja','accra','nairobi','johannesburg','addis-ababa']){
  assert.ok(registry.includes(`${city}:[`)||registry.includes(`'${city}':[`),`first-wave global character cast missing ${city}`)
@@ -30,5 +31,7 @@ for(const token of [
 
 assert.ok(globalRegistry.includes("id:'lagos'")&&globalRegistry.includes("id:'abuja'"),'Nigeria launch cities must remain in global registry')
 assert.ok(world.includes('Generic rigs are not likeness claims.'),'global UI must not misrepresent generic rigs as real-person likenesses')
+assert.ok(mobile.includes("else if(savedPlayable?.assetId&&savedPlayable.assetId!=='sv-bj-stubbs-v6')"),'saved global character must load its generic rig when StreetVerse opens')
+assert.ok(mobile.includes("activateFamilyStandIn(String(savedPlayable.assetId)"),'mobile world must materialize the persisted global character instead of silently resetting to BJ')
 
 console.log('StreetVerse Global city character cast contract: PASS')
