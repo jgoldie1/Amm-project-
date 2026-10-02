@@ -273,6 +273,9 @@ queueMicrotask(() => {
     import('./runtime/HolographicInternetGoogloplexBridge')
       .then(m => m.installHolographicInternetBridge())
       .catch(error => console.error('[TRYAMM] Holographic Internet failed after StreetVerse mount.', error))
+    import('./runtime/StreetVerseHolographicCadRuntime')
+      .then(m => m.installStreetVerseHolographicCadRuntime())
+      .catch(error => console.error('[TRYAMM] StreetVerse CAD failed after StreetVerse mount.', error))
     return
   }
   installOptionalRuntimes()
