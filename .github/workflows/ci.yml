@@ -41,6 +41,9 @@ jobs:
           node-version: 24
           package-manager-cache: false
 
+      - name: Verify finish-line CI routing
+        run: node amm-omniverse/tests/tryamm-ci-finish-acceleration-contract.mjs
+
       - name: Install root dependencies
         run: npm install --no-audit --no-fund
 
