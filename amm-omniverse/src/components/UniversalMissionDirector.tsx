@@ -143,6 +143,14 @@ function expectedEvent(step:UniversalMissionStep,progress:MissionProgress):Unive
   return step.event||'manual'
 }
 
+function expectedAction(step:UniversalMissionStep,progress:MissionProgress):UniversalMissionAction|undefined{
+  if(step.actionByChoice&&step.choiceSourceStepId){
+    const selected=progress.choices[step.choiceSourceStepId]
+    return step.actionByChoice[selected]||step.action
+  }
+  return step.action
+}
+
 function matchesDetail(step:UniversalMissionStep,detail:any){
   if(!step.match)return true
   return Object.entries(step.match).every(([key,value])=>String(detail?.[key]??'').toLowerCase()===String(value).toLowerCase())
@@ -157,6 +165,7 @@ function signalFromBrowserEvent(name:string,detail:any):UniversalMissionEvent|nu
   if(name==='tryamm:streetverse-world-event-join')return 'world-event-join'
   if(name==='tryamm:streetverse-checkpoint')return 'street-checkpoint'
   if(name==='tryamm:streetverse-mission-complete')return 'mission-complete'
+  if(name==='tryamm:hero-realms-encounter-complete')return 'hero-encounter-complete'
   return null
 }
 
@@ -169,6 +178,7 @@ export default function UniversalMissionDirector({defaultWorld='streetverse'}:{d
   const active=progress?getUniversalMission(progress.missionId):undefined
   const step=active&&progress?active.steps[Math.min(progress.step,active.steps.length-1)]:undefined
   const activeSignal=step&&progress?expectedEvent(step,progress):'manual'
+  const activeAction=step&&progress?expectedAction(step,progress):undefined
 
   const start=(mission:UniversalMission)=>{
     const next:MissionProgress={missionId:mission.id,step:0,status:'active',startedAt:new Date().toISOString(),choices:{}}
@@ -208,6 +218,7 @@ export default function UniversalMissionDirector({defaultWorld='streetverse'}:{d
       'tryamm:streetverse-world-event-join',
       'tryamm:streetverse-checkpoint',
       'tryamm:streetverse-mission-complete',
+      'tryamm:hero-realms-encounter-complete',
     ] as const
     const onSignal=(event:Event)=>{
       const detail=(event as CustomEvent<any>).detail||{}
@@ -271,8 +282,8 @@ export default function UniversalMissionDirector({defaultWorld='streetverse'}:{d
         <div style={{fontSize:11,color:'#d7d0b1',marginTop:5}}>Objective {progress.step+1}/{active.steps.length}: <b>{step.label}</b></div>
         <div style={{fontSize:10,lineHeight:1.45,marginTop:4,color:'#b9c6d0'}}>{step.detail}</div>
         {step.choices?.length?<div style={{display:'grid',gap:6,marginTop:9}}>{step.choices.map(choice=><button key={choice.id} onClick={()=>choose(step.id,choice.id)} style={{...btn,textAlign:'left',borderColor:'#b794ff88',background:'#130d22'}}><b>{choice.label}</b><span style={{display:'block',fontSize:9,opacity:.75,marginTop:2}}>{choice.detail}</span></button>)}</div>:null}
-        {!step.choices&&<div style={{display:'grid',gridTemplateColumns:step.action?'1fr 1fr':'1fr',gap:6,marginTop:8}}>
-          {step.action?<button onClick={()=>{setOpen(false);runAction(step.action)}} style={btn}>GO / OPEN</button>:null}
+        {!step.choices&&<div style={{display:'grid',gridTemplateColumns:activeAction?'1fr 1fr':'1fr',gap:6,marginTop:8}}>
+          {activeAction?<button onClick={()=>{setOpen(false);runAction(activeAction)}} style={btn}>GO / OPEN</button>:null}
           {activeSignal==='manual'?<button onClick={advance} style={{...btn,borderColor:'#78ffb488',color:'#bfffd8'}}>{progress.step===active.steps.length-1?'FINISH MISSION':'OBJECTIVE DONE'}</button>:<div aria-live="polite" style={{...btn,display:'grid',placeItems:'center',borderColor:'#5be7ff66',color:'#aeefff',cursor:'default'}}>AUTO-CHECK • {activeSignal.replaceAll('-',' ').toUpperCase()}</div>}
         </div>}
         {Object.keys(progress.choices).length>0&&<div style={{fontSize:9,color:'#bca8ff',marginTop:8}}>Story choices: {Object.values(progress.choices).join(' • ')}</div>}
