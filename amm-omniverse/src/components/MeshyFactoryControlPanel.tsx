@@ -2,6 +2,7 @@ import {useEffect,useMemo,useState} from 'react'
 import {getAccessToken,getSupabaseClient} from '../services/supabaseClient'
 import Meshy3DPrintLab from './Meshy3DPrintLab'
 import TwelveDPrivateRnDPanel from './TwelveDPrivateRnDPanel'
+import PrintAICommandPanel from './PrintAICommandPanel'
 
 type CatalogItem={assetId:string;filename:string;generationType:string;height:number;ageLane:string;role:string}
 type Job={id:string;asset_id:string;filename:string;stage:string;progress:number;provider_generation_task_id?:string;provider_rig_task_id?:string;public_url?:string;walking_public_url?:string;running_public_url?:string;error_message?:string;created_at?:string}
@@ -224,6 +225,7 @@ export default function MeshyFactoryControlPanel(){
       </section>
 
       <Meshy3DPrintLab jobs={jobs}/>
+      <PrintAICommandPanel/>
       <TwelveDPrivateRnDPanel/>
 
       <section style={{marginTop:12,padding:12,border:'1px solid #5c4a24',borderRadius:16,background:'#171207dd'}}>
