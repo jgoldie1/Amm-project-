@@ -1,5 +1,7 @@
 # 12D City of Light — Master Architecture
 
+**Publication boundary:** This document is the intentionally public, high-level concept/reference architecture. Confidential experiments, detailed machine/control research, unpublished process parameters, test evidence, private CAD/process notes, and commercialization-sensitive 12D material belong in the founder/admin private R&D vault. Do not commit confidential 12D R&D to this public repository. A future publication approval record does not itself publish the private material.
+
 Status: CONCEPT / REFERENCE ARCHITECTURE. Physical systems require engineering, permitting, certification, testing, financing, and land control before construction.
 
 ## Vision
