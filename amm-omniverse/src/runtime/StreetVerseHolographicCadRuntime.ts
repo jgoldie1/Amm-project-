@@ -96,12 +96,16 @@ export function installStreetVerseHolographicCadRuntime(){
   }
 
   window.addEventListener('tryamm:cad-command',onCommand as EventListener)
-  ;(window as Window&{__tryammCad?:unknown}).__tryammCad={
+  ;(window as Window&{__tryammCad?:unknown;__showCad?:()=>void}).__tryammCad={
     execute:executeCadCommand,
     load:loadCadDocument,
     build:(cadId:string)=>createHolographicCadBuild(requireDoc(cadId)),
     exportDxf:(cadId:string)=>exportCadDxf(requireDoc(cadId)),
     exportJson:(cadId:string)=>exportCadJson(requireDoc(cadId)),
+  }
+  ;(window as Window&{__showCad?:()=>void}).__showCad=()=>{
+    window.dispatchEvent(new CustomEvent('tryamm:cad-workbench-open',{detail:{source:'hologpt-or-command'}}))
+    window.dispatchEvent(new CustomEvent('tryamm:hologpt-study-context',{detail:{prompt:'Open StreetVerse Holographic CAD. Help me build the selected building from authorized references: structure, floors, rooms, stairs, elevators where applicable, plumbing simulation, accessibility, collision/navigation, then authorized photorealistic facade wrap and mobile LODs. Google Street View remains reference-navigation-only and must not be embedded as a persistent texture.'}}))
   }
   window.dispatchEvent(new CustomEvent('tryamm:cad-ready',{detail:{
     systems:['structure','architecture','stairs','elevator','plumbing','electrical','hvac','fire-safety','accessibility','collision','navigation','facade','lighting'],
@@ -114,6 +118,7 @@ export function installStreetVerseHolographicCadRuntime(){
   return()=>{
     window.removeEventListener('tryamm:cad-command',onCommand as EventListener)
     delete (window as Window&{__tryammCad?:unknown}).__tryammCad
+    delete (window as Window&{__showCad?:unknown}).__showCad
     installed=false
   }
 }
