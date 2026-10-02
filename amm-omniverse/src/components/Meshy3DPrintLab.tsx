@@ -37,14 +37,17 @@ export default function Meshy3DPrintLab({jobs}:{jobs:ReadyMeshyJob[]}){
   const [analysis,setAnalysis]=useState<MeshyPrintableAnalysis|null>(null)
   const [busy,setBusy]=useState('')
   const [message,setMessage]=useState('')
+  const [localFile,setLocalFile]=useState<File|null>(null)
 
   const selected=ready.find(job=>job.id===jobId)||ready[0]
+  const sourceUrl=localFile?URL.createObjectURL(localFile):(selected?.public_url||'')
+  const sourceAssetId=localFile?`local:${localFile.name}`:(selected?.asset_id||'meshy-model')
 
   const analyze=async()=>{
-    if(!selected?.public_url)return
+    if(!sourceUrl)return
     setBusy('analyze');setMessage('')
     try{
-      const scene=await loadMeshyPrintableGlb(selected.public_url)
+      const scene=await loadMeshyPrintableGlb(sourceUrl)
       const result=analyzeMeshyPrintableScene(scene)
       setAnalysis(result)
       setMessage(result.nonEmpty?`Mesh analyzed: ${result.meshCount} mesh(es), ${result.triangleCount.toLocaleString()} triangles.`:'This model is not ready for print export.')
@@ -53,20 +56,20 @@ export default function Meshy3DPrintLab({jobs}:{jobs:ReadyMeshyJob[]}){
   }
 
   const exportFile=async(format:'stl-binary'|'obj')=>{
-    if(!selected?.public_url)return
+    if(!sourceUrl)return
     setBusy(format);setMessage('')
     try{
-      const scene=await loadMeshyPrintableGlb(selected.public_url)
+      const scene=await loadMeshyPrintableGlb(sourceUrl)
       const current=analysis||analyzeMeshyPrintableScene(scene)
       setAnalysis(current)
       const gate=canPrepareMeshyPrint({analysis:current,rightsAcknowledged:rights})
       if(!gate.allowed)throw new Error(`Print prep blocked: ${gate.reasons.join(', ')}`)
       const blob=await exportMeshyPrintFile(scene,format,targetHeight)
-      const stem=(selected.filename||selected.asset_id||'meshy-model').replace(/\.glb$/i,'').replace(/[^a-zA-Z0-9._-]/g,'-')
+      const stem=(localFile?.name||selected?.filename||selected?.asset_id||'meshy-model').replace(/\.glb$/i,'').replace(/[^a-zA-Z0-9._-]/g,'-')
       saveBlob(blob,`${stem}.${format==='obj'?'obj':'stl'}`)
       const manifest=makeMeshyPrintManifest({
-        sourceAssetId:selected.asset_id,
-        sourceUrl:selected.public_url,
+        sourceAssetId,
+        sourceUrl:localFile?`local-file:${localFile.name}`:sourceUrl,
         outputFormat:format,
         profile,
         targetHeightMm:targetHeight,
@@ -90,6 +93,9 @@ export default function Meshy3DPrintLab({jobs}:{jobs:ReadyMeshyJob[]}){
         <select value={selected?.id||''} onChange={e=>{setJobId(e.target.value);setAnalysis(null);setMessage('')}} style={{width:'100%',minHeight:44,borderRadius:10,border:'1px solid #426d63',background:'#06110e',color:'#fff',padding:'0 8px',marginTop:4}}>
           {ready.length===0?<option value="">No published Meshy GLB yet</option>:ready.map(job=><option key={job.id} value={job.id}>{job.filename||job.asset_id}</option>)}
         </select>
+      </label>
+      <label style={{fontSize:9,color:'#b5cfc6'}}>LOCAL MESHY GLB (OPTIONAL)
+        <input type="file" accept=".glb,model/gltf-binary,application/octet-stream" onChange={e=>{setLocalFile(e.target.files?.[0]||null);setAnalysis(null);setMessage('')}} style={{display:'block',width:'100%',marginTop:6,color:'#fff',fontSize:9}}/>
       </label>
       <label style={{fontSize:9,color:'#b5cfc6'}}>TARGET HEIGHT (MM)
         <input type="number" min={5} max={2000} value={targetHeight} onChange={e=>setTargetHeight(Math.max(5,Math.min(2000,Number(e.target.value)||120)))} style={{width:'100%',minHeight:44,boxSizing:'border-box',borderRadius:10,border:'1px solid #426d63',background:'#06110e',color:'#fff',padding:'0 8px',marginTop:4}}/>
@@ -117,9 +123,9 @@ export default function Meshy3DPrintLab({jobs}:{jobs:ReadyMeshyJob[]}){
     </div>}
 
     <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:6,marginTop:9}}>
-      <button disabled={!selected?.public_url||Boolean(busy)} onClick={()=>void analyze()} style={btn}>{busy==='analyze'?'CHECKING…':'ANALYZE'}</button>
-      <button disabled={!selected?.public_url||Boolean(busy)||!rights} onClick={()=>void exportFile('stl-binary')} style={btn}>{busy==='stl-binary'?'PREPARING…':'EXPORT STL'}</button>
-      <button disabled={!selected?.public_url||Boolean(busy)||!rights} onClick={()=>void exportFile('obj')} style={btn}>{busy==='obj'?'PREPARING…':'EXPORT OBJ'}</button>
+      <button disabled={!sourceUrl||Boolean(busy)} onClick={()=>void analyze()} style={btn}>{busy==='analyze'?'CHECKING…':'ANALYZE'}</button>
+      <button disabled={!sourceUrl||Boolean(busy)||!rights} onClick={()=>void exportFile('stl-binary')} style={btn}>{busy==='stl-binary'?'PREPARING…':'EXPORT STL'}</button>
+      <button disabled={!sourceUrl||Boolean(busy)||!rights} onClick={()=>void exportFile('obj')} style={btn}>{busy==='obj'?'PREPARING…':'EXPORT OBJ'}</button>
     </div>
     {message&&<div aria-live="polite" style={{fontSize:9,color:message.includes('blocked')?'#ffb1a9':'#9dffd4',marginTop:7}}>{message}</div>}
     <div style={{fontSize:8,color:'#769188',marginTop:7}}>{MESHY_3D_PRINT_PIPELINE.topologyNote}</div>
