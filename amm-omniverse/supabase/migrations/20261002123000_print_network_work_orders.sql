@@ -39,6 +39,7 @@ create table if not exists public.print_network_jobs (
   source_asset_url text,
   source_manifest jsonb not null default '{}'::jsonb,
   title text not null,
+  product_category text not null default 'general',
   quantity integer not null default 1 check (quantity between 1 and 500),
   process text not null default 'fdm'
     check (process in ('fdm','sla','sls','other')),
@@ -139,6 +140,7 @@ create table if not exists public.print_network_earnings (
 
 create index if not exists print_network_operators_status_idx on public.print_network_operators(certification_status,availability,updated_at desc);
 create index if not exists print_network_jobs_status_idx on public.print_network_jobs(status,process,material,created_at);
+create index if not exists print_network_jobs_category_idx on public.print_network_jobs(product_category,safety_status,status,created_at);
 create index if not exists print_network_jobs_operator_idx on public.print_network_jobs(assigned_operator_id,status,updated_at desc);
 create index if not exists print_network_qa_job_idx on public.print_network_qa_evidence(job_id,evidence_type,review_status);
 create index if not exists print_network_earnings_operator_idx on public.print_network_earnings(operator_id,payout_status,created_at desc);
