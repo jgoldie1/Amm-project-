@@ -4,6 +4,10 @@ import {
   printNetworkDashboard,
   applyPrintOperator,
   updatePrintOperatorAvailability,
+  registerPrintPrinter,
+  submitPrinterQualificationSample,
+  qualifyPrintPrinter,
+  updatePrintPrinterAvailability,
   certifyPrintOperator,
   createPrintRequest,
   reviewPrintRequest,
@@ -34,13 +38,25 @@ export default async function handler(req,res){
         const operator=await updatePrintOperatorAvailability(user,body.availability)
         return json(res,200,{ok:true,action,operator})
       }
+      if(action==='register-printer'){
+        const printer=await registerPrintPrinter(user,body)
+        return json(res,201,{ok:true,action,printer,message:'Printer registered. It cannot accept paid work until its sample/calibration evidence is reviewed and it becomes TRYAMM-qualified.'})
+      }
+      if(action==='submit-printer-sample'){
+        const printer=await submitPrinterQualificationSample(user,body)
+        return json(res,200,{ok:true,action,printer})
+      }
+      if(action==='printer-availability'){
+        const printer=await updatePrintPrinterAvailability(user,body)
+        return json(res,200,{ok:true,action,printer})
+      }
       if(action==='request'){
         const job=await createPrintRequest(user,body)
         return json(res,201,{ok:true,action,job,message:'Print request created. It is not released to operators until payment, rights and safety checks are verified.'})
       }
       if(action==='claim'){
-        const job=await claimPrintJob(user,body.jobId)
-        return json(res,200,{ok:true,action,job})
+        const job=await claimPrintJob(user,body.jobId,body.printerId)
+        return json(res,200,{ok:true,action,job,message:'Job accepted only after certified-operator + qualified-compatible-printer checks passed.'})
       }
       if(action==='advance'){
         const job=await advanceOwnPrintJob(user,body)
@@ -49,6 +65,10 @@ export default async function handler(req,res){
       if(action==='certify-operator'){
         const operator=await certifyPrintOperator(user,body)
         return json(res,200,{ok:true,action,operator})
+      }
+      if(action==='qualify-printer'){
+        const printer=await qualifyPrintPrinter(user,body)
+        return json(res,200,{ok:true,action,printer,externalCertificationImplied:false})
       }
       if(action==='review-job'){
         const job=await reviewPrintRequest(user,body)
