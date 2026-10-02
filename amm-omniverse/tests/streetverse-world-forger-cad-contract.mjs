@@ -11,6 +11,7 @@ const factory=read('../api/_lib/meshy-factory.js')
 const factoryApi=read('../api/meshy/factory.js')
 const factoryPanel=read('../src/components/MeshyFactoryControlPanel.tsx')
 const chicago=read('../src/game/forger/ChicagoCommunityAreaWorldForge.ts')
+const placement=read('../src/runtime/StreetVerseWorldForgePlacementRuntime.ts')
 
 for(const cell of [
   'Circle Park / ABLA Legacy District',
@@ -49,6 +50,7 @@ assert.ok(chicago.includes("'Austin','West Garfield Park','East Garfield Park','
 assert.ok(panel.includes('CHICAGO CITYWIDE QUEUE'),'World Forger UI must expose citywide expansion status')
 
 assert.ok(main.includes("const WorldForgerControlPanel=lazy(()=>import('./components/WorldForgerControlPanel'))"),'World Forger must stay lazy-loaded')
+assert.ok(main.includes("installStreetVerseWorldForgePlacementRuntime"),'main bootstrap must install the lazy World Forger placement runtime')
 assert.ok(main.includes("'/world-forger'")&&main.includes("'/cad'"),'World Forger/CAD routes missing')
 assert.ok(holo.includes('__showWorldForger'),'HoloGPT must route build/CAD commands into World Forger')
 assert.ok(cursor.includes('tryamm:world-forge-context-ready'),'Cursor/Construct bridge must send build context to World Forger')
@@ -63,5 +65,10 @@ assert.ok(factory.includes("publishFolderForSpec(spec)"),'World Forger assets mu
 assert.ok(factoryApi.includes("action==='start-world-forger'"),'factory API must expose explicit World Forger action')
 assert.ok(factoryPanel.includes('WORLD FORGER HANDOFF'),'Meshy Factory UI must show the incoming World Forger plan')
 assert.ok(factoryPanel.includes('I understand this may consume Meshy credits.'),'credit-consuming generation must require visible confirmation')
+assert.ok(panel.includes("tryamm.world-forger.placements.v1"),'World Forger plan must persist an in-game placement')
+assert.ok(placement.includes('subscribeStreetVerseScene'),'World Forger placement runtime must attach to the real StreetVerse scene registry')
+assert.ok(placement.includes('GLTFLoader'),'ready forged GLBs must load through the lazy placement runtime')
+assert.ok(placement.includes("handle.collisionBoxes.push(box)"),'forged static assets must be able to contribute runtime collision')
+assert.ok(placement.includes('tryamm:world-forge-asset-placed'),'placement runtime must emit visible asset evidence')
 
 console.log('StreetVerse World Forger + CAD + Meshy handoff contract: PASS')
