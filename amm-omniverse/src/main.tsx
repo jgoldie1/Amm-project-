@@ -169,6 +169,7 @@ const entryDiagnostic = (() => {
 const installOptionalRuntimes = () => {
   import('./runtime/TRYAMMSystemFabricRuntime').then(m => m.installTryammSystemFabricRuntime()).catch(error => console.error('[TRYAMM] System fabric failed after core mount.', error))
   import('./runtime/StreetVerseGameOpsRuntime').then(m => m.installStreetVerseGameOpsRuntime()).catch(error => console.error('[TRYAMM] Game Ops failed after core mount.', error))
+  import('./runtime/StreetVerseWorldForgePlacementRuntime').then(m => m.installStreetVerseWorldForgePlacementRuntime()).catch(error => console.error('[TRYAMM] World Forger placement runtime failed after core mount.', error))
   import('./runtime/ProductionHealthMonitor').then(m => m.installProductionHealthMonitor()).catch(error => console.error('[TRYAMM] Optional runtime installProductionHealthMonitor failed after core mount.', error))
   import('./runtime/StreetVerseAssetExecutiveRuntime').then(m => m.installStreetVerseAssetExecutiveRuntime()).catch(error => console.error('[TRYAMM] Optional asset executive runtime failed after core mount.', error))
   import('./runtime/mediaCloudBridge').then(m => m.installMediaCloudBridge()).catch(error => console.error('[TRYAMM] Optional runtime installMediaCloudBridge failed after core mount.', error))
