@@ -2,12 +2,13 @@ import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {resolvePublishedMeshyAsset,resetPublishedMeshyManifest} from './StreetVerseMeshyAssetManifest'
 import {normalizeStreetVerseHumanHeight} from './StreetVerseHumanScale'
+import {TRYAMM_NATIVE_RUNTIME_ASSETS} from '../data/TryammNativeRuntimeAssetCatalog'
 
 export type PublishedBodyBaseId='sv-james-body-base-v1'|'sv-female-body-base-v1'
 
-const SPECS:Record<PublishedBodyBaseId,{name:string;height:number}>={
-  'sv-james-body-base-v1':{name:'James boy/youth body base',height:1.55},
-  'sv-female-body-base-v1':{name:'Black/mixed-global female body base',height:1.68},
+const SPECS:Record<PublishedBodyBaseId,{name:string;height:number;nativeUrl:string}>={
+  'sv-james-body-base-v1':{name:'James boy/youth body base',height:1.55,nativeUrl:TRYAMM_NATIVE_RUNTIME_ASSETS.residentA.url},
+  'sv-female-body-base-v1':{name:'Black/mixed-global female body base',height:1.68,nativeUrl:TRYAMM_NATIVE_RUNTIME_ASSETS.residentB.url},
 }
 
 export type StreetVersePublishedBodyHandle={
@@ -24,11 +25,12 @@ const loader=new GLTFLoader()
 export async function loadStreetVersePublishedBodyBase(assetId:PublishedBodyBaseId,cityScope='global'):Promise<StreetVersePublishedBodyHandle|null>{
   const spec=SPECS[assetId]
   const published=await resolvePublishedMeshyAsset(assetId,cityScope)
-  if(!published?.url)return null
+  const sourceUrl=published?.url||spec.nativeUrl
+  const nativeFallback=!published?.url
   try{
-    const gltf=await loader.loadAsync(published.url)
+    const gltf=await loader.loadAsync(sourceUrl)
     const object=gltf.scene
-    object.name=`meshy-body-${assetId}`
+    object.name=`${nativeFallback?'native':'meshy'}-body-${assetId}`
     normalizeStreetVerseHumanHeight(object,spec.height)
     object.traverse(node=>{
       if(node instanceof THREE.Mesh){
@@ -38,7 +40,7 @@ export async function loadStreetVersePublishedBodyBase(assetId:PublishedBodyBase
       }
     })
     const companion:THREE.AnimationClip[]=[]
-    for(const [url,name] of [[published.walkUrl,'walk'],[published.runUrl,'run']] as const){
+    for(const [url,name] of [[published?.walkUrl,'walk'],[published?.runUrl,'run']] as const){
       if(!url)continue
       try{
         const extra=await loader.loadAsync(url)
@@ -63,7 +65,8 @@ export async function loadStreetVersePublishedBodyBase(assetId:PublishedBodyBase
       const dt=THREE.MathUtils.clamp((nowMs-previousNow)/1000,0,.05);previousNow=nowMs;mixer?.update(dt)
     }
     const dispose=()=>{mixer?.stopAllAction();object.removeFromParent();object.traverse(node=>{if(node instanceof THREE.Mesh){node.geometry?.dispose();const mats=Array.isArray(node.material)?node.material:[node.material];mats.forEach(material=>material?.dispose())}})}
-    object.userData={...object.userData,assetId,displayName:spec.name,publishedMeshy:true,identityNeutral:assetId==='sv-james-body-base-v1'}
+    object.userData={...object.userData,assetId,displayName:spec.name,publishedMeshy:!nativeFallback,tryammNativeFallback:nativeFallback,sourceUrl,identityNeutral:assetId==='sv-james-body-base-v1',finalLikeness:false}
+    if(typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:streetverse-body-source',{detail:{assetId,source:nativeFallback?'tryamm-native':'meshy',sourceUrl,upgradePending:nativeFallback}}))
     return{assetId,object,mixer,clips,tick,dispose}
   }catch{return null}
 }
