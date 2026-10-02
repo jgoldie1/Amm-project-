@@ -1,0 +1,79 @@
+{
+  "schema": "tryamm.streetverse.geography-source-policy.v1",
+  "purpose": "Build StreetVerse Chicago from authorized geographic/open data while keeping visual-reference sources separate from distributable game assets.",
+  "chicago": {
+    "communityAreaDefinition": {
+      "source": "City of Chicago / official community-area framework",
+      "westSideCommunityAreas": [
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "use": "canonical community-area IDs/names and source-backed boundary ingestion"
+    },
+    "geometrySources": [
+      {
+        "name": "City of Chicago Data Portal",
+        "use": [
+          "community-area boundaries",
+          "streets",
+          "public facilities",
+          "other authorized open datasets"
+        ],
+        "mode": "authorized-data-ingest",
+        "provenanceRequired": true
+      },
+      {
+        "name": "OpenStreetMap",
+        "use": [
+          "street graph",
+          "intersection topology",
+          "building/POI experiments where license obligations are satisfied"
+        ],
+        "mode": "licensed-open-data-ingest",
+        "attributionRequired": true
+      }
+    ],
+    "transitSources": [
+      {
+        "name": "CTA / GTFS or other authorized transit feeds",
+        "use": [
+          "routes",
+          "stops",
+          "station topology"
+        ],
+        "mode": "authorized-data-ingest",
+        "provenanceRequired": true
+      }
+    ],
+    "visualReferenceSources": [
+      {
+        "name": "Google Street View",
+        "mode": "reference-only",
+        "permittedProjectUse": "human visual QA/reference for streetscape proportions, facade types, street furniture, tree placement patterns and neighborhood character",
+        "notFor": [
+          "scraping",
+          "bulk download",
+          "texture extraction",
+          "photogrammetry reconstruction from imagery",
+          "training a StreetVerse asset model from imagery",
+          "shipping imagery as a game asset"
+        ],
+        "note": "A separately approved Google Maps Platform integration may have its own terms and attribution requirements; reference-only is the default StreetVerse rule."
+      },
+      {
+        "name": "Founder/user-owned or licensed photos",
+        "mode": "asset-reference-allowed-after-rights-check",
+        "provenanceRequired": true
+      }
+    ]
+  },
+  "buildRule": "Geometry/data and visual reference are separate lanes. A neighborhood may not be called source-certified until geography, provenance, collision, navigation, mobile performance and visual QA gates pass.",
+  "noResidentTracking": true
+}
