@@ -85,12 +85,11 @@ export default defineConfig({
           // its own cacheable chunk reduces the core download and lets routes load the
           // utility layer independently when they actually need it.
           if (id.includes('/three-stdlib/')) return 'vendor-three-stdlib'
-          // Quantum Slicer: independently cache stable Three.js subsystems.
-          if (id.includes('/three/src/renderers/')) return 'vendor-three-renderer'
-          if (id.includes('/three/src/math/')) return 'vendor-three-math'
-          if (id.includes('/three/src/geometries/') || id.includes('/three/src/objects/')) return 'vendor-three-geometry'
-          if (id.includes('/three/src/materials/') || id.includes('/three/src/textures/')) return 'vendor-three-materials'
-          if (id.includes('/three/src/loaders/')) return 'vendor-three-loaders'
+          // Keep Three.js as one dependency-safe core chunk. Splitting internal
+          // src/ folders created circular Rollup chunks (math/materials/renderer)
+          // and a production TDZ crash before React could mount. The core stays
+          // below the release hard cap because the bare "three" alias points at
+          // the source entry and tree-shaking removes unused exports.
           if (id.includes('/three/src/')) return 'vendor-three-core'
           if (id.includes('/three/')) return 'vendor-three-addons'
 
