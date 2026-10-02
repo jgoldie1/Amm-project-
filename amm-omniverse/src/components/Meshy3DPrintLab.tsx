@@ -1,4 +1,4 @@
-import {useMemo,useState} from 'react'
+import {useEffect,useMemo,useState} from 'react'
 import {
   analyzeMeshyPrintableScene,
   canPrepareMeshyPrint,
@@ -38,9 +38,17 @@ export default function Meshy3DPrintLab({jobs}:{jobs:ReadyMeshyJob[]}){
   const [busy,setBusy]=useState('')
   const [message,setMessage]=useState('')
   const [localFile,setLocalFile]=useState<File|null>(null)
+  const [localFileUrl,setLocalFileUrl]=useState('')
+
+  useEffect(()=>{
+    if(!localFile){setLocalFileUrl('');return}
+    const url=URL.createObjectURL(localFile)
+    setLocalFileUrl(url)
+    return()=>URL.revokeObjectURL(url)
+  },[localFile])
 
   const selected=ready.find(job=>job.id===jobId)||ready[0]
-  const sourceUrl=localFile?URL.createObjectURL(localFile):(selected?.public_url||'')
+  const sourceUrl=localFileUrl||(selected?.public_url||'')
   const sourceAssetId=localFile?`local:${localFile.name}`:(selected?.asset_id||'meshy-model')
 
   const analyze=async()=>{
