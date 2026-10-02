@@ -24,7 +24,7 @@ export interface BuildManifest {
 }
 
 export const WORLD_REGISTRY: WorldSeed[] = [
-  {id:'us-il-chicago',scope:'chicago',country:'US',region:'IL',city:'Chicago',neighborhoods:['South Side','Downtown','West Side'],locale:'en-US',currency:'USD'},
+  {id:'us-il-chicago',scope:'chicago',country:'US',region:'IL',city:'Chicago',neighborhoods:['Near West Side','Lower West Side','North Lawndale','South Lawndale','East Garfield Park','West Garfield Park','Austin','Humboldt Park','West Town','South Side','Downtown','North Side'],locale:'en-US',currency:'USD'},
   {id:'ng-la-lagos',scope:'global',country:'NG',region:'LA',city:'Lagos',neighborhoods:['Lagos Core'],locale:'en-NG',currency:'NGN'},
   {id:'ng-fc-abuja',scope:'global',country:'NG',region:'FC',city:'Abuja',neighborhoods:['Abuja Core'],locale:'en-NG',currency:'NGN'},
 ]
