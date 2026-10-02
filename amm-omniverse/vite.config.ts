@@ -4,6 +4,16 @@ import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: [
+      {
+        // Quantum Slicer: redirect only the bare package import. Regex keeps
+        // three/examples/* and three/addons/* working normally.
+        find: /^three$/,
+        replacement: fileURLToPath(new URL('./node_modules/three/src/Three.js', import.meta.url)),
+      },
+    ],
+  },
   build: {
     chunkSizeWarningLimit: 600,
     modulePreload: {
@@ -75,7 +85,22 @@ export default defineConfig({
           // its own cacheable chunk reduces the core download and lets routes load the
           // utility layer independently when they actually need it.
           if (id.includes('/three-stdlib/')) return 'vendor-three-stdlib'
-          if (id.includes('/three/')) return 'vendor-three-core'
+          // Quantum Slicer: keep the Three.js barrel separate from internal
+          // implementation chunks. Putting src/Three.js in the core chunk creates
+          // a reverse edge because the barrel re-exports the renderer; splitting
+          // renderer at the same time then becomes a circular chunk and can crash
+          // at runtime with a temporal-dead-zone ReferenceError.
+          //
+          // The renderer is a dependency leaf for our bundle: it may import core
+          // math/material/object modules, while those modules do not import the
+          // Three.js barrel. Keeping the barrel in its own tiny facade therefore
+          // lets Rollup split the large renderer without a core -> renderer back
+          // edge. This preserves the 675 kB main-release hard cap without weakening
+          // that gate or reintroducing the Playwright bootstrap crash.
+          if (id.endsWith('/three/src/Three.js')) return 'vendor-three-entry'
+          if (id.includes('/three/src/renderers/')) return 'vendor-three-renderer'
+          if (id.includes('/three/src/')) return 'vendor-three-core'
+          if (id.includes('/three/')) return 'vendor-three-addons'
 
           if (id.includes('/@supabase/')) return 'vendor-supabase'
           if (id.includes('/livekit-client/') || id.includes('/@livekit/')) return 'vendor-livekit'

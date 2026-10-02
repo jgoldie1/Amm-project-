@@ -13,6 +13,15 @@ test.use({
 
 test.describe('StreetVerse compact iPhone visual evidence', () => {
   test('Circle Park renders with one compact mobile control layer', async ({ page }, testInfo) => {
+    // Keep browser/runtime failures visible in CI. A missing canvas must be diagnosed,
+    // not hidden by longer waits or a weaker visual assertion.
+    page.on('pageerror', error => console.error('[streetverse-pageerror]', error.message));
+    page.on('console', message => {
+      if (message.type() === 'error' || message.type() === 'warning') {
+        console.error(`[streetverse-console-${message.type()}]`, message.text());
+      }
+    });
+    page.on('requestfailed', request => console.error('[streetverse-requestfailed]', request.url(), request.failure()?.errorText || 'unknown'));
     await page.addInitScript(() => {
       try {
         Object.defineProperty(navigator, 'hardwareConcurrency', { configurable: true, get: () => 8 });
