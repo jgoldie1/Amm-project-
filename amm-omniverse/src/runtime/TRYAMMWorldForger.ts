@@ -332,3 +332,53 @@ export const TRYAMM_WORLD_FORGER={
   physicalConstruction:false,
   autoPublish:false,
 } as const
+
+
+let installed=false
+
+export function installTryammWorldForgerRuntime(){
+  if(installed||typeof window==='undefined')return()=>{}
+  installed=true
+  const onRequest=(event:Event)=>{
+    const request=(event as CustomEvent<WorldForgeRequest>).detail
+    if(!request?.id)return
+    const plan=createWorldForgePlan(request)
+    window.dispatchEvent(new CustomEvent('tryamm:world-forger-plan',{detail:plan}))
+    window.dispatchEvent(new CustomEvent('tryamm:system-fabric-signal',{detail:{
+      system:'omniverse',
+      status:plan.missing.length?'degraded':'ready',
+      source:'tryamm:world-forger-plan',
+      reason:plan.missing.length?`World Forger needs ${plan.missing.join(', ')}`:undefined,
+      evidence:{forgeId:plan.id,kind:plan.kind,stages:plan.pipeline.length,autoPublish:false},
+    }}))
+  }
+  const onQuery=()=>{
+    window.dispatchEvent(new CustomEvent('tryamm:world-forger-state',{detail:{
+      name:TRYAMM_WORLD_FORGER.name,
+      supportedKinds:TRYAMM_WORLD_FORGER.supportedKinds,
+      autoPublish:false,
+      physicalConstruction:false,
+      cadMeaning:TRYAMM_WORLD_FORGER.cadMeaning,
+    }}))
+  }
+  window.addEventListener('tryamm:world-forger-request',onRequest)
+  window.addEventListener('tryamm:world-forger-query',onQuery)
+  ;(window as Window&{__tryammWorldForger?:unknown;__showWorldForger?:()=>void}).__tryammWorldForger={
+    createPlan:createWorldForgePlan,
+    canStart:canStartWorldForge,
+    summary:worldForgeSummary,
+  }
+  ;(window as Window&{__showWorldForger?:()=>void}).__showWorldForger=()=>{
+    window.dispatchEvent(new CustomEvent('tryamm:hologpt-study-context',{detail:{prompt:
+      'TRYAMM World Forger is ready. It connects authorized references → CAD/BIM-style building plans → stairs/elevators/plumbing/electrical/HVAC/fire systems → photoreal facade wrapping → mesh repair/retopology → PBR texture → character/vehicle rigging when applicable → collision/navmesh/accessibility → LOD/compression → Chicago grid/world placement → Guardian QA → Founder Preview. Ask what you want to forge and I will identify the minimum references and build stages. It does not auto-publish or perform physical construction.'
+    }}))
+  }
+  window.dispatchEvent(new CustomEvent('tryamm:world-forger-ready',{detail:{name:TRYAMM_WORLD_FORGER.name,supportedKinds:TRYAMM_WORLD_FORGER.supportedKinds,autoPublish:false}}))
+  return()=>{
+    window.removeEventListener('tryamm:world-forger-request',onRequest)
+    window.removeEventListener('tryamm:world-forger-query',onQuery)
+    delete (window as Window&{__tryammWorldForger?:unknown}).__tryammWorldForger
+    delete (window as Window&{__showWorldForger?:unknown}).__showWorldForger
+    installed=false
+  }
+}
