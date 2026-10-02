@@ -28,6 +28,7 @@ export type UniversalMissionEvent =
   | 'world-event-join'
   | 'street-checkpoint'
   | 'mission-complete'
+  | 'hero-encounter-complete'
 
 export interface UniversalMissionChoice {
   id:string
@@ -41,6 +42,7 @@ export interface UniversalMissionStep {
   label:string
   detail:string
   action?:UniversalMissionAction
+  actionByChoice?:Record<string,UniversalMissionAction>
   event?:UniversalMissionEvent
   choices?:UniversalMissionChoice[]
   eventByChoice?:Record<string,UniversalMissionEvent>
@@ -92,7 +94,7 @@ export const UNIVERSAL_MISSIONS:UniversalMission[]=[
         {id:'responder',label:'COMMUNITY / RESPONDER',detail:'Join a live StreetVerse world event and help resolve the situation.',impactTags:['community-trust','response-helped']},
         {id:'driver',label:'DRIVER / MOBILITY',detail:'Take the mobility route and get a vehicle into the active story.',impactTags:['mobility-reputation','route-supported']},
       ]},
-      {id:'field-action',label:'Complete your role objective',detail:'Do the real in-world action for the route you selected. This step advances from gameplay events instead of a fake checklist.',choiceSourceStepId:'choose-role',eventByChoice:{creator:'media-output',business:'store-interaction',responder:'world-event-join',driver:'vehicle-enter'}},
+      {id:'field-action',label:'Complete your role objective',detail:'Do the real in-world action for the route you selected. This step advances from gameplay events instead of a fake checklist.',choiceSourceStepId:'choose-role',actionByChoice:{creator:'open-media-studio',business:'open-meet-the-stubbs',responder:'open-streetverse',driver:'open-streetverse'},eventByChoice:{creator:'media-output',business:'store-interaction',responder:'world-event-join',driver:'vehicle-enter'}},
       {id:'second-beat',label:'See the world react',detail:'Reach another StreetVerse checkpoint or complete a connected mission so the story has a second beat instead of ending after one interaction.',event:'street-checkpoint'},
       {id:'aftermath',label:'Close the story',detail:'Review the outcome. Your selected route is written to persistent world-state tags for follow-on missions.',event:'manual'},
     ],
@@ -157,7 +159,7 @@ export const UNIVERSAL_MISSIONS:UniversalMission[]=[
         {id:'business',label:'BUSINESS CONNECTION',detail:'Visit a business/store interaction and connect the local economy.',impactTags:['global-business','commerce-connected']},
         {id:'community',label:'COMMUNITY EVENT',detail:'Join a live world event or service activity.',impactTags:['global-community','community-connected']},
       ]},
-      {id:'local-action',label:'Complete the local action',detail:'The next objective is verified by the kind of action you chose.',choiceSourceStepId:'choose-lane',eventByChoice:{creator:'media-output',business:'store-interaction',community:'world-event-join'}},
+      {id:'local-action',label:'Complete the local action',detail:'The next objective is verified by the kind of action you chose.',choiceSourceStepId:'choose-lane',actionByChoice:{creator:'open-media-studio',business:'open-meet-the-stubbs',community:'open-streetverse-global'},eventByChoice:{creator:'media-output',business:'store-interaction',community:'world-event-join'}},
       {id:'city-memory',label:'Create the city memory',detail:'Create a finished Reel/media output that records the city story.',action:'open-media-studio',event:'media-output'},
       {id:'passport-stamp',label:'Close the city story',detail:'Finish the mission to persist the city-story consequence in your universal mission state.',event:'manual'},
     ],
@@ -179,7 +181,7 @@ export const UNIVERSAL_MISSIONS:UniversalMission[]=[
         {id:'commerce',label:'BUSINESS / TRADE',detail:'Connect through a business/store interaction.',impactTags:['commerce-bridge','business-diplomacy']},
         {id:'service',label:'SERVICE / COMMUNITY',detail:'Connect through a live community event.',impactTags:['service-bridge','community-diplomacy']},
       ]},
-      {id:'bridge-action',label:'Make the connection',detail:'Complete the selected cross-community action.',choiceSourceStepId:'choose-bridge',eventByChoice:{culture:'media-output',commerce:'store-interaction',service:'world-event-join'}},
+      {id:'bridge-action',label:'Make the connection',detail:'Complete the selected cross-community action.',choiceSourceStepId:'choose-bridge',actionByChoice:{culture:'open-media-studio',commerce:'open-meet-the-stubbs',service:'open-we-are-the-world'},eventByChoice:{culture:'media-output',commerce:'store-interaction',service:'world-event-join'}},
       {id:'proof',label:'Create proof of the connection',detail:'Create one original media output documenting what happened.',action:'open-media-studio',event:'media-output'},
       {id:'aftermath',label:'Carry the connection forward',detail:'Complete the mission and save the bridge tags for future global missions.',event:'manual'},
     ],
@@ -221,7 +223,7 @@ export const UNIVERSAL_MISSIONS:UniversalMission[]=[
         {id:'scout',label:'SCOUT',detail:'Investigate first and map the danger.',impactTags:['scout-reputation']},
         {id:'builder',label:'BUILDER',detail:'Solve the crisis through construction/support systems.',impactTags:['builder-reputation']},
       ]},
-      {id:'quest-beat',label:'Complete a Hero Realms quest beat',detail:'Complete a connected quest or encounter in the original Hero Realms system.',event:'mission-complete'},
+      {id:'quest-beat',label:'Win a Hero Realms encounter',detail:'Complete a real combat encounter in Hero Realms. The mission advances only after the victory event fires.',event:'hero-encounter-complete'},
       {id:'aftermath',label:'Seal the rift story',detail:'Finish and persist the hero-method consequence for later missions.',event:'manual'},
     ],
   },
@@ -243,7 +245,7 @@ export const UNIVERSAL_MISSIONS:UniversalMission[]=[
         {id:'global',label:'WE ARE THE WORLD',detail:'Continue through a global community connection.',impactTags:['crossworld-global']},
         {id:'hero',label:'HERO REALMS',detail:'Continue through the original hero/quest lane.',impactTags:['crossworld-hero']},
       ]},
-      {id:'second-world',label:'Finish the second-world action',detail:'Complete a qualifying mission or output in the world you selected.',choiceSourceStepId:'choose-second',eventByChoice:{creator:'media-output',global:'mission-complete',hero:'mission-complete'}},
+      {id:'second-world',label:'Finish the second-world action',detail:'Complete a qualifying mission or output in the world you selected.',choiceSourceStepId:'choose-second',actionByChoice:{creator:'open-media-studio',global:'open-we-are-the-world',hero:'open-gameverse'},eventByChoice:{creator:'media-output',global:'mission-complete',hero:'hero-encounter-complete'}},
       {id:'converge',label:'Create the convergence',detail:'Finish the Omniverse mission and persist the cross-world consequence.',event:'manual'},
     ],
   },
