@@ -1,0 +1,96 @@
+name: StreetVerse Meshy Production Proof
+
+on:
+  workflow_dispatch:
+    inputs:
+      city_scope:
+        description: City scope to prove
+        required: false
+        default: chicago-circle-park
+
+permissions:
+  contents: read
+
+jobs:
+  prove-real-meshy-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      BASE_URL: https://tryamm.online
+      CITY_SCOPE: ${{ inputs.city_scope || 'chicago-circle-park' }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Fetch production Meshy manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release-evidence
+          CODE=$(curl -L -sS -o release-evidence/meshy-manifest.json -w '%{http_code}' --max-time 30             "$BASE_URL/api/meshy/asset-manifest?city=$CITY_SCOPE")
+          echo "manifest_http=$CODE" | tee release-evidence/meshy-proof.txt
+          test "$CODE" = "200"
+          jq . release-evidence/meshy-manifest.json | tee -a release-evidence/meshy-proof.txt
+
+      - name: Require James female base and first Circle Park residents
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE=release-evidence/meshy-manifest.json
+          jq -e '.ok == true' "$FILE" >/dev/null
+          REQUIRED=(
+            sv-james-body-base-v1
+            sv-female-body-base-v1
+            sv-black-man-youngadult-01
+            sv-black-woman-youngadult-01
+            sv-black-man-adult-01
+            sv-black-woman-adult-01
+          )
+          for ID in "${REQUIRED[@]}"; do
+            URL=$(jq -r --arg id "$ID" '.assets[] | select(.assetId==$id and .ready==true) | .url' "$FILE" | head -n1)
+            test -n "$URL" && test "$URL" != "null"
+            echo "$ID=$URL" | tee -a release-evidence/meshy-proof.txt
+          done
+
+      - name: Verify published URLs and GLB signatures
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE=release-evidence/meshy-manifest.json
+          jq -r '.assets[] | select(.ready==true) | [.assetId,.url,.walkUrl,.runUrl] | @tsv' "$FILE" |
+          while IFS=$'\t' read -r ID URL WALK RUN; do
+            [ -n "$URL" ] || continue
+            CODE=$(curl -L -sS -o /tmp/model.glb -w '%{http_code}' --max-time 60 "$URL")
+            test "$CODE" = "200"
+            MAGIC=$(head -c 4 /tmp/model.glb || true)
+            test "$MAGIC" = "glTF"
+            BYTES=$(wc -c </tmp/model.glb | tr -d ' ')
+            echo "$ID main_glb_bytes=$BYTES magic=$MAGIC" | tee -a release-evidence/meshy-proof.txt
+            for KIND in walk run; do
+              V="${KIND^^}"
+              AURL="${!V:-}"
+              if [ -n "$AURL" ] && [ "$AURL" != "null" ]; then
+                ACODE=$(curl -L -sS -o /tmp/$KIND.glb -w '%{http_code}' --max-time 60 "$AURL")
+                test "$ACODE" = "200"
+                test "$(head -c 4 /tmp/$KIND.glb || true)" = "glTF"
+                echo "$ID $KIND=verified" | tee -a release-evidence/meshy-proof.txt
+              fi
+            done
+          done
+
+      - name: Write proof verdict
+        shell: bash
+        run: |
+          {
+            echo
+            echo "VERDICT=REAL_MESHY_ASSET_PROOF_GREEN"
+            echo "Proof requires production manifest records, reachable GLB bytes, and valid GLB magic."
+            echo "This does not claim final James facial likeness; that requires an approved likeness reference and a separately verified likeness asset."
+          } | tee -a release-evidence/meshy-proof.txt
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: streetverse-meshy-production-proof
+          path: release-evidence/
+          if-no-files-found: error
+          retention-days: 30
