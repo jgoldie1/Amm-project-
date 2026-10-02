@@ -294,13 +294,17 @@ export default function UniversalMissionDirector({defaultWorld='streetverse'}:{d
         {(Object.keys(UNIVERSAL_MISSION_WORLD_LABELS) as UniversalMissionWorld[]).map(key=><button key={key} onClick={()=>setWorld(key)} style={{...btn,whiteSpace:'nowrap',minHeight:36,background:world===key?'#123047':'#09131c',borderColor:world===key?'#5be7ff':'#294252'}}>{UNIVERSAL_MISSION_WORLD_LABELS[key]}</button>)}
       </div>
       <div style={{display:'grid',gap:7}}>
-        {missions.map(m=><article key={m.id} style={{padding:10,border:'1px solid #22394a',borderRadius:13,background:'#07121b'}}>
-          <div style={{display:'flex',justifyContent:'space-between',gap:8}}><b style={{fontSize:12}}>{m.title}</b><span style={{fontSize:9,color:'#8effb7'}}>{m.rewardXp} XP</span></div>
-          <div style={{fontSize:10,color:'#a8bac7',lineHeight:1.45,marginTop:4}}>{m.summary}</div>
-          <div style={{display:'flex',gap:5,flexWrap:'wrap',fontSize:8,marginTop:6,color:'#9fb2c0'}}><span>{m.steps.length} OBJECTIVES</span>{m.dynamic&&<span>• DYNAMIC STORY</span>}{m.coOp&&<span>• CO-OP</span>}{worldState.completedMissionIds.includes(m.id)&&<span style={{color:'#9dffc2'}}>• COMPLETED BEFORE</span>}</div>
-          {m.unlocks?.length?<div style={{fontSize:9,color:'#bca8ff',marginTop:5}}>Unlocks: {m.unlocks.join(' • ')}</div>:null}
-          <button onClick={()=>start(m)} style={{...btn,width:'100%',marginTop:7,borderColor:'#5be7ff88'}}>{progress?.missionId===m.id&&progress.status==='active'?'RESTART / FOCUS':'START MISSION'}</button>
-        </article>)}
+        {missions.map(m=>{
+          const locked=Boolean(m.requiresAnyTags?.length&&!m.requiresAnyTags.some(tag=>worldState.consequenceTags.includes(tag)))
+          return <article key={m.id} style={{padding:10,border:'1px solid #22394a',borderRadius:13,background:locked?'#0b0d10':'#07121b',opacity:locked?.72:1}}>
+            <div style={{display:'flex',justifyContent:'space-between',gap:8}}><b style={{fontSize:12}}>{m.title}</b><span style={{fontSize:9,color:locked?'#7e8998':'#8effb7'}}>{locked?'LOCKED':m.rewardXp+' XP'}</span></div>
+            <div style={{fontSize:10,color:'#a8bac7',lineHeight:1.45,marginTop:4}}>{m.summary}</div>
+            <div style={{display:'flex',gap:5,flexWrap:'wrap',fontSize:8,marginTop:6,color:'#9fb2c0'}}><span>{m.steps.length} OBJECTIVES</span>{m.dynamic&&<span>• DYNAMIC STORY</span>}{m.coOp&&<span>• CO-OP</span>}{worldState.completedMissionIds.includes(m.id)&&<span style={{color:'#9dffc2'}}>• COMPLETED BEFORE</span>}</div>
+            {locked?<div style={{fontSize:9,color:'#d7b98d',marginTop:5}}>Story unlock: complete an earlier route that creates {m.requiresAnyTags?.join(' / ')}</div>:null}
+            {m.unlocks?.length?<div style={{fontSize:9,color:'#bca8ff',marginTop:5}}>Unlocks: {m.unlocks.join(' • ')}</div>:null}
+            <button disabled={locked} onClick={()=>!locked&&start(m)} style={{...btn,width:'100%',marginTop:7,borderColor:locked?'#3a4149':'#5be7ff88',opacity:locked?.55:1}}>{locked?'LOCKED BY YOUR STORY':progress?.missionId===m.id&&progress.status==='active'?'RESTART / FOCUS':'START MISSION'}</button>
+          </article>
+        })}
       </div>
     </div>
   </section>
