@@ -159,7 +159,7 @@ export default function UniversalMissionDirector({defaultWorld='streetverse'}:{d
         <div style={{fontSize:11,color:'#d7d0b1',marginTop:5}}>Objective {progress.step+1}/{active.steps.length}: <b>{step.label}</b></div>
         <div style={{fontSize:10,lineHeight:1.45,marginTop:4,color:'#b9c6d0'}}>{step.detail}</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,marginTop:8}}>
-          {step.action?<button onClick={()=>runAction(step.action)} style={btn}>GO / OPEN</button>:<span/>}
+          {step.action?<button onClick={()=>{setOpen(false);runAction(step.action)}} style={btn}>GO / OPEN</button>:<span/>}
           <button onClick={advance} style={{...btn,borderColor:'#78ffb488',color:'#bfffd8'}}>{progress.step===active.steps.length-1?'FINISH MISSION':'OBJECTIVE DONE'}</button>
         </div>
       </section>}
