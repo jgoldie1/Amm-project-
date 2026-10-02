@@ -62,7 +62,7 @@ export function weatherVisualFromState(state:StreetVerseWeatherState):StreetVers
     snow:{kind:'snow',label:'SNOW',sky:0x9aa8b2,fog:0xb7c1c8,fogDensity:.012,lightMultiplier:.72,precipitationIntensity:Math.min(1,.45+Math.max(precip,Number(state.snowfall||0))*.18),roadGripMultiplier:.55,accelerationMultiplier:.78,trafficSpeedMultiplier:.68},
     storm:{kind:'storm',label:'STORM',sky:0x253744,fog:0x344957,fogDensity:.013,lightMultiplier:.42,precipitationIntensity:1,roadGripMultiplier:.62,accelerationMultiplier:.82,trafficSpeedMultiplier:.65},
     mixed:{kind:'mixed',label:'MIXED',sky:0x657984,fog:0x778891,fogDensity:.007,lightMultiplier:.7,precipitationIntensity:Math.min(.6,precip*.14),roadGripMultiplier:.82,accelerationMultiplier:.9,trafficSpeedMultiplier:.84},
-    unavailable:{kind:'unavailable',label:'WEATHER UNAVAILABLE',sky:0x07101d,fog:0x07101d,fogDensity:.007,lightMultiplier:1,precipitationIntensity:0,roadGripMultiplier:1,accelerationMultiplier:1,trafficSpeedMultiplier:1},
+    unavailable:{kind:'unavailable',label:'WEATHER UNAVAILABLE',sky:0xa9c2d4,fog:0xa9c2d4,fogDensity:.0035,lightMultiplier:1,precipitationIntensity:0,roadGripMultiplier:1,accelerationMultiplier:1,trafficSpeedMultiplier:1},
   }
   const visual={...base[kind]}
   if(kind==='clouds')visual.lightMultiplier=Math.max(.55,.92-cloud/220)
@@ -100,7 +100,7 @@ export function createStreetVerseWeatherRenderer(
 
   let state:StreetVerseWeatherState|null=null
   let visual:StreetVerseWeatherVisual={
-    kind:'unavailable',label:'WEATHER UNAVAILABLE',sky:0x07101d,fog:0x07101d,fogDensity:.007,
+    kind:'unavailable',label:'WEATHER UNAVAILABLE',sky:0xa9c2d4,fog:0xa9c2d4,fogDensity:.0035,
     lightMultiplier:1,precipitationIntensity:0,roadGripMultiplier:1,accelerationMultiplier:1,trafficSpeedMultiplier:1
   }
 
