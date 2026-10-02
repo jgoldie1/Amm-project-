@@ -192,8 +192,9 @@ export default function StreetVerseNearWest3D(){
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-action',{detail:{action,target:nearby,source:'near-west-context-action'}}))
   if(nearby.mission)window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{missionId:nearby.mission,target:nearby.id}}))
  }
- const travelToGreenville=()=>{window.dispatchEvent(new CustomEvent('tryamm:campusverse-travel',{detail:{from:'uic',to:'greenville',character:'Jacobie',source:'streetverse-uic-gateway'}}));setGreenvilleOpen(true)}
- useEffect(()=>{const open=(e:Event)=>{const d=(e as CustomEvent).detail||{};if(d.to==='greenville')setGreenvilleOpen(true)};window.addEventListener('tryamm:campusverse-travel',open);return()=>window.removeEventListener('tryamm:campusverse-travel',open)},[])
+ const travelToGreenville=()=>{setCollegeBookOpen(false);window.dispatchEvent(new CustomEvent('tryamm:campusverse-travel',{detail:{from:'uic',to:'greenville',character:'Jacobie',source:'streetverse-uic-gateway'}}));setGreenvilleOpen(true)}
+ useEffect(()=>{const open=(e:Event)=>{const d=(e as CustomEvent).detail||{};if(d.to==='greenville'){setCollegeBookOpen(false);setGreenvilleOpen(true)}};window.addEventListener('tryamm:campusverse-travel',open);return()=>window.removeEventListener('tryamm:campusverse-travel',open)},[])
+ useEffect(()=>{const route=(e:Event)=>{const d=(e as CustomEvent<{campus?:string;hubId?:string;label?:string}>).detail||{};if(d.campus!=='uic')return;const hubs:Record<string,{x:number;z:number}>={'student-center-east':{x:-760,z:610},'daley-library':{x:-815,z:635},'taylor-street-building':{x:-560,z:700},'roosevelt-road-building':{x:-690,z:560}};const target=hubs[String(d.hubId||'')];if(!target)return;setPlayerSpawn(target);setCollegeBookOpen(false);window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:`UIC ROUTE • ${String(d.label||'Campus destination')}`}}))};window.addEventListener('tryamm:campusverse-destination',route);return()=>window.removeEventListener('tryamm:campusverse-destination',route)},[])
  if(greenvilleOpen)return <GreenvilleCampusVerseScene onReturn={()=>setGreenvilleOpen(false)}/>
  return <div aria-label="StreetVerse Near West 3D" style={{width:'100%',height:'100%',minHeight:420}}>
   <div style={{position:'absolute',left:12,right:12,top:12,zIndex:22,display:'flex',gap:6,overflowX:'auto',paddingBottom:4,WebkitOverflowScrolling:'touch'}}>
@@ -223,7 +224,7 @@ export default function StreetVerseNearWest3D(){
   <div style={{position:'absolute',left:12,bottom:96,zIndex:24,display:'grid',gap:6,width:'min(218px,58vw)'}}>
    <button aria-label="Open UIC CollegeBook gateway" onClick={()=>setCollegeBookOpen(v=>!v)} style={{minHeight:44,padding:'8px 10px',borderRadius:12,fontWeight:900}}>🎓 UIC • CAMPUSVERSE</button>
    <button aria-label="Travel from UIC to Greenville CampusVerse" onClick={travelToGreenville} style={{minHeight:44,padding:'8px 10px',borderRadius:12,fontWeight:900}}>GREENVILLE • JACOBIE →</button>
-   {collegeBookOpen&&<CampusVerseCollegeBookBridge/>}
+   {collegeBookOpen&&<CampusVerseCollegeBookBridge onClose={()=>setCollegeBookOpen(false)}/>}
   </div>
   <Canvas shadows camera={{position:[-620,260,980],fov:55,far:5000}}>
    <color attach="background" args={['#88a8bf']}/>
