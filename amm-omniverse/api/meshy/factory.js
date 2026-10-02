@@ -1,6 +1,6 @@
 import {json} from '../_lib/supabase-admin.js';
 import {requireUser} from '../_lib/security.js';
-import {MESHY_FACTORY_CATALOG,startMeshyFactoryJob,startCircleParkBootstrapWave,listMeshyFactoryJobs,tickMeshyFactoryJob,importExistingMeshyTask} from '../_lib/meshy-factory.js';
+import {MESHY_FACTORY_CATALOG,startMeshyFactoryJob,startWorldForgerFactoryJob,startCircleParkBootstrapWave,listMeshyFactoryJobs,tickMeshyFactoryJob,importExistingMeshyTask} from '../_lib/meshy-factory.js';
 
 export default async function handler(req,res){
   const user=await requireUser(req,res);if(!user)return;
@@ -19,6 +19,10 @@ export default async function handler(req,res){
       if(action==='start-circle-park-wave'){
         const wave=await startCircleParkBootstrapWave(user);
         return json(res,202,{ok:true,schema:'tryamm.meshy.factory.v1',action:'start-circle-park-wave',wave});
+      }
+      if(action==='start-world-forger'){
+        const job=await startWorldForgerFactoryJob(user,body);
+        return json(res,202,{ok:true,schema:'tryamm.meshy.factory.v1',action:'start-world-forger',job,creditsMayBeConsumed:true});
       }
       if(action==='import-existing'){
         const job=await importExistingMeshyTask(user,{
