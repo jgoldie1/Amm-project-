@@ -15,6 +15,7 @@ export type UniversalMissionAction =
   | 'open-starverse'
   | 'open-gameverse'
   | 'open-meet-the-stubbs'
+  | 'open-after-dark-alpha'
 
 export type UniversalMissionEvent =
   | 'manual'
@@ -29,6 +30,8 @@ export type UniversalMissionEvent =
   | 'street-checkpoint'
   | 'mission-complete'
   | 'hero-encounter-complete'
+  | 'after-dark-approach'
+  | 'after-dark-complete'
 
 export interface UniversalMissionChoice {
   id:string
@@ -62,6 +65,8 @@ export interface UniversalMission {
   consequenceTags?:string[]
   unlocks?:string[]
   requiresAnyTags?:string[]
+  adultOnly?:boolean
+  night?:boolean
   steps:UniversalMissionStep[]
 }
 
@@ -98,6 +103,49 @@ export const UNIVERSAL_MISSIONS:UniversalMission[]=[
       {id:'field-action',label:'Complete your role objective',detail:'Do the real in-world action for the route you selected. This step advances from gameplay events instead of a fake checklist.',choiceSourceStepId:'choose-role',actionByChoice:{creator:'open-media-studio',business:'open-meet-the-stubbs',responder:'open-streetverse',driver:'open-streetverse'},eventByChoice:{creator:'media-output',business:'store-interaction',responder:'world-event-join',driver:'vehicle-enter'}},
       {id:'second-beat',label:'See the world react',detail:'Reach another StreetVerse checkpoint or complete a connected mission so the story has a second beat instead of ending after one interaction.',event:'street-checkpoint'},
       {id:'aftermath',label:'Close the story',detail:'Review the outcome. Your selected route is written to persistent world-state tags for follow-on missions.',event:'manual'},
+    ],
+  },
+  {
+    id:'streetverse-chicago-after-dark',
+    world:'streetverse',
+    title:'Chicago After Dark: White Night File',
+    summary:'A 21+ Chicago-night mission that combines nightlife, investigation, witness protection, creator media, safe mobility and persistent reputation.',
+    rewardXp:780,
+    route:'/streetverse',
+    dynamic:true,
+    coOp:true,
+    adultOnly:true,
+    night:true,
+    consequenceTags:['chicago-after-dark-cleared','evidence-before-accusation'],
+    unlocks:['Agent Seven night operation','Omniverse After Dark'],
+    steps:[
+      {id:'night-brief',label:'Enter Chicago After Dark',detail:'Open the existing age-gated After Dark mission layer. Mature nightlife themes remain fictional and evidence-first.',action:'open-after-dark-alpha',event:'manual'},
+      {id:'choose-approach',label:'Choose the night approach',detail:'Pick spy, detective, social or rescue inside the After Dark mission. Your choice must be recorded by the real After Dark runtime.',action:'open-after-dark-alpha',event:'after-dark-approach'},
+      {id:'resolve-file',label:'Resolve the White Night File',detail:'Collect the required fictional evidence, protect the fictional witness and complete the existing After Dark mission.',action:'open-after-dark-alpha',event:'after-dark-complete',match:{missionId:'after-dark-white-night-file'}},
+      {id:'night-reel',label:'Create the Chicago night recap',detail:'Create an original Reel or media recap of the completed fictional mission.',action:'open-media-studio',event:'media-output'},
+      {id:'safe-return',label:'Close the night safely',detail:'Finish the Chicago After Dark arc and save its reputation consequences.',event:'manual'},
+    ],
+  },
+  {
+    id:'agent-seven-night-signal',
+    world:'streetverse',
+    title:'Agent Seven: Night Signal',
+    summary:'An original TRYAMM espionage-style mission inspired by cinematic spy adventures, without using third-party characters or story IP.',
+    rewardXp:900,
+    route:'/streetverse',
+    dynamic:true,
+    coOp:true,
+    adultOnly:true,
+    night:true,
+    requiresAnyTags:['chicago-after-dark-cleared'],
+    consequenceTags:['agent-seven-field-qualified'],
+    unlocks:['global night intelligence route','Omniverse Agent Seven arc'],
+    steps:[
+      {id:'agent-brief',label:'Receive the Night Signal',detail:'Return to the 21+ After Dark layer for a fictional covert-operation briefing.',action:'open-after-dark-alpha',event:'manual'},
+      {id:'spy-route',label:'Choose SPY approach',detail:'Select the SPY approach in the existing After Dark mission. This is original TRYAMM Agent Seven fiction, not a James Bond/007 character.',action:'open-after-dark-alpha',event:'after-dark-approach',match:{approach:'spy'}},
+      {id:'field-proof',label:'Complete the covert field file',detail:'Finish the evidence-first investigation and extraction without unsupported accusations.',action:'open-after-dark-alpha',event:'after-dark-complete',match:{missionId:'after-dark-white-night-file'}},
+      {id:'mobility-exit',label:'Make the clean exit',detail:'Enter a StreetVerse vehicle after the operation to prove the mobility/exfiltration beat.',action:'open-streetverse',event:'vehicle-enter'},
+      {id:'debrief',label:'Publish the debrief',detail:'Create an original mission recap and close the Agent Seven operation.',action:'open-media-studio',event:'media-output'},
     ],
   },
   {
@@ -189,6 +237,31 @@ export const UNIVERSAL_MISSIONS:UniversalMission[]=[
     ],
   },
   {
+    id:'streetverse-global-after-dark',
+    world:'streetverse-global',
+    title:'StreetVerse Global After Dark: Night Passport',
+    summary:'A city-to-city night mission that mixes localized culture, safe mobility, creator stories, late-night businesses and an evidence-first mystery lane.',
+    rewardXp:920,
+    route:'/streetverse?global=1&city=chicago',
+    dynamic:true,
+    coOp:true,
+    adultOnly:true,
+    night:true,
+    consequenceTags:['global-after-dark-passport'],
+    unlocks:['localized night-city follow-ups','global creator/business reputation'],
+    steps:[
+      {id:'night-city',label:'Enter a night city',detail:'Open StreetVerse Global and choose an available city. Chicago is the first certified night-story anchor.',action:'open-streetverse-global',event:'manual'},
+      {id:'choose-night-role',label:'Choose the night role',detail:'Pick how you will contribute to the city after dark.',choices:[
+        {id:'creator',label:'NIGHT CREATOR',detail:'Document culture, music, food or a safe nightlife story.',impactTags:['night-creator','culture-after-dark']},
+        {id:'business',label:'NIGHT BUSINESS',detail:'Support a late-night local business or service interaction.',impactTags:['night-business','local-night-economy']},
+        {id:'community',label:'SAFE RETURN / COMMUNITY',detail:'Join a community event or mobility/safety route.',impactTags:['night-community','safe-return']},
+      ]},
+      {id:'night-action',label:'Complete the city role',detail:'The objective is verified by real gameplay based on the role you selected.',choiceSourceStepId:'choose-night-role',actionByChoice:{creator:'open-media-studio',business:'open-meet-the-stubbs',community:'open-streetverse-global'},eventByChoice:{creator:'media-output',business:'store-interaction',community:'world-event-join'}},
+      {id:'night-file',label:'Resolve a fictional night file',detail:'Open the evidence-first After Dark investigation and complete its fictional case.',action:'open-after-dark-alpha',event:'after-dark-complete',match:{missionId:'after-dark-white-night-file'}},
+      {id:'passport-night-stamp',label:'Close the Night Passport',detail:'Finish and save the city-night consequences for future localized global missions.',event:'manual'},
+    ],
+  },
+  {
     id:'waw-community-bridge',
     world:'we-are-the-world',
     title:'We Are the World: Community Bridge',
@@ -249,6 +322,32 @@ export const UNIVERSAL_MISSIONS:UniversalMission[]=[
       ]},
       {id:'quest-beat',label:'Win a Hero Realms encounter',detail:'Complete a real combat encounter in Hero Realms. The mission advances only after the victory event fires.',event:'hero-encounter-complete'},
       {id:'aftermath',label:'Seal the rift story',detail:'Finish and persist the hero-method consequence for later missions.',event:'manual'},
+    ],
+  },
+  {
+    id:'omniverse-after-dark',
+    world:'omniverse',
+    title:'Omniverse After Dark: Midnight Convergence',
+    summary:'A 21+ cross-world night arc connecting StreetVerse, Global, CreatorVerse and original Hero Realms through persistent consequences.',
+    rewardXp:1200,
+    route:'/my-world',
+    dynamic:true,
+    coOp:true,
+    adultOnly:true,
+    night:true,
+    requiresAnyTags:['chicago-after-dark-cleared','global-after-dark-passport','agent-seven-field-qualified'],
+    consequenceTags:['omniverse-after-dark-converged'],
+    unlocks:['future cross-world night chapters'],
+    steps:[
+      {id:'choose-night-world',label:'Choose the first night world',detail:'Pick which lane carries the midnight story forward.',choices:[
+        {id:'street',label:'STREETVERSE AFTER DARK',detail:'Return to the Chicago evidence-first night layer.',impactTags:['midnight-street']},
+        {id:'global',label:'GLOBAL NIGHT PASSPORT',detail:'Continue through StreetVerse Global and its localized night-city route.',impactTags:['midnight-global']},
+        {id:'creator',label:'CREATOR NIGHT SHOW',detail:'Carry the night story through an original creator/media production.',impactTags:['midnight-creator']},
+      ]},
+      {id:'first-night-action',label:'Complete the first night action',detail:'The mission waits for the gameplay signal tied to the world you chose.',choiceSourceStepId:'choose-night-world',actionByChoice:{street:'open-after-dark-alpha',global:'open-streetverse-global',creator:'open-media-studio'},eventByChoice:{street:'after-dark-complete',global:'world-event-join',creator:'media-output'}},
+      {id:'second-world',label:'Cross into a second world',detail:'Finish a second qualifying action so the story actually crosses worlds.',action:'open-gameverse',event:'hero-encounter-complete'},
+      {id:'midnight-proof',label:'Create the Midnight proof',detail:'Create an original Reel/media artifact from the cross-world story.',action:'open-media-studio',event:'media-output'},
+      {id:'converge-night',label:'Close Midnight Convergence',detail:'Finish and preserve the cross-world night consequence for later chapters.',event:'manual'},
     ],
   },
   {
