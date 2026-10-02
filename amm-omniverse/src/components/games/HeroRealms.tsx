@@ -134,6 +134,21 @@ export default function HeroRealms({ onExit }: { onExit: () => void }) {
     })
   }, [])
 
+  const emitEncounterComplete = (method:'attack'|'spell', defeated:Enemy[]) => {
+    window.dispatchEvent(new CustomEvent('tryamm:hero-realms-encounter-complete',{detail:{
+      world:'hero-realms',
+      town:currentTown,
+      townName:TOWNS[currentTown].name,
+      heroName:hero?.name||'',
+      heroClass:hero?.class||selectedClass,
+      method,
+      enemies:defeated.map(enemy=>enemy.type),
+      enemyCount:defeated.length,
+      completedAt:new Date().toISOString(),
+    }}))
+  }
+
+
   const createHeroAction = () => {
     if (!heroName.trim()) return
     const h = createHero(selectedClass, heroName.trim())
@@ -194,6 +209,7 @@ export default function HeroRealms({ onExit }: { onExit: () => void }) {
       setCombatResult('win')
       hollywoodSounds.victoryFanfare()
       addLog('🏆 ALL ENEMIES DEFEATED — VICTORY!', '#ffd700')
+      emitEncounterComplete('attack',newEnemies)
       return
     }
     setTurn('enemy')
@@ -231,6 +247,7 @@ export default function HeroRealms({ onExit }: { onExit: () => void }) {
       if (newEnemies.every(e => e.hp <= 0)) {
         setCombatResult('win'); hollywoodSounds.victoryFanfare()
         addLog('🏆 ALL ENEMIES DEFEATED!', '#ffd700')
+        emitEncounterComplete('spell',newEnemies)
         const totalReward = enemies.reduce((s, e) => ({ xp: s.xp + e.reward.xp, gold: s.gold + e.reward.gold }), { xp: 0, gold: 0 })
         setHero(h => h ? { ...h, xp: h.xp + totalReward.xp, gold: h.gold + totalReward.gold } : h)
         store.earnCash(totalReward.gold)
