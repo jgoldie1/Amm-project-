@@ -102,10 +102,7 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     expect(menuBox?.width||0).toBeLessThanOrEqual(210);
     expect(menuBox?.height||0).toBeLessThan(620);
 
-    await page.screenshot({
-      path:testInfo.outputPath('streetverse-compact-quick-menu.png'),
-      fullPage:false,
-    });
+    await menu.screenshot({path:testInfo.outputPath('streetverse-compact-quick-menu.png')});
 
     await quickMenu.click();
     // Switching hands must mirror the external shop launchers away from the joystick.
@@ -135,7 +132,7 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     expect(socialBox?.width||0).toBeLessThanOrEqual(374);
     expect(socialBox?.height||0).toBeLessThanOrEqual(390);
     expect((socialBox?.y||0)+(socialBox?.height||0)).toBeLessThanOrEqual(844);
-    await page.screenshot({path:testInfo.outputPath('streetverse-social-panel-iphone.png'),fullPage:false});
+    await socialPanel.screenshot({path:testInfo.outputPath('streetverse-social-panel-iphone.png')});
     await page.getByRole('button',{name:'Close StreetVerse panel'}).click();
 
     await peopleShortcut.click();
@@ -144,8 +141,9 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await page.getByRole('button',{name:'Close StreetVerse panel'}).click();
 
     await ticketShortcut.click();
-    await expect(page.getByRole('region',{name:'StreetVerse stream ticket center'})).toBeVisible();
+    const ticketPanel=page.getByRole('region',{name:'StreetVerse stream ticket center'});
+    await expect(ticketPanel).toBeVisible();
     await expect(page.getByText('No authoritative ticket records loaded. The panel will not invent approvals or access.')).toBeVisible();
-    await page.screenshot({path:testInfo.outputPath('streetverse-ticket-panel-iphone.png'),fullPage:false});
+    await ticketPanel.screenshot({path:testInfo.outputPath('streetverse-ticket-panel-iphone.png')});
   });
 });
