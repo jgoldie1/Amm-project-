@@ -10,11 +10,14 @@ export function installBennyCursorConstructBridge(){
  if(typeof window==='undefined')return()=>{}
  const handler=(e:Event)=>{const d=(e as CustomEvent<SharedWorldContext>).detail;if(!d?.surface)return
   const results=resolveSharedWorldContext(d)
-  const canPropose=d.surface==='construct'&&d.mode==='propose-build'
-  window.dispatchEvent(new CustomEvent('tryamm:shared-world-context-result',{detail:{surface:d.surface,mode:d.mode,results,
-   authority:canPropose?'proposal-only':'read-only',productionMutation:false,requiresApproval:canPropose}}))
+  const canPropose=(d.surface==='construct'||d.surface==='cursor')&&d.mode==='propose-build'
+  const detail={surface:d.surface,mode:d.mode,results,
+   authority:canPropose?'proposal-only':'read-only',productionMutation:false,requiresApproval:canPropose,
+   worldForger:canPropose?{route:'/world-forger',cad:true,meshy:true,texturePolicy:'rights-cleared-or-procedural',streetView:'reference-only'}:undefined}
+  window.dispatchEvent(new CustomEvent('tryamm:shared-world-context-result',{detail}))
+  if(canPropose)window.dispatchEvent(new CustomEvent('tryamm:world-forge-context-ready',{detail:{query:d.query,selectedId:d.selectedId,city:d.city,results,route:'/world-forger',productionMutation:false}}))
  }
  window.addEventListener('tryamm:shared-world-context-query',handler)
- window.dispatchEvent(new CustomEvent('tryamm:benny-cursor-construct-ready',{detail:{memory:'googloplex',sharedContext:true,productionMutation:false}}))
+ window.dispatchEvent(new CustomEvent('tryamm:benny-cursor-construct-ready',{detail:{memory:'googloplex',sharedContext:true,productionMutation:false,worldForger:'/world-forger',cad:true,meshy:true}}))
  return()=>window.removeEventListener('tryamm:shared-world-context-query',handler)
 }
