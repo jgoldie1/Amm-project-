@@ -1,3 +1,4 @@
+import {WEST_SIDE_COMMUNITY_AREAS} from './StreetVerseWestSideNeighborhoodRegistry'
 export type ChicagoGridZone={
  id:string;label:string;grid:string;kind:'spawn'|'corridor'|'district'|'landmark';x:number;z:number;
  radius:number;buildable:boolean;description:string
@@ -9,6 +10,9 @@ export const CHICAGO_BUILD_GRID:ChicagoGridZone[]=[
  {id:'taylor-street',label:'Taylor Street',grid:'TS-01',kind:'corridor',x:0,z:12,radius:32,buildable:true,description:'Neighborhood food, business, family, creator and history corridor.'},
  {id:'pilsen',label:'Pilsen',grid:'PL-01',kind:'district',x:-48,z:-20,radius:28,buildable:true,description:'Arts, music, food, murals, small-business and community mission district.'},
  {id:'near-west',label:'Near West Side',grid:'NW-01',kind:'district',x:-8,z:18,radius:34,buildable:true,description:'Connector district for Circle Park, Roosevelt, Taylor and downtown routes.'},
+ ...WEST_SIDE_COMMUNITY_AREAS
+  .filter(area=>![28,31].includes(area.id))
+  .map(area=>({id:`west-community-${area.id}`,label:area.name,grid:`WS-${area.id}`,kind:'district' as const,x:area.syntheticWorldAnchor.x,z:area.syntheticWorldAnchor.z,radius:24,buildable:true,description:`West Side phase ${area.phase} streaming district • ${area.gameplayFocus.slice(0,3).join(' • ')}`})),
 ]
 export function nearestChicagoGridZone(x:number,z:number){
  return [...CHICAGO_BUILD_GRID].map(zone=>({...zone,distance:Math.hypot(zone.x-x,zone.z-z)})).sort((a,b)=>a.distance-b.distance)[0]
