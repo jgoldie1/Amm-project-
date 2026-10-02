@@ -48,6 +48,7 @@ const PropertyVerseCenter = lazy(() => import('./components/PropertyVerseCenter'
 const HoloStyleCenter = lazy(() => import('./components/HoloStyleCenter'))
 const StaysAgencyFamilyHub = lazy(() => import('./components/StaysAgencyFamilyHub'))
 const SparrowMapCenter = lazy(() => import('./components/SparrowMapCenter'))
+const StreetVerseWorldForgePanel = lazy(() => import('./components/StreetVerseWorldForgePanel'))
 
 export default function App() {
   const screen = useGameStore(s => s.screen)
@@ -88,6 +89,7 @@ export default function App() {
   const [staysAgencyFamilyInitialTab, setStaysAgencyFamilyInitialTab] = useState<'stays'|'passport'>('stays')
   const [showNexus, setShowNexus] = useState(false)
   const [showSparrowMap, setShowSparrowMap] = useState(false)
+  const [showWorldForge, setShowWorldForge] = useState(false)
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
   const navigateTryAMM = (path:string) => {
@@ -198,6 +200,7 @@ export default function App() {
   ;(window as any).__showQuantumTag = () => setShowQuantumTag(true)
   ;(window as any).__showCommandNexus = () => setShowNexus(true)
   ;(window as any).__showSparrowMap = () => setShowSparrowMap(true)
+  ;(window as any).__showWorldForge = () => setShowWorldForge(true)
 
   const signedIn = screen !== 'intro' && screen !== 'login'
   const shellAvailable = screen !== 'login'
@@ -225,6 +228,7 @@ export default function App() {
     ['SPACE','SPACEVERSE • TIME',()=>setShowAdvanced(true),'BETA'],
     ['🔭','QUANTUM ZOOM',()=>setShowQuantumZoom(true),'BETA'],
     ['MAP','SPARROW MAP',()=>setShowSparrowMap(true),'BETA'],
+    ['CAD','CHICAGO WORLD FORGE',()=>setShowWorldForge(true),'BETA'],
     ['ROAD','NEXT BUILD',()=>setShowNextDevelopment(true),'BETA'],
     ['📚','KINGDOMS PRESS',()=>setShowPress(true),'BETA'],
     ['♜','FAMILY LEGACY',()=>setShowFamilyLegacy(true),'BETA'],
@@ -282,6 +286,7 @@ export default function App() {
         {showHoloStyle && <div style={{position:'fixed',inset:0,zIndex:10030,background:'#02020a'}}><HoloStyleCenter onClose={() => setShowHoloStyle(false)} /></div>}
         {showStaysAgencyFamily && <StaysAgencyFamilyHub initialTab={staysAgencyFamilyInitialTab} onClose={() => setShowStaysAgencyFamily(false)} />}
         {showSparrowMap && <SparrowMapCenter onClose={() => setShowSparrowMap(false)} />}
+        {showWorldForge && <StreetVerseWorldForgePanel onClose={() => setShowWorldForge(false)} />}
         {showHoloCore && <HoloCoreCenter onClose={() => setShowHoloCore(false)} />}
         {showHoloServices && <HoloServicesHub onClose={() => setShowHoloServices(false)} />}
         {showOmniWear && <OmniWearCenter onClose={() => setShowOmniWear(false)} />}
