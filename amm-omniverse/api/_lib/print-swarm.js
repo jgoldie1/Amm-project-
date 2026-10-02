@@ -3,7 +3,7 @@ import {requireFactoryAuthority} from './meshy-factory.js'
 
 const now=()=>new Date().toISOString()
 const clean=(v,max=240)=>String(v??'').trim().slice(0,max)
-const clamp=(n,min,max)=>Math.max(min,Math.min(max,Math.trunc(Number(n)||0))
+const clamp=(n,min,max)=>Math.max(min,Math.min(max,Math.trunc(Number(n)||0)))
 
 async function parentJob(id){
   const rows=await adminRest('print_network_jobs',{query:{id:`eq.${clean(id,80)}`,limit:1}})
@@ -130,4 +130,4 @@ export const PRINT_SWARM_POLICY={
   sixViewQaRequired:true,
   dimensionalSampling:true,
   restrictedGoodsInheritedFromPrintNetwork:true,
-} as const
+}
