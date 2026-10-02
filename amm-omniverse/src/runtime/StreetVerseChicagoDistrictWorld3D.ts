@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import {WEST_SIDE_COMMUNITY_AREAS} from '../data/StreetVerseWestSideNeighborhoodRegistry'
 
 type DistrictId='loop'|'river'|'lakefront'|'south'|'west'|'north'
 type DistrictDef={id:DistrictId;label:string;center:THREE.Vector3;radius:number}
@@ -56,6 +57,26 @@ export function addStreetVerseChicagoDistrictWorld3D(scene:THREE.Scene):ChicagoD
   for(let i=0;i<12;i++){const x=(i%4)*18,z=Math.floor(i/4)*21;addBox(west,x,5,z,14,10,15,i%2?brick:brickDark);for(const wx of [-4,0,4])addBox(west,x+wx,5,z-7.6,1.2,1.8,.15,glass)}
   addBox(west,29,.12,-18,80,.24,9,green);addBox(west,64,6,30,28,12,20,material(0x5d6266,.88,.18));const mural=addBox(west,49,5.5,40,.25,8,24,material(0x6f4d8a,.7,.08));mural.rotation.y=Math.PI/2
   addLabel(west,'MADISON ST',28,4.8,-12);addLabel(west,'WEST SIDE',28,4.8,47);addBusStop(west,'CTA • MADISON',-2,-12);const westBus=makeBus(0x1468b3);westBus.position.set(64,.05,-12);westBus.rotation.y=Math.PI;west.add(westBus)
+  const westExpansion=new THREE.Group();westExpansion.name='streetverse-west-side-community-areas';root.add(westExpansion)
+  WEST_SIDE_COMMUNITY_AREAS.forEach((area,index)=>{
+    const {x,z}=area.syntheticWorldAnchor
+    const phaseColor=area.phase===1?0x266f8f:area.phase===2?0x5f5a8e:0x7c5639
+    const pad=addBox(westExpansion,x,.08,z,22,.16,18,material(0x3c4146,.9,.03));pad.receiveShadow=true
+    for(let b=0;b<3;b++){
+      const h=7+((area.id+b*3)%6)
+      addBox(westExpansion,x-7+b*7,h/2,z+1,5.2,h,10,b%2?brick:brickDark)
+      addBox(westExpansion,x-7+b*7,2.2,z-4.08,3.7,1.5,.1,material(phaseColor,.5,.12))
+    }
+    addLabel(westExpansion,area.name.toUpperCase(),x,5.4,z-5.6)
+    if(index%2===0)addStreetFurniture(westExpansion,x+8,z+6)
+  })
+  window.dispatchEvent(new CustomEvent('tryamm:west-side-neighborhoods-visible',{detail:{
+    communityAreas:WEST_SIDE_COMMUNITY_AREAS.map(area=>({id:area.id,name:area.name,phase:area.phase})),
+    count:WEST_SIDE_COMMUNITY_AREAS.length,
+    geometryMode:'synthetic-streaming-preview',
+    sourceCertification:false,
+    note:'Visible preview anchors are gameplay geometry. Source-backed street/building ingestion and visual QA remain separate certification steps.'
+  }}))
 
   const north=new THREE.Group();north.position.set(18,0,-100);root.add(north)
   for(let i=0;i<14;i++){const x=-55+(i%7)*18,z=Math.floor(i/7)*24,h=12+(i%4)*4;addBox(north,x,h/2,z,14,h,16,i%3===0?stone:brick);if(i<7){addBox(north,x,2.7,z-8.1,12,5,.2,glass);addBox(north,x,5.7,z-8.25,8,.55,.12,material([0xb13b7b,0x2b8bb8,0xc17f2d][i%3],.35,.1))}}
@@ -67,7 +88,7 @@ export function addStreetVerseChicagoDistrictWorld3D(scene:THREE.Scene):ChicagoD
     pedestrians.forEach((p,i)=>{const u=p.userData,travel=Math.sin(t*u.speed+u.phase)*7;if(u.axis===0){p.position.x=u.baseX+travel;p.rotation.y=travel>=0?Math.PI/2:-Math.PI/2}else{p.position.z=u.baseZ+travel;p.rotation.y=travel>=0?0:Math.PI}})
     traffic.forEach((c,i)=>{c.position.x=-86+((t*c.userData.speed+c.userData.phase)%172);c.rotation.y=Math.PI/2})
     for(const d of districts){if(player.distanceTo(d.center)<=d.radius){if(current!==d.id){current=d.id;window.dispatchEvent(new CustomEvent('tryamm:district-enter',{detail:{id:d.id,label:d.label,position:{x:player.x,y:player.y,z:player.z},physical:true}}))}break}}}
-  window.dispatchEvent(new CustomEvent('tryamm:chicago-district-world-ready',{detail:{loop:true,river:true,bridges:3,elevatedL:true,lakefront:true,southSide:true,westSide:true,northSide:true,ctaBuses:4,ctaStops:5,ctaStations:3,downtownStreetFurniture:true,millenniumParkDistrict:true,livingPedestrians:40,movingTraffic:8,neighborhoodStreetIdentity:true}}))
+  window.dispatchEvent(new CustomEvent('tryamm:chicago-district-world-ready',{detail:{loop:true,river:true,bridges:3,elevatedL:true,lakefront:true,southSide:true,westSide:true,westSideCommunityAreas:WEST_SIDE_COMMUNITY_AREAS.length,northSide:true,ctaBuses:4,ctaStops:5,ctaStations:3,downtownStreetFurniture:true,millenniumParkDistrict:true,livingPedestrians:40,movingTraffic:8,neighborhoodStreetIdentity:true}}))
   const dispose=()=>{scene.remove(root);root.traverse(o=>{const m=o as THREE.Mesh;m.geometry?.dispose?.();const mt=(m as any).material;if(Array.isArray(mt))mt.forEach((x:THREE.Material)=>x.dispose());else mt?.dispose?.()})}
   return {group:root,update,dispose}
 }
