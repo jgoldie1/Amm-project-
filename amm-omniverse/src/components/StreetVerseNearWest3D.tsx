@@ -222,7 +222,7 @@ export default function StreetVerseNearWest3D(){
    <span/><button aria-label="Walk backward" onPointerDown={()=>setMove(0,driving?1.2:1)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{gridColumn:2,fontSize:24,borderRadius:14}}>▼</button><span/>
   </div>
   <div style={{position:'absolute',left:12,bottom:96,zIndex:24,display:'grid',gap:6,width:'min(218px,58vw)'}}>
-   <button aria-label="Open UIC CollegeBook gateway" onClick={()=>setCollegeBookOpen(v=>!v)} style={{minHeight:44,padding:'8px 10px',borderRadius:12,fontWeight:900}}>🎓 UIC • CAMPUSVERSE</button>
+   <button aria-label="Open UIC CollegeBook gateway" onClick={()=>setCollegeBookOpen(v=>!v)} style={{minHeight:44,padding:'8px 10px',borderRadius:12,fontWeight:900}}>🎓 UIC • COLLEGEBOOK</button>
    <button aria-label="Travel from UIC to Greenville CampusVerse" onClick={travelToGreenville} style={{minHeight:44,padding:'8px 10px',borderRadius:12,fontWeight:900}}>GREENVILLE • JACOBIE →</button>
    {collegeBookOpen&&<CampusVerseCollegeBookBridge onClose={()=>setCollegeBookOpen(false)}/>}
   </div>
