@@ -1,17 +1,39 @@
-import {json} from '../_lib/supabase-admin.js';
+import {adminReady,json} from '../_lib/supabase-admin.js';
 import {publicMeshyFactoryManifest} from '../_lib/meshy-factory.js';
+
+function degradedManifest(res,cityScope){
+  res.setHeader('Cache-Control','public, max-age=15, s-maxage=30, stale-while-revalidate=120');
+  return res.status(200).json({
+    ok:true,
+    schema:'tryamm.meshy.asset-manifest.v1',
+    cityScope,
+    assets:[],
+    degraded:true,
+    source:'native-fallback',
+    reason:'supabase_admin_not_configured',
+  });
+}
 
 export default async function handler(req,res){
   if(req.method!=='GET'){
     res.setHeader('Allow','GET');
     return json(res,405,{error:'method_not_allowed'});
   }
+
+  const cityScope=String(req.query?.city||req.query?.scope||'global');
+
+  // StreetVerse must remain playable even when the durable Meshy catalog is
+  // temporarily unavailable. The client already has native GLB fallbacks;
+  // return an empty successful manifest so those fallbacks can load instead
+  // of turning an optional asset catalog outage into a production 500.
+  if(!adminReady())return degradedManifest(res,cityScope);
+
   try{
-    const cityScope=String(req.query?.city||req.query?.scope||'global');
     const assets=await publicMeshyFactoryManifest({cityScope});
     res.setHeader('Cache-Control','public, max-age=30, s-maxage=60, stale-while-revalidate=300');
     return res.status(200).json({ok:true,schema:'tryamm.meshy.asset-manifest.v1',cityScope,assets});
   }catch(error){
+    if(error?.message==='supabase_admin_not_configured')return degradedManifest(res,cityScope);
     return json(res,error.status||500,{error:error.code||'meshy_manifest_failed',message:error.message});
   }
 }
