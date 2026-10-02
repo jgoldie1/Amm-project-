@@ -32,6 +32,7 @@ import {installCircleParkResidentAccessRuntime} from '../runtime/CircleParkResid
 import {installCircleParkCommunitySafetyRuntime} from '../runtime/CircleParkCommunitySafetyRuntime'
 import {installStreetVerseResourcePassportRuntime} from '../runtime/StreetVerseResourcePassportRuntime'
 import {announceStreetVerseCharacterReady,STREETVERSE_HERO_CHARACTER_ID} from '../data/streetVerseNamedCharacterRegistry'
+import {canClaimPhotoMatched} from '../data/StreetVerseCharacterReferenceAuthorization'
 import {installStreetVerseCharacterDevelopmentRuntime} from '../runtime/StreetVerseCharacterDevelopmentRuntime'
 import {installStreetVerseCharacterHeadRuntime} from '../runtime/StreetVerseCharacterHeadRuntime'
 import {installStreetVerseFacialExpressionRuntime} from '../runtime/StreetVerseFacialExpressionRuntime'
@@ -221,8 +222,8 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
         bjPhotoMatchReady=ok
         if(ok){
           nativeHero!.userData={...nativeHero!.userData,photoMatchedHeadActive:true,photoMatchedAssetId:BJ_PHOTOMATCH_ASSET.id,photoReferenceTextureAuthority:true}
-          announceStreetVerseCharacterReady({id:STREETVERSE_HERO_CHARACTER_ID,assetId:BJ_PHOTOMATCH_ASSET.id,era:'current',photoMatched:true,source:'streetverse-mobile-approved-bj-head'})
-          window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail:{characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',assetId:BJ_PHOTOMATCH_ASSET.id,photoMatched:true,active3DMesh:true,approvedReferencePixels:true,proceduralFaceHidden:true}}))
+          announceStreetVerseCharacterReady({id:STREETVERSE_HERO_CHARACTER_ID,assetId:BJ_PHOTOMATCH_ASSET.id,era:'current',photoMatched:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),source:'streetverse-mobile-approved-bj-head'})
+          window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail:{characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',assetId:BJ_PHOTOMATCH_ASSET.id,referenceMatchedPreview:true,photoMatched:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),certifiedLikeness:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),active3DMesh:true,approvedReferencePixels:true,proceduralFaceHidden:true}}))
         }
       })
       bjHeadRuntime?.dispose()
@@ -247,8 +248,8 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
         nativeHeroRig=nativeHumanoidRig(nativeHero)
         nativeWindLocs=[]
         nativeHero.traverse(object=>{if(/loc|braid|dread|hair/i.test(object.name)){object.userData={...object.userData,windBaseRotation:{x:object.rotation.x,y:object.rotation.y,z:object.rotation.z}};nativeWindLocs.push(object)}})
-        announceStreetVerseCharacterReady({id:STREETVERSE_HERO_CHARACTER_ID,assetId:BJ_MESHY_V6_ASSET.id,era:'current',photoMatched:true,source:'streetverse-mobile-meshy-bj-v6'})
-        window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail:{characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',assetId:BJ_MESHY_V6_ASSET.id,photoMatched:true,authoritative3DMesh:true,meshyV6:true,proceduralFallbackSuppressed:true,morphTargetNames:handle.morphTargetNames}}))
+        announceStreetVerseCharacterReady({id:STREETVERSE_HERO_CHARACTER_ID,assetId:BJ_MESHY_V6_ASSET.id,era:'current',photoMatched:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),source:'streetverse-mobile-meshy-bj-v6'})
+        window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail:{characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',assetId:BJ_MESHY_V6_ASSET.id,referenceMatchedPreview:true,photoMatched:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),certifiedLikeness:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),authoritative3DMesh:true,meshyV6:true,proceduralFallbackSuppressed:true,morphTargetNames:handle.morphTargetNames}}))
       })
     }
     const activatePublishedBody=async(assetId:string,label:string)=>{
