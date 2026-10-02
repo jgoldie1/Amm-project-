@@ -297,6 +297,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     addEventListener('tryamm:streetverse-player-asset-select',onPlayerAssetSelect)
     const savedPlayable=(()=>{try{return JSON.parse(localStorage.getItem('tryamm.streetverse.playable-character.v1')||'{}')?.character}catch{return null}})()
     if(savedPlayable?.assetId==='sv-james-body-base-v1')void activatePublishedBody(savedPlayable.assetId,String(savedPlayable.label||'JAMES'))
+    else if(savedPlayable?.assetId&&savedPlayable.assetId!=='sv-bj-stubbs-v6')void activateFamilyStandIn(String(savedPlayable.assetId),String(savedPlayable.label||'GLOBAL CHARACTER'),String(savedPlayable.id||''))
     nativeResidentRigs=nativeResidents.map(nativeHumanoidRig)
     const circleParkMeshySlots=['sv-black-man-youngadult-01','sv-black-woman-youngadult-01','sv-black-man-adult-01','sv-black-woman-adult-01'] as const
     circleParkMeshySlots.forEach((slotId,i)=>{
