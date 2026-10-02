@@ -32,6 +32,10 @@ export default function WorldForgerControlPanel(){
   const [sourceKind,setSourceKind]=useState<ForgeSource['kind']>('conceptual')
   const [sourceUrl,setSourceUrl]=useState('')
   const [rights,setRights]=useState(false)
+  const [placeX,setPlaceX]=useState(0)
+  const [placeZ,setPlaceZ]=useState(0)
+  const [placeRotation,setPlaceRotation]=useState(0)
+  const [placeScale,setPlaceScale]=useState(1)
   const [message,setMessage]=useState('')
   const [lastPlan,setLastPlan]=useState<any>(null)
 
@@ -59,9 +63,22 @@ export default function WorldForgerControlPanel(){
       ...(cad?validateCadPlan(cad):[]),
       ...validateForgeRecipe(recipe,[source],cad),
     ]
-    const plan={district,source,cad,recipe,errors,createdAt:new Date().toISOString()}
+    const placement={
+      assetId:recipe.id,label:recipe.label,kind:recipe.kind,districtId:recipe.districtId,
+      x:Number(placeX)||0,y:0,z:Number(placeZ)||0,
+      rotationY:(Number(placeRotation)||0)*Math.PI/180,
+      scale:Math.max(.01,Math.min(100,Number(placeScale)||1)),
+      collision:recipe.runtime.collision,enabled:true,updatedAt:new Date().toISOString(),
+    }
+    const plan={district,source,cad,recipe,placement,errors,createdAt:new Date().toISOString()}
     setLastPlan(plan)
-    try{localStorage.setItem('tryamm.world-forger.last-plan.v1',JSON.stringify(plan))}catch{}
+    try{
+      localStorage.setItem('tryamm.world-forger.last-plan.v1',JSON.stringify(plan))
+      const existing=JSON.parse(localStorage.getItem('tryamm.world-forger.placements.v1')||'[]')
+      const placements=Array.isArray(existing)?existing.filter((item:any)=>item?.assetId!==placement.assetId):[]
+      localStorage.setItem('tryamm.world-forger.placements.v1',JSON.stringify([...placements,placement]))
+      localStorage.setItem('tryamm.world-forger.active-district.v1',district.id)
+    }catch{}
     window.dispatchEvent(new CustomEvent('tryamm:world-forge-plan',{detail:plan}))
     setMessage(errors.length?`PLAN NEEDS REVIEW • ${errors.join(' • ')}`:'PLAN READY • founder preview before any credit-consuming generation')
   }
@@ -151,6 +168,14 @@ export default function WorldForgerControlPanel(){
           <label style={{fontSize:8,color:'#b8a9ca',display:'grid',alignContent:'end'}}><span style={{minHeight:44,display:'flex',alignItems:'center',gap:6}}><input type="checkbox" checked={elevator} onChange={e=>setElevator(e.target.checked)}/> ELEVATOR</span></label>
         </div>}
 
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(0,1fr))',gap:6,marginTop:8}}>
+          <label style={{fontSize:8,color:'#b8a9ca'}}>PLACE X<input type="number" value={placeX} onChange={e=>setPlaceX(Number(e.target.value)||0)} style={input}/></label>
+          <label style={{fontSize:8,color:'#b8a9ca'}}>PLACE Z<input type="number" value={placeZ} onChange={e=>setPlaceZ(Number(e.target.value)||0)} style={input}/></label>
+          <label style={{fontSize:8,color:'#b8a9ca'}}>ROTATE °<input type="number" value={placeRotation} onChange={e=>setPlaceRotation(Number(e.target.value)||0)} style={input}/></label>
+          <label style={{fontSize:8,color:'#b8a9ca'}}>SCALE<input type="number" min={.01} step={.1} value={placeScale} onChange={e=>setPlaceScale(Math.max(.01,Number(e.target.value)||1))} style={input}/></label>
+        </div>
+        <div style={{fontSize:8,color:'#8ea0ad',marginTop:5}}>Placement is saved with the forge plan. When the GLB reaches READY, StreetVerse can load it into this district at the saved position.</div>
+
         {sourceKind!=='street-view-reference'&&<label style={{display:'flex',gap:7,alignItems:'flex-start',fontSize:9,color:'#c6d4da',lineHeight:1.45,marginTop:9}}>
           <input type="checkbox" checked={rights} onChange={e=>setRights(e.target.checked)}/>
           <span>I have the rights/permission needed to use this source for the requested build. Real-person likenesses still require their separate likeness authorization.</span>
@@ -173,6 +198,7 @@ export default function WorldForgerControlPanel(){
           Output: {(WORLD_FORGER_OUTPUTS as any)[lastPlan.recipe.kind]?.join(' • ')||'mesh • materials • collision • LOD'}
         </div>
         {lastPlan.cad&&<div style={{fontSize:9,color:'#cbb8e5',lineHeight:1.5,marginTop:6}}>CAD: {lastPlan.cad.footprintM.width}m × {lastPlan.cad.footprintM.depth}m • {lastPlan.cad.levels.length} level(s) • {lastPlan.cad.verticalCores.filter((c:any)=>c.kind==='stairs').length} stair core(s) • {lastPlan.cad.verticalCores.some((c:any)=>c.kind==='elevator')?'elevator included':'no elevator'} • plumbing/electrical/HVAC graph included.</div>}
+        {lastPlan.placement&&<div style={{fontSize:9,color:'#9fc7d8',lineHeight:1.5,marginTop:6}}>Placement: X {lastPlan.placement.x} • Z {lastPlan.placement.z} • rotation {(Number(lastPlan.placement.rotationY||0)*180/Math.PI).toFixed(0)}° • scale {lastPlan.placement.scale}</div>}
       </section>}
 
       <section style={{marginTop:12,padding:12,border:'1px solid #6c592d',borderRadius:16,background:'#151005'}}>
