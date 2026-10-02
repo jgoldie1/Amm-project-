@@ -42,6 +42,7 @@ const KingdomsPressOperations=lazy(()=>import('./components/KingdomsPressOperati
 const UnifiedCommerceHub=lazy(()=>import('./components/UnifiedCommerceHub'))
 const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
 const MeshyFactoryControlPanel=lazy(()=>import('./components/MeshyFactoryControlPanel'))
+const WorldForgerControlPanel=lazy(()=>import('./components/WorldForgerControlPanel'))
 
 let routeContent: React.ReactNode = <App />
 let preserveDeterministicSafeRoute = false
@@ -54,6 +55,7 @@ try {
   const reelMatch=currentPath.match(/^\/reels\/([^/]+)\/?$/)
   const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
   const isAssetFactory=['/asset-factory','/asset-factory/','/meshy-factory','/meshy-factory/'].includes(currentPath)
+  const isWorldForger=['/world-forger','/world-forger/','/cad','/cad/'].includes(currentPath)
   const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
   const isLive=currentPath==='/live'||currentPath==='/live/'
   const isGuardian=currentPath==='/guardian'||currentPath==='/guardian/'
@@ -112,6 +114,7 @@ try {
   </>
   
   if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
+  else if(isWorldForger)routeContent=<Suspense fallback={routeFallback}><WorldForgerControlPanel /></Suspense>
   else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
