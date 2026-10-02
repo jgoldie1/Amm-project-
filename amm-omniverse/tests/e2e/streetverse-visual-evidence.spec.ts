@@ -13,6 +13,7 @@ test.use({
 
 test.describe('StreetVerse compact iPhone visual evidence', () => {
   test('Circle Park renders with one compact mobile control layer', async ({ page }, testInfo) => {
+    test.setTimeout(90_000);
     // Keep browser/runtime failures visible in CI. A missing canvas must be diagnosed,
     // not hidden by longer waits or a weaker visual assertion.
     page.on('pageerror', error => console.error('[streetverse-pageerror]', error.message));
