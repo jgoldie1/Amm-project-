@@ -11,6 +11,7 @@ import {
   type ForgeAssetKind,
   type ForgeSource,
 } from '../game/forger/StreetVerseWorldForger'
+import {CHICAGO_COMMUNITY_AREA_WORLD_FORGE,CHICAGO_WORLD_FORGE_CITYWIDE_POLICY} from '../game/forger/ChicagoCommunityAreaWorldForge'
 
 const btn:React.CSSProperties={minHeight:44,borderRadius:12,border:'1px solid #4f7893',background:'#0a1c28',color:'#fff',fontWeight:900,padding:'9px 11px',touchAction:'manipulation'}
 const input:React.CSSProperties={width:'100%',boxSizing:'border-box',minHeight:44,borderRadius:10,border:'1px solid #38576a',background:'#061019',color:'#fff',padding:'0 9px',marginTop:4}
@@ -96,6 +97,14 @@ export default function WorldForgerControlPanel(){
           </button>)}
         </div>
         <div style={{fontSize:9,color:'#9fb4bf',marginTop:8}}>Selected anchors: {district.anchors.join(' • ')}</div>
+      </section>
+
+      <section style={{marginTop:12,padding:12,border:'1px solid #355f4b',borderRadius:16,background:'#07150fdd'}}>
+        <div style={{display:'flex',justifyContent:'space-between',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+          <div><b style={{fontSize:11,color:'#a4ffd1'}}>CHICAGO CITYWIDE QUEUE</b><div style={{fontSize:9,color:'#a8c2b5',marginTop:3}}>All {CHICAGO_COMMUNITY_AREA_WORLD_FORGE.length} community areas are registered for phased World Forger expansion. West Side is the first detailed build wave.</div></div>
+          <span style={{fontSize:9,padding:'4px 8px',border:'1px solid #47725d',borderRadius:999,color:'#a4ffd1'}}>{CHICAGO_COMMUNITY_AREA_WORLD_FORGE.filter(area=>area.status==='registered').length} WEST-SIDE REGISTERED • {CHICAGO_COMMUNITY_AREA_WORLD_FORGE.filter(area=>area.status==='planned').length} PLANNED</span>
+        </div>
+        <div style={{fontSize:8,color:'#789486',lineHeight:1.45,marginTop:7}}>{CHICAGO_WORLD_FORGE_CITYWIDE_POLICY.rollout} • {CHICAGO_WORLD_FORGE_CITYWIDE_POLICY.mobileStrategy}</div>
       </section>
 
       <section style={{marginTop:12,padding:12,border:'1px solid #4d3f72',borderRadius:16,background:'#0c0916dd'}}>
