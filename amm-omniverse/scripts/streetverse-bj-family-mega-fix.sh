@@ -54,7 +54,7 @@ done
 
 log ""
 log "4) Meshy integration checks"
-for test_file in   tests/meshy-asset-pipeline-contract.mjs   tests/meshy-rig-animation-pipeline-contract.mjs   tests/meshy-global-fire-fleet-contract.mjs   tests/tryamm-native-pwa-asset-cache-contract.mjs; do
+for test_file in   tests/meshy-asset-pipeline-contract.mjs   tests/meshy-rig-animation-pipeline-contract.mjs   tests/meshy-global-fire-fleet-contract.mjs   tests/tryamm-native-pwa-asset-cache-contract.mjs   tests/streetverse-native-glb-live-fallback-contract.mjs; do
   if [[ -f "$test_file" ]]; then run node "$test_file"; else log "PENDING / NOT PRESENT: $test_file"; fi
 done
 
