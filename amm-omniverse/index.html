@@ -29,13 +29,13 @@
     <script>
       (()=>{
         document.documentElement.classList.toggle('tryamm-streetverse',location.pathname.startsWith('/streetverse'))
-        const KEY='tryamm-asset-recovery-v29'
+        const KEY='tryamm-asset-recovery-v30'
         const recover=()=>{
           try{
             if(sessionStorage.getItem(KEY))return
             sessionStorage.setItem(KEY,'1')
             const u=new URL(location.href)
-            u.searchParams.set('_tryamm_recover','v29')
+            u.searchParams.set('_tryamm_recover','v30')
             location.replace(u.toString())
           }catch{location.reload()}
         }
@@ -134,7 +134,7 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {
-            const SW_VERSION='20261001-birthday-alpha-production-v1'
+            const SW_VERSION='20261002-birthday-live-fix-v2'
             const RELEASE_KEY='tryamm-release-version'
             const previousRelease=localStorage.getItem(RELEASE_KEY)
             if (previousRelease !== SW_VERSION && 'caches' in window) {
