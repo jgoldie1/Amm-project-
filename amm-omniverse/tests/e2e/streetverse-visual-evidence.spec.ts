@@ -13,6 +13,7 @@ test.use({
 
 test.describe('StreetVerse compact iPhone visual evidence', () => {
   test('Circle Park renders with one compact mobile control layer', async ({ page }, testInfo) => {
+    test.setTimeout(90_000);
     // Keep browser/runtime failures visible in CI. A missing canvas must be diagnosed,
     // not hidden by longer waits or a weaker visual assertion.
     page.on('pageerror', error => console.error('[streetverse-pageerror]', error.message));
@@ -84,7 +85,7 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await page.waitForTimeout(2200);
     await page.screenshot({
       path:testInfo.outputPath('streetverse-circle-park-compact-iphone.png'),
-      fullPage:true,
+      fullPage:false,
     });
     await joystick.screenshot({
       path:testInfo.outputPath('streetverse-single-analog-joystick.png'),
@@ -102,10 +103,7 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     expect(menuBox?.width||0).toBeLessThanOrEqual(210);
     expect(menuBox?.height||0).toBeLessThan(620);
 
-    await page.screenshot({
-      path:testInfo.outputPath('streetverse-compact-quick-menu.png'),
-      fullPage:true,
-    });
+    await menu.screenshot({path:testInfo.outputPath('streetverse-compact-quick-menu.png')});
 
     await quickMenu.click();
     // Switching hands must mirror the external shop launchers away from the joystick.
@@ -135,7 +133,7 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     expect(socialBox?.width||0).toBeLessThanOrEqual(374);
     expect(socialBox?.height||0).toBeLessThanOrEqual(390);
     expect((socialBox?.y||0)+(socialBox?.height||0)).toBeLessThanOrEqual(844);
-    await page.screenshot({path:testInfo.outputPath('streetverse-social-panel-iphone.png'),fullPage:true});
+    await socialPanel.screenshot({path:testInfo.outputPath('streetverse-social-panel-iphone.png')});
     await page.getByRole('button',{name:'Close StreetVerse panel'}).click();
 
     await peopleShortcut.click();
@@ -144,8 +142,9 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await page.getByRole('button',{name:'Close StreetVerse panel'}).click();
 
     await ticketShortcut.click();
-    await expect(page.getByRole('region',{name:'StreetVerse stream ticket center'})).toBeVisible();
+    const ticketPanel=page.getByRole('region',{name:'StreetVerse stream ticket center'});
+    await expect(ticketPanel).toBeVisible();
     await expect(page.getByText('No authoritative ticket records loaded. The panel will not invent approvals or access.')).toBeVisible();
-    await page.screenshot({path:testInfo.outputPath('streetverse-ticket-panel-iphone.png'),fullPage:true});
+    await ticketPanel.screenshot({path:testInfo.outputPath('streetverse-ticket-panel-iphone.png')});
   });
 });

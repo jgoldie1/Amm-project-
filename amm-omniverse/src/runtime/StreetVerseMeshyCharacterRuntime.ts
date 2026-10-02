@@ -16,11 +16,14 @@ const NATIVE_RESIDENT_URLS=[TRYAMM_NATIVE_RUNTIME_ASSETS.residentA.url,TRYAMM_NA
 async function assetExists(url:string){
   if(!availability.has(url)){
     availability.set(url,(async()=>{
+      const controller=new AbortController()
+      const timer=window.setTimeout(()=>controller.abort(),1800)
       try{
-        const response=await fetch(url,{method:'HEAD',cache:'no-store'})
+        const response=await fetch(url,{method:'HEAD',cache:'no-store',signal:controller.signal})
         const contentType=(response.headers.get('content-type')||'').toLowerCase()
         return response.ok&&!contentType.includes('text/html')&&!contentType.includes('application/xhtml+xml')
       }catch{return false}
+      finally{window.clearTimeout(timer)}
     })())
   }
   return availability.get(url)!
@@ -42,10 +45,12 @@ export async function loadStreetVerseMeshyCharacter(slotId:string):Promise<Stree
   const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
   const published=await resolvePublishedMeshyAsset(slot.id,cityScope)
   const staticMeshyUrl=streetVerseMeshyCharacterUrl(slot)
-  const staticMeshyReady=published?.url?false:await assetExists(staticMeshyUrl)
+  const publishedReady=published?.url?await assetExists(published.url):false
+  const staticMeshyReady=publishedReady?false:await assetExists(staticMeshyUrl)
   const nativeUrl=NATIVE_RESIDENT_URLS[slot.fallbackResidentIndex%NATIVE_RESIDENT_URLS.length]
-  const sourceUrl=published?.url||(staticMeshyReady?staticMeshyUrl:nativeUrl)
-  const nativeFallback=!published?.url&&!staticMeshyReady
+  const sourceUrl=publishedReady?published!.url:(staticMeshyReady?staticMeshyUrl:nativeUrl)
+  const nativeFallback=!publishedReady&&!staticMeshyReady
+  if(published?.url&&!publishedReady&&typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:meshy-published-asset-unavailable',{detail:{slotId:slot.id,url:published.url,fallback:nativeUrl,source:'StreetVerseMeshyCharacterRuntime'}}))
   try{
     const gltf=await loader.loadAsync(sourceUrl)
     const object=gltf.scene
