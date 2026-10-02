@@ -7,7 +7,7 @@ export type WestSideVisibleWorldHandle={
   dispose:()=>void
 }
 
-type BuildingSpec={x:number;z:number;w:number;d:number;h:number;color:number;label:string;rotation?:number}
+type BuildingSpec={x:number;z:number;w:number;d:number;h:number;color:number;label:string;rotation?:number;units?:readonly string[];buildingNumber?:string}
 const ownedMaterials:THREE.Material[]=[]
 const ownedGeometries:THREE.BufferGeometry[]=[]
 const material=(params:THREE.MeshStandardMaterialParameters)=>{
@@ -27,15 +27,31 @@ function labelSprite(text:string){
   const s=new THREE.Sprite(sm);s.userData.disposeTexture=tex;s.scale.set(11,2.75,1);return s
 }
 function addRoad(root:THREE.Group,x:number,z:number,w:number,d:number,label:string){
-  box(root,[w,.12,d],[x,.06,z],material({color:0x292d32,roughness:1}),0,`west-side-road-${label}`)
+  const asphalt=material({color:0x20252a,roughness:1}),concrete=material({color:0xc8c4b8,roughness:1}),curb=material({color:0xe2ddd1,roughness:.95}),yellow=material({color:0xf6d64a,roughness:.9}),white=material({color:0xf4f2e9,roughness:.9})
+  box(root,[w,.12,d],[x,.06,z],asphalt,0,`west-side-road-${label}`)
   if(w>d){
-    for(let xx=x-w/2+6;xx<x+w/2-3;xx+=12)box(root,[5,.025,.16],[xx,.14,z],material({color:0xf0cf55,roughness:1}),0)
-    box(root,[w,.16,2.4],[x,.1,z-d/2-1.3],material({color:0xb9b6ad,roughness:1}))
-    box(root,[w,.16,2.4],[x,.1,z+d/2+1.3],material({color:0xb9b6ad,roughness:1}))
+    box(root,[w,.18,3.2],[x,.11,z-d/2-1.72],concrete,0,`west-side-sidewalk-${label}-north`)
+    box(root,[w,.18,3.2],[x,.11,z+d/2+1.72],concrete,0,`west-side-sidewalk-${label}-south`)
+    box(root,[w,.28,.22],[x,.18,z-d/2-.12],curb)
+    box(root,[w,.28,.22],[x,.18,z+d/2+.12],curb)
+    box(root,[w,.025,.11],[x,.14,z-.18],yellow);box(root,[w,.025,.11],[x,.14,z+.18],yellow)
+    box(root,[w,.025,.10],[x,.14,z-d/2+.62],white);box(root,[w,.025,.10],[x,.14,z+d/2-.62],white)
+    for(let xx=x-w/2+6;xx<x+w/2-3;xx+=12){box(root,[4.6,.028,.12],[xx,.145,z-d*.24],white);box(root,[4.6,.028,.12],[xx,.145,z+d*.24],white)}
   }else{
-    for(let zz=z-d/2+6;zz<z+d/2-3;zz+=12)box(root,[.16,.025,5],[x,.14,zz],material({color:0xf0cf55,roughness:1}),0)
-    box(root,[2.4,.16,d],[x-w/2-1.3,.1,z],material({color:0xb9b6ad,roughness:1}))
-    box(root,[2.4,.16,d],[x+w/2+1.3,.1,z],material({color:0xb9b6ad,roughness:1}))
+    box(root,[3.2,.18,d],[x-w/2-1.72,.11,z],concrete,0,`west-side-sidewalk-${label}-west`)
+    box(root,[3.2,.18,d],[x+w/2+1.72,.11,z],concrete,0,`west-side-sidewalk-${label}-east`)
+    box(root,[.22,.28,d],[x-w/2-.12,.18,z],curb)
+    box(root,[.22,.28,d],[x+w/2+.12,.18,z],curb)
+    box(root,[.11,.025,d],[x-.18,.14,z],yellow);box(root,[.11,.025,d],[x+.18,.14,z],yellow)
+    box(root,[.10,.025,d],[x-w/2+.62,.14,z],white);box(root,[.10,.025,d],[x+w/2-.62,.14,z],white)
+    for(let zz=z-d/2+6;zz<z+d/2-3;zz+=12){box(root,[.12,.028,4.6],[x-w*.24,.145,zz],white);box(root,[.12,.028,4.6],[x+w*.24,.145,zz],white)}
+  }
+}
+function addCrosswalk(root:THREE.Group,x:number,z:number,axis:'x'|'z'){
+  const stripe=material({color:0xf7f5ed,roughness:.95})
+  for(let i=-3;i<=3;i++){
+    if(axis==='x')box(root,[1.1,.03,3.8],[x+i*1.7,.16,z],stripe)
+    else box(root,[3.8,.03,1.1],[x,.16,z+i*1.7],stripe)
   }
 }
 function addTree(root:THREE.Group,x:number,z:number,s=1){
@@ -66,6 +82,12 @@ function addBuilding(root:THREE.Group,s:BuildingSpec,colliders:THREE.Box3[]){
   box(g,[s.w+.35,.45,s.d+.35],[0,s.h+.23,0],trim,0,'roof-cap')
   box(g,[2.8,1.2,2.2],[-s.w*.2,s.h+.85,0],dark,0,'roof-hvac')
   const sign=labelSprite(s.label);sign.position.set(0,Math.min(s.h-1,7),-s.d/2-.55);g.add(sign)
+  if(s.buildingNumber){
+    const number=labelSprite(s.buildingNumber);number.name='building-number';number.scale.set(3.6,.9,1);number.position.set(-Math.min(2.4,s.w*.2),2.75,-s.d/2-.48);g.add(number)
+  }
+  if(s.units?.length){
+    s.units.slice(0,4).forEach((unit,i)=>{const plaque=labelSprite(unit);plaque.name='apartment-unit-number';plaque.scale.set(2.2,.58,1);plaque.position.set((i-1.5)*1.85,1.0,-s.d/2-.50);g.add(plaque)})
+  }
   root.add(g)
   colliders.push(new THREE.Box3().setFromObject(body).expandByScalar(.25))
 }
@@ -87,6 +109,16 @@ function addVehicle(root:THREE.Group,x:number,z:number,color:number,rot=0,name='
   }
   root.add(g)
 }
+function addResidentialCourtyard(root:THREE.Group){
+  const g=new THREE.Group();g.name='circle-park-residential-courtyard';g.position.set(-49,0,67)
+  box(g,[28,.10,12],[0,.07,0],material({color:0x5f824f,roughness:1}),0,'courtyard-lawn')
+  box(g,[5.2,.14,12],[0,.11,0],material({color:0xc9c1ae,roughness:1}),0,'courtyard-walk')
+  box(g,[28,.14,2.2],[0,.12,0],material({color:0xc9c1ae,roughness:1}),0,'courtyard-crosswalk')
+  for(const [x,z] of [[-10,-4.2],[10,-4.2],[-10,4.2],[10,4.2]] as const)addTree(g,x,z,.62)
+  const board=labelSprite('CIRCLE PARK HOMES • UNITS 101–404');board.scale.set(10,2.2,1);board.position.set(0,3.2,0);g.add(board)
+  root.add(g)
+}
+
 export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,externalCollisionBoxes:THREE.Box3[]=[]):WestSideVisibleWorldHandle{
   const root=new THREE.Group();root.name='streetverse-west-side-visible-world-v1';scene.add(root)
   const colliders:THREE.Box3[]=[]
@@ -99,10 +131,14 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
   addRoad(root,0,5,11,176,'western')
   addRoad(root,-45,5,9,176,'west-side-west')
   addRoad(root,45,5,9,176,'west-side-east')
+  ;[[0,49],[0,18],[0,-8],[0,-36],[-45,18],[45,18],[-45,-8],[45,-8]].forEach(([x,z],i)=>addCrosswalk(root,x,z,i<4?'z':'x'))
   addPark(root)
+  addResidentialCourtyard(root)
 
   const buildings:BuildingSpec[]=[
-    {x:-67,z:34,w:16,d:15,h:18,color:0x8a4e39,label:'Circle Park Homes'},
+    {x:-67,z:34,w:16,d:15,h:18,color:0x8a4e39,label:'Circle Park Homes A',buildingNumber:'CP-A',units:['101','102','201','202']},
+    {x:-67,z:67,w:16,d:15,h:20,color:0x7d493a,label:'Circle Park Homes B',buildingNumber:'CP-B',units:['301','302','401','402']},
+    {x:-31,z:67,w:17,d:15,h:19,color:0x665044,label:'Circle Park Homes C',buildingNumber:'CP-C',units:['103','104','203','204']},
     {x:-25,z:33,w:18,d:15,h:22,color:0x6b5145,label:'West Side Commons'},
     {x:25,z:33,w:17,d:15,h:20,color:0x536676,label:'Jefferson School'},
     {x:68,z:34,w:18,d:15,h:24,color:0x765b46,label:'Community Market'},
@@ -111,12 +147,12 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
     {x:24,z:5,w:18,d:15,h:21,color:0x775846,label:'Holo Garage'},
     {x:68,z:5,w:18,d:15,h:25,color:0x526c5b,label:'West Side Clinic'},
     {x:-67,z:-22,w:18,d:15,h:18,color:0x6d4537,label:'Taylor Street Cafe'},
-    {x:-24,z:-22,w:17,d:15,h:24,color:0x765c45,label:'Taylor Apartments'},
+    {x:-24,z:-22,w:17,d:15,h:24,color:0x765c45,label:'Taylor Apartments',buildingNumber:'TAYLOR 24',units:['101','102','201','202']},
     {x:24,z:-22,w:18,d:15,h:20,color:0x4b6578,label:'64 Track Annex'},
     {x:68,z:-22,w:18,d:15,h:22,color:0x6c4c5e,label:'Little Italy Shops'},
     {x:-67,z:-54,w:18,d:16,h:20,color:0x6c4936,label:'Pilsen Market'},
     {x:-24,z:-54,w:18,d:16,h:24,color:0x4d6672,label:'Pilsen Arts'},
-    {x:24,z:-54,w:18,d:16,h:22,color:0x75533f,label:'18th Street Homes'},
+    {x:24,z:-54,w:18,d:16,h:22,color:0x75533f,label:'18th Street Homes',buildingNumber:'18TH 24',units:['1A','1B','2A','2B']},
     {x:68,z:-54,w:18,d:16,h:26,color:0x516859,label:'Pilsen Works'},
   ]
   buildings.forEach(b=>addBuilding(root,b,colliders))
@@ -145,7 +181,7 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
     if(next!==active){active=next;window.dispatchEvent(new CustomEvent('tryamm:streetverse-west-side-zone',{detail:{district:next,x,z,source:'west-side-visible-world'}}))}
   }
   window.addEventListener('tryamm:streetverse-player-position',onPosition)
-  window.dispatchEvent(new CustomEvent('tryamm:streetverse-visible-world-ready',{detail:{version:'west-side-forger-v1',districts:anchors.map(a=>a.id),buildings:buildings.length,trees:treeRows.length,vehicles:6,roads:7,cadForger:true,collisions:true,interiorLobbies:true,source:'StreetVerseWestSideVisibleWorldRuntime'}}))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-visible-world-ready',{detail:{version:'west-side-forger-v1',districts:anchors.map(a=>a.id),buildings:buildings.length,trees:treeRows.length,vehicles:6,roads:7,crosswalks:8,twoWayRoadMarkings:true,raisedSidewalks:true,apartmentUnitNumbers:true,circleParkCourtyard:true,cadForger:true,collisions:true,interiorLobbies:true,source:'StreetVerseWestSideVisibleWorldRuntime'}}))
   window.dispatchEvent(new CustomEvent('tryamm:game-ops-world-stage',{detail:{stage:'visible-world',state:'READY',version:'west-side-forger-v1',source:'StreetVerseWestSideVisibleWorldRuntime'}}))
 
   return{group:root,collisionBoxes:colliders,dispose:()=>{
