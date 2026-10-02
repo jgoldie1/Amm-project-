@@ -56,7 +56,7 @@ export default function Meshy3DPrintLab({jobs}:{jobs:ReadyMeshyJob[]}){
     setBusy('analyze');setMessage('')
     try{
       const scene=await loadMeshyPrintableGlb(sourceUrl)
-      const result=analyzeMeshyPrintableScene(scene)
+      const result=await analyzeMeshyPrintableScene(scene)
       setAnalysis(result)
       setMessage(result.nonEmpty?`Mesh analyzed: ${result.meshCount} mesh(es), ${result.triangleCount.toLocaleString()} triangles.`:'This model is not ready for print export.')
     }catch(error){setMessage(error instanceof Error?error.message:String(error))}
@@ -68,7 +68,7 @@ export default function Meshy3DPrintLab({jobs}:{jobs:ReadyMeshyJob[]}){
     setBusy(format);setMessage('')
     try{
       const scene=await loadMeshyPrintableGlb(sourceUrl)
-      const current=analysis||analyzeMeshyPrintableScene(scene)
+      const current=analysis||await analyzeMeshyPrintableScene(scene)
       setAnalysis(current)
       const gate=canPrepareMeshyPrint({analysis:current,rightsAcknowledged:rights})
       if(!gate.allowed)throw new Error(`Print prep blocked: ${gate.reasons.join(', ')}`)
