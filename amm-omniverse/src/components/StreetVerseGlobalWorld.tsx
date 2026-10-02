@@ -19,9 +19,15 @@ export default function StreetVerseGlobalWorld({onClose,onEnterChicago}:{onClose
  useEffect(()=>{const next=getGlobalCityCharacterCast(city.id);setSelectedCharacter(next[0]);window.dispatchEvent(new CustomEvent('tryamm:global-city-select',{detail:{city:city.name,country:city.country,region:city.region,cityId:city.id}}))},[city.id,city.name,city.country,city.region])
  const chooseCharacter=(character:GlobalCharacterProfile)=>{
   setSelectedCharacter(character)
-  try{localStorage.setItem('tryamm.streetverse.global.character.v1',JSON.stringify({characterId:character.id,cityId:character.cityId,visualSlot:character.visualSlot,updatedAt:new Date().toISOString()}))}catch{}
+  try{
+   const updatedAt=new Date().toISOString()
+   localStorage.setItem('tryamm.streetverse.global.character.v1',JSON.stringify({characterId:character.id,cityId:character.cityId,visualSlot:character.visualSlot,updatedAt}))
+   localStorage.setItem('tryamm.streetverse.playable-character.v1',JSON.stringify({character:{id:character.id,label:character.displayName.toUpperCase(),index:900,role:character.roleLabel,missionLane:character.missionLane,presentation:'pending',assetId:character.visualSlot,visualStatus:'fallback'},updatedAt}))
+  }catch{}
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-global-character-select',{detail:character}))
-  window.dispatchEvent(new CustomEvent('tryamm:streetverse-player-asset-select',{detail:{characterId:character.id,label:character.displayName,assetId:character.visualSlot,visualStatus:'generic-city-rig',source:'streetverse-global'}}))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-character-select',{detail:{id:character.id,label:character.displayName.toUpperCase(),role:character.roleLabel,missionLane:character.missionLane,assetId:character.visualSlot,source:'streetverse-global'}}))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-player-asset-select',{detail:{characterId:character.id,label:character.displayName,assetId:character.visualSlot,visualStatus:'fallback',source:'streetverse-global'}}))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-selected',{detail:{characterId:character.id,missionLane:character.missionLane,mission:{id:'streetverse-global-living-city',title:'StreetVerse Global: Living City Story',rewardXP:560}}}))
   window.dispatchEvent(new CustomEvent('tryamm:universal-mission-open',{detail:{missionId:'streetverse-global-living-city'}}))
  }
  const openCity=(id:string)=>{
