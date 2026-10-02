@@ -5,6 +5,7 @@ import {getGlobalCityRuntimeEvidence,getGlobalCitySystemsEvidence} from '../runt
 import {loadPublishedMeshyManifest,type PublishedMeshyAsset} from '../runtime/StreetVerseMeshyAssetManifest'
 import UniversalMissionDirector from './UniversalMissionDirector'
 import {getGlobalCityCharacterCast,type GlobalCharacterProfile} from '../data/StreetVerseGlobalCharacterRegistry'
+import {CHARACTER_REFERENCE_PROOF_REQUIREMENTS} from '../data/StreetVerseCharacterReferenceAuthorization'
 
 export default function StreetVerseGlobalWorld({onClose,onEnterChicago}:{onClose:()=>void;onEnterChicago?:()=>void}){
  const params=typeof window!=='undefined'?new URLSearchParams(window.location.search):new URLSearchParams()
@@ -17,6 +18,13 @@ export default function StreetVerseGlobalWorld({onClose,onEnterChicago}:{onClose
  const [selectedCharacter,setSelectedCharacter]=useState<GlobalCharacterProfile>(()=>getGlobalCityCharacterCast(city.id)[0])
  useEffect(()=>{let active=true;void loadPublishedMeshyManifest(city.id).then(items=>{if(active)setRigPack(items)});return()=>{active=false}},[city.id])
  useEffect(()=>{const next=getGlobalCityCharacterCast(city.id);setSelectedCharacter(next[0]);window.dispatchEvent(new CustomEvent('tryamm:global-city-select',{detail:{city:city.name,country:city.country,region:city.region,cityId:city.id}}))},[city.id,city.name,city.country,city.region])
+ const clearCharacter=()=>{
+  try{localStorage.removeItem('tryamm.streetverse.global.character.v1');localStorage.removeItem('tryamm.streetverse.playable-character.v1')}catch{}
+  const fallback=cast[0]
+  setSelectedCharacter(fallback)
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-global-character-cleared',{detail:{cityId:city.id}}))
+  window.dispatchEvent(new CustomEvent('tryamm:accessibility-announce',{detail:{text:'Global character selection cleared.'}}))
+ }
  const chooseCharacter=(character:GlobalCharacterProfile)=>{
   setSelectedCharacter(character)
   try{
@@ -89,7 +97,13 @@ export default function StreetVerseGlobalWorld({onClose,onEnterChicago}:{onClose
     <div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:8}}>
      <button onClick={()=>chooseCharacter(selectedCharacter)} style={{...actionBtn,width:'auto',marginTop:0}}>PLAY / USE CHARACTER</button>
      {selectedCharacter.afterDarkEligible&&<button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:universal-mission-open',{detail:{missionId:'streetverse-global-after-dark'}}))} style={{...actionBtn,width:'auto',marginTop:0,borderColor:'#8c62a2',background:'#21102d'}}>AFTER DARK MISSION</button>}
+     <button onClick={clearCharacter} style={{...actionBtn,width:'auto',marginTop:0,borderColor:'#81565c',background:'#231114'}}>CLEAR / CANCEL CHARACTER</button>
     </div>
+   </div>
+   <div style={{marginTop:10,padding:10,border:'1px solid #385247',borderRadius:12,background:'#07130e'}}>
+    <b style={{fontSize:10,color:'#9effc1'}}>LIKENESS / REFERENCE PROOF</b>
+    <div style={{fontSize:10,lineHeight:1.5,marginTop:4,color:'#b9c9c0'}}>These Global city guides are fictional, so no real-person likeness permission is required. If a real person is added later, the project does not label that character PHOTO-MATCHED until a usable reference and permission record are verified.</div>
+    <div style={{fontSize:9,lineHeight:1.45,marginTop:5,opacity:.72}}>{CHARACTER_REFERENCE_PROOF_REQUIREMENTS.join(' • ')}</div>
    </div>
   </section>
   <section style={{marginTop:16,padding:12,border:'1px solid #32503d',borderRadius:14,background:'#07140e'}}>
