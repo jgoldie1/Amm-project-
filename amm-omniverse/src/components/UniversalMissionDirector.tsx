@@ -104,7 +104,12 @@ export default function UniversalMissionDirector({defaultWorld='streetverse'}:{d
       const id=String((event as CustomEvent<{id?:string;missionId?:string}>).detail?.id||(event as CustomEvent<{missionId?:string}>).detail?.missionId||'')
       const universalId=FAMILY_TO_UNIVERSAL_MISSION[id]
       const mission=getUniversalMission(universalId)
-      if(mission)start(mission)
+      if(!mission)return
+      start(mission)
+      if(universalId==='brielle-64-track-welcome'){
+        const next=advanceStoredMission(universalId,0)
+        if(next)setProgress(next)
+      }
     }
     const familyInteraction=(event:Event)=>{
       const name=String((event as CustomEvent<{name?:string}>).detail?.name||'').toLowerCase()
