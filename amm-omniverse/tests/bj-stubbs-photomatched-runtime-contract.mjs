@@ -12,7 +12,7 @@ must(runtime.includes("headPivot.add(mesh)"),'photo head must attach to the live
 must(runtime.includes("PROCEDURAL_FACE_PARTS")&&runtime.includes("object.visible=false"),'procedural facial geometry must hide only after photo head activation')
 must(runtime.includes("tryamm:bj-photomatched-head-ready"),'photo-head readiness evidence event missing')
 must(runtime.includes("certifiedLikeness:false"),'runtime must not overclaim single-reference geometry as certified likeness')
-must(world.includes("installBJPhotoMatchedHead(nativeHero)"),'mobile BJ must install the approved photo-matched head')
+must(world.includes("bjPhotoMatch=previewPhotoHead?installBJPhotoMatchedHead(nativeHero):null"),'photo reference preview must be opt-in, leaving the volumetric game face visible by default')
 must(world.includes("photoMatched:true,source:'streetverse-mobile-approved-bj-head'"),'named-character authority must flip to photo-matched after successful load')
 must(world.includes("proceduralFaceHidden:true"),'mobile world must report procedural face replacement')
 must(world.includes("bjPhotoMatch?.dispose()"),'photo-head runtime must clean up safely')

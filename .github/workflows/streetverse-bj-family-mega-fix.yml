@@ -47,6 +47,9 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: iPhone StreetVerse visual proof
+        env:
+          TRYAMM_BASE_URL: ""
+          E2E_BASE_URL: ""
         run: npx playwright test tests/e2e/streetverse-visual-evidence.spec.ts --project=mobile-chromium --reporter=line
 
       - name: Family roster proof

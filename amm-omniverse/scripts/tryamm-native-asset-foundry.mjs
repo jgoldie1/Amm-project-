@@ -256,22 +256,22 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
   rig.userData={semantic:hero?'hero-character-rig':'resident-character-rig',animationReady:true,generatedBy:'tryamm-native-asset-foundry'}
   group.add(rig)
 
-  const pelvis=new THREE.Group();pelvis.name='rig-pelvis';pelvis.position.y=.88*H;rig.add(pelvis)
+  const pelvis=new THREE.Group();pelvis.name='rig-pelvis';pelvis.position.y=1.10*H;rig.add(pelvis)
   const hips=new THREE.Mesh(new THREE.CapsuleGeometry(.28*proportions.torso,.34,4,10),pants)
   hips.name='pelvis-shell';hips.rotation.z=deg(90);hips.scale.z=1.12;hips.castShadow=true;pelvis.add(hips)
 
-  const spine=new THREE.Group();spine.name='rig-spine';spine.position.y=.43*H;pelvis.add(spine)
+  const spine=new THREE.Group();spine.name='rig-spine';spine.position.y=.18*H;pelvis.add(spine)
   const torso=new THREE.Mesh(new THREE.CapsuleGeometry((hero?.42:.39)*proportions.torso,.82*H,6,14),outfit)
-  torso.name=hero?'hero-torso':'resident-torso';torso.position.y=.40*H;torso.scale.set(proportions.shoulder,1,.88);torso.castShadow=true;spine.add(torso)
+  torso.name=hero?'hero-torso':'resident-torso';torso.position.y=.28*H;torso.scale.set(proportions.shoulder*.78,.68,.70);torso.castShadow=true;spine.add(torso)
   const shoulderLine=new THREE.Mesh(new THREE.CapsuleGeometry(.12,.72*shoulder,4,10),outfit)
-  shoulderLine.name='shoulder-line';shoulderLine.rotation.z=deg(90);shoulderLine.position.y=.78*H;shoulderLine.castShadow=true;spine.add(shoulderLine)
-  const clavicle=addBox(spine,'clavicle-line',[shoulder*1.18,.055,.075],[0,.76*H,.32],skin,undefined,'character-clavicle')
+  shoulderLine.name='shoulder-line';shoulderLine.rotation.z=deg(90);shoulderLine.position.y=.61*H;shoulderLine.castShadow=true;spine.add(shoulderLine)
+  const clavicle=addBox(spine,'clavicle-line',[shoulder*1.18,.055,.075],[0,.60*H,.25],skin,undefined,'character-clavicle')
   clavicle.castShadow=false
   const waist=addBox(spine,'waist-silhouette',[.58*proportions.torso,.10,.55],[0,.02*H,0],outfit,undefined,'character-waist')
   waist.scale.x=.88
-  const neck=addCylinder(spine,'neck',.13,.22,[0,.98*H,0],skin,14,'character-neck')
+  const neck=addCylinder(spine,'neck',.13,.22,[0,.78*H,0],skin,14,'character-neck')
 
-  const headPivot=new THREE.Group();headPivot.name='rig-head';headPivot.position.y=1.12*H;spine.add(headPivot)
+  const headPivot=new THREE.Group();headPivot.name='rig-head';headPivot.position.y=.98*H;headPivot.scale.setScalar(.76);spine.add(headPivot)
   const head=new THREE.Mesh(new THREE.SphereGeometry((hero?.35:.325)*proportions.head,24,18),skin)
   head.name=hero?'hero-head':'resident-head';head.scale.set(.91*face.headX,1.08*face.headY,.88);head.castShadow=true;headPivot.add(head)
   const jaw=new THREE.Mesh(new THREE.SphereGeometry(.25*proportions.head,18,12),skin)
@@ -337,7 +337,7 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
   }
 
   for(const side of [-1,1]){
-    const armPivot=new THREE.Group();armPivot.name=side<0?'rig-left-arm':'rig-right-arm';armPivot.position.set(side*shoulder,.69*H,0);spine.add(armPivot)
+    const armPivot=new THREE.Group();armPivot.name=side<0?'rig-left-arm':'rig-right-arm';armPivot.position.set(side*shoulder*.76,.58*H,0);spine.add(armPivot)
     const upperArm=new THREE.Mesh(new THREE.CapsuleGeometry(.095,.39*H,4,10),outfit);upperArm.name='upper-arm';upperArm.position.y=-.24*H;upperArm.castShadow=true;armPivot.add(upperArm)
     const elbow=new THREE.Mesh(new THREE.SphereGeometry(.095,10,8),skin);elbow.name='elbow';elbow.position.y=-.48*H;armPivot.add(elbow)
     const forearm=new THREE.Mesh(new THREE.CapsuleGeometry(.082,.34*H,4,10),skin);forearm.name='forearm';forearm.position.y=-.67*H;armPivot.add(forearm)
@@ -347,7 +347,7 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
       digit.name='finger-detail';digit.position.set((finger-1)*.038,-1.02*H,.02);digit.rotation.z=(finger-1)*.06;armPivot.add(digit)
     }
 
-    const legPivot=new THREE.Group();legPivot.name=side<0?'rig-left-leg':'rig-right-leg';legPivot.position.set(side*.18,.78*H,0);rig.add(legPivot)
+    const legPivot=new THREE.Group();legPivot.name=side<0?'rig-left-leg':'rig-right-leg';legPivot.position.set(side*.18,1.05*H,0);rig.add(legPivot)
     const thigh=new THREE.Mesh(new THREE.CapsuleGeometry(.13,.46*H,4,10),pants);thigh.name='thigh';thigh.position.y=-.31*H;thigh.castShadow=true;legPivot.add(thigh)
     const knee=new THREE.Mesh(new THREE.SphereGeometry(.125,10,8),pants);knee.name='knee';knee.position.y=-.59*H;legPivot.add(knee)
     const shin=new THREE.Mesh(new THREE.CapsuleGeometry(.105,.42*H,4,10),pants);shin.name='shin';shin.position.y=-.82*H;legPivot.add(shin)
@@ -357,7 +357,7 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
 
   if(!hero&&variant%2===1){
     const jacket=new THREE.Mesh(new THREE.CapsuleGeometry(.405*proportions.torso,.80*H,6,12),accent)
-    jacket.name='wardrobe-jacket';jacket.position.set(0,.42*H,-.025);jacket.scale.set(proportions.shoulder*1.04,.96,.95);spine.add(jacket)
+    jacket.name='wardrobe-jacket';jacket.position.set(0,.28*H,-.025);jacket.scale.set(proportions.shoulder*.80,.66,.74);spine.add(jacket)
     const zipper=addBox(spine,'jacket-zipper',[.025,.62,.03],[0,.42*H,.37],mats.metal,undefined,'wardrobe-detail');zipper.castShadow=false
   }
   if(!hero&&variant%3===1){
@@ -374,13 +374,16 @@ function addResidentArchetype(group,x,z,mats,variant=0,hero=false){
     beard.name='facial-hair';beard.position.set(0,-.16,.095);beard.scale.set(.9,.72,.9);headPivot.add(beard)
   }
   if(hero){
-    const undershirt=addBox(spine,'hero-undershirt',[.50,.72,.06],[0,.42*H,.36],mat('hero-undershirt-mat',0xe8ecef,.78,.01),undefined,'hero-layered-wardrobe')
+    const undershirt=addBox(spine,'hero-undershirt',[.37,.53,.045],[0,.28*H,.275],mat('hero-undershirt-mat',0xe8ecef,.78,.01),undefined,'hero-layered-wardrobe')
     undershirt.castShadow=false
     const jacket=new THREE.Mesh(new THREE.CapsuleGeometry(.43*proportions.torso,.78*H,6,14),accent)
     jacket.name='hero-layered-jacket';jacket.position.set(0,.42*H,-.04);jacket.scale.set(1.08,.98,.96);spine.add(jacket)
     const collar=new THREE.Mesh(new THREE.TorusGeometry(.44,.055,8,24,Math.PI),mats.holo);collar.name='hero-holo-collar';collar.rotation.x=deg(90);collar.position.set(0,.66*H,-.22);spine.add(collar)
   }
 
+  rig.updateMatrixWorld(true)
+  const feet=new THREE.Box3().setFromObject(rig).min.y
+  if(Number.isFinite(feet))rig.position.y-=feet
   group.userData={...group.userData,semantic:hero?'player-character':'crowd-resident',rigState:'hierarchical-procedural-v4-max',animationReady:true,facialDetailV4:true,blinkReady:true,breathingReady:true,eyeSaccadeReady:true,faceProfileCount:faceProfiles.length,hairStyleCount:6,layeredWardrobe:true,fingerDetail:true,materialResponse:'skin-cloth-separated',originalTryammDesign:true}
 }
 

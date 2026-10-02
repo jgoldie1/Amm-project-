@@ -13,7 +13,7 @@ if(mobileReturn.includes('StreetVerseMobileProofDock'))throw new Error('duplicat
 for(const x of ["mobile?<StreetVerseReelEventBridge/>","const mobile=useMemo"])if(!bridge.includes(x))throw new Error('missing mobile bridge gate '+x)
 for(const bad of ['<StreetVersePlayerGridMap/>','<StreetVerseRPLinguaCoach/>','<StreetVerseMobileProofDock/>'])if(overlays.match(/if\(mobile\)return[^\n]+/)?.[0]?.includes(bad))throw new Error('mobile full overlay still contains '+bad)
 
-for(const x of ["mobileHudPass:'single-layer-v2'","closer-third-person-v2","bright-circle-park-v1","controlSide==='left'","✓ LEFT HAND","✓ RIGHT HAND"])if(!world.includes(x))throw new Error('missing clean HUD feature '+x)
+for(const x of ["mobileHudPass:'safe-area-separated-v3'","closer-third-person-v2","bright-circle-park-v1","controlSide==='left'","✓ LEFT HAND","✓ RIGHT HAND"])if(!world.includes(x))throw new Error('missing clean HUD feature '+x)
 if(world.includes('3D MOBILE • CLEAN CONTROL'))throw new Error('redundant mobile debug badge still present')
 for(const x of ["right:'max(126px","'🎥'"])if(!reel.includes(x))throw new Error('reel control still occupies movement zone')
 

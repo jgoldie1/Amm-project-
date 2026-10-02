@@ -1,0 +1,56 @@
+/* One layout owns the safe areas, including launchers outside the React world. */
+body:has([data-streetverse-world-root]) #sv-retail-open,
+body:has([data-streetverse-world-root]) #sv-store-open {
+  left: auto !important;
+  right: max(14px, env(safe-area-inset-right)) !important;
+  width: 120px;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+body:has([data-streetverse-world-root]) #sv-retail-open {
+  bottom: calc(env(safe-area-inset-bottom) + 138px) !important;
+}
+body:has([data-streetverse-world-root]) #sv-store-open {
+  bottom: calc(env(safe-area-inset-bottom) + 84px) !important;
+}
+body:has([data-streetverse-world-root]) [data-streetverse-travel] {
+  top: calc(env(safe-area-inset-top) + 146px) !important;
+  right: max(12px, env(safe-area-inset-right)) !important;
+  min-height: 44px;
+  font: 800 10px system-ui;
+  padding: 8px 10px !important;
+}
+[data-streetverse-world-root] [data-streetverse-mission] {
+  top: calc(env(safe-area-inset-top) + 72px) !important;
+  left: 12px !important;
+  right: 12px;
+  transform: none !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 56px;
+  padding: 7px 10px !important;
+  box-sizing: border-box;
+}
+body:has([data-streetverse-world-root][data-control-side="right"]) #sv-retail-open,
+body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-open {
+  right: auto !important;
+  left: max(14px, env(safe-area-inset-left)) !important;
+}
+[data-streetverse-world-root] [data-streetverse-context] {
+  min-width: 0 !important;
+  width: 148px;
+  max-width: calc(100vw - 174px) !important;
+}
+@media (max-width: 350px) {
+  [data-streetverse-world-root] [data-streetverse-weather] { display: none; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  [data-streetverse-world-root] [data-streetverse-mission] {
+    left: 160px !important;
+    right: 180px;
+    top: calc(env(safe-area-inset-top) + 8px) !important;
+  }
+  body:has([data-streetverse-world-root]) [data-streetverse-travel] {
+    top: calc(env(safe-area-inset-top) + 76px) !important;
+  }
+}

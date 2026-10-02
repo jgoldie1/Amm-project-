@@ -49,7 +49,13 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(mission).toBeVisible({ timeout: 20_000 });
 
     type Rect={x:number;y:number;width:number;height:number};
-    const visibleCore=[joystick,quickMenu,page.getByRole('button',{name:'Open Holo FON'}),mission];
+    const travel=page.getByRole('button',{name:'Travel to Taylor Street UIC Medical District'});
+    const stores=page.locator('#sv-retail-open');
+    const enterStore=page.locator('#sv-store-open');
+    await expect(travel).toBeVisible();
+    await expect(stores).toBeVisible();
+    await expect(enterStore).toBeVisible();
+    const visibleCore=[joystick,quickMenu,page.getByRole('button',{name:'Open Holo FON'}),mission,travel,stores,enterStore];
     const boxes:Rect[]=[];
     for(const locator of visibleCore){
       const box=await locator.boundingBox();
@@ -57,13 +63,13 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     }
     const viewportArea=390*844;
     const summedControlArea=boxes.reduce((sum,box)=>sum+box.width*box.height,0);
-    expect(summedControlArea/viewportArea).toBeLessThan(0.20);
+    expect(summedControlArea/viewportArea).toBeLessThan(0.25);
 
     const overlaps=(a:Rect,b:Rect)=>
       Math.max(0,Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x))*
       Math.max(0,Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y));
     for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++){
-      expect(overlaps(boxes[i],boxes[j])).toBeLessThan(120);
+      expect(overlaps(boxes[i],boxes[j])).toBeLessThan(1);
     }
 
     await page.waitForTimeout(2200);
@@ -93,6 +99,19 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     });
 
     await quickMenu.click();
+    // Switching hands must mirror the external shop launchers away from the joystick.
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/RIGHT HAND/}).click();
+    await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-control-side','right');
+    const rightJoystick=await joystick.boundingBox();
+    for(const launcher of [stores,enterStore]){
+      const box=await launcher.boundingBox();
+      expect(box).not.toBeNull();
+      expect(rightJoystick).not.toBeNull();
+      expect(overlaps(box!,rightJoystick!)).toBe(0);
+    }
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/LEFT HAND/}).click();
     const socialShortcut=page.getByRole('button',{name:'Open StreetVerse social panel'});
     const peopleShortcut=page.getByRole('button',{name:'Open StreetVerse people search'});
     const ticketShortcut=page.getByRole('button',{name:'Open StreetVerse stream tickets'});
