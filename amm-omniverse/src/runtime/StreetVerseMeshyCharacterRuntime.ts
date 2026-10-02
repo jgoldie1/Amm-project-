@@ -7,16 +7,19 @@ import {
 } from '../data/streetVerseMeshyCharacterSlots'
 import {normalizeStreetVerseHumanHeight} from './StreetVerseHumanScale'
 import {resolvePublishedMeshyAsset,resetPublishedMeshyManifest} from './StreetVerseMeshyAssetManifest'
+import {TRYAMM_NATIVE_RUNTIME_ASSETS} from '../data/TryammNativeRuntimeAssetCatalog'
 
 const loader=new GLTFLoader()
 const availability=new Map<string,Promise<boolean>>()
+const NATIVE_RESIDENT_URLS=[TRYAMM_NATIVE_RUNTIME_ASSETS.residentA.url,TRYAMM_NATIVE_RUNTIME_ASSETS.residentB.url,TRYAMM_NATIVE_RUNTIME_ASSETS.residentC.url,TRYAMM_NATIVE_RUNTIME_ASSETS.residentD.url,TRYAMM_NATIVE_RUNTIME_ASSETS.residentE.url,TRYAMM_NATIVE_RUNTIME_ASSETS.residentF.url,TRYAMM_NATIVE_RUNTIME_ASSETS.residentG.url,TRYAMM_NATIVE_RUNTIME_ASSETS.residentH.url] as const
 
 async function assetExists(url:string){
   if(!availability.has(url)){
     availability.set(url,(async()=>{
       try{
         const response=await fetch(url,{method:'HEAD',cache:'no-store'})
-        return response.ok
+        const contentType=(response.headers.get('content-type')||'').toLowerCase()
+        return response.ok&&!contentType.includes('text/html')&&!contentType.includes('application/xhtml+xml')
       }catch{return false}
     })())
   }
@@ -38,21 +41,26 @@ export async function loadStreetVerseMeshyCharacter(slotId:string):Promise<Stree
   if(!slot)return null
   const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
   const published=await resolvePublishedMeshyAsset(slot.id,cityScope)
-  const sourceUrl=published?.url||streetVerseMeshyCharacterUrl(slot)
-  if(!(await assetExists(sourceUrl)))return null
+  const staticMeshyUrl=streetVerseMeshyCharacterUrl(slot)
+  const staticMeshyReady=published?.url?false:await assetExists(staticMeshyUrl)
+  const nativeUrl=NATIVE_RESIDENT_URLS[slot.fallbackResidentIndex%NATIVE_RESIDENT_URLS.length]
+  const sourceUrl=published?.url||(staticMeshyReady?staticMeshyUrl:nativeUrl)
+  const nativeFallback=!published?.url&&!staticMeshyReady
   try{
     const gltf=await loader.loadAsync(sourceUrl)
     const object=gltf.scene
-    object.name=`meshy-${slot.id}`
+    object.name=`${nativeFallback?'native':'meshy'}-${slot.id}`
     object.userData={
       ...object.userData,
-      streetVerseMeshy:true,
+      streetVerseMeshy:!nativeFallback,
+      tryammNativeFallback:nativeFallback,
       slotId:slot.id,
       ageLane:slot.ageLane,
       heritage:slot.heritage,
       adultLaneEligible:slot.adultLaneEligible,
       sourceUrl,
       riggedGlbPreferred:true,
+      upgradePending:nativeFallback,
     }
     normalizeStreetVerseHumanHeight(object,slot.targetHeightMeters)
     object.traverse(node=>{
@@ -101,7 +109,7 @@ export async function loadStreetVerseMeshyCharacter(slotId:string):Promise<Stree
       })
       object.removeFromParent()
     }
-    window.dispatchEvent(new CustomEvent('tryamm:meshy-character-ready',{detail:{
+    window.dispatchEvent(new CustomEvent(nativeFallback?'tryamm:native-character-ready':'tryamm:meshy-character-ready',{detail:{
       slotId:slot.id,
       filename:slot.filename,
       ageLane:slot.ageLane,
@@ -110,6 +118,8 @@ export async function loadStreetVerseMeshyCharacter(slotId:string):Promise<Stree
       sourceUrl,
       clipNames:clips.map(clip=>clip.name),
       animated:Boolean(mixer),
+      source:nativeFallback?'tryamm-native':'meshy',
+      upgradePending:nativeFallback,
     }}))
     return {slot,object,sourceUrl,mixer,clips,tick,dispose}
   }catch(error){
