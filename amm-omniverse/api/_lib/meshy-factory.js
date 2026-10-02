@@ -46,6 +46,43 @@ function specFor(assetId){
   if(!spec)throw Object.assign(new Error('unknown_streetverse_asset'),{status:404,code:'unknown_streetverse_asset'});
   return spec;
 }
+
+function customSpecFromJob(job){
+  const raw=job?.evidence?.worldForgerSpec;
+  if(!raw||typeof raw!=='object')return null;
+  const kind=['building','character','vehicle','prop','street-furniture','infrastructure'].includes(String(raw.kind))?String(raw.kind):'prop';
+  return{
+    assetId:String(job.asset_id||raw.assetId||'').slice(0,120),
+    filename:String(job.filename||raw.filename||'WORLD_FORGER_ASSET.glb').slice(0,180),
+    generationType:['text-to-3d','image-to-3d','multi-image-to-3d'].includes(String(job.generation_type))?String(job.generation_type):'text-to-3d',
+    height:Number(raw.height)||1.8,
+    heritage:'world-forger',
+    ageLane:kind==='character'?'adult':'n/a',
+    role:String(raw.label||kind),
+    prompt:String(job.prompt||raw.prompt||'').slice(0,4000),
+    assetKind:kind,
+    rigRequired:kind==='character',
+    targetPolycount:Math.max(8000,Math.min(100000,Number(raw.targetPolycount)||(
+      kind==='building'?85000:kind==='vehicle'?70000:kind==='character'?45000:35000
+    ))),
+    worldForger:true,
+  };
+}
+function specForJob(job){
+  return customSpecFromJob(job)||specFor(job.asset_id);
+}
+function specNeedsRig(spec){
+  return spec?.rigRequired!==false&&(spec?.assetKind?spec.assetKind==='character':true);
+}
+function publishFolderForSpec(spec){
+  const kind=String(spec?.assetKind||'character');
+  if(kind==='building')return'buildings';
+  if(kind==='vehicle')return'vehicles';
+  if(kind==='infrastructure')return'infrastructure';
+  if(kind==='street-furniture')return'props';
+  if(kind==='prop')return'props';
+  return'characters';
+}
 function defaultPrompt(spec){
   return [
     'game-ready realistic full-body humanoid character',
@@ -108,12 +145,12 @@ async function submitQueuedFactoryJob(job){
     const dependency=await rowById(job.depends_on_job_id);
     if(!dependency||dependency.stage!=='ready')return job;
   }
-  const spec=specFor(job.asset_id);
+  const spec=specForJob(job);
   const prompt=job.prompt||spec.prompt||defaultPrompt(spec);
   const sourceImageUrl=String(job.source_image_url||'').trim();
   const payload=spec.generationType==='image-to-3d'
     ?{image_url:sourceImageUrl,ai_model:'meshy-7.1',target_formats:['glb'],should_texture:true,enable_pbr:true,should_remesh:true,target_polycount:45000,pose_mode:'a-pose'}
-    :{prompt,ai_model:'meshy-7.1',target_formats:['glb'],should_texture:true,enable_pbr:true,should_remesh:true,target_polycount:45000,pose_mode:'a-pose'};
+    :{prompt,ai_model:'meshy-7.1',target_formats:['glb'],should_texture:true,enable_pbr:true,should_remesh:true,target_polycount:Math.max(8000,Math.min(100000,Number(spec.targetPolycount)||45000)),pose_mode:'a-pose'};
   if(spec.generationType==='image-to-3d'&&!sourceImageUrl)return failed(job,'approved_reference_image_required','Approved reference image is required before an identity-based Meshy job can start.');
 
   const submitting=await claim(job.id,'queued',{stage:'generation-submitting',progress:1,evidence:{...(job.evidence||{}),dependencySatisfiedAt:new Date().toISOString(),generationSubmissionClaimedAt:new Date().toISOString()}});
@@ -306,13 +343,20 @@ export async function tickMeshyFactoryJob(user,jobId){
 export async function tickMeshyFactoryJobInternal(jobId){
   let job=await rowById(jobId);
   if(!job)throw Object.assign(new Error('meshy_factory_job_not_found'),{status:404,code:'meshy_factory_job_not_found'});
-  const spec=specFor(job.asset_id);
+  const spec=specForJob(job);
   try{
     if(job.stage==='queued')return submitQueuedFactoryJob(job);
     if(job.stage==='generating'){
       const snapshot=summarizeMeshyTask(await getMeshyTask(job.generation_type,job.provider_generation_task_id),job.generation_type);
       if(isFailure(snapshot.status))return failed(job,'meshy_generation_failed',snapshot.status);
       if(!isSuccess(snapshot.status)||!snapshot.glb)return update(job.id,{progress:Math.max(2,Math.min(55,Math.round(Number(snapshot.progress||0)*.55))),provider_credits:snapshot.consumedCredits,error_code:null,error_message:null,evidence:{...(job.evidence||{}),generationStatus:snapshot.status,lastProviderPollAt:new Date().toISOString()}});
+      if(!specNeedsRig(spec)){
+        const claimed=await claim(job.id,'generating',{
+          stage:'publishing',progress:88,generation_glb_url:snapshot.glb,rigged_glb_url:snapshot.glb,provider_credits:snapshot.consumedCredits,
+          evidence:{...(job.evidence||{}),generationStatus:snapshot.status,generationCompletedAt:new Date().toISOString(),rigSkipped:true,rigSkipReason:'world-forger-non-humanoid-asset'}
+        });
+        return claimed||await rowById(job.id);
+      }
       const claimed=await claim(job.id,'generating',{
         stage:'rig-submitting',progress:57,generation_glb_url:snapshot.glb,provider_credits:snapshot.consumedCredits,
         evidence:{...(job.evidence||{}),generationStatus:snapshot.status,generationCompletedAt:new Date().toISOString(),rigSubmissionClaimedAt:new Date().toISOString()}
@@ -348,7 +392,8 @@ export async function tickMeshyFactoryJobInternal(jobId){
     if(job.stage==='publishing'){
       const scope=String(job.city_scope||'global').replace(/[^a-zA-Z0-9_-]/g,'-')||'global';
       const version=String(job.id).replace(/[^a-zA-Z0-9_-]/g,'');
-      const base=`characters/${scope}/${version}/${job.filename}`;
+      const folder=publishFolderForSpec(spec);
+      const base=`${folder}/${scope}/${version}/${job.filename}`;
       const main=await persistRemoteGlb(job.rigged_glb_url,base);
       const stem=job.filename.replace(/\.glb$/i,'');
       const walk=job.walking_glb_url?await persistRemoteGlb(job.walking_glb_url,`characters/${scope}/${version}/${stem}.walk.glb`):null;
