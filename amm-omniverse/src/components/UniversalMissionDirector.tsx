@@ -132,7 +132,10 @@ function runAction(action:UniversalMissionAction|undefined){
     else window.location.href='/?open=gameverse'
     return
   }
-  if(action==='open-meet-the-stubbs'){window.location.href='/streetverse/meet-the-stubbs'}
+  if(action==='open-meet-the-stubbs'){window.location.href='/streetverse/meet-the-stubbs';return}
+  if(action==='open-after-dark-alpha'){
+    window.dispatchEvent(new CustomEvent('tryamm:open-after-dark-alpha',{detail:{source:'living-mission-director'}}))
+  }
 }
 
 function expectedEvent(step:UniversalMissionStep,progress:MissionProgress):UniversalMissionEvent{
@@ -166,6 +169,10 @@ function signalFromBrowserEvent(name:string,detail:any):UniversalMissionEvent|nu
   if(name==='tryamm:streetverse-checkpoint')return 'street-checkpoint'
   if(name==='tryamm:streetverse-mission-complete')return 'mission-complete'
   if(name==='tryamm:hero-realms-encounter-complete')return 'hero-encounter-complete'
+  if(name==='tryamm:after-dark-state'){
+    if(detail?.stage==='complete')return 'after-dark-complete'
+    if(detail?.approach)return 'after-dark-approach'
+  }
   return null
 }
 
@@ -219,6 +226,7 @@ export default function UniversalMissionDirector({defaultWorld='streetverse'}:{d
       'tryamm:streetverse-checkpoint',
       'tryamm:streetverse-mission-complete',
       'tryamm:hero-realms-encounter-complete',
+      'tryamm:after-dark-state',
     ] as const
     const onSignal=(event:Event)=>{
       const detail=(event as CustomEvent<any>).detail||{}
@@ -277,6 +285,8 @@ export default function UniversalMissionDirector({defaultWorld='streetverse'}:{d
           <span style={{color:'#ffd45e'}}>ACTIVE • {UNIVERSAL_MISSION_WORLD_LABELS[active.world]}</span>
           {active.dynamic&&<span style={{color:'#8feeff'}}>• DYNAMIC</span>}
           {active.coOp&&<span style={{color:'#a8ffbf'}}>• CO-OP READY</span>}
+          {active.night&&<span style={{color:'#d58cff'}}>• AFTER DARK</span>}
+          {active.adultOnly&&<span style={{color:'#ffd184'}}>• 21+ GATED</span>}
         </div>
         <b style={{display:'block',marginTop:4}}>{active.title}</b>
         <div style={{fontSize:11,color:'#d7d0b1',marginTop:5}}>Objective {progress.step+1}/{active.steps.length}: <b>{step.label}</b></div>
@@ -299,7 +309,7 @@ export default function UniversalMissionDirector({defaultWorld='streetverse'}:{d
           return <article key={m.id} style={{padding:10,border:'1px solid #22394a',borderRadius:13,background:locked?'#0b0d10':'#07121b',opacity:locked?0.72:1}}>
             <div style={{display:'flex',justifyContent:'space-between',gap:8}}><b style={{fontSize:12}}>{m.title}</b><span style={{fontSize:9,color:locked?'#7e8998':'#8effb7'}}>{locked?'LOCKED':m.rewardXp+' XP'}</span></div>
             <div style={{fontSize:10,color:'#a8bac7',lineHeight:1.45,marginTop:4}}>{m.summary}</div>
-            <div style={{display:'flex',gap:5,flexWrap:'wrap',fontSize:8,marginTop:6,color:'#9fb2c0'}}><span>{m.steps.length} OBJECTIVES</span>{m.dynamic&&<span>• DYNAMIC STORY</span>}{m.coOp&&<span>• CO-OP</span>}{worldState.completedMissionIds.includes(m.id)&&<span style={{color:'#9dffc2'}}>• COMPLETED BEFORE</span>}</div>
+            <div style={{display:'flex',gap:5,flexWrap:'wrap',fontSize:8,marginTop:6,color:'#9fb2c0'}}><span>{m.steps.length} OBJECTIVES</span>{m.dynamic&&<span>• DYNAMIC STORY</span>}{m.coOp&&<span>• CO-OP</span>}{m.night&&<span>• AFTER DARK</span>}{m.adultOnly&&<span>• 21+ GATE</span>}{worldState.completedMissionIds.includes(m.id)&&<span style={{color:'#9dffc2'}}>• COMPLETED BEFORE</span>}</div>
             {locked?<div style={{fontSize:9,color:'#d7b98d',marginTop:5}}>Story unlock: complete an earlier route that creates {m.requiresAnyTags?.join(' / ')}</div>:null}
             {m.unlocks?.length?<div style={{fontSize:9,color:'#bca8ff',marginTop:5}}>Unlocks: {m.unlocks.join(' • ')}</div>:null}
             <button disabled={locked} onClick={()=>!locked&&start(m)} style={{...btn,width:'100%',marginTop:7,borderColor:locked?'#3a4149':'#5be7ff88',opacity:locked?0.55:1}}>{locked?'LOCKED BY YOUR STORY':progress?.missionId===m.id&&progress.status==='active'?'RESTART / FOCUS':'START MISSION'}</button>
