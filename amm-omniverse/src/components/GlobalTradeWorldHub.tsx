@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react'
+import UniversalMissionDirector from './UniversalMissionDirector'
 
 type WorldProfile={name:string;tagline:string;description:string;focus:string[];path:string}
 type ShipmentStatus='PLANNED'|'ORDERED'|'SUPPLIER READY'|'PICKUP'|'EXPORT CUSTOMS'|'DEPARTED'|'IMPORT CUSTOMS'|'ARRIVED WAREHOUSE'|'RECEIVED'|'LAST MILE'|'DELIVERED'|'EXCEPTION'
@@ -53,6 +54,7 @@ function readShipments():Shipment[]{
 export default function GlobalTradeWorldHub(){
   const current=window.location.pathname.replace(/\/$/,'')||'/global-trade'
   const active=worlds.find(w=>w.path===current)||worlds[0]
+  const missionWorld=active.path==='/we-are-the-world'?'we-are-the-world':'omniverse'
   const [mode,setMode]=useState<'SIMULATION'|'CONNECTED'>('SIMULATION')
   const [shipments,setShipments]=useState<Shipment[]>(()=>readShipments())
   const [form,setForm]=useState({po:'',supplier:'',sku:'',qty:'1',mode:'OCEAN' as ShipmentMode,origin:'',destination:'',eta:''})
@@ -102,7 +104,7 @@ export default function GlobalTradeWorldHub(){
     updateShipment(shipment.id,{exception:next.trim(),status:next.trim()?'EXCEPTION':shipment.status==='EXCEPTION'?'PLANNED':shipment.status})
   }
 
-  return <main style={{minHeight:'100vh',background:'radial-gradient(circle at top,#12304a 0,#07101b 38%,#030507 75%)',color:'#fff',fontFamily:'system-ui,sans-serif',padding:'26px 18px 120px'}}>
+  return <><UniversalMissionDirector defaultWorld={missionWorld}/><main style={{minHeight:'100vh',background:'radial-gradient(circle at top,#12304a 0,#07101b 38%,#030507 75%)',color:'#fff',fontFamily:'system-ui,sans-serif',padding:'26px 18px 120px'}}>
     <div style={{maxWidth:1180,margin:'0 auto'}}>
       <a href='/' style={{color:'#b9d8ef',textDecoration:'none',fontWeight:850}}>← TRYAMM HOME</a>
       <header style={{marginTop:18,padding:'28px 24px',border:'1px solid #31536c',borderRadius:26,background:'#07131ed9'}}>
@@ -182,5 +184,5 @@ export default function GlobalTradeWorldHub(){
         <p style={{color:'#ddcfbc',lineHeight:1.55}}>The software can model suppliers, inventory, shipments, IoT events, documents and landed-cost scenarios. Actual device control, carrier bookings/tracking, customs submissions or clearance, regulated goods decisions, financial settlement and external ERP/WMS/TMS actions require verified integrations, credentials, permissions and applicable compliance. Browser milestones never create payable balances or prove that goods moved.</p>
       </section>
     </div>
-  </main>
+  </main></>
 }

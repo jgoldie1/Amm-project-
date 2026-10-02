@@ -3,6 +3,7 @@ import {STREETVERSE_GLOBAL_CITIES,getStreetVerseCity} from '../data/StreetVerseG
 import {compileGlobalWorld,GLOBAL_WORLD_COMPILER} from '../data/GlobalWorldCompiler'
 import {getGlobalCityRuntimeEvidence,getGlobalCitySystemsEvidence} from '../runtime/GlobalCityVerseRuntime'
 import {loadPublishedMeshyManifest,type PublishedMeshyAsset} from '../runtime/StreetVerseMeshyAssetManifest'
+import UniversalMissionDirector from './UniversalMissionDirector'
 
 export default function StreetVerseGlobalWorld({onClose,onEnterChicago}:{onClose:()=>void;onEnterChicago?:()=>void}){
  const params=typeof window!=='undefined'?new URLSearchParams(window.location.search):new URLSearchParams()
@@ -19,7 +20,7 @@ export default function StreetVerseGlobalWorld({onClose,onEnterChicago}:{onClose
   url.searchParams.set('global','1')
   window.location.assign(url.toString())
  }
- return <main role="dialog" aria-modal="true" aria-label="StreetVerse Global" style={{position:'fixed',inset:0,zIndex:15950,overflow:'auto',background:'radial-gradient(circle at top,#0b2340,#03050a 48%)',color:'#fff',padding:'14px 14px 32px',fontFamily:'Inter,system-ui,sans-serif'}}>
+ return <><UniversalMissionDirector defaultWorld="streetverse-global"/><main role="dialog" aria-modal="true" aria-label="StreetVerse Global" style={{position:'fixed',inset:0,zIndex:15950,overflow:'auto',background:'radial-gradient(circle at top,#0b2340,#03050a 48%)',color:'#fff',padding:'14px 14px 32px',fontFamily:'Inter,system-ui,sans-serif'}}>
   <header style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'center'}}>
    <div><div style={{fontSize:10,fontWeight:900,letterSpacing:2,color:'#58e8ff'}}>STREETVERSE GLOBAL</div><h1 style={{margin:'3px 0',fontSize:26}}>One Passport. Many Cities.</h1></div>
    <button onClick={onClose} aria-label="Close StreetVerse Global" style={closeBtn}>×</button>
@@ -56,7 +57,7 @@ export default function StreetVerseGlobalWorld({onClose,onEnterChicago}:{onClose
    <b style={{color:'#79ffad'}}>GLOBAL ECONOMY BRIDGE</b>
    <div style={{fontSize:12,lineHeight:1.5,marginTop:5}}>StreetVerse city → local business/mission → Radio/News/Holo LIVE → QR/Business Passport → Marketplace/Holo Ads → verified payment → internal ledger → Replay/Reels/TRYAMM TV.</div>
   </section>
- </main>
+ </main></>
 }
 const closeBtn:React.CSSProperties={width:44,height:44,borderRadius:13,border:'1px solid #3a4d60',background:'#0c1420',color:'#fff',fontSize:24}
 const actionBtn:React.CSSProperties={width:'100%',marginTop:10,border:'1px solid #3f718d',borderRadius:10,padding:'10px 8px',background:'#10283a',color:'#fff',fontSize:10,fontWeight:900}
