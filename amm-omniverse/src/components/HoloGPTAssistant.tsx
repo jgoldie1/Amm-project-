@@ -22,6 +22,7 @@ function localIntent(question:string){
     [/xr|mixed reality|virtual reality|augmented reality|\bar\b|\bvr\b|\bmr\b/, '__showXR','Opening AR · VR · Mixed Reality.'],
     [/holo lab/, '__showHoloLab','Opening Holo Lab.'],
     [/3d print|print network|print swarm|printer swarm|meshy factory|manufacturing/, '__showMeshyFactory','Opening the TRYAMM Meshy Rig + Print Factory.'],
+    [/world forger|world forge|cad|build west side|build neighborhood|create building|create vehicle|create character|create prop/, '__showWorldForger','Opening TRYAMM World Forger and CAD build surface.'],
     [/game flow|game status|repair game|fix streetverse|why.*game|streetverse.*broken|game.*broken/, '__showGameOps','Opening StreetVerse Game Ops and diagnosing the actual blocker.'],
     [/holo services/, '__showHoloServices','Opening Holo Services.'],
     [/holo core/, '__showHoloCore','Opening Holo Core.'],
@@ -152,7 +153,8 @@ export default function HoloGPTAssistant({showLauncher=true}:Props){
     window.addEventListener('tryamm:hologpt-history-open',openHistoricalInternet)
     ;(window as any).__showHoloGPT=openAssistant
     ;(window as any).__showMeshyFactory=()=>{window.location.href='/meshy-factory'}
-    return()=>{window.removeEventListener('tryamm:open-hologpt',openAssistant);window.removeEventListener('tryamm:hologpt-study-context',openStudyContext);window.removeEventListener('tryamm:hologpt-history-open',openHistoricalInternet);if((window as any).__showHoloGPT===openAssistant)delete (window as any).__showHoloGPT;delete (window as any).__showMeshyFactory}
+    ;(window as any).__showWorldForger=()=>{window.location.href='/world-forger'}
+    return()=>{window.removeEventListener('tryamm:open-hologpt',openAssistant);window.removeEventListener('tryamm:hologpt-study-context',openStudyContext);window.removeEventListener('tryamm:hologpt-history-open',openHistoricalInternet);if((window as any).__showHoloGPT===openAssistant)delete (window as any).__showHoloGPT;delete (window as any).__showMeshyFactory;delete (window as any).__showWorldForger}
   },[])
   useEffect(()=>{let cancelled=false;fetch('/api/ai/health',{cache:'no-store'}).then(async r=>({r,d:await readJson(r)})).then(({r,d})=>{if(!cancelled)setHealth({...d,ok:r.ok&&d.ok&&!d.degraded,degraded:Boolean(d.degraded)})}).catch(e=>{if(!cancelled)setHealth({ok:false,degraded:true,error:e instanceof Error?e.message:'AI connection unavailable'})});return()=>{cancelled=true}},[])
 

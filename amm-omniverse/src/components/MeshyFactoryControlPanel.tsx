@@ -35,6 +35,8 @@ export default function MeshyFactoryControlPanel(){
   const [manualAssetId,setManualAssetId]=useState('sv-bj-stubbs-v6')
   const [manualFile,setManualFile]=useState<File|null>(null)
   const [uploadNote,setUploadNote]=useState('')
+  const [worldForgerPlan,setWorldForgerPlan]=useState<any>(()=>{try{return JSON.parse(localStorage.getItem('tryamm.world-forger.factory-handoff.v1')||'null')}catch{return null}})
+  const [worldForgerCreditConfirm,setWorldForgerCreditConfirm]=useState(false)
 
   const refresh=async()=>{
     try{
@@ -154,6 +156,38 @@ export default function MeshyFactoryControlPanel(){
     finally{setBusy('')}
   }
 
+  const startWorldForger=async()=>{
+    if(!worldForgerPlan?.recipe||!worldForgerCreditConfirm)return
+    setBusy('world-forger');setError('')
+    try{
+      const source=worldForgerPlan.source||{}
+      const recipe=worldForgerPlan.recipe||{}
+      const result=await authFetch('/api/meshy/factory',{method:'POST',body:JSON.stringify({
+        action:'start-world-forger',
+        confirmCreditUse:'START_MESHY_WORLD_FORGE',
+        rightsAcknowledged:source.kind==='street-view-reference'?true:Boolean(source.rightsCleared),
+        streetViewReferenceOnly:source.kind==='street-view-reference',
+        assetId:recipe.id,
+        label:recipe.label,
+        kind:recipe.kind,
+        prompt:recipe.meshy?.prompt,
+        generationType:recipe.meshy?.target==='image-to-3d'?'image-to-3d':'text-to-3d',
+        imageUrl:recipe.meshy?.target==='image-to-3d'?String(source.uri||''):undefined,
+        cityScope:recipe.districtId,
+        districtId:recipe.districtId,
+        sourceKind:source.kind,
+        cadPlan:worldForgerPlan.cad||null,
+        targetPolycount:recipe.runtime?.mobileTriangleBudget,
+      })})
+      setWorldForgerCreditConfirm(false)
+      try{localStorage.removeItem('tryamm.world-forger.factory-handoff.v1')}catch{}
+      setWorldForgerPlan(null)
+      await refresh()
+      window.dispatchEvent(new CustomEvent('tryamm:world-forge-meshy-started',{detail:{job:result.job,recipeId:recipe.id}}))
+    }catch(e){setError(e instanceof Error?e.message:String(e))}
+    finally{setBusy('')}
+  }
+
   return <main aria-label="StreetVerse Meshy Asset Factory" style={{minHeight:'100dvh',background:'linear-gradient(#02070c,#07111b)',color:'#fff',fontFamily:'system-ui,sans-serif',padding:'max(16px,env(safe-area-inset-top)) 12px max(30px,env(safe-area-inset-bottom))'}}>
     <div style={{maxWidth:1050,margin:'0 auto'}}>
       <header style={{display:'flex',justifyContent:'space-between',gap:10,flexWrap:'wrap',alignItems:'flex-start'}}>
@@ -169,6 +203,22 @@ export default function MeshyFactoryControlPanel(){
         <div style={{display:'flex',justifyContent:'space-between',gap:8,flexWrap:'wrap'}}><div><b style={{fontSize:12}}>FACTORY READINESS: {health?.ok?'READY':'CHECKING / BLOCKED'}</b><div style={{fontSize:9,color:'#a8bdca',marginTop:4}}>Meshy key: {health?.providerConfigured?'YES':'NO'} • durable jobs: {health?.durableJobStoreReady?'YES':'NO'} • background worker: {health?.backgroundWorkerSecretConfigured?'YES':'NO'} • ready assets: {health?.readyAssets??0} • active: {health?.activeJobs??0} • recovery: {health?.recoveryRequiredJobs??0}</div></div></div>
         {Boolean(health?.blockers?.length)&&<div style={{display:'grid',gap:4,marginTop:7}}>{health!.blockers.map(blocker=><div key={blocker} style={{fontSize:9,color:'#ffc69c'}}>• {blocker}</div>)}</div>}
       </section>
+
+      {worldForgerPlan?.recipe&&<section style={{marginTop:12,padding:12,border:'1px solid #7758a5',borderRadius:16,background:'#120a1ddd'}}>
+        <div style={{display:'flex',justifyContent:'space-between',gap:8,flexWrap:'wrap'}}>
+          <div><b style={{fontSize:12,color:'#d6b7ff'}}>WORLD FORGER HANDOFF</b><div style={{fontSize:10,color:'#b9a8cc',lineHeight:1.45,marginTop:4}}>{worldForgerPlan.recipe.label} • {worldForgerPlan.recipe.kind} • {worldForgerPlan.district?.name||worldForgerPlan.recipe.districtId}</div></div>
+          <a href="/world-forger" style={{...btn,textDecoration:'none',display:'grid',placeItems:'center'}}>EDIT PLAN</a>
+        </div>
+        {worldForgerPlan.cad&&<div style={{fontSize:9,color:'#c9b7db',marginTop:7}}>CAD: {worldForgerPlan.cad.footprintM?.width}m × {worldForgerPlan.cad.footprintM?.depth}m • {worldForgerPlan.cad.levels?.length||0} floor(s) • stairs/elevator/utilities/accessibility encoded before mesh generation.</div>}
+        <div style={{fontSize:9,color:'#a6bac5',lineHeight:1.45,marginTop:7}}>Meshy generation can consume provider credits. The plan is already durable in the browser; no provider task starts until you explicitly confirm below.</div>
+        <label style={{display:'flex',gap:7,alignItems:'flex-start',fontSize:9,color:'#d6c8e3',lineHeight:1.45,marginTop:8}}>
+          <input type="checkbox" checked={worldForgerCreditConfirm} onChange={e=>setWorldForgerCreditConfirm(e.target.checked)}/>
+          <span>Start this World Forger Meshy job now. I understand this may consume Meshy credits.</span>
+        </label>
+        <button disabled={Boolean(busy)||!health?.providerConfigured||!worldForgerCreditConfirm} onClick={()=>void startWorldForger()} style={{...btn,width:'100%',marginTop:8,borderColor:'#8b67bc'}}>
+          {busy==='world-forger'?'STARTING WORLD FORGE…':'START WORLD FORGE → MESHY'}
+        </button>
+      </section>}
 
       <section style={{marginTop:12,padding:12,border:'1px solid #3b5d77',borderRadius:16,background:'#07131ddd'}}>
         <div style={{display:'flex',justifyContent:'space-between',gap:10,alignItems:'flex-start',flexWrap:'wrap'}}>
