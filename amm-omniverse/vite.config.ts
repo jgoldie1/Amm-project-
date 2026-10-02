@@ -4,6 +4,15 @@ import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      // Quantum Slicer: use Three's modular source graph instead of its
+      // monolithic build/three.module.js entry. Rollup can then split/cache
+      // renderer, math, geometry and scene modules instead of emitting one
+      // ~798 kB vendor-three-core file. Public "three" APIs stay unchanged.
+      three: fileURLToPath(new URL('./node_modules/three/src/Three.js', import.meta.url)),
+    },
+  },
   build: {
     chunkSizeWarningLimit: 600,
     modulePreload: {
@@ -75,7 +84,15 @@ export default defineConfig({
           // its own cacheable chunk reduces the core download and lets routes load the
           // utility layer independently when they actually need it.
           if (id.includes('/three-stdlib/')) return 'vendor-three-stdlib'
-          if (id.includes('/three/')) return 'vendor-three-core'
+          // Quantum Slicer: Three's source entry is modular, so group stable
+          // subsystems into independently cacheable slices. The renderer slice
+          // is loaded only with the lazy StreetVerse 3D runtime.
+          if (id.includes('/three/src/renderers/')) return 'vendor-three-renderer'
+          if (id.includes('/three/src/math/')) return 'vendor-three-math'
+          if (id.includes('/three/src/geometries/') || id.includes('/three/src/objects/')) return 'vendor-three-geometry'
+          if (id.includes('/three/src/materials/') || id.includes('/three/src/textures/')) return 'vendor-three-materials'
+          if (id.includes('/three/src/loaders/')) return 'vendor-three-loaders'
+          if (id.includes('/three/src/')) return 'vendor-three-core'
 
           if (id.includes('/@supabase/')) return 'vendor-supabase'
           if (id.includes('/livekit-client/') || id.includes('/@livekit/')) return 'vendor-livekit'
