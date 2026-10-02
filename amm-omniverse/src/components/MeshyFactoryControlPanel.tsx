@@ -1,5 +1,8 @@
 import {useEffect,useMemo,useState} from 'react'
 import {getAccessToken,getSupabaseClient} from '../services/supabaseClient'
+import Meshy3DPrintLab from './Meshy3DPrintLab'
+import TwelveDPrivateRnDPanel from './TwelveDPrivateRnDPanel'
+import PrintAICommandPanel from './PrintAICommandPanel'
 
 type CatalogItem={assetId:string;filename:string;generationType:string;height:number;ageLane:string;role:string}
 type Job={id:string;asset_id:string;filename:string;stage:string;progress:number;provider_generation_task_id?:string;provider_rig_task_id?:string;public_url?:string;walking_public_url?:string;running_public_url?:string;error_message?:string;created_at?:string}
@@ -154,7 +157,7 @@ export default function MeshyFactoryControlPanel(){
   return <main aria-label="StreetVerse Meshy Asset Factory" style={{minHeight:'100dvh',background:'linear-gradient(#02070c,#07111b)',color:'#fff',fontFamily:'system-ui,sans-serif',padding:'max(16px,env(safe-area-inset-top)) 12px max(30px,env(safe-area-inset-bottom))'}}>
     <div style={{maxWidth:1050,margin:'0 auto'}}>
       <header style={{display:'flex',justifyContent:'space-between',gap:10,flexWrap:'wrap',alignItems:'flex-start'}}>
-        <div><div style={{fontSize:10,letterSpacing:3,fontWeight:950,color:'#65e8ff'}}>FOUNDER • AI CEO • DISTINGUISHED ENGINEERING</div><h1 style={{margin:'5px 0',fontSize:'clamp(24px,7vw,42px)'}}>StreetVerse Meshy Rig Factory</h1><p style={{maxWidth:760,color:'#a8bdca',fontSize:12,lineHeight:1.5}}>This is the missing execution surface: real Meshy task → real GLB → humanoid rig → walk/run outputs → validated durable TRYAMM storage → automatic StreetVerse runtime discovery. Provider tasks may consume Meshy credits.</p></div>
+        <div><div style={{fontSize:10,letterSpacing:3,fontWeight:950,color:'#65e8ff'}}>FOUNDER • AI CEO • DISTINGUISHED ENGINEERING</div><h1 style={{margin:'5px 0',fontSize:'clamp(24px,7vw,42px)'}}>StreetVerse Meshy Rig + 3D Print Factory</h1><p style={{maxWidth:760,color:'#a8bdca',fontSize:12,lineHeight:1.5}}>Real Meshy task → GLB → humanoid rig → walk/run outputs → validated durable TRYAMM storage → StreetVerse runtime discovery → optional STL/OBJ print prep. Provider tasks may consume Meshy credits. Physical machine commands remain outside the browser. Confidential 12D work belongs in the separate private R&D vault below.</p></div>
         <div style={{display:'flex',gap:6}}><a href="/streetverse" style={{...btn,textDecoration:'none',display:'grid',placeItems:'center'}}>PLAY STREETVERSE</a><button onClick={()=>void refresh()} style={btn}>REFRESH</button></div>
       </header>
 
@@ -220,6 +223,10 @@ export default function MeshyFactoryControlPanel(){
         {uploadNote&&<div aria-live="polite" style={{fontSize:9,color:'#8effb7',marginTop:6}}>{uploadNote}</div>}
         <div style={{fontSize:8,color:'#77819e',marginTop:6}}>Maximum 100 MB. The server validates the GLB header before adding it to the public character manifest.</div>
       </section>
+
+      <Meshy3DPrintLab jobs={jobs}/>
+      <PrintAICommandPanel/>
+      <TwelveDPrivateRnDPanel/>
 
       <section style={{marginTop:12,padding:12,border:'1px solid #5c4a24',borderRadius:16,background:'#171207dd'}}>
         <div style={{display:'flex',justifyContent:'space-between',gap:10,alignItems:'center',flexWrap:'wrap'}}>

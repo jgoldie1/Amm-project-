@@ -8,59 +8,123 @@
       "id": "hologpt",
       "name": "HoloGPT",
       "role": "primary conversational orchestrator and user-facing intelligence",
-      "dependsOn": ["model-router", "stubbs-ai", "lyons-tech-ai", "middleverse-ai", "memory", "guardian", "omniverse", "quantumverse"]
+      "dependsOn": [
+        "model-router",
+        "stubbs-ai",
+        "lyons-tech-ai",
+        "middleverse-ai",
+        "memory",
+        "guardian",
+        "omniverse",
+        "quantumverse"
+      ]
     },
     {
       "order": 2,
       "id": "stubbs-ai",
       "name": "Stubbs AI",
       "role": "executive reasoning, planning, decision decomposition and project intelligence",
-      "dependsOn": ["model-router", "memory", "guardian"]
+      "dependsOn": [
+        "model-router",
+        "memory",
+        "guardian"
+      ]
     },
     {
       "order": 3,
       "id": "lyons-tech-ai",
       "name": "Lyons Tech AI",
       "role": "engineering architecture, coding review, systems diagnosis, integration and release-quality analysis",
-      "dependsOn": ["model-router", "git-evidence", "guardian"]
+      "dependsOn": [
+        "model-router",
+        "git-evidence",
+        "guardian"
+      ]
     },
     {
       "order": 4,
       "id": "middleverse-ai",
       "name": "Middleverse AI",
       "role": "operations, communications, call-center, workflow and service-agent coordination",
-      "dependsOn": ["model-router", "authorized-connectors", "guardian"]
+      "dependsOn": [
+        "model-router",
+        "authorized-connectors",
+        "guardian"
+      ]
     },
     {
       "order": 5,
       "id": "guardian",
       "name": "Guardian Brain",
       "role": "authorization, anomaly detection, safety, reversibility and release gating",
-      "dependsOn": ["policy", "evidence"]
+      "dependsOn": [
+        "policy",
+        "evidence"
+      ]
     }
   ],
   "modelRouter": {
     "id": "model-router",
-    "providers": ["openai", "gemini", "claude", "deepseek", "amm-backend"],
+    "providers": [
+      "openai",
+      "gemini",
+      "claude",
+      "deepseek",
+      "amm-backend"
+    ],
     "rule": "Providers are replaceable engines. HoloGPT remains the TRYAMM orchestration identity."
   },
   "realityHierarchy": {
     "holoverse": {
       "role": "immersive application and holographic interaction layer",
-      "contains": ["world UI", "avatars", "creator tools", "marketplace experiences", "live experiences"]
+      "contains": [
+        "world UI",
+        "avatars",
+        "creator tools",
+        "marketplace experiences",
+        "live experiences"
+      ]
     },
     "middleverse": {
       "role": "service and operations bridge between real-world systems and immersive worlds",
-      "contains": ["communications", "call center", "workflows", "service agents", "authorized connectors"]
+      "contains": [
+        "communications",
+        "call center",
+        "workflows",
+        "service agents",
+        "authorized connectors"
+      ]
     },
     "omniverse": {
       "role": "top-level world registry and continuity layer joining every approved TRYAMM world into one canonical universe graph",
-      "contains": ["Holoverse", "Middleverse", "StreetVerse", "My World", "Kingdom", "StarVerse", "SpaceVerse", "future worlds"],
-      "rules": ["one user identity", "one avatar identity", "one route map", "one world-memory contract", "one checkpoint contract", "no duplicate disconnected world state"]
+      "contains": [
+        "Holoverse",
+        "Middleverse",
+        "StreetVerse",
+        "My World",
+        "Kingdom",
+        "StarVerse",
+        "SpaceVerse",
+        "future worlds"
+      ],
+      "rules": [
+        "one user identity",
+        "one avatar identity",
+        "one route map",
+        "one world-memory contract",
+        "one checkpoint contract",
+        "no duplicate disconnected world state"
+      ]
     },
     "quantumverse": {
       "role": "simulation and experimentation layer for quantum-inspired worlds, probabilistic scenarios, sandbox branches and future verified quantum-compute adapters",
-      "contains": ["quantum sandbox", "scenario branching", "probability experiments", "simulation forks", "future external quantum provider adapters"],
+      "contains": [
+        "quantum sandbox",
+        "scenario branching",
+        "probability experiments",
+        "simulation forks",
+        "future external quantum provider adapters"
+      ],
       "literalQuantumHardwareClaim": false,
       "rule": "Use simulation/quantum-inspired computation unless a real external quantum provider is configured and independently verified."
     },
@@ -77,19 +141,52 @@
       "track project/release state",
       "track active world/verse and checkpoint",
       "detect contradictions and regressions",
-      "report limitations instead of pretending"
+      "report limitations instead of pretending",
+      "track print-network work orders, swarm batches, QA state, operator capacity and shipping state",
+      "detect manufacturing uncertainty, missing evidence and cross-printer quality drift",
+      "report current permissions and blocked manufacturing actions instead of pretending authority"
     ]
   },
   "fiveSenseAdapters": {
-    "sight": {"meaning": "camera/image/video/vision-model input", "requires": "authorized media input and a configured multimodal provider"},
-    "hearing": {"meaning": "microphone/audio/STT input", "requires": "user permission and configured audio/STT provider"},
-    "touch": {"meaning": "pointer, keyboard, gamepad, haptic and accessibility-switch events", "requires": "device/browser support and permission where applicable"},
-    "smell": {"meaning": "external sensor telemetry only; no native software sense of smell", "requires": "authorized compatible hardware sensor"},
-    "taste": {"meaning": "external chemical/sensor telemetry only; no native software sense of taste", "requires": "authorized compatible hardware sensor"}
+    "sight": {
+      "meaning": "camera/image/video/vision-model input",
+      "requires": "authorized media input and a configured multimodal provider"
+    },
+    "hearing": {
+      "meaning": "microphone/audio/STT input",
+      "requires": "user permission and configured audio/STT provider"
+    },
+    "touch": {
+      "meaning": "pointer, keyboard, gamepad, haptic and accessibility-switch events",
+      "requires": "device/browser support and permission where applicable"
+    },
+    "smell": {
+      "meaning": "external sensor telemetry only; no native software sense of smell",
+      "requires": "authorized compatible hardware sensor"
+    },
+    "taste": {
+      "meaning": "external chemical/sensor telemetry only; no native software sense of taste",
+      "requires": "authorized compatible hardware sensor"
+    }
   },
   "releaseRoles": {
     "engineer": "builds and repairs",
     "seniorEngineer": "independently reviews architecture/security/regression risk",
     "verifier": "tests live behavior and alone may recommend GREEN"
+  },
+  "manufacturingIntelligence": {
+    "name": "TRYAMM Print Intelligence",
+    "purpose": "Coordinate Meshy print prep, distributed Print Network jobs and Print Swarms with evidence-aware planning.",
+    "roles": {
+      "hologpt": "user-facing command desk, intake, status and explanation",
+      "stubbs-ai": "executive production planning, decomposition, routing, recovery and capacity balancing",
+      "lyons-tech-ai": "engineering verification for geometry, materials, process compatibility, tolerances, golden profiles and QA drift",
+      "guardian": "payment, rights, safety, privacy, operator certification, QA and human-authority gate"
+    },
+    "selfAwarenessLabel": "operational self-model",
+    "literalSelfAwarenessOrConsciousness": false,
+    "machineCommandAuthority": false,
+    "moneyMovementAuthority": false,
+    "rule": "AI may recommend and monitor. It may not bypass verified payment, rights, safety, QA, delivery, payout, or physical machine controls."
   }
 }

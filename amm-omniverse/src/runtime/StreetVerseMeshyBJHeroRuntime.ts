@@ -3,6 +3,7 @@ import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {normalizeStreetVerseHumanHeight} from './StreetVerseHumanScale'
 import {BJ_STUBBS_BODY_PROFILE} from '../data/StreetVerseBJBodyProfile'
 import {resolvePublishedMeshyAsset,resetPublishedMeshyManifest} from './StreetVerseMeshyAssetManifest'
+import {canClaimPhotoMatched} from '../data/StreetVerseCharacterReferenceAuthorization'
 
 export const BJ_MESHY_V6_ASSET={
   id:'streetverse-bj-stubbs-meshy-v6',
@@ -12,7 +13,8 @@ export const BJ_MESHY_V6_ASSET={
   targetHeightMeters:BJ_STUBBS_BODY_PROFILE.heightMeters,
   authority:'meshy-rigged-glb',
   fallback:'streetverse-bj-stubbs-photomatched',
-  photoLikenessAuthorized:true,
+  referenceAuthorized:true,
+  certifiedLikeness:false,
 } as const
 
 type Motion='idle'|'walk'|'run'
@@ -84,6 +86,7 @@ function disposeObject(root:THREE.Object3D){
 }
 
 export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHeroHandle|null>{
+  const verifiedPhotoMatch=canClaimPhotoMatched(BJ_MESHY_V6_ASSET.characterId)
   const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
   const published=await resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope)
   const sourceUrl=published?.url||BJ_MESHY_V6_ASSET.url
@@ -117,7 +120,9 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       identityContinuityKey:BJ_MESHY_V6_ASSET.characterId,
       visualAuthority:BJ_MESHY_V6_ASSET.authority,
       meshAssetId:BJ_MESHY_V6_ASSET.id,
-      photoMatched:true,
+      referenceMatchedPreview:true,
+      photoMatched:verifiedPhotoMatch,
+      certifiedLikeness:verifiedPhotoMatch,
       meshyV6:true,
     }
 
@@ -177,6 +182,9 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       morphTargetNames:morphs.names,
       targetHeightMeters:BJ_MESHY_V6_ASSET.targetHeightMeters,
       authoritative3DMesh:true,
+      referenceMatchedPreview:true,
+      photoMatched:verifiedPhotoMatch,
+      certifiedLikeness:verifiedPhotoMatch,
       proceduralFallbackSuppressed:true,
     }}))
 

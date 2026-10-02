@@ -9,12 +9,22 @@ export interface FabricationJob{
  simulationEvidence?:string;humanApproval?:string;estimatedMinutes?:number
 }
 
+export const TWELVE_D_PUBLIC_BOUNDARY={
+  publicSurface:'sanitized integration contract only',
+  confidentialRAndDInPublicRepo:false,
+  privateVaultApi:'/api/rnd/12d-vault',
+  privateVaultPublicManifest:false,
+  publicReleaseEndpoint:false,
+  physicalMachineCommandsFromBrowser:false,
+  note:'Confidential 12D experiments, process notes, controller research and unpublished design details belong in the founder/admin private R&D vault, not the public Git repository.',
+} as const
+
 export const TWELVE_D_PRINTER_BRIDGE={
  name:'TRYAMM 12D Fabrication Bridge',
  purpose:'Connect certified TRYAMM digital assets and engineering designs to a future advanced robotic fabrication cell.',
  upstream:['Asset Forge','Asset Passport','AI Studio','StreetVerse/Omniverse digital twins','Apex/Foundry engineering review'],
  stages:['design','manufacturability-check','material-profile','toolpath-plan','digital simulation','safety review','human approval','machine queue','fabricate','machine-vision inspection','finish/assemble','quality evidence','asset/product record'],
- rule:'No AI-generated design goes directly from prompt to physical motion.',
+ rule:'No AI-generated design goes directly from prompt to physical motion. Public source contains only the sanitized interface; confidential R&D remains in the private vault until an explicit future publication decision.',
 }
 
 export function canQueueFabrication(machine:TwelveDPrinterManifest,job:FabricationJob){
