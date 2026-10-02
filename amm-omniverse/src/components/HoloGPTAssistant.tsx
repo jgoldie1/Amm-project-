@@ -22,6 +22,7 @@ function localIntent(question:string){
     [/xr|mixed reality|virtual reality|augmented reality|\bar\b|\bvr\b|\bmr\b/, '__showXR','Opening AR · VR · Mixed Reality.'],
     [/holo lab/, '__showHoloLab','Opening Holo Lab.'],
     [/3d print|print network|print swarm|printer swarm|meshy factory|manufacturing/, '__showMeshyFactory','Opening the TRYAMM Meshy Rig + Print Factory.'],
+    [/game flow|game status|repair game|fix streetverse|why.*game|streetverse.*broken|game.*broken/, '__showGameOps','Opening StreetVerse Game Ops and diagnosing the actual blocker.'],
     [/holo services/, '__showHoloServices','Opening Holo Services.'],
     [/holo core/, '__showHoloCore','Opening Holo Core.'],
     [/holoverse/, '__showHoloverse','Opening Holoverse.'],
