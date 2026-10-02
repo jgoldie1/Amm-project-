@@ -61,6 +61,7 @@ export interface UniversalMission {
   coOp?:boolean
   consequenceTags?:string[]
   unlocks?:string[]
+  requiresAnyTags?:string[]
   steps:UniversalMissionStep[]
 }
 
@@ -97,6 +98,29 @@ export const UNIVERSAL_MISSIONS:UniversalMission[]=[
       {id:'field-action',label:'Complete your role objective',detail:'Do the real in-world action for the route you selected. This step advances from gameplay events instead of a fake checklist.',choiceSourceStepId:'choose-role',actionByChoice:{creator:'open-media-studio',business:'open-meet-the-stubbs',responder:'open-streetverse',driver:'open-streetverse'},eventByChoice:{creator:'media-output',business:'store-interaction',responder:'world-event-join',driver:'vehicle-enter'}},
       {id:'second-beat',label:'See the world react',detail:'Reach another StreetVerse checkpoint or complete a connected mission so the story has a second beat instead of ending after one interaction.',event:'street-checkpoint'},
       {id:'aftermath',label:'Close the story',detail:'Review the outcome. Your selected route is written to persistent world-state tags for follow-on missions.',event:'manual'},
+    ],
+  },
+  {
+    id:'streetverse-ripple-aftermath',
+    world:'streetverse',
+    title:'StreetVerse: Ripple Aftermath',
+    summary:'A follow-up mission that stays locked until Neighborhood Ripple leaves a reputation consequence in the world.',
+    rewardXp:650,
+    route:'/streetverse',
+    dynamic:true,
+    coOp:true,
+    requiresAnyTags:['creator-trust','business-trust','community-trust','mobility-reputation'],
+    consequenceTags:['streetverse-aftermath-resolved'],
+    unlocks:['reputation-specific future story seed'],
+    steps:[
+      {id:'return-block',label:'Return to the block',detail:'The world remembers your earlier role. Return to StreetVerse and review the aftermath.',action:'open-streetverse',event:'manual'},
+      {id:'choose-response',label:'Choose how you answer your reputation',detail:'Double down, repair relationships, or switch lanes. This creates a second-generation consequence.',choices:[
+        {id:'double-down',label:'DOUBLE DOWN',detail:'Use creator/media proof to reinforce your existing reputation.',impactTags:['reputation-reinforced']},
+        {id:'repair',label:'REPAIR RELATIONSHIPS',detail:'Talk to people and rebuild trust before the next story beat.',impactTags:['relationships-repaired']},
+        {id:'switch-lane',label:'SWITCH LANES',detail:'Join a different community event and change how the city reads you.',impactTags:['reputation-evolved']},
+      ]},
+      {id:'prove-response',label:'Prove the response in gameplay',detail:'The next objective advances only when the selected action actually occurs.',choiceSourceStepId:'choose-response',actionByChoice:{'double-down':'open-media-studio',repair:'open-meet-the-stubbs','switch-lane':'open-streetverse'},eventByChoice:{'double-down':'media-output',repair:'family-interaction','switch-lane':'world-event-join'}},
+      {id:'close-aftermath',label:'Close the aftermath',detail:'Finish the follow-up and save the new reputation consequence for later arcs.',event:'manual'},
     ],
   },
   {
