@@ -1,5 +1,4 @@
 import {adminReady,json} from '../_lib/supabase-admin.js';
-import {publicMeshyFactoryManifest} from '../_lib/meshy-factory.js';
 
 function degradedManifest(res,cityScope){
   res.setHeader('Cache-Control','public, max-age=15, s-maxage=30, stale-while-revalidate=120');
@@ -22,13 +21,13 @@ export default async function handler(req,res){
 
   const cityScope=String(req.query?.city||req.query?.scope||'global');
 
-  // StreetVerse must remain playable even when the durable Meshy catalog is
-  // temporarily unavailable. The client already has native GLB fallbacks;
-  // return an empty successful manifest so those fallbacks can load instead
-  // of turning an optional asset catalog outage into a production 500.
+  // StreetVerse remains playable if the durable Meshy catalog is unavailable.
+  // Avoid importing the heavier Meshy backend at all in degraded mode; the
+  // client will immediately use the native GLB fallback catalog instead.
   if(!adminReady())return degradedManifest(res,cityScope);
 
   try{
+    const {publicMeshyFactoryManifest}=await import('../_lib/meshy-factory.js');
     const assets=await publicMeshyFactoryManifest({cityScope});
     res.setHeader('Cache-Control','public, max-age=30, s-maxage=60, stale-while-revalidate=300');
     return res.status(200).json({ok:true,schema:'tryamm.meshy.asset-manifest.v1',cityScope,assets});
