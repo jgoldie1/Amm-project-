@@ -25,7 +25,7 @@ for(const event of [
 ]) assert.ok(fabric.includes(event),`system fabric adapter missing ${event}`)
 
 assert.ok(fabric.includes("global:['streetverse-world','characters','missions']"),'global system must depend on world + characters + missions')
-assert.ok(fabric.includes("print-network:['commerce','meshy-assets']"),'print network must depend on commerce + Meshy assets')
+assert.ok(fabric.includes("'print-network':['commerce','meshy-assets']"),'print network must depend on commerce + Meshy assets')
 assert.ok(fabric.includes("overall:'READY'|'DEGRADED'|'BLOCKED'|'STARTING'"),'fabric must expose one overall readiness state')
 assert.ok(main.includes("import('./runtime/TRYAMMSystemFabricRuntime').then(m => m.installTryammSystemFabricRuntime())"),'main bootstrap must install unified system fabric after core mount')
 
