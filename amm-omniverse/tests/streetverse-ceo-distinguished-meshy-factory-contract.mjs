@@ -47,7 +47,12 @@ for(const token of ['START 4 NPC RIGS','START BJ V6','AUTO ADVANCE','GEN TASK:',
 for(const token of ['create table if not exists public.meshy_asset_jobs','enable row level security','grant select,insert,update,delete on table public.meshy_asset_jobs to service_role',"insert into storage.buckets"])
   assert.ok(migration.includes(token),'durable factory migration missing '+token)
 
-assert.ok(factory.indexOf("stage:'queued'")<factory.indexOf('createMeshyTask(spec.generationType,payload)'),'durable queued job must exist before paid Meshy generation call')
+const submitQueuedFactoryJob=factory.slice(factory.indexOf('async function submitQueuedFactoryJob'),factory.indexOf('export async function startCircleParkBootstrapWave'))
+const startCircleParkBootstrapWave=factory.slice(factory.indexOf('export async function startCircleParkBootstrapWave'),factory.indexOf('export async function startMeshyFactoryJob'))
+const startMeshyFactoryJob=factory.slice(factory.indexOf('export async function startMeshyFactoryJob'),factory.indexOf('export async function importExistingMeshyTask'))
+assert.ok(submitQueuedFactoryJob.includes("job.stage!=='queued'")&&submitQueuedFactoryJob.includes("claim(job.id,'queued'"),'queued helper must only submit an already durable queued job')
+assert.ok(startCircleParkBootstrapWave.indexOf("stage:'queued'")<startCircleParkBootstrapWave.indexOf('submitQueuedFactoryJob(jamesJob)'),'bootstrap wave must persist queued jobs before paid Meshy generation call')
+assert.ok(startMeshyFactoryJob.indexOf("stage:'queued'")<startMeshyFactoryJob.indexOf('createMeshyTask(spec.generationType,payload)'),'single factory start must persist queued job before paid Meshy generation call')
 assert.ok(factory.includes("claim(job.id,'generating'")&&factory.includes("stage:'rig-submitting'"),'rig submission must atomically claim generation completion')
 assert.ok(factory.includes("characters/\${scope}/\${version}/\${job.filename}"),'published GLBs must be immutable and namespaced by scope/job')
 assert.ok(factory.includes('retryable_infrastructure_error'),'transient provider/storage failures must remain retryable')
