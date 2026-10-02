@@ -99,6 +99,19 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     });
 
     await quickMenu.click();
+    // Switching hands must mirror the external shop launchers away from the joystick.
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/RIGHT HAND/}).click();
+    await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-control-side','right');
+    const rightJoystick=await joystick.boundingBox();
+    for(const launcher of [stores,enterStore]){
+      const box=await launcher.boundingBox();
+      expect(box).not.toBeNull();
+      expect(rightJoystick).not.toBeNull();
+      expect(overlaps(box!,rightJoystick!)).toBe(0);
+    }
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/LEFT HAND/}).click();
     const socialShortcut=page.getByRole('button',{name:'Open StreetVerse social panel'});
     const peopleShortcut=page.getByRole('button',{name:'Open StreetVerse people search'});
     const ticketShortcut=page.getByRole('button',{name:'Open StreetVerse stream tickets'});

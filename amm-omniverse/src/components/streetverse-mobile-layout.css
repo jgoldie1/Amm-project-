@@ -31,6 +31,11 @@ body:has([data-streetverse-world-root]) [data-streetverse-travel] {
   padding: 7px 10px !important;
   box-sizing: border-box;
 }
+body:has([data-streetverse-world-root][data-control-side="right"]) #sv-retail-open,
+body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-open {
+  right: auto !important;
+  left: max(14px, env(safe-area-inset-left)) !important;
+}
 [data-streetverse-world-root] [data-streetverse-context] {
   min-width: 0 !important;
   width: 148px;
