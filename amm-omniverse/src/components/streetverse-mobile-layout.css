@@ -14,7 +14,7 @@ body:has([data-streetverse-world-root]) #sv-store-open {
   bottom: calc(env(safe-area-inset-bottom) + 84px) !important;
 }
 body:has([data-streetverse-world-root]) [data-streetverse-travel] {
-  top: calc(env(safe-area-inset-top) + 146px) !important;
+  top: calc(env(safe-area-inset-top) + 172px) !important;
   right: max(12px, env(safe-area-inset-right)) !important;
   min-height: 44px;
   font: 800 10px system-ui;
