@@ -1,4 +1,4 @@
-import * as THREE from 'three'
+import type {Object3D} from 'three'
 
 export type MeshyPrintFormat='stl-binary'|'obj'|'glb'
 export type MeshyPrintProfile='figurine'|'prototype'|'prop'|'architecture'|'mechanical-reference'
@@ -49,7 +49,8 @@ export const MESHY_3D_PRINT_PIPELINE={
   topologyNote:'Basic scene validation is performed in-browser. Watertight/manifold certification still belongs in a mesh-repair/slicer/engineering tool before physical production.',
 } as const
 
-export function analyzeMeshyPrintableScene(root:THREE.Object3D):MeshyPrintableAnalysis{
+export async function analyzeMeshyPrintableScene(root:Object3D):Promise<MeshyPrintableAnalysis>{
+  const THREE=await import('three')
   let meshCount=0,skinnedMeshCount=0,vertexCount=0,triangleCount=0
   root.updateMatrixWorld(true)
   root.traverse(node=>{
@@ -77,7 +78,8 @@ export function analyzeMeshyPrintableScene(root:THREE.Object3D):MeshyPrintableAn
   return{meshCount,skinnedMeshCount,vertexCount,triangleCount,width:size.x,height:size.y,depth:size.z,finiteBounds,nonEmpty,warnings}
 }
 
-export function cloneForPrint(root:THREE.Object3D,targetHeightMm:number){
+export async function cloneForPrint(root:Object3D,targetHeightMm:number){
+  const THREE=await import('three')
   const heightMm=Math.max(5,Math.min(2000,Number(targetHeightMm)||120))
   const clone=root.clone(true)
   clone.updateMatrixWorld(true)
@@ -139,8 +141,9 @@ export async function loadMeshyPrintableGlb(url:string){
   return gltf.scene
 }
 
-export async function exportMeshyPrintFile(root:THREE.Object3D,format:'stl-binary'|'obj',targetHeightMm:number){
-  const {object}=cloneForPrint(root,targetHeightMm)
+export async function exportMeshyPrintFile(root:Object3D,format:'stl-binary'|'obj',targetHeightMm:number){
+  const {object}=await cloneForPrint(root,targetHeightMm)
+  const THREE=await import('three')
   try{
     if(format==='stl-binary'){
       const {STLExporter}=await import('three/examples/jsm/exporters/STLExporter.js')
