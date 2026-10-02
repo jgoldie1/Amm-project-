@@ -35,6 +35,27 @@ function saveProgress(value:MissionProgress|null){
   }catch{}
 }
 
+function advanceStoredMission(expectedMissionId?:string,expectedStep?:number){
+  const current=readProgress()
+  if(!current||current.status!=='active')return current
+  if(expectedMissionId&&current.missionId!==expectedMissionId)return current
+  if(expectedStep!==undefined&&current.step!==expectedStep)return current
+  const mission=getUniversalMission(current.missionId)
+  if(!mission)return current
+  if(current.step>=mission.steps.length-1){
+    const done:MissionProgress={...current,status:'complete',completedAt:new Date().toISOString()}
+    saveProgress(done)
+    dispatchEvent(new CustomEvent('tryamm:universal-mission-complete',{detail:{missionId:mission.id,title:mission.title,world:mission.world,rewardXp:mission.rewardXp,financialReward:false}}))
+    dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{missionId:mission.id,id:mission.id,label:mission.title,xp:mission.rewardXp,financialReward:false,source:'universal-mission-director'}}))
+    return done
+  }
+  const next:MissionProgress={...current,step:current.step+1}
+  saveProgress(next)
+  const nextStep=mission.steps[next.step]
+  dispatchEvent(new CustomEvent('tryamm:universal-mission-objective',{detail:{missionId:mission.id,step:next.step,objective:nextStep?.detail}}))
+  return next
+}
+
 function runAction(action:UniversalMissionAction|undefined){
   if(!action)return
   if(action==='open-media-studio'){
@@ -69,20 +90,7 @@ export default function UniversalMissionDirector({defaultWorld='streetverse'}:{d
     dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{missionId:mission.id,id:mission.id,title:mission.title,objective:mission.steps[0]?.detail||mission.summary,source:'universal-mission-director'}}))
   }
 
-  const advance=()=>{
-    if(!active||!progress)return
-    if(progress.step>=active.steps.length-1){
-      const done:MissionProgress={...progress,status:'complete',completedAt:new Date().toISOString()}
-      saveProgress(done);setProgress(done)
-      dispatchEvent(new CustomEvent('tryamm:universal-mission-complete',{detail:{missionId:active.id,title:active.title,world:active.world,rewardXp:active.rewardXp,financialReward:false}}))
-      dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{missionId:active.id,id:active.id,label:active.title,xp:active.rewardXp,financialReward:false,source:'universal-mission-director'}}))
-      return
-    }
-    const next={...progress,step:progress.step+1}
-    saveProgress(next);setProgress(next)
-    const nextStep=active.steps[next.step]
-    dispatchEvent(new CustomEvent('tryamm:universal-mission-objective',{detail:{missionId:active.id,step:next.step,objective:nextStep?.detail}}))
-  }
+  const advance=()=>{const next=advanceStoredMission();if(next)setProgress(next)}
 
   useEffect(()=>{
     const openMission=(event:Event)=>{
@@ -98,11 +106,40 @@ export default function UniversalMissionDirector({defaultWorld='streetverse'}:{d
       const mission=getUniversalMission(universalId)
       if(mission)start(mission)
     }
+    const familyInteraction=(event:Event)=>{
+      const name=String((event as CustomEvent<{name?:string}>).detail?.name||'').toLowerCase()
+      const current=readProgress()
+      if(!current||current.status!=='active')return
+      if(current.missionId==='brielle-64-track-welcome'&&name==='brielle'){
+        const next=advanceStoredMission('brielle-64-track-welcome',current.step===0?0:current.step===3?3:-1)
+        if(next&&next!==current)setProgress(next)
+      }
+    }
+    const mediaOpened=()=>{
+      const current=readProgress()
+      if(!current||current.status!=='active')return
+      if(current.missionId==='brielle-64-track-welcome'&&current.step===1){const next=advanceStoredMission(current.missionId,1);if(next)setProgress(next)}
+      if(current.missionId==='aniyah-64-track-first-session'&&current.step===0){const next=advanceStoredMission(current.missionId,0);if(next)setProgress(next)}
+    }
+    const mediaOutputReady=()=>{
+      const current=readProgress()
+      if(!current||current.status!=='active')return
+      if(current.missionId==='brielle-64-track-welcome'&&current.step===2){const next=advanceStoredMission(current.missionId,2);if(next)setProgress(next)}
+      if(current.missionId==='aniyah-64-track-first-session'&&(current.step===1||current.step===2)){const next=advanceStoredMission(current.missionId,current.step);if(next)setProgress(next)}
+    }
     addEventListener('tryamm:universal-mission-open',openMission)
     addEventListener('tryamm:stubbs-family-mission-accepted',familyAccepted)
+    addEventListener('tryamm:stubbs-family-interaction',familyInteraction)
+    addEventListener('tryamm:media-studio-open',mediaOpened)
+    addEventListener('tryamm:media-studio-output-ready',mediaOutputReady)
+    addEventListener('tryamm:media-publish-queued',mediaOutputReady)
     return()=>{
       removeEventListener('tryamm:universal-mission-open',openMission)
       removeEventListener('tryamm:stubbs-family-mission-accepted',familyAccepted)
+      removeEventListener('tryamm:stubbs-family-interaction',familyInteraction)
+      removeEventListener('tryamm:media-studio-open',mediaOpened)
+      removeEventListener('tryamm:media-studio-output-ready',mediaOutputReady)
+      removeEventListener('tryamm:media-publish-queued',mediaOutputReady)
     }
   },[])
 
