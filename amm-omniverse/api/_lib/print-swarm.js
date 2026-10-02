@@ -1,5 +1,6 @@
 import {adminRest} from './supabase-admin.js'
 import {requireFactoryAuthority} from './meshy-factory.js'
+import {printerQualificationForJob} from './print-network.js'
 
 const now=()=>new Date().toISOString()
 const clean=(v,max=240)=>String(v??'').trim().slice(0,max)
@@ -32,9 +33,16 @@ export async function createPrintSwarm(actor,input={}){
   }
   const targetQuantity=clamp(input.targetQuantity||job.quantity,2,100000)
   const shardTarget=clamp(input.shardTargetQuantity||10,1,10000)
-  const operators=(await adminRest('print_network_operators',{query:{certification_status:'eq.certified',availability:'eq.available',order:'quality_score.desc.nullslast,completed_jobs.desc',limit:250}})||[])
-    .filter(operator=>supports(operator,job))
-  if(!operators.length)throw Object.assign(new Error('no_eligible_print_swarm_operators'),{status:409,code:'no_eligible_print_swarm_operators'})
+  const [operatorsRaw,printersRaw]=await Promise.all([
+    adminRest('print_network_operators',{query:{certification_status:'eq.certified',availability:'eq.available',order:'quality_score.desc.nullslast,completed_jobs.desc',limit:250}}),
+    adminRest('print_network_printers',{query:{qualification_status:'eq.qualified',availability:'eq.available',process:`eq.${job.process}`,order:'quality_score.desc.nullslast,updated_at.desc',limit:500}}),
+  ])
+  const operatorsById=new Map((operatorsRaw||[]).map(operator=>[operator.id,operator]))
+  const eligibleMachines=(printersRaw||[])
+    .map(printer=>({printer,operator:operatorsById.get(printer.operator_id)}))
+    .filter(entry=>entry.operator&&supports(entry.operator,job)&&printerQualificationForJob(entry.printer,job).qualified)
+    .sort((a,b)=>(Number(b.operator.quality_score||0)+Number(b.printer.quality_score||0))-(Number(a.operator.quality_score||0)+Number(a.printer.quality_score||0)))
+  if(!eligibleMachines.length)throw Object.assign(new Error('no_eligible_print_swarm_printers'),{status:409,code:'no_eligible_print_swarm_printers'})
 
   const createdAt=now()
   const rows=await adminRest('print_swarm_batches',{method:'POST',body:{
@@ -64,7 +72,8 @@ export async function createPrintSwarm(actor,input={}){
 
   let remaining=targetQuantity, shardNumber=1, assigned=0
   const assignments=[]
-  for(const operator of operators){
+  for(const entry of eligibleMachines){
+    const {operator,printer}=entry
     if(remaining<=0)break
     const qty=Math.min(shardTarget,remaining)
     const lotCode=`SW-${String(batch.id).slice(0,8).toUpperCase()}-${String(shardNumber).padStart(3,'0')}`
@@ -78,13 +87,13 @@ export async function createPrintSwarm(actor,input={}){
       unit_price_cents:job.unit_price_cents,gross_cents:Math.floor((Number(job.gross_cents)||0)*qty/targetQuantity),
       operator_share_bps:job.operator_share_bps,platform_share_bps:job.platform_share_bps,reserve_share_bps:job.reserve_share_bps,
       funding_status:'paid-verified',rights_status:'verified',safety_status:'verified',
-      status:'available',assigned_operator_id:operator.id,packaging_spec:job.packaging_spec||{},delivery_spec:job.delivery_spec||{},
+      status:'available',assigned_operator_id:operator.id,assigned_printer_id:printer.id,packaging_spec:job.packaging_spec||{},delivery_spec:job.delivery_spec||{},
       due_at:job.due_at,created_at:createdAt,updated_at:createdAt
     }})
     const child=childRows?.[0]
     if(!child)continue
     const assignmentRows=await adminRest('print_swarm_assignments',{method:'POST',body:{
-      swarm_id:batch.id,operator_id:operator.id,child_job_id:child.id,shard_number:shardNumber,quantity:qty,
+      swarm_id:batch.id,operator_id:operator.id,printer_id:printer.id,child_job_id:child.id,shard_number:shardNumber,quantity:qty,
       state:'offered',lot_code:lotCode,
       calibration_profile:{targetDimensionsMm:job.target_dimensions_mm,toleranceMm:job.tolerance_mm,material:job.material,color:job.color},
       offered_at:createdAt,updated_at:createdAt
@@ -112,16 +121,23 @@ export async function acceptPrintSwarmOffer(user,assignmentId){
   const rows=await adminRest('print_swarm_assignments',{query:{id:`eq.${clean(assignmentId,80)}`,operator_id:`eq.${operator.id}`,state:'eq.offered',limit:1}})
   const assignment=rows?.[0]
   if(!assignment)throw Object.assign(new Error('swarm_offer_not_available'),{status:409,code:'swarm_offer_not_available'})
+  const child=await parentJob(assignment.child_job_id)
+  const printers=await adminRest('print_network_printers',{query:{id:`eq.${assignment.printer_id}`,operator_id:`eq.${operator.id}`,limit:1}})
+  const printer=printers?.[0]
+  const gate=printerQualificationForJob(printer,child)
+  if(!child||!gate.qualified)throw Object.assign(new Error('swarm_printer_no_longer_qualified:'+gate.reasons.join(',')),{status:409,code:'swarm_printer_no_longer_qualified'})
   const acceptedAt=now()
   const updated=await adminRest('print_swarm_assignments',{method:'PATCH',query:{id:`eq.${assignment.id}`,state:'eq.offered'},body:{state:'accepted',accepted_at:acceptedAt,updated_at:acceptedAt}})
   if(!updated?.[0])throw Object.assign(new Error('swarm_offer_accept_race_lost'),{status:409,code:'swarm_offer_accept_race_lost'})
-  await adminRest('print_network_jobs',{method:'PATCH',query:{id:`eq.${assignment.child_job_id}`,status:'eq.available'},body:{status:'accepted',accepted_at:acceptedAt,updated_at:acceptedAt}})
+  const printerRows=await adminRest('print_network_printers',{method:'PATCH',query:{id:`eq.${printer.id}`,availability:'eq.available'},body:{availability:'printing',updated_at:acceptedAt}})
+  if(!printerRows?.[0])throw Object.assign(new Error('swarm_printer_accept_race_lost'),{status:409,code:'swarm_printer_accept_race_lost'})
+  await adminRest('print_network_jobs',{method:'PATCH',query:{id:`eq.${assignment.child_job_id}`,status:'eq.available'},body:{status:'accepted',assigned_printer_id:printer.id,accepted_at:acceptedAt,updated_at:acceptedAt}})
   await adminRest('print_network_operators',{method:'PATCH',query:{id:`eq.${operator.id}`},body:{availability:'busy',updated_at:acceptedAt}})
-  return updated[0]
+  return{...updated[0],printerQualification:{printerId:printer.id,nickname:printer.nickname,status:printer.qualification_status,level:printer.qualification_level}}
 }
 
 export const PRINT_SWARM_POLICY={
-  purpose:'Split one verified manufacturing order across many certified operators while preserving one golden source/profile and QA standard.',
+  purpose:'Split one verified manufacturing order across many certified operators and internally qualified compatible printers while preserving one golden source/profile and QA standard.',
   intelligenceCanRecommend:true,
   intelligenceCanBypassPaymentRightsSafetyQa:false,
   machineControl:false,
@@ -129,5 +145,7 @@ export const PRINT_SWARM_POLICY={
   goldenProfileRequired:true,
   sixViewQaRequired:true,
   dimensionalSampling:true,
+  qualifiedPrinterPerShard:true,
+  machineQualificationDoesNotImplyExternalCertification:true,
   restrictedGoodsInheritedFromPrintNetwork:true,
 }
