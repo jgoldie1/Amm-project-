@@ -34,6 +34,7 @@ export const STUBBS_FAMILY_MISSIONS:StubbsFamilyMission[]=[
  {id:'stubbs-jasmine-creator-intro',characterId:'jasmine',title:'Jasmine: Creator Introduction',objective:'Complete a creator showcase and capture a Reel or LIVE moment.',action:'host-creator-event',milestone:'jasmine-creator-intro',minMeetings:1,objectiveTarget:3},
  {id:'stubbs-tae-monroe-creator-intro',characterId:'tae-monroe',title:'Tae Monroe: Creator Introduction',objective:'Complete a creator showcase and connect it to BIGO, TikTok, Reels or LIVE.',action:'host-creator-event',milestone:'tae-monroe-creator-intro',minMeetings:1,objectiveTarget:3},
  ...SOCIAL_CREATOR_STARTER_MISSIONS,
+ {id:'stubbs-cash-bae-first-live',characterId:'cash-bae',title:'Cash Bae: Philly Creator Welcome',objective:'Meet Cash Bae, complete three creator activities, and return to finish the welcome mission.',action:'host-creator-event',milestone:'cash-bae-creator-welcome',minMeetings:1,objectiveTarget:3},
 ]
 export function availableStubbsFamilyMissions(characterNameOrId:string){
  const passport=getStubbsPassport(characterNameOrId)

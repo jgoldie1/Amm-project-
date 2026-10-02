@@ -6,7 +6,7 @@ import {acceptStubbsFamilyMission,advanceStubbsFamilyMissionObjective,availableS
 import {disposeNativeAssetLayer,loadTryammNativeCircleParkLayer} from '../runtime/TryammNativeAssetRuntime'
 import type {NativePlacement,TryammNativeRuntimeAssetKey} from '../data/TryammNativeRuntimeAssetCatalog'
 
-type Character={name:string;role:string;color:number;skin:number;x:number;z:number;accent:number}
+type Character={name:string;role:string;color:number;skin:number;x:number;z:number;accent:number;nativeAsset?:TryammNativeRuntimeAssetKey}
 type WorldStore={world:string;store:string;description:string;action?:()=>void}
 type Rig={root:THREE.Group;leftArm:THREE.Group;rightArm:THREE.Group;leftLeg:THREE.Group;rightLeg:THREE.Group;head:THREE.Group}
 
@@ -63,8 +63,11 @@ const CHARACTERS:Character[]=[
  {name:'Benny',role:'Family / Omni Host',color:0x66f0c2,skin:0x86563d,accent:0xeafff8,x:24,z:-5},
  {name:'Simone J',role:'Family / Postal Worker',color:0x5b8cff,skin:0x8f5b40,accent:0xffffff,x:30,z:2},
  ...SOCIAL_CREATOR_CHARACTERS,
+ {name:'Cash Bae',role:'BIGO Host / Philadelphia',color:0xff6fae,skin:0x9a674d,accent:0xffffff,x:27,z:8,nativeAsset:'residentD'},
 ]
 const DIALOGUE:Record<string,string[]>={
+ // Original game dialogue, not quotations from the real host.
+ 'Cash Bae':['Welcome to my Philly creator lane. Meet the community and choose a creator activity.','Finish the welcome mission, then create a Reel from your StreetVerse story.'],
  'BJ Stubbs':['StreetVerse is moving. Pick a mission and build your lane.','The family district connects to the whole TRYAMM world.'],
  Marcus:['The city opens through people, missions and movement. Let me show you the next stop.','Start with the block, then build outward.'],
  Tatti:['My creator lane is ready. Assign my final role later and the story can grow with it.','Let the mission create a Reel when we finish.'],
@@ -131,7 +134,7 @@ export default function MeetTheStubbsWorldDistrict({onClose}:{onClose:()=>void})
   let nativeCharacterLayer:THREE.Group|null=null,nativeCharacterCancelled=false
   const nativeCharacterVisuals:THREE.Object3D[]=[]
   const nativeCharacterRigs:Array<NativeHumanoidRig|undefined>=[]
-  const nativeCharacterPlacements:NativePlacement[]=CHARACTERS.map((_,i)=>({asset:nativeCharacterAsset(i),position:[0,0,0],label:nativeCharacterLabel(i)}))
+  const nativeCharacterPlacements:NativePlacement[]=CHARACTERS.map((c,i)=>({asset:c.nativeAsset||nativeCharacterAsset(i),position:[0,0,0],label:nativeCharacterLabel(i)}))
   void loadTryammNativeCircleParkLayer({placements:nativeCharacterPlacements}).then(result=>{
    if(nativeCharacterCancelled){disposeNativeAssetLayer(result.group);return}
    nativeCharacterLayer=result.group;nativeCharacterLayer.name='TRYAMM-Meet-The-Stubbs-Native-Characters';scene.add(nativeCharacterLayer)

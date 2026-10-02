@@ -61,6 +61,7 @@ const NAMED_CAST:StreetVersePlayableCharacter[]=[
   {id:'alphonso',label:'ALPHONSO',index:5,role:'StreetVerse Friend • role pending',missionLane:'Chicago Explorer'},
   {id:'jasmine',label:'JASMINE',index:6,role:'Creator • role pending',missionLane:'Reels Creator'},
   {id:'tae-monroe',label:'TAE MONROE',index:7,role:'Creator • role pending',missionLane:'Reels Creator'},
+  {id:'cash-bae',label:'CASH BAE',index:8,role:'BIGO Host • Philadelphia',missionLane:'Live Stream Creator',presentation:'female',assetId:'sv-black-woman-adult-01',visualStatus:'fallback'},
 ]
 const SOCIAL_CREATOR_CAST:StreetVersePlayableCharacter[]=Array.from({length:10},(_,i)=>({
   id:`social-creator-${String(i+1).padStart(2,'0')}`,

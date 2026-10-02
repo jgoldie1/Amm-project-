@@ -28,6 +28,7 @@ function hashId(id:string){
 export function genericVisualSlotForCharacter(id:string){
   if(id==='bj-stubbs')return 'sv-bj-stubbs-v6'
   if(id==='james-stubbs')return 'sv-james-body-base-v1'
+  if(id==='cash-bae')return 'sv-black-woman-adult-01'
   return GENERIC_VISUAL_SLOTS[hashId(id)%GENERIC_VISUAL_SLOTS.length]
 }
 

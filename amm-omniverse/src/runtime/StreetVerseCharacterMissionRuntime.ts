@@ -22,6 +22,7 @@ export type StreetVerseMission={
 }
 
 export const STREETVERSE_CHARACTERS:StreetVerseCharacter[]=[
+  {id:'cash-bae',name:'Cash Bae',title:'BIGO Host / Philadelphia Creator',group:'friends',missionIds:['creator-live-street-session']},
   {id:'stubbs',name:'Stubbs',title:'Founder / Living World Guide',group:'founder',missionIds:['peace-network','mentor-next','world-builder']},
   {id:'al-b',name:'Al B',title:'Security Guardian / Global Commander',group:'security',missionIds:['guardian-watch','safe-passage','conflict-cooldown','global-guardian-network','peace-corridor','missing-person-support','disaster-relief','safe-event-command','anti-trafficking-awareness','cyber-safety-relay']},
   {id:'global-security-force',name:'Global Security Force',title:'Al B Guardian Network',group:'global-security',missionIds:['global-guardian-network','peace-corridor','missing-person-support','disaster-relief','safe-event-command','anti-trafficking-awareness','cyber-safety-relay']},
@@ -35,6 +36,7 @@ export const STREETVERSE_CHARACTERS:StreetVerseCharacter[]=[
 ]
 
 export const STREETVERSE_MISSIONS:StreetVerseMission[]=[
+  {id:'creator-live-street-session',title:'Go Live in StreetVerse',description:'Join Cash Bae’s Philadelphia creator welcome, prepare a creator activity, and capture an original StreetVerse Reel or LIVE moment.',type:'creative',assignedTo:['cash-bae','artists'],rewardXP:425,repeatable:true},
   {id:'peace-network',title:'Peace Network',description:'Build trust between neighborhoods, connect mentors with youth, and reduce conflict through dialogue and community events.',type:'peacekeeping',assignedTo:['stubbs'],rewardXP:450,repeatable:true},
   {id:'mentor-next',title:'Mentor the Next Generation',description:'Guide younger players through school, business, arts, technology, faith, sports, and life-skills challenges.',type:'mentorship',assignedTo:['stubbs','legacy-kids'],rewardXP:350,repeatable:true},
   {id:'world-builder',title:'Build the Block',description:'Restore a neighborhood space by coordinating local businesses, creators, residents, and services.',type:'community',assignedTo:['stubbs','friends','artists'],rewardXP:500,repeatable:true},

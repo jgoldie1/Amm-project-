@@ -1,5 +1,5 @@
 export type StubbsRelationshipKind='core-family'|'extended-family'|'next-generation'|'friend'|'family-connected'|'community'
-export type StubbsCharacterPassport={id:string;displayName:string;relationship:StubbsRelationshipKind;roles:string[];worlds:string[];referencePolicy:'authorized-reference'|'original-generated';persistent:boolean}
+export type StubbsCharacterPassport={id:string;displayName:string;relationship:StubbsRelationshipKind;roles:string[];worlds:string[];referencePolicy:'authorized-reference'|'original-generated';persistent:boolean;homeCity?:string;socialProfiles?:{platform:'BIGO';handle:string}[]}
 
 export const SOCIAL_CREATOR_PLACEHOLDERS:StubbsCharacterPassport[]=Array.from({length:10},(_,index)=>{
  const slot=String(index+1).padStart(2,'0')
@@ -43,6 +43,7 @@ export const MEET_THE_STUBBS_FAMILY_FRIENDS:StubbsCharacterPassport[]=[
 {id:'don-cario-stubbs',displayName:'Don Cario Stubbs',relationship:'extended-family',roles:['Family','Legacy'],worlds:['StreetVerse','MeetTheStubbs'],referencePolicy:'authorized-reference',persistent:true},
 {id:'simone-johnson',displayName:'Simone Johnson',relationship:'extended-family',roles:['Aunt','Family','Postal Worker'],worlds:['StreetVerse','MeetTheStubbs','TimeMachine'],referencePolicy:'authorized-reference',persistent:true},
 ...SOCIAL_CREATOR_PLACEHOLDERS,
+{id:'cash-bae',displayName:'Cash Bae',relationship:'friend',roles:['BIGO Host','Creator','Philadelphia'],worlds:['StreetVerse','MeetTheStubbs','CreatorVerse','StarVerse'],referencePolicy:'original-generated',persistent:true,homeCity:'Philadelphia, Pennsylvania',socialProfiles:[{platform:'BIGO',handle:'CashleyBankss'}]},
 ]
 export function getStubbsPassport(nameOrId:string){const key=nameOrId.trim().toLowerCase();return MEET_THE_STUBBS_FAMILY_FRIENDS.find(x=>x.id===key||x.displayName.toLowerCase()===key)}
 export function familyFriendsByRelationship(kind:StubbsRelationshipKind){return MEET_THE_STUBBS_FAMILY_FRIENDS.filter(x=>x.relationship===kind)}
