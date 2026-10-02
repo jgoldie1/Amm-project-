@@ -34,10 +34,14 @@ let availabilityPromise:Promise<boolean>|null=null
 async function assetExists(url:string){
   if(!availabilityPromise){
     availabilityPromise=(async()=>{
+      const controller=new AbortController()
+      const timer=window.setTimeout(()=>controller.abort(),1800)
       try{
-        const response=await fetch(url,{method:'HEAD',cache:'no-store'})
-        return response.ok
+        const response=await fetch(url,{method:'HEAD',cache:'no-store',signal:controller.signal})
+        const contentType=(response.headers.get('content-type')||'').toLowerCase()
+        return response.ok&&!contentType.includes('text/html')&&!contentType.includes('application/xhtml+xml')
       }catch{return false}
+      finally{window.clearTimeout(timer)}
     })()
   }
   return availabilityPromise
