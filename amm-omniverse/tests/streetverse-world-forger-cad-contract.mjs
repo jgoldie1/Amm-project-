@@ -10,6 +10,7 @@ const cursor=read('../src/runtime/BennyCursorConstructBridge.ts')
 const factory=read('../api/_lib/meshy-factory.js')
 const factoryApi=read('../api/meshy/factory.js')
 const factoryPanel=read('../src/components/MeshyFactoryControlPanel.tsx')
+const chicago=read('../src/game/forger/ChicagoCommunityAreaWorldForge.ts')
 
 for(const cell of [
   'Circle Park / ABLA Legacy District',
@@ -43,6 +44,9 @@ assert.ok(panel.includes('BUILD CAD / FORGE PLAN'),'World Forger UI must create 
 assert.ok(panel.includes('SEND TO MESHY FACTORY'),'World Forger UI must hand the plan to Meshy')
 assert.ok(panel.includes('OPEN DISTRICT IN GAME'),'World Forger UI must bridge back to StreetVerse')
 assert.ok(panel.includes('Street-view imagery stays reference-only.'),'World Forger UI must explain Street View boundary')
+assert.ok(chicago.includes('communityAreaCount:77'),'World Forger must register the citywide 77-community-area expansion contract')
+assert.ok(chicago.includes("'Austin','West Garfield Park','East Garfield Park','Near West Side','North Lawndale','South Lawndale','Lower West Side'"),'West Side official community-area wave must stay registered')
+assert.ok(panel.includes('CHICAGO CITYWIDE QUEUE'),'World Forger UI must expose citywide expansion status')
 
 assert.ok(main.includes("const WorldForgerControlPanel=lazy(()=>import('./components/WorldForgerControlPanel'))"),'World Forger must stay lazy-loaded')
 assert.ok(main.includes("'/world-forger'")&&main.includes("'/cad'"),'World Forger/CAD routes missing')
