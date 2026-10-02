@@ -89,9 +89,10 @@ let repairs:GameRepairTicket[]=[]
 let flow:Record<GameFlowStageId,GameFlowStage>
 
 const now=()=>new Date().toISOString()
-const freshFlow=()=>Object.fromEntries(STAGE_ORDER.map((id,index)=>[id,{
-  id,label:LABELS[id],state:index===0?'ACTIVE':'WAITING',evidence:[],
-}])) as Record<GameFlowStageId,GameFlowStage>
+const freshFlow=()=>STAGE_ORDER.reduce<Record<GameFlowStageId,GameFlowStage>>((acc,id,index)=>{
+  acc[id]={id,label:LABELS[id],state:index===0?'ACTIVE':'WAITING',evidence:[]}
+  return acc
+},{} as Record<GameFlowStageId,GameFlowStage>)
 
 function safeDetail(event:Event){
   const detail=(event as CustomEvent<Record<string,unknown>>).detail
