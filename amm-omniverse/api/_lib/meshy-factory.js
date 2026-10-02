@@ -327,6 +327,66 @@ export async function importExistingMeshyTask(user,{assetId,taskId,type='image-t
   }
 }
 
+export async function startWorldForgerFactoryJob(user,input={}){
+  requireFactoryAuthority(user);
+  if(String(input.confirmCreditUse||'')!=='START_MESHY_WORLD_FORGE'){
+    throw Object.assign(new Error('world_forger_credit_confirmation_required'),{status:400,code:'world_forger_credit_confirmation_required'});
+  }
+  if(input.rightsAcknowledged!==true){
+    throw Object.assign(new Error('world_forger_rights_acknowledgement_required'),{status:400,code:'world_forger_rights_acknowledgement_required'});
+  }
+  const kind=['building','character','vehicle','prop','street-furniture','infrastructure'].includes(String(input.kind))?String(input.kind):'prop';
+  const assetId=String(input.assetId||'').trim().toLowerCase().replace(/[^a-z0-9_-]/g,'-').slice(0,120);
+  const label=String(input.label||kind).trim().slice(0,160);
+  const prompt=String(input.prompt||'').trim().slice(0,4000);
+  const generationType=['text-to-3d','image-to-3d'].includes(String(input.generationType))?String(input.generationType):'text-to-3d';
+  const imageUrl=String(input.imageUrl||'').trim().slice(0,1600);
+  if(!assetId.startsWith('wf-'))throw Object.assign(new Error('world_forger_asset_id_must_start_wf'),{status:400,code:'world_forger_asset_id_must_start_wf'});
+  if(prompt.length<20&&generationType==='text-to-3d')throw Object.assign(new Error('world_forger_prompt_required'),{status:400,code:'world_forger_prompt_required'});
+  if(generationType==='image-to-3d'&&!imageUrl)throw Object.assign(new Error('world_forger_reference_image_required'),{status:400,code:'world_forger_reference_image_required'});
+  const extSafe=label.toUpperCase().replace(/[^A-Z0-9]+/g,'_').replace(/(^_|_$)/g,'').slice(0,80)||'WORLD_FORGER_ASSET';
+  const filename=`${extSafe}.glb`;
+  const spec={
+    assetId,filename,kind,label,prompt,
+    generationType,
+    height:Math.max(.2,Math.min(4,Number(input.height)||1.8)),
+    targetPolycount:Math.max(8000,Math.min(100000,Number(input.targetPolycount)||(
+      kind==='building'?85000:kind==='vehicle'?70000:kind==='character'?45000:35000
+    ))),
+    districtId:String(input.districtId||'global').slice(0,120),
+    sourceKind:String(input.sourceKind||'conceptual').slice(0,80),
+    streetViewReferenceOnly:Boolean(input.streetViewReferenceOnly),
+    cadPlan:input.cadPlan&&typeof input.cadPlan==='object'?input.cadPlan:null,
+  };
+  if(spec.streetViewReferenceOnly&&generationType==='image-to-3d'){
+    throw Object.assign(new Error('street_view_reference_cannot_drive_image_to_3d'),{status:400,code:'street_view_reference_cannot_drive_image_to_3d'});
+  }
+  const queuedRows=await adminRest('meshy_asset_jobs',{method:'POST',body:{
+    owner_user_id:user.id,
+    asset_id:assetId,
+    filename,
+    city_scope:String(input.cityScope||spec.districtId||'global').replace(/[^a-zA-Z0-9_-]/g,'-').slice(0,80)||'global',
+    generation_type:generationType,
+    prompt:generationType==='text-to-3d'?prompt:null,
+    source_image_url:generationType==='image-to-3d'?imageUrl:null,
+    stage:'queued',
+    progress:0,
+    evidence:{
+      authority:'founder-or-admin',
+      provider:'meshy.ai',
+      queuedAt:new Date().toISOString(),
+      worldForger:true,
+      worldForgerSpec:spec,
+      rightsAcknowledged:true,
+      creditUseConfirmed:'START_MESHY_WORLD_FORGE',
+      note:'World Forger plan persisted before provider task creation.'
+    }
+  }});
+  const queued=queuedRows?.[0];
+  if(!queued)throw Object.assign(new Error('world_forger_factory_queue_persist_failed'),{status:503,code:'world_forger_factory_queue_persist_failed'});
+  return submitQueuedFactoryJob(queued);
+}
+
 export async function listMeshyFactoryJobs(user,{limit=30}={}){
   requireFactoryAuthority(user);
   return await adminRest('meshy_asset_jobs',{query:{owner_user_id:`eq.${user.id}`,order:'created_at.desc',limit:Math.max(1,Math.min(100,Number(limit)||30))}})||[];
