@@ -101,7 +101,7 @@ const WORLD_STORES:WorldStore[]=[
  {world:'Multiverse',store:'Alternate Worlds Exchange',description:'Fictional branches, scenarios, portable assets and creator universes.',action:()=>{(window as any).__showImmersiveWorlds?.()}},
  {world:'QuantumVerse',store:'Quantum Experience Lab',description:'Quantum Zoom, Quantum Time and provenance-aware simulation experiences.',action:()=>{(window as any).__showQuantumZoom?.()}},
  {world:'GameVerse',store:'Game & Mission Arcade',description:'Playable missions, tournaments, StreetVerse game loops and rewards.',action:()=>{(window as any).__showQuantumTag?.()}},
- {world:'CreatorVerse',store:'64-Track + Creator Commerce',description:'Music, Reels, Holo Drama, creator inventory and sellable media. Includes the First 64-Track Session mission.',action:()=>{dispatchEvent(new CustomEvent('tryamm:universal-mission-open',{detail:{missionId:'aniyah-64-track-first-session'}}));(window as any).__showMediaStudio?.()}},
+ {world:'CreatorVerse',store:'64-Track + Creator Commerce',description:'Music, Reels, Holo Drama, creator inventory and sellable media. Includes the First 64-Track Session mission.',action:()=>{dispatchEvent(new CustomEvent('tryamm:universal-mission-open',{detail:{missionId:'aniyah-64-track-first-session'}}))}},
 ]
 function readSave(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')}catch{return {}}}
 const mat=(color:number,metalness=.05,roughness=.72)=>new THREE.MeshStandardMaterial({color,metalness,roughness})
