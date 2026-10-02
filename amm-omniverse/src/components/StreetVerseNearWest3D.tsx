@@ -196,12 +196,12 @@ export default function StreetVerseNearWest3D(){
  useEffect(()=>{const open=(e:Event)=>{const d=(e as CustomEvent).detail||{};if(d.to==='greenville')setGreenvilleOpen(true)};window.addEventListener('tryamm:campusverse-travel',open);return()=>window.removeEventListener('tryamm:campusverse-travel',open)},[])
  if(greenvilleOpen)return <GreenvilleCampusVerseScene onReturn={()=>setGreenvilleOpen(false)}/>
  return <div aria-label="StreetVerse Near West 3D" style={{width:'100%',height:'100%',minHeight:420}}>
-  <div style={{position:'absolute',left:12,top:12,zIndex:22,display:'flex',gap:6,flexWrap:'wrap'}}>
-   <button aria-label="Open Quantum Discord" onClick={()=>setDiscordOpen(true)} style={{minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>💬 QUANTUM DISCORD</button>
-   <button aria-label="Open StreetVerse creator pass" onClick={()=>setCreatorGrowthOpen(true)} style={{minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🌍 CREATOR PASS</button>
-   <button aria-label="Open StreetVerse LIVE RP" onClick={()=>setLiveRpOpen(true)} style={{minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🔴 LIVE • PK</button>
-   <button aria-label="Open My Garage" onClick={()=>setGarageOpen(true)} style={{minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🏠 MY GARAGE</button>
-   <button aria-label="Open Future Mobility dealership" onClick={()=>setDealerOpen(true)} style={{position:'absolute',left:12,top:12,zIndex:22,minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🚘 FUTURE MOBILITY • BUY</button></div>
+  <div style={{position:'absolute',left:12,right:12,top:12,zIndex:22,display:'flex',gap:6,overflowX:'auto',paddingBottom:4,WebkitOverflowScrolling:'touch'}}>
+   <button aria-label="Open Quantum Discord" onClick={()=>setDiscordOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>💬 DISCORD</button>
+   <button aria-label="Open StreetVerse creator pass" onClick={()=>setCreatorGrowthOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🌍 CREATOR PASS</button>
+   <button aria-label="Open StreetVerse LIVE RP" onClick={()=>setLiveRpOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🔴 LIVE • PK</button>
+   <button aria-label="Open My Garage" onClick={()=>setGarageOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🏠 GARAGE</button>
+   <button aria-label="Open Future Mobility dealership" onClick={()=>setDealerOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🚘 MOBILITY</button></div>
   {discordOpen&&<StreetVerseDiscordPanel onClose={()=>setDiscordOpen(false)}/>}
   {creatorGrowthOpen&&<StreetVerseCreatorGrowthPanel onClose={()=>setCreatorGrowthOpen(false)}/>}
   {liveRpOpen&&<StreetVerseLiveRpPanel onClose={()=>setLiveRpOpen(false)}/>}
@@ -220,9 +220,9 @@ export default function StreetVerseNearWest3D(){
    <button aria-label="Walk right" onPointerDown={()=>setMove(driving?1.4:1,0)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{fontSize:24,borderRadius:14}}>▶</button>
    <span/><button aria-label="Walk backward" onPointerDown={()=>setMove(0,driving?1.2:1)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{gridColumn:2,fontSize:24,borderRadius:14}}>▼</button><span/>
   </div>
-  <div style={{position:'absolute',left:12,bottom:18,zIndex:20,display:'grid',gap:7,maxWidth:260}}>
-   <button aria-label="Open UIC CollegeBook gateway" onClick={()=>setCollegeBookOpen(v=>!v)} style={{padding:'11px 12px',borderRadius:12,fontWeight:900}}>🎓 UIC • COLLEGEBOOK</button>
-   <button aria-label="Travel from UIC to Greenville CampusVerse" onClick={travelToGreenville} style={{padding:'11px 12px',borderRadius:12,fontWeight:900}}>GREENVILLE • JACOBIE →</button>
+  <div style={{position:'absolute',left:12,bottom:96,zIndex:24,display:'grid',gap:6,width:'min(218px,58vw)'}}>
+   <button aria-label="Open UIC CollegeBook gateway" onClick={()=>setCollegeBookOpen(v=>!v)} style={{minHeight:44,padding:'8px 10px',borderRadius:12,fontWeight:900}}>🎓 UIC • CAMPUSVERSE</button>
+   <button aria-label="Travel from UIC to Greenville CampusVerse" onClick={travelToGreenville} style={{minHeight:44,padding:'8px 10px',borderRadius:12,fontWeight:900}}>GREENVILLE • JACOBIE →</button>
    {collegeBookOpen&&<CampusVerseCollegeBookBridge/>}
   </div>
   <Canvas shadows camera={{position:[-620,260,980],fov:55,far:5000}}>
