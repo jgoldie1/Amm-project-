@@ -17,7 +17,8 @@ must(world.includes('aria-label="Open StreetVerse quick menu"'),'compact mobile 
 must(world.includes("target==='left-hand'||target==='right-hand'"),'one-hand side selection must remain available in compact menu')
 must(world.includes("tryamm:streetverse-control-mode"),'one-hand control-mode event missing')
 must(world.includes("oneHandCruise=false"),'mobile renderer cruise state missing')
-must(world.includes("input.current.up||oneHandCruise"),'vehicle throttle must honor one-hand cruise while steering')
+must(world.includes("oneHandCruise&&Math.abs(analogThrottle)<.05?.58"),'vehicle throttle must honor one-hand cruise with controlled steering speed')
+must(world.includes("vehicleControlPass:'stable-analog-v3'"),'stable analog driving certification missing')
 must(world.includes("tryamm:streetverse-cruise-state"),'vehicle exit must report cruise cancellation')
 
 must(world.includes("tryamm:streetverse-first-journey-start"),'mobile world must listen for first-journey start')

@@ -21,10 +21,15 @@ function RoadMeshes(){
  const roads=compileNearWestRoadMeshes()
  return <group>
   {roads.map(r=><group key={r.id} position={[r.center.x,0,r.center.z]} rotation={[0,-r.headingRadians,0]}>
-   <mesh receiveShadow position={[0,.02,0]}><boxGeometry args={[r.length,.08,r.width]}/><meshStandardMaterial color="#292d31"/></mesh>
-   <mesh receiveShadow position={[0,.08,r.width/2+r.sidewalkWidth/2]}><boxGeometry args={[r.length,.16,r.sidewalkWidth]}/><meshStandardMaterial color="#929292"/></mesh>
-   <mesh receiveShadow position={[0,.08,-r.width/2-r.sidewalkWidth/2]}><boxGeometry args={[r.length,.16,r.sidewalkWidth]}/><meshStandardMaterial color="#929292"/></mesh>
-   <mesh position={[0,.09,0]}><boxGeometry args={[r.length,.02,.12]}/><meshStandardMaterial color="#d7bd55"/></mesh>
+   <mesh receiveShadow position={[0,.02,0]}><boxGeometry args={[r.length,.08,r.width]}/><meshStandardMaterial color="#20252a" roughness={1}/></mesh>
+   <mesh receiveShadow position={[0,.12,r.width/2+r.sidewalkWidth/2]}><boxGeometry args={[r.length,.22,r.sidewalkWidth]}/><meshStandardMaterial color="#c8c4b8" roughness={1}/></mesh>
+   <mesh receiveShadow position={[0,.12,-r.width/2-r.sidewalkWidth/2]}><boxGeometry args={[r.length,.22,r.sidewalkWidth]}/><meshStandardMaterial color="#c8c4b8" roughness={1}/></mesh>
+   <mesh position={[0,.16,r.width/2+.06]}><boxGeometry args={[r.length,.28,.18]}/><meshStandardMaterial color="#e7e2d7"/></mesh>
+   <mesh position={[0,.16,-r.width/2-.06]}><boxGeometry args={[r.length,.28,.18]}/><meshStandardMaterial color="#e7e2d7"/></mesh>
+   <mesh position={[0,.09,.16]}><boxGeometry args={[r.length,.025,.10]}/><meshStandardMaterial color="#f4cf45"/></mesh>
+   <mesh position={[0,.09,-.16]}><boxGeometry args={[r.length,.025,.10]}/><meshStandardMaterial color="#f4cf45"/></mesh>
+   <mesh position={[0,.09,r.width/2-.55]}><boxGeometry args={[r.length,.025,.09]}/><meshStandardMaterial color="#f6f4ec"/></mesh>
+   <mesh position={[0,.09,-r.width/2+.55]}><boxGeometry args={[r.length,.025,.09]}/><meshStandardMaterial color="#f6f4ec"/></mesh>
   </group>)}
  </group>
 }
@@ -68,26 +73,34 @@ function NearWestPlayer({move,onPosition,hidden=false,startPosition}:{move:React
  const {camera}=useThree()
  useFrame((_,dt)=>{
   const p=ref.current;if(!p)return
-  const speed=24
+  const speed=20
   p.position.x=THREE.MathUtils.clamp(p.position.x+move.current.x*speed*dt,-1180,560)
   p.position.z=THREE.MathUtils.clamp(p.position.z+move.current.z*speed*dt,380,1160)
   if(Math.abs(move.current.x)+Math.abs(move.current.z)>.05)p.rotation.y=Math.atan2(move.current.x,move.current.z)
-  const target=new THREE.Vector3(p.position.x,p.position.y+9,p.position.z+18)
-  camera.position.lerp(target,Math.min(1,dt*4));camera.lookAt(p.position.x,1.2,p.position.z)
+  const target=new THREE.Vector3(p.position.x,p.position.y+6.5,p.position.z+14)
+  camera.position.lerp(target,Math.min(1,dt*4));camera.lookAt(p.position.x,1.25,p.position.z)
   onPosition(p.position.x,p.position.z)
  })
  return <group ref={ref} visible={!hidden} position={[startPosition?.x??-650,0,startPosition?.z??700]}>
-  <mesh position={[0,.95,0]} castShadow><capsuleGeometry args={[.34,1.05,5,10]}/><meshStandardMaterial color="#172c55"/></mesh>
-  <mesh position={[0,1.9,0]} castShadow><sphereGeometry args={[.28,12,10]}/><meshStandardMaterial color="#79513c"/></mesh>
+  <mesh position={[0,1.18,0]} castShadow><capsuleGeometry args={[.28,.82,5,10]}/><meshStandardMaterial color="#172c55" roughness={.82}/></mesh>
+  <mesh position={[0,2.02,0]} castShadow scale={[.94,1.05,.92]}><sphereGeometry args={[.29,16,12]}/><meshStandardMaterial color="#79513c" roughness={.9}/></mesh>
+  <mesh position={[0,2.22,-.03]} castShadow scale={[.96,.55,1]}><sphereGeometry args={[.30,14,10,0,Math.PI*2,0,Math.PI*.5]}/><meshStandardMaterial color="#17110f" roughness={1}/></mesh>
+  {([-1,1] as const).map(side=><group key={side}>
+   <mesh position={[side*.39,1.2,0]} rotation={[0,0,side*.08]} castShadow><capsuleGeometry args={[.075,.58,4,8]}/><meshStandardMaterial color="#79513c"/></mesh>
+   <mesh position={[side*.16,.48,0]} castShadow><capsuleGeometry args={[.10,.58,4,8]}/><meshStandardMaterial color="#202329"/></mesh>
+   <mesh position={[side*.16,.10,-.11]} castShadow><boxGeometry args={[.22,.14,.48]}/><meshStandardMaterial color="#111318"/></mesh>
+   <mesh position={[side*.095,2.08,.255]}><sphereGeometry args={[.028,8,6]}/><meshStandardMaterial color="#17110f"/></mesh>
+  </group>)}
+  <mesh position={[0,1.12,.285]}><boxGeometry args={[.24,.05,.02]}/><meshStandardMaterial color="#c8a14b" metalness={.65} roughness={.3}/></mesh>
  </group>
 }
-
 
 
 function DrivenVehicle({vehicleId,move,onPosition,onHeading}:{vehicleId:string;move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void;onHeading:(yaw:number)=>void}){
  const v=STREETVERSE_FUTURE_VEHICLES.find(x=>x.id===vehicleId)
  const ref=useRef<THREE.Group>(null);const {camera}=useThree()
- useFrame((_,dt)=>{const g=ref.current;if(!g||!v)return;const throttle=-move.current.z;const steer=move.current.x;g.rotation.y-=steer*v.handling*1.45*dt;const forward=new THREE.Vector3(Math.sin(g.rotation.y),0,Math.cos(g.rotation.y));g.position.addScaledVector(forward,throttle*v.speed*dt);g.position.x=THREE.MathUtils.clamp(g.position.x,-1180,560);g.position.z=THREE.MathUtils.clamp(g.position.z,380,1160);const chase=new THREE.Vector3(g.position.x-forward.x*11,g.position.y+6,g.position.z-forward.z*11);camera.position.lerp(chase,Math.min(1,dt*4));camera.lookAt(g.position.x,g.position.y+1,g.position.z);onPosition(g.position.x,g.position.z);onHeading(g.rotation.y)})
+ const speedRef=useRef(0),steerRef=useRef(0)
+ useFrame((_,dt)=>{const g=ref.current;if(!g||!v)return;const throttle=THREE.MathUtils.clamp(-move.current.z,-1,1),steerInput=THREE.MathUtils.clamp(move.current.x,-1,1),maxSpeed=Math.min(22,Math.max(8,v.speed));const targetSpeed=throttle*maxSpeed;speedRef.current=THREE.MathUtils.lerp(speedRef.current,targetSpeed,Math.min(1,(Math.abs(targetSpeed)>Math.abs(speedRef.current)?2.5:4.2)*dt));if(Math.abs(throttle)<.03)speedRef.current=THREE.MathUtils.lerp(speedRef.current,0,Math.min(1,4.6*dt));if(Math.abs(speedRef.current)<.04)speedRef.current=0;steerRef.current=THREE.MathUtils.lerp(steerRef.current,steerInput,Math.min(1,4.2*dt));const speedRatio=THREE.MathUtils.clamp(Math.abs(speedRef.current)/maxSpeed,0,1),turnScale=THREE.MathUtils.lerp(.90,.42,speedRatio);if(Math.abs(speedRef.current)>.08)g.rotation.y-=steerRef.current*Math.min(1.05,v.handling*.82)*turnScale*dt*(speedRef.current<0?-1:1);const forward=new THREE.Vector3(Math.sin(g.rotation.y),0,Math.cos(g.rotation.y));g.position.addScaledVector(forward,speedRef.current*dt);g.position.x=THREE.MathUtils.clamp(g.position.x,-1180,560);g.position.z=THREE.MathUtils.clamp(g.position.z,380,1160);const chase=new THREE.Vector3(g.position.x-forward.x*13,g.position.y+7,g.position.z-forward.z*13);camera.position.lerp(chase,Math.min(1,dt*3.7));camera.lookAt(g.position.x,g.position.y+1,g.position.z);onPosition(g.position.x,g.position.z);onHeading(g.rotation.y)})
  if(!v)return null
  const long=v.kind==='armored-utility'?5.6:v.kind==='cyber-shuttle'?5.2:v.kind==='hypercar'?4.8:2.7
  return <group ref={ref} position={[v.spawn.x,0,v.spawn.z]}><mesh castShadow position={[0,.9,0]}><boxGeometry args={[long,v.kind==='ring-bike'?.75:1.15,v.kind==='ring-bike'?1.1:2.15]}/><meshStandardMaterial color={v.visual.body} metalness={.7} roughness={.25}/></mesh><mesh position={[0,.8,-1.1]}><boxGeometry args={[long*.65,.12,.08]}/><meshStandardMaterial color={v.visual.accent} emissive={v.visual.accent} emissiveIntensity={.5}/></mesh></group>
@@ -107,8 +120,13 @@ function FutureVehicleMeshes({exclude}:{exclude?:string}){return <group>{STREETV
 })}</group>}
 
 function PopulationMeshes({reaction}:{reaction:{id:string;reaction:'stagger'|'downed'}|null}){return <group>
- {NEAR_WEST_NPCS.map((n,i)=><group key={n.id} rotation={[0,0,reaction?.id===n.id?(reaction.reaction==='downed'?1.45:.28):0]} position={[n.position.x,0,n.position.z]}><mesh position={[0,.9,0]} castShadow><capsuleGeometry args={[.28,.95,4,8]}/><meshStandardMaterial color={i%3===0?'#315b7a':i%3===1?'#704936':'#485b3b'}/></mesh><mesh position={[0,1.75,0]}><sphereGeometry args={[.25,10,8]}/><meshStandardMaterial color="#8f654c"/></mesh></group>)}
- {NEAR_WEST_TRAFFIC.map((v,i)=><mesh key={v.id} position={[v.position.x,.55,v.position.z]} castShadow><boxGeometry args={[v.kind==='bus'?7:4.2,1.1,v.kind==='bus'?2.4:1.9]}/><meshStandardMaterial color={i%2?'#314c66':'#742f2f'}/></mesh>)}
+ {NEAR_WEST_NPCS.map((n,i)=><group key={n.id} rotation={[0,0,reaction?.id===n.id?(reaction.reaction==='downed'?1.45:.28):0]} position={[n.position.x,0,n.position.z]}>
+  <mesh position={[0,1.02,0]} castShadow><capsuleGeometry args={[.24,.68,4,8]}/><meshStandardMaterial color={i%3===0?'#315b7a':i%3===1?'#704936':'#485b3b'}/></mesh>
+  <mesh position={[0,1.78,0]}><sphereGeometry args={[.23,12,9]}/><meshStandardMaterial color={i%4===0?'#6f442f':i%4===1?'#8f654c':i%4===2?'#b57651':'#5b3829'}/></mesh>
+  <mesh position={[0,1.96,-.02]} scale={[.95,.50,1]}><sphereGeometry args={[.235,10,8,0,Math.PI*2,0,Math.PI*.5]}/><meshStandardMaterial color={i%2?'#1c1715':'#2b211d'}/></mesh>
+  {([-1,1] as const).map(side=><group key={side}><mesh position={[side*.34,1.02,0]} rotation={[0,0,side*.08]}><capsuleGeometry args={[.065,.48,3,7]}/><meshStandardMaterial color={i%4===0?'#6f442f':'#8f654c'}/></mesh><mesh position={[side*.13,.38,0]}><capsuleGeometry args={[.085,.46,3,7]}/><meshStandardMaterial color="#222831"/></mesh></group>)}
+ </group>)}
+ {NEAR_WEST_TRAFFIC.map((v,i)=><group key={v.id} position={[v.position.x,0,v.position.z]} rotation={[0,i%2?Math.PI:0,0]}><mesh position={[0,.62,0]} castShadow><boxGeometry args={[v.kind==='bus'?7:4.2,1.05,v.kind==='bus'?2.4:1.9]}/><meshStandardMaterial color={i%2?'#314c66':'#742f2f'} metalness={.35} roughness={.35}/></mesh><mesh position={[0,1.25,0]}><boxGeometry args={[v.kind==='bus'?5.6:2.2,.5,v.kind==='bus'?2.0:1.5]}/><meshStandardMaterial color="#8fc9df" metalness={.2} roughness={.15}/></mesh></group>)}
  </group>}
 
 export default function StreetVerseNearWest3D(){
@@ -174,16 +192,17 @@ export default function StreetVerseNearWest3D(){
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-action',{detail:{action,target:nearby,source:'near-west-context-action'}}))
   if(nearby.mission)window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{missionId:nearby.mission,target:nearby.id}}))
  }
- const travelToGreenville=()=>{window.dispatchEvent(new CustomEvent('tryamm:campusverse-travel',{detail:{from:'uic',to:'greenville',character:'Jacobie',source:'streetverse-uic-gateway'}}));setGreenvilleOpen(true)}
- useEffect(()=>{const open=(e:Event)=>{const d=(e as CustomEvent).detail||{};if(d.to==='greenville')setGreenvilleOpen(true)};window.addEventListener('tryamm:campusverse-travel',open);return()=>window.removeEventListener('tryamm:campusverse-travel',open)},[])
+ const travelToGreenville=()=>{setCollegeBookOpen(false);window.dispatchEvent(new CustomEvent('tryamm:campusverse-travel',{detail:{from:'uic',to:'greenville',character:'Jacobie',source:'streetverse-uic-gateway'}}));setGreenvilleOpen(true)}
+ useEffect(()=>{const open=(e:Event)=>{const d=(e as CustomEvent).detail||{};if(d.to==='greenville'){setCollegeBookOpen(false);setGreenvilleOpen(true)}};window.addEventListener('tryamm:campusverse-travel',open);return()=>window.removeEventListener('tryamm:campusverse-travel',open)},[])
+ useEffect(()=>{const route=(e:Event)=>{const d=(e as CustomEvent<{campus?:string;hubId?:string;label?:string}>).detail||{};if(d.campus!=='uic')return;const hubs:Record<string,{x:number;z:number}>={'student-center-east':{x:-760,z:610},'daley-library':{x:-815,z:635},'taylor-street-building':{x:-560,z:700},'roosevelt-road-building':{x:-690,z:560}};const target=hubs[String(d.hubId||'')];if(!target)return;setPlayerSpawn(target);setCollegeBookOpen(false);window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:`UIC ROUTE • ${String(d.label||'Campus destination')}`}}))};window.addEventListener('tryamm:campusverse-destination',route);return()=>window.removeEventListener('tryamm:campusverse-destination',route)},[])
  if(greenvilleOpen)return <GreenvilleCampusVerseScene onReturn={()=>setGreenvilleOpen(false)}/>
  return <div aria-label="StreetVerse Near West 3D" style={{width:'100%',height:'100%',minHeight:420}}>
-  <div style={{position:'absolute',left:12,top:12,zIndex:22,display:'flex',gap:6,flexWrap:'wrap'}}>
-   <button aria-label="Open Quantum Discord" onClick={()=>setDiscordOpen(true)} style={{minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>💬 QUANTUM DISCORD</button>
-   <button aria-label="Open StreetVerse creator pass" onClick={()=>setCreatorGrowthOpen(true)} style={{minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🌍 CREATOR PASS</button>
-   <button aria-label="Open StreetVerse LIVE RP" onClick={()=>setLiveRpOpen(true)} style={{minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🔴 LIVE • PK</button>
-   <button aria-label="Open My Garage" onClick={()=>setGarageOpen(true)} style={{minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🏠 MY GARAGE</button>
-   <button aria-label="Open Future Mobility dealership" onClick={()=>setDealerOpen(true)} style={{position:'absolute',left:12,top:12,zIndex:22,minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>🚘 FUTURE MOBILITY • BUY</button></div>
+  <div style={{position:'absolute',left:12,right:12,top:12,zIndex:22,display:'flex',gap:6,overflowX:'auto',paddingBottom:4,WebkitOverflowScrolling:'touch'}}>
+   <button aria-label="Open Quantum Discord" onClick={()=>setDiscordOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>💬 DISCORD</button>
+   <button aria-label="Open StreetVerse creator pass" onClick={()=>setCreatorGrowthOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🌍 CREATOR PASS</button>
+   <button aria-label="Open StreetVerse LIVE RP" onClick={()=>setLiveRpOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🔴 LIVE • PK</button>
+   <button aria-label="Open My Garage" onClick={()=>setGarageOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🏠 GARAGE</button>
+   <button aria-label="Open Future Mobility dealership" onClick={()=>setDealerOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🚘 MOBILITY</button></div>
   {discordOpen&&<StreetVerseDiscordPanel onClose={()=>setDiscordOpen(false)}/>}
   {creatorGrowthOpen&&<StreetVerseCreatorGrowthPanel onClose={()=>setCreatorGrowthOpen(false)}/>}
   {liveRpOpen&&<StreetVerseLiveRpPanel onClose={()=>setLiveRpOpen(false)}/>}
@@ -202,10 +221,10 @@ export default function StreetVerseNearWest3D(){
    <button aria-label="Walk right" onPointerDown={()=>setMove(driving?1.4:1,0)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{fontSize:24,borderRadius:14}}>▶</button>
    <span/><button aria-label="Walk backward" onPointerDown={()=>setMove(0,driving?1.2:1)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{gridColumn:2,fontSize:24,borderRadius:14}}>▼</button><span/>
   </div>
-  <div style={{position:'absolute',left:12,bottom:18,zIndex:20,display:'grid',gap:7,maxWidth:260}}>
-   <button aria-label="Open UIC CollegeBook gateway" onClick={()=>setCollegeBookOpen(v=>!v)} style={{padding:'11px 12px',borderRadius:12,fontWeight:900}}>🎓 UIC • COLLEGEBOOK</button>
-   <button aria-label="Travel from UIC to Greenville CampusVerse" onClick={travelToGreenville} style={{padding:'11px 12px',borderRadius:12,fontWeight:900}}>GREENVILLE • JACOBIE →</button>
-   {collegeBookOpen&&<CampusVerseCollegeBookBridge/>}
+  <div style={{position:'absolute',left:12,bottom:96,zIndex:24,display:'grid',gap:6,width:'min(218px,58vw)'}}>
+   <button aria-label="Open UIC CollegeBook gateway" onClick={()=>setCollegeBookOpen(v=>!v)} style={{minHeight:44,padding:'8px 10px',borderRadius:12,fontWeight:900}}>🎓 UIC • COLLEGEBOOK</button>
+   <button aria-label="Travel from UIC to Greenville CampusVerse" onClick={travelToGreenville} style={{minHeight:44,padding:'8px 10px',borderRadius:12,fontWeight:900}}>GREENVILLE • JACOBIE →</button>
+   {collegeBookOpen&&<CampusVerseCollegeBookBridge onClose={()=>setCollegeBookOpen(false)}/>}
   </div>
   <Canvas shadows camera={{position:[-620,260,980],fov:55,far:5000}}>
    <color attach="background" args={['#88a8bf']}/>
