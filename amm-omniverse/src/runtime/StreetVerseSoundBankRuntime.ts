@@ -22,6 +22,11 @@ let emergencyKind:EmergencyKind|null=null
 let emergencyUntil=0
 let fireActive=false
 let lastQuantumBpm=0
+let radioPlaying=false
+let radioVolume=.65
+let conversationActive=false
+let currentRadioGenre:'gospel'|'hiphop'|'electronic'|'jazz'|'rnb'='hiphop'
+let radioLoop:ReturnType<typeof setInterval>|null=null
 
 const play=(key:SoundKey,caption?:string)=>{
   if(!enabled)return
@@ -162,6 +167,38 @@ export function installStreetVerseSoundBankRuntime(){
     removeEventListener('pointerdown',onFirstGesture)
     removeEventListener('keydown',onFirstGesture)
   }
+  const stopRadio=()=>{if(radioLoop){clearInterval(radioLoop);radioLoop=null};radioPlaying=false}
+  const onRadio=(event:Event)=>{
+    const d=(event as CustomEvent<{playing?:boolean;volume?:number;genre?:'gospel'|'hiphop'|'electronic'|'jazz'|'rnb';title?:string;artist?:string}>).detail||{}
+    if(Number.isFinite(d.volume))radioVolume=Math.max(0,Math.min(1,Number(d.volume)))
+    if(d.genre)currentRadioGenre=d.genre
+    if(d.playing===false){stopRadio();play('button_click','radio off');return}
+    if(d.playing===true){
+      stopRadio();radioPlaying=true
+      const effective=conversationActive?Math.max(.12,radioVolume*.35):radioVolume
+      soundEngine.setVolume(volume*effective)
+      radioLoop=soundEngine.playBackingTrack(currentRadioGenre)
+      play('stream_live',d.title?`radio • ${d.title}${d.artist?' • '+d.artist:''}`:'StreetVerse Radio on')
+    }
+  }
+  const onConversation=(event:Event)=>{
+    const d=(event as CustomEvent<{active?:boolean;speakerId?:string}>).detail||{}
+    conversationActive=d.active!==false
+    const effective=radioPlaying?(conversationActive?Math.max(.12,radioVolume*.35):radioVolume):1
+    soundEngine.setVolume(volume*effective)
+    if(conversationActive)play('mic_check',d.speakerId?'passenger speaking':'in-car conversation')
+  }
+  const onVehicleControlled=(event:Event)=>{
+    const entered=Boolean((event as CustomEvent<{entered?:boolean}>).detail?.entered)
+    if(entered)play('engine_start','engine start')
+    else{play('door_open','vehicle door');if(radioPlaying)stopRadio();soundEngine.setVolume(volume)}
+  }
+  const onHorn=()=>play('notification','vehicle horn')
+  const onMissionStartAudio=()=>play('mission_start','mission started')
+  const onMissionCompleteAudio=()=>play('mission_complete','mission complete')
+  const onRewardAudio=()=>play('cash_earn','reward earned')
+  const onRadioRoyalty=()=>play('royalty_earned','music royalty recorded')
+
   const onAICafe=(event:Event)=>{
     const d=(event as CustomEvent<{task?:{title?:string}}>).detail||{}
     if(d.task?.title)play('notification','AI Café task assigned')
@@ -211,6 +248,14 @@ export function installStreetVerseSoundBankRuntime(){
   addEventListener('tryamm:streetverse-threat-action',onThreat)
   addEventListener('tryamm:after-dark-private-intimacy-audio',onPrivateAdult)
   addEventListener('tryamm:ai-cafe-assigned',onAICafe)
+  addEventListener('tryamm:streetverse-radio-state',onRadio)
+  addEventListener('tryamm:streetverse-in-car-conversation',onConversation)
+  addEventListener('tryamm:streetverse-vehicle-controlled',onVehicleControlled)
+  addEventListener('tryamm:streetverse-vehicle-horn',onHorn)
+  addEventListener('tryamm:streetverse-mission-start',onMissionStartAudio)
+  addEventListener('tryamm:streetverse-mission-complete',onMissionCompleteAudio)
+  addEventListener('tryamm:world-consequence-reward',onRewardAudio)
+  addEventListener('tryamm:music-sync-payable',onRadioRoyalty)
 
   queueMicrotask(()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-sound-bank-ready',{detail:{
     enabled,volume,
@@ -243,6 +288,16 @@ export function installStreetVerseSoundBankRuntime(){
     removeEventListener('tryamm:streetverse-threat-action',onThreat)
     removeEventListener('tryamm:after-dark-private-intimacy-audio',onPrivateAdult)
     removeEventListener('tryamm:ai-cafe-assigned',onAICafe)
+    removeEventListener('tryamm:streetverse-radio-state',onRadio)
+    removeEventListener('tryamm:streetverse-in-car-conversation',onConversation)
+    removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicleControlled)
+    removeEventListener('tryamm:streetverse-vehicle-horn',onHorn)
+    removeEventListener('tryamm:streetverse-mission-start',onMissionStartAudio)
+    removeEventListener('tryamm:streetverse-mission-complete',onMissionCompleteAudio)
+    removeEventListener('tryamm:world-consequence-reward',onRewardAudio)
+    removeEventListener('tryamm:music-sync-payable',onRadioRoyalty)
+    stopRadio()
+    soundEngine.setVolume(volume)
     installed=false
   }
 }
