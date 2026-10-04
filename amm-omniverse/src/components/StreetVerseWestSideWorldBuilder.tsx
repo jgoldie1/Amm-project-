@@ -13,6 +13,10 @@ type QuantumPlanView={id:string;target:{id:string;label:string;scale:Scale};quan
 type CleanRoomJobView={id:string;targetLabel:string;kind:string;reason:string;status:string;humanReviewRequired:boolean}
 type CleanRoomStateView={jobs:CleanRoomJobView[];lastJob:CleanRoomJobView|null}
 type SandboxStateView={planId:string|null;targetLabel:string|null;speedMode:string;maxConcurrentJobs:number;waves:Array<{index:number;taskIds:string[];labels:string[]}>;missingEvidence:string[];publishable:boolean;lastRunAt?:string}
+type RepairTicketView={id:string;title:string;message:string;severity:string;risk:string;status:string;repairLayer:string;problemClass:string;occurrences:number;humanApprovalRequired:boolean;assignedWorkstreams:string[]}
+type RepairStateView={tickets:RepairTicketView[];activeTicketId:string|null}
+type MiddleverseRepairItemView={id:string;ticketId:string;lane:string;title:string;risk:string;supervisorRequired:boolean}
+type MiddleverseRepairStateView={items:MiddleverseRepairItemView[];activeTicketId:string|null}
 type Zone={
  id:string
  label:string
@@ -95,6 +99,8 @@ export default function StreetVerseWestSideWorldBuilder(){
  const [quantumPlan,setQuantumPlan]=useState<QuantumPlanView|null>(null)
  const [cleanRoom,setCleanRoom]=useState<CleanRoomStateView>({jobs:[],lastJob:null})
  const [sandbox,setSandbox]=useState<SandboxStateView>({planId:null,targetLabel:null,speedMode:'balanced',maxConcurrentJobs:4,waves:[],missingEvidence:[],publishable:false})
+ const [repairs,setRepairs]=useState<RepairStateView>({tickets:[],activeTicketId:null})
+ const [middleverseRepairs,setMiddleverseRepairs]=useState<MiddleverseRepairStateView>({items:[],activeTicketId:null})
  const [layers,setLayers]=useState({neighborhood:true,school:true,campus:true,medical:true,transit:true})
  const visible=useMemo(()=>ZONES.filter(z=>layers[z.group]),[layers])
 
@@ -132,6 +138,26 @@ export default function StreetVerseWestSideWorldBuilder(){
   window.addEventListener('tryamm:mind-over-matter-clean-room-state',sync)
   window.dispatchEvent(new CustomEvent('tryamm:mind-over-matter-clean-room-request-state'))
   return()=>window.removeEventListener('tryamm:mind-over-matter-clean-room-state',sync)
+ },[])
+
+ useEffect(()=>{
+  const sync=(event:Event)=>{
+   const d=(event as CustomEvent<Partial<RepairStateView>>).detail||{}
+   setRepairs({tickets:Array.isArray(d.tickets)?d.tickets:[],activeTicketId:d.activeTicketId||null})
+  }
+  window.addEventListener('tryamm:repair-ticket-state',sync)
+  window.dispatchEvent(new CustomEvent('tryamm:repair-ticket-request-state'))
+  return()=>window.removeEventListener('tryamm:repair-ticket-state',sync)
+ },[])
+
+ useEffect(()=>{
+  const sync=(event:Event)=>{
+   const d=(event as CustomEvent<Partial<MiddleverseRepairStateView>>).detail||{}
+   setMiddleverseRepairs({items:Array.isArray(d.items)?d.items:[],activeTicketId:d.activeTicketId||null})
+  }
+  window.addEventListener('tryamm:middleverse-repair-state',sync)
+  window.dispatchEvent(new CustomEvent('tryamm:middleverse-repair-request-state'))
+  return()=>window.removeEventListener('tryamm:middleverse-repair-state',sync)
  },[])
 
  useEffect(()=>{
@@ -241,6 +267,16 @@ export default function StreetVerseWestSideWorldBuilder(){
   setNotice(`QUANTUM SPEED SANDBOX • ${quantumPlan.target.label} • dependency waves calculated; release remains blocked until evidence passes.`)
  }
 
+ const runRepairSweep=()=>{
+  window.dispatchEvent(new CustomEvent('tryamm:repair-sweep'))
+  setNotice('SELF-HEAL / REPAIR SWEEP • health, AI Cafe, assets, Construct, sandbox and Release Guardian queues refreshed.')
+ }
+
+ const openMiddleverseRepair=(ticketId?:string)=>{
+  window.dispatchEvent(new CustomEvent('tryamm:middleverse-repair-open',{detail:{ticketId}}))
+  setNotice(`MIDDLEVERSE AI • repair workforce opened${ticketId?` for ${ticketId}`:''}.`)
+ }
+
  return <>
   <button aria-label="Open StreetVerse World Builder" onClick={()=>setOpen(true)} style={{position:'fixed',left:12,top:'max(62px,calc(env(safe-area-inset-top) + 54px))',zIndex:42100,minHeight:42,padding:'7px 10px',borderRadius:12,border:'1px solid #6de3ff88',background:'#071923e8',color:'#e8fbff',font:'950 9px system-ui',boxShadow:'0 8px 24px #0008'}}>🛠 WORLD</button>
 
@@ -306,10 +342,12 @@ export default function StreetVerseWestSideWorldBuilder(){
     </>}
 
     {tab==='build'&&<>
-     <article style={card}><b>BUILD CONTROL • {scaleLabel[scale]}</b><p style={muted}>Visible construction manifest for the selected world scale. Build actions still require committed code/assets; this screen does not pretend background work happened.</p><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7}}><button onClick={requestQuantumPlan} style={{...actionBtn,gridColumn:'1 / -1'}}>⚛ QUANTUM AUTO PLAN</button><button onClick={openCursorConstruct} style={actionBtn}>CURSOR CONSTRUCT</button><button onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:construct:scan'));setNotice('CONSTRUCT SCAN • checking nearby world targets.')}} style={actionBtn}>SCAN</button><button onClick={originalizeSelected} style={{...actionBtn,gridColumn:'1 / -1',borderColor:'#c48cff99'}}>🧠 MIND OVER MATTER • MAKE OUR VERSION</button><button onClick={runSandbox} style={{...actionBtn,gridColumn:'1 / -1',borderColor:'#74ffa899'}}>⚡ QUANTUM SPEED • SANDBOX TEST</button><button onClick={openBuildSwarm} style={{...actionBtn,gridColumn:'1 / -1'}}>OPEN BUILD SWARM</button></div></article>
+     <article style={card}><b>BUILD CONTROL • {scaleLabel[scale]}</b><p style={muted}>Visible construction manifest for the selected world scale. Build actions still require committed code/assets; this screen does not pretend background work happened.</p><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7}}><button onClick={requestQuantumPlan} style={{...actionBtn,gridColumn:'1 / -1'}}>⚛ QUANTUM AUTO PLAN</button><button onClick={openCursorConstruct} style={actionBtn}>CURSOR CONSTRUCT</button><button onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:construct:scan'));setNotice('CONSTRUCT SCAN • checking nearby world targets.')}} style={actionBtn}>SCAN</button><button onClick={originalizeSelected} style={{...actionBtn,gridColumn:'1 / -1',borderColor:'#c48cff99'}}>🧠 MIND OVER MATTER • MAKE OUR VERSION</button><button onClick={runSandbox} style={{...actionBtn,gridColumn:'1 / -1',borderColor:'#74ffa899'}}>⚡ QUANTUM SPEED • SANDBOX TEST</button><button onClick={runRepairSweep} style={{...actionBtn,gridColumn:'1 / -1',borderColor:'#ff9f6e99'}}>🛠 SELF-HEAL • REPAIR SWEEP</button><button onClick={()=>openMiddleverseRepair(repairs.activeTicketId||undefined)} style={{...actionBtn,gridColumn:'1 / -1',borderColor:'#e8b94499'}}>∞ MIDDLEVERSE AI • REPAIR WORKFORCE</button><button onClick={openBuildSwarm} style={{...actionBtn,gridColumn:'1 / -1'}}>OPEN BUILD SWARM</button></div></article>
      {quantumPlan&&<article style={card}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><b>QUANTUM BUILD QUEUE</b><span style={{fontSize:8,color:'#6de3ff'}}>{quantumPlan.oracle.cloudReturnMode.toUpperCase()}</span></div><div style={{fontSize:11,fontWeight:850,marginTop:5}}>{quantumPlan.target.label}</div><div style={muted}>{quantumPlan.quantumMeaning}</div><div style={{display:'grid',gap:5,marginTop:8}}>{quantumPlan.tasks.map((task,index)=><div key={task.id} style={{display:'grid',gridTemplateColumns:'24px 1fr auto',gap:7,alignItems:'center',padding:'7px 8px',borderRadius:9,background:'#0c1b24',border:'1px solid #294655'}}><span style={{fontSize:9,fontWeight:950,color:'#6de3ff'}}>{String(index+1).padStart(2,'0')}</span><span><b style={{fontSize:10}}>{task.label}</b><small style={{display:'block',opacity:.62}}>{task.stage}{task.approvalRequired?' • approval gate':''}</small></span><span style={{fontSize:8,color:task.state==='ready'?'#72ffb0':task.state==='passed'?'#72ffb0':task.state==='failed'?'#ff7c7c':'#ffd15c'}}>{task.state.toUpperCase()}</span></div>)}</div><div style={{marginTop:8,fontSize:9,color:'#9eb4c0'}}>Oracle requirements: {quantumPlan.oracle.requirements.length} • Certification gates: {quantumPlan.certificationGates.length}</div></article>}
      {cleanRoom.lastJob&&<article style={{...card,borderColor:'#7a4d9a'}}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><b>MIND OVER MATTER • CLEAN ROOM</b><span style={{fontSize:8,color:'#d69bff'}}>{cleanRoom.jobs.length} JOBS</span></div><div style={{fontSize:11,fontWeight:850,marginTop:5}}>{cleanRoom.lastJob.targetLabel}</div><div style={muted}>Latest: {cleanRoom.lastJob.kind} • {cleanRoom.lastJob.reason} • {cleanRoom.lastJob.status}. Original replacements stay blocked from production until human originality/visual review and normal asset certification pass.</div></article>}
      {sandbox.planId&&<article style={{...card,borderColor:sandbox.publishable?'#4fa978':'#7d6f3d'}}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><b>QUANTUM SPEED • SANDBOX</b><span style={{fontSize:8,color:sandbox.publishable?'#72ffb0':'#ffd15c'}}>{sandbox.publishable?'PUBLISHABLE':'PROOF REQUIRED'}</span></div><div style={{fontSize:11,fontWeight:850,marginTop:5}}>{sandbox.targetLabel}</div><div style={muted}>Mode: {sandbox.speedMode.toUpperCase()} • parallel jobs: {sandbox.maxConcurrentJobs} • dependency waves: {sandbox.waves.length}. Speed never bypasses rights, accessibility, security, performance or certification.</div>{sandbox.missingEvidence.length>0&&<div style={{display:'flex',gap:5,flexWrap:'wrap',marginTop:7}}>{sandbox.missingEvidence.map(item=><span key={item} style={{fontSize:8,padding:'4px 6px',borderRadius:999,border:'1px solid #6a5b31',color:'#ffd98b'}}>NEEDS {item.toUpperCase()}</span>)}</div>}</article>}
+     {repairs.tickets.length>0&&<article style={{...card,borderColor:'#8a5c45'}}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><b>SELF-HEAL • REPAIR TICKETS</b><span style={{fontSize:8,color:'#ffb58c'}}>{repairs.tickets.filter(t=>t.status!=='resolved').length} OPEN</span></div><div style={{display:'grid',gap:5,marginTop:8}}>{repairs.tickets.slice(-6).reverse().map(ticket=><button key={ticket.id} onClick={()=>openMiddleverseRepair(ticket.id)} style={rowBtn}><span><b>{ticket.title}</b><small style={{display:'block',opacity:.68}}>{ticket.status} • {ticket.repairLayer} • {ticket.problemClass} • x{ticket.occurrences}</small></span><span style={{fontSize:8,color:ticket.status==='resolved'?'#72ffb0':ticket.severity==='critical'?'#ff7777':'#ffd15c'}}>{ticket.humanApprovalRequired?'MIDDLEVERSE':'AUTO/QA'}</span></button>)}</div></article>}
+     {middleverseRepairs.items.length>0&&<article style={{...card,borderColor:'#806b30'}}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><b>MIDDLEVERSE AI • REPAIR WORK</b><span style={{fontSize:8,color:'#ffe49b'}}>{middleverseRepairs.items.length} ITEMS</span></div><div style={muted}>Repair work routes to developer, trainer, moderator, contact-center or business-operator lanes with skill/accessibility matching. Supervisor/founder authority remains required where risk demands it.</div></article>}
      <article style={card}><b>EXPANSION CHAIN</b><div style={{fontSize:11,lineHeight:1.7,color:'#c7d7df'}}>WEST SIDE → 77 CHICAGO COMMUNITY AREAS → ILLINOIS → 50 U.S. STATES → GLOBAL CITIES</div></article>
      <article style={card}><b>WHAT IS STILL MISSING</b><div style={{display:'grid',gap:5,marginTop:7}}>{MISSING_SYSTEMS.map(item=><div key={item} style={{padding:'7px 8px',borderRadius:9,background:'#111b20',border:'1px solid #604f2d',fontSize:10,color:'#ffd98b'}}>○ {item}</div>)}</div></article>
      <div style={{display:'grid',gap:8,marginTop:8}}>{BUILD_LANES.map(l=><article key={l.id} style={card}><div style={{display:'flex',justifyContent:'space-between'}}><b>{l.label}</b><span style={{fontSize:9,color:'#72ffb0'}}>CONNECTED</span></div><div style={muted}>{l.items}</div></article>)}</div>

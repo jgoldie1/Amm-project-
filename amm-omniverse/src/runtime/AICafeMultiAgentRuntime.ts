@@ -25,6 +25,9 @@ const AGENTS:CafeAgent[]=[
 {id:'sourcing-agent',name:'Quantum Sourcing Agent',role:'supplier/procurement',workstream:'commerce',status:'idle',capabilities:['RFQ briefs','supplier scoring','MOQ','provenance']},
 {id:'guardian-dispatch',name:'Guardian Dispatch',role:'mission operations',workstream:'guardian',status:'idle',capabilities:['dispatch','squad loadout','extraction','after-action']},
 {id:'accessibility-agent',name:'Access Guardian',role:'accessibility QA',workstream:'quality',status:'idle',capabilities:['keyboard','screen reader','captions','motor access','language']},
+{id:'repair-engineer',name:'Autonomous Repair Engineer',role:'evidence-first repair',workstream:'repair',status:'idle',capabilities:['error classification','minimum reversible patch','repair loop guard','checkpoint recovery','ticket evidence']},
+{id:'sandbox-qa',name:'Quantum Sandbox QA',role:'simulation and certification proof',workstream:'sandbox',status:'idle',capabilities:['world sandbox','dependency waves','collision','movement','missions','performance','accessibility evidence']},
+{id:'middleverse-workforce-coordinator',name:'Middleverse Workforce Coordinator',role:'human/AI work routing',workstream:'jobs',status:'idle',capabilities:['skill match','WFH developer jobs','contact center','training','supervisor routing','accessibility match','evidence handoff']},
 {id:'release-guardian',name:'Release Guardian',role:'release/reliability',workstream:'release',status:'idle',capabilities:['health gates','crash recovery','rollback','smoke-test plans']}
 ];
 function load(){try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved?.agents)return{...saved,agents:AGENTS.map(a=>({...a,...saved.agents.find((x:CafeAgent)=>x.id===a.id)}))};return{agents:AGENTS,tasks:[]}}catch{return{agents:AGENTS,tasks:[]}}}
