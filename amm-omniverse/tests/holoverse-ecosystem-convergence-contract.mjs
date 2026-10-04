@@ -1,0 +1,15 @@
+import fs from 'node:fs'
+const reg=fs.readFileSync(new URL('../src/holo/HoloEcosystemRegistry.ts',import.meta.url),'utf8')
+const gallery=fs.readFileSync(new URL('../src/components/HolographicGalleryCenter.tsx',import.meta.url),'utf8')
+const hub=fs.readFileSync(new URL('../src/components/HoloverseHub.tsx',import.meta.url),'utf8')
+const app=fs.readFileSync(new URL('../src/App.tsx',import.meta.url),'utf8')
+const delivery=fs.readFileSync(new URL('../src/components/HoloDeliveryLauncher.tsx',import.meta.url),'utf8')
+const fridge=fs.readFileSync(new URL('../src/components/HoloFridge.tsx',import.meta.url),'utf8')
+
+for(const x of ['Holo Delivery','Holo Ride Share','Holographic Gallery','Holo Marketplace','Holo Fridge / Cold Vault','Holo Labs','Holo Services','Holo Core','Holo Music','Holo Drama','Holo Gifts','Holo Ads','Holo FON','Holo Care','Holo TV / All American Network','Holo Reels','OmniBox'])if(!reg.includes(x))throw new Error('Holo registry missing '+x)
+for(const x of ['HOLOGRAPHIC GALLERY','tryamm:commerce-intent-request','MAKE REEL','FEATURE IN LIVE','HOLO SCAN','GALLERY BUSINESS MODEL'])if(!gallery.includes(x))throw new Error('Gallery missing '+x)
+for(const x of ['Holo Delivery','Holo Ride + Drone','Holographic Gallery','Holo Marketplace','Holo Fridge','Holo Labs','Holo Services','Holo Core','Holo Music','Holo Drama','Holo FON','Holo Care','Holo TV + Network','Holo Reels','Holo Ads'])if(!hub.includes(x))throw new Error('Holoverse hub missing '+x)
+for(const x of ['HolographicGalleryCenter','HoloFridge','HoloLabGateway','__showHoloGallery','__showHoloFridge','__showHoloLab'])if(!app.includes(x))throw new Error('App shell missing '+x)
+if(!delivery.includes('__showHoloDelivery'))throw new Error('Holo Delivery launcher missing global bridge')
+for(const x of ['initialOpen','onClose'])if(!fridge.includes(x))throw new Error('Holo Fridge direct-open contract missing '+x)
+console.log('Holoverse ecosystem convergence contract: PASS')
