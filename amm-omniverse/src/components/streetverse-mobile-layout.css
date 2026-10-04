@@ -54,3 +54,47 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
     top: calc(env(safe-area-inset-top) + 76px) !important;
   }
 }
+
+/* iPhone portrait emergency pass: keep the game world visible and controls thumb-sized. */
+@media (max-width: 480px) and (orientation: portrait) {
+  [data-streetverse-world-root] [data-streetverse-mission] {
+    top: calc(env(safe-area-inset-top) + 58px) !important;
+    left: 8px !important;
+    right: 8px !important;
+    min-height: 0 !important;
+    padding: 5px 8px !important;
+    border-radius: 11px !important;
+    font-size: 9px !important;
+    max-height: 82px !important;
+    overflow: hidden !important;
+  }
+  [data-streetverse-world-root] [data-streetverse-context] {
+    width: 116px !important;
+    min-width: 116px !important;
+    min-height: 44px !important;
+    max-width: 116px !important;
+    bottom: calc(env(safe-area-inset-bottom) + 112px) !important;
+    padding: 6px 8px !important;
+    border-width: 1px !important;
+    border-radius: 12px !important;
+  }
+  body:has([data-streetverse-world-root]) #sv-retail-open,
+  body:has([data-streetverse-world-root]) #sv-store-open {
+    width: 98px !important;
+    min-height: 38px !important;
+    right: max(8px, env(safe-area-inset-right)) !important;
+    font-size: 9px !important;
+  }
+  body:has([data-streetverse-world-root]) #sv-retail-open {
+    bottom: calc(env(safe-area-inset-bottom) + 102px) !important;
+  }
+  body:has([data-streetverse-world-root]) #sv-store-open {
+    bottom: calc(env(safe-area-inset-bottom) + 58px) !important;
+  }
+  body:has([data-streetverse-world-root]) [data-streetverse-travel] {
+    top: calc(env(safe-area-inset-top) + 148px) !important;
+    min-height: 36px !important;
+    padding: 5px 8px !important;
+    font-size: 9px !important;
+  }
+}
