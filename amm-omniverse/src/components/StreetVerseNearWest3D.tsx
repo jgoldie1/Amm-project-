@@ -46,6 +46,28 @@ function TaylorLots(){
 }
 
 
+function UICCampusMesh(){
+ const stops=[
+  {id:'student-center-east',x:-760,z:610,w:36,d:24,h:13,color:'#8c4b3b'},
+  {id:'daley-library',x:-815,z:635,w:42,d:28,h:16,color:'#73665c'},
+  {id:'taylor-street-building',x:-560,z:700,w:34,d:22,h:12,color:'#7b4937'},
+  {id:'roosevelt-road-building',x:-690,z:560,w:38,d:24,h:14,color:'#655c54'},
+ ] as const
+ return <group>
+  <mesh receiveShadow position={[-700,.02,635]}><boxGeometry args={[330,.08,210]}/><meshStandardMaterial color="#608052"/></mesh>
+  <mesh receiveShadow position={[-700,.08,610]}><boxGeometry args={[310,.14,12]}/><meshStandardMaterial color="#c7c3b8"/></mesh>
+  <mesh receiveShadow position={[-760,.08,635]}><boxGeometry args={[12,.14,150]}/><meshStandardMaterial color="#c7c3b8"/></mesh>
+  {stops.map(stop=><group key={stop.id} position={[stop.x,0,stop.z]}>
+   <mesh castShadow receiveShadow position={[0,stop.h/2,0]}><boxGeometry args={[stop.w,stop.h,stop.d]}/><meshStandardMaterial color={stop.color} roughness={.84}/></mesh>
+   <mesh position={[0,2,-stop.d/2-.12]}><boxGeometry args={[Math.min(8,stop.w*.3),4,.2]}/><meshStandardMaterial color="#29485b"/></mesh>
+   <mesh position={[0,stop.h+2,0]}><cylinderGeometry args={[.28,.28,4,10]}/><meshStandardMaterial color="#70e6ff" emissive="#36bfdc" emissiveIntensity={.65}/></mesh>
+   <mesh position={[0,stop.h+4.6,0]}><sphereGeometry args={[.6,10,8]}/><meshStandardMaterial color="#fff0a3" emissive="#ffd55e" emissiveIntensity={.75}/></mesh>
+  </group>)}
+  <mesh receiveShadow position={[-735,.06,670]}><boxGeometry args={[90,.12,48]}/><meshStandardMaterial color="#4f7546"/></mesh>
+  <mesh position={[-735,.2,670]} rotation={[-Math.PI/2,0,0]}><torusGeometry args={[12,.16,8,48]}/><meshStandardMaterial color="#e7dfcf"/></mesh>
+ </group>
+}
+
 function JeffersonLegacyCampusMesh(){
  return <group position={[-820,0,575]}>
   <mesh castShadow receiveShadow position={[0,5,0]}><boxGeometry args={[42,10,28]}/><meshStandardMaterial color="#8b4a3b"/></mesh>
@@ -154,8 +176,26 @@ export default function StreetVerseNearWest3D(){
  const move=useRef<MoveState>({x:0,z:0})
  const setMove=(x:number,z:number)=>{move.current={x,z}}
  const stopMove=()=>{move.current={x:0,z:0}}
+ useEffect(()=>{
+  const onCampusMission=(e:Event)=>{
+   const d=(e as CustomEvent<{missionId?:string;id?:string;title?:string;campus?:string;hubId?:string;objective?:string}>).detail||{}
+   if(d.campus!=='uic')return
+   const hubs:Record<string,{x:number;z:number;label:string}>={
+    'student-center-east':{x:-760,z:610,label:'Student Center East'},
+    'daley-library':{x:-815,z:635,label:'Richard J. Daley Library'},
+    'taylor-street-building':{x:-560,z:700,label:'Taylor Street Campus Stop'},
+    'roosevelt-road-building':{x:-690,z:560,label:'Roosevelt Road Campus Stop'},
+   }
+   const hub=hubs[String(d.hubId||'')]||hubs['daley-library']
+   const mission:StreetVerseMission={id:String(d.missionId||d.id||'uic-campus-mission'),title:String(d.title||'UIC CampusVerse Mission'),marker:{x:playerSpawn.x,z:playerSpawn.z},objective:{x:hub.x,z:hub.z,label:String(d.objective||('Reach '+hub.label))},xp:200,credits:1000}
+   setActiveMission(mission);setMissionStep('deliver');setMissionReady(false)
+   window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:`UIC MISSION • walk to ${hub.label}`}}))
+  }
+  window.addEventListener('tryamm:campusverse-mission-open',onCampusMission)
+  return()=>window.removeEventListener('tryamm:campusverse-mission-open',onCampusMission)
+ },[playerSpawn.x,playerSpawn.z])
  const senseNearby=(x:number,z:number)=>{
-  if(activeMission&&missionStep==='deliver'){const d=Math.hypot(activeMission.objective.x-x,activeMission.objective.z-z);setMissionReady(prev=>prev===(d<16)?prev:d<16)}
+  if(activeMission&&missionStep==='deliver'){const d=Math.hypot(activeMission.objective.x-x,activeMission.objective.z-z);const ready=d<16;setMissionReady(prev=>prev===ready?prev:ready);if(ready){requestMissionReward(activeMission);window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{id:activeMission.id,title:activeMission.title,campus:activeMission.id.startsWith('uic')||activeMission.title.includes('UIC')?'uic':'near-west',objective:activeMission.objective}}));setActiveMission(null);setMissionStep('talk');setMissionReady(false)}}
   const protectedArea=(x>-900&&x<-560&&z>500&&z<850)?'UIC CAMPUS SAFE ZONE':(x>-560&&x<-250&&z>500&&z<860)?'MEDICAL DISTRICT SAFE ZONE':null
   setSafeZone(prev=>prev===protectedArea?prev:protectedArea)
   const targets=[
@@ -194,7 +234,7 @@ export default function StreetVerseNearWest3D(){
  }
  const travelToGreenville=()=>{setCollegeBookOpen(false);window.dispatchEvent(new CustomEvent('tryamm:campusverse-travel',{detail:{from:'uic',to:'greenville',character:'Jacobie',source:'streetverse-uic-gateway'}}));setGreenvilleOpen(true)}
  useEffect(()=>{const open=(e:Event)=>{const d=(e as CustomEvent).detail||{};if(d.to==='greenville'){setCollegeBookOpen(false);setGreenvilleOpen(true)}};window.addEventListener('tryamm:campusverse-travel',open);return()=>window.removeEventListener('tryamm:campusverse-travel',open)},[])
- useEffect(()=>{const route=(e:Event)=>{const d=(e as CustomEvent<{campus?:string;hubId?:string;label?:string}>).detail||{};if(d.campus!=='uic')return;const hubs:Record<string,{x:number;z:number}>={'student-center-east':{x:-760,z:610},'daley-library':{x:-815,z:635},'taylor-street-building':{x:-560,z:700},'roosevelt-road-building':{x:-690,z:560}};const target=hubs[String(d.hubId||'')];if(!target)return;setPlayerSpawn(target);setCollegeBookOpen(false);window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:`UIC ROUTE • ${String(d.label||'Campus destination')}`}}))};window.addEventListener('tryamm:campusverse-destination',route);return()=>window.removeEventListener('tryamm:campusverse-destination',route)},[])
+ useEffect(()=>{const route=(e:Event)=>{const d=(e as CustomEvent<{campus?:string;hubId?:string;label?:string}>).detail||{};if(d.campus!=='uic')return;const hubs:Record<string,{x:number;z:number}>={'student-center-east':{x:-760,z:610},'daley-library':{x:-815,z:635},'taylor-street-building':{x:-560,z:700},'roosevelt-road-building':{x:-690,z:560}};const target=hubs[String(d.hubId||'')];if(!target)return;const mission:StreetVerseMission={id:`uic-route:${String(d.hubId||'campus')}`,title:`UIC • ${String(d.label||'Campus destination')}`,marker:{x:playerSpawn.x,z:playerSpawn.z},objective:{x:target.x,z:target.z,label:`Walk to ${String(d.label||'UIC campus destination')}`},xp:125,credits:600};setActiveMission(mission);setMissionStep('deliver');setCollegeBookOpen(false);window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:`UIC ROUTE ACTIVE • walk to ${String(d.label||'Campus destination')}`}}))};window.addEventListener('tryamm:campusverse-destination',route);return()=>window.removeEventListener('tryamm:campusverse-destination',route)},[playerSpawn.x,playerSpawn.z])
  if(greenvilleOpen)return <GreenvilleCampusVerseScene onReturn={()=>setGreenvilleOpen(false)}/>
  return <div aria-label="StreetVerse Near West 3D" style={{width:'100%',height:'100%',minHeight:420}}>
   <div style={{position:'absolute',left:12,right:12,top:12,zIndex:22,display:'flex',gap:6,overflowX:'auto',paddingBottom:4,WebkitOverflowScrolling:'touch'}}>
@@ -230,7 +270,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><MissionMarker mission={activeMission}/><TaylorLots/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
+   <RoadMeshes/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
   </Canvas>
  </div>
 }
