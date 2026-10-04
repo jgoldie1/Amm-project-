@@ -172,6 +172,8 @@ const installOptionalRuntimes = () => {
   import('./runtime/BusinessIncomeCenterRuntime').then(m => m.installBusinessIncomeCenterRuntime()).catch(error => console.error('[TRYAMM] Business Income Center failed after core mount.', error))
   import('./runtime/GameAppIncomeBridge').then(m => m.installGameAppIncomeBridge()).catch(error => console.error('[TRYAMM] Game/App income bridge failed after core mount.', error))
   import('./runtime/GlobalAfricaPaymentsRuntime').then(m => m.installGlobalAfricaPaymentsRuntime()).catch(error => console.error('[TRYAMM] Global/Africa payments router failed after core mount.', error))
+  import('./runtime/LiveShoppingTwinRuntime').then(m => m.installLiveShoppingTwin()).catch(error => console.error('[TRYAMM] Live Shopping Twin failed after core mount.', error))
+  import('./runtime/CustomerCommerceRuntime').then(m => m.installCustomerCommerceRuntime()).catch(error => console.error('[TRYAMM] Customer commerce runtime failed after core mount.', error))
   import('./runtime/StreetVerseGameOpsRuntime').then(m => m.installStreetVerseGameOpsRuntime()).catch(error => console.error('[TRYAMM] Game Ops failed after core mount.', error))
   import('./runtime/ProductionHealthMonitor').then(m => m.installProductionHealthMonitor()).catch(error => console.error('[TRYAMM] Optional runtime installProductionHealthMonitor failed after core mount.', error))
   import('./runtime/StreetVerseAssetExecutiveRuntime').then(m => m.installStreetVerseAssetExecutiveRuntime()).catch(error => console.error('[TRYAMM] Optional asset executive runtime failed after core mount.', error))
