@@ -285,7 +285,8 @@ jobs:
             echo "- Green passes: ${{ steps.converge.outputs.green_passes || '0' }}"
             echo "- Red passes: ${{ steps.converge.outputs.red_passes || '0' }}"
             echo "- Source repair commits: ${{ steps.converge.outputs.source_commits || '0' }}"
-            echo "- CrossVerse + CampusVerse + Reels/OmniBox bridge is tracked every run."\n            echo "- Recurs every six hours and can also be started manually."
+            echo "- CrossVerse + CampusVerse + Reels/OmniBox bridge is tracked every run."
+            echo "- Recurs every six hours and can also be started manually."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload convergence evidence
