@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const src=fs.readFileSync(new URL('../src/runtime/StreetVersePassengerTransportRuntime.ts',import.meta.url),'utf8');
+assert.ok(src.includes("candidate.role==='passenger'"),'automatic boarding must reserve driver/operator seats');
+assert.ok(src.includes('existingSeat'),'repeat boarding must return existing seated assignment');
+assert.ok(src.includes('existingStanding'),'repeat boarding must return existing standing assignment');
+assert.ok(src.includes('standingSlots'),'standing riders need stable keyed slots');
+assert.ok(src.includes('nextStandingSlot'),'standing slot ids must be monotonic');
+assert.ok(src.includes("'front-driver'"),'five-seat car driver seat missing');
+for(const seat of ['front-passenger','rear-left','rear-center','rear-right'])assert.ok(src.includes(`'${seat}'`),`missing car seat ${seat}`);
+assert.ok(src.includes('planTransportSwarm'),'multiplayer/swarm transport planner missing');
+assert.ok(src.includes('transportSimulationTier'),'mobile streaming simulation tier missing');
+console.log('StreetVerse passenger transport contract: PASS');

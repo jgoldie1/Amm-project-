@@ -19,11 +19,18 @@ export const BJ_MESHY_V6_ASSET={
 
 type Motion='idle'|'walk'|'run'
 
+type BJFacePose={
+  blinkLeft?:number;blinkRight?:number;lookLeft?:number;lookRight?:number;lookUp?:number;lookDown?:number;
+  jawOpen?:number;mouthSmile?:number;mouthFrown?:number;mouthWide?:number;mouthNarrow?:number;
+  browInnerUp?:number;browDownLeft?:number;browDownRight?:number;cheekRaise?:number;
+}
+
 export type StreetVerseMeshyBJHeroHandle={
   object:THREE.Object3D
   mixer:THREE.AnimationMixer|null
   clips:readonly THREE.AnimationClip[]
   morphTargetNames:readonly string[]
+  applyFacePose:(pose:BJFacePose)=>number
   tick:(nowMs:number,state:{moving:boolean;running?:boolean;talking?:boolean;liveTalkLevel?:number})=>void
   dispose:()=>void
 }
@@ -67,12 +74,69 @@ function collectMorphMeshes(root:THREE.Object3D){
   return {meshes,names:[...names]}
 }
 
+const BJ_FACE_MORPHS:ReadonlyArray<[keyof BJFacePose,RegExp[]]>=[
+  ['blinkLeft',[/eye.?blink.?left/i,/blink.?l/i]],
+  ['blinkRight',[/eye.?blink.?right/i,/blink.?r/i]],
+  ['lookLeft',[/eye.?look.?out.?left/i,/look.?left/i]],
+  ['lookRight',[/eye.?look.?out.?right/i,/look.?right/i]],
+  ['lookUp',[/eye.?look.?up/i,/look.?up/i]],
+  ['lookDown',[/eye.?look.?down/i,/look.?down/i]],
+  ['jawOpen',[/jaw.?open/i,/mouth.?open/i,/viseme.?aa/i,/aa/i]],
+  ['mouthSmile',[/mouth.?smile/i,/smile/i]],
+  ['mouthFrown',[/mouth.?frown/i,/frown/i]],
+  ['mouthWide',[/mouth.?stretch/i,/mouth.?wide/i]],
+  ['mouthNarrow',[/mouth.?pucker/i,/mouth.?funnel/i,/mouth.?narrow/i]],
+  ['browInnerUp',[/brow.?inner.?up/i]],
+  ['browDownLeft',[/brow.?down.?left/i]],
+  ['browDownRight',[/brow.?down.?right/i]],
+  ['cheekRaise',[/cheek.?squint/i,/cheek.?raise/i]],
+]
+
 function setMorph(mesh:THREE.Mesh,patterns:RegExp[],value:number){
   if(!mesh.morphTargetDictionary||!mesh.morphTargetInfluences)return false
   const entry=Object.entries(mesh.morphTargetDictionary).find(([name])=>patterns.some(pattern=>pattern.test(name)))
   if(!entry)return false
   mesh.morphTargetInfluences[entry[1]]=THREE.MathUtils.clamp(value,0,1)
   return true
+}
+
+function tuneBJProductionMaterials(root:THREE.Object3D){
+  let meshCount=0,materialCount=0,textureCount=0
+  root.traverse(node=>{
+    if(!(node instanceof THREE.Mesh))return
+    meshCount++
+    const materials=Array.isArray(node.material)?node.material:[node.material]
+    materials.forEach(material=>{
+      if(!(material instanceof THREE.MeshStandardMaterial)&&!(material instanceof THREE.MeshPhysicalMaterial))return
+      materialCount++
+      const name=(node.name+' '+material.name).toLowerCase()
+      material.map&&(material.map.colorSpace=THREE.SRGBColorSpace,textureCount++)
+      if(material.emissiveMap)material.emissiveMap.colorSpace=THREE.SRGBColorSpace
+      if(/skin|face|head|body|arm|hand|neck/.test(name)){
+        material.roughness=THREE.MathUtils.clamp(material.roughness,.42,.68)
+        material.metalness=0
+        if(material instanceof THREE.MeshPhysicalMaterial){
+          material.clearcoat=Math.min(material.clearcoat,.08)
+          material.clearcoatRoughness=Math.max(material.clearcoatRoughness,.65)
+        }
+      }else if(/eye|cornea/.test(name)){
+        material.roughness=.12
+        material.metalness=0
+        if(material instanceof THREE.MeshPhysicalMaterial){material.clearcoat=.75;material.clearcoatRoughness=.08}
+      }else if(/hair|brow|lash|beard/.test(name)){
+        material.roughness=.72
+        material.metalness=0
+        material.alphaTest=Math.max(material.alphaTest,.18)
+      }else if(/shirt|hood|jacket|pants|jean|cloth|fabric/.test(name)){
+        material.roughness=Math.max(material.roughness,.72)
+        material.metalness=0
+      }else if(/shoe|watch|zip|metal/.test(name)){
+        material.roughness=THREE.MathUtils.clamp(material.roughness,.2,.58)
+      }
+      material.needsUpdate=true
+    })
+  })
+  return {meshCount,materialCount,textureCount}
 }
 
 function disposeObject(root:THREE.Object3D){
@@ -116,6 +180,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         node.frustumCulled=true
       }
     })
+    const productionMaterials=tuneBJProductionMaterials(object)
     object.userData={
       ...object.userData,
       characterId:BJ_MESHY_V6_ASSET.characterId,
@@ -128,6 +193,9 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       photoMatched:verifiedPhotoMatch,
       certifiedLikeness:verifiedPhotoMatch,
       meshyV6:true,
+      productionMaterials:true,
+      texturePipeline:'pbr-mobile-production-v6',
+      lifeLayer:'blink-lipsync-breathing-eye-focus-ready',
     }
 
     const companionClips:THREE.AnimationClip[]=[]
@@ -142,6 +210,24 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     const mixer=clips.length?new THREE.AnimationMixer(object):null
     const animations=materializeAnimationMap(clips)
     const morphs=collectMorphMeshes(object)
+    const applyFacePose=(pose:BJFacePose)=>{
+      let matches=0
+      for(const mesh of morphs.meshes){
+        for(const [channel,patterns] of BJ_FACE_MORPHS){
+          const value=pose[channel]
+          if(value==null)continue
+          if(setMorph(mesh,patterns,value))matches++
+        }
+      }
+      return matches
+    }
+    const onFacePose=(event:Event)=>{
+      const detail=(event as CustomEvent<{characterId?:string;pose?:BJFacePose}>).detail||{}
+      if(detail.characterId&&detail.characterId!==BJ_MESHY_V6_ASSET.characterId)return
+      if(detail.pose)applyFacePose(detail.pose)
+    }
+    window.addEventListener('tryamm:character-face-pose',onFacePose)
+
     let activeMotion:Motion|null=null
     let activeAction:THREE.AnimationAction|null=null
     let previousNow=performance.now()
@@ -171,11 +257,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       const blink=blinkClock>4.36?Math.sin(((blinkClock-4.36)/.24)*Math.PI):0
       const synthetic=state.talking?THREE.MathUtils.clamp((Math.sin(t*12.4)+Math.sin(t*7.1+1.2)+1.0)/3,0,1):0
       const jaw=Math.max(synthetic,THREE.MathUtils.clamp(state.liveTalkLevel||0,0,1))*.82
-      for(const mesh of morphs.meshes){
-        setMorph(mesh,[/jaw.?open/i,/mouth.?open/i,/viseme.?aa/i,/aa/i],jaw)
-        setMorph(mesh,[/eye.?blink.?left/i,/blink.?l/i],blink)
-        setMorph(mesh,[/eye.?blink.?right/i,/blink.?r/i],blink)
-      }
+      applyFacePose({jawOpen:jaw,blinkLeft:blink,blinkRight:blink})
     }
 
     window.dispatchEvent(new CustomEvent('tryamm:bj-meshy-v6-ready',{detail:{
@@ -184,12 +266,16 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       url:sourceUrl,
       clipNames:clips.map(clip=>clip.name),
       morphTargetNames:morphs.names,
+      faceChannels:BJ_FACE_MORPHS.map(([channel])=>channel),
       targetHeightMeters:BJ_MESHY_V6_ASSET.targetHeightMeters,
       authoritative3DMesh:true,
       referenceMatchedPreview:true,
       photoMatched:verifiedPhotoMatch,
       certifiedLikeness:verifiedPhotoMatch,
       proceduralFallbackSuppressed:true,
+      productionMaterials,
+      texturePipeline:'pbr-mobile-production-v6',
+      lifeLayer:'blink-lipsync-breathing-eye-focus-ready',
     }}))
 
     return {
@@ -197,8 +283,10 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       mixer,
       clips,
       morphTargetNames:morphs.names,
+      applyFacePose,
       tick,
       dispose:()=>{
+        window.removeEventListener('tryamm:character-face-pose',onFacePose)
         mixer?.stopAllAction()
         disposeObject(object)
       },
