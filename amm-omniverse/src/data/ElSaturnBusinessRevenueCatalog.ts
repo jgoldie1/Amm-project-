@@ -1,3 +1,4 @@
+import {priceFor} from './ElSaturnLaunchPriceBook'
 export type RevenueModel='subscription'|'usage'|'transaction-fee'|'setup-fee'|'managed-service'|'marketplace-commission'|'license'|'fabrication-margin'|'delivery-fee'|'fintech-fee'
 export type ProductStatus='sellable-foundation'|'provider-gated'|'pilot'|'internal-only'
 export type BusinessProduct={
@@ -17,7 +18,7 @@ export const BUSINESS_PRODUCT_CATALOG:BusinessProduct[]=[
  {id:'12d-fabrication',brand:'El Saturn',name:'12D Fabrication Service',category:'Advanced Manufacturing',revenueModels:['fabrication-margin','usage','setup-fee','managed-service','license'],status:'pilot',customer:'R&D / product design / digital-twin customers',value:'Design-to-fabrication workflow using Asset Passport, simulation, advanced multi-material/robotic manufacturing and inspection evidence.',productionBoundary:'12D is an R&D/future fabrication platform; no browser prompt directly controls physical motion.'},
  {id:'print-swarm',brand:'TRYAMM',name:'Distributed Print Swarm Network',category:'Manufacturing Marketplace',revenueModels:['marketplace-commission','usage','managed-service'],status:'pilot',customer:'print shops / operators / customers needing distributed production',value:'Split verified production orders across certified operators with QA, evidence, shipping and settlement.'},
  {id:'holo-services',brand:'TRYAMM',name:'Holo Services Suite',category:'Digital Services',revenueModels:['subscription','usage','managed-service','license'],status:'sellable-foundation',customer:'businesses / campuses / communities',value:'HoloGPT, Holo Gallery, Holo Ads, Holo Labs, Holo FON, Holo Delivery, Holo Music/TV and world services.'},
-]
+].map(product=>({...product,pricing:priceFor(product.id)}))
 
 export const BUSINESS_REVENUE_RULES={
  serverAuthoritativeBilling:true,
