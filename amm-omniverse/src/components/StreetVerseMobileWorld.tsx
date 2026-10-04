@@ -247,13 +247,16 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-production-human-status',{detail:{characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',status:'fallback-not-production-ready',requiredAsset:BJ_MESHY_V6_ASSET.filename,requiredUrl:BJ_MESHY_V6_ASSET.url,primitiveFallbackVisible:true}}))
     }
     if(nativeHeroFallback){
-      void loadStreetVerseMeshyBJHero().then(handle=>{
-        if(!handle){
-          window.dispatchEvent(new CustomEvent('tryamm:streetverse-production-human-status',{detail:{characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',status:'missing-production-glb',requiredAsset:BJ_MESHY_V6_ASSET.filename,requiredUrl:BJ_MESHY_V6_ASSET.url,primitiveFallbackVisible:Boolean(nativeHeroFallback?.visible)}}))
-          setMessage('BJ V6 HUMAN ASSET MISSING • World Forger must publish the rigged GLB')
+      void loadStreetVerseMeshyBJHeroDetailed().then(result=>{
+        if(nativeCancelled||!nativeLayer){if(result.status==='ready')result.handle.dispose();return}
+        if(result.status!=='ready'){
+          const fallbackActive=Boolean(nativeHeroFallback?.visible&&nativeHero===nativeHeroFallback)
+          const status=result.status==='missing'?'missing-production-glb':'invalid-or-load-failed'
+          window.dispatchEvent(new CustomEvent('tryamm:streetverse-production-human-status',{detail:{characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',status,requiredAsset:BJ_MESHY_V6_ASSET.filename,requiredUrl:BJ_MESHY_V6_ASSET.url,primitiveFallbackVisible:Boolean(nativeHeroFallback?.visible),error:result.status==='invalid-or-load-failed'?result.error:undefined}}))
+          if(fallbackActive)setMessage(result.status==='missing'?'BJ V6 HUMAN ASSET MISSING • World Forger must publish the rigged GLB':'BJ V6 GLB FAILED VALIDATION/LOAD • keeping safe fallback')
           return
         }
-        if(nativeCancelled||!nativeLayer){handle.dispose();return}
+        const handle=result.handle
         bjMeshyHero?.dispose()
         bjMeshyHero=handle
         bjPhotoMatch?.dispose();bjPhotoMatch=null;bjPhotoMatchReady=false
