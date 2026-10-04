@@ -1,0 +1,234 @@
+name: StreetVerse Master Continuous Convergence
+
+on:
+  workflow_dispatch:
+    inputs:
+      passes:
+        description: "Validation/repair passes per run"
+        required: false
+        default: "3"
+      interval_minutes:
+        description: "Minutes between passes"
+        required: false
+        default: "90"
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: streetverse-master-continuous-convergence
+  cancel-in-progress: false
+
+jobs:
+  converge:
+    name: Kingdom + West Side + CampusVerse + Creator convergence
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    env:
+      APP_DIR: amm-omniverse
+      KINGDOM_DIR: amm-omniverse/public/streetverse-kingdom
+      WORK_BRANCH: automation/streetverse-master-continuous-results
+      PASSES: ${{ inputs.passes || '3' }}
+      INTERVAL_MINUTES: ${{ inputs.interval_minutes || '90' }}
+
+    steps:
+      - name: Checkout production baseline
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+
+      - name: Install Omniverse dependencies
+        working-directory: amm-omniverse
+        run: npm ci --include=dev --no-audit --no-fund
+
+      - name: Initialize evidence and repair branch
+        run: |
+          set -euo pipefail
+          git config user.name "TRYAMM Continuous Convergence"
+          git config user.email "actions@users.noreply.github.com"
+          git switch -C "$WORK_BRANCH"
+          mkdir -p release-evidence/streetverse-master
+          {
+            echo "# StreetVerse Master Continuous Convergence"
+            echo
+            echo "- Started UTC: $(date -u -Iseconds)"
+            echo "- Source commit: $GITHUB_SHA"
+            echo "- Purpose: reusable six-hour convergence cycle"
+            echo "- Scope: Kingdom city + West Side + CampusVerse + one-hand controls + production build"
+          } > release-evidence/streetverse-master/summary.md
+
+      - name: Run continuous convergence passes
+        id: converge
+        working-directory: amm-omniverse
+        run: |
+          set -u
+          START_EPOCH=$(date +%s)
+          GREEN_PASSES=0
+          RED_PASSES=0
+          SOURCE_COMMITS=0
+
+          run_gate() {
+            local name="$1"
+            shift
+            set +e
+            "$@" > "$PASS_DIR/$name.log" 2>&1
+            local code=$?
+            set -e
+            echo "$name=$code" >> "$PASS_DIR/status.env"
+            if [ "$code" -ne 0 ]; then
+              echo "::warning::$name failed on convergence pass $PASS"
+            fi
+            return 0
+          }
+
+          for PASS in $(seq 1 "$PASSES"); do
+            STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+            PASS_DIR="../release-evidence/streetverse-master/pass-$PASS-$STAMP"
+            mkdir -p "$PASS_DIR"
+            : > "$PASS_DIR/status.env"
+
+            NOW_EPOCH=$(date +%s)
+            ELAPSED_SEC=$((NOW_EPOCH - START_EPOCH))
+            ELAPSED_MIN=$((ELAPSED_SEC / 60))
+            ELAPSED_HOURS=$(awk "BEGIN {printf \"%.2f\", $ELAPSED_MIN/60}")
+
+            {
+              echo "# Continuous convergence pass $PASS"
+              echo
+              echo "- UTC: $(date -u -Iseconds)"
+              echo "- Elapsed: $ELAPSED_HOURS hours"
+              echo "- Commit entering pass: $(git rev-parse HEAD)"
+            } > "$PASS_DIR/README.md"
+
+            run_gate repair-entry node scripts/repair-streetverse-entry.mjs
+            run_gate repair-hero node scripts/inject-streetverse-hero-spawn.mjs
+
+            for testfile in               tests/west-side-campus-11am-convergence-contract.mjs               tests/circle-park-chicago-completion-contract.mjs               tests/circle-park-west-side-jefferson-emergency-contract.mjs               tests/circle-park-asset-forge-production-wave-contract.mjs               tests/uic-greenville-world-gateway-contract.mjs               tests/illinois-campusverse-network-contract.mjs               tests/illinois-rollout-gate-contract.mjs               tests/illinois-rollout-performance-cap-contract.mjs               tests/illinois-rollout-serialization-contract.mjs               tests/streetverse-chicago-grid-reality-contract.mjs               tests/streetverse-one-hand-integration-contract.mjs
+            do
+              if [ -f "$testfile" ]; then
+                run_gate "$(basename "$testfile" .mjs)" node "$testfile"
+              else
+                echo "$(basename "$testfile" .mjs)=SKIP_MISSING" >> "$PASS_DIR/status.env"
+              fi
+            done
+
+            if [ -f "public/streetverse-kingdom/index.html" ] &&
+               [ -f "public/streetverse-kingdom/game.js" ] &&
+               [ -f "public/streetverse-kingdom/style.css" ]; then
+              echo "kingdom_payload=0" >> "$PASS_DIR/status.env"
+              grep -Eq "THREE|three" public/streetverse-kingdom/game.js || echo "kingdom_three=1" >> "$PASS_DIR/status.env"
+              grep -Eq "drive|vehicle|car" public/streetverse-kingdom/game.js || echo "kingdom_vehicle=1" >> "$PASS_DIR/status.env"
+              grep -Eq "touch|pointer|joystick|controller|keyboard" public/streetverse-kingdom/game.js || echo "kingdom_controls=1" >> "$PASS_DIR/status.env"
+              grep -Eq "map|waypoint|phone" public/streetverse-kingdom/game.js || echo "kingdom_navigation=1" >> "$PASS_DIR/status.env"
+              if grep -q "streetverse-kingdom" vercel.json; then
+                echo "kingdom_route=0" >> "$PASS_DIR/status.env"
+              else
+                echo "kingdom_route=1" >> "$PASS_DIR/status.env"
+              fi
+            else
+              echo "kingdom_payload=PENDING_IMPORT" >> "$PASS_DIR/status.env"
+              echo "Kingdom payload is not yet present in the repo; merge remains pending." >> "$PASS_DIR/README.md"
+            fi
+
+            run_gate typecheck npm run typecheck
+            run_gate production-build npm run build
+
+            git add -A src public vercel.json 2>/dev/null || true
+            if ! git diff --cached --quiet; then
+              git commit -m "continuous convergence pass $PASS: deterministic StreetVerse repairs"
+              git push origin "HEAD:refs/heads/$WORK_BRANCH"
+              SOURCE_COMMITS=$((SOURCE_COMMITS+1))
+              echo "source_repair_commit=$(git rev-parse HEAD)" >> "$PASS_DIR/status.env"
+            fi
+
+            FAILURES="$(awk -F= '$2 ~ /^[1-9][0-9]*$/ {print $1}' "$PASS_DIR/status.env" | tr '\n' ' ')"
+            if [ -z "$FAILURES" ]; then
+              GREEN_PASSES=$((GREEN_PASSES+1))
+              echo "PASS_RESULT=GREEN" >> "$PASS_DIR/status.env"
+              echo "- Result: GREEN" >> "$PASS_DIR/README.md"
+            else
+              RED_PASSES=$((RED_PASSES+1))
+              echo "PASS_RESULT=RED" >> "$PASS_DIR/status.env"
+              echo "- Result: RED" >> "$PASS_DIR/README.md"
+              echo "- Failed gates: $FAILURES" >> "$PASS_DIR/README.md"
+            fi
+
+            echo "- Pass $PASS: $(date -u -Iseconds), elapsed $ELAPSED_HOURS h" >> ../release-evidence/streetverse-master/summary.md
+
+            if [ "$PASS" -lt "$PASSES" ]; then
+              sleep "$((INTERVAL_MINUTES * 60))"
+            fi
+          done
+
+          END_EPOCH=$(date +%s)
+          TOTAL_SEC=$((END_EPOCH - START_EPOCH))
+          TOTAL_MIN=$((TOTAL_SEC / 60))
+          TOTAL_HOURS=$(awk "BEGIN {printf \"%.2f\", $TOTAL_MIN/60}")
+
+          {
+            echo
+            echo "## Run totals"
+            echo "- Completed UTC: $(date -u -Iseconds)"
+            echo "- Tracked run time: $TOTAL_HOURS hours ($TOTAL_MIN minutes)"
+            echo "- Green passes: $GREEN_PASSES"
+            echo "- Red passes: $RED_PASSES"
+            echo "- Source repair commits: $SOURCE_COMMITS"
+            echo "- Next scheduled cycle: approximately six hours after the current schedule slot"
+            echo
+            echo "A CI cycle is engineering validation, not a claim of physical iPhone visual certification."
+          } >> ../release-evidence/streetverse-master/summary.md
+
+          echo "green_passes=$GREEN_PASSES" >> "$GITHUB_OUTPUT"
+          echo "red_passes=$RED_PASSES" >> "$GITHUB_OUTPUT"
+          echo "source_commits=$SOURCE_COMMITS" >> "$GITHUB_OUTPUT"
+          echo "tracked_hours=$TOTAL_HOURS" >> "$GITHUB_OUTPUT"
+
+      - name: Push repair branch state
+        if: always()
+        run: |
+          git push origin "HEAD:refs/heads/$WORK_BRANCH" || true
+
+      - name: Open or reuse repair PR when source changed
+        if: steps.converge.outputs.source_commits != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          EXISTING="$(gh pr list --head "$WORK_BRANCH" --base main --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$EXISTING" ]; then
+            echo "Repair PR already open: #$EXISTING"
+          else
+            gh pr create               --base main               --head "$WORK_BRANCH"               --title "StreetVerse continuous convergence repairs"               --body "Recurring deterministic convergence for Kingdom city, Chicago/West Side, CampusVerse, accessibility controls and production build. Review evidence before merge."
+          fi
+
+      - name: Publish run summary
+        if: always()
+        run: |
+          {
+            echo "## StreetVerse Master Continuous Convergence"
+            echo
+            echo "- Tracked hours this run: ${{ steps.converge.outputs.tracked_hours || '0' }}"
+            echo "- Green passes: ${{ steps.converge.outputs.green_passes || '0' }}"
+            echo "- Red passes: ${{ steps.converge.outputs.red_passes || '0' }}"
+            echo "- Source repair commits: ${{ steps.converge.outputs.source_commits || '0' }}"
+            echo "- Recurs every six hours and can also be started manually."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload convergence evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-master-continuous-${{ github.run_id }}
+          path: release-evidence/streetverse-master/
+          if-no-files-found: warn
+          retention-days: 30
