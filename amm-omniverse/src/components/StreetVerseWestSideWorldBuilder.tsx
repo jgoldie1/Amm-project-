@@ -27,8 +27,30 @@ const ZONES:readonly Zone[]=[
  {id:'medical-district',label:'Illinois Medical District',group:'medical',x:38,z:34,status:'planned',detail:'Hospital, medical education, ambulance, workforce and health missions.'},
  {id:'malcolm-x',label:'Malcolm X College',group:'campus',x:29,z:42,status:'playable',detail:'Health sciences, virtual hospital, nursing, career and transfer missions.',campusId:'malcolm-x'},
  {id:'malcolm-x-west',label:'Malcolm X West Campus',group:'campus',x:13,z:39,status:'playable',detail:'West Side workforce, adult education, community health and skills missions.',campusId:'malcolm-x-west'},
- {id:'west-side-corridor',label:'West Side Expansion',group:'neighborhood',x:18,z:62,status:'planned',detail:'Continuous neighborhood build toward Garfield Park, Austin and additional West Side blocks.'},
+ {id:'north-lawndale',label:'North Lawndale',group:'neighborhood',x:24,z:70,status:'planned',detail:'Residential blocks, schools, parks, businesses, transit, restoration and community missions.'},
+ {id:'east-garfield-park',label:'East Garfield Park',group:'neighborhood',x:17,z:54,status:'planned',detail:'Garfield Park gateway, housing, commerce, transit and neighborhood missions.'},
+ {id:'west-garfield-park',label:'West Garfield Park',group:'neighborhood',x:10,z:57,status:'planned',detail:'Residential, business, public-service and mobility expansion district.'},
+ {id:'austin',label:'Austin',group:'neighborhood',x:7,z:44,status:'planned',detail:'Large West Side residential and business expansion with schools, parks and transit.'},
+ {id:'humboldt-park',label:'Humboldt Park',group:'neighborhood',x:20,z:28,status:'planned',detail:'Park, cultural, residential, business and community-event expansion.'},
+ {id:'west-town',label:'West Town',group:'neighborhood',x:35,z:27,status:'planned',detail:'Neighborhood businesses, housing, creator spaces, restaurants and nightlife routes.'},
+ {id:'douglass-park',label:'Douglass Park',group:'neighborhood',x:31,z:72,status:'planned',detail:'Park recreation, sports, community events and nearby neighborhood missions.'},
+ {id:'union-park',label:'Union Park',group:'neighborhood',x:49,z:36,status:'planned',detail:'Park, event, transit and Near West Side connector missions.'},
+ {id:'cta-west',label:'CTA + Bus Network',group:'transit',x:21,z:47,status:'planned',detail:'Pink/Green/Blue Line connections, buses, stops, stations and transit missions.'},
+ {id:'west-side-corridor',label:'West Side Expansion',group:'neighborhood',x:18,z:62,status:'planned',detail:'Continuous neighborhood build linking the Near West Side through Garfield Park, North Lawndale, Austin and surrounding West Side districts.'},
 ]
+
+const MISSING_SYSTEMS=[
+ 'Photo-accurate facade and PBR material pass',
+ 'Enterable interiors: apartments, stores, schools, hospitals and campuses',
+ 'Traffic signals, street signs, alleys, parking, bus stops and CTA stations',
+ 'More realistic residents, students, workers, police, fire and EMS NPCs',
+ 'Emergency stations, hospitals, clinics and incident routes',
+ 'Utilities: streetlights, power, water, sanitation, construction and repair',
+ 'Housing lifecycle: units, furniture, ownership, rent, repairs and neighborhood services',
+ 'Businesses: restaurants, stores, salons, gas, delivery, creator spaces and jobs',
+ 'Parks, sports courts, playgrounds, trees, landscaping and seasonal life',
+ 'Mission continuity across every district with checkpoints, rewards and Reel capture',
+] as const
 
 const BUILD_LANES=[
  {id:'city-shells',label:'Buildings + interiors',items:'shells • entrances • floors • stairs • elevators • rooms • collision'},
@@ -139,6 +161,7 @@ export default function StreetVerseWestSideWorldBuilder(){
 
     {tab==='build'&&<>
      <article style={card}><b>BUILD CONTROL</b><p style={muted}>This is the visible construction manifest for the West Side. Build actions still require committed code/assets; this screen does not pretend background work happened.</p><button onClick={openBuildSwarm} style={actionBtn}>OPEN BUILD SWARM</button></article>
+     <article style={card}><b>WHAT IS STILL MISSING</b><div style={{display:'grid',gap:5,marginTop:7}}>{MISSING_SYSTEMS.map(item=><div key={item} style={{padding:'7px 8px',borderRadius:9,background:'#111b20',border:'1px solid #604f2d',fontSize:10,color:'#ffd98b'}}>○ {item}</div>)}</div></article>
      <div style={{display:'grid',gap:8,marginTop:8}}>{BUILD_LANES.map(l=><article key={l.id} style={card}><div style={{display:'flex',justifyContent:'space-between'}}><b>{l.label}</b><span style={{fontSize:9,color:'#72ffb0'}}>CONNECTED</span></div><div style={muted}>{l.items}</div></article>)}</div>
      <article style={card}><b>CHICAGO BUILD GRID</b><div style={{display:'grid',gap:6,marginTop:7}}>{CHICAGO_BUILD_GRID.map(g=><button key={g.id} onClick={()=>{setNotice(`GRID FOCUS • ${g.grid} • ${g.label}`);window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-builder-grid',{detail:g}))}} style={rowBtn}><span><b>{g.grid} • {g.label}</b><small style={{display:'block',opacity:.7}}>{g.description}</small></span><span>{g.buildable?'BUILD':'LOCK'}</span></button>)}</div></article>
     </>}
