@@ -107,7 +107,7 @@ async function vercelGateway(question,history){
 }
 
 async function openai(question,history){
-  const key=process.env.OPENAI_API_KEY;if(!key)return null;
+  const key=process.env.OPENAI_API_KEY||process.env.open_ai_keys||process.env.TRYAMM_AI_API_KEY||process.env.TRYAMM_AI_PROVIDER_KEY;if(!key)return null;
   const model=process.env.HOLOGPT_OPENAI_MODEL||process.env.OPENAI_MODEL||'gpt-5.4';
   const input=[...normalizeHistory(history),{role:'user',content:question}];
   const data=await fetchJson('https://api.openai.com/v1/responses',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${key}`},body:JSON.stringify({model,instructions:systemPrompt(),input,max_output_tokens:2200,store:false})});
