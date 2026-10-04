@@ -10,6 +10,13 @@ export interface TransportSeat {
   accessible?: boolean;
 }
 
+export interface TransportVisualPolicy {
+  fullDetailRadius: number;
+  animatedRadius: number;
+  impostorRadius: number;
+  maxDetailedOccupants: number;
+}
+
 export interface TransportManifest {
   transportId: string;
   kind: TransportKind;
@@ -17,7 +24,26 @@ export interface TransportManifest {
   occupants: Record<string, string | undefined>;
   standingCapacity?: number;
   standingOccupants?: string[];
+  visualPolicy?: TransportVisualPolicy;
 }
+
+export const MOBILE_TRANSPORT_VISUAL_POLICY: TransportVisualPolicy = {
+  fullDetailRadius: 28,
+  animatedRadius: 65,
+  impostorRadius: 140,
+  maxDetailedOccupants: 12,
+};
+
+export const TRANSPORT_CAPACITIES: Record<TransportKind, { passengers: number; standing: number }> = {
+  car: { passengers: 4, standing: 0 },
+  rideshare: { passengers: 4, standing: 0 },
+  suv: { passengers: 6, standing: 0 },
+  van: { passengers: 7, standing: 0 },
+  bus: { passengers: 40, standing: 20 },
+  train: { passengers: 120, standing: 80 },
+  plane: { passengers: 180, standing: 0 },
+  boat: { passengers: 24, standing: 8 },
+};
 
 export const FIVE_SEAT_CAR: TransportSeat[] = [
   { id: 'front-driver', role: 'driver', row: 0, side: 'left' },
@@ -40,7 +66,7 @@ export function createTransportManifest(
   transportId: string,
   kind: TransportKind,
   passengerCapacity?: number,
-  standingCapacity = 0,
+  standingCapacity?: number,
 ): TransportManifest {
   const seats =
     kind === 'car' || kind === 'rideshare'
@@ -55,21 +81,30 @@ export function createTransportManifest(
     kind,
     seats,
     occupants: Object.fromEntries(seats.map((seat) => [seat.id, undefined])),
-    standingCapacity,
+    standingCapacity: standingCapacity ?? TRANSPORT_CAPACITIES[kind].standing,
     standingOccupants: [],
+    visualPolicy: MOBILE_TRANSPORT_VISUAL_POLICY,
   };
 }
 
 export function defaultPassengerCapacity(kind: TransportKind): number {
-  switch (kind) {
-    case 'suv': return 6;
-    case 'van': return 7;
-    case 'bus': return 40;
-    case 'train': return 120;
-    case 'plane': return 180;
-    case 'boat': return 24;
-    default: return 4;
-  }
+  return TRANSPORT_CAPACITIES[kind].passengers;
+}
+
+export function availableSeatCount(manifest: TransportManifest): number {
+  return manifest.seats.filter((seat) => !manifest.occupants[seat.id]).length;
+}
+
+export function canBoardTransport(manifest: TransportManifest): boolean {
+  return availableSeatCount(manifest) > 0 ||
+    (manifest.standingOccupants?.length ?? 0) < (manifest.standingCapacity ?? 0);
+}
+
+export function occupantIds(manifest: TransportManifest): string[] {
+  return [
+    ...Object.values(manifest.occupants).filter((value): value is string => Boolean(value)),
+    ...(manifest.standingOccupants ?? []),
+  ];
 }
 
 export function boardTransport(
