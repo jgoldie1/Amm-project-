@@ -294,12 +294,12 @@ export function installMindOverMatterCleanRoomRuntime(){
   publish(state)
   emit('tryamm:mind-over-matter-original-job-created',job)
   emit('tryamm:asset-forge-original-fallback',{job})
-  emit('tryamm:ai-cafe-task',{detail:{
+  emit('tryamm:ai-cafe-task',{
    workstream:'assets',
    title:`Mind Over Matter: create original ${job.kind} replacement for ${job.targetLabel}`,
    priority:'high',
    metadata:{jobId:job.id,reason:job.reason,productionMutation:false},
-  }})
+  })
  }
 
  addEventListener('tryamm:mind-over-matter-original-request',(event:Event)=>create((event as CustomEvent).detail||{}))
