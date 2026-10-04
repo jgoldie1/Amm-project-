@@ -59,7 +59,7 @@ export default function MiddleverseAIHub({onClose}:Props){
     {icon:'📡',title:'Holo FON',description:'Open TRYAMM Connect and device/connectivity services.',action:()=>openGlobal('__showHoloFon'),status:'READY'},
     {icon:'🛡️',title:'Private Relay / VPN',description:'Open the security tunnel readiness center. VPN traffic never creates Edge earnings.',action:()=>setRelayOpen(true),status:'READY'},
     {icon:'🧪',title:'Holo Lab / Construct',description:'Open the creation and experiment gateway.',action:()=>openGlobal('__showHoloLab'),status:'READY'},
-    {icon:'📦',title:'Global Supply Chain',description:'Supplier-to-order-to-delivery orchestration gateway.',status:'RECONNECTING'},
+    {icon:'📦',title:'Global Supply Chain',description:'Supplier-to-order-to-delivery, logistics and freight orchestration gateway.',action:()=>openGlobal('__showLogisticsFreight'),status:'READY'},
     {icon:'🌍',title:'Africa Gateway',description:'Africa business, creator, education, commerce and supply-chain gateway.',status:'RECONNECTING'},
     {icon:'▦',title:'Universal Scan',description:'QR / Business Passport gateway for physical-to-digital routing.',status:'RECONNECTING'},
   ],[])
