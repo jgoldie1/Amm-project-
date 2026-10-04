@@ -1,6 +1,8 @@
 import {useState} from 'react'
 import {FLEET_MANAGEMENT_FLOW} from '../logistics/fleetManagement'
 import {OWNER_OPERATOR_FLOW,type OwnerOperatorProfile,type LoadOffer} from '../logistics/ownerOperatorNetwork'
+import {OWNER_OPERATOR_ONBOARDING_FLOW} from '../logistics/ownerOperatorOnboarding'
+import {ACCESSORIAL_PAY_RULE} from '../logistics/accessorialPay'
 
 export default function FleetOwnerOperatorCenter(){
  const [tab,setTab]=useState<'fleet'|'owner'>('fleet')
@@ -13,6 +15,8 @@ export default function FleetOwnerOperatorCenter(){
   <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button style={button} onClick={()=>setTab('fleet')}>FLEET MANAGEMENT</button><button style={button} onClick={()=>setTab('owner')}>INDEPENDENT TRUCKER</button></div>
   {tab==='fleet'&&<div style={{marginTop:12}}><h2>Transportation Fleet Management</h2><p style={copy}>Tractors, trailers, box trucks, vans, drivers, inspections, maintenance, utilization, dispatch, fuel/charging, BOL/POD and settlement readiness.</p><div style={{display:'grid',gap:6}}>{FLEET_MANAGEMENT_FLOW.map((x,i)=><div key={x} style={step}><b>{String(i+1).padStart(2,'0')}</b> • {x}</div>)}</div></div>}
   {tab==='owner'&&<div style={{marginTop:12}}><h2>Independent Trucker / Owner-Operator</h2><p style={copy}>An owner-operator can build a profile, add equipment and lanes, receive matched loads, review terms, accept or decline, provide BOL/POD and track settlement status. Real operating authority, insurance and booking must be verified externally.</p><div style={{display:'grid',gap:6}}>{OWNER_OPERATOR_FLOW.map((x,i)=><div key={x} style={step}><b>{String(i+1).padStart(2,'0')}</b> • {x}</div>)}</div><div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:10}}><button style={button} onClick={publishProfile}>CREATE DRAFT OWNER-OPERATOR</button><button style={button} onClick={publishOffer}>SEND DEMO LOAD OFFER</button></div></div>}
+  <section style={{...panel,marginTop:12}}><h3>OWNER-OPERATOR ONBOARDING</h3><div style={{display:'grid',gap:6}}>{OWNER_OPERATOR_ONBOARDING_FLOW.map((x,i)=><div key={x} style={step}><b>{String(i+1).padStart(2,'0')}</b> • {x}</div>)}</div></section>
+  <section style={{...panel,marginTop:12}}><h3>DETENTION / ACCESSORIAL PAY</h3><p style={copy}>Track detention, layover, TONU, stop-offs, lumper reimbursement, driver assist, tarp, reefer, hazmat, scale tickets, tolls, parking, washout, breakdown, deadhead premium, fuel surcharge, after-hours, redelivery and storage when the load contract/provider terms support them.</p><p style={copy}>{ACCESSORIAL_PAY_RULE}</p></section>
   <div role="status" style={{marginTop:10,fontSize:11,color:'#a9c1cf'}}>{status}</div>
  </section>
 }
