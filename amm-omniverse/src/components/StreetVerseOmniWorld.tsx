@@ -9,12 +9,14 @@ const MISSIONS=[
   {id:'marina',label:'Marina Charter',x:55,z:72,reward:750},
   {id:'ads',label:'Holo Ads Campaign',x:-45,z:38,reward:650},
   {id:'network',label:'All American Network',x:38,z:36,reward:700},
+  {id:'logistics',label:'Holo Logistics Dispatch',x:-82,z:62,reward:800},
 ]
 const BUSINESSES=[
   {id:'marketplace',label:'All American Marketplace',x:48,z:-28,color:0x4fe3ff},
   {id:'creator-studio',label:'Creator Studio',x:-44,z:-32,color:0xff6fae},
   {id:'holo-ads',label:'Holo Ads',x:-45,z:38,color:0xffd75c},
   {id:'network',label:'All American Network',x:38,z:36,color:0x7ef29a},
+  {id:'logistics',label:'Holo Logistics',x:-82,z:62,color:0x78ffb4},
 ]
 const BASKETBALL_COURTS=[
   {id:'south-loop',name:'South Loop Holo Court',x:-24,z:18,color:0xf3a53b},
