@@ -1,3 +1,4 @@
+import {BUSINESS_IN_A_BOX_PRICING} from './ElSaturnLaunchPriceBook'
 export type BusinessSiteStatus='registry'|'site-ready'|'domain-pending'|'live'
 export type FamilyBusinessProfile={id:string;owner:string;region:string;ventures:string[];modules:string[];status:BusinessSiteStatus}
 
@@ -38,3 +39,33 @@ export const TRADING_ANALYSIS_SAFETY_PIPELINE=['licensed-market-data','strategy-
 export const FOUNDER_UPGRADE=['business-portfolio-dashboard','saas-revenue-map','venture-incubator','business-in-a-box-factory','streetverse-commercial-district','middleverse-workforce','omnicash-ledger','stubbs-ai-command-layer','compliance-dashboard','portfolio-analytics'] as const
 
 export function buildSiteBlueprint(profile:FamilyBusinessProfile){return {slug:profile.id,title:`${profile.owner} — ${profile.ventures[0]}`,modules:profile.modules,pipeline:SITE_FACTORY_PIPELINE,businessInABox:BUSINESS_IN_A_BOX_PIPELINE,competitorCapabilities:COMPETITOR_CAPABILITY_ABSORPTION,protectionPipeline:BUSINESS_PROTECTION_PIPELINE,supplyChainPipeline:GLOBAL_SUPPLY_CHAIN_PIPELINE,tradingSafety:profile.modules.includes('forex-analysis-lab')?TRADING_ANALYSIS_SAFETY_PIPELINE:undefined,founderUpgrade:FOUNDER_UPGRADE,productionReady:profile.status==='live',requiresDomain:profile.status!=='live'}}
+
+
+export const BUSINESS_COMPLETION_STAGES=[
+ 'registry','brand-and-offer','website','booking-or-store','domain','payments-provider',
+ 'crm','marketing','delivery-or-fulfillment','analytics','streetverse-location','middleverse-workforce','live-operations'
+] as const
+
+export function recommendedBusinessPackage(profile:FamilyBusinessProfile){
+ const commerce=profile.modules.some(x=>['store','product-catalog','ordering','subscriptions','vehicle-catalog','music-catalog'].includes(x))
+ const managed=profile.modules.includes('financial-compliance-gate')||profile.modules.includes('food-compliance-gate')||profile.modules.includes('compliance-gate')
+ if(managed)return BUSINESS_IN_A_BOX_PRICING.managed
+ if(commerce)return BUSINESS_IN_A_BOX_PRICING.commerce
+ if(profile.modules.includes('business-in-a-box'))return BUSINESS_IN_A_BOX_PRICING.pro
+ return BUSINESS_IN_A_BOX_PRICING.starter
+}
+
+export function businessCompletionPlan(profile:FamilyBusinessProfile){
+ const pkg=recommendedBusinessPackage(profile)
+ return{
+  businessId:profile.id,
+  owner:profile.owner,
+  currentStatus:profile.status,
+  stages:BUSINESS_COMPLETION_STAGES,
+  package:pkg,
+  readyToSellPackage:true,
+  liveBusiness:profile.status==='live',
+  blockers:profile.status==='live'?[]:['domain_or_public_url_not_verified','payments_not_verified','live_transactions_not_verified'],
+  note:'The business package can be sold before every external provider is live, but TRYAMM must not label the business live until the public site/domain and real transaction path are verified.'
+ }
+}
