@@ -38,7 +38,12 @@ must(clip.includes('PK Victory'),'Holo Clip Studio must include a PK effect')
 must(clip.includes('Gift Rain'),'Holo Clip Studio must include gift effects')
 
 const overlay=read('src/components/HoloLivePkLottieOverlay.tsx')
-must(overlay.includes('DotLottieReact'),'LIVE/PK overlay must use dotLottie')
+must(overlay.includes('playLottie'),'LIVE/PK overlay must use the owned inline Lottie runtime')
+must(overlay.includes('lottieForGift'),'LIVE/PK overlay must resolve each gift through the owned gift kit')
+must(!overlay.includes('lottie.host'),'LIVE/PK monetized effects must not depend on a remote sample animation')
+const giftKit=read('src/game/gifts/HolographicGiftKit.ts')
+must(giftKit.includes("externalAnimationDependency:false"),'gift kit must declare no external animation dependency')
+must(giftKit.includes("fallbackGuaranteed:true"),'gift kit must guarantee a Lottie fallback')
 for(const eventName of ['tryamm:live-session','tryamm:pk-start','tryamm:pk-end','tryamm:holo-gift']){
   must(overlay.includes(eventName),`Lottie overlay must react to ${eventName}`)
 }
