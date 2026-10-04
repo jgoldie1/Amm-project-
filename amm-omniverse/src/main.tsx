@@ -273,6 +273,12 @@ queueMicrotask(() => {
     import('./runtime/HolographicInternetGoogloplexBridge')
       .then(m => m.installHolographicInternetBridge())
       .catch(error => console.error('[TRYAMM] Holographic Internet failed after StreetVerse mount.', error))
+    import('./runtime/StreetVerseWorldAwareConstructRuntime')
+      .then(m => m.installStreetVerseWorldAwareConstructRuntime())
+      .catch(error => console.error('[TRYAMM] StreetVerse World-Aware Construct failed after StreetVerse mount.', error))
+    import('./runtime/StreetVerseQuantumWorldBuilderOrchestrator')
+      .then(m => m.installStreetVerseQuantumWorldBuilderOrchestrator())
+      .catch(error => console.error('[TRYAMM] Quantum World Builder orchestrator failed after StreetVerse mount.', error))
     return
   }
   installOptionalRuntimes()
