@@ -38,6 +38,7 @@ const HolographicGalleryCenter = lazy(() => import('./components/HolographicGall
 const HoloFridge = lazy(() => import('./components/HoloFridge'))
 const HoloLabGateway = lazy(() => import('./components/HoloLabGateway'))
 const LogisticsFreightCommandCenter = lazy(() => import('./components/LogisticsFreightCommandCenter'))
+const ElSaturnBusinessRevenueCenter = lazy(() => import('./components/ElSaturnBusinessRevenueCenter'))
 const QuantumZoomViewer = lazy(() => import('./components/QuantumZoomViewer'))
 const NextDevelopmentTargetCenter = lazy(() => import('./components/NextDevelopmentTargetCenter'))
 const QuantumTagArena = lazy(() => import('./components/QuantumTagArena'))
@@ -93,6 +94,7 @@ export default function App() {
   const [showHoloFridge, setShowHoloFridge] = useState(false)
   const [showHoloLab, setShowHoloLab] = useState(false)
   const [showLogisticsFreight, setShowLogisticsFreight] = useState(false)
+  const [showElSaturnRevenue, setShowElSaturnRevenue] = useState(false)
   const [showQuantumZoom, setShowQuantumZoom] = useState(false)
   const [showNextDevelopment, setShowNextDevelopment] = useState(false)
   const [showQuantumTag, setShowQuantumTag] = useState(false)
@@ -122,6 +124,7 @@ export default function App() {
     if (route === '/holo-fridge' || route === '/holo-cold-vault') { setShowHoloFridge(true); return }
     if (route === '/holo-lab' || route === '/holo-labs') { setShowHoloLab(true); return }
     if (route === '/logistics-freight' || route === '/freight') { setShowLogisticsFreight(true); return }
+    if (route === '/business-revenue' || route === '/saas') { setShowElSaturnRevenue(true); return }
     if (route === '/holoverse') { setShowHoloverse(true); return }
     if (route === '/spaceverse' || route === '/metaverse' || route === '/multiverse' || route === '/time-machine') { setShowAdvanced(true); return }
     if (route === '/cyberverse') { setShowSecurity(true); return }
@@ -155,7 +158,7 @@ export default function App() {
     const route = (window.location.pathname || '/').replace(/\/+$/, '') || '/'
     const routeAliases = new Set([
       '/marketplace','/music','/musicverse','/sports','/sportverse','/faith','/blockchain','/city',
-      '/propertyverse','/earnings','/creator-money','/business-income','/merchant-money','/all-american-store','/omnichannel','/holo-gallery','/holo-fridge','/holo-cold-vault','/holo-lab','/holo-labs','/logistics-freight','/freight','/holoverse','/spaceverse','/cyberverse','/creatorverse','/businessverse',
+      '/propertyverse','/earnings','/creator-money','/business-income','/merchant-money','/all-american-store','/omnichannel','/holo-gallery','/holo-fridge','/holo-cold-vault','/holo-lab','/holo-labs','/logistics-freight','/freight','/business-revenue','/saas','/holoverse','/spaceverse','/cyberverse','/creatorverse','/businessverse',
       '/educationverse','/gameverse','/middleverse','/metaverse','/multiverse','/time-machine',
       '/legacyverse','/connect','/tv','/tryamm-tv','/isaiah-ai-tv'
     ])
@@ -222,6 +225,7 @@ export default function App() {
   ;(window as any).__showHoloColdVault = () => setShowHoloFridge(true)
   ;(window as any).__showHoloLab = () => setShowHoloLab(true)
   ;(window as any).__showLogisticsFreight = () => setShowLogisticsFreight(true)
+  ;(window as any).__showElSaturnRevenue = () => setShowElSaturnRevenue(true)
   ;(window as any).__showQuantumZoom = () => setShowQuantumZoom(true)
   ;(window as any).__showNextDevelopment = () => setShowNextDevelopment(true)
   ;(window as any).__showQuantumTag = () => setShowQuantumTag(true)
@@ -242,6 +246,7 @@ export default function App() {
     ['🧊','HOLO FRIDGE',()=>setShowHoloFridge(true),'BETA'],
     ['🧪','HOLO LAB',()=>setShowHoloLab(true),'BETA'],
     ['🚛','LOGISTICS + FREIGHT',()=>setShowLogisticsFreight(true),'BETA'],
+    ['💼','BUSINESS REVENUE',()=>setShowElSaturnRevenue(true),'BETA'],
     ['🛡','SECURITY',()=>setShowSecurity(true),'LIVE'],
     ['AI','POYO AI STUDIO',()=>setShowPoyo(true),'BETA'],
     ['LAB','HOLO LABS',()=>setShowNextDevelopment(true),'BETA'],
@@ -317,6 +322,7 @@ export default function App() {
         {showHoloFridge && <HoloFridge initialOpen onClose={() => setShowHoloFridge(false)} />}
         {showHoloLab && <HoloLabGateway onClose={() => setShowHoloLab(false)} />}
         {showLogisticsFreight && <LogisticsFreightCommandCenter onClose={() => setShowLogisticsFreight(false)} />}
+        {showElSaturnRevenue && <ElSaturnBusinessRevenueCenter onClose={() => setShowElSaturnRevenue(false)} />}
         {showQuantumZoom && <QuantumZoomViewer onClose={() => setShowQuantumZoom(false)} />}
         {showNextDevelopment && <NextDevelopmentTargetCenter onClose={() => setShowNextDevelopment(false)} />}
         {showQuantumTag && <QuantumTagArena onClose={() => setShowQuantumTag(false)} />}
