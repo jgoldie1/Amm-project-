@@ -2,8 +2,12 @@ import {useEffect,useMemo,useState} from 'react'
 import {CHICAGO_BUILD_GRID} from '../data/StreetVerseChicagoBuildGrid'
 import {UIC_ALL_CAMPUS_HUBS} from '../data/uicCampusVerseHubs'
 import {ILLINOIS_CAMPUSVERSE_NETWORK} from '../data/campusVerseIllinoisUniversityNetwork'
+import {CHICAGO_77_SLICES,streetVerseCommunitySpawn} from '../config/streetverseCommunitySlices'
+import {ILLINOIS_STREETVERSE_HUBS,US_STREETVERSE_STATES} from '../data/StreetVerseExpansionHierarchy'
+import {STREETVERSE_GLOBAL_CITIES} from '../data/StreetVerseGlobalRegistry'
 
 type Tab='map'|'build'|'missions'|'campuses'
+type Scale='west'|'chicago'|'illinois'|'usa'|'world'
 type Zone={
  id:string
  label:string
@@ -75,12 +79,14 @@ const MISSIONS=[
 ] as const
 
 const statusColor={live:'#72ffb0',playable:'#6de3ff',planned:'#ffd15c'} as const
+const scaleLabel:Record<Scale,string>={west:'WEST SIDE',chicago:'CHICAGO 77',illinois:'ILLINOIS',usa:'USA',world:'WORLD'}
 
 export default function StreetVerseWestSideWorldBuilder(){
  const [open,setOpen]=useState(false)
  const [tab,setTab]=useState<Tab>('map')
+ const [scale,setScale]=useState<Scale>('west')
  const [selected,setSelected]=useState<Zone>(ZONES[0])
- const [notice,setNotice]=useState('West Side builder ready.')
+ const [notice,setNotice]=useState('World Builder ready • West Side → Chicago 77 → Illinois → USA → World.')
  const [layers,setLayers]=useState({neighborhood:true,school:true,campus:true,medical:true,transit:true})
  const visible=useMemo(()=>ZONES.filter(z=>layers[z.group]),[layers])
 
@@ -91,10 +97,10 @@ export default function StreetVerseWestSideWorldBuilder(){
  },[])
 
  useEffect(()=>{
-  if(!open)return
+  if(!open||scale!=='west')return
   const targets=ZONES.map(z=>({id:`west-builder:${z.id}`,label:z.label,kind:z.campusId?'portal':'mission',x:z.x,z:z.z,metadata:{builder:true,status:z.status,group:z.group,campusId:z.campusId}}))
   window.dispatchEvent(new CustomEvent('tryamm:construct:targets',{detail:targets}))
- },[open])
+ },[open,scale])
 
  const focus=(zone:Zone)=>{
   setSelected(zone)
@@ -104,15 +110,47 @@ export default function StreetVerseWestSideWorldBuilder(){
  }
 
  const startMission=(zone:Zone)=>{
-  const detail={missionId:`west-builder:${zone.id}`,id:`west-builder:${zone.id}`,title:`West Side • ${zone.label}`,objective:`Reach and complete the ${zone.label} district objective.`,campus:zone.campusId,source:'west-side-world-builder'}
+  const detail={missionId:`west-builder:${zone.id}`,id:`west-builder:${zone.id}`,title:`West Side • ${zone.label}`,objective:`Reach and complete the ${zone.label} district objective.`,campus:zone.campusId,source:'streetverse-world-builder'}
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail}))
   window.dispatchEvent(new CustomEvent('tryamm:campusverse-mission-open',{detail}))
   setNotice(`MISSION SENT • ${zone.label}`)
  }
 
  const openCampus=(campusId:string)=>{
-  window.dispatchEvent(new CustomEvent('tryamm:campusverse-travel',{detail:{to:campusId,source:'west-side-world-builder'}}))
+  window.dispatchEvent(new CustomEvent('tryamm:campusverse-travel',{detail:{to:campusId,source:'streetverse-world-builder'}}))
   setNotice(`CAMPUSVERSE • ${campusId.toUpperCase()}`)
+ }
+
+ const openCommunity=(areaNumber:string,name:string)=>{
+  const spawn=streetVerseCommunitySpawn(areaNumber)
+  const destination={id:`ca-${areaNumber}`,type:'community-area',communityAreaNumber:areaNumber,name,label:name,city:'Chicago'}
+  try{
+   localStorage.setItem('tryamm.streetverse.chicago-destination.v2',JSON.stringify(destination))
+   const save=JSON.parse(localStorage.getItem('tryamm.streetverse.living.v1')||'{}')
+   localStorage.setItem('tryamm.streetverse.living.v1',JSON.stringify({...save,x:spawn.x,z:spawn.z,communityAreaNumber:areaNumber,geoSpawnLabel:name,updatedAt:new Date().toISOString()}))
+  }catch{}
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-community-travel',{detail:{...destination,...spawn,source:'streetverse-world-builder'}}))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-drop-to-player',{detail:{x:spawn.x,z:spawn.z,consent:true,userId:`community-${areaNumber}`}}))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-community-slice-ready',{detail:{communityAreaNumber:areaNumber,name,status:'BUILDING',spawn}}))
+  setNotice(`CHICAGO ${areaNumber}/77 • ${name} • destination saved and route sent.`)
+ }
+
+ const focusIllinois=(id:string,label:string,status:string)=>{
+  if(id==='chicago'){setScale('chicago');setNotice('CHICAGO • opening all 77 community areas.');return}
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-illinois-build-focus',{detail:{id,label,status,source:'streetverse-world-builder'}}))
+  setNotice(`${label.toUpperCase()} • ${status.toUpperCase()} • compiler/build focus selected.`)
+ }
+
+ const focusState=(id:string,label:string,status:string)=>{
+  if(id==='illinois'){setScale('illinois');setNotice('ILLINOIS • opening statewide build layer.');return}
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-state-build-focus',{detail:{id,label,status,source:'streetverse-world-builder'}}))
+  setNotice(`${label.toUpperCase()} • state world plan selected; not yet certified playable.`)
+ }
+
+ const focusWorldCity=(id:string,name:string,status:string)=>{
+  if(id==='chicago'){setScale('chicago');setNotice('CHICAGO • live-alpha reference city • opening 77 community areas.');return}
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-global-city-focus',{detail:{id,name,status,source:'streetverse-world-builder'}}))
+  setNotice(`${name.toUpperCase()} • ${status.toUpperCase()} • global compiler focus selected.`)
  }
 
  const openBuildSwarm=()=>{
@@ -122,20 +160,24 @@ export default function StreetVerseWestSideWorldBuilder(){
  }
 
  return <>
-  <button aria-label="Open West Side World Builder" onClick={()=>setOpen(true)} style={{position:'fixed',left:12,top:'max(62px,calc(env(safe-area-inset-top) + 54px))',zIndex:42100,minHeight:42,padding:'7px 10px',borderRadius:12,border:'1px solid #6de3ff88',background:'#071923e8',color:'#e8fbff',font:'950 9px system-ui',boxShadow:'0 8px 24px #0008'}}>🛠 WEST SIDE</button>
+  <button aria-label="Open StreetVerse World Builder" onClick={()=>setOpen(true)} style={{position:'fixed',left:12,top:'max(62px,calc(env(safe-area-inset-top) + 54px))',zIndex:42100,minHeight:42,padding:'7px 10px',borderRadius:12,border:'1px solid #6de3ff88',background:'#071923e8',color:'#e8fbff',font:'950 9px system-ui',boxShadow:'0 8px 24px #0008'}}>🛠 WORLD</button>
 
-  {open&&<section role="dialog" aria-modal="true" aria-label="West Side World Builder" style={{position:'fixed',inset:0,zIndex:62000,display:'grid',gridTemplateRows:'auto auto 1fr',background:'#020810f8',color:'#fff',fontFamily:'system-ui',overflow:'hidden'}}>
+  {open&&<section role="dialog" aria-modal="true" aria-label="StreetVerse World Builder" style={{position:'fixed',inset:0,zIndex:62000,display:'grid',gridTemplateRows:'auto auto auto 1fr',background:'#020810f8',color:'#fff',fontFamily:'system-ui',overflow:'hidden'}}>
    <header style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,padding:'calc(env(safe-area-inset-top) + 8px) 12px 8px',borderBottom:'1px solid #244254',background:'linear-gradient(90deg,#071722,#15102a)'}}>
-    <div><div style={{fontSize:9,fontWeight:950,letterSpacing:2,color:'#6de3ff'}}>STREETVERSE • WORLD FORGER</div><strong style={{fontSize:18}}>WEST SIDE WORLD BUILDER</strong><div style={{fontSize:9,opacity:.68}}>Map • districts • campuses • missions • build lanes</div></div>
-    <button onClick={()=>setOpen(false)} aria-label="Close West Side World Builder" style={closeBtn}>×</button>
+    <div><div style={{fontSize:9,fontWeight:950,letterSpacing:2,color:'#6de3ff'}}>STREETVERSE • WORLD FORGER</div><strong style={{fontSize:18}}>STREETVERSE WORLD BUILDER</strong><div style={{fontSize:9,opacity:.68}}>West Side → Chicago 77 → Illinois → USA → World</div></div>
+    <button onClick={()=>setOpen(false)} aria-label="Close StreetVerse World Builder" style={closeBtn}>×</button>
    </header>
+
+   <div style={{display:'flex',gap:5,overflowX:'auto',padding:'7px 8px 0'}}>
+    {(['west','chicago','illinois','usa','world'] as const).map(s=><button key={s} onClick={()=>{setScale(s);setTab('map')}} style={{...chip,opacity:scale===s?1:.55,borderColor:scale===s?'#6de3ff':'#345363'}}>{scaleLabel[s]}</button>)}
+   </div>
 
    <nav style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:5,padding:8,borderBottom:'1px solid #193343'}}>
     {(['map','build','missions','campuses'] as const).map(t=><button key={t} onClick={()=>setTab(t)} style={{...tabBtn,borderColor:tab===t?'#6de3ff':'#29404e',background:tab===t?'#103140':'#09151e'}}>{t.toUpperCase()}</button>)}
    </nav>
 
    <div style={{minHeight:0,overflow:'auto',padding:10}}>
-    {tab==='map'&&<>
+    {tab==='map'&&scale==='west'&&<>
      <div style={{display:'flex',gap:5,overflowX:'auto',paddingBottom:8}}>
       {(Object.keys(layers) as (keyof typeof layers)[]).map(k=><button key={k} onClick={()=>setLayers(v=>({...v,[k]:!v[k]}))} style={{...chip,opacity:layers[k]?1:.42}}>{k.toUpperCase()}</button>)}
      </div>
@@ -159,19 +201,42 @@ export default function StreetVerseWestSideWorldBuilder(){
      </article>
     </>}
 
+    {tab==='map'&&scale==='chicago'&&<>
+     <article style={card}><b>CHICAGO • ALL 77 COMMUNITY AREAS</b><p style={muted}>Every official community-area slice is connected to the shared StreetVerse engine. BUILDING means the mission scaffold exists; it does not mean the neighborhood is already photo-accurate or production-certified.</p></article>
+     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(145px,1fr))',gap:6,marginTop:8}}>
+      {CHICAGO_77_SLICES.map(slice=><button key={slice.communityAreaNumber} onClick={()=>openCommunity(slice.communityAreaNumber,slice.name)} style={{...rowBtn,minHeight:58,contentVisibility:'auto'}}><span><b>{slice.communityAreaNumber}. {slice.name}</b><small style={{display:'block',opacity:.68}}>{slice.missions.length} mission anchors</small></span><span style={{fontSize:8,color:slice.status==='CERTIFIED'?'#72ffb0':'#ffd15c'}}>{slice.status}</span></button>)}
+     </div>
+    </>}
+
+    {tab==='map'&&scale==='illinois'&&<>
+     <article style={card}><b>ILLINOIS • STATEWIDE EXPANSION</b><p style={muted}>Chicago is the reference city. The other Illinois hubs use the same shared engine/compiler so roads, businesses, campuses, missions, media and accessibility do not fork into separate games.</p></article>
+     <div style={{display:'grid',gap:6,marginTop:8}}>{ILLINOIS_STREETVERSE_HUBS.map(node=><button key={node.id} onClick={()=>focusIllinois(node.id,node.label,node.status)} style={rowBtn}><span><b>{node.label}</b><small style={{display:'block',opacity:.68}}>{node.region} • {node.detail}</small></span><span style={{fontSize:8,color:node.status==='live'?'#72ffb0':node.status==='building'?'#6de3ff':'#ffd15c'}}>{node.status.toUpperCase()}</span></button>)}</div>
+    </>}
+
+    {tab==='map'&&scale==='usa'&&<>
+     <article style={card}><b>UNITED STATES • 50-STATE WORLD COMPILER</b><p style={muted}>Illinois drills back into the statewide build. Other states are registered as planned compiler targets until cities and source-backed geography are actually built and certified.</p></article>
+     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:6,marginTop:8}}>{US_STREETVERSE_STATES.map(node=><button key={node.id} onClick={()=>focusState(node.id,node.label,node.status)} style={{...rowBtn,minHeight:54,contentVisibility:'auto'}}><span><b>{node.label}</b><small style={{display:'block',opacity:.68}}>{node.status}</small></span><span>›</span></button>)}</div>
+    </>}
+
+    {tab==='map'&&scale==='world'&&<>
+     <article style={card}><b>GLOBAL STREETVERSE</b><p style={muted}>One shared world engine with city manifests. Chicago is live-alpha; BUILDING and PLANNED cities remain compiler targets until their source, rights, mobile, accessibility and performance gates pass.</p></article>
+     <div style={{display:'grid',gap:6,marginTop:8}}>{STREETVERSE_GLOBAL_CITIES.map(city=><button key={city.id} onClick={()=>focusWorldCity(city.id,city.name,city.status)} style={rowBtn}><span><b>{city.name} • {city.country}</b><small style={{display:'block',opacity:.68}}>{city.region} • {city.features.slice(0,4).join(' • ')}</small></span><span style={{fontSize:8,color:city.status==='live-alpha'?'#72ffb0':city.status==='building'?'#6de3ff':'#ffd15c'}}>{city.status.toUpperCase()}</span></button>)}</div>
+    </>}
+
     {tab==='build'&&<>
-     <article style={card}><b>BUILD CONTROL</b><p style={muted}>This is the visible construction manifest for the West Side. Build actions still require committed code/assets; this screen does not pretend background work happened.</p><button onClick={openBuildSwarm} style={actionBtn}>OPEN BUILD SWARM</button></article>
+     <article style={card}><b>BUILD CONTROL • {scaleLabel[scale]}</b><p style={muted}>Visible construction manifest for the selected world scale. Build actions still require committed code/assets; this screen does not pretend background work happened.</p><button onClick={openBuildSwarm} style={actionBtn}>OPEN BUILD SWARM</button></article>
+     <article style={card}><b>EXPANSION CHAIN</b><div style={{fontSize:11,lineHeight:1.7,color:'#c7d7df'}}>WEST SIDE → 77 CHICAGO COMMUNITY AREAS → ILLINOIS → 50 U.S. STATES → GLOBAL CITIES</div></article>
      <article style={card}><b>WHAT IS STILL MISSING</b><div style={{display:'grid',gap:5,marginTop:7}}>{MISSING_SYSTEMS.map(item=><div key={item} style={{padding:'7px 8px',borderRadius:9,background:'#111b20',border:'1px solid #604f2d',fontSize:10,color:'#ffd98b'}}>○ {item}</div>)}</div></article>
      <div style={{display:'grid',gap:8,marginTop:8}}>{BUILD_LANES.map(l=><article key={l.id} style={card}><div style={{display:'flex',justifyContent:'space-between'}}><b>{l.label}</b><span style={{fontSize:9,color:'#72ffb0'}}>CONNECTED</span></div><div style={muted}>{l.items}</div></article>)}</div>
      <article style={card}><b>CHICAGO BUILD GRID</b><div style={{display:'grid',gap:6,marginTop:7}}>{CHICAGO_BUILD_GRID.map(g=><button key={g.id} onClick={()=>{setNotice(`GRID FOCUS • ${g.grid} • ${g.label}`);window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-builder-grid',{detail:g}))}} style={rowBtn}><span><b>{g.grid} • {g.label}</b><small style={{display:'block',opacity:.7}}>{g.description}</small></span><span>{g.buildable?'BUILD':'LOCK'}</span></button>)}</div></article>
     </>}
 
     {tab==='missions'&&<div style={{display:'grid',gap:8}}>
-     {MISSIONS.map((m,i)=><article key={m} style={card}><b>{String(i+1).padStart(2,'0')} • {m}</b><button onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{missionId:`west-builder-board-${i+1}`,title:m,source:'west-side-world-builder-board'}}));setNotice(`MISSION SENT • ${m}`)}} style={{...actionBtn,marginTop:7}}>START / PIN</button></article>)}
+     {MISSIONS.map((m,i)=><article key={m} style={card}><b>{String(i+1).padStart(2,'0')} • {m}</b><button onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{missionId:`world-builder-board-${i+1}`,title:m,source:'streetverse-world-builder-board'}}));setNotice(`MISSION SENT • ${m}`)}} style={{...actionBtn,marginTop:7}}>START / PIN</button></article>)}
     </div>}
 
     {tab==='campuses'&&<>
-     <article style={card}><b>UIC WEST CAMPUS • PHYSICAL HUBS</b><div style={{display:'grid',gap:6,marginTop:7}}>{UIC_ALL_CAMPUS_HUBS.filter(h=>h.district==='West Campus').map(h=><button key={h.id} onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:campusverse-destination',{detail:{campus:'uic',hubId:h.id,label:h.label,district:h.district,source:'west-side-world-builder'}}));setNotice(`UIC ROUTE • ${h.label}`)}} style={rowBtn}><span><b>{h.label}</b><small style={{display:'block',opacity:.7}}>{h.kind.replace('-',' ')}</small></span><span>ROUTE</span></button>)}</div></article>
+     <article style={card}><b>UIC WEST CAMPUS • PHYSICAL HUBS</b><div style={{display:'grid',gap:6,marginTop:7}}>{UIC_ALL_CAMPUS_HUBS.filter(h=>h.district==='West Campus').map(h=><button key={h.id} onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:campusverse-destination',{detail:{campus:'uic',hubId:h.id,label:h.label,district:h.district,source:'streetverse-world-builder'}}));setNotice(`UIC ROUTE • ${h.label}`)}} style={rowBtn}><span><b>{h.label}</b><small style={{display:'block',opacity:.7}}>{h.kind.replace('-',' ')}</small></span><span>ROUTE</span></button>)}</div></article>
      <article style={card}><b>ILLINOIS CAMPUSVERSE NETWORK</b><div style={{display:'grid',gap:6,marginTop:7}}>{ILLINOIS_CAMPUSVERSE_NETWORK.map(c=><button key={c.id} onClick={()=>openCampus(c.id)} style={rowBtn}><span><b>{c.name}</b><small style={{display:'block',opacity:.7}}>{c.region} • {c.system||c.archetype}</small></span><span>OPEN</span></button>)}</div></article>
     </>}
 
