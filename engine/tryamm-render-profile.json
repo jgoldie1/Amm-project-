@@ -1,0 +1,26 @@
+{
+  "schema": "tryamm.engine.render-profile.v1",
+  "web": {
+    "engine": "Three.js + React Three Fiber",
+    "physics": "Rapier 3D",
+    "navigation": "Recast",
+    "gpu": ["WebGPU", "WebGL2", "WebGL1 fallback"],
+    "target": ["iPhone", "Android", "browser"]
+  },
+  "unreal": {
+    "engine": "Unreal Engine 5.8",
+    "features": ["Nanite", "Lumen", "Virtual Shadow Maps", "Temporal Super Resolution", "PCG", "World Partition"],
+    "target": ["high-end PC", "cinematics", "future console/cloud"]
+  },
+  "unity": {
+    "engine": "Unity 6",
+    "features": ["URP", "HDRP", "Dynamic Resolution", "GPU Resident Drawer", "GPU Occlusion Culling", "DLSS", "FSR2"],
+    "target": ["native mobile", "AR/XR", "alternate native client"]
+  },
+  "compute": {
+    "fabric": "TRYAMM OmniFabric",
+    "status": "software-defined",
+    "lanes": ["render", "physics", "ai", "world-sim", "media", "commerce", "accessibility"],
+    "hardwareRoadmap": ["GPU nodes", "FPGA", "accelerator card", "chiplet", "custom silicon"]
+  }
+}
