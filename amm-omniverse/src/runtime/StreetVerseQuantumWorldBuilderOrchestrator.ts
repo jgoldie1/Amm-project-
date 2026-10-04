@@ -16,6 +16,7 @@ export type WorldBuildStage=
  |'living-world'
  |'missions-economy'
  |'mobile-lod'
+ |'sandbox-validation'
  |'qa-certification'
 
 export type WorldBuildSourceRequirement={
@@ -174,7 +175,8 @@ function makeTasks(target:WorldBuildTarget):WorldBuildTask[]{
   {id:`${prefix}:living`,stage:'living-world',label:'Attach population, traffic, ecology and services',state:'blocked',dependencies:[`${prefix}:place`],parallelGroup:7,autoExecutable:true,approvalRequired:false,outputs:['synthetic population rules','traffic/transit','trees/ecology','police/fire/EMS/service slots']},
   {id:`${prefix}:missions`,stage:'missions-economy',label:'Attach missions, jobs, businesses and creator economy',state:'blocked',dependencies:[`${prefix}:place`],parallelGroup:7,autoExecutable:true,approvalRequired:false,outputs:['mission graph','business slots','jobs','rewards hooks','Reel capture hooks']},
   {id:`${prefix}:lod`,stage:'mobile-lod',label:'Generate streaming cells + mobile LOD budgets',state:'blocked',dependencies:[`${prefix}:living`,`${prefix}:missions`],parallelGroup:8,autoExecutable:true,approvalRequired:false,outputs:['streaming cells','LOD manifest','mobile budgets','fallback geometry']},
-  {id:`${prefix}:qa`,stage:'qa-certification',label:'Navigation, collision, provenance, accessibility and performance QA',state:'blocked',dependencies:[`${prefix}:lod`],parallelGroup:9,autoExecutable:false,approvalRequired:true,outputs:['QA evidence','known limitations','founder preview','certification decision']},
+  {id:`${prefix}:sandbox`,stage:'sandbox-validation',label:'Quantum Speed sandbox simulation + proof',state:'blocked',dependencies:[`${prefix}:lod`],parallelGroup:9,autoExecutable:true,approvalRequired:false,outputs:['dependency waves','simulation manifest','certification evidence gaps','publishability decision']},
+  {id:`${prefix}:qa`,stage:'qa-certification',label:'Navigation, collision, provenance, accessibility and performance QA',state:'blocked',dependencies:[`${prefix}:sandbox`],parallelGroup:10,autoExecutable:false,approvalRequired:true,outputs:['QA evidence','known limitations','founder preview','certification decision']},
  ]
  return tasks
 }
@@ -236,6 +238,7 @@ function buildPlan(target:WorldBuildTarget):QuantumWorldBuildPlan{
    'accessibility baseline pass',
    'living-world systems connected',
    'mission start/end/reward path works',
+   'Quantum Speed sandbox simulation has verified required world evidence',
    'founder preview approves production label',
   ],
  }
@@ -339,7 +342,7 @@ export function installStreetVerseQuantumWorldBuilderOrchestrator(){
   cursorConstruct:true,
   worldForger:true,
   construct:true,
-  stages:11,
+  stages:12,
   mindOverMatterCleanRoom:true,
   productionMutation:false,
   publishRequiresApproval:true,
