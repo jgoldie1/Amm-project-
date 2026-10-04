@@ -1,3 +1,4 @@
+import {evaluateFraudRisk,fraudDecisionAllowsMoney} from '../_lib/fraud-shield.js'
 import {requireUser} from '../_lib/security.js'
 
 const PROVIDERS=[
@@ -29,6 +30,25 @@ export default async function handler(req,res){
  const currency=String(req.body?.currency||'').toUpperCase()
  const method=String(req.body?.method||'')
  if(!currency)return res.status(400).json({error:'currency required'})
+ const risk=await evaluateFraudRisk(req,user,{
+  action:String(req.body?.action||'payment'),
+  amountMinor:Number(req.body?.amountMinor||0),
+  currency,
+  recipientId:req.body?.recipientId,
+  merchantId:req.body?.merchantId,
+  creatorId:req.body?.creatorId,
+  scoutId:req.body?.scoutId,
+  deviceId:req.body?.deviceId
+ })
+ if(!fraudDecisionAllowsMoney(risk.decision)){
+  return res.status(risk.decision==='BLOCK'?403:423).json({
+    ok:false,
+    code:'FRAUD_REVIEW_REQUIRED',
+    risk,
+    canMoveRealMoney:false,
+    mode:'gated'
+  })
+ }
  const rails=candidates({currency,method})
  const available=rails.map(p=>({
    id:p.id,
