@@ -24,6 +24,8 @@ export interface TransportManifest {
   occupants: Record<string, string | undefined>;
   standingCapacity?: number;
   standingOccupants?: string[];
+  standingSlots?: Record<string,string|undefined>;
+  nextStandingSlot?: number;
   visualPolicy?: TransportVisualPolicy;
 }
 
@@ -83,6 +85,8 @@ export function createTransportManifest(
     occupants: Object.fromEntries(seats.map((seat) => [seat.id, undefined])),
     standingCapacity: standingCapacity ?? TRANSPORT_CAPACITIES[kind].standing,
     standingOccupants: [],
+    standingSlots: {},
+    nextStandingSlot: 1,
     visualPolicy: MOBILE_TRANSPORT_VISUAL_POLICY,
   };
 }
@@ -112,10 +116,15 @@ export function boardTransport(
   actorId: string,
   preferredSeatId?: string,
 ): string | null {
+  const existingSeat=Object.entries(manifest.occupants).find(([,occupant])=>occupant===actorId);
+  if(existingSeat)return existingSeat[0];
+  const existingStanding=Object.entries(manifest.standingSlots??{}).find(([,occupant])=>occupant===actorId);
+  if(existingStanding)return existingStanding[0];
+
   const preferred = preferredSeatId && manifest.seats.find((seat) => seat.id === preferredSeatId);
   const seat = preferred && !manifest.occupants[preferred.id]
     ? preferred
-    : manifest.seats.find((candidate) => !manifest.occupants[candidate.id]);
+    : manifest.seats.find((candidate) => candidate.role==='passenger'&&!manifest.occupants[candidate.id]);
 
   if (seat) {
     manifest.occupants[seat.id] = actorId;
@@ -123,9 +132,13 @@ export function boardTransport(
   }
 
   const standing = manifest.standingOccupants ?? (manifest.standingOccupants = []);
+  const slots=manifest.standingSlots??(manifest.standingSlots={});
   if (standing.length < (manifest.standingCapacity ?? 0)) {
+    const slotId=`standing-${manifest.nextStandingSlot??1}`;
+    manifest.nextStandingSlot=(manifest.nextStandingSlot??1)+1;
     standing.push(actorId);
-    return `standing-${standing.length}`;
+    slots[slotId]=actorId;
+    return slotId;
   }
   return null;
 }
@@ -140,6 +153,8 @@ export function leaveTransport(manifest: TransportManifest, actorId: string): bo
   const index = standing.indexOf(actorId);
   if (index >= 0) {
     standing.splice(index, 1);
+    const slot=Object.entries(manifest.standingSlots??{}).find(([,occupant])=>occupant===actorId);
+    if(slot)delete manifest.standingSlots?.[slot[0]];
     return true;
   }
   return false;
