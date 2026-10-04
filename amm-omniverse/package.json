@@ -26,7 +26,10 @@
     "native:assets": "node scripts/tryamm-native-asset-foundry.mjs public/generated-assets/native",
     "mind:assets": "node scripts/mind-over-matter-clean-room-foundry.mjs public/generated-assets/mind-over-matter",
     "test:industry-resilience": "node tests/tryamm-industry-resilience-contract.mjs",
-    "visual:capture": "node scripts/capture-streetverse-release.mjs"
+    "visual:capture": "node scripts/capture-streetverse-release.mjs",
+    "unreal:manifest": "node scripts/export-unreal-streetverse-manifest.mjs",
+    "unreal:check": "node tests/unreal-mcp-readiness-contract.mjs",
+    "graphics:check": "node tests/graphics-acceleration-runtime-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
