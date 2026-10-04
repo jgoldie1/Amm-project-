@@ -23,7 +23,8 @@ export default async function handler(req, res) {
     recording_archive_secret: present('TRYAMM_RECORDING_ARCHIVE_SECRET'),
     stt_provider: present('TRYAMM_STT_ENDPOINT') && present('TRYAMM_STT_API_KEY'),
     tts_provider: present('TRYAMM_TTS_ENDPOINT') && present('TRYAMM_TTS_API_KEY'),
-    hologpt_provider: present('OPENAI_API_KEY') || present('TRYAMM_AI_API_KEY') || present('TRYAMM_AI_PROVIDER_KEY')
+    hologpt_provider: present('OPENAI_API_KEY') || present('TRYAMM_AI_API_KEY') || present('TRYAMM_AI_PROVIDER_KEY'),
+    poyo_provider: present('POYO_API_KEY')
   };
 
   const commerceChecks = {
@@ -125,12 +126,43 @@ export default async function handler(req, res) {
     commerceSchemaReachable &&
     Object.values(commerceChecks).every(Boolean);
 
-  const ready = criticalPassed === criticalKeys.length && providerValidationPassed;
+  const fullPlatformReady = criticalPassed === criticalKeys.length && providerValidationPassed;
+  const standaloneCoreReady =
+    checks.app_https &&
+    checks.supabase_url &&
+    checks.supabase_public_key &&
+    supabaseReachable;
+  const streetverseReady = standaloneCoreReady;
+  const tryammReady = standaloneCoreReady;
+  const requestedProfile = String(req.query?.profile || 'full-platform').trim().toLowerCase();
+  const profileReady =
+    requestedProfile === 'streetverse' ? streetverseReady :
+    requestedProfile === 'tryamm' || requestedProfile === 'tryamm-core' ? tryammReady :
+    fullPlatformReady;
+  const ready = profileReady;
   res.setHeader('Cache-Control', 'no-store');
   return res.status(ready ? 200 : 503).json({
     release: 'live-vite-readiness-5',
     site: 'tryamm.online',
     ready,
+    requestedProfile,
+    profiles: {
+      streetverse: {
+        ready: streetverseReady,
+        required: ['app_https','supabase_url','supabase_public_key','supabaseReachable'],
+        optional: ['hologpt_provider','poyo_provider','supabase_service_role','commerce','telephony']
+      },
+      tryamm: {
+        ready: tryammReady,
+        required: ['app_https','supabase_url','supabase_public_key','supabaseReachable'],
+        optional: ['hologpt_provider','poyo_provider','supabase_service_role','commerce','telephony']
+      },
+      fullPlatform: {
+        ready: fullPlatformReady,
+        required: criticalKeys,
+        providerValidationPassed
+      }
+    },
     criticalPassed,
     criticalTotal: criticalKeys.length,
     checks,
@@ -154,7 +186,11 @@ export default async function handler(req, res) {
       authority: 'checkout -> verified Stripe event -> transaction -> entitlement -> ledger',
       gateRule: 'Charging is ready only when Stripe secrets, webhook verification, seller-transfer verification, reconciliation verification, and the authoritative payment schema are all ready.'
     },
-    gateRule: 'Green requires all critical variables plus successful live Supabase public/service-role and Twilio account/number validation.',
+    gateRule: requestedProfile === 'streetverse'
+      ? 'StreetVerse standalone green requires HTTPS plus reachable Supabase public auth/data. AI, Poyo, commerce, telephony and admin-only services may degrade independently.'
+      : requestedProfile === 'tryamm' || requestedProfile === 'tryamm-core'
+        ? 'TRYAMM standalone green requires HTTPS plus reachable Supabase public auth/data. Optional provider lanes report their own readiness.'
+        : 'Full-platform green requires all critical variables plus successful live Supabase public/service-role and Twilio account/number validation.',
     note: 'Secret values and provider response bodies are never returned.'
   });
 }
