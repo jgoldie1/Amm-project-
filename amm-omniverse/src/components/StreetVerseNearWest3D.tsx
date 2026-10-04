@@ -14,6 +14,9 @@ import StreetVerseCreatorGrowthPanel from './StreetVerseCreatorGrowthPanel'
 import StreetVerseDiscordPanel from './StreetVerseDiscordPanel'
 import {NEAR_WEST_BIRTHDAY_MISSIONS,requestMissionReward,type StreetVerseMission} from '../data/streetVerseBirthdayMissions'
 import GreenvilleCampusVerseScene from './GreenvilleCampusVerseScene'
+import {UIC_ALL_CAMPUS_HUBS} from '../data/uicCampusVerseHubs'
+import IllinoisCampusVersePlayableScene from './IllinoisCampusVersePlayableScene'
+import {ILLINOIS_CAMPUSVERSE_NETWORK,type CampusNetworkId} from '../data/campusVerseIllinoisUniversityNetwork'
 
 function MissionMarker({mission}:{mission:StreetVerseMission|null}){if(!mission)return null;return <group position={[mission.objective.x,0,mission.objective.z]}><mesh position={[0,2.5,0]}><cylinderGeometry args={[.7,.7,5,12]}/><meshStandardMaterial color="#f3c84b" emissive="#f3c84b" emissiveIntensity={.5} transparent opacity={.7}/></mesh><mesh position={[0,5.7,0]}><sphereGeometry args={[.9,12,10]}/><meshStandardMaterial color="#fff2a3" emissive="#f3c84b" emissiveIntensity={.8}/></mesh></group>}
 
@@ -47,27 +50,39 @@ function TaylorLots(){
 
 
 function UICCampusMesh(){
- const stops=[
-  {id:'student-center-east',x:-760,z:610,w:36,d:24,h:13,color:'#8c4b3b'},
-  {id:'daley-library',x:-815,z:635,w:42,d:28,h:16,color:'#73665c'},
-  {id:'taylor-street-building',x:-560,z:700,w:34,d:22,h:12,color:'#7b4937'},
-  {id:'roosevelt-road-building',x:-690,z:560,w:38,d:24,h:14,color:'#655c54'},
- ] as const
  return <group>
   <mesh receiveShadow position={[-700,.02,635]}><boxGeometry args={[330,.08,210]}/><meshStandardMaterial color="#608052"/></mesh>
+  <mesh receiveShadow position={[-1090,.02,725]}><boxGeometry args={[390,.08,300]}/><meshStandardMaterial color="#5a744d"/></mesh>
+
   <mesh receiveShadow position={[-700,.08,610]}><boxGeometry args={[310,.14,12]}/><meshStandardMaterial color="#c7c3b8"/></mesh>
   <mesh receiveShadow position={[-760,.08,635]}><boxGeometry args={[12,.14,150]}/><meshStandardMaterial color="#c7c3b8"/></mesh>
-  {stops.map(stop=><group key={stop.id} position={[stop.x,0,stop.z]}>
+
+  <mesh receiveShadow position={[-1000,.09,700]}><boxGeometry args={[560,.16,12]}/><meshStandardMaterial color="#c8c4b8"/></mesh>
+  <mesh receiveShadow position={[-1080,.09,645]}><boxGeometry args={[12,.16,245]}/><meshStandardMaterial color="#c8c4b8"/></mesh>
+  <mesh receiveShadow position={[-1160,.09,760]}><boxGeometry args={[12,.16,185]}/><meshStandardMaterial color="#c8c4b8"/></mesh>
+  <mesh receiveShadow position={[-1010,.10,735]}><boxGeometry args={[280,.14,8]}/><meshStandardMaterial color="#d6d1c6"/></mesh>
+
+  {UIC_ALL_CAMPUS_HUBS.map(stop=><group key={stop.id} position={[stop.x,0,stop.z]}>
    <mesh castShadow receiveShadow position={[0,stop.h/2,0]}><boxGeometry args={[stop.w,stop.h,stop.d]}/><meshStandardMaterial color={stop.color} roughness={.84}/></mesh>
    <mesh position={[0,2,-stop.d/2-.12]}><boxGeometry args={[Math.min(8,stop.w*.3),4,.2]}/><meshStandardMaterial color="#29485b"/></mesh>
    <mesh position={[0,stop.h+2,0]}><cylinderGeometry args={[.28,.28,4,10]}/><meshStandardMaterial color="#70e6ff" emissive="#36bfdc" emissiveIntensity={.65}/></mesh>
    <mesh position={[0,stop.h+4.6,0]}><sphereGeometry args={[.6,10,8]}/><meshStandardMaterial color="#fff0a3" emissive="#ffd55e" emissiveIntensity={.75}/></mesh>
   </group>)}
-  <mesh receiveShadow position={[-735,.06,670]}><boxGeometry args={[90,.12,48]}/><meshStandardMaterial color="#4f7546"/></mesh>
+
+  <mesh receiveShadow position={[-735,.06,670]}><boxGeometry args={[90,.12,48]}/><meshStandardMaterial color="#4f7646"/></mesh>
   <mesh position={[-735,.2,670]} rotation={[-Math.PI/2,0,0]}><torusGeometry args={[12,.16,8,48]}/><meshStandardMaterial color="#e7dfcf"/></mesh>
+
+  <mesh receiveShadow position={[-1090,.06,735]}><boxGeometry args={[120,.12,70]}/><meshStandardMaterial color="#4f7646"/></mesh>
+  <mesh position={[-1090,.18,735]} rotation={[-Math.PI/2,0,0]}><torusGeometry args={[14,.16,8,48]}/><meshStandardMaterial color="#e7dfcf"/></mesh>
+
+  {[
+    [-1185,690],[-1125,620],[-1055,660],[-1005,735],[-950,745],[-1210,805]
+  ].map(([x,z],i)=><group key={i} position={[x,0,z]}>
+    <mesh position={[0,2.6,0]}><cylinderGeometry args={[.18,.22,5.2,8]}/><meshStandardMaterial color="#62513e"/></mesh>
+    <mesh position={[0,6,0]}><sphereGeometry args={[1.5,10,8]}/><meshStandardMaterial color="#416f42"/></mesh>
+  </group>)}
  </group>
 }
-
 function JeffersonLegacyCampusMesh(){
  return <group position={[-820,0,575]}>
   <mesh castShadow receiveShadow position={[0,5,0]}><boxGeometry args={[42,10,28]}/><meshStandardMaterial color="#8b4a3b"/></mesh>
@@ -96,7 +111,7 @@ function NearWestPlayer({move,onPosition,hidden=false,startPosition}:{move:React
  useFrame((_,dt)=>{
   const p=ref.current;if(!p)return
   const speed=20
-  p.position.x=THREE.MathUtils.clamp(p.position.x+move.current.x*speed*dt,-1180,560)
+  p.position.x=THREE.MathUtils.clamp(p.position.x+move.current.x*speed*dt,-1280,560)
   p.position.z=THREE.MathUtils.clamp(p.position.z+move.current.z*speed*dt,380,1160)
   if(Math.abs(move.current.x)+Math.abs(move.current.z)>.05)p.rotation.y=Math.atan2(move.current.x,move.current.z)
   const target=new THREE.Vector3(p.position.x,p.position.y+6.5,p.position.z+14)
@@ -122,7 +137,7 @@ function DrivenVehicle({vehicleId,move,onPosition,onHeading}:{vehicleId:string;m
  const v=STREETVERSE_FUTURE_VEHICLES.find(x=>x.id===vehicleId)
  const ref=useRef<THREE.Group>(null);const {camera}=useThree()
  const speedRef=useRef(0),steerRef=useRef(0)
- useFrame((_,dt)=>{const g=ref.current;if(!g||!v)return;const throttle=THREE.MathUtils.clamp(-move.current.z,-1,1),steerInput=THREE.MathUtils.clamp(move.current.x,-1,1),maxSpeed=Math.min(22,Math.max(8,v.speed));const targetSpeed=throttle*maxSpeed;speedRef.current=THREE.MathUtils.lerp(speedRef.current,targetSpeed,Math.min(1,(Math.abs(targetSpeed)>Math.abs(speedRef.current)?2.5:4.2)*dt));if(Math.abs(throttle)<.03)speedRef.current=THREE.MathUtils.lerp(speedRef.current,0,Math.min(1,4.6*dt));if(Math.abs(speedRef.current)<.04)speedRef.current=0;steerRef.current=THREE.MathUtils.lerp(steerRef.current,steerInput,Math.min(1,4.2*dt));const speedRatio=THREE.MathUtils.clamp(Math.abs(speedRef.current)/maxSpeed,0,1),turnScale=THREE.MathUtils.lerp(.90,.42,speedRatio);if(Math.abs(speedRef.current)>.08)g.rotation.y-=steerRef.current*Math.min(1.05,v.handling*.82)*turnScale*dt*(speedRef.current<0?-1:1);const forward=new THREE.Vector3(Math.sin(g.rotation.y),0,Math.cos(g.rotation.y));g.position.addScaledVector(forward,speedRef.current*dt);g.position.x=THREE.MathUtils.clamp(g.position.x,-1180,560);g.position.z=THREE.MathUtils.clamp(g.position.z,380,1160);const chase=new THREE.Vector3(g.position.x-forward.x*13,g.position.y+7,g.position.z-forward.z*13);camera.position.lerp(chase,Math.min(1,dt*3.7));camera.lookAt(g.position.x,g.position.y+1,g.position.z);onPosition(g.position.x,g.position.z);onHeading(g.rotation.y)})
+ useFrame((_,dt)=>{const g=ref.current;if(!g||!v)return;const throttle=THREE.MathUtils.clamp(-move.current.z,-1,1),steerInput=THREE.MathUtils.clamp(move.current.x,-1,1),maxSpeed=Math.min(22,Math.max(8,v.speed));const targetSpeed=throttle*maxSpeed;speedRef.current=THREE.MathUtils.lerp(speedRef.current,targetSpeed,Math.min(1,(Math.abs(targetSpeed)>Math.abs(speedRef.current)?2.5:4.2)*dt));if(Math.abs(throttle)<.03)speedRef.current=THREE.MathUtils.lerp(speedRef.current,0,Math.min(1,4.6*dt));if(Math.abs(speedRef.current)<.04)speedRef.current=0;steerRef.current=THREE.MathUtils.lerp(steerRef.current,steerInput,Math.min(1,4.2*dt));const speedRatio=THREE.MathUtils.clamp(Math.abs(speedRef.current)/maxSpeed,0,1),turnScale=THREE.MathUtils.lerp(.90,.42,speedRatio);if(Math.abs(speedRef.current)>.08)g.rotation.y-=steerRef.current*Math.min(1.05,v.handling*.82)*turnScale*dt*(speedRef.current<0?-1:1);const forward=new THREE.Vector3(Math.sin(g.rotation.y),0,Math.cos(g.rotation.y));g.position.addScaledVector(forward,speedRef.current*dt);g.position.x=THREE.MathUtils.clamp(g.position.x,-1280,560);g.position.z=THREE.MathUtils.clamp(g.position.z,380,1160);const chase=new THREE.Vector3(g.position.x-forward.x*13,g.position.y+7,g.position.z-forward.z*13);camera.position.lerp(chase,Math.min(1,dt*3.7));camera.lookAt(g.position.x,g.position.y+1,g.position.z);onPosition(g.position.x,g.position.z);onHeading(g.rotation.y)})
  if(!v)return null
  const long=v.kind==='armored-utility'?5.6:v.kind==='cyber-shuttle'?5.2:v.kind==='hypercar'?4.8:2.7
  return <group ref={ref} position={[v.spawn.x,0,v.spawn.z]}><mesh castShadow position={[0,.9,0]}><boxGeometry args={[long,v.kind==='ring-bike'?.75:1.15,v.kind==='ring-bike'?1.1:2.15]}/><meshStandardMaterial color={v.visual.body} metalness={.7} roughness={.25}/></mesh><mesh position={[0,.8,-1.1]}><boxGeometry args={[long*.65,.12,.08]}/><meshStandardMaterial color={v.visual.accent} emissive={v.visual.accent} emissiveIntensity={.5}/></mesh></group>
@@ -154,6 +169,7 @@ function PopulationMeshes({reaction}:{reaction:{id:string;reaction:'stagger'|'do
 export default function StreetVerseNearWest3D(){
  const [collegeBookOpen,setCollegeBookOpen]=useState(false)
  const [greenvilleOpen,setGreenvilleOpen]=useState(false)
+ const [remoteCampusId,setRemoteCampusId]=useState<CampusNetworkId|null>(null)
  const [dealerOpen,setDealerOpen]=useState(false)
  const [garageOpen,setGarageOpen]=useState(false)
  const [liveRpOpen,setLiveRpOpen]=useState(false)
@@ -180,12 +196,7 @@ export default function StreetVerseNearWest3D(){
   const onCampusMission=(e:Event)=>{
    const d=(e as CustomEvent<{missionId?:string;id?:string;title?:string;campus?:string;hubId?:string;objective?:string}>).detail||{}
    if(d.campus!=='uic')return
-   const hubs:Record<string,{x:number;z:number;label:string}>={
-    'student-center-east':{x:-760,z:610,label:'Student Center East'},
-    'daley-library':{x:-815,z:635,label:'Richard J. Daley Library'},
-    'taylor-street-building':{x:-560,z:700,label:'Taylor Street Campus Stop'},
-    'roosevelt-road-building':{x:-690,z:560,label:'Roosevelt Road Campus Stop'},
-   }
+   const hubs:Record<string,{x:number;z:number;label:string}>=Object.fromEntries(UIC_ALL_CAMPUS_HUBS.map(h=>[h.id,{x:h.x,z:h.z,label:h.label}]))
    const hub=hubs[String(d.hubId||'')]||hubs['daley-library']
    const mission:StreetVerseMission={id:String(d.missionId||d.id||'uic-campus-mission'),title:String(d.title||'UIC CampusVerse Mission'),marker:{x:playerSpawn.x,z:playerSpawn.z},objective:{x:hub.x,z:hub.z,label:String(d.objective||('Reach '+hub.label))},xp:200,credits:1000}
    setActiveMission(mission);setMissionStep('deliver');setMissionReady(false)
@@ -196,7 +207,7 @@ export default function StreetVerseNearWest3D(){
  },[playerSpawn.x,playerSpawn.z])
  const senseNearby=(x:number,z:number)=>{
   if(activeMission&&missionStep==='deliver'){const d=Math.hypot(activeMission.objective.x-x,activeMission.objective.z-z);const ready=d<16;setMissionReady(prev=>prev===ready?prev:ready);if(ready){requestMissionReward(activeMission);window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{id:activeMission.id,title:activeMission.title,campus:activeMission.id.startsWith('uic')||activeMission.title.includes('UIC')?'uic':'near-west',objective:activeMission.objective}}));setActiveMission(null);setMissionStep('talk');setMissionReady(false)}}
-  const protectedArea=(x>-900&&x<-560&&z>500&&z<850)?'UIC CAMPUS SAFE ZONE':(x>-560&&x<-250&&z>500&&z<860)?'MEDICAL DISTRICT SAFE ZONE':null
+  const protectedArea=(x>-900&&x<-560&&z>500&&z<850)?'UIC EAST CAMPUS SAFE ZONE':(x>-1265&&x<-900&&z>560&&z<885)?'UIC WEST CAMPUS SAFE ZONE':(x>-560&&x<-250&&z>500&&z<860)?'MEDICAL DISTRICT SAFE ZONE':null
   setSafeZone(prev=>prev===protectedArea?prev:protectedArea)
   const targets=[
    ...NEAR_WEST_NPCS.map(n=>({kind:'npc' as const,id:n.id,label:n.displayName,mission:n.missionHook,x:n.position.x,z:n.position.z})),
@@ -233,9 +244,21 @@ export default function StreetVerseNearWest3D(){
   if(nearby.mission)window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{missionId:nearby.mission,target:nearby.id}}))
  }
  const travelToGreenville=()=>{setCollegeBookOpen(false);window.dispatchEvent(new CustomEvent('tryamm:campusverse-travel',{detail:{from:'uic',to:'greenville',character:'Jacobie',source:'streetverse-uic-gateway'}}));setGreenvilleOpen(true)}
- useEffect(()=>{const open=(e:Event)=>{const d=(e as CustomEvent).detail||{};if(d.to==='greenville'){setCollegeBookOpen(false);setGreenvilleOpen(true)}};window.addEventListener('tryamm:campusverse-travel',open);return()=>window.removeEventListener('tryamm:campusverse-travel',open)},[])
- useEffect(()=>{const route=(e:Event)=>{const d=(e as CustomEvent<{campus?:string;hubId?:string;label?:string}>).detail||{};if(d.campus!=='uic')return;const hubs:Record<string,{x:number;z:number}>={'student-center-east':{x:-760,z:610},'daley-library':{x:-815,z:635},'taylor-street-building':{x:-560,z:700},'roosevelt-road-building':{x:-690,z:560}};const target=hubs[String(d.hubId||'')];if(!target)return;const mission:StreetVerseMission={id:`uic-route:${String(d.hubId||'campus')}`,title:`UIC • ${String(d.label||'Campus destination')}`,marker:{x:playerSpawn.x,z:playerSpawn.z},objective:{x:target.x,z:target.z,label:`Walk to ${String(d.label||'UIC campus destination')}`},xp:125,credits:600};setActiveMission(mission);setMissionStep('deliver');setCollegeBookOpen(false);window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:`UIC ROUTE ACTIVE • walk to ${String(d.label||'Campus destination')}`}}))};window.addEventListener('tryamm:campusverse-destination',route);return()=>window.removeEventListener('tryamm:campusverse-destination',route)},[playerSpawn.x,playerSpawn.z])
+ useEffect(()=>{const open=(e:Event)=>{
+  const d=(e as CustomEvent<{to?:CampusNetworkId}>).detail||{}
+  const to=d.to
+  if(!to)return
+  setCollegeBookOpen(false)
+  if(to==='greenville'){setRemoteCampusId(null);setGreenvilleOpen(true);return}
+  if(to==='uic'){setGreenvilleOpen(false);setRemoteCampusId(null);return}
+  if(ILLINOIS_CAMPUSVERSE_NETWORK.some(c=>c.id===to)){setGreenvilleOpen(false);setRemoteCampusId(to)}
+ };window.addEventListener('tryamm:campusverse-travel',open);return()=>window.removeEventListener('tryamm:campusverse-travel',open)},[])
+ useEffect(()=>{const route=(e:Event)=>{const d=(e as CustomEvent<{campus?:string;hubId?:string;label?:string}>).detail||{};if(d.campus!=='uic')return;const hubs:Record<string,{x:number;z:number}>=Object.fromEntries(UIC_ALL_CAMPUS_HUBS.map(h=>[h.id,{x:h.x,z:h.z}]));const target=hubs[String(d.hubId||'')];if(!target)return;const mission:StreetVerseMission={id:`uic-route:${String(d.hubId||'campus')}`,title:`UIC • ${String(d.label||'Campus destination')}`,marker:{x:playerSpawn.x,z:playerSpawn.z},objective:{x:target.x,z:target.z,label:`Walk to ${String(d.label||'UIC campus destination')}`},xp:125,credits:600};setActiveMission(mission);setMissionStep('deliver');setCollegeBookOpen(false);window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:`UIC ROUTE ACTIVE • walk to ${String(d.label||'Campus destination')}`}}))};window.addEventListener('tryamm:campusverse-destination',route);return()=>window.removeEventListener('tryamm:campusverse-destination',route)},[playerSpawn.x,playerSpawn.z])
  if(greenvilleOpen)return <GreenvilleCampusVerseScene onReturn={()=>setGreenvilleOpen(false)}/>
+ if(remoteCampusId){
+  const campus=ILLINOIS_CAMPUSVERSE_NETWORK.find(c=>c.id===remoteCampusId)
+  if(campus)return <IllinoisCampusVersePlayableScene campus={campus} onReturn={()=>setRemoteCampusId(null)}/>
+ }
  return <div aria-label="StreetVerse Near West 3D" style={{width:'100%',height:'100%',minHeight:420}}>
   <div style={{position:'absolute',left:12,right:12,top:12,zIndex:22,display:'flex',gap:6,overflowX:'auto',paddingBottom:4,WebkitOverflowScrolling:'touch'}}>
    <button aria-label="Open Quantum Discord" onClick={()=>setDiscordOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>💬 DISCORD</button>

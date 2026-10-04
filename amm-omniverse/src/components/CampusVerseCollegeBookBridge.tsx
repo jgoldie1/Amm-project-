@@ -1,13 +1,9 @@
 import {useState} from 'react'
 import {CAMPUSVERSE_CAMPUSES,CAMPUSVERSE_COLLEGEBOOK_LIBRARY,JACOBIE_CAMPUS_PATH} from '../data/campusVerseUicGreenvilleBridge'
+import {UIC_EAST_CAMPUS_HUBS,UIC_WEST_CAMPUS_HUBS,UIC_WEST_CAMPUS_MISSIONS,type UicCampusHub} from '../data/uicCampusVerseHubs'
 
 type Props={onClose?:()=>void}
-const UIC_HUBS=[
- {id:'student-center-east',label:'Student Center East',district:'East Campus'},
- {id:'daley-library',label:'Richard J. Daley Library',district:'East Campus'},
- {id:'taylor-street-building',label:'Taylor Street Building',district:'Taylor Street'},
- {id:'roosevelt-road-building',label:'Roosevelt Road Building',district:'Roosevelt Road'},
-] as const
+const UIC_HUBS:readonly UicCampusHub[]=[...UIC_EAST_CAMPUS_HUBS,...UIC_WEST_CAMPUS_HUBS]
 
 export default function CampusVerseCollegeBookBridge({onClose}:Props){
  const [selectedBook,setSelectedBook]=useState<(typeof CAMPUSVERSE_COLLEGEBOOK_LIBRARY)[number]|null>(null)
@@ -17,6 +13,14 @@ export default function CampusVerseCollegeBookBridge({onClose}:Props){
   setActiveHub(hub);setStatus(`UIC ROUTE READY • ${hub.label}`)
   window.dispatchEvent(new CustomEvent('tryamm:campusverse-destination',{detail:{campus:'uic',hubId:hub.id,label:hub.label,district:hub.district,source:'campusverse-collegebook'}}))
   window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:`UIC CampusVerse • ${hub.label} route ready`}}))
+ }
+ const startWestMission=(mission:(typeof UIC_WEST_CAMPUS_MISSIONS)[number])=>{
+  const hub=UIC_WEST_CAMPUS_HUBS.find(h=>h.id===mission.hubId)
+  if(!hub)return
+  setActiveHub(hub);setStatus(`WEST CAMPUS MISSION • ${mission.title}`)
+  const detail={missionId:`uic:${mission.id}`,id:`uic:${mission.id}`,title:`UIC West Campus • ${mission.title}`,objective:mission.objective,campus:'uic',hubId:hub.id,source:'campusverse-west-mission-board'}
+  window.dispatchEvent(new CustomEvent('tryamm:campusverse-mission-open',{detail}))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail}))
  }
  const openBook=(book:(typeof CAMPUSVERSE_COLLEGEBOOK_LIBRARY)[number])=>{
   setSelectedBook(book);setStatus(`COLLEGEBOOK OPEN • ${book.title}`)
@@ -40,9 +44,18 @@ export default function CampusVerseCollegeBookBridge({onClose}:Props){
   </div>
   <div aria-live="polite" style={{padding:'9px 10px',borderRadius:12,background:'#10283a',border:'1px solid #4b91ac',fontSize:12,fontWeight:800}}>{status}</div>
 
-  <h3 style={{margin:'14px 0 7px'}}>UIC • CONNECTED DESTINATIONS</h3>
+  <h3 style={{margin:'14px 0 7px'}}>UIC • EAST / CITY CAMPUS</h3>
   <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7}}>
-   {UIC_HUBS.map(hub=><button key={hub.id} onClick={()=>openHub(hub)} style={{minHeight:58,padding:9,borderRadius:11,textAlign:'left',fontWeight:850,border:activeHub?.id===hub.id?'2px solid #7be9ff':'1px solid #456'}}><span style={{display:'block'}}>{hub.label}</span><small>{hub.district}</small></button>)}
+   {UIC_EAST_CAMPUS_HUBS.map(hub=><button key={hub.id} onClick={()=>openHub(hub)} style={{minHeight:58,padding:9,borderRadius:11,textAlign:'left',fontWeight:850,border:activeHub?.id===hub.id?'2px solid #7be9ff':'1px solid #456'}}><span style={{display:'block'}}>{hub.label}</span><small>{hub.district}</small></button>)}
+  </div>
+
+  <h3 style={{margin:'14px 0 7px'}}>UIC • WEST CAMPUS / HEALTH SCIENCES</h3>
+  <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7}}>
+   {UIC_WEST_CAMPUS_HUBS.map(hub=><button key={hub.id} onClick={()=>openHub(hub)} style={{minHeight:58,padding:9,borderRadius:11,textAlign:'left',fontWeight:850,border:activeHub?.id===hub.id?'2px solid #7be9ff':'1px solid #456'}}><span style={{display:'block'}}>{hub.label}</span><small>{hub.kind.replace('-',' ')} • West Campus</small></button>)}
+  </div>
+  <h3 style={{margin:'14px 0 7px'}}>WEST CAMPUS • MISSION BOARD</h3>
+  <div style={{display:'grid',gap:7}}>
+   {UIC_WEST_CAMPUS_MISSIONS.map(mission=><button key={mission.id} onClick={()=>startWestMission(mission)} style={{minHeight:48,padding:10,borderRadius:11,textAlign:'left',fontWeight:900}}><span style={{display:'block'}}>START • {mission.title}</span><small>{mission.objective}</small></button>)}
   </div>
 
   <h3 style={{margin:'14px 0 7px'}}>COLLEGEBOOK • OPEN + START</h3>
