@@ -27,6 +27,7 @@ let radioVolume=.65
 let conversationActive=false
 let currentRadioGenre:'gospel'|'hiphop'|'electronic'|'jazz'|'rnb'='hiphop'
 let radioLoop:ReturnType<typeof setInterval>|null=null
+let ambienceStarted=false
 
 const play=(key:SoundKey,caption?:string)=>{
   if(!enabled)return
@@ -163,7 +164,13 @@ export function installStreetVerseSoundBankRuntime(){
     setTimeout(()=>play('soft_breathing'),520)
   }
   const onFirstGesture=()=>{
+    if(!ambienceStarted){
+      ambienceStarted=true
+      soundEngine.startAmbient('city_ambient',900)
+      soundEngine.startAmbient('crowd_ambient',1700)
+    }
     soundEngine.play('city_ambient')
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-audio-unlocked',{detail:{enabled,volume,backgroundAmbience:true,source:'first-user-gesture'}}))
     removeEventListener('pointerdown',onFirstGesture)
     removeEventListener('keydown',onFirstGesture)
   }
@@ -270,6 +277,8 @@ export function installStreetVerseSoundBankRuntime(){
   return()=>{
     removeQuantumBeat()
     quantumBeatClock.stop()
+    soundEngine.stopAllAmbient()
+    ambienceStarted=false
     removeEventListener('pointerdown',onFirstGesture)
     removeEventListener('keydown',onFirstGesture)
     removeEventListener('tryamm:streetverse-player-position',onPlayerPosition)
