@@ -1,6 +1,7 @@
 import {useEffect,useState} from 'react'
 import {getAccessToken} from '../services/supabaseClient'
 import {FREIGHT_FLOW,type FreightMode} from '../logistics/freightNetwork'
+import FleetOwnerOperatorCenter from './FleetOwnerOperatorCenter'
 
 export default function LogisticsFreightCommandCenter({onClose}:{onClose:()=>void}){
  const [origin,setOrigin]=useState('Supplier / Virtual Warehouse')
@@ -21,6 +22,7 @@ export default function LogisticsFreightCommandCenter({onClose}:{onClose:()=>voi
   </section>
   <section style={{...panel,marginTop:12}}><h2>Plan freight</h2><input value={origin} onChange={e=>setOrigin(e.target.value)} style={input}/><input value={destination} onChange={e=>setDestination(e.target.value)} style={input}/><div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:8}}><select value={mode} onChange={e=>setMode(e.target.value as FreightMode)} style={input}>{['parcel','ltl','ftl','intermodal','air','ocean','local'].map(x=><option key={x}>{x}</option>)}</select><input type="number" min="1" value={weight} onChange={e=>setWeight(Math.max(1,Number(e.target.value)||1))} style={input}/></div><button onClick={plan} style={button}>CREATE DRAFT FREIGHT PLAN</button></section>
   <section style={{...panel,marginTop:12}}><h2>Freight execution chain</h2><div style={{display:'grid',gap:6}}>{FREIGHT_FLOW.map((step,i)=><div key={step} style={{fontSize:11,color:'#c8d6df'}}><b style={{color:'#e8b944'}}>{String(i+1).padStart(2,'0')}</b> • {step}</div>)}</div></section>
+  <FleetOwnerOperatorCenter />
   <section style={{...panel,marginTop:12}}><h2>External readiness</h2><p style={copy}>{ready?.canExternallyBookFreight?'Freight broker/3PL production rail detected.':'No verified live broker/3PL booking rail is confirmed yet.'}</p><button onClick={check} style={button}>REFRESH READINESS</button></section>
   <div role="status" aria-live="polite" style={{marginTop:12,color:'#b9d2df',fontSize:11}}>{status}</div>
  </div></div>
