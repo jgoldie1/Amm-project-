@@ -43,7 +43,7 @@ import {installStreetVerseThreatResponseRuntime} from '../runtime/StreetVerseThr
 import {installStreetVerseWorldConsequenceRuntime} from '../runtime/StreetVerseWorldConsequenceRuntime'
 import type {StreetVerseWorldConsequenceMission} from '../runtime/StreetVerseWorldConsequenceRuntime'
 import {BJ_PHOTOMATCH_ASSET,installBJPhotoMatchedHead} from '../runtime/StreetVerseBJPhotoMatchRuntime'
-import {BJ_MESHY_V6_ASSET,loadStreetVerseMeshyBJHero,type StreetVerseMeshyBJHeroHandle} from '../runtime/StreetVerseMeshyBJHeroRuntime'
+import {BJ_MESHY_V6_ASSET,loadStreetVerseMeshyBJHeroDetailed,type StreetVerseMeshyBJHeroHandle} from '../runtime/StreetVerseMeshyBJHeroRuntime'
 import {loadStreetVerseMeshyCharacter,type StreetVerseMeshyLoadedCharacter} from '../runtime/StreetVerseMeshyCharacterRuntime'
 import {loadStreetVersePublishedBodyBase,type StreetVersePublishedBodyHandle} from '../runtime/StreetVersePublishedBodyBaseRuntime'
 import CircleParkGuardCheckInHUD from './CircleParkGuardCheckInHUD'
@@ -264,11 +264,12 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
         nativeHeroFallback!.visible=false
         nativeLayer.add(handle.object)
         nativeHero=handle.object
-        nativeHero.position.copy(avatar.position)
-        nativeHero.rotation.y=avatar.rotation.y
-        nativeHeroRig=nativeHumanoidRig(nativeHero)
+        const loadedHero=handle.object
+        loadedHero.position.copy(avatar.position)
+        loadedHero.rotation.y=avatar.rotation.y
+        nativeHeroRig=nativeHumanoidRig(loadedHero)
         nativeWindLocs=[]
-        nativeHero.traverse(object=>{if(/loc|braid|dread|hair/i.test(object.name)){object.userData={...object.userData,windBaseRotation:{x:object.rotation.x,y:object.rotation.y,z:object.rotation.z}};nativeWindLocs.push(object)}})
+        loadedHero.traverse(object=>{if(/loc|braid|dread|hair/i.test(object.name)){object.userData={...object.userData,windBaseRotation:{x:object.rotation.x,y:object.rotation.y,z:object.rotation.z}};nativeWindLocs.push(object)}})
         announceStreetVerseCharacterReady({id:STREETVERSE_HERO_CHARACTER_ID,assetId:BJ_MESHY_V6_ASSET.id,era:'current',photoMatched:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),source:'streetverse-mobile-meshy-bj-v6'})
         window.dispatchEvent(new CustomEvent('tryamm:streetverse-production-human-status',{detail:{characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',status:'production-human-ready',assetId:BJ_MESHY_V6_ASSET.id,primitiveFallbackVisible:false}}))
         window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail:{characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',assetId:BJ_MESHY_V6_ASSET.id,referenceMatchedPreview:true,photoMatched:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),certifiedLikeness:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),authoritative3DMesh:true,meshyV6:true,proceduralFallbackSuppressed:true,morphTargetNames:handle.morphTargetNames}}))
