@@ -316,7 +316,8 @@ export function installStreetVerseQuantumWorldBuilderOrchestrator(){
  const update=(event:Event)=>{
   const d=(event as CustomEvent<{taskId?:string;state?:WorldBuildTaskState}>).detail||{}
   if(!d.taskId||!d.state||!state.activePlan)return
-  const activePlan={...state.activePlan,tasks:state.activePlan.tasks.map(task=>task.id===d.taskId?{...task,state:d.state}:task)}
+  const nextState:WorldBuildTaskState=d.state
+  const activePlan:QuantumWorldBuildPlan={...state.activePlan,tasks:state.activePlan.tasks.map(task=>task.id===d.taskId?{...task,state:nextState}:task)}
   state={...state,activePlan,history:state.history.map(plan=>plan.id===activePlan.id?activePlan:plan)}
   publish(state)
  }
