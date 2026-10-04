@@ -34,6 +34,9 @@ const EconomicLoopCenter = lazy(() => import('./components/EconomicLoopCenter'))
 const CreatorMoneyCenter = lazy(() => import('./components/CreatorMoneyCenter'))
 const BusinessIncomeCenter = lazy(() => import('./components/BusinessIncomeCenter'))
 const AllAmericanOmnichannelCenter = lazy(() => import('./components/AllAmericanOmnichannelCenter'))
+const HolographicGalleryCenter = lazy(() => import('./components/HolographicGalleryCenter'))
+const HoloFridge = lazy(() => import('./components/HoloFridge'))
+const HoloLabGateway = lazy(() => import('./components/HoloLabGateway'))
 const QuantumZoomViewer = lazy(() => import('./components/QuantumZoomViewer'))
 const NextDevelopmentTargetCenter = lazy(() => import('./components/NextDevelopmentTargetCenter'))
 const QuantumTagArena = lazy(() => import('./components/QuantumTagArena'))
@@ -85,6 +88,9 @@ export default function App() {
   const [showCreatorMoney, setShowCreatorMoney] = useState(false)
   const [showBusinessIncome, setShowBusinessIncome] = useState(false)
   const [showOmnichannelCommerce, setShowOmnichannelCommerce] = useState(false)
+  const [showHoloGallery, setShowHoloGallery] = useState(false)
+  const [showHoloFridge, setShowHoloFridge] = useState(false)
+  const [showHoloLab, setShowHoloLab] = useState(false)
   const [showQuantumZoom, setShowQuantumZoom] = useState(false)
   const [showNextDevelopment, setShowNextDevelopment] = useState(false)
   const [showQuantumTag, setShowQuantumTag] = useState(false)
@@ -110,6 +116,9 @@ export default function App() {
     if (route === '/earnings' || route === '/creator-money') { setShowCreatorMoney(true); return }
     if (route === '/business-income' || route === '/merchant-money') { setShowBusinessIncome(true); return }
     if (route === '/all-american-store' || route === '/omnichannel') { setShowOmnichannelCommerce(true); return }
+    if (route === '/holo-gallery') { setShowHoloGallery(true); return }
+    if (route === '/holo-fridge' || route === '/holo-cold-vault') { setShowHoloFridge(true); return }
+    if (route === '/holo-lab' || route === '/holo-labs') { setShowHoloLab(true); return }
     if (route === '/holoverse') { setShowHoloverse(true); return }
     if (route === '/spaceverse' || route === '/metaverse' || route === '/multiverse' || route === '/time-machine') { setShowAdvanced(true); return }
     if (route === '/cyberverse') { setShowSecurity(true); return }
@@ -143,7 +152,7 @@ export default function App() {
     const route = (window.location.pathname || '/').replace(/\/+$/, '') || '/'
     const routeAliases = new Set([
       '/marketplace','/music','/musicverse','/sports','/sportverse','/faith','/blockchain','/city',
-      '/propertyverse','/earnings','/creator-money','/business-income','/merchant-money','/all-american-store','/omnichannel','/holoverse','/spaceverse','/cyberverse','/creatorverse','/businessverse',
+      '/propertyverse','/earnings','/creator-money','/business-income','/merchant-money','/all-american-store','/omnichannel','/holo-gallery','/holo-fridge','/holo-cold-vault','/holo-lab','/holo-labs','/holoverse','/spaceverse','/cyberverse','/creatorverse','/businessverse',
       '/educationverse','/gameverse','/middleverse','/metaverse','/multiverse','/time-machine',
       '/legacyverse','/connect','/tv','/tryamm-tv','/isaiah-ai-tv'
     ])
@@ -205,6 +214,10 @@ export default function App() {
   ;(window as any).__showCreatorMoney = () => setShowCreatorMoney(true)
   ;(window as any).__showBusinessIncome = () => setShowBusinessIncome(true)
   ;(window as any).__showAllAmericanOmnichannel = () => setShowOmnichannelCommerce(true)
+  ;(window as any).__showHoloGallery = () => setShowHoloGallery(true)
+  ;(window as any).__showHoloFridge = () => setShowHoloFridge(true)
+  ;(window as any).__showHoloColdVault = () => setShowHoloFridge(true)
+  ;(window as any).__showHoloLab = () => setShowHoloLab(true)
   ;(window as any).__showQuantumZoom = () => setShowQuantumZoom(true)
   ;(window as any).__showNextDevelopment = () => setShowNextDevelopment(true)
   ;(window as any).__showQuantumTag = () => setShowQuantumTag(true)
@@ -221,6 +234,9 @@ export default function App() {
     ['$','CREATOR MONEY',()=>setShowCreatorMoney(true),'BETA'],
     ['🏪','BUSINESS INCOME',()=>setShowBusinessIncome(true),'BETA'],
     ['🛍','ALL AMERICAN STORE',()=>setShowOmnichannelCommerce(true),'BETA'],
+    ['◈','HOLO GALLERY',()=>setShowHoloGallery(true),'BETA'],
+    ['🧊','HOLO FRIDGE',()=>setShowHoloFridge(true),'BETA'],
+    ['🧪','HOLO LAB',()=>setShowHoloLab(true),'BETA'],
     ['🛡','SECURITY',()=>setShowSecurity(true),'LIVE'],
     ['AI','POYO AI STUDIO',()=>setShowPoyo(true),'BETA'],
     ['LAB','HOLO LABS',()=>setShowNextDevelopment(true),'BETA'],
@@ -292,6 +308,9 @@ export default function App() {
         {showCreatorMoney && <CreatorMoneyCenter onClose={() => setShowCreatorMoney(false)} />}
         {showBusinessIncome && <BusinessIncomeCenter onClose={() => setShowBusinessIncome(false)} />}
         {showOmnichannelCommerce && <AllAmericanOmnichannelCenter onClose={() => setShowOmnichannelCommerce(false)} />}
+        {showHoloGallery && <HolographicGalleryCenter onClose={() => setShowHoloGallery(false)} />}
+        {showHoloFridge && <HoloFridge />}
+        {showHoloLab && <HoloLabGateway onClose={() => setShowHoloLab(false)} />}
         {showQuantumZoom && <QuantumZoomViewer onClose={() => setShowQuantumZoom(false)} />}
         {showNextDevelopment && <NextDevelopmentTargetCenter onClose={() => setShowNextDevelopment(false)} />}
         {showQuantumTag && <QuantumTagArena onClose={() => setShowQuantumTag(false)} />}
