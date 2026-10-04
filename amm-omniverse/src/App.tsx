@@ -309,7 +309,7 @@ export default function App() {
         {showBusinessIncome && <BusinessIncomeCenter onClose={() => setShowBusinessIncome(false)} />}
         {showOmnichannelCommerce && <AllAmericanOmnichannelCenter onClose={() => setShowOmnichannelCommerce(false)} />}
         {showHoloGallery && <HolographicGalleryCenter onClose={() => setShowHoloGallery(false)} />}
-        {showHoloFridge && <HoloFridge />}
+        {showHoloFridge && <HoloFridge initialOpen onClose={() => setShowHoloFridge(false)} />}
         {showHoloLab && <HoloLabGateway onClose={() => setShowHoloLab(false)} />}
         {showQuantumZoom && <QuantumZoomViewer onClose={() => setShowQuantumZoom(false)} />}
         {showNextDevelopment && <NextDevelopmentTargetCenter onClose={() => setShowNextDevelopment(false)} />}
