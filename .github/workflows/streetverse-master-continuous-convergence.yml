@@ -40,7 +40,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Use Node 22
+      - name: Use Node 24
         uses: actions/setup-node@v4
         with:
           node-version: "24"
@@ -184,7 +184,10 @@ jobs:
               echo "Kingdom payload is not yet present in the repo; merge remains pending." >> "$PASS_DIR/README.md"
             fi
 
-            run_gate unreal-manifest npm run unreal:manifest\n            run_gate unreal-readiness npm run unreal:check\n            run_gate graphics-readiness npm run graphics:check\n            run_gate omnifabric-readiness npm run omnifabric:check
+            run_gate unreal-manifest npm run unreal:manifest
+            run_gate unreal-readiness npm run unreal:check
+            run_gate graphics-readiness npm run graphics:check
+            run_gate omnifabric-readiness npm run omnifabric:check
             run_gate lens-readiness npm run lens:check
             run_gate revenue-fabric-readiness npm run revenue:check
             run_gate money-center-readiness npm run money-center:check
@@ -198,19 +201,21 @@ jobs:
             run_gate holoverse-readiness npm run holoverse:check
             run_gate logistics-freight-readiness npm run logistics-freight:check
             run_gate fleet-owner-operator-readiness npm run fleet-owner-operator:check
-            run_gate owner-operator-onboarding-readiness npm run owner-operator-onboarding:check\n            run_gate typecheck npm run typecheck
+            run_gate owner-operator-onboarding-readiness npm run owner-operator-onboarding:check
+            run_gate typecheck npm run typecheck
             run_gate production-build npm run build
 
             git add -A src public vercel.json 2>/dev/null || true
             if ! git diff --cached --quiet; then
               git commit -m "continuous convergence pass $PASS: deterministic StreetVerse repairs"
-              git push origin "HEAD:refs/heads/$WORK_BRANCH"
+              git push --force-with-lease origin "HEAD:refs/heads/$WORK_BRANCH"
               SOURCE_COMMITS=$((SOURCE_COMMITS+1))
               echo "source_repair_commit=$(git rev-parse HEAD)" >> "$PASS_DIR/status.env"
             fi
 
             FAILURES="$(awk -F= '$2 ~ /^[1-9][0-9]*$/ {print $1}' "$PASS_DIR/status.env" | tr '\n' ' ')"
-            if [ -z "$FAILURES" ]; then
+            PENDING="$(awk -F= '$2 ~ /^PENDING_/ {print $1 "=" $2}' "$PASS_DIR/status.env" | tr '\n' ' ')"
+            if [ -z "$FAILURES" ] && [ -z "$PENDING" ]; then
               GREEN_PASSES=$((GREEN_PASSES+1))
               echo "PASS_RESULT=GREEN" >> "$PASS_DIR/status.env"
               echo "- Result: GREEN" >> "$PASS_DIR/README.md"
@@ -218,7 +223,8 @@ jobs:
               RED_PASSES=$((RED_PASSES+1))
               echo "PASS_RESULT=RED" >> "$PASS_DIR/status.env"
               echo "- Result: RED" >> "$PASS_DIR/README.md"
-              echo "- Failed gates: $FAILURES" >> "$PASS_DIR/README.md"
+              [ -n "$FAILURES" ] && echo "- Failed gates: $FAILURES" >> "$PASS_DIR/README.md"
+              [ -n "$PENDING" ] && echo "- Pending gates: $PENDING" >> "$PASS_DIR/README.md"
             fi
 
             echo "- Pass $PASS: $(date -u -Iseconds), elapsed $ELAPSED_HOURS h" >> ../release-evidence/streetverse-master/summary.md
