@@ -12,7 +12,7 @@ export default function AniyahPayCenter({onClose}:Props){
   const [quote,setQuote]=useState<AniyahQuote|null>(null)
   const [confirmed,setConfirmed]=useState(false)
   const [message,setMessage]=useState('')
-  const currencies=['USD','NGN','GHS','KES','ZAR']
+  const currencies=['USD','EUR','GBP','NGN','GHS','KES','ZAR','UGX','TZS','RWF','ZMW']
   const canConfirm=useMemo(()=>Boolean(quote&&quote.status==='quoted'&&recipient.trim()),[quote,recipient])
   const box:React.CSSProperties={background:'linear-gradient(155deg,#071723,#061019)',border:'1px solid #21415a',borderRadius:16,padding:14,boxShadow:'0 14px 36px #0005'}
   const btn:React.CSSProperties={background:'#0d2633',border:'1px solid #4fe3ff66',color:'#bff6ff',borderRadius:10,padding:'10px 12px',cursor:'pointer',fontFamily:'monospace',fontWeight:800}
