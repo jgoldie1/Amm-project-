@@ -14,7 +14,9 @@ import StreetVerseCreatorGrowthPanel from './StreetVerseCreatorGrowthPanel'
 import StreetVerseDiscordPanel from './StreetVerseDiscordPanel'
 import {NEAR_WEST_BIRTHDAY_MISSIONS,requestMissionReward,type StreetVerseMission} from '../data/streetVerseBirthdayMissions'
 import GreenvilleCampusVerseScene from './GreenvilleCampusVerseScene'
-import {UIC_EAST_CAMPUS_HUBS,UIC_WEST_CAMPUS_HUBS,UIC_ALL_CAMPUS_HUBS} from '../data/uicCampusVerseHubs'
+import {UIC_ALL_CAMPUS_HUBS} from '../data/uicCampusVerseHubs'
+import IllinoisCampusVersePlayableScene from './IllinoisCampusVersePlayableScene'
+import {ILLINOIS_CAMPUSVERSE_NETWORK,type CampusNetworkId} from '../data/campusVerseIllinoisUniversityNetwork'
 
 function MissionMarker({mission}:{mission:StreetVerseMission|null}){if(!mission)return null;return <group position={[mission.objective.x,0,mission.objective.z]}><mesh position={[0,2.5,0]}><cylinderGeometry args={[.7,.7,5,12]}/><meshStandardMaterial color="#f3c84b" emissive="#f3c84b" emissiveIntensity={.5} transparent opacity={.7}/></mesh><mesh position={[0,5.7,0]}><sphereGeometry args={[.9,12,10]}/><meshStandardMaterial color="#fff2a3" emissive="#f3c84b" emissiveIntensity={.8}/></mesh></group>}
 
@@ -167,6 +169,7 @@ function PopulationMeshes({reaction}:{reaction:{id:string;reaction:'stagger'|'do
 export default function StreetVerseNearWest3D(){
  const [collegeBookOpen,setCollegeBookOpen]=useState(false)
  const [greenvilleOpen,setGreenvilleOpen]=useState(false)
+ const [remoteCampusId,setRemoteCampusId]=useState<CampusNetworkId|null>(null)
  const [dealerOpen,setDealerOpen]=useState(false)
  const [garageOpen,setGarageOpen]=useState(false)
  const [liveRpOpen,setLiveRpOpen]=useState(false)
@@ -241,9 +244,21 @@ export default function StreetVerseNearWest3D(){
   if(nearby.mission)window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{missionId:nearby.mission,target:nearby.id}}))
  }
  const travelToGreenville=()=>{setCollegeBookOpen(false);window.dispatchEvent(new CustomEvent('tryamm:campusverse-travel',{detail:{from:'uic',to:'greenville',character:'Jacobie',source:'streetverse-uic-gateway'}}));setGreenvilleOpen(true)}
- useEffect(()=>{const open=(e:Event)=>{const d=(e as CustomEvent).detail||{};if(d.to==='greenville'){setCollegeBookOpen(false);setGreenvilleOpen(true)}};window.addEventListener('tryamm:campusverse-travel',open);return()=>window.removeEventListener('tryamm:campusverse-travel',open)},[])
+ useEffect(()=>{const open=(e:Event)=>{
+  const d=(e as CustomEvent<{to?:CampusNetworkId}>).detail||{}
+  const to=d.to
+  if(!to)return
+  setCollegeBookOpen(false)
+  if(to==='greenville'){setRemoteCampusId(null);setGreenvilleOpen(true);return}
+  if(to==='uic'){setGreenvilleOpen(false);setRemoteCampusId(null);return}
+  if(ILLINOIS_CAMPUSVERSE_NETWORK.some(c=>c.id===to)){setGreenvilleOpen(false);setRemoteCampusId(to)}
+ };window.addEventListener('tryamm:campusverse-travel',open);return()=>window.removeEventListener('tryamm:campusverse-travel',open)},[])
  useEffect(()=>{const route=(e:Event)=>{const d=(e as CustomEvent<{campus?:string;hubId?:string;label?:string}>).detail||{};if(d.campus!=='uic')return;const hubs:Record<string,{x:number;z:number}>=Object.fromEntries(UIC_ALL_CAMPUS_HUBS.map(h=>[h.id,{x:h.x,z:h.z}]));const target=hubs[String(d.hubId||'')];if(!target)return;const mission:StreetVerseMission={id:`uic-route:${String(d.hubId||'campus')}`,title:`UIC • ${String(d.label||'Campus destination')}`,marker:{x:playerSpawn.x,z:playerSpawn.z},objective:{x:target.x,z:target.z,label:`Walk to ${String(d.label||'UIC campus destination')}`},xp:125,credits:600};setActiveMission(mission);setMissionStep('deliver');setCollegeBookOpen(false);window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:`UIC ROUTE ACTIVE • walk to ${String(d.label||'Campus destination')}`}}))};window.addEventListener('tryamm:campusverse-destination',route);return()=>window.removeEventListener('tryamm:campusverse-destination',route)},[playerSpawn.x,playerSpawn.z])
  if(greenvilleOpen)return <GreenvilleCampusVerseScene onReturn={()=>setGreenvilleOpen(false)}/>
+ if(remoteCampusId){
+  const campus=ILLINOIS_CAMPUSVERSE_NETWORK.find(c=>c.id===remoteCampusId)
+  if(campus)return <IllinoisCampusVersePlayableScene campus={campus} onReturn={()=>setRemoteCampusId(null)}/>
+ }
  return <div aria-label="StreetVerse Near West 3D" style={{width:'100%',height:'100%',minHeight:420}}>
   <div style={{position:'absolute',left:12,right:12,top:12,zIndex:22,display:'flex',gap:6,overflowX:'auto',paddingBottom:4,WebkitOverflowScrolling:'touch'}}>
    <button aria-label="Open Quantum Discord" onClick={()=>setDiscordOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>💬 DISCORD</button>
