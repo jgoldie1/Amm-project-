@@ -82,6 +82,17 @@ export default function AllAmericanOmnichannelCenter({onClose}:{onClose:()=>void
     <div style={{fontSize:13,lineHeight:1.8,color:'#d4e1eb',marginTop:7}}>PLAY STREETVERSE → DISCOVER PRODUCT → HOLO LENS / QR → AR TRY-ON OR VR SHOWROOM → WATCH LIVE DEMO → ADD TO SHARED CART → GLOBAL PAYMENT ROUTER → VERIFIED ORDER → DELIVERY / PICKUP → REEL / REVIEW / REFERRAL.</div>
    </section>
 
+   <section style={{...panel,marginTop:12}}>
+    <div style={{fontSize:10,color:'#70e7ff',fontWeight:900}}>QUANTUM SOURCE + 3PL</div>
+    <h2 style={{margin:'6px 0'}}>Vetted supplier → Tariff Buster → Virtual Warehouse → Proof Tracking</h2>
+    <div style={small}>Low MOQ • samples • DTC demand tests • preorders • micro-batch • dropship • purchase orders • lawful landed-cost comparison • FedEx / UPS / USPS / DHL readiness • supplier-direct / approved 3PL • photo/signature/delivery-code proof.</div>
+    <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:10}}>
+      <button style={button} onClick={()=>window.__TRYAMM_QUANTUM_SOURCE_LOGISTICS__?.carrierStatus().then(()=>setMessage('Carrier readiness refreshed.')).catch(e=>setMessage(String(e?.message||e)))}>CHECK CARRIERS</button>
+      <button style={button} onClick={()=>{(window as any).__showVirtualWarehouse?.();setMessage('Virtual Warehouse launcher requested.')}}>VIRTUAL WAREHOUSE</button>
+    </div>
+    <div style={note}>Pay-over-time remains provider-controlled. TRYAMM does not invent credit terms or mark a financing option live until a verified provider supplies the offer and disclosures.</div>
+   </section>
+
    <section style={{...panel,marginTop:12,borderColor:'#31533f'}}>
     <div style={{fontSize:10,color:'#7df0bb',fontWeight:900}}>DROPSHIP / SOURCE RULE</div>
     <div style={small}>A supplier feed can propose products, but nothing becomes sellable until supplier identity, landed cost, inventory/availability, rights/safety requirements, authoritative price, fulfillment path, and payment readiness are verified. The browser never invents a supplier or charge amount.</div>
