@@ -1,6 +1,7 @@
 import { useEffect,useRef,useState } from 'react'
 import * as THREE from 'three'
 import {appendStreetVerseRevenue,getStreetVerseRevenueSummary} from '../runtime/StreetVerseInternalChain'
+import {materializeStreetVerseCharacter,STREETVERSE_CHARACTER_PACK} from '../runtime/StreetVerseCharacterMaterialization'
 
 const SAVE='tryamm.streetverse.omniworld.v1'
 const MISSIONS=[
@@ -151,7 +152,7 @@ export default function StreetVerseOmniWorld({onClose}:{onClose:()=>void}){
       const rivals:THREE.Group[]=[];for(let i=0;i<5;i++){const rival=person([0xd83a3a,0x5f6bff,0xf2d05e,0x8a55d6][ci],[0x6f4028,0x925f3f,0xba7b52,0xd3a079,0x6f4028][i]);rival.scale.setScalar(.93);rival.position.set(court.x-5+i*2.5,0,court.z-3.2+(i%2)*1.2);rival.userData.baseX=rival.position.x;rival.userData.baseZ=rival.position.z;rival.userData.targetX=rival.position.x;rival.userData.targetZ=rival.position.z;rival.userData.court=ci;rival.userData.assignment=i;scene.add(rival);rivals.push(rival)}courtRivals.set(court.id,rivals)
     })
 
-    const avatar=person(0x55e4ff,0xba7b52);avatar.scale.setScalar(1.25);avatar.position.set(saved.x??0,0,saved.z??58);scene.add(avatar)
+    const avatar=new THREE.Group();const avatarFallback=person(0x55e4ff,0xba7b52);avatar.add(avatarFallback);avatar.position.set(saved.x??0,0,saved.z??58);scene.add(avatar);materializeStreetVerseCharacter({assetId:STREETVERSE_CHARACTER_PACK.hero.id,fallback:avatarFallback,scene,parent:avatar,position:new THREE.Vector3(0,0,0),scale:1.25,applySavedHeroMorph:true}).then(ok=>{if(ok)setMsg('Customized Hero avatar materialized • StreetVerse controls remain attached to your player root.');else setMsg('Hero asset unavailable or not cleared • safe procedural avatar fallback active.')}).catch(()=>setMsg('Hero avatar load failed • safe procedural avatar fallback active.'))
     const cars:THREE.Group[]=[];const specs:[number,'sedan'|'gt'|'supercar'|'suv'|'limousine'][]=[[0xe33d3d,'sedan'],[0x111318,'gt'],[0xf5f5f0,'supercar'],[0x275aa8,'suv'],[0xd4b24d,'gt'],[0x681b8f,'supercar'],[0x212121,'limousine'],[0x0f7c5f,'suv'],[0xb92c2c,'gt'],[0xcfcfd2,'sedan'],[0x102a58,'supercar'],[0x7f5a25,'gt']]
     specs.forEach((s,i)=>{const c=vehicle(s[0],s[1]);c.position.set(-118+i*21,.05,i%2?-55:45);scene.add(c);cars.push(c)})
 
