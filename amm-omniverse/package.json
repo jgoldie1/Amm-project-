@@ -47,7 +47,8 @@
     "owner-operator-onboarding:check": "node tests/owner-operator-onboarding-accessorial-contract.mjs",
     "electric-drone-transport:check": "node tests/electric-drone-transport-contract.mjs",
     "streetverse-logistics:check": "node tests/streetverse-logistics-jobs-bridge-contract.mjs",
-    "business-revenue:check": "node tests/el-saturn-business-revenue-contract.mjs"
+    "business-revenue:check": "node tests/el-saturn-business-revenue-contract.mjs",
+    "business-pricing:check": "node tests/business-completion-pricing-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
