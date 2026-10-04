@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     recording_archive_secret: present('TRYAMM_RECORDING_ARCHIVE_SECRET'),
     stt_provider: present('TRYAMM_STT_ENDPOINT') && present('TRYAMM_STT_API_KEY'),
     tts_provider: present('TRYAMM_TTS_ENDPOINT') && present('TRYAMM_TTS_API_KEY'),
-    hologpt_provider: present('OPENAI_API_KEY') || present('TRYAMM_AI_API_KEY') || present('TRYAMM_AI_PROVIDER_KEY'),
+    hologpt_provider: present('OPENAI_API_KEY') || present('open_ai_keys') || present('TRYAMM_AI_API_KEY') || present('TRYAMM_AI_PROVIDER_KEY') || present('AI_GATEWAY_API_KEY') || present('VERCEL_OIDC_TOKEN'),
     poyo_provider: present('POYO_API_KEY')
   };
 
