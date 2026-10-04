@@ -117,10 +117,28 @@ jobs:
             run_gate repair-hero node scripts/inject-streetverse-hero-spawn.mjs
 
             if [ "$BUILD_MODE" -eq 1 ]; then
-              echo "- BUILD MODE: using remaining engineering time on app/game repair and production verification." >> "$PASS_DIR/README.md"
+              echo "- BUILD MODE: using remaining engineering time on both TRYAMM app and StreetVerse game." >> "$PASS_DIR/README.md"
+
+              # APP lane
+              run_gate build-app-release node tests/app-release-convergence-contract.mjs
+              run_gate build-app-navigation node tests/canonical-navigation-owner-contract.mjs
+              run_gate build-app-mobile-navigation node tests/mobile-navigation-carousel-repair-contract.mjs
+              run_gate build-app-holoverse node tests/holoverse-ecosystem-convergence-contract.mjs
+              run_gate build-app-commerce node tests/all-american-omnichannel-center-contract.mjs
+              run_gate build-app-money node tests/game-app-business-income-contract.mjs
+
+              # STREETVERSE lane
               run_gate build-native-assets npm run native:assets
+              run_gate build-streetverse-visible node tests/streetverse-visible-convergence-contract.mjs
+              run_gate build-streetverse-gameplay node tests/streetverse-core-gameplay-dock-contract.mjs
+              run_gate build-streetverse-mobile node tests/streetverse-iphone-first-journey-contract.mjs
+              run_gate build-streetverse-controls node tests/streetverse-unified-mobile-controls-contract.mjs
+              run_gate build-streetverse-city node tests/streetverse-chicago-alive-contract.mjs
               run_gate build-streetverse-mega-fix bash scripts/streetverse-bj-family-mega-fix.sh
               run_gate build-asset-tournament node scripts/streetverse-asset-tournament.mjs "$PASS_DIR/streetverse-asset-tournament.json"
+
+              echo "build_mode_app_lane=1" >> "$PASS_DIR/status.env"
+              echo "build_mode_streetverse_lane=1" >> "$PASS_DIR/status.env"
             fi
 
             for testfile in               tests/west-side-campus-11am-convergence-contract.mjs               tests/circle-park-chicago-completion-contract.mjs               tests/circle-park-west-side-jefferson-emergency-contract.mjs               tests/circle-park-asset-forge-production-wave-contract.mjs               tests/uic-greenville-world-gateway-contract.mjs               tests/illinois-campusverse-network-contract.mjs               tests/illinois-rollout-gate-contract.mjs               tests/illinois-rollout-performance-cap-contract.mjs               tests/illinois-rollout-serialization-contract.mjs               tests/streetverse-chicago-grid-reality-contract.mjs               tests/streetverse-one-hand-integration-contract.mjs               tests/crossverse-campusverse-bridge-contract.mjs               tests/kingdom-streetverse-bridge-contract.mjs               tests/streetverse-rapier-physics-contract.mjs               tests/unreal-mcp-readiness-contract.mjs               tests/graphics-acceleration-runtime-contract.mjs               tests/omnifabric-compute-router-contract.mjs               tests/quantum-holo-lens-runtime-contract.mjs               tests/business-qr-holo-lens-contract.mjs               tests/creator-revenue-fabric-contract.mjs               tests/creator-money-center-contract.mjs               tests/game-app-business-income-contract.mjs               tests/global-africa-payment-gateway-contract.mjs               tests/fraud-shield-contract.mjs               tests/payout-protection-contract.mjs               tests/all-american-omnichannel-commerce-contract.mjs               tests/all-american-omnichannel-center-contract.mjs               tests/quantum-source-logistics-contract.mjs               tests/holoverse-ecosystem-convergence-contract.mjs               tests/stubbs-lyons-middleverse-logistics-contract.mjs               tests/fleet-owner-operator-contract.mjs               tests/owner-operator-onboarding-accessorial-contract.mjs               tests/electric-drone-transport-contract.mjs
