@@ -265,16 +265,14 @@ function createPlan(state:State,target:WorldBuildTarget){
   selectedId:target.id,
   city:target.scale==='chicago'||target.scale==='west'?'Chicago':undefined,
  })
- emit('tryamm:construct:targets',{
-  detail:plan.tasks.map((task,index)=>({
-   id:task.id,
-   label:task.label,
-   kind:'portal',
-   x:index*4,
-   z:index%2?8:-8,
-   metadata:{worldBuild:true,stage:task.stage,state:task.state,target:target.label,approvalRequired:task.approvalRequired},
-  })),
- })
+ emit('tryamm:construct:targets',plan.tasks.map((task,index)=>({
+  id:task.id,
+  label:task.label,
+  kind:'portal',
+  x:index*4,
+  z:index%2?8:-8,
+  metadata:{worldBuild:true,stage:task.stage,state:task.state,target:target.label,approvalRequired:task.approvalRequired},
+ })))
  return next
 }
 
@@ -324,6 +322,7 @@ export function installStreetVerseQuantumWorldBuilderOrchestrator(){
  }
 
  addEventListener('tryamm:quantum-world-builder-request',request)
+ addEventListener('tryamm:quantum-world-builder-request-state',()=>publish(state))
  addEventListener('tryamm:streetverse-world-builder-focus',fromWest)
  addEventListener('tryamm:streetverse-community-slice-ready',fromChicago)
  addEventListener('tryamm:streetverse-illinois-build-focus',fromIllinois)
