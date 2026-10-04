@@ -6,6 +6,9 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export default function InstallPrompt() {
+  const streetverseApp = typeof window !== 'undefined' && window.location.pathname.startsWith('/streetverse')
+  const appName = streetverseApp ? 'StreetVerse' : 'TRYAMM'
+  const dismissKey = streetverseApp ? 'streetverse_install_dismissed' : 'tryamm_install_dismissed'
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null)
   const [showBanner, setShowBanner] = useState(false)
   const [isIOS, setIsIOS] = useState(false)
@@ -29,7 +32,7 @@ export default function InstallPrompt() {
     const handler = (e: Event) => {
       e.preventDefault()
       setInstallEvent(e as BeforeInstallPromptEvent)
-      if (!localStorage.getItem('tryamm_install_dismissed')) setShowBanner(true)
+      if (!localStorage.getItem(dismissKey)) setShowBanner(true)
     }
     window.addEventListener('beforeinstallprompt', handler)
 
@@ -39,7 +42,7 @@ export default function InstallPrompt() {
     }
     window.addEventListener('appinstalled', appInstalled)
 
-    if (ios && !localStorage.getItem('tryamm_install_dismissed')) {
+    if (ios && !localStorage.getItem(dismissKey)) {
       const timer = window.setTimeout(() => setShowBanner(true), 3000)
       return () => {
         window.clearTimeout(timer)
@@ -71,7 +74,7 @@ export default function InstallPrompt() {
 
   const handleDismiss = () => {
     setShowBanner(false)
-    localStorage.setItem('tryamm_install_dismissed', '1')
+    localStorage.setItem(dismissKey, '1')
   }
 
   if (isInstalled || !showBanner) return null
@@ -86,7 +89,7 @@ export default function InstallPrompt() {
   if (platformChoice === null) return (
     <div role="dialog" aria-label="Choose TRYAMM install device" style={shellStyle}>
       <div style={{display:'flex',justifyContent:'space-between',gap:14,alignItems:'center'}}>
-        <div><div style={{color:'#4FE3FF',fontSize:11,fontWeight:950,letterSpacing:2}}>INSTALL TRYAMM</div><div style={{fontSize:18,fontWeight:950,marginTop:3}}>Choose your phone</div></div>
+        <div><div style={{color:'#4FE3FF',fontSize:11,fontWeight:950,letterSpacing:2}}>INSTALL {appName}</div><div style={{fontSize:18,fontWeight:950,marginTop:3}}>Choose your phone</div></div>
         <button aria-label="Close install instructions" onClick={handleDismiss} style={{background:'#111827',border:'1px solid #334155',color:'#fff',width:36,height:36,borderRadius:'50%',cursor:'pointer'}}>×</button>
       </div>
       <label htmlFor="tryamm-platform" style={{display:'block',marginTop:16,color:'#aeb9c8',fontSize:13}}>Phone type</label>
@@ -111,7 +114,7 @@ export default function InstallPrompt() {
         <div style={{padding:12,borderRadius:12,background:'#0b1320'}}>2. Tap <strong style={{color:'#4FE3FF'}}>Share</strong> — the square with the upward arrow.</div>
         <div style={{padding:12,borderRadius:12,background:'#0b1320'}}>3. Choose <strong style={{color:'#4FE3FF'}}>Add to Home Screen</strong>, then <strong style={{color:'#E8B944'}}>Add</strong>.</div>
       </div>
-      <button onClick={()=>{setShowBanner(false);window.location.href='/streetverse'}} style={{width:'100%',marginTop:12,border:0,borderRadius:13,padding:'14px 16px',background:'linear-gradient(135deg,#4FE3FF,#66A6FF)',color:'#04111a',fontWeight:950,cursor:'pointer'}}>🎮 CONTINUE TO STREETVERSE</button>
+      {!streetverseApp&&<button onClick={()=>{setShowBanner(false);window.location.href='/streetverse'}} style={{width:'100%',marginTop:12,border:0,borderRadius:13,padding:'14px 16px',background:'linear-gradient(135deg,#4FE3FF,#66A6FF)',color:'#04111a',fontWeight:950,cursor:'pointer'}}>🎮 CONTINUE TO STREETVERSE</button>}
       <div style={{marginTop:12,color:'#718096',fontSize:10}}>If Add to Home Screen is hidden, scroll the Share sheet actions.</div>
     </div>
   )
@@ -119,24 +122,24 @@ export default function InstallPrompt() {
   if (platformChoice === 'android') return (
     <div role="dialog" aria-label="Install TRYAMM on Android" style={shellStyle}>
       <div style={{display:'flex',justifyContent:'space-between',gap:14,alignItems:'center'}}>
-        <div><div style={{color:'#4FE3FF',fontSize:11,fontWeight:950,letterSpacing:2}}>ANDROID</div><div style={{fontSize:18,fontWeight:950,marginTop:3}}>Install TRYAMM</div></div>
+        <div><div style={{color:'#4FE3FF',fontSize:11,fontWeight:950,letterSpacing:2}}>ANDROID</div><div style={{fontSize:18,fontWeight:950,marginTop:3}}>Install {appName}</div></div>
         <button aria-label="Back to device choice" onClick={()=>setPlatformChoice(null)} style={{background:'#111827',border:'1px solid #334155',color:'#fff',minWidth:54,height:36,borderRadius:18,cursor:'pointer'}}>BACK</button>
       </div>
-      <p style={{color:'#aeb9c8',fontSize:13,lineHeight:1.55}}>{installEvent ? 'Your browser supports direct TRYAMM installation.' : 'Open TRYAMM in Chrome, then use the browser menu and choose “Install app” or “Add to Home screen.”'}</p>
-      {installEvent && <button onClick={handleInstall} style={{width:'100%',border:0,borderRadius:13,padding:'14px 16px',background:'linear-gradient(135deg,#4FE3FF,#66A6FF)',color:'#04111a',fontWeight:950,cursor:'pointer'}}>⬇ INSTALL TRYAMM ON ANDROID</button>}
-      <button onClick={()=>{setShowBanner(false);window.location.href='/streetverse'}} style={{width:'100%',marginTop:10,border:'1px solid #4FE3FF66',borderRadius:13,padding:'13px 16px',background:'#07131d',color:'#4FE3FF',fontWeight:950,cursor:'pointer'}}>🎮 CONTINUE TO STREETVERSE</button>
+      <p style={{color:'#aeb9c8',fontSize:13,lineHeight:1.55}}>{installEvent ? 'Your browser supports direct {appName} installation.' : 'Open TRYAMM in Chrome, then use the browser menu and choose “Install app” or “Add to Home screen.”'}</p>
+      {installEvent && <button onClick={handleInstall} style={{width:'100%',border:0,borderRadius:13,padding:'14px 16px',background:'linear-gradient(135deg,#4FE3FF,#66A6FF)',color:'#04111a',fontWeight:950,cursor:'pointer'}}>⬇ INSTALL {appName.toUpperCase()} ON ANDROID</button>}
+      {!streetverseApp&&<button onClick={()=>{setShowBanner(false);window.location.href='/streetverse'}} style={{width:'100%',marginTop:10,border:'1px solid #4FE3FF66',borderRadius:13,padding:'13px 16px',background:'#07131d',color:'#4FE3FF',fontWeight:950,cursor:'pointer'}}>🎮 CONTINUE TO STREETVERSE</button>}
       <div style={{marginTop:10,color:'#718096',fontSize:10}}>Google Play release remains a separate signed-store submission path.</div>
     </div>
   )
   return (
     <div role="dialog" aria-label="Install TRYAMM" style={shellStyle}>
       <div style={{display:'flex',justifyContent:'space-between',gap:14,alignItems:'center'}}>
-        <div><div style={{color:'#4FE3FF',fontSize:11,fontWeight:950,letterSpacing:2}}>TRYAMM APP</div><div style={{fontSize:18,fontWeight:950,marginTop:3}}>Install from the website</div></div>
+        <div><div style={{color:'#4FE3FF',fontSize:11,fontWeight:950,letterSpacing:2}}>{appName.toUpperCase()} APP</div><div style={{fontSize:18,fontWeight:950,marginTop:3}}>Install from the website</div></div>
         <button aria-label="Close install instructions" onClick={handleDismiss} style={{background:'#111827',border:'1px solid #334155',color:'#fff',width:36,height:36,borderRadius:'50%',cursor:'pointer'}}>×</button>
       </div>
-      <p style={{color:'#aeb9c8',fontSize:13,lineHeight:1.55}}>{installEvent ? 'Add TRYAMM to your phone or desktop and launch it like a normal app.' : 'Use your browser menu and choose “Install app” or “Add to Home screen.”'}</p>
-      {installEvent && <button onClick={handleInstall} style={{width:'100%',border:0,borderRadius:13,padding:'14px 16px',background:'linear-gradient(135deg,#4FE3FF,#66A6FF)',color:'#04111a',fontWeight:950,cursor:'pointer'}}>⬇ INSTALL TRYAMM</button>}
-      <div style={{marginTop:10,color:'#718096',fontSize:10}}>No separate download file • Uses tryamm.online • Updates automatically</div>
+      <p style={{color:'#aeb9c8',fontSize:13,lineHeight:1.55}}>{installEvent ? 'Add {appName} to your phone or desktop and launch it like a normal app.' : 'Use your browser menu and choose “Install app” or “Add to Home screen.”'}</p>
+      {installEvent && <button onClick={handleInstall} style={{width:'100%',border:0,borderRadius:13,padding:'14px 16px',background:'linear-gradient(135deg,#4FE3FF,#66A6FF)',color:'#04111a',fontWeight:950,cursor:'pointer'}}>⬇ INSTALL {appName.toUpperCase()}</button>}
+      <div style={{marginTop:10,color:'#718096',fontSize:10}}>No separate download file • Uses tryamm.online • Updates automatically • {streetverseApp?'Game-first standalone shell':'Full TRYAMM shell'}</div>
     </div>
   )
 }
