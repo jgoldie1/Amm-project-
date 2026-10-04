@@ -79,6 +79,7 @@ export function installSharedQuantumMemoryRuntime(){
  let current=readLocal()||baseMemory()
  let activeSession:Session|null=null
  let saveTimer:number|undefined
+ let lastCloudSavedAt=0
  apply(current,'local')
 
  const persistCloud=async()=>{
@@ -90,6 +91,7 @@ export function installSharedQuantumMemoryRuntime(){
    lastRoute:location.pathname+location.search,
    notes:sanitizeNotes(current.notes),
   }
+  if(payload.savedAt<=lastCloudSavedAt)return
   current=payload
   writeLocal(payload)
   const {error}=await client.auth.updateUser({data:{[USER_META_KEY]:payload}})
@@ -97,6 +99,7 @@ export function installSharedQuantumMemoryRuntime(){
    window.dispatchEvent(new CustomEvent('tryamm:quantum-memory-sync-error',{detail:{message:error.message}}))
    return
   }
+  lastCloudSavedAt=payload.savedAt
   window.dispatchEvent(new CustomEvent('tryamm:quantum-memory-synced',{detail:{savedAt:payload.savedAt,sourceApp:payload.sourceApp,crossDevice:true,regionalCoreTarget:OMNIVAULT_100_ARCHITECTURE.id}}))
   window.dispatchEvent(new CustomEvent('tryamm:omnivault-sync-intent',{detail:{
     workload:'world-state',
@@ -164,12 +167,13 @@ export function installSharedQuantumMemoryRuntime(){
    if(!session?.user)return
    if(!['INITIAL_SESSION','SIGNED_IN','USER_UPDATED','TOKEN_REFRESHED'].includes(event))return
    const remote=(session.user.user_metadata?.[USER_META_KEY]||null) as SharedQuantumMemory|null
+   if(remote?.savedAt)lastCloudSavedAt=Math.max(lastCloudSavedAt,Number(remote.savedAt)||0)
    const chosen=newer(current,remote)
    if(chosen){
     current=chosen
     apply(chosen,remote&&chosen.savedAt===remote.savedAt?'cloud':'local')
    }
-   scheduleCloud()
+   if(event!=='USER_UPDATED'&&Number(current.savedAt||0)>lastCloudSavedAt)scheduleCloud()
   })
  }
 
