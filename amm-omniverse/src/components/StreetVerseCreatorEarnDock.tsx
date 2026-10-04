@@ -70,7 +70,7 @@ export default function StreetVerseCreatorEarnDock(){
    }finally{if(!cancelled)setLoadingBoxes(false)}
   })()
   return()=>{cancelled=true}
- },[open,mode,boxes.length,loadingBoxes])
+ },[open,mode,boxes.length])
 
  useEffect(()=>{
   if(!open||mode!=='earnings')return
