@@ -75,6 +75,45 @@ function setMorph(mesh:THREE.Mesh,patterns:RegExp[],value:number){
   return true
 }
 
+function tuneBJProductionMaterials(root:THREE.Object3D){
+  let meshCount=0,materialCount=0,textureCount=0
+  root.traverse(node=>{
+    if(!(node instanceof THREE.Mesh))return
+    meshCount++
+    const materials=Array.isArray(node.material)?node.material:[node.material]
+    materials.forEach(material=>{
+      if(!(material instanceof THREE.MeshStandardMaterial)&&!(material instanceof THREE.MeshPhysicalMaterial))return
+      materialCount++
+      const name=(node.name+' '+material.name).toLowerCase()
+      material.map&&(material.map.colorSpace=THREE.SRGBColorSpace,textureCount++)
+      if(material.emissiveMap)material.emissiveMap.colorSpace=THREE.SRGBColorSpace
+      if(/skin|face|head|body|arm|hand|neck/.test(name)){
+        material.roughness=THREE.MathUtils.clamp(material.roughness,.42,.68)
+        material.metalness=0
+        if(material instanceof THREE.MeshPhysicalMaterial){
+          material.clearcoat=Math.min(material.clearcoat,.08)
+          material.clearcoatRoughness=Math.max(material.clearcoatRoughness,.65)
+        }
+      }else if(/eye|cornea/.test(name)){
+        material.roughness=.12
+        material.metalness=0
+        if(material instanceof THREE.MeshPhysicalMaterial){material.clearcoat=.75;material.clearcoatRoughness=.08}
+      }else if(/hair|brow|lash|beard/.test(name)){
+        material.roughness=.72
+        material.metalness=0
+        material.alphaTest=Math.max(material.alphaTest,.18)
+      }else if(/shirt|hood|jacket|pants|jean|cloth|fabric/.test(name)){
+        material.roughness=Math.max(material.roughness,.72)
+        material.metalness=0
+      }else if(/shoe|watch|zip|metal/.test(name)){
+        material.roughness=THREE.MathUtils.clamp(material.roughness,.2,.58)
+      }
+      material.needsUpdate=true
+    })
+  })
+  return {meshCount,materialCount,textureCount}
+}
+
 function disposeObject(root:THREE.Object3D){
   root.traverse(node=>{
     if(!(node instanceof THREE.Mesh))return
@@ -116,6 +155,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         node.frustumCulled=true
       }
     })
+    const productionMaterials=tuneBJProductionMaterials(object)
     object.userData={
       ...object.userData,
       characterId:BJ_MESHY_V6_ASSET.characterId,
@@ -128,6 +168,9 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       photoMatched:verifiedPhotoMatch,
       certifiedLikeness:verifiedPhotoMatch,
       meshyV6:true,
+      productionMaterials:true,
+      texturePipeline:'pbr-mobile-production-v6',
+      lifeLayer:'blink-lipsync-breathing-eye-focus-ready',
     }
 
     const companionClips:THREE.AnimationClip[]=[]
@@ -190,6 +233,9 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       photoMatched:verifiedPhotoMatch,
       certifiedLikeness:verifiedPhotoMatch,
       proceduralFallbackSuppressed:true,
+      productionMaterials,
+      texturePipeline:'pbr-mobile-production-v6',
+      lifeLayer:'blink-lipsync-breathing-eye-focus-ready',
     }}))
 
     return {
