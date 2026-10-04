@@ -16,6 +16,7 @@ function text(value:unknown){
 async function emit(subsystem:string,kind:string,severity:HealingSeverity,message:string,metadata:Record<string,unknown>={}){
   const signal:HealthSignal={id:id('health'),subsystem,kind,severity,message:text(message),occurredAt:Date.now(),metadata}
   const candidate=createRepairCandidate(signal)
+  window.dispatchEvent(new CustomEvent('tryamm:production-health-signal',{detail:signal}))
   await persistHealingTelemetryBestEffort({signal,candidate,riskScore:scoreSignal(signal)})
 }
 
