@@ -72,15 +72,23 @@ jobs:
           mkdir -p convergence-report
           echo "# StreetVerse Kingdom convergence" > convergence-report/summary.md
           echo "" >> convergence-report/summary.md
+          START_EPOCH=$(date +%s)
           echo "Started: $(date -u +%FT%TZ)" >> convergence-report/summary.md
           echo "Commit: $GITHUB_SHA" >> convergence-report/summary.md
+          echo "Planned validation window: ~6 hours" >> convergence-report/summary.md
 
           for i in $(seq 1 "$CYCLES"); do
             echo "=== Cycle $i/$CYCLES ==="
             cycle_file="convergence-report/cycle-$i.txt"
+            NOW_EPOCH=$(date +%s)
+            ELAPSED_SEC=$((NOW_EPOCH - START_EPOCH))
+            ELAPSED_MIN=$((ELAPSED_SEC / 60))
+            ELAPSED_HOURS=$(awk "BEGIN {printf \"%.2f\", $ELAPSED_MIN/60}")
             {
               echo "cycle=$i"
               echo "time=$(date -u +%FT%TZ)"
+              echo "elapsed_minutes=$ELAPSED_MIN"
+              echo "elapsed_hours=$ELAPSED_HOURS"
               echo "commit=$GITHUB_SHA"
               echo "kingdom_game_bytes=$(wc -c < "$KINGDOM_DIR/game.js")"
               echo "kingdom_index_bytes=$(wc -c < "$KINGDOM_DIR/index.html")"
@@ -98,7 +106,7 @@ jobs:
               npm run build
             ) >> "$cycle_file" 2>&1
 
-            echo "- Cycle $i PASS — $(date -u +%FT%TZ)" >> convergence-report/summary.md
+            echo "- Cycle $i PASS — $(date -u +%FT%TZ) — elapsed ${ELAPSED_HOURS}h" >> convergence-report/summary.md
 
             if [ "$i" -lt "$CYCLES" ]; then
               sleep "$((INTERVAL_MINUTES * 60))"
@@ -106,7 +114,12 @@ jobs:
           done
 
           echo "" >> convergence-report/summary.md
+          END_EPOCH=$(date +%s)
+          TOTAL_SEC=$((END_EPOCH - START_EPOCH))
+          TOTAL_MIN=$((TOTAL_SEC / 60))
+          TOTAL_HOURS=$(awk "BEGIN {printf \"%.2f\", $TOTAL_MIN/60}")
           echo "Completed: $(date -u +%FT%TZ)" >> convergence-report/summary.md
+          echo "Total tracked workflow time: ${TOTAL_HOURS} hours (${TOTAL_MIN} minutes)" >> convergence-report/summary.md
 
       - name: Upload convergence report
         if: always()
