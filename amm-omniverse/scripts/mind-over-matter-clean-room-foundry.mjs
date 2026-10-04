@@ -212,6 +212,22 @@ function storefrontKit(){
   return g
 }
 
+function roadKit(){
+  const g=new THREE.Group();g.name='mom-original-road-kit'
+  const asphalt=material('mom-asphalt',0x2d3135,.96,.02)
+  const concrete=material('mom-sidewalk',0xaaa69f,.92,.02)
+  const paint=material('mom-road-paint',0xe9e3c5,.76,.01)
+  box(g,'road',[12,.12,6],[0,.06,0],asphalt,'drivable-road')
+  box(g,'sidewalk-left',[12,.18,1.8],[0,.09,-3.9],concrete,'walkable-sidewalk')
+  box(g,'sidewalk-right',[12,.18,1.8],[0,.09,3.9],concrete,'walkable-sidewalk')
+  box(g,'curb-left',[12,.28,.18],[0,.14,-3.0],concrete,'curb')
+  box(g,'curb-right',[12,.28,.18],[0,.14,3.0],concrete,'curb')
+  for(const x of [-4.5,-1.5,1.5,4.5])box(g,'lane-dash',[1.4,.02,.08],[x,.13,0],paint,'lane-marking')
+  for(const z of [-2.25,2.25])for(let x=-4;x<=4;x+=1)box(g,'crosswalk',[.55,.025,.24],[x,.14,z],paint,'crosswalk')
+  g.userData={twoWayTraffic:true,accessibleSidewalks:true,originalTryammDesign:true}
+  return g
+}
+
 function missionKit(){
   const g=new THREE.Group();g.name='mom-original-mission-kit'
   const base=material('mom-mission-base',0x26343d,.52,.28)
@@ -233,6 +249,7 @@ const assets=[
   ['mom-prop-kit.glb',propKit(),{kind:'prop'}],
   ['mom-environment-kit.glb',environmentKit(),{kind:'environment'}],
   ['mom-business-brand-kit.glb',storefrontKit(),{kind:'business-brand',fictional:true}],
+  ['mom-road-kit.glb',roadKit(),{kind:'road'}],
   ['mom-mission-kit.glb',missionKit(),{kind:'mission-object'}],
 ]
 
