@@ -87,6 +87,23 @@ export function musicSyncAllowed(
   return Number.isFinite(at)&&at>=start&&at<=end;
 }
 
+export function validateMusicRightsShares(license:MusicSyncLicense):boolean{
+  const total=license.rightsParties.reduce((sum,party)=>sum+Math.max(0,party.shareBps||0),0);
+  return total===10000;
+}
+
+export function calculateAuthorizedMusicSyncPayables(
+  license:MusicSyncLicense,
+  cue:MusicSyncCue,
+  event:MusicSyncPlayEvent,
+  territory:string,
+):MusicSyncPayable[]{
+  if(!musicSyncAllowed(license,cue,territory,event.occurredAtIso))return [];
+  if(event.cueId!==cue.cueId||event.trackId!==cue.trackId||event.platform!==cue.platform)return [];
+  if(!validateMusicRightsShares(license))return [];
+  return calculateMusicSyncPayables(license,event);
+}
+
 export function calculateMusicSyncPayables(
   license:MusicSyncLicense,
   event:MusicSyncPlayEvent,
