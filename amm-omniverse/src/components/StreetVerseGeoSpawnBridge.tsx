@@ -26,6 +26,8 @@ import {installOmniAccessibilityGlobalRuntime} from '../runtime/OmniAccessibilit
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
+import StreetVerseWestSideWorldBuilder from './StreetVerseWestSideWorldBuilder'
+import BuildSwarmControl from './BuildSwarmControl'
 import {useGameStore} from '../game/state/useGameStore'
 import {chooseQuantumSpeedMode,QUANTUM_SPEED_BUDGETS,type QuantumSpeedMode} from '../game/runtime/quantumSpeedEngine'
 import {CIRCLE_PARK_SPAWN} from '../data/StreetVerseChicagoGrid'
@@ -229,6 +231,8 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  },[safe,quantumMode])
 
  if(safe)return <>
+  <StreetVerseWestSideWorldBuilder/>
+  <BuildSwarmControl/>
   <StreetVerseWeatherSync/>
   <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>
   <StreetVerseAfterDarkAlpha/>
@@ -236,6 +240,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  </>
 
  return <>
+  <BuildSwarmControl/>
   {nearWestOpen&&<div style={{position:'fixed',inset:0,zIndex:14980,background:'#07101d'}}><Suspense fallback={null}><StreetVerseNearWest3D/></Suspense><button aria-label="Return to StreetVerse Chicago" onClick={()=>setNearWestOpen(false)} style={{position:'fixed',top:76,right:12,zIndex:14990,border:'1px solid #6ee7ff',borderRadius:12,background:'#07131f',color:'#fff',padding:'10px 12px',fontWeight:900}}>← CHICAGO</button></div>}
   {!nearWestOpen&&<button data-streetverse-travel="true" aria-label="Travel to Taylor Street UIC Medical District" onClick={()=>setNearWestOpen(true)} style={{position:'fixed',top:118,right:12,zIndex:14970,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333e8',color:'#fff',padding:'10px 12px',fontWeight:900}}>TAYLOR / UIC</button>}
   <Suspense fallback={<div aria-label="StreetVerse playable world loading" style={{position:'fixed',inset:0,zIndex:14990,display:'grid',placeItems:'center',background:'#07101d',color:'#fff',fontFamily:'system-ui',fontWeight:900}}>STREETVERSE • LOADING PLAYABLE WORLD…</div>}>
