@@ -149,3 +149,70 @@ export function passengerCount(manifest: TransportManifest): number {
   return Object.values(manifest.occupants).filter(Boolean).length +
     (manifest.standingOccupants?.length ?? 0);
 }
+
+
+export type TransportActorKind = 'player' | 'npc' | 'ai-companion';
+
+export interface TransportPartyMember {
+  actorId: string;
+  kind: TransportActorKind;
+  leader?: boolean;
+  preferredSeatId?: string;
+}
+
+export interface TransportPartyBoardingResult {
+  boarded: Array<{ actorId: string; seatId: string }>;
+  waiting: string[];
+}
+
+export function boardTransportParty(
+  manifest: TransportManifest,
+  members: readonly TransportPartyMember[],
+): TransportPartyBoardingResult {
+  const boarded: Array<{ actorId: string; seatId: string }> = [];
+  const waiting: string[] = [];
+  const ordered = [...members].sort((a, b) => Number(Boolean(b.leader)) - Number(Boolean(a.leader)));
+  for (const member of ordered) {
+    const seatId = boardTransport(manifest, member.actorId, member.preferredSeatId);
+    if (seatId) boarded.push({ actorId: member.actorId, seatId });
+    else waiting.push(member.actorId);
+  }
+  return { boarded, waiting };
+}
+
+export interface TransportSwarmPlan {
+  vehicleCount: number;
+  assignments: Array<{ transportIndex: number; members: TransportPartyMember[] }>;
+  waiting: TransportPartyMember[];
+}
+
+export function planTransportSwarm(
+  members: readonly TransportPartyMember[],
+  kind: TransportKind = 'car',
+): TransportSwarmPlan {
+  const perVehicle = kind === 'car' || kind === 'rideshare'
+    ? FIVE_SEAT_CAR.length
+    : defaultPassengerCapacity(kind) + 1;
+  const assignments: TransportSwarmPlan['assignments'] = [];
+  members.forEach((member, index) => {
+    const transportIndex = Math.floor(index / Math.max(1, perVehicle));
+    const assignment = assignments[transportIndex] ?? { transportIndex, members: [] };
+    assignment.members.push(member);
+    assignments[transportIndex] = assignment;
+  });
+  return {
+    vehicleCount: assignments.length,
+    assignments,
+    waiting: [],
+  };
+}
+
+export function transportSimulationTier(
+  distanceMeters: number,
+  policy: TransportVisualPolicy = MOBILE_TRANSPORT_VISUAL_POLICY,
+): 'full' | 'animated-lite' | 'impostor' | 'manifest-only' {
+  if (distanceMeters <= policy.fullDetailRadius) return 'full';
+  if (distanceMeters <= policy.animatedRadius) return 'animated-lite';
+  if (distanceMeters <= policy.impostorRadius) return 'impostor';
+  return 'manifest-only';
+}
