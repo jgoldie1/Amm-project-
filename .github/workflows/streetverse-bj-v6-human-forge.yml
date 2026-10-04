@@ -77,7 +77,9 @@ jobs:
         run: |
           git config user.name "tryamm-world-forger"
           git config user.email "actions@users.noreply.github.com"
-          git add "$OUT_DIR/SV_HERO_BJ_STUBBS_V6.glb" "$OUT_DIR/SV_HERO_BJ_STUBBS_V6_WALK.glb" "$OUT_DIR/SV_HERO_BJ_STUBBS_V6_RUN.glb" "$OUT_DIR/SV_HERO_BJ_STUBBS_V6.provenance.json" 2>/dev/null || true
+          git add "$OUT_DIR/SV_HERO_BJ_STUBBS_V6.glb" "$OUT_DIR/SV_HERO_BJ_STUBBS_V6.provenance.json"
+          [ ! -s "$OUT_DIR/SV_HERO_BJ_STUBBS_V6_WALK.glb" ] || git add "$OUT_DIR/SV_HERO_BJ_STUBBS_V6_WALK.glb"
+          [ ! -s "$OUT_DIR/SV_HERO_BJ_STUBBS_V6_RUN.glb" ] || git add "$OUT_DIR/SV_HERO_BJ_STUBBS_V6_RUN.glb"
           git diff --cached --quiet && { echo "::error::No BJ asset generated"; exit 1; }
           git commit -m "Publish generated BJ V6 production human"
           git push
