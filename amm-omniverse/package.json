@@ -39,7 +39,8 @@
     "fraud:check": "node tests/fraud-shield-contract.mjs",
     "payout-protection:check": "node tests/payout-protection-contract.mjs",
     "omnichannel:check": "node tests/all-american-omnichannel-commerce-contract.mjs",
-    "omnichannel-center:check": "node tests/all-american-omnichannel-center-contract.mjs"
+    "omnichannel-center:check": "node tests/all-american-omnichannel-center-contract.mjs",
+    "quantum-source:check": "node tests/quantum-source-logistics-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
