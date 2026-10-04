@@ -43,4 +43,12 @@ export function readSelectedCommunityArea(){
 
 export function getStreetVerseMissionSlice(){return CHICAGO_77_BY_NUMBER[readSelectedCommunityArea()]}
 export function getStreetVerseCommunitySlice(areaNumber:string|number){return CHICAGO_77_BY_NUMBER[String(areaNumber)]}
+export function streetVerseCommunitySpawn(areaNumber:string|number){
+ const n=Math.max(1,Math.min(77,Number(areaNumber)||1))
+ if(n===32)return{x:0,z:0}
+ if(n===41)return{x:26,z:62}
+ const column=(n-1)%11
+ const row=Math.floor((n-1)/11)
+ return{x:(column-5)*16,z:(row-3)*18}
+}
 export const CHICAGO_77_TOTAL=CHICAGO_77_SLICES.length
