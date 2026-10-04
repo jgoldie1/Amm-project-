@@ -244,11 +244,15 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       bjHeadRuntime=installStreetVerseCharacterHeadRuntime(nativeHero,STREETVERSE_HERO_CHARACTER_ID)
       nativeWindLocs=[]
       nativeHero.traverse(object=>{if(/loc|braid/i.test(object.name)){object.userData={...object.userData,windBaseRotation:{x:object.rotation.x,y:object.rotation.y,z:object.rotation.z}};nativeWindLocs.push(object)}})
-      announceStreetVerseCharacterReady({id:STREETVERSE_HERO_CHARACTER_ID,assetId:'streetverse-hero-player',era:'current',photoMatched:false,source:'streetverse-mobile-procedural-fallback-until-photo-head-ready'})
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-production-human-status',{detail:{characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',status:'fallback-not-production-ready',requiredAsset:BJ_MESHY_V6_ASSET.filename,requiredUrl:BJ_MESHY_V6_ASSET.url,primitiveFallbackVisible:true}}))
     }
     if(nativeHeroFallback){
       void loadStreetVerseMeshyBJHero().then(handle=>{
-        if(!handle)return
+        if(!handle){
+          window.dispatchEvent(new CustomEvent('tryamm:streetverse-production-human-status',{detail:{characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',status:'missing-production-glb',requiredAsset:BJ_MESHY_V6_ASSET.filename,requiredUrl:BJ_MESHY_V6_ASSET.url,primitiveFallbackVisible:Boolean(nativeHeroFallback?.visible)}}))
+          setMessage('BJ V6 HUMAN ASSET MISSING • World Forger must publish the rigged GLB')
+          return
+        }
         if(nativeCancelled||!nativeLayer){handle.dispose();return}
         bjMeshyHero?.dispose()
         bjMeshyHero=handle
@@ -263,6 +267,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
         nativeWindLocs=[]
         nativeHero.traverse(object=>{if(/loc|braid|dread|hair/i.test(object.name)){object.userData={...object.userData,windBaseRotation:{x:object.rotation.x,y:object.rotation.y,z:object.rotation.z}};nativeWindLocs.push(object)}})
         announceStreetVerseCharacterReady({id:STREETVERSE_HERO_CHARACTER_ID,assetId:BJ_MESHY_V6_ASSET.id,era:'current',photoMatched:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),source:'streetverse-mobile-meshy-bj-v6'})
+        window.dispatchEvent(new CustomEvent('tryamm:streetverse-production-human-status',{detail:{characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',status:'production-human-ready',assetId:BJ_MESHY_V6_ASSET.id,primitiveFallbackVisible:false}}))
         window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail:{characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',assetId:BJ_MESHY_V6_ASSET.id,referenceMatchedPreview:true,photoMatched:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),certifiedLikeness:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),authoritative3DMesh:true,meshyV6:true,proceduralFallbackSuppressed:true,morphTargetNames:handle.morphTargetNames}}))
       })
     }
