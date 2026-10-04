@@ -1,6 +1,7 @@
 import {useMemo,useRef,useState} from 'react'
 import {getAccessToken} from '../services/supabaseClient'
 import {Howl} from 'howler'
+import {HOLOGRAPHIC_GIFT_KIT,lottieForGift} from '../game/gifts/HolographicGiftKit'
 
 const API=(import.meta as any).env?.VITE_API_URL??''
 
@@ -87,7 +88,8 @@ export default function HoloGiftEngine({recipientId='demo-host'}:Props){
       const token=await getAccessToken();if(!token)throw new Error('Sign in before sending a gift or tip.')
       const response=await fetch(`${API}/api/gifts/intent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({giftType:gift.id,recipientId,amountMinor:amount,spatialMode:mode,musicCue:gift.musicCue})})
       const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data?.error||`Gift request failed (${response.status})`)
-      setBurst(v=>v+1);playCue();window.dispatchEvent(new CustomEvent('tryamm:holo-gift',{detail:{...data.intent,spatialMode:mode,musicCue:gift.musicCue,effect:gift.effect,collection:gift.collection,tier:gift.tier}}))
+      const kit=lottieForGift(gift.id,gift.tier)
+      setBurst(v=>v+1);playCue();window.dispatchEvent(new CustomEvent('tryamm:holo-gift',{detail:{...data.intent,label:gift.label,spatialMode:mode,musicCue:gift.musicCue,effect:gift.effect,collection:gift.collection,tier:gift.tier,lottieKey:kit.lottieKey,ownedAnimation:kit.owned}}))
       setMessage(amount>0?`${gift.label} fired in ${mode.toUpperCase()} mode. Tip remains pending provider verification; no withdrawable cash was created.`:`${gift.label} visual/music effect fired in ${mode.toUpperCase()} mode.`)
     }catch(error){setMessage(error instanceof Error?error.message:'Gift failed.')}finally{setBusy(false)}
   }
@@ -99,6 +101,7 @@ export default function HoloGiftEngine({recipientId='demo-host'}:Props){
     </div>}
     <style>{`@keyframes tryammGiftRing{from{transform:scale(.15) rotate(0);opacity:1}to{transform:scale(1.9) rotate(38deg);opacity:0}}@keyframes tryammGiftFade{0%,80%{opacity:1}100%{opacity:0}}`}</style>
     <div style={{fontSize:10,letterSpacing:2.5,color:'#4fe3ff',fontWeight:950}}>TRYAMM HOLO GIFT UNIVERSE • AR / VR / MUSIC</div>
+    <div style={{marginTop:6,fontSize:8,color:'#84dca9',fontWeight:900}}>OWNED LOTTIE KIT • {HOLOGRAPHIC_GIFT_KIT.specificMappings} DIRECT MAPS • FALLBACK GUARANTEED • NO REMOTE ANIMATION DEPENDENCY</div>
     <div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:10}}>{(['screen','ar','vr'] as const).map(id=><button key={id} onClick={()=>id==='screen'?setMode('screen'):enterXR(id)} style={{padding:'8px 11px',borderRadius:11,border:`1px solid ${mode===id?'#4fe3ff':'#2d4050'}`,background:mode===id?'#0c2b39':'#081019',color:'#fff',fontWeight:900,cursor:'pointer'}}>{id.toUpperCase()}</button>)}<button onClick={()=>setMusicEnabled(v=>!v)} style={{padding:'8px 11px',borderRadius:11,border:'1px solid #e8b94466',background:'#151007',color:'#fff',fontWeight:900,cursor:'pointer'}}>♫ MUSIC {musicEnabled?'ON':'OFF'}</button></div>
     <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:9}}>{(['ALL','MICRO','REACTION','MUSIC','PRESTIGE','SET-APART','PK','WORLD'] as const).map(id=><button key={id} onClick={()=>setTier(id)} style={{padding:'6px 9px',borderRadius:999,border:`1px solid ${tier===id?'#4fe3ff':'#253645'}`,background:tier===id?'#0b2937':'#071019',color:'#dce8ef',fontSize:9,fontWeight:900,cursor:'pointer'}}>{id}</button>)}</div>
     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(124px,1fr))',gap:7,marginTop:10,maxHeight:460,overflowY:'auto'}}>{visible.map(item=><button key={item.id} onClick={()=>{setGift(item);setAmount(item.suggested)}} style={{padding:9,borderRadius:12,border:`1px solid ${gift.id===item.id?'#4fe3ff':'#26394b'}`,background:gift.id===item.id?'#0c2837':'#080d14',color:'#fff',cursor:'pointer'}}><div style={{fontSize:25}}>{item.icon}</div><div style={{fontSize:10,fontWeight:900}}>{item.label}</div><div style={{fontSize:8,color:'#899aa8',marginTop:3}}>{item.effect}</div><div style={{fontSize:7,color:item.collection==='AMERICA 250'?'#fff':'#e8b944',marginTop:4,letterSpacing:.5}}>{item.collection}</div><div style={{fontSize:8,color:'#4fe3ff',marginTop:3}}>{item.spatial.toUpperCase()} • {item.tier}</div></button>)}</div>
