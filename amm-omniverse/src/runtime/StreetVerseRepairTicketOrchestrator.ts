@@ -68,7 +68,7 @@ function riskFor(subsystem:string,severity:RepairTicket['severity']):TicketRisk{
 }
 
 function workstreamsFor(subsystem:string,layer:RepairLayer,problem:ProblemClass){
- const streams=new Set<string>(['release'])
+ const streams=new Set<string>(['repair','sandbox','release'])
  if(/asset|meshy|model|glb|texture|rig/i.test(subsystem))streams.add('assets')
  if(/streetverse|game|mission|world|collision|navigation/i.test(subsystem))streams.add('streetverse')
  if(/access|one-hand|mobile|screen-reader/i.test(subsystem)||problem==='ACCESSIBILITY_FRICTION')streams.add('quality')
@@ -137,7 +137,8 @@ function openTicket(state:RepairState,input:{
 
  const assistant=aiTicketAssist({ticketId:ticket.id,kind:input.kind,text:input.message})
  emit('tryamm:repair-ticket-opened',{ticket,route,assistant})
- for(const workstream of workstreams){
+ if(ticket.humanApprovalRequired||ticket.risk!=='routine')workstreams.push('jobs')
+ for(const workstream of [...new Set(workstreams)]){
   emit('tryamm:ai-cafe-task',{
    workstream,
    title:`Repair ${ticket.id}: ${ticket.title} — ${ticket.message.slice(0,180)}`,
