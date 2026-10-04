@@ -8,6 +8,7 @@ export type WorldBuildTaskState='ready'|'blocked'|'running'|'passed'|'failed'|'a
 export type WorldBuildStage=
  |'source-discovery'
  |'rights-provenance'
+ |'original-fallback'
  |'geospatial'
  |'cad-reconstruction'
  |'asset-forge'
@@ -165,6 +166,7 @@ function makeTasks(target:WorldBuildTarget):WorldBuildTask[]{
  const tasks:WorldBuildTask[]=[
   {id:`${prefix}:discover`,stage:'source-discovery',label:'Oracle source discovery manifest',state:'ready',dependencies:[],parallelGroup:1,autoExecutable:true,approvalRequired:false,outputs:['source manifest','provider candidates','freshness/coverage report']},
   {id:`${prefix}:rights`,stage:'rights-provenance',label:'Rights + provenance review',state:'blocked',dependencies:[`${prefix}:discover`],parallelGroup:2,autoExecutable:true,approvalRequired:true,outputs:['rights ledger','approved source set','blocked-source report']},
+  {id:`${prefix}:original`,stage:'original-fallback',label:'Mind Over Matter original fallback',state:'blocked',dependencies:[`${prefix}:rights`],parallelGroup:3,autoExecutable:true,approvalRequired:true,outputs:['original replacement specs','clean-room manifests','native foundry jobs','fictionalized equivalents where required']},
   {id:`${prefix}:geo`,stage:'geospatial',label:'Compile boundaries, roads, transit and footprints',state:'blocked',dependencies:[`${prefix}:rights`],parallelGroup:3,autoExecutable:true,approvalRequired:false,outputs:['district graph','road graph','building footprints','landmark anchors']},
   {id:`${prefix}:cad`,stage:'cad-reconstruction',label:'Generate CAD reconstruction plans',state:'blocked',dependencies:[`${prefix}:geo`],parallelGroup:4,autoExecutable:true,approvalRequired:false,outputs:['building CAD plans','levels','stairs/elevator rules','utility placeholders','confidence metadata']},
   {id:`${prefix}:assets`,stage:'asset-forge',label:'Forge buildings, props, vehicles and environment assets',state:'blocked',dependencies:[`${prefix}:cad`],parallelGroup:5,autoExecutable:true,approvalRequired:true,outputs:['GLB/PBR asset jobs','material recipes','mobile LOD jobs','provenance metadata']},
@@ -201,6 +203,7 @@ function buildPlan(target:WorldBuildTarget):QuantumWorldBuildPlan{
     'bind tasks to World Forger recipes and Construct targets',
     'generate code/asset patch proposals for a trusted build worker',
     'surface blockers, confidence and missing-source gaps',
+    'route uncleared assets into Mind Over Matter clean-room replacements instead of copying or stalling',
    ],
   },
   worldForger:{
@@ -226,6 +229,7 @@ function buildPlan(target:WorldBuildTarget):QuantumWorldBuildPlan{
   tasks:makeTasks(target),
   certificationGates:[
    'source rights/provenance recorded',
+   'blocked/uncleared sources replaced with approved originals or clearly labeled conceptual equivalents',
    'no prohibited/private/sensitive source leakage',
    'navigation and collision pass',
    'mobile performance pass',
@@ -335,7 +339,8 @@ export function installStreetVerseQuantumWorldBuilderOrchestrator(){
   cursorConstruct:true,
   worldForger:true,
   construct:true,
-  stages:10,
+  stages:11,
+  mindOverMatterCleanRoom:true,
   productionMutation:false,
   publishRequiresApproval:true,
  })
