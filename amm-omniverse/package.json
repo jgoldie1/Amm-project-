@@ -41,7 +41,8 @@
     "omnichannel:check": "node tests/all-american-omnichannel-commerce-contract.mjs",
     "omnichannel-center:check": "node tests/all-american-omnichannel-center-contract.mjs",
     "quantum-source:check": "node tests/quantum-source-logistics-contract.mjs",
-    "holoverse:check": "node tests/holoverse-ecosystem-convergence-contract.mjs"
+    "holoverse:check": "node tests/holoverse-ecosystem-convergence-contract.mjs",
+    "logistics-freight:check": "node tests/stubbs-lyons-middleverse-logistics-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
