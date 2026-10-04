@@ -282,6 +282,9 @@ queueMicrotask(() => {
     import('./runtime/MindOverMatterCleanRoomRuntime')
       .then(m => m.installMindOverMatterCleanRoomRuntime())
       .catch(error => console.error('[TRYAMM] Mind Over Matter clean-room runtime failed after StreetVerse mount.', error))
+    import('./runtime/StreetVerseWorldBuildSandboxRuntime')
+      .then(m => m.installStreetVerseWorldBuildSandboxRuntime())
+      .catch(error => console.error('[TRYAMM] World Build Sandbox runtime failed after StreetVerse mount.', error))
     return
   }
   installOptionalRuntimes()
