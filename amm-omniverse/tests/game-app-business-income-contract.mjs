@@ -1,0 +1,12 @@
+import fs from 'node:fs'
+const runtime=fs.readFileSync(new URL('../src/runtime/BusinessIncomeCenterRuntime.ts',import.meta.url),'utf8')
+const ui=fs.readFileSync(new URL('../src/components/BusinessIncomeCenter.tsx',import.meta.url),'utf8')
+const bridge=fs.readFileSync(new URL('../src/runtime/GameAppIncomeBridge.ts',import.meta.url),'utf8')
+const app=fs.readFileSync(new URL('../src/App.tsx',import.meta.url),'utf8')
+const main=fs.readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8')
+for(const x of ['MERCHANT_PROCEEDS','PENDING','VERIFIED','PAYABLE','PAID','REVERSED','creatorAttribution:true','scoutAttribution:true','serverAuthoritative:true'])if(!runtime.includes(x))throw new Error('Business income runtime missing '+x)
+for(const x of ['STORE • WORLD • CONTENT • ONE LEDGER','GAME + APP INCOME LOOP','authoritative merchant proceeds'])if(!ui.includes(x))throw new Error('Business income UI missing '+x)
+for(const x of ['tryamm:game-commerce-intent','tryamm:scene-to-sale-candidate','tryamm:commerce-intent-request','transaction-orchestrator','clientMayCreatePayableBalance:false'])if(!bridge.includes(x))throw new Error('Game/App income bridge missing '+x)
+if(!app.includes('BusinessIncomeCenter'))throw new Error('Business Income Center not mounted')
+for(const x of ['installBusinessIncomeCenterRuntime','installGameAppIncomeBridge'])if(!main.includes(x))throw new Error('main missing '+x)
+console.log('Game + app business income convergence contract: PASS')
