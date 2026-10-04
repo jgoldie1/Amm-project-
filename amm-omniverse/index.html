@@ -5,7 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
     <meta name="theme-color" content="#04050E" />
     <meta name="description" content="TRYAMM — one connected platform for creators, commerce, LIVE, games, AI, business, education, workforce, and Living Worlds." />
-    <link rel="manifest" href="/manifest.json?v=20260904-american-lion-v2" />
+    <link id="tryamm-manifest" rel="manifest" href="/manifest.json?v=20261004-dual-standalone-v1" />
+    <script>
+      (() => {
+        const streetverse = location.pathname.startsWith('/streetverse')
+        const manifest = document.getElementById('tryamm-manifest')
+        if (manifest) manifest.setAttribute('href', streetverse
+          ? '/manifest.streetverse.json?v=20261004-dual-standalone-v1'
+          : '/manifest.json?v=20261004-dual-standalone-v1')
+        document.documentElement.dataset.tryammApp = streetverse ? 'streetverse' : 'tryamm'
+      })()
+    </script>
     <link rel="icon" type="image/svg+xml" href="/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2" />
     <link rel="shortcut icon" type="image/svg+xml" href="/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2" />
     <link rel="apple-touch-icon" href="/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2" />
@@ -13,8 +23,16 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="TRYAMM" />
-    <meta name="application-name" content="TRYAMM" />
+    <meta id="tryamm-apple-title" name="apple-mobile-web-app-title" content="TRYAMM" />
+    <meta id="tryamm-application-name" name="application-name" content="TRYAMM" />
+    <script>
+      (() => {
+        const streetverse = location.pathname.startsWith('/streetverse')
+        const name = streetverse ? 'StreetVerse' : 'TRYAMM'
+        document.getElementById('tryamm-apple-title')?.setAttribute('content', name)
+        document.getElementById('tryamm-application-name')?.setAttribute('content', name)
+      })()
+    </script>
     <meta name="robots" content="index,follow" />
     <link rel="canonical" href="https://tryamm.online/" />
     <meta property="og:title" content="TRYAMM — All American Marketplace & Living Worlds" />
@@ -60,7 +78,12 @@
       html.tryamm-streetverse #tryamm-accessibility-link{top:auto;bottom:12px;left:50%;right:auto;transform:translateX(-50%);width:44px;height:44px;padding:0;border-radius:50%;display:grid;place-items:center;font-size:0}
       html.tryamm-streetverse #tryamm-accessibility-link::before{content:'♿';font-size:20px;line-height:1}
     </style>
-    <title>TRYAMM — All American Marketplace & Living Worlds</title>
+    <title id="tryamm-document-title">TRYAMM — All American Marketplace & Living Worlds</title>
+    <script>
+      if (location.pathname.startsWith('/streetverse')) {
+        document.getElementById('tryamm-document-title').textContent = 'StreetVerse — Living World Game'
+      }
+    </script>
   </head>
   <body>
     <a id="tryamm-accessibility-link" href="/accessibility.html" aria-label="Open TRYAMM Accessibility Statement">♿ Accessibility</a>

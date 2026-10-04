@@ -1,0 +1,74 @@
+{
+  "id": "/streetverse",
+  "name": "StreetVerse — Living World Game",
+  "short_name": "StreetVerse",
+  "description": "StreetVerse is TRYAMM's standalone living-world game for missions, mobility, creators, businesses, campuses, jobs and connected world play.",
+  "start_url": "/streetverse?source=streetverse-pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "theme_color": "#04050E",
+  "background_color": "#04050E",
+  "lang": "en-US",
+  "dir": "ltr",
+  "categories": [
+    "games",
+    "entertainment",
+    "social"
+  ],
+  "icons": [
+    {
+      "src": "/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Play StreetVerse",
+      "short_name": "Play",
+      "url": "/streetverse?source=shortcut-play",
+      "icons": [
+        {
+          "src": "/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "World Builder",
+      "short_name": "World",
+      "url": "/streetverse?open=world-builder",
+      "icons": [
+        {
+          "src": "/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Game Ops",
+      "short_name": "Game Ops",
+      "url": "/streetverse?open=gameverse",
+      "icons": [
+        {
+          "src": "/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false,
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
+}
