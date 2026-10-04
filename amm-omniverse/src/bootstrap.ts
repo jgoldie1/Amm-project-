@@ -10,6 +10,12 @@ const showBootstrapFailure = (error: unknown) => {
 
 if (canary) canary.setAttribute('data-tryamm-bootstrap', 'loading')
 
+const appTarget=String(import.meta.env.VITE_APP_TARGET||'tryamm').trim().toLowerCase()
+if(appTarget==='streetverse'&&typeof window!=='undefined'&&!window.location.pathname.startsWith('/streetverse')){
+  const next='/streetverse'+window.location.search+window.location.hash
+  window.history.replaceState({tryammAppTarget:'streetverse'},'',next)
+}
+
 import('./main')
   .then(() => {
     canary?.setAttribute('data-tryamm-bootstrap', 'module-loaded')
