@@ -32,6 +32,7 @@ const OmniWearCenter = lazy(() => import('./components/OmniWearCenter'))
 const TryAMMConnectCenter = lazy(() => import('./components/TryAMMConnectCenter'))
 const EconomicLoopCenter = lazy(() => import('./components/EconomicLoopCenter'))
 const CreatorMoneyCenter = lazy(() => import('./components/CreatorMoneyCenter'))
+const BusinessIncomeCenter = lazy(() => import('./components/BusinessIncomeCenter'))
 const QuantumZoomViewer = lazy(() => import('./components/QuantumZoomViewer'))
 const NextDevelopmentTargetCenter = lazy(() => import('./components/NextDevelopmentTargetCenter'))
 const QuantumTagArena = lazy(() => import('./components/QuantumTagArena'))
@@ -81,6 +82,7 @@ export default function App() {
   const [showPoyo, setShowPoyo] = useState(false)
   const [showEconomicLoop, setShowEconomicLoop] = useState(false)
   const [showCreatorMoney, setShowCreatorMoney] = useState(false)
+  const [showBusinessIncome, setShowBusinessIncome] = useState(false)
   const [showQuantumZoom, setShowQuantumZoom] = useState(false)
   const [showNextDevelopment, setShowNextDevelopment] = useState(false)
   const [showQuantumTag, setShowQuantumTag] = useState(false)
@@ -104,6 +106,7 @@ export default function App() {
     if (route === '/city') { setScreen('city'); return }
     if (route === '/propertyverse') { setShowPropertyVerse(true); return }
     if (route === '/earnings' || route === '/creator-money') { setShowCreatorMoney(true); return }
+    if (route === '/business-income' || route === '/merchant-money') { setShowBusinessIncome(true); return }
     if (route === '/holoverse') { setShowHoloverse(true); return }
     if (route === '/spaceverse' || route === '/metaverse' || route === '/multiverse' || route === '/time-machine') { setShowAdvanced(true); return }
     if (route === '/cyberverse') { setShowSecurity(true); return }
@@ -137,7 +140,7 @@ export default function App() {
     const route = (window.location.pathname || '/').replace(/\/+$/, '') || '/'
     const routeAliases = new Set([
       '/marketplace','/music','/musicverse','/sports','/sportverse','/faith','/blockchain','/city',
-      '/propertyverse','/earnings','/creator-money','/holoverse','/spaceverse','/cyberverse','/creatorverse','/businessverse',
+      '/propertyverse','/earnings','/creator-money','/business-income','/merchant-money','/holoverse','/spaceverse','/cyberverse','/creatorverse','/businessverse',
       '/educationverse','/gameverse','/middleverse','/metaverse','/multiverse','/time-machine',
       '/legacyverse','/connect','/tv','/tryamm-tv','/isaiah-ai-tv'
     ])
@@ -197,6 +200,7 @@ export default function App() {
   ;(window as any).__showPoyoAI = () => setShowPoyo(true)
   ;(window as any).__showEconomicLoop = () => setShowEconomicLoop(true)
   ;(window as any).__showCreatorMoney = () => setShowCreatorMoney(true)
+  ;(window as any).__showBusinessIncome = () => setShowBusinessIncome(true)
   ;(window as any).__showQuantumZoom = () => setShowQuantumZoom(true)
   ;(window as any).__showNextDevelopment = () => setShowNextDevelopment(true)
   ;(window as any).__showQuantumTag = () => setShowQuantumTag(true)
@@ -415,6 +419,7 @@ export default function App() {
         {showSwipeTip && signedIn && <SwipeTutorial onDismiss={() => {setShowSwipeTip(false);localStorage.setItem('amm_swiped','1')}} />}
       </div>
       {showCreatorMoney&&<CreatorMoneyCenter onClose={()=>setShowCreatorMoney(false)} />}
+      {showBusinessIncome&&<BusinessIncomeCenter onClose={()=>setShowBusinessIncome(false)} />}
       </Suspense>
     </SwipeNavigator>
   )
