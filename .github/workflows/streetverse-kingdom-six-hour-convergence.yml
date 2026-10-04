@@ -1,0 +1,118 @@
+name: StreetVerse Kingdom 6-Hour Convergence
+
+on:
+  workflow_dispatch:
+    inputs:
+      cycles:
+        description: "Validation cycles (12 ~= six hours)"
+        required: false
+        default: "12"
+      interval_minutes:
+        description: "Minutes between cycles"
+        required: false
+        default: "28"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-kingdom-six-hour-convergence
+  cancel-in-progress: false
+
+jobs:
+  convergence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    defaults:
+      run:
+        shell: bash
+    env:
+      APP_DIR: amm-omniverse
+      KINGDOM_DIR: amm-omniverse/public/streetverse-kingdom
+      CYCLES: ${{ inputs.cycles || '12' }}
+      INTERVAL_MINUTES: ${{ inputs.interval_minutes || '28' }}
+
+    steps:
+      - name: Checkout production baseline
+        uses: actions/checkout@v4
+
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+
+      - name: Verify Kingdom city payload
+        run: |
+          set -euo pipefail
+          test -f "$KINGDOM_DIR/index.html"
+          test -f "$KINGDOM_DIR/game.js"
+          test -f "$KINGDOM_DIR/style.css"
+          echo "Kingdom city payload present."
+          wc -l "$KINGDOM_DIR/game.js"
+
+      - name: Verify StreetVerse Kingdom route
+        run: |
+          set -euo pipefail
+          grep -q "streetverse-kingdom" "$APP_DIR/vercel.json"
+          echo "Vercel route present."
+
+      - name: Install dependencies
+        working-directory: amm-omniverse
+        run: npm ci --include=dev --no-audit --no-fund
+
+      - name: Baseline production build
+        working-directory: amm-omniverse
+        run: npm run build
+
+      - name: Six-hour convergence soak
+        run: |
+          set -euo pipefail
+          mkdir -p convergence-report
+          echo "# StreetVerse Kingdom convergence" > convergence-report/summary.md
+          echo "" >> convergence-report/summary.md
+          echo "Started: $(date -u +%FT%TZ)" >> convergence-report/summary.md
+          echo "Commit: $GITHUB_SHA" >> convergence-report/summary.md
+
+          for i in $(seq 1 "$CYCLES"); do
+            echo "=== Cycle $i/$CYCLES ==="
+            cycle_file="convergence-report/cycle-$i.txt"
+            {
+              echo "cycle=$i"
+              echo "time=$(date -u +%FT%TZ)"
+              echo "commit=$GITHUB_SHA"
+              echo "kingdom_game_bytes=$(wc -c < "$KINGDOM_DIR/game.js")"
+              echo "kingdom_index_bytes=$(wc -c < "$KINGDOM_DIR/index.html")"
+              echo "kingdom_style_bytes=$(wc -c < "$KINGDOM_DIR/style.css")"
+            } > "$cycle_file"
+
+            grep -q "streetverse-kingdom" "$APP_DIR/vercel.json"
+            grep -Eq "THREE|three" "$KINGDOM_DIR/game.js"
+            grep -Eq "drive|vehicle|car" "$KINGDOM_DIR/game.js"
+            grep -Eq "touch|pointer|joystick|controller|keyboard" "$KINGDOM_DIR/game.js"
+            grep -Eq "map|waypoint|phone" "$KINGDOM_DIR/game.js"
+
+            (
+              cd "$APP_DIR"
+              npm run build
+            ) >> "$cycle_file" 2>&1
+
+            echo "- Cycle $i PASS — $(date -u +%FT%TZ)" >> convergence-report/summary.md
+
+            if [ "$i" -lt "$CYCLES" ]; then
+              sleep "$((INTERVAL_MINUTES * 60))"
+            fi
+          done
+
+          echo "" >> convergence-report/summary.md
+          echo "Completed: $(date -u +%FT%TZ)" >> convergence-report/summary.md
+
+      - name: Upload convergence report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-kingdom-six-hour-report
+          path: convergence-report/
+          if-no-files-found: warn
+          retention-days: 14
