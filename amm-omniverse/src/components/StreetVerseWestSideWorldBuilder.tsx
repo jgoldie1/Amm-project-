@@ -8,6 +8,8 @@ import {STREETVERSE_GLOBAL_CITIES} from '../data/StreetVerseGlobalRegistry'
 
 type Tab='map'|'build'|'missions'|'campuses'
 type Scale='west'|'chicago'|'illinois'|'usa'|'world'
+type QuantumTaskView={id:string;stage:string;label:string;state:string;approvalRequired?:boolean;outputs?:string[]}
+type QuantumPlanView={id:string;target:{id:string;label:string;scale:Scale};quantumMeaning:string;oracle:{cloudReturnMode:string;requirements:any[]};tasks:QuantumTaskView[];certificationGates:string[]}
 type Zone={
  id:string
  label:string
@@ -87,6 +89,7 @@ export default function StreetVerseWestSideWorldBuilder(){
  const [scale,setScale]=useState<Scale>('west')
  const [selected,setSelected]=useState<Zone>(ZONES[0])
  const [notice,setNotice]=useState('World Builder ready • West Side → Chicago 77 → Illinois → USA → World.')
+ const [quantumPlan,setQuantumPlan]=useState<QuantumPlanView|null>(null)
  const [layers,setLayers]=useState({neighborhood:true,school:true,campus:true,medical:true,transit:true})
  const visible=useMemo(()=>ZONES.filter(z=>layers[z.group]),[layers])
 
@@ -94,6 +97,16 @@ export default function StreetVerseWestSideWorldBuilder(){
   const show=()=>setOpen(true)
   window.addEventListener('tryamm:west-side-builder-open',show)
   return()=>window.removeEventListener('tryamm:west-side-builder-open',show)
+ },[])
+
+ useEffect(()=>{
+  const sync=(event:Event)=>{
+   const d=(event as CustomEvent<{activePlan?:QuantumPlanView|null}>).detail||{}
+   setQuantumPlan(d.activePlan||null)
+  }
+  window.addEventListener('tryamm:quantum-world-builder-state',sync)
+  window.dispatchEvent(new CustomEvent('tryamm:quantum-world-builder-request-state'))
+  return()=>window.removeEventListener('tryamm:quantum-world-builder-state',sync)
  },[])
 
  useEffect(()=>{
@@ -157,6 +170,27 @@ export default function StreetVerseWestSideWorldBuilder(){
   const fn=(window as any).__showBuildSwarm
   if(typeof fn==='function'){fn();setNotice('Build Swarm opened.')}
   else setNotice('Build Swarm is installed but its control panel is not mounted on this surface.')
+ }
+
+ const requestQuantumPlan=()=>{
+  const target=scale==='west'
+   ?{id:selected.id,label:selected.label,scale,status:selected.status,metadata:{group:selected.group}}
+   :scale==='chicago'
+    ?{id:'chicago-77',label:'Chicago • All 77 Community Areas',scale}
+    :scale==='illinois'
+     ?{id:'illinois',label:'Illinois Statewide StreetVerse',scale}
+     :scale==='usa'
+      ?{id:'united-states',label:'United States • 50-State StreetVerse',scale}
+      :{id:'global-streetverse',label:'Global StreetVerse',scale}
+  window.dispatchEvent(new CustomEvent('tryamm:quantum-world-builder-request',{detail:target}))
+  setNotice(`QUANTUM PLAN • ${target.label} • Oracle → Cursor Construct → World Forger → Construct → QA`)
+ }
+
+ const openCursorConstruct=()=>{
+  const target=quantumPlan?.target||{id:selected.id,label:selected.label,scale}
+  window.dispatchEvent(new CustomEvent('tryamm:shared-world-context-query',{detail:{surface:'construct',mode:'propose-build',query:target.label,selectedId:target.id,city:target.scale==='west'||target.scale==='chicago'?'Chicago':undefined}}))
+  window.dispatchEvent(new CustomEvent('tryamm:construct:map-toggle'))
+  setNotice(`CURSOR CONSTRUCT • ${target.label} • proposal + world-aware map opened.`)
  }
 
  return <>
@@ -224,7 +258,8 @@ export default function StreetVerseWestSideWorldBuilder(){
     </>}
 
     {tab==='build'&&<>
-     <article style={card}><b>BUILD CONTROL • {scaleLabel[scale]}</b><p style={muted}>Visible construction manifest for the selected world scale. Build actions still require committed code/assets; this screen does not pretend background work happened.</p><button onClick={openBuildSwarm} style={actionBtn}>OPEN BUILD SWARM</button></article>
+     <article style={card}><b>BUILD CONTROL • {scaleLabel[scale]}</b><p style={muted}>Visible construction manifest for the selected world scale. Build actions still require committed code/assets; this screen does not pretend background work happened.</p><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7}}><button onClick={requestQuantumPlan} style={{...actionBtn,gridColumn:'1 / -1'}}>⚛ QUANTUM AUTO PLAN</button><button onClick={openCursorConstruct} style={actionBtn}>CURSOR CONSTRUCT</button><button onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:construct:scan'));setNotice('CONSTRUCT SCAN • checking nearby world targets.')}} style={actionBtn}>SCAN</button><button onClick={openBuildSwarm} style={{...actionBtn,gridColumn:'1 / -1'}}>OPEN BUILD SWARM</button></div></article>
+     {quantumPlan&&<article style={card}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><b>QUANTUM BUILD QUEUE</b><span style={{fontSize:8,color:'#6de3ff'}}>{quantumPlan.oracle.cloudReturnMode.toUpperCase()}</span></div><div style={{fontSize:11,fontWeight:850,marginTop:5}}>{quantumPlan.target.label}</div><div style={muted}>{quantumPlan.quantumMeaning}</div><div style={{display:'grid',gap:5,marginTop:8}}>{quantumPlan.tasks.map((task,index)=><div key={task.id} style={{display:'grid',gridTemplateColumns:'24px 1fr auto',gap:7,alignItems:'center',padding:'7px 8px',borderRadius:9,background:'#0c1b24',border:'1px solid #294655'}}><span style={{fontSize:9,fontWeight:950,color:'#6de3ff'}}>{String(index+1).padStart(2,'0')}</span><span><b style={{fontSize:10}}>{task.label}</b><small style={{display:'block',opacity:.62}}>{task.stage}{task.approvalRequired?' • approval gate':''}</small></span><span style={{fontSize:8,color:task.state==='ready'?'#72ffb0':task.state==='passed'?'#72ffb0':task.state==='failed'?'#ff7c7c':'#ffd15c'}}>{task.state.toUpperCase()}</span></div>)}</div><div style={{marginTop:8,fontSize:9,color:'#9eb4c0'}}>Oracle requirements: {quantumPlan.oracle.requirements.length} • Certification gates: {quantumPlan.certificationGates.length}</div></article>}
      <article style={card}><b>EXPANSION CHAIN</b><div style={{fontSize:11,lineHeight:1.7,color:'#c7d7df'}}>WEST SIDE → 77 CHICAGO COMMUNITY AREAS → ILLINOIS → 50 U.S. STATES → GLOBAL CITIES</div></article>
      <article style={card}><b>WHAT IS STILL MISSING</b><div style={{display:'grid',gap:5,marginTop:7}}>{MISSING_SYSTEMS.map(item=><div key={item} style={{padding:'7px 8px',borderRadius:9,background:'#111b20',border:'1px solid #604f2d',fontSize:10,color:'#ffd98b'}}>○ {item}</div>)}</div></article>
      <div style={{display:'grid',gap:8,marginTop:8}}>{BUILD_LANES.map(l=><article key={l.id} style={card}><div style={{display:'flex',justifyContent:'space-between'}}><b>{l.label}</b><span style={{fontSize:9,color:'#72ffb0'}}>CONNECTED</span></div><div style={muted}>{l.items}</div></article>)}</div>
