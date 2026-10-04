@@ -1,6 +1,7 @@
 import {registerAssetRights,type AssetRightsCategory} from '../data/assetRightsRegistry'
 import {createAssetFactoryJob,type AssetKind} from '../data/TryammAssetForge'
 import {TRYAMM_NATIVE_ASSET_FOUNDRY} from '../data/TryammNativeAssetFoundry'
+import {getStreetVerseAsset,type StreetVerseAssetKind} from '../data/streetverseAssetRegistry'
 
 export type CleanRoomKind=
  |'building'
@@ -106,6 +107,17 @@ function assetKindFor(kind:CleanRoomKind):AssetKind|undefined{
  if(kind==='environment')return'environment'
  if(kind==='prop'||kind==='texture'||kind==='ui'||kind==='business-brand'||kind==='mission-object')return'prop'
  return undefined
+}
+
+function cleanRoomKindFromStreetVerse(kind:StreetVerseAssetKind|undefined):CleanRoomKind{
+ if(kind==='character'||kind==='npc')return'character'
+ if(kind==='vehicle'||kind==='watercraft')return'vehicle'
+ if(kind==='building')return'building'
+ if(kind==='interior')return'interior'
+ if(kind==='animal')return'animal'
+ if(kind==='environment')return'environment'
+ if(kind==='audio')return'audio'
+ return'prop'
 }
 
 function rightsCategoryFor(kind:CleanRoomKind):AssetRightsCategory{
@@ -375,6 +387,21 @@ export function installMindOverMatterCleanRoomRuntime(){
    reason:d.reason||'rights-not-cleared',
    blockedReferenceIds:d.assetId?[String(d.assetId)]:[],
    functionalRequirements:d.functionalRequirements,
+  })
+ })
+ addEventListener('tryamm:streetverse-asset-blocked',(event:Event)=>{
+  const d=(event as CustomEvent<any>).detail||{}
+  const asset=d.id?getStreetVerseAsset(String(d.id)):undefined
+  create({
+   targetId:d.id||'streetverse-blocked-asset',
+   targetLabel:asset?.label||d.id||'Blocked StreetVerse asset',
+   kind:cleanRoomKindFromStreetVerse(asset?.kind),
+   reason:'rights-not-cleared',
+   blockedReferenceIds:d.id?[String(d.id)]:[],
+   functionalRequirements:[
+    {id:'preserve-gameplay-role',label:'Preserve gameplay role',value:true,source:'gameplay-requirement'},
+    {id:'replace-protected-expression',label:'Replace protected expressive details with original TRYAMM design',value:true,source:'tryamm-design'},
+   ],
   })
  })
  addEventListener('tryamm:mind-over-matter-clean-room-request-state',()=>publish(state))
