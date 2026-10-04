@@ -15,7 +15,16 @@ export const CHICAGO_BUILD_GRID:ChicagoGridZone[]=[
  {id:'medical-district',label:'Illinois Medical District',grid:'IMD-01',kind:'district',x:-52,z:24,radius:42,buildable:true,description:'Hospital, emergency response, clinical education, health workforce and transport mission district.'},
  {id:'malcolm-x',label:'Malcolm X College',grid:'MXC-01',kind:'landmark',x:-62,z:40,radius:26,buildable:true,description:'Health sciences, nursing, virtual hospital, career and transfer mission campus.'},
  {id:'malcolm-x-west',label:'Malcolm X West Campus',grid:'MXW-01',kind:'landmark',x:-78,z:42,radius:24,buildable:true,description:'West Side workforce, adult education, community health and skills mission campus.'},
- {id:'west-side-expansion',label:'West Side Expansion',grid:'WS-02',kind:'district',x:-70,z:5,radius:70,buildable:true,description:'Expansion corridor for additional West Side neighborhoods, businesses, schools, housing and missions.'},
+ {id:'north-lawndale',label:'North Lawndale',grid:'NL-01',kind:'district',x:-62,z:2,radius:42,buildable:true,description:'Housing, schools, parks, businesses, restoration, transit and community missions.'},
+ {id:'east-garfield-park',label:'East Garfield Park',grid:'EGP-01',kind:'district',x:-72,z:20,radius:40,buildable:true,description:'Garfield Park gateway, housing, transit, commerce and neighborhood missions.'},
+ {id:'west-garfield-park',label:'West Garfield Park',grid:'WGP-01',kind:'district',x:-82,z:20,radius:40,buildable:true,description:'Residential, business, public-service and mobility expansion district.'},
+ {id:'austin',label:'Austin',grid:'AUS-01',kind:'district',x:-86,z:38,radius:52,buildable:true,description:'Large West Side residential/business district with schools, parks and transit.'},
+ {id:'humboldt-park',label:'Humboldt Park',grid:'HP-01',kind:'district',x:-62,z:54,radius:44,buildable:true,description:'Park, cultural, residential, business and community-event expansion.'},
+ {id:'west-town',label:'West Town',grid:'WT-01',kind:'district',x:-38,z:52,radius:42,buildable:true,description:'Businesses, housing, creator spaces, restaurants and nightlife routes.'},
+ {id:'douglass-park',label:'Douglass Park',grid:'DP-01',kind:'landmark',x:-52,z:-8,radius:30,buildable:true,description:'Sports, recreation, community events and neighborhood mission anchor.'},
+ {id:'union-park',label:'Union Park',grid:'UP-01',kind:'landmark',x:-28,z:34,radius:26,buildable:true,description:'Park, event, transit and Near West Side connector mission anchor.'},
+ {id:'west-side-transit',label:'West Side CTA + Bus Network',grid:'CTA-W',kind:'corridor',x:-55,z:28,radius:76,buildable:true,description:'CTA rail, buses, stops, stations, transit jobs and mission connections.'},
+ {id:'west-side-expansion',label:'West Side Expansion',grid:'WS-02',kind:'district',x:-70,z:5,radius:70,buildable:true,description:'Continuous neighborhood expansion through Garfield Park, North Lawndale, Austin and surrounding West Side districts.'},
 ]
 export function nearestChicagoGridZone(x:number,z:number){
  return [...CHICAGO_BUILD_GRID].map(zone=>({...zone,distance:Math.hypot(zone.x-x,zone.z-z)})).sort((a,b)=>a.distance-b.distance)[0]
