@@ -240,7 +240,25 @@ export function createMindOverMatterOriginalJob(input:{
  }
 }
 
-function recordOriginalRights(job:MindOverMatterOriginalJob){
+function recordPendingOriginalRights(job:MindOverMatterOriginalJob){
+ const assetId=job.assetFactoryJob?.id||job.id
+ registerAssetRights({
+  assetId,
+  category:rightsCategoryFor(job.kind),
+  status:'PENDING_REVIEW',
+  source:'TRYAMM Mind Over Matter Clean-Room Generator',
+  creatorOrLicensor:'TRYAMM',
+  commercialUse:false,
+  derivativeUse:false,
+  likenessConsent:job.kind==='character'?false:undefined,
+  trademarkClearance:job.kind==='business-brand'?false:undefined,
+  reviewedBy:'pending-human-review',
+  notes:'Original replacement specification generated without using blocked expressive source content. It remains blocked from production until originality/visual review and normal asset certification pass.',
+ })
+ return assetId
+}
+
+function approveOriginalRights(job:MindOverMatterOriginalJob,reviewedBy='founder-or-release-guardian'){
  const assetId=job.assetFactoryJob?.id||job.id
  registerAssetRights({
   assetId,
@@ -250,10 +268,11 @@ function recordOriginalRights(job:MindOverMatterOriginalJob){
   creatorOrLicensor:'TRYAMM',
   commercialUse:true,
   derivativeUse:true,
-  likenessConsent:job.kind==='character'?false:undefined,
-  trademarkClearance:job.kind==='business-brand'?false:undefined,
-  reviewedBy:'pending-human-review',
-  notes:'Original replacement specification generated without using blocked expressive source content. Production publication remains gated on human originality/visual review and normal asset certification.',
+  likenessConsent:job.kind==='character'?true:undefined,
+  trademarkClearance:job.kind==='business-brand'?true:undefined,
+  reviewedBy,
+  reviewedAt:new Date().toISOString(),
+  notes:'Clean-room original replacement approved after human originality/visual review. Normal runtime/performance/asset certification still applies.',
  })
  return assetId
 }
@@ -289,7 +308,7 @@ export function installMindOverMatterCleanRoomRuntime(){
    blockedReferenceIds:Array.isArray(detail.blockedReferenceIds)?detail.blockedReferenceIds.map(String):[],
    functionalRequirements:Array.isArray(detail.functionalRequirements)?detail.functionalRequirements:[],
   })
-  recordOriginalRights(job)
+  recordPendingOriginalRights(job)
   state={jobs:[...state.jobs,job].slice(-100),lastJob:job}
   publish(state)
   emit('tryamm:mind-over-matter-original-job-created',job)
@@ -303,6 +322,39 @@ export function installMindOverMatterCleanRoomRuntime(){
  }
 
  addEventListener('tryamm:mind-over-matter-original-request',(event:Event)=>create((event as CustomEvent).detail||{}))
+ addEventListener('tryamm:mind-over-matter-original-bundle-request',(event:Event)=>{
+  const d=(event as CustomEvent<any>).detail||{}
+  if(!d.targetId||!d.targetLabel)return
+  const kinds:CleanRoomKind[]=Array.isArray(d.kinds)&&d.kinds.length?d.kinds:[
+   'building','interior','vehicle','prop','environment','character','animal',
+   'texture','animation','audio','ui','business-brand','mission-object',
+  ]
+  for(const kind of kinds)create({
+   targetId:`${d.targetId}:${kind}`,
+   targetLabel:`${d.targetLabel} • ${kind}`,
+   kind,
+   reason:d.reason||'manual-original-request',
+   blockedReferenceIds:d.blockedReferenceIds,
+   functionalRequirements:d.functionalRequirements,
+  })
+ })
+ addEventListener('tryamm:mind-over-matter-original-review',(event:Event)=>{
+  const d=(event as CustomEvent<{jobId?:string;approved?:boolean;reviewedBy?:string}>).detail||{}
+  if(!d.jobId)return
+  const job=state.jobs.find(item=>item.id===d.jobId)
+  if(!job)return
+  if(d.approved){
+   approveOriginalRights(job,d.reviewedBy||'founder-or-release-guardian')
+   const approved={...job,status:'certified' as const}
+   state={jobs:state.jobs.map(item=>item.id===job.id?approved:item),lastJob:state.lastJob?.id===job.id?approved:state.lastJob}
+   publish(state)
+   emit('tryamm:mind-over-matter-original-approved',{jobId:job.id,assetId:job.assetFactoryJob?.id||job.id})
+  }else{
+   const review={...job,status:'review-required' as const}
+   state={jobs:state.jobs.map(item=>item.id===job.id?review:item),lastJob:state.lastJob?.id===job.id?review:state.lastJob}
+   publish(state)
+  }
+ })
  addEventListener('tryamm:oracle-source-blocked',(event:Event)=>{
   const d=(event as CustomEvent<any>).detail||{}
   create({
