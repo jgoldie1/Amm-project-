@@ -169,6 +169,8 @@ const installOptionalRuntimes = () => {
   import('./runtime/BusinessDiscoveryLensRuntime').then(m => m.installBusinessDiscoveryLensRuntime()).catch(error => console.error('[TRYAMM] Business discovery lens failed after core mount.', error))
   import('./runtime/CreatorRevenueFabricRuntime').then(m => m.installCreatorRevenueFabricRuntime()).catch(error => console.error('[TRYAMM] Creator Revenue Fabric failed after core mount.', error))
   import('./runtime/CreatorMoneyCenterRuntime').then(m => m.installCreatorMoneyCenterRuntime()).catch(error => console.error('[TRYAMM] Creator Money Center failed after core mount.', error))
+  import('./runtime/BusinessIncomeCenterRuntime').then(m => m.installBusinessIncomeCenterRuntime()).catch(error => console.error('[TRYAMM] Business Income Center failed after core mount.', error))
+  import('./runtime/GameAppIncomeBridge').then(m => m.installGameAppIncomeBridge()).catch(error => console.error('[TRYAMM] Game/App income bridge failed after core mount.', error))
   import('./runtime/StreetVerseGameOpsRuntime').then(m => m.installStreetVerseGameOpsRuntime()).catch(error => console.error('[TRYAMM] Game Ops failed after core mount.', error))
   import('./runtime/ProductionHealthMonitor').then(m => m.installProductionHealthMonitor()).catch(error => console.error('[TRYAMM] Optional runtime installProductionHealthMonitor failed after core mount.', error))
   import('./runtime/StreetVerseAssetExecutiveRuntime').then(m => m.installStreetVerseAssetExecutiveRuntime()).catch(error => console.error('[TRYAMM] Optional asset executive runtime failed after core mount.', error))
