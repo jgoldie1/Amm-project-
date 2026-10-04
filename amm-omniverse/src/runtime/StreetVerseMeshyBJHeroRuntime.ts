@@ -199,7 +199,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     }
 
     const companionClips:THREE.AnimationClip[]=[]
-    for(const [url,name] of [[published?.walkUrl,'walk'],[published?.runUrl,'run']] as const){
+    for(const [url,name] of [[published?.walkUrl||'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6_WALK.glb','walk'],[published?.runUrl||'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6_RUN.glb','run']] as const){
       if(!url)continue
       try{
         const companion=await loader.loadAsync(url)
