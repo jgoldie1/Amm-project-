@@ -25,7 +25,8 @@
     "check": "npm run lint && npm run security && npm run readiness && npm run typecheck && npm run smoke && npm run build",
     "native:assets": "node scripts/tryamm-native-asset-foundry.mjs public/generated-assets/native",
     "mind:assets": "node scripts/mind-over-matter-clean-room-foundry.mjs public/generated-assets/mind-over-matter",
-    "test:industry-resilience": "node tests/tryamm-industry-resilience-contract.mjs"
+    "test:industry-resilience": "node tests/tryamm-industry-resilience-contract.mjs",
+    "visual:capture": "node scripts/capture-streetverse-release.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
