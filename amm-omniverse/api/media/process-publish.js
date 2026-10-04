@@ -31,7 +31,7 @@ export default async function handler(req,res){
       const blocked=await userRest(req,'media_publish_jobs',{method:'PATCH',query:{id:`eq.${job.id}`,owner_id:`eq.${user.id}`},body:{status:'blocked',moderation_status:media.moderation_status||'pending',error_code:'MODERATION_REVIEW_REQUIRED'}});
       return json(res,202,{ok:true,job:blocked?.[0]||job,next:'Publication is waiting for an explicit moderation decision. No public delivery was created.'});
     }
-    if(!['original','licensed','cleared'].includes(String(media.rights_status||''))){
+    if(!['original','licensed','public_domain','creator_authorized','cleared'].includes(String(media.rights_status||''))){
       const blocked=await userRest(req,'media_publish_jobs',{method:'PATCH',query:{id:`eq.${job.id}`,owner_id:`eq.${user.id}`},body:{status:'blocked',error_code:'RIGHTS_CLEARANCE_REQUIRED'}});
       return json(res,202,{ok:true,job:blocked?.[0]||job,next:'Publication is waiting for rights clearance. No public delivery was created.'});
     }
