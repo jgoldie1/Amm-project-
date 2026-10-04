@@ -32,6 +32,7 @@ export const TRYAMM_NATIVE_ASSET_FOUNDRY={
     'mobile/web/cinematic LOD plans',
     'deterministic four-sample generation',
     'provider-neutral comparison against optional external generators',
+    'Mind Over Matter clean-room fallback packs for blocked/uncleared external references',
   ] as const,
   limitations:[
     'The native procedural foundry is a production baseline, not a proprietary generative-AI foundation model.',
@@ -45,6 +46,7 @@ export const NATIVE_FOUNDRY_RESOURCE_STACK={
   geometry:'owned deterministic procedural geometry and modular-kit recipes',
   materials:'owned PBR parameter recipes with replaceable texture slots',
   motion:'Mind Over Matter original motion blueprints + owned/cleared animation retargeting',
+  originality:'Mind Over Matter clean-room replacement specs + procedural fallback pack when rights/source gates block an external reference',
   references:'Quantum Crawler metadata-only discovery + Oracle source/rights review',
   optimization:'Quantum Speed Engine batching + content-addressable cache + LOD/compression',
   holographics:'StreetVerse Holographic Engine material/interaction layer',
