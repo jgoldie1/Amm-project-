@@ -142,14 +142,14 @@ export async function replacePrimitiveWithStreetVerseAsset(options:{
     if(!clearance.allowed){
       const original=await materializeMindOverMatterFallback({...options,asset},clearance.reasons.join('|'))
       if(!original)keepFallbackVisible(options.fallback,options.id,clearance.reasons.join('|'))
-      return false
+      return original
     }
   }
   const loaded=await fetchModel(asset.url)
   if(!loaded){
     const original=await materializeMindOverMatterFallback({...options,asset},'MODEL_LOAD_FAILED')
     if(!original)keepFallbackVisible(options.fallback,options.id,'MODEL_LOAD_FAILED')
-    return false
+    return original
   }
   const model=loaded.scene
   const position=options.position||options.fallback.position.clone()
