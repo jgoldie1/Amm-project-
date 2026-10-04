@@ -51,6 +51,8 @@ export default async function handler(req,res){
         status:'open',
       }});
       const request=rows?.[0];
+      await adminRest('commerce_seller_allocations',{method:'PATCH',query:{order_id:'eq.'+orderId},body:{transfer_status:'blocked'}});
+      await audit(user.id,'refund_review_payout_freeze','medium',{orderId,requestId:request?.id||null});
       await audit(user.id,'commerce_refund_requested','info',{orderId,requestId:request?.id||null});
       return json(res,201,{ok:true,state:'REFUND_REVIEW_OPEN',requestId:request?.id||null,message:'Refund requested. Money is not moved until the provider refund and reversal are verified server-side.'});
     }catch(error){
