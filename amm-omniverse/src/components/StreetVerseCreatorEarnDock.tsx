@@ -141,7 +141,7 @@ export default function StreetVerseCreatorEarnDock(){
 
     {mode==='gifts'&&<>
      <button onClick={()=>setMode('menu')} style={backBtn}>← CREATOR MENU</button>
-     <div style={{marginTop:10}}><Suspense fallback={<div style={{padding:16}}>Loading Holo Gift Studio…</div>}><HoloGiftEngine/></Suspense></div>
+     <div style={{marginTop:10}}><Suspense fallback={<div style={{padding:16}}>Loading Holo Gift Studio…</div>}><HoloGiftEngine previewOnly/></Suspense></div>
     </>}
 
     {mode==='earnings'&&<>
