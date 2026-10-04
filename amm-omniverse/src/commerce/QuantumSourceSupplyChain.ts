@@ -112,3 +112,39 @@ export const QUANTUM_SOURCE_FLOW=[
  'CUSTOMER DELIVERY',
  'SMART REORDER'
 ] as const
+
+
+export type QuantumPaddingProfile={
+ fragile:boolean
+ liquid:boolean
+ crushRisk:boolean
+ highValue:boolean
+ temperatureSensitive:boolean
+ recommended:[
+  'inner-cushion'|'corner-protection'|'void-fill'|'double-wall-box'|'tamper-seal'|
+  'water-barrier'|'thermal-liner'|'signature-required'|'photo-proof'
+ ][number][]
+}
+
+export function buildQuantumPaddingProfile(input:{
+ fragile?:boolean
+ liquid?:boolean
+ crushRisk?:boolean
+ highValue?:boolean
+ temperatureSensitive?:boolean
+}):QuantumPaddingProfile{
+ const recommended:QuantumPaddingProfile['recommended']=[]
+ if(input.fragile)recommended.push('inner-cushion','corner-protection','void-fill')
+ if(input.crushRisk)recommended.push('double-wall-box')
+ if(input.liquid)recommended.push('water-barrier','tamper-seal')
+ if(input.temperatureSensitive)recommended.push('thermal-liner')
+ if(input.highValue)recommended.push('tamper-seal','signature-required','photo-proof')
+ return{
+  fragile:Boolean(input.fragile),
+  liquid:Boolean(input.liquid),
+  crushRisk:Boolean(input.crushRisk),
+  highValue:Boolean(input.highValue),
+  temperatureSensitive:Boolean(input.temperatureSensitive),
+  recommended:[...new Set(recommended)]
+ }
+}
