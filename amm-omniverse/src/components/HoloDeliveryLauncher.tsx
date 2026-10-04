@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import HoloDeliveryCenter from './HoloDeliveryCenter';
 import { installStreetVerseShoppingDeliveryMissionRuntime } from '../runtime/StreetVerseShoppingDeliveryMissionRuntime';
 
@@ -6,6 +6,7 @@ installStreetVerseShoppingDeliveryMissionRuntime();
 
 export default function HoloDeliveryLauncher() {
   const [open, setOpen] = useState(false);
+  useEffect(()=>{const show=()=>setOpen(true);(window as any).__showHoloDelivery=show;window.addEventListener('tryamm:holo-delivery-open',show);return()=>{window.removeEventListener('tryamm:holo-delivery-open',show);if((window as any).__showHoloDelivery===show)delete (window as any).__showHoloDelivery}},[]);
   return <>
     <button
       type="button"
