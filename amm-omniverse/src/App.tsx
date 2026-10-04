@@ -33,6 +33,7 @@ const TryAMMConnectCenter = lazy(() => import('./components/TryAMMConnectCenter'
 const EconomicLoopCenter = lazy(() => import('./components/EconomicLoopCenter'))
 const CreatorMoneyCenter = lazy(() => import('./components/CreatorMoneyCenter'))
 const BusinessIncomeCenter = lazy(() => import('./components/BusinessIncomeCenter'))
+const AllAmericanOmnichannelCenter = lazy(() => import('./components/AllAmericanOmnichannelCenter'))
 const QuantumZoomViewer = lazy(() => import('./components/QuantumZoomViewer'))
 const NextDevelopmentTargetCenter = lazy(() => import('./components/NextDevelopmentTargetCenter'))
 const QuantumTagArena = lazy(() => import('./components/QuantumTagArena'))
@@ -83,6 +84,7 @@ export default function App() {
   const [showEconomicLoop, setShowEconomicLoop] = useState(false)
   const [showCreatorMoney, setShowCreatorMoney] = useState(false)
   const [showBusinessIncome, setShowBusinessIncome] = useState(false)
+  const [showOmnichannelCommerce, setShowOmnichannelCommerce] = useState(false)
   const [showQuantumZoom, setShowQuantumZoom] = useState(false)
   const [showNextDevelopment, setShowNextDevelopment] = useState(false)
   const [showQuantumTag, setShowQuantumTag] = useState(false)
@@ -107,6 +109,7 @@ export default function App() {
     if (route === '/propertyverse') { setShowPropertyVerse(true); return }
     if (route === '/earnings' || route === '/creator-money') { setShowCreatorMoney(true); return }
     if (route === '/business-income' || route === '/merchant-money') { setShowBusinessIncome(true); return }
+    if (route === '/all-american-store' || route === '/omnichannel') { setShowOmnichannelCommerce(true); return }
     if (route === '/holoverse') { setShowHoloverse(true); return }
     if (route === '/spaceverse' || route === '/metaverse' || route === '/multiverse' || route === '/time-machine') { setShowAdvanced(true); return }
     if (route === '/cyberverse') { setShowSecurity(true); return }
@@ -140,7 +143,7 @@ export default function App() {
     const route = (window.location.pathname || '/').replace(/\/+$/, '') || '/'
     const routeAliases = new Set([
       '/marketplace','/music','/musicverse','/sports','/sportverse','/faith','/blockchain','/city',
-      '/propertyverse','/earnings','/creator-money','/business-income','/merchant-money','/holoverse','/spaceverse','/cyberverse','/creatorverse','/businessverse',
+      '/propertyverse','/earnings','/creator-money','/business-income','/merchant-money','/all-american-store','/omnichannel','/holoverse','/spaceverse','/cyberverse','/creatorverse','/businessverse',
       '/educationverse','/gameverse','/middleverse','/metaverse','/multiverse','/time-machine',
       '/legacyverse','/connect','/tv','/tryamm-tv','/isaiah-ai-tv'
     ])
@@ -201,6 +204,7 @@ export default function App() {
   ;(window as any).__showEconomicLoop = () => setShowEconomicLoop(true)
   ;(window as any).__showCreatorMoney = () => setShowCreatorMoney(true)
   ;(window as any).__showBusinessIncome = () => setShowBusinessIncome(true)
+  ;(window as any).__showAllAmericanOmnichannel = () => setShowOmnichannelCommerce(true)
   ;(window as any).__showQuantumZoom = () => setShowQuantumZoom(true)
   ;(window as any).__showNextDevelopment = () => setShowNextDevelopment(true)
   ;(window as any).__showQuantumTag = () => setShowQuantumTag(true)
@@ -214,7 +218,9 @@ export default function App() {
     ['👗','HOLOSTYLE FASHION',()=>setShowHoloStyle(true),'BETA'],
     ['TAG','QUANTUM TAG',()=>setShowQuantumTag(true),'BETA'],
     ['∞','ECONOMIC LOOP',()=>setShowEconomicLoop(true),'BETA'],
-    ['
+    ['$','CREATOR MONEY',()=>setShowCreatorMoney(true),'BETA'],
+    ['🏪','BUSINESS INCOME',()=>setShowBusinessIncome(true),'BETA'],
+    ['🛍','ALL AMERICAN STORE',()=>setShowOmnichannelCommerce(true),'BETA'],
     ['🛡','SECURITY',()=>setShowSecurity(true),'LIVE'],
     ['AI','POYO AI STUDIO',()=>setShowPoyo(true),'BETA'],
     ['LAB','HOLO LABS',()=>setShowNextDevelopment(true),'BETA'],
@@ -283,6 +289,9 @@ export default function App() {
         {showProAudio && <div style={{position:'fixed',inset:0,zIndex:9996,background:'#03040c'}}><ProAudioSuite onClose={() => setShowProAudio(false)} /></div>}
         {showPoyo && <PoyoAIStudio onClose={() => setShowPoyo(false)} />}
         {showEconomicLoop && <EconomicLoopCenter onClose={() => setShowEconomicLoop(false)} />}
+        {showCreatorMoney && <CreatorMoneyCenter onClose={() => setShowCreatorMoney(false)} />}
+        {showBusinessIncome && <BusinessIncomeCenter onClose={() => setShowBusinessIncome(false)} />}
+        {showOmnichannelCommerce && <AllAmericanOmnichannelCenter onClose={() => setShowOmnichannelCommerce(false)} />}
         {showQuantumZoom && <QuantumZoomViewer onClose={() => setShowQuantumZoom(false)} />}
         {showNextDevelopment && <NextDevelopmentTargetCenter onClose={() => setShowNextDevelopment(false)} />}
         {showQuantumTag && <QuantumTagArena onClose={() => setShowQuantumTag(false)} />}
@@ -314,112 +323,6 @@ export default function App() {
 
         {showSwipeTip && signedIn && <SwipeTutorial onDismiss={() => {setShowSwipeTip(false);localStorage.setItem('amm_swiped','1')}} />}
       </div>
-      </Suspense>
-    </SwipeNavigator>
-  )
-}
-,'CREATOR MONEY',()=>setShowCreatorMoney(true),'BETA'],
-    ['🛡','SECURITY',()=>setShowSecurity(true),'LIVE'],
-    ['AI','POYO AI STUDIO',()=>setShowPoyo(true),'BETA'],
-    ['LAB','HOLO LABS',()=>setShowNextDevelopment(true),'BETA'],
-    ['📡','TRYAMM CONNECT',()=>setShowConnect(true),'BETA'],
-    ['📱','HOLO FON',()=>setShowConnect(true),'BETA'],
-    ['✉','QUANTUM EMAIL',()=>setShowConnect(true),'BETA'],
-    ['◉','OMNIVERSE',()=>setShowOmniverse(true),'BETA'],
-    ['🏠','PROPERTYVERSE',()=>setShowPropertyVerse(true),'BETA'],
-    ['🏡','STAYS · AGENCY · FAMILY',()=>{setStaysAgencyFamilyInitialTab('stays');setShowStaysAgencyFamily(true)},'BETA'],
-    ['✦','SET APART PASSPORT',()=>{setStaysAgencyFamilyInitialTab('passport');setShowStaysAgencyFamily(true)},'PROTECTED'],
-    ['◎','HOLO CORE',()=>setShowHoloCore(true),'BETA'],
-    ['✦','HOLO SERVICES',()=>setShowHoloServices(true),'BETA'],
-    ['⌚','OMNIWEAR',()=>setShowOmniWear(true),'BETA'],
-    ['☕','AI CAFÉ',()=>setShowCafe(true),'BETA'],
-    ['🎓','SCHOOL NETWORK',()=>setShowSchoolNetwork(true),'BETA'],
-    ['◈','MY WORLD / IMMERSIVE',()=>setShowImmersive(true),'BETA'],
-    ['SPACE','SPACEVERSE • TIME',()=>setShowAdvanced(true),'BETA'],
-    ['🔭','QUANTUM ZOOM',()=>setShowQuantumZoom(true),'BETA'],
-    ['MAP','SPARROW MAP',()=>setShowSparrowMap(true),'BETA'],
-    ['ROAD','NEXT BUILD',()=>setShowNextDevelopment(true),'BETA'],
-    ['📚','KINGDOMS PRESS',()=>setShowPress(true),'BETA'],
-    ['♜','FAMILY LEGACY',()=>setShowFamilyLegacy(true),'BETA'],
-    ['⚛','QUANTUM ENGINE',()=>setShowQuantumEngine(true),'BETA'],
-    ['🤟','SIGN LANGUAGE',()=>setShowSignLanguage(true),'BETA'],
-    ['♿','OMNI ACCESS',()=>setShowAccessibilityRemote(true),'BETA'],
-    ['✨','STREAM FX',()=>setShowStreamFX(true),'BETA'],
-    ['⚡','LAG BUSTER',()=>setShowLagBuster(true),'BETA'],
-    ['♫','QUANTUM BEAT',()=>setShowQuantumBeat(true),'BETA'],
-    ['▣','TRYAMM TV',()=>setShowTryammTv(true),'BETA'],
-    ['★','ISAIAH AI TV',()=>setShowOTT(true),'BETA'],
-    ['💿','PRO AUDIO',()=>setShowProAudio(true),'BETA'],
-    ['🌐','HOLOVERSE',()=>setShowHoloverse(true),'BETA'],
-    ['$','PRICING',()=>setShowPricing(true),'LIVE'],
-  ] as const
-
-  return (
-    <SwipeNavigator>
-      <Suspense fallback={null}>
-      <div style={{ width: '100%', minHeight: '100dvh', height: isGameplay ? '100dvh' : 'auto', overflowX: 'hidden', overflowY: isGameplay ? 'hidden' : 'auto', WebkitOverflowScrolling: 'touch', background: '#020212' }}>
-        <LivingWorldsBridge />
-        {screen === 'intro' && <TryAMMHome />}
-        {screen === 'city' && <CityView />}
-        {screen === 'sports' && <SportsRealm />}
-        {screen === 'marketplace' && <MarketplaceRealm />}
-        {screen === 'music' && <MusicRealm />}
-        {screen === 'faith' && <FaithRealm />}
-        {screen === 'blockchain' && <BlockchainRealm />}
-        <NotifToast /><BennieButton /><InstallPrompt />
-
-        {shellAvailable && <>
-          <button type="button" aria-label="Open TryAMM LIVE Center" onClick={() => setShowLive(true)} style={{position:'fixed',left:12,bottom:72,zIndex:9000,background:'linear-gradient(135deg,#ff334e,#8f1744)',color:'#fff',border:'1px solid #ff8fa4aa',borderRadius:999,padding:'10px 14px',fontFamily:'monospace',fontSize:11,fontWeight:900,cursor:'pointer',boxShadow:'0 8px 28px #0008'}}>● LIVE</button>
-          <button type="button" aria-label="Open Command Nexus" onClick={() => setShowNexus(v=>!v)} style={{position:'fixed',right:12,bottom:72,zIndex:9000,background:'linear-gradient(135deg,#0d2934,#181326)',color:'#e8b944',border:'1px solid #4fe3ff88',borderRadius:999,padding:'10px 14px',fontFamily:'monospace',fontSize:11,fontWeight:900,cursor:'pointer',boxShadow:'0 8px 28px #0008'}}>✦ COMMAND NEXUS</button>
-        </>}
-
-        {showNexus && shellAvailable && <div role="dialog" aria-label="TRYAMM Command Nexus" style={{position:'fixed',right:12,bottom:118,zIndex:10010,width:'min(92vw,440px)',maxHeight:'68vh',overflowY:'auto',background:'linear-gradient(160deg,#09131f,#070710)',border:'1px solid #4fe3ff66',borderRadius:22,boxShadow:'0 24px 80px #000c',padding:14}}>
-          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,padding:'4px 4px 12px'}}><div><div style={{color:'#4fe3ff',fontSize:10,fontWeight:900,letterSpacing:3}}>TRYAMM</div><div style={{fontSize:18,color:'#fff',fontWeight:950}}>Command Nexus</div></div><button aria-label="Close Command Nexus" onClick={()=>setShowNexus(false)} style={{width:34,height:34,borderRadius:'50%',border:'1px solid #394557',background:'#101522',color:'#fff',cursor:'pointer'}}>×</button></div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
-            {nexusItems.map(([icon,label,action,status])=><button key={label} onClick={()=>{setShowNexus(false);action()}} style={{minHeight:74,textAlign:'left',padding:11,border:'1px solid #1c2c3e',borderRadius:14,background:'#0b111b',color:'#fff',cursor:'pointer'}}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><span style={{fontSize:18}}>{icon}</span><span style={{fontSize:8,color:status==='LIVE'?'#78ffb4':'#e8b944',fontWeight:900}}>{status}</span></div><div style={{fontSize:10,fontWeight:950,marginTop:9,letterSpacing:.5}}>{label}</div></button>)}
-          </div>
-          <div style={{marginTop:10,fontSize:9,color:'#718096',lineHeight:1.5}}>Advanced systems stay available here without covering the main experience. Readiness labels distinguish live, protected and beta features.</div>
-        </div>}
-
-        {showPricing && <div style={{position:'fixed',inset:0,zIndex:9999,background:'#020212'}}><PricingScreen onClose={() => setShowPricing(false)} /></div>}
-        {showHoloverse && <div style={{position:'fixed',inset:0,zIndex:9998,background:'#020212'}}><HoloverseHub onClose={() => setShowHoloverse(false)} /></div>}
-        {showBennie && <div style={{position:'fixed',inset:0,zIndex:9997,background:'#020212'}}><BennieChat onClose={() => setShowBennie(false)} /></div>}
-        {showProAudio && <div style={{position:'fixed',inset:0,zIndex:9996,background:'#03040c'}}><ProAudioSuite onClose={() => setShowProAudio(false)} /></div>}
-        {showPoyo && <PoyoAIStudio onClose={() => setShowPoyo(false)} />}
-        {showEconomicLoop && <EconomicLoopCenter onClose={() => setShowEconomicLoop(false)} />}
-        {showQuantumZoom && <QuantumZoomViewer onClose={() => setShowQuantumZoom(false)} />}
-        {showNextDevelopment && <NextDevelopmentTargetCenter onClose={() => setShowNextDevelopment(false)} />}
-        {showQuantumTag && <QuantumTagArena onClose={() => setShowQuantumTag(false)} />}
-        {showOmniverse && <OmniverseCommandCenter onClose={() => setShowOmniverse(false)} />}
-        {showPropertyVerse && <PropertyVerseCenter onClose={() => setShowPropertyVerse(false)} />}
-        {showHoloStyle && <div style={{position:'fixed',inset:0,zIndex:10030,background:'#02020a'}}><HoloStyleCenter onClose={() => setShowHoloStyle(false)} /></div>}
-        {showStaysAgencyFamily && <StaysAgencyFamilyHub initialTab={staysAgencyFamilyInitialTab} onClose={() => setShowStaysAgencyFamily(false)} />}
-        {showSparrowMap && <SparrowMapCenter onClose={() => setShowSparrowMap(false)} />}
-        {showHoloCore && <HoloCoreCenter onClose={() => setShowHoloCore(false)} />}
-        {showHoloServices && <HoloServicesHub onClose={() => setShowHoloServices(false)} />}
-        {showOmniWear && <OmniWearCenter onClose={() => setShowOmniWear(false)} />}
-        {showConnect && <TryAMMConnectCenter onClose={() => setShowConnect(false)} />}
-        {showCafe && <AICafeRestaurant onClose={() => setShowCafe(false)} />}
-        {showSchoolNetwork && <SchoolNetworkPortal onClose={() => setShowSchoolNetwork(false)} />}
-        {showAdvanced && <AdvancedWorldSystems onClose={() => setShowAdvanced(false)} />}
-        {showPress && <KingdomsPressOperations onClose={() => setShowPress(false)} />}
-        {showImmersive && <ImmersiveWorldViewport onClose={() => setShowImmersive(false)} />}
-        {showFamilyLegacy && <FamilyLegacyHub onClose={() => setShowFamilyLegacy(false)} />}
-        {showQuantumEngine && <QuantumEngineCenter onClose={() => setShowQuantumEngine(false)} />}
-        {showSecurity && <SecurityCenter onClose={() => setShowSecurity(false)} />}
-        {showSignLanguage && <div style={{position:'fixed',inset:0,zIndex:10000,background:'#050816'}}><SignLanguageHub onClose={() => setShowSignLanguage(false)} /></div>}
-        {showAccessibilityRemote && <AccessibilityRemoteHub onClose={() => setShowAccessibilityRemote(false)} />}
-        {showLive && <div style={{position:'fixed',inset:0,zIndex:10020,background:'#030611'}}><LiveCenter onClose={() => setShowLive(false)} /></div>}
-        {showStreamFX && <StreamStudioFX onClose={() => setShowStreamFX(false)} />}
-        {showLagBuster && <QuantumLagBuster onClose={() => setShowLagBuster(false)} />}
-        {showQuantumBeat && <QuantumBeatCenter onClose={() => setShowQuantumBeat(false)} />}
-        {showOTT && <OTTIsaiahTV onClose={() => setShowOTT(false)} />}
-        {showTryammTv && <TryammTvHome onClose={() => setShowTryammTv(false)} />}
-
-        {showSwipeTip && signedIn && <SwipeTutorial onDismiss={() => {setShowSwipeTip(false);localStorage.setItem('amm_swiped','1')}} />}
-      </div>
-      {showCreatorMoney&&<CreatorMoneyCenter onClose={()=>setShowCreatorMoney(false)} />}
-      {showBusinessIncome&&<BusinessIncomeCenter onClose={()=>setShowBusinessIncome(false)} />}
       </Suspense>
     </SwipeNavigator>
   )
