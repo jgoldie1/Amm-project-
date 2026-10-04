@@ -1,3 +1,4 @@
+import {OMNIVAULT_100_ARCHITECTURE} from '../data/OmniVault100Architecture'
 import type {Session} from '@supabase/supabase-js'
 import {getSupabaseClient} from '../services/supabaseClient'
 import type {LivingWorldSnapshot} from './StreetVerseLivingWorldRuntime'
@@ -96,7 +97,15 @@ export function installSharedQuantumMemoryRuntime(){
    window.dispatchEvent(new CustomEvent('tryamm:quantum-memory-sync-error',{detail:{message:error.message}}))
    return
   }
-  window.dispatchEvent(new CustomEvent('tryamm:quantum-memory-synced',{detail:{savedAt:payload.savedAt,sourceApp:payload.sourceApp,crossDevice:true}}))
+  window.dispatchEvent(new CustomEvent('tryamm:quantum-memory-synced',{detail:{savedAt:payload.savedAt,sourceApp:payload.sourceApp,crossDevice:true,regionalCoreTarget:OMNIVAULT_100_ARCHITECTURE.id}}))
+  window.dispatchEvent(new CustomEvent('tryamm:omnivault-sync-intent',{detail:{
+    workload:'world-state',
+    source:'quantum-memory',
+    regionalCoreTarget:OMNIVAULT_100_ARCHITECTURE.id,
+    regionalCoreStatus:OMNIVAULT_100_ARCHITECTURE.status,
+    currentDurableProvider:'supabase-user-metadata',
+    physicalCapacityRequired:false,
+  }}))
  }
  const scheduleCloud=()=>{
   if(saveTimer)window.clearTimeout(saveTimer)
@@ -167,7 +176,9 @@ export function installSharedQuantumMemoryRuntime(){
  window.dispatchEvent(new CustomEvent('tryamm:quantum-memory-ready',{detail:{
   local:true,
   crossDevice:Boolean(client),
-  sharedBy:['tryamm','streetverse','hologpt','middleverse'],
+  sharedBy:['tryamm','streetverse','hologpt','middleverse','holo-fon'],
+  regionalCoreTarget:OMNIVAULT_100_ARCHITECTURE.id,
+  regionalCoreStatus:OMNIVAULT_100_ARCHITECTURE.status,
   payload:'compact-continuation-state',
  }}))
 }
