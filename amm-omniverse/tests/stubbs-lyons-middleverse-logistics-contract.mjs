@@ -1,0 +1,12 @@
+import fs from 'node:fs'
+const fabric=fs.readFileSync(new URL('../src/runtime/StubbsLyonsMiddleverseRuntime.ts',import.meta.url),'utf8')
+const freight=fs.readFileSync(new URL('../src/logistics/freightNetwork.ts',import.meta.url),'utf8')
+const center=fs.readFileSync(new URL('../src/components/LogisticsFreightCommandCenter.tsx',import.meta.url),'utf8')
+const middle=fs.readFileSync(new URL('../src/components/MiddleverseAIHub.tsx',import.meta.url),'utf8')
+const main=fs.readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8')
+for(const x of ['stubbs-ai','lyons-tech','middleverse-ai','freightBooking','tryamm:logistics-freight-intent'])if(!fabric.includes(x))throw new Error('Operating fabric missing '+x)
+for(const x of ['ltl','ftl','intermodal','BOL','POD','externalConfirmationRequired:true','CARRIER / 3PL SELECTION'])if(!freight.includes(x))throw new Error('Freight network missing '+x)
+for(const x of ['LOGISTICS + FREIGHT COMMAND','STUBBS AI','LYONS TECH','MIDDLEVERSE AI','CREATE DRAFT FREIGHT PLAN'])if(!center.includes(x))throw new Error('Freight center missing '+x)
+if(!middle.includes('__showLogisticsFreight'))throw new Error('Middleverse supply-chain destination not connected')
+if(!main.includes('installStubbsLyonsMiddleverseRuntime'))throw new Error('Operating fabric runtime not installed')
+console.log('Stubbs AI + Lyons Tech + Middleverse logistics/freight convergence: PASS')
