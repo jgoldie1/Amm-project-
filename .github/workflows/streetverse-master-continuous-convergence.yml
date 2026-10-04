@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
   converge:
-    name: Kingdom + West Side + CampusVerse + Creator convergence
+    name: Kingdom + West Side + CrossVerse + CampusVerse + Creator convergence
     runs-on: ubuntu-latest
     timeout-minutes: 355
     env:
@@ -64,7 +64,7 @@ jobs:
             echo "- Started UTC: $(date -u -Iseconds)"
             echo "- Source commit: $GITHUB_SHA"
             echo "- Purpose: reusable six-hour convergence cycle"
-            echo "- Scope: Kingdom city + West Side + CampusVerse + one-hand controls + production build"
+            echo "- Scope: Kingdom city + West Side + CrossVerse + CampusVerse + Reels/OmniBox creator flow + one-hand controls + production build"
           } > release-evidence/streetverse-master/summary.md
 
       - name: Run continuous convergence passes
@@ -113,7 +113,7 @@ jobs:
             run_gate repair-entry node scripts/repair-streetverse-entry.mjs
             run_gate repair-hero node scripts/inject-streetverse-hero-spawn.mjs
 
-            for testfile in               tests/west-side-campus-11am-convergence-contract.mjs               tests/circle-park-chicago-completion-contract.mjs               tests/circle-park-west-side-jefferson-emergency-contract.mjs               tests/circle-park-asset-forge-production-wave-contract.mjs               tests/uic-greenville-world-gateway-contract.mjs               tests/illinois-campusverse-network-contract.mjs               tests/illinois-rollout-gate-contract.mjs               tests/illinois-rollout-performance-cap-contract.mjs               tests/illinois-rollout-serialization-contract.mjs               tests/streetverse-chicago-grid-reality-contract.mjs               tests/streetverse-one-hand-integration-contract.mjs
+            for testfile in               tests/west-side-campus-11am-convergence-contract.mjs               tests/circle-park-chicago-completion-contract.mjs               tests/circle-park-west-side-jefferson-emergency-contract.mjs               tests/circle-park-asset-forge-production-wave-contract.mjs               tests/uic-greenville-world-gateway-contract.mjs               tests/illinois-campusverse-network-contract.mjs               tests/illinois-rollout-gate-contract.mjs               tests/illinois-rollout-performance-cap-contract.mjs               tests/illinois-rollout-serialization-contract.mjs               tests/streetverse-chicago-grid-reality-contract.mjs               tests/streetverse-one-hand-integration-contract.mjs               tests/crossverse-campusverse-bridge-contract.mjs
             do
               if [ -f "$testfile" ]; then
                 run_gate "$(basename "$testfile" .mjs)" node "$testfile"
@@ -121,6 +121,50 @@ jobs:
                 echo "$(basename "$testfile" .mjs)=SKIP_MISSING" >> "$PASS_DIR/status.env"
               fi
             done
+
+            # CrossVerse + CampusVerse + creator-flow discovery and bridge evidence.
+            # CampusVerse exists today; CrossVerse remains a tracked convergence target
+            # until the actual implementation lands on main.
+            CROSSVERSE_MATCHES="$(grep -RilE "crossverse|cross-verse" src public tests 2>/dev/null | head -50 || true)"
+            CAMPUSVERSE_MATCHES="$(grep -RilE "campusverse|campus-verse" src public tests 2>/dev/null | head -50 || true)"
+            CREATOR_MATCHES="$(grep -RilE "omnibox|reels?|creator commerce|creator-commerce" src public tests 2>/dev/null | head -50 || true)"
+
+            printf "%s\n" "$CROSSVERSE_MATCHES" > "$PASS_DIR/crossverse-files.txt"
+            printf "%s\n" "$CAMPUSVERSE_MATCHES" > "$PASS_DIR/campusverse-files.txt"
+            printf "%s\n" "$CREATOR_MATCHES" > "$PASS_DIR/creator-flow-files.txt"
+
+            if [ -n "$CAMPUSVERSE_MATCHES" ]; then
+              echo "campusverse_discovery=0" >> "$PASS_DIR/status.env"
+            else
+              echo "campusverse_discovery=1" >> "$PASS_DIR/status.env"
+            fi
+
+            if [ -n "$CROSSVERSE_MATCHES" ]; then
+              echo "crossverse_discovery=0" >> "$PASS_DIR/status.env"
+            else
+              echo "crossverse_discovery=PENDING_WIRING" >> "$PASS_DIR/status.env"
+              echo "- CrossVerse: PENDING_WIRING (no implementation found on this pass)" >> "$PASS_DIR/README.md"
+            fi
+
+            if [ -n "$CREATOR_MATCHES" ]; then
+              echo "creator_flow_discovery=0" >> "$PASS_DIR/status.env"
+            else
+              echo "creator_flow_discovery=PENDING_WIRING" >> "$PASS_DIR/status.env"
+            fi
+
+            # When both verses exist, require evidence that they participate in the
+            # shared creator/player graph rather than becoming disconnected mini-apps.
+            if [ -n "$CROSSVERSE_MATCHES" ] && [ -n "$CAMPUSVERSE_MATCHES" ]; then
+              BRIDGE_HITS="$(grep -RilE "player.?state|creator.?state|omnibox|reels?|passport|ledger|mission" $CROSSVERSE_MATCHES $CAMPUSVERSE_MATCHES 2>/dev/null | head -50 || true)"
+              printf "%s\n" "$BRIDGE_HITS" > "$PASS_DIR/crossverse-campusverse-bridge-files.txt"
+              if [ -n "$BRIDGE_HITS" ]; then
+                echo "crossverse_campusverse_shared_state=0" >> "$PASS_DIR/status.env"
+              else
+                echo "crossverse_campusverse_shared_state=1" >> "$PASS_DIR/status.env"
+              fi
+            else
+              echo "crossverse_campusverse_shared_state=PENDING_WIRING" >> "$PASS_DIR/status.env"
+            fi
 
             if [ -f "public/streetverse-kingdom/index.html" ] &&
                [ -f "public/streetverse-kingdom/game.js" ] &&
@@ -208,7 +252,7 @@ jobs:
           if [ -n "$EXISTING" ]; then
             echo "Repair PR already open: #$EXISTING"
           else
-            gh pr create               --base main               --head "$WORK_BRANCH"               --title "StreetVerse continuous convergence repairs"               --body "Recurring deterministic convergence for Kingdom city, Chicago/West Side, CampusVerse, accessibility controls and production build. Review evidence before merge."
+            gh pr create               --base main               --head "$WORK_BRANCH"               --title "StreetVerse continuous convergence repairs"               --body "Recurring deterministic convergence for Kingdom city, Chicago/West Side, CrossVerse, CampusVerse, Reels/OmniBox creator flow, accessibility controls and production build. Review evidence before merge."
           fi
 
       - name: Publish run summary
@@ -221,7 +265,7 @@ jobs:
             echo "- Green passes: ${{ steps.converge.outputs.green_passes || '0' }}"
             echo "- Red passes: ${{ steps.converge.outputs.red_passes || '0' }}"
             echo "- Source repair commits: ${{ steps.converge.outputs.source_commits || '0' }}"
-            echo "- Recurs every six hours and can also be started manually."
+            echo "- CrossVerse + CampusVerse + Reels/OmniBox bridge is tracked every run."\n            echo "- Recurs every six hours and can also be started manually."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload convergence evidence
