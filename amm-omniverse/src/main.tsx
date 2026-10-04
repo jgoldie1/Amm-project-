@@ -285,6 +285,15 @@ queueMicrotask(() => {
     import('./runtime/StreetVerseWorldBuildSandboxRuntime')
       .then(m => m.installStreetVerseWorldBuildSandboxRuntime())
       .catch(error => console.error('[TRYAMM] World Build Sandbox runtime failed after StreetVerse mount.', error))
+    import('./runtime/StreetVerseRepairTicketOrchestrator')
+      .then(m => m.installStreetVerseRepairTicketOrchestrator())
+      .catch(error => console.error('[TRYAMM] StreetVerse Repair Ticket Orchestrator failed after StreetVerse mount.', error))
+    import('./runtime/StreetVerseMiddleverseRepairBridgeRuntime')
+      .then(m => m.installStreetVerseMiddleverseRepairBridgeRuntime())
+      .catch(error => console.error('[TRYAMM] Middleverse Repair Bridge failed after StreetVerse mount.', error))
+    import('./runtime/StreetVerseAICafeBridgeRuntime')
+      .then(m => m.installStreetVerseAICafeBridgeRuntime())
+      .catch(error => console.error('[TRYAMM] StreetVerse AI Cafe bridge failed after StreetVerse mount.', error))
     return
   }
   installOptionalRuntimes()
