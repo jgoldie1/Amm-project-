@@ -43,7 +43,8 @@
     "quantum-source:check": "node tests/quantum-source-logistics-contract.mjs",
     "holoverse:check": "node tests/holoverse-ecosystem-convergence-contract.mjs",
     "logistics-freight:check": "node tests/stubbs-lyons-middleverse-logistics-contract.mjs",
-    "fleet-owner-operator:check": "node tests/fleet-owner-operator-contract.mjs"
+    "fleet-owner-operator:check": "node tests/fleet-owner-operator-contract.mjs",
+    "owner-operator-onboarding:check": "node tests/owner-operator-onboarding-accessorial-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
