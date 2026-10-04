@@ -23,7 +23,10 @@ export type ConsentUse =
   | 'ai-performance'
   | 'advertising'
   | 'promotion'
-  | 'gameplay';
+  | 'gameplay'
+  | 'sponsorship'
+  | 'product-placement'
+  | 'paid-endorsement';
 
 export interface CrossVerseConsentScope {
   platform: CrossVersePlatform;
@@ -150,3 +153,67 @@ export const CONSENT_VIDEO_SCRIPT_FIELDS = [
   'permission to create an in-game character',
   'permission for explicitly selected streaming/promotional/AI uses',
 ] as const;
+
+
+export type CommercialCompensationModel =
+  | 'flat-fee'
+  | 'per-impression'
+  | 'per-view'
+  | 'per-click'
+  | 'per-conversion'
+  | 'revenue-share';
+
+export interface CommercialConsentTerms {
+  consentId: string;
+  personId: string;
+  campaignId: string;
+  brandId: string;
+  allowedPlatforms: CrossVersePlatform[];
+  allowedUses: Array<'sponsorship'|'product-placement'|'paid-endorsement'>;
+  compensationModel: CommercialCompensationModel;
+  currency: string;
+  rate: number;
+  revenueShareBps?: number;
+  startsAtIso: string;
+  endsAtIso?: string;
+  approvedProductIds?: string[];
+  excludedCategories?: string[];
+  active: boolean;
+}
+
+export interface CommercialAttributionEvent {
+  eventId: string;
+  campaignId: string;
+  personId: string;
+  characterId?: string;
+  platform: CrossVersePlatform;
+  placementId: string;
+  productId?: string;
+  eventType: 'impression'|'view'|'click'|'conversion'|'sale';
+  quantity: number;
+  grossAmountMinor?: number;
+  occurredAtIso: string;
+}
+
+export function commercialUseAllowed(
+  record: CrossVerseConsentRecord,
+  terms: CommercialConsentTerms,
+  platform: CrossVersePlatform,
+  use: 'sponsorship'|'product-placement'|'paid-endorsement',
+): boolean {
+  if(!terms.active||terms.consentId!==record.consentId||terms.personId!==record.personId)return false;
+  if(!terms.allowedPlatforms.includes(platform)||!terms.allowedUses.includes(use))return false;
+  return consentAllows(record,platform,use);
+}
+
+export function calculateCommercialEarningMinor(
+  terms: CommercialConsentTerms,
+  event: CommercialAttributionEvent,
+): number {
+  if(event.campaignId!==terms.campaignId||event.personId!==terms.personId)return 0;
+  const quantity=Math.max(0,event.quantity||0);
+  if(terms.compensationModel==='revenue-share'){
+    return Math.round(Math.max(0,event.grossAmountMinor||0)*Math.max(0,terms.revenueShareBps||0)/10000);
+  }
+  return Math.round(Math.max(0,terms.rate)*quantity);
+}
