@@ -67,6 +67,17 @@ function configureLoadedAsset(root:THREE.Object3D){
  return root
 }
 
+function mindOverMatterArtifactFor(kind:HoloForgeAssetManifest['kind']){
+ if(kind==='character')return'/generated-assets/mind-over-matter/mom-character.glb'
+ if(kind==='vehicle')return'/generated-assets/mind-over-matter/mom-vehicle.glb'
+ if(kind==='building')return'/generated-assets/mind-over-matter/mom-building-kit.glb'
+ if(kind==='prop')return'/generated-assets/mind-over-matter/mom-prop-kit.glb'
+ if(kind==='animal')return'/generated-assets/mind-over-matter/mom-animal.glb'
+ if(kind==='road')return'/generated-assets/mind-over-matter/mom-road-kit.glb'
+ if(kind==='mission')return'/generated-assets/mind-over-matter/mom-mission-kit.glb'
+ return null
+}
+
 export function installStreetVerseAssetSpawnBridge(scene:THREE.Scene,buildingBoxes:THREE.Box3[],treeColliders:THREE.Box3[]){
  const spawned=new Map<string,StreetVerseSpawnedAsset>()
  const pending=new Set<string>()
@@ -80,12 +91,27 @@ export function installStreetVerseAssetSpawnBridge(scene:THREE.Scene,buildingBox
   if(artifactUrl){
    try{const gltf=await loader.loadAsync(artifactUrl);object=configureLoadedAsset(gltf.scene);fallback=false}catch(error){window.dispatchEvent(new CustomEvent('tryamm:streetverse-asset-load-fallback',{detail:{assetId:manifest.id,artifactUrl,message:String((error as Error)?.message||error)}}))}
   }
+  let mindOverMatterUrl:string|null=null
+  if(!object){
+   mindOverMatterUrl=mindOverMatterArtifactFor(manifest.kind)
+   if(mindOverMatterUrl){
+    try{
+     const gltf=await loader.loadAsync(mindOverMatterUrl)
+     object=configureLoadedAsset(gltf.scene)
+     object.userData={...object.userData,mindOverMatterFallback:true,mindOverMatterPreview:true}
+     window.dispatchEvent(new CustomEvent('tryamm:mind-over-matter-runtime-fallback',{detail:{assetId:manifest.id,kind:manifest.kind,url:mindOverMatterUrl,source:'holoforge-spawn',preview:true}}))
+    }catch(error){
+     window.dispatchEvent(new CustomEvent('tryamm:mind-over-matter-runtime-fallback-failed',{detail:{assetId:manifest.id,kind:manifest.kind,url:mindOverMatterUrl,message:String((error as Error)?.message||error)}}))
+    }
+   }
+  }
   if(!object)object=primitive(manifest)
-  const position=safePosition(scene,spawned.size);object.position.x+=position.x;object.position.z+=position.z;object.userData={...object.userData,holoforgeAssetId:manifest.id,assetKind:manifest.kind,worldSessionId:manifest.worldSessionId,missionId:manifest.missionId,tags:manifest.tags,generated:true,artifactUrl,primitiveFallback:fallback}
+  const primitiveFallback=!artifactUrl&&!mindOverMatterUrl||!object?.userData?.mindOverMatterFallback&&fallback
+  const position=safePosition(scene,spawned.size);object.position.x+=position.x;object.position.z+=position.z;object.userData={...object.userData,holoforgeAssetId:manifest.id,assetKind:manifest.kind,worldSessionId:manifest.worldSessionId,missionId:manifest.missionId,tags:manifest.tags,generated:true,artifactUrl,mindOverMatterUrl,primitiveFallback}
   scene.add(object)
   if(manifest.integration.collision){const box=new THREE.Box3().setFromObject(object).expandByScalar(.35);if(manifest.kind==='building')buildingBoxes.push(box);else if(['prop','road'].includes(manifest.kind))treeColliders.push(box)}
   const entry={id:manifest.id,kind:manifest.kind,object,manifest,createdAt:Date.now()};spawned.set(manifest.id,entry);pending.delete(manifest.id)
-  window.dispatchEvent(new CustomEvent('tryamm:streetverse-asset-materialized',{detail:{assetId:manifest.id,kind:manifest.kind,artifactUrl,fallback,worldSessionId:manifest.worldSessionId,missionId:manifest.missionId,position:{x:object.position.x,y:object.position.y,z:object.position.z},integration:manifest.integration}}))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-asset-materialized',{detail:{assetId:manifest.id,kind:manifest.kind,artifactUrl,mindOverMatterUrl,fallback:object.userData.mindOverMatterFallback?'mind-over-matter':primitiveFallback?'primitive':false,worldSessionId:manifest.worldSessionId,missionId:manifest.missionId,position:{x:object.position.x,y:object.position.y,z:object.position.z},integration:manifest.integration}}))
  }
  const onSpawn=(event:Event)=>{const manifest=(event as CustomEvent<HoloForgeAssetManifest>).detail;void materialize(manifest)}
  window.addEventListener('tryamm:streetverse-asset-spawn-request',onSpawn)

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three-stdlib'
-import { getStreetVerseAsset } from '../data/streetverseAssetRegistry'
+import { getStreetVerseAsset,type StreetVerseAsset } from '../data/streetverseAssetRegistry'
 import { evaluateProductionClearance } from '../data/assetRightsRegistry'
 import { normalizeStreetVerseHumanHeight } from '../runtime/StreetVerseHumanScale'
 
@@ -42,6 +42,64 @@ async function fetchModel(url:string){
   return {scene:original.scene.clone(true),animations:original.animations}
 }
 
+function mindOverMatterFallbackUrl(asset:StreetVerseAsset){
+  if(asset.kind==='character'||asset.kind==='npc')return'/generated-assets/mind-over-matter/mom-character.glb'
+  if(asset.kind==='vehicle')return'/generated-assets/mind-over-matter/mom-vehicle.glb'
+  if(asset.kind==='building')return'/generated-assets/mind-over-matter/mom-building-kit.glb'
+  if(asset.kind==='interior')return'/generated-assets/mind-over-matter/mom-interior-kit.glb'
+  if(asset.kind==='animal')return'/generated-assets/mind-over-matter/mom-animal.glb'
+  if(asset.kind==='environment')return'/generated-assets/mind-over-matter/mom-environment-kit.glb'
+  if(asset.kind==='prop')return asset.tags?.includes('mission')
+    ?'/generated-assets/mind-over-matter/mom-mission-kit.glb'
+    :'/generated-assets/mind-over-matter/mom-prop-kit.glb'
+  return null
+}
+
+async function materializeMindOverMatterFallback(options:{
+  id:string
+  asset:StreetVerseAsset
+  fallback:THREE.Object3D
+  scene:THREE.Scene
+  parent?:THREE.Object3D
+  position?:THREE.Vector3
+  rotationY?:number
+  scale?:number
+  targetHeightMeters?:number
+},reason:string){
+  const url=mindOverMatterFallbackUrl(options.asset)
+  if(!url)return false
+  const loaded=await fetchModel(url)
+  if(!loaded)return false
+  const model=loaded.scene
+  const position=options.position||options.fallback.position.clone()
+  model.position.copy(position)
+  model.rotation.y=options.rotationY??options.fallback.rotation.y
+  model.scale.setScalar(options.scale??1)
+  model.userData={...model.userData,mindOverMatterFallback:true,mindOverMatterPreview:true,streetVerseFallbackReason:reason,sourceAssetId:options.id}
+  model.traverse(node=>{node.visible=true;if(node instanceof THREE.Mesh){node.castShadow=true;node.receiveShadow=true}})
+  if(options.targetHeightMeters)normalizeStreetVerseHumanHeight(model,options.targetHeightMeters)
+  const preserveControlRoot=options.id==='player-default'&&options.fallback instanceof THREE.Group
+  if(preserveControlRoot){
+    model.position.set(0,0,0)
+    const root=options.fallback as THREE.Group
+    while(root.children.length)root.remove(root.children[0])
+    root.add(model)
+    root.visible=true
+    root.userData.streetVerseLoadedModel=model
+    root.userData.streetVerseControlRootPreserved=true
+    root.userData.mindOverMatterFallback=true
+  }else{
+    const parent=options.parent??options.scene
+    parent.add(model)
+    options.fallback.parent?.remove(options.fallback)
+  }
+  if(typeof window!=='undefined'){
+    window.dispatchEvent(new CustomEvent('tryamm:mind-over-matter-runtime-fallback',{detail:{id:options.id,reason,url,preview:true,controlRootPreserved:preserveControlRoot}}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-asset-materialized',{detail:{id:options.id,animated:false,clips:[],fallback:'mind-over-matter',controlRootPreserved:preserveControlRoot,url}}))
+  }
+  return true
+}
+
 function productionClearance(id:string){
   const result=evaluateProductionClearance(id)
   if(!result.allowed){
@@ -81,10 +139,18 @@ export async function replacePrimitiveWithStreetVerseAsset(options:{
   const requireClearance=options.requireClearance??true
   if(requireClearance){
     const clearance=productionClearance(options.id)
-    if(!clearance.allowed){keepFallbackVisible(options.fallback,options.id,clearance.reasons.join('|'));return false}
+    if(!clearance.allowed){
+      const original=await materializeMindOverMatterFallback({...options,asset},clearance.reasons.join('|'))
+      if(!original)keepFallbackVisible(options.fallback,options.id,clearance.reasons.join('|'))
+      return original
+    }
   }
   const loaded=await fetchModel(asset.url)
-  if(!loaded){keepFallbackVisible(options.fallback,options.id,'MODEL_LOAD_FAILED');return false}
+  if(!loaded){
+    const original=await materializeMindOverMatterFallback({...options,asset},'MODEL_LOAD_FAILED')
+    if(!original)keepFallbackVisible(options.fallback,options.id,'MODEL_LOAD_FAILED')
+    return original
+  }
   const model=loaded.scene
   const position=options.position||options.fallback.position.clone()
   model.position.copy(position)

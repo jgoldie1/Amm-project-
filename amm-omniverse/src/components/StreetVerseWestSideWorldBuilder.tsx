@@ -10,6 +10,9 @@ type Tab='map'|'build'|'missions'|'campuses'
 type Scale='west'|'chicago'|'illinois'|'usa'|'world'
 type QuantumTaskView={id:string;stage:string;label:string;state:string;approvalRequired?:boolean;outputs?:string[]}
 type QuantumPlanView={id:string;target:{id:string;label:string;scale:Scale};quantumMeaning:string;oracle:{cloudReturnMode:string;requirements:any[]};tasks:QuantumTaskView[];certificationGates:string[]}
+type CleanRoomJobView={id:string;targetLabel:string;kind:string;reason:string;status:string;humanReviewRequired:boolean}
+type CleanRoomStateView={jobs:CleanRoomJobView[];lastJob:CleanRoomJobView|null}
+type SandboxStateView={planId:string|null;targetLabel:string|null;speedMode:string;maxConcurrentJobs:number;waves:Array<{index:number;taskIds:string[];labels:string[]}>;missingEvidence:string[];publishable:boolean;lastRunAt?:string}
 type Zone={
  id:string
  label:string
@@ -90,6 +93,8 @@ export default function StreetVerseWestSideWorldBuilder(){
  const [selected,setSelected]=useState<Zone>(ZONES[0])
  const [notice,setNotice]=useState('World Builder ready • West Side → Chicago 77 → Illinois → USA → World.')
  const [quantumPlan,setQuantumPlan]=useState<QuantumPlanView|null>(null)
+ const [cleanRoom,setCleanRoom]=useState<CleanRoomStateView>({jobs:[],lastJob:null})
+ const [sandbox,setSandbox]=useState<SandboxStateView>({planId:null,targetLabel:null,speedMode:'balanced',maxConcurrentJobs:4,waves:[],missingEvidence:[],publishable:false})
  const [layers,setLayers]=useState({neighborhood:true,school:true,campus:true,medical:true,transit:true})
  const visible=useMemo(()=>ZONES.filter(z=>layers[z.group]),[layers])
 
@@ -107,6 +112,26 @@ export default function StreetVerseWestSideWorldBuilder(){
   window.addEventListener('tryamm:quantum-world-builder-state',sync)
   window.dispatchEvent(new CustomEvent('tryamm:quantum-world-builder-request-state'))
   return()=>window.removeEventListener('tryamm:quantum-world-builder-state',sync)
+ },[])
+
+ useEffect(()=>{
+  const sync=(event:Event)=>{
+   const d=(event as CustomEvent<Partial<SandboxStateView>>).detail||{}
+   setSandbox(prev=>({...prev,...d,waves:Array.isArray(d.waves)?d.waves:prev.waves,missingEvidence:Array.isArray(d.missingEvidence)?d.missingEvidence:prev.missingEvidence}))
+  }
+  window.addEventListener('tryamm:world-build-sandbox-state',sync)
+  window.dispatchEvent(new CustomEvent('tryamm:world-build-sandbox-request-state'))
+  return()=>window.removeEventListener('tryamm:world-build-sandbox-state',sync)
+ },[])
+
+ useEffect(()=>{
+  const sync=(event:Event)=>{
+   const d=(event as CustomEvent<Partial<CleanRoomStateView>>).detail||{}
+   setCleanRoom({jobs:Array.isArray(d.jobs)?d.jobs:[],lastJob:d.lastJob||null})
+  }
+  window.addEventListener('tryamm:mind-over-matter-clean-room-state',sync)
+  window.dispatchEvent(new CustomEvent('tryamm:mind-over-matter-clean-room-request-state'))
+  return()=>window.removeEventListener('tryamm:mind-over-matter-clean-room-state',sync)
  },[])
 
  useEffect(()=>{
@@ -193,6 +218,29 @@ export default function StreetVerseWestSideWorldBuilder(){
   setNotice(`CURSOR CONSTRUCT • ${target.label} • proposal + world-aware map opened.`)
  }
 
+ const originalizeSelected=()=>{
+  const target=quantumPlan?.target||(scale==='west'
+   ?{id:selected.id,label:selected.label,scale}
+   :{id:`streetverse-${scale}`,label:`${scaleLabel[scale]} StreetVerse`,scale})
+  window.dispatchEvent(new CustomEvent('tryamm:mind-over-matter-original-bundle-request',{detail:{
+   targetId:target.id,
+   targetLabel:target.label,
+   reason:'manual-original-request',
+   functionalRequirements:[
+    {id:'streetverse-function',label:'StreetVerse functional compatibility',value:true,source:'gameplay-requirement'},
+    {id:'mobile-access',label:'Mobile and one-hand accessibility',value:true,source:'accessibility-requirement'},
+    {id:'original-design',label:'TRYAMM original visual/audio identity',value:true,source:'tryamm-design'},
+   ],
+  }}))
+  setNotice(`MIND OVER MATTER • original clean-room replacement bundle queued for ${target.label}.`)
+ }
+
+ const runSandbox=()=>{
+  if(!quantumPlan){requestQuantumPlan();setNotice('SANDBOX • created a Quantum plan first. Tap SANDBOX TEST again after the queue appears.');return}
+  window.dispatchEvent(new CustomEvent('tryamm:world-build-sandbox-run',{detail:{sample:{fps:45,frameMs:22,networkRttMs:120,memoryPressure:.5,thermalPressure:.35}}}))
+  setNotice(`QUANTUM SPEED SANDBOX • ${quantumPlan.target.label} • dependency waves calculated; release remains blocked until evidence passes.`)
+ }
+
  return <>
   <button aria-label="Open StreetVerse World Builder" onClick={()=>setOpen(true)} style={{position:'fixed',left:12,top:'max(62px,calc(env(safe-area-inset-top) + 54px))',zIndex:42100,minHeight:42,padding:'7px 10px',borderRadius:12,border:'1px solid #6de3ff88',background:'#071923e8',color:'#e8fbff',font:'950 9px system-ui',boxShadow:'0 8px 24px #0008'}}>🛠 WORLD</button>
 
@@ -258,8 +306,10 @@ export default function StreetVerseWestSideWorldBuilder(){
     </>}
 
     {tab==='build'&&<>
-     <article style={card}><b>BUILD CONTROL • {scaleLabel[scale]}</b><p style={muted}>Visible construction manifest for the selected world scale. Build actions still require committed code/assets; this screen does not pretend background work happened.</p><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7}}><button onClick={requestQuantumPlan} style={{...actionBtn,gridColumn:'1 / -1'}}>⚛ QUANTUM AUTO PLAN</button><button onClick={openCursorConstruct} style={actionBtn}>CURSOR CONSTRUCT</button><button onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:construct:scan'));setNotice('CONSTRUCT SCAN • checking nearby world targets.')}} style={actionBtn}>SCAN</button><button onClick={openBuildSwarm} style={{...actionBtn,gridColumn:'1 / -1'}}>OPEN BUILD SWARM</button></div></article>
+     <article style={card}><b>BUILD CONTROL • {scaleLabel[scale]}</b><p style={muted}>Visible construction manifest for the selected world scale. Build actions still require committed code/assets; this screen does not pretend background work happened.</p><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7}}><button onClick={requestQuantumPlan} style={{...actionBtn,gridColumn:'1 / -1'}}>⚛ QUANTUM AUTO PLAN</button><button onClick={openCursorConstruct} style={actionBtn}>CURSOR CONSTRUCT</button><button onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:construct:scan'));setNotice('CONSTRUCT SCAN • checking nearby world targets.')}} style={actionBtn}>SCAN</button><button onClick={originalizeSelected} style={{...actionBtn,gridColumn:'1 / -1',borderColor:'#c48cff99'}}>🧠 MIND OVER MATTER • MAKE OUR VERSION</button><button onClick={runSandbox} style={{...actionBtn,gridColumn:'1 / -1',borderColor:'#74ffa899'}}>⚡ QUANTUM SPEED • SANDBOX TEST</button><button onClick={openBuildSwarm} style={{...actionBtn,gridColumn:'1 / -1'}}>OPEN BUILD SWARM</button></div></article>
      {quantumPlan&&<article style={card}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><b>QUANTUM BUILD QUEUE</b><span style={{fontSize:8,color:'#6de3ff'}}>{quantumPlan.oracle.cloudReturnMode.toUpperCase()}</span></div><div style={{fontSize:11,fontWeight:850,marginTop:5}}>{quantumPlan.target.label}</div><div style={muted}>{quantumPlan.quantumMeaning}</div><div style={{display:'grid',gap:5,marginTop:8}}>{quantumPlan.tasks.map((task,index)=><div key={task.id} style={{display:'grid',gridTemplateColumns:'24px 1fr auto',gap:7,alignItems:'center',padding:'7px 8px',borderRadius:9,background:'#0c1b24',border:'1px solid #294655'}}><span style={{fontSize:9,fontWeight:950,color:'#6de3ff'}}>{String(index+1).padStart(2,'0')}</span><span><b style={{fontSize:10}}>{task.label}</b><small style={{display:'block',opacity:.62}}>{task.stage}{task.approvalRequired?' • approval gate':''}</small></span><span style={{fontSize:8,color:task.state==='ready'?'#72ffb0':task.state==='passed'?'#72ffb0':task.state==='failed'?'#ff7c7c':'#ffd15c'}}>{task.state.toUpperCase()}</span></div>)}</div><div style={{marginTop:8,fontSize:9,color:'#9eb4c0'}}>Oracle requirements: {quantumPlan.oracle.requirements.length} • Certification gates: {quantumPlan.certificationGates.length}</div></article>}
+     {cleanRoom.lastJob&&<article style={{...card,borderColor:'#7a4d9a'}}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><b>MIND OVER MATTER • CLEAN ROOM</b><span style={{fontSize:8,color:'#d69bff'}}>{cleanRoom.jobs.length} JOBS</span></div><div style={{fontSize:11,fontWeight:850,marginTop:5}}>{cleanRoom.lastJob.targetLabel}</div><div style={muted}>Latest: {cleanRoom.lastJob.kind} • {cleanRoom.lastJob.reason} • {cleanRoom.lastJob.status}. Original replacements stay blocked from production until human originality/visual review and normal asset certification pass.</div></article>}
+     {sandbox.planId&&<article style={{...card,borderColor:sandbox.publishable?'#4fa978':'#7d6f3d'}}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><b>QUANTUM SPEED • SANDBOX</b><span style={{fontSize:8,color:sandbox.publishable?'#72ffb0':'#ffd15c'}}>{sandbox.publishable?'PUBLISHABLE':'PROOF REQUIRED'}</span></div><div style={{fontSize:11,fontWeight:850,marginTop:5}}>{sandbox.targetLabel}</div><div style={muted}>Mode: {sandbox.speedMode.toUpperCase()} • parallel jobs: {sandbox.maxConcurrentJobs} • dependency waves: {sandbox.waves.length}. Speed never bypasses rights, accessibility, security, performance or certification.</div>{sandbox.missingEvidence.length>0&&<div style={{display:'flex',gap:5,flexWrap:'wrap',marginTop:7}}>{sandbox.missingEvidence.map(item=><span key={item} style={{fontSize:8,padding:'4px 6px',borderRadius:999,border:'1px solid #6a5b31',color:'#ffd98b'}}>NEEDS {item.toUpperCase()}</span>)}</div>}</article>}
      <article style={card}><b>EXPANSION CHAIN</b><div style={{fontSize:11,lineHeight:1.7,color:'#c7d7df'}}>WEST SIDE → 77 CHICAGO COMMUNITY AREAS → ILLINOIS → 50 U.S. STATES → GLOBAL CITIES</div></article>
      <article style={card}><b>WHAT IS STILL MISSING</b><div style={{display:'grid',gap:5,marginTop:7}}>{MISSING_SYSTEMS.map(item=><div key={item} style={{padding:'7px 8px',borderRadius:9,background:'#111b20',border:'1px solid #604f2d',fontSize:10,color:'#ffd98b'}}>○ {item}</div>)}</div></article>
      <div style={{display:'grid',gap:8,marginTop:8}}>{BUILD_LANES.map(l=><article key={l.id} style={card}><div style={{display:'flex',justifyContent:'space-between'}}><b>{l.label}</b><span style={{fontSize:9,color:'#72ffb0'}}>CONNECTED</span></div><div style={muted}>{l.items}</div></article>)}</div>

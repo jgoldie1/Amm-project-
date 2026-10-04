@@ -8,6 +8,7 @@ export type WorldBuildTaskState='ready'|'blocked'|'running'|'passed'|'failed'|'a
 export type WorldBuildStage=
  |'source-discovery'
  |'rights-provenance'
+ |'original-fallback'
  |'geospatial'
  |'cad-reconstruction'
  |'asset-forge'
@@ -15,6 +16,7 @@ export type WorldBuildStage=
  |'living-world'
  |'missions-economy'
  |'mobile-lod'
+ |'sandbox-validation'
  |'qa-certification'
 
 export type WorldBuildSourceRequirement={
@@ -165,6 +167,7 @@ function makeTasks(target:WorldBuildTarget):WorldBuildTask[]{
  const tasks:WorldBuildTask[]=[
   {id:`${prefix}:discover`,stage:'source-discovery',label:'Oracle source discovery manifest',state:'ready',dependencies:[],parallelGroup:1,autoExecutable:true,approvalRequired:false,outputs:['source manifest','provider candidates','freshness/coverage report']},
   {id:`${prefix}:rights`,stage:'rights-provenance',label:'Rights + provenance review',state:'blocked',dependencies:[`${prefix}:discover`],parallelGroup:2,autoExecutable:true,approvalRequired:true,outputs:['rights ledger','approved source set','blocked-source report']},
+  {id:`${prefix}:original`,stage:'original-fallback',label:'Mind Over Matter original fallback',state:'blocked',dependencies:[`${prefix}:rights`],parallelGroup:3,autoExecutable:true,approvalRequired:true,outputs:['original replacement specs','clean-room manifests','native foundry jobs','fictionalized equivalents where required']},
   {id:`${prefix}:geo`,stage:'geospatial',label:'Compile boundaries, roads, transit and footprints',state:'blocked',dependencies:[`${prefix}:rights`],parallelGroup:3,autoExecutable:true,approvalRequired:false,outputs:['district graph','road graph','building footprints','landmark anchors']},
   {id:`${prefix}:cad`,stage:'cad-reconstruction',label:'Generate CAD reconstruction plans',state:'blocked',dependencies:[`${prefix}:geo`],parallelGroup:4,autoExecutable:true,approvalRequired:false,outputs:['building CAD plans','levels','stairs/elevator rules','utility placeholders','confidence metadata']},
   {id:`${prefix}:assets`,stage:'asset-forge',label:'Forge buildings, props, vehicles and environment assets',state:'blocked',dependencies:[`${prefix}:cad`],parallelGroup:5,autoExecutable:true,approvalRequired:true,outputs:['GLB/PBR asset jobs','material recipes','mobile LOD jobs','provenance metadata']},
@@ -172,7 +175,8 @@ function makeTasks(target:WorldBuildTarget):WorldBuildTask[]{
   {id:`${prefix}:living`,stage:'living-world',label:'Attach population, traffic, ecology and services',state:'blocked',dependencies:[`${prefix}:place`],parallelGroup:7,autoExecutable:true,approvalRequired:false,outputs:['synthetic population rules','traffic/transit','trees/ecology','police/fire/EMS/service slots']},
   {id:`${prefix}:missions`,stage:'missions-economy',label:'Attach missions, jobs, businesses and creator economy',state:'blocked',dependencies:[`${prefix}:place`],parallelGroup:7,autoExecutable:true,approvalRequired:false,outputs:['mission graph','business slots','jobs','rewards hooks','Reel capture hooks']},
   {id:`${prefix}:lod`,stage:'mobile-lod',label:'Generate streaming cells + mobile LOD budgets',state:'blocked',dependencies:[`${prefix}:living`,`${prefix}:missions`],parallelGroup:8,autoExecutable:true,approvalRequired:false,outputs:['streaming cells','LOD manifest','mobile budgets','fallback geometry']},
-  {id:`${prefix}:qa`,stage:'qa-certification',label:'Navigation, collision, provenance, accessibility and performance QA',state:'blocked',dependencies:[`${prefix}:lod`],parallelGroup:9,autoExecutable:false,approvalRequired:true,outputs:['QA evidence','known limitations','founder preview','certification decision']},
+  {id:`${prefix}:sandbox`,stage:'sandbox-validation',label:'Quantum Speed sandbox simulation + proof',state:'blocked',dependencies:[`${prefix}:lod`],parallelGroup:9,autoExecutable:true,approvalRequired:false,outputs:['dependency waves','simulation manifest','certification evidence gaps','publishability decision']},
+  {id:`${prefix}:qa`,stage:'qa-certification',label:'Navigation, collision, provenance, accessibility and performance QA',state:'blocked',dependencies:[`${prefix}:sandbox`],parallelGroup:10,autoExecutable:false,approvalRequired:true,outputs:['QA evidence','known limitations','founder preview','certification decision']},
  ]
  return tasks
 }
@@ -201,6 +205,7 @@ function buildPlan(target:WorldBuildTarget):QuantumWorldBuildPlan{
     'bind tasks to World Forger recipes and Construct targets',
     'generate code/asset patch proposals for a trusted build worker',
     'surface blockers, confidence and missing-source gaps',
+    'route uncleared assets into Mind Over Matter clean-room replacements instead of copying or stalling',
    ],
   },
   worldForger:{
@@ -226,12 +231,14 @@ function buildPlan(target:WorldBuildTarget):QuantumWorldBuildPlan{
   tasks:makeTasks(target),
   certificationGates:[
    'source rights/provenance recorded',
+   'blocked/uncleared sources replaced with approved originals or clearly labeled conceptual equivalents',
    'no prohibited/private/sensitive source leakage',
    'navigation and collision pass',
    'mobile performance pass',
    'accessibility baseline pass',
    'living-world systems connected',
    'mission start/end/reward path works',
+   'Quantum Speed sandbox simulation has verified required world evidence',
    'founder preview approves production label',
   ],
  }
@@ -335,7 +342,8 @@ export function installStreetVerseQuantumWorldBuilderOrchestrator(){
   cursorConstruct:true,
   worldForger:true,
   construct:true,
-  stages:10,
+  stages:12,
+  mindOverMatterCleanRoom:true,
   productionMutation:false,
   publishRequiresApproval:true,
  })
