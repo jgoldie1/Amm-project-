@@ -7,6 +7,7 @@ import HoloGiftEngine from './HoloGiftEngine'
 
 type Format = 'live' | 'showcase' | 'debate' | 'starverse' | 'podcast' | 'shopping' | 'gamecast'
 type VisualFilter = 'clean' | 'bright' | 'warm' | 'cool' | 'mono' | 'contrast' | 'holo'
+type LiveProviderStatus={configured:boolean;readyForPublic?:boolean;provider?:string;checks?:Record<string,boolean>;missing?:string[];activation?:{state?:string;next?:string[]};capabilities?:Record<string,unknown>;moneyGate?:string}
 
 const FORMATS: Array<{ id: Format; label: string; description: string }> = [
   { id: 'live', label: 'TryAMM LIVE', description: 'General live broadcast and community room' },
@@ -35,6 +36,7 @@ function slug(value: string) {
 export default function LiveCenter({ onClose, initialMode='live', initialRole='host', youthViewerOnly=false }: { onClose: () => void; initialMode?: 'live'|'pk'; initialRole?: LiveRole; youthViewerOnly?: boolean }) {
   const pkMode=initialMode==='pk'
   const [configured, setConfigured] = useState<boolean | null>(null)
+  const [providerStatus,setProviderStatus]=useState<LiveProviderStatus|null>(null)
   const [format, setFormat] = useState<Format>('live')
   const [title, setTitle] = useState(pkMode?'Holographic PK Battle':'TryAMM LIVE')
   const [role, setRole] = useState<LiveRole>(youthViewerOnly?'viewer':initialRole)
@@ -51,7 +53,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
   const stageRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    getLiveStatus().then(status => setConfigured(Boolean(status.configured))).catch(() => setConfigured(false))
+    getLiveStatus().then(status => {setConfigured(Boolean(status.configured));setProviderStatus(status as LiveProviderStatus)}).catch(() => {setConfigured(false);setProviderStatus({configured:false,missing:['url','apiKey','apiSecret']})})
     return () => {
       roomRef.current?.disconnect()
       roomRef.current = null
@@ -223,7 +225,13 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
             </div>
           )}
 
-          <p style={styles.status}>{configured === null ? 'Checking LiveKit…' : configured ? `● ${pkMode?'PK / ':''}LIVE infrastructure configured • host camera/mic preflight on connect` : '○ LiveKit server configuration is still required on the backend'}</p>
+          <p style={styles.status}>{configured === null ? 'Checking LiveKit…' : configured ? `● ${pkMode?'PK / ':''}LIVE infrastructure configured • host camera/mic preflight on connect` : '○ LIVE engine is built; production LiveKit credentials are still required'}</p>
+          {configured===false&&providerStatus&&<div style={styles.providerGate}>
+            <b>LIVE ACTIVATION GATE</b>
+            <div style={styles.small}>Missing: {(providerStatus.missing||['url','apiKey','apiSecret']).join(' • ')}</div>
+            <div style={styles.gateSteps}>{(providerStatus.activation?.next||['Add LIVEKIT_URL','Add LIVEKIT_API_KEY','Add LIVEKIT_API_SECRET','Redeploy and run two-device verification']).map((step,index)=><span key={step}>{index+1}. {step}</span>)}</div>
+            <div style={styles.small}>{providerStatus.moneyGate||'Paid gifts remain separately gated until verified commerce is enabled.'}</div>
+          </div>}
           {error && <div role="alert" style={styles.error}>{error}</div>}
         </section>
 
@@ -273,7 +281,10 @@ const styles: Record<string, CSSProperties> = {
   primary: { width: '100%', marginTop: 14, padding: 13, border: 0, borderRadius: 13, fontWeight: 900, cursor: 'pointer', background: '#fff', color: '#071022' },
   secondary: { padding: '10px 14px', borderRadius: 11, border: '1px solid rgba(255,255,255,.2)', background: 'rgba(255,255,255,.08)', color: '#fff', cursor: 'pointer' },
   danger: { padding: '10px 14px', borderRadius: 11, border: '1px solid rgba(255,80,80,.35)', background: 'rgba(255,80,80,.14)', color: '#fff', cursor: 'pointer' },
-  status: { marginTop: 12, fontSize: 12, opacity: .7 }, error: { marginTop: 10, padding: 10, borderRadius: 10, background: 'rgba(255,80,80,.13)', border: '1px solid rgba(255,80,80,.3)' },
+  status: { marginTop: 12, fontSize: 12, opacity: .7 },
+  providerGate:{marginTop:10,padding:11,borderRadius:12,border:'1px solid rgba(255,196,88,.38)',background:'rgba(73,49,8,.42)',display:'grid',gap:7},
+  gateSteps:{display:'grid',gap:4,fontSize:11,color:'#ffe5a4'},
+  error: { marginTop: 10, padding: 10, borderRadius: 10, background: 'rgba(255,80,80,.13)', border: '1px solid rgba(255,80,80,.3)' },
   youthNotice: { marginBottom: 12, padding: 11, borderRadius: 12, border:'1px solid rgba(255,214,90,.45)', background:'rgba(74,57,8,.7)', color:'#fff3c4', fontSize:12, lineHeight:1.45 },
   stageCard: { minHeight: 520 }, stageHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 12 },
   viewerBadge: { borderRadius: 999, padding: '7px 10px', background: 'rgba(255,255,255,.08)', fontSize: 12 },
