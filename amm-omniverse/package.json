@@ -38,7 +38,8 @@
     "global-payments:check": "node tests/global-africa-payment-gateway-contract.mjs",
     "fraud:check": "node tests/fraud-shield-contract.mjs",
     "payout-protection:check": "node tests/payout-protection-contract.mjs",
-    "omnichannel:check": "node tests/all-american-omnichannel-commerce-contract.mjs"
+    "omnichannel:check": "node tests/all-american-omnichannel-commerce-contract.mjs",
+    "omnichannel-center:check": "node tests/all-american-omnichannel-center-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
