@@ -4,15 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       passes:
-        description: "Validation/repair passes per run"
+        description: "Hourly engineering passes (max 6 recommended)"
         required: false
-        default: "3"
+        default: "6"
       interval_minutes:
-        description: "Minutes between passes"
+        description: "Minutes between engineering passes"
         required: false
-        default: "90"
-  schedule:
-    - cron: "17 */6 * * *"
+        default: "60"
 
 permissions:
   contents: write
@@ -31,8 +29,8 @@ jobs:
       APP_DIR: amm-omniverse
       KINGDOM_DIR: amm-omniverse/public/streetverse-kingdom
       WORK_BRANCH: automation/streetverse-master-continuous-results
-      PASSES: ${{ inputs.passes || '3' }}
-      INTERVAL_MINUTES: ${{ inputs.interval_minutes || '90' }}
+      PASSES: ${{ inputs.passes || '6' }}
+      INTERVAL_MINUTES: ${{ inputs.interval_minutes || '60' }}
 
     steps:
       - name: Checkout production baseline
@@ -76,6 +74,8 @@ jobs:
           GREEN_PASSES=0
           RED_PASSES=0
           SOURCE_COMMITS=0
+          EXECUTED_PASSES=0
+          COMPLETED_EARLY=0
 
           run_gate() {
             local name="$1"
@@ -92,6 +92,7 @@ jobs:
           }
 
           for PASS in $(seq 1 "$PASSES"); do
+            EXECUTED_PASSES=$((EXECUTED_PASSES+1))
             STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
             PASS_DIR="../release-evidence/streetverse-master/pass-$PASS-$STAMP"
             mkdir -p "$PASS_DIR"
@@ -227,9 +228,16 @@ jobs:
               [ -n "$PENDING" ] && echo "- Pending gates: $PENDING" >> "$PASS_DIR/README.md"
             fi
 
-            echo "- Pass $PASS: $(date -u -Iseconds), elapsed $ELAPSED_HOURS h" >> ../release-evidence/streetverse-master/summary.md
+            echo "- Engineering pass $PASS: $(date -u -Iseconds), elapsed $ELAPSED_HOURS h" >> ../release-evidence/streetverse-master/summary.md
+
+            if [ -z "$FAILURES" ] && [ -z "$PENDING" ]; then
+              COMPLETED_EARLY=1
+              echo "- Development convergence reached GREEN on pass $PASS; stopping early." >> ../release-evidence/streetverse-master/summary.md
+              break
+            fi
 
             if [ "$PASS" -lt "$PASSES" ]; then
+              echo "- Waiting $INTERVAL_MINUTES minutes before the next engineering pass." >> ../release-evidence/streetverse-master/summary.md
               sleep "$((INTERVAL_MINUTES * 60))"
             fi
           done
@@ -243,12 +251,15 @@ jobs:
             echo
             echo "## Run totals"
             echo "- Completed UTC: $(date -u -Iseconds)"
-            echo "- Tracked run time: $TOTAL_HOURS hours ($TOTAL_MIN minutes)"
+            echo "- Tracked engineering window: $TOTAL_HOURS hours ($TOTAL_MIN minutes)"
+            echo "- Engineering passes executed: $EXECUTED_PASSES of maximum $PASSES"
+            echo "- Hourly interval target: $INTERVAL_MINUTES minutes"
             echo "- Green passes: $GREEN_PASSES"
             echo "- Red passes: $RED_PASSES"
             echo "- Source repair commits: $SOURCE_COMMITS"
-            echo "- Next scheduled cycle: approximately six hours after the current schedule slot"
+            echo "- Stopped early because development converged: $COMPLETED_EARLY"
             echo
+            echo "This workflow is a bounded engineering session: one pass per hour for up to six passes, stopping early when convergence is GREEN."
             echo "A CI cycle is engineering validation, not a claim of physical iPhone visual certification."
           } >> ../release-evidence/streetverse-master/summary.md
 
@@ -256,11 +267,13 @@ jobs:
           echo "red_passes=$RED_PASSES" >> "$GITHUB_OUTPUT"
           echo "source_commits=$SOURCE_COMMITS" >> "$GITHUB_OUTPUT"
           echo "tracked_hours=$TOTAL_HOURS" >> "$GITHUB_OUTPUT"
+          echo "executed_passes=$EXECUTED_PASSES" >> "$GITHUB_OUTPUT"
+          echo "completed_early=$COMPLETED_EARLY" >> "$GITHUB_OUTPUT"
 
       - name: Push repair branch state
         if: always()
         run: |
-          git push origin "HEAD:refs/heads/$WORK_BRANCH" || true
+          git push --force-with-lease origin "HEAD:refs/heads/$WORK_BRANCH" || true
 
       - name: Open or reuse repair PR when source changed
         if: steps.converge.outputs.source_commits != '0'
@@ -285,8 +298,8 @@ jobs:
             echo "- Green passes: ${{ steps.converge.outputs.green_passes || '0' }}"
             echo "- Red passes: ${{ steps.converge.outputs.red_passes || '0' }}"
             echo "- Source repair commits: ${{ steps.converge.outputs.source_commits || '0' }}"
-            echo "- CrossVerse + CampusVerse + Reels/OmniBox bridge is tracked every run."
-            echo "- Recurs every six hours and can also be started manually."
+            echo "- CrossVerse + CampusVerse + Reels/OmniBox bridge is tracked every engineering pass."
+            echo "- Runs as a bounded hourly engineering session: up to 6 passes, stopping early when GREEN."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload convergence evidence
