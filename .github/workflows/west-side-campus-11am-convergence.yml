@@ -1,0 +1,257 @@
+name: West Side + CampusVerse 11AM Convergence
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/west-side-campus-11am-convergence.yml"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: west-side-campus-11am-20261004
+  cancel-in-progress: false
+
+jobs:
+  converge-until-11am:
+    name: Circle Park + West Side + Greenville + Illinois convergence
+    runs-on: ubuntu-latest
+    timeout-minutes: 285
+    env:
+      DEADLINE_UTC: "2026-10-04T16:00:00Z"
+      DEADLINE_LABEL: "2026-10-04 11:00 AM Central"
+      WORK_BRANCH: "automation/west-side-campus-11am-results-20261004"
+      PASS_INTERVAL_SECONDS: "900"
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+
+      - name: Check one-time 11AM window
+        id: window
+        shell: bash
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%s)"
+          DEADLINE="$(date -u -d "$DEADLINE_UTC" +%s)"
+          echo "Current UTC: $(date -u -Iseconds)"
+          echo "Deadline: $DEADLINE_UTC ($DEADLINE_LABEL)"
+          if [ "$NOW" -ge "$DEADLINE" ]; then
+            echo "active=false" >> "$GITHUB_OUTPUT"
+            echo "The one-time 11AM convergence window has already closed."
+          else
+            echo "active=true" >> "$GITHUB_OUTPUT"
+            echo "remaining_seconds=$((DEADLINE-NOW))" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install Omniverse dependencies
+        if: steps.window.outputs.active == 'true'
+        working-directory: amm-omniverse
+        run: npm ci --no-audit --no-fund
+
+      - name: Initialize reviewable repair branch
+        if: steps.window.outputs.active == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "TRYAMM 11AM Convergence"
+          git config user.email "actions@users.noreply.github.com"
+          git switch -C "$WORK_BRANCH"
+          mkdir -p release-evidence/west-side-campus-11am
+
+      - name: Converge and recheck until 11AM Central
+        if: steps.window.outputs.active == 'true'
+        id: converge
+        shell: bash
+        working-directory: amm-omniverse
+        run: |
+          set -u
+          DEADLINE="$(date -u -d "$DEADLINE_UTC" +%s)"
+          PASS=0
+          LAST_GREEN=0
+          LAST_PASS_DIR=""
+          SOURCE_COMMITS=0
+
+          run_gate() {
+            local name="$1"
+            shift
+            echo "▶ $name"
+            set +e
+            "$@" > "$PASS_DIR/$name.log" 2>&1
+            local code=$?
+            set -e
+            echo "$name=$code" >> "$PASS_DIR/status.env"
+            if [ "$code" -ne 0 ]; then
+              echo "::warning::$name failed on convergence pass $PASS. See artifact log."
+            fi
+            return 0
+          }
+
+          while [ "$(date -u +%s)" -lt "$DEADLINE" ]; do
+            PASS=$((PASS+1))
+            STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+            PASS_DIR="../release-evidence/west-side-campus-11am/pass-$PASS-$STAMP"
+            LAST_PASS_DIR="$PASS_DIR"
+            mkdir -p "$PASS_DIR"
+            : > "$PASS_DIR/status.env"
+
+            {
+              echo "# TRYAMM 11AM convergence pass $PASS"
+              echo
+              echo "- UTC: $(date -u -Iseconds)"
+              echo "- Deadline: $DEADLINE_LABEL"
+              echo "- Commit entering pass: $(git rev-parse HEAD)"
+              echo "- Scope: West Side / Circle Park / Roosevelt / Taylor / Pilsen / Greenville University / Illinois CampusVerse"
+            } > "$PASS_DIR/README.md"
+
+            run_gate repair-entry node scripts/repair-streetverse-entry.mjs
+            run_gate repair-hero node scripts/inject-streetverse-hero-spawn.mjs
+
+            run_gate convergence-contract node tests/west-side-campus-11am-convergence-contract.mjs
+            run_gate circle-park-completion node tests/circle-park-chicago-completion-contract.mjs
+            run_gate circle-park-west-side-emergency node tests/circle-park-west-side-jefferson-emergency-contract.mjs
+            run_gate circle-park-asset-forge node tests/circle-park-asset-forge-production-wave-contract.mjs
+            run_gate uic-greenville-gateway node tests/uic-greenville-world-gateway-contract.mjs
+            run_gate illinois-campus-network node tests/illinois-campusverse-network-contract.mjs
+            run_gate illinois-rollout-gate node tests/illinois-rollout-gate-contract.mjs
+            run_gate illinois-rollout-performance node tests/illinois-rollout-performance-cap-contract.mjs
+            run_gate illinois-rollout-serialization node tests/illinois-rollout-serialization-contract.mjs
+            run_gate chicago-grid-reality node tests/streetverse-chicago-grid-reality-contract.mjs
+            run_gate one-hand-integration node tests/streetverse-one-hand-integration-contract.mjs
+
+            run_gate typecheck npm run typecheck
+            run_gate production-build npm run build
+
+            FAILURES="$(awk -F= '$2 != 0 {print $1}' "$PASS_DIR/status.env" | tr '\n' ' ')"
+            if [ -z "$FAILURES" ]; then
+              LAST_GREEN=1
+              echo "PASS_RESULT=GREEN" >> "$PASS_DIR/status.env"
+              echo "✅ All focused gates and production build passed." >> "$PASS_DIR/README.md"
+            else
+              LAST_GREEN=0
+              echo "PASS_RESULT=RED" >> "$PASS_DIR/status.env"
+              echo "❌ Failed gates: $FAILURES" >> "$PASS_DIR/README.md"
+            fi
+
+            git add -A src
+            if ! git diff --cached --quiet; then
+              git commit -m "11AM convergence pass $PASS: deterministic StreetVerse repairs"
+              git push origin "HEAD:refs/heads/$WORK_BRANCH"
+              SOURCE_COMMITS=$((SOURCE_COMMITS+1))
+              echo "SOURCE_REPAIR_COMMIT=$(git rev-parse HEAD)" >> "$PASS_DIR/status.env"
+            fi
+
+            git status --short > "$PASS_DIR/git-status.txt"
+            git diff -- src > "$PASS_DIR/remaining-source-diff.patch" || true
+
+            NOW="$(date -u +%s)"
+            REMAINING=$((DEADLINE-NOW))
+            {
+              echo
+              echo "- Result: $([ "$LAST_GREEN" -eq 1 ] && echo GREEN || echo RED)"
+              echo "- Source repair commits this run: $SOURCE_COMMITS"
+              echo "- Seconds remaining to deadline: $(( REMAINING > 0 ? REMAINING : 0 ))"
+            } >> "$PASS_DIR/README.md"
+
+            if [ "$REMAINING" -le 120 ]; then
+              break
+            fi
+
+            SLEEP_FOR="$PASS_INTERVAL_SECONDS"
+            if [ "$REMAINING" -lt "$((PASS_INTERVAL_SECONDS+120))" ]; then
+              SLEEP_FOR=$((REMAINING-120))
+            fi
+            if [ "$SLEEP_FOR" -gt 0 ]; then
+              echo "Next convergence pass in $SLEEP_FOR seconds; deadline remains $DEADLINE_LABEL."
+              sleep "$SLEEP_FOR"
+            fi
+          done
+
+          {
+            echo "# West Side + CampusVerse 11AM final report"
+            echo
+            echo "- Deadline: $DEADLINE_LABEL"
+            echo "- Completed passes: $PASS"
+            echo "- Last pass green: $LAST_GREEN"
+            echo "- Deterministic source repair commits: $SOURCE_COMMITS"
+            echo "- Results branch: $WORK_BRANCH"
+            echo "- Last pass evidence: $LAST_PASS_DIR"
+            echo
+            echo "## Scope"
+            echo "- Circle Park → Roosevelt → Taylor → Pilsen"
+            echo "- West Side / Thomas Jefferson emergency and world-builder contracts"
+            echo "- Greenville University walkable CampusVerse + Jacobie mission path"
+            echo "- University of Illinois system bracket: UIC / UIUC / UIS"
+            echo "- Southern Illinois University system bracket"
+            echo "- Illinois statewide CampusVerse route including Greenville"
+            echo "- One-hand controls, TypeScript, production build"
+          } > ../release-evidence/west-side-campus-11am/FINAL.md
+
+          echo "last_green=$LAST_GREEN" >> "$GITHUB_OUTPUT"
+          echo "passes=$PASS" >> "$GITHUB_OUTPUT"
+          echo "source_commits=$SOURCE_COMMITS" >> "$GITHUB_OUTPUT"
+
+      - name: Push final repair branch state
+        if: steps.window.outputs.active == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git push origin "HEAD:refs/heads/$WORK_BRANCH" || true
+
+      - name: Open repair PR when source changed
+        if: steps.window.outputs.active == 'true' && steps.converge.outputs.source_commits != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          EXISTING="$(gh pr list --head "$WORK_BRANCH" --base main --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$EXISTING" ]; then
+            echo "Repair PR already open: #$EXISTING"
+          else
+            gh pr create               --base main               --head "$WORK_BRANCH"               --title "11AM West Side + CampusVerse convergence repairs"               --body "Automated deterministic repair output from the one-time Oct 4 convergence run. Scope: Circle Park/West Side, Greenville University, University of Illinois bracket, SIU bracket, Illinois CampusVerse. Review and merge only after the final evidence artifact is green."
+          fi
+
+      - name: Publish convergence summary
+        if: always() && steps.window.outputs.active == 'true'
+        shell: bash
+        run: |
+          {
+            echo "## West Side + CampusVerse 11AM convergence"
+            echo
+            echo "- Deadline: $DEADLINE_LABEL"
+            echo "- Passes completed: ${{ steps.converge.outputs.passes || '0' }}"
+            echo "- Final focused gate: ${{ steps.converge.outputs.last_green == '1' && 'GREEN' || 'NOT GREEN' }}"
+            echo "- Source repair commits: ${{ steps.converge.outputs.source_commits || '0' }}"
+            echo "- Review branch: `$WORK_BRANCH`"
+            echo
+            echo "No CI result claims physical iPhone visual certification. That still requires the real device/browser check."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.window.outputs.active == 'true'
+        with:
+          name: west-side-campus-11am-convergence-evidence
+          path: release-evidence/west-side-campus-11am/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Final readiness gate
+        if: steps.window.outputs.active == 'true'
+        shell: bash
+        run: |
+          if [ "${{ steps.converge.outputs.last_green }}" != "1" ]; then
+            echo "::error::The final 11AM convergence pass was not green. Review the uploaded evidence and repair PR."
+            exit 1
+          fi
+          echo "Final 11AM convergence pass: GREEN"
