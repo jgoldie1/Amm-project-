@@ -91,6 +91,35 @@ function addBuilding(root:THREE.Group,s:BuildingSpec,colliders:THREE.Box3[]){
   root.add(g)
   colliders.push(new THREE.Box3().setFromObject(body).expandByScalar(.25))
 }
+function addThomasJeffersonSchool(root:THREE.Group,colliders:THREE.Box3[]){
+  const g=new THREE.Group();g.position.set(25,0,33);g.name='west-side-building-thomas-jefferson-school-reconstruction'
+  const brick=material({color:0x8f4938,roughness:.9}),brickDark=material({color:0x71382f,roughness:.92}),stone=material({color:0xd8c9aa,roughness:.88})
+  const glass=material({color:0x243b49,roughness:.18,metalness:.1,emissive:0x0d1c25,emissiveIntensity:.22}),door=material({color:0x3c2b25,roughness:.72})
+  const masses:[[number,number,number],[number,number,number]][]=[
+    [[22,18,13],[0,9,0]],[[8,20,15],[-7,10,1]],[[8,20,15],[7,10,1]],[[7,21,8],[0,10.5,-4]]
+  ]
+  const shells:THREE.Mesh[]=[]
+  masses.forEach(([size,pos],i)=>{const m=box(g,size,pos,i===3?brickDark:brick,0,`jefferson-masonry-${i}`);shells.push(m)})
+  for(const y of [4.4,8.5,12.6,16.7])box(g,[23,.32,13.35],[0,y,0],stone,0,'jefferson-stone-belt')
+  box(g,[23.2,.7,13.6],[0,18.2,0],stone,0,'jefferson-cornice')
+  box(g,[23.5,.5,13.9],[0,19,0],brickDark,0,'jefferson-parapet')
+  for(const y of [3.2,7.25,11.3,15.35])for(const x of [-9.2,-6.8,-4.4,-2,2,4.4,6.8,9.2]){
+    box(g,[1.25,2.15,.12],[x,y,-6.58],glass,0,'jefferson-tall-window')
+    box(g,[.16,2.2,.18],[x,y,-6.67],stone)
+  }
+  box(g,[5.4,6.4,1.0],[0,3.2,-7],brickDark,0,'jefferson-projecting-entry')
+  box(g,[6.1,.55,1.2],[0,6.1,-7.05],stone)
+  box(g,[4.4,4.9,.28],[0,2.45,-7.56],stone)
+  box(g,[3.2,3.75,.18],[0,1.88,-7.76],door)
+  box(g,[5.8,.25,3.1],[0,.13,-8.7],stone)
+  box(g,[5.0,.22,2.5],[0,.34,-8.35],stone)
+  box(g,[4.2,.2,2.0],[0,.54,-8.0],stone)
+  const sign=labelSprite('THOMAS JEFFERSON SCHOOL');sign.scale.set(8.5,2.05,1);sign.position.set(0,7.3,-7.7);g.add(sign)
+  g.userData={realWorldIdentity:'Thomas Jefferson Public School / STEM Magnet Academy',address:'1522 W Fillmore St, Chicago, IL 60607',exteriorAuthority:'reference-photo+public-record',interiorAuthority:'playable-game-reconstruction-until-verified-plans',enterablePlanned:true}
+  root.add(g)
+  shells.forEach(m=>colliders.push(new THREE.Box3().setFromObject(m).expandByScalar(.15)))
+}
+
 function addPark(root:THREE.Group){
   const park=new THREE.Group();park.position.set(0,0,49);park.name='circle-park-visible-forge'
   const lawn=new THREE.Mesh(geometry(new THREE.CircleGeometry(12,36)),material({color:0x477f4a,roughness:1}));lawn.rotation.x=-Math.PI/2;lawn.position.y=.03;park.add(lawn)
@@ -140,7 +169,6 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
     {x:-67,z:67,w:16,d:15,h:20,color:0x7d493a,label:'Circle Park Homes B',buildingNumber:'CP-B',units:['301','302','401','402']},
     {x:-31,z:67,w:17,d:15,h:19,color:0x665044,label:'Circle Park Homes C',buildingNumber:'CP-C',units:['103','104','203','204']},
     {x:-25,z:33,w:18,d:15,h:22,color:0x6b5145,label:'West Side Commons'},
-    {x:25,z:33,w:17,d:15,h:20,color:0x536676,label:'Jefferson School'},
     {x:68,z:34,w:18,d:15,h:24,color:0x765b46,label:'Community Market'},
     {x:-67,z:5,w:18,d:15,h:19,color:0x73513f,label:'Roosevelt Shops'},
     {x:-24,z:5,w:16,d:15,h:23,color:0x485f72,label:'Creator Works'},
@@ -156,6 +184,7 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
     {x:68,z:-54,w:18,d:16,h:26,color:0x516859,label:'Pilsen Works'},
   ]
   buildings.forEach(b=>addBuilding(root,b,colliders))
+  addThomasJeffersonSchool(root,colliders)
 
   const treeRows=[[-79,60],[-58,60],[-35,60],[-16,60],[16,60],[35,60],[58,60],[79,60],[-79,24],[-58,24],[-35,24],[35,24],[58,24],[79,24],[-79,-14],[-58,-14],[-35,-14],[35,-14],[58,-14],[79,-14],[-79,-44],[-58,-44],[-35,-44],[35,-44],[58,-44],[79,-44]] as const
   treeRows.forEach(([x,z],i)=>addTree(root,x,z,.72+(i%3)*.08))
