@@ -34,7 +34,8 @@
     "lens:check": "node tests/quantum-holo-lens-runtime-contract.mjs && node tests/business-qr-holo-lens-contract.mjs",
     "revenue:check": "node tests/creator-revenue-fabric-contract.mjs",
     "money-center:check": "node tests/creator-money-center-contract.mjs",
-    "business-income:check": "node tests/game-app-business-income-contract.mjs"
+    "business-income:check": "node tests/game-app-business-income-contract.mjs",
+    "global-payments:check": "node tests/global-africa-payment-gateway-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
