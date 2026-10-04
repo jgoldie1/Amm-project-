@@ -35,7 +35,8 @@
     "revenue:check": "node tests/creator-revenue-fabric-contract.mjs",
     "money-center:check": "node tests/creator-money-center-contract.mjs",
     "business-income:check": "node tests/game-app-business-income-contract.mjs",
-    "global-payments:check": "node tests/global-africa-payment-gateway-contract.mjs"
+    "global-payments:check": "node tests/global-africa-payment-gateway-contract.mjs",
+    "fraud:check": "node tests/fraud-shield-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
