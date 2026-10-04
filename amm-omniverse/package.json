@@ -30,7 +30,8 @@
     "unreal:manifest": "node scripts/export-unreal-streetverse-manifest.mjs",
     "unreal:check": "node tests/unreal-mcp-readiness-contract.mjs",
     "graphics:check": "node tests/graphics-acceleration-runtime-contract.mjs",
-    "omnifabric:check": "node tests/omnifabric-compute-router-contract.mjs"
+    "omnifabric:check": "node tests/omnifabric-compute-router-contract.mjs",
+    "lens:check": "node tests/quantum-holo-lens-runtime-contract.mjs && node tests/business-qr-holo-lens-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
