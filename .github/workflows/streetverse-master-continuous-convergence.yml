@@ -75,7 +75,9 @@ jobs:
           RED_PASSES=0
           SOURCE_COMMITS=0
           EXECUTED_PASSES=0
-          COMPLETED_EARLY=0
+          BUILD_MODE=0
+          BUILD_MODE_PASSES=0
+          FIRST_GREEN_PASS=0
 
           run_gate() {
             local name="$1"
@@ -113,6 +115,13 @@ jobs:
 
             run_gate repair-entry node scripts/repair-streetverse-entry.mjs
             run_gate repair-hero node scripts/inject-streetverse-hero-spawn.mjs
+
+            if [ "$BUILD_MODE" -eq 1 ]; then
+              echo "- BUILD MODE: using remaining engineering time on app/game repair and production verification." >> "$PASS_DIR/README.md"
+              run_gate build-native-assets npm run native:assets
+              run_gate build-streetverse-mega-fix bash scripts/streetverse-bj-family-mega-fix.sh
+              run_gate build-asset-tournament node scripts/streetverse-asset-tournament.mjs "$PASS_DIR/streetverse-asset-tournament.json"
+            fi
 
             for testfile in               tests/west-side-campus-11am-convergence-contract.mjs               tests/circle-park-chicago-completion-contract.mjs               tests/circle-park-west-side-jefferson-emergency-contract.mjs               tests/circle-park-asset-forge-production-wave-contract.mjs               tests/uic-greenville-world-gateway-contract.mjs               tests/illinois-campusverse-network-contract.mjs               tests/illinois-rollout-gate-contract.mjs               tests/illinois-rollout-performance-cap-contract.mjs               tests/illinois-rollout-serialization-contract.mjs               tests/streetverse-chicago-grid-reality-contract.mjs               tests/streetverse-one-hand-integration-contract.mjs               tests/crossverse-campusverse-bridge-contract.mjs               tests/kingdom-streetverse-bridge-contract.mjs               tests/streetverse-rapier-physics-contract.mjs               tests/unreal-mcp-readiness-contract.mjs               tests/graphics-acceleration-runtime-contract.mjs               tests/omnifabric-compute-router-contract.mjs               tests/quantum-holo-lens-runtime-contract.mjs               tests/business-qr-holo-lens-contract.mjs               tests/creator-revenue-fabric-contract.mjs               tests/creator-money-center-contract.mjs               tests/game-app-business-income-contract.mjs               tests/global-africa-payment-gateway-contract.mjs               tests/fraud-shield-contract.mjs               tests/payout-protection-contract.mjs               tests/all-american-omnichannel-commerce-contract.mjs               tests/all-american-omnichannel-center-contract.mjs               tests/quantum-source-logistics-contract.mjs               tests/holoverse-ecosystem-convergence-contract.mjs               tests/stubbs-lyons-middleverse-logistics-contract.mjs               tests/fleet-owner-operator-contract.mjs               tests/owner-operator-onboarding-accessorial-contract.mjs
             do
@@ -220,21 +229,26 @@ jobs:
               GREEN_PASSES=$((GREEN_PASSES+1))
               echo "PASS_RESULT=GREEN" >> "$PASS_DIR/status.env"
               echo "- Result: GREEN" >> "$PASS_DIR/README.md"
+              if [ "$BUILD_MODE" -eq 0 ]; then
+                BUILD_MODE=1
+                FIRST_GREEN_PASS=$PASS
+                echo "- Convergence reached GREEN on pass $PASS; remaining engineering passes switch to BUILD MODE." >> ../release-evidence/streetverse-master/summary.md
+              else
+                BUILD_MODE_PASSES=$((BUILD_MODE_PASSES+1))
+                echo "- BUILD MODE pass $PASS stayed GREEN after app/game work." >> ../release-evidence/streetverse-master/summary.md
+              fi
             else
               RED_PASSES=$((RED_PASSES+1))
               echo "PASS_RESULT=RED" >> "$PASS_DIR/status.env"
               echo "- Result: RED" >> "$PASS_DIR/README.md"
               [ -n "$FAILURES" ] && echo "- Failed gates: $FAILURES" >> "$PASS_DIR/README.md"
               [ -n "$PENDING" ] && echo "- Pending gates: $PENDING" >> "$PASS_DIR/README.md"
+              if [ "$BUILD_MODE" -eq 1 ]; then
+                echo "- BUILD MODE found a regression/pending gate; continuing repairs on the next hourly pass." >> ../release-evidence/streetverse-master/summary.md
+              fi
             fi
 
             echo "- Engineering pass $PASS: $(date -u -Iseconds), elapsed $ELAPSED_HOURS h" >> ../release-evidence/streetverse-master/summary.md
-
-            if [ -z "$FAILURES" ] && [ -z "$PENDING" ]; then
-              COMPLETED_EARLY=1
-              echo "- Development convergence reached GREEN on pass $PASS; stopping early." >> ../release-evidence/streetverse-master/summary.md
-              break
-            fi
 
             if [ "$PASS" -lt "$PASSES" ]; then
               echo "- Waiting $INTERVAL_MINUTES minutes before the next engineering pass." >> ../release-evidence/streetverse-master/summary.md
@@ -257,9 +271,10 @@ jobs:
             echo "- Green passes: $GREEN_PASSES"
             echo "- Red passes: $RED_PASSES"
             echo "- Source repair commits: $SOURCE_COMMITS"
-            echo "- Stopped early because development converged: $COMPLETED_EARLY"
+            echo "- First GREEN pass: $FIRST_GREEN_PASS"
+            echo "- BUILD MODE passes completed: $BUILD_MODE_PASSES"
             echo
-            echo "This workflow is a bounded engineering session: one pass per hour for up to six passes, stopping early when convergence is GREEN."
+            echo "This workflow is a bounded engineering session: one pass per hour for up to six passes. Once convergence is GREEN, remaining passes switch to BUILD MODE for app/game work and regression verification."
             echo "A CI cycle is engineering validation, not a claim of physical iPhone visual certification."
           } >> ../release-evidence/streetverse-master/summary.md
 
@@ -268,7 +283,8 @@ jobs:
           echo "source_commits=$SOURCE_COMMITS" >> "$GITHUB_OUTPUT"
           echo "tracked_hours=$TOTAL_HOURS" >> "$GITHUB_OUTPUT"
           echo "executed_passes=$EXECUTED_PASSES" >> "$GITHUB_OUTPUT"
-          echo "completed_early=$COMPLETED_EARLY" >> "$GITHUB_OUTPUT"
+          echo "first_green_pass=$FIRST_GREEN_PASS" >> "$GITHUB_OUTPUT"
+          echo "build_mode_passes=$BUILD_MODE_PASSES" >> "$GITHUB_OUTPUT"
 
       - name: Push repair branch state
         if: always()
@@ -299,7 +315,7 @@ jobs:
             echo "- Red passes: ${{ steps.converge.outputs.red_passes || '0' }}"
             echo "- Source repair commits: ${{ steps.converge.outputs.source_commits || '0' }}"
             echo "- CrossVerse + CampusVerse + Reels/OmniBox bridge is tracked every engineering pass."
-            echo "- Runs as a bounded hourly engineering session: up to 6 passes, stopping early when GREEN."
+            echo "- Runs as a bounded hourly engineering session: up to 6 passes; GREEN switches the remaining passes into BUILD MODE."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload convergence evidence
