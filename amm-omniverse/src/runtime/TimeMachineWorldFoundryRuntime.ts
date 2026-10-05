@@ -1,5 +1,7 @@
 import {createProductionTransformationManifest} from '../data/GenieBottleAssetTransformationEngine'
 import type {AssetKind} from '../data/TryammAssetForge'
+import {createBuildingCadPlan,makeWorldForgeRecipe,type ForgeAssetKind} from '../game/forger/StreetVerseWorldForger'
+import {getAccessToken} from '../services/supabaseClient'
 
 export type TimeMachineFoundryMode='HISTORY'|'RECONSTRUCTION'|'SIMULATION'|'ADVENTURE'|'ENGINEERING'|'SPACE'
 export type FoundryEvidence='verified-source'|'source-backed'|'mixed'|'conceptual'|'missing'
@@ -8,7 +10,8 @@ export type FoundryAssetState='recipe-ready'|'preview-queued'|'preview-ready'|'p
 export type TimeMachineFoundryAsset={
  id:string;label:string;kind:AssetKind;purpose:string;evidence:FoundryEvidence;
  requestedLook:string;qualityTier:'mobile'|'premium'|'hero';state:FoundryAssetState;
- genieWinner:string;genieScore:number;genieEvidenceState:string;holoForgeId?:string;provider?:string;message?:string
+ genieWinner:string;genieScore:number;genieEvidenceState:string;holoForgeId?:string;provider?:string;message?:string;
+ worldForge?:{recipeId:string;kind:ForgeAssetKind;stage:string;cadPlan?:unknown;conceptualOnly:boolean}
 }
 
 export type TimeMachineWorldFoundryRequest={
@@ -65,6 +68,35 @@ function defaultAssets(r:TimeMachineWorldFoundryRequest):Array<{label:string;kin
  if(/galilee|fishing|boat/.test(q))out.push({label:'Galilee fishing vessel',kind:'vehicle',purpose:'reconstructed educational boat gameplay',evidence:'source-backed',qualityTier:'hero'})
  return out
 }
+function forgeKindFor(kind:AssetKind):ForgeAssetKind{
+ if(kind==='building'||kind==='interior')return'building'
+ if(kind==='character')return'character'
+ if(kind==='vehicle')return'vehicle'
+ if(kind==='road'||kind==='environment')return'infrastructure'
+ return'prop'
+}
+function compileWorldForge(planId:string,r:TimeMachineWorldFoundryRequest,input:{label:string;kind:AssetKind;purpose?:string;evidence?:FoundryEvidence;qualityTier?:'mobile'|'premium'|'hero';requestedLook?:string},index:number){
+ const forgeKind=forgeKindFor(input.kind)
+ const sourceId=`foundry-evidence:${planId}:${index}`
+ const recipe=makeWorldForgeRecipe({
+  id:`${planId}:forge:${index}:${slug(input.label)}`,label:input.label,kind:forgeKind,districtId:r.neighborhoodId||r.cityId||'time-machine-world',
+  sourceIds:[sourceId],prompt:input.requestedLook||`${r.era||'period'} ${input.label}; source-labeled original reconstruction; mobile LOD; collision/navigation where applicable`,
+  target:forgeKind==='character'?'rig':forgeKind==='vehicle'?'image-to-3d':'text-to-3d',textureWrap:'hybrid',
+ })
+ const cad=forgeKind==='building'?createBuildingCadPlan({
+  id:recipe.id+':cad',label:input.label,widthM:24,depthM:18,floors:2,sourceIds:[sourceId],elevator:true,stairCount:2,
+  conceptualOnly:input.evidence!=='verified-source'&&input.evidence!=='source-backed',
+ }):undefined
+ return{recipeId:recipe.id,kind:forgeKind,stage:recipe.stage,cadPlan:cad,conceptualOnly:Boolean(cad?.conceptualOnly??true)}
+}
+async function syncServerReceipt(plan:TimeMachineWorldFoundryPlan,phase:string){
+ try{
+  const token=await getAccessToken();if(!token)return
+  const response=await fetch('/api/time-machine/foundry-receipts',{method:'POST',headers:{'content-type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({plan,phase})})
+  if(!response.ok)throw new Error('receipt-sync-'+response.status)
+  emit('tryamm:time-machine-foundry-receipt-synced',{planId:plan.id,phase})
+ }catch(error){emit('tryamm:time-machine-foundry-receipt-sync-failed',{planId:plan.id,phase,error:error instanceof Error?error.message:String(error)})}
+}
 function toAsset(planId:string,r:TimeMachineWorldFoundryRequest,input:{label:string;kind:AssetKind;purpose?:string;evidence?:FoundryEvidence;qualityTier?:'mobile'|'premium'|'hero';requestedLook?:string},index:number):TimeMachineFoundryAsset{
  const id=`${planId}:asset:${index}:${slug(input.label)}`
  const requestedLook=input.requestedLook||`${r.era||'period'} ${input.label}; physically believable first, TRYAMM holographic semantic layer second; source/provenance labels preserved`
@@ -76,7 +108,8 @@ function toAsset(planId:string,r:TimeMachineWorldFoundryRequest,input:{label:str
  })
  return{id,label:input.label,kind:input.kind,purpose:input.purpose||'time-scene asset',evidence:input.evidence||'conceptual',
   requestedLook,qualityTier:input.qualityTier||'premium',state:'recipe-ready',genieWinner:tournament.recipeWinner.label,
-  genieScore:tournament.recipeWinner.weightedScore,genieEvidenceState:tournament.promotion.evidenceState}
+  genieScore:tournament.recipeWinner.weightedScore,genieEvidenceState:tournament.promotion.evidenceState,
+  worldForge:compileWorldForge(planId,r,input,index)}
 }
 function compile(req:TimeMachineWorldFoundryRequest):TimeMachineWorldFoundryPlan{
  const id=`tmwf-${slug(req.id||req.title)}-${Date.now().toString(36)}`
@@ -88,13 +121,14 @@ function compile(req:TimeMachineWorldFoundryRequest):TimeMachineWorldFoundryPlan
  return{schema:'tryamm.time-machine.world-foundry.v1',id,title:req.title,era:req.era||'unspecified',mode,source:req.source||'manual',
   createdAt:new Date().toISOString(),evidenceLevel:req.evidenceLevel||'mixed',truthLabel:truthLabel(mode,req.evidenceLevel||'mixed'),
   objective:req.objective||req.description||'Construct a source-labeled immersive time scene.',historicalUrl:req.historicalUrl,
-  stages:['RECALL / CURRENT STATE','SOURCE / ARCHIVE EVIDENCE','WORLD BUILDER PLAN','GENIE FOUR-CANDIDATE TOURNAMENT','MIND OVER MATTER ORIGINAL SPEC','HOLOFORGE PREVIEW','HOLO LAB HOLOGRAM PREVIEW','COLLISION / NAV / MOBILE QA','HUMAN VISUAL REVIEW','ASSET PASSPORT / PUBLISH GATE'],
+  stages:['RECALL / CURRENT STATE','SOURCE / ARCHIVE EVIDENCE','WORLD BUILDER PLAN','WORLD FORGER / CAD RECIPE','GENIE FOUR-CANDIDATE TOURNAMENT','MIND OVER MATTER ORIGINAL SPEC','HOLOFORGE PREVIEW','HOLO LAB HOLOGRAM PREVIEW','COLLISION / NAV / MOBILE QA','HUMAN VISUAL REVIEW','ASSET PASSPORT / PUBLISH GATE'],
   assets,previewOnly:true,productionMutation:false,requiresHumanReview:true,publishAllowed:false,blockers,receipts:['compiled-foundry-plan','genie-recipes-ready']}
 }
 function publish(state:State){save(state);emit('tryamm:time-machine-world-foundry-state',state)}
 function queuePreview(plan:TimeMachineWorldFoundryPlan){
  emit('tryamm:quantum-world-builder-request',{id:plan.id,label:plan.title,scale:/chicago/i.test(plan.title+' '+plan.source)?'west':'world',cityId:/chicago/i.test(plan.title+' '+plan.source)?'chicago':'simulation',status:'FOUNDRY_PREVIEW',metadata:{era:plan.era,mode:plan.mode,truthLabel:plan.truthLabel,source:plan.source}})
  for(const asset of plan.assets){
+  if(asset.worldForge)emit('tryamm:world-forger-recipe-ready',{planId:plan.id,assetId:asset.id,...asset.worldForge,truthLabel:plan.truthLabel,previewOnly:true,productionMutation:false})
   emit('tryamm:mind-over-matter-original-request',{
    targetId:asset.id,targetLabel:asset.label,kind:asset.kind==='environment'?'environment':asset.kind,
    reason:asset.evidence==='missing'?'missing-source':'manual-original-request',
@@ -146,10 +180,12 @@ async function handle(req:TimeMachineWorldFoundryRequest,state:State){
  let next={activePlan:plan,history:[...state.history,plan].slice(-20)}
  publish(next)
  emit('tryamm:time-machine-world-foundry-plan',plan)
+ void syncServerReceipt(plan,'compiled')
  const evidence=await collectHistoryEvidence(req,plan)
  plan=evidence.plan
  next={activePlan:plan,history:next.history.map(p=>p.id===plan.id?plan:p)}
  publish(next)
+ void syncServerReceipt(plan,evidence.ready?'evidence-ready':'evidence-blocked')
  if(evidence.ready)queuePreview(plan)
  else emit('tryamm:time-machine-foundry-preview-blocked',{planId:plan.id,mode:plan.mode,blockers:plan.blockers})
  return next
@@ -165,14 +201,14 @@ export function installTimeMachineWorldFoundryRuntime(){
   const d=(event as CustomEvent<any>).detail||{};const plan=state.activePlan;if(!plan||d?.worldSessionId!==plan.id)return
   const assetId=String(d?.requirements?.assetId||'');if(!assetId)return
   const nextPlan={...plan,assets:plan.assets.map(a=>a.id===assetId?{...a,state:d.status==='generated'?'preview-ready':d.status==='degraded'?'preview-degraded':d.status==='failed'?'failed':a.state,holoForgeId:d.id,provider:d.provider,message:d.message}:a)}
-  state={...state,activePlan:nextPlan,history:state.history.map(p=>p.id===nextPlan.id?nextPlan:p)};publish(state)
+  state={...state,activePlan:nextPlan,history:state.history.map(p=>p.id===nextPlan.id?nextPlan:p)};publish(state);void syncServerReceipt(nextPlan,'preview-update')
  }
  addEventListener('tryamm:time-machine-world-foundry-request',request)
  addEventListener('tryamm:chrono-run-started',chrono)
  addEventListener('tryamm:time-machine-enter',chicago)
  addEventListener('tryamm:holoforge-asset-ready',holo)
  addEventListener('tryamm:time-machine-world-foundry-request-state',()=>publish(state))
- emit('tryamm:time-machine-world-foundry-ready',{installed:true,uses:['Quantum World Builder','World Forger / CAD','Genie in the Bottle','Mind Over Matter','HoloForge','Holo Gen','Holo Lab','Googolplex receipts'],productionMutation:false,publishRequiresApproval:true})
+ emit('tryamm:time-machine-world-foundry-ready',{installed:true,uses:['Quantum World Builder','World Forger / CAD','Genie in the Bottle','Mind Over Matter','HoloForge','Holo Gen','Holo Lab','Googolplex receipts'],productionMutation:false,publishRequiresApproval:true,crossDeviceReceipts:true,explicitWorldForgerCad:true})
  return()=>{
   removeEventListener('tryamm:time-machine-world-foundry-request',request)
   removeEventListener('tryamm:chrono-run-started',chrono)
