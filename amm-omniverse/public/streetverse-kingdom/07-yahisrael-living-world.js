@@ -25,6 +25,8 @@ const kyAnimated=[];
 const kyCitizens=[];
 const kyActivityMarkers=[];
 const kyArchitectureModels=new Map();
+const kyArchitectureFallbackMeshes=new Map();
+window.YAHISRAEL_ARCHITECTURE_STATUS={loaded:[],fallback:[],requested:[]};
 const KY_ARCH_ASSET_BASE='/tryamm-assets/meshy/kingdom';
 const KY_ARCH_ASSETS={
  'assembly-court':'KY_ASSEMBLY_PRAYER_COURT.glb',
@@ -35,8 +37,8 @@ const KY_ARCH_ASSETS={
  'broadcast-house':'KY_ALL_AMERICAN_NETWORK_BROADCAST.glb',
 };
 function kyMaterial(color,emissive=0,roughness=.72,metalness=.04){
- if(T.MeshStandardMaterial)return new T.MeshStandardMaterial({color,emissive,emissiveIntensity:emissive?.28:0,roughness,metalness});
- return new T.MeshLambertMaterial({color,emissive,emissiveIntensity:emissive?.28:0});
+ if(T.MeshStandardMaterial)return new T.MeshStandardMaterial({color,emissive,emissiveIntensity:emissive ? .28 : 0,roughness,metalness});
+ return new T.MeshLambertMaterial({color,emissive,emissiveIntensity:emissive ? .28 : 0});
 }
 function kyGlass(color=0x65c9e8,opacity=.38){
  return new T.MeshPhongMaterial({color,transparent:true,opacity,shininess:90,side:T.DoubleSide});
@@ -50,15 +52,22 @@ function kyBox(w,h,d,color,x,y,z,collideIt=true,material){
 function kyArchitecturalAsset(id,x,z,targetHeight){
  const file=KY_ARCH_ASSETS[id];
  if(!file||!T.GLTFLoader)return;
+ const status=window.YAHISRAEL_ARCHITECTURE_STATUS;
+ if(!status.requested.includes(id))status.requested.push(id);
  const url=KY_ARCH_ASSET_BASE+'/'+file;
  const attach=gltf=>{
   if(!gltf?.scene)return;
   const clone=gltf.scene.clone(true),box=new T.Box3().setFromObject(clone),size=new T.Vector3();
   box.getSize(size);clone.scale.setScalar(size.y>0?targetHeight/size.y:1);clone.position.set(x,0,z);
   scene.add(clone);kyArchitectureModels.set(id,clone);
+  for(const mesh of kyArchitectureFallbackMeshes.get(id)||[])mesh.visible=false;
+  status.fallback=status.fallback.filter(x=>x!==id);
+  if(!status.loaded.includes(id))status.loaded.push(id);
  };
  if(humanAssetCache?.has&&humanAssetCache.has(url)){attach(humanAssetCache.get(url));return}
- const loader=new T.GLTFLoader();loader.load(url,gltf=>attach(gltf),undefined,()=>{});
+ const loader=new T.GLTFLoader();loader.load(url,gltf=>attach(gltf),undefined,()=>{
+  if(!status.fallback.includes(id))status.fallback.push(id);
+ });
 }
 function kyLabelTexture(title,sub,bg='#0b0c12',fg='#ffffff'){
  const c=document.createElement('canvas');c.width=1024;c.height=256;
@@ -80,28 +89,29 @@ function kyColumn(x,z,h=8,color=0xd6c08b){
  const base=kyBox(1.15,h,1.15,color,x,h/2+.25,z,true);return base;
 }
 function kyHall({id,x,z,w=30,d=22,h=11,color=0x493d2e,title,sub}){
- const wall=.55,doorW=6.4,frontZ=z+d/2;
+ const wall=.55,doorW=6.4,frontZ=z+d/2,fallback=[];
+ const add=(mesh)=>{fallback.push(mesh);return mesh};
  // Walkable shell: floor + back/side walls + two front wall segments, not one solid collider.
- kyBox(w,.28,d,0x241f19,x,.36,z,false);
- kyBox(w,h,wall,color,x,h/2+.25,z-d/2,true);
- kyBox(wall,h,d,color,x-w/2,h/2+.25,z,true);
- kyBox(wall,h,d,color,x+w/2,h/2+.25,z,true);
+ add(kyBox(w,.28,d,0x241f19,x,.36,z,false));
+ add(kyBox(w,h,wall,color,x,h/2+.25,z-d/2,true));
+ add(kyBox(wall,h,d,color,x-w/2,h/2+.25,z,true));
+ add(kyBox(wall,h,d,color,x+w/2,h/2+.25,z,true));
  const seg=(w-doorW)/2;
- kyBox(seg,h,wall,color,x-(doorW+seg)/2,h/2+.25,frontZ,true);
- kyBox(seg,h,wall,color,x+(doorW+seg)/2,h/2+.25,frontZ,true);
- kyBox(doorW,1.4,wall,color,x,h-.45,frontZ,true);
- kyBox(w+1.2,.7,d+1.2,0x241f19,x,h+.32,z,false);
+ add(kyBox(seg,h,wall,color,x-(doorW+seg)/2,h/2+.25,frontZ,true));
+ add(kyBox(seg,h,wall,color,x+(doorW+seg)/2,h/2+.25,frontZ,true));
+ add(kyBox(doorW,1.4,wall,color,x,h-.45,frontZ,true));
+ add(kyBox(w+1.2,.7,d+1.2,0x241f19,x,h+.32,z,false));
  // façade depth, windows and gold/cyan trim to move beyond plain boxes.
- kyTrim(x,h-.1,frontZ+.12,w*.84,.18);
+ add(kyTrim(x,h-.1,frontZ+.12,w*.84,.18));
  for(const sx of [-1,1]){
   const wx=x+sx*(doorW/2+(w-doorW)/4);
   const win=new T.Mesh(new T.PlaneGeometry(Math.max(4,(w-doorW)/2-2),Math.min(4.3,h*.36)),kyGlass());
-  win.position.set(wx,h*.55,frontZ+.31);scene.add(win);
+  win.position.set(wx,h*.55,frontZ+.31);scene.add(win);add(win);
  }
- kySign(title,sub,x,h-2.0,frontZ+.36,0,Math.min(w*.86,28),4.8);
+ add(kySign(title,sub,x,h-2.0,frontZ+.36,0,Math.min(w*.86,28),4.8));
  // Interior lighting marker.
  const light=new T.PointLight(0xffddb0,.72,32);light.position.set(x,h*.65,z);scene.add(light);
- if(id)kyArchitecturalAsset(id,x,z,h);
+ if(id){kyArchitectureFallbackMeshes.set(id,fallback);if(!window.YAHISRAEL_ARCHITECTURE_STATUS.fallback.includes(id))window.YAHISRAEL_ARCHITECTURE_STATUS.fallback.push(id);kyArchitecturalAsset(id,x,z,h)}
  return {id,x,z,w,d,h,frontZ,doorW};
 }
 function kyTable(x,z,w=4,d=2,color=0x5f4930){
