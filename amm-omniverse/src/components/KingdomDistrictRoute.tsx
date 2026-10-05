@@ -18,6 +18,11 @@ export default function KingdomDistrictRoute(){
   return()=>window.removeEventListener('tryamm:kingdom-portal-request',open as EventListener)
  },[])
  useEffect(()=>{
+  const bible=(event:Event)=>{const pkg=(event as CustomEvent<any>).detail;if(pkg?.planId)frameRef.current?.contentWindow?.postMessage({channel:'tryamm:kingdom-control',type:'BIBLE_WORLD_PREVIEW',package:pkg},window.location.origin)}
+  window.addEventListener('tryamm:bible-world-hebrew-school-preview-ready',bible as EventListener)
+  return()=>window.removeEventListener('tryamm:bible-world-hebrew-school-preview-ready',bible as EventListener)
+ },[])
+ useEffect(()=>{
   const forward=(event:Event)=>{
    const detail=(event as CustomEvent<Record<string,unknown>>).detail||{}
    frameRef.current?.contentWindow?.postMessage({channel:'tryamm:kingdom-control',type:'RP_ACTION',...detail},window.location.origin)
@@ -31,6 +36,7 @@ export default function KingdomDistrictRoute(){
   <div style={{position:'fixed',left:10,right:10,bottom:'calc(env(safe-area-inset-bottom, 0px) + 10px)',zIndex:24002,maxWidth:620,margin:'0 auto'}}><StreetVerseRPActionSearch compact/><StreetVerseRPOmnibar compact/></div>
   <iframe
    ref={frameRef}
+   onLoad={sendBiblePreview}
    title="Kingdom District"
    src="/streetverse-kingdom/index.html"
    data-tryamm-kingdom-canonical="true"
