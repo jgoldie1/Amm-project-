@@ -4,6 +4,7 @@ import type { Room } from 'livekit-client'
 import { connectLiveRoom, getLiveStatus, type LiveRole } from '../services/live'
 import LiveGenerationIntelligence from './LiveGenerationIntelligence'
 import HoloGiftEngine from './HoloGiftEngine'
+import HoloCreditChannelShop from './HoloCreditChannelShop'
 
 type Format = 'live' | 'showcase' | 'debate' | 'starverse' | 'podcast' | 'shopping' | 'gamecast'
 type VisualFilter = 'clean' | 'bright' | 'warm' | 'cool' | 'mono' | 'contrast' | 'holo'
@@ -247,6 +248,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
             <span>HoloFilter</span><span>LiveKit camera/mic</span><span>Captions-ready</span><span>Translation-ready</span><span>Sign-language companion</span><span>Report/block safety</span><span>OTT replay hook</span>
           </div>
           {connected&&!youthViewerOnly&&<details style={{marginTop:12}}><summary style={{cursor:'pointer',fontWeight:900,color:'#4fe3ff'}}>HOLO GIFTS / PK FX</summary><div style={{marginTop:10}}><HoloGiftEngine recipientId={pkMode?'pk-host':'live-host'}/></div></details>}
+          {!youthViewerOnly&&<div style={{marginTop:12}}><HoloCreditChannelShop channel="LIVE" title="LIVE Engagement Credits" compact/></div>}
         </section>
       </main>
 
