@@ -1,4 +1,5 @@
 import {useMemo,useState} from 'react'
+import {getAccessToken} from '../services/supabaseClient'
 import {creditItemsByChannel,formatCreditUnits,type TryammCreditSpendItem} from '../data/TryammHoloPlayCreditEconomy'
 
 export default function HoloCreditChannelShop({channel,title,compact=false}:{channel:TryammCreditSpendItem['channel'];title?:string;compact?:boolean}){
@@ -8,7 +9,7 @@ export default function HoloCreditChannelShop({channel,title,compact=false}:{cha
  const spend=async(item:TryammCreditSpendItem)=>{
   setBusy(item.id);setStatus('Applying server-verified credit spend…')
   try{
-   const r=await fetch('/api/credits/spend',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({itemId:item.id,clientReference:'CH-'+channel+'-'+item.id+'-'+Date.now().toString(36)})})
+   const token=await getAccessToken();if(!token)throw new Error('Sign in before spending credits.');const r=await fetch('/api/credits/spend',{method:'POST',headers:{'content-type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({itemId:item.id,clientReference:'CH-'+channel+'-'+item.id+'-'+Date.now().toString(36)})})
    const d=await r.json().catch(()=>({}))
    if(!r.ok)throw new Error(d?.error||'Credit spend failed')
    window.dispatchEvent(new CustomEvent('tryamm:holo-play-entitlement',{detail:d.entitlement}))
