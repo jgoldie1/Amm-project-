@@ -25,6 +25,8 @@ const files=[
  'src/components/StreetVerseFaithChronoPortal.tsx',
  'src/components/FaithChronoLauncher.tsx',
  'src/components/FaithMetaverseBibleWorldMap.tsx',
+ 'src/runtime/MetaverseBibleSessionRuntime.ts',
+ 'src/components/MetaverseBibleProgressPanel.tsx',
  'src/components/FaithHoloBook.tsx',
  'src/components/FaithScriptureReader.tsx',
  'src/components/KingdomWorkbookCenter.tsx',
@@ -52,8 +54,9 @@ const manifest={
  canonicalFrontDoor:'/kingdom-of-yahisrael',
  playableKingdom:'/kingdom',
  faithVerse:'/faithverse',
+ metaverseBible:'/metaverse-bible',
  brand:'Kingdom of Yahisrael • Judah — Where Heaven Meets Earth',
- requiredMarkers:['KINGDOM CITIZENS','METAVERSE BIBLE','HOUSEHOLDS','PRODUCTION ARCHITECTURE','METAVERSE BIBLE','ETHIOPIAN FAITH WORLD','81-BOOK','PALEO','STRONGS','FAITH CHRONO','YAHISRAEL','WHERE HEAVEN MEETS EARTH','JUDAH GATE','FAITHVERSE','KINGDOM WORKBOOK','HEBREW SCHOOL','KINGDOM GARDEN','KINGDOMS PRESS','ALL AMERICAN NETWORK','SET APART','SEVEN LIGHTS'],
+ requiredMarkers:['KINGDOM CITIZENS','METAVERSE BIBLE','HOUSEHOLDS','PRODUCTION ARCHITECTURE','METAVERSE BIBLE','METAVERSE BIBLE STUDY PASSPORT','ETHIOPIAN FAITH WORLD','81-BOOK','PALEO','STRONGS','FAITH CHRONO','YAHISRAEL','WHERE HEAVEN MEETS EARTH','JUDAH GATE','FAITHVERSE','KINGDOM WORKBOOK','HEBREW SCHOOL','KINGDOM GARDEN','KINGDOMS PRESS','ALL AMERICAN NETWORK','SET APART','SEVEN LIGHTS'],
  files:Object.fromEntries(files.map(file=>[file,{sha256:hash(file),bytes:statSync(path.join(root,file)).size}])),
  regressionRule:'Kingdom convergence is not green if the front door, FaithVerse, Kingdom District, Judah identity, Scripture study, Press, story canon or same-origin bridge protection disappears.',
 }
@@ -65,6 +68,7 @@ if(String(process.env.TRYAMM_CAPTURE_KINGDOM_YAHISRAEL_SCREENSHOTS||'').toLowerC
   {name:'yahisrael-mobile-390x844.png',route:'/kingdom-of-yahisrael',size:'390,844',wait:'4000'},
   {name:'yahisrael-desktop-1440x900.png',route:'/kingdom-of-yahisrael',size:'1440,900',wait:'4000'},
   {name:'faithverse-mobile-390x844.png',route:'/faithverse',size:'390,844',wait:'4000'},
+  {name:'metaverse-bible-mobile-390x844.png',route:'/metaverse-bible',size:'390,844',wait:'5000'},
   {name:'kingdom-workbook-mobile-390x844.png',route:'/kingdom-workbook',size:'390,844',wait:'4000'},
   {name:'kingdom-playable-mobile-390x844.png',route:'/kingdom',size:'390,844',wait:'5000'},
  ])run([...pw,'screenshot','--browser','chromium','--viewport-size',shot.size,'--wait-for-timeout',shot.wait,base+shot.route,path.join(out,shot.name)])
