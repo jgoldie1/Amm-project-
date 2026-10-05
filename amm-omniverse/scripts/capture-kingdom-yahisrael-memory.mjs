@@ -14,6 +14,9 @@ const files=[
  'src/components/JudahSplash.tsx',
  'src/components/LionOfJudahHolo.tsx',
  'src/components/EthiopianBibleMetaverse.tsx',
+ 'src/components/StreetVerseFaithChronoPortal.tsx',
+ 'src/components/FaithChronoLauncher.tsx',
+ 'src/components/FaithMetaverseBibleWorldMap.tsx',
  'src/components/FaithHoloBook.tsx',
  'src/components/FaithScriptureReader.tsx',
  'src/components/KingdomWorkbookCenter.tsx',
@@ -42,7 +45,7 @@ const manifest={
  playableKingdom:'/kingdom',
  faithVerse:'/faithverse',
  brand:'Kingdom of Yahisrael • Judah — Where Heaven Meets Earth',
- requiredMarkers:['YAHISRAEL','WHERE HEAVEN MEETS EARTH','JUDAH GATE','FAITHVERSE','KINGDOM WORKBOOK','HEBREW SCHOOL','KINGDOM GARDEN','KINGDOMS PRESS','ALL AMERICAN NETWORK','SET APART','SEVEN LIGHTS'],
+ requiredMarkers:['METAVERSE BIBLE','ETHIOPIAN FAITH WORLD','81-BOOK','PALEO','STRONGS','FAITH CHRONO','YAHISRAEL','WHERE HEAVEN MEETS EARTH','JUDAH GATE','FAITHVERSE','KINGDOM WORKBOOK','HEBREW SCHOOL','KINGDOM GARDEN','KINGDOMS PRESS','ALL AMERICAN NETWORK','SET APART','SEVEN LIGHTS'],
  files:Object.fromEntries(files.map(file=>[file,{sha256:hash(file),bytes:statSync(path.join(root,file)).size}])),
  regressionRule:'Kingdom convergence is not green if the front door, FaithVerse, Kingdom District, Judah identity, Scripture study, Press, story canon or same-origin bridge protection disappears.',
 }
