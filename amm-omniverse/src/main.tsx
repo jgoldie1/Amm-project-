@@ -40,6 +40,7 @@ const SpectraStudioCommandCenter=lazy(()=>import('./components/SpectraStudioComm
 const EthiopianBibleMetaverse=lazy(()=>import('./components/EthiopianBibleMetaverse'))
 const KingdomsPressOperations=lazy(()=>import('./components/KingdomsPressOperations'))
 const UnifiedCommerceHub=lazy(()=>import('./components/UnifiedCommerceHub'))
+const KingdomDistrictRoute=lazy(()=>import('./components/KingdomDistrictRoute'))
 const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
 const MeshyFactoryControlPanel=lazy(()=>import('./components/MeshyFactoryControlPanel'))
 
@@ -66,7 +67,8 @@ try {
   const isNetwork=['/network','/network/','/free-tv','/free-tv/','/isaiah-ai-tv','/isaiah-ai-tv/','/starverse','/starverse/','/reality-tv','/reality-tv/'].includes(currentPath)
   const isServantsOfChrist=currentPath==='/servants-of-christ'||currentPath==='/servants-of-christ/'
   const isCareCash=['/omnicare-360','/omnicare-360/','/omnicare-rx','/omnicare-rx/','/omni-cash','/omni-cash/','/aniyah-pay','/aniyah-pay/'].includes(currentPath)
-  const isGlobalTradeWorld=['/global-trade','/global-trade/','/my-world','/my-world/','/we-are-the-world','/we-are-the-world/','/kingdom','/kingdom/'].includes(currentPath)
+  const isKingdomDistrict=currentPath==='/kingdom'||currentPath==='/kingdom/'
+  const isGlobalTradeWorld=['/global-trade','/global-trade/','/my-world','/my-world/','/we-are-the-world','/we-are-the-world/'].includes(currentPath)
   const isTwinWorld=currentPath.startsWith('/streetverse/twin-world')
   const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
   const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs&&!isTwinWorld
@@ -126,6 +128,7 @@ try {
   else if(isNetwork)routeContent=<Suspense fallback={routeFallback}><AllAmericanNetworkHub /></Suspense>
   else if(isServantsOfChrist)routeContent=<Suspense fallback={routeFallback}><ServantsOfChristMinistry /></Suspense>
   else if(isCareCash)routeContent=<Suspense fallback={routeFallback}><OmniCareCashSuite /></Suspense>
+  else if(isKingdomDistrict)routeContent=<Suspense fallback={routeFallback}><KingdomDistrictRoute /></Suspense>
   else if(isGlobalTradeWorld)routeContent=<Suspense fallback={routeFallback}><GlobalTradeWorldHub /></Suspense>
   else if(standaloneSite)routeContent=<StandaloneProductSite site={standaloneSite} />
   else if(isBusinessDirectory)routeContent=<FamilyBusinessDirectory />
