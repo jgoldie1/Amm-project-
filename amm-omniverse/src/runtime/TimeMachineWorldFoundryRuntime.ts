@@ -34,6 +34,7 @@ const slug=(v:string)=>v.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$
 function modeOf(v:unknown):TimeMachineFoundryMode{
  const q=String(v||'RECONSTRUCTION').toUpperCase().replace(/[^A-Z]+/g,'_')
  if(q.includes('HISTORY'))return'HISTORY'
+ if(q.includes('RECONSTRUCTION'))return'RECONSTRUCTION'
  if(q.includes('ENGINEER'))return'ENGINEERING'
  if(q.includes('SPACE'))return'SPACE'
  if(q.includes('ADVENTURE'))return'ADVENTURE'
