@@ -231,6 +231,111 @@ function kyBuildBroadcast(){
 }
 kyBuildJudahGate();kyBuildAssembly();kyBuildService();kyBuildMarket();kyBuildLegacy();kyBuildHebrewSchool();kyBuildGarden();kyBuildPress();kyBuildBroadcast();
 
+const KY_ACTIVITY_KEY='tryamm.kingdom-yahisrael.activities.v1';
+const KY_ACTIVITIES=[
+ {id:'assembly-reflection',label:'Complete Assembly Reflection',shortLabel:'Reflect / Pray',x:-37,z:-46,missionId:'assembly-reflection',destinationId:'assembly-court',action:'pray-standing'},
+ {id:'service-intake',label:'Choose a Servants of Christ Service Mission',shortLabel:'Choose Service Mission',x:-111,z:-46,missionId:'community-service',destinationId:'servants-center',action:'security-scan',route:'/servants-of-christ'},
+ {id:'market-stewardship',label:'Run a Kingdom Market Stewardship Check',shortLabel:'Market Stewardship',x:111,z:-38,missionId:'market-stewardship',destinationId:'kingdom-market',action:'creator-pose'},
+ {id:'family-covenant',label:'Open Family Covenant + Book of Remembrance',shortLabel:'Open Kingdom Workbook',x:37,z:-118,missionId:'family-covenant',destinationId:'legacy-workbook',action:'pray-standing',route:'/kingdom-workbook'},
+ {id:'metaverse-bible-study',label:'Begin Metaverse Bible Study Session',shortLabel:'Open Metaverse Bible',x:-37,z:104,missionId:'metaverse-bible-study',destinationId:'hebrew-school',action:'creator-pose',route:'/metaverse-bible'},
+ {id:'garden-service',label:'Plant / Water Kingdom Garden',shortLabel:'Garden Service',x:-111,z:106,missionId:'garden-service',destinationId:'garden-farm',action:'mechanic-work'},
+ {id:'publish-remembrance',label:'Publish through Kingdoms Press',shortLabel:'Start Publishing',x:111,z:105,missionId:'publish-remembrance',destinationId:'press-ai-cafe',action:'creator-pose',route:'/kingdoms-press'},
+ {id:'kingdom-broadcast',label:'Start Kingdom Broadcast / Reel',shortLabel:'Start Broadcast',x:185,z:39,missionId:'kingdom-broadcast',destinationId:'broadcast-house',action:'mic-performance',route:'/network'},
+];
+window.YAHISRAEL_ACTIVITIES=KY_ACTIVITIES;
+
+function kyReadActivities(){try{const v=JSON.parse(localStorage.getItem(KY_ACTIVITY_KEY)||'{}');return {completed:Array.isArray(v.completed)?v.completed:[]}}catch{return {completed:[]}}}
+function kyWriteActivities(v){try{localStorage.setItem(KY_ACTIVITY_KEY,JSON.stringify({...v,savedAt:Date.now()}))}catch{};window.YAHISRAEL_ACTIVITY_PROGRESS=v}
+window.YAHISRAEL_ACTIVITY_PROGRESS=kyReadActivities();
+
+function kyActivityMarker(a){
+ const ring=new T.Mesh(new T.TorusGeometry(1.25,.09,8,36),new T.MeshBasicMaterial({color:KY_CYAN,transparent:true,opacity:.76}));
+ ring.rotation.x=Math.PI/2;ring.position.set(a.x,.16,a.z);scene.add(ring);
+ const beamMat=new T.MeshBasicMaterial({color:KY_GOLD,transparent:true,opacity:.14,depthWrite:false});
+ const beam=new T.Mesh(new T.CylinderGeometry(.58,.58,4.5,14,1,true),beamMat);beam.position.set(a.x,2.3,a.z);scene.add(beam);
+ kyActivityMarkers.push({activity:a,ring,beam,baseY:.16});
+}
+for(const a of KY_ACTIVITIES)kyActivityMarker(a);
+
+const KY_CITIZEN_SPECS=[
+ {id:'assembly-elder',name:'Assembly Elder',role:'teacher',ageLane:'senior',file:'SV_NPC_BLACK_MAN_SENIOR_01.glb',height:1.76,x:-37,z:-43,action:'pray-standing',shirt:0x3a2c1d,pants:0x171717},
+ {id:'assembly-mother',name:'Family Mentor',role:'parent',ageLane:'adult',file:'SV_NPC_BLACK_WOMAN_ADULT_01.glb',height:1.69,x:-31,z:-39,action:'creator-pose',shirt:0x5b354b,pants:0x24202e},
+ {id:'assembly-father',name:'Family Mentor',role:'parent',ageLane:'adult',file:'SV_NPC_BLACK_MAN_ADULT_01.glb',height:1.82,x:-43,z:-39,action:'creator-pose',shirt:0x394d67,pants:0x1e2530},
+ {id:'assembly-teen',name:'Youth Student',role:'student',ageLane:'teen',file:'SV_NPC_TEEN_01.glb',height:1.62,x:-32,z:-34,action:'sit-relaxed',shirt:0x2f5c6b,pants:0x262936},
+ {id:'service-coordinator',name:'Service Coordinator',role:'community-leader',ageLane:'adult',file:'SV_NPC_BLACK_WOMAN_ADULT_01.glb',height:1.69,x:-111,z:-43,action:'security-scan',shirt:0x315944,pants:0x202a26},
+ {id:'service-volunteer-1',name:'Community Volunteer',role:'volunteer',ageLane:'young-adult',file:'SV_NPC_BLACK_MAN_YOUNGADULT_01.glb',height:1.80,x:-118,z:-37,wander:3.5,shirt:0x315944,pants:0x1d2632},
+ {id:'service-volunteer-2',name:'Care Volunteer',role:'volunteer',ageLane:'young-adult',file:'SV_NPC_BLACK_WOMAN_YOUNGADULT_01.glb',height:1.68,x:-104,z:-37,wander:3.5,shirt:0x315944,pants:0x292332},
+ {id:'market-merchant-1',name:'Kingdom Merchant',role:'merchant',ageLane:'adult',file:'SV_NPC_BLACK_MAN_ADULT_01.glb',height:1.82,x:96,z:-47,action:'creator-pose',shirt:0x704c2b,pants:0x27231f},
+ {id:'market-merchant-2',name:'Kingdom Merchant',role:'merchant',ageLane:'adult',file:'SV_NPC_BLACK_WOMAN_ADULT_01.glb',height:1.69,x:111,z:-47,action:'creator-pose',shirt:0x6c3d57,pants:0x28212c},
+ {id:'market-creator',name:'Creator Vendor',role:'creator',ageLane:'young-adult',file:'SV_NPC_MULTIRACIAL_YOUNGADULT_01.glb',height:1.72,x:126,z:-31,action:'creator-pose',shirt:0x2c566c,pants:0x1f2530},
+ {id:'legacy-senior',name:'Family Historian',role:'mentor',ageLane:'senior',file:'SV_NPC_BLACK_WOMAN_SENIOR_01.glb',height:1.64,x:31,z:-114,action:'sit-relaxed',shirt:0x674b39,pants:0x2b2522},
+ {id:'legacy-parent',name:'Legacy Parent',role:'parent',ageLane:'adult',file:'SV_NPC_BLACK_MAN_ADULT_01.glb',height:1.82,x:43,z:-114,action:'creator-pose',shirt:0x463a63,pants:0x1f1f28},
+ {id:'legacy-child',name:'Family Learner',role:'family',ageLane:'child',file:'SV_NPC_CHILD_01.glb',height:1.33,x:37,z:-109,wander:2.4,shirt:0x3b6f7e,pants:0x313747},
+ {id:'hebrew-teacher',name:'Hebrew Teacher',role:'teacher',ageLane:'adult',file:'SV_NPC_BLACK_WOMAN_ADULT_01.glb',height:1.69,x:-37,z:102,action:'creator-pose',shirt:0x354f70,pants:0x1e2734},
+ {id:'hebrew-student-1',name:'Scripture Student',role:'student',ageLane:'teen',file:'SV_NPC_TEEN_01.glb',height:1.62,x:-47,z:111,action:'sit-relaxed',shirt:0x314f61,pants:0x252b39},
+ {id:'hebrew-student-2',name:'Scripture Student',role:'student',ageLane:'young-adult',file:'SV_NPC_BLACK_MAN_YOUNGADULT_01.glb',height:1.80,x:-33,z:111,action:'sit-relaxed',shirt:0x314f61,pants:0x252b39},
+ {id:'hebrew-student-3',name:'Scripture Student',role:'student',ageLane:'young-adult',file:'SV_NPC_BLACK_WOMAN_YOUNGADULT_01.glb',height:1.68,x:-27,z:116,action:'sit-relaxed',shirt:0x314f61,pants:0x252b39},
+ {id:'garden-farmer',name:'Garden Steward',role:'farmer',ageLane:'adult',file:'SV_NPC_BLACK_MAN_ADULT_01.glb',height:1.82,x:-111,z:104,action:'mechanic-work',shirt:0x3e6537,pants:0x3a3428},
+ {id:'garden-volunteer',name:'Garden Volunteer',role:'volunteer',ageLane:'adult',file:'SV_NPC_BLACK_WOMAN_ADULT_01.glb',height:1.69,x:-121,z:112,wander:5.5,shirt:0x4f733b,pants:0x3a3428},
+ {id:'garden-student',name:'Garden Student',role:'student',ageLane:'teen',file:'SV_NPC_TEEN_01.glb',height:1.62,x:-101,z:119,wander:4.5,shirt:0x50763e,pants:0x31372b},
+ {id:'press-editor',name:'Kingdoms Press Editor',role:'editor',ageLane:'adult',file:'SV_NPC_BLACK_WOMAN_ADULT_01.glb',height:1.69,x:111,z:103,action:'creator-pose',shirt:0x604a35,pants:0x272322},
+ {id:'press-writer',name:'Writer',role:'writer',ageLane:'young-adult',file:'SV_NPC_BLACK_MAN_YOUNGADULT_01.glb',height:1.80,x:105,z:109,action:'sit-relaxed',shirt:0x4d3a2c,pants:0x20242a},
+ {id:'press-host',name:'AI Café Host',role:'host',ageLane:'young-adult',file:'SV_NPC_BLACK_WOMAN_YOUNGADULT_01.glb',height:1.68,x:117,z:109,wander:2.8,shirt:0x5f4536,pants:0x2e2930},
+ {id:'broadcast-host',name:'Broadcast Host',role:'host',ageLane:'adult',file:'SV_NPC_BLACK_MAN_ADULT_01.glb',height:1.82,x:185,z:34,action:'mic-performance',shirt:0x213f5d,pants:0x171d28},
+ {id:'broadcast-producer',name:'Show Producer',role:'producer',ageLane:'adult',file:'SV_NPC_BLACK_WOMAN_ADULT_01.glb',height:1.69,x:185,z:44,action:'security-scan',shirt:0x2e4a62,pants:0x1b2330},
+ {id:'broadcast-camera',name:'Camera Operator',role:'camera-operator',ageLane:'young-adult',file:'SV_NPC_BLACK_MAN_YOUNGADULT_01.glb',height:1.80,x:176,z:42,action:'creator-pose',shirt:0x252c36,pants:0x171b20},
+];
+
+function kyCitizenAccessory(person,spec){
+ person.mesh.userData.kingdomCitizenId=spec.id;person.mesh.userData.kingdomRole=spec.role;person.displayName=spec.name;person.role=spec.role;person.ageLane=spec.ageLane;
+ if(spec.role==='teacher'||spec.role==='editor'||spec.role==='writer'){
+  const book=new T.Mesh(new T.BoxGeometry(.34,.05,.46),kyMaterial(0x8a6b2e));book.position.set(.24,.12,-.38);book.rotation.x=-.5;person.torso.add(book);
+ }else if(spec.role==='farmer'||spec.role==='volunteer'){
+  const badge=new T.Mesh(new T.BoxGeometry(.12,.12,.03),new T.MeshBasicMaterial({color:0x76c96b}));badge.position.set(.16,.1,-.35);person.torso.add(badge);
+ }else if(spec.role==='host'||spec.role==='camera-operator'){
+  const mic=new T.Mesh(new T.CylinderGeometry(.025,.035,.32,8),kyMaterial(0x1b1b1e));mic.position.set(.22,-.05,-.36);mic.rotation.z=.5;person.torso.add(mic);
+ }
+}
+function kySpawnCitizen(spec,index){
+ const person=makePerson(spec.shirt||pick(SHIRTS),spec.pants||pick(PANTS),pick(SKINS));
+ const fallbackScale=Number(spec.height||1.75)/1.75;person.mesh.scale.multiplyScalar(fallbackScale);
+ attachProductionHuman(person,index,{file:spec.file,targetHeight:spec.height,role:spec.role,ageLane:spec.ageLane});
+ kyCitizenAccessory(person,spec);
+ person.anchor=new T.Vector3(spec.x,0,spec.z);person.pos=person.anchor.clone();person.mesh.position.copy(person.pos);
+ person.heading=Number(spec.heading||0);person.mesh.rotation.y=person.heading;person.spd=Number(spec.speed||.45);person.wander=Number(spec.wander||0);person.angle=index*.73;
+ if(spec.action)setPersonRpAction(person,spec.action,{loop:true,durationMs:600000});
+ kyCitizens.push(person);return person;
+}
+KY_CITIZEN_SPECS.forEach(kySpawnCitizen);
+window.YAHISRAEL_CITIZEN_COUNT=kyCitizens.length;
+
+function nearestKingdomActivity(radius=4.5){
+ let best=null,dist=radius;
+ for(const a of KY_ACTIVITIES){const dd=Math.hypot(player.pos.x-a.x,player.pos.z-a.z);if(dd<dist){dist=dd;best=a}}
+ return best;
+}
+function kyPlantServiceCrop(a){
+ if(a.id!=='garden-service')return;
+ const state=kyReadActivities(),count=state.completed.includes(a.id)?2:1;
+ for(let i=0;i<count;i++){
+  const plant=new T.Mesh(new T.ConeGeometry(.55,1.9,7),kyMaterial(0x58a850,0x173a17));
+  plant.position.set(a.x-1.2+i*2.4,1.05,a.z-.8);scene.add(plant);
+ }
+}
+function completeKingdomActivity(a){
+ if(!a)return;
+ const state=kyReadActivities(),first=!state.completed.includes(a.id);
+ kyPost('MISSION_STARTED',{missionId:a.missionId,destination:a.label,district:a.destinationId,contentId:a.id});
+ if(first){
+  state.completed.push(a.id);kyWriteActivities(state);kyPlantServiceCrop(a);
+  kyPost('MISSION_COMPLETED',{missionId:a.missionId,destination:a.label,district:a.destinationId,contentId:a.id});
+ }
+ const nearby=kyCitizens.filter(p=>Math.hypot(p.anchor.x-a.x,p.anchor.z-a.z)<12);
+ for(const p of nearby)if(a.action)setPersonRpAction(p,a.action,{loop:false,durationMs:4200});
+ toast((first?'Activity complete • server verification requested: ':'Already completed: ')+a.shortLabel);
+ try{window.dispatchEvent(new CustomEvent('tryamm:kingdom-activity-completed',{detail:{...a,first,serverVerified:false}}))}catch{}
+ if(a.route)setTimeout(()=>kyPost('KINGDOM_PORTAL_REQUEST',{destination:a.route,district:a.destinationId,missionId:a.missionId,contentId:a.id}),260);
+}
 for(const d of KY_DESTINATIONS){
  if(!LANDMARKS.some(l=>l.name===d.name))LANDMARKS.push({name:d.name,node:d.node,pos:[d.x,d.z],kingdomId:d.id});
 }
@@ -272,7 +377,7 @@ function visitKingdomDestination(d){
  kyPost('KINGDOM_DESTINATION_ENTERED',{destination:d.name,district:d.shortName,x:d.x,y:0,z:d.z,missionId:d.missionId,contentId:d.id});
  kyPost('MISSION_STARTED',{destination:d.name,district:d.shortName,x:d.x,y:0,z:d.z,missionId:d.missionId,contentId:d.id});
  try{window.dispatchEvent(new CustomEvent('tryamm:kingdom-destination-entered',{detail:d}))}catch{}
- if(d.route)setTimeout(()=>kyPost('KINGDOM_PORTAL_REQUEST',{destination:d.route,district:d.shortName,missionId:d.missionId,contentId:d.id}),180);
+ if(d.id==='judah-gate'&&d.route)setTimeout(()=>kyPost('KINGDOM_PORTAL_REQUEST',{destination:d.route,district:d.shortName,missionId:d.missionId,contentId:d.id}),180);
 }
 function updateYahisraelLivingWorld(dt,now){
  const t=now*.001;
@@ -280,6 +385,21 @@ function updateYahisraelLivingWorld(dt,now){
   const a=kyAnimated[i];
   if(a.type==='spin')a.mesh.rotation.z=t*(i%2?-.24:.24);
   else if(a.type==='pulse')a.mesh.position.y=14+Math.sin(t*1.5)*.22;
+ }
+ for(let i=0;i<kyActivityMarkers.length;i++){
+  const m=kyActivityMarkers[i],done=(window.YAHISRAEL_ACTIVITY_PROGRESS?.completed||[]).includes(m.activity.id);
+  m.ring.rotation.z=t*.55+i*.2;m.ring.material.opacity=done?.28:(.6+.18*Math.sin(t*2+i));
+  m.beam.material.opacity=done?.05:(.10+.05*Math.sin(t*1.6+i));
+ }
+ for(const p of kyCitizens){
+  if(p.wander>0&&!p.rpAction){
+   p.angle+=dt*p.spd*.35;
+   const nx=p.anchor.x+Math.cos(p.angle)*p.wander,nz=p.anchor.z+Math.sin(p.angle)*p.wander;
+   const dx=nx-p.pos.x,dz=nz-p.pos.z;p.heading=Math.atan2(-dx,-dz);p.pos.x=nx;p.pos.z=nz;
+   p.phase+=dt*2.2;animatePerson(p,p.phase,.55);p.mesh.position.copy(p.pos);p.mesh.rotation.y=p.heading;
+  }else{
+   p.phase+=dt*1.4;animatePerson(p,p.phase,.18);p.mesh.position.copy(p.pos);p.mesh.rotation.y=p.heading;
+  }
  }
 }
 window.updateYahisraelLivingWorld=updateYahisraelLivingWorld;
