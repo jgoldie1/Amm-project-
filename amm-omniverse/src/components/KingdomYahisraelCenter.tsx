@@ -1,11 +1,14 @@
-import {lazy,Suspense} from 'react'
+import {lazy,Suspense,useState} from 'react'
 import {KINGDOM_RECOVERY_RULES,KINGDOM_YAHISRAEL_IDENTITY,KINGDOM_YAHISRAEL_PATH,KINGDOM_YAHISRAEL_PILLARS} from '../data/KingdomYahisraelRecoveryRegistry'
+import {KINGDOM_YAHISRAEL_ARCHITECTURE_SLOTS} from '../data/KingdomYahisraelArchitectureSlots'
 
 const LionOfJudahHolo=lazy(()=>import('./LionOfJudahHolo'))
 
 const go=(route?:string)=>{if(route)window.location.href=route}
 
 export default function KingdomYahisraelCenter(){
+ const [buildStatus,setBuildStatus]=useState('Fallback interiors are playable. Production GLBs still need generation/review.')
+ const queueArchitecture=()=>{window.dispatchEvent(new CustomEvent('tryamm:kingdom-architecture-upgrade-request'));setBuildStatus('Queued 6 original architecture jobs through Mind Over Matter + HoloForge. Human review/provider artifacts are still required before production replacement.')}
  return <main style={{minHeight:'100dvh',background:'radial-gradient(circle at 50% 0,#2a2110,#0a0c13 42%,#020408 78%)',color:'#fff',fontFamily:'system-ui',overflowX:'hidden'}}>
   <div style={{maxWidth:1180,margin:'0 auto',padding:'18px 14px 100px'}}>
    <nav style={{display:'flex',gap:7,flexWrap:'wrap'}}><a href='/' style={pill}>TRYAMM HOME</a><a href='/kingdom' style={pill}>PLAY KINGDOM</a><a href='/metaverse-bible' style={pill}>METAVERSE BIBLE</a><a href='/faithverse' style={pill}>FAITHVERSE</a><a href='/kingdoms-press' style={pill}>KINGDOMS PRESS</a><a href='/servants-of-christ' style={pill}>SERVANTS OF CHRIST</a></nav>
@@ -17,6 +20,8 @@ export default function KingdomYahisraelCenter(){
    </header>
 
    <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(235px,1fr))',gap:10,marginTop:10}}>{KINGDOM_YAHISRAEL_PILLARS.map((p,i)=><button key={p.id} onClick={()=>go(p.route)} disabled={!p.route} style={{...card,cursor:p.route?'pointer':'default',opacity:p.route?1:.9,textAlign:'left'}}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><span style={{fontSize:9,color:'#e8b944',fontWeight:950}}>PILLAR {String(i+1).padStart(2,'0')}</span><span style={{fontSize:8,color:p.status==='existing'?'#8fffb0':p.status==='converging'?'#8feaff':'#ffd786'}}>{p.status.toUpperCase()}</span></div><h2 style={{fontSize:17,margin:'7px 0 3px'}}>{p.label}</h2><div style={{fontSize:10,color:'#8fdff4',fontWeight:900}}>{p.subtitle}</div><p style={muted}>{p.capabilities.join(' • ')}</p>{p.boundary&&<div style={{fontSize:8,color:'#ffd49b',lineHeight:1.45,borderTop:'1px solid #6c552b55',paddingTop:7}}>{p.boundary}</div>}{p.route&&<div style={{fontSize:9,color:'#4fe3ff',fontWeight:950,marginTop:8}}>OPEN EXISTING SYSTEM →</div>}</button>)}</section>
+
+   <section style={{...card,marginTop:14,borderColor:'#4f6e7d'}}><div style={eyebrow}>PRODUCTION ARCHITECTURE</div><h2 style={{margin:'6px 0'}}>Photoreal-ready replacement slots</h2><p style={muted}>The playable world now uses walk-in furnished fallback shells. These six slots can be replaced by original reviewed GLBs without moving missions, citizens, doors, waypoints or portals.</p><div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:7,marginTop:9}}>{KINGDOM_YAHISRAEL_ARCHITECTURE_SLOTS.map(s=><div key={s.id} style={{padding:10,border:'1px solid #30495b',borderRadius:12,background:'#07121b'}}><b style={{fontSize:11}}>{s.district}</b><div style={{fontSize:8,color:'#8eeaff',marginTop:4}}>{s.filename}</div><div style={{fontSize:8,color:'#ffc979',marginTop:4}}>PRODUCTION GLB: PENDING</div></div>)}</div><button onClick={queueArchitecture} style={{...secondary,marginTop:10}}>🏗 QUEUE ORIGINAL PRODUCTION GLBs</button><div role='status' style={{fontSize:9,color:'#b7c7d1',marginTop:7}}>{buildStatus}</div></section>
 
    <section style={{...card,marginTop:14,borderColor:'#796226'}}><div style={eyebrow}>ONE KINGDOM PATH</div><div style={{display:'grid',gap:6,marginTop:9}}>{KINGDOM_YAHISRAEL_PATH.map((x,i)=><div key={x} style={{padding:9,borderRadius:10,background:'#080d13',border:'1px solid #27384a',fontSize:10}}><b style={{color:'#e8b944'}}>{i+1}.</b> {x}</div>)}</div></section>
 
