@@ -1,6 +1,6 @@
 // ---------- spawn ----------
-const player = Object.assign(makePerson(0xf2b630, 0x1d1a33, 0x5a3825), { pos: new T.Vector3(9.5, 0, 40), facing: 0, inCar: null });
-attachProductionHuman(player,2);
+const player = Object.assign(makeBJStubbsFallback(), { pos: new T.Vector3(9.5, 0, 40), facing: 0, inCar: null });
+attachBJProductionHuman(player);
 {
   const crown = new T.Mesh(new T.CylinderGeometry(0.17, 0.2, 0.16, 8, 1, true), new T.MeshBasicMaterial({ color: 0xffd23a, side: T.DoubleSide }));
   crown.position.y = 1.98; player.mesh.add(crown);
