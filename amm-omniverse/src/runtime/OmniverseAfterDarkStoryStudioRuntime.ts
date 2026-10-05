@@ -12,6 +12,16 @@ export type AfterDarkStoryDraft={
  tvEpisode?:{seriesLane:'Omniverse After Dark';episodeTitle:string;targetMinutes:number;acts:string[][];cliffhanger:string};
 }
 
+function choreographyFor(intents:string[]){
+ const actions:string[]=[]
+ if(intents.includes('nightlife')||intents.includes('couple-dance'))actions.push('street-dance')
+ if(intents.includes('embrace')||intents.includes('reconcile'))actions.push('hug')
+ if(intents.includes('relationship-drama'))actions.push('argue')
+ if(intents.includes('kiss'))actions.push('after-dark-kiss')
+ if(intents.includes('flirt')||intents.includes('attraction'))actions.push('after-dark-flirt')
+ if(!actions.length)actions.push('creator-pose')
+ return actions
+}
 const STORAGE='tryamm.omniverse.after-dark.story-memory.v1'
 let installed=false
 function remember(draft:AfterDarkStoryDraft){try{const old=JSON.parse(localStorage.getItem(STORAGE)||'[]');localStorage.setItem(STORAGE,JSON.stringify([...(Array.isArray(old)?old:[]),draft].slice(-100)))}catch{}}
@@ -38,9 +48,20 @@ export function installOmniverseAfterDarkStoryStudioRuntime(){
   if(!req?.prompt)return
   try{
    const draft=compileAfterDarkStory(req);remember(draft)
+   const choreography=choreographyFor(draft.intents)
+   choreography.forEach((actionId,index)=>{
+    setTimeout(()=>{
+     if(actionId==='after-dark-kiss'||actionId==='after-dark-flirt'){
+      window.dispatchEvent(new CustomEvent('tryamm:mind-over-matter-original-request',{detail:{targetId:'after-dark-'+actionId,targetLabel:'Omniverse After Dark '+actionId,kind:'animation',reason:'manual-original-request',functionalRequirements:[{id:'adult-safe',label:'Mature but non-explicit consenting adult choreography',value:true,source:'gameplay-requirement'}]}}))
+     }else{
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-rp-action-play',{detail:{actionId,label:actionId,loop:false,source:'omniverse-after-dark-story'}}))
+     }
+    },index*1100)
+   })
    const dna=createEventDNA({worldId:'omniverse-after-dark',timelineId:'after-dark-story',branchId:draft.templateId,occurredAt:new Date().toISOString(),title:draft.tvEpisode?.episodeTitle||draft.reel?.title||'After Dark RP Scene',summary:draft.prompt,actors:req.participants||['local-player'],entities:[],decisions:['adult-lane-selected','age-assured','consent-accepted','mature-non-explicit-story'],consequences:[],tags:['after-dark','mature-non-explicit',...draft.intents],source:'SIMULATION',gate:{rights:'REVIEW',safety:'CLEAR',age:'ADULT',provenance:'PARTIAL',money:'VIRTUAL_ONLY'}})
    const outputs=compileEvent(dna,['GAME','LIVE','REEL','CREATOR_JOB'])
    if(req.privateSession)window.dispatchEvent(new CustomEvent('tryamm:after-dark-private-intimacy-audio',{detail:{ageVerified:true,privateSession:true,consented:true}}))
+   window.dispatchEvent(new CustomEvent('tryamm:after-dark-gif-search-request',{detail:{query:draft.prompt,providerGated:true,contentMode:'mature-non-explicit',explicitPornography:false,source:'after-dark-story-studio'}}))
    if(draft.reel)window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'after-dark-story-studio',draft,eventId:dna.eventId,rating:draft.rating}}))
    if(draft.tvEpisode)window.dispatchEvent(new CustomEvent('tryamm:after-dark-tv-episode-draft',{detail:{draft,eventId:dna.eventId,outputs}}))
    window.dispatchEvent(new CustomEvent('tryamm:after-dark-story-draft',{detail:{draft,eventId:dna.eventId,outputs}}))
