@@ -90,6 +90,7 @@ try {
   const businessMatch=currentPath.match(/^\/business\/([^/]+)\/?$/)
   const businessSlug=businessMatch?.[1]||''
   
+  void import('./runtime/HoloPlayCreditEntitlementRuntime').then(({installHoloPlayCreditEntitlementRuntime})=>installHoloPlayCreditEntitlementRuntime())
   if(!isStreetVerse){
     void import('./runtime/StreetVerseCreatorDistrict3D').then(({installStreetVerseCreatorDistrict3D})=>installStreetVerseCreatorDistrict3D())
   }
