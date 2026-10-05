@@ -7,6 +7,12 @@ import StreetVerseRPActionSearch from './StreetVerseRPActionSearch'
 import StreetVerseRPOmnibar from './StreetVerseRPOmnibar'
 export default function KingdomDistrictRoute(){
  const frameRef=useRef<HTMLIFrameElement|null>(null)
+ const sendBiblePreview=()=>{
+  try{
+   const stored=JSON.parse(localStorage.getItem('tryamm.kingdom.hebrew-school.bible-world-preview.v1')||'null')
+   if(stored?.planId)frameRef.current?.contentWindow?.postMessage({channel:'tryamm:kingdom-control',type:'BIBLE_WORLD_PREVIEW',package:stored},window.location.origin)
+  }catch{}
+ }
  useEffect(()=>installStreetVerseAbracadabraGeniiRuntime(),[])
  useEffect(()=>installStreetVerseSoundBankRuntime(),[])
  useEffect(()=>{installMindOverMatterCleanRoomRuntime();installHoloForgeRuntime()},[])
