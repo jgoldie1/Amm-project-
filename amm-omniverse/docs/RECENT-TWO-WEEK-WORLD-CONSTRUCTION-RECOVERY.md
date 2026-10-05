@@ -133,3 +133,29 @@ The project is no longer blocked on connecting the engines together. The current
 6. Publish only through the internal world-publish gate.
 7. Prove the published release on iPhone with deployment SHA + screenshots.
 8. Repeat the same certified promotion pattern for Yahisrael architecture and the Chicago vertical slice.
+
+
+## Pass 5 production evidence now locked
+- Added persistent server-side evidence records for exact provider artifacts, collision, navigation, mobile performance, accessibility and human visual review.
+- Browser evidence is submission-only; it does not equal verification.
+- Internal verification requires a server secret and changes evidence state to VERIFIED/REJECTED.
+- Bible-world release candidates now require server-verified evidence in addition to the existing client certification object.
+- Provider-artifact evidence must bind the exact asset ID to the exact scene-package artifact URL.
+- Promotion UI now stays blocked until Pass 5 server evidence is ready.
+- Holo Lab and Metaverse Bible Construction Console both expose the Pass 5 evidence panel.
+- Pass 5 can retry only missing/degraded provider GLB/PBR assets through the existing HoloForge → Holo Gen → Meshy path; it does not create another generation engine.
+- Mobile and accessibility client captures are evidence receipts for review, not self-certification.
+- Collision/navigation receipts are tied to the exact scene placements and remain unverified until the release/evidence guardian verifies them.
+- Production publish remains a separate internal action after candidate + staging.
+
+### Current completion frontier
+1. Run provider generation until every required placement has a real GLB/PBR artifact.
+2. Sync exact artifact receipts into Pass 5.
+3. Execute and verify collision/navigation evidence for those exact placements.
+4. Capture mobile/iPhone performance evidence and accessibility evidence.
+5. Complete human visual review against the exact artifacts.
+6. Verify Pass 5 evidence server-side.
+7. Create the immutable release candidate and stage it.
+8. Publish through the internal world-publish gate only.
+9. Capture deployment SHA + iPhone screenshots and attach them to release evidence.
+10. Reuse the same Pass 5 proof pattern for Yahisrael architecture and the Chicago vertical slice.
