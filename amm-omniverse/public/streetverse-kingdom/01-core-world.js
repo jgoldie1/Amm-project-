@@ -2,7 +2,7 @@
    Three.js r128, no build step. Controller (Gamepad API), keyboard/mouse and touch. */
 'use strict';
 const T = window.THREE;
-if (!T) { document.body.innerHTML = '<p style="color:#fff;padding:24px;font-family:sans-serif">Three.js did not load. Make sure vendor/three.min.js is next to index.html.</p>'; return; }
+if (!T) { document.body.innerHTML = '<p style="color:#fff;padding:24px;font-family:sans-serif">Three.js did not load. Check the Kingdom runtime connection.</p>'; throw new Error('Kingdom District requires Three.js'); }
 
 // ---------- helpers ----------
 const $ = id => document.getElementById(id);
@@ -106,9 +106,25 @@ function tree(x, z) {
 }
 
 const PLAZA = { i: 0, j: 0 };
+const YAHISRAEL_RESERVED_BLOCKS = new Map([
+ ['-1,-1',{id:'assembly-court',ground:0x42351a}],
+ ['-2,-1',{id:'servants-center',ground:0x263b32}],
+ ['1,-1',{id:'kingdom-market',ground:0x4b351d}],
+ ['0,-2',{id:'legacy-workbook',ground:0x3d2d3f}],
+ ['-1,1',{id:'hebrew-school',ground:0x28394a}],
+ ['-2,1',{id:'garden-farm',ground:0x29452e}],
+ ['1,1',{id:'press-ai-cafe',ground:0x3b2f24}],
+ ['2,0',{id:'broadcast-house',ground:0x1d3547}],
+]);
 for (let i = -N; i < N; i++) for (let j = -N; j < N; j++) {
   const cx = (i + 0.5) * CELL, cz = (j + 0.5) * CELL;
   const walk = new T.Mesh(walkGeo, walkMat); walk.position.set(cx, 0.1, cz); scene.add(walk);
+  const reserved=YAHISRAEL_RESERVED_BLOCKS.get(`${i},${j}`);
+  if(reserved){
+    const pad=new T.Mesh(new T.BoxGeometry(BLOCK-3,0.12,BLOCK-3),new T.MeshLambertMaterial({color:reserved.ground}));
+    pad.position.set(cx,0.23,cz);pad.userData.tryammReserved=reserved.id;scene.add(pad);
+    continue;
+  }
   if (i === PLAZA.i && j === PLAZA.j) {
     const pz = new T.Mesh(new T.BoxGeometry(BLOCK - 10, 0.1, BLOCK - 10), plazaMat); pz.position.set(cx, 0.22, cz); scene.add(pz);
     const ob = new T.Mesh(new T.BoxGeometry(3, 26, 3), new T.MeshLambertMaterial({ color: 0xf2b630, emissive: 0x6a4a08 }));
@@ -183,4 +199,12 @@ const LANDMARKS = [
   { name: 'Southside Courts', node: [-3, 3] },
   { name: 'Kingdom Arena', node: [2, 3] },
 ];
-function zoneName(x, z) { return x >= 0 ? (z >= 0 ? 'Crown Heights' : 'Eastgate') : (z >= 0 ? 'Southside' : 'Neon Row'); }
+function zoneName(x, z) {
+  const destinations=window.YAHISRAEL_DESTINATIONS;
+  if(Array.isArray(destinations)){
+    let best=null,dist=34;
+    for(const d of destinations){const dx=x-d.x,dz=z-d.z,dd=Math.hypot(dx,dz);if(dd<dist){dist=dd;best=d}}
+    if(best)return best.shortName||best.name;
+  }
+  return x >= 0 ? (z >= 0 ? 'Crown Heights' : 'Eastgate') : (z >= 0 ? 'Southside' : 'Neon Row');
+}
