@@ -2,6 +2,7 @@ import {useEffect,useMemo,useState,type CSSProperties} from 'react'
 import {useGameStore} from '../game/state/useGameStore'
 import {POCKET_DIMENSION_CATALOG,pocketCatalogItem,pocketDimensionSuggestions,type PocketDimensionAction,type PocketDimensionAsset,type PocketDimensionKind} from '../data/streetVersePocketDimension'
 import StreetVerseCharacterDevelopmentPanel from './StreetVerseCharacterDevelopmentPanel'
+import HoloCreditChannelShop from './HoloCreditChannelShop'
 
 const FAV_KEY='tryamm:pocket-dimension:favorites:v1'
 const QUICK_KEY='tryamm:pocket-dimension:quick-slots:v1'
@@ -21,19 +22,23 @@ export default function StreetVersePocketDimension({onClose}:{onClose:()=>void})
  const [query,setQuery]=useState('')
  const [category,setCategory]=useState<'all'|PocketDimensionKind>('all')
  const [favorites,setFavorites]=useState<string[]>(()=>readList(FAV_KEY))
- const [quick,setQuick]=useState<string[]>(()=>readList(QUICK_KEY).slice(0,4))
+ const [quickLimit,setQuickLimit]=useState(4)
+ const [quick,setQuick]=useState<string[]>(()=>readList(QUICK_KEY).slice(0,8))
  const [notice,setNotice]=useState('Pocket Dimension keeps player assets organized without changing ownership truth.')
  const [actionQty,setActionQty]=useState(1)
  const [characterDevelopmentOpen,setCharacterDevelopmentOpen]=useState(false)
 
  useEffect(()=>{
+  fetch('/api/credits/wallet',{credentials:'include'}).then(r=>r.ok?r.json():null).then(d=>{if((d?.entitlements||[]).some((x:any)=>x.itemId==='pocket-quickslots-8'&&x.status==='active'))setQuickLimit(8)}).catch(()=>{})
+  const entitlement=(e:Event)=>{const d=(e as CustomEvent<any>).detail;if(d?.quickSlots===8)setQuickLimit(8)}
+  window.addEventListener('tryamm:pocket-dimension-entitlement',entitlement)
   const sync=(e:Event)=>{
    const rows=(e as CustomEvent<{items?:PocketDimensionAsset[]}>).detail?.items
    if(Array.isArray(rows))setExternal(rows.filter(item=>item&&typeof item.id==='string'&&item.quantity>0))
   }
   window.addEventListener('tryamm:pocket-dimension-sync',sync)
   window.dispatchEvent(new CustomEvent('tryamm:pocket-dimension-sync-request',{detail:{source:'pocket-dimension-ui'}}))
-  return()=>window.removeEventListener('tryamm:pocket-dimension-sync',sync)
+  return()=>{window.removeEventListener('tryamm:pocket-dimension-sync',sync);window.removeEventListener('tryamm:pocket-dimension-entitlement',entitlement)}
  },[])
 
  const vehicleAssets=useMemo(()=>ownedVehicleIds.map(id=>{
@@ -63,7 +68,7 @@ export default function StreetVersePocketDimension({onClose}:{onClose:()=>void})
  const toggleFavorite=(id:string)=>setFavorites(old=>{const next=old.includes(id)?old.filter(x=>x!==id):[id,...old];persist(FAV_KEY,next);return next})
  const toggleQuick=(id:string)=>setQuick(old=>{
   const exists=old.includes(id)
-  const next=exists?old.filter(x=>x!==id):[...old.filter(x=>x!==id),id].slice(-4)
+  const next=exists?old.filter(x=>x!==id):[...old.filter(x=>x!==id),id].slice(-quickLimit)
   persist(QUICK_KEY,next)
   return next
  })
@@ -93,12 +98,13 @@ export default function StreetVersePocketDimension({onClose}:{onClose:()=>void})
 
  return <section aria-label="StreetVerse Pocket Dimension" style={{position:'fixed',inset:0,zIndex:48500,overflow:'auto',padding:'max(12px,env(safe-area-inset-top)) 12px max(28px,env(safe-area-inset-bottom))',background:'linear-gradient(180deg,#071018 0%,#08131d 55%,#03070b 100%)',color:'#fff',fontFamily:'Inter,system-ui,sans-serif'}}>
   <header style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,position:'sticky',top:0,zIndex:2,padding:'8px 0 10px',background:'#071018ee',backdropFilter:'blur(9px)'}}>
-   <div><small style={{color:'#7be9ff',fontWeight:950,letterSpacing:2}}>STREETVERSE • PERSONAL ASSET SPACE</small><h1 style={{margin:'2px 0',fontSize:26}}>♾️ POCKET DIMENSION</h1><div style={{fontSize:10,color:'#9fb3c4'}}>{items.length} accessible assets • 4 quick slots • ownership authority preserved</div></div>
+   <div><small style={{color:'#7be9ff',fontWeight:950,letterSpacing:2}}>STREETVERSE • PERSONAL ASSET SPACE</small><h1 style={{margin:'2px 0',fontSize:26}}>♾️ POCKET DIMENSION</h1><div style={{fontSize:10,color:'#9fb3c4'}}>{items.length} accessible assets • {quickLimit} quick slots • ownership authority preserved</div></div>
    <button onClick={onClose} aria-label="Close Pocket Dimension" style={circleBtn}>×</button>
   </header>
 
   {characterDevelopmentOpen&&<StreetVerseCharacterDevelopmentPanel onClose={()=>setCharacterDevelopmentOpen(false)}/>}
   <button onClick={()=>setCharacterDevelopmentOpen(true)} style={{...btn,width:'100%',minHeight:52,marginBottom:10,borderColor:'#7d6634',background:'linear-gradient(135deg,#1c1710,#252015)'}}>🧬 BJ CHARACTER DEVELOPMENT</button>
+  <div style={{marginBottom:10}}><HoloCreditChannelShop channel="POCKET_DIMENSION" title="Pocket Dimension Credit Utilities" compact/></div>
   <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:8}}>
    <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search assets…" aria-label="Search Pocket Dimension" style={{minHeight:48,borderRadius:13,border:'1px solid #315269',background:'#0b1923',color:'#fff',padding:'0 13px',fontSize:16}}/>
    <button onClick={()=>{setQuery('');setCategory('all')}} style={{...btn,minWidth:64}}>RESET</button>
@@ -111,7 +117,7 @@ export default function StreetVersePocketDimension({onClose}:{onClose:()=>void})
   <section aria-label="Suggested quick access" style={panel}>
    <div style={sectionTitle}>SUGGESTED QUICK ACCESS</div>
    <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(0,1fr))',gap:7}}>
-    {Array.from({length:4}).map((_,i)=>{const id=quick[i];const asset=items.find(x=>x.id===id)||suggested.find(x=>!quick.includes(x.id)&&suggested.indexOf(x)===i)
+    {Array.from({length:quickLimit}).map((_,i)=>{const id=quick[i];const asset=items.find(x=>x.id===id)||suggested.find(x=>!quick.includes(x.id)&&suggested.indexOf(x)===i)
      return <button key={i} onClick={()=>asset&&setSelectedId(asset.id)} style={{minHeight:74,borderRadius:13,border:'1px solid #31566a',background:'#091722',color:'#fff',padding:7,touchAction:'manipulation'}}>{asset?<><span style={{fontSize:26}}>{asset.icon}</span><small style={{display:'block',fontWeight:900,marginTop:3,overflow:'hidden',textOverflow:'ellipsis'}}>{asset.name}</small></>:<span style={{opacity:.45}}>EMPTY</span>}</button>})}
    </div>
   </section>
