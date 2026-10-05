@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 const paths=[
  '../src/data/KingdomYahisraelRecoveryRegistry.ts',
+ '../src/data/SystemVsKingdomRecoveryManifest.ts',
  '../src/components/KingdomYahisraelCenter.tsx',
  '../src/components/JudahSplash.tsx',
  '../src/components/LionOfJudahHolo.tsx',
@@ -26,7 +27,8 @@ const faith=fs.readFileSync(new URL('../src/data/FaithVerseStudyLibrary.ts',impo
 const chain=fs.readFileSync(new URL('../../supabase/migrations/20260904195500_set_apart_kingdom_chain_layer.sql',import.meta.url),'utf8')
 const bridge=fs.readFileSync(new URL('../src/runtime/KingdomStreetVerseBridge.ts',import.meta.url),'utf8')
 const workbook=fs.readFileSync(new URL('../src/components/KingdomWorkbookCenter.tsx',import.meta.url),'utf8')
-for(const x of ['Kingdom of Yahisrael • Judah','Where Heaven Meets Earth','Judah Command Gate','FaithVerse','Scripture + Hebrew School','The Kingdom Workbook','Kingdom District','Servants of Christ','Kingdoms Press','Set Apart Kingdom Chain','Seven Lights of YAHAVAH','Living Worlds / CrossVerse','Kingdom Media + Broadcast'])if(!registry.includes(x))throw new Error('Kingdom registry missing '+x)
+const systemVs=fs.readFileSync(new URL('../src/data/SystemVsKingdomRecoveryManifest.ts',import.meta.url),'utf8')
+for(const x of ['Kingdom of Yahisrael • Judah','Where Heaven Meets Earth','Judah Command Gate','The System vs The Kingdom','FaithVerse','Scripture + Hebrew School','The Kingdom Workbook','Kingdom District','Servants of Christ','Kingdoms Press','Set Apart Kingdom Chain','Seven Lights of YAHAVAH','Living Worlds / CrossVerse','Kingdom Media + Broadcast'])if(!registry.includes(x))throw new Error('Kingdom registry missing '+x)
 for(const x of ['KINGDOM OF','YAHISRAEL','WHERE HEAVEN MEETS EARTH','ENTER PLAYABLE KINGDOM','OPEN FAITHVERSE'])if(!center.includes(x))throw new Error('Kingdom front door missing '+x)
 for(const route of ['/kingdom-of-yahisrael','/yahisrael','/judah','/where-heaven-meets-earth'])if(!main.includes(route))throw new Error('Kingdom route missing '+route)
 if(!main.includes('KingdomYahisraelCenter')||!main.includes('isKingdomYahisrael'))throw new Error('Kingdom front door not mounted at entry')
@@ -37,4 +39,5 @@ if(!chain.includes('Not a payment ledger')||!chain.includes('not a claim of gove
 if(!bridge.includes('event.origin!==window.location.origin'))throw new Error('Kingdom bridge same-origin validation disappeared')
 for(const x of ['THE KINGDOM','WORKBOOK','66-STEP JOURNEY','BOOK OF REMEMBRANCE','FAMILY COVENANT / LEGACY','SetApartPassportReceipts'])if(!workbook.includes(x))throw new Error('Kingdom Workbook missing '+x)
 if(!main.includes('/kingdom-workbook')||!main.includes('KingdomWorkbookCenter'))throw new Error('Kingdom Workbook route missing')
+for(const x of ['The System vs The Kingdom: Where Heaven Meets Earth','All American Marketplace','Yahavah Chain framing','recovered-outline-not-full-manuscript'])if(!systemVs.includes(x))throw new Error('System vs Kingdom recovery missing '+x)
 console.log('Kingdom of Yahisrael / Judah convergence contract: PASS')
