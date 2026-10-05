@@ -104,14 +104,45 @@ function makePerson(shirt,pants,skin){
     mixer:null
   };
 }
+function setPersonRpAction(p,id,{loop=false,durationMs=3200}={}){
+  p.rpAction={id,loop,startedAt:performance.now(),durationMs};
+}
+function clearPersonRpAction(p){p.rpAction=null}
+function applyRpPose(p,t){
+  const id=p.rpAction?.id||'';
+  const beat=Math.sin(t*1.5),fast=Math.sin(t*3.2);
+  p.legL.rotation.x=0;p.legR.rotation.x=0;p.kneeL.rotation.x=0;p.kneeR.rotation.x=0;
+  p.armL.rotation.x=0;p.armR.rotation.x=0;p.armL.rotation.z=0;p.armR.rotation.z=0;
+  p.elbowL.rotation.x=-.1;p.elbowR.rotation.x=-.1;p.torso.rotation.z=0;p.torso.rotation.x=0;p.headPivot.rotation.y=0;
+  if(id==='wave-friendly'){p.armR.rotation.z=-1.2;p.armR.rotation.x=-.25;p.elbowR.rotation.x=-1.0+.35*fast}
+  else if(id==='pray-standing'){p.armL.rotation.z=.65;p.armR.rotation.z=-.65;p.elbowL.rotation.x=-1.0;p.elbowR.rotation.x=-1.0;p.headPivot.rotation.x=.15}
+  else if(id==='victory'){p.armL.rotation.z=1.45;p.armR.rotation.z=-1.45;p.armL.rotation.x=-.25;p.armR.rotation.x=-.25;p.torso.position.y=.03*Math.max(0,beat)}
+  else if(id==='creator-pose'){p.armL.rotation.z=.9;p.armR.rotation.z=-.25;p.headPivot.rotation.y=.22}
+  else if(id==='laugh'){p.torso.rotation.x=-.08+.04*fast;p.headPivot.rotation.x=-.12;p.armL.rotation.z=.35;p.armR.rotation.z=-.35}
+  else if(id==='argue'){p.armL.rotation.z=.8+.2*fast;p.armR.rotation.z=-.8-.2*fast;p.elbowL.rotation.x=-.55;p.elbowR.rotation.x=-.55}
+  else if(id==='sit-relaxed'){p.legL.rotation.x=-1.35;p.legR.rotation.x=-1.35;p.kneeL.rotation.x=1.45;p.kneeR.rotation.x=1.45;p.torso.position.y=-.45}
+  else if(id==='street-dance'||id==='two-step'){p.legL.rotation.x=.35*beat;p.legR.rotation.x=-.35*beat;p.armL.rotation.z=.7+.25*fast;p.armR.rotation.z=-.7-.25*fast;p.torso.rotation.z=.18*beat}
+  else if(id==='mechanic-work'){p.torso.rotation.x=.55;p.armL.rotation.x=-1.0+.25*fast;p.armR.rotation.x=-1.0-.25*fast}
+  else if(id==='security-scan'||id==='police-radio'){p.armR.rotation.x=-1.15;p.elbowR.rotation.x=-1.15;p.headPivot.rotation.y=.15*beat}
+  else if(id==='medical-assist'){p.torso.rotation.x=.45;p.armL.rotation.x=-1.1;p.armR.rotation.x=-1.1;p.elbowL.rotation.x=-.5;p.elbowR.rotation.x=-.5}
+  else if(id==='basketball-dribble'){p.armR.rotation.x=-.55+.35*fast;p.elbowR.rotation.x=-.8;p.legL.rotation.x=.18*beat;p.legR.rotation.x=-.18*beat}
+  else if(id==='mic-performance'){p.armR.rotation.x=-1.15;p.elbowR.rotation.x=-1.25;p.armL.rotation.z=.35*beat;p.torso.rotation.z=.08*beat}
+  else if(id==='handshake'||id==='hug'){p.armL.rotation.x=-1.0;p.armR.rotation.x=-1.0;p.armL.rotation.z=.15;p.armR.rotation.z=-.15}
+}
 function animatePerson(p,t,amt){
+  if(p.rpAction){
+    const elapsed=performance.now()-p.rpAction.startedAt;
+    if(!p.rpAction.loop&&elapsed>p.rpAction.durationMs){clearPersonRpAction(p);p.torso.position.y=1.40}
+    else{applyRpPose(p,t);return}
+  }
+  p.torso.position.y=1.40;
   const s=Math.sin(t)*.48*amt;
   p.legL.rotation.x=s;p.legR.rotation.x=-s;
   p.kneeL.rotation.x=Math.max(0,-s)*.45;p.kneeR.rotation.x=Math.max(0,s)*.45;
-  p.armL.rotation.x=-s*.8;p.armR.rotation.x=s*.8;
+  p.armL.rotation.x=-s*.8;p.armR.rotation.x=s*.8;p.armL.rotation.z=0;p.armR.rotation.z=0;
   p.elbowL.rotation.x=-.10-Math.max(0,s)*.15;p.elbowR.rotation.x=-.10-Math.max(0,-s)*.15;
-  p.torso.rotation.z=Math.sin(t*.5)*.025*amt;
-  p.headPivot.rotation.y=Math.sin(t*.27)*.035;
+  p.torso.rotation.z=Math.sin(t*.5)*.025*amt;p.torso.rotation.x=0;
+  p.headPivot.rotation.y=Math.sin(t*.27)*.035;p.headPivot.rotation.x=0;
 }
 
 function makeBJStubbsFallback(){
