@@ -45,6 +45,7 @@ const KingdomYahisraelCenter=lazy(()=>import('./components/KingdomYahisraelCente
 const KingdomWorkbookCenter=lazy(()=>import('./components/KingdomWorkbookCenter'))
 const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
 const MeshyFactoryControlPanel=lazy(()=>import('./components/MeshyFactoryControlPanel'))
+const WorldForgerControlPanel=lazy(()=>import('./components/WorldForgerControlPanel'))
 
 let routeContent: React.ReactNode = <App />
 let preserveDeterministicSafeRoute = false
@@ -57,6 +58,7 @@ try {
   const reelMatch=currentPath.match(/^\/reels\/([^/]+)\/?$/)
   const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
   const isAssetFactory=['/asset-factory','/asset-factory/','/meshy-factory','/meshy-factory/'].includes(currentPath)
+  const isWorldForger=['/world-forger','/world-forger/','/cad','/cad/'].includes(currentPath)
   const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
   const isLive=currentPath==='/live'||currentPath==='/live/'
   const isGuardian=currentPath==='/guardian'||currentPath==='/guardian/'
@@ -119,6 +121,7 @@ try {
   </>
   
   if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
+  else if(isWorldForger)routeContent=<Suspense fallback={routeFallback}><WorldForgerControlPanel /></Suspense>
   else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
@@ -189,6 +192,7 @@ const installOptionalRuntimes = () => {
   import('./runtime/TransportationFleetRuntime').then(m => m.installTransportationFleetRuntime()).catch(error => console.error('[TRYAMM] Transportation fleet runtime failed after core mount.', error))
   import('./runtime/ElectricDroneTransportRuntime').then(m => m.installElectricDroneTransportRuntime()).catch(error => console.error('[TRYAMM] Electric/drone transport runtime failed after core mount.', error))
   import('./runtime/StreetVerseGameOpsRuntime').then(m => m.installStreetVerseGameOpsRuntime()).catch(error => console.error('[TRYAMM] Game Ops failed after core mount.', error))
+  import('./runtime/StreetVerseWorldForgePlacementRuntime').then(m => m.installStreetVerseWorldForgePlacementRuntime()).catch(error => console.error('[TRYAMM] World Forger placement runtime failed after core mount.', error))
   import('./runtime/ProductionHealthMonitor').then(m => m.installProductionHealthMonitor()).catch(error => console.error('[TRYAMM] Optional runtime installProductionHealthMonitor failed after core mount.', error))
   import('./runtime/StreetVerseAssetExecutiveRuntime').then(m => m.installStreetVerseAssetExecutiveRuntime()).catch(error => console.error('[TRYAMM] Optional asset executive runtime failed after core mount.', error))
   import('./runtime/mediaCloudBridge').then(m => m.installMediaCloudBridge()).catch(error => console.error('[TRYAMM] Optional runtime installMediaCloudBridge failed after core mount.', error))
