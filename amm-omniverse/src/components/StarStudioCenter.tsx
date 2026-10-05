@@ -1,7 +1,7 @@
 import {lazy,Suspense,useState} from 'react'
 import {STAR_STUDIO_MASTER_FLOW,STAR_STUDIO_PILLARS,STAR_STUDIO_CROSSOVER,type StarStudioPillarId} from '../data/StarStudioUniverseRegistry'
 
-const MusicCreatorStudio=lazy(()=>import('./MusicCreatorStudio'))
+const Aniyah64TrackStudio=lazy(()=>import('./Aniyah64TrackStudio'))
 const MovieStudioCenter=lazy(()=>import('./MovieStudioCenter'))
 const JacobieVisionCenter=lazy(()=>import('./JacobieVisionCenter'))
 const IllinoisCampusVerseNetwork=lazy(()=>import('./IllinoisCampusVerseNetwork'))
@@ -22,7 +22,7 @@ export default function StarStudioCenter({onClose}:{onClose:()=>void}){
   <div style={{maxWidth:1180,margin:'0 auto',padding:'20px 14px 90px'}}>
    <header style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'start'}}><div><div style={{fontSize:10,letterSpacing:3,color:'#ffd75e',fontWeight:950}}>ANYONE CAN BE A STAR</div><h1 style={{fontSize:'clamp(42px,8vw,82px)',lineHeight:.9,margin:'8px 0'}}>STAR STUDIO</h1><p style={{maxWidth:830,color:'#bcc6d6',lineHeight:1.6}}>One front door into the creator systems already built across TRYAMM: music, acting, talent discovery, movies, broadcasting, campus productions, cybersecurity and real-estate storytelling.</p></div><button onClick={onClose} style={close}>×</button></header>
    <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(245px,1fr))',gap:10,marginTop:18}}>{STAR_STUDIO_PILLARS.map(p=><button key={p.id} onClick={()=>launch(p.id)} style={card}><div style={{fontSize:9,color:'#83e8ff',fontWeight:950}}>{p.owner.toUpperCase()} • {p.kind.toUpperCase()}</div><h2 style={{margin:'7px 0',fontSize:18}}>{p.label}</h2><div style={{fontSize:10,color:'#a9b8c9',lineHeight:1.5}}>{p.outputs.join(' • ')}</div><div style={{marginTop:10,fontSize:9,color:'#8affb5',fontWeight:900}}>OPEN EXISTING SYSTEM →</div></button>)}</section>
-   {active==='aniyah-64'&&<section style={section}><div style={sectionHead}>ANIYAH • 64-TRACK STUDIO</div><Suspense fallback={null}><MusicCreatorStudio/></Suspense><button onClick={()=>setActive(null)} style={back}>← STAR STUDIO</button></section>}
+   {active==='aniyah-64'&&<section style={section}><div style={sectionHead}>ANIYAH • 64-TRACK STUDIO</div><Suspense fallback={null}><Aniyah64TrackStudio onClose={()=>setActive(null)}/></Suspense></section>}
    {active==='campusverse'&&<section style={section}><div style={sectionHead}>CAMPUSVERSE • CREATOR / TALENT PIPELINE</div><Suspense fallback={null}><IllinoisCampusVerseNetwork/></Suspense><button onClick={()=>setActive(null)} style={back}>← STAR STUDIO</button></section>}
    <section style={{...section,marginTop:14}}><div style={sectionHead}>ONE CREATOR PIPELINE</div><div style={{display:'grid',gap:6,marginTop:10}}>{STAR_STUDIO_MASTER_FLOW.map((x,i)=><div key={x} style={{padding:10,borderRadius:11,background:'#0b1220',border:'1px solid #26374e',fontSize:11}}><b style={{color:'#ffd75e'}}>{i+1}.</b> {x}</div>)}</div></section>
    <section style={{...section,marginTop:14}}><div style={sectionHead}>CROSSOVER THAT ALREADY MAKES THIS DIFFERENT</div><p style={copy}>{STAR_STUDIO_CROSSOVER.aniyah}</p><p style={copy}>{STAR_STUDIO_CROSSOVER.campusVerse}</p><p style={copy}>{STAR_STUDIO_CROSSOVER.cyberSecurity}</p><p style={copy}>{STAR_STUDIO_CROSSOVER.realEstate}</p></section>
