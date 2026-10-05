@@ -40,7 +40,7 @@ export default function FaithChronoLauncher(){
     </article>)}</div>
     <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:14}}>
       <a href="/holo-lab" style={link}>OPEN HOLO LAB</a>
-      <a href="/streetverse" style={link}>RETURN TO STREETVERSE</a>
+      <a href="/streetverse" style={link}>RETURN TO STREETVERSE</a><a href="/kingdom" style={link}>RETURN TO KINGDOM</a>
       <a href="/kingdoms-press" style={link}>PUBLISH THROUGH KINGDOMS PRESS</a>
     </div>
   </section>
