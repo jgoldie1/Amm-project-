@@ -168,9 +168,11 @@ function renderPhone() {
   } else if (s === 'kingdom') {
     const destinations=window.YAHISRAEL_DESTINATIONS||[];
     const progress=window.YAHISRAEL_PATH_PROGRESS||{visited:[],completed:false};
+    const activities=window.YAHISRAEL_ACTIVITY_PROGRESS||{completed:[]};
     const pathIds=['judah-gate','hebrew-school','servants-center','garden-farm','press-ai-cafe'];
     const pathDone=pathIds.filter(id=>progress.visited?.includes(id)).length;
-    h = bar('Yahisrael') + `<div class="ph-note">WHERE HEAVEN MEETS EARTH • KINGDOM PATH ${pathDone}/${pathIds.length}${progress.completed?' • COMPLETE':''}</div><div class="list">` +
+    const citizenCount=Number(window.YAHISRAEL_CITIZEN_COUNT||0);
+    h = bar('Yahisrael') + `<div class="ph-note">WHERE HEAVEN MEETS EARTH • KINGDOM PATH ${pathDone}/${pathIds.length}${progress.completed?' • COMPLETE':''}<br>${citizenCount} KINGDOM CITIZENS • ${activities.completed?.length||0} LOCAL ACTIVITIES COMPLETE</div><div class="list">` +
       destinations.map((d,k)=>`<button data-f data-kdest="${k}"><span><b>${progress.visited?.includes(d.id)?'✓ ':''}${d.shortName}</b><br><small>${d.objective}</small></span><em>Route</em></button>`).join('') + '</div>';
   } else if (s === 'texts') {
     h = bar('Texts') + TEXTS.map(m => `<div class="msg"><b>${m.from}</b>${m.t}</div>`).join('');
