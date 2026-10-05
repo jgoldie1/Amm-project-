@@ -129,7 +129,7 @@ jobs:
               run_gate build-app-business-revenue node tests/el-saturn-business-revenue-contract.mjs
               run_gate build-app-business-pricing node tests/business-completion-pricing-contract.mjs
               run_gate build-app-domain-provisioning node tests/domain-provisioning-contract.mjs
-              run_gate build-app-quantum-growth node tests/quantum-seo-back-channel-contract.mjs               tests/domain-provisioning-contract.mjs               tests/quantum-seo-back-channel-contract.mjs
+              run_gate build-app-quantum-growth node tests/quantum-seo-back-channel-contract.mjs               tests/kingdom-googolplex-regression-contract.mjs               tests/domain-provisioning-contract.mjs               tests/quantum-seo-back-channel-contract.mjs
 
               # STREETVERSE lane
               run_gate build-native-assets npm run native:assets
@@ -138,7 +138,9 @@ jobs:
               run_gate build-streetverse-mobile node tests/streetverse-iphone-first-journey-contract.mjs
               run_gate build-streetverse-controls node tests/streetverse-unified-mobile-controls-contract.mjs
               run_gate build-streetverse-city node tests/streetverse-chicago-alive-contract.mjs
-              run_gate build-streetverse-logistics node tests/streetverse-logistics-jobs-bridge-contract.mjs               tests/el-saturn-business-revenue-contract.mjs
+              run_gate build-streetverse-logistics node tests/streetverse-logistics-jobs-bridge-contract.mjs
+              run_gate build-streetverse-kingdom-regression node tests/kingdom-googolplex-regression-contract.mjs
+              run_gate build-streetverse-kingdom-memory node scripts/capture-kingdom-googolplex-memory.mjs               tests/el-saturn-business-revenue-contract.mjs
               run_gate build-streetverse-mega-fix bash scripts/streetverse-bj-family-mega-fix.sh
               run_gate build-asset-tournament node scripts/streetverse-asset-tournament.mjs "$PASS_DIR/streetverse-asset-tournament.json"
 
@@ -241,6 +243,8 @@ jobs:
             run_gate business-pricing-readiness npm run business-pricing:check
             run_gate domain-provisioning-readiness npm run domain-provisioning:check
             run_gate quantum-growth-readiness npm run quantum-growth:check
+            run_gate kingdom-regression-readiness npm run kingdom:regression:check
+            run_gate kingdom-googolplex-memory npm run kingdom:memory:capture
             run_gate typecheck npm run typecheck
             run_gate production-build npm run build
 
