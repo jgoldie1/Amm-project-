@@ -14,6 +14,7 @@ const PORTALS:Portal[]=[
  {id:'hebrew',label:'HEBREW SCHOOL',sub:'ALEPH-BET • ROOTS',layer:'hebrew',color:0x67a8ff},
  {id:'strongs',label:"STRONG'S",sub:'KJV WORD STUDY',layer:'strongs',color:0xff8a72},
  {id:'hologpt',label:'HOLOGPT',sub:'AI TUTOR',prompt:'Open the FaithVerse HoloGPT tutor with source-label integrity rules.',color:0x70f0ff},
+ {id:'holo-lab',label:'HOLO LAB',sub:'BUILD IMMERSIVE LESSON',color:0x42d7b5},
  {id:'chrono',label:'FAITH CHRONO',sub:'RECONSTRUCTION',prompt:'Open a source-grounded Faith Chrono reconstruction. Clearly label all reconstruction and generated dialogue.',color:0xa98cff},
 ]
 
@@ -40,6 +41,7 @@ export default function FaithVerseLivingScriptureWorld({onClose}:Props){
   if(p.layer)window.dispatchEvent(new CustomEvent('tryamm:faith-holobook-layer-request',{detail:{layer:p.layer,source:'faithverse-living-scripture-world'}}))
   if(p.id==='esther')window.dispatchEvent(new CustomEvent('tryamm:faith-holobook-layer-request',{detail:{layer:'kjv1611',source:'faithverse-living-scripture-world',featuredBook:'esther'}}))
   if(p.id==='jubilees')window.dispatchEvent(new CustomEvent('tryamm:faith-holobook-layer-request',{detail:{layer:'canon81',source:'faithverse-living-scripture-world',featuredBook:'jubilees'}}))
+  if(p.id==='holo-lab')window.dispatchEvent(new CustomEvent('tryamm:faithverse-holo-lab-open',{detail:{source:'faithverse-living-scripture-world'}}))
   if(p.id==='chrono')window.dispatchEvent(new CustomEvent('tryamm:faith-chrono-gateway-request',{detail:{source:'faithverse-living-scripture-world'}}))
   if(p.prompt)window.dispatchEvent(new CustomEvent('tryamm:hologpt-study-context',{detail:{prompt:p.prompt,source:'faithverse-living-scripture-world'}}))
   setStatus(p.label+' selected • '+p.sub)
