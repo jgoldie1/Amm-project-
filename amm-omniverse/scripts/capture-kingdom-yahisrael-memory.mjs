@@ -28,6 +28,11 @@ const files=[
  'public/streetverse-kingdom/index.html',
  'public/streetverse-kingdom/01-core-world.js',
  'public/streetverse-kingdom/02-physics-traffic.js',
+ 'public/streetverse-kingdom/03-spawn-phone.js',
+ 'public/streetverse-kingdom/04-radial-input.js',
+ 'public/streetverse-kingdom/05-player-camera-hud.js',
+ 'public/streetverse-kingdom/06-loop.js',
+ 'public/streetverse-kingdom/07-yahisrael-living-world.js',
 ]
 const hash=file=>createHash('sha256').update(readFileSync(path.join(root,file))).digest('hex')
 const manifest={
@@ -37,7 +42,7 @@ const manifest={
  playableKingdom:'/kingdom',
  faithVerse:'/faithverse',
  brand:'Kingdom of Yahisrael • Judah — Where Heaven Meets Earth',
- requiredMarkers:['YAHISRAEL','WHERE HEAVEN MEETS EARTH','FAITHVERSE','KINGDOM WORKBOOK','KINGDOM DISTRICT','KINGDOMS PRESS','SET APART','SEVEN LIGHTS'],
+ requiredMarkers:['YAHISRAEL','WHERE HEAVEN MEETS EARTH','JUDAH GATE','FAITHVERSE','KINGDOM WORKBOOK','HEBREW SCHOOL','KINGDOM GARDEN','KINGDOMS PRESS','ALL AMERICAN NETWORK','SET APART','SEVEN LIGHTS'],
  files:Object.fromEntries(files.map(file=>[file,{sha256:hash(file),bytes:statSync(path.join(root,file)).size}])),
  regressionRule:'Kingdom convergence is not green if the front door, FaithVerse, Kingdom District, Judah identity, Scripture study, Press, story canon or same-origin bridge protection disappears.',
 }
