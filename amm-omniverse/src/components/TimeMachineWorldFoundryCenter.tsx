@@ -16,6 +16,7 @@ export default function TimeMachineWorldFoundryCenter(){
  const [history,setHistory]=useState<TimeMachineWorldFoundryPlan[]>([])
  const [prompt,setPrompt]=useState('Build a source-grounded historical world with walkable architecture, people, props, missions, mobile LOD and a Holo Lab preview.')
  const [mode,setMode]=useState<TimeMachineFoundryMode>('RECONSTRUCTION')
+ const [historicalUrl,setHistoricalUrl]=useState('')
  const [status,setStatus]=useState('Ready. Choose a recovered world or describe a new scene.')
  useEffect(()=>{
   const on=(event:Event)=>{const d=(event as CustomEvent<{activePlan:TimeMachineWorldFoundryPlan|null;history:TimeMachineWorldFoundryPlan[]}>).detail;if(!d)return;setActive(d.activePlan||null);setHistory(d.history||[])}
@@ -27,7 +28,7 @@ export default function TimeMachineWorldFoundryCenter(){
   window.dispatchEvent(new CustomEvent('tryamm:time-machine-world-foundry-request',{detail:{...request,autoPreview:true}}))
   setStatus('Foundry request sent: World Builder → Genie → Mind Over Matter → HoloForge preview → Holo Lab.')
  }
- const buildCustom=()=>build({title:'Custom Time Machine World',era:'user-selected',mode,evidenceLevel:mode==='HISTORY'?'verified-source-required':'mixed',description:prompt,objective:prompt,source:'time-machine-world-foundry'})
+ const buildCustom=()=>{window.dispatchEvent(new CustomEvent('tryamm:time-machine-world-foundry-request',{detail:{title:'Custom Time Machine World',era:'user-selected',mode,evidenceLevel:mode==='HISTORY'?'verified-source-required':'mixed',description:prompt,objective:prompt,source:'time-machine-world-foundry',historicalUrl:historicalUrl.trim()||undefined,autoPreview:true}}));setStatus(mode==='HISTORY'&&!historicalUrl.trim()?'HISTORY stopped at evidence gate • add an archived/source URL before preview.':'Foundry request sent: evidence → World Builder → Genie → Mind Over Matter → HoloForge preview → Holo Lab.')}
  const ready=useMemo(()=>active?.assets.filter(a=>a.state==='preview-ready').length||0,[active])
  const degraded=useMemo(()=>active?.assets.filter(a=>a.state==='preview-degraded'||a.state==='failed').length||0,[active])
 
