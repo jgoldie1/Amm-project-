@@ -113,4 +113,4 @@ export function reverseMoneyEvents(events: CommerceLedgerEvent[], sourceEventId:
 }
 
 export const COMMERCE_TRANSACTION_TRUTH =
-  'Holo Credits and XP are non-cash engagement units. Real-money payable ledgers require reconciled provider payment evidence, fulfillment evidence, attribution where applicable, and server-authoritative persistence.'
+  'Holo Credits and XP are non-cash engagement units. Play Credits are purchased closed-loop TRYAMM utility units with no cash-out or investment value. Real-money payable ledgers require reconciled provider payment evidence, fulfillment evidence, attribution where applicable, and server-authoritative persistence.'
