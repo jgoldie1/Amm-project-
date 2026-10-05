@@ -219,6 +219,7 @@ export default function App() {
   ;(window as any).__showStarStudio = () => setShowStarStudio(true)
   ;(window as any).__showAniyah64TrackStudio = () => setShowAniyahStudio(true)
   ;(window as any).__showHoloPlayCard = () => setShowHoloPlayCard(true)
+  useEffect(()=>{const open=()=>setShowHoloPlayCard(true);window.addEventListener('tryamm:holo-play-card-open',open);return()=>window.removeEventListener('tryamm:holo-play-card-open',open)},[])
   ;(window as any).__showTryammTV = () => setShowTryammTv(true)
   ;(window as any).__showSecurityCenter = () => setShowSecurity(true)
   ;(window as any).__showOmniWear = () => setShowOmniWear(true)
