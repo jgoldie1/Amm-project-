@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import {listMeshyTasks,summarizeMeshyTask} from '../api/_lib/meshy.js';
+import {getMeshyBalance,listMeshyTasks,summarizeMeshyTask} from '../api/_lib/meshy.js';
 
 const outputDir=path.resolve(process.cwd(),process.argv[2]||'public/tryamm-assets/meshy/recovered-existing');
 const manifestPath=path.join(outputDir,'manifest.json');
@@ -46,6 +46,13 @@ async function main(){
   const recovered=[];
   const discovered=[];
   const errors=[];
+  try{
+    const balance=await getMeshyBalance();
+    console.log(`Meshy credit balance: ${balance}`);
+  }catch(error){
+    errors.push({type:'balance',message:String(error?.message||error)});
+    console.warn(`Meshy balance check failed: ${error?.message||error}`);
+  }
 
   for(const type of TYPES){
     try{

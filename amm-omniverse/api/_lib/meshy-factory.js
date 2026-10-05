@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import {adminRest} from './supabase-admin.js';
-import {createMeshyTask,getMeshyTask,summarizeMeshyTask,createMeshyRiggingTask,getMeshyRiggingTask,summarizeMeshyRiggingTask} from './meshy.js';
+import {createMeshyTask,createMeshyTextRefineTask,getMeshyTask,summarizeMeshyTask,createMeshyRiggingTask,getMeshyRiggingTask,summarizeMeshyRiggingTask} from './meshy.js';
 import {persistRemoteGlb} from './streetverse-asset-storage.js';
 
 export const ASSET_FACTORY_ROLES=['founder','admin','superadmin','platform-admin','asset-admin','ai-cto'];
@@ -311,10 +311,83 @@ export async function tickMeshyFactoryJobInternal(jobId){
     if(job.stage==='queued')return submitQueuedFactoryJob(job);
     if(job.stage==='generating'){
       const snapshot=summarizeMeshyTask(await getMeshyTask(job.generation_type,job.provider_generation_task_id),job.generation_type);
-      if(isFailure(snapshot.status))return failed(job,'meshy_generation_failed',snapshot.status);
-      if(!isSuccess(snapshot.status)||!snapshot.glb)return update(job.id,{progress:Math.max(2,Math.min(55,Math.round(Number(snapshot.progress||0)*.55))),provider_credits:snapshot.consumedCredits,error_code:null,error_message:null,evidence:{...(job.evidence||{}),generationStatus:snapshot.status,lastProviderPollAt:new Date().toISOString()}});
+      const isText=job.generation_type==='text-to-3d';
+      const textStage=isText?String(job.evidence?.textStage||'preview'):'';
+      if(isFailure(snapshot.status))return failed(job,isText&&textStage==='preview'?'meshy_text_preview_failed':isText?'meshy_text_refine_failed':'meshy_generation_failed',snapshot.status);
+
+      const progressCeiling=isText&&textStage==='preview'?30:55;
+      if(!isSuccess(snapshot.status)||!snapshot.glb){
+        const scaled=Math.round(Number(snapshot.progress||0)*(progressCeiling/100));
+        return update(job.id,{
+          progress:Math.max(2,Math.min(progressCeiling,scaled)),
+          provider_credits:Number(job.evidence?.textPreviewCredits||0)+Number(snapshot.consumedCredits||0),
+          error_code:null,error_message:null,
+          evidence:{...(job.evidence||{}),textStage:isText?textStage:undefined,generationStatus:snapshot.status,lastProviderPollAt:new Date().toISOString()}
+        });
+      }
+
+      // Meshy Text-to-3D v2 is a two-stage workflow: preview geometry first,
+      // then refine that exact preview to produce the textured/PBR GLB.
+      // Re-use generation-submitting as an atomic handoff so retries cannot
+      // accidentally submit duplicate paid refine tasks.
+      if(isText&&textStage!=='refine'){
+        const previewTaskId=String(job.provider_generation_task_id||'');
+        const previewCredits=Number(snapshot.consumedCredits||0);
+        const refineClaim=await claim(job.id,'generating',{
+          stage:'generation-submitting',
+          progress:31,
+          generation_glb_url:snapshot.glb,
+          provider_credits:previewCredits,
+          error_code:null,error_message:null,
+          evidence:{
+            ...(job.evidence||{}),
+            textStage:'refine-submitting',
+            textPreviewTaskId:previewTaskId,
+            textPreviewCredits:previewCredits,
+            textPreviewCompletedAt:new Date().toISOString(),
+            textRefineSubmissionClaimedAt:new Date().toISOString()
+          }
+        });
+        if(!refineClaim)return await rowById(job.id);
+
+        let refine;
+        try{
+          refine=await createMeshyTextRefineTask(previewTaskId,{enablePbr:true,textureResolution:'2k'});
+        }catch(error){
+          if(retryableError(error)){
+            return await claim(job.id,'generation-submitting',{
+              stage:'generating',
+              progress:30,
+              error_code:'retryable_text_refine_submit',
+              error_message:String(error?.message||error).slice(0,1000),
+              evidence:{...(refineClaim.evidence||{}),textStage:'preview',retryableTextRefineSubmitAt:new Date().toISOString()}
+            })||await rowById(job.id);
+          }
+          return failed(refineClaim,error?.code||'meshy_text_refine_submit_failed',error?.message||String(error));
+        }
+
+        try{
+          return await attachProviderTask(job.id,'generation-submitting',{
+            stage:'generating',
+            progress:32,
+            provider_generation_task_id:refine.id,
+            provider_credits:previewCredits,
+            error_code:null,error_message:null,
+            evidence:{
+              ...(refineClaim.evidence||{}),
+              textStage:'refine',
+              textRefineTaskId:refine.id,
+              textRefineSubmittedAt:new Date().toISOString()
+            }
+          })||{...refineClaim,provider_generation_task_id:refine.id,recovery_required:true};
+        }catch(error){
+          return {...refineClaim,provider_generation_task_id:refine.id,recovery_required:true,recovery_error:String(error?.message||error)};
+        }
+      }
+
+      const totalGenerationCredits=Number(job.evidence?.textPreviewCredits||0)+Number(snapshot.consumedCredits||0);
       const claimed=await claim(job.id,'generating',{
-        stage:'rig-submitting',progress:57,generation_glb_url:snapshot.glb,provider_credits:snapshot.consumedCredits,
+        stage:'rig-submitting',progress:57,generation_glb_url:snapshot.glb,provider_credits:totalGenerationCredits,
         evidence:{...(job.evidence||{}),generationStatus:snapshot.status,generationCompletedAt:new Date().toISOString(),rigSubmissionClaimedAt:new Date().toISOString()}
       });
       if(!claimed)return await rowById(job.id);
