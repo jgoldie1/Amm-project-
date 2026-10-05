@@ -2,6 +2,8 @@ import {useEffect,useMemo,useState} from 'react'
 import {readStoredAudienceBand,type AudienceBand} from './SocialAgeSafetyGate'
 import OmniverseAfterDarkRPOmnibar from './OmniverseAfterDarkRPOmnibar'
 import {installOmniverseAfterDarkStoryStudioRuntime} from '../runtime/OmniverseAfterDarkStoryStudioRuntime'
+import {installOmniverseAfterDarkVRLoveSceneRuntime} from '../runtime/OmniverseAfterDarkVRLoveSceneRuntime'
+import {installStreetVerseQuestImmersiveRuntime} from '../runtime/StreetVerseQuestImmersiveRuntime'
 import {
   AFTER_DARK_ALPHA_MISSION,
   AFTER_DARK_EVIDENCE,
@@ -29,6 +31,8 @@ export default function StreetVerseAfterDarkAlpha(){
 
   useEffect(()=>{setPhone(Math.min(window.innerWidth,window.innerHeight)<=720)},[])
   useEffect(()=>installOmniverseAfterDarkStoryStudioRuntime(),[])
+  useEffect(()=>installOmniverseAfterDarkVRLoveSceneRuntime(),[])
+  useEffect(()=>{installStreetVerseQuestImmersiveRuntime()},[])
 
   useEffect(()=>{
     const sync=(event:Event)=>{
