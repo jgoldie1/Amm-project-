@@ -129,7 +129,7 @@ jobs:
               run_gate build-app-business-revenue node tests/el-saturn-business-revenue-contract.mjs
               run_gate build-app-business-pricing node tests/business-completion-pricing-contract.mjs
               run_gate build-app-domain-provisioning node tests/domain-provisioning-contract.mjs
-              run_gate build-app-quantum-growth node tests/quantum-seo-back-channel-contract.mjs               tests/kingdom-googolplex-regression-contract.mjs               tests/kingdom-human-character-contract.mjs               tests/rp-action-search-bj-regression-contract.mjs               tests/rp-omnibar-genii-contract.mjs               tests/after-dark-vr-love-scene-contract.mjs               tests/star-studio-universe-contract.mjs               tests/aniyah-64-track-business-contract.mjs               tests/holo-play-credit-economy-contract.mjs               tests/holo-play-engagement-monetization-contract.mjs               tests/holo-lottie-pk-crossverse-monetization-contract.mjs               tests/creator-credit-marketplace-redemption-contract.mjs               tests/kingdom-yahisrael-convergence-contract.mjs               tests/kingdom-yahisrael-visible-world-contract.mjs               tests/domain-provisioning-contract.mjs               tests/quantum-seo-back-channel-contract.mjs
+              run_gate build-app-quantum-growth node tests/quantum-seo-back-channel-contract.mjs               tests/kingdom-googolplex-regression-contract.mjs               tests/kingdom-human-character-contract.mjs               tests/rp-action-search-bj-regression-contract.mjs               tests/rp-omnibar-genii-contract.mjs               tests/after-dark-vr-love-scene-contract.mjs               tests/star-studio-universe-contract.mjs               tests/aniyah-64-track-business-contract.mjs               tests/holo-play-credit-economy-contract.mjs               tests/holo-play-engagement-monetization-contract.mjs               tests/holo-lottie-pk-crossverse-monetization-contract.mjs               tests/creator-credit-marketplace-redemption-contract.mjs               tests/kingdom-yahisrael-convergence-contract.mjs               tests/kingdom-yahisrael-visible-world-contract.mjs               tests/metaverse-bible-kingdom-contract.mjs               tests/domain-provisioning-contract.mjs               tests/quantum-seo-back-channel-contract.mjs
 
               # STREETVERSE lane
               run_gate build-native-assets npm run native:assets
@@ -152,6 +152,7 @@ jobs:
               run_gate build-app-creator-credit-market node tests/creator-credit-marketplace-redemption-contract.mjs
               run_gate build-app-kingdom-yahisrael node tests/kingdom-yahisrael-convergence-contract.mjs
               run_gate build-app-kingdom-yahisrael-world node tests/kingdom-yahisrael-visible-world-contract.mjs
+              run_gate build-app-metaverse-bible node tests/metaverse-bible-kingdom-contract.mjs
               run_gate build-streetverse-kingdom-memory node scripts/capture-kingdom-googolplex-memory.mjs               tests/el-saturn-business-revenue-contract.mjs
               run_gate build-streetverse-mega-fix bash scripts/streetverse-bj-family-mega-fix.sh
               run_gate build-asset-tournament node scripts/streetverse-asset-tournament.mjs "$PASS_DIR/streetverse-asset-tournament.json"
@@ -274,6 +275,7 @@ jobs:
             run_gate creator-credit-market-readiness npm run creator-credit-market:check
             run_gate kingdom-yahisrael-readiness npm run kingdom-yahisrael:check
             run_gate kingdom-yahisrael-world-readiness npm run kingdom-yahisrael-world:check
+            run_gate metaverse-bible-readiness npm run metaverse-bible:check
             run_gate kingdom-googolplex-memory npm run kingdom:memory
             run_gate kingdom-yahisrael-googolplex-memory npm run kingdom-yahisrael:memory:capture
             run_gate typecheck npm run typecheck
