@@ -2,6 +2,7 @@ import fs from 'node:fs'
 
 const lib=fs.readFileSync(new URL('../api/_lib/meshy.js',import.meta.url),'utf8')
 const generate=fs.readFileSync(new URL('../api/meshy/generate.js',import.meta.url),'utf8')
+const factory=fs.readFileSync(new URL('../api/_lib/meshy-factory.js',import.meta.url),'utf8')
 const env=fs.readFileSync(new URL('../.env.example',import.meta.url),'utf8')
 const must=(ok,msg)=>{if(!ok)throw new Error('MESHY SERVER API CONTRACT FAIL: '+msg)}
 
@@ -15,6 +16,9 @@ must(lib.includes("body.mode='preview'"),'Text-to-3D v2 preview mode missing')
 must(lib.includes('export async function createMeshyTextRefineTask'),'Text-to-3D v2 refine helper missing')
 must(lib.includes("mode:'refine'"),'Text-to-3D v2 refine mode missing')
 must(lib.includes('export async function getMeshyBalance'),'Meshy credit balance check missing')
+must(factory.includes("textStage:'refine-submitting'"),'factory must atomically claim text refine submission')
+must(factory.includes("textStage:'refine'"),'factory must record text refine stage')
+must(factory.includes('createMeshyTextRefineTask'),'factory must submit Meshy text refine after preview')
 must(lib.includes("export async function createMeshyTask"),'Meshy create task function missing')
 must(generate.includes('requireUser(req,res)'),'generation route must require an authenticated TRYAMM user')
 must(generate.includes("keyExposed:false"),'generation route must explicitly avoid key exposure')
