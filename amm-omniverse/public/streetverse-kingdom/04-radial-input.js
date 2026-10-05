@@ -176,7 +176,7 @@ function gather() {
 
 function handle(a) {
   switch (a) {
-    case 'enter': if (!phone.open && !radial.open) { const a=(!player.inCar&&typeof nearestKingdomActivity==='function')?nearestKingdomActivity(4.5):null; const d=(!player.inCar&&typeof nearestKingdomDestination==='function')?nearestKingdomDestination(8):null; if(a&&typeof completeKingdomActivity==='function')completeKingdomActivity(a); else if(d&&typeof visitKingdomDestination==='function')visitKingdomDestination(d); else toggleCar(); } break;
+    case 'enter': if (!phone.open && !radial.open) { const a=(!player.inCar&&typeof nearestKingdomActivity==='function')?nearestKingdomActivity(4.5):null; const c=(!player.inCar&&typeof nearestKingdomCitizen==='function')?nearestKingdomCitizen(3.2):null; const d=(!player.inCar&&typeof nearestKingdomDestination==='function')?nearestKingdomDestination(8):null; if(a&&typeof completeKingdomActivity==='function')completeKingdomActivity(a); else if(c&&typeof interactKingdomCitizen==='function')interactKingdomCitizen(c); else if(d&&typeof visitKingdomDestination==='function')visitKingdomDestination(d); else toggleCar(); } break;
     case 'phone': phone.open ? closePhone() : openPhone(); break;
     case 'horn': horn(); break;
     case 'auto': toggleAuto(); if (phone.open) renderPhone(); break;
