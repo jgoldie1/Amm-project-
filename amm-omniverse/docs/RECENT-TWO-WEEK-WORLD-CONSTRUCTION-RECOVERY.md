@@ -111,3 +111,25 @@ RECALL / CURRENT STATE
 5. Add collision/nav/mobile certification to the Bible-world preview.
 6. Push approved world package back into Kingdom Hebrew School and FaithVerse.
 7. Run screenshots/regression evidence on iPhone/mobile dimensions.
+
+
+## Passed since the recovery review
+- Authenticated Time Machine World Foundry receipts are implemented.
+- World Forger/CAD recipes are emitted from the Time Machine Foundry.
+- Metaverse Bible world certification is visible in the Bible and Holo Lab.
+- A spatial Bible scene binder now builds a walkable preview package.
+- Holo Lab displays the walkable Bible world package.
+- Certified preview packages can be handed into the playable Kingdom Hebrew School.
+- The Kingdom iframe receives the canonical Bible-world preview control message.
+- Pass 4 world promotion now exists: fully certified, provider-backed scenes can create immutable versioned release candidates and move to STAGED; production publish/rollback requires explicit internal server authorization.
+
+## Current frontier
+The project is no longer blocked on connecting the engines together. The current frontier is production evidence:
+1. Get real provider-generated GLB/PBR outputs for every required placement.
+2. Record collision, navigation, mobile-performance and accessibility evidence against those exact artifacts.
+3. Complete human visual review.
+4. Create the first immutable release candidate and stage it.
+5. Apply the new migrations/API in production.
+6. Publish only through the internal world-publish gate.
+7. Prove the published release on iPhone with deployment SHA + screenshots.
+8. Repeat the same certified promotion pattern for Yahisrael architecture and the Chicago vertical slice.
