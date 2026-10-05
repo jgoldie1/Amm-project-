@@ -1,6 +1,7 @@
 export type KingdomBridgeEvent =
   | 'KINGDOM_READY'
   | 'KINGDOM_DESTINATION_ENTERED'
+  | 'KINGDOM_CITIZEN_INTERACTION'
   | 'KINGDOM_PORTAL_REQUEST'
   | 'PLAYER_MOVED'
   | 'VEHICLE_ENTERED'
@@ -27,6 +28,9 @@ export type KingdomBridgePayload={
   y?:number
   z?:number
   contentId?:string
+  citizenId?:string
+  role?:string
+  household?:string
   source?:string
 }
 
@@ -51,6 +55,9 @@ export function installKingdomStreetVerseBridge(){
       y:Number.isFinite(payload.y)?Number(payload.y):undefined,
       z:Number.isFinite(payload.z)?Number(payload.z):undefined,
       contentId:clean(payload.contentId),
+      citizenId:clean(payload.citizenId),
+      role:clean(payload.role),
+      household:clean(payload.household),
       source:clean(payload.source||'streetverse-kingdom'),
       authority:'client-gameplay',
     }
@@ -61,6 +68,9 @@ export function installKingdomStreetVerseBridge(){
         break
       case 'KINGDOM_DESTINATION_ENTERED':
         window.dispatchEvent(new CustomEvent('tryamm:kingdom-destination-entered',{detail:base}))
+        break
+      case 'KINGDOM_CITIZEN_INTERACTION':
+        window.dispatchEvent(new CustomEvent('tryamm:kingdom-citizen-interaction',{detail:base}))
         break
       case 'KINGDOM_PORTAL_REQUEST': {
         const allowed=new Set(['/kingdom-of-yahisrael','/kingdom-workbook','/metaverse-bible','/faithverse','/ethiopian-bible','/kingdoms-press','/servants-of-christ','/network'])
