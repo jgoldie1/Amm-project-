@@ -13,11 +13,13 @@ const center=read('../src/components/KingdomYahisraelCenter.tsx')
 const slots=read('../src/data/KingdomYahisraelArchitectureSlots.ts')
 const upgrade=read('../src/runtime/KingdomYahisraelArchitectureUpgradeRuntime.ts')
 const assetReadme=read('../public/tryamm-assets/meshy/kingdom/README.md')
+const missions=read('../src/data/KingdomYahisraelMissionRegistry.ts')
+const missionRuntime=read('../src/runtime/KingdomYahisraelMissionRuntime.ts')
 
 for(const [name,code] of [['living',living],['people',people],['phone',phone],['input',input],['hud',hud]])new vm.Script(code,{filename:name+'.js'})
 
 for(const x of [
- 'KY_CITIZEN_SPECS','YAHISRAEL_CITIZEN_COUNT','Assembly Elder','Service Coordinator','Kingdom Merchant','Family Historian',
+ 'KY_CITIZEN_SPECS','YAHISRAEL_CITIZEN_COUNT','YAHISRAEL_HOUSEHOLDS','assembly-family-1','legacy-family-1','Assembly Elder','Service Coordinator','Kingdom Merchant','Family Historian',
  'Hebrew Teacher','Scripture Student','Garden Steward','Kingdoms Press Editor','Broadcast Host'
 ])if(!living.includes(x))throw new Error('Kingdom population missing '+x)
 
@@ -34,7 +36,7 @@ for(const x of [
 
 if(!input.includes('nearestKingdomActivity(4.5)')||!input.includes('completeKingdomActivity(a)'))throw new Error('One-button Kingdom activity interaction missing')
 if(!hud.includes('nearestKingdomActivity')||!hud.includes('ka.shortLabel'))throw new Error('Kingdom activity HUD prompt missing')
-for(const x of ['YAHISRAEL_CITIZEN_COUNT','YAHISRAEL_ACTIVITY_PROGRESS','LOCAL ACTIVITIES COMPLETE'])if(!phone.includes(x))throw new Error('Yahisrael phone living-world status missing '+x)
+for(const x of ['YAHISRAEL_CITIZEN_COUNT','YAHISRAEL_HOUSEHOLDS','YAHISRAEL_ACTIVITY_PROGRESS','HOUSEHOLDS','LOCAL ACTIVITIES COMPLETE'])if(!phone.includes(x))throw new Error('Yahisrael phone living-world status missing '+x)
 
 for(const x of [
  "'SV_NPC_CHILD_01.glb'","'SV_NPC_TEEN_01.glb'",'options.targetHeight','options.file','options.ageLane'
@@ -49,6 +51,8 @@ for(const x of [
 ])if(!slots.includes(x))throw new Error('Kingdom production architecture slot missing '+x)
 
 for(const x of ['tryamm:mind-over-matter-original-request','tryamm:holoforge-request','requiresHumanReview:true','qualityTier:\'premium\''])if(!upgrade.includes(x))throw new Error('Photoreal architecture upgrade pipeline missing '+x)
+for(const x of ['assembly-reflection','community-service','market-stewardship','family-covenant','metaverse-bible-study','garden-service','publish-remembrance','kingdom-broadcast','where-heaven-meets-earth-kingdom-path','serverRewardAuthority:true','payoutClaimedByClient:false'])if(!missions.includes(x))throw new Error('Kingdom mission registry missing '+x)
+for(const x of ['tryamm:mission-started','tryamm:kingdom-activity-completed','tryamm:mission-completion-request','clientPayouts:false'])if(!missionRuntime.includes(x))throw new Error('Kingdom mission runtime missing '+x)
 for(const x of ['PRODUCTION ARCHITECTURE','QUEUE ORIGINAL PRODUCTION GLBs','PRODUCTION GLB: PENDING'])if(!center.includes(x))throw new Error('Kingdom architecture status UI missing '+x)
 if(!assetReadme.includes('The procedural Kingdom geometry is a fallback')||!assetReadme.includes('original or properly licensed materials/textures'))throw new Error('Production architecture evidence boundary missing')
 
