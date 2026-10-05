@@ -1,3 +1,4 @@
+import {TRYAMM_WEST_SIDE_CC0_STARTER_MOD} from '../data/TryammStarterMods'
 export type TryammModScope=
   |'asset'
   |'cosmetic'
@@ -280,6 +281,7 @@ export function installTryammModPassRuntime(){
   }
 
   window.__TRYAMM_MOD_PASS__=api
+  if(!readInstalled().some(x=>x.manifest.id===TRYAMM_WEST_SIDE_CC0_STARTER_MOD.id))api.install(TRYAMM_WEST_SIDE_CC0_STARTER_MOD)
 
   const onInstall=(event:Event)=>{
     const manifest=(event as CustomEvent<TryammModManifest>).detail
