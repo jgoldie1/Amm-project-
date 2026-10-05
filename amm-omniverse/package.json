@@ -70,7 +70,8 @@
     "faithverse-immersive:check": "node tests/faithverse-immersive-gateway-contract.mjs",
     "kingdom-yahisrael:memory:capture": "node scripts/capture-kingdom-yahisrael-memory.mjs",
     "kingdom-living-world:check": "node tests/kingdom-population-metaverse-bible-architecture-contract.mjs",
-    "metaverse-bible-foundry:check": "node tests/metaverse-bible-time-machine-construction-contract.mjs"
+    "metaverse-bible-foundry:check": "node tests/metaverse-bible-time-machine-construction-contract.mjs",
+    "time-machine-foundry:check": "node tests/time-machine-world-foundry-convergence-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
