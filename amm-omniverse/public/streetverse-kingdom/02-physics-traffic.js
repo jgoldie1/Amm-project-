@@ -94,7 +94,7 @@ function makePerson(shirt,pants,skin){
   const scale=rand(.94,1.07);g.scale.setScalar(scale);
   scene.add(g);
   return {
-    mesh:g,torso,headPivot,
+    mesh:g,torso,chest,pelvis,headPivot,head,hair,
     legL,legR,kneeL,kneeR,
     armL:leftArm.root,armR:rightArm.root,
     elbowL:leftArm.elbow,elbowR:rightArm.elbow,
@@ -112,6 +112,55 @@ function animatePerson(p,t,amt){
   p.elbowL.rotation.x=-.10-Math.max(0,s)*.15;p.elbowR.rotation.x=-.10-Math.max(0,-s)*.15;
   p.torso.rotation.z=Math.sin(t*.5)*.025*amt;
   p.headPivot.rotation.y=Math.sin(t*.27)*.035;
+}
+
+function makeBJStubbsFallback(){
+  const p=makePerson(0x111111,0x171717,0x70462f);
+  p.mesh.scale.setScalar(1.01);
+  p.chest.scale.set(.94,1.16,.68);
+  p.head.scale.set(.93,1.07,.90);
+  p.hair.material=lam(0x17110f);
+  p.hair.scale.set(.95,.78,.93);
+  // pulled-back loc silhouette
+  const locMat=lam(0x17110f);
+  for(let i=0;i<10;i++){
+    const a=(i/9-.5)*1.15;
+    const loc=new T.Mesh(new T.CylinderGeometry(.025,.035,.68,7),locMat);
+    loc.position.set(Math.sin(a)*.18,-.16,.13+Math.cos(a)*.06);
+    loc.rotation.z=Math.sin(a)*.18;
+    p.headPivot.add(loc);
+  }
+  // salt-and-pepper beard
+  const beard=new T.Mesh(new T.SphereGeometry(.17,12,9,0,Math.PI*2,Math.PI*.38,Math.PI*.55),lam(0x625c59));
+  beard.position.set(0,-.105,-.105);beard.scale.set(.88,.72,.52);p.headPivot.add(beard);
+  const beardDark=new T.Mesh(new T.SphereGeometry(.176,12,9,0,Math.PI*2,Math.PI*.42,Math.PI*.48),lam(0x2c2725));
+  beardDark.position.set(0,-.08,-.11);beardDark.scale.set(.90,.65,.5);p.headPivot.add(beardDark);
+  // gold pendant / chain marker
+  const chain=new T.Mesh(new T.TorusGeometry(.12,.012,6,18),lam(0xd5aa36));
+  chain.rotation.x=Math.PI/2;chain.position.set(0,.01,-.31);p.torso.add(chain);
+  const pendant=new T.Mesh(new T.SphereGeometry(.035,10,8),lam(0xd5aa36));
+  pendant.position.set(0,-.11,-.33);p.torso.add(pendant);
+  p.characterId='bj-stubbs';
+  p.displayName='BJ Stubbs';
+  p.visualIdentity='bj-v6-fallback';
+  return p;
+}
+function attachBJProductionHuman(person){
+  if(!T.GLTFLoader)return;
+  const url=`${KINGDOM_HUMAN_ASSET_BASE}/SV_BJ_STUBBS_V6.glb`;
+  const attach=gltf=>{
+    if(!gltf?.scene)return;
+    const clone=gltf.scene.clone(true);
+    const box=new T.Box3().setFromObject(clone),size=new T.Vector3();box.getSize(size);
+    const scale=size.y>0?1.82/size.y:1;
+    clone.scale.setScalar(scale);clone.position.y=0;
+    person.mesh.add(clone);
+    person.torso.visible=false;person.legL.visible=false;person.legR.visible=false;
+    person.externalModel=clone;person.humanFallback=false;person.visualIdentity='bj-v6-production';
+  };
+  if(humanAssetCache.has(url)){attach(humanAssetCache.get(url));return;}
+  const loader=new T.GLTFLoader();
+  loader.load(url,gltf=>{humanAssetCache.set(url,gltf);attach(gltf)},undefined,()=>{});
 }
 
 // Production human-mesh slots. Kingdom attempts these when GLTFLoader and files exist.
