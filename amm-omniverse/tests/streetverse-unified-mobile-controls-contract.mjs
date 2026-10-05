@@ -16,6 +16,7 @@ const repair=read('../scripts/repair-streetverse-entry.mjs')
 assert.match(mobile3d,/StreetVerse analog joystick/,'mobile 3D world must expose the direct analog joystick')
 assert.match(mobile3d,/analogInput\.current/,'mobile 3D world must feed analog input directly into its render loop')
 assert.doesNotMatch(mobile3d,/StreetVerse legacy movement controls/,'mobile 3D world must not overlay the retired arrow pad')
+assert.match(mobile3d,/socialToolsOpen&&<div aria-label="StreetVerse mobile social shortcuts"/,'social shortcuts must stay collapsed until SOCIAL / RP is opened')
 for(const [name,source] of Object.entries({community,hyde,generic})){
   assert.doesNotMatch(source,/useStreetVerseMobileShellMounted/,name+' must not depend on the retired arrow shell')
   assert.doesNotMatch(source,/shellControls/,name+' must not conditionally restore retired controls')
