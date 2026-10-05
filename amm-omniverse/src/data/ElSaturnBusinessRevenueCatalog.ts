@@ -1,12 +1,12 @@
-import {priceFor} from './ElSaturnLaunchPriceBook'
+import {priceFor,type PriceBookEntry} from './ElSaturnLaunchPriceBook'
 export type RevenueModel='subscription'|'usage'|'transaction-fee'|'setup-fee'|'managed-service'|'marketplace-commission'|'license'|'fabrication-margin'|'delivery-fee'|'fintech-fee'
 export type ProductStatus='sellable-foundation'|'provider-gated'|'pilot'|'internal-only'
 export type BusinessProduct={
  id:string;brand:'El Saturn'|'TRYAMM'|'Lyons Tech'|'Middleverse AI';name:string;category:string;
- revenueModels:RevenueModel[];status:ProductStatus;customer:string;value:string;productionBoundary?:string
+ revenueModels:RevenueModel[];status:ProductStatus;customer:string;value:string;productionBoundary?:string;pricing?:PriceBookEntry
 }
 
-export const BUSINESS_PRODUCT_CATALOG:BusinessProduct[]=[
+const BASE_BUSINESS_PRODUCT_CATALOG:Omit<BusinessProduct,'pricing'>[]=[
  {id:'ai-business-os',brand:'TRYAMM',name:'AI Business OS',category:'SaaS',revenueModels:['subscription','setup-fee','managed-service'],status:'sellable-foundation',customer:'small business / creator / local merchant',value:'Website, storefront, AI copilot, Business Passport, CRM-like workflows, commerce, analytics and support.'},
  {id:'business-server',brand:'Lyons Tech',name:'Business Server Package',category:'Cloud / SaaS',revenueModels:['subscription','setup-fee','managed-service'],status:'sellable-foundation',customer:'businesses that need TRYAMM-hosted tools',value:'Hosted business services, integrations, storage, automation, commerce and operational dashboards.'},
  {id:'middleverse-workforce',brand:'Middleverse AI',name:'AI Workforce + Contact Center',category:'Workforce SaaS',revenueModels:['subscription','usage','managed-service'],status:'sellable-foundation',customer:'businesses needing remote support/sales/operations',value:'AI-assisted contact center, task routing, training, QA, remote workers and business operators.'},
@@ -18,7 +18,8 @@ export const BUSINESS_PRODUCT_CATALOG:BusinessProduct[]=[
  {id:'12d-fabrication',brand:'El Saturn',name:'12D Fabrication Service',category:'Advanced Manufacturing',revenueModels:['fabrication-margin','usage','setup-fee','managed-service','license'],status:'pilot',customer:'R&D / product design / digital-twin customers',value:'Design-to-fabrication workflow using Asset Passport, simulation, advanced multi-material/robotic manufacturing and inspection evidence.',productionBoundary:'12D is an R&D/future fabrication platform; no browser prompt directly controls physical motion.'},
  {id:'print-swarm',brand:'TRYAMM',name:'Distributed Print Swarm Network',category:'Manufacturing Marketplace',revenueModels:['marketplace-commission','usage','managed-service'],status:'pilot',customer:'print shops / operators / customers needing distributed production',value:'Split verified production orders across certified operators with QA, evidence, shipping and settlement.'},
  {id:'holo-services',brand:'TRYAMM',name:'Holo Services Suite',category:'Digital Services',revenueModels:['subscription','usage','managed-service','license'],status:'sellable-foundation',customer:'businesses / campuses / communities',value:'HoloGPT, Holo Gallery, Holo Ads, Holo Labs, Holo FON, Holo Delivery, Holo Music/TV and world services.'},
-].map(product=>({...product,pricing:priceFor(product.id)}))
+]
+export const BUSINESS_PRODUCT_CATALOG:BusinessProduct[]=BASE_BUSINESS_PRODUCT_CATALOG.map(product=>({...product,pricing:priceFor(product.id)}))
 
 export const BUSINESS_REVENUE_RULES={
  serverAuthoritativeBilling:true,
