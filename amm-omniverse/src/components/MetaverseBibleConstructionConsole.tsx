@@ -2,6 +2,7 @@ import {useEffect,useMemo,useState} from 'react'
 import type {TimeMachineWorldFoundryPlan} from '../runtime/TimeMachineWorldFoundryRuntime'
 import BibleWorldCertificationPanel from './BibleWorldCertificationPanel'
 import BibleWorldPromotionPanel from './BibleWorldPromotionPanel'
+import BibleWorldProductionEvidencePanel from './BibleWorldProductionEvidencePanel'
 
 type Preset={id:string;label:string;era:string;objective:string;assets:Array<{label:string;kind:'environment'|'building'|'prop'|'character'|'vehicle';purpose:string;evidence:'source-backed'|'mixed'|'conceptual';qualityTier:'premium'|'hero'}>}
 
@@ -52,6 +53,7 @@ export default function MetaverseBibleConstructionConsole(){
   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:6,marginTop:10}}>{['SOURCE / ARCHIVE','WORLD BUILDER / CAD','GENIE ×4','MIND OVER MATTER','HOLOFORGE / HOLO GEN','HOLO LAB PREVIEW','COLLISION / NAV / LOD','HUMAN REVIEW'].map(x=><div key={x} style={step}>{x}</div>)}</div>
   {active&&<div style={{...card,marginTop:10,borderColor:'#6f5b2c'}}><div style={eyebrow}>ACTIVE PREVIEW</div><b>{active.title}</b><div style={{fontSize:9,color:'#aab9c5',marginTop:4}}>{active.truthLabel}</div><div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:7}}><span style={pill}>ASSETS {active.assets.length}</span><span style={pill}>PREVIEW READY {ready}</span><span style={pill}>PRODUCTION MUTATION NO</span><span style={pill}>HUMAN REVIEW REQUIRED</span></div></div>}
   <div style={{marginTop:10}}><BibleWorldCertificationPanel/></div>
+  <div style={{marginTop:10}}><BibleWorldProductionEvidencePanel/></div>
   <div style={{marginTop:10}}><BibleWorldPromotionPanel/></div>
   <div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:10}}><a href='/time-machine-foundry' style={link}>OPEN FULL WORLD FOUNDRY</a><a href='/holo-lab' style={link}>OPEN HOLO LAB</a><a href='/kingdom' style={link}>RETURN TO HEBREW SCHOOL</a></div>
   <div role='status' style={{fontSize:9,color:'#d9cfb3',marginTop:8}}>{status}</div>
