@@ -104,6 +104,50 @@ function kyHall({id,x,z,w=30,d=22,h=11,color=0x493d2e,title,sub}){
  if(id)kyArchitecturalAsset(id,x,z,h);
  return {id,x,z,w,d,h,frontZ,doorW};
 }
+function kyTable(x,z,w=4,d=2,color=0x5f4930){
+ kyBox(w,.24,d,color,x,1.02,z,false);
+ for(const sx of [-1,1])for(const sz of [-1,1])kyBox(.18,.9,.18,0x2e241b,x+sx*(w/2-.25),.55,z+sz*(d/2-.22),false);
+}
+function kyBench(x,z,w=4,ry=0){
+ const g=new T.Group(),mat=kyMaterial(0x664a2e),leg=kyMaterial(0x2d251d);
+ const seat=new T.Mesh(new T.BoxGeometry(w,.22,1.05),mat);seat.position.y=.82;g.add(seat);
+ const back=new T.Mesh(new T.BoxGeometry(w,.85,.18),mat);back.position.set(0,1.18,.44);g.add(back);
+ for(const sx of [-1,1]){const l=new T.Mesh(new T.BoxGeometry(.2,.72,.8),leg);l.position.set(sx*(w/2-.35),.45,0);g.add(l)}
+ g.position.set(x,0,z);g.rotation.y=ry;scene.add(g);
+}
+function kyShelf(x,z,w=5,h=5,ry=0){
+ const g=new T.Group();g.position.set(x,0,z);g.rotation.y=ry;scene.add(g);
+ const wood=kyMaterial(0x3a2a1f),bookColors=[0x8e3d31,0x2f557d,0x6b5a27,0x6f3b72,0x3c7049];
+ for(const y of [.55,1.65,2.75,3.85,4.95]){
+  const s=new T.Mesh(new T.BoxGeometry(w,.16,.55),wood);s.position.y=y;g.add(s);
+  for(let i=0;i<Math.floor(w/.45)-1;i++){const b=new T.Mesh(new T.BoxGeometry(.28,.7,.38),kyMaterial(bookColors[i%bookColors.length]));b.position.set(-w/2+.45+i*.45,y+.42,0);g.add(b)}
+ }
+ for(const sx of [-1,1]){const side=new T.Mesh(new T.BoxGeometry(.18,h,.65),wood);side.position.set(sx*w/2,h/2+.25,0);g.add(side)}
+}
+function kyChair(x,z,ry=0,color=0x2f3a44){
+ const g=new T.Group();g.position.set(x,0,z);g.rotation.y=ry;scene.add(g);
+ const m=kyMaterial(color);
+ const seat=new T.Mesh(new T.BoxGeometry(1.05,.16,1.05),m);seat.position.y=.72;g.add(seat);
+ const back=new T.Mesh(new T.BoxGeometry(1.05,1.05,.15),m);back.position.set(0,1.18,.46);g.add(back);
+ for(const sx of [-1,1])for(const sz of [-1,1]){const l=new T.Mesh(new T.BoxGeometry(.12,.65,.12),m);l.position.set(sx*.4,.38,sz*.4);g.add(l)}
+}
+function kyScreen(title,sub,x,y,z,w=7,h=4,ry=0){
+ return kySign(title,sub,x,y,z,ry,w,h);
+}
+function kyCameraRig(x,z,ry=0){
+ const g=new T.Group();g.position.set(x,0,z);g.rotation.y=ry;scene.add(g);
+ const dark=kyMaterial(0x151a1f),lens=kyMaterial(0x28455d,0x2b91b4,.3,.45);
+ const body=new T.Mesh(new T.BoxGeometry(1.2,.8,1.8),dark);body.position.y=2.6;g.add(body);
+ const l=new T.Mesh(new T.CylinderGeometry(.32,.42,.55,16),lens);l.rotation.x=Math.PI/2;l.position.set(0,2.6,-1.15);g.add(l);
+ for(const sx of [-1,1]){const leg=new T.Mesh(new T.CylinderGeometry(.05,.07,2.2,8),dark);leg.position.set(sx*.45,1.15,.2);leg.rotation.z=sx*.18;g.add(leg)}
+}
+function kyHoloLectern(x,z,label){
+ kyBox(2.4,1.25,1.5,0x2b2118,x,.78,z,false);
+ const ring=new T.Mesh(new T.TorusGeometry(.72,.06,8,28),new T.MeshBasicMaterial({color:KY_CYAN,transparent:true,opacity:.8}));
+ ring.rotation.x=Math.PI/2;ring.position.set(x,1.65,z);scene.add(ring);kyAnimated.push({mesh:ring,type:'spin'});
+ kySign(label,'INTERACTIVE',x,2.75,z+.76,0,4.5,1.7);
+}
+
 
 function kyBuildJudahGate(){
  const x=37,z=14;
@@ -116,13 +160,16 @@ function kyBuildJudahGate(){
  crown.position.set(x,14,z);crown.rotation.y=Math.PI/4;scene.add(crown);kyAnimated.push({mesh:crown,type:'pulse'});
 }
 function kyBuildAssembly(){
- kyHall({x:-37,z:-37,w:30,d:22,h:12,color:0x4d402a,title:'ASSEMBLY & PRAYER',sub:'STUDY • REFLECTION • COMMUNITY'});
+ kyHall({id:'assembly-court',x:-37,z:-37,w:30,d:22,h:12,color:0x4d402a,title:'ASSEMBLY & PRAYER',sub:'STUDY • REFLECTION • COMMUNITY'});
+ for(const zz of [-42,-38,-34]){kyBench(-43,zz,7,Math.PI/2);kyBench(-31,zz,7,Math.PI/2)}
+ kyHoloLectern(-37,-46,'REFLECTION');
  for(const ox of [-10,-4,4,10])kyColumn(-37+ox,-24.8,7);
  kyTrim(-37,.46,-37,45,45,0xb69747);
  tree(-57,-57);tree(-17,-57);tree(-57,-17);tree(-17,-17);
 }
 function kyBuildService(){
- kyHall({x:-111,z:-37,w:32,d:22,h:10,color:0x304b3e,title:'SERVANTS OF CHRIST',sub:'TEACHING • CARE • SERVICE'});
+ kyHall({id:'servants-center',x:-111,z:-37,w:32,d:22,h:10,color:0x304b3e,title:'SERVANTS OF CHRIST',sub:'TEACHING • CARE • SERVICE'});
+ kyTable(-117,-42,5,2.2);kyTable(-105,-42,5,2.2);kyShelf(-125,-37,6,5,Math.PI/2);kyShelf(-97,-37,6,5,Math.PI/2);kyHoloLectern(-111,-46,'SERVICE MISSION');
  kyBox(11,3,7,0x203329,-111,1.75,-21,false);
  kySign('SERVICE DESK','COMMUNITY MISSIONS',-111,3.4,-17.35,0,10,2.8);
 }
@@ -136,7 +183,8 @@ function kyBuildMarket(){
  }
 }
 function kyBuildLegacy(){
- kyHall({x:37,z:-111,w:27,d:20,h:9,color:0x49364a,title:'FAMILY LEGACY HALL',sub:'KINGDOM WORKBOOK • REMEMBRANCE'});
+ kyHall({id:'legacy-workbook',x:37,z:-111,w:27,d:20,h:9,color:0x49364a,title:'FAMILY LEGACY HALL',sub:'KINGDOM WORKBOOK • REMEMBRANCE'});
+ kyTable(37,-115,7,3);kyChair(33,-111,0,0x5b475e);kyChair(37,-111,0,0x5b475e);kyChair(41,-111,0,0x5b475e);kyShelf(26,-115,6,5,Math.PI/2);kyShelf(48,-115,6,5,Math.PI/2);kyHoloLectern(37,-118,'BOOK OF REMEMBRANCE');
  for(const x of [18,56]){
    kyBox(14,6,13,0x514332,x,3.25,-88,true);
    kyBox(15,.8,14,0x272018,x,6.5,-88,false);
@@ -144,7 +192,10 @@ function kyBuildLegacy(){
  }
 }
 function kyBuildHebrewSchool(){
- kyHall({x:-37,z:111,w:34,d:22,h:11,color:0x31475b,title:'METAVERSE BIBLE',sub:'HEBREW • STRONG’S • KJV 1611 • FAITH CHRONO'});
+ kyHall({id:'hebrew-school',x:-37,z:111,w:34,d:22,h:11,color:0x31475b,title:'METAVERSE BIBLE',sub:'HEBREW • STRONG’S • KJV 1611 • FAITH CHRONO'});
+ for(const zz of [106,111,116])for(const xx of [-47,-41,-33,-27]){kyTable(xx,zz,3.4,1.8,0x36485a);kyChair(xx,zz+1.8,Math.PI,0x253746)}
+ kyScreen('METAVERSE BIBLE','ETHIOPIAN CANON • HEBREW • STRONG’S',-37,7.7,100.1,20,4.2,Math.PI);
+ kyHoloLectern(-37,104,'OPEN SCRIPTURE');kyShelf(-52,111,6,5,Math.PI/2);kyShelf(-22,111,6,5,Math.PI/2);
  for(const x of [-49,-43,-31,-25])kyBox(3.5,2,.3,KY_CYAN,x,6.8,122.2,false);
  kySign('SCRIPTURE HOUSE','READ • HEBREW • EXPLORE',-37,3.5,98.9,Math.PI,20,3.5);
 }
@@ -162,13 +213,15 @@ function kyBuildGarden(){
  tree(-134,86);tree(-88,86);tree(-134,132);tree(-88,132);
 }
 function kyBuildPress(){
- kyHall({x:111,z:111,w:35,d:23,h:12,color:0x4a3929,title:'KINGDOMS PRESS',sub:'AI CAFÉ • BOOKS • HOLOBOOKS'});
+ kyHall({id:'press-ai-cafe',x:111,z:111,w:35,d:23,h:12,color:0x4a3929,title:'KINGDOMS PRESS',sub:'AI CAFÉ • BOOKS • HOLOBOOKS'});
+ kyShelf(96,111,7,6,Math.PI/2);kyShelf(126,111,7,6,Math.PI/2);kyTable(105,108,6,2.5);kyTable(117,108,6,2.5);kyScreen('AI CAFÉ','WRITE • EDIT • PUBLISH',111,7.3,99.2,18,4.1,Math.PI);kyHoloLectern(111,105,'PUBLISH');
  kyBox(13,3.2,7,0x2b2118,93,1.85,92,true);
  kySign('AI CAFÉ','CREATE • STUDY • PUBLISH',93,3.5,95.65,0,11,2.8);
  for(const [x,z] of [[95,126],[103,126],[119,126],[127,126]]){const t=kyBox(4,.25,4,0x6b5430,x,.8,z,false);void t;}
 }
 function kyBuildBroadcast(){
- kyHall({x:185,z:37,w:34,d:23,h:15,color:0x263f54,title:'ALL AMERICAN NETWORK',sub:'LIVE • REELS • ISAIAH AI TV'});
+ kyHall({id:'broadcast-house',x:185,z:37,w:34,d:23,h:15,color:0x263f54,title:'ALL AMERICAN NETWORK',sub:'LIVE • REELS • ISAIAH AI TV'});
+ kyBox(16,.55,7,0x202c3a,185,.55,31,false);kyScreen('ON AIR','ALL AMERICAN NETWORK',185,8,25.3,16,5,Math.PI);kyCameraRig(176,43,.25);kyCameraRig(194,43,-.25);kyTable(185,45,10,2.6,0x2e3946);kyHoloLectern(185,39,'START SHOW');
  const tower=kyBox(2,24,2,0x536b7a,201,12.25,20,true);
  void tower;
  for(const y of [17,22,27]){
