@@ -87,6 +87,36 @@ export function installCrossVerseCampusVerseBridge(){
     window.dispatchEvent(new CustomEvent('tryamm:crossverse-creator-publish',{detail:envelope}))
   }
 
+  const forwardHoloGift=(event:Event)=>{
+    const detail=(event as CustomEvent<Record<string,unknown>>).detail||{}
+    window.dispatchEvent(new CustomEvent('tryamm:crossverse-holo-gift',{detail:{
+      giftType:safeText(detail.giftType||detail.label),
+      label:safeText(detail.label),
+      tier:safeText(detail.tier),
+      lottieKey:safeText(detail.lottieKey),
+      spatialMode:safeText(detail.spatialMode),
+      visualOnly:Boolean(detail.previewOnly)||!Boolean(detail.moneyMoved),
+      moneyMoved:Boolean(detail.moneyMoved),
+      withdrawable:false,
+      serverVerifiedValue:Boolean(detail.moneyMoved)&&Boolean(detail.serverVerifiedValue),
+      source:'tryamm:holo-gift',
+    }}))
+  }
+
+  const forwardCreditEntitlement=(event:Event)=>{
+    const detail=(event as CustomEvent<Record<string,unknown>>).detail||{}
+    window.dispatchEvent(new CustomEvent('tryamm:crossverse-credit-state',{detail:{
+      itemId:safeText(detail.itemId),
+      label:safeText(detail.label),
+      effect:safeText(detail.effect),
+      channel:safeText(detail.channel),
+      sourceId:safeText(detail.entitlementId||detail.sourceId),
+      closedLoop:true,
+      cashValueMinor:0,
+      withdrawable:false,
+    }}))
+  }
+
   const requestTravel=(event:Event)=>{
     const detail=(event as CustomEvent<CrossVerseTravelDetail>).detail
     if(!detail)return
@@ -106,6 +136,8 @@ export function installCrossVerseCampusVerseBridge(){
   window.addEventListener('tryamm:omnibox-published',forwardCreator as EventListener)
   window.addEventListener('tryamm:creator-commerce-published',forwardCreator as EventListener)
   window.addEventListener('tryamm:crossverse-travel-request',requestTravel as EventListener)
+  window.addEventListener('tryamm:holo-gift',forwardHoloGift as EventListener)
+  window.addEventListener('tryamm:holo-play-entitlement-applied',forwardCreditEntitlement as EventListener)
 
   w.__TRYAMM_CROSSVERSE_CAMPUSVERSE_BRIDGE__=Object.freeze({version:BRIDGE_VERSION})
   window.dispatchEvent(new CustomEvent('tryamm:crossverse-campusverse-bridge-ready',{detail:{
@@ -117,6 +149,8 @@ export function installCrossVerseCampusVerseBridge(){
     connectsReels:true,
     connectsOmniBox:true,
     connectsCreatorCommerce:true,
+    connectsHoloGifts:true,
+    connectsCreditEntitlements:true,
     serverAuthoritativeLedger:true,
   }}))
 
@@ -126,6 +160,8 @@ export function installCrossVerseCampusVerseBridge(){
     window.removeEventListener('tryamm:omnibox-published',forwardCreator as EventListener)
     window.removeEventListener('tryamm:creator-commerce-published',forwardCreator as EventListener)
     window.removeEventListener('tryamm:crossverse-travel-request',requestTravel as EventListener)
+    window.removeEventListener('tryamm:holo-gift',forwardHoloGift as EventListener)
+    window.removeEventListener('tryamm:holo-play-entitlement-applied',forwardCreditEntitlement as EventListener)
     delete w.__TRYAMM_CROSSVERSE_CAMPUSVERSE_BRIDGE__
   }
 }
