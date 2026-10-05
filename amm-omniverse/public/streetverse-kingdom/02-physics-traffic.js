@@ -225,7 +225,8 @@ function attachProductionHuman(person,index,options={}){
     if(!gltf?.scene)return;
     const clone=gltf.scene.clone(true);
     const box=new T.Box3().setFromObject(clone),size=new T.Vector3();box.getSize(size);
-    const scale=size.y>0?target/size.y:1;
+    const parentScale=Math.max(.001,Number(person.mesh?.scale?.y||1));
+    const scale=size.y>0?target/(size.y*parentScale):1;
     clone.scale.setScalar(scale);
     clone.position.y=0;
     person.mesh.add(clone);
