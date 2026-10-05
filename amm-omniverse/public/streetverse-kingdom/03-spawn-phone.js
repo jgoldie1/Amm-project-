@@ -173,7 +173,8 @@ function renderPhone() {
     const pathDone=pathIds.filter(id=>progress.visited?.includes(id)).length;
     const citizenCount=Number(window.YAHISRAEL_CITIZEN_COUNT||0);
     const householdCount=Array.isArray(window.YAHISRAEL_HOUSEHOLDS)?window.YAHISRAEL_HOUSEHOLDS.length:0;
-    h = bar('Yahisrael') + `<div class="ph-note">WHERE HEAVEN MEETS EARTH • KINGDOM PATH ${pathDone}/${pathIds.length}${progress.completed?' • COMPLETE':''}<br>${citizenCount} KINGDOM CITIZENS • ${householdCount} HOUSEHOLDS • ${activities.completed?.length||0} LOCAL ACTIVITIES COMPLETE</div><div class="list">` +
+    const arch=window.YAHISRAEL_ARCHITECTURE_STATUS||{loaded:[],fallback:[]};
+    h = bar('Yahisrael') + `<div class="ph-note">WHERE HEAVEN MEETS EARTH • KINGDOM PATH ${pathDone}/${pathIds.length}${progress.completed?' • COMPLETE':''}<br>${citizenCount} KINGDOM CITIZENS • ${householdCount} HOUSEHOLDS • ${activities.completed?.length||0} LOCAL ACTIVITIES COMPLETE<br>ARCHITECTURE: ${arch.loaded?.length||0}/6 PRODUCTION GLBs • ${arch.fallback?.length||0} FALLBACK</div><div class="list">` +
       destinations.map((d,k)=>`<button data-f data-kdest="${k}"><span><b>${progress.visited?.includes(d.id)?'✓ ':''}${d.shortName}</b><br><small>${d.objective}</small></span><em>Route</em></button>`).join('') + '</div>';
   } else if (s === 'texts') {
     h = bar('Texts') + TEXTS.map(m => `<div class="msg"><b>${m.from}</b>${m.t}</div>`).join('');
