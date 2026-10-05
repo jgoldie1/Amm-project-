@@ -1,0 +1,35 @@
+import fs from 'node:fs'
+const migration=fs.readFileSync(new URL('../supabase/migrations/20261005022000_creator_credit_marketplace_redemption.sql',import.meta.url),'utf8')
+const listings=fs.readFileSync(new URL('../api/credits/creator-marketplace/listings.js',import.meta.url),'utf8')
+const purchase=fs.readFileSync(new URL('../api/credits/creator-marketplace/purchase.js',import.meta.url),'utf8')
+const earnings=fs.readFileSync(new URL('../api/credits/creator-marketplace/earnings.js',import.meta.url),'utf8')
+const reconcile=fs.readFileSync(new URL('../api/credits/creator-marketplace/reconcile.js',import.meta.url),'utf8')
+const release=fs.readFileSync(new URL('../api/credits/creator-marketplace/release.js',import.meta.url),'utf8')
+const market=fs.readFileSync(new URL('../src/components/CreatorCreditMarketplace.tsx',import.meta.url),'utf8')
+const holoMarket=fs.readFileSync(new URL('../src/components/HoloMarketplaceCenter.tsx',import.meta.url),'utf8')
+const card=fs.readFileSync(new URL('../src/components/HoloPlayCard.tsx',import.meta.url),'utf8')
+const channel=fs.readFileSync(new URL('../src/components/HoloCreditChannelShop.tsx',import.meta.url),'utf8')
+const gifts=fs.readFileSync(new URL('../src/components/HoloGiftEngine.tsx',import.meta.url),'utf8')
+const aniyah=fs.readFileSync(new URL('../src/components/Aniyah64TrackStudio.tsx',import.meta.url),'utf8')
+const pocket=fs.readFileSync(new URL('../src/components/StreetVersePocketDimension.tsx',import.meta.url),'utf8')
+const runtime=fs.readFileSync(new URL('../src/runtime/HoloPlayCreditEntitlementRuntime.ts',import.meta.url),'utf8')
+
+for(const x of ['tryamm_play_credit_funding_lots','tryamm_play_credit_spend_allocations','tryamm_creator_credit_listings','tryamm_creator_credit_purchases','tryamm_creator_credit_settlement_ledger','purchase_tryamm_creator_credit_listing','verify_tryamm_play_credit_funding_lot','release_tryamm_creator_credit_payout'])if(!migration.includes(x))throw new Error('Creator credit migration missing '+x)
+for(const x of ["beneficiary_kind in ('CREATOR_COMMISSION','TRYAMM_REVENUE','RESERVE')","v_creator:=floor(v_net*0.40)","v_tryamm:=floor(v_net*0.40)","creator_self_purchase_blocked","creatorCashPayoutFromHolo',false","allocate_tryamm_play_credit_spend"])if(!migration.includes(x))throw new Error('Creator settlement guard missing '+x)
+for(const x of ['fundingRefunded','recoupmentRequired','settlement_state=\'reversed\''])if(!migration.includes(x))throw new Error('Refund propagation missing '+x)
+for(const x of ['provenance_status','rights_status','certification_status','state:\'published\''])if(!listings.includes(x))throw new Error('Certified listing API missing '+x)
+if(!purchase.includes('purchase_tryamm_creator_credit_listing')||!purchase.includes('creatorCashFromHolo:false'))throw new Error('Creator purchase API is not authoritative')
+for(const x of ['verifiedMinor','heldMinor','payableMinor','paidMinor','creatorBasisPoints:4000','earnedHoloCreatesCash:false'])if(!earnings.includes(x))throw new Error('Creator earnings API missing '+x)
+for(const x of ['TRYAMM_CREDIT_RECONCILIATION_SECRET','verify_tryamm_play_credit_funding_lot'])if(!reconcile.includes(x))throw new Error('Funding reconciliation gate missing '+x)
+for(const x of ['TRYAMM_CREDIT_RECONCILIATION_SECRET','release_tryamm_creator_credit_payout','creatorPayoutEligible','riskClear'])if(!release.includes(x))throw new Error('Payout release gate missing '+x)
+for(const x of ['CREATOR CREDIT MARKET','BUY WITH CREDITS','PUBLISH FOR CREDITS','SETTLEMENT POLICY','40% creator • 40% TRYAMM • 20% reserve'])if(!market.includes(x))throw new Error('Creator marketplace UI missing '+x)
+if(!holoMarket.includes('CreatorCreditMarketplace')||!card.includes('CreatorCreditMarketplace'))throw new Error('Creator Credit Market is not mounted in Holo surfaces')
+for(const x of ["case 'lottie-gift'","case 'stage-skin'","case 'sound-pack'","case 'crossverse-room'","case 'pocket-dimension-room'","tryamm:creator-marketplace-asset-acquired"])if(!runtime.includes(x))throw new Error('Creator asset activation missing '+x)
+
+for(const [name,content] of [['card',card],['channel',channel],['gifts',gifts],['aniyah',aniyah],['pocket',pocket]]){
+ if(!content.includes('getAccessToken'))throw new Error(name+' protected API caller missing getAccessToken')
+}
+if(!card.includes('Authorization:`Bearer ${token}`')||!channel.includes('Authorization:`Bearer ${token}`')||!gifts.includes('Authorization:`Bearer ${token}`'))throw new Error('Holo credit API calls are missing bearer authorization')
+if(!aniyah.includes('Authorization:`Bearer ${token}`')||!pocket.includes('Authorization:`Bearer ${token}`'))throw new Error('Studio/Pocket protected API calls are missing bearer authorization')
+
+console.log('Creator Credit Marketplace redemption contract: PASS')
