@@ -1,9 +1,9 @@
-import {useMemo,useState} from 'react'
+import {useEffect,useMemo,useState} from 'react'
 import {ETHIOPIAN_CANON_SOURCE,ETHIOPIAN_ORTHODOX_CANON_81,KJV_1611_STUDY_LAYER,PALEO_HEBREW_ALPHABET,PALEO_HEBREW_STUDY_RULES,STRONGS_STUDY,TRYAMM_88_BOOK_CURRICULUM} from '../data/FaithVerseStudyLibrary'
 
-type Layer='canon81'|'curriculum88'|'strongs'|'hebrew'|'holo'|'network'
+type Layer='canon81'|'curriculum88'|'strongs'|'hebrew'|'kjv1611'|'holo'|'network'
 const options:[Layer,string][]=[
- ['canon81','ETHIOPIAN CANON • 81'],['curriculum88','TRYAMM CURRICULUM • 88'],['strongs',"STRONG'S"],['hebrew','HEBREW / PALEO SCRIPT'],['holo','HOLO LAB'],['network','SERVANTS OF CHRIST'],
+ ['canon81','ETHIOPIAN CANON • 81'],['curriculum88','TRYAMM CURRICULUM • 88'],['strongs',"STRONG'S"],['hebrew','HEBREW / PALEO SCRIPT'],['kjv1611','KJV 1611 STUDY'],['holo','HOLO LAB'],['network','SERVANTS OF CHRIST'],
 ]
 
 function openHoloGPT(prompt:string){
@@ -16,7 +16,15 @@ export default function FaithHoloBook(){
  const [query,setQuery]=useState('')
  const [strong,setStrong]=useState('H7225')
  const books=useMemo(()=>ETHIOPIAN_ORTHODOX_CANON_81.filter(book=>book.title.toLowerCase().includes(query.trim().toLowerCase())),[query])
- return <section aria-label="FaithVerse HoloBook" style={shell}>
+ useEffect(()=>{
+  const open=(event:Event)=>{
+   const requested=String((event as CustomEvent<{layer?:string}>).detail?.layer||'') as Layer
+   if(options.some(([id])=>id===requested))setLayer(requested)
+  }
+  window.addEventListener('tryamm:faith-holobook-layer-request',open as EventListener)
+  return()=>window.removeEventListener('tryamm:faith-holobook-layer-request',open as EventListener)
+ },[])
+ return <section id="faith-holobook" aria-label="FaithVerse HoloBook" style={shell}>
   <div style={{fontSize:10,letterSpacing:2.4,color:'#e5c56a',fontWeight:950}}>FAITHVERSE HOLOBOOK • ONE STUDY LAYER AT A TIME</div>
   <h2 style={{margin:'7px 0 4px'}}>Bible + language + concordance + immersive study</h2>
   <p style={muted}>Official canon metadata, current KJV reading, historical-edition study, lexical tools, Hebrew-script learning, AI assistance, Holo Lab and ministry publishing stay separated by source labels instead of being mixed together.</p>
@@ -52,6 +60,13 @@ export default function FaithHoloBook(){
    <p style={muted}>Learn Biblical Hebrew letters with a modern Hebrew form and an ancient-script reference glyph. Paleo-Hebrew is handled as a script layer; translation and language analysis remain separate.</p>
    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(145px,1fr))',gap:7}}>{PALEO_HEBREW_ALPHABET.map(([name,modern,ancient,sound])=><button key={name} onClick={()=>openHoloGPT(`Teach me the Hebrew letter ${name}: modern form ${modern}, ancient-script study glyph ${ancient}, common transliteration ${sound}. Include reading practice and clearly label historical uncertainty.`)} style={{...bookRow,textAlign:'left',cursor:'pointer'}}><span style={{fontSize:30}}>{modern} {ancient}</span><b>{name}</b><small>{sound}</small></button>)}</div>
    <p style={{...muted,fontSize:11}}>{PALEO_HEBREW_STUDY_RULES.academicBoundary}</p>
+  </div>}
+
+  {layer==='kjv1611'&&<div style={panel}>
+   <h3 style={h3}>{KJV_1611_STUDY_LAYER.title}</h3>
+   <p style={muted}>{KJV_1611_STUDY_LAYER.structure}. This lane keeps the current KJV reader, historical 1611 edition study, Apocrypha visibility and Ethiopian-canon metadata clearly separated by source and edition.</p>
+   <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button onClick={()=>document.getElementById('reader')?.scrollIntoView({behavior:'smooth'})} style={button}>OPEN KJV READER</button><button onClick={()=>openHoloGPT('Help me compare a KJV passage with the 1611 historical edition. Keep current KJV text, original-edition spelling/scans, Apocrypha, commentary and AI explanation clearly labeled and separate.')} style={button}>ASK HOLOGPT EDITION TUTOR</button></div>
+   <p style={{...muted,fontSize:11}}>{KJV_1611_STUDY_LAYER.currentReader}</p>
   </div>}
 
   {layer==='holo'&&<div style={panel}>
