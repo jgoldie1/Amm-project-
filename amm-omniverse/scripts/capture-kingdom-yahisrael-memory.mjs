@@ -15,6 +15,9 @@ const files=[
  'src/components/EthiopianBibleMetaverse.tsx',
  'src/components/FaithHoloBook.tsx',
  'src/components/FaithScriptureReader.tsx',
+ 'src/components/KingdomWorkbookCenter.tsx',
+ 'src/data/KingdomWorkbookRegistry.ts',
+ 'src/components/SetApartPassportReceipts.tsx',
  'src/data/FaithVerseStudyLibrary.ts',
  'src/components/KingdomsPressHub.tsx',
  'src/components/KingdomsPressOperations.tsx',
@@ -33,7 +36,7 @@ const manifest={
  playableKingdom:'/kingdom',
  faithVerse:'/faithverse',
  brand:'Kingdom of Yahisrael • Judah — Where Heaven Meets Earth',
- requiredMarkers:['YAHISRAEL','WHERE HEAVEN MEETS EARTH','FAITHVERSE','KINGDOM DISTRICT','KINGDOMS PRESS','SET APART','SEVEN LIGHTS'],
+ requiredMarkers:['YAHISRAEL','WHERE HEAVEN MEETS EARTH','FAITHVERSE','KINGDOM WORKBOOK','KINGDOM DISTRICT','KINGDOMS PRESS','SET APART','SEVEN LIGHTS'],
  files:Object.fromEntries(files.map(file=>[file,{sha256:hash(file),bytes:statSync(path.join(root,file)).size}])),
  regressionRule:'Kingdom convergence is not green if the front door, FaithVerse, Kingdom District, Judah identity, Scripture study, Press, story canon or same-origin bridge protection disappears.',
 }
@@ -45,6 +48,7 @@ if(String(process.env.TRYAMM_CAPTURE_KINGDOM_YAHISRAEL_SCREENSHOTS||'').toLowerC
   {name:'yahisrael-mobile-390x844.png',route:'/kingdom-of-yahisrael',size:'390,844',wait:'4000'},
   {name:'yahisrael-desktop-1440x900.png',route:'/kingdom-of-yahisrael',size:'1440,900',wait:'4000'},
   {name:'faithverse-mobile-390x844.png',route:'/faithverse',size:'390,844',wait:'4000'},
+  {name:'kingdom-workbook-mobile-390x844.png',route:'/kingdom-workbook',size:'390,844',wait:'4000'},
   {name:'kingdom-playable-mobile-390x844.png',route:'/kingdom',size:'390,844',wait:'5000'},
  ])run([...pw,'screenshot','--browser','chromium','--viewport-size',shot.size,'--wait-for-timeout',shot.wait,base+shot.route,path.join(out,shot.name)])
 }
