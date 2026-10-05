@@ -15,7 +15,7 @@ export default function FaithHoloBook(){
  const [layer,setLayer]=useState<Layer>('canon81')
  const [query,setQuery]=useState('')
  const [strong,setStrong]=useState('H7225')
- const books=useMemo(()=>ETHIOPIAN_ORTHODOX_CANON_81.filter(book=>book.title.toLowerCase().includes(query.trim().toLowerCase())),[query])
+ const books=useMemo(()=>{const q=normalizeFaithBookQuery(query).toLowerCase();return ETHIOPIAN_ORTHODOX_CANON_81.filter(book=>book.title.toLowerCase().includes(q))},[query])
  useEffect(()=>{
   const open=(event:Event)=>{
    const requested=String((event as CustomEvent<{layer?:string}>).detail?.layer||'') as Layer
@@ -35,7 +35,8 @@ export default function FaithHoloBook(){
   {layer==='canon81'&&<div style={panel}>
    <h3 style={h3}>Ethiopian Orthodox Tewahedo canon • 81</h3>
    <p style={muted}>The Church source lists 46 Old Testament books and 35 New Testament books, total 81. This index follows that source's own grouping and names.</p>
-   <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Find a book…" aria-label="Find Ethiopian canon book" style={input}/>
+   <div style={{margin:'8px 0 10px',padding:10,border:'1px solid #7d6732',borderRadius:12,background:'#171309'}}><div style={{fontSize:9,letterSpacing:1.5,color:'#e5c56a',fontWeight:950}}>KINGDOM REQUIRED STUDY BOOKS</div><div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:7}}>{REQUIRED_KINGDOM_STUDY_BOOKS.map(item=><button key={item.title} onClick={()=>setQuery(item.title)} style={chip}>{item.title==='Jubilee'?'BOOK OF JUBILEE / JUBILEES':'BOOK OF ESTHER'}</button>)}</div><p style={{...muted,fontSize:11,marginBottom:0}}>Esther is available in the current KJV reader lane. Jubilee remains in the Ethiopian canon manifest, but full text must come from a verified source before TRYAMM displays scripture text.</p></div>
+   <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Find a book… (Esther / Ester / Jubilee / Jubilees)" aria-label="Find Ethiopian canon book" style={input}/>
    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(185px,1fr))',gap:7,maxHeight:380,overflowY:'auto'}}>{books.map((book,index)=><div key={book.id} style={bookRow}><b>{index+1}. {book.title}</b><small style={{color:book.readerStatus==='kjv-reader-available'?'#9cffb7':'#d4c9a8'}}>{book.testament} • {book.readerStatus==='kjv-reader-available'?'KJV reader lane available':'verified text source required'}</small></div>)}</div>
    <p style={{...muted,fontSize:11}}>Source manifest: {ETHIOPIAN_CANON_SOURCE.title}. Text is not invented for books whose verified corpus is not yet connected.</p>
   </div>}
