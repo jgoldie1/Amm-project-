@@ -1,4 +1,5 @@
 import {useEffect,useMemo,useState} from 'react'
+import StreetVerseRPActionSearch from './StreetVerseRPActionSearch'
 
 type SortMode='smart'|'nearby'|'mission'|'price'|'owned'
 type ActionId='quick'|'use'|'give'|'buy'|'sell'|'trade'|'pickup'|'drop'|'inspect'|'diagnose'|'repair'|'verify'|'open'|'enter'|'fuel'|'upgrade'|'customize'|'work'|'mission'|'call'|'dance'|'wave'|'tip'|'live'|'reel'
@@ -76,6 +77,7 @@ export default function StreetVerseActionCarousel(){
    {Array.from({length:Math.max(0,5-visible.length)}).map((_,i)=><span key={`blank-${i}`}/>)}
    <button aria-label="Next actions" onClick={()=>setPage(p=>(p+1)%pages)} style={nav}>›</button>
   </div>
+  <StreetVerseRPActionSearch compact/>
   <div style={{marginTop:6,textAlign:'center',fontSize:8,color:'#94a3b8'}}>SWIPE/ARROWS • {page%pages+1}/{pages} • SORT changes what StreetVerse puts first, not what you own.</div>
  </div>
 }
