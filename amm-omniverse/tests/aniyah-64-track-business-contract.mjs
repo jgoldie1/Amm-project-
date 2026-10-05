@@ -5,6 +5,8 @@ const studio=fs.readFileSync(new URL('../src/components/Aniyah64TrackStudio.tsx'
 const business=fs.readFileSync(new URL('../src/data/Aniyah64TrackBusiness.ts',import.meta.url),'utf8')
 const checkout=fs.readFileSync(new URL('../api/commerce/checkout.js',import.meta.url),'utf8')
 const app=fs.readFileSync(new URL('../src/App.tsx',import.meta.url),'utf8')
+const readiness=fs.readFileSync(new URL('../api/studio/aniyah-readiness.js',import.meta.url),'utf8')
+const family=fs.readFileSync(new URL('../src/data/familyBusinessRegistry.ts',import.meta.url),'utf8')
 const block=recording.slice(recording.indexOf('const TRACK_NAMES = ['),recording.indexOf(']\n\nconst GUITAR_PRESETS'))
 const trackCount=(block.match(/\{ name:'/g)||[]).length
 if(trackCount!==64)throw new Error('Engineer Mode must have exactly 64 tracks; found '+trackCount)
@@ -15,4 +17,6 @@ for(const x of ['sellerShareBasisPoints:8500','tryammShareBasisPoints:1500','aut
 for(const id of ['aniyah-30d-pass','aniyah-ai-session','aniyah-engineer-session','aniyah-remote-record','aniyah-mix-master','aniyah-soundtrack-package']){if(!checkout.includes(id))throw new Error('Checkout missing '+id)}
 if(!checkout.includes("seller:'aniyah-64-track-studio'")||!checkout.includes('platformBasisPoints:1500'))throw new Error('Aniyah/TRYAMM split not server-priced')
 for(const x of ['Aniyah64TrackStudio','showAniyahStudio','ANIYAH 64-TRACK','__showAniyah64TrackStudio'])if(!app.includes(x))throw new Error('App mount missing '+x)
+for(const x of ['readyForCharges','readyForPayout','ANIYAH_STUDIO_PAYOUT_DESTINATION_ID','ANIYAH_STUDIO_PAYOUT_ELIGIBILITY_APPROVED'])if(!readiness.includes(x))throw new Error('Readiness endpoint missing '+x)
+if(!family.includes("id:'aniyah-64-track-studio'"))throw new Error('Aniyah Studio missing from family business registry')
 console.log('Aniyah 64-track business convergence contract: PASS')
