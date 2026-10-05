@@ -3,6 +3,7 @@ import {useGameStore} from '../game/state/useGameStore'
 import {POCKET_DIMENSION_CATALOG,pocketCatalogItem,pocketDimensionSuggestions,type PocketDimensionAction,type PocketDimensionAsset,type PocketDimensionKind} from '../data/streetVersePocketDimension'
 import StreetVerseCharacterDevelopmentPanel from './StreetVerseCharacterDevelopmentPanel'
 import HoloCreditChannelShop from './HoloCreditChannelShop'
+import {getAccessToken} from '../services/supabaseClient'
 
 const FAV_KEY='tryamm:pocket-dimension:favorites:v1'
 const QUICK_KEY='tryamm:pocket-dimension:quick-slots:v1'
