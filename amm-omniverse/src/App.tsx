@@ -53,6 +53,7 @@ const OTTIsaiahTV = lazy(() => import('./components/OTTIsaiahTV'))
 const StarStudioCenter = lazy(() => import('./components/StarStudioCenter'))
 const Aniyah64TrackStudio = lazy(() => import('./components/Aniyah64TrackStudio'))
 const HoloPlayCard = lazy(() => import('./components/HoloPlayCard'))
+const CrossVerseCreatorEconomyCenter = lazy(() => import('./components/CrossVerseCreatorEconomyCenter'))
 const TryammTvHome = lazy(() => import('./components/TryammTvHome'))
 const PoyoAIStudio = lazy(() => import('./components/PoyoAIStudio'))
 const PropertyVerseCenter = lazy(() => import('./components/PropertyVerseCenter'))
@@ -87,6 +88,7 @@ export default function App() {
   const [showStarStudio, setShowStarStudio] = useState(false)
   const [showAniyahStudio, setShowAniyahStudio] = useState(false)
   const [showHoloPlayCard, setShowHoloPlayCard] = useState(false)
+  const [showCrossVerseEconomy, setShowCrossVerseEconomy] = useState(false)
   const [showTryammTv, setShowTryammTv] = useState(false)
   const [showSecurity, setShowSecurity] = useState(false)
   const [showOmniWear, setShowOmniWear] = useState(false)
@@ -219,6 +221,7 @@ export default function App() {
   ;(window as any).__showStarStudio = () => setShowStarStudio(true)
   ;(window as any).__showAniyah64TrackStudio = () => setShowAniyahStudio(true)
   ;(window as any).__showHoloPlayCard = () => setShowHoloPlayCard(true)
+  ;(window as any).__showCrossVerseEconomy = () => setShowCrossVerseEconomy(true)
   useEffect(()=>{const open=()=>setShowHoloPlayCard(true);window.addEventListener('tryamm:holo-play-card-open',open);return()=>window.removeEventListener('tryamm:holo-play-card-open',open)},[])
   ;(window as any).__showTryammTV = () => setShowTryammTv(true)
   ;(window as any).__showSecurityCenter = () => setShowSecurity(true)
@@ -291,6 +294,7 @@ export default function App() {
     ['🌟','STAR STUDIO',()=>setShowStarStudio(true),'BETA'],
     ['🎚','ANIYAH 64-TRACK',()=>setShowAniyahStudio(true),'BETA'],
     ['💳','HOLO PLAY CARD',()=>setShowHoloPlayCard(true),'BETA'],
+    ['🌀','CROSSVERSE ECONOMY',()=>setShowCrossVerseEconomy(true),'BETA'],
     ['💿','PRO AUDIO',()=>setShowProAudio(true),'BETA'],
     ['🌐','HOLOVERSE',()=>setShowHoloverse(true),'BETA'],
     ['$','PRICING',()=>setShowPricing(true),'LIVE'],
@@ -367,6 +371,7 @@ export default function App() {
         {showStarStudio && <StarStudioCenter onClose={() => setShowStarStudio(false)} />}
         {showAniyahStudio && <div style={{position:'fixed',inset:0,zIndex:12050,background:'#05060d'}}><Aniyah64TrackStudio onClose={() => setShowAniyahStudio(false)} /></div>}
         {showHoloPlayCard && <HoloPlayCard onClose={() => setShowHoloPlayCard(false)} />}
+        {showCrossVerseEconomy && <CrossVerseCreatorEconomyCenter onClose={() => setShowCrossVerseEconomy(false)} />}
         {showTryammTv && <TryammTvHome onClose={() => setShowTryammTv(false)} />}
 
         {showSwipeTip && signedIn && <SwipeTutorial onDismiss={() => {setShowSwipeTip(false);localStorage.setItem('amm_swiped','1')}} />}
