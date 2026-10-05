@@ -67,6 +67,7 @@ function publish(rows=state.evidence){
  state={...state,planId:scene?.planId||state.planId,scene,evidence:rows,...compute(rows),updatedAt:new Date().toISOString()}
  emit('tryamm:bible-world-production-evidence-state',state)
  emit('tryamm:bible-world-qa-evidence',{
+  serverVerified:true,planId:state.planId,source:'server-production-evidence',
   'collision-verified':state.verifiedChecks.collision,
   'navigation-verified':state.verifiedChecks.navigation,
   'mobile-performance-verified':state.verifiedChecks.mobilePerformance,
