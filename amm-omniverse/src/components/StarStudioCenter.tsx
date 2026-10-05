@@ -12,11 +12,12 @@ export default function StarStudioCenter({onClose}:{onClose:()=>void}){
   if(id==='starverse'){window.location.href='/starverse';return}
   if(id==='isaiah-tv'){window.location.href='/isaiah-ai-tv';return}
   if(id==='all-american-network'){window.location.href='/network';return}
-  if(id==='jacobie-real-estate'){setActive('jacobie-vision');window.dispatchEvent(new CustomEvent('tryamm:star-studio-intent',{detail:{target:'jacobie-real-estate',openFlipLab:true}}));return}
+  if(id==='jacobie-real-estate'){setActive('jacobie-real-estate');return}
   setActive(id)
  }
  if(active==='movie-studio')return <Suspense fallback={null}><MovieStudioCenter onClose={()=>setActive(null)}/></Suspense>
- if(active==='jacobie-vision')return <Suspense fallback={null}><JacobieVisionCenter onClose={()=>setActive(null)}/></Suspense>
+ if(active==='jacobie-vision')return <Suspense fallback={null}><JacobieVisionCenter onClose={()=>setActive(null)} initialTrack='cyber-defense'/></Suspense>
+ if(active==='jacobie-real-estate')return <Suspense fallback={null}><JacobieVisionCenter onClose={()=>setActive(null)} initialTrack='real-estate-analysis' initialFlip/></Suspense>
  return <div role='dialog' aria-modal='true' aria-label='STAR STUDIO' style={{position:'fixed',inset:0,zIndex:13000,background:'radial-gradient(circle at 50% 0,#28205c,#070914 58%)',color:'#fff',overflowY:'auto',fontFamily:'system-ui'}}>
   <div style={{maxWidth:1180,margin:'0 auto',padding:'20px 14px 90px'}}>
    <header style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'start'}}><div><div style={{fontSize:10,letterSpacing:3,color:'#ffd75e',fontWeight:950}}>ANYONE CAN BE A STAR</div><h1 style={{fontSize:'clamp(42px,8vw,82px)',lineHeight:.9,margin:'8px 0'}}>STAR STUDIO</h1><p style={{maxWidth:830,color:'#bcc6d6',lineHeight:1.6}}>One front door into the creator systems already built across TRYAMM: music, acting, talent discovery, movies, broadcasting, campus productions, cybersecurity and real-estate storytelling.</p></div><button onClick={onClose} style={close}>×</button></header>
