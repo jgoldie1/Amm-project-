@@ -105,7 +105,7 @@ export function readBibleWorldProductionEvidenceState(){return state}
 export function installBibleWorldProductionEvidenceRuntime(){
  if(installed||typeof window==='undefined')return()=>{}
  installed=true
- const onScene=(event:Event)=>{const p=(event as CustomEvent<BibleWorldScenePackage>).detail;if(p?.schema!=='tryamm.metaverse-bible.scene-package.v1')return;scene=p;state={...state,planId:p.planId,scene:p};publish(state.evidence);void refresh().catch(error=>emit('tryamm:bible-world-production-evidence-error',{error:error instanceof Error?error.message:String(error)}))}
+ const onScene=(event:Event)=>{const p=(event as CustomEvent<BibleWorldScenePackage>).detail;if(p?.schema!=='tryamm.metaverse-bible.scene-package.v1')return;const changed=state.planId!==p.planId;scene=p;state={...state,planId:p.planId,scene:p,evidence:changed?[]:state.evidence};publish(state.evidence);void refresh().catch(error=>emit('tryamm:bible-world-production-evidence-error',{error:error instanceof Error?error.message:String(error)}))}
  const onRequest=(event:Event)=>{
   const d=(event as CustomEvent<any>).detail||{}
   const action=String(d.action||'refresh')
@@ -126,7 +126,8 @@ export function installBibleWorldProductionEvidenceRuntime(){
  }
  addEventListener('tryamm:bible-world-scene-package-ready',onScene as EventListener)
  addEventListener('tryamm:bible-world-production-evidence-request',onRequest as EventListener)
- addEventListener('tryamm:bible-world-production-evidence-request-state',()=>publish())
+ const onState=()=>publish()
+ addEventListener('tryamm:bible-world-production-evidence-request-state',onState)
  emit('tryamm:bible-world-production-evidence-ready',{pass:5,serverVerifiedOnly:true,clientSubmissionNeverEqualsVerification:true,exactArtifactBinding:true})
- return()=>{removeEventListener('tryamm:bible-world-scene-package-ready',onScene as EventListener);removeEventListener('tryamm:bible-world-production-evidence-request',onRequest as EventListener);removeEventListener('tryamm:bible-world-production-evidence-request-state',()=>publish());installed=false}
+ return()=>{removeEventListener('tryamm:bible-world-scene-package-ready',onScene as EventListener);removeEventListener('tryamm:bible-world-production-evidence-request',onRequest as EventListener);removeEventListener('tryamm:bible-world-production-evidence-request-state',onState);installed=false}
 }
