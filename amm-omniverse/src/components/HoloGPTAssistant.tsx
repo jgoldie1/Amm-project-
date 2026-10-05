@@ -28,7 +28,7 @@ function localIntent(question:string){
     [/holoverse/, '__showHoloverse','Opening Holoverse.'],
     [/holo menu|command nexus|all holo|holo functions|menu/, '__showCommandNexusV2','Opening the organized Holo Command Nexus.'],
     [/concierge|what can i do|help me choose/, '__showHoloConcierge','Opening Holo Concierge.'],
-    [/bible|scripture|ethiopian canon|hebrew|strong.?s concordance|paleo.?hebrew/, '__showEthiopianBible','Opening the Ethiopian Bible Metaverse study world.'],
+    [/bible|scripture|ethiopian canon|hebrew|strong.?s concordance|paleo.?hebrew|\besther\b|\bester\b|\bjubilee(?:s)?\b/, '__showEthiopianBible','Opening the Ethiopian Bible Metaverse study world.'],
     [/healthy|grocery|food basket|yahavah/, '__showYahavahGrocery','Opening YAHAVAH Grocery.'],
     [/wig|bundle|extension|beauty supply|makeup|nail/, '__showAllAmericanBeauty','Opening All American Beauty Supply.'],
   ]
