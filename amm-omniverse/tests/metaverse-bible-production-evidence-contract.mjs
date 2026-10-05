@@ -1,0 +1,26 @@
+import fs from 'node:fs'
+
+const migration=fs.readFileSync(new URL('../supabase/migrations/20261005133000_bible_world_production_evidence.sql',import.meta.url),'utf8')
+const evidenceApi=fs.readFileSync(new URL('../api/metaverse-bible/evidence.js',import.meta.url),'utf8')
+const verifyApi=fs.readFileSync(new URL('../api/metaverse-bible/evidence/verify.js',import.meta.url),'utf8')
+const releases=fs.readFileSync(new URL('../api/metaverse-bible/releases.js',import.meta.url),'utf8')
+const runtime=fs.readFileSync(new URL('../src/runtime/BibleWorldProductionEvidenceRuntime.ts',import.meta.url),'utf8')
+const panel=fs.readFileSync(new URL('../src/components/BibleWorldProductionEvidencePanel.tsx',import.meta.url),'utf8')
+const cert=fs.readFileSync(new URL('../src/runtime/BibleWorldCertificationRuntime.ts',import.meta.url),'utf8')
+const consoleUi=fs.readFileSync(new URL('../src/components/MetaverseBibleConstructionConsole.tsx',import.meta.url),'utf8')
+const lab=fs.readFileSync(new URL('../src/components/HoloLabFoundryPreview.tsx',import.meta.url),'utf8')
+const main=fs.readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8')
+
+for(const x of ['tryamm_bible_world_evidence',"'provider-artifact'","'collision'","'navigation'","'mobile-performance'","'accessibility'","'human-visual-review'","state in ('submitted','verified','rejected','superseded')",'Client submissions never equal verification'])if(!migration.includes(x))throw new Error('Pass 5 evidence persistence missing '+x)
+for(const x of ['SUBMITTED_NOT_VERIFIED','provider_artifact_requires_asset_and_url','idempotency_key','requireUser'])if(!evidenceApi.includes(x))throw new Error('Evidence intake missing '+x)
+for(const x of ['TRYAMM_WORLD_EVIDENCE_SECRET','Internal world-evidence authorization required',"'verify','reject'"])if(!verifyApi.includes(x))throw new Error('Internal evidence verification gate missing '+x)
+for(const x of ['serverEvidenceFor','SERVER_EVIDENCE_BLOCKED','SERVER_EVIDENCE_UNAVAILABLE','serverEvidenceChecks','serverEvidenceIds'])if(!releases.includes(x))throw new Error('Release API does not require server evidence: '+x)
+for(const x of ['sameArtifact','provider-artifact','collisionTargets','navigationTargets','mobile-performance','human-visual-review'])if(!releases.includes(x))throw new Error('Exact artifact/QA release gate missing '+x)
+for(const x of ['tryamm.metaverse-bible.production-evidence.v1','sync-provider-artifacts','serverVerified:true','source:\'server-production-evidence\'','exactArtifactBinding:true'])if(!runtime.includes(x))throw new Error('Production evidence runtime missing '+x)
+for(const x of ['PASS 5 • PRODUCTION EVIDENCE','SYNC EXACT ARTIFACT RECEIPTS','REQUEST COLLISION + NAV QA','CAPTURE MOBILE FRAME SAMPLE','CAPTURE ACCESSIBILITY SNAPSHOT','SUBMIT HUMAN VISUAL REVIEW RECEIPT'])if(!panel.includes(x))throw new Error('Pass 5 evidence UI missing '+x)
+for(const x of ['serverVerified!==true',"d.source!=='server-production-evidence'",'String(d.planId||\'\')!==String(state.planId||\'\')'])if(!cert.includes(x))throw new Error('Local certification accepts non-server evidence: '+x)
+if(!consoleUi.includes('BibleWorldProductionEvidencePanel'))throw new Error('Metaverse Bible console missing Pass 5 evidence panel')
+if(!lab.includes('BibleWorldProductionEvidencePanel'))throw new Error('Holo Lab missing Pass 5 evidence panel')
+if(!main.includes('installBibleWorldProductionEvidenceRuntime'))throw new Error('Pass 5 evidence runtime is not globally installed')
+
+console.log('Metaverse Bible Pass 5 production evidence: PASS')
