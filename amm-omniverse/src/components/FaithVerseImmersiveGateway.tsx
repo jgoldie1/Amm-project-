@@ -28,7 +28,7 @@ export default function FaithVerseImmersiveGateway(){
  const [overlay,setOverlay]=useState<'lab'|'xr'|'world'|null>(null)
  const [last,setLast]=useState('Gateway ready.')
  const support=useMemo(()=>({secure:window.isSecureContext,webxr:Boolean((navigator as any).xr),speech:'speechSynthesis'in window}),[])
- useEffect(()=>{const uninstall=installFaithVerseImmersiveStudyRuntime();const open=()=>setOverlay('world');window.addEventListener('tryamm:faithverse-living-world-open',open);return()=>{window.removeEventListener('tryamm:faithverse-living-world-open',open);uninstall?.()}},[])
+ useEffect(()=>{const uninstall=installFaithVerseImmersiveStudyRuntime();const open=()=>setOverlay('world');const lab=()=>setOverlay('lab');window.addEventListener('tryamm:faithverse-living-world-open',open);window.addEventListener('tryamm:faithverse-holo-lab-open',lab);return()=>{window.removeEventListener('tryamm:faithverse-living-world-open',open);window.removeEventListener('tryamm:faithverse-holo-lab-open',lab);uninstall?.()}},[])
 
  const routeFabric=(action:string,payload:Record<string,unknown>)=>{
   const fabric=(window as any).__TRYAMM_OPERATING_FABRIC__
