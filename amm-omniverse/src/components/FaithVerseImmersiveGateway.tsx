@@ -1,13 +1,16 @@
-import {lazy,Suspense,useMemo,useState} from 'react'
+import {lazy,Suspense,useEffect,useMemo,useState} from 'react'
 import {FEATURED_FAITHVERSE_BOOKS} from '../data/FaithVerseStudyLibrary'
+import {installFaithVerseImmersiveStudyRuntime} from '../runtime/FaithVerseImmersiveStudyRuntime'
 
 const HoloLabGateway=lazy(()=>import('./HoloLabGateway'))
 const XRCommandGateway=lazy(()=>import('./XRCommandGateway'))
+const FaithVerseLivingScriptureWorld=lazy(()=>import('./FaithVerseLivingScriptureWorld'))
 
-type PortalId='kjv1611'|'apocrypha'|'ethiopian81'|'hologpt'|'holo-lab'|'xr'|'chrono'|'kingdom'
+type PortalId='living-world'|'kjv1611'|'apocrypha'|'ethiopian81'|'hologpt'|'holo-lab'|'xr'|'chrono'|'kingdom'
 type Portal={id:PortalId;icon:string;label:string;sub:string;copy:string}
 
 const PORTALS:Portal[]=[
+ {id:'living-world',icon:'✨',label:'Living Scripture World',sub:'3D • AR • VR PORTAL TEMPLE',copy:'Enter one spatial gateway for KJV 1611, Apocrypha, Ethiopian canon, Esther, Jubilees, Hebrew, Strong’s, HoloGPT and Faith Chrono.'},
  {id:'kjv1611',icon:'👑',label:'KJV 1611',sub:'80-BOOK HISTORICAL STUDY',copy:'Open the historical 1611 structure: 39 Old Testament, 14 Apocrypha, 27 New Testament.'},
  {id:'apocrypha',icon:'📜',label:'1611 Apocrypha',sub:'14-BOOK STUDY WORLD',copy:'Enter the inter-testament KJV 1611 Apocrypha lane with source labels and HoloGPT study support.'},
  {id:'ethiopian81',icon:'📚',label:'Ethiopian Canon',sub:'81-BOOK CANON METADATA',copy:'Explore Ethiopian Orthodox canon metadata without blending its canon identity into the KJV lane.'},
@@ -22,9 +25,10 @@ function dispatch(name:string,detail:unknown={}){window.dispatchEvent(new Custom
 function scroll(id:string){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'})}
 
 export default function FaithVerseImmersiveGateway(){
- const [overlay,setOverlay]=useState<'lab'|'xr'|null>(null)
+ const [overlay,setOverlay]=useState<'lab'|'xr'|'world'|null>(null)
  const [last,setLast]=useState('Gateway ready.')
  const support=useMemo(()=>({secure:window.isSecureContext,webxr:Boolean((navigator as any).xr),speech:'speechSynthesis'in window}),[])
+ useEffect(()=>{const uninstall=installFaithVerseImmersiveStudyRuntime();const open=()=>setOverlay('world');window.addEventListener('tryamm:faithverse-living-world-open',open);return()=>{window.removeEventListener('tryamm:faithverse-living-world-open',open);uninstall?.()}},[])
 
  const routeFabric=(action:string,payload:Record<string,unknown>)=>{
   const fabric=(window as any).__TRYAMM_OPERATING_FABRIC__
@@ -43,6 +47,7 @@ export default function FaithVerseImmersiveGateway(){
  const open=(portal:Portal)=>{
   routeFabric(portal.id,{portal:portal.id,label:portal.label,sourceLabelsRequired:true})
   dispatch('tryamm:faithverse-gateway-opened',{portal:portal.id,label:portal.label,source:'metaverse-bible'})
+  if(portal.id==='living-world'){setOverlay('world');setLast('Living Scripture World opened.');return}
   if(portal.id==='kjv1611'){dispatch('tryamm:faith-holobook-layer-request',{layer:'kjv1611',source:'immersive-gateway'});scroll('faith-holobook');setLast('KJV 1611 80-book study layer opened.');return}
   if(portal.id==='apocrypha'){dispatch('tryamm:faith-holobook-layer-request',{layer:'apocrypha',source:'immersive-gateway'});scroll('faith-holobook');setLast('KJV 1611 Apocrypha study world opened.');return}
   if(portal.id==='ethiopian81'){dispatch('tryamm:faith-holobook-layer-request',{layer:'canon81',source:'immersive-gateway'});scroll('faith-holobook');setLast('Ethiopian 81-book canon metadata world opened.');return}
@@ -91,6 +96,7 @@ export default function FaithVerseImmersiveGateway(){
    <p role="status" style={{...muted,marginBottom:0}}>{last}</p>
   </div>
 
+  {overlay==='world'&&<Suspense fallback={<div style={loading}>Loading Living Scripture World…</div>}><FaithVerseLivingScriptureWorld onClose={()=>setOverlay(null)}/></Suspense>}
   {overlay==='lab'&&<Suspense fallback={<div style={loading}>Loading Holo Lab…</div>}><HoloLabGateway onClose={()=>setOverlay(null)}/></Suspense>}
   {overlay==='xr'&&<Suspense fallback={<div style={loading}>Loading AR / VR gateway…</div>}><XRCommandGateway onClose={()=>setOverlay(null)}/></Suspense>}
  </section>
