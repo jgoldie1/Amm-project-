@@ -26,6 +26,21 @@ export const ETHIOPIAN_ORTHODOX_CANON_81:FaithCanonBook[]=[
  ].map(title=>book(title,'New Testament')),
 ]
 
+export const REQUIRED_KINGDOM_STUDY_BOOKS=[
+ {title:'Esther',aliases:['Ester','Book of Esther','Book of Ester'],canon:'Ethiopian Orthodox Tewahedo 81',readerStatus:'kjv-reader-available'},
+ {title:'Jubilee',aliases:['Jubilees','Book of Jubilee','Book of Jubilees'],canon:'Ethiopian Orthodox Tewahedo 81',readerStatus:'verified-text-source-required'},
+] as const
+
+export const FAITH_BOOK_SEARCH_ALIASES=new Map<string,string>([
+ ['ester','Esther'],['book of ester','Esther'],['book of esther','Esther'],
+ ['jubilees','Jubilee'],['book of jubilee','Jubilee'],['book of jubilees','Jubilee'],
+])
+
+export const normalizeFaithBookQuery=(value:string)=>{
+ const q=value.trim().toLowerCase()
+ return FAITH_BOOK_SEARCH_ALIASES.get(q)||value.trim()
+}
+
 export const ETHIOPIAN_CANON_SOURCE={
  title:'Ethiopian Orthodox Tewahedo Church — Canonical Books',
  url:'https://www.ethiopianorthodox.org/english/canonical/books.html',
