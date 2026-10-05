@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getAccessToken } from '../services/supabaseClient';
+import CreatorCreditMarketplace from './CreatorCreditMarketplace';
 import {
   getSessionUser,
   signInWithEmail,
@@ -206,6 +207,8 @@ export default function HoloMarketplaceCenter({ onClose }: { onClose: () => void
           {missingGates.length > 0 && <div style={{marginTop:6,color:'#e8b944'}}>Remaining gates: {missingGates.join(', ')}</div>}
         </div>}
       </section>}
+
+      <div style={{marginTop:18}}><CreatorCreditMarketplace/></div>
 
       <div style={{marginTop:18,display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:12}}>
         <section style={{border:'1px solid #20394a',borderRadius:18,padding:15,background:'#071019dd'}}><h2 style={{fontSize:15,marginTop:0}}>Holo Coupon</h2><div style={{display:'flex',gap:8}}><input value={coupon} onChange={e=>setCoupon(e.target.value)} placeholder="Enter code" aria-label="Holo coupon code" style={{flex:1,minHeight:42,borderRadius:12,border:'1px solid #365365',background:'#03080d',color:'#fff',padding:'0 12px'}}/><button style={{borderRadius:12,border:'1px solid #4fe3ff77',background:'#0c2935',color:'#fff',padding:'0 14px'}}>APPLY</button></div><p style={{fontSize:10,color:'#7f9dab'}}>Coupons can be merchant, sponsor, delivery or community-circulation promotions. Server validation controls real redemption.</p></section>
