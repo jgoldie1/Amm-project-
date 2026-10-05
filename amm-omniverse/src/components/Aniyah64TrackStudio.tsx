@@ -1,4 +1,4 @@
-import {lazy,Suspense,useMemo,useState} from 'react'
+import {lazy,Suspense,useEffect,useMemo,useState} from 'react'
 import MusicCreatorStudio from './MusicCreatorStudio'
 import {ANIYAH_64_TRACK_BUSINESS,ANIYAH_64_TRACK_OFFERS,ANIYAH_STUDIO_REVENUE_CHANNELS,formatUsd,type AniyahStudioSku} from '../data/Aniyah64TrackBusiness'
 
@@ -8,8 +8,10 @@ type Mode='create'|'engineer'|'earn'
 export default function Aniyah64TrackStudio({onClose}:{onClose?:()=>void}){
  const [mode,setMode]=useState<Mode>('create')
  const [status,setStatus]=useState('Aniyah 64-Track Studio is ready.')
+ const [readiness,setReadiness]=useState<{readyForCharges?:boolean;readyForPayout?:boolean;message?:string}|null>(null)
  const [busy,setBusy]=useState<string>('')
  const split=useMemo(()=>({aniyah:ANIYAH_64_TRACK_BUSINESS.sellerShareBasisPoints/100,tryamm:ANIYAH_64_TRACK_BUSINESS.tryammShareBasisPoints/100}),[])
+ useEffect(()=>{fetch('/api/studio/aniyah-readiness',{credentials:'include'}).then(r=>r.json()).then(setReadiness).catch(()=>setReadiness(null))},[])
  const buy=async(id:AniyahStudioSku)=>{
   setBusy(id);setStatus('Preparing server-priced checkout…')
   try{
@@ -29,7 +31,7 @@ export default function Aniyah64TrackStudio({onClose}:{onClose?:()=>void}){
   {mode==='create'&&<MusicCreatorStudio/>}
   {mode==='engineer'&&<div style={{height:'calc(100dvh - 78px)'}}><Suspense fallback={<div style={{padding:24}}>Loading 64-track Engineer Mode…</div>}><RecordingStudio onClose={()=>setMode('create')}/></Suspense></div>}
   {mode==='earn'&&<main style={{maxWidth:1080,margin:'0 auto',padding:'18px 14px 80px'}}>
-   <section style={panel}><div style={eyebrow}>HOW THE BUSINESS EARNS</div><h2 style={{margin:'6px 0'}}>Aniyah owns the studio business. TRYAMM provides the platform.</h2><p style={copy}>For the launch studio services below, the server catalog allocates <b>{split.aniyah}%</b> to the Aniyah 64-Track Studio seller allocation and <b>{split.tryamm}%</b> to TRYAMM platform revenue. Payable money still requires verified payment, fulfillment/entitlement, reconciliation and seller-transfer eligibility.</p><p style={{...copy,color:'#ffd9a0'}}>{ANIYAH_64_TRACK_BUSINESS.ageAndPayoutRule}</p></section>
+   <section style={panel}><div style={eyebrow}>HOW THE BUSINESS EARNS</div><h2 style={{margin:'6px 0'}}>Aniyah owns the studio business. TRYAMM provides the platform.</h2><div style={{display:'flex',gap:6,flexWrap:'wrap',margin:'8px 0'}}><span style={pill}>CHARGING: {readiness?.readyForCharges?'READY':'GATED'}</span><span style={pill}>PAYOUT: {readiness?.readyForPayout?'READY':'GATED'}</span></div>{readiness?.message&&<p style={{...copy,color:'#ffd9a0'}}>{readiness.message}</p>}<p style={copy}>For the launch studio services below, the server catalog allocates <b>{split.aniyah}%</b> to the Aniyah 64-Track Studio seller allocation and <b>{split.tryamm}%</b> to TRYAMM platform revenue. Payable money still requires verified payment, fulfillment/entitlement, reconciliation and seller-transfer eligibility.</p><p style={{...copy,color:'#ffd9a0'}}>{ANIYAH_64_TRACK_BUSINESS.ageAndPayoutRule}</p></section>
    <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(235px,1fr))',gap:10,marginTop:12}}>{ANIYAH_64_TRACK_OFFERS.map(o=><article key={o.id} style={panel}><div style={eyebrow}>{o.kind.toUpperCase()}</div><h3 style={{margin:'6px 0'}}>{o.name}</h3><div style={{fontSize:28,fontWeight:950,color:'#ffd75e'}}>{formatUsd(o.priceMinor)}</div><p style={copy}>{o.description}</p><div style={{fontSize:9,color:'#8fa2b8'}}>At launch split: {formatUsd(Math.floor(o.priceMinor*ANIYAH_64_TRACK_BUSINESS.sellerShareBasisPoints/10000))} seller allocation • {formatUsd(Math.floor(o.priceMinor*ANIYAH_64_TRACK_BUSINESS.tryammShareBasisPoints/10000))} TRYAMM</div><button disabled={busy===o.id} onClick={()=>buy(o.id)} style={buyBtn}>{busy===o.id?'PREPARING…':'BUY / BOOK'}</button></article>)}</section>
    <section style={{...panel,marginTop:12}}><div style={eyebrow}>FAMILY SUPPORT</div><h3 style={{margin:'6px 0'}}>Use the business to help family projects without hiding the accounting.</h3><p style={copy}>{ANIYAH_64_TRACK_BUSINESS.familySupport.purpose}</p><p style={copy}>The current business policy recommends reserving up to {ANIYAH_64_TRACK_BUSINESS.familySupport.recommendedReserveBasisPoints/100}% of Aniyah Studio merchant proceeds for approved family-project reinvestment, but it is <b>not an automatic cash transfer</b>. Owner/guardian approval and the applicable payout rules are required.</p><div style={{display:'flex',gap:6,flexWrap:'wrap'}}>{ANIYAH_64_TRACK_BUSINESS.familySupport.destinations.map(x=><span key={x} style={pill}>{x}</span>)}</div></section>
    <section style={{...panel,marginTop:12}}><div style={eyebrow}>REVENUE CHANNELS</div><div style={{display:'grid',gap:5,marginTop:8}}>{ANIYAH_STUDIO_REVENUE_CHANNELS.map(x=><div key={x} style={{fontSize:10,color:'#b5c2d0'}}>• {x}</div>)}</div></section>
