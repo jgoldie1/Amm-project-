@@ -13,13 +13,14 @@ function go(path:string){const nav=(window as any).__tryammNavigate;if(typeof na
 
 export default function FaithHoloBook(){
  const [layer,setLayer]=useState<Layer>('canon81')
+ const selectLayer=(next:Layer,source:string)=>{setLayer(next);window.dispatchEvent(new CustomEvent('tryamm:faith-holobook-layer-selected',{detail:{layer:next,source}}))}
  const [query,setQuery]=useState('')
  const [strong,setStrong]=useState('H7225')
  const books=useMemo(()=>{const q=normalizeFaithBookQuery(query).toLowerCase();return ETHIOPIAN_ORTHODOX_CANON_81.filter(book=>book.title.toLowerCase().includes(q))},[query])
  useEffect(()=>{
   const open=(event:Event)=>{
    const requested=String((event as CustomEvent<{layer?:string}>).detail?.layer||'') as Layer
-   if(options.some(([id])=>id===requested))setLayer(requested)
+   if(options.some(([id])=>id===requested))selectLayer(requested,'event-request')
   }
   window.addEventListener('tryamm:faith-holobook-layer-request',open as EventListener)
   return()=>window.removeEventListener('tryamm:faith-holobook-layer-request',open as EventListener)
@@ -29,7 +30,7 @@ export default function FaithHoloBook(){
   <h2 style={{margin:'7px 0 4px'}}>Bible + language + concordance + immersive study</h2>
   <p style={muted}>Official canon metadata, current KJV reading, historical-edition study, lexical tools, Hebrew-script learning, AI assistance, Holo Lab and ministry publishing stay separated by source labels instead of being mixed together.</p>
   <label style={{display:'block',fontSize:11,fontWeight:900,color:'#e5c56a'}}>STUDY LAYER
-   <select value={layer} onChange={e=>setLayer(e.target.value as Layer)} style={select}>{options.map(([id,label])=><option key={id} value={id}>{label}</option>)}</select>
+   <select value={layer} onChange={e=>selectLayer(e.target.value as Layer,'manual-select')} style={select}>{options.map(([id,label])=><option key={id} value={id}>{label}</option>)}</select>
   </label>
 
   {layer==='canon81'&&<div style={panel}>
