@@ -15,6 +15,11 @@ const KY_DESTINATIONS=[
  {id:'broadcast-house',name:'All American Network Broadcast House',shortName:'Broadcast House',x:185,z:37,node:[2,0],missionId:'kingdom-broadcast',objective:'Create and distribute LIVE teachings, shows, Reels and Kingdom programming.',route:'/network'},
 ];
 window.YAHISRAEL_DESTINATIONS=KY_DESTINATIONS;
+const KY_PATH_KEY='tryamm.kingdom-yahisrael.path.v1';
+const KY_PATH_IDS=['judah-gate','hebrew-school','servants-center','garden-farm','press-ai-cafe'];
+function kyReadPath(){try{const v=JSON.parse(localStorage.getItem(KY_PATH_KEY)||'{}');return {visited:Array.isArray(v.visited)?v.visited:[],completed:Boolean(v.completed)}}catch{return {visited:[],completed:false}}}
+function kyWritePath(v){try{localStorage.setItem(KY_PATH_KEY,JSON.stringify({...v,savedAt:Date.now()}))}catch{};window.YAHISRAEL_PATH_PROGRESS=v}
+window.YAHISRAEL_PATH_PROGRESS=kyReadPath();
 
 const kyAnimated=[];
 function kyMaterial(color,emissive){
@@ -148,9 +153,23 @@ function kyPost(type,detail){
   if(window.parent&&window.parent!==window)window.parent.postMessage({channel:'tryamm:streetverse-kingdom',type,source:'kingdom-yahisrael-living-world',...detail},window.location.origin);
  }catch{}
 }
+function kyMarkVisited(d){
+ const state=kyReadPath();
+ if(!state.visited.includes(d.id))state.visited.push(d.id);
+ const complete=KY_PATH_IDS.every(id=>state.visited.includes(id));
+ if(complete&&!state.completed){
+   state.completed=true;
+   kyPost('MISSION_COMPLETED',{missionId:'where-heaven-meets-earth-kingdom-path',destination:'Kingdom of Yahisrael',district:'Yahisrael',contentId:'kingdom-path-v1'});
+   toast('Kingdom Path complete • server verification requested');
+ }
+ kyWritePath(state);
+ try{window.dispatchEvent(new CustomEvent('tryamm:kingdom-path-progress',{detail:{...state,total:KY_PATH_IDS.length,required:KY_PATH_IDS}}))}catch{}
+ return state;
+}
 function visitKingdomDestination(d){
  if(!d)return;
- toast(d.name+': '+d.objective);
+ const progress=kyMarkVisited(d);
+ toast(d.name+': '+d.objective+' • Path '+progress.visited.filter(id=>KY_PATH_IDS.includes(id)).length+'/'+KY_PATH_IDS.length);
  kyPost('KINGDOM_DESTINATION_ENTERED',{destination:d.name,district:d.shortName,x:d.x,y:0,z:d.z,missionId:d.missionId,contentId:d.id});
  kyPost('MISSION_STARTED',{destination:d.name,district:d.shortName,x:d.x,y:0,z:d.z,missionId:d.missionId,contentId:d.id});
  try{window.dispatchEvent(new CustomEvent('tryamm:kingdom-destination-entered',{detail:d}))}catch{}
