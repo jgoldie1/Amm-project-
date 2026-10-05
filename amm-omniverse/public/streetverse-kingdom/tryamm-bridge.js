@@ -21,3 +21,16 @@ setInterval(()=>{
     if(now-lastPositionAt>1000){lastPositionAt=now;send('PLAYER_MOVED',{district:typeof zoneName==='function'?zoneName(player.pos.x,player.pos.z):'kingdom-district',x:player.pos.x,y:player.pos.y,z:player.pos.z,vehicleId:vehicle||undefined})}
   }catch{}
 },250);
+window.addEventListener('message',event=>{
+  if(event.origin!==window.location.origin)return;
+  const data=event.data;
+  if(!data||data.channel!=='tryamm:kingdom-control')return;
+  if(data.type==='RP_ACTION'){
+    try{
+      if(typeof player==='undefined'||typeof setPersonRpAction!=='function')return;
+      setPersonRpAction(player,String(data.actionId||''),{loop:Boolean(data.loop),durationMs:Number(data.durationMs||4200)});
+      if(typeof toast==='function')toast('RP: '+String(data.label||data.actionId||'action'));
+      send('PLAYER_MOVED',{district:'kingdom-district',x:player.pos.x,y:player.pos.y,z:player.pos.z,source:'rp-action'});
+    }catch{}
+  }
+});
