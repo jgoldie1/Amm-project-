@@ -1,4 +1,5 @@
 import {lazy,Suspense,useEffect,useMemo,useState} from 'react'
+import {getAccessToken} from '../services/supabaseClient'
 import MusicCreatorStudio from './MusicCreatorStudio'
 import {ANIYAH_64_TRACK_BUSINESS,ANIYAH_64_TRACK_OFFERS,ANIYAH_STUDIO_REVENUE_CHANNELS,formatUsd,type AniyahStudioSku} from '../data/Aniyah64TrackBusiness'
 
@@ -11,11 +12,11 @@ export default function Aniyah64TrackStudio({onClose}:{onClose?:()=>void}){
  const [readiness,setReadiness]=useState<{readyForCharges?:boolean;readyForPayout?:boolean;message?:string}|null>(null)
  const [busy,setBusy]=useState<string>('')
  const split=useMemo(()=>({aniyah:ANIYAH_64_TRACK_BUSINESS.sellerShareBasisPoints/100,tryamm:ANIYAH_64_TRACK_BUSINESS.tryammShareBasisPoints/100}),[])
- useEffect(()=>{fetch('/api/studio/aniyah-readiness',{credentials:'include'}).then(r=>r.json()).then(setReadiness).catch(()=>setReadiness(null))},[])
+ useEffect(()=>{getAccessToken().then(token=>token?fetch('/api/studio/aniyah-readiness',{headers:{Authorization:`Bearer ${token}`}}).then(r=>r.json()).then(setReadiness):setReadiness(null)).catch(()=>setReadiness(null))},[])
  const buy=async(id:AniyahStudioSku)=>{
   setBusy(id);setStatus('Preparing server-priced checkout…')
   try{
-   const res=await fetch('/api/commerce/checkout',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({lines:[{id,qty:1}],clientOrderId:'ANIYAH-'+Date.now().toString(36).toUpperCase()})})
+   const token=await getAccessToken();if(!token)throw new Error('Sign in before buying or booking studio services.');const res=await fetch('/api/commerce/checkout',{method:'POST',headers:{'content-type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({lines:[{id,qty:1}],clientOrderId:'ANIYAH-'+Date.now().toString(36).toUpperCase()})})
    const data=await res.json().catch(()=>({}))
    if(data?.checkoutUrl&&data?.state==='CHECKOUT_READY'){window.location.href=data.checkoutUrl;return}
    if(data?.state==='PAYMENT_GATED'){setStatus('Order saved, but live charging/payout remains gated until Stripe webhooks, seller transfers and reconciliation are verified.');return}
