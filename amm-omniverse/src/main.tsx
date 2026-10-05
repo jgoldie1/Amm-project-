@@ -43,6 +43,7 @@ const UnifiedCommerceHub=lazy(()=>import('./components/UnifiedCommerceHub'))
 const KingdomDistrictRoute=lazy(()=>import('./components/KingdomDistrictRoute'))
 const KingdomYahisraelCenter=lazy(()=>import('./components/KingdomYahisraelCenter'))
 const KingdomWorkbookCenter=lazy(()=>import('./components/KingdomWorkbookCenter'))
+const TimeMachineWorldFoundryCenter=lazy(()=>import('./components/TimeMachineWorldFoundryCenter'))
 const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
 const MeshyFactoryControlPanel=lazy(()=>import('./components/MeshyFactoryControlPanel'))
 
@@ -72,6 +73,7 @@ try {
   const isKingdomYahisrael=['/kingdom-of-yahisrael','/kingdom-of-yahisrael/','/yahisrael','/yahisrael/','/judah','/judah/','/where-heaven-meets-earth','/where-heaven-meets-earth/'].includes(currentPath)
   const isKingdomWorkbook=currentPath==='/kingdom-workbook'||currentPath==='/kingdom-workbook/'
   const isKingdomDistrict=currentPath==='/kingdom'||currentPath==='/kingdom/'
+  const isTimeMachineFoundry=['/time-machine-foundry','/time-machine-foundry/','/chrono-foundry','/chrono-foundry/','/world-foundry','/world-foundry/'].includes(currentPath)
   const isGlobalTradeWorld=['/global-trade','/global-trade/','/my-world','/my-world/','/we-are-the-world','/we-are-the-world/'].includes(currentPath)
   const isTwinWorld=currentPath.startsWith('/streetverse/twin-world')
   const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
@@ -136,6 +138,7 @@ try {
   else if(isKingdomYahisrael)routeContent=<Suspense fallback={routeFallback}><KingdomYahisraelCenter /></Suspense>
   else if(isKingdomWorkbook)routeContent=<Suspense fallback={routeFallback}><KingdomWorkbookCenter /></Suspense>
   else if(isKingdomDistrict)routeContent=<Suspense fallback={routeFallback}><KingdomDistrictRoute /></Suspense>
+  else if(isTimeMachineFoundry)routeContent=<Suspense fallback={routeFallback}><TimeMachineWorldFoundryCenter /></Suspense>
   else if(isGlobalTradeWorld)routeContent=<Suspense fallback={routeFallback}><GlobalTradeWorldHub /></Suspense>
   else if(standaloneSite)routeContent=<StandaloneProductSite site={standaloneSite} />
   else if(isBusinessDirectory)routeContent=<FamilyBusinessDirectory />
@@ -174,11 +177,17 @@ const entryDiagnostic = (() => {
 // Runtime installers are loaded only after the core bundle has evaluated and a mount target exists.
 // A broken optional runtime module can no longer abort JavaScript bootstrap before React renders.
 const installOptionalRuntimes = () => {
-  import('./runtime/TRYAMMSystemFabricRuntime').then(m => m.installTryammSystemFabricRuntime()).catch(error => console.error('[TRYAMM] System fabric failed after core mount.', error))\n  import('./runtime/CrossVerseCampusVerseBridge').then(m => m.installCrossVerseCampusVerseBridge()).catch(error => console.error('[TRYAMM] CrossVerse/CampusVerse bridge failed after core mount.', error))\n  import('./runtime/KingdomStreetVerseBridge').then(m => m.installKingdomStreetVerseBridge()).catch(error => console.error('[TRYAMM] Kingdom/StreetVerse bridge failed after core mount.', error))\n  import('./runtime/HoloForgeAssetRuntime').then(m => m.installHoloForgeRuntime()).catch(error => console.error('[TRYAMM] HoloForge failed after core mount.', error))
+  import('./runtime/TRYAMMSystemFabricRuntime').then(m => m.installTryammSystemFabricRuntime()).catch(error => console.error('[TRYAMM] System fabric failed after core mount.', error))
+  import('./runtime/CrossVerseCampusVerseBridge').then(m => m.installCrossVerseCampusVerseBridge()).catch(error => console.error('[TRYAMM] CrossVerse/CampusVerse bridge failed after core mount.', error))
+  import('./runtime/KingdomStreetVerseBridge').then(m => m.installKingdomStreetVerseBridge()).catch(error => console.error('[TRYAMM] Kingdom/StreetVerse bridge failed after core mount.', error))
+  import('./runtime/HoloForgeAssetRuntime').then(m => m.installHoloForgeRuntime()).catch(error => console.error('[TRYAMM] HoloForge failed after core mount.', error))
   import('./runtime/MindOverMatterCleanRoomRuntime').then(m => m.installMindOverMatterCleanRoomRuntime()).catch(error => console.error('[TRYAMM] Mind Over Matter failed after core mount.', error))
+  import('./runtime/TimeMachineWorldFoundryRuntime').then(m => m.installTimeMachineWorldFoundryRuntime()).catch(error => console.error('[TRYAMM] Time Machine World Foundry failed after core mount.', error))
   import('./runtime/KingdomYahisraelArchitectureUpgradeRuntime').then(m => m.installKingdomYahisraelArchitectureUpgradeRuntime()).catch(error => console.error('[TRYAMM] Kingdom architecture upgrade runtime failed after core mount.', error))
   import('./runtime/KingdomYahisraelMissionRuntime').then(m => m.installKingdomYahisraelMissionRuntime()).catch(error => console.error('[TRYAMM] Kingdom mission runtime failed after core mount.', error))
-  import('./runtime/StreetVerseRapierPhysicsRuntime').then(m => m.installStreetVerseRapierPhysics()).catch(error => console.error('[TRYAMM] Rapier physics failed after core mount.', error))\n  import('./runtime/GraphicsAccelerationRuntime').then(m => m.installTryammGraphicsAccelerationRuntime()).catch(error => console.error('[TRYAMM] Graphics acceleration profile failed after core mount.', error))\n  import('./runtime/OmniFabricComputeRouter').then(m => m.installOmniFabricComputeRouter()).catch(error => console.error('[TRYAMM] OmniFabric compute router failed after core mount.', error))
+  import('./runtime/StreetVerseRapierPhysicsRuntime').then(m => m.installStreetVerseRapierPhysics()).catch(error => console.error('[TRYAMM] Rapier physics failed after core mount.', error))
+  import('./runtime/GraphicsAccelerationRuntime').then(m => m.installTryammGraphicsAccelerationRuntime()).catch(error => console.error('[TRYAMM] Graphics acceleration profile failed after core mount.', error))
+  import('./runtime/OmniFabricComputeRouter').then(m => m.installOmniFabricComputeRouter()).catch(error => console.error('[TRYAMM] OmniFabric compute router failed after core mount.', error))
   import('./runtime/QuantumHoloLensRuntime').then(m => m.installQuantumHoloLensRuntime()).catch(error => console.error('[TRYAMM] Quantum/Holographic Lens failed after core mount.', error))
   import('./runtime/BusinessDiscoveryLensRuntime').then(m => m.installBusinessDiscoveryLensRuntime()).catch(error => console.error('[TRYAMM] Business discovery lens failed after core mount.', error))
   import('./runtime/CreatorRevenueFabricRuntime').then(m => m.installCreatorRevenueFabricRuntime()).catch(error => console.error('[TRYAMM] Creator Revenue Fabric failed after core mount.', error))
