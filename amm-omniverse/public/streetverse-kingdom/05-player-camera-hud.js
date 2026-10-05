@@ -182,7 +182,8 @@ function drawMap(ctx, W, H, cx, cz, sc, opts) {
   if (opts.full) {
     ctx.font = '600 12px "Saira Condensed", sans-serif'; ctx.textAlign = 'center';
     for (const l of LANDMARKS) {
-      const x = X(l.node[0] * CELL), y = Z(l.node[1] * CELL);
+      const lx=Array.isArray(l.pos)?l.pos[0]:l.node[0]*CELL, lz=Array.isArray(l.pos)?l.pos[1]:l.node[1]*CELL;
+      const x = X(lx), y = Z(lz);
       ctx.fillStyle = '#f5f1ff'; ctx.beginPath(); ctx.arc(x, y, 3, 0, 7); ctx.fill();
       ctx.fillText(l.name, clamp(x, 52, W - 52), y + (y > H - 20 ? -8 : 15));
     }
@@ -217,7 +218,9 @@ function updateHUD(dt) {
   if (car) { $('spd').textContent = Math.round(Math.abs(car.speed) * 2.237); $('autoTag').hidden = !car.auto; }
   let pr = '';
   if (!phone.open && !radial.open) {
-    if (!car && nearestCar(4.6)) pr = `${glyph('enter')}Get in`;
+    const kd=(!car&&typeof nearestKingdomDestination==='function')?nearestKingdomDestination(8):null;
+    if (kd) pr = `${glyph('enter')}Enter ${kd.shortName}`;
+    else if (!car && nearestCar(4.6)) pr = `${glyph('enter')}Get in`;
     else if (car && Math.abs(car.speed) < 1 && !car.auto) pr = `${glyph('enter')}Get out`;
   }
   const pe = $('prompt'); if (pe.innerHTML !== pr) pe.innerHTML = pr; pe.hidden = !pr;
