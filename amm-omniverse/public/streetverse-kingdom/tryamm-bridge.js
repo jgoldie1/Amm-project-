@@ -5,7 +5,7 @@ const send=(type,detail={})=>{
   try{window.parent&&window.parent!==window&&window.parent.postMessage(payload,window.location.origin)}catch{}
   try{window.dispatchEvent(new CustomEvent('tryamm:kingdom-local-event',{detail:payload}))}catch{}
 };
-send('KINGDOM_READY',{district:'kingdom-district',build:'kingdom-district-v2'});
+send('KINGDOM_READY',{district:'kingdom-district',build:'yahisrael-living-kingdom-v4',metaverseBiblePreview:true});
 let lastVehicle=null,lastWaypoint='',lastPositionAt=0;
 setInterval(()=>{
   try{
@@ -25,6 +25,10 @@ window.addEventListener('message',event=>{
   if(event.origin!==window.location.origin)return;
   const data=event.data;
   if(!data||data.channel!=='tryamm:kingdom-control')return;
+  if(data.type==='BIBLE_WORLD_PREVIEW'){
+    try{if(typeof window.installBibleWorldPreviewPackage==='function')window.installBibleWorldPreviewPackage(data.package||data.preview||null)}catch{}
+    return;
+  }
   if(data.type==='RP_ACTION'){
     try{
       if(typeof player==='undefined'||typeof setPersonRpAction!=='function')return;
