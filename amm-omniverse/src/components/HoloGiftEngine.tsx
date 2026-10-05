@@ -85,7 +85,7 @@ export default function HoloGiftEngine({recipientId='demo-host',previewOnly=fals
   async function sendCreditSupport(itemId:'live-holo-spark'|'live-holo-support-badge'){
     setBusy(true)
     try{
-      const response=await fetch('/api/credits/spend',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({itemId,clientReference:'GIFT-'+itemId+'-'+Date.now().toString(36)})})
+      const token=await getAccessToken();if(!token)throw new Error('Sign in before using Holo Credits.');const response=await fetch('/api/credits/spend',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({itemId,clientReference:'GIFT-'+itemId+'-'+Date.now().toString(36)})})
       const data=await response.json().catch(()=>({}))
       if(!response.ok)throw new Error(data?.error||'Credit support failed')
       window.dispatchEvent(new CustomEvent('tryamm:holo-play-entitlement',{detail:data.entitlement}))
