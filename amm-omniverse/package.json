@@ -66,7 +66,7 @@
     "kingdom-yahisrael:check": "node tests/kingdom-yahisrael-convergence-contract.mjs",
     "kingdom-yahisrael:memory": "node scripts/capture-kingdom-yahisrael-memory.mjs",
     "kingdom-yahisrael-world:check": "node tests/kingdom-yahisrael-visible-world-contract.mjs",
-    "metaverse-bible:check": "node tests/metaverse-bible-kingdom-contract.mjs"
+    "metaverse-bible:check": "node tests/metaverse-bible-kingdom-integration-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
