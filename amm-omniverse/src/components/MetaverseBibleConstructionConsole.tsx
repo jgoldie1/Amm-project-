@@ -1,4 +1,5 @@
 import {useEffect,useMemo,useState} from 'react'
+import WorldFoundryProductionFinishPanel from './WorldFoundryProductionFinishPanel'
 import type {TimeMachineWorldFoundryPlan} from '../runtime/TimeMachineWorldFoundryRuntime'
 import BibleWorldCertificationPanel from './BibleWorldCertificationPanel'
 import BibleWorldPromotionPanel from './BibleWorldPromotionPanel'
@@ -52,6 +53,7 @@ export default function MetaverseBibleConstructionConsole(){
   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:8,marginTop:10}}>{PRESETS.map(p=><article key={p.id} style={card}><div style={eyebrow}>RECONSTRUCTION</div><h3 style={{margin:'5px 0'}}>{p.label}</h3><div style={{fontSize:9,color:'#e4c96f'}}>{p.era}</div><p style={copy}>{p.objective}</p><button onClick={()=>build(p)} style={button}>BUILD HOLOGRAM WORLD</button></article>)}</div>
   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:6,marginTop:10}}>{['SOURCE / ARCHIVE','WORLD BUILDER / CAD','GENIE ×4','MIND OVER MATTER','HOLOFORGE / HOLO GEN','HOLO LAB PREVIEW','COLLISION / NAV / LOD','HUMAN REVIEW'].map(x=><div key={x} style={step}>{x}</div>)}</div>
   {active&&<div style={{...card,marginTop:10,borderColor:'#6f5b2c'}}><div style={eyebrow}>ACTIVE PREVIEW</div><b>{active.title}</b><div style={{fontSize:9,color:'#aab9c5',marginTop:4}}>{active.truthLabel}</div><div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:7}}><span style={pill}>ASSETS {active.assets.length}</span><span style={pill}>PREVIEW READY {ready}</span><span style={pill}>PRODUCTION MUTATION NO</span><span style={pill}>HUMAN REVIEW REQUIRED</span></div></div>}
+  <div style={{marginTop:10}}><WorldFoundryProductionFinishPanel compact/></div>
   <div style={{marginTop:10}}><BibleWorldCertificationPanel/></div>
   <div style={{marginTop:10}}><BibleWorldProductionEvidencePanel/></div>
   <div style={{marginTop:10}}><BibleWorldPromotionPanel/></div>
