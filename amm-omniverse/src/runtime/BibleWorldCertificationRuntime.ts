@@ -94,7 +94,8 @@ export function installBibleWorldCertificationRuntime(){
   state=save({...state,previews:[...state.previews.filter(x=>x.id!==p.id),p]})
  }
  const onEvidence=(event:Event)=>{
-  const d=(event as CustomEvent<Partial<Record<BibleWorldCertificationCheck,boolean>>>).detail||{}
+  const d=(event as CustomEvent<any>).detail||{}
+  if(d.serverVerified!==true||d.source!=='server-production-evidence'||String(d.planId||'')!==String(state.planId||''))return
   const checks={...state.checks}
   for(const k of CHECKS)if(typeof d[k]==='boolean')checks[k]=Boolean(d[k])
   state=save({...state,checks})
