@@ -9,6 +9,6 @@ for(const x of ['Aniyah 64-Track Studio','StarVerse • Anyone Can Be a Star','I
 if(!music.includes('64-track production system'))throw new Error('Aniyah 64-track production system is not present')
 for(const x of ['cyber-defense','real-estate-analysis','initialFlip'])if(!jacobie.includes(x))throw new Error('Jacobie crossover missing '+x)
 if(!tv.includes("lane:'StarVerse'")||!tv.includes('Anyone Can Be a Star'))throw new Error('Isaiah AI TV StarVerse lane missing')
-for(const x of ['MusicCreatorStudio','MovieStudioCenter','JacobieVisionCenter','IllinoisCampusVerseNetwork'])if(!center.includes(x))throw new Error('STAR STUDIO center missing '+x)
+for(const x of ['Aniyah64TrackStudio','MovieStudioCenter','JacobieVisionCenter','IllinoisCampusVerseNetwork'])if(!center.includes(x))throw new Error('STAR STUDIO center missing '+x)
 for(const x of ['StarStudioCenter','showStarStudio','STAR STUDIO','__showStarStudio'])if(!app.includes(x))throw new Error('App STAR STUDIO mount missing '+x)
 console.log('STAR STUDIO universe convergence contract: PASS')
