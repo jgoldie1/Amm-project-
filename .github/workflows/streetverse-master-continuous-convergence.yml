@@ -129,7 +129,7 @@ jobs:
               run_gate build-app-business-revenue node tests/el-saturn-business-revenue-contract.mjs
               run_gate build-app-business-pricing node tests/business-completion-pricing-contract.mjs
               run_gate build-app-domain-provisioning node tests/domain-provisioning-contract.mjs
-              run_gate build-app-quantum-growth node tests/quantum-seo-back-channel-contract.mjs               tests/kingdom-googolplex-regression-contract.mjs               tests/kingdom-human-character-contract.mjs               tests/rp-action-search-bj-regression-contract.mjs               tests/rp-omnibar-genii-contract.mjs               tests/after-dark-vr-love-scene-contract.mjs               tests/domain-provisioning-contract.mjs               tests/quantum-seo-back-channel-contract.mjs
+              run_gate build-app-quantum-growth node tests/quantum-seo-back-channel-contract.mjs               tests/kingdom-googolplex-regression-contract.mjs               tests/kingdom-human-character-contract.mjs               tests/rp-action-search-bj-regression-contract.mjs               tests/rp-omnibar-genii-contract.mjs               tests/after-dark-vr-love-scene-contract.mjs               tests/star-studio-universe-contract.mjs               tests/domain-provisioning-contract.mjs               tests/quantum-seo-back-channel-contract.mjs
 
               # STREETVERSE lane
               run_gate build-native-assets npm run native:assets
@@ -144,6 +144,7 @@ jobs:
               run_gate build-streetverse-rp-actions node tests/rp-action-search-bj-regression-contract.mjs
               run_gate build-streetverse-rp-genii node tests/rp-omnibar-genii-contract.mjs
               run_gate build-after-dark-vr-love node tests/after-dark-vr-love-scene-contract.mjs
+              run_gate build-app-star-studio node tests/star-studio-universe-contract.mjs
               run_gate build-streetverse-kingdom-memory node scripts/capture-kingdom-googolplex-memory.mjs               tests/el-saturn-business-revenue-contract.mjs
               run_gate build-streetverse-mega-fix bash scripts/streetverse-bj-family-mega-fix.sh
               run_gate build-asset-tournament node scripts/streetverse-asset-tournament.mjs "$PASS_DIR/streetverse-asset-tournament.json"
@@ -258,6 +259,7 @@ jobs:
             run_gate rp-actions-readiness npm run rp-actions:check
             run_gate rp-genii-readiness npm run rp-genii:check
             run_gate after-dark-vr-readiness npm run after-dark-vr:check
+            run_gate star-studio-readiness npm run star-studio:check
             run_gate kingdom-googolplex-memory npm run kingdom:memory:capture
             run_gate typecheck npm run typecheck
             run_gate production-build npm run build
