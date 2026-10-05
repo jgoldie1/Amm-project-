@@ -1,5 +1,7 @@
 import {useEffect,useMemo,useState} from 'react'
 import {readStoredAudienceBand,type AudienceBand} from './SocialAgeSafetyGate'
+import OmniverseAfterDarkRPOmnibar from './OmniverseAfterDarkRPOmnibar'
+import {installOmniverseAfterDarkStoryStudioRuntime} from '../runtime/OmniverseAfterDarkStoryStudioRuntime'
 import {
   AFTER_DARK_ALPHA_MISSION,
   AFTER_DARK_EVIDENCE,
@@ -26,6 +28,7 @@ export default function StreetVerseAfterDarkAlpha(){
   const evidence=useMemo(()=>AFTER_DARK_EVIDENCE.filter(item=>state.evidenceIds.includes(item.id)),[state.evidenceIds])
 
   useEffect(()=>{setPhone(Math.min(window.innerWidth,window.innerHeight)<=720)},[])
+  useEffect(()=>installOmniverseAfterDarkStoryStudioRuntime(),[])
 
   useEffect(()=>{
     const sync=(event:Event)=>{
@@ -75,6 +78,8 @@ export default function StreetVerseAfterDarkAlpha(){
           <p style={{fontSize:13,lineHeight:1.6,color:'#c8bbc9'}}>This alpha mission contains mature nightlife themes but no explicit sexual gameplay. The investigation is fictional. Public-event attendance never implies wrongdoing.</p>
           <button style={buttonStyle} onClick={()=>setState(verifyAfterDarkAgeAndConsent(true,true))}>I am 21+ and enter the fictional mission</button>
         </section>}
+
+        {state.ageVerified&&state.consentAccepted&&<OmniverseAfterDarkRPOmnibar ageVerified={state.ageVerified} consentAccepted={state.consentAccepted}/>} 
 
         {state.ageVerified&&!state.approach&&<section style={{marginTop:18}}>
           <h3>Choose your approach</h3>
