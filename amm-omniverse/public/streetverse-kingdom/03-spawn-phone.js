@@ -66,15 +66,16 @@ const beam = new T.Mesh(new T.CylinderGeometry(1.3, 1.3, 120, 16, 1, true),
   new T.MeshBasicMaterial({ color: 0xf2b630, transparent: true, opacity: 0.3, blending: T.AdditiveBlending, depthWrite: false, side: T.DoubleSide, fog: false }));
 beam.position.y = 60; beam.visible = false; scene.add(beam);
 let waypoint = null;
-function setWaypointNode(i, j, name) {
-  waypoint = { name, node: [i, j], pos: new T.Vector3(i * CELL, 0, j * CELL) };
+function setWaypointNode(i, j, name, customPos) {
+  const px=Array.isArray(customPos)?Number(customPos[0]):i*CELL, pz=Array.isArray(customPos)?Number(customPos[1]):j*CELL;
+  waypoint = { name, node: [i, j], pos: new T.Vector3(px, 0, pz) };
   beam.position.x = waypoint.pos.x; beam.position.z = waypoint.pos.z; beam.visible = true;
   if (player.inCar && player.inCar.auto) player.inCar.target = waypoint.node;
   toast(`Waypoint set: ${name}`);
 }
 function setWaypoint(k) {
   if (k < 0) { waypoint = null; beam.visible = false; if (player.inCar) player.inCar.target = null; toast('Waypoint cleared'); return; }
-  const l = LANDMARKS[k]; setWaypointNode(l.node[0], l.node[1], l.name);
+  const l = LANDMARKS[k]; setWaypointNode(l.node[0], l.node[1], l.name, l.pos);
 }
 
 // ---------- audio ----------
@@ -115,6 +116,7 @@ const glyph = a => lastInput === 'touch' ? '' : `<kbd>${GLYPH[lastInput][a]}</kb
 
 // ---------- phone ----------
 const ICON = {
+  kingdom: '<path d="M4 19h16M6 19V9l3 3 3-6 3 6 3-3v10M8 15h8"/>',
   map: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14m6-12v14"/>',
   drive: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2"/><path d="M3.8 11h6.2m4 0h6.2M12 14v6.5"/>',
   texts: '<path d="M4 5h16v11H9l-5 4z"/>',
@@ -123,7 +125,7 @@ const ICON = {
   help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/>',
 };
 const APPS = [
-  { id: 'map', label: 'Map', c: '#39e0d0' }, { id: 'drive', label: 'Auto-drive', c: '#f2b630' }, { id: 'texts', label: 'Texts', c: '#ff4f9a' },
+  { id: 'kingdom', label: 'Yahisrael', c: '#e8b944' }, { id: 'map', label: 'Map', c: '#39e0d0' }, { id: 'drive', label: 'Auto-drive', c: '#f2b630' }, { id: 'texts', label: 'Texts', c: '#ff4f9a' },
   { id: 'ride', label: 'My ride', c: '#ff9a4a' }, { id: 'settings', label: 'Settings', c: '#b8b2dc' }, { id: 'help', label: 'Controls', c: '#9d6bff' },
 ];
 const TEXTS = [
@@ -163,6 +165,10 @@ function renderPhone() {
     h = bar('Map') + '<canvas id="phMap" width="300" height="300"></canvas><div class="list">' +
       LANDMARKS.map((l, k) => `<button data-f data-wp="${k}">${l.name}${waypoint && waypoint.name === l.name ? '<em>Set</em>' : ''}</button>`).join('') +
       '<button data-f data-wp="-1">Clear waypoint</button></div>';
+  } else if (s === 'kingdom') {
+    const destinations=window.YAHISRAEL_DESTINATIONS||[];
+    h = bar('Yahisrael') + '<div class="ph-note">WHERE HEAVEN MEETS EARTH • choose a destination</div><div class="list">' +
+      destinations.map((d,k)=>`<button data-f data-kdest="${k}"><span><b>${d.shortName}</b><br><small>${d.objective}</small></span><em>Route</em></button>`).join('') + '</div>';
   } else if (s === 'texts') {
     h = bar('Texts') + TEXTS.map(m => `<div class="msg"><b>${m.from}</b>${m.t}</div>`).join('');
   } else if (s === 'settings') {
@@ -209,6 +215,7 @@ screenEl.addEventListener('click', e => {
     return;
   }
   if (b.dataset.wp !== undefined) { setWaypoint(+b.dataset.wp); renderPhone(); return; }
+  if (b.dataset.kdest !== undefined) { const d=(window.YAHISRAEL_DESTINATIONS||[])[+b.dataset.kdest]; if(d&&typeof setKingdomDestinationWaypoint==='function')setKingdomDestinationWaypoint(d.id); renderPhone(); return; }
   if (b.dataset.set) {
     const k = b.dataset.set;
     if (k === 'invert') settings.invertY = !settings.invertY;
