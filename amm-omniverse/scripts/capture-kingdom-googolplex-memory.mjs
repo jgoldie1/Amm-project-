@@ -20,6 +20,10 @@ const files=[
  'public/streetverse-kingdom/tryamm-bridge.js',
  'src/components/KingdomDistrictRoute.tsx',
  'src/runtime/KingdomStreetVerseBridge.ts',
+ 'src/components/StreetVerseActionCarousel.tsx',
+ 'src/runtime/StreetVerseAbracadabraGeniiRuntime.ts',
+ 'src/components/StreetVerseRPOmnibar.tsx',
+ 'src/components/StreetVerseRPActionSearch.tsx',
 ]
 const hash=file=>createHash('sha256').update(readFileSync(path.join(root,file))).digest('hex')
 const manifest={
@@ -27,7 +31,7 @@ const manifest={
  capturedAt:new Date().toISOString(),
  canonicalRoute:'/kingdom',
  canonicalGame:'/streetverse-kingdom/index.html',
- requiredVisualMarkers:['KINGDOM DISTRICT','Crown Heights','KD 5G','Auto-drive','Phone'],
+ requiredVisualMarkers:['KINGDOM DISTRICT','Crown Heights','KD 5G','Auto-drive','Phone','RP SEARCH','ABRACADABRA GENII'],
  files:Object.fromEntries(files.map(file=>[file,{sha256:hash(file),bytes:statSync(path.join(root,file)).size}])),
  regressionRule:'A release is not Kingdom-green if the canonical game files disappear, hashes are missing, the route stops pointing to the canonical iframe, or required visual markers cannot be captured.',
 }
