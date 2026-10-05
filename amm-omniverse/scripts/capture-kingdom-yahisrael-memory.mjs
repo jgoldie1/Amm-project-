@@ -9,6 +9,7 @@ const out=path.resolve(process.argv[2]||'release-evidence/googolplex-memory/king
 mkdirSync(out,{recursive:true})
 const files=[
  'src/data/KingdomYahisraelRecoveryRegistry.ts',
+ 'src/data/SystemVsKingdomRecoveryManifest.ts',
  'src/components/KingdomYahisraelCenter.tsx',
  'src/components/JudahSplash.tsx',
  'src/components/LionOfJudahHolo.tsx',
