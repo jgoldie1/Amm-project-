@@ -1,6 +1,6 @@
 import { getComfyHealth, submitComfyJob } from './comfyProvider'
 import { getHappyHorseHealth, submitHappyHorseJob } from './happyHorseProvider'
-import {generateMeshyWorldArtifact,type MeshyWorldKind,type MeshyWorldQuality} from './meshyWorldArtifactProvider'
+import {generateMeshyWorldArtifact,getMeshyWorldProviderHealth,type MeshyWorldKind,type MeshyWorldQuality} from './meshyWorldArtifactProvider'
 export type HoloGenMode='text'|'world'|'reel'|'image'|'simulation'
 export type HoloGenRequest={mode:HoloGenMode;prompt:string;context?:Record<string,unknown>;sessionId?:string}
 export type HoloGenResult={ok:boolean;mode:HoloGenMode;provider:string;degraded:boolean;output?:unknown;message:string}
@@ -48,6 +48,6 @@ export async function runHoloGen(req:HoloGenRequest):Promise<HoloGenResult>{
  const event='tryamm:hologen-simulation';dispatch(event,{prompt,context:req.context||{},sessionId:req.sessionId||null,source:'holo-gen'});return {ok:true,mode:req.mode,provider:'holo-router',degraded:true,output:{event},message:'Holo Gen request was routed to the local TRYAMM simulation pipeline.'}
 }
 export async function getHoloGenHealth(){
- const happyHorse=await getHappyHorseHealth()
- try{const r=await fetch('/api/ai/health',{cache:'no-store'});const d=await readJson(r);return {ok:r.ok&&d.ok&&!d.degraded,provider:d.provider||'diagnostic',degraded:Boolean(d.degraded),providers:{...(d.providers||{}),happyhorse:happyHorse.configured,comfy:getComfyHealth().configured},models:{text:d.model||null,video:happyHorse.model},model:d.model||null}}catch{return {ok:false,provider:'offline',degraded:true,providers:{happyhorse:happyHorse.configured,comfy:getComfyHealth().configured},models:{text:null,video:happyHorse.model},model:null}}
+ const [happyHorse,meshy]=await Promise.all([getHappyHorseHealth(),getMeshyWorldProviderHealth()])
+ try{const r=await fetch('/api/ai/health',{cache:'no-store'});const d=await readJson(r);return {ok:r.ok&&d.ok&&!d.degraded,provider:d.provider||'diagnostic',degraded:Boolean(d.degraded),providers:{...(d.providers||{}),happyhorse:happyHorse.configured,comfy:getComfyHealth().configured,meshy:meshy.configured},models:{text:d.model||null,video:happyHorse.model,world3d:meshy.configured?'meshy-7.1':null},model:d.model||null}}catch{return {ok:false,provider:'offline',degraded:true,providers:{happyhorse:happyHorse.configured,comfy:getComfyHealth().configured,meshy:meshy.configured},models:{text:null,video:happyHorse.model,world3d:meshy.configured?'meshy-7.1':null},model:null}}
 }
