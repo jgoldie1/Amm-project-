@@ -27,7 +27,10 @@ export default function OmniverseAfterDarkRPOmnibar({ageVerified,consentAccepted
    <label style={toggle}><input type="checkbox" checked={makeTv} onChange={e=>setMakeTv(e.target.checked)}/> TV EPISODE</label>
    <label style={toggle}><input type="checkbox" checked={privateSession} onChange={e=>setPrivateSession(e.target.checked)}/> PRIVATE SESSION AUDIO</label>
   </div>
-  <button onClick={create} disabled={!ageVerified||!consentAccepted} style={{...createBtn,opacity:ageVerified&&consentAccepted?1:.45}}>🎬 ACT OUT / CREATE STORY</button>
+  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,marginTop:8}}>
+   <button onClick={()=>{if(prompt.trim())window.dispatchEvent(new CustomEvent('tryamm:after-dark-gif-search-request',{detail:{query:prompt,providerGated:true,contentMode:'mature-non-explicit',explicitPornography:false}}));setStatus('GIF discovery request prepared with mature/non-explicit filtering.')}} style={createBtn}>🖼️ GIF PREVIEW</button>
+   <button onClick={create} disabled={!ageVerified||!consentAccepted} style={{...createBtn,opacity:ageVerified&&consentAccepted?1:.45}}>🎬 ACT OUT / CREATE STORY</button>
+  </div>
   <div role="status" style={{fontSize:8,color:'#ffd1ec',marginTop:5}}>{status}</div>
  </section>
 }
