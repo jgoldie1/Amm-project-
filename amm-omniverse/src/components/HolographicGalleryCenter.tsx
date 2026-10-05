@@ -1,4 +1,5 @@
 import {useMemo,useState} from 'react'
+import HolographicGalleryViewport from './HolographicGalleryViewport'
 
 type GalleryItem={id:string;title:string;creator:string;kind:'3d-product'|'art'|'music'|'reel'|'world-object'|'collectible';priceMinor?:number;currency?:string;productId?:string;assetUrl?:string;description:string;shoppable:boolean}
 
@@ -7,6 +8,8 @@ const seed:GalleryItem[]=[
  {id:'gallery-2',title:'Chicago World Art',creator:'TRYAMM Creator',kind:'art',priceMinor:2400,currency:'USD',productId:'chicago-world-art',description:'Creator artwork that can appear in a virtual gallery, Reel, LIVE room or StreetVerse interior.',shoppable:true},
  {id:'gallery-3',title:'Holo Music Showcase',creator:'All American Records',kind:'music',description:'Rights-aware music exhibit linked to creator pages, LIVE and ticket/merch commerce.',shoppable:false},
  {id:'gallery-4',title:'StreetVerse Memory Reel',creator:'TRYAMM Creator',kind:'reel',description:'A Reel can be projected into the gallery and used as an entry point into the world.',shoppable:false},
+ {id:'gallery-5',title:'West Side Police Unit Study',creator:'TRYAMM World Lab',kind:'world-object',assetUrl:'/free-assets/kenney/vehicles/police.glb',description:'CC0 vehicle study rendered as a real 3D holographic exhibit for StreetVerse, CrossVerse and AR.',shoppable:false},
+ {id:'gallery-6',title:'Circle Park Oak Study',creator:'TRYAMM World Lab',kind:'world-object',assetUrl:'/free-assets/kenney/nature/tree-oak.glb',description:'CC0 environment asset shown in the Holographic Gallery and reusable in AR/Holo world building.',shoppable:false},
 ]
 
 export default function HolographicGalleryCenter({onClose}:{onClose:()=>void}){
@@ -28,11 +31,11 @@ export default function HolographicGalleryCenter({onClose}:{onClose:()=>void}){
    <div style={{display:'grid',gridTemplateColumns:'minmax(220px,320px) 1fr',gap:12,marginTop:16}}>
     <aside style={panel}><div style={{fontSize:10,color:'#8ea4b7',fontWeight:900}}>EXHIBITS</div><div style={{display:'grid',gap:8,marginTop:9}}>{items.map(item=><button key={item.id} onClick={()=>setSelectedId(item.id)} style={{...itemButton,borderColor:selectedId===item.id?'#62e8ff':'#1e3748'}}><b>{item.title}</b><span style={{fontSize:9,color:'#8196a8'}}>{item.kind.toUpperCase()} • {item.creator}</span></button>)}</div></aside>
     <main style={panel}>
-     <div aria-hidden="true" style={{minHeight:250,borderRadius:18,border:'1px solid #31566e',background:'radial-gradient(circle,#50e7ff33,#122234 42%,#050a10 72%)',display:'grid',placeItems:'center',boxShadow:'inset 0 0 80px #42e7ff18'}}><div style={{textAlign:'center'}}><div style={{fontSize:70}}>◈</div><div style={{fontSize:11,letterSpacing:3,color:'#62e8ff'}}>HOLOGRAPHIC DISPLAY SURFACE</div></div></div>
+     <HolographicGalleryViewport assetUrl={selected.assetUrl} title={selected.title}/>
      <h2>{selected.title}</h2><div style={{fontSize:11,color:'#80a0b6'}}>{selected.creator} • {selected.kind.replaceAll('-',' ').toUpperCase()}</div>
      <p style={{fontSize:12,color:'#b7c8d4',lineHeight:1.65}}>{selected.description}</p>
      {selected.priceMinor&&<div style={{fontSize:26,fontWeight:950}}>${(selected.priceMinor/100).toFixed(2)}</div>}
-     <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:12}}>{selected.shoppable&&<button onClick={buy} style={button}>BUY / CHECKOUT</button>}<button onClick={openReel} style={button}>MAKE REEL</button><button onClick={openLive} style={button}>FEATURE IN LIVE</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:holo-scan-request',{detail:{source:'holographic-gallery',targetId:selected.id,item:selected}}))} style={button}>HOLO SCAN</button></div>
+     <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:12}}>{selected.shoppable&&<button onClick={buy} style={button}>BUY / CHECKOUT</button>}<button onClick={openReel} style={button}>MAKE REEL</button><button onClick={openLive} style={button}>FEATURE IN LIVE</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:holo-scan-request',{detail:{source:'holographic-gallery',targetId:selected.id,item:selected}}))} style={button}>HOLO SCAN</button>{selected.assetUrl&&<button onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:holo-gallery-ar-request',{detail:{source:'holographic-gallery',targetId:selected.id,title:selected.title,assetUrl:selected.assetUrl}}));window.dispatchEvent(new CustomEvent('tryamm:holo-scan-request',{detail:{source:'holographic-gallery',kind:'gallery-ar',targetId:selected.id,assetUrl:selected.assetUrl}}))}} style={button}>AR / HOLO</button>}</div>
     </main>
    </div>
    <section style={{...panel,marginTop:12}}><b style={{color:'#77efb1'}}>GALLERY BUSINESS MODEL</b><div style={{fontSize:12,lineHeight:1.7,color:'#c5d6df',marginTop:6}}>Creator exhibit → Holo Lens / AR / VR view → Reel or LIVE feature → product / ticket / license / rental / sponsorship intent → verified checkout → Creator Money / Business Income ledger. Exhibits can also become StreetVerse interiors, event venues, museums, stores and branded showrooms.</div></section>
