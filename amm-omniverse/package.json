@@ -77,7 +77,8 @@
     "metaverse-bible-binder:check": "node tests/metaverse-bible-scene-binder-contract.mjs",
     "holoforge-meshy-bible:check": "node tests/holoforge-meshy-bible-artifact-contract.mjs",
     "metaverse-bible-promotion:check": "node tests/metaverse-bible-production-promotion-contract.mjs",
-    "metaverse-bible:pass5": "node tests/metaverse-bible-production-evidence-contract.mjs"
+    "metaverse-bible:pass5": "node tests/metaverse-bible-production-evidence-contract.mjs",
+    "world-foundry-finish:check": "node tests/world-foundry-production-finish-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
