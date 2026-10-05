@@ -23,6 +23,7 @@ function localIntent(question:string){
     [/holo lab/, '__showHoloLab','Opening Holo Lab.'],
     [/3d print|print network|print swarm|printer swarm|meshy factory|manufacturing/, '__showMeshyFactory','Opening the TRYAMM Meshy Rig + Print Factory.'],
     [/game flow|game status|repair game|fix streetverse|why.*game|streetverse.*broken|game.*broken/, '__showGameOps','Opening StreetVerse Game Ops and diagnosing the actual blocker.'],
+    [/cad|holo.?build|build west side|build circle park|wrap building|texture building|stairs.*elevator|plumbing.*building|cursor.*cad/, '__showCADHoloBuild','Opening the TRYAMM CAD / HoloBuild pipeline for the West Side.'],
     [/holo services/, '__showHoloServices','Opening Holo Services.'],
     [/holo core/, '__showHoloCore','Opening Holo Core.'],
     [/holoverse/, '__showHoloverse','Opening Holoverse.'],
