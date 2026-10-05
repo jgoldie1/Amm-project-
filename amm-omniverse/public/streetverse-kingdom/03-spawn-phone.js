@@ -167,8 +167,11 @@ function renderPhone() {
       '<button data-f data-wp="-1">Clear waypoint</button></div>';
   } else if (s === 'kingdom') {
     const destinations=window.YAHISRAEL_DESTINATIONS||[];
-    h = bar('Yahisrael') + '<div class="ph-note">WHERE HEAVEN MEETS EARTH • choose a destination</div><div class="list">' +
-      destinations.map((d,k)=>`<button data-f data-kdest="${k}"><span><b>${d.shortName}</b><br><small>${d.objective}</small></span><em>Route</em></button>`).join('') + '</div>';
+    const progress=window.YAHISRAEL_PATH_PROGRESS||{visited:[],completed:false};
+    const pathIds=['judah-gate','hebrew-school','servants-center','garden-farm','press-ai-cafe'];
+    const pathDone=pathIds.filter(id=>progress.visited?.includes(id)).length;
+    h = bar('Yahisrael') + `<div class="ph-note">WHERE HEAVEN MEETS EARTH • KINGDOM PATH ${pathDone}/${pathIds.length}${progress.completed?' • COMPLETE':''}</div><div class="list">` +
+      destinations.map((d,k)=>`<button data-f data-kdest="${k}"><span><b>${progress.visited?.includes(d.id)?'✓ ':''}${d.shortName}</b><br><small>${d.objective}</small></span><em>Route</em></button>`).join('') + '</div>';
   } else if (s === 'texts') {
     h = bar('Texts') + TEXTS.map(m => `<div class="msg"><b>${m.from}</b>${m.t}</div>`).join('');
   } else if (s === 'settings') {
