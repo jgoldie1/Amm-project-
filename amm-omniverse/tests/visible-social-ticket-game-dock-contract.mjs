@@ -22,7 +22,8 @@ for(const k of [
   'No server search results loaded yet'
 ])assert.ok(panels.includes(k),'visible panel missing '+k)
 
-assert.ok(bridge.includes("{mobile?<StreetVerseReelEventBridge/>:"),'capable mobile route must stay free of the desktop gameplay overlay stack')
+const mobileRoute="{mobile?<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseCreatorEarnDock/></>:<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseCreatorEarnDock/></>}"
+assert.ok(bridge.includes(mobileRoute),'capable mobile route must mount the compact Reel/Carousel/Earn set while keeping the desktop gameplay overlay stack off mobile')
 for(const k of ['StreetVerseInGamePanels','StreetVerse mobile social shortcuts','Open StreetVerse social panel','Open StreetVerse people search','Open StreetVerse stream tickets'])assert.ok(mobile.includes(k),'mobile visible shortcut missing '+k)
 assert.ok(panels.includes("maxHeight:'min(46dvh,390px)'"),'panel must stay bounded inside phone viewport')
 assert.ok(panels.includes("overflowY:'auto'"),'panel must scroll internally instead of covering the game')

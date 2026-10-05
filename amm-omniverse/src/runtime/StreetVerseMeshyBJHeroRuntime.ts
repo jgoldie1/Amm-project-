@@ -36,11 +36,11 @@ export type StreetVerseMeshyBJHeroHandle={
 }
 
 const loader=new GLTFLoader()
-let availabilityPromise:Promise<boolean>|null=null
+const availability=new Map<string,Promise<boolean>>()
 
 async function assetExists(url:string){
-  if(!availabilityPromise){
-    availabilityPromise=(async()=>{
+  if(!availability.has(url)){
+    availability.set(url,(async()=>{
       const controller=new AbortController()
       const timer=window.setTimeout(()=>controller.abort(),1800)
       try{
@@ -49,9 +49,9 @@ async function assetExists(url:string){
         return response.ok&&!contentType.includes('text/html')&&!contentType.includes('application/xhtml+xml')
       }catch{return false}
       finally{window.clearTimeout(timer)}
-    })()
+    })())
   }
-  return availabilityPromise
+  return availability.get(url)!
 }
 
 function materializeAnimationMap(clips:readonly THREE.AnimationClip[]){
@@ -303,6 +303,6 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
 }
 
 export function resetStreetVerseMeshyBJAvailability(){
-  availabilityPromise=null
+  availability.clear()
   resetPublishedMeshyManifest()
 }

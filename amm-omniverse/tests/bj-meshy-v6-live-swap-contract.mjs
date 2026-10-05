@@ -34,5 +34,9 @@ for(const token of [
 must(world.indexOf("nativeHeroFallback!.visible=false")>world.indexOf("if(!handle)return"),'fallback must hide only after Meshy asset is actually loaded')
 must(world.includes("bjPhotoMatch?.dispose();bjPhotoMatch=null"),'temporary photo shell must be retired after Meshy activation')
 must(world.includes("bjHeadRuntime?.dispose();bjHeadRuntime=null"),'temporary custom head runtime must retire after Meshy activation')
+must(runtime.includes("const availability=new Map<string,Promise<boolean>>()"),'BJ asset availability must be cached per URL so a missing fallback cannot poison a newly published rig')
+must(runtime.includes("return availability.get(url)!"),'BJ runtime must resolve availability from the requested URL cache entry')
+must(runtime.includes("availability.clear()"),'BJ availability reset must clear every cached URL result')
+must(!runtime.includes("availabilityPromise"),'BJ runtime must not use one global availability promise for every asset URL')
 
 console.log('BJ MESHY V6 LIVE SWAP CONTRACT PASS: optional GLB -> authoritative hero -> fallback preserved')
