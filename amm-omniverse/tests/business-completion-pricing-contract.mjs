@@ -8,6 +8,6 @@ for(const x of ['starter','pro','commerce','managed','monthlyLeaseUsd','setupUsd
 if(!catalog.includes('pricing:priceFor(product.id)'))throw new Error('Catalog pricing not attached')
 for(const x of ['BUSINESS_COMPLETION_STAGES','recommendedBusinessPackage','businessCompletionPlan','readyToSellPackage:true'])if(!family.includes(x))throw new Error('Business completion model missing '+x)
 const registryCount=(family.match(/status:'registry'/g)||[]).length+(family.match(/status:'site-ready'/g)||[]).length+(family.match(/status:'domain-pending'/g)||[]).length+(family.match(/status:'live'/g)||[]).length
-if(registryCount!==25)throw new Error('Expected 25 registered business profiles; found '+registryCount)
+if(registryCount!==26)throw new Error('Expected 26 registered business profiles; found '+registryCount)
 for(const x of ['LEASE / SUBSCRIPTION','Business-in-a-Box lease / buyout'])if(!ui.includes(x))throw new Error('Revenue UI missing '+x)
 console.log('Business completion + pricing contract: PASS')
