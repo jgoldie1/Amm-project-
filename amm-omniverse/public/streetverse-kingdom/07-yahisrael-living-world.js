@@ -98,9 +98,9 @@ function kyBuildLegacy(){
  }
 }
 function kyBuildHebrewSchool(){
- kyHall({x:-37,z:111,w:34,d:22,h:11,color:0x31475b,title:'HEBREW SCHOOL',sub:'SCRIPTURE • PALEO SCRIPT • STRONG’S'});
+ kyHall({x:-37,z:111,w:34,d:22,h:11,color:0x31475b,title:'METAVERSE BIBLE',sub:'HEBREW • STRONG’S • KJV 1611 • FAITH CHRONO'});
  for(const x of [-49,-43,-31,-25])kyBox(3.5,2,.3,KY_CYAN,x,6.8,122.2,false);
- kySign('ALEPH • BET • ROOTS','LEARN • READ • STUDY',-37,3.5,98.9,Math.PI,20,3.5);
+ kySign('SCRIPTURE HOUSE','READ • HEBREW • EXPLORE',-37,3.5,98.9,Math.PI,20,3.5);
 }
 function kyBuildGarden(){
  kySign('KINGDOM GARDEN','FOOD • SERVICE • STEWARDSHIP',-111,7,83,0,29,5);
