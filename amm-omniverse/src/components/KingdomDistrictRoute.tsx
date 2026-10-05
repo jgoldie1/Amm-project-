@@ -12,6 +12,12 @@ export default function KingdomDistrictRoute(){
  useEffect(()=>{installMindOverMatterCleanRoomRuntime();installHoloForgeRuntime()},[])
  useEffect(()=>{document.documentElement.dataset.tryammKingdomRoute='canonical-iframe';return()=>{delete document.documentElement.dataset.tryammKingdomRoute}},[])
  useEffect(()=>{
+  const allowed=new Set(['/kingdom-of-yahisrael','/kingdom-workbook','/faithverse','/ethiopian-bible','/kingdoms-press','/servants-of-christ','/network'])
+  const open=(event:Event)=>{const route=String((event as CustomEvent<{destination?:string}>).detail?.destination||'');if(allowed.has(route))window.location.href=route}
+  window.addEventListener('tryamm:kingdom-portal-request',open as EventListener)
+  return()=>window.removeEventListener('tryamm:kingdom-portal-request',open as EventListener)
+ },[])
+ useEffect(()=>{
   const forward=(event:Event)=>{
    const detail=(event as CustomEvent<Record<string,unknown>>).detail||{}
    frameRef.current?.contentWindow?.postMessage({channel:'tryamm:kingdom-control',type:'RP_ACTION',...detail},window.location.origin)
