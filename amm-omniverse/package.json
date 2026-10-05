@@ -68,7 +68,8 @@
     "kingdom-yahisrael-world:check": "node tests/kingdom-yahisrael-visible-world-contract.mjs",
     "metaverse-bible:check": "node tests/metaverse-bible-kingdom-integration-contract.mjs && node tests/metaverse-bible-kingdom-contract.mjs && node tests/faithverse-immersive-gateway-contract.mjs",
     "faithverse-immersive:check": "node tests/faithverse-immersive-gateway-contract.mjs",
-    "kingdom-yahisrael:memory:capture": "node scripts/capture-kingdom-yahisrael-memory.mjs"
+    "kingdom-yahisrael:memory:capture": "node scripts/capture-kingdom-yahisrael-memory.mjs",
+    "kingdom-living-world:check": "node tests/kingdom-population-metaverse-bible-architecture-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
