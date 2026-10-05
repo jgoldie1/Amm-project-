@@ -50,6 +50,7 @@ const StreamStudioFX = lazy(() => import('./components/StreamStudioFX'))
 const QuantumLagBuster = lazy(() => import('./components/QuantumLagBuster'))
 const QuantumBeatCenter = lazy(() => import('./components/QuantumBeatCenter'))
 const OTTIsaiahTV = lazy(() => import('./components/OTTIsaiahTV'))
+const StarStudioCenter = lazy(() => import('./components/StarStudioCenter'))
 const TryammTvHome = lazy(() => import('./components/TryammTvHome'))
 const PoyoAIStudio = lazy(() => import('./components/PoyoAIStudio'))
 const PropertyVerseCenter = lazy(() => import('./components/PropertyVerseCenter'))
@@ -81,6 +82,7 @@ export default function App() {
   const [showLagBuster, setShowLagBuster] = useState(false)
   const [showQuantumBeat, setShowQuantumBeat] = useState(false)
   const [showOTT, setShowOTT] = useState(false)
+  const [showStarStudio, setShowStarStudio] = useState(false)
   const [showTryammTv, setShowTryammTv] = useState(false)
   const [showSecurity, setShowSecurity] = useState(false)
   const [showOmniWear, setShowOmniWear] = useState(false)
@@ -209,6 +211,7 @@ export default function App() {
   ;(window as any).__showQuantumLagBuster = () => setShowLagBuster(true)
   ;(window as any).__showQuantumBeat = () => setShowQuantumBeat(true)
   ;(window as any).__showIsaiahTV = () => setShowOTT(true)
+  ;(window as any).__showStarStudio = () => setShowStarStudio(true)
   ;(window as any).__showTryammTV = () => setShowTryammTv(true)
   ;(window as any).__showSecurityCenter = () => setShowSecurity(true)
   ;(window as any).__showOmniWear = () => setShowOmniWear(true)
@@ -277,6 +280,7 @@ export default function App() {
     ['♫','QUANTUM BEAT',()=>setShowQuantumBeat(true),'BETA'],
     ['▣','TRYAMM TV',()=>setShowTryammTv(true),'BETA'],
     ['★','ISAIAH AI TV',()=>setShowOTT(true),'BETA'],
+    ['🌟','STAR STUDIO',()=>setShowStarStudio(true),'BETA'],
     ['💿','PRO AUDIO',()=>setShowProAudio(true),'BETA'],
     ['🌐','HOLOVERSE',()=>setShowHoloverse(true),'BETA'],
     ['$','PRICING',()=>setShowPricing(true),'LIVE'],
@@ -350,6 +354,7 @@ export default function App() {
         {showLagBuster && <QuantumLagBuster onClose={() => setShowLagBuster(false)} />}
         {showQuantumBeat && <QuantumBeatCenter onClose={() => setShowQuantumBeat(false)} />}
         {showOTT && <OTTIsaiahTV onClose={() => setShowOTT(false)} />}
+        {showStarStudio && <StarStudioCenter onClose={() => setShowStarStudio(false)} />}
         {showTryammTv && <TryammTvHome onClose={() => setShowTryammTv(false)} />}
 
         {showSwipeTip && signedIn && <SwipeTutorial onDismiss={() => {setShowSwipeTip(false);localStorage.setItem('amm_swiped','1')}} />}
