@@ -7,7 +7,13 @@ export type BuildingSourceKind =
   | 'right-photo'
   | 'aerial-reference'
   | 'scan'
-  | 'measurement';
+  | 'measurement'
+  | 'cad-dwg'
+  | 'cad-dxf'
+  | 'bim-ifc'
+  | 'floor-plan-svg'
+  | 'point-cloud'
+  | 'mesh-glb';
 
 export interface BuildingSource {
   id: string;
@@ -110,6 +116,7 @@ export const BUILDING_RECONSTRUCTION_STAGES = [
   'INGEST_AUTHORIZED_SOURCES',
   'NORMALIZE_SCALE_AND_ORIENTATION',
   'EXTRACT_FOOTPRINT_AND_FLOORS',
+  'NORMALIZE_CAD_AND_BIM_LAYERS',
   'RECONSTRUCT_STRUCTURE',
   'RECONSTRUCT_FACADE',
   'GENERATE_ROOMS',
