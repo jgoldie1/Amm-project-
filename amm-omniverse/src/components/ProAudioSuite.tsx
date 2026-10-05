@@ -320,7 +320,7 @@ function generateAIBotResponse(input: string, bot: AIBotProfile): string {
   if (q.includes('music') || q.includes('beat') || q.includes('record')) {
     return isAlpha
       ? `yo AMM has a WHOLE recording studio no cap, 62 tracks bro. T-Pain autotune, Guitar Lab, MPC pads — sigma producer behavior only. ${slang1} you making beats or what?`
-      : `the recording studio is literally COOKING rn ${slang1}. T-Pain autotune? check. Guitar Lab presets? check. 62-track DAW in a BROWSER? understood the assignment periodt.`
+      : `the recording studio is literally COOKING rn ${slang1}. T-Pain autotune? check. Guitar Lab presets? check. 64-track DAW in a BROWSER? understood the assignment periodt.`
   }
   if (q.includes('money') || q.includes('earn') || q.includes('paid')) {
     return isAlpha
