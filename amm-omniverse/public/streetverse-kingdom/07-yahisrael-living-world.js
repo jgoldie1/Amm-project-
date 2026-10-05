@@ -22,14 +22,43 @@ function kyWritePath(v){try{localStorage.setItem(KY_PATH_KEY,JSON.stringify({...
 window.YAHISRAEL_PATH_PROGRESS=kyReadPath();
 
 const kyAnimated=[];
-function kyMaterial(color,emissive){
- return new T.MeshLambertMaterial({color,emissive:emissive||0x000000,emissiveIntensity:emissive?0.32:0});
+const kyCitizens=[];
+const kyActivityMarkers=[];
+const kyArchitectureModels=new Map();
+const KY_ARCH_ASSET_BASE='/tryamm-assets/meshy/kingdom';
+const KY_ARCH_ASSETS={
+ 'assembly-court':'KY_ASSEMBLY_PRAYER_COURT.glb',
+ 'servants-center':'KY_SERVANTS_SERVICE_CENTER.glb',
+ 'legacy-workbook':'KY_FAMILY_LEGACY_HALL.glb',
+ 'hebrew-school':'KY_METAVERSE_BIBLE_HEBREW_SCHOOL.glb',
+ 'press-ai-cafe':'KY_KINGDOMS_PRESS_AI_CAFE.glb',
+ 'broadcast-house':'KY_ALL_AMERICAN_NETWORK_BROADCAST.glb',
+};
+function kyMaterial(color,emissive=0,roughness=.72,metalness=.04){
+ if(T.MeshStandardMaterial)return new T.MeshStandardMaterial({color,emissive,emissiveIntensity:emissive?.28:0,roughness,metalness});
+ return new T.MeshLambertMaterial({color,emissive,emissiveIntensity:emissive?.28:0});
 }
-function kyBox(w,h,d,color,x,y,z,collideIt=true){
- const m=new T.Mesh(new T.BoxGeometry(w,h,d),kyMaterial(color));
+function kyGlass(color=0x65c9e8,opacity=.38){
+ return new T.MeshPhongMaterial({color,transparent:true,opacity,shininess:90,side:T.DoubleSide});
+}
+function kyBox(w,h,d,color,x,y,z,collideIt=true,material){
+ const m=new T.Mesh(new T.BoxGeometry(w,h,d),material||kyMaterial(color));
  m.position.set(x,y,z);scene.add(m);
  if(collideIt)addCollider(x,z,w,d,h);
  return m;
+}
+function kyArchitecturalAsset(id,x,z,targetHeight){
+ const file=KY_ARCH_ASSETS[id];
+ if(!file||!T.GLTFLoader)return;
+ const url=KY_ARCH_ASSET_BASE+'/'+file;
+ const attach=gltf=>{
+  if(!gltf?.scene)return;
+  const clone=gltf.scene.clone(true),box=new T.Box3().setFromObject(clone),size=new T.Vector3();
+  box.getSize(size);clone.scale.setScalar(size.y>0?targetHeight/size.y:1);clone.position.set(x,0,z);
+  scene.add(clone);kyArchitectureModels.set(id,clone);
+ };
+ if(humanAssetCache?.has&&humanAssetCache.has(url)){attach(humanAssetCache.get(url));return}
+ const loader=new T.GLTFLoader();loader.load(url,gltf=>attach(gltf),undefined,()=>{});
 }
 function kyLabelTexture(title,sub,bg='#0b0c12',fg='#ffffff'){
  const c=document.createElement('canvas');c.width=1024;c.height=256;
@@ -50,13 +79,30 @@ function kyTrim(x,y,z,w,d,color=KY_GOLD){
 function kyColumn(x,z,h=8,color=0xd6c08b){
  const base=kyBox(1.15,h,1.15,color,x,h/2+.25,z,true);return base;
 }
-function kyHall({x,z,w=30,d=22,h=11,color=0x493d2e,title,sub}){
- kyBox(w,h,d,color,x,h/2+.25,z,true);
- kyBox(w+1.2,1.2,d+1.2,0x241f19,x,h+.6,z,false);
- const door=kyBox(5.2,6,.4,0x17130d,x,3.2,z+d/2+.22,false);
- void door;
- kyTrim(x,h-.1,z+d/2+.24,w*.82,.2);
- kySign(title,sub,x,h-2.2,z+d/2+.45,0,Math.min(w*.86,27),5.2);
+function kyHall({id,x,z,w=30,d=22,h=11,color=0x493d2e,title,sub}){
+ const wall=.55,doorW=6.4,frontZ=z+d/2;
+ // Walkable shell: floor + back/side walls + two front wall segments, not one solid collider.
+ kyBox(w,.28,d,0x241f19,x,.36,z,false);
+ kyBox(w,h,wall,color,x,h/2+.25,z-d/2,true);
+ kyBox(wall,h,d,color,x-w/2,h/2+.25,z,true);
+ kyBox(wall,h,d,color,x+w/2,h/2+.25,z,true);
+ const seg=(w-doorW)/2;
+ kyBox(seg,h,wall,color,x-(doorW+seg)/2,h/2+.25,frontZ,true);
+ kyBox(seg,h,wall,color,x+(doorW+seg)/2,h/2+.25,frontZ,true);
+ kyBox(doorW,1.4,wall,color,x,h-.45,frontZ,true);
+ kyBox(w+1.2,.7,d+1.2,0x241f19,x,h+.32,z,false);
+ // façade depth, windows and gold/cyan trim to move beyond plain boxes.
+ kyTrim(x,h-.1,frontZ+.12,w*.84,.18);
+ for(const sx of [-1,1]){
+  const wx=x+sx*(doorW/2+(w-doorW)/4);
+  const win=new T.Mesh(new T.PlaneGeometry(Math.max(4,(w-doorW)/2-2),Math.min(4.3,h*.36)),kyGlass());
+  win.position.set(wx,h*.55,frontZ+.31);scene.add(win);
+ }
+ kySign(title,sub,x,h-2.0,frontZ+.36,0,Math.min(w*.86,28),4.8);
+ // Interior lighting marker.
+ const light=new T.PointLight(0xffddb0,.72,32);light.position.set(x,h*.65,z);scene.add(light);
+ if(id)kyArchitecturalAsset(id,x,z,h);
+ return {id,x,z,w,d,h,frontZ,doorW};
 }
 
 function kyBuildJudahGate(){
