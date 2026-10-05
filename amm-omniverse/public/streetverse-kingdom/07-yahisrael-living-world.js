@@ -241,6 +241,48 @@ function kyBuildBroadcast(){
 }
 kyBuildJudahGate();kyBuildAssembly();kyBuildService();kyBuildMarket();kyBuildLegacy();kyBuildHebrewSchool();kyBuildGarden();kyBuildPress();kyBuildBroadcast();
 
+let kyBiblePreviewPackage=null;
+let kyBiblePreviewRig=null;
+function kyBiblePreviewLabelTexture(pkg){
+ const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=384;
+ const g=canvas.getContext('2d');g.fillStyle='#04131c';g.fillRect(0,0,canvas.width,canvas.height);
+ g.strokeStyle='#4fe3ff';g.lineWidth=12;g.strokeRect(8,8,canvas.width-16,canvas.height-16);
+ g.textAlign='center';g.textBaseline='middle';
+ g.fillStyle='#e8b944';g.font='900 46px Arial';g.fillText('METAVERSE BIBLE • HOLO PREVIEW',512,72);
+ g.fillStyle='#ffffff';g.font='900 54px Arial';g.fillText(String(pkg.title||'Bible World Preview').slice(0,34),512,154);
+ g.fillStyle='#8eeeff';g.font='700 28px Arial';g.fillText(String(pkg.era||'SOURCE-LABELED RECONSTRUCTION').slice(0,54),512,218);
+ g.fillStyle='#b7c7d1';g.font='700 21px Arial';g.fillText(String(pkg.truthLabel||'PREVIEW ONLY').slice(0,78),512,272);
+ g.fillStyle='#ffcf7d';g.font='900 22px Arial';g.fillText('PREVIEW ONLY • NOT PRODUCTION CERTIFIED',512,328);
+ const tex=new T.CanvasTexture(canvas);tex.minFilter=T.LinearFilter;tex.magFilter=T.LinearFilter;return tex;
+}
+function installBibleWorldPreviewPackage(pkg){
+ if(!pkg||!pkg.planId)return false;
+ kyBiblePreviewPackage=pkg;window.YAHISRAEL_BIBLE_WORLD_PREVIEW=pkg;
+ if(kyBiblePreviewRig){scene.remove(kyBiblePreviewRig);kyBiblePreviewRig=null}
+ const g=new T.Group();g.position.set(-37,0,104);scene.add(g);kyBiblePreviewRig=g;
+ const pedestal=new T.Mesh(new T.CylinderGeometry(1.7,2.1,.7,24),kyMaterial(0x1a2730,0x143b4a,.34,.38));pedestal.position.y=.36;g.add(pedestal);
+ for(const [radius,y,opacity] of [[1.45,1.25,.86],[2.15,2.55,.56],[2.8,3.85,.34]]){
+  const ring=new T.Mesh(new T.TorusGeometry(radius,.055,8,48),new T.MeshBasicMaterial({color:KY_CYAN,transparent:true,opacity}));
+  ring.rotation.x=Math.PI/2;ring.position.y=y;g.add(ring);kyAnimated.push({mesh:ring,type:'spin'});
+ }
+ const beam=new T.Mesh(new T.CylinderGeometry(.9,1.55,5.1,20,1,true),new T.MeshBasicMaterial({color:KY_CYAN,transparent:true,opacity:.09,depthWrite:false,side:T.DoubleSide}));
+ beam.position.y=2.9;g.add(beam);
+ const screen=new T.Mesh(new T.PlaneGeometry(10.5,3.95),new T.MeshBasicMaterial({map:kyBiblePreviewLabelTexture(pkg),transparent:true,side:T.DoubleSide}));
+ screen.position.set(0,5.5,-1.5);screen.rotation.x=-.08;g.add(screen);
+ const assetKinds=(pkg.previews||[]).map(x=>String(x.kind||'asset').toUpperCase()).slice(0,8);
+ for(let i=0;i<assetKinds.length;i++){
+  const a=i/Math.max(1,assetKinds.length)*Math.PI*2;
+  const orb=new T.Mesh(new T.SphereGeometry(.22,10,8),new T.MeshBasicMaterial({color:i%2?KY_GOLD:KY_CYAN}));
+  orb.position.set(Math.cos(a)*2.4,2.7+Math.sin(a*2)*.35,Math.sin(a)*2.4);g.add(orb);kyAnimated.push({mesh:orb,type:'pulseSmall'});
+ }
+ kyPost('BIBLE_WORLD_PREVIEW_INSTALLED',{planId:pkg.planId,title:pkg.title,era:pkg.era,truthLabel:pkg.truthLabel,previewOnly:true,assetCount:Number(pkg.assetCount||0),previewCount:Number(pkg.previewCount||0)});
+ toast('Metaverse Bible hologram preview installed in Hebrew School • PREVIEW ONLY');
+ return true;
+}
+window.installBibleWorldPreviewPackage=installBibleWorldPreviewPackage;
+try{const saved=JSON.parse(localStorage.getItem('tryamm.metaverse-bible.hebrew-school-preview.v1')||'null');if(saved?.planId)setTimeout(()=>installBibleWorldPreviewPackage(saved),80)}catch{}
+
+
 const KY_ACTIVITY_KEY='tryamm.kingdom-yahisrael.activities.v1';
 const KY_ACTIVITIES=[
  {id:'assembly-reflection',label:'Complete Assembly Reflection',shortLabel:'Reflect / Pray',x:-37,z:-46,missionId:'assembly-reflection',destinationId:'assembly-court',action:'pray-standing',completion:'local'},
@@ -419,6 +461,7 @@ function kyMarkVisited(d){
 function visitKingdomDestination(d){
  if(!d)return;
  const progress=kyMarkVisited(d);
+ if(d.id==='hebrew-school'&&kyBiblePreviewPackage)toast('Hebrew School has an active Metaverse Bible hologram preview • '+String(kyBiblePreviewPackage.title||'Bible World'));
  toast(d.name+': '+d.objective+' • Path '+progress.visited.filter(id=>KY_PATH_IDS.includes(id)).length+'/'+KY_PATH_IDS.length);
  kyPost('KINGDOM_DESTINATION_ENTERED',{destination:d.name,district:d.shortName,x:d.x,y:0,z:d.z,missionId:d.missionId,contentId:d.id});
  kyPost('MISSION_STARTED',{destination:d.name,district:d.shortName,x:d.x,y:0,z:d.z,missionId:d.missionId,contentId:d.id});
@@ -431,6 +474,7 @@ function updateYahisraelLivingWorld(dt,now){
   const a=kyAnimated[i];
   if(a.type==='spin')a.mesh.rotation.z=t*(i%2?-.24:.24);
   else if(a.type==='pulse')a.mesh.position.y=14+Math.sin(t*1.5)*.22;
+  else if(a.type==='pulseSmall')a.mesh.scale.setScalar(1+Math.sin(t*2.2+i)*.12);
  }
  for(let i=0;i<kyActivityMarkers.length;i++){
   const m=kyActivityMarkers[i],done=(window.YAHISRAEL_ACTIVITY_PROGRESS?.completed||[]).includes(m.activity.id);
