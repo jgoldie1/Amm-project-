@@ -132,6 +132,7 @@ export default function App() {
     if (route === '/holo-gallery') { setShowHoloGallery(true); return }
     if (route === '/holo-fridge' || route === '/holo-cold-vault') { setShowHoloFridge(true); return }
     if (route === '/holo-lab' || route === '/holo-labs') { setShowHoloLab(true); return }
+    if (route === '/time-machine-foundry' || route === '/chrono-foundry' || route === '/world-foundry') { window.location.href='/time-machine-foundry'; return }
     if (route === '/logistics-freight' || route === '/freight') { setShowLogisticsFreight(true); return }
     if (route === '/business-revenue' || route === '/saas') { setShowElSaturnRevenue(true); return }
     if (route === '/holoverse') { setShowHoloverse(true); return }
@@ -259,6 +260,7 @@ export default function App() {
     ['◈','HOLO GALLERY',()=>setShowHoloGallery(true),'BETA'],
     ['🧊','HOLO FRIDGE',()=>setShowHoloFridge(true),'BETA'],
     ['🧪','HOLO LAB',()=>setShowHoloLab(true),'BETA'],
+    ['⏳','TIME MACHINE FOUNDRY',()=>{window.location.href='/time-machine-foundry'},'BETA'],
     ['🚛','LOGISTICS + FREIGHT',()=>setShowLogisticsFreight(true),'BETA'],
     ['💼','BUSINESS REVENUE',()=>setShowElSaturnRevenue(true),'BETA'],
     ['🛡','SECURITY',()=>setShowSecurity(true),'LIVE'],
