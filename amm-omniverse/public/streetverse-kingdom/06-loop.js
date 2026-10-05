@@ -25,6 +25,7 @@ function frame(now) {
   for (const c of cars) { if (c === player.inCar) continue; if (c.ai) aiDrive(c, dt, c.cruise); else coast(c, dt); }
   for (const c of cars) syncCar(c, dt);
   updatePeds(dt);
+  if(typeof updateYahisraelLivingWorld==='function')updateYahisraelLivingWorld(dt,now);
 
   trafficT += rdt;
   if (trafficT > 4) { trafficT = 0; if (cars.filter(c => c.ai).length < Q.traffic) spawnTraffic(player.pos); }
