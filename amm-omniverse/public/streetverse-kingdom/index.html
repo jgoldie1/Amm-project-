@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#15122c">
+<title>Kingdom District • TRYAMM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Saira+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-tryamm-kingdom-build="kingdom-district-v2">
+<div id="game"></div>
+<div id="hud" hidden><div id="mapWrap"><canvas id="minimap" width="240" height="240"></canvas><div id="zoneLine"><b id="zone">Crown Heights</b><span id="clock">11:12 PM</span></div></div><div id="toast" hidden></div><div id="bottom"><div id="prompt" hidden></div><div id="speedo" hidden><b id="spd">0</b><small>mph</small><span id="autoTag" hidden>Auto-drive</span></div></div></div>
+<div id="radial" hidden><div id="ring"></div><div id="radialLabel">Pick an action</div></div>
+<div id="phone" hidden><div class="bezel"><div class="status"><span id="phClock">11:12</span><span class="notch"></span><span>KD 5G</span></div><div id="phoneScreen"></div><div class="homebar"></div></div></div>
+<div id="touch" hidden><div id="stickZone"><div id="stickBase"><div id="stickKnob"></div></div></div><div id="lookZone"></div><div id="btns"><button data-act="phone" class="tb">Phone</button><button data-act="menu" class="tb">Menu</button><button data-act="alt" id="bAlt" class="tb">Sprint</button><button data-act="enter" id="bEnter" class="tb gold">Enter</button></div></div>
+<div id="start"><div class="startInner"><h1>Kingdom<br>District</h1><p class="sub" id="startSub">Free roam. Night shift. Your ride is parked out front.</p><button id="startBtn">Start</button><p class="hint" id="startHint">Controller, keyboard, or touch. Press any button to start.</p><p class="rotate">Turn your phone sideways for the best view.</p></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="01-core-world.js"></script>
+<script src="02-physics-traffic.js"></script>
+<script src="03-spawn-phone.js"></script>
+<script src="04-radial-input.js"></script>
+<script src="05-player-camera-hud.js"></script>
+<script src="06-loop.js"></script>
+<script src="tryamm-bridge.js"></script>
+</body>
+</html>
