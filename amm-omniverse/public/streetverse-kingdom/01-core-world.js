@@ -1,6 +1,5 @@
 /* Kingdom District — open-world vertical slice
    Three.js r128, no build step. Controller (Gamepad API), keyboard/mouse and touch. */
-(() => {
 'use strict';
 const T = window.THREE;
 if (!T) { document.body.innerHTML = '<p style="color:#fff;padding:24px;font-family:sans-serif">Three.js did not load. Make sure vendor/three.min.js is next to index.html.</p>'; return; }
