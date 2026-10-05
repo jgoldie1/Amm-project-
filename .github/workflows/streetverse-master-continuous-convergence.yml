@@ -154,6 +154,7 @@ jobs:
               run_gate build-app-kingdom-yahisrael-world node tests/kingdom-yahisrael-visible-world-contract.mjs
               run_gate build-app-metaverse-bible-handoff node tests/metaverse-bible-hebrew-school-handoff-contract.mjs
               run_gate build-app-metaverse-bible-promotion node tests/metaverse-bible-production-promotion-contract.mjs
+              run_gate build-app-metaverse-bible-pass5 node tests/metaverse-bible-production-evidence-contract.mjs
               run_gate build-app-time-machine-foundry node tests/time-machine-world-foundry-convergence-contract.mjs
               run_gate build-app-time-machine-foundry-persistence node tests/time-machine-foundry-persistence-contract.mjs
               run_gate build-app-metaverse-bible-foundry node tests/metaverse-bible-time-machine-construction-contract.mjs
@@ -284,6 +285,7 @@ jobs:
             run_gate kingdom-yahisrael-world-readiness npm run kingdom-yahisrael-world:check
             run_gate metaverse-bible-handoff-readiness npm run metaverse-bible-handoff:check
             run_gate metaverse-bible-promotion-readiness npm run metaverse-bible-promotion:check
+            run_gate metaverse-bible-pass5-readiness npm run metaverse-bible:pass5
             run_gate time-machine-foundry-readiness npm run time-machine-foundry:check
             run_gate time-machine-foundry-persistence-readiness npm run time-machine-foundry:persistence:check
             run_gate metaverse-bible-foundry-readiness npm run metaverse-bible-foundry:check
