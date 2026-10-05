@@ -69,10 +69,10 @@ function defaultAssets(r:TimeMachineWorldFoundryRequest):Array<{label:string;kin
  return out
 }
 function forgeKindFor(kind:AssetKind):ForgeAssetKind{
- if(kind==='building'||kind==='interior')return'building'
+ if(kind==='building')return'building'
  if(kind==='character')return'character'
  if(kind==='vehicle')return'vehicle'
- if(kind==='road'||kind==='environment')return'infrastructure'
+ if(kind==='environment')return'infrastructure'
  return'prop'
 }
 function compileWorldForge(planId:string,r:TimeMachineWorldFoundryRequest,input:{label:string;kind:AssetKind;purpose?:string;evidence?:FoundryEvidence;qualityTier?:'mobile'|'premium'|'hero';requestedLook?:string},index:number){
