@@ -51,11 +51,52 @@ export const TRYAMM_88_BOOK_CURRICULUM:CurriculumEntry[]=[
  })),
 ]
 
+export const KJV_1611_APOCRYPHA_BOOKS=[
+ {id:'1-esdras',title:'1 Esdras',historical1611Title:'1. Esdras',chapters:9},
+ {id:'2-esdras',title:'2 Esdras',historical1611Title:'2. Esdras',chapters:16},
+ {id:'tobit',title:'Tobit',historical1611Title:'Tobit',chapters:14},
+ {id:'judith',title:'Judith',historical1611Title:'Iudeth',chapters:16},
+ {id:'rest-of-esther',title:'Rest of Esther',historical1611Title:'The rest of Esther',chapters:6},
+ {id:'wisdom',title:'Wisdom of Solomon',historical1611Title:'Wisedome',chapters:19},
+ {id:'ecclesiasticus',title:'Ecclesiasticus / Sirach',historical1611Title:'Ecclesiasticus',chapters:51},
+ {id:'baruch',title:'Baruch + Epistle of Jeremiah',historical1611Title:'Baruch with the Epistle of Ieremiah',chapters:6},
+ {id:'song-three-children',title:'Song of the Three Holy Children',historical1611Title:'The song of the three children',chapters:1},
+ {id:'susanna',title:'Susanna',historical1611Title:'The story of Susanna',chapters:1},
+ {id:'bel-dragon',title:'Bel and the Dragon',historical1611Title:'The idole Bel and the Dragon',chapters:1},
+ {id:'prayer-manasses',title:'Prayer of Manasses',historical1611Title:'The prayer of Manasseh',chapters:1},
+ {id:'1-maccabees',title:'1 Maccabees',historical1611Title:'1. Maccabees',chapters:16},
+ {id:'2-maccabees',title:'2 Maccabees',historical1611Title:'2. Maccabees',chapters:15},
+] as const
+
+export const KJV_1611_SOURCE_MANIFEST={
+ title:'Authorized King James Version of the Holy Bible (1611)',
+ source:'Wikisource transcription / historical-edition study reference',
+ url:'https://en.wikisource.org/wiki/Bible_%28King_James_Version%2C_1611%29',
+ publicDomainNote:'The 1611 text is public domain in the United States; other jurisdictions may have different restrictions.',
+ completeness:'Historical transcription is source-linked and may be incomplete; TRYAMM must never fill missing historical text with generated scripture.',
+ apocryphaPlacement:'Between the Old and New Testaments in the 1611 printed edition.',
+} as const
+
+const KJV_1611_OT_39=[
+ 'Genesis','Exodus','Leviticus','Numbers','Deuteronomy','Joshua','Judges','Ruth','1 Samuel','2 Samuel','1 Kings','2 Kings','1 Chronicles','2 Chronicles','Ezra','Nehemiah','Esther','Job','Psalms','Proverbs','Ecclesiastes','Song of Solomon','Isaiah','Jeremiah','Lamentations','Ezekiel','Daniel','Hosea','Joel','Amos','Obadiah','Jonah','Micah','Nahum','Habakkuk','Zephaniah','Haggai','Zechariah','Malachi'
+] as const
+const KJV_1611_NT_27=[
+ 'Matthew','Mark','Luke','John','Acts','Romans','1 Corinthians','2 Corinthians','Galatians','Ephesians','Philippians','Colossians','1 Thessalonians','2 Thessalonians','1 Timothy','2 Timothy','Titus','Philemon','Hebrews','James','1 Peter','2 Peter','1 John','2 John','3 John','Jude','Revelation'
+] as const
+
+export const KJV_1611_80_BOOK_STUDY_INDEX=[
+ ...KJV_1611_OT_39.map((title,index)=>({id:`ot-${index+1}`,title,section:'Old Testament' as const,source:'KJV 1611 historical edition'})),
+ ...KJV_1611_APOCRYPHA_BOOKS.map(item=>({id:item.id,title:item.title,section:'Apocrypha' as const,source:'KJV 1611 historical edition',chapters:item.chapters})),
+ ...KJV_1611_NT_27.map((title,index)=>({id:`nt-${index+1}`,title,section:'New Testament' as const,source:'KJV 1611 historical edition'})),
+] as const
+
 export const KJV_1611_STUDY_LAYER={
  title:'King James Bible 1611 Study Layer',
  historicalCount:80,
  structure:'39 Old Testament + 14 Apocrypha + 27 New Testament',
- currentReader:'Modern KJV text lane is connected; original-1611 spelling/scan comparison remains source-labeled.',
+ currentReader:'Modern KJV 66-book text lane is connected through the current reader; the historical 1611 80-book structure and 14-book Apocrypha are indexed separately and source-linked.',
+ sourceManifest:KJV_1611_SOURCE_MANIFEST,
+ apocryphaBooks:KJV_1611_APOCRYPHA_BOOKS,
  editionRule:'Never silently replace Ethiopian-canon metadata with KJV canon metadata.',
 } as const
 
