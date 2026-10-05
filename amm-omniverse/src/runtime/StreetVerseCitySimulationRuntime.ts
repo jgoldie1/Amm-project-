@@ -285,10 +285,38 @@ function save(state:StreetVerseCitySimulationState){
   try{localStorage.setItem(SAVE_KEY,JSON.stringify(state))}catch{}
 }
 
+function emitOpportunities(state:StreetVerseCitySimulationState){
+  if(typeof window==='undefined')return
+  for(const d of Object.values(state.districts)){
+    const candidates=[
+      {kind:'traffic',score:d.traffic,threshold:.62,title:'Traffic Relief',objective:'Reduce congestion with transit, delivery routing or road repair.',reward:180},
+      {kind:'public-safety',score:1-d.safety,threshold:.38,title:'Public Safety Response',objective:'Respond to a safety incident and restore district confidence.',reward:220},
+      {kind:'fire',score:1-d.fireCoverage,threshold:.42,title:'Fire & Rescue Coverage',objective:'Complete a rescue or fire-service response in the district.',reward:240},
+      {kind:'housing',score:d.housingDemand,threshold:.68,title:'Housing Build',objective:'Add or restore housing capacity where demand is strongest.',reward:260},
+      {kind:'business',score:d.businessDemand,threshold:.66,title:'Business Growth',objective:'Onboard or support a local business and create jobs.',reward:250},
+    ] as const
+    for(const item of candidates){
+      if(item.score<item.threshold)continue
+      window.dispatchEvent(new CustomEvent('tryamm:city-simulation-opportunity',{detail:{
+        id:`city-opportunity:${d.id}:${item.kind}`,
+        districtId:d.id,
+        districtLabel:d.label,
+        kind:item.kind,
+        title:item.title,
+        objective:item.objective,
+        severity:round(item.score,3),
+        reward:item.reward,
+        source:'streetverse-city-simulation',
+      }}))
+    }
+  }
+}
+
 function emit(state:StreetVerseCitySimulationState,reason:string){
   if(typeof window==='undefined')return
   const snapshot=cloneState(state)
   window.dispatchEvent(new CustomEvent('tryamm:city-simulation-state',{detail:{...snapshot,reason}}))
+  emitOpportunities(snapshot)
   window.dispatchEvent(new CustomEvent('tryamm:city-simulation-pulse',{detail:{
     reason,
     tick:snapshot.tick,
