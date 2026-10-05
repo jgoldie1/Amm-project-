@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import SportVerseWorldGamesHub from './SportVerseWorldGamesHub'
+import HoloCreditChannelShop from './HoloCreditChannelShop'
 
 const cyan='#4FE3FF'
 const gold='#E8B944'
@@ -36,6 +37,7 @@ export default function GameVerseHub({onClose,onEnterSports,onEnterCity,initialW
           <div style={{fontSize:58}}>{selected.icon}</div><div style={{fontSize:10,color:gold,fontWeight:950,letterSpacing:2,marginTop:15}}>{selected.genre.toUpperCase()} • {selected.status}</div><h2 style={{fontSize:'clamp(32px,5vw,58px)',margin:'8px 0 14px'}}>{selected.name}</h2><p style={{fontSize:16,color:'#afbdd0',lineHeight:1.6,maxWidth:720}}>{selected.summary}</p>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:9,marginTop:22}}>{selected.features.map(f=><div key={f} style={{border:'1px solid #203247',borderRadius:13,padding:12,background:'#0a111c',fontSize:12,color:'#dce7f5'}}>✦ {f}</div>)}</div>
           <div style={{marginTop:26,padding:16,border:'1px solid #2b3341',borderRadius:16,background:'#090c12',fontSize:12,color:'#98a9bd',lineHeight:1.55}}><strong style={{color:'#fff'}}>Shared-world contract:</strong> the long-term design uses one TRYAMM Passport for identity, progression, safety settings, creator attribution and backend-authoritative owned items/rankings/purchases. Prototype/planned labels are readiness indicators, not claims of complete online multiplayer.</div>
+          <div style={{marginTop:14}}><HoloCreditChannelShop channel="GAMEVERSE" title="GameVerse Credit Utilities"/></div>
           <div style={{display:'flex',gap:10,flexWrap:'wrap',marginTop:24}}>{selected.slug==='living-sports'&&<button onClick={()=>setWorldGamesOpen(true)} style={{border:0,borderRadius:13,padding:'13px 18px',background:'linear-gradient(135deg,#7be9ff,#89ffb3)',color:'#04111a',fontWeight:950,cursor:'pointer'}}>🌍 WORLD GAMES →</button>}<button onClick={enter} disabled={selected.entry==='planned'} style={{border:0,borderRadius:13,padding:'13px 18px',background:selected.entry==='planned'?'#252a33':`linear-gradient(135deg,${cyan},#77a7ff)`,color:selected.entry==='planned'?'#7e8998':'#04111a',fontWeight:950,cursor:selected.entry==='planned'?'not-allowed':'pointer'}}>{selected.entry==='planned'?'PLANNED — NOT PLAYABLE YET':'ENTER PROTOTYPE →'}</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:middleverse-open',{detail:{source:'gameverse',world:selected.slug}}))} style={{border:`1px solid ${gold}88`,borderRadius:13,padding:'13px 18px',background:'#201807',color:'#ffe49b',fontWeight:900,cursor:'pointer'}}>◈ SEND TO MIDDLEVERSE</button></div>
         </section>
       </div>
