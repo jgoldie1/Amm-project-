@@ -17,7 +17,7 @@ export default function FaithScriptureReader(){
  const [mode,setMode]=useState<ReaderMode>('kjv-current')
  const [book,setBook]=useState('Genesis')
  const [chapter,setChapter]=useState(1)
- const [selectedApocrypha,setSelectedApocrypha]=useState(KJV_1611_APOCRYPHA_BOOKS[0].id)
+ const [selectedApocrypha,setSelectedApocrypha]=useState<string>(KJV_1611_APOCRYPHA_BOOKS[0].id)
  const [data,setData]=useState<Payload|null>(null)
  const [loading,setLoading]=useState(false)
  const [error,setError]=useState('')
