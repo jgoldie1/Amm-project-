@@ -12,6 +12,7 @@ const lab=fs.readFileSync(new URL('../src/components/HoloLabFoundryPreview.tsx',
 const main=fs.readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8')
 const promotion=fs.readFileSync(new URL('../src/runtime/BibleWorldPromotionRuntime.ts',import.meta.url),'utf8')
 const promotionPanel=fs.readFileSync(new URL('../src/components/BibleWorldPromotionPanel.tsx',import.meta.url),'utf8')
+const foundry=fs.readFileSync(new URL('../src/runtime/TimeMachineWorldFoundryRuntime.ts',import.meta.url),'utf8')
 
 for(const x of ['tryamm_bible_world_evidence',"'provider-artifact'","'collision'","'navigation'","'mobile-performance'","'accessibility'","'human-visual-review'","state in ('submitted','verified','rejected','superseded')",'Client submissions never equal verification'])if(!migration.includes(x))throw new Error('Pass 5 evidence persistence missing '+x)
 for(const x of ['SUBMITTED_NOT_VERIFIED','provider_artifact_requires_asset_and_url','idempotency_key','requireUser'])if(!evidenceApi.includes(x))throw new Error('Evidence intake missing '+x)
@@ -19,12 +20,13 @@ for(const x of ['TRYAMM_WORLD_EVIDENCE_SECRET','Internal world-evidence authoriz
 for(const x of ['serverEvidenceFor','SERVER_EVIDENCE_BLOCKED','SERVER_EVIDENCE_UNAVAILABLE','serverEvidenceChecks','serverEvidenceIds'])if(!releases.includes(x))throw new Error('Release API does not require server evidence: '+x)
 for(const x of ['sameArtifact','provider-artifact','collisionTargets','navigationTargets','mobile-performance','human-visual-review'])if(!releases.includes(x))throw new Error('Exact artifact/QA release gate missing '+x)
 for(const x of ['tryamm.metaverse-bible.production-evidence.v1','sync-provider-artifacts','serverVerified:true','source:\'server-production-evidence\'','exactArtifactBinding:true'])if(!runtime.includes(x))throw new Error('Production evidence runtime missing '+x)
-for(const x of ['PASS 5 • PRODUCTION EVIDENCE','SYNC EXACT ARTIFACT RECEIPTS','REQUEST COLLISION + NAV QA','CAPTURE MOBILE FRAME SAMPLE','CAPTURE ACCESSIBILITY SNAPSHOT','SUBMIT HUMAN VISUAL REVIEW RECEIPT'])if(!panel.includes(x))throw new Error('Pass 5 evidence UI missing '+x)
+for(const x of ['PASS 5 • PRODUCTION EVIDENCE','RETRY MISSING GLB / PBR','SYNC EXACT ARTIFACT RECEIPTS','REQUEST COLLISION + NAV QA','CAPTURE MOBILE FRAME SAMPLE','CAPTURE ACCESSIBILITY SNAPSHOT','SUBMIT HUMAN VISUAL REVIEW RECEIPT'])if(!panel.includes(x))throw new Error('Pass 5 evidence UI missing '+x)
 for(const x of ['serverVerified!==true',"d.source!=='server-production-evidence'",'String(d.planId||\'\')!==String(state.planId||\'\')'])if(!cert.includes(x))throw new Error('Local certification accepts non-server evidence: '+x)
 if(!consoleUi.includes('BibleWorldProductionEvidencePanel'))throw new Error('Metaverse Bible console missing Pass 5 evidence panel')
 if(!lab.includes('BibleWorldProductionEvidencePanel'))throw new Error('Holo Lab missing Pass 5 evidence panel')
 if(!main.includes('installBibleWorldProductionEvidenceRuntime'))throw new Error('Pass 5 evidence runtime is not globally installed')
 for(const x of ['productionEvidence','serverEvidenceReady','server evidence: ','tryamm:bible-world-production-evidence-state'])if(!promotion.includes(x))throw new Error('Promotion runtime missing Pass 5 gate '+x)
 for(const x of ['SERVER EVIDENCE','PASS 5 READY','Pass 5 evidence'])if(!promotionPanel.includes(x))throw new Error('Promotion panel missing Pass 5 status '+x)
+for(const x of ['retryMissingProviderArtifacts','pass-5-provider-retry','tryamm:time-machine-world-foundry-retry-missing-provider-artifacts','providerRetry:true'])if(!foundry.includes(x))throw new Error('Targeted provider retry missing '+x)
 
 console.log('Metaverse Bible Pass 5 production evidence: PASS')
