@@ -1,0 +1,12 @@
+import fs from 'node:fs'
+const provider=fs.readFileSync(new URL('../src/services/meshyWorldArtifactProvider.ts',import.meta.url),'utf8')
+const holo=fs.readFileSync(new URL('../src/services/holoGen.ts',import.meta.url),'utf8')
+const forge=fs.readFileSync(new URL('../src/runtime/HoloForgeAssetRuntime.ts',import.meta.url),'utf8')
+const cert=fs.readFileSync(new URL('../src/runtime/BibleWorldCertificationRuntime.ts',import.meta.url),'utf8')
+const binder=fs.readFileSync(new URL('../src/runtime/BibleWorldSceneBinderRuntime.ts',import.meta.url),'utf8')
+for(const x of ['getAccessToken','/api/meshy/generate','/api/meshy/task','meshy-task-complete-without-glb','pbr:true','textured:true'])if(!provider.includes(x))throw new Error('Meshy provider bridge missing '+x)
+for(const x of ['MESHY_WORLD_KINDS','generateMeshyWorldArtifact','provider:\'meshy.ai\'','degraded:false','artifactUrl:artifact.glb','world3d'])if(!holo.includes(x))throw new Error('Holo Gen world provider routing missing '+x)
+if(!forge.includes('runHoloGen')||!forge.includes("request.kind==='audio'||request.kind==='mission'?'simulation':'world'"))throw new Error('HoloForge is not routing 3D world requests through Holo Gen')
+for(const x of ["p.provider!=='holo-router'",'outputHasArtifact(p.output)','provider-artifacts'])if(!cert.includes(x))throw new Error('Bible certification provider-artifact gate missing '+x)
+for(const x of ['artifactUrl(p?.output)','providerArtifacts','placeholder:!url'])if(!binder.includes(x))throw new Error('Bible scene binder real-artifact handoff missing '+x)
+console.log('HoloForge → Meshy → Bible-world artifact contract: PASS')
