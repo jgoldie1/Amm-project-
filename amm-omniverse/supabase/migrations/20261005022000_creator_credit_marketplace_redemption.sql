@@ -504,3 +504,136 @@ grant execute on function public.release_tryamm_creator_credit_payout(uuid,boole
 
 comment on table public.tryamm_creator_credit_settlement_ledger is
 'Creator credit marketplace settlement. Only verified purchased Play Credit net funding can create real creator commission eligibility. Earned Holo Credits never create cash payout.';
+
+
+-- Replace the generic closed-loop spend function so every purchased Play Credit spend
+-- consumes its funding provenance. This prevents already-spent funding from later
+-- being reused to create creator cash eligibility.
+create or replace function public.spend_tryamm_credits(
+  p_user_id uuid,p_units bigint,p_source_id text,p_metadata jsonb default '{}'::jsonb
+) returns jsonb
+language plpgsql
+security definer
+set search_path=public
+as $$
+declare
+  v_wallet public.tryamm_credit_wallets%rowtype;
+  v_holo bigint:=0;
+  v_play bigint:=0;
+  v_item_id text:=coalesce(p_metadata->>'itemId','');
+  v_entitlement_type text:=coalesce(p_metadata->>'kind','digital-utility');
+  v_funding jsonb:='{}'::jsonb;
+begin
+  if p_user_id is null or p_units is null or p_units<=0 or coalesce(p_source_id,'')='' then raise exception 'invalid_credit_spend'; end if;
+  if v_item_id='' then raise exception 'credit_item_id_required'; end if;
+  if exists(select 1 from public.tryamm_credit_entitlements where user_id=p_user_id and source_id=p_source_id) then
+    select * into v_wallet from public.tryamm_credit_wallets where user_id=p_user_id;
+    return jsonb_build_object('duplicate',true,'holoCredits',coalesce(v_wallet.holo_earned_units,0),'playCredits',coalesce(v_wallet.play_purchased_units,0),'spentUnits',p_units,'itemId',v_item_id);
+  end if;
+
+  insert into public.tryamm_credit_wallets(user_id) values(p_user_id) on conflict do nothing;
+  select * into v_wallet from public.tryamm_credit_wallets where user_id=p_user_id for update;
+  if v_wallet.status<>'active' or v_wallet.play_refund_debt_units>0 then raise exception 'credit_wallet_not_spendable'; end if;
+  if v_wallet.holo_earned_units+v_wallet.play_purchased_units<p_units then raise exception 'insufficient_tryamm_credits'; end if;
+
+  v_holo:=least(v_wallet.holo_earned_units,p_units);
+  v_play:=p_units-v_holo;
+
+  update public.tryamm_credit_wallets
+  set holo_earned_units=holo_earned_units-v_holo,
+      play_purchased_units=play_purchased_units-v_play,
+      lifetime_spent=lifetime_spent+p_units,
+      updated_at=now()
+  where user_id=p_user_id;
+
+  if v_holo>0 then
+    insert into public.tryamm_credit_ledger(user_id,bucket,event_type,units,source_type,source_id,idempotency_key,metadata)
+    values(p_user_id,'HOLO_EARNED','SPEND',-v_holo,'spend',p_source_id,'spend:'||p_source_id||':holo',coalesce(p_metadata,'{}'::jsonb));
+  end if;
+  if v_play>0 then
+    insert into public.tryamm_credit_ledger(user_id,bucket,event_type,units,source_type,source_id,idempotency_key,metadata)
+    values(p_user_id,'PLAY_PURCHASED','SPEND',-v_play,'spend',p_source_id,'spend:'||p_source_id||':play',coalesce(p_metadata,'{}'::jsonb));
+    v_funding:=public.allocate_tryamm_play_credit_spend(p_user_id,v_play,p_source_id);
+  end if;
+
+  insert into public.tryamm_credit_entitlements(user_id,item_id,entitlement_type,source_id,metadata)
+  values(p_user_id,v_item_id,v_entitlement_type,p_source_id,
+    coalesce(p_metadata,'{}'::jsonb)||jsonb_build_object('holoUnits',v_holo,'playUnits',v_play,'fundingAllocation',v_funding));
+
+  return jsonb_build_object(
+    'duplicate',false,'spentUnits',p_units,'holoUsed',v_holo,'playUsed',v_play,
+    'holoCredits',v_wallet.holo_earned_units-v_holo,'playCredits',v_wallet.play_purchased_units-v_play,
+    'itemId',v_item_id,'fundingAllocation',v_funding
+  );
+end;
+$$;
+revoke all on function public.spend_tryamm_credits(uuid,bigint,text,jsonb) from public,anon,authenticated;
+grant execute on function public.spend_tryamm_credits(uuid,bigint,text,jsonb) to service_role;
+
+-- Refund/revocation propagation: reverse the purchased-credit funding lot, freeze any
+-- uncovered wallet debt, and reverse creator settlements that depended on the refunded lot.
+create or replace function public.reverse_tryamm_credit_pack_entitlement()
+returns trigger
+language plpgsql
+security definer
+set search_path=public
+as $$
+declare
+  v_units bigint;
+  v_available bigint;
+  v_debt bigint;
+  v_inserted uuid;
+  v_lot_id uuid;
+  v_source text;
+begin
+  if old.status not in ('active','fulfilled') or new.status not in ('refunded','revoked') then return new; end if;
+  v_units:=public.tryamm_credit_pack_units(new.product_id);
+  if v_units<=0 then return new; end if;
+
+  insert into public.tryamm_credit_ledger(user_id,bucket,event_type,units,source_type,source_id,idempotency_key,metadata)
+  values(new.buyer_id,'PLAY_PURCHASED','REVERSAL',-v_units,'commerce_entitlement_refund',new.id::text,'entitlement-refund:'||new.id::text,
+    jsonb_build_object('productId',new.product_id,'orderId',new.order_id,'reason','verified entitlement refund/revocation'))
+  on conflict(idempotency_key) do nothing
+  returning id into v_inserted;
+  if v_inserted is null then return new; end if;
+
+  insert into public.tryamm_credit_wallets(user_id) values(new.buyer_id) on conflict do nothing;
+  select play_purchased_units into v_available from public.tryamm_credit_wallets where user_id=new.buyer_id for update;
+  v_available:=least(v_available,v_units);
+  v_debt:=v_units-v_available;
+  update public.tryamm_credit_wallets
+  set play_purchased_units=play_purchased_units-v_available,
+      play_refund_debt_units=play_refund_debt_units+v_debt,
+      status=case when v_debt>0 then 'frozen' else status end,
+      updated_at=now()
+  where user_id=new.buyer_id;
+
+  select id into v_lot_id from public.tryamm_play_credit_funding_lots where entitlement_id=new.id for update;
+  if v_lot_id is not null then
+    update public.tryamm_play_credit_funding_lots
+    set status='reversed',reconciled_at=now(),reconciliation_reference=coalesce(reconciliation_reference,'')||'|refund:'||new.id::text
+    where id=v_lot_id;
+
+    for v_source in
+      select distinct spend_source_id from public.tryamm_play_credit_spend_allocations where funding_lot_id=v_lot_id
+    loop
+      update public.tryamm_creator_credit_purchases
+      set settlement_state='reversed',updated_at=now()
+      where source_id=v_source;
+
+      update public.tryamm_creator_credit_settlement_ledger
+      set state='REVERSED',
+          metadata=metadata||jsonb_build_object('fundingRefunded',true,'fundingEntitlementId',new.id,'recoupmentRequired',state='PAID'),
+          updated_at=now()
+      where purchase_id in (select id from public.tryamm_creator_credit_purchases where source_id=v_source);
+    end loop;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_tryamm_credit_pack_refund on public.commerce_entitlements;
+create trigger trg_tryamm_credit_pack_refund
+after update of status on public.commerce_entitlements
+for each row execute function public.reverse_tryamm_credit_pack_entitlement();
