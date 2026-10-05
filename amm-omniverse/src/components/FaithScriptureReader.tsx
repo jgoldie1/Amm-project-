@@ -39,6 +39,7 @@ export default function FaithScriptureReader(){
  useEffect(()=>{void load('Genesis',1)},[])
  const chapterText=useMemo(()=>data?.verses?.map(v=>`${v.verse}. ${String(v.text||'').trim()}`).join(' ')||'',[data])
  const readAloud=()=>{if(!chapterText||!('speechSynthesis'in window))return;window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(`${book} chapter ${chapter}. ${chapterText}`);utterance.rate=.92;window.speechSynthesis.speak(utterance)}
+ const markScriptureStudied=()=>{if(!data?.verses?.length)return;window.dispatchEvent(new CustomEvent('tryamm:metaverse-bible-scripture-studied',{detail:{reference:data.reference||`${book} ${chapter}`,book,chapter,translation:data.translation_name||'King James Version',source:'faith-scripture-reader'}}))}
  const selected=KJV_1611_APOCRYPHA_BOOKS.find(x=>x.id===selectedApocrypha)||KJV_1611_APOCRYPHA_BOOKS[0]
 
  return <section id="reader" style={{marginTop:18,border:'2px solid #e5c56a',borderRadius:20,padding:16,background:'#080806'}}>
@@ -62,6 +63,7 @@ export default function FaithScriptureReader(){
      <button onClick={()=>{const n=Math.max(1,chapter-1);setChapter(n);setTimeout(()=>void load(book,n),0)}} style={button}>← PREVIOUS</button>
      <button onClick={()=>{const n=chapter+1;setChapter(n);setTimeout(()=>void load(book,n),0)}} style={button}>NEXT →</button>
      <button onClick={readAloud} style={button}>🔊 READ ALOUD</button>
+     <button onClick={markScriptureStudied} disabled={!data?.verses?.length} style={button}>✓ MARK CHAPTER STUDIED</button>
      <button onClick={()=>requestImmersive(`${book} ${chapter}`,'connected KJV')} style={button}>🌐 IMMERSIVE STUDY</button>
      <button onClick={()=>setFontSize(v=>Math.min(32,v+2))} style={button}>A+</button>
      <button onClick={()=>setFontSize(v=>Math.max(16,v-2))} style={button}>A−</button>
