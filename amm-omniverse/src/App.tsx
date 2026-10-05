@@ -117,7 +117,7 @@ export default function App() {
   const navigateTryAMM = (path:string) => {
     const route = (path || '/').replace(/\/+$/, '') || '/'
     if (route === '/') { setScreen('intro'); return }
-    if (route === '/streetverse' || route === '/faithverse' || route === '/starverse' || route === '/kingdom' || route === '/my-world' || route === '/we-are-the-world') { window.location.href = route; return }
+    if (route === '/streetverse' || route === '/faithverse' || route === '/starverse' || route === '/kingdom' || route === '/kingdom-of-yahisrael' || route === '/yahisrael' || route === '/judah' || route === '/where-heaven-meets-earth' || route === '/my-world' || route === '/we-are-the-world') { window.location.href = route; return }
     if (route === '/marketplace') { setScreen('marketplace'); return }
     if (route === '/music' || route === '/musicverse') { setScreen('music'); return }
     if (route === '/aniyah-studio' || route === '/64-track-studio') { setShowAniyahStudio(true); return }
@@ -294,6 +294,7 @@ export default function App() {
     ['🌟','STAR STUDIO',()=>setShowStarStudio(true),'BETA'],
     ['🎚','ANIYAH 64-TRACK',()=>setShowAniyahStudio(true),'BETA'],
     ['💳','HOLO PLAY CARD',()=>setShowHoloPlayCard(true),'BETA'],
+    ['👑','KINGDOM OF YAHISRAEL',()=>{window.location.href='/kingdom-of-yahisrael'},'BETA'],
     ['🌀','CROSSVERSE ECONOMY',()=>setShowCrossVerseEconomy(true),'BETA'],
     ['💿','PRO AUDIO',()=>setShowProAudio(true),'BETA'],
     ['🌐','HOLOVERSE',()=>setShowHoloverse(true),'BETA'],
