@@ -76,7 +76,13 @@ export async function loadStreetVerseMeshyCharacter(slotId:string):Promise<Stree
       }
     })
     const companionClips:THREE.AnimationClip[]=[]
-    for(const [url,name] of [[published?.walkUrl,'walk'],[published?.runUrl,'run']] as const){
+    const staticStem=staticMeshyUrl.replace(/\.glb$/i,'')
+    const companionSources=publishedReady
+      ?[[published?.walkUrl,'walk'],[published?.runUrl,'run']]
+      :staticMeshyReady
+        ?[[`${staticStem}.walk.glb`,'walk'],[`${staticStem}.run.glb`,'run']]
+        :[]
+    for(const [url,name] of companionSources as Array<[string|null|undefined,string]>){
       if(!url)continue
       try{
         const companion=await loader.loadAsync(url)
