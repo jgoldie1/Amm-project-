@@ -1,7 +1,7 @@
 // ---------- radial menu ----------
 const RADIAL = [
   { id: 'phone', label: 'Phone' }, { id: 'auto', label: 'Auto-drive' }, { id: 'lights', label: 'Headlights' },
-  { id: 'horn', label: 'Horn' }, { id: 'ride', label: 'Call my ride' }, { id: 'home', label: 'Route to Crown Plaza' },
+  { id: 'horn', label: 'Horn' }, { id: 'ride', label: 'Call my ride' }, { id: 'home', label: 'Route to Judah Gate' },
 ];
 const radial = { open: false, sel: -1, vx: 0, vy: 0, tap: false };
 const ringEl = $('ring'), radialEl = $('radial');
@@ -33,7 +33,7 @@ function doRadial(id) {
   else if (id === 'lights') toggleLights();
   else if (id === 'horn') horn();
   else if (id === 'ride') callRide();
-  else if (id === 'home') setWaypoint(0);
+  else if (id === 'home') { if(typeof setKingdomDestinationWaypoint==='function')setKingdomDestinationWaypoint('judah-gate'); else setWaypoint(0); }
 }
 function updateRadial() {
   if (!radial.open) return;
@@ -176,7 +176,7 @@ function gather() {
 
 function handle(a) {
   switch (a) {
-    case 'enter': if (!phone.open && !radial.open) toggleCar(); break;
+    case 'enter': if (!phone.open && !radial.open) { const d=(!player.inCar&&typeof nearestKingdomDestination==='function')?nearestKingdomDestination(8):null; if(d&&typeof visitKingdomDestination==='function')visitKingdomDestination(d); else toggleCar(); } break;
     case 'phone': phone.open ? closePhone() : openPhone(); break;
     case 'horn': horn(); break;
     case 'auto': toggleAuto(); if (phone.open) renderPhone(); break;
