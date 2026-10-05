@@ -219,8 +219,10 @@ function updateHUD(dt) {
   let pr = '';
   if (!phone.open && !radial.open) {
     const ka=(!car&&typeof nearestKingdomActivity==='function')?nearestKingdomActivity(4.5):null;
+    const kc=(!car&&typeof nearestKingdomCitizen==='function')?nearestKingdomCitizen(3.2):null;
     const kd=(!car&&typeof nearestKingdomDestination==='function')?nearestKingdomDestination(8):null;
     if (ka) pr = `${glyph('enter')}${ka.shortLabel}`;
+    else if (kc) pr = `${glyph('enter')}Talk to ${kc.displayName||'Kingdom citizen'}`;
     else if (kd) pr = `${glyph('enter')}Enter ${kd.shortName}`;
     else if (!car && nearestCar(4.6)) pr = `${glyph('enter')}Get in`;
     else if (car && Math.abs(car.speed) < 1 && !car.auto) pr = `${glyph('enter')}Get out`;
