@@ -34,7 +34,12 @@ export const STREETVERSE_MESHY_CHARACTER_SLOTS:readonly StreetVerseMeshyCharacte
 ] as const
 
 export const STREETVERSE_MESHY_CHARACTER_BASE_PATH='/tryamm-assets/meshy/characters'
-export const streetVerseMeshyCharacterUrl=(slot:StreetVerseMeshyCharacterSlot)=>`${STREETVERSE_MESHY_CHARACTER_BASE_PATH}/${slot.filename}`
+export const STREETVERSE_MESHY_DURABLE_WAVE1_BASE='https://fxluchtdfpediivhoksl.supabase.co/storage/v1/object/public/streetverse-assets/characters/static-wave1'
+export const STREETVERSE_MESHY_DURABLE_OVERRIDES:Readonly<Record<string,string>>={
+ 'sv-black-man-adult-01':`${STREETVERSE_MESHY_DURABLE_WAVE1_BASE}/SV_NPC_BLACK_MAN_ADULT_01.glb`,
+ 'sv-black-woman-adult-01':`${STREETVERSE_MESHY_DURABLE_WAVE1_BASE}/SV_NPC_BLACK_WOMAN_ADULT_01.glb`,
+}
+export const streetVerseMeshyCharacterUrl=(slot:StreetVerseMeshyCharacterSlot)=>STREETVERSE_MESHY_DURABLE_OVERRIDES[slot.id]||`${STREETVERSE_MESHY_CHARACTER_BASE_PATH}/${slot.filename}`
 
 export const STREETVERSE_MESHY_CHARACTER_POLICY={
  childAndTeenAdultLaneBlocked:true,
