@@ -59,7 +59,8 @@
     "after-dark-vr:check": "node tests/after-dark-vr-love-scene-contract.mjs",
     "star-studio:check": "node tests/star-studio-universe-contract.mjs",
     "aniyah-studio:check": "node tests/aniyah-64-track-business-contract.mjs",
-    "holo-credit-economy:check": "node tests/holo-play-credit-economy-contract.mjs"
+    "holo-credit-economy:check": "node tests/holo-play-credit-economy-contract.mjs",
+    "holo-engagement:check": "node tests/holo-play-engagement-monetization-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
