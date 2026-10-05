@@ -1,4 +1,5 @@
 import {useEffect,useMemo,useState} from 'react'
+import {getAccessToken} from '../services/supabaseClient'
 import {TRYAMM_CREDIT_PACKS,TRYAMM_CREDIT_POLICY,TRYAMM_CREDIT_SPEND_CATALOG,formatCreditUnits} from '../data/TryammHoloPlayCreditEconomy'
 
 type Wallet={holoCredits:number;playCredits:number;refundDebtUnits:number;lifetimeEarned:number;lifetimePurchased:number;lifetimeSpent:number;status:string}
@@ -11,16 +12,16 @@ export default function HoloPlayCard({onClose}:{onClose?:()=>void}){
  const [busy,setBusy]=useState('')
  const total=useMemo(()=>wallet.holoCredits+wallet.playCredits,[wallet])
  const load=async()=>{
-  try{const r=await fetch('/api/credits/wallet',{credentials:'include'});const d=await r.json();if(!r.ok)throw new Error(d?.error||'Wallet unavailable');setWallet(d.wallet);setLedger(d.ledger||[]);setStatus('Wallet ready. Holo Credits spend first, then Play Credits.')}catch(e){setStatus(e instanceof Error?e.message:'Wallet unavailable')}
+  try{const token=await getAccessToken();if(!token)throw new Error('Sign in to open the Holo Play Card.');const r=await fetch('/api/credits/wallet',{headers:{Authorization:`Bearer ${token}`}});const d=await r.json();if(!r.ok)throw new Error(d?.error||'Wallet unavailable');setWallet(d.wallet);setLedger(d.ledger||[]);setStatus('Wallet ready. Holo Credits spend first, then Play Credits.')}catch(e){setStatus(e instanceof Error?e.message:'Wallet unavailable')}
  }
  useEffect(()=>{void load()},[])
  const topup=async(id:string)=>{
   setBusy(id);setStatus('Preparing verified credit-pack checkout…')
-  try{const r=await fetch('/api/commerce/checkout',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({lines:[{id,qty:1}],clientOrderId:'HOLO-'+Date.now().toString(36).toUpperCase()})});const d=await r.json();if(d?.checkoutUrl&&d?.state==='CHECKOUT_READY'){window.location.href=d.checkoutUrl;return}if(d?.state==='PAYMENT_GATED'){setStatus('Credit pack order saved, but live charging is still gated. No Play Credits were minted.');return}setStatus(String(d?.message||d?.error||'Checkout is not ready.'))}catch{setStatus('Checkout could not be created. No charge or credits were created.')}finally{setBusy('')}
+  try{const token=await getAccessToken();if(!token)throw new Error('Sign in before buying Play Credits.');const r=await fetch('/api/commerce/checkout',{method:'POST',headers:{'content-type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({lines:[{id,qty:1}],clientOrderId:'HOLO-'+Date.now().toString(36).toUpperCase()})});const d=await r.json();if(d?.checkoutUrl&&d?.state==='CHECKOUT_READY'){window.location.href=d.checkoutUrl;return}if(d?.state==='PAYMENT_GATED'){setStatus('Credit pack order saved, but live charging is still gated. No Play Credits were minted.');return}setStatus(String(d?.message||d?.error||'Checkout is not ready.'))}catch{setStatus('Checkout could not be created. No charge or credits were created.')}finally{setBusy('')}
  }
  const spend=async(itemId:string)=>{
   setBusy(itemId);setStatus('Applying server-authoritative credit spend…')
-  try{const r=await fetch('/api/credits/spend',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({itemId,clientReference:'PLAY-'+itemId+'-'+Date.now().toString(36)})});const d=await r.json();if(!r.ok)throw new Error(d?.error||'Spend failed');setStatus(`${d.item.label} unlocked for ${d.item.costUnits} credits.`);await load();window.dispatchEvent(new CustomEvent('tryamm:holo-play-entitlement',{detail:d.entitlement}))}catch(e){setStatus(e instanceof Error?e.message:'Spend failed')}finally{setBusy('')}
+  try{const token=await getAccessToken();if(!token)throw new Error('Sign in before spending credits.');const r=await fetch('/api/credits/spend',{method:'POST',headers:{'content-type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({itemId,clientReference:'PLAY-'+itemId+'-'+Date.now().toString(36)})});const d=await r.json();if(!r.ok)throw new Error(d?.error||'Spend failed');setStatus(`${d.item.label} unlocked for ${d.item.costUnits} credits.`);await load();window.dispatchEvent(new CustomEvent('tryamm:holo-play-entitlement',{detail:d.entitlement}))}catch(e){setStatus(e instanceof Error?e.message:'Spend failed')}finally{setBusy('')}
  }
  return <div role='dialog' aria-modal='true' aria-label='Holo Play Card' style={{position:'fixed',inset:0,zIndex:14500,background:'radial-gradient(circle at 50% 0,#1b1e4b,#050711 62%)',color:'#fff',overflowY:'auto',fontFamily:'system-ui'}}>
   <div style={{maxWidth:1050,margin:'0 auto',padding:'18px 14px 90px'}}>
