@@ -1,9 +1,9 @@
 import {useEffect,useMemo,useState} from 'react'
-import {ETHIOPIAN_CANON_SOURCE,ETHIOPIAN_ORTHODOX_CANON_81,KJV_1611_STUDY_LAYER,PALEO_HEBREW_ALPHABET,PALEO_HEBREW_STUDY_RULES,STRONGS_STUDY,TRYAMM_88_BOOK_CURRICULUM} from '../data/FaithVerseStudyLibrary'
+import {ETHIOPIAN_CANON_SOURCE,ETHIOPIAN_ORTHODOX_CANON_81,KJV_1611_APOCRYPHA_BOOKS,KJV_1611_SOURCE_MANIFEST,KJV_1611_80_BOOK_STUDY_INDEX,KJV_1611_STUDY_LAYER,PALEO_HEBREW_ALPHABET,PALEO_HEBREW_STUDY_RULES,STRONGS_STUDY,TRYAMM_88_BOOK_CURRICULUM} from '../data/FaithVerseStudyLibrary'
 
-type Layer='canon81'|'curriculum88'|'strongs'|'hebrew'|'kjv1611'|'holo'|'network'
+type Layer='canon81'|'curriculum88'|'strongs'|'hebrew'|'kjv1611'|'apocrypha'|'holo'|'network'
 const options:[Layer,string][]=[
- ['canon81','ETHIOPIAN CANON • 81'],['curriculum88','TRYAMM CURRICULUM • 88'],['strongs',"STRONG'S"],['hebrew','HEBREW / PALEO SCRIPT'],['kjv1611','KJV 1611 STUDY'],['holo','HOLO LAB'],['network','SERVANTS OF CHRIST'],
+ ['canon81','ETHIOPIAN CANON • 81'],['curriculum88','TRYAMM CURRICULUM • 88'],['strongs',"STRONG'S"],['hebrew','HEBREW / PALEO SCRIPT'],['kjv1611','KJV 1611 • 80 BOOKS'],['apocrypha','1611 APOCRYPHA • 14'],['holo','HOLO LAB'],['network','SERVANTS OF CHRIST'],
 ]
 
 function openHoloGPT(prompt:string){
@@ -64,9 +64,18 @@ export default function FaithHoloBook(){
 
   {layer==='kjv1611'&&<div style={panel}>
    <h3 style={h3}>{KJV_1611_STUDY_LAYER.title}</h3>
-   <p style={muted}>{KJV_1611_STUDY_LAYER.structure}. This lane keeps the current KJV reader, historical 1611 edition study, Apocrypha visibility and Ethiopian-canon metadata clearly separated by source and edition.</p>
-   <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button onClick={()=>document.getElementById('reader')?.scrollIntoView({behavior:'smooth'})} style={button}>OPEN KJV READER</button><button onClick={()=>openHoloGPT('Help me compare a KJV passage with the 1611 historical edition. Keep current KJV text, original-edition spelling/scans, Apocrypha, commentary and AI explanation clearly labeled and separate.')} style={button}>ASK HOLOGPT EDITION TUTOR</button></div>
+   <p style={muted}>{KJV_1611_STUDY_LAYER.structure}. The full study index contains {KJV_1611_80_BOOK_STUDY_INDEX.length} entries: Old Testament, the 14-book Apocrypha, then New Testament. Current KJV reading and historical 1611 study remain separately labeled.</p>
+   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(170px,1fr))',gap:6,maxHeight:280,overflowY:'auto',marginBottom:10}}>{KJV_1611_80_BOOK_STUDY_INDEX.map((book,index)=><div key={book.id} style={bookRow}><b>{index+1}. {book.title}</b><small>{book.section}</small></div>)}</div>
+   <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button onClick={()=>document.getElementById('reader')?.scrollIntoView({behavior:'smooth'})} style={button}>OPEN SCRIPTURE READER</button><button onClick={()=>setLayer('apocrypha')} style={button}>OPEN 14-BOOK APOCRYPHA</button><a href={KJV_1611_SOURCE_MANIFEST.url} target="_blank" rel="noreferrer" style={button}>OPEN 1611 SOURCE</a><button onClick={()=>openHoloGPT('Help me compare a KJV passage with the 1611 historical edition. Keep current KJV text, original-edition spelling/scans, Apocrypha, commentary and AI explanation clearly labeled and separate.')} style={button}>ASK HOLOGPT EDITION TUTOR</button></div>
    <p style={{...muted,fontSize:11}}>{KJV_1611_STUDY_LAYER.currentReader}</p>
+  </div>}
+
+  {layer==='apocrypha'&&<div style={panel}>
+   <h3 style={h3}>KJV 1611 Apocrypha • 14-book inter-testament collection</h3>
+   <p style={muted}>The 1611 Authorized Version printed these books between the Old and New Testaments. This is a KJV-1611 historical-edition lane, not a relabeling of the Ethiopian Orthodox canon.</p>
+   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))',gap:7}}>{KJV_1611_APOCRYPHA_BOOKS.map((book,index)=><button key={book.id} onClick={()=>openHoloGPT(`Teach me about ${book.title} in the KJV 1611 Apocrypha study lane. Keep historical edition facts, scripture text, Ethiopian-canon comparison, commentary and AI explanation separately labeled. Do not invent missing source text.`)} style={{...bookRow,textAlign:'left',cursor:'pointer'}}><b>{index+1}. {book.title}</b><small>{book.chapters} chapter{book.chapters===1?'':'s'} • 1611 title: {book.historical1611Title}</small></button>)}</div>
+   <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:10}}><a href={KJV_1611_SOURCE_MANIFEST.url} target="_blank" rel="noreferrer" style={button}>OPEN 1611 HISTORICAL SOURCE</a><button onClick={()=>openHoloGPT('Build a source-labeled study comparing the KJV 1611 Apocrypha with overlapping Ethiopian-canon books. Never merge canon traditions or fabricate text.')} style={button}>ASK HOLOGPT APOCRYPHA TUTOR</button></div>
+   <p style={{...muted,fontSize:11}}>{KJV_1611_SOURCE_MANIFEST.completeness}</p>
   </div>}
 
   {layer==='holo'&&<div style={panel}>
