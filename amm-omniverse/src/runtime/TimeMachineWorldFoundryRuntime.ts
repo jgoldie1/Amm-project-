@@ -148,6 +148,20 @@ function queuePreview(plan:TimeMachineWorldFoundryPlan){
  emit('tryamm:holo-lab-foundry-preview',{planId:plan.id,title:plan.title,era:plan.era,truthLabel:plan.truthLabel,assets:plan.assets,previewOnly:true})
  emit('tryamm:time-machine-foundry-preview-queued',{planId:plan.id,assets:plan.assets.length})
 }
+function retryMissingProviderArtifacts(plan:TimeMachineWorldFoundryPlan){
+ const targets=plan.assets.filter(asset=>asset.state!=='preview-ready'||asset.provider==='holo-router'||!asset.provider||asset.provider==='pending')
+ for(const asset of targets){
+  emit('tryamm:holoforge-request',{
+   kind:asset.kind,prompt:asset.requestedLook,worldSessionId:plan.id,
+   tags:['time-machine-foundry','pass-5-provider-retry','holo-lab-preview','preview-only',plan.mode.toLowerCase(),asset.evidence],
+   priority:asset.qualityTier==='hero'?'critical':'high',qualityTier:asset.qualityTier,previewOnly:true,
+   requirements:{foundryPlanId:plan.id,assetId:asset.id,truthLabel:plan.truthLabel,evidence:asset.evidence,purpose:asset.purpose,productionPublishAllowed:false,retryReason:'missing-or-degraded-provider-artifact'},
+  })
+ }
+ emit('tryamm:time-machine-foundry-provider-retry-queued',{planId:plan.id,count:targets.length,assetIds:targets.map(a=>a.id)})
+ return targets.length
+}
+
 async function collectHistoryEvidence(req:TimeMachineWorldFoundryRequest,plan:TimeMachineWorldFoundryPlan){
  if(plan.mode!=='HISTORY')return{plan,ready:true}
  if(!req.historicalUrl){
@@ -197,6 +211,7 @@ export function installTimeMachineWorldFoundryRuntime(){
  const request=(event:Event)=>{const d=(event as CustomEvent<TimeMachineWorldFoundryRequest>).detail;if(d?.title)void handle(d,state).then(next=>{state=next})}
  const chrono=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};if(!d?.name&&!d?.title)return;void handle({id:d.scenarioId||d.id,title:d.name||d.title,era:d.era,mode:d.scenarioType||'RECONSTRUCTION',evidenceLevel:d.evidenceLevel||'mixed',description:d.description,objective:d.objective,source:d.source||'faith-chrono',featuredBook:d.featuredBook,autoPreview:true},state).then(next=>{state=next})}
  const chicago=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};if(!d?.title)return;void handle({id:d.id,title:d.title,era:d.era,mode:d.mode||'RECONSTRUCTION',evidenceLevel:d.evidence||'mixed',description:d.summary,objective:Array.isArray(d.objectives)?d.objectives.join(' → '):d.objective,source:'chicago-time-machine',cityId:'chicago',neighborhoodId:d.scope,autoPreview:true,historicalUrl:d.historicalUrl},state).then(next=>{state=next})}
+ const retry=()=>{const plan=state.activePlan;if(!plan){emit('tryamm:time-machine-foundry-provider-retry-blocked',{reason:'NO_ACTIVE_PLAN'});return}retryMissingProviderArtifacts(plan)}
  const holo=(event:Event)=>{
   const d=(event as CustomEvent<any>).detail||{};const plan=state.activePlan;if(!plan||d?.worldSessionId!==plan.id)return
   const assetId=String(d?.requirements?.assetId||'');if(!assetId)return
@@ -207,13 +222,15 @@ export function installTimeMachineWorldFoundryRuntime(){
  addEventListener('tryamm:chrono-run-started',chrono)
  addEventListener('tryamm:time-machine-enter',chicago)
  addEventListener('tryamm:holoforge-asset-ready',holo)
+ addEventListener('tryamm:time-machine-world-foundry-retry-missing-provider-artifacts',retry)
  addEventListener('tryamm:time-machine-world-foundry-request-state',()=>publish(state))
- emit('tryamm:time-machine-world-foundry-ready',{installed:true,uses:['Quantum World Builder','World Forger / CAD','Genie in the Bottle','Mind Over Matter','HoloForge','Holo Gen','Holo Lab','Googolplex receipts'],productionMutation:false,publishRequiresApproval:true,crossDeviceReceipts:true,explicitWorldForgerCad:true})
+ emit('tryamm:time-machine-world-foundry-ready',{installed:true,providerRetry:true,uses:['Quantum World Builder','World Forger / CAD','Genie in the Bottle','Mind Over Matter','HoloForge','Holo Gen','Holo Lab','Googolplex receipts'],productionMutation:false,publishRequiresApproval:true,crossDeviceReceipts:true,explicitWorldForgerCad:true})
  return()=>{
   removeEventListener('tryamm:time-machine-world-foundry-request',request)
   removeEventListener('tryamm:chrono-run-started',chrono)
   removeEventListener('tryamm:time-machine-enter',chicago)
   removeEventListener('tryamm:holoforge-asset-ready',holo)
+  removeEventListener('tryamm:time-machine-world-foundry-retry-missing-provider-artifacts',retry)
   installed=false
  }
 }
