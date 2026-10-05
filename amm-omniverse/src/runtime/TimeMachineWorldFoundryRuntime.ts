@@ -113,21 +113,53 @@ function queuePreview(plan:TimeMachineWorldFoundryPlan){
  emit('tryamm:holo-lab-foundry-preview',{planId:plan.id,title:plan.title,era:plan.era,truthLabel:plan.truthLabel,assets:plan.assets,previewOnly:true})
  emit('tryamm:time-machine-foundry-preview-queued',{planId:plan.id,assets:plan.assets.length})
 }
-function handle(req:TimeMachineWorldFoundryRequest,state:State){
- const plan=compile(req)
- const next={activePlan:plan,history:[...state.history,plan].slice(-20)}
+async function collectHistoryEvidence(req:TimeMachineWorldFoundryRequest,plan:TimeMachineWorldFoundryPlan){
+ if(plan.mode!=='HISTORY')return{plan,ready:true}
+ if(!req.historicalUrl){
+  emit('tryamm:time-machine-evidence-required',{planId:plan.id,mode:plan.mode,reason:'HISTORY requires an archived/verified source URL before exact historical preview.'})
+  return{plan,ready:false}
+ }
+ try{
+  const response=await fetch('/api/time-machine/internet',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'timeline',url:req.historicalUrl,from:req.era,to:req.era,limit:30,commonCrawlLimit:8})})
+  const data=await response.json().catch(()=>({}))
+  if(!response.ok)throw new Error(String(data?.error||'historical internet evidence failed'))
+  const count=Array.isArray(data?.captures)?data.captures.length:0
+  if(count<1){
+   const blocked={...plan,blockers:[...plan.blockers,'no archived capture found for HISTORY preview'],receipts:[...plan.receipts,'historical-internet:no-captures']}
+   emit('tryamm:time-machine-evidence-state',{planId:plan.id,ready:false,url:data?.url||req.historicalUrl,captures:0,completeness:data?.completeness||'unknown'})
+   return{plan:blocked,ready:false}
+  }
+  const verified={...plan,
+   blockers:plan.blockers.filter(x=>!x.includes('history mode requires archived/verified evidence source')),
+   receipts:[...plan.receipts,`historical-internet:${count}-observed-captures`]}
+  emit('tryamm:time-machine-evidence-state',{planId:plan.id,ready:true,url:data?.url||req.historicalUrl,captures:count,completeness:data?.completeness||'partial-observed-captures-only',warning:data?.warning})
+  return{plan:verified,ready:true}
+ }catch(error){
+  const blocked={...plan,blockers:[...plan.blockers,'historical archive evidence lookup failed'],receipts:[...plan.receipts,'historical-internet:lookup-failed']}
+  emit('tryamm:time-machine-evidence-state',{planId:plan.id,ready:false,error:error instanceof Error?error.message:String(error)})
+  return{plan:blocked,ready:false}
+ }
+}
+async function handle(req:TimeMachineWorldFoundryRequest,state:State){
+ let plan=compile(req)
+ let next={activePlan:plan,history:[...state.history,plan].slice(-20)}
  publish(next)
  emit('tryamm:time-machine-world-foundry-plan',plan)
- queuePreview(plan)
+ const evidence=await collectHistoryEvidence(req,plan)
+ plan=evidence.plan
+ next={activePlan:plan,history:next.history.map(p=>p.id===plan.id?plan:p)}
+ publish(next)
+ if(evidence.ready)queuePreview(plan)
+ else emit('tryamm:time-machine-foundry-preview-blocked',{planId:plan.id,mode:plan.mode,blockers:plan.blockers})
  return next
 }
 export function installTimeMachineWorldFoundryRuntime(){
  if(installed||typeof window==='undefined')return()=>{}
  installed=true
  let state=read();publish(state)
- const request=(event:Event)=>{const d=(event as CustomEvent<TimeMachineWorldFoundryRequest>).detail;if(d?.title)state=handle(d,state)}
- const chrono=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};if(!d?.name&&!d?.title)return;state=handle({id:d.scenarioId||d.id,title:d.name||d.title,era:d.era,mode:d.scenarioType||'RECONSTRUCTION',evidenceLevel:d.evidenceLevel||'mixed',description:d.description,objective:d.objective,source:d.source||'faith-chrono',featuredBook:d.featuredBook,autoPreview:true},state)}
- const chicago=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};if(!d?.title)return;state=handle({id:d.id,title:d.title,era:d.era,mode:d.mode||'RECONSTRUCTION',evidenceLevel:d.evidence||'mixed',description:d.summary,objective:Array.isArray(d.objectives)?d.objectives.join(' → '):d.objective,source:'chicago-time-machine',cityId:'chicago',neighborhoodId:d.scope,autoPreview:true},state)}
+ const request=(event:Event)=>{const d=(event as CustomEvent<TimeMachineWorldFoundryRequest>).detail;if(d?.title)void handle(d,state).then(next=>{state=next})}
+ const chrono=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};if(!d?.name&&!d?.title)return;void handle({id:d.scenarioId||d.id,title:d.name||d.title,era:d.era,mode:d.scenarioType||'RECONSTRUCTION',evidenceLevel:d.evidenceLevel||'mixed',description:d.description,objective:d.objective,source:d.source||'faith-chrono',featuredBook:d.featuredBook,autoPreview:true},state).then(next=>{state=next})}
+ const chicago=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};if(!d?.title)return;void handle({id:d.id,title:d.title,era:d.era,mode:d.mode||'RECONSTRUCTION',evidenceLevel:d.evidence||'mixed',description:d.summary,objective:Array.isArray(d.objectives)?d.objectives.join(' → '):d.objective,source:'chicago-time-machine',cityId:'chicago',neighborhoodId:d.scope,autoPreview:true,historicalUrl:d.historicalUrl},state).then(next=>{state=next})}
  const holo=(event:Event)=>{
   const d=(event as CustomEvent<any>).detail||{};const plan=state.activePlan;if(!plan||d?.worldSessionId!==plan.id)return
   const assetId=String(d?.requirements?.assetId||'');if(!assetId)return
