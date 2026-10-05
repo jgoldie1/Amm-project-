@@ -24,13 +24,13 @@ const labs:Lab[] = [
 const btn:React.CSSProperties={border:'1px solid #53ddff77',background:'#0b1c2b',color:'#bff5ff',borderRadius:11,padding:'9px 12px',cursor:'pointer',fontWeight:900}
 const card:React.CSSProperties={background:'#07111e',border:'1px solid #173653',borderRadius:16,padding:16}
 
-export default function JacobieVisionCenter({onClose}:{onClose:()=>void}){
+export default function JacobieVisionCenter({onClose,initialTrack='cyber-defense',initialFlip=false}:{onClose:()=>void;initialTrack?:Track;initialFlip?:boolean}){
   const [members,setMembers]=useState<TeamMember[]>([
     {id:'lead-jacobie',name:'Jacobie Stubbs',role:'Founder / Team Lead',track:'cyber-defense',level:3,status:'ready'},
   ])
-  const [activeTrack,setActiveTrack]=useState<Track>('cyber-defense')
+  const [activeTrack,setActiveTrack]=useState<Track>(initialTrack)
   const [message,setMessage]=useState('')
-  const [showFlipLab,setShowFlipLab]=useState(false)
+  const [showFlipLab,setShowFlipLab]=useState(initialFlip)
   const visibleLabs=useMemo(()=>labs.filter(l=>l.track===activeTrack),[activeTrack])
 
   if(showFlipLab) return <JacobieFlipLab onClose={()=>setShowFlipLab(false)} />
