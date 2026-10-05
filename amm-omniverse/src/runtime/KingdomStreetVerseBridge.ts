@@ -63,7 +63,7 @@ export function installKingdomStreetVerseBridge(){
         window.dispatchEvent(new CustomEvent('tryamm:kingdom-destination-entered',{detail:base}))
         break
       case 'KINGDOM_PORTAL_REQUEST': {
-        const allowed=new Set(['/kingdom-of-yahisrael','/kingdom-workbook','/faithverse','/ethiopian-bible','/kingdoms-press','/servants-of-christ','/network'])
+        const allowed=new Set(['/kingdom-of-yahisrael','/kingdom-workbook','/metaverse-bible','/faithverse','/ethiopian-bible','/kingdoms-press','/servants-of-christ','/network'])
         if(allowed.has(base.destination))window.dispatchEvent(new CustomEvent('tryamm:kingdom-portal-request',{detail:base}))
         break
       }
