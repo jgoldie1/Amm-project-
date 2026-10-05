@@ -9,6 +9,11 @@ const out=path.resolve(process.argv[2]||'release-evidence/googolplex-memory/king
 mkdirSync(out,{recursive:true})
 const files=[
  'src/data/KingdomYahisraelRecoveryRegistry.ts',
+ 'src/data/KingdomYahisraelArchitectureSlots.ts',
+ 'src/runtime/KingdomYahisraelArchitectureUpgradeRuntime.ts',
+ 'src/data/KingdomYahisraelMissionRegistry.ts',
+ 'src/runtime/KingdomYahisraelMissionRuntime.ts',
+ 'public/tryamm-assets/meshy/kingdom/README.md',
  'src/data/SystemVsKingdomRecoveryManifest.ts',
  'src/components/KingdomYahisraelCenter.tsx',
  'src/components/JudahSplash.tsx',
@@ -48,7 +53,7 @@ const manifest={
  playableKingdom:'/kingdom',
  faithVerse:'/faithverse',
  brand:'Kingdom of Yahisrael • Judah — Where Heaven Meets Earth',
- requiredMarkers:['METAVERSE BIBLE','ETHIOPIAN FAITH WORLD','81-BOOK','PALEO','STRONGS','FAITH CHRONO','YAHISRAEL','WHERE HEAVEN MEETS EARTH','JUDAH GATE','FAITHVERSE','KINGDOM WORKBOOK','HEBREW SCHOOL','KINGDOM GARDEN','KINGDOMS PRESS','ALL AMERICAN NETWORK','SET APART','SEVEN LIGHTS'],
+ requiredMarkers:['KINGDOM CITIZENS','METAVERSE BIBLE','HOUSEHOLDS','PRODUCTION ARCHITECTURE','METAVERSE BIBLE','ETHIOPIAN FAITH WORLD','81-BOOK','PALEO','STRONGS','FAITH CHRONO','YAHISRAEL','WHERE HEAVEN MEETS EARTH','JUDAH GATE','FAITHVERSE','KINGDOM WORKBOOK','HEBREW SCHOOL','KINGDOM GARDEN','KINGDOMS PRESS','ALL AMERICAN NETWORK','SET APART','SEVEN LIGHTS'],
  files:Object.fromEntries(files.map(file=>[file,{sha256:hash(file),bytes:statSync(path.join(root,file)).size}])),
  regressionRule:'Kingdom convergence is not green if the front door, FaithVerse, Kingdom District, Judah identity, Scripture study, Press, story canon or same-origin bridge protection disappears.',
 }
