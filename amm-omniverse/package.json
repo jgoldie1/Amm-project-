@@ -48,7 +48,9 @@
     "electric-drone-transport:check": "node tests/electric-drone-transport-contract.mjs",
     "streetverse-logistics:check": "node tests/streetverse-logistics-jobs-bridge-contract.mjs",
     "business-revenue:check": "node tests/el-saturn-business-revenue-contract.mjs",
-    "business-pricing:check": "node tests/business-completion-pricing-contract.mjs"
+    "business-pricing:check": "node tests/business-completion-pricing-contract.mjs",
+    "domain-provisioning:check": "node tests/domain-provisioning-contract.mjs",
+    "quantum-growth:check": "node tests/quantum-seo-back-channel-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
