@@ -19,30 +19,139 @@ function insideBuilding(x, y, z) {
 }
 
 // ---------- people ----------
-const pGeo = {
-  torso: new T.BoxGeometry(0.62, 0.72, 0.34), head: new T.SphereGeometry(0.21, 10, 8),
-  leg: new T.BoxGeometry(0.21, 0.8, 0.23), arm: new T.BoxGeometry(0.15, 0.68, 0.17),
-};
-pGeo.leg.translate(0, -0.4, 0); pGeo.arm.translate(0, -0.34, 0);
-const SKINS = [0x5a3825, 0x8d5a3b, 0x3d2618, 0xc68b5e, 0x6b4430, 0xe0b48c];
-const SHIRTS = [0xe8e8ee, 0x2b2b38, 0xd63a2f, 0x3466ff, 0x39e0d0, 0xff4f9a, 0x7a2cff, 0x8a6a3a];
-const PANTS = [0x1d1a33, 0x2f3a5a, 0x3a2f28, 0x111118, 0x5a5a66];
 const matCache = new Map();
-const lam = c => { if (!matCache.has(c)) matCache.set(c, new T.MeshLambertMaterial({ color: c, emissive: c, emissiveIntensity: 0.2 })); return matCache.get(c); };
-function makePerson(shirt, pants, skin) {
-  const g = new T.Group(); g.rotation.order = 'YXZ';
-  const torso = new T.Mesh(pGeo.torso, lam(shirt)); torso.position.y = 1.18; g.add(torso);
-  const head = new T.Mesh(pGeo.head, lam(skin)); head.position.y = 1.78; g.add(head);
-  const legL = new T.Mesh(pGeo.leg, lam(pants)); legL.position.set(-0.16, 0.82, 0); g.add(legL);
-  const legR = new T.Mesh(pGeo.leg, lam(pants)); legR.position.set(0.16, 0.82, 0); g.add(legR);
-  const armL = new T.Mesh(pGeo.arm, lam(shirt)); armL.position.set(-0.41, 1.5, 0); g.add(armL);
-  const armR = new T.Mesh(pGeo.arm, lam(shirt)); armR.position.set(0.41, 1.5, 0); g.add(armR);
-  scene.add(g);
-  return { mesh: g, legL, legR, armL, armR, phase: 0 };
+const lam = c => { if (!matCache.has(c)) matCache.set(c, new T.MeshLambertMaterial({ color: c, emissive: c, emissiveIntensity: 0.12 })); return matCache.get(c); };
+const SKINS = [0x5a3825,0x8d5a3b,0x3d2618,0xc68b5e,0x6b4430,0xe0b48c];
+const SHIRTS = [0xe8e8ee,0x2b2b38,0xd63a2f,0x3466ff,0x39e0d0,0xff4f9a,0x7a2cff,0x8a6a3a];
+const PANTS = [0x1d1a33,0x2f3a5a,0x3a2f28,0x111118,0x5a5a66];
+const HAIR = [0x16100e,0x2b1a12,0x362318,0x090909,0x5a3924];
+
+function cyl(r1,r2,h,segments=10){
+  const g=new T.CylinderGeometry(r1,r2,h,segments);
+  g.translate(0,-h/2,0);
+  return g;
 }
-function animatePerson(p, t, amt) {
-  const s = Math.sin(t) * 0.7 * amt;
-  p.legL.rotation.x = s; p.legR.rotation.x = -s; p.armL.rotation.x = -s * 0.8; p.armR.rotation.x = s * 0.8;
+const HUMAN_GEO={
+  head:new T.SphereGeometry(.205,14,12),
+  neck:new T.CylinderGeometry(.09,.105,.16,10),
+  chest:new T.SphereGeometry(.34,12,10),
+  pelvis:new T.SphereGeometry(.265,12,10),
+  upperArm:cyl(.095,.082,.43,10),
+  foreArm:cyl(.082,.068,.40,10),
+  thigh:cyl(.115,.095,.48,10),
+  shin:cyl(.09,.072,.48,10),
+  hand:new T.SphereGeometry(.075,10,8),
+  shoe:new T.SphereGeometry(.105,10,8),
+  nose:new T.ConeGeometry(.04,.11,8),
+  eye:new T.SphereGeometry(.026,8,6),
+  pupil:new T.SphereGeometry(.011,8,6),
+};
+HUMAN_GEO.nose.rotateX(Math.PI/2);
+
+function makeHumanLimb(upperGeo,lowerGeo,skinOrCloth,skin){
+  const root=new T.Group();
+  const upper=new T.Mesh(upperGeo,lam(skinOrCloth));root.add(upper);
+  const elbow=new T.Group();elbow.position.y=-.43;root.add(elbow);
+  const lower=new T.Mesh(lowerGeo,lam(skin));elbow.add(lower);
+  return {root,upper,elbow,lower};
+}
+function makePerson(shirt,pants,skin){
+  const g=new T.Group();g.rotation.order='YXZ';
+
+  const torso=new T.Group();torso.position.y=1.40;g.add(torso);
+  const chest=new T.Mesh(HUMAN_GEO.chest,lam(shirt));chest.scale.set(1.0,1.18,.72);torso.add(chest);
+  const pelvis=new T.Mesh(HUMAN_GEO.pelvis,lam(pants));pelvis.position.y=-.42;pelvis.scale.set(.92,.70,.78);torso.add(pelvis);
+
+  const neck=new T.Mesh(HUMAN_GEO.neck,lam(skin));neck.position.y=.34;torso.add(neck);
+  const headPivot=new T.Group();headPivot.position.y=.53;torso.add(headPivot);
+  const head=new T.Mesh(HUMAN_GEO.head,lam(skin));head.scale.set(.90,1.08,.88);headPivot.add(head);
+
+  const hairColor=pick(HAIR);
+  const hair=new T.Mesh(new T.SphereGeometry(.212,14,10,0,Math.PI*2,0,Math.PI*.55),lam(hairColor));
+  hair.position.y=.055;hair.scale.set(.93,1.0,.91);headPivot.add(hair);
+
+  const eyeWhite=lam(0xf4efe8), pupilMat=lam(0x24170f);
+  for(const sx of [-1,1]){
+    const e=new T.Mesh(HUMAN_GEO.eye,eyeWhite);e.position.set(.07*sx,.035,-.184);headPivot.add(e);
+    const p=new T.Mesh(HUMAN_GEO.pupil,pupilMat);p.position.set(.07*sx,.035,-.207);headPivot.add(p);
+  }
+  const nose=new T.Mesh(HUMAN_GEO.nose,lam(skin));nose.position.set(0,-.02,-.205);headPivot.add(nose);
+
+  const leftArm=makeHumanLimb(HUMAN_GEO.upperArm,HUMAN_GEO.foreArm,shirt,skin);
+  const rightArm=makeHumanLimb(HUMAN_GEO.upperArm,HUMAN_GEO.foreArm,shirt,skin);
+  leftArm.root.position.set(-.36,.16,0);rightArm.root.position.set(.36,.16,0);torso.add(leftArm.root,rightArm.root);
+  const handL=new T.Mesh(HUMAN_GEO.hand,lam(skin));handL.position.y=-.40;leftArm.elbow.add(handL);
+  const handR=new T.Mesh(HUMAN_GEO.hand,lam(skin));handR.position.y=-.40;rightArm.elbow.add(handR);
+
+  const legL=new T.Group(),legR=new T.Group();legL.position.set(-.14,.98,0);legR.position.set(.14,.98,0);g.add(legL,legR);
+  const thighL=new T.Mesh(HUMAN_GEO.thigh,lam(pants)),thighR=new T.Mesh(HUMAN_GEO.thigh,lam(pants));legL.add(thighL);legR.add(thighR);
+  const kneeL=new T.Group(),kneeR=new T.Group();kneeL.position.y=-.48;kneeR.position.y=-.48;legL.add(kneeL);legR.add(kneeR);
+  const shinL=new T.Mesh(HUMAN_GEO.shin,lam(pants)),shinR=new T.Mesh(HUMAN_GEO.shin,lam(pants));kneeL.add(shinL);kneeR.add(shinR);
+  const shoeMat=lam(0x121218);
+  const shoeL=new T.Mesh(HUMAN_GEO.shoe,shoeMat),shoeR=new T.Mesh(HUMAN_GEO.shoe,shoeMat);
+  shoeL.scale.set(1.0,.55,1.6);shoeR.scale.set(1.0,.55,1.6);shoeL.position.set(0,-.49,-.035);shoeR.position.set(0,-.49,-.035);kneeL.add(shoeL);kneeR.add(shoeR);
+
+  const scale=rand(.94,1.07);g.scale.setScalar(scale);
+  scene.add(g);
+  return {
+    mesh:g,torso,headPivot,
+    legL,legR,kneeL,kneeR,
+    armL:leftArm.root,armR:rightArm.root,
+    elbowL:leftArm.elbow,elbowR:rightArm.elbow,
+    phase:rand(0,Math.PI*2),
+    humanFallback:true,
+    externalModel:null,
+    mixer:null
+  };
+}
+function animatePerson(p,t,amt){
+  const s=Math.sin(t)*.48*amt;
+  p.legL.rotation.x=s;p.legR.rotation.x=-s;
+  p.kneeL.rotation.x=Math.max(0,-s)*.45;p.kneeR.rotation.x=Math.max(0,s)*.45;
+  p.armL.rotation.x=-s*.8;p.armR.rotation.x=s*.8;
+  p.elbowL.rotation.x=-.10-Math.max(0,s)*.15;p.elbowR.rotation.x=-.10-Math.max(0,-s)*.15;
+  p.torso.rotation.z=Math.sin(t*.5)*.025*amt;
+  p.headPivot.rotation.y=Math.sin(t*.27)*.035;
+}
+
+// Production human-mesh slots. Kingdom attempts these when GLTFLoader and files exist.
+// Until then, the articulated rounded fallback above remains visible instead of block people.
+const KINGDOM_HUMAN_ASSET_BASE='/tryamm-assets/meshy/characters';
+const KINGDOM_HUMAN_ASSETS=[
+ 'SV_NPC_BLACK_MAN_YOUNGADULT_01.glb',
+ 'SV_NPC_BLACK_WOMAN_YOUNGADULT_01.glb',
+ 'SV_NPC_BLACK_MAN_ADULT_01.glb',
+ 'SV_NPC_BLACK_WOMAN_ADULT_01.glb',
+ 'SV_NPC_BLACK_MAN_SENIOR_01.glb',
+ 'SV_NPC_BLACK_WOMAN_SENIOR_01.glb',
+ 'SV_NPC_WHITE_MAN_YOUNGADULT_01.glb',
+ 'SV_NPC_WHITE_WOMAN_YOUNGADULT_01.glb',
+ 'SV_NPC_LATINO_MAN_ADULT_01.glb',
+ 'SV_NPC_LATINA_WOMAN_ADULT_01.glb',
+ 'SV_NPC_EAST_ASIAN_YOUNGADULT_01.glb',
+ 'SV_NPC_SOUTH_ASIAN_ADULT_01.glb',
+ 'SV_NPC_MENA_ADULT_01.glb',
+ 'SV_NPC_MULTIRACIAL_YOUNGADULT_01.glb'
+];
+const humanAssetCache=new Map();
+function attachProductionHuman(person,index){
+  if(!T.GLTFLoader)return;
+  const file=KINGDOM_HUMAN_ASSETS[index%KINGDOM_HUMAN_ASSETS.length];
+  const url=`${KINGDOM_HUMAN_ASSET_BASE}/${file}`;
+  const attach=gltf=>{
+    if(!gltf?.scene)return;
+    const clone=gltf.scene.clone(true);
+    const box=new T.Box3().setFromObject(clone),size=new T.Vector3();box.getSize(size);
+    const target=1.75,scale=size.y>0?target/size.y:1;
+    clone.scale.setScalar(scale);
+    clone.position.y=0;
+    person.mesh.add(clone);
+    person.torso.visible=false;person.legL.visible=false;person.legR.visible=false;
+    person.externalModel=clone;person.humanFallback=false;
+  };
+  if(humanAssetCache.has(url)){attach(humanAssetCache.get(url));return;}
+  const loader=new T.GLTFLoader();
+  loader.load(url,gltf=>{humanAssetCache.set(url,gltf);attach(gltf)},undefined,()=>{});
 }
 
 // ---------- cars ----------
