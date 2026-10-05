@@ -52,7 +52,8 @@
     "domain-provisioning:check": "node tests/domain-provisioning-contract.mjs",
     "quantum-growth:check": "node tests/quantum-seo-back-channel-contract.mjs",
     "kingdom:regression:check": "node tests/kingdom-googolplex-regression-contract.mjs",
-    "kingdom:memory:capture": "node scripts/capture-kingdom-googolplex-memory.mjs"
+    "kingdom:memory:capture": "node scripts/capture-kingdom-googolplex-memory.mjs",
+    "kingdom:humans:check": "node tests/kingdom-human-character-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
