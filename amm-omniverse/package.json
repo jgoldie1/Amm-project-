@@ -50,7 +50,9 @@
     "business-revenue:check": "node tests/el-saturn-business-revenue-contract.mjs",
     "business-pricing:check": "node tests/business-completion-pricing-contract.mjs",
     "domain-provisioning:check": "node tests/domain-provisioning-contract.mjs",
-    "quantum-growth:check": "node tests/quantum-seo-back-channel-contract.mjs"
+    "quantum-growth:check": "node tests/quantum-seo-back-channel-contract.mjs",
+    "kingdom:regression:check": "node tests/kingdom-googolplex-regression-contract.mjs",
+    "kingdom:memory:capture": "node scripts/capture-kingdom-googolplex-memory.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
