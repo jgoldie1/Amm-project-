@@ -120,6 +120,7 @@ export function installKingdomStreetVerseBridge(){
   }
 
   const onMessage=(event:MessageEvent)=>{
+    if(event.origin!==window.location.origin)return
     const data=event.data
     if(!data||typeof data!=='object')return
     if(data.channel!=='tryamm:streetverse-kingdom')return
