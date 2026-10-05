@@ -248,7 +248,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
    <StreetVersePlayableWorld onClose={closeStreetVerse}/>
   </Suspense>
   <StreetVerseAfterDarkAlpha/>
-  <Suspense fallback={null}>{mobile?<><StreetVerseReelEventBridge/><StreetVerseCreatorEarnDock/></>:<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseCreatorEarnDock/></>}</Suspense>
+  <Suspense fallback={null}>{mobile?<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseCreatorEarnDock/></>:<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseCreatorEarnDock/></>}</Suspense>
   {enhancementsReady&&<Suspense fallback={null}><StreetVerseFullWorldOverlays onClose={closeStreetVerse} mapped={prepared.mapped}/></Suspense>}
  </>
 }
