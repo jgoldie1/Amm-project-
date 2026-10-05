@@ -38,7 +38,7 @@ export type ProofTrackingEvent={
 
 export function latestProofTracking(events:ProofTrackingEvent[]){
  const sorted=[...events].sort((a,b)=>a.occurredAt.localeCompare(b.occurredAt))
- const latest=sorted.at(-1)
+ const latest=sorted.length?sorted[sorted.length-1]:undefined
  return{
   latest,
   delivered:latest?.milestone==='delivered',
