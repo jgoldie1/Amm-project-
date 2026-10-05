@@ -8,6 +8,14 @@ const base=String(process.env.TRYAMM_BASE_URL||'https://tryamm.online').replace(
 const out=path.resolve(process.argv[2]||'release-evidence/googolplex-memory/kingdom-yahisrael')
 mkdirSync(out,{recursive:true})
 const files=[
+ 'src/components/HoloLabGateway.tsx',
+ 'src/runtime/HoloForgeAssetRuntime.ts',
+ 'src/data/GenieBottleAssetTransformationEngine.ts',
+ 'src/runtime/MindOverMatterCleanRoomRuntime.ts',
+ 'src/data/TwoWeekConvergenceAnalysis.ts',
+ 'src/components/HoloLabFoundryPreview.tsx',
+ 'src/components/TimeMachineWorldFoundryCenter.tsx',
+ 'src/runtime/TimeMachineWorldFoundryRuntime.ts',
  'src/data/KingdomYahisraelRecoveryRegistry.ts',
  'src/data/KingdomYahisraelArchitectureSlots.ts',
  'src/runtime/KingdomYahisraelArchitectureUpgradeRuntime.ts',
@@ -56,7 +64,7 @@ const manifest={
  faithVerse:'/faithverse',
  metaverseBible:'/metaverse-bible',
  brand:'Kingdom of Yahisrael • Judah — Where Heaven Meets Earth',
- requiredMarkers:['KINGDOM CITIZENS','METAVERSE BIBLE','HOUSEHOLDS','PRODUCTION ARCHITECTURE','METAVERSE BIBLE','METAVERSE BIBLE STUDY PASSPORT','ETHIOPIAN FAITH WORLD','81-BOOK','PALEO','STRONGS','FAITH CHRONO','YAHISRAEL','WHERE HEAVEN MEETS EARTH','JUDAH GATE','FAITHVERSE','KINGDOM WORKBOOK','HEBREW SCHOOL','KINGDOM GARDEN','KINGDOMS PRESS','ALL AMERICAN NETWORK','SET APART','SEVEN LIGHTS'],
+ requiredMarkers:['TIME MACHINE WORLD FOUNDRY','GENIE IN THE BOTTLE','MIND OVER MATTER','HOLOFORGE','HOLO LAB','KINGDOM CITIZENS','METAVERSE BIBLE','HOUSEHOLDS','PRODUCTION ARCHITECTURE','METAVERSE BIBLE','METAVERSE BIBLE STUDY PASSPORT','ETHIOPIAN FAITH WORLD','81-BOOK','PALEO','STRONGS','FAITH CHRONO','YAHISRAEL','WHERE HEAVEN MEETS EARTH','JUDAH GATE','FAITHVERSE','KINGDOM WORKBOOK','HEBREW SCHOOL','KINGDOM GARDEN','KINGDOMS PRESS','ALL AMERICAN NETWORK','SET APART','SEVEN LIGHTS'],
  files:Object.fromEntries(files.map(file=>[file,{sha256:hash(file),bytes:statSync(path.join(root,file)).size}])),
  regressionRule:'Kingdom convergence is not green if the front door, FaithVerse, Kingdom District, Judah identity, Scripture study, Press, story canon or same-origin bridge protection disappears.',
 }
@@ -69,6 +77,7 @@ if(String(process.env.TRYAMM_CAPTURE_KINGDOM_YAHISRAEL_SCREENSHOTS||'').toLowerC
   {name:'yahisrael-desktop-1440x900.png',route:'/kingdom-of-yahisrael',size:'1440,900',wait:'4000'},
   {name:'faithverse-mobile-390x844.png',route:'/faithverse',size:'390,844',wait:'4000'},
   {name:'metaverse-bible-mobile-390x844.png',route:'/metaverse-bible',size:'390,844',wait:'5000'},
+  {name:'time-machine-foundry-mobile-390x844.png',route:'/time-machine-foundry',size:'390,844',wait:'5000'},
   {name:'kingdom-workbook-mobile-390x844.png',route:'/kingdom-workbook',size:'390,844',wait:'4000'},
   {name:'kingdom-playable-mobile-390x844.png',route:'/kingdom',size:'390,844',wait:'5000'},
  ])run([...pw,'screenshot','--browser','chromium','--viewport-size',shot.size,'--wait-for-timeout',shot.wait,base+shot.route,path.join(out,shot.name)])
