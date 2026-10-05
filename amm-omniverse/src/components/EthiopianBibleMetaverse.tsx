@@ -3,6 +3,7 @@ import FaithScriptureReader from './FaithScriptureReader'
 import FaithHoloBook from './FaithHoloBook'
 import FaithMetaverseBibleWorldMap from './FaithMetaverseBibleWorldMap'
 import FaithVerseImmersiveGateway from './FaithVerseImmersiveGateway'
+import MetaverseBibleProgressPanel from './MetaverseBibleProgressPanel'
 import HoloGPTAssistant from './HoloGPTAssistant'
 
 const lanes=[
@@ -47,6 +48,7 @@ export default function EthiopianBibleMetaverse(){
    <nav style={{display:'flex',gap:8,flexWrap:'wrap'}}><a href='/kingdom-of-yahisrael' style={pill}>👑 KINGDOM OF YAHISRAEL</a><a href='/kingdom' style={pill}>🏙 RETURN TO HEBREW SCHOOL</a><a href='/kingdom-workbook' style={pill}>📝 KINGDOM WORKBOOK</a><a href='/' style={pill}>TRYAMM HOME</a><a href='/servants-of-christ' style={pill}>SERVANTS OF CHRIST</a><a href='/kingdoms-press' style={pill}>KINGDOMS PRESS</a><a href='/holo-lab' style={pill}>HOLO LAB</a><a href='/streetverse' style={pill}>STREETVERSE</a><a href='/accessibility' style={pill}>ACCESSIBILITY</a></nav>
    <header style={{padding:'58px 0 26px'}}><div style={{fontSize:11,letterSpacing:3,fontWeight:950,color:'#e5c56a'}}>TRYAMM METAVERSE BIBLE • FAITHVERSE • SOURCE-LABELED STUDY</div><h1 style={{fontSize:'clamp(42px,8vw,88px)',lineHeight:.94,margin:'10px 0 16px'}}>METAVERSE BIBLE<br/>• ETHIOPIAN FAITH WORLD</h1><p style={{maxWidth:900,fontSize:18,lineHeight:1.65,color:'#d9cfb3'}}>An immersive Bible-study school combining Ethiopian biblical tradition, Hebrew learning, KJV 1611 comparison, Strong’s-style concordance study, accessibility, teaching, translation, living-world exploration and the TRYAMM Time Machine for source-grounded historical reconstruction.</p></header>
 
+   <MetaverseBibleProgressPanel />
    <FaithVerseImmersiveGateway />
    <FaithMetaverseBibleWorldMap />
    <section style={{...card,marginBottom:18,borderColor:'#4fe3ff66',background:'#08131a'}}><div style={{fontSize:10,letterSpacing:2,color:'#4fe3ff',fontWeight:950}}>KINGDOM HEBREW SCHOOL</div><h2 style={{margin:'6px 0'}}>Metaverse Bible learning loop</h2><p style={muted}>PLAYABLE HEBREW SCHOOL → SCRIPTURE READER → ETHIOPIAN CANON METADATA → HEBREW / PALEO SCRIPT → STRONG’S / LEXICON → KJV 1611 STUDY → FAITH CHRONO / TIME MACHINE → REFLECTION / WORKBOOK → RETURN TO THE LIVING KINGDOM.</p></section>
