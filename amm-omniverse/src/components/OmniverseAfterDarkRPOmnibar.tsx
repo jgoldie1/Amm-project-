@@ -27,8 +27,9 @@ export default function OmniverseAfterDarkRPOmnibar({ageVerified,consentAccepted
    <label style={toggle}><input type="checkbox" checked={makeTv} onChange={e=>setMakeTv(e.target.checked)}/> TV EPISODE</label>
    <label style={toggle}><input type="checkbox" checked={privateSession} onChange={e=>setPrivateSession(e.target.checked)}/> PRIVATE SESSION AUDIO</label>
   </div>
-  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,marginTop:8}}>
+  <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6,marginTop:8}}>
    <button onClick={()=>{if(prompt.trim())window.dispatchEvent(new CustomEvent('tryamm:after-dark-gif-search-request',{detail:{query:prompt,providerGated:true,contentMode:'mature-non-explicit',explicitPornography:false}}));setStatus('GIF discovery request prepared with mature/non-explicit filtering.')}} style={createBtn}>🖼️ GIF PREVIEW</button>
+   <button onClick={()=>{if(!ageVerified||!consentAccepted){setStatus('Age assurance and active consent are required.');return}if(!prompt.trim()){setStatus('Describe the VR love scene first.');return}window.dispatchEvent(new CustomEvent('tryamm:after-dark-vr-love-scene-request',{detail:{prompt,ageVerified:true,consentAccepted:true,privateSession,createReel:true,createTvEpisode:true,mode:'immersive-vr'}}));setStatus('VR love scene prepared for WebXR with Reel + TV outputs.')}} disabled={!ageVerified||!consentAccepted} style={{...createBtn,opacity:ageVerified&&consentAccepted?1:.45}}>🥽 VR LOVE SCENE</button>
    <button onClick={create} disabled={!ageVerified||!consentAccepted} style={{...createBtn,opacity:ageVerified&&consentAccepted?1:.45}}>🎬 ACT OUT / CREATE STORY</button>
   </div>
   <div role="status" style={{fontSize:8,color:'#ffd1ec',marginTop:5}}>{status}</div>
