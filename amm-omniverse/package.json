@@ -62,7 +62,9 @@
     "holo-credit-economy:check": "node tests/holo-play-credit-economy-contract.mjs",
     "holo-engagement:check": "node tests/holo-play-engagement-monetization-contract.mjs",
     "holo-crossverse-money:check": "node tests/holo-lottie-pk-crossverse-monetization-contract.mjs",
-    "creator-credit-market:check": "node tests/creator-credit-marketplace-redemption-contract.mjs"
+    "creator-credit-market:check": "node tests/creator-credit-marketplace-redemption-contract.mjs",
+    "kingdom-yahisrael:check": "node tests/kingdom-yahisrael-convergence-contract.mjs",
+    "kingdom-yahisrael:memory": "node scripts/capture-kingdom-yahisrael-memory.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
