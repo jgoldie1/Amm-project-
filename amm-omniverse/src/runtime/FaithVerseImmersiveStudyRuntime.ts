@@ -25,6 +25,12 @@ export function installFaithVerseImmersiveStudyRuntime(){
   try{localStorage.setItem(KEY,JSON.stringify(session))}catch{}
   document.documentElement.dataset.faithverseImmersiveStudy=session.id
   emit('tryamm:faithverse-immersive-study-session',session)
+  const fabric=(window as any).__TRYAMM_OPERATING_FABRIC__
+  if(typeof fabric?.route==='function'){
+   fabric.route({id:'faith-stubbs-'+session.id,domain:'media',action:'faithverse-study-orchestration',priority:'routine',payload:session,requiresHumanApproval:false})
+   fabric.route({id:'faith-lyons-'+session.id,domain:'technology',action:'faithverse-spatial-runtime',priority:'routine',payload:session,requiresHumanApproval:false})
+  }
+  emit('tryamm:faithverse-ai-fabric-state',{sessionId:session.id,agents:['stubbs-ai','hologpt','lyons-tech'],holoLab:true,webxr:'capability-gated'})
   emit('tryamm:faithverse-living-world-open',{session})
   emit('tryamm:hologpt-study-context',{prompt:'Create a source-labeled immersive study plan for '+session.title+' ('+session.section+'). Never generate missing scripture as source text. Separate scripture, edition/canon metadata, lexical data, commentary, reconstruction and AI explanation.',source:'faithverse-immersive-study-runtime'})
  }
