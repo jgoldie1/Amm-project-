@@ -31,3 +31,42 @@ Use:
 2. TRYAMM-native gameplay/simulation code for product logic.
 3. Meshy credits for unique named characters and signature assets.
 4. External open-source engines as references or isolated adapters only when license-compatible.
+
+
+## RP / RPG / future-world references
+### YarnSpinnerTool/YarnSpinner
+- Core license: MIT.
+- Suitable as a dialogue-authoring/branching-conversation reference.
+- TRYAMM currently keeps its own event-driven dialogue, relationship, mission and RPG state so it can share consequences with StreetVerse, CrossVerse and city simulation.
+
+### jeffbeene/synthcity
+- Repository license: MIT.
+- Useful as a procedural cyber-city rendering reference.
+- Do not automatically import the repository's third-party visual/audio assets; individual credited assets can have separate terms.
+- TRYAMM uses its own Neon Future layer and its own CC0 asset catalog.
+
+### jhonatan98rios/Procedural-cyberpunk-city
+- Public repository currently does not expose a clear open-source license in the project root.
+- Reference-only unless a compatible license is added and verified.
+
+### over2take/CITY_NET
+- License: AGPL-3.0.
+- Architecture/reference only unless a deliberate copyleft licensing review approves direct code use.
+
+## Historical-web / Time Machine references
+### Webrecorder replayweb.page / wabac.js / pywb
+- Useful technical references for WARC/WACZ replay, archive provenance and browser replay.
+- replayweb.page/wabac.js are AGPL-family and pywb is GPL-family in current upstream listings.
+- TRYAMM does not vendor that code into production.
+- TRYAMM keeps its own historical-internet API and uses Internet Archive/Common Crawl observations with evidence labels.
+
+## Holographic-gallery / XR references
+### Looking-Glass/looking-glass-webxr
+- Package license: Apache-2.0.
+- Candidate optional hardware adapter for actual Looking Glass holographic displays.
+- Requires compatible desktop browser/display environment; do not treat unsupported phones as Looking Glass hardware.
+
+### google/model-viewer
+- Source is Apache-2.0.
+- Useful reference/optional adapter for portable GLB presentation and AR.
+- TRYAMM currently renders the Holographic Gallery with its own Three.js GLTF viewport to avoid unnecessary runtime duplication.
