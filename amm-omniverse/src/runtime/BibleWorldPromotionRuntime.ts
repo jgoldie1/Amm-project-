@@ -2,6 +2,7 @@ import {ASSET_QUALITY_GATES,ASSET_VERSION_POLICY} from '../data/AssetPassportCer
 import {getAccessToken} from '../services/supabaseClient'
 import type {BibleWorldCertificationState} from './BibleWorldCertificationRuntime'
 import type {BibleWorldScenePackage} from './BibleWorldSceneBinderRuntime'
+import type {BibleWorldProductionEvidenceState} from './BibleWorldProductionEvidenceRuntime'
 
 export type BibleWorldReleaseSummary={
  id?:string;release_key?:string;releaseKey?:string;plan_id?:string;planId?:string;title?:string;era?:string;
@@ -13,6 +14,7 @@ export type BibleWorldPromotionState={
  schema:'tryamm.metaverse-bible.promotion.v1'
  scene: BibleWorldScenePackage|null
  certification:BibleWorldCertificationState|null
+ productionEvidence:BibleWorldProductionEvidenceState|null
  eligible:boolean
  blockers:string[]
  activeRelease:BibleWorldReleaseSummary|null
@@ -25,7 +27,7 @@ export type BibleWorldPromotionState={
 const KEY='tryamm.metaverse-bible.promotion.v1'
 let installed=false
 let state:BibleWorldPromotionState={
- schema:'tryamm.metaverse-bible.promotion.v1',scene:null,certification:null,eligible:false,blockers:[],activeRelease:null,releases:[],
+ schema:'tryamm.metaverse-bible.promotion.v1',scene:null,certification:null,productionEvidence:null,eligible:false,blockers:[],activeRelease:null,releases:[],
  assetPassportPolicy:ASSET_VERSION_POLICY,qualityGates:ASSET_QUALITY_GATES,updatedAt:new Date().toISOString()
 }
 const emit=(name:string,detail:unknown)=>window.dispatchEvent(new CustomEvent(name,{detail}))
@@ -34,10 +36,13 @@ const persist=()=>{state={...state,...evaluate(state),updatedAt:new Date().toISO
 
 function evaluate(s:BibleWorldPromotionState){
  const blockers:string[]=[]
- const scene=s.scene,cert=s.certification
+ const scene=s.scene,cert=s.certification,evidence=s.productionEvidence
  if(!scene)blockers.push('walkable scene package missing')
  if(!cert)blockers.push('certification state missing')
+ if(!evidence)blockers.push('server production evidence state missing')
  if(scene&&cert&&scene.planId!==cert.planId)blockers.push('scene/certification plan mismatch')
+ if(scene&&evidence&&scene.planId!==evidence.planId)blockers.push('scene/server-evidence plan mismatch')
+ if(evidence&&evidence.serverEvidenceReady!==true)blockers.push(...evidence.blockers.map(x=>'server evidence: '+x))
  if(cert&&cert.productionPublishAllowed!==true)blockers.push('production certification not complete')
  if(cert&&cert.checks['human-visual-review']!==true)blockers.push('human visual review not complete')
  if(scene&&(scene.missingArtifacts?.length||0)>0)blockers.push('placeholder/provider artifacts still missing')
@@ -82,6 +87,7 @@ export function installBibleWorldPromotionRuntime(){
  installed=true;readLocal()
  const onScene=(event:Event)=>{const p=(event as CustomEvent<BibleWorldScenePackage>).detail;if(p?.schema==='tryamm.metaverse-bible.scene-package.v1'){state={...state,scene:p};persist()}}
  const onCert=(event:Event)=>{const c=(event as CustomEvent<BibleWorldCertificationState>).detail;if(c?.schema==='tryamm.metaverse-bible.world-certification.v1'){state={...state,certification:c};persist()}}
+ const onEvidence=(event:Event)=>{const e=(event as CustomEvent<BibleWorldProductionEvidenceState>).detail;if(e?.schema==='tryamm.metaverse-bible.production-evidence.v1'){state={...state,productionEvidence:e};persist()}}
  const onRequest=async(event:Event)=>{
   const d=(event as CustomEvent<{action?:string;releaseKey?:string}>).detail||{}
   try{
@@ -93,6 +99,7 @@ export function installBibleWorldPromotionRuntime(){
  const requestState=()=>persist()
  addEventListener('tryamm:bible-world-scene-package-ready',onScene as EventListener)
  addEventListener('tryamm:bible-world-certification-state',onCert as EventListener)
+ addEventListener('tryamm:bible-world-production-evidence-state',onEvidence as EventListener)
  addEventListener('tryamm:bible-world-promotion-request',onRequest as EventListener)
  addEventListener('tryamm:bible-world-promotion-request-state',requestState)
  persist()
@@ -100,6 +107,7 @@ export function installBibleWorldPromotionRuntime(){
  return()=>{
   removeEventListener('tryamm:bible-world-scene-package-ready',onScene as EventListener)
   removeEventListener('tryamm:bible-world-certification-state',onCert as EventListener)
+  removeEventListener('tryamm:bible-world-production-evidence-state',onEvidence as EventListener)
   removeEventListener('tryamm:bible-world-promotion-request',onRequest as EventListener)
   removeEventListener('tryamm:bible-world-promotion-request-state',requestState)
   installed=false
