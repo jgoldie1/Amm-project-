@@ -36,6 +36,11 @@ const CATALOG=new Map([
  ['episode-render-pack',{label:"TV Episode Render Pack",costUnits:150,kind:'media-tool',channel:'STAR_STUDIO',effect:'episode-render'}],
  ['movie-render-pack',{label:"Movie Render Pack",costUnits:300,kind:'media-tool',channel:'STAR_STUDIO',effect:'movie-render'}],
  ['broadcast-graphics-pack',{label:"Broadcast Graphics Pack",costUnits:100,kind:'star-studio',channel:'STAR_STUDIO',effect:'broadcast-graphics'}],
+ ['crossverse-portal-skin',{label:"CrossVerse Portal Skin",costUnits:60,kind:'world-utility',channel:'CROSSVERSE',effect:'crossverse-portal-skin'}],
+ ['crossverse-showcase-projection',{label:"CrossVerse Showcase Projection",costUnits:80,kind:'creator-tool',channel:'CROSSVERSE',effect:'crossverse-showcase-projection'}],
+ ['crossverse-creator-stage',{label:"CrossVerse Creator Stage",costUnits:120,kind:'world-utility',channel:'CROSSVERSE',effect:'crossverse-creator-stage'}],
+ ['crossverse-cinematic-replay',{label:"CrossVerse Cinematic Replay",costUnits:40,kind:'media-tool',channel:'CROSSVERSE',effect:'crossverse-cinematic-replay'}],
+ ['crossverse-holo-fx-pack',{label:"CrossVerse Holo FX Pack",costUnits:50,kind:'world-utility',channel:'CROSSVERSE',effect:'crossverse-holo-fx'}],
 ])
 
 export default async function handler(req,res){
