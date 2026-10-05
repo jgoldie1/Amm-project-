@@ -304,7 +304,7 @@ function kySpawnCitizen(spec,index){
  person.anchor=new T.Vector3(spec.x,0,spec.z);person.pos=person.anchor.clone();person.mesh.position.copy(person.pos);
  person.heading=Number(spec.heading||0);person.mesh.rotation.y=person.heading;person.spd=Number(spec.speed||.45);person.wander=Number(spec.wander||0);person.angle=index*.73;
  if(spec.action)setPersonRpAction(person,spec.action,{loop:true,durationMs:600000});
- kyCitizens.push(person);return person;
+ kyCitizens.push(person);if(typeof obstacles!=='undefined'&&!obstacles.includes(person))obstacles.push(person);return person;
 }
 KY_CITIZEN_SPECS.forEach(kySpawnCitizen);
 window.YAHISRAEL_CITIZEN_COUNT=kyCitizens.length;
