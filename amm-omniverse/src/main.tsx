@@ -44,6 +44,7 @@ const KingdomDistrictRoute=lazy(()=>import('./components/KingdomDistrictRoute'))
 const KingdomYahisraelCenter=lazy(()=>import('./components/KingdomYahisraelCenter'))
 const KingdomWorkbookCenter=lazy(()=>import('./components/KingdomWorkbookCenter'))
 const TimeMachineWorldFoundryCenter=lazy(()=>import('./components/TimeMachineWorldFoundryCenter'))
+const HoloLabGateway=lazy(()=>import('./components/HoloLabGateway'))
 const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
 const MeshyFactoryControlPanel=lazy(()=>import('./components/MeshyFactoryControlPanel'))
 
@@ -74,6 +75,7 @@ try {
   const isKingdomWorkbook=currentPath==='/kingdom-workbook'||currentPath==='/kingdom-workbook/'
   const isKingdomDistrict=currentPath==='/kingdom'||currentPath==='/kingdom/'
   const isTimeMachineFoundry=['/time-machine-foundry','/time-machine-foundry/','/chrono-foundry','/chrono-foundry/','/world-foundry','/world-foundry/'].includes(currentPath)
+  const isHoloLabStandalone=currentPath==='/holo-lab'||currentPath==='/holo-lab/'
   const isGlobalTradeWorld=['/global-trade','/global-trade/','/my-world','/my-world/','/we-are-the-world','/we-are-the-world/'].includes(currentPath)
   const isTwinWorld=currentPath.startsWith('/streetverse/twin-world')
   const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
@@ -139,6 +141,7 @@ try {
   else if(isKingdomWorkbook)routeContent=<Suspense fallback={routeFallback}><KingdomWorkbookCenter /></Suspense>
   else if(isKingdomDistrict)routeContent=<Suspense fallback={routeFallback}><KingdomDistrictRoute /></Suspense>
   else if(isTimeMachineFoundry)routeContent=<Suspense fallback={routeFallback}><TimeMachineWorldFoundryCenter /></Suspense>
+  else if(isHoloLabStandalone)routeContent=<Suspense fallback={routeFallback}><HoloLabGateway onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isGlobalTradeWorld)routeContent=<Suspense fallback={routeFallback}><GlobalTradeWorldHub /></Suspense>
   else if(standaloneSite)routeContent=<StandaloneProductSite site={standaloneSite} />
   else if(isBusinessDirectory)routeContent=<FamilyBusinessDirectory />
