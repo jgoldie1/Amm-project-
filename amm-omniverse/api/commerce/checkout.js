@@ -10,7 +10,13 @@ const CATALOG=new Map([
 ['park-print',{name:'Chicago World Art Print',unitAmount:2400,currency:'usd',seller:'millennium-event'}],
 ['south-meal',{name:'South Side Meal Pack',unitAmount:1800,currency:'usd',seller:'south-market'}],
 ['west-maker',{name:'Maker Starter Pack',unitAmount:3900,currency:'usd',seller:'west-maker'}],
-['north-merch',{name:'North Side Creator Merch',unitAmount:3200,currency:'usd',seller:'north-night'}]
+['north-merch',{name:'North Side Creator Merch',unitAmount:3200,currency:'usd',seller:'north-night'}],
+['aniyah-30d-pass',{name:'Aniyah 64-Track Studio 30-Day Pass',unitAmount:1499,currency:'usd',seller:'aniyah-64-track-studio',kind:'service',split:{sellerBasisPoints:8500,platformBasisPoints:1500,reserveBasisPoints:0},metadata:{commerceKind:'studio-service',studio:'aniyah-64-track'}}],
+['aniyah-ai-session',{name:'Aniyah AI Producer Session',unitAmount:999,currency:'usd',seller:'aniyah-64-track-studio',kind:'service',split:{sellerBasisPoints:8500,platformBasisPoints:1500,reserveBasisPoints:0},metadata:{commerceKind:'studio-service',studio:'aniyah-64-track'}}],
+['aniyah-engineer-session',{name:'Aniyah Engineer Mode Session',unitAmount:1499,currency:'usd',seller:'aniyah-64-track-studio',kind:'service',split:{sellerBasisPoints:8500,platformBasisPoints:1500,reserveBasisPoints:0},metadata:{commerceKind:'studio-service',studio:'aniyah-64-track'}}],
+['aniyah-remote-record',{name:'Aniyah Remote Recording Session',unitAmount:2500,currency:'usd',seller:'aniyah-64-track-studio',kind:'service',split:{sellerBasisPoints:8500,platformBasisPoints:1500,reserveBasisPoints:0},metadata:{commerceKind:'studio-service',studio:'aniyah-64-track'}}],
+['aniyah-mix-master',{name:'Aniyah Mix + Master Service',unitAmount:4900,currency:'usd',seller:'aniyah-64-track-studio',kind:'service',split:{sellerBasisPoints:8500,platformBasisPoints:1500,reserveBasisPoints:0},metadata:{commerceKind:'studio-service',studio:'aniyah-64-track'}}],
+['aniyah-soundtrack-package',{name:'Aniyah Reel / TV / Movie Soundtrack Package',unitAmount:9900,currency:'usd',seller:'aniyah-64-track-studio',kind:'service',split:{sellerBasisPoints:8500,platformBasisPoints:1500,reserveBasisPoints:0},metadata:{commerceKind:'studio-service',studio:'aniyah-64-track'}}]
 ]);
 const ASSET_SPLIT={sellerBasisPoints:4000,platformBasisPoints:4000,reserveBasisPoints:2000};
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -68,9 +74,9 @@ async function resolveProduct(id){
  if(fixed)return {
    id,
    ...fixed,
-   kind:'catalog',
-   split:{sellerBasisPoints:10000,platformBasisPoints:0,reserveBasisPoints:0},
-   metadata:{commerceKind:'catalog'}
+   kind:fixed.kind||'catalog',
+   split:fixed.split||{sellerBasisPoints:10000,platformBasisPoints:0,reserveBasisPoints:0},
+   metadata:fixed.metadata||{commerceKind:'catalog'}
  };
  if(!UUID.test(id))return null;
 
@@ -246,8 +252,8 @@ export default async function handler(req,res){
 
  if(total<50||total>500000)return json(res,400,{error:'Cart total outside allowed range'});
  const kinds=new Set(priced.map(x=>x.kind));
- if(kinds.has('asset')&&kinds.size>1)return json(res,400,{error:'Digital assets and physical products must be checked out separately'});
- const fulfillment=kinds.has('asset')?'digital':(req.body?.fulfillment==='delivery'?'delivery':'pickup');
+ if((kinds.has('asset')||kinds.has('service'))&&kinds.size>1)return json(res,400,{error:'Digital assets/services and physical products must be checked out separately'});
+ const fulfillment=(kinds.has('asset')||kinds.has('service'))?'digital':(req.body?.fulfillment==='delivery'?'delivery':'pickup');
  const sellers=[...new Set(priced.map(x=>x.seller))];
  const clientOrderId=String(req.body?.clientOrderId||('AMM-'+Date.now().toString(36).toUpperCase())).slice(0,96);
  const idempotencyKey=crypto.createHash('sha256').update(user.id+'|'+clientOrderId+'|'+priced.map(x=>x.id+':'+x.qty).join(',')+'|'+fulfillment).digest('hex');
