@@ -211,23 +211,28 @@ const KINGDOM_HUMAN_ASSETS=[
  'SV_NPC_EAST_ASIAN_YOUNGADULT_01.glb',
  'SV_NPC_SOUTH_ASIAN_ADULT_01.glb',
  'SV_NPC_MENA_ADULT_01.glb',
- 'SV_NPC_MULTIRACIAL_YOUNGADULT_01.glb'
+ 'SV_NPC_MULTIRACIAL_YOUNGADULT_01.glb',
+ 'SV_NPC_CHILD_01.glb',
+ 'SV_NPC_TEEN_01.glb'
 ];
 const humanAssetCache=new Map();
-function attachProductionHuman(person,index){
+function attachProductionHuman(person,index,options={}){
   if(!T.GLTFLoader)return;
-  const file=KINGDOM_HUMAN_ASSETS[index%KINGDOM_HUMAN_ASSETS.length];
+  const file=String(options.file||KINGDOM_HUMAN_ASSETS[index%KINGDOM_HUMAN_ASSETS.length]);
+  const target=Number(options.targetHeight||1.75);
   const url=`${KINGDOM_HUMAN_ASSET_BASE}/${file}`;
   const attach=gltf=>{
     if(!gltf?.scene)return;
     const clone=gltf.scene.clone(true);
     const box=new T.Box3().setFromObject(clone),size=new T.Vector3();box.getSize(size);
-    const target=1.75,scale=size.y>0?target/size.y:1;
+    const scale=size.y>0?target/size.y:1;
     clone.scale.setScalar(scale);
     clone.position.y=0;
     person.mesh.add(clone);
     person.torso.visible=false;person.legL.visible=false;person.legR.visible=false;
     person.externalModel=clone;person.humanFallback=false;
+    if(options.role)person.role=String(options.role);
+    if(options.ageLane)person.ageLane=String(options.ageLane);
   };
   if(humanAssetCache.has(url)){attach(humanAssetCache.get(url));return;}
   const loader=new T.GLTFLoader();
