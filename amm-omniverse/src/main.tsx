@@ -186,6 +186,7 @@ const installOptionalRuntimes = () => {
   import('./runtime/HoloForgeAssetRuntime').then(m => m.installHoloForgeRuntime()).catch(error => console.error('[TRYAMM] HoloForge failed after core mount.', error))
   import('./runtime/MindOverMatterCleanRoomRuntime').then(m => m.installMindOverMatterCleanRoomRuntime()).catch(error => console.error('[TRYAMM] Mind Over Matter failed after core mount.', error))
   import('./runtime/TimeMachineWorldFoundryRuntime').then(m => m.installTimeMachineWorldFoundryRuntime()).catch(error => console.error('[TRYAMM] Time Machine World Foundry failed after core mount.', error))
+  import('./runtime/BibleWorldCertificationRuntime').then(m => m.installBibleWorldCertificationRuntime()).catch(error => console.error('[TRYAMM] Bible world certification failed after core mount.', error))
   import('./runtime/StreetVerseQuantumWorldBuilderOrchestrator').then(m => m.installStreetVerseQuantumWorldBuilderOrchestrator()).catch(error => console.error('[TRYAMM] Quantum World Builder failed after core mount.', error))
   import('./runtime/KingdomYahisraelArchitectureUpgradeRuntime').then(m => m.installKingdomYahisraelArchitectureUpgradeRuntime()).catch(error => console.error('[TRYAMM] Kingdom architecture upgrade runtime failed after core mount.', error))
   import('./runtime/KingdomYahisraelMissionRuntime').then(m => m.installKingdomYahisraelMissionRuntime()).catch(error => console.error('[TRYAMM] Kingdom mission runtime failed after core mount.', error))
