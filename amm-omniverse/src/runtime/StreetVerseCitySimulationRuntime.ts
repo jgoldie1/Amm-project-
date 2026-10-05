@@ -359,6 +359,16 @@ export function installStreetVerseCitySimulation(){
     const d=(event as CustomEvent<Record<string,unknown>>).detail||{}
     invest(resolveDistrict(d),'business',.035)
   }
+  const onGameplayAction=(event:Event)=>{
+    const d=(event as CustomEvent<Record<string,unknown>>).detail||{}
+    const action=String(d.action||'')
+    const district=resolveDistrict(d)
+    if(action==='open-business')invest(district,'business',.04)
+    else if(action==='complete-delivery')invest(district,'roads',.018)
+    else if(action==='complete-transit-mission')invest(district,'roads',.03)
+    else if(action==='host-creator-event'){invest(district,'business',.018);invest(district,'park',.012)}
+    else if(action==='public-safety-mission')invest(district,'police',.03)
+  }
 
   if(typeof window!=='undefined'){
     addEventListener('tryamm:city-investment',onInvestment)
@@ -367,6 +377,7 @@ export function installStreetVerseCitySimulation(){
     addEventListener('tryamm:streetverse-structure-fire-state',onStructureFire)
     addEventListener('tryamm:circle-park-safety-incident',onSafetyIncident)
     addEventListener('tryamm:business-passport-created',onBusinessAdded)
+    addEventListener('tryamm:streetverse-gameplay-action',onGameplayAction)
   }
 
   const timer=typeof window!=='undefined'?window.setInterval(()=>{
@@ -396,6 +407,7 @@ export function installStreetVerseCitySimulation(){
       removeEventListener('tryamm:streetverse-structure-fire-state',onStructureFire)
       removeEventListener('tryamm:circle-park-safety-incident',onSafetyIncident)
       removeEventListener('tryamm:business-passport-created',onBusinessAdded)
+      removeEventListener('tryamm:streetverse-gameplay-action',onGameplayAction)
     },
   }
 }
