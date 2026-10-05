@@ -1,5 +1,6 @@
 // ---------- spawn ----------
 const player = Object.assign(makePerson(0xf2b630, 0x1d1a33, 0x5a3825), { pos: new T.Vector3(9.5, 0, 40), facing: 0, inCar: null });
+attachProductionHuman(player,2);
 {
   const crown = new T.Mesh(new T.CylinderGeometry(0.17, 0.2, 0.16, 8, 1, true), new T.MeshBasicMaterial({ color: 0xffd23a, side: T.DoubleSide }));
   crown.position.y = 1.98; player.mesh.add(crown);
@@ -53,6 +54,7 @@ function perim(u, out) {
 const peds = [];
 for (let k = 0; k < Q.peds; k++) {
   const p = makePerson(pick(SHIRTS), pick(PANTS), pick(SKINS));
+  attachProductionHuman(p,k);
   p.cx = (randi(-N, N - 1) + 0.5) * CELL; p.cz = (randi(-N, N - 1) + 0.5) * CELL;
   p.u = rand(0, 4); p.dir = Math.random() < 0.5 ? 1 : -1; p.spd = rand(1.1, 1.7);
   p.state = 'walk'; p.timer = 0; p.heading = 0; p.pos = perim(p.u, new T.Vector3()).add(new T.Vector3(p.cx, 0, p.cz));
