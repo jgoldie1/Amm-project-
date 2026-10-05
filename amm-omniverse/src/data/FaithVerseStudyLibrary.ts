@@ -167,3 +167,14 @@ export const FEATURED_FAITHVERSE_BOOKS=[
   note:'Jubilees is studied through the Ethiopian-canon lane. It is not relabeled as a KJV 1611 Apocrypha book.'
  },
 ] as const
+
+
+export const JUBILEES_STUDY_SOURCE_MANIFEST={
+ title:'The Book of Jubilees — public-domain historical study reference',
+ sourceDisplayTitle:'Book of jubilees',
+ referenceEdition:'George H. Schodde English translation / 1888 scan reference',
+ url:'https://en.wikisource.org/wiki/File:Book_of_jubilees.djvu',
+ sourceRole:'study-reference-not-official-ethiopian-church-text',
+ textConnection:'scan-reference-only-until-a-reviewed-readable-corpus-is-connected',
+ integrityRule:'Do not present this historical English translation as the official Ethiopian Orthodox biblical text. Keep Ethiopian canon metadata, translation identity and source provenance visible.'
+} as const
