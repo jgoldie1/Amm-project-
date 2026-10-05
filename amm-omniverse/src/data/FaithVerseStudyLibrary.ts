@@ -129,3 +129,26 @@ export const STRONGS_STUDY={
  rule:"Strong's numbers apply only where a verified Strong's/KJV mapping exists. Ethiopian-canon books outside that mapping require a different source-specific lexical index.",
  starters:['H7225','H430','H3068','H7307','G3056','G26'] as const,
 } as const
+
+
+export const FEATURED_FAITHVERSE_BOOKS=[
+ {
+  id:'esther',
+  title:'Esther',
+  lanes:['KJV connected text','KJV 1611 Old Testament','Ethiopian Orthodox canon metadata'] as const,
+  note:'Esther is kept in its ordinary Old Testament lane. The 1611 Apocrypha separately includes the Rest/Additions to Esther.'
+ },
+ {
+  id:'rest-of-esther',
+  title:'Rest / Additions to Esther',
+  lanes:['KJV 1611 Apocrypha'] as const,
+  note:'This is the historical 1611 Apocrypha addition lane and is kept distinct from the canonical Book of Esther.'
+ },
+ {
+  id:'jubilees',
+  title:'Jubilees',
+  sourceDisplayTitle:'Jubilee',
+  lanes:['Ethiopian Orthodox Tewahedo canon metadata'] as const,
+  note:'Jubilees is studied through the Ethiopian-canon lane. It is not relabeled as a KJV 1611 Apocrypha book.'
+ },
+] as const
