@@ -60,7 +60,7 @@ function buildPackage():BibleWorldScenePackage|null{
 
 function publish(){
  const pkg=buildPackage();if(!pkg)return
- try{localStorage.setItem(KEY,JSON.stringify(pkg));localStorage.setItem('tryamm.kingdom.hebrew-school.bible-world-preview.v1',JSON.stringify(pkg))}catch{}
+ try{localStorage.setItem(KEY,JSON.stringify(pkg));localStorage.setItem('tryamm.kingdom.hebrew-school.bible-world-preview.v1',JSON.stringify(pkg));localStorage.setItem('tryamm.metaverse-bible.hebrew-school-preview.v1',JSON.stringify({...pkg,assetCount:pkg.placements.length,previewCount:pkg.providerArtifacts,previews:pkg.placements.map(p=>({id:p.assetId,kind:p.kind,provider:p.placeholder?'placeholder':'provider-artifact',status:p.placeholder?'preview-placeholder':'generated',message:p.label}))}))}catch{}
  emit('tryamm:bible-world-scene-package-ready',pkg)
  emit('tryamm:holo-lab-walkable-bible-world-ready',pkg)
  emit('tryamm:kingdom-hebrew-school-world-ready',pkg)
