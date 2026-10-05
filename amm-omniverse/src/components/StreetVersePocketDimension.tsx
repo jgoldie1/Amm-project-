@@ -29,7 +29,7 @@ export default function StreetVersePocketDimension({onClose}:{onClose:()=>void})
  const [characterDevelopmentOpen,setCharacterDevelopmentOpen]=useState(false)
 
  useEffect(()=>{
-  fetch('/api/credits/wallet',{credentials:'include'}).then(r=>r.ok?r.json():null).then(d=>{if((d?.entitlements||[]).some((x:any)=>x.itemId==='pocket-quickslots-8'&&x.status==='active'))setQuickLimit(8)}).catch(()=>{})
+  getAccessToken().then(token=>token?fetch('/api/credits/wallet',{headers:{Authorization:`Bearer ${token}`}}):null).then(r=>r&&r.ok?r.json():null).then(d=>{if((d?.entitlements||[]).some((x:any)=>x.itemId==='pocket-quickslots-8'&&x.status==='active'))setQuickLimit(8)}).catch(()=>{})
   const entitlement=(e:Event)=>{const d=(e as CustomEvent<any>).detail;if(d?.quickSlots===8)setQuickLimit(8)}
   window.addEventListener('tryamm:pocket-dimension-entitlement',entitlement)
   const sync=(e:Event)=>{
