@@ -1,5 +1,5 @@
 // AMM Greatest Producer Studio
-// 62-track DAW · Vocal Booth · Guitar Lab · Podcast Suite · Remote Record
+// 64-track DAW · Vocal Booth · Guitar Lab · Podcast Suite · Remote Record
 // Web Audio API — zero cost, zero plugins needed, works in browser
 // After Victor deploys: tracks save to Supabase Storage, collaborate via LiveKit
 
@@ -109,6 +109,7 @@ const TRACK_NAMES = [
   { name:'Reference Track', cat:'sample' as const, color:'#444444' },
   { name:'Master Print', cat:'master' as const, color:'#333333' },
   { name:'Final Bounce', cat:'master' as const, color:'#222222' },
+  { name:'Aniyah Spatial Print', cat:'master' as const, color:'#6a5cff' },
 ]
 
 const GUITAR_PRESETS: GuitarPreset[] = [
@@ -250,7 +251,7 @@ GENERATED SCRIPT · AMM OMNIVERSE
   const soloedTracks = tracks.filter(t => t.soloed)
 
   const CATS: { id: Track['category'] | 'all'; label: string; color: string }[] = [
-    { id:'all', label:'All 62', color:'#555' },
+    { id:'all', label:'All 64', color:'#555' },
     { id:'vocal', label:'Vocal', color:'#ff66cc' },
     { id:'choir', label:'Choir', color:'#ffaa00' },
     { id:'drums', label:'Drums', color:'#ff4400' },
@@ -270,7 +271,7 @@ GENERATED SCRIPT · AMM OMNIVERSE
         <button onClick={onClose} style={{ background:'none',border:'1px solid #333',color:'#555',borderRadius:4,padding:'4px 10px',cursor:'pointer',fontFamily:'monospace',fontSize:10 }}>← EXIT</button>
         <div>
           <div style={{ color:'#00ccff',fontWeight:900,fontSize:13,letterSpacing:2 }}>🎵 AMM GREATEST PRODUCER STUDIO</div>
-          <div style={{ color:'#555',fontSize:9 }}>62-track DAW · Vocal Booth · Guitar Lab · Podcast · Remote Record</div>
+          <div style={{ color:'#555',fontSize:9 }}>64-track DAW · Vocal Booth · Guitar Lab · Podcast · Remote Record</div>
         </div>
         {/* Transport */}
         <div style={{ marginLeft:'auto',display:'flex',gap:6,alignItems:'center' }}>
