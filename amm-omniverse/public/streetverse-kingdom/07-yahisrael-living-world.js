@@ -233,14 +233,14 @@ kyBuildJudahGate();kyBuildAssembly();kyBuildService();kyBuildMarket();kyBuildLeg
 
 const KY_ACTIVITY_KEY='tryamm.kingdom-yahisrael.activities.v1';
 const KY_ACTIVITIES=[
- {id:'assembly-reflection',label:'Complete Assembly Reflection',shortLabel:'Reflect / Pray',x:-37,z:-46,missionId:'assembly-reflection',destinationId:'assembly-court',action:'pray-standing'},
- {id:'service-intake',label:'Choose a Servants of Christ Service Mission',shortLabel:'Choose Service Mission',x:-111,z:-46,missionId:'community-service',destinationId:'servants-center',action:'security-scan',route:'/servants-of-christ'},
- {id:'market-stewardship',label:'Run a Kingdom Market Stewardship Check',shortLabel:'Market Stewardship',x:111,z:-38,missionId:'market-stewardship',destinationId:'kingdom-market',action:'creator-pose'},
- {id:'family-covenant',label:'Open Family Covenant + Book of Remembrance',shortLabel:'Open Kingdom Workbook',x:37,z:-118,missionId:'family-covenant',destinationId:'legacy-workbook',action:'pray-standing',route:'/kingdom-workbook'},
- {id:'metaverse-bible-study',label:'Begin Metaverse Bible Study Session',shortLabel:'Open Metaverse Bible',x:-37,z:104,missionId:'metaverse-bible-study',destinationId:'hebrew-school',action:'creator-pose',route:'/metaverse-bible'},
- {id:'garden-service',label:'Plant / Water Kingdom Garden',shortLabel:'Garden Service',x:-111,z:106,missionId:'garden-service',destinationId:'garden-farm',action:'mechanic-work'},
- {id:'publish-remembrance',label:'Publish through Kingdoms Press',shortLabel:'Start Publishing',x:111,z:105,missionId:'publish-remembrance',destinationId:'press-ai-cafe',action:'creator-pose',route:'/kingdoms-press'},
- {id:'kingdom-broadcast',label:'Start Kingdom Broadcast / Reel',shortLabel:'Start Broadcast',x:185,z:39,missionId:'kingdom-broadcast',destinationId:'broadcast-house',action:'mic-performance',route:'/network'},
+ {id:'assembly-reflection',label:'Complete Assembly Reflection',shortLabel:'Reflect / Pray',x:-37,z:-46,missionId:'assembly-reflection',destinationId:'assembly-court',action:'pray-standing',completion:'local'},
+ {id:'service-intake',label:'Choose a Servants of Christ Service Mission',shortLabel:'Choose Service Mission',x:-111,z:-46,missionId:'community-service',destinationId:'servants-center',action:'security-scan',route:'/servants-of-christ',completion:'external'},
+ {id:'market-stewardship',label:'Run a Kingdom Market Stewardship Check',shortLabel:'Market Stewardship',x:111,z:-38,missionId:'market-stewardship',destinationId:'kingdom-market',action:'creator-pose',completion:'local'},
+ {id:'family-covenant',label:'Open Family Covenant + Book of Remembrance',shortLabel:'Open Kingdom Workbook',x:37,z:-118,missionId:'family-covenant',destinationId:'legacy-workbook',action:'pray-standing',route:'/kingdom-workbook',completion:'external'},
+ {id:'metaverse-bible-study',label:'Begin Metaverse Bible Study Session',shortLabel:'Open Metaverse Bible',x:-37,z:104,missionId:'metaverse-bible-study',destinationId:'hebrew-school',action:'creator-pose',route:'/metaverse-bible',completion:'external'},
+ {id:'garden-service',label:'Plant / Water Kingdom Garden',shortLabel:'Garden Service',x:-111,z:106,missionId:'garden-service',destinationId:'garden-farm',action:'mechanic-work',completion:'local'},
+ {id:'publish-remembrance',label:'Publish through Kingdoms Press',shortLabel:'Start Publishing',x:111,z:105,missionId:'publish-remembrance',destinationId:'press-ai-cafe',action:'creator-pose',route:'/kingdoms-press',completion:'external'},
+ {id:'kingdom-broadcast',label:'Start Kingdom Broadcast / Reel',shortLabel:'Start Broadcast',x:185,z:39,missionId:'kingdom-broadcast',destinationId:'broadcast-house',action:'mic-performance',route:'/network',completion:'external'},
 ];
 window.YAHISRAEL_ACTIVITIES=KY_ACTIVITIES;
 
@@ -324,16 +324,21 @@ function kyPlantServiceCrop(a){
 }
 function completeKingdomActivity(a){
  if(!a)return;
- const state=kyReadActivities(),first=!state.completed.includes(a.id);
+ const state=kyReadActivities(),local=a.completion!=='external',first=!state.completed.includes(a.id);
  kyPost('MISSION_STARTED',{missionId:a.missionId,destination:a.label,district:a.destinationId,contentId:a.id});
- if(first){
-  state.completed.push(a.id);kyWriteActivities(state);kyPlantServiceCrop(a);
-  kyPost('MISSION_COMPLETED',{missionId:a.missionId,destination:a.label,district:a.destinationId,contentId:a.id});
- }
  const nearby=kyCitizens.filter(p=>Math.hypot(p.anchor.x-a.x,p.anchor.z-a.z)<12);
  for(const p of nearby)if(a.action)setPersonRpAction(p,a.action,{loop:false,durationMs:4200});
- toast((first?'Activity complete • server verification requested: ':'Already completed: ')+a.shortLabel);
- try{window.dispatchEvent(new CustomEvent('tryamm:kingdom-activity-completed',{detail:{...a,first,serverVerified:false}}))}catch{}
+ if(local&&first){
+  state.completed.push(a.id);kyWriteActivities(state);kyPlantServiceCrop(a);
+  kyPost('MISSION_COMPLETED',{missionId:a.missionId,destination:a.label,district:a.destinationId,contentId:a.id});
+  toast('Activity complete • server verification requested: '+a.shortLabel);
+  try{window.dispatchEvent(new CustomEvent('tryamm:kingdom-activity-completed',{detail:{...a,first:true,serverVerified:false}}))}catch{}
+ }else if(local){
+  toast('Already completed: '+a.shortLabel);
+ }else{
+  toast('Mission started • continue in '+a.shortLabel);
+  try{window.dispatchEvent(new CustomEvent('tryamm:kingdom-activity-handoff',{detail:{...a,serverVerified:false}}))}catch{}
+ }
  if(a.route)setTimeout(()=>kyPost('KINGDOM_PORTAL_REQUEST',{destination:a.route,district:a.destinationId,missionId:a.missionId,contentId:a.id}),260);
 }
 for(const d of KY_DESTINATIONS){
