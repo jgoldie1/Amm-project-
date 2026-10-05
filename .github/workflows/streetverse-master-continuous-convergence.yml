@@ -127,7 +127,9 @@ jobs:
               run_gate build-app-commerce node tests/all-american-omnichannel-center-contract.mjs
               run_gate build-app-money node tests/game-app-business-income-contract.mjs
               run_gate build-app-business-revenue node tests/el-saturn-business-revenue-contract.mjs
-              run_gate build-app-business-pricing node tests/business-completion-pricing-contract.mjs               tests/business-completion-pricing-contract.mjs
+              run_gate build-app-business-pricing node tests/business-completion-pricing-contract.mjs
+              run_gate build-app-domain-provisioning node tests/domain-provisioning-contract.mjs
+              run_gate build-app-quantum-growth node tests/quantum-seo-back-channel-contract.mjs               tests/domain-provisioning-contract.mjs               tests/quantum-seo-back-channel-contract.mjs
 
               # STREETVERSE lane
               run_gate build-native-assets npm run native:assets
@@ -237,6 +239,8 @@ jobs:
             run_gate streetverse-logistics-readiness npm run streetverse-logistics:check
             run_gate business-revenue-readiness npm run business-revenue:check
             run_gate business-pricing-readiness npm run business-pricing:check
+            run_gate domain-provisioning-readiness npm run domain-provisioning:check
+            run_gate quantum-growth-readiness npm run quantum-growth:check
             run_gate typecheck npm run typecheck
             run_gate production-build npm run build
 
