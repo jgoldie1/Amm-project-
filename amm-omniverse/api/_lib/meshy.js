@@ -103,7 +103,12 @@ export async function createMeshyTask(type,payload){
     body.mode='preview';
     delete body.should_texture;
     delete body.enable_pbr;
-    body.geometry_resolution=['standard','2k','4k'].includes(String(body.geometry_resolution||''))?String(body.geometry_resolution):'2k';
+    const model=String(body.ai_model||'').toLowerCase();
+    if(model.startsWith('meshy-7')){
+      body.geometry_resolution=['standard','2k','4k'].includes(String(body.geometry_resolution||''))?String(body.geometry_resolution):'2k';
+    }else{
+      delete body.geometry_resolution;
+    }
   }else{
     body.should_texture=body.should_texture!==false;
     body.enable_pbr=body.enable_pbr!==false;
