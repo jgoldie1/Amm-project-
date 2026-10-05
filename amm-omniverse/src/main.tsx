@@ -194,6 +194,7 @@ const installOptionalRuntimes = () => {
   import('./runtime/GraphicsAccelerationRuntime').then(m => m.installTryammGraphicsAccelerationRuntime()).catch(error => console.error('[TRYAMM] Graphics acceleration profile failed after core mount.', error))
   import('./runtime/OmniFabricComputeRouter').then(m => m.installOmniFabricComputeRouter()).catch(error => console.error('[TRYAMM] OmniFabric compute router failed after core mount.', error))
   import('./runtime/QuantumHoloLensRuntime').then(m => m.installQuantumHoloLensRuntime()).catch(error => console.error('[TRYAMM] Quantum/Holographic Lens failed after core mount.', error))
+  import('./runtime/TryammModPassRuntime').then(m => m.installTryammModPassRuntime()).catch(error => console.error('[TRYAMM] Mod Pass failed after core mount.', error))
   import('./runtime/BusinessDiscoveryLensRuntime').then(m => m.installBusinessDiscoveryLensRuntime()).catch(error => console.error('[TRYAMM] Business discovery lens failed after core mount.', error))
   import('./runtime/CreatorRevenueFabricRuntime').then(m => m.installCreatorRevenueFabricRuntime()).catch(error => console.error('[TRYAMM] Creator Revenue Fabric failed after core mount.', error))
   import('./runtime/CreatorMoneyCenterRuntime').then(m => m.installCreatorMoneyCenterRuntime()).catch(error => console.error('[TRYAMM] Creator Money Center failed after core mount.', error))
@@ -274,6 +275,9 @@ queueMicrotask(() => {
   if (window.location.pathname.startsWith('/streetverse')) {
     // Keep StreetVerse lightweight while still installing only release-critical
     // Circle Park progression and the Chicago Time Machine. Heavy global launchers remain excluded.
+    import('./runtime/TryammModPassRuntime')
+      .then(m => m.installTryammModPassRuntime())
+      .catch(error => console.error('[TRYAMM] StreetVerse Mod Pass failed after mount.', error))
     import('./runtime/StreetVerseAssetExecutiveRuntime')
       .then(m => m.installStreetVerseAssetExecutiveRuntime())
       .catch(error => console.error('[TRYAMM] StreetVerse asset executive runtime failed after mount.', error))
