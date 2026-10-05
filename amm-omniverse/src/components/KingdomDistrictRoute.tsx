@@ -12,6 +12,13 @@ export default function KingdomDistrictRoute(){
  useEffect(()=>{installMindOverMatterCleanRoomRuntime();installHoloForgeRuntime()},[])
  useEffect(()=>{document.documentElement.dataset.tryammKingdomRoute='canonical-iframe';return()=>{delete document.documentElement.dataset.tryammKingdomRoute}},[])
  useEffect(()=>{
+  const send=(detail:any)=>{try{frameRef.current?.contentWindow?.postMessage({channel:'tryamm:kingdom-control',type:'BIBLE_WORLD_PREVIEW_PACKAGE',detail},window.location.origin)}catch{}}
+  const on=(event:Event)=>send((event as CustomEvent<any>).detail)
+  window.addEventListener('tryamm:kingdom-hebrew-school-world-ready',on as EventListener)
+  try{const stored=JSON.parse(localStorage.getItem('tryamm.kingdom.hebrew-school.bible-world-preview.v1')||'null');if(stored?.planId)setTimeout(()=>send(stored),700)}catch{}
+  return()=>window.removeEventListener('tryamm:kingdom-hebrew-school-world-ready',on as EventListener)
+ },[])
+ useEffect(()=>{
   const allowed=new Set(['/kingdom-of-yahisrael','/kingdom-workbook','/metaverse-bible','/faithverse','/ethiopian-bible','/kingdoms-press','/servants-of-christ','/network'])
   const open=(event:Event)=>{const route=String((event as CustomEvent<{destination?:string}>).detail?.destination||'');if(allowed.has(route))window.location.href=route}
   window.addEventListener('tryamm:kingdom-portal-request',open as EventListener)
