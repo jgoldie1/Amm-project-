@@ -1,7 +1,15 @@
 import {useEffect,useRef} from 'react'
+import {installStreetVerseAbracadabraGeniiRuntime} from '../runtime/StreetVerseAbracadabraGeniiRuntime'
+import {installStreetVerseSoundBankRuntime} from '../runtime/StreetVerseSoundBankRuntime'
+import {installMindOverMatterCleanRoomRuntime} from '../runtime/MindOverMatterCleanRoomRuntime'
+import {installHoloForgeRuntime} from '../runtime/HoloForgeAssetRuntime'
 import StreetVerseRPActionSearch from './StreetVerseRPActionSearch'
+import StreetVerseRPOmnibar from './StreetVerseRPOmnibar'
 export default function KingdomDistrictRoute(){
  const frameRef=useRef<HTMLIFrameElement|null>(null)
+ useEffect(()=>installStreetVerseAbracadabraGeniiRuntime(),[])
+ useEffect(()=>installStreetVerseSoundBankRuntime(),[])
+ useEffect(()=>{installMindOverMatterCleanRoomRuntime();installHoloForgeRuntime()},[])
  useEffect(()=>{document.documentElement.dataset.tryammKingdomRoute='canonical-iframe';return()=>{delete document.documentElement.dataset.tryammKingdomRoute}},[])
  useEffect(()=>{
   const forward=(event:Event)=>{
@@ -13,7 +21,7 @@ export default function KingdomDistrictRoute(){
   return()=>{window.removeEventListener('tryamm:streetverse-rp-action-play',forward);window.removeEventListener('tryamm:streetverse-rp-sync-request',forward)}
  },[])
  return <main style={{position:'fixed',inset:0,zIndex:24000,background:'#15122c'}}>
-  <div style={{position:'fixed',left:10,right:10,bottom:'calc(env(safe-area-inset-bottom, 0px) + 10px)',zIndex:24002,maxWidth:620,margin:'0 auto'}}><StreetVerseRPActionSearch compact/></div>
+  <div style={{position:'fixed',left:10,right:10,bottom:'calc(env(safe-area-inset-bottom, 0px) + 10px)',zIndex:24002,maxWidth:620,margin:'0 auto'}}><StreetVerseRPActionSearch compact/><StreetVerseRPOmnibar compact/></div>
   <iframe
    ref={frameRef}
    title="Kingdom District"
