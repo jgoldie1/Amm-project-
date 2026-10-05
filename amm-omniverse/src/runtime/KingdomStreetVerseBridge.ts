@@ -1,5 +1,7 @@
 export type KingdomBridgeEvent =
   | 'KINGDOM_READY'
+  | 'KINGDOM_DESTINATION_ENTERED'
+  | 'KINGDOM_PORTAL_REQUEST'
   | 'PLAYER_MOVED'
   | 'VEHICLE_ENTERED'
   | 'VEHICLE_EXITED'
@@ -57,6 +59,14 @@ export function installKingdomStreetVerseBridge(){
       case 'KINGDOM_READY':
         window.dispatchEvent(new CustomEvent('tryamm:kingdom-ready',{detail:{...base,sharedState:true}}))
         break
+      case 'KINGDOM_DESTINATION_ENTERED':
+        window.dispatchEvent(new CustomEvent('tryamm:kingdom-destination-entered',{detail:base}))
+        break
+      case 'KINGDOM_PORTAL_REQUEST': {
+        const allowed=new Set(['/kingdom-of-yahisrael','/kingdom-workbook','/faithverse','/ethiopian-bible','/kingdoms-press','/servants-of-christ','/network'])
+        if(allowed.has(base.destination))window.dispatchEvent(new CustomEvent('tryamm:kingdom-portal-request',{detail:base}))
+        break
+      }
       case 'PLAYER_MOVED':
         window.dispatchEvent(new CustomEvent('tryamm:streetverse-player-moved',{detail:base}))
         break
@@ -148,6 +158,8 @@ export function installKingdomStreetVerseBridge(){
     campusverse:true,
     crossverse:true,
     serverAuthoritativeMoney:true,
+    yahisraelLivingWorld:true,
+    safeKingdomPortals:true,
   }}))
 
   return()=>{
