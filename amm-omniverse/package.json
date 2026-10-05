@@ -61,7 +61,8 @@
     "aniyah-studio:check": "node tests/aniyah-64-track-business-contract.mjs",
     "holo-credit-economy:check": "node tests/holo-play-credit-economy-contract.mjs",
     "holo-engagement:check": "node tests/holo-play-engagement-monetization-contract.mjs",
-    "holo-crossverse-money:check": "node tests/holo-lottie-pk-crossverse-monetization-contract.mjs"
+    "holo-crossverse-money:check": "node tests/holo-lottie-pk-crossverse-monetization-contract.mjs",
+    "creator-credit-market:check": "node tests/creator-credit-marketplace-redemption-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
