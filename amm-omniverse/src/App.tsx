@@ -52,6 +52,7 @@ const QuantumBeatCenter = lazy(() => import('./components/QuantumBeatCenter'))
 const OTTIsaiahTV = lazy(() => import('./components/OTTIsaiahTV'))
 const StarStudioCenter = lazy(() => import('./components/StarStudioCenter'))
 const Aniyah64TrackStudio = lazy(() => import('./components/Aniyah64TrackStudio'))
+const HoloPlayCard = lazy(() => import('./components/HoloPlayCard'))
 const TryammTvHome = lazy(() => import('./components/TryammTvHome'))
 const PoyoAIStudio = lazy(() => import('./components/PoyoAIStudio'))
 const PropertyVerseCenter = lazy(() => import('./components/PropertyVerseCenter'))
@@ -85,6 +86,7 @@ export default function App() {
   const [showOTT, setShowOTT] = useState(false)
   const [showStarStudio, setShowStarStudio] = useState(false)
   const [showAniyahStudio, setShowAniyahStudio] = useState(false)
+  const [showHoloPlayCard, setShowHoloPlayCard] = useState(false)
   const [showTryammTv, setShowTryammTv] = useState(false)
   const [showSecurity, setShowSecurity] = useState(false)
   const [showOmniWear, setShowOmniWear] = useState(false)
@@ -216,6 +218,7 @@ export default function App() {
   ;(window as any).__showIsaiahTV = () => setShowOTT(true)
   ;(window as any).__showStarStudio = () => setShowStarStudio(true)
   ;(window as any).__showAniyah64TrackStudio = () => setShowAniyahStudio(true)
+  ;(window as any).__showHoloPlayCard = () => setShowHoloPlayCard(true)
   ;(window as any).__showTryammTV = () => setShowTryammTv(true)
   ;(window as any).__showSecurityCenter = () => setShowSecurity(true)
   ;(window as any).__showOmniWear = () => setShowOmniWear(true)
@@ -286,6 +289,7 @@ export default function App() {
     ['★','ISAIAH AI TV',()=>setShowOTT(true),'BETA'],
     ['🌟','STAR STUDIO',()=>setShowStarStudio(true),'BETA'],
     ['🎚','ANIYAH 64-TRACK',()=>setShowAniyahStudio(true),'BETA'],
+    ['💳','HOLO PLAY CARD',()=>setShowHoloPlayCard(true),'BETA'],
     ['💿','PRO AUDIO',()=>setShowProAudio(true),'BETA'],
     ['🌐','HOLOVERSE',()=>setShowHoloverse(true),'BETA'],
     ['$','PRICING',()=>setShowPricing(true),'LIVE'],
@@ -361,6 +365,7 @@ export default function App() {
         {showOTT && <OTTIsaiahTV onClose={() => setShowOTT(false)} />}
         {showStarStudio && <StarStudioCenter onClose={() => setShowStarStudio(false)} />}
         {showAniyahStudio && <div style={{position:'fixed',inset:0,zIndex:12050,background:'#05060d'}}><Aniyah64TrackStudio onClose={() => setShowAniyahStudio(false)} /></div>}
+        {showHoloPlayCard && <HoloPlayCard onClose={() => setShowHoloPlayCard(false)} />}
         {showTryammTv && <TryammTvHome onClose={() => setShowTryammTv(false)} />}
 
         {showSwipeTip && signedIn && <SwipeTutorial onDismiss={() => {setShowSwipeTip(false);localStorage.setItem('amm_swiped','1')}} />}
