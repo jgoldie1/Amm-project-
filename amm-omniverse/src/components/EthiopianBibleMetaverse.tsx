@@ -5,6 +5,7 @@ import FaithMetaverseBibleWorldMap from './FaithMetaverseBibleWorldMap'
 import FaithVerseImmersiveGateway from './FaithVerseImmersiveGateway'
 import MetaverseBibleProgressPanel from './MetaverseBibleProgressPanel'
 import HoloGPTAssistant from './HoloGPTAssistant'
+import MetaverseBibleConstructionConsole from './MetaverseBibleConstructionConsole'
 
 const lanes=[
  ['📖','ETHIOPIAN BIBLE STUDY','Reading plans, study notes, cross-references and teaching layers built around source-verified Ethiopian biblical texts and canon metadata.'],
@@ -59,6 +60,7 @@ export default function EthiopianBibleMetaverse(){
    <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(235px,1fr))',gap:12}}>{lanes.map(([icon,title,copy])=><article key={title} style={card}><div style={{fontSize:28}}>{icon}</div><h2 style={{fontSize:17}}>{title}</h2><p style={muted}>{copy}</p></article>)}</section>
 
    <FaithChronoLauncher />
+   <MetaverseBibleConstructionConsole />
 
    <section style={{...card,marginTop:18,borderColor:'#8d7435'}}><div style={{fontSize:11,letterSpacing:2,color:'#e5c56a',fontWeight:900}}>TEACH PEOPLE HEBREW</div><h2>Hebrew learning path</h2><div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:10}}>{hebrewPath.map(([n,title,copy])=><article key={title} style={{...card,background:'#0b0a06'}}><div style={{color:'#e5c56a',fontWeight:950}}>LESSON {n}</div><h3>{title}</h3><p style={muted}>{copy}</p></article>)}</div></section>
 
