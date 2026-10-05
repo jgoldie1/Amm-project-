@@ -15,6 +15,7 @@ const upgrade=read('../src/runtime/KingdomYahisraelArchitectureUpgradeRuntime.ts
 const assetReadme=read('../public/tryamm-assets/meshy/kingdom/README.md')
 const missions=read('../src/data/KingdomYahisraelMissionRegistry.ts')
 const missionRuntime=read('../src/runtime/KingdomYahisraelMissionRuntime.ts')
+const bridge=read('../src/runtime/KingdomStreetVerseBridge.ts')
 
 for(const [name,code] of [['living',living],['people',people],['phone',phone],['input',input],['hud',hud]])new vm.Script(code,{filename:name+'.js'})
 
@@ -35,7 +36,9 @@ for(const x of [
 ])if(!living.includes(x))throw new Error('Kingdom activity/mission system missing '+x)
 
 if(!input.includes('nearestKingdomActivity(4.5)')||!input.includes('completeKingdomActivity(a)'))throw new Error('One-button Kingdom activity interaction missing')
+for(const x of ['nearestKingdomCitizen(3.2)','interactKingdomCitizen(c)'])if(!input.includes(x))throw new Error('Citizen one-button interaction missing '+x)
 if(!hud.includes('nearestKingdomActivity')||!hud.includes('ka.shortLabel'))throw new Error('Kingdom activity HUD prompt missing')
+for(const x of ['nearestKingdomCitizen','Talk to ${kc.displayName'])if(!hud.includes(x))throw new Error('Citizen HUD prompt missing '+x)
 for(const x of ['YAHISRAEL_CITIZEN_COUNT','YAHISRAEL_HOUSEHOLDS','YAHISRAEL_ACTIVITY_PROGRESS','YAHISRAEL_ARCHITECTURE_STATUS','HOUSEHOLDS','LOCAL ACTIVITIES COMPLETE','PRODUCTION GLBs'])if(!phone.includes(x))throw new Error('Yahisrael phone living-world status missing '+x)
 
 for(const x of [
@@ -53,6 +56,7 @@ for(const x of [
 for(const x of ['tryamm:mind-over-matter-original-request','tryamm:holoforge-request','requiresHumanReview:true','qualityTier:\'premium\''])if(!upgrade.includes(x))throw new Error('Photoreal architecture upgrade pipeline missing '+x)
 for(const x of ['assembly-reflection','community-service','market-stewardship','family-covenant','metaverse-bible-study','garden-service','publish-remembrance','kingdom-broadcast','where-heaven-meets-earth-kingdom-path','serverRewardAuthority:true','payoutClaimedByClient:false'])if(!missions.includes(x))throw new Error('Kingdom mission registry missing '+x)
 for(const x of ['tryamm:mission-started','tryamm:kingdom-activity-completed','tryamm:mission-completion-request','clientPayouts:false'])if(!missionRuntime.includes(x))throw new Error('Kingdom mission runtime missing '+x)
+for(const x of ["'KINGDOM_CITIZEN_INTERACTION'",'citizenId?:string','role?:string','household?:string','tryamm:kingdom-citizen-interaction'])if(!bridge.includes(x))throw new Error('Kingdom citizen bridge missing '+x)
 for(const x of ['PRODUCTION ARCHITECTURE','QUEUE ORIGINAL PRODUCTION GLBs','PRODUCTION GLB: PENDING'])if(!center.includes(x))throw new Error('Kingdom architecture status UI missing '+x)
 if(!assetReadme.includes('The procedural Kingdom geometry is a fallback')||!assetReadme.includes('original or properly licensed materials/textures'))throw new Error('Production architecture evidence boundary missing')
 
