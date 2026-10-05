@@ -202,21 +202,27 @@ jobs:
             fi
 
             if [ -f "public/streetverse-kingdom/index.html" ] &&
-               [ -f "public/streetverse-kingdom/game.js" ] &&
-               [ -f "public/streetverse-kingdom/style.css" ]; then
+               [ -f "public/streetverse-kingdom/style.css" ] &&
+               [ -f "public/streetverse-kingdom/01-core-world.js" ] &&
+               [ -f "public/streetverse-kingdom/02-physics-traffic.js" ] &&
+               [ -f "public/streetverse-kingdom/03-spawn-phone.js" ] &&
+               [ -f "public/streetverse-kingdom/04-radial-input.js" ] &&
+               [ -f "public/streetverse-kingdom/05-player-camera-hud.js" ] &&
+               [ -f "public/streetverse-kingdom/06-loop.js" ] &&
+               [ -f "public/streetverse-kingdom/tryamm-bridge.js" ]; then
               echo "kingdom_payload=0" >> "$PASS_DIR/status.env"
-              grep -Eq "THREE|three" public/streetverse-kingdom/game.js || echo "kingdom_three=1" >> "$PASS_DIR/status.env"
-              grep -Eq "drive|vehicle|car" public/streetverse-kingdom/game.js || echo "kingdom_vehicle=1" >> "$PASS_DIR/status.env"
-              grep -Eq "touch|pointer|joystick|controller|keyboard" public/streetverse-kingdom/game.js || echo "kingdom_controls=1" >> "$PASS_DIR/status.env"
-              grep -Eq "map|waypoint|phone" public/streetverse-kingdom/game.js || echo "kingdom_navigation=1" >> "$PASS_DIR/status.env"
-              if grep -q "streetverse-kingdom" vercel.json; then
+              grep -Eq "THREE|three" public/streetverse-kingdom/01-core-world.js || echo "kingdom_three=1" >> "$PASS_DIR/status.env"
+              grep -Eq "driveCar|vehicle|car" public/streetverse-kingdom/02-physics-traffic.js || echo "kingdom_vehicle=1" >> "$PASS_DIR/status.env"
+              grep -Eq "touch|pointer|controller|keyboard" public/streetverse-kingdom/04-radial-input.js || echo "kingdom_controls=1" >> "$PASS_DIR/status.env"
+              grep -Eq "map|waypoint|phone" public/streetverse-kingdom/03-spawn-phone.js || echo "kingdom_navigation=1" >> "$PASS_DIR/status.env"
+              if grep -q "/streetverse-kingdom/index.html" src/components/KingdomDistrictRoute.tsx; then
                 echo "kingdom_route=0" >> "$PASS_DIR/status.env"
               else
                 echo "kingdom_route=1" >> "$PASS_DIR/status.env"
               fi
             else
               echo "kingdom_payload=PENDING_IMPORT" >> "$PASS_DIR/status.env"
-              echo "Kingdom payload is not yet present in the repo; merge remains pending." >> "$PASS_DIR/README.md"
+              echo "Canonical Kingdom payload is incomplete; one or more required production game files are missing." >> "$PASS_DIR/README.md"
             fi
 
             run_gate unreal-manifest npm run unreal:manifest
