@@ -87,7 +87,6 @@ async function forge(spec){
   console.log(`[Meshy Wave2] START ${spec.id}`);
   const preview=await createMeshyTask('text-to-3d',{
     prompt:spec.prompt,
-    ai_model:'meshy-6',
     geometry_resolution:'2k',
     should_remesh:true,
     target_polycount:45000,
