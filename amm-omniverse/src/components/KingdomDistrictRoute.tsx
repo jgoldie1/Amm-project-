@@ -21,6 +21,7 @@ export default function KingdomDistrictRoute(){
   return()=>{window.removeEventListener('tryamm:streetverse-rp-action-play',forward);window.removeEventListener('tryamm:streetverse-rp-sync-request',forward)}
  },[])
  return <main style={{position:'fixed',inset:0,zIndex:24000,background:'#15122c'}}>
+  <a href='/kingdom-of-yahisrael' aria-label='Return to Kingdom of Yahisrael' style={{position:'fixed',left:10,top:'calc(env(safe-area-inset-top, 0px) + 10px)',zIndex:24003,minHeight:40,display:'inline-flex',alignItems:'center',padding:'0 11px',borderRadius:999,border:'1px solid #e8b944aa',background:'#0a0c12dd',color:'#fff4bd',fontSize:9,fontWeight:950,textDecoration:'none',backdropFilter:'blur(10px)'}}>👑 YAHISRAEL • WHERE HEAVEN MEETS EARTH</a>
   <div style={{position:'fixed',left:10,right:10,bottom:'calc(env(safe-area-inset-bottom, 0px) + 10px)',zIndex:24002,maxWidth:620,margin:'0 auto'}}><StreetVerseRPActionSearch compact/><StreetVerseRPOmnibar compact/></div>
   <iframe
    ref={frameRef}
