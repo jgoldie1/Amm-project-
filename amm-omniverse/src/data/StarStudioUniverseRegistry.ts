@@ -2,7 +2,7 @@ export type StarStudioPillarId='aniyah-64'|'starverse'|'isaiah-tv'|'all-american
 export type StarStudioPillar={id:StarStudioPillarId;label:string;owner:string;kind:string;existingSurface:string;outputs:string[];status:'existing'|'beta-existing'}
 
 export const STAR_STUDIO_PILLARS:readonly StarStudioPillar[]=[
- {id:'aniyah-64',label:'Aniyah 64-Track Studio',owner:'Aniyah',kind:'music-production',existingSurface:'MusicCreatorStudio',outputs:['song','album','soundtrack','performance mix','immersive mix','release package'],status:'existing'},
+ {id:'aniyah-64',label:'Aniyah 64-Track Studio',owner:'Aniyah',kind:'music-production',existingSurface:'Aniyah64TrackStudio',outputs:['song','album','soundtrack','performance mix','immersive mix','release package'],status:'existing'},
  {id:'starverse',label:'StarVerse • Anyone Can Be a Star',owner:'TRYAMM / Isaiah AI TV',kind:'talent-discovery',existingSurface:'/starverse',outputs:['audition','showcase','competition','fan discovery','casting lead'],status:'existing'},
  {id:'isaiah-tv',label:'Isaiah AI TV',owner:'Isaiah',kind:'broadcast-network',existingSurface:'/isaiah-ai-tv',outputs:['original','showcase','games','music','education','StarVerse programming'],status:'existing'},
  {id:'all-american-network',label:'All American Network',owner:'All American Network',kind:'distribution',existingSurface:'/network',outputs:['TV','FAST-style programming','creator shows','news','music','sports','marketplace shows'],status:'existing'},
