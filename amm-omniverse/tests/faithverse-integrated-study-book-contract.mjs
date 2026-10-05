@@ -21,7 +21,7 @@ const requiredLibrary=[
 ]
 for(const token of requiredLibrary)if(!library.includes(token))throw new Error('FaithVerse library missing '+token)
 
-for(const title of ['Jubilee','Enoch','Sirate Tsion (Book of Order)','Book of Clement','Didascalia']){
+for(const title of ['Esther','Jubilee','Enoch','Sirate Tsion (Book of Order)','Book of Clement','Didascalia']){
  if(!library.includes(title))throw new Error('Ethiopian canon manifest missing '+title)
 }
 
@@ -29,10 +29,11 @@ for(const token of ['FaithHoloBook','<FaithHoloBook />','TRYAMM 88-BOOK CURRICUL
  if(!metaverse.includes(token))throw new Error('Ethiopian Bible Metaverse missing '+token)
 }
 
-for(const token of ['FAITHVERSE HOLOBOOK','ETHIOPIAN CANON • 81','TRYAMM CURRICULUM • 88',"STRONG'S",'HEBREW / PALEO SCRIPT','HOLO LAB','SERVANTS OF CHRIST','ASK HOLOGPT TUTOR']){
+for(const token of ['FAITHVERSE HOLOBOOK','ETHIOPIAN CANON • 81','TRYAMM CURRICULUM • 88',"STRONG'S",'HEBREW / PALEO SCRIPT','HOLO LAB','SERVANTS OF CHRIST','ASK HOLOGPT TUTOR','KINGDOM REQUIRED STUDY BOOKS','BOOK OF ESTHER','BOOK OF JUBILEE / JUBILEES']){
  if(!holobook.includes(token))throw new Error('FaithVerse HoloBook missing '+token)
 }
 
+for(const token of ['REQUIRED_KINGDOM_STUDY_BOOKS',"aliases:['Ester','Book of Esther','Book of Ester']","aliases:['Jubilees','Book of Jubilee','Book of Jubilees']",'normalizeFaithBookQuery'])if(!library.includes(token))throw new Error('Required Esther/Jubilee study protection missing '+token)
 if(!library.includes("faithFraming:true"))throw new Error('Faith-study framing metadata must remain explicit in the study library')
 if(!holobook.includes("verified text source required"))throw new Error('Source-pending Ethiopian texts must not be fabricated')
 if(!reader.includes('bible-api.com'))throw new Error('Working KJV reader source disappeared')
