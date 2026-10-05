@@ -320,6 +320,36 @@ KY_CITIZEN_SPECS.forEach(kySpawnCitizen);
 window.YAHISRAEL_CITIZEN_COUNT=kyCitizens.length;
 window.YAHISRAEL_HOUSEHOLDS=[...new Set(KY_CITIZEN_SPECS.map(x=>x.household).filter(Boolean))];
 
+const KY_ROLE_DIALOGUE={
+ teacher:'The Metaverse Bible station opens Scripture, Hebrew, Strong’s and Faith Chrono study.',
+ student:'I am studying here. Use the interactive station to begin the district lesson.',
+ parent:'The Legacy Hall connects family covenant, teaching and the Book of Remembrance.',
+ mentor:'We preserve lessons and legacy so the next generation can build further.',
+ 'community-leader':'Choose a service mission at the Servants of Christ mission desk.',
+ volunteer:'There is service work available here. The mission desk will route you.',
+ merchant:'Kingdom Market is for useful trade, creator commerce and responsible stewardship.',
+ creator:'Build something useful, then take it to the market, Press, LIVE or Reels.',
+ farmer:'Help plant and water the community garden. Service is part of the Kingdom path.',
+ editor:'Bring your draft to the publishing station for the Kingdoms Press workflow.',
+ writer:'The Press and AI Café can turn a study, testimony or story into a publication.',
+ host:'The broadcast station connects LIVE, Reels and All American Network programming.',
+ producer:'The control desk is ready for a Kingdom show or teaching production.',
+ 'camera-operator':'The cameras are staged. Start at the broadcast mission station.',
+ family:'The Kingdom Workbook and remembrance station are inside the Legacy Hall.',
+};
+function nearestKingdomCitizen(radius=3.2){
+ let best=null,dist=radius;
+ for(const p of kyCitizens){const dd=Math.hypot(player.pos.x-p.pos.x,player.pos.z-p.pos.z);if(dd<dist){dist=dd;best=p}}
+ return best;
+}
+function interactKingdomCitizen(p){
+ if(!p)return;
+ const dialogue=KY_ROLE_DIALOGUE[p.role]||'Welcome to the Kingdom of Yahisrael. Follow the district activity marker.';
+ setPersonRpAction(p,'wave-friendly',{loop:false,durationMs:2600});
+ toast((p.displayName||'Kingdom citizen')+' • '+String(p.role||'resident').replaceAll('-',' ')+' — '+dialogue);
+ kyPost('KINGDOM_CITIZEN_INTERACTION',{citizenId:p.mesh.userData.kingdomCitizenId,role:p.role,household:p.household||'',destination:zoneName(p.pos.x,p.pos.z),x:p.pos.x,y:0,z:p.pos.z});
+ try{window.dispatchEvent(new CustomEvent('tryamm:kingdom-citizen-interaction',{detail:{citizenId:p.mesh.userData.kingdomCitizenId,name:p.displayName,role:p.role,household:p.household||'',dialogue}}))}catch{}
+}
 function nearestKingdomActivity(radius=4.5){
  let best=null,dist=radius;
  for(const a of KY_ACTIVITIES){const dd=Math.hypot(player.pos.x-a.x,player.pos.z-a.z);if(dd<dist){dist=dd;best=a}}
