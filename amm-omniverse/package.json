@@ -73,7 +73,8 @@
     "metaverse-bible-foundry:check": "node tests/metaverse-bible-time-machine-construction-contract.mjs",
     "time-machine-foundry:check": "node tests/time-machine-world-foundry-convergence-contract.mjs",
     "time-machine-foundry:persistence:check": "node tests/time-machine-foundry-persistence-contract.mjs",
-    "metaverse-bible-handoff:check": "node tests/metaverse-bible-hebrew-school-handoff-contract.mjs"
+    "metaverse-bible-handoff:check": "node tests/metaverse-bible-hebrew-school-handoff-contract.mjs",
+    "metaverse-bible-binder:check": "node tests/metaverse-bible-scene-binder-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
