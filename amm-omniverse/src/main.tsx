@@ -231,6 +231,7 @@ const installOptionalRuntimes = () => {
   import('./runtime/FaithLifeSimulationRuntime').then(m => m.installFaithLifeSimulationRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installFaithLifeSimulationRuntime failed after core mount.', error))
   import('./runtime/BibleWorldCertificationRuntime').then(m => m.installBibleWorldCertificationRuntime()).catch(error => console.error('[TRYAMM] Bible world certification runtime failed after core mount.', error))
   import('./runtime/BibleWorldSceneBinderRuntime').then(m => m.installBibleWorldSceneBinderRuntime()).catch(error => console.error('[TRYAMM] Bible world scene binder failed after core mount.', error))
+  import('./runtime/BibleWorldProductionEvidenceRuntime').then(m => m.installBibleWorldProductionEvidenceRuntime()).catch(error => console.error('[TRYAMM] Bible world production evidence failed after core mount.', error))
   import('./runtime/BibleWorldPromotionRuntime').then(m => m.installBibleWorldPromotionRuntime()).catch(error => console.error('[TRYAMM] Bible world promotion failed after core mount.', error))
   import('./runtime/GlobalCityVerseRuntime').then(m => m.installGlobalCityVerseRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installGlobalCityVerseRuntime failed after core mount.', error))
   import('./runtime/GlobalWorldHierarchyRuntime').then(m => m.installGlobalWorldHierarchyRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installGlobalWorldHierarchyRuntime failed after core mount.', error))
