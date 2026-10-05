@@ -131,7 +131,7 @@ jobs:
           {
             echo '## TRYAMM Mega Repair / Release Gate'
             echo
-            echo "- Commit: `${GITHUB_SHA}`"
+            printf -- '- Commit: `%s`\n' "$GITHUB_SHA"
             echo '- Root platform checked'
             echo '- Impact integration checked'
             echo '- Omniverse security/readiness/lint/type/build checked'
