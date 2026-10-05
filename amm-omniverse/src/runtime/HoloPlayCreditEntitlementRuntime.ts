@@ -49,11 +49,33 @@ function apply(entitlement:HoloPlayEntitlement){
  emit('tryamm:holo-play-entitlement-applied',{...base,effect:entitlement.effect,channel:entitlement.channel})
 }
 
+function applyCreatorMarketplaceEntitlement(detail:any){
+ const m=detail?.metadata||{}
+ const base={source:'creator-credit-marketplace',listingId:m.listingId,assetRegistryId:m.assetRegistryId,creatorUserId:m.creatorUserId,title:m.title,category:m.category,licenseScope:m.licenseScope,sourceId:detail?.sourceId,cashValueMinor:0,withdrawable:false}
+ switch(String(m.category||'')){
+  case 'lottie-gift':
+  case 'holo-gift-pack': emit('tryamm:holo-gift-creator-pack-unlock',base);break
+  case 'stage-skin': emit('tryamm:live-stage-skin-unlock',base);break
+  case 'sound-pack': emit('tryamm:creator-sound-pack-unlock',base);break
+  case 'rp-scene':
+  case 'animation-pack': emit('tryamm:rp-creator-asset-unlock',base);break
+  case 'crossverse-room': emit('tryamm:crossverse-credit-entitlement',{...base,creatorRoom:true});break
+  case 'pocket-dimension-room': emit('tryamm:pocket-dimension-entitlement',{...base,creatorRoom:true});break
+  case 'broadcast-graphics': emit('tryamm:broadcast-graphics-unlock',base);break
+  case 'creator-tool': emit('tryamm:star-studio-tool-pack-unlock',base);break
+  case 'world-skin': emit('tryamm:streetverse-world-skin-unlock',base);break
+  default: emit('tryamm:creator-marketplace-asset-unlock',base);break
+ }
+ emit('tryamm:creator-marketplace-asset-acquired',base)
+}
+
 export function installHoloPlayCreditEntitlementRuntime(){
  if(installed||typeof window==='undefined')return()=>{}
  installed=true
  const onEntitlement=(event:Event)=>{const e=(event as CustomEvent<HoloPlayEntitlement>).detail;if(e?.effect)apply(e)}
+ const onCreatorMarketplace=(event:Event)=>applyCreatorMarketplaceEntitlement((event as CustomEvent<any>).detail)
  addEventListener('tryamm:holo-play-entitlement',onEntitlement)
+ addEventListener('tryamm:creator-marketplace-entitlement',onCreatorMarketplace)
  emit('tryamm:holo-play-entitlement-runtime-ready',{channels:['LIVE','GAMEVERSE','POCKET_DIMENSION','STAR_STUDIO','STREETVERSE','REELS','VR_MR','OMNIBOX','CROSSVERSE']})
- return()=>{removeEventListener('tryamm:holo-play-entitlement',onEntitlement);installed=false}
+ return()=>{removeEventListener('tryamm:holo-play-entitlement',onEntitlement);removeEventListener('tryamm:creator-marketplace-entitlement',onCreatorMarketplace);installed=false}
 }
