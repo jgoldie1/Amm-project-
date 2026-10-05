@@ -16,7 +16,11 @@ const CATALOG=new Map([
 ['aniyah-engineer-session',{name:'Aniyah Engineer Mode Session',unitAmount:1499,currency:'usd',seller:'aniyah-64-track-studio',kind:'service',split:{sellerBasisPoints:8500,platformBasisPoints:1500,reserveBasisPoints:0},metadata:{commerceKind:'studio-service',studio:'aniyah-64-track'}}],
 ['aniyah-remote-record',{name:'Aniyah Remote Recording Session',unitAmount:2500,currency:'usd',seller:'aniyah-64-track-studio',kind:'service',split:{sellerBasisPoints:8500,platformBasisPoints:1500,reserveBasisPoints:0},metadata:{commerceKind:'studio-service',studio:'aniyah-64-track'}}],
 ['aniyah-mix-master',{name:'Aniyah Mix + Master Service',unitAmount:4900,currency:'usd',seller:'aniyah-64-track-studio',kind:'service',split:{sellerBasisPoints:8500,platformBasisPoints:1500,reserveBasisPoints:0},metadata:{commerceKind:'studio-service',studio:'aniyah-64-track'}}],
-['aniyah-soundtrack-package',{name:'Aniyah Reel / TV / Movie Soundtrack Package',unitAmount:9900,currency:'usd',seller:'aniyah-64-track-studio',kind:'service',split:{sellerBasisPoints:8500,platformBasisPoints:1500,reserveBasisPoints:0},metadata:{commerceKind:'studio-service',studio:'aniyah-64-track'}}]
+['aniyah-soundtrack-package',{name:'Aniyah Reel / TV / Movie Soundtrack Package',unitAmount:9900,currency:'usd',seller:'aniyah-64-track-studio',kind:'service',split:{sellerBasisPoints:8500,platformBasisPoints:1500,reserveBasisPoints:0},metadata:{commerceKind:'studio-service',studio:'aniyah-64-track'}}],
+['holo-play-500',{name:'TRYAMM Play Credits • 500',unitAmount:499,currency:'usd',seller:'tryamm-platform',kind:'credit-pack',split:{sellerBasisPoints:0,platformBasisPoints:10000,reserveBasisPoints:0},metadata:{commerceKind:'closed-loop-credit-pack',credits:500,withdrawable:false}}],
+['holo-play-1100',{name:'TRYAMM Play Credits • 1,100',unitAmount:999,currency:'usd',seller:'tryamm-platform',kind:'credit-pack',split:{sellerBasisPoints:0,platformBasisPoints:10000,reserveBasisPoints:0},metadata:{commerceKind:'closed-loop-credit-pack',credits:1100,withdrawable:false}}],
+['holo-play-2400',{name:'TRYAMM Play Credits • 2,400',unitAmount:1999,currency:'usd',seller:'tryamm-platform',kind:'credit-pack',split:{sellerBasisPoints:0,platformBasisPoints:10000,reserveBasisPoints:0},metadata:{commerceKind:'closed-loop-credit-pack',credits:2400,withdrawable:false}}],
+['holo-play-6500',{name:'TRYAMM Play Credits • 6,500',unitAmount:4999,currency:'usd',seller:'tryamm-platform',kind:'credit-pack',split:{sellerBasisPoints:0,platformBasisPoints:10000,reserveBasisPoints:0},metadata:{commerceKind:'closed-loop-credit-pack',credits:6500,withdrawable:false}}]
 ]);
 const ASSET_SPLIT={sellerBasisPoints:4000,platformBasisPoints:4000,reserveBasisPoints:2000};
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -252,8 +256,9 @@ export default async function handler(req,res){
 
  if(total<50||total>500000)return json(res,400,{error:'Cart total outside allowed range'});
  const kinds=new Set(priced.map(x=>x.kind));
- if((kinds.has('asset')||kinds.has('service'))&&kinds.size>1)return json(res,400,{error:'Digital assets/services and physical products must be checked out separately'});
- const fulfillment=(kinds.has('asset')||kinds.has('service'))?'digital':(req.body?.fulfillment==='delivery'?'delivery':'pickup');
+ const digitalKinds=['asset','service','credit-pack'];
+ if([...kinds].some(k=>digitalKinds.includes(k))&&kinds.size>1)return json(res,400,{error:'Digital assets/services/credit packs and physical products must be checked out separately'});
+ const fulfillment=[...kinds].every(k=>digitalKinds.includes(k))?'digital':(req.body?.fulfillment==='delivery'?'delivery':'pickup');
  const sellers=[...new Set(priced.map(x=>x.seller))];
  const clientOrderId=String(req.body?.clientOrderId||('AMM-'+Date.now().toString(36).toUpperCase())).slice(0,96);
  const idempotencyKey=crypto.createHash('sha256').update(user.id+'|'+clientOrderId+'|'+priced.map(x=>x.id+':'+x.qty).join(',')+'|'+fulfillment).digest('hex');
