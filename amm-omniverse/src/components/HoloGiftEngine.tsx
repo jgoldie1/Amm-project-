@@ -82,6 +82,17 @@ export default function HoloGiftEngine({recipientId='demo-host',previewOnly=fals
     window.dispatchEvent(new CustomEvent('tryamm:holo-xr-gift-mode',{detail:{mode:target,giftId:gift.id}}))
     setMessage(`${target.toUpperCase()} gift mode armed. Compatible devices can anchor gifts in camera/world space; unsupported devices fall back to holographic screen effects.`)
   }
+  async function sendCreditSupport(itemId:'live-holo-spark'|'live-holo-support-badge'){
+    setBusy(true)
+    try{
+      const response=await fetch('/api/credits/spend',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({itemId,clientReference:'GIFT-'+itemId+'-'+Date.now().toString(36)})})
+      const data=await response.json().catch(()=>({}))
+      if(!response.ok)throw new Error(data?.error||'Credit support failed')
+      window.dispatchEvent(new CustomEvent('tryamm:holo-play-entitlement',{detail:data.entitlement}))
+      setBurst(v=>v+1);playCue()
+      setMessage(itemId==='live-holo-support-badge'?'Holo Support badge sent with TRYAMM credits. This is non-cash engagement; creator cash tips remain on the verified money rail.':'LIVE Holo Spark sent with TRYAMM credits. No cash tip or creator payout was created.')
+    }catch(error){setMessage(error instanceof Error?error.message:'Credit support failed.')}finally{setBusy(false)}
+  }
   async function send(){
     setBusy(true)
     try{
@@ -107,6 +118,10 @@ export default function HoloGiftEngine({recipientId='demo-host',previewOnly=fals
     <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:9}}>{(['ALL','MICRO','REACTION','MUSIC','PRESTIGE','SET-APART','PK','WORLD'] as const).map(id=><button key={id} onClick={()=>setTier(id)} style={{padding:'6px 9px',borderRadius:999,border:`1px solid ${tier===id?'#4fe3ff':'#253645'}`,background:tier===id?'#0b2937':'#071019',color:'#dce8ef',fontSize:9,fontWeight:900,cursor:'pointer'}}>{id}</button>)}</div>
     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(124px,1fr))',gap:7,marginTop:10,maxHeight:460,overflowY:'auto'}}>{visible.map(item=><button key={item.id} onClick={()=>{setGift(item);setAmount(item.suggested)}} style={{padding:9,borderRadius:12,border:`1px solid ${gift.id===item.id?'#4fe3ff':'#26394b'}`,background:gift.id===item.id?'#0c2837':'#080d14',color:'#fff',cursor:'pointer'}}><div style={{fontSize:25}}>{item.icon}</div><div style={{fontSize:10,fontWeight:900}}>{item.label}</div><div style={{fontSize:8,color:'#899aa8',marginTop:3}}>{item.effect}</div><div style={{fontSize:7,color:item.collection==='AMERICA 250'?'#fff':'#e8b944',marginTop:4,letterSpacing:.5}}>{item.collection}</div><div style={{fontSize:8,color:'#4fe3ff',marginTop:3}}>{item.spatial.toUpperCase()} • {item.tier}</div></button>)}</div>
     {!previewOnly&&<><label style={{display:'block',marginTop:10,fontSize:9,color:'#9aabb8'}}>OPTIONAL TIP (USD cents)</label><input type="number" min={0} max={100000} value={amount} onChange={e=>setAmount(Math.max(0,Math.floor(Number(e.target.value||0))))} style={{width:'100%',boxSizing:'border-box',marginTop:4,padding:10,borderRadius:10,border:'1px solid #294052',background:'#03070d',color:'#fff'}}/></>}
+    {!previewOnly&&<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7,marginTop:10}}>
+      <button onClick={()=>sendCreditSupport('live-holo-spark')} disabled={busy} style={{padding:10,borderRadius:11,border:'1px solid #4fe3ff66',background:'#0a2533',color:'#fff',fontWeight:900}}>✦ SPARK • 10 CR</button>
+      <button onClick={()=>sendCreditSupport('live-holo-support-badge')} disabled={busy} style={{padding:10,borderRadius:11,border:'1px solid #e8b94466',background:'#211907',color:'#fff',fontWeight:900}}>🏅 HOLO SUPPORT • 25 CR</button>
+    </div>}
     <button onClick={send} disabled={busy} style={{width:'100%',marginTop:10,padding:12,borderRadius:12,border:'1px solid #4fe3ff88',background:'linear-gradient(135deg,#0c3343,#2a1f35)',color:'#fff',fontWeight:950,cursor:'pointer'}}>{busy?'SENDING…':`${previewOnly?'PREVIEW':'SEND'} ${gift.icon} ${gift.label} • ${mode.toUpperCase()}${!previewOnly&&amount?` + ${(amount/100).toFixed(2)} TIP`:''}`}</button>
     <div style={{fontSize:10,lineHeight:1.5,color:'#a7b6c2',marginTop:9}}>{message}</div>
   </section>
