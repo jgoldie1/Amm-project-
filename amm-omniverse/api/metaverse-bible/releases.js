@@ -8,6 +8,30 @@ const allChecksPassed=cert=>{
  const checks=cert?.checks||{}
  return ['source-label','all-preview-receipts','provider-artifacts','collision-verified','navigation-verified','mobile-performance-verified','accessibility-verified','human-visual-review'].every(k=>checks[k]===true)
 }
+const sameArtifact=(a,b)=>String(a||'').trim()===String(b||'').trim()
+async function serverEvidenceFor(userId,scene){
+ const rows=await adminRest('tryamm_bible_world_evidence',{query:{user_id:'eq.'+userId,plan_id:'eq.'+clean(scene.planId,220),state:'eq.verified',limit:500}})
+ const evidence=rows||[]
+ const by=(type)=>evidence.filter(x=>x.evidence_type===type)
+ const placements=Array.isArray(scene.placements)?scene.placements:[]
+ const providerOk=placements.length>0&&placements.every(p=>by('provider-artifact').some(x=>x.asset_id===p.assetId&&sameArtifact(x.artifact_url,p.artifactUrl)))
+ const collisionTargets=placements.filter(p=>p.collisionTarget)
+ const collisionOk=collisionTargets.length>0&&collisionTargets.every(p=>by('collision').some(x=>x.asset_id===p.assetId||x.asset_id==null))
+ const navigationTargets=placements.filter(p=>p.navigationTarget)
+ const navigationOk=navigationTargets.length>0&&navigationTargets.every(p=>by('navigation').some(x=>x.asset_id===p.assetId||x.asset_id==null))
+ const mobileOk=by('mobile-performance').length>0
+ const accessibilityOk=by('accessibility').length>0
+ const humanOk=by('human-visual-review').length>0
+ const checks={
+  'provider-artifacts':providerOk,
+  'collision-verified':collisionOk,
+  'navigation-verified':navigationOk,
+  'mobile-performance-verified':mobileOk,
+  'accessibility-verified':accessibilityOk,
+  'human-visual-review':humanOk,
+ }
+ return{evidence,checks,missing:Object.entries(checks).filter(([,ok])=>!ok).map(([k])=>k)}
+}
 
 export default async function handler(req,res){
  const user=await requireUser(req,res);if(!user)return
@@ -35,6 +59,14 @@ export default async function handler(req,res){
   if((scene.missingArtifacts||[]).length>0||Number(scene.providerArtifacts||0)<Number(scene.placements?.length||0)){
    return json(res,409,{state:'PROVIDER_ARTIFACTS_MISSING',error:'Release candidate requires provider artifacts for every scene placement'})
   }
+  let serverEvidence
+  try{serverEvidence=await serverEvidenceFor(user.id,scene)}catch(error){
+   await audit(user.id,'bible_world_server_evidence_read_failed','high',{planId:scene.planId,error:String(error?.message||error)})
+   return json(res,503,{state:'SERVER_EVIDENCE_UNAVAILABLE',error:'Server-verified production evidence is unavailable'})
+  }
+  if(serverEvidence.missing.length){
+   return json(res,409,{state:'SERVER_EVIDENCE_BLOCKED',error:'Server-verified production evidence is incomplete',missing:serverEvidence.missing})
+  }
   const assets=(scene.placements||[]).map((p,i)=>({
    index:i,assetId:clean(p.assetId,220),placementId:clean(p.id,220),kind:clean(p.kind,80),label:clean(p.label,220),
    artifactUrl:clean(p.artifactUrl,1200),placeholder:Boolean(p.placeholder),collisionTarget:Boolean(p.collisionTarget),
@@ -46,7 +78,7 @@ export default async function handler(req,res){
    const prior=await adminRest('tryamm_bible_world_releases',{query:{user_id:'eq.'+user.id,plan_id:'eq.'+clean(scene.planId,220),order:'version.desc',limit:1}})
    const version=Number(prior?.[0]?.version||0)+1
    const releaseKey=clean(scene.planId,150)+':v'+version
-   const manifest={schema:'tryamm.metaverse-bible.release-manifest.v1',releaseKey,planId:scene.planId,version,title:scene.title,era:scene.era,truthLabel:scene.truthLabel,assets,navNodes:scene.navNodes||[],interactions:scene.interactions||[],qualityGates:cert.checks}
+   const manifest={schema:'tryamm.metaverse-bible.release-manifest.v1',releaseKey,planId:scene.planId,version,title:scene.title,era:scene.era,truthLabel:scene.truthLabel,assets,navNodes:scene.navNodes||[],interactions:scene.interactions||[],qualityGates:cert.checks,serverEvidenceChecks:serverEvidence.checks,serverEvidenceIds:serverEvidence.evidence.map(x=>x.id)}
    const row={
     user_id:user.id,release_key:releaseKey,plan_id:clean(scene.planId,220),title:clean(scene.title,240),era:clean(scene.era,180),
     truth_label:clean(scene.truthLabel,400),version,state:'candidate',scene_package:scene,certification:cert,asset_manifest:assets,
