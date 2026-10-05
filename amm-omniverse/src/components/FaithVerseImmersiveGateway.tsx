@@ -1,4 +1,5 @@
 import {lazy,Suspense,useMemo,useState} from 'react'
+import {FEATURED_FAITHVERSE_BOOKS} from '../data/FaithVerseStudyLibrary'
 
 const HoloLabGateway=lazy(()=>import('./HoloLabGateway'))
 const XRCommandGateway=lazy(()=>import('./XRCommandGateway'))
@@ -70,6 +71,17 @@ export default function FaithVerseImmersiveGateway(){
     <div className="faith-ring" style={{position:'absolute',width:182,height:182,borderRadius:'50%',border:'2px dashed #e8b944aa',animation:'faithverse-ring 10s linear infinite reverse'}}/>
     <div className="faith-core" style={{width:126,height:126,borderRadius:'50%',display:'grid',placeItems:'center',textAlign:'center',background:'radial-gradient(circle,#e8b94455,#0a2430 54%,#04060a)',border:'1px solid #d8bd68',boxShadow:'0 0 60px #4fe3ff44',animation:'faithverse-pulse 3.8s ease-in-out infinite'}}><div><div style={{fontSize:42}}>📖</div><b style={{fontSize:10}}>WORD → WORLD</b></div></div>
    </div>
+  </div>
+
+  <div style={{...panel,marginTop:10,borderColor:'#806a35'}}>
+   <div style={{fontSize:9,letterSpacing:1.8,color:'#e8b944',fontWeight:950}}>FEATURED SCRIPTURE WORLDS • ESTHER + JUBILEES</div>
+   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:7,marginTop:8}}>{FEATURED_FAITHVERSE_BOOKS.map(book=><button key={book.id} onClick={()=>{
+    const layer=book.id==='rest-of-esther'?'apocrypha':book.id==='jubilees'?'canon81':'kjv1611'
+    dispatch('tryamm:faith-holobook-layer-request',{layer,source:'featured-faithverse-book',featuredBook:book.id})
+    scroll('faith-holobook')
+    holoPrompt(`Open a source-labeled immersive study for ${book.title}. Lanes: ${book.lanes.join(', ')}. ${book.note} Keep scripture text, edition/canon facts, commentary, reconstruction and AI explanation separately labeled.`)
+    setLast(`${book.title} study path opened.`)
+   }} style={portalBtn}><strong style={{fontSize:14}}>{book.title}</strong><span style={{fontSize:8,color:'#e8b944',fontWeight:900}}>{book.lanes.join(' • ')}</span><small style={{fontSize:9,color:'#c6d2d8',lineHeight:1.45}}>{book.note}</small></button>)}</div>
   </div>
 
   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:8,marginTop:10}}>{PORTALS.map(p=><button key={p.id} onClick={()=>open(p)} style={portalBtn}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><span style={{fontSize:28}}>{p.icon}</span><span style={{fontSize:8,color:'#77ecff',fontWeight:950}}>ENTER</span></div><strong style={{fontSize:14}}>{p.label}</strong><span style={{fontSize:8,color:'#e8b944',fontWeight:900}}>{p.sub}</span><small style={{fontSize:9,color:'#c6d2d8',lineHeight:1.45}}>{p.copy}</small></button>)}</div>
