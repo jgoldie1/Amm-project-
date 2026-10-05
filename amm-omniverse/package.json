@@ -54,7 +54,8 @@
     "kingdom:regression:check": "node tests/kingdom-googolplex-regression-contract.mjs",
     "kingdom:memory:capture": "node scripts/capture-kingdom-googolplex-memory.mjs",
     "kingdom:humans:check": "node tests/kingdom-human-character-contract.mjs",
-    "rp-actions:check": "node tests/rp-action-search-bj-regression-contract.mjs"
+    "rp-actions:check": "node tests/rp-action-search-bj-regression-contract.mjs",
+    "rp-genii:check": "node tests/rp-omnibar-genii-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
