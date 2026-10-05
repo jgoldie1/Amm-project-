@@ -10,6 +10,8 @@ const cert=fs.readFileSync(new URL('../src/runtime/BibleWorldCertificationRuntim
 const consoleUi=fs.readFileSync(new URL('../src/components/MetaverseBibleConstructionConsole.tsx',import.meta.url),'utf8')
 const lab=fs.readFileSync(new URL('../src/components/HoloLabFoundryPreview.tsx',import.meta.url),'utf8')
 const main=fs.readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8')
+const promotion=fs.readFileSync(new URL('../src/runtime/BibleWorldPromotionRuntime.ts',import.meta.url),'utf8')
+const promotionPanel=fs.readFileSync(new URL('../src/components/BibleWorldPromotionPanel.tsx',import.meta.url),'utf8')
 
 for(const x of ['tryamm_bible_world_evidence',"'provider-artifact'","'collision'","'navigation'","'mobile-performance'","'accessibility'","'human-visual-review'","state in ('submitted','verified','rejected','superseded')",'Client submissions never equal verification'])if(!migration.includes(x))throw new Error('Pass 5 evidence persistence missing '+x)
 for(const x of ['SUBMITTED_NOT_VERIFIED','provider_artifact_requires_asset_and_url','idempotency_key','requireUser'])if(!evidenceApi.includes(x))throw new Error('Evidence intake missing '+x)
@@ -22,5 +24,7 @@ for(const x of ['serverVerified!==true',"d.source!=='server-production-evidence'
 if(!consoleUi.includes('BibleWorldProductionEvidencePanel'))throw new Error('Metaverse Bible console missing Pass 5 evidence panel')
 if(!lab.includes('BibleWorldProductionEvidencePanel'))throw new Error('Holo Lab missing Pass 5 evidence panel')
 if(!main.includes('installBibleWorldProductionEvidenceRuntime'))throw new Error('Pass 5 evidence runtime is not globally installed')
+for(const x of ['productionEvidence','serverEvidenceReady','server evidence: ','tryamm:bible-world-production-evidence-state'])if(!promotion.includes(x))throw new Error('Promotion runtime missing Pass 5 gate '+x)
+for(const x of ['SERVER EVIDENCE','PASS 5 READY','Pass 5 evidence'])if(!promotionPanel.includes(x))throw new Error('Promotion panel missing Pass 5 status '+x)
 
 console.log('Metaverse Bible Pass 5 production evidence: PASS')
