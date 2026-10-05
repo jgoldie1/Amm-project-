@@ -1,7 +1,7 @@
 export type TryammCreditBucket='HOLO_EARNED'|'PLAY_PURCHASED'
 export type TryammCreditPack={id:string;label:string;units:number;priceMinor:number}
 export type TryammCreditSpendKind='creator-tool'|'world-utility'|'media-tool'|'game-utility'|'live-engagement'|'gameverse'|'pocket-dimension'|'star-studio'
-export type TryammCreditSpendItem={id:string;label:string;costUnits:number;description:string;kind:TryammCreditSpendKind;channel:'LIVE'|'REELS'|'VR_MR'|'GAMEVERSE'|'POCKET_DIMENSION'|'STAR_STUDIO'|'OMNIBOX'|'STREETVERSE';effect:string}
+export type TryammCreditSpendItem={id:string;label:string;costUnits:number;description:string;kind:TryammCreditSpendKind;channel:'LIVE'|'REELS'|'VR_MR'|'GAMEVERSE'|'POCKET_DIMENSION'|'STAR_STUDIO'|'OMNIBOX'|'STREETVERSE'|'CROSSVERSE';effect:string}
 
 export const TRYAMM_CREDIT_PACKS:readonly TryammCreditPack[]=[
  {id:'holo-play-500',label:'500 Play Credits',units:500,priceMinor:499},
@@ -48,6 +48,12 @@ export const TRYAMM_CREDIT_SPEND_CATALOG:readonly TryammCreditSpendItem[]=[
  {id:'episode-render-pack',label:'TV Episode Render Pack',costUnits:150,description:'Episode packaging/render utility for eligible creator productions.',kind:'media-tool',channel:'STAR_STUDIO',effect:'episode-render'},
  {id:'movie-render-pack',label:'Movie Render Pack',costUnits:300,description:'Long-form movie packaging/render utility. Rights, safety and provider capacity remain gated.',kind:'media-tool',channel:'STAR_STUDIO',effect:'movie-render'},
  {id:'broadcast-graphics-pack',label:'Broadcast Graphics Pack',costUnits:100,description:'Lower thirds, intro/outro and network graphics utility for creator broadcasts.',kind:'star-studio',channel:'STAR_STUDIO',effect:'broadcast-graphics'},
+
+ {id:'crossverse-portal-skin',label:'CrossVerse Portal Skin',costUnits:60,description:'Cosmetic portal treatment that follows the creator between connected verses.',kind:'world-utility',channel:'CROSSVERSE',effect:'crossverse-portal-skin'},
+ {id:'crossverse-showcase-projection',label:'CrossVerse Showcase Projection',costUnits:80,description:'Project one eligible creator showcase into a connected verse space.',kind:'creator-tool',channel:'CROSSVERSE',effect:'crossverse-showcase-projection'},
+ {id:'crossverse-creator-stage',label:'CrossVerse Creator Stage',costUnits:120,description:'Unlock a creator stage layout usable across connected verse destinations.',kind:'world-utility',channel:'CROSSVERSE',effect:'crossverse-creator-stage'},
+ {id:'crossverse-cinematic-replay',label:'CrossVerse Cinematic Replay',costUnits:40,description:'Package a cross-verse moment into an eligible cinematic Replay/Reel workflow.',kind:'media-tool',channel:'CROSSVERSE',effect:'crossverse-cinematic-replay'},
+ {id:'crossverse-holo-fx-pack',label:'CrossVerse Holo FX Pack',costUnits:50,description:'Visual-only holographic effects that can follow a creator across connected verses; no cash value.',kind:'world-utility',channel:'CROSSVERSE',effect:'crossverse-holo-fx'},
 ] as const
 
 export const TRYAMM_CREDIT_POLICY={
