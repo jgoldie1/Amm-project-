@@ -39,6 +39,11 @@ function apply(entitlement:HoloPlayEntitlement){
   case 'holo-world-skin':emit('tryamm:streetverse-world-skin-unlock',base);break
   case 'creator-tool-pack':emit('tryamm:star-studio-tool-pack-unlock',base);break
   case 'omnibox-storage-boost':emit('tryamm:omnibox-storage-boost-unlock',base);break
+  case 'crossverse-portal-skin':emit('tryamm:crossverse-credit-entitlement',{...base,portalSkin:true});break
+  case 'crossverse-showcase-projection':emit('tryamm:crossverse-credit-entitlement',{...base,showcaseProjection:true});break
+  case 'crossverse-creator-stage':emit('tryamm:crossverse-credit-entitlement',{...base,creatorStage:true});break
+  case 'crossverse-cinematic-replay':emit('tryamm:crossverse-credit-entitlement',{...base,cinematicReplay:true});emit('tryamm:open-reel-creator',{...base,source:'crossverse-cinematic-replay'});break
+  case 'crossverse-holo-fx':emit('tryamm:crossverse-credit-entitlement',{...base,holoFx:true});break
   default:emit('tryamm:holo-play-entitlement-applied',base);break
  }
  emit('tryamm:holo-play-entitlement-applied',{...base,effect:entitlement.effect,channel:entitlement.channel})
@@ -49,6 +54,6 @@ export function installHoloPlayCreditEntitlementRuntime(){
  installed=true
  const onEntitlement=(event:Event)=>{const e=(event as CustomEvent<HoloPlayEntitlement>).detail;if(e?.effect)apply(e)}
  addEventListener('tryamm:holo-play-entitlement',onEntitlement)
- emit('tryamm:holo-play-entitlement-runtime-ready',{channels:['LIVE','GAMEVERSE','POCKET_DIMENSION','STAR_STUDIO','STREETVERSE','REELS','VR_MR','OMNIBOX']})
+ emit('tryamm:holo-play-entitlement-runtime-ready',{channels:['LIVE','GAMEVERSE','POCKET_DIMENSION','STAR_STUDIO','STREETVERSE','REELS','VR_MR','OMNIBOX','CROSSVERSE']})
  return()=>{removeEventListener('tryamm:holo-play-entitlement',onEntitlement);installed=false}
 }
