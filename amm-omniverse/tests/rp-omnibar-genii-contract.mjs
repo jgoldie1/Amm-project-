@@ -1,0 +1,12 @@
+import fs from 'node:fs'
+const genii=fs.readFileSync(new URL('../src/runtime/StreetVerseAbracadabraGeniiRuntime.ts',import.meta.url),'utf8')
+const omni=fs.readFileSync(new URL('../src/components/StreetVerseRPOmnibar.tsx',import.meta.url),'utf8')
+const carousel=fs.readFileSync(new URL('../src/components/StreetVerseActionCarousel.tsx',import.meta.url),'utf8')
+const geo=fs.readFileSync(new URL('../src/components/StreetVerseGeoSpawnBridge.tsx',import.meta.url),'utf8')
+const kingdom=fs.readFileSync(new URL('../src/components/KingdomDistrictRoute.tsx',import.meta.url),'utf8')
+for(const x of ['tryamm:rp-genii-request','tryamm:streetverse-sound-preview','tryamm:mind-over-matter-original-request','tryamm:holoforge-request','compileEvent','tryamm.googolplex.rp-genii.v1'])if(!genii.includes(x))throw new Error('Genii runtime missing '+x)
+for(const x of ['ABRACADABRA GENII • RP OMNIBAR','MAKE IT','applause','church bell','police siren','ambulance siren','firetruck siren'])if(!omni.includes(x))throw new Error('RP Omnibar missing '+x)
+if(!carousel.includes('StreetVerseRPOmnibar'))throw new Error('HOLO ACTIONS lost RP Omnibar')
+for(const x of ['installStreetVerseAbracadabraGeniiRuntime','installStreetVerseSoundBankRuntime','installHoloForgeRuntime'])if(!geo.includes(x))throw new Error('StreetVerse missing runtime '+x)
+for(const x of ['StreetVerseRPOmnibar','installStreetVerseAbracadabraGeniiRuntime','installStreetVerseSoundBankRuntime','installMindOverMatterCleanRoomRuntime','installHoloForgeRuntime'])if(!kingdom.includes(x))throw new Error('Kingdom missing runtime '+x)
+console.log('RP Omnibar + Abracadabra Genii contract: PASS')
