@@ -65,6 +65,7 @@ export default function BibleWorldProductionEvidencePanel({compact=false}:{compa
    <Metric label='HUMAN REVIEW' value={C?.humanVisualReview?'VERIFIED':'WAITING'} ok={Boolean(C?.humanVisualReview)}/>
   </div>
   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))',gap:6,marginTop:9}}>
+   <button onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:time-machine-world-foundry-retry-missing-provider-artifacts'));setStatus('Retry queued for missing/degraded provider GLB/PBR artifacts only.')}} style={button}>RETRY MISSING GLB / PBR</button>
    <button onClick={syncArtifacts} style={button}>SYNC EXACT ARTIFACT RECEIPTS</button>
    <button onClick={requestWorldQa} style={button}>REQUEST COLLISION + NAV QA</button>
    <button onClick={mobile} style={button}>CAPTURE MOBILE FRAME SAMPLE</button>
