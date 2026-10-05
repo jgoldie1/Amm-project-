@@ -117,7 +117,7 @@ export default function App() {
   const navigateTryAMM = (path:string) => {
     const route = (path || '/').replace(/\/+$/, '') || '/'
     if (route === '/') { setScreen('intro'); return }
-    if (route === '/streetverse' || route === '/faithverse' || route === '/starverse' || route === '/kingdom' || route === '/kingdom-of-yahisrael' || route === '/yahisrael' || route === '/judah' || route === '/where-heaven-meets-earth' || route === '/my-world' || route === '/we-are-the-world') { window.location.href = route; return }
+    if (route === '/streetverse' || route === '/faithverse' || route === '/starverse' || route === '/kingdom' || route === '/kingdom-of-yahisrael' || route === '/kingdom-workbook' || route === '/yahisrael' || route === '/judah' || route === '/where-heaven-meets-earth' || route === '/my-world' || route === '/we-are-the-world') { window.location.href = route; return }
     if (route === '/marketplace') { setScreen('marketplace'); return }
     if (route === '/music' || route === '/musicverse') { setScreen('music'); return }
     if (route === '/aniyah-studio' || route === '/64-track-studio') { setShowAniyahStudio(true); return }
