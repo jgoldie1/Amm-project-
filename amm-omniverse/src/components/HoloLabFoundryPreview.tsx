@@ -1,6 +1,7 @@
 import {useEffect,useState} from 'react'
 import BibleWorldCertificationPanel from './BibleWorldCertificationPanel'
 import BibleWorldPromotionPanel from './BibleWorldPromotionPanel'
+import BibleWorldProductionEvidencePanel from './BibleWorldProductionEvidencePanel'
 
 type Preview={id:string;kind:string;prompt:string;status:string;provider:string;qualityTier:string;message:string;worldSessionId?:string|null;previewOnly?:boolean}
 type Plan={id:string;title:string;era:string;truthLabel:string;assets:Array<{id:string;label:string;kind:string;state:string}>}
@@ -25,6 +26,7 @@ export default function HoloLabFoundryPreview(){
   {plan&&<div style={{display:'flex',gap:6,flexWrap:'wrap'}}><span style={pill}>{plan.era}</span><span style={pill}>{plan.truthLabel}</span><span style={pill}>PREVIEW ONLY</span><span style={pill}>NO PRODUCTION MUTATION</span></div>}
   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))',gap:7,marginTop:9}}>{previews.length?previews.map(p=><article key={p.id} style={card}><div style={{fontSize:8,color:'#e8b944',fontWeight:950}}>{p.kind.toUpperCase()} • {p.status.toUpperCase()}</div><b style={{fontSize:11}}>{p.qualityTier.toUpperCase()} PREVIEW</b><div style={{fontSize:9,color:'#9fb3c0',lineHeight:1.4,marginTop:4}}>{p.provider} • {p.message}</div></article>):<div style={{fontSize:10,color:'#899ba7'}}>The preview room will populate when HoloForge returns preview receipts. A receipt is not a certified GLB or a production publish.</div>}</div>
   <div style={{marginTop:10}}><BibleWorldCertificationPanel compact/></div>
+  <div style={{marginTop:10}}><BibleWorldProductionEvidencePanel compact/></div>
   <div style={{marginTop:10}}><BibleWorldPromotionPanel compact/></div>
   <div role='status' style={{fontSize:9,color:'#bdd0db',marginTop:8}}>{status}</div>
  </section>
