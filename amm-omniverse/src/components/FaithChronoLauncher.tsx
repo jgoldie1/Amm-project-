@@ -26,7 +26,7 @@ function launch(exp:Experience){
 }
 
 export default function FaithChronoLauncher(){
-  return <section style={{marginTop:18,border:'1px solid #7f6b32',borderRadius:20,padding:18,background:'linear-gradient(145deg,#171107,#080807 65%,#0c1720)'}}>
+  return <section id="faith-chrono" style={{marginTop:18,border:'1px solid #7f6b32',borderRadius:20,padding:18,background:'linear-gradient(145deg,#171107,#080807 65%,#0c1720)'}}>
     <div style={{fontSize:11,letterSpacing:2.4,color:'#f1d36d',fontWeight:950}}>QUANTUM TIME MACHINE · FAITH CHRONO LAB</div>
     <h2 style={{margin:'7px 0 8px',fontSize:'clamp(25px,4vw,42px)'}}>Bring the Bible world to life</h2>
     <p style={{maxWidth:900,color:'#d9cfb3',lineHeight:1.65}}>Launch source-grounded immersive experiences through the existing TRYAMM Chrono runtime. Historical scenes use reconstruction/simulation labels. Scripture quotations must come from identified sources; generated character dialogue is educational simulation, not a claim of literal time travel or direct divine communication.</p>
