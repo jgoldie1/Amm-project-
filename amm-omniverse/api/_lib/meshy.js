@@ -1,16 +1,20 @@
-const API='https://api.meshy.ai/openapi/v1';
+const API_ROOT='https://api.meshy.ai/openapi';
+
+function apiBase(version='v1'){
+  return `${API_ROOT}/${version}`;
+}
 
 export function meshyKey(){
   return String(process.env.MESHY_API_KEY||'').trim();
 }
 
-async function request(path,{method='GET',body}={}){
+async function request(path,{method='GET',body,version='v1'}={}){
   const key=meshyKey();
   if(!key){
     const error=new Error('MESHY_API_KEY is not configured in this deployment.');
     error.status=503;error.code='meshy_not_configured';throw error;
   }
-  const response=await fetch(`${API}${path}`,{
+  const response=await fetch(`${apiBase(version)}${path}`,{
     method,
     headers:{
       Authorization:`Bearer ${key}`,
@@ -30,9 +34,9 @@ async function request(path,{method='GET',body}={}){
 }
 
 const ENDPOINTS={
-  'image-to-3d':'/image-to-3d',
-  'multi-image-to-3d':'/multi-image-to-3d',
-  'text-to-3d':'/text-to-3d',
+  'image-to-3d':{path:'/image-to-3d',version:'v1'},
+  'multi-image-to-3d':{path:'/multi-image-to-3d',version:'v1'},
+  'text-to-3d':{path:'/text-to-3d',version:'v2'},
 };
 
 const RIGGING_ENDPOINT='/rigging';
@@ -41,7 +45,7 @@ const ANIMATION_ENDPOINT='/animations';
 export async function listMeshyTasks(type='image-to-3d',pageSize=20){
   const endpoint=ENDPOINTS[type];
   if(!endpoint)throw Object.assign(new Error('Unsupported Meshy task type'),{status:400,code:'unsupported_meshy_type'});
-  const {data}=await request(`${endpoint}?page_num=1&page_size=${Math.max(1,Math.min(100,Number(pageSize)||20))}&sort_by=-created_at`);
+  const {data}=await request(`${endpoint.path}?page_num=1&page_size=${Math.max(1,Math.min(100,Number(pageSize)||20))}&sort_by=-created_at`,{version:endpoint.version});
   return Array.isArray(data)?data:Array.isArray(data?.result)?data.result:Array.isArray(data?.tasks)?data.tasks:[];
 }
 
@@ -49,7 +53,7 @@ export async function getMeshyTask(type,id){
   const endpoint=ENDPOINTS[type];
   if(!endpoint)throw Object.assign(new Error('Unsupported Meshy task type'),{status:400,code:'unsupported_meshy_type'});
   if(!/^[A-Za-z0-9_-]{8,120}$/.test(String(id||'')))throw Object.assign(new Error('Invalid Meshy task id'),{status:400,code:'invalid_meshy_task_id'});
-  const {data}=await request(`${endpoint}/${encodeURIComponent(id)}`);
+  const {data}=await request(`${endpoint.path}/${encodeURIComponent(id)}`,{version:endpoint.version});
   return data;
 }
 
@@ -94,13 +98,46 @@ export async function createMeshyTask(type,payload){
     body.prompt=prompt;
   }
   body.target_formats=['glb'];
-  body.should_texture=body.should_texture!==false;
-  body.enable_pbr=body.enable_pbr!==false;
   if(!body.ai_model)body.ai_model='meshy-7.1';
-  const {data}=await request(endpoint,{method:'POST',body});
+  if(type==='text-to-3d'){
+    body.mode='preview';
+    delete body.should_texture;
+    delete body.enable_pbr;
+    body.geometry_resolution=['standard','2k','4k'].includes(String(body.geometry_resolution||''))?String(body.geometry_resolution):'2k';
+  }else{
+    body.should_texture=body.should_texture!==false;
+    body.enable_pbr=body.enable_pbr!==false;
+  }
+  const {data}=await request(endpoint.path,{method:'POST',body,version:endpoint.version});
   const id=String(data?.result||data?.id||'');
   if(!id)throw Object.assign(new Error('Meshy did not return a task id'),{status:502,code:'meshy_missing_task_id',provider:data});
-  return {id,type};
+  return {id,type,mode:type==='text-to-3d'?'preview':null};
+}
+
+export async function createMeshyTextRefineTask(previewTaskId,{enablePbr=true,textureResolution='2k',texturePrompt,aiModel}={}){
+  const preview=String(previewTaskId||'').trim();
+  if(!preview)throw Object.assign(new Error('preview_task_id is required'),{status:400,code:'meshy_preview_task_required'});
+  const body={
+    mode:'refine',
+    preview_task_id:preview,
+    enable_pbr:enablePbr!==false,
+    texture_resolution:['2k','4k','8k'].includes(String(textureResolution||''))?String(textureResolution):'2k',
+    target_formats:['glb']
+  };
+  if(String(texturePrompt||'').trim())body.texture_prompt=String(texturePrompt).trim().slice(0,800);
+  if(String(aiModel||'').trim())body.ai_model=String(aiModel).trim();
+  const endpoint=ENDPOINTS['text-to-3d'];
+  const {data}=await request(endpoint.path,{method:'POST',body,version:endpoint.version});
+  const id=String(data?.result||data?.id||'');
+  if(!id)throw Object.assign(new Error('Meshy did not return a refine task id'),{status:502,code:'meshy_missing_refine_task_id',provider:data});
+  return {id,type:'text-to-3d',mode:'refine',previewTaskId:preview};
+}
+
+export async function getMeshyBalance(){
+  const {data}=await request('/balance',{version:'v1'});
+  const balance=Number(data?.balance);
+  if(!Number.isFinite(balance))throw Object.assign(new Error('Meshy balance response was invalid'),{status:502,code:'meshy_invalid_balance',provider:data});
+  return balance;
 }
 
 
