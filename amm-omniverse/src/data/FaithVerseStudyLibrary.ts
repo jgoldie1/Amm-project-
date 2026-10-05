@@ -150,18 +150,21 @@ export const FEATURED_FAITHVERSE_BOOKS=[
  {
   id:'esther',
   title:'Esther',
+  aliases:['Esther','Ester','Book of Esther'] as const,
   lanes:['KJV connected text','KJV 1611 Old Testament','Ethiopian Orthodox canon metadata'] as const,
   note:'Esther is kept in its ordinary Old Testament lane. The 1611 Apocrypha separately includes the Rest/Additions to Esther.'
  },
  {
   id:'rest-of-esther',
   title:'Rest / Additions to Esther',
+  aliases:['Rest of Esther','Additions to Esther','The rest of Esther'] as const,
   lanes:['KJV 1611 Apocrypha'] as const,
   note:'This is the historical 1611 Apocrypha addition lane and is kept distinct from the canonical Book of Esther.'
  },
  {
   id:'jubilees',
   title:'Jubilees',
+  aliases:['Jubilee','Jubilees','Book of Jubilee','Book of Jubilees'] as const,
   sourceDisplayTitle:'Jubilee',
   lanes:['Ethiopian Orthodox Tewahedo canon metadata'] as const,
   note:'Jubilees is studied through the Ethiopian-canon lane. It is not relabeled as a KJV 1611 Apocrypha book.'
