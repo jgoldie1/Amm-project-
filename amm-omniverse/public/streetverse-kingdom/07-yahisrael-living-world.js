@@ -259,18 +259,18 @@ for(const a of KY_ACTIVITIES)kyActivityMarker(a);
 
 const KY_CITIZEN_SPECS=[
  {id:'assembly-elder',name:'Assembly Elder',role:'teacher',ageLane:'senior',file:'SV_NPC_BLACK_MAN_SENIOR_01.glb',height:1.76,x:-37,z:-43,action:'pray-standing',shirt:0x3a2c1d,pants:0x171717},
- {id:'assembly-mother',name:'Family Mentor',role:'parent',ageLane:'adult',file:'SV_NPC_BLACK_WOMAN_ADULT_01.glb',height:1.69,x:-31,z:-39,action:'creator-pose',shirt:0x5b354b,pants:0x24202e},
- {id:'assembly-father',name:'Family Mentor',role:'parent',ageLane:'adult',file:'SV_NPC_BLACK_MAN_ADULT_01.glb',height:1.82,x:-43,z:-39,action:'creator-pose',shirt:0x394d67,pants:0x1e2530},
- {id:'assembly-teen',name:'Youth Student',role:'student',ageLane:'teen',file:'SV_NPC_TEEN_01.glb',height:1.62,x:-32,z:-34,action:'sit-relaxed',shirt:0x2f5c6b,pants:0x262936},
+ {id:'assembly-mother',name:'Family Mentor',role:'parent',household:'assembly-family-1',ageLane:'adult',file:'SV_NPC_BLACK_WOMAN_ADULT_01.glb',height:1.69,x:-31,z:-39,action:'creator-pose',shirt:0x5b354b,pants:0x24202e},
+ {id:'assembly-father',name:'Family Mentor',role:'parent',household:'assembly-family-1',ageLane:'adult',file:'SV_NPC_BLACK_MAN_ADULT_01.glb',height:1.82,x:-43,z:-39,action:'creator-pose',shirt:0x394d67,pants:0x1e2530},
+ {id:'assembly-teen',name:'Youth Student',role:'student',household:'assembly-family-1',ageLane:'teen',file:'SV_NPC_TEEN_01.glb',height:1.62,x:-32,z:-34,action:'sit-relaxed',shirt:0x2f5c6b,pants:0x262936},
  {id:'service-coordinator',name:'Service Coordinator',role:'community-leader',ageLane:'adult',file:'SV_NPC_BLACK_WOMAN_ADULT_01.glb',height:1.69,x:-111,z:-43,action:'security-scan',shirt:0x315944,pants:0x202a26},
  {id:'service-volunteer-1',name:'Community Volunteer',role:'volunteer',ageLane:'young-adult',file:'SV_NPC_BLACK_MAN_YOUNGADULT_01.glb',height:1.80,x:-118,z:-37,wander:3.5,shirt:0x315944,pants:0x1d2632},
  {id:'service-volunteer-2',name:'Care Volunteer',role:'volunteer',ageLane:'young-adult',file:'SV_NPC_BLACK_WOMAN_YOUNGADULT_01.glb',height:1.68,x:-104,z:-37,wander:3.5,shirt:0x315944,pants:0x292332},
  {id:'market-merchant-1',name:'Kingdom Merchant',role:'merchant',ageLane:'adult',file:'SV_NPC_BLACK_MAN_ADULT_01.glb',height:1.82,x:96,z:-47,action:'creator-pose',shirt:0x704c2b,pants:0x27231f},
  {id:'market-merchant-2',name:'Kingdom Merchant',role:'merchant',ageLane:'adult',file:'SV_NPC_BLACK_WOMAN_ADULT_01.glb',height:1.69,x:111,z:-47,action:'creator-pose',shirt:0x6c3d57,pants:0x28212c},
  {id:'market-creator',name:'Creator Vendor',role:'creator',ageLane:'young-adult',file:'SV_NPC_MULTIRACIAL_YOUNGADULT_01.glb',height:1.72,x:126,z:-31,action:'creator-pose',shirt:0x2c566c,pants:0x1f2530},
- {id:'legacy-senior',name:'Family Historian',role:'mentor',ageLane:'senior',file:'SV_NPC_BLACK_WOMAN_SENIOR_01.glb',height:1.64,x:31,z:-114,action:'sit-relaxed',shirt:0x674b39,pants:0x2b2522},
- {id:'legacy-parent',name:'Legacy Parent',role:'parent',ageLane:'adult',file:'SV_NPC_BLACK_MAN_ADULT_01.glb',height:1.82,x:43,z:-114,action:'creator-pose',shirt:0x463a63,pants:0x1f1f28},
- {id:'legacy-child',name:'Family Learner',role:'family',ageLane:'child',file:'SV_NPC_CHILD_01.glb',height:1.33,x:37,z:-109,wander:2.4,shirt:0x3b6f7e,pants:0x313747},
+ {id:'legacy-senior',name:'Family Historian',role:'mentor',household:'legacy-family-1',ageLane:'senior',file:'SV_NPC_BLACK_WOMAN_SENIOR_01.glb',height:1.64,x:31,z:-114,action:'sit-relaxed',shirt:0x674b39,pants:0x2b2522},
+ {id:'legacy-parent',name:'Legacy Parent',role:'parent',household:'legacy-family-1',ageLane:'adult',file:'SV_NPC_BLACK_MAN_ADULT_01.glb',height:1.82,x:43,z:-114,action:'creator-pose',shirt:0x463a63,pants:0x1f1f28},
+ {id:'legacy-child',name:'Family Learner',role:'family',household:'legacy-family-1',ageLane:'child',file:'SV_NPC_CHILD_01.glb',height:1.33,x:37,z:-109,wander:2.4,shirt:0x3b6f7e,pants:0x313747},
  {id:'hebrew-teacher',name:'Hebrew Teacher',role:'teacher',ageLane:'adult',file:'SV_NPC_BLACK_WOMAN_ADULT_01.glb',height:1.69,x:-37,z:102,action:'creator-pose',shirt:0x354f70,pants:0x1e2734},
  {id:'hebrew-student-1',name:'Scripture Student',role:'student',ageLane:'teen',file:'SV_NPC_TEEN_01.glb',height:1.62,x:-47,z:111,action:'sit-relaxed',shirt:0x314f61,pants:0x252b39},
  {id:'hebrew-student-2',name:'Scripture Student',role:'student',ageLane:'young-adult',file:'SV_NPC_BLACK_MAN_YOUNGADULT_01.glb',height:1.80,x:-33,z:111,action:'sit-relaxed',shirt:0x314f61,pants:0x252b39},
@@ -287,7 +287,7 @@ const KY_CITIZEN_SPECS=[
 ];
 
 function kyCitizenAccessory(person,spec){
- person.mesh.userData.kingdomCitizenId=spec.id;person.mesh.userData.kingdomRole=spec.role;person.displayName=spec.name;person.role=spec.role;person.ageLane=spec.ageLane;
+ person.mesh.userData.kingdomCitizenId=spec.id;person.mesh.userData.kingdomRole=spec.role;person.mesh.userData.kingdomHousehold=spec.household||'';person.displayName=spec.name;person.role=spec.role;person.ageLane=spec.ageLane;person.household=spec.household||null;
  if(spec.role==='teacher'||spec.role==='editor'||spec.role==='writer'){
   const book=new T.Mesh(new T.BoxGeometry(.34,.05,.46),kyMaterial(0x8a6b2e));book.position.set(.24,.12,-.38);book.rotation.x=-.5;person.torso.add(book);
  }else if(spec.role==='farmer'||spec.role==='volunteer'){
@@ -308,6 +308,7 @@ function kySpawnCitizen(spec,index){
 }
 KY_CITIZEN_SPECS.forEach(kySpawnCitizen);
 window.YAHISRAEL_CITIZEN_COUNT=kyCitizens.length;
+window.YAHISRAEL_HOUSEHOLDS=[...new Set(KY_CITIZEN_SPECS.map(x=>x.household).filter(Boolean))];
 
 function nearestKingdomActivity(radius=4.5){
  let best=null,dist=radius;
