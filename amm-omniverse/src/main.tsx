@@ -54,6 +54,7 @@ const HoloLabGateway=lazy(()=>import('./components/HoloLabGateway'))
 const Chicago77HolographicAtlas=lazy(()=>import('./components/Chicago77HolographicAtlas'))
 const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
 const MeshyFactoryControlPanel=lazy(()=>import('./components/MeshyFactoryControlPanel'))
+const OctoberLaunchLockCenter=lazy(()=>import('./components/OctoberLaunchLockCenter'))
 
 let routeContent: React.ReactNode = <App />
 let preserveDeterministicSafeRoute = false
@@ -86,6 +87,7 @@ try {
   const isTimeMachineFoundry=['/time-machine-foundry','/time-machine-foundry/','/chrono-foundry','/chrono-foundry/','/world-foundry','/world-foundry/'].includes(currentPath)
   const isHoloLabStandalone=currentPath==='/holo-lab'||currentPath==='/holo-lab/'
   const isChicago77Atlas=['/chicago77','/chicago77/','/chicago-77','/chicago-77/'].includes(currentPath)
+  const isLaunchLock=['/launch-lock','/launch-lock/','/october-launch','/october-launch/'].includes(currentPath)
   const isGlobalTradeWorld=['/global-trade','/global-trade/','/my-world','/my-world/','/we-are-the-world','/we-are-the-world/'].includes(currentPath)
   const isTwinWorld=currentPath.startsWith('/streetverse/twin-world')
   const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
@@ -156,6 +158,7 @@ try {
   else if(isTimeMachineFoundry)routeContent=<Suspense fallback={routeFallback}><TimeMachineWorldFoundryCenter /></Suspense>
   else if(isHoloLabStandalone)routeContent=<Suspense fallback={routeFallback}><HoloLabGateway onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isChicago77Atlas)routeContent=<Suspense fallback={routeFallback}><Chicago77HolographicAtlas /></Suspense>
+  else if(isLaunchLock)routeContent=<Suspense fallback={routeFallback}><OctoberLaunchLockCenter /></Suspense>
   else if(isGlobalTradeWorld)routeContent=<Suspense fallback={routeFallback}><GlobalTradeWorldHub /></Suspense>
   else if(standaloneSite)routeContent=<StandaloneProductSite site={standaloneSite} />
   else if(isBusinessDirectory)routeContent=<FamilyBusinessDirectory />
