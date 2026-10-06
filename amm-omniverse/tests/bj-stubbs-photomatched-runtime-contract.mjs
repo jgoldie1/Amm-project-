@@ -8,8 +8,8 @@ const must=(ok,msg)=>{if(!ok)throw new Error('BJ PHOTOMATCH RUNTIME CONTRACT FAI
 must(runtime.includes("id:'streetverse-bj-stubbs-photomatched'"),'reserved BJ photo-matched asset id must be active')
 must(runtime.includes("BJ_PHOTOMATCH_TEXTURE_DATA_URI='data:image/webp;base64,"),'approved reference pixels must ship as the runtime texture')
 must(runtime.includes("new THREE.PlaneGeometry(BJ_V10_HEAD_PROFILE.headWidth,BJ_V10_HEAD_PROFILE.headHeight,34,40)"),'approved-reference face surface must remain a real subdivided 3D mesh')
-must(runtime.includes("version:'bj-v10-approved-reference-volumetric-head'"),'BJ reference head must advertise the V10 volumetric version')
-must(runtime.includes("geometryAuthority:'runtime-v10-volumetric-head-profile'"),'BJ head geometry authority must be the V10 volumetric profile')
+must(runtime.includes("version:'bj-v10-approved-reference-landmark-head'"),'BJ reference head must advertise the V10 volumetric version')
+must(runtime.includes("geometryAuthority:'runtime-v10-landmark-volumetric-head-profile'"),'BJ head geometry authority must be the V10 volumetric profile')
 for(const token of [
   "streetverse-bj-v10-head-volume",
   "bj-v10-cranium",
