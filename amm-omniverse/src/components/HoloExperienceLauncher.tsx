@@ -36,7 +36,7 @@ export default function HoloExperienceLauncher(){
 
   useEffect(()=>{
     const openClip=()=>setClipOpen(true)
-    const openCarousel=()=>setCarouselOpen(true)
+    const openCarousel=()=>{const show=(window as any).__showHoloverse;if(typeof show==='function')show();else window.location.href='/?open=holoverse'}
     const openSocial=(event:Event)=>{const d=(event as CustomEvent<{mode?:SocialMode;source?:string}>).detail||{};const mode=d.mode||'feed';if(mode==='live'||mode==='pk'){requestLivePk(mode,d.source||'holo-social-event');return}setSocialMode(mode);setSocialOpen(true)}
     const openStreetVerseLivePk=(event:Event)=>{const d=(event as CustomEvent<{mode?:SocialIntent}>).detail||{};requestLivePk(d.mode==='pk'?'pk':'live','streetverse')}
     window.addEventListener('tryamm:holo-clip-open',openClip)
@@ -68,7 +68,7 @@ export default function HoloExperienceLauncher(){
 
   return <>
     <HoloLivePkLottieOverlay />
-    <button onClick={()=>setCarouselOpen(true)} aria-label="Open TRYAMM holographic carousel" style={{position:'fixed',right:12,bottom:12,zIndex:21990,minWidth:58,minHeight:58,borderRadius:18,border:'1px solid #4fe3ffaa',background:'radial-gradient(circle at 40% 30%,#17485f,#07131e 62%,#02060b)',color:'#fff',fontWeight:950,boxShadow:'0 0 26px #4fe3ff44,0 12px 30px #0009',padding:'8px 12px',cursor:'pointer'}}>
+    <button onClick={()=>{const show=(window as any).__showHoloverse;if(typeof show==='function')show();else window.location.href='/?open=holoverse'}} aria-label="Open TRYAMM holographic carousel" style={{position:'fixed',right:12,bottom:12,zIndex:21990,minWidth:58,minHeight:58,borderRadius:18,border:'1px solid #4fe3ffaa',background:'radial-gradient(circle at 40% 30%,#17485f,#07131e 62%,#02060b)',color:'#fff',fontWeight:950,boxShadow:'0 0 26px #4fe3ff44,0 12px 30px #0009',padding:'8px 12px',cursor:'pointer'}}>
       <span aria-hidden="true" style={{display:'block',fontSize:20}}>✦</span><span style={{fontSize:9,letterSpacing:1.4}}>HOLO</span>
     </button>
     <HoloClipScreenLayer open={carouselOpen} onClose={()=>setCarouselOpen(false)} onLaunch={launch}/>
