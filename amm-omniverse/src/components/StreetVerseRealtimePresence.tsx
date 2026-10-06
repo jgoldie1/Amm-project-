@@ -120,11 +120,11 @@ export default function StreetVerseRealtimePresence(){
       const current=latestRef.current;const action:PlayerAction={fromUserId:localUserId,toUserId:String(detail.toUserId),action:detail.action,sentAt:new Date().toISOString()};if(detail.action==='drop-accept'&&current){action.x=current.x;action.z=current.z}sendAction(action)
     }
     const onLiveSession=(event:Event)=>{
-      const detail=(event as CustomEvent<{roomId?:string;sessionId?:string;status?:string;live?:boolean;ended?:boolean}>).detail||{}
+      const detail=(event as CustomEvent<{roomId?:string;roomName?:string;sessionId?:string;status?:string;live?:boolean;ended?:boolean}>).detail||{}
       const current=latestRef.current
       if(!current||!channelRef.current)return
       const ended=Boolean(detail.ended)||String(detail.status||'').toLowerCase()==='ended'||detail.live===false
-      const next:PresencePayload={...current,live:!ended,creatorMode:!ended,streamRoom:ended?undefined:String(detail.roomId||detail.sessionId||current.streamRoom||''),updatedAt:new Date().toISOString()}
+      const next:PresencePayload={...current,live:!ended,creatorMode:!ended,streamRoom:ended?undefined:String(detail.roomName||detail.roomId||detail.sessionId||current.streamRoom||''),updatedAt:new Date().toISOString()}
       latestRef.current=next
       sendMotion(next)
       void channelRef.current.track(next)
@@ -133,6 +133,7 @@ export default function StreetVerseRealtimePresence(){
     addEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
     addEventListener('tryamm:streetverse-player-action-send',onPlayerAction)
     addEventListener('tryamm:live-session',onLiveSession)
+    addEventListener('tryamm:live-session-end',onLiveSession)
     void start()
     return()=>{
       cancelled=true
@@ -140,6 +141,7 @@ export default function StreetVerseRealtimePresence(){
       removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
       removeEventListener('tryamm:streetverse-player-action-send',onPlayerAction)
       removeEventListener('tryamm:live-session',onLiveSession)
+      removeEventListener('tryamm:live-session-end',onLiveSession)
       peers.clear()
       if(channel){void channel.untrack();void sb.removeChannel(channel)}
       channelRef.current=null
