@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useState} from 'react'
 import HoloGPTAssistant from './HoloGPTAssistant'
+import type {FreeTvCommercialPlan} from '../runtime/FreeTvCommercialRuntime'
 
 type StudioState={
   scene:string
@@ -89,16 +90,20 @@ export default function AllAmericanNetworkControlRoom(){
   const [schedule,setSchedule]=useState<ScheduledShow[]>(()=>readSchedule())
   const [moduleReady,setModuleReady]=useState<Record<string,boolean>>(()=>Object.fromEntries(MODULES.map(([id])=>[id,true])))
   const [notice,setNotice]=useState('Build the show, invite creators, preview, clear rights, then Take Live.')
+  const [adPlan,setAdPlan]=useState<FreeTvCommercialPlan|null>(null)
+  const [commercialTitle,setCommercialTitle]=useState('Local Business Spotlight')
 
   useEffect(()=>{
     const onStudio=(e:Event)=>setStudio((e as CustomEvent<any>).detail?.state||studio)
     const onPresence=(e:Event)=>{const d=(e as CustomEvent<{players?:Player[];online?:number}>).detail||{};setPlayers(Array.isArray(d.players)?d.players:[]);setOnline(Number(d.online||0))}
     const onBlocked=()=>setNotice('TAKE LIVE is blocked until rights are cleared.')
+    const onAdPlan=(e:Event)=>setAdPlan((e as CustomEvent<FreeTvCommercialPlan>).detail||null)
     addEventListener('tryamm:broadcast-studio-state',onStudio)
     addEventListener('tryamm:streetverse-multiplayer-presence',onPresence)
     addEventListener('tryamm:broadcast-blocked',onBlocked)
+    addEventListener('tryamm:free-tv-commercial-plan',onAdPlan)
     dispatchEvent(new Event('tryamm:broadcast-studio-request'))
-    return()=>{removeEventListener('tryamm:broadcast-studio-state',onStudio);removeEventListener('tryamm:streetverse-multiplayer-presence',onPresence);removeEventListener('tryamm:broadcast-blocked',onBlocked)}
+    return()=>{removeEventListener('tryamm:broadcast-studio-state',onStudio);removeEventListener('tryamm:streetverse-multiplayer-presence',onPresence);removeEventListener('tryamm:broadcast-blocked',onBlocked);removeEventListener('tryamm:free-tv-commercial-plan',onAdPlan)}
   },[])
 
   const update=(patch:Partial<StudioState>)=>dispatchEvent(new CustomEvent('tryamm:broadcast-studio-update',{detail:patch}))
@@ -107,6 +112,9 @@ export default function AllAmericanNetworkControlRoom(){
     dispatchEvent(new CustomEvent('tryamm:streetverse-player-action-send',{detail:{toUserId:player.userId,action:'broadcast-invite',showTitle:title,network:'all-american-network'}}))
     setNotice('Invite sent to '+String(player.displayName||'creator')+'.')
   }
+
+  const planCommercials=()=>dispatchEvent(new CustomEvent('tryamm:free-tv-commercial-plan-request',{detail:{showId:'aan-show-'+Date.now(),showTitle:title.trim()||format.label,durationMinutes:duration}}))
+  const draftCommercial=()=>{dispatchEvent(new CustomEvent('tryamm:free-tv-commercial-draft-request',{detail:{title:commercialTitle,kind:'business-spot',durationSeconds:30,disclosure:'Advertisement',ageAppropriate:true}}));setNotice('Commercial draft created. It still needs media, rights clearance and campaign approval before it can run.')}
 
   const scheduleShow=()=>{
     const row:ScheduledShow={
@@ -161,6 +169,22 @@ export default function AllAmericanNetworkControlRoom(){
     </section>
 
     <section style={grid2}>
+      <article style={panel}>
+        <div style={sectionTitle}>FREE TV + COMMERCIALS</div>
+        <p style={muted}>Viewer price: $0.00. Shows can run disclosed 15/30/60-second spots, program sponsors, business spots, creator promos and public-service messages. Billing only happens after verified delivery.</p>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7}}>
+          <button onClick={planCommercials} style={button}>PLAN AD BREAKS</button>
+          <button onClick={()=>dispatchEvent(new CustomEvent('tryamm:free-tv-commercial-break-request',{detail:{index:0}}))} style={button} disabled={!adPlan}>RUN NEXT BREAK</button>
+        </div>
+        {adPlan&&<div style={{marginTop:8,padding:9,borderRadius:10,border:'1px solid #355466',background:'#06131b',fontSize:9}}>
+          <b>{adPlan.breaks.length} COMMERCIAL BREAKS</b> • about {adPlan.estimatedAdMinutes} ad minutes • FREE TO VIEW
+          <div style={{display:'grid',gap:5,marginTop:6}}>{adPlan.breaks.map((b,i)=><div key={b.id} style={{display:'flex',justifyContent:'space-between',gap:8}}><span>Break {i+1} after minute {b.afterMinute}</span><span>{b.spots.length} spots</span></div>)}</div>
+        </div>}
+        <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:7,marginTop:8}}>
+          <input value={commercialTitle} onChange={e=>setCommercialTitle(e.target.value)} placeholder="Commercial title" style={input}/>
+          <button onClick={draftCommercial} style={button}>DRAFT 30s SPOT</button>
+        </div>
+      </article>
       <article style={panel}>
         <div style={sectionTitle}>SHOW BUILDER</div>
         <label style={label}>PROGRAM TITLE<input value={title} onChange={e=>setTitle(e.target.value)} style={input}/></label>
