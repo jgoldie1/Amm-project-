@@ -10,8 +10,10 @@ export const BJ_MESHY_V6_ASSET={
   characterId:'bj-stubbs',
   filename:'SV_HERO_BJ_STUBBS_V6.glb',
   url:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6.glb',
+  productionFilename:'SV_HERO_BJ_STUBBS_V7.glb',
+  productionUrl:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V7.glb',
   targetHeightMeters:BJ_STUBBS_BODY_PROFILE.heightMeters,
-  authority:'meshy-rigged-glb',
+  authority:'tryamm-owned-native-glb-v7',
   fallback:'streetverse-bj-stubbs-photomatched',
   referenceAuthorized:true,
   certifiedLikeness:false,
@@ -157,8 +159,10 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   const verifiedPhotoMatch=canClaimPhotoMatched(BJ_MESHY_V6_ASSET.characterId)
   const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
   const published=await resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope)
-  const sourceUrl=published?.url||BJ_MESHY_V6_ASSET.url
-  if(!(await assetExists(sourceUrl))){
+  const candidates=[published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
+  let sourceUrl=''
+  for(const candidate of candidates){if(await assetExists(candidate)){sourceUrl=candidate;break}}
+  if(!sourceUrl){
     window.dispatchEvent(new CustomEvent('tryamm:bj-meshy-v6-unavailable',{detail:{
       characterId:BJ_MESHY_V6_ASSET.characterId,
       assetId:BJ_MESHY_V6_ASSET.id,
@@ -171,7 +175,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   try{
     const gltf=await loader.loadAsync(sourceUrl)
     const object=gltf.scene
-    object.name='meshy-bj-stubbs-v6'
+    object.name='bj-stubbs-production-v7'
     normalizeStreetVerseHumanHeight(object,BJ_MESHY_V6_ASSET.targetHeightMeters)
     object.traverse(node=>{
       if(node instanceof THREE.Mesh){
@@ -189,12 +193,13 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       identityContinuityKey:BJ_MESHY_V6_ASSET.characterId,
       visualAuthority:BJ_MESHY_V6_ASSET.authority,
       meshAssetId:BJ_MESHY_V6_ASSET.id,
-      referenceMatchedPreview:true,
+      referenceMatchedPreview:Boolean(published?.url),
       photoMatched:verifiedPhotoMatch,
       certifiedLikeness:verifiedPhotoMatch,
-      meshyV6:true,
+      meshyV6:Boolean(published?.url),
+      ownedV7:!published?.url,
       productionMaterials:true,
-      texturePipeline:'pbr-mobile-production-v6',
+      texturePipeline:'pbr-mobile-production-v7',
       lifeLayer:'blink-lipsync-breathing-eye-focus-microgesture-v7',
       autonomicLife:true,
       conversationFocus:true,
@@ -343,7 +348,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
           lipSync:true,
           microGesture:true,
           seated:Boolean(state.seated),
-          source:'meshy-bj-v6-life-layer-v7',
+          source:'bj-production-v7-life-layer',
         }}))
       }
     }
@@ -357,12 +362,12 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       faceChannels:BJ_FACE_MORPHS.map(([channel])=>channel),
       targetHeightMeters:BJ_MESHY_V6_ASSET.targetHeightMeters,
       authoritative3DMesh:true,
-      referenceMatchedPreview:true,
+      referenceMatchedPreview:Boolean(published?.url),
       photoMatched:verifiedPhotoMatch,
       certifiedLikeness:verifiedPhotoMatch,
       proceduralFallbackSuppressed:true,
       productionMaterials,
-      texturePipeline:'pbr-mobile-production-v6',
+      texturePipeline:'pbr-mobile-production-v7',
       lifeLayer:'blink-lipsync-breathing-eye-focus-microgesture-v7',
       autonomicLife:true,
       conversationFocus:true,
