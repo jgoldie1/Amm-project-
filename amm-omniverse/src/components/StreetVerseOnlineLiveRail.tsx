@@ -66,7 +66,7 @@ export default function StreetVerseOnlineLiveRail(){
         </div>
         {item.title&&<div style={{fontSize:8,color:'#d3e5ec',marginTop:5,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item.title}</div>}
         <div style={{display:'grid',gridTemplateColumns:item.live?'repeat(4,1fr)':'repeat(2,1fr)',gap:4,marginTop:7}}>
-          <button onClick={()=>wave(item.userId)} style={mini}>👋</button>
+          <button aria-label="Wave to player" onClick={()=>wave(item.userId)} style={mini}>WAVE</button>
           <button onClick={()=>drop(item.userId)} style={mini}>DROP</button>
           {item.live&&<button onClick={()=>watch(item)} style={mini}>WATCH</button>}
           {item.live&&<button onClick={()=>pk(item)} style={mini}>PK</button>}
