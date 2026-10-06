@@ -39,6 +39,39 @@ export default function HolographicGalleryViewport({assetUrl,title}:Props){
     const scene=new THREE.Scene()
     scene.background=new THREE.Color(0x030811)
     scene.fog=new THREE.Fog(0x030811,8,24)
+
+    // Native holographic ambient/screensaver layer. Keeps the gallery alive even
+    // when no exhibit is selected, without adding another rendering dependency.
+    const particleCount=420
+    const particlePositions=new Float32Array(particleCount*3)
+    for(let i=0;i<particleCount;i++){
+      const r=4+Math.random()*10
+      const a=Math.random()*Math.PI*2
+      const y=-1+Math.random()*8
+      particlePositions[i*3]=Math.cos(a)*r
+      particlePositions[i*3+1]=y
+      particlePositions[i*3+2]=Math.sin(a)*r
+    }
+    const particleGeometry=new THREE.BufferGeometry()
+    particleGeometry.setAttribute('position',new THREE.BufferAttribute(particlePositions,3))
+    const particleMaterial=new THREE.PointsMaterial({color:0x64eaff,size:.035,transparent:true,opacity:.62,depthWrite:false})
+    const particles=new THREE.Points(particleGeometry,particleMaterial)
+    particles.name='holo-gallery-ambient-particles'
+    scene.add(particles)
+
+    const grid=new THREE.GridHelper(22,44,0x195f78,0x0b2636)
+    grid.position.y=.01
+    ;(grid.material as THREE.Material).transparent=true
+    ;(grid.material as THREE.Material).opacity=.28
+    scene.add(grid)
+
+    const screenRingA=new THREE.Mesh(new THREE.TorusGeometry(4.1,.018,8,96),new THREE.MeshBasicMaterial({color:0x2edbff,transparent:true,opacity:.28}))
+    screenRingA.rotation.x=Math.PI/2;screenRingA.position.y=1.8;scene.add(screenRingA)
+    const screenRingB=new THREE.Mesh(new THREE.TorusGeometry(5.3,.014,8,96),new THREE.MeshBasicMaterial({color:0xc34cff,transparent:true,opacity:.18}))
+    screenRingB.rotation.x=Math.PI/2;screenRingB.position.y=2.25;scene.add(screenRingB)
+
+    const scanPlane=new THREE.Mesh(new THREE.PlaneGeometry(11,.36),new THREE.MeshBasicMaterial({color:0x6beeff,transparent:true,opacity:.055,side:THREE.DoubleSide,depthWrite:false}))
+    scanPlane.position.set(0,.35,-2.8);scene.add(scanPlane)
     const camera=new THREE.PerspectiveCamera(46,1,.05,50)
     camera.position.set(4.8,3.2,5.8)
 
@@ -126,6 +159,14 @@ export default function HolographicGalleryViewport({assetUrl,title}:Props){
     const animate=()=>{
       raf=requestAnimationFrame(animate)
       const t=performance.now()*.001
+      particles.rotation.y=t*.028
+      particles.rotation.x=Math.sin(t*.09)*.035
+      grid.rotation.y=Math.sin(t*.05)*.02
+      screenRingA.rotation.z=t*.045
+      screenRingB.rotation.z=-t*.032
+      scanPlane.position.y=.5+((t*.52)%4.8)
+      scanPlane.material.opacity=.035+Math.sin(t*2.1)*.015
+      if(!assetUrl){camera.position.x=4.8+Math.sin(t*.18)*.6;camera.position.z=5.8+Math.cos(t*.16)*.7}
       ring1.rotation.z=t*.35
       ring2.rotation.z=-t*.22
       rim.intensity=15+Math.sin(t*1.7)*3
@@ -143,6 +184,11 @@ export default function HolographicGalleryViewport({assetUrl,title}:Props){
       pedestal.geometry.dispose();(pedestal.material as THREE.Material).dispose()
       ring1.geometry.dispose();(ring1.material as THREE.Material).dispose()
       ring2.geometry.dispose();(ring2.material as THREE.Material).dispose()
+      particleGeometry.dispose();particleMaterial.dispose()
+      grid.geometry.dispose();(grid.material as THREE.Material).dispose()
+      screenRingA.geometry.dispose();(screenRingA.material as THREE.Material).dispose()
+      screenRingB.geometry.dispose();(screenRingB.material as THREE.Material).dispose()
+      scanPlane.geometry.dispose();(scanPlane.material as THREE.Material).dispose()
       renderer.dispose()
       renderer.domElement.remove()
     }

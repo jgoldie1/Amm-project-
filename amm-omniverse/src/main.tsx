@@ -20,6 +20,8 @@ import StreetVerseWeatherSync from './components/StreetVerseWeatherSync'
 import InstallPrompt from './components/InstallPrompt'
 import HoloExperienceLauncher from './components/HoloExperienceLauncher'
 import OmniCashLauncher from './components/OmniCashLauncher'
+import HolographicVerseTransitOverlay from './components/HolographicVerseTransitOverlay'
+import VerseRadioDock from './components/VerseRadioDock'
 import { getStandaloneSite } from './data/standaloneSiteRegistry'
 import './accessibility/accessibility.css'
 
@@ -262,12 +264,15 @@ const installOptionalRuntimes = () => {
   import('./runtime/SECSConstructRuntime').then(m => m.installSECSConstructRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installSECSConstructRuntime failed after core mount.', error))
   import('./runtime/OmniverseEventFabricRuntime').then(m => m.installOmniverseEventFabricRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installOmniverseEventFabricRuntime failed after core mount.', error))
   import('./runtime/Chicago77LivingMemoryMeshRuntime').then(m => m.installChicago77LivingMemoryMeshRuntime()).catch(error => console.error('[TRYAMM] Chicago 77 Living Memory Mesh failed after core mount.', error))
+  import('./runtime/MonthlyGameFactoryRuntime').then(m => m.installMonthlyGameFactoryRuntime()).catch(error => console.error('[TRYAMM] Monthly Game Factory failed after core mount.', error))
 }
 // Mount the selected public route first. Optional global launchers must never be
 // able to prevent the TRYAMM shell or StreetVerse from becoming visible.
 root.render(
   <StrictMode>
     {routeContent}
+    <HolographicVerseTransitOverlay />
+    <VerseRadioDock />
     {entryDiagnostic}
   </StrictMode>
 )

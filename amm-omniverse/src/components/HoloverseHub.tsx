@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useGameStore } from '../game/state/useGameStore'
+import HolographicVerseCarousel from './HolographicVerseCarousel'
 
 type Props={onClose:()=>void}
 type Status='LIVE'|'BETA'|'SANDBOX'|'GATED'
