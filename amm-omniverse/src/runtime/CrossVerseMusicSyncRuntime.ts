@@ -1,6 +1,7 @@
 import type {CrossVersePlatform} from './CrossVerseConsentRuntime';
 
 export type MusicSyncUse =
+  | 'verse-radio'
   | 'game-mission'
   | 'character-theme'
   | 'vehicle-radio'
