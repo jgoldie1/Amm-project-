@@ -204,6 +204,7 @@ const installOptionalRuntimes = () => {
   import('./runtime/GameAppIncomeBridge').then(m => m.installGameAppIncomeBridge()).catch(error => console.error('[TRYAMM] Game/App income bridge failed after core mount.', error))
   import('./runtime/GlobalAfricaPaymentsRuntime').then(m => m.installGlobalAfricaPaymentsRuntime()).catch(error => console.error('[TRYAMM] Global/Africa payments router failed after core mount.', error))
   import('./runtime/LiveShoppingTwinRuntime').then(m => m.installLiveShoppingTwin()).catch(error => console.error('[TRYAMM] Live Shopping Twin failed after core mount.', error))
+  import('./runtime/CreatorHostShiftRuntime').then(m => m.installCreatorHostShiftRuntime()).catch(error => console.error('[TRYAMM] Creator Host Shift failed after core mount.', error))
   import('./runtime/CustomerCommerceRuntime').then(m => m.installCustomerCommerceRuntime()).catch(error => console.error('[TRYAMM] Customer commerce runtime failed after core mount.', error))
   import('./runtime/QuantumSourceLogisticsRuntime').then(m => m.installQuantumSourceLogisticsRuntime()).catch(error => console.error('[TRYAMM] Quantum Source logistics runtime failed after core mount.', error))
   import('./runtime/StubbsLyonsMiddleverseRuntime').then(m => m.installStubbsLyonsMiddleverseRuntime()).catch(error => console.error('[TRYAMM] Stubbs/Lyons/Middleverse operating fabric failed after core mount.', error))
