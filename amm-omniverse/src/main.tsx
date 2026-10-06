@@ -22,6 +22,7 @@ import HoloExperienceLauncher from './components/HoloExperienceLauncher'
 import OmniCashLauncher from './components/OmniCashLauncher'
 import HolographicVerseTransitOverlay from './components/HolographicVerseTransitOverlay'
 import VerseRadioDock from './components/VerseRadioDock'
+import FreeTvCommercialBreakOverlay from './components/FreeTvCommercialBreakOverlay'
 import { getStandaloneSite } from './data/standaloneSiteRegistry'
 import './accessibility/accessibility.css'
 
@@ -256,6 +257,7 @@ const installOptionalRuntimes = () => {
   import('./runtime/AICafeMultiAgentRuntime').then(m => m.installAICafeMultiAgentRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installAICafeMultiAgentRuntime failed after core mount.', error))
   import('./runtime/MiddleverseRemoteWorkRuntime').then(m => m.installMiddleverseRemoteWorkRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installMiddleverseRemoteWorkRuntime failed after core mount.', error))
   import('./runtime/BroadcastStudioRuntime').then(m => m.installBroadcastStudioRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installBroadcastStudioRuntime failed after core mount.', error))
+  import('./runtime/FreeTvCommercialRuntime').then(m => m.installFreeTvCommercialRuntime()).catch(error => console.error('[TRYAMM] Free TV Commercial Runtime failed after core mount.', error))
   import('./runtime/StubbsHarmonyAIRuntime').then(m => m.installStubbsHarmonyAIRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStubbsHarmonyAIRuntime failed after core mount.', error))
   import('./runtime/CreatorExperienceRuntime').then(m => m.installCreatorExperienceRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installCreatorExperienceRuntime failed after core mount.', error))
   import('./runtime/CreatorCommerceOrchestrator').then(m => m.installCreatorCommerceOrchestrator()).catch(error => console.error('[TRYAMM] Optional runtime installCreatorCommerceOrchestrator failed after core mount.', error))
@@ -276,6 +278,7 @@ root.render(
     {routeContent}
     <HolographicVerseTransitOverlay />
     <VerseRadioDock />
+    <FreeTvCommercialBreakOverlay />
     {entryDiagnostic}
   </StrictMode>
 )
