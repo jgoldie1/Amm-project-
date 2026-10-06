@@ -61,7 +61,7 @@ for(const token of [
   "noFakeImpressions:true",
 ]) must(freeTv.includes(token),'Free TV commercial runtime missing '+token)
 for(const token of [
-  'Advertisement',
+  'spot.disclosure.toUpperCase()',
   'tryamm:holo-ad-impression-candidate',
   'clientReported:true',
   'billable:false',
