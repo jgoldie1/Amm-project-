@@ -2,7 +2,7 @@ import {useEffect,useRef,useState} from 'react'
 import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
-import {installBJPhotoMatchedHead,type BJPhotoMatchedHeadHandle} from '../runtime/StreetVerseBJPhotoMatchRuntime'
+import {BJ_PHOTOMATCH_TEXTURE_DATA_URI,installBJPhotoMatchedHead,type BJPhotoMatchedHeadHandle} from '../runtime/StreetVerseBJPhotoMatchRuntime'
 
 const V7_URL='/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V7.glb'
 
@@ -14,10 +14,11 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
   const likenessHandleRef=useRef<BJPhotoMatchedHeadHandle|null>(null)
   const modelHeightRef=useRef(1.88)
   const autoRotateRef=useRef(true)
-  const [status,setStatus]=useState('Loading BJ V9 likeness preview…')
+  const [status,setStatus]=useState('Loading BJ V10 likeness preview…')
   const [autoRotate,setAutoRotate]=useState(true)
   const [likenessEnabled,setLikenessEnabled]=useState(true)
   const [cameraMode,setCameraMode]=useState<'full'|'face'>('full')
+  const [referenceCompare,setReferenceCompare]=useState(false)
 
   useEffect(()=>{autoRotateRef.current=autoRotate},[autoRotate])
 
@@ -75,7 +76,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       if(photoMatch){
         void photoMatch.ready.then(ok=>{
           if(dead)return
-          setStatus(ok?'BJ V9 • VOLUMETRIC REFERENCE LIKENESS':'BJ V7 • PROCEDURAL FALLBACK')
+          setStatus(ok?'BJ V10 • VOLUMETRIC REFERENCE LIKENESS':'BJ V7 • PROCEDURAL FALLBACK')
           setLikenessEnabled(ok)
         })
       }else{
@@ -155,7 +156,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
     setStatus('Loading approved BJ reference layer…')
     void handle.ready.then(ok=>{
       setLikenessEnabled(ok)
-      setStatus(ok?'BJ V9 • VOLUMETRIC REFERENCE LIKENESS':'BJ V7 • PROCEDURAL FALLBACK')
+      setStatus(ok?'BJ V10 • VOLUMETRIC REFERENCE LIKENESS':'BJ V7 • PROCEDURAL FALLBACK')
     })
   }
 
@@ -189,7 +190,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
     <header style={{padding:'max(12px,env(safe-area-inset-top)) 12px 10px',display:'flex',justifyContent:'space-between',gap:10,alignItems:'center',borderBottom:'1px solid #243042'}}>
       <div>
         <div style={{fontSize:10,letterSpacing:2.5,fontWeight:900,color:'#78d7ff'}}>TRYAMM STREETVERSE</div>
-        <h1 style={{fontSize:'clamp(20px,6vw,30px)',margin:'3px 0 0'}}>BJ Stubbs V8 — Likeness Preview</h1>
+        <h1 style={{fontSize:'clamp(20px,6vw,30px)',margin:'3px 0 0'}}>BJ Stubbs V10 — Likeness Preview</h1>
       </div>
       <button onClick={onClose} aria-label="Close BJ viewer" style={{minWidth:44,minHeight:44,borderRadius:999,border:'1px solid #3e4b5d',background:'#111722',color:'#fff',fontSize:22}}>×</button>
     </header>
@@ -198,16 +199,24 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       <div ref={mountRef} style={{position:'absolute',inset:0,touchAction:'none'}}/>
       <div style={{position:'absolute',left:10,top:10,padding:'7px 10px',borderRadius:999,background:'#09111dcc',border:'1px solid #2f4359',fontSize:10,fontWeight:900}}>{status}</div>
       <div style={{position:'absolute',right:10,top:10,padding:'7px 10px',borderRadius:999,background:'#09111dcc',border:'1px solid #2f4359',fontSize:9,color:'#a9bbcc'}}>drag to rotate • pinch to zoom</div>
+      {referenceCompare&&<div style={{position:'absolute',right:10,bottom:10,width:'min(34vw,150px)',borderRadius:16,overflow:'hidden',border:'1px solid #8c6a42',background:'#090c12dd',boxShadow:'0 10px 30px #000a'}}>
+        <img src={BJ_PHOTOMATCH_TEXTURE_DATA_URI} alt="Approved current-era BJ reference" style={{display:'block',width:'100%',height:'auto'}}/>
+        <div style={{padding:'6px 7px',fontSize:8,lineHeight:1.25,color:'#d7c4a5'}}>APPROVED CURRENT-ERA REFERENCE</div>
+      </div>}
     </section>
 
     <footer style={{padding:'10px 10px max(12px,env(safe-area-inset-bottom))',borderTop:'1px solid #243042',background:'#070b11'}}>
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(0,1fr))',gap:7}}>
         {[
           ['FRONT',0],
-          ['LEFT',Math.PI/2],
+          ['¾ LEFT',Math.PI/4],
+          ['¾ RIGHT',-Math.PI/4],
           ['BACK',Math.PI],
-          ['RIGHT',-Math.PI/2],
         ].map(([label,yaw])=><button key={String(label)} onClick={()=>view(Number(yaw))} style={{minHeight:44,border:'1px solid #32445a',borderRadius:12,background:'#0d1520',color:'#fff',fontWeight:900,fontSize:10}}>{label}</button>)}
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7,marginTop:7}}>
+        <button onClick={()=>view(Math.PI/2)} style={{minHeight:42,border:'1px solid #32445a',borderRadius:12,background:'#0d1520',color:'#fff',fontWeight:900,fontSize:10}}>LEFT PROFILE</button>
+        <button onClick={()=>view(-Math.PI/2)} style={{minHeight:42,border:'1px solid #32445a',borderRadius:12,background:'#0d1520',color:'#fff',fontWeight:900,fontSize:10}}>RIGHT PROFILE</button>
       </div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7,marginTop:8}}>
         <button onClick={()=>setCamera('face')} style={{minHeight:46,border:'1px solid #66513a',borderRadius:12,background:cameraMode==='face'?'#3a2917':'#10161f',color:'#fff',fontWeight:950}}>FACE CLOSE-UP</button>
@@ -216,11 +225,16 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       <button onClick={toggleLikeness} style={{width:'100%',minHeight:48,marginTop:8,border:'1px solid #9a7548',borderRadius:12,background:likenessEnabled?'#4a341b':'#10161f',color:'#fff',fontWeight:950}}>
         {likenessEnabled?'BJ LIKENESS: ON':'BJ LIKENESS: OFF (RAW V7)'}
       </button>
-      <button onClick={()=>setAutoRotate(v=>!v)} style={{width:'100%',minHeight:46,marginTop:8,border:'1px solid #4c6d8d',borderRadius:12,background:autoRotate?'#14324c':'#10161f',color:'#fff',fontWeight:950}}>
-        {autoRotate?'AUTO ROTATE: ON':'AUTO ROTATE: OFF'}
-      </button>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7,marginTop:8}}>
+        <button onClick={()=>setAutoRotate(v=>!v)} style={{minHeight:46,border:'1px solid #4c6d8d',borderRadius:12,background:autoRotate?'#14324c':'#10161f',color:'#fff',fontWeight:950}}>
+          {autoRotate?'AUTO ROTATE: ON':'AUTO ROTATE: OFF'}
+        </button>
+        <button onClick={()=>setReferenceCompare(v=>!v)} style={{minHeight:46,border:'1px solid #9a7548',borderRadius:12,background:referenceCompare?'#4a341b':'#10161f',color:'#fff',fontWeight:950}}>
+          {referenceCompare?'REFERENCE: ON':'REFERENCE: OFF'}
+        </button>
+      </div>
       <div style={{fontSize:9,color:'#93a7b8',lineHeight:1.45,marginTop:8}}>
-        <b>LIKENESS ON</b> applies the approved current-era BJ reference pixels to the V7 living rig plus the new V9 volumetric skull, jaw, cheeks, nose profile and beard depth. It is still a reference-driven approximation, not a certified photoreal likeness.
+        <b>V10 LIKENESS</b> keeps the approved current-era reference on the V7 living rig and adds volumetric brow/orbit, temple, lip/philtrum, skull, jaw, cheek, nose and gray-beard profile geometry. This remains a reference-driven approximation, not a certified photoreal likeness.
       </div>
     </footer>
   </main>
