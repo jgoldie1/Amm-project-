@@ -19,6 +19,8 @@ const SHOWS=[
  {id:'faith-live',title:'Servants of Christ LIVE',channel:'servants-of-christ-network',format:'Worship / teaching',source:'FaithVerse'},
  {id:'music-showcase',title:'MusicVerse Live Sessions',channel:'musicverse-tv',format:'Music / artist showcase',source:'MusicVerse'},
  {id:'local-news',title:'StreetVerse Local',channel:'streetverse-local-tv',format:'Local news / community',source:'StreetVerse'},
+ {id:'global-news-weather',title:'All American World + Weather',channel:'tryamm-news',format:'Local / national / international / weather',source:'Oracle Newsroom'},
+ {id:'crypto-classroom',title:'Crypto Classroom',channel:'tryamm-news',format:'Blockchain / digital asset education',source:'All American Network'},
 ] as const
 
 export default function TryammBroadcastNetworkCenter(){
