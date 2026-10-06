@@ -46,6 +46,7 @@ const KingdomYahisraelCenter=lazy(()=>import('./components/KingdomYahisraelCente
 const KingdomWorkbookCenter=lazy(()=>import('./components/KingdomWorkbookCenter'))
 const TimeMachineWorldFoundryCenter=lazy(()=>import('./components/TimeMachineWorldFoundryCenter'))
 const HoloLabGateway=lazy(()=>import('./components/HoloLabGateway'))
+const Chicago77HolographicAtlas=lazy(()=>import('./components/Chicago77HolographicAtlas'))
 const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
 const MeshyFactoryControlPanel=lazy(()=>import('./components/MeshyFactoryControlPanel'))
 
@@ -77,6 +78,7 @@ try {
   const isKingdomDistrict=currentPath==='/kingdom'||currentPath==='/kingdom/'
   const isTimeMachineFoundry=['/time-machine-foundry','/time-machine-foundry/','/chrono-foundry','/chrono-foundry/','/world-foundry','/world-foundry/'].includes(currentPath)
   const isHoloLabStandalone=currentPath==='/holo-lab'||currentPath==='/holo-lab/'
+  const isChicago77Atlas=['/chicago77','/chicago77/','/chicago-77','/chicago-77/'].includes(currentPath)
   const isGlobalTradeWorld=['/global-trade','/global-trade/','/my-world','/my-world/','/we-are-the-world','/we-are-the-world/'].includes(currentPath)
   const isTwinWorld=currentPath.startsWith('/streetverse/twin-world')
   const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
@@ -144,6 +146,7 @@ try {
   else if(isKingdomDistrict)routeContent=<Suspense fallback={routeFallback}><KingdomDistrictRoute /></Suspense>
   else if(isTimeMachineFoundry)routeContent=<Suspense fallback={routeFallback}><TimeMachineWorldFoundryCenter /></Suspense>
   else if(isHoloLabStandalone)routeContent=<Suspense fallback={routeFallback}><HoloLabGateway onClose={()=>{window.location.href='/'}} /></Suspense>
+  else if(isChicago77Atlas)routeContent=<Suspense fallback={routeFallback}><Chicago77HolographicAtlas /></Suspense>
   else if(isGlobalTradeWorld)routeContent=<Suspense fallback={routeFallback}><GlobalTradeWorldHub /></Suspense>
   else if(standaloneSite)routeContent=<StandaloneProductSite site={standaloneSite} />
   else if(isBusinessDirectory)routeContent=<FamilyBusinessDirectory />
@@ -257,6 +260,7 @@ const installOptionalRuntimes = () => {
   import('./runtime/StreetVerseMissionDiscoveryRuntime').then(m => m.installStreetVerseMissionDiscoveryRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseMissionDiscoveryRuntime failed after core mount.', error))
   import('./runtime/SECSConstructRuntime').then(m => m.installSECSConstructRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installSECSConstructRuntime failed after core mount.', error))
   import('./runtime/OmniverseEventFabricRuntime').then(m => m.installOmniverseEventFabricRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installOmniverseEventFabricRuntime failed after core mount.', error))
+  import('./runtime/Chicago77LivingMemoryMeshRuntime').then(m => m.installChicago77LivingMemoryMeshRuntime()).catch(error => console.error('[TRYAMM] Chicago 77 Living Memory Mesh failed after core mount.', error))
 }
 // Mount the selected public route first. Optional global launchers must never be
 // able to prevent the TRYAMM shell or StreetVerse from becoming visible.
