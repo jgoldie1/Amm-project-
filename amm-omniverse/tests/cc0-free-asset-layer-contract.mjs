@@ -22,6 +22,7 @@ must(runtime.includes("collisionAuthority:false"),'free layer must not alter veh
 must(mobile.includes("createTryammCc0FreeAssetLayer(scene)"),'StreetVerse mobile must mount the free layer')
 must(mobile.includes("cc0FreeLayer?.dispose()"),'StreetVerse mobile must dispose the free layer')
 must(String(pkg.scripts?.['free:assets']||'').includes('sync-cc0-free-assets.mjs'),'free asset npm script missing')
-must(String(pkg.scripts?.build||'').startsWith('npm run free:assets && node tests/cc0-free-asset-layer-contract.mjs'),'production build must sync and validate CC0 assets first')
+must(String(pkg.scripts?.['assets:prebuild']||'').startsWith('npm run free:assets &&'),'shared asset prebuild must sync CC0 assets first')
+must(String(pkg.scripts?.build||'').startsWith('npm run assets:prebuild && node tests/cc0-free-asset-layer-contract.mjs'),'production build must run the shared asset prebuild before CC0 validation')
 
 console.log('CC0 FREE ASSET LAYER CONTRACT PASS')

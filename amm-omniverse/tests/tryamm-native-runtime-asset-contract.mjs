@@ -9,7 +9,8 @@ const pkg=JSON.parse(fs.readFileSync(new URL('../package.json',import.meta.url),
 const must=(ok,msg)=>{if(!ok)throw new Error('TRYAMM NATIVE RUNTIME ASSET CONTRACT FAIL: '+msg)}
 
 must(pkg.scripts['native:assets']==='node scripts/tryamm-native-asset-foundry.mjs public/generated-assets/native','native assets must be generated into Vite public build input')
-must(String(pkg.scripts.build).startsWith('npm run native:assets &&'),'native generation must run before the normal build')
+must(String(pkg.scripts['assets:prebuild']||'').includes('npm run native:assets'),'native generation must be part of the shared asset prebuild')
+must(String(pkg.scripts.build).startsWith('npm run assets:prebuild &&'),'shared asset prebuild must run before the normal build')
 
 for(const id of ['brick-building-module','street-lamp','tree','bench','hydrant','holo-wayfinder','vehicle-blockout','tryamm-2027-sport-sedan','street-and-sidewalk','streetverse-hero-player','resident-archetype-a','resident-archetype-b','resident-archetype-c','city-transit-train']){
   must(catalog.includes(`id:'${id}'`),'runtime catalog missing '+id)
