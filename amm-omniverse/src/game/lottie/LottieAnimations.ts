@@ -23,7 +23,8 @@ export type LottieAnimKey =
   | 'shofar_wave' | 'white_glow' | 'sukkah_stars' | 'menorah_light'
   | 'crown_scroll' | 'moon_phases'
   | 'card_summon' | 'life_drain' | 'heal_burst' | 'realm_shift'
-  | 'fusion_burst' | 'scroll_victory' | 'trap_activate' | 'crystal_gain'          // Face scanning animation for avatar
+  | 'fusion_burst' | 'scroll_victory' | 'trap_activate' | 'crystal_gain'
+  | 'genii_orb' | 'wish_cast' | 'omnicare_pulse' | 'omnicash_flow'          // Face scanning animation for avatar
 
 // All animations are generated procedurally as Lottie JSON
 // This avoids needing any external .json files
