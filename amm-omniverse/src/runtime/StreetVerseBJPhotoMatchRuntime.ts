@@ -121,7 +121,7 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
     roughness:.69,
     metalness:0,
     emissive:new THREE.Color(0xffffff),
-    emissiveIntensity:.075,
+    emissiveIntensity:.10,
   })
   const mesh=new THREE.Mesh(geometry,material)
   mesh.name=BJ_PHOTOMATCH_ASSET.id
