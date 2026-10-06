@@ -16,6 +16,14 @@ for(const token of [
   "eye.?blink.?right",
   "tryamm:bj-meshy-v6-ready",
   "proceduralFallbackSuppressed:true",
+  "autonomicLife:true",
+  "conversationFocus:true",
+  "microGesture:true",
+  "tryamm:bj-life-state",
+  "lookLeft:gaze<0",
+  "lookRight:gaze>0",
+  "breathing:THREE.MathUtils.clamp",
+  "source:'meshy-bj-v6-life-layer-v7'",
 ])must(runtime.includes(token),'runtime missing '+token)
 
 for(const token of [
@@ -26,6 +34,12 @@ for(const token of [
   "assetId:BJ_MESHY_V6_ASSET.id",
   "source:'streetverse-mobile-meshy-bj-v6'",
   "bjMeshyHero?.tick(now",
+  "focusYaw:heroConversationFocusYaw",
+  "breathing:heroAffectBreathing",
+  "posture:heroAffectPosture",
+  "seated:Boolean(activeCar)",
+  "autonomicLifeV7:true",
+  "liveMicLipSync:true",
   "bjMeshyHero?.dispose()",
   "bjMeshyV6Priority:true",
   "bjMeshyV6Active:Boolean(bjMeshyHero)",
@@ -40,3 +54,5 @@ must(runtime.includes("availability.clear()"),'BJ availability reset must clear 
 must(!runtime.includes("availabilityPromise"),'BJ runtime must not use one global availability promise for every asset URL')
 
 console.log('BJ MESHY V6 LIVE SWAP CONTRACT PASS: optional GLB -> authoritative hero -> fallback preserved')
+
+console.log('BJ LIFE LAYER V7: gaze + breathing + speech microgestures + posture + seated state are wired without weakening the native fallback')
