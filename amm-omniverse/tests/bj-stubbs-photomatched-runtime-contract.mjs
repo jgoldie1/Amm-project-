@@ -20,6 +20,9 @@ for(const token of [
   "bj-v9-nose-bridge-volume",
   "bj-v9-nose-tip-volume",
   "bj-v9-beard-chin-volume",
+  "bj-v9-beard-lower-volume",
+  "bj-v9-gray-beard-side-left",
+  "bj-v9-gray-beard-side-right",
 ])must(runtime.includes(token),'V9 volumetric head part missing '+token)
 must(runtime.includes("volumetricHeadV9:true"),'V9 volumetric head readiness evidence must be emitted')
 must(runtime.includes("profileVersion:BJ_V9_HEAD_PROFILE.version"),'V9 head profile version evidence must be emitted')
