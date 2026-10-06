@@ -225,6 +225,15 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       head:lifeRig.head?.rotation.clone()||null,
       spine:lifeRig.spine?.rotation.clone()||null,
     }
+    const nodeHasAnimationTracks=(node:THREE.Object3D|null)=>{
+      if(!node?.name)return false
+      const prefix=node.name+'.'
+      return clips.some(clip=>clip.tracks.some(track=>track.name.startsWith(prefix)))
+    }
+    const lifeDriven={
+      head:nodeHasAnimationTracks(lifeRig.head),
+      spine:nodeHasAnimationTracks(lifeRig.spine),
+    }
     const applyNaturalRig=(nowMs:number,state:{moving:boolean;talking?:boolean;focusYaw?:number;breathing?:number;posture?:string;seated?:boolean})=>{
       const t=nowMs*.001
       const breathing=THREE.MathUtils.clamp(Number(state.breathing??.15),0,1)
@@ -237,13 +246,19 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       const posture=String(state.posture||'neutral')
       const postureLean=posture==='withdrawn'?.035:posture==='guarded'?.022:posture==='open'?-.014:posture==='energized'?-.008:0
       if(lifeRig.head){
-        if(mixer){lifeRig.head.rotation.y+=headYaw;lifeRig.head.rotation.x+=headPitch}
+        if(mixer&&lifeDriven.head){lifeRig.head.rotation.y+=headYaw;lifeRig.head.rotation.x+=headPitch}
         else if(lifeBaseline.head){lifeRig.head.rotation.set(lifeBaseline.head.x+headPitch,lifeBaseline.head.y+headYaw,lifeBaseline.head.z)}
       }
-      if(lifeRig.spine&&!state.seated){
+      if(lifeRig.spine){
         const sway=state.moving?Math.sin(t*4.2)*.009:Math.sin(t*.53)*.012
-        if(mixer){lifeRig.spine.rotation.x+=postureLean+breath;lifeRig.spine.rotation.z+=sway}
-        else if(lifeBaseline.spine){lifeRig.spine.rotation.set(lifeBaseline.spine.x+postureLean+breath,lifeBaseline.spine.y,lifeBaseline.spine.z+sway)}
+        if(state.seated){
+          if(!lifeDriven.spine&&lifeBaseline.spine)lifeRig.spine.rotation.copy(lifeBaseline.spine)
+        }else if(mixer&&lifeDriven.spine){
+          lifeRig.spine.rotation.x+=postureLean+breath
+          lifeRig.spine.rotation.z+=sway
+        }else if(lifeBaseline.spine){
+          lifeRig.spine.rotation.set(lifeBaseline.spine.x+postureLean+breath,lifeBaseline.spine.y,lifeBaseline.spine.z+sway)
+        }
       }
     }
     const applyFacePose=(pose:BJFacePose)=>{
