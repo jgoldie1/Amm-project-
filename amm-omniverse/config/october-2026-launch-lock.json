@@ -1,0 +1,88 @@
+{
+  "schema": "tryamm.october-2026-launch-lock.v1",
+  "release": "TRYAMM October 2026 Public Alpha",
+  "status": "LOCKED_RC",
+  "canonicalBranch": "main",
+  "productionBaselineSha": "82846eed84c6e679eb68ade00847586a16578974",
+  "launchMode": "web-pwa-public-alpha",
+  "freeze": {
+    "enabled": true,
+    "rule": "No new major product families until public-alpha core gates are green.",
+    "allowedChanges": [
+      "release blocker",
+      "playability",
+      "performance",
+      "accessibility",
+      "security",
+      "data integrity",
+      "rights/legal",
+      "provider wiring",
+      "observability",
+      "rollback"
+    ]
+  },
+  "publicAlphaCore": [
+    "TRYAMM super-app home and Verse navigation",
+    "StreetVerse Chicago hero slice and mobile Play Mode",
+    "Circle Park / Roosevelt / Taylor / UIC connected gameplay scaffolds",
+    "Reels / creator capture and public playback",
+    "All American Network / Broadcast OS / Prime viewer",
+    "MusicVerse and cross-verse media surfaces",
+    "Chicago 77 connected atlas/slices at alpha fidelity",
+    "BJ runtime/fallback and resident cast",
+    "Holo/Verse navigation with graceful device fallbacks",
+    "PWA install and one-hand mobile UI"
+  ],
+  "stopShipGates": [
+    "production deployment READY on canonical domain",
+    "mobile Play Mode regression passes",
+    "StreetVerse loads, spawns, moves, interacts and completes at least one mission",
+    "same-device checkpoint/save restore works",
+    "Reel capture/playback path does not block gameplay",
+    "navigation has no dead primary launchers",
+    "accessibility/one-hand controls remain usable",
+    "build/typecheck/security contracts pass",
+    "rollback candidate exists",
+    "provider-gated features degrade accurately"
+  ],
+  "providerGatedNonBlocking": [
+    {
+      "id": "livekit-live-pk",
+      "launchBehavior": "Show LIVE/PK shell and readiness state; do not claim real production room streaming until LiveKit credentials and device proof exist."
+    },
+    {
+      "id": "payments-payouts",
+      "launchBehavior": "Show pricing/earnings intent surfaces; no live charging, transfers or payout claims until Stripe webhook/reconciliation/transfer gates are verified."
+    },
+    {
+      "id": "telephony-call-center",
+      "launchBehavior": "Show product/demo surfaces; no real number, call or SMS claims until Twilio/CPaaS credentials and compliance are verified."
+    },
+    {
+      "id": "regulated-care-legal-realty",
+      "launchBehavior": "Lead generation/navigation only; regulated professional service actions remain provider/licensing gated."
+    },
+    {
+      "id": "xr-hardware",
+      "launchBehavior": "Use WebXR capability detection and 2D/3D fallback until physical-device certification exists."
+    },
+    {
+      "id": "external-broadcast-distribution",
+      "launchBehavior": "Web network/broadcast studio may run; external OTT/FAST/distribution remains gated until ingest/distribution credentials and rights evidence exist."
+    },
+    {
+      "id": "native-app-stores",
+      "launchBehavior": "Web/PWA alpha first; signed store packages and review remain separate gates."
+    }
+  ],
+  "releaseTruth": "Launch the real working core now; label every external/provider-dependent capability accurately and never substitute simulated state for a live service.",
+  "nextAfterLock": [
+    "physical iPhone launch journey",
+    "LiveKit production credentials + camera/mic/PK proof",
+    "Stripe live checkout/webhook/reconciliation proof",
+    "same-device save/rejoin evidence then server-authoritative cross-device persistence",
+    "Circle Park/Taylor/UIC visual fidelity pass",
+    "BJ final photo-matched GLB",
+    "post-release watch and rollback verification"
+  ]
+}
