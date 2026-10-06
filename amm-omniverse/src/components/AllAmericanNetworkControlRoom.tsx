@@ -47,6 +47,8 @@ const FORMATS=[
   {id:'streetverse-live',label:'StreetVerse LIVE',scene:'gaming',desc:'Live neighborhood missions, creator challenges, business stories and world events.'},
   {id:'creator-spotlight',label:'Creator Spotlight',scene:'interview',desc:'Interview + performance + fan interaction + Reel clips.'},
   {id:'all-american-news',label:'All American News Desk',scene:'news-desk',desc:'Community, business, culture, sports and creator headlines.'},
+  {id:'global-news-weather',label:'Global News + Weather',scene:'news-desk',desc:'Oracle-sourced local, national, international and weather desk with source cards, timestamps and corrections.'},
+  {id:'crypto-classroom',label:'Crypto Classroom',scene:'news-desk',desc:'Blockchain and cryptocurrency education, wallet safety, scams, stablecoins, smart contracts, regulation and risk. No personalized financial advice.'},
   {id:'business-showcase',label:'Business Showcase',scene:'shopping',desc:'Founder story, products, QR/Marketplace call-to-action and live shopping.'},
   {id:'musicverse-live',label:'MusicVerse LIVE',scene:'virtual-set',desc:'Artist showcase, radio, performance, PK and audience requests.'},
   {id:'sports-desk',label:'SportsVerse Desk',scene:'sports',desc:'Scores, highlights, interviews, competitions and community sports.'},

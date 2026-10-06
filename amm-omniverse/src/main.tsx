@@ -214,6 +214,7 @@ const installOptionalRuntimes = () => {
   import('./runtime/CreatorMoneyCenterRuntime').then(m => m.installCreatorMoneyCenterRuntime()).catch(error => console.error('[TRYAMM] Creator Money Center failed after core mount.', error))
   import('./runtime/CreatorWorkweekRuntime').then(m => m.installCreatorWorkweekRuntime()).catch(error => console.error('[TRYAMM] Creator Workweek failed after core mount.', error))
   import('./runtime/TryammBroadcastOSRuntime').then(m => m.installTryammBroadcastOSRuntime()).catch(error => console.error('[TRYAMM] Broadcast OS failed after core mount.', error))
+  import('./runtime/AllAmericanNetworkPrimeNewsroomRuntime').then(m => m.installAllAmericanPrimeNewsroomRuntime()).catch(error => console.error('[TRYAMM] All American Network Prime newsroom failed after core mount.', error))
   import('./runtime/BusinessIncomeCenterRuntime').then(m => m.installBusinessIncomeCenterRuntime()).catch(error => console.error('[TRYAMM] Business Income Center failed after core mount.', error))
   import('./runtime/GameAppIncomeBridge').then(m => m.installGameAppIncomeBridge()).catch(error => console.error('[TRYAMM] Game/App income bridge failed after core mount.', error))
   import('./runtime/GlobalAfricaPaymentsRuntime').then(m => m.installGlobalAfricaPaymentsRuntime()).catch(error => console.error('[TRYAMM] Global/Africa payments router failed after core mount.', error))
