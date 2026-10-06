@@ -19,6 +19,7 @@ import StreetVerseSafeWorld from './components/StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './components/StreetVerseWeatherSync'
 import InstallPrompt from './components/InstallPrompt'
 import HoloExperienceLauncher from './components/HoloExperienceLauncher'
+import OmniCashLauncher from './components/OmniCashLauncher'
 import { getStandaloneSite } from './data/standaloneSiteRegistry'
 import './accessibility/accessibility.css'
 
@@ -120,6 +121,7 @@ try {
     <GlobalLaunchBar />
     <HoloDeliveryLauncher />
     <HoloMarketplaceLauncher />
+    <OmniCashLauncher />
   </>
   
   if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>

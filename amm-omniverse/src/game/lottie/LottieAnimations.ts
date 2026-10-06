@@ -23,7 +23,8 @@ export type LottieAnimKey =
   | 'shofar_wave' | 'white_glow' | 'sukkah_stars' | 'menorah_light'
   | 'crown_scroll' | 'moon_phases'
   | 'card_summon' | 'life_drain' | 'heal_burst' | 'realm_shift'
-  | 'fusion_burst' | 'scroll_victory' | 'trap_activate' | 'crystal_gain'          // Face scanning animation for avatar
+  | 'fusion_burst' | 'scroll_victory' | 'trap_activate' | 'crystal_gain'
+  | 'genii_orb' | 'wish_cast' | 'omnicare_pulse' | 'omnicash_flow'          // Face scanning animation for avatar
 
 // All animations are generated procedurally as Lottie JSON
 // This avoids needing any external .json files
@@ -175,6 +176,10 @@ const ANIMATIONS: Record<LottieAnimKey, object> = {
   scroll_victory:   makeRotatingStar('#ffffff', 12),
   trap_activate:    makeCirclePulse('#ff8800'),
   crystal_gain:     makeRotatingStar('#00ccff', 4),
+  genii_orb:         makeRotatingStar('#b989ff', 10),
+  wish_cast:         makeCirclePulse('#f2b630'),
+  omnicare_pulse:    makeCirclePulse('#78ffb4'),
+  omnicash_flow:     makeWave('#e8b944'),
 }
 
 // ── Public API ──────────────────────────────────────────────────────────────
