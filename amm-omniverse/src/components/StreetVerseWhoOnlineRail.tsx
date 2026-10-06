@@ -48,7 +48,7 @@ export default function StreetVerseWhoOnlineRail(){
   return <aside aria-label="StreetVerse Who is Online" style={panel}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:8}}>
       <div><div style={{fontSize:8,letterSpacing:1.8,color:'#78efff',fontWeight:950}}>STREETVERSE NOW</div><b>WHO'S ONLINE • {online||1}</b></div>
-      <button aria-label="Collapse Who is Online" onClick={()=>setOpen(false)} style={close}>×</button>
+      <div style={{display:'flex',gap:5}}><button onClick={()=>{window.location.href='/live?from=streetverse&role=host'}} style={{...close,width:'auto',padding:'0 9px',borderColor:'#ff4a6f88'}}>🔴 GO LIVE</button><button aria-label="Collapse Who is Online" onClick={()=>setOpen(false)} style={close}>×</button></div>
     </div>
     <div style={{display:'flex',gap:8,overflowX:'auto',padding:'10px 1px 4px',scrollSnapType:'x mandatory'}}>
       {visible.length===0&&<div style={{minWidth:210,padding:9,borderRadius:12,border:'1px solid #294454',background:'#07151e',fontSize:10,color:'#91a9b5'}}>No other signed-in players are in this StreetVerse district yet.</div>}
