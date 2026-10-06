@@ -160,7 +160,7 @@ export default function AllAmericanNetworkControlRoom(){
   return <main style={page}>
     <header style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,flexWrap:'wrap'}}>
       <div><div style={eyebrow}>ALL AMERICAN NETWORK • MASTER CONTROL</div><h1 style={{margin:'4px 0'}}>Broadcast Studio + TV Control Room</h1><div style={{...muted,color:'#aeefff',fontWeight:900}}>Powered by Stubbs AI + HoloGPT</div><div style={muted}>StreetVerse creators → studio → LIVE → TV/FAST/OTT-ready programming → Reels/Replay → creator earnings.</div></div>
-      <div style={{display:'flex',gap:6}}><a href="/network" style={linkBtn}>NETWORK</a><a href="/free-tv" style={linkBtn}>TV GUIDE</a></div>
+      <div style={{display:'flex',gap:6,flexWrap:'wrap'}}><a href="/network" style={linkBtn}>NETWORK</a><a href="/network/newsroom" style={linkBtn}>NEWSROOM / HOST SCOUT</a><a href="/free-tv" style={linkBtn}>TV GUIDE</a></div>
     </header>
 
     <section style={monitorGrid}>
