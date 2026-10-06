@@ -205,6 +205,11 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     {asset:'bench',position:[13,0,46],rotationY:-Math.PI/2,label:'mobile-native-bench-east'},
     {asset:'hydrant',position:[10,0,44],label:'mobile-native-hydrant-a'},
     {asset:'hydrant',position:[-10,0,30],label:'mobile-native-hydrant-b'},
+    {asset:'busShelter',position:[-20,0,40],rotationY:Math.PI/2,label:'mobile-native-bus-shelter-west'},
+    {asset:'basketballHoop',position:[-11,0,64],rotationY:Math.PI,label:'mobile-native-basketball-hoop-west'},
+    {asset:'basketballHoop',position:[11,0,64],label:'mobile-native-basketball-hoop-east'},
+    {asset:'bikeRack',position:[-14,0,54],rotationY:Math.PI/2,label:'mobile-native-bike-rack'},
+    {asset:'storefrontAwning',position:[-25,0,46],rotationY:Math.PI/2,label:'mobile-native-storefront-awning-west'},
     {asset:'trashCan',position:[-12,0,52],label:'mobile-native-trash-can'},
     {asset:'recyclingBin',position:[12,0,52],label:'mobile-native-recycling-bin'},
 

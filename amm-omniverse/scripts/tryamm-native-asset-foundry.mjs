@@ -99,6 +99,44 @@ function addHydrant(group,x,z,mats){
   side.rotation.z=deg(90)
 }
 
+function addBusShelter(group,x,z,mats){
+  addBox(group,'bus-shelter-base',[3.2,.12,1.35],[x,.06,z],mats.concrete,undefined,'transit-shelter-base')
+  addBox(group,'bus-shelter-roof',[3.3,.14,1.45],[x,2.35,z],mats.metal,undefined,'transit-shelter-roof')
+  addBox(group,'bus-shelter-back',[3.05,1.95,.06],[x,1.3,z+.62],mats.glass,undefined,'transit-shelter-glass')
+  addBox(group,'bus-shelter-side-left',[.06,1.95,1.2],[x-1.52,1.3,z],mats.glass)
+  addBox(group,'bus-shelter-side-right',[.06,1.95,1.2],[x+1.52,1.3,z],mats.glass)
+  addBench(group,x,z+.22,mats)
+  addCylinder(group,'bus-stop-pole',.055,2.55,[x+1.86,1.275,z],mats.metal,10,'bus-stop-sign')
+  addBox(group,'bus-stop-marker',[.42,.58,.08],[x+1.86,2.18,z],mats.holo,undefined,'transit-wayfinding')
+}
+
+function addBasketballHoop(group,x,z,mats){
+  addCylinder(group,'basketball-pole',.085,3.45,[x,1.725,z],mats.metal,12,'basketball-hoop-pole')
+  addBox(group,'basketball-arm',[.95,.08,.08],[x+.43,3.22,z],mats.metal)
+  addBox(group,'basketball-backboard',[1.28,.82,.06],[x+.92,3.02,z],mats.light,undefined,'basketball-backboard')
+  const rim=new THREE.Mesh(new THREE.TorusGeometry(.23,.025,8,24),mats.hydrant)
+  rim.name='basketball-rim';rim.position.set(x+.92,2.73,z-.18);rim.rotation.x=deg(90)
+  rim.userData={semantic:'basketball-rim',collision:'none',generatedBy:'tryamm-native-asset-foundry'}
+  group.add(rim)
+}
+
+function addBikeRack(group,x,z,mats){
+  addBox(group,'bike-rack-base',[2.5,.08,.5],[x,.04,z],mats.concrete,undefined,'bike-rack-base')
+  for(let i=-2;i<=2;i++){
+    const rack=new THREE.Mesh(new THREE.TorusGeometry(.34,.045,8,20,Math.PI),mats.metal)
+    rack.name='bike-rack-loop';rack.position.set(x+i*.48,.38,z);rack.rotation.z=deg(90)
+    rack.userData={semantic:'bike-rack',collision:'none',generatedBy:'tryamm-native-asset-foundry'}
+    group.add(rack)
+  }
+}
+
+function addStorefrontAwning(group,x,z,mats){
+  addBox(group,'storefront-awning-canopy',[3.1,.16,1.25],[x,2.45,z],mats.car,[deg(-10),0,0],'storefront-awning')
+  addBox(group,'storefront-awning-valance',[3.1,.42,.08],[x,2.18,z+.56],mats.hydrant,undefined,'storefront-awning-valance')
+  addCylinder(group,'awning-support-left',.035,2.0,[x-1.38,1.02,z+.52],mats.metal,8)
+  addCylinder(group,'awning-support-right',.035,2.0,[x+1.38,1.02,z+.52],mats.metal,8)
+}
+
 function addTrashCan(group,x,z,mats){
   addCylinder(group,'trash-can-body',.38,.9,[x,.45,z],mats.trash,18,'trash-receptacle')
   addCylinder(group,'trash-can-lid',.43,.12,[x,.96,z],mats.metal,18,'trash-receptacle-lid')
@@ -853,6 +891,22 @@ const kitBuilders={
   'hydrant':()=>{
     const g=new THREE.Group();g.name='TRYAMM-hydrant'
     addHydrant(g,0,0,kitMats);return g
+  },
+  'bus-shelter':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-bus-shelter'
+    addBusShelter(g,0,0,kitMats);return g
+  },
+  'basketball-hoop':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-basketball-hoop'
+    addBasketballHoop(g,0,0,kitMats);return g
+  },
+  'bike-rack':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-bike-rack'
+    addBikeRack(g,0,0,kitMats);return g
+  },
+  'storefront-awning':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-storefront-awning'
+    addStorefrontAwning(g,0,0,kitMats);return g
   },
   'tree':()=>{
     const g=new THREE.Group();g.name='TRYAMM-tree'
