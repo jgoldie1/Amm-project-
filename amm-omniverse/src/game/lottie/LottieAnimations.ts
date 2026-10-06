@@ -175,6 +175,10 @@ const ANIMATIONS: Record<LottieAnimKey, object> = {
   scroll_victory:   makeRotatingStar('#ffffff', 12),
   trap_activate:    makeCirclePulse('#ff8800'),
   crystal_gain:     makeRotatingStar('#00ccff', 4),
+  genii_orb:         makeRotatingStar('#b989ff', 10),
+  wish_cast:         makeCirclePulse('#f2b630'),
+  omnicare_pulse:    makeCirclePulse('#78ffb4'),
+  omnicash_flow:     makeWave('#e8b944'),
 }
 
 // ── Public API ──────────────────────────────────────────────────────────────
