@@ -31,7 +31,7 @@ export type StreetVerseMeshyBJHeroHandle={
   clips:readonly THREE.AnimationClip[]
   morphTargetNames:readonly string[]
   applyFacePose:(pose:BJFacePose)=>number
-  tick:(nowMs:number,state:{moving:boolean;running?:boolean;talking?:boolean;liveTalkLevel?:number})=>void
+  tick:(nowMs:number,state:{moving:boolean;running?:boolean;talking?:boolean;liveTalkLevel?:number;focusYaw?:number;breathing?:number;posture?:string;seated?:boolean})=>void
   dispose:()=>void
 }
 
@@ -195,7 +195,9 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       meshyV6:true,
       productionMaterials:true,
       texturePipeline:'pbr-mobile-production-v6',
-      lifeLayer:'blink-lipsync-breathing-eye-focus-ready',
+      lifeLayer:'blink-lipsync-breathing-eye-focus-microgesture-v7',
+      autonomicLife:true,
+      conversationFocus:true,
     }
 
     const companionClips:THREE.AnimationClip[]=[]
@@ -210,6 +212,55 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     const mixer=clips.length?new THREE.AnimationMixer(object):null
     const animations=materializeAnimationMap(clips)
     const morphs=collectMorphMeshes(object)
+    const findRigNode=(patterns:RegExp[]):THREE.Object3D|null=>{
+      let found:THREE.Object3D|null=null
+      object.traverse(node=>{if(!found&&patterns.some(pattern=>pattern.test(node.name)))found=node})
+      return found
+    }
+    const lifeRig={
+      head:findRigNode([/^rig[-_ ]?head$/i,/head$/i,/neck/i]),
+      spine:findRigNode([/^rig[-_ ]?spine$/i,/upper.?chest/i,/chest/i,/spine/i]),
+    }
+    const lifeBaseline={
+      head:lifeRig.head?.rotation.clone()||null,
+      spine:lifeRig.spine?.rotation.clone()||null,
+    }
+    const nodeHasAnimationTracks=(node:THREE.Object3D|null)=>{
+      if(!node?.name)return false
+      const prefix=node.name+'.'
+      return clips.some(clip=>clip.tracks.some(track=>track.name.startsWith(prefix)))
+    }
+    const lifeDriven={
+      head:nodeHasAnimationTracks(lifeRig.head),
+      spine:nodeHasAnimationTracks(lifeRig.spine),
+    }
+    const applyNaturalRig=(nowMs:number,state:{moving:boolean;talking?:boolean;focusYaw?:number;breathing?:number;posture?:string;seated?:boolean})=>{
+      const t=nowMs*.001
+      const breathing=THREE.MathUtils.clamp(Number(state.breathing??.15),0,1)
+      const breathRate=1.05+breathing*1.45
+      const breath=Math.sin(t*breathRate)*(.006+breathing*.010)
+      const idleYaw=Math.sin(t*.59)*.035+Math.sin(t*.17+1.7)*.022
+      const focus=THREE.MathUtils.clamp(Number(state.focusYaw||0),-.5,.5)
+      const headYaw=state.talking?focus*.22:idleYaw
+      const headPitch=state.talking?Math.sin(t*.9)*.012:Math.sin(t*.41+.7)*.018
+      const posture=String(state.posture||'neutral')
+      const postureLean=posture==='withdrawn'?.035:posture==='guarded'?.022:posture==='open'?-.014:posture==='energized'?-.008:0
+      if(lifeRig.head){
+        if(mixer&&lifeDriven.head){lifeRig.head.rotation.y+=headYaw;lifeRig.head.rotation.x+=headPitch}
+        else if(lifeBaseline.head){lifeRig.head.rotation.set(lifeBaseline.head.x+headPitch,lifeBaseline.head.y+headYaw,lifeBaseline.head.z)}
+      }
+      if(lifeRig.spine){
+        const sway=state.moving?Math.sin(t*4.2)*.009:Math.sin(t*.53)*.012
+        if(state.seated){
+          if(!lifeDriven.spine&&lifeBaseline.spine)lifeRig.spine.rotation.copy(lifeBaseline.spine)
+        }else if(mixer&&lifeDriven.spine){
+          lifeRig.spine.rotation.x+=postureLean+breath
+          lifeRig.spine.rotation.z+=sway
+        }else if(lifeBaseline.spine){
+          lifeRig.spine.rotation.set(lifeBaseline.spine.x+postureLean+breath,lifeBaseline.spine.y,lifeBaseline.spine.z+sway)
+        }
+      }
+    }
     const applyFacePose=(pose:BJFacePose)=>{
       let matches=0
       for(const mesh of morphs.meshes){
@@ -231,6 +282,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     let activeMotion:Motion|null=null
     let activeAction:THREE.AnimationAction|null=null
     let previousNow=performance.now()
+    let lastLifeStateAt=0
 
     const setMotion=(motion:Motion)=>{
       if(!mixer||activeMotion===motion)return
@@ -253,11 +305,47 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       mixer?.update(dt)
 
       const t=nowMs*.001
-      const blinkClock=t%4.6
-      const blink=blinkClock>4.36?Math.sin(((blinkClock-4.36)/.24)*Math.PI):0
+      applyNaturalRig(nowMs,state)
+      const blinkClock=(t+Math.sin(t*.071)*.42)%4.6
+      const blink=blinkClock>4.34?Math.sin(((blinkClock-4.34)/.26)*Math.PI):0
+      const liveLevel=THREE.MathUtils.clamp(state.liveTalkLevel||0,0,1)
       const synthetic=state.talking?THREE.MathUtils.clamp((Math.sin(t*12.4)+Math.sin(t*7.1+1.2)+1.0)/3,0,1):0
-      const jaw=Math.max(synthetic,THREE.MathUtils.clamp(state.liveTalkLevel||0,0,1))*.82
-      applyFacePose({jawOpen:jaw,blinkLeft:blink,blinkRight:blink})
+      const jaw=Math.max(synthetic,liveLevel)*.82
+      const idleGaze=Math.sin(t*.73)*.16+Math.sin(t*.19+1.4)*.08
+      const focus=THREE.MathUtils.clamp(Number(state.focusYaw||0),-.5,.5)
+      const gaze=state.talking?focus*1.45:idleGaze
+      const verticalGaze=state.talking?Math.sin(t*.37)*.035:Math.sin(t*.29+.8)*.065
+      applyFacePose({
+        jawOpen:jaw,
+        mouthWide:state.talking?Math.min(.34,jaw*.42):0,
+        mouthNarrow:state.talking?Math.max(0,.10-Math.min(.10,jaw*.08)):0,
+        blinkLeft:blink,
+        blinkRight:blink,
+        lookLeft:gaze<0?Math.min(1,Math.abs(gaze)):0,
+        lookRight:gaze>0?Math.min(1,gaze):0,
+        lookUp:verticalGaze>0?Math.min(.22,verticalGaze):0,
+        lookDown:verticalGaze<0?Math.min(.22,Math.abs(verticalGaze)):0,
+        browInnerUp:state.talking?Math.min(.16,.05+liveLevel*.12):0,
+        cheekRaise:state.talking?Math.min(.12,liveLevel*.10):0,
+      })
+      if(nowMs-lastLifeStateAt>750){
+        lastLifeStateAt=nowMs
+        window.dispatchEvent(new CustomEvent('tryamm:bj-life-state',{detail:{
+          characterId:BJ_MESHY_V6_ASSET.characterId,
+          assetId:BJ_MESHY_V6_ASSET.id,
+          motion:activeMotion||'idle',
+          talking:Boolean(state.talking||liveLevel>.025),
+          liveTalkLevel:Number(liveLevel.toFixed(3)),
+          breathing:THREE.MathUtils.clamp(Number(state.breathing??.15),0,1),
+          posture:String(state.posture||'neutral'),
+          eyeFocus:true,
+          blink:true,
+          lipSync:true,
+          microGesture:true,
+          seated:Boolean(state.seated),
+          source:'meshy-bj-v6-life-layer-v7',
+        }}))
+      }
     }
 
     window.dispatchEvent(new CustomEvent('tryamm:bj-meshy-v6-ready',{detail:{
@@ -275,7 +363,9 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       proceduralFallbackSuppressed:true,
       productionMaterials,
       texturePipeline:'pbr-mobile-production-v6',
-      lifeLayer:'blink-lipsync-breathing-eye-focus-ready',
+      lifeLayer:'blink-lipsync-breathing-eye-focus-microgesture-v7',
+      autonomicLife:true,
+      conversationFocus:true,
     }}))
 
     return {

@@ -16,6 +16,14 @@ for(const token of [
   "eye.?blink.?right",
   "tryamm:bj-meshy-v6-ready",
   "proceduralFallbackSuppressed:true",
+  "autonomicLife:true",
+  "conversationFocus:true",
+  "microGesture:true",
+  "tryamm:bj-life-state",
+  "lookLeft:gaze<0",
+  "lookRight:gaze>0",
+  "breathing:THREE.MathUtils.clamp",
+  "source:'meshy-bj-v6-life-layer-v7'",
 ])must(runtime.includes(token),'runtime missing '+token)
 
 for(const token of [
@@ -26,6 +34,12 @@ for(const token of [
   "assetId:BJ_MESHY_V6_ASSET.id",
   "source:'streetverse-mobile-meshy-bj-v6'",
   "bjMeshyHero?.tick(now",
+  "focusYaw:heroConversationFocusYaw",
+  "breathing:heroAffectBreathing",
+  "posture:heroAffectPosture",
+  "seated:Boolean(activeCar)",
+  "autonomicLifeV7:true",
+  "liveMicLipSync:true",
   "bjMeshyHero?.dispose()",
   "bjMeshyV6Priority:true",
   "bjMeshyV6Active:Boolean(bjMeshyHero)",
@@ -38,5 +52,12 @@ must(runtime.includes("const availability=new Map<string,Promise<boolean>>()"),'
 must(runtime.includes("return availability.get(url)!"),'BJ runtime must resolve availability from the requested URL cache entry')
 must(runtime.includes("availability.clear()"),'BJ availability reset must clear every cached URL result')
 must(!runtime.includes("availabilityPromise"),'BJ runtime must not use one global availability promise for every asset URL')
+must(runtime.includes("nodeHasAnimationTracks"),'BJ life layer must detect animation-driven bones before adding micro motion')
+must(runtime.includes("lifeDriven"),'BJ life layer must protect partial rigs from cumulative head/spine drift')
+must(runtime.includes("certifiedLikeness:verifiedPhotoMatch"),'BJ V6 must keep certified likeness behind verified authorization')
+must(!runtime.includes("certifiedLikeness:true"),'BJ V6 must never hard-code a certified likeness claim')
+must(world.includes("visualContinuity:'current-era-reference-locked'"),'BJ current-era visual continuity lock must survive the life-layer upgrade')
 
 console.log('BJ MESHY V6 LIVE SWAP CONTRACT PASS: optional GLB -> authoritative hero -> fallback preserved')
+
+console.log('BJ LIFE LAYER V7: gaze + breathing + speech microgestures + posture + seated state are wired without weakening the native fallback')
