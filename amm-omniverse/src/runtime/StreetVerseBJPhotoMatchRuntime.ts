@@ -15,17 +15,17 @@ export const BJ_V9_HEAD_PROFILE={
   version:'bj-v9-head-geometry-1',
   characterId:'bj-stubbs',
   intent:'current-era-likeness-profile',
-  headWidth:.59,
-  headHeight:.73,
-  craniumDepth:.52,
-  jawWidth:.43,
-  jawHeight:.27,
-  jawDepth:.40,
-  cheekWidth:.31,
-  cheekDepth:.035,
-  noseBridgeProjection:.030,
-  noseTipProjection:.060,
-  chinProjection:.025,
+  headWidth:.575,
+  headHeight:.745,
+  craniumDepth:.50,
+  jawWidth:.405,
+  jawHeight:.285,
+  jawDepth:.385,
+  cheekWidth:.30,
+  cheekDepth:.030,
+  noseBridgeProjection:.024,
+  noseTipProjection:.046,
+  chinProjection:.030,
   foreheadSlope:.018,
   templeTaper:.94,
   skinHex:0x70462f,
@@ -36,7 +36,7 @@ export const BJ_V9_HEAD_PROFILE={
     'lean mature jaw',
     'defined cheek structure',
     'natural eye spacing',
-    'full gray-forward beard',
+    'full gray-forward beard with longer lower-chin silhouette',
     'long pulled-back loc silhouette',
   ],
   certifiedLikeness:false,
@@ -160,15 +160,21 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
   for(const side of [-1,1]){
     const cheek=new THREE.Mesh(new THREE.SphereGeometry(1,20,16),skinVolume)
     cheek.name=side<0?'bj-v9-cheek-left':'bj-v9-cheek-right'
-    cheek.scale.set(.118,.090,.100)
-    cheek.position.set(side*.145,-.045,.225)
+    cheek.scale.set(.112,.088,.095)
+    cheek.position.set(side*.142,-.040,.222)
     geometryGroup.add(cheek)
 
-    const beardSide=new THREE.Mesh(new THREE.SphereGeometry(1,18,14),side<0?beardDark:beardGray)
+    const beardSide=new THREE.Mesh(new THREE.SphereGeometry(1,18,14),beardDark)
     beardSide.name=side<0?'bj-v9-beard-side-left':'bj-v9-beard-side-right'
-    beardSide.scale.set(.116,.165,.090)
-    beardSide.position.set(side*.120,-.205,.155)
+    beardSide.scale.set(.112,.180,.092)
+    beardSide.position.set(side*.112,-.220,.150)
     geometryGroup.add(beardSide)
+
+    const graySide=new THREE.Mesh(new THREE.SphereGeometry(1,16,12),beardGray)
+    graySide.name=side<0?'bj-v9-gray-beard-side-left':'bj-v9-gray-beard-side-right'
+    graySide.scale.set(.072,.145,.068)
+    graySide.position.set(side*.095,-.245,.205)
+    geometryGroup.add(graySide)
   }
 
   const noseBridgeVolume=new THREE.Mesh(new THREE.CapsuleGeometry(.030,.115,5,12),skinVolume)
@@ -179,8 +185,8 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
 
   const noseTipVolume=new THREE.Mesh(new THREE.SphereGeometry(.055,20,14),skinVolume)
   noseTipVolume.name='bj-v9-nose-tip-volume'
-  noseTipVolume.position.set(0,-.052,.400)
-  noseTipVolume.scale.set(1.03,.72,.91)
+  noseTipVolume.position.set(0,-.052,.383)
+  noseTipVolume.scale.set(1.02,.70,.86)
   geometryGroup.add(noseTipVolume)
 
   const philtrumShadow=new THREE.Mesh(new THREE.CapsuleGeometry(.010,.045,3,8),skinShadow)
@@ -190,9 +196,15 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
 
   const beardChinVolume=new THREE.Mesh(new THREE.SphereGeometry(1,20,16),beardGray)
   beardChinVolume.name='bj-v9-beard-chin-volume'
-  beardChinVolume.scale.set(.135,.155,.100)
-  beardChinVolume.position.set(0,-.270,.165)
+  beardChinVolume.scale.set(.132,.180,.105)
+  beardChinVolume.position.set(0,-.285,.170)
   geometryGroup.add(beardChinVolume)
+
+  const beardLowerVolume=new THREE.Mesh(new THREE.SphereGeometry(1,20,16),beardGray)
+  beardLowerVolume.name='bj-v9-beard-lower-volume'
+  beardLowerVolume.scale.set(.115,.170,.092)
+  beardLowerVolume.position.set(0,-.390,.135)
+  geometryGroup.add(beardLowerVolume)
 
   headPivot.add(geometryGroup)
   headPivot.add(mesh)
