@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useState} from 'react'
 import {ALL_AMERICAN_24H_TEMPLATE,ALL_AMERICAN_CHANNELS,CRYPTO_EDUCATION_TOPICS,CRYPTO_BROADCAST_RULES,type NetworkProgramSlot} from '../data/AllAmerican24x7Programming'
+import {installAllAmerican24x7ProgrammingRuntime} from '../runtime/AllAmerican24x7ProgrammingRuntime'
 
 type ProgramState={slot:NetworkProgramSlot;status:string;hostIds:string[];sources:Array<{title:string;url:string;publisher?:string}>;fallback:string;updatedAt:string}
 
@@ -9,12 +10,13 @@ export default function AllAmerican24x7ProgrammingPanel(){
  const [topic,setTopic]=useState(CRYPTO_EDUCATION_TOPICS[0].id)
  const [notice,setNotice]=useState('Human hosts first. Replays and education fill gaps; the network never pretends a replay or AI segment is live.')
  useEffect(()=>{
+  const dispose=installAllAmerican24x7ProgrammingRuntime()
   const onState=(event:Event)=>setState((event as CustomEvent<ProgramState>).detail||null)
   const onBlocked=(event:Event)=>{const d=(event as CustomEvent<{reason?:string}>).detail||{};if(d.reason)setNotice('START BLOCKED • '+d.reason.replaceAll('-',' '))}
   addEventListener('tryamm:all-american-24x7-state',onState)
   addEventListener('tryamm:broadcast-blocked',onBlocked)
   dispatchEvent(new Event('tryamm:all-american-24x7-request'))
-  return()=>{removeEventListener('tryamm:all-american-24x7-state',onState);removeEventListener('tryamm:broadcast-blocked',onBlocked)}
+  return()=>{removeEventListener('tryamm:all-american-24x7-state',onState);removeEventListener('tryamm:broadcast-blocked',onBlocked);dispose()}
  },[])
  const chosen=useMemo(()=>ALL_AMERICAN_24H_TEMPLATE.find(s=>s.id===selected)||ALL_AMERICAN_24H_TEMPLATE[0],[selected])
  const crypto=chosen.channelId==='aan-crypto-education'
