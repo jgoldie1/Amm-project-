@@ -104,6 +104,7 @@ export function installCreatorWorkweekRuntime(){
   const onRequest=()=>emit(state,'request')
 
   addEventListener('tryamm:live-session',onLive)
+  addEventListener('tryamm:live-session-end',onLive)
   addEventListener('tryamm:reel-published',onReel)
   addEventListener('tryamm:streetverse-mission-complete',onMission)
   addEventListener('tryamm:creator-workweek-break-taken',onBreak)
@@ -114,6 +115,7 @@ export function installCreatorWorkweekRuntime(){
   return()=>{
     window.clearInterval(timer)
     removeEventListener('tryamm:live-session',onLive)
+    removeEventListener('tryamm:live-session-end',onLive)
     removeEventListener('tryamm:reel-published',onReel)
     removeEventListener('tryamm:streetverse-mission-complete',onMission)
     removeEventListener('tryamm:creator-workweek-break-taken',onBreak)
