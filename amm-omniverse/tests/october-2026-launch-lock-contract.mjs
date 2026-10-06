@@ -21,7 +21,8 @@ must(actions.includes("tryamm:streetverse-play-focus"),'play focus close path mi
 must(readiness.includes("requestedProfile === 'streetverse'"),'StreetVerse readiness profile missing')
 must(readiness.includes("commerceReady"),'commerce gate missing')
 must(readiness.includes("fullPlatformReady"),'full-platform distinction missing')
-must(app.includes("StreetVerseMobileWorld"),'StreetVerse route missing')
+must(app.includes("const isStreetVerse=currentPath.startsWith('/streetverse')"),'StreetVerse route detection missing')
+must(app.includes("else if(isStreetVerse)routeContent=streetVerseRoute"),'StreetVerse route mount missing')
 must(String(pkg.scripts?.build||'').includes('october-2026-launch-lock-contract.mjs'),'build does not enforce launch lock')
 
 console.log(JSON.stringify({
