@@ -37,6 +37,8 @@ export function installChicago77LivingMemoryMeshRuntime(){
  addEventListener('tryamm:faithverse-community-moment',onFaith)
  addEventListener('tryamm:education-community-moment',onEducation)
  addEventListener('tryamm:time-machine-community-era',onEra)
+ const onRequest=()=>emit(nodes,'request')
+ addEventListener('tryamm:chicago77-memory-mesh-request',onRequest)
  emit(nodes,'startup')
- return()=>{removeEventListener('tryamm:streetverse-community-slice-ready',onVisit);removeEventListener('tryamm:streetverse-mission-complete',onMission);removeEventListener('tryamm:business-passport-created',onBusiness);removeEventListener('tryamm:open-reel-creator',onCreator);removeEventListener('tryamm:faithverse-community-moment',onFaith);removeEventListener('tryamm:education-community-moment',onEducation);removeEventListener('tryamm:time-machine-community-era',onEra)}
+ return()=>{removeEventListener('tryamm:streetverse-community-slice-ready',onVisit);removeEventListener('tryamm:streetverse-mission-complete',onMission);removeEventListener('tryamm:business-passport-created',onBusiness);removeEventListener('tryamm:open-reel-creator',onCreator);removeEventListener('tryamm:faithverse-community-moment',onFaith);removeEventListener('tryamm:education-community-moment',onEducation);removeEventListener('tryamm:time-machine-community-era',onEra);removeEventListener('tryamm:chicago77-memory-mesh-request',onRequest)}
 }
