@@ -8,6 +8,9 @@ for(const token of [
   "id:'streetverse-bj-stubbs-meshy-v6'",
   "filename:'SV_HERO_BJ_STUBBS_V6.glb'",
   "url:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6.glb'",
+  "productionFilename:'SV_HERO_BJ_STUBBS_V7.glb'",
+  "productionUrl:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V7.glb'",
+  "authority:'tryamm-owned-native-glb-v7'",
   "method:'HEAD'",
   "normalizeStreetVerseHumanHeight(object,BJ_MESHY_V6_ASSET.targetHeightMeters)",
   "new THREE.AnimationMixer(object)",
@@ -23,7 +26,9 @@ for(const token of [
   "lookLeft:gaze<0",
   "lookRight:gaze>0",
   "breathing:THREE.MathUtils.clamp",
-  "source:'meshy-bj-v6-life-layer-v7'",
+  "source:'bj-production-v7-life-layer'",
+  "ownedV7:!published?.url",
+  "referenceMatchedPreview:Boolean(published?.url)",
 ])must(runtime.includes(token),'runtime missing '+token)
 
 for(const token of [
@@ -58,6 +63,6 @@ must(runtime.includes("certifiedLikeness:verifiedPhotoMatch"),'BJ V6 must keep c
 must(!runtime.includes("certifiedLikeness:true"),'BJ V6 must never hard-code a certified likeness claim')
 must(world.includes("visualContinuity:'current-era-reference-locked'"),'BJ current-era visual continuity lock must survive the life-layer upgrade')
 
-console.log('BJ MESHY V6 LIVE SWAP CONTRACT PASS: optional GLB -> authoritative hero -> fallback preserved')
+console.log('BJ V6/V7 LIVE SWAP CONTRACT PASS: owned V7 preferred -> V6 compatibility preserved -> external Meshy may override when truly published')
 
 console.log('BJ LIFE LAYER V7: gaze + breathing + speech microgestures + posture + seated state are wired without weakening the native fallback')
