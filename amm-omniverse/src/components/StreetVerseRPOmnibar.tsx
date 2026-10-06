@@ -34,7 +34,7 @@ export default function StreetVerseRPOmnibar({compact=false}:{compact?:boolean})
    <input value={prompt} onChange={e=>setPrompt(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')wish('', 'text')}} placeholder="Make BJ pray + bell + close-up + Reel…" style={input}/>
    <button onClick={()=>wish('', 'scene')} style={magic}>✨ MAKE IT</button>
   </div>
-  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:5,marginTop:6}}><button onClick={()=>{window.location.href='/omnicare-360'}} style={{...chip,borderColor:'#78ffb466'}}>💚 OMNICARE 360</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:omnicash-open'))} style={{...chip,borderColor:'#e8b94477'}}>💳 OMNI CASH</button></div>
+  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:5,marginTop:6}}><button onClick={()=>{window.location.href='/omnicare-360'}} style={{...chip,borderColor:'#78ffb466'}}>💚 OMNICARE 360</button><button onClick={()=>{window.location.href='/omni-cash'}} style={{...chip,borderColor:'#e8b94477'}}>💳 OMNI CASH</button></div>
   {preview&&<div style={{fontSize:8,color:'#a9b8c6',marginTop:5}}>FOUND • {preview.actions.length} actions • {preview.sounds.length} sounds • {preview.missingKinds.length?'MAKE: '+preview.missingKinds.join(', '):'nothing missing'}</div>}
   <div role="status" style={{fontSize:8,color:'#d8c9ff',marginTop:4}}>{status}</div>
   {!compact&&<div style={{fontSize:8,color:'#778899',marginTop:4}}>Reuses owned actions/SFX first. Missing original assets go to Mind Over Matter + HoloForge and remain review-gated before production publication.</div>}
