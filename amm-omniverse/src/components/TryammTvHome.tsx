@@ -1,4 +1,4 @@
-import {useMemo,useState} from 'react'
+import {useEffect,useMemo,useState} from 'react'
 
 type Channel={id:string;name:string;category:string;now:string;next:string;live:boolean}
 
@@ -18,14 +18,16 @@ const CHANNELS:Channel[]=[
 
 export default function TryammTvHome({onClose}:{onClose:()=>void}){
  const [selected,setSelected]=useState(CHANNELS[0].id)
- const channel=useMemo(()=>CHANNELS.find(x=>x.id===selected)??CHANNELS[0],[selected])
+ const [aanProgram,setAanProgram]=useState<{title:string;live:boolean;poweredBy?:string}|null>(null)
+ useEffect(()=>{const onProgram=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};if(d.channelId==='aan')setAanProgram({title:String(d.title||'All American Network'),live:Boolean(d.live),poweredBy:String(d.poweredBy||'')})};addEventListener('tryamm:all-american-network-program',onProgram);return()=>removeEventListener('tryamm:all-american-network-program',onProgram)},[])
+ const channel=useMemo(()=>{const base=CHANNELS.find(x=>x.id===selected)??CHANNELS[0];return base.id==='aan'&&aanProgram?{...base,now:aanProgram.title,live:aanProgram.live}:base},[selected,aanProgram])
  return <main style={{minHeight:'100dvh',background:'#050812',color:'#fff',padding:'14px',fontFamily:'system-ui'}}>
   <header style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:8}}>
    <div><div style={{fontSize:12,opacity:.7}}>HOLO FON • TV</div><h1 style={{fontSize:22,margin:'2px 0'}}>TRYAMM TV</h1></div>
    <button onClick={onClose} aria-label="Close TRYAMM TV">✕</button>
   </header>
   <section style={{border:'1px solid #39f3d0',borderRadius:16,padding:14,margin:'10px 0 14px'}}>
-   <div style={{fontSize:12,opacity:.75}}>{channel.category} • {channel.live?'LIVE':'ON DEMAND'}</div>
+   <div style={{fontSize:12,opacity:.75}}>{channel.category} • {channel.live?'LIVE':'ON DEMAND'}{channel.id==='aan'&&aanProgram?.poweredBy?' • '+aanProgram.poweredBy:''}</div>
    <h2 style={{margin:'6px 0'}}>{channel.name}</h2>
    <div><b>NOW</b> {channel.now}</div><div style={{opacity:.75,marginTop:4}}><b>NEXT</b> {channel.next}</div>
    <div style={{display:'flex',gap:8,marginTop:12,flexWrap:'wrap'}}>
@@ -41,6 +43,6 @@ export default function TryammTvHome({onClose}:{onClose:()=>void}){
     <div style={{fontSize:12,opacity:.58}}>NEXT: {x.next}</div>
    </button>)}
   </div>
-  <p style={{fontSize:12,opacity:.6,marginTop:16}}>Internet-first cable-style guide. External FAST/CTV/OTT distribution requires certified provider integrations and content rights.</p>
+  <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:14}}><a href="/network/studio" style={{padding:'9px 11px',borderRadius:10,border:'1px solid #39f3d0',color:'#fff',textDecoration:'none',fontWeight:900}}>OPEN ALL AMERICAN STUDIO</a><a href="/network" style={{padding:'9px 11px',borderRadius:10,border:'1px solid #39445c',color:'#fff',textDecoration:'none',fontWeight:900}}>ALL AMERICAN NETWORK</a></div><p style={{fontSize:12,opacity:.6,marginTop:16}}>Internet-first cable-style guide. External FAST/CTV/OTT distribution requires certified provider integrations and content rights.</p>
  </main>
 }
