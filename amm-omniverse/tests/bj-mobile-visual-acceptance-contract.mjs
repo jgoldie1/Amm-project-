@@ -17,8 +17,8 @@ must(world.includes("THREE.MathUtils.clamp(4.8+text.length*.12,5.4,7.4)"),'world
 must(world.includes("seniorCommonsLabel.scale.set(6.8,1.25,1)"),'Senior Commons label must stay mobile-sized')
 must(world.includes("addressLabel.scale.set(6.4,1.15,1)"),'Circle Park address label must stay mobile-sized')
 
-must(photo.includes("version:'bj-v10-approved-reference-volumetric-head'"),'V10 BJ volumetric reference-head version missing')
-must(photo.includes("geometryAuthority:'runtime-v10-volumetric-head-profile'"),'V10 BJ volumetric geometry authority missing')
+must(photo.includes("version:'bj-v10-approved-reference-landmark-head'"),'V10 BJ volumetric reference-head version missing')
+must(photo.includes("geometryAuthority:'runtime-v10-landmark-volumetric-head-profile'"),'V10 BJ volumetric geometry authority missing')
 must(photo.includes("streetverse-bj-v10-head-volume"),'V10 full head-volume support missing')
 must(photo.includes("bj-v10-jaw-volume")&&photo.includes("bj-v10-nose-tip-volume"),'V10 jaw/nose profile geometry missing')
 must(photo.includes("bj-v10-brow-ridge-left")&&photo.includes("bj-v10-orbit-right"),'V10 brow/orbit geometry missing')
