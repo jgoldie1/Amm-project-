@@ -153,7 +153,9 @@ function disposeObject(root:THREE.Object3D){
   root.removeFromParent()
 }
 
-export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHeroHandle|null>{
+export type StreetVerseBJHeroLoadResult={status:'ready';handle:StreetVerseMeshyBJHeroHandle}|{status:'missing'}|{status:'invalid-or-load-failed';error:string}
+
+export async function loadStreetVerseMeshyBJHeroDetailed():Promise<StreetVerseBJHeroLoadResult>{
   const verifiedPhotoMatch=canClaimPhotoMatched(BJ_MESHY_V6_ASSET.characterId)
   const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
   const published=await resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope)
@@ -165,7 +167,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       url:sourceUrl,
       fallback:BJ_MESHY_V6_ASSET.fallback,
     }}))
-    return null
+    return {status:'missing'}
   }
 
   try{
@@ -180,6 +182,9 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         node.frustumCulled=true
       }
     })
+    let skinnedMeshCount=0,boneCount=0
+    object.traverse(node=>{if(node instanceof THREE.SkinnedMesh)skinnedMeshCount++;if(node instanceof THREE.Bone)boneCount++})
+    if(skinnedMeshCount<1||boneCount<12)throw new Error(`BJ V6 rejected: production human requires a skinned mesh and humanoid skeleton (skinnedMeshes=${skinnedMeshCount}, bones=${boneCount})`)
     const productionMaterials=tuneBJProductionMaterials(object)
     object.userData={
       ...object.userData,
@@ -199,7 +204,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     }
 
     const companionClips:THREE.AnimationClip[]=[]
-    for(const [url,name] of [[published?.walkUrl,'walk'],[published?.runUrl,'run']] as const){
+    for(const [url,name] of [[published?.walkUrl||'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6_WALK.glb','walk'],[published?.runUrl||'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6_RUN.glb','run']] as const){
       if(!url)continue
       try{
         const companion=await loader.loadAsync(url)
@@ -278,7 +283,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       lifeLayer:'blink-lipsync-breathing-eye-focus-ready',
     }}))
 
-    return {
+    return {status:'ready',handle:{
       object,
       mixer,
       clips,
@@ -290,7 +295,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         mixer?.stopAllAction()
         disposeObject(object)
       },
-    }
+    }}
   }catch(error){
     window.dispatchEvent(new CustomEvent('tryamm:bj-meshy-v6-error',{detail:{
       characterId:BJ_MESHY_V6_ASSET.characterId,
@@ -298,8 +303,13 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       error:String(error),
       fallback:BJ_MESHY_V6_ASSET.fallback,
     }}))
-    return null
+    return {status:'invalid-or-load-failed',error:String(error)}
   }
+}
+
+export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHeroHandle|null>{
+  const result=await loadStreetVerseMeshyBJHeroDetailed()
+  return result.status==='ready'?result.handle:null
 }
 
 export function resetStreetVerseMeshyBJAvailability(){

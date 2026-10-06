@@ -1,0 +1,85 @@
+name: StreetVerse BJ V6 Human Forge
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_url:
+        description: Publicly reachable approved BJ full-body reference image
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  forge-bj-v6:
+    runs-on: ubuntu-latest
+    env:
+      MESHY_API_KEY: ${{ secrets.MESHY_API_KEY }}
+      IMAGE_URL: ${{ inputs.image_url }}
+      OUT_DIR: amm-omniverse/public/tryamm-assets/meshy/characters
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require secure Meshy secret
+        shell: bash
+        run: |
+          test -n "$MESHY_API_KEY" || { echo "::error::MESHY_API_KEY repository secret is missing"; exit 1; }
+      - name: Generate, rig, and publish BJ V6
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$OUT_DIR"
+          auth=(-H "Authorization: Bearer $MESHY_API_KEY" -H "Content-Type: application/json")
+          payload=$(jq -n --arg image "$IMAGE_URL" '{
+            image_url:$image,
+            ai_model:"meshy-7.1",
+            geometry_resolution:"2k",
+            enable_pbr:true,
+            should_remesh:true,
+            target_polycount:80000,
+            should_texture:true,
+            pose_mode:"a-pose",
+            image_enhancement:false,
+            target_formats:["glb"]
+          }')
+          task=$(curl -fsS https://api.meshy.ai/openapi/v1/image-to-3d -X POST "${auth[@]}" -d "$payload" | jq -r .result)
+          test -n "$task" -a "$task" != null
+          for i in $(seq 1 120); do
+            data=$(curl -fsS "https://api.meshy.ai/openapi/v1/image-to-3d/$task" -H "Authorization: Bearer $MESHY_API_KEY")
+            status=$(jq -r .status <<<"$data")
+            [ "$status" = SUCCEEDED ] && break
+            [ "$status" = FAILED ] && { jq . <<<"$data"; exit 1; }
+            sleep 5
+          done
+          [ "${status:-}" = SUCCEEDED ] || { echo "::error::Mesh generation timed out"; exit 1; }
+
+          rig_payload=$(jq -n --arg task "$task" '{input_task_id:$task,height_meters:1.80}')
+          rig=$(curl -fsS https://api.meshy.ai/openapi/v1/rigging -X POST "${auth[@]}" -d "$rig_payload" | jq -r .result)
+          for i in $(seq 1 120); do
+            rigdata=$(curl -fsS "https://api.meshy.ai/openapi/v1/rigging/$rig" -H "Authorization: Bearer $MESHY_API_KEY")
+            rigstatus=$(jq -r .status <<<"$rigdata")
+            [ "$rigstatus" = SUCCEEDED ] && break
+            [ "$rigstatus" = FAILED ] && { jq . <<<"$rigdata"; exit 1; }
+            sleep 5
+          done
+          [ "${rigstatus:-}" = SUCCEEDED ] || { echo "::error::Rigging timed out"; exit 1; }
+
+          curl -fL "$(jq -r .result.rigged_character_glb_url <<<"$rigdata")" -o "$OUT_DIR/SV_HERO_BJ_STUBBS_V6.glb"
+          walk=$(jq -r '.result.basic_animations.walking_glb_url // empty' <<<"$rigdata")
+          run=$(jq -r '.result.basic_animations.running_glb_url // empty' <<<"$rigdata")
+          [ -z "$walk" ] || curl -fL "$walk" -o "$OUT_DIR/SV_HERO_BJ_STUBBS_V6_WALK.glb"
+          [ -z "$run" ] || curl -fL "$run" -o "$OUT_DIR/SV_HERO_BJ_STUBBS_V6_RUN.glb"
+          test -s "$OUT_DIR/SV_HERO_BJ_STUBBS_V6.glb"
+          printf '{"source":"meshy-api","imageTask":"%s","rigTask":"%s","asset":"SV_HERO_BJ_STUBBS_V6.glb"}\n' "$task" "$rig" > "$OUT_DIR/SV_HERO_BJ_STUBBS_V6.provenance.json"
+
+      - name: Commit generated production human
+        shell: bash
+        run: |
+          git config user.name "tryamm-world-forger"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$OUT_DIR/SV_HERO_BJ_STUBBS_V6.glb" "$OUT_DIR/SV_HERO_BJ_STUBBS_V6.provenance.json"
+          [ ! -s "$OUT_DIR/SV_HERO_BJ_STUBBS_V6_WALK.glb" ] || git add "$OUT_DIR/SV_HERO_BJ_STUBBS_V6_WALK.glb"
+          [ ! -s "$OUT_DIR/SV_HERO_BJ_STUBBS_V6_RUN.glb" ] || git add "$OUT_DIR/SV_HERO_BJ_STUBBS_V6_RUN.glb"
+          git diff --cached --quiet && { echo "::error::No BJ asset generated"; exit 1; }
+          git commit -m "Publish generated BJ V6 production human"
+          git push
