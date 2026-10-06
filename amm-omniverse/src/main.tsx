@@ -33,6 +33,7 @@ const MeetTheStubbsWorldDistrict=lazy(()=>import('./components/MeetTheStubbsWorl
 const OmniWorkstation=lazy(()=>import('./components/OmniWorkstation'))
 const AllAmericanNetworkHub=lazy(()=>import('./components/AllAmericanNetworkHub'))
 const AllAmericanNetworkControlRoom=lazy(()=>import('./components/AllAmericanNetworkControlRoom'))
+const TryammBroadcastNetworkCenter=lazy(()=>import('./components/TryammBroadcastNetworkCenter'))
 const ServantsOfChristMinistry=lazy(()=>import('./components/ServantsOfChristMinistry'))
 const OmniCareCashSuite=lazy(()=>import('./components/OmniCareCashSuite'))
 const GlobalTradeWorldHub=lazy(()=>import('./components/GlobalTradeWorldHub'))
@@ -75,6 +76,7 @@ try {
   const isKingdomsPress=currentPath==='/kingdoms-press'||currentPath==='/kingdoms-press/'
   const isRecoveredSurface=['/spectra-entertainment','/spectra-entertainment/','/all-american-records','/all-american-records/','/set-apart','/set-apart/','/christian-rap','/christian-rap/','/holo-music','/holo-music/','/holo-food','/holo-food/','/holo-ride-share','/holo-ride-share/'].includes(currentPath)
   const isNetworkStudio=['/network/studio','/network/studio/','/broadcast-studio','/broadcast-studio/'].includes(currentPath)
+  const isBroadcastOS=['/network/broadcast-os','/network/broadcast-os/','/broadcast-os','/broadcast-os/'].includes(currentPath)
   const isNetwork=['/network','/network/','/free-tv','/free-tv/','/isaiah-ai-tv','/isaiah-ai-tv/','/starverse','/starverse/','/reality-tv','/reality-tv/'].includes(currentPath)
   const isServantsOfChrist=currentPath==='/servants-of-christ'||currentPath==='/servants-of-christ/'
   const isCareCash=['/omnicare-360','/omnicare-360/','/omnicare-rx','/omnicare-rx/','/omni-cash','/omni-cash/','/aniyah-pay','/aniyah-pay/'].includes(currentPath)
@@ -144,6 +146,7 @@ try {
   else if(isKingdomsPress)routeContent=<Suspense fallback={routeFallback}><KingdomsPressOperations onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isRecoveredSurface)routeContent=<Suspense fallback={routeFallback}><HoloDeliveryRideEntertainmentHub /></Suspense>
   else if(isNetworkStudio)routeContent=<Suspense fallback={routeFallback}><AllAmericanNetworkControlRoom /></Suspense>
+  else if(isBroadcastOS)routeContent=<Suspense fallback={routeFallback}><TryammBroadcastNetworkCenter /></Suspense>
   else if(isNetwork)routeContent=<Suspense fallback={routeFallback}><AllAmericanNetworkHub /></Suspense>
   else if(isServantsOfChrist)routeContent=<Suspense fallback={routeFallback}><ServantsOfChristMinistry /></Suspense>
   else if(isCareCash)routeContent=<Suspense fallback={routeFallback}><OmniCareCashSuite /></Suspense>
@@ -210,6 +213,7 @@ const installOptionalRuntimes = () => {
   import('./runtime/CreatorRevenueFabricRuntime').then(m => m.installCreatorRevenueFabricRuntime()).catch(error => console.error('[TRYAMM] Creator Revenue Fabric failed after core mount.', error))
   import('./runtime/CreatorMoneyCenterRuntime').then(m => m.installCreatorMoneyCenterRuntime()).catch(error => console.error('[TRYAMM] Creator Money Center failed after core mount.', error))
   import('./runtime/CreatorWorkweekRuntime').then(m => m.installCreatorWorkweekRuntime()).catch(error => console.error('[TRYAMM] Creator Workweek failed after core mount.', error))
+  import('./runtime/TryammBroadcastOSRuntime').then(m => m.installTryammBroadcastOSRuntime()).catch(error => console.error('[TRYAMM] Broadcast OS failed after core mount.', error))
   import('./runtime/BusinessIncomeCenterRuntime').then(m => m.installBusinessIncomeCenterRuntime()).catch(error => console.error('[TRYAMM] Business Income Center failed after core mount.', error))
   import('./runtime/GameAppIncomeBridge').then(m => m.installGameAppIncomeBridge()).catch(error => console.error('[TRYAMM] Game/App income bridge failed after core mount.', error))
   import('./runtime/GlobalAfricaPaymentsRuntime').then(m => m.installGlobalAfricaPaymentsRuntime()).catch(error => console.error('[TRYAMM] Global/Africa payments router failed after core mount.', error))
