@@ -1,0 +1,38 @@
+import fs from 'node:fs'
+
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8')
+const carousel=read('src/runtime/HoloverseCarouselRuntime.ts')
+const verseDir=read('src/holo/holoClip2.ts')
+const holoUi=read('src/components/HolographicVerseCarousel.tsx')
+const transit=read('src/components/HolographicVerseTransitOverlay.tsx')
+const radio=read('src/runtime/VerseRadioRuntime.ts')
+const music=read('src/components/HoloMusicStreaming.tsx')
+const gallery=read('src/components/HolographicGalleryViewport.tsx')
+const factory=read('src/runtime/MonthlyGameFactoryRuntime.ts')
+const volcano=read('src/components/VolcanoGamingHub.tsx')
+const launcher=read('src/components/HoloExperienceLauncher.tsx')
+const main=read('src/main.tsx')
+const pkg=JSON.parse(read('package.json'))
+const must=(ok,msg)=>{if(!ok)throw new Error('VERSE CONVERGENCE CONTRACT FAIL: '+msg)}
+
+const verseEntries=[...verseDir.matchAll(/\{id:'([^']+)',label:'([^']+)',route:'([^']+)',status:'([^']+)',purpose:'([^']+)'\}/g)]
+must(verseEntries.length>=23,'canonical verse directory must contain at least 23 destinations')
+must(carousel.includes('TRYAMM_VERSE_DIRECTORY.map'),'carousel is not sourced from canonical verse directory')
+for(const token of ['canonicalVerseDirectory:true','holographicFlyIn:true','noDeadCards:true','tryamm:holo-verse-transit-request'])must(carousel.includes(token),'carousel missing '+token)
+for(const token of ['All 23 Verses','VERSE RADIO','activateHoloDestination','BUILDING'])must(holoUi.includes(token),'holographic verse UI missing '+token)
+for(const token of ['tryamm:holo-verse-transit-request','tryammVerseFly','HOLOGRAPHIC TRANSIT','prefers-reduced-motion'])must(transit.includes(token),'transit overlay missing '+token)
+for(const token of ['tryamm:verse-radio-play','tryamm:verse-radio-state','tryamm:music-sync-play-event','publicAuthorized','serverVerificationRequired','needsTap','VERSE_RADIO_STATIONS'])must(radio.includes(token),'Verse Radio missing '+token)
+must(music.includes("tryamm:verse-radio-play"),'MusicVerse does not hand tracks to Verse Radio')
+must(music.includes('CROSS-VERSE RADIO'),'MusicVerse radio controls missing')
+for(const token of ['holo-gallery-ambient-particles','GridHelper','screenRingA','screenRingB','scanPlane'])must(gallery.includes(token),'gallery screensaver missing '+token)
+for(const token of ["schema:'tryamm.monthly-game-factory.v1'","factoryMode:'supervised-autonomous'","releaseCadence:'monthly'","volcanoPackage:true",'humanGates'])must(factory.includes(token),'monthly game factory missing '+token)
+must(volcano.includes('MONTHLY GAME FACTORY'),'Volcano monthly game factory UI missing')
+must(volcano.includes('tryamm:monthly-game-factory-request'),'Volcano does not request factory plan')
+must(launcher.includes('__showHoloverse'),'legacy Holo launcher does not route into unified Holoverse display')
+must(main.includes('<HolographicVerseTransitOverlay />'),'global verse transit overlay is not mounted')
+must(main.includes('<VerseRadioDock />'),'global Verse Radio dock is not mounted')
+must(main.includes("import('./runtime/MonthlyGameFactoryRuntime')"),'monthly game factory runtime not installed')
+must(String(pkg.scripts?.build||'').includes('verse-convergence-holo-radio-game-factory-contract.mjs'),'production build does not run convergence contract')
+
+console.log(JSON.stringify({verseCount:verseEntries.length,holographicFlyIn:true,verseRadio:true,galleryScreensaver:true,monthlyGameFactory:true,volcanoPackage:true},null,2))
+console.log('VERSE CONVERGENCE + HOLO RADIO + MONTHLY GAME FACTORY CONTRACT PASS')
