@@ -18,7 +18,7 @@ for(const token of [
   "tryamm:streetverse-vehicle-input",
 ]) must(actions.includes(token),'actions missing '+token)
 
-must(!actions.includes("<StreetVerseRPActionSearch compact/><StreetVerseRPOmnibar compact/>"),'RP stack still always-open on mobile')
+must(actions.includes("{(!mobile||rpOpen)&&<><StreetVerseRPActionSearch compact/><StreetVerseRPOmnibar compact/></>}"),'RP stack is not conditionally hidden on mobile')
 must(creator.includes("tryamm:streetverse-play-focus"),'creator dock does not obey Play Mode')
 must(creator.includes("if(e.target===e.currentTarget)close()"),'creator backdrop cannot dismiss drawer')
 must(String(pkg.scripts?.build||'').includes('streetverse-mobile-play-first-contract.mjs'),'production build does not run mobile play-first contract')
