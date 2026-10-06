@@ -200,6 +200,7 @@ const installOptionalRuntimes = () => {
   import('./runtime/BusinessDiscoveryLensRuntime').then(m => m.installBusinessDiscoveryLensRuntime()).catch(error => console.error('[TRYAMM] Business discovery lens failed after core mount.', error))
   import('./runtime/CreatorRevenueFabricRuntime').then(m => m.installCreatorRevenueFabricRuntime()).catch(error => console.error('[TRYAMM] Creator Revenue Fabric failed after core mount.', error))
   import('./runtime/CreatorMoneyCenterRuntime').then(m => m.installCreatorMoneyCenterRuntime()).catch(error => console.error('[TRYAMM] Creator Money Center failed after core mount.', error))
+  import('./runtime/CreatorWorkweekRuntime').then(m => m.installCreatorWorkweekRuntime()).catch(error => console.error('[TRYAMM] Creator Workweek failed after core mount.', error))
   import('./runtime/BusinessIncomeCenterRuntime').then(m => m.installBusinessIncomeCenterRuntime()).catch(error => console.error('[TRYAMM] Business Income Center failed after core mount.', error))
   import('./runtime/GameAppIncomeBridge').then(m => m.installGameAppIncomeBridge()).catch(error => console.error('[TRYAMM] Game/App income bridge failed after core mount.', error))
   import('./runtime/GlobalAfricaPaymentsRuntime').then(m => m.installGlobalAfricaPaymentsRuntime()).catch(error => console.error('[TRYAMM] Global/Africa payments router failed after core mount.', error))
