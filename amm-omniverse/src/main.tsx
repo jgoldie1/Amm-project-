@@ -20,6 +20,8 @@ import StreetVerseWeatherSync from './components/StreetVerseWeatherSync'
 import InstallPrompt from './components/InstallPrompt'
 import HoloExperienceLauncher from './components/HoloExperienceLauncher'
 import OmniCashLauncher from './components/OmniCashLauncher'
+import HolographicVerseTransitOverlay from './components/HolographicVerseTransitOverlay'
+import VerseRadioDock from './components/VerseRadioDock'
 import { getStandaloneSite } from './data/standaloneSiteRegistry'
 import './accessibility/accessibility.css'
 
@@ -263,6 +265,8 @@ const installOptionalRuntimes = () => {
 root.render(
   <StrictMode>
     {routeContent}
+    <HolographicVerseTransitOverlay />
+    <VerseRadioDock />
     {entryDiagnostic}
   </StrictMode>
 )
