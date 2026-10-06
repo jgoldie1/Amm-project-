@@ -94,15 +94,17 @@ export default function StreetVerseCreatorEarnDock(){
 
  const close=()=>{setOpen(false);setMode('menu')}
 
+ useEffect(()=>{const onPlay=()=>close();addEventListener('tryamm:streetverse-play-focus',onPlay);return()=>removeEventListener('tryamm:streetverse-play-focus',onPlay)},[])
+
  return <>
   <button
    data-streetverse-create-earn="true"
    aria-label="Open StreetVerse creator and earnings tools"
    onClick={()=>{setOpen(true);setMode('menu')}}
-   style={{position:'fixed',right:'max(10px,env(safe-area-inset-right))',bottom:'calc(env(safe-area-inset-bottom) + 192px)',zIndex:43100,minHeight:44,minWidth:112,padding:'0 12px',borderRadius:999,border:'2px solid #8effb7',background:'linear-gradient(135deg,#082a1d,#072333)',color:'#fff',font:'950 11px system-ui',letterSpacing:.4,boxShadow:'0 0 22px #45ef9b44,0 8px 24px #0009',touchAction:'manipulation'}}
+   style={{position:'fixed',right:'max(10px,env(safe-area-inset-right))',bottom:'calc(env(safe-area-inset-bottom) + 100px)',zIndex:43100,minHeight:44,minWidth:112,padding:'0 12px',borderRadius:999,border:'2px solid #8effb7',background:'linear-gradient(135deg,#082a1d,#072333)',color:'#fff',font:'950 11px system-ui',letterSpacing:.4,boxShadow:'0 0 22px #45ef9b44,0 8px 24px #0009',touchAction:'manipulation'}}
   >＋ CREATE $</button>
 
-  {open&&<div role="dialog" aria-modal="true" aria-label="StreetVerse Create and Earn" style={{position:'fixed',inset:0,zIndex:49000,background:'#02050ab8',display:'flex',alignItems:'flex-end',justifyContent:'center',fontFamily:'system-ui',color:'#fff'}}>
+  {open&&<div role="dialog" aria-modal="true" aria-label="StreetVerse Create and Earn" onPointerDown={e=>{if(e.target===e.currentTarget)close()}} style={{position:'fixed',inset:0,zIndex:49000,background:'#02050ab8',display:'flex',alignItems:'flex-end',justifyContent:'center',fontFamily:'system-ui',color:'#fff'}}>
    <section style={{width:'min(720px,100%)',maxHeight:'78vh',overflowY:'auto',borderRadius:'22px 22px 0 0',border:'1px solid #4fe3ff77',borderBottom:0,background:'linear-gradient(180deg,#071a25f7,#03070dfc)',boxShadow:'0 -20px 55px #000c',padding:'14px 14px calc(env(safe-area-inset-bottom) + 16px)'}}>
     <header style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,position:'sticky',top:0,zIndex:2,background:'#071a25f2',paddingBottom:10}}>
      <div><div style={{fontSize:10,color:'#8effb7',fontWeight:950,letterSpacing:2}}>STREETVERSE CREATOR ECONOMY</div><b style={{fontSize:20}}>CREATE • PUBLISH • EARN</b></div>
