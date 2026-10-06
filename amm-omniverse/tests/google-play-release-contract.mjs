@@ -27,8 +27,10 @@ for(const [label,page] of [['privacy',privacy],['terms',terms]]){
 
 const capTs=read('capacitor.config.ts')
 const capJson=JSON.parse(read('capacitor.config.json'))
-must(capTs.includes("appId: 'online.tryamm.app'"),'TypeScript Capacitor config package ID mismatch')
-must(capTs.includes("appName: 'TRYAMM'"),'TypeScript Capacitor app name mismatch')
+must(capTs.includes("'online.tryamm.app'"),'TypeScript Capacitor config must retain canonical TRYAMM package ID')
+must(capTs.includes("'online.tryamm.streetverse'"),'TypeScript Capacitor config must retain StreetVerse native target package ID')
+must(capTs.includes("'TRYAMM'"),'TypeScript Capacitor config must retain TRYAMM app name')
+must(capTs.includes("'StreetVerse'"),'TypeScript Capacitor config must retain StreetVerse app name')
 must(capJson.appId==='online.tryamm.app','JSON Capacitor config package ID mismatch')
 must(capJson.appName==='TRYAMM','JSON Capacitor app name mismatch')
 
