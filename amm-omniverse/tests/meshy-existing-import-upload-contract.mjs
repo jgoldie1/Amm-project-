@@ -35,6 +35,8 @@ must(panel.includes("accept=\".glb,model/gltf-binary,application/octet-stream\""
 
 must(manifest.includes('/api/meshy/asset-manifest'),'runtime manifest bridge missing')
 must(hero.includes("resolvePublishedMeshyAsset('sv-bj-stubbs-v6'"),'BJ runtime must resolve durable Meshy manifest asset')
-must(hero.includes('published?.url||BJ_MESHY_V6_ASSET.url'),'BJ runtime must prefer published asset with static fallback')
+must(hero.includes("const candidates=[published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.url]"),'BJ runtime must prefer published Meshy asset, then owned V7, then V6 compatibility fallback')
+must(hero.includes("productionUrl:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V7.glb'"),'BJ runtime must expose the owned V7 static fallback')
+must(hero.includes("url:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6.glb'"),'BJ runtime must preserve the V6 compatibility fallback')
 
-console.log('MESHY END-TO-END IMPORT CONTRACT PASS: API import + iPhone upload + manifest + BJ live swap')
+console.log('MESHY END-TO-END IMPORT CONTRACT PASS: API import + iPhone upload + manifest + published Meshy -> owned V7 -> V6 fallback order')
