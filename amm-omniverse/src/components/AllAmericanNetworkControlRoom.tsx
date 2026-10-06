@@ -1,6 +1,9 @@
 import {useEffect,useMemo,useState} from 'react'
 import HoloGPTAssistant from './HoloGPTAssistant'
 import type {FreeTvCommercialPlan} from '../runtime/FreeTvCommercialRuntime'
+import AllAmerican24x7ProgrammingPanel from './AllAmerican24x7ProgrammingPanel'
+import WorldToBroadcastQueue from './WorldToBroadcastQueue'
+import AllAmericanAITwinHostStage from './AllAmericanAITwinHostStage'
 
 type StudioState={
   scene:string
@@ -48,6 +51,7 @@ const FORMATS=[
   {id:'creator-spotlight',label:'Creator Spotlight',scene:'interview',desc:'Interview + performance + fan interaction + Reel clips.'},
   {id:'all-american-news',label:'All American News Desk',scene:'news-desk',desc:'Community, business, culture, sports and creator headlines.'},
   {id:'business-showcase',label:'Business Showcase',scene:'shopping',desc:'Founder story, products, QR/Marketplace call-to-action and live shopping.'},
+  {id:'crypto-education',label:'Crypto Education Desk',scene:'news-desk',desc:'Blockchain, wallet safety, scams, market structure, payments and regulation education. No personalized investment advice.'},
   {id:'musicverse-live',label:'MusicVerse LIVE',scene:'virtual-set',desc:'Artist showcase, radio, performance, PK and audience requests.'},
   {id:'sports-desk',label:'SportsVerse Desk',scene:'sports',desc:'Scores, highlights, interviews, competitions and community sports.'},
   {id:'faith-community',label:'Faith & Community',scene:'faith',desc:'Worship, teaching, testimony, service and community programming.'},
@@ -67,6 +71,8 @@ const MODULES=[
   ['guest','REMOTE GUESTS','Creator / caller / co-host inputs'],
   ['playback','PLAYBACK','Clips, reels, ads, sponsor media'],
   ['record','RECORDER','Program master + clips + replay'],
+  ['sources','SOURCE DESK','Verified links, timestamps, attribution and corrections'],
+  ['data-wall','DATA WALL','Charts, diagrams, market structure and blockchain explainers'],
 ] as const
 
 const readSchedule=():ScheduledShow[]=>{
@@ -238,6 +244,9 @@ export default function AllAmericanNetworkControlRoom(){
       <article style={panel}><div style={sectionTitle}>UPCOMING RUNDOWN</div><div style={{display:'grid',gap:6,marginTop:8}}>{schedule.length===0&&<div style={empty}>No shows scheduled yet.</div>}{schedule.slice(-8).reverse().map(s=><div key={s.id} style={rundownRow}><div><b>{s.title}</b><div style={{fontSize:8,color:'#91a8b4'}}>{fmtTime(s.startsAt)} • {s.durationMinutes} min • {s.formatId.replaceAll('-',' ')}</div></div><span style={{fontSize:8,color:'#ffd36e'}}>{s.status.toUpperCase()}</span></div>)}</div></article>
     </section>
 
+    <AllAmericanAITwinHostStage humanHostIds={hostIds}/>
+    <WorldToBroadcastQueue/>
+    <AllAmerican24x7ProgrammingPanel/>
     <div aria-live="polite" style={noticeBox}>{notice}</div>
     <HoloGPTAssistant showLauncher={false}/>
   </main>
