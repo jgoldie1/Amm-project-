@@ -40,6 +40,7 @@ export default function StreetVerseActionCarousel(){
   const onOpen=()=>setOpen(true)
   const onClose=()=>{setOpen(false);setRpOpen(false)}
   const onMove=()=>{if(mobile){setOpen(false);setRpOpen(false)}}
+  const onVehicleInteract=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx(current=>({...current,...d,kind:'vehicle'}));setPage(0);if(!mobile)setOpen(true)}
   addEventListener('tryamm:streetverse-interaction-context',onContext)
   addEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown)
   addEventListener('tryamm:streetverse-vehicle-repaired',onRepaired)
@@ -48,7 +49,8 @@ export default function StreetVerseActionCarousel(){
   addEventListener('tryamm:streetverse-play-focus',onClose)
   addEventListener('tryamm:streetverse-player-position',onMove)
   addEventListener('tryamm:streetverse-vehicle-input',onMove)
-  return()=>{removeEventListener('tryamm:streetverse-interaction-context',onContext);removeEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown);removeEventListener('tryamm:streetverse-vehicle-repaired',onRepaired);removeEventListener('tryamm:streetverse-actions-open',onOpen);removeEventListener('tryamm:streetverse-actions-close',onClose);removeEventListener('tryamm:streetverse-play-focus',onClose);removeEventListener('tryamm:streetverse-player-position',onMove);removeEventListener('tryamm:streetverse-vehicle-input',onMove)}
+  addEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract)
+  return()=>{removeEventListener('tryamm:streetverse-interaction-context',onContext);removeEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown);removeEventListener('tryamm:streetverse-vehicle-repaired',onRepaired);removeEventListener('tryamm:streetverse-actions-open',onOpen);removeEventListener('tryamm:streetverse-actions-close',onClose);removeEventListener('tryamm:streetverse-play-focus',onClose);removeEventListener('tryamm:streetverse-player-position',onMove);removeEventListener('tryamm:streetverse-vehicle-input',onMove);removeEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract)}
  },[mobile])
  const items=useMemo(()=>{
   const ids=relevant(ctx)
