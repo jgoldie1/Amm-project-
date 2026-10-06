@@ -1,4 +1,4 @@
-export type NewsScope='local'|'national'|'international'|'global'|'politics-civics'|'entertainment'|'business'|'weather'|'sports'|'community'
+export type NewsScope='local'|'national'|'international'|'global'|'politics-civics'|'entertainment'|'business'|'finance-technology'|'crypto-education'|'weather'|'sports'|'community'
 export type NewsRevenueKind='ad'|'sponsorship'|'subscription'|'syndication'|'licensed-clip'|'business-showcase'|'event'|'archive'
 
 export interface TryammNewsChannel{
@@ -14,6 +14,8 @@ export const TRYAMM_NEWS_NETWORK:TryammNewsChannel[]=[
  {id:'politics-civics',name:'TRYAMM Politics & Civics',scope:'politics-civics',live:true,replay:true,editorialIndependence:true,sponsorDisclosure:true},
  {id:'entertainment-news',name:'TRYAMM Entertainment News',scope:'entertainment',live:true,replay:true,editorialIndependence:true,sponsorDisclosure:true},
  {id:'business-news',name:'TRYAMM Business News',scope:'business',live:true,replay:true,editorialIndependence:true,sponsorDisclosure:true},
+ {id:'finance-technology',name:'TRYAMM Finance & Technology',scope:'finance-technology',live:true,replay:true,editorialIndependence:true,sponsorDisclosure:true},
+ {id:'crypto-education',name:'TRYAMM Crypto Education',scope:'crypto-education',live:true,replay:true,editorialIndependence:true,sponsorDisclosure:true},
  {id:'weather',name:'TRYAMM Weather',scope:'weather',live:true,replay:true,editorialIndependence:true,sponsorDisclosure:true},
 ]
 
@@ -35,4 +37,9 @@ export const NEWS_EDITORIAL_RULES={
  candidateOrPartyPaymentCannotAffectEditorialRanking:true,
  serverVerifiedCommercialTransactions:true,
  audiencePrivacyAndDataMinimization:true,
+ cryptoEducationNotFinancialAdvice:true,
+ cryptoNoGuaranteedReturns:true,
+ cryptoUndisclosedPromotionProhibited:true,
+ cryptoNewsRequiresSourceLinksAndTimestamp:true,
+ cryptoSyntheticAnalystDisclosureRequired:true,
 } as const
