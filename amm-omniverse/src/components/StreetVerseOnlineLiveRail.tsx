@@ -43,8 +43,8 @@ export default function StreetVerseOnlineLiveRail(){
   const drop=(id:string)=>dispatchEvent(new CustomEvent('tryamm:streetverse-player-action-send',{detail:{toUserId:id,action:'drop-request'}}))
   const pk=(item:LiveDirectoryItem)=>dispatchEvent(new CustomEvent('tryamm:pk-invite-request',{detail:{toUserId:item.userId,roomName:item.roomName||'',source:'streetverse-online-rail'}}))
   const watch=(item:LiveDirectoryItem)=>{
-    if(item.roomName)dispatchEvent(new CustomEvent('tryamm:live-watch-room',{detail:{roomName:item.roomName,userId:item.userId,source:'streetverse-online-rail'}}))
-    else dispatchEvent(new CustomEvent('tryamm:live-open',{detail:{source:'streetverse-online-rail'}}))
+    try{sessionStorage.setItem('tryamm.live.watch.intent',JSON.stringify({roomName:item.roomName||'',userId:item.userId,source:'streetverse-online-rail'}))}catch{}
+    window.location.href='/live'
   }
 
   if(!open)return <button aria-label="Open who's online" onClick={()=>setOpen(true)} style={pill}>
@@ -76,7 +76,7 @@ export default function StreetVerseOnlineLiveRail(){
 
     <div style={hostStrip}>
       <div><b style={{fontSize:9}}>HOST SHIFT</b><div style={{fontSize:8,color:'#9ab0bb'}}>{shift?.active?`${shift.elapsedMinutes} min live • ${Math.round((shift.weeklyMinutes/60)*10)/10}/${shift.weeklyTargetHours}h week`:'Turn LIVE into a real creator schedule.'}</div></div>
-      <button onClick={()=>dispatchEvent(new CustomEvent(shift?.active?'tryamm:creator-host-shift-stop':'tryamm:live-open',{detail:{source:'online-rail'}}))} style={hostButton}>{shift?.active?'END SHIFT':'GO LIVE'}</button>
+      <button onClick={()=>{if(shift?.active)dispatchEvent(new CustomEvent('tryamm:creator-host-shift-stop'));else window.location.href='/live'}} style={hostButton}>{shift?.active?'END SHIFT':'GO LIVE'}</button>
     </div>
   </aside>
 }
