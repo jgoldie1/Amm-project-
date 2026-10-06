@@ -259,6 +259,7 @@ const installOptionalRuntimes = () => {
   import('./runtime/StreetVerseMissionDiscoveryRuntime').then(m => m.installStreetVerseMissionDiscoveryRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStreetVerseMissionDiscoveryRuntime failed after core mount.', error))
   import('./runtime/SECSConstructRuntime').then(m => m.installSECSConstructRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installSECSConstructRuntime failed after core mount.', error))
   import('./runtime/OmniverseEventFabricRuntime').then(m => m.installOmniverseEventFabricRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installOmniverseEventFabricRuntime failed after core mount.', error))
+  import('./runtime/MonthlyGameFactoryRuntime').then(m => m.installMonthlyGameFactoryRuntime()).catch(error => console.error('[TRYAMM] Monthly Game Factory failed after core mount.', error))
 }
 // Mount the selected public route first. Optional global launchers must never be
 // able to prevent the TRYAMM shell or StreetVerse from becoming visible.
