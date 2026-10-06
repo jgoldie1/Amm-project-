@@ -11,7 +11,7 @@ type TransitDetail={
 
 export default function HolographicVerseTransitOverlay(){
   const [detail,setDetail]=useState<TransitDetail|null>(null)
-  const reduced=useMemo(()=>typeof window!=='undefined'&&window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,false)
+  const reduced=useMemo(()=>typeof window!=='undefined'&&Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches),[])
 
   useEffect(()=>{
     let timer=0
