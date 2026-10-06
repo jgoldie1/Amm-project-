@@ -10,6 +10,8 @@ const studio=read('src/components/AllAmericanNetworkControlRoom.tsx')
 const news=read('src/game/holographic/TryammNewsNetwork.ts')
 const who=read('src/components/StreetVerseWhoOnlineRail.tsx')
 const workweek=read('src/runtime/CreatorWorkweekRuntime.ts')
+const aiTwin=read('src/runtime/AllAmericanAITwinHostRuntime.ts')
+const aiTwinStage=read('src/components/AllAmericanAITwinHostStage.tsx')
 const pkg=JSON.parse(read('package.json'))
 const must=(ok,msg)=>{if(!ok)throw new Error('ALL AMERICAN 24X7 CRYPTO BROADCAST CONTRACT FAIL: '+msg)}
 
@@ -59,6 +61,7 @@ must(studio.includes('SOURCE DESK'),'studio equipment missing source desk')
 must(studio.includes('DATA WALL'),'studio equipment missing data wall')
 must(studio.includes('<WorldToBroadcastQueue/>'),'studio missing world-to-broadcast queue')
 must(studio.includes('<AllAmerican24x7ProgrammingPanel/>'),'studio missing 24x7 programming panel')
+must(studio.includes('<AllAmericanAITwinHostStage humanHostIds={hostIds}/>'),'studio missing AI Twin host stage')
 
 for(const token of [
   "scope:'crypto-education'",
@@ -69,6 +72,11 @@ for(const token of [
 
 for(const token of ["WHO'S ONLINE","🔴 GO LIVE","WATCH","MEET"]) must(who.includes(token),'Who Online rail missing '+token)
 for(const token of ['targetHours:20','weeklyCapHours:40','discoveryDoesNotIncreaseAfterHours:30','BREAK_DUE']) must(workweek.includes(token),'creator workweek missing '+token)
+
+for(const token of ["id:'aan-ai-twin-host'","synthetic:true","temporaryUntilHumanCast:true","sources-required","Synthetic/AI-assisted host","human-host-cast","noImpersonation:true"]) must(aiTwin.includes(token),'AI Twin runtime missing '+token)
+for(const token of ['TEMPORARY SYNTHETIC ANCHOR','AAN AI TWIN • SYNTHETIC HOST','AI DRAFT','PREP','APPROVE','▶ SPEAK','human host takes priority']) must(aiTwinStage.includes(token),'AI Twin stage missing '+token)
+must(runtime.includes("temporarySyntheticHost:'aan-ai-twin-host'"),'24x7 runtime does not advertise AI Twin fallback')
+must(runtime.includes('humanApprovalRequired:true'),'AI Twin fallback lacks human approval gate')
 
 must(String(pkg.scripts?.build||'').includes('all-american-24x7-crypto-broadcast-contract.mjs'),'production build does not run 24x7 crypto broadcast contract')
 
