@@ -6,6 +6,8 @@ const runtime=read('src/runtime/BroadcastStudioRuntime.ts')
 const network=read('src/components/AllAmericanNetworkHub.tsx')
 const tv=read('src/components/TryammTvHome.tsx')
 const main=read('src/main.tsx')
+const freeTv=read('src/runtime/FreeTvCommercialRuntime.ts')
+const commercialOverlay=read('src/components/FreeTvCommercialBreakOverlay.tsx')
 const pkg=JSON.parse(read('package.json'))
 
 const must=(ok,msg)=>{if(!ok)throw new Error('ALL AMERICAN NETWORK STUDIO CONTRACT FAIL: '+msg)}
@@ -47,6 +49,26 @@ must(tv.includes('tryamm:all-american-network-program'),'TRYAMM TV does not rece
 must(tv.includes('/network/studio'),'TRYAMM TV does not link to Studio Control Room')
 must(main.includes("AllAmericanNetworkControlRoom"),'Studio Control Room route component missing')
 must(main.includes("'/network/studio'"),'Studio route missing')
+for(const token of [
+  "viewerPriceUsd:0",
+  "model:'free-ad-supported-tv'",
+  "15-second",
+  "30-second",
+  "60-second",
+  "tryamm:free-tv-commercial-plan",
+  "tryamm:free-tv-commercial-break-start",
+  "serverVerificationRequired:true",
+  "noFakeImpressions:true",
+]) must(freeTv.includes(token),'Free TV commercial runtime missing '+token)
+for(const token of [
+  'Advertisement',
+  'tryamm:holo-ad-impression-candidate',
+  'clientReported:true',
+  'billable:false',
+  'serverVerificationRequired:true',
+]) must(commercialOverlay.includes(token),'commercial overlay missing '+token)
+must(main.includes('FreeTvCommercialBreakOverlay'),'commercial break overlay is not globally mounted')
+must(main.includes("FreeTvCommercialRuntime"),'Free TV commercial runtime is not globally installed')
 must(String(pkg.scripts?.build||'').includes('all-american-network-studio-contract.mjs'),'production build does not run network studio contract')
 
 console.log('ALL AMERICAN NETWORK + STUBBS AI + HOLOGPT STUDIO CONTRACT PASS')
