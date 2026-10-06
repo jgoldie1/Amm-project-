@@ -14,7 +14,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
   const likenessHandleRef=useRef<BJPhotoMatchedHeadHandle|null>(null)
   const modelHeightRef=useRef(1.88)
   const autoRotateRef=useRef(true)
-  const [status,setStatus]=useState('Loading BJ V8 likeness preview…')
+  const [status,setStatus]=useState('Loading BJ V9 likeness preview…')
   const [autoRotate,setAutoRotate]=useState(true)
   const [likenessEnabled,setLikenessEnabled]=useState(true)
   const [cameraMode,setCameraMode]=useState<'full'|'face'>('full')
@@ -75,7 +75,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       if(photoMatch){
         void photoMatch.ready.then(ok=>{
           if(dead)return
-          setStatus(ok?'BJ V8 • APPROVED REFERENCE LIKENESS LAYER':'BJ V7 • PROCEDURAL FALLBACK')
+          setStatus(ok?'BJ V9 • VOLUMETRIC REFERENCE LIKENESS':'BJ V7 • PROCEDURAL FALLBACK')
           setLikenessEnabled(ok)
         })
       }else{
@@ -155,7 +155,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
     setStatus('Loading approved BJ reference layer…')
     void handle.ready.then(ok=>{
       setLikenessEnabled(ok)
-      setStatus(ok?'BJ V8 • APPROVED REFERENCE LIKENESS LAYER':'BJ V7 • PROCEDURAL FALLBACK')
+      setStatus(ok?'BJ V9 • VOLUMETRIC REFERENCE LIKENESS':'BJ V7 • PROCEDURAL FALLBACK')
     })
   }
 
@@ -220,7 +220,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
         {autoRotate?'AUTO ROTATE: ON':'AUTO ROTATE: OFF'}
       </button>
       <div style={{fontSize:9,color:'#93a7b8',lineHeight:1.45,marginTop:8}}>
-        <b>LIKENESS ON</b> applies the approved current-era BJ reference pixels to the V7 head slot and hides the generic procedural face underneath. It is a closer reference-driven preview, but it is still not labeled certified photoreal likeness.
+        <b>LIKENESS ON</b> applies the approved current-era BJ reference pixels to the V7 living rig plus the new V9 volumetric skull, jaw, cheeks, nose profile and beard depth. It is still a reference-driven approximation, not a certified photoreal likeness.
       </div>
     </footer>
   </main>
