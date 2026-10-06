@@ -2,6 +2,7 @@ import {useEffect,useRef,useState} from 'react'
 import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
+import {installBJPhotoMatchedHead,type BJPhotoMatchedHeadHandle} from '../runtime/StreetVerseBJPhotoMatchRuntime'
 
 const V7_URL='/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V7.glb'
 
@@ -10,8 +11,15 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
   const modelRef=useRef<THREE.Object3D|null>(null)
   const cameraRef=useRef<THREE.PerspectiveCamera|null>(null)
   const controlsRef=useRef<OrbitControls|null>(null)
-  const [status,setStatus]=useState('Loading BJ V7…')
+  const likenessHandleRef=useRef<BJPhotoMatchedHeadHandle|null>(null)
+  const modelHeightRef=useRef(1.88)
+  const autoRotateRef=useRef(true)
+  const [status,setStatus]=useState('Loading BJ V8 likeness preview…')
   const [autoRotate,setAutoRotate]=useState(true)
+  const [likenessEnabled,setLikenessEnabled]=useState(true)
+  const [cameraMode,setCameraMode]=useState<'full'|'face'>('full')
+
+  useEffect(()=>{autoRotateRef.current=autoRotate},[autoRotate])
 
   useEffect(()=>{
     const mount=mountRef.current
@@ -62,8 +70,21 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
         if(node instanceof THREE.Mesh){node.castShadow=true;node.receiveShadow=true}
       })
       scene.add(model)
+      const photoMatch=installBJPhotoMatchedHead(model)
+      likenessHandleRef.current=photoMatch
+      if(photoMatch){
+        void photoMatch.ready.then(ok=>{
+          if(dead)return
+          setStatus(ok?'BJ V8 • APPROVED REFERENCE LIKENESS LAYER':'BJ V7 • PROCEDURAL FALLBACK')
+          setLikenessEnabled(ok)
+        })
+      }else{
+        setStatus('BJ V7 • PROCEDURAL FALLBACK')
+        setLikenessEnabled(false)
+      }
       const box=new THREE.Box3().setFromObject(model)
       const size=box.getSize(new THREE.Vector3())
+      modelHeightRef.current=Math.max(1,size.y)
       const center=box.getCenter(new THREE.Vector3())
       model.position.sub(center)
       model.position.y+=size.y*.5
@@ -72,7 +93,6 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       camera.position.set(0,size.y*.56,Math.max(2.15,radius*2.15))
       controls.target.set(0,size.y*.53,0)
       controls.update()
-      setStatus('BJ V7 • LIVE PRODUCTION GLB')
     },undefined,error=>{
       console.error(error)
       setStatus('Could not load BJ V7 GLB')
@@ -91,7 +111,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
     let frame=0
     const animate=()=>{
       frame=requestAnimationFrame(animate)
-      if(modelRef.current&&autoRotate)modelRef.current.rotation.y+=.0035
+      if(modelRef.current&&autoRotateRef.current)modelRef.current.rotation.y+=.0035
       controls.update()
       renderer.render(scene,camera)
     }
@@ -110,12 +130,50 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
           mats.forEach(m=>m.dispose())
         }
       })
+      likenessHandleRef.current?.dispose()
+      likenessHandleRef.current=null
       renderer.domElement.remove()
       modelRef.current=null
       cameraRef.current=null
       controlsRef.current=null
     }
-  },[autoRotate])
+  },[])
+
+  const toggleLikeness=()=>{
+    const model=modelRef.current
+    if(!model)return
+    if(likenessHandleRef.current){
+      likenessHandleRef.current.dispose()
+      likenessHandleRef.current=null
+      setLikenessEnabled(false)
+      setStatus('BJ V7 • RAW PROCEDURAL GLB')
+      return
+    }
+    const handle=installBJPhotoMatchedHead(model)
+    likenessHandleRef.current=handle
+    if(!handle){setStatus('BJ V7 • PROCEDURAL FALLBACK');return}
+    setStatus('Loading approved BJ reference layer…')
+    void handle.ready.then(ok=>{
+      setLikenessEnabled(ok)
+      setStatus(ok?'BJ V8 • APPROVED REFERENCE LIKENESS LAYER':'BJ V7 • PROCEDURAL FALLBACK')
+    })
+  }
+
+  const setCamera=(mode:'full'|'face')=>{
+    const camera=cameraRef.current,controls=controlsRef.current
+    if(!camera||!controls)return
+    const h=modelHeightRef.current
+    setCameraMode(mode)
+    setAutoRotate(false)
+    if(mode==='face'){
+      controls.target.set(0,h*.83,0)
+      camera.position.set(0,h*.83,Math.max(.92,h*.62))
+    }else{
+      controls.target.set(0,h*.53,0)
+      camera.position.set(0,h*.56,Math.max(2.15,h*1.18))
+    }
+    controls.update()
+  }
 
   const view=(yaw:number)=>{
     const model=modelRef.current
@@ -131,7 +189,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
     <header style={{padding:'max(12px,env(safe-area-inset-top)) 12px 10px',display:'flex',justifyContent:'space-between',gap:10,alignItems:'center',borderBottom:'1px solid #243042'}}>
       <div>
         <div style={{fontSize:10,letterSpacing:2.5,fontWeight:900,color:'#78d7ff'}}>TRYAMM STREETVERSE</div>
-        <h1 style={{fontSize:'clamp(20px,6vw,30px)',margin:'3px 0 0'}}>BJ Stubbs V7 — Real GLB Viewer</h1>
+        <h1 style={{fontSize:'clamp(20px,6vw,30px)',margin:'3px 0 0'}}>BJ Stubbs V8 — Likeness Preview</h1>
       </div>
       <button onClick={onClose} aria-label="Close BJ viewer" style={{minWidth:44,minHeight:44,borderRadius:999,border:'1px solid #3e4b5d',background:'#111722',color:'#fff',fontSize:22}}>×</button>
     </header>
@@ -151,11 +209,18 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
           ['RIGHT',-Math.PI/2],
         ].map(([label,yaw])=><button key={String(label)} onClick={()=>view(Number(yaw))} style={{minHeight:44,border:'1px solid #32445a',borderRadius:12,background:'#0d1520',color:'#fff',fontWeight:900,fontSize:10}}>{label}</button>)}
       </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7,marginTop:8}}>
+        <button onClick={()=>setCamera('face')} style={{minHeight:46,border:'1px solid #66513a',borderRadius:12,background:cameraMode==='face'?'#3a2917':'#10161f',color:'#fff',fontWeight:950}}>FACE CLOSE-UP</button>
+        <button onClick={()=>setCamera('full')} style={{minHeight:46,border:'1px solid #4c6d8d',borderRadius:12,background:cameraMode==='full'?'#14324c':'#10161f',color:'#fff',fontWeight:950}}>FULL BODY</button>
+      </div>
+      <button onClick={toggleLikeness} style={{width:'100%',minHeight:48,marginTop:8,border:'1px solid #9a7548',borderRadius:12,background:likenessEnabled?'#4a341b':'#10161f',color:'#fff',fontWeight:950}}>
+        {likenessEnabled?'BJ LIKENESS: ON':'BJ LIKENESS: OFF (RAW V7)'}
+      </button>
       <button onClick={()=>setAutoRotate(v=>!v)} style={{width:'100%',minHeight:46,marginTop:8,border:'1px solid #4c6d8d',borderRadius:12,background:autoRotate?'#14324c':'#10161f',color:'#fff',fontWeight:950}}>
         {autoRotate?'AUTO ROTATE: ON':'AUTO ROTATE: OFF'}
       </button>
       <div style={{fontSize:9,color:'#93a7b8',lineHeight:1.45,marginTop:8}}>
-        This viewer loads the exact production file <b>SV_HERO_BJ_STUBBS_V7.glb</b>. It is the owned TRYAMM procedural BJ V7 model, not a certified photoreal likeness.
+        <b>LIKENESS ON</b> applies the approved current-era BJ reference pixels to the V7 head slot and hides the generic procedural face underneath. It is a closer reference-driven preview, but it is still not labeled certified photoreal likeness.
       </div>
     </footer>
   </main>
