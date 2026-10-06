@@ -3,7 +3,8 @@ export type TryammEdgeWorkClass='cache-sync'|'world-state-sync'|'light-ai'|'medi
 
 export const TRYAMM_POCKET_EDGE_ARCHITECTURE={
   product:'TRYAMM Pocket Edge Node',
-  visionName:'phone-size edge node connected to OmniVault 100 regional core',
+  visionName:'phone-size data center',
+  visionDetail:'edge node connected to OmniVault 100 regional core',
   truthBoundary:'A phone is an edge-compute/cache/sync node, not a hyperscale data center. Heavy compute remains on workstation, cafe/business, OmniVault 100 regional-core, or approved cloud nodes.',
   infrastructureHierarchy:['pocket/tablet','workstation','cafe/business managed edge','OmniVault 100 regional core','approved cloud/provider'] as const,
   regionalCore:{
