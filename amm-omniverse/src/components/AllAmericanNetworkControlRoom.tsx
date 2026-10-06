@@ -1,4 +1,5 @@
 import {useEffect,useMemo,useState} from 'react'
+import HoloGPTAssistant from './HoloGPTAssistant'
 
 type StudioState={
   scene:string
@@ -126,6 +127,23 @@ export default function AllAmericanNetworkControlRoom(){
 
   const stop=()=>{dispatchEvent(new Event('tryamm:broadcast-stop'));setNotice('Program stopped. Clip the best moments to Reels or save the master to OmniBox.')}
 
+  const aiProducer=()=>{
+    const hostNames=creators.filter(p=>hostIds.includes(p.userId)).map(p=>p.displayName||p.userId)
+    const prompt=[
+      'You are HoloGPT acting as the AI producer inside the All American Network Studio Control Room, powered by Stubbs AI.',
+      'Create a broadcast-ready production plan for this show.',
+      'Title: '+(title||format.label)+'.',
+      'Format: '+format.label+'.',
+      'Duration: '+duration+' minutes.',
+      'Scene: '+studio.scene+'.',
+      'Hosts/guests: '+(hostNames.length?hostNames.join(', '):'not assigned yet')+'.',
+      'Provide: cold open, timed rundown, teleprompter intro, segment cues, guest questions, lower-thirds, camera/switch suggestions, audience interaction, ad/sponsor break placeholders, 5 clip-to-Reel moments, accessibility/caption notes, and closing CTA.',
+      'Do not invent licensed media rights or claim an external distribution provider is connected.'
+    ].join(' ')
+    dispatchEvent(new CustomEvent('tryamm:hologpt-study-context',{detail:{prompt,source:'all-american-network-ai-producer'}}))
+    setNotice('HoloGPT AI Producer opened with this show context.')
+  }
+
   const clip=()=>dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'all-american-network-studio',title,formatId:format.id,programLive:studio.programLive}}))
   const saveMaster=()=>dispatchEvent(new CustomEvent('tryamm:omnibox-save-request',{detail:{origin:'all-american-network',kind:'broadcast-master',title,formatId:format.id,scene:studio.scene}}))
 
@@ -133,7 +151,7 @@ export default function AllAmericanNetworkControlRoom(){
 
   return <main style={page}>
     <header style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,flexWrap:'wrap'}}>
-      <div><div style={eyebrow}>ALL AMERICAN NETWORK • MASTER CONTROL</div><h1 style={{margin:'4px 0'}}>Broadcast Studio + TV Control Room</h1><div style={muted}>StreetVerse creators → studio → LIVE → TV/FAST/OTT-ready programming → Reels/Replay → creator earnings.</div></div>
+      <div><div style={eyebrow}>ALL AMERICAN NETWORK • MASTER CONTROL</div><h1 style={{margin:'4px 0'}}>Broadcast Studio + TV Control Room</h1><div style={{...muted,color:'#aeefff',fontWeight:900}}>Powered by Stubbs AI + HoloGPT</div><div style={muted}>StreetVerse creators → studio → LIVE → TV/FAST/OTT-ready programming → Reels/Replay → creator earnings.</div></div>
       <div style={{display:'flex',gap:6}}><a href="/network" style={linkBtn}>NETWORK</a><a href="/free-tv" style={linkBtn}>TV GUIDE</a></div>
     </header>
 
@@ -153,7 +171,7 @@ export default function AllAmericanNetworkControlRoom(){
           <label style={label}>SCENE<select value={studio.scene} onChange={e=>dispatchEvent(new CustomEvent('tryamm:broadcast-scene-select',{detail:{scene:e.target.value}}))} style={input}>{['news-desk','interview','podcast','sports','faith','shopping','gaming','virtual-set'].map(x=><option key={x} value={x}>{x.replaceAll('-',' ')}</option>)}</select></label>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7,marginTop:8}}>
-          <button onClick={scheduleShow} style={button}>SCHEDULE SHOW</button>
+          <button onClick={scheduleShow} style={button}>SCHEDULE SHOW</button><button onClick={aiProducer} style={{...button,borderColor:'#9b75ff',background:'#171029'}}>◈ HOLOGPT AI PRODUCER</button>
           <button onClick={()=>update({rightsCleared:!studio.rightsCleared})} style={{...button,borderColor:studio.rightsCleared?'#68ffa0':'#8a5d39',color:studio.rightsCleared?'#78ffaf':'#ffd5a1'}}>RIGHTS {studio.rightsCleared?'CLEARED':'NOT CLEARED'}</button>
           <button onClick={()=>dispatchEvent(new CustomEvent('tryamm:broadcast-record',{detail:{enabled:!studio.recording}}))} style={button}>{studio.recording?'STOP RECORD':'● RECORD'}</button>
           <button onClick={studio.programLive?stop:takeLive} style={{...button,background:studio.programLive?'#491420':'#0d3b2c',borderColor:studio.programLive?'#ff516e':'#58df98'}}>{studio.programLive?'STOP PROGRAM':'TAKE LIVE'}</button>
@@ -197,6 +215,7 @@ export default function AllAmericanNetworkControlRoom(){
     </section>
 
     <div aria-live="polite" style={noticeBox}>{notice}</div>
+    <HoloGPTAssistant showLauncher={false}/>
   </main>
 }
 
