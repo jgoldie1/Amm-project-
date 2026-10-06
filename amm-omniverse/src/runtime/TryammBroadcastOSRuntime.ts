@@ -1,6 +1,7 @@
 import {TRYAMM_BROADCAST_NETWORK} from '../game/holographic/TryammBroadcastNetwork'
 import {SERVANTS_OF_CHRIST_BROADCAST_CHANNEL} from '../game/holographic/MinistryBroadcastNetwork'
 import {ISAIAH_AI_TV} from '../game/holographic/IsaiahAiTvStarVerse'
+import {TRYAMM_NEWS_NETWORK} from '../game/holographic/TryammNewsNetwork'
 
 export type TryammNetworkChannelId=
   |'all-american-network'
@@ -142,6 +143,12 @@ export const TRYAMM_NETWORK_CHANNELS:readonly TryammNetworkChannel[]=[
   },
 ] as const
 
+export const TRYAMM_NEWS_DESKS=[
+ ...TRYAMM_NEWS_NETWORK,
+ {id:'sports-news',name:'TRYAMM Sports News',scope:'sports',live:true,replay:true,editorialIndependence:true,sponsorDisclosure:true},
+ {id:'community-news',name:'TRYAMM Community News',scope:'community',live:true,replay:true,editorialIndependence:true,sponsorDisclosure:true},
+] as const
+
 export const TRYAMM_DISTRIBUTION_MATRIX=[
   {id:'tryamm-app',label:'TRYAMM App / Web',status:'ready' as const,note:'First-party internet distribution.'},
   {id:'holo-live',label:'Holo LIVE',status:'ready' as const,note:'Interactive live distribution inside TRYAMM.'},
@@ -218,6 +225,7 @@ export function installTryammBroadcastOSRuntime(){
     const d=(event as CustomEvent<Record<string,unknown>>).detail||{}
     addFeed(state,{id:String(d.id||nowId('star')),title:String(d.title||'StarVerse Showcase'),source:'starverse',channelId:'starverse-live',kind:'talent',startedAt:new Date().toISOString(),live:Boolean(d.live),route:'/starverse'})
   }
+  const onNews=(event:Event)=>{const d=(event as CustomEvent<Record<string,unknown>>).detail||{};addFeed(state,{id:String(d.id||nowId('news')),title:String(d.title||d.headline||'TRYAMM News Update'),source:'tryamm-news',channelId:'tryamm-news',kind:'clip',startedAt:new Date().toISOString(),live:Boolean(d.live),route:'/network'})}
   const onSchedule=()=>{state.scheduled+=1;state.lastUpdated=new Date().toISOString();save(state);emit(state,'scheduled')}
 
   addEventListener('tryamm:broadcast-os-request',onRequest)
@@ -227,6 +235,7 @@ export function installTryammBroadcastOSRuntime(){
   addEventListener('tryamm:reel-published',onReel)
   addEventListener('tryamm:sportverse-world-games-event',onSports)
   addEventListener('tryamm:starverse-showcase',onTalent)
+  addEventListener('tryamm:news-item-published',onNews)
   addEventListener('tryamm:broadcast-program-scheduled',onSchedule)
   emit(state,'startup')
 
@@ -238,6 +247,7 @@ export function installTryammBroadcastOSRuntime(){
     removeEventListener('tryamm:reel-published',onReel)
     removeEventListener('tryamm:sportverse-world-games-event',onSports)
     removeEventListener('tryamm:starverse-showcase',onTalent)
+    removeEventListener('tryamm:news-item-published',onNews)
     removeEventListener('tryamm:broadcast-program-scheduled',onSchedule)
   }
 }
