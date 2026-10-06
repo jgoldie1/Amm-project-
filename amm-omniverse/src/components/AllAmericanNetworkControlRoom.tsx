@@ -3,6 +3,7 @@ import HoloGPTAssistant from './HoloGPTAssistant'
 import type {FreeTvCommercialPlan} from '../runtime/FreeTvCommercialRuntime'
 import AllAmerican24x7ProgrammingPanel from './AllAmerican24x7ProgrammingPanel'
 import WorldToBroadcastQueue from './WorldToBroadcastQueue'
+import AllAmericanAITwinHostStage from './AllAmericanAITwinHostStage'
 
 type StudioState={
   scene:string
@@ -243,6 +244,7 @@ export default function AllAmericanNetworkControlRoom(){
       <article style={panel}><div style={sectionTitle}>UPCOMING RUNDOWN</div><div style={{display:'grid',gap:6,marginTop:8}}>{schedule.length===0&&<div style={empty}>No shows scheduled yet.</div>}{schedule.slice(-8).reverse().map(s=><div key={s.id} style={rundownRow}><div><b>{s.title}</b><div style={{fontSize:8,color:'#91a8b4'}}>{fmtTime(s.startsAt)} • {s.durationMinutes} min • {s.formatId.replaceAll('-',' ')}</div></div><span style={{fontSize:8,color:'#ffd36e'}}>{s.status.toUpperCase()}</span></div>)}</div></article>
     </section>
 
+    <AllAmericanAITwinHostStage humanHostIds={hostIds}/>
     <WorldToBroadcastQueue/>
     <AllAmerican24x7ProgrammingPanel/>
     <div aria-live="polite" style={noticeBox}>{notice}</div>
