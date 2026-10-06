@@ -46,7 +46,10 @@ for(const panel of ['FAITHVERSE','CHARACTERS','MISSIONS','LIVE','PK','REELS','ST
   assert.ok(launcher.includes(panel),`Carousel launcher has no handler token for: ${panel}`)
 }
 
-assert.match(main,/\['\/ethiopian-bible','\/ethiopian-bible\/','\/faithverse','\/faithverse\/'\]/,'FaithVerse route must resolve directly to Ethiopian Bible')
+for(const faithRoute of ["'/ethiopian-bible'","'/ethiopian-bible/'","'/faithverse'","'/faithverse/'"]){
+  assert.ok(main.includes(faithRoute),'FaithVerse route must resolve directly to Ethiopian Bible: '+faithRoute)
+}
+assert.ok(main.includes('else if(isEthiopianBible)routeContent=<Suspense fallback={routeFallback}><EthiopianBibleMetaverse /></Suspense>'),'FaithVerse route owner must render Ethiopian Bible Metaverse')
 for(const token of ['FaithScriptureReader','FaithHoloBook','FaithChronoLauncher','SERVANTS OF CHRIST','STRONG’S CONCORDANCE','HEBREW SCHOOL']){
   assert.ok(faith.includes(token),`FaithVerse surface missing ${token}`)
 }

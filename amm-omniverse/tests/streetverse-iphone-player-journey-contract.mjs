@@ -2,6 +2,7 @@ import fs from 'node:fs'
 
 const playable=fs.readFileSync(new URL('../src/components/StreetVersePlayableWorld.tsx',import.meta.url),'utf8')
 const geo=fs.readFileSync(new URL('../src/components/StreetVerseGeoSpawnBridge.tsx',import.meta.url),'utf8')
+const overlays=fs.readFileSync(new URL('../src/components/StreetVerseFullWorldOverlays.tsx',import.meta.url),'utf8')
 const world=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
 const main=fs.readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8')
 const bible=fs.readFileSync(new URL('../src/components/EthiopianBibleMetaverse.tsx',import.meta.url),'utf8')
@@ -10,7 +11,17 @@ const reader=fs.readFileSync(new URL('../src/components/FaithScriptureReader.tsx
 const must=(ok,msg)=>{if(!ok)throw new Error('STREETVERSE IPHONE PLAYER JOURNEY CONTRACT FAIL: '+msg)}
 
 must(playable.includes("if(mobile)return")&&playable.includes('<StreetVerseMobileWorld onClose={onClose}/>'),'real mobile route must mount the compact authoritative mobile world')
-must(geo.includes("{mobile?<StreetVerseReelEventBridge/>:"),'full mobile route must avoid desktop gameplay overlay stack')
+must(geo.includes("mobile?<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseCreatorEarnDock/></>"),'full mobile route must keep the compact bridge-control stack')
+const mobileOverlayStart=overlays.indexOf('if(mobile)return <>')
+const desktopOverlayStart=overlays.indexOf('\n  return <>',mobileOverlayStart)
+must(mobileOverlayStart>=0&&desktopOverlayStart>mobileOverlayStart,'full overlay layer must provide a dedicated mobile branch')
+const mobileOverlay=overlays.slice(mobileOverlayStart,desktopOverlayStart)
+must(mobileOverlay.includes('<StreetVerseWhoOnlineRail/>'),'compact mobile overlay must keep real online discovery')
+must(mobileOverlay.includes('<HoloMobilityLauncher launcher={false}/>'),'compact mobile overlay must keep the hidden mobility engine')
+must(mobileOverlay.includes('<StreetVerseGamepadBridge/>'),'compact mobile overlay must keep gamepad input')
+must(!mobileOverlay.includes('<StreetVerseNextLevelHUD'),'compact mobile overlay must not mount the desktop HUD')
+must(!mobileOverlay.includes('<StreetVerseDriveMission/>'),'compact mobile overlay must not mount desktop drive missions')
+must(!mobileOverlay.includes('<StreetVerseRaceMissionGiver/>'),'compact mobile overlay must not mount desktop race mission HUD')
 must(!geo.includes("{mobile?<><StreetVerseMobileProofDock"),'legacy proof dock must not mount on full mobile gameplay')
 must(world.includes('aria-label="StreetVerse analog joystick"'),'authoritative mobile world must own the single visible movement joystick')
 must(world.includes('aria-label="Open StreetVerse quick menu"'),'compact mobile quick menu missing')

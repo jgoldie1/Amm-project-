@@ -79,7 +79,13 @@ assert.match(mainEntry,/isStreetVerseSafe\?<><StreetVerseWeatherSync\/><StreetVe
 
 const geoSpawn=fs.readFileSync(path.resolve('src/components/StreetVerseGeoSpawnBridge.tsx'),'utf8')
 assert.match(geoSpawn,/import StreetVerseWeatherSync from '\.\/StreetVerseWeatherSync'/)
-assert.match(geoSpawn,/if\(safe\)return <>\s*<StreetVerseWeatherSync\/>/)
+const safeBranchStart=geoSpawn.indexOf('if(safe)return <>')
+const safeBranchEnd=geoSpawn.indexOf('\n return <>',safeBranchStart)
+assert.ok(safeBranchStart>=0&&safeBranchEnd>safeBranchStart,'safe StreetVerse render branch missing')
+const safeBranch=geoSpawn.slice(safeBranchStart,safeBranchEnd)
+assert.match(safeBranch,/<StreetVerseWeatherSync\/>/)
+assert.match(safeBranch,/<StreetVerseSafeWorld/)
+assert.ok(safeBranch.indexOf('<StreetVerseWeatherSync/>')<safeBranch.indexOf('<StreetVerseSafeWorld'),'safe weather sync must mount before SafeWorld')
 assert.equal(geoSpawn.includes('fallback={<><StreetVerseWeatherSync/><StreetVerseSafeWorld'),false,'normal StreetVerse loading must not restore the safe-world overlay')
 assert.equal(geoSpawn.includes('aria-label="StreetVerse playable world loading"'),true,'normal StreetVerse loading must use the neutral loading surface')
 
