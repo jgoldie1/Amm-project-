@@ -212,7 +212,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     const mixer=clips.length?new THREE.AnimationMixer(object):null
     const animations=materializeAnimationMap(clips)
     const morphs=collectMorphMeshes(object)
-    const findRigNode=(patterns:RegExp[])=>{
+    const findRigNode=(patterns:RegExp[]):THREE.Object3D|null=>{
       let found:THREE.Object3D|null=null
       object.traverse(node=>{if(!found&&patterns.some(pattern=>pattern.test(node.name)))found=node})
       return found
