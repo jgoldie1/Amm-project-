@@ -113,14 +113,14 @@ export default function App() {
   const [staysAgencyFamilyInitialTab, setStaysAgencyFamilyInitialTab] = useState<'stays'|'passport'>('stays')
   const [showNexus, setShowNexus] = useState(false)
   const [showSparrowMap, setShowSparrowMap] = useState(false)
-  const [showBJViewer, setShowBJViewer] = useState(() => ['/bj-v7-preview','/bj-v8-preview','/bj-preview'].includes(window.location.pathname.replace(/\/+$/, '')))
+  const [showBJViewer, setShowBJViewer] = useState(() => ['/bj-v7-preview','/bj-v8-preview','/bj-v9-preview','/bj-preview'].includes(window.location.pathname.replace(/\/+$/, '')))
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
   const navigateTryAMM = (path:string) => {
     const route = (path || '/').replace(/\/+$/, '') || '/'
     if (route === '/') { setScreen('intro'); return }
     if (route === '/streetverse' || route === '/metaverse-bible' || route === '/ethiopian-bible' || route === '/faithverse' || route === '/starverse' || route === '/kingdom' || route === '/kingdom-of-yahisrael' || route === '/kingdom-workbook' || route === '/yahisrael' || route === '/judah' || route === '/where-heaven-meets-earth' || route === '/my-world' || route === '/we-are-the-world') { window.location.href = route; return }
-    if (route === '/bj-v7-preview' || route === '/bj-v8-preview' || route === '/bj-preview') { setShowBJViewer(true); return }
+    if (route === '/bj-v7-preview' || route === '/bj-v8-preview' || route === '/bj-v9-preview' || route === '/bj-preview') { setShowBJViewer(true); return }
     if (route === '/marketplace') { setScreen('marketplace'); return }
     if (route === '/music' || route === '/musicverse') { setScreen('music'); return }
     if (route === '/aniyah-studio' || route === '/64-track-studio') { setShowAniyahStudio(true); return }
@@ -173,7 +173,7 @@ export default function App() {
       '/marketplace','/music','/musicverse','/sports','/sportverse','/faith','/blockchain','/city',
       '/propertyverse','/earnings','/creator-money','/business-income','/merchant-money','/all-american-store','/omnichannel','/holo-gallery','/holo-fridge','/holo-cold-vault','/holo-lab','/holo-labs','/logistics-freight','/freight','/business-revenue','/saas','/holoverse','/spaceverse','/cyberverse','/creatorverse','/businessverse',
       '/educationverse','/gameverse','/middleverse','/metaverse','/multiverse','/time-machine',
-      '/legacyverse','/connect','/tv','/tryamm-tv','/isaiah-ai-tv','/bj-v7-preview','/bj-v8-preview','/bj-preview'
+      '/legacyverse','/connect','/tv','/tryamm-tv','/isaiah-ai-tv','/bj-v7-preview','/bj-v8-preview','/bj-v9-preview','/bj-preview'
     ])
     if (routeAliases.has(route)) navigateTryAMM(route)
 
