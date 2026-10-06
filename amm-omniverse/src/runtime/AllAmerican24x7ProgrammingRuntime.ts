@@ -27,8 +27,8 @@ export function installAllAmerican24x7ProgrammingRuntime(){
    const status=chooseStatus(slot,eligible,sources)
    const fallback=status==='host-needed'||status==='source-needed'?(slot.channelId==='aan-crypto-education'?'education':'replay'):'none'
    last={slot,status,hostIds:eligible.map(h=>h.userId).slice(0,4),sources:sources.filter(sourceOk).slice(0,12),fallback,updatedAt:new Date().toISOString()}
-   window.dispatchEvent(new CustomEvent('tryamm:all-american-24x7-state',{detail:{...last,reason,templateSlots:ALL_AMERICAN_24H_TEMPLATE.length,cryptoRules:CRYPTO_BROADCAST_RULES,noFakeLive:true,noFakeAnalysts:true}}))
-   if(fallback!=='none')window.dispatchEvent(new CustomEvent('tryamm:all-american-fallback-program',{detail:{slot,fallback,reason:status,disclosure:fallback==='education'?'Educational program — not live news.':'Replay — not live.'}}))
+   window.dispatchEvent(new CustomEvent('tryamm:all-american-24x7-state',{detail:{...last,reason,templateSlots:ALL_AMERICAN_24H_TEMPLATE.length,cryptoRules:CRYPTO_BROADCAST_RULES,noFakeLive:true,noFakeAnalysts:true,temporarySyntheticHost:'aan-ai-twin-host',syntheticHostDisclosureRequired:true,humanHostPriority:true}}))
+   if(fallback!=='none')window.dispatchEvent(new CustomEvent('tryamm:all-american-fallback-program',{detail:{slot,fallback,reason:status,disclosure:fallback==='education'?'Educational program — not live news.':'Replay — not live.',syntheticHostSuggested:fallback==='education',syntheticHostId:fallback==='education'?'aan-ai-twin-host':null,humanApprovalRequired:true}}))
  }
 
  const onPresence=(event:Event)=>{const d=(event as CustomEvent<{players?:Host[]}>).detail||{};hosts=Array.isArray(d.players)?d.players:[];publish('presence')}
