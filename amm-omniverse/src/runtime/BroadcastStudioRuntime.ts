@@ -1,12 +1,12 @@
 export type BroadcastScene='news-desk'|'interview'|'podcast'|'sports'|'faith'|'shopping'|'gaming'|'virtual-set'
-export type BroadcastDestination='tryamm-live'|'omnibox'|'all-american-network'|'servants-of-christ-network'|'recording'
+export type BroadcastDestination='tryamm-live'|'omnibox'|'all-american-network'|'servants-of-christ-network'|'isaiah-ai-tv'|'starverse-live'|'sportsverse-live'|'musicverse-tv'|'tryamm-news'|'recording'
 export type BroadcastState={scene:BroadcastScene;programLive:boolean;recording:boolean;chromaKey:boolean;teleprompter:boolean;lowerThirds:boolean;captions:boolean;guestInputs:number;destinations:BroadcastDestination[];rightsCleared:boolean;operatorRole:string;programTitle?:string;formatId?:string;hostIds?:string[];startedAt?:string|null;scheduledMinutes?:number}
 
 const KEY='tryamm_broadcast_studio_v1'
 let installed=false
 const DEFAULT:BroadcastState={scene:'news-desk',programLive:false,recording:false,chromaKey:true,teleprompter:true,lowerThirds:true,captions:true,guestInputs:0,destinations:['recording'],rightsCleared:false,operatorRole:'producer',programTitle:'All American Network',formatId:'network',hostIds:[],startedAt:null,scheduledMinutes:60}
 const SCENES:BroadcastScene[]=['news-desk','interview','podcast','sports','faith','shopping','gaming','virtual-set']
-const DESTINATIONS:BroadcastDestination[]=['tryamm-live','omnibox','all-american-network','servants-of-christ-network','recording']
+const DESTINATIONS:BroadcastDestination[]=['tryamm-live','omnibox','all-american-network','servants-of-christ-network','isaiah-ai-tv','starverse-live','sportsverse-live','musicverse-tv','tryamm-news','recording']
 
 function read():BroadcastState{try{return {...DEFAULT,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{return DEFAULT}}
 function write(state:BroadcastState){try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}}
