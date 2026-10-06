@@ -27,18 +27,29 @@ function relevant(ctx:Context){
 }
 
 export default function StreetVerseActionCarousel(){
+ const mobile=typeof window!=='undefined'&&window.matchMedia('(max-width: 700px)').matches
  const [ctx,setCtx]=useState<Context>({})
  const [sort,setSort]=useState<SortMode>('smart')
  const [page,setPage]=useState(0)
+ const [open,setOpen]=useState(()=>!mobile)
+ const [rpOpen,setRpOpen]=useState(false)
  useEffect(()=>{
-  const onContext=(event:Event)=>{setCtx((event as CustomEvent<Context>).detail||{});setPage(0)}
-  const onBreakdown=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx({...d,kind:'vehicle',broken:true,drivable:false});setPage(0)}
+  const onContext=(event:Event)=>{setCtx((event as CustomEvent<Context>).detail||{});setPage(0);if(!mobile)setOpen(true)}
+  const onBreakdown=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx({...d,kind:'vehicle',broken:true,drivable:false});setPage(0);if(!mobile)setOpen(true)}
   const onRepaired=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx(current=>current.vehicleId===d.vehicleId?{...current,broken:false,drivable:true,repairKit:false}:current)}
+  const onOpen=()=>setOpen(true)
+  const onClose=()=>{setOpen(false);setRpOpen(false)}
+  const onMove=()=>{if(mobile){setOpen(false);setRpOpen(false)}}
   addEventListener('tryamm:streetverse-interaction-context',onContext)
   addEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown)
   addEventListener('tryamm:streetverse-vehicle-repaired',onRepaired)
-  return()=>{removeEventListener('tryamm:streetverse-interaction-context',onContext);removeEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown);removeEventListener('tryamm:streetverse-vehicle-repaired',onRepaired)}
- },[])
+  addEventListener('tryamm:streetverse-actions-open',onOpen)
+  addEventListener('tryamm:streetverse-actions-close',onClose)
+  addEventListener('tryamm:streetverse-play-focus',onClose)
+  addEventListener('tryamm:streetverse-player-position',onMove)
+  addEventListener('tryamm:streetverse-vehicle-input',onMove)
+  return()=>{removeEventListener('tryamm:streetverse-interaction-context',onContext);removeEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown);removeEventListener('tryamm:streetverse-vehicle-repaired',onRepaired);removeEventListener('tryamm:streetverse-actions-open',onOpen);removeEventListener('tryamm:streetverse-actions-close',onClose);removeEventListener('tryamm:streetverse-play-focus',onClose);removeEventListener('tryamm:streetverse-player-position',onMove);removeEventListener('tryamm:streetverse-vehicle-input',onMove)}
+ },[mobile])
  const items=useMemo(()=>{
   const ids=relevant(ctx)
   const list=ACTIONS.filter(a=>ids.includes(a.id))
