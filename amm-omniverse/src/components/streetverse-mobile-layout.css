@@ -58,7 +58,7 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
 /* iPhone portrait emergency pass: keep the game world visible and controls thumb-sized. */
 @media (max-width: 480px) and (orientation: portrait) {
   [data-streetverse-world-root] [data-streetverse-mission] {
-    top: calc(env(safe-area-inset-top) + 58px) !important;
+    top: calc(env(safe-area-inset-top) + 64px) !important;
     left: 8px !important;
     right: 8px !important;
     min-height: 0 !important;

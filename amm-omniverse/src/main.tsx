@@ -55,6 +55,7 @@ const Chicago77HolographicAtlas=lazy(()=>import('./components/Chicago77Holograph
 const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
 const MeshyFactoryControlPanel=lazy(()=>import('./components/MeshyFactoryControlPanel'))
 const OctoberLaunchLockCenter=lazy(()=>import('./components/OctoberLaunchLockCenter'))
+const CreatorVerseRoomCenter=lazy(()=>import('./components/CreatorVerseRoomCenter'))
 
 let routeContent: React.ReactNode = <App />
 let preserveDeterministicSafeRoute = false
@@ -88,6 +89,7 @@ try {
   const isHoloLabStandalone=currentPath==='/holo-lab'||currentPath==='/holo-lab/'
   const isChicago77Atlas=['/chicago77','/chicago77/','/chicago-77','/chicago-77/'].includes(currentPath)
   const isLaunchLock=['/launch-lock','/launch-lock/','/october-launch','/october-launch/'].includes(currentPath)
+  const isCreatorVerse=['/creatorverse','/creatorverse/','/creator-verses','/creator-verses/'].includes(currentPath)
   const isGlobalTradeWorld=['/global-trade','/global-trade/','/my-world','/my-world/','/we-are-the-world','/we-are-the-world/'].includes(currentPath)
   const isTwinWorld=currentPath.startsWith('/streetverse/twin-world')
   const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
@@ -159,6 +161,7 @@ try {
   else if(isHoloLabStandalone)routeContent=<Suspense fallback={routeFallback}><HoloLabGateway onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isChicago77Atlas)routeContent=<Suspense fallback={routeFallback}><Chicago77HolographicAtlas /></Suspense>
   else if(isLaunchLock)routeContent=<Suspense fallback={routeFallback}><OctoberLaunchLockCenter /></Suspense>
+  else if(isCreatorVerse)routeContent=<Suspense fallback={routeFallback}><CreatorVerseRoomCenter /></Suspense>
   else if(isGlobalTradeWorld)routeContent=<Suspense fallback={routeFallback}><GlobalTradeWorldHub /></Suspense>
   else if(standaloneSite)routeContent=<StandaloneProductSite site={standaloneSite} />
   else if(isBusinessDirectory)routeContent=<FamilyBusinessDirectory />
@@ -217,6 +220,7 @@ const installOptionalRuntimes = () => {
   import('./runtime/CreatorMoneyCenterRuntime').then(m => m.installCreatorMoneyCenterRuntime()).catch(error => console.error('[TRYAMM] Creator Money Center failed after core mount.', error))
   import('./runtime/CreatorWorkweekRuntime').then(m => m.installCreatorWorkweekRuntime()).catch(error => console.error('[TRYAMM] Creator Workweek failed after core mount.', error))
   import('./runtime/TryammBroadcastOSRuntime').then(m => m.installTryammBroadcastOSRuntime()).catch(error => console.error('[TRYAMM] Broadcast OS failed after core mount.', error))
+  import('./runtime/CreatorVerseRoomRuntime').then(m => m.installCreatorVerseRoomRuntime()).catch(error => console.error('[TRYAMM] CreatorVerse Rooms failed after core mount.', error))
   import('./runtime/AllAmericanNetworkPrimeNewsroomRuntime').then(m => m.installAllAmericanPrimeNewsroomRuntime()).catch(error => console.error('[TRYAMM] All American Network Prime newsroom failed after core mount.', error))
   import('./runtime/BusinessIncomeCenterRuntime').then(m => m.installBusinessIncomeCenterRuntime()).catch(error => console.error('[TRYAMM] Business Income Center failed after core mount.', error))
   import('./runtime/GameAppIncomeBridge').then(m => m.installGameAppIncomeBridge()).catch(error => console.error('[TRYAMM] Game/App income bridge failed after core mount.', error))
