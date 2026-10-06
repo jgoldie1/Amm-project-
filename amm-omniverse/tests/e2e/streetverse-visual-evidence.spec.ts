@@ -119,6 +119,10 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     }
     await quickMenu.click();
     await page.getByRole('menuitem',{name:/LEFT HAND/}).click();
+    // Social shortcuts are intentionally collapsed by default on iPhone. Exercise the
+    // real user path instead of requiring another always-visible control layer.
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/SOCIAL \/ RP/}).click();
     const socialShortcut=page.getByRole('button',{name:'Open StreetVerse social panel'});
     const peopleShortcut=page.getByRole('button',{name:'Open StreetVerse people search'});
     const ticketShortcut=page.getByRole('button',{name:'Open StreetVerse stream tickets'});
