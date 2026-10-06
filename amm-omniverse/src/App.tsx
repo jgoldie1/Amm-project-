@@ -60,6 +60,7 @@ const PropertyVerseCenter = lazy(() => import('./components/PropertyVerseCenter'
 const HoloStyleCenter = lazy(() => import('./components/HoloStyleCenter'))
 const StaysAgencyFamilyHub = lazy(() => import('./components/StaysAgencyFamilyHub'))
 const SparrowMapCenter = lazy(() => import('./components/SparrowMapCenter'))
+const BJStubbsV7Viewer = lazy(() => import('./components/BJStubbsV7Viewer'))
 
 export default function App() {
   const screen = useGameStore(s => s.screen)
@@ -112,12 +113,14 @@ export default function App() {
   const [staysAgencyFamilyInitialTab, setStaysAgencyFamilyInitialTab] = useState<'stays'|'passport'>('stays')
   const [showNexus, setShowNexus] = useState(false)
   const [showSparrowMap, setShowSparrowMap] = useState(false)
+  const [showBJViewer, setShowBJViewer] = useState(() => window.location.pathname.replace(/\/+$/, '') === '/bj-v7-preview')
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
 
   const navigateTryAMM = (path:string) => {
     const route = (path || '/').replace(/\/+$/, '') || '/'
     if (route === '/') { setScreen('intro'); return }
     if (route === '/streetverse' || route === '/metaverse-bible' || route === '/ethiopian-bible' || route === '/faithverse' || route === '/starverse' || route === '/kingdom' || route === '/kingdom-of-yahisrael' || route === '/kingdom-workbook' || route === '/yahisrael' || route === '/judah' || route === '/where-heaven-meets-earth' || route === '/my-world' || route === '/we-are-the-world') { window.location.href = route; return }
+    if (route === '/bj-v7-preview' || route === '/bj-preview') { setShowBJViewer(true); return }
     if (route === '/marketplace') { setScreen('marketplace'); return }
     if (route === '/music' || route === '/musicverse') { setScreen('music'); return }
     if (route === '/aniyah-studio' || route === '/64-track-studio') { setShowAniyahStudio(true); return }
@@ -170,7 +173,7 @@ export default function App() {
       '/marketplace','/music','/musicverse','/sports','/sportverse','/faith','/blockchain','/city',
       '/propertyverse','/earnings','/creator-money','/business-income','/merchant-money','/all-american-store','/omnichannel','/holo-gallery','/holo-fridge','/holo-cold-vault','/holo-lab','/holo-labs','/logistics-freight','/freight','/business-revenue','/saas','/holoverse','/spaceverse','/cyberverse','/creatorverse','/businessverse',
       '/educationverse','/gameverse','/middleverse','/metaverse','/multiverse','/time-machine',
-      '/legacyverse','/connect','/tv','/tryamm-tv','/isaiah-ai-tv'
+      '/legacyverse','/connect','/tv','/tryamm-tv','/isaiah-ai-tv','/bj-v7-preview','/bj-preview'
     ])
     if (routeAliases.has(route)) navigateTryAMM(route)
 
@@ -377,6 +380,7 @@ export default function App() {
         {showHoloPlayCard && <HoloPlayCard onClose={() => setShowHoloPlayCard(false)} />}
         {showCrossVerseEconomy && <CrossVerseCreatorEconomyCenter onClose={() => setShowCrossVerseEconomy(false)} />}
         {showTryammTv && <TryammTvHome onClose={() => setShowTryammTv(false)} />}
+        {showBJViewer && <BJStubbsV7Viewer onClose={() => {setShowBJViewer(false); if(window.location.pathname.startsWith('/bj-')) window.location.href='/streetverse'}} />}
 
         {showSwipeTip && signedIn && <SwipeTutorial onDismiss={() => {setShowSwipeTip(false);localStorage.setItem('amm_swiped','1')}} />}
       </div>
