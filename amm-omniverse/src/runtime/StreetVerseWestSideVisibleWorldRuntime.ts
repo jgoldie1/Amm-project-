@@ -70,8 +70,14 @@ function addBuilding(root:THREE.Group,s:BuildingSpec,colliders:THREE.Box3[]){
   for(let y=3.2;y<s.h-1.5;y+=3.3){
     for(let x=-s.w/2+2;x<=s.w/2-2;x+=3.2){
       box(g,[1.45,.9,.08],[x,y,-s.d/2-.05],glass)
+      box(g,[1.45,.9,.08],[x,y,s.d/2+.05],glass)
+    }
+    for(let z=-s.d/2+2;z<=s.d/2-2;z+=3.2){
+      box(g,[.08,.9,1.45],[-s.w/2-.05,y,z],glass)
+      box(g,[.08,.9,1.45],[s.w/2+.05,y,z],glass)
     }
   }
+  box(g,[s.w+.12,.18,s.d+.12],[0,2.45,0],trim,0,'facade-belt')
   box(g,[Math.min(5,s.w*.45),3.2,.35],[0,1.6,-s.d/2-.22],glass,0,'entry-glass')
   box(g,[1.8,3,.18],[0,1.5,-s.d/2-.43],dark,0,'entry-door')
   box(g,[Math.min(6,s.w*.5),.35,2.8],[0,.18,-s.d/2-1.45],trim,0,'entry-step')
