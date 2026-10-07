@@ -362,20 +362,29 @@ function NearWestPlayer({move,onPosition,hidden=false,startPosition}:{move:React
   camera.position.lerp(target,Math.min(1,dt*4));camera.lookAt(p.position.x,1.25,p.position.z)
   onPosition(p.position.x,p.position.z)
  })
- return <group ref={ref} visible={!hidden} position={[startPosition?.x??-650,0,startPosition?.z??700]}>
-  <mesh position={[0,1.18,0]} castShadow><capsuleGeometry args={[.28,.82,5,10]}/><meshStandardMaterial color="#172c55" roughness={.82}/></mesh>
-  <mesh position={[0,2.02,0]} castShadow scale={[.94,1.05,.92]}><sphereGeometry args={[.29,16,12]}/><meshStandardMaterial color="#79513c" roughness={.9}/></mesh>
-  <mesh position={[0,2.22,-.03]} castShadow scale={[.96,.55,1]}><sphereGeometry args={[.30,14,10,0,Math.PI*2,0,Math.PI*.5]}/><meshStandardMaterial color="#17110f" roughness={1}/></mesh>
+ return <group ref={ref} name="bj-stubbs-near-west-v12" userData={{characterId:'bj-stubbs',visualPass:'bj-v12-near-west'}} visible={!hidden} position={[startPosition?.x??-650,0,startPosition?.z??700]}>
+  <mesh position={[0,1.20,0]} castShadow scale={[.96,1,.88]}><capsuleGeometry args={[.30,.86,5,12]}/><meshStandardMaterial color="#101215" roughness={.9}/></mesh>
+  <mesh position={[0,2.08,0]} castShadow scale={[.93,1.07,.90]}><sphereGeometry args={[.31,20,15]}/><meshStandardMaterial color="#70462f" roughness={.82}/></mesh>
+  <mesh position={[0,1.90,.02]} castShadow scale={[.88,.68,.82]}><sphereGeometry args={[.21,14,11]}/><meshStandardMaterial color="#70462f" roughness={.84}/></mesh>
+  <mesh position={[0,2.29,-.04]} castShadow scale={[.98,.65,1]}><sphereGeometry args={[.32,16,11,0,Math.PI*2,0,Math.PI*.48]}/><meshStandardMaterial color="#17110f" roughness={1}/></mesh>
+  {([-1,1] as const).flatMap(side=>[0,1,2,3].map(i=><mesh key={'loc-'+side+'-'+i} position={[side*(.06+i*.038),1.78-i*.045,-.18-i*.022]} rotation={[.08,0,side*(.06+i*.018)]} castShadow>
+   <capsuleGeometry args={[.018,.62+i*.08,3,7]}/><meshStandardMaterial color={i===2?'#57514d':'#17110f'} roughness={1}/></mesh>))}
+  <mesh position={[0,1.89,.20]} scale={[.93,.88,.72]}><sphereGeometry args={[.20,16,12,0,Math.PI*2,Math.PI*.40,Math.PI*.50]}/><meshStandardMaterial color="#17110f" roughness={1}/></mesh>
+  <mesh position={[0,1.80,.25]} scale={[.78,.88,.54]}><sphereGeometry args={[.13,14,10]}/><meshStandardMaterial color="#827d78" roughness={1}/></mesh>
   {([-1,1] as const).map(side=><group key={side}>
-   <mesh position={[side*.39,1.2,0]} rotation={[0,0,side*.08]} castShadow><capsuleGeometry args={[.075,.58,4,8]}/><meshStandardMaterial color="#79513c"/></mesh>
-   <mesh position={[side*.16,.48,0]} castShadow><capsuleGeometry args={[.10,.58,4,8]}/><meshStandardMaterial color="#202329"/></mesh>
-   <mesh position={[side*.16,.10,-.11]} castShadow><boxGeometry args={[.22,.14,.48]}/><meshStandardMaterial color="#111318"/></mesh>
-   <mesh position={[side*.095,2.08,.255]}><sphereGeometry args={[.028,8,6]}/><meshStandardMaterial color="#17110f"/></mesh>
+   <mesh position={[side*.39,1.20,0]} rotation={[0,0,side*.08]} castShadow><capsuleGeometry args={[.075,.60,4,8]}/><meshStandardMaterial color="#70462f" roughness={.84}/></mesh>
+   <mesh position={[side*.16,.49,0]} castShadow><capsuleGeometry args={[.10,.60,4,8]}/><meshStandardMaterial color="#202329" roughness={.94}/></mesh>
+   <mesh position={[side*.16,.10,-.11]} castShadow><boxGeometry args={[.23,.15,.50]}/><meshStandardMaterial color="#111318" roughness={.82}/></mesh>
+   <mesh position={[side*.10,2.12,.275]} scale={[1,.72,.42]}><sphereGeometry args={[.035,9,7]}/><meshStandardMaterial color="#eeeae4" roughness={.5}/></mesh>
+   <mesh position={[side*.10,2.12,.302]} scale={[.8,1,.45]}><sphereGeometry args={[.018,8,6]}/><meshStandardMaterial color="#2b1b14" roughness={.3}/></mesh>
+   <mesh position={[side*.10,2.20,.286]} rotation={[0,0,Math.PI/2+side*.08]}><capsuleGeometry args={[.009,.075,2,7]}/><meshStandardMaterial color="#17110f" roughness={1}/></mesh>
   </group>)}
-  <mesh position={[0,1.12,.285]}><boxGeometry args={[.24,.05,.02]}/><meshStandardMaterial color="#c8a14b" metalness={.65} roughness={.3}/></mesh>
+  <mesh position={[0,2.02,.302]} scale={[1,.7,.45]}><sphereGeometry args={[.038,10,8]}/><meshStandardMaterial color="#70462f" roughness={.82}/></mesh>
+  <mesh position={[0,1.94,.318]} rotation={[0,0,Math.PI/2]}><capsuleGeometry args={[.009,.07,2,8]}/><meshStandardMaterial color="#5b302a" roughness={.75}/></mesh>
+  <mesh position={[0,1.52,.32]} rotation={[Math.PI/2,0,0]}><torusGeometry args={[.10,.008,6,18,Math.PI]}/><meshStandardMaterial color="#c8a14b" metalness={.75} roughness={.28}/></mesh>
+  <mesh position={[0,1.42,.33]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.038,.038,.016,12]}/><meshStandardMaterial color="#c8a14b" metalness={.78} roughness={.26}/></mesh>
  </group>
 }
-
 
 function DrivenVehicle({vehicleId,move,onPosition,onHeading}:{vehicleId:string;move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void;onHeading:(yaw:number)=>void}){
  const v=STREETVERSE_FUTURE_VEHICLES.find(x=>x.id===vehicleId)
