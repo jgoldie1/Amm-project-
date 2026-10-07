@@ -36,6 +36,8 @@ function NearWestNativeGlbLayer(){
     source:'deployed-generated-glb-library',
     visualOnly:true,
     gameplayCollisionAuthority:'existing-near-west-runtime',
+    visualPass:'near-west-native-density-v3',
+    expandedCorridors:['Circle Park','Roosevelt','Taylor','UIC','Medical District'],
    }
    host.current?.add(result.group)
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-chicago-native-assets-ready',{detail:{
@@ -100,9 +102,12 @@ function ChicagoWestSideVisualAssets(){
  const trees:[number,number][]=[[-870,820],[-840,805],[-815,842],[-780,810],[-735,785],[-690,760],[-625,730],[-560,700],[-500,675],[-430,650]]
  const lights:[number,number][]=[[-850,790],[-790,770],[-720,745],[-650,720],[-580,695],[-510,670],[-440,645]]
  return <group>
-  {trees.map(([x,z],i)=><group key={'tree-'+i} position={[x,0,z]}>
-   <mesh castShadow position={[0,2.7,0]}><cylinderGeometry args={[.18,.26,5.4,8]}/><meshStandardMaterial color="#5b4634"/></mesh>
-   <mesh castShadow position={[0,6.1,0]}><sphereGeometry args={[1.65,10,8]}/><meshStandardMaterial color={i%2?'#3f6f42':'#4c7d49'} roughness={1}/></mesh>
+  {trees.map(([x,z],i)=><group key={'tree-'+i} position={[x,0,z]} rotation={[0,(i%7)*.21,0]}>
+   <mesh castShadow position={[0,2.7,0]}><cylinderGeometry args={[.18,.28,5.4,8]}/><meshStandardMaterial color={i%2?'#5b4634':'#654b36'} roughness={1}/></mesh>
+   <mesh castShadow position={[0,5.85,0]}><dodecahedronGeometry args={[1.62,1]}/><meshStandardMaterial color={i%3===0?'#3f6f42':i%3===1?'#4c7d49':'#356b40'} roughness={1}/></mesh>
+   <mesh castShadow position={[-.75,5.65,.25]} scale={[.82,.75,.85]}><dodecahedronGeometry args={[1.28,1]}/><meshStandardMaterial color={i%2?'#2f653a':'#487c4c'} roughness={1}/></mesh>
+   <mesh castShadow position={[.72,6.05,-.2]} scale={[.78,.88,.80]}><dodecahedronGeometry args={[1.22,1]}/><meshStandardMaterial color={i%2?'#4b814e':'#32683b'} roughness={1}/></mesh>
+   <mesh castShadow position={[.05,7.05,.1]} scale={[.72,.74,.72]}><dodecahedronGeometry args={[1.10,1]}/><meshStandardMaterial color="#417746" roughness={1}/></mesh>
   </group>)}
   {lights.map(([x,z],i)=><group key={'light-'+i} position={[x,0,z]}>
    <mesh position={[0,3.4,0]}><cylinderGeometry args={[.07,.09,6.8,8]}/><meshStandardMaterial color="#3a4045" metalness={.55} roughness={.5}/></mesh>
@@ -137,15 +142,28 @@ function ChicagoCorridorDetailAssets(){
     <mesh position={[0,5.04,-.22]}><sphereGeometry args={[.11,8,6]}/><meshStandardMaterial color="#52a966"/></mesh>
    </group>)}
   </group>)}
-  {storefronts.map(([x,z,yaw],i)=><group key={'store-'+i} position={[x,0,z]} rotation={[0,yaw,0]}>
+  {storefronts.map(([x,z,yaw],i)=><group key={'store-'+i} position={[x,0,z]} rotation={[0,yaw,0]} name={'taylor-storefront-v3-'+i}>
    <mesh castShadow receiveShadow position={[0,6,0]}><boxGeometry args={[36,12,20]}/><meshStandardMaterial color={i%3===0?'#80503e':i%3===1?'#67574a':'#8b6446'} roughness={.9}/></mesh>
-   <mesh position={[0,2,-10.08]}><boxGeometry args={[5,4,.18]}/><meshStandardMaterial color="#284a5c"/></mesh>
-   {[-12,-6,6,12].map(wx=><mesh key={wx} position={[wx,7,-10.1]}><boxGeometry args={[4,3,.15]}/><meshStandardMaterial color="#8cb0bc" roughness={.25}/></mesh>)}
-   <mesh position={[0,10,-10.15]}><boxGeometry args={[24,1.2,.12]}/><meshStandardMaterial color="#d9c17b"/></mesh>
+   <mesh position={[0,11.72,0]}><boxGeometry args={[36.6,.42,20.6]}/><meshStandardMaterial color="#5f5650" roughness={.88}/></mesh>
+   <mesh position={[0,2,-10.10]}><boxGeometry args={[4.6,4,.18]}/><meshStandardMaterial color="#254454" roughness={.20}/></mesh>
+   {[-13.5,-7.5,7.5,13.5].map(wx=><mesh key={'ground-'+wx} position={[wx,2,-10.11]}><boxGeometry args={[5,3.5,.16]}/><meshStandardMaterial color="#486b7d" roughness={.18} metalness={.08}/></mesh>)}
+   {[-12,-6,6,12].map(wx=><mesh key={'upper-'+wx} position={[wx,7,-10.12]}><boxGeometry args={[4,3,.15]}/><meshStandardMaterial color="#8cb0bc" roughness={.22} metalness={.06}/></mesh>)}
+   <mesh position={[0,4.18,-10.7]} rotation={[.10,0,0]}><boxGeometry args={[18,.22,1.7]}/><meshStandardMaterial color={i%2?'#5f3d33':'#314f63'} roughness={.72}/></mesh>
+   <mesh position={[0,10,-10.15]}><boxGeometry args={[24,1.2,.12]}/><meshStandardMaterial color="#d9c17b" roughness={.72}/></mesh>
+   {[-15,-9,-3,3,9,15].map(px=><mesh key={'pilaster-'+px} position={[px,6,-10.18]}><boxGeometry args={[.34,11.2,.28]}/><meshStandardMaterial color="#c8bda6" roughness={.88}/></mesh>)}
+   <mesh position={[-8,12.45,1]}><boxGeometry args={[5,1.15,4]}/><meshStandardMaterial color="#33383c" roughness={.68}/></mesh>
+   <mesh position={[6,12.25,-1]}><boxGeometry args={[3.8,.9,3.2]}/><meshStandardMaterial color="#3d4245" roughness={.68}/></mesh>
   </group>)}
-  {parked.map(([x,z,yaw],i)=><group key={'parked-'+i} position={[x,0,z]} rotation={[0,yaw,0]}>
-   <mesh castShadow position={[0,.65,0]}><boxGeometry args={[4.4,1.05,1.9]}/><meshStandardMaterial color={i%3===0?'#355a73':i%3===1?'#713e38':'#55585b'} metalness={.35} roughness={.4}/></mesh>
-   <mesh position={[0,1.28,0]}><boxGeometry args={[2.3,.5,1.55]}/><meshStandardMaterial color="#91b7c7" roughness={.18}/></mesh>
+  {parked.map(([x,z,yaw],i)=><group key={'parked-'+i} position={[x,0,z]} rotation={[0,yaw,0]} name={'near-west-parked-car-v3-'+i}>
+   <mesh castShadow position={[0,.68,0]}><boxGeometry args={[4.45,.88,1.92]}/><meshStandardMaterial color={i%3===0?'#355a73':i%3===1?'#713e38':'#55585b'} metalness={.48} roughness={.32}/></mesh>
+   <mesh position={[-.25,1.31,0]}><boxGeometry args={[2.3,.58,1.56]}/><meshStandardMaterial color="#496c7c" roughness={.10} metalness={.12}/></mesh>
+   <mesh position={[1.35,1.02,0]}><boxGeometry args={[1.05,.16,1.82]}/><meshStandardMaterial color={i%3===0?'#355a73':i%3===1?'#713e38':'#55585b'} metalness={.48} roughness={.32}/></mesh>
+   {([-1,1] as const).flatMap(side=>([-1,1] as const).map(front=><group key={side+':'+front}>
+    <mesh position={[front*1.38,.42,side*.94]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.40,.40,.25,14]}/><meshStandardMaterial color="#111418" roughness={1}/></mesh>
+    <mesh position={[front*1.38,.42,side*.95]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.19,.19,.27,12]}/><meshStandardMaterial color="#848a8e" metalness={.72} roughness={.24}/></mesh>
+   </group>))}
+   <mesh position={[2.25,.78,0]}><boxGeometry args={[.07,.24,.72]}/><meshStandardMaterial color="#fff2c0" emissive="#ffd86a" emissiveIntensity={.32}/></mesh>
+   <mesh position={[-2.25,.75,0]}><boxGeometry args={[.07,.22,.68]}/><meshStandardMaterial color="#a92722" emissive="#6d1512" emissiveIntensity={.24}/></mesh>
   </group>)}
   {[[-680,920],[-620,920],[-680,680],[-620,680]].map(([x,z],i)=><group key={'stop-'+i} position={[x,0,z]}>
    <mesh position={[0,1.7,0]}><cylinderGeometry args={[.05,.06,3.4,8]}/><meshStandardMaterial color="#444b50"/></mesh>
@@ -311,23 +329,51 @@ function JeffersonLegacyCampusMesh(){
 }
 
 function RooseveltLandmarksMesh(){
- return <group>{NEAR_WEST_LANDMARKS.map(landmark=>landmark.kind==='school'
-  ?<group key={landmark.id} position={[landmark.x,0,landmark.z]}>
-    <mesh castShadow receiveShadow position={[0,8,0]}><boxGeometry args={[52,16,32]}/><meshStandardMaterial color="#8d4b3e" roughness={.9}/></mesh>
-    <mesh castShadow position={[0,13,-11]}><boxGeometry args={[18,10,10]}/><meshStandardMaterial color="#744035" roughness={.92}/></mesh>
-    <mesh position={[0,3,-16.15]}><boxGeometry args={[8,5,.3]}/><meshStandardMaterial color="#263f50"/></mesh>
-    {([[-18,5],[-9,5],[9,5],[18,5],[-18,10],[-9,10],[9,10],[18,10]] as [number,number][]).map(([x,y],i)=><mesh key={i} position={[x,y,-16.12]}><boxGeometry args={[4.5,2.2,.18]}/><meshStandardMaterial color="#9fd2e5" emissive="#214b5e" emissiveIntensity={.22}/></mesh>)}
-    <mesh position={[0,22,0]}><sphereGeometry args={[1.2,12,10]}/><meshStandardMaterial color="#79efff" emissive="#35c5de" emissiveIntensity={.8}/></mesh>
-   </group>
-  :<group key={landmark.id} position={[landmark.x,0,landmark.z]}>
-    <mesh castShadow receiveShadow position={[0,7,0]}><boxGeometry args={[30,14,38]}/><meshStandardMaterial color="#b5a18a" roughness={.92}/></mesh>
-    <mesh castShadow position={[-8,16,-8]}><boxGeometry args={[10,24,10]}/><meshStandardMaterial color="#a99278" roughness={.9}/></mesh>
-    <mesh castShadow position={[-8,30,-8]}><coneGeometry args={[7,12,4]}/><meshStandardMaterial color="#6a4f43" roughness={.88}/></mesh>
-    <mesh position={[-8,37,-8]}><boxGeometry args={[.8,7,.8]}/><meshStandardMaterial color="#e5d1a2" metalness={.35}/></mesh>
-    <mesh position={[-8,38.8,-8]}><boxGeometry args={[4.5,.8,.8]}/><meshStandardMaterial color="#e5d1a2" metalness={.35}/></mesh>
-    <mesh position={[0,4,-19.15]}><boxGeometry args={[7,7,.25]}/><meshStandardMaterial color="#45392f"/></mesh>
-    <mesh position={[0,22,0]}><sphereGeometry args={[1.2,12,10]}/><meshStandardMaterial color="#ffe4a2" emissive="#d8a84b" emissiveIntensity={.65}/></mesh>
-   </group>)}</group>
+ return <group>{NEAR_WEST_LANDMARKS.map(landmark=>{
+  if(landmark.kind==='school')return <group key={landmark.id} name="st-ignatius-gameplay-reconstruction-v3" position={[landmark.x,0,landmark.z]} userData={{geometryAuthority:landmark.geometryAuthority,address:landmark.address}}>
+   <mesh castShadow receiveShadow position={[0,8,0]}><boxGeometry args={[56,16,32]}/><meshStandardMaterial color="#8a4a3b" roughness={.92}/></mesh>
+   <mesh castShadow receiveShadow position={[-21,9,2]}><boxGeometry args={[14,18,27]}/><meshStandardMaterial color="#7a4136" roughness={.93}/></mesh>
+   <mesh castShadow receiveShadow position={[21,9,2]}><boxGeometry args={[14,18,27]}/><meshStandardMaterial color="#7a4136" roughness={.93}/></mesh>
+   <mesh castShadow position={[0,14,-12]}><boxGeometry args={[20,11,9]}/><meshStandardMaterial color="#714037" roughness={.92}/></mesh>
+   {[3.1,7.0,10.9,14.8].map(y=><mesh key={'belt-'+y} position={[0,y,-16.12]}><boxGeometry args={[56.4,.32,.34]}/><meshStandardMaterial color="#d0c1a2" roughness={.88}/></mesh>)}
+   {[-24,-18,-12,-6,6,12,18,24].flatMap(x=>[5.1,9.0,12.9].map(y=><group key={x+':'+y}>
+    <mesh position={[x,y,-16.20]}><boxGeometry args={[3.5,2.25,.18]}/><meshStandardMaterial color="#668b9c" roughness={.18} metalness={.05}/></mesh>
+    <mesh position={[x,y,-16.31]}><boxGeometry args={[.18,2.35,.08]}/><meshStandardMaterial color="#d7c7a6" roughness={.88}/></mesh>
+   </group>))}
+   <mesh position={[0,3.25,-16.55]}><boxGeometry args={[8.2,6,.34]}/><meshStandardMaterial color="#d4c7ab" roughness={.86}/></mesh>
+   <mesh position={[0,3.1,-16.78]}><boxGeometry args={[5.9,4.7,.18]}/><meshStandardMaterial color="#263f50" roughness={.25}/></mesh>
+   {[-2,2].map(x=><mesh key={'entry-col-'+x} position={[x,3.4,-17.0]}><boxGeometry args={[.48,6.5,.48]}/><meshStandardMaterial color="#cfc1a2" roughness={.88}/></mesh>)}
+   <mesh position={[0,6.5,-17.05]}><boxGeometry args={[7.2,.65,1.2]}/><meshStandardMaterial color="#cfc1a2" roughness={.88}/></mesh>
+   <mesh position={[0,17.0,0]}><boxGeometry args={[57,.75,33]}/><meshStandardMaterial color="#5b4138" roughness={.88}/></mesh>
+   {[-18,0,18].map((x,i)=><group key={'roof-'+i} position={[x,17.6,2]}>
+    <mesh><boxGeometry args={[7,1.4,8]}/><meshStandardMaterial color="#4b4b49" roughness={.75}/></mesh>
+    <mesh position={[0,1.05,0]}><boxGeometry args={[5.5,.7,6.5]}/><meshStandardMaterial color="#62615d" roughness={.74}/></mesh>
+   </group>)}
+   <mesh position={[0,22.5,-11]}><sphereGeometry args={[1.15,14,10]}/><meshStandardMaterial color="#7aeaff" emissive="#2b9eb2" emissiveIntensity={.65}/></mesh>
+  </group>
+
+  return <group key={landmark.id} name="holy-family-gameplay-reconstruction-v3" position={[landmark.x,0,landmark.z]} userData={{geometryAuthority:landmark.geometryAuthority,address:landmark.address}}>
+   <mesh castShadow receiveShadow position={[0,8,0]}><boxGeometry args={[31,16,42]}/><meshStandardMaterial color="#b3a08a" roughness={.93}/></mesh>
+   <mesh castShadow position={[0,13,-14]}><boxGeometry args={[20,12,14]}/><meshStandardMaterial color="#a9937c" roughness={.92}/></mesh>
+   {[-9,9].map(side=><group key={'tower-'+side} position={[side,0,-10]}>
+    <mesh castShadow position={[0,13,0]}><boxGeometry args={[8.2,26,8.2]}/><meshStandardMaterial color="#a28d76" roughness={.92}/></mesh>
+    {[8,13,18].map(y=><mesh key={y} position={[0,y,-4.15]}><boxGeometry args={[3.2,4.0,.18]}/><meshStandardMaterial color="#566d78" roughness={.20}/></mesh>)}
+    <mesh castShadow position={[0,28,0]}><coneGeometry args={[5.0,8.2,4]}/><meshStandardMaterial color="#655046" roughness={.86}/></mesh>
+    <mesh position={[0,33.5,0]}><boxGeometry args={[.55,6,.55]}/><meshStandardMaterial color="#dbc58e" metalness={.25} roughness={.55}/></mesh>
+    <mesh position={[0,35.1,0]}><boxGeometry args={[3.8,.55,.55]}/><meshStandardMaterial color="#dbc58e" metalness={.25} roughness={.55}/></mesh>
+   </group>)}
+   <mesh position={[0,5,-21.1]}><boxGeometry args={[8.4,9,.32]}/><meshStandardMaterial color="#c3b097" roughness={.90}/></mesh>
+   <mesh position={[0,4.6,-21.35]}><boxGeometry args={[5.8,7,.18]}/><meshStandardMaterial color="#473930" roughness={.62}/></mesh>
+   {[-10,-5,5,10].map((x,i)=><group key={'church-window-'+i}>
+    <mesh position={[x,10,-21.15]}><boxGeometry args={[3.2,6,.18]}/><meshStandardMaterial color={i%2?'#6a75a2':'#8e635e'} emissive={i%2?'#283362':'#5d2f2d'} emissiveIntensity={.30} roughness={.24}/></mesh>
+    <mesh position={[x,13.1,-21.18]}><circleGeometry args={[1.6,18]}/><meshStandardMaterial color={i%2?'#7f8bbb':'#b27d72'} emissive={i%2?'#37417d':'#6f3d38'} emissiveIntensity={.34}/></mesh>
+   </group>)}
+   <mesh position={[0,17,-21.18]}><circleGeometry args={[3.0,24]}/><meshStandardMaterial color="#856b9b" emissive="#49345f" emissiveIntensity={.36}/></mesh>
+   {[[-12,0],[12,0],[0,7]].map(([x,z],i)=><mesh key={'buttress-'+i} position={[x,5,z]}><boxGeometry args={[1.4,10,3.4]}/><meshStandardMaterial color="#9c8975" roughness={.92}/></mesh>)}
+   <mesh castShadow position={[0,16,0]}><boxGeometry args={[32,.75,43]}/><meshStandardMaterial color="#6b594e" roughness={.88}/></mesh>
+   <mesh position={[0,23,0]}><sphereGeometry args={[1.1,12,10]}/><meshStandardMaterial color="#ffe6a5" emissive="#d6a94f" emissiveIntensity={.62}/></mesh>
+  </group>
+ })}</group>
 }
 
 function CircleParkWestSideMarker(){
@@ -357,20 +403,30 @@ function NearWestPlayer({move,onPosition,hidden=false,startPosition}:{move:React
   camera.position.lerp(target,Math.min(1,dt*4));camera.lookAt(p.position.x,1.25,p.position.z)
   onPosition(p.position.x,p.position.z)
  })
- return <group ref={ref} visible={!hidden} position={[startPosition?.x??-650,0,startPosition?.z??700]}>
-  <mesh position={[0,1.18,0]} castShadow><capsuleGeometry args={[.28,.82,5,10]}/><meshStandardMaterial color="#172c55" roughness={.82}/></mesh>
-  <mesh position={[0,2.02,0]} castShadow scale={[.94,1.05,.92]}><sphereGeometry args={[.29,16,12]}/><meshStandardMaterial color="#79513c" roughness={.9}/></mesh>
-  <mesh position={[0,2.22,-.03]} castShadow scale={[.96,.55,1]}><sphereGeometry args={[.30,14,10,0,Math.PI*2,0,Math.PI*.5]}/><meshStandardMaterial color="#17110f" roughness={1}/></mesh>
+ return <group ref={ref} name="bj-stubbs-near-west-v12" userData={{characterId:'bj-stubbs',visualPass:'bj-v12-near-west'}} visible={!hidden} position={[startPosition?.x??-650,0,startPosition?.z??700]}>
+  <mesh position={[0,.025,0]} rotation={[-Math.PI/2,0,0]} scale={[.58,.34,1]}><circleGeometry args={[1,20]}/><meshBasicMaterial color="#080b0d" transparent opacity={.28} depthWrite={false}/></mesh>
+  <mesh position={[0,1.20,0]} castShadow scale={[.96,1,.88]}><capsuleGeometry args={[.30,.86,5,12]}/><meshStandardMaterial color="#101215" roughness={.9}/></mesh>
+  <mesh position={[0,2.08,0]} castShadow scale={[.93,1.07,.90]}><sphereGeometry args={[.31,20,15]}/><meshStandardMaterial color="#70462f" roughness={.82}/></mesh>
+  <mesh position={[0,1.90,.02]} castShadow scale={[.88,.68,.82]}><sphereGeometry args={[.21,14,11]}/><meshStandardMaterial color="#70462f" roughness={.84}/></mesh>
+  <mesh position={[0,2.29,-.04]} castShadow scale={[.98,.65,1]}><sphereGeometry args={[.32,16,11,0,Math.PI*2,0,Math.PI*.48]}/><meshStandardMaterial color="#17110f" roughness={1}/></mesh>
+  {([-1,1] as const).flatMap(side=>[0,1,2,3].map(i=><mesh key={'loc-'+side+'-'+i} position={[side*(.06+i*.038),1.78-i*.045,-.18-i*.022]} rotation={[.08,0,side*(.06+i*.018)]} castShadow>
+   <capsuleGeometry args={[.018,.62+i*.08,3,7]}/><meshStandardMaterial color={i===2?'#57514d':'#17110f'} roughness={1}/></mesh>))}
+  <mesh position={[0,1.89,.20]} scale={[.93,.88,.72]}><sphereGeometry args={[.20,16,12,0,Math.PI*2,Math.PI*.40,Math.PI*.50]}/><meshStandardMaterial color="#17110f" roughness={1}/></mesh>
+  <mesh position={[0,1.80,.25]} scale={[.78,.88,.54]}><sphereGeometry args={[.13,14,10]}/><meshStandardMaterial color="#827d78" roughness={1}/></mesh>
   {([-1,1] as const).map(side=><group key={side}>
-   <mesh position={[side*.39,1.2,0]} rotation={[0,0,side*.08]} castShadow><capsuleGeometry args={[.075,.58,4,8]}/><meshStandardMaterial color="#79513c"/></mesh>
-   <mesh position={[side*.16,.48,0]} castShadow><capsuleGeometry args={[.10,.58,4,8]}/><meshStandardMaterial color="#202329"/></mesh>
-   <mesh position={[side*.16,.10,-.11]} castShadow><boxGeometry args={[.22,.14,.48]}/><meshStandardMaterial color="#111318"/></mesh>
-   <mesh position={[side*.095,2.08,.255]}><sphereGeometry args={[.028,8,6]}/><meshStandardMaterial color="#17110f"/></mesh>
+   <mesh position={[side*.39,1.20,0]} rotation={[0,0,side*.08]} castShadow><capsuleGeometry args={[.075,.60,4,8]}/><meshStandardMaterial color="#70462f" roughness={.84}/></mesh>
+   <mesh position={[side*.16,.49,0]} castShadow><capsuleGeometry args={[.10,.60,4,8]}/><meshStandardMaterial color="#202329" roughness={.94}/></mesh>
+   <mesh position={[side*.16,.10,-.11]} castShadow><boxGeometry args={[.23,.15,.50]}/><meshStandardMaterial color="#111318" roughness={.82}/></mesh>
+   <mesh position={[side*.10,2.12,.275]} scale={[1,.72,.42]}><sphereGeometry args={[.035,9,7]}/><meshStandardMaterial color="#eeeae4" roughness={.5}/></mesh>
+   <mesh position={[side*.10,2.12,.302]} scale={[.8,1,.45]}><sphereGeometry args={[.018,8,6]}/><meshStandardMaterial color="#2b1b14" roughness={.3}/></mesh>
+   <mesh position={[side*.10,2.20,.286]} rotation={[0,0,Math.PI/2+side*.08]}><capsuleGeometry args={[.009,.075,2,7]}/><meshStandardMaterial color="#17110f" roughness={1}/></mesh>
   </group>)}
-  <mesh position={[0,1.12,.285]}><boxGeometry args={[.24,.05,.02]}/><meshStandardMaterial color="#c8a14b" metalness={.65} roughness={.3}/></mesh>
+  <mesh position={[0,2.02,.302]} scale={[1,.7,.45]}><sphereGeometry args={[.038,10,8]}/><meshStandardMaterial color="#70462f" roughness={.82}/></mesh>
+  <mesh position={[0,1.94,.318]} rotation={[0,0,Math.PI/2]}><capsuleGeometry args={[.009,.07,2,8]}/><meshStandardMaterial color="#5b302a" roughness={.75}/></mesh>
+  <mesh position={[0,1.52,.32]} rotation={[Math.PI/2,0,0]}><torusGeometry args={[.10,.008,6,18,Math.PI]}/><meshStandardMaterial color="#c8a14b" metalness={.75} roughness={.28}/></mesh>
+  <mesh position={[0,1.42,.33]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.038,.038,.016,12]}/><meshStandardMaterial color="#c8a14b" metalness={.78} roughness={.26}/></mesh>
  </group>
 }
-
 
 function DrivenVehicle({vehicleId,move,onPosition,onHeading}:{vehicleId:string;move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void;onHeading:(yaw:number)=>void}){
  const v=STREETVERSE_FUTURE_VEHICLES.find(x=>x.id===vehicleId)
@@ -396,15 +452,39 @@ function FutureVehicleMeshes({exclude}:{exclude?:string}){return <group>{STREETV
 })}</group>}
 
 function PopulationMeshes({reaction}:{reaction:{id:string;reaction:'stagger'|'downed'}|null}){return <group>
- {NEAR_WEST_NPCS.map((n,i)=><group key={n.id} rotation={[0,0,reaction?.id===n.id?(reaction.reaction==='downed'?1.45:.28):0]} position={[n.position.x,0,n.position.z]}>
-  <mesh position={[0,1.02,0]} castShadow><capsuleGeometry args={[.24,.68,4,8]}/><meshStandardMaterial color={i%3===0?'#315b7a':i%3===1?'#704936':'#485b3b'}/></mesh>
-  <mesh position={[0,1.78,0]}><sphereGeometry args={[.23,12,9]}/><meshStandardMaterial color={i%4===0?'#6f442f':i%4===1?'#8f654c':i%4===2?'#b57651':'#5b3829'}/></mesh>
-  <mesh position={[0,1.96,-.02]} scale={[.95,.50,1]}><sphereGeometry args={[.235,10,8,0,Math.PI*2,0,Math.PI*.5]}/><meshStandardMaterial color={i%2?'#1c1715':'#2b211d'}/></mesh>
-  {([-1,1] as const).map(side=><group key={side}><mesh position={[side*.34,1.02,0]} rotation={[0,0,side*.08]}><capsuleGeometry args={[.065,.48,3,7]}/><meshStandardMaterial color={i%4===0?'#6f442f':'#8f654c'}/></mesh><mesh position={[side*.13,.38,0]}><capsuleGeometry args={[.085,.46,3,7]}/><meshStandardMaterial color="#222831"/></mesh></group>)}
- </group>)}
- {NEAR_WEST_TRAFFIC.map((v,i)=><group key={v.id} position={[v.position.x,0,v.position.z]} rotation={[0,i%2?Math.PI:0,0]}><mesh position={[0,.62,0]} castShadow><boxGeometry args={[v.kind==='bus'?7:4.2,1.05,v.kind==='bus'?2.4:1.9]}/><meshStandardMaterial color={i%2?'#314c66':'#742f2f'} metalness={.35} roughness={.35}/></mesh><mesh position={[0,1.25,0]}><boxGeometry args={[v.kind==='bus'?5.6:2.2,.5,v.kind==='bus'?2.0:1.5]}/><meshStandardMaterial color="#8fc9df" metalness={.2} roughness={.15}/></mesh></group>)}
+ {NEAR_WEST_NPCS.map((n,i)=>{
+  const skin=i%5===0?'#6f442f':i%5===1?'#8f654c':i%5===2?'#b57651':i%5===3?'#5b3829':'#a56e4f'
+  const top=i%5===0?'#315b7a':i%5===1?'#704936':i%5===2?'#485b3b':i%5===3?'#6b506f':'#715b34'
+  return <group key={n.id} rotation={[0,0,reaction?.id===n.id?(reaction.reaction==='downed'?1.45:.28):0]} position={[n.position.x,0,n.position.z]}>
+   <mesh position={[0,.022,0]} rotation={[-Math.PI/2,0,0]} scale={[.42,.25,1]}><circleGeometry args={[1,16]}/><meshBasicMaterial color="#07090b" transparent opacity={.18} depthWrite={false}/></mesh>
+   <mesh position={[0,1.04,0]} castShadow><capsuleGeometry args={[.25,.70,4,9]}/><meshStandardMaterial color={top} roughness={.9}/></mesh>
+   <mesh position={[0,1.82,0]} castShadow scale={[.95,1.04,.92]}><sphereGeometry args={[.24,14,11]}/><meshStandardMaterial color={skin} roughness={.82}/></mesh>
+   <mesh position={[0,2.02,-.03]} castShadow scale={[.96,.54,1]}><sphereGeometry args={[.245,12,9,0,Math.PI*2,0,Math.PI*.52]}/><meshStandardMaterial color={i%3?'#1c1715':'#32231d'} roughness={1}/></mesh>
+   {([-1,1] as const).map(side=><group key={side}>
+    <mesh position={[side*.34,1.05,0]} rotation={[0,0,side*.08]}><capsuleGeometry args={[.065,.50,3,7]}/><meshStandardMaterial color={skin}/></mesh>
+    <mesh position={[side*.13,.39,0]}><capsuleGeometry args={[.086,.48,3,7]}/><meshStandardMaterial color={i%2?'#222831':'#30353b'}/></mesh>
+    <mesh position={[side*.10,1.84,.225]} scale={[1,.7,.4]}><sphereGeometry args={[.028,7,6]}/><meshStandardMaterial color="#201610"/></mesh>
+   </group>)}
+   <mesh position={[0,1.68,.238]} scale={[1,.7,.5]}><sphereGeometry args={[.035,8,6]}/><meshStandardMaterial color={skin}/></mesh>
+   <mesh position={[0,1.60,.252]}><boxGeometry args={[.12,.018,.016]}/><meshStandardMaterial color="#5b302c"/></mesh>
+  </group>
+ })}
+ {NEAR_WEST_TRAFFIC.map((v,i)=>{
+  const long=v.kind==='bus'?7.4:v.kind==='delivery'?5.2:4.35
+  const high=v.kind==='bus'?1.32:v.kind==='delivery'?1.18:.88
+  return <group key={v.id} position={[v.position.x,0,v.position.z]} rotation={[0,i%2?Math.PI:0,0]}>
+   <mesh position={[0,.025,0]} rotation={[-Math.PI/2,0,0]} scale={[v.kind==='bus'?3.2:2.05,v.kind==='bus'?1.05:.82,1]}><circleGeometry args={[1,20]}/><meshBasicMaterial color="#07090b" transparent opacity={.22} depthWrite={false}/></mesh>
+   <mesh position={[0,.72,0]} castShadow><boxGeometry args={[long,high, v.kind==='bus'?2.45:1.92]}/><meshStandardMaterial color={i%2?'#314c66':'#742f2f'} metalness={.38} roughness={.34}/></mesh>
+   <mesh position={[-.22,1.36,0]}><boxGeometry args={[v.kind==='bus'?5.8:2.25,v.kind==='bus'?.68:.55,v.kind==='bus'?2.02:1.52]}/><meshStandardMaterial color="#557d91" metalness={.12} roughness={.12}/></mesh>
+   {([-1,1] as const).flatMap(side=>([-1,1] as const).map(front=><group key={side+':'+front}>
+    <mesh position={[front*long*.31,.42,side*(v.kind==='bus'?1.18:.94)]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.42,.42,.26,14]}/><meshStandardMaterial color="#111418" roughness={1}/></mesh>
+    <mesh position={[front*long*.31,.42,side*(v.kind==='bus'?1.19:.95)]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.20,.20,.28,12]}/><meshStandardMaterial color="#858a8e" metalness={.72} roughness={.25}/></mesh>
+   </group>))}
+   <mesh position={[long*.505,.78,0]}><boxGeometry args={[.08,.28,.82]}/><meshStandardMaterial color="#fff3c2" emissive="#ffd86a" emissiveIntensity={.35}/></mesh>
+   <mesh position={[-long*.505,.76,0]}><boxGeometry args={[.08,.24,.76]}/><meshStandardMaterial color="#a92722" emissive="#6d1512" emissiveIntensity={.28}/></mesh>
+  </group>
+ })}
  </group>}
-
 export default function StreetVerseNearWest3D(){
  const [collegeBookOpen,setCollegeBookOpen]=useState(false)
  const [greenvilleOpen,setGreenvilleOpen]=useState(false)
