@@ -316,7 +316,7 @@ function RooseveltLandmarksMesh(){
     <mesh castShadow receiveShadow position={[0,8,0]}><boxGeometry args={[52,16,32]}/><meshStandardMaterial color="#8d4b3e" roughness={.9}/></mesh>
     <mesh castShadow position={[0,13,-11]}><boxGeometry args={[18,10,10]}/><meshStandardMaterial color="#744035" roughness={.92}/></mesh>
     <mesh position={[0,3,-16.15]}><boxGeometry args={[8,5,.3]}/><meshStandardMaterial color="#263f50"/></mesh>
-    {[[-18,5],[-9,5],[9,5],[18,5],[-18,10],[-9,10],[9,10],[18,10]] as [number,number][]).map(([x,y],i)=><mesh key={i} position={[x,y,-16.12]}><boxGeometry args={[4.5,2.2,.18]}/><meshStandardMaterial color="#9fd2e5" emissive="#214b5e" emissiveIntensity={.22}/></mesh>)}
+    {([[-18,5],[-9,5],[9,5],[18,5],[-18,10],[-9,10],[9,10],[18,10]] as [number,number][]).map(([x,y],i)=><mesh key={i} position={[x,y,-16.12]}><boxGeometry args={[4.5,2.2,.18]}/><meshStandardMaterial color="#9fd2e5" emissive="#214b5e" emissiveIntensity={.22}/></mesh>)}
     <mesh position={[0,22,0]}><sphereGeometry args={[1.2,12,10]}/><meshStandardMaterial color="#79efff" emissive="#35c5de" emissiveIntensity={.8}/></mesh>
    </group>
   :<group key={landmark.id} position={[landmark.x,0,landmark.z]}>
