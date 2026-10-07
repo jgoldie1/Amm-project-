@@ -87,16 +87,35 @@ function RoadMeshes(){
 }
 
 function TaylorLots(){
- return <group>{TAYLOR_STREET_CORRIDOR.blocks.flatMap(block=>block.businesses.map((b,i)=>{
+ return <group name="taylor-street-architectural-pass-v4">{TAYLOR_STREET_CORRIDOR.blocks.flatMap(block=>block.businesses.map((b,i)=>{
   const x=block.origin.x+b.lot.x,z=block.origin.z+b.lot.z
-  return <group key={b.id} position={[x,0,z]}>
-   <mesh castShadow receiveShadow position={[0,6,0]}><boxGeometry args={[18,12,16]}/><meshStandardMaterial color={i%2?'#7a3f2b':'#614b3d'}/></mesh>
-   <mesh position={[0,2,-8.05]}><boxGeometry args={[3,4,.15]}/><meshStandardMaterial color="#173142"/></mesh>
-   <mesh position={[0,7,-8.12]}><boxGeometry args={[11,1.4,.12]}/><meshStandardMaterial color="#e0c786"/></mesh>
+  const brick=i%3===0?'#83513f':i%3===1?'#704b3e':'#8b5e48'
+  const trim=i%2?'#d1c2a8':'#c6b59a'
+  const awning=i%2?'#31566d':'#6b4439'
+  return <group key={b.id} position={[x,0,z]} name={'taylor-lot-v4-'+b.id}>
+   <mesh castShadow receiveShadow position={[0,6.5,0]}><boxGeometry args={[18,13,16]}/><meshStandardMaterial color={brick} roughness={.92}/></mesh>
+   <mesh castShadow position={[0,12.86,0]}><boxGeometry args={[18.5,.36,16.5]}/><meshStandardMaterial color="#5b5149" roughness={.88}/></mesh>
+   <mesh position={[0,13.35,0]}><boxGeometry args={[17.8,.52,15.8]}/><meshStandardMaterial color="#6a5f56" roughness={.92}/></mesh>
+   <mesh position={[0,2,-8.12]}><boxGeometry args={[3.25,4,.18]}/><meshStandardMaterial color="#173142" roughness={.24} metalness={.08}/></mesh>
+   <mesh position={[0,4.25,-8.8]} rotation={[.11,0,0]}><boxGeometry args={[9,.22,1.6]}/><meshStandardMaterial color={awning} roughness={.78}/></mesh>
+   <mesh position={[0,7.2,-8.14]}><boxGeometry args={[11.5,1.25,.16]}/><meshStandardMaterial color="#ddc983" roughness={.74}/></mesh>
+   {[-6,-2,2,6].flatMap(wx=>[6.1,9.8].map((wy,yi)=><group key={wx+':'+wy}>
+    <mesh position={[wx,wy,-8.14]}><boxGeometry args={[2.25,2.05,.15]}/><meshStandardMaterial color={yi===0?'#7295a6':'#8aabba'} roughness={.22} metalness={.06}/></mesh>
+    <mesh position={[wx,wy,-8.25]}><boxGeometry args={[2.5,.12,.12]}/><meshStandardMaterial color={trim} roughness={.85}/></mesh>
+    <mesh position={[wx,wy,-8.25]} rotation={[0,0,Math.PI/2]}><boxGeometry args={[2.2,.10,.12]}/><meshStandardMaterial color={trim} roughness={.85}/></mesh>
+   </group>))}
+   {[-6.2,6.2].map((px,pi)=><mesh key={'pilaster-'+pi} position={[px,6.4,-8.22]}><boxGeometry args={[.38,12.2,.34]}/><meshStandardMaterial color={trim} roughness={.9}/></mesh>)}
+   <mesh position={[0,.22,-9.3]}><boxGeometry args={[6,.32,2.3]}/><meshStandardMaterial color="#bbb3a5" roughness={.96}/></mesh>
+   <mesh position={[0,.48,-8.8]}><boxGeometry args={[5.1,.22,1.7]}/><meshStandardMaterial color="#c8c0b1" roughness={.96}/></mesh>
+   <group position={[7.65,5.4,8.16]} name="taylor-fire-escape-v4">
+    {[2.3,5.7,9.1].map(y=><mesh key={'landing-'+y} position={[0,y,0]}><boxGeometry args={[2.6,.12,1.2]}/><meshStandardMaterial color="#30383d" metalness={.6} roughness={.45}/></mesh>)}
+    {[-1.1,1.1].map(sx=><mesh key={'rail-'+sx} position={[sx,5.8,0]}><boxGeometry args={[.08,7.4,.08]}/><meshStandardMaterial color="#30383d" metalness={.6} roughness={.45}/></mesh>)}
+   </group>
+   <mesh position={[-4.8,13.7,1]}><boxGeometry args={[3.4,.9,2.5]}/><meshStandardMaterial color="#3f4549" roughness={.68}/></mesh>
+   <mesh position={[4.5,13.6,-1]}><boxGeometry args={[2.6,.72,2.1]}/><meshStandardMaterial color="#484d50" roughness={.7}/></mesh>
   </group>
  }))}</group>
 }
-
 
 function ChicagoWestSideVisualAssets(){
  const trees:[number,number][]=[[-870,820],[-840,805],[-815,842],[-780,810],[-735,785],[-690,760],[-625,730],[-560,700],[-500,675],[-430,650]]
@@ -114,10 +133,23 @@ function ChicagoWestSideVisualAssets(){
    <mesh position={[.65,6.65,0]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[.05,.05,1.3,8]}/><meshStandardMaterial color="#3a4045"/></mesh>
    <mesh position={[1.3,6.55,0]}><boxGeometry args={[.5,.18,.28]}/><meshStandardMaterial color="#fff0b0" emissive="#ffd86a" emissiveIntensity={.45}/></mesh>
   </group>)}
-  {[-845,-815,-785].map((x,i)=><group key={'cp-home-'+i} position={[x,0,850-i*4]}>
-   <mesh castShadow receiveShadow position={[0,7,0]}><boxGeometry args={[22,14,15]}/><meshStandardMaterial color={i%2?'#8b5d49':'#76503f'} roughness={.9}/></mesh>
-   <mesh position={[0,2,-7.56]}><boxGeometry args={[3.2,4,.18]}/><meshStandardMaterial color="#263f50"/></mesh>
-   {[-7,0,7].map(wx=><mesh key={wx} position={[wx,8,-7.58]}><boxGeometry args={[3.2,2.7,.15]}/><meshStandardMaterial color="#87a9b8" roughness={.25}/></mesh>)}
+  {[-845,-815,-785].map((x,i)=><group key={'cp-home-'+i} position={[x,0,850-i*4]} name={'circle-park-home-v4-'+i}>
+   <mesh castShadow receiveShadow position={[0,7.5,0]}><boxGeometry args={[22,15,15]}/><meshStandardMaterial color={i%2?'#8b5d49':'#76503f'} roughness={.92}/></mesh>
+   <mesh position={[0,14.82,0]}><boxGeometry args={[22.5,.42,15.5]}/><meshStandardMaterial color="#5c5149" roughness={.9}/></mesh>
+   <mesh position={[0,15.3,0]}><boxGeometry args={[21.8,.52,14.8]}/><meshStandardMaterial color="#6c6056" roughness={.92}/></mesh>
+   <mesh position={[0,2,-7.62]}><boxGeometry args={[3.2,4,.18]}/><meshStandardMaterial color="#263f50" roughness={.26}/></mesh>
+   <mesh position={[0,.22,-8.65]}><boxGeometry args={[7,.34,2.1]}/><meshStandardMaterial color="#beb5a8" roughness={.95}/></mesh>
+   <mesh position={[0,.48,-8.18]}><boxGeometry args={[5.8,.24,1.45]}/><meshStandardMaterial color="#cbc3b4" roughness={.95}/></mesh>
+   {[-7,-3.5,3.5,7].flatMap(wx=>[5.5,9.2,12.7].map(wy=><group key={wx+':'+wy}>
+    <mesh position={[wx,wy,-7.58]}><boxGeometry args={[2.35,2.15,.16]}/><meshStandardMaterial color="#87a9b8" roughness={.22} metalness={.06}/></mesh>
+    <mesh position={[wx,wy,-7.69]}><boxGeometry args={[2.65,.13,.12]}/><meshStandardMaterial color="#d0c6b3" roughness={.86}/></mesh>
+   </group>))}
+   {[-8.3,8.3].map((px,pi)=><mesh key={'edge-'+pi} position={[px,7.2,-7.72]}><boxGeometry args={[.46,13.6,.32]}/><meshStandardMaterial color="#d0c6b3" roughness={.9}/></mesh>)}
+   <group position={[9.4,6.0,7.62]} name="circle-park-fire-escape-v4">
+    {[2.2,5.5,8.8,12.1].map(y=><mesh key={y} position={[0,y,0]}><boxGeometry args={[2.5,.11,1.15]}/><meshStandardMaterial color="#2e363b" metalness={.62} roughness={.43}/></mesh>)}
+   </group>
+   <mesh position={[-5.5,15.9,1.8]}><boxGeometry args={[3.6,.9,2.8]}/><meshStandardMaterial color="#3f4549" roughness={.68}/></mesh>
+   <mesh position={[5.2,15.75,-1.5]}><boxGeometry args={[2.9,.72,2.4]}/><meshStandardMaterial color="#484d50" roughness={.7}/></mesh>
   </group>)}
   <mesh receiveShadow position={[-850,.06,812]}><boxGeometry args={[52,.12,28]}/><meshStandardMaterial color="#507447"/></mesh>
   <mesh receiveShadow position={[-850,.13,812]}><boxGeometry args={[26,.08,15]}/><meshStandardMaterial color="#b87445"/></mesh>
