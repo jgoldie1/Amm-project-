@@ -8,9 +8,11 @@ for(const token of [
   "id:'streetverse-bj-stubbs-meshy-v6'",
   "filename:'SV_HERO_BJ_STUBBS_V6.glb'",
   "url:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6.glb'",
-  "productionFilename:'SV_HERO_BJ_STUBBS_V7.glb'",
-  "productionUrl:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V7.glb'",
-  "authority:'tryamm-owned-native-glb-v7'",
+  "productionFilename:'SV_HERO_BJ_STUBBS_V12.glb'",
+  "productionUrl:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V12.glb'",
+  "legacyProductionFilename:'SV_HERO_BJ_STUBBS_V7.glb'",
+  "legacyProductionUrl:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V7.glb'",
+    "authority:'tryamm-owned-native-glb-v12'",
   "method:'HEAD'",
   "normalizeStreetVerseHumanHeight(object,BJ_MESHY_V6_ASSET.targetHeightMeters)",
   "new THREE.AnimationMixer(object)",
@@ -26,8 +28,8 @@ for(const token of [
   "lookLeft:gaze<0",
   "lookRight:gaze>0",
   "breathing:THREE.MathUtils.clamp",
-  "source:'bj-production-v7-life-layer'",
-  "ownedV7:!published?.url",
+  "source:'bj-production-v12-life-layer'",
+  "ownedV12:!published?.url",
   "referenceMatchedPreview:Boolean(published?.url)",
 ])must(runtime.includes(token),'runtime missing '+token)
 
@@ -63,6 +65,6 @@ must(runtime.includes("certifiedLikeness:verifiedPhotoMatch"),'BJ V6 must keep c
 must(!runtime.includes("certifiedLikeness:true"),'BJ V6 must never hard-code a certified likeness claim')
 must(world.includes("visualContinuity:'current-era-reference-locked'"),'BJ current-era visual continuity lock must survive the life-layer upgrade')
 
-console.log('BJ V6/V7 LIVE SWAP CONTRACT PASS: owned V7 preferred -> V6 compatibility preserved -> external Meshy may override when truly published')
+console.log('BJ V6/V7/V12 LIVE SWAP CONTRACT PASS: owned V12 preferred -> V7/V6 compatibility preserved -> external Meshy may override when truly published')
 
-console.log('BJ LIFE LAYER V7: gaze + breathing + speech microgestures + posture + seated state are wired without weakening the native fallback')
+console.log('BJ LIFE LAYER V12: gaze + breathing + speech microgestures + posture + seated state are wired without weakening the native fallback')
