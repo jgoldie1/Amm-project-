@@ -58,14 +58,14 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
 /* iPhone portrait emergency pass: keep the game world visible and controls thumb-sized. */
 @media (max-width: 480px) and (orientation: portrait) {
   [data-streetverse-world-root] [data-streetverse-mission] {
-    top: calc(env(safe-area-inset-top) + 64px) !important;
+    top: calc(env(safe-area-inset-top) + 108px) !important;
     left: 8px !important;
     right: 8px !important;
     min-height: 0 !important;
     padding: 5px 8px !important;
     border-radius: 11px !important;
     font-size: 9px !important;
-    max-height: 82px !important;
+    max-height: 68px !important;
     overflow: hidden !important;
   }
   [data-streetverse-world-root] [data-streetverse-context] {
@@ -73,10 +73,16 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
     min-width: 116px !important;
     min-height: 44px !important;
     max-width: 116px !important;
-    bottom: calc(env(safe-area-inset-bottom) + 112px) !important;
+    bottom: calc(env(safe-area-inset-bottom) + 124px) !important;
     padding: 6px 8px !important;
     border-width: 1px !important;
     border-radius: 12px !important;
+  }
+  [data-streetverse-world-root] [data-streetverse-camera-control] {
+    left: calc(50% + 48px) !important;
+    bottom: calc(env(safe-area-inset-bottom) + 54px) !important;
+    min-height: 40px !important;
+    padding: 6px 11px !important;
   }
   body:has([data-streetverse-world-root]) #sv-retail-open,
   body:has([data-streetverse-world-root]) #sv-store-open {
@@ -92,7 +98,7 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
     bottom: calc(env(safe-area-inset-bottom) + 58px) !important;
   }
   body:has([data-streetverse-world-root]) [data-streetverse-travel] {
-    top: calc(env(safe-area-inset-top) + 148px) !important;
+    top: calc(env(safe-area-inset-top) + 184px) !important;
     min-height: 36px !important;
     padding: 5px 8px !important;
     font-size: 9px !important;
