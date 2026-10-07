@@ -25,7 +25,19 @@ const FACE_EYE_WHITE_GEOMETRY=new THREE.SphereGeometry(.038,8,6)
 const FACE_IRIS_GEOMETRY=new THREE.SphereGeometry(.020,8,6)
 const FACE_PUPIL_GEOMETRY=new THREE.SphereGeometry(.010,7,5)
 const FACE_NOSE_GEOMETRY=new THREE.SphereGeometry(.037,8,6)
-const FAexport function createMobileResidentPopulation(scene:THREE.Scene):MobileResident[]{
+const FACE_MOUTH_GEOMETRY=new THREE.BoxGeometry(.12,.018,.018)
+const BROW_GEOMETRY=new THREE.BoxGeometry(.105,.018,.018)
+const JACKET_GEOMETRY=new THREE.CapsuleGeometry(.32,.60,4,8)
+const BAG_GEOMETRY=new THREE.BoxGeometry(.30,.46,.16)
+const CAP_GEOMETRY=new THREE.CylinderGeometry(.22,.24,.10,10)
+const BODY_COLORS=[0x315f88,0xa24f65,0x6b5a9c,0xb98538,0x397d5b,0x9a5f42,0x4d8291,0x748a3e]
+const SKIN_COLORS=[0x70462f,0x8f654c,0xb57852,0x5f3b2b,0xc58a66,0x9f7155,0xc88d68,0xa36b4b]
+const PANTS_COLORS=[0x202936,0x283548,0x35313c,0x172d3d,0x30323a,0x24313a]
+const HAIR_COLORS=[0x16120f,0x2d1c15,0x493227,0x211817]
+
+function mat(color:number){return new THREE.MeshLambertMaterial({color})}
+
+export function createMobileResidentPopulation(scene:THREE.Scene):MobileResident[]{
   const routes:Array<Pick<MobileResident,'axis'|'fixed'|'phase'|'speed'>>=[
     {axis:'x',fixed:-39,phase:0,speed:5.4},
     {axis:'x',fixed:39,phase:23,speed:4.8},
