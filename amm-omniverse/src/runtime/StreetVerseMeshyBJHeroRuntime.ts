@@ -112,19 +112,25 @@ function tuneBJProductionMaterials(root:THREE.Object3D){
       if(!(material instanceof THREE.MeshStandardMaterial)&&!(material instanceof THREE.MeshPhysicalMaterial))return
       materialCount++
       const name=(node.name+' '+material.name).toLowerCase()
-      material.map&&(material.map.colorSpace=THREE.SRGBColorSpace,textureCount++)
+      material.map&&(material.map.colorSpace=THREE.SRGBColorSpace,material.map.anisotropy=Math.max(material.map.anisotropy||1,4),textureCount++)
+      if(material.normalMap){material.normalScale.setScalar(.82);material.normalMap.anisotropy=Math.max(material.normalMap.anisotropy||1,2)}
+      if(material.roughnessMap)material.roughnessMap.anisotropy=Math.max(material.roughnessMap.anisotropy||1,2)
       if(material.emissiveMap)material.emissiveMap.colorSpace=THREE.SRGBColorSpace
+      material.envMapIntensity=Math.max(.42,Math.min(1.15,material.envMapIntensity||1))
       if(/skin|face|head|body|arm|hand|neck/.test(name)){
         material.roughness=THREE.MathUtils.clamp(material.roughness,.42,.68)
         material.metalness=0
         if(material instanceof THREE.MeshPhysicalMaterial){
-          material.clearcoat=Math.min(material.clearcoat,.08)
-          material.clearcoatRoughness=Math.max(material.clearcoatRoughness,.65)
+          material.clearcoat=Math.min(material.clearcoat,.06)
+          material.clearcoatRoughness=Math.max(material.clearcoatRoughness,.72)
+          material.sheen=Math.min(.08,Math.max(material.sheen,.025))
+          material.sheenRoughness=Math.max(material.sheenRoughness,.78)
+          material.sheenColor.set(0x4b2a20)
         }
       }else if(/eye|cornea/.test(name)){
         material.roughness=.12
         material.metalness=0
-        if(material instanceof THREE.MeshPhysicalMaterial){material.clearcoat=.75;material.clearcoatRoughness=.08}
+        if(material instanceof THREE.MeshPhysicalMaterial){material.clearcoat=.92;material.clearcoatRoughness=.045;material.ior=1.38}
       }else if(/hair|brow|lash|beard/.test(name)){
         material.roughness=.72
         material.metalness=0
@@ -185,6 +191,13 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       }
     })
     const productionMaterials=tuneBJProductionMaterials(object)
+    const bounds=new THREE.Box3().setFromObject(object)
+    const size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3())
+    const presentationLayer=new THREE.Group();presentationLayer.name='bj-stubbs-presentation-v8'
+    const shadowGeometry=new THREE.CircleGeometry(Math.max(.28,size.x*.28),28)
+    const shadowMaterial=new THREE.MeshBasicMaterial({color:0x050607,transparent:true,opacity:.24,depthWrite:false,toneMapped:false})
+    const contactShadow=new THREE.Mesh(shadowGeometry,shadowMaterial);contactShadow.name='bj-contact-shadow-v8';contactShadow.rotation.x=-Math.PI/2;contactShadow.scale.set(1,Math.max(.55,Math.min(1.15,size.z/Math.max(.01,size.x))),1);contactShadow.position.set(center.x,bounds.min.y+.018,center.z);presentationLayer.add(contactShadow)
+    object.add(presentationLayer)
     object.userData={
       ...object.userData,
       characterId:BJ_MESHY_V6_ASSET.characterId,
@@ -199,8 +212,11 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       meshyV6:Boolean(published?.url),
       ownedV7:!published?.url,
       productionMaterials:true,
-      texturePipeline:'pbr-mobile-production-v7',
-      lifeLayer:'blink-lipsync-breathing-eye-focus-microgesture-v7',
+      texturePipeline:'pbr-mobile-production-v8',
+      lifeLayer:'blink-lipsync-breathing-eye-focus-microgesture-v8',
+      groundedContactShadow:true,
+      asymmetricBlink:true,
+      idleMicroExpression:true,
       autonomicLife:true,
       conversationFocus:true,
     }
@@ -312,7 +328,10 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       const t=nowMs*.001
       applyNaturalRig(nowMs,state)
       const blinkClock=(t+Math.sin(t*.071)*.42)%4.6
-      const blink=blinkClock>4.34?Math.sin(((blinkClock-4.34)/.26)*Math.PI):0
+      const blinkBase=blinkClock>4.34?Math.sin(((blinkClock-4.34)/.26)*Math.PI):0
+      const winkDrift=Math.sin(t*.23+1.1)*.035
+      const blinkLeft=THREE.MathUtils.clamp(blinkBase+(blinkBase>0?Math.max(0,winkDrift):0),0,1)
+      const blinkRight=THREE.MathUtils.clamp(blinkBase+(blinkBase>0?Math.max(0,-winkDrift):0),0,1)
       const liveLevel=THREE.MathUtils.clamp(state.liveTalkLevel||0,0,1)
       const synthetic=state.talking?THREE.MathUtils.clamp((Math.sin(t*12.4)+Math.sin(t*7.1+1.2)+1.0)/3,0,1):0
       const jaw=Math.max(synthetic,liveLevel)*.82
@@ -320,18 +339,24 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       const focus=THREE.MathUtils.clamp(Number(state.focusYaw||0),-.5,.5)
       const gaze=state.talking?focus*1.45:idleGaze
       const verticalGaze=state.talking?Math.sin(t*.37)*.035:Math.sin(t*.29+.8)*.065
+      const microSmile=state.talking?Math.min(.18,.04+liveLevel*.12):Math.max(0,Math.sin(t*.17+.8))*.035
+      const microFrown=String(state.posture||'neutral')==='guarded'?Math.max(0,Math.sin(t*.31))*0.06:0
       applyFacePose({
         jawOpen:jaw,
         mouthWide:state.talking?Math.min(.34,jaw*.42):0,
         mouthNarrow:state.talking?Math.max(0,.10-Math.min(.10,jaw*.08)):0,
-        blinkLeft:blink,
-        blinkRight:blink,
+        mouthSmile:microSmile,
+        mouthFrown:microFrown,
+        blinkLeft,
+        blinkRight,
         lookLeft:gaze<0?Math.min(1,Math.abs(gaze)):0,
         lookRight:gaze>0?Math.min(1,gaze):0,
         lookUp:verticalGaze>0?Math.min(.22,verticalGaze):0,
         lookDown:verticalGaze<0?Math.min(.22,Math.abs(verticalGaze)):0,
         browInnerUp:state.talking?Math.min(.16,.05+liveLevel*.12):0,
-        cheekRaise:state.talking?Math.min(.12,liveLevel*.10):0,
+        browDownLeft:microFrown*.5,
+        browDownRight:microFrown*.5,
+        cheekRaise:state.talking?Math.min(.14,liveLevel*.11+microSmile*.3):microSmile*.28,
       })
       if(nowMs-lastLifeStateAt>750){
         lastLifeStateAt=nowMs
@@ -348,7 +373,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
           lipSync:true,
           microGesture:true,
           seated:Boolean(state.seated),
-          source:'bj-production-v7-life-layer',
+          source:'bj-production-v8-life-layer',
         }}))
       }
     }
@@ -367,8 +392,11 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       certifiedLikeness:verifiedPhotoMatch,
       proceduralFallbackSuppressed:true,
       productionMaterials,
-      texturePipeline:'pbr-mobile-production-v7',
-      lifeLayer:'blink-lipsync-breathing-eye-focus-microgesture-v7',
+      texturePipeline:'pbr-mobile-production-v8',
+      lifeLayer:'blink-lipsync-breathing-eye-focus-microgesture-v8',
+      groundedContactShadow:true,
+      asymmetricBlink:true,
+      idleMicroExpression:true,
       autonomicLife:true,
       conversationFocus:true,
     }}))
@@ -383,6 +411,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       dispose:()=>{
         window.removeEventListener('tryamm:character-face-pose',onFacePose)
         mixer?.stopAllAction()
+        shadowGeometry.dispose();shadowMaterial.dispose()
         disposeObject(object)
       },
     }
