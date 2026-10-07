@@ -1,4 +1,6 @@
 import * as THREE from 'three'
+import {loadTryammNativeCircleParkLayer,disposeNativeAssetLayer} from './TryammNativeAssetRuntime'
+import type {NativePlacement} from '../data/TryammNativeRuntimeAssetCatalog'
 
 export type WestSideDistrictId='circle-park'|'roosevelt'|'taylor'|'pilsen'|'west-side'
 export type WestSideVisibleWorldHandle={
@@ -55,9 +57,15 @@ function addCrosswalk(root:THREE.Group,x:number,z:number,axis:'x'|'z'){
   }
 }
 function addTree(root:THREE.Group,x:number,z:number,s=1){
-  const g=new THREE.Group();g.position.set(x,0,z);g.name='west-side-tree'
-  const trunk=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.22*s,.3*s,2.8*s,7)),material({color:0x654127,roughness:1}));trunk.position.y=1.4*s;g.add(trunk)
-  const crown=new THREE.Mesh(geometry(new THREE.SphereGeometry(1.25*s,9,7)),material({color:0x327243,roughness:.95}));crown.position.y=3.5*s;g.add(crown)
+  const g=new THREE.Group();g.position.set(x,0,z);g.name='west-side-tree-v2'
+  const trunk=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.20*s,.32*s,2.9*s,8)),material({color:0x654127,roughness:1}));trunk.position.y=1.45*s;g.add(trunk)
+  const crownMat=material({color:0x327243,roughness:.96})
+  const crownLight=material({color:0x3f7f4d,roughness:.95})
+  const crownDark=material({color:0x285f3b,roughness:.98})
+  const crownA=new THREE.Mesh(geometry(new THREE.DodecahedronGeometry(1.15*s,1)),crownMat);crownA.position.set(0,3.35*s,0);crownA.scale.set(1.02,1.18,.98);g.add(crownA)
+  const crownB=new THREE.Mesh(geometry(new THREE.DodecahedronGeometry(.88*s,1)),crownLight);crownB.position.set(-.48*s,3.85*s,.14*s);crownB.scale.set(.92,1.08,.92);g.add(crownB)
+  const crownC=new THREE.Mesh(geometry(new THREE.DodecahedronGeometry(.82*s,1)),crownDark);crownC.position.set(.52*s,3.55*s,-.28*s);crownC.scale.set(1.02,.88,1.06);g.add(crownC)
+  g.rotation.y=((Math.abs(Math.round(x*7+z*3))%11)/11)*Math.PI*2
   root.add(g)
 }
 function addBuilding(root:THREE.Group,s:BuildingSpec,colliders:THREE.Box3[]){
@@ -136,14 +144,108 @@ function addPark(root:THREE.Group){
   root.add(park)
 }
 function addVehicle(root:THREE.Group,x:number,z:number,color:number,rot=0,name='traffic'){
-  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;g.name=`west-side-${name}`
-  box(g,[4.2,.82,1.9],[0,.72,0],material({color,metalness:.58,roughness:.27}))
-  box(g,[2.25,.62,1.55],[-.25,1.38,0],material({color:0x182a36,metalness:.28,roughness:.18}))
-  for(const xx of [-1.3,1.3])for(const zz of [-.92,.92]){
-    const wheel=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.39,.39,.24,12)),material({color:0x090a0b,roughness:1}));wheel.rotation.x=Math.PI/2;wheel.position.set(xx,.43,zz);g.add(wheel)
+  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;g.name=`west-side-${name}-v2`
+  const paint=material({color,metalness:.56,roughness:.24})
+  const glass=material({color:0x142a38,metalness:.26,roughness:.12,transparent:true,opacity:.92})
+  const rubber=material({color:0x090a0b,roughness:1})
+  const chrome=material({color:0x9da6aa,metalness:.78,roughness:.22})
+  box(g,[4.35,.78,1.92],[0,.72,0],paint)
+  box(g,[2.28,.66,1.58],[-.18,1.39,0],glass)
+  box(g,[1.28,.16,1.80],[1.38,1.08,0],paint)
+  box(g,[.78,.15,1.80],[-1.52,1.04,0],paint)
+  box(g,[.08,.42,1.38],[.98,1.42,0],glass,.18,'windshield')
+  box(g,[.08,.40,1.34],[-1.22,1.39,0],glass,-.18,'rear-window')
+  for(const side of [-1,1]){
+    box(g,[1.35,.38,.06],[-.20,1.43,side*.81],glass,0,'side-window')
+    box(g,[.28,.16,.12],[.72,1.42,side*1.00],paint,0,'side-mirror')
+  }
+  box(g,[.14,.22,1.80],[2.19,.62,0],chrome,0,'front-bumper')
+  box(g,[.14,.22,1.80],[-2.19,.62,0],chrome,0,'rear-bumper')
+  box(g,[.05,.28,.82],[2.26,.76,0],material({color:0x151b1f,roughness:.46}),0,'grille')
+  const lamp=material({color:0xf4f1c0,emissive:0xf4e8a0,emissiveIntensity:.7,roughness:.2})
+  for(const side of [-.62,.62])box(g,[.05,.20,.34],[2.28,.88,side],lamp,0,'headlight')
+  for(const xx of [-1.34,1.34])for(const zz of [-.94,.94]){
+    const wheel=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.39,.39,.25,14)),rubber);wheel.rotation.x=Math.PI/2;wheel.position.set(xx,.43,zz);g.add(wheel)
+    const hub=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.19,.19,.27,12)),chrome);hub.rotation.x=Math.PI/2;hub.position.set(xx,.43,zz);g.add(hub)
   }
   root.add(g)
 }
+
+function addStreetLight(root:THREE.Group,x:number,z:number,rot=0){
+  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;g.name='west-side-street-light-v2'
+  const metal=material({color:0x323a40,metalness:.62,roughness:.38})
+  const bulb=material({color:0xfff0bd,emissive:0xffd77a,emissiveIntensity:.8,roughness:.18})
+  const pole=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.10,.14,5.5,8)),metal);pole.position.y=2.75;g.add(pole)
+  box(g,[1.35,.10,.12],[.58,5.32,0],metal)
+  const light=new THREE.Mesh(geometry(new THREE.SphereGeometry(.16,8,6)),bulb);light.position.set(1.18,5.18,0);g.add(light)
+  root.add(g)
+}
+function addBusShelter(root:THREE.Group,x:number,z:number,rot=0,label='CTA BUS'){
+  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;g.name='west-side-bus-shelter-v2'
+  const frame=material({color:0x2f3a42,metalness:.72,roughness:.30})
+  const glass=material({color:0x6b9daf,roughness:.10,metalness:.06,transparent:true,opacity:.38})
+  const roof=material({color:0x222b31,metalness:.42,roughness:.46})
+  box(g,[5.2,.18,1.9],[0,3.0,0],roof)
+  for(const xx of [-2.4,2.4])box(g,[.12,3.0,.12],[xx,1.5,0],frame)
+  box(g,[4.7,2.4,.08],[0,1.6,.86],glass)
+  box(g,[3.2,.18,.62],[0,.65,.20],frame)
+  box(g,[3.2,.65,.10],[0,1.04,.48],frame)
+  const sign=labelSprite(label);sign.scale.set(3.8,.92,1);sign.position.set(0,3.72,0);g.add(sign)
+  root.add(g)
+}
+function addSaintIgnatius(root:THREE.Group,colliders:THREE.Box3[]){
+  const g=new THREE.Group();g.position.set(42,0,8);g.name='west-side-st-ignatius-game-reconstruction'
+  const brick=material({color:0x8c4935,roughness:.92}),stone=material({color:0xd7c9aa,roughness:.88}),glass=material({color:0x28424e,roughness:.18,metalness:.08,emissive:0x10222b,emissiveIntensity:.16})
+  const shell=box(g,[22,15,11],[0,7.5,0],brick,0,'ignatius-shell')
+  box(g,[8,18,12],[-7,9,.2],brick);box(g,[8,18,12],[7,9,.2],brick)
+  box(g,[23,.55,11.6],[0,15.2,0],stone)
+  for(const y of [4.0,8.0,12.0])for(const x of [-8.2,-5.5,-2.8,0,2.8,5.5,8.2])box(g,[1.15,1.75,.12],[x,y,-5.56],glass)
+  box(g,[5.4,5.0,.70],[0,2.5,-5.8],stone)
+  box(g,[3.6,3.7,.18],[0,1.85,-6.2],material({color:0x3b2a23,roughness:.78}))
+  const sign=labelSprite('ST. IGNATIUS • GAME RECONSTRUCTION');sign.scale.set(11,2.4,1);sign.position.set(0,18.3,-4.8);g.add(sign)
+  g.userData={landmark:'St. Ignatius College Prep',representation:'game-reconstruction',exactDigitalTwin:false}
+  root.add(g);colliders.push(new THREE.Box3().setFromObject(shell).expandByScalar(.15))
+}
+function addHolyFamily(root:THREE.Group,colliders:THREE.Box3[]){
+  const g=new THREE.Group();g.position.set(66,0,10);g.name='west-side-holy-family-game-reconstruction'
+  const brick=material({color:0x8a4938,roughness:.94}),stone=material({color:0xcfc1a1,roughness:.9}),roof=material({color:0x3b3431,roughness:.86}),glass=material({color:0x31566b,roughness:.16,emissive:0x163449,emissiveIntensity:.26})
+  const nave=box(g,[15,14,20],[0,7,0],brick,0,'holy-family-nave')
+  box(g,[6.0,22,6.0],[-5.0,11,-7.0],brick,0,'holy-family-tower')
+  const spire=new THREE.Mesh(geometry(new THREE.ConeGeometry(3.2,7.2,4)),roof);spire.position.set(-5,25,-7);spire.rotation.y=Math.PI/4;g.add(spire)
+  const roofMain=new THREE.Mesh(geometry(new THREE.ConeGeometry(10.8,6.2,4)),roof);roofMain.position.set(0,16.8,0);roofMain.rotation.y=Math.PI/4;roofMain.scale.set(1,.72,1.35);g.add(roofMain)
+  for(const x of [-4.6,0,4.6])box(g,[1.4,4.2,.18],[x,6.8,-10.08],glass)
+  box(g,[4.0,5.0,.24],[0,2.5,-10.25],stone)
+  const crossV=box(g,[.30,3.1,.22],[-5,29.5,-7],stone);const crossH=box(g,[2.0,.30,.22],[-5,30.0,-7],stone);void crossV;void crossH
+  const sign=labelSprite('HOLY FAMILY • GAME RECONSTRUCTION');sign.scale.set(10,2.2,1);sign.position.set(0,22,-10.8);g.add(sign)
+  g.userData={landmark:'Holy Family Church',representation:'game-reconstruction',exactDigitalTwin:false}
+  root.add(g);colliders.push(new THREE.Box3().setFromObject(nave).expandByScalar(.15))
+}
+function addUICGateway(root:THREE.Group,colliders:THREE.Box3[]){
+  const g=new THREE.Group();g.position.set(46,0,-22);g.name='west-side-uic-gateway-game-reconstruction'
+  const concrete=material({color:0xb6b2a9,roughness:.82}),glass=material({color:0x315f77,roughness:.14,metalness:.10,transparent:true,opacity:.88}),red=material({color:0xb42b2d,roughness:.72})
+  const shell=box(g,[25,12,13],[0,6,0],concrete,0,'uic-shell')
+  box(g,[18,7,.22],[0,6,-6.62],glass)
+  for(const x of [-8,-4,0,4,8])box(g,[.24,7,.28],[x,6,-6.76],red)
+  box(g,[9,.42,2.6],[0,10.8,-7.4],red)
+  const sign=labelSprite('UIC • CAMPUS GATEWAY');sign.scale.set(8.5,2.0,1);sign.position.set(0,13.4,-7);g.add(sign)
+  g.userData={landmark:'UIC Near West campus anchor',representation:'game-reconstruction',exactDigitalTwin:false}
+  root.add(g);colliders.push(new THREE.Box3().setFromObject(shell).expandByScalar(.15))
+}
+function addPilsenMurals(root:THREE.Group){
+  const colors=[0xff5f6d,0x4cc9f0,0xffc857,0x7ae582,0xc77dff,0xff8c42]
+  for(let i=0;i<6;i++){
+    const panel=box(root,[5.4,4.2,.12],[-72+i*8.0,2.2,-62],material({color:colors[i],roughness:.72}),0,'pilsen-mural-panel')
+    const stripe=box(root,[3.7,.40,.14],[-72+i*8.0,2.2+(i%3-1)*.75,-62.08],material({color:colors[(i+2)%colors.length],emissive:colors[(i+2)%colors.length],emissiveIntensity:.10}),i%2?.22:-.22,'pilsen-mural-accent')
+    void panel;void stripe
+  }
+}
+function addElevatedRail(root:THREE.Group){
+  const steel=material({color:0x495158,metalness:.78,roughness:.42}),rail=material({color:0x252a2e,metalness:.90,roughness:.28}),deck=material({color:0x5d6266,metalness:.42,roughness:.68})
+  for(let x=-80;x<=80;x+=12){box(root,[.50,6.4,.50],[x,3.2,-46],steel);box(root,[6.2,.30,.42],[x,6.15,-46],steel)}
+  box(root,[176,.34,5.4],[0,6.45,-46],deck)
+  box(root,[176,.12,.18],[0,6.72,-44.7],rail);box(root,[176,.12,.18],[0,6.72,-47.3],rail)
+}
+
 function addResidentialCourtyard(root:THREE.Group){
   const g=new THREE.Group();g.name='circle-park-residential-courtyard';g.position.set(-49,0,67)
   box(g,[28,.10,12],[0,.07,0],material({color:0x5f824f,roughness:1}),0,'courtyard-lawn')
@@ -155,8 +257,9 @@ function addResidentialCourtyard(root:THREE.Group){
 }
 
 export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,externalCollisionBoxes:THREE.Box3[]=[]):WestSideVisibleWorldHandle{
-  const root=new THREE.Group();root.name='streetverse-west-side-visible-world-v1';scene.add(root)
+  const root=new THREE.Group();root.name='streetverse-west-side-visible-world-v2';scene.add(root)
   const colliders:THREE.Box3[]=[]
+  let nativeLayer:THREE.Group|null=null,nativeCancelled=false
   const ground=new THREE.Mesh(geometry(new THREE.PlaneGeometry(176,176)),material({color:0x676b55,roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-.01;ground.receiveShadow=true;root.add(ground)
 
   addRoad(root,0,49,176,11,'circle-park')
@@ -169,6 +272,14 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
   ;[[0,49],[0,18],[0,-8],[0,-36],[-45,18],[45,18],[-45,-8],[45,-8]].forEach(([x,z],i)=>addCrosswalk(root,x,z,i<4?'z':'x'))
   addPark(root)
   addResidentialCourtyard(root)
+  addElevatedRail(root)
+  addPilsenMurals(root)
+  addSaintIgnatius(root,colliders)
+  addHolyFamily(root,colliders)
+  addUICGateway(root,colliders)
+  ;[[-73,16],[-57,16],[-30,16],[-10,16],[10,16],[30,16],[57,16],[73,16],[-73,-10],[-57,-10],[-30,-10],[30,-10],[57,-10],[73,-10]].forEach(([x,z],i)=>addStreetLight(root,x,z,i%2?Math.PI:0))
+  addBusShelter(root,-16,14,0,'CTA • ROOSEVELT')
+  addBusShelter(root,18,-11,Math.PI,'CTA • TAYLOR')
 
   const buildings:BuildingSpec[]=[
     {x:-67,z:34,w:16,d:15,h:18,color:0x8a4e39,label:'Circle Park Homes A',buildingNumber:'CP-A',units:['101','102','201','202']},
@@ -195,7 +306,36 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
   const treeRows=[[-79,60],[-58,60],[-35,60],[-16,60],[16,60],[35,60],[58,60],[79,60],[-79,24],[-58,24],[-35,24],[35,24],[58,24],[79,24],[-79,-14],[-58,-14],[-35,-14],[35,-14],[58,-14],[79,-14],[-79,-44],[-58,-44],[-35,-44],[35,-44],[58,-44],[79,-44]] as const
   treeRows.forEach(([x,z],i)=>addTree(root,x,z,.72+(i%3)*.08))
 
-  addVehicle(root,-55,47,0x2f6dd5,0,'sedan-a');addVehicle(root,-18,51,0xd34a3f,Math.PI,'sedan-b');addVehicle(root,31,17,0xe0c64c,0,'taxi');addVehicle(root,62,20,0x20242a,Math.PI,'suv');addVehicle(root,-59,-9,0x3f865b,0,'delivery');addVehicle(root,22,-35,0x7a3940,Math.PI,'coupe')
+  addVehicle(root,-55,47,0x2f6dd5,0,'sedan-a');addVehicle(root,-18,51,0xd34a3f,Math.PI,'sedan-b');addVehicle(root,31,17,0xe0c64c,0,'taxi');addVehicle(root,62,20,0x20242a,Math.PI,'suv');addVehicle(root,-59,-9,0x3f865b,0,'delivery');addVehicle(root,22,-35,0x7a3940,Math.PI,'coupe');addVehicle(root,-10,19,0x364f77,0,'sedan-c');addVehicle(root,52,-7,0x944339,Math.PI,'sedan-d')
+
+
+  const nativePlacements:NativePlacement[]=[
+    {asset:'streetLamp',position:[-34,0,20],label:'west-side-native-lamp-roosevelt-a'},
+    {asset:'streetLamp',position:[34,0,20],label:'west-side-native-lamp-roosevelt-b'},
+    {asset:'streetLamp',position:[-34,0,-10],label:'west-side-native-lamp-taylor-a'},
+    {asset:'streetLamp',position:[34,0,-10],label:'west-side-native-lamp-taylor-b'},
+    {asset:'bench',position:[-18,0,13],rotationY:Math.PI,label:'west-side-native-bench-roosevelt'},
+    {asset:'bench',position:[20,0,-13],rotationY:0,label:'west-side-native-bench-taylor'},
+    {asset:'tree',position:[-54,0,23],scale:1.04,label:'west-side-native-tree-roosevelt'},
+    {asset:'tree',position:[54,0,-14],scale:.98,label:'west-side-native-tree-taylor'},
+    {asset:'sportSedan2027',position:[-8,0,16],rotationY:0,label:'west-side-native-sport-sedan'},
+    {asset:'boxTruckCustom2027',position:[50,0,-11],rotationY:Math.PI,label:'west-side-native-box-truck'},
+    {asset:'residentA',position:[-26,0,14],rotationY:.2,label:'west-side-native-resident-a'},
+    {asset:'residentB',position:[-15,0,12],rotationY:-.4,label:'west-side-native-resident-b'},
+    {asset:'residentC',position:[8,0,-13],rotationY:.5,label:'west-side-native-resident-c'},
+    {asset:'residentD',position:[20,0,-13],rotationY:-.2,label:'west-side-native-resident-d'},
+    {asset:'residentE',position:[-30,0,-40],rotationY:.4,label:'west-side-native-resident-e'},
+    {asset:'residentF',position:[16,0,-40],rotationY:-.3,label:'west-side-native-resident-f'},
+    {asset:'residentG',position:[42,0,6],rotationY:.1,label:'west-side-native-student-a'},
+    {asset:'residentH',position:[65,0,7],rotationY:-.2,label:'west-side-native-community-a'},
+  ]
+  void loadTryammNativeCircleParkLayer({placements:nativePlacements}).then(result=>{
+    if(nativeCancelled){disposeNativeAssetLayer(result.group);return}
+    nativeLayer=result.group
+    nativeLayer.name='TRYAMM-Native-WestSide-Visual-Layer-v2'
+    root.add(nativeLayer)
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-west-side-native-assets',{detail:{loaded:result.loaded,failed:result.failed.length,usedUrls:result.usedUrls,source:'west-side-visible-world-v2'}}))
+  })
 
   const anchors=[
     {id:'circle-park' as const,label:'CIRCLE PARK',x:0,z:49},
@@ -216,10 +356,12 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
     if(next!==active){active=next;window.dispatchEvent(new CustomEvent('tryamm:streetverse-west-side-zone',{detail:{district:next,x,z,source:'west-side-visible-world'}}))}
   }
   window.addEventListener('tryamm:streetverse-player-position',onPosition)
-  window.dispatchEvent(new CustomEvent('tryamm:streetverse-visible-world-ready',{detail:{version:'west-side-forger-v1',districts:anchors.map(a=>a.id),buildings:buildings.length,trees:treeRows.length,vehicles:6,roads:7,crosswalks:8,twoWayRoadMarkings:true,raisedSidewalks:true,apartmentUnitNumbers:true,circleParkCourtyard:true,cadForger:true,collisions:true,interiorLobbies:true,source:'StreetVerseWestSideVisibleWorldRuntime'}}))
-  window.dispatchEvent(new CustomEvent('tryamm:game-ops-world-stage',{detail:{stage:'visible-world',state:'READY',version:'west-side-forger-v1',source:'StreetVerseWestSideVisibleWorldRuntime'}}))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-visible-world-ready',{detail:{version:'west-side-forger-v2',districts:anchors.map(a=>a.id),buildings:buildings.length+3,trees:treeRows.length+8,vehicles:8,roads:7,crosswalks:8,streetLights:14,busShelters:2,nativeVisualAssets:nativePlacements.length,pilsenMurals:6,elevatedRail:true,landmarks:['St. Ignatius game reconstruction','Holy Family game reconstruction','UIC campus gateway game reconstruction','Thomas Jefferson School reconstruction'],twoWayRoadMarkings:true,raisedSidewalks:true,apartmentUnitNumbers:true,circleParkCourtyard:true,cadForger:true,collisions:true,interiorLobbies:true,source:'StreetVerseWestSideVisibleWorldRuntime'}}))
+  window.dispatchEvent(new CustomEvent('tryamm:game-ops-world-stage',{detail:{stage:'visible-world',state:'READY',version:'west-side-forger-v2',source:'StreetVerseWestSideVisibleWorldRuntime'}}))
 
   return{group:root,collisionBoxes:colliders,dispose:()=>{
+    nativeCancelled=true
+    if(nativeLayer){disposeNativeAssetLayer(nativeLayer);nativeLayer=null}
     window.removeEventListener('tryamm:streetverse-player-position',onPosition)
     root.traverse(obj=>{if(obj instanceof THREE.Sprite){const t=obj.userData.disposeTexture as THREE.Texture|undefined;t?.dispose()}})
     root.removeFromParent()
