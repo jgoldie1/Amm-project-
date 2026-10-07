@@ -15,11 +15,12 @@ export function StarVerseReachInStage(){
  const [isLive,setIsLive]=useState(false),[isRecording,setIsRecording]=useState(false),[gifts,setGifts]=useState(0),[directorCue,setDirectorCue]=useState('Ready for your debut.');
  const [portalOpen,setPortalOpen]=useState(false),[take,setTake]=useState(1);
  const [xp,setXp]=useState(0),[reelDrafts,setReelDrafts]=useState(0),[publishState,setPublishState]=useState<'idle'|'draft'|'approved'>('idle');
+ const [opportunity,setOpportunity]=useState<string|null>(null);
  const recordingStartedAt=useRef<number|null>(null);
  const selectedProp=useMemo(()=>props.find(p=>p.id===selected),[props,selected]);
  const direct=(cue:string)=>setDirectorCue(cue);
  const toggleRecord=()=>{setIsRecording(v=>{const next=!v;recordingStartedAt.current=next?Date.now():null;if(!next){setTake(t=>t+1);setReelDrafts(r=>r+1);setPublishState('draft');direct('Take captured — Reel Composer draft created. Review before publishing.')}return next})};
- const approveDraft=()=>{if(!reelDrafts)return;setPublishState('approved');setXp(x=>x+100);direct('Creator approved the reel draft. XP awarded; eligible earnings still require server verification.');};
+ const approveDraft=()=>{if(!reelDrafts)return;setPublishState('approved');setXp(x=>x+100);setOpportunity('StarVerse Debut Audition');direct('Reel approved. Talent Scout found an explainable audition match — creator opt-in required.');};
  const activate=()=>{
   if(selected==='gift'){setGifts(g=>g+1);direct('Gift received — acknowledge your audience.');}
   else if(selected==='portal'){setPortalOpen(v=>!v);direct(portalOpen?'Portal closing.':'Portal opening — prepare the transition.');}
@@ -60,6 +61,7 @@ export function StarVerseReachInStage(){
    <button onClick={()=>{setGifts(g=>g+1);direct('Holo gift landed on stage.')}}>HOLO GIFT +1</button>
    <button onClick={()=>direct('AI Director: center performer, key light up, camera ready.')}>AI DIRECT</button>
    <button disabled={!reelDrafts||publishState==='approved'} onClick={approveDraft}>{publishState==='draft'?'REVIEW + APPROVE REEL':publishState==='approved'?'REEL APPROVED':'NO REEL YET'}</button>
+   {opportunity&&<button onClick={()=>{setXp(x=>x+75);direct('Audition accepted. Added to Star Passport career path.');setOpportunity(null)}}>ACCEPT: {opportunity}</button>}
   </div>
  </section>
 }
