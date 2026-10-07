@@ -118,7 +118,7 @@ export const CHICAGO_WEST_NATIVE_PREVIEW_PLACEMENTS:NativePlacement[]=[
   {asset:'residentB',position:[-810,0,828],rotationY:-.45,label:'circle-park-native-resident-b'},
   {asset:'residentC',position:[-625,0,702],rotationY:.5,label:'taylor-native-resident-c'},
   {asset:'residentD',position:[-505,0,692],rotationY:-.35,label:'taylor-native-resident-d'},
-] as const
+]
 
 export const NATIVE_RUNTIME_POLICY={
   generatedBeforeViteBuild:true,
