@@ -1,6 +1,6 @@
 import {useEffect,useMemo,useRef,useState} from 'react'
 
-type MissionId='school-day'|'fire-response'|'ems-crash'|'traffic-safety'
+type MissionId='school-day'|'fire-response'|'ems-crash'|'traffic-safety'|'heritage-walk'|'campus-link'|'pilsen-arts'
 type MissionState={id:MissionId;title:string;stage:number;startedAt:number;complete:boolean}
 
 const MISSIONS={
@@ -8,6 +8,9 @@ const MISSIONS={
   'fire-response':{title:'West Side Fire Response',steps:['Report to the fire scene','Wait for fire truck and firefighters','Complete rescue/fire objectives','Clear the incident']},
   'ems-crash':{title:'Roosevelt Crash Response',steps:['Report to the crash','Wait for ambulance and paramedics','Complete rescue objectives','Clear the incident']},
   'traffic-safety':{title:'Taylor/Roosevelt Traffic Safety',steps:['Report to traffic-control point','Wait for police unit','Set safe traffic control','Clear the intersection']},
+  'heritage-walk':{title:'Roosevelt Heritage Walk',steps:['Reach St. Ignatius gameplay landmark','Continue to Holy Family gameplay landmark','Record the two-stop neighborhood memory','Complete the heritage walk']},
+  'campus-link':{title:'UIC Campus Link',steps:['Reach the UIC Near West gateway','Check in at the campus anchor','Connect the campus to the West Side route','Complete the campus link']},
+  'pilsen-arts':{title:'Pilsen Arts Walk',steps:['Reach the Pilsen mural corridor','Check in at the arts block','Capture a Reel-ready neighborhood moment','Complete the arts walk']},
 } as const
 
 const TARGETS={
@@ -15,6 +18,10 @@ const TARGETS={
   fire:{x:24,z:46},
   crash:{x:16,z:-18},
   traffic:{x:0,z:-48},
+  ignatius:{x:42,z:8},
+  holyFamily:{x:66,z:10},
+  uic:{x:46,z:-22},
+  pilsenArts:{x:-48,z:-54},
 } as const
 
 export default function StreetVerseWestSideMissionDirector(){
@@ -45,6 +52,15 @@ export default function StreetVerseWestSideMissionDirector(){
   },[mission?.id])
 
   const details=useMemo(()=>mission?MISSIONS[mission.id]:null,[mission])
+  const missionTarget=(id:MissionId,stage=stageRef.current)=>{
+    if(id==='school-day')return TARGETS.school
+    if(id==='fire-response')return TARGETS.fire
+    if(id==='ems-crash')return TARGETS.crash
+    if(id==='traffic-safety')return TARGETS.traffic
+    if(id==='heritage-walk')return stage<=0?TARGETS.ignatius:TARGETS.holyFamily
+    if(id==='campus-link')return TARGETS.uic
+    return TARGETS.pilsenArts
+  }
   function setStage(stage:number,message:string){stageRef.current=stage;setMission(current=>current?{...current,stage}:current);setNote(message);window.dispatchEvent(new CustomEvent('tryamm:west-side-mission-stage',{detail:{missionId:mission?.id,stage,message,source:'west-side-mission-director'}}))}
   function advance(message:string){setStage(Math.min(3,stageRef.current+1),message)}
   function finish(message:string){
@@ -62,23 +78,36 @@ export default function StreetVerseWestSideMissionDirector(){
     }else if(id==='ems-crash'){
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-rescue-incident-start',{detail:{kind:'car-wreck',x:TARGETS.crash.x,z:TARGETS.crash.z,source:'west-side-mission-director'}}))
       window.dispatchEvent(new CustomEvent('tryamm:west-side-route-marker',{detail:{...TARGETS.crash,label:'CRASH RESPONSE'}}))
-    }else{
+    }else if(id==='traffic-safety'){
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-emergency-response',{detail:{kind:'police',x:TARGETS.traffic.x,z:TARGETS.traffic.z,severity:1,reason:'traffic safety detail',source:'west-side-mission-director',gameplayOnly:true}}))
       window.dispatchEvent(new CustomEvent('tryamm:west-side-route-marker',{detail:{...TARGETS.traffic,label:'TRAFFIC SAFETY'}}))
+    }else if(id==='heritage-walk'){
+      window.dispatchEvent(new CustomEvent('tryamm:west-side-route-marker',{detail:{...TARGETS.ignatius,label:'ST. IGNATIUS LANDMARK'}}))
+    }else if(id==='campus-link'){
+      window.dispatchEvent(new CustomEvent('tryamm:west-side-route-marker',{detail:{...TARGETS.uic,label:'UIC CAMPUS GATEWAY'}}))
+    }else{
+      window.dispatchEvent(new CustomEvent('tryamm:west-side-route-marker',{detail:{...TARGETS.pilsenArts,label:'PILSEN ARTS CORRIDOR'}}))
     }
     window.dispatchEvent(new CustomEvent('tryamm:west-side-mission-start',{detail:{...next,source:'west-side-mission-director'}}))
   }
 
   useEffect(()=>{
     if(!mission||mission.complete)return
-    const target=mission.id==='school-day'?TARGETS.school:mission.id==='fire-response'?TARGETS.fire:mission.id==='ems-crash'?TARGETS.crash:TARGETS.traffic
+    const target=missionTarget(mission.id)
     const dist=Math.hypot(position.x-target.x,position.z-target.z)
-    if(stageRef.current===0&&dist<11)advance('ARRIVED AT OBJECTIVE')
+    if(dist>=11)return
+    if(mission.id==='heritage-walk'){
+      if(stageRef.current===0){advance('ST. IGNATIUS LANDMARK REACHED');window.dispatchEvent(new CustomEvent('tryamm:west-side-route-marker',{detail:{...TARGETS.holyFamily,label:'HOLY FAMILY LANDMARK'}}));return}
+      if(stageRef.current===1){setStage(2,'HOLY FAMILY LANDMARK REACHED');window.dispatchEvent(new CustomEvent('tryamm:reel-moment',{detail:{kind:'west-side-heritage-walk',source:'west-side-mission-director'}}));finish('ROOSEVELT HERITAGE WALK COMPLETE');return}
+    }
+    if(mission.id==='campus-link'&&stageRef.current===0){setStage(2,'UIC CAMPUS GATEWAY REACHED');window.dispatchEvent(new CustomEvent('tryamm:reel-moment',{detail:{kind:'uic-campus-link',source:'west-side-mission-director'}}));finish('UIC CAMPUS LINK COMPLETE');return}
+    if(mission.id==='pilsen-arts'&&stageRef.current===0){setStage(2,'PILSEN ARTS CORRIDOR REACHED');window.dispatchEvent(new CustomEvent('tryamm:reel-moment',{detail:{kind:'pilsen-arts-walk',source:'west-side-mission-director'}}));finish('PILSEN ARTS WALK COMPLETE');return}
+    if(stageRef.current===0)advance('ARRIVED AT OBJECTIVE')
   },[position.x,position.z,mission?.id,mission?.complete])
 
   const routeToMission=()=>{
     if(!mission)return
-    const target=mission.id==='school-day'?TARGETS.school:mission.id==='fire-response'?TARGETS.fire:mission.id==='ems-crash'?TARGETS.crash:TARGETS.traffic
+    const target=missionTarget(mission.id)
     window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{missionId:mission.id,...target,source:'west-side-mission-director'}}))
   }
 
@@ -101,6 +130,9 @@ export default function StreetVerseWestSideMissionDirector(){
           <button style={button} onClick={()=>start('fire-response')}>🚒 WEST SIDE FIRE RESPONSE</button>
           <button style={button} onClick={()=>start('ems-crash')}>🚑 ROOSEVELT CRASH RESPONSE</button>
           <button style={button} onClick={()=>start('traffic-safety')}>🚓 TAYLOR / ROOSEVELT TRAFFIC SAFETY</button>
+          <button style={button} onClick={()=>start('heritage-walk')}>⛪ ROOSEVELT HERITAGE WALK</button>
+          <button style={button} onClick={()=>start('campus-link')}>🎓 UIC CAMPUS LINK</button>
+          <button style={button} onClick={()=>start('pilsen-arts')}>🎨 PILSEN ARTS WALK</button>
           <button style={{...button,borderColor:'#4a6170'}} onClick={()=>setOpen(false)}>CLOSE</button>
         </div>
       </section>
