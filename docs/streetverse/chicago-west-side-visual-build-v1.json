@@ -73,7 +73,7 @@
       "stable vehicle steering",
       "two-way traffic",
       "pedestrian population",
-      "police fire ambulance navigation hooks",
+      "police, fire, and ambulance each successfully traverse a named Chicago route from station/staging point to an incident destination",
       "missions can bind to named locations"
     ],
     "mobile": [
@@ -82,7 +82,7 @@
     ]
   },
   "nextPass": [
-    "map current production scene modules to these districts",
+    "prove police, fire, and ambulance route traversal on the connected Near West road graph",
     "mount district manifests into StreetVerse world loader",
     "add road/sidewalk continuity pass",
     "add visible landmark/building pass",
