@@ -85,38 +85,58 @@ function addTree(root:THREE.Group,x:number,z:number,s=1){
 }
 function addBuilding(root:THREE.Group,s:BuildingSpec,colliders:THREE.Box3[]){
   const g=new THREE.Group();g.position.set(s.x,0,s.z);g.rotation.y=s.rotation||0;g.name=`west-side-building-${s.label.toLowerCase().replace(/[^a-z0-9]+/g,'-')}`
-  const facade=material({color:s.color,roughness:.76,metalness:.04})
-  const trim=material({color:0xd7d1c1,roughness:.82})
-  const glass=material({color:0x82b9d2,roughness:.22,metalness:.18,emissive:0x16384b,emissiveIntensity:.32})
+  const facade=material({color:s.color,roughness:.84,metalness:.025})
+  const trim=material({color:0xd7d1c1,roughness:.88})
+  const trimDark=material({color:0x9f9587,roughness:.90})
+  const glass=material({color:0x82b9d2,roughness:.18,metalness:.16,emissive:0x16384b,emissiveIntensity:.26})
   const dark=material({color:0x18232b,roughness:.55})
+  const fireMetal=material({color:0x333a3f,roughness:.48,metalness:.58})
+  const awning=material({color:(s.x+s.z)%2?0x31566d:0x6d4437,roughness:.78})
   const body=box(g,[s.w,s.h,s.d],[0,s.h/2,0],facade,0,'shell')
   for(let y=3.2;y<s.h-1.5;y+=3.3){
     for(let x=-s.w/2+2;x<=s.w/2-2;x+=3.2){
-      box(g,[1.45,.9,.08],[x,y,-s.d/2-.05],glass)
-      box(g,[1.45,.9,.08],[x,y,s.d/2+.05],glass)
+      box(g,[1.45,.92,.09],[x,y,-s.d/2-.06],glass,0,'front-window')
+      box(g,[1.66,.13,.14],[x,y+.53,-s.d/2-.11],trim,0,'front-window-lintel')
+      box(g,[1.66,.13,.14],[x,y-.53,-s.d/2-.11],trimDark,0,'front-window-sill')
+      box(g,[1.45,.9,.08],[x,y,s.d/2+.05],glass,0,'rear-window')
     }
     for(let z=-s.d/2+2;z<=s.d/2-2;z+=3.2){
-      box(g,[.08,.9,1.45],[-s.w/2-.05,y,z],glass)
-      box(g,[.08,.9,1.45],[s.w/2+.05,y,z],glass)
+      box(g,[.08,.9,1.45],[-s.w/2-.05,y,z],glass,0,'side-window')
+      box(g,[.08,.9,1.45],[s.w/2+.05,y,z],glass,0,'side-window')
     }
   }
-  box(g,[s.w+.12,.18,s.d+.12],[0,2.45,0],trim,0,'facade-belt')
+  for(let y=3.3;y<s.h-1;y+=6.6)box(g,[s.w+.20,.18,s.d+.18],[0,y+.95,0],trimDark,0,'masonry-belt')
+  box(g,[s.w+.12,.20,s.d+.12],[0,2.45,0],trim,0,'facade-belt')
   box(g,[Math.min(5,s.w*.45),3.2,.35],[0,1.6,-s.d/2-.22],glass,0,'entry-glass')
   box(g,[1.8,3,.18],[0,1.5,-s.d/2-.43],dark,0,'entry-door')
+  box(g,[Math.min(6.2,s.w*.52),.20,1.75],[0,3.48,-s.d/2-1.00],awning,.10,'entry-awning')
   box(g,[Math.min(6,s.w*.5),.35,2.8],[0,.18,-s.d/2-1.45],trim,0,'entry-step')
+  box(g,[Math.min(5.2,s.w*.46),.22,2.3],[0,.44,-s.d/2-1.1],trimDark,0,'entry-step-upper')
   box(g,[Math.min(6.5,s.w*.55),.16,3.6],[0,.13,-s.d/2+1.9],material({color:0x8c765f,roughness:.9}),0,'lobby-floor')
   box(g,[1.5,.18,3.2],[-1.4,.55,-s.d/2+2.1],trim,.24,'interior-stair-1')
   box(g,[1.5,.18,3.2],[0,.95,-s.d/2+2.1],trim,.24,'interior-stair-2')
   box(g,[1.5,.18,3.2],[1.4,1.35,-s.d/2+2.1],trim,.24,'interior-stair-3')
-  box(g,[s.w+.35,.45,s.d+.35],[0,s.h+.23,0],trim,0,'roof-cap')
-  box(g,[2.8,1.2,2.2],[-s.w*.2,s.h+.85,0],dark,0,'roof-hvac')
-  const sign=labelSprite(s.label);sign.position.set(0,Math.min(s.h-1,7),-s.d/2-.55);g.add(sign)
+  box(g,[s.w+.42,.52,s.d+.42],[0,s.h+.26,0],trim,0,'roof-cornice')
+  box(g,[s.w-.8,.64,s.d-.8],[0,s.h+.68,0],facade,0,'roof-parapet')
+  box(g,[2.8,1.2,2.2],[-s.w*.2,s.h+1.28,0],dark,0,'roof-hvac')
+  box(g,[2.1,.82,1.7],[s.w*.22,s.h+1.08,s.d*.12],dark,0,'roof-hvac-secondary')
+  if(s.h>=18){
+    const fx=s.w/2+.14
+    for(let y=4.3;y<s.h-1.5;y+=4.2){
+      box(g,[.16,.11,2.6],[fx,y,0],fireMetal,0,'fire-escape-platform')
+      box(g,[.12,.68,2.6],[fx+.18,y+.36,0],fireMetal,0,'fire-escape-rail')
+      box(g,[.10,3.2,.10],[fx+.08,y-1.6,.95],fireMetal,.10,'fire-escape-ladder')
+      box(g,[.10,3.2,.10],[fx+.08,y-1.6,-.95],fireMetal,-.10,'fire-escape-ladder')
+    }
+  }
+  const sign=labelSprite(s.label);sign.position.set(0,Math.min(s.h-1,7),-s.d/2-.72);g.add(sign)
   if(s.buildingNumber){
-    const number=labelSprite(s.buildingNumber);number.name='building-number';number.scale.set(3.6,.9,1);number.position.set(-Math.min(2.4,s.w*.2),2.75,-s.d/2-.48);g.add(number)
+    const number=labelSprite(s.buildingNumber);number.name='building-number';number.scale.set(3.6,.9,1);number.position.set(-Math.min(2.4,s.w*.2),2.75,-s.d/2-.50);g.add(number)
   }
   if(s.units?.length){
-    s.units.slice(0,4).forEach((unit,i)=>{const plaque=labelSprite(unit);plaque.name='apartment-unit-number';plaque.scale.set(2.2,.58,1);plaque.position.set((i-1.5)*1.85,1.0,-s.d/2-.50);g.add(plaque)})
+    s.units.slice(0,4).forEach((unit,i)=>{const plaque=labelSprite(unit);plaque.name='apartment-unit-number';plaque.scale.set(2.2,.58,1);plaque.position.set((i-1.5)*1.85,1.0,-s.d/2-.52);g.add(plaque)})
   }
+  g.userData={architecturePass:'west-side-v4',facadeDepth:true,fireEscapes:s.h>=18,streetLevelAwning:true,roofParapet:true}
   root.add(g)
   colliders.push(new THREE.Box3().setFromObject(body).expandByScalar(.25))
 }
@@ -234,20 +254,33 @@ function addTrafficSignal(root:THREE.Group,x:number,z:number,rot=0){
   root.add(g)
 }
 function addAmbientResident(root:THREE.Group,x:number,z:number,rot:number,index:number){
-  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;g.name=`west-side-ambient-resident-${index+1}`;addGroundShadow(g,.72,.48,.024,.16)
-  const skinColors=[0x70462f,0x8f654c,0xb57852,0x5f3b2b,0xc58a66]
-  const tops=[0x315b7a,0x704936,0x485b3b,0x6d506f,0x765a32]
-  const skin=material({color:skinColors[index%skinColors.length],roughness:.86})
-  const cloth=material({color:tops[index%tops.length],roughness:.94})
+  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;g.name=`west-side-ambient-resident-${index+1}-v4`;addGroundShadow(g,.82,.52,.024,.17)
+  const skinColors=[0x70462f,0x8f654c,0xb57852,0x5f3b2b,0xc58a66,0x9f7155]
+  const tops=[0x315b7a,0x704936,0x485b3b,0x6d506f,0x765a32,0x3c5f64]
+  const skin=material({color:skinColors[index%skinColors.length],roughness:.84})
+  const cloth=material({color:tops[index%tops.length],roughness:.92})
   const pants=material({color:index%2?0x222831:0x34343b,roughness:.96})
-  const torso=new THREE.Mesh(geometry(new THREE.CapsuleGeometry(.25,.72,3,8)),cloth);torso.position.y=1.18;g.add(torso)
-  const head=new THREE.Mesh(geometry(new THREE.SphereGeometry(.24,12,9)),skin);head.position.y=1.92;g.add(head)
-  const hair=new THREE.Mesh(geometry(new THREE.SphereGeometry(.245,10,8,0,Math.PI*2,0,Math.PI*.52)),material({color:index%3?0x211817:0x33251f,roughness:1}));hair.position.y=2.06;g.add(hair)
+  const hairMat=material({color:index%4===0?0x33251f:0x211817,roughness:1})
+  const shoeMat=material({color:index%3===0?0xe9e5da:0x171a1d,roughness:.82})
+  const torso=new THREE.Mesh(geometry(new THREE.CapsuleGeometry(.25,.76,4,10)),cloth);torso.position.y=1.18;torso.scale.set(1,1,.86);g.add(torso)
+  const neck=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.10,.12,.16,8)),skin);neck.position.y=1.67;g.add(neck)
+  const head=new THREE.Mesh(geometry(new THREE.SphereGeometry(.24,14,11)),skin);head.position.y=1.91;head.scale.set(.92,1.04,.92);g.add(head)
+  const hair=new THREE.Mesh(geometry(new THREE.SphereGeometry(.245,12,9,0,Math.PI*2,0,Math.PI*.52)),hairMat);hair.position.y=2.065;hair.scale.set(.98,.58,1);g.add(hair)
   for(const side of [-1,1]){
-    const arm=new THREE.Mesh(geometry(new THREE.CapsuleGeometry(.065,.50,3,7)),skin);arm.position.set(side*.34,1.10,0);arm.rotation.z=side*.08;g.add(arm)
-    const leg=new THREE.Mesh(geometry(new THREE.CapsuleGeometry(.085,.56,3,7)),pants);leg.position.set(side*.13,.39,0);g.add(leg)
+    const arm=new THREE.Mesh(geometry(new THREE.CapsuleGeometry(.064,.50,4,8)),skin);arm.position.set(side*.34,1.10,0);arm.rotation.z=side*.08;g.add(arm)
+    const hand=new THREE.Mesh(geometry(new THREE.SphereGeometry(.077,8,7)),skin);hand.position.set(side*.37,.82,.01);g.add(hand)
+    const leg=new THREE.Mesh(geometry(new THREE.CapsuleGeometry(.085,.56,4,8)),pants);leg.position.set(side*.13,.39,0);g.add(leg)
+    box(g,[.19,.10,.35],[side*.13,.07,-.08],shoeMat,0,'resident-shoe')
   }
-  g.userData={ambientVisual:true,identity:'fictional',populationPass:'west-side-v3'}
+  if(index%4===1){
+    box(g,[.34,.58,.16],[-.36,1.06,.08],material({color:0x4b3b31,roughness:.96}),-.12,'resident-bag')
+    box(g,[.05,.74,.05],[-.22,1.36,.08],material({color:0x332923,roughness:1}),-.48,'resident-bag-strap')
+  }
+  if(index%5===2){
+    const cap=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.22,.24,.11,12)),material({color:0x24394a,roughness:.9}));cap.position.set(0,2.10,0);g.add(cap)
+    box(g,[.30,.04,.16],[0,2.08,-.19],material({color:0x24394a,roughness:.9}),0,'resident-cap-bill')
+  }
+  g.userData={ambientVisual:true,identity:'fictional',populationPass:'west-side-v4',humanDetail:'hands-shoes-accessories'}
   root.add(g)
 }
 
@@ -315,7 +348,7 @@ function addResidentialCourtyard(root:THREE.Group){
 }
 
 export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,externalCollisionBoxes:THREE.Box3[]=[]):WestSideVisibleWorldHandle{
-  const root=new THREE.Group();root.name='streetverse-west-side-visible-world-v1';root.userData={visualUpgradeVersion:'west-side-forger-v3',legacyVisualUpgradeVersion:'west-side-forger-v2',assetDensity:'expanded-v3'};scene.add(root)
+  const root=new THREE.Group();root.name='streetverse-west-side-visible-world-v1';root.userData={visualUpgradeVersion:'west-side-forger-v4',legacyVisualUpgradeVersion:'west-side-forger-v3',assetDensity:'expanded-v4',architectureDetail:'cornice-awning-fire-escape',residentDetail:'hands-shoes-accessories'};scene.add(root)
   const colliders:THREE.Box3[]=[]
   let nativeLayer:THREE.Group|null=null,nativeCancelled=false
   const ground=new THREE.Mesh(geometry(new THREE.PlaneGeometry(176,176)),material({color:0x676b55,roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-.01;ground.receiveShadow=true;root.add(ground)
@@ -416,9 +449,9 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
   void loadTryammNativeCircleParkLayer({placements:nativePlacements}).then(result=>{
     if(nativeCancelled){disposeNativeAssetLayer(result.group);return}
     nativeLayer=result.group
-    nativeLayer.name='TRYAMM-Native-WestSide-Visual-Layer-v3'
+    nativeLayer.name='TRYAMM-Native-WestSide-Visual-Layer-v4'
     root.add(nativeLayer)
-    window.dispatchEvent(new CustomEvent('tryamm:streetverse-west-side-native-assets',{detail:{loaded:result.loaded,failed:result.failed.length,usedUrls:result.usedUrls,source:'west-side-visible-world-v3'}}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-west-side-native-assets',{detail:{loaded:result.loaded,failed:result.failed.length,usedUrls:result.usedUrls,source:'west-side-visible-world-v4'}}))
   })
 
   const anchors=[
@@ -440,8 +473,8 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
     if(next!==active){active=next;window.dispatchEvent(new CustomEvent('tryamm:streetverse-west-side-zone',{detail:{district:next,x,z,source:'west-side-visible-world'}}))}
   }
   window.addEventListener('tryamm:streetverse-player-position',onPosition)
-  window.dispatchEvent(new CustomEvent('tryamm:streetverse-visible-world-ready',{detail:{version:'west-side-forger-v1',legacyVisualUpgradeVersion:'west-side-forger-v2',visualUpgradeVersion:'west-side-forger-v3',districts:anchors.map(a=>a.id),buildings:buildings.length+3,trees:treeRows.length+extraTreeRows.length+8,vehicles:8,roads:7,crosswalks:8,streetLights:14,busShelters:2,benches:8,hydrants:5,trafficSignals:6,ambientResidents:14,nativeVisualAssets:nativePlacements.length,pilsenMurals:6,elevatedRail:true,layeredTrees:true,contactShadows:true,landmarks:['St. Ignatius game reconstruction','Holy Family game reconstruction','UIC campus gateway game reconstruction','Thomas Jefferson School reconstruction'],twoWayRoadMarkings:true,raisedSidewalks:true,apartmentUnitNumbers:true,circleParkCourtyard:true,cadForger:true,collisions:true,interiorLobbies:true,source:'StreetVerseWestSideVisibleWorldRuntime'}}))
-  window.dispatchEvent(new CustomEvent('tryamm:game-ops-world-stage',{detail:{stage:'visible-world',state:'READY',version:'west-side-forger-v1',legacyVisualUpgradeVersion:'west-side-forger-v2',visualUpgradeVersion:'west-side-forger-v3',source:'StreetVerseWestSideVisibleWorldRuntime'}}))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-visible-world-ready',{detail:{version:'west-side-forger-v1',legacyVisualUpgradeVersion:'west-side-forger-v3',visualUpgradeVersion:'west-side-forger-v4',districts:anchors.map(a=>a.id),buildings:buildings.length+3,trees:treeRows.length+extraTreeRows.length+8,vehicles:8,roads:7,crosswalks:8,streetLights:14,busShelters:2,benches:8,hydrants:5,trafficSignals:6,ambientResidents:14,nativeVisualAssets:nativePlacements.length,pilsenMurals:6,elevatedRail:true,layeredTrees:true,contactShadows:true,facadeDepth:true,fireEscapes:true,streetLevelAwnings:true,roofParapets:true,residentHandsAndShoes:true,landmarks:['St. Ignatius game reconstruction','Holy Family game reconstruction','UIC campus gateway game reconstruction','Thomas Jefferson School reconstruction'],twoWayRoadMarkings:true,raisedSidewalks:true,apartmentUnitNumbers:true,circleParkCourtyard:true,cadForger:true,collisions:true,interiorLobbies:true,source:'StreetVerseWestSideVisibleWorldRuntime'}}))
+  window.dispatchEvent(new CustomEvent('tryamm:game-ops-world-stage',{detail:{stage:'visible-world',state:'READY',version:'west-side-forger-v1',legacyVisualUpgradeVersion:'west-side-forger-v3',visualUpgradeVersion:'west-side-forger-v4',source:'StreetVerseWestSideVisibleWorldRuntime'}}))
 
   return{group:root,collisionBoxes:colliders,dispose:()=>{
     nativeCancelled=true
