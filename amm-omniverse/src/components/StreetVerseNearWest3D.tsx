@@ -17,6 +17,52 @@ import GreenvilleCampusVerseScene from './GreenvilleCampusVerseScene'
 import {UIC_ALL_CAMPUS_HUBS} from '../data/uicCampusVerseHubs'
 import IllinoisCampusVersePlayableScene from './IllinoisCampusVersePlayableScene'
 import {ILLINOIS_CAMPUSVERSE_NETWORK,type CampusNetworkId} from '../data/campusVerseIllinoisUniversityNetwork'
+import {CHICAGO_WEST_NATIVE_PREVIEW_PLACEMENTS} from '../data/TryammNativeRuntimeAssetCatalog'
+import {disposeNativeAssetLayer,loadTryammNativeCircleParkLayer} from '../runtime/TryammNativeAssetRuntime'
+
+function NearWestNativeGlbLayer(){
+ const host=useRef<THREE.Group>(null)
+ useEffect(()=>{
+  let active=true
+  let mounted:THREE.Group|null=null
+  void loadTryammNativeCircleParkLayer({placements:CHICAGO_WEST_NATIVE_PREVIEW_PLACEMENTS}).then(result=>{
+   if(!active){disposeNativeAssetLayer(result.group);return}
+   mounted=result.group
+   result.group.name='TRYAMM-Native-Chicago-West-Visual-Layer'
+   result.group.userData={
+    ...result.group.userData,
+    district:'near-west',
+    source:'deployed-generated-glb-library',
+    visualOnly:true,
+    gameplayCollisionAuthority:'existing-near-west-runtime',
+   }
+   host.current?.add(result.group)
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-chicago-native-assets-ready',{detail:{
+    district:'near-west',
+    loaded:result.loaded,
+    failed:result.failed,
+    usedUrls:result.usedUrls,
+    collisionAuthority:'existing-near-west-runtime',
+    visualOnly:true,
+   }}))
+  }).catch(error=>{
+   if(!active)return
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-chicago-native-assets-error',{detail:{
+    district:'near-west',
+    error:String(error),
+    fallback:'existing-procedural-world',
+   }}))
+  })
+  return()=>{
+   active=false
+   if(mounted){
+    mounted.removeFromParent()
+    disposeNativeAssetLayer(mounted)
+   }
+  }
+ },[])
+ return <group ref={host} name="near-west-native-glb-host"/>
+}
 
 function MissionMarker({mission}:{mission:StreetVerseMission|null}){if(!mission)return null;return <group position={[mission.objective.x,0,mission.objective.z]}><mesh position={[0,2.5,0]}><cylinderGeometry args={[.7,.7,5,12]}/><meshStandardMaterial color="#f3c84b" emissive="#f3c84b" emissiveIntensity={.5} transparent opacity={.7}/></mesh><mesh position={[0,5.7,0]}><sphereGeometry args={[.9,12,10]}/><meshStandardMaterial color="#fff2a3" emissive="#f3c84b" emissiveIntensity={.8}/></mesh></group>}
 
@@ -461,7 +507,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><EmergencyRouteTraversal/><MovingCivilianTraffic/><MovingPedestrians/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
+   <RoadMeshes/><NearWestNativeGlbLayer/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><EmergencyRouteTraversal/><MovingCivilianTraffic/><MovingPedestrians/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
   </Canvas>
  </div>
 }
