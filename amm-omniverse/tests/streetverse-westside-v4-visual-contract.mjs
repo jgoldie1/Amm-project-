@@ -6,6 +6,8 @@ const must=(ok,msg)=>{if(!ok)throw new Error('WEST SIDE V4 VISUAL CONTRACT FAIL:
 
 for(const token of [
   "visualUpgradeVersion:'west-side-forger-v4'",
+  'createWestSideBrickTexture',
+  'west-side-procedural-brick-v4',
   "architecturePass:'west-side-v4'",
   "fire-escape-platform",
   "entry-awning",
@@ -24,4 +26,4 @@ for(const token of [
   'moving-resident-v4-',
 ])must(nearWest.includes(token),'Near West scene missing '+token)
 
-console.log('WEST SIDE V4 VISUAL CONTRACT PASS: facade depth + fire escapes + awnings + roof detail + richer residents + Taylor/Circle Park architectural pass')
+console.log('WEST SIDE V4 VISUAL CONTRACT PASS: procedural brick + facade depth + fire escapes + awnings + roof detail + richer residents + Taylor/Circle Park architectural pass')
