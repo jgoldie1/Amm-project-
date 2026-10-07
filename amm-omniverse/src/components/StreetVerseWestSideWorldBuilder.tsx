@@ -20,7 +20,7 @@ type MiddleverseRepairStateView={items:MiddleverseRepairItemView[];activeTicketI
 type Zone={
  id:string
  label:string
- group:'neighborhood'|'school'|'campus'|'medical'|'transit'
+ group:'neighborhood'|'school'|'faith'|'campus'|'medical'|'transit'
  x:number
  z:number
  status:'live'|'playable'|'planned'
@@ -33,6 +33,8 @@ const ZONES:readonly Zone[]=[
  {id:'circle-park',label:'Circle Park',group:'neighborhood',x:32,z:18,status:'live',detail:'West Side spawn, homes, park, streets, traffic, trees and neighborhood missions.',mission:'circle-park'},
  {id:'jefferson-school',label:'Thomas Jefferson School',group:'school',x:43,z:28,status:'playable',detail:'Reconstructed school exterior with school-life and learning mission hooks.',mission:'jefferson-school'},
  {id:'roosevelt',label:'Roosevelt Road',group:'neighborhood',x:49,z:43,status:'live',detail:'Business, mobility, delivery and mission corridor.',mission:'roosevelt'},
+ {id:'saint-ignatius',label:'St. Ignatius College Prep',group:'school',x:54,z:40,status:'playable',detail:'Roosevelt Road school landmark reconstructed as a gameplay campus anchor from the real-world address.',mission:'ignatius-campus-memory'},
+ {id:'holy-family',label:'Holy Family Church',group:'faith',x:51,z:39,status:'playable',detail:'Roosevelt Road faith/history landmark reconstructed as a gameplay anchor from the real-world address.',mission:'holy-family-history-faith'},
  {id:'taylor',label:'Taylor Street / Little Italy',group:'neighborhood',x:57,z:56,status:'live',detail:'Restaurants, apartments, creator spaces and neighborhood missions.',mission:'taylor'},
  {id:'pilsen',label:'Pilsen',group:'neighborhood',x:63,z:76,status:'playable',detail:'Arts, food, music, homes and community mission district.',mission:'pilsen'},
  {id:'uic-east',label:'UIC East Campus',group:'campus',x:69,z:35,status:'playable',detail:'Student Center East, Daley Library and connected CampusVerse missions.',campusId:'uic'},
@@ -77,6 +79,8 @@ const BUILD_LANES=[
 const MISSIONS=[
  'Circle Park orientation + neighborhood life',
  'Thomas Jefferson school day + learning',
+ 'St. Ignatius Roosevelt campus memory route',
+ 'Holy Family faith + neighborhood history route',
  'Roosevelt delivery / business route',
  'Taylor Street food / creator route',
  'Pilsen arts / community route',
@@ -101,7 +105,7 @@ export default function StreetVerseWestSideWorldBuilder(){
  const [sandbox,setSandbox]=useState<SandboxStateView>({planId:null,targetLabel:null,speedMode:'balanced',maxConcurrentJobs:4,waves:[],missingEvidence:[],publishable:false})
  const [repairs,setRepairs]=useState<RepairStateView>({tickets:[],activeTicketId:null})
  const [middleverseRepairs,setMiddleverseRepairs]=useState<MiddleverseRepairStateView>({items:[],activeTicketId:null})
- const [layers,setLayers]=useState({neighborhood:true,school:true,campus:true,medical:true,transit:true})
+ const [layers,setLayers]=useState({neighborhood:true,school:true,faith:true,campus:true,medical:true,transit:true})
  const visible=useMemo(()=>ZONES.filter(z=>layers[z.group]),[layers])
 
  useEffect(()=>{
