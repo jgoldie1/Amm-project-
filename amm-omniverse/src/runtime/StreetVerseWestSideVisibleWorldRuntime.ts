@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import {loadTryammNativeCircleParkLayer,disposeNativeAssetLayer} from './TryammNativeAssetRuntime'
 import type {NativePlacement} from '../data/TryammNativeRuntimeAssetCatalog'
+import {STREETVERSE_CHICAGO_PROOF_ZONE,STREETVERSE_CHICAGO_RECONSTRUCTION_SOURCES} from '../data/StreetVerseChicagoReconstructionSources'
 
 export type WestSideDistrictId='circle-park'|'roosevelt'|'taylor'|'pilsen'|'west-side'
 export type WestSideVisibleWorldHandle={
@@ -85,18 +86,24 @@ function addCrosswalk(root:THREE.Group,x:number,z:number,axis:'x'|'z'){
   }
 }
 function addTree(root:THREE.Group,x:number,z:number,s=1){
-  const g=new THREE.Group();g.position.set(x,0,z);g.name='west-side-tree-v3';addGroundShadow(g,2.35*s,1.45*s,.026,.13)
-  const trunk=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.20*s,.32*s,2.9*s,8)),material({color:0x654127,roughness:1}));trunk.position.y=1.45*s;g.add(trunk)
+  const g=new THREE.Group();g.position.set(x,0,z);g.name='west-side-tree-v4';addGroundShadow(g,2.55*s,1.60*s,.026,.15)
+  const bark=material({color:0x654127,roughness:1})
+  const trunk=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.20*s,.34*s,3.05*s,9)),bark);trunk.position.y=1.52*s;g.add(trunk)
   const crownMat=material({color:0x327243,roughness:.96})
-  const crownLight=material({color:0x3f7f4d,roughness:.95})
-  const crownDark=material({color:0x285f3b,roughness:.98})
-  const crownA=new THREE.Mesh(geometry(new THREE.DodecahedronGeometry(1.15*s,1)),crownMat);crownA.position.set(0,3.35*s,0);crownA.scale.set(1.02,1.18,.98);g.add(crownA)
-  const crownB=new THREE.Mesh(geometry(new THREE.DodecahedronGeometry(.88*s,1)),crownLight);crownB.position.set(-.48*s,3.85*s,.14*s);crownB.scale.set(.92,1.08,.92);g.add(crownB)
-  const crownC=new THREE.Mesh(geometry(new THREE.DodecahedronGeometry(.82*s,1)),crownDark);crownC.position.set(.52*s,3.55*s,-.28*s);crownC.scale.set(1.02,.88,1.06);g.add(crownC)
-  const crownD=new THREE.Mesh(geometry(new THREE.DodecahedronGeometry(.72*s,1)),crownLight);crownD.position.set(.08*s,4.47*s,.06*s);crownD.scale.set(.86,.92,.84);g.add(crownD)
-  const crownE=new THREE.Mesh(geometry(new THREE.DodecahedronGeometry(.67*s,1)),crownDark);crownE.position.set(-.12*s,4.03*s,-.55*s);crownE.scale.set(.90,.78,.88);g.add(crownE)
-  for(const side of [-1,1]){const branch=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.05*s,.075*s,1.18*s,6)),material({color:0x654127,roughness:1}));branch.position.set(side*.28*s,2.70*s,0);branch.rotation.z=side*.62;g.add(branch)}
-  g.userData={vegetationPass:'layered-canopy-v3',windReactive:true}
+  const crownLight=material({color:0x438552,roughness:.95})
+  const crownDark=material({color:0x245a37,roughness:.98})
+  const canopy=[
+    [0,3.48,0,1.18,1.22,.98,crownMat],
+    [-.50,3.92,.13,.91,1.10,.93,crownLight],
+    [.54,3.63,-.30,.86,.91,1.08,crownDark],
+    [.09,4.51,.06,.74,.95,.85,crownLight],
+    [-.16,4.10,-.58,.70,.82,.92,crownDark],
+    [.63,4.08,.31,.61,.74,.72,crownMat],
+    [-.62,3.48,.42,.58,.68,.70,crownLight],
+  ] as const
+  canopy.forEach(([cx,cy,cz,sx,sy,sz,mat],i)=>{const crown=new THREE.Mesh(geometry(new THREE.DodecahedronGeometry((i===0?1.10:.88)*s,1)),mat);crown.position.set(cx*s,cy*s,cz*s);crown.scale.set(sx,sy,sz);crown.name='west-side-tree-canopy-'+(i+1);g.add(crown)})
+  ;[[-1,.30,2.76,.03,.62],[1,.31,2.78,.08,-.64],[-1,.18,3.10,-.38,.52],[1,.16,3.16,.42,-.50]].forEach(([side,px,py,rx,rz],i)=>{const branch=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.045*s,.082*s,1.24*s,7)),bark);branch.position.set(Number(side)*Number(px)*s,Number(py)*s,(i>1?.08:-.03)*s);branch.rotation.z=Number(side)*Number(rz);branch.rotation.x=Number(rx);branch.name='west-side-tree-branch-'+(i+1);g.add(branch)})
+  g.userData={vegetationPass:'layered-canopy-v4',canopyLayers:7,branchCount:4,windReactive:true,lodIntent:'mobile-readable-silhouette'}
   g.rotation.y=((Math.abs(Math.round(x*7+z*3))%11)/11)*Math.PI*2
   root.add(g)
 }
@@ -365,7 +372,7 @@ function addResidentialCourtyard(root:THREE.Group){
 }
 
 export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,externalCollisionBoxes:THREE.Box3[]=[]):WestSideVisibleWorldHandle{
-  const root=new THREE.Group();root.name='streetverse-west-side-visible-world-v1';root.userData={visualUpgradeVersion:'west-side-forger-v4',legacyVisualUpgradeVersion:'west-side-forger-v3',assetDensity:'expanded-v4',architectureDetail:'brick-cornice-awning-fire-escape',residentDetail:'hands-shoes-accessories'};scene.add(root)
+  const root=new THREE.Group();root.name='streetverse-west-side-visible-world-v1';root.userData={visualUpgradeVersion:'west-side-forger-v5',legacyVisualUpgradeVersion:'west-side-forger-v4',assetDensity:'expanded-v5',architectureDetail:'brick-cornice-awning-fire-escape-curb-alley',residentDetail:'hands-shoes-accessories',reconstructionMode:'public-data-grounded-game-reconstruction',geometryAuthority:'city-gis-source-registry',interiorAuthority:'verified-or-reconstructed',streetDetailPass:'curb-alley-signage-v5',exactDigitalTwin:false,reconstructionSourceCount:STREETVERSE_CHICAGO_RECONSTRUCTION_SOURCES.length,proofZone:STREETVERSE_CHICAGO_PROOF_ZONE.id};scene.add(root)
   const colliders:THREE.Box3[]=[]
   const brickMap=createWestSideBrickTexture()
   let nativeLayer:THREE.Group|null=null,nativeCancelled=false
