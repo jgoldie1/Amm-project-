@@ -29,6 +29,30 @@ async function assetExists(url:string){
   return availability.get(url)!
 }
 
+function tuneStreetVerseCharacterMaterials(root:THREE.Object3D){
+  let meshCount=0,materialCount=0,textureCount=0
+  root.traverse(node=>{
+    if(!(node instanceof THREE.Mesh))return
+    meshCount++
+    const materials=Array.isArray(node.material)?node.material:[node.material]
+    for(const material of materials){
+      if(!(material instanceof THREE.MeshStandardMaterial)&&!(material instanceof THREE.MeshPhysicalMaterial))continue
+      materialCount++
+      const name=(node.name+' '+material.name).toLowerCase()
+      if(material.map){material.map.colorSpace=THREE.SRGBColorSpace;material.map.anisotropy=Math.max(material.map.anisotropy||1,4);textureCount++}
+      if(material.normalMap){material.normalMap.anisotropy=Math.max(material.normalMap.anisotropy||1,4);material.normalScale.set(.78,.78)}
+      if(material.roughnessMap)material.roughnessMap.anisotropy=Math.max(material.roughnessMap.anisotropy||1,4)
+      if(/skin|face|head|arm|hand|neck/.test(name)){material.roughness=THREE.MathUtils.clamp(material.roughness,.50,.70);material.metalness=0;material.envMapIntensity=.62}
+      else if(/eye|cornea|iris/.test(name)){material.roughness=.10;material.metalness=0;material.envMapIntensity=1.05;if(material instanceof THREE.MeshPhysicalMaterial){material.clearcoat=.72;material.clearcoatRoughness=.08}}
+      else if(/hair|brow|lash|beard|loc|braid/.test(name)){material.roughness=.80;material.metalness=0;material.envMapIntensity=.38}
+      else if(/shirt|top|hood|jacket|pants|jean|cloth|fabric|dress/.test(name)){material.roughness=Math.max(material.roughness,.80);material.metalness=0;material.envMapIntensity=.34}
+      else if(/shoe|metal|watch|chain|jewel/.test(name)){material.roughness=THREE.MathUtils.clamp(material.roughness,.24,.62);material.envMapIntensity=.72}
+      material.needsUpdate=true
+    }
+  })
+  return{meshCount,materialCount,textureCount}
+}
+
 export type StreetVerseMeshyLoadedCharacter={
   slot:StreetVerseMeshyCharacterSlot
   object:THREE.Object3D
@@ -75,6 +99,8 @@ export async function loadStreetVerseMeshyCharacter(slotId:string):Promise<Stree
         node.frustumCulled=true
       }
     })
+    const visualMaterials=tuneStreetVerseCharacterMaterials(object)
+    object.userData={...object.userData,characterVisualPass:'west-side-character-v3',productionMaterialPass:true,texturePipeline:'pbr-mobile-character-v3',visualMaterials}
     const companionClips:THREE.AnimationClip[]=[]
     const staticStem=staticMeshyUrl.replace(/\.glb$/i,'')
     const companionSources=publishedReady
@@ -131,6 +157,9 @@ export async function loadStreetVerseMeshyCharacter(slotId:string):Promise<Stree
       animated:Boolean(mixer),
       source:nativeFallback?'tryamm-native':'meshy',
       upgradePending:nativeFallback,
+      characterVisualPass:'west-side-character-v3',
+      productionMaterialPass:true,
+      visualMaterials,
     }}))
     return {slot,object,sourceUrl,mixer,clips,tick,dispose}
   }catch(error){
