@@ -49,6 +49,31 @@ function TaylorLots(){
 }
 
 
+function ChicagoWestSideVisualAssets(){
+ const trees:[number,number][]=[[-870,820],[-840,805],[-815,842],[-780,810],[-735,785],[-690,760],[-625,730],[-560,700],[-500,675],[-430,650]]
+ const lights:[number,number][]=[[-850,790],[-790,770],[-720,745],[-650,720],[-580,695],[-510,670],[-440,645]]
+ return <group>
+  {trees.map(([x,z],i)=><group key={'tree-'+i} position={[x,0,z]}>
+   <mesh castShadow position={[0,2.7,0]}><cylinderGeometry args={[.18,.26,5.4,8]}/><meshStandardMaterial color="#5b4634"/></mesh>
+   <mesh castShadow position={[0,6.1,0]}><sphereGeometry args={[1.65,10,8]}/><meshStandardMaterial color={i%2?'#3f6f42':'#4c7d49'} roughness={1}/></mesh>
+  </group>)}
+  {lights.map(([x,z],i)=><group key={'light-'+i} position={[x,0,z]}>
+   <mesh position={[0,3.4,0]}><cylinderGeometry args={[.07,.09,6.8,8]}/><meshStandardMaterial color="#3a4045" metalness={.55} roughness={.5}/></mesh>
+   <mesh position={[.65,6.65,0]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[.05,.05,1.3,8]}/><meshStandardMaterial color="#3a4045"/></mesh>
+   <mesh position={[1.3,6.55,0]}><boxGeometry args={[.5,.18,.28]}/><meshStandardMaterial color="#fff0b0" emissive="#ffd86a" emissiveIntensity={.45}/></mesh>
+  </group>)}
+  {[-845,-815,-785].map((x,i)=><group key={'cp-home-'+i} position={[x,0,850-i*4]}>
+   <mesh castShadow receiveShadow position={[0,7,0]}><boxGeometry args={[22,14,15]}/><meshStandardMaterial color={i%2?'#8b5d49':'#76503f'} roughness={.9}/></mesh>
+   <mesh position={[0,2,-7.56]}><boxGeometry args={[3.2,4,.18]}/><meshStandardMaterial color="#263f50"/></mesh>
+   {[-7,0,7].map(wx=><mesh key={wx} position={[wx,8,-7.58]}><boxGeometry args={[3.2,2.7,.15]}/><meshStandardMaterial color="#87a9b8" roughness={.25}/></mesh>)}
+  </group>)}
+  <mesh receiveShadow position={[-850,.06,812]}><boxGeometry args={[52,.12,28]}/><meshStandardMaterial color="#507447"/></mesh>
+  <mesh receiveShadow position={[-850,.13,812]}><boxGeometry args={[26,.08,15]}/><meshStandardMaterial color="#b87445"/></mesh>
+  {[-1,1].map(side=><mesh key={'hoop-'+side} position={[-850+side*12,3.1,812]}><boxGeometry args={[.15,6,.15]}/><meshStandardMaterial color="#e7e7e7"/></mesh>)}
+ </group>
+}
+
+
 function UICCampusMesh(){
  return <group>
   <mesh receiveShadow position={[-700,.02,635]}><boxGeometry args={[330,.08,210]}/><meshStandardMaterial color="#608052"/></mesh>
@@ -293,7 +318,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
+   <RoadMeshes/><ChicagoWestSideVisualAssets/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
   </Canvas>
  </div>
 }
