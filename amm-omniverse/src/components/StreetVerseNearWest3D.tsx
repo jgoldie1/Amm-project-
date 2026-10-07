@@ -1,5 +1,5 @@
 import {Canvas,useFrame,useThree} from '@react-three/fiber'
-import {compileNearWestRoadMeshes} from '../data/streetVerseNearWestRoadNetwork'
+import {compileNearWestRoadMeshes,CHICAGO_NEAR_WEST_ROAD_NODES} from '../data/streetVerseNearWestRoadNetwork'
 import {TAYLOR_STREET_CORRIDOR} from '../data/streetVerseCartesianNeighborhood'
 import {NEAR_WEST_NPCS,NEAR_WEST_TRAFFIC} from '../data/streetVerseNearWestPopulation'
 import CampusVerseCollegeBookBridge from './CampusVerseCollegeBookBridge'
@@ -104,6 +104,36 @@ function ChicagoCorridorDetailAssets(){
    <mesh position={[0,1.7,0]}><cylinderGeometry args={[.05,.06,3.4,8]}/><meshStandardMaterial color="#444b50"/></mesh>
    <mesh position={[0,3.2,0]}><boxGeometry args={[.7,.9,.08]}/><meshStandardMaterial color="#d6e3e7"/></mesh>
   </group>)}
+ </group>
+}
+
+
+function EmergencyRouteVehicle({service,route,color}:{service:'police'|'fire'|'ambulance';route:string[];color:string}){
+ const ref=useRef<THREE.Group>(null)
+ const points=route.map(id=>CHICAGO_NEAR_WEST_ROAD_NODES.find(n=>n.id===id)?.position).filter(Boolean) as Array<{x:number;y:number;z:number}>
+ const tRef=useRef(0)
+ useFrame((_,dt)=>{
+  const g=ref.current;if(!g||points.length<2)return
+  tRef.current=(tRef.current+dt*.08)%1
+  const scaled=tRef.current*(points.length-1),i=Math.min(points.length-2,Math.floor(scaled)),u=scaled-i
+  const a=points[i],b=points[i+1]
+  g.position.set(THREE.MathUtils.lerp(a.x,b.x,u),0,THREE.MathUtils.lerp(a.z,b.z,u))
+  g.rotation.y=Math.atan2(b.x-a.x,b.z-a.z)
+ })
+ if(points.length<2)return null
+ const long=service==='fire'?7.2:service==='ambulance'?6.2:4.8
+ return <group ref={ref} position={[points[0].x,0,points[0].z]}>
+  <mesh castShadow position={[0,.85,0]}><boxGeometry args={[long,1.45,service==='fire'?2.5:2.15]}/><meshStandardMaterial color={color} metalness={.3} roughness={.45}/></mesh>
+  <mesh position={[0,1.72,0]}><boxGeometry args={[service==='police'?2.5:4.2,.7,1.8]}/><meshStandardMaterial color={service==='police'?'#a7bac3':color}/></mesh>
+  <mesh position={[0,2.15,0]}><boxGeometry args={[1.45,.16,.25]}/><meshStandardMaterial color={service==='fire'?'#ffd05a':'#63b8ff'} emissive={service==='fire'?'#ffd05a':'#63b8ff'} emissiveIntensity={1}/></mesh>
+ </group>
+}
+
+function EmergencyRouteTraversal(){
+ return <group>
+  <EmergencyRouteVehicle service="police" color="#1f2b3b" route={['roosevelt-halsted','circle-park-ashland','fillmore-jefferson']}/>
+  <EmergencyRouteVehicle service="ambulance" color="#e7e7e3" route={['ogden-stroger','polk-uic-med','taylor-uic-west','taylor-halsted']}/>
+  <EmergencyRouteVehicle service="fire" color="#a7332d" route={['fillmore-jefferson','circle-park-ashland','roosevelt-halsted']}/>
  </group>
 }
 
@@ -376,7 +406,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
+   <RoadMeshes/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><EmergencyRouteTraversal/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
   </Canvas>
  </div>
 }
