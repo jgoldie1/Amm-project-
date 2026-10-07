@@ -36,7 +36,7 @@ function NearWestNativeGlbLayer(){
     source:'deployed-generated-glb-library',
     visualOnly:true,
     gameplayCollisionAuthority:'existing-near-west-runtime',
-    visualPass:'near-west-native-density-v3',
+    visualPass:'near-west-native-density-v4',
     expandedCorridors:['Circle Park','Roosevelt','Taylor','UIC','Medical District'],
    }
    host.current?.add(result.group)
@@ -203,30 +203,44 @@ function MovingTrafficCar({from,to,color,speed,phase}:{from:string;to:string;col
 
 function MovingPedestrians(){
  const walkers=[
-  {id:'cp-1',a:[-870,835] as const,b:[-780,835] as const,phase:.1},
-  {id:'rr-1',a:[-710,915] as const,b:[-590,915] as const,phase:.4},
-  {id:'ts-1',a:[-610,685] as const,b:[-410,685] as const,phase:.65},
-  {id:'uic-1',a:[-780,650] as const,b:[-650,650] as const,phase:.25},
+  {id:'cp-1',a:[-870,835] as const,b:[-780,835] as const,phase:.1,shirt:'#315b7a',skin:'#70462f',pants:'#27313a',hair:'#211817'},
+  {id:'cp-2',a:[-845,805] as const,b:[-790,805] as const,phase:.56,shirt:'#7a503d',skin:'#9a6a4c',pants:'#2e3034',hair:'#33251f'},
+  {id:'rr-1',a:[-710,915] as const,b:[-590,915] as const,phase:.4,shirt:'#704936',skin:'#8f654c',pants:'#25333a',hair:'#211817'},
+  {id:'rr-2',a:[-735,885] as const,b:[-625,885] as const,phase:.82,shirt:'#516b45',skin:'#b57852',pants:'#31313a',hair:'#2c211d'},
+  {id:'ts-1',a:[-610,685] as const,b:[-410,685] as const,phase:.65,shirt:'#315b7a',skin:'#5f3b2b',pants:'#2a2f38',hair:'#211817'},
+  {id:'ts-2',a:[-580,715] as const,b:[-430,715] as const,phase:.22,shirt:'#765a32',skin:'#c58a66',pants:'#313640',hair:'#38261f'},
+  {id:'uic-1',a:[-780,650] as const,b:[-650,650] as const,phase:.25,shirt:'#704936',skin:'#8b6047',pants:'#243039',hair:'#1f1715'},
+  {id:'uic-2',a:[-750,620] as const,b:[-630,620] as const,phase:.72,shirt:'#5f5478',skin:'#a97658',pants:'#33333b',hair:'#2c201b'},
  ] as const
- return <group>{walkers.map((w,i)=><MovingPedestrian key={w.id} {...w} shirt={i%2?'#704936':'#315b7a'}/>)}</group>
+ return <group name="near-west-moving-residents-v4">{walkers.map((w,i)=><MovingPedestrian key={w.id} {...w} variant={i}/>)}</group>
 }
 
-function MovingPedestrian({a,b,phase,shirt}:{a:readonly [number,number];b:readonly [number,number];phase:number;shirt:string}){
+function MovingPedestrian({a,b,phase,shirt,skin,pants,hair,variant}:{a:readonly [number,number];b:readonly [number,number];phase:number;shirt:string;skin:string;pants:string;hair:string;variant:number}){
  const ref=useRef<THREE.Group>(null),tRef=useRef(phase)
  useFrame((_,dt)=>{
   const g=ref.current;if(!g)return
-  tRef.current=(tRef.current+dt*.075)%1
+  tRef.current=(tRef.current+dt*(.064+(variant%3)*.007))%1
   const ping=tRef.current<.5?tRef.current*2:(1-tRef.current)*2
-  g.position.set(THREE.MathUtils.lerp(a[0],b[0],ping),0,THREE.MathUtils.lerp(a[1],b[1],ping))
+  const step=Math.sin(tRef.current*Math.PI*4)
+  g.position.set(THREE.MathUtils.lerp(a[0],b[0],ping),Math.abs(step)*.028,THREE.MathUtils.lerp(a[1],b[1],ping))
   g.rotation.y=Math.atan2(b[0]-a[0],b[1]-a[1])+(tRef.current>=.5?Math.PI:0)
  })
- return <group ref={ref} position={[a[0],0,a[1]]}>
-  <mesh position={[0,1.02,0]} castShadow><capsuleGeometry args={[.24,.68,4,8]}/><meshStandardMaterial color={shirt}/></mesh>
-  <mesh position={[0,1.78,0]}><sphereGeometry args={[.23,12,9]}/><meshStandardMaterial color="#8f654c"/></mesh>
-  <mesh position={[0,1.96,-.02]} scale={[.95,.5,1]}><sphereGeometry args={[.235,10,8,0,Math.PI*2,0,Math.PI*.5]}/><meshStandardMaterial color="#221b18"/></mesh>
+ return <group ref={ref} position={[a[0],0,a[1]]} name={'moving-resident-v4-'+variant}>
+  <mesh position={[0,1.09,0]} castShadow scale={[1,1.02,.88]}><capsuleGeometry args={[.25,.74,5,10]}/><meshStandardMaterial color={shirt} roughness={.9}/></mesh>
+  <mesh position={[0,1.62,0]}><cylinderGeometry args={[.115,.14,.18,10]}/><meshStandardMaterial color={skin} roughness={.84}/></mesh>
+  <mesh position={[0,1.87,0]} castShadow scale={[.92,1.04,.92]}><sphereGeometry args={[.235,14,11]}/><meshStandardMaterial color={skin} roughness={.82}/></mesh>
+  <mesh position={[0,2.02,-.015]} scale={[.98,.56,1.01]}><sphereGeometry args={[.24,12,9,0,Math.PI*2,0,Math.PI*.54]}/><meshStandardMaterial color={hair} roughness={1}/></mesh>
+  {[-1,1].map(side=><group key={'arm-'+side} position={[side*.34,1.18,0]}>
+   <mesh position={[0,-.20,0]}><capsuleGeometry args={[.068,.42,4,8]}/><meshStandardMaterial color={skin} roughness={.86}/></mesh>
+   <mesh position={[0,-.46,0]}><sphereGeometry args={[.085,9,7]}/><meshStandardMaterial color={skin} roughness={.86}/></mesh>
+  </group>)}
+  {[-1,1].map(side=><group key={'leg-'+side} position={[side*.13,.48,0]}>
+   <mesh position={[0,.08,0]}><capsuleGeometry args={[.088,.58,4,8]}/><meshStandardMaterial color={pants} roughness={.96}/></mesh>
+   <mesh position={[0,-.26,-.07]}><boxGeometry args={[.20,.11,.38]}/><meshStandardMaterial color={variant%2?'#ece9df':'#202329'} roughness={.82}/></mesh>
+  </group>)}
+  {variant%3===1&&<group position={[-.35,1.1,.10]}><mesh><boxGeometry args={[.34,.62,.16]}/><meshStandardMaterial color="#43352f" roughness={.95}/></mesh></group>}
  </group>
 }
-
 
 function EmergencyRouteVehicle({service,route,color}:{service:'police'|'fire'|'ambulance';route:string[];color:string}){
  const ref=useRef<THREE.Group>(null)
