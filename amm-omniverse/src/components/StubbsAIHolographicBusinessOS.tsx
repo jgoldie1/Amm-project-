@@ -1,5 +1,6 @@
 import {useMemo,useState} from 'react'
 import {BUSINESS_IN_A_BOX_PRICING,priceFor} from '../data/ElSaturnLaunchPriceBook'
+import {STUBBS_AI_BUSINESS_OS_CHANNELS,STUBBS_AI_BUSINESS_OS_MARKET_SEGMENTS,STUBBS_AI_BUSINESS_OS_SALES_MOTION} from '../data/StubbsAIBusinessOSGoToMarket'
 
 type View='command'|'sell'|'plans'
 type Division={id:string;icon:string;name:string;status:string;purpose:string;route:string;metric:string}
@@ -14,14 +15,6 @@ const DIVISIONS:Division[]=[
   {id:'holo',icon:'◇',name:'HOLO SHOWROOM',status:'SPATIAL READY',purpose:'3D product demos, branded showrooms, training and sales experiences.',route:'/holo-lab',metric:'DEMOS'},
   {id:'quant',icon:'∑',name:'QUANT LAB',status:'LIVE LOCKED',purpose:'Research, backtest and paper-trade workflows only until explicit activation and risk approval.',route:'/workstation',metric:'PAPER ONLY'},
 ]
-
-const SELLING_MOTION=[
-  ['01','DEMO','Show a 5-minute holographic command-room demo built around the prospect’s business.'],
-  ['02','AUDIT','Identify the top 3 repetitive tasks, revenue leaks and customer-service bottlenecks.'],
-  ['03','SETUP','Configure the Business OS, storefront/booking, AI workflows, analytics and staff roles.'],
-  ['04','SUBSCRIBE','Move the customer onto a recurring plan with disclosed setup/provider costs.'],
-  ['05','EXPAND','Add Holo Services, commerce, workforce, managed operations or custom integrations.'],
-] as const
 
 export default function StubbsAIHolographicBusinessOS(){
   const [view,setView]=useState<View>('command')
@@ -90,8 +83,14 @@ export default function StubbsAIHolographicBusinessOS(){
       <h2>Sell the operating result, then demonstrate the hologram.</h2>
       <p style={copy}>Core promise: “Run more of your business from one AI command center.” The holographic room is the memorable demo and spatial interface—not the only value proposition.</p>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:10,marginTop:14}}>
-        {SELLING_MOTION.map(([n,title,desc])=><article key={n} style={salesCard}><div style={{fontSize:9,color:'#69eaff'}}>STEP {n}</div><h3 style={{margin:'5px 0'}}>{title}</h3><div style={copy}>{desc}</div></article>)}
+        {STUBBS_AI_BUSINESS_OS_SALES_MOTION.map((step,index)=><article key={step.stage} style={salesCard}><div style={{fontSize:9,color:'#69eaff'}}>STEP {String(index+1).padStart(2,'0')}</div><h3 style={{margin:'5px 0'}}>{step.stage}</h3><div style={copy}>{step.goal}</div></article>)}
       </div>
+      <h3 style={{marginTop:18}}>Best first customer segments</h3>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:10}}>
+        {STUBBS_AI_BUSINESS_OS_MARKET_SEGMENTS.map(segment=><article key={segment.id} style={salesCard}><b>{segment.label}</b><p style={copy}>{segment.pain}</p><div style={{fontSize:10,color:'#69eaff'}}>DEMO: {segment.demo}</div><div style={{fontSize:9,color:'#7ef6c5',marginTop:7}}>START: {segment.primaryOffer.toUpperCase()}</div></article>)}
+      </div>
+      <h3 style={{marginTop:18}}>Marketing channels</h3>
+      <div style={{display:'flex',gap:7,flexWrap:'wrap'}}>{STUBBS_AI_BUSINESS_OS_CHANNELS.map(channel=><span key={channel} style={{padding:'7px 9px',border:'1px solid #28536a',borderRadius:999,fontSize:10,color:'#b8d4df'}}>{channel}</span>)}</div>
       <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:14}}><button style={button} onClick={()=>requestDemo('founder-demo')}>REQUEST / RECORD DEMO INTENT</button><button style={button} onClick={()=>nav('/business')}>BUSINESS DIRECTORY</button><button style={button} onClick={()=>nav('/network')}>CONTENT + BROADCAST</button></div>
     </section>}
 
