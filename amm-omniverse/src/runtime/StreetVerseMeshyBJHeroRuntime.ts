@@ -112,28 +112,43 @@ function tuneBJProductionMaterials(root:THREE.Object3D){
       if(!(material instanceof THREE.MeshStandardMaterial)&&!(material instanceof THREE.MeshPhysicalMaterial))return
       materialCount++
       const name=(node.name+' '+material.name).toLowerCase()
-      material.map&&(material.map.colorSpace=THREE.SRGBColorSpace,textureCount++)
-      if(material.emissiveMap)material.emissiveMap.colorSpace=THREE.SRGBColorSpace
+      if(material.map){material.map.colorSpace=THREE.SRGBColorSpace;material.map.anisotropy=Math.max(material.map.anisotropy||1,8);textureCount++}
+      if(material.emissiveMap){material.emissiveMap.colorSpace=THREE.SRGBColorSpace;material.emissiveMap.anisotropy=Math.max(material.emissiveMap.anisotropy||1,8)}
+      if(material.normalMap){material.normalMap.anisotropy=Math.max(material.normalMap.anisotropy||1,8);material.normalScale.set(.82,.82)}
+      if(material.roughnessMap)material.roughnessMap.anisotropy=Math.max(material.roughnessMap.anisotropy||1,8)
+      if(material.metalnessMap)material.metalnessMap.anisotropy=Math.max(material.metalnessMap.anisotropy||1,8)
       if(/skin|face|head|body|arm|hand|neck/.test(name)){
-        material.roughness=THREE.MathUtils.clamp(material.roughness,.42,.68)
+        material.roughness=THREE.MathUtils.clamp(material.roughness,.46,.64)
         material.metalness=0
+        material.envMapIntensity=.72
         if(material instanceof THREE.MeshPhysicalMaterial){
-          material.clearcoat=Math.min(material.clearcoat,.08)
-          material.clearcoatRoughness=Math.max(material.clearcoatRoughness,.65)
+          material.clearcoat=Math.min(material.clearcoat,.045)
+          material.clearcoatRoughness=Math.max(material.clearcoatRoughness,.72)
+          material.sheen=Math.max(material.sheen,.08)
+          material.sheenRoughness=.82
+          material.sheenColor=new THREE.Color(0x5c3426)
         }
-      }else if(/eye|cornea/.test(name)){
-        material.roughness=.12
+      }else if(/eye|cornea|iris/.test(name)){
+        material.roughness=.075
         material.metalness=0
-        if(material instanceof THREE.MeshPhysicalMaterial){material.clearcoat=.75;material.clearcoatRoughness=.08}
-      }else if(/hair|brow|lash|beard/.test(name)){
-        material.roughness=.72
+        material.envMapIntensity=1.25
+        if(material instanceof THREE.MeshPhysicalMaterial){material.clearcoat=.88;material.clearcoatRoughness=.045;material.ior=1.38}
+      }else if(/hair|brow|lash|beard|loc|braid/.test(name)){
+        material.roughness=.78
         material.metalness=0
-        material.alphaTest=Math.max(material.alphaTest,.18)
+        material.envMapIntensity=.42
+        material.alphaTest=Math.max(material.alphaTest,.14)
       }else if(/shirt|hood|jacket|pants|jean|cloth|fabric/.test(name)){
-        material.roughness=Math.max(material.roughness,.72)
+        material.roughness=Math.max(material.roughness,.80)
         material.metalness=0
+        material.envMapIntensity=.38
+      }else if(/gold|pendant|chain/.test(name)){
+        material.roughness=.26
+        material.metalness=.82
+        material.envMapIntensity=1.15
       }else if(/shoe|watch|zip|metal/.test(name)){
         material.roughness=THREE.MathUtils.clamp(material.roughness,.2,.58)
+        material.envMapIntensity=.85
       }
       material.needsUpdate=true
     })
@@ -199,8 +214,8 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       meshyV6:Boolean(published?.url),
       ownedV7:!published?.url,
       productionMaterials:true,
-      texturePipeline:'pbr-mobile-production-v7',
-      lifeLayer:'blink-lipsync-breathing-eye-focus-microgesture-v7',
+      texturePipeline:'pbr-mobile-production-v12',
+      lifeLayer:'blink-lipsync-breathing-eye-focus-microgesture-v12',
       autonomicLife:true,
       conversationFocus:true,
     }
@@ -348,7 +363,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
           lipSync:true,
           microGesture:true,
           seated:Boolean(state.seated),
-          source:'bj-production-v7-life-layer',
+          source:'bj-production-v12-life-layer',
         }}))
       }
     }
@@ -367,7 +382,9 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       certifiedLikeness:verifiedPhotoMatch,
       proceduralFallbackSuppressed:true,
       productionMaterials,
-      texturePipeline:'pbr-mobile-production-v7',
+      visualPass:'bj-v12-material-eye-hair-fabric',
+      textureAnisotropy:8,
+      texturePipeline:'pbr-mobile-production-v12',
       lifeLayer:'blink-lipsync-breathing-eye-focus-microgesture-v7',
       autonomicLife:true,
       conversationFocus:true,
