@@ -54,6 +54,7 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(page.getByRole('button', { name: '☰ TOOLS' })).toHaveCount(0);
     await expect(page.getByText('IPHONE FIRST JOURNEY', { exact: true })).toHaveCount(0);
     await expect(page.getByText('FAME • UNKNOWN', { exact: false })).toHaveCount(0);
+    await expect(page.getByLabel('StreetVerse cognition gameplay proof')).toHaveCount(0);
 
     const mission = page.getByRole('button', { name: /Start or focus mission/i });
     await expect(mission).toBeVisible({ timeout: 20_000 });
@@ -93,6 +94,16 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
 
     await quickMenu.click();
     const menu=page.getByRole('menu',{name:'StreetVerse quick navigation'});
+    await expect(menu).toBeVisible();
+    const bjView=page.getByRole('menuitem',{name:/BJ V12 VIEW/});
+    await expect(bjView).toBeVisible();
+    await bjView.click();
+    await page.waitForTimeout(1400);
+    await page.screenshot({
+      path:testInfo.outputPath('streetverse-bj-v12-character-view.png'),
+      fullPage:false,
+    });
+    await quickMenu.click();
     await expect(menu).toBeVisible();
     await expect(page.getByRole('menuitem',{name:/FAITHVERSE/})).toBeVisible();
     await expect(page.getByRole('menuitem',{name:/RIDE SHARE/})).toBeVisible();
