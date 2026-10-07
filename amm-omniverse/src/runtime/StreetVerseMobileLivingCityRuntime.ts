@@ -45,13 +45,14 @@ export function createMobileResidentPopulation(scene:THREE.Scene):MobileResident
     const group=new THREE.Group()
     group.name=`streetverse-mobile-resident-${index+1}`
     const skin=mat(SKIN_COLORS[index%SKIN_COLORS.length])
+    const cognitionArms:THREE.Object3D[]=[]
     const body=new THREE.Mesh(BODY_GEOMETRY,mat(BODY_COLORS[index%BODY_COLORS.length]));body.position.y=1.45;group.add(body)
     const neck=new THREE.Mesh(NECK_GEOMETRY,skin);neck.name='resident-neck';neck.position.y=2.32;group.add(neck)
     const head=new THREE.Mesh(HEAD_GEOMETRY,skin);head.name='resident-head';head.position.y=2.72;group.add(head)
     const hair=new THREE.Mesh(HAIR_GEOMETRY,mat([0x16120f,0x2d1c15,0x493227][index%3]));hair.name='resident-hair';hair.position.y=2.85;hair.scale.set(1,index%4===0?1.18:.96,1);group.add(hair)
     if(index%3!==1){const jacket=new THREE.Mesh(JACKET_GEOMETRY,mat([0x1d4d72,0x7a3545,0x315e43,0x72572e][index%4]));jacket.name='resident-jacket';jacket.position.set(0,1.62,-.015);group.add(jacket)}
     for(const side of [-1,1]){
-      const arm=new THREE.Mesh(ARM_GEOMETRY,skin);arm.name='resident-arm';arm.position.set(side*.48,1.5,0);arm.rotation.z=side*.12;group.add(arm)
+      const arm=new THREE.Mesh(ARM_GEOMETRY,skin);arm.name='resident-arm';arm.position.set(side*.48,1.5,0);arm.rotation.z=side*.12;group.add(arm);cognitionArms.push(arm)
       const hand=new THREE.Mesh(HAND_GEOMETRY,skin);hand.name='resident-hand';hand.position.set(side*.56,1.02,.015);group.add(hand)
       const leg=new THREE.Mesh(LEG_GEOMETRY,mat([0x202936,0x283548,0x35313c,0x172d3d][index%4]));leg.name='resident-leg';leg.position.set(side*.17,.52,0);group.add(leg)
       const shoe=new THREE.Mesh(SHOE_GEOMETRY,mat(0x15171b));shoe.name='resident-shoe';shoe.position.set(side*.17,.12,-.11);group.add(shoe)
@@ -61,6 +62,8 @@ export function createMobileResidentPopulation(scene:THREE.Scene):MobileResident
     normalizeStreetVerseHumanHeight(group,residentHeight(index))
     group.userData.residentId=`mobile-resident-${index+1}`
     group.userData.streetverseResident=true
+    group.userData.cognitionAction='patrol'
+    group.userData.cognitionRig={head,arms:cognitionArms}
     scene.add(group)
     return {id:`mobile-resident-${index+1}`,group,...route}
   })
@@ -69,7 +72,7 @@ export function createMobileResidentPopulation(scene:THREE.Scene):MobileResident
 
 export function tickMobileResidentPopulation(residents:MobileResident[],nowMs:number){
   const time=nowMs/1000
-  for(const resident of residents){
+  for(const [index,resident] of residents.entries()){
     const span=148
     const cycle=span*2
     const distance=(time*resident.speed+resident.phase)%cycle
@@ -79,6 +82,15 @@ export function tickMobileResidentPopulation(residents:MobileResident[],nowMs:nu
     else resident.group.position.set(resident.fixed,0,along)
     resident.group.rotation.y=resident.axis==='x'?(forward?Math.PI/2:-Math.PI/2):(forward?0:Math.PI)
     resident.group.position.y=Math.sin((time+resident.phase)*5.2)*.035
+    const action=String(resident.group.userData.cognitionAction||'patrol')
+    const rig=resident.group.userData.cognitionRig as {head?:THREE.Object3D;arms?:THREE.Object3D[]}|undefined
+    const gesture=Math.sin(time*5.8+resident.phase*.17)
+    if(rig?.head)rig.head.rotation.y=action==='observe'||action==='investigate'?gesture*.22:action==='greet'||action==='socialize'?gesture*.12:0
+    for(const [armIndex,arm] of (rig?.arms||[]).entries()){
+      arm.rotation.x=action==='greet'&&armIndex===0?-.55+gesture*.46:action==='deescalate'?-.34:action==='assist'?-.18:0
+    }
+    if(action==='yield-path')resident.group.position.x+=resident.axis==='z'?(index%2?-.45:.45):0
+    if(action==='yield-path')resident.group.position.z+=resident.axis==='x'?(index%2?-.45:.45):0
   }
 }
 
