@@ -329,23 +329,51 @@ function JeffersonLegacyCampusMesh(){
 }
 
 function RooseveltLandmarksMesh(){
- return <group>{NEAR_WEST_LANDMARKS.map(landmark=>landmark.kind==='school'
-  ?<group key={landmark.id} position={[landmark.x,0,landmark.z]}>
-    <mesh castShadow receiveShadow position={[0,8,0]}><boxGeometry args={[52,16,32]}/><meshStandardMaterial color="#8d4b3e" roughness={.9}/></mesh>
-    <mesh castShadow position={[0,13,-11]}><boxGeometry args={[18,10,10]}/><meshStandardMaterial color="#744035" roughness={.92}/></mesh>
-    <mesh position={[0,3,-16.15]}><boxGeometry args={[8,5,.3]}/><meshStandardMaterial color="#263f50"/></mesh>
-    {([[-18,5],[-9,5],[9,5],[18,5],[-18,10],[-9,10],[9,10],[18,10]] as [number,number][]).map(([x,y],i)=><mesh key={i} position={[x,y,-16.12]}><boxGeometry args={[4.5,2.2,.18]}/><meshStandardMaterial color="#9fd2e5" emissive="#214b5e" emissiveIntensity={.22}/></mesh>)}
-    <mesh position={[0,22,0]}><sphereGeometry args={[1.2,12,10]}/><meshStandardMaterial color="#79efff" emissive="#35c5de" emissiveIntensity={.8}/></mesh>
-   </group>
-  :<group key={landmark.id} position={[landmark.x,0,landmark.z]}>
-    <mesh castShadow receiveShadow position={[0,7,0]}><boxGeometry args={[30,14,38]}/><meshStandardMaterial color="#b5a18a" roughness={.92}/></mesh>
-    <mesh castShadow position={[-8,16,-8]}><boxGeometry args={[10,24,10]}/><meshStandardMaterial color="#a99278" roughness={.9}/></mesh>
-    <mesh castShadow position={[-8,30,-8]}><coneGeometry args={[7,12,4]}/><meshStandardMaterial color="#6a4f43" roughness={.88}/></mesh>
-    <mesh position={[-8,37,-8]}><boxGeometry args={[.8,7,.8]}/><meshStandardMaterial color="#e5d1a2" metalness={.35}/></mesh>
-    <mesh position={[-8,38.8,-8]}><boxGeometry args={[4.5,.8,.8]}/><meshStandardMaterial color="#e5d1a2" metalness={.35}/></mesh>
-    <mesh position={[0,4,-19.15]}><boxGeometry args={[7,7,.25]}/><meshStandardMaterial color="#45392f"/></mesh>
-    <mesh position={[0,22,0]}><sphereGeometry args={[1.2,12,10]}/><meshStandardMaterial color="#ffe4a2" emissive="#d8a84b" emissiveIntensity={.65}/></mesh>
-   </group>)}</group>
+ return <group>{NEAR_WEST_LANDMARKS.map(landmark=>{
+  if(landmark.kind==='school')return <group key={landmark.id} name="st-ignatius-gameplay-reconstruction-v3" position={[landmark.x,0,landmark.z]} userData={{geometryAuthority:landmark.geometryAuthority,address:landmark.address}}>
+   <mesh castShadow receiveShadow position={[0,8,0]}><boxGeometry args={[56,16,32]}/><meshStandardMaterial color="#8a4a3b" roughness={.92}/></mesh>
+   <mesh castShadow receiveShadow position={[-21,9,2]}><boxGeometry args={[14,18,27]}/><meshStandardMaterial color="#7a4136" roughness={.93}/></mesh>
+   <mesh castShadow receiveShadow position={[21,9,2]}><boxGeometry args={[14,18,27]}/><meshStandardMaterial color="#7a4136" roughness={.93}/></mesh>
+   <mesh castShadow position={[0,14,-12]}><boxGeometry args={[20,11,9]}/><meshStandardMaterial color="#714037" roughness={.92}/></mesh>
+   {[3.1,7.0,10.9,14.8].map(y=><mesh key={'belt-'+y} position={[0,y,-16.12]}><boxGeometry args={[56.4,.32,.34]}/><meshStandardMaterial color="#d0c1a2" roughness={.88}/></mesh>)}
+   {[-24,-18,-12,-6,6,12,18,24].flatMap(x=>[5.1,9.0,12.9].map(y=><group key={x+':'+y}>
+    <mesh position={[x,y,-16.20]}><boxGeometry args={[3.5,2.25,.18]}/><meshStandardMaterial color="#668b9c" roughness={.18} metalness={.05}/></mesh>
+    <mesh position={[x,y,-16.31]}><boxGeometry args={[.18,2.35,.08]}/><meshStandardMaterial color="#d7c7a6" roughness={.88}/></mesh>
+   </group>))}
+   <mesh position={[0,3.25,-16.55]}><boxGeometry args={[8.2,6,.34]}/><meshStandardMaterial color="#d4c7ab" roughness={.86}/></mesh>
+   <mesh position={[0,3.1,-16.78]}><boxGeometry args={[5.9,4.7,.18]}/><meshStandardMaterial color="#263f50" roughness={.25}/></mesh>
+   {[-2,2].map(x=><mesh key={'entry-col-'+x} position={[x,3.4,-17.0]}><boxGeometry args={[.48,6.5,.48]}/><meshStandardMaterial color="#cfc1a2" roughness={.88}/></mesh>)}
+   <mesh position={[0,6.5,-17.05]}><boxGeometry args={[7.2,.65,1.2]}/><meshStandardMaterial color="#cfc1a2" roughness={.88}/></mesh>
+   <mesh position={[0,17.0,0]}><boxGeometry args={[57,.75,33]}/><meshStandardMaterial color="#5b4138" roughness={.88}/></mesh>
+   {[-18,0,18].map((x,i)=><group key={'roof-'+i} position={[x,17.6,2]}>
+    <mesh><boxGeometry args={[7,1.4,8]}/><meshStandardMaterial color="#4b4b49" roughness={.75}/></mesh>
+    <mesh position={[0,1.05,0]}><boxGeometry args={[5.5,.7,6.5]}/><meshStandardMaterial color="#62615d" roughness={.74}/></mesh>
+   </group>)}
+   <mesh position={[0,22.5,-11]}><sphereGeometry args={[1.15,14,10]}/><meshStandardMaterial color="#7aeaff" emissive="#2b9eb2" emissiveIntensity={.65}/></mesh>
+  </group>
+
+  return <group key={landmark.id} name="holy-family-gameplay-reconstruction-v3" position={[landmark.x,0,landmark.z]} userData={{geometryAuthority:landmark.geometryAuthority,address:landmark.address}}>
+   <mesh castShadow receiveShadow position={[0,8,0]}><boxGeometry args={[31,16,42]}/><meshStandardMaterial color="#b3a08a" roughness={.93}/></mesh>
+   <mesh castShadow position={[0,13,-14]}><boxGeometry args={[20,12,14]}/><meshStandardMaterial color="#a9937c" roughness={.92}/></mesh>
+   {[-9,9].map(side=><group key={'tower-'+side} position={[side,0,-10]}>
+    <mesh castShadow position={[0,13,0]}><boxGeometry args={[8.2,26,8.2]}/><meshStandardMaterial color="#a28d76" roughness={.92}/></mesh>
+    {[8,13,18].map(y=><mesh key={y} position={[0,y,-4.15]}><boxGeometry args={[3.2,4.0,.18]}/><meshStandardMaterial color="#566d78" roughness={.20}/></mesh>)}
+    <mesh castShadow position={[0,28,0]}><coneGeometry args={[5.0,8.2,4]}/><meshStandardMaterial color="#655046" roughness={.86}/></mesh>
+    <mesh position={[0,33.5,0]}><boxGeometry args={[.55,6,.55]}/><meshStandardMaterial color="#dbc58e" metalness={.25} roughness={.55}/></mesh>
+    <mesh position={[0,35.1,0]}><boxGeometry args={[3.8,.55,.55]}/><meshStandardMaterial color="#dbc58e" metalness={.25} roughness={.55}/></mesh>
+   </group>)}
+   <mesh position={[0,5,-21.1]}><boxGeometry args={[8.4,9,.32]}/><meshStandardMaterial color="#c3b097" roughness={.90}/></mesh>
+   <mesh position={[0,4.6,-21.35]}><boxGeometry args={[5.8,7,.18]}/><meshStandardMaterial color="#473930" roughness={.62}/></mesh>
+   {[-10,-5,5,10].map((x,i)=><group key={'church-window-'+i}>
+    <mesh position={[x,10,-21.15]}><boxGeometry args={[3.2,6,.18]}/><meshStandardMaterial color={i%2?'#6a75a2':'#8e635e'} emissive={i%2?'#283362':'#5d2f2d'} emissiveIntensity={.30} roughness={.24}/></mesh>
+    <mesh position={[x,13.1,-21.18]}><circleGeometry args={[1.6,18]}/><meshStandardMaterial color={i%2?'#7f8bbb':'#b27d72'} emissive={i%2?'#37417d':'#6f3d38'} emissiveIntensity={.34}/></mesh>
+   </group>)}
+   <mesh position={[0,17,-21.18]}><circleGeometry args={[3.0,24]}/><meshStandardMaterial color="#856b9b" emissive="#49345f" emissiveIntensity={.36}/></mesh>
+   {[[-12,0],[12,0],[0,7]].map(([x,z],i)=><mesh key={'buttress-'+i} position={[x,5,z]}><boxGeometry args={[1.4,10,3.4]}/><meshStandardMaterial color="#9c8975" roughness={.92}/></mesh>)}
+   <mesh castShadow position={[0,16,0]}><boxGeometry args={[32,.75,43]}/><meshStandardMaterial color="#6b594e" roughness={.88}/></mesh>
+   <mesh position={[0,23,0]}><sphereGeometry args={[1.1,12,10]}/><meshStandardMaterial color="#ffe6a5" emissive="#d6a94f" emissiveIntensity={.62}/></mesh>
+  </group>
+ })}</group>
 }
 
 function CircleParkWestSideMarker(){
