@@ -12,11 +12,13 @@ export default function StreetVerseCognitionProofHUD(){
  const [state,setState]=useState<StreetVerseCognitionProofState>(DEFAULT)
 
  useEffect(()=>{
-  const onState=(event:Event)=>{const next=(event as CustomEvent<StreetVerseCognitionProofState>).detail;if(next){setState(next);setOpen(true)}}
+  const onState=(event:Event)=>{const next=(event as CustomEvent<StreetVerseCognitionProofState>).detail;if(next)setState(next)}
   const onToggle=()=>setOpen(value=>!value)
+  const onStart=()=>setOpen(true)
   addEventListener('tryamm:cognition-proof-state',onState)
   addEventListener('tryamm:streetverse-cognition-proof-toggle',onToggle)
-  return()=>{removeEventListener('tryamm:cognition-proof-state',onState);removeEventListener('tryamm:streetverse-cognition-proof-toggle',onToggle)}
+  addEventListener('tryamm:streetverse-cognition-proof-start',onStart)
+  return()=>{removeEventListener('tryamm:cognition-proof-state',onState);removeEventListener('tryamm:streetverse-cognition-proof-toggle',onToggle);removeEventListener('tryamm:streetverse-cognition-proof-start',onStart)}
  },[])
 
  if(!open)return null
