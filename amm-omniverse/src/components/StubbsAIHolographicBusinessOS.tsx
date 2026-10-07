@@ -1,6 +1,8 @@
 import {useMemo,useState} from 'react'
 import {BUSINESS_IN_A_BOX_PRICING,priceFor} from '../data/ElSaturnLaunchPriceBook'
 import {STUBBS_AI_BUSINESS_OS_CHANNELS,STUBBS_AI_BUSINESS_OS_MARKET_SEGMENTS,STUBBS_AI_BUSINESS_OS_SALES_MOTION} from '../data/StubbsAIBusinessOSGoToMarket'
+import {BUSINESS_OS_CHECKOUT_MODE,BUSINESS_OS_CHECKOUT_NOTICE,checkoutOffer} from '../data/StubbsAIBusinessOSCheckout'
+import {submitBusinessOSLead} from '../services/businessOSLeads'
 
 type View='command'|'sell'|'plans'
 type Division={id:string;icon:string;name:string;status:string;purpose:string;route:string;metric:string}
@@ -20,14 +22,42 @@ export default function StubbsAIHolographicBusinessOS(){
   const [view,setView]=useState<View>('command')
   const [selected,setSelected]=useState(DIVISIONS[0].id)
   const [notice,setNotice]=useState('')
+  const [leadName,setLeadName]=useState('')
+  const [leadEmail,setLeadEmail]=useState('')
+  const [leadBusiness,setLeadBusiness]=useState('')
+  const [leadPlan,setLeadPlan]=useState('pro')
+  const [leadNotes,setLeadNotes]=useState('')
+  const [leadBusy,setLeadBusy]=useState(false)
   const active=useMemo(()=>DIVISIONS.find(d=>d.id===selected)??DIVISIONS[0],[selected])
   const aiBusiness=priceFor('ai-business-os')
   const holoServices=priceFor('holo-services')
 
   const nav=(path:string)=>{window.location.href=path}
   const requestDemo=(plan:string)=>{
+    setLeadPlan(plan)
+    setView('sell')
     window.dispatchEvent(new CustomEvent('tryamm:business-os-lead-intent',{detail:{source:'stubbs-ai-business-os',plan,at:new Date().toISOString()}}))
-    setNotice('DEMO INTENT RECORDED • Connect this event to CRM/email automation before claiming lead delivery.')
+    setNotice('DEMO REQUEST READY • Add your contact information below and submit it to the private sales queue.')
+    window.setTimeout(()=>document.getElementById('business-os-lead-form')?.scrollIntoView({behavior:'smooth',block:'start'}),50)
+  }
+  const submitLead=async(event:React.FormEvent)=>{
+    event.preventDefault()
+    if(leadBusy)return
+    setLeadBusy(true)
+    try{
+      const leadId=await submitBusinessOSLead({name:leadName,email:leadEmail,businessName:leadBusiness,plan:leadPlan,notes:leadNotes,source:'stubbs-ai-business-os'})
+      setNotice(`DEMO REQUEST RECEIVED • Lead ${leadId.slice(0,8)} • We can now work this from the private Business OS sales queue.`)
+      setLeadNotes('')
+    }catch(error){
+      setNotice(`LEAD SUBMISSION NEEDS ATTENTION • ${error instanceof Error?error.message:String(error)}`)
+    }finally{setLeadBusy(false)}
+  }
+  const openCheckout=(offerKey:string)=>{
+    const offer=checkoutOffer(offerKey)
+    if(!offer){setNotice('Checkout is not configured for this offer yet.');return}
+    window.dispatchEvent(new CustomEvent('tryamm:business-os-checkout-intent',{detail:{offerId:offer.id,live:offer.live,mode:BUSINESS_OS_CHECKOUT_MODE}}))
+    if(!offer.live)setNotice(BUSINESS_OS_CHECKOUT_NOTICE)
+    window.open(offer.url,'_blank','noopener,noreferrer')
   }
   const requestSpatial=()=>{
     window.dispatchEvent(new CustomEvent('tryamm:business-os-xr-request',{detail:{source:'stubbs-ai-business-os',mode:'spatial-command-room-v1'}}))
@@ -91,7 +121,20 @@ export default function StubbsAIHolographicBusinessOS(){
       </div>
       <h3 style={{marginTop:18}}>Marketing channels</h3>
       <div style={{display:'flex',gap:7,flexWrap:'wrap'}}>{STUBBS_AI_BUSINESS_OS_CHANNELS.map(channel=><span key={channel} style={{padding:'7px 9px',border:'1px solid #28536a',borderRadius:999,fontSize:10,color:'#b8d4df'}}>{channel}</span>)}</div>
-      <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:14}}><button style={button} onClick={()=>requestDemo('founder-demo')}>REQUEST / RECORD DEMO INTENT</button><button style={button} onClick={()=>nav('/business')}>BUSINESS DIRECTORY</button><button style={button} onClick={()=>nav('/network')}>CONTENT + BROADCAST</button></div>
+      <form id="business-os-lead-form" onSubmit={submitLead} style={{...salesCard,marginTop:16,display:'grid',gap:10}} aria-label="Request a Stubbs AI Business OS demo">
+        <div style={eyebrow}>PRIVATE SALES QUEUE</div>
+        <h3 style={{margin:0}}>Request a Business OS demo</h3>
+        <div style={copy}>Tell us who you are and what kind of business you run. Public users can submit this form, but they cannot read the lead database.</div>
+        <input required maxLength={120} value={leadName} onChange={e=>setLeadName(e.target.value)} aria-label="Your name" placeholder="Your name" style={input}/>
+        <input required type="email" maxLength={254} value={leadEmail} onChange={e=>setLeadEmail(e.target.value)} aria-label="Business email" placeholder="Business email" style={input}/>
+        <input maxLength={160} value={leadBusiness} onChange={e=>setLeadBusiness(e.target.value)} aria-label="Business name" placeholder="Business name" style={input}/>
+        <select value={leadPlan} onChange={e=>setLeadPlan(e.target.value)} aria-label="Interested plan" style={input}>
+          <option value="starter">Starter Site</option><option value="pro">Business-in-a-Box Pro</option><option value="commerce">Commerce + Growth</option><option value="managed">Managed Business</option><option value="ai-business-os">AI Business OS</option><option value="holo-services">Holo Services</option><option value="founder-demo">Founder Command demo</option>
+        </select>
+        <textarea maxLength={1500} value={leadNotes} onChange={e=>setLeadNotes(e.target.value)} aria-label="Business needs" placeholder="What do you want the AI Business OS to help with?" rows={4} style={{...input,paddingTop:11}}/>
+        <button disabled={leadBusy} style={button} type="submit">{leadBusy?'SUBMITTING…':'REQUEST DEMO'}</button>
+      </form>
+      <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:14}}><button style={button} onClick={()=>requestDemo('founder-demo')}>REQUEST DEMO</button><button style={button} onClick={()=>nav('/business')}>BUSINESS DIRECTORY</button><button style={button} onClick={()=>nav('/network')}>CONTENT + BROADCAST</button></div>
     </section>}
 
     {view==='plans'&&<section style={panel}>
@@ -104,13 +147,14 @@ export default function StubbsAIHolographicBusinessOS(){
           <div style={copy}>Setup: ${p.setupUsd}</div>
           {'buyoutUsd' in p&&typeof p.buyoutUsd==='number'&&<div style={copy}>Buyout: ${p.buyoutUsd}</div>}
           <div style={{...copy,marginTop:8}}>{p.includes.join(' • ')}</div>
-          <button style={{...button,marginTop:12}} onClick={()=>requestDemo(key)}>SELL THIS PLAN</button>
+          <div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:12}}><button style={button} onClick={()=>requestDemo(key)}>BOOK DEMO</button><button style={button} onClick={()=>openCheckout(key)}>{BUSINESS_OS_CHECKOUT_MODE==='sandbox'?'TEST CHECKOUT':'BUY NOW'}</button></div>
         </article>)}
       </div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:10,marginTop:12}}>
-        <article style={salesCard}><b>AI BUSINESS OS</b><div style={copy}>${aiBusiness?.monthlyLeaseUsd??49}/mo • setup ${aiBusiness?.setupUsd??199} • managed from ${aiBusiness?.managedServiceUsd??299}/mo</div></article>
-        <article style={salesCard}><b>HOLO SERVICES ADD-ON</b><div style={copy}>${holoServices?.monthlyLeaseUsd??39}/mo • setup ${holoServices?.setupUsd??149} • higher-volume provider usage separate</div></article>
+        <article style={salesCard}><b>AI BUSINESS OS</b><div style={copy}>${aiBusiness?.monthlyLeaseUsd??49}/mo • setup ${aiBusiness?.setupUsd??199} • managed from ${aiBusiness?.managedServiceUsd??299}/mo</div><div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:10}}><button style={button} onClick={()=>requestDemo('ai-business-os')}>BOOK DEMO</button><button style={button} onClick={()=>openCheckout('ai-business-os')}>{BUSINESS_OS_CHECKOUT_MODE==='sandbox'?'TEST CHECKOUT':'BUY NOW'}</button></div></article>
+        <article style={salesCard}><b>HOLO SERVICES ADD-ON</b><div style={copy}>${holoServices?.monthlyLeaseUsd??39}/mo • setup ${holoServices?.setupUsd??149} • higher-volume provider usage separate</div><div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:10}}><button style={button} onClick={()=>requestDemo('holo-services')}>BOOK DEMO</button><button style={button} onClick={()=>openCheckout('holo-services')}>{BUSINESS_OS_CHECKOUT_MODE==='sandbox'?'TEST CHECKOUT':'BUY NOW'}</button></div></article>
       </div>
+      {BUSINESS_OS_CHECKOUT_MODE==='sandbox'&&<div role="status" aria-live="polite" style={{...noticeStyle,margin:'12px 0 0'}}>{BUSINESS_OS_CHECKOUT_NOTICE}</div>}
       <p style={{...copy,color:'#ffd59a'}}>No guaranteed revenue. Taxes, domains, ad spend, shipping, processor/provider fees and regulated services remain separate unless explicitly included in checkout/contract terms.</p>
     </section>}
 
@@ -134,3 +178,5 @@ const tower:React.CSSProperties={border:'1px solid',borderRadius:14,background:'
 const panel:React.CSSProperties={maxWidth:1150,margin:'12px auto 0',padding:15,border:'1px solid #27495d',borderRadius:17,background:'#07111ddd'}
 const copy:React.CSSProperties={fontSize:11,color:'#aabdc9',lineHeight:1.65}
 const salesCard:React.CSSProperties={padding:13,border:'1px solid #2a5267',borderRadius:14,background:'#081925'}
+
+const input:React.CSSProperties={minHeight:44,border:'1px solid #31566c',borderRadius:10,background:'#06121c',color:'#fff',padding:'0 11px',fontSize:14,boxSizing:'border-box',width:'100%'}
