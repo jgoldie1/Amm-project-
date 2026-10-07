@@ -104,3 +104,41 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
     font-size: 9px !important;
   }
 }
+
+/*
+ * V7 portrait HUD de-collision (mobileHudPass:'portrait-stack-v7').
+ * Measured on iPhone 13 portrait before this pass: 5 control overlaps, 3 controls fully
+ * buried (MISSIONS under CREATE $/STORES, Reel under the live mic). Five components each
+ * pin themselves to the bottom-right corner independently, so this block assigns every
+ * right-column control its own slot (bottom-up, 6px gaps) instead of moving any logic.
+ */
+@media (max-width: 480px) and (orientation: portrait) {
+  body:has([data-streetverse-world-root]) #sv-store-open {
+    bottom: calc(env(safe-area-inset-bottom) + 58px) !important;   /* slot 1: 58–96 */
+  }
+  body:has([data-streetverse-world-root]) #sv-retail-open {
+    left: auto !important;
+    bottom: calc(env(safe-area-inset-bottom) + 102px) !important;  /* slot 2: 102–140 */
+  }
+  body:has([data-streetverse-world-root]) [data-streetverse-create-earn] {
+    right: max(8px, env(safe-area-inset-right)) !important;
+    bottom: calc(env(safe-area-inset-bottom) + 146px) !important;  /* slot 3: 146–190 */
+  }
+  body:has([data-streetverse-world-root]) [aria-label="Open Universal Mission Director"] {
+    right: max(8px, env(safe-area-inset-right)) !important;
+    bottom: calc(env(safe-area-inset-bottom) + 196px) !important;  /* slot 4: 196–238 */
+  }
+  body:has([data-streetverse-world-root]) [aria-label="Open repair actions"] {
+    right: max(8px, env(safe-area-inset-right)) !important;
+    bottom: calc(env(safe-area-inset-bottom) + 244px) !important;  /* slot 5: 244–288 */
+  }
+  /* Camera toggle moves left of the store column so it no longer clips ENTER STORE. */
+  [data-streetverse-world-root] [data-streetverse-camera-control] {
+    left: calc(50% - 6px) !important;
+  }
+  /* Reel record was rendering exactly under the live-mic button; give it the row below. */
+  [data-streetverse-world-root] [aria-label="Start StreetVerse Reel recording"] {
+    top: calc(env(safe-area-inset-top) + 64px) !important;
+    bottom: auto !important;
+  }
+}
