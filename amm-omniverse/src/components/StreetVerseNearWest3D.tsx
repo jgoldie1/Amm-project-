@@ -142,15 +142,28 @@ function ChicagoCorridorDetailAssets(){
     <mesh position={[0,5.04,-.22]}><sphereGeometry args={[.11,8,6]}/><meshStandardMaterial color="#52a966"/></mesh>
    </group>)}
   </group>)}
-  {storefronts.map(([x,z,yaw],i)=><group key={'store-'+i} position={[x,0,z]} rotation={[0,yaw,0]}>
+  {storefronts.map(([x,z,yaw],i)=><group key={'store-'+i} position={[x,0,z]} rotation={[0,yaw,0]} name={'taylor-storefront-v3-'+i}>
    <mesh castShadow receiveShadow position={[0,6,0]}><boxGeometry args={[36,12,20]}/><meshStandardMaterial color={i%3===0?'#80503e':i%3===1?'#67574a':'#8b6446'} roughness={.9}/></mesh>
-   <mesh position={[0,2,-10.08]}><boxGeometry args={[5,4,.18]}/><meshStandardMaterial color="#284a5c"/></mesh>
-   {[-12,-6,6,12].map(wx=><mesh key={wx} position={[wx,7,-10.1]}><boxGeometry args={[4,3,.15]}/><meshStandardMaterial color="#8cb0bc" roughness={.25}/></mesh>)}
-   <mesh position={[0,10,-10.15]}><boxGeometry args={[24,1.2,.12]}/><meshStandardMaterial color="#d9c17b"/></mesh>
+   <mesh position={[0,11.72,0]}><boxGeometry args={[36.6,.42,20.6]}/><meshStandardMaterial color="#5f5650" roughness={.88}/></mesh>
+   <mesh position={[0,2,-10.10]}><boxGeometry args={[4.6,4,.18]}/><meshStandardMaterial color="#254454" roughness={.20}/></mesh>
+   {[-13.5,-7.5,7.5,13.5].map(wx=><mesh key={'ground-'+wx} position={[wx,2,-10.11]}><boxGeometry args={[5,3.5,.16]}/><meshStandardMaterial color="#486b7d" roughness={.18} metalness={.08}/></mesh>)}
+   {[-12,-6,6,12].map(wx=><mesh key={'upper-'+wx} position={[wx,7,-10.12]}><boxGeometry args={[4,3,.15]}/><meshStandardMaterial color="#8cb0bc" roughness={.22} metalness={.06}/></mesh>)}
+   <mesh position={[0,4.18,-10.7]} rotation={[.10,0,0]}><boxGeometry args={[18,.22,1.7]}/><meshStandardMaterial color={i%2?'#5f3d33':'#314f63'} roughness={.72}/></mesh>
+   <mesh position={[0,10,-10.15]}><boxGeometry args={[24,1.2,.12]}/><meshStandardMaterial color="#d9c17b" roughness={.72}/></mesh>
+   {[-15,-9,-3,3,9,15].map(px=><mesh key={'pilaster-'+px} position={[px,6,-10.18]}><boxGeometry args={[.34,11.2,.28]}/><meshStandardMaterial color="#c8bda6" roughness={.88}/></mesh>)}
+   <mesh position={[-8,12.45,1]}><boxGeometry args={[5,1.15,4]}/><meshStandardMaterial color="#33383c" roughness={.68}/></mesh>
+   <mesh position={[6,12.25,-1]}><boxGeometry args={[3.8,.9,3.2]}/><meshStandardMaterial color="#3d4245" roughness={.68}/></mesh>
   </group>)}
-  {parked.map(([x,z,yaw],i)=><group key={'parked-'+i} position={[x,0,z]} rotation={[0,yaw,0]}>
-   <mesh castShadow position={[0,.65,0]}><boxGeometry args={[4.4,1.05,1.9]}/><meshStandardMaterial color={i%3===0?'#355a73':i%3===1?'#713e38':'#55585b'} metalness={.35} roughness={.4}/></mesh>
-   <mesh position={[0,1.28,0]}><boxGeometry args={[2.3,.5,1.55]}/><meshStandardMaterial color="#91b7c7" roughness={.18}/></mesh>
+  {parked.map(([x,z,yaw],i)=><group key={'parked-'+i} position={[x,0,z]} rotation={[0,yaw,0]} name={'near-west-parked-car-v3-'+i}>
+   <mesh castShadow position={[0,.68,0]}><boxGeometry args={[4.45,.88,1.92]}/><meshStandardMaterial color={i%3===0?'#355a73':i%3===1?'#713e38':'#55585b'} metalness={.48} roughness={.32}/></mesh>
+   <mesh position={[-.25,1.31,0]}><boxGeometry args={[2.3,.58,1.56]}/><meshStandardMaterial color="#496c7c" roughness={.10} metalness={.12}/></mesh>
+   <mesh position={[1.35,1.02,0]}><boxGeometry args={[1.05,.16,1.82]}/><meshStandardMaterial color={i%3===0?'#355a73':i%3===1?'#713e38':'#55585b'} metalness={.48} roughness={.32}/></mesh>
+   {([-1,1] as const).flatMap(side=>([-1,1] as const).map(front=><group key={side+':'+front}>
+    <mesh position={[front*1.38,.42,side*.94]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.40,.40,.25,14]}/><meshStandardMaterial color="#111418" roughness={1}/></mesh>
+    <mesh position={[front*1.38,.42,side*.95]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.19,.19,.27,12]}/><meshStandardMaterial color="#848a8e" metalness={.72} roughness={.24}/></mesh>
+   </group>))}
+   <mesh position={[2.25,.78,0]}><boxGeometry args={[.07,.24,.72]}/><meshStandardMaterial color="#fff2c0" emissive="#ffd86a" emissiveIntensity={.32}/></mesh>
+   <mesh position={[-2.25,.75,0]}><boxGeometry args={[.07,.22,.68]}/><meshStandardMaterial color="#a92722" emissive="#6d1512" emissiveIntensity={.24}/></mesh>
   </group>)}
   {[[-680,920],[-620,920],[-680,680],[-620,680]].map(([x,z],i)=><group key={'stop-'+i} position={[x,0,z]}>
    <mesh position={[0,1.7,0]}><cylinderGeometry args={[.05,.06,3.4,8]}/><meshStandardMaterial color="#444b50"/></mesh>
