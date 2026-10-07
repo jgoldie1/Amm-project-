@@ -19,6 +19,17 @@ function box(group:THREE.Group,size:[number,number,number],pos:[number,number,nu
   const mesh=new THREE.Mesh(geometry(new THREE.BoxGeometry(...size)),mat)
   mesh.position.set(...pos);mesh.rotation.y=rotationY;mesh.castShadow=false;mesh.receiveShadow=true;mesh.name=name;group.add(mesh);return mesh
 }
+function addGroundShadow(group:THREE.Group,w:number,d:number,y=.035,opacity=.20){
+  const shadowMat=material({color:0x080b0d,roughness:1,transparent:true,opacity,depthWrite:false})
+  const shadow=new THREE.Mesh(geometry(new THREE.CircleGeometry(1,20)),shadowMat)
+  shadow.name='west-side-contact-shadow'
+  shadow.rotation.x=-Math.PI/2
+  shadow.scale.set(w*.5,d*.5,1)
+  shadow.position.y=y
+  shadow.renderOrder=1
+  group.add(shadow)
+  return shadow
+}
 function labelSprite(text:string){
   const canvas=document.createElement('canvas');canvas.width=512;canvas.height=128
   const ctx=canvas.getContext('2d')!;ctx.fillStyle='rgba(5,15,24,.92)';ctx.fillRect(0,0,512,128)
@@ -55,7 +66,7 @@ function addCrosswalk(root:THREE.Group,x:number,z:number,axis:'x'|'z'){
   }
 }
 function addTree(root:THREE.Group,x:number,z:number,s=1,variant=0){
-  const g=new THREE.Group();g.position.set(x,0,z);g.name='west-side-tree-v3'
+  const g=new THREE.Group();g.position.set(x,0,z);g.name='west-side-tree-v3';addGroundShadow(g,2.4*s,1.5*s,.028,.14)
   const trunkMat=material({color:variant%2?0x5a3b27:0x68452d,roughness:1})
   const leafA=material({color:variant%3===0?0x2f6b42:variant%3===1?0x3b7548:0x356f40,roughness:.98})
   const leafB=material({color:variant%3===0?0x477f4f:variant%3===1?0x2b6039:0x4a8251,roughness:.98})
@@ -149,7 +160,7 @@ function addPark(root:THREE.Group){
   root.add(park)
 }
 function addVehicle(root:THREE.Group,x:number,z:number,color:number,rot=0,name='traffic',kind:'sedan'|'suv'|'delivery'='sedan'){
-  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;g.name=`west-side-${name}`
+  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;g.name=`west-side-${name}`;addGroundShadow(g,4.5,1.55,.03,.23)
   const long=kind==='delivery'?5.2:kind==='suv'?4.8:4.35
   const bodyH=kind==='delivery'?1.25:kind==='suv'?1.05:.82
   const paint=material({color,metalness:.56,roughness:.28})
@@ -182,7 +193,7 @@ function addStreetLight(root:THREE.Group,x:number,z:number,rot=0){
   root.add(g)
 }
 function addBench(root:THREE.Group,x:number,z:number,rot=0){
-  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;g.name='west-side-bench-v3'
+  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;g.name='west-side-bench-v3';addGroundShadow(g,2.7,.75,.028,.11)
   const wood=material({color:0x73513c,roughness:.92}),metal=material({color:0x30383d,metalness:.52,roughness:.55})
   box(g,[2.6,.16,.62],[0,.72,0],wood);box(g,[2.6,.72,.12],[0,1.16,.28],wood)
   for(const sx of [-.95,.95]){box(g,[.10,.62,.10],[sx,.40,0],metal);box(g,[.10,.74,.10],[sx,1.03,.23],metal)}
@@ -197,7 +208,7 @@ function addHydrant(root:THREE.Group,x:number,z:number){
   root.add(g)
 }
 function addBusShelter(root:THREE.Group,x:number,z:number,rot=0,label='BUS STOP'){
-  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;g.name='west-side-bus-shelter-v3'
+  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;g.name='west-side-bus-shelter-v3';addGroundShadow(g,4.8,2.0,.028,.16)
   const metal=material({color:0x3d4a53,metalness:.62,roughness:.35}),glass=material({color:0x7ba6b8,roughness:.12,metalness:.08,transparent:true,opacity:.48})
   box(g,[4.6,.15,1.9],[0,2.65,0],metal)
   box(g,[.12,2.5,1.8],[-2.2,1.35,0],metal);box(g,[.12,2.5,1.8],[2.2,1.35,0],metal)
@@ -217,7 +228,7 @@ function addTrafficSignal(root:THREE.Group,x:number,z:number,rot=0){
   root.add(g)
 }
 function addAmbientResident(root:THREE.Group,x:number,z:number,rot:number,index:number){
-  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;g.name=`west-side-ambient-resident-${index+1}`
+  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;g.name=`west-side-ambient-resident-${index+1}`;addGroundShadow(g,.72,.48,.025,.18)
   const skinColors=[0x70462f,0x8f654c,0xb57852,0x5f3b2b,0xc58a66]
   const tops=[0x315b7a,0x704936,0x485b3b,0x6d506f,0x765a32]
   const skin=material({color:skinColors[index%skinColors.length],roughness:.86})
@@ -234,7 +245,7 @@ function addAmbientResident(root:THREE.Group,x:number,z:number,rot:number,index:
   root.add(g)
 }
 function addWestSideLandmark(root:THREE.Group,colliders:THREE.Box3[],spec:{id:string;label:string;x:number;z:number;w:number;d:number;h:number;color:number;accent:number;kind:'school'|'faith'|'campus'}){
-  const g=new THREE.Group();g.position.set(spec.x,0,spec.z);g.name=`west-side-landmark-${spec.id}`
+  const g=new THREE.Group();g.position.set(spec.x,0,spec.z);g.name=`west-side-landmark-${spec.id}`;addGroundShadow(g,spec.w*.92,spec.d*.70,.025,.12)
   const base=material({color:spec.color,roughness:.88}),accent=material({color:spec.accent,roughness:.84}),glass=material({color:0x5c8398,roughness:.20,metalness:.08,emissive:0x0d2430,emissiveIntensity:.18})
   const shell=box(g,[spec.w,spec.h,spec.d],[0,spec.h/2,0],base,0,'landmark-shell')
   box(g,[spec.w+.4,.42,spec.d+.4],[0,spec.h+.20,0],accent,0,'landmark-roofline')
