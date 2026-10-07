@@ -16,7 +16,8 @@ for(const token of [
   'Only model verified public interiors as measured'
 ]) assert.ok(source.includes(token),'reconstruction source registry missing '+token)
 
-assert.match(world,/visualUpgradeVersion:'west-side-forger-v5'/)
+assert.match(world,/visualUpgradeVersion:'west-side-forger-v4'/)
+assert.match(world,/neighborhoodReconstructionVersion:'west-side-forger-v5'/)
 assert.match(world,/reconstructionMode:'public-data-grounded-game-reconstruction'/)
 assert.match(world,/geometryAuthority:'city-gis-source-registry'/)
 assert.match(world,/interiorAuthority:'verified-or-reconstructed'/)
