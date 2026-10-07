@@ -241,6 +241,7 @@ export function installStreetVerseCognitionRuntime(heroId='bj-stubbs'){
     navigation:feed.navigation,
     animation:feed.animation,
     confidence:feed.confidence,
+    role:feed.role,
     lookAtHero:feed.sense.seeHero&&feed.distance<18,
     source:'cognition-runtime-v1',
    }}))
@@ -286,12 +287,36 @@ export function installStreetVerseCognitionRuntime(heroId='bj-stubbs'){
   if(!d.npcId)return
   const m=remember(String(d.npcId),'positive interaction',performance.now())
   m.trust=clamp01(m.trust+.06);m.familiarity=clamp01(m.familiarity+.04)
+  saveMemory(memory)
+ }
+
+ const onAffordanceComplete=(event:Event)=>{
+  const d=(event as CustomEvent<{npcId?:string;nodeId?:string;nodeLabel?:string;action?:string}>).detail||{}
+  if(!d.npcId||!d.nodeId)return
+  const memoryEvent=`used:${String(d.nodeId).slice(0,48)}`
+  const m=remember(String(d.npcId),memoryEvent,performance.now())
+  m.familiarity=clamp01(m.familiarity+.015)
+  if(['greet','assist','guide','socialize'].includes(String(d.action||'')))m.trust=clamp01(m.trust+.01)
+  saveMemory(memory)
+  window.dispatchEvent(new CustomEvent('tryamm:npc-cognition-memory-updated',{detail:{
+   npcId:String(d.npcId),
+   event:memoryEvent,
+   nodeId:String(d.nodeId),
+   nodeLabel:String(d.nodeLabel||d.nodeId),
+   action:String(d.action||''),
+   encounters:m.encounters,
+   familiarity:round(m.familiarity),
+   trust:round(m.trust),
+   recent:[...m.recent],
+   source:'cognition-runtime-v1',
+  }}))
  }
 
  window.addEventListener('tryamm:npc-cognition-frame',onFrame)
  window.addEventListener('tryamm:world-weather',onWeather)
  window.addEventListener('tryamm:world-day-phase',onDayPhase)
  window.addEventListener('tryamm:streetverse-character-interaction-complete',onPositiveInteraction)
+ window.addEventListener('tryamm:npc-affordance-complete',onAffordanceComplete)
 
  queueMicrotask(()=>window.dispatchEvent(new CustomEvent('tryamm:npc-cognition-ready',{detail:{
   version:'v1',
@@ -312,6 +337,7 @@ export function installStreetVerseCognitionRuntime(heroId='bj-stubbs'){
    window.removeEventListener('tryamm:world-weather',onWeather)
    window.removeEventListener('tryamm:world-day-phase',onDayPhase)
    window.removeEventListener('tryamm:streetverse-character-interaction-complete',onPositiveInteraction)
+   window.removeEventListener('tryamm:npc-affordance-complete',onAffordanceComplete)
   },
  }
 }
