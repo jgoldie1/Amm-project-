@@ -17,6 +17,7 @@ import GreenvilleCampusVerseScene from './GreenvilleCampusVerseScene'
 import {UIC_ALL_CAMPUS_HUBS} from '../data/uicCampusVerseHubs'
 import IllinoisCampusVersePlayableScene from './IllinoisCampusVersePlayableScene'
 import {ILLINOIS_CAMPUSVERSE_NETWORK,type CampusNetworkId} from '../data/campusVerseIllinoisUniversityNetwork'
+import {NEAR_WEST_LANDMARKS,ROOSEVELT_LANDMARK_SAFE_ZONE} from '../data/streetVerseNearWestLandmarks'
 import {CHICAGO_WEST_NATIVE_PREVIEW_PLACEMENTS} from '../data/TryammNativeRuntimeAssetCatalog'
 import {disposeNativeAssetLayer,loadTryammNativeCircleParkLayer} from '../runtime/TryammNativeAssetRuntime'
 
@@ -309,11 +310,35 @@ function JeffersonLegacyCampusMesh(){
  </group>
 }
 
+function RooseveltLandmarksMesh(){
+ return <group>{NEAR_WEST_LANDMARKS.map(landmark=>landmark.kind==='school'
+  ?<group key={landmark.id} position={[landmark.x,0,landmark.z]}>
+    <mesh castShadow receiveShadow position={[0,8,0]}><boxGeometry args={[52,16,32]}/><meshStandardMaterial color="#8d4b3e" roughness={.9}/></mesh>
+    <mesh castShadow position={[0,13,-11]}><boxGeometry args={[18,10,10]}/><meshStandardMaterial color="#744035" roughness={.92}/></mesh>
+    <mesh position={[0,3,-16.15]}><boxGeometry args={[8,5,.3]}/><meshStandardMaterial color="#263f50"/></mesh>
+    {[[-18,5],[-9,5],[9,5],[18,5],[-18,10],[-9,10],[9,10],[18,10]] as [number,number][]).map(([x,y],i)=><mesh key={i} position={[x,y,-16.12]}><boxGeometry args={[4.5,2.2,.18]}/><meshStandardMaterial color="#9fd2e5" emissive="#214b5e" emissiveIntensity={.22}/></mesh>)}
+    <mesh position={[0,22,0]}><sphereGeometry args={[1.2,12,10]}/><meshStandardMaterial color="#79efff" emissive="#35c5de" emissiveIntensity={.8}/></mesh>
+   </group>
+  :<group key={landmark.id} position={[landmark.x,0,landmark.z]}>
+    <mesh castShadow receiveShadow position={[0,7,0]}><boxGeometry args={[30,14,38]}/><meshStandardMaterial color="#b5a18a" roughness={.92}/></mesh>
+    <mesh castShadow position={[-8,16,-8]}><boxGeometry args={[10,24,10]}/><meshStandardMaterial color="#a99278" roughness={.9}/></mesh>
+    <mesh castShadow position={[-8,30,-8]}><coneGeometry args={[7,12,4]}/><meshStandardMaterial color="#6a4f43" roughness={.88}/></mesh>
+    <mesh position={[-8,37,-8]}><boxGeometry args={[.8,7,.8]}/><meshStandardMaterial color="#e5d1a2" metalness={.35}/></mesh>
+    <mesh position={[-8,38.8,-8]}><boxGeometry args={[4.5,.8,.8]}/><meshStandardMaterial color="#e5d1a2" metalness={.35}/></mesh>
+    <mesh position={[0,4,-19.15]}><boxGeometry args={[7,7,.25]}/><meshStandardMaterial color="#45392f"/></mesh>
+    <mesh position={[0,22,0]}><sphereGeometry args={[1.2,12,10]}/><meshStandardMaterial color="#ffe4a2" emissive="#d8a84b" emissiveIntensity={.65}/></mesh>
+   </group>)}</group>
+}
+
 function CircleParkWestSideMarker(){
+ const trees=[[-11,-7],[11,-7],[-12,7],[12,7],[-5,11],[5,11]] as [number,number][]
  return <group position={[-850,0,835]}>
-  <mesh receiveShadow position={[0,.2,0]}><cylinderGeometry args={[16,16,.35,32]}/><meshStandardMaterial color="#5c7a4f"/></mesh>
-  <mesh position={[0,1.4,0]}><torusGeometry args={[9,.35,10,40]}/><meshStandardMaterial color="#e8c86a"/></mesh>
-  <mesh position={[0,3,0]}><cylinderGeometry args={[.4,.4,6,10]}/><meshStandardMaterial color="#2f3b45"/></mesh>
+  <mesh receiveShadow position={[0,.08,0]} rotation={[-Math.PI/2,0,0]}><circleGeometry args={[22,48]}/><meshStandardMaterial color="#4f7f4d"/></mesh>
+  <mesh receiveShadow position={[0,.12,0]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[14,17,48]}/><meshStandardMaterial color="#c8bba1"/></mesh>
+  <mesh receiveShadow position={[0,.16,-2]}><boxGeometry args={[18,.12,10]}/><meshStandardMaterial color="#b86f49"/></mesh>
+  <mesh position={[0,.22,-2]} rotation={[-Math.PI/2,0,0]}><torusGeometry args={[2.8,.10,8,40]}/><meshStandardMaterial color="#f3f0d7"/></mesh>
+  {trees.map(([x,z],i)=><group key={i} position={[x,0,z]}><mesh position={[0,2.6,0]}><cylinderGeometry args={[.2,.26,5.2,8]}/><meshStandardMaterial color="#654832"/></mesh><mesh position={[0,6,0]}><sphereGeometry args={[1.7,10,8]}/><meshStandardMaterial color="#3d7142"/></mesh></group>)}
+  <mesh position={[0,7,0]}><sphereGeometry args={[1.1,12,10]}/><meshStandardMaterial color="#ffe37a" emissive="#e6b83d" emissiveIntensity={.75}/></mesh>
  </group>
 }
 
@@ -401,7 +426,7 @@ export default function StreetVerseNearWest3D(){
  const [npcReaction,setNpcReaction]=useState<{id:string;reaction:'stagger'|'downed'}|null>(null)
  const drivenPosition=useRef({x:-650,z:700})
  const drivenHeading=useRef(0)
- const [nearby,setNearby]=useState<{kind:'npc'|'business'|'vehicle';id:string;label:string;mission?:string}|null>(null)
+ const [nearby,setNearby]=useState<{kind:'npc'|'business'|'vehicle'|'landmark';id:string;label:string;mission?:string}|null>(null)
  const lastNearby=useRef('')
  const move=useRef<MoveState>({x:0,z:0})
  const setMove=(x:number,z:number)=>{move.current={x,z}}
@@ -421,12 +446,13 @@ export default function StreetVerseNearWest3D(){
  },[playerSpawn.x,playerSpawn.z])
  const senseNearby=(x:number,z:number)=>{
   if(activeMission&&missionStep==='deliver'){const d=Math.hypot(activeMission.objective.x-x,activeMission.objective.z-z);const ready=d<16;setMissionReady(prev=>prev===ready?prev:ready);if(ready){requestMissionReward(activeMission);window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{id:activeMission.id,title:activeMission.title,campus:activeMission.id.startsWith('uic')||activeMission.title.includes('UIC')?'uic':'near-west',objective:activeMission.objective}}));setActiveMission(null);setMissionStep('talk');setMissionReady(false)}}
-  const protectedArea=(x>-900&&x<-560&&z>500&&z<850)?'UIC EAST CAMPUS SAFE ZONE':(x>-1265&&x<-900&&z>560&&z<885)?'UIC WEST CAMPUS SAFE ZONE':(x>-560&&x<-250&&z>500&&z<860)?'MEDICAL DISTRICT SAFE ZONE':null
+  const landmarkSafe=Math.hypot(x-ROOSEVELT_LANDMARK_SAFE_ZONE.x,z-ROOSEVELT_LANDMARK_SAFE_ZONE.z)<=ROOSEVELT_LANDMARK_SAFE_ZONE.radius;const protectedArea=landmarkSafe?ROOSEVELT_LANDMARK_SAFE_ZONE.label:(x>-900&&x<-560&&z>500&&z<850)?'UIC EAST CAMPUS SAFE ZONE':(x>-1265&&x<-900&&z>560&&z<885)?'UIC WEST CAMPUS SAFE ZONE':(x>-560&&x<-250&&z>500&&z<860)?'MEDICAL DISTRICT SAFE ZONE':null
   setSafeZone(prev=>prev===protectedArea?prev:protectedArea)
   const targets=[
    ...NEAR_WEST_NPCS.map(n=>({kind:'npc' as const,id:n.id,label:n.displayName,mission:n.missionHook,x:n.position.x,z:n.position.z})),
    ...NEAR_WEST_TRAFFIC.map(v=>({kind:'vehicle' as const,id:v.id,label:v.kind==='bus'?'Bus':'Vehicle',x:v.position.x,z:v.position.z})),
    ...STREETVERSE_FUTURE_VEHICLES.map(v=>({kind:'vehicle' as const,id:v.id,label:v.name,mission:v.missionHooks[0],x:v.spawn.x,z:v.spawn.z})),
+   ...NEAR_WEST_LANDMARKS.map(l=>({kind:'landmark' as const,id:l.id,label:l.label,mission:l.missionId,x:l.x,z:l.z})),
    ...TAYLOR_STREET_CORRIDOR.blocks.flatMap(block=>block.businesses.map(b=>({kind:'business' as const,id:b.id,label:b.displayName||'Taylor Street Business',mission:b.missionIds?.[0],x:block.origin.x+b.lot.x,z:block.origin.z+b.lot.z})))
   ]
   let best:any=null,dist=999
@@ -452,8 +478,9 @@ export default function StreetVerseNearWest3D(){
   if(activeMission&&missionStep==='talk'&&nearby.kind==='npc'){setMissionStep('repair');window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-step',{detail:{missionId:activeMission.id,step:'talk-complete',targetId:nearby.id}}));return}
   if(activeMission&&missionStep==='repair'&&nearby.kind==='vehicle'){setMissionStep('drive');window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-step',{detail:{missionId:activeMission.id,step:'repair-complete',vehicleId:nearby.id}}));return}
   if(activeMission&&missionStep==='drive'&&nearby.kind==='vehicle'){setMissionStep('deliver');setDriving(nearby.id);window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-step',{detail:{missionId:activeMission.id,step:'drive-started',vehicleId:nearby.id}}));return}
-  const action=nearby.kind==='npc'?'talk':nearby.kind==='business'?'enter':'enter-vehicle'
+  const action=nearby.kind==='npc'?'talk':nearby.kind==='business'?'enter':nearby.kind==='landmark'?'visit':'enter-vehicle'
   if(nearby.kind==='vehicle')setDriving(nearby.id)
+  if(nearby.kind==='landmark')window.dispatchEvent(new CustomEvent('tryamm:streetverse-landmark-visit',{detail:{id:nearby.id,label:nearby.label,missionId:nearby.mission,source:'near-west-context-action'}}))
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-action',{detail:{action,target:nearby,source:'near-west-context-action'}}))
   if(nearby.mission)window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{missionId:nearby.mission,target:nearby.id}}))
  }
@@ -490,7 +517,7 @@ export default function StreetVerseNearWest3D(){
    <button aria-label="Use fictional vehicle weapon" disabled={vehicleAmmo<=0||!!safeZone} onClick={vehicleFire} style={{minHeight:48,borderRadius:12,fontWeight:950}}>{safeZone?'SAFE ZONE':`FIRE • ${vehicleAmmo}`}</button>
   </div>}
   {driving&&<button aria-label="Exit vehicle" onClick={()=>{const p=drivenPosition.current;setPlayerSpawn({x:p.x+3,z:p.z});window.dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-action',{detail:{action:'exit-vehicle',vehicleId:driving,position:p}}));setDriving(null)}} style={{position:'absolute',right:12,top:12,zIndex:22,minHeight:48,padding:'9px 13px',borderRadius:14,fontWeight:950}}>EXIT VEHICLE</button>}
-  {nearby&&!driving&&<button aria-label="Context action" onClick={doAction} style={{position:'absolute',right:12,bottom:190,zIndex:22,minWidth:162,minHeight:52,padding:'10px 14px',borderRadius:16,fontWeight:950,fontSize:16}}>ACTION • {activeMission&&missionStep==='repair'&&nearby.kind==='vehicle'?'REPAIR':activeMission&&missionStep==='drive'&&nearby.kind==='vehicle'?'DRIVE':nearby.kind==='npc'?'TALK':nearby.kind==='business'?'ENTER':'RIDE'}<small style={{display:'block',fontSize:10}}>{nearby.label}</small></button>}
+  {nearby&&!driving&&<button aria-label="Context action" onClick={doAction} style={{position:'absolute',right:12,bottom:190,zIndex:22,minWidth:162,minHeight:52,padding:'10px 14px',borderRadius:16,fontWeight:950,fontSize:16}}>ACTION • {activeMission&&missionStep==='repair'&&nearby.kind==='vehicle'?'REPAIR':activeMission&&missionStep==='drive'&&nearby.kind==='vehicle'?'DRIVE':nearby.kind==='npc'?'TALK':nearby.kind==='business'?'ENTER':nearby.kind==='landmark'?'VISIT':'RIDE'}<small style={{display:'block',fontSize:10}}>{nearby.label}</small></button>}
   <div aria-label={driving?'One hand driving controls':'One hand movement controls'} style={{position:'absolute',right:12,bottom:18,zIndex:21,display:'grid',gridTemplateColumns:'54px 54px 54px',gridTemplateRows:'54px 54px 54px',gap:5,touchAction:'none'}}>
    <span/><button aria-label="Walk forward" onPointerDown={()=>setMove(0,driving?-2:-1)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{gridColumn:2,fontSize:24,borderRadius:14}}>▲</button><span/>
    <button aria-label="Walk left" onPointerDown={()=>setMove(driving?-1.4:-1,0)} onPointerUp={stopMove} onPointerCancel={stopMove} style={{fontSize:24,borderRadius:14}}>◀</button>
