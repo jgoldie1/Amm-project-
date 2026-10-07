@@ -243,7 +243,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     nativeHeroRig=nativeHumanoidRig(nativeHero)
     if(nativeHero){
       normalizeStreetVerseHumanHeight(nativeHero,STREETVERSE_HUMAN_HEIGHT_METERS.adultHero)
-      nativeHero.userData={...nativeHero.userData,characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',identityContinuityKey:STREETVERSE_HERO_CHARACTER_ID,namedCharacter:true,era:'current',headArchitecture:'bj-v5-photo-match-ready',photoMatchedAssetId:BJ_PHOTOMATCH_ASSET.id,visualContinuity:'current-era-reference-locked',autonomicLifeV7:true}
+      nativeHero.userData={...nativeHero.userData,characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',identityContinuityKey:STREETVERSE_HERO_CHARACTER_ID,namedCharacter:true,era:'current',headArchitecture:'bj-v5-photo-match-ready',photoMatchedAssetId:BJ_PHOTOMATCH_ASSET.id,visualContinuity:'current-era-reference-locked',autonomicLifeV7:true,autonomicLifeV12:true}
       bjPhotoMatch?.dispose()
       // A reference photo is an optional preview, never the default game face.
       const previewPhotoHead=new URLSearchParams(window.location.search).get('svPhotoHead')==='1'
