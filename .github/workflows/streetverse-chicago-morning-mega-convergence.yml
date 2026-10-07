@@ -105,6 +105,7 @@ jobs:
           node tests/tryamm-edge-grid-preferences-contract.mjs
           node tests/tryamm-native-runtime-asset-contract.mjs
           node tests/streetverse-chicago-native-glb-layer-contract.mjs
+          node tests/streetverse-moving-native-actors-contract.mjs
           node tests/tryamm-native-pwa-asset-cache-contract.mjs
           node tests/streetverse-chicago-grid-reality-contract.mjs
           node tests/streetverse-mobile-repair-visibility-contract.mjs
