@@ -10,10 +10,10 @@ export const BJ_MESHY_V6_ASSET={
   characterId:'bj-stubbs',
   filename:'SV_HERO_BJ_STUBBS_V6.glb',
   url:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6.glb',
-  productionFilename:'SV_HERO_BJ_STUBBS_V7.glb',
-  productionUrl:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V7.glb',
+  productionFilename:'SV_HERO_BJ_STUBBS_V12.glb',
+  productionUrl:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V12.glb',
   targetHeightMeters:BJ_STUBBS_BODY_PROFILE.heightMeters,
-  authority:'tryamm-owned-native-glb-v7',
+  authority:'tryamm-owned-native-glb-v12',
   fallback:'streetverse-bj-stubbs-photomatched',
   referenceAuthorized:true,
   certifiedLikeness:false,
@@ -190,7 +190,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   try{
     const gltf=await loader.loadAsync(sourceUrl)
     const object=gltf.scene
-    object.name='bj-stubbs-production-v7'
+    object.name='bj-stubbs-production-v12'
     normalizeStreetVerseHumanHeight(object,BJ_MESHY_V6_ASSET.targetHeightMeters)
     object.traverse(node=>{
       if(node instanceof THREE.Mesh){
@@ -212,7 +212,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       photoMatched:verifiedPhotoMatch,
       certifiedLikeness:verifiedPhotoMatch,
       meshyV6:Boolean(published?.url),
-      ownedV7:!published?.url,
+      ownedV12:!published?.url,
       productionMaterials:true,
       texturePipeline:'pbr-mobile-production-v12',
       lifeLayer:'blink-lipsync-breathing-eye-focus-microgesture-v12',
