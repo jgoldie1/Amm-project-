@@ -64,11 +64,28 @@ function addRoundedShell(group,name,length,radius,width,pos,material,semantic){
 }
 
 function addTree(group,x,z,scale,mats){
-  addCylinder(group,'tree-trunk',.23*scale,2.8*scale,[x,1.4*scale,z],mats.wood,12,'vegetation-trunk')
-  const crown=new THREE.Mesh(new THREE.IcosahedronGeometry(1.25*scale,2),mats.leaf)
-  crown.name='tree-canopy';crown.position.set(x,3.45*scale,z)
-  crown.userData={semantic:'vegetation-canopy',collision:'none',windReactive:true}
-  group.add(crown)
+  const trunk=addCylinder(group,'tree-trunk',.22*scale,3.05*scale,[x,1.525*scale,z],mats.wood,12,'vegetation-trunk')
+  trunk.scale.set(1,.99,1)
+  for(const side of [-1,1]){
+    const branch=addCylinder(group,'tree-branch',.065*scale,1.25*scale,[x+side*.26*scale,2.72*scale,z],mats.wood,8,'vegetation-branch')
+    branch.rotation.z=side*.62
+  }
+  const leafMid=mat('leaf-mid',0x3b7548,.90,0)
+  const leafLight=mat('leaf-light',0x4a8251,.90,0)
+  const canopy=[
+    [0,3.72,0,1.22,mats.leaf],
+    [-.62,3.50,.18,.86,leafMid],
+    [.58,3.60,-.24,.90,mats.leaf],
+    [.06,4.43,.08,.82,leafLight],
+    [-.12,4.08,-.56,.72,leafMid],
+  ]
+  canopy.forEach(([dx,dy,dz,size,leaf],i)=>{
+    const crown=new THREE.Mesh(new THREE.DodecahedronGeometry(Number(size)*scale,1),leaf)
+    crown.name=`tree-canopy-${i+1}`;crown.position.set(x+Number(dx)*scale,Number(dy)*scale,z+Number(dz)*scale)
+    crown.rotation.set((i%2?-.05:.05),(i*.61)%Math.PI,(i%3-1)*.04)
+    crown.userData={semantic:'vegetation-canopy',collision:'none',windReactive:true,canopyLayer:i+1}
+    group.add(crown)
+  })
 }
 
 function addStreetLamp(group,x,z,mats,holo){
@@ -700,13 +717,24 @@ function addBuilding(group,x,z,w,h,d,mats,index,density){
   addBox(group,'roof-cap',[w+.38,.18,d+.38],[x,h+.09,z],mats.concrete,undefined,'roof-cap')
   addBox(group,'rooftop-hvac',[Math.max(1.2,w*.18),.72,Math.max(1.1,d*.22)],[x-w*.18,h+.48,z],mats.metal,undefined,'rooftop-equipment')
   addBox(group,'rooftop-hvac',[Math.max(1,w*.14),.58,Math.max(.9,d*.18)],[x+w*.2,h+.39,z+d*.14],mats.metal,undefined,'rooftop-equipment')
+  for(const px of [-w*.40,w*.40])addBox(group,'parapet-side',[.22,.48,d*.82],[x+px,h+.34,z],mats.concrete,undefined,'roof-parapet')
+  for(const pz of [-d*.40,d*.40])addBox(group,'parapet-front',[w*.82,.48,.22],[x,h+.34,z+pz],mats.concrete,undefined,'roof-parapet')
+  const fireEscapeX=x+w/2+.18
+  for(let fy=2.6;fy<h-2;fy+=3.0){
+    addBox(group,'fire-escape-platform',[.18,.12,2.25],[fireEscapeX,fy,z],mats.metal,undefined,'fire-escape')
+    addBox(group,'fire-escape-rail',[.12,.72,2.25],[fireEscapeX+.18,fy+.38,z],mats.metal,undefined,'fire-escape-rail')
+  }
+  if(h>9){
+    const tank=new THREE.Mesh(new THREE.CylinderGeometry(.55,.66,1.25,12),mats.metal)
+    tank.name='rooftop-water-tank';tank.position.set(x+w*.18,h+1.0,z-d*.16);tank.userData={semantic:'rooftop-equipment',generatedBy:'tryamm-native-asset-foundry'};group.add(tank)
+  }
 }
 
 function build(profile){
   const group=new THREE.Group()
   group.name=`TRYAMM-Native-${profile.id}`
   group.userData={
-    schema:'tryamm.native-asset-foundry.v1',
+    schema:'tryamm.native-asset-foundry.v3',
     cityStyle:'Chicago-inspired',
     exactDigitalTwin:false,
     profile:profile.id,
@@ -967,7 +995,7 @@ const winnerTarget=path.join(OUT,'production-review-holo-reality-fusion.glb')
 fs.copyFileSync(winnerSource,winnerTarget)
 
 const manifest={
-  schema:'tryamm.native-asset-foundry.evidence.v1',
+  schema:'tryamm.native-asset-foundry.evidence.v3',
   generatedAt:new Date().toISOString(),
   externalApiRequired:false,
   creditsUsed:0,
@@ -977,7 +1005,7 @@ const manifest={
   kitArtifacts,
   reviewedWinner:{...winner,file:path.basename(winnerTarget)},
   resources:{
-    geometry:'TRYAMM procedural generator + reusable modular GLB kit with rounded vehicle/transit/humanoid realism shells',
+    geometry:'TRYAMM procedural generator + West Side v3 layered vegetation, facade detail, rounded vehicles/transit and humanoid realism shells',
     materials:'TRYAMM PBR parameter recipes',
     collision:'semantic primitive collision metadata',
     holographics:'integrated emissive/interaction anchor geometry',
