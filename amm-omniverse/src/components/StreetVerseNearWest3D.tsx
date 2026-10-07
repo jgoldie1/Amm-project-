@@ -204,7 +204,7 @@ function EmergencyServiceAssets(){
    <mesh castShadow position={[0,.85,0]}><boxGeometry args={[v.id==='fire'?7.2:v.id==='ambulance'?6.2:4.8,1.45,v.id==='fire'?2.5:2.15]}/><meshStandardMaterial color={v.body} metalness={.3} roughness={.45}/></mesh>
    <mesh position={[0,1.7,0]}><boxGeometry args={[v.id==='police'?2.5:4.2,.72,1.8]}/><meshStandardMaterial color={v.id==='police'?'#9eb7c2':v.body}/></mesh>
    <mesh position={[0,2.15,0]}><boxGeometry args={[1.45,.16,.25]}/><meshStandardMaterial color={v.accent} emissive={v.accent} emissiveIntensity={.85}/></mesh>
-   {([-1,1] as const).flatMap(side=>([-1,1] as const).map(front=><mesh key={side+':'+front} rotation={[Math.PI/2,0,0]} position={[front*(v.id==='fire'?2.3:1.55),.42,side*1.05]}><cylinderGeometry args={[.43,.43,.28,14]}/><meshStandardMaterial color="#151719"/></mesh>)))}
+   {([-1,1] as const).flatMap(side=>([-1,1] as const).map(front=><mesh key={side+':'+front} rotation={[Math.PI/2,0,0]} position={[front*(v.id==='fire'?2.3:1.55),.42,side*1.05]}><cylinderGeometry args={[.43,.43,.28,14]}/><meshStandardMaterial color="#151719"/></mesh>))}
   </group>)}
   {[
    [-1030,0,940,30,11,20,'MEDICAL'],[-1120,0,1010,34,12,22,'FIRE / RESCUE'],[-735,0,955,28,10,20,'PUBLIC SAFETY']
