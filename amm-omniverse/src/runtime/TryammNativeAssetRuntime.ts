@@ -14,7 +14,15 @@ export interface NativeAssetLayerResult{
   usedUrls:string[]
 }
 
+export interface NativeVisualInstance{
+  object:THREE.Group
+  asset:TryammNativeRuntimeAssetKey
+  url:string
+}
+
 type LoadFn=(url:string)=>Promise<THREE.Group>
+
+const nativeVisualSourceCache=new Map<TryammNativeRuntimeAssetKey,Promise<THREE.Group>>()
 
 function cloneForPlacement(source:THREE.Group){
   const clone=source.clone(true)
@@ -92,6 +100,46 @@ export async function loadTryammNativeCircleParkLayer(options?:{
   }
 
   return{group,loaded,failed,usedUrls:[...usedUrls]}
+}
+
+export async function loadTryammNativeVisualInstance(
+  asset:TryammNativeRuntimeAssetKey,
+  options?:{scale?:number|[number,number,number];name?:string},
+):Promise<NativeVisualInstance>{
+  const def=TRYAMM_NATIVE_RUNTIME_ASSETS[asset]
+  let pending=nativeVisualSourceCache.get(asset)
+  if(!pending){
+    const loader=new GLTFLoader()
+    pending=loader.loadAsync(def.url).then(gltf=>gltf.scene).catch(error=>{
+      nativeVisualSourceCache.delete(asset)
+      throw error
+    })
+    nativeVisualSourceCache.set(asset,pending)
+  }
+  const source=await pending
+  const object=cloneForPlacement(source)
+  const scale=options?.scale??1
+  if(Array.isArray(scale))object.scale.set(...scale)
+  else object.scale.setScalar(scale)
+  object.name=options?.name??`native-moving-${asset}`
+  object.userData={
+    ...object.userData,
+    tryammNativeAsset:asset,
+    movingVisualInstance:true,
+    previewVisualOnly:true,
+    collisionAuthority:'parent-gameplay-runtime',
+  }
+  return{object,asset,url:def.url}
+}
+
+export function releaseTryammNativeVisualInstance(object:THREE.Object3D){
+  // Instances share cached geometry/material resources. Detach only; the cache owns
+  // those resources for the StreetVerse session so one actor cannot break another.
+  object.removeFromParent()
+}
+
+export function resetTryammNativeVisualInstanceCache(){
+  nativeVisualSourceCache.clear()
 }
 
 export function disposeNativeAssetLayer(group:THREE.Object3D){
