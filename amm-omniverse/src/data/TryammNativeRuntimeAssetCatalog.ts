@@ -88,6 +88,38 @@ export const CIRCLE_PARK_NATIVE_PREVIEW_PLACEMENTS:NativePlacement[]=[
   {asset:'litterCluster',position:[1,0,23],label:'garbage-pickup-c'},
 ]
 
+export const CHICAGO_WEST_NATIVE_PREVIEW_PLACEMENTS:NativePlacement[]=[
+  // Circle Park / ABLA visual upgrade. Gameplay collision remains in the existing world runtime.
+  {asset:'building',position:[-920,0,865],rotationY:Math.PI/2,scale:[2.25,1.55,1.7],label:'circle-park-native-building-west'},
+  {asset:'building',position:[-920,0,825],rotationY:Math.PI/2,scale:[2.15,1.45,1.65],label:'circle-park-native-building-south'},
+  {asset:'tree',position:[-895,0,805],scale:1.15,label:'circle-park-native-tree-a'},
+  {asset:'tree',position:[-875,0,790],scale:1.05,label:'circle-park-native-tree-b'},
+  {asset:'tree',position:[-800,0,800],scale:1.1,label:'circle-park-native-tree-c'},
+  {asset:'tree',position:[-745,0,775],scale:1.0,label:'circle-park-native-tree-d'},
+  {asset:'streetLamp',position:[-885,0,815],label:'circle-park-native-lamp-a'},
+  {asset:'streetLamp',position:[-820,0,805],label:'circle-park-native-lamp-b'},
+  {asset:'bench',position:[-865,0,820],rotationY:Math.PI,label:'circle-park-native-bench-a'},
+  {asset:'bench',position:[-835,0,820],rotationY:Math.PI,label:'circle-park-native-bench-b'},
+  {asset:'hydrant',position:[-900,0,845],label:'circle-park-native-hydrant'},
+  {asset:'holoWayfinder',position:[-850,0,846],label:'circle-park-native-wayfinder'},
+
+  // Roosevelt / Taylor corridor visual upgrade.
+  {asset:'building',position:[-570,0,645],rotationY:0,scale:[2.8,1.35,1.6],label:'taylor-native-storefront-west'},
+  {asset:'building',position:[-470,0,645],rotationY:0,scale:[2.8,1.4,1.6],label:'taylor-native-storefront-east'},
+  {asset:'streetLamp',position:[-650,0,715],label:'roosevelt-native-lamp-a'},
+  {asset:'streetLamp',position:[-570,0,690],label:'taylor-native-lamp-a'},
+  {asset:'streetLamp',position:[-490,0,675],label:'taylor-native-lamp-b'},
+  {asset:'sportSedan2027',position:[-690,0,880],rotationY:Math.PI/2,label:'roosevelt-native-sedan-a'},
+  {asset:'sportSedan2027',position:[-610,0,920],rotationY:-Math.PI/2,label:'roosevelt-native-sedan-b'},
+  {asset:'boxTruckCustom2027',position:[-555,0,930],rotationY:Math.PI/2,label:'roosevelt-native-box-truck'},
+
+  // Non-interactive crowd visuals; gameplay NPC authority stays with NEAR_WEST_NPCS.
+  {asset:'residentA',position:[-885,0,832],rotationY:.25,label:'circle-park-native-resident-a'},
+  {asset:'residentB',position:[-810,0,828],rotationY:-.45,label:'circle-park-native-resident-b'},
+  {asset:'residentC',position:[-625,0,702],rotationY:.5,label:'taylor-native-resident-c'},
+  {asset:'residentD',position:[-505,0,692],rotationY:-.35,label:'taylor-native-resident-d'},
+] as const
+
 export const NATIVE_RUNTIME_POLICY={
   generatedBeforeViteBuild:true,
   generatedAssetsArePublicBuildInputs:true,
