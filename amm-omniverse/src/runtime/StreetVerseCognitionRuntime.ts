@@ -141,7 +141,7 @@ export function installStreetVerseCognitionRuntime(heroId='bj-stubbs'){
 
   const visibilityRadius=weather==='fog'?14:dayPhase==='night'?19:28
   const seeHero=distance<=visibilityRadius
-  const noise=clamp01(Number(frame.noiseLevel??(frame.hero.vehicle?.82:frame.hero.moving?.32:.05)))
+  const noise=clamp01(Number(frame.noiseLevel??(frame.hero.vehicle?0.82:(frame.hero.moving?0.32:0.05))))
   const hearHero=distance<=9+noise*25
   const health=clamp01(Number(agent.health??1))
   const stress=clamp01(Number(agent.stress??0))
@@ -162,15 +162,15 @@ export function installStreetVerseCognitionRuntime(heroId='bj-stubbs'){
 
   const scores:Record<StreetVerseCognitionAction,number>={
    patrol:.24+(seeHero?0:.16),
-   observe:(seeHero?.34:0)+(hearHero?.18:0)+near*.28+threat*.10,
-   greet:(seeHero?.12:0)+near*.52+mem.familiarity*.20+mem.trust*.12-threat*.42,
-   assist:(1-health)*.72+mission*.28+(role==='responder'?.30:0)+near*.10,
-   guide:mission*.82+(role==='guide'?.28:0)+near*.12,
-   investigate:(hearHero&&!seeHero?.58:0)+noise*.18+threat*.18,
-   'seek-safety':threat*.82+(coverNearby?.10:0)+(1-health)*.28,
-   deescalate:(role==='security'&&threat>.22?.62:0)+threat*.32+near*.10,
-   socialize:crowd*.36+mem.familiarity*.16+(threat<.2?.08:0),
-   'yield-path':veryNear*.92+(frame.hero.vehicle&&distance<5?.20:0),
+   observe:(seeHero?0.34:0)+(hearHero?0.18:0)+near*.28+threat*.10,
+   greet:(seeHero?0.12:0)+near*.52+mem.familiarity*.20+mem.trust*.12-threat*.42,
+   assist:(1-health)*.72+mission*.28+(role==='responder'?0.30:0)+near*.10,
+   guide:mission*.82+(role==='guide'?0.28:0)+near*.12,
+   investigate:(hearHero&&!seeHero?0.58:0)+noise*.18+threat*.18,
+   'seek-safety':threat*.82+(coverNearby?0.10:0)+(1-health)*.28,
+   deescalate:(role==='security'&&threat>0.22?0.62:0)+threat*.32+near*.10,
+   socialize:crowd*.36+mem.familiarity*.16+(threat<0.2?0.08:0),
+   'yield-path':veryNear*.92+(frame.hero.vehicle&&distance<5?0.20:0),
   }
 
   if(mem.lastAction)scores[mem.lastAction]+=0.07
@@ -260,7 +260,7 @@ export function installStreetVerseCognitionRuntime(heroId='bj-stubbs'){
      pose:{
       lookLeft:side<0?Math.abs(side):0,
       lookRight:side>0?side:0,
-      browInnerUp:focused.action==='assist'?.16:focused.action==='observe'?.08:0,
+      browInnerUp:focused.action==='assist'?0.16:(focused.action==='observe'?0.08:0),
      },
      source:'cognition-awareness-v1',
     }}))
