@@ -108,6 +108,61 @@ function ChicagoCorridorDetailAssets(){
 }
 
 
+function MovingCivilianTraffic(){
+ const routes=[
+  {id:'rr-east',from:'circle-park-ashland',to:'roosevelt-halsted',color:'#355a73',speed:.055},
+  {id:'rr-west',from:'roosevelt-halsted',to:'circle-park-ashland',color:'#743f39',speed:.047},
+  {id:'taylor-east',from:'taylor-halsted',to:'taylor-uic-west',color:'#53585d',speed:.05},
+  {id:'taylor-west',from:'taylor-uic-west',to:'taylor-halsted',color:'#6b5a3f',speed:.045},
+ ] as const
+ return <group>{routes.map((r,idx)=><MovingTrafficCar key={r.id} {...r} phase={idx*.23}/>)}</group>
+}
+
+function MovingTrafficCar({from,to,color,speed,phase}:{from:string;to:string;color:string;speed:number;phase:number}){
+ const ref=useRef<THREE.Group>(null),tRef=useRef(phase)
+ const a=CHICAGO_NEAR_WEST_ROAD_NODES.find(n=>n.id===from)?.position
+ const b=CHICAGO_NEAR_WEST_ROAD_NODES.find(n=>n.id===to)?.position
+ useFrame((_,dt)=>{
+  const g=ref.current;if(!g||!a||!b)return
+  tRef.current=(tRef.current+dt*speed)%1
+  const u=tRef.current
+  g.position.set(THREE.MathUtils.lerp(a.x,b.x,u),0,THREE.MathUtils.lerp(a.z,b.z,u))
+  g.rotation.y=Math.atan2(b.x-a.x,b.z-a.z)
+ })
+ if(!a||!b)return null
+ return <group ref={ref} position={[a.x,0,a.z]}>
+  <mesh castShadow position={[0,.62,0]}><boxGeometry args={[4.3,1.05,1.9]}/><meshStandardMaterial color={color} metalness={.3} roughness={.4}/></mesh>
+  <mesh position={[0,1.23,0]}><boxGeometry args={[2.2,.5,1.5]}/><meshStandardMaterial color="#91b7c7" roughness={.18}/></mesh>
+ </group>
+}
+
+function MovingPedestrians(){
+ const walkers=[
+  {id:'cp-1',a:[-870,835] as const,b:[-780,835] as const,phase:.1},
+  {id:'rr-1',a:[-710,915] as const,b:[-590,915] as const,phase:.4},
+  {id:'ts-1',a:[-610,685] as const,b:[-410,685] as const,phase:.65},
+  {id:'uic-1',a:[-780,650] as const,b:[-650,650] as const,phase:.25},
+ ] as const
+ return <group>{walkers.map((w,i)=><MovingPedestrian key={w.id} {...w} shirt={i%2?'#704936':'#315b7a'}/>)}</group>
+}
+
+function MovingPedestrian({a,b,phase,shirt}:{a:readonly [number,number];b:readonly [number,number];phase:number;shirt:string}){
+ const ref=useRef<THREE.Group>(null),tRef=useRef(phase)
+ useFrame((_,dt)=>{
+  const g=ref.current;if(!g)return
+  tRef.current=(tRef.current+dt*.075)%1
+  const ping=tRef.current<.5?tRef.current*2:(1-tRef.current)*2
+  g.position.set(THREE.MathUtils.lerp(a[0],b[0],ping),0,THREE.MathUtils.lerp(a[1],b[1],ping))
+  g.rotation.y=Math.atan2(b[0]-a[0],b[1]-a[1])+(tRef.current>=.5?Math.PI:0)
+ })
+ return <group ref={ref} position={[a[0],0,a[1]]}>
+  <mesh position={[0,1.02,0]} castShadow><capsuleGeometry args={[.24,.68,4,8]}/><meshStandardMaterial color={shirt}/></mesh>
+  <mesh position={[0,1.78,0]}><sphereGeometry args={[.23,12,9]}/><meshStandardMaterial color="#8f654c"/></mesh>
+  <mesh position={[0,1.96,-.02]} scale={[.95,.5,1]}><sphereGeometry args={[.235,10,8,0,Math.PI*2,0,Math.PI*.5]}/><meshStandardMaterial color="#221b18"/></mesh>
+ </group>
+}
+
+
 function EmergencyRouteVehicle({service,route,color}:{service:'police'|'fire'|'ambulance';route:string[];color:string}){
  const ref=useRef<THREE.Group>(null)
  const points=route.map(id=>CHICAGO_NEAR_WEST_ROAD_NODES.find(n=>n.id===id)?.position).filter(Boolean) as Array<{x:number;y:number;z:number}>
@@ -406,7 +461,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><EmergencyRouteTraversal/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
+   <RoadMeshes/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><EmergencyRouteTraversal/><MovingCivilianTraffic/><MovingPedestrians/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
   </Canvas>
  </div>
 }
