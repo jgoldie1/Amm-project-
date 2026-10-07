@@ -83,8 +83,8 @@ export function installStreetVerseAffordanceGraphRuntime(nodes:readonly StreetVe
   const matchScore=clamp01(matches/Math.max(1,tags.length))
   const distanceScore=clamp01(1-distance/48)
   const qualityScore=clamp01(node.quality)
-  const roleBonus=(agent.role==='security'&&node.tags.includes('security'))?.12:0
-  const noveltyPenalty=activeByNpc.get(agent.npcId)?.assignment.nodeId===node.id?.08:0
+  const roleBonus=(agent.role==='security'&&node.tags.includes('security')?0.12:0)
+  const noveltyPenalty=activeByNpc.get(agent.npcId)?.assignment.nodeId===node.id?0.08:0
   const score=matchScore*.48+distanceScore*.30+qualityScore*.20+roleBonus-noveltyPenalty
   return{score:Math.round(clamp01(score)*1000)/1000,distance:Math.round(distance*10)/10}
  }
