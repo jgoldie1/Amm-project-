@@ -108,6 +108,30 @@ function ChicagoCorridorDetailAssets(){
 }
 
 
+function EmergencyServiceAssets(){
+ const fleet=[
+  {id:'police',x:-705,z:905,body:'#1f2b3b',accent:'#5ca9ff'},
+  {id:'ambulance',x:-1040,z:930,body:'#e7e7e3',accent:'#d94b45'},
+  {id:'fire',x:-1120,z:960,body:'#a7332d',accent:'#ffd05a'},
+ ] as const
+ return <group>
+  {fleet.map((v,i)=><group key={v.id} position={[v.x,0,v.z]} rotation={[0,i===0?Math.PI/2:0,0]}>
+   <mesh castShadow position={[0,.85,0]}><boxGeometry args={[v.id==='fire'?7.2:v.id==='ambulance'?6.2:4.8,1.45,v.id==='fire'?2.5:2.15]}/><meshStandardMaterial color={v.body} metalness={.3} roughness={.45}/></mesh>
+   <mesh position={[0,1.7,0]}><boxGeometry args={[v.id==='police'?2.5:4.2,.72,1.8]}/><meshStandardMaterial color={v.id==='police'?'#9eb7c2':v.body}/></mesh>
+   <mesh position={[0,2.15,0]}><boxGeometry args={[1.45,.16,.25]}/><meshStandardMaterial color={v.accent} emissive={v.accent} emissiveIntensity={.85}/></mesh>
+   {([-1,1] as const).flatMap(side=>([-1,1] as const).map(front=><mesh key={side+':'+front} rotation={[Math.PI/2,0,0]} position={[front*(v.id==='fire'?2.3:1.55),.42,side*1.05]}><cylinderGeometry args={[.43,.43,.28,14]}/><meshStandardMaterial color="#151719"/></mesh>)))}
+  </group>)}
+  {[
+   [-1030,0,940,30,11,20,'MEDICAL'],[-1120,0,1010,34,12,22,'FIRE / RESCUE'],[-735,0,955,28,10,20,'PUBLIC SAFETY']
+  ].map(([x,,z,w,h,d,label],i)=><group key={'station-'+i} position={[Number(x),0,Number(z)]}>
+   <mesh castShadow receiveShadow position={[0,Number(h)/2,0]}><boxGeometry args={[Number(w),Number(h),Number(d)]}/><meshStandardMaterial color={i===1?'#78463d':'#68655e'} roughness={.9}/></mesh>
+   <mesh position={[0,3,-Number(d)/2-.1]}><boxGeometry args={[10,5,.18]}/><meshStandardMaterial color="#304957"/></mesh>
+   <mesh position={[0,Number(h)-1,-Number(d)/2-.15]}><boxGeometry args={[16,1.1,.12]}/><meshStandardMaterial color="#d7c37d"/></mesh>
+  </group>)}
+ </group>
+}
+
+
 function UICCampusMesh(){
  return <group>
   <mesh receiveShadow position={[-700,.02,635]}><boxGeometry args={[330,.08,210]}/><meshStandardMaterial color="#608052"/></mesh>
@@ -352,7 +376,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
+   <RoadMeshes/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
   </Canvas>
  </div>
 }
