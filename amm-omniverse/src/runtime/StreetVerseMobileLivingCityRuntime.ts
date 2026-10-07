@@ -72,7 +72,7 @@ export function createMobileResidentPopulation(scene:THREE.Scene):MobileResident
 
 export function tickMobileResidentPopulation(residents:MobileResident[],nowMs:number){
   const time=nowMs/1000
-  for(const resident of residents){
+  for(const [index,resident] of residents.entries()){
     const span=148
     const cycle=span*2
     const distance=(time*resident.speed+resident.phase)%cycle
