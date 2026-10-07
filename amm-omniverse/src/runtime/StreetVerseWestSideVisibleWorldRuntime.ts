@@ -12,10 +12,27 @@ export type WestSideVisibleWorldHandle={
 type BuildingSpec={x:number;z:number;w:number;d:number;h:number;color:number;label:string;rotation?:number;units?:readonly string[];buildingNumber?:string}
 const ownedMaterials:THREE.Material[]=[]
 const ownedGeometries:THREE.BufferGeometry[]=[]
+const ownedTextures:THREE.Texture[]=[]
 const material=(params:THREE.MeshStandardMaterialParameters)=>{
   const m=new THREE.MeshStandardMaterial(params);ownedMaterials.push(m);return m
 }
 const geometry=<T extends THREE.BufferGeometry>(g:T)=>{ownedGeometries.push(g);return g}
+function createWestSideBrickTexture(){
+  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=256
+  const ctx=canvas.getContext('2d')!
+  ctx.fillStyle='#d8d2c7';ctx.fillRect(0,0,256,256)
+  const rowH=24,brickW=52,mortar=3
+  for(let row=0;row<12;row++){
+    const y=row*rowH,offset=row%2?-brickW/2:0
+    for(let x=offset;x<256;x+=brickW){
+      const shade=154+((row*17+Math.round(x))%26)
+      ctx.fillStyle=`rgb(${shade},${Math.max(92,shade-42)},${Math.max(72,shade-62)})`
+      ctx.fillRect(x+mortar,y+mortar,brickW-mortar*2,rowH-mortar*2)
+      ctx.fillStyle='rgba(255,255,255,.08)';ctx.fillRect(x+mortar,y+mortar,brickW-mortar*2,2)
+    }
+  }
+  const tex=new THREE.CanvasTexture(canvas);tex.name='west-side-procedural-brick-v4';tex.wrapS=THREE.RepeatWrapping;tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(3.2,4.6);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;ownedTextures.push(tex);return tex
+}
 
 function box(group:THREE.Group,size:[number,number,number],pos:[number,number,number],mat:THREE.Material,rotationY=0,name=''){
   const mesh=new THREE.Mesh(geometry(new THREE.BoxGeometry(...size)),mat)
@@ -83,9 +100,9 @@ function addTree(root:THREE.Group,x:number,z:number,s=1){
   g.rotation.y=((Math.abs(Math.round(x*7+z*3))%11)/11)*Math.PI*2
   root.add(g)
 }
-function addBuilding(root:THREE.Group,s:BuildingSpec,colliders:THREE.Box3[]){
+function addBuilding(root:THREE.Group,s:BuildingSpec,colliders:THREE.Box3[],brickMap:THREE.Texture){
   const g=new THREE.Group();g.position.set(s.x,0,s.z);g.rotation.y=s.rotation||0;g.name=`west-side-building-${s.label.toLowerCase().replace(/[^a-z0-9]+/g,'-')}`
-  const facade=material({color:s.color,roughness:.84,metalness:.025})
+  const facade=material({color:s.color,map:brickMap,roughness:.84,metalness:.025})
   const trim=material({color:0xd7d1c1,roughness:.88})
   const trimDark=material({color:0x9f9587,roughness:.90})
   const glass=material({color:0x82b9d2,roughness:.18,metalness:.16,emissive:0x16384b,emissiveIntensity:.26})
@@ -348,8 +365,9 @@ function addResidentialCourtyard(root:THREE.Group){
 }
 
 export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,externalCollisionBoxes:THREE.Box3[]=[]):WestSideVisibleWorldHandle{
-  const root=new THREE.Group();root.name='streetverse-west-side-visible-world-v1';root.userData={visualUpgradeVersion:'west-side-forger-v4',legacyVisualUpgradeVersion:'west-side-forger-v3',assetDensity:'expanded-v4',architectureDetail:'cornice-awning-fire-escape',residentDetail:'hands-shoes-accessories'};scene.add(root)
+  const root=new THREE.Group();root.name='streetverse-west-side-visible-world-v1';root.userData={visualUpgradeVersion:'west-side-forger-v4',legacyVisualUpgradeVersion:'west-side-forger-v3',assetDensity:'expanded-v4',architectureDetail:'brick-cornice-awning-fire-escape',residentDetail:'hands-shoes-accessories'};scene.add(root)
   const colliders:THREE.Box3[]=[]
+  const brickMap=createWestSideBrickTexture()
   let nativeLayer:THREE.Group|null=null,nativeCancelled=false
   const ground=new THREE.Mesh(geometry(new THREE.PlaneGeometry(176,176)),material({color:0x676b55,roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-.01;ground.receiveShadow=true;root.add(ground)
 
@@ -399,7 +417,7 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
     {x:-48,z:-54,w:14,d:14,h:20,color:0x79503d,label:'Pilsen Corner Shops'},
     {x:48,z:-54,w:15,d:14,h:22,color:0x5b6571,label:'Pilsen Creator Block'},
   ]
-  buildings.forEach(b=>addBuilding(root,b,colliders))
+  buildings.forEach(b=>addBuilding(root,b,colliders,brickMap))
   addThomasJeffersonSchool(root,colliders)
 
   const treeRows=[[-79,60],[-58,60],[-35,60],[-16,60],[16,60],[35,60],[58,60],[79,60],[-79,24],[-58,24],[-35,24],[35,24],[58,24],[79,24],[-79,-14],[-58,-14],[-35,-14],[35,-14],[58,-14],[79,-14],[-79,-44],[-58,-44],[-35,-44],[35,-44],[58,-44],[79,-44]] as const
@@ -482,6 +500,6 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
     window.removeEventListener('tryamm:streetverse-player-position',onPosition)
     root.traverse(obj=>{if(obj instanceof THREE.Sprite){const t=obj.userData.disposeTexture as THREE.Texture|undefined;t?.dispose()}})
     root.removeFromParent()
-    ownedGeometries.splice(0).forEach(g=>g.dispose());ownedMaterials.splice(0).forEach(m=>m.dispose())
+    ownedGeometries.splice(0).forEach(g=>g.dispose());ownedMaterials.splice(0).forEach(m=>m.dispose());ownedTextures.splice(0).forEach(t=>t.dispose())
   }}
 }
