@@ -36,7 +36,7 @@ function NearWestNativeGlbLayer(){
     source:'deployed-generated-glb-library',
     visualOnly:true,
     gameplayCollisionAuthority:'existing-near-west-runtime',
-    visualPass:'near-west-native-density-v3',
+    visualPass:'near-west-native-density-v4',
     expandedCorridors:['Circle Park','Roosevelt','Taylor','UIC','Medical District'],
    }
    host.current?.add(result.group)
@@ -87,16 +87,35 @@ function RoadMeshes(){
 }
 
 function TaylorLots(){
- return <group>{TAYLOR_STREET_CORRIDOR.blocks.flatMap(block=>block.businesses.map((b,i)=>{
+ return <group name="taylor-street-architectural-pass-v4">{TAYLOR_STREET_CORRIDOR.blocks.flatMap(block=>block.businesses.map((b,i)=>{
   const x=block.origin.x+b.lot.x,z=block.origin.z+b.lot.z
-  return <group key={b.id} position={[x,0,z]}>
-   <mesh castShadow receiveShadow position={[0,6,0]}><boxGeometry args={[18,12,16]}/><meshStandardMaterial color={i%2?'#7a3f2b':'#614b3d'}/></mesh>
-   <mesh position={[0,2,-8.05]}><boxGeometry args={[3,4,.15]}/><meshStandardMaterial color="#173142"/></mesh>
-   <mesh position={[0,7,-8.12]}><boxGeometry args={[11,1.4,.12]}/><meshStandardMaterial color="#e0c786"/></mesh>
+  const brick=i%3===0?'#83513f':i%3===1?'#704b3e':'#8b5e48'
+  const trim=i%2?'#d1c2a8':'#c6b59a'
+  const awning=i%2?'#31566d':'#6b4439'
+  return <group key={b.id} position={[x,0,z]} name={'taylor-lot-v4-'+b.id}>
+   <mesh castShadow receiveShadow position={[0,6.5,0]}><boxGeometry args={[18,13,16]}/><meshStandardMaterial color={brick} roughness={.92}/></mesh>
+   <mesh castShadow position={[0,12.86,0]}><boxGeometry args={[18.5,.36,16.5]}/><meshStandardMaterial color="#5b5149" roughness={.88}/></mesh>
+   <mesh position={[0,13.35,0]}><boxGeometry args={[17.8,.52,15.8]}/><meshStandardMaterial color="#6a5f56" roughness={.92}/></mesh>
+   <mesh position={[0,2,-8.12]}><boxGeometry args={[3.25,4,.18]}/><meshStandardMaterial color="#173142" roughness={.24} metalness={.08}/></mesh>
+   <mesh position={[0,4.25,-8.8]} rotation={[.11,0,0]}><boxGeometry args={[9,.22,1.6]}/><meshStandardMaterial color={awning} roughness={.78}/></mesh>
+   <mesh position={[0,7.2,-8.14]}><boxGeometry args={[11.5,1.25,.16]}/><meshStandardMaterial color="#ddc983" roughness={.74}/></mesh>
+   {[-6,-2,2,6].flatMap(wx=>[6.1,9.8].map((wy,yi)=><group key={wx+':'+wy}>
+    <mesh position={[wx,wy,-8.14]}><boxGeometry args={[2.25,2.05,.15]}/><meshStandardMaterial color={yi===0?'#7295a6':'#8aabba'} roughness={.22} metalness={.06}/></mesh>
+    <mesh position={[wx,wy,-8.25]}><boxGeometry args={[2.5,.12,.12]}/><meshStandardMaterial color={trim} roughness={.85}/></mesh>
+    <mesh position={[wx,wy,-8.25]} rotation={[0,0,Math.PI/2]}><boxGeometry args={[2.2,.10,.12]}/><meshStandardMaterial color={trim} roughness={.85}/></mesh>
+   </group>))}
+   {[-6.2,6.2].map((px,pi)=><mesh key={'pilaster-'+pi} position={[px,6.4,-8.22]}><boxGeometry args={[.38,12.2,.34]}/><meshStandardMaterial color={trim} roughness={.9}/></mesh>)}
+   <mesh position={[0,.22,-9.3]}><boxGeometry args={[6,.32,2.3]}/><meshStandardMaterial color="#bbb3a5" roughness={.96}/></mesh>
+   <mesh position={[0,.48,-8.8]}><boxGeometry args={[5.1,.22,1.7]}/><meshStandardMaterial color="#c8c0b1" roughness={.96}/></mesh>
+   <group position={[7.65,5.4,8.16]} name="taylor-fire-escape-v4">
+    {[2.3,5.7,9.1].map(y=><mesh key={'landing-'+y} position={[0,y,0]}><boxGeometry args={[2.6,.12,1.2]}/><meshStandardMaterial color="#30383d" metalness={.6} roughness={.45}/></mesh>)}
+    {[-1.1,1.1].map(sx=><mesh key={'rail-'+sx} position={[sx,5.8,0]}><boxGeometry args={[.08,7.4,.08]}/><meshStandardMaterial color="#30383d" metalness={.6} roughness={.45}/></mesh>)}
+   </group>
+   <mesh position={[-4.8,13.7,1]}><boxGeometry args={[3.4,.9,2.5]}/><meshStandardMaterial color="#3f4549" roughness={.68}/></mesh>
+   <mesh position={[4.5,13.6,-1]}><boxGeometry args={[2.6,.72,2.1]}/><meshStandardMaterial color="#484d50" roughness={.7}/></mesh>
   </group>
  }))}</group>
 }
-
 
 function ChicagoWestSideVisualAssets(){
  const trees:[number,number][]=[[-870,820],[-840,805],[-815,842],[-780,810],[-735,785],[-690,760],[-625,730],[-560,700],[-500,675],[-430,650]]
@@ -114,10 +133,23 @@ function ChicagoWestSideVisualAssets(){
    <mesh position={[.65,6.65,0]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[.05,.05,1.3,8]}/><meshStandardMaterial color="#3a4045"/></mesh>
    <mesh position={[1.3,6.55,0]}><boxGeometry args={[.5,.18,.28]}/><meshStandardMaterial color="#fff0b0" emissive="#ffd86a" emissiveIntensity={.45}/></mesh>
   </group>)}
-  {[-845,-815,-785].map((x,i)=><group key={'cp-home-'+i} position={[x,0,850-i*4]}>
-   <mesh castShadow receiveShadow position={[0,7,0]}><boxGeometry args={[22,14,15]}/><meshStandardMaterial color={i%2?'#8b5d49':'#76503f'} roughness={.9}/></mesh>
-   <mesh position={[0,2,-7.56]}><boxGeometry args={[3.2,4,.18]}/><meshStandardMaterial color="#263f50"/></mesh>
-   {[-7,0,7].map(wx=><mesh key={wx} position={[wx,8,-7.58]}><boxGeometry args={[3.2,2.7,.15]}/><meshStandardMaterial color="#87a9b8" roughness={.25}/></mesh>)}
+  {[-845,-815,-785].map((x,i)=><group key={'cp-home-'+i} position={[x,0,850-i*4]} name={'circle-park-home-v4-'+i}>
+   <mesh castShadow receiveShadow position={[0,7.5,0]}><boxGeometry args={[22,15,15]}/><meshStandardMaterial color={i%2?'#8b5d49':'#76503f'} roughness={.92}/></mesh>
+   <mesh position={[0,14.82,0]}><boxGeometry args={[22.5,.42,15.5]}/><meshStandardMaterial color="#5c5149" roughness={.9}/></mesh>
+   <mesh position={[0,15.3,0]}><boxGeometry args={[21.8,.52,14.8]}/><meshStandardMaterial color="#6c6056" roughness={.92}/></mesh>
+   <mesh position={[0,2,-7.62]}><boxGeometry args={[3.2,4,.18]}/><meshStandardMaterial color="#263f50" roughness={.26}/></mesh>
+   <mesh position={[0,.22,-8.65]}><boxGeometry args={[7,.34,2.1]}/><meshStandardMaterial color="#beb5a8" roughness={.95}/></mesh>
+   <mesh position={[0,.48,-8.18]}><boxGeometry args={[5.8,.24,1.45]}/><meshStandardMaterial color="#cbc3b4" roughness={.95}/></mesh>
+   {[-7,-3.5,3.5,7].flatMap(wx=>[5.5,9.2,12.7].map(wy=><group key={wx+':'+wy}>
+    <mesh position={[wx,wy,-7.58]}><boxGeometry args={[2.35,2.15,.16]}/><meshStandardMaterial color="#87a9b8" roughness={.22} metalness={.06}/></mesh>
+    <mesh position={[wx,wy,-7.69]}><boxGeometry args={[2.65,.13,.12]}/><meshStandardMaterial color="#d0c6b3" roughness={.86}/></mesh>
+   </group>))}
+   {[-8.3,8.3].map((px,pi)=><mesh key={'edge-'+pi} position={[px,7.2,-7.72]}><boxGeometry args={[.46,13.6,.32]}/><meshStandardMaterial color="#d0c6b3" roughness={.9}/></mesh>)}
+   <group position={[9.4,6.0,7.62]} name="circle-park-fire-escape-v4">
+    {[2.2,5.5,8.8,12.1].map(y=><mesh key={y} position={[0,y,0]}><boxGeometry args={[2.5,.11,1.15]}/><meshStandardMaterial color="#2e363b" metalness={.62} roughness={.43}/></mesh>)}
+   </group>
+   <mesh position={[-5.5,15.9,1.8]}><boxGeometry args={[3.6,.9,2.8]}/><meshStandardMaterial color="#3f4549" roughness={.68}/></mesh>
+   <mesh position={[5.2,15.75,-1.5]}><boxGeometry args={[2.9,.72,2.4]}/><meshStandardMaterial color="#484d50" roughness={.7}/></mesh>
   </group>)}
   <mesh receiveShadow position={[-850,.06,812]}><boxGeometry args={[52,.12,28]}/><meshStandardMaterial color="#507447"/></mesh>
   <mesh receiveShadow position={[-850,.13,812]}><boxGeometry args={[26,.08,15]}/><meshStandardMaterial color="#b87445"/></mesh>
@@ -203,30 +235,44 @@ function MovingTrafficCar({from,to,color,speed,phase}:{from:string;to:string;col
 
 function MovingPedestrians(){
  const walkers=[
-  {id:'cp-1',a:[-870,835] as const,b:[-780,835] as const,phase:.1},
-  {id:'rr-1',a:[-710,915] as const,b:[-590,915] as const,phase:.4},
-  {id:'ts-1',a:[-610,685] as const,b:[-410,685] as const,phase:.65},
-  {id:'uic-1',a:[-780,650] as const,b:[-650,650] as const,phase:.25},
+  {id:'cp-1',a:[-870,835] as const,b:[-780,835] as const,phase:.1,shirt:'#315b7a',skin:'#70462f',pants:'#27313a',hair:'#211817'},
+  {id:'cp-2',a:[-845,805] as const,b:[-790,805] as const,phase:.56,shirt:'#7a503d',skin:'#9a6a4c',pants:'#2e3034',hair:'#33251f'},
+  {id:'rr-1',a:[-710,915] as const,b:[-590,915] as const,phase:.4,shirt:'#704936',skin:'#8f654c',pants:'#25333a',hair:'#211817'},
+  {id:'rr-2',a:[-735,885] as const,b:[-625,885] as const,phase:.82,shirt:'#516b45',skin:'#b57852',pants:'#31313a',hair:'#2c211d'},
+  {id:'ts-1',a:[-610,685] as const,b:[-410,685] as const,phase:.65,shirt:'#315b7a',skin:'#5f3b2b',pants:'#2a2f38',hair:'#211817'},
+  {id:'ts-2',a:[-580,715] as const,b:[-430,715] as const,phase:.22,shirt:'#765a32',skin:'#c58a66',pants:'#313640',hair:'#38261f'},
+  {id:'uic-1',a:[-780,650] as const,b:[-650,650] as const,phase:.25,shirt:'#704936',skin:'#8b6047',pants:'#243039',hair:'#1f1715'},
+  {id:'uic-2',a:[-750,620] as const,b:[-630,620] as const,phase:.72,shirt:'#5f5478',skin:'#a97658',pants:'#33333b',hair:'#2c201b'},
  ] as const
- return <group>{walkers.map((w,i)=><MovingPedestrian key={w.id} {...w} shirt={i%2?'#704936':'#315b7a'}/>)}</group>
+ return <group name="near-west-moving-residents-v4">{walkers.map((w,i)=><MovingPedestrian key={w.id} {...w} variant={i}/>)}</group>
 }
 
-function MovingPedestrian({a,b,phase,shirt}:{a:readonly [number,number];b:readonly [number,number];phase:number;shirt:string}){
+function MovingPedestrian({a,b,phase,shirt,skin,pants,hair,variant}:{a:readonly [number,number];b:readonly [number,number];phase:number;shirt:string;skin:string;pants:string;hair:string;variant:number}){
  const ref=useRef<THREE.Group>(null),tRef=useRef(phase)
  useFrame((_,dt)=>{
   const g=ref.current;if(!g)return
-  tRef.current=(tRef.current+dt*.075)%1
+  tRef.current=(tRef.current+dt*(.064+(variant%3)*.007))%1
   const ping=tRef.current<.5?tRef.current*2:(1-tRef.current)*2
-  g.position.set(THREE.MathUtils.lerp(a[0],b[0],ping),0,THREE.MathUtils.lerp(a[1],b[1],ping))
+  const step=Math.sin(tRef.current*Math.PI*4)
+  g.position.set(THREE.MathUtils.lerp(a[0],b[0],ping),Math.abs(step)*.028,THREE.MathUtils.lerp(a[1],b[1],ping))
   g.rotation.y=Math.atan2(b[0]-a[0],b[1]-a[1])+(tRef.current>=.5?Math.PI:0)
  })
- return <group ref={ref} position={[a[0],0,a[1]]}>
-  <mesh position={[0,1.02,0]} castShadow><capsuleGeometry args={[.24,.68,4,8]}/><meshStandardMaterial color={shirt}/></mesh>
-  <mesh position={[0,1.78,0]}><sphereGeometry args={[.23,12,9]}/><meshStandardMaterial color="#8f654c"/></mesh>
-  <mesh position={[0,1.96,-.02]} scale={[.95,.5,1]}><sphereGeometry args={[.235,10,8,0,Math.PI*2,0,Math.PI*.5]}/><meshStandardMaterial color="#221b18"/></mesh>
+ return <group ref={ref} position={[a[0],0,a[1]]} name={'moving-resident-v4-'+variant}>
+  <mesh position={[0,1.09,0]} castShadow scale={[1,1.02,.88]}><capsuleGeometry args={[.25,.74,5,10]}/><meshStandardMaterial color={shirt} roughness={.9}/></mesh>
+  <mesh position={[0,1.62,0]}><cylinderGeometry args={[.115,.14,.18,10]}/><meshStandardMaterial color={skin} roughness={.84}/></mesh>
+  <mesh position={[0,1.87,0]} castShadow scale={[.92,1.04,.92]}><sphereGeometry args={[.235,14,11]}/><meshStandardMaterial color={skin} roughness={.82}/></mesh>
+  <mesh position={[0,2.02,-.015]} scale={[.98,.56,1.01]}><sphereGeometry args={[.24,12,9,0,Math.PI*2,0,Math.PI*.54]}/><meshStandardMaterial color={hair} roughness={1}/></mesh>
+  {[-1,1].map(side=><group key={'arm-'+side} position={[side*.34,1.18,0]}>
+   <mesh position={[0,-.20,0]}><capsuleGeometry args={[.068,.42,4,8]}/><meshStandardMaterial color={skin} roughness={.86}/></mesh>
+   <mesh position={[0,-.46,0]}><sphereGeometry args={[.085,9,7]}/><meshStandardMaterial color={skin} roughness={.86}/></mesh>
+  </group>)}
+  {[-1,1].map(side=><group key={'leg-'+side} position={[side*.13,.48,0]}>
+   <mesh position={[0,.08,0]}><capsuleGeometry args={[.088,.58,4,8]}/><meshStandardMaterial color={pants} roughness={.96}/></mesh>
+   <mesh position={[0,-.26,-.07]}><boxGeometry args={[.20,.11,.38]}/><meshStandardMaterial color={variant%2?'#ece9df':'#202329'} roughness={.82}/></mesh>
+  </group>)}
+  {variant%3===1&&<group position={[-.35,1.1,.10]}><mesh><boxGeometry args={[.34,.62,.16]}/><meshStandardMaterial color="#43352f" roughness={.95}/></mesh></group>}
  </group>
 }
-
 
 function EmergencyRouteVehicle({service,route,color}:{service:'police'|'fire'|'ambulance';route:string[];color:string}){
  const ref=useRef<THREE.Group>(null)
