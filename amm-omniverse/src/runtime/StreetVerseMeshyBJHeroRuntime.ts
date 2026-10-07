@@ -12,6 +12,8 @@ export const BJ_MESHY_V6_ASSET={
   url:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6.glb',
   productionFilename:'SV_HERO_BJ_STUBBS_V12.glb',
   productionUrl:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V12.glb',
+  legacyProductionFilename:'SV_HERO_BJ_STUBBS_V7.glb',
+  legacyProductionUrl:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V7.glb',
   targetHeightMeters:BJ_STUBBS_BODY_PROFILE.heightMeters,
   authority:'tryamm-owned-native-glb-v12',
   fallback:'streetverse-bj-stubbs-photomatched',
@@ -174,7 +176,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   const verifiedPhotoMatch=canClaimPhotoMatched(BJ_MESHY_V6_ASSET.characterId)
   const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
   const published=await resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope)
-  const candidates=[published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
+  const candidates=[published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
   let sourceUrl=''
   for(const candidate of candidates){if(await assetExists(candidate)){sourceUrl=candidate;break}}
   if(!sourceUrl){
