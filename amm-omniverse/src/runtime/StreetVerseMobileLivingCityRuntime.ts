@@ -73,15 +73,45 @@ export function createMobileResidentPopulation(scene:THREE.Scene):MobileResident
 export function tickMobileResidentPopulation(residents:MobileResident[],nowMs:number){
   const time=nowMs/1000
   for(const [index,resident] of residents.entries()){
-    const span=148
-    const cycle=span*2
-    const distance=(time*resident.speed+resident.phase)%cycle
-    const forward=distance<=span
-    const along=-74+(forward?distance:cycle-distance)
-    if(resident.axis==='x')resident.group.position.set(along,0,resident.fixed)
-    else resident.group.position.set(resident.fixed,0,along)
-    resident.group.rotation.y=resident.axis==='x'?(forward?Math.PI/2:-Math.PI/2):(forward?0:Math.PI)
-    resident.group.position.y=Math.sin((time+resident.phase)*5.2)*.035
+    const target=resident.group.userData.cognitionTarget as {x:number;z:number;nodeId:string;reservationId:string;action:string;expiresAt:number;arrived?:boolean;arrivedAt?:number}|undefined
+    const previousMoveAt=Number(resident.group.userData.cognitionMoveAt||nowMs)
+    const moveDt=Math.max(0,Math.min(.05,(nowMs-previousMoveAt)/1000))
+    resident.group.userData.cognitionMoveAt=nowMs
+    let followingAffordance=false
+    if(target){
+      if(nowMs>=target.expiresAt){
+        window.dispatchEvent(new CustomEvent('tryamm:npc-affordance-release',{detail:{npcId:resident.id,nodeId:target.nodeId,reservationId:target.reservationId,reason:'expired'}}))
+        delete resident.group.userData.cognitionTarget
+      }else if(target.arrived&&target.arrivedAt&&nowMs-target.arrivedAt>1800){
+        window.dispatchEvent(new CustomEvent('tryamm:npc-affordance-release',{detail:{npcId:resident.id,nodeId:target.nodeId,reservationId:target.reservationId,reason:'completed'}}))
+        delete resident.group.userData.cognitionTarget
+      }else{
+        followingAffordance=true
+        const dx=target.x-resident.group.position.x,dz=target.z-resident.group.position.z,remaining=Math.hypot(dx,dz)
+        if(remaining>.38){
+          const step=Math.min(remaining,(target.action==='seek-safety'?4.2:3.2)*moveDt)
+          resident.group.position.x+=dx/Math.max(.001,remaining)*step
+          resident.group.position.z+=dz/Math.max(.001,remaining)*step
+          resident.group.rotation.y=Math.atan2(dx,dz)
+        }else if(!target.arrived){
+          target.arrived=true;target.arrivedAt=nowMs
+          resident.group.position.x=target.x;resident.group.position.z=target.z
+          window.dispatchEvent(new CustomEvent('tryamm:npc-affordance-arrived',{detail:{npcId:resident.id,nodeId:target.nodeId,reservationId:target.reservationId,action:target.action,x:target.x,z:target.z}}))
+        }
+        resident.group.position.y=Math.sin((time+resident.phase)*5.2)*.018
+      }
+    }
+    if(!followingAffordance){
+      const span=148
+      const cycle=span*2
+      const distance=(time*resident.speed+resident.phase)%cycle
+      const forward=distance<=span
+      const along=-74+(forward?distance:cycle-distance)
+      if(resident.axis==='x')resident.group.position.set(along,0,resident.fixed)
+      else resident.group.position.set(resident.fixed,0,along)
+      resident.group.rotation.y=resident.axis==='x'?(forward?Math.PI/2:-Math.PI/2):(forward?0:Math.PI)
+      resident.group.position.y=Math.sin((time+resident.phase)*5.2)*.035
+    }
     const action=String(resident.group.userData.cognitionAction||'patrol')
     const rig=resident.group.userData.cognitionRig as {head?:THREE.Object3D;arms?:THREE.Object3D[]}|undefined
     const gesture=Math.sin(time*5.8+resident.phase*.17)
