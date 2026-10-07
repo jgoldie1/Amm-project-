@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import {loadTryammNativeCircleParkLayer,disposeNativeAssetLayer} from './TryammNativeAssetRuntime'
 import type {NativePlacement} from '../data/TryammNativeRuntimeAssetCatalog'
+import {STREETVERSE_CHICAGO_PROOF_ZONE,STREETVERSE_CHICAGO_RECONSTRUCTION_SOURCES} from '../data/StreetVerseChicagoReconstructionSources'
 
 export type WestSideDistrictId='circle-park'|'roosevelt'|'taylor'|'pilsen'|'west-side'
 export type WestSideVisibleWorldHandle={
@@ -85,18 +86,24 @@ function addCrosswalk(root:THREE.Group,x:number,z:number,axis:'x'|'z'){
   }
 }
 function addTree(root:THREE.Group,x:number,z:number,s=1){
-  const g=new THREE.Group();g.position.set(x,0,z);g.name='west-side-tree-v3';addGroundShadow(g,2.35*s,1.45*s,.026,.13)
-  const trunk=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.20*s,.32*s,2.9*s,8)),material({color:0x654127,roughness:1}));trunk.position.y=1.45*s;g.add(trunk)
+  const g=new THREE.Group();g.position.set(x,0,z);g.name='west-side-tree-v4';addGroundShadow(g,2.55*s,1.60*s,.026,.15)
+  const bark=material({color:0x654127,roughness:1})
+  const trunk=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.20*s,.34*s,3.05*s,9)),bark);trunk.position.y=1.52*s;g.add(trunk)
   const crownMat=material({color:0x327243,roughness:.96})
-  const crownLight=material({color:0x3f7f4d,roughness:.95})
-  const crownDark=material({color:0x285f3b,roughness:.98})
-  const crownA=new THREE.Mesh(geometry(new THREE.DodecahedronGeometry(1.15*s,1)),crownMat);crownA.position.set(0,3.35*s,0);crownA.scale.set(1.02,1.18,.98);g.add(crownA)
-  const crownB=new THREE.Mesh(geometry(new THREE.DodecahedronGeometry(.88*s,1)),crownLight);crownB.position.set(-.48*s,3.85*s,.14*s);crownB.scale.set(.92,1.08,.92);g.add(crownB)
-  const crownC=new THREE.Mesh(geometry(new THREE.DodecahedronGeometry(.82*s,1)),crownDark);crownC.position.set(.52*s,3.55*s,-.28*s);crownC.scale.set(1.02,.88,1.06);g.add(crownC)
-  const crownD=new THREE.Mesh(geometry(new THREE.DodecahedronGeometry(.72*s,1)),crownLight);crownD.position.set(.08*s,4.47*s,.06*s);crownD.scale.set(.86,.92,.84);g.add(crownD)
-  const crownE=new THREE.Mesh(geometry(new THREE.DodecahedronGeometry(.67*s,1)),crownDark);crownE.position.set(-.12*s,4.03*s,-.55*s);crownE.scale.set(.90,.78,.88);g.add(crownE)
-  for(const side of [-1,1]){const branch=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.05*s,.075*s,1.18*s,6)),material({color:0x654127,roughness:1}));branch.position.set(side*.28*s,2.70*s,0);branch.rotation.z=side*.62;g.add(branch)}
-  g.userData={vegetationPass:'layered-canopy-v3',windReactive:true}
+  const crownLight=material({color:0x438552,roughness:.95})
+  const crownDark=material({color:0x245a37,roughness:.98})
+  const canopy=[
+    [0,3.48,0,1.18,1.22,.98,crownMat],
+    [-.50,3.92,.13,.91,1.10,.93,crownLight],
+    [.54,3.63,-.30,.86,.91,1.08,crownDark],
+    [.09,4.51,.06,.74,.95,.85,crownLight],
+    [-.16,4.10,-.58,.70,.82,.92,crownDark],
+    [.63,4.08,.31,.61,.74,.72,crownMat],
+    [-.62,3.48,.42,.58,.68,.70,crownLight],
+  ] as const
+  canopy.forEach(([cx,cy,cz,sx,sy,sz,mat],i)=>{const crown=new THREE.Mesh(geometry(new THREE.DodecahedronGeometry((i===0?1.10:.88)*s,1)),mat);crown.position.set(cx*s,cy*s,cz*s);crown.scale.set(sx,sy,sz);crown.name='west-side-tree-canopy-'+(i+1);g.add(crown)})
+  ;[[-1,.30,2.76,.03,.62],[1,.31,2.78,.08,-.64],[-1,.18,3.10,-.38,.52],[1,.16,3.16,.42,-.50]].forEach(([side,px,py,rx,rz],i)=>{const branch=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.045*s,.082*s,1.24*s,7)),bark);branch.position.set(Number(side)*Number(px)*s,Number(py)*s,(i>1?.08:-.03)*s);branch.rotation.z=Number(side)*Number(rz);branch.rotation.x=Number(rx);branch.name='west-side-tree-branch-'+(i+1);g.add(branch)})
+  g.userData={vegetationPass:'layered-canopy-v4',canopyLayers:7,branchCount:4,windReactive:true,lodIntent:'mobile-readable-silhouette'}
   g.rotation.y=((Math.abs(Math.round(x*7+z*3))%11)/11)*Math.PI*2
   root.add(g)
 }
@@ -365,7 +372,7 @@ function addResidentialCourtyard(root:THREE.Group){
 }
 
 export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,externalCollisionBoxes:THREE.Box3[]=[]):WestSideVisibleWorldHandle{
-  const root=new THREE.Group();root.name='streetverse-west-side-visible-world-v1';root.userData={visualUpgradeVersion:'west-side-forger-v4',legacyVisualUpgradeVersion:'west-side-forger-v3',assetDensity:'expanded-v4',architectureDetail:'brick-cornice-awning-fire-escape',residentDetail:'hands-shoes-accessories'};scene.add(root)
+  const root=new THREE.Group();root.name='streetverse-west-side-visible-world-v1';root.userData={visualUpgradeVersion:'west-side-forger-v4',legacyVisualUpgradeVersion:'west-side-forger-v3',neighborhoodReconstructionVersion:'west-side-forger-v5',assetDensity:'expanded-v5',architectureDetail:'brick-cornice-awning-fire-escape-curb-alley',residentDetail:'hands-shoes-accessories',reconstructionMode:'public-data-grounded-game-reconstruction',geometryAuthority:'city-gis-source-registry',interiorAuthority:'verified-or-reconstructed',streetDetailPass:'curb-alley-signage-v5',exactDigitalTwin:false,reconstructionSourceCount:STREETVERSE_CHICAGO_RECONSTRUCTION_SOURCES.length,proofZone:STREETVERSE_CHICAGO_PROOF_ZONE.id};scene.add(root)
   const colliders:THREE.Box3[]=[]
   const brickMap=createWestSideBrickTexture()
   let nativeLayer:THREE.Group|null=null,nativeCancelled=false
@@ -378,6 +385,15 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
   addRoad(root,0,5,11,176,'western')
   addRoad(root,-45,5,9,176,'west-side-west')
   addRoad(root,45,5,9,176,'west-side-east')
+  // V5 neighborhood-readability layer: alleys, curb bands and named corridor signs.
+  const alleyMat=material({color:0x464a4d,roughness:.98}),curbMat=material({color:0xb9b8b0,roughness:1})
+  ;[-30,30].forEach(x=>box(root,[5.2,.05,166],[x,.055,3],alleyMat,0,'west-side-service-alley'))
+  ;[49,18,-8,-36].forEach(z=>{box(root,[176,.10,.34],[0,.13,z-7.05],curbMat);box(root,[176,.10,.34],[0,.13,z+7.05],curbMat)})
+  ;[-45,0,45].forEach(x=>{box(root,[.34,.10,176],[x-7.05,.13,3],curbMat);box(root,[.34,.10,176],[x+7.05,.13,3],curbMat)})
+  ;[
+    ['ROOSEVELT RD',-70,18],['TAYLOR ST',-70,-8],['PILSEN / 18TH',-70,-36],
+    ['WEST SIDE / CIRCLE PARK',-70,49],['UIC →',54,-18]
+  ].forEach(([label,x,z])=>{const sign=labelSprite(String(label));sign.scale.set(7.6,1.55,1);sign.position.set(Number(x),4.2,Number(z));root.add(sign)})
   ;[[0,49],[0,18],[0,-8],[0,-36],[-45,18],[45,18],[-45,-8],[45,-8]].forEach(([x,z],i)=>addCrosswalk(root,x,z,i<4?'z':'x'))
   addPark(root)
   addResidentialCourtyard(root)
@@ -463,13 +479,24 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
     {asset:'residentA',position:[-52,0,13],rotationY:.1,label:'west-side-native-resident-roosevelt-extra'},
     {asset:'residentB',position:[-44,0,-12],rotationY:-.2,label:'west-side-native-resident-taylor-extra'},
     {asset:'residentC',position:[-34,0,-42],rotationY:.3,label:'west-side-native-resident-pilsen-extra'},
+    {asset:'streetAndSidewalk',position:[0,0,18],scale:[2.2,1,1],label:'west-side-native-street-roosevelt'},
+    {asset:'streetAndSidewalk',position:[0,0,-8],scale:[2.2,1,1],label:'west-side-native-street-taylor'},
+    {asset:'tree',position:[-70,0,42],scale:1.08,label:'west-side-native-tree-circle-a'},
+    {asset:'tree',position:[70,0,42],scale:1.02,label:'west-side-native-tree-circle-b'},
+    {asset:'dumpster',position:[-31,0,4],rotationY:Math.PI/2,label:'west-side-native-dumpster-alley-a'},
+    {asset:'dumpster',position:[31,0,-26],rotationY:-Math.PI/2,label:'west-side-native-dumpster-alley-b'},
+    {asset:'trashCan',position:[-10,0,13],label:'west-side-native-trash-roosevelt-east'},
+    {asset:'recyclingBin',position:[10,0,-13],label:'west-side-native-recycling-taylor-west'},
+    {asset:'sportSedan2027',position:[38,0,47],rotationY:Math.PI,label:'west-side-native-sedan-circle'},
+    {asset:'residentG',position:[48,0,-20],rotationY:-.15,label:'west-side-native-uic-student-b'},
+    {asset:'residentH',position:[54,0,-18],rotationY:.18,label:'west-side-native-uic-student-c'},
   ]
   void loadTryammNativeCircleParkLayer({placements:nativePlacements}).then(result=>{
     if(nativeCancelled){disposeNativeAssetLayer(result.group);return}
     nativeLayer=result.group
-    nativeLayer.name='TRYAMM-Native-WestSide-Visual-Layer-v4'
+    nativeLayer.name='TRYAMM-Native-WestSide-Visual-Layer-v5'
     root.add(nativeLayer)
-    window.dispatchEvent(new CustomEvent('tryamm:streetverse-west-side-native-assets',{detail:{loaded:result.loaded,failed:result.failed.length,usedUrls:result.usedUrls,source:'west-side-visible-world-v4'}}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-west-side-native-assets',{detail:{loaded:result.loaded,failed:result.failed.length,usedUrls:result.usedUrls,source:'west-side-visible-world-v5'}}))
   })
 
   const anchors=[
@@ -491,8 +518,8 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
     if(next!==active){active=next;window.dispatchEvent(new CustomEvent('tryamm:streetverse-west-side-zone',{detail:{district:next,x,z,source:'west-side-visible-world'}}))}
   }
   window.addEventListener('tryamm:streetverse-player-position',onPosition)
-  window.dispatchEvent(new CustomEvent('tryamm:streetverse-visible-world-ready',{detail:{version:'west-side-forger-v1',legacyVisualUpgradeVersion:'west-side-forger-v3',visualUpgradeVersion:'west-side-forger-v4',districts:anchors.map(a=>a.id),buildings:buildings.length+3,trees:treeRows.length+extraTreeRows.length+8,vehicles:8,roads:7,crosswalks:8,streetLights:14,busShelters:2,benches:8,hydrants:5,trafficSignals:6,ambientResidents:14,nativeVisualAssets:nativePlacements.length,pilsenMurals:6,elevatedRail:true,layeredTrees:true,contactShadows:true,facadeDepth:true,fireEscapes:true,streetLevelAwnings:true,roofParapets:true,residentHandsAndShoes:true,landmarks:['St. Ignatius game reconstruction','Holy Family game reconstruction','UIC campus gateway game reconstruction','Thomas Jefferson School reconstruction'],twoWayRoadMarkings:true,raisedSidewalks:true,apartmentUnitNumbers:true,circleParkCourtyard:true,cadForger:true,collisions:true,interiorLobbies:true,source:'StreetVerseWestSideVisibleWorldRuntime'}}))
-  window.dispatchEvent(new CustomEvent('tryamm:game-ops-world-stage',{detail:{stage:'visible-world',state:'READY',version:'west-side-forger-v1',legacyVisualUpgradeVersion:'west-side-forger-v3',visualUpgradeVersion:'west-side-forger-v4',source:'StreetVerseWestSideVisibleWorldRuntime'}}))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-visible-world-ready',{detail:{version:'west-side-forger-v1',legacyVisualUpgradeVersion:'west-side-forger-v3',visualUpgradeVersion:'west-side-forger-v4',neighborhoodReconstructionVersion:'west-side-forger-v5',reconstructionMode:'public-data-grounded-game-reconstruction',geometryAuthority:'city-gis-source-registry',interiorAuthority:'verified-or-reconstructed',streetDetailPass:'curb-alley-signage-v5',exactDigitalTwin:false,reconstructionSourceCount:STREETVERSE_CHICAGO_RECONSTRUCTION_SOURCES.length,proofZone:STREETVERSE_CHICAGO_PROOF_ZONE.id,districts:anchors.map(a=>a.id),buildings:buildings.length+3,trees:treeRows.length+extraTreeRows.length+8,vehicles:8,roads:7,crosswalks:8,streetLights:14,busShelters:2,benches:8,hydrants:5,trafficSignals:6,ambientResidents:14,nativeVisualAssets:nativePlacements.length,pilsenMurals:6,elevatedRail:true,layeredTrees:true,treeCanopyLayers:7,contactShadows:true,facadeDepth:true,fireEscapes:true,streetLevelAwnings:true,roofParapets:true,residentHandsAndShoes:true,landmarks:['St. Ignatius game reconstruction','Holy Family game reconstruction','UIC campus gateway game reconstruction','Thomas Jefferson School reconstruction'],twoWayRoadMarkings:true,raisedSidewalks:true,apartmentUnitNumbers:true,circleParkCourtyard:true,cadForger:true,collisions:true,interiorLobbies:true,source:'StreetVerseWestSideVisibleWorldRuntime'}}))
+  window.dispatchEvent(new CustomEvent('tryamm:game-ops-world-stage',{detail:{stage:'visible-world',state:'READY',version:'west-side-forger-v1',legacyVisualUpgradeVersion:'west-side-forger-v3',visualUpgradeVersion:'west-side-forger-v4',neighborhoodReconstructionVersion:'west-side-forger-v5',source:'StreetVerseWestSideVisibleWorldRuntime'}}))
 
   return{group:root,collisionBoxes:colliders,dispose:()=>{
     nativeCancelled=true
