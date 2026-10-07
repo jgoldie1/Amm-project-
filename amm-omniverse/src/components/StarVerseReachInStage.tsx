@@ -14,10 +14,12 @@ export function StarVerseReachInStage(){
  const [selected,setSelected]=useState<string>('key-light');
  const [isLive,setIsLive]=useState(false),[isRecording,setIsRecording]=useState(false),[gifts,setGifts]=useState(0),[directorCue,setDirectorCue]=useState('Ready for your debut.');
  const [portalOpen,setPortalOpen]=useState(false),[take,setTake]=useState(1);
+ const [xp,setXp]=useState(0),[reelDrafts,setReelDrafts]=useState(0),[publishState,setPublishState]=useState<'idle'|'draft'|'approved'>('idle');
  const recordingStartedAt=useRef<number|null>(null);
  const selectedProp=useMemo(()=>props.find(p=>p.id===selected),[props,selected]);
  const direct=(cue:string)=>setDirectorCue(cue);
- const toggleRecord=()=>{setIsRecording(v=>{const next=!v;recordingStartedAt.current=next?Date.now():null;if(!next)setTake(t=>t+1);return next})};
+ const toggleRecord=()=>{setIsRecording(v=>{const next=!v;recordingStartedAt.current=next?Date.now():null;if(!next){setTake(t=>t+1);setReelDrafts(r=>r+1);setPublishState('draft');direct('Take captured — Reel Composer draft created. Review before publishing.')}return next})};
+ const approveDraft=()=>{if(!reelDrafts)return;setPublishState('approved');setXp(x=>x+100);direct('Creator approved the reel draft. XP awarded; eligible earnings still require server verification.');};
  const activate=()=>{
   if(selected==='gift'){setGifts(g=>g+1);direct('Gift received — acknowledge your audience.');}
   else if(selected==='portal'){setPortalOpen(v=>!v);direct(portalOpen?'Portal closing.':'Portal opening — prepare the transition.');}
@@ -41,7 +43,7 @@ export function StarVerseReachInStage(){
    </div>
    {portalOpen&&<div aria-label="Open Verse portal" style={{position:'absolute',right:'7%',top:'18%',width:88,height:150,borderRadius:'50%',border:'8px solid #67e5ff',boxShadow:'0 0 32px #764dff,inset 0 0 24px #67e5ff'}}/>}
    <div style={{position:'absolute',left:12,top:12,padding:'8px 10px',borderRadius:12,background:'rgba(0,0,0,.55)',fontSize:12}}>AI DIRECTOR: {directorCue}</div>
-   <div style={{position:'absolute',right:12,top:12,padding:'8px 10px',borderRadius:12,background:isLive?'#8b1438':'rgba(0,0,0,.55)',fontSize:12}}>{isLive?'● LIVE':'OFF AIR'} · TAKE {take} · GIFTS {gifts}</div>
+   <div style={{position:'absolute',right:12,top:12,padding:'8px 10px',borderRadius:12,background:isLive?'#8b1438':'rgba(0,0,0,.55)',fontSize:12}}>{isLive?'● LIVE':'OFF AIR'} · TAKE {take} · GIFTS {gifts} · XP {xp}</div>
    {props.map(p=><button key={p.id} onClick={()=>setSelected(p.id)} aria-pressed={selected===p.id} style={{position:'absolute',left:p.x+'%',top:p.y+'%',transform:'translate(-50%,-50%)',minWidth:64,minHeight:54,borderRadius:16,border:selected===p.id?'3px solid white':'1px solid #70d7ff',background:selected===p.id?'#4b38b8':'rgba(11,18,45,.88)',color:'white',fontWeight:700}}>{p.kind==='light'?'✦':p.kind==='portal'?'◉':p.kind==='gift'?'◆':'▣'}<br/><small>{p.label}</small></button>)}
   </div>
   <div style={{position:'absolute',left:16,right:16,bottom:16,display:'grid',gridTemplateColumns:'1fr auto',gap:10,alignItems:'center'}}>
@@ -57,6 +59,7 @@ export function StarVerseReachInStage(){
    <button onClick={toggleRecord}>{isRecording?'STOP REC':'RECORD'}</button>
    <button onClick={()=>{setGifts(g=>g+1);direct('Holo gift landed on stage.')}}>HOLO GIFT +1</button>
    <button onClick={()=>direct('AI Director: center performer, key light up, camera ready.')}>AI DIRECT</button>
+   <button disabled={!reelDrafts||publishState==='approved'} onClick={approveDraft}>{publishState==='draft'?'REVIEW + APPROVE REEL':publishState==='approved'?'REEL APPROVED':'NO REEL YET'}</button>
   </div>
  </section>
 }
