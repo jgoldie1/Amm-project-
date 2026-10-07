@@ -55,6 +55,7 @@ const Chicago77HolographicAtlas=lazy(()=>import('./components/Chicago77Holograph
 const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
 const MeshyFactoryControlPanel=lazy(()=>import('./components/MeshyFactoryControlPanel'))
 const OctoberLaunchLockCenter=lazy(()=>import('./components/OctoberLaunchLockCenter'))
+const StubbsAIHolographicBusinessOS=lazy(()=>import('./components/StubbsAIHolographicBusinessOS'))
 
 let routeContent: React.ReactNode = <App />
 let preserveDeterministicSafeRoute = false
@@ -106,6 +107,7 @@ try {
     document.documentElement.dataset.tryammStreetverseCommunity=String(safeCommunityArea||'')
     document.documentElement.dataset.tryammStreetverseInitialSearch=initialSearch
   }
+  const isBusinessOS=['/business-os','/business-os/','/stubbs-ai-business-os','/stubbs-ai-business-os/','/founder-command','/founder-command/'].includes(currentPath)
   const isBusinessDirectory=currentPath==='/business'||currentPath==='/business/'
   const businessMatch=currentPath.match(/^\/business\/([^/]+)\/?$/)
   const businessSlug=businessMatch?.[1]||''
@@ -160,6 +162,7 @@ try {
   else if(isChicago77Atlas)routeContent=<Suspense fallback={routeFallback}><Chicago77HolographicAtlas /></Suspense>
   else if(isLaunchLock)routeContent=<Suspense fallback={routeFallback}><OctoberLaunchLockCenter /></Suspense>
   else if(isGlobalTradeWorld)routeContent=<Suspense fallback={routeFallback}><GlobalTradeWorldHub /></Suspense>
+  else if(isBusinessOS)routeContent=<Suspense fallback={routeFallback}><StubbsAIHolographicBusinessOS /></Suspense>
   else if(standaloneSite)routeContent=<StandaloneProductSite site={standaloneSite} />
   else if(isBusinessDirectory)routeContent=<FamilyBusinessDirectory />
   else if(businessSlug)routeContent=<FamilyBusinessPublicSite slug={businessSlug} onClose={()=>{window.location.href='/business'}} />
