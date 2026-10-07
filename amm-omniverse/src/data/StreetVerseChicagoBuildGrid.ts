@@ -33,3 +33,31 @@ export function gameGridCell(x:number,z:number){
  const col=Math.floor((x+88)/22),row=Math.floor((z+88)/22)
  return `${String.fromCharCode(65+Math.max(0,Math.min(7,col)))}${Math.max(1,Math.min(8,row+1))}`
 }
+
+
+export type ChicagoVisualConnector={
+ id:string
+ from:string
+ to:string
+ mode:'street'|'walk'|'campus'
+ label:string
+ twoWay:boolean
+ playable:boolean
+}
+
+export const CHICAGO_VISUAL_CONNECTORS:ChicagoVisualConnector[]=[
+ {id:'cp-roosevelt',from:'circle-park',to:'roosevelt-road',mode:'street',label:'Circle Park → Roosevelt Road',twoWay:true,playable:true},
+ {id:'roosevelt-taylor',from:'roosevelt-road',to:'taylor-street',mode:'street',label:'Roosevelt Road → Taylor Street',twoWay:true,playable:true},
+ {id:'taylor-uic-east',from:'taylor-street',to:'uic-east',mode:'walk',label:'Taylor Street → UIC East',twoWay:true,playable:true},
+ {id:'roosevelt-uic-west',from:'roosevelt-road',to:'uic-west',mode:'street',label:'Roosevelt Road → UIC West',twoWay:true,playable:true},
+ {id:'uic-west-medical',from:'uic-west',to:'medical-district',mode:'campus',label:'UIC West → Illinois Medical District',twoWay:true,playable:true},
+]
+
+export const CHICAGO_VISUAL_BUILD_PHASE={
+ id:'west-side-visible-v1',
+ spawn:'circle-park',
+ priorityDistricts:['circle-park','roosevelt-road','taylor-street','uic-east','uic-west','medical-district'],
+ connectors:CHICAGO_VISUAL_CONNECTORS,
+ requiredLayers:['roads','sidewalks','buildings','trees','residents','vehicles','traffic','missions','emergency-routing'],
+ acceptance:['continuous traversal','two-way road intent','visible Chicago district identity','mobile-safe controls'],
+} as const
