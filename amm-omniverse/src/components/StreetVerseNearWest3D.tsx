@@ -376,6 +376,7 @@ function NearWestPlayer({move,onPosition,hidden=false,startPosition}:{move:React
   onPosition(p.position.x,p.position.z)
  })
  return <group ref={ref} name="bj-stubbs-near-west-v12" userData={{characterId:'bj-stubbs',visualPass:'bj-v12-near-west'}} visible={!hidden} position={[startPosition?.x??-650,0,startPosition?.z??700]}>
+  <mesh position={[0,.025,0]} rotation={[-Math.PI/2,0,0]} scale={[.58,.34,1]}><circleGeometry args={[1,20]}/><meshBasicMaterial color="#080b0d" transparent opacity={.28} depthWrite={false}/></mesh>
   <mesh position={[0,1.20,0]} castShadow scale={[.96,1,.88]}><capsuleGeometry args={[.30,.86,5,12]}/><meshStandardMaterial color="#101215" roughness={.9}/></mesh>
   <mesh position={[0,2.08,0]} castShadow scale={[.93,1.07,.90]}><sphereGeometry args={[.31,20,15]}/><meshStandardMaterial color="#70462f" roughness={.82}/></mesh>
   <mesh position={[0,1.90,.02]} castShadow scale={[.88,.68,.82]}><sphereGeometry args={[.21,14,11]}/><meshStandardMaterial color="#70462f" roughness={.84}/></mesh>
@@ -427,6 +428,7 @@ function PopulationMeshes({reaction}:{reaction:{id:string;reaction:'stagger'|'do
   const skin=i%5===0?'#6f442f':i%5===1?'#8f654c':i%5===2?'#b57651':i%5===3?'#5b3829':'#a56e4f'
   const top=i%5===0?'#315b7a':i%5===1?'#704936':i%5===2?'#485b3b':i%5===3?'#6b506f':'#715b34'
   return <group key={n.id} rotation={[0,0,reaction?.id===n.id?(reaction.reaction==='downed'?1.45:.28):0]} position={[n.position.x,0,n.position.z]}>
+   <mesh position={[0,.022,0]} rotation={[-Math.PI/2,0,0]} scale={[.42,.25,1]}><circleGeometry args={[1,16]}/><meshBasicMaterial color="#07090b" transparent opacity={.18} depthWrite={false}/></mesh>
    <mesh position={[0,1.04,0]} castShadow><capsuleGeometry args={[.25,.70,4,9]}/><meshStandardMaterial color={top} roughness={.9}/></mesh>
    <mesh position={[0,1.82,0]} castShadow scale={[.95,1.04,.92]}><sphereGeometry args={[.24,14,11]}/><meshStandardMaterial color={skin} roughness={.82}/></mesh>
    <mesh position={[0,2.02,-.03]} castShadow scale={[.96,.54,1]}><sphereGeometry args={[.245,12,9,0,Math.PI*2,0,Math.PI*.52]}/><meshStandardMaterial color={i%3?'#1c1715':'#32231d'} roughness={1}/></mesh>
@@ -443,6 +445,7 @@ function PopulationMeshes({reaction}:{reaction:{id:string;reaction:'stagger'|'do
   const long=v.kind==='bus'?7.4:v.kind==='delivery'?5.2:4.35
   const high=v.kind==='bus'?1.32:v.kind==='delivery'?1.18:.88
   return <group key={v.id} position={[v.position.x,0,v.position.z]} rotation={[0,i%2?Math.PI:0,0]}>
+   <mesh position={[0,.025,0]} rotation={[-Math.PI/2,0,0]} scale={[v.kind==='bus'?3.2:2.05,v.kind==='bus'?1.05:.82,1]}><circleGeometry args={[1,20]}/><meshBasicMaterial color="#07090b" transparent opacity={.22} depthWrite={false}/></mesh>
    <mesh position={[0,.72,0]} castShadow><boxGeometry args={[long,high, v.kind==='bus'?2.45:1.92]}/><meshStandardMaterial color={i%2?'#314c66':'#742f2f'} metalness={.38} roughness={.34}/></mesh>
    <mesh position={[-.22,1.36,0]}><boxGeometry args={[v.kind==='bus'?5.8:2.25,v.kind==='bus'?.68:.55,v.kind==='bus'?2.02:1.52]}/><meshStandardMaterial color="#557d91" metalness={.12} roughness={.12}/></mesh>
    {([-1,1] as const).flatMap(side=>([-1,1] as const).map(front=><group key={side+':'+front}>
