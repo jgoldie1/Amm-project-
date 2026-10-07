@@ -156,7 +156,9 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   }
   addEventListener('tryamm:streetverse-structure-fire-state',onStructureFireState)
   const camera=new THREE.PerspectiveCamera(62,1,.1,320);camera.position.set(0,16,24)
-  // V7 lighting: key light must dominate fill or Lambert facades read flat; no shadow maps (phone contract).\n  const MOBILE_SUN_KEY=2.7,MOBILE_HEMI_FILL=1.25\n  const hemi=new THREE.HemisphereLight(0xb9e7ff,0x1a1c26,MOBILE_HEMI_FILL);scene.add(hemi);const sun=new THREE.DirectionalLight(0xffdfbc,MOBILE_SUN_KEY);sun.position.set(46,40,30);scene.add(sun);const faceFill=new THREE.DirectionalLight(0x86bdff,.42);faceFill.position.set(-30,16,28);scene.add(faceFill)
+  // V7 lighting: key light must dominate fill or Lambert facades read flat; no shadow maps (phone contract).
+  const MOBILE_SUN_KEY=2.7,MOBILE_HEMI_FILL=1.25
+  const hemi=new THREE.HemisphereLight(0xb9e7ff,0x1a1c26,MOBILE_HEMI_FILL);scene.add(hemi);const sun=new THREE.DirectionalLight(0xffdfbc,MOBILE_SUN_KEY);sun.position.set(46,40,30);scene.add(sun);const faceFill=new THREE.DirectionalLight(0x86bdff,.42);faceFill.position.set(-30,16,28);scene.add(faceFill)
   const weatherRenderer=createStreetVerseWeatherRenderer(scene,hemi,sun,{mobile:true,radius:88})
   const citySimulation=installStreetVerseCitySimulation()
   const holoCityBridgeDispose=installStreetVerseHoloCityBridge()
