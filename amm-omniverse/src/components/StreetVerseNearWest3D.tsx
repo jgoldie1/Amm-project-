@@ -1,5 +1,5 @@
 import {Canvas,useFrame,useThree} from '@react-three/fiber'
-import {compileNearWestRoadMeshes} from '../data/streetVerseNearWestRoadNetwork'
+import {compileNearWestRoadMeshes,CHICAGO_NEAR_WEST_ROAD_NODES} from '../data/streetVerseNearWestRoadNetwork'
 import {TAYLOR_STREET_CORRIDOR} from '../data/streetVerseCartesianNeighborhood'
 import {NEAR_WEST_NPCS,NEAR_WEST_TRAFFIC} from '../data/streetVerseNearWestPopulation'
 import CampusVerseCollegeBookBridge from './CampusVerseCollegeBookBridge'
@@ -46,6 +46,174 @@ function TaylorLots(){
    <mesh position={[0,7,-8.12]}><boxGeometry args={[11,1.4,.12]}/><meshStandardMaterial color="#e0c786"/></mesh>
   </group>
  }))}</group>
+}
+
+
+function ChicagoWestSideVisualAssets(){
+ const trees:[number,number][]=[[-870,820],[-840,805],[-815,842],[-780,810],[-735,785],[-690,760],[-625,730],[-560,700],[-500,675],[-430,650]]
+ const lights:[number,number][]=[[-850,790],[-790,770],[-720,745],[-650,720],[-580,695],[-510,670],[-440,645]]
+ return <group>
+  {trees.map(([x,z],i)=><group key={'tree-'+i} position={[x,0,z]}>
+   <mesh castShadow position={[0,2.7,0]}><cylinderGeometry args={[.18,.26,5.4,8]}/><meshStandardMaterial color="#5b4634"/></mesh>
+   <mesh castShadow position={[0,6.1,0]}><sphereGeometry args={[1.65,10,8]}/><meshStandardMaterial color={i%2?'#3f6f42':'#4c7d49'} roughness={1}/></mesh>
+  </group>)}
+  {lights.map(([x,z],i)=><group key={'light-'+i} position={[x,0,z]}>
+   <mesh position={[0,3.4,0]}><cylinderGeometry args={[.07,.09,6.8,8]}/><meshStandardMaterial color="#3a4045" metalness={.55} roughness={.5}/></mesh>
+   <mesh position={[.65,6.65,0]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[.05,.05,1.3,8]}/><meshStandardMaterial color="#3a4045"/></mesh>
+   <mesh position={[1.3,6.55,0]}><boxGeometry args={[.5,.18,.28]}/><meshStandardMaterial color="#fff0b0" emissive="#ffd86a" emissiveIntensity={.45}/></mesh>
+  </group>)}
+  {[-845,-815,-785].map((x,i)=><group key={'cp-home-'+i} position={[x,0,850-i*4]}>
+   <mesh castShadow receiveShadow position={[0,7,0]}><boxGeometry args={[22,14,15]}/><meshStandardMaterial color={i%2?'#8b5d49':'#76503f'} roughness={.9}/></mesh>
+   <mesh position={[0,2,-7.56]}><boxGeometry args={[3.2,4,.18]}/><meshStandardMaterial color="#263f50"/></mesh>
+   {[-7,0,7].map(wx=><mesh key={wx} position={[wx,8,-7.58]}><boxGeometry args={[3.2,2.7,.15]}/><meshStandardMaterial color="#87a9b8" roughness={.25}/></mesh>)}
+  </group>)}
+  <mesh receiveShadow position={[-850,.06,812]}><boxGeometry args={[52,.12,28]}/><meshStandardMaterial color="#507447"/></mesh>
+  <mesh receiveShadow position={[-850,.13,812]}><boxGeometry args={[26,.08,15]}/><meshStandardMaterial color="#b87445"/></mesh>
+  {[-1,1].map(side=><mesh key={'hoop-'+side} position={[-850+side*12,3.1,812]}><boxGeometry args={[.15,6,.15]}/><meshStandardMaterial color="#e7e7e7"/></mesh>)}
+ </group>
+}
+
+
+function ChicagoCorridorDetailAssets(){
+ const intersections:[number,number][]=[[-650,900],[-650,700],[-850,835],[-820,575],[0,900],[160,940]]
+ const parked:[number,number,number][]=[[-690,887,0],[-610,913,Math.PI],[-735,688,0],[-555,712,Math.PI],[-865,820,0],[-805,850,Math.PI]]
+ const storefronts:[number,number,number][]=[[-610,675,0],[-560,675,0],[-510,675,0],[-460,675,0],[-410,675,0],[-360,675,0]]
+ return <group>
+  {intersections.map(([x,z],i)=><group key={'intersection-'+i} position={[x,0,z]}>
+   {[-4,-1.4,1.4,4].map((o,j)=><mesh key={'cw-a-'+j} receiveShadow position={[o,.11,0]}><boxGeometry args={[1.3,.03,8]}/><meshStandardMaterial color="#eeeae0"/></mesh>)}
+   {[-4,-1.4,1.4,4].map((o,j)=><mesh key={'cw-b-'+j} receiveShadow position={[0,.115,o]}><boxGeometry args={[8,.03,1.3]}/><meshStandardMaterial color="#eeeae0"/></mesh>)}
+   {[[-6,-6],[-6,6],[6,-6],[6,6]].map(([sx,sz],j)=><group key={'signal-'+j} position={[sx,0,sz]}>
+    <mesh position={[0,2.8,0]}><cylinderGeometry args={[.06,.08,5.6,8]}/><meshStandardMaterial color="#343a3f"/></mesh>
+    <mesh position={[0,5.4,0]}><boxGeometry args={[.55,1.3,.42]}/><meshStandardMaterial color="#22272a"/></mesh>
+    <mesh position={[0,5.72,-.22]}><sphereGeometry args={[.11,8,6]}/><meshStandardMaterial color="#d94c43" emissive="#d94c43" emissiveIntensity={.35}/></mesh>
+    <mesh position={[0,5.38,-.22]}><sphereGeometry args={[.11,8,6]}/><meshStandardMaterial color="#e4b94b"/></mesh>
+    <mesh position={[0,5.04,-.22]}><sphereGeometry args={[.11,8,6]}/><meshStandardMaterial color="#52a966"/></mesh>
+   </group>)}
+  </group>)}
+  {storefronts.map(([x,z,yaw],i)=><group key={'store-'+i} position={[x,0,z]} rotation={[0,yaw,0]}>
+   <mesh castShadow receiveShadow position={[0,6,0]}><boxGeometry args={[36,12,20]}/><meshStandardMaterial color={i%3===0?'#80503e':i%3===1?'#67574a':'#8b6446'} roughness={.9}/></mesh>
+   <mesh position={[0,2,-10.08]}><boxGeometry args={[5,4,.18]}/><meshStandardMaterial color="#284a5c"/></mesh>
+   {[-12,-6,6,12].map(wx=><mesh key={wx} position={[wx,7,-10.1]}><boxGeometry args={[4,3,.15]}/><meshStandardMaterial color="#8cb0bc" roughness={.25}/></mesh>)}
+   <mesh position={[0,10,-10.15]}><boxGeometry args={[24,1.2,.12]}/><meshStandardMaterial color="#d9c17b"/></mesh>
+  </group>)}
+  {parked.map(([x,z,yaw],i)=><group key={'parked-'+i} position={[x,0,z]} rotation={[0,yaw,0]}>
+   <mesh castShadow position={[0,.65,0]}><boxGeometry args={[4.4,1.05,1.9]}/><meshStandardMaterial color={i%3===0?'#355a73':i%3===1?'#713e38':'#55585b'} metalness={.35} roughness={.4}/></mesh>
+   <mesh position={[0,1.28,0]}><boxGeometry args={[2.3,.5,1.55]}/><meshStandardMaterial color="#91b7c7" roughness={.18}/></mesh>
+  </group>)}
+  {[[-680,920],[-620,920],[-680,680],[-620,680]].map(([x,z],i)=><group key={'stop-'+i} position={[x,0,z]}>
+   <mesh position={[0,1.7,0]}><cylinderGeometry args={[.05,.06,3.4,8]}/><meshStandardMaterial color="#444b50"/></mesh>
+   <mesh position={[0,3.2,0]}><boxGeometry args={[.7,.9,.08]}/><meshStandardMaterial color="#d6e3e7"/></mesh>
+  </group>)}
+ </group>
+}
+
+
+function MovingCivilianTraffic(){
+ const routes=[
+  {id:'rr-east',from:'circle-park-ashland',to:'roosevelt-halsted',color:'#355a73',speed:.055},
+  {id:'rr-west',from:'roosevelt-halsted',to:'circle-park-ashland',color:'#743f39',speed:.047},
+  {id:'taylor-east',from:'taylor-halsted',to:'taylor-uic-west',color:'#53585d',speed:.05},
+  {id:'taylor-west',from:'taylor-uic-west',to:'taylor-halsted',color:'#6b5a3f',speed:.045},
+ ] as const
+ return <group>{routes.map((r,idx)=><MovingTrafficCar key={r.id} {...r} phase={idx*.23}/>)}</group>
+}
+
+function MovingTrafficCar({from,to,color,speed,phase}:{from:string;to:string;color:string;speed:number;phase:number}){
+ const ref=useRef<THREE.Group>(null),tRef=useRef(phase)
+ const a=CHICAGO_NEAR_WEST_ROAD_NODES.find(n=>n.id===from)?.position
+ const b=CHICAGO_NEAR_WEST_ROAD_NODES.find(n=>n.id===to)?.position
+ useFrame((_,dt)=>{
+  const g=ref.current;if(!g||!a||!b)return
+  tRef.current=(tRef.current+dt*speed)%1
+  const u=tRef.current
+  g.position.set(THREE.MathUtils.lerp(a.x,b.x,u),0,THREE.MathUtils.lerp(a.z,b.z,u))
+  g.rotation.y=Math.atan2(b.x-a.x,b.z-a.z)
+ })
+ if(!a||!b)return null
+ return <group ref={ref} position={[a.x,0,a.z]}>
+  <mesh castShadow position={[0,.62,0]}><boxGeometry args={[4.3,1.05,1.9]}/><meshStandardMaterial color={color} metalness={.3} roughness={.4}/></mesh>
+  <mesh position={[0,1.23,0]}><boxGeometry args={[2.2,.5,1.5]}/><meshStandardMaterial color="#91b7c7" roughness={.18}/></mesh>
+ </group>
+}
+
+function MovingPedestrians(){
+ const walkers=[
+  {id:'cp-1',a:[-870,835] as const,b:[-780,835] as const,phase:.1},
+  {id:'rr-1',a:[-710,915] as const,b:[-590,915] as const,phase:.4},
+  {id:'ts-1',a:[-610,685] as const,b:[-410,685] as const,phase:.65},
+  {id:'uic-1',a:[-780,650] as const,b:[-650,650] as const,phase:.25},
+ ] as const
+ return <group>{walkers.map((w,i)=><MovingPedestrian key={w.id} {...w} shirt={i%2?'#704936':'#315b7a'}/>)}</group>
+}
+
+function MovingPedestrian({a,b,phase,shirt}:{a:readonly [number,number];b:readonly [number,number];phase:number;shirt:string}){
+ const ref=useRef<THREE.Group>(null),tRef=useRef(phase)
+ useFrame((_,dt)=>{
+  const g=ref.current;if(!g)return
+  tRef.current=(tRef.current+dt*.075)%1
+  const ping=tRef.current<.5?tRef.current*2:(1-tRef.current)*2
+  g.position.set(THREE.MathUtils.lerp(a[0],b[0],ping),0,THREE.MathUtils.lerp(a[1],b[1],ping))
+  g.rotation.y=Math.atan2(b[0]-a[0],b[1]-a[1])+(tRef.current>=.5?Math.PI:0)
+ })
+ return <group ref={ref} position={[a[0],0,a[1]]}>
+  <mesh position={[0,1.02,0]} castShadow><capsuleGeometry args={[.24,.68,4,8]}/><meshStandardMaterial color={shirt}/></mesh>
+  <mesh position={[0,1.78,0]}><sphereGeometry args={[.23,12,9]}/><meshStandardMaterial color="#8f654c"/></mesh>
+  <mesh position={[0,1.96,-.02]} scale={[.95,.5,1]}><sphereGeometry args={[.235,10,8,0,Math.PI*2,0,Math.PI*.5]}/><meshStandardMaterial color="#221b18"/></mesh>
+ </group>
+}
+
+
+function EmergencyRouteVehicle({service,route,color}:{service:'police'|'fire'|'ambulance';route:string[];color:string}){
+ const ref=useRef<THREE.Group>(null)
+ const points=route.map(id=>CHICAGO_NEAR_WEST_ROAD_NODES.find(n=>n.id===id)?.position).filter(Boolean) as Array<{x:number;y:number;z:number}>
+ const tRef=useRef(0)
+ useFrame((_,dt)=>{
+  const g=ref.current;if(!g||points.length<2)return
+  tRef.current=(tRef.current+dt*.08)%1
+  const scaled=tRef.current*(points.length-1),i=Math.min(points.length-2,Math.floor(scaled)),u=scaled-i
+  const a=points[i],b=points[i+1]
+  g.position.set(THREE.MathUtils.lerp(a.x,b.x,u),0,THREE.MathUtils.lerp(a.z,b.z,u))
+  g.rotation.y=Math.atan2(b.x-a.x,b.z-a.z)
+ })
+ if(points.length<2)return null
+ const long=service==='fire'?7.2:service==='ambulance'?6.2:4.8
+ return <group ref={ref} position={[points[0].x,0,points[0].z]}>
+  <mesh castShadow position={[0,.85,0]}><boxGeometry args={[long,1.45,service==='fire'?2.5:2.15]}/><meshStandardMaterial color={color} metalness={.3} roughness={.45}/></mesh>
+  <mesh position={[0,1.72,0]}><boxGeometry args={[service==='police'?2.5:4.2,.7,1.8]}/><meshStandardMaterial color={service==='police'?'#a7bac3':color}/></mesh>
+  <mesh position={[0,2.15,0]}><boxGeometry args={[1.45,.16,.25]}/><meshStandardMaterial color={service==='fire'?'#ffd05a':'#63b8ff'} emissive={service==='fire'?'#ffd05a':'#63b8ff'} emissiveIntensity={1}/></mesh>
+ </group>
+}
+
+function EmergencyRouteTraversal(){
+ return <group>
+  <EmergencyRouteVehicle service="police" color="#1f2b3b" route={['roosevelt-halsted','circle-park-ashland','fillmore-jefferson']}/>
+  <EmergencyRouteVehicle service="ambulance" color="#e7e7e3" route={['ogden-stroger','polk-uic-med','taylor-uic-west','taylor-halsted']}/>
+  <EmergencyRouteVehicle service="fire" color="#a7332d" route={['fillmore-jefferson','circle-park-ashland','roosevelt-halsted']}/>
+ </group>
+}
+
+
+function EmergencyServiceAssets(){
+ const fleet=[
+  {id:'police',x:-705,z:905,body:'#1f2b3b',accent:'#5ca9ff'},
+  {id:'ambulance',x:-1040,z:930,body:'#e7e7e3',accent:'#d94b45'},
+  {id:'fire',x:-1120,z:960,body:'#a7332d',accent:'#ffd05a'},
+ ] as const
+ return <group>
+  {fleet.map((v,i)=><group key={v.id} position={[v.x,0,v.z]} rotation={[0,i===0?Math.PI/2:0,0]}>
+   <mesh castShadow position={[0,.85,0]}><boxGeometry args={[v.id==='fire'?7.2:v.id==='ambulance'?6.2:4.8,1.45,v.id==='fire'?2.5:2.15]}/><meshStandardMaterial color={v.body} metalness={.3} roughness={.45}/></mesh>
+   <mesh position={[0,1.7,0]}><boxGeometry args={[v.id==='police'?2.5:4.2,.72,1.8]}/><meshStandardMaterial color={v.id==='police'?'#9eb7c2':v.body}/></mesh>
+   <mesh position={[0,2.15,0]}><boxGeometry args={[1.45,.16,.25]}/><meshStandardMaterial color={v.accent} emissive={v.accent} emissiveIntensity={.85}/></mesh>
+   {([-1,1] as const).flatMap(side=>([-1,1] as const).map(front=><mesh key={side+':'+front} rotation={[Math.PI/2,0,0]} position={[front*(v.id==='fire'?2.3:1.55),.42,side*1.05]}><cylinderGeometry args={[.43,.43,.28,14]}/><meshStandardMaterial color="#151719"/></mesh>))}
+  </group>)}
+  {[
+   [-1030,0,940,30,11,20,'MEDICAL'],[-1120,0,1010,34,12,22,'FIRE / RESCUE'],[-735,0,955,28,10,20,'PUBLIC SAFETY']
+  ].map(([x,,z,w,h,d,label],i)=><group key={'station-'+i} position={[Number(x),0,Number(z)]}>
+   <mesh castShadow receiveShadow position={[0,Number(h)/2,0]}><boxGeometry args={[Number(w),Number(h),Number(d)]}/><meshStandardMaterial color={i===1?'#78463d':'#68655e'} roughness={.9}/></mesh>
+   <mesh position={[0,3,-Number(d)/2-.1]}><boxGeometry args={[10,5,.18]}/><meshStandardMaterial color="#304957"/></mesh>
+   <mesh position={[0,Number(h)-1,-Number(d)/2-.15]}><boxGeometry args={[16,1.1,.12]}/><meshStandardMaterial color="#d7c37d"/></mesh>
+  </group>)}
+ </group>
 }
 
 
@@ -293,7 +461,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
+   <RoadMeshes/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><EmergencyRouteTraversal/><MovingCivilianTraffic/><MovingPedestrians/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
   </Canvas>
  </div>
 }
