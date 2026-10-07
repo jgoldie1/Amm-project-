@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "name": "StreetVerse Chicago West Side Visual Build",
+  "status": "active",
+  "purpose": "Turn the existing StreetVerse systems into a recognizable, connected Chicago West Side playable world.",
+  "buildOrder": [
+    {
+      "id": "circle-park",
+      "label": "Circle Park / ABLA homes area",
+      "priority": 1,
+      "requirements": [
+        "connected street and sidewalk geometry",
+        "apartment complex massing and entrances",
+        "trees and street furniture",
+        "pedestrian and vehicle spawn anchors",
+        "usable mission and interaction anchors"
+      ]
+    },
+    {
+      "id": "roosevelt",
+      "label": "Roosevelt Road corridor",
+      "priority": 2,
+      "requirements": [
+        "two-way traffic lanes",
+        "sidewalks and crossings",
+        "traffic signals",
+        "commercial frontage anchors",
+        "police fire ambulance navigation"
+      ]
+    },
+    {
+      "id": "taylor",
+      "label": "Taylor Street corridor",
+      "priority": 3,
+      "requirements": [
+        "connected road grid",
+        "recognizable neighborhood frontage",
+        "pedestrian activity anchors",
+        "interior-ready businesses"
+      ]
+    },
+    {
+      "id": "uic",
+      "label": "UIC East and West",
+      "priority": 4,
+      "requirements": [
+        "campus district anchors",
+        "walkable connections",
+        "building entry anchors",
+        "classroom/interior expansion hooks"
+      ]
+    },
+    {
+      "id": "institutions",
+      "label": "Schools churches and civic anchors",
+      "priority": 5,
+      "requirements": [
+        "St Ignatius",
+        "Holy Family",
+        "school/campus gameplay anchors",
+        "interior expansion hooks"
+      ]
+    }
+  ],
+  "acceptance": {
+    "visual": [
+      "player can identify the Chicago West Side from the world itself",
+      "roads sidewalks buildings trees vehicles and residents are visible together",
+      "districts connect without disconnected teleport-only scenes"
+    ],
+    "gameplay": [
+      "stable player movement",
+      "stable vehicle steering",
+      "two-way traffic",
+      "pedestrian population",
+      "police fire ambulance navigation hooks",
+      "missions can bind to named locations"
+    ],
+    "mobile": [
+      "play controls remain unobstructed on iPhone",
+      "world remains navigable without HUD covering core play area"
+    ]
+  },
+  "nextPass": [
+    "map current production scene modules to these districts",
+    "mount district manifests into StreetVerse world loader",
+    "add road/sidewalk continuity pass",
+    "add visible landmark/building pass",
+    "run mobile visual acceptance"
+  ]
+}
