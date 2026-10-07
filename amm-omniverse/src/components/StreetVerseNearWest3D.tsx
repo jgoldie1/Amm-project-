@@ -17,8 +17,8 @@ import GreenvilleCampusVerseScene from './GreenvilleCampusVerseScene'
 import {UIC_ALL_CAMPUS_HUBS} from '../data/uicCampusVerseHubs'
 import IllinoisCampusVersePlayableScene from './IllinoisCampusVersePlayableScene'
 import {ILLINOIS_CAMPUSVERSE_NETWORK,type CampusNetworkId} from '../data/campusVerseIllinoisUniversityNetwork'
-import {CHICAGO_WEST_NATIVE_PREVIEW_PLACEMENTS} from '../data/TryammNativeRuntimeAssetCatalog'
-import {disposeNativeAssetLayer,loadTryammNativeCircleParkLayer} from '../runtime/TryammNativeAssetRuntime'
+import {CHICAGO_WEST_NATIVE_PREVIEW_PLACEMENTS,type TryammNativeRuntimeAssetKey} from '../data/TryammNativeRuntimeAssetCatalog'
+import {disposeNativeAssetLayer,loadTryammNativeCircleParkLayer,loadTryammNativeVisualInstance,releaseTryammNativeVisualInstance} from '../runtime/TryammNativeAssetRuntime'
 
 function NearWestNativeGlbLayer(){
  const host=useRef<THREE.Group>(null)
@@ -154,6 +154,53 @@ function ChicagoCorridorDetailAssets(){
 }
 
 
+function MovingNativeVehicleVisual({color}:{color:string}){
+ const host=useRef<THREE.Group>(null)
+ const [ready,setReady]=useState(false)
+ useEffect(()=>{
+  let active=true
+  let object:THREE.Group|null=null
+  void loadTryammNativeVisualInstance('sportSedan2027',{name:'near-west-moving-native-sedan'}).then(result=>{
+   if(!active){releaseTryammNativeVisualInstance(result.object);return}
+   object=result.object
+   host.current?.add(result.object)
+   setReady(true)
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-moving-native-ready',{detail:{kind:'traffic',asset:result.asset,url:result.url}}))
+  }).catch(()=>{})
+  return()=>{active=false;if(object)releaseTryammNativeVisualInstance(object)}
+ },[])
+ return <group ref={host} name="near-west-moving-native-vehicle">
+  {!ready&&<>
+   <mesh castShadow position={[0,.62,0]}><boxGeometry args={[4.3,1.05,1.9]}/><meshStandardMaterial color={color} metalness={.3} roughness={.4}/></mesh>
+   <mesh position={[0,1.23,0]}><boxGeometry args={[2.2,.5,1.5]}/><meshStandardMaterial color="#91b7c7" roughness={.18}/></mesh>
+  </>}
+ </group>
+}
+
+function MovingNativeResidentVisual({asset,shirt}:{asset:TryammNativeRuntimeAssetKey;shirt:string}){
+ const host=useRef<THREE.Group>(null)
+ const [ready,setReady]=useState(false)
+ useEffect(()=>{
+  let active=true
+  let object:THREE.Group|null=null
+  void loadTryammNativeVisualInstance(asset,{name:`near-west-moving-${asset}`}).then(result=>{
+   if(!active){releaseTryammNativeVisualInstance(result.object);return}
+   object=result.object
+   host.current?.add(result.object)
+   setReady(true)
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-moving-native-ready',{detail:{kind:'pedestrian',asset:result.asset,url:result.url}}))
+  }).catch(()=>{})
+  return()=>{active=false;if(object)releaseTryammNativeVisualInstance(object)}
+ },[asset])
+ return <group ref={host} name="near-west-moving-native-resident">
+  {!ready&&<>
+   <mesh position={[0,1.02,0]} castShadow><capsuleGeometry args={[.24,.68,4,8]}/><meshStandardMaterial color={shirt}/></mesh>
+   <mesh position={[0,1.78,0]}><sphereGeometry args={[.23,12,9]}/><meshStandardMaterial color="#8f654c"/></mesh>
+   <mesh position={[0,1.96,-.02]} scale={[.95,.5,1]}><sphereGeometry args={[.235,10,8,0,Math.PI*2,0,Math.PI*.5]}/><meshStandardMaterial color="#221b18"/></mesh>
+  </>}
+ </group>
+}
+
 function MovingCivilianTraffic(){
  const routes=[
   {id:'rr-east',from:'circle-park-ashland',to:'roosevelt-halsted',color:'#355a73',speed:.055},
@@ -177,8 +224,7 @@ function MovingTrafficCar({from,to,color,speed,phase}:{from:string;to:string;col
  })
  if(!a||!b)return null
  return <group ref={ref} position={[a.x,0,a.z]}>
-  <mesh castShadow position={[0,.62,0]}><boxGeometry args={[4.3,1.05,1.9]}/><meshStandardMaterial color={color} metalness={.3} roughness={.4}/></mesh>
-  <mesh position={[0,1.23,0]}><boxGeometry args={[2.2,.5,1.5]}/><meshStandardMaterial color="#91b7c7" roughness={.18}/></mesh>
+  <MovingNativeVehicleVisual color={color}/>
  </group>
 }
 
@@ -189,10 +235,11 @@ function MovingPedestrians(){
   {id:'ts-1',a:[-610,685] as const,b:[-410,685] as const,phase:.65},
   {id:'uic-1',a:[-780,650] as const,b:[-650,650] as const,phase:.25},
  ] as const
- return <group>{walkers.map((w,i)=><MovingPedestrian key={w.id} {...w} shirt={i%2?'#704936':'#315b7a'}/>)}</group>
+ const assets:TryammNativeRuntimeAssetKey[]=['residentE','residentF','residentG','residentH']
+ return <group>{walkers.map((w,i)=><MovingPedestrian key={w.id} {...w} asset={assets[i%assets.length]} shirt={i%2?'#704936':'#315b7a'}/>)}</group>
 }
 
-function MovingPedestrian({a,b,phase,shirt}:{a:readonly [number,number];b:readonly [number,number];phase:number;shirt:string}){
+function MovingPedestrian({a,b,phase,shirt,asset}:{a:readonly [number,number];b:readonly [number,number];phase:number;shirt:string;asset:TryammNativeRuntimeAssetKey}){
  const ref=useRef<THREE.Group>(null),tRef=useRef(phase)
  useFrame((_,dt)=>{
   const g=ref.current;if(!g)return
@@ -202,9 +249,7 @@ function MovingPedestrian({a,b,phase,shirt}:{a:readonly [number,number];b:readon
   g.rotation.y=Math.atan2(b[0]-a[0],b[1]-a[1])+(tRef.current>=.5?Math.PI:0)
  })
  return <group ref={ref} position={[a[0],0,a[1]]}>
-  <mesh position={[0,1.02,0]} castShadow><capsuleGeometry args={[.24,.68,4,8]}/><meshStandardMaterial color={shirt}/></mesh>
-  <mesh position={[0,1.78,0]}><sphereGeometry args={[.23,12,9]}/><meshStandardMaterial color="#8f654c"/></mesh>
-  <mesh position={[0,1.96,-.02]} scale={[.95,.5,1]}><sphereGeometry args={[.235,10,8,0,Math.PI*2,0,Math.PI*.5]}/><meshStandardMaterial color="#221b18"/></mesh>
+  <MovingNativeResidentVisual asset={asset} shirt={shirt}/>
  </group>
 }
 
