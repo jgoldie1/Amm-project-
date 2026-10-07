@@ -72,6 +72,8 @@ jobs:
             echo '## StreetVerse phone visual proof'
             echo
             echo '- Circle Park / StreetVerse canvas rendered'
+            echo '- BJ V12 front character-view screenshot captured'
+            echo '- AI Proof overlay stays closed unless the player explicitly opens it'
             echo '- Always-visible joystick rendered'
             echo '- DRIVE action rendered'
             echo '- Vehicle entry reached DRIVING state'
