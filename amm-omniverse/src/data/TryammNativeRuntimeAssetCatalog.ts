@@ -118,6 +118,49 @@ export const CHICAGO_WEST_NATIVE_PREVIEW_PLACEMENTS:NativePlacement[]=[
   {asset:'residentB',position:[-810,0,828],rotationY:-.45,label:'circle-park-native-resident-b'},
   {asset:'residentC',position:[-625,0,702],rotationY:.5,label:'taylor-native-resident-c'},
   {asset:'residentD',position:[-505,0,692],rotationY:-.35,label:'taylor-native-resident-d'},
+
+  // Roosevelt expansion: denser blocks, street furniture, parked cars and visible life.
+  {asset:'building',position:[-760,0,900],rotationY:Math.PI/2,scale:[2.45,1.6,1.7],label:'roosevelt-native-building-west-a'},
+  {asset:'building',position:[-710,0,900],rotationY:Math.PI/2,scale:[2.25,1.45,1.6],label:'roosevelt-native-building-west-b'},
+  {asset:'building',position:[-650,0,940],rotationY:0,scale:[2.7,1.35,1.55],label:'roosevelt-native-storefront-central'},
+  {asset:'building',position:[-590,0,940],rotationY:0,scale:[2.5,1.4,1.55],label:'roosevelt-native-storefront-east'},
+  {asset:'tree',position:[-745,0,885],scale:1.15,label:'roosevelt-native-tree-a'},
+  {asset:'tree',position:[-705,0,885],scale:1.0,label:'roosevelt-native-tree-b'},
+  {asset:'tree',position:[-625,0,920],scale:1.1,label:'roosevelt-native-tree-c'},
+  {asset:'streetLamp',position:[-735,0,910],label:'roosevelt-native-lamp-b'},
+  {asset:'streetLamp',position:[-675,0,910],label:'roosevelt-native-lamp-c'},
+  {asset:'bench',position:[-700,0,918],rotationY:Math.PI,label:'roosevelt-native-bench'},
+  {asset:'hydrant',position:[-720,0,890],label:'roosevelt-native-hydrant'},
+  {asset:'trashCan',position:[-690,0,920],label:'roosevelt-native-trash'},
+  {asset:'residentE',position:[-735,0,915],rotationY:.15,label:'roosevelt-native-resident-e'},
+  {asset:'residentF',position:[-675,0,915],rotationY:-.2,label:'roosevelt-native-resident-f'},
+
+  // Taylor / Little Italy expansion: more storefront rhythm and people.
+  {asset:'building',position:[-620,0,650],rotationY:0,scale:[2.5,1.28,1.55],label:'taylor-native-storefront-far-west'},
+  {asset:'building',position:[-520,0,650],rotationY:0,scale:[2.45,1.35,1.55],label:'taylor-native-storefront-center'},
+  {asset:'building',position:[-420,0,650],rotationY:0,scale:[2.55,1.3,1.55],label:'taylor-native-storefront-far-east'},
+  {asset:'tree',position:[-600,0,700],scale:1.0,label:'taylor-native-tree-a'},
+  {asset:'tree',position:[-540,0,700],scale:1.08,label:'taylor-native-tree-b'},
+  {asset:'tree',position:[-480,0,700],scale:1.04,label:'taylor-native-tree-c'},
+  {asset:'bench',position:[-535,0,690],rotationY:Math.PI,label:'taylor-native-bench'},
+  {asset:'trashCan',position:[-500,0,690],label:'taylor-native-trash'},
+  {asset:'recyclingBin',position:[-485,0,690],label:'taylor-native-recycling'},
+  {asset:'residentG',position:[-585,0,690],rotationY:.4,label:'taylor-native-resident-g'},
+  {asset:'residentH',position:[-455,0,690],rotationY:-.4,label:'taylor-native-resident-h'},
+  {asset:'sportSedan2027',position:[-520,0,715],rotationY:Math.PI/2,label:'taylor-native-sedan-c'},
+  {asset:'boxTruckCustom2027',position:[-430,0,715],rotationY:-Math.PI/2,label:'taylor-native-delivery-truck'},
+
+  // UIC / Medical approach adds visual continuity beyond Taylor Street.
+  {asset:'building',position:[-900,0,690],rotationY:Math.PI/2,scale:[3.0,1.55,1.8],label:'uic-east-native-building-a'},
+  {asset:'building',position:[-1040,0,900],rotationY:Math.PI/2,scale:[3.1,1.7,1.85],label:'medical-native-building-a'},
+  {asset:'streetLamp',position:[-860,0,700],label:'uic-native-lamp-a'},
+  {asset:'streetLamp',position:[-1000,0,910],label:'medical-native-lamp-a'},
+  {asset:'tree',position:[-875,0,720],scale:1.18,label:'uic-native-tree-a'},
+  {asset:'tree',position:[-1010,0,880],scale:1.12,label:'medical-native-tree-a'},
+  {asset:'residentA',position:[-840,0,690],rotationY:.2,label:'uic-native-resident-a'},
+  {asset:'residentB',position:[-995,0,905],rotationY:-.3,label:'medical-native-resident-b'},
+  {asset:'holoWayfinder',position:[-820,0,700],label:'uic-native-wayfinder'},
+  {asset:'holoWayfinder',position:[-970,0,900],label:'medical-native-wayfinder'},
 ]
 
 export const NATIVE_RUNTIME_POLICY={
