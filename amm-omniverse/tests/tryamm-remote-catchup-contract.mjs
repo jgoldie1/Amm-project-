@@ -37,7 +37,8 @@ for(const token of [
 
 for(const token of [
   "dataset:'syp8-uezg'",
-  'Basemap_BlackWhite/MapServer/14/query',
+  'api/geospatial/6imu-meau?method=export&format=GeoJSON',
+  'fetchGeospatialExport',
   "dataset:'dj47-wfun'",
   "returned zero features inside the Chicago proof-zone bounds",
   "exactDigitalTwin:false",
