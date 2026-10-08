@@ -1,0 +1,73 @@
+name: StreetVerse Asset Preservation (read-only)
+
+on:
+  push:
+    branches:
+      - safety/streetverse-supabase-asset-preservation-20261008
+    paths:
+      - amm-omniverse/config/streetverse-asset-lock-20261005.json
+      - amm-omniverse/scripts/preserve-streetverse-supabase-assets.mjs
+      - amm-omniverse/tests/streetverse-preservation-safety.test.mjs
+      - amm-omniverse/tests/streetverse-preserved-resident-runtime.test.mjs
+      - amm-omniverse/src/runtime/StreetVerseMeshyCharacterRuntime.ts
+      - .github/workflows/streetverse-preserve-oct2026.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-asset-preservation
+  cancel-in-progress: false
+
+jobs:
+  preserve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Test immutable asset-lock and GLB format guards
+        run: node --test amm-omniverse/tests/streetverse-preservation-safety.test.mjs
+      - name: Verify preserved residents, concurrent animation and legacy fallbacks
+        run: |
+          node --test amm-omniverse/tests/streetverse-preserved-resident-runtime.test.mjs
+          cd amm-omniverse
+          node tests/meshy-durable-wave1-contract.mjs
+          node tests/meshy-durable-wave2-contract.mjs
+          node tests/meshy-character-mobile-readability-contract.mjs
+          node tests/streetverse-mobile-v11-clear-view-contract.mjs
+      - name: Install pinned project dependencies for TypeScript validation
+        working-directory: amm-omniverse
+        run: npm ci --ignore-scripts
+      - name: TypeScript no-regression validation
+        working-directory: amm-omniverse
+        run: npm run typecheck
+      - name: Download and verify 12 existing public GLB originals (read-only)
+        env:
+          STREETVERSE_PRESERVATION_DIR: release-evidence/streetverse-20261005-recovered
+        run: node amm-omniverse/scripts/preserve-streetverse-supabase-assets.mjs
+      - name: Save Wave 1 GLBs and checksum manifest (under 100 MB)
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-oct05-wave1-verified
+          path: |
+            release-evidence/streetverse-20261005-recovered/characters/static-wave1/
+            release-evidence/streetverse-20261005-recovered/asset-lock.json
+            release-evidence/streetverse-20261005-recovered/verified-sha256-manifest.json
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 90
+      - name: Save Wave 2 GLBs and checksum manifest (under 100 MB)
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-oct05-wave2-verified
+          path: |
+            release-evidence/streetverse-20261005-recovered/characters/static-wave2/
+            release-evidence/streetverse-20261005-recovered/asset-lock.json
+            release-evidence/streetverse-20261005-recovered/verified-sha256-manifest.json
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 90

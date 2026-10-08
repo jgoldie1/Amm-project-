@@ -336,7 +336,9 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     nativeResidentRigs=nativeResidents.map(nativeHumanoidRig)
     const circleParkMeshySlots=['sv-black-man-youngadult-01','sv-black-woman-youngadult-01','sv-black-man-adult-01','sv-black-woman-adult-01'] as const
     circleParkMeshySlots.forEach((slotId,i)=>{
-      void loadStreetVerseMeshyCharacter(slotId).then(handle=>{
+      // Render the real preserved GLB first; load walk/run only when needed.
+      // Avoid ~100 MB of companion animation downloads during the first iPhone frame.
+      void loadStreetVerseMeshyCharacter(slotId,{deferCompanionAnimations:true}).then(handle=>{
         if(!handle)return
         if(nativeCancelled||!nativeLayer){handle.dispose();return}
         meshyResidentHandles[i]?.dispose()

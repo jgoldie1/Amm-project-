@@ -1,0 +1,59 @@
+{
+  "schema": "tryamm.streetverse.storage-preservation-lock.v1",
+  "source": "Supabase storage.objects inventory captured 2026-10-08; source GLBs last written 2026-10-05",
+  "projectRef": "fxluchtdfpediivhoksl",
+  "bucket": "streetverse-assets",
+  "baseUrl": "https://fxluchtdfpediivhoksl.supabase.co/storage/v1/object/public/streetverse-assets/",
+  "assetCount": 12,
+  "byteLockMeaning": "Exact object byte length observed in Supabase storage metadata. SHA-256 values are computed from downloaded bytes by the preservation workflow, not invented.",
+  "assets": [
+    {
+      "path": "characters/static-wave1/SV_NPC_BLACK_MAN_ADULT_01.glb",
+      "bytes": 12445832
+    },
+    {
+      "path": "characters/static-wave1/SV_NPC_BLACK_MAN_ADULT_01.walk.glb",
+      "bytes": 12425808
+    },
+    {
+      "path": "characters/static-wave1/SV_NPC_BLACK_MAN_ADULT_01.run.glb",
+      "bytes": 12415192
+    },
+    {
+      "path": "characters/static-wave1/SV_NPC_BLACK_WOMAN_ADULT_01.glb",
+      "bytes": 13389964
+    },
+    {
+      "path": "characters/static-wave1/SV_NPC_BLACK_WOMAN_ADULT_01.walk.glb",
+      "bytes": 13369976
+    },
+    {
+      "path": "characters/static-wave1/SV_NPC_BLACK_WOMAN_ADULT_01.run.glb",
+      "bytes": 13359352
+    },
+    {
+      "path": "characters/static-wave2/SV_NPC_BLACK_MAN_YOUNGADULT_01.glb",
+      "bytes": 12701232
+    },
+    {
+      "path": "characters/static-wave2/SV_NPC_BLACK_MAN_YOUNGADULT_01.walk.glb",
+      "bytes": 12681392
+    },
+    {
+      "path": "characters/static-wave2/SV_NPC_BLACK_MAN_YOUNGADULT_01.run.glb",
+      "bytes": 12670800
+    },
+    {
+      "path": "characters/static-wave2/SV_NPC_BLACK_WOMAN_YOUNGADULT_01.glb",
+      "bytes": 11742224
+    },
+    {
+      "path": "characters/static-wave2/SV_NPC_BLACK_WOMAN_YOUNGADULT_01.walk.glb",
+      "bytes": 11722240
+    },
+    {
+      "path": "characters/static-wave2/SV_NPC_BLACK_WOMAN_YOUNGADULT_01.run.glb",
+      "bytes": 11711604
+    }
+  ]
+}
