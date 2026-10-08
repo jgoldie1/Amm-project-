@@ -1,0 +1,87 @@
+name: TRYAMM Remote Catchup
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'amm-omniverse/public/**'
+      - 'public/**'
+      - 'amm-omniverse/scripts/streetverse-asset-audit.mjs'
+      - 'amm-omniverse/scripts/fetch-chicago-reconstruction-evidence.mjs'
+      - 'amm-omniverse/scripts/compile-chicago-proof-zone-v9.mjs'
+      - 'amm-omniverse/src/data/StubbsAIBusinessOSLaunchCampaign.ts'
+      - 'amm-omniverse/src/components/StubbsAIHolographicBusinessOS.tsx'
+      - '.github/workflows/tryamm-remote-catchup.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit-and-chicago-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate local StreetVerse assets
+        run: npm run assets:prebuild
+
+      - name: Run StreetVerse asset audit
+        run: npm run asset:audit
+
+      - name: Build Blender repair priority queue
+        run: npm run asset:priority
+
+      - name: Record BJ production source truth
+        run: npm run bj:source-truth
+
+      - name: Fetch Chicago reconstruction evidence
+        run: npm run reconstruction:evidence
+
+      - name: Compile Chicago proof-zone manifest
+        run: npm run reconstruction:compile
+
+      - name: Run remote catchup contract
+        run: node tests/tryamm-remote-catchup-contract.mjs
+
+      - name: Upload asset audit and Blender priority
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-asset-audit
+          path: |
+            amm-omniverse/asset-audit.json
+            release-evidence/blender-forge/**
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload BJ source truth
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bj-source-truth
+          path: release-evidence/bj-source-truth.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Chicago reconstruction evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: chicago-reconstruction-evidence
+          path: |
+            release-evidence/chicago-reconstruction/**
+            amm-omniverse/public/generated-data/chicago-proof-zone-v9.json
+          if-no-files-found: error
+          retention-days: 14
