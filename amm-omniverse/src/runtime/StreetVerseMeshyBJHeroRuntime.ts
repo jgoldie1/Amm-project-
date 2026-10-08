@@ -209,6 +209,12 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     const shadowGeometry=new THREE.CircleGeometry(Math.max(.28,size.x*.28),28)
     const shadowMaterial=new THREE.MeshBasicMaterial({color:0x050607,transparent:true,opacity:.24,depthWrite:false,toneMapped:false})
     const contactShadow=new THREE.Mesh(shadowGeometry,shadowMaterial);contactShadow.name='bj-contact-shadow-v8';contactShadow.rotation.x=-Math.PI/2;contactShadow.scale.set(1,Math.max(.55,Math.min(1.15,size.z/Math.max(.01,size.x))),1);contactShadow.position.set(center.x,bounds.min.y+.018,center.z);presentationLayer.add(contactShadow)
+    // V13 mobile hero-readability lights are short-range and shadowless so BJ reads as a character,
+    // not a flat asset, without enabling expensive phone shadow maps or relighting the whole city.
+    const faceHeight=bounds.max.y-size.y*.16
+    const lightDistance=Math.max(1.6,size.y*1.15)
+    const faceKey=new THREE.PointLight(0xffd0b2,.36,lightDistance,2);faceKey.name='bj-face-key-v13';faceKey.castShadow=false;faceKey.position.set(center.x+size.x*.48,faceHeight,center.z+size.z*.72);presentationLayer.add(faceKey)
+    const faceRim=new THREE.PointLight(0x8fc9ff,.24,lightDistance*.92,2);faceRim.name='bj-face-rim-v13';faceRim.castShadow=false;faceRim.position.set(center.x-size.x*.42,faceHeight+size.y*.04,center.z-size.z*.50);presentationLayer.add(faceRim)
     object.add(presentationLayer)
     object.userData={
       ...object.userData,
@@ -227,7 +233,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       productionMaterials:true,
       texturePipeline:'pbr-mobile-production-v12',
       visualTexturePipeline:'pbr-mobile-production-v8',
-      visualPass:'bj-v12-material-eye-hair-fabric',
+      visualPass:'bj-v12-material-eye-hair-fabric',presentationPass:'bj-v13-hero-readability',faceLightingPass:'local-key-rim-v13',
       textureAnisotropy:8,
       lifeLayer:'blink-lipsync-breathing-eye-focus-microgesture-v12',
       legacyLifeLayer:'blink-lipsync-breathing-eye-focus-microgesture-v7',
@@ -236,7 +242,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       asymmetricBlink:true,
       idleMicroExpression:true,
       autonomicLife:true,
-      conversationFocus:true,
+      conversationFocus:true,heroReadabilityV13:true,shortRangeFaceLights:true,
     }
 
     const companionClips:THREE.AnimationClip[]=[]
