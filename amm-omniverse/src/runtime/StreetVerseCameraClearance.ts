@@ -27,3 +27,38 @@ export function createStreetVerseCameraClearance(boxes:THREE.Box3[],external:THR
     return target
   }
 }
+
+
+/**
+ * Resolve the camera AFTER smoothing. A valid desired camera point does not
+ * guarantee the interpolated camera is clear when changing shoulders/turning
+ * corners, especially on low-frame-rate mobile devices.
+ *
+ * Collision input uses building/vehicle bounds rather than renderer meshes,
+ * so this is conservative protection, not a claim of perfect occlusion.
+ */
+export function enforceStreetVerseCameraClearance(
+  focus:THREE.Vector3,
+  cameraPosition:THREE.Vector3,
+  buildings:readonly THREE.Box3[],
+  external:readonly THREE.Box3[],
+  vehicles:readonly THREE.Box3[]=[],
+):boolean{
+  const direction=new THREE.Vector3().subVectors(cameraPosition,focus)
+  const distance=direction.length()
+  if(!Number.isFinite(distance)||distance<.001)return false
+  direction.multiplyScalar(1/distance)
+  const ray=new THREE.Ray(focus,direction),hit=new THREE.Vector3(),padded=new THREE.Box3()
+  let clearDistance=distance
+  for(const group of [buildings,external,vehicles])for(const obstacle of group){
+    padded.copy(obstacle).expandByScalar(.28)
+    // Ignore containing shells: spawning indoors should not pin the camera.
+    if(padded.containsPoint(focus))continue
+    if(!ray.intersectBox(padded,hit))continue
+    const hitDistance=focus.distanceTo(hit)
+    if(hitDistance<=distance+.0001)clearDistance=Math.min(clearDistance,Math.max(.12,hitDistance-.12))
+  }
+  if(clearDistance>=distance-.0001)return false
+  cameraPosition.copy(focus).addScaledVector(direction,clearDistance)
+  return true
+}
