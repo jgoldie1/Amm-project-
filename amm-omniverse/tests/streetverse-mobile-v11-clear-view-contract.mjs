@@ -16,6 +16,7 @@ for(const token of [
   'width: 92px !important',
   'height: 92px !important',
   'width: 38px !important',
+  'bottom: calc(env(safe-area-inset-bottom) + 68px) !important',
   'content: "☁"',
 ])must(css.includes(token),'portrait clear-view CSS missing '+token)
 
