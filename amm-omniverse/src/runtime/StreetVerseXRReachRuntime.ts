@@ -50,6 +50,8 @@ export function installStreetVerseXRReach({
   const grips:[THREE.Group,THREE.Group]=[renderer.xr.getControllerGrip(0),renderer.xr.getControllerGrip(1)]
   const controllerGrabbed:[THREE.Object3D|null,THREE.Object3D|null]=[null,null]
   const originalBackground=scene.background
+  let currentPresentation:StreetVerseXRPresentation=null
+  const tabletopWorldInteractables:THREE.Object3D[]=[]
   const raycaster=new THREE.Raycaster()
   const rayOrigin=new THREE.Vector3()
   const rayDirection=new THREE.Vector3()
@@ -71,28 +73,43 @@ export function installStreetVerseXRReach({
   })
 
   // Oversized tabletop interaction pieces remain easy to touch after the Chicago world is miniaturized in AR.
-  const interactables=[
+  const staticInteractables=[
     makeInteractable('streetverse-xr-mission-token',new THREE.CylinderGeometry(2.0,2.0,.9,24),0xffc84d,[0,2.0,49]),
     makeInteractable('streetverse-xr-creator-cube',new THREE.BoxGeometry(3.4,3.4,3.4),0x65e8ff,[-6,2.1,47]),
     makeInteractable('streetverse-xr-holo-ball',new THREE.SphereGeometry(2.0,24,18),0x9c77ff,[6,2.2,47]),
   ]
-  interactables.forEach(object=>worldRoot.add(object))
+  staticInteractables.forEach(object=>worldRoot.add(object))
+  const refreshTabletopWorldInteractables=()=>{
+    tabletopWorldInteractables.length=0
+    worldRoot.traverse(object=>{
+      if(object.userData?.xrTabletopGrabbable===true)tabletopWorldInteractables.push(object)
+    })
+    window.dispatchEvent(new CustomEvent('tryamm:xr-reach-world-scan',{detail:{tabletopGrabbables:tabletopWorldInteractables.length,source:'streetverse-xr-reach-v2'}}))
+  }
+  const activeInteractables=()=>currentPresentation==='immersive-ar'
+    ?[...staticInteractables,...tabletopWorldInteractables]
+    :staticInteractables
+  const allowedForCurrentPresentation=(object:THREE.Object3D|null)=>{
+    if(!object)return false
+    const scope=String(object.userData?.xrGrabScope||'all')
+    return scope==='all'||scope===currentPresentation
+  }
 
   const releaseToWorld=(object:THREE.Object3D|null)=>{
     if(!object)return
     worldRoot.attach(object)
-    window.dispatchEvent(new CustomEvent('tryamm:xr-reach-release',{detail:{name:object.name,source:'streetverse-xr-reach-v1'}}))
+    window.dispatchEvent(new CustomEvent('tryamm:xr-reach-release',{detail:{name:object.name,kind:object.userData?.xrGrabKind||'prop',presentation:currentPresentation||'3d',source:'streetverse-xr-reach-v2'}}))
   }
   const grabInto=(space:THREE.Object3D,object:THREE.Object3D)=>{
     space.attach(object)
-    window.dispatchEvent(new CustomEvent('tryamm:xr-reach-grab',{detail:{name:object.name,source:'streetverse-xr-reach-v1'}}))
+    window.dispatchEvent(new CustomEvent('tryamm:xr-reach-grab',{detail:{name:object.name,kind:object.userData?.xrGrabKind||'prop',presentation:currentPresentation||'3d',grabOffsetPreserved:true,source:'streetverse-xr-reach-v2'}}))
   }
   const nearestDirect=(point:THREE.Vector3)=>{
     let best:THREE.Object3D|null=null,bestDistance=DIRECT_GRAB_RADIUS_METERS
-    for(const object of interactables){
+    for(const object of activeInteractables()){
       object.getWorldPosition(tmpObject)
       const distance=tmpObject.distanceTo(point)
-      if(distance<bestDistance){best=object;bestDistance=distance}
+      if(distance<bestDistance&&allowedForCurrentPresentation(object)){best=object;bestDistance=distance}
     }
     return best
   }
@@ -122,9 +139,9 @@ export function installStreetVerseXRReach({
     rayOrigin.setFromMatrixPosition(controller.matrixWorld)
     rayDirection.set(0,0,-1).transformDirection(controller.matrixWorld)
     raycaster.set(rayOrigin,rayDirection)
-    const hits=raycaster.intersectObjects(interactables,true)
+    const hits=raycaster.intersectObjects(activeInteractables(),true)
     const candidate=grabbableRoot(hits[0]?.object||null)
-    if(candidate){controllerGrabbed[index]=candidate;grabInto(controller,candidate)}
+    if(candidate&&allowedForCurrentPresentation(candidate)){controllerGrabbed[index]=candidate;grabInto(controller,candidate)}
   }
   const onControllerSelectEnd=(index:number)=>{
     releaseToWorld(controllerGrabbed[index])
@@ -138,6 +155,8 @@ export function installStreetVerseXRReach({
   })
 
   const setPresentation=(mode:StreetVerseXRPresentation)=>{
+    currentPresentation=mode
+    refreshTabletopWorldInteractables()
     if(mode==='immersive-ar'){
       worldRoot.scale.setScalar(.012)
       worldRoot.position.set(0,.72,-1.20)
@@ -154,7 +173,7 @@ export function installStreetVerseXRReach({
       worldRoot.rotation.set(0,0,0)
       scene.background=originalBackground
     }
-    window.dispatchEvent(new CustomEvent('tryamm:xr-reach-presentation',{detail:{mode:mode||'3d',tabletop:mode==='immersive-ar',handTrackingRequested:true,source:'streetverse-xr-reach-v1'}}))
+    window.dispatchEvent(new CustomEvent('tryamm:xr-reach-presentation',{detail:{mode:mode||'3d',tabletop:mode==='immersive-ar',handTrackingRequested:true,source:'streetverse-xr-reach-v2'}}))
   }
 
   return{
@@ -170,7 +189,7 @@ export function installStreetVerseXRReach({
       hands.forEach(hand=>hand.removeFromParent())
       controllers.forEach(controller=>controller.removeFromParent())
       grips.forEach(grip=>grip.removeFromParent())
-      interactables.forEach(object=>{
+      staticInteractables.forEach(object=>{
         object.removeFromParent()
         if(object instanceof THREE.Mesh){
           object.geometry.dispose()
