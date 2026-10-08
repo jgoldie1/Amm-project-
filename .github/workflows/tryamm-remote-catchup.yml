@@ -48,6 +48,7 @@ jobs:
         run: node tests/tryamm-remote-catchup-contract.mjs
 
       - name: Upload asset audit
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: streetverse-asset-audit
