@@ -44,3 +44,27 @@ test('TRYAMM offers three routes into new store', () => {
     assert.match(readFileSync(root+path,'utf8'),/\/mobility360\.html/, path)
   }
 })
+
+test('photo and captioned video support requires approved local media', () => {
+  const manifest = JSON.parse(readFileSync(root + 'public/mobility360-media.json','utf8'))
+  assert.equal(manifest.version, 1)
+  assert.ok(Array.isArray(manifest.entries))
+  for(const entry of manifest.entries) {
+    assert.equal(entry.approved,true)
+    assert.match(entry.imageSrc??'', /^\/mobility360-media\//)
+    assert.ok(entry.imageAlt?.trim())
+    if(entry.videoSrc) {
+      assert.match(entry.videoSrc,/\.mp4$|\.webm$/i)
+      assert.match(entry.captionsSrc??'',/\.vtt$/i)
+    }
+  }
+  assert.match(page,/id="mediaGrid"/)
+  assert.match(page,/Real pictures\. Helpful demonstrations\./)
+  assert.match(page,/item\.approved!==true/)
+  assert.match(page,/function safeMediaFile/)
+  assert.match(page,/caption\.kind='captions'/)
+  assert.match(page,/video\.controls=true/)
+  assert.match(page,/video\.preload='none'/)
+  assert.match(page,/No photos from third-party social advertisements are reused without permission/)
+  assert.doesNotMatch(page,/\.autoplay\s*=\s*true/)
+})
