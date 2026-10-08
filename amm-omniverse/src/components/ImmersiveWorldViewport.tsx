@@ -21,6 +21,7 @@ export default function ImmersiveWorldViewport({onClose}:Props){
  const rendererRef=useRef<THREE.WebGLRenderer|null>(null)
  const sessionRef=useRef<any>(null)
  const xrReachRef=useRef<ReturnType<typeof installStreetVerseXRReach>|null>(null)
+ const xrModeRef=useRef<XRMode|null>(null)
  const [mode,setMode]=useState<Mode>('city')
  const [status,setStatus]=useState('Use WASD / arrow keys to move. Drag to look. XR is available on compatible devices.')
  const [xrSupport,setXrSupport]=useState({vr:false,ar:false,checked:false})
@@ -55,7 +56,7 @@ export default function ImmersiveWorldViewport({onClose}:Props){
   const addChrono=()=>{for(let i=0;i<14;i++){const ring=new THREE.Mesh(new THREE.TorusGeometry(3+i*.65,.05,8,64),new THREE.MeshBasicMaterial({color:new THREE.Color().setHSL(i/14,.9,.6)}));ring.position.z=-i*5;ring.rotation.x=Math.PI/2;group.add(ring)}for(let i=0;i<120;i++){const p=new THREE.Mesh(new THREE.SphereGeometry(.04,5,5),new THREE.MeshBasicMaterial({color:0xaa88ff}));p.position.set((Math.random()-.5)*30,Math.random()*15,(Math.random()-.5)*90);group.add(p)}}
   if(mode==='city')addCity();else if(mode==='wilderness')addWilderness();else if(mode==='moon')addRockWorld(0x777777);else if(mode==='mars')addRockWorld(0x8b321e);else if(mode==='saturn')addSaturn();else addChrono()
   const xrReach=installStreetVerseXRReach({renderer,scene,worldRoot:group});xrReachRef.current=xrReach
-  const currentPresentation=(sessionRef.current?xrActive:null) as StreetVerseXRPresentation;xrReach.setPresentation(currentPresentation)
+  const currentPresentation=xrModeRef.current as StreetVerseXRPresentation;xrReach.setPresentation(currentPresentation)
 
   const keys=new Set<string>();let dragging=false,lastX=0,lastY=0,yaw=0,pitch=-.08,prev=performance.now()
   const keydown=(e:KeyboardEvent)=>keys.add(e.key.toLowerCase()),keyup=(e:KeyboardEvent)=>keys.delete(e.key.toLowerCase())
@@ -75,8 +76,8 @@ export default function ImmersiveWorldViewport({onClose}:Props){
   try{
    if(sessionRef.current)await sessionRef.current.end()
    const init:any=kind==='immersive-ar'?{requiredFeatures:['local-floor'],optionalFeatures:['hit-test','hand-tracking','dom-overlay'],domOverlay:{root:document.body}}:{requiredFeatures:['local-floor'],optionalFeatures:['bounded-floor','hand-tracking']}
-   const session=await xr.requestSession(kind,init);sessionRef.current=session;setXrActive(kind);setStatus(kind==='immersive-vr'?'StreetVerse VR active • Circle Park is centered around you • controller select or hand pinch can grab XR Reach props.':'StreetVerse tabletop AR active • reach toward the miniature West Side • pinch tracked fingers to grab XR Reach props.')
-   session.addEventListener('end',()=>{sessionRef.current=null;xrReachRef.current?.setPresentation(null);setXrActive(null);setStatus('XR session ended. Desktop/mobile StreetVerse remains active.')},{once:true})
+   const session=await xr.requestSession(kind,init);sessionRef.current=session;xrModeRef.current=kind;setXrActive(kind);setStatus(kind==='immersive-vr'?'StreetVerse VR active • Circle Park is centered around you • controller select or hand pinch can grab XR Reach props.':'StreetVerse tabletop AR active • reach toward the miniature West Side • pinch tracked fingers to grab XR Reach props.')
+   session.addEventListener('end',()=>{sessionRef.current=null;xrModeRef.current=null;xrReachRef.current?.setPresentation(null);setXrActive(null);setStatus('XR session ended. Desktop/mobile StreetVerse remains active.')},{once:true})
    await renderer.xr.setSession(session);xrReachRef.current?.setPresentation(kind)
   }catch(error){console.error('StreetVerse XR session failed',error);setStatus('XR could not start on this device/browser. StreetVerse remains available in standard 3D mode.')}
  }
