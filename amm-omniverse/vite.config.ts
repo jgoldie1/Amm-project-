@@ -40,6 +40,10 @@ export default defineConfig({
         streetverseSafe: fileURLToPath(new URL('./streetverse-safe.html', import.meta.url)),
       },
       output: {
+        // Avoid Rollup implicitly pulling transitive dependencies into a hashed
+        // first-party runtime shard. Dependencies stay in their proper vendor
+        // chunks or natural lazy boundaries instead of forming a 2.9 MB shard.
+        onlyExplicitManualChunks: true,
         manualChunks(id, { getModuleInfo }) {
           // Transitively follow STATIC imports to detect first-party modules
           // that pull in Three.js. These must remain outside app-runtime or
