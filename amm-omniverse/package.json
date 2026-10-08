@@ -91,7 +91,8 @@
     "meshy:forge:wave2": "node scripts/forge-streetverse-residents-wave2.mjs",
     "assets:prebuild": "npm run free:assets && npm run native:assets && npm run bj:v7:publish",
     "asset:priority": "node scripts/build-forge-priority.mjs asset-audit.json ../release-evidence/blender-forge",
-    "bj:source-truth": "node scripts/bj-source-truth.mjs ../release-evidence/bj-source-truth.json"
+    "bj:source-truth": "node scripts/bj-source-truth.mjs ../release-evidence/bj-source-truth.json",
+    "bj:candidate:check": "node scripts/bj-candidate-check.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.3",
