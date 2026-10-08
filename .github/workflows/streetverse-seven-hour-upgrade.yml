@@ -1,0 +1,115 @@
+name: StreetVerse Seven-Hour Recovery and Upgrade
+
+on:
+  push:
+    branches:
+      - safety/streetverse-supabase-asset-preservation-20261008
+    paths:
+      - 'amm-omniverse/scripts/streetverse-seven-hour-repair.sh'
+      - '.github/workflows/streetverse-seven-hour-upgrade.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-seven-hour-upgrade-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  recover-and-repair:
+    name: Part 1 — recover assets, BJ models and Chicago graphics (up to 3h30)
+    runs-on: ubuntu-latest
+    timeout-minutes: 225
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install pinned dependencies
+        working-directory: amm-omniverse
+        run: npm ci --no-audit --no-fund
+      - name: Validate Bash and preservation safety before work
+        run: |
+          set -euo pipefail
+          bash -n amm-omniverse/scripts/streetverse-seven-hour-repair.sh
+          node --test amm-omniverse/tests/streetverse-preservation-safety.test.mjs
+          node --test amm-omniverse/tests/streetverse-preserved-resident-runtime.test.mjs
+      - name: Create fresh read-only SHA-256 recovery copy of the 12 originals
+        env:
+          STREETVERSE_PRESERVATION_DIR: release-evidence/streetverse-7h-original-glbs
+        run: node amm-omniverse/scripts/preserve-streetverse-supabase-assets.mjs
+      - name: Run bounded first-half StreetVerse asset and visual repairs
+        id: assetrepair
+        working-directory: amm-omniverse
+        run: bash scripts/streetverse-seven-hour-repair.sh assets 210
+      - name: Archive original Supabase character files and hashes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-seven-hour-original-glbs
+          path: release-evidence/streetverse-7h-original-glbs/
+          compression-level: 0
+          retention-days: 90
+          if-no-files-found: warn
+      - name: Archive first-half repair proof and red gates
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-seven-hour-part1-evidence
+          path: release-evidence/streetverse-seven-hour/assets/
+          retention-days: 30
+          if-no-files-found: warn
+
+  gameplay-and-no-regression:
+    name: Part 2 — iPhone controls, traffic, Circle Park, missions, XR and release gates (up to 3h30)
+    needs: [recover-and-repair]
+    if: always() && needs.recover-and-repair.result != 'cancelled'
+    runs-on: ubuntu-latest
+    timeout-minutes: 225
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install pinned dependencies
+        working-directory: amm-omniverse
+        run: npm ci --no-audit --no-fund
+      - name: Verify preserved GLB character map and Bash syntax
+        run: |
+          set -euo pipefail
+          bash -n amm-omniverse/scripts/streetverse-seven-hour-repair.sh
+          node --test amm-omniverse/tests/streetverse-preservation-safety.test.mjs
+          node --test amm-omniverse/tests/streetverse-preserved-resident-runtime.test.mjs
+      - name: Run bounded second-half gameplay and release repairs
+        working-directory: amm-omniverse
+        run: bash scripts/streetverse-seven-hour-repair.sh gameplay 210
+      - name: Archive playable-world repair proof and red gates
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-seven-hour-part2-evidence
+          path: release-evidence/streetverse-seven-hour/gameplay/
+          retention-days: 30
+          if-no-files-found: warn
+
+  release-safety:
+    name: Final verdict — no unverified production merge
+    needs: [recover-and-repair, gameplay-and-no-regression]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail closed if either repair/test job is red
+        env:
+          ASSETS: ${{ needs.recover-and-repair.result }}
+          GAMEPLAY: ${{ needs.gameplay-and-no-regression.result }}
+        run: |
+          echo "Asset and backup phase: $ASSETS"
+          echo "Gameplay no-regression phase: $GAMEPLAY"
+          test "$ASSETS" = "success"
+          test "$GAMEPLAY" = "success"
+          echo "Release CANDIDATE passes. PR review and live device/production checks still required."
