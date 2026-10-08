@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - 'amm-omniverse/public/mobility360.html'
+      - 'amm-omniverse/public/mobility360-learn.html'
+      - 'amm-omniverse/public/mobility360-media.json'
+      - 'amm-omniverse/docs/STUBBS_MOBILITY360_*.md'
       - 'amm-omniverse/src/App.tsx'
       - 'amm-omniverse/src/components/TryAMMHome.tsx'
       - 'amm-omniverse/src/components/AllAmericanOmnichannelCenter.tsx'
@@ -10,9 +13,14 @@ on:
       - '.github/workflows/stubbs-mobility360-preview.yml'
   push:
     branches:
-      - 'feat/stubbs-mobility360-storefront-20261008'
+      - main
+      - 'feat/mobility360-*'
+      - 'feat/stubbs-mobility360-*'
     paths:
       - 'amm-omniverse/public/mobility360.html'
+      - 'amm-omniverse/public/mobility360-learn.html'
+      - 'amm-omniverse/public/mobility360-media.json'
+      - 'amm-omniverse/docs/STUBBS_MOBILITY360_*.md'
       - 'amm-omniverse/src/App.tsx'
       - 'amm-omniverse/src/components/TryAMMHome.tsx'
       - 'amm-omniverse/src/components/AllAmericanOmnichannelCenter.tsx'
