@@ -39,7 +39,7 @@ assert.match(mobile,/hero-chin-volume/)
 assert.match(mobile,/streetverse-mobile-tree-branches-left/)
 assert.match(mobile,/streetverse-mobile-tree-crowns-back/)
 
-for(const token of ['syp8-uezg','6imu-meau','api/geospatial/6imu-meau?method=export&format=GeoJSON','dj47-wfun','api/views/','geometryFieldCandidates','intersects(','exactDigitalTwin:false']) assert.ok(fetcher.includes(token),'GIS evidence fetcher missing '+token)
+for(const token of ['syp8-uezg','6imu-meau','rowExport:true','dj47-wfun','api/views/','geometryFieldCandidates','resource/${source.dataset}.json','geometryFromRow','intersectsBounds','exactDigitalTwin:false']) assert.ok(fetcher.includes(token),'GIS evidence fetcher missing '+token)
 assert.equal(pkg.scripts?.['reconstruction:evidence'],'node scripts/fetch-chicago-reconstruction-evidence.mjs')
 
 console.log('STREETVERSE NEIGHBORHOOD DIGITAL TWIN V8 CONTRACT PASS: public-data source registry + GIS evidence pipeline + source-labelled West Side reconstruction + visible BJ/tree upgrades')
