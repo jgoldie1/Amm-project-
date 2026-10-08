@@ -4,7 +4,7 @@ import { getAccessToken } from '../services/supabaseClient'
 type Msg={role:'user'|'assistant';content:string;provider?:string}
 type SourceMode='auto'|'holo'|'oracle'|'old-web'|'historical'
 type RetrievalItem={title?:string;headline?:string;summary?:string;sourceName?:string;sourceUrl?:string|null;verification?:string;kind?:string;city?:string;representation?:string}
-type Props={showLauncher?:boolean}
+type Props={showLauncher?:boolean;openOnMount?:boolean}
 type Health={ok:boolean;provider?:string;model?:string;error?:string;degraded?:boolean}
 const KEY='tryamm_hologpt_history_v1'
 
@@ -13,6 +13,7 @@ function invoke(name:string){const fn=(window as any)[name];if(typeof fn==='func
 function localIntent(question:string){
   const q=question.toLowerCase()
   const intents:[RegExp,string,string][]=[
+    [/mobility\s*360|accessibility store|mobility shop|disability marketplace/, '__showMobility360','Opening Stubbs Mobility 360.'],
     [/streetverse|play.*game/, '__showPlayableBeta','Opening StreetVerse.'],
     [/reel|movie|clip|video|green screen/, '__showMediaStudio','Opening TRYAMM Media Studio.'],
     [/ride|car service/, '__showHoloRide','Opening Holo Ride.'],
@@ -127,10 +128,10 @@ function compactRetrieval(items:RetrievalItem[],limit=8){
   }))
 }
 
-export default function HoloGPTAssistant({showLauncher=true}:Props){
-  const [open,setOpen]=useState(false)
+export default function HoloGPTAssistant({showLauncher=true,openOnMount=false}:Props){
+  const [open,setOpen]=useState(openOnMount)
   const [messages,setMessages]=useState<Msg[]>(loadHistory)
-  const [input,setInput]=useState('')
+  const [input,setInput]=useState(openOnMount && new URLSearchParams(window.location.search).get('context')==='mobility360'?'Help me explore the Stubbs Mobility 360 accessibility marketplace. I understand products are not approved for sale yet.':'')
   const [busy,setBusy]=useState(false)
   const [health,setHealth]=useState<Health|null>(null)
   const [sourceMode,setSourceMode]=useState<SourceMode>('auto')

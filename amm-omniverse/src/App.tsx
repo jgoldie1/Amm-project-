@@ -61,6 +61,7 @@ const HoloStyleCenter = lazy(() => import('./components/HoloStyleCenter'))
 const StaysAgencyFamilyHub = lazy(() => import('./components/StaysAgencyFamilyHub'))
 const SparrowMapCenter = lazy(() => import('./components/SparrowMapCenter'))
 const BJStubbsV7Viewer = lazy(() => import('./components/BJStubbsV7Viewer'))
+const HoloGPTAssistant = lazy(() => import('./components/HoloGPTAssistant'))
 
 export default function App() {
   const screen = useGameStore(s => s.screen)
@@ -115,12 +116,15 @@ export default function App() {
   const [showSparrowMap, setShowSparrowMap] = useState(false)
   const [showBJViewer, setShowBJViewer] = useState(() => ['/bj-v7-preview','/bj-v8-preview','/bj-v9-preview','/bj-v10-preview','/bj-preview'].includes(window.location.pathname.replace(/\/+$/, '')))
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
+  const [showHoloGPT, setShowHoloGPT] = useState(() => new URLSearchParams(window.location.search).get('open') === 'hologpt')
 
   const navigateTryAMM = (path:string) => {
     const route = (path || '/').replace(/\/+$/, '') || '/'
     if (route === '/') { setScreen('intro'); return }
     if (route === '/streetverse' || route === '/metaverse-bible' || route === '/ethiopian-bible' || route === '/faithverse' || route === '/starverse' || route === '/kingdom' || route === '/kingdom-of-yahisrael' || route === '/kingdom-workbook' || route === '/yahisrael' || route === '/judah' || route === '/where-heaven-meets-earth' || route === '/my-world' || route === '/we-are-the-world') { window.location.href = route; return }
     if (route === '/bj-v7-preview' || route === '/bj-v8-preview' || route === '/bj-v9-preview' || route === '/bj-v10-preview' || route === '/bj-preview') { setShowBJViewer(true); return }
+    if (route === '/mobility360' || route === '/mobility360.html') { window.location.href='/mobility360.html'; return }
+    if (route === '/mobility360-learn' || route === '/mobility360-learn.html') { window.location.href='/mobility360-learn.html'; return }
     if (route === '/marketplace') { setScreen('marketplace'); return }
     if (route === '/music' || route === '/musicverse') { setScreen('music'); return }
     if (route === '/aniyah-studio' || route === '/64-track-studio') { setShowAniyahStudio(true); return }
@@ -199,6 +203,8 @@ export default function App() {
   ;(window as any).__showPricing = () => setShowPricing(true)
   ;(window as any).__showHoloverse = () => setShowHoloverse(true)
   ;(window as any).__showBennie = () => setShowBennie(true)
+  ;(window as any).__showHoloGPT = () => { setShowHoloGPT(true); window.dispatchEvent(new Event('tryamm:open-hologpt')) }
+  ;(window as any).__showMobility360 = () => { window.location.href='/mobility360.html' }
   ;(window as any).__showProAudio = () => setShowProAudio(true)
   ;(window as any).__showOmniverse = () => setShowOmniverse(true)
   ;(window as any).__showAdvancedWorlds = () => setShowAdvanced(true)
@@ -381,6 +387,7 @@ export default function App() {
         {showHoloPlayCard && <HoloPlayCard onClose={() => setShowHoloPlayCard(false)} />}
         {showCrossVerseEconomy && <CrossVerseCreatorEconomyCenter onClose={() => setShowCrossVerseEconomy(false)} />}
         {showTryammTv && <TryammTvHome onClose={() => setShowTryammTv(false)} />}
+        {showHoloGPT && <HoloGPTAssistant showLauncher={false} openOnMount />}
         {showBJViewer && <BJStubbsV7Viewer onClose={() => {setShowBJViewer(false); if(window.location.pathname.startsWith('/bj-')) window.location.href='/streetverse'}} />}
 
         {showSwipeTip && signedIn && <SwipeTutorial onDismiss={() => {setShowSwipeTip(false);localStorage.setItem('amm_swiped','1')}} />}
