@@ -8,7 +8,7 @@ const candidates={
   productionV12:'public/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V12.glb',
   productionV7:'public/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V7.glb',
   compatibilityV6:'public/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6.glb',
-  nativeHero:'public/generated-assets/native/streetverse-hero-player.glb',
+  nativeHero:'public/generated-assets/native/kit/streetverse-hero-player.glb',
 }
 const rows={}
 for(const [key,rel] of Object.entries(candidates)){
@@ -21,6 +21,8 @@ for(const [key,rel] of Object.entries(candidates)){
   }
 }
 const equal=(a,b)=>Boolean(rows[a]?.sha256&&rows[a].sha256===rows[b]?.sha256)
+let publishManifest=null
+try{publishManifest=JSON.parse(await fs.readFile(path.join(root,'public/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V12.manifest.json'),'utf8'))}catch{}
 const report={
   schema:'tryamm.streetverse.bj-source-truth.v1',
   generatedAt:new Date().toISOString(),
@@ -30,6 +32,8 @@ const report={
     v12EqualsV7:equal('productionV12','productionV7'),
     v12EqualsV6:equal('productionV12','compatibilityV6'),
   },
+  publishManifestTruth:publishManifest?.truth||null,
+  publishManifestGenerator:publishManifest?.generator||null,
 }
 report.productionDistinctFromNative=rows.productionV12.exists&&rows.nativeHero.exists&&!report.comparisons.v12EqualsNative
 report.higherFidelitySourceRequired=!report.productionDistinctFromNative
