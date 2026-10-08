@@ -64,7 +64,7 @@ guarded_repair(){
   # Their output stays in this isolated ephemeral checkout; no auto-commit.
   run_gate repair-entry node scripts/repair-streetverse-entry.mjs || true
   run_gate repair-hero node scripts/inject-streetverse-hero-spawn.mjs || true
-  run_gate generate-native-models npm run native:assets || true
+  run_gate generate-native-models npm run assets:prebuild || true
 }
 
 asset_pass(){
