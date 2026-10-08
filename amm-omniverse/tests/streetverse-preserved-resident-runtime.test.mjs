@@ -40,3 +40,14 @@ test('iPhone shows preserved GLB before fetching 25 MB of walk/run companions',(
   assert.ok(runtime.includes("window.dispatchEvent(new CustomEvent('tryamm:circle-park-motion-ready'"))
   assert.ok(runtime.includes('disposed=true'),'async motion disposal guard missing')
 })
+
+test('deferred GLB walk/run clips retain a mixer even when the static model has no animation',()=>{
+  assert.ok(runtime.includes('options.deferCompanionAnimations&&companionSources.length>0'),
+    'deferred companions need an animation mixer before asynchronous clips arrive')
+  assert.ok(runtime.includes('clips.push(...imported)'),
+    'motion clip must join the live clip collection')
+  assert.ok(runtime.includes('animationMap[motion]=imported[0];active=\'\''),
+    'new motion clip must invalidate the prior action choice')
+  assert.ok(runtime.includes('mixer.clipAction(clip)'),
+    'downloaded clip must be playable on the live resident skeleton')
+})
