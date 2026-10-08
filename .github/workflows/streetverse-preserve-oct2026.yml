@@ -8,6 +8,8 @@ on:
       - amm-omniverse/config/streetverse-asset-lock-20261005.json
       - amm-omniverse/scripts/preserve-streetverse-supabase-assets.mjs
       - amm-omniverse/tests/streetverse-preservation-safety.test.mjs
+      - amm-omniverse/tests/streetverse-preserved-resident-runtime.test.mjs
+      - amm-omniverse/src/runtime/StreetVerseMeshyCharacterRuntime.ts
       - .github/workflows/streetverse-preserve-oct2026.yml
   workflow_dispatch:
 
@@ -29,6 +31,20 @@ jobs:
           node-version: '24'
       - name: Test immutable asset-lock and GLB format guards
         run: node --test amm-omniverse/tests/streetverse-preservation-safety.test.mjs
+      - name: Verify preserved residents, concurrent animation and legacy fallbacks
+        run: |
+          node --test amm-omniverse/tests/streetverse-preserved-resident-runtime.test.mjs
+          cd amm-omniverse
+          node tests/meshy-durable-wave1-contract.mjs
+          node tests/meshy-durable-wave2-contract.mjs
+          node tests/meshy-character-mobile-readability-contract.mjs
+          node tests/streetverse-mobile-v11-clear-view-contract.mjs
+      - name: Install pinned project dependencies for TypeScript validation
+        working-directory: amm-omniverse
+        run: npm ci --ignore-scripts
+      - name: TypeScript no-regression validation
+        working-directory: amm-omniverse
+        run: npm run typecheck
       - name: Download and verify 12 existing public GLB originals (read-only)
         env:
           STREETVERSE_PRESERVATION_DIR: release-evidence/streetverse-20261005-recovered
