@@ -1,0 +1,18 @@
+
+/* Concept comparison: no price spoofing or buy buttons. */
+.compare-panel{margin-top:22px;background:#eef9f4;border:1px solid #b7ddd2;border-radius:19px;padding:clamp(16px,3vw,27px)}
+.compare-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.compare-head h3{font-size:clamp(19px,3vw,27px);margin:0 0 5px}.compare-head p{margin:0;color:#446a6e;font-size:13px}
+.compare-clear,.compare-toggle,.compare-remove{min-height:44px;padding:10px 13px;background:#fff;border:1px solid #278484;color:#095c63;border-radius:11px;font-weight:850;cursor:pointer}
+.compare-clear:hover,.compare-toggle:hover,.compare-remove:hover{background:#e2f5ef}
+.compare-toggle{width:100%;margin-top:9px;font-size:12px;background:#e8f6f2}
+.compare-toggle[aria-pressed=true]{background:#0e6369;color:#fff}
+.compare-toggle:disabled{opacity:.5;cursor:not-allowed}
+.compare-panel button:focus-visible,.compare-toggle:focus-visible{outline:3px solid #b77b07;outline-offset:3px}
+#compareSummary{font-size:13px;color:#245b62;margin:12px 0}
+#compareEmpty{padding:13px 0;color:#385f64;font-size:14px}
+.compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.compare-card{background:#fff;border:1px solid #c1e1d8;border-radius:13px;padding:15px;min-width:0}
+.compare-card h3{font-size:17px;margin:0 0 12px;line-height:1.25}
+.compare-line{font-size:12px;line-height:1.5;color:#3b5c62;margin:7px 0;overflow-wrap:anywhere}
+.compare-line strong{color:#153e45}.compare-remove{font-size:12px;width:100%;margin-top:8px}
