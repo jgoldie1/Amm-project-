@@ -49,11 +49,25 @@ jobs:
         env:
           STREETVERSE_PRESERVATION_DIR: release-evidence/streetverse-20261005-recovered
         run: node amm-omniverse/scripts/preserve-streetverse-supabase-assets.mjs
-      - name: Save verified GLB snapshot and SHA-256 manifest (90-day artifact)
+      - name: Save Wave 1 GLBs and checksum manifest (under 100 MB)
         uses: actions/upload-artifact@v4
         with:
-          name: streetverse-oct05-verified-glb-snapshot
-          path: release-evidence/streetverse-20261005-recovered/
+          name: streetverse-oct05-wave1-verified
+          path: |
+            release-evidence/streetverse-20261005-recovered/characters/static-wave1/
+            release-evidence/streetverse-20261005-recovered/asset-lock.json
+            release-evidence/streetverse-20261005-recovered/verified-sha256-manifest.json
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 90
+      - name: Save Wave 2 GLBs and checksum manifest (under 100 MB)
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-oct05-wave2-verified
+          path: |
+            release-evidence/streetverse-20261005-recovered/characters/static-wave2/
+            release-evidence/streetverse-20261005-recovered/asset-lock.json
+            release-evidence/streetverse-20261005-recovered/verified-sha256-manifest.json
           if-no-files-found: error
           compression-level: 0
           retention-days: 90
