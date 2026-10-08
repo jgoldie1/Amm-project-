@@ -71,6 +71,34 @@ const arcgisEnvelope=()=>JSON.stringify({
   xmin:bounds.west,ymin:bounds.south,xmax:bounds.east,ymax:bounds.north,
   spatialReference:{wkid:4326},
 })
+const coordinateInsideBounds=coordinate=>{
+  if(!Array.isArray(coordinate)||coordinate.length<2)return false
+  const lon=Number(coordinate[0]),lat=Number(coordinate[1])
+  return Number.isFinite(lon)&&Number.isFinite(lat)&&lon>=bounds.west&&lon<=bounds.east&&lat>=bounds.south&&lat<=bounds.north
+}
+const geometryTouchesBounds=geometry=>{
+  if(!geometry)return false
+  const visit=value=>{
+    if(!Array.isArray(value))return false
+    if(value.length>=2&&typeof value[0]==='number'&&typeof value[1]==='number')return coordinateInsideBounds(value)
+    return value.some(visit)
+  }
+  return visit(geometry.coordinates)
+}
+const fetchGeospatialExport=async source=>{
+  let response
+  try{response=await fetchWithRetry(source.geospatialExport,{accept:'application/geo+json,application/json'},4)}
+  catch(error){throw new Error(`${source.id} geospatial export failed: ${error?.message||error}`)}
+  const json=await response.json()
+  if(json?.type!=='FeatureCollection'||!Array.isArray(json.features))throw new Error(source.id+' geospatial export did not return GeoJSON FeatureCollection')
+  const features=json.features.filter(feature=>geometryTouchesBounds(feature.geometry))
+  return{
+    url:source.geospatialExport,
+    json:{type:'FeatureCollection',features},
+    geometryField:'local-bbox-filter',
+    provider:'socrata-geospatial-export',
+  }
+}
 const fetchArcGISGeoJson=async source=>{
   const idParams=new URLSearchParams({
     where:'1=1',
