@@ -1,8 +1,5 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import os from 'node:os'
-import {execFile} from 'node:child_process'
-import {promisify} from 'node:util'
 
 const bounds={
   north:Number(process.env.SV_CHICAGO_NORTH||41.892),
@@ -23,8 +20,8 @@ const sources=[
     id:'chicago-street-centerlines',
     dataset:'6imu-meau',
     file:'street-centerlines.geojson',
-    exportUrl:'https://data.cityofchicago.org/api/geospatial/6imu-meau?method=export&format=GeoJSON',
-    sourceMode:'city-socrata-geospatial-export',
+    rowExport:true,
+    sourceMode:'city-socrata-row-export',
     caveat:'Street Center Lines metadata lists an August 2016 time period and portal update in April 2024; use for reconstruction geometry baseline, not present-day street certification.',
   },
   {
@@ -40,7 +37,6 @@ const assertBounds=()=>{
   if(bounds.south>=bounds.north||bounds.west>=bounds.east)throw new Error('Invalid Chicago reconstruction bounding box')
 }
 const bboxWkt=()=>`POLYGON((${bounds.west} ${bounds.south},${bounds.east} ${bounds.south},${bounds.east} ${bounds.north},${bounds.west} ${bounds.north},${bounds.west} ${bounds.south}))`
-const execFileAsync=promisify(execFile)
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms))
 const fetchWithRetry=async(url,headers={},attempts=4)=>{
   let last
@@ -95,45 +91,44 @@ const intersectsBounds=geometry=>{
   return b.maxLon>=bounds.west&&b.minLon<=bounds.east&&b.maxLat>=bounds.south&&b.minLat<=bounds.north
 }
 
-const parseGeoJsonExport=async(source,response)=>{
-  const bytes=Buffer.from(await response.arrayBuffer())
-  const contentType=String(response.headers.get('content-type')||'').toLowerCase()
-  let text=''
-  if(bytes[0]===0x50&&bytes[1]===0x4b){
-    const tmpDir=await fs.mkdtemp(path.join(os.tmpdir(),'tryamm-chicago-export-'))
-    const zipFile=path.join(tmpDir,'export.zip')
-    await fs.writeFile(zipFile,bytes)
-    try{
-      const listing=await execFileAsync('unzip',['-Z1',zipFile],{maxBuffer:2*1024*1024})
-      const member=String(listing.stdout||'').split(/\r?\n/).find(name=>/\.(geojson|json)$/i.test(name.trim()))
-      if(!member)throw new Error('ZIP contained no .geojson/.json member')
-      const extracted=await execFileAsync('unzip',['-p',zipFile,member.trim()],{maxBuffer:64*1024*1024})
-      text=String(extracted.stdout||'')
-    }finally{
-      await fs.rm(tmpDir,{recursive:true,force:true})
-    }
-  }else{
-    text=bytes.toString('utf8')
+const looksLikeGeometry=value=>value&&typeof value==='object'&&typeof value.type==='string'&&Array.isArray(value.coordinates)
+const geometryFromRow=row=>{
+  for(const key of ['the_geom','shape','geometry','location']){
+    if(looksLikeGeometry(row?.[key]))return{key,geometry:row[key]}
   }
-  const normalized=text.replace(/^\uFEFF/,'').trim()
-  let json
-  try{json=JSON.parse(normalized)}catch(error){
-    const head=normalized.slice(0,120).replace(/\s+/g,' ')
-    const tail=normalized.slice(-120).replace(/\s+/g,' ')
-    throw new Error(`${source.id} export was not parseable GeoJSON • content-type=${contentType||'unknown'} • parse=${error?.message||error} • head=${head||'[binary]'} • tail=${tail||'[empty]'}`)
-  }
-  if(json?.type!=='FeatureCollection'||!Array.isArray(json.features))throw new Error(source.id+' export did not return GeoJSON FeatureCollection')
-  return json
+  for(const [key,value] of Object.entries(row||{}))if(looksLikeGeometry(value))return{key,geometry:value}
+  return null
 }
-const fetchGeospatialExport=async source=>{
-  const response=await fetchWithRetry(source.exportUrl,{accept:'application/geo+json,application/json,application/zip,application/octet-stream'},4)
-  const json=await parseGeoJsonExport(source,response)
-  const features=json.features.filter(feature=>intersectsBounds(feature.geometry))
+const fetchSocrataRowsAsGeoJson=async source=>{
+  const pageSize=25000
+  const features=[]
+  let geometryField=''
+  let totalRows=0
+  for(let offset=0;offset<100000;offset+=pageSize){
+    const params=new URLSearchParams({'$limit':String(pageSize),'$offset':String(offset)})
+    const url=`https://data.cityofchicago.org/resource/${source.dataset}.json?${params}`
+    const response=await fetchWithRetry(url,{accept:'application/json'},4)
+    const rows=await response.json()
+    if(!Array.isArray(rows))throw new Error(source.id+' row export did not return an array')
+    totalRows+=rows.length
+    for(const row of rows){
+      const found=geometryFromRow(row)
+      if(!found)continue
+      geometryField ||= found.key
+      if(!intersectsBounds(found.geometry))continue
+      const properties={...row}
+      delete properties[found.key]
+      features.push({type:'Feature',geometry:found.geometry,properties})
+    }
+    if(rows.length<pageSize)break
+  }
+  if(!geometryField)throw new Error(source.id+` row export found no GeoJSON geometry field across ${totalRows} rows`)
   return{
-    url:source.exportUrl,
+    url:`https://data.cityofchicago.org/resource/${source.dataset}.json`,
     json:{type:'FeatureCollection',features},
-    geometryField:'local-bbox-filter',
-    provider:'socrata-geospatial-export',
+    geometryField:`row-export:${geometryField}`,
+    provider:'socrata-row-export',
+    totalRows,
   }
 }
 
@@ -157,7 +152,7 @@ const fetchSocrataGeoJson=async source=>{
   throw new Error(`${source.id} download failed for geometry candidates • ${failures.join(' | ')}`)
 }
 
-const fetchGeoJson=source=>source.exportUrl?fetchGeospatialExport(source):fetchSocrataGeoJson(source)
+const fetchGeoJson=source=>source.rowExport?fetchSocrataRowsAsGeoJson(source):fetchSocrataGeoJson(source)
 
 assertBounds()
 await fs.mkdir(outDir,{recursive:true})
@@ -171,15 +166,16 @@ const manifest={
   sources:[],
 }
 for(const source of sources){
-  const {url,json,geometryField,provider}=await fetchGeoJson(source)
+  const {url,json,geometryField,provider,totalRows}=await fetchGeoJson(source)
   if(!json.features.length)throw new Error(source.id+' returned zero features inside the Chicago proof-zone bounds')
   const target=path.join(outDir,source.file)
   await fs.writeFile(target,JSON.stringify(json))
   manifest.sources.push({
     id:source.id,dataset:source.dataset,url,file:source.file,geometryField,provider,
     sourceMode:source.sourceMode,caveat:source.caveat||null,featureCount:json.features.length,
+    totalRowsScanned:totalRows||null,
   })
-  console.log(source.id+': '+json.features.length+' features')
+  console.log(source.id+': '+json.features.length+' features'+(totalRows?` from ${totalRows} rows`:''))
 }
 await fs.writeFile(path.join(outDir,'manifest.json'),JSON.stringify(manifest,null,2)+'\n')
 console.log('StreetVerse Chicago reconstruction evidence written to '+outDir)
