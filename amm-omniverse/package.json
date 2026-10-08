@@ -23,6 +23,8 @@
     "e2e": "playwright test",
     "e2e:install": "playwright install chromium",
     "asset:audit": "node scripts/streetverse-asset-audit.mjs --out asset-audit.json public ../public",
+    "asset:priority": "node scripts/build-forge-priority.mjs asset-audit.json ../release-evidence/blender-forge",
+    "bj:source-truth": "node scripts/bj-source-truth.mjs ../release-evidence/bj-source-truth.json",
     "forge:setup": "bash scripts/streetverse-forge-setup.sh",
     "forge:check": "node tests/streetverse-forge-tooling-contract.mjs",
     "asset:optimize": "gltf-transform optimize",
