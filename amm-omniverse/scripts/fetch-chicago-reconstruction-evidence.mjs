@@ -11,13 +11,24 @@ const outDir=path.resolve(process.argv[2]||'../release-evidence/chicago-reconstr
 const sources=[
   {
     id:'chicago-building-footprints',
-    dataset:'ssaf-e4ub',
+    dataset:'syp8-uezg',
     file:'building-footprints.geojson',
-    arcgisQuery:'https://services9.arcgis.com/AmgnhNUQOhIscOKJ/ArcGIS/rest/services/BuildingFootprints_Chicago/FeatureServer/93/query',
-    sourceMode:'city-derived-arcgis-fallback',
+    sourceMode:'city-socrata-source-dataset',
+    caveat:'source footprint dataset is older than the current derived map; use as reconstruction baseline, not current-building certification',
   },
-  {id:'chicago-street-centerlines',dataset:'6imu-meau',file:'street-centerlines.geojson',sourceMode:'city-socrata'},
-  {id:'chicago-zoning-current',dataset:'7cve-jgbp',file:'zoning-current.geojson',sourceMode:'city-socrata'},
+  {
+    id:'chicago-street-centerlines',
+    dataset:'6imu-meau',
+    file:'street-centerlines.geojson',
+    arcgisQuery:'https://gisapps.cityofchicago.org/arcgis/rest/services/ExternalApps/Basemap_BlackWhite/MapServer/14/query',
+    sourceMode:'city-arcgis-street-network',
+  },
+  {
+    id:'chicago-zoning-current',
+    dataset:'dj47-wfun',
+    file:'zoning-current.geojson',
+    sourceMode:'city-socrata-current',
+  },
 ]
 
 const assertBounds=()=>{
@@ -49,7 +60,7 @@ const fetchArcGISGeoJson=async source=>{
   while(features.length<50000){
     const params=new URLSearchParams({
       where:'1=1',
-      geometry:`${bounds.west},${bounds.south},${bounds.east},${bounds.north}`,
+      geometry:JSON.stringify({xmin:bounds.west,ymin:bounds.south,xmax:bounds.east,ymax:bounds.north,spatialReference:{wkid:4326}}),
       geometryType:'esriGeometryEnvelope',
       inSR:'4326',
       spatialRel:'esriSpatialRelIntersects',
@@ -57,7 +68,6 @@ const fetchArcGISGeoJson=async source=>{
       returnGeometry:'true',
       outSR:'4326',
       f:'geojson',
-      orderByFields:'OBJECTID',
       resultRecordCount:String(pageSize),
       resultOffset:String(offset),
     })
@@ -112,7 +122,7 @@ for(const source of sources){
   const {url,json,geometryField,provider}=await fetchGeoJson(source)
   const target=path.join(outDir,source.file)
   await fs.writeFile(target,JSON.stringify(json))
-  manifest.sources.push({id:source.id,dataset:source.dataset,url,file:source.file,geometryField,provider,sourceMode:source.sourceMode,featureCount:json.features.length})
+  manifest.sources.push({id:source.id,dataset:source.dataset,url,file:source.file,geometryField,provider,sourceMode:source.sourceMode,caveat:source.caveat||null,featureCount:json.features.length})
   console.log(source.id+': '+json.features.length+' features')
 }
 await fs.writeFile(path.join(outDir,'manifest.json'),JSON.stringify(manifest,null,2)+'\n')
