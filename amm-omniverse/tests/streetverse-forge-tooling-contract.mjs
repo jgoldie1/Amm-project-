@@ -25,7 +25,7 @@ must(!setup.includes('there is no Blender Foundation MCP server'),'stale Blender
 must(!setup.includes('mcp-for-blender'),'community MCP package must not be silently substituted for Blender Lab MCP')
 
 for(const token of [
-  'READ-ONLY',
+  'read-only',
   'streetverse-asset-audit-v2',
   'compressedPrimitives',
   'missing-normals',
