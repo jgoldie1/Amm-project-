@@ -203,7 +203,7 @@ export default function App() {
   ;(window as any).__showPricing = () => setShowPricing(true)
   ;(window as any).__showHoloverse = () => setShowHoloverse(true)
   ;(window as any).__showBennie = () => setShowBennie(true)
-  ;(window as any).__showHoloGPT = () => setShowHoloGPT(true)
+  ;(window as any).__showHoloGPT = () => { setShowHoloGPT(true); window.dispatchEvent(new Event('tryamm:open-hologpt')) }
   ;(window as any).__showMobility360 = () => { window.location.href='/mobility360.html' }
   ;(window as any).__showProAudio = () => setShowProAudio(true)
   ;(window as any).__showOmniverse = () => setShowOmniverse(true)
