@@ -3,6 +3,7 @@ import fs from 'node:fs'
 const campaign=fs.readFileSync(new URL('../src/data/StubbsAIBusinessOSLaunchCampaign.ts',import.meta.url),'utf8')
 const business=fs.readFileSync(new URL('../src/components/StubbsAIHolographicBusinessOS.tsx',import.meta.url),'utf8')
 const workflow=fs.readFileSync(new URL('../../.github/workflows/tryamm-remote-catchup.yml',import.meta.url),'utf8')
+const chicago=fs.readFileSync(new URL('../scripts/fetch-chicago-reconstruction-evidence.mjs',import.meta.url),'utf8')
 const must=(ok,msg)=>{if(!ok)throw new Error('TRYAMM REMOTE CATCHUP CONTRACT FAIL: '+msg)}
 
 for(const token of [
@@ -33,5 +34,13 @@ for(const token of [
   'chicago-reconstruction-evidence',
   'retention-days: 14',
 ])must(workflow.includes(token),'remote workflow missing '+token)
+
+for(const token of [
+  "dataset:'syp8-uezg'",
+  'Basemap_BlackWhite/MapServer/14/query',
+  "dataset:'dj47-wfun'",
+  "returned zero features inside the Chicago proof-zone bounds",
+  "exactDigitalTwin:false",
+])must(chicago.includes(token),'Chicago evidence truth missing '+token)
 
 console.log('TRYAMM REMOTE CATCHUP CONTRACT PASS: first-10 sales campaign + cloud asset audit + Chicago GIS evidence package')
