@@ -1,0 +1,32 @@
+name: Stubbs Mobility 360 preview validation
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/public/mobility360.html'
+      - 'amm-omniverse/src/App.tsx'
+      - 'amm-omniverse/src/components/TryAMMHome.tsx'
+      - 'amm-omniverse/src/components/AllAmericanOmnichannelCenter.tsx'
+      - 'tests/mobility360-storefront-contract.mjs'
+      - '.github/workflows/stubbs-mobility360-preview.yml'
+  push:
+    branches:
+      - 'feat/stubbs-mobility360-storefront-20261008'
+    paths:
+      - 'amm-omniverse/public/mobility360.html'
+      - 'amm-omniverse/src/App.tsx'
+      - 'amm-omniverse/src/components/TryAMMHome.tsx'
+      - 'amm-omniverse/src/components/AllAmericanOmnichannelCenter.tsx'
+      - 'tests/mobility360-storefront-contract.mjs'
+      - '.github/workflows/stubbs-mobility360-preview.yml'
+permissions:
+  contents: read
+jobs:
+  validate-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate safety gates and navigation
+        run: node --test tests/mobility360-storefront-contract.mjs
