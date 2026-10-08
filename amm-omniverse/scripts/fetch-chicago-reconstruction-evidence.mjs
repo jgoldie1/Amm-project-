@@ -20,8 +20,8 @@ const sources=[
     id:'chicago-street-centerlines',
     dataset:'6imu-meau',
     file:'street-centerlines.geojson',
-    arcgisQuery:'https://gisapps.cityofchicago.org/arcgis/rest/services/ExternalApps/Basemap_BlackWhite/MapServer/14/query',
-    sourceMode:'city-arcgis-street-network',
+    exportUrl:'https://data.cityofchicago.org/api/geospatial/6imu-meau?method=export&format=GeoJSON',
+    sourceMode:'city-socrata-geospatial-export',
   },
   {
     id:'chicago-zoning-current',
@@ -117,7 +117,44 @@ const fetchArcGISGeoJson=async source=>{
   }
 }
 
+const geometryBounds=geometry=>{
+  if(!geometry?.coordinates)return null
+  let minLon=Infinity,minLat=Infinity,maxLon=-Infinity,maxLat=-Infinity
+  const visit=value=>{
+    if(!Array.isArray(value))return
+    if(value.length>=2&&Number.isFinite(Number(value[0]))&&Number.isFinite(Number(value[1]))&&!Array.isArray(value[0])){
+      const lon=Number(value[0]),lat=Number(value[1])
+      minLon=Math.min(minLon,lon);maxLon=Math.max(maxLon,lon)
+      minLat=Math.min(minLat,lat);maxLat=Math.max(maxLat,lat)
+      return
+    }
+    for(const child of value)visit(child)
+  }
+  visit(geometry.coordinates)
+  return Number.isFinite(minLon)?{minLon,minLat,maxLon,maxLat}:null
+}
+const intersectsBounds=geometry=>{
+  const b=geometryBounds(geometry)
+  if(!b)return false
+  return b.maxLon>=bounds.west&&b.minLon<=bounds.east&&b.maxLat>=bounds.south&&b.minLat<=bounds.north
+}
+const fetchGeospatialExport=async source=>{
+  const response=await fetchWithRetry(source.exportUrl,{accept:'application/geo+json,application/json'},3)
+  const text=await response.text()
+  let json
+  try{json=JSON.parse(text)}catch{throw new Error(source.id+' geospatial export did not return JSON/GeoJSON')}
+  if(json?.type!=='FeatureCollection'||!Array.isArray(json.features))throw new Error(source.id+' geospatial export did not return GeoJSON FeatureCollection')
+  const features=json.features.filter(feature=>intersectsBounds(feature.geometry))
+  return{
+    url:source.exportUrl,
+    json:{type:'FeatureCollection',features},
+    geometryField:'local-bbox-filter',
+    provider:'socrata-geospatial-export',
+  }
+}
+
 const fetchGeoJson=async source=>{
+  if(source.exportUrl)return fetchGeospatialExport(source)
   if(source.arcgisQuery)return fetchArcGISGeoJson(source)
   const candidates=await geometryFieldCandidates(source.dataset)
   const failures=[]
