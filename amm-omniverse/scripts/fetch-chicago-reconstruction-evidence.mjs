@@ -9,9 +9,15 @@ const bounds={
 }
 const outDir=path.resolve(process.argv[2]||'../release-evidence/chicago-reconstruction')
 const sources=[
-  {id:'chicago-building-footprints',dataset:'ssaf-e4ub',file:'building-footprints.geojson'},
-  {id:'chicago-street-centerlines',dataset:'6imu-meau',file:'street-centerlines.geojson'},
-  {id:'chicago-zoning-current',dataset:'7cve-jgbp',file:'zoning-current.geojson'},
+  {
+    id:'chicago-building-footprints',
+    dataset:'ssaf-e4ub',
+    file:'building-footprints.geojson',
+    arcgisQuery:'https://services9.arcgis.com/AmgnhNUQOhIscOKJ/ArcGIS/rest/services/BuildingFootprints_Chicago/FeatureServer/93/query',
+    sourceMode:'city-derived-arcgis-fallback',
+  },
+  {id:'chicago-street-centerlines',dataset:'6imu-meau',file:'street-centerlines.geojson',sourceMode:'city-socrata'},
+  {id:'chicago-zoning-current',dataset:'7cve-jgbp',file:'zoning-current.geojson',sourceMode:'city-socrata'},
 ]
 
 const assertBounds=()=>{
@@ -37,7 +43,41 @@ const endpoint=(dataset,geometryField)=>{
   const params=new URLSearchParams({'$limit':'50000','$where':where})
   return `https://data.cityofchicago.org/resource/${dataset}.geojson?${params}`
 }
+const fetchArcGISGeoJson=async source=>{
+  const pageSize=2000,features=[]
+  let offset=0,lastUrl=source.arcgisQuery
+  while(features.length<50000){
+    const params=new URLSearchParams({
+      where:'1=1',
+      geometry:`${bounds.west},${bounds.south},${bounds.east},${bounds.north}`,
+      geometryType:'esriGeometryEnvelope',
+      inSR:'4326',
+      spatialRel:'esriSpatialRelIntersects',
+      outFields:'*',
+      returnGeometry:'true',
+      outSR:'4326',
+      f:'geojson',
+      orderByFields:'OBJECTID',
+      resultRecordCount:String(pageSize),
+      resultOffset:String(offset),
+    })
+    const url=`${source.arcgisQuery}?${params}`;lastUrl=url
+    const response=await fetch(url,{headers:{accept:'application/geo+json,application/json'}})
+    if(!response.ok){
+      const detail=(await response.text().catch(()=>'' )).slice(0,300).replace(/\s+/g,' ')
+      throw new Error(`${source.id} ArcGIS fallback failed: HTTP ${response.status}${detail?' • '+detail:''}`)
+    }
+    const json=await response.json()
+    if(json?.type!=='FeatureCollection'||!Array.isArray(json.features))throw new Error(source.id+' ArcGIS fallback did not return GeoJSON FeatureCollection')
+    features.push(...json.features)
+    if(json.features.length<pageSize)break
+    offset+=pageSize
+  }
+  return{url:lastUrl,json:{type:'FeatureCollection',features},geometryField:'arcgis-envelope',provider:'arcgis-feature-service'}
+}
+
 const fetchGeoJson=async source=>{
+  if(source.arcgisQuery)return fetchArcGISGeoJson(source)
   const candidates=await geometryFieldCandidates(source.dataset)
   const failures=[]
   for(const geometryField of candidates){
@@ -49,7 +89,7 @@ const fetchGeoJson=async source=>{
         failures.push(`${geometryField}: invalid GeoJSON`)
         continue
       }
-      return{url,json,geometryField}
+      return{url,json,geometryField,provider:'socrata'}
     }
     const detail=(await response.text().catch(()=>'' )).slice(0,220).replace(/\s+/g,' ')
     failures.push(`${geometryField}: HTTP ${response.status}${detail?' '+detail:''}`)
@@ -69,10 +109,10 @@ const manifest={
   sources:[],
 }
 for(const source of sources){
-  const {url,json,geometryField}=await fetchGeoJson(source)
+  const {url,json,geometryField,provider}=await fetchGeoJson(source)
   const target=path.join(outDir,source.file)
   await fs.writeFile(target,JSON.stringify(json))
-  manifest.sources.push({id:source.id,dataset:source.dataset,url,file:source.file,geometryField,featureCount:json.features.length})
+  manifest.sources.push({id:source.id,dataset:source.dataset,url,file:source.file,geometryField,provider,sourceMode:source.sourceMode,featureCount:json.features.length})
   console.log(source.id+': '+json.features.length+' features')
 }
 await fs.writeFile(path.join(outDir,'manifest.json'),JSON.stringify(manifest,null,2)+'\n')
