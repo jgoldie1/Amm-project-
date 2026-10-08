@@ -68,3 +68,30 @@ test('photo and captioned video support requires approved local media', () => {
   assert.match(page,/No photos from third-party social advertisements are reused without permission/)
   assert.doesNotMatch(page,/\.autoplay\s*=\s*true/)
 })
+
+test('Shop Learn Watch hub is connected, accessible and clearly preview-only', () => {
+  const hub = readFileSync(root + 'public/mobility360-learn.html', 'utf8')
+  assert.match(page,/\/mobility360-learn\.html/)
+  for (const anchor of ['id="learn"','id="watch"','id="community"','href="\/mobility360.html#products"','name="viewport"','class="skip"']) {
+    assert.ok(hub.includes(anchor),'Missing hub anchor/control: '+anchor)
+  }
+  for (const value of ['No samples have been purchased','no instructional product videos are published','No checkout','filming planned','media', 'faith-friendly', 'Caregiver', 'Disability-owned']) {
+    assert.ok(hub.toLowerCase().includes(value.toLowerCase()),'Missing hub disclosure: '+value)
+  }
+  assert.doesNotMatch(hub,/stripe\.redirectToCheckout|api\/checkout|<form\b/i)
+})
+
+test('outreach templates and reels pack are created without falsely claiming permission', () => {
+  const rights = readFileSync(root + 'docs/STUBBS_MOBILITY360_SUPPLIER_PERMISSION_PACK.md', 'utf8')
+  const scripts = readFileSync(root + 'docs/STUBBS_MOBILITY360_BRAND_REELS_AND_STORY_PACK.md', 'utf8')
+  const roadmap = readFileSync(root + 'docs/STUBBS_MOBILITY360_COMPLETE_EXPANSION_BLUEPRINT.md', 'utf8')
+  assert.match(rights,/Not sent/)
+  assert.match(rights,/No contacts were messaged/)
+  assert.match(rights,/Photo/i)
+  for (const name of ['Folding reacher','Button and zipper','No-tie laces','One-hand jar opener']) {
+    assert.ok(scripts.toLowerCase().includes(name.toLowerCase()),name)
+  }
+  assert.match(scripts,/founder approval/i)
+  assert.match(roadmap,/15 founder-requested/i)
+  assert.match(roadmap,/No mandatory diagnostic questions/i)
+})
