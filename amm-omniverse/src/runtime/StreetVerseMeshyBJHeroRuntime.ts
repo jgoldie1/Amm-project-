@@ -179,8 +179,21 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   const published=await resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope)
   const candidates=[published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
   let sourceUrl=''
-  for(const candidate of candidates){if(await assetExists(candidate)){sourceUrl=candidate;break}}
-  if(!sourceUrl){
+  let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
+  // Generated V12/V7/V6 GLBs are first-party build outputs. A slow Safari HEAD
+  // response must not block the real hero; attempt the actual GLB GET instead.
+  // Keep the published/external Meshy override protected by its availability probe.
+  for(const candidate of candidates){
+    if(candidate===published?.url&&!await assetExists(candidate))continue
+    try{
+      publishedGlb=await loader.loadAsync(candidate)
+      sourceUrl=candidate
+      break
+    }catch{
+      // Try the next owned compatibility GLB; native hero stays visible meanwhile.
+    }
+  }
+  if(!publishedGlb){
     window.dispatchEvent(new CustomEvent('tryamm:bj-meshy-v6-unavailable',{detail:{
       characterId:BJ_MESHY_V6_ASSET.characterId,
       assetId:BJ_MESHY_V6_ASSET.id,
@@ -191,7 +204,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   }
 
   try{
-    const gltf=await loader.loadAsync(sourceUrl)
+    const gltf=publishedGlb
     const object=gltf.scene
     object.name='bj-stubbs-production-v12'
     normalizeStreetVerseHumanHeight(object,BJ_MESHY_V6_ASSET.targetHeightMeters)
