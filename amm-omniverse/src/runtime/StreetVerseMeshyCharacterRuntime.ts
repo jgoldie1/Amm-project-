@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {
   STREETVERSE_MESHY_CHARACTER_SLOTS,
+  STREETVERSE_MESHY_DURABLE_OVERRIDES,
   streetVerseMeshyCharacterUrl,
   type StreetVerseMeshyCharacterSlot,
 } from '../data/streetVerseMeshyCharacterSlots'
@@ -63,14 +64,16 @@ export type StreetVerseMeshyLoadedCharacter={
   dispose:()=>void
 }
 
-export async function loadStreetVerseMeshyCharacter(slotId:string):Promise<StreetVerseMeshyLoadedCharacter|null>{
+export async function loadStreetVerseMeshyCharacter(slotId:string,options:{deferCompanionAnimations?:boolean}={}):Promise<StreetVerseMeshyLoadedCharacter|null>{
   const slot=STREETVERSE_MESHY_CHARACTER_SLOTS.find(x=>x.id===slotId)
   if(!slot)return null
   const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
   const published=await resolvePublishedMeshyAsset(slot.id,cityScope)
   const staticMeshyUrl=streetVerseMeshyCharacterUrl(slot)
   const publishedReady=published?.url?await assetExists(published.url):false
-  const staticMeshyReady=publishedReady?false:await assetExists(staticMeshyUrl)
+  // These twelve original Wave 1/2 objects are independently verified and preserved.
+  // A failed cross-origin HEAD on slow iPhones must not suppress their actual GLB GET.
+  const staticMeshyReady=publishedReady?false:(Boolean(STREETVERSE_MESHY_DURABLE_OVERRIDES[slot.id])||await assetExists(staticMeshyUrl))
   const nativeUrl=NATIVE_RESIDENT_URLS[slot.fallbackResidentIndex%NATIVE_RESIDENT_URLS.length]
   const sourceUrl=publishedReady?published!.url:(staticMeshyReady?staticMeshyUrl:nativeUrl)
   const nativeFallback=!publishedReady&&!staticMeshyReady
@@ -109,7 +112,7 @@ export async function loadStreetVerseMeshyCharacter(slotId:string):Promise<Stree
         :[]
     // Retrieve independent walk/run companions concurrently. Preserve source order,
     // error isolation, skinning, clip names, and the native resident fallback.
-    const companionClips=(await Promise.all(
+    const companionClips=options.deferCompanionAnimations?[]:(await Promise.all(
       (companionSources as Array<[string|null|undefined,string]>).map(async ([url,name])=>{
         if(!url)return [] as THREE.AnimationClip[]
         try{
@@ -129,7 +132,33 @@ export async function loadStreetVerseMeshyCharacter(slotId:string):Promise<Stree
       run:find([/run/i,/jog/i,/sprint/i]),
     }
     let active='';let activeAction:THREE.AnimationAction|null=null;let previousNow=performance.now()
+    let disposed=false
+    const requestedCompanions=new Set<string>()
+    // On iPhone, show the real 12MB character before pulling extra 25MB of
+    // animation GLBs. Fetch a single companion only when the resident moves.
+    const requestMotionCompanion=(motion:'walk'|'run')=>{
+      if(!options.deferCompanionAnimations||disposed||requestedCompanions.has(motion))return
+      const url=(companionSources as Array<[string|null|undefined,string]>).find(([,name])=>name===motion)?.[0]
+      if(!url)return
+      requestedCompanions.add(motion)
+      void loader.loadAsync(url).then(companion=>{
+        if(disposed)return
+        const imported=(companion.animations||[]).map(clip=>{const copy=clip.clone();copy.name=motion;return copy})
+        clips.push(...imported)
+        if(imported[0]){animationMap[motion]=imported[0];active=''}
+        // Animation channels are independent of the companion mesh and textures.
+        companion.scene.traverse(node=>{
+          if(!(node instanceof THREE.Mesh))return
+          node.geometry?.dispose()
+          const mats=Array.isArray(node.material)?node.material:[node.material]
+          mats.forEach(material=>{if(!material)return;const map=(material as THREE.MeshStandardMaterial).map;map?.dispose();material.dispose()})
+        })
+        window.dispatchEvent(new CustomEvent('tryamm:circle-park-motion-ready',{detail:{slotId:slot.id,motion,clips:imported.length}}))
+      }).catch(()=>{requestedCompanions.delete(motion)})
+    }
     const tick=(nowMs:number,state:{moving:boolean;running?:boolean})=>{
+      if(state.running)requestMotionCompanion('run')
+      else if(state.moving)requestMotionCompanion('walk')
       const motion=state.running?'run':state.moving?'walk':'idle'
       if(mixer&&active!==motion){
         const clip=animationMap[motion]||animationMap.walk||animationMap.idle||clips[0]
@@ -142,6 +171,7 @@ export async function loadStreetVerseMeshyCharacter(slotId:string):Promise<Stree
       const dt=THREE.MathUtils.clamp((nowMs-previousNow)/1000,0,.05);previousNow=nowMs;mixer?.update(dt)
     }
     const dispose=()=>{
+      disposed=true
       mixer?.stopAllAction()
       object.traverse(node=>{
         if(!(node instanceof THREE.Mesh))return
