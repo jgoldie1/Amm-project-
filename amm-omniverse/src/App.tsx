@@ -260,6 +260,7 @@ export default function App() {
     ['$','CREATOR MONEY',()=>setShowCreatorMoney(true),'BETA'],
     ['🏪','BUSINESS INCOME',()=>setShowBusinessIncome(true),'BETA'],
     ['🛍','ALL AMERICAN STORE',()=>setShowOmnichannelCommerce(true),'BETA'],
+    ['♿','STUBBS MOBILITY 360',()=>{window.location.href='/mobility360.html'},'PREVIEW'],
     ['◈','HOLO GALLERY',()=>setShowHoloGallery(true),'BETA'],
     ['🧊','HOLO FRIDGE',()=>setShowHoloFridge(true),'BETA'],
     ['🧪','HOLO LAB',()=>setShowHoloLab(true),'BETA'],
