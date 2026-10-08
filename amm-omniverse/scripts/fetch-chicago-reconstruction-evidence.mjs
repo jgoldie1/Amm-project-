@@ -19,23 +19,42 @@ const assertBounds=()=>{
   if(bounds.south>=bounds.north||bounds.west>=bounds.east)throw new Error('Invalid Chicago reconstruction bounding box')
 }
 const bboxWkt=()=>`POLYGON((${bounds.west} ${bounds.south},${bounds.east} ${bounds.south},${bounds.east} ${bounds.north},${bounds.west} ${bounds.north},${bounds.west} ${bounds.south}))`
-const endpoint=dataset=>{
-  // within_box is point/location-oriented and can return HTTP 400 for polygon/line geometry.
-  // intersects(the_geom, WKT polygon) works for building footprints, street centerlines and zoning polygons.
-  const where=`intersects(the_geom, '${bboxWkt()}')`
+const geometryTypes=new Set(['point','multipoint','line','multiline','polygon','multipolygon','location'])
+const geometryFieldCandidates=async dataset=>{
+  const metadataUrl=`https://data.cityofchicago.org/api/views/${dataset}`
+  const response=await fetch(metadataUrl,{headers:{accept:'application/json'}})
+  if(!response.ok)throw new Error(`metadata download failed for ${dataset}: HTTP ${response.status}`)
+  const metadata=await response.json()
+  const columns=Array.isArray(metadata?.columns)?metadata.columns:[]
+  const dynamic=columns
+    .filter(column=>geometryTypes.has(String(column?.dataTypeName||'').toLowerCase())||/(geom|shape|location)/i.test(String(column?.fieldName||column?.name||'')))
+    .map(column=>String(column.fieldName||'').trim())
+    .filter(Boolean)
+  return[...new Set([...dynamic,'the_geom','shape','geometry'])] 
+}
+const endpoint=(dataset,geometryField)=>{
+  const where=`intersects(${geometryField}, '${bboxWkt()}')`
   const params=new URLSearchParams({'$limit':'50000','$where':where})
   return `https://data.cityofchicago.org/resource/${dataset}.geojson?${params}`
 }
 const fetchGeoJson=async source=>{
-  const url=endpoint(source.dataset)
-  const response=await fetch(url,{headers:{accept:'application/geo+json,application/json'}})
-  if(!response.ok){
-    const detail=(await response.text().catch(()=>'' )).slice(0,500)
-    throw new Error(`${source.id} download failed: HTTP ${response.status}${detail?' • '+detail:''}`)
+  const candidates=await geometryFieldCandidates(source.dataset)
+  const failures=[]
+  for(const geometryField of candidates){
+    const url=endpoint(source.dataset,geometryField)
+    const response=await fetch(url,{headers:{accept:'application/geo+json,application/json'}})
+    if(response.ok){
+      const json=await response.json()
+      if(json?.type!=='FeatureCollection'||!Array.isArray(json.features)){
+        failures.push(`${geometryField}: invalid GeoJSON`)
+        continue
+      }
+      return{url,json,geometryField}
+    }
+    const detail=(await response.text().catch(()=>'' )).slice(0,220).replace(/\s+/g,' ')
+    failures.push(`${geometryField}: HTTP ${response.status}${detail?' '+detail:''}`)
   }
-  const json=await response.json()
-  if(json?.type!=='FeatureCollection'||!Array.isArray(json.features))throw new Error(source.id+' did not return GeoJSON FeatureCollection')
-  return{url,json}
+  throw new Error(`${source.id} download failed for geometry candidates • ${failures.join(' | ')}`)
 }
 
 assertBounds()
@@ -50,10 +69,10 @@ const manifest={
   sources:[],
 }
 for(const source of sources){
-  const {url,json}=await fetchGeoJson(source)
+  const {url,json,geometryField}=await fetchGeoJson(source)
   const target=path.join(outDir,source.file)
   await fs.writeFile(target,JSON.stringify(json))
-  manifest.sources.push({id:source.id,dataset:source.dataset,url,file:source.file,featureCount:json.features.length})
+  manifest.sources.push({id:source.id,dataset:source.dataset,url,file:source.file,geometryField,featureCount:json.features.length})
   console.log(source.id+': '+json.features.length+' features')
 }
 await fs.writeFile(path.join(outDir,'manifest.json'),JSON.stringify(manifest,null,2)+'\n')
