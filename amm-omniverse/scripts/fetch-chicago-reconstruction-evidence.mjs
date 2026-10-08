@@ -18,15 +18,21 @@ const assertBounds=()=>{
   for(const [key,value] of Object.entries(bounds))if(!Number.isFinite(value))throw new Error('Invalid Chicago reconstruction bound: '+key)
   if(bounds.south>=bounds.north||bounds.west>=bounds.east)throw new Error('Invalid Chicago reconstruction bounding box')
 }
+const bboxWkt=()=>`POLYGON((${bounds.west} ${bounds.south},${bounds.east} ${bounds.south},${bounds.east} ${bounds.north},${bounds.west} ${bounds.north},${bounds.west} ${bounds.south}))`
 const endpoint=dataset=>{
-  const where=`within_box(the_geom, ${bounds.north}, ${bounds.west}, ${bounds.south}, ${bounds.east})`
+  // within_box is point/location-oriented and can return HTTP 400 for polygon/line geometry.
+  // intersects(the_geom, WKT polygon) works for building footprints, street centerlines and zoning polygons.
+  const where=`intersects(the_geom, '${bboxWkt()}')`
   const params=new URLSearchParams({'$limit':'50000','$where':where})
   return `https://data.cityofchicago.org/resource/${dataset}.geojson?${params}`
 }
 const fetchGeoJson=async source=>{
   const url=endpoint(source.dataset)
   const response=await fetch(url,{headers:{accept:'application/geo+json,application/json'}})
-  if(!response.ok)throw new Error(`${source.id} download failed: HTTP ${response.status}`)
+  if(!response.ok){
+    const detail=(await response.text().catch(()=>'' )).slice(0,500)
+    throw new Error(`${source.id} download failed: HTTP ${response.status}${detail?' • '+detail:''}`)
+  }
   const json=await response.json()
   if(json?.type!=='FeatureCollection'||!Array.isArray(json.features))throw new Error(source.id+' did not return GeoJSON FeatureCollection')
   return{url,json}
