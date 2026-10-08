@@ -101,20 +101,25 @@ export async function loadStreetVerseMeshyCharacter(slotId:string):Promise<Stree
     })
     const visualMaterials=tuneStreetVerseCharacterMaterials(object)
     object.userData={...object.userData,characterVisualPass:'west-side-character-v3',productionMaterialPass:true,texturePipeline:'pbr-mobile-character-v3',visualMaterials}
-    const companionClips:THREE.AnimationClip[]=[]
     const staticStem=staticMeshyUrl.replace(/\.glb$/i,'')
     const companionSources=publishedReady
       ?[[published?.walkUrl,'walk'],[published?.runUrl,'run']]
       :staticMeshyReady
         ?[[`${staticStem}.walk.glb`,'walk'],[`${staticStem}.run.glb`,'run']]
         :[]
-    for(const [url,name] of companionSources as Array<[string|null|undefined,string]>){
-      if(!url)continue
-      try{
-        const companion=await loader.loadAsync(url)
-        for(const clip of companion.animations||[]){const cloned=clip.clone();cloned.name=name;companionClips.push(cloned)}
-      }catch{}
-    }
+    // Retrieve independent walk/run companions concurrently. Preserve source order,
+    // error isolation, skinning, clip names, and the native resident fallback.
+    const companionClips=(await Promise.all(
+      (companionSources as Array<[string|null|undefined,string]>).map(async ([url,name])=>{
+        if(!url)return [] as THREE.AnimationClip[]
+        try{
+          const companion=await loader.loadAsync(url)
+          return (companion.animations||[]).map(clip=>{
+            const cloned=clip.clone();cloned.name=name;return cloned
+          })
+        }catch{return [] as THREE.AnimationClip[]}
+      })
+    )).flat()
     const clips=[...(gltf.animations||[]),...companionClips]
     const mixer=clips.length?new THREE.AnimationMixer(object):null
     const find=(patterns:RegExp[])=>clips.find(clip=>patterns.some(pattern=>pattern.test(clip.name)))
