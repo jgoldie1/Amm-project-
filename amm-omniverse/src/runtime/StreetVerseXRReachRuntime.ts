@@ -49,6 +49,7 @@ export function installStreetVerseXRReach({
   const controllers:[THREE.Group,THREE.Group]=[renderer.xr.getController(0),renderer.xr.getController(1)]
   const grips:[THREE.Group,THREE.Group]=[renderer.xr.getControllerGrip(0),renderer.xr.getControllerGrip(1)]
   const controllerGrabbed:[THREE.Object3D|null,THREE.Object3D|null]=[null,null]
+  const originalBackground=scene.background
   const raycaster=new THREE.Raycaster()
   const rayOrigin=new THREE.Vector3()
   const rayDirection=new THREE.Vector3()
@@ -139,16 +140,19 @@ export function installStreetVerseXRReach({
   const setPresentation=(mode:StreetVerseXRPresentation)=>{
     if(mode==='immersive-ar'){
       worldRoot.scale.setScalar(.012)
-      worldRoot.position.set(0,-.54,-1.10)
+      worldRoot.position.set(0,.72,-1.20)
+      scene.background=null
       worldRoot.rotation.set(0,0,0)
     }else if(mode==='immersive-vr'){
       worldRoot.scale.setScalar(1)
       worldRoot.position.set(0,0,-49)
       worldRoot.rotation.set(0,0,0)
+      scene.background=originalBackground
     }else{
       worldRoot.scale.setScalar(1)
       worldRoot.position.set(0,0,0)
       worldRoot.rotation.set(0,0,0)
+      scene.background=originalBackground
     }
     window.dispatchEvent(new CustomEvent('tryamm:xr-reach-presentation',{detail:{mode:mode||'3d',tabletop:mode==='immersive-ar',handTrackingRequested:true,source:'streetverse-xr-reach-v1'}}))
   }
