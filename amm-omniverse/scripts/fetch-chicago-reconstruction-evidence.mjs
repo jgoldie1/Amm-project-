@@ -1,5 +1,8 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import os from 'node:os'
+import {execFile} from 'node:child_process'
+import {promisify} from 'node:util'
 
 const bounds={
   north:Number(process.env.SV_CHICAGO_NORTH||41.892),
@@ -37,6 +40,7 @@ const assertBounds=()=>{
   if(bounds.south>=bounds.north||bounds.west>=bounds.east)throw new Error('Invalid Chicago reconstruction bounding box')
 }
 const bboxWkt=()=>`POLYGON((${bounds.west} ${bounds.south},${bounds.east} ${bounds.south},${bounds.east} ${bounds.north},${bounds.west} ${bounds.north},${bounds.west} ${bounds.south}))`
+const execFileAsync=promisify(execFile)
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms))
 const fetchWithRetry=async(url,headers={},attempts=4)=>{
   let last
@@ -91,12 +95,37 @@ const intersectsBounds=geometry=>{
   return b.maxLon>=bounds.west&&b.minLon<=bounds.east&&b.maxLat>=bounds.south&&b.minLat<=bounds.north
 }
 
-const fetchGeospatialExport=async source=>{
-  const response=await fetchWithRetry(source.exportUrl,{accept:'application/geo+json,application/json'},4)
-  const text=await response.text()
+const parseGeoJsonExport=async(source,response)=>{
+  const bytes=Buffer.from(await response.arrayBuffer())
+  const contentType=String(response.headers.get('content-type')||'').toLowerCase()
+  let text=''
+  if(bytes[0]===0x50&&bytes[1]===0x4b){
+    const tmpDir=await fs.mkdtemp(path.join(os.tmpdir(),'tryamm-chicago-export-'))
+    const zipFile=path.join(tmpDir,'export.zip')
+    await fs.writeFile(zipFile,bytes)
+    try{
+      const listing=await execFileAsync('unzip',['-Z1',zipFile],{maxBuffer:2*1024*1024})
+      const member=String(listing.stdout||'').split(/\r?\n/).find(name=>/\.(geojson|json)$/i.test(name.trim()))
+      if(!member)throw new Error('ZIP contained no .geojson/.json member')
+      const extracted=await execFileAsync('unzip',['-p',zipFile,member.trim()],{maxBuffer:64*1024*1024})
+      text=String(extracted.stdout||'')
+    }finally{
+      await fs.rm(tmpDir,{recursive:true,force:true})
+    }
+  }else{
+    text=bytes.toString('utf8')
+  }
   let json
-  try{json=JSON.parse(text)}catch{throw new Error(source.id+' geospatial export did not return JSON/GeoJSON')}
-  if(json?.type!=='FeatureCollection'||!Array.isArray(json.features))throw new Error(source.id+' geospatial export did not return GeoJSON FeatureCollection')
+  try{json=JSON.parse(text)}catch{
+    const head=text.slice(0,120).replace(/\s+/g,' ')
+    throw new Error(`${source.id} export was not GeoJSON • content-type=${contentType||'unknown'} • head=${head||'[binary]'}`)
+  }
+  if(json?.type!=='FeatureCollection'||!Array.isArray(json.features))throw new Error(source.id+' export did not return GeoJSON FeatureCollection')
+  return json
+}
+const fetchGeospatialExport=async source=>{
+  const response=await fetchWithRetry(source.exportUrl,{accept:'application/geo+json,application/json,application/zip,application/octet-stream'},4)
+  const json=await parseGeoJsonExport(source,response)
   const features=json.features.filter(feature=>intersectsBounds(feature.geometry))
   return{
     url:source.exportUrl,
