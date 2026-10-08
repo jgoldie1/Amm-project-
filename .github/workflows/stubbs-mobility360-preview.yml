@@ -4,6 +4,8 @@ on:
     paths:
       - 'amm-omniverse/public/mobility360.html'
       - 'amm-omniverse/public/mobility360-assistant.js'
+      - 'amm-omniverse/public/mobility360-compare.js'
+      - 'amm-omniverse/public/mobility360-compare.css'
       - 'amm-omniverse/public/mobility360-assistant.css'
       - 'amm-omniverse/src/components/HoloGPTAssistant.tsx'
       - 'amm-omniverse/public/mobility360-learn.html'
@@ -14,6 +16,7 @@ on:
       - 'amm-omniverse/src/components/AllAmericanOmnichannelCenter.tsx'
       - 'tests/mobility360-storefront-contract.mjs'
       - 'tests/mobility360-stubbs-ai-assistant-contract.mjs'
+      - 'tests/mobility360-product-comparison-contract.mjs'
       - '.github/workflows/stubbs-mobility360-preview.yml'
   push:
     branches:
@@ -23,6 +26,8 @@ on:
     paths:
       - 'amm-omniverse/public/mobility360.html'
       - 'amm-omniverse/public/mobility360-assistant.js'
+      - 'amm-omniverse/public/mobility360-compare.js'
+      - 'amm-omniverse/public/mobility360-compare.css'
       - 'amm-omniverse/public/mobility360-assistant.css'
       - 'amm-omniverse/src/components/HoloGPTAssistant.tsx'
       - 'amm-omniverse/public/mobility360-learn.html'
@@ -33,6 +38,7 @@ on:
       - 'amm-omniverse/src/components/AllAmericanOmnichannelCenter.tsx'
       - 'tests/mobility360-storefront-contract.mjs'
       - 'tests/mobility360-stubbs-ai-assistant-contract.mjs'
+      - 'tests/mobility360-product-comparison-contract.mjs'
       - '.github/workflows/stubbs-mobility360-preview.yml'
 permissions:
   contents: read
@@ -47,4 +53,5 @@ jobs:
       - name: Validate safety gates and navigation
         run: |
           node --check amm-omniverse/public/mobility360-assistant.js
-          node --test tests/mobility360-storefront-contract.mjs tests/mobility360-stubbs-ai-assistant-contract.mjs
+          node --check amm-omniverse/public/mobility360-compare.js
+          node --test tests/mobility360-storefront-contract.mjs tests/mobility360-stubbs-ai-assistant-contract.mjs tests/mobility360-product-comparison-contract.mjs
