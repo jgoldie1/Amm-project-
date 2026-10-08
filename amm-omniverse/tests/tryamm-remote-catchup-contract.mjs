@@ -37,8 +37,12 @@ for(const token of [
 
 for(const token of [
   "dataset:'syp8-uezg'",
-  'api/geospatial/6imu-meau?method=export&format=GeoJSON',
-  'fetchGeospatialExport',
+  "dataset:'6imu-meau'",
+  'rowExport:true',
+  'fetchSocrataRowsAsGeoJson',
+  'resource/${source.dataset}.json',
+  'geometryFromRow',
+  'intersectsBounds',
   "dataset:'dj47-wfun'",
   "returned zero features inside the Chicago proof-zone bounds",
   "exactDigitalTwin:false",
