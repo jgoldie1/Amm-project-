@@ -6,6 +6,7 @@ type StatusResponse={ok:boolean;channels:Record<string,ChannelState>}
 
 const nativeCards=[
  {id:'tryamm',label:'ALL AMERICAN MARKETPLACE',detail:'Native TRYAMM store + authoritative checkout',action:'OPEN MARKETPLACE'},
+ {id:'mobility360',label:'STUBBS MOBILITY 360',detail:'Accessible disability-products store preview • supplier and safety approvals pending',action:'EXPLORE MOBILITY 360'},
  {id:'streetverse',label:'STREETVERSE STOREFRONTS',detail:'Shop inside the game world with shared cart and attribution',action:'OPEN STREETVERSE'},
  {id:'liveShoppingTwin',label:'LIVE SHOPPING TWIN',detail:'TRYAMM-owned QVC/HSN-style live commerce with AR/VR product presentation',action:'OPEN LIVE'}
 ]
@@ -48,6 +49,7 @@ export default function AllAmericanOmnichannelCenter({onClose}:{onClose:()=>void
 
  const openNative=(id:string)=>{
   if(id==='tryamm'){(window as any).__tryammNavigate?.('/marketplace');onClose();return}
+  if(id==='mobility360'){window.location.assign('/mobility360.html');return}
   if(id==='streetverse'){window.location.assign('/streetverse');return}
   if(id==='liveShoppingTwin'){(window as any).__showTryAMMLive?.();onClose();return}
  }
