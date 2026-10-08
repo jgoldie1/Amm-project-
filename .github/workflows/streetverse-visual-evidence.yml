@@ -41,8 +41,8 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Generate native assets
-        run: npm run native:assets
+      - name: Publish owned BJ V12 and native Circle Park assets before browser proof
+        run: npm run assets:prebuild
 
       - name: Build visual candidate
         run: npx vite build
