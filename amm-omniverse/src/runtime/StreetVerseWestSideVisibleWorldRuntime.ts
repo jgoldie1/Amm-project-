@@ -227,6 +227,7 @@ function addVehicle(root:THREE.Group,x:number,z:number,color:number,rot=0,name='
     const wheel=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.39,.39,.25,14)),rubber);wheel.rotation.x=Math.PI/2;wheel.position.set(xx,.43,zz);g.add(wheel)
     const hub=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.19,.19,.27,12)),chrome);hub.rotation.x=Math.PI/2;hub.position.set(xx,.43,zz);g.add(hub)
   }
+  g.userData={...g.userData,xrGrabbable:true,xrTabletopGrabbable:true,xrGrabScope:'immersive-ar',xrGrabKind:'vehicle',vehicleId:name}
   root.add(g)
 }
 
