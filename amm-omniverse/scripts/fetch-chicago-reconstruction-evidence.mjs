@@ -115,10 +115,12 @@ const parseGeoJsonExport=async(source,response)=>{
   }else{
     text=bytes.toString('utf8')
   }
+  const normalized=text.replace(/^\uFEFF/,'').trim()
   let json
-  try{json=JSON.parse(text)}catch{
-    const head=text.slice(0,120).replace(/\s+/g,' ')
-    throw new Error(`${source.id} export was not GeoJSON • content-type=${contentType||'unknown'} • head=${head||'[binary]'}`)
+  try{json=JSON.parse(normalized)}catch(error){
+    const head=normalized.slice(0,120).replace(/\s+/g,' ')
+    const tail=normalized.slice(-120).replace(/\s+/g,' ')
+    throw new Error(`${source.id} export was not parseable GeoJSON • content-type=${contentType||'unknown'} • parse=${error?.message||error} • head=${head||'[binary]'} • tail=${tail||'[empty]'}`)
   }
   if(json?.type!=='FeatureCollection'||!Array.isArray(json.features))throw new Error(source.id+' export did not return GeoJSON FeatureCollection')
   return json
