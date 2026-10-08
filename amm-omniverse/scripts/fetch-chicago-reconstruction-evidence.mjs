@@ -20,9 +20,9 @@ const sources=[
     id:'chicago-street-centerlines',
     dataset:'6imu-meau',
     file:'street-centerlines.geojson',
-    rowExport:true,
-    sourceMode:'city-socrata-row-export',
-    caveat:'Street Center Lines metadata lists an August 2016 time period and portal update in April 2024; use for reconstruction geometry baseline, not present-day street certification.',
+    arcgisQuery:'https://gisapps.cityofchicago.org/arcgis/rest/services/ExternalApps/Basemap_BlackWhite/MapServer/14/query',
+    sourceMode:'city-arcgis-all-streets',
+    caveat:'City ArcGIS All Streets geometry is used as the street reconstruction baseline; use for gameplay/world reconstruction, not present-day legal street certification.',
   },
   {
     id:'chicago-zoning-current',
@@ -69,66 +69,40 @@ const socrataEndpoint=(dataset,geometryField)=>{
   return `https://data.cityofchicago.org/resource/${dataset}.geojson?${params}`
 }
 
-const geometryBounds=geometry=>{
-  if(!geometry?.coordinates)return null
-  let minLon=Infinity,minLat=Infinity,maxLon=-Infinity,maxLat=-Infinity
-  const visit=value=>{
-    if(!Array.isArray(value))return
-    if(value.length>=2&&!Array.isArray(value[0])&&Number.isFinite(Number(value[0]))&&Number.isFinite(Number(value[1]))){
-      const lon=Number(value[0]),lat=Number(value[1])
-      minLon=Math.min(minLon,lon);maxLon=Math.max(maxLon,lon)
-      minLat=Math.min(minLat,lat);maxLat=Math.max(maxLat,lat)
-      return
-    }
-    for(const child of value)visit(child)
-  }
-  visit(geometry.coordinates)
-  return Number.isFinite(minLon)?{minLon,minLat,maxLon,maxLat}:null
-}
-const intersectsBounds=geometry=>{
-  const b=geometryBounds(geometry)
-  if(!b)return false
-  return b.maxLon>=bounds.west&&b.minLon<=bounds.east&&b.maxLat>=bounds.south&&b.minLat<=bounds.north
-}
-
-const looksLikeGeometry=value=>value&&typeof value==='object'&&typeof value.type==='string'&&Array.isArray(value.coordinates)
-const geometryFromRow=row=>{
-  for(const key of ['the_geom','shape','geometry','location']){
-    if(looksLikeGeometry(row?.[key]))return{key,geometry:row[key]}
-  }
-  for(const [key,value] of Object.entries(row||{}))if(looksLikeGeometry(value))return{key,geometry:value}
-  return null
-}
-const fetchSocrataRowsAsGeoJson=async source=>{
-  const pageSize=25000
+const fetchArcGISAllStreets=async source=>{
   const features=[]
-  let geometryField=''
-  let totalRows=0
-  for(let offset=0;offset<100000;offset+=pageSize){
-    const params=new URLSearchParams({'$limit':String(pageSize),'$offset':String(offset)})
-    const url=`https://data.cityofchicago.org/resource/${source.dataset}.json?${params}`
-    const response=await fetchWithRetry(url,{accept:'application/json'},4)
-    const rows=await response.json()
-    if(!Array.isArray(rows))throw new Error(source.id+' row export did not return an array')
-    totalRows+=rows.length
-    for(const row of rows){
-      const found=geometryFromRow(row)
-      if(!found)continue
-      geometryField ||= found.key
-      if(!intersectsBounds(found.geometry))continue
-      const properties={...row}
-      delete properties[found.key]
-      features.push({type:'Feature',geometry:found.geometry,properties})
+  const pageSize=2000
+  const geometry=`${bounds.west},${bounds.south},${bounds.east},${bounds.north}`
+  let lastUrl=source.arcgisQuery
+  for(let offset=0;offset<20000;offset+=pageSize){
+    const params=new URLSearchParams({
+      where:'1=1',
+      geometry,
+      geometryType:'esriGeometryEnvelope',
+      inSR:'4326',
+      spatialRel:'esriSpatialRelIntersects',
+      outFields:'*',
+      returnGeometry:'true',
+      outSR:'4326',
+      resultOffset:String(offset),
+      resultRecordCount:String(pageSize),
+      f:'geojson',
+    })
+    const url=`${source.arcgisQuery}?${params}`;lastUrl=url
+    const response=await fetchWithRetry(url,{accept:'application/geo+json,application/json'},4)
+    const json=await response.json()
+    if(json?.type!=='FeatureCollection'||!Array.isArray(json.features)){
+      const detail=JSON.stringify(json).slice(0,300)
+      throw new Error(source.id+' ArcGIS query did not return GeoJSON FeatureCollection • '+detail)
     }
-    if(rows.length<pageSize)break
+    features.push(...json.features)
+    if(json.features.length<pageSize)break
   }
-  if(!geometryField)throw new Error(source.id+` row export found no GeoJSON geometry field across ${totalRows} rows`)
   return{
-    url:`https://data.cityofchicago.org/resource/${source.dataset}.json`,
+    url:lastUrl,
     json:{type:'FeatureCollection',features},
-    geometryField:`row-export:${geometryField}`,
-    provider:'socrata-row-export',
-    totalRows,
+    geometryField:'arcgis-envelope-4326',
+    provider:'city-arcgis-mapserver-all-streets',
   }
 }
 
@@ -152,7 +126,7 @@ const fetchSocrataGeoJson=async source=>{
   throw new Error(`${source.id} download failed for geometry candidates • ${failures.join(' | ')}`)
 }
 
-const fetchGeoJson=source=>source.rowExport?fetchSocrataRowsAsGeoJson(source):fetchSocrataGeoJson(source)
+const fetchGeoJson=source=>source.arcgisQuery?fetchArcGISAllStreets(source):fetchSocrataGeoJson(source)
 
 assertBounds()
 await fs.mkdir(outDir,{recursive:true})
@@ -166,16 +140,15 @@ const manifest={
   sources:[],
 }
 for(const source of sources){
-  const {url,json,geometryField,provider,totalRows}=await fetchGeoJson(source)
+  const {url,json,geometryField,provider}=await fetchGeoJson(source)
   if(!json.features.length)throw new Error(source.id+' returned zero features inside the Chicago proof-zone bounds')
   const target=path.join(outDir,source.file)
   await fs.writeFile(target,JSON.stringify(json))
   manifest.sources.push({
     id:source.id,dataset:source.dataset,url,file:source.file,geometryField,provider,
     sourceMode:source.sourceMode,caveat:source.caveat||null,featureCount:json.features.length,
-    totalRowsScanned:totalRows||null,
   })
-  console.log(source.id+': '+json.features.length+' features'+(totalRows?` from ${totalRows} rows`:''))
+  console.log(source.id+': '+json.features.length+' features')
 }
 await fs.writeFile(path.join(outDir,'manifest.json'),JSON.stringify(manifest,null,2)+'\n')
 console.log('StreetVerse Chicago reconstruction evidence written to '+outDir)
