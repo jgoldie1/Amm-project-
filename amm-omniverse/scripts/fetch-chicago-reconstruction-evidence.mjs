@@ -120,6 +120,7 @@ const manifest={
 }
 for(const source of sources){
   const {url,json,geometryField,provider}=await fetchGeoJson(source)
+  if(!json.features.length)throw new Error(source.id+' returned zero features inside the Chicago proof-zone bounds')
   const target=path.join(outDir,source.file)
   await fs.writeFile(target,JSON.stringify(json))
   manifest.sources.push({id:source.id,dataset:source.dataset,url,file:source.file,geometryField,provider,sourceMode:source.sourceMode,caveat:source.caveat||null,featureCount:json.features.length})
