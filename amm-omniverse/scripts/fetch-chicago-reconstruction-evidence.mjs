@@ -41,11 +41,16 @@ const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms))
 const fetchWithRetry=async(url,headers={},attempts=4)=>{
   let last
   for(let attempt=1;attempt<=attempts;attempt++){
-    const response=await fetch(url,{headers})
-    if(response.ok)return response
-    const detail=(await response.text().catch(()=>'' )).slice(0,300).replace(/\s+/g,' ')
-    last=new Error(`HTTP ${response.status}${detail?' • '+detail:''}`)
-    if(![429,500,502,503,504].includes(response.status)||attempt===attempts)break
+    try{
+      const response=await fetch(url,{headers,signal:AbortSignal.timeout(20000)})
+      if(response.ok)return response
+      const detail=(await response.text().catch(()=>'' )).slice(0,300).replace(/\s+/g,' ')
+      last=new Error(`HTTP ${response.status}${detail?' • '+detail:''}`)
+      if(![429,500,502,503,504].includes(response.status)||attempt===attempts)break
+    }catch(error){
+      last=error instanceof Error?error:new Error(String(error))
+      if(attempt===attempts)break
+    }
     await sleep(900*attempt)
   }
   throw last||new Error('request failed')
@@ -70,39 +75,52 @@ const socrataEndpoint=(dataset,geometryField)=>{
 }
 
 const fetchArcGISAllStreets=async source=>{
-  const features=[]
-  const pageSize=2000
   const geometry=`${bounds.west},${bounds.south},${bounds.east},${bounds.north}`
-  let lastUrl=source.arcgisQuery
-  for(let offset=0;offset<20000;offset+=pageSize){
+  const common={
+    where:'1=1',
+    geometry,
+    geometryType:'esriGeometryEnvelope',
+    inSR:'4326',
+    spatialRel:'esriSpatialRelIntersects',
+  }
+  const idParams=new URLSearchParams({...common,returnIdsOnly:'true',f:'json'})
+  const idUrl=`${source.arcgisQuery}?${idParams}`
+  const idResponse=await fetchWithRetry(idUrl,{accept:'application/json'},4)
+  const idJson=await idResponse.json()
+  const objectIds=Array.isArray(idJson?.objectIds)?idJson.objectIds:[]
+  if(!objectIds.length){
+    const detail=JSON.stringify(idJson).slice(0,350)
+    throw new Error(source.id+' ArcGIS bbox returned zero object IDs • '+detail)
+  }
+
+  const features=[]
+  const chunkSize=350
+  let lastUrl=idUrl
+  for(let i=0;i<objectIds.length;i+=chunkSize){
+    const chunk=objectIds.slice(i,i+chunkSize)
     const params=new URLSearchParams({
-      where:'1=1',
-      geometry,
-      geometryType:'esriGeometryEnvelope',
-      inSR:'4326',
-      spatialRel:'esriSpatialRelIntersects',
+      objectIds:chunk.join(','),
       outFields:'*',
       returnGeometry:'true',
       outSR:'4326',
-      resultOffset:String(offset),
-      resultRecordCount:String(pageSize),
       f:'geojson',
     })
-    const url=`${source.arcgisQuery}?${params}`;lastUrl=url
+    const url=`${source.arcgisQuery}?${params}`
+    lastUrl=url
     const response=await fetchWithRetry(url,{accept:'application/geo+json,application/json'},4)
     const json=await response.json()
     if(json?.type!=='FeatureCollection'||!Array.isArray(json.features)){
       const detail=JSON.stringify(json).slice(0,300)
-      throw new Error(source.id+' ArcGIS query did not return GeoJSON FeatureCollection • '+detail)
+      throw new Error(source.id+' ArcGIS object-ID chunk did not return GeoJSON FeatureCollection • '+detail)
     }
     features.push(...json.features)
-    if(json.features.length<pageSize)break
   }
   return{
     url:lastUrl,
     json:{type:'FeatureCollection',features},
-    geometryField:'arcgis-envelope-4326',
+    geometryField:'arcgis-envelope-4326-objectids',
     provider:'city-arcgis-mapserver-all-streets',
+    objectIdCount:objectIds.length,
   }
 }
 
