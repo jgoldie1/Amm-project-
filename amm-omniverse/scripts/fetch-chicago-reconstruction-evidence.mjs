@@ -54,36 +54,67 @@ const endpoint=(dataset,geometryField)=>{
   const params=new URLSearchParams({'$limit':'50000','$where':where})
   return `https://data.cityofchicago.org/resource/${dataset}.geojson?${params}`
 }
+const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms))
+const fetchWithRetry=async(url,headers={},attempts=4)=>{
+  let last
+  for(let attempt=1;attempt<=attempts;attempt++){
+    const response=await fetch(url,{headers})
+    if(response.ok)return response
+    const detail=(await response.text().catch(()=>'' )).slice(0,300).replace(/\s+/g,' ')
+    last=new Error(`HTTP ${response.status}${detail?' • '+detail:''}`)
+    if(![429,500,502,503,504].includes(response.status)||attempt===attempts)break
+    await sleep(900*attempt)
+  }
+  throw last||new Error('request failed')
+}
+const arcgisEnvelope=()=>JSON.stringify({
+  xmin:bounds.west,ymin:bounds.south,xmax:bounds.east,ymax:bounds.north,
+  spatialReference:{wkid:4326},
+})
 const fetchArcGISGeoJson=async source=>{
-  const pageSize=2000,features=[]
-  let offset=0,lastUrl=source.arcgisQuery
-  while(features.length<50000){
+  const idParams=new URLSearchParams({
+    where:'1=1',
+    geometry:arcgisEnvelope(),
+    geometryType:'esriGeometryEnvelope',
+    inSR:'4326',
+    spatialRel:'esriSpatialRelIntersects',
+    returnIdsOnly:'true',
+    f:'json',
+  })
+  const idUrl=`${source.arcgisQuery}?${idParams}`
+  let idResponse
+  try{idResponse=await fetchWithRetry(idUrl,{accept:'application/json'})}
+  catch(error){throw new Error(`${source.id} ArcGIS ID query failed: ${error?.message||error}`)}
+  const idJson=await idResponse.json()
+  const objectIds=Array.isArray(idJson?.objectIds)?idJson.objectIds:[]
+  if(!objectIds.length)return{url:idUrl,json:{type:'FeatureCollection',features:[]},geometryField:'arcgis-envelope',provider:'arcgis-feature-service'}
+  const objectIdField=String(idJson.objectIdFieldName||idJson.objectIdField||'OBJECTID')
+
+  const features=[],chunkSize=350
+  let lastUrl=idUrl
+  for(let i=0;i<objectIds.length;i+=chunkSize){
+    const chunk=objectIds.slice(i,i+chunkSize)
     const params=new URLSearchParams({
-      where:'1=1',
-      geometry:JSON.stringify({xmin:bounds.west,ymin:bounds.south,xmax:bounds.east,ymax:bounds.north,spatialReference:{wkid:4326}}),
-      geometryType:'esriGeometryEnvelope',
-      inSR:'4326',
-      spatialRel:'esriSpatialRelIntersects',
+      objectIds:chunk.join(','),
       outFields:'*',
       returnGeometry:'true',
       outSR:'4326',
       f:'geojson',
-      resultRecordCount:String(pageSize),
-      resultOffset:String(offset),
     })
     const url=`${source.arcgisQuery}?${params}`;lastUrl=url
-    const response=await fetch(url,{headers:{accept:'application/geo+json,application/json'}})
-    if(!response.ok){
-      const detail=(await response.text().catch(()=>'' )).slice(0,300).replace(/\s+/g,' ')
-      throw new Error(`${source.id} ArcGIS fallback failed: HTTP ${response.status}${detail?' • '+detail:''}`)
-    }
+    let response
+    try{response=await fetchWithRetry(url,{accept:'application/geo+json,application/json'})}
+    catch(error){throw new Error(`${source.id} ArcGIS feature chunk failed at ${i}/${objectIds.length}: ${error?.message||error}`)}
     const json=await response.json()
-    if(json?.type!=='FeatureCollection'||!Array.isArray(json.features))throw new Error(source.id+' ArcGIS fallback did not return GeoJSON FeatureCollection')
+    if(json?.type!=='FeatureCollection'||!Array.isArray(json.features))throw new Error(source.id+' ArcGIS feature chunk did not return GeoJSON FeatureCollection')
     features.push(...json.features)
-    if(json.features.length<pageSize)break
-    offset+=pageSize
   }
-  return{url:lastUrl,json:{type:'FeatureCollection',features},geometryField:'arcgis-envelope',provider:'arcgis-feature-service'}
+  return{
+    url:lastUrl,
+    json:{type:'FeatureCollection',features},
+    geometryField:`arcgis-envelope:${objectIdField}`,
+    provider:'arcgis-feature-service',
+  }
 }
 
 const fetchGeoJson=async source=>{
