@@ -1,45 +1,46 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 
-const base = 'amm-omniverse/';
-const page = readFileSync(base+'public/mobility360.html','utf8');
-function arrayAfter(variable) {
-  const match = page.match(new RegExp('const '+variable+'=(\\[[^\\n]*\\]);'));
-  assert.ok(match, 'missing '+variable);
-  return JSON.parse(match[1]);
+const root = 'amm-omniverse/'
+const page = readFileSync(root + 'public/mobility360.html','utf8')
+function parseArray(name) {
+  const match = page.match(new RegExp('const ' + name + '=(\\[[^\\n]*\\]);'))
+  assert.ok(match, 'Expected embedded '+name+' data')
+  return JSON.parse(match[1])
 }
-const catalog = arrayAfter('catalog');
-const categories = arrayAfter('categories');
-const needs = arrayAfter('needs');
+const products = parseArray('products')
+const departments = parseArray('departments')
 
-test('catalog has 26 distinct product concepts and defined risk gates', () => {
-  assert.equal(catalog.length,26);
-  assert.equal(new Set(catalog.map(item=>item.id)).size,catalog.length);
-  assert.equal(categories.length,11);
-  for(const item of catalog){
-    assert.ok(item.name && item.note && item.gate, item.id);
-    assert.ok(categories.includes(item.category),item.id);
-    assert.ok(needs.includes(item.need),item.id);
+test('Mobility 360 offers 51 distinct preview product concepts across disabilities', () => {
+  assert.equal(products.length,51)
+  assert.equal(new Set(products.map(x=>x.id)).size,51)
+  assert.equal(departments.length,11)
+  assert.equal(products.filter(x=>x.gate==='sample').length,4)
+  assert.ok(products.filter(x=>x.gate==='clinical').length>=6)
+  for(const item of products) {
+    assert.ok(item.id && item.name && item.category && item.description && item.gate)
+    assert.ok(departments.includes(item.category), item.id)
+    assert.ok(['sample','review','clinical'].includes(item.gate),item.id)
   }
-  assert.ok(catalog.filter(item=>item.gate==='Clinical review').length>=4);
-});
+})
 
-test('preview cannot mislead customers into thinking they can buy', () => {
-  assert.match(page,/Product discovery preview/);
-  assert.match(page,/Checkout is intentionally unavailable/);
-  assert.match(page,/Pricing pending supplier verification/);
-  assert.doesNotMatch(page,/stripe\.redirectToCheckout|api\/checkout|add-to-cart/i);
-});
+test('the $100 launch is presented as proposed testing, not inventory or completed purchases', () => {
+  assert.match(page,/Our \$100 first-sample plan tests four daily-living aids/)
+  assert.match(page,/0 approved for sale/)
+  assert.match(page,/Price pending verification/)
+  assert.match(page,/No checkout available/)
+  assert.doesNotMatch(page,/stripe\.redirectToCheckout|api\/checkout|\bAdd to cart\b/i)
+})
 
-test('accessible mobile catalogue has usable search and filter controls', () => {
-  for(const value of ['name="viewport"','id="search"','id="category"','id="need"','aria-live="polite"','id="large"','function render()']){
-    assert.ok(page.includes(value),'missing '+value);
+test('small screen and accessible shopping flow contain search, filters and detail buttons', () => {
+  for (const text of ['name="viewport"','id="search"','id="department"','id="categoryTiles"','id="productGrid"','aria-live="polite"','id="modalTitle"','role="dialog"','function render()','prefers-reduced-motion']) {
+    assert.ok(page.includes(text),'Missing '+text)
   }
-});
+})
 
-test('all three TRYAMM navigation surfaces link to storefront', () => {
-  for(const path of ['src/App.tsx','src/components/TryAMMHome.tsx','src/components/AllAmericanOmnichannelCenter.tsx']){
-    assert.ok(readFileSync(base+path,'utf8').includes('/mobility360.html'),'missing link in '+path);
+test('TRYAMM offers three routes into new store', () => {
+  for(const path of ['src/App.tsx','src/components/TryAMMHome.tsx','src/components/AllAmericanOmnichannelCenter.tsx']) {
+    assert.match(readFileSync(root+path,'utf8'),/\/mobility360\.html/, path)
   }
-});
+})
