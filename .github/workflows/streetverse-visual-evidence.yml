@@ -12,6 +12,7 @@ on:
       - 'amm-omniverse/scripts/tryamm-native-asset-foundry.mjs'
       - 'amm-omniverse/tests/e2e/streetverse-visual-evidence.spec.ts'
       - 'amm-omniverse/tests/e2e/streetverse-real-resident-glb.spec.ts'
+      - 'amm-omniverse/tests/e2e/streetverse-bj-owned-glb.spec.ts'
       - '.github/workflows/streetverse-visual-evidence.yml'
 
 permissions:
@@ -53,7 +54,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Capture mobile StreetVerse visual evidence
-        run: npx playwright test tests/e2e/streetverse-visual-evidence.spec.ts tests/e2e/streetverse-real-resident-glb.spec.ts --project=mobile-chromium --reporter=line
+        run: npx playwright test tests/e2e/streetverse-visual-evidence.spec.ts tests/e2e/streetverse-real-resident-glb.spec.ts tests/e2e/streetverse-bj-owned-glb.spec.ts --project=mobile-chromium --reporter=line
 
       - name: Upload visual evidence
         if: always()
