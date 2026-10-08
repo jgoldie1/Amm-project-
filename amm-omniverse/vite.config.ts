@@ -71,7 +71,17 @@ export default defineConfig({
           // chunk so constrained StreetVerse devices do not preload WebGL code before
           // the guaranteed HTML city can render.
           if (id.includes('/src/runtime/StreetVerseCreatorDistrict3D')) return 'streetverse-creator-3d'
-          if (id.includes('/src/runtime/')) return 'app-runtime'
+          if (id.includes('/src/runtime/')) {
+            // app-runtime had grown to 3.63 MB and failed both production
+            // certification hard caps. Keep named lazy islands cacheable rather
+            // than forcing every optional runtime into one eager mega-chunk.
+            // Deterministic source-name sharding leaves vendor/3D rules above
+            // untouched; the CI bundle budget must certify every output chunk.
+            const sourceName = id.split('/src/runtime/')[1].split('?')[0]
+            let hash = 2166136261
+            for (const character of sourceName) hash = Math.imul(hash ^ character.charCodeAt(0), 16777619)
+            return 'app-runtime-' + ((hash >>> 0) % 12 + 1)
+          }
           if (id.includes('/src/data/')) return 'app-data'
           if (!id.includes('node_modules')) return
           // Sparrow Map is a lazy feature. Keep MapLibre isolated so the map engine
