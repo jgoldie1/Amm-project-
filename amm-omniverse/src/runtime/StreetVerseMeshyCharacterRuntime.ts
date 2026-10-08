@@ -124,7 +124,9 @@ export async function loadStreetVerseMeshyCharacter(slotId:string,options:{defer
       })
     )).flat()
     const clips=[...(gltf.animations||[]),...companionClips]
-    const mixer=clips.length?new THREE.AnimationMixer(object):null
+    // An on-demand walk/run GLB may arrive after the base model (which can have zero clips).
+    // Keep the mixer alive for deferred companions or the downloaded motion never plays.
+    const mixer=(clips.length>0||(options.deferCompanionAnimations&&companionSources.length>0))?new THREE.AnimationMixer(object):null
     const find=(patterns:RegExp[])=>clips.find(clip=>patterns.some(pattern=>pattern.test(clip.name)))
     const animationMap={
       idle:find([/idle/i,/stand/i,/breath/i]),
