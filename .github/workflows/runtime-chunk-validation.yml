@@ -32,7 +32,7 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Temporary external WASM Rapier trial (no manifest change)
         working-directory: amm-omniverse
-        run: npm install --no-save --no-audit --no-fund @dimforge/rapier3d@0.20.0
+        run: npm install --no-save --no-audit --no-fund @dimforge/rapier3d@0.20.0 vite-plugin-wasm@3.5.0 vite-plugin-top-level-await@1.4.5
       - name: Typecheck and production build
         working-directory: amm-omniverse
         run: |
