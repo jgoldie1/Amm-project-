@@ -135,6 +135,11 @@ function runAction(action:UniversalMissionAction|undefined){
   if(action==='open-meet-the-stubbs'){window.location.href='/streetverse/meet-the-stubbs';return}
   if(action==='open-after-dark-alpha'){
     window.dispatchEvent(new CustomEvent('tryamm:open-after-dark-alpha',{detail:{source:'living-mission-director'}}))
+    return
+  }
+  if(action==='open-sculptify-san-diego'){
+    window.dispatchEvent(new CustomEvent('tryamm:sculptify-san-diego-open',{detail:{source:'living-mission-director',businessId:'sculptifyltd-san-diego'}}))
+    window.location.href='/streetverse?global=1&city=san-diego&business=sculptifyltd'
   }
 }
 
@@ -172,6 +177,11 @@ function signalFromBrowserEvent(name:string,detail:any):UniversalMissionEvent|nu
   if(name==='tryamm:after-dark-state'){
     if(detail?.stage==='complete')return 'after-dark-complete'
     if(detail?.approach)return 'after-dark-approach'
+  }
+  if(name==='tryamm:sculptify-rp-signal'){
+    const event=String(detail?.event||'') as UniversalMissionEvent
+    const allowed:UniversalMissionEvent[]=['sculptify-booking-intent','sculptify-academy-intent','sculptify-store-interaction','sculptify-business-collaboration','sculptify-training-complete','sculptify-staffing-intent','sculptify-template-intent','sculptify-referral-shared','sculptify-referral-verified','sculptify-referred-user-active','sculptify-positive-outcome']
+    return allowed.includes(event)?event:null
   }
   return null
 }
@@ -227,6 +237,7 @@ export default function UniversalMissionDirector({defaultWorld='streetverse'}:{d
       'tryamm:streetverse-mission-complete',
       'tryamm:hero-realms-encounter-complete',
       'tryamm:after-dark-state',
+      'tryamm:sculptify-rp-signal',
     ] as const
     const onSignal=(event:Event)=>{
       const detail=(event as CustomEvent<any>).detail||{}

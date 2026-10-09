@@ -2,7 +2,7 @@ export type BusinessCategory =
   | 'restaurant' | 'gas-station' | 'grocery' | 'retail' | 'beauty' | 'automotive'
   | 'home-services' | 'music-entertainment' | 'fitness' | 'logistics' | 'legal'
   | 'telehealth' | 'healthcare' | 'financial-services' | 'insurance' | 'real-estate'
-  | 'education' | 'professional-services'
+  | 'education' | 'professional-services' | 'wellness'
 
 export type BusinessNetworkInput = {
   businessId: string
@@ -64,6 +64,9 @@ export function buildGrowthNetworkPlan(input: BusinessNetworkInput): GrowthNetwo
   }
   if (input.category === 'music-entertainment') {
     enabledLanes.push('64-track-studio','starverse','music-live-pk','ticket-merch-commerce')
+  }
+  if (input.category === 'wellness') {
+    enabledLanes.push('wellness-booking','academy','staffing-pathway','wellness-store','business-template-sales','streetverse-rp-missions')
   }
 
   return {
