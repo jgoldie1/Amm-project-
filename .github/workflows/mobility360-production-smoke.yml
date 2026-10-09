@@ -1,0 +1,58 @@
+name: Mobility 360 public production verification
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - 'feat/mobility360-production-smoke-*'
+    paths:
+      - '.github/workflows/mobility360-production-smoke.yml'
+      - 'amm-omniverse/public/mobility360*'
+  pull_request:
+    paths:
+      - '.github/workflows/mobility360-production-smoke.yml'
+permissions:
+  contents: read
+jobs:
+  public-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify public storefront, guide, media & locked checkout
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import urllib.request,urllib.error,time,sys
+          host='https://tryamm.online'
+          checks={
+            '/mobility360.html': ['51 planned items','No checkout available','/mobility360-assistant.js','/mobility360-compare.js'],
+            '/mobility360-learn.html': ['id="learn"','id="watch"','/mobility360-assistant.js'],
+            '/mobility360-assistant.js': ['Ask Stubbs AI','No diagnosis required'],
+            '/mobility360-compare.js': ['No verified sale prices, stock or orders','supplier quote pending'],
+            '/mobility360-media.json': ['"version": 1','"entries": []'],
+          }
+          failures=[]
+          for path,markers in checks.items():
+            last=''
+            for attempt in range(3):
+              try:
+                req=urllib.request.Request(host+path,headers={'User-Agent':'TRYAMM-Mobility360-Public-Smoke/1.0','Cache-Control':'no-cache'})
+                with urllib.request.urlopen(req,timeout=12) as res:
+                  body=res.read(300000).decode('utf-8','replace')
+                  if res.status != 200:raise ValueError(f'HTTP {res.status}')
+                  missing=[m for m in markers if m not in body]
+                  if missing:raise ValueError('Missing markers: '+', '.join(missing))
+                  print(f'PASS {path}: HTTP {res.status}, {len(body)} characters')
+                  last=''
+                  break
+              except Exception as ex:
+                last=f'{type(ex).__name__}: {ex}'
+                time.sleep(2)
+            if last:
+              print(f'FAIL {path}: {last}')
+              failures.append(path)
+          if failures:
+            sys.exit('Public Mobility 360 verification failed for: '+', '.join(failures))
+          print('PASS: all pages/assets public, preview-only and checkout disabled.')
+          PY
