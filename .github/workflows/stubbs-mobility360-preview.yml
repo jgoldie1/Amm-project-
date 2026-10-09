@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - 'amm-omniverse/public/mobility360.html'
+      - 'amm-omniverse/public/mobility360-help.html'
+      - 'amm-omniverse/public/mobility360-experience.js'
+      - 'amm-omniverse/public/mobility360-experience.css'
       - 'amm-omniverse/public/mobility360-assistant.js'
       - 'amm-omniverse/public/mobility360-compare.js'
       - 'amm-omniverse/public/mobility360-compare.css'
@@ -17,6 +20,7 @@ on:
       - 'tests/mobility360-storefront-contract.mjs'
       - 'tests/mobility360-stubbs-ai-assistant-contract.mjs'
       - 'tests/mobility360-product-comparison-contract.mjs'
+      - 'tests/mobility360-customer-ready-contract.mjs'
       - '.github/workflows/stubbs-mobility360-preview.yml'
   push:
     branches:
@@ -25,6 +29,9 @@ on:
       - 'feat/stubbs-mobility360-*'
     paths:
       - 'amm-omniverse/public/mobility360.html'
+      - 'amm-omniverse/public/mobility360-help.html'
+      - 'amm-omniverse/public/mobility360-experience.js'
+      - 'amm-omniverse/public/mobility360-experience.css'
       - 'amm-omniverse/public/mobility360-assistant.js'
       - 'amm-omniverse/public/mobility360-compare.js'
       - 'amm-omniverse/public/mobility360-compare.css'
@@ -39,6 +46,7 @@ on:
       - 'tests/mobility360-storefront-contract.mjs'
       - 'tests/mobility360-stubbs-ai-assistant-contract.mjs'
       - 'tests/mobility360-product-comparison-contract.mjs'
+      - 'tests/mobility360-customer-ready-contract.mjs'
       - '.github/workflows/stubbs-mobility360-preview.yml'
 permissions:
   contents: read
@@ -54,4 +62,5 @@ jobs:
         run: |
           node --check amm-omniverse/public/mobility360-assistant.js
           node --check amm-omniverse/public/mobility360-compare.js
-          node --test tests/mobility360-storefront-contract.mjs tests/mobility360-stubbs-ai-assistant-contract.mjs tests/mobility360-product-comparison-contract.mjs
+          node --check amm-omniverse/public/mobility360-experience.js
+          node --test tests/mobility360-storefront-contract.mjs tests/mobility360-stubbs-ai-assistant-contract.mjs tests/mobility360-product-comparison-contract.mjs tests/mobility360-customer-ready-contract.mjs
