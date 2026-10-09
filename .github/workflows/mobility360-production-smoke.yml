@@ -16,7 +16,7 @@ permissions:
 jobs:
   public-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v5
       - name: Verify public storefront, guide, media & locked checkout
@@ -26,16 +26,19 @@ jobs:
           import urllib.request,urllib.error,time,sys
           host='https://tryamm.online'
           checks={
-            '/mobility360.html': ['51 planned items','No checkout available','/mobility360-assistant.js','/mobility360-compare.js'],
+            '/mobility360.html': ['51 planned items','No checkout available','/mobility360-assistant.js','/mobility360-compare.js','/mobility360-experience.js','id="modalShare"','/mobility360-help.html'],
             '/mobility360-learn.html': ['id="learn"','id="watch"','/mobility360-assistant.js'],
             '/mobility360-assistant.js': ['Ask Stubbs AI','No diagnosis required'],
             '/mobility360-compare.js': ['No verified sale prices, stock or orders','supplier quote pending'],
             '/mobility360-media.json': ['"version": 1','"entries": []'],
+            '/mobility360-help.html': ['Clear answers.','id="faq"','id="safety"','id="sellers"','No. The site is a public discovery preview','No seller applications'],
+            '/mobility360-experience.js': ['Mobility360ShareProduct','navigator.share','Mobility360ProductURL','Product concept only'],
+            '/mobility360-experience.css': ['store-share','product-share','share-status'],
           }
           failures=[]
           for path,markers in checks.items():
             last=''
-            for attempt in range(3):
+            for attempt in range(10):
               try:
                 req=urllib.request.Request(host+path,headers={'User-Agent':'TRYAMM-Mobility360-Public-Smoke/1.0','Cache-Control':'no-cache'})
                 with urllib.request.urlopen(req,timeout=12) as res:
@@ -48,7 +51,7 @@ jobs:
                   break
               except Exception as ex:
                 last=f'{type(ex).__name__}: {ex}'
-                time.sleep(2)
+                time.sleep(8)
             if last:
               print(f'FAIL {path}: {last}')
               failures.append(path)
