@@ -1,0 +1,14 @@
+
+/* Share controls designed for touch, keyboard and single-handed phone use. */
+.store-share{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:48px;padding:10px 17px;border-radius:12px;border:1px solid #427f80;background:#fff;color:#124f55;font-size:14px;font-weight:850;cursor:pointer}
+.store-share:hover{background:#ebf8f3}.store-share:focus-visible,.product-share:focus-visible{outline:3px solid #ba7b07;outline-offset:3px}
+.product-share{margin-top:8px;min-height:44px;width:100%;border:1px solid #8ccbc1;background:#fff;color:#0c5c60;border-radius:11px;cursor:pointer;font-weight:800;font-size:12px;padding:8px 10px}
+.product-share:hover{background:#e6f7f1}
+.share-status{position:fixed;bottom:calc(79px + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%);z-index:9500;max-width:min(90vw,510px);background:#144b51;border-radius:11px;color:#fff;font-size:14px;line-height:1.4;text-align:center;padding:0 12px;box-shadow:0 9px 25px #173f4e33}
+.share-status:not(:empty){padding:10px 15px}
+.modal-sharing{margin:10px 0 14px;width:100%}
+.store-footer a{color:#d3fbf1;text-decoration:underline;text-underline-offset:3px}.store-footer .footer-links{display:flex;gap:18px;flex-wrap:wrap;margin:12px 0 16px}
+.bundle-preview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin-top:15px}
+.bundle-concept{background:#fff;border:1px solid #d2e6dc;border-radius:14px;padding:15px}
+.bundle-concept h3{font-size:17px;margin:0 0 7px}.bundle-concept p{font-size:13px;color:#395e63;margin:0}
+@media(max-width:520px){.hero-actions .store-share{width:100%}.store-footer .footer-links a{min-height:42px;display:inline-flex;align-items:center}.share-status{bottom:calc(90px + env(safe-area-inset-bottom, 0px))}}
