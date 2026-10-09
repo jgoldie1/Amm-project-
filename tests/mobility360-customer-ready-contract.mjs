@@ -37,7 +37,7 @@ test('all ten departments and four extra bundle concepts are visible',()=>{
 })
 
 test('customer help explains scope, prices, safety, shopping and accessibility',()=>{
-  for(const value of ['id="faq"','id="safety"','id="sellers"','role="note"','No. The site is a public discovery preview','shipping-time guarantee','FDA registered','Medicare','No diagnosis','media','id="main"','class="skip"']) {
+  for(const value of ['id="faq"','id="safety"','id="sellers"','role="note"','No. The site is a public discovery preview','shipping-time guarantee','FDA registered','Medicare','You do not need to disclose a diagnosis','media','id="main"','class="skip"']) {
     assert.ok(help.includes(value),value)
   }
   for(const value of ['/mobility360.html','/mobility360-learn.html','/mobility360-assistant.js']){
