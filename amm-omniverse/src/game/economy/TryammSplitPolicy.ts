@@ -8,8 +8,9 @@ export type RevenueSplitTemplate=
  |'owned-network-ad'
  |'marketplace-scout'
  |'licensing'
+ |'business-user-referral'
 
-export type SplitDestination='platform'|'creator-rights'|'merchant'|'scout-sales'|'growth-reserve'
+export type SplitDestination='platform'|'creator-rights'|'merchant'|'scout-sales'|'referrer-business'|'growth-reserve'
 
 export interface SplitLine{destination:SplitDestination;basisPoints:number;notes?:string}
 export interface SplitPolicy{template:RevenueSplitTemplate;lines:SplitLine[];term?:string}
@@ -59,6 +60,11 @@ export const TRYAMM_DEFAULT_SPLITS:SplitPolicy[]=[
  {template:'licensing',lines:[
   {destination:'creator-rights',basisPoints:7000},
   {destination:'platform',basisPoints:2500},
+  {destination:'growth-reserve',basisPoints:500},
+ ]},
+ {template:'business-user-referral',term:'Starter partner model: 5% of eligible net TRYAMM platform revenue from a verified attributed user for up to 12 months unless contract says otherwise.',lines:[
+  {destination:'platform',basisPoints:9000,notes:'This policy applies to the eligible net TRYAMM platform-revenue basis after merchant/creator shares and applicable deductions, not to the customer gross purchase.'},
+  {destination:'referrer-business',basisPoints:500,notes:'Requires verified attribution, an eligible referred user and real eligible platform revenue; no reward for a raw scan or raw signup.'},
   {destination:'growth-reserve',basisPoints:500},
  ]},
 ]
