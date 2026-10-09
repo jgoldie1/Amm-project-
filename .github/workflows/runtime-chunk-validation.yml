@@ -4,6 +4,8 @@ on:
     paths:
       - 'amm-omniverse/vite.config.ts'
       - 'amm-omniverse/src/runtime/**'
+      - 'amm-omniverse/package.json'
+      - 'amm-omniverse/package-lock.json'
       - 'amm-omniverse/src/main.tsx'
       - 'amm-omniverse/src/App.tsx'
       - '.github/workflows/runtime-chunk-validation.yml'
@@ -28,6 +30,9 @@ jobs:
       - name: Install dependencies
         working-directory: amm-omniverse
         run: npm install --no-audit --no-fund
+      - name: Temporary external WASM Rapier trial (no manifest change)
+        working-directory: amm-omniverse
+        run: npm install --no-save --no-audit --no-fund @dimforge/rapier3d@0.20.0
       - name: Typecheck and production build
         working-directory: amm-omniverse
         run: |
