@@ -1,3 +1,5 @@
+import {SCULPTIFY_SAN_DIEGO_MISSIONS} from './sculptifySanDiegoStreetVerse'
+
 export type UniversalMissionWorld =
   | 'streetverse'
   | 'streetverse-global'
@@ -16,6 +18,7 @@ export type UniversalMissionAction =
   | 'open-gameverse'
   | 'open-meet-the-stubbs'
   | 'open-after-dark-alpha'
+  | 'open-sculptify-san-diego'
 
 export type UniversalMissionEvent =
   | 'manual'
@@ -32,6 +35,17 @@ export type UniversalMissionEvent =
   | 'hero-encounter-complete'
   | 'after-dark-approach'
   | 'after-dark-complete'
+  | 'sculptify-booking-intent'
+  | 'sculptify-academy-intent'
+  | 'sculptify-store-interaction'
+  | 'sculptify-business-collaboration'
+  | 'sculptify-training-complete'
+  | 'sculptify-staffing-intent'
+  | 'sculptify-template-intent'
+  | 'sculptify-referral-shared'
+  | 'sculptify-referral-verified'
+  | 'sculptify-referred-user-active'
+  | 'sculptify-positive-outcome'
 
 export interface UniversalMissionChoice {
   id:string
@@ -81,6 +95,7 @@ export const UNIVERSAL_MISSION_WORLD_LABELS:Record<UniversalMissionWorld,string>
 }
 
 export const UNIVERSAL_MISSIONS:UniversalMission[]=[
+  ...SCULPTIFY_SAN_DIEGO_MISSIONS,
   {
     id:'streetverse-neighborhood-ripple',
     world:'streetverse',
