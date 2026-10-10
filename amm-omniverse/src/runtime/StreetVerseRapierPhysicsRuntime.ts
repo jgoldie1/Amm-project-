@@ -1,4 +1,4 @@
-import RAPIER from '@dimforge/rapier3d-compat'
+import RAPIER from '@dimforge/rapier3d'
 
 export type PhysicsBodyKind='dynamic'|'fixed'|'kinematic'
 
@@ -41,7 +41,7 @@ export async function installStreetVerseRapierPhysics(){
   if(typeof window==='undefined')return()=>{}
   if(window.__TRYAMM_RAPIER_PHYSICS__)return()=>{}
 
-  await RAPIER.init()
+  // The non-compat Rapier package loads its WASM via the bundler; it exposes no init().
 
   const world=new RAPIER.World({x:0,y:-9.81,z:0})
   world.timestep=1/60

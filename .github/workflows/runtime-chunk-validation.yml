@@ -1,0 +1,62 @@
+name: Runtime chunk budget and lazy-loading validation
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/vite.config.ts'
+      - 'amm-omniverse/src/runtime/**'
+      - 'amm-omniverse/package.json'
+      - 'amm-omniverse/package-lock.json'
+      - 'amm-omniverse/src/main.tsx'
+      - 'amm-omniverse/src/App.tsx'
+      - '.github/workflows/runtime-chunk-validation.yml'
+  push:
+    branches: ['fix/tryamm-runtime-chunk-*']
+    paths:
+      - 'amm-omniverse/vite.config.ts'
+      - '.github/workflows/runtime-chunk-validation.yml'
+permissions:
+  contents: read
+jobs:
+  check-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install dependencies
+        working-directory: amm-omniverse
+        run: npm install --no-audit --no-fund
+      - name: Temporary external WASM Rapier trial (no manifest change)
+        working-directory: amm-omniverse
+        run: npm install --no-save --no-audit --no-fund @dimforge/rapier3d@0.20.0 vite-plugin-wasm@3.5.0 vite-plugin-top-level-await@1.4.5
+      - name: Typecheck and production build
+        working-directory: amm-omniverse
+        run: |
+          npx tsc --noEmit
+          npm run build
+      - name: Check actual emitted JavaScript against existing release caps
+        working-directory: amm-omniverse
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs'),path=require('node:path')
+          const dir=path.join(process.cwd(),'dist','assets')
+          const files=fs.readdirSync(dir).filter(f=>f.endsWith('.js'))
+          const rows=files.map(file=>({file,kb:fs.statSync(path.join(dir,file)).size/1024})).sort((a,b)=>b.kb-a.kb)
+          console.log('Largest chunks:',rows.slice(0,20))
+          const failures=rows.filter(r=>{
+            if(r.file.includes('vendor-maplibre'))return r.kb>1024
+            if(r.file.includes('vendor-three-core'))return r.kb>675
+            return r.kb>650
+          })
+          if(failures.length){console.error('Bundle cap failures:',failures);process.exit(1)}
+          console.log('PASS: All emitted JS chunks stay within existing production caps.')
+          NODE
+      - name: Check runtime routing contracts
+        working-directory: amm-omniverse
+        run: |
+          node tests/performance-release-contract.mjs
+          node tests/main-sync-preflight-contract.mjs

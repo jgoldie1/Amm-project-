@@ -1,9 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import wasm from 'vite-plugin-wasm'
+import topLevelAwait from 'vite-plugin-top-level-await'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), wasm(), topLevelAwait()],
   resolve: {
     alias: [
       {
@@ -71,7 +73,10 @@ export default defineConfig({
           // chunk so constrained StreetVerse devices do not preload WebGL code before
           // the guaranteed HTML city can render.
           if (id.includes('/src/runtime/StreetVerseCreatorDistrict3D')) return 'streetverse-creator-3d'
-          if (id.includes('/src/runtime/')) return 'app-runtime'
+          // app-runtime: let Rollup preserve route-specific dynamic boundaries here.
+          // Forcing every non-Three runtime into one eager 3.6 MB chunk breaches
+          // release budgets and defeats on-demand loading for unrelated worlds.
+          // Native graph splitting also avoids artificial runtime-to-runtime cycles.
           if (id.includes('/src/data/')) return 'app-data'
           if (!id.includes('node_modules')) return
           // Sparrow Map is a lazy feature. Keep MapLibre isolated so the map engine
