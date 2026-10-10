@@ -3,8 +3,9 @@ import {BUSINESS_IN_A_BOX_PRICING,priceFor} from '../data/ElSaturnLaunchPriceBoo
 import {STUBBS_AI_BUSINESS_OS_CHANNELS,STUBBS_AI_BUSINESS_OS_MARKET_SEGMENTS,STUBBS_AI_BUSINESS_OS_SALES_MOTION} from '../data/StubbsAIBusinessOSGoToMarket'
 import {BUSINESS_OS_CHECKOUT_MODE,BUSINESS_OS_CHECKOUT_NOTICE,checkoutOffer} from '../data/StubbsAIBusinessOSCheckout'
 import {submitBusinessOSLead} from '../services/businessOSLeads'
+import {BUSINESS_OS_FIRST_10_DEMO_SLOTS,BUSINESS_OS_FIRST_10_SCOREBOARD,BUSINESS_OS_LAUNCH_CONTENT,BUSINESS_OS_OUTREACH} from '../data/StubbsAIBusinessOSLaunchCampaign'
 
-type View='command'|'sell'|'plans'
+type View='command'|'sell'|'plans'|'launch'
 type Division={id:string;icon:string;name:string;status:string;purpose:string;route:string;metric:string}
 
 const DIVISIONS:Division[]=[
@@ -78,7 +79,7 @@ export default function StubbsAIHolographicBusinessOS(){
     </header>
 
     <nav aria-label="Business OS views" style={tabs}>
-      {(['command','sell','plans'] as View[]).map(v=><button key={v} onClick={()=>setView(v)} style={{...button,background:view===v?'#0d5664':'#071827'}}>{v.toUpperCase()}</button>)}
+      {(['command','sell','plans','launch'] as View[]).map(v=><button key={v} onClick={()=>setView(v)} style={{...button,background:view===v?'#0d5664':'#071827'}}>{v.toUpperCase()}</button>)}
     </nav>
 
     {notice&&<div role="status" aria-live="polite" style={noticeStyle}>{notice}</div>}
@@ -135,6 +136,37 @@ export default function StubbsAIHolographicBusinessOS(){
         <button disabled={leadBusy} style={button} type="submit">{leadBusy?'SUBMITTING…':'REQUEST DEMO'}</button>
       </form>
       <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:14}}><button style={button} onClick={()=>requestDemo('founder-demo')}>REQUEST DEMO</button><button style={button} onClick={()=>nav('/business')}>BUSINESS DIRECTORY</button><button style={button} onClick={()=>nav('/network')}>CONTENT + BROADCAST</button></div>
+    </section>}
+
+    {view==='launch'&&<section style={panel}>
+      <div style={eyebrow}>FIRST 10 CUSTOMER LAUNCH</div>
+      <h2>Founder demo campaign</h2>
+      <p style={copy}>Operating targets—not guarantees: {BUSINESS_OS_FIRST_10_SCOREBOARD.targetDemoInvitations} invitations → {BUSINESS_OS_FIRST_10_SCOREBOARD.targetBookedDemos} demos → {BUSINESS_OS_FIRST_10_SCOREBOARD.targetQualifiedProposals} proposals → {BUSINESS_OS_FIRST_10_SCOREBOARD.targetPaidSetupStarts} paid setup starts.</p>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:10}}>
+        {BUSINESS_OS_FIRST_10_DEMO_SLOTS.map(slot=><article key={slot.slot} style={salesCard}>
+          <div style={{fontSize:9,color:'#69eaff'}}>DEMO SLOT {String(slot.slot).padStart(2,'0')}</div>
+          <h3 style={{margin:'6px 0'}}>{slot.segment}</h3>
+          <div style={copy}><b>{slot.offer}</b></div>
+          <p style={copy}>{slot.demoHook}</p>
+          <div style={{fontSize:9,color:'#7ef6c5'}}>CLOSE GOAL: {slot.closeGoal}</div>
+          <button style={{...button,marginTop:10}} onClick={()=>requestDemo('founder-demo')}>BOOK / CAPTURE LEAD</button>
+        </article>)}
+      </div>
+      <h3 style={{marginTop:18}}>Reel hooks</h3>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:10}}>
+        {Object.entries(BUSINESS_OS_LAUNCH_CONTENT).map(([key,reel])=><article key={key} style={salesCard}>
+          <div style={{fontSize:9,color:'#69eaff'}}>{key.toUpperCase()}</div>
+          <b>{reel.hook}</b>
+          <p style={copy}>{reel.body}</p>
+          <div style={{fontSize:10,color:'#ffd59a'}}>{reel.cta}</div>
+        </article>)}
+      </div>
+      <h3 style={{marginTop:18}}>Founder outreach</h3>
+      <div style={salesCard}>
+        <p style={copy}><b>DIRECT:</b> {BUSINESS_OS_OUTREACH.directMessage}</p>
+        <p style={copy}><b>FOLLOW-UP 1:</b> {BUSINESS_OS_OUTREACH.followUp1}</p>
+        <p style={copy}><b>FOLLOW-UP 2:</b> {BUSINESS_OS_OUTREACH.followUp2}</p>
+      </div>
     </section>}
 
     {view==='plans'&&<section style={panel}>

@@ -9,28 +9,142 @@ const bounds={
 }
 const outDir=path.resolve(process.argv[2]||'../release-evidence/chicago-reconstruction')
 const sources=[
-  {id:'chicago-building-footprints',dataset:'ssaf-e4ub',file:'building-footprints.geojson'},
-  {id:'chicago-street-centerlines',dataset:'6imu-meau',file:'street-centerlines.geojson'},
-  {id:'chicago-zoning-current',dataset:'7cve-jgbp',file:'zoning-current.geojson'},
+  {
+    id:'chicago-building-footprints',
+    dataset:'syp8-uezg',
+    file:'building-footprints.geojson',
+    sourceMode:'city-socrata-source-dataset',
+    caveat:'Building footprint source is used as reconstruction baseline only; it is not current-building certification.',
+  },
+  {
+    id:'chicago-street-centerlines',
+    dataset:'6imu-meau',
+    file:'street-centerlines.geojson',
+    arcgisQuery:'https://gisapps.cityofchicago.org/arcgis/rest/services/ExternalApps/Basemap_BlackWhite/MapServer/14/query',
+    sourceMode:'city-arcgis-all-streets',
+    caveat:'City ArcGIS All Streets geometry is used as the street reconstruction baseline; use for gameplay/world reconstruction, not present-day legal street certification.',
+  },
+  {
+    id:'chicago-zoning-current',
+    dataset:'dj47-wfun',
+    file:'zoning-current.geojson',
+    sourceMode:'city-socrata-current',
+  },
 ]
 
 const assertBounds=()=>{
   for(const [key,value] of Object.entries(bounds))if(!Number.isFinite(value))throw new Error('Invalid Chicago reconstruction bound: '+key)
   if(bounds.south>=bounds.north||bounds.west>=bounds.east)throw new Error('Invalid Chicago reconstruction bounding box')
 }
-const endpoint=dataset=>{
-  const where=`within_box(the_geom, ${bounds.north}, ${bounds.west}, ${bounds.south}, ${bounds.east})`
+const bboxWkt=()=>`POLYGON((${bounds.west} ${bounds.south},${bounds.east} ${bounds.south},${bounds.east} ${bounds.north},${bounds.west} ${bounds.north},${bounds.west} ${bounds.south}))`
+const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms))
+const fetchWithRetry=async(url,headers={},attempts=4)=>{
+  let last
+  for(let attempt=1;attempt<=attempts;attempt++){
+    try{
+      const response=await fetch(url,{headers,signal:AbortSignal.timeout(20000)})
+      if(response.ok)return response
+      const detail=(await response.text().catch(()=>'' )).slice(0,300).replace(/\s+/g,' ')
+      last=new Error(`HTTP ${response.status}${detail?' • '+detail:''}`)
+      if(![429,500,502,503,504].includes(response.status)||attempt===attempts)break
+    }catch(error){
+      last=error instanceof Error?error:new Error(String(error))
+      if(attempt===attempts)break
+    }
+    await sleep(900*attempt)
+  }
+  throw last||new Error('request failed')
+}
+
+const geometryTypes=new Set(['point','multipoint','line','multiline','polygon','multipolygon','location'])
+const geometryFieldCandidates=async dataset=>{
+  const metadataUrl=`https://data.cityofchicago.org/api/views/${dataset}`
+  const response=await fetchWithRetry(metadataUrl,{accept:'application/json'})
+  const metadata=await response.json()
+  const columns=Array.isArray(metadata?.columns)?metadata.columns:[]
+  const dynamic=columns
+    .filter(column=>geometryTypes.has(String(column?.dataTypeName||'').toLowerCase())||/(geom|shape|location)/i.test(String(column?.fieldName||column?.name||'')))
+    .map(column=>String(column.fieldName||'').trim())
+    .filter(Boolean)
+  return[...new Set([...dynamic,'the_geom','shape','geometry'])]
+}
+const socrataEndpoint=(dataset,geometryField)=>{
+  const where=`intersects(${geometryField}, '${bboxWkt()}')`
   const params=new URLSearchParams({'$limit':'50000','$where':where})
   return `https://data.cityofchicago.org/resource/${dataset}.geojson?${params}`
 }
-const fetchGeoJson=async source=>{
-  const url=endpoint(source.dataset)
-  const response=await fetch(url,{headers:{accept:'application/geo+json,application/json'}})
-  if(!response.ok)throw new Error(`${source.id} download failed: HTTP ${response.status}`)
-  const json=await response.json()
-  if(json?.type!=='FeatureCollection'||!Array.isArray(json.features))throw new Error(source.id+' did not return GeoJSON FeatureCollection')
-  return{url,json}
+
+const fetchArcGISAllStreets=async source=>{
+  const geometry=`${bounds.west},${bounds.south},${bounds.east},${bounds.north}`
+  const common={
+    where:'1=1',
+    geometry,
+    geometryType:'esriGeometryEnvelope',
+    inSR:'4326',
+    spatialRel:'esriSpatialRelIntersects',
+  }
+  const idParams=new URLSearchParams({...common,returnIdsOnly:'true',f:'json'})
+  const idUrl=`${source.arcgisQuery}?${idParams}`
+  const idResponse=await fetchWithRetry(idUrl,{accept:'application/json'},4)
+  const idJson=await idResponse.json()
+  const objectIds=Array.isArray(idJson?.objectIds)?idJson.objectIds:[]
+  if(!objectIds.length){
+    const detail=JSON.stringify(idJson).slice(0,350)
+    throw new Error(source.id+' ArcGIS bbox returned zero object IDs • '+detail)
+  }
+
+  const features=[]
+  const chunkSize=350
+  let lastUrl=idUrl
+  for(let i=0;i<objectIds.length;i+=chunkSize){
+    const chunk=objectIds.slice(i,i+chunkSize)
+    const params=new URLSearchParams({
+      objectIds:chunk.join(','),
+      outFields:'*',
+      returnGeometry:'true',
+      outSR:'4326',
+      f:'geojson',
+    })
+    const url=`${source.arcgisQuery}?${params}`
+    lastUrl=url
+    const response=await fetchWithRetry(url,{accept:'application/geo+json,application/json'},4)
+    const json=await response.json()
+    if(json?.type!=='FeatureCollection'||!Array.isArray(json.features)){
+      const detail=JSON.stringify(json).slice(0,300)
+      throw new Error(source.id+' ArcGIS object-ID chunk did not return GeoJSON FeatureCollection • '+detail)
+    }
+    features.push(...json.features)
+  }
+  return{
+    url:lastUrl,
+    json:{type:'FeatureCollection',features},
+    geometryField:'arcgis-envelope-4326-objectids',
+    provider:'city-arcgis-mapserver-all-streets',
+    objectIdCount:objectIds.length,
+  }
 }
+
+const fetchSocrataGeoJson=async source=>{
+  const candidates=await geometryFieldCandidates(source.dataset)
+  const failures=[]
+  for(const geometryField of candidates){
+    const url=socrataEndpoint(source.dataset,geometryField)
+    const response=await fetch(url,{headers:{accept:'application/geo+json,application/json'}})
+    if(response.ok){
+      const json=await response.json()
+      if(json?.type==='FeatureCollection'&&Array.isArray(json.features)&&json.features.length){
+        return{url,json,geometryField,provider:'socrata'}
+      }
+      failures.push(`${geometryField}: zero/invalid features`)
+      continue
+    }
+    const detail=(await response.text().catch(()=>'' )).slice(0,220).replace(/\s+/g,' ')
+    failures.push(`${geometryField}: HTTP ${response.status}${detail?' '+detail:''}`)
+  }
+  throw new Error(`${source.id} download failed for geometry candidates • ${failures.join(' | ')}`)
+}
+
+const fetchGeoJson=source=>source.arcgisQuery?fetchArcGISAllStreets(source):fetchSocrataGeoJson(source)
 
 assertBounds()
 await fs.mkdir(outDir,{recursive:true})
@@ -44,10 +158,14 @@ const manifest={
   sources:[],
 }
 for(const source of sources){
-  const {url,json}=await fetchGeoJson(source)
+  const {url,json,geometryField,provider}=await fetchGeoJson(source)
+  if(!json.features.length)throw new Error(source.id+' returned zero features inside the Chicago proof-zone bounds')
   const target=path.join(outDir,source.file)
   await fs.writeFile(target,JSON.stringify(json))
-  manifest.sources.push({id:source.id,dataset:source.dataset,url,file:source.file,featureCount:json.features.length})
+  manifest.sources.push({
+    id:source.id,dataset:source.dataset,url,file:source.file,geometryField,provider,
+    sourceMode:source.sourceMode,caveat:source.caveat||null,featureCount:json.features.length,
+  })
   console.log(source.id+': '+json.features.length+' features')
 }
 await fs.writeFile(path.join(outDir,'manifest.json'),JSON.stringify(manifest,null,2)+'\n')
