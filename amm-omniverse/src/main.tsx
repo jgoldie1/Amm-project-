@@ -231,6 +231,7 @@ const installOptionalRuntimes = () => {
   import('./runtime/TransportationFleetRuntime').then(m => m.installTransportationFleetRuntime()).catch(error => console.error('[TRYAMM] Transportation fleet runtime failed after core mount.', error))
   import('./runtime/ElectricDroneTransportRuntime').then(m => m.installElectricDroneTransportRuntime()).catch(error => console.error('[TRYAMM] Electric/drone transport runtime failed after core mount.', error))
   import('./runtime/StreetVerseGameOpsRuntime').then(m => m.installStreetVerseGameOpsRuntime()).catch(error => console.error('[TRYAMM] Game Ops failed after core mount.', error))
+  import('./runtime/TRYAMMWorldForger').then(m => m.installTryammWorldForgerRuntime()).catch(error => console.error('[TRYAMM] World Forger failed after core mount.', error))
   import('./runtime/ProductionHealthMonitor').then(m => m.installProductionHealthMonitor()).catch(error => console.error('[TRYAMM] Optional runtime installProductionHealthMonitor failed after core mount.', error))
   import('./runtime/StreetVerseAssetExecutiveRuntime').then(m => m.installStreetVerseAssetExecutiveRuntime()).catch(error => console.error('[TRYAMM] Optional asset executive runtime failed after core mount.', error))
   import('./runtime/mediaCloudBridge').then(m => m.installMediaCloudBridge()).catch(error => console.error('[TRYAMM] Optional runtime installMediaCloudBridge failed after core mount.', error))
