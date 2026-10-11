@@ -65,6 +65,9 @@ assert.match(graphicsEntry,/data-streetverse-render-mode="exception-fallback"/,'
 assert.match(graphicsEntry,/data-streetverse-render-mode="context-loss-fallback"/,'context loss needs a labeled recovery view')
 assert.match(graphicsEntry,/target\.parentElement\?\.matches/,'context-loss fallback must only react to StreetVerse world canvas')
 assert.match(graphicsEntry,/RETRY 3D/,'players must be able to retry the 3D game without losing the HTML backup')
+assert.match(graphicsEntry,/tryamm:streetverse-renderer-failed/,'the fallback guard must listen for 3D initialization failures')
+const graphics3d=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
+assert.match(graphics3d,/tryamm:streetverse-renderer-failed/,'the mobile renderer must report WebGL initialization errors')
 assert.match(graphicsSafe,/HTML CITY MODE/,'retain the lightweight offline-friendly city as a backup')
 
 console.log('STREETVERSE V8 NO-REGRESSION PASS: preservation gates intact; authoritative spine remains protected')

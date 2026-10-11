@@ -128,7 +128,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
  useEffect(()=>{
   const mount=mountRef.current;if(!mount)return
   let renderer:THREE.WebGLRenderer
-  try{renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'default',alpha:false})}catch(err){setStatus('WEBGL UNAVAILABLE');setMessage('This browser could not start the 3D renderer. Close other tabs and reload StreetVerse.');return}
+  try{renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'default',alpha:false})}catch(err){setStatus('WEBGL UNAVAILABLE');setMessage('This browser could not start the 3D renderer. Close other tabs and retry 3D.');window.setTimeout(()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-renderer-failed',{detail:{reason:'webgl-renderer-init-failed',source:'streetverse-mobile-world'}})),0);return}
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.35));renderer.shadowMap.enabled=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;mount.appendChild(renderer.domElement)
   const reelCapture=installStreetVerseReelCapture(renderer.domElement)
   const scene=new THREE.Scene();scene.background=new THREE.Color(0xa9c2d4);scene.fog=new THREE.Fog(0xa9c2d4,95,245)
