@@ -198,13 +198,15 @@ export default function StreetVerseOmniWorld({onClose}:{onClose:()=>void}){
       padActionHeld=pressed
     }
     let remoteReleaseTimer:number|undefined
-    let autoWalk=false
+    let autoWalk=false,cruiseDrive=false
     const onHoloRemote=(event:Event)=>{
       const detail=(event as CustomEvent<{mode?:string;command?:string}>).detail
       if(detail?.mode!=='game')return
       if(detail.command==='SELECT')action.current=true
+      if(detail.command==='CRUISE'){if(activeCar>=0){cruiseDrive=!cruiseDrive;setMsg(cruiseDrive?'One-hand cruise enabled. Tap BRAKE to stop.':'Cruise disabled.')}else setMsg('Enter a nearby vehicle to use cruise control.')}
+      if(detail.command==='BRAKE'){autoWalk=false;cruiseDrive=false;carSpeed=0;input.current={u:false,d:false,l:false,r:false};setMsg('Stopped. Auto-walk and cruise are off.')}
       if(detail.command==='AUTO_WALK'){autoWalk=!autoWalk;input.current={u:false,d:false,l:false,r:false};setMsg(autoWalk?'One-hand auto-walk enabled. Tap AUTO WALK again to stop.':'Auto-walk stopped.')}
-      if(detail.command==='BACK'){autoWalk=false;window.clearTimeout(remoteReleaseTimer);input.current={u:false,d:false,l:false,r:false}}
+      if(detail.command==='BACK'){autoWalk=false;cruiseDrive=false;carSpeed=0;window.clearTimeout(remoteReleaseTimer);input.current={u:false,d:false,l:false,r:false}}
       const directions:Record<string,keyof typeof input.current>={UP:'u',DOWN:'d',LEFT:'l',RIGHT:'r'}
       const direction=directions[detail.command||'']
       if(direction){window.clearTimeout(remoteReleaseTimer);input.current={u:false,d:false,l:false,r:false};input.current[direction]=true;remoteReleaseTimer=window.setTimeout(()=>{input.current={u:false,d:false,l:false,r:false}},180)}
@@ -218,10 +220,17 @@ export default function StreetVerseOmniWorld({onClose}:{onClose:()=>void}){
       const dt=Math.min(.033,clock.getDelta());elapsed+=dt;let dx=0,dz=0;const p=input.current
       if(keys.has('w')||keys.has('arrowup')||p.u)dz-=1;if(keys.has('s')||keys.has('arrowdown')||p.d)dz+=1;if(keys.has('a')||keys.has('arrowleft')||p.l)dx-=1;if(keys.has('d')||keys.has('arrowright')||p.r)dx+=1
       if(autoWalk&&!p.d&&!keys.has('s')&&!keys.has('arrowdown')&&activeCar<0)dz-=1
-      if(performance.now()-padLastAt<180){dx+=padAxes[0];dz+=padAxes[1]}
+      // Read controllers directly while playing; the Volcano overlay need not stay open.
+      const bridged=performance.now()-padLastAt<180
+      const directPad=bridged?undefined:navigator.getGamepads?.()?.find(Boolean)
+      const directAxis=(index:number)=>{const value=Number(directPad?.axes[index]||0);return Number.isFinite(value)&&Math.abs(value)>.18?THREE.MathUtils.clamp(value,-1,1):0}
+      const padX=bridged?padAxes[0]:directAxis(0),padY=bridged?padAxes[1]:directAxis(1)
+      dx+=padX;dz+=padY
+      if(directPad){const pressed=Boolean(directPad.buttons[0]?.pressed);if(pressed&&!padActionHeld)action.current=true;padActionHeld=pressed}
+      if(!bridged&&!directPad)padActionHeld=false
       if(action.current){
         action.current=false
-        if(activeCar>=0){const c=cars[activeCar];avatar.visible=true;avatar.position.set(THREE.MathUtils.clamp(c.position.x+Math.cos(c.rotation.y)*4,-122,122),0,THREE.MathUtils.clamp(c.position.z-Math.sin(c.rotation.y)*4,-95,72));activeCar=-1;carSpeed=0;setIsDriving(false);setMsg('Exited vehicle • cinematic district remains active.')}
+        if(activeCar>=0){cruiseDrive=false;const c=cars[activeCar];avatar.visible=true;avatar.position.set(THREE.MathUtils.clamp(c.position.x+Math.cos(c.rotation.y)*4,-122,122),0,THREE.MathUtils.clamp(c.position.z-Math.sin(c.rotation.y)*4,-95,72));activeCar=-1;carSpeed=0;setIsDriving(false);setMsg('Exited vehicle • cinematic district remains active.')}
         else if(businessRef.current){const label=businessRef.current;businessRef.current=null;setBusiness(null);setMsg(`Exited ${label} • continue exploring StreetVerse.`)}
         else{
           let nearestBusinessIndex=-1,nearestBusinessD=7;BUSINESSES.forEach((b,i)=>{const d=Math.hypot(avatar.position.x-b.x,avatar.position.z-b.z);if(d<nearestBusinessD){nearestBusinessIndex=i;nearestBusinessD=d}})
@@ -232,12 +241,12 @@ export default function StreetVerseOmniWorld({onClose}:{onClose:()=>void}){
             else{
               let nearestSpirit=-1,nearestSpiritD=5;spirits.forEach((s,i)=>{const d=Math.hypot(avatar.position.x-s.position.x,avatar.position.z-s.position.z);if(d<nearestSpiritD){nearestSpirit=i;nearestSpiritD=d}})
               if(nearestSpirit>=0)setMsg(`AI Spirit ${nearestSpirit+1}: holographic guide skin online.`)
-              else{let nearest=-1,nearestD=8;cars.forEach((c,i)=>{const d=Math.hypot(avatar.position.x-c.position.x,avatar.position.z-c.position.z);if(d<nearestD){nearest=i;nearestD=d}});if(nearest>=0){activeCar=nearest;carSpeed=0;avatar.visible=false;avatar.position.copy(cars[nearest].position);setIsDriving(true);setMsg('Vehicle entered • cinematic driving active.')}else{const court=BASKETBALL_COURTS.find(c=>Math.hypot(avatar.position.x-c.x,avatar.position.z-c.z)<11);if(court){setMsg(`${court.name} • basketball court active. Use the StreetVerse Basketball controls to start 1v1, 3v3, 5v5 or tournament play.`);window.dispatchEvent(new CustomEvent('tryamm:basketball-open',{detail:{court:court.id}}))}else setMsg('Move closer to a resident, AI Spirit, business portal, vehicle, or basketball court to interact.')}}
+              else{let nearest=-1,nearestD=8;cars.forEach((c,i)=>{const d=Math.hypot(avatar.position.x-c.position.x,avatar.position.z-c.position.z);if(d<nearestD){nearest=i;nearestD=d}});if(nearest>=0){autoWalk=false;cruiseDrive=false;activeCar=nearest;carSpeed=0;avatar.visible=false;avatar.position.copy(cars[nearest].position);setIsDriving(true);setMsg('Vehicle entered • cinematic driving active.')}else{const court=BASKETBALL_COURTS.find(c=>Math.hypot(avatar.position.x-c.x,avatar.position.z-c.z)<11);if(court){setMsg(`${court.name} • basketball court active. Use the StreetVerse Basketball controls to start 1v1, 3v3, 5v5 or tournament play.`);window.dispatchEvent(new CustomEvent('tryamm:basketball-open',{detail:{court:court.id}}))}else setMsg('Move closer to a resident, AI Spirit, business portal, vehicle, or basketball court to interact.')}}
             }
           }
         }
       }
-      if(activeCar>=0){const c=cars[activeCar];const throttle=((keys.has('w')||keys.has('arrowup')||p.u)?1:0)-((keys.has('s')||keys.has('arrowdown')||p.d)?1:0);const steer=((keys.has('a')||keys.has('arrowleft')||p.l)?1:0)-((keys.has('d')||keys.has('arrowright')||p.r)?1:0);const target=throttle*(keys.has('shift')?42:30);carSpeed=THREE.MathUtils.lerp(carSpeed,target,Math.min(1,dt*(throttle?3.8:2.4)));if(Math.abs(carSpeed)<.05)carSpeed=0;if(steer&&Math.abs(carSpeed)>.4)c.rotation.y+=steer*dt*1.45*Math.sign(carSpeed);c.position.x=THREE.MathUtils.clamp(c.position.x+Math.cos(c.rotation.y)*carSpeed*dt,-122,122);c.position.z=THREE.MathUtils.clamp(c.position.z-Math.sin(c.rotation.y)*carSpeed*dt,-92,72);avatar.position.set(c.position.x,0,c.position.z);avatar.rotation.y=c.rotation.y}
+      if(activeCar>=0){const c=cars[activeCar];const braking=keys.has('s')||keys.has('arrowdown')||p.d||padY>.35;if(braking)cruiseDrive=false;const throttle=THREE.MathUtils.clamp(((keys.has('w')||keys.has('arrowup')||p.u)?1:0)-((keys.has('s')||keys.has('arrowdown')||p.d)?1:0)-padY+(cruiseDrive?.65:0),-1,1);const steer=THREE.MathUtils.clamp(((keys.has('a')||keys.has('arrowleft')||p.l)?1:0)-((keys.has('d')||keys.has('arrowright')||p.r)?1:0)-padX,-1,1);const target=throttle*(keys.has('shift')?42:30);carSpeed=THREE.MathUtils.lerp(carSpeed,target,Math.min(1,dt*(throttle?3.8:2.4)));if(Math.abs(carSpeed)<.05)carSpeed=0;if(steer&&Math.abs(carSpeed)>.4)c.rotation.y+=steer*dt*1.45*Math.sign(carSpeed);c.position.x=THREE.MathUtils.clamp(c.position.x+Math.cos(c.rotation.y)*carSpeed*dt,-122,122);c.position.z=THREE.MathUtils.clamp(c.position.z-Math.sin(c.rotation.y)*carSpeed*dt,-92,72);avatar.position.set(c.position.x,0,c.position.z);avatar.rotation.y=c.rotation.y}
       else if(!businessRef.current&&(dx||dz)){const len=Math.hypot(dx,dz)||1;const speed=(keys.has('shift')?30:18)*dt;avatar.position.x=THREE.MathUtils.clamp(avatar.position.x+dx/len*speed,-122,122);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z+dz/len*speed,-95,72);avatar.rotation.y=Math.atan2(dx,dz)}
 
       cars.forEach((c,i)=>{if(i===activeCar)return;const lane=i%2?45:-55;const dir=i%2?1:-1;c.position.x=dir*(-128+((elapsed*(11+i*.45)+i*19)%256));c.position.z=lane;c.rotation.y=dir>0?0:Math.PI})
@@ -281,6 +290,10 @@ export default function StreetVerseOmniWorld({onClose}:{onClose:()=>void}){
       <button onPointerDown={press('l',true)} onPointerUp={press('l',false)} onPointerCancel={press('l',false)} style={{...control,gridColumn:1,gridRow:2}}>◀</button>
       <button onPointerDown={press('d',true)} onPointerUp={press('d',false)} onPointerCancel={press('d',false)} style={{...control,gridColumn:2,gridRow:2}}>▼</button>
       <button onPointerDown={press('r',true)} onPointerUp={press('r',false)} onPointerCancel={press('r',false)} style={{...control,gridColumn:3,gridRow:2}}>▶</button>
+    </div>
+    <div role="group" aria-label="One-handed movement controls" style={{position:'absolute',right:18,bottom:190,display:'flex',gap:8,maxWidth:'calc(100vw - 36px)'}}>
+      <button aria-label={isDriving?'Toggle vehicle cruise control':'Toggle auto walk'} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:holo-fon-remote',{detail:{mode:'game',command:isDriving?'CRUISE':'AUTO_WALK'}}))} style={{...control,minHeight:48,padding:'9px 14px',background:'#12485aee'}}>{isDriving?'🚗 CRUISE':'♿ AUTO WALK'}</button>
+      <button aria-label="Stop movement and cruise control" onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:holo-fon-remote',{detail:{mode:'game',command:'BRAKE'}}))} style={{...control,minHeight:48,padding:'9px 15px',background:'#713029ee'}}>■ STOP</button>
     </div>
     <button onClick={triggerAction} style={{position:'absolute',right:18,bottom:126,border:'1px solid #4fe3ff88',borderRadius:999,padding:'12px 15px',background:'linear-gradient(135deg,#06314aee,#071b2aee)',color:'#fff',fontWeight:950,boxShadow:'0 10px 34px #0009',touchAction:'manipulation'}}>{business?'EXIT BUSINESS':isDriving?'EXIT VEHICLE':'INTERACT / ENTER'}</button>
     <div style={{position:'absolute',right:14,bottom:18,padding:'10px 12px',borderRadius:14,maxWidth:280,fontSize:10,lineHeight:1.5,...glass}}>iPhone: tap 🎥 REEL. If direct browser capture is unavailable, use Control Center Screen Recording, then import the clip into Reel Composer to edit, render, save or publish.</div>
