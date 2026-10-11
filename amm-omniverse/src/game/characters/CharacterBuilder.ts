@@ -1,3 +1,4 @@
+import {canvasRoundedRect} from '../../utils/canvasRoundedRect'
 import * as THREE from 'three'
 
 export type CharacterRole = 'cop' | 'creator' | 'pastor' | 'merchant' | 'athlete' | 'gangster' | 'player'
@@ -223,7 +224,7 @@ export function buildCharacter(cfg: CharacterConfig): THREE.Group {
   canvas.width = 256; canvas.height = 56
   const ctx = canvas.getContext('2d')!
   ctx.fillStyle = 'rgba(0,0,0,0.7)'
-  ctx.roundRect(0, 0, 256, 56, 8)
+  canvasRoundedRect(ctx, 0, 0, 256, 56, 8)
   ctx.fill()
   ctx.fillStyle = roleColor(cfg.role)
   ctx.font = 'bold 18px Arial'
