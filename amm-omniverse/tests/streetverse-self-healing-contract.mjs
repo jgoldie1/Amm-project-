@@ -5,7 +5,7 @@ const safeSource=fs.readFileSync(new URL('../src/components/StreetVerseSafeWorld
 const required=[
   'MobileRuntimeGuard',
   'tryamm:streetverse-runtime-health',
-  'mobile-boot-grace',
+  '3D startup remains unverified',
   'mobile-heartbeat-delayed',
   'webglcontextlost',
   'StreetVerseSafeWorld',
@@ -18,4 +18,5 @@ if(!safeSource.includes('StreetVerseHydeParkMobileWorld'))throw new Error('Safe 
 if(!/setSafeFallback\(true\)/.test(source))throw new Error('StreetVerse must retain explicit WebGL context-loss recovery')
 if(!/20000/.test(source)||!/30000/.test(source))throw new Error('StreetVerse must use tolerant mobile boot and heartbeat windows')
 if(source.includes("fail('mobile-webgl-no-heartbeat')")||source.includes("fail('mobile-webgl-stalled')"))throw new Error('Slow mobile startup/heartbeat must not force the legacy safe interface')
-console.log('StreetVerse self-healing contract: PASS (tolerant mobile boot + explicit WebGL loss recovery without false safe fallback)')
+if(source.includes("report('healthy','mobile-boot-grace')"))throw new Error('A timeout alone must never report 3D as healthy')
+console.log('StreetVerse self-healing contract: PASS (tolerant mobile boot + explicit WebGL loss recovery without false healthy status)')
