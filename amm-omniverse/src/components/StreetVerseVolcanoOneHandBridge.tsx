@@ -82,9 +82,9 @@ export default function StreetVerseVolcanoOneHandBridge(){
         setEnabled(true)
         if(d.hand==='left'||d.hand==='right')setHand(d.hand)
       }else if(d.mode==='two-hand'){
+        // Switching accessibility modes must also release cruise and movement.
+        stop()
         setEnabled(false)
-        setAutoWalk(false)
-        setTurn(0)
       }
     }
     const onSide=(event:Event)=>{
