@@ -40,50 +40,10 @@ export default defineConfig({
         streetverseSafe: fileURLToPath(new URL('./streetverse-safe.html', import.meta.url)),
       },
       output: {
-        manualChunks(id, { getModuleInfo }) {
-          // Transitively follow STATIC imports to detect first-party modules
-          // that pull in Three.js. These must remain outside app-runtime or
-          // Rollup can collapse dynamic StreetVerse 3D imports back into the
-          // eager application chunk.
-          const seenThree = new Map<string, boolean>()
-          const importsThreeStatically = (moduleId: string, stack = new Set<string>()): boolean => {
-            const cached = seenThree.get(moduleId)
-            if (cached !== undefined) return cached
-            if (stack.has(moduleId)) return false
-            stack.add(moduleId)
-            const info = getModuleInfo(moduleId)
-            let result = false
-            if (info) {
-              for (const dep of info.importedIds) {
-                if (dep.includes('/three/') || dep.includes('/three-stdlib/')) { result = true; break }
-                if (dep.includes('/src/') && importsThreeStatically(dep, stack)) { result = true; break }
-              }
-            }
-            stack.delete(moduleId)
-            seenThree.set(moduleId, result)
-            return result
-          }
-
-          // Route Three-dependent StreetVerse runtime/game modules into a lazy
-          // chunk BEFORE the /src/runtime/ -> app-runtime catch-all.
-          if ((id.includes('/src/runtime/') || id.includes('/src/game/')) && importsThreeStatically(id)) return 'streetverse-3d-runtime'
-          // Keep the Three.js creator-district runtime out of the shared app-runtime
-          // chunk so constrained StreetVerse devices do not preload WebGL code before
-          // the guaranteed HTML city can render.
-          if (id.includes('/src/runtime/StreetVerseCreatorDistrict3D')) return 'streetverse-creator-3d'
-          // Avoid a single multi-megabyte runtime chunk. Keep feature runtimes
-          // independently cacheable while retaining a small shared runtime group.
-          // Rollup resolves shared imports between chunks; the release hard caps
-          // still apply and must pass before deployment.
-          if (id.includes('/src/runtime/')) {
-            const filename = id.split('/').pop() || ''
-            if (/^(StreetVerse|LivingWorld|World|City|Vehicle|Traffic|Mobility|Map|Geo|HoloRide)/i.test(filename)) return 'runtime-world'
-            if (/^(Broadcast|TryammBroadcast|Ministry|FaithVerse|HoloLive|Live|Stream|Reel|Media|Video|Audio|Music)/i.test(filename)) return 'runtime-media'
-            if (/^(Commerce|Marketplace|Store|Payment|Stripe|Ledger|Wallet|Reward|Business|Agent|Scout|Delivery)/i.test(filename)) return 'runtime-commerce'
-            if (/^(HoloGPT|AI|Agentic|Universal|Quantum|Construct|Intent|Omni|Command|Jarvis)/i.test(filename)) return 'runtime-intelligence'
-            return 'app-runtime'
-          }
-          if (id.includes('/src/data/')) return 'app-data'
+        manualChunks(id) {
+          // Let Rollup order first-party modules from their actual dependency graph.
+          // Grouping data and runtimes by folder introduced circular chunks that
+          // accessed constants before initialization and stopped the homepage.
           if (!id.includes('node_modules')) return
           // Sparrow Map is a lazy feature. Keep MapLibre isolated so the map engine
           // never inflates the Sparrow component chunk or the initial app graph.
