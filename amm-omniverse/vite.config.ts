@@ -71,7 +71,18 @@ export default defineConfig({
           // chunk so constrained StreetVerse devices do not preload WebGL code before
           // the guaranteed HTML city can render.
           if (id.includes('/src/runtime/StreetVerseCreatorDistrict3D')) return 'streetverse-creator-3d'
-          if (id.includes('/src/runtime/')) return 'app-runtime'
+          // Avoid a single multi-megabyte runtime chunk. Keep feature runtimes
+          // independently cacheable while retaining a small shared runtime group.
+          // Rollup resolves shared imports between chunks; the release hard caps
+          // still apply and must pass before deployment.
+          if (id.includes('/src/runtime/')) {
+            const filename = id.split('/').pop() || ''
+            if (/^(StreetVerse|LivingWorld|World|City|Vehicle|Traffic|Mobility|Map|Geo|HoloRide)/i.test(filename)) return 'runtime-world'
+            if (/^(Broadcast|TryammBroadcast|Ministry|FaithVerse|HoloLive|Live|Stream|Reel|Media|Video|Audio|Music)/i.test(filename)) return 'runtime-media'
+            if (/^(Commerce|Marketplace|Store|Payment|Stripe|Ledger|Wallet|Reward|Business|Agent|Scout|Delivery)/i.test(filename)) return 'runtime-commerce'
+            if (/^(HoloGPT|AI|Agentic|Universal|Quantum|Construct|Intent|Omni|Command|Jarvis)/i.test(filename)) return 'runtime-intelligence'
+            return 'app-runtime'
+          }
           if (id.includes('/src/data/')) return 'app-data'
           if (!id.includes('node_modules')) return
           // Sparrow Map is a lazy feature. Keep MapLibre isolated so the map engine
