@@ -1,8 +1,12 @@
 # Servants of Christ domain and launch
 
-**Preferred domain:** servantsofchrist.com
+**Temporary ministry entry point:** `https://tryamm.online/servants-of-christ` (requires live-route verification)
+**Future custom domain:** to be chosen by the owner; no domain purchase required to continue. `servantsofchrist.com` remains an unverified candidate.
 **Registration status:** unverified. No purchase or DNS changes made.
 **Alternatives to check:** servantsofchristministries.com, servantsofchristnetwork.com
+
+## Current decision
+Keep the TRYAMM ministry route as the temporary public entry point. Maintain the standalone website separately and move it to a new domain later without rebuilding. No DNS changes or purchases are authorized at this stage.
 
 ## Independent deployment
 - Publish root: `standalone/servants-of-christ`
@@ -20,7 +24,7 @@
 - `/store` products and marketplace (planned)
 - `/faithverse` links to the TRYAMM study experience (planned)
 
-The current standalone preview implements these as **sections on one page**, not separate production routes. Do not configure redirects to nonexistent pages.
+The standalone preview now includes separate static pages at `/watch/`, `/university/`, `/ofri-ai/`, `/store/` and `/faithverse/`. These are informational prelaunch pages, not production integrations. The TRYAMM ministry route is a separate React experience and does not automatically serve these static files.
 
 ## Release gate
 - [ ] Domain available and authorized
