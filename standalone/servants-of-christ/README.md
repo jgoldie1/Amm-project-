@@ -4,8 +4,8 @@ The standalone, dependency-free static prototype is in [index.html](./index.html
 
 ## Identity
 - Ministry: Servants of Christ
-- Proposed leader display: Pastor Kofi Ofri (confirm spelling, title and authority before public release)
-- Assistant brand: HoloGPT — Powered by Ofri AI
+- Proposed leader display: Pastor Kofi Ofori (confirm spelling, title and authority before public release)
+- Assistant brand: HoloGPT — Powered by Ofori AI
 - Parent-platform interoperability: TRYAMM, FaithVerse, Broadcasting and University, through public links initially
 
 ## Implemented now
@@ -23,7 +23,7 @@ The standalone, dependency-free static prototype is in [index.html](./index.html
 1. Obtain written ministry approval for public branding and the proposed pastor name.
 2. Deploy this folder to its own static host/project with separate domain, without modifying TRYAMM production.
 3. Create separate Supabase project or isolated tenant with reviewed RLS; never share TRYAMM owner keys or customer data.
-4. Create a server-side Ofri AI endpoint with provider keys in secrets only, approved ministry knowledge and citations, moderation, privacy retention controls, and escalation to a human.
+4. Create a server-side Ofori AI endpoint with provider keys in secrets only, approved ministry knowledge and citations, moderation, privacy retention controls, and escalation to a human.
 5. Replace preview-only responses with server-verified answers and make AI limitations clear.
 6. Add content editor, schedule, rights-cleared media and accessible captions.
 7. Verify any receiving ministry entity, tax statements, and payment account before enabling giving.
