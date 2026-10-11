@@ -1,0 +1,34 @@
+{
+  "status": "demo-only",
+  "currency": "USD",
+  "paymentEnabled": false,
+  "donationsEnabled": false,
+  "categories": [
+    {
+      "id": "books",
+      "title": "Books & Study Guides"
+    },
+    {
+      "id": "courses",
+      "title": "Ministry Courses"
+    },
+    {
+      "id": "apparel",
+      "title": "Apparel"
+    },
+    {
+      "id": "media",
+      "title": "Licensed Sermons & Media"
+    },
+    {
+      "id": "events",
+      "title": "Events"
+    },
+    {
+      "id": "vendors",
+      "title": "Community Marketplace"
+    }
+  ],
+  "products": [],
+  "notes": "Add approved inventory, prices, merchant accounts and fulfillment policies before taking orders."
+}
