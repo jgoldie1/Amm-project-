@@ -15,8 +15,10 @@ export default function StreetVerseVolcanoOneHandBridge(){
   const [cruise,setCruise]=useState(false)
   const [controller,setController]=useState(false)
   const releaseRef=useRef<number|undefined>(undefined)
+  const suppressPadRef=useRef(false)
 
   const stop=()=>{
+    suppressPadRef.current=true // require the physical stick to return to neutral before moving again
     window.clearTimeout(releaseRef.current)
     setAutoWalk(false)
     setCruise(false)
@@ -57,7 +59,6 @@ export default function StreetVerseVolcanoOneHandBridge(){
   },[enabled,autoWalk,driving])
 
   useEffect(()=>{
-    if(!enabled)return
     const onRemote=(event:Event)=>{
       const d=(event as CustomEvent<RemoteCommand>).detail
       if(d?.mode!=='game')return
@@ -85,17 +86,21 @@ export default function StreetVerseVolcanoOneHandBridge(){
   useEffect(()=>{
     // Browsers require the player to pair/activate a controller. Do not send neutral
     // polling frames that would overwrite an on-screen joystick.
-    let previousActive=false,previousButton=false
+    let previousActive=false,previousButton=false,lastFound=false
     const id=window.setInterval(()=>{
       let pad:Gamepad|null|undefined
       try{pad=navigator.getGamepads?.()?.find(Boolean)}catch{return}
       const hasPad=Boolean(pad)
-      setController(current=>current===hasPad?current:hasPad)
+      if(hasPad!==lastFound){setController(hasPad);lastFound=hasPad}
       if(!pad){if(previousActive)move(0,0);previousActive=false;previousButton=false;return}
       const axis=(i:number)=>{const n=Number(pad?.axes[i]||0);return Number.isFinite(n)&&Math.abs(n)>.18?Math.max(-1,Math.min(1,n)):0}
       const x=axis(0),y=axis(1)
       const pressed=Boolean(pad.buttons[0]?.pressed)
       const active=x!==0||y!==0
+      if(suppressPadRef.current){
+        if(active||pressed){if(previousActive)move(0,0);previousActive=false;previousButton=pressed;return}
+        suppressPadRef.current=false
+      }
       if(active||previousActive||pressed&&!previousButton)move(x,y,pressed&&!previousButton)
       previousActive=active;previousButton=pressed
     },50)
