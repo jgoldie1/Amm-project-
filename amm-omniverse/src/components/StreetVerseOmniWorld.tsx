@@ -185,12 +185,36 @@ export default function StreetVerseOmniWorld({onClose}:{onClose:()=>void}){
     addEventListener('tryamm:basketball-possession',onBasketballPossession);addEventListener('tryamm:basketball-pass',onBasketballPass);addEventListener('tryamm:basketball-team-tactics',onBasketballTactics);addEventListener('tryamm:basketball-body-action',onBasketballBody);addEventListener('tryamm:basketball-shot',onBasketballShot);addEventListener('tryamm:basketball-dribble',onBasketballDribble);addEventListener('tryamm:basketball-defense',onBasketballDefense)
 
     const keys=new Set<string>();const kd=(e:KeyboardEvent)=>{const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift','e'].includes(k)){e.preventDefault();if(k==='e'){if(!e.repeat)action.current=true}else keys.add(k)}};const ku=(e:KeyboardEvent)=>keys.delete(e.key.toLowerCase());addEventListener('keydown',kd,{passive:false});addEventListener('keyup',ku)
+    // Volcano gamepad and Holo FON single-tap commands feed the existing movement loop.
+    // A stale controller must never leave the player moving indefinitely.
+    let padAxes=[0,0],padLastAt=0,padActionHeld=false
+    const onVolcanoPad=(event:Event)=>{
+      const detail=(event as CustomEvent<{axes?:number[];buttons?:{pressed:boolean}[]}>).detail
+      if(!detail)return
+      padAxes=[Number(detail.axes?.[0]||0),Number(detail.axes?.[1]||0)].map(v=>Number.isFinite(v)&&Math.abs(v)>.18?Math.max(-1,Math.min(1,v)):0)
+      padLastAt=performance.now()
+      const pressed=Boolean(detail.buttons?.[0]?.pressed)
+      if(pressed&&!padActionHeld)action.current=true
+      padActionHeld=pressed
+    }
+    const onHoloRemote=(event:Event)=>{
+      const detail=(event as CustomEvent<{mode?:string;command?:string}>).detail
+      if(detail?.mode!=='game')return
+      if(detail.command==='SELECT')action.current=true
+      if(detail.command==='BACK')input.current={u:false,d:false,l:false,r:false}
+      const directions:Record<string,keyof typeof input.current>={UP:'u',DOWN:'d',LEFT:'l',RIGHT:'r'}
+      const direction=directions[detail.command||'']
+      if(direction){input.current={u:false,d:false,l:false,r:false};input.current[direction]=true;window.setTimeout(()=>{input.current[direction]=false},180)}
+    }
+    addEventListener('tryamm:volcano-gamepad',onVolcanoPad)
+    addEventListener('tryamm:holo-fon-remote',onHoloRemote)
     const resize=()=>{const w=root.clientWidth,h=Math.max(430,root.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)};const ro=new ResizeObserver(resize);ro.observe(root);resize()
     const clock=new THREE.Clock();let elapsed=0,raf=0,lastSave=0,activeCar=-1,carSpeed=0
     const animatePose=(g:THREE.Group,dt:number)=>{const age=performance.now()-Number(g.userData.poseAt||0),kind=String(g.userData.pose||'');const armL=g.getObjectByName('armL'),armR=g.getObjectByName('armR'),torso=g.getObjectByName('torso');if(age<700&&kind){const t=Math.min(1,age/700),jump=kind==='dunk'?Math.sin(Math.PI*t)*1.35:kind==='layup'?Math.sin(Math.PI*t)*.72:Math.sin(Math.PI*t)*.42;g.position.y=jump;if(armL)armL.rotation.z=-.75;if(armR)armR.rotation.z=.75;if(torso)torso.rotation.x=kind==='dunk'?-.18:-.08}else{g.position.y=THREE.MathUtils.lerp(g.position.y,0,Math.min(1,dt*8));if(armL)armL.rotation.z=THREE.MathUtils.lerp(armL.rotation.z,-.1,.14);if(armR)armR.rotation.z=THREE.MathUtils.lerp(armR.rotation.z,.1,.14);if(torso)torso.rotation.x=THREE.MathUtils.lerp(torso.rotation.x,0,.14)}}
     const animate=()=>{
       const dt=Math.min(.033,clock.getDelta());elapsed+=dt;let dx=0,dz=0;const p=input.current
       if(keys.has('w')||keys.has('arrowup')||p.u)dz-=1;if(keys.has('s')||keys.has('arrowdown')||p.d)dz+=1;if(keys.has('a')||keys.has('arrowleft')||p.l)dx-=1;if(keys.has('d')||keys.has('arrowright')||p.r)dx+=1
+      if(performance.now()-padLastAt<180){dx+=padAxes[0];dz+=padAxes[1]}
       if(action.current){
         action.current=false
         if(activeCar>=0){const c=cars[activeCar];avatar.visible=true;avatar.position.set(THREE.MathUtils.clamp(c.position.x+Math.cos(c.rotation.y)*4,-122,122),0,THREE.MathUtils.clamp(c.position.z-Math.sin(c.rotation.y)*4,-95,72));activeCar=-1;carSpeed=0;setIsDriving(false);setMsg('Exited vehicle • cinematic district remains active.')}
@@ -226,7 +250,7 @@ export default function StreetVerseOmniWorld({onClose}:{onClose:()=>void}){
       renderer.render(scene,camera);raf=requestAnimationFrame(animate)
     }
     animate()
-    return()=>{cancelAnimationFrame(raf);ro.disconnect();removeEventListener('keydown',kd);removeEventListener('keyup',ku);removeEventListener('tryamm:basketball-possession',onBasketballPossession);removeEventListener('tryamm:basketball-pass',onBasketballPass);removeEventListener('tryamm:basketball-team-tactics',onBasketballTactics);removeEventListener('tryamm:basketball-body-action',onBasketballBody);removeEventListener('tryamm:basketball-shot',onBasketballShot);removeEventListener('tryamm:basketball-dribble',onBasketballDribble);removeEventListener('tryamm:basketball-defense',onBasketballDefense);renderer.dispose();root.replaceChildren()}
+    return()=>{cancelAnimationFrame(raf);ro.disconnect();removeEventListener('keydown',kd);removeEventListener('keyup',ku);removeEventListener('tryamm:volcano-gamepad',onVolcanoPad);removeEventListener('tryamm:holo-fon-remote',onHoloRemote);removeEventListener('tryamm:basketball-possession',onBasketballPossession);removeEventListener('tryamm:basketball-pass',onBasketballPass);removeEventListener('tryamm:basketball-team-tactics',onBasketballTactics);removeEventListener('tryamm:basketball-body-action',onBasketballBody);removeEventListener('tryamm:basketball-shot',onBasketballShot);removeEventListener('tryamm:basketball-dribble',onBasketballDribble);removeEventListener('tryamm:basketball-defense',onBasketballDefense);renderer.dispose();root.replaceChildren()}
   },[])
 
   const press=(k:keyof typeof input.current,v:boolean)=>()=>{input.current[k]=v}
