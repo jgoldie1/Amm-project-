@@ -204,7 +204,7 @@ export default function StreetVerseOmniWorld({onClose}:{onClose:()=>void}){
       if(detail?.mode!=='game')return
       if(detail.command==='SELECT')action.current=true
       if(detail.command==='AUTO_WALK'){autoWalk=!autoWalk;input.current={u:false,d:false,l:false,r:false};setMsg(autoWalk?'One-hand auto-walk enabled. Tap AUTO WALK again to stop.':'Auto-walk stopped.')}
-      if(detail.command==='BACK'){window.clearTimeout(remoteReleaseTimer);input.current={u:false,d:false,l:false,r:false}}
+      if(detail.command==='BACK'){autoWalk=false;window.clearTimeout(remoteReleaseTimer);input.current={u:false,d:false,l:false,r:false}}
       const directions:Record<string,keyof typeof input.current>={UP:'u',DOWN:'d',LEFT:'l',RIGHT:'r'}
       const direction=directions[detail.command||'']
       if(direction){window.clearTimeout(remoteReleaseTimer);input.current={u:false,d:false,l:false,r:false};input.current[direction]=true;remoteReleaseTimer=window.setTimeout(()=>{input.current={u:false,d:false,l:false,r:false}},180)}
@@ -217,7 +217,7 @@ export default function StreetVerseOmniWorld({onClose}:{onClose:()=>void}){
     const animate=()=>{
       const dt=Math.min(.033,clock.getDelta());elapsed+=dt;let dx=0,dz=0;const p=input.current
       if(keys.has('w')||keys.has('arrowup')||p.u)dz-=1;if(keys.has('s')||keys.has('arrowdown')||p.d)dz+=1;if(keys.has('a')||keys.has('arrowleft')||p.l)dx-=1;if(keys.has('d')||keys.has('arrowright')||p.r)dx+=1
-      if(autoWalk&&!p.d&&!keys.has('s')&&!keys.has('arrowdown'))dz-=1
+      if(autoWalk&&!p.d&&!keys.has('s')&&!keys.has('arrowdown')&&activeCar<0)dz-=1
       if(performance.now()-padLastAt<180){dx+=padAxes[0];dz+=padAxes[1]}
       if(action.current){
         action.current=false
