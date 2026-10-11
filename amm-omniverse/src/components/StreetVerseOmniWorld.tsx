@@ -197,14 +197,15 @@ export default function StreetVerseOmniWorld({onClose}:{onClose:()=>void}){
       if(pressed&&!padActionHeld)action.current=true
       padActionHeld=pressed
     }
+    let remoteReleaseTimer:number|undefined
     const onHoloRemote=(event:Event)=>{
       const detail=(event as CustomEvent<{mode?:string;command?:string}>).detail
       if(detail?.mode!=='game')return
       if(detail.command==='SELECT')action.current=true
-      if(detail.command==='BACK')input.current={u:false,d:false,l:false,r:false}
+      if(detail.command==='BACK'){window.clearTimeout(remoteReleaseTimer);input.current={u:false,d:false,l:false,r:false}}
       const directions:Record<string,keyof typeof input.current>={UP:'u',DOWN:'d',LEFT:'l',RIGHT:'r'}
       const direction=directions[detail.command||'']
-      if(direction){input.current={u:false,d:false,l:false,r:false};input.current[direction]=true;window.setTimeout(()=>{input.current[direction]=false},180)}
+      if(direction){window.clearTimeout(remoteReleaseTimer);input.current={u:false,d:false,l:false,r:false};input.current[direction]=true;remoteReleaseTimer=window.setTimeout(()=>{input.current={u:false,d:false,l:false,r:false}},180)}
     }
     addEventListener('tryamm:volcano-gamepad',onVolcanoPad)
     addEventListener('tryamm:holo-fon-remote',onHoloRemote)
@@ -250,7 +251,7 @@ export default function StreetVerseOmniWorld({onClose}:{onClose:()=>void}){
       renderer.render(scene,camera);raf=requestAnimationFrame(animate)
     }
     animate()
-    return()=>{cancelAnimationFrame(raf);ro.disconnect();removeEventListener('keydown',kd);removeEventListener('keyup',ku);removeEventListener('tryamm:volcano-gamepad',onVolcanoPad);removeEventListener('tryamm:holo-fon-remote',onHoloRemote);removeEventListener('tryamm:basketball-possession',onBasketballPossession);removeEventListener('tryamm:basketball-pass',onBasketballPass);removeEventListener('tryamm:basketball-team-tactics',onBasketballTactics);removeEventListener('tryamm:basketball-body-action',onBasketballBody);removeEventListener('tryamm:basketball-shot',onBasketballShot);removeEventListener('tryamm:basketball-dribble',onBasketballDribble);removeEventListener('tryamm:basketball-defense',onBasketballDefense);renderer.dispose();root.replaceChildren()}
+    return()=>{window.clearTimeout(remoteReleaseTimer);cancelAnimationFrame(raf);ro.disconnect();removeEventListener('keydown',kd);removeEventListener('keyup',ku);removeEventListener('tryamm:volcano-gamepad',onVolcanoPad);removeEventListener('tryamm:holo-fon-remote',onHoloRemote);removeEventListener('tryamm:basketball-possession',onBasketballPossession);removeEventListener('tryamm:basketball-pass',onBasketballPass);removeEventListener('tryamm:basketball-team-tactics',onBasketballTactics);removeEventListener('tryamm:basketball-body-action',onBasketballBody);removeEventListener('tryamm:basketball-shot',onBasketballShot);removeEventListener('tryamm:basketball-dribble',onBasketballDribble);removeEventListener('tryamm:basketball-defense',onBasketballDefense);renderer.dispose();root.replaceChildren()}
   },[])
 
   const press=(k:keyof typeof input.current,v:boolean)=>()=>{input.current[k]=v}
