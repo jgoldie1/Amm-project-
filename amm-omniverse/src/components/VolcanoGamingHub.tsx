@@ -5,6 +5,7 @@ type Pad={index:number;id:string;mapping:string;buttons:number;axes:number}
 
 export default function VolcanoGamingHub({onClose}:Props){
   const [pads,setPads]=useState<Pad[]>([])
+  const [liveInput,setLiveInput]=useState('No gamepad input yet')
   const [status,setStatus]=useState('VOLCANO ready. Pair a controller with your device, then press any controller button.')
   const [phoneMode,setPhoneMode]=useState(true)
   const [castTarget,setCastTarget]=useState('')
@@ -16,7 +17,6 @@ export default function VolcanoGamingHub({onClose}:Props){
     const sync=()=>{
       const next=Array.from(navigator.getGamepads?.()??[]).filter(Boolean).map(g=>({index:g!.index,id:g!.id,mapping:g!.mapping,buttons:g!.buttons.length,axes:g!.axes.length}))
       setPads(next)
-      if(next.length)setStatus(`${next.length} controller${next.length>1?'s':''} connected to VOLCANO.`)
     }
     const connected=(e:GamepadEvent)=>{sync();setStatus(`Controller connected: ${e.gamepad.id}`)}
     const disconnected=()=>{sync();setStatus('Controller disconnected.')}
@@ -31,6 +31,9 @@ export default function VolcanoGamingHub({onClose}:Props){
     const id=window.setInterval(()=>{
       const gp=navigator.getGamepads?.()?.find(Boolean)
       if(!gp)return
+      const axes=gp.axes.slice(0,4).map(value=>Math.abs(value)<0.1?0:value.toFixed(2))
+      const pressed=gp.buttons.map((button,index)=>button.pressed?index:null).filter(index=>index!==null)
+      setLiveInput(`Stick axes: ${axes.join(' / ')} · Buttons: ${pressed.length?pressed.join(', '):'none'}`)
       const detail={index:gp.index,id:gp.id,axes:[...gp.axes],buttons:gp.buttons.map(b=>({pressed:b.pressed,value:b.value})),phoneMode}
       window.dispatchEvent(new CustomEvent('tryamm:volcano-gamepad',{detail}))
     },33)
@@ -79,7 +82,7 @@ export default function VolcanoGamingHub({onClose}:Props){
 
       <section style={{...box,marginTop:14,borderColor:'#4fe3ff66'}}><div style={{fontSize:10,color:'#67edff',fontWeight:950}}>UNIVERSAL CONTROL BRIDGE</div><p style={{fontSize:11,lineHeight:1.7,color:'#b6ccd5'}}>VOLCANO normalizes phone touch controls and connected gamepads into TRYAMM control events. StreetVerse or another game can subscribe to <code>tryamm:volcano-gamepad</code> instead of writing separate controller code for each screen.</p><label style={{display:'flex',gap:9,alignItems:'center',fontSize:11}}><input type="checkbox" checked={phoneMode} onChange={e=>setPhoneMode(e.target.checked)}/> Use Holo Fon as companion controller/remote</label></section>
 
-      <section style={{...box,marginTop:12}}><h3 style={{marginTop:0}}>Connected controllers</h3>{pads.length===0?<div style={{fontSize:11,color:'#8ca6b2'}}>No browser-visible gamepad yet. Pair it in Bluetooth/USB settings, return here, then press a button.</div>:<div style={{display:'grid',gap:8}}>{pads.map(p=><div key={p.index} style={{padding:10,border:'1px solid #275166',borderRadius:11}}><b>{p.id}</b><div style={{fontSize:9,color:'#8aa8b4',marginTop:4}}>INDEX {p.index} • {p.mapping||'vendor mapping'} • {p.buttons} buttons • {p.axes} axes</div></div>)}</div>}</section>
+      <section style={{...box,marginTop:12}}><h3 style={{marginTop:0}}>Connected controllers</h3><div role="status" aria-live="off" style={{fontSize:11,color:'#b7f8ff',paddingBottom:8}}>{pads.length?liveInput:'No active controller input detected'}</div>{pads.length===0?<div style={{fontSize:11,color:'#8ca6b2'}}>No browser-visible gamepad yet. Pair it in Bluetooth/USB settings, return here, then press a button.</div>:<div style={{display:'grid',gap:8}}>{pads.map(p=><div key={p.index} style={{padding:10,border:'1px solid #275166',borderRadius:11}}><b>{p.id}</b><div style={{fontSize:9,color:'#8aa8b4',marginTop:4}}>INDEX {p.index} • {p.mapping||'vendor mapping'} • {p.buttons} buttons • {p.axes} axes</div></div>)}</div>}</section>
 
       <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:10,marginTop:12}}>{capabilities.map(([title,body])=><div key={title} style={box}><b style={{color:'#baf6ff'}}>{title}</b><div style={{fontSize:10,lineHeight:1.55,color:'#8eabb7',marginTop:6}}>{body}</div></div>)}</section>
 
