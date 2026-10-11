@@ -50,4 +50,21 @@ const protectedSpine=[
   'MARKETPLACE','PAY','ENTITLEMENT','LEDGER / OMNI CASH','RELOAD','STATE STILL EXISTS'
 ]
 assert.equal(protectedSpine.length,13)
+
+// Rendering regression guard: a basic iPhone must attempt the real 3D world first.
+// Prior tests only checked that city assets and features existed in source, which did
+// not detect a runtime downgrade into the simplified HTML CITY MODE.
+const graphicsGeo=fs.readFileSync(new URL('../src/components/StreetVerseGeoSpawnBridge.tsx',import.meta.url),'utf8')
+const graphicsEntry=fs.readFileSync(new URL('../src/components/StreetVersePlayableWorld.tsx',import.meta.url),'utf8')
+const graphicsSafe=fs.readFileSync(new URL('../src/components/StreetVerseMobilePlayableWorld.tsx',import.meta.url),'utf8')
+assert.match(graphicsGeo,/if\(appleMobile\)return false/,'mobile Safari must attempt the real renderer before falling back')
+assert.match(graphicsEntry,/if\(appleMobile\)return false/,'the playable entry must not preemptively force iPhones into HTML mode')
+assert.doesNotMatch(graphicsGeo,/failIfMajorPerformanceCaveat:true/,'a strict GPU preference must not preemptively disable mobile WebGL')
+assert.match(graphicsGeo,/RETRY 3D CHICAGO/,'the startup fallback must offer a visible return path to 3D')
+assert.match(graphicsEntry,/data-streetverse-render-mode="exception-fallback"/,'3D runtime exceptions need a labeled recovery view')
+assert.match(graphicsEntry,/data-streetverse-render-mode="context-loss-fallback"/,'context loss needs a labeled recovery view')
+assert.match(graphicsEntry,/target\.parentElement\?\.matches/,'context-loss fallback must only react to StreetVerse world canvas')
+assert.match(graphicsEntry,/RETRY 3D/,'players must be able to retry the 3D game without losing the HTML backup')
+assert.match(graphicsSafe,/HTML CITY MODE/,'retain the lightweight offline-friendly city as a backup')
+
 console.log('STREETVERSE V8 NO-REGRESSION PASS: preservation gates intact; authoritative spine remains protected')

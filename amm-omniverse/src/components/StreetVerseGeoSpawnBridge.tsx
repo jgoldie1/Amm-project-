@@ -56,11 +56,19 @@ type Destination={id?:string;label?:string;name?:string;lon?:number;lat?:number;
 
 function hasUsableWebGL(){
  if(typeof document==='undefined')return false
+ const canvas=document.createElement('canvas')
+ let gl:WebGLRenderingContext|WebGL2RenderingContext|null=null
  try{
-  const canvas=document.createElement('canvas')
-  const gl=canvas.getContext('webgl2',{failIfMajorPerformanceCaveat:true})||canvas.getContext('webgl',{failIfMajorPerformanceCaveat:true})||canvas.getContext('experimental-webgl')
-  return !!gl
+  // A strict performance-caveat flag rejects some iPhones that can render mobile 3D.
+  gl=(canvas.getContext('webgl2',{powerPreference:'low-power'})||
+      canvas.getContext('webgl',{powerPreference:'low-power'})||
+      canvas.getContext('experimental-webgl')) as WebGLRenderingContext|WebGL2RenderingContext|null
+  return Boolean(gl)
  }catch{return false}
+ finally{
+  try{gl?.getExtension('WEBGL_lose_context')?.loseContext()}catch{}
+  canvas.width=0;canvas.height=0
+ }
 }
 
 function shouldUseIndependentSafeBoot(){
@@ -72,6 +80,9 @@ function shouldUseIndependentSafeBoot(){
  const memory=Number((navigator as Navigator & {deviceMemory?:number}).deviceMemory||0)
  const cores=Number(navigator.hardwareConcurrency||0)
  const narrow=Math.min(window.innerWidth||9999,window.innerHeight||9999)<=480
+ // Allow Safari on iPhone to try the real renderer; the error boundary handles genuine failures.
+ // A capability probe must never permanently downgrade a phone by itself.
+ if(appleMobile)return false
  const noWebGL=!hasUsableWebGL()
  const constrained=(memory>0&&memory<=4)||(cores>0&&cores<=4)
  // Do not force capable iPhones into the HTML-only SafeWorld solely because
@@ -136,7 +147,22 @@ function prepareSpawn(){
 
 export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const prepared=useMemo(()=>prepareSpawn(),[])
- const safe=useMemo(shouldUseIndependentSafeBoot,[])
+ const bootSafe=useMemo(shouldUseIndependentSafeBoot,[])
+ const [retryGraphics,setRetryGraphics]=useState(false)
+ const [graphicsStatus,setGraphicsStatus]=useState('')
+ const safe=bootSafe&&!retryGraphics
+ const explicitSafe=typeof window!=='undefined'&&(()=>{
+  const query=new URLSearchParams(window.location.search)
+  return query.get('safe')==='1'||query.get('mode')==='safe'
+ })()
+ const retry3D=()=>{
+  if(hasUsableWebGL()){
+   setGraphicsStatus('Opening the 3D Chicago scene…')
+   setRetryGraphics(true)
+  }else{
+   setGraphicsStatus('3D is not available in this browser session. Close extra tabs, then try again.')
+  }
+ }
  const mobile=useMemo(()=>typeof navigator!=='undefined'&&/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||''),[])
  const [enhancementsReady,setEnhancementsReady]=useState(false)
  const [nearWestOpen,setNearWestOpen]=useState(false)
@@ -238,6 +264,11 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  },[safe,quantumMode])
 
  if(safe)return <>
+  {!explicitSafe&&<div data-streetverse-render-mode="startup-fallback" style={{position:'fixed',top:75,left:12,zIndex:41000,maxWidth:'min(84vw,300px)',padding:10,borderRadius:14,background:'#071725ef',color:'#eaffff',border:'1px solid #54dcff',boxShadow:'0 8px 22px #0008',fontFamily:'system-ui,sans-serif'}}>
+    <div style={{fontWeight:900,fontSize:12,marginBottom:6}}>3D city did not start</div>
+    <button aria-label="Retry StreetVerse 3D" onClick={retry3D} style={{minHeight:48,border:'1px solid #8fffe2',borderRadius:9,padding:'8px 15px',background:'#073f38',color:'#fff',fontWeight:900}}>RETRY 3D CHICAGO</button>
+    {graphicsStatus&&<div role="status" style={{fontSize:11,marginTop:7}}>{graphicsStatus}</div>}
+  </div>}
   <StreetVerseWestSideWorldBuilder/>
   <BuildSwarmControl/>
   <StreetVerseWeatherSync/>
