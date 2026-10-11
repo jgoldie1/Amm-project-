@@ -36,6 +36,12 @@ assert.match(oneHand,/tryamm:streetverse-world-input/,'One-hand movement must re
 assert.match(oneHand,/tryamm:streetverse-cruise/,'Accessible cruise must use the live vehicle runtime')
 assert.match(oneHand,/tryamm:streetverse-emergency-stop/,'One-hand STOP must invoke the authoritative mobile stop path')
 assert.match(oneHand,/minHeight:48/,'One-hand controls need accessible touch target sizing')
+assert.match(oneHand,/HAND_KEY='tryamm:streetverse-one-hand-side'/,'One-handed controls must share saved left\/right selection with the mobile shell')
+assert.match(oneHand,/tryamm:streetverse-control-mode/,'One-hand toggle must notify the existing mobile shell')
+assert.match(oneHand,/tryamm:passport-access-save/,'One-hand profile must persist through the shared Passport preferences')
+assert.match(oneHand,/const tapTurn=/,'Accessible game route must support steering with a single tap')
+assert.match(oneHand,/turnRef\.current\*\.7/,'Auto-walk must preserve independent left\/right steering')
+assert.match(oneHand,/suppressPadRef\.current=true/,'STOP must suppress held gamepad input until the stick is released')
 assert.match(mobileWorld,/const onVolcanoEmergencyStop=/,'Actual 3D mobile runtime must implement STOP')
 assert.match(mobileWorld,/driveSpeed=0;driveSteer=0/,'Emergency STOP must halt the 3D vehicle rather than only updating UI')
 
