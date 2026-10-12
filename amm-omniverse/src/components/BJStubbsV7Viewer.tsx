@@ -46,7 +46,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
     camera.position.set(0,1.35,4.25)
     cameraRef.current=camera
 
-    const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false})
+    const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:true})
     renderer.outputColorSpace=THREE.SRGBColorSpace
     renderer.toneMapping=THREE.ACESFilmicToneMapping
     renderer.toneMappingExposure=1.02
@@ -125,6 +125,8 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       controls.update()
     })()
 
+    // Keep viewer-only drawing buffers valid for deterministic evidence capture.
+    // The gameplay renderer still uses its normal low-memory WebGL defaults.
     proofCaptureRef.current=()=>{
       const current=modelRef.current
       if(!current||!photoSettledRef.current){setProofMessage('Wait for the loaded BJ model and reference to finish.');return}

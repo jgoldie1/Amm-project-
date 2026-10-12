@@ -12,6 +12,7 @@ assert.ok(p.includes("hero.getObjectByName('Rig_Head')"),'Known alternate BJ piv
 assert.ok(p.includes('if(!headPivot)return null'),'Incompatible head must be rejected')
 for(const version of ['V15','V12','V7','V6'])assert.ok(v.includes("name:'"+version+"'"),'Viewer version fallback '+version)
 assert.ok(v.includes('data-bj-compare-reference'),'One-tap reference comparison available')
+assert.ok(v.includes('preserveDrawingBuffer:true'),'Actual WebGL proof needs frame persistence in the preview only')
 assert.ok(v.includes("setCameraMode]=useState<'full'|'face'>('face')"),'Face viewer must default to portrait inspection')
 assert.ok(v.includes("autoRotateRef=useRef(false)"),'Photo comparison must not automatically spin BJ')
 assert.ok(v.includes("camera.position.set(0,size.y*.83,Math.max(.92,size.y*.62))"),'Initial perspective must show BJ face close-up')
