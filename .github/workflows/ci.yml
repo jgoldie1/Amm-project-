@@ -105,6 +105,7 @@ jobs:
         run: |
           node tests/streetverse-oct11-bj-west-side-bridge-contract.mjs
           node tests/streetverse-oct11-safe-arrival-and-props.mjs
+          node tests/circle-park-apartments-photo-reference-v3-contract.mjs
 
       - name: Vercel parity build from pristine checkout
         run: npm run build
