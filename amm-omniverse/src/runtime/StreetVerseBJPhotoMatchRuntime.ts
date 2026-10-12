@@ -61,7 +61,8 @@ export const BJ_PHOTOMATCH_TEXTURE_DATA_URI='data:image/webp;base64,UklGRsAfAABX
 const PROCEDURAL_FACE_PARTS=new Set([
   'hero-head','jaw','chin','cheek-left','cheek-right','nose','upper-lip','lower-lip',
   'eye-white-left','eye-white-right','iris-left','iris-right','eyelid-left','eyelid-right',
-  'brow-left','brow-right','bj-nose-bridge','bj-nose-tip','bj-jaw-shadow'
+  'brow-left','brow-right','pupil-left','pupil-right','nostril-left','nostril-right',
+  'bj-eye-catchlight-left','bj-eye-catchlight-right','bj-nose-bridge','bj-nose-tip','bj-jaw-shadow'
 ])
 
 function featherPhotoTexture(source:THREE.Texture){

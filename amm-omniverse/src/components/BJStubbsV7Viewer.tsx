@@ -41,7 +41,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
     const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false})
     renderer.outputColorSpace=THREE.SRGBColorSpace
     renderer.toneMapping=THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure=1.15
+    renderer.toneMappingExposure=1.02
     // Keep this likeness preview usable on older iPhones without raising GPU memory pressure.
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,window.innerWidth<768?1.35:2))
     renderer.shadowMap.enabled=true
@@ -55,12 +55,12 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
     controls.enablePan=false
     controlsRef.current=controls
 
-    scene.add(new THREE.HemisphereLight(0xf4f7ff,0x18202a,2.35))
-    const key=new THREE.DirectionalLight(0xffffff,3.2)
+    scene.add(new THREE.HemisphereLight(0xf4f7ff,0x18202a,1.20))
+    const key=new THREE.DirectionalLight(0xffffff,2.4)
     key.position.set(3.4,5.1,4.5);key.castShadow=true;scene.add(key)
-    const rim=new THREE.DirectionalLight(0x75a7ff,1.65)
+    const rim=new THREE.DirectionalLight(0x96b9df,.70)
     rim.position.set(-4,3,-3);scene.add(rim)
-    const fill=new THREE.DirectionalLight(0xffd7b5,1.25)
+    const fill=new THREE.DirectionalLight(0xffdfc7,.68)
     fill.position.set(-2,2,4);scene.add(fill)
 
     const floor=new THREE.Mesh(
@@ -249,7 +249,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
           <button onClick={()=>setReferenceCompare(v=>!v)} style={{minHeight:46,border:'1px solid #9a7548',borderRadius:12,background:referenceCompare?'#4a341b':'#10161f',color:'#fff',fontWeight:950}}>{referenceCompare?'REFERENCE: ON':'REFERENCE: OFF'}</button>
         </div>
         <div style={{fontSize:10,color:'#93a7b8',lineHeight:1.45}}>
-          <b>BJ {modelVersion} FACE REVIEW</b> compares the same V12-first model used by StreetVerse with the approved current-era photo when the GLB has a compatible head pivot. An exact photographic likeness has not yet been certified. Check FRONT, ¾ and both profiles.
+          <b>BJ {modelVersion} FACE REVIEW</b> compares the same V12-first model used by StreetVerse with the approved current-era photo when the GLB has a compatible head pivot. This is not a certified photoreal likeness. Check FRONT, ¾ and both profiles.
         </div>
       </div>}
     </footer>
