@@ -6,6 +6,7 @@ const builder=read('../src/components/StreetVerseWestSideWorldBuilder.tsx')
 const west=read('../src/runtime/StreetVerseWestSideVisibleWorldRuntime.ts')
 const mobile=read('../src/components/StreetVerseMobileWorld.tsx')
 const bj=read('../src/components/BJStubbsV7Viewer.tsx')
+const development=read('../src/components/StreetVerseCharacterDevelopmentPanel.tsx')
 
 for(const id of ['circle-park','roosevelt','taylor','pilsen']){
   assert.ok(builder.includes(`'${id}':{x:`),`World Builder missing playable district ${id}`)
@@ -22,5 +23,8 @@ assert.ok(west.includes('worldBuilderDistrictEntries:builderArrivals.length'),'W
 assert.ok(bj.includes('aria-expanded={advancedOpen}'),'BJ mobile viewer requires collapsible controls')
 assert.ok(bj.includes("window.innerWidth<768?1.35:2"),'BJ preview must cap old-phone rendering cost')
 assert.ok(bj.includes('not a certified photoreal likeness'),'BJ preview must not claim certified face accuracy')
+
+assert.ok(development.includes("'tryamm:streetverse-bj-showcase'"),'Character-development panel must open BJ in actual StreetVerse 3D')
+assert.ok(development.includes("window.location.assign('/bj-v10-preview')"),'Character-development panel must expose detailed BJ face inspection')
 
 console.log('STREETVERSE OCT 11 BRIDGE CONTRACT PASS: 4 real district anchors, route acknowledgement, planned-world guard, visible markers and BJ one-hand viewer')
