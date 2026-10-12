@@ -83,8 +83,8 @@ function featherPhotoTexture(source:THREE.Texture){
   // The source is a full upper-body portrait, not a UV texture. Use the head/
   // beard region only so the shirt and photo backdrop do not appear as a
   // rectangular panel attached to BJ's chin.
-  const source=source.image as HTMLImageElement
-  const w=source.naturalWidth||source.width||192,h=source.naturalHeight||source.height||192
+  const sourceImage=source.image as HTMLImageElement
+  const w=sourceImage.naturalWidth||sourceImage.width||192,h=sourceImage.naturalHeight||sourceImage.height||192
   ctx.drawImage(image,w*.145,h*.02,w*.71,h*.81,0,0,256,256)
   const pixels=ctx.getImageData(0,0,256,256)
   const d=pixels.data
