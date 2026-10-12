@@ -372,6 +372,23 @@ function addResidentialCourtyard(root:THREE.Group){
   root.add(g)
 }
 
+// Visual-only instanced props preserve collision authority and minimize phone GPU draws.
+function addWestSideStreetscapeV10(root:THREE.Group){
+ const bikeStops:[number,number][]=[[-64,58.3],[-40,58.3],[40,58.3],[64,58.3],[-62,26.6],[62,26.6],[-62,-16.6],[62,-16.6]]
+ const racks=new THREE.InstancedMesh(geometry(new THREE.TorusGeometry(.52,.065,6,12,Math.PI)),material({color:0x41474d,roughness:.46,metalness:.57}),bikeStops.length)
+ racks.name='west-side-bike-rack-v10'
+ const dummy=new THREE.Object3D()
+ bikeStops.forEach(([x,z],i)=>{dummy.position.set(x,.56,z);dummy.rotation.set(0,0,i%2?0:Math.PI);dummy.scale.set(1,1,1);dummy.updateMatrix();racks.setMatrixAt(i,dummy.matrix)})
+ racks.instanceMatrix.needsUpdate=true;racks.computeBoundingSphere();root.add(racks)
+ const bollardSites:[number,number][]=[[-80,57],[-72,57],[-30,57],[30,57],[72,57],[80,57],[-80,26],[-72,26],[72,26],[80,26],[-80,-17],[-72,-17],[72,-17],[80,-17],[-72,-44],[72,-44]]
+ const bollards=new THREE.InstancedMesh(geometry(new THREE.CylinderGeometry(.11,.14,1.02,7)),material({color:0x37424a,roughness:.70,metalness:.32}),bollardSites.length)
+ bollards.name='west-side-curb-bollard-v10'
+ bollardSites.forEach(([x,z],i)=>{dummy.position.set(x,.56,z);dummy.rotation.set(0,0,0);dummy.scale.set(1,1,1);dummy.updateMatrix();bollards.setMatrixAt(i,dummy.matrix)})
+ bollards.instanceMatrix.needsUpdate=true;bollards.computeBoundingSphere();root.add(bollards)
+ root.userData.streetscapePass='low-draw-call-bike-rack-bollard-v10'
+ return{bikeRacks:bikeStops.length,bollards:bollardSites.length}
+}
+
 export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,externalCollisionBoxes:THREE.Box3[]=[]):WestSideVisibleWorldHandle{
   const root=new THREE.Group();root.name='streetverse-west-side-visible-world-v1';root.userData={visualUpgradeVersion:'west-side-forger-v4',legacyVisualUpgradeVersion:'west-side-forger-v3',neighborhoodReconstructionVersion:'west-side-forger-v5',proofZoneDetailVersion:'chicago-proof-zone-v9',assetDensity:'expanded-v5',architectureDetail:'brick-cornice-awning-fire-escape-curb-alley',residentDetail:'hands-shoes-accessories',reconstructionMode:'public-data-grounded-game-reconstruction',geometryAuthority:'city-gis-source-registry',interiorAuthority:'verified-or-reconstructed',streetDetailPass:'curb-alley-signage-v5',proofZoneStreetDetailPass:'tree-pit-manhole-parking-ramp-v9',gisCompiler:'compile-chicago-proof-zone-v9',exactDigitalTwin:false,reconstructionSourceCount:STREETVERSE_CHICAGO_RECONSTRUCTION_SOURCES.length,proofZone:STREETVERSE_CHICAGO_PROOF_ZONE.id};scene.add(root)
   const colliders:THREE.Box3[]=[]
@@ -425,6 +442,7 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
   ;[[-73,16],[-57,16],[-30,16],[-10,16],[10,16],[30,16],[57,16],[73,16],[-73,-10],[-57,-10],[-30,-10],[30,-10],[57,-10],[73,-10]].forEach(([x,z],i)=>addStreetLight(root,x,z,i%2?Math.PI:0))
   addBusShelter(root,-16,14,0,'CTA • ROOSEVELT')
   addBusShelter(root,18,-11,Math.PI,'CTA • TAYLOR')
+  const streetscapeV10=addWestSideStreetscapeV10(root)
 
   const buildings:BuildingSpec[]=[
     {x:-67,z:34,w:16,d:15,h:18,color:0x8a4e39,label:'Circle Park Homes A',buildingNumber:'CP-A',units:['101','102','201','202']},
@@ -562,7 +580,7 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
     if(next!==active){active=next;window.dispatchEvent(new CustomEvent('tryamm:streetverse-west-side-zone',{detail:{district:next,x,z,source:'west-side-visible-world'}}))}
   }
   window.addEventListener('tryamm:streetverse-player-position',onPosition)
-  window.dispatchEvent(new CustomEvent('tryamm:streetverse-visible-world-ready',{detail:{version:'west-side-forger-v1',legacyVisualUpgradeVersion:'west-side-forger-v3',visualUpgradeVersion:'west-side-forger-v4',neighborhoodReconstructionVersion:'west-side-forger-v5',proofZoneDetailVersion:'chicago-proof-zone-v9',reconstructionMode:'public-data-grounded-game-reconstruction',geometryAuthority:'city-gis-source-registry',interiorAuthority:'verified-or-reconstructed',streetDetailPass:'curb-alley-signage-v5',proofZoneStreetDetailPass:'tree-pit-manhole-parking-ramp-v9',gisCompiler:'compile-chicago-proof-zone-v9',exactDigitalTwin:false,reconstructionSourceCount:STREETVERSE_CHICAGO_RECONSTRUCTION_SOURCES.length,proofZone:STREETVERSE_CHICAGO_PROOF_ZONE.id,districts:anchors.map(a=>a.id),buildings:buildings.length+3,trees:treeRows.length+extraTreeRows.length+8,vehicles:8,roads:7,crosswalks:8,streetLights:14,busShelters:2,benches:8,hydrants:5,trafficSignals:6,ambientResidents:14,nativeVisualAssets:nativePlacements.length,worldBuilderDistrictEntries:builderArrivals.length,pilsenMurals:6,elevatedRail:true,layeredTrees:true,treeCanopyLayers:7,contactShadows:true,facadeDepth:true,fireEscapes:true,streetLevelAwnings:true,roofParapets:true,residentHandsAndShoes:true,landmarks:['St. Ignatius game reconstruction','Holy Family game reconstruction','UIC campus gateway game reconstruction','Thomas Jefferson School reconstruction'],twoWayRoadMarkings:true,raisedSidewalks:true,apartmentUnitNumbers:true,circleParkCourtyard:true,cadForger:true,collisions:true,interiorLobbies:true,treePits:true,manholeCovers:true,parkingBayMarks:true,curbRamps:true,pavementPatches:true,source:'StreetVerseWestSideVisibleWorldRuntime'}}))
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-visible-world-ready',{detail:{version:'west-side-forger-v1',legacyVisualUpgradeVersion:'west-side-forger-v3',visualUpgradeVersion:'west-side-forger-v4',neighborhoodReconstructionVersion:'west-side-forger-v5',proofZoneDetailVersion:'chicago-proof-zone-v9',reconstructionMode:'public-data-grounded-game-reconstruction',geometryAuthority:'city-gis-source-registry',interiorAuthority:'verified-or-reconstructed',streetDetailPass:'curb-alley-signage-v5',proofZoneStreetDetailPass:'tree-pit-manhole-parking-ramp-v9',gisCompiler:'compile-chicago-proof-zone-v9',exactDigitalTwin:false,reconstructionSourceCount:STREETVERSE_CHICAGO_RECONSTRUCTION_SOURCES.length,proofZone:STREETVERSE_CHICAGO_PROOF_ZONE.id,districts:anchors.map(a=>a.id),buildings:buildings.length+3,trees:treeRows.length+extraTreeRows.length+8,vehicles:8,roads:7,crosswalks:8,streetLights:14,busShelters:2,benches:8,hydrants:5,trafficSignals:6,ambientResidents:14,nativeVisualAssets:nativePlacements.length,worldBuilderDistrictEntries:builderArrivals.length,bikeRacks:streetscapeV10.bikeRacks,curbBollards:streetscapeV10.bollards,streetscapePass:'low-draw-call-bike-rack-bollard-v10',pilsenMurals:6,elevatedRail:true,layeredTrees:true,treeCanopyLayers:7,contactShadows:true,facadeDepth:true,fireEscapes:true,streetLevelAwnings:true,roofParapets:true,residentHandsAndShoes:true,landmarks:['St. Ignatius game reconstruction','Holy Family game reconstruction','UIC campus gateway game reconstruction','Thomas Jefferson School reconstruction'],twoWayRoadMarkings:true,raisedSidewalks:true,apartmentUnitNumbers:true,circleParkCourtyard:true,cadForger:true,collisions:true,interiorLobbies:true,treePits:true,manholeCovers:true,parkingBayMarks:true,curbRamps:true,pavementPatches:true,source:'StreetVerseWestSideVisibleWorldRuntime'}}))
   window.dispatchEvent(new CustomEvent('tryamm:game-ops-world-stage',{detail:{stage:'visible-world',state:'READY',version:'west-side-forger-v1',legacyVisualUpgradeVersion:'west-side-forger-v3',visualUpgradeVersion:'west-side-forger-v4',neighborhoodReconstructionVersion:'west-side-forger-v5',source:'StreetVerseWestSideVisibleWorldRuntime'}}))
 
   return{group:root,collisionBoxes:colliders,dispose:()=>{
