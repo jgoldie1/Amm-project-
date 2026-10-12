@@ -112,6 +112,7 @@ jobs:
           node tests/streetverse-bj-likeness-v14-contract.mjs
           node tests/streetverse-bj-v15-one-hand-review-entry-contract.mjs
           node tests/bj-v15-source-contract.mjs
+          node tests/streetverse-bj-focus-camera-v16-contract.mjs
           node tests/streetverse-bj-rendered-comparison-contract.mjs
           node tests/streetverse-fillmore-taylor-arrigo-corridor-contract.mjs
 
