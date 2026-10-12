@@ -10,6 +10,8 @@ export const BJ_MESHY_V6_ASSET={
   characterId:'bj-stubbs',
   filename:'SV_HERO_BJ_STUBBS_V6.glb',
   url:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6.glb',
+  premiumFilename:'SV_HERO_BJ_STUBBS_V15.glb',
+  premiumUrl:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V15.glb',
   productionFilename:'SV_HERO_BJ_STUBBS_V12.glb',
   productionUrl:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V12.glb',
   legacyProductionFilename:'SV_HERO_BJ_STUBBS_V7.glb',
@@ -177,7 +179,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   const verifiedPhotoMatch=canClaimPhotoMatched(BJ_MESHY_V6_ASSET.characterId)
   const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
   const published=await resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope)
-  const candidates=[published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
+  const candidates=[published?.url,BJ_MESHY_V6_ASSET.premiumUrl,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
   let sourceUrl=''
   let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
   // Generated V12/V7/V6 GLBs are first-party build outputs. A slow Safari HEAD

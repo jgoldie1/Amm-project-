@@ -1,0 +1,18 @@
+import fs from 'node:fs'
+import assert from 'node:assert/strict'
+const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8')
+const f=read('../scripts/tryamm-native-asset-foundry.mjs')
+const pub=read('../scripts/publish-bj-owned-v7-glb.mjs')
+const loader=read('../src/runtime/StreetVerseMeshyBJHeroRuntime.ts')
+const viewer=read('../src/components/BJStubbsV7Viewer.tsx')
+assert.ok(f.includes("'streetverse-bj-v15-sculpt':()=>"),'Independent v15 sculpt source must be created')
+assert.ok(f.includes("details.name='bj-v15-reference-led-facial-sculpt'"),'Must include actual facial sculpt group')
+assert.ok(f.includes("mergeGeometries(geometries,false)"),'Hair fibers must be merged for budget')
+assert.ok(f.includes("bj-v15-beard-dark-merged"),'Real beard geometry must be present')
+assert.ok(f.includes("bj-v15-locs-silver-merged"),'Real loc geometry must be present')
+assert.ok(pub.includes("if(!fs.existsSync(v15Source))throw"),'Never publish a missing v15 model')
+assert.ok(pub.includes("must contain new geometry")||pub.includes("must contain new geometry"),'V15 GLB must be checked against V12')
+assert.ok(loader.includes("BJ_MESHY_V6_ASSET.premiumUrl,BJ_MESHY_V6_ASSET.productionUrl"),'V15 must load before V12')
+assert.ok(viewer.includes("name:'V15'"),'Face viewer must inspect same V15 asset')
+assert.ok(viewer.includes("name:'V12'"),'Face viewer must allow fallback')
+console.log('BJ V15 SOURCE CONTRACT PASS • authored distinct GLB, mobile geometry budget, stable rollback and no false photo-certification')

@@ -5,6 +5,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
 import {BJ_PHOTOMATCH_TEXTURE_DATA_URI,installBJPhotoMatchedHead,type BJPhotoMatchedHeadHandle} from '../runtime/StreetVerseBJPhotoMatchRuntime'
 
 const BJ_REVIEW_ASSETS=[
+ {name:'V15',url:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V15.glb'},
  {name:'V12',url:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V12.glb'},
  {name:'V7',url:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V7.glb'},
  {name:'V6',url:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6.glb'},
@@ -17,14 +18,14 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
   const controlsRef=useRef<OrbitControls|null>(null)
   const likenessHandleRef=useRef<BJPhotoMatchedHeadHandle|null>(null)
   const modelHeightRef=useRef(1.88)
-  const loadedModelVersionRef=useRef('V12')
+  const loadedModelVersionRef=useRef('V15')
   const autoRotateRef=useRef(true)
-  const [status,setStatus]=useState('Loading BJ V12 face review…')
+  const [status,setStatus]=useState('Loading BJ V15 face review…')
   const [autoRotate,setAutoRotate]=useState(true)
   const [likenessEnabled,setLikenessEnabled]=useState(true)
   const [cameraMode,setCameraMode]=useState<'full'|'face'>('full')
   const [referenceCompare,setReferenceCompare]=useState(true)
-  const [modelVersion,setModelVersion]=useState('V12')
+  const [modelVersion,setModelVersion]=useState('V15')
   const [advancedOpen,setAdvancedOpen]=useState(false)
 
   useEffect(()=>{autoRotateRef.current=autoRotate},[autoRotate])
@@ -73,12 +74,12 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
     let dead=false
     void (async()=>{
       let gltf:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
-      let loadedModel='V12'
+      let loadedModel='V15'
       for(const candidate of BJ_REVIEW_ASSETS){
         try{gltf=await loader.loadAsync(candidate.url);loadedModel=candidate.name;break}catch{}
       }
       if(dead)return
-      if(!gltf){setStatus('BJ GLB unavailable • V12, V7 and V6 could not load');return}
+      if(!gltf){setStatus('BJ GLB unavailable • V15, V12, V7 and V6 could not load');return}
       loadedModelVersionRef.current=loadedModel
       setModelVersion(loadedModel)
       if(dead)return
