@@ -118,9 +118,35 @@ export type BJPhotoMatchedHeadHandle={
 }
 
 export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHeadHandle|null{
-  // Only mount the portrait onto known BJ modeling pivots; an arbitrary
-  // skinning bone may have incompatible scale, position or rotation.
-  const headPivot=hero.getObjectByName('rig-head')||hero.getObjectByName('Rig_Head')||hero.getObjectByName('rig_head')||hero.getObjectByName('BJ_HeadPivot')
+  // First use BJ-authored head pivots without changing their topology.
+  // A genuinely published Meshy auto-rig may instead name its head joint
+  // 'Head' or 'mixamorig:Head'. A strictly identified Bone can receive a
+  // reversible, approximate front-photo adapter, never an arbitrary mesh.
+  const explicitBJHead=hero.getObjectByName('rig-head')||hero.getObjectByName('Rig_Head')||hero.getObjectByName('rig_head')||hero.getObjectByName('BJ_HeadPivot')
+  let externalHeadAnchor:THREE.Group|null=null
+  if(!explicitBJHead&&hero.userData.publishedOverrideActive===true){
+    let headBone:THREE.Bone|null=null
+    hero.traverse(node=>{
+      if(!headBone&&node instanceof THREE.Bone&&/^(?:head|headbone|mixamorig[:_]?head)$/i.test(node.name))headBone=node
+    })
+    if(headBone){
+      const bone=headBone as THREE.Bone
+      bone.updateWorldMatrix(true,false)
+      const scale=bone.getWorldScale(new THREE.Vector3())
+      if([scale.x,scale.y,scale.z].every(value=>Number.isFinite(value)&&value>.0001&&value<100)){
+        const anchor=new THREE.Group();anchor.name='BJ_HeadPivot'
+        // The head joint stays animated by Meshy's skeleton. Size is
+        // normalized to a modest face mask; further calibration must be
+        // performed in the four-angle rendered comparison, not assumed.
+        anchor.position.set(0,.085/scale.y,.025/scale.z)
+        anchor.scale.set(.68/scale.x,.68/scale.y,.68/scale.z)
+        anchor.userData={characterId:'bj-stubbs',adapter:'meshy-head-bone-photo-preview-v1',calibration:'approximate',certifiedLikeness:false}
+        bone.add(anchor)
+        externalHeadAnchor=anchor
+      }
+    }
+  }
+  const headPivot=explicitBJHead||externalHeadAnchor
   if(!headPivot)return null
 
   // V10 keeps the approved front reference while adding profile geometry for
@@ -339,6 +365,7 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
       ()=>{
         mesh.removeFromParent()
         geometryGroup.removeFromParent()
+        externalHeadAnchor?.removeFromParent()
         geometry.dispose()
         geometryGroup.traverse(object=>{
           if(object instanceof THREE.Mesh)object.geometry.dispose()
@@ -360,6 +387,7 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
       hidden.forEach(entry=>{entry.object.visible=entry.visible})
       mesh.removeFromParent()
       geometryGroup.removeFromParent()
+      externalHeadAnchor?.removeFromParent()
       material.map?.dispose()
       material.dispose()
       geometry.dispose()
