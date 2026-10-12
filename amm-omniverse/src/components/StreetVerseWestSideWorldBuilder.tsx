@@ -116,6 +116,18 @@ export default function StreetVerseWestSideWorldBuilder(){
  const visible=useMemo(()=>ZONES.filter(z=>layers[z.group]),[layers])
 
  useEffect(()=>{
+  const onArrival=(event:Event)=>{
+   const detail=(event as CustomEvent<{missionId?:string;source?:string}>).detail||{}
+   const id=String(detail.missionId||'')
+   if(detail.source!=='streetverse-mobile-world'||!MOBILE_WEST_SIDE_ENTRIES[id])return
+   setNotice('ARRIVED IN 3D • '+id.replaceAll('-',' ').toUpperCase())
+   setOpen(false)
+  }
+  window.addEventListener('tryamm:west-side-route-arrived',onArrival)
+  return()=>window.removeEventListener('tryamm:west-side-route-arrived',onArrival)
+ },[])
+
+ useEffect(()=>{
   const show=()=>setOpen(true)
   window.addEventListener('tryamm:west-side-builder-open',show)
   return()=>window.removeEventListener('tryamm:west-side-builder-open',show)
@@ -193,7 +205,7 @@ export default function StreetVerseWestSideWorldBuilder(){
   }
   // The mobile scene checks collisions, driving state and the nearest walkable destination.
   window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{...entry,missionId:zone.id,source:'streetverse-world-builder',label:zone.label}}))
-  setOpen(false)
+  setNotice('3D ROUTE REQUESTED • '+zone.label+' • If BJ is driving, exit the vehicle and tap ENTER again.')
  }
 
  const startMission=(zone:Zone)=>{
