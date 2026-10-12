@@ -100,7 +100,9 @@ export type BJPhotoMatchedHeadHandle={
 }
 
 export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHeadHandle|null{
-  const headPivot=hero.getObjectByName('rig-head')
+  // Only mount the portrait onto known BJ modeling pivots; an arbitrary
+  // skinning bone may have incompatible scale, position or rotation.
+  const headPivot=hero.getObjectByName('rig-head')||hero.getObjectByName('Rig_Head')||hero.getObjectByName('rig_head')||hero.getObjectByName('BJ_HeadPivot')
   if(!headPivot)return null
 
   // V10 keeps the approved front reference while adding profile geometry for

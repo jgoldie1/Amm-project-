@@ -4,7 +4,11 @@ import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
 import {BJ_PHOTOMATCH_TEXTURE_DATA_URI,installBJPhotoMatchedHead,type BJPhotoMatchedHeadHandle} from '../runtime/StreetVerseBJPhotoMatchRuntime'
 
-const V7_URL='/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V7.glb'
+const BJ_REVIEW_ASSETS=[
+ {name:'V12',url:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V12.glb'},
+ {name:'V7',url:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V7.glb'},
+ {name:'V6',url:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6.glb'},
+] as const
 
 export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
   const mountRef=useRef<HTMLDivElement|null>(null)
@@ -13,12 +17,14 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
   const controlsRef=useRef<OrbitControls|null>(null)
   const likenessHandleRef=useRef<BJPhotoMatchedHeadHandle|null>(null)
   const modelHeightRef=useRef(1.88)
+  const loadedModelVersionRef=useRef('V12')
   const autoRotateRef=useRef(true)
-  const [status,setStatus]=useState('Loading BJ V10 likeness preview…')
+  const [status,setStatus]=useState('Loading BJ V12 face review…')
   const [autoRotate,setAutoRotate]=useState(true)
   const [likenessEnabled,setLikenessEnabled]=useState(true)
   const [cameraMode,setCameraMode]=useState<'full'|'face'>('full')
-  const [referenceCompare,setReferenceCompare]=useState(false)
+  const [referenceCompare,setReferenceCompare]=useState(true)
+  const [modelVersion,setModelVersion]=useState('V12')
   const [advancedOpen,setAdvancedOpen]=useState(false)
 
   useEffect(()=>{autoRotateRef.current=autoRotate},[autoRotate])
@@ -65,7 +71,16 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
 
     const loader=new GLTFLoader()
     let dead=false
-    loader.load(V7_URL,gltf=>{
+    void (async()=>{
+      let gltf:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
+      let loadedModel='V12'
+      for(const candidate of BJ_REVIEW_ASSETS){
+        try{gltf=await loader.loadAsync(candidate.url);loadedModel=candidate.name;break}catch{}
+      }
+      if(dead)return
+      if(!gltf){setStatus('BJ GLB unavailable • V12, V7 and V6 could not load');return}
+      loadedModelVersionRef.current=loadedModel
+      setModelVersion(loadedModel)
       if(dead)return
       const model=gltf.scene
       modelRef.current=model
@@ -78,11 +93,11 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       if(photoMatch){
         void photoMatch.ready.then(ok=>{
           if(dead)return
-          setStatus(ok?'BJ V10 • VOLUMETRIC REFERENCE LIKENESS':'BJ V7 • PROCEDURAL FALLBACK')
+          setStatus(ok?'BJ '+loadedModelVersionRef.current+' • APPROVED FACE REFERENCE (NOT CERTIFIED)':'BJ '+loadedModelVersionRef.current+' • BASE GLB (PHOTO NOT APPLIED)')
           setLikenessEnabled(ok)
         })
       }else{
-        setStatus('BJ V7 • PROCEDURAL FALLBACK')
+        setStatus('BJ '+loadedModelVersionRef.current+' • BASE GLB (NO COMPATIBLE HEAD)')
         setLikenessEnabled(false)
       }
       const box=new THREE.Box3().setFromObject(model)
@@ -96,10 +111,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       camera.position.set(0,size.y*.56,Math.max(2.15,radius*2.15))
       controls.target.set(0,size.y*.53,0)
       controls.update()
-    },undefined,error=>{
-      console.error(error)
-      setStatus('Could not load BJ V7 GLB')
-    })
+    })()
 
     const resize=()=>{
       const rect=mount.getBoundingClientRect()
@@ -149,16 +161,16 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       likenessHandleRef.current.dispose()
       likenessHandleRef.current=null
       setLikenessEnabled(false)
-      setStatus('BJ V7 • RAW PROCEDURAL GLB')
+      setStatus('BJ '+loadedModelVersionRef.current+' • BASE GLB')
       return
     }
     const handle=installBJPhotoMatchedHead(model)
     likenessHandleRef.current=handle
-    if(!handle){setStatus('BJ V7 • PROCEDURAL FALLBACK');return}
+    if(!handle){setStatus('BJ '+loadedModelVersionRef.current+' • BASE GLB (NO COMPATIBLE HEAD)');return}
     setStatus('Loading approved BJ reference layer…')
     void handle.ready.then(ok=>{
       setLikenessEnabled(ok)
-      setStatus(ok?'BJ V10 • VOLUMETRIC REFERENCE LIKENESS':'BJ V7 • PROCEDURAL FALLBACK')
+      setStatus(ok?'BJ '+loadedModelVersionRef.current+' • APPROVED FACE REFERENCE (NOT CERTIFIED)':'BJ '+loadedModelVersionRef.current+' • BASE GLB (PHOTO NOT APPLIED)')
     })
   }
 
@@ -192,7 +204,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
     <header style={{padding:'max(12px,env(safe-area-inset-top)) 12px 10px',display:'flex',justifyContent:'space-between',gap:10,alignItems:'center',borderBottom:'1px solid #243042'}}>
       <div>
         <div style={{fontSize:10,letterSpacing:2.5,fontWeight:900,color:'#78d7ff'}}>TRYAMM STREETVERSE</div>
-        <h1 style={{fontSize:'clamp(20px,6vw,30px)',margin:'3px 0 0'}}>BJ Stubbs V10 — Likeness Preview</h1>
+        <h1 style={{fontSize:'clamp(20px,6vw,30px)',margin:'3px 0 0'}}>BJ Stubbs {modelVersion} — Face Review</h1>
       </div>
       <button onClick={onClose} aria-label="Close BJ viewer" style={{minWidth:44,minHeight:44,borderRadius:999,border:'1px solid #3e4b5d',background:'#111722',color:'#fff',fontSize:22}}>×</button>
     </header>
@@ -212,6 +224,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
         <button onClick={()=>setCamera('face')} style={{minHeight:50,border:'1px solid #66513a',borderRadius:12,background:cameraMode==='face'?'#3a2917':'#10161f',color:'#fff',fontWeight:950}}>FACE CLOSE-UP</button>
         <button onClick={()=>setCamera('full')} style={{minHeight:50,border:'1px solid #4c6d8d',borderRadius:12,background:cameraMode==='full'?'#14324c':'#10161f',color:'#fff',fontWeight:950}}>FULL BODY</button>
       </div>
+      <button data-bj-compare-reference="true" onClick={()=>setReferenceCompare(v=>!v)} style={{width:'100%',minHeight:48,marginTop:8,border:'1px solid #9a7548',borderRadius:12,background:referenceCompare?'#49371e':'#10161f',color:'#fff',fontWeight:950}}>{referenceCompare?'HIDE ORIGINAL FACE PHOTO':'COMPARE WITH ORIGINAL FACE PHOTO'}</button>
       <button aria-expanded={advancedOpen} aria-controls="bj-viewer-advanced-controls" onClick={()=>setAdvancedOpen(v=>!v)} style={{width:'100%',minHeight:46,marginTop:8,border:'1px solid #4c6d8d',borderRadius:12,background:'#0d1d29',color:'#dff6ff',fontWeight:950}}>
         {advancedOpen?'HIDE CAMERA + LIKENESS OPTIONS ▲':'MORE VIEWS + LIKENESS OPTIONS ▼'}
       </button>
@@ -229,14 +242,14 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
           <button onClick={()=>view(-Math.PI/2)} style={{minHeight:44,border:'1px solid #32445a',borderRadius:12,background:'#0d1520',color:'#fff',fontWeight:900,fontSize:10}}>RIGHT PROFILE</button>
         </div>
         <button onClick={toggleLikeness} style={{width:'100%',minHeight:48,border:'1px solid #9a7548',borderRadius:12,background:likenessEnabled?'#4a341b':'#10161f',color:'#fff',fontWeight:950}}>
-          {likenessEnabled?'BJ REFERENCE LIKENESS: ON':'BJ REFERENCE LIKENESS: OFF (RAW V7)'}
+          {likenessEnabled?'BJ REFERENCE LIKENESS: ON':'BJ REFERENCE: OFF (BASE '+modelVersion+')'}
         </button>
         <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7}}>
           <button onClick={()=>setAutoRotate(v=>!v)} style={{minHeight:46,border:'1px solid #4c6d8d',borderRadius:12,background:autoRotate?'#14324c':'#10161f',color:'#fff',fontWeight:950}}>{autoRotate?'AUTO ROTATE: ON':'AUTO ROTATE: OFF'}</button>
           <button onClick={()=>setReferenceCompare(v=>!v)} style={{minHeight:46,border:'1px solid #9a7548',borderRadius:12,background:referenceCompare?'#4a341b':'#10161f',color:'#fff',fontWeight:950}}>{referenceCompare?'REFERENCE: ON':'REFERENCE: OFF'}</button>
         </div>
         <div style={{fontSize:10,color:'#93a7b8',lineHeight:1.45}}>
-          <b>BJ V10 LIKENESS PREVIEW</b> uses the authorized current-era reference with V7 geometry. Face matching remains an approximation, not a certified photoreal likeness. Drag the model to rotate it.
+          <b>BJ {modelVersion} FACE REVIEW</b> compares the same V12-first model used by StreetVerse with the approved current-era photo when the GLB has a compatible head pivot. An exact photographic likeness has not yet been certified. Check FRONT, ¾ and both profiles.
         </div>
       </div>}
     </footer>

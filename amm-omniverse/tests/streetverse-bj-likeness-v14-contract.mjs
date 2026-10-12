@@ -1,0 +1,17 @@
+import fs from 'node:fs'
+import assert from 'node:assert/strict'
+const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8')
+const w=read('../src/components/StreetVerseMobileWorld.tsx'),v=read('../src/components/BJStubbsV7Viewer.tsx'),p=read('../src/runtime/StreetVerseBJPhotoMatchRuntime.ts')
+assert.ok(w.includes("get('svPhotoHead')!=='0'"),'Photo reference must default to on')
+assert.ok(w.includes('installBJPhotoMatchedHead(handle.object)'),'V12 GLB must attempt reference continuity')
+assert.ok(w.includes('bjPhotoMatch=liveBJReference'),'Portrait disposal must track GLB layer')
+assert.ok(w.includes('if(nativeCancelled||bjMeshyHero!==handle||bjPhotoMatch!==liveBJReference)return'),'Async stale portraits may not mutate BJ')
+assert.ok(w.includes("approvedReferenceApplied:ok,authoritativeGlb:true,certifiedLikeness:false"),'Reference applied is not certified resemblance')
+assert.ok(w.includes("reason:'incompatible-head-pivot-or-opted-out'"),'Incompatible GLB must fail safe')
+assert.ok(p.includes("hero.getObjectByName('Rig_Head')"),'Known alternate BJ pivots supported')
+assert.ok(p.includes('if(!headPivot)return null'),'Incompatible head must be rejected')
+for(const version of ['V12','V7','V6'])assert.ok(v.includes("name:'"+version+"'"),'Viewer version fallback '+version)
+assert.ok(v.includes('data-bj-compare-reference'),'One-tap reference comparison available')
+assert.ok(v.includes('setReferenceCompare]=useState(true)'),'Reference display defaults on')
+assert.ok(v.includes('not yet been certified'),'No false photo-match certification')
+console.log('BJ V14 PHOTO CONTINUITY PASS • V12 first / V7+V6 fallback, in-game reference, one-hand comparison, safe head adapter')

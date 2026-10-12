@@ -264,8 +264,8 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       normalizeStreetVerseHumanHeight(nativeHero,STREETVERSE_HUMAN_HEIGHT_METERS.adultHero)
       nativeHero.userData={...nativeHero.userData,characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',identityContinuityKey:STREETVERSE_HERO_CHARACTER_ID,namedCharacter:true,era:'current',headArchitecture:'bj-v5-photo-match-ready',photoMatchedAssetId:BJ_PHOTOMATCH_ASSET.id,visualContinuity:'current-era-reference-locked',autonomicLifeV7:true,autonomicLifeV12:true}
       bjPhotoMatch?.dispose()
-      // A reference photo is an optional preview, never the default game face.
-      const previewPhotoHead=new URLSearchParams(window.location.search).get('svPhotoHead')==='1'
+      // User-approved BJ face is now the normal fallback; svPhotoHead=0 explicitly disables it for debugging.
+      const previewPhotoHead=new URLSearchParams(window.location.search).get('svPhotoHead')!=='0'
       bjPhotoMatch=previewPhotoHead?installBJPhotoMatchedHead(nativeHero):null
       bjPhotoMatchReady=false
       if(bjPhotoMatch)void bjPhotoMatch.ready.then(ok=>{
@@ -297,10 +297,25 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
         nativeHero.position.copy(avatar.position)
         nativeHero.rotation.y=avatar.rotation.y
         nativeHeroRig=nativeHumanoidRig(nativeHero)
+        // V14: retain approved face layer on compatible production GLB instead
+        // of throwing the real-person reference away when V12 replaces V7.
+        const photoEnabled=new URLSearchParams(window.location.search).get('svPhotoHead')!=='0'
+        const liveBJReference=photoEnabled?installBJPhotoMatchedHead(handle.object):null
+        bjPhotoMatch=liveBJReference
+        if(liveBJReference){
+          void liveBJReference.ready.then(ok=>{
+            if(nativeCancelled||bjMeshyHero!==handle||bjPhotoMatch!==liveBJReference)return
+            bjPhotoMatchReady=ok
+            handle.object.userData={...handle.object.userData,approvedBJFaceOverlay:ok,certifiedLikeness:false}
+            window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-likeness-layer',{detail:{characterId:'bj-stubbs',approvedReferenceApplied:ok,authoritativeGlb:true,certifiedLikeness:false}}))
+          })
+        }else{
+          window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-likeness-layer',{detail:{characterId:'bj-stubbs',approvedReferenceApplied:false,reason:'incompatible-head-pivot-or-opted-out',authoritativeGlb:true,certifiedLikeness:false}}))
+        }
         nativeWindLocs=[]
         nativeHero.traverse(object=>{if(/loc|braid|dread|hair/i.test(object.name)){object.userData={...object.userData,windBaseRotation:{x:object.rotation.x,y:object.rotation.y,z:object.rotation.z}};nativeWindLocs.push(object)}})
         announceStreetVerseCharacterReady({id:STREETVERSE_HERO_CHARACTER_ID,assetId:BJ_MESHY_V6_ASSET.id,era:'current',photoMatched:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),source:'streetverse-mobile-meshy-bj-v6'})
-        window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail:{characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',assetId:BJ_MESHY_V6_ASSET.id,referenceMatchedPreview:true,photoMatched:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),certifiedLikeness:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),authoritative3DMesh:true,meshyV6:true,proceduralFallbackSuppressed:true,morphTargetNames:handle.morphTargetNames,autonomicLifeV7:true,conversationFocus:true,liveMicLipSync:true}}))
+        window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail:{characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',assetId:BJ_MESHY_V6_ASSET.id,referenceMatchedPreview:Boolean(liveBJReference),photoMatched:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),certifiedLikeness:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),authoritative3DMesh:true,meshyV6:true,proceduralFallbackSuppressed:true,morphTargetNames:handle.morphTargetNames,autonomicLifeV7:true,conversationFocus:true,liveMicLipSync:true}}))
       })
     }
     const activatePublishedBody=async(assetId:string,label:string)=>{
