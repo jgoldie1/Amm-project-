@@ -28,7 +28,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
   // An automatic turntable obscures facial comparisons. Start in still frontal close-up.
   const autoRotateRef=useRef(false)
   const [status,setStatus]=useState('Loading BJ V15 face review…')
-  const [bjReviewSource,setBJReviewSource]=useState<'owned'|'published'>('owned')
+  const [bjReviewSource,setBJReviewSource]=useState<'owned'|'published'>(()=>typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('svBJModel')==='meshy'?'published':'owned')
   const [sourceNote,setSourceNote]=useState('This V15 GLB is built by TRYAMM, not Meshy.')
   const [autoRotate,setAutoRotate]=useState(false)
   const [likenessEnabled,setLikenessEnabled]=useState(true)
@@ -109,7 +109,12 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       setModelVersion(loadedModel)
       if(dead)return
       const model=gltf.scene
-      if(loadedModel==='PUBLISHED MESHY')normalizeStreetVerseHumanHeight(model,1.82)
+      if(loadedModel==='PUBLISHED MESHY'){
+        normalizeStreetVerseHumanHeight(model,1.82)
+        // Make original Meshy bone compatibility explicit. This is a reversible
+        // FACE PREVIEW adapter, NOT proof of a proper photo-UV head resculpt.
+        model.userData={...model.userData,publishedOverrideActive:true,modelProvider:'published-meshy-glb',certifiedLikeness:false}
+      }
       modelRef.current=model
       setModelReady(true)
       model.traverse(node=>{
@@ -301,6 +306,11 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
         <button data-bj-actual-meshy-preview="true" onClick={()=>chooseBJSource('published')} aria-pressed={bjReviewSource==='published'} style={{minHeight:50,border:'1px solid #e5ce91',borderRadius:12,color:'#fff',background:bjReviewSource==='published'?'#4b3c21':'#30291d',fontWeight:900}}>ACTUAL MESHY GLB</button>
       </div>
       <div data-bj-model-provenance="true" role="status" aria-live="polite" style={{padding:'2px 3px 8px',fontSize:10,color:'#bdccdb'}}>{sourceNote}</div>
+      {bjReviewSource==='published'&&modelVersion==='PUBLISHED MESHY'&&
+        <button data-bj-apply-approved-face-meshy="true" onClick={toggleLikeness} style={{width:'100%',minHeight:50,marginBottom:8,borderRadius:12,border:'2px solid #f4d087',background:likenessEnabled?'#40381d':'#163c32',color:'#fff',fontWeight:900}}>
+          {likenessEnabled?'REMOVE APPROVED FACE PREVIEW':'APPLY BJ APPROVED FACE • PREVIEW'}
+        </button>}
+      {bjReviewSource==='published'&&modelVersion==='PUBLISHED MESHY'&&<p style={{fontSize:10,color:'#d2b9a0',margin:'0 2px 8px'}}>Face placement follows compatible Meshy Head bones. Alignment is approximate; compare front and both sides before approving. A proper UV face texture and sculpt are still needed for AAA fidelity.</p>}
       <div data-bj-face-angle-quick-controls="true" style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
         <button data-bj-face-front="true" onClick={()=>{setCamera('face');view(0)}} aria-label="BJ face front portrait view" style={{minHeight:50,border:'1px solid #66513a',borderRadius:12,background:cameraMode==='face'?'#3a2917':'#10161f',color:'#fff',fontWeight:950}}>FACE • FRONT</button>
         <button data-bj-face-left="true" onClick={()=>{setCamera('face');view(Math.PI/2)}} aria-label="BJ face left profile" style={{minHeight:50,border:'1px solid #66513a',borderRadius:12,background:'#10161f',color:'#fff',fontWeight:950}}>LEFT PROFILE</button>
