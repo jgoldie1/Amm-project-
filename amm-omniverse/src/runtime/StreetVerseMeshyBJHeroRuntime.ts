@@ -179,7 +179,10 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   const verifiedPhotoMatch=canClaimPhotoMatched(BJ_MESHY_V6_ASSET.characterId)
   const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
   const published=await resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope)
-  const candidates=[published?.url,BJ_MESHY_V6_ASSET.premiumUrl,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
+  // A previously published V12 asset must not bypass the first-party V15
+  // sculpt. Preserve external and older versions as recovery fallbacks.
+  const candidateUrls=[BJ_MESHY_V6_ASSET.premiumUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url]
+  const candidates=Array.from(new Set(candidateUrls.filter((url):url is string=>Boolean(url))))
   let sourceUrl=''
   let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
   // Generated V12/V7/V6 GLBs are first-party build outputs. A slow Safari HEAD
@@ -208,7 +211,11 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   try{
     const gltf=publishedGlb
     const object=gltf.scene
-    object.name='bj-stubbs-production-v12'
+    const loadedModelVersion=sourceUrl===BJ_MESHY_V6_ASSET.premiumUrl?'V15':sourceUrl===BJ_MESHY_V6_ASSET.productionUrl?'V12':sourceUrl===BJ_MESHY_V6_ASSET.legacyProductionUrl?'V7':sourceUrl===BJ_MESHY_V6_ASSET.url?'V6':'published-external'
+    const ownedV15=loadedModelVersion==='V15'
+    const ownedV12=loadedModelVersion==='V12'
+    const externalPublished=Boolean(published?.url&&sourceUrl===published.url&&!ownedV15)
+    object.name='bj-stubbs-production-'+loadedModelVersion.toLowerCase()
     normalizeStreetVerseHumanHeight(object,BJ_MESHY_V6_ASSET.targetHeightMeters)
     object.traverse(node=>{
       if(node instanceof THREE.Mesh){
@@ -239,12 +246,18 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       identityContinuityKey:BJ_MESHY_V6_ASSET.characterId,
       visualAuthority:BJ_MESHY_V6_ASSET.authority,
       meshAssetId:BJ_MESHY_V6_ASSET.id,
-      referenceMatchedPreview:Boolean(published?.url),
+      // The face-reference overlay is mounted separately AFTER this GLB
+      // is loaded. Merely finding a published file is not proof of likeness.
+      referenceMatchedPreview:false,
       photoMatched:verifiedPhotoMatch,
       certifiedLikeness:verifiedPhotoMatch,
-      meshyV6:Boolean(published?.url),
-      ownedV7:!published?.url,
-      ownedV12:!published?.url,
+      modelVersion:loadedModelVersion,
+      modelSourceUrl:sourceUrl,
+      meshyV6:externalPublished,
+      publishedOverrideActive:externalPublished,
+      ownedV7:loadedModelVersion==='V7',
+      ownedV12,
+      ownedV15,
       productionMaterials:true,
       texturePipeline:'pbr-mobile-production-v12',
       visualTexturePipeline:'pbr-mobile-production-v8',
@@ -423,12 +436,16 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       characterId:BJ_MESHY_V6_ASSET.characterId,
       assetId:BJ_MESHY_V6_ASSET.id,
       url:sourceUrl,
+      modelVersion:loadedModelVersion,
+      ownedV15,
+      ownedV12,
+      publishedOverrideActive:externalPublished,
       clipNames:clips.map(clip=>clip.name),
       morphTargetNames:morphs.names,
       faceChannels:BJ_FACE_MORPHS.map(([channel])=>channel),
       targetHeightMeters:BJ_MESHY_V6_ASSET.targetHeightMeters,
       authoritative3DMesh:true,
-      referenceMatchedPreview:Boolean(published?.url),
+      referenceMatchedPreview:false,
       photoMatched:verifiedPhotoMatch,
       certifiedLikeness:verifiedPhotoMatch,
       proceduralFallbackSuppressed:true,

@@ -24,7 +24,10 @@ for(const part of ['bj-v15-cheekbone-left','bj-v15-cheekbone-right','bj-v15-brow
 }
 assert.ok(pub.includes("if(!fs.existsSync(v15Source))throw"),'Never publish a missing v15 model')
 assert.ok(pub.includes("must contain new geometry")||pub.includes("must contain new geometry"),'V15 GLB must be checked against V12')
-assert.ok(loader.includes("BJ_MESHY_V6_ASSET.premiumUrl,BJ_MESHY_V6_ASSET.productionUrl"),'V15 must load before V12')
+assert.ok(loader.includes("const candidateUrls=[BJ_MESHY_V6_ASSET.premiumUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl"),'V15 must take precedence over previously published V12')
+assert.ok(loader.includes("modelVersion:loadedModelVersion"),'Real loaded asset version must be observable')
+assert.ok(loader.includes("publishedOverrideActive:externalPublished"),'Published override status must reflect the loaded URL')
+assert.ok(loader.includes("referenceMatchedPreview:false"),'Loading a GLB alone must never claim a reference face is shown')
 assert.ok(viewer.includes("name:'V15'"),'Face viewer must inspect same V15 asset')
 assert.ok(viewer.includes("name:'V12'"),'Face viewer must allow fallback')
 console.log('BJ V15 SOURCE CONTRACT PASS • authored distinct GLB, mobile geometry budget, stable rollback and no false photo-certification')

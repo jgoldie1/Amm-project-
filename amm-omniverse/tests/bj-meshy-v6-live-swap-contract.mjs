@@ -29,8 +29,10 @@ for(const token of [
   "lookRight:gaze>0",
   "breathing:THREE.MathUtils.clamp",
   "source:'bj-production-v12-life-layer'",
-  "ownedV12:!published?.url",
-  "referenceMatchedPreview:Boolean(published?.url)",
+  "const ownedV12=loadedModelVersion==='V12'",
+  "const ownedV15=loadedModelVersion==='V15'",
+  "referenceMatchedPreview:false",
+  "modelVersion:loadedModelVersion",
 ])must(runtime.includes(token),'runtime missing '+token)
 
 for(const token of [
@@ -65,6 +67,6 @@ must(runtime.includes("certifiedLikeness:verifiedPhotoMatch"),'BJ V6 must keep c
 must(!runtime.includes("certifiedLikeness:true"),'BJ V6 must never hard-code a certified likeness claim')
 must(world.includes("visualContinuity:'current-era-reference-locked'"),'BJ current-era visual continuity lock must survive the life-layer upgrade')
 
-console.log('BJ V6/V7/V12 LIVE SWAP CONTRACT PASS: owned V12 preferred -> V7/V6 compatibility preserved -> external Meshy may override when truly published')
+console.log('BJ V6/V7/V12/V15 LIVE SWAP CONTRACT PASS: V15 preferred; truthful source & version; stable published/V12/V7/V6 recovery')
 
 console.log('BJ LIFE LAYER V12: gaze + breathing + speech microgestures + posture + seated state are wired without weakening the native fallback')

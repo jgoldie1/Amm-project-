@@ -51,5 +51,6 @@ must(foundry.includes("'streetverse-bj-v15-sculpt':()=>"),'V15 must have a disti
 must(foundry.includes('bj-v15-beard-dark-merged')&&foundry.includes('bj-v15-locs-silver-merged'),'V15 must contain 3D hair/locs')
 must(foundry.includes('mergeGeometries(geometries,false)'),'V15 must merge hairs to limit mobile draw calls')
 must(runtime.includes("premiumFilename:'SV_HERO_BJ_STUBBS_V15.glb'"),'runtime must know premium V15 file')
-must(runtime.indexOf('BJ_MESHY_V6_ASSET.premiumUrl')<runtime.indexOf('BJ_MESHY_V6_ASSET.productionUrl,'),'V15 must precede old V12 in load order')
+must(runtime.includes("const candidateUrls=[BJ_MESHY_V6_ASSET.premiumUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl"),'V15 must take precedence over cached/published V12 assets')
+must(runtime.includes("modelVersion:loadedModelVersion"),'Hero loader must identify the actual asset')
 console.log('BJ V15 DISTINCT 3D ASSET PASS: new hairstyle/face geometry, stable V12 rollback, valid manifest and truthful likeness metadata')
