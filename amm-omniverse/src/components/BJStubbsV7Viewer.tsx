@@ -19,11 +19,12 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
   const likenessHandleRef=useRef<BJPhotoMatchedHeadHandle|null>(null)
   const modelHeightRef=useRef(1.88)
   const loadedModelVersionRef=useRef('V15')
-  const autoRotateRef=useRef(true)
+  // An automatic turntable obscures facial comparisons. Start in still frontal close-up.
+  const autoRotateRef=useRef(false)
   const [status,setStatus]=useState('Loading BJ V15 face review…')
-  const [autoRotate,setAutoRotate]=useState(true)
+  const [autoRotate,setAutoRotate]=useState(false)
   const [likenessEnabled,setLikenessEnabled]=useState(true)
-  const [cameraMode,setCameraMode]=useState<'full'|'face'>('full')
+  const [cameraMode,setCameraMode]=useState<'full'|'face'>('face')
   const [referenceCompare,setReferenceCompare]=useState(true)
   const [modelVersion,setModelVersion]=useState('V15')
   const [advancedOpen,setAdvancedOpen]=useState(false)
@@ -108,9 +109,9 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       model.position.sub(center)
       model.position.y+=size.y*.5
       floor.position.y=.002
-      const radius=Math.max(size.x,size.y,size.z)
-      camera.position.set(0,size.y*.56,Math.max(2.15,radius*2.15))
-      controls.target.set(0,size.y*.53,0)
+      // Face photo review is the default; full-body mode remains a single tap away.
+      camera.position.set(0,size.y*.83,Math.max(.92,size.y*.62))
+      controls.target.set(0,size.y*.83,0)
       controls.update()
     })()
 
@@ -221,9 +222,11 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
     </section>
 
     <footer style={{padding:'8px 10px max(12px,env(safe-area-inset-bottom))',borderTop:'1px solid #243042',background:'#070b11',maxHeight:'min(58vh,420px)',overflowY:'auto'}}>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
-        <button onClick={()=>setCamera('face')} style={{minHeight:50,border:'1px solid #66513a',borderRadius:12,background:cameraMode==='face'?'#3a2917':'#10161f',color:'#fff',fontWeight:950}}>FACE CLOSE-UP</button>
-        <button onClick={()=>setCamera('full')} style={{minHeight:50,border:'1px solid #4c6d8d',borderRadius:12,background:cameraMode==='full'?'#14324c':'#10161f',color:'#fff',fontWeight:950}}>FULL BODY</button>
+      <div data-bj-face-angle-quick-controls="true" style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
+        <button data-bj-face-front="true" onClick={()=>{setCamera('face');view(0)}} aria-label="BJ face front portrait view" style={{minHeight:50,border:'1px solid #66513a',borderRadius:12,background:cameraMode==='face'?'#3a2917':'#10161f',color:'#fff',fontWeight:950}}>FACE • FRONT</button>
+        <button data-bj-face-left="true" onClick={()=>{setCamera('face');view(Math.PI/2)}} aria-label="BJ face left profile" style={{minHeight:50,border:'1px solid #66513a',borderRadius:12,background:'#10161f',color:'#fff',fontWeight:950}}>LEFT PROFILE</button>
+        <button data-bj-face-right="true" onClick={()=>{setCamera('face');view(-Math.PI/2)}} aria-label="BJ face right profile" style={{minHeight:50,border:'1px solid #66513a',borderRadius:12,background:'#10161f',color:'#fff',fontWeight:950}}>RIGHT PROFILE</button>
+        <button data-bj-face-full="true" onClick={()=>{setCamera('full');view(0)}} aria-label="BJ full body" style={{minHeight:50,border:'1px solid #4c6d8d',borderRadius:12,background:cameraMode==='full'?'#14324c':'#10161f',color:'#fff',fontWeight:950}}>FULL BODY</button>
       </div>
       <button data-bj-compare-reference="true" onClick={()=>setReferenceCompare(v=>!v)} style={{width:'100%',minHeight:48,marginTop:8,border:'1px solid #9a7548',borderRadius:12,background:referenceCompare?'#49371e':'#10161f',color:'#fff',fontWeight:950}}>{referenceCompare?'HIDE ORIGINAL FACE PHOTO':'COMPARE WITH ORIGINAL FACE PHOTO'}</button>
       <button aria-expanded={advancedOpen} aria-controls="bj-viewer-advanced-controls" onClick={()=>setAdvancedOpen(v=>!v)} style={{width:'100%',minHeight:46,marginTop:8,border:'1px solid #4c6d8d',borderRadius:12,background:'#0d1d29',color:'#dff6ff',fontWeight:950}}>
@@ -250,7 +253,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
           <button onClick={()=>setReferenceCompare(v=>!v)} style={{minHeight:46,border:'1px solid #9a7548',borderRadius:12,background:referenceCompare?'#4a341b':'#10161f',color:'#fff',fontWeight:950}}>{referenceCompare?'REFERENCE: ON':'REFERENCE: OFF'}</button>
         </div>
         <div style={{fontSize:10,color:'#93a7b8',lineHeight:1.45}}>
-          <b>BJ {modelVersion} FACE REVIEW</b> compares the same V12-first model used by StreetVerse with the approved current-era photo when the GLB has a compatible head pivot. This is not a certified photoreal likeness. Check FRONT, ¾ and both profiles.
+          <b>BJ {modelVersion} FACE REVIEW</b> compares the same V15-first model used by StreetVerse with the approved current-era photo when the GLB has a compatible head pivot. This is not a certified photoreal likeness. Check FRONT, ¾ and both profiles.
         </div>
       </div>}
     </footer>
