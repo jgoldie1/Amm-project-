@@ -131,7 +131,7 @@ export type BJPhotoMatchedHeadHandle={
   dispose:()=>void
 }
 
-export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHeadHandle|null{
+export function installBJPhotoMatchedHead(hero:THREE.Object3D,options?:{lighting?:'studio'|'game'}):BJPhotoMatchedHeadHandle|null{
   // First use BJ-authored head pivots without changing their topology.
   // A genuinely published Meshy auto-rig may instead name its head joint
   // 'Head' or 'mixamorig:Head'. A strictly identified Bone can receive a
@@ -205,7 +205,9 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
     roughness:.69,
     metalness:0,
     emissive:new THREE.Color(0xffffff),
-    emissiveIntensity:.10,
+    // Photo-review studio favors faithful skin tone; the mobile game needs
+    // slightly more fill light to remain readable in Chicago's darker blocks.
+    emissiveIntensity:options?.lighting==='studio'?.025:.10,
   })
   const mesh=new THREE.Mesh(geometry,material)
   mesh.name=BJ_PHOTOMATCH_ASSET.id

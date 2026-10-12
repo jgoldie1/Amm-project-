@@ -123,7 +123,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       scene.add(model)
       // A real Meshy head should use its own baked texture; overlaying
       // the small frontal portrait as a flat face would hide the true geometry.
-      const photoMatch=loadedModel==='PUBLISHED MESHY'?null:installBJPhotoMatchedHead(model)
+      const photoMatch=loadedModel==='PUBLISHED MESHY'?null:installBJPhotoMatchedHead(model,{lighting:'studio'})
       likenessHandleRef.current=photoMatch
       photoSettledRef.current=!photoMatch
       if(photoMatch){
@@ -242,7 +242,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       setStatus('BJ '+loadedModelVersionRef.current+' • BASE GLB')
       return
     }
-    const handle=installBJPhotoMatchedHead(model)
+    const handle=installBJPhotoMatchedHead(model,{lighting:'studio'})
     likenessHandleRef.current=handle
     photoAppliedRef.current=false;photoSettledRef.current=!handle
     if(!handle){setStatus('BJ '+loadedModelVersionRef.current+' • BASE GLB (NO COMPATIBLE HEAD)');return}
