@@ -91,6 +91,13 @@ const MISSIONS=[
  'Creator Reel capture after mission completion',
 ] as const
 
+// These four anchors exist in the lightweight mobile 3D scene. Map dots are not GPS locations.
+const MOBILE_WEST_SIDE_ENTRIES:Record<string,{x:number;z:number}>={
+ 'circle-park':{x:-15,z:49},
+ 'roosevelt':{x:-8,z:18},
+ 'taylor':{x:-8,z:-8},
+ 'pilsen':{x:-8,z:-36},
+}
 const statusColor={live:'#72ffb0',playable:'#6de3ff',planned:'#ffd15c'} as const
 const scaleLabel:Record<Scale,string>={west:'WEST SIDE',chicago:'CHICAGO 77',illinois:'ILLINOIS',usa:'USA',world:'WORLD'}
 
@@ -177,7 +184,20 @@ export default function StreetVerseWestSideWorldBuilder(){
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-builder-focus',{detail:zone}))
  }
 
+ const enterPlayableDistrict=(zone:Zone)=>{
+  const entry=MOBILE_WEST_SIDE_ENTRIES[zone.id]
+  if(!entry){setNotice('3D DISTRICT ENTRY • not yet built. Choose Circle Park, Roosevelt, Taylor or Pilsen.');return}
+  if(!document.querySelector('[data-streetverse-world-root="true"]')){
+   setNotice('3D DISTRICT ENTRY • open the StreetVerse mobile city first, then choose the district again.')
+   return
+  }
+  // The mobile scene checks collisions, driving state and the nearest walkable destination.
+  window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{...entry,missionId:zone.id,source:'streetverse-world-builder',label:zone.label}}))
+  setOpen(false)
+ }
+
  const startMission=(zone:Zone)=>{
+  if(zone.status==='planned'){setNotice('MISSION PLANNED • '+zone.label+' needs geometry and gameplay certification before activation.');return}
   const detail={missionId:`west-builder:${zone.id}`,id:`west-builder:${zone.id}`,title:`West Side • ${zone.label}`,objective:`Reach and complete the ${zone.label} district objective.`,campus:zone.campusId,source:'streetverse-world-builder'}
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail}))
   window.dispatchEvent(new CustomEvent('tryamm:campusverse-mission-open',{detail}))
@@ -317,7 +337,8 @@ export default function StreetVerseWestSideWorldBuilder(){
       <p style={{fontSize:11,lineHeight:1.5,color:'#a9bbc7'}}>{selected.detail}</p>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7}}>
        <button onClick={()=>focus(selected)} style={actionBtn}>VECTOR ROUTE</button>
-       <button onClick={()=>startMission(selected)} style={actionBtn}>START MISSION</button>
+       <button onClick={()=>startMission(selected)} style={actionBtn}>{selected.status==='planned'?'MISSION PLANNED':'START MISSION'}</button>
+       {MOBILE_WEST_SIDE_ENTRIES[selected.id]&&<button data-streetverse-enter-district={selected.id} onClick={()=>enterPlayableDistrict(selected)} style={{...actionBtn,gridColumn:'1 / -1',minHeight:48,borderColor:'#76ffb188',background:'#0b3025'}}>▶ ENTER 3D DISTRICT • {selected.label.toUpperCase()}</button>}
        {selected.campusId&&<button onClick={()=>openCampus(selected.campusId!)} style={{...actionBtn,gridColumn:'1 / -1'}}>OPEN CAMPUSVERSE</button>}
       </div>
      </article>
