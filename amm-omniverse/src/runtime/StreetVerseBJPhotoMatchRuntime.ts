@@ -122,6 +122,7 @@ export type BJPhotoMatchedHeadHandle={
   mesh:THREE.Mesh
   geometryGroup:THREE.Group
   ready:Promise<boolean>
+  updateForCamera:(camera:THREE.Camera)=>void
   dispose:()=>void
 }
 
@@ -334,19 +335,30 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
   // contribution as the player rotates around BJ and restore sculpted eyes,
   // brows and jaw instead of showing a paper-thin photo panel in the side view.
   const front=new THREE.Vector3(),fromFace=new THREE.Vector3(),headWorld=new THREE.Vector3()
-  mesh.onBeforeRender=(_renderer,_scene,camera)=>{
-    if(disposed||!material.map)return
+  let disposed=false
+  let photoReady=false
+  // Three.js builds the visible render list BEFORE mesh.onBeforeRender fires.
+  // Changing other meshes' visible flags in onBeforeRender cannot reliably
+  // restore profile geometry. This explicit camera-LOD update must run BEFORE
+  // renderer.render() in both gameplay and four-angle review captures.
+  const updateForCamera=(camera:THREE.Camera)=>{
+    if(disposed||!photoReady||!material.map)return
+    headPivot.updateWorldMatrix(true,false)
     headPivot.getWorldPosition(headWorld)
     front.set(0,0,1).transformDirection(headPivot.matrixWorld)
     fromFace.copy(camera.position).sub(headWorld).normalize()
     const facing=front.dot(fromFace)
-    const strength=THREE.MathUtils.smoothstep(facing,.48,.88)
+    // A flat frontal photo cannot supply true 3/4 or profile textures.
+    // Begin fading at ~27 degrees and fully reveal sculpt by ~48 degrees.
+    const strength=THREE.MathUtils.smoothstep(facing,.67,.89)
     material.opacity=strength
-    mesh.userData={...mesh.userData,photoFacingStrength:strength,photoFacingCameraOnly:true}
-    // Restore procedural facial landmarks for real side profiles.
-    for(const entry of hidden)entry.object.visible=strength<.25?entry.visible:false
+    mesh.visible=strength>.025
+    // Keep front-facing reference unobstructed, but restore actual head/eye/
+    // cheek geometry at 3/4 and 90-degree profile. The renderer must see
+    // these flags before it constructs the opaque mesh render list.
+    for(const entry of hidden)entry.object.visible=strength<.50?entry.visible:false
+    mesh.userData={...mesh.userData,photoFacingStrength:strength,photoFacingCameraOnly:true,preRenderVisibilityUpdated:true,showSculptedProfile:strength<.50}
   }
-  let disposed=false
   const ready=new Promise<boolean>(resolve=>{
     new THREE.TextureLoader().load(
       BJ_PHOTOMATCH_TEXTURE_DATA_URI,
@@ -358,6 +370,7 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
         material.map=feathered
         material.emissiveMap=feathered
         material.opacity=1
+        photoReady=true
         material.needsUpdate=true
         if(feathered!==texture)texture.dispose()
         hero.traverse(object=>{
@@ -390,8 +403,10 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
     mesh,
     geometryGroup,
     ready,
+    updateForCamera,
     dispose:()=>{
       disposed=true
+      mesh.onBeforeRender=()=>{}
       hidden.forEach(entry=>{entry.object.visible=entry.visible})
       mesh.removeFromParent()
       geometryGroup.removeFromParent()
