@@ -90,7 +90,11 @@ function featherPhotoTexture(source:THREE.Texture){
     const edge=THREE.MathUtils.clamp((1.08-ellipse)/.22,0,1)
     const forehead=THREE.MathUtils.clamp((y-2)/22,0,1)
     const chin=THREE.MathUtils.clamp((254-y)/20,0,1)
-    d[(y*256+x)*4+3]=Math.round(255*edge*forehead*chin)
+    // The supplied WebP already contains a background cutout. Preserve its
+    // authored per-pixel transparency; setting alpha from 255 here resurrected
+    // the blue photo backdrop as a square sticker on the 3D head.
+    const alphaIndex=(y*256+x)*4+3
+    d[alphaIndex]=Math.round(d[alphaIndex]*edge*forehead*chin)
   }
   ctx.putImageData(pixels,0,0)
   const feathered=new THREE.CanvasTexture(canvas)
