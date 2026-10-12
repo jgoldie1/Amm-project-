@@ -14,7 +14,9 @@ for(const token of [
  'const lookAhead=bjCloseViewRef.current?.65:3.15',
  "['bj-close',bjCloseView?",
  "['bj-proof','📸 BJ V15 • 4-ANGLE FACE PROOF']",
- "window.location.assign('/bj-v10-preview')",
+ "window.location.assign('/bj-v10-preview'+(match?'?svBJModel=meshy':''))",
+ 'const applyBJFaceCloseCamera=(hero:THREE.Object3D)=>',
+ 'bjFaceCloseApplied=Boolean(',
  'missionGuide&&!bjCloseView',
  "data-streetverse-bj-focus={bjCloseView?'true':'false'}"
 ])assert.ok(game.includes(token),'BJ V16 camera / UI integration missing '+token)
