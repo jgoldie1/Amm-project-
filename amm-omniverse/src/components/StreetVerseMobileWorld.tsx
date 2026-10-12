@@ -3,6 +3,7 @@ import {useEffect,useRef,useState} from 'react'
 import './streetverse-mobile-layout.css'
 import {createStreetVerseCameraClearance,resolveStreetVerseThirdPersonCameraSafety,STREETVERSE_CAMERA_MIN_DISTANCE,STREETVERSE_CAMERA_OCCLUSION_PASS} from '../runtime/StreetVerseCameraClearance'
 import {createStreetVerseWestSideVisibleWorld} from '../runtime/StreetVerseWestSideVisibleWorldRuntime'
+import {findSafeStreetVerseDistrictArrival} from '../runtime/StreetVerseSafeDistrictArrival'
 import * as THREE from 'three'
 import {createMobileResidentPopulation,disposeMobileResidentPopulation,tickMobileResidentPopulation} from '../runtime/StreetVerseMobileLivingCityRuntime'
 import {createStreetVerseWeatherRenderer,weatherBadge,type StreetVerseWeatherState} from '../runtime/StreetVerseWeatherRuntime'
@@ -941,7 +942,25 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const onInteract=(e:Event)=>{const d=(e as CustomEvent<{entered?:boolean}>).detail||{};if(d.entered===false)exitVehicle();else if(d.entered===true){if(adultImpairment>=.18){setMessage('DRIVING DISABLED • impaired adult-recreation state');window.dispatchEvent(new CustomEvent('tryamm:streetverse-dialogue',{detail:{speaker:'StreetVerse Safety',text:'Driving is disabled while your character is impaired. Recover first or use ride share.'}}));return}enterVehicle()}else activeCar?exitVehicle():enterVehicle()};addEventListener('tryamm:streetverse-vehicle-interact',onInteract)
   const onVehicleRepaired=(e:Event)=>{const d=(e as CustomEvent<{vehicleId?:string}>).detail||{};if(String(d.vehicleId||'')==='first-repair-car'){repairCar.userData.broken=false;firstJourneyBeacon.visible=false;setMessage('REPAIR VERIFIED • 5-SEAT CAR READY • driver + front passenger + 3 rear passengers • Tap ENTER VEHICLE.')}};addEventListener('tryamm:streetverse-vehicle-repaired',onVehicleRepaired)
   const onSchoolTravel=()=>{if(activeCar){setMessage('SCHOOL ROUTE • park and exit your vehicle first.');return}avatar.position.set(-46,0,48);setMessage('THOMAS JEFFERSON SCHOOL • FRONT ENTRANCE • walk forward into the campus.');window.dispatchEvent(new CustomEvent('tryamm:school-campus-route-arrived',{detail:{campusId:'thomas-jefferson-legacy-campus',x:-46,z:48,source:'streetverse-mobile-menu'}}))};addEventListener('tryamm:school-route-request',onSchoolTravel)
-  const onWestSideRoute=(e:Event)=>{const d=(e as CustomEvent<{x?:number;z?:number;missionId?:string}>).detail||{};if(activeCar){setMessage('MISSION ROUTE • park and exit your vehicle first.');return}const x=clamp(Number(d.x||0)),z=clamp(Number(d.z||0));if(!canTraverse(x,z)){setMessage('MISSION ROUTE • objective entrance is blocked; routing to the nearest walkable point.');avatar.position.set(clamp(x+4),0,clamp(z+4))}else avatar.position.set(x,0,z);setMessage('WEST SIDE OBJECTIVE • '+String(d.missionId||'mission').replaceAll('-',' ').toUpperCase());window.dispatchEvent(new CustomEvent('tryamm:west-side-route-arrived',{detail:{missionId:d.missionId,x:avatar.position.x,z:avatar.position.z,source:'streetverse-mobile-world'}}))};addEventListener('tryamm:west-side-route-request',onWestSideRoute)
+  const onWestSideRoute=(e:Event)=>{
+    const detail=(e as CustomEvent<{x?:number;z?:number;missionId?:string;label?:string}>).detail||{}
+    const missionId=String(detail.missionId||'mission')
+    if(activeCar){
+      setMessage('WEST SIDE ROUTE • park and exit your vehicle first.')
+      window.dispatchEvent(new CustomEvent('tryamm:west-side-route-blocked',{detail:{missionId,reason:'vehicle',source:'streetverse-mobile-world'}}))
+      return
+    }
+    const landing=findSafeStreetVerseDistrictArrival({x:Number(detail.x),z:Number(detail.z)},canTraverse,clamp)
+    if(!landing){
+      setMessage('WEST SIDE ROUTE • no safe entrance found. BJ stays where he is.')
+      window.dispatchEvent(new CustomEvent('tryamm:west-side-route-blocked',{detail:{missionId,reason:'no-safe-landing',source:'streetverse-mobile-world'}}))
+      return
+    }
+    avatar.position.set(landing.x,0,landing.z)
+    setMessage(`WEST SIDE ARRIVAL • ${String(detail.label||missionId).replaceAll('-',' ').toUpperCase()}${landing.adjusted?' • nearby accessible sidewalk':''}`)
+    window.dispatchEvent(new CustomEvent('tryamm:west-side-route-arrived',{detail:{missionId,x:landing.x,z:landing.z,safe:true,adjusted:landing.adjusted,offsetMeters:Number(landing.distance.toFixed(2)),source:'streetverse-mobile-world'}}))
+  }
+  addEventListener('tryamm:west-side-route-request',onWestSideRoute)
   const onDropToPlayer=(e:Event)=>{const d=(e as CustomEvent<{x?:number;z?:number;consent?:boolean;userId?:string}>).detail||{};if(!d.consent||!Number.isFinite(Number(d.x))||!Number.isFinite(Number(d.z)))return;if(activeCar){setMessage('DROP-IN READY • exit your vehicle, then request the player again.');return}const x=clamp(Number(d.x)+2.2),z=clamp(Number(d.z)+2.2);if(!canTraverse(x,z)){setMessage('DROP-IN BLOCKED • target is inside restricted geometry; move the host to a walkable area.');return}avatar.position.set(x,0,z);const place=nearestChicagoPlace(avatar.position.x,avatar.position.z);setMessage(`DROP-IN COMPLETE • ${place?.label||'Chicago'} • grid ${worldToChicagoGridCell(avatar.position.x,avatar.position.z)}`);window.dispatchEvent(new CustomEvent('tryamm:streetverse-drop-complete',{detail:{userId:d.userId,x:avatar.position.x,z:avatar.position.z,place:place?.id,gridCell:worldToChicagoGridCell(avatar.position.x,avatar.position.z),consent:true}}))};addEventListener('tryamm:streetverse-drop-to-player',onDropToPlayer)
   const onHeroDialogue=()=>{heroConversationUntil=performance.now()+6500;const prompt=interactionRef.current;if(prompt){const dx=prompt.x-avatar.position.x,dz=prompt.z-avatar.position.z;heroConversationFocusYaw=THREE.MathUtils.clamp(Math.atan2(dx,dz)-avatar.rotation.y,-.48,.48)}else heroConversationFocusYaw=0;window.dispatchEvent(new CustomEvent('tryamm:bj-v4-conversation-state',{detail:{active:true,until:heroConversationUntil,focusYaw:heroConversationFocusYaw,source:'streetverse-dialogue'}}))}
   addEventListener('tryamm:streetverse-npc-dialogue',onHeroDialogue)
