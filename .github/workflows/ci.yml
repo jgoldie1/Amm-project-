@@ -110,6 +110,7 @@ jobs:
           node tests/streetverse-quantum-cone-aerial-v1-contract.mjs
           node tests/streetverse-global-quantum-cone-v1-contract.mjs
           node tests/streetverse-bj-likeness-v14-contract.mjs
+          node tests/bj-portrait-background-mask-contract.mjs
           node tests/streetverse-bj-v16-face-close-camera-contract.mjs
           node tests/streetverse-bj-real-meshy-face-preview-contract.mjs
           node tests/bj-meshy-original-selection-contract.mjs

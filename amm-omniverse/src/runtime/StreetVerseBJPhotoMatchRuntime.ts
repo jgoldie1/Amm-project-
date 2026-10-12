@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import {suppressBJPortraitBackdrop} from './BJPortraitBackdropMask'
 
 export const BJ_PHOTOMATCH_ASSET={
   id:'streetverse-bj-stubbs-photomatched',
@@ -88,6 +89,10 @@ function featherPhotoTexture(source:THREE.Texture){
   ctx.drawImage(image,w*.145,h*.02,w*.71,h*.81,0,0,256,256)
   const pixels=ctx.getImageData(0,0,256,256)
   const d=pixels.data
+  // Remove the pale blue/gray portrait border before applying the existing
+  // oval feather. The V15 WebGL evidence showed a conspicuous card-like halo.
+  const suppressedBackdropPixels=suppressBJPortraitBackdrop(d,256,256)
+  void suppressedBackdropPixels
   for(let y=0;y<256;y++)for(let x=0;x<256;x++){
     const nx=(x-128)/(256*.44)
     const ny=(y-124)/(256*.49)
