@@ -108,6 +108,7 @@ jobs:
           node tests/circle-park-apartments-photo-reference-v3-contract.mjs
           node tests/circle-park-taylor-guard-gate-contract.mjs
           node tests/streetverse-quantum-cone-aerial-v1-contract.mjs
+          node tests/streetverse-global-quantum-cone-v1-contract.mjs
           node tests/streetverse-fillmore-taylor-arrigo-corridor-contract.mjs
 
       - name: Vercel parity build from pristine checkout
