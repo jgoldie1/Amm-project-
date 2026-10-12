@@ -80,16 +80,22 @@ function featherPhotoTexture(source:THREE.Texture){
   const ctx=canvas.getContext('2d',{willReadFrequently:true})
   if(!ctx)return source
   ctx.clearRect(0,0,256,256)
-  ctx.drawImage(image,0,0,256,256)
+  // The source is a full upper-body portrait, not a UV texture. Use the head/
+  // beard region only so the shirt and photo backdrop do not appear as a
+  // rectangular panel attached to BJ's chin.
+  const source=source.image as HTMLImageElement
+  const w=source.naturalWidth||source.width||192,h=source.naturalHeight||source.height||192
+  ctx.drawImage(image,w*.145,h*.02,w*.71,h*.81,0,0,256,256)
   const pixels=ctx.getImageData(0,0,256,256)
   const d=pixels.data
   for(let y=0;y<256;y++)for(let x=0;x<256;x++){
-    const nx=(x-128)/(256*.49)
-    const ny=(y-132)/(256*.53)
+    const nx=(x-128)/(256*.44)
+    const ny=(y-124)/(256*.49)
     const ellipse=nx*nx+ny*ny
-    const edge=THREE.MathUtils.clamp((1.08-ellipse)/.22,0,1)
-    const forehead=THREE.MathUtils.clamp((y-2)/22,0,1)
-    const chin=THREE.MathUtils.clamp((254-y)/20,0,1)
+    // Softer feather around the cheek/jaw silhouette, especially at ¾ angles.
+    const edge=THREE.MathUtils.clamp((.96-ellipse)/.31,0,1)
+    const forehead=THREE.MathUtils.clamp((y-5)/34,0,1)
+    const chin=THREE.MathUtils.clamp((249-y)/39,0,1)
     // The supplied WebP already contains a background cutout. Preserve its
     // authored per-pixel transparency; setting alpha from 255 here resurrected
     // the blue photo backdrop as a square sticker on the 3D head.
@@ -154,7 +160,8 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
     transparent:true,
     opacity:0,
     alphaTest:.04,
-    side:THREE.DoubleSide,
+    side:THREE.FrontSide,
+    depthWrite:false,
     roughness:.69,
     metalness:0,
     emissive:new THREE.Color(0xffffff),
@@ -289,6 +296,22 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
   headPivot.add(mesh)
 
   const hidden:Array<{object:THREE.Object3D;visible:boolean}>=[]
+  // A flat 192px frontal portrait cannot depict a real profile. Fade its
+  // contribution as the player rotates around BJ and restore sculpted eyes,
+  // brows and jaw instead of showing a paper-thin photo panel in the side view.
+  const front=new THREE.Vector3(),fromFace=new THREE.Vector3(),headWorld=new THREE.Vector3()
+  mesh.onBeforeRender=(_renderer,_scene,camera)=>{
+    if(disposed||!material.map)return
+    headPivot.getWorldPosition(headWorld)
+    front.set(0,0,1).transformDirection(headPivot.matrixWorld)
+    fromFace.copy(camera.position).sub(headWorld).normalize()
+    const facing=front.dot(fromFace)
+    const strength=THREE.MathUtils.smoothstep(facing,.48,.88)
+    material.opacity=strength
+    mesh.userData={...mesh.userData,photoFacingStrength:strength,photoFacingCameraOnly:true}
+    // Restore procedural facial landmarks for real side profiles.
+    for(const entry of hidden)entry.object.visible=strength<.25?entry.visible:false
+  }
   let disposed=false
   const ready=new Promise<boolean>(resolve=>{
     new THREE.TextureLoader().load(

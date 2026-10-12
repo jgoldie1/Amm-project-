@@ -16,6 +16,14 @@ test('BJ V15 actual GLB renders nonblank front and profiles beside the approved 
  await render.click()
  const proof=page.locator('[data-bj-render-proof=true]')
  await expect(proof).toBeVisible({timeout:15_000})
+ await expect(proof.locator('[data-bj-proof-close="true"]')).toBeVisible()
+ const floatingUiOccludesProof=await page.evaluate(()=>{
+  const dialog=document.querySelector('[data-bj-render-proof="true"]')
+  if(!dialog)return true
+  const top=document.elementFromPoint(25,45)
+  return !top||!dialog.contains(top)
+ })
+ expect(floatingUiOccludesProof,'StreetVerse shell must not cover the face comparison dialog').toBe(false)
  const evidence:{angle:string;imageBytes:number;width:number;height:number;colorBins:number;nonBackgroundFraction:number;meanLuminance:number}[]=[]
  for(const angle of ['FRONT','THREE-QUARTER','LEFT PROFILE','RIGHT PROFILE']){
   const tile=proof.locator('[data-bj-rendered-angle="'+angle+'"]')

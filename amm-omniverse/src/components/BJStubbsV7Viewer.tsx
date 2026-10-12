@@ -1,4 +1,5 @@
 import {useEffect,useRef,useState} from 'react'
+import {createPortal} from 'react-dom'
 import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
@@ -303,12 +304,12 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       </div>}
     </footer>
   </main>
-  {renderProof&&<section data-bj-render-proof="true" role="dialog" aria-label="BJ Stubbs rendered GLB reference comparison" aria-modal="true" style={{position:'fixed',inset:0,zIndex:20500,overflowY:'auto',background:'#060b13',color:'#fff',padding:'max(12px,env(safe-area-inset-top)) 12px max(20px,env(safe-area-inset-bottom))',fontFamily:'system-ui'}}>
+  {renderProof&&createPortal(<section data-bj-render-proof="true" role="dialog" aria-label="BJ Stubbs rendered GLB reference comparison" aria-modal="true" style={{position:'fixed',inset:0,zIndex:2147483000,isolation:'isolate',overscrollBehavior:'contain',overflowY:'auto',background:'#060b13',color:'#fff',padding:'max(12px,env(safe-area-inset-top)) 12px max(20px,env(safe-area-inset-bottom))',fontFamily:'system-ui'}}>
    <div style={{maxWidth:900,margin:'0 auto'}}>
     <header style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,marginBottom:12}}><div><strong>BJ STUBBS • REAL 3D RENDER PROOF</strong><small style={{display:'block',color:'#aac5d5'}}>GLB {renderProof.version} • Four fixed camera angles • {renderProof.capturedAt}</small></div><button onClick={()=>setRenderProof(null)} data-bj-proof-close="true" style={{minWidth:60,minHeight:50,color:'#fff',border:'1px solid #87dcfb',borderRadius:10,background:'#1b4054'}}>CLOSE</button></header>
     <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:9,marginBottom:10}}><div style={{border:'1px solid #9e875a',borderRadius:12,padding:8,background:'#111c25'}}><img src={BJ_PHOTOMATCH_TEXTURE_DATA_URI} alt="Approved original BJ portrait reference image" style={{width:'100%',maxHeight:170,objectFit:'contain'}}/><b style={{display:'block',fontSize:11}}>APPROVED FRONT REFERENCE</b><small style={{fontSize:10}}>Low-resolution photo; no side photos provided</small></div><div style={{padding:11,border:'1px solid #59778d',borderRadius:12,background:'#172536',fontSize:11,lineHeight:1.6}}><b>RENDER FACTS</b><div>Actual GLB: {renderProof.version}</div><div>Photo layer: {renderProof.photoApplied?'Applied':'Not applied'}</div><div>Capture: Three.js WebGLRenderer</div><div>Angles: front, ¾, left, right</div><div>Not a certified photoreal likeness.</div></div></div>
     <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:9}}>{renderProof.shots.map(shot=><article key={shot.angle} data-bj-rendered-angle={shot.angle} style={{minWidth:0,background:'#132130',border:'1px solid #46617b',borderRadius:12,overflow:'hidden'}}><img src={shot.image} alt={'Actual BJ GLB rendered '+shot.angle+' view'} style={{width:'100%',aspectRatio:'3/4',objectFit:'contain',display:'block'}}/><div style={{padding:8,display:'flex',alignItems:'center',justifyContent:'space-between',gap:5}}><b style={{fontSize:10}}>{shot.angle}</b><a href={shot.image} download={'BJ-'+renderProof.version+'-'+shot.angle+'.png'} style={{fontSize:10,minHeight:40,display:'inline-flex',alignItems:'center',border:'1px solid #7da8bd',borderRadius:9,padding:'0 10px',color:'#fff',background:'#1d465c'}}>SAVE PNG</a></div></article>)}</div>
     <p style={{fontSize:11,color:'#b0bece'}}>Compare jawline, eyes, nose, beard shape and long locs. The frontal reference does not independently verify the side profiles. This is not a certified photoreal likeness.</p>
    </div>
-  </section>}</>
+  </section>,document.body)}</>
 }
