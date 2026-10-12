@@ -110,6 +110,7 @@ jobs:
           node tests/streetverse-quantum-cone-aerial-v1-contract.mjs
           node tests/streetverse-global-quantum-cone-v1-contract.mjs
           node tests/streetverse-bj-likeness-v14-contract.mjs
+          node tests/streetverse-bj-v15-one-hand-review-entry-contract.mjs
           node tests/bj-v15-source-contract.mjs
           node tests/streetverse-bj-rendered-comparison-contract.mjs
           node tests/streetverse-fillmore-taylor-arrigo-corridor-contract.mjs
