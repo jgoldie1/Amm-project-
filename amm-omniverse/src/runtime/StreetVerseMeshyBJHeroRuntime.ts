@@ -179,10 +179,15 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   const verifiedPhotoMatch=canClaimPhotoMatched(BJ_MESHY_V6_ASSET.characterId)
   const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
   const published=await resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope)
+  // The native V15 is the reliable default. If the player explicitly asks for
+  // the ORIGINAL published Meshy GLB, try that provider model first (when a
+  // verified ready manifest exists), then always recover with the owned V15.
+  const meshModelChoice=typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('svBJModel')==='meshy'
+  const publishedMeshyReady=Boolean(published?.ready&&published?.assetId==='sv-bj-stubbs-v6'&&published?.url)
   // A previously published V12 asset must not bypass the first-party V15
   // sculpt. Preserve external and older versions as recovery fallbacks.
   const candidateUrls=[BJ_MESHY_V6_ASSET.premiumUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url]
-  const candidates=Array.from(new Set(candidateUrls.filter((url):url is string=>Boolean(url))))
+  const candidates=Array.from(new Set((meshModelChoice&&publishedMeshyReady&&published?.url?[published.url,...candidateUrls]:candidateUrls).filter((url):url is string=>Boolean(url))))
   let sourceUrl=''
   let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
   // Generated V12/V7/V6 GLBs are first-party build outputs. A slow Safari HEAD
@@ -214,7 +219,8 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     const loadedModelVersion=sourceUrl===BJ_MESHY_V6_ASSET.premiumUrl?'V15':sourceUrl===BJ_MESHY_V6_ASSET.productionUrl?'V12':sourceUrl===BJ_MESHY_V6_ASSET.legacyProductionUrl?'V7':sourceUrl===BJ_MESHY_V6_ASSET.url?'V6':'published-external'
     const ownedV15=loadedModelVersion==='V15'
     const ownedV12=loadedModelVersion==='V12'
-    const externalPublished=Boolean(published?.url&&sourceUrl===published.url&&!ownedV15)
+    const externalPublished=Boolean(publishedMeshyReady&&published?.url&&sourceUrl===published.url&&!ownedV15)
+    const sourceLabel=externalPublished?'published-meshy-glb':'tryamm-owned-procedural-glb'
     object.name='bj-stubbs-production-'+loadedModelVersion.toLowerCase()
     normalizeStreetVerseHumanHeight(object,BJ_MESHY_V6_ASSET.targetHeightMeters)
     object.traverse(node=>{
@@ -253,6 +259,9 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       certifiedLikeness:verifiedPhotoMatch,
       modelVersion:loadedModelVersion,
       modelSourceUrl:sourceUrl,
+      modelProvider:sourceLabel,
+      meshModelChoice,
+      meshModelFallbackUsed:meshModelChoice&&!externalPublished,
       meshyV6:externalPublished,
       publishedOverrideActive:externalPublished,
       ownedV7:loadedModelVersion==='V7',
@@ -432,11 +441,21 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       }
     }
 
+    window.dispatchEvent(new CustomEvent('tryamm:bj-model-source-verification',{detail:{
+      characterId:BJ_MESHY_V6_ASSET.characterId,provider:sourceLabel,modelVersion:loadedModelVersion,
+      requestedMeshy:meshModelChoice,publishedMeshyAvailable:publishedMeshyReady,
+      externalMeshyLoaded:externalPublished,fallbackUsed:meshModelChoice&&!externalPublished,
+      certifiedLikeness:false,
+    }}))
     window.dispatchEvent(new CustomEvent('tryamm:bj-meshy-v6-ready',{detail:{
       characterId:BJ_MESHY_V6_ASSET.characterId,
       assetId:BJ_MESHY_V6_ASSET.id,
       url:sourceUrl,
       modelVersion:loadedModelVersion,
+      modelProvider:sourceLabel,
+      meshModelChoice,
+      meshModelFallbackUsed:meshModelChoice&&!externalPublished,
+      publishedMeshyAvailable:publishedMeshyReady,
       ownedV15,
       ownedV12,
       publishedOverrideActive:externalPublished,

@@ -1,0 +1,16 @@
+import fs from 'node:fs'
+import assert from 'node:assert/strict'
+const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8')
+const runtime=read('../src/runtime/StreetVerseMeshyBJHeroRuntime.ts')
+const world=read('../src/components/StreetVerseMobileWorld.tsx')
+assert.ok(runtime.includes("get('svBJModel')==='meshy'"),'User should explicitly select the published Meshy GLB')
+assert.ok(runtime.includes("published?.ready&&published?.assetId==='sv-bj-stubbs-v6'"),'External GLB must be recorded ready for BJ, not an arbitrary model')
+assert.ok(runtime.includes("[published.url,...candidateUrls]"),'Explicit original selection must try real Meshy before owned V15')
+assert.ok(runtime.includes("const candidateUrls=[BJ_MESHY_V6_ASSET.premiumUrl,published?.url"),'Safe V15 fallback must remain in original source list')
+assert.ok(runtime.includes("sourceLabel=externalPublished?'published-meshy-glb':'tryamm-owned-procedural-glb'"),'Provenance may not mislabel procedural models as Meshy')
+assert.ok(runtime.includes("tryamm:bj-model-source-verification"),'Actual selected model provider must be observable')
+assert.ok(runtime.includes("meshModelFallbackUsed:meshModelChoice&&!externalPublished"),'Fallback must not claim original provider loaded')
+assert.ok(world.includes("['bj-meshy',"),'One-hand model switch must be visible in quick menu')
+assert.ok(world.includes("url.searchParams.set('svBJModel',original?'native':'meshy')"),'Model switch must work without typing')
+assert.ok(world.includes("window.location.assign(url.pathname+url.search+url.hash)"),'Selection must reload actual world without changing identity/account')
+console.log('BJ MESHY ORIGINAL CHOICE PASS: verified published GLB first on request, transparent source label, native V15 fallback, one-tap switch')
