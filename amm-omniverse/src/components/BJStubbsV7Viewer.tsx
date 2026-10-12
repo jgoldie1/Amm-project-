@@ -141,6 +141,9 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
         for(const [angle,yaw] of [['FRONT',0],['THREE-QUARTER',Math.PI/4],['LEFT PROFILE',Math.PI/2],['RIGHT PROFILE',-Math.PI/2]] as const){
           current.rotation.y=yaw
           controls.update()
+          // First draw lets photo-facing LOD switch from portrait to real side sculpt.
+          renderer.render(scene,camera)
+          // Second draw captures the settled face mesh instead of the prior view.
           renderer.render(scene,camera)
           const image=renderer.domElement.toDataURL('image/png')
           if(!image.startsWith('data:image/png;base64,')||image.length<2000)throw new Error('Empty WebGL canvas capture')
