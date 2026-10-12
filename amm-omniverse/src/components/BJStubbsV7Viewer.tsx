@@ -19,6 +19,9 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
   const likenessHandleRef=useRef<BJPhotoMatchedHeadHandle|null>(null)
   const modelHeightRef=useRef(1.88)
   const loadedModelVersionRef=useRef('V15')
+  const proofCaptureRef=useRef<(()=>void)|null>(null)
+  const photoSettledRef=useRef(false)
+  const photoAppliedRef=useRef(false)
   // An automatic turntable obscures facial comparisons. Start in still frontal close-up.
   const autoRotateRef=useRef(false)
   const [status,setStatus]=useState('Loading BJ V15 face review…')
@@ -28,6 +31,9 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
   const [referenceCompare,setReferenceCompare]=useState(true)
   const [modelVersion,setModelVersion]=useState('V15')
   const [advancedOpen,setAdvancedOpen]=useState(false)
+  const [modelReady,setModelReady]=useState(false)
+  const [renderProof,setRenderProof]=useState<{version:string;photoApplied:boolean;capturedAt:string;shots:Array<{angle:string;image:string}>}|null>(null)
+  const [proofMessage,setProofMessage]=useState('Render the actual BJ GLB beside the approved photo, front and profiles.')
 
   useEffect(()=>{autoRotateRef.current=autoRotate},[autoRotate])
 
@@ -86,20 +92,24 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       if(dead)return
       const model=gltf.scene
       modelRef.current=model
+      setModelReady(true)
       model.traverse(node=>{
         if(node instanceof THREE.Mesh){node.castShadow=true;node.receiveShadow=true}
       })
       scene.add(model)
       const photoMatch=installBJPhotoMatchedHead(model)
       likenessHandleRef.current=photoMatch
+      photoSettledRef.current=!photoMatch
       if(photoMatch){
         void photoMatch.ready.then(ok=>{
           if(dead)return
+          photoAppliedRef.current=ok;photoSettledRef.current=true
           setStatus(ok?'BJ '+loadedModelVersionRef.current+' • APPROVED FACE REFERENCE (NOT CERTIFIED)':'BJ '+loadedModelVersionRef.current+' • BASE GLB (PHOTO NOT APPLIED)')
           setLikenessEnabled(ok)
         })
       }else{
         setStatus('BJ '+loadedModelVersionRef.current+' • BASE GLB (NO COMPATIBLE HEAD)')
+        photoAppliedRef.current=false;photoSettledRef.current=true
         setLikenessEnabled(false)
       }
       const box=new THREE.Box3().setFromObject(model)
@@ -114,6 +124,32 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       controls.target.set(0,size.y*.83,0)
       controls.update()
     })()
+
+    proofCaptureRef.current=()=>{
+      const current=modelRef.current
+      if(!current||!photoSettledRef.current){setProofMessage('Wait for the loaded BJ model and reference to finish.');return}
+      const previousYaw=current.rotation.y,previousCamera=camera.position.clone(),previousTarget=controls.target.clone()
+      autoRotateRef.current=false;setAutoRotate(false)
+      try{
+        const h=modelHeightRef.current
+        camera.position.set(0,h*.83,Math.max(.92,h*.62))
+        controls.target.set(0,h*.83,0)
+        const shots:Array<{angle:string;image:string}>=[]
+        for(const [angle,yaw] of [['FRONT',0],['THREE-QUARTER',Math.PI/4],['LEFT PROFILE',Math.PI/2],['RIGHT PROFILE',-Math.PI/2]] as const){
+          current.rotation.y=yaw
+          controls.update()
+          renderer.render(scene,camera)
+          const image=renderer.domElement.toDataURL('image/png')
+          if(!image.startsWith('data:image/png;base64,')||image.length<2000)throw new Error('Empty WebGL canvas capture')
+          shots.push({angle,image})
+        }
+        setRenderProof({version:loadedModelVersionRef.current,photoApplied:photoAppliedRef.current,capturedAt:new Date().toISOString(),shots})
+        setProofMessage('Four real Three.js character renders captured.')
+      }catch(err){setProofMessage('WebGL proof unavailable: '+(err instanceof Error?err.message:'canvas export failed'))}
+      finally{
+        current.rotation.y=previousYaw;camera.position.copy(previousCamera);controls.target.copy(previousTarget);controls.update();renderer.render(scene,camera)
+      }
+    }
 
     const resize=()=>{
       const rect=mount.getBoundingClientRect()
@@ -136,6 +172,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
 
     return()=>{
       dead=true
+      proofCaptureRef.current=null
       cancelAnimationFrame(frame)
       observer.disconnect()
       controls.dispose()
@@ -163,14 +200,18 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       likenessHandleRef.current.dispose()
       likenessHandleRef.current=null
       setLikenessEnabled(false)
+      photoAppliedRef.current=false;photoSettledRef.current=true
       setStatus('BJ '+loadedModelVersionRef.current+' • BASE GLB')
       return
     }
     const handle=installBJPhotoMatchedHead(model)
     likenessHandleRef.current=handle
+    photoAppliedRef.current=false;photoSettledRef.current=!handle
     if(!handle){setStatus('BJ '+loadedModelVersionRef.current+' • BASE GLB (NO COMPATIBLE HEAD)');return}
     setStatus('Loading approved BJ reference layer…')
     void handle.ready.then(ok=>{
+      if(likenessHandleRef.current!==handle)return
+      photoAppliedRef.current=ok;photoSettledRef.current=true
       setLikenessEnabled(ok)
       setStatus(ok?'BJ '+loadedModelVersionRef.current+' • APPROVED FACE REFERENCE (NOT CERTIFIED)':'BJ '+loadedModelVersionRef.current+' • BASE GLB (PHOTO NOT APPLIED)')
     })
@@ -202,7 +243,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
     controls.update()
   }
 
-  return <main style={{position:'fixed',inset:0,zIndex:20000,background:'#05070b',color:'#fff',fontFamily:'system-ui,sans-serif',display:'grid',gridTemplateRows:'auto 1fr auto'}}>
+  return <><main data-bj-model-version={modelVersion} style={{position:'fixed',inset:0,zIndex:20000,background:'#05070b',color:'#fff',fontFamily:'system-ui,sans-serif',display:'grid',gridTemplateRows:'auto 1fr auto'}}>
     <header style={{padding:'max(12px,env(safe-area-inset-top)) 12px 10px',display:'flex',justifyContent:'space-between',gap:10,alignItems:'center',borderBottom:'1px solid #243042'}}>
       <div>
         <div style={{fontSize:10,letterSpacing:2.5,fontWeight:900,color:'#78d7ff'}}>TRYAMM STREETVERSE</div>
@@ -228,6 +269,8 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
         <button data-bj-face-right="true" onClick={()=>{setCamera('face');view(-Math.PI/2)}} aria-label="BJ face right profile" style={{minHeight:50,border:'1px solid #66513a',borderRadius:12,background:'#10161f',color:'#fff',fontWeight:950}}>RIGHT PROFILE</button>
         <button data-bj-face-full="true" onClick={()=>{setCamera('full');view(0)}} aria-label="BJ full body" style={{minHeight:50,border:'1px solid #4c6d8d',borderRadius:12,background:cameraMode==='full'?'#14324c':'#10161f',color:'#fff',fontWeight:950}}>FULL BODY</button>
       </div>
+      <button data-bj-render-comparison="true" disabled={!modelReady} onClick={()=>proofCaptureRef.current?.()} aria-label="Capture actual BJ GLB front and side view comparison" style={{width:'100%',minHeight:52,marginTop:8,border:'2px solid #84dafa',borderRadius:12,background:'#1a435a',color:'#fff',fontWeight:950,opacity:modelReady?1:.55}}>📸 RENDER REAL 3D FACE COMPARISON</button>
+      <div role="status" aria-live="polite" style={{fontSize:10,color:'#b6cad8',padding:'5px 3px'}}>{proofMessage}</div>
       <button data-bj-compare-reference="true" onClick={()=>setReferenceCompare(v=>!v)} style={{width:'100%',minHeight:48,marginTop:8,border:'1px solid #9a7548',borderRadius:12,background:referenceCompare?'#49371e':'#10161f',color:'#fff',fontWeight:950}}>{referenceCompare?'HIDE ORIGINAL FACE PHOTO':'COMPARE WITH ORIGINAL FACE PHOTO'}</button>
       <button aria-expanded={advancedOpen} aria-controls="bj-viewer-advanced-controls" onClick={()=>setAdvancedOpen(v=>!v)} style={{width:'100%',minHeight:46,marginTop:8,border:'1px solid #4c6d8d',borderRadius:12,background:'#0d1d29',color:'#dff6ff',fontWeight:950}}>
         {advancedOpen?'HIDE CAMERA + LIKENESS OPTIONS ▲':'MORE VIEWS + LIKENESS OPTIONS ▼'}
@@ -258,4 +301,12 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       </div>}
     </footer>
   </main>
+  {renderProof&&<section data-bj-render-proof="true" role="dialog" aria-label="BJ Stubbs rendered GLB reference comparison" aria-modal="true" style={{position:'fixed',inset:0,zIndex:20500,overflowY:'auto',background:'#060b13',color:'#fff',padding:'max(12px,env(safe-area-inset-top)) 12px max(20px,env(safe-area-inset-bottom))',fontFamily:'system-ui'}}>
+   <div style={{maxWidth:900,margin:'0 auto'}}>
+    <header style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,marginBottom:12}}><div><strong>BJ STUBBS • REAL 3D RENDER PROOF</strong><small style={{display:'block',color:'#aac5d5'}}>GLB {renderProof.version} • Four fixed camera angles • {renderProof.capturedAt}</small></div><button onClick={()=>setRenderProof(null)} data-bj-proof-close="true" style={{minWidth:60,minHeight:50,color:'#fff',border:'1px solid #87dcfb',borderRadius:10,background:'#1b4054'}}>CLOSE</button></header>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:9,marginBottom:10}}><div style={{border:'1px solid #9e875a',borderRadius:12,padding:8,background:'#111c25'}}><img src={BJ_PHOTOMATCH_TEXTURE_DATA_URI} alt="Approved original BJ portrait reference image" style={{width:'100%',maxHeight:170,objectFit:'contain'}}/><b style={{display:'block',fontSize:11}}>APPROVED FRONT REFERENCE</b><small style={{fontSize:10}}>Low-resolution photo; no side photos provided</small></div><div style={{padding:11,border:'1px solid #59778d',borderRadius:12,background:'#172536',fontSize:11,lineHeight:1.6}}><b>RENDER FACTS</b><div>Actual GLB: {renderProof.version}</div><div>Photo layer: {renderProof.photoApplied?'Applied':'Not applied'}</div><div>Capture: Three.js WebGLRenderer</div><div>Angles: front, ¾, left, right</div><div>Not a certified photoreal likeness.</div></div></div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:9}}>{renderProof.shots.map(shot=><article key={shot.angle} data-bj-rendered-angle={shot.angle} style={{minWidth:0,background:'#132130',border:'1px solid #46617b',borderRadius:12,overflow:'hidden'}}><img src={shot.image} alt={'Actual BJ GLB rendered '+shot.angle+' view'} style={{width:'100%',aspectRatio:'3/4',objectFit:'contain',display:'block'}}/><div style={{padding:8,display:'flex',alignItems:'center',justifyContent:'space-between',gap:5}}><b style={{fontSize:10}}>{shot.angle}</b><a href={shot.image} download={'BJ-'+renderProof.version+'-'+shot.angle+'.png'} style={{fontSize:10,minHeight:40,display:'inline-flex',alignItems:'center',border:'1px solid #7da8bd',borderRadius:9,padding:'0 10px',color:'#fff',background:'#1d465c'}}>SAVE PNG</a></div></article>)}</div>
+    <p style={{fontSize:11,color:'#b0bece'}}>Compare jawline, eyes, nose, beard shape and long locs. The frontal reference does not independently verify the side profiles. This is not a certified photoreal likeness.</p>
+   </div>
+  </section>}</>
 }
