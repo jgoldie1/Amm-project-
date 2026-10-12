@@ -19,6 +19,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
   const [likenessEnabled,setLikenessEnabled]=useState(true)
   const [cameraMode,setCameraMode]=useState<'full'|'face'>('full')
   const [referenceCompare,setReferenceCompare]=useState(false)
+  const [advancedOpen,setAdvancedOpen]=useState(false)
 
   useEffect(()=>{autoRotateRef.current=autoRotate},[autoRotate])
 
@@ -35,7 +36,8 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
     renderer.outputColorSpace=THREE.SRGBColorSpace
     renderer.toneMapping=THREE.ACESFilmicToneMapping
     renderer.toneMappingExposure=1.15
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2))
+    // Keep this likeness preview usable on older iPhones without raising GPU memory pressure.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,window.innerWidth<768?1.35:2))
     renderer.shadowMap.enabled=true
     mount.appendChild(renderer.domElement)
 
@@ -197,7 +199,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
 
     <section style={{position:'relative',minHeight:0}}>
       <div ref={mountRef} style={{position:'absolute',inset:0,touchAction:'none'}}/>
-      <div style={{position:'absolute',left:10,top:10,padding:'7px 10px',borderRadius:999,background:'#09111dcc',border:'1px solid #2f4359',fontSize:10,fontWeight:900}}>{status}</div>
+      <div role="status" aria-live="polite" style={{position:'absolute',left:10,top:10,maxWidth:'68%',padding:'7px 10px',borderRadius:999,background:'#09111dcc',border:'1px solid #2f4359',fontSize:10,fontWeight:900}}>{status}</div>
       <div style={{position:'absolute',right:10,top:10,padding:'7px 10px',borderRadius:999,background:'#09111dcc',border:'1px solid #2f4359',fontSize:9,color:'#a9bbcc'}}>drag to rotate • pinch to zoom</div>
       {referenceCompare&&<div style={{position:'absolute',right:10,bottom:10,width:'min(34vw,150px)',borderRadius:16,overflow:'hidden',border:'1px solid #8c6a42',background:'#090c12dd',boxShadow:'0 10px 30px #000a'}}>
         <img src={BJ_PHOTOMATCH_TEXTURE_DATA_URI} alt="Approved current-era BJ reference" style={{display:'block',width:'100%',height:'auto'}}/>
@@ -205,37 +207,38 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       </div>}
     </section>
 
-    <footer style={{padding:'10px 10px max(12px,env(safe-area-inset-bottom))',borderTop:'1px solid #243042',background:'#070b11'}}>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(0,1fr))',gap:7}}>
-        {[
-          ['FRONT',0],
-          ['¾ LEFT',Math.PI/4],
-          ['¾ RIGHT',-Math.PI/4],
-          ['BACK',Math.PI],
-        ].map(([label,yaw])=><button key={String(label)} onClick={()=>view(Number(yaw))} style={{minHeight:44,border:'1px solid #32445a',borderRadius:12,background:'#0d1520',color:'#fff',fontWeight:900,fontSize:10}}>{label}</button>)}
+    <footer style={{padding:'8px 10px max(12px,env(safe-area-inset-bottom))',borderTop:'1px solid #243042',background:'#070b11',maxHeight:'min(58vh,420px)',overflowY:'auto'}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
+        <button onClick={()=>setCamera('face')} style={{minHeight:50,border:'1px solid #66513a',borderRadius:12,background:cameraMode==='face'?'#3a2917':'#10161f',color:'#fff',fontWeight:950}}>FACE CLOSE-UP</button>
+        <button onClick={()=>setCamera('full')} style={{minHeight:50,border:'1px solid #4c6d8d',borderRadius:12,background:cameraMode==='full'?'#14324c':'#10161f',color:'#fff',fontWeight:950}}>FULL BODY</button>
       </div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7,marginTop:7}}>
-        <button onClick={()=>view(Math.PI/2)} style={{minHeight:42,border:'1px solid #32445a',borderRadius:12,background:'#0d1520',color:'#fff',fontWeight:900,fontSize:10}}>LEFT PROFILE</button>
-        <button onClick={()=>view(-Math.PI/2)} style={{minHeight:42,border:'1px solid #32445a',borderRadius:12,background:'#0d1520',color:'#fff',fontWeight:900,fontSize:10}}>RIGHT PROFILE</button>
-      </div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7,marginTop:8}}>
-        <button onClick={()=>setCamera('face')} style={{minHeight:46,border:'1px solid #66513a',borderRadius:12,background:cameraMode==='face'?'#3a2917':'#10161f',color:'#fff',fontWeight:950}}>FACE CLOSE-UP</button>
-        <button onClick={()=>setCamera('full')} style={{minHeight:46,border:'1px solid #4c6d8d',borderRadius:12,background:cameraMode==='full'?'#14324c':'#10161f',color:'#fff',fontWeight:950}}>FULL BODY</button>
-      </div>
-      <button onClick={toggleLikeness} style={{width:'100%',minHeight:48,marginTop:8,border:'1px solid #9a7548',borderRadius:12,background:likenessEnabled?'#4a341b':'#10161f',color:'#fff',fontWeight:950}}>
-        {likenessEnabled?'BJ LIKENESS: ON':'BJ LIKENESS: OFF (RAW V7)'}
+      <button aria-expanded={advancedOpen} aria-controls="bj-viewer-advanced-controls" onClick={()=>setAdvancedOpen(v=>!v)} style={{width:'100%',minHeight:46,marginTop:8,border:'1px solid #4c6d8d',borderRadius:12,background:'#0d1d29',color:'#dff6ff',fontWeight:950}}>
+        {advancedOpen?'HIDE CAMERA + LIKENESS OPTIONS ▲':'MORE VIEWS + LIKENESS OPTIONS ▼'}
       </button>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7,marginTop:8}}>
-        <button onClick={()=>setAutoRotate(v=>!v)} style={{minHeight:46,border:'1px solid #4c6d8d',borderRadius:12,background:autoRotate?'#14324c':'#10161f',color:'#fff',fontWeight:950}}>
-          {autoRotate?'AUTO ROTATE: ON':'AUTO ROTATE: OFF'}
+      {advancedOpen&&<div id="bj-viewer-advanced-controls" style={{display:'grid',gap:8,marginTop:8}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(0,1fr))',gap:7}}>
+          {([
+            ['FRONT',0],
+            ['¾ LEFT',Math.PI/4],
+            ['¾ RIGHT',-Math.PI/4],
+            ['BACK',Math.PI],
+          ] as const).map(([label,yaw])=><button key={label} onClick={()=>view(yaw)} style={{minHeight:44,border:'1px solid #32445a',borderRadius:12,background:'#0d1520',color:'#fff',fontWeight:900,fontSize:10}}>{label}</button>)}
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7}}>
+          <button onClick={()=>view(Math.PI/2)} style={{minHeight:44,border:'1px solid #32445a',borderRadius:12,background:'#0d1520',color:'#fff',fontWeight:900,fontSize:10}}>LEFT PROFILE</button>
+          <button onClick={()=>view(-Math.PI/2)} style={{minHeight:44,border:'1px solid #32445a',borderRadius:12,background:'#0d1520',color:'#fff',fontWeight:900,fontSize:10}}>RIGHT PROFILE</button>
+        </div>
+        <button onClick={toggleLikeness} style={{width:'100%',minHeight:48,border:'1px solid #9a7548',borderRadius:12,background:likenessEnabled?'#4a341b':'#10161f',color:'#fff',fontWeight:950}}>
+          {likenessEnabled?'BJ REFERENCE LIKENESS: ON':'BJ REFERENCE LIKENESS: OFF (RAW V7)'}
         </button>
-        <button onClick={()=>setReferenceCompare(v=>!v)} style={{minHeight:46,border:'1px solid #9a7548',borderRadius:12,background:referenceCompare?'#4a341b':'#10161f',color:'#fff',fontWeight:950}}>
-          {referenceCompare?'REFERENCE: ON':'REFERENCE: OFF'}
-        </button>
-      </div>
-      <div style={{fontSize:9,color:'#93a7b8',lineHeight:1.45,marginTop:8}}>
-        <b>V10 LIKENESS</b> keeps the approved current-era reference on the V7 living rig and adds volumetric brow/orbit, temple, lip/philtrum, skull, jaw, cheek, nose and gray-beard profile geometry. This remains a reference-driven approximation, not a certified photoreal likeness.
-      </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7}}>
+          <button onClick={()=>setAutoRotate(v=>!v)} style={{minHeight:46,border:'1px solid #4c6d8d',borderRadius:12,background:autoRotate?'#14324c':'#10161f',color:'#fff',fontWeight:950}}>{autoRotate?'AUTO ROTATE: ON':'AUTO ROTATE: OFF'}</button>
+          <button onClick={()=>setReferenceCompare(v=>!v)} style={{minHeight:46,border:'1px solid #9a7548',borderRadius:12,background:referenceCompare?'#4a341b':'#10161f',color:'#fff',fontWeight:950}}>{referenceCompare?'REFERENCE: ON':'REFERENCE: OFF'}</button>
+        </div>
+        <div style={{fontSize:10,color:'#93a7b8',lineHeight:1.45}}>
+          <b>BJ V10 LIKENESS PREVIEW</b> uses the authorized current-era reference with V7 geometry. Face matching remains an approximation, not a certified photoreal likeness. Drag the model to rotate it.
+        </div>
+      </div>}
     </footer>
   </main>
 }
