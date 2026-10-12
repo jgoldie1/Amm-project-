@@ -1,11 +1,12 @@
 import {Canvas,useFrame,useThree} from '@react-three/fiber'
 import StreetVerseTaylorFillmoreGate from './StreetVerseTaylorFillmoreGate'
+import {StreetVerseNearWestHeroGLB,StreetVerseNearWestDetailedNpcLayer} from './StreetVerseNearWestCinematicCast'
 import StreetVerseQuantumConeAerialCamera,{type StreetVerseAerialLensMode} from './StreetVerseQuantumConeAerialCamera'
 import {compileNearWestRoadMeshes,CHICAGO_NEAR_WEST_ROAD_NODES} from '../data/streetVerseNearWestRoadNetwork'
 import {TAYLOR_STREET_CORRIDOR} from '../data/streetVerseCartesianNeighborhood'
 import {NEAR_WEST_NPCS,NEAR_WEST_TRAFFIC} from '../data/streetVerseNearWestPopulation'
 import CampusVerseCollegeBookBridge from './CampusVerseCollegeBookBridge'
-import {useEffect,useRef,useState} from 'react'
+import {useCallback,useEffect,useRef,useState} from 'react'
 import * as THREE from 'three'
 import {STREETVERSE_FUTURE_VEHICLES} from '../data/streetVerseFutureVehicles'
 import StreetVerseFutureVehicleDealer from './StreetVerseFutureVehicleDealer'
@@ -440,6 +441,7 @@ function CircleParkWestSideMarker(){
 type MoveState={x:number;z:number}
 function NearWestPlayer({move,onPosition,hidden=false,startPosition,cameraLocked=false}:{move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void;hidden?:boolean;startPosition?:{x:number;z:number};cameraLocked?:boolean}){
  const ref=useRef<THREE.Group>(null)
+ const [heroGlbReady,setHeroGlbReady]=useState(false)
  const {camera}=useThree()
  useFrame((_,dt)=>{
   const p=ref.current;if(!p)return
@@ -452,6 +454,8 @@ function NearWestPlayer({move,onPosition,hidden=false,startPosition,cameraLocked
   onPosition(p.position.x,p.position.z)
  })
  return <group ref={ref} name="bj-stubbs-near-west-v12" userData={{characterId:'bj-stubbs',visualPass:'bj-v12-near-west'}} visible={!hidden} position={[startPosition?.x??-650,0,startPosition?.z??700]}>
+  <StreetVerseNearWestHeroGLB movement={move} onReady={setHeroGlbReady}/>
+  <group visible={!heroGlbReady} name="bj-procedural-fallback-until-glb-ready">
   <mesh position={[0,.025,0]} rotation={[-Math.PI/2,0,0]} scale={[.58,.34,1]}><circleGeometry args={[1,20]}/><meshBasicMaterial color="#080b0d" transparent opacity={.28} depthWrite={false}/></mesh>
   <mesh position={[0,1.20,0]} castShadow scale={[.96,1,.88]}><capsuleGeometry args={[.30,.86,5,12]}/><meshStandardMaterial color="#101215" roughness={.9}/></mesh>
   <mesh position={[0,2.08,0]} castShadow scale={[.93,1.07,.90]}><sphereGeometry args={[.31,20,15]}/><meshStandardMaterial color="#70462f" roughness={.82}/></mesh>
@@ -473,6 +477,7 @@ function NearWestPlayer({move,onPosition,hidden=false,startPosition,cameraLocked
   <mesh position={[0,1.94,.318]} rotation={[0,0,Math.PI/2]}><capsuleGeometry args={[.009,.07,2,8]}/><meshStandardMaterial color="#5b302a" roughness={.75}/></mesh>
   <mesh position={[0,1.52,.32]} rotation={[Math.PI/2,0,0]}><torusGeometry args={[.10,.008,6,18,Math.PI]}/><meshStandardMaterial color="#c8a14b" metalness={.75} roughness={.28}/></mesh>
   <mesh position={[0,1.42,.33]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.038,.038,.016,12]}/><meshStandardMaterial color="#c8a14b" metalness={.78} roughness={.26}/></mesh>
+  </group>
  </group>
 }
 
@@ -499,11 +504,11 @@ function FutureVehicleMeshes({exclude}:{exclude?:string}){return <group>{STREETV
  </group>
 })}</group>}
 
-function PopulationMeshes({reaction}:{reaction:{id:string;reaction:'stagger'|'downed'}|null}){return <group>
+function PopulationMeshes({reaction,detailedIds}:{reaction:{id:string;reaction:'stagger'|'downed'}|null;detailedIds:ReadonlySet<string>}){return <group>
  {NEAR_WEST_NPCS.map((n,i)=>{
   const skin=i%5===0?'#6f442f':i%5===1?'#8f654c':i%5===2?'#b57651':i%5===3?'#5b3829':'#a56e4f'
   const top=i%5===0?'#315b7a':i%5===1?'#704936':i%5===2?'#485b3b':i%5===3?'#6b506f':'#715b34'
-  return <group key={n.id} rotation={[0,0,reaction?.id===n.id?(reaction.reaction==='downed'?1.45:.28):0]} position={[n.position.x,0,n.position.z]}>
+  return <group key={n.id} visible={!detailedIds.has(n.id)} rotation={[0,0,reaction?.id===n.id?(reaction.reaction==='downed'?1.45:.28):0]} position={[n.position.x,0,n.position.z]}>
    <mesh position={[0,.022,0]} rotation={[-Math.PI/2,0,0]} scale={[.42,.25,1]}><circleGeometry args={[1,16]}/><meshBasicMaterial color="#07090b" transparent opacity={.18} depthWrite={false}/></mesh>
    <mesh position={[0,1.04,0]} castShadow><capsuleGeometry args={[.25,.70,4,9]}/><meshStandardMaterial color={top} roughness={.9}/></mesh>
    <mesh position={[0,1.82,0]} castShadow scale={[.95,1.04,.92]}><sphereGeometry args={[.24,14,11]}/><meshStandardMaterial color={skin} roughness={.82}/></mesh>
@@ -555,6 +560,16 @@ export default function StreetVerseNearWest3D(){
  const [missionReady,setMissionReady]=useState(false)
  const [missionStep,setMissionStep]=useState<'talk'|'repair'|'drive'|'deliver'>('talk')
  const [npcReaction,setNpcReaction]=useState<{id:string;reaction:'stagger'|'downed'}|null>(null)
+ const playerLocation=useRef({x:-650,z:700})
+ const [detailedResidents,setDetailedResidents]=useState<ReadonlySet<string>>(()=>new Set())
+ const onResidentLoaded=useCallback((id:string,loaded:boolean)=>{
+  setDetailedResidents(current=>{
+   if(current.has(id)===loaded)return current
+   const next=new Set(current)
+   if(loaded)next.add(id);else next.delete(id)
+   return next
+  })
+ },[])
  const drivenPosition=useRef({x:-650,z:700})
  const drivenHeading=useRef(0)
  const [nearby,setNearby]=useState<{kind:'npc'|'business'|'vehicle'|'landmark';id:string;label:string;mission?:string}|null>(null)
@@ -576,6 +591,7 @@ export default function StreetVerseNearWest3D(){
   return()=>window.removeEventListener('tryamm:campusverse-mission-open',onCampusMission)
  },[playerSpawn.x,playerSpawn.z])
  const senseNearby=(x:number,z:number)=>{
+  playerLocation.current={x,z}
   if(activeMission&&missionStep==='deliver'){const d=Math.hypot(activeMission.objective.x-x,activeMission.objective.z-z);const ready=d<16;setMissionReady(prev=>prev===ready?prev:ready);if(ready){requestMissionReward(activeMission);window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{id:activeMission.id,title:activeMission.title,campus:activeMission.id.startsWith('uic')||activeMission.title.includes('UIC')?'uic':'near-west',objective:activeMission.objective}}));setActiveMission(null);setMissionStep('talk');setMissionReady(false)}}
   const landmarkSafe=Math.hypot(x-ROOSEVELT_LANDMARK_SAFE_ZONE.x,z-ROOSEVELT_LANDMARK_SAFE_ZONE.z)<=ROOSEVELT_LANDMARK_SAFE_ZONE.radius;const protectedArea=landmarkSafe?ROOSEVELT_LANDMARK_SAFE_ZONE.label:(x>-900&&x<-560&&z>500&&z<850)?'UIC EAST CAMPUS SAFE ZONE':(x>-1265&&x<-900&&z>560&&z<885)?'UIC WEST CAMPUS SAFE ZONE':(x>-560&&x<-250&&z>500&&z<860)?'MEDICAL DISTRICT SAFE ZONE':null
   setSafeZone(prev=>prev===protectedArea?prev:protectedArea)
@@ -668,7 +684,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><StreetVerseTaylorFillmoreGate/><NearWestNativeGlbLayer/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><EmergencyRouteTraversal/><MovingCivilianTraffic/><MovingPedestrians/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn} cameraLocked={aerialMode!=='ground'}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}} cameraLocked={aerialMode!=='ground'}/>}<StreetVerseQuantumConeAerialCamera mode={aerialMode} flightKey={aerialFlightKey} onArrive={()=>setAerialMode('gate')}/>
+   <RoadMeshes/><StreetVerseTaylorFillmoreGate/><NearWestNativeGlbLayer/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><EmergencyRouteTraversal/><MovingCivilianTraffic/><MovingPedestrians/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction} detailedIds={detailedResidents}/><StreetVerseNearWestDetailedNpcLayer playerPosition={playerLocation} reaction={npcReaction} onResidentLoaded={onResidentLoaded}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn} cameraLocked={aerialMode!=='ground'}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}} cameraLocked={aerialMode!=='ground'}/>}<StreetVerseQuantumConeAerialCamera mode={aerialMode} flightKey={aerialFlightKey} onArrive={()=>setAerialMode('gate')}/>
   </Canvas>
  </div>
 }
