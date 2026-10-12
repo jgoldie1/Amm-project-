@@ -95,14 +95,22 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await quickMenu.click();
     const menu=page.getByRole('menu',{name:'StreetVerse quick navigation'});
     await expect(menu).toBeVisible();
-    const bjView=page.getByRole('menuitem',{name:/BJ V12 VIEW/});
+    const bjView=page.getByRole('menuitem',{name:/BJ V15 FACE \/ PHOTO/});
     await expect(bjView).toBeVisible();
-    await bjView.click();
-    await page.waitForTimeout(1400);
+    // Keep this test in the playable scene. The dedicated V15 preview has its
+    // own pixel-inspected four-angle rendering E2E and navigates away on tap.
+    const portrait=page.getByRole('menuitem',{name:/BJ CLOSE VIEW/});
+    await expect(portrait).toBeVisible();
+    await portrait.click();
+    await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-streetverse-bj-focus','true');
+    await page.waitForTimeout(1000);
     await page.screenshot({
-      path:testInfo.outputPath('streetverse-bj-v12-character-view.png'),
+      path:testInfo.outputPath('streetverse-bj-v15-actual-in-game-close-view.png'),
       fullPage:false,
     });
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/BJ NORMAL VIEW/}).click();
+    await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-streetverse-bj-focus','false');
     await quickMenu.click();
     await expect(menu).toBeVisible();
     await expect(page.getByRole('menuitem',{name:/FAITHVERSE/})).toBeVisible();
