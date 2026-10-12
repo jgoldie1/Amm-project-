@@ -6,6 +6,19 @@ import {loadStreetVerseMeshyCharacter,type StreetVerseMeshyLoadedCharacter} from
 import {installBJPhotoMatchedHead,type BJPhotoMatchedHeadHandle} from '../runtime/StreetVerseBJPhotoMatchRuntime'
 import {NEAR_WEST_NPCS,type NearWestNpc} from '../data/streetVerseNearWestPopulation'
 
+function inspectVisibleGeometry(root:THREE.Object3D){
+  let meshes=0,triangles=0
+  root.traverse(node=>{
+    if(!(node instanceof THREE.Mesh))return
+    const geometry=node.geometry
+    if(!geometry?.getAttribute('position'))return
+    meshes++
+    const count=geometry.index?.count||geometry.getAttribute('position').count
+    triangles+=Math.floor(count/3)
+  })
+  return {meshes,triangles}
+}
+
 // Keep the existing procedural figures until the actual GLB GET and parsing complete.
 // No paid generation request is needed; models must already be published to storage.
 export function StreetVerseNearWestHeroGLB({
@@ -25,6 +38,8 @@ export function StreetVerseNearWestHeroGLB({
     void loadStreetVerseMeshyBJHero().then(async loaded=>{
       if(!loaded)return
       if(!mounted||!host.current){loaded.dispose();return}
+      const geometry=inspectVisibleGeometry(loaded.object)
+      if(geometry.meshes===0){loaded.dispose();return}
       handle.current=loaded
       host.current.add(loaded.object)
       // Approved user reference is an optional overlay, not a certified face scan.
@@ -41,7 +56,7 @@ export function StreetVerseNearWestHeroGLB({
       }catch{/* Keep the real rig even if this head cannot accept the overlay. */}
       readyCallback.current(true)
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-render-ready',{
-        detail:{characterId:'bj-stubbs',modelType:'existing-published-glb',certifiedLikeness:false},
+        detail:{characterId:'bj-stubbs',modelType:'existing-published-glb',geometry,certifiedLikeness:false},
       }))
     }).catch(()=>{/* Procedural BJ stays visible if GLB loading fails. */})
     return()=>{
@@ -70,11 +85,12 @@ const CAST_SLOT_IDS=[
 ] as const
 
 function DetailedResident({
-  npc,index,reaction,onLoaded,
+  npc,index,reaction,onLoaded,playerPosition,
 }:{
   npc:NearWestNpc
   index:number
   reaction:'stagger'|'downed'|null
+  playerPosition:MutableRefObject<{x:number;z:number}>
   onLoaded:(id:string,loaded:boolean)=>void
 }){
   const host=useRef<THREE.Group>(null)
@@ -89,6 +105,7 @@ function DetailedResident({
     }).then(loaded=>{
       if(!loaded)return
       if(!mounted||!host.current){loaded.dispose();return}
+      if(inspectVisibleGeometry(loaded.object).meshes===0){loaded.dispose();return}
       host.current.add(loaded.object)
       model.current=loaded
       callback.current(npc.id,true)
@@ -104,6 +121,16 @@ function DetailedResident({
     if(host.current){
       const tilt=reaction==='downed'?1.38:reaction==='stagger'?.26:0
       host.current.rotation.z=THREE.MathUtils.damp(host.current.rotation.z,tilt,9,dt)
+      if(!reaction){
+        const dx=playerPosition.current.x-npc.position.x
+        const dz=playerPosition.current.z-npc.position.z
+        const distance=Math.hypot(dx,dz)
+        if(distance>1&&distance<13){
+          const desired=Math.atan2(dx,dz)
+          const turn=THREE.MathUtils.euclideanModulo(desired-host.current.rotation.y+Math.PI,Math.PI*2)-Math.PI
+          host.current.rotation.y+=turn*Math.min(1,dt*3)
+        }
+      }
     }
     model.current?.tick(performance.now(),{moving:false})
   })
@@ -153,6 +180,7 @@ export function StreetVerseNearWestDetailedNpcLayer({
       return <DetailedResident
         key={id} npc={npc} index={index}
         reaction={reaction?.id===id?reaction.reaction:null}
+        playerPosition={playerPosition}
         onLoaded={onResidentLoaded}
       />
     })}
