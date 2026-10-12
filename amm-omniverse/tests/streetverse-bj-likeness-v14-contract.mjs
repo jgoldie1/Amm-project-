@@ -13,5 +13,5 @@ assert.ok(p.includes('if(!headPivot)return null'),'Incompatible head must be rej
 for(const version of ['V12','V7','V6'])assert.ok(v.includes("name:'"+version+"'"),'Viewer version fallback '+version)
 assert.ok(v.includes('data-bj-compare-reference'),'One-tap reference comparison available')
 assert.ok(v.includes('setReferenceCompare]=useState(true)'),'Reference display defaults on')
-assert.ok(v.includes('not yet been certified'),'No false photo-match certification')
+assert.ok(v.includes('not a certified photoreal likeness'),'No false photo-match certification')
 console.log('BJ V14 PHOTO CONTINUITY PASS • V12 first / V7+V6 fallback, in-game reference, one-hand comparison, safe head adapter')
