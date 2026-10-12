@@ -123,8 +123,17 @@ export default function StreetVerseWestSideWorldBuilder(){
    setNotice('ARRIVED IN 3D • '+id.replaceAll('-',' ').toUpperCase())
    setOpen(false)
   }
+  const onBlocked=(event:Event)=>{
+   const d=(event as CustomEvent<{missionId?:string;reason?:string;source?:string}>).detail||{}
+   if(d.source!=='streetverse-mobile-world'||!MOBILE_WEST_SIDE_ENTRIES[String(d.missionId||'')])return
+   setNotice(d.reason==='vehicle'?'EXIT VEHICLE FIRST • then tap ENTER 3D DISTRICT again.':'ROUTE BLOCKED • no safe district entrance; BJ was not moved.')
+  }
   window.addEventListener('tryamm:west-side-route-arrived',onArrival)
-  return()=>window.removeEventListener('tryamm:west-side-route-arrived',onArrival)
+  window.addEventListener('tryamm:west-side-route-blocked',onBlocked)
+  return()=>{
+   window.removeEventListener('tryamm:west-side-route-arrived',onArrival)
+   window.removeEventListener('tryamm:west-side-route-blocked',onBlocked)
+  }
  },[])
 
  useEffect(()=>{
