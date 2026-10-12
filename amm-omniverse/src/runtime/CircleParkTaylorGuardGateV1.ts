@@ -39,6 +39,20 @@ export function installCircleParkTaylorGuardGateV1(
   box('taylor-laflin-entry-fence-rail',[3.6,.12,.12],[side*6.9,1.2,1],metal)
   box('taylor-laflin-entry-safety-bollard',[.3,.95,.3],[side*3.8,.48,-3],yellow)
  }
+ // Exterior reference photos show masonry piers with narrow black iron pickets.
+ // These are fictionalized sections; no real gate hardware or security controls.
+ const picketPositions:Array<[number,number,number]>=[]
+ for(const side of [-1,1]){
+  box('taylor-laflin-entry-outer-masonry-pier',[.74,2.7,.74],[side*13.1,1.35,1],brick)
+  for(const y of [.43,1.82])box('taylor-laflin-entry-wrought-iron-horiz-rail',[7.05,.11,.11],[side*8.90,y,1],metal)
+  for(let i=0;i<14;i++)picketPositions.push([side*(5.2+i*.56),1.04,1])
+ }
+ const ironGeometry=new THREE.BoxGeometry(.105,1.95,.10)
+ const ironPickets=new THREE.InstancedMesh(ironGeometry,metal,picketPositions.length)
+ ironPickets.name='circle-park-reference-black-iron-fence'
+ const actor=new THREE.Object3D()
+ picketPositions.forEach(([x,y,z],i)=>{actor.position.set(x,y,z);actor.updateMatrix();ironPickets.setMatrixAt(i,actor.matrix)})
+ ironPickets.instanceMatrix.needsUpdate=true;group.add(ironPickets)
  box('taylor-laflin-entry-overhead-beam',[10.2,.38,.8],[0,3.42,1],concrete)
  box('taylor-laflin-entry-guard-canopy',[3.9,.20,2.65],[-6.3,3,-.6],concrete)
  box('taylor-laflin-entry-guard-window',[2.65,1.2,.09],[-6.3,1.89,1.35],windowGlass)

@@ -35,6 +35,8 @@ const ZONES:readonly Zone[]=[
  {id:'roosevelt',label:'Roosevelt Road',group:'neighborhood',x:49,z:43,status:'live',detail:'Business, mobility, delivery and mission corridor.',mission:'roosevelt'},
  {id:'saint-ignatius',label:'St. Ignatius College Prep',group:'school',x:54,z:40,status:'playable',detail:'Roosevelt Road school landmark reconstructed as a gameplay campus anchor from the real-world address.',mission:'ignatius-campus-memory'},
  {id:'holy-family',label:'Holy Family Church',group:'faith',x:51,z:39,status:'playable',detail:'Roosevelt Road faith/history landmark reconstructed as a gameplay anchor from the real-world address.',mission:'holy-family-history-faith'},
+ {id:'fillmore',label:'West Fillmore Street',group:'neighborhood',x:52,z:49,status:'playable',detail:'Circle Park-connected Fillmore Street waypoint and neighborhood walking route.',mission:'fillmore'},
+ {id:'arrigo-park',label:'Arrigo Park / Little Italy',group:'neighborhood',x:65,z:45,status:'playable',detail:'Modeled scenic park waypoint; public park reference at 801 S Loomis Street near Taylor and Polk.',mission:'arrigo-park'},
  {id:'taylor',label:'Taylor Street / Little Italy',group:'neighborhood',x:57,z:56,status:'live',detail:'Restaurants, apartments, creator spaces and neighborhood missions.',mission:'taylor'},
  {id:'pilsen',label:'Pilsen',group:'neighborhood',x:63,z:76,status:'playable',detail:'Arts, food, music, homes and community mission district.',mission:'pilsen'},
  {id:'uic-east',label:'UIC East Campus',group:'campus',x:69,z:35,status:'playable',detail:'Student Center East, Daley Library and connected CampusVerse missions.',campusId:'uic'},
@@ -96,6 +98,8 @@ const MOBILE_WEST_SIDE_ENTRIES:Record<string,{x:number;z:number}>={
  'circle-park':{x:-15,z:49},
  'roosevelt':{x:-8,z:18},
  'taylor':{x:-8,z:-8},
+ 'fillmore':{x:-8,z:19},
+ 'arrigo-park':{x:67,z:-10},
  'pilsen':{x:-8,z:-36},
 }
 const statusColor={live:'#72ffb0',playable:'#6de3ff',planned:'#ffd15c'} as const
@@ -216,7 +220,7 @@ export default function StreetVerseWestSideWorldBuilder(){
 
  const enterPlayableDistrict=(zone:Zone)=>{
   const entry=MOBILE_WEST_SIDE_ENTRIES[zone.id]
-  if(!entry){setNotice('3D DISTRICT ENTRY • not yet built. Choose Circle Park, Roosevelt, Taylor or Pilsen.');return}
+  if(!entry){setNotice('3D DISTRICT ENTRY • not yet built. Choose Circle Park, Fillmore, Taylor, Arrigo Park or Pilsen.');return}
   if(!document.querySelector('[data-streetverse-world-root="true"]')){
    setNotice('3D DISTRICT ENTRY • open the StreetVerse mobile city first, then choose the district again.')
    return
