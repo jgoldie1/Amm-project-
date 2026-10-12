@@ -205,6 +205,15 @@ export default function StreetVerseWestSideWorldBuilder(){
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-builder-focus',{detail:zone}))
  }
 
+ const viewBJStubbs=()=>{
+  if(!document.querySelector('[data-streetverse-world-root="true"]')){
+   window.location.assign('/bj-v10-preview')
+   return
+  }
+  setOpen(false)
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-showcase',{detail:{source:'streetverse-world-builder',district:selected.id}}))
+ }
+
  const enterPlayableDistrict=(zone:Zone)=>{
   const entry=MOBILE_WEST_SIDE_ENTRIES[zone.id]
   if(!entry){setNotice('3D DISTRICT ENTRY • not yet built. Choose Circle Park, Roosevelt, Taylor or Pilsen.');return}
@@ -360,6 +369,7 @@ export default function StreetVerseWestSideWorldBuilder(){
        <button onClick={()=>focus(selected)} style={actionBtn}>VECTOR ROUTE</button>
        <button onClick={()=>startMission(selected)} style={actionBtn}>{selected.status==='planned'?'MISSION PLANNED':'START MISSION'}</button>
        {MOBILE_WEST_SIDE_ENTRIES[selected.id]&&<button data-streetverse-enter-district={selected.id} onClick={()=>enterPlayableDistrict(selected)} style={{...actionBtn,gridColumn:'1 / -1',minHeight:48,borderColor:'#76ffb188',background:'#0b3025'}}>▶ ENTER 3D DISTRICT • {selected.label.toUpperCase()}</button>}
+       <button data-streetverse-bj-world-builder="true" onClick={viewBJStubbs} style={{...actionBtn,gridColumn:'1 / -1',minHeight:48,borderColor:'#d5b66f99',background:'#292113'}}>👤 VIEW BJ STUBBS IN 3D</button>
        {selected.campusId&&<button onClick={()=>openCampus(selected.campusId!)} style={{...actionBtn,gridColumn:'1 / -1'}}>OPEN CAMPUSVERSE</button>}
       </div>
      </article>
