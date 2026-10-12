@@ -137,7 +137,8 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
     left: calc(50% - 6px) !important;
   }
   /* Reel record was rendering exactly under the live-mic button; give it the row below. */
-  [data-streetverse-world-root] [aria-label="Start StreetVerse Reel recording"] {
+  [data-streetverse-world-root] [aria-label="Start StreetVerse Reel recording"],
+  [data-streetverse-world-root] [aria-label="Stop StreetVerse Reel recording"] {
     top: calc(env(safe-area-inset-top) + 64px) !important;
     bottom: auto !important;
   }
@@ -150,13 +151,15 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
  */
 @media (max-width: 480px) and (orientation: portrait) {
   [data-streetverse-world-root] [data-streetverse-mission] {
-    top: calc(env(safe-area-inset-top) + 96px) !important;
+    /* The 46px recorder occupies y=64..110, including while recording. */
+    top: calc(env(safe-area-inset-top) + 116px) !important;
     left: 50% !important;
     right: auto !important;
     width: min(78vw, 304px) !important;
     max-width: min(78vw, 304px) !important;
     transform: translateX(-50%) !important;
-    max-height: 52px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
     padding: 4px 8px !important;
     border-radius: 10px !important;
     line-height: 1.05 !important;

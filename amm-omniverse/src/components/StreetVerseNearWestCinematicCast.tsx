@@ -5,19 +5,7 @@ import {loadStreetVerseMeshyBJHero,type StreetVerseMeshyBJHeroHandle} from '../r
 import {loadStreetVerseMeshyCharacter,type StreetVerseMeshyLoadedCharacter} from '../runtime/StreetVerseMeshyCharacterRuntime'
 import {installBJPhotoMatchedHead,type BJPhotoMatchedHeadHandle} from '../runtime/StreetVerseBJPhotoMatchRuntime'
 import {NEAR_WEST_NPCS,type NearWestNpc} from '../data/streetVerseNearWestPopulation'
-
-function inspectVisibleGeometry(root:THREE.Object3D){
-  let meshes=0,triangles=0
-  root.traverse(node=>{
-    if(!(node instanceof THREE.Mesh))return
-    const geometry=node.geometry
-    if(!geometry?.getAttribute('position'))return
-    meshes++
-    const count=geometry.index?.count||geometry.getAttribute('position').count
-    triangles+=Math.floor(count/3)
-  })
-  return {meshes,triangles}
-}
+import {inspectCharacterGeometry as inspectVisibleGeometry} from '../runtime/StreetVerseCharacterGeometry'
 
 // Keep the existing procedural figures until the actual GLB GET and parsing complete.
 // No paid generation request is needed; models must already be published to storage.

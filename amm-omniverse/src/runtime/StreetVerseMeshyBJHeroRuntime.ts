@@ -4,6 +4,7 @@ import {normalizeStreetVerseHumanHeight} from './StreetVerseHumanScale'
 import {BJ_STUBBS_BODY_PROFILE} from '../data/StreetVerseBJBodyProfile'
 import {resolvePublishedMeshyAsset,resetPublishedMeshyManifest} from './StreetVerseMeshyAssetManifest'
 import {canClaimPhotoMatched} from '../data/StreetVerseCharacterReferenceAuthorization'
+import {inspectCharacterGeometry} from './StreetVerseCharacterGeometry'
 
 export const BJ_MESHY_V6_ASSET={
   id:'streetverse-bj-stubbs-meshy-v6',
@@ -186,7 +187,12 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   for(const candidate of candidates){
     if(candidate===published?.url&&!await assetExists(candidate))continue
     try{
-      publishedGlb=await loader.loadAsync(candidate)
+      const candidateGlb=await loader.loadAsync(candidate)
+      if(inspectCharacterGeometry(candidateGlb.scene).meshes===0){
+        disposeObject(candidateGlb.scene)
+        continue
+      }
+      publishedGlb=candidateGlb
       sourceUrl=candidate
       break
     }catch{
