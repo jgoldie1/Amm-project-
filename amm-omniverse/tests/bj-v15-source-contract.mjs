@@ -17,6 +17,9 @@ assert.ok(f.includes("'streetverse-bj-v15-sculpt':()=>"),'Independent v15 sculpt
 assert.ok(f.includes("details.name='bj-v15-reference-led-facial-sculpt'"),'Must include actual facial sculpt group')
 assert.ok(f.includes("mergeGeometries(geometries,false)"),'Hair fibers must be merged for budget')
 assert.ok(f.includes("bj-v15-beard-dark-merged"),'Real beard geometry must be present')
+assert.ok(photo.includes('paleBackgroundSuppression=1-.94*rim*brightNeutral'),'V15 front mask must suppress pale edge halo without flattening the actual face')
+assert.ok(photo.includes('emissiveIntensity:.025'),'Photo front projection must respect realistic studio lighting')
+assert.ok(photo.includes('alphaTest:.10'),'Subpixel halo remnants must not remain as floating mask fragments')
 assert.ok(f.includes("bj-v15-locs-silver-merged"),'Real loc geometry must be present')
 assert.ok(f.includes("oldLocNames=new Set(['bj-pulled-loc','bj-v4-shoulder-loc','bj-rear-loc-bundle'])"),'New V15 strands must replace duplicate old bulky locs')
 for(const part of ['bj-v15-cheekbone-left','bj-v15-cheekbone-right','bj-v15-brow-sculpt-left','bj-v15-iris-ring-left','bj-v15-philtrum-profile']){

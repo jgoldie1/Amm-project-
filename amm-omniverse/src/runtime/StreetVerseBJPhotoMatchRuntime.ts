@@ -96,11 +96,19 @@ function featherPhotoTexture(source:THREE.Texture){
     const edge=THREE.MathUtils.clamp((.96-ellipse)/.31,0,1)
     const forehead=THREE.MathUtils.clamp((y-5)/34,0,1)
     const chin=THREE.MathUtils.clamp((249-y)/39,0,1)
-    // The supplied WebP already contains a background cutout. Preserve its
-    // authored per-pixel transparency; setting alpha from 255 here resurrected
-    // the blue photo backdrop as a square sticker on the 3D head.
+    // Actual V15 phone renders exposed a pale cutout halo around the face.
+    // This is not a UV face texture: suppress bright low-chroma backdrop pixels
+    // near the OUTER edge only, never the central skin/eye/beard region.
     const alphaIndex=(y*256+x)*4+3
-    d[alphaIndex]=Math.round(d[alphaIndex]*edge*forehead*chin)
+    const r=d[alphaIndex-3],g=d[alphaIndex-2],b=d[alphaIndex-1]
+    const luma=(.2126*r+.7152*g+.0722*b)/255
+    const chroma=(Math.max(r,g,b)-Math.min(r,g,b))/255
+    const rim=THREE.MathUtils.clamp((Math.sqrt(ellipse)-.40)/.42,0,1)
+    const brightNeutral=THREE.MathUtils.clamp((luma-.49)/.27,0,1)*THREE.MathUtils.clamp((.24-chroma)/.19,0,1)
+    const paleBackgroundSuppression=1-.94*rim*brightNeutral
+    // Keep the source cutout's alpha: do not invent color inside transparent
+    // pixels or erase dark loc strands outside the broad cheek silhouette.
+    d[alphaIndex]=Math.round(d[alphaIndex]*edge*forehead*chin*paleBackgroundSuppression)
   }
   ctx.putImageData(pixels,0,0)
   const feathered=new THREE.CanvasTexture(canvas)
@@ -185,13 +193,13 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
   const material=new THREE.MeshStandardMaterial({
     transparent:true,
     opacity:0,
-    alphaTest:.04,
+    alphaTest:.10,
     side:THREE.FrontSide,
     depthWrite:false,
     roughness:.69,
     metalness:0,
     emissive:new THREE.Color(0xffffff),
-    emissiveIntensity:.10,
+    emissiveIntensity:.025,
   })
   const mesh=new THREE.Mesh(geometry,material)
   mesh.name=BJ_PHOTOMATCH_ASSET.id
