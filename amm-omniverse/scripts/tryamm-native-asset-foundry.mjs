@@ -687,6 +687,12 @@ function addBJStubbsFacialSculptV15(group){
  const hairBase=new THREE.MeshStandardMaterial({name:'bj-v15-locs-dark',color:0x191412,roughness:.88,metalness:0})
  const hairGray=new THREE.MeshStandardMaterial({name:'bj-v15-locs-silver',color:0x6b6661,roughness:.93,metalness:0})
  const irisRing=new THREE.MeshStandardMaterial({name:'bj-v15-iris-limbal-ring',color:0x181311,roughness:.24,metalness:0})
+ // Replace the chunky V12 loc capsules only in this separately authored V15
+ // source; V12, V7 and V6 compatibility outputs remain unchanged.
+ const oldLocNames=new Set(['bj-pulled-loc','bj-v4-shoulder-loc','bj-rear-loc-bundle'])
+ group.traverse(node=>{
+  if(oldLocNames.has(node.name))node.visible=false
+ })
  const details=new THREE.Group();details.name='bj-v15-reference-led-facial-sculpt'
  details.userData={characterId:'bj-stubbs',likenessCertified:false,surfacePass:'facial-volume-beard-locs-eye-highlights-v15',runtimeLOD:'hero-only'}
  pivot.add(details)

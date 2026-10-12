@@ -62,7 +62,14 @@ const PROCEDURAL_FACE_PARTS=new Set([
   'hero-head','jaw','chin','cheek-left','cheek-right','nose','upper-lip','lower-lip',
   'eye-white-left','eye-white-right','iris-left','iris-right','eyelid-left','eyelid-right',
   'brow-left','brow-right','pupil-left','pupil-right','nostril-left','nostril-right',
-  'bj-eye-catchlight-left','bj-eye-catchlight-right','bj-nose-bridge','bj-nose-tip','bj-jaw-shadow'
+  'bj-eye-catchlight-left','bj-eye-catchlight-right','bj-nose-bridge','bj-nose-tip','bj-jaw-shadow',
+  // V15 sculpt cheek, iris and brow volumes are genuine side-profile geometry.
+  // They must be hidden ONLY while an approved photo face layer is ready, or
+  // they overlap the user's reference portrait and create ghost eye artifacts.
+  'bj-v15-cheekbone-left','bj-v15-cheekbone-right',
+  'bj-v15-brow-sculpt-left','bj-v15-brow-sculpt-right',
+  'bj-v15-iris-ring-left','bj-v15-iris-ring-right',
+  'bj-v15-philtrum-profile'
 ])
 
 function featherPhotoTexture(source:THREE.Texture){
