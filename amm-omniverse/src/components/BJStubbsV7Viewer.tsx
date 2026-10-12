@@ -3,6 +3,8 @@ import {createPortal} from 'react-dom'
 import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
+import {normalizeStreetVerseHumanHeight} from '../runtime/StreetVerseHumanScale'
+import {resolvePublishedMeshyAsset} from '../runtime/StreetVerseMeshyAssetManifest'
 import {BJ_PHOTOMATCH_TEXTURE_DATA_URI,installBJPhotoMatchedHead,type BJPhotoMatchedHeadHandle} from '../runtime/StreetVerseBJPhotoMatchRuntime'
 
 const BJ_REVIEW_ASSETS=[
@@ -26,6 +28,8 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
   // An automatic turntable obscures facial comparisons. Start in still frontal close-up.
   const autoRotateRef=useRef(false)
   const [status,setStatus]=useState('Loading BJ V15 face review…')
+  const [bjReviewSource,setBJReviewSource]=useState<'owned'|'published'>('owned')
+  const [sourceNote,setSourceNote]=useState('This V15 GLB is built by TRYAMM, not Meshy.')
   const [autoRotate,setAutoRotate]=useState(false)
   const [likenessEnabled,setLikenessEnabled]=useState(true)
   const [cameraMode,setCameraMode]=useState<'full'|'face'>('face')
@@ -80,10 +84,23 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
 
     const loader=new GLTFLoader()
     let dead=false
+    photoSettledRef.current=false;photoAppliedRef.current=false
+    modelRef.current=null;likenessHandleRef.current=null
     void (async()=>{
       let gltf:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
       let loadedModel='V15'
-      for(const candidate of BJ_REVIEW_ASSETS){
+      const candidates:Array<{name:string;url:string}>=[]
+      if(bjReviewSource==='published'){
+        // Read-only registry check. This does not submit or charge a Meshy task.
+        const published=await resolvePublishedMeshyAsset('sv-bj-stubbs-v6','global')
+        if(dead)return
+        if(published?.ready&&published.url){
+          candidates.push({name:'PUBLISHED MESHY',url:published.url})
+          setSourceNote('Actual published Meshy GLB • compare its baked face with the reference. Source-photo accuracy has NOT been verified.')
+        }else setSourceNote('No finished BJ Meshy GLB is published in the registry; showing the owned V15 fallback.')
+      }else setSourceNote('This V15 GLB is built by TRYAMM, not Meshy.')
+      candidates.push(...BJ_REVIEW_ASSETS)
+      for(const candidate of candidates){
         try{gltf=await loader.loadAsync(candidate.url);loadedModel=candidate.name;break}catch{}
       }
       if(dead)return
@@ -92,13 +109,16 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       setModelVersion(loadedModel)
       if(dead)return
       const model=gltf.scene
+      if(loadedModel==='PUBLISHED MESHY')normalizeStreetVerseHumanHeight(model,1.82)
       modelRef.current=model
       setModelReady(true)
       model.traverse(node=>{
         if(node instanceof THREE.Mesh){node.castShadow=true;node.receiveShadow=true}
       })
       scene.add(model)
-      const photoMatch=installBJPhotoMatchedHead(model)
+      // A real Meshy head should use its own baked texture; overlaying
+      // the small frontal portrait as a flat face would hide the true geometry.
+      const photoMatch=loadedModel==='PUBLISHED MESHY'?null:installBJPhotoMatchedHead(model)
       likenessHandleRef.current=photoMatch
       photoSettledRef.current=!photoMatch
       if(photoMatch){
@@ -109,7 +129,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
           setLikenessEnabled(ok)
         })
       }else{
-        setStatus('BJ '+loadedModelVersionRef.current+' • BASE GLB (NO COMPATIBLE HEAD)')
+        setStatus(loadedModel==='PUBLISHED MESHY'?'PUBLISHED MESHY GLB • FACIAL LIKENESS NEEDS HUMAN APPROVAL':'BJ '+loadedModelVersionRef.current+' • BASE GLB (NO COMPATIBLE HEAD)')
         photoAppliedRef.current=false;photoSettledRef.current=true
         setLikenessEnabled(false)
       }
@@ -197,7 +217,14 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       cameraRef.current=null
       controlsRef.current=null
     }
-  },[])
+  },[bjReviewSource])
+
+  const chooseBJSource=(next:'owned'|'published')=>{
+    if(next===bjReviewSource)return
+    setModelReady(false);setRenderProof(null);setLikenessEnabled(false)
+    setProofMessage('Loading the actual '+(next==='published'?'published Meshy':'owned V15')+' GLB for front/profile comparison.')
+    setBJReviewSource(next)
+  }
 
   const toggleLikeness=()=>{
     const model=modelRef.current
@@ -269,6 +296,11 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
     </section>
 
     <footer style={{padding:'8px 10px max(12px,env(safe-area-inset-bottom))',borderTop:'1px solid #243042',background:'#070b11',maxHeight:'min(58vh,420px)',overflowY:'auto'}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8,marginBottom:8}}>
+        <button data-bj-owned-glb-preview="true" onClick={()=>chooseBJSource('owned')} aria-pressed={bjReviewSource==='owned'} style={{minHeight:50,border:'1px solid #79c7e4',borderRadius:12,color:'#fff',background:bjReviewSource==='owned'?'#1b5064':'#142532',fontWeight:900}}>OWNED V15 GLB</button>
+        <button data-bj-actual-meshy-preview="true" onClick={()=>chooseBJSource('published')} aria-pressed={bjReviewSource==='published'} style={{minHeight:50,border:'1px solid #e5ce91',borderRadius:12,color:'#fff',background:bjReviewSource==='published'?'#4b3c21':'#30291d',fontWeight:900}}>ACTUAL MESHY GLB</button>
+      </div>
+      <div data-bj-model-provenance="true" role="status" aria-live="polite" style={{padding:'2px 3px 8px',fontSize:10,color:'#bdccdb'}}>{sourceNote}</div>
       <div data-bj-face-angle-quick-controls="true" style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
         <button data-bj-face-front="true" onClick={()=>{setCamera('face');view(0)}} aria-label="BJ face front portrait view" style={{minHeight:50,border:'1px solid #66513a',borderRadius:12,background:cameraMode==='face'?'#3a2917':'#10161f',color:'#fff',fontWeight:950}}>FACE • FRONT</button>
         <button data-bj-face-left="true" onClick={()=>{setCamera('face');view(Math.PI/2)}} aria-label="BJ face left profile" style={{minHeight:50,border:'1px solid #66513a',borderRadius:12,background:'#10161f',color:'#fff',fontWeight:950}}>LEFT PROFILE</button>
