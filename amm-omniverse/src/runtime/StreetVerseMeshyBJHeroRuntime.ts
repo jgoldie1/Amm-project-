@@ -259,7 +259,15 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
           stage:'decoding',sizeBytes:bytes.byteLength,source:candidate===v15PreviewUrl?'v15':'fallback',
         }}))
         const basePath=new URL('.',new URL(candidate,window.location.href)).href
-        candidateGlb=await loader.parseAsync(bytes,basePath)
+        let decodeTimer=0
+        try{
+          candidateGlb=await Promise.race([
+            loader.parseAsync(bytes,basePath),
+            new Promise<never>((_,reject)=>{
+              decodeTimer=window.setTimeout(()=>reject(new Error('BJ GLB decode timed out')),20000)
+            }),
+          ])
+        }finally{window.clearTimeout(decodeTimer)}
       }finally{window.clearTimeout(timeoutId)}
       if(inspectCharacterGeometry(candidateGlb.scene).meshes===0){
         disposeObject(candidateGlb.scene)
