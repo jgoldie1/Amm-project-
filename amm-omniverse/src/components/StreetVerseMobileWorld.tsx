@@ -426,7 +426,14 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     }
     // The BJ mount event means his mesh has been added before NPC fetches begin.
     // Keep a longer backstop so background NPCs still load when BJ is offline.
-    const onBJBeforeNpc=()=>{window.removeEventListener('tryamm:streetverse-bj-hero-mounted',onBJBeforeNpc);window.clearTimeout(residentFallbackTimer);startResidentsAfterBJ()}
+    let deferredResidentsStarted=false
+    const onBJBeforeNpc=()=>{
+      if(deferredResidentsStarted)return
+      deferredResidentsStarted=true
+      window.removeEventListener('tryamm:streetverse-bj-hero-mounted',onBJBeforeNpc)
+      window.clearTimeout(residentFallbackTimer)
+      startResidentsAfterBJ()
+    }
     window.addEventListener('tryamm:streetverse-bj-hero-mounted',onBJBeforeNpc,{once:true})
     residentCleanup=()=>window.removeEventListener('tryamm:streetverse-bj-hero-mounted',onBJBeforeNpc)
     residentFallbackTimer=window.setTimeout(onBJBeforeNpc,46000)
