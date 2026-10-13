@@ -50,9 +50,10 @@ export type StreetVerseMeshyBJHeroHandle={
 }
 
 /**
- * Actual BJ V15 GLB, user photo reference embedded in the published character.
- * External hosting avoids shipping a 6 MB binary in the public Git repository.
- * Activated only by ?bj=v15 until a visual acceptance review has passed.
+ * Actual BJ V15 GLB, user portrait reference embedded in character.
+ * BJ V15 is the default hero for StreetVerse mobile after owner approved
+ * production integration. ?bj=legacy is an explicit emergency fallback.
+ * Do not commit private original source photos to public GitHub.
  */
 export const BJ_V15_PREVIEW={
   id:'streetverse-bj-stubbs-v15',
@@ -63,7 +64,7 @@ export const BJ_V15_PREVIEW={
 
 export function getBJPreviewV15Url():string|null{
   if(typeof window==='undefined')return null
-  return new URLSearchParams(window.location.search).get('bj')==='v15' ? BJ_V15_PREVIEW.url : null
+  return new URLSearchParams(window.location.search).get('bj')==='legacy' ? null : BJ_V15_PREVIEW.url
 }
 
 const loader=new GLTFLoader()
@@ -221,7 +222,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   // Never load a MetaHuman candidate by default; preview is explicitly opted-in.
   const metaHumanPreviewUrl=getPreviewBJMetaHumanUrl()
   const v15PreviewUrl=getBJPreviewV15Url()
-  // Only explicit V15 preview overrides the previous hero; retain old production fallback.
+  // Default to the actual V15 hero; ?bj=legacy preserves a manual fallback.
   const candidates=[v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
   let sourceUrl=''
   let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
@@ -231,7 +232,9 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   // response must not block the real hero; attempt the actual GLB GET instead.
   // Keep the published/external Meshy override protected by its availability probe.
   for(const candidate of candidates){
-    if((candidate===published?.url||candidate===metaHumanPreviewUrl||candidate===v15PreviewUrl)&&!await assetExists(candidate))continue
+    // Remote V15 GET is more reliable on iPhone than an extra 1.8s HEAD
+    // preflight, which can incorrectly discard a working animated hero.
+    if((candidate===published?.url||candidate===metaHumanPreviewUrl)&&!await assetExists(candidate))continue
     try{
       const candidateGlb=await loader.loadAsync(candidate)
       if(inspectCharacterGeometry(candidateGlb.scene).meshes===0){
@@ -299,7 +302,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       if(node instanceof THREE.Mesh){
         node.castShadow=true
         node.receiveShadow=true
-        node.frustumCulled=true
+        node.frustumCulled=usingV15Preview?false:true
       }
     })
     const productionMaterials=tuneBJProductionMaterials(object)
