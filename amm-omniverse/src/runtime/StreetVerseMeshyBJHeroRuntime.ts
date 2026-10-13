@@ -5,6 +5,7 @@ import {BJ_STUBBS_BODY_PROFILE} from '../data/StreetVerseBJBodyProfile'
 import {resolvePublishedMeshyAsset,resetPublishedMeshyManifest} from './StreetVerseMeshyAssetManifest'
 import {canClaimPhotoMatched} from '../data/StreetVerseCharacterReferenceAuthorization'
 import {inspectCharacterGeometry} from './StreetVerseCharacterGeometry'
+import {getPreviewBJMetaHumanUrl,auditBJMetaHumanForStreetVerse} from './StreetVerseBJMetaHumanBridge'
 
 export const BJ_MESHY_V6_ASSET={
   id:'streetverse-bj-stubbs-meshy-v6',
@@ -178,19 +179,30 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   const verifiedPhotoMatch=canClaimPhotoMatched(BJ_MESHY_V6_ASSET.characterId)
   const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
   const published=await resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope)
-  const candidates=[published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
+  // Never load a MetaHuman candidate by default; preview is explicitly opted-in.
+  const metaHumanPreviewUrl=getPreviewBJMetaHumanUrl()
+  const candidates=[metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
   let sourceUrl=''
   let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
+  let usingMetaHumanPreview=false
   // Generated V12/V7/V6 GLBs are first-party build outputs. A slow Safari HEAD
   // response must not block the real hero; attempt the actual GLB GET instead.
   // Keep the published/external Meshy override protected by its availability probe.
   for(const candidate of candidates){
-    if(candidate===published?.url&&!await assetExists(candidate))continue
+    if((candidate===published?.url||candidate===metaHumanPreviewUrl)&&!await assetExists(candidate))continue
     try{
       const candidateGlb=await loader.loadAsync(candidate)
       if(inspectCharacterGeometry(candidateGlb.scene).meshes===0){
         disposeObject(candidateGlb.scene)
         continue
+      }
+      if(candidate===metaHumanPreviewUrl){
+        const audit=auditBJMetaHumanForStreetVerse(candidateGlb.scene,candidateGlb.animations||[])
+        window.dispatchEvent(new CustomEvent('tryamm:bj-metahuman-preview-audit',{detail:{
+          characterId:'bj-stubbs',assetUrl:candidate,...audit,likenessApproved:false,
+        }}))
+        if(!audit.ok){disposeObject(candidateGlb.scene);continue}
+        usingMetaHumanPreview=true
       }
       publishedGlb=candidateGlb
       sourceUrl=candidate
@@ -212,7 +224,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   try{
     const gltf=publishedGlb
     const object=gltf.scene
-    object.name='bj-stubbs-production-v12'
+    object.name=usingMetaHumanPreview?'bj-stubbs-metahuman-web-preview':'bj-stubbs-production-v12'
     normalizeStreetVerseHumanHeight(object,BJ_MESHY_V6_ASSET.targetHeightMeters)
     object.traverse(node=>{
       if(node instanceof THREE.Mesh){
@@ -241,11 +253,13 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       displayName:'BJ Stubbs',
       namedCharacter:true,
       identityContinuityKey:BJ_MESHY_V6_ASSET.characterId,
-      visualAuthority:BJ_MESHY_V6_ASSET.authority,
+      visualAuthority:usingMetaHumanPreview?'metahuman-web-opt-in-unapproved':BJ_MESHY_V6_ASSET.authority,
+      metahumanWebPreview:usingMetaHumanPreview,
+      metaHumanLikenessApproved:false,
       meshAssetId:BJ_MESHY_V6_ASSET.id,
       referenceMatchedPreview:Boolean(published?.url),
-      photoMatched:verifiedPhotoMatch,
-      certifiedLikeness:verifiedPhotoMatch,
+      photoMatched:usingMetaHumanPreview?false:verifiedPhotoMatch,
+      certifiedLikeness:usingMetaHumanPreview?false:verifiedPhotoMatch,
       meshyV6:Boolean(published?.url),
       ownedV7:!published?.url,
       ownedV12:!published?.url,
@@ -433,9 +447,11 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       targetHeightMeters:BJ_MESHY_V6_ASSET.targetHeightMeters,
       authoritative3DMesh:true,
       referenceMatchedPreview:Boolean(published?.url),
-      photoMatched:verifiedPhotoMatch,
-      certifiedLikeness:verifiedPhotoMatch,
+      photoMatched:usingMetaHumanPreview?false:verifiedPhotoMatch,
+      certifiedLikeness:usingMetaHumanPreview?false:verifiedPhotoMatch,
       proceduralFallbackSuppressed:true,
+      metahumanWebPreview:usingMetaHumanPreview,
+      metaHumanLikenessApproved:false,
       productionMaterials,
       texturePipeline:'pbr-mobile-production-v12',
       visualTexturePipeline:'pbr-mobile-production-v8',
