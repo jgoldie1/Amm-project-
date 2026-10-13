@@ -38,7 +38,7 @@ required(mobile.includes('tryamm:streetverse-bj-showcase'),'show visible in-worl
 required(mobile.includes("data-bj-load-state={bjLoadStatus}"),'HUD must expose loading, fallback and error states')
 required(mobile.includes("'↻ RETRY BJ V15'"),'one-hand retry must remain visible if image fails to load')
 required(mobile.includes("'BJ V15 LOADING…'"),'loading must be explicit instead of a false success badge')
-required(mobile.includes('data-streetverse-release="1013-safari-v16"'),'visibly verifiable release marker')
+required(mobile.includes('data-streetverse-release={document.documentElement.dataset.tryammRelease||"unknown"}'),'release marker must use current worker generation instead of a stale date')
 
 required(mobile.includes('tryamm:streetverse-bj-hero-mounted'),'proof event fires after nativeLayer.add')
 required(mobile.includes("window.removeEventListener('tryamm:streetverse-bj-v15-preview'"),'remove event when world unmounts')
