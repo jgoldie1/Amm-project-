@@ -8,8 +8,8 @@ MetaHuman is a character-authoring system. It helps with BJ and the StreetVerse 
 
 ## Privacy and model authority
 
-- Authoritative face reference: **the user's actual front and 2025/2026 side photographs**, NOT the earlier generated Chicago portrait used as a texture overlay.
-- The photographs remain in a private reference workflow; never commit their pixels or embedded likeness meshes to public GitHub without explicit approval.
+- Authoritative face references: **the user's authentic Chicago photograph, real 2025 seated portrait, and real 2026 side-profile selfie**. The user explicitly corrected a previous description of the Chicago portrait as generated; treat it as a real photo, not synthetic artwork.
+- The photographs remain in a private reference workflow; never commit their pixels or embedded likeness meshes to public GitHub without explicit approval. **GLBs can embed the actual photo inside image bufferViews even when the textured face node is hidden. NPC assets must be rebuilt and repacked without BJ's private image bytes—not just hide the node.**
 - A selected photograph is not an actual photogrammetry/3D head solve. Never mark `certifiedLikeness` or `likenessApproved` true until the user has reviewed real front/profile/3/4 renders.
 - MetaHuman scan identities and export data may use Epic's processing services. Confirm consent before submitting someone else's likeness or footage.
 
@@ -18,7 +18,7 @@ MetaHuman is a character-authoring system. It helps with BJ and the StreetVerse 
 1. Install **Unreal Engine 5.6 or newer** with MetaHuman Creator and the corresponding content/plugins. The Creator is inside Unreal from UE5.6 onward; do not follow obsolete instructions to use only the legacy cloud webpage.
 2. Create an isolated Unreal project called `TRYAMM_BJ_Identity_Workshop` on a capable **Windows workstation**. The web-based StreetVerse project stays untouched.
 3. Enable **MetaHuman Creator** and **MetaHuman Animator**. When using a MetaHuman Identity from mesh or depth video, also install the depth-processing plugin required for that workflow. Check matching UE/plugin versions.
-4. Build high-quality facial source from multiple views: the two user photos are excellent **visual references**, but a true likeness needs an accurate sculpt/scan/multiview capture (neutral + left/right; more views recommended). The earlier BJ V12 head is only a coarse geometry draft.
+4. Build high-quality facial source from multiple views: the user's real front and side photographs are excellent **visual references**, but a true likeness needs an accurate sculpt/scan/multiview capture (neutral + left/right; more views recommended). The earlier BJ V12 head is only a coarse geometry draft.
 5. In **Unreal Engine 5.8+**, evaluate **MetaHuman Creator → Import → From Custom Mesh** for a rebuilt BJ head/body mesh with arbitrary topology; it can conform the head and body in one editor workflow. For the established identity workflow, use **Mesh to MetaHuman → MetaHuman Identity → solve → From Identity**. In either route manually compare nose depth, eye spacing, hairline, cheek/jaw contour, scalp, salt-and-pepper beard and loc geometry. Build as an editable MetaHuman Character.
 6. Correct body proportions, custom shirt and pendant. Add properly authored skin maps, eye/teeth materials, loc and beard grooms/hair cards. Avoid the paper-flat photo-face projection from the experimental V5–V12.
 7. Test **idle, walk, greet, blink, jawOpen, eye gaze** and speech animation. Standard webcam and audio facial captures are an alternative to an expensive TrueDepth setup; a depth capture is not required for every animation workflow.
