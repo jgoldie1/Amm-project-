@@ -32,6 +32,8 @@ type BJFacePose={
   /** Optional scripted speech shapes; do not infer phonemes from audio loudness. */
   visemeAA?:number;visemeEE?:number;visemeOH?:number;visemeOO?:number;
   visemePP?:number;visemeFF?:number;visemeTH?:number;
+  visemeMBP?:number;visemeFV?:number;visemeL?:number;visemeWQ?:number;
+  eyeSquintLeft?:number;eyeSquintRight?:number;
 }
 
 export type StreetVerseMeshyBJHeroHandle={
@@ -101,12 +103,18 @@ const BJ_FACE_MORPHS:ReadonlyArray<[keyof BJFacePose,RegExp[]]>=[
   ['cheekRaise',[/cheek.?squint/i,/cheek.?raise/i]],
   // V14 GLB adds seven deliberate mouth targets; these are not audio-verified lip sync.
   ['visemeAA',[/^viseme_aa$/i]],
-  ['visemeEE',[/^viseme_E$/i]],
-  ['visemeOH',[/^viseme_O$/i]],
-  ['visemeOO',[/^viseme_U$/i]],
-  ['visemePP',[/^viseme_PP$/i]],
-  ['visemeFF',[/^viseme_FF$/i]],
-  ['visemeTH',[/^viseme_TH$/i]],
+  ['visemeEE',[/^viseme_(ee|e)$/i]],
+  ['visemeOH',[/^viseme_(oh|o)$/i]],
+  ['visemeOO',[/^viseme_u$/i]],
+  ['visemePP',[/^viseme_pp$/i]],
+  ['visemeFF',[/^viseme_ff$/i]],
+  ['visemeTH',[/^viseme_th$/i]],
+  ['visemeMBP',[/^viseme_mbp$/i]],
+  ['visemeFV',[/^viseme_fv$/i]],
+  ['visemeL',[/^viseme_l$/i]],
+  ['visemeWQ',[/^viseme_wq$/i]],
+  ['eyeSquintLeft',[/^eyeSquintLeft$/i]],
+  ['eyeSquintRight',[/^eyeSquintRight$/i]],
 ]
 
 function setMorph(mesh:THREE.Mesh,patterns:RegExp[],value:number){
