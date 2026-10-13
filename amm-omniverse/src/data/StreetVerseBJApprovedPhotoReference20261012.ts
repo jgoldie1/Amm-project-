@@ -1,7 +1,7 @@
 /**
  * BJ Stubbs — current-era user-selected face authority, 12 Oct 2026.
  *
- * This file is a non-biometric, non-image record of the user's selection.
+ * This file is a text-only record of the user's real-photograph selection.
  * Keep the approved photo in the private reference package and do NOT
  * commit the image to a public repository without explicit permission.
  *
@@ -14,7 +14,7 @@ export const BJ_STUBBS_APPROVED_PHOTO_REFERENCE_20261012={
   status:'user-selected-reference',
   referenceId:'bj-stubbs-chicago-river-front-face-2026-10-12',
   selectedDate:'2026-10-12',
-  faceAuthority:'user-supplied Chicago portrait, not the older generated waving man',
+  faceAuthority:'user-confirmed authentic Chicago photograph, supplemented by real side-profile and seated photographs',
   visualTarget:'the Chicago-based BJ Stubbs multiview character sheet approved after the portrait',
   faceFeatures:[
     'preserve face silhouette, eyes, nose, natural lips and brow of supplied photo',
