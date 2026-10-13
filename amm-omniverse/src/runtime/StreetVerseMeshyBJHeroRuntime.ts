@@ -24,6 +24,7 @@ export const BJ_MESHY_V6_ASSET={
 } as const
 
 type Motion='idle'|'walk'|'run'
+export type BJGesture='nod'|'look-around'|'converse'|'greet'
 
 type BJFacePose={
   blinkLeft?:number;blinkRight?:number;lookLeft?:number;lookRight?:number;lookUp?:number;lookDown?:number;
@@ -42,6 +43,8 @@ export type StreetVerseMeshyBJHeroHandle={
   clips:readonly THREE.AnimationClip[]
   morphTargetNames:readonly string[]
   applyFacePose:(pose:BJFacePose)=>number
+  /** Only plays a gesture if the active GLB has the matching animation. */
+  playGesture:(gesture:BJGesture)=>boolean
   tick:(nowMs:number,state:{moving:boolean;running?:boolean;talking?:boolean;liveTalkLevel?:number;focusYaw?:number;breathing?:number;posture?:string;seated?:boolean})=>void
   dispose:()=>void
 }
@@ -378,7 +381,40 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
 
     let activeMotion:Motion|null=null
     let activeAction:THREE.AnimationAction|null=null
+    let gestureAction:THREE.AnimationAction|null=null
+    let gestureUntil=0
     let previousNow=performance.now()
+    const gesturePatterns:Record<BJGesture,RegExp>={
+      'nod':/BJ_V15_Listening_Nod/i,
+      'look-around':/BJ_V15_Observe_Left_Right/i,
+      'converse':/BJ_V15_Conversational_Gesture/i,
+      'greet':/BJ_Greeting_Wave/i,
+    }
+    const playGesture=(gesture:BJGesture):boolean=>{
+      const clip=clips.find(item=>gesturePatterns[gesture].test(item.name))
+      if(!mixer||!clip)return false // Older BJ models remain valid and untouched.
+      const action=mixer.clipAction(clip)
+      if(gestureAction&&gestureAction!==action)gestureAction.fadeOut(.14)
+      if(activeAction&&activeAction!==action)activeAction.fadeOut(.14)
+      action.reset()
+      action.setLoop(THREE.LoopOnce,1)
+      action.clampWhenFinished=false
+      action.setEffectiveTimeScale(1)
+      action.setEffectiveWeight(1)
+      action.fadeIn(.14).play()
+      gestureAction=action
+      activeAction=action
+      activeMotion=null
+      gestureUntil=performance.now()+clip.duration*1000+170
+      return true
+    }
+    const onGesture=(event:Event)=>{
+      const detail=(event as CustomEvent<{characterId?:string;gesture?:BJGesture}>).detail||{}
+      if(detail.characterId&&detail.characterId!==BJ_MESHY_V6_ASSET.characterId)return
+      if(!detail.gesture||!Object.hasOwn(gesturePatterns,detail.gesture))return
+      playGesture(detail.gesture)
+    }
+    window.addEventListener('tryamm:bj-gesture',onGesture)
     let lastLifeStateAt=0
 
     const setMotion=(motion:Motion)=>{
@@ -398,7 +434,13 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     const tick:StreetVerseMeshyBJHeroHandle['tick']=(nowMs,state)=>{
       const dt=THREE.MathUtils.clamp((nowMs-previousNow)/1000,0,.05)
       previousNow=nowMs
-      setMotion(state.running?'run':state.moving?'walk':'idle')
+      if(gestureAction&&nowMs>=gestureUntil){
+        gestureAction.fadeOut(.14)
+        gestureAction=null
+        activeAction=null
+        activeMotion=null
+      }
+      if(!gestureAction)setMotion(state.running?'run':state.moving?'walk':'idle')
       mixer?.update(dt)
 
       const t=nowMs*.001
@@ -492,8 +534,10 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       clips,
       morphTargetNames:morphs.names,
       applyFacePose,
+      playGesture,
       tick,
       dispose:()=>{
+        window.removeEventListener('tryamm:bj-gesture',onGesture)
         window.removeEventListener('tryamm:character-face-pose',onFacePose)
         mixer?.stopAllAction()
         shadowGeometry.dispose();shadowMaterial.dispose()
