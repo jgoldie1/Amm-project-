@@ -115,7 +115,13 @@ try {
   
   void import('./runtime/HoloPlayCreditEntitlementRuntime').then(({installHoloPlayCreditEntitlementRuntime})=>installHoloPlayCreditEntitlementRuntime())
   if(!isStreetVerse){
-    void import('./runtime/StreetVerseCreatorDistrict3D').then(({installStreetVerseCreatorDistrict3D})=>installStreetVerseCreatorDistrict3D())
+    // Legacy embedded worlds may request this scene. Browsing the homepage must
+    // not download Three.js or allocate an invisible WebGL renderer.
+    window.addEventListener('tryamm:streetverse-enter', () => {
+      void import('./runtime/StreetVerseCreatorDistrict3D')
+        .then(({installStreetVerseCreatorDistrict3D}) => installStreetVerseCreatorDistrict3D(true))
+        .catch(error => console.warn('[TRYAMM] Creator district unavailable.', error))
+    }, {once:true})
   }
   
   const routeFallback=<div role="status" aria-live="polite" style={{position:'fixed',inset:0,zIndex:15980,display:'grid',placeItems:'center',background:'#050505',color:'#fff',fontFamily:'system-ui,sans-serif',fontWeight:900}}>LOADING…</div>
