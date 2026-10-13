@@ -19,7 +19,7 @@ MetaHuman is a character-authoring system. It helps with BJ and the StreetVerse 
 2. Create an isolated Unreal project called `TRYAMM_BJ_Identity_Workshop` on a capable **Windows workstation**. The web-based StreetVerse project stays untouched.
 3. Enable **MetaHuman Creator** and **MetaHuman Animator**. When using a MetaHuman Identity from mesh or depth video, also install the depth-processing plugin required for that workflow. Check matching UE/plugin versions.
 4. Build high-quality facial source from multiple views: the two user photos are excellent **visual references**, but a true likeness needs an accurate sculpt/scan/multiview capture (neutral + left/right; more views recommended). The earlier BJ V12 head is only a coarse geometry draft.
-5. Use **Mesh to MetaHuman → MetaHuman Identity → solve → From Identity** to conform a fitted character, then manually compare nose depth, eye spacing, hairline, cheek/jaw contour, scalp, salt-and-pepper beard and loc geometry. Build as an editable MetaHuman Character.
+5. In **Unreal Engine 5.8+**, evaluate **MetaHuman Creator → Import → From Custom Mesh** for a rebuilt BJ head/body mesh with arbitrary topology; it can conform the head and body in one editor workflow. For the established identity workflow, use **Mesh to MetaHuman → MetaHuman Identity → solve → From Identity**. In either route manually compare nose depth, eye spacing, hairline, cheek/jaw contour, scalp, salt-and-pepper beard and loc geometry. Build as an editable MetaHuman Character.
 6. Correct body proportions, custom shirt and pendant. Add properly authored skin maps, eye/teeth materials, loc and beard grooms/hair cards. Avoid the paper-flat photo-face projection from the experimental V5–V12.
 7. Test **idle, walk, greet, blink, jawOpen, eye gaze** and speech animation. Standard webcam and audio facial captures are an alternative to an expensive TrueDepth setup; a depth capture is not required for every animation workflow.
 8. Generate two outputs: `BJ_STUBBS_CINE` for film/cutscenes, `BJ_STUBBS_WEB_OPTIMIZED` for the web. UE Cine-sized MetaHuman assemblies are unsuitable as direct browser downloads. Bake textures/grooms and lower LODs for the web.
@@ -47,4 +47,6 @@ Pass full TypeScript, import contracts, WebGL 3D renders, all three animation cl
 - Creator export tool: https://dev.epicgames.com/documentation/metahuman/metahuman-creator-export-tool-in-unreal-engine
 - Character assembly and LOD: https://dev.epicgames.com/documentation/metahuman/assembly
 - MetaHuman Animator: https://dev.epicgames.com/documentation/metahuman/metahuman-animator-in-unreal-engine
+- UE5.8 improved From Custom Mesh import: https://dev.epicgames.com/documentation/metahuman/metahuman-5-8-release-notes-in-unreal-engine
+- MetaHuman Creator import tools: https://dev.epicgames.com/documentation/metahuman/metahuman-creator-import-tools-in-unreal-engine
 - License: https://www.metahuman.com/license
