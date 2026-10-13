@@ -547,6 +547,29 @@ export default function StreetVerseNearWest3D(){
  const [liveRpOpen,setLiveRpOpen]=useState(false)
  const [creatorGrowthOpen,setCreatorGrowthOpen]=useState(false)
  const [discordOpen,setDiscordOpen]=useState(false)
+ const [bjGesturesOpen,setBjGesturesOpen]=useState(false)
+ const [bjAvailableClips,setBjAvailableClips]=useState<readonly string[]>([])
+ useEffect(()=>{
+  const onBJReady=(event:Event)=>{
+   const detail=(event as CustomEvent<{clipNames?:string[]}>).detail
+   if(Array.isArray(detail?.clipNames))setBjAvailableClips(detail.clipNames)
+  }
+  window.addEventListener('tryamm:bj-meshy-v6-ready',onBJReady)
+  return()=>window.removeEventListener('tryamm:bj-meshy-v6-ready',onBJReady)
+ },[])
+ const bjGestureOptions=[
+  {id:'look-around',label:'LOOK AROUND',clip:/BJ_V15_LookAround/i},
+  {id:'nod',label:'NOD YES',clip:/BJ_V15_ListenAndNod/i},
+  {id:'acknowledge',label:'SMILE',clip:/BJ_V15_AcknowledgeAndSmile/i},
+  {id:'greet',label:'WAVE',clip:/BJ_Greeting_Wave/i},
+ ] as const
+ const playBJGesture=(gesture:(typeof bjGestureOptions)[number])=>{
+  if(!bjAvailableClips.some(name=>gesture.clip.test(name))){
+   window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'BJ gesture preview requires the matching animated GLB to be staged.'}}))
+   return
+  }
+  window.dispatchEvent(new CustomEvent('tryamm:bj-gesture',{detail:{characterId:'bj-stubbs',gesture:gesture.id,source:'near-west-one-hand-gesture-menu'}}))
+ }
  const [aerialMode,setAerialMode]=useState<StreetVerseAerialLensMode>('ground')
  const [aerialFlightKey,setAerialFlightKey]=useState(0)
  const startGateFlyIn=()=>{setAerialFlightKey(k=>k+1);setAerialMode('fly-in');stopMove()}
@@ -652,12 +675,19 @@ export default function StreetVerseNearWest3D(){
    <button aria-label="Quantum Cone Chicago aerial overview" onClick={()=>{stopMove();setAerialMode('city')}} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950,background:aerialMode==='city'?'#326a87':undefined}}>🛰 SKY VIEW</button>
    <button aria-label="Fly from Chicago sky to Taylor Fillmore guard gate" onClick={startGateFlyIn} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950,background:aerialMode==='fly-in'?'#326a87':undefined}}>↘ GATE FLY-IN</button>
    {aerialMode!=='ground'&&<button aria-label="Return to ground gameplay camera" onClick={()=>{setAerialMode('ground');stopMove()}} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🎮 GROUND VIEW</button>}
+   <button aria-label="Open BJ Stubbs character gesture controls" aria-expanded={bjGesturesOpen} onClick={()=>setBjGesturesOpen(v=>!v)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🎭 BJ ACTIONS</button>
    <button aria-label="Open Quantum Discord" onClick={()=>setDiscordOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>💬 DISCORD</button>
    <button aria-label="Open StreetVerse creator pass" onClick={()=>setCreatorGrowthOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🌍 CREATOR PASS</button>
    <button aria-label="Open StreetVerse LIVE RP" onClick={()=>setLiveRpOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🔴 LIVE • PK</button>
    <button aria-label="Open My Garage" onClick={()=>setGarageOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🏠 GARAGE</button>
    <button aria-label="Open Future Mobility dealership" onClick={()=>setDealerOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🚘 MOBILITY</button></div>
-  {discordOpen&&<StreetVerseDiscordPanel onClose={()=>setDiscordOpen(false)}/>}
+  {bjGesturesOpen&&<div aria-label="BJ Stubbs one hand gesture controls" role="group" style={{position:'absolute',left:12,top:68,zIndex:25,display:'grid',gap:7,width:'min(228px,65vw)',padding:11,background:'rgba(11,17,25,.95)',border:'1px solid #586775',borderRadius:14}}>
+   <strong style={{color:'#fff7e8',fontSize:14}}>BJ STUBBS • ACTIONS</strong>
+   {bjGestureOptions.map(option=><button key={option.id} aria-label={'Make BJ '+option.label.toLowerCase()} disabled={!bjAvailableClips.some(name=>option.clip.test(name))} onClick={()=>playBJGesture(option)} style={{minHeight:48,borderRadius:11,fontWeight:850,padding:'9px 12px',fontSize:15}}>{option.label}</button>)}
+   <small style={{color:'#b3c2d0',fontSize:12}}>{bjAvailableClips.some(name=>/BJ_V15_/.test(name))?'V15 gestures available':'V15 animated character not staged yet'}</small>
+   <button aria-label="Close BJ gestures" onClick={()=>setBjGesturesOpen(false)} style={{minHeight:44,borderRadius:10,fontWeight:800}}>CLOSE</button>
+  </div>}
+  {discordOpen&&<StreetVerseDiscordPanel onClose={()=>setDiscordOpen(false)}/>} 
   {creatorGrowthOpen&&<StreetVerseCreatorGrowthPanel onClose={()=>setCreatorGrowthOpen(false)}/>}
   {liveRpOpen&&<StreetVerseLiveRpPanel onClose={()=>setLiveRpOpen(false)}/>}
   {dealerOpen&&<StreetVerseFutureVehicleDealer onClose={()=>setDealerOpen(false)}/>} 
