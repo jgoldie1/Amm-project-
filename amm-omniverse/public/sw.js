@@ -2,7 +2,7 @@
 // Network-first app shell with stale-asset self recovery.
 // 2026-09-04 StreetVerse immediate-play release.
 
-const RELEASE = '20261002-birthday-live-fix-v2'
+const RELEASE = '20261013-bj-visual-safari-cache-v16'
 const CACHE_NAME = 'tryamm-shell-' + RELEASE
 const STATIC_ASSETS = ['/manifest.json?v=20260904-american-lion-v2','/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2']
 
@@ -45,7 +45,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))
+      .then(keys => Promise.all(keys.filter(k => k.startsWith('tryamm-') && k !== CACHE_NAME).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   )
 })
