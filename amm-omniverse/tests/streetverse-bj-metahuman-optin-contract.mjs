@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+
+const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8')
+const bridge=read('../src/runtime/StreetVerseBJMetaHumanBridge.ts')
+const hero=read('../src/runtime/StreetVerseMeshyBJHeroRuntime.ts')
+const cast=read('../src/components/StreetVerseNearWestCinematicCast.tsx')
+const docs=read('../docs/BJ_STUBBS_METAHUMAN_CREATOR_PRODUCTION_PATH.md')
+
+assert.match(bridge,/data-streetverse-bj-meta-human/)
+assert.match(bridge,/dataset\.streetverseBjMetaHuman==='preview'/)
+assert.match(bridge,/BJ_STUBBS_METAHUMAN_WEB_OPTIMIZED\.glb/)
+assert.match(bridge,/node instanceof THREE\.SkinnedMesh/)
+assert.match(bridge,/Missing idle animation/)
+assert.match(bridge,/Missing walking animation/)
+assert.match(bridge,/Missing eye-blink morph targets/)
+assert.match(bridge,/Missing mouth-opening morph targets/)
+assert.match(hero,/getPreviewBJMetaHumanUrl\(\)/)
+assert.match(hero,/auditBJMetaHumanForStreetVerse\(candidateGlb\.scene,candidateGlb\.animations\|\|\[\]\)/)
+assert.match(hero,/if\(!audit\.ok\)\{disposeObject\(candidateGlb\.scene\);continue\}/)
+assert.match(hero,/BJ_MESHY_V6_ASSET\.productionUrl/)
+assert.match(hero,/metahumanWebPreview:usingMetaHumanPreview/)
+assert.match(cast,/if\(!loaded\.object\.userData\.metahumanWebPreview\)try\{/)
+assert.match(bridge,/referencePhotosPublic:false/)
+assert.match(bridge,/likenessApproved:false/)
+assert.match(docs,/not.*one-click GLB/i)
+assert.match(docs,/not.*certif/i)
+console.log('BJ MetaHuman web opt-in, likeness privacy, fallback, animations and morph gates PASS (source contracts only)')
