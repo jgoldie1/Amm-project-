@@ -24,7 +24,7 @@ export const BJ_MESHY_V6_ASSET={
 } as const
 
 type Motion='idle'|'walk'|'run'
-export type BJGesture='nod'|'look-around'|'converse'|'greet'
+export type BJGesture='nod'|'look-around'|'acknowledge'|'converse'|'greet'
 
 type BJFacePose={
   blinkLeft?:number;blinkRight?:number;lookLeft?:number;lookRight?:number;lookUp?:number;lookDown?:number;
@@ -385,9 +385,10 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     let gestureUntil=0
     let previousNow=performance.now()
     const gesturePatterns:Record<BJGesture,RegExp>={
-      'nod':/BJ_V15_Listening_Nod/i,
-      'look-around':/BJ_V15_Observe_Left_Right/i,
-      'converse':/BJ_V15_Conversational_Gesture/i,
+      'nod':/BJ_V15_ListenAndNod/i,
+      'look-around':/BJ_V15_LookAround/i,
+      'acknowledge':/BJ_V15_AcknowledgeAndSmile/i,
+      'converse':/BJ_V14_Speaking_Visemes/i,
       'greet':/BJ_Greeting_Wave/i,
     }
     const playGesture=(gesture:BJGesture):boolean=>{
