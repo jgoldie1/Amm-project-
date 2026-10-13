@@ -316,18 +316,6 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
     display: none !important;
   }
 
-  /*
-   * The separate mobile-game shell is a fallback/controller overlay. When the
-   * real 3D world is mounted, its full-screen 52k layer creates a SECOND
-   * joystick and a SECOND command rail above our focused play HUD. Do not
-   * render that visual layer while clear-view is selected. The world joystick
-   * remains active; the complete shell returns when FULL HUD is selected.
-   * StreetVerseSafeWorld, which has no root marker, is unaffected.
-   */
-  body:has([data-streetverse-world-root][data-hud-focus="true"]) [data-streetverse-mobile-shell="v5"] {
-    display: none !important;
-  }
-
   /* Mission remains usable; stop it from covering the park and guard gate. */
   [data-streetverse-world-root][data-hud-focus="true"] [data-streetverse-mission] {
     top: calc(env(safe-area-inset-top) + 72px) !important;
