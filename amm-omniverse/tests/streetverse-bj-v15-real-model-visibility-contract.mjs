@@ -48,7 +48,11 @@ required(mobile.includes('data-bj-active-version={bjRenderedVersion'),'surface r
 required(mobile.includes('tryamm:streetverse-bj-showcase'),'show visible in-world close-up')
 required(mobile.includes("data-bj-load-state={bjLoadStatus}"),'HUD must expose loading, fallback and error states')
 required(mobile.includes("'↻ RETRY BJ V15'"),'one-hand retry must remain visible if image fails to load')
-required(mobile.includes("'BJ V15 LOADING…'"),'loading must be explicit instead of a false success badge')
+required(mobile.includes("'BJ V15 STARTING…'"),'loading must show a real starting state')
+required(mobile.includes("'BJ DOWNLOADING…'"),'loading must show when GLB bytes are downloading')
+required(mobile.includes("'BJ PREPARING…'"),'loading must show GLB parse stage')
+required(mobile.includes("'↻ RETRY BJ V15'"),'network failures must expose a retry action')
+required(mobile.includes('deferredResidentsStarted=true'),'background NPCs must start only once')
 required(mobile.includes('data-streetverse-release={document.documentElement.dataset.tryammRelease||"unknown"}'),'release marker must use current worker generation instead of a stale date')
 
 required(mobile.includes('tryamm:streetverse-bj-hero-mounted'),'proof event fires after nativeLayer.add')
