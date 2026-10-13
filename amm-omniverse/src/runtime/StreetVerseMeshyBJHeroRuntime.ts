@@ -218,10 +218,16 @@ function disposeObject(root:THREE.Object3D){
 export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHeroHandle|null>{
   const verifiedPhotoMatch=canClaimPhotoMatched(BJ_MESHY_V6_ASSET.characterId)
   const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
-  const published=await resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope)
+  // Do not wait for an unrelated Meshy API before starting the owned BJ V15 GLB.
+  // On slow iPhone connections that unbounded manifest request left the UI at
+  // "BJ V15 LOADING" even though the V15 asset itself was healthy.
+  const v15PreviewUrl=getBJPreviewV15Url()
+  const published=v15PreviewUrl?null:await Promise.race([
+    resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope),
+    new Promise<null>(resolve=>window.setTimeout(()=>resolve(null),3000)),
+  ])
   // Never load a MetaHuman candidate by default; preview is explicitly opted-in.
   const metaHumanPreviewUrl=getPreviewBJMetaHumanUrl()
-  const v15PreviewUrl=getBJPreviewV15Url()
   // Default to the actual V15 hero; ?bj=legacy preserves a manual fallback.
   const candidates=[v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
   let sourceUrl=''
@@ -236,7 +242,25 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     // preflight, which can incorrectly discard a working animated hero.
     if((candidate===published?.url||candidate===metaHumanPreviewUrl)&&!await assetExists(candidate))continue
     try{
-      const candidateGlb=await loader.loadAsync(candidate)
+      // The legacy loader has no request deadline. A failed/slow CDN request
+      // cannot leave an iPhone showing an unbounded LOADING indicator.
+      // Fetch bytes first so network timeout is abortable; decode as glTF next.
+      const controller=new AbortController()
+      const timeoutId=window.setTimeout(()=>controller.abort(),25000)
+      let candidateGlb:Awaited<ReturnType<typeof loader.loadAsync>>
+      try{
+        window.dispatchEvent(new CustomEvent('tryamm:bj-model-progress',{detail:{
+          stage:'fetching',source:candidate===v15PreviewUrl?'v15':'fallback',
+        }}))
+        const response=await fetch(candidate,{signal:controller.signal,mode:'cors'})
+        if(!response.ok)throw new Error('BJ GLB HTTP '+response.status)
+        const bytes=await response.arrayBuffer()
+        window.dispatchEvent(new CustomEvent('tryamm:bj-model-progress',{detail:{
+          stage:'decoding',sizeBytes:bytes.byteLength,source:candidate===v15PreviewUrl?'v15':'fallback',
+        }}))
+        const basePath=new URL('.',new URL(candidate,window.location.href)).href
+        candidateGlb=await loader.parseAsync(bytes,basePath)
+      }finally{window.clearTimeout(timeoutId)}
       if(inspectCharacterGeometry(candidateGlb.scene).meshes===0){
         disposeObject(candidateGlb.scene)
         continue
