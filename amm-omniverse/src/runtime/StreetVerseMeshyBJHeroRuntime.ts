@@ -470,7 +470,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     const onGesture=(event:Event)=>{
       const detail=(event as CustomEvent<{characterId?:string;gesture?:BJGesture}>).detail||{}
       if(detail.characterId&&detail.characterId!==BJ_MESHY_V6_ASSET.characterId)return
-      if(!detail.gesture||!Object.hasOwn(gesturePatterns,detail.gesture))return
+      if(!detail.gesture||!Object.prototype.hasOwnProperty.call(gesturePatterns,detail.gesture))return
       playGesture(detail.gesture)
     }
     window.addEventListener('tryamm:bj-gesture',onGesture)
