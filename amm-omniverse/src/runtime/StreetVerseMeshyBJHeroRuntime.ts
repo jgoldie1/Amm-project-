@@ -282,6 +282,18 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     const gltf=publishedGlb
     const object=gltf.scene
     object.name=usingV15Preview?'bj-stubbs-v15-actual-glb':usingMetaHumanPreview?'bj-stubbs-metahuman-web-preview':'bj-stubbs-production-v12'
+    // V15 includes 50 zero-scaled legacy SkinnedMeshes that are invisible but
+    // cause Three.Box3 to produce NaN bounds and an invalid contact shadow.
+    // Detach only genuinely invisible zero-scale mesh nodes; do not touch
+    // its facial mesh, bones, or any playing animation targets.
+    let prunedInvisibleV15Meshes=0
+    if(usingV15Preview){
+      const hidden:THREE.Mesh[]=[]
+      object.traverse(node=>{
+        if(node instanceof THREE.Mesh&&node.scale.lengthSq()<1e-12)hidden.push(node)
+      })
+      for(const node of hidden){node.removeFromParent();prunedInvisibleV15Meshes++}
+    }
     normalizeStreetVerseHumanHeight(object,BJ_MESHY_V6_ASSET.targetHeightMeters)
     object.traverse(node=>{
       if(node instanceof THREE.Mesh){
@@ -312,6 +324,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       identityContinuityKey:BJ_MESHY_V6_ASSET.characterId,
       visualAuthority:usingV15Preview?'bj-actual-v15-remote-preview':usingMetaHumanPreview?'metahuman-web-opt-in-unapproved':BJ_MESHY_V6_ASSET.authority,
       bjV15RealGlbPreview:usingV15Preview,
+      prunedInvisibleV15Meshes,
       metahumanWebPreview:usingMetaHumanPreview,
       metaHumanLikenessApproved:false,
       meshAssetId:BJ_MESHY_V6_ASSET.id,
