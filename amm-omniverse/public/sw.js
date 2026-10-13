@@ -80,6 +80,17 @@ self.addEventListener('fetch', (event) => {
   if (url.pathname.startsWith('/assets/') && url.pathname.match(/\.(js|css)$/i)) {
     event.respondWith((async () => {
       const isJs = /\.js$/i.test(url.pathname)
+      // Vite gives changed content a new hashed URL. Reuse only exact,
+      // same-origin hashed assets; app HTML and unversioned files stay fresh.
+      const immutable = url.origin === self.location.origin && /-[A-Za-z0-9_-]{8,}\.(js|css)$/.test(url.pathname)
+      if (immutable) {
+        try {
+          const cache = await caches.open(CACHE_NAME)
+          const cached = await cache.match(request)
+          const type = String(cached?.headers.get('content-type') || '').toLowerCase()
+          if (cached?.ok && (isJs ? type.includes('javascript') : type.includes('text/css'))) return cached
+        } catch { /* Storage restrictions must not prevent network startup. */ }
+      }
       try {
         const response = await fetch(request, { cache: 'no-store' })
         const type = String(response.headers.get('content-type') || '').toLowerCase()
