@@ -157,7 +157,7 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {
-            const SW_VERSION='20261002-birthday-live-fix-v2'
+            const SW_VERSION='20261013-bj-visual-safari-cache-v16'
             const RELEASE_KEY='tryamm-release-version'
             const previousRelease=localStorage.getItem(RELEASE_KEY)
             if (previousRelease !== SW_VERSION && 'caches' in window) {
@@ -167,7 +167,7 @@
             }
             const registration = await navigator.serviceWorker.register('/sw.js?v=' + SW_VERSION, { updateViaCache: 'none' })
             await registration.update()
-            if (registration.waiting && !location.pathname.startsWith('/streetverse')) registration.waiting.postMessage({type:'SKIP_WAITING'})
+            if (registration.waiting) registration.waiting.postMessage({type:'SKIP_WAITING'})
             navigator.serviceWorker.addEventListener('controllerchange', () => {
               // Never destroy an already-rendered StreetVerse session just because
               // a newer service worker took control. Safari/iOS can otherwise
