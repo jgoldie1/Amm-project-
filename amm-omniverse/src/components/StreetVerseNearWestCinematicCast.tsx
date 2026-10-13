@@ -30,8 +30,9 @@ export function StreetVerseNearWestHeroGLB({
       if(geometry.meshes===0){loaded.dispose();return}
       handle.current=loaded
       host.current.add(loaded.object)
-      // Approved user reference is an optional overlay, not a certified face scan.
-      try{
+      // A fitted MetaHuman face must never be covered with the older photo-mask.
+      // Legacy GLBs still receive the approved reference overlay as before.
+      if(!loaded.object.userData.metahumanWebPreview)try{
         const head=installBJPhotoMatchedHead(loaded.object)
         if(head){
           photoHead.current=head
