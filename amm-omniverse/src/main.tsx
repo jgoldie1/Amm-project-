@@ -1,7 +1,6 @@
 import { queueOptionalRuntime } from './runtime/OptionalRuntimeQueue'
 import { StrictMode, Suspense, lazy } from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App'
 import JudahSplash from './components/JudahSplash'
 import AccessibilityStatement from './components/AccessibilityStatement'
 import FamilyBusinessPublicSite from './components/FamilyBusinessPublicSite'
@@ -27,6 +26,8 @@ import FreeTvCommercialBreakOverlay from './components/FreeTvCommercialBreakOver
 import { getStandaloneSite } from './data/standaloneSiteRegistry'
 import './accessibility/accessibility.css'
 
+// Entering StreetVerse must not download the entire homepage application first.
+const App=lazy(()=>import('./App'))
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 // Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
 const StreetVerseTwinWorld=lazy(()=>import('./components/StreetVerseTwinWorld'))
@@ -58,7 +59,7 @@ const MeshyFactoryControlPanel=lazy(()=>import('./components/MeshyFactoryControl
 const OctoberLaunchLockCenter=lazy(()=>import('./components/OctoberLaunchLockCenter'))
 const StubbsAIHolographicBusinessOS=lazy(()=>import('./components/StubbsAIHolographicBusinessOS'))
 
-let routeContent: React.ReactNode = <App />
+let routeContent: React.ReactNode = <Suspense fallback={<div role="status">Opening TRYAMM…</div>}><App /></Suspense>
 let preserveDeterministicSafeRoute = false
 
 try {
@@ -133,7 +134,7 @@ try {
   // Release compatibility marker required by the Omniverse shell smoke contract: <OmniverseCoreLoopHUD />
   const mainShell=<>
     <JudahSplash />
-    <App />
+    <Suspense fallback={routeFallback}><App /></Suspense>
     <HoloGPTEventAlias />
     <UniversalSafetyLauncher />
     <MiddleverseLauncher />
@@ -182,7 +183,7 @@ try {
 } catch (error) {
   console.error('[TRYAMM] Optional runtime installer failed before React mount; continuing with core UI.', error)
   // Keep the public shell renderable even when an optional installer aborts startup.
-  routeContent = <App />
+  routeContent = <Suspense fallback={<div role="status">Opening TRYAMM…</div>}><App /></Suspense>
 }
 
 const rootElement = document.getElementById('root')
