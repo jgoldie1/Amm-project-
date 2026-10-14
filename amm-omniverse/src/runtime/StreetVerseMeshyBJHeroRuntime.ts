@@ -39,6 +39,10 @@ export type StreetVerseMeshyBJHeroHandle={
   dispose:()=>void
 }
 
+export const STREETVERSE_BJ_V15_URL='https://d2ol7oe51mr4n9.cloudfront.net/user_3HqgexuZuGoTDUJ2Hxg2e6x5Hzm/daa5234c-5fbf-4b52-9c45-e82e36156153.glb'
+export function streetVerseWantsBJv15(){
+  return typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('bj')!=='legacy'
+}
 const loader=new GLTFLoader()
 const availability=new Map<string,Promise<boolean>>()
 
@@ -176,9 +180,15 @@ function disposeObject(root:THREE.Object3D){
 export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHeroHandle|null>{
   const verifiedPhotoMatch=canClaimPhotoMatched(BJ_MESHY_V6_ASSET.characterId)
   const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
-  const published=await resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope)
-  const candidates=[published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
+  // BJ V15 must not wait for an unrelated online Meshy manifest.
+  const wantsV15=streetVerseWantsBJv15()
+  const published=wantsV15?null:await Promise.race([
+    resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope),
+    new Promise<null>(resolve=>window.setTimeout(()=>resolve(null),3000)),
+  ])
+  const candidates=[wantsV15?STREETVERSE_BJ_V15_URL:null,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
   let sourceUrl=''
+  let actualV15=false
   let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
   // Generated V12/V7/V6 GLBs are first-party build outputs. A slow Safari HEAD
   // response must not block the real hero; attempt the actual GLB GET instead.
@@ -186,7 +196,30 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   for(const candidate of candidates){
     if(candidate===published?.url&&!await assetExists(candidate))continue
     try{
-      publishedGlb=await loader.loadAsync(candidate)
+      if(candidate===STREETVERSE_BJ_V15_URL){
+        const controller=new AbortController()
+        const timeout=window.setTimeout(()=>controller.abort(),20000)
+        try{
+          window.dispatchEvent(new CustomEvent('tryamm:bj-model-progress',{detail:{stage:'downloading'}}))
+          const response=await fetch(candidate,{signal:controller.signal,mode:'cors'})
+          if(!response.ok)throw new Error('BJ V15 HTTP '+response.status)
+          const bytes=await response.arrayBuffer()
+          window.dispatchEvent(new CustomEvent('tryamm:bj-model-progress',{detail:{stage:'preparing',bytes:bytes.byteLength}}))
+          let decodeTimer=0
+          try{
+            publishedGlb=await Promise.race([
+              loader.parseAsync(bytes,new URL('.',candidate).href),
+              new Promise<never>((_,reject)=>{decodeTimer=window.setTimeout(()=>reject(new Error('BJ V15 decode deadline exceeded')),18000)}),
+            ])
+          }finally{window.clearTimeout(decodeTimer)}
+          const clips=publishedGlb.animations||[]
+          if(!clips.some(clip=>/idle/i.test(clip.name))||!clips.some(clip=>/walk/i.test(clip.name))){
+            disposeObject(publishedGlb.scene)
+            throw new Error('BJ V15 missing movement clips')
+          }
+          actualV15=true
+        }finally{window.clearTimeout(timeout)}
+      }else{publishedGlb=await loader.loadAsync(candidate)}
       sourceUrl=candidate
       break
     }catch{
@@ -206,13 +239,19 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   try{
     const gltf=publishedGlb
     const object=gltf.scene
-    object.name='bj-stubbs-production-v12'
+    object.name=actualV15?'bj-stubbs-v15-real-glb':'bj-stubbs-production-v12'
+    if(actualV15){
+      const hidden:THREE.Mesh[]=[]
+      object.traverse(node=>{if(node instanceof THREE.Mesh&&node.scale.lengthSq()<1e-12)hidden.push(node)})
+      hidden.forEach(node=>node.removeFromParent())
+      object.userData.prunedInvisibleV15Meshes=hidden.length
+    }
     normalizeStreetVerseHumanHeight(object,BJ_MESHY_V6_ASSET.targetHeightMeters)
     object.traverse(node=>{
       if(node instanceof THREE.Mesh){
         node.castShadow=true
         node.receiveShadow=true
-        node.frustumCulled=true
+        node.frustumCulled=!actualV15
       }
     })
     const productionMaterials=tuneBJProductionMaterials(object)
@@ -235,11 +274,14 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       displayName:'BJ Stubbs',
       namedCharacter:true,
       identityContinuityKey:BJ_MESHY_V6_ASSET.characterId,
-      visualAuthority:BJ_MESHY_V6_ASSET.authority,
+      visualAuthority:actualV15?'bj-v15-current-preview':BJ_MESHY_V6_ASSET.authority,
+      bjV15RealGlbPreview:actualV15,
+      heroVersion:actualV15?'V15':'legacy',
+      sourceUrl,
       meshAssetId:BJ_MESHY_V6_ASSET.id,
       referenceMatchedPreview:Boolean(published?.url),
-      photoMatched:verifiedPhotoMatch,
-      certifiedLikeness:verifiedPhotoMatch,
+      photoMatched:actualV15?false:verifiedPhotoMatch,
+      certifiedLikeness:actualV15?false:verifiedPhotoMatch,
       meshyV6:Boolean(published?.url),
       ownedV7:!published?.url,
       ownedV12:!published?.url,
@@ -259,7 +301,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     }
 
     const companionClips:THREE.AnimationClip[]=[]
-    for(const [url,name] of [[published?.walkUrl,'walk'],[published?.runUrl,'run']] as const){
+    for(const [url,name] of (actualV15?[]:[[published?.walkUrl,'walk'],[published?.runUrl,'run']]) as readonly [string|undefined,string][]){
       if(!url)continue
       try{
         const companion=await loader.loadAsync(url)
