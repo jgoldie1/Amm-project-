@@ -1,0 +1,28 @@
+import fs from 'node:fs'
+import assert from 'node:assert/strict'
+
+const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8')
+const loader=read('../src/runtime/StreetVerseMeshyBJHeroRuntime.ts')
+const mobile=read('../src/components/StreetVerseMobileWorld.tsx')
+const html=read('../index.html')
+const startup=read('../public/tryamm-startup-guard.js')
+
+const check=(yes,label)=>assert.ok(yes,'BJ MAINLINE REGRESSION: '+label)
+check(loader.includes('STREETVERSE_BJ_V15_URL'),'real GLB must be reachable from current main')
+check(loader.includes("get('bj')!=='legacy'"),'V15 is default and old model is explicit fallback')
+check(loader.includes('const published=wantsV15?null:await Promise.race('),'online manifest cannot block real V15')
+check(loader.includes('new AbortController()'),'bounded V15 download must remain abortable')
+check(loader.includes('loader.parseAsync(bytes'),'actual 3D binary must be parsed')
+check(loader.includes('BJ V15 decode deadline exceeded'),'decode cannot hang forever')
+check(loader.includes('mesh.removeFromParent()')||loader.includes('node.removeFromParent()'),'hidden legacy meshes pruned')
+check(loader.includes('bjV15RealGlbPreview:actualV15'),'real V15 gets an unmistakable identifier')
+check(loader.includes('certifiedLikeness:actualV15?false:verifiedPhotoMatch'),'not certified as exact likeness')
+check(loader.includes('BJ_MESHY_V6_ASSET.productionUrl'),'existing working fallback remains')
+check(mobile.includes('tryamm:bj-v15-retry'),'one-handed retry wired into live gameplay')
+check(mobile.includes("setBjLoadStatus(actualV15?'ready':'fallback')"),'status only becomes ready after actual 3D mount')
+check(mobile.includes("nativeHeroRig=actualV15?null:nativeHumanoidRig(nativeHero)"),'old rig cannot animate over V15 skeleton')
+check(mobile.includes("bjShowcasePinned?Number.POSITIVE_INFINITY:0"),'portrait remains open until user closes it')
+check(mobile.includes('data-bj-load-state={bjLoadStatus}'),'mobile HUD displays download/error states')
+check(html.includes('tryamm-startup-guard.js'),'preserve newest iPhone boot recovery')
+check(startup.includes(''), 'Safari 15 recovery module exists')
+console.log('BJ V15 current-main source regression PASS; no Vercel build required')
