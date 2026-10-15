@@ -25,7 +25,7 @@ required(mobile.includes("setMessage('BJ V15 TIMED OUT • tap RETRY BJ')"),'tim
 required(loader.includes('daa5234c-5fbf-4b52-9c45-e82e36156153.glb'),'stable externally hosted asset')
 required(loader.includes("['legacy','approved'].includes(new URLSearchParams"),'V15 is default with both legacy and founder-approved opt-in controls')
 required(loader.includes('BJ_MESHY_V6_ASSET.productionUrl'),'preserve older working fallback')
-required(loader.includes("candidate===metaHumanPreviewUrl)&&!await assetExists(candidate)"),'external V15 should not be discarded by a short HEAD request')
+required(loader.includes("candidate===metaHumanPreviewUrl&&!await assetExists(candidate)"),'external V15 should not be discarded by a short HEAD request')
 required(mobile.includes('Toggle BJ Stubbs V15 face portrait view'),'always-visible face inspection button')
 required(mobile.includes('setBjFaceViewPinned(bjShowcasePinned)'),'portrait camera can be pinned and dismissed')
 required(mobile.includes('bjShowcasePinned?Number.POSITIVE_INFINITY:0'),'close-up is not limited to eight seconds')
@@ -42,8 +42,8 @@ required(mobile.includes('tryamm:streetverse-bj-v15-preview'),'actual model refr
 required(mobile.includes('request!==bjHeroLoadEpoch'),'prevent slow previous request from overwriting V15')
 required(mobile.includes('nativeLayer.add(handle.object)'),'actual game scene replaces avatar')
 required(mobile.includes('nativeHeroFallback!.visible=false'),'old player geometry hidden')
-required(mobile.includes('nativeHeroRig=isV15?null:nativeHumanoidRig(nativeHero)'),'do not double animate V15 bones')
-required(mobile.includes("setBJRenderedVersion(isV15?'V15':null)"),'only claim V15 after mounting real GLB')
+required(mobile.includes('nativeHeroRig=isV15||isApproved?null:nativeHumanoidRig(nativeHero)'),'do not double animate V15 bones')
+required(mobile.includes("setBJRenderedVersion(isApproved?'APPROVED':isV15?'V15':null)"),'only claim V15 after mounting real GLB')
 required(mobile.includes('data-bj-active-version={bjRenderedVersion'),'surface real model version in UI')
 required(mobile.includes('tryamm:streetverse-bj-showcase'),'show visible in-world close-up')
 required(mobile.includes("data-bj-load-state={bjLoadStatus}"),'HUD must expose loading, fallback and error states')
@@ -57,6 +57,6 @@ required(mobile.includes('data-streetverse-release={document.documentElement.dat
 
 required(mobile.includes('tryamm:streetverse-bj-hero-mounted'),'proof event fires after nativeLayer.add')
 required(mobile.includes("window.removeEventListener('tryamm:streetverse-bj-v15-preview'"),'remove event when world unmounts')
-required(nearWest.includes('!loaded.object.userData.bjV15RealGlbPreview'),'do not hide new face with legacy overlay')
+required(nearWest.includes('!loaded.object.userData.bjV15RealGlbPreview&&!loaded.object.userData.bjVaultApproved'),'do not hide new face with legacy overlay')
 
 console.log('BJ V15 REAL GAME CHARACTER integration PASS: actual file, one-tap swap, animation, bounds repair, provenance, fallback, scene mount')
