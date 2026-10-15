@@ -28,7 +28,7 @@ function initialProject():DramaProject{
   return{id:'holo-drama-first-project',title:'My Holo Drama',scenes:[blankScene(1)],updatedAt:new Date().toISOString()}
 }
 
-export default function HoloDramaLauncher({initiallyOpen=false}:{initiallyOpen?:boolean}){
+export default function HoloDramaLauncher({initiallyOpen=false,embedded=false}:{initiallyOpen?:boolean;embedded?:boolean}){
   const [open,setOpen]=useState(initiallyOpen)
   const [project,setProject]=useState<DramaProject>(()=>initialProject())
   const [selectedId,setSelectedId]=useState(()=>project.scenes[0]?.id||'')
@@ -53,6 +53,7 @@ export default function HoloDramaLauncher({initiallyOpen=false}:{initiallyOpen?:
     setMessage('Scene handed to Reel Creator with title, caption, audio direction and product/ad metadata preserved for the draft.')
   }
 
+  if(!open&&embedded)return null
   if(!open)return <button onClick={()=>setOpen(true)} style={{position:'fixed',right:18,bottom:210,zIndex:1100,border:'1px solid #8de7ff',borderRadius:999,padding:'10px 14px',background:'rgba(2,10,20,.92)',color:'#fff',fontWeight:800,boxShadow:'0 0 22px rgba(75,211,255,.28)'}}>HOLO DRAMA</button>
 
   return <div style={{position:'fixed',inset:0,zIndex:1300,background:'rgba(0,0,0,.82)',display:'grid',placeItems:'center',padding:16}}>
