@@ -82,8 +82,8 @@ export default function CreatorWorkflowHub({initialMode='home'}:{initialMode?:Cr
       {routes.map(r=><button key={r.id} aria-label={'Open '+r.label} aria-current={mode===r.id?'page':undefined} onClick={()=>launch(r.id)} style={{background:mode===r.id?'#14495a':'transparent',color:mode===r.id?'#b1fff4':'#b2cce3',border:0,borderRadius:10,minHeight:52,fontWeight:800,fontSize:11}}><span style={{display:'block',fontSize:20,marginBottom:3}}>{r.icon}</span>{r.label}</button>)}
     </nav>
     <Suspense fallback={null}>
-      <MediaStudioLauncher launchRequest={studioAction}/>
-      <HoloDramaLauncher initiallyOpen={dramaAction}/>
+      <MediaStudioLauncher launchRequest={studioAction} embedded/>
+      <HoloDramaLauncher initiallyOpen={dramaAction} embedded/>
     </Suspense>
   </main>
 }
