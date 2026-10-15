@@ -60,35 +60,48 @@ export async function connectLiveRoom(opts: {
     }
   })
 
-  await room.connect(session.url, session.token)
-  updateCount()
+  room.on(RoomEvent.TrackUnsubscribed, (track) => {
+    for (const element of track.detach()) element.remove()
+  })
 
   let protectedLive: ReturnType<typeof installCallSafeLive> | null = null
-  if (opts.role === 'host') {
-    await room.localParticipant.setMicrophoneEnabled(true)
-    await room.localParticipant.setCameraEnabled(true)
+  try {
+    await room.connect(session.url, session.token)
+    updateCount()
+    if (opts.role === 'host') {
+      await room.localParticipant.setMicrophoneEnabled(true)
+      await room.localParticipant.setCameraEnabled(true)
 
-    let restoreMic = true
-    let restoreCamera = true
-    protectedLive = installCallSafeLive(opts.roomName, {
-      muteMicrophone: async () => {
-        restoreMic = room.localParticipant.isMicrophoneEnabled
-        if (restoreMic) await room.localParticipant.setMicrophoneEnabled(false)
-      },
-      disableCamera: async () => {
-        restoreCamera = room.localParticipant.isCameraEnabled
-        if (restoreCamera) await room.localParticipant.setCameraEnabled(false)
-      },
-      restoreMicrophone: async () => {
-        if (restoreMic) await room.localParticipant.setMicrophoneEnabled(true)
-      },
-      restoreCamera: async () => {
-        if (restoreCamera) await room.localParticipant.setCameraEnabled(true)
-      },
-    })
+      let restoreMic = true
+      let restoreCamera = true
+      protectedLive = installCallSafeLive(opts.roomName, {
+        muteMicrophone: async () => {
+          restoreMic = room.localParticipant.isMicrophoneEnabled
+          if (restoreMic) await room.localParticipant.setMicrophoneEnabled(false)
+        },
+        disableCamera: async () => {
+          restoreCamera = room.localParticipant.isCameraEnabled
+          if (restoreCamera) await room.localParticipant.setCameraEnabled(false)
+        },
+        restoreMicrophone: async () => {
+          if (restoreMic) await room.localParticipant.setMicrophoneEnabled(true)
+        },
+        restoreCamera: async () => {
+          if (restoreCamera) await room.localParticipant.setCameraEnabled(true)
+        },
+      })
 
-    room.once(RoomEvent.Disconnected, () => protectedLive?.destroy())
+      room.once(RoomEvent.Disconnected, () => protectedLive?.destroy())
+    }
+
+    return { room, session, protectedLive }
+  } catch (error) {
+    // Camera publication can fail after the microphone and room are connected.
+    // Stop every attached local track and leave before reporting the error.
+    for (const publication of room.localParticipant.trackPublications.values()) {
+      try { publication.track?.stop() } catch { /* Continue cleaning up other tracks. */ }
+    }
+    try { await room.disconnect() } catch { /* Preserve the original setup error. */ }
+    throw error
   }
-
-  return { room, session, protectedLive }
 }

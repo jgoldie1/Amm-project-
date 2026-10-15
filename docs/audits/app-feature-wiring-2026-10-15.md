@@ -49,3 +49,17 @@ The guessed /api/livekit/health path returned HTML, not JSON. It is not the app'
 8. Continue feature-by-feature journeys for reels, Omni Box, Holo Fon, notifications, jobs, businesses, world navigation, character/asset loading, missions and saved progress. These are unverified, not declared broken or complete.
 
 The repository's 23-verse source audit reports 2 LIVE, 20 BUILDING and 1 PLANNED. These are authored labels checked by text-based contracts, not measured live functionality. Registry integrity tests passing must not be reported as all features working.
+
+## Second repair pass: LIVE / PK
+
+- If room connection or host camera publication fails, stop local published tracks
+  and disconnect before surfacing the original error. This prevents a failed join
+  from leaving an active room/microphone behind.
+- Detach and remove remote media elements when LiveKit unsubscribes a track.
+- PK leave events no longer generate an invented 0–0 result. Missing, nonnumeric,
+  negative or infinite scores produce an unavailable-result message instead.
+- Six transport/formatter tests pass using isolated fakes; these are not proof of
+  a production LiveKit connection. Existing LIVE/PK integration and Lottie contracts
+  pass. A new product proposal is in docs/product/pk-story-arenas.md.
+- GitHub publication remains blocked by automatic approval review pending explicit
+  permission to push. No deployment or production configuration changes were made.
