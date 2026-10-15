@@ -64,6 +64,7 @@ export const BJ_V15_PREVIEW={
 
 export function getBJPreviewV15Url():string|null{
   if(typeof window==='undefined')return null
+  if(new URLSearchParams(window.location.search).get('bj')==='published')return null
   return new URLSearchParams(window.location.search).get('bj')==='legacy' ? null : BJ_V15_PREVIEW.url
 }
 
