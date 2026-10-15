@@ -18,7 +18,9 @@ async function vault(action?:Record<string,unknown>):Promise<VaultReply>{
   const client=getSupabaseClient()
   const token=await getAccessToken()
   if(!client||!token)throw new Error('Sign in to TRYAMM before using the private character vault.')
-  const response=await fetch(client.supabaseUrl+'/functions/v1/streetverse-character-vault',{
+  const supabaseUrl=String(import.meta.env.VITE_SUPABASE_URL||'').replace(/\/$/,'')
+  if(!supabaseUrl)throw new Error('Supabase endpoint is not configured.')
+  const response=await fetch(supabaseUrl+'/functions/v1/streetverse-character-vault',{
     method:action?'POST':'GET',cache:'no-store',
     headers:{authorization:'Bearer '+token,apikey:String(import.meta.env.VITE_SUPABASE_ANON_KEY||''),
       'content-type':'application/json'},
