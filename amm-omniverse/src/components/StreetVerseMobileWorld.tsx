@@ -15,6 +15,7 @@ import {createStreetVerseChicagoTrafficLife,type StreetVerseTrafficAxis,type Str
 import {createStreetVerseChicagoIdentityInteraction,type StreetVerseInteractionPrompt} from '../runtime/StreetVerseChicagoIdentityInteractionRuntime'
 import {createStreetVerseChicagoPedestrianRoutines} from '../runtime/StreetVerseChicagoPedestrianRoutineRuntime'
 import {disposeNativeAssetLayer,loadTryammNativeCircleParkLayer} from '../runtime/TryammNativeAssetRuntime'
+import {CIRCLE_PARK_OVERNIGHT_MOBILE_PLACEMENTS} from '../data/TryammNativeRuntimeAssetCatalog'
 import type {NativePlacement} from '../data/TryammNativeRuntimeAssetCatalog'
 import {WORLD_REGISTRY,advanceWorldBuild,canPublishWorld,queueWorldBuild} from '../game/simulation/worldBuilderPipeline'
 import {useGameStore} from '../game/state/useGameStore'
@@ -435,6 +436,18 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       deferredResidentsStarted=true
       window.removeEventListener('tryamm:streetverse-bj-hero-mounted',onBJBeforeNpc)
       window.clearTimeout(residentFallbackTimer)
+      // The player character has priority. Only now fetch lightweight original
+      // overnight forge props for Circle Park/Taylor (visual-only, no collisions).
+      void loadTryammNativeCircleParkLayer({placements:CIRCLE_PARK_OVERNIGHT_MOBILE_PLACEMENTS}).then(result=>{
+        if(nativeCancelled||!nativeLayer){disposeNativeAssetLayer(result.group);return}
+        result.group.name='circle-park-overnight-asset-forge-visuals'
+        nativeLayer.add(result.group)
+        window.dispatchEvent(new CustomEvent('tryamm:streetverse-overnight-assets-ready',{detail:{
+          district:'circle-park-mobile',loaded:result.loaded,
+          missing:result.failed.map(item=>item.asset),generatedGlbs:9,
+          collisionAuthority:'existing-gameplay-runtime',
+        }}))
+      }).catch(error=>{console.warn('[StreetVerse asset forge] mobile scene fallback preserved',error)})
       startResidentsAfterBJ()
     }
     window.addEventListener('tryamm:streetverse-bj-hero-mounted',onBJBeforeNpc,{once:true})
