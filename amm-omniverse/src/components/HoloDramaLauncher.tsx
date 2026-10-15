@@ -28,8 +28,8 @@ function initialProject():DramaProject{
   return{id:'holo-drama-first-project',title:'My Holo Drama',scenes:[blankScene(1)],updatedAt:new Date().toISOString()}
 }
 
-export default function HoloDramaLauncher(){
-  const [open,setOpen]=useState(false)
+export default function HoloDramaLauncher({initiallyOpen=false}:{initiallyOpen?:boolean}){
+  const [open,setOpen]=useState(initiallyOpen)
   const [project,setProject]=useState<DramaProject>(()=>initialProject())
   const [selectedId,setSelectedId]=useState(()=>project.scenes[0]?.id||'')
   const [message,setMessage]=useState('Build a multi-scene story, then hand a scene to TRYAMM Reel Creator for capture/upload, effects, render and publish.')
@@ -37,7 +37,8 @@ export default function HoloDramaLauncher(){
   const totalDuration=useMemo(()=>project.scenes.reduce((sum,scene)=>sum+Math.max(1,scene.durationSeconds||0),0),[project.scenes])
 
   useEffect(()=>{const openDrama=()=>setOpen(true);(window as any).__showHoloDrama=()=>setOpen(true);window.addEventListener('tryamm:holo-drama-open',openDrama);return()=>{window.removeEventListener('tryamm:holo-drama-open',openDrama);delete (window as any).__showHoloDrama}},[])
-  useEffect(()=>{localStorage.setItem(STORAGE_KEY,JSON.stringify({...project,updatedAt:new Date().toISOString()}))},[project])
+  useEffect(()=>{if(initiallyOpen)setOpen(true)},[initiallyOpen])
+  useEffect(()=>{try{localStorage.setItem(STORAGE_KEY,JSON.stringify({...project,updatedAt:new Date().toISOString()}))}catch{setMessage('Device storage is full or unavailable. Copy your scene text to keep it safe.')}},[project])
 
   function updateScene(patch:Partial<DramaScene>){if(!selected)return;setProject(current=>({...current,scenes:current.scenes.map(scene=>scene.id===selected.id?{...scene,...patch}:scene)}))}
   function addScene(){const next=blankScene(project.scenes.length+1);setProject(current=>({...current,scenes:[...current.scenes,next]}));setSelectedId(next.id);setMessage('Scene added. Add the caption, audio direction and optional product/ad tag.')}
