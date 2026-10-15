@@ -64,7 +64,7 @@ export const BJ_V15_PREVIEW={
 
 export function getBJPreviewV15Url():string|null{
   if(typeof window==='undefined')return null
-  return new URLSearchParams(window.location.search).get('bj')==='legacy' ? null : BJ_V15_PREVIEW.url
+  return ['legacy','approved'].includes(new URLSearchParams(window.location.search).get('bj')||'') ? null : BJ_V15_PREVIEW.url
 }
 
 const loader=new GLTFLoader()
@@ -222,7 +222,8 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   // On slow iPhone connections that unbounded manifest request left the UI at
   // "BJ V15 LOADING" even though the V15 asset itself was healthy.
   const v15PreviewUrl=getBJPreviewV15Url()
-  const published=v15PreviewUrl?null:await Promise.race([
+  const approvedRequested=typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('bj')==='approved'
+  const published=v15PreviewUrl&&!approvedRequested?null:await Promise.race([
     resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope),
     new Promise<null>(resolve=>window.setTimeout(()=>resolve(null),3000)),
   ])
@@ -234,13 +235,14 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
   let usingMetaHumanPreview=false
   let usingV15Preview=false
+  let usingApprovedAsset=false
   // Generated V12/V7/V6 GLBs are first-party build outputs. A slow Safari HEAD
   // response must not block the real hero; attempt the actual GLB GET instead.
   // Keep the published/external Meshy override protected by its availability probe.
   for(const candidate of candidates){
     // Remote V15 GET is more reliable on iPhone than an extra 1.8s HEAD
     // preflight, which can incorrectly discard a working animated hero.
-    if((candidate===published?.url||candidate===metaHumanPreviewUrl)&&!await assetExists(candidate))continue
+    if(candidate===metaHumanPreviewUrl&&!await assetExists(candidate))continue
     try{
       // The legacy loader has no request deadline. A failed/slow CDN request
       // cannot leave an iPhone showing an unbounded LOADING indicator.
@@ -296,6 +298,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         if(!valid){disposeObject(candidateGlb.scene);continue}
         usingV15Preview=true
       }
+      usingApprovedAsset=Boolean(approvedRequested&&published?.url===candidate)
       publishedGlb=candidateGlb
       sourceUrl=candidate
       break
@@ -316,7 +319,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   try{
     const gltf=publishedGlb
     const object=gltf.scene
-    object.name=usingV15Preview?'bj-stubbs-v15-actual-glb':usingMetaHumanPreview?'bj-stubbs-metahuman-web-preview':'bj-stubbs-production-v12'
+    object.name=usingApprovedAsset?'bj-stubbs-founder-approved-glb':usingV15Preview?'bj-stubbs-v15-actual-glb':usingMetaHumanPreview?'bj-stubbs-metahuman-web-preview':'bj-stubbs-production-v12'
     // V15 includes 50 zero-scaled legacy SkinnedMeshes that are invisible but
     // cause Three.Box3 to produce NaN bounds and an invalid contact shadow.
     // Detach only genuinely invisible zero-scale mesh nodes; do not touch
@@ -359,6 +362,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       identityContinuityKey:BJ_MESHY_V6_ASSET.characterId,
       visualAuthority:usingV15Preview?'bj-actual-v15-remote-preview':usingMetaHumanPreview?'metahuman-web-opt-in-unapproved':BJ_MESHY_V6_ASSET.authority,
       bjV15RealGlbPreview:usingV15Preview,
+      bjVaultApproved:usingApprovedAsset,
       prunedInvisibleV15Meshes,
       metahumanWebPreview:usingMetaHumanPreview,
       metaHumanLikenessApproved:false,
