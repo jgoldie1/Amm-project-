@@ -174,7 +174,7 @@ export default function App() {
   useEffect(() => {
     const route = (window.location.pathname || '/').replace(/\/+$/, '') || '/'
     const routeAliases = new Set([
-      '/marketplace','/music','/musicverse','/sports','/sportverse','/faith','/blockchain','/city',
+      '/marketplace','/music','/musicverse','/aniyah-studio','/64-track-studio','/sports','/sportverse','/faith','/blockchain','/city',
       '/propertyverse','/earnings','/creator-money','/business-income','/merchant-money','/all-american-store','/omnichannel','/holo-gallery','/holo-fridge','/holo-cold-vault','/holo-lab','/holo-labs','/logistics-freight','/freight','/business-revenue','/saas','/holoverse','/spaceverse','/cyberverse','/creatorverse','/businessverse',
       '/educationverse','/gameverse','/middleverse','/metaverse','/multiverse','/time-machine',
       '/legacyverse','/connect','/tv','/tryamm-tv','/isaiah-ai-tv','/bj-v7-preview','/bj-v8-preview','/bj-v9-preview','/bj-v10-preview','/bj-preview'

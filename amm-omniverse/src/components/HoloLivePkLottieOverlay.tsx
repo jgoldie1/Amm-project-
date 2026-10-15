@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from 'react'
 import {playLottie,stopLottie,type LottieAnimKey} from '../game/lottie/LottieAnimations'
 import {lottieForGift} from '../game/gifts/HolographicGiftKit'
+import {pkEndPresentation} from '../game/holographic/pkEndPresentation'
 
 type OverlayState={title:string;detail:string;nonce:number;lottieKey:LottieAnimKey}
 
@@ -18,7 +19,7 @@ export default function HoloLivePkLottieOverlay(){
     }
     const onLive=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};show('HOLO LIVE',String(d.roomName||d.room||d.type||'LIVE session connected'),'live_pulse')}
     const onPkStart=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};show('PK BATTLE',String(d.mode||'1v1').toUpperCase()+' • HOLOGRAPHIC ARENA','fusion_burst')}
-    const onPkEnd=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};show('PK RESULT',`TEAM A ${d.left??0} • ${d.right??0} TEAM B`,'mission_complete')}
+    const onPkEnd=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};const result=pkEndPresentation(d);show(result.title,result.detail,result.title==='PK RESULT'?'mission_complete':'live_pulse')}
     const onGift=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};const kit=lottieForGift(String(d.giftType||''),String(d.tier||''));show('HOLO GIFT',String(d.label||d.giftType||d.collection||'GIFT EFFECT'),kit.lottieKey)}
     window.addEventListener('tryamm:live-session',onLive)
     window.addEventListener('tryamm:pk-start',onPkStart)
