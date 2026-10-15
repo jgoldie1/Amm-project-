@@ -47,13 +47,13 @@
     <script>
       (()=>{
         document.documentElement.classList.toggle('tryamm-streetverse',location.pathname.startsWith('/streetverse'))
-        const KEY='tryamm-asset-recovery-v30'
+        const KEY='tryamm-asset-recovery-v31'
         const recover=()=>{
           try{
             if(sessionStorage.getItem(KEY))return
             sessionStorage.setItem(KEY,'1')
             const u=new URL(location.href)
-            u.searchParams.set('_tryamm_recover','v30')
+            u.searchParams.set('_tryamm_recover','v31')
             location.replace(u.toString())
           }catch{location.reload()}
         }
@@ -157,7 +157,8 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {
-            const SW_VERSION='20261002-birthday-live-fix-v2'
+            const SW_VERSION='20261013-bj-v17-clean-release'
+            document.documentElement.dataset.tryammRelease=SW_VERSION
             const RELEASE_KEY='tryamm-release-version'
             const previousRelease=localStorage.getItem(RELEASE_KEY)
             if (previousRelease !== SW_VERSION && 'caches' in window) {
@@ -167,12 +168,26 @@
             }
             const registration = await navigator.serviceWorker.register('/sw.js?v=' + SW_VERSION, { updateViaCache: 'none' })
             await registration.update()
-            if (registration.waiting && !location.pathname.startsWith('/streetverse')) registration.waiting.postMessage({type:'SKIP_WAITING'})
+            if (registration.waiting) registration.waiting.postMessage({type:'SKIP_WAITING'})
             navigator.serviceWorker.addEventListener('controllerchange', () => {
               // Never destroy an already-rendered StreetVerse session just because
               // a newer service worker took control. Safari/iOS can otherwise
               // reload the WebGL world immediately after first paint.
-              if (location.pathname.startsWith('/streetverse')) return
+              if (location.pathname.startsWith('/streetverse')) {
+                // Do not tear down an active WebGL session. Let the player
+                // explicitly reload the newest release with one touch.
+                if (previousRelease && previousRelease !== SW_VERSION && !document.getElementById('tryamm-update-ready')) {
+                  const button=document.createElement('button')
+                  button.id='tryamm-update-ready'
+                  button.type='button'
+                  button.setAttribute('aria-label','Refresh StreetVerse to current release')
+                  button.textContent='NEW STREETVERSE VERSION — TAP TO REFRESH'
+                  Object.assign(button.style,{position:'fixed',top:'max(8px,env(safe-area-inset-top))',left:'50%',transform:'translateX(-50%)',zIndex:'2147483646',minHeight:'46px',maxWidth:'95vw',padding:'10px 15px',border:'2px solid #89f8b7',borderRadius:'14px',color:'#edfff5',background:'#08251c',font:'800 13px system-ui',boxShadow:'0 4px 18px #000b'})
+                  button.addEventListener('click',()=>location.reload(),{once:true})
+                  document.body.appendChild(button)
+                }
+                return
+              }
               const key = 'tryamm-sw-refresh-' + SW_VERSION
               if (!sessionStorage.getItem(key)) {
                 sessionStorage.setItem(key, '1')

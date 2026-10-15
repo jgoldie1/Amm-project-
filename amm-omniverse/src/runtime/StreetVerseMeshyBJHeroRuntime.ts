@@ -4,6 +4,8 @@ import {normalizeStreetVerseHumanHeight} from './StreetVerseHumanScale'
 import {BJ_STUBBS_BODY_PROFILE} from '../data/StreetVerseBJBodyProfile'
 import {resolvePublishedMeshyAsset,resetPublishedMeshyManifest} from './StreetVerseMeshyAssetManifest'
 import {canClaimPhotoMatched} from '../data/StreetVerseCharacterReferenceAuthorization'
+import {inspectCharacterGeometry} from './StreetVerseCharacterGeometry'
+import {getPreviewBJMetaHumanUrl,auditBJMetaHumanForStreetVerse} from './StreetVerseBJMetaHumanBridge'
 
 export const BJ_MESHY_V6_ASSET={
   id:'streetverse-bj-stubbs-meshy-v6',
@@ -22,11 +24,17 @@ export const BJ_MESHY_V6_ASSET={
 } as const
 
 type Motion='idle'|'walk'|'run'
+export type BJGesture='nod'|'look-around'|'acknowledge'|'converse'|'greet'
 
 type BJFacePose={
   blinkLeft?:number;blinkRight?:number;lookLeft?:number;lookRight?:number;lookUp?:number;lookDown?:number;
   jawOpen?:number;mouthSmile?:number;mouthFrown?:number;mouthWide?:number;mouthNarrow?:number;
   browInnerUp?:number;browDownLeft?:number;browDownRight?:number;cheekRaise?:number;
+  /** Optional scripted speech shapes; do not infer phonemes from audio loudness. */
+  visemeAA?:number;visemeEE?:number;visemeOH?:number;visemeOO?:number;
+  visemePP?:number;visemeFF?:number;visemeTH?:number;
+  visemeMBP?:number;visemeFV?:number;visemeL?:number;visemeWQ?:number;
+  eyeSquintLeft?:number;eyeSquintRight?:number;
 }
 
 export type StreetVerseMeshyBJHeroHandle={
@@ -35,8 +43,28 @@ export type StreetVerseMeshyBJHeroHandle={
   clips:readonly THREE.AnimationClip[]
   morphTargetNames:readonly string[]
   applyFacePose:(pose:BJFacePose)=>number
+  /** Only plays a gesture if the active GLB has the matching animation. */
+  playGesture:(gesture:BJGesture)=>boolean
   tick:(nowMs:number,state:{moving:boolean;running?:boolean;talking?:boolean;liveTalkLevel?:number;focusYaw?:number;breathing?:number;posture?:string;seated?:boolean})=>void
   dispose:()=>void
+}
+
+/**
+ * Actual BJ V15 GLB, user portrait reference embedded in character.
+ * BJ V15 is the default hero for StreetVerse mobile after owner approved
+ * production integration. ?bj=legacy is an explicit emergency fallback.
+ * Do not commit private original source photos to public GitHub.
+ */
+export const BJ_V15_PREVIEW={
+  id:'streetverse-bj-stubbs-v15',
+  url:'https://d2ol7oe51mr4n9.cloudfront.net/user_3HqgexuZuGoTDUJ2Hxg2e6x5Hzm/daa5234c-5fbf-4b52-9c45-e82e36156153.glb',
+  filename:'BJ_STUBBS_V15_ACTING_FACE_LOOK_NOD.glb',
+  certifiedLikeness:false,
+} as const
+
+export function getBJPreviewV15Url():string|null{
+  if(typeof window==='undefined')return null
+  return ['legacy','approved'].includes(new URLSearchParams(window.location.search).get('bj')||'') ? null : BJ_V15_PREVIEW.url
 }
 
 const loader=new GLTFLoader()
@@ -94,6 +122,20 @@ const BJ_FACE_MORPHS:ReadonlyArray<[keyof BJFacePose,RegExp[]]>=[
   ['browDownLeft',[/brow.?down.?left/i]],
   ['browDownRight',[/brow.?down.?right/i]],
   ['cheekRaise',[/cheek.?squint/i,/cheek.?raise/i]],
+  // V14 GLB adds seven deliberate mouth targets; these are not audio-verified lip sync.
+  ['visemeAA',[/^viseme_aa$/i]],
+  ['visemeEE',[/^viseme_(ee|e)$/i]],
+  ['visemeOH',[/^viseme_(oh|o)$/i]],
+  ['visemeOO',[/^viseme_u$/i]],
+  ['visemePP',[/^viseme_pp$/i]],
+  ['visemeFF',[/^viseme_ff$/i]],
+  ['visemeTH',[/^viseme_th$/i]],
+  ['visemeMBP',[/^viseme_mbp$/i]],
+  ['visemeFV',[/^viseme_fv$/i]],
+  ['visemeL',[/^viseme_l$/i]],
+  ['visemeWQ',[/^viseme_wq$/i]],
+  ['eyeSquintLeft',[/^eyeSquintLeft$/i]],
+  ['eyeSquintRight',[/^eyeSquintRight$/i]],
 ]
 
 function setMorph(mesh:THREE.Mesh,patterns:RegExp[],value:number){
@@ -176,17 +218,88 @@ function disposeObject(root:THREE.Object3D){
 export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHeroHandle|null>{
   const verifiedPhotoMatch=canClaimPhotoMatched(BJ_MESHY_V6_ASSET.characterId)
   const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
-  const published=await resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope)
-  const candidates=[published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
+  // Do not wait for an unrelated Meshy API before starting the owned BJ V15 GLB.
+  // On slow iPhone connections that unbounded manifest request left the UI at
+  // "BJ V15 LOADING" even though the V15 asset itself was healthy.
+  const v15PreviewUrl=getBJPreviewV15Url()
+  const approvedRequested=typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('bj')==='approved'
+  const published=v15PreviewUrl&&!approvedRequested?null:await Promise.race([
+    resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope),
+    new Promise<null>(resolve=>window.setTimeout(()=>resolve(null),3000)),
+  ])
+  // Never load a MetaHuman candidate by default; preview is explicitly opted-in.
+  const metaHumanPreviewUrl=getPreviewBJMetaHumanUrl()
+  // Default to the actual V15 hero; ?bj=legacy preserves a manual fallback.
+  const candidates=[v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
   let sourceUrl=''
   let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
+  let usingMetaHumanPreview=false
+  let usingV15Preview=false
+  let usingApprovedAsset=false
   // Generated V12/V7/V6 GLBs are first-party build outputs. A slow Safari HEAD
   // response must not block the real hero; attempt the actual GLB GET instead.
   // Keep the published/external Meshy override protected by its availability probe.
   for(const candidate of candidates){
-    if(candidate===published?.url&&!await assetExists(candidate))continue
+    // Remote V15 GET is more reliable on iPhone than an extra 1.8s HEAD
+    // preflight, which can incorrectly discard a working animated hero.
+    if(candidate===metaHumanPreviewUrl&&!await assetExists(candidate))continue
     try{
-      publishedGlb=await loader.loadAsync(candidate)
+      // The legacy loader has no request deadline. A failed/slow CDN request
+      // cannot leave an iPhone showing an unbounded LOADING indicator.
+      // Fetch bytes first so network timeout is abortable; decode as glTF next.
+      const controller=new AbortController()
+      const timeoutId=window.setTimeout(()=>controller.abort(),25000)
+      let candidateGlb:Awaited<ReturnType<typeof loader.loadAsync>>
+      try{
+        window.dispatchEvent(new CustomEvent('tryamm:bj-model-progress',{detail:{
+          stage:'fetching',source:candidate===v15PreviewUrl?'v15':'fallback',
+        }}))
+        const response=await fetch(candidate,{signal:controller.signal,mode:'cors'})
+        if(!response.ok)throw new Error('BJ GLB HTTP '+response.status)
+        const bytes=await response.arrayBuffer()
+        window.dispatchEvent(new CustomEvent('tryamm:bj-model-progress',{detail:{
+          stage:'decoding',sizeBytes:bytes.byteLength,source:candidate===v15PreviewUrl?'v15':'fallback',
+        }}))
+        const basePath=new URL('.',new URL(candidate,window.location.href)).href
+        let decodeTimer=0
+        try{
+          candidateGlb=await Promise.race([
+            loader.parseAsync(bytes,basePath),
+            new Promise<never>((_,reject)=>{
+              decodeTimer=window.setTimeout(()=>reject(new Error('BJ GLB decode timed out')),20000)
+            }),
+          ])
+        }finally{window.clearTimeout(decodeTimer)}
+      }finally{window.clearTimeout(timeoutId)}
+      if(inspectCharacterGeometry(candidateGlb.scene).meshes===0){
+        disposeObject(candidateGlb.scene)
+        continue
+      }
+      if(candidate===metaHumanPreviewUrl){
+        const audit=auditBJMetaHumanForStreetVerse(candidateGlb.scene,candidateGlb.animations||[])
+        window.dispatchEvent(new CustomEvent('tryamm:bj-metahuman-preview-audit',{detail:{
+          characterId:'bj-stubbs',assetUrl:candidate,...audit,likenessApproved:false,
+        }}))
+        if(!audit.ok){disposeObject(candidateGlb.scene);continue}
+        usingMetaHumanPreview=true
+      }
+      if(candidate===v15PreviewUrl){
+        const faceNames=new Set<string>()
+        candidateGlb.scene.traverse(n=>{
+          if(n instanceof THREE.Mesh)for(const name of Object.keys(n.morphTargetDictionary||{}))faceNames.add(name)
+        })
+        const animations=candidateGlb.animations||[]
+        const valid=animations.some(a=>/idle/i.test(a.name))&&animations.some(a=>/walk/i.test(a.name))
+          &&faceNames.has('eyeBlinkLeft')&&faceNames.has('jawOpen')
+        window.dispatchEvent(new CustomEvent('tryamm:bj-v15-asset-audit',{detail:{
+          characterId:'bj-stubbs',sourceUrl:candidate,valid,
+          animationCount:animations.length,facialMorphCount:faceNames.size,likenessCertified:false,
+        }}))
+        if(!valid){disposeObject(candidateGlb.scene);continue}
+        usingV15Preview=true
+      }
+      usingApprovedAsset=Boolean(approvedRequested&&published?.url===candidate)
+      publishedGlb=candidateGlb
       sourceUrl=candidate
       break
     }catch{
@@ -206,13 +319,25 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   try{
     const gltf=publishedGlb
     const object=gltf.scene
-    object.name='bj-stubbs-production-v12'
+    object.name=usingApprovedAsset?'bj-stubbs-founder-approved-glb':usingV15Preview?'bj-stubbs-v15-actual-glb':usingMetaHumanPreview?'bj-stubbs-metahuman-web-preview':'bj-stubbs-production-v12'
+    // V15 includes 50 zero-scaled legacy SkinnedMeshes that are invisible but
+    // cause Three.Box3 to produce NaN bounds and an invalid contact shadow.
+    // Detach only genuinely invisible zero-scale mesh nodes; do not touch
+    // its facial mesh, bones, or any playing animation targets.
+    let prunedInvisibleV15Meshes=0
+    if(usingV15Preview){
+      const hidden:THREE.Mesh[]=[]
+      object.traverse(node=>{
+        if(node instanceof THREE.Mesh&&node.scale.lengthSq()<1e-12)hidden.push(node)
+      })
+      for(const node of hidden){node.removeFromParent();prunedInvisibleV15Meshes++}
+    }
     normalizeStreetVerseHumanHeight(object,BJ_MESHY_V6_ASSET.targetHeightMeters)
     object.traverse(node=>{
       if(node instanceof THREE.Mesh){
         node.castShadow=true
         node.receiveShadow=true
-        node.frustumCulled=true
+        node.frustumCulled=usingV15Preview?false:true
       }
     })
     const productionMaterials=tuneBJProductionMaterials(object)
@@ -235,11 +360,16 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       displayName:'BJ Stubbs',
       namedCharacter:true,
       identityContinuityKey:BJ_MESHY_V6_ASSET.characterId,
-      visualAuthority:BJ_MESHY_V6_ASSET.authority,
+      visualAuthority:usingV15Preview?'bj-actual-v15-remote-preview':usingMetaHumanPreview?'metahuman-web-opt-in-unapproved':BJ_MESHY_V6_ASSET.authority,
+      bjV15RealGlbPreview:usingV15Preview,
+      bjVaultApproved:usingApprovedAsset,
+      prunedInvisibleV15Meshes,
+      metahumanWebPreview:usingMetaHumanPreview,
+      metaHumanLikenessApproved:false,
       meshAssetId:BJ_MESHY_V6_ASSET.id,
       referenceMatchedPreview:Boolean(published?.url),
-      photoMatched:verifiedPhotoMatch,
-      certifiedLikeness:verifiedPhotoMatch,
+      photoMatched:usingV15Preview||usingMetaHumanPreview?false:verifiedPhotoMatch,
+      certifiedLikeness:usingV15Preview||usingMetaHumanPreview?false:verifiedPhotoMatch,
       meshyV6:Boolean(published?.url),
       ownedV7:!published?.url,
       ownedV12:!published?.url,
@@ -270,6 +400,15 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     const mixer=clips.length?new THREE.AnimationMixer(object):null
     const animations=materializeAnimationMap(clips)
     const morphs=collectMorphMeshes(object)
+    if(usingV15Preview){
+      let skins=0
+      object.traverse(n=>{if(n instanceof THREE.SkinnedMesh)skins++})
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-visible-version',{detail:{
+        characterId:'bj-stubbs',version:'V15',objectName:object.name,sourceUrl,
+        skinnedMeshCount:skins,animationCount:clips.length,facialMorphCount:morphs.names.length,
+        productionReleased:false,modelVerified:true,likenessCertified:false,
+      }}))
+    }
     const findRigNode=(patterns:RegExp[]):THREE.Object3D|null=>{
       let found:THREE.Object3D|null=null
       object.traverse(node=>{if(!found&&patterns.some(pattern=>pattern.test(node.name)))found=node})
@@ -339,7 +478,41 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
 
     let activeMotion:Motion|null=null
     let activeAction:THREE.AnimationAction|null=null
+    let gestureAction:THREE.AnimationAction|null=null
+    let gestureUntil=0
     let previousNow=performance.now()
+    const gesturePatterns:Record<BJGesture,RegExp>={
+      'nod':/BJ_V15_ListenAndNod/i,
+      'look-around':/BJ_V15_LookAround/i,
+      'acknowledge':/BJ_V15_AcknowledgeAndSmile/i,
+      'converse':/BJ_V14_Speaking_Visemes/i,
+      'greet':/BJ_Greeting_Wave/i,
+    }
+    const playGesture=(gesture:BJGesture):boolean=>{
+      const clip=clips.find(item=>gesturePatterns[gesture].test(item.name))
+      if(!mixer||!clip)return false // Older BJ models remain valid and untouched.
+      const action=mixer.clipAction(clip)
+      if(gestureAction&&gestureAction!==action)gestureAction.fadeOut(.14)
+      if(activeAction&&activeAction!==action)activeAction.fadeOut(.14)
+      action.reset()
+      action.setLoop(THREE.LoopOnce,1)
+      action.clampWhenFinished=false
+      action.setEffectiveTimeScale(1)
+      action.setEffectiveWeight(1)
+      action.fadeIn(.14).play()
+      gestureAction=action
+      activeAction=action
+      activeMotion=null
+      gestureUntil=performance.now()+clip.duration*1000+170
+      return true
+    }
+    const onGesture=(event:Event)=>{
+      const detail=(event as CustomEvent<{characterId?:string;gesture?:BJGesture}>).detail||{}
+      if(detail.characterId&&detail.characterId!==BJ_MESHY_V6_ASSET.characterId)return
+      if(!detail.gesture||!Object.prototype.hasOwnProperty.call(gesturePatterns,detail.gesture))return
+      playGesture(detail.gesture)
+    }
+    window.addEventListener('tryamm:bj-gesture',onGesture)
     let lastLifeStateAt=0
 
     const setMotion=(motion:Motion)=>{
@@ -359,7 +532,13 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     const tick:StreetVerseMeshyBJHeroHandle['tick']=(nowMs,state)=>{
       const dt=THREE.MathUtils.clamp((nowMs-previousNow)/1000,0,.05)
       previousNow=nowMs
-      setMotion(state.running?'run':state.moving?'walk':'idle')
+      if(gestureAction&&nowMs>=gestureUntil){
+        gestureAction.fadeOut(.14)
+        gestureAction=null
+        activeAction=null
+        activeMotion=null
+      }
+      if(!gestureAction)setMotion(state.running?'run':state.moving?'walk':'idle')
       mixer?.update(dt)
 
       const t=nowMs*.001
@@ -427,9 +606,11 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       targetHeightMeters:BJ_MESHY_V6_ASSET.targetHeightMeters,
       authoritative3DMesh:true,
       referenceMatchedPreview:Boolean(published?.url),
-      photoMatched:verifiedPhotoMatch,
-      certifiedLikeness:verifiedPhotoMatch,
+      photoMatched:usingV15Preview||usingMetaHumanPreview?false:verifiedPhotoMatch,
+      certifiedLikeness:usingV15Preview||usingMetaHumanPreview?false:verifiedPhotoMatch,
       proceduralFallbackSuppressed:true,
+      metahumanWebPreview:usingMetaHumanPreview,
+      metaHumanLikenessApproved:false,
       productionMaterials,
       texturePipeline:'pbr-mobile-production-v12',
       visualTexturePipeline:'pbr-mobile-production-v8',
@@ -451,8 +632,10 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       clips,
       morphTargetNames:morphs.names,
       applyFacePose,
+      playGesture,
       tick,
       dispose:()=>{
+        window.removeEventListener('tryamm:bj-gesture',onGesture)
         window.removeEventListener('tryamm:character-face-pose',onFacePose)
         mixer?.stopAllAction()
         shadowGeometry.dispose();shadowMaterial.dispose()

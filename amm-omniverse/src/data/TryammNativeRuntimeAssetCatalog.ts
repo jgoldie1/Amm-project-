@@ -34,6 +34,15 @@ export const TRYAMM_NATIVE_RUNTIME_ASSETS={
   dumpster:{id:'dumpster',url:'/generated-assets/native/kit/dumpster.glb',state:'PREVIEW',semantic:'garbage-disposal-dumpster',collisionAuthority:'visual-only'},
   garbageBag:{id:'garbage-bag',url:'/generated-assets/native/kit/garbage-bag.glb',state:'PREVIEW',semantic:'collectible-garbage',collisionAuthority:'visual-only'},
   litterCluster:{id:'litter-cluster',url:'/generated-assets/native/kit/litter-cluster.glb',state:'PREVIEW',semantic:'collectible-litter',collisionAuthority:'visual-only'},
+  circleParkHoop:{id:'sv-circle-park-hoop',url:'/generated-assets/overnight-kit/sv-circle-park-hoop.glb',state:'PREVIEW',semantic:'sports-park-prop',collisionAuthority:'visual-only'},
+  circleParkEntry:{id:'sv-circle-park-entry',url:'/generated-assets/overnight-kit/sv-circle-park-entry.glb',state:'PREVIEW',semantic:'park-wayfinding',collisionAuthority:'visual-only'},
+  westSideGuardGate:{id:'sv-westside-guard-gate',url:'/generated-assets/overnight-kit/sv-westside-guard-gate.glb',state:'PREVIEW',semantic:'guarded-entry-visual',collisionAuthority:'visual-only'},
+  taylorBikeRack:{id:'sv-taylor-bike-rack',url:'/generated-assets/overnight-kit/sv-taylor-bike-rack.glb',state:'PREVIEW',semantic:'street-furniture',collisionAuthority:'visual-only'},
+  taylorPlanter:{id:'sv-taylor-planter',url:'/generated-assets/overnight-kit/sv-taylor-planter.glb',state:'PREVIEW',semantic:'urban-greenery',collisionAuthority:'visual-only'},
+  westSideBusShelter:{id:'sv-westside-bus-shelter',url:'/generated-assets/overnight-kit/sv-westside-bus-shelter.glb',state:'PREVIEW',semantic:'transit-furniture',collisionAuthority:'visual-only'},
+  westSideBench:{id:'sv-westside-bench',url:'/generated-assets/overnight-kit/sv-westside-bench.glb',state:'PREVIEW',semantic:'street-furniture',collisionAuthority:'visual-only'},
+  westSideFoodKiosk:{id:'sv-westside-food-kiosk',url:'/generated-assets/overnight-kit/sv-westside-food-kiosk.glb',state:'PREVIEW',semantic:'small-business-kiosk',collisionAuthority:'visual-only'},
+  circleParkWaterFountain:{id:'sv-circle-park-water-fountain',url:'/generated-assets/overnight-kit/sv-circle-park-water-fountain.glb',state:'PREVIEW',semantic:'park-amenity',collisionAuthority:'visual-only'},
 } as const satisfies Record<string,NativeRuntimeAsset>
 
 export type TryammNativeRuntimeAssetKey=keyof typeof TRYAMM_NATIVE_RUNTIME_ASSETS
@@ -47,6 +56,11 @@ export interface NativePlacement{
 }
 
 export const CIRCLE_PARK_NATIVE_PREVIEW_PLACEMENTS:NativePlacement[]=[
+  // New 2026-10-15 art pass; static visual-only placements, no gameplay collision overrides.
+  {asset:'circleParkEntry',position:[0,0,-29],label:'circle-park-new-entrance'},
+  {asset:'circleParkHoop',position:[-6,0,6],label:'circle-park-new-basketball-hoop'},
+  {asset:'circleParkWaterFountain',position:[9,0,15],label:'circle-park-new-drinking-water'},
+  {asset:'westSideBench',position:[-9,0,19],label:'circle-park-new-bench'},
   {asset:'building',position:[-25,0,-27],rotationY:Math.PI,label:'west-building-1'},
   {asset:'building',position:[25,0,-27],rotationY:Math.PI,label:'east-building-1'},
   {asset:'building',position:[-25,0,-10],rotationY:Math.PI,label:'west-building-2'},
@@ -89,6 +103,17 @@ export const CIRCLE_PARK_NATIVE_PREVIEW_PLACEMENTS:NativePlacement[]=[
 ]
 
 export const CHICAGO_WEST_NATIVE_PREVIEW_PLACEMENTS:NativePlacement[]=[
+  // Original asset-forge geometry: Circle Park, Taylor Street and West Side paths.
+  // Coordinate values are game-space placements pending city-survey accuracy review.
+  {asset:'circleParkEntry',position:[-880,0,812],label:'circle-park-westside-new-entry'},
+  {asset:'circleParkHoop',position:[-865,0,845],label:'circle-park-westside-new-hoop'},
+  {asset:'circleParkWaterFountain',position:[-840,0,830],label:'circle-park-westside-water'},
+  {asset:'westSideBench',position:[-825,0,840],label:'circle-park-westside-new-bench'},
+  {asset:'westSideGuardGate',position:[-575,0,700],rotationY:Math.PI/2,label:'taylor-westside-guarded-entrance'},
+  {asset:'taylorBikeRack',position:[-535,0,695],label:'taylor-new-bike-rack'},
+  {asset:'taylorPlanter',position:[-510,0,685],label:'taylor-new-planter'},
+  {asset:'westSideBusShelter',position:[-700,0,920],label:'roosevelt-new-bus-shelter'},
+  {asset:'westSideFoodKiosk',position:[-695,0,930],label:'roosevelt-new-food-kiosk'},
   // Circle Park / ABLA visual upgrade. Gameplay collision remains in the existing world runtime.
   {asset:'building',position:[-920,0,865],rotationY:Math.PI/2,scale:[2.25,1.55,1.7],label:'circle-park-native-building-west'},
   {asset:'building',position:[-920,0,825],rotationY:Math.PI/2,scale:[2.15,1.45,1.65],label:'circle-park-native-building-south'},
@@ -161,6 +186,16 @@ export const CHICAGO_WEST_NATIVE_PREVIEW_PLACEMENTS:NativePlacement[]=[
   {asset:'residentB',position:[-995,0,905],rotationY:-.3,label:'medical-native-resident-b'},
   {asset:'holoWayfinder',position:[-820,0,700],label:'uic-native-wayfinder'},
   {asset:'holoWayfinder',position:[-970,0,900],label:'medical-native-wayfinder'},
+]
+
+export const CIRCLE_PARK_OVERNIGHT_MOBILE_PLACEMENTS:NativePlacement[]=[
+  // Loaded after the BJ hero becomes ready so old iPhones prioritize the face.
+  {asset:'circleParkHoop',position:[-9,0,8],label:'mobile-circle-park-hoop-20261015'},
+  {asset:'circleParkEntry',position:[0,0,23],label:'mobile-circle-park-entry-20261015'},
+  {asset:'circleParkWaterFountain',position:[10,0,16],label:'mobile-circle-park-water-20261015'},
+  {asset:'taylorPlanter',position:[13,0,29],label:'mobile-taylor-planter-20261015'},
+  {asset:'westSideBench',position:[-13,0,30],label:'mobile-circle-park-bench-20261015'},
+  {asset:'westSideGuardGate',position:[-20,0,67],label:'mobile-taylor-guard-20261015'},
 ]
 
 export const NATIVE_RUNTIME_POLICY={

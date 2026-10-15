@@ -1,0 +1,113 @@
+name: StreetVerse Tonight - BJ, Asset Forge and Chicago World Builder
+
+on:
+  push:
+    branches:
+      - feature/taylor-fillmore-gate-aerial-lens-20261012
+    paths:
+      - .github/workflows/streetverse-tonight-bj-world-forge.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-tonight-bj-world
+  cancel-in-progress: true
+
+jobs:
+  forge-and-test:
+    name: Build BJ and NPC evidence, nine GLB props, Circle Park and West Side
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    env:
+      CI: 'true'
+      STREETVERSE_DEPLOY: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Generate real owned GLBs - no credits
+        run: |
+          set -euo pipefail
+          npm run native:assets
+          npm run bj:v7:publish
+          npm run night:assets
+          npm run night:assets:check
+
+      - name: Audit mobile GLB triangle, texture and size budgets
+        run: |
+          mkdir -p ../release-evidence/streetverse-night
+          node scripts/streetverse-asset-audit.mjs --out ../release-evidence/streetverse-night/prop-budget.json public/generated-assets/overnight-kit
+
+      - name: Verify Circle Park, World Builder, Taylor, West Side, NPCs, BJ
+        run: |
+          set -euo pipefail
+          for check in \
+            streetverse-overnight-asset-forge \
+            streetverse-bj-v15-real-model-visibility \
+            streetverse-chicago-native-glb-layer \
+            circle-park-asset-forge-production-wave \
+            circle-park-chicago-completion \
+            circle-park-west-side-jefferson-emergency \
+            streetverse-westside-v4-visual \
+            streetverse-family-character-production \
+            meshy-character-mobile-readability \
+            streetverse-mobile-control-reliability; do
+            node "tests/$check-contract.mjs"
+          done
+
+      - name: TypeScript, mobile runtime and Vite compilation
+        run: |
+          npm run typecheck
+          npx vite build
+
+      - name: Audit actual V15 rig, facial controls and animations
+        continue-on-error: true
+        run: node scripts/audit-streetverse-bj-v15-night.mjs ../release-evidence/streetverse-night/bj-v15.json
+
+      - name: Truthful job report
+        if: always()
+        run: |
+          mkdir -p ../release-evidence/streetverse-night
+          node - <<'NODE'
+          const fs=require('fs')
+          const report={utc:new Date().toISOString(),sha:process.env.GITHUB_SHA,
+            newOriginalGLBs:9,areas:['Circle Park','West Side','Taylor','Roosevelt','UIC'],
+            glbProvider:'original native generator',
+            vercelDeploy:false,automaticPaidMeshyHiggsfieldCalls:false,
+            realPersonLikenessCertified:false,finishedGameCertified:false,
+            pending:['Photo-accurate BJ sculpt','Reviewed Meshy/Higgsfield human face and rig assets','Visual phone FPS proof','Collision and navigation QA']}
+          fs.writeFileSync('../release-evidence/streetverse-night/status.json',JSON.stringify(report,null,2))
+          NODE
+          {
+            echo '## StreetVerse tonight - build evidence'
+            echo "- Commit: $GITHUB_SHA"
+            echo '- Nine original GLB props generated and audited'
+            echo '- Circle Park / Taylor / Chicago West Side placements tested'
+            echo '- BJ V15, NPC and mobile gameplay regression tests'
+            echo '- TypeScript and Vite compiled if build step green'
+            echo '- No Vercel deployment; no paid Meshy/Higgsfield calls'
+            echo '- Actual GTA-level portrait likeness still unverified'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload usable generated assets and QA files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-tonight-world-asset-proof
+          path: |
+            amm-omniverse/public/generated-assets/overnight-kit/
+            release-evidence/streetverse-night/
+            amm-omniverse/test-results/
+          if-no-files-found: warn
+          retention-days: 7

@@ -1,5 +1,6 @@
 import {json} from '../_lib/supabase-admin.js';
 import {requireUser} from '../_lib/security.js';
+import {requireAssetVaultOperator} from '../_lib/asset-vault-access.js';
 import {listMeshyTasks,summarizeMeshyTask} from '../_lib/meshy.js';
 
 const TYPES=['image-to-3d','multi-image-to-3d','text-to-3d'];
@@ -11,6 +12,7 @@ export default async function handler(req,res){
   }
   try{
     const user=await requireUser(req,res);if(!user)return;
+    await requireAssetVaultOperator(req);
     const requested=String(req.query?.type||'all');
     const types=requested==='all'?TYPES:TYPES.includes(requested)?[requested]:null;
     if(!types)return json(res,400,{error:'unsupported_meshy_type'});
