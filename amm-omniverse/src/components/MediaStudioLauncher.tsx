@@ -38,8 +38,8 @@ function drawOverlay(ctx:CanvasRenderingContext2D,w:number,h:number,sticker:stri
   const text=(caption||'Made in TRYAMM').trim();ctx.save();ctx.font='700 32px system-ui';ctx.textAlign='center';ctx.textBaseline='bottom';const max=w-80,words=text.split(/\s+/);let line='',lines:string[]=[];for(const word of words){const test=line?`${line} ${word}`:word;if(ctx.measureText(test).width>max&&line){lines.push(line);line=word}else line=test}if(line)lines.push(line);lines=lines.slice(-3);const blockH=lines.length*42+28;ctx.fillStyle='rgba(0,0,0,.58)';ctx.fillRect(20,h-blockH-20,w-40,blockH);ctx.fillStyle='#fff';ctx.shadowColor='#000';ctx.shadowBlur=8;lines.forEach((value,index)=>ctx.fillText(value,w/2,h-42-(lines.length-1-index)*42));ctx.restore()
 }
 
-export default function MediaStudioLauncher(){
-  const [open,setOpen]=useState(false)
+export default function MediaStudioLauncher({launchRequest=null}:{launchRequest?:{mode:'reel'|'omnibox';seq:number}|null}){
+  const [open,setOpen]=useState(Boolean(launchRequest))
   const [creatorMode,setCreatorMode]=useState<CreatorMode>('reel')
   const [visualMedium,setVisualMedium]=useState('cinematic-live-action')
   const [projectPrompt,setProjectPrompt]=useState('')
@@ -47,7 +47,7 @@ export default function MediaStudioLauncher(){
   const [tab,setTab]=useState<'capture'|'compose'|'green'|'publish'>('capture')
   const [title,setTitle]=useState('StreetVerse Highlight')
   const [caption,setCaption]=useState('First Drop • Made inside TRYAMM')
-  const [destinations,setDestinations]=useState<Destination[]>(['reel','omnibox','creator-profile'])
+  const [destinations,setDestinations]=useState<Destination[]>(()=>launchRequest?.mode==='omnibox'?['omnibox']:['reel','omnibox','creator-profile'])
   const [mediaUrl,setMediaUrl]=useState('')
   const [mediaKind,setMediaKind]=useState<'video'|'image'>('video')
   const [mediaBlob,setMediaBlob]=useState<Blob|null>(null)
@@ -68,7 +68,8 @@ export default function MediaStudioLauncher(){
   const sourceVideoRef=useRef<HTMLVideoElement|null>(null)
   const canvasRef=useRef<HTMLCanvasElement|null>(null)
 
-  useEffect(()=>{const openStudio=(event:Event)=>{const detail=(event as CustomEvent<{source?:string;title?:string;caption?:string}>).detail;if(detail?.source==='streetverse'){setTitle('StreetVerse: First Drop Highlight');setCaption('Mission moment captured in StreetVerse • #TRYAMM #StreetVerse')}else{if(detail?.title)setTitle(detail.title);if(detail?.caption)setCaption(detail.caption)}setOpen(true);setTab('capture')};(window as any).__showMediaStudio=()=>setOpen(true);window.addEventListener('tryamm:media-studio-open',openStudio);return()=>{window.removeEventListener('tryamm:media-studio-open',openStudio);delete (window as any).__showMediaStudio}},[])
+  useEffect(()=>{const openStudio=(event:Event)=>{const detail=(event as CustomEvent<{source?:string;title?:string;caption?:string;target?:'reel'|'omnibox';destinations?:Destination[]}>).detail;if(detail?.source==='streetverse'){setTitle('StreetVerse: First Drop Highlight');setCaption('Mission moment captured in StreetVerse • #TRYAMM #StreetVerse')}else{if(detail?.title)setTitle(detail.title);if(detail?.caption)setCaption(detail.caption)}if(detail?.target){setCreatorMode(detail.target==='omnibox'?'movie':'reel');setDestinations(detail.target==='omnibox'?['omnibox']:['reel','omnibox','creator-profile'])}else if(detail?.destinations){setDestinations(detail.destinations.filter(d=>DESTINATIONS.some(x=>x.id===d)))}setOpen(true);setTab('capture')};(window as any).__showMediaStudio=()=>setOpen(true);window.addEventListener('tryamm:media-studio-open',openStudio);return()=>{window.removeEventListener('tryamm:media-studio-open',openStudio);delete (window as any).__showMediaStudio}},[])
+  useEffect(()=>{if(!launchRequest)return;setOpen(true);setTab('capture');setCreatorMode(launchRequest.mode==='omnibox'?'movie':'reel');setDestinations(launchRequest.mode==='omnibox'?['omnibox']:['reel','omnibox','creator-profile'])},[launchRequest?.seq])
   useEffect(()=>{if(!chromaEnabled||!mediaUrl||mediaKind!=='video')return;let raf=0;const draw=()=>{const video=sourceVideoRef.current,canvas=canvasRef.current;if(video&&canvas&&video.readyState>=2){const ctx=canvas.getContext('2d',{willReadFrequently:true});if(ctx){const w=canvas.width=640,h=canvas.height=360;ctx.drawImage(video,0,0,w,h);const frame=ctx.getImageData(0,0,w,h),d=frame.data;for(let i=0;i<d.length;i+=4){const r=d[i],g=d[i+1],b=d[i+2];if(g-Math.max(r,b)>threshold)d[i+3]=0}ctx.putImageData(frame,0,0)}}raf=requestAnimationFrame(draw)};raf=requestAnimationFrame(draw);return()=>cancelAnimationFrame(raf)},[chromaEnabled,mediaUrl,mediaKind,threshold])
 
   const bgStyle=useMemo(()=>background==='city'?'linear-gradient(135deg,#061e2c,#17233e 55%,#321532)':background==='gold'?'radial-gradient(circle at 50% 25%,#ffe58a,#8a5b11 50%,#160d03)':'radial-gradient(circle at 50% 20%,#182a3b,#02050b 65%)',[background])
