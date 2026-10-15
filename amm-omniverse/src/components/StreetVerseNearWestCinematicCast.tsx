@@ -32,7 +32,7 @@ export function StreetVerseNearWestHeroGLB({
       host.current.add(loaded.object)
       // A fitted MetaHuman face must never be covered with the older photo-mask.
       // Legacy GLBs still receive the approved reference overlay as before.
-      if(!loaded.object.userData.metahumanWebPreview&&!loaded.object.userData.bjV15RealGlbPreview)try{
+      if(!loaded.object.userData.metahumanWebPreview&&!loaded.object.userData.bjV15RealGlbPreview&&!loaded.object.userData.bjVaultApproved)try{
         const head=installBJPhotoMatchedHead(loaded.object)
         if(head){
           photoHead.current=head
