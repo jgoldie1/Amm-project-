@@ -23,7 +23,7 @@ required(mobile.includes('},36000)'),'iPhone hero attempt must not hang forever'
 required(mobile.includes("setMessage('BJ V15 TIMED OUT • tap RETRY BJ')"),'time-out must expose user retry')
 
 required(loader.includes('daa5234c-5fbf-4b52-9c45-e82e36156153.glb'),'stable externally hosted asset')
-required(loader.includes("get('bj')==='legacy'"),'V15 is default with explicit original-hero escape hatch')
+required(loader.includes("['legacy','approved'].includes(new URLSearchParams"),'V15 is default with both legacy and founder-approved opt-in controls')
 required(loader.includes('BJ_MESHY_V6_ASSET.productionUrl'),'preserve older working fallback')
 required(loader.includes("candidate===metaHumanPreviewUrl)&&!await assetExists(candidate)"),'external V15 should not be discarded by a short HEAD request')
 required(mobile.includes('Toggle BJ Stubbs V15 face portrait view'),'always-visible face inspection button')
