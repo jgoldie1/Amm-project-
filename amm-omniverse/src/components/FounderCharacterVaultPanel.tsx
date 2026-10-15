@@ -38,6 +38,8 @@ export default function FounderCharacterVaultPanel(){
   const [sourceKind,setSourceKind]=useState('manual_glb')
   const [scope,setScope]=useState('global')
   const [file,setFile]=useState<File|null>(null)
+  const [existingTaskId,setExistingTaskId]=useState('')
+  const [existingTaskType,setExistingTaskType]=useState('image-to-3d')
   const [busy,setBusy]=useState('')
   const [message,setMessage]=useState('')
   const [confirmId,setConfirmId]=useState('')
@@ -84,6 +86,31 @@ export default function FounderCharacterVaultPanel(){
     }catch(error){setMessage(error instanceof Error?error.message:String(error))}
     finally{setBusy('')}
   }
+  async function importCompletedMeshyTask(){
+    if(!authorized||busy)return
+    if(!/^[A-Za-z0-9_-]{8,120}$/.test(existingTaskId)){
+      setMessage('Choose a valid existing Meshy task ID. This does not create a new paid task.')
+      return
+    }
+    setBusy('meshy-existing')
+    setMessage('Importing previously completed Meshy model into private storage…')
+    try{
+      const token=await getAccessToken()
+      if(!token)throw new Error('Sign in first.')
+      const res=await fetch('/api/meshy/vault-import',{
+        method:'POST',cache:'no-store',
+        headers:{authorization:'Bearer '+token,'content-type':'application/json'},
+        body:JSON.stringify({assetId,cityScope:scope,type:existingTaskType,taskId:existingTaskId})
+      })
+      const data=await res.json().catch(()=>({}))
+      if(!res.ok||!data.ok)throw new Error(data.error||'Could not import completed Meshy task.')
+      const list=await vault()
+      setAssets(list.characters||[])
+      setMessage('Existing Meshy character saved PRIVATELY. No generation credits used. Founder approval is next.')
+    }catch(e){setMessage(e instanceof Error?e.message:String(e))}
+    finally{setBusy('')}
+  }
+
   async function review(id:string,action:'approve'|'reject'){
     if(busy)return
     if(action==='approve'&&confirmId!==id){setConfirmId(id);setMessage('Confirm publication by tapping PUBLISH THIS CHARACTER again.');return}
@@ -136,6 +163,24 @@ export default function FounderCharacterVaultPanel(){
         {busy==='upload'?'SAVING PRIVATE CHARACTER…':'SAVE CHARACTER PRIVATELY'}
       </button>
       <button style={control} disabled={busy!==''} onClick={()=>void refresh()}>CHECK STATUS</button>
+    </div>
+    <div style={{marginTop:16,padding:10,border:'1px solid #3f6774',borderRadius:12,background:'#0a1f2b'}}>
+      <b style={{fontSize:13}}>Reuse a finished Meshy API task — no new generation</b>
+      <p style={{fontSize:11,color:'#b2d6db'}}>Paste the ID of a completed Meshy task. TRYAMM fetches its existing GLB, stores it privately, and queues it for your approval. This does not create or pay for another model.</p>
+      <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+        <input style={{...input,flex:'1 1 190px'}} aria-label="Completed Meshy task ID" placeholder="Completed task ID"
+          value={existingTaskId} onChange={e=>setExistingTaskId(e.target.value.trim())}/>
+        <select style={{...input,flex:'1 1 150px'}} aria-label="Existing task generation type" value={existingTaskType}
+          onChange={e=>setExistingTaskType(e.target.value)}>
+          <option value="image-to-3d">Image to 3D</option>
+          <option value="multi-image-to-3d">Multiple images to 3D</option>
+          <option value="text-to-3d">Text to 3D</option>
+        </select>
+      </div>
+      <button style={{...control,marginTop:8,width:'100%'}} disabled={!authorized||busy!==''||!existingTaskId}
+        onClick={()=>void importCompletedMeshyTask()}>
+        {busy==='meshy-existing'?'IMPORTING EXISTING GLB…':'IMPORT COMPLETED MESHY MODEL PRIVATELY'}
+      </button>
     </div>
     {message&&<p role="status" style={{fontSize:12,background:'#122e34',borderRadius:8,padding:9}}>{message}</p>}
     <h3 style={{fontSize:14,margin:'18px 0 9px'}}>Saved characters ({assets.length})</h3>
