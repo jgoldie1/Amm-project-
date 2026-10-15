@@ -3,6 +3,7 @@ import {getAccessToken,getSupabaseClient} from '../services/supabaseClient'
 import Meshy3DPrintLab from './Meshy3DPrintLab'
 import TwelveDPrivateRnDPanel from './TwelveDPrivateRnDPanel'
 import PrintAICommandPanel from './PrintAICommandPanel'
+import FounderCharacterVaultPanel from './FounderCharacterVaultPanel'
 
 type CatalogItem={assetId:string;filename:string;generationType:string;height:number;ageLane:string;role:string}
 type Job={id:string;asset_id:string;filename:string;stage:string;progress:number;provider_generation_task_id?:string;provider_rig_task_id?:string;public_url?:string;walking_public_url?:string;running_public_url?:string;error_message?:string;created_at?:string}
@@ -164,6 +165,8 @@ export default function MeshyFactoryControlPanel(){
       <section style={{marginTop:12,padding:12,border:'1px solid #294456',borderRadius:16,background:'#06121bdd'}}>
         <div style={{display:'flex',justifyContent:'space-between',gap:8,alignItems:'center',flexWrap:'wrap'}}><div><b style={{fontSize:12}}>EXECUTIVE CHAIN</b><div style={{fontSize:10,color:'#9fb4c2',marginTop:4}}>AI CEO prioritizes the actual blocker → Distinguished Engineer owns end-to-end convergence → Asset Engineer operates provider tasks → Release Guardian requires evidence.</div></div><button onClick={runExecutiveSprint} style={btn}>RUN CEO + ENGINEERING SPRINT</button></div>
       </section>
+
+      <FounderCharacterVaultPanel />
 
       <section style={{marginTop:12,padding:12,border:`1px solid ${health?.ok?'#2f6c4a':'#704b35'}`,borderRadius:16,background:health?.ok?'#07170fdd':'#1a1008dd'}}>
         <div style={{display:'flex',justifyContent:'space-between',gap:8,flexWrap:'wrap'}}><div><b style={{fontSize:12}}>FACTORY READINESS: {health?.ok?'READY':'CHECKING / BLOCKED'}</b><div style={{fontSize:9,color:'#a8bdca',marginTop:4}}>Meshy key: {health?.providerConfigured?'YES':'NO'} • durable jobs: {health?.durableJobStoreReady?'YES':'NO'} • background worker: {health?.backgroundWorkerSecretConfigured?'YES':'NO'} • ready assets: {health?.readyAssets??0} • active: {health?.activeJobs??0} • recovery: {health?.recoveryRequiredJobs??0}</div></div></div>
