@@ -41,6 +41,7 @@ const LiveCenter=lazy(()=>import('./components/LiveCenter'))
 const GuardianCommandCenter=lazy(()=>import('./components/GuardianCommandCenter'))
 const AccountPrivacyCenter=lazy(()=>import('./components/AccountPrivacyCenter'))
 const HoloDramaHub=lazy(()=>import('./components/HoloDramaHub'))
+const CreatorWorkflowHub=lazy(()=>import('./components/CreatorWorkflowHub'))
 const HoloDeliveryRideEntertainmentHub=lazy(()=>import('./components/HoloDeliveryRideEntertainmentHub'))
 const SpectraStudioCommandCenter=lazy(()=>import('./components/SpectraStudioCommandCenter'))
 const EthiopianBibleMetaverse=lazy(()=>import('./components/EthiopianBibleMetaverse'))
@@ -73,6 +74,7 @@ try {
   const isGuardian=currentPath==='/guardian'||currentPath==='/guardian/'
   const isAccountDeletion=currentPath==='/account-deletion'||currentPath==='/account-deletion/'
   const isHoloDrama=currentPath==='/holo-drama'||currentPath==='/holo-drama/'
+  const creatorEntry=({'/create':'home','/reel-creator':'reel','/omni-box':'omnibox','/holo-drama/create':'drama'} as const)[currentPath.replace(/\/$/,'') as '/create'|'/reel-creator'|'/omni-box'|'/holo-drama/create']
   const isSpectraStudios=currentPath==='/spectra-studios'||currentPath==='/spectra-studios/'
   const isEthiopianBible=['/metaverse-bible','/metaverse-bible/','/bible-metaverse','/bible-metaverse/','/holo-bible','/holo-bible/','/ethiopian-bible','/ethiopian-bible/','/faithverse','/faithverse/'].includes(currentPath)
   const isKingdomsPress=currentPath==='/kingdoms-press'||currentPath==='/kingdoms-press/'
@@ -137,7 +139,8 @@ try {
     <OmniCashLauncher />
   </>
   
-  if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
+  if(creatorEntry)routeContent=<Suspense fallback={routeFallback}><CreatorWorkflowHub initialMode={creatorEntry}/></Suspense>
+  else if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
   else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
