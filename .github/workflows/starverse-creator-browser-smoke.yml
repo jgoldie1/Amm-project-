@@ -33,6 +33,8 @@ jobs:
           cache: npm
           cache-dependency-path: amm-omniverse/package-lock.json
       - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install a scoped Playwright test dependency (CI runner only)
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund @playwright/test@1.57.0
       - name: Build a local preview without release / Vercel deployment
         run: npx vite build
       - name: Install browser runtime
