@@ -1,0 +1,40 @@
+name: Aniyah Spatial XR DAW Gate
+
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/components/SpatialXRDAW.tsx'
+      - 'amm-omniverse/src/components/Aniyah64TrackStudio.tsx'
+      - 'amm-omniverse/tests/aniyah-spatial-xr-daw-contract.mjs'
+      - '.github/workflows/aniyah-spatial-xr-daw.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  spatial-xr-daw:
+    name: Spatial mixer safety contracts and TypeScript
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install locked dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verify AR, VR, MR, spatial audio, recording consent and local export
+        run: node tests/aniyah-spatial-xr-daw-contract.mjs
+      - name: TypeScript regression check
+        run: npm run typecheck
+      - name: Scope of proof
+        if: always()
+        run: |
+          echo 'This action checks static contracts and TypeScript only. Browser audio, actual microphone capture, headset support, and post-deployment iPhone operation still require manual device QA.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'This workflow never deploys, incurs streaming service usage, or approves payments.' >> "$GITHUB_STEP_SUMMARY"
