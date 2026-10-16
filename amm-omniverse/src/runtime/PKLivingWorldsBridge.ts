@@ -85,7 +85,7 @@ export function writePKStoryDraft(draft:PKStoryDraft){
 export function pkMiddleverseProductionBrief(draft:PKStoryDraft){
  return{
   schema:'tryamm.middleverse.pk-production-brief.v1',
-  id:'brief:'+draft.id,storyId:draft.id,title:draft.chapters.at(-1)?.title||draft.name,
+  id:'brief:'+draft.id,storyId:draft.id,title:draft.chapters[draft.chapters.length-1]?.title||draft.name,
   world:draft.world,source:'pk-living-worlds',status:'DRAFT' as const,
   roles:[
    {lane:'creator',task:'Script, direct and edit a short-form highlight',skills:['editing','reels','publishing']},
@@ -98,6 +98,6 @@ export function pkMiddleverseProductionBrief(draft:PKStoryDraft){
 /** Visual effect request only. No authoritative StreetVerse scene mutation. */
 export function pkHoloverseScenePreview(draft:PKStoryDraft){
  return {schema:'tryamm.holoverse.pk-stage-preview.v1',storyId:draft.id,world:draft.world,
-  title:draft.chapters.at(-1)?.title||draft.name,scene: draft.chapters.at(-1)?.choice||'opening',
+  title:draft.chapters[draft.chapters.length-1]?.title||draft.name,scene: draft.chapters[draft.chapters.length-1]?.choice||'opening',
   source:'pk-living-worlds',previewOnly:true,rightsReviewRequired:true,worldMutationAuthorized:false}
 }
