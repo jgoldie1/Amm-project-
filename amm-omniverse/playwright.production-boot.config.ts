@@ -1,6 +1,6 @@
 import {defineConfig,devices} from '@playwright/test'
 
-// No local server, no paid deployment, no side effects: use existing public alias.
+// Public alias smoke and unpublished Vite candidate preview. Neither deploys to Vercel.
 export default defineConfig({
  testDir:'./tests/e2e',
  testMatch:['production-iphone-boot-regression.spec.ts','production-streetverse-3d-regression.spec.ts'],
@@ -15,6 +15,7 @@ export default defineConfig({
   screenshot:'only-on-failure',
   video:'off',
  },
+ webServer:process.env.TRYAMM_CANDIDATE==='1'?{command:'npx vite preview --host 127.0.0.1 --port 4173 --strictPort',url:'http://127.0.0.1:4173',reuseExistingServer:false,timeout:60000}:undefined,
  projects:[
   {name:'iphone-webkit',use:{...devices['iPhone 13']}},
   {name:'mobile-chromium',use:{...devices['Pixel 7']}},
