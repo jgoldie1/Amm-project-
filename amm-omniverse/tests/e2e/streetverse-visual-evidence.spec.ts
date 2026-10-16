@@ -24,6 +24,14 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     });
     page.on('requestfailed', request => console.error('[streetverse-requestfailed]', request.url(), request.failure()?.errorText || 'unknown'));
     await page.addInitScript(() => {
+      // Only a real mobile 3D renderer ready signal can certify this scene.
+      (window as typeof window & { __streetverse3DReady?: boolean }).__streetverse3DReady = false;
+      window.addEventListener('tryamm:streetverse-world-ready', (event: Event) => {
+        const detail = (event as CustomEvent<{ mode?: string; canvas?: boolean; htmlCity?: boolean }>).detail || {};
+        if (detail.mode === 'mobile-lite' && detail.canvas === true && detail.htmlCity !== true) {
+          (window as typeof window & { __streetverse3DReady?: boolean }).__streetverse3DReady = true;
+        }
+      });
       try {
         Object.defineProperty(navigator, 'hardwareConcurrency', { configurable: true, get: () => 8 });
         Object.defineProperty(navigator, 'deviceMemory', { configurable: true, get: () => 8 });
@@ -35,8 +43,22 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(page.locator('#root')).toBeAttached();
     await expect(page.locator('#root')).not.toBeEmpty();
 
-    const canvas = page.locator('canvas').first();
+    // A generic overlay canvas or HTML-only city is not evidence of StreetVerse 3D.
+    const worldRoot = page.locator('[data-streetverse-world-root="true"]');
+    await expect(worldRoot).toBeVisible({ timeout: 25_000 });
+    const canvas = worldRoot.locator('canvas').first();
     await expect(canvas).toBeVisible({ timeout: 25_000 });
+    await page.waitForFunction(
+      () => (window as typeof window & { __streetverse3DReady?: boolean }).__streetverse3DReady === true,
+      null,
+      { timeout: 30_000 },
+    );
+    const hasWebGLContext = await canvas.evaluate((element: HTMLCanvasElement) =>
+      Boolean(element.getContext('webgl2') || element.getContext('webgl')),
+    );
+    expect(hasWebGLContext).toBe(true);
+    await expect(page.locator('[data-streetverse-render-mode]')).toHaveCount(0);
+    await expect(page.getByText('HTML CITY MODE', { exact: false })).toHaveCount(0);
     const canvasBox = await canvas.boundingBox();
     expect(canvasBox?.width || 0).toBeGreaterThan(250);
     expect(canvasBox?.height || 0).toBeGreaterThan(250);
