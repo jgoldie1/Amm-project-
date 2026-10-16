@@ -63,6 +63,12 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     const travel=page.getByRole('button',{name:'Travel to Taylor Street UIC Medical District'});
     const stores=page.locator('#sv-retail-open');
     const enterStore=page.locator('#sv-store-open');
+    // Clear View deliberately collapses these controls; restore the full HUD
+    // through the same menu action a player uses before checking its layout.
+    await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-hud-focus','true');
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/SHOW FULL HUD/}).click();
+    await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-hud-focus','false');
     await expect(travel).toBeVisible();
     await expect(stores).toBeVisible();
     await expect(enterStore).toBeVisible();
@@ -95,12 +101,12 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await quickMenu.click();
     const menu=page.getByRole('menu',{name:'StreetVerse quick navigation'});
     await expect(menu).toBeVisible();
-    const bjView=page.getByRole('menuitem',{name:/BJ V12 VIEW/});
+    const bjView=page.getByRole('menuitem',{name:/BJ CLOSE-UP/});
     await expect(bjView).toBeVisible();
     await bjView.click();
     await page.waitForTimeout(1400);
     await page.screenshot({
-      path:testInfo.outputPath('streetverse-bj-v12-character-view.png'),
+      path:testInfo.outputPath('streetverse-bj-character-view.png'),
       fullPage:false,
     });
     await quickMenu.click();

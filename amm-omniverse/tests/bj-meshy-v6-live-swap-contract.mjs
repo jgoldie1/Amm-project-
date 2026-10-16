@@ -38,21 +38,21 @@ for(const token of [
   "nativeHeroFallback!.visible=false",
   "nativeLayer.add(handle.object)",
   "nativeHero=handle.object",
-  "assetId:BJ_MESHY_V6_ASSET.id",
-  "source:'streetverse-mobile-meshy-bj-v6'",
+  "assetId:isV15?'streetverse-bj-stubbs-v15':BJ_MESHY_V6_ASSET.id",
+  "source:isV15?'streetverse-mobile-actual-v15-glb-preview':'streetverse-mobile-compatible-fallback'",
   "bjMeshyHero?.tick(now",
   "focusYaw:heroConversationFocusYaw",
   "breathing:heroAffectBreathing",
   "posture:heroAffectPosture",
   "seated:Boolean(activeCar)",
   "autonomicLifeV7:true",
-  "liveMicLipSync:true",
+  "liveTalkLevel:heroLiveTalkLevel",
   "bjMeshyHero?.dispose()",
   "bjMeshyV6Priority:true",
   "bjMeshyV6Active:Boolean(bjMeshyHero)",
 ])must(world.includes(token),'mobile hero swap missing '+token)
 
-must(world.indexOf("nativeHeroFallback!.visible=false")>world.indexOf("if(!handle)return"),'fallback must hide only after Meshy asset is actually loaded')
+must(world.includes("if(!handle){if(request===bjHeroLoadEpoch)") && world.indexOf("nativeHeroFallback!.visible=false")>world.indexOf("if(!handle){if(request===bjHeroLoadEpoch)"),'fallback must hide only after Meshy asset is actually loaded')
 must(world.includes("bjPhotoMatch?.dispose();bjPhotoMatch=null"),'temporary photo shell must be retired after Meshy activation')
 must(world.includes("bjHeadRuntime?.dispose();bjHeadRuntime=null"),'temporary custom head runtime must retire after Meshy activation')
 must(runtime.includes("const availability=new Map<string,Promise<boolean>>()"),'BJ asset availability must be cached per URL so a missing fallback cannot poison a newly published rig')
