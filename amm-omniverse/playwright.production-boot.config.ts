@@ -3,7 +3,7 @@ import {defineConfig,devices} from '@playwright/test'
 // No local server, no paid deployment, no side effects: use existing public alias.
 export default defineConfig({
  testDir:'./tests/e2e',
- testMatch:'production-iphone-boot-regression.spec.ts',
+ testMatch:['production-iphone-boot-regression.spec.ts','production-streetverse-3d-regression.spec.ts'],
  fullyParallel:false,
  timeout:60000,
  retries:0,
