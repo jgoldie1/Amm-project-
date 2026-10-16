@@ -1,0 +1,47 @@
+name: StarVerse Isaiah Network Production Gate
+
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/runtime/StarVerseNetworkPipeline.ts'
+      - 'amm-omniverse/src/components/StarVerseNetworkStudio.tsx'
+      - 'amm-omniverse/src/components/AllAmericanNetworkHub.tsx'
+      - 'amm-omniverse/src/components/AllAmericanNetworkControlRoom.tsx'
+      - 'amm-omniverse/src/components/StarStudioCenter.tsx'
+      - 'amm-omniverse/src/components/PKLivingWorldsArena.tsx'
+      - 'amm-omniverse/src/main.tsx'
+      - 'amm-omniverse/tests/starverse-isaiah-network-production-contract.mjs'
+      - '.github/workflows/starverse-isaiah-network-production-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: starverse-network-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  production-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Exercise production contract and rights guardrails
+        run: node tests/starverse-isaiah-network-production-contract.mjs
+      - name: Type-check routed Studio and broadcast handoffs
+        run: npm run typecheck
+      - name: Clarify safety and costs
+        if: always()
+        run: |
+          echo 'This is a local creator production desk and source contract. It does not upload auditions, publish TV feeds, license music, book billboards, guarantee casting or pay creators.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No media transcoding, provider calls or Vercel deployment occur in this CI job.' >> "$GITHUB_STEP_SUMMARY"
