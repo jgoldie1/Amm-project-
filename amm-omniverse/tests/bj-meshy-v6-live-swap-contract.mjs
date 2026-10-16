@@ -38,21 +38,21 @@ for(const token of [
   "nativeHeroFallback!.visible=false",
   "nativeLayer.add(handle.object)",
   "nativeHero=handle.object",
-  "assetId:BJ_MESHY_V6_ASSET.id",
-  "source:'streetverse-mobile-meshy-bj-v6'",
+  "assetId:isV15?'streetverse-bj-stubbs-v15':BJ_MESHY_V6_ASSET.id",
+  "source:isV15?'streetverse-mobile-actual-v15-glb-preview':'streetverse-mobile-compatible-fallback'",
   "bjMeshyHero?.tick(now",
   "focusYaw:heroConversationFocusYaw",
   "breathing:heroAffectBreathing",
   "posture:heroAffectPosture",
   "seated:Boolean(activeCar)",
   "autonomicLifeV7:true",
-  "liveMicLipSync:true",
+  "liveTalkLevel:heroLiveTalkLevel",
   "bjMeshyHero?.dispose()",
   "bjMeshyV6Priority:true",
   "bjMeshyV6Active:Boolean(bjMeshyHero)",
 ])must(world.includes(token),'mobile hero swap missing '+token)
 
-must(world.indexOf("nativeHeroFallback!.visible=false")>world.indexOf("if(!handle)return"),'fallback must hide only after Meshy asset is actually loaded')
+must(world.includes("if(!handle){if(request===bjHeroLoadEpoch)") && world.indexOf("nativeHeroFallback!.visible=false")>world.indexOf("if(!handle){if(request===bjHeroLoadEpoch)"),'fallback must hide only after Meshy asset is actually loaded')
 must(world.includes("bjPhotoMatch?.dispose();bjPhotoMatch=null"),'temporary photo shell must be retired after Meshy activation')
 must(world.includes("bjHeadRuntime?.dispose();bjHeadRuntime=null"),'temporary custom head runtime must retire after Meshy activation')
 must(runtime.includes("const availability=new Map<string,Promise<boolean>>()"),'BJ asset availability must be cached per URL so a missing fallback cannot poison a newly published rig')
@@ -61,7 +61,8 @@ must(runtime.includes("availability.clear()"),'BJ availability reset must clear 
 must(!runtime.includes("availabilityPromise"),'BJ runtime must not use one global availability promise for every asset URL')
 must(runtime.includes("nodeHasAnimationTracks"),'BJ life layer must detect animation-driven bones before adding micro motion')
 must(runtime.includes("lifeDriven"),'BJ life layer must protect partial rigs from cumulative head/spine drift')
-must(runtime.includes("certifiedLikeness:verifiedPhotoMatch"),'BJ V6 must keep certified likeness behind verified authorization')
+const guardedLikeness='certifiedLikeness:usingV15Preview||usingMetaHumanPreview?false:verifiedPhotoMatch'
+must(runtime.split(guardedLikeness).length-1===2,'BJ V6 must keep certified likeness behind verified authorization and reject unapproved V15/MetaHuman preview claims')
 must(!runtime.includes("certifiedLikeness:true"),'BJ V6 must never hard-code a certified likeness claim')
 must(world.includes("visualContinuity:'current-era-reference-locked'"),'BJ current-era visual continuity lock must survive the life-layer upgrade')
 

@@ -1,5 +1,7 @@
-import {useEffect,useMemo,useState} from 'react'
+import {useEffect,useMemo,useState,useRef} from 'react'
 import {getAccessToken,getSupabaseClient} from '../services/supabaseClient'
+import MeshyFactorySignIn from './MeshyFactorySignIn'
+import {factoryRequest,singleFlight} from '../services/meshyFactoryClient'
 import Meshy3DPrintLab from './Meshy3DPrintLab'
 import TwelveDPrivateRnDPanel from './TwelveDPrivateRnDPanel'
 import PrintAICommandPanel from './PrintAICommandPanel'
@@ -12,16 +14,33 @@ type FactoryHealth={ok:boolean;providerConfigured:boolean;supabaseAdminConfigure
 const btn:React.CSSProperties={minHeight:44,borderRadius:12,border:'1px solid #3a647a',background:'#091823',color:'#fff',fontWeight:900,fontSize:10,padding:'9px 11px',touchAction:'manipulation'}
 const statusColor=(stage:string)=>stage==='ready'?'#8effb7':stage==='failed'?'#ff9a9a':'#8edcff'
 
-async function authFetch(url:string,options:RequestInit={}){
-  const token=await getAccessToken()
-  if(!token)throw new Error('Sign in to use the founder asset factory.')
-  const response=await fetch(url,{...options,headers:{'content-type':'application/json',authorization:`Bearer ${token}`,...(options.headers||{})},cache:'no-store'})
-  const payload=await response.json().catch(()=>({}))
-  if(!response.ok)throw new Error(payload?.message||payload?.error||`Request failed (${response.status})`)
-  return payload
-}
+const authFetch=(url:string,options:RequestInit={})=>factoryRequest(url,options,{getToken:getAccessToken,fetch})
 
 export default function MeshyFactoryControlPanel(){
+  const [signedIn,setSignedIn]=useState(false)
+  const [setup,setSetup]=useState<{configured:boolean;authenticationConfigured:boolean;durableStorageConfigured:boolean;backgroundWorkerConfigured:boolean}|null>(null)
+  const [setupError,setSetupError]=useState('')
+  useEffect(()=>{
+    const controller=new AbortController()
+    let active=true
+    const timer=setTimeout(()=>{if(active)setSetupError('Connection check timed out. Refresh this page to retry.');controller.abort()},15000)
+    fetch('/api/meshy/health',{cache:'no-store',signal:controller.signal}).then(async response=>{
+      if(!response.ok)throw new Error('Unable to check factory setup.')
+      const data=await response.json();if(active)setSetup(data)
+    }).catch(()=>{if(!controller.signal.aborted)setSetupError('Unable to check factory setup. Refresh this page to retry.')}).finally(()=>clearTimeout(timer))
+    return()=>{active=false;clearTimeout(timer);controller.abort()}
+  },[])
+  const refreshPending=useRef(false)
+  const epoch=useRef(0)
+  const pollJobs=useMemo(()=>singleFlight(async(active:Job[])=>{
+    const errors:string[]=[]
+    for(const job of active){
+      try{await authFetch('/api/meshy/factory',{method:'POST',body:JSON.stringify({action:'tick',jobId:job.id})})}
+      catch(e){errors.push(e instanceof Error?e.message:String(e))}
+    }
+    return errors
+  }),[])
+  const [providerError,setProviderError]=useState('')
   const [catalog,setCatalog]=useState<CatalogItem[]>([])
   const [jobs,setJobs]=useState<Job[]>([])
   const [referenceUrl,setReferenceUrl]=useState('')
@@ -37,8 +56,12 @@ export default function MeshyFactoryControlPanel(){
   const [uploadNote,setUploadNote]=useState('')
 
   const refresh=async()=>{
+    if(!signedIn||refreshPending.current)return
+    refreshPending.current=true
+    const currentEpoch=epoch.current
     try{
       const [data,healthData]=await Promise.all([authFetch('/api/meshy/factory'),authFetch('/api/meshy/factory-health')])
+      if(currentEpoch!==epoch.current)return
       setCatalog(Array.isArray(data.catalog)?data.catalog:[])
       setJobs(Array.isArray(data.jobs)?data.jobs:[])
       setHealth(healthData as FactoryHealth)
@@ -47,26 +70,36 @@ export default function MeshyFactoryControlPanel(){
         try{
           const taskData=await authFetch('/api/meshy/tasks?type=all&page_size=50')
           importedTasks=Array.isArray(taskData?.tasks)?taskData.tasks.filter((task:ProviderTask)=>task?.id&&String(task.status).toUpperCase()==='SUCCEEDED'&&task.glb):[]
-        }catch{}
+          setProviderError('')
+        }catch(e){setProviderError(e instanceof Error?e.message:String(e))}
       }
+      if(currentEpoch!==epoch.current)return
       setProviderTasks(importedTasks)
       if(importedTasks.length&&!selectedExistingTaskId)setSelectedExistingTaskId(importedTasks[0].id)
       setError('')
-    }catch(e){setError(e instanceof Error?e.message:String(e))}
+    }catch(e){if(currentEpoch===epoch.current)setError(e instanceof Error?e.message:String(e))}
+    finally{if(currentEpoch===epoch.current)refreshPending.current=false}
   }
 
-  useEffect(()=>{void refresh()},[])
   useEffect(()=>{
-    if(!auto)return
+    epoch.current++
+    refreshPending.current=false
+    if(signedIn)void refresh()
+    else{setCatalog([]);setJobs([]);setHealth(null);setProviderTasks([])}
+  },[signedIn])
+  useEffect(()=>{
+    if(!auto||!signedIn)return
     const timer=setInterval(()=>{void (async()=>{
+      const currentEpoch=epoch.current
       const active=jobs.filter(j=>['generating','rigging','publishing'].includes(j.stage))
-      for(const job of active){
-        try{await authFetch('/api/meshy/factory',{method:'POST',body:JSON.stringify({action:'tick',jobId:job.id})})}catch{}
-      }
-      if(active.length)await refresh()
+      if(!active.length)return
+      const errors=await pollJobs(active)
+      if(currentEpoch!==epoch.current)return
+      await refresh()
+      if(errors.length)setError(errors.join('; '))
     })()},5000)
     return()=>clearInterval(timer)
-  },[auto,jobs.map(j=>`${j.id}:${j.stage}:${j.progress}`).join('|')])
+  },[auto,signedIn,jobs.map(j=>`${j.id}:${j.stage}:${j.progress}`).join('|')])
 
   const start=async(assetId:string)=>{
     setBusy(assetId);setError('')
@@ -161,12 +194,20 @@ export default function MeshyFactoryControlPanel(){
         <div style={{display:'flex',gap:6}}><a href="/streetverse" style={{...btn,textDecoration:'none',display:'grid',placeItems:'center'}}>PLAY STREETVERSE</a><button onClick={()=>void refresh()} style={btn}>REFRESH</button></div>
       </header>
 
+      <section aria-label="Factory connection status" style={{padding:14,border:'1px solid #6590aa',borderRadius:14,marginTop:14}}>
+        <b>CONNECTION STATUS</b>
+        {setup?<><p>Meshy: {setup.configured?'configured':'not configured'} · Sign-in service: {setup.authenticationConfigured?'configured':'not configured'} · Job storage: {setup.durableStorageConfigured?'configured':'not configured'}</p>
+        {!setup.durableStorageConfigured&&<p role="alert">Generation is blocked until the server storage credential is configured. Signing in alone will not fix this.</p>}
+        {!setup.backgroundWorkerConfigured&&<p>Background processing is not configured. Once setup is complete, keep this page open while jobs advance.</p>}</>:<p role="status">{setupError||'Checking connection…'}</p>}
+      </section>
+      <MeshyFactorySignIn onSession={setSignedIn}/>
+      <fieldset disabled={!signedIn||!setup?.durableStorageConfigured} style={{border:0,padding:0,margin:0,minWidth:0}}>
       <section style={{marginTop:12,padding:12,border:'1px solid #294456',borderRadius:16,background:'#06121bdd'}}>
         <div style={{display:'flex',justifyContent:'space-between',gap:8,alignItems:'center',flexWrap:'wrap'}}><div><b style={{fontSize:12}}>EXECUTIVE CHAIN</b><div style={{fontSize:10,color:'#9fb4c2',marginTop:4}}>AI CEO prioritizes the actual blocker → Distinguished Engineer owns end-to-end convergence → Asset Engineer operates provider tasks → Release Guardian requires evidence.</div></div><button onClick={runExecutiveSprint} style={btn}>RUN CEO + ENGINEERING SPRINT</button></div>
       </section>
 
       <section style={{marginTop:12,padding:12,border:`1px solid ${health?.ok?'#2f6c4a':'#704b35'}`,borderRadius:16,background:health?.ok?'#07170fdd':'#1a1008dd'}}>
-        <div style={{display:'flex',justifyContent:'space-between',gap:8,flexWrap:'wrap'}}><div><b style={{fontSize:12}}>FACTORY READINESS: {health?.ok?'READY':'CHECKING / BLOCKED'}</b><div style={{fontSize:9,color:'#a8bdca',marginTop:4}}>Meshy key: {health?.providerConfigured?'YES':'NO'} • durable jobs: {health?.durableJobStoreReady?'YES':'NO'} • background worker: {health?.backgroundWorkerSecretConfigured?'YES':'NO'} • ready assets: {health?.readyAssets??0} • active: {health?.activeJobs??0} • recovery: {health?.recoveryRequiredJobs??0}</div></div></div>
+        <div style={{display:'flex',justifyContent:'space-between',gap:8,flexWrap:'wrap'}}><div><b style={{fontSize:12}}>FACTORY READINESS: {health?.ok?'READY':'CHECKING / BLOCKED'}</b><div style={{fontSize:9,color:'#a8bdca',marginTop:4}}>Meshy key: {health?health.providerConfigured?'YES':'NO':'NOT CHECKED'} • durable jobs: {health?health.durableJobStoreReady?'YES':'NO':'NOT CHECKED'} • background worker: {health?health.backgroundWorkerSecretConfigured?'YES':'NO':'NOT CHECKED'} • ready assets: {health?.readyAssets??0} • active: {health?.activeJobs??0} • recovery: {health?.recoveryRequiredJobs??0}</div></div></div>
         {Boolean(health?.blockers?.length)&&<div style={{display:'grid',gap:4,marginTop:7}}>{health!.blockers.map(blocker=><div key={blocker} style={{fontSize:9,color:'#ffc69c'}}>• {blocker}</div>)}</div>}
       </section>
 
@@ -178,7 +219,7 @@ export default function MeshyFactoryControlPanel(){
               Completed Meshy API generations can be adopted without spending generation credits again. TRYAMM will attach the existing GLB to a StreetVerse asset slot, rig it, publish it to durable storage, and make it discoverable by the live game.
             </div>
             <div style={{fontSize:9,color:health?.providerConfigured?'#8effb7':'#ffbd91',marginTop:5}}>
-              {health?.providerConfigured?`${providerTasks.length} completed Meshy task(s) available for import`:'MESHY_API_KEY is not configured in production yet'}
+              {health?.providerConfigured?`${providerTasks.length} completed Meshy task(s) available for import`:health?'Meshy is not configured on the server.':'Sign in to check Meshy and load existing models.'}
             </div>
           </div>
         </div>
@@ -241,6 +282,7 @@ export default function MeshyFactoryControlPanel(){
 
       <section style={{marginTop:12,padding:12,border:'1px solid #6a4e2a',borderRadius:16,background:'#171006dd'}}>
         <b style={{fontSize:12,color:'#ffd58a'}}>BJ V6 HERO</b>
+        <p><a href="/streetverse?bj=published" style={{color:'#8edcff'}}>Preview published BJ in StreetVerse</a> — uses the latest saved factory model, with existing models as fallbacks.</p>
         <div style={{fontSize:10,color:'#cdbda1',lineHeight:1.45,marginTop:5}}>BJ must use an approved reference-image URL. The factory will not fabricate the likeness from text.</div>
         <div style={{display:'flex',gap:6,marginTop:8,flexWrap:'wrap'}}><input aria-label="Approved BJ reference image URL" value={referenceUrl} onChange={e=>setReferenceUrl(e.target.value)} placeholder="https://… approved reference image" style={{flex:'1 1 260px',minHeight:44,borderRadius:11,border:'1px solid #826a47',background:'#0e0b07',color:'#fff',padding:'0 10px'}}/><button disabled={Boolean(busy)||!referenceUrl.trim()} onClick={()=>void start('sv-bj-stubbs-v6')} style={btn}>{busy==='sv-bj-stubbs-v6'?'STARTING…':'START BJ V6'}</button></div>
       </section>
@@ -263,12 +305,14 @@ export default function MeshyFactoryControlPanel(){
         </div>
       </section>
 
+      {providerError&&<p role="alert">Existing models could not be loaded: {providerError}</p>}
       <section style={{marginTop:16}}>
         <b style={{fontSize:12}}>FULL CHARACTER QUEUE</b>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:8,marginTop:8}}>
           {catalog.filter(item=>item.assetId!=='sv-bj-stubbs-v6').map(item=><article key={item.assetId} style={{padding:10,border:'1px solid #223b4c',borderRadius:13,background:'#061019'}}><b style={{fontSize:10}}>{item.filename}</b><div style={{fontSize:9,color:'#8da4b4',marginTop:4}}>{item.ageLane} • {item.role}</div><button disabled={Boolean(busy)} onClick={()=>void start(item.assetId)} style={{...btn,marginTop:7,width:'100%'}}>{busy===item.assetId?'STARTING…':'GENERATE + RIG'}</button></article>)}
         </div>
       </section>
+      </fieldset>
     </div>
   </main>
 }

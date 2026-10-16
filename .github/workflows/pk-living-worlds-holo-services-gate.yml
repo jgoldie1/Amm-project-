@@ -1,0 +1,48 @@
+name: PK Living Worlds Holo Services Gate
+
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/runtime/PKLivingWorldsBridge.ts'
+      - 'amm-omniverse/src/runtime/PKHoloServicesBridge.ts'
+      - 'amm-omniverse/src/components/PKLivingWorldsArena.tsx'
+      - 'amm-omniverse/src/components/HoloExperienceLauncher.tsx'
+      - 'amm-omniverse/src/components/HoloverseHub.tsx'
+      - 'amm-omniverse/src/components/MiddleverseWorkstation.tsx'
+      - 'amm-omniverse/src/components/HoloDeliveryCenter.tsx'
+      - 'amm-omniverse/tests/pk-living-worlds-holo-services-contract.mjs'
+      - '.github/workflows/pk-living-worlds-holo-services-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pk-holo-services-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contracts-and-typecheck:
+    name: PK cross-verse services and TypeScript
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verify all 12 Holo services and money/provider safety
+        run: node tests/pk-living-worlds-holo-services-contract.mjs
+      - name: Check TypeScript integration
+        run: npm run typecheck
+      - name: Explain scope
+        if: always()
+        run: |
+          echo 'This is a rehearsal/workflow integration check. It does not approve real orders, driver/aircraft dispatch, wages, gifts, creator payouts or platform-wide streaming.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No Vercel deployment or media streaming is triggered by this gate.' >> "$GITHUB_STEP_SUMMARY"

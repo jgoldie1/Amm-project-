@@ -96,6 +96,21 @@ export default function AllAmericanNetworkControlRoom(){
   const [commercialTitle,setCommercialTitle]=useState('Local Business Spotlight')
 
   useEffect(()=>{
+    // Explicit producer handoff from StarVerse. This only pre-fills a studio draft:
+    // broadcaster identity, music rights and distribution must be verified separately.
+    try{
+      const raw=sessionStorage.getItem('tryamm.starverse.broadcast-handoff.v1')
+      if(!raw||raw.length>1500)return
+      sessionStorage.removeItem('tryamm.starverse.broadcast-handoff.v1')
+      const data=JSON.parse(raw) as {schema?:string;status?:string;title?:string;format?:string}
+      if(data.schema!=='tryamm.starverse.broadcast-handoff.v1'||data.status!=='DRAFT')return
+      setTitle(String(data.title||'StarVerse Creator Special').slice(0,120))
+      setFormatId(data.format==='music'?'musicverse-live':data.format==='pk-special'?'reality-aftershow':'creator-spotlight')
+      setNotice('StarVerse creator program draft loaded. No broadcast is live, scheduled, licensed or rights-cleared. Review sources, permissions and production readiness before any action.')
+    }catch{}
+  },[])
+
+  useEffect(()=>{
     const onStudio=(e:Event)=>setStudio((e as CustomEvent<any>).detail?.state||studio)
     const onPresence=(e:Event)=>{const d=(e as CustomEvent<{players?:Player[];online?:number}>).detail||{};setPlayers(Array.isArray(d.players)?d.players:[]);setOnline(Number(d.online||0))}
     const onBlocked=()=>setNotice('TAKE LIVE is blocked until rights are cleared.')

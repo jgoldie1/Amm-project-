@@ -1,0 +1,80 @@
+name: TRYAMM Production iPhone Boot Regression
+
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/index.html'
+      - 'amm-omniverse/src/bootstrap.ts'
+      - 'amm-omniverse/src/main.tsx'
+      - 'amm-omniverse/src/App.tsx'
+      - 'amm-omniverse/src/components/TryAMMHome.tsx'
+      - 'amm-omniverse/src/components/StreetVerseGeoSpawnBridge.tsx'
+      - 'amm-omniverse/src/components/StreetVersePlayableWorld.tsx'
+      - 'amm-omniverse/src/components/StreetVerseMobileWorld.tsx'
+      - 'amm-omniverse/src/components/StreetVerseMobilePlayableWorld.tsx'
+      - 'amm-omniverse/src/components/StreetVerseSafeWorld.tsx'
+      - 'amm-omniverse/src/streetverse-safe.tsx'
+      - 'amm-omniverse/streetverse-safe.html'
+      - 'amm-omniverse/vite.config.ts'
+      - 'amm-omniverse/vercel.json'
+      - 'amm-omniverse/public/tryamm-startup-guard.js'
+      - 'amm-omniverse/tests/e2e/production-iphone-boot-regression.spec.ts'
+      - 'amm-omniverse/tests/e2e/production-streetverse-3d-regression.spec.ts'
+      - 'amm-omniverse/playwright.production-boot.config.ts'
+      - '.github/workflows/tryamm-production-iphone-boot-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tryamm-prod-iphone-boot-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  public-boot:
+    name: Existing public site recovery smoke / mobile WebKit + Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install pinned temporary browser test runner
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund @playwright/test@1.57.0
+      - name: Install mobile-compatible browser engines
+        run: npx playwright install --with-deps chromium webkit
+      - name: Verify current public domain in independent browsers
+        run: npx playwright test --config=playwright.production-boot.config.ts --project=iphone-webkit --project=mobile-chromium --workers=1
+        env:
+          CI: 'true'
+          TRYAMM_BASE_URL: https://tryamm.online
+      - name: Compile proposed release locally (no Vercel build)
+        run: npx vite build
+      - name: Verify actual PR candidate startup and iPhone 3D in local preview
+        run: npx playwright test --config=playwright.production-boot.config.ts --project=iphone-webkit --project=mobile-chromium --workers=1
+        env:
+          CI: 'true'
+          TRYAMM_CANDIDATE: '1'
+          TRYAMM_BASE_URL: http://127.0.0.1:4173
+      - name: Report limitations and no-bill guarantees
+        if: always()
+        run: |
+          echo 'Tests both the existing public domain and the exact proposed PR code using a local Vite preview; neither step releases a new Vercel deployment.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No Vercel deploy, no Stripe, no Media API and no app storage modifications. Physical iPhone Safari must still be manually verified.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Save screenshots and diagnostics only on failure
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: tryamm-production-boot-failure
+          path: |
+            amm-omniverse/test-results
+            amm-omniverse/playwright-report
+          retention-days: 3

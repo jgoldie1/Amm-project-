@@ -7,11 +7,13 @@ import {TRYAMM_VERSE_DIRECTORY} from '../holo/holoClip2'
 import SocialAgeSafetyGate,{type SocialIntent,type SocialSafetyDecision} from './SocialAgeSafetyGate'
 
 const LiveCenter=lazy(()=>import('./LiveCenter'))
+const PKLivingWorldsArena=lazy(()=>import('./PKLivingWorldsArena'))
 
 type SocialMode='feed'|'live'|'pk'|'world'
 
 export default function HoloExperienceLauncher(){
   const [carouselOpen,setCarouselOpen]=useState(false)
+  const [pkStoryOpen,setPkStoryOpen]=useState(false)
   const [socialOpen,setSocialOpen]=useState(false)
   const [socialMode,setSocialMode]=useState<SocialMode>('feed')
   const [clipOpen,setClipOpen]=useState(false)
@@ -36,14 +38,16 @@ export default function HoloExperienceLauncher(){
 
   useEffect(()=>{
     const openClip=()=>setClipOpen(true)
+    const openPKStory=()=>setPkStoryOpen(true)
     const openCarousel=()=>{const show=(window as any).__showHoloverse;if(typeof show==='function')show();else window.location.href='/?open=holoverse'}
     const openSocial=(event:Event)=>{const d=(event as CustomEvent<{mode?:SocialMode;source?:string}>).detail||{};const mode=d.mode||'feed';if(mode==='live'||mode==='pk'){requestLivePk(mode,d.source||'holo-social-event');return}setSocialMode(mode);setSocialOpen(true)}
     const openStreetVerseLivePk=(event:Event)=>{const d=(event as CustomEvent<{mode?:SocialIntent}>).detail||{};requestLivePk(d.mode==='pk'?'pk':'live','streetverse')}
     window.addEventListener('tryamm:holo-clip-open',openClip)
+    window.addEventListener('tryamm:pk-story-open',openPKStory)
     window.addEventListener('tryamm:holo-carousel-open',openCarousel)
     window.addEventListener('tryamm:holo-social-open',openSocial)
     window.addEventListener('tryamm:streetverse-holo-livepk',openStreetVerseLivePk)
-    return()=>{window.removeEventListener('tryamm:holo-clip-open',openClip);window.removeEventListener('tryamm:holo-carousel-open',openCarousel);window.removeEventListener('tryamm:holo-social-open',openSocial);window.removeEventListener('tryamm:streetverse-holo-livepk',openStreetVerseLivePk)}
+    return()=>{window.removeEventListener('tryamm:pk-story-open',openPKStory);window.removeEventListener('tryamm:holo-clip-open',openClip);window.removeEventListener('tryamm:holo-carousel-open',openCarousel);window.removeEventListener('tryamm:holo-social-open',openSocial);window.removeEventListener('tryamm:streetverse-holo-livepk',openStreetVerseLivePk)}
   },[])
 
   const launch=(panel:string)=>{
@@ -74,6 +78,7 @@ export default function HoloExperienceLauncher(){
     <HoloClipScreenLayer open={carouselOpen} onClose={()=>setCarouselOpen(false)} onLaunch={launch}/>
     {socialOpen&&<HoloSocialEngine key={socialMode} initialMode={socialMode} onClose={()=>setSocialOpen(false)}/>}
     {clipOpen&&<HoloClipStudio onClose={()=>setClipOpen(false)}/>}
+    {pkStoryOpen&&<Suspense fallback={<div role="status">Opening PK Story Arena…</div>}><PKLivingWorldsArena onClose={()=>setPkStoryOpen(false)}/></Suspense>}
     <SocialAgeSafetyGate open={Boolean(safetyIntent)} intent={safetyIntent||'live'} onAllow={allowLivePk} onClose={()=>setSafetyIntent(null)}/>
     {liveCenterOpen&&<Suspense fallback={null}><LiveCenter initialMode={liveCenterMode} initialRole={youthViewerOnly?'viewer':'host'} youthViewerOnly={youthViewerOnly} onClose={()=>setLiveCenterOpen(false)}/></Suspense>}
   </>

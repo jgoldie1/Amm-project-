@@ -17,6 +17,7 @@ const bridgeCards=[
 
 export default function MiddleverseWorkstation({onClose}:{onClose:()=>void}){
   const [mode,setMode]=useState<Mode>('middleverse')
+  const [pkBrief]=useState<{schema?:string;title?:string;status?:string;roles?:{lane:string;task:string}[];verifiedWork?:boolean;payable?:boolean}|null>(()=>{try{const d=JSON.parse(sessionStorage.getItem('tryamm.pk.middleverse-production-brief.v1')||'null');return d?.schema==='tryamm.middleverse.pk-production-brief.v1'&&d?.status==='DRAFT'?d:null}catch{return null}})
   const [status,setStatus]=useState<any>(null)
   const [scripts,setScripts]=useState<Script[]>([])
   const [rebuttals,setRebuttals]=useState<Rebuttal[]>([])
@@ -63,6 +64,7 @@ export default function MiddleverseWorkstation({onClose}:{onClose:()=>void}){
       {notice&&<div style={{marginBottom:14,padding:12,borderRadius:10,background:'#2a1b14',border:'1px solid #e8b94466',color:'#ffd98a'}}>{notice}</div>}
 
       {mode==='middleverse'&&<>
+         {pkBrief&&<section aria-label="PK Story production brief" style={{...panel,marginBottom:14,borderColor:'#68cbd4'}}><h2 style={{margin:'0 0 8px'}}>PK Living Worlds • production brief</h2><b>{pkBrief.title}</b><p style={{color:'#b7cad8',fontSize:12}}>Draft only. Roles below are suggested production tasks, not posted jobs or verified paid work.</p><div style={{display:'grid',gap:6}}>{(pkBrief.roles||[]).map((r,i)=><div key={i} style={{fontSize:12,padding:8,border:'1px solid #273b4d',borderRadius:9}}><b>{r.lane.toUpperCase()}</b> — {r.task}</div>)}</div><button onClick={()=>{onClose();window.dispatchEvent(new CustomEvent('tryamm:pk-story-open',{detail:{source:'middleverse'}}))}} style={{...btn,marginTop:10}}>Continue story in PK Arena</button></section>}
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:12}}>{bridgeCards.map(([i,n,d])=><div key={n} style={panel}><div style={{fontSize:28}}>{i}</div><div style={{fontWeight:950,marginTop:8}}>{n}</div><div style={{color:'#91a4b7',fontSize:13,lineHeight:1.5,marginTop:5}}>{d}</div></div>)}</div>
         <div style={{...panel,marginTop:14}}><div style={{fontWeight:950,color:'#e8b944'}}>What Middleverse does</div><p style={{color:'#b7c3d0',lineHeight:1.7}}>Middleverse is the context and workflow bridge. A worker can move from a customer conversation to a Marketplace order, a LIVE seller, a Living World business, a training module, or a developer incident without losing identity, permissions, audit history or Stubbs AI context. It is not a fake separate universe; it is the connective operating layer between TRYAMM systems.</p><div style={{fontSize:12,color:'#7f93a8'}}>Status: real bridge/workstation foundation added; individual domain handoffs still depend on each production service being configured.</div></div>
       </>}

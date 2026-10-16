@@ -1,8 +1,8 @@
 // TRYAMM Service Worker
 // Network-first app shell with stale-asset self recovery.
-// 2026-09-04 StreetVerse immediate-play release.
+// Active StreetVerse and TRYAMM release cache; rotate with index.html.
 
-const RELEASE = '20261002-birthday-live-fix-v2'
+const RELEASE = '20261013-bj-v17-clean-release'
 const CACHE_NAME = 'tryamm-shell-' + RELEASE
 const STATIC_ASSETS = ['/manifest.json?v=20260904-american-lion-v2','/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2']
 
@@ -12,7 +12,7 @@ async function notifyStaleAsset(url) {
 }
 
 function recoveryModule(url) {
-  const source = `(()=>{const k='tryamm-stale-asset-v30';try{if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('_tryamm_recover','v30');location.replace(u.toString())}}catch{location.reload()}})();export {};\n//# sourceURL=tryamm-stale-asset-recovery.js`
+  const source = `(()=>{const k='tryamm-stale-asset-v31';try{if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');const u=new URL(location.href);u.searchParams.set('_tryamm_recover','v31');location.replace(u.toString())}}catch{location.reload()}})();export {};\n//# sourceURL=tryamm-stale-asset-recovery.js`
   return new Response(source, {
     status: 200,
     headers: {
@@ -45,7 +45,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))
+      .then(keys => Promise.all(keys.filter(k => k.startsWith('tryamm-') && k !== CACHE_NAME).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   )
 })
@@ -53,7 +53,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('message', event => {
   if (event.data?.type === 'SKIP_WAITING') self.skipWaiting()
   if (event.data?.type === 'CLEAR_TRYAMM_CACHE') {
-    event.waitUntil(caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key)))))
+    event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('tryamm-')).map(key => caches.delete(key)))))
   }
 })
 
@@ -80,6 +80,17 @@ self.addEventListener('fetch', (event) => {
   if (url.pathname.startsWith('/assets/') && url.pathname.match(/\.(js|css)$/i)) {
     event.respondWith((async () => {
       const isJs = /\.js$/i.test(url.pathname)
+      // Vite gives changed content a new hashed URL. Reuse only exact,
+      // same-origin hashed assets; app HTML and unversioned files stay fresh.
+      const immutable = url.origin === self.location.origin && /-[A-Za-z0-9_-]{8,}\.(js|css)$/.test(url.pathname)
+      if (immutable) {
+        try {
+          const cache = await caches.open(CACHE_NAME)
+          const cached = await cache.match(request)
+          const type = String(cached?.headers.get('content-type') || '').toLowerCase()
+          if (cached?.ok && (isJs ? type.includes('javascript') : type.includes('text/css'))) return cached
+        } catch { /* Storage restrictions must not prevent network startup. */ }
+      }
       try {
         const response = await fetch(request, { cache: 'no-store' })
         const type = String(response.headers.get('content-type') || '').toLowerCase()
