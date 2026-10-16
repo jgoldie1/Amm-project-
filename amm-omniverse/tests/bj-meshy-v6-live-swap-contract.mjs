@@ -61,7 +61,8 @@ must(runtime.includes("availability.clear()"),'BJ availability reset must clear 
 must(!runtime.includes("availabilityPromise"),'BJ runtime must not use one global availability promise for every asset URL')
 must(runtime.includes("nodeHasAnimationTracks"),'BJ life layer must detect animation-driven bones before adding micro motion')
 must(runtime.includes("lifeDriven"),'BJ life layer must protect partial rigs from cumulative head/spine drift')
-must(runtime.includes("certifiedLikeness:verifiedPhotoMatch"),'BJ V6 must keep certified likeness behind verified authorization')
+const guardedLikeness='certifiedLikeness:usingV15Preview||usingMetaHumanPreview?false:verifiedPhotoMatch'
+must(runtime.split(guardedLikeness).length-1===2,'BJ V6 must keep certified likeness behind verified authorization and reject unapproved V15/MetaHuman preview claims')
 must(!runtime.includes("certifiedLikeness:true"),'BJ V6 must never hard-code a certified likeness claim')
 must(world.includes("visualContinuity:'current-era-reference-locked'"),'BJ current-era visual continuity lock must survive the life-layer upgrade')
 
