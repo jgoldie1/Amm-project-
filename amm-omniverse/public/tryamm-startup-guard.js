@@ -23,7 +23,8 @@
     var retry = new URL(location.href);
     retry.searchParams.set('startup_retry', String(Date.now()));
     link('Retry opening TRYAMM', retry.href);
-    link('Open lightweight city', '/streetverse-safe.html');
+    link('Open 3D StreetVerse (BJ + joystick)', '/streetverse');
+    link('Open basic 2D city (emergency only)', '/streetverse-safe.html');
     link('Return to homepage', '/');
     canary.appendChild(actions);
   }
