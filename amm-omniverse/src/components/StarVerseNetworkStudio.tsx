@@ -10,6 +10,7 @@ const OTTIsaiahTV=lazy(()=>import('./OTTIsaiahTV'))
 const HoloMusicStreaming=lazy(()=>import('./HoloMusicStreaming'))
 const MovieStudioCenter=lazy(()=>import('./MovieStudioCenter'))
 const Aniyah64TrackStudio=lazy(()=>import('./Aniyah64TrackStudio'))
+const StarVerseCreatorOperationsPanel=lazy(()=>import('./StarVerseCreatorOperationsPanel'))
 
 type Preview='isaiah'|'music'|'movie'|'audio'|null
 const surface:React.CSSProperties={background:'#0b1421',border:'1px solid #284458',padding:15,borderRadius:16}
@@ -147,6 +148,9 @@ export default function StarVerseNetworkStudio(){
      </div>
     </div>}
    </section>
+   <Suspense fallback={<div role="status" style={surface}>Opening Talent Passport, Rights Vault, Star Competition, sponsorship and analytics…</div>}>
+    <StarVerseCreatorOperationsPanel onApplyStageName={stageName=>patch({creatorCredit:stageName})}/>
+   </Suspense>
    <section aria-label="Rights and producer review" style={surface}>
     <h2 style={{fontSize:18,margin:'0 0 8px'}}>6. Review before any release</h2>
     <div style={{display:'grid',gap:10}}>
