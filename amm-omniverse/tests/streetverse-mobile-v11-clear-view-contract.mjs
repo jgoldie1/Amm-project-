@@ -25,12 +25,13 @@ for(const token of [
   'cameraShoulder=portraitClearView?.70:.78',
   'cameraHeight=portraitClearView?3.28:3.65',
   'cameraBack=portraitClearView?5.70:6.6',
-  "portraitFramingPass:portraitClearView?'clear-view-v11':'standard'",
+  "portraitClearView?'clear-view-v11':'standard'",
   'resolveStreetVerseThirdPersonCameraSafety(origin,desired,camera.position',
   'data-mission-objective="true"',
   'data-mission-action="true"',
   'new THREE.MeshStandardMaterial({color:0x31566d',
 ])must(mobile.includes(token),'mobile V11 implementation missing '+token)
+must(mobile.includes("portraitFramingPass:bjCloseViewRef.current?'bj-portrait-v16':portraitClearView?'clear-view-v11':'standard'"),'BJ portrait v16 framing must keep v11 and standard camera fallbacks')
 
 for(const token of [
   'STREETVERSE_CAMERA_MIN_DISTANCE=2.8',

@@ -5,11 +5,14 @@ import crypto from 'node:crypto'
 const root=process.cwd()
 const source=path.join(root,'public/generated-assets/native/kit/streetverse-hero-player.glb')
 const outDir=path.join(root,'public/tryamm-assets/meshy/characters')
+const v15=path.join(outDir,'SV_HERO_BJ_STUBBS_V15.glb')
+const v15Source=path.join(root,'public/generated-assets/native/kit/streetverse-bj-v15-sculpt.glb')
 const v12=path.join(outDir,'SV_HERO_BJ_STUBBS_V12.glb')
 const v7=path.join(outDir,'SV_HERO_BJ_STUBBS_V7.glb')
 const v6=path.join(outDir,'SV_HERO_BJ_STUBBS_V6.glb')
 const manifestPath=path.join(outDir,'SV_HERO_BJ_STUBBS_V7.manifest.json')
 const manifestV12Path=path.join(outDir,'SV_HERO_BJ_STUBBS_V12.manifest.json')
+const manifestV15Path=path.join(outDir,'SV_HERO_BJ_STUBBS_V15.manifest.json')
 
 if(!fs.existsSync(source))throw new Error('BJ V7 publish failed: native StreetVerse hero GLB was not generated')
 const bytes=fs.readFileSync(source)
@@ -17,7 +20,12 @@ if(bytes.length<12000)throw new Error('BJ V7 publish failed: generated hero GLB 
 if(bytes.subarray(0,4).toString('ascii')!=='glTF')throw new Error('BJ V7 publish failed: source is not a binary glTF/GLB')
 if(bytes.readUInt32LE(4)!==2)throw new Error('BJ V7 publish failed: expected GLB version 2')
 
+if(!fs.existsSync(v15Source))throw new Error('BJ V15 publish failed: independent sculpt GLB missing')
+const v15Bytes=fs.readFileSync(v15Source)
+if(v15Bytes.length<12000||v15Bytes.subarray(0,4).toString('ascii')!=='glTF'||v15Bytes.readUInt32LE(4)!==2)throw new Error('BJ V15 publish failed: invalid independent GLB')
+if(crypto.createHash('sha256').update(v15Bytes).digest('hex')===crypto.createHash('sha256').update(bytes).digest('hex'))throw new Error('BJ V15 must contain new geometry, not renamed V12 bytes')
 fs.mkdirSync(outDir,{recursive:true})
+fs.writeFileSync(v15,v15Bytes)
 fs.writeFileSync(v12,bytes)
 fs.writeFileSync(v7,bytes)
 fs.writeFileSync(v6,bytes)
@@ -54,4 +62,18 @@ const manifestV12={
   truth:'Owned TRYAMM procedural BJ V12 GLB generated from the current native hero foundry. It improves the production mesh/material pipeline but does not claim certified photo likeness.'
 }
 fs.writeFileSync(manifestV12Path,JSON.stringify(manifestV12,null,2))
-console.log(JSON.stringify({published:true,v12:path.relative(root,v12),v7:path.relative(root,v7),v6:path.relative(root,v6),bytes:bytes.length,sha256},null,2))
+const manifestV15={
+ ...manifestV12,
+ schema:'tryamm.bj-stubbs-owned-glb.v15',
+ source:'public/generated-assets/native/kit/streetverse-bj-v15-sculpt.glb',
+ productionFile:'SV_HERO_BJ_STUBBS_V15.glb',
+ assetVersion:'bj-realism-v15',
+ visualPass:'merged-beard-fibers-curved-locs-cheek-eye-profile-v15',
+ bytes:v15Bytes.length,
+ sha256:crypto.createHash('sha256').update(v15Bytes).digest('hex'),
+ certifiedLikeness:false,
+ photoMatched:false,
+ truth:'A distinct owned procedural sculpt with more 3D face, loc and beard detail; NOT a photo-accurate certified scan or full AAA cinematic head.'
+}
+fs.writeFileSync(manifestV15Path,JSON.stringify(manifestV15,null,2))
+console.log(JSON.stringify({published:true,v15:path.relative(root,v15),v15Bytes:v15Bytes.length,v12:path.relative(root,v12),v7:path.relative(root,v7),v6:path.relative(root,v6),bytes:bytes.length,sha256},null,2))

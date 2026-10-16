@@ -35,6 +35,8 @@ const ZONES:readonly Zone[]=[
  {id:'roosevelt',label:'Roosevelt Road',group:'neighborhood',x:49,z:43,status:'live',detail:'Business, mobility, delivery and mission corridor.',mission:'roosevelt'},
  {id:'saint-ignatius',label:'St. Ignatius College Prep',group:'school',x:54,z:40,status:'playable',detail:'Roosevelt Road school landmark reconstructed as a gameplay campus anchor from the real-world address.',mission:'ignatius-campus-memory'},
  {id:'holy-family',label:'Holy Family Church',group:'faith',x:51,z:39,status:'playable',detail:'Roosevelt Road faith/history landmark reconstructed as a gameplay anchor from the real-world address.',mission:'holy-family-history-faith'},
+ {id:'fillmore',label:'West Fillmore Street',group:'neighborhood',x:52,z:49,status:'playable',detail:'Circle Park-connected Fillmore Street waypoint and neighborhood walking route.',mission:'fillmore'},
+ {id:'arrigo-park',label:'Arrigo Park / Little Italy',group:'neighborhood',x:65,z:45,status:'playable',detail:'Modeled scenic park waypoint; public park reference at 801 S Loomis Street near Taylor and Polk.',mission:'arrigo-park'},
  {id:'taylor',label:'Taylor Street / Little Italy',group:'neighborhood',x:57,z:56,status:'live',detail:'Restaurants, apartments, creator spaces and neighborhood missions.',mission:'taylor'},
  {id:'pilsen',label:'Pilsen',group:'neighborhood',x:63,z:76,status:'playable',detail:'Arts, food, music, homes and community mission district.',mission:'pilsen'},
  {id:'uic-east',label:'UIC East Campus',group:'campus',x:69,z:35,status:'playable',detail:'Student Center East, Daley Library and connected CampusVerse missions.',campusId:'uic'},
@@ -91,6 +93,15 @@ const MISSIONS=[
  'Creator Reel capture after mission completion',
 ] as const
 
+// These four anchors exist in the lightweight mobile 3D scene. Map dots are not GPS locations.
+const MOBILE_WEST_SIDE_ENTRIES:Record<string,{x:number;z:number}>={
+ 'circle-park':{x:-15,z:49},
+ 'roosevelt':{x:-8,z:18},
+ 'taylor':{x:-8,z:-8},
+ 'fillmore':{x:-8,z:19},
+ 'arrigo-park':{x:67,z:-10},
+ 'pilsen':{x:-8,z:-36},
+}
 const statusColor={live:'#72ffb0',playable:'#6de3ff',planned:'#ffd15c'} as const
 const scaleLabel:Record<Scale,string>={west:'WEST SIDE',chicago:'CHICAGO 77',illinois:'ILLINOIS',usa:'USA',world:'WORLD'}
 
@@ -107,6 +118,27 @@ export default function StreetVerseWestSideWorldBuilder(){
  const [middleverseRepairs,setMiddleverseRepairs]=useState<MiddleverseRepairStateView>({items:[],activeTicketId:null})
  const [layers,setLayers]=useState({neighborhood:true,school:true,faith:true,campus:true,medical:true,transit:true})
  const visible=useMemo(()=>ZONES.filter(z=>layers[z.group]),[layers])
+
+ useEffect(()=>{
+  const onArrival=(event:Event)=>{
+   const detail=(event as CustomEvent<{missionId?:string;source?:string}>).detail||{}
+   const id=String(detail.missionId||'')
+   if(detail.source!=='streetverse-mobile-world'||!MOBILE_WEST_SIDE_ENTRIES[id])return
+   setNotice('ARRIVED IN 3D • '+id.replaceAll('-',' ').toUpperCase())
+   setOpen(false)
+  }
+  const onBlocked=(event:Event)=>{
+   const d=(event as CustomEvent<{missionId?:string;reason?:string;source?:string}>).detail||{}
+   if(d.source!=='streetverse-mobile-world'||!MOBILE_WEST_SIDE_ENTRIES[String(d.missionId||'')])return
+   setNotice(d.reason==='vehicle'?'EXIT VEHICLE FIRST • then tap ENTER 3D DISTRICT again.':'ROUTE BLOCKED • no safe district entrance; BJ was not moved.')
+  }
+  window.addEventListener('tryamm:west-side-route-arrived',onArrival)
+  window.addEventListener('tryamm:west-side-route-blocked',onBlocked)
+  return()=>{
+   window.removeEventListener('tryamm:west-side-route-arrived',onArrival)
+   window.removeEventListener('tryamm:west-side-route-blocked',onBlocked)
+  }
+ },[])
 
  useEffect(()=>{
   const show=()=>setOpen(true)
@@ -177,7 +209,29 @@ export default function StreetVerseWestSideWorldBuilder(){
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-builder-focus',{detail:zone}))
  }
 
+ const viewBJStubbs=()=>{
+  if(!document.querySelector('[data-streetverse-world-root="true"]')){
+   window.location.assign('/bj-v10-preview')
+   return
+  }
+  setOpen(false)
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-showcase',{detail:{source:'streetverse-world-builder',district:selected.id}}))
+ }
+
+ const enterPlayableDistrict=(zone:Zone)=>{
+  const entry=MOBILE_WEST_SIDE_ENTRIES[zone.id]
+  if(!entry){setNotice('3D DISTRICT ENTRY • not yet built. Choose Circle Park, Fillmore, Taylor, Arrigo Park or Pilsen.');return}
+  if(!document.querySelector('[data-streetverse-world-root="true"]')){
+   setNotice('3D DISTRICT ENTRY • open the StreetVerse mobile city first, then choose the district again.')
+   return
+  }
+  // The mobile scene checks collisions, driving state and the nearest walkable destination.
+  window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{...entry,missionId:zone.id,source:'streetverse-world-builder',label:zone.label}}))
+  setNotice('3D ROUTE REQUESTED • '+zone.label+' • If BJ is driving, exit the vehicle and tap ENTER again.')
+ }
+
  const startMission=(zone:Zone)=>{
+  if(zone.status==='planned'){setNotice('MISSION PLANNED • '+zone.label+' needs geometry and gameplay certification before activation.');return}
   const detail={missionId:`west-builder:${zone.id}`,id:`west-builder:${zone.id}`,title:`West Side • ${zone.label}`,objective:`Reach and complete the ${zone.label} district objective.`,campus:zone.campusId,source:'streetverse-world-builder'}
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail}))
   window.dispatchEvent(new CustomEvent('tryamm:campusverse-mission-open',{detail}))
@@ -317,7 +371,9 @@ export default function StreetVerseWestSideWorldBuilder(){
       <p style={{fontSize:11,lineHeight:1.5,color:'#a9bbc7'}}>{selected.detail}</p>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7}}>
        <button onClick={()=>focus(selected)} style={actionBtn}>VECTOR ROUTE</button>
-       <button onClick={()=>startMission(selected)} style={actionBtn}>START MISSION</button>
+       <button onClick={()=>startMission(selected)} style={actionBtn}>{selected.status==='planned'?'MISSION PLANNED':'START MISSION'}</button>
+       {MOBILE_WEST_SIDE_ENTRIES[selected.id]&&<button data-streetverse-enter-district={selected.id} onClick={()=>enterPlayableDistrict(selected)} style={{...actionBtn,gridColumn:'1 / -1',minHeight:48,borderColor:'#76ffb188',background:'#0b3025'}}>▶ ENTER 3D DISTRICT • {selected.label.toUpperCase()}</button>}
+       <button data-streetverse-bj-world-builder="true" onClick={viewBJStubbs} style={{...actionBtn,gridColumn:'1 / -1',minHeight:48,borderColor:'#d5b66f99',background:'#292113'}}>👤 VIEW BJ STUBBS IN 3D</button>
        {selected.campusId&&<button onClick={()=>openCampus(selected.campusId!)} style={{...actionBtn,gridColumn:'1 / -1'}}>OPEN CAMPUSVERSE</button>}
       </div>
      </article>

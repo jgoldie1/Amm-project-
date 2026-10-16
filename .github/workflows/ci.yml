@@ -101,6 +101,25 @@ jobs:
       - name: Omniverse typecheck
         run: npm run typecheck
 
+      - name: StreetVerse West Side and BJ motion focused checks
+        run: |
+          node tests/streetverse-oct11-bj-west-side-bridge-contract.mjs
+          node tests/streetverse-oct11-safe-arrival-and-props.mjs
+          node tests/circle-park-apartments-photo-reference-v3-contract.mjs
+          node tests/circle-park-taylor-guard-gate-contract.mjs
+          node tests/streetverse-quantum-cone-aerial-v1-contract.mjs
+          node tests/streetverse-global-quantum-cone-v1-contract.mjs
+          node tests/streetverse-bj-likeness-v14-contract.mjs
+          node tests/bj-portrait-background-mask-contract.mjs
+          node tests/streetverse-bj-v16-face-close-camera-contract.mjs
+          node tests/streetverse-bj-real-meshy-face-preview-contract.mjs
+          node tests/bj-meshy-original-selection-contract.mjs
+          node tests/streetverse-bj-v15-one-hand-review-entry-contract.mjs
+          node tests/bj-v15-source-contract.mjs
+          node tests/streetverse-bj-focus-camera-v16-contract.mjs
+          node tests/streetverse-bj-rendered-comparison-contract.mjs
+          node tests/streetverse-fillmore-taylor-arrigo-corridor-contract.mjs
+
       - name: Vercel parity build from pristine checkout
         run: npm run build
 

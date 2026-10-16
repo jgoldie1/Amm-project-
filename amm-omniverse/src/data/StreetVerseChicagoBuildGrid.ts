@@ -7,6 +7,8 @@ export const CHICAGO_BUILD_GRID:ChicagoGridZone[]=[
  {id:'circle-park',label:'Circle Park',grid:'CP-01',kind:'spawn',x:0,z:54,radius:16,buildable:true,description:'Default StreetVerse Chicago neighborhood spawn and onboarding hub.'},
  {id:'jefferson-school',label:'Thomas Jefferson School',grid:'TJ-01',kind:'landmark',x:25,z:33,radius:16,buildable:true,description:'Playable school reconstruction, learning, school-life and community mission anchor.'},
  {id:'roosevelt-road',label:'Roosevelt Road',grid:'RR-01',kind:'corridor',x:0,z:38,radius:34,buildable:true,description:'East-west business, transit, delivery and story corridor.'},
+ {id:'fillmore-street',label:'West Fillmore Street',grid:'FM-01',kind:'corridor',x:-8,z:19,radius:18,buildable:true,description:'East-west Fillmore Street approach from Circle Park with safe community wayfinding.'},
+ {id:'arrigo-park',label:'Arrigo Park / Little Italy',grid:'AR-01',kind:'landmark',x:67,z:-10,radius:18,buildable:true,description:'Schematic scenic pocket for the real public park at 801 S Loomis Street, near Taylor and Polk.'},
  {id:'taylor-street',label:'Taylor Street / Little Italy',grid:'TS-01',kind:'corridor',x:0,z:12,radius:32,buildable:true,description:'Neighborhood food, business, family, creator and history corridor.'},
  {id:'pilsen',label:'Pilsen',grid:'PL-01',kind:'district',x:-48,z:-20,radius:28,buildable:true,description:'Arts, music, food, murals, small-business and community mission district.'},
  {id:'near-west',label:'Near West Side',grid:'NW-01',kind:'district',x:-8,z:18,radius:34,buildable:true,description:'Connector district for Circle Park, Roosevelt, Taylor, UIC and downtown routes.'},
@@ -48,6 +50,9 @@ export type ChicagoVisualConnector={
 export const CHICAGO_VISUAL_CONNECTORS:ChicagoVisualConnector[]=[
  {id:'cp-roosevelt',from:'circle-park',to:'roosevelt-road',mode:'street',label:'Circle Park → Roosevelt Road',twoWay:true,playable:true},
  {id:'roosevelt-taylor',from:'roosevelt-road',to:'taylor-street',mode:'street',label:'Roosevelt Road → Taylor Street',twoWay:true,playable:true},
+ {id:'circle-park-fillmore',from:'circle-park',to:'fillmore-street',mode:'walk',label:'Circle Park gate → Fillmore Street',twoWay:true,playable:true},
+ {id:'fillmore-taylor',from:'fillmore-street',to:'taylor-street',mode:'walk',label:'Fillmore → Taylor Street',twoWay:true,playable:true},
+ {id:'taylor-arrigo-park',from:'taylor-street',to:'arrigo-park',mode:'walk',label:'Taylor Street / Little Italy → Arrigo Park',twoWay:true,playable:true},
  {id:'taylor-uic-east',from:'taylor-street',to:'uic-east',mode:'walk',label:'Taylor Street → UIC East',twoWay:true,playable:true},
  {id:'roosevelt-uic-west',from:'roosevelt-road',to:'uic-west',mode:'street',label:'Roosevelt Road → UIC West',twoWay:true,playable:true},
  {id:'uic-west-medical',from:'uic-west',to:'medical-district',mode:'campus',label:'UIC West → Illinois Medical District',twoWay:true,playable:true},
