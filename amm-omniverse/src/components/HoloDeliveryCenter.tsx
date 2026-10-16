@@ -19,6 +19,7 @@ const demoCoupon: HoloCoupon = {
 export default function HoloDeliveryCenter({ onClose }: { onClose?: () => void }) {
   const [mode, setMode] = useState<Mode>('food');
   const [couponCode, setCouponCode] = useState('');
+  const [selectedMenu, setSelectedMenu] = useState<string|null>(null);
   const [couponMessage, setCouponMessage] = useState('');
   const [packageRequest, setPackageRequest] = useState<Partial<PackageDeliveryRequest>>({ serviceLevel:'same_day', size:'small', allowedModes:['car','bike','third_party'] });
   const tracking = useMemo(() => buildTrackingView('HOLO-ORDER-1', demoEvents), []);
@@ -26,7 +27,7 @@ export default function HoloDeliveryCenter({ onClose }: { onClose?: () => void }
   function applyCoupon() {
     if (couponCode.trim().toUpperCase() !== demoCoupon.code) return setCouponMessage('Coupon not found or not available for this order.');
     const result = evaluateHoloCoupon({ coupon:demoCoupon, merchantId:'merchant-demo', subtotalMinor:3200, deliveryFeeMinor:499 });
-    setCouponMessage(result.valid ? `Applied: $${(result.discountMinor/100).toFixed(2)} saved.` : result.reason);
+    setCouponMessage(result.valid ? `Demo coupon: ${(result.discountMinor/100).toFixed(2)} off the sample cart. No real order or discount was created.` : result.reason);
   }
 
   function createPackage() {
@@ -50,9 +51,10 @@ export default function HoloDeliveryCenter({ onClose }: { onClose?: () => void }
       {mode==='food' && <section style={card}>
         <h2>Holo Menu & Checkout</h2>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:12}}>
-          {['Kingdom Kitchen','Community Café','Soul Ascension Eats'].map((name,i)=><article key={name} style={subcard}><div style={{fontSize:34}}>{['🥘','🍔','🥗'][i]}</div><h3>{name}</h3><div style={{color:'#94a3b8'}}>25–35 min • participating merchant</div><button style={primary}>View holographic menu</button></article>)}
+          {['Kingdom Kitchen','Community Café','Soul Ascension Eats'].map((name,i)=><article key={name} style={subcard}><div style={{fontSize:34}}>{['🥘','🍔','🥗'][i]}</div><h3>{name}</h3><div style={{color:'#94a3b8'}}>Fictional demo merchant • no live delivery estimate</div><button onClick={()=>setSelectedMenu(name)} style={primary}>View sample Holo Menu</button></article>)}
         </div>
-        <div style={{marginTop:16,padding:14,border:'1px solid #26384a',borderRadius:16}}><b>Cart summary</b><div style={{marginTop:8}}>Subtotal $32.00 • Delivery $4.99 • Total $36.99</div><div style={{display:'flex',gap:8,marginTop:12,flexWrap:'wrap'}}><input aria-label="Holo coupon code" value={couponCode} onChange={e=>setCouponCode(e.target.value)} placeholder="HOLO COUPON" style={input}/><button onClick={applyCoupon} style={primary}>Apply</button></div>{couponMessage&&<div aria-live="polite" style={{marginTop:8,color:'#78ffb4'}}>{couponMessage}</div>}<button style={{...primary,marginTop:12,width:'100%'}}>Continue to Jin Pay sandbox</button></div>
+        {selectedMenu&&<div role="status" aria-live="polite" style={{...subcard,marginTop:12,borderColor:'#4fe3ff'}}><b>{selectedMenu} • Sample Holo Menu</b><p style={{fontSize:12,color:'#afc5d2'}}>Preview choices: community plate • seasonal bowl • local drink. Items, availability, prices and delivery are fictional placeholders until a verified merchant uploads an approved catalog.</p><button onClick={()=>setSelectedMenu(null)} style={primary}>Close menu preview</button></div>}
+        <div style={{marginTop:16,padding:14,border:'1px solid #26384a',borderRadius:16}}><b>Example cart — not a real order</b><div style={{marginTop:8}}>Subtotal $32.00 • Delivery $4.99 • Total $36.99</div><div style={{display:'flex',gap:8,marginTop:12,flexWrap:'wrap'}}><input aria-label="Holo coupon code" value={couponCode} onChange={e=>setCouponCode(e.target.value)} placeholder="HOLO COUPON" style={input}/><button onClick={applyCoupon} style={primary}>Apply</button></div>{couponMessage&&<div aria-live="polite" style={{marginTop:8,color:'#78ffb4'}}>{couponMessage}</div>}<button disabled style={{...primary,marginTop:12,width:'100%',opacity:.6,cursor:'not-allowed'}}>Real checkout gated — verified merchant and payments required</button></div>
       </section>}
 
       {mode==='package' && <section style={card}>
