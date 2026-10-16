@@ -8,6 +8,7 @@ import {test,expect} from '@playwright/test'
  */
 test.use({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2})
 test('real StreetVerse route boots 3D with visible joystick instead of silently downgrading to HTML city',async({page},testInfo)=>{
+ test.skip(testInfo.project.name!=='iphone-webkit','3D is mandatory for the iPhone WebKit release gate; lower-resource Chromium may intentionally choose a labeled 2D fallback.')
  test.setTimeout(105_000)
  const errors:string[]=[]
  page.on('pageerror',e=>errors.push(e.message))
