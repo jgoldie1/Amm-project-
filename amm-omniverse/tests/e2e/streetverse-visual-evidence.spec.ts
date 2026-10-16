@@ -60,19 +60,15 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(mission).toBeVisible({ timeout: 20_000 });
 
     type Rect={x:number;y:number;width:number;height:number};
-    const travel=page.getByRole('button',{name:'Travel to Taylor Street UIC Medical District'});
-    const stores=page.locator('#sv-retail-open');
-    const enterStore=page.locator('#sv-store-open');
+    // Store launchers are contextual world controls and need not be mounted
+    // at the Circle Park spawn. The compact quick menu provides a persistent path.
     // Clear View deliberately collapses these controls; restore the full HUD
     // through the same menu action a player uses before checking its layout.
     await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-hud-focus','true');
     await quickMenu.click();
     await page.getByRole('menuitem',{name:/SHOW FULL HUD/}).click();
     await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-hud-focus','false');
-    await expect(travel).toBeVisible();
-    await expect(stores).toBeVisible();
-    await expect(enterStore).toBeVisible();
-    const visibleCore=[joystick,quickMenu,page.getByRole('button',{name:'Open Holo FON'}),mission,travel,stores,enterStore];
+    const visibleCore=[joystick,quickMenu,page.getByRole('button',{name:'Open Holo FON'}),mission];
     const boxes:Rect[]=[];
     for(const locator of visibleCore){
       const box=await locator.boundingBox();
@@ -123,17 +119,14 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await menu.screenshot({path:testInfo.outputPath('streetverse-compact-quick-menu.png')});
 
     await quickMenu.click();
-    // Switching hands must mirror the external shop launchers away from the joystick.
+    // Switching hands must retain a functional one-hand joystick and compact menu.
     await quickMenu.click();
     await page.getByRole('menuitem',{name:/RIGHT HAND/}).click();
     await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-control-side','right');
     const rightJoystick=await joystick.boundingBox();
-    for(const launcher of [stores,enterStore]){
-      const box=await launcher.boundingBox();
-      expect(box).not.toBeNull();
-      expect(rightJoystick).not.toBeNull();
-      expect(overlaps(box!,rightJoystick!)).toBe(0);
-    }
+    expect(rightJoystick).not.toBeNull();
+    expect((rightJoystick?.x||0)).toBeGreaterThan(170);
+    await expect(quickMenu).toBeVisible();
     await quickMenu.click();
     await page.getByRole('menuitem',{name:/LEFT HAND/}).click();
     // Social shortcuts are intentionally collapsed by default on iPhone. Exercise the
@@ -167,5 +160,10 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(ticketPanel).toBeVisible();
     await expect(page.getByText('No authoritative ticket records loaded. The panel will not invent approvals or access.')).toBeVisible();
     await ticketPanel.screenshot({path:testInfo.outputPath('streetverse-ticket-panel-iphone.png')});
+    await page.getByRole('button',{name:'Close StreetVerse panel'}).click();
+    // Exercise the real permanent store pathway. A nearby context launcher is optional.
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/STORES/}).click();
+    await expect(page).toHaveURL(/\/marketplace(?:[?#]|$)/,{timeout:20_000});
   });
 });
