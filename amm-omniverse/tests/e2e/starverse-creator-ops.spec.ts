@@ -32,7 +32,7 @@ test.describe('StarVerse creator pipeline phone journey',()=>{
   await expect(page.getByText('Sample Business — episode')).toBeVisible()
 
   await page.getByRole('button',{name:/Captions/}).click()
-  await page.getByRole('checkbox',{name:'es'}).check()
+  await page.getByRole('checkbox',{name:'es',exact:true}).check()
 
   await page.getByRole('button',{name:/Analytics/}).click()
   await expect(page.getByText('Verified audience reach:')).toBeVisible()
