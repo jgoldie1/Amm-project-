@@ -8,6 +8,15 @@ on:
       - 'amm-omniverse/src/main.tsx'
       - 'amm-omniverse/src/App.tsx'
       - 'amm-omniverse/src/components/TryAMMHome.tsx'
+      - 'amm-omniverse/src/components/StreetVerseGeoSpawnBridge.tsx'
+      - 'amm-omniverse/src/components/StreetVersePlayableWorld.tsx'
+      - 'amm-omniverse/src/components/StreetVerseMobileWorld.tsx'
+      - 'amm-omniverse/src/components/StreetVerseMobilePlayableWorld.tsx'
+      - 'amm-omniverse/src/components/StreetVerseSafeWorld.tsx'
+      - 'amm-omniverse/src/streetverse-safe.tsx'
+      - 'amm-omniverse/streetverse-safe.html'
+      - 'amm-omniverse/vite.config.ts'
+      - 'amm-omniverse/vercel.json'
       - 'amm-omniverse/public/tryamm-startup-guard.js'
       - 'amm-omniverse/tests/e2e/production-iphone-boot-regression.spec.ts'
       - 'amm-omniverse/tests/e2e/production-streetverse-3d-regression.spec.ts'
@@ -47,10 +56,18 @@ jobs:
         env:
           CI: 'true'
           TRYAMM_BASE_URL: https://tryamm.online
+      - name: Compile proposed release locally (no Vercel build)
+        run: npx vite build
+      - name: Verify actual PR candidate startup and iPhone 3D in local preview
+        run: npx playwright test --config=playwright.production-boot.config.ts --project=iphone-webkit --project=mobile-chromium --workers=1
+        env:
+          CI: 'true'
+          TRYAMM_CANDIDATE: '1'
+          TRYAMM_BASE_URL: http://127.0.0.1:4173
       - name: Report limitations and no-bill guarantees
         if: always()
         run: |
-          echo 'Tests the CURRENT live Vercel alias: this cannot by itself certify a different unpublished commit. Also perform the same checks against a staged candidate before promoting.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Tests both the existing public domain and the exact proposed PR code using a local Vite preview; neither step releases a new Vercel deployment.' >> "$GITHUB_STEP_SUMMARY"
           echo 'No Vercel deploy, no Stripe, no Media API and no app storage modifications. Physical iPhone Safari must still be manually verified.' >> "$GITHUB_STEP_SUMMARY"
       - name: Save screenshots and diagnostics only on failure
         if: failure()
