@@ -26,14 +26,18 @@ export default function PKLivingWorldsArena({onClose}:{onClose:()=>void}){
   setNotice('Story branch preview updated. Cross-device votes require an authenticated server tally.')
  }
  const gotoHoloverse=()=>{
-  emit('tryamm:holoverse-pk-scene-preview',pkHoloverseScenePreview(draft))
+  const preview=pkHoloverseScenePreview(draft)
+  try{sessionStorage.setItem('tryamm.pk.holoverse-scene-preview.v1',JSON.stringify(preview))}catch{}
+  emit('tryamm:holoverse-pk-scene-preview',preview)
   onClose()
   const show=(window as Window&{__showHoloverse?:()=>void}).__showHoloverse
   if(typeof show==='function')show()
   else emit('tryamm:holo-carousel-open',{source:'pk-story'})
  }
  const gotoMiddleverse=()=>{
-  emit('tryamm:middleverse-pk-production-brief',pkMiddleverseProductionBrief(draft))
+  const brief=pkMiddleverseProductionBrief(draft)
+  try{sessionStorage.setItem('tryamm.pk.middleverse-production-brief.v1',JSON.stringify(brief))}catch{}
+  emit('tryamm:middleverse-pk-production-brief',brief)
   onClose()
   const show=(window as Window&{__showMiddleverseWorkstation?:()=>void}).__showMiddleverseWorkstation
   if(typeof show==='function')show()
@@ -46,7 +50,9 @@ export default function PKLivingWorldsArena({onClose}:{onClose:()=>void}){
  const openHoloService=(id:PKHoloServiceId)=>{
   const service=PK_HOLO_SERVICES.find(x=>x.id===id)
   if(!service)return
-  emit('tryamm:pk-holo-service-preview',buildPKHoloServicePreview(draft,id))
+  const preview=buildPKHoloServicePreview(draft,id)
+  try{sessionStorage.setItem('tryamm.pk.holo-service-preview.v1',JSON.stringify(preview))}catch{}
+  emit('tryamm:pk-holo-service-preview',preview)
   // Never dispatch real provider, payment, delivery, drone or employment actions.
   onClose()
   if(id==='menu'||id==='delivery'){
