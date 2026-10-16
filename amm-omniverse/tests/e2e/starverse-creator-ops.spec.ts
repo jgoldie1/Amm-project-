@@ -10,7 +10,9 @@ test.describe('StarVerse creator pipeline phone journey',()=>{
 
   await page.getByRole('button',{name:/Talent Passport/}).click()
   const stage=page.getByLabel('Stage name',{exact:true})
-  await stage.fill('TRYAMM Test Artist')
+  await stage.fill('')
+  await stage.pressSequentially('TRYAMM Test Artist',{delay:1})
+  await expect(stage).toHaveValue('TRYAMM Test Artist')
   await page.getByRole('button',{name:'Use stage name in audition draft'}).click()
   await expect(page.getByLabel('Creator/stage credit (not a legal name)')).toHaveValue('TRYAMM Test Artist')
 
@@ -25,7 +27,7 @@ test.describe('StarVerse creator pipeline phone journey',()=>{
 
   await page.getByRole('button',{name:/Sponsorships/}).click()
   await page.getByLabel('Brand/business label').fill('Sample Business')
-  await page.getByLabel('Creative proposal').fill('Local community performance spot with clear ad disclosure')
+  await page.getByRole('textbox',{name:'Creative proposal',exact:true}).fill('Local community performance spot with clear ad disclosure')
   await page.getByRole('button',{name:'Save sponsorship concept'}).click()
   await expect(page.getByText('Sample Business — episode')).toBeVisible()
 
