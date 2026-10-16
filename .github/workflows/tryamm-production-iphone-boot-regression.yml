@@ -10,6 +10,7 @@ on:
       - 'amm-omniverse/src/components/TryAMMHome.tsx'
       - 'amm-omniverse/public/tryamm-startup-guard.js'
       - 'amm-omniverse/tests/e2e/production-iphone-boot-regression.spec.ts'
+      - 'amm-omniverse/tests/e2e/production-streetverse-3d-regression.spec.ts'
       - 'amm-omniverse/playwright.production-boot.config.ts'
       - '.github/workflows/tryamm-production-iphone-boot-regression.yml'
   workflow_dispatch:
