@@ -36,7 +36,7 @@ export const STAR_RIGHTS_ASSETS=['music','video','performance','image','script',
 export const STAR_SPONSOR_PLACEMENTS=['episode','virtual-billboard','live-break','reel'] as const
 export const STAR_MILESTONES=['draft','audition-plan','rights-checklist','caption-plan','sponsor-proposal','billboard-concept','broadcast-draft'] as const
 const LOCALES=['en','es','fr','pt','ar','sw','yo','ig','ha','zh','ja'] as const
-const clean=(v:unknown,limit:number)=>String(v??'').trim().slice(0,limit)
+const clean=(v:unknown,limit:number)=>String(v??'').slice(0,limit) // preserve spaces during controlled mobile typing
 const unique=<T extends string>(arr:unknown,choices:readonly T[],max:number):T[]=>Array.isArray(arr)?Array.from(new Set(arr.filter((x):x is T=>typeof x==='string'&&choices.includes(x as T)))).slice(0,max):[]
 export function newStarCreatorOps():StarCreatorOps{
  return{
