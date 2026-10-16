@@ -47,7 +47,7 @@ function paymentSafe(envelope:OmniverseEventEnvelope){if(!envelope.amountCents)r
 function route(envelope:OmniverseEventEnvelope):OmniverseEventReceipt[]{const moneySafe=paymentSafe(envelope);return CHANNELS.map(channel=>channel==='ledger'&&!moneySafe?{eventId:envelope.id,channel,status:'gated',reason:'Money events require actorId, positive amountCents and currency.'}:{eventId:envelope.id,channel,status:'ready'})}
 function emitChannel(envelope:OmniverseEventEnvelope,receipt:OmniverseEventReceipt){if(receipt.status==='ready')window.dispatchEvent(new CustomEvent(`tryamm:omniverse:${receipt.channel}`,{detail:{envelope,receipt}}))}
 function constrainedStreetVerse(){if(typeof window==='undefined'||typeof navigator==='undefined')return false;const path=window.location.pathname; if(!path.startsWith('/streetverse'))return false;const ua=navigator.userAgent||'';const apple=/iPhone|iPad|iPod/i.test(ua);const iosMatch=ua.match(/OS (\d+)_/i);const iosMajor=iosMatch?Number(iosMatch[1]):0;const olderIOS=apple&&iosMajor>0&&iosMajor<=16;const narrow=window.innerWidth<=480;const lowCores=typeof navigator.hardwareConcurrency==='number'&&navigator.hardwareConcurrency<=4;const memory=(navigator as Navigator&{deviceMemory?:number}).deviceMemory;const lowMemory=typeof memory==='number'&&memory<=4;return olderIOS||narrow||lowCores||lowMemory}
-function installDeferredThreeRuntimes(){if(constrainedStreetVerse())return;void Promise.all([
+function installDeferredThreeRuntimes(){if(typeof window==='undefined'||!window.location.pathname.startsWith('/streetverse')||constrainedStreetVerse())return;void Promise.all([
   import('./StreetVerseFreeSpaceConstruct3D'),
   import('./StreetVerseBuildingLife3D'),
   import('./StreetVerseQuestImmersiveRuntime'),

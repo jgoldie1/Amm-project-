@@ -28,8 +28,8 @@ function initialProject():DramaProject{
   return{id:'holo-drama-first-project',title:'My Holo Drama',scenes:[blankScene(1)],updatedAt:new Date().toISOString()}
 }
 
-export default function HoloDramaLauncher(){
-  const [open,setOpen]=useState(false)
+export default function HoloDramaLauncher({initiallyOpen=false,embedded=false}:{initiallyOpen?:boolean;embedded?:boolean}){
+  const [open,setOpen]=useState(initiallyOpen)
   const [project,setProject]=useState<DramaProject>(()=>initialProject())
   const [selectedId,setSelectedId]=useState(()=>project.scenes[0]?.id||'')
   const [message,setMessage]=useState('Build a multi-scene story, then hand a scene to TRYAMM Reel Creator for capture/upload, effects, render and publish.')
@@ -37,7 +37,8 @@ export default function HoloDramaLauncher(){
   const totalDuration=useMemo(()=>project.scenes.reduce((sum,scene)=>sum+Math.max(1,scene.durationSeconds||0),0),[project.scenes])
 
   useEffect(()=>{const openDrama=()=>setOpen(true);(window as any).__showHoloDrama=()=>setOpen(true);window.addEventListener('tryamm:holo-drama-open',openDrama);return()=>{window.removeEventListener('tryamm:holo-drama-open',openDrama);delete (window as any).__showHoloDrama}},[])
-  useEffect(()=>{localStorage.setItem(STORAGE_KEY,JSON.stringify({...project,updatedAt:new Date().toISOString()}))},[project])
+  useEffect(()=>{if(initiallyOpen)setOpen(true)},[initiallyOpen])
+  useEffect(()=>{try{localStorage.setItem(STORAGE_KEY,JSON.stringify({...project,updatedAt:new Date().toISOString()}))}catch{setMessage('Device storage is full or unavailable. Copy your scene text to keep it safe.')}},[project])
 
   function updateScene(patch:Partial<DramaScene>){if(!selected)return;setProject(current=>({...current,scenes:current.scenes.map(scene=>scene.id===selected.id?{...scene,...patch}:scene)}))}
   function addScene(){const next=blankScene(project.scenes.length+1);setProject(current=>({...current,scenes:[...current.scenes,next]}));setSelectedId(next.id);setMessage('Scene added. Add the caption, audio direction and optional product/ad tag.')}
@@ -52,6 +53,7 @@ export default function HoloDramaLauncher(){
     setMessage('Scene handed to Reel Creator with title, caption, audio direction and product/ad metadata preserved for the draft.')
   }
 
+  if(!open&&embedded)return null
   if(!open)return <button onClick={()=>setOpen(true)} style={{position:'fixed',right:18,bottom:210,zIndex:1100,border:'1px solid #8de7ff',borderRadius:999,padding:'10px 14px',background:'rgba(2,10,20,.92)',color:'#fff',fontWeight:800,boxShadow:'0 0 22px rgba(75,211,255,.28)'}}>HOLO DRAMA</button>
 
   return <div style={{position:'fixed',inset:0,zIndex:1300,background:'rgba(0,0,0,.82)',display:'grid',placeItems:'center',padding:16}}>
@@ -64,7 +66,7 @@ export default function HoloDramaLauncher(){
       <label style={{display:'block',marginTop:16,fontSize:12,opacity:.72}}>PROJECT TITLE</label>
       <input value={project.title} onChange={event=>setProject(current=>({...current,title:event.target.value}))} style={{width:'100%',boxSizing:'border-box',marginTop:5,padding:11,borderRadius:10,border:'1px solid #33475c',background:'#07101a',color:'#fff'}} />
 
-      <div style={{display:'grid',gridTemplateColumns:'minmax(190px,260px) 1fr',gap:14,marginTop:16}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,250px),1fr))',gap:14,marginTop:16}}>
         <aside style={{border:'1px solid #243548',borderRadius:14,padding:10,background:'rgba(5,13,22,.8)'}}>
           <button onClick={addScene} style={{width:'100%',padding:10,border:0,borderRadius:10,background:'#0ca6cf',color:'#001219',fontWeight:900}}>+ ADD SCENE</button>
           <div style={{display:'grid',gap:7,marginTop:10}}>{project.scenes.map((scene,index)=><button key={scene.id} onClick={()=>setSelectedId(scene.id)} style={{textAlign:'left',padding:10,borderRadius:10,border:selected?.id===scene.id?'1px solid #7ce7ff':'1px solid #243548',background:selected?.id===scene.id?'rgba(30,151,190,.2)':'#08111b',color:'#fff'}}><strong>{index+1}. {scene.title||'Untitled scene'}</strong><div style={{fontSize:11,opacity:.65}}>{Math.max(1,scene.durationSeconds||0)}s {scene.productTag?`• ${scene.productTag}`:''}</div></button>)}</div>
@@ -80,7 +82,7 @@ export default function HoloDramaLauncher(){
             <Field label="AUDIO / MUSIC DIRECTION"><input value={selected.audioNote} onChange={event=>updateScene({audioNote:event.target.value})} placeholder="Voiceover, ambience, licensed/original music note…" style={inputStyle}/></Field>
             <Field label="PRODUCT / AD TAG"><input value={selected.productTag} onChange={event=>updateScene({productTag:event.target.value})} placeholder="Optional SKU, product name or approved sponsor tag" style={inputStyle}/></Field>
             <Field label="TARGET DURATION (SECONDS)"><input type="number" min={1} max={300} value={selected.durationSeconds} onChange={event=>updateScene({durationSeconds:Math.max(1,Number(event.target.value)||1)})} style={inputStyle}/></Field>
-            <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:14}}><button onClick={openInReel} style={{padding:'11px 16px',border:0,borderRadius:11,background:'#e7bf55',color:'#160d03',fontWeight:900}}>SEND SCENE TO REEL CREATOR</button><button onClick={()=>{localStorage.setItem(STORAGE_KEY,JSON.stringify({...project,updatedAt:new Date().toISOString()}));setMessage('Holo Drama project saved on this device.')}} style={smallButton}>SAVE PROJECT</button></div>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:14}}><button onClick={openInReel} style={{padding:'11px 16px',border:0,borderRadius:11,background:'#e7bf55',color:'#160d03',fontWeight:900}}>SEND SCENE TO REEL CREATOR</button><button onClick={()=>{try{localStorage.setItem(STORAGE_KEY,JSON.stringify({...project,updatedAt:new Date().toISOString()}));setMessage('Holo Drama project saved on this device.')}catch{setMessage('Storage unavailable. Copy your script to preserve your work.')}}} style={smallButton}>SAVE PROJECT</button></div>
           </>}
         </main>
       </div>

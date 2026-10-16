@@ -2,16 +2,20 @@ import fs from 'node:fs'
 
 const index=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8')
 const sw=fs.readFileSync(new URL('../public/sw.js',import.meta.url),'utf8')
-const release='20261002-birthday-live-fix-v2'
 const must=(ok,msg)=>{if(!ok)throw new Error('STREETVERSE PRODUCTION CACHE CONTRACT FAIL: '+msg)}
 
-must(index.includes(`const SW_VERSION='${release}'`),'index service-worker version must match Oct 2 live release')
-must(sw.includes(`const RELEASE = '${release}'`),'service worker release must match index')
-must(index.includes("tryamm-asset-recovery-v30"),'index recovery key must rotate with release')
-must(index.includes("_tryamm_recover','v30'"),'index recovery query must rotate with release')
-must(sw.includes("tryamm-stale-asset-v30"),'service-worker recovery key must rotate with release')
-must(sw.includes("_tryamm_recover','v30'"),'service-worker recovery query must rotate with release')
-must(sw.includes("request.mode === 'navigate'"),'navigation must stay network-first')
-must(sw.includes("fetch(request, { cache: 'no-store' })"),'service worker must bypass stale HTTP cache for app shell')
-
-console.log('STREETVERSE PRODUCTION CACHE CONTRACT PASS: index + service worker release generations aligned')
+const indexVersion=index.match(/const SW_VERSION='([^']+)'/)?.[1]
+const workerVersion=sw.match(/const RELEASE = '([^']+)'/)?.[1]
+must(Boolean(indexVersion),'index must declare a current service-worker release')
+must(indexVersion===workerVersion,'index and worker must share one current release')
+must(!/20261002|birthday-live-fix-v2/.test(indexVersion||''),'obsolete October 2 release must never return')
+const appRecovery=index.match(/const KEY='(tryamm-asset-recovery-[^']+)'/)?.[1]
+const swRecovery=sw.match(/const k='(tryamm-stale-asset-[^']+)'/)?.[1]
+must(Boolean(appRecovery)&&Boolean(swRecovery),'stale-bundle recoveries must have unique keys')
+must(index.includes("u.searchParams.set('_tryamm_recover'"),'app must preserve stale chunk recovery')
+must(sw.includes("u.searchParams.set('_tryamm_recover'"),'worker must preserve stale chunk recovery')
+must(sw.includes("request.mode === 'navigate'"),'navigation must remain network-first')
+must(sw.includes("fetch(request, { cache: 'no-store' })"),'worker must bypass stale HTTP cache for app shell')
+must(sw.includes("k.startsWith('tryamm-') && k !== CACHE_NAME"),'worker must delete older TRYAMM caches only')
+must(index.includes("keys.filter(key=>key.startsWith('tryamm-'))"),'app must clear outdated TRYAMM caches')
+console.log('STREETVERSE PRODUCTION CACHE CONTRACT PASS: no stale October 2 release and aligned current cache version '+indexVersion)

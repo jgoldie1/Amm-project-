@@ -63,3 +63,25 @@ The repository's 23-verse source audit reports 2 LIVE, 20 BUILDING and 1 PLANNED
   pass. A new product proposal is in docs/product/pk-story-arenas.md.
 - GitHub publication remains blocked by automatic approval review pending explicit
   permission to push. No deployment or production configuration changes were made.
+
+## Production reconciliation — October 15, 9:33 PM Chicago
+
+PR #637 was merged as e96aa10. GitHub reported successful Vercel checks, but
+Vercel deployment dpl_7MyLoLomKarkBtUP3icvwashYUqX was actually CANCELED by the
+configured ignored-build rule, which requires `[ship]` in the commit message.
+The public domain still served d5ccd6a from fix/creator-app-flow-20261015.
+That live branch contains significant BJ V15, mobile-control, startup/cache and
+creator-route work not in main. Releasing main alone would regress those changes.
+This reconciliation preserves both histories and their combined source.
+
+Correction to the earlier AI diagnosis: /api/ai/smoke returned ok:true,
+provider:vercel-ai-gateway-auto, degraded:false, answerLength:420, latencyMs:2874
+at 2026-10-16T02:33:35Z. HoloGPT CAN generate a response. Its prior health report
+was configuration-only and failed to recognize supported credential aliases.
+The health and hierarchy checks now recognize the same OpenAI aliases as the
+answer route. Health explicitly declares configuration-only verification and
+never treats configuration as proof of a successful answer.
+
+LiveKit remains unconfigured; creator media still returns 503 with upstream
+supabase_402; payment status timed out in the latest probe. No claim is made that
+these services are repaired. No credentials were read, renamed or exposed.

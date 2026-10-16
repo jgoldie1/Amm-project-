@@ -5,7 +5,7 @@ export default async function handler(req,res){
   if(req.method!=='GET')return res.status(405).json({ok:false,error:'Method not allowed'})
 
   const providers={
-    openai:configured(process.env.OPENAI_API_KEY)&&configured(process.env.HOLOGPT_OPENAI_MODEL),
+    openai:configured(process.env.OPENAI_API_KEY||process.env.open_ai_keys||process.env.TRYAMM_AI_API_KEY||process.env.TRYAMM_AI_PROVIDER_KEY),
     gemini:configured(process.env.GEMINI_API_KEY||process.env.GOOGLE_API_KEY),
     claude:configured(process.env.ANTHROPIC_API_KEY)&&configured(process.env.HOLOGPT_CLAUDE_MODEL),
     deepseek:configured(process.env.DEEPSEEK_API_KEY)&&configured(process.env.HOLOGPT_DEEPSEEK_MODEL),

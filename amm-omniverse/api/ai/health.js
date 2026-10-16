@@ -6,7 +6,7 @@ export default async function handler(req,res){
   const selfHostedPreferred=String(process.env.HOLOGPT_SELFHOST_PREFERRED||'').toLowerCase()==='true';
   const gateway=Boolean(process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN);
   const gemini=Boolean(process.env.GEMINI_API_KEY||process.env.GOOGLE_API_KEY);
-  const openai=Boolean(process.env.OPENAI_API_KEY);
+  const openai=Boolean(process.env.OPENAI_API_KEY||process.env.open_ai_keys||process.env.TRYAMM_AI_API_KEY||process.env.TRYAMM_AI_PROVIDER_KEY);
   const claude=Boolean(process.env.ANTHROPIC_API_KEY);
   const glm=Boolean(process.env.ZAI_API_KEY||process.env.GLM_API_KEY);
   const deepseek=Boolean(process.env.DEEPSEEK_API_KEY);
@@ -19,6 +19,7 @@ export default async function handler(req,res){
   const degraded=provider==='diagnostic';
   return res.status(200).json({
     ok:true,service:'HoloGPT',provider,providers,degraded,
+    verification:'configuration-only',responseVerified:false,
     model:provider==='hologpt-selfhost'?(process.env.HOLOGPT_SELFHOST_MODEL||'hologpt-local'):provider==='vercel-ai-gateway'?(process.env.HOLOGPT_GATEWAY_MODEL||'openai/gpt-5.6-sol'):provider==='gemini'?(process.env.HOLOGPT_GEMINI_MODEL||'gemini-2.0-flash'):provider==='openai'?(process.env.HOLOGPT_OPENAI_MODEL||process.env.OPENAI_MODEL||'gpt-5.4'):provider==='claude'?(process.env.HOLOGPT_CLAUDE_MODEL||'configured'):provider==='zai-glm'?(process.env.HOLOGPT_GLM_MODEL||'glm-5.2'):provider==='deepseek'?(process.env.HOLOGPT_DEEPSEEK_MODEL||'configured'):null,
     selfHosted:{configured:selfHosted,preferred:selfHostedPreferred,openAICompatible:true,serverSideEndpoint:true},
     backendProxyConfigured:backendProxy,
@@ -27,7 +28,7 @@ export default async function handler(req,res){
     verifier:'evidence-only-green',
     auth:'supabase-when-session-present',
     actionAuthority:{enabled:true,authenticatedUserRequired:true,passkeyStepUpForProtectedActions:true,directFinancialActionsDenied:true,selfEscalationDenied:true,executorConfigured:actionExecutor,evidenceRequiredForVerifiedState:true},
-    message:degraded?'HoloGPT shell is healthy. No generative provider is reachable yet. It is now ready for an owned OpenAI-compatible inference server, with cloud providers including GLM 5.2 as fallbacks.':'HoloGPT has at least one generative provider configured.',
+    message:degraded?'HoloGPT shell is healthy. No supported generative provider configuration was detected. It is now ready for an owned OpenAI-compatible inference server, with cloud providers including GLM 5.2 as fallbacks.':'HoloGPT has at least one generative provider configured.',
     time:new Date().toISOString()
   });
 }

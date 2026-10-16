@@ -15,6 +15,10 @@ export default defineConfig({
     ],
   },
   build: {
+    // The founder and other mobile players still use iOS 15. Vite 7's default
+    // Safari 16 target does not cover those devices.
+    target: ['es2020', 'safari15'],
+    cssTarget: 'safari15',
     chunkSizeWarningLimit: 600,
     modulePreload: {
       resolveDependencies(_filename, deps) {
