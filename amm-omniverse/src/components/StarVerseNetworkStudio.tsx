@@ -53,6 +53,13 @@ export default function StarVerseNetworkStudio(){
   patch({format:'pk-special',title,synopsis:'PK Living Worlds — '+story.world+'. '+story.chapters.map(c=>c.title).join(' → ')})
   setNotice('Imported a local PK show concept. No performance recording, rights clearance or live stream was imported.')
  }
+ const openBroadcastStudio=()=>{
+  writeStarTalentDraft(draft)
+  const handoff={schema:'tryamm.starverse.broadcast-handoff.v1',title:draft.title||'StarVerse Creator Special',
+   format:draft.format,status:'DRAFT',source:'starverse-network',rightsApproved:false,liveAuthorized:false}
+  try{sessionStorage.setItem('tryamm.starverse.broadcast-handoff.v1',JSON.stringify(handoff))}catch{}
+  window.location.assign('/network/studio')
+ }
  const exportPlan=()=>{
   const blob=new Blob([JSON.stringify({draft,plan,billboard:showBillboard?billboard:undefined},null,2)],{type:'application/json'})
   const url=URL.createObjectURL(blob)
@@ -122,7 +129,7 @@ export default function StarVerseNetworkStudio(){
      <button style={btn} onClick={()=>setPreview('isaiah')}>📺 Isaiah AI TV Guide</button>
      <a style={{...btn,textDecoration:'none'}} href="/reel-creator">🎞 Reel / Video Studio</a>
      <a style={{...btn,textDecoration:'none'}} href="/holo-drama">🎭 Holo Drama / Movies</a>
-     <a style={{...btn,textDecoration:'none'}} href="/network/studio">🎥 Network Control Room</a>
+     <button style={btn} onClick={openBroadcastStudio}>🎥 Send draft to Network Control Room</button>
      <a style={{...btn,textDecoration:'none'}} href="/network/broadcast-os">📡 Broadcast OS</a>
     </div>
     <p style={small}>Music playback requires authorized files in the public catalog. Film editing, actual uploads, rights clearance, and live broadcasting use separate provider-backed workflows.</p>
