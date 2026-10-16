@@ -135,6 +135,7 @@ export default function PKLivingWorldsArena({onClose}:{onClose:()=>void}){
      <button style={control} onClick={gotoMiddleverse}>💼 Middleverse production brief</button>
      <button style={control} onClick={openSafePK}>🎥 Open LIVE / PK safety gate</button>
      <button style={control} onClick={clipDraft}>🎞 Prepare Reel draft</button>
+     <button style={control} onClick={()=>{onClose();window.location.assign('/network/talent-studio?from=pk')}}>★ Turn PK story into a StarVerse TV special</button>
     </div>
     <p style={info}>Middleverse receives a nonpayable production brief for editing, moderation and accessibility planning. Holoverse receives a visual stage concept. LIVE opens its existing age/permission gate. No request publishes media, books a worker, pays a creator, changes a persistent world or starts streaming automatically.</p>
     <button style={{...control,background:'#251e25'}} onClick={()=>selectWorld(draft.world)}>Start a new local episode</button>
