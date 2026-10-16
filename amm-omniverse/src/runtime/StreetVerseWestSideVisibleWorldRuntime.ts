@@ -11,6 +11,8 @@ export type WestSideVisibleWorldHandle={
 }
 
 type BuildingSpec={x:number;z:number;w:number;d:number;h:number;color:number;label:string;rotation?:number;units?:readonly string[];buildingNumber?:string}
+export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,externalCollisionBoxes:THREE.Box3[]=[]):WestSideVisibleWorldHandle{
+// Each world owns its resources; disposing an old instance must not invalidate a new one.
 const ownedMaterials:THREE.Material[]=[]
 const ownedGeometries:THREE.BufferGeometry[]=[]
 const ownedTextures:THREE.Texture[]=[]
@@ -372,7 +374,6 @@ function addResidentialCourtyard(root:THREE.Group){
   root.add(g)
 }
 
-export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,externalCollisionBoxes:THREE.Box3[]=[]):WestSideVisibleWorldHandle{
   const root=new THREE.Group();root.name='streetverse-west-side-visible-world-v1';root.userData={visualUpgradeVersion:'west-side-forger-v4',legacyVisualUpgradeVersion:'west-side-forger-v3',neighborhoodReconstructionVersion:'west-side-forger-v5',proofZoneDetailVersion:'chicago-proof-zone-v9',assetDensity:'expanded-v5',architectureDetail:'brick-cornice-awning-fire-escape-curb-alley',residentDetail:'hands-shoes-accessories',reconstructionMode:'public-data-grounded-game-reconstruction',geometryAuthority:'city-gis-source-registry',interiorAuthority:'verified-or-reconstructed',streetDetailPass:'curb-alley-signage-v5',proofZoneStreetDetailPass:'tree-pit-manhole-parking-ramp-v9',gisCompiler:'compile-chicago-proof-zone-v9',exactDigitalTwin:false,reconstructionSourceCount:STREETVERSE_CHICAGO_RECONSTRUCTION_SOURCES.length,proofZone:STREETVERSE_CHICAGO_PROOF_ZONE.id};scene.add(root)
   const colliders:THREE.Box3[]=[]
   const brickMap=createWestSideBrickTexture()
@@ -541,7 +542,14 @@ export function createStreetVerseWestSideVisibleWorld(scene:THREE.Scene,external
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-visible-world-ready',{detail:{version:'west-side-forger-v1',legacyVisualUpgradeVersion:'west-side-forger-v3',visualUpgradeVersion:'west-side-forger-v4',neighborhoodReconstructionVersion:'west-side-forger-v5',proofZoneDetailVersion:'chicago-proof-zone-v9',reconstructionMode:'public-data-grounded-game-reconstruction',geometryAuthority:'city-gis-source-registry',interiorAuthority:'verified-or-reconstructed',streetDetailPass:'curb-alley-signage-v5',proofZoneStreetDetailPass:'tree-pit-manhole-parking-ramp-v9',gisCompiler:'compile-chicago-proof-zone-v9',exactDigitalTwin:false,reconstructionSourceCount:STREETVERSE_CHICAGO_RECONSTRUCTION_SOURCES.length,proofZone:STREETVERSE_CHICAGO_PROOF_ZONE.id,districts:anchors.map(a=>a.id),buildings:buildings.length+3,trees:treeRows.length+extraTreeRows.length+8,vehicles:8,roads:7,crosswalks:8,streetLights:14,busShelters:2,benches:8,hydrants:5,trafficSignals:6,ambientResidents:14,nativeVisualAssets:nativePlacements.length,pilsenMurals:6,elevatedRail:true,layeredTrees:true,treeCanopyLayers:7,contactShadows:true,facadeDepth:true,fireEscapes:true,streetLevelAwnings:true,roofParapets:true,residentHandsAndShoes:true,landmarks:['St. Ignatius game reconstruction','Holy Family game reconstruction','UIC campus gateway game reconstruction','Thomas Jefferson School reconstruction'],twoWayRoadMarkings:true,raisedSidewalks:true,apartmentUnitNumbers:true,circleParkCourtyard:true,cadForger:true,collisions:true,interiorLobbies:true,treePits:true,manholeCovers:true,parkingBayMarks:true,curbRamps:true,pavementPatches:true,source:'StreetVerseWestSideVisibleWorldRuntime'}}))
   window.dispatchEvent(new CustomEvent('tryamm:game-ops-world-stage',{detail:{stage:'visible-world',state:'READY',version:'west-side-forger-v1',legacyVisualUpgradeVersion:'west-side-forger-v3',visualUpgradeVersion:'west-side-forger-v4',neighborhoodReconstructionVersion:'west-side-forger-v5',source:'StreetVerseWestSideVisibleWorldRuntime'}}))
 
+  let disposed=false
   return{group:root,collisionBoxes:colliders,dispose:()=>{
+    if(disposed)return
+    disposed=true
+    for(const collider of colliders){
+      const index=externalCollisionBoxes.indexOf(collider)
+      if(index>=0)externalCollisionBoxes.splice(index,1)
+    }
     nativeCancelled=true
     if(nativeLayer){disposeNativeAssetLayer(nativeLayer);nativeLayer=null}
     window.removeEventListener('tryamm:streetverse-player-position',onPosition)

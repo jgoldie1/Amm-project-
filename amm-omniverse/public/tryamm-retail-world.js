@@ -45,5 +45,9 @@
     window.TRYAMMRetailWorld={version:VERSION,stores:JSON.parse(JSON.stringify(stores)),open:()=>setOpen(true),select:id=>{const store=stores.find(s=>s.id===id);if(!store)return false;window.dispatchEvent(new CustomEvent('tryamm:retail-store-selected',{detail:{...store,version:VERSION}}));window.TRYAMMImmersiveStore?.open?.();return true}}
     window.dispatchEvent(new CustomEvent('tryamm:retail-world-ready',{detail:{version:VERSION,stores:stores.map(s=>s.id),features:['mom-and-pop','bodega','grocery','farm-market','beauty','telecom','fashion','electronics','furniture','hardware','auto','bookstore','pet-supply','discount','creator-store']}}))
   }
-  mount()
+  // Wait for the game to mount; standalone shop controls must not cover startup.
+  window.addEventListener('tryamm:streetverse-enter',mount,{once:true})
+  // Direct visits to /streetverse bypass the homepage ENTER event.
+  // Wait until an actual city world-ready signal so shops never block boot.
+  window.addEventListener('tryamm:streetverse-world-ready',mount,{once:true})
 })()

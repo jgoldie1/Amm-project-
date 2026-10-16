@@ -31,15 +31,34 @@ export default function StreetVerseActionCarousel(){
  const [ctx,setCtx]=useState<Context>({})
  const [sort,setSort]=useState<SortMode>('smart')
  const [page,setPage]=useState(0)
- const [open,setOpen]=useState(()=>!mobile)
- const [rpOpen,setRpOpen]=useState(false)
+ const startInRP=typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('open')==='rp'
+ const [open,setOpen]=useState(()=>!mobile||startInRP)
+ const [rpOpen,setRpOpen]=useState(startInRP)
+ const [rpgState,setRpgState]=useState<{level?:number;xp?:number;activeQuestIds?:string[]}|null>(null)
+ useEffect(()=>{
+  const onRpg=(event:Event)=>setRpgState((event as CustomEvent<{level?:number;xp?:number;activeQuestIds?:string[]}>).detail||null)
+  const onRpOpen=()=>{setOpen(true);setRpOpen(true)}
+  window.addEventListener('tryamm:rpg-state',onRpg)
+  window.addEventListener('tryamm:streetverse-rp-open',onRpOpen)
+  const request=()=>window.dispatchEvent(new Event('tryamm:rpg-state-request'))
+  request()
+  const timer=window.setTimeout(request,800)
+  return()=>{window.clearTimeout(timer);window.removeEventListener('tryamm:rpg-state',onRpg);window.removeEventListener('tryamm:streetverse-rp-open',onRpOpen)}
+ },[])
  useEffect(()=>{
   const onContext=(event:Event)=>{setCtx((event as CustomEvent<Context>).detail||{});setPage(0);if(!mobile)setOpen(true)}
   const onBreakdown=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx({...d,kind:'vehicle',broken:true,drivable:false});setPage(0);if(!mobile)setOpen(true)}
   const onRepaired=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx(current=>current.vehicleId===d.vehicleId?{...current,broken:false,drivable:true,repairKit:false}:current)}
   const onOpen=()=>setOpen(true)
   const onClose=()=>{setOpen(false);setRpOpen(false)}
-  const onMove=()=>{if(mobile){setOpen(false);setRpOpen(false)}}
+  const onMove=(event:Event)=>{
+   if(!mobile)return
+   const detail=(event as CustomEvent<Record<string,unknown>>).detail||{}
+   // Idle player-position telemetry must not close the RP menu while reading.
+   if(event.type==='tryamm:streetverse-player-position'&&Number(detail.speed||0)<0.1)return
+   if(event.type==='tryamm:streetverse-vehicle-input'&&Number(detail.throttle||0)===0&&Number(detail.steer||0)===0)return
+   setOpen(false);setRpOpen(false)
+  }
   const onVehicleInteract=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx(current=>({...current,...d,kind:'vehicle'}));setPage(0);if(!mobile)setOpen(true)}
   addEventListener('tryamm:streetverse-interaction-context',onContext)
   addEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown)
@@ -80,11 +99,13 @@ export default function StreetVerseActionCarousel(){
   }
   dispatchEvent(new CustomEvent('tryamm:streetverse-context-action',{detail:{action:id,...ctx,sort}}))
  }
- if(mobile&&!open)return <button
+ if(mobile&&!open)return <div aria-label="StreetVerse compact action launchers" style={{position:'fixed',right:'max(8px,env(safe-area-inset-right))',bottom:'calc(env(safe-area-inset-bottom, 0px) + 150px)',zIndex:39950,display:'grid',gap:7}}>
+  <button aria-label="Open StreetVerse RP RPG emoji and GIF actions" onClick={()=>{setOpen(true);setRpOpen(true)}} style={{minHeight:46,borderRadius:12,border:'2px solid #c4a3ff',background:'#1a0a35ee',color:'#fff',font:'950 11px system-ui',padding:'0 12px'}}>🎭 RP / GIF</button>
+  <button
   aria-label={ctx.broken?'Open repair actions':'Open StreetVerse actions'}
   onClick={()=>setOpen(true)}
-  style={{position:'fixed',right:'max(8px,env(safe-area-inset-right))',bottom:'calc(env(safe-area-inset-bottom, 0px) + 150px)',zIndex:39950,minHeight:44,padding:'0 12px',borderRadius:999,border:`2px solid ${ctx.broken?'#fb923c':'#67e8f9'}`,background:'rgba(4,15,24,.92)',color:'#fff',font:'950 10px system-ui',boxShadow:`0 0 20px ${ctx.broken?'#fb923c55':'#67e8f944'}`,touchAction:'manipulation'}}
- >{ctx.broken?'🔧 REPAIR':'⚡ ACTIONS'}</button>
+  style={{minHeight:44,padding:'0 12px',borderRadius:12,border:`2px solid ${ctx.broken?'#fb923c':'#67e8f9'}`,background:'rgba(4,15,24,.92)',color:'#fff',font:'950 10px system-ui',boxShadow:`0 0 20px ${ctx.broken?'#fb923c55':'#67e8f944'}`,touchAction:'manipulation'}}
+ >{ctx.broken?'🔧 REPAIR':'⚡ ACTIONS'}</button></div>
   return <div aria-label="StreetVerse action carousel" style={{position:'fixed',left:'50%',bottom:'calc(env(safe-area-inset-bottom, 0px) + 74px)',transform:'translateX(-50%)',zIndex:39950,width:'min(94vw,620px)',maxHeight:mobile?(rpOpen?'62dvh':'42dvh'):'78dvh',overflowY:'auto',padding:'10px',borderRadius:22,background:'linear-gradient(180deg,rgba(12,19,35,.92),rgba(3,7,18,.98))',backdropFilter:'blur(12px)',boxShadow:'0 18px 55px #000b, inset 0 1px #ffffff22',border:'1px solid #67e8f955',color:'#fff',fontFamily:'system-ui,sans-serif'}}>
   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,marginBottom:8}}>
    <div><div style={{fontSize:9,fontWeight:950,letterSpacing:1.4,color:'#67e8f9'}}>HOLO ACTIONS</div><div style={{fontSize:11,fontWeight:900}}>{ctx.label||'WORLD INTERACTION'}{ctx.broken?' • REPAIR REQUIRED':''}</div></div>
@@ -97,7 +118,7 @@ export default function StreetVerseActionCarousel(){
    {Array.from({length:Math.max(0,5-visible.length)}).map((_,i)=><span key={`blank-${i}`}/>)}
    <button aria-label="Next actions" onClick={()=>setPage(p=>(p+1)%pages)} style={nav}>›</button>
   </div>
-  {(!mobile||rpOpen)&&<><StreetVerseRPActionSearch compact/><StreetVerseRPOmnibar compact/></>}
+  {(!mobile||rpOpen)&&<><div aria-label="StreetVerse RPG progression" role="status" style={{marginTop:8,padding:8,border:"1px solid #7ce5ff44",borderRadius:10,color:"#b4efff",fontSize:10,fontWeight:900}}>{rpgState?`RPG LEVEL ${rpgState.level||1} • XP ${rpgState.xp||0} • ACTIVE QUESTS ${rpgState.activeQuestIds?.length||0}`:"RPG progression loading…"}</div><StreetVerseRPActionSearch compact/><StreetVerseRPOmnibar compact/></>}
   <div style={{marginTop:6,textAlign:'center',fontSize:8,color:'#94a3b8'}}>{mobile?'TAP PLAY TO CLEAR SCREEN • ':''}SWIPE/ARROWS • {page%pages+1}/{pages} • SORT changes what StreetVerse puts first, not what you own.</div>
  </div>
 }

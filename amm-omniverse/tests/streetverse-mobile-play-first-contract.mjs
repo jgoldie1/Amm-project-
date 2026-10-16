@@ -7,8 +7,10 @@ const must=(ok,msg)=>{if(!ok)throw new Error('MOBILE PLAY-FIRST CONTRACT FAIL: '
 
 for(const token of [
   "window.matchMedia('(max-width: 700px)').matches",
-  "const [open,setOpen]=useState(()=>!mobile)",
-  "if(mobile&&!open)return <button",
+  "const [open,setOpen]=useState(()=>!mobile||startInRP)",
+  "const [rpOpen,setRpOpen]=useState(startInRP)",
+  "if(mobile&&!open)return <div",
+  "Open StreetVerse RP RPG emoji and GIF actions",
   "ctx.broken?'🔧 REPAIR':'⚡ ACTIONS'",
   "🎮 PLAY",
   "🎭 RP / GENII",
@@ -18,7 +20,9 @@ for(const token of [
   "tryamm:streetverse-vehicle-input",
 ]) must(actions.includes(token),'actions missing '+token)
 
-must(actions.includes("{(!mobile||rpOpen)&&<><StreetVerseRPActionSearch compact/><StreetVerseRPOmnibar compact/></>}"),'RP stack is not conditionally hidden on mobile')
+must(actions.includes('{(!mobile||rpOpen)&&<><div')&&actions.includes('<StreetVerseRPActionSearch compact/><StreetVerseRPOmnibar compact/></>}'),'RP stack is not conditionally hidden on mobile')
+must(actions.includes("get('open')==='rp'"),'RP URL must be an explicit opt-in; normal mobile play starts compact')
+must(actions.includes("event.type==='tryamm:streetverse-player-position'&&Number(detail.speed||0)<0.1"),'idle world telemetry must not close RP/GIF browser')
 must(creator.includes("tryamm:streetverse-play-focus"),'creator dock does not obey Play Mode')
 must(creator.includes("if(e.target===e.currentTarget)close()"),'creator backdrop cannot dismiss drawer')
 must(String(pkg.scripts?.build||'').includes('streetverse-mobile-play-first-contract.mjs'),'production build does not run mobile play-first contract')

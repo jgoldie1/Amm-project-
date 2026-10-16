@@ -1,6 +1,5 @@
 {
-  "release": "TRYAMM Birthday Alpha",
-  "targetDate": "2026-10-02",
+  "release": "TRYAMM Current Alpha Release Gates",
   "canonicalBranch": "main",
   "requiredGates": [
     "exact-production-sha-e2e",
@@ -14,5 +13,6 @@
     "google-play-data-safety-and-iarc",
     "signed-aab-and-closed-test"
   ],
-  "releaseTruth": "Alpha ships only what passes production and device/store gates; broader verses continue after alpha."
+  "releaseTruth": "Alpha ships only what passes production and device/store gates; broader verses continue after alpha.",
+  "releaseStatus": "gated-testing"
 }

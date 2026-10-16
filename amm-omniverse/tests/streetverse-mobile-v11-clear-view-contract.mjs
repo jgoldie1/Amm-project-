@@ -22,9 +22,9 @@ for(const token of [
 
 for(const token of [
   'portraitClearView=window.innerWidth<=480&&window.innerHeight>window.innerWidth',
-  'cameraShoulder=portraitClearView?.70:.78',
-  'cameraHeight=portraitClearView?3.28:3.65',
-  'cameraBack=portraitClearView?5.70:6.6',
+  'cameraShoulder=portraitClearView?.60:.78',
+  'cameraHeight=portraitClearView?2.78:3.65',
+  'cameraBack=portraitClearView?4.25:6.6',
   "portraitFramingPass:portraitClearView?'clear-view-v11':'standard'",
   'resolveStreetVerseThirdPersonCameraSafety(origin,desired,camera.position',
   'data-mission-objective="true"',
@@ -48,4 +48,4 @@ for(const gate of [
   'streetverse-mobile-v11-clear-view-contract.mjs',
 ])must(build.includes(gate),'combined build missing preserved gate '+gate)
 
-console.log('STREETVERSE MOBILE V11 CLEAR-VIEW CONTRACT PASS: compact portrait HUD + closer safe framing + restrained facade glass + preserved Camera V10')
+console.log('STREETVERSE MOBILE V11 CLEAR-VIEW CONTRACT PASS: compact portrait HUD + V15-friendly closer safe framing + restrained facade glass + preserved Camera V10')

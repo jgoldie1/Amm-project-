@@ -92,5 +92,9 @@
     window.TRYAMMImmersiveStore={version:VERSION,open:()=>setOpen(true),close:()=>setOpen(false),selectStore:store=>{state.store={...state.store,...store};syncStore();return true},snapshot:()=>JSON.parse(JSON.stringify(state)),upsertProduct:product=>{if(!product?.sku)return false;state.verifiedProducts[product.sku]={...state.verifiedProducts[product.sku],...product};syncStore();return true}}
     emit('tryamm:immersive-store-ready',{features:['multi-store','enter-store','browse-shelves','pick-up-item','inspect-label','read-label-aloud','basket','purchase','pickup','delivery','free-overnight-eligibility'],realCheckoutGate:'verified-sellable-inventory-only'})
   }
-  mount()
+  // Wait for the game to mount; standalone shop controls must not cover startup.
+  window.addEventListener('tryamm:streetverse-enter',mount,{once:true})
+  // Direct visits to /streetverse bypass the homepage ENTER event.
+  // Wait until an actual city world-ready signal so shops never block boot.
+  window.addEventListener('tryamm:streetverse-world-ready',mount,{once:true})
 })()

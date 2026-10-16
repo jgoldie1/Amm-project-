@@ -30,7 +30,7 @@ const CATALOG=[
 export const MESHY_FACTORY_CATALOG=CATALOG;
 
 function rolesFor(user){
-  const values=[user?.app_metadata?.role,user?.user_metadata?.role,...(Array.isArray(user?.app_metadata?.roles)?user.app_metadata.roles:[]),...(Array.isArray(user?.user_metadata?.roles)?user.user_metadata.roles:[])];
+  const values=[user?.app_metadata?.role,...(Array.isArray(user?.app_metadata?.roles)?user.app_metadata.roles:[])];
   return values.map(v=>String(v||'').trim().toLowerCase()).filter(Boolean);
 }
 export function hasFactoryAuthority(user){

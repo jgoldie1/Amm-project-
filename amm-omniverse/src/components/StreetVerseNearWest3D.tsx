@@ -1,9 +1,12 @@
 import {Canvas,useFrame,useThree} from '@react-three/fiber'
+import StreetVerseTaylorFillmoreGate from './StreetVerseTaylorFillmoreGate'
+import {StreetVerseNearWestHeroGLB,StreetVerseNearWestDetailedNpcLayer} from './StreetVerseNearWestCinematicCast'
+import StreetVerseQuantumConeAerialCamera,{type StreetVerseAerialLensMode} from './StreetVerseQuantumConeAerialCamera'
 import {compileNearWestRoadMeshes,CHICAGO_NEAR_WEST_ROAD_NODES} from '../data/streetVerseNearWestRoadNetwork'
 import {TAYLOR_STREET_CORRIDOR} from '../data/streetVerseCartesianNeighborhood'
 import {NEAR_WEST_NPCS,NEAR_WEST_TRAFFIC} from '../data/streetVerseNearWestPopulation'
 import CampusVerseCollegeBookBridge from './CampusVerseCollegeBookBridge'
-import {useEffect,useRef,useState} from 'react'
+import {useCallback,useEffect,useRef,useState} from 'react'
 import * as THREE from 'three'
 import {STREETVERSE_FUTURE_VEHICLES} from '../data/streetVerseFutureVehicles'
 import StreetVerseFutureVehicleDealer from './StreetVerseFutureVehicleDealer'
@@ -436,8 +439,9 @@ function CircleParkWestSideMarker(){
 
 
 type MoveState={x:number;z:number}
-function NearWestPlayer({move,onPosition,hidden=false,startPosition}:{move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void;hidden?:boolean;startPosition?:{x:number;z:number}}){
+function NearWestPlayer({move,onPosition,hidden=false,startPosition,cameraLocked=false}:{move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void;hidden?:boolean;startPosition?:{x:number;z:number};cameraLocked?:boolean}){
  const ref=useRef<THREE.Group>(null)
+ const [heroGlbReady,setHeroGlbReady]=useState(false)
  const {camera}=useThree()
  useFrame((_,dt)=>{
   const p=ref.current;if(!p)return
@@ -445,11 +449,13 @@ function NearWestPlayer({move,onPosition,hidden=false,startPosition}:{move:React
   p.position.x=THREE.MathUtils.clamp(p.position.x+move.current.x*speed*dt,-1280,560)
   p.position.z=THREE.MathUtils.clamp(p.position.z+move.current.z*speed*dt,380,1160)
   if(Math.abs(move.current.x)+Math.abs(move.current.z)>.05)p.rotation.y=Math.atan2(move.current.x,move.current.z)
-  const target=new THREE.Vector3(p.position.x,p.position.y+6.5,p.position.z+14)
-  camera.position.lerp(target,Math.min(1,dt*4));camera.lookAt(p.position.x,1.25,p.position.z)
+  if(!cameraLocked){const target=new THREE.Vector3(p.position.x,p.position.y+6.5,p.position.z+14)
+   camera.position.lerp(target,Math.min(1,dt*4));camera.lookAt(p.position.x,1.25,p.position.z)}
   onPosition(p.position.x,p.position.z)
  })
  return <group ref={ref} name="bj-stubbs-near-west-v12" userData={{characterId:'bj-stubbs',visualPass:'bj-v12-near-west'}} visible={!hidden} position={[startPosition?.x??-650,0,startPosition?.z??700]}>
+  <StreetVerseNearWestHeroGLB movement={move} onReady={setHeroGlbReady}/>
+  <group visible={!heroGlbReady} name="bj-procedural-fallback-until-glb-ready">
   <mesh position={[0,.025,0]} rotation={[-Math.PI/2,0,0]} scale={[.58,.34,1]}><circleGeometry args={[1,20]}/><meshBasicMaterial color="#080b0d" transparent opacity={.28} depthWrite={false}/></mesh>
   <mesh position={[0,1.20,0]} castShadow scale={[.96,1,.88]}><capsuleGeometry args={[.30,.86,5,12]}/><meshStandardMaterial color="#101215" roughness={.9}/></mesh>
   <mesh position={[0,2.08,0]} castShadow scale={[.93,1.07,.90]}><sphereGeometry args={[.31,20,15]}/><meshStandardMaterial color="#70462f" roughness={.82}/></mesh>
@@ -471,14 +477,15 @@ function NearWestPlayer({move,onPosition,hidden=false,startPosition}:{move:React
   <mesh position={[0,1.94,.318]} rotation={[0,0,Math.PI/2]}><capsuleGeometry args={[.009,.07,2,8]}/><meshStandardMaterial color="#5b302a" roughness={.75}/></mesh>
   <mesh position={[0,1.52,.32]} rotation={[Math.PI/2,0,0]}><torusGeometry args={[.10,.008,6,18,Math.PI]}/><meshStandardMaterial color="#c8a14b" metalness={.75} roughness={.28}/></mesh>
   <mesh position={[0,1.42,.33]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.038,.038,.016,12]}/><meshStandardMaterial color="#c8a14b" metalness={.78} roughness={.26}/></mesh>
+  </group>
  </group>
 }
 
-function DrivenVehicle({vehicleId,move,onPosition,onHeading}:{vehicleId:string;move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void;onHeading:(yaw:number)=>void}){
+function DrivenVehicle({vehicleId,move,onPosition,onHeading,cameraLocked=false}:{vehicleId:string;move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void;onHeading:(yaw:number)=>void;cameraLocked?:boolean}){
  const v=STREETVERSE_FUTURE_VEHICLES.find(x=>x.id===vehicleId)
  const ref=useRef<THREE.Group>(null);const {camera}=useThree()
  const speedRef=useRef(0),steerRef=useRef(0)
- useFrame((_,dt)=>{const g=ref.current;if(!g||!v)return;const throttle=THREE.MathUtils.clamp(-move.current.z,-1,1),steerInput=THREE.MathUtils.clamp(move.current.x,-1,1),maxSpeed=Math.min(22,Math.max(8,v.speed));const targetSpeed=throttle*maxSpeed;speedRef.current=THREE.MathUtils.lerp(speedRef.current,targetSpeed,Math.min(1,(Math.abs(targetSpeed)>Math.abs(speedRef.current)?2.5:4.2)*dt));if(Math.abs(throttle)<.03)speedRef.current=THREE.MathUtils.lerp(speedRef.current,0,Math.min(1,4.6*dt));if(Math.abs(speedRef.current)<.04)speedRef.current=0;steerRef.current=THREE.MathUtils.lerp(steerRef.current,steerInput,Math.min(1,4.2*dt));const speedRatio=THREE.MathUtils.clamp(Math.abs(speedRef.current)/maxSpeed,0,1),turnScale=THREE.MathUtils.lerp(.90,.42,speedRatio);if(Math.abs(speedRef.current)>.08)g.rotation.y-=steerRef.current*Math.min(1.05,v.handling*.82)*turnScale*dt*(speedRef.current<0?-1:1);const forward=new THREE.Vector3(Math.sin(g.rotation.y),0,Math.cos(g.rotation.y));g.position.addScaledVector(forward,speedRef.current*dt);g.position.x=THREE.MathUtils.clamp(g.position.x,-1280,560);g.position.z=THREE.MathUtils.clamp(g.position.z,380,1160);const chase=new THREE.Vector3(g.position.x-forward.x*13,g.position.y+7,g.position.z-forward.z*13);camera.position.lerp(chase,Math.min(1,dt*3.7));camera.lookAt(g.position.x,g.position.y+1,g.position.z);onPosition(g.position.x,g.position.z);onHeading(g.rotation.y)})
+ useFrame((_,dt)=>{const g=ref.current;if(!g||!v)return;const throttle=THREE.MathUtils.clamp(-move.current.z,-1,1),steerInput=THREE.MathUtils.clamp(move.current.x,-1,1),maxSpeed=Math.min(22,Math.max(8,v.speed));const targetSpeed=throttle*maxSpeed;speedRef.current=THREE.MathUtils.lerp(speedRef.current,targetSpeed,Math.min(1,(Math.abs(targetSpeed)>Math.abs(speedRef.current)?2.5:4.2)*dt));if(Math.abs(throttle)<.03)speedRef.current=THREE.MathUtils.lerp(speedRef.current,0,Math.min(1,4.6*dt));if(Math.abs(speedRef.current)<.04)speedRef.current=0;steerRef.current=THREE.MathUtils.lerp(steerRef.current,steerInput,Math.min(1,4.2*dt));const speedRatio=THREE.MathUtils.clamp(Math.abs(speedRef.current)/maxSpeed,0,1),turnScale=THREE.MathUtils.lerp(.90,.42,speedRatio);if(Math.abs(speedRef.current)>.08)g.rotation.y-=steerRef.current*Math.min(1.05,v.handling*.82)*turnScale*dt*(speedRef.current<0?-1:1);const forward=new THREE.Vector3(Math.sin(g.rotation.y),0,Math.cos(g.rotation.y));g.position.addScaledVector(forward,speedRef.current*dt);g.position.x=THREE.MathUtils.clamp(g.position.x,-1280,560);g.position.z=THREE.MathUtils.clamp(g.position.z,380,1160);const chase=new THREE.Vector3(g.position.x-forward.x*13,g.position.y+7,g.position.z-forward.z*13);if(!cameraLocked){camera.position.lerp(chase,Math.min(1,dt*3.7));camera.lookAt(g.position.x,g.position.y+1,g.position.z)}onPosition(g.position.x,g.position.z);onHeading(g.rotation.y)})
  if(!v)return null
  const long=v.kind==='armored-utility'?5.6:v.kind==='cyber-shuttle'?5.2:v.kind==='hypercar'?4.8:2.7
  return <group ref={ref} position={[v.spawn.x,0,v.spawn.z]}><mesh castShadow position={[0,.9,0]}><boxGeometry args={[long,v.kind==='ring-bike'?.75:1.15,v.kind==='ring-bike'?1.1:2.15]}/><meshStandardMaterial color={v.visual.body} metalness={.7} roughness={.25}/></mesh><mesh position={[0,.8,-1.1]}><boxGeometry args={[long*.65,.12,.08]}/><meshStandardMaterial color={v.visual.accent} emissive={v.visual.accent} emissiveIntensity={.5}/></mesh></group>
@@ -497,11 +504,11 @@ function FutureVehicleMeshes({exclude}:{exclude?:string}){return <group>{STREETV
  </group>
 })}</group>}
 
-function PopulationMeshes({reaction}:{reaction:{id:string;reaction:'stagger'|'downed'}|null}){return <group>
+function PopulationMeshes({reaction,detailedIds}:{reaction:{id:string;reaction:'stagger'|'downed'}|null;detailedIds:ReadonlySet<string>}){return <group>
  {NEAR_WEST_NPCS.map((n,i)=>{
   const skin=i%5===0?'#6f442f':i%5===1?'#8f654c':i%5===2?'#b57651':i%5===3?'#5b3829':'#a56e4f'
   const top=i%5===0?'#315b7a':i%5===1?'#704936':i%5===2?'#485b3b':i%5===3?'#6b506f':'#715b34'
-  return <group key={n.id} rotation={[0,0,reaction?.id===n.id?(reaction.reaction==='downed'?1.45:.28):0]} position={[n.position.x,0,n.position.z]}>
+  return <group key={n.id} visible={!detailedIds.has(n.id)} rotation={[0,0,reaction?.id===n.id?(reaction.reaction==='downed'?1.45:.28):0]} position={[n.position.x,0,n.position.z]}>
    <mesh position={[0,.022,0]} rotation={[-Math.PI/2,0,0]} scale={[.42,.25,1]}><circleGeometry args={[1,16]}/><meshBasicMaterial color="#07090b" transparent opacity={.18} depthWrite={false}/></mesh>
    <mesh position={[0,1.04,0]} castShadow><capsuleGeometry args={[.25,.70,4,9]}/><meshStandardMaterial color={top} roughness={.9}/></mesh>
    <mesh position={[0,1.82,0]} castShadow scale={[.95,1.04,.92]}><sphereGeometry args={[.24,14,11]}/><meshStandardMaterial color={skin} roughness={.82}/></mesh>
@@ -540,6 +547,32 @@ export default function StreetVerseNearWest3D(){
  const [liveRpOpen,setLiveRpOpen]=useState(false)
  const [creatorGrowthOpen,setCreatorGrowthOpen]=useState(false)
  const [discordOpen,setDiscordOpen]=useState(false)
+ const [bjGesturesOpen,setBjGesturesOpen]=useState(false)
+ const [bjAvailableClips,setBjAvailableClips]=useState<readonly string[]>([])
+ useEffect(()=>{
+  const onBJReady=(event:Event)=>{
+   const detail=(event as CustomEvent<{clipNames?:string[]}>).detail
+   if(Array.isArray(detail?.clipNames))setBjAvailableClips(detail.clipNames)
+  }
+  window.addEventListener('tryamm:bj-meshy-v6-ready',onBJReady)
+  return()=>window.removeEventListener('tryamm:bj-meshy-v6-ready',onBJReady)
+ },[])
+ const bjGestureOptions=[
+  {id:'look-around',label:'LOOK AROUND',clip:/BJ_V15_LookAround/i},
+  {id:'nod',label:'NOD YES',clip:/BJ_V15_ListenAndNod/i},
+  {id:'acknowledge',label:'SMILE',clip:/BJ_V15_AcknowledgeAndSmile/i},
+  {id:'greet',label:'WAVE',clip:/BJ_Greeting_Wave/i},
+ ] as const
+ const playBJGesture=(gesture:(typeof bjGestureOptions)[number])=>{
+  if(!bjAvailableClips.some(name=>gesture.clip.test(name))){
+   window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'BJ gesture preview requires the matching animated GLB to be staged.'}}))
+   return
+  }
+  window.dispatchEvent(new CustomEvent('tryamm:bj-gesture',{detail:{characterId:'bj-stubbs',gesture:gesture.id,source:'near-west-one-hand-gesture-menu'}}))
+ }
+ const [aerialMode,setAerialMode]=useState<StreetVerseAerialLensMode>('ground')
+ const [aerialFlightKey,setAerialFlightKey]=useState(0)
+ const startGateFlyIn=()=>{setAerialFlightKey(k=>k+1);setAerialMode('fly-in');stopMove()}
  const [driving,setDriving]=useState<string|null>(null)
  const [playerSpawn,setPlayerSpawn]=useState({x:-650,z:700})
  const [vehicleAmmo,setVehicleAmmo]=useState(12)
@@ -550,6 +583,16 @@ export default function StreetVerseNearWest3D(){
  const [missionReady,setMissionReady]=useState(false)
  const [missionStep,setMissionStep]=useState<'talk'|'repair'|'drive'|'deliver'>('talk')
  const [npcReaction,setNpcReaction]=useState<{id:string;reaction:'stagger'|'downed'}|null>(null)
+ const playerLocation=useRef({x:-650,z:700})
+ const [detailedResidents,setDetailedResidents]=useState<ReadonlySet<string>>(()=>new Set())
+ const onResidentLoaded=useCallback((id:string,loaded:boolean)=>{
+  setDetailedResidents(current=>{
+   if(current.has(id)===loaded)return current
+   const next=new Set(current)
+   if(loaded)next.add(id);else next.delete(id)
+   return next
+  })
+ },[])
  const drivenPosition=useRef({x:-650,z:700})
  const drivenHeading=useRef(0)
  const [nearby,setNearby]=useState<{kind:'npc'|'business'|'vehicle'|'landmark';id:string;label:string;mission?:string}|null>(null)
@@ -571,6 +614,7 @@ export default function StreetVerseNearWest3D(){
   return()=>window.removeEventListener('tryamm:campusverse-mission-open',onCampusMission)
  },[playerSpawn.x,playerSpawn.z])
  const senseNearby=(x:number,z:number)=>{
+  playerLocation.current={x,z}
   if(activeMission&&missionStep==='deliver'){const d=Math.hypot(activeMission.objective.x-x,activeMission.objective.z-z);const ready=d<16;setMissionReady(prev=>prev===ready?prev:ready);if(ready){requestMissionReward(activeMission);window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{id:activeMission.id,title:activeMission.title,campus:activeMission.id.startsWith('uic')||activeMission.title.includes('UIC')?'uic':'near-west',objective:activeMission.objective}}));setActiveMission(null);setMissionStep('talk');setMissionReady(false)}}
   const landmarkSafe=Math.hypot(x-ROOSEVELT_LANDMARK_SAFE_ZONE.x,z-ROOSEVELT_LANDMARK_SAFE_ZONE.z)<=ROOSEVELT_LANDMARK_SAFE_ZONE.radius;const protectedArea=landmarkSafe?ROOSEVELT_LANDMARK_SAFE_ZONE.label:(x>-900&&x<-560&&z>500&&z<850)?'UIC EAST CAMPUS SAFE ZONE':(x>-1265&&x<-900&&z>560&&z<885)?'UIC WEST CAMPUS SAFE ZONE':(x>-560&&x<-250&&z>500&&z<860)?'MEDICAL DISTRICT SAFE ZONE':null
   setSafeZone(prev=>prev===protectedArea?prev:protectedArea)
@@ -628,12 +672,22 @@ export default function StreetVerseNearWest3D(){
  }
  return <div aria-label="StreetVerse Near West 3D" style={{width:'100%',height:'100%',minHeight:420}}>
   <div style={{position:'absolute',left:12,right:12,top:12,zIndex:22,display:'flex',gap:6,overflowX:'auto',paddingBottom:4,WebkitOverflowScrolling:'touch'}}>
+   <button aria-label="Quantum Cone Chicago aerial overview" onClick={()=>{stopMove();setAerialMode('city')}} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950,background:aerialMode==='city'?'#326a87':undefined}}>🛰 SKY VIEW</button>
+   <button aria-label="Fly from Chicago sky to Taylor Fillmore guard gate" onClick={startGateFlyIn} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950,background:aerialMode==='fly-in'?'#326a87':undefined}}>↘ GATE FLY-IN</button>
+   {aerialMode!=='ground'&&<button aria-label="Return to ground gameplay camera" onClick={()=>{setAerialMode('ground');stopMove()}} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🎮 GROUND VIEW</button>}
+   <button aria-label="Open BJ Stubbs character gesture controls" aria-expanded={bjGesturesOpen} onClick={()=>setBjGesturesOpen(v=>!v)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🎭 BJ ACTIONS</button>
    <button aria-label="Open Quantum Discord" onClick={()=>setDiscordOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>💬 DISCORD</button>
    <button aria-label="Open StreetVerse creator pass" onClick={()=>setCreatorGrowthOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🌍 CREATOR PASS</button>
    <button aria-label="Open StreetVerse LIVE RP" onClick={()=>setLiveRpOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🔴 LIVE • PK</button>
    <button aria-label="Open My Garage" onClick={()=>setGarageOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🏠 GARAGE</button>
    <button aria-label="Open Future Mobility dealership" onClick={()=>setDealerOpen(true)} style={{flex:'0 0 auto',minHeight:44,padding:'8px 11px',borderRadius:13,fontWeight:950}}>🚘 MOBILITY</button></div>
-  {discordOpen&&<StreetVerseDiscordPanel onClose={()=>setDiscordOpen(false)}/>}
+  {bjGesturesOpen&&<div aria-label="BJ Stubbs one hand gesture controls" role="group" style={{position:'absolute',left:12,top:68,zIndex:25,display:'grid',gap:7,width:'min(228px,65vw)',padding:11,background:'rgba(11,17,25,.95)',border:'1px solid #586775',borderRadius:14}}>
+   <strong style={{color:'#fff7e8',fontSize:14}}>BJ STUBBS • ACTIONS</strong>
+   {bjGestureOptions.map(option=><button key={option.id} aria-label={'Make BJ '+option.label.toLowerCase()} disabled={!bjAvailableClips.some(name=>option.clip.test(name))} onClick={()=>playBJGesture(option)} style={{minHeight:48,borderRadius:11,fontWeight:850,padding:'9px 12px',fontSize:15}}>{option.label}</button>)}
+   <small style={{color:'#b3c2d0',fontSize:12}}>{bjAvailableClips.some(name=>/BJ_V15_/.test(name))?'V15 gestures available':'V15 animated character not staged yet'}</small>
+   <button aria-label="Close BJ gestures" onClick={()=>setBjGesturesOpen(false)} style={{minHeight:44,borderRadius:10,fontWeight:800}}>CLOSE</button>
+  </div>}
+  {discordOpen&&<StreetVerseDiscordPanel onClose={()=>setDiscordOpen(false)}/>} 
   {creatorGrowthOpen&&<StreetVerseCreatorGrowthPanel onClose={()=>setCreatorGrowthOpen(false)}/>}
   {liveRpOpen&&<StreetVerseLiveRpPanel onClose={()=>setLiveRpOpen(false)}/>}
   {dealerOpen&&<StreetVerseFutureVehicleDealer onClose={()=>setDealerOpen(false)}/>} 
@@ -660,7 +714,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><NearWestNativeGlbLayer/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><EmergencyRouteTraversal/><MovingCivilianTraffic/><MovingPedestrians/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}}/>}
+   <RoadMeshes/><StreetVerseTaylorFillmoreGate/><NearWestNativeGlbLayer/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><EmergencyRouteTraversal/><MovingCivilianTraffic/><MovingPedestrians/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction} detailedIds={detailedResidents}/><StreetVerseNearWestDetailedNpcLayer playerPosition={playerLocation} reaction={npcReaction} onResidentLoaded={onResidentLoaded}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn} cameraLocked={aerialMode!=='ground'}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z};playerLocation.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}} cameraLocked={aerialMode!=='ground'}/>}<StreetVerseQuantumConeAerialCamera mode={aerialMode} flightKey={aerialFlightKey} onArrive={()=>setAerialMode('gate')}/>
   </Canvas>
  </div>
 }
