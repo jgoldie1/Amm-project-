@@ -183,7 +183,18 @@ try {
 } catch (error) {
   console.error('[TRYAMM] Optional runtime installer failed before React mount; continuing with core UI.', error)
   // Keep the public shell renderable even when an optional installer aborts startup.
-  routeContent = <Suspense fallback={<div role="status">Opening TRYAMM…</div>}><App /></Suspense>
+  // Never replace the canonical playable StreetVerse route with the homepage
+  // when an optional runtime installer fails during startup.
+  const fallbackPath=window.location.pathname
+  const gameRoute=fallbackPath.startsWith('/streetverse')&&!fallbackPath.startsWith('/streetverse/twin-world')&&!fallbackPath.startsWith('/streetverse/meet-the-stubbs')
+  const fallbackParams=new URLSearchParams(window.location.search)
+  if(gameRoute){
+    routeContent=fallbackParams.get('safe')==='1'||fallbackParams.get('mode')==='safe'
+      ? <><StreetVerseWeatherSync/><StreetVerseSafeWorld onClose={()=>{window.location.href='/'}} /></>
+      : <Suspense fallback={<div role="status">Opening StreetVerse 3D…</div>}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense>
+  }else{
+    routeContent=<Suspense fallback={<div role="status">Opening TRYAMM…</div>}><App /></Suspense>
+  }
 }
 
 const rootElement = document.getElementById('root')

@@ -72,5 +72,12 @@ assert.match(emergencyControls,/data-streetverse-restore-3d/,'HTML City fallback
 const graphics3d=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
 assert.match(graphics3d,/tryamm:streetverse-renderer-failed/,'the mobile renderer must report WebGL initialization errors')
 assert.match(graphicsSafe,/HTML CITY MODE/,'retain the lightweight offline-friendly city as a backup')
+const mainRoute=fs.readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8')
+assert.match(mainRoute,/const gameRoute=fallbackPath.startsWith\('\/streetverse'\)/,'optional initializer error cannot redirect StreetVerse to the homepage')
+assert.match(mainRoute,/StreetVerseGeoSpawnBridge onClose/,'StreetVerse route remains recoverable when optional installers fail')
+for(const script of ['tryamm-retail-world.js','tryamm-immersive-store.js']){
+ const source=fs.readFileSync(new URL('../public/'+script,import.meta.url),'utf8')
+ assert.match(source,/tryamm:streetverse-world-ready/,'shops must connect on direct StreetVerse routes, not only ENTER event')
+}
 
 console.log('STREETVERSE V8 NO-REGRESSION PASS: preservation gates intact; authoritative spine remains protected')
