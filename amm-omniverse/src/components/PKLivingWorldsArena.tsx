@@ -1,4 +1,5 @@
 import {useEffect,useState} from 'react'
+import {PK_HOLO_SERVICES,buildPKHoloServicePreview,type PKHoloServiceId} from '../runtime/PKHoloServicesBridge'
 import {
  PK_CHOICES,PK_WORLDS,choosePKStoryChapter,createPKStoryDraft,
  pkHoloverseScenePreview,pkMiddleverseProductionBrief,readPKStoryDraft,writePKStoryDraft,
@@ -41,6 +42,24 @@ export default function PKLivingWorldsArena({onClose}:{onClose:()=>void}){
  const openSafePK=()=>{
   onClose()
   emit('tryamm:holo-social-open',{mode:'pk',source:'pk-living-worlds'})
+ }
+ const openHoloService=(id:PKHoloServiceId)=>{
+  const service=PK_HOLO_SERVICES.find(x=>x.id===id)
+  if(!service)return
+  emit('tryamm:pk-holo-service-preview',buildPKHoloServicePreview(draft,id))
+  // Never dispatch real provider, payment, delivery, drone or employment actions.
+  onClose()
+  if(id==='menu'||id==='delivery'){
+   const show=(window as Window&{__showHoloDelivery?:()=>void}).__showHoloDelivery
+   if(typeof show==='function'){show();return}
+   emit('tryamm:holo-delivery-open',{source:'pk-story',demo:true});return
+  }
+  if(service.route==='/'){
+   const show=(window as Window&{__showHoloServices?:()=>void}).__showHoloServices
+   if(typeof show==='function'){show();return}
+   emit('tryamm:open-holo-services',{source:'pk-story',serviceId:id,previewOnly:true});return
+  }
+  window.location.assign(service.route)
  }
  const clipDraft=()=>{
   emit('tryamm:media-studio-open',{source:'pk-living-worlds',title:'PK Living Worlds — '+(chapter?.title||draft.name),caption:'Story arena concept preview • not recorded footage',target:'reel'})
@@ -93,8 +112,18 @@ export default function PKLivingWorldsArena({onClose}:{onClose:()=>void}){
      {draft.chapters.map(c=><li key={c.chapter}>{c.title}</li>)}
     </ol>}
    </section>
+   <section aria-label="Holo Services mission previews" style={{...panel,marginTop:14}}>
+    <h2 style={{fontSize:18,margin:'0 0 8px'}}>4. Holo Services inside the battle</h2>
+    <p style={info}>Tap a service to create a noncash episode mission preview and open its existing TRYAMM screen. Real-world transport, ordering and drone operations remain gated.</p>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:8}}>
+     {PK_HOLO_SERVICES.map(service=><button key={service.id} onClick={()=>openHoloService(service.id)} style={{...control,textAlign:'left',display:'grid',gap:5}}>
+      <span><strong>{service.icon} {service.label}</strong> <span style={{fontSize:10,color:'#ffd989'}}>{service.status}</span></span>
+      <span style={info}>{service.quest}</span>
+     </button>)}
+    </div>
+   </section>
    <section aria-label="Cross-verse handoffs" style={{...panel,marginTop:14}}>
-    <h2 style={{fontSize:18,margin:'0 0 12px'}}>4. Carry the story into TRYAMM</h2>
+    <h2 style={{fontSize:18,margin:'0 0 12px'}}>5. Carry the story into TRYAMM</h2>
     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:9}}>
      <button style={control} onClick={gotoHoloverse}>🌐 Preview in Holoverse</button>
      <button style={control} onClick={gotoMiddleverse}>💼 Middleverse production brief</button>
