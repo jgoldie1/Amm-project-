@@ -83,7 +83,7 @@ try {
   const isRecoveredSurface=['/spectra-entertainment','/spectra-entertainment/','/all-american-records','/all-american-records/','/set-apart','/set-apart/','/christian-rap','/christian-rap/','/holo-music','/holo-music/','/holo-food','/holo-food/','/holo-ride-share','/holo-ride-share/'].includes(currentPath)
   const isNetworkStudio=['/network/studio','/network/studio/','/broadcast-studio','/broadcast-studio/'].includes(currentPath)
   const isBroadcastOS=['/network/broadcast-os','/network/broadcast-os/','/broadcast-os','/broadcast-os/'].includes(currentPath)
-  const isNetwork=['/network','/network/','/free-tv','/free-tv/','/isaiah-ai-tv','/isaiah-ai-tv/','/starverse','/starverse/','/reality-tv','/reality-tv/'].includes(currentPath)
+  const isNetwork=['/network','/network/','/network/talent-studio','/network/talent-studio/','/free-tv','/free-tv/','/isaiah-ai-tv','/isaiah-ai-tv/','/starverse','/starverse/','/reality-tv','/reality-tv/'].includes(currentPath)
   const isServantsOfChrist=currentPath==='/servants-of-christ'||currentPath==='/servants-of-christ/'
   const isCareCash=['/omnicare-360','/omnicare-360/','/omnicare-rx','/omnicare-rx/','/omni-cash','/omni-cash/','/aniyah-pay','/aniyah-pay/'].includes(currentPath)
   const isKingdomYahisrael=['/kingdom-of-yahisrael','/kingdom-of-yahisrael/','/yahisrael','/yahisrael/','/judah','/judah/','/where-heaven-meets-earth','/where-heaven-meets-earth/'].includes(currentPath)
