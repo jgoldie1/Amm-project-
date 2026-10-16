@@ -209,7 +209,7 @@ const entryDiagnostic = (() => {
   const ua = navigator.userAgent || ''
   const isMobile = /iPhone|iPad|iPod|Android/i.test(ua) || window.innerWidth <= 600
   // Keep production diagnostics out of the playable mobile surface.
-  if (!isMobile || window.location.pathname.startsWith('/streetverse')) return null
+  if (!isMobile || window.location.pathname.startsWith('/streetverse') || new URLSearchParams(window.location.search).get('diagnostic')!=='1') return null
   return (
     <div data-tryamm-entry-diagnostic="streetverse-main-v1" style={{position:'fixed',right:8,bottom:'calc(env(safe-area-inset-bottom, 0px) + 8px)',zIndex:2147483647,pointerEvents:'none',padding:'7px 9px',borderRadius:8,background:'#ffea00',color:'#111',font:'900 11px/1.15 system-ui,sans-serif',boxShadow:'0 2px 12px #0008'}}>
       SV ENTRY V1 • {window.location.pathname}
