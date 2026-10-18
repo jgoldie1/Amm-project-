@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import {userAccessToken,userSupabaseReady} from './supabase-user.js';
 
 const SUPABASE_URL=()=>process.env.VITE_SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL||process.env.SUPABASE_URL||'';
-const PUBLIC_KEY=()=>process.env.VITE_SUPABASE_ANON_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||process.env.SUPABASE_PUBLISHABLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||'';
+const PUBLIC_KEY=()=>process.env.VITE_SUPABASE_ANON_KEY||process.env.VITE_SUPABASE_PUBLISHABLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||process.env.SUPABASE_PUBLISHABLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||'';
 export const MEDIA_BUCKET='creator-media';
 export const MAX_MEDIA_BYTES=1024*1024*1024;
 export const ALLOWED_MEDIA_TYPES=new Set(['video/mp4','video/webm','image/jpeg','image/png','image/webp','image/gif']);

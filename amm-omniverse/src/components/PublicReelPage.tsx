@@ -14,7 +14,7 @@ export default function PublicReelPage({slug}:{slug:string}){
   const [warpPolicy,setWarpPolicy]=useState('READY')
   const [lagMode,setLagMode]=useState('adaptive')
   const shareUrl=useMemo(()=>data?new URL(data.share.path,window.location.origin).toString():'',[data])
-  useEffect(()=>{let alive=true;(async()=>{try{
+  useEffect(()=>{let alive=true;setData(null);setError('');setBusy(true);setPipStatus('');(async()=>{try{
     const token=await getAccessToken();if(!token)throw new Error('Sign in to open this TRYAMM Reel.')
     const response=await fetch(`/api/media/publication?slug=${encodeURIComponent(slug)}`,{headers:{Authorization:`Bearer ${token}`}})
     const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body?.error||'Reel unavailable')
