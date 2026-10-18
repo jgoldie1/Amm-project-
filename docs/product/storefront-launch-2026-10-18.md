@@ -74,7 +74,7 @@ The storefront model is a deliberately limited scenario, not a deletion or repla
 2. Setup and templates: $499 one-time bounded launch package and separately scoped template work.
 3. HoloGPT / Stubbs AI: separately purchased AI subscriptions or usage, only where not already included in a business plan.
 4. Omni Box creator production tools: proposed paid creation/render/export/storage allowances; separate pricing and complete delivery remain to be verified.
-5. Holo Drama / Drama Box: paid episode unlocks, series access and subscriptions. Inspected pricing code says 70/30 creator/platform; earlier discussion proposed 80/20, so reconcile before sale.
+5. Holo Drama / Drama Box: paid episode unlocks, series access and subscriptions. Owner approved 70% creator / 30% TRYAMM on October 18, matching the inspected pricing configuration. Verify server settlement against this policy before sale.
 6. LIVE / PK gifts: current planning and inspected configuration 90/10 creator/platform; actual settlement unverified.
 7. HOLO ADS / sponsorships: advertisements and sponsored placements across Reels, Holoverse, TV and business discovery; delivery/measurement and contracts required.
 8. Marketplace / creator commerce: commissions on fulfilled real transactions; inspected pricing configuration says 10% platform, not verified settlement.
@@ -84,3 +84,58 @@ The storefront model is a deliberately limited scenario, not a deletion or repla
 Holoverse is a hub for multiple services, and Omni Box is the creation, storage and distribution workflow. Reels carry content, ads and commerce. Do not count the same subscription, advertisement, token purchase/redemption or sale again merely because it travels across those surfaces. All American Network and Isaiah AI TV can distribute monetized content, but audience/advertising revenue is not yet verified. Holo delivery/menu/rides, jobs and telecom remain additional services outside this ten-category grouping.
 
 Source inspection October 18: `UnifiedHoloverseHub.tsx` has service navigation; author-written LIVE/BETA labels are not production certification. `HoloDramaHub.tsx` has episode upload/database and earnings-read code, but its episode cards render no player and their Like/Comment/Share/Gift buttons have no handlers. Its monetization selector alone is not working paid access. Omni Box SQL migrations exist in main, which does not establish that production migrations, storage, export or settlement are deployed. These findings describe the inspected files, not every alternate route in the application.
+
+
+## Expanded portfolio audit — October 18, 2026, owner follow-up
+
+Owner approves Drama 70% creator / 30% TRYAMM. LIVE remains 90/10 planning basis. Do not apply either split globally to unrelated family businesses. No real-money transfer, securities/forex trade or collection is authorized merely by this inventory request.
+
+### Source-backed recovery
+
+The backend file `amm-omniverse/amm-backend/lib/revenue-catalog.js` defines 23 category keys, each with several monetization mechanisms. It is an inventory, not proof of 23 earning businesses. Its categories are: live_streaming; short_video_media; holodrama_tv; starverse; music_audio; gaming_quantumverse; marketplace; quantum_sourcing; logistics_delivery; holo_advertising; ai_cafe; education; workforce_call_center; omnicare_360; omnishield_360; omni_protect; app_store; creator_tools; kingdoms_press; omni_exchange; holo_exchange; crypto_stock_simulation; api_platform.
+
+The separate `TryammRevenueActivationPlan.ts` has ten activation categories: business plans, production, Holo Ads, marketplace/delivery, creator media, broadcast, scout acquisition, AI business services, rights/distribution, and StreetVerse City API. Scout compensation is a TRYAMM acquisition cost rather than new external revenue; merchant sales and transfer principal are not TRYAMM income. Source phase labels such as now or sellable-foundation are authored intent, not release certifications.
+
+| Business or surface | Revenue mechanisms recovered | Evidence and missing proof |
+|---|---|---|
+| All American Network, radio, Free TV / FAST / CTV / OTT | ads, sponsorships, premium programming, PPV, licensing/syndication, channel services | Canonical media architecture exists; rights-cleared playable programming, verified audience/ad delivery and settlement not verified here. Free TV remains free. |
+| Isaiah AI TV | sponsored shows, premium programs, merch, licensing, live showcases | Canonical channel/studio lane and code exist; production scheduling, playback, youth permissions and earnings journey need validation. |
+| StarVerse / Anyone Can Be a Star (owner also calls it Who Wants to Be a Star) | showcases, tickets, fan memberships/gifts, talent bookings, sponsor campaigns, merchandise | Canonical talent pathway exists; do not promise stardom or charge for an unimplemented opportunity. No verified commercial event found. |
+| Holo Drama, Reels, Movie Studio and Holo Theater | episode/series access, PPV, premieres, rentals, sponsors, product placement | Drama 70/30 approved; other media contracts remain separate. Playback, entitlement and settlement need completion. |
+| Omni Box / creator tools | DAW/video/AI tools, rendering, storage, exports | Catalog and migrations exist; end-to-end delivery remains unverified. |
+| Aniyah 64-Track Studio | access passes, AI and engineer sessions, remote recording, mix/master, soundtrack services | Six explicit priced offers and 85/15 seller/TRYAMM configuration; actual purchase, fulfilled audio project/export and seller transfer unverified. |
+| Aniyah Pay / Omni Cash / fintech orchestration | disclosed platform/service fees and business payment tools | `aniyahPay.ts` always builds sandbox quotes; real-money submission disabled in game client. Provider routing names do not prove active integrations. Live exchange quotes, provider approval and settlement required. |
+| Jacobie Vision cybersecurity | authorized assessments, security QA, training, supervised managed services | Center, defensive libraries and tests exist. UI training eligibility is not a signed client contract or completed paid security service. |
+| Jacobie real estate / home flipping | analysis tools/services, property media, project support; separate realized sale/rental income from actual property operations | Flip Lab calculator exists; workstream buttons display messages. No acquisition, ownership, sale, rent collection or client billing verified. |
+| Forex / trading | proposed tools, education and separately authorized investment activity | Located crypto/stock simulation revenue category, but no identifiable forex execution file in the filename search. Actual forex implementation remains unresolved; investment gains are not recurring operating revenue and losses are possible. |
+| Quantum sourcing / global supply chain | sourcing, inspection, procurement management, supplier plans, private-label margin | Supplier-vetting and landed-cost code exists. Actual suppliers, orders, inspections, fulfillment and settlement remain to be verified. |
+| Lyons Tech logistics / Holo delivery | dispatch, freight, delivery, warehousing, fulfillment, fleet software | Product catalog exists; provider execution and completed customer jobs unverified. |
+| StreetVerse Global business network / City API | listings, business passes, production, measurable sponsorship inventory, enterprise API/licensing | Can develop a non-game business layer; no global territory ownership or guaranteed worldwide customer traffic implied. City API is explicitly scale-phase. |
+| Middleverse AI workforce / contact center | BPO contracts, per-seat/per-call plans, training, managed support | Catalog and runtime files exist; telephony/provider workflows, staffing and paid contracts need verification. |
+| Business Server / Holo FON / AI services | hosting, integrations, support, usage and service subscriptions | Product catalog exists; fulfillment, quotas and actual operating margin unverified. |
+| Academies / CampusVerse / education | courses, tuition, employer training, learning tools | Education category exists; accreditation/certification outcomes are not established by this inventory. |
+| All American App Store | app commissions, developer services, promoted placements, enterprise distribution | Revenue catalog entry; developer onboarding, distribution, checkout and settlement not verified. |
+| Kingdoms Press | books, audiobooks, publishing services, licensing, memberships/events | Revenue catalog entry; rights-cleared catalog and fulfillment not verified. |
+| OmniCare 360, OmniShield 360, Omni Protect | subscriptions, partner services/referrals, business seats/API, approved protection-provider arrangements | Revenue catalog entries; actual providers, service permissions and commercial terms unverified. |
+| AI Cafe | food/beverage, events, delivery, merchandise, franchise licensing | Revenue catalog entry; no operational cafe or franchise agreement verified. |
+| Holo Labs / fabrication / print network | design/production services, fabrication margin, operator commissions, licensing | Separate El Saturn catalog explicitly marks robotic fabrication, 12D R&D and distributed print as pilots. |
+| Servants of Christ network | previously proposed voluntary support and separately specified media/services | Prior network work recovered; donations/restricted ministry funds must not be represented as unrestricted TRYAMM profit. |
+
+### Aniyah Studio price details recovered from main
+
+- 30-day studio pass: $14.99, explicitly not auto-renewing.
+- AI Producer Session: $9.99.
+- Engineer Mode Session: $14.99.
+- Remote Recording Session: $25.
+- Mix + Master Service: $49.
+- Reel / TV / Movie Soundtrack Package: $99.
+
+Configuration allocates 85% to the studio and 15% to TRYAMM, subject to verified payment, fulfillment, reconciliation and seller eligibility. These are configured offers, not evidence of sales. Preserve Aniyah's proceeds separately from TRYAMM's share. Do not change this split when implementing Drama's 70/30.
+
+### Revenue recognition and launch priorities
+
+One external transaction has one authoritative reference, gross amount, refunds, processor/provider costs, creator/merchant share and platform share. A show on Isaiah TV distributed by AAN, clipped to Reels and stored in Omni Box is not four separate receipts. Separate subscriptions can be counted only if separately purchased and fulfilled. Deposits, stored balances, remittance principal, trading balances, financing and restricted funds are not platform revenue.
+
+Maintain storefront/AI pilot as first verified payment-to-service journey. In parallel scope the next sellable deliverables: bounded Aniyah audio services and authorized Jacobie assessments after capability/fulfillment checks. Next enable media upload, playback, rights, paid unlocks and ledger settlement for Drama/TV/StarVerse. Cross-border money movement, real property operations, forex execution and physical fabrication stay separate provider/operational projects. No combined profit forecast is defensible until volumes, costs, obligations and paid delivery are measured by stream.
+
+Read directly in this audit: `revenue-catalog.js`, `TryammRevenueActivationPlan.ts`, `ElSaturnBusinessRevenueCatalog.ts`, `Aniyah64TrackBusiness.ts`, `aniyahPay.ts`, `JacobieVisionCenter.tsx`, `JacobieFlipLab.tsx`, `QuantumSourceSupplyChain.ts` and `docs/ALL_AMERICAN_NETWORK_STARVERSE_MEDIA_VISION_2026.md`. No new live transaction or deployment test was performed during this inventory update.
