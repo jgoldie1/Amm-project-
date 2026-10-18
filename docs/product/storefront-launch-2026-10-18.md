@@ -43,7 +43,7 @@ The $499 setup package, assuming $200 delivery cost, 2.9% + $0.30 payment proces
 
 ## Revenue separation
 
-Business subscription and setup income is separate from LIVE gifts, merchant gross sales and customer funds. The owner intends 95% creator / 5% TRYAMM for the defined LIVE revenue base; the base and fee treatment must be stated and server-enforced before LIVE activation. A legacy `PricingConfig.ts` currently contains a 90/10 gift split. Trace actual payment consumers and reconcile legacy/UI/server values; changing a display constant alone does not prove payout correctness. This storefront analysis does not include the 5% LIVE share or claim actual payout enforcement.
+Business subscription and setup income is separate from LIVE gifts, merchant gross sales and customer funds. Correction October 18: the owner recalled the earlier LIVE split as 90% creator / 10% TRYAMM, matching the inspected `PricingConfig.ts` gifts configuration. Use 90/10 as the current planning basis; the previous 95/5 statement in this document is superseded. The revenue base, fee treatment and actual server payout consumers still require verification. A display/configuration constant does not prove payout enforcement. This storefront-only model excludes LIVE revenue entirely.
 
 ## Launch gates and evidence required
 
@@ -64,3 +64,23 @@ Business subscription and setup income is separate from LIVE gifts, merchant gro
 `node --test tests/storefront-economics.test.mjs` passed five arithmetic and input-validation tests. No production application, subscription configuration or provider credentials changed. Current implementation readiness remains gated by the above items. This model is a reproducible planning aid, not a replacement for accounting or a full app test.
 
 Relevant evidence: https://github.com/jgoldie1/Amm-project-/pull/638 ; https://github.com/jgoldie1/Amm-project-/pull/639 ; `docs/audits/app-feature-wiring-2026-10-15.md`. October 15–16 service checks are historical, not fresh production certification.
+
+
+## Wider non-game revenue portfolio — restored scope
+
+The storefront model is a deliberately limited scenario, not a deletion or replacement of the broader TRYAMM business. The following ten categories organize recovered plans and source evidence; they are not a verified verbatim original list or ten operational income streams.
+
+1. Business subscriptions: $29/$49/$149 monthly storefront/network services.
+2. Setup and templates: $499 one-time bounded launch package and separately scoped template work.
+3. HoloGPT / Stubbs AI: separately purchased AI subscriptions or usage, only where not already included in a business plan.
+4. Omni Box creator production tools: proposed paid creation/render/export/storage allowances; separate pricing and complete delivery remain to be verified.
+5. Holo Drama / Drama Box: paid episode unlocks, series access and subscriptions. Inspected pricing code says 70/30 creator/platform; earlier discussion proposed 80/20, so reconcile before sale.
+6. LIVE / PK gifts: current planning and inspected configuration 90/10 creator/platform; actual settlement unverified.
+7. HOLO ADS / sponsorships: advertisements and sponsored placements across Reels, Holoverse, TV and business discovery; delivery/measurement and contracts required.
+8. Marketplace / creator commerce: commissions on fulfilled real transactions; inspected pricing configuration says 10% platform, not verified settlement.
+9. Holo Music / creator media: rights-cleared paid media or service fees; no assumed earnings merely from counting streams. Rates and rights need reconciliation.
+10. Ticketed digital events / Holo Theater: paid admission or replay access, conditional on access control, playback and settlement working.
+
+Holoverse is a hub for multiple services, and Omni Box is the creation, storage and distribution workflow. Reels carry content, ads and commerce. Do not count the same subscription, advertisement, token purchase/redemption or sale again merely because it travels across those surfaces. All American Network and Isaiah AI TV can distribute monetized content, but audience/advertising revenue is not yet verified. Holo delivery/menu/rides, jobs and telecom remain additional services outside this ten-category grouping.
+
+Source inspection October 18: `UnifiedHoloverseHub.tsx` has service navigation; author-written LIVE/BETA labels are not production certification. `HoloDramaHub.tsx` has episode upload/database and earnings-read code, but its episode cards render no player and their Like/Comment/Share/Gift buttons have no handlers. Its monetization selector alone is not working paid access. Omni Box SQL migrations exist in main, which does not establish that production migrations, storage, export or settlement are deployed. These findings describe the inspected files, not every alternate route in the application.
