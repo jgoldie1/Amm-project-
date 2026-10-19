@@ -4,6 +4,7 @@ import {getSupabaseClient} from './services/supabaseClient'
 import './business-entry.css'
 import TemplateStore from './business/TemplateStore'
 import BusinessAccessibility from './business/BusinessAccessibility'
+import BusinessOnboarding from './business/BusinessOnboarding'
 
 type Order={id:string;currency:string;subtotalCents:number;status:string;createdAt:string}
 class BusinessBoundary extends Component<{children:ReactNode},{failed:boolean}>{
@@ -92,7 +93,7 @@ function BusinessApp(){
  }
  return <><a className="skip-link" href="#business-content">Skip to main content</a><header><a className="brand" href="/business-app.html">TRYAMM <span>BUSINESS</span></a><a href="/streetverse">Open StreetVerse ↗</a></header>
  <main id="business-content" tabIndex={-1}><BusinessAccessibility/><p className="eyebrow">SHOP · CREATE · DO BUSINESS</p><h1>Your business.<br/>One connected account.</h1><p className="intro">Reach your shops, creator tools and orders without opening the 3D world.</p>
- <a className="studio-jump" href="#template-store">Build your website · templates from $49 ↓</a><BetaTools/><nav aria-label="Business tools" className="cards">
+ <a className="studio-jump" href="#onboarding">Start onboarding & get support ↓</a> <a className="studio-jump" href="#template-store">Build your website · templates from $49 ↓</a><BetaTools/><nav aria-label="Business tools" className="cards">
  {[
  ['/marketplace','Shop','Browse the marketplace'],['/business','Sell & manage','Open business tools'],['/create','Create','Open Reel and creator tools'],['/earnings','Earnings','Review earnings and payout status'],['/beauty-supply','Beautyverse','Open beauty business tools'],['/mobility360.html','Stubbs Mobility','Open mobility services']
  ].map(([href,title,detail])=><a className="card" key={href} href={href}><h2>{title} ↗</h2><p>{detail}</p></a>)}
@@ -100,6 +101,6 @@ function BusinessApp(){
  <section aria-labelledby="account-title"><h2 id="account-title">Your account</h2><p role="status">{message}</p>
  {account?<><p>{account}</p><button disabled={busy} onClick={()=>void logout()}>Sign out</button></>:<form onSubmit={login}><label>Email<input type="email" autoComplete="username" required value={email} onChange={e=>setEmail(e.target.value)}/></label><label>Password<input type="password" autoComplete="current-password" required value={password} onChange={e=>setPassword(e.target.value)}/></label><button disabled={!sb||busy}>{busy?'Signing in…':'Sign in'}</button></form>}
  </section><section aria-labelledby="orders-title"><h2 id="orders-title">My orders</h2><p role="status">{orderMessage}</p>{orders?.map(order=><article className="order" key={order.id}><strong>Order {order.id}</strong><p>{order.status} · {order.currency.toUpperCase()} {(order.subtotalCents/100).toFixed(2)}</p><small>{order.createdAt}</small></article>)}</section>
- <TemplateStore/><footer>Shared account and order service. StreetVerse runs in its own page.</footer></main></>
+ <BusinessOnboarding/><TemplateStore/><footer>Shared account and order service. StreetVerse runs in its own page.</footer></main></>
 }
 createRoot(document.getElementById('business-root')!).render(<BusinessBoundary><BusinessApp/></BusinessBoundary>)
