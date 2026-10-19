@@ -1,0 +1,13 @@
+# Language and accessibility beta — 2026-10-19
+
+Scope: independent TRYAMM business entry and newly generated website drafts. Does not replace or change StreetVerse controls, existing marketplace screens, mobile OS behavior, or previously exported websites.
+
+Business entry: native keyboard controls, visible focus, skip link, local display preferences (larger text, high contrast, reduced motion, reading space and simplified diagnostics), explicit read-aloud and type-to-speak actions. No diagnosis or medical profile is collected. Speech uses the browser/device engine; voice availability and privacy behavior depend on that implementation. Screen readers and switch access rely on semantic HTML and native controls, not a simulated disability mode.
+
+Generated website: translated standard labels in en/es/fr/pt/ar/sw; lang and direction metadata; keyboard skip link; larger text, contrast, motion and read-aloud controls. Arabic uses RTL. Content fields remain as entered. Explicit HoloGPT translation sends only headline, description and service list to the existing /api/ai/answer endpoint and its configured provider; a valid draft must be reviewed and accepted before it replaces the original. Changes during a request invalidate that result. API failures preserve the draft. This integration does not implement a credit wallet, metering or a new paid translation product.
+
+The iframe preview permits scripts in an opaque sandbox to run the fixed accessibility controls; it does not permit same-origin access, forms, popups or top navigation. Customer strings are HTML escaped. Only restricted inline image data types and a validated hexadecimal color are emitted. Unknown language codes fall back to English.
+
+Limitations: not an accessibility certification and not a guarantee for all disabilities. Native label translations need fluent-speaker review. Clinical, legal, security and pricing text needs appropriate review. Sign-language interpretation, live video captions, audio description tracks, Braille hardware, eye tracking and switch/device interoperability are not implemented or certified by this change. Read-aloud is not a screen-reader replacement.
+
+Verification completed: TypeScript, Vite build, 5 generator tests (including injection escaping, Arabic metadata/labels and inherited-key rejection), and dependency traversal proving the business entry excludes game/physics/maps/media bundles. Needed: VoiceOver on the founder's iPhone, keyboard-only and switch testing, 200% zoom/reflow, speech availability and fluent language review, followed by an actual HoloGPT translation test with review/reject/apply.

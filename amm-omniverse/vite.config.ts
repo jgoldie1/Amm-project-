@@ -40,6 +40,7 @@ export default defineConfig({
       // documents as Vite build inputs so the safe entry and its hashed module
       // graph are emitted into dist for the production deployment.
       input: {
+        businessApp: fileURLToPath(new URL('./business-app.html', import.meta.url)),
         main: fileURLToPath(new URL('./index.html', import.meta.url)),
         streetverseSafe: fileURLToPath(new URL('./streetverse-safe.html', import.meta.url)),
       },
