@@ -129,6 +129,27 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(quickMenu).toBeVisible();
     await quickMenu.click();
     await page.getByRole('menuitem',{name:/LEFT HAND/}).click();
+    // Isolate screenshot-heavy gameplay evidence from independent social/store
+    // navigation. A single ninety-second all-in-one test left real buttons
+    // unverified when WebGL consumed the runner's remaining frame budget.
+    await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-control-side','left');
+  });
+
+  test('one-hand social, people, ticket and permanent marketplace links work',async({page},testInfo)=>{
+    test.setTimeout(110_000);
+    page.on('pageerror',error=>console.error('[streetverse-social-pageerror]',error.message));
+    await page.addInitScript(()=>{
+      try{
+        Object.defineProperty(navigator,'hardwareConcurrency',{configurable:true,get:()=>8});
+        Object.defineProperty(navigator,'deviceMemory',{configurable:true,get:()=>8});
+        localStorage.setItem('tryamm:streetverse-control-mode','one-hand');
+      }catch{}
+    });
+    await page.goto('/streetverse',{waitUntil:'domcontentloaded',timeout:45_000});
+    await expect(page.locator('[data-streetverse-world-root="true"]')).toBeVisible({timeout:30_000});
+    await expect(page.locator('[data-streetverse-html-city]')).toHaveCount(0);
+    const quickMenu=page.getByRole('button',{name:'Open StreetVerse quick menu'});
+    await expect(quickMenu).toBeVisible();
     // Social shortcuts are intentionally collapsed by default on iPhone. Exercise the
     // real user path instead of requiring another always-visible control layer.
     await quickMenu.click();
