@@ -17,7 +17,10 @@ export default async function handler(req,res){
     const jobs=await userRest(req,'media_publish_jobs',{query:{id:`eq.${jobId}`,owner_id:`eq.${user.id}`,select:'*',limit:1}}),job=jobs?.[0];
     if(!job)return json(res,404,{error:'publish_job_not_found'});
     if(terminal.has(String(job.status||'')))return json(res,200,{ok:true,job,reused:true,next:'Publication job is already terminal.'});
-    if(!['queued','processing'].includes(String(job.status||'')))return json(res,409,{error:'publish_job_not_processable',status:job.status});
+    if(!['queued','processing','blocked'].includes(String(job.status||'')))return json(res,409,{error:'publish_job_not_processable',status:job.status});
+
+    const destinations=[...new Set((Array.isArray(job.destinations)?job.destinations:[]).filter(x=>ALLOWED_DESTINATIONS.has(x)))];
+    if(!destinations.length)return json(res,409,{error:'publish_job_has_no_valid_destinations'});
 
     const mediaRows=await userRest(req,'media_catalog',{query:{id:`eq.${job.media_id}`,owner_id:`eq.${user.id}`,select:'*',limit:1}}),media=mediaRows?.[0];
     if(!media)return json(res,404,{error:'media_not_found'});
@@ -37,8 +40,6 @@ export default async function handler(req,res){
     }
 
     await userRest(req,'media_publish_jobs',{method:'PATCH',query:{id:`eq.${job.id}`,owner_id:`eq.${user.id}`},body:{status:'processing',error_code:null}});
-    const destinations=[...new Set((Array.isArray(job.destinations)?job.destinations:[]).filter(x=>ALLOWED_DESTINATIONS.has(x)))];
-    if(!destinations.length)return json(res,409,{error:'publish_job_has_no_valid_destinations'});
 
     const delivered=[];
     for(const destination of destinations){
