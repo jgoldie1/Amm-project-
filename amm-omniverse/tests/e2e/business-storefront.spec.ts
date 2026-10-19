@@ -45,3 +45,23 @@ test('all ten demos open and return to the catalog',async({page})=>{
   await expect(page.locator('.demo-screen')).toHaveCount(0)
  }
 })
+
+test('pilot exports an honest-review draft without advertising consent or submission',async({page})=>{
+ await page.goto('/business-app.html#template-pilot')
+ const pilot=page.locator('#template-pilot')
+ await expect(page.locator('.catalog-card').first()).toContainText('Salon owners')
+ await pilot.getByLabel('Business name',{exact:true}).fill('Example Salon')
+ await pilot.getByLabel('Contact email',{exact:true}).fill('owner@example.com')
+ await pilot.getByLabel('Actual website launch date, if launched').fill('2026-08-31')
+ await expect(pilot).toContainText('2027-02-28')
+ await pilot.getByLabel('Tell us about your business and what you want to try').fill('I want a service website with clear booking information.')
+ await pilot.getByRole('checkbox',{name:/I understand this is a draft/}).check()
+ await expect(pilot.getByRole('checkbox',{name:/Optional: I allow TRYAMM/})).not.toBeChecked()
+ const download=page.waitForEvent('download')
+ await pilot.getByRole('button',{name:'Download this application draft',exact:true}).click()
+ expect((await download).suggestedFilename()).toBe('TRYAMM-pilot-application.json')
+ await expect(pilot.getByRole('status')).toContainText('not been submitted or accepted')
+ await pilot.getByLabel('Record type').selectOption('six-month-review')
+ await expect(pilot.getByLabel('What would you improve?')).toBeVisible()
+ await expect(pilot.getByLabel('Overall satisfaction')).toBeVisible()
+})

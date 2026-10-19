@@ -8,6 +8,7 @@ import BusinessOnboarding from './business/BusinessOnboarding'
 import ServiceWorkbench from './business/ServiceWorkbench'
 import SupportOperatorConsole from './business/SupportOperatorConsole'
 import TemplateGallery from './business/TemplateGallery'
+import PilotProgram from './business/PilotProgram'
 
 type Order={id:string;currency:string;subtotalCents:number;status:string;createdAt:string}
 class BusinessBoundary extends Component<{children:ReactNode},{failed:boolean}>{
@@ -104,7 +105,7 @@ function BusinessApp(){
  }
  return <><a className="skip-link" href="#business-content">Skip to main content</a><header className="app-header"><a className="brand" href="/">TRYAMM <span>APP</span></a><nav aria-label="App navigation"><a href="#business-catalog">Demos</a><a href="#app-tools">Tools</a><a href="#account">Account</a><a className="game-option" aria-label="StreetVerse · optional game ↗" href="/streetverse">Game · optional ↗</a></nav></header>
  <main id="business-content" tabIndex={-1}><div className="app-hero"><p className="eyebrow">WELCOME TO THE TRYAMM APP</p><h1>Try your next<br/>business website.</h1><p className="intro">Explore ten website demos, create with AI, and use the app. StreetVerse is optional.</p><div className="hero-actions"><a className="studio-jump" href="#business-catalog">Browse business demos ↓</a><a className="studio-jump secondary-action" href="/create">Open creator tools ↗</a><a className="studio-jump secondary-action" href="#ai-workstation">Try Jarvis & AI ↓</a></div></div>
- <TemplateGallery/><BusinessAccessibility/><nav id="app-tools" aria-label="Business tools" className="cards">
+ <a className="pilot-invite" href="#template-pilot">10 free template gifts · join the honest-feedback pilot ↓</a><TemplateGallery/><PilotProgram/><BusinessAccessibility/><nav id="app-tools" aria-label="Business tools" className="cards">
  {[
  ['/marketplace','Shop','Browse the marketplace'],['/business','Sell & manage','Open business tools'],['/create','Create','Open Reel and creator tools'],['/earnings','Earnings','Review earnings and payout status'],['/beauty-supply','Beautyverse','Open beauty business tools'],['/mobility360.html','Stubbs Mobility','Open mobility services']
  ].map(([href,title,detail])=><a className="card" key={href} href={href}><h2>{title} ↗</h2><p>{detail}</p></a>)}
