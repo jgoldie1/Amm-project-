@@ -1,0 +1,18 @@
+export const TEMPLATE_DEMOS:Record<string,{brand:string;tagline:string;type:'shop'|'booking'|'inquiry';tone:string;items:[string,number][]}>={
+ '01':{brand:'Beautyverse Studio',tagline:'Your beauty. Your appointment.',type:'booking',tone:'#733d65',items:[['Hair styling',65],['Nail appointment',35],['Beauty consultation',20]]},
+ '02':{brand:'Stubbs Mobility',tagline:'Arrange the support for your next journey.',type:'inquiry',tone:'#195880',items:[['Transport inquiry',0],['Mobility product inquiry',0],['Service-area question',0]]},
+ '03':{brand:'OmniCare 360',tagline:'Explore care navigation and wellness information.',type:'inquiry',tone:'#176958',items:[['Care navigation information',0],['Wellness information',0],['Accessibility assistance',0]]},
+ '04':{brand:'Fresh Cut & Loc Studio',tagline:'A fresh look, on your schedule.',type:'booking',tone:'#7a4b23',items:[['Haircut',30],['Loc maintenance',75],['Style consultation',15]]},
+ '05':{brand:'The Neighborhood Kitchen',tagline:'Good food for your next gathering.',type:'inquiry',tone:'#9a3c24',items:[['Weekly meal preparation',0],['Small-event catering',0],['Custom menu quote',0]]},
+ '06':{brand:'Community & Faith',tagline:'Find your next opportunity to connect and serve.',type:'inquiry',tone:'#644c87',items:[['Community event',0],['Volunteer opportunity',0],['Ministry inquiry',0]]},
+ '07':{brand:'Professional Security Services',tagline:'Tell us about your event or service needs.',type:'inquiry',tone:'#33465d',items:[['Event service inquiry',0],['Business service inquiry',0],['Training information',0]]},
+ '08':{brand:'Independent Sound Studio',tagline:'Bring your next creative idea to the studio.',type:'booking',tone:'#70405e',items:[['Studio consultation',25],['Recording session',60],['Mixing inquiry',0]]},
+ '09':{brand:'Your Local Professional',tagline:'Start with a focused conversation.',type:'booking',tone:'#365f59',items:[['Introductory consultation',25],['Project planning session',75],['Custom service inquiry',0]]},
+ '10':{brand:'The Creator Market',tagline:'Explore a simple shop built around your products.',type:'shop',tone:'#3b567e',items:[['Everyday tote',25],['Studio notebook',15],['Creator starter set',45]]},
+ '11':{'brand': 'Fresh Start Cleaning', 'tagline': 'A cleaner space. A simpler day.', 'type': 'inquiry', 'tone': '#286761', 'items': [['Home cleaning estimate', 0], ['Office cleaning inquiry', 0], ['Rental turnover request', 0]]},
+ '12':{'brand': 'Neighborhood Home Services', 'tagline': 'Bring your next home project into focus.', 'type': 'inquiry', 'tone': '#745035', 'items': [['Repair project inquiry', 0], ['Maintenance inquiry', 0], ['Request an estimate', 0]]},
+ '13':{'brand': 'Local Property Studio', 'tagline': 'Your next property conversation starts here.', 'type': 'booking', 'tone': '#385b78', 'items': [['Property consultation', 0], ['Management inquiry', 0], ['Service introduction', 0]]},
+ '14':{'brand': 'Independent Fashion House', 'tagline': 'Wear your story. Make it yours.', 'type': 'shop', 'tone': '#7b4568', 'items': [['Signature tee', 30], ['Everyday cap', 22], ['Statement tote', 35]]},
+ '15':{'brand': 'The Learning Studio', 'tagline': 'Make room for your next skill.', 'type': 'booking', 'tone': '#526733', 'items': [['Introductory lesson', 25], ['One-to-one session', 45], ['Workshop inquiry', 0]]},
+ '16':{'brand': 'Everyday Movement Studio', 'tagline': 'Build a routine that fits your day.', 'type': 'booking', 'tone': '#865327', 'items': [['Introductory consultation', 20], ['Personal training session', 55], ['Group class inquiry', 0]]},
+}

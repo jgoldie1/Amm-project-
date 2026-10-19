@@ -4,6 +4,14 @@
   "outputDirectory": "dist",
   "routes": [
     {
+      "src": "/",
+      "dest": "/business-app.html"
+    },
+    {
+      "src": "/(app|business-app|templates)/?",
+      "dest": "/business-app.html"
+    },
+    {
       "src": "/accessibility/?",
       "dest": "/accessibility.html"
     },
