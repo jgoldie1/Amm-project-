@@ -4,6 +4,10 @@
   "outputDirectory": "dist",
   "routes": [
     {
+      "src": "/business-app/?",
+      "dest": "/business-app.html"
+    },
+    {
       "src": "/accessibility/?",
       "dest": "/accessibility.html"
     },
