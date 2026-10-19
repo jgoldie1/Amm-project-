@@ -1,0 +1,71 @@
+import {Component, useEffect, useState, type ReactNode} from 'react'
+import {createRoot} from 'react-dom/client'
+import {getSupabaseClient} from './services/supabaseClient'
+import './business-entry.css'
+
+type Order={id:string;currency:string;subtotalCents:number;status:string;createdAt:string}
+class BusinessBoundary extends Component<{children:ReactNode},{failed:boolean}>{
+ state={failed:false}
+ static getDerivedStateFromError(){return {failed:true}}
+ render(){return this.state.failed?<main><h1>TRYAMM Business</h1><p>This page could not open. Your orders have not been changed.</p><a href="/business-app.html">Try again</a></main>:this.props.children}
+}
+function BusinessApp(){
+ const [email,setEmail]=useState(''),[password,setPassword]=useState('')
+ const [account,setAccount]=useState<string|null>(null),[message,setMessage]=useState('Checking your account…'),[busy,setBusy]=useState(false)
+ const [orders,setOrders]=useState<Order[]|null>(null),[orderMessage,setOrderMessage]=useState('Sign in to see your orders.')
+ const sb=getSupabaseClient()
+ useEffect(()=>{
+  if(!sb){setMessage('Sign-in setup is unavailable. Please try again later.');return}
+  let active=true
+  const {data:{subscription}}=sb.auth.onAuthStateChange((_event,session)=>{
+   if(!active)return
+   setAccount(session?.user.email||null);setOrders(null)
+   setMessage(session?'Signed in with your TRYAMM account.':'Use the same account as StreetVerse.')
+  })
+  return()=>{active=false;subscription.unsubscribe()}
+ },[sb])
+ useEffect(()=>{
+  const controller=new AbortController()
+  let active=true
+  if(!account){setOrders(null);setOrderMessage('Sign in to see your orders.');return()=>controller.abort()}
+  setOrderMessage('Loading your orders…')
+  const timer=setTimeout(()=>controller.abort(),12000)
+  void (async()=>{
+   try{
+    const session=await sb!.auth.getSession(),token=session.data.session?.access_token
+    if(!token)throw new Error('Please sign in again.')
+    const response=await fetch('/api/commerce/orders',{headers:{Authorization:`Bearer ${token}`},signal:controller.signal,cache:'no-store'})
+    if(!response.ok)throw new Error(response.status===401?'Please sign in again.':'Order history is temporarily unavailable. No order has been changed.')
+    const data=await response.json()
+    if(!data.ok||!Array.isArray(data.orders))throw new Error('Order history could not be verified.')
+    if(active){setOrders(data.orders);setOrderMessage(data.orders.length?'Orders from your shared TRYAMM account.':'You have no orders yet.')}
+   }catch(error){if(active)setOrderMessage(error instanceof Error&&error.name!=='AbortError'?error.message:'Order history timed out. Please reload to retry.')}
+   finally{clearTimeout(timer)}
+  })()
+  return()=>{active=false;clearTimeout(timer);controller.abort()}
+ },[account,sb])
+ async function login(event:React.FormEvent){
+  event.preventDefault();if(!sb||busy)return;setBusy(true)
+  try{const {error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;setPassword('')}
+  catch(error){setMessage(error instanceof Error?error.message:'Unable to sign in.')}
+  finally{setBusy(false)}
+ }
+ async function logout(){
+  if(!sb)return;setBusy(true)
+  try{const {error}=await sb.auth.signOut();if(error)throw error}
+  catch{setMessage('Sign-out failed. Please retry.')}
+  finally{setBusy(false)}
+ }
+ return <><header><a className="brand" href="/business-app.html">TRYAMM <span>BUSINESS</span></a><a href="/streetverse">Open StreetVerse ↗</a></header>
+ <main><p className="eyebrow">SHOP · CREATE · DO BUSINESS</p><h1>Your business.<br/>One connected account.</h1><p className="intro">Reach your shops, creator tools and orders without opening the 3D world.</p>
+ <nav aria-label="Business tools" className="cards">
+ {[
+ ['/marketplace','Shop','Browse the marketplace'],['/business','Sell & manage','Open business tools'],['/create','Create','Open Reel and creator tools'],['/earnings','Earnings','Review earnings and payout status'],['/beauty-supply','Beautyverse','Open beauty business tools'],['/mobility360.html','Stubbs Mobility','Open mobility services']
+ ].map(([href,title,detail])=><a className="card" key={href} href={href}><h2>{title} ↗</h2><p>{detail}</p></a>)}
+ </nav><p className="note">These links open the existing TRYAMM tools. Checkout availability is checked by the server; game credits are not cash earnings.</p>
+ <section aria-labelledby="account-title"><h2 id="account-title">Your account</h2><p role="status">{message}</p>
+ {account?<><p>{account}</p><button disabled={busy} onClick={()=>void logout()}>Sign out</button></>:<form onSubmit={login}><label>Email<input type="email" autoComplete="username" required value={email} onChange={e=>setEmail(e.target.value)}/></label><label>Password<input type="password" autoComplete="current-password" required value={password} onChange={e=>setPassword(e.target.value)}/></label><button disabled={!sb||busy}>{busy?'Signing in…':'Sign in'}</button></form>}
+ </section><section aria-labelledby="orders-title"><h2 id="orders-title">My orders</h2><p role="status">{orderMessage}</p>{orders?.map(order=><article className="order" key={order.id}><strong>Order {order.id}</strong><p>{order.status} · {order.currency.toUpperCase()} {(order.subtotalCents/100).toFixed(2)}</p><small>{order.createdAt}</small></article>)}</section>
+ <footer>Shared account and order service. StreetVerse runs in its own page.</footer></main></>
+}
+createRoot(document.getElementById('business-root')!).render(<BusinessBoundary><BusinessApp/></BusinessBoundary>)
