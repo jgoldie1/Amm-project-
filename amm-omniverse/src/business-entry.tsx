@@ -5,6 +5,8 @@ import './business-entry.css'
 import TemplateStore from './business/TemplateStore'
 import BusinessAccessibility from './business/BusinessAccessibility'
 import BusinessOnboarding from './business/BusinessOnboarding'
+import ServiceWorkbench from './business/ServiceWorkbench'
+import SupportOperatorConsole from './business/SupportOperatorConsole'
 
 type Order={id:string;currency:string;subtotalCents:number;status:string;createdAt:string}
 class BusinessBoundary extends Component<{children:ReactNode},{failed:boolean}>{
@@ -85,6 +87,14 @@ function BusinessApp(){
   catch(error){setMessage(error instanceof Error?error.message:'Unable to sign in.')}
   finally{setBusy(false)}
  }
+ async function signup(){
+  if(!sb||busy)return
+  if(!email.trim()||password.length<8){setMessage('Enter an email and a password of at least 8 characters to create an account.');return}
+  setBusy(true)
+  try{const {data,error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin+'/business-app.html'}});if(error)throw error;setPassword('');setMessage(data.session?'Account created and signed in.':'Check your email to confirm your account. Confirmation links must return to an allowed TRYAMM domain.')}
+  catch(error){setMessage(error instanceof Error?error.message:'Account creation is unavailable.')}
+  finally{setBusy(false)}
+ }
  async function logout(){
   if(!sb)return;setBusy(true)
   try{const {error}=await sb.auth.signOut();if(error)throw error}
@@ -99,8 +109,8 @@ function BusinessApp(){
  ].map(([href,title,detail])=><a className="card" key={href} href={href}><h2>{title} ↗</h2><p>{detail}</p></a>)}
  </nav><p className="note">These links open the existing TRYAMM tools. Checkout availability is checked by the server; game credits are not cash earnings.</p>
  <section aria-labelledby="account-title"><h2 id="account-title">Your account</h2><p role="status">{message}</p>
- {account?<><p>{account}</p><button disabled={busy} onClick={()=>void logout()}>Sign out</button></>:<form onSubmit={login}><label>Email<input type="email" autoComplete="username" required value={email} onChange={e=>setEmail(e.target.value)}/></label><label>Password<input type="password" autoComplete="current-password" required value={password} onChange={e=>setPassword(e.target.value)}/></label><button disabled={!sb||busy}>{busy?'Signing in…':'Sign in'}</button></form>}
+ {account?<><p>{account}</p><button disabled={busy} onClick={()=>void logout()}>Sign out</button></>:<form onSubmit={login}><label>Email<input type="email" autoComplete="username" required value={email} onChange={e=>setEmail(e.target.value)}/></label><label>Password<input type="password" autoComplete="current-password" required value={password} onChange={e=>setPassword(e.target.value)}/></label><button disabled={!sb||busy}>{busy?'Working…':'Sign in'}</button><button type="button" disabled={!sb||busy} onClick={()=>void signup()}>Create an account</button></form>}
  </section><section aria-labelledby="orders-title"><h2 id="orders-title">My orders</h2><p role="status">{orderMessage}</p>{orders?.map(order=><article className="order" key={order.id}><strong>Order {order.id}</strong><p>{order.status} · {order.currency.toUpperCase()} {(order.subtotalCents/100).toFixed(2)}</p><small>{order.createdAt}</small></article>)}</section>
- <BusinessOnboarding/><TemplateStore/><footer>Shared account and order service. StreetVerse runs in its own page.</footer></main></>
+ <ServiceWorkbench/><BusinessOnboarding/><SupportOperatorConsole/><TemplateStore/><footer>Shared account and order service. StreetVerse runs in its own page.</footer></main></>
 }
 createRoot(document.getElementById('business-root')!).render(<BusinessBoundary><BusinessApp/></BusinessBoundary>)

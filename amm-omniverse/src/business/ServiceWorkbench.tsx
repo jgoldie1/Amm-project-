@@ -1,0 +1,26 @@
+import {useState} from 'react'
+import {getAccessToken} from '../services/supabaseClient'
+const SERVICES=[
+ {id:'jarvis',name:'Jarvis Business Copilot',price:19,detail:'Proposed: one business FAQ and 200 short text replies/month. Drafts and guidance; no autonomous purchases.'},
+ {id:'workstation',name:'Creator Workstation + AI',price:49,detail:'Proposed: project planning and 800 short text replies/month. Local project exports; no cloud GPU, video generation or storage included.'},
+ {id:'middleverse',name:'Middleverse Business Workflow',price:99,detail:'Proposed: business workflow setup and 1,500 short text replies/month. Lead qualification, handoff and approved-script planning; no supplied customers, employees or guaranteed income.'},
+] as const
+export default function ServiceWorkbench(){
+ const [mode,setMode]=useState('jarvis'),[task,setTask]=useState(''),[answer,setAnswer]=useState(''),[busy,setBusy]=useState(false),[notice,setNotice]=useState('')
+ const [project,setProject]=useState(''),[tasks,setTasks]=useState('')
+ async function ask(){
+  if(busy||!task.trim())return;setBusy(true);setNotice('Preparing a draft…')
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000)
+  try{
+   const token=await getAccessToken()
+   const response=await fetch('/api/ai/answer',{method:'POST',headers:{'content-type':'application/json',...(token?{authorization:`Bearer ${token}`}:{})},signal:controller.signal,body:JSON.stringify({question:'Act as the TRYAMM '+mode+' planning assistant. Produce a practical draft for human review. Do not claim you sent messages, contacted customers, created accounts, executed work, published a website, or earned money. Separate requirements, actions, owner approval and delivery checks. User task: '+task.slice(0,4000),history:[]})})
+   const data=await response.json();if(!response.ok||!data.ok||data.degraded||!data.answer)throw new Error('AI planning is unavailable. Your task has been kept.')
+   setAnswer(String(data.answer));setNotice('Draft ready for review. No external work or sales action was executed.')
+  }catch(error){setNotice(error instanceof Error&&error.name!=='AbortError'?error.message:'AI planning timed out. Your task is unchanged.')}
+  finally{clearTimeout(timer);setBusy(false)}
+ }
+ function save(){const record={project,tasks:tasks.split('\n').filter(Boolean),aiDraft:answer,state:'local-draft-not-executed',createdAt:new Date().toISOString()};const url=URL.createObjectURL(new Blob([JSON.stringify(record,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='TRYAMM-workstation-project.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);setNotice('Project prepared for download. No cloud save or execution has occurred.')}
+ return <section id="ai-workstation" aria-labelledby="workstation-title"><p className="eyebrow">JARVIS · WORKSTATION · MIDDLEVERSE</p><h2 id="workstation-title">Plan the work. Package the service.</h2><p>Use one business workspace to draft offers, organize projects and prepare customer handoffs. Paid subscriptions below are proposed and not activated. Existing website AI add-ons are not automatically an additional charge.</p><div className="cards">{SERVICES.map(s=><article className="card" key={s.id}><h3>{s.name}</h3><strong>${s.price}/month proposed</strong><p>{s.detail}</p><button onClick={()=>{setMode(s.id);document.getElementById('workstation-task')?.focus()}}>Try planning</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:service-inquiry',{detail:{subject:s.name+' inquiry',description:'I am interested in '+s.name+' at the proposed $'+s.price+'/month. My business needs: '}}))}>Prepare setup inquiry</button><button disabled>Subscription not activated</button></article>)}</div>
+ <label>Planning assistant<select value={mode} onChange={e=>setMode(e.target.value)}>{SERVICES.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></label><label>What are you trying to accomplish?<textarea id="workstation-task" maxLength={4000} value={task} onChange={e=>setTask(e.target.value)}/></label><p>Clicking “Create a plan” sends this task to HoloGPT and its AI provider. Do not enter customer secrets or patient information. Provider usage may incur cost; paid credit metering is not active.</p><button disabled={busy||!task.trim()} onClick={()=>void ask()}>{busy?'Planning…':'Create a plan'}</button><p role="status">{notice}</p>{answer&&<article className="quote"><h3>AI draft — review before using</h3><div style={{whiteSpace:'pre-wrap'}}>{answer}</div></article>}
+ <h3>Local project workstation</h3><label>Project name<input maxLength={160} value={project} onChange={e=>setProject(e.target.value)}/></label><label>Tasks — one per line<textarea maxLength={5000} value={tasks} onChange={e=>setTasks(e.target.value)}/></label><button disabled={!project.trim()} onClick={save}>Download project and plan</button><p>Refresh clears this workspace unless you download it. This is a planning workstation, not remote desktop access, an automatic worker or a movie-rendering server.</p><div className="template-actions"><a href="/workstation">Open existing Omni Workstation ↗</a><a href="/middleverse">Open existing Middleverse ↗</a><a href="/?open=hologpt">Open HoloGPT ↗</a></div></section>
+}

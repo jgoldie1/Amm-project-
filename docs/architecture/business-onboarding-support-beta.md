@@ -1,5 +1,7 @@
 # Business onboarding and support tickets — 2026-10-19
 
+Update: ticket storage and operator reply columns are now applied and database isolation checks passed. See business-workbench-activation.md for the current activation state. Earlier draft/activation notes below describe the initial implementation.
+
 Onboarding is a self-reported preparation checklist with a downloadable copy. It does not record payment, verification, hosting or publication. No data is persisted across refresh unless the customer downloads it. Customer content stays separate from backend-authoritative fulfillment status.
 
 Support UI: category, subject, description, stable client request ID, explicit submit, download draft, history and start-new controls. No screenshot required. Signed-in submission uses /api/support/tickets. State changes to submitted only after server confirmation with a reference; timeout is unconfirmed, not a guaranteed failure. Retrying preserves the request ID and the API rejects mismatched content for an already used ID.

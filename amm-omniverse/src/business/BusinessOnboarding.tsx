@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useEffect,useState} from 'react'
 import {getAccessToken} from '../services/supabaseClient'
 const STEPS=[
  ['account','Use your TRYAMM account','Sign in below with your existing account; no second game account is needed.'],
@@ -15,8 +15,9 @@ export default function BusinessOnboarding(){
  const [checked,setChecked]=useState<string[]>([]),[note,setNote]=useState('')
  const [category,setCategory]=useState('website-setup'),[subject,setSubject]=useState(''),[description,setDescription]=useState('')
  const [requestId,setRequestId]=useState(()=>crypto.randomUUID()),[busy,setBusy]=useState(false),[message,setMessage]=useState('No ticket has been submitted.')
- const [tickets,setTickets]=useState<Array<{reference:string;subject:string;status:string}>>([])
+ const [tickets,setTickets]=useState<Array<{reference:string;subject:string;status:string;reply?:string}>>([])
  const [submitted,setSubmitted]=useState(false)
+ useEffect(()=>{const receive=(event:Event)=>{const d=(event as CustomEvent<{subject:string;description:string}>).detail;if(!d)return;setRequestId(crypto.randomUUID());setSubject(d.subject.slice(0,160));setDescription(d.description.slice(0,5000));setCategory('website-setup');setSubmitted(false);setMessage('Service inquiry draft prepared. Review it, then submit when signed in.');document.getElementById('onboarding')?.scrollIntoView({block:'start'})};window.addEventListener('tryamm:service-inquiry',receive);return()=>window.removeEventListener('tryamm:service-inquiry',receive)},[])
  const record=()=>({requestId,category,subject,description,state:submitted?'submitted':'local-draft-or-unconfirmed',createdAt:new Date().toISOString()})
  async function api(method:'GET'|'POST'){
   if(busy)return;setBusy(true)
@@ -35,6 +36,6 @@ export default function BusinessOnboarding(){
  <h3>Support tickets</h3><p>Describe what you need—no screenshot required. Submission requires sign-in and an activated support service. No live chat, emergency service or guaranteed response time is provided.</p>
  <form onSubmit={e=>{e.preventDefault();void api('POST')}}><fieldset disabled={busy||submitted}><legend>New support request</legend><label>Category<select value={category} onChange={e=>setCategory(e.target.value)}><option value="website-setup">Website setup</option><option value="technical">Technical problem</option><option value="accessibility">Accessibility assistance</option><option value="billing">Billing question</option><option value="other">Other</option></select></label><label>Subject<input required minLength={3} maxLength={160} value={subject} onChange={e=>setSubject(e.target.value)}/></label><label>What do you need help with?<textarea required minLength={10} maxLength={5000} value={description} onChange={e=>setDescription(e.target.value)}/></label><button type="submit">{busy?'Submitting…':'Submit support ticket'}</button></fieldset></form>
  <p role="status">{message}</p><small>Draft/request ID: {requestId}</small><div className="template-actions"><button disabled={busy} onClick={()=>download(record(),'TRYAMM-support-ticket.json')}>Download this ticket</button><button disabled={busy} onClick={()=>void api('GET')}>View my submitted tickets</button><button disabled={busy} onClick={()=>{setRequestId(crypto.randomUUID());setSubject('');setDescription('');setSubmitted(false);setMessage('New draft. It has not been submitted.')}}>Start a new ticket</button></div>
- {tickets.map(t=><article className="order" key={t.reference}><strong>{t.reference}</strong><p>{t.subject} · {t.status}</p></article>)}
- <details><summary>What still needs activation before paid launch?</summary><ul><li>Verified checkout, signed payment confirmation and refunds.</li><li>Paid template delivery, hosting provisioning and domain verification.</li><li>Support storage, operator review queue and a published response policy.</li><li>AI usage metering, spending limits and successful-delivery accounting.</li><li>Customer terms, privacy, retention and refund policies.</li><li>Device, accessibility and end-to-end customer testing.</li></ul></details></section>
+ {tickets.map(t=><article className="order" key={t.reference}><strong>{t.reference}</strong><p>{t.subject} · {t.status}</p>{t.reply&&<p><strong>Support reply:</strong> {t.reply}</p>}</article>)}
+ <details><summary>What still needs activation before paid launch?</summary><ul><li>Verified checkout, signed payment confirmation and refunds.</li><li>Paid template delivery, hosting provisioning and domain verification.</li><li>An authorized support operator, verified submission and a published response policy.</li><li>AI usage metering, spending limits and successful-delivery accounting.</li><li>Customer terms, privacy, retention and refund policies.</li><li>Device, accessibility and end-to-end customer testing.</li></ul></details></section>
 }

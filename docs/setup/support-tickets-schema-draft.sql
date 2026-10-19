@@ -1,5 +1,5 @@
--- DRAFT FOR REVIEW AND TESTING. Not applied to production.
--- Generate a managed migration with the Supabase CLI before activation.
+-- APPLIED via managed Supabase migrations business_support_tickets and
+-- business_support_operator_replies on 2026-10-19. Reference only; do not re-run.
 create table public.tryamm_support_tickets (
  id uuid primary key default gen_random_uuid(),
  user_id uuid not null references auth.users(id) on delete cascade,
@@ -10,6 +10,8 @@ create table public.tryamm_support_tickets (
  status text not null default 'open' check (status in ('open','in_review','waiting_customer','resolved')),
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now(),
+ public_reply text not null default '' check(char_length(public_reply)<=5000),
+ updated_by uuid references auth.users(id) on delete set null,
  unique(user_id,client_request_id)
 );
 create index tryamm_support_owner_created on public.tryamm_support_tickets(user_id,created_at desc);
