@@ -114,4 +114,10 @@ function BusinessApp(){
  </section><section aria-labelledby="orders-title"><h2 id="orders-title">My orders</h2><p role="status">{orderMessage}</p>{orders?.map(order=><article className="order" key={order.id}><strong>Order {order.id}</strong><p>{order.status} · {order.currency.toUpperCase()} {(order.subtotalCents/100).toFixed(2)}</p><small>{order.createdAt}</small></article>)}</section>
  <ServiceWorkbench/><BetaTools/><BusinessOnboarding/><SupportOperatorConsole/><TemplateStore/><footer>Shared account and order service. StreetVerse runs in its own page.</footer></main></>
 }
-createRoot(document.getElementById('business-root')!).render(<BusinessBoundary><BusinessApp/></BusinessBoundary>)
+// Preserve explicit links used by existing tools while the default home opens the app.
+const legacyOpen=new URLSearchParams(window.location.search).has('open')
+if(legacyOpen&&(window.location.pathname==='/'||window.location.pathname==='/app')){
+ window.location.replace('/legacy-app'+window.location.search+window.location.hash)
+}else{
+ createRoot(document.getElementById('business-root')!).render(<BusinessBoundary><BusinessApp/></BusinessBoundary>)
+}
