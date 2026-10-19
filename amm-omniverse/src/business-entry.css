@@ -14,3 +14,5 @@ textarea{min-height:90px;padding:12px;border:1px solid #aebfb4;border-radius:9px
 .business-large .app-hero h1{font-size:2.4rem}.business-large .app-hero .intro{font-size:1.4rem}
 
 .pilot-invite{display:block;padding:14px 18px;background:#ede9d7;color:#17352f;border:1px solid #cfc6a0;border-radius:12px;margin:14px 0;font-weight:700}.consent-choice{display:flex;gap:12px;align-items:flex-start;line-height:1.6}.consent-choice input{width:24px;min-height:24px;flex-shrink:0;margin-top:4px}.business-contrast .pilot-invite{background:#000;color:#fff;border:2px solid #fff}
+
+.template-item-row{display:grid;gap:12px;border:1px solid #d7dfd5;padding:16px;border-radius:10px;min-width:0}.template-form input,.template-form textarea{width:100%;min-width:0}#template-manager{scroll-margin-top:20px}#template-manager>details>button{margin:14px 0}#template-manager .demo-art span{font-size:42px;overflow-wrap:anywhere;padding:10px}

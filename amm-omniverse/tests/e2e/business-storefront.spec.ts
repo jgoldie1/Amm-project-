@@ -1,5 +1,5 @@
 import {test,expect,devices} from '@playwright/test'
-const ids=['Beautyverse','Stubbs Mobility','OmniCare 360','Barber & Loctician','Food & Catering','Faith & Community','Security Services','Music & Creator','Local Professional','Marketplace Seller']
+const ids=['Beautyverse','Stubbs Mobility','OmniCare 360','Barber & Loctician','Food & Catering','Faith & Community','Security Services','Music & Creator','Local Professional','Marketplace Seller','Cleaning & Home Care','Home Repair & Trades','Real Estate & Property','Fashion & Boutique','Tutoring & Classes','Fitness & Coaching']
 test.beforeEach(async({page})=>{
  await page.route('**/api/**',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({ok:false,error:'Service unavailable in isolated UI test'})}))
 })
@@ -7,7 +7,7 @@ test('business home exposes all demos and never loads the game',async({page},inf
  const requests:string[]=[];page.on('request',request=>requests.push(request.url()))
  await page.goto('/business-app.html')
  await expect(page.getByRole('heading',{name:'Choose a business. Try its demo.'})).toBeVisible()
- await expect(page.locator('.catalog-card')).toHaveCount(10)
+ await expect(page.locator('.catalog-card')).toHaveCount(16)
  for(const name of ids)await expect(page.getByRole('button',{name:'Try '+name+' demo',exact:true})).toBeAttached()
  await expect(page.getByRole('link',{name:'StreetVerse · optional game ↗'})).toHaveAttribute('href','/streetverse')
  expect(requests.filter(url=>/vendor-three|rapier|maplibre|StreetVerse.*\.js/i.test(url))).toEqual([])
@@ -36,7 +36,7 @@ test('appointment demo validates input and hands off the chosen template',async(
  await demo.getByRole('button',{name:'Customize template #01',exact:true}).click()
  await expect(page.getByText('Template #01 selected. Add your details below.',{exact:true})).toBeVisible()
 })
-test('all ten demos open and return to the catalog',async({page})=>{
+test('all sixteen demos open and return to the catalog',async({page})=>{
  await page.goto('/business-app.html')
  for(const name of ids){
   await page.getByRole('button',{name:'Try '+name+' demo',exact:true}).click()
@@ -64,4 +64,52 @@ test('pilot exports an honest-review draft without advertising consent or submis
  await pilot.getByLabel('Record type').selectOption('six-month-review')
  await expect(pilot.getByLabel('What would you improve?')).toBeVisible()
  await expect(pilot.getByLabel('Overall satisfaction')).toBeVisible()
+})
+
+test('search finds a new business demo',async({page})=>{
+ await page.goto('/business-app.html')
+ await page.getByLabel('Find a business template').fill('cleaning')
+ await expect(page.locator('.catalog-card')).toHaveCount(1)
+ await page.getByRole('button',{name:'Try Cleaning & Home Care demo',exact:true}).click()
+ const demo=page.getByRole('region',{name:'Fresh Start Cleaning interactive demo'})
+ await demo.getByLabel('Your name for this demo').fill('Sample client')
+ await demo.getByRole('button',{name:'Preview service inquiry',exact:true}).click()
+ await expect(demo.getByRole('status')).toContainText('not sent to a business')
+})
+test('owner drafts can be previewed and downloaded without granting publication',async({page})=>{
+ await page.goto('/business-app.html#template-manager')
+ const studio=page.locator('#template-manager')
+ await studio.getByText('Create or manage a template listing',{exact:true}).click()
+ await studio.getByLabel('Start from a template',{exact:true}).selectOption('11')
+ await studio.getByRole('button',{name:'Start a new listing from this template',exact:true}).click()
+ await studio.getByLabel('Template name',{exact:true}).fill('My cleaning template')
+ await studio.getByLabel('Template price · USD, one time',{exact:true}).fill('79')
+ await studio.getByRole('button',{name:'Preview my template demo',exact:true}).click()
+ await expect(studio.getByRole('region',{name:'Fresh Start Cleaning interactive demo'})).toBeVisible()
+ await expect(studio.getByRole('button',{name:'Publish listing to catalog',exact:true})).toBeDisabled()
+ await studio.getByRole('button',{name:'Close demo',exact:true}).click()
+ const download=page.waitForEvent('download')
+ await studio.getByRole('button',{name:'Download listing draft',exact:true}).click()
+ expect((await download).suggestedFilename()).toBe('TRYAMM-template-listing.json')
+ await expect(studio.getByRole('status')).toContainText('not been published')
+ await studio.getByRole('button',{name:'Save draft on this device',exact:true}).click()
+ await page.reload()
+ await studio.getByText('Create or manage a template listing',{exact:true}).click()
+ await studio.getByRole('button',{name:'Restore this device’s draft',exact:true}).click()
+ await expect(studio.getByLabel('Template name',{exact:true})).toHaveValue('My cleaning template')
+ await expect(studio.getByLabel('Template price · USD, one time',{exact:true})).toHaveValue('79')
+ await expect(studio.getByRole('button',{name:'Publish listing to catalog',exact:true})).toBeDisabled()
+})
+test('a published owner template appears with its server price and customization handoff',async({page})=>{
+ const id='custom-11111111-1111-4111-8111-111111111111'
+ const listing={id,name:'Custom Travel Planning',audience:'Travel planners',headline:'Plan your next journey.',description:'A starter for trip planning inquiries.',bestFor:'Independent travel planners.',benefit:'Helps clients describe their plans.',includes:'Inquiry demo; booking is separate.',priceCents:7900,revision:1,demo:{brand:'Your Travel Studio',tagline:'Start planning your next trip.',type:'inquiry',tone:'#174a39',items:[['Travel planning inquiry',0]]}}
+ await page.route('**/api/templates/catalog',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,templates:[listing],checkoutEnabled:false})}))
+ await page.goto('/business-app.html?demo='+id)
+ const demo=page.getByRole('region',{name:'Your Travel Studio interactive demo'})
+ await expect(demo).toBeVisible()
+ await expect(page.locator('.catalog-card')).toHaveCount(17)
+ await demo.getByRole('button',{name:'Customize template #'+id,exact:true}).click()
+ await expect(page.locator('#template-store')).toContainText('Proposed price: $79 once + $0/month')
+ await expect(page.locator('#template-store').getByLabel('Headline',{exact:true})).toHaveValue('Plan your next journey.')
+ await expect(page.locator('#template-store').getByRole('button',{name:'Paid checkout & launch — not activated',exact:true})).toBeDisabled()
 })

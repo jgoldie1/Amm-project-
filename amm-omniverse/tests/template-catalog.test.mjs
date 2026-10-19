@@ -15,7 +15,7 @@ test('generated draft preserves customer details and phone/email links',()=>{
  const html=exports.generateWebsite(base);assert.ok(html.includes('mailto:owner@example.com'));assert.ok(html.includes('tel:+13125550100'));assert.ok(html.includes('<li>Hair</li><li>Nails</li>'));assert.ok(html.includes('checkout and AI are not activated'))
 })
 test('catalog contains unique stable template numbers and bounded package prices',()=>{
- assert.equal(exports.TEMPLATE_CATALOG.length,10);assert.equal(new Set(exports.TEMPLATE_CATALOG.map(t=>t.id)).size,10)
+ assert.equal(exports.TEMPLATE_CATALOG.length,16);assert.equal(new Set(exports.TEMPLATE_CATALOG.map(t=>t.id)).size,16)
  assert.equal(exports.WEBSITE_PACKAGES.find(p=>p.id==='template').price,49)
  assert.equal(exports.AI_PACKAGES.find(p=>p.id==='none').monthly,0)
 })

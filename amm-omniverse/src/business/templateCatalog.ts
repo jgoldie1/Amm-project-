@@ -10,6 +10,12 @@ export const TEMPLATE_CATALOG=[
  {id:'08',name:'Music & Creator',audience:'Artists, studios & independent labels',headline:'Your sound. Your story.'},
  {id:'09',name:'Local Professional',audience:'Consultants & professional services',headline:'Make your next step a clear one.'},
  {id:'10',name:'Marketplace Seller',audience:'Product collections & small retailers',headline:'Discover something made for you.'},
+ {'id': '11', 'name': 'Cleaning & Home Care', 'audience': 'Residential cleaners, office cleaning & turnover services', 'headline': 'A cleaner space. A simpler day.'},
+ {'id': '12', 'name': 'Home Repair & Trades', 'audience': 'Handyperson services, maintenance & qualified trades', 'headline': 'Bring your next home project into focus.'},
+ {'id': '13', 'name': 'Real Estate & Property', 'audience': 'Real estate professionals & property managers', 'headline': 'Your next property conversation starts here.'},
+ {'id': '14', 'name': 'Fashion & Boutique', 'audience': 'Fashion designers, clothing labels & accessories', 'headline': 'Wear your story. Make it yours.'},
+ {'id': '15', 'name': 'Tutoring & Classes', 'audience': 'Tutors, music teachers & independent educators', 'headline': 'Make room for your next skill.'},
+ {'id': '16', 'name': 'Fitness & Coaching', 'audience': 'Personal trainers & general fitness coaches', 'headline': 'Build a routine that fits your day.'},
 ] as const
 export const WEBSITE_PACKAGES=[
  {id:'template',name:'DIY template',price:49,description:'One business, responsive starter page and editable content. Hosting and domain separate.'},

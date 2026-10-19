@@ -1,16 +1,19 @@
 import {useEffect,useRef,useState} from 'react'
 import {getAccessToken} from '../services/supabaseClient'
 import {WEBSITE_LANGUAGES,type WebsiteLanguage} from './accessibleWebsite'
-import {TEMPLATE_CATALOG,WEBSITE_PACKAGES,AI_PACKAGES,generateWebsite,type WebsiteDetails} from './templateCatalog'
+import {WEBSITE_PACKAGES,AI_PACKAGES,generateWebsite,type WebsiteDetails} from './templateCatalog'
+import {useTemplateCatalog} from './TemplateCatalogProvider'
 export default function TemplateStore(){
+ const {templates:TEMPLATE_CATALOG}=useTemplateCatalog()
  const [template,setTemplate]=useState('01'),[tier,setTier]=useState('template'),[ai,setAi]=useState('none'),[notice,setNotice]=useState('')
  const [details,setDetails]=useState<WebsiteDetails>({name:'',headline:'Your next look starts here.',description:'',email:'',phone:'',location:'',services:'',color:'#174a39',photo:'',language:'en'})
  const [preview,setPreview]=useState('')
  const contentVersion=useRef(0)
  const [translating,setTranslating]=useState(false),[translation,setTranslation]=useState<Pick<WebsiteDetails,'headline'|'description'|'services'>|null>(null)
- useEffect(()=>{const select=(event:Event)=>{const id=(event as CustomEvent<{templateId:string}>).detail?.templateId;const chosen=TEMPLATE_CATALOG.find(t=>t.id===id);if(!chosen)return;contentVersion.current++;setTemplate(chosen.id);setDetails(old=>({...old,headline:chosen.headline}));setPreview('');setTranslation(null);setNotice('Template #'+chosen.id+' selected. Add your details below.')};window.addEventListener('tryamm:template-select',select);return()=>window.removeEventListener('tryamm:template-select',select)},[])
- const selected=TEMPLATE_CATALOG.find(t=>t.id===template)!,plan=WEBSITE_PACKAGES.find(t=>t.id===tier)!,addon=AI_PACKAGES.find(t=>t.id===ai)!
- const quote={oneTime:plan.price,monthly:addon.monthly}
+ useEffect(()=>{const select=(event:Event)=>{const id=(event as CustomEvent<{templateId:string}>).detail?.templateId;const chosen=TEMPLATE_CATALOG.find(t=>t.id===id);if(!chosen)return;contentVersion.current++;setTemplate(chosen.id);setDetails(old=>({...old,headline:chosen.headline}));setPreview('');setTranslation(null);setNotice('Template #'+chosen.id+' selected. Add your details below.')};window.addEventListener('tryamm:template-select',select);return()=>window.removeEventListener('tryamm:template-select',select)},[TEMPLATE_CATALOG])
+ const selected=(TEMPLATE_CATALOG.find(t=>t.id===template)||TEMPLATE_CATALOG[0]),plan=WEBSITE_PACKAGES.find(t=>t.id===tier)!,addon=AI_PACKAGES.find(t=>t.id===ai)!
+ const packagePrice=(base:number)=>selected.priceCents/100+(base-49)
+ const quote={oneTime:packagePrice(plan.price),monthly:addon.monthly}
  const update=(key:keyof WebsiteDetails,value:string)=>{contentVersion.current++;setDetails(d=>({...d,[key]:value}));setPreview('');setTranslation(null)}
  async function translate(){
   if(translating)return
@@ -39,7 +42,7 @@ export default function TemplateStore(){
  return <section id="template-store" aria-labelledby="template-title"><p className="eyebrow">TRYAMM WEBSITE STUDIO · BETA</p><h2 id="template-title">Pick a number. Make it your business.</h2><p>Choose an industry, add your business details and a photo, then generate a website draft. Preview creation is free during beta. Paid installation and AI subscriptions are not activated.</p>
  <div className="template-grid">{TEMPLATE_CATALOG.map(t=><button type="button" className={'template-choice '+(template===t.id?'selected':'')} aria-pressed={template===t.id} key={t.id} onClick={()=>{setTemplate(t.id);update('headline',t.headline)}}><strong>#{t.id} · {t.name}</strong><small>{t.audience}</small></button>)}</div>
  <form className="template-form" onSubmit={e=>{e.preventDefault();setPreview(generateWebsite(details));setNotice('Draft ready below. No purchase, upload or deployment has occurred.')}}>
- <h3>1. Choose your package</h3><label>Website package<select value={tier} onChange={e=>setTier(e.target.value)}>{WEBSITE_PACKAGES.map(p=><option key={p.id} value={p.id}>{p.name} — ${p.price} once</option>)}</select></label><p>{plan.description}</p>
+ <h3>1. Choose your package</h3><label>Website package<select value={tier} onChange={e=>setTier(e.target.value)}>{WEBSITE_PACKAGES.map(p=><option key={p.id} value={p.id}>{p.name} — ${packagePrice(p.price).toFixed(2)} once</option>)}</select></label><p>{plan.description}</p>
  <label>Optional AI package<select value={ai} onChange={e=>setAi(e.target.value)}>{AI_PACKAGES.map(p=><option key={p.id} value={p.id}>{p.name} — ${p.monthly}/month</option>)}</select></label><p>{addon.description} AI limits and metered delivery must be verified before subscriptions open. No automatic overage billing.</p>
  <h3>2. Language & accessibility</h3><label>Website language<select value={details.language||'en'} onChange={e=>update('language',e.target.value as WebsiteLanguage)}>{Object.entries(WEBSITE_LANGUAGES).map(([code,language])=><option key={code} value={code}>{language.name}</option>)}</select></label><p>Navigation labels use the selected language. Your business text stays as entered until you translate it. Generated drafts include skip navigation, large-text, contrast, reduced-motion and read-aloud controls; no sign-language or live-caption service is included.</p><button type="button" disabled={translating} onClick={()=>void translate()}>{translating?'Translating…':'Translate my business text with HoloGPT'}</button><p>Clicking translate sends only the headline, description and service list to HoloGPT and its configured AI provider. Photos, email and phone fields are not sent. AI usage may incur provider costs; do not include private or patient information.</p>{translation&&<div className="quote" lang={details.language} dir={WEBSITE_LANGUAGES[details.language||'en'].dir}><h4>Review translation</h4><p>{translation.headline}</p><p>{translation.description}</p><pre style={{whiteSpace:'pre-wrap'}}>{translation.services}</pre><button type="button" onClick={()=>{setDetails(old=>({...old,...translation}));setTranslation(null);setPreview('');setNotice('Reviewed translation applied to your draft.')}}>Use this translation</button><button type="button" onClick={()=>setTranslation(null)}>Keep original text</button></div>}
  <h3>3. Add your business</h3>
