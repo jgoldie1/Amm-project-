@@ -75,11 +75,26 @@ export async function loadStreetVerseMeshyCharacter(slotId:string,options:{defer
   // A failed cross-origin HEAD on slow iPhones must not suppress their actual GLB GET.
   const staticMeshyReady=publishedReady?false:(Boolean(STREETVERSE_MESHY_DURABLE_OVERRIDES[slot.id])||await assetExists(staticMeshyUrl))
   const nativeUrl=NATIVE_RESIDENT_URLS[slot.fallbackResidentIndex%NATIVE_RESIDENT_URLS.length]
-  const sourceUrl=publishedReady?published!.url:(staticMeshyReady?staticMeshyUrl:nativeUrl)
-  const nativeFallback=!publishedReady&&!staticMeshyReady
+  let sourceUrl=publishedReady?published!.url:(staticMeshyReady?staticMeshyUrl:nativeUrl)
+  let nativeFallback=!publishedReady&&!staticMeshyReady
   if(published?.url&&!publishedReady&&typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:meshy-published-asset-unavailable',{detail:{slotId:slot.id,url:published.url,fallback:nativeUrl,source:'StreetVerseMeshyCharacterRuntime'}}))
   try{
-    const gltf=await loader.loadAsync(sourceUrl)
+    let gltf:Awaited<ReturnType<typeof loader.loadAsync>>
+    try{
+      gltf=await loader.loadAsync(sourceUrl)
+    }catch(remoteError){
+      // A 402 from Supabase Storage (or any unavailable published GLB) must not
+      // erase a resident. The Native Runtime Catalog is hosted with this app,
+      // requires no Supabase request and is a real GLB rather than a fake proof.
+      if(sourceUrl===nativeUrl)throw remoteError
+      window.dispatchEvent(new CustomEvent('tryamm:meshy-character-origin-unavailable',{detail:{
+        slotId:slot.id,unavailableUrl:sourceUrl,fallbackUrl:nativeUrl,
+        reason:String(remoteError),source:'StreetVerseMeshyCharacterRuntime',
+      }}))
+      gltf=await loader.loadAsync(nativeUrl)
+      sourceUrl=nativeUrl
+      nativeFallback=true
+    }
     const object=gltf.scene
     object.name=`${nativeFallback?'native':'meshy'}-${slot.id}`
     object.userData={
