@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client'
 import {getSupabaseClient} from './services/supabaseClient'
 import './business-entry.css'
 import TemplateStore from './business/TemplateStore'
+import BusinessAccessibility from './business/BusinessAccessibility'
 
 type Order={id:string;currency:string;subtotalCents:number;status:string;createdAt:string}
 class BusinessBoundary extends Component<{children:ReactNode},{failed:boolean}>{
@@ -36,7 +37,7 @@ function BetaTools(){
   a.href=url;a.download='TRYAMM-beta-report.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)
   setNotice('Report prepared for download. It has not been sent. Attach the saved file when reporting the problem.')
  }
- return <section aria-labelledby="beta-title"><h2 id="beta-title">Small beta · test before you sell</h2>
+ return <section data-beta-diagnostics aria-labelledby="beta-title"><h2 id="beta-title">Small beta · test before you sell</h2>
  <p>Try a short clip and keep the original on your phone. This beta does not certify purchases, payouts or finished movie generation.</p>
  <ul aria-live="polite"><li><strong>Reel publishing: </strong>{status.media}</li><li><strong>Payments: </strong>{status.payments}</li><li><strong>AI video: </strong>{status.video}</li></ul>
  <details><summary>Report a problem — no screenshot needed</summary><p>Describe the problem below. Do not include passwords, payment details or private customer information. The report stays here until you download and share it.</p>
@@ -89,8 +90,8 @@ function BusinessApp(){
   catch{setMessage('Sign-out failed. Please retry.')}
   finally{setBusy(false)}
  }
- return <><header><a className="brand" href="/business-app.html">TRYAMM <span>BUSINESS</span></a><a href="/streetverse">Open StreetVerse ↗</a></header>
- <main><p className="eyebrow">SHOP · CREATE · DO BUSINESS</p><h1>Your business.<br/>One connected account.</h1><p className="intro">Reach your shops, creator tools and orders without opening the 3D world.</p>
+ return <><a className="skip-link" href="#business-content">Skip to main content</a><header><a className="brand" href="/business-app.html">TRYAMM <span>BUSINESS</span></a><a href="/streetverse">Open StreetVerse ↗</a></header>
+ <main id="business-content" tabIndex={-1}><BusinessAccessibility/><p className="eyebrow">SHOP · CREATE · DO BUSINESS</p><h1>Your business.<br/>One connected account.</h1><p className="intro">Reach your shops, creator tools and orders without opening the 3D world.</p>
  <a className="studio-jump" href="#template-store">Build your website · templates from $49 ↓</a><BetaTools/><nav aria-label="Business tools" className="cards">
  {[
  ['/marketplace','Shop','Browse the marketplace'],['/business','Sell & manage','Open business tools'],['/create','Create','Open Reel and creator tools'],['/earnings','Earnings','Review earnings and payout status'],['/beauty-supply','Beautyverse','Open beauty business tools'],['/mobility360.html','Stubbs Mobility','Open mobility services']
