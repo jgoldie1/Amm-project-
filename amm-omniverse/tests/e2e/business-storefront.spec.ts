@@ -80,7 +80,7 @@ test('owner drafts can be previewed and downloaded without granting publication'
  await page.goto('/business-app.html#template-manager')
  const studio=page.locator('#template-manager')
  await studio.getByText('Create or manage a template listing',{exact:true}).click()
- await studio.getByLabel('Start from a template',{exact:true}).selectOption('11')
+ await studio.getByRole('combobox',{name:'Start from a template',exact:true}).selectOption('11')
  await studio.getByRole('button',{name:'Start a new listing from this template',exact:true}).click()
  await studio.getByLabel('Template name',{exact:true}).fill('My cleaning template')
  await studio.getByLabel('Template price · USD, one time',{exact:true}).fill('79')
