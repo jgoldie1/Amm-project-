@@ -9,6 +9,38 @@ class BusinessBoundary extends Component<{children:ReactNode},{failed:boolean}>{
  static getDerivedStateFromError(){return {failed:true}}
  render(){return this.state.failed?<main><h1>TRYAMM Business</h1><p>This page could not open. Your orders have not been changed.</p><a href="/business-app.html">Try again</a></main>:this.props.children}
 }
+function BetaTools(){
+ const [status,setStatus]=useState({media:'Checking…',payments:'Checking…',video:'Checking…'})
+ const [steps,setSteps]=useState(''),[actual,setActual]=useState(''),[expected,setExpected]=useState(''),[notice,setNotice]=useState('')
+ useEffect(()=>{
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000)
+  let active=true
+  const check=async(key:'media'|'payments'|'video',path:string)=>{
+   try{
+    const response=await fetch(path,{signal:controller.signal,cache:'no-store'})
+    const data=await response.json()
+    const text=key==='media'?(response.ok&&data.signedUploads&&data.verifiedPlayback?'Service available — publishing still needs a test.':'Cloud publishing unavailable. Keep your original file.'):
+     key==='payments'?(response.ok&&data.stripeConfigured?'Payment setup detected — purchases are not beta-verified.':'Payments unavailable. Do not buy credits during this beta.'):
+     (response.ok&&data.configured?'Video provider configured — completed rendering not verified.':'AI video generation unavailable. Script and scene planning can still be tested.')
+    if(active)setStatus(old=>({...old,[key]:text}))
+   }catch{if(active)setStatus(old=>({...old,[key]:'Status unavailable. This feature is not verified ready.'}))}
+  }
+  void Promise.all([check('media','/api/media/health'),check('payments','/api/payments/status'),check('video','/api/media/happy-horse')]).finally(()=>clearTimeout(timer))
+  return()=>{active=false;clearTimeout(timer);controller.abort()}
+ },[])
+ function saveReport(event:React.FormEvent){
+  event.preventDefault()
+  const body=['TRYAMM beta problem report',new Date().toISOString(),'Page: /business-app','What I tapped:',steps,'What happened:',actual,'What I expected:',expected].join('\n')
+  const url=URL.createObjectURL(new Blob([body],{type:'text/plain;charset=utf-8'})),a=document.createElement('a')
+  a.href=url;a.download='TRYAMM-beta-report.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)
+  setNotice('Report prepared for download. It has not been sent. Attach the saved file when reporting the problem.')
+ }
+ return <section aria-labelledby="beta-title"><h2 id="beta-title">Small beta · test before you sell</h2>
+ <p>Try a short clip and keep the original on your phone. This beta does not certify purchases, payouts or finished movie generation.</p>
+ <ul aria-live="polite"><li><strong>Reel publishing: </strong>{status.media}</li><li><strong>Payments: </strong>{status.payments}</li><li><strong>AI video: </strong>{status.video}</li></ul>
+ <details><summary>Report a problem — no screenshot needed</summary><p>Describe the problem below. Do not include passwords, payment details or private customer information. The report stays here until you download and share it.</p>
+ <form onSubmit={saveReport}><label>What did you tap?<textarea required maxLength={2000} value={steps} onChange={e=>setSteps(e.target.value)}/></label><label>What happened?<textarea required maxLength={2000} value={actual} onChange={e=>setActual(e.target.value)}/></label><label>What did you expect?<textarea required maxLength={2000} value={expected} onChange={e=>setExpected(e.target.value)}/></label><button>Download problem report</button></form><p role="status">{notice}</p></details></section>
+}
 function BusinessApp(){
  const [email,setEmail]=useState(''),[password,setPassword]=useState('')
  const [account,setAccount]=useState<string|null>(null),[message,setMessage]=useState('Checking your account…'),[busy,setBusy]=useState(false)
@@ -58,7 +90,7 @@ function BusinessApp(){
  }
  return <><header><a className="brand" href="/business-app.html">TRYAMM <span>BUSINESS</span></a><a href="/streetverse">Open StreetVerse ↗</a></header>
  <main><p className="eyebrow">SHOP · CREATE · DO BUSINESS</p><h1>Your business.<br/>One connected account.</h1><p className="intro">Reach your shops, creator tools and orders without opening the 3D world.</p>
- <nav aria-label="Business tools" className="cards">
+ <BetaTools/><nav aria-label="Business tools" className="cards">
  {[
  ['/marketplace','Shop','Browse the marketplace'],['/business','Sell & manage','Open business tools'],['/create','Create','Open Reel and creator tools'],['/earnings','Earnings','Review earnings and payout status'],['/beauty-supply','Beautyverse','Open beauty business tools'],['/mobility360.html','Stubbs Mobility','Open mobility services']
  ].map(([href,title,detail])=><a className="card" key={href} href={href}><h2>{title} ↗</h2><p>{detail}</p></a>)}
