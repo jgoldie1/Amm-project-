@@ -11,8 +11,8 @@ test('four real stored Supabase GLBs remain preferred for Circle Park mobile',()
     assert.ok(slots.includes("'"+slot+"':"),'missing durable override '+slot)
     assert.ok(mobile.includes("'"+slot+"'"),'missing mobile placement '+slot)
   }
-  assert.match(runtime,/const sourceUrl=publishedReady\?published!\.url:\(staticMeshyReady\?staticMeshyUrl:nativeUrl\)/)
-  assert.match(runtime,/const nativeFallback=!publishedReady&&!staticMeshyReady/)
+  assert.match(runtime,/let sourceUrl=publishedReady\?published!\.url:\(staticMeshyReady\?staticMeshyUrl:nativeUrl\)/)
+  assert.match(runtime,/let nativeFallback=!publishedReady&&!staticMeshyReady/)
 })
 
 test('download separate walk and run GLBs concurrently, retain clip ordering and failure isolation',()=>{
@@ -26,7 +26,7 @@ test('download separate walk and run GLBs concurrently, retain clip ordering and
 })
 
 test('existing native resident rendering fallback is still intact',()=>{
-  assert.ok(runtime.includes('const sourceUrl=publishedReady?published!.url:(staticMeshyReady?staticMeshyUrl:nativeUrl)'))
+  assert.ok(runtime.includes('let sourceUrl=publishedReady?published!.url:(staticMeshyReady?staticMeshyUrl:nativeUrl)'))
   assert.ok(runtime.includes('upgradePending:nativeFallback'))
   assert.ok(runtime.includes('tryamm:meshy-character-fallback'))
   assert.ok(runtime.includes('resetStreetVerseMeshyAvailabilityCache()'))

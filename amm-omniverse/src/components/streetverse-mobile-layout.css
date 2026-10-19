@@ -137,7 +137,8 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
     left: calc(50% - 6px) !important;
   }
   /* Reel record was rendering exactly under the live-mic button; give it the row below. */
-  [data-streetverse-world-root] [aria-label="Start StreetVerse Reel recording"] {
+  [data-streetverse-world-root] [aria-label="Start StreetVerse Reel recording"],
+  [data-streetverse-world-root] [aria-label="Stop StreetVerse Reel recording"] {
     top: calc(env(safe-area-inset-top) + 64px) !important;
     bottom: auto !important;
   }
@@ -150,13 +151,15 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
  */
 @media (max-width: 480px) and (orientation: portrait) {
   [data-streetverse-world-root] [data-streetverse-mission] {
-    top: calc(env(safe-area-inset-top) + 96px) !important;
+    /* The 46px recorder occupies y=64..110, including while recording. */
+    top: calc(env(safe-area-inset-top) + 116px) !important;
     left: 50% !important;
     right: auto !important;
     width: min(78vw, 304px) !important;
     max-width: min(78vw, 304px) !important;
     transform: translateX(-50%) !important;
-    max-height: 52px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
     padding: 4px 8px !important;
     border-radius: 10px !important;
     line-height: 1.05 !important;
@@ -290,4 +293,94 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
     content: "☁";
     font-size: 13px;
   }
+}
+
+/*
+ * SV iPhone focus mode V12 — real-user portrait gameplay evidence (Oct 12).
+ * The old vertically stacked shop/repair/creator HUD covers the playable city.
+ * Keep MOVE, the active interaction and mission visible. All removed launch
+ * buttons remain mounted and available through the StreetVerse ⋯ quick menu,
+ * and the user can restore the complete HUD at any time.
+ *
+ * Important: NEVER hide stop-recording or stop-microphone controls once active.
+ */
+@media (max-width: 540px) and (orientation: portrait) {
+  body:has([data-streetverse-world-root][data-hud-focus="true"]) #sv-store-open,
+  body:has([data-streetverse-world-root][data-hud-focus="true"]) #sv-retail-open,
+  body:has([data-streetverse-world-root][data-hud-focus="true"]) [data-streetverse-create-earn],
+  body:has([data-streetverse-world-root][data-hud-focus="true"]) [aria-label="Open Universal Mission Director"],
+  body:has([data-streetverse-world-root][data-hud-focus="true"]) [aria-label="Open repair actions"],
+  body:has([data-streetverse-world-root][data-hud-focus="true"]) [data-streetverse-travel],
+  body:has([data-streetverse-world-root][data-hud-focus="true"]) [aria-label="Start StreetVerse Reel recording"],
+  body:has([data-streetverse-world-root][data-hud-focus="true"]) [aria-label="Start live BJ microphone"] {
+    display: none !important;
+  }
+
+  /* Mission remains usable; stop it from covering the park and guard gate. */
+  [data-streetverse-world-root][data-hud-focus="true"] [data-streetverse-mission] {
+    top: calc(env(safe-area-inset-top) + 72px) !important;
+    left: 50% !important;
+    right: auto !important;
+    width: min(78vw, 296px) !important;
+    max-width: 296px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    padding: 5px 10px !important;
+    font-size: 9px !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 12px #0009 !important;
+    transform: translateX(-50%) !important;
+  }
+  [data-streetverse-world-root][data-hud-focus="true"] [data-streetverse-mission] [data-mission-objective],
+  [data-streetverse-world-root][data-hud-focus="true"] [data-streetverse-mission] [data-mission-action] {
+    display: none !important;
+  }
+
+  /* Primary context button sits opposite the analog controller. */
+  [data-streetverse-world-root][data-hud-focus="true"] [data-streetverse-context] {
+    left: auto !important;
+    right: max(12px, env(safe-area-inset-right)) !important;
+    bottom: calc(env(safe-area-inset-bottom) + 100px) !important;
+    width: 126px !important;
+    min-width: 126px !important;
+    max-width: 126px !important;
+    min-height: 50px !important;
+    padding: 7px 8px !important;
+    border: 1px solid #77e8ff !important;
+    border-radius: 15px !important;
+    box-shadow: 0 2px 14px #000a !important;
+  }
+  [data-streetverse-world-root][data-hud-focus="true"][data-control-side="right"] [data-streetverse-context] {
+    left: max(12px, env(safe-area-inset-left)) !important;
+    right: auto !important;
+  }
+  [data-streetverse-world-root][data-hud-focus="true"] [aria-label="StreetVerse analog joystick"] {
+    width: 98px !important;
+    height: 98px !important;
+    left: max(12px, env(safe-area-inset-left)) !important;
+    right: auto !important;
+    bottom: calc(env(safe-area-inset-bottom) + 12px) !important;
+    background: rgba(2,12,22,.43) !important;
+    border: 2px solid #66dfff !important;
+    box-shadow: 0 1px 12px #0009 !important;
+  }
+  [data-streetverse-world-root][data-hud-focus="true"][data-control-side="right"] [aria-label="StreetVerse analog joystick"] {
+    left: auto !important;
+    right: max(12px, env(safe-area-inset-right)) !important;
+  }
+
+  /* Camera and shoulder actions remain in ⋯ → CAMERA in this state. */
+  [data-streetverse-world-root][data-hud-focus="true"] [data-streetverse-camera-control],
+  [data-streetverse-world-root][data-hud-focus="true"] [aria-label="Switch third person shoulder"] {
+    display: none !important;
+  }
+
+  /* Reels and BJ microphone remain stoppable even while focus mode is active. */
+  [data-streetverse-world-root][data-hud-focus="true"] [aria-label="Stop StreetVerse Reel recording"],
+  [data-streetverse-world-root][data-hud-focus="true"] [aria-label="Stop live BJ microphone"] {
+    display: inline-flex !important;
+  }
+
+  /* Do not remove the exit, menu, HUD-unlock, accessibility or safety dialogs. */
 }

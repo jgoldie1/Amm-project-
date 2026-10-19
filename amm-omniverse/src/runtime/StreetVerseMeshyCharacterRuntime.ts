@@ -120,7 +120,9 @@ export async function loadStreetVerseMeshyCharacter(slotId:string,options:{defer
     const visualMaterials=tuneStreetVerseCharacterMaterials(object)
     object.userData={...object.userData,characterVisualPass:'west-side-character-v3',productionMaterialPass:true,texturePipeline:'pbr-mobile-character-v3',visualMaterials}
     const staticStem=staticMeshyUrl.replace(/\.glb$/i,'')
-    const companionSources=publishedReady
+    // Remote clips target the remote skeleton. Do not fetch or apply them after
+    // replacing that model with a bundled resident during a storage outage.
+    const companionSources=nativeFallback?[]:publishedReady
       ?[[published?.walkUrl,'walk'],[published?.runUrl,'run']]
       :staticMeshyReady
         ?[[`${staticStem}.walk.glb`,'walk'],[`${staticStem}.run.glb`,'run']]

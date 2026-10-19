@@ -1,0 +1,43 @@
+import fs from 'node:fs'
+import assert from 'node:assert/strict'
+const read=path=>fs.readFileSync(new URL('../'+path,import.meta.url),'utf8')
+const services=read('src/runtime/PKHoloServicesBridge.ts')
+const story=read('src/runtime/PKLivingWorldsBridge.ts')
+const arena=read('src/components/PKLivingWorldsArena.tsx')
+const launcher=read('src/components/HoloExperienceLauncher.tsx')
+const holoverse=read('src/components/HoloverseHub.tsx')
+const middleverse=read('src/components/MiddleverseWorkstation.tsx')
+const delivery=read('src/components/HoloDeliveryCenter.tsx')
+const route=read('src/main.tsx')
+const ids=['music','menu','ride','delivery','drone','ads','lingo','guardian','builder','logistics','marketplace','reels']
+for(const id of ids){
+ assert.ok(services.includes("id:'"+id+"'"),'PK Holo Service registry missing: '+id)
+}
+assert.match(services,/providerActionAuthorized:false/)
+assert.match(services,/payable:false/)
+assert.match(services,/worldMutationAuthorized:false/)
+assert.match(services,/previewOnly:true/)
+assert.match(services,/rightsReviewRequired:service\.requiresRights/)
+assert.match(services,/status:'PROVIDER_GATED'/)
+assert.match(arena,/PK_HOLO_SERVICES\.map/)
+assert.match(arena,/buildPKHoloServicePreview\(draft,id\)/)
+assert.match(arena,/tryamm:pk-holo-service-preview/)
+assert.match(arena,/__showHoloDelivery/)
+assert.match(arena,/__showHoloServices/)
+assert.match(arena,/sessionStorage\.setItem\('tryamm\.pk\.middleverse-production-brief\.v1'/)
+assert.match(arena,/sessionStorage\.setItem\('tryamm\.pk\.holoverse-scene-preview\.v1'/)
+assert.match(arena,/tryamm:holo-social-open/)
+assert.match(launcher,/tryamm:pk-story-open/)
+assert.match(holoverse,/label:'PK Living Worlds'/)
+assert.match(holoverse,/pkScene&&/)
+assert.match(middleverse,/PK Story production brief/)
+assert.match(middleverse,/not posted jobs or verified paid work/)
+assert.match(story,/verifiedWork:false,customerFunded:false,payable:false/)
+for(const slug of ['/holo-food','/holo-ride-share','/holo-music']){
+ assert.ok(route.includes("'"+slug+"'"),'Existing route missing: '+slug)
+}
+assert.match(delivery,/onClick=\{\(\)=>setSelectedMenu\(name\)\}/)
+assert.match(delivery,/Real checkout gated/)
+assert.doesNotMatch(services,/fetch\s*\(/,'Preview service layer must not call outside providers')
+assert.doesNotMatch(services,/window\.location/,'Service registry must not silently navigate or take real action')
+console.log('PK LIVING WORLDS / ALL 12 HOLO SERVICES: PASS (source-contract only; real device, stream, provider and settlement E2E not asserted)')

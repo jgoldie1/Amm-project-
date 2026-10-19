@@ -1,0 +1,48 @@
+name: StarVerse Creator Operations Wiring Gate
+
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/runtime/StarVerseCreatorOperations.ts'
+      - 'amm-omniverse/src/components/StarVerseCreatorOperationsPanel.tsx'
+      - 'amm-omniverse/src/components/StarVerseNetworkStudio.tsx'
+      - 'amm-omniverse/tests/starverse-creator-ops-crossverse-contract.mjs'
+      - '.github/workflows/starverse-creator-operations-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: starverse-creator-ops-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  creator-ops:
+    name: Creator operations safety, runtime contracts and typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verify state normalization, consent limits and wiring
+        run: node tests/starverse-creator-ops-crossverse-contract.mjs
+      - name: Verify existing StarVerse Isaiah TV production handoffs
+        run: node tests/starverse-isaiah-network-production-contract.mjs
+      - name: Verify PK Living Worlds Holo Services preservation
+        run: node tests/pk-living-worlds-holo-services-contract.mjs
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Publish scope warning
+        if: always()
+        run: |
+          echo 'Local preview, not a public talent application, identity-verification service, rights clearance, online contest, ad booking, paid sponsor exchange, remote translation service, earnings tracker or live broadcast.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No Vercel deployment, media generation, provider booking or payments are triggered by this gate.' >> "$GITHUB_STEP_SUMMARY"
