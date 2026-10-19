@@ -12,7 +12,8 @@ test('business home exposes all demos and never loads the game',async({page},inf
  await expect(page.getByRole('link',{name:'StreetVerse · optional game ↗'})).toHaveAttribute('href','/streetverse')
  expect(requests.filter(url=>/vendor-three|rapier|maplibre|StreetVerse.*\.js/i.test(url))).toEqual([])
  await expect(page.locator('canvas')).toHaveCount(0)
- await page.screenshot({path:info.outputPath('business-home.png'),fullPage:true})
+ await page.screenshot({path:info.outputPath('business-home.png'),fullPage:false})
+ await page.locator('.catalog-card').first().screenshot({path:info.outputPath('first-business-demo.png')})
 })
 test('shopping demo totals items and previews checkout without a purchase',async({page})=>{
  await page.goto('/business-app.html')
