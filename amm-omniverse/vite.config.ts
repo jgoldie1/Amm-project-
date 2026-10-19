@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import {assertSafePublicEnv} from './scripts/public-env-guard.mjs'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), {name:'safe-public-environment',configResolved(config){assertSafePublicEnv({...process.env,...config.env})}}],
   resolve: {
     alias: [
       {

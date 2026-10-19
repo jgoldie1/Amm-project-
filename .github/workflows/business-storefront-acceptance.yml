@@ -23,7 +23,7 @@ jobs:
    - run: npm ci --ignore-scripts --no-audit --no-fund
    - run: node tests/live-business-preservation.mjs
    - run: npm run typecheck
-   - run: node --test tests/support-tickets.test.mjs tests/support-authority.test.mjs tests/template-catalog.test.mjs tests/template-listings.test.mjs
+   - run: node --test tests/support-tickets.test.mjs tests/support-authority.test.mjs tests/template-catalog.test.mjs tests/template-listings.test.mjs tests/public-env-guard.test.mjs
    - run: npm run build
    - run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund @playwright/test@1.57.0
    - run: npx playwright install --with-deps chromium webkit
