@@ -7,6 +7,8 @@ on:
       - 'amm-omniverse/src/components/StreetVerseDistrictDominionPanel.tsx'
       - 'amm-omniverse/src/components/StreetVerseGeoSpawnBridge.tsx'
       - 'amm-omniverse/tests/streetverse-district-dominion-contract.mjs'
+      - 'amm-omniverse/tests/e2e/streetverse-district-dominion.spec.ts'
+      - 'amm-omniverse/playwright.district-dominion.config.ts'
       - '.github/workflows/streetverse-district-dominion-gate.yml'
   workflow_dispatch:
 
@@ -39,6 +41,14 @@ jobs:
         run: npm run typecheck
       - name: Build app locally without publishing
         run: npx vite build
+      - name: Install temporary Playwright test runner
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund @playwright/test@1.57.0
+      - name: Install single test browser
+        run: npx playwright install --with-deps chromium
+      - name: Exercise one-hand phone interactions on unpublished preview
+        run: npx playwright test --config=playwright.district-dominion.config.ts --project=mobile-chromium --workers=1
+        env:
+          CI: 'true'
       - name: Report scope
         if: always()
         run: |
