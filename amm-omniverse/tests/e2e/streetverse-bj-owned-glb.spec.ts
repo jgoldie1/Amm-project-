@@ -8,7 +8,7 @@ test.use({
   hasTouch:true,
 })
 
-test('owned BJ V12 or V7 GLB replaces the basic hero on iPhone-sized Circle Park',async({page},testInfo)=>{
+test('owned BJ V15 / V12 GLB replaces the basic hero on iPhone-sized Circle Park',async({page},testInfo)=>{
   test.setTimeout(120_000)
   await page.addInitScript(()=>{
     const ready:Array<{url?:string;assetId?:string}>=[]
@@ -21,7 +21,7 @@ test('owned BJ V12 or V7 GLB replaces the basic hero on iPhone-sized Circle Park
   await expect(page.locator('canvas').first()).toBeVisible({timeout:30_000})
   await page.waitForFunction(()=>{
     const proof=(window as unknown as {__bjOwnedAssetProof:Array<{url:string}>}).__bjOwnedAssetProof||[]
-    return proof.some(event=>/SV_HERO_BJ_STUBBS_V(?:12|7|6)\.glb/.test(event.url||''))
+    return proof.some(event=>/SV_HERO_BJ_STUBBS_V(?:15|12|7|6)\.glb/.test(event.url||''))
   },null,{timeout:80_000})
   const results=await page.evaluate(()=>((window as unknown as {__bjOwnedAssetProof:Array<{url:string}>}).__bjOwnedAssetProof||[]))
   expect(results.length).toBeGreaterThan(0)

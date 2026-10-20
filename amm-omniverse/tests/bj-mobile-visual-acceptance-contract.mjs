@@ -26,7 +26,7 @@ must(photo.includes("bj-v10-upper-lip-volume")&&photo.includes("bj-v10-mouth-lin
 must(photo.includes("facialLandmarksV10:true"),'V10 readiness evidence must report facial-landmark geometry')
 must(photo.includes("volumetricHeadV10:true"),'V10 readiness evidence must report volumetric head geometry')
 must(photo.includes("frontFacingReference:true"),'photo-head evidence must record front-facing authority')
-must(photo.includes("emissiveIntensity:.10"),'photo-head must remain readable under mobile scene lighting')
+must(photo.includes("emissiveIntensity:options?.lighting==='studio'?.025:.10"),'Game must keep readable mobile lighting while studio mode uses softer reference values')
 must(photo.includes('featherPhotoTexture'),'approved photo must use feathered edge blending')
 must(photo.includes('featheredPhotoBlend:true'),'photo-head readiness evidence must report feathered blend')
 

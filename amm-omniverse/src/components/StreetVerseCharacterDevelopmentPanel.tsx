@@ -23,6 +23,14 @@ export default function StreetVerseCharacterDevelopmentPanel({onClose}:{onClose:
    <div><small style={{fontWeight:950,color:'#d7b45f',letterSpacing:2}}>STREETVERSE • CHARACTER DNA V1</small><h1 style={{margin:'4px 0'}}>{BJ_STUBBS_DNA.displayName}</h1><div style={{fontSize:11,color:'#9fb2c1'}}>{BJ_STUBBS_DNA.role} • identity continuity locked</div></div>
    <button onClick={onClose} aria-label="Close character development" style={{width:48,height:48,borderRadius:24,border:'1px solid #465564',background:'#101923',color:'#fff',fontSize:24}}>×</button>
   </header>
+  <section aria-label="BJ character preview shortcuts" style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8,marginTop:14}}>
+   <button onClick={()=>{
+    if(!document.querySelector('[data-streetverse-world-root="true"]')){window.location.assign('/bj-v10-preview');return}
+    onClose()
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-showcase',{detail:{source:'character-development-panel'}}))
+   }} style={{minHeight:50,borderRadius:12,border:'1px solid #78d9ff',background:'#113245',color:'#fff',fontWeight:900}}>👤 SHOW BJ IN 3D</button>
+   <button onClick={()=>window.location.assign('/bj-v10-preview')} style={{minHeight:50,borderRadius:12,border:'1px solid #af9165',background:'#2d2419',color:'#fff',fontWeight:900}}>🔎 INSPECT BJ FACE</button>
+  </section>
   <section style={{marginTop:14,padding:14,borderRadius:16,border:'1px solid #3e4c57',background:'#0a1219'}}>
    <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline'}}><strong>LEVEL {state.level}</strong><small>{state.xp} XP • SERVER AUTHORITY</small></div>
    <div style={{height:12,marginTop:8,borderRadius:99,background:'#1b2730',overflow:'hidden'}}><div style={{height:'100%',width:pct+'%',background:'linear-gradient(90deg,#d6a84a,#f3d37d)'}}/></div>

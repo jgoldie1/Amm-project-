@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import * as THREE from 'three'
 import {GLTFExporter} from 'three/examples/jsm/exporters/GLTFExporter.js'
+import {mergeGeometries} from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 
 if(typeof globalThis.FileReader==='undefined'){
   globalThis.FileReader=class FileReader{
@@ -669,6 +670,96 @@ function addBJStubbsCharacter(group,x,z,mats){
   }
 }
 
+/**
+ * BJ V15 character-only topology pass. Created from locally generated
+ * THREE geometry, no third-party photogrammetry or paid model credits.
+ * The final approved photo layer remains the likeness reference, not proof
+ * that this procedural skull is an exact biometric match.
+ * The old 'streetverse-hero-player.glb' is deliberately untouched.
+ */
+function addBJStubbsFacialSculptV15(group){
+ const pivot=group.getObjectByName('rig-head')
+ if(!pivot)throw new Error('BJ V15 sculpt: native BJ rig-head is required')
+ const skin=new THREE.MeshStandardMaterial({name:'bj-v15-natural-skin',color:0x70462f,roughness:.62,metalness:0})
+ const skinCrease=new THREE.MeshStandardMaterial({name:'bj-v15-subtle-facial-creases',color:0x593a2d,roughness:.92,metalness:0})
+ const beardBase=new THREE.MeshStandardMaterial({name:'bj-v15-beard-charcoal',color:0x211b19,roughness:.96,metalness:0})
+ const beardSilver=new THREE.MeshStandardMaterial({name:'bj-v15-silver-gray-hairs',color:0x968f89,roughness:.95,metalness:0})
+ const hairBase=new THREE.MeshStandardMaterial({name:'bj-v15-locs-dark',color:0x191412,roughness:.88,metalness:0})
+ const hairGray=new THREE.MeshStandardMaterial({name:'bj-v15-locs-silver',color:0x6b6661,roughness:.93,metalness:0})
+ const irisRing=new THREE.MeshStandardMaterial({name:'bj-v15-iris-limbal-ring',color:0x181311,roughness:.24,metalness:0})
+ // Replace the chunky V12 loc capsules only in this separately authored V15
+ // source; V12, V7 and V6 compatibility outputs remain unchanged.
+ const oldLocNames=new Set(['bj-pulled-loc','bj-v4-shoulder-loc','bj-rear-loc-bundle'])
+ group.traverse(node=>{
+  if(oldLocNames.has(node.name))node.visible=false
+ })
+ const details=new THREE.Group();details.name='bj-v15-reference-led-facial-sculpt'
+ details.userData={characterId:'bj-stubbs',likenessCertified:false,surfacePass:'facial-volume-beard-locs-eye-highlights-v15',runtimeLOD:'hero-only'}
+ pivot.add(details)
+ const strandBuckets={darkBeard:[],grayBeard:[],darkLocs:[],grayLocs:[]}
+ const strand=(bucket,positions,radius)=>{
+  const path=new THREE.CatmullRomCurve3(positions.map(([x,y,z])=>new THREE.Vector3(x,y,z)))
+  bucket.push(new THREE.TubeGeometry(path,11,radius,5,false))
+ }
+ // Fine tapered-looking beard silhouette, with independent darker and gray
+ // clusters; one merged mesh per tone instead of >60 draw calls on iPhones.
+ for(let i=0;i<48;i++){
+  const u=(i+.5)/48,side=(u*2-1)
+  const x=side*.20,offset=Math.abs(side)
+  const y=-.19-.055*(1-offset)
+  const z=.275-.047*offset
+  const length=.115+.13*(1-offset)+((i*7)%5)*.014
+  const dst=(i%4===0||i%7===0)?strandBuckets.grayBeard:strandBuckets.darkBeard
+  strand(dst,[[x,y,z],[x+side*.009,y-length*.44,z+.016],[x+side*.023,y-length,z+.004]],.0043+(i%3)*.0009)
+ }
+ // Behind the face: curved pulled-back locs with subtly irregular strands
+ // to avoid the rigid parallel capsule silhouette of the V12 model.
+ for(let i=0;i<22;i++){
+  const along=(i/21)*2-1,arc=Math.sin((i/21)*Math.PI)
+  const x=along*.28
+  const z=-.26-.055*arc
+  const y=.11+(i%3)*.018
+  const dst=i%9===0?strandBuckets.grayLocs:strandBuckets.darkLocs
+  strand(dst,[[x,y,z],[x*.88,-.20,z-.10],[x*.90,-.58-(i%4)*.04,z-.17],[x+along*.03,-.94-(i%5)*.065,z-.13]],.011+(i%4)*.002)
+ }
+ const mergeBucket=(name,geometries,material)=>{
+  if(!geometries.length)return
+  const merged=mergeGeometries(geometries,false)
+  if(!merged)throw new Error('BJ V15 sculpt: cannot merge '+name)
+  const mesh=new THREE.Mesh(merged,material);mesh.name=name;mesh.castShadow=false;mesh.receiveShadow=false
+  mesh.userData={...mesh.userData,characterId:'bj-stubbs',geometryPass:'v15-head-detail',mergedStrands:geometries.length,notACertifiedLikeness:true}
+  details.add(mesh)
+  geometries.forEach(geometry=>geometry.dispose())
+ }
+ mergeBucket('bj-v15-beard-dark-merged',strandBuckets.darkBeard,beardBase)
+ mergeBucket('bj-v15-beard-silver-merged',strandBuckets.grayBeard,beardSilver)
+ mergeBucket('bj-v15-locs-dark-merged',strandBuckets.darkLocs,hairBase)
+ mergeBucket('bj-v15-locs-silver-merged',strandBuckets.grayLocs,hairGray)
+ // A small amount of real silhouette depth around the eyes and jaw supports
+ // profile shots. No opaque faceplate is introduced over the photo layer.
+ for(const side of [-1,1]){
+  const cheek=new THREE.Mesh(new THREE.SphereGeometry(1,24,16),skin)
+  cheek.name=side<0?'bj-v15-cheekbone-left':'bj-v15-cheekbone-right'
+  cheek.scale.set(.088,.068,.032);cheek.position.set(side*.177,-.048,.262)
+  details.add(cheek)
+  const browCurve=new THREE.CatmullRomCurve3([
+   new THREE.Vector3(side*.058,.167,.32),
+   new THREE.Vector3(side*.112,.174,.325),
+   new THREE.Vector3(side*.174,.152,.296)
+  ])
+  const brow=new THREE.Mesh(new THREE.TubeGeometry(browCurve,11,.008,5,false),skinCrease)
+  brow.name=side<0?'bj-v15-brow-sculpt-left':'bj-v15-brow-sculpt-right'
+  details.add(brow)
+  const limbal=new THREE.Mesh(new THREE.TorusGeometry(.021,.0028,6,18),irisRing)
+  limbal.name=side<0?'bj-v15-iris-ring-left':'bj-v15-iris-ring-right'
+  limbal.position.set(side*.112,.085,.346);details.add(limbal)
+ }
+ const philtrum=new THREE.Mesh(new THREE.CapsuleGeometry(.006,.035,3,7),skinCrease)
+ philtrum.name='bj-v15-philtrum-profile';philtrum.position.set(0,-.094,.338);details.add(philtrum)
+ group.userData={...group.userData,assetVersion:'bj-realism-v15',visualPass:'beard-strand-loc-strand-sculpt-v15',photoMatched:false,certifiedLikeness:false,photoReferenceNeeded:true,legacyAssetVersion:'bj-realism-v12'}
+ return group
+}
+
 function addTransitTrain(group,x,z,mats){
   const shellMat=mat('cta-shell',0xd7dbdf,.28,.72)
   const stripeMat=mat('cta-accent',0x1e8fc6,.36,.32,0x0b4c69,.35)
@@ -905,6 +996,11 @@ const kitBuilders={
   'streetverse-hero-player':()=>{
     const g=new THREE.Group();g.name='TRYAMM-StreetVerse-Hero-Player'
     addBJStubbsCharacter(g,0,0,kitMats);return g
+  },
+  'streetverse-bj-v15-sculpt':()=>{
+    const g=new THREE.Group();g.name='TRYAMM-StreetVerse-BJ-V15-HeadSculpt'
+    addBJStubbsCharacter(g,0,0,kitMats)
+    return addBJStubbsFacialSculptV15(g)
   },
   'resident-archetype-a':()=>{
     const g=new THREE.Group();g.name='TRYAMM-Resident-Archetype-A'

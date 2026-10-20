@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import {suppressBJPortraitBackdrop} from './BJPortraitBackdropMask'
 
 export const BJ_PHOTOMATCH_ASSET={
   id:'streetverse-bj-stubbs-photomatched',
@@ -61,7 +62,15 @@ export const BJ_PHOTOMATCH_TEXTURE_DATA_URI='data:image/webp;base64,UklGRsAfAABX
 const PROCEDURAL_FACE_PARTS=new Set([
   'hero-head','jaw','chin','cheek-left','cheek-right','nose','upper-lip','lower-lip',
   'eye-white-left','eye-white-right','iris-left','iris-right','eyelid-left','eyelid-right',
-  'brow-left','brow-right','bj-nose-bridge','bj-nose-tip','bj-jaw-shadow'
+  'brow-left','brow-right','pupil-left','pupil-right','nostril-left','nostril-right',
+  'bj-eye-catchlight-left','bj-eye-catchlight-right','bj-nose-bridge','bj-nose-tip','bj-jaw-shadow',
+  // V15 sculpt cheek, iris and brow volumes are genuine side-profile geometry.
+  // They must be hidden ONLY while an approved photo face layer is ready, or
+  // they overlap the user's reference portrait and create ghost eye artifacts.
+  'bj-v15-cheekbone-left','bj-v15-cheekbone-right',
+  'bj-v15-brow-sculpt-left','bj-v15-brow-sculpt-right',
+  'bj-v15-iris-ring-left','bj-v15-iris-ring-right',
+  'bj-v15-philtrum-profile'
 ])
 
 function featherPhotoTexture(source:THREE.Texture){
@@ -72,17 +81,39 @@ function featherPhotoTexture(source:THREE.Texture){
   const ctx=canvas.getContext('2d',{willReadFrequently:true})
   if(!ctx)return source
   ctx.clearRect(0,0,256,256)
-  ctx.drawImage(image,0,0,256,256)
+  // The source is a full upper-body portrait, not a UV texture. Use the head/
+  // beard region only so the shirt and photo backdrop do not appear as a
+  // rectangular panel attached to BJ's chin.
+  const sourceImage=source.image as HTMLImageElement
+  const w=sourceImage.naturalWidth||sourceImage.width||192,h=sourceImage.naturalHeight||sourceImage.height||192
+  ctx.drawImage(image,w*.145,h*.02,w*.71,h*.81,0,0,256,256)
   const pixels=ctx.getImageData(0,0,256,256)
   const d=pixels.data
+  // Remove the pale blue/gray portrait border before applying the existing
+  // oval feather. The V15 WebGL evidence showed a conspicuous card-like halo.
+  const suppressedBackdropPixels=suppressBJPortraitBackdrop(d,256,256)
+  void suppressedBackdropPixels
   for(let y=0;y<256;y++)for(let x=0;x<256;x++){
-    const nx=(x-128)/(256*.49)
-    const ny=(y-132)/(256*.53)
+    const nx=(x-128)/(256*.44)
+    const ny=(y-124)/(256*.49)
     const ellipse=nx*nx+ny*ny
-    const edge=THREE.MathUtils.clamp((1.08-ellipse)/.22,0,1)
-    const forehead=THREE.MathUtils.clamp((y-2)/22,0,1)
-    const chin=THREE.MathUtils.clamp((254-y)/20,0,1)
-    d[(y*256+x)*4+3]=Math.round(255*edge*forehead*chin)
+    // Softer feather around the cheek/jaw silhouette, especially at ¾ angles.
+    const edge=THREE.MathUtils.clamp((.96-ellipse)/.31,0,1)
+    const forehead=THREE.MathUtils.clamp((y-5)/34,0,1)
+    const chin=THREE.MathUtils.clamp((249-y)/39,0,1)
+    // Actual V15 phone renders exposed a pale cutout halo around the face.
+    // This is not a UV face texture: suppress bright low-chroma backdrop pixels
+    // near the OUTER edge only, never the central skin/eye/beard region.
+    const alphaIndex=(y*256+x)*4+3
+    const r=d[alphaIndex-3],g=d[alphaIndex-2],b=d[alphaIndex-1]
+    const luma=(.2126*r+.7152*g+.0722*b)/255
+    const chroma=(Math.max(r,g,b)-Math.min(r,g,b))/255
+    const rim=THREE.MathUtils.clamp((Math.sqrt(ellipse)-.40)/.42,0,1)
+    const brightNeutral=THREE.MathUtils.clamp((luma-.49)/.27,0,1)*THREE.MathUtils.clamp((.24-chroma)/.19,0,1)
+    const paleBackgroundSuppression=1-.94*rim*brightNeutral
+    // Keep the source cutout's alpha: do not invent color inside transparent
+    // pixels or erase dark loc strands outside the broad cheek silhouette.
+    d[alphaIndex]=Math.round(d[alphaIndex]*edge*forehead*chin*paleBackgroundSuppression)
   }
   ctx.putImageData(pixels,0,0)
   const feathered=new THREE.CanvasTexture(canvas)
@@ -96,11 +127,40 @@ export type BJPhotoMatchedHeadHandle={
   mesh:THREE.Mesh
   geometryGroup:THREE.Group
   ready:Promise<boolean>
+  updateForCamera:(camera:THREE.Camera)=>void
   dispose:()=>void
 }
 
-export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHeadHandle|null{
-  const headPivot=hero.getObjectByName('rig-head')
+export function installBJPhotoMatchedHead(hero:THREE.Object3D,options?:{lighting?:'studio'|'game'}):BJPhotoMatchedHeadHandle|null{
+  // First use BJ-authored head pivots without changing their topology.
+  // A genuinely published Meshy auto-rig may instead name its head joint
+  // 'Head' or 'mixamorig:Head'. A strictly identified Bone can receive a
+  // reversible, approximate front-photo adapter, never an arbitrary mesh.
+  const explicitBJHead=hero.getObjectByName('rig-head')||hero.getObjectByName('Rig_Head')||hero.getObjectByName('rig_head')||hero.getObjectByName('BJ_HeadPivot')
+  let externalHeadAnchor:THREE.Group|null=null
+  if(!explicitBJHead&&hero.userData.publishedOverrideActive===true){
+    let headBone:THREE.Bone|null=null
+    hero.traverse(node=>{
+      if(!headBone&&node instanceof THREE.Bone&&/^(?:head|headbone|mixamorig[:_]?head)$/i.test(node.name))headBone=node
+    })
+    if(headBone){
+      const bone=headBone as THREE.Bone
+      bone.updateWorldMatrix(true,false)
+      const scale=bone.getWorldScale(new THREE.Vector3())
+      if([scale.x,scale.y,scale.z].every(value=>Number.isFinite(value)&&value>.0001&&value<100)){
+        const anchor=new THREE.Group();anchor.name='BJ_HeadPivot'
+        // The head joint stays animated by Meshy's skeleton. Size is
+        // normalized to a modest face mask; further calibration must be
+        // performed in the four-angle rendered comparison, not assumed.
+        anchor.position.set(0,.085/scale.y,.025/scale.z)
+        anchor.scale.set(.68/scale.x,.68/scale.y,.68/scale.z)
+        anchor.userData={characterId:'bj-stubbs',adapter:'meshy-head-bone-photo-preview-v1',calibration:'approximate',certifiedLikeness:false}
+        bone.add(anchor)
+        externalHeadAnchor=anchor
+      }
+    }
+  }
+  const headPivot=explicitBJHead||externalHeadAnchor
   if(!headPivot)return null
 
   // V10 keeps the approved front reference while adding profile geometry for
@@ -139,12 +199,15 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
   const material=new THREE.MeshStandardMaterial({
     transparent:true,
     opacity:0,
-    alphaTest:.04,
-    side:THREE.DoubleSide,
+    alphaTest:.10,
+    side:THREE.FrontSide,
+    depthWrite:false,
     roughness:.69,
     metalness:0,
     emissive:new THREE.Color(0xffffff),
-    emissiveIntensity:.10,
+    // Photo-review studio favors faithful skin tone; the mobile game needs
+    // slightly more fill light to remain readable in Chicago's darker blocks.
+    emissiveIntensity:options?.lighting==='studio'?.025:.10,
   })
   const mesh=new THREE.Mesh(geometry,material)
   mesh.name=BJ_PHOTOMATCH_ASSET.id
@@ -275,7 +338,34 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
   headPivot.add(mesh)
 
   const hidden:Array<{object:THREE.Object3D;visible:boolean}>=[]
+  // A flat 192px frontal portrait cannot depict a real profile. Fade its
+  // contribution as the player rotates around BJ and restore sculpted eyes,
+  // brows and jaw instead of showing a paper-thin photo panel in the side view.
+  const front=new THREE.Vector3(),fromFace=new THREE.Vector3(),headWorld=new THREE.Vector3()
   let disposed=false
+  let photoReady=false
+  // Three.js builds the visible render list BEFORE mesh.onBeforeRender fires.
+  // Changing other meshes' visible flags in onBeforeRender cannot reliably
+  // restore profile geometry. This explicit camera-LOD update must run BEFORE
+  // renderer.render() in both gameplay and four-angle review captures.
+  const updateForCamera=(camera:THREE.Camera)=>{
+    if(disposed||!photoReady||!material.map)return
+    headPivot.updateWorldMatrix(true,false)
+    headPivot.getWorldPosition(headWorld)
+    front.set(0,0,1).transformDirection(headPivot.matrixWorld)
+    fromFace.copy(camera.position).sub(headWorld).normalize()
+    const facing=front.dot(fromFace)
+    // A flat frontal photo cannot supply true 3/4 or profile textures.
+    // Begin fading at ~27 degrees and fully reveal sculpt by ~48 degrees.
+    const strength=THREE.MathUtils.smoothstep(facing,.67,.89)
+    material.opacity=strength
+    mesh.visible=strength>.025
+    // Keep front-facing reference unobstructed, but restore actual head/eye/
+    // cheek geometry at 3/4 and 90-degree profile. The renderer must see
+    // these flags before it constructs the opaque mesh render list.
+    for(const entry of hidden)entry.object.visible=strength<.50?entry.visible:false
+    mesh.userData={...mesh.userData,photoFacingStrength:strength,photoFacingCameraOnly:true,preRenderVisibilityUpdated:true,showSculptedProfile:strength<.50}
+  }
   const ready=new Promise<boolean>(resolve=>{
     new THREE.TextureLoader().load(
       BJ_PHOTOMATCH_TEXTURE_DATA_URI,
@@ -287,6 +377,7 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
         material.map=feathered
         material.emissiveMap=feathered
         material.opacity=1
+        photoReady=true
         material.needsUpdate=true
         if(feathered!==texture)texture.dispose()
         hero.traverse(object=>{
@@ -302,6 +393,7 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
       ()=>{
         mesh.removeFromParent()
         geometryGroup.removeFromParent()
+        externalHeadAnchor?.removeFromParent()
         geometry.dispose()
         geometryGroup.traverse(object=>{
           if(object instanceof THREE.Mesh)object.geometry.dispose()
@@ -318,11 +410,14 @@ export function installBJPhotoMatchedHead(hero:THREE.Object3D):BJPhotoMatchedHea
     mesh,
     geometryGroup,
     ready,
+    updateForCamera,
     dispose:()=>{
       disposed=true
+      mesh.onBeforeRender=()=>{}
       hidden.forEach(entry=>{entry.object.visible=entry.visible})
       mesh.removeFromParent()
       geometryGroup.removeFromParent()
+      externalHeadAnchor?.removeFromParent()
       material.map?.dispose()
       material.dispose()
       geometry.dispose()
