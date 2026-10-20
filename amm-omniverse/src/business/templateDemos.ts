@@ -53,4 +53,10 @@ export const TEMPLATE_DEMOS:Record<string,{brand:string;tagline:string;type:'sho
  "52":{"brand":"Sample Restaurant Holo Menu & Catering","tagline":"Let your menu speak.","type":"inquiry","tone":"#97512e","items":[["Today's menu",0],["Catering quote",0],["Group reservation inquiry",0]]},
  "53":{"brand":"Sample Local TV, News & Advertising","tagline":"Share what your city is doing.","type":"inquiry","tone":"#5c4177","items":[["Local show inquiry",0],["Advertising rates",0],["Story submission",0]]},
  "54":{"brand":"Sample Media & Music Academy","tagline":"Learn the craft. Share the story.","type":"booking","tone":"#655385","items":[["Intro to recording",0],["Video workshop",0],["Music lesson",0]]},
+ "55":{"brand":"Holo Ride Mobility Studio","tagline":"Plan a better way to get there.","type":"inquiry","tone":"#296d77","items":[["Accessible ride inquiry",0],["Passenger pickup information",0],["Transport coordination",0]]},
+ "56":{"brand":"Holo Delivery Network","tagline":"Let your deliveries move forward.","type":"inquiry","tone":"#816044","items":[["Local parcel inquiry",0],["Restaurant delivery inquiry",0],["Courier partner onboarding",0]]},
+ "57":{"brand":"Holo FON Communications","tagline":"Stay connected to what matters.","type":"inquiry","tone":"#375b8b","items":[["Business phone information",0],["Connectivity consultation",0],["Device compatibility question",0]]},
+ "58":{"brand":"StreetVerse World Art Studio","tagline":"Create worlds that feel alive.","type":"inquiry","tone":"#5b4b8f","items":[["Original character design",0],["3D environment inquiry",0],["Animation preproduction consultation",0]]},
+ "59":{"brand":"TRYAMM Business Server Studio","tagline":"Build your business foundation.","type":"inquiry","tone":"#345f72","items":[["Business website hosting review",0],["Cloud server setup inquiry",0],["AI workbench planning",0]]},
+ "60":{"brand":"All American Global Trade","tagline":"Connect markets with confidence.","type":"inquiry","tone":"#4b7569","items":[["Import readiness question",0],["Supplier sourcing inquiry",0],["Export logistics consultation",0]]},
 }
