@@ -3,6 +3,7 @@ import {getAccessToken,getSupabaseClient} from '../services/supabaseClient'
 import Meshy3DPrintLab from './Meshy3DPrintLab'
 import TwelveDPrivateRnDPanel from './TwelveDPrivateRnDPanel'
 import PrintAICommandPanel from './PrintAICommandPanel'
+import TRYAMMWorldForgerPanel from './TRYAMMWorldForgerPanel'
 
 type CatalogItem={assetId:string;filename:string;generationType:string;height:number;ageLane:string;role:string}
 type Job={id:string;asset_id:string;filename:string;stage:string;progress:number;provider_generation_task_id?:string;provider_rig_task_id?:string;public_url?:string;walking_public_url?:string;running_public_url?:string;error_message?:string;created_at?:string}
@@ -225,6 +226,7 @@ export default function MeshyFactoryControlPanel(){
       </section>
 
       <Meshy3DPrintLab jobs={jobs}/>
+      <TRYAMMWorldForgerPanel/>
       <PrintAICommandPanel/>
       <TwelveDPrivateRnDPanel/>
 

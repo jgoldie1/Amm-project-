@@ -8,6 +8,7 @@ export type TryammSystemId=
   |'live'
   |'global'
   |'meshy-assets'
+  |'world-forger'
   |'commerce'
   |'delivery'
   |'print-network'
@@ -54,6 +55,7 @@ const DEPENDENCIES:Record<TryammSystemId,TryammSystemId[]>={
   live:['core'],
   global:['streetverse-world','characters','missions'],
   'meshy-assets':['core'],
+  'world-forger':['core','meshy-assets'],
   commerce:['core'],
   delivery:['commerce'],
   'print-network':['commerce','meshy-assets'],
@@ -149,6 +151,7 @@ function installLegacyAdapters(){
     ['tryamm:commerce-order-paid',event=>signalTryammSystem({system:'commerce',status:'ready',source:event.type,evidence:detail(event)})],
     ['tryamm:delivery-tracking-update',event=>signalTryammSystem({system:'delivery',status:'ready',source:event.type,evidence:detail(event)})],
     ['tryamm:meshy-asset-ready',event=>signalTryammSystem({system:'meshy-assets',status:'ready',source:event.type,evidence:detail(event)})],
+    ['tryamm:world-forger-plan',event=>signalTryammSystem({system:'world-forger',status:'ready',source:event.type,evidence:detail(event)})],
     ['tryamm:print-network-ready',event=>signalTryammSystem({system:'print-network',status:'ready',source:event.type,evidence:detail(event)})],
   ]
   adapters.forEach(([name,handler])=>window.addEventListener(name,handler))
