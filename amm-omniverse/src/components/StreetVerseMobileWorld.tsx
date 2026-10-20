@@ -787,7 +787,8 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const fallbackWindLocs=avatar.children.filter(child=>child.name==='hero-loc')
   fallbackWindLocs.forEach(object=>{object.userData={...object.userData,windBaseRotation:{x:object.rotation.x,y:object.rotation.y,z:object.rotation.z}}})
   let saved:any={};try{saved=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')}catch{}const savedX=Number(saved.x??CIRCLE_PARK_SPAWN.x),savedZ=Number(saved.z??CIRCLE_PARK_SPAWN.z),savedSpawnValid=Number.isFinite(savedX)&&Number.isFinite(savedZ)&&canTraverse(savedX,savedZ);avatar.position.set(savedSpawnValid?savedX:CIRCLE_PARK_SPAWN.x,0,savedSpawnValid?savedZ:CIRCLE_PARK_SPAWN.z);scene.add(avatar);
-   const visibleForge=installStreetVerseVisibleForgeBridge({getNativeLayer:()=>nativeLayer,getPlayerPosition:()=>avatar.position})const underwaterPool=createStreetVerseUnderwaterPoolRuntime(scene,camera,avatar);if(!savedSpawnValid)setMessage('StreetVerse restored a safe Chicago spawn because the previous saved position was no longer walkable.')
+   const visibleForge=installStreetVerseVisibleForgeBridge({getNativeLayer:()=>nativeLayer,getPlayerPosition:()=>avatar.position});
+   const underwaterPool=createStreetVerseUnderwaterPoolRuntime(scene,camera,avatar);if(!savedSpawnValid)setMessage('StreetVerse restored a safe Chicago spawn because the previous saved position was no longer walkable.')
   advanceLiveWorldBuild('collision',buildingColliders.length===blocks.length&&canTraverse(CIRCLE_PARK_SPAWN.x,CIRCLE_PARK_SPAWN.z))
   let persistenceCertified=false
   try{const probeKey=`${SAVE_KEY}.world-builder-probe`,probe=JSON.stringify({x:avatar.position.x,z:avatar.position.z,at:Date.now()});localStorage.setItem(probeKey,probe);persistenceCertified=localStorage.getItem(probeKey)===probe;localStorage.removeItem(probeKey)}catch{}
