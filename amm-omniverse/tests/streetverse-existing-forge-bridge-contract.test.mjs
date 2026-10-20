@@ -11,7 +11,7 @@ test('the World Builder uses existing native assets and reports actual attachmen
  assert.match(builder,/tryamm:streetverse-west-side-native-assets/)
  assert.match(builder,/tryamm:holoforge-asset-ready/)
  assert.match(builder,/VERIFY 4 GLBs/)
- assert.match(builder,/ENTER TAYLOR 3D/)
+ assert.match(builder,/WALK TAYLOR IN GAME/)
  assert.match(builder,/method:'HEAD'/)
  assert.match(scene,/loadTryammNativeCircleParkLayer/)
  assert.match(scene,/tryamm:streetverse-chicago-native-assets-ready/)
