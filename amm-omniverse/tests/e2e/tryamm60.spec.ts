@@ -1,9 +1,9 @@
 import {test,expect} from '@playwright/test'
-test('all 60 websites display on the catalog without requiring sign in',async({page})=>{
+test('all 75 websites display on the catalog without requiring sign in',async({page})=>{
  await page.goto('/business-app.html')
  await expect(page.getByRole('heading',{name:/Build a business/})).toBeVisible()
- await expect(page.locator('#business-catalog .catalog-card')).toHaveCount(60)
- await expect(page.locator('#business-catalog a[href*="/site-demo.html?template="]')).toHaveCount(60)
+ await expect(page.locator('#business-catalog .catalog-card')).toHaveCount(75)
+ await expect(page.locator('#business-catalog a[href*="/site-demo.html?template="]')).toHaveCount(75)
  await expect(page.locator('#funding-hub')).toBeVisible()
  await expect(page.locator('canvas')).toHaveCount(0)
 })
@@ -41,4 +41,18 @@ test('Omni Box previews an interactive six-scene storyboard and opens Holo Drama
  await page.getByRole('button',{name:'Pause storyboard'}).click()
  await page.getByRole('button',{name:'SEND OUTLINE TO HOLO DRAMA →'}).click()
  await expect(page).toHaveURL(/holo-drama\?from=omni-box/)
+})
+
+test('CNA, rideshare and food delivery websites open with their own sample workflows',async({page})=>{
+ for(const id of ['67','68','69']){
+  await page.goto('/site-demo.html?template='+id)
+  await expect(page.locator('.full-site')).toBeVisible()
+  await expect(page.locator('.full-card')).toHaveCount(3)
+  await expect(page.locator('.full-form form')).toBeVisible()
+ }
+ await page.goto('/site-demo.html?template=69')
+ await page.locator('.full-card button').first().click()
+ await expect(page.locator('.full-bag')).toContainText('1 items')
+ await page.goto('/site-demo.html?template=68')
+ await expect(page.locator('.full-service-bridge')).toContainText('Driver interest')
 })
