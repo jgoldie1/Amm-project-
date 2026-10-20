@@ -26,7 +26,7 @@ export const TEMPLATE_CATALOG=[
  {"id":"24","name":"Recording & Podcast Studio","audience":"Recording studios, podcast and audio engineers","headline":"Bring your voice into focus."},
  {"id":"25","name":"Video & Film Production","audience":"Film crews, editors and video producers","headline":"Tell the story your way."},
  {"id":"26","name":"AI TV & Talent Network","audience":"Independent TV channels and emerging talent","headline":"Your stage starts here."},
- {"id":"27","name":"Cybersecurity & Digital Safety","audience":"Cybersecurity consultants and digital risk advisers","headline":"Protect what you build."},
+ {"id":"27","name":"Jacobie Vision Cybersecurity & Digital Safety","audience":"Small businesses, website owners and qualified cybersecurity service partners","headline":"Protect your business. Build digital confidence."},
  {"id":"28","name":"Real Estate Investing & Flips","audience":"Property investors, renovators and real estate projects","headline":"See your property's potential."},
  {"id":"29","name":"Vacation & Vehicle Rentals","audience":"Short-term stays and vehicle rental operators","headline":"Make your next stay easier."},
  {"id":"30","name":"Credit Repair & Education","audience":"Credit counselors and compliant education services","headline":"Understand the next financial step."},
