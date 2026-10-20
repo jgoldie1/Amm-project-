@@ -43,6 +43,8 @@ const LiveCenter=lazy(()=>import('./components/LiveCenter'))
 const GuardianCommandCenter=lazy(()=>import('./components/GuardianCommandCenter'))
 const AccountPrivacyCenter=lazy(()=>import('./components/AccountPrivacyCenter'))
 const HoloDramaHub=lazy(()=>import('./components/HoloDramaHub'))
+const OmniBoxStoryStudio=lazy(()=>import('./components/OmniBoxStoryStudio'))
+const StreetVerseCinematicMissions=lazy(()=>import('./components/StreetVerseCinematicMissions'))
 const HoloDeliveryRideEntertainmentHub=lazy(()=>import('./components/HoloDeliveryRideEntertainmentHub'))
 const SpectraStudioCommandCenter=lazy(()=>import('./components/SpectraStudioCommandCenter'))
 const EthiopianBibleMetaverse=lazy(()=>import('./components/EthiopianBibleMetaverse'))
@@ -75,6 +77,7 @@ try {
   const isGuardian=currentPath==='/guardian'||currentPath==='/guardian/'
   const isAccountDeletion=currentPath==='/account-deletion'||currentPath==='/account-deletion/'
   const isHoloDrama=currentPath==='/holo-drama'||currentPath==='/holo-drama/'
+   const isOmniBox=['/omni-box','/omni-box/','/omnibox','/omnibox/'].includes(currentPath)
   const isSpectraStudios=currentPath==='/spectra-studios'||currentPath==='/spectra-studios/'
   const isEthiopianBible=['/metaverse-bible','/metaverse-bible/','/bible-metaverse','/bible-metaverse/','/holo-bible','/holo-bible/','/ethiopian-bible','/ethiopian-bible/','/faithverse','/faithverse/'].includes(currentPath)
   const isKingdomsPress=currentPath==='/kingdoms-press'||currentPath==='/kingdoms-press/'
@@ -153,6 +156,7 @@ try {
   else if(isGuardian)routeContent=<Suspense fallback={routeFallback}><GuardianCommandCenter /></Suspense>
   else if(isAccountDeletion)routeContent=<Suspense fallback={routeFallback}><AccountPrivacyCenter onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isHoloDrama)routeContent=<Suspense fallback={routeFallback}><HoloDramaHub /></Suspense>
+   else if(isOmniBox)routeContent=<Suspense fallback={routeFallback}><OmniBoxStoryStudio /></Suspense>
   else if(isSpectraStudios)routeContent=<Suspense fallback={routeFallback}><SpectraStudioCommandCenter /></Suspense>
   else if(isEthiopianBible)routeContent=<Suspense fallback={routeFallback}><EthiopianBibleMetaverse /></Suspense>
   else if(isKingdomsPress)routeContent=<Suspense fallback={routeFallback}><KingdomsPressOperations onClose={()=>{window.location.href='/'}} /></Suspense>
@@ -176,7 +180,7 @@ try {
   else if(businessSlug)routeContent=<FamilyBusinessPublicSite slug={businessSlug} onClose={()=>{window.location.href='/business'}} />
   else if(isTwinWorld)routeContent=<Suspense fallback={routeFallback}><StreetVerseTwinWorld onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isMeetStubbs)routeContent=<Suspense fallback={routeFallback}><MeetTheStubbsWorldDistrict onClose={()=>{window.location.href='/streetverse'}} /></Suspense>
-  else if(isStreetVerse)routeContent=streetVerseRoute
+  else if(isStreetVerse)routeContent=<>{streetVerseRoute}<Suspense fallback={null}><StreetVerseCinematicMissions/></Suspense></>
   else routeContent=mainShell
   
   
@@ -191,7 +195,7 @@ try {
   if(gameRoute){
     routeContent=fallbackParams.get('safe')==='1'||fallbackParams.get('mode')==='safe'
       ? <><StreetVerseWeatherSync/><StreetVerseSafeWorld onClose={()=>{window.location.href='/'}} /></>
-      : <Suspense fallback={<div role="status">Opening StreetVerse 3D…</div>}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense>
+      : <><Suspense fallback={<div role="status">Opening StreetVerse 3D…</div>}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense><Suspense fallback={null}><StreetVerseCinematicMissions/></Suspense></>
   }else{
     routeContent=<Suspense fallback={<div role="status">Opening TRYAMM…</div>}><App /></Suspense>
   }
