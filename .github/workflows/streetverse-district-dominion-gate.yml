@@ -5,6 +5,8 @@ on:
     paths:
       - 'amm-omniverse/src/runtime/StreetVerseDistrictDominionEngine.ts'
       - 'amm-omniverse/src/components/StreetVerseDistrictDominionPanel.tsx'
+      - 'amm-omniverse/src/components/StreetVerseDominionLauncher.tsx'
+      - 'amm-omniverse/src/components/StreetVerseSafeWorld.tsx'
       - 'amm-omniverse/src/components/StreetVerseGeoSpawnBridge.tsx'
       - 'amm-omniverse/tests/streetverse-district-dominion-contract.mjs'
       - 'amm-omniverse/tests/e2e/streetverse-district-dominion.spec.ts'
