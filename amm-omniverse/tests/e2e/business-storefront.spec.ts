@@ -79,7 +79,7 @@ test('search finds a new business demo',async({page})=>{
 test('owner drafts can be previewed and downloaded without granting publication',async({page})=>{
  await page.goto('/business-app.html#template-manager')
  const studio=page.locator('#template-manager')
- await studio.getByText('Create or manage a template listing',{exact:true}).click()
+ if(await studio.locator('details').first().getAttribute('open')===null)await studio.locator('details').first().locator('summary').click()
  await studio.getByLabel('Start from a template',{exact:true}).selectOption('11')
  await studio.getByRole('button',{name:'Start a new listing from this template',exact:true}).click()
  await studio.getByLabel('Template name',{exact:true}).fill('My cleaning template')
@@ -94,7 +94,7 @@ test('owner drafts can be previewed and downloaded without granting publication'
  await expect(studio.getByRole('status')).toContainText('not been published')
  await studio.getByRole('button',{name:'Save draft on this device',exact:true}).click()
  await page.reload()
- await studio.getByText('Create or manage a template listing',{exact:true}).click()
+ if(await studio.locator('details').first().getAttribute('open')===null)await studio.locator('details').first().locator('summary').click()
  await studio.getByRole('button',{name:'Restore this device’s draft',exact:true}).click()
  await expect(studio.getByLabel('Template name',{exact:true})).toHaveValue('My cleaning template')
  await expect(studio.getByLabel('Template price · USD, one time',{exact:true})).toHaveValue('79')
