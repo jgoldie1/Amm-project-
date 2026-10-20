@@ -47,7 +47,7 @@ const StreetVerseTouchDriveControls=lazy(()=>import('./StreetVerseTouchDriveCont
 const HoloMobilityLauncher=lazy(()=>import('./HoloMobilityLauncher'))
 const StreetVerseFaithChronoPortal=lazy(()=>import('./StreetVerseFaithChronoPortal'))
 const StreetVerseNearWest3D=lazy(()=>import('./StreetVerseNearWest3D'))
-const StreetVerseDistrictDominionPanel=lazy(()=>import('./StreetVerseDistrictDominionPanel'))
+const StreetVerseDominionLauncher=lazy(()=>import('./StreetVerseDominionLauncher'))
 
 const DESTINATION_KEY_V2='tryamm.streetverse.chicago-destination.v2'
 const DESTINATION_KEY_V1='tryamm.streetverse.chicago-destination.v1'
@@ -167,7 +167,6 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const mobile=useMemo(()=>typeof navigator!=='undefined'&&/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||''),[])
  const [enhancementsReady,setEnhancementsReady]=useState(false)
  const [nearWestOpen,setNearWestOpen]=useState(false)
- const [dominionOpen,setDominionOpen]=useState(false)
  const [quantumMode,setQuantumMode]=useState<QuantumSpeedMode>('balanced')
  const setLocationContext=useGameStore(state=>state.setLocationContext)
  const applyCityConsequence=useGameStore(state=>state.applyCityConsequence)
@@ -265,17 +264,12 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
   return()=>window.clearTimeout(timer)
  },[safe,quantumMode])
 
- const dominionLaunch=<>
-  <button data-streetverse-dominion-launch="true" aria-label="Open District Dominion turf and city builder" onClick={()=>setDominionOpen(true)} style={{position:'fixed',right:12,bottom:168,zIndex:32000,minHeight:52,padding:'9px 13px',background:'#0d2b35f2',color:'#a3ffe0',border:'2px solid #7befca',borderRadius:14,boxShadow:'0 5px 18px #0009',fontSize:12,fontWeight:950}}>⚔ TURF + CITY</button>
-  {dominionOpen&&<Suspense fallback={<div role="status" style={{position:'fixed',inset:0,zIndex:45000,display:'grid',placeItems:'center',background:'#061221',color:'#fff'}}>OPENING DISTRICT DOMINION…</div>}><StreetVerseDistrictDominionPanel onClose={()=>setDominionOpen(false)}/></Suspense>}
- </>
  if(safe)return <>
   {!explicitSafe&&<div data-streetverse-render-mode="startup-fallback" style={{position:'fixed',top:75,left:12,zIndex:41000,maxWidth:'min(84vw,300px)',padding:10,borderRadius:14,background:'#071725ef',color:'#eaffff',border:'1px solid #54dcff',boxShadow:'0 8px 22px #0008',fontFamily:'system-ui,sans-serif'}}>
     <div style={{fontWeight:900,fontSize:12,marginBottom:6}}>3D city did not start</div>
     <button aria-label="Retry StreetVerse 3D" onClick={retry3D} style={{minHeight:48,border:'1px solid #8fffe2',borderRadius:9,padding:'8px 15px',background:'#073f38',color:'#fff',fontWeight:900}}>RETRY 3D CHICAGO</button>
     {graphicsStatus&&<div role="status" style={{fontSize:11,marginTop:7}}>{graphicsStatus}</div>}
   </div>}
-  {dominionLaunch}
   <StreetVerseWestSideWorldBuilder/>
   <BuildSwarmControl/>
   <StreetVerseWeatherSync/>
@@ -285,7 +279,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  </>
 
  return <>
-  {dominionLaunch}
+  <Suspense fallback={null}><StreetVerseDominionLauncher/></Suspense>
   <BuildSwarmControl/>
   {nearWestOpen&&<div style={{position:'fixed',inset:0,zIndex:14980,background:'#07101d'}}><Suspense fallback={null}><StreetVerseNearWest3D/></Suspense><button aria-label="Return to StreetVerse Chicago" onClick={()=>setNearWestOpen(false)} style={{position:'fixed',top:76,right:12,zIndex:14990,border:'1px solid #6ee7ff',borderRadius:12,background:'#07131f',color:'#fff',padding:'10px 12px',fontWeight:900}}>← CHICAGO</button></div>}
   {!nearWestOpen&&<button data-streetverse-travel="true" aria-label="Travel to Taylor Street UIC Medical District" onClick={()=>setNearWestOpen(true)} style={{position:'fixed',top:118,right:12,zIndex:14970,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333e8',color:'#fff',padding:'10px 12px',fontWeight:900}}>TAYLOR / UIC</button>}
