@@ -1,9 +1,9 @@
 import {test,expect} from '@playwright/test'
-test('all 75 websites display on the catalog without requiring sign in',async({page})=>{
+test('all 85 websites display on the catalog without requiring sign in',async({page})=>{
  await page.goto('/business-app.html')
  await expect(page.getByRole('heading',{name:/Build a business/})).toBeVisible()
- await expect(page.locator('#business-catalog .catalog-card')).toHaveCount(75)
- await expect(page.locator('#business-catalog a[href*="/site-demo.html?template="]')).toHaveCount(75)
+ await expect(page.locator('#business-catalog .catalog-card')).toHaveCount(85)
+ await expect(page.locator('#business-catalog a[href*="/site-demo.html?template="]')).toHaveCount(85)
  await expect(page.locator('#funding-hub')).toBeVisible()
  await expect(page.locator('canvas')).toHaveCount(0)
 })
@@ -55,4 +55,19 @@ test('CNA, rideshare and food delivery websites open with their own sample workf
  await expect(page.locator('.full-bag')).toContainText('1 items')
  await page.goto('/site-demo.html?template=68')
  await expect(page.locator('.full-service-bridge')).toContainText('Driver interest')
+})
+
+test('logistics quick filter and ten individual website demos are visible',async({page})=>{
+ await page.goto('/business-app.html')
+ await page.getByRole('button',{name:'Explore Logistics & Holo Delivery'}).click()
+ await expect(page.locator('#business-catalog .catalog-card')).toHaveCount(15)
+ await page.getByRole('button',{name:'Show all businesses'}).click()
+ await expect(page.locator('#business-catalog .catalog-card')).toHaveCount(85)
+ for(const id of ['76','77','78','79','80','81','82','83','84','85']){
+  await page.goto('/site-demo.html?template='+id)
+  await expect(page.locator('.full-site')).toBeVisible()
+  await expect(page.locator('.full-card')).toHaveCount(3)
+  await expect(page.locator('.full-logistics-network')).toBeVisible()
+  await expect(page.locator('.full-form form')).toBeVisible()
+ }
 })
