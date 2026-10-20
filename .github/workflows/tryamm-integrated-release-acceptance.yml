@@ -18,6 +18,8 @@ jobs:
       HIGGSFIELD_API_KEY: ""
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
@@ -27,11 +29,15 @@ jobs:
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Business and StreetVerse source contracts
         run: |
-          node --test tests/streetverse-cinematics-omnibox-contract.test.mjs tests/streetverse-existing-forge-bridge-contract.test.mjs tests/streetverse-visible-forge-real-placement.test.mjs tests/live-business-preservation.mjs tests/business-entry-bundle.mjs tests/public-env-guard.test.mjs tests/template-catalog.test.mjs tests/template-listings.test.mjs
+          node --test tests/streetverse-cinematics-omnibox-contract.test.mjs tests/streetverse-existing-forge-bridge-contract.test.mjs tests/streetverse-visible-forge-real-placement.test.mjs tests/public-env-guard.test.mjs tests/template-catalog.test.mjs tests/template-listings.test.mjs
       - name: Compile all pages and game
         run: npm run typecheck
       - name: Generate native TRYAMM assets and assemble full website
         run: npm run build
+      - name: Verify standalone business entry bundle after build
+        run: node tests/business-entry-bundle.mjs
+      - name: Verify integrated storefront and StreetVerse preserve independent entry points
+        run: node --test tests/tryamm-integrated-release-preservation.test.mjs
       - name: Verify storefront and mobile game release files
         run: |
           test -s dist/index.html
