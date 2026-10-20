@@ -1,0 +1,46 @@
+name: StreetVerse District Dominion Game Gate
+
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/runtime/StreetVerseDistrictDominionEngine.ts'
+      - 'amm-omniverse/src/components/StreetVerseDistrictDominionPanel.tsx'
+      - 'amm-omniverse/src/components/StreetVerseGeoSpawnBridge.tsx'
+      - 'amm-omniverse/tests/streetverse-district-dominion-contract.mjs'
+      - '.github/workflows/streetverse-district-dominion-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: district-dominion-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  simulated-city-and-territory:
+    name: Original game modes + TypeScript + local production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Gameplay contracts
+        run: node tests/streetverse-district-dominion-contract.mjs
+      - name: TypeScript safety
+        run: npm run typecheck
+      - name: Build app locally without publishing
+        run: npx vite build
+      - name: Report scope
+        if: always()
+        run: |
+          echo 'Original, offline fictional district and civic construction game. Not GTA or SimCity intellectual property.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No Vercel deployment, Supabase project billing, online score settlement, cross-platform publishing, asset streaming, payouts or physical territory ownership.' >> "$GITHUB_STEP_SUMMARY"
