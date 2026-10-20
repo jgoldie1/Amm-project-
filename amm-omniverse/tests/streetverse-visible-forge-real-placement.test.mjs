@@ -31,6 +31,8 @@ test('Taylor travel retains the player, joystick and 3D canvas instead of replac
  assert.match(mobile,/avatar\.position\.set\(x,0,z\)/)
  assert.match(mobile,/createStreetVerseWestSideVisibleWorld\(scene,externalCollisionBoxes\)/)
  assert.match(mobile,/renderer\.render\(scene,camera\)/)
+ const bridge=read('src/components/StreetVerseGeoSpawnBridge.tsx')
+ assert.match(bridge,/if\(mobile\)\{window\.dispatchEvent\(new CustomEvent\('tryamm:west-side-route-request'/)
 })
 test('native self-contained GLBs are generated during production build, independent of paid external APIs',()=>{
  const pkg=JSON.parse(read('package.json'))
