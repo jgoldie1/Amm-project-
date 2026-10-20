@@ -8,6 +8,7 @@ import BusinessOnboarding from './business/BusinessOnboarding'
 import ServiceWorkbench from './business/ServiceWorkbench'
 import SupportOperatorConsole from './business/SupportOperatorConsole'
 import TemplateGallery from './business/TemplateGallery'
+import BusinessFundingHub from './business/BusinessFundingHub'
 import PilotProgram from './business/PilotProgram'
 import TemplatePublisher from './business/TemplatePublisher'
 import {TemplateCatalogProvider} from './business/TemplateCatalogProvider'
@@ -105,9 +106,9 @@ function BusinessApp(){
   catch{setMessage('Sign-out failed. Please retry.')}
   finally{setBusy(false)}
  }
- return <><a className="skip-link" href="#business-content">Skip to main content</a><header className="app-header"><a className="brand" href="/">TRYAMM <span>APP</span></a><nav aria-label="App navigation"><a href="#business-catalog">Demos</a><a href="#app-tools">Tools</a><a href="#account">Account</a><a className="game-option" aria-label="StreetVerse · optional game ↗" href="/streetverse">Game · optional ↗</a></nav></header>
- <main id="business-content" tabIndex={-1}><div className="app-hero"><p className="eyebrow">WELCOME TO THE TRYAMM APP</p><h1>Try your next<br/>business website.</h1><p className="intro">Explore business website demos, create with AI, and use the app. StreetVerse is optional.</p><div className="hero-actions"><a className="studio-jump" href="#business-catalog">Browse business demos ↓</a><a className="studio-jump secondary-action" href="/create">Open creator tools ↗</a><a className="studio-jump secondary-action" href="#ai-workstation">Try Jarvis & AI ↓</a></div></div>
- <a className="pilot-invite" href="#template-pilot">10 free template gifts · join the honest-feedback pilot ↓</a><TemplateGallery/><TemplatePublisher/><PilotProgram/><BusinessAccessibility/><nav id="app-tools" aria-label="Business tools" className="cards">
+ return <><a className="skip-link" href="#business-content">Skip to main content</a><header className="app-header"><a className="brand" href="/">TRYAMM <span>APP</span></a><nav aria-label="App navigation"><a href="#funding-hub">Funding & Compliance</a><a href="#business-catalog">Websites</a><a href="#app-tools">Tools</a><a href="#account">Account</a><a className="game-option" aria-label="StreetVerse · optional game ↗" href="/streetverse">Game · optional ↗</a></nav></header>
+ <main id="business-content" tabIndex={-1}><div className="app-hero"><p className="eyebrow">WELCOME TO THE TRYAMM APP</p><h1>Build a business.<br/>Prepare to get funded.</h1><p className="intro">Start your business website, develop a funding plan, review registration and licensing requirements, prepare a lender packet, and grow with TRYAMM AI. StreetVerse remains a separate optional game.</p><div className="hero-actions"><a className="studio-jump" href="#funding-hub">Start funding & compliance plan ↓</a><a className="studio-jump secondary-action" href="#business-catalog">Browse 54 complete websites ↓</a><a className="studio-jump secondary-action" href="/create">Open creator tools ↗</a><a className="studio-jump secondary-action" href="#ai-workstation">Try Jarvis & AI ↓</a></div></div>
+ <a className="pilot-invite" href="#template-pilot">10 free template gifts · join the honest-feedback pilot ↓</a><BusinessFundingHub/><TemplateGallery/><TemplatePublisher/><PilotProgram/><BusinessAccessibility/><nav id="app-tools" aria-label="Business tools" className="cards">
  {[
  ['/marketplace','Shop','Browse the marketplace'],['/business','Sell & manage','Open business tools'],['/create','Create','Open Reel and creator tools'],['/earnings','Earnings','Review earnings and payout status'],['/beauty-supply','Beautyverse','Open beauty business tools'],['/mobility360.html','Stubbs Mobility','Open mobility services']
  ].map(([href,title,detail])=><a className="card" key={href} href={href}><h2>{title} ↗</h2><p>{detail}</p></a>)}
