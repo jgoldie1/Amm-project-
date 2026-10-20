@@ -54,4 +54,11 @@ export const TEMPLATE_SECTORS:Record<string,string> = {
   "07": "Security & Legal",
   "08": "Creator & Entertainment",
   "09": "Professional & Finance"
+ "55": "Beauty & Personal Care",
+ "56": "Beauty & Personal Care",
+ "57": "Beauty & Personal Care",
+ "58": "Beauty & Personal Care",
+ "59": "Property & Trades",
+ "60": "Creator & Entertainment",
+
 }

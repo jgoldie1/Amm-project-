@@ -53,4 +53,11 @@ export const TEMPLATE_DEMOS:Record<string,{brand:string;tagline:string;type:'sho
  "52":{"brand":"Sample Restaurant Holo Menu & Catering","tagline":"Let your menu speak.","type":"inquiry","tone":"#97512e","items":[["Today's menu",0],["Catering quote",0],["Group reservation inquiry",0]]},
  "53":{"brand":"Sample Local TV, News & Advertising","tagline":"Share what your city is doing.","type":"inquiry","tone":"#5c4177","items":[["Local show inquiry",0],["Advertising rates",0],["Story submission",0]]},
  "54":{"brand":"Sample Media & Music Academy","tagline":"Learn the craft. Share the story.","type":"booking","tone":"#655385","items":[["Intro to recording",0],["Video workshop",0],["Music lesson",0]]},
+ '55':{brand:"Velvet Crown Hair Studio",tagline:"Style with confidence, leave glowing.",type:'booking',tone:'#ab527c',items:[["Signature blowout",65],["Silk press and finish",85],["Color consultation",30]]},
+ '56':{brand:"Luminous Day Spa",tagline:"A little stillness goes a long way.",type:'booking',tone:'#407f76',items:[["Wellness consultation",25],["Facial appointment",80],["Spa package inquiry",0]]},
+ '57':{brand:"Arch & Bloom Studio",tagline:"Precision. Beauty. Confidence.",type:'booking',tone:'#8e678e',items:[["Lash set inquiry",90],["Brow styling",40],["Consultation",15]]},
+ '58':{brand:"Crown Essentials Market",tagline:"All your beauty essentials in one place.",type:'shop',tone:'#9a5b3a',items:[["Hair care set",39],["Beauty accessory kit",19],["Protective style essentials",27]]},
+ '59':{brand:"Green Block Outdoor Co.",tagline:"Care for every corner of your property.",type:'inquiry',tone:'#387856',items:[["Lawn care estimate",0],["Seasonal cleanup",0],["Landscape consultation",0]]},
+ '60':{brand:"Ever After Events Co.",tagline:"Beautiful gatherings, made personal.",type:'booking',tone:'#7865a4',items:[["Planning consultation",50],["Event design inquiry",0],["Vendor coordination inquiry",0]]},
+
 }

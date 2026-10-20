@@ -1,4 +1,5 @@
 import {useState} from 'react'
+import OmniBoxStoryboardPreview from './OmniBoxStoryboardPreview'
 import './OmniBoxStoryStudio.css'
 export type EpisodeBeat={id:string;title:string;purpose:string;dialogue:string;shots:string;audio:string;durationSeconds:number}
 export type EpisodeDraft={title:string;series:string;genre:string;rightsNote:string;episodeNumber:number;scenes:EpisodeBeat[];updatedAt:string;renderStatus:'outline-only'}
@@ -39,6 +40,7 @@ export default function OmniBoxStoryStudio(){
  return <main className="omni-story">
   <header className="omni-story-header"><div><p>TRYAMM · OMNI BOX</p><h1>Make a 30-minute Holo Drama episode</h1><p>Plan six five-minute acts and prepare the script, shots, dialogue and audio for production.</p></div><nav><a href="/holo-drama">HOLO DRAMA ↗</a><a href="/business-app.html">BUSINESS APP ↗</a><a href="/streetverse">STREETVERSE ↗</a></nav></header>
   <section className="omni-story-facts" aria-label="Episode plan progress"><div><strong>6</strong><span>planned acts</span></div><div><strong>{Math.floor(total/60)}:{String(total%60).padStart(2,'0')}</strong><span>target duration</span></div><div><strong>0</strong><span>minutes rendered</span></div></section>
+  <OmniBoxStoryboardPreview scenes={draft.scenes} selected={selected} onSelect={setSelected}/>
   <section className="omni-story-work"><div className="omni-story-setup"><h2>Episode identity</h2>
     <label>Series title<input value={draft.series} onChange={e=>change('series',e.target.value.slice(0,90))}/></label><label>Episode title<input value={draft.title} onChange={e=>change('title',e.target.value.slice(0,110))}/></label><label>Genre<input value={draft.genre} onChange={e=>change('genre',e.target.value.slice(0,80))}/></label><label>Episode number<input type="number" min={1} max={999} value={draft.episodeNumber} onChange={e=>change('episodeNumber',Math.max(1,Math.min(999,Number(e.target.value)||1)))}/></label><label>Rights and performer release notes<textarea value={draft.rightsNote} onChange={e=>change('rightsNote',e.target.value.slice(0,1500))}/></label></div>
    <div className="omni-story-script"><h2>Scene-by-scene production plan</h2><p>Six acts × five minutes = a 30-minute outline. Editable story notes, not generated footage.</p><nav aria-label="Episode act selection">{draft.scenes.map((s,i)=><button type="button" aria-pressed={selected===i} key={s.id} onClick={()=>setSelected(i)}>{i+1}. {s.title}</button>)}</nav>

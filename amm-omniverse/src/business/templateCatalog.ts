@@ -54,6 +54,12 @@ export const TEMPLATE_CATALOG=[
  {"id":"52","name":"Restaurant Holo Menu & Catering","audience":"Restaurants, cafes and catering operators","headline":"Let your menu speak."},
  {"id":"53","name":"Local TV, News & Advertising","audience":"Community broadcasters and advertisers","headline":"Share what your city is doing."},
  {"id":"54","name":"Media & Music Academy","audience":"Creative classes and recording education","headline":"Learn the craft. Share the story."},
+ {id:'55',name:"Hair Salon & Blowout Bar",audience:"Full-service hair salons, silk press, blowouts and hair color",headline:"Great hair. Great energy."},
+ {id:'56',name:"Day Spa & Esthetics Studio",audience:"Day spas, skin studios, massage and esthetician businesses",headline:"Make time to feel renewed."},
+ {id:'57',name:"Lash & Brow Studio",audience:"Lash technicians, brow artists and appointment-based studios",headline:"Every detail makes the look."},
+ {id:'58',name:"Beauty Supply & Haircare Store",audience:"Hair care brands, beauty supply retailers and independent e-commerce",headline:"Your essentials for every look."},
+ {id:'59',name:"Landscaping & Lawn Care",audience:"Neighborhood lawn care, landscaping and exterior maintenance",headline:"Beautiful spaces start outside."},
+ {id:'60',name:"Events, Weddings & Celebration Planner",audience:"Event production, wedding coordination and celebration teams",headline:"Make every moment memorable."},
 ] as const
 export const WEBSITE_PACKAGES=[
  {id:'template',name:'DIY template',price:49,description:'One business, responsive starter page and editable content. Hosting and domain separate.'},
