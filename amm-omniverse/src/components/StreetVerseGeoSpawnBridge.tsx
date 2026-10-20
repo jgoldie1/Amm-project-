@@ -226,6 +226,18 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
   return()=>window.removeEventListener('tryamm:streetverse-gameplay-action',onGameplayAction)
  },[applyCityConsequence])
  useEffect(()=>{
+  const openExistingTaylorWorld=()=>{
+    if(safe){
+      setGraphicsStatus('3D graphics are unavailable in Safe Mode. Use Retry 3D Chicago before entering Taylor Street.')
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-near-west-unavailable',{detail:{reason:'safe-mode'}}))
+      return
+    }
+    setNearWestOpen(true)
+  }
+  window.addEventListener('tryamm:streetverse-open-near-west',openExistingTaylorWorld)
+  return()=>window.removeEventListener('tryamm:streetverse-open-near-west',openExistingTaylorWorld)
+ },[safe])
+ useEffect(()=>{
   const requestClose=()=>closeStreetVerse()
   window.addEventListener('tryamm:streetverse-request-close',requestClose)
   return()=>window.removeEventListener('tryamm:streetverse-request-close',requestClose)
