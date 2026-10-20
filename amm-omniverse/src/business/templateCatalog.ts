@@ -54,6 +54,12 @@ export const TEMPLATE_CATALOG=[
  {"id":"52","name":"Restaurant Holo Menu & Catering","audience":"Restaurants, cafes and catering operators","headline":"Let your menu speak."},
  {"id":"53","name":"Local TV, News & Advertising","audience":"Community broadcasters and advertisers","headline":"Share what your city is doing."},
  {"id":"54","name":"Media & Music Academy","audience":"Creative classes and recording education","headline":"Learn the craft. Share the story."},
+ {"id":"55","name":"Holo Ride Share & Mobility","audience":"Ride-hailing startups, accessible transportation and mobility coordination","headline":"Plan a better way to get there."},
+ {"id":"56","name":"Holo Delivery & Courier Services","audience":"Local couriers, restaurant delivery partners and package fulfillment companies","headline":"Let your deliveries move forward."},
+ {"id":"57","name":"Holo FON & Telecom Services","audience":"Telecommunications startups, support teams and digital communication service planners","headline":"Stay connected to what matters."},
+ {"id":"58","name":"3D Game & AI Asset Studio","audience":"Independent game developers, 3D artists and virtual production teams","headline":"Create worlds that feel alive."},
+ {"id":"59","name":"Business Server & AI Hosting","audience":"Small-business website agencies, managed service providers and cloud onboarding consultants","headline":"Build your business foundation."},
+ {"id":"60","name":"Import Export & Global Trade","audience":"Small exporters, importers, Africa-USA sourcing partners and trade logistics teams","headline":"Connect markets with confidence."},
 ] as const
 export const WEBSITE_PACKAGES=[
  {id:'template',name:'DIY template',price:49,description:'One business, responsive starter page and editable content. Hosting and domain separate.'},
