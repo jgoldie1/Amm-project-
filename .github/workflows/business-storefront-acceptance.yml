@@ -1,7 +1,7 @@
 name: Business Storefront Acceptance
 on:
  push:
-  branches: ['fix/live-business-storefront-20261019', 'feature/family-friends-template-sectors-20261019']
+  branches: ['fix/live-business-storefront-20261019', 'feature/family-friends-template-sectors-20261019', 'feature/business-funding-compliance-hub-20261020']
 permissions:
  contents: read
 jobs:
