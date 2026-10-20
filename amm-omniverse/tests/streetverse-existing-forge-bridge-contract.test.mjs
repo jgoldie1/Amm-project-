@@ -28,8 +28,8 @@ test('West Side map and mission board open cinematic stories, not beep-only gene
 test('Taylor button opens the existing 3D renderer and preserves Safe Mode',()=>{
  const builder=read('src/components/StreetVerseWestSideWorldBuilder.tsx')
  const bridge=read('src/components/StreetVerseGeoSpawnBridge.tsx')
- assert.match(builder,/new Event\('tryamm:streetverse-open-near-west'\)/)
- assert.match(bridge,/addEventListener\('tryamm:streetverse-open-near-west'/)
+ assert.match(builder,/new CustomEvent\('tryamm:west-side-route-request'/)
+ assert.match(read('src/components/StreetVerseMobileWorld.tsx'),/addEventListener\('tryamm:west-side-route-request'/)
  assert.match(bridge,/if\(safe\)/)
  assert.match(bridge,/setNearWestOpen\(true\)/)
 })

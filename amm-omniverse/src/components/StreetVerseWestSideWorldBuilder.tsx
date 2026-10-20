@@ -104,6 +104,7 @@ export default function StreetVerseWestSideWorldBuilder(){
  const [nativeEvidence,setNativeEvidence]=useState<{source:string;loaded:number;failed:number;detail:string}|null>(null)
  const [nativeProbe,setNativeProbe]=useState<{checking:boolean;ok:number;failed:string[]}|null>(null)
  const [forgeEvidence,setForgeEvidence]=useState<{status:string;provider:string}|null>(null)
+ const [placedEvidence,setPlacedEvidence]=useState<{status:string;placed:number;requested:number;count:number;missing:string[]}|null>(null)
  const [quantumPlan,setQuantumPlan]=useState<QuantumPlanView|null>(null)
  const [cleanRoom,setCleanRoom]=useState<CleanRoomStateView>({jobs:[],lastJob:null})
  const [sandbox,setSandbox]=useState<SandboxStateView>({planId:null,targetLabel:null,speedMode:'balanced',maxConcurrentJobs:4,waves:[],missingEvidence:[],publishable:false})
@@ -128,14 +129,26 @@ export default function StreetVerseWestSideWorldBuilder(){
     const d=(event as CustomEvent<{status?:string;provider?:string}>).detail||{}
     setForgeEvidence({status:String(d.status||'unknown'),provider:String(d.provider||'unknown')})
   }
+  const main3D=(event:Event)=>{
+   const d=(event as CustomEvent<{loaded?:number;failed?:number}>).detail||{}
+   setNativeEvidence({source:'Main iPhone playable 3D',loaded:Number(d.loaded||0),failed:Number(d.failed||0),detail:'Native GLBs loaded in the active mobile canvas; preview-only models retain the existing gameplay collision authority.'})
+  }
+  const placement=(event:Event)=>{
+    const d=(event as CustomEvent<{status?:string;placed?:number;requested?:number;count?:number;missing?:string[]}>).detail||{}
+    setPlacedEvidence({status:String(d.status||'unknown'),placed:Number(d.placed||0),requested:Number(d.requested||0),count:Number(d.count||0),missing:Array.isArray(d.missing)?d.missing:[]})
+  }
+  window.addEventListener('tryamm:streetverse-native-mobile-ready',main3D)
   window.addEventListener('tryamm:streetverse-west-side-native-assets',west)
   window.addEventListener('tryamm:streetverse-chicago-native-assets-ready',taylor)
   window.addEventListener('tryamm:streetverse-chicago-native-assets-error',error)
+  window.addEventListener('tryamm:streetverse-forge-placement-result',placement)
   window.addEventListener('tryamm:holoforge-asset-ready',forge)
   return()=>{
+    window.removeEventListener('tryamm:streetverse-native-mobile-ready',main3D)
     window.removeEventListener('tryamm:streetverse-west-side-native-assets',west)
     window.removeEventListener('tryamm:streetverse-chicago-native-assets-ready',taylor)
     window.removeEventListener('tryamm:streetverse-chicago-native-assets-error',error)
+    window.removeEventListener('tryamm:streetverse-forge-placement-result',placement)
     window.removeEventListener('tryamm:holoforge-asset-ready',forge)
   }
  },[])
@@ -158,9 +171,16 @@ export default function StreetVerseWestSideWorldBuilder(){
    setNotice(ok===samples.length?'LOCAL ASSETS FOUND • generated GLBs respond on this deployment. Enter Taylor 3D to see loaded models.':'ASSET DELIVERY BLOCKED • '+failed.join(', ')+' — inspect build output or host status.')
  }
  const openBuiltWestSide=()=>{
-   window.dispatchEvent(new Event('tryamm:streetverse-open-near-west'))
+   // The main mobile renderer already contains the Circle Park and Taylor
+   // corridors. Travel inside it instead of mounting a second WebGL canvas.
+   window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-world-builder'}}))
    setOpen(false)
  }
+ const forgeVisible=(preset:'park'|'street'|'storefront')=>{
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-forge-placement-request',{detail:{preset,source:'west-side-world-builder'}}))
+   setNotice('FORGE '+preset.toUpperCase()+' • requested placement inside the active mobile 3D scene; confirm the result below.')
+ }
+ const undoForge=()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-forge-placement-undo',{detail:{source:'west-side-world-builder'}}))
 
  useEffect(()=>{
   const show=()=>setOpen(true)
@@ -409,7 +429,18 @@ export default function StreetVerseWestSideWorldBuilder(){
        </div>
        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7,marginTop:10}}>
         <button onClick={inspectBuiltAssets} disabled={nativeProbe?.checking} style={actionBtn}>🔎 VERIFY 4 GLBs</button>
-        <button onClick={openBuiltWestSide} style={{...actionBtn,background:'#145742',borderColor:'#92ffd0'}}>🎮 ENTER TAYLOR 3D</button>
+        <button onClick={openBuiltWestSide} style={{...actionBtn,background:'#145742',borderColor:'#92ffd0'}}>🎮 WALK TAYLOR IN GAME</button>
+       </div>
+       <div style={{marginTop:9,display:'grid',gap:7}}>
+        <strong style={{fontSize:11,color:'#c6ffde'}}>BUILD INTO THE ACTIVE 3D CITY</strong>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7}}>
+          <button style={actionBtn} onClick={()=>forgeVisible('storefront')}>🏢 PLACE STOREFRONTS</button>
+          <button style={actionBtn} onClick={()=>forgeVisible('park')}>🌳 PLACE PARK</button>
+          <button style={actionBtn} onClick={()=>forgeVisible('street')}>🚏 PLACE STREET PROPS</button>
+          <button style={actionBtn} onClick={undoForge}>↶ UNDO LAST PROP</button>
+        </div>
+        <div role="status" style={{fontSize:11,color:'#c1e4ed'}}>{placedEvidence?<>FORGE {placedEvidence.status.toUpperCase()} · {placedEvidence.placed}/{placedEvidence.requested} added · {placedEvidence.count} saved in the scene{placedEvidence.missing.length>0?' · missing: '+placedEvidence.missing.join(', '):''}</>:'No user-forged placements confirmed yet. Each action reuses GLBs already loaded by the current game.'}</div>
+        <button style={{...actionBtn,background:'#176044'}} onClick={()=>setOpen(false)}>👁 VIEW LIVE CITY CHANGES</button>
        </div>
        <p style={muted}>Uses your existing West Side native kit and Taylor Street world. Does not call an asset-generation API, purchase credits, replace original GLBs or certify BJ's likeness.</p>
       </article>
