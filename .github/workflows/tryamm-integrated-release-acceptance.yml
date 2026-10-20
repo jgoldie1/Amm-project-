@@ -48,6 +48,8 @@ jobs:
           test -s dist/generated-assets/native/kit/tryamm-2027-sport-sedan.glb
           test -s dist/generated-assets/native/kit/streetverse-hero-player.glb
           test -s dist/generated-assets/native/manifest.json
+      - name: Install the pinned Playwright test runner without changing lockfile
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund @playwright/test@1.57.0
       - name: Install mobile browser test engines
         run: npx playwright install --with-deps chromium webkit
       - name: Verify business storefront in simulated mobile browsers
