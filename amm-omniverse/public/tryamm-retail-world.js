@@ -47,4 +47,7 @@
   }
   // Wait for the game to mount; standalone shop controls must not cover startup.
   window.addEventListener('tryamm:streetverse-enter',mount,{once:true})
+  // Direct visits to /streetverse bypass the homepage ENTER event.
+  // Wait until an actual city world-ready signal so shops never block boot.
+  window.addEventListener('tryamm:streetverse-world-ready',mount,{once:true})
 })()

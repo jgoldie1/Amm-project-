@@ -1,0 +1,57 @@
+name: TRYAMM Integrated Business + StreetVerse Release Gate
+on:
+  push:
+    branches:
+      - release/tryamm-game-business-20261020
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integrated-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    env:
+      MESHY_API_KEY: ""
+      HIGGSFIELD_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Business and StreetVerse source contracts
+        run: |
+          node --test tests/streetverse-cinematics-omnibox-contract.test.mjs tests/streetverse-existing-forge-bridge-contract.test.mjs tests/streetverse-visible-forge-real-placement.test.mjs tests/live-business-preservation.mjs tests/business-entry-bundle.mjs tests/public-env-guard.test.mjs tests/template-catalog.test.mjs tests/template-listings.test.mjs
+      - name: Compile all pages and game
+        run: npm run typecheck
+      - name: Generate native TRYAMM assets and assemble full website
+        run: npm run build
+      - name: Verify storefront and mobile game release files
+        run: |
+          test -s dist/index.html
+          test -s dist/business-app.html
+          test -s dist/streetverse-safe.html
+          test -s dist/generated-assets/native/kit/tree.glb
+          test -s dist/generated-assets/native/kit/brick-building-module.glb
+          test -s dist/generated-assets/native/kit/tryamm-2027-sport-sedan.glb
+          test -s dist/generated-assets/native/kit/streetverse-hero-player.glb
+          test -s dist/generated-assets/native/manifest.json
+      - name: Install mobile browser test engines
+        run: npx playwright install --with-deps chromium webkit
+      - name: Verify business storefront in simulated mobile browsers
+        run: npx playwright test --config playwright.business.config.ts
+      - name: Archive built native assets for recovery
+        uses: actions/upload-artifact@v4
+        with:
+          name: integrated-tryamm-native-kit-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            amm-omniverse/dist/generated-assets/native/manifest.json
+            amm-omniverse/dist/generated-assets/native/kit/*.glb

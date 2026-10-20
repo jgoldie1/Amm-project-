@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useState} from 'react'
 import {CHICAGO_BUILD_GRID} from '../data/StreetVerseChicagoBuildGrid'
+import {TRYAMM_NATIVE_RUNTIME_ASSETS} from '../data/TryammNativeRuntimeAssetCatalog'
 import {UIC_ALL_CAMPUS_HUBS} from '../data/uicCampusVerseHubs'
 import {ILLINOIS_CAMPUSVERSE_NETWORK} from '../data/campusVerseIllinoisUniversityNetwork'
 import {CHICAGO_77_SLICES,streetVerseCommunitySpawn} from '../config/streetverseCommunitySlices'
@@ -100,6 +101,10 @@ export default function StreetVerseWestSideWorldBuilder(){
  const [scale,setScale]=useState<Scale>('west')
  const [selected,setSelected]=useState<Zone>(ZONES[0])
  const [notice,setNotice]=useState('World Builder ready • West Side → Chicago 77 → Illinois → USA → World.')
+ const [nativeEvidence,setNativeEvidence]=useState<{source:string;loaded:number;failed:number;detail:string}|null>(null)
+ const [nativeProbe,setNativeProbe]=useState<{checking:boolean;ok:number;failed:string[]}|null>(null)
+ const [forgeEvidence,setForgeEvidence]=useState<{status:string;provider:string}|null>(null)
+ const [placedEvidence,setPlacedEvidence]=useState<{status:string;placed:number;requested:number;count:number;missing:string[]}|null>(null)
  const [quantumPlan,setQuantumPlan]=useState<QuantumPlanView|null>(null)
  const [cleanRoom,setCleanRoom]=useState<CleanRoomStateView>({jobs:[],lastJob:null})
  const [sandbox,setSandbox]=useState<SandboxStateView>({planId:null,targetLabel:null,speedMode:'balanced',maxConcurrentJobs:4,waves:[],missingEvidence:[],publishable:false})
@@ -108,6 +113,78 @@ export default function StreetVerseWestSideWorldBuilder(){
  const [layers,setLayers]=useState({neighborhood:true,school:true,faith:true,campus:true,medical:true,transit:true})
  const visible=useMemo(()=>ZONES.filter(z=>layers[z.group]),[layers])
 
+ useEffect(()=>{
+  // Report only models actually attached to a Three.js group. Asset recipes and
+  // a queued provider result do NOT mean that anything appeared in the game.
+  const west=(event:Event)=>{
+    const d=(event as CustomEvent<{loaded?:number;failed?:number}>).detail||{}
+    setNativeEvidence({source:'West Side active 3D world',loaded:Number(d.loaded||0),failed:Number(d.failed||0),detail:'Native GLBs mounted; visual-only until collision/animation QA.'})
+  }
+  const taylor=(event:Event)=>{
+    const d=(event as CustomEvent<{loaded?:number;failed?:unknown[]}>).detail||{}
+    setNativeEvidence({source:'Taylor/UIC active 3D world',loaded:Number(d.loaded||0),failed:Array.isArray(d.failed)?d.failed.length:0,detail:'Native GLBs mounted on Near West 3D scene, independent of blocked external Meshy assets.'})
+  }
+  const error=(event:Event)=>setNativeEvidence({source:'Taylor/UIC',loaded:0,failed:1,detail:String((event as CustomEvent<{error?:string}>).detail?.error||'The model layer failed to load.')})
+  const forge=(event:Event)=>{
+    const d=(event as CustomEvent<{status?:string;provider?:string}>).detail||{}
+    setForgeEvidence({status:String(d.status||'unknown'),provider:String(d.provider||'unknown')})
+  }
+  const main3D=(event:Event)=>{
+   const d=(event as CustomEvent<{loaded?:number;failed?:number}>).detail||{}
+   setNativeEvidence({source:'Main iPhone playable 3D',loaded:Number(d.loaded||0),failed:Number(d.failed||0),detail:'Native GLBs loaded in the active mobile canvas; preview-only models retain the existing gameplay collision authority.'})
+  }
+  const placement=(event:Event)=>{
+    const d=(event as CustomEvent<{status?:string;placed?:number;requested?:number;count?:number;missing?:string[]}>).detail||{}
+    setPlacedEvidence({status:String(d.status||'unknown'),placed:Number(d.placed||0),requested:Number(d.requested||0),count:Number(d.count||0),missing:Array.isArray(d.missing)?d.missing:[]})
+  }
+  window.addEventListener('tryamm:streetverse-native-mobile-ready',main3D)
+  window.addEventListener('tryamm:streetverse-west-side-native-assets',west)
+  window.addEventListener('tryamm:streetverse-chicago-native-assets-ready',taylor)
+  window.addEventListener('tryamm:streetverse-chicago-native-assets-error',error)
+  window.addEventListener('tryamm:streetverse-forge-placement-result',placement)
+  window.addEventListener('tryamm:holoforge-asset-ready',forge)
+  return()=>{
+    window.removeEventListener('tryamm:streetverse-native-mobile-ready',main3D)
+    window.removeEventListener('tryamm:streetverse-west-side-native-assets',west)
+    window.removeEventListener('tryamm:streetverse-chicago-native-assets-ready',taylor)
+    window.removeEventListener('tryamm:streetverse-chicago-native-assets-error',error)
+    window.removeEventListener('tryamm:streetverse-forge-placement-result',placement)
+    window.removeEventListener('tryamm:holoforge-asset-ready',forge)
+  }
+ },[])
+
+ // Explicit four-file probe only on a user's tap; never auto-poll the host or
+ // consume Meshy/Higgsfield credits just to render status information.
+ const inspectBuiltAssets=async()=>{
+   const samples=(['building','tree','sportSedan2027','heroPlayer'] as const).map(key=>TRYAMM_NATIVE_RUNTIME_ASSETS[key])
+   setNativeProbe({checking:true,ok:0,failed:[]})
+   const result=await Promise.all(samples.map(async asset=>{
+     try{
+       const response=await fetch(asset.url,{method:'HEAD',cache:'no-store'})
+       const type=response.headers.get('content-type')||''
+       return {label:asset.id,ok:response.ok&&!/text\/html/i.test(type),status:response.status}
+     }catch{return {label:asset.id,ok:false,status:0}}
+   }))
+   const ok=result.filter(entry=>entry.ok).length
+   const failed=result.filter(entry=>!entry.ok).map(entry=>entry.label+' ('+(entry.status||'network')+')')
+   setNativeProbe({checking:false,ok,failed})
+   setNotice(ok===samples.length?'LOCAL ASSETS FOUND • generated GLBs respond on this deployment. Enter Taylor 3D to see loaded models.':'ASSET DELIVERY BLOCKED • '+failed.join(', ')+' — inspect build output or host status.')
+ }
+ const openBuiltWestSide=()=>{
+   // The main mobile renderer already contains the Circle Park and Taylor
+   // corridors. Travel inside it instead of mounting a second WebGL canvas.
+   window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-world-builder'}}))
+   setOpen(false)
+ }
+ const forgeVisible=(preset:'park'|'street'|'storefront')=>{
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-forge-placement-request',{detail:{preset,source:'west-side-world-builder'}}))
+   setNotice('FORGE '+preset.toUpperCase()+' • requested placement inside the active mobile 3D scene; confirm the result below.')
+ }
+ const undoForge=()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-forge-placement-undo',{detail:{source:'west-side-world-builder'}}))
+
+ useEffect(()=>{
+  if(open&&tab==='build')window.dispatchEvent(new Event('tryamm:streetverse-forge-request-state'))
+ },[open,tab])
  useEffect(()=>{
   const show=()=>setOpen(true)
   window.addEventListener('tryamm:west-side-builder-open',show)
@@ -178,10 +255,9 @@ export default function StreetVerseWestSideWorldBuilder(){
  }
 
  const startMission=(zone:Zone)=>{
-  const detail={missionId:`west-builder:${zone.id}`,id:`west-builder:${zone.id}`,title:`West Side • ${zone.label}`,objective:`Reach and complete the ${zone.label} district objective.`,campus:zone.campusId,source:'streetverse-world-builder'}
-  window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail}))
-  window.dispatchEvent(new CustomEvent('tryamm:campusverse-mission-open',{detail}))
-  setNotice(`MISSION SENT • ${zone.label}`)
+  const missionId=zone.id==='circle-park'?'hold-the-block':zone.id==='taylor'?'first-ride-story':'business-on-the-block'
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId,source:'streetverse-world-builder',zoneId:zone.id}}))
+  setOpen(false)
  }
 
  const openCampus=(campusId:string)=>{
@@ -346,6 +422,31 @@ export default function StreetVerseWestSideWorldBuilder(){
     </>}
 
     {tab==='build'&&<>
+     <article style={{...card,borderColor:'#72ffb080'}} aria-label="West Side existing asset delivery status">
+       <b>EXISTING TRYAMM FORGE ASSETS · DELIVERY PROOF</b>
+       <p style={muted}>Foundry defines {Object.keys(TRYAMM_NATIVE_RUNTIME_ASSETS).length} native asset types. A recipe, blueprint or saved GLB link is not proof of an asset appearing on-screen. The counters below show real loaded geometry only when the 3D loader reports it.</p>
+       <div role="status" style={{fontSize:11,lineHeight:1.6,color:'#b5d9e7'}}>
+        {nativeEvidence?<><strong>{nativeEvidence.source}: {nativeEvidence.loaded} placed · {nativeEvidence.failed} failed</strong><div>{nativeEvidence.detail}</div></>:<strong>No asset-layer completion reported for this game session yet.</strong>}
+        {forgeEvidence&&<div>HoloForge latest: {forgeEvidence.status} via {forgeEvidence.provider}. Provider status alone is not a loaded model.</div>}
+        {nativeProbe&&<div>Static asset delivery: {nativeProbe.checking?'checking four existing files':nativeProbe.ok+'/4 respond'+(nativeProbe.failed.length?' · unavailable: '+nativeProbe.failed.join(', '):'')}.</div>}
+       </div>
+       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7,marginTop:10}}>
+        <button onClick={inspectBuiltAssets} disabled={nativeProbe?.checking} style={actionBtn}>🔎 VERIFY 4 GLBs</button>
+        <button onClick={openBuiltWestSide} style={{...actionBtn,background:'#145742',borderColor:'#92ffd0'}}>🎮 WALK TAYLOR IN GAME</button>
+       </div>
+       <div style={{marginTop:9,display:'grid',gap:7}}>
+        <strong style={{fontSize:11,color:'#c6ffde'}}>BUILD INTO THE ACTIVE 3D CITY</strong>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7}}>
+          <button style={actionBtn} onClick={()=>forgeVisible('storefront')}>🏢 PLACE STOREFRONTS</button>
+          <button style={actionBtn} onClick={()=>forgeVisible('park')}>🌳 PLACE PARK</button>
+          <button style={actionBtn} onClick={()=>forgeVisible('street')}>🚏 PLACE STREET PROPS</button>
+          <button style={actionBtn} onClick={undoForge}>↶ UNDO LAST PROP</button>
+        </div>
+        <div role="status" style={{fontSize:11,color:'#c1e4ed'}}>{placedEvidence?<>FORGE {placedEvidence.status.toUpperCase()} · {placedEvidence.placed}/{placedEvidence.requested} added · {placedEvidence.count} saved in the scene{placedEvidence.missing.length>0?' · missing: '+placedEvidence.missing.join(', '):''}</>:'No user-forged placements confirmed yet. Each action reuses GLBs already loaded by the current game.'}</div>
+        <button style={{...actionBtn,background:'#176044'}} onClick={()=>setOpen(false)}>👁 VIEW LIVE CITY CHANGES</button>
+       </div>
+       <p style={muted}>Uses your existing West Side native kit and Taylor Street world. Does not call an asset-generation API, purchase credits, replace original GLBs or certify BJ's likeness.</p>
+      </article>
      <article style={card}><b>BUILD CONTROL • {scaleLabel[scale]}</b><p style={muted}>Visible construction manifest for the selected world scale. Build actions still require committed code/assets; this screen does not pretend background work happened.</p><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7}}><button onClick={requestQuantumPlan} style={{...actionBtn,gridColumn:'1 / -1'}}>⚛ QUANTUM AUTO PLAN</button><button onClick={openCursorConstruct} style={actionBtn}>CURSOR CONSTRUCT</button><button onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:construct:scan'));setNotice('CONSTRUCT SCAN • checking nearby world targets.')}} style={actionBtn}>SCAN</button><button onClick={originalizeSelected} style={{...actionBtn,gridColumn:'1 / -1',borderColor:'#c48cff99'}}>🧠 MIND OVER MATTER • MAKE OUR VERSION</button><button onClick={runSandbox} style={{...actionBtn,gridColumn:'1 / -1',borderColor:'#74ffa899'}}>⚡ QUANTUM SPEED • SANDBOX TEST</button><button onClick={runRepairSweep} style={{...actionBtn,gridColumn:'1 / -1',borderColor:'#ff9f6e99'}}>🛠 SELF-HEAL • REPAIR SWEEP</button><button onClick={()=>openMiddleverseRepair(repairs.activeTicketId||undefined)} style={{...actionBtn,gridColumn:'1 / -1',borderColor:'#e8b94499'}}>∞ MIDDLEVERSE AI • REPAIR WORKFORCE</button><button onClick={openBuildSwarm} style={{...actionBtn,gridColumn:'1 / -1'}}>OPEN BUILD SWARM</button></div></article>
      {quantumPlan&&<article style={card}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><b>QUANTUM BUILD QUEUE</b><span style={{fontSize:8,color:'#6de3ff'}}>{quantumPlan.oracle.cloudReturnMode.toUpperCase()}</span></div><div style={{fontSize:11,fontWeight:850,marginTop:5}}>{quantumPlan.target.label}</div><div style={muted}>{quantumPlan.quantumMeaning}</div><div style={{display:'grid',gap:5,marginTop:8}}>{quantumPlan.tasks.map((task,index)=><div key={task.id} style={{display:'grid',gridTemplateColumns:'24px 1fr auto',gap:7,alignItems:'center',padding:'7px 8px',borderRadius:9,background:'#0c1b24',border:'1px solid #294655'}}><span style={{fontSize:9,fontWeight:950,color:'#6de3ff'}}>{String(index+1).padStart(2,'0')}</span><span><b style={{fontSize:10}}>{task.label}</b><small style={{display:'block',opacity:.62}}>{task.stage}{task.approvalRequired?' • approval gate':''}</small></span><span style={{fontSize:8,color:task.state==='ready'?'#72ffb0':task.state==='passed'?'#72ffb0':task.state==='failed'?'#ff7c7c':'#ffd15c'}}>{task.state.toUpperCase()}</span></div>)}</div><div style={{marginTop:8,fontSize:9,color:'#9eb4c0'}}>Oracle requirements: {quantumPlan.oracle.requirements.length} • Certification gates: {quantumPlan.certificationGates.length}</div></article>}
      {cleanRoom.lastJob&&<article style={{...card,borderColor:'#7a4d9a'}}><div style={{display:'flex',justifyContent:'space-between',gap:8}}><b>MIND OVER MATTER • CLEAN ROOM</b><span style={{fontSize:8,color:'#d69bff'}}>{cleanRoom.jobs.length} JOBS</span></div><div style={{fontSize:11,fontWeight:850,marginTop:5}}>{cleanRoom.lastJob.targetLabel}</div><div style={muted}>Latest: {cleanRoom.lastJob.kind} • {cleanRoom.lastJob.reason} • {cleanRoom.lastJob.status}. Original replacements stay blocked from production until human originality/visual review and normal asset certification pass.</div></article>}
@@ -359,7 +460,7 @@ export default function StreetVerseWestSideWorldBuilder(){
     </>}
 
     {tab==='missions'&&<div style={{display:'grid',gap:8}}>
-     {MISSIONS.map((m,i)=><article key={m} style={card}><b>{String(i+1).padStart(2,'0')} • {m}</b><button onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{missionId:`world-builder-board-${i+1}`,title:m,source:'streetverse-world-builder-board'}}));setNotice(`MISSION SENT • ${m}`)}} style={{...actionBtn,marginTop:7}}>START / PIN</button></article>)}
+     {MISSIONS.map((m,i)=><article key={m} style={card}><b>{String(i+1).padStart(2,'0')} • {m}</b><button onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:i%3===0?'hold-the-block':i%3===1?'business-on-the-block':'first-ride-story',source:'streetverse-world-builder-board',boardTitle:m}}));setOpen(false)}} style={{...actionBtn,marginTop:7}}>START / PIN</button></article>)}
     </div>}
 
     {tab==='campuses'&&<>

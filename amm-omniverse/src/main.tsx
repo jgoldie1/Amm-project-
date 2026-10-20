@@ -43,6 +43,8 @@ const LiveCenter=lazy(()=>import('./components/LiveCenter'))
 const GuardianCommandCenter=lazy(()=>import('./components/GuardianCommandCenter'))
 const AccountPrivacyCenter=lazy(()=>import('./components/AccountPrivacyCenter'))
 const HoloDramaHub=lazy(()=>import('./components/HoloDramaHub'))
+const OmniBoxStoryStudio=lazy(()=>import('./components/OmniBoxStoryStudio'))
+const StreetVerseCinematicMissions=lazy(()=>import('./components/StreetVerseCinematicMissions'))
 const HoloDeliveryRideEntertainmentHub=lazy(()=>import('./components/HoloDeliveryRideEntertainmentHub'))
 const SpectraStudioCommandCenter=lazy(()=>import('./components/SpectraStudioCommandCenter'))
 const EthiopianBibleMetaverse=lazy(()=>import('./components/EthiopianBibleMetaverse'))
@@ -75,6 +77,7 @@ try {
   const isGuardian=currentPath==='/guardian'||currentPath==='/guardian/'
   const isAccountDeletion=currentPath==='/account-deletion'||currentPath==='/account-deletion/'
   const isHoloDrama=currentPath==='/holo-drama'||currentPath==='/holo-drama/'
+   const isOmniBox=['/omni-box','/omni-box/','/omnibox','/omnibox/'].includes(currentPath)
   const isSpectraStudios=currentPath==='/spectra-studios'||currentPath==='/spectra-studios/'
   const isEthiopianBible=['/metaverse-bible','/metaverse-bible/','/bible-metaverse','/bible-metaverse/','/holo-bible','/holo-bible/','/ethiopian-bible','/ethiopian-bible/','/faithverse','/faithverse/'].includes(currentPath)
   const isKingdomsPress=currentPath==='/kingdoms-press'||currentPath==='/kingdoms-press/'
@@ -153,6 +156,7 @@ try {
   else if(isGuardian)routeContent=<Suspense fallback={routeFallback}><GuardianCommandCenter /></Suspense>
   else if(isAccountDeletion)routeContent=<Suspense fallback={routeFallback}><AccountPrivacyCenter onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isHoloDrama)routeContent=<Suspense fallback={routeFallback}><HoloDramaHub /></Suspense>
+   else if(isOmniBox)routeContent=<Suspense fallback={routeFallback}><OmniBoxStoryStudio /></Suspense>
   else if(isSpectraStudios)routeContent=<Suspense fallback={routeFallback}><SpectraStudioCommandCenter /></Suspense>
   else if(isEthiopianBible)routeContent=<Suspense fallback={routeFallback}><EthiopianBibleMetaverse /></Suspense>
   else if(isKingdomsPress)routeContent=<Suspense fallback={routeFallback}><KingdomsPressOperations onClose={()=>{window.location.href='/'}} /></Suspense>
@@ -176,14 +180,25 @@ try {
   else if(businessSlug)routeContent=<FamilyBusinessPublicSite slug={businessSlug} onClose={()=>{window.location.href='/business'}} />
   else if(isTwinWorld)routeContent=<Suspense fallback={routeFallback}><StreetVerseTwinWorld onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isMeetStubbs)routeContent=<Suspense fallback={routeFallback}><MeetTheStubbsWorldDistrict onClose={()=>{window.location.href='/streetverse'}} /></Suspense>
-  else if(isStreetVerse)routeContent=streetVerseRoute
+  else if(isStreetVerse)routeContent=<>{streetVerseRoute}<Suspense fallback={null}><StreetVerseCinematicMissions/></Suspense></>
   else routeContent=mainShell
   
   
 } catch (error) {
   console.error('[TRYAMM] Optional runtime installer failed before React mount; continuing with core UI.', error)
   // Keep the public shell renderable even when an optional installer aborts startup.
-  routeContent = <Suspense fallback={<div role="status">Opening TRYAMM…</div>}><App /></Suspense>
+  // Never replace the canonical playable StreetVerse route with the homepage
+  // when an optional runtime installer fails during startup.
+  const fallbackPath=window.location.pathname
+  const gameRoute=fallbackPath.startsWith('/streetverse')&&!fallbackPath.startsWith('/streetverse/twin-world')&&!fallbackPath.startsWith('/streetverse/meet-the-stubbs')
+  const fallbackParams=new URLSearchParams(window.location.search)
+  if(gameRoute){
+    routeContent=fallbackParams.get('safe')==='1'||fallbackParams.get('mode')==='safe'
+      ? <><StreetVerseWeatherSync/><StreetVerseSafeWorld onClose={()=>{window.location.href='/'}} /></>
+      : <><Suspense fallback={<div role="status">Opening StreetVerse 3D…</div>}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense><Suspense fallback={null}><StreetVerseCinematicMissions/></Suspense></>
+  }else{
+    routeContent=<Suspense fallback={<div role="status">Opening TRYAMM…</div>}><App /></Suspense>
+  }
 }
 
 const rootElement = document.getElementById('root')
@@ -198,7 +213,7 @@ const entryDiagnostic = (() => {
   const ua = navigator.userAgent || ''
   const isMobile = /iPhone|iPad|iPod|Android/i.test(ua) || window.innerWidth <= 600
   // Keep production diagnostics out of the playable mobile surface.
-  if (!isMobile || window.location.pathname.startsWith('/streetverse')) return null
+  if (!isMobile || window.location.pathname.startsWith('/streetverse') || new URLSearchParams(window.location.search).get('diagnostic')!=='1') return null
   return (
     <div data-tryamm-entry-diagnostic="streetverse-main-v1" style={{position:'fixed',right:8,bottom:'calc(env(safe-area-inset-bottom, 0px) + 8px)',zIndex:2147483647,pointerEvents:'none',padding:'7px 9px',borderRadius:8,background:'#ffea00',color:'#111',font:'900 11px/1.15 system-ui,sans-serif',boxShadow:'0 2px 12px #0008'}}>
       SV ENTRY V1 • {window.location.pathname}

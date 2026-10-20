@@ -36,14 +36,8 @@ export default function StreetVerseCoreGameplayDock(){
   },[])
 
   const missionAction=()=>{
-    if(mission){
-      dispatchEvent(new CustomEvent('tryamm:city-navigation-target',{detail:{type:'mission',missionId:mission.id,label:mission.label,source:'streetverse-core-dock'}}))
-      setMessage('MISSION FOCUSED')
-      return
-    }
-    dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail:{source:'streetverse-core-dock'}}))
-    dispatchEvent(new CustomEvent('tryamm:accessibility-announce',{detail:{text:'First StreetVerse mission started. Follow the gold mission marker.'}}))
-    setMessage('MISSION STARTED')
+    dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:mission?.id,source:'streetverse-core-dock'}}))
+    setMessage('SCRIPTED MISSION SELECTOR OPENED')
   }
 
   const repair=()=>{
