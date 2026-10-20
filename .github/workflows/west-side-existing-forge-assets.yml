@@ -1,7 +1,7 @@
 name: West Side Reuse Existing Assets Gate
 on:
   push:
-    branches: [fix/west-side-forger-existing-assets-visibility-20261020]
+    branches: [fix/west-side-forger-existing-assets-visibility-20261020, fix/world-builder-real-placement-single-canvas-20261020]
   workflow_dispatch:
 permissions:
   contents: read
@@ -25,7 +25,7 @@ jobs:
       - name: Install reproducible locked dependencies
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Existing assets and world builder contract
-        run: node --test tests/streetverse-existing-forge-bridge-contract.test.mjs tests/streetverse-cinematics-omnibox-contract.test.mjs
+        run: node --test tests/streetverse-existing-forge-bridge-contract.test.mjs tests/streetverse-cinematics-omnibox-contract.test.mjs tests/streetverse-visible-forge-real-placement.test.mjs
       - name: Compile TypeScript for game and builder
         run: npm run typecheck
       - name: Generate only TRYAMM owned native assets, no paid APIs
@@ -38,3 +38,19 @@ jobs:
           test -s public/generated-assets/native/kit/streetverse-hero-player.glb
       - name: Build web app using generated local GLBs
         run: npx vite build
+      - name: Verify browser deploy includes all original native GLBs
+        run: |
+          test -s dist/generated-assets/native/kit/tree.glb
+          test -s dist/generated-assets/native/kit/brick-building-module.glb
+          test -s dist/generated-assets/native/kit/tryamm-2027-sport-sedan.glb
+          test -s dist/generated-assets/native/kit/streetverse-hero-player.glb
+          test -s dist/generated-assets/native/manifest.json
+      - name: Preserve verified self-contained GLB kit for recovery
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-native-kit-${{ github.sha }}
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            amm-omniverse/dist/generated-assets/native/manifest.json
+            amm-omniverse/dist/generated-assets/native/kit/*.glb
