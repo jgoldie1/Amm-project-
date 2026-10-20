@@ -42,7 +42,7 @@ test('all 60 starter templates have demos, benefits and a sector without losing 
  assert.equal(Object.keys(demos).length,60)
  assert.equal(Object.keys(sectors).length,60)
  assert.equal(new Set(Object.values(sectors)).size,10)
- assert.deepEqual(exports.TEMPLATE_CATALOG.slice(-6).map(t=>t.id),['55','56','57','58','59','60']);
+ assert.equal(Array.from(exports.TEMPLATE_CATALOG.slice(-6),t=>t.id).join(','),'55,56,57,58,59,60');
  for(const id of ['18','55','56','57','58','59','60'])assert.ok(exports.TEMPLATE_CATALOG.some(t=>t.id===id),id+' expected industry business');
  for(const entry of exports.TEMPLATE_CATALOG){
   const id=entry.id
