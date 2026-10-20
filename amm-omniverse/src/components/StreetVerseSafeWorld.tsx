@@ -1,4 +1,5 @@
-import {useMemo} from 'react'
+import {useMemo,type ReactNode} from 'react'
+import StreetVerseDominionLauncher from './StreetVerseDominionLauncher'
 import {getStreetVerseCommunitySlice,getStreetVerseMissionSlice} from '../config/streetverseCommunitySlices'
 import StreetVerseMobilePlayableWorld from './StreetVerseMobilePlayableWorld'
 import StreetVerseHydeParkMobileWorld from './StreetVerseHydeParkMobileWorld'
@@ -18,12 +19,13 @@ function routeRequest(){
 }
 
 export default function StreetVerseSafeWorld({onClose,communityAreaNumber}:{onClose:()=>void;communityAreaNumber?:string|number}){
+ const withDominion=(scene:ReactNode)=><><StreetVerseDominionLauncher/>{scene}</>
  const route=useMemo(routeRequest,[])
  const slice=useMemo(()=>communityAreaNumber!==undefined?getStreetVerseCommunitySlice(communityAreaNumber):getStreetVerseMissionSlice(),[communityAreaNumber])
- if(route.holoArena)return <HoloArenaWorld onClose={onClose}/>
- if(route.global)return <StreetVerseGlobalWorld onClose={onClose} onEnterChicago={()=>{const url=new URL(window.location.href);url.searchParams.delete('global');url.searchParams.set('city','chicago');window.location.assign(url.toString())}}/>
- if(route.circlePark)return <CircleParkHolographicWorld onClose={onClose}/>
- if(slice?.communityAreaNumber==='41')return <StreetVerseHydeParkMobileWorld onClose={onClose}/>
- if(slice)return <StreetVerseCommunityMobileWorld slice={slice} onClose={onClose}/>
- return <StreetVerseMobilePlayableWorld onClose={onClose}/>
+ if(route.holoArena)return withDominion(<HoloArenaWorld onClose={onClose}/>)
+ if(route.global)return withDominion(<StreetVerseGlobalWorld onClose={onClose} onEnterChicago={()=>{const url=new URL(window.location.href);url.searchParams.delete('global');url.searchParams.set('city','chicago');window.location.assign(url.toString())}}/>)
+ if(route.circlePark)return withDominion(<CircleParkHolographicWorld onClose={onClose}/>)
+ if(slice?.communityAreaNumber==='41')return withDominion(<StreetVerseHydeParkMobileWorld onClose={onClose}/>)
+ if(slice)return withDominion(<StreetVerseCommunityMobileWorld slice={slice} onClose={onClose}/>)
+ return withDominion(<StreetVerseMobilePlayableWorld onClose={onClose}/>)
 }
