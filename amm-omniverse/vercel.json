@@ -12,6 +12,10 @@
       "dest": "/business-app.html"
     },
     {
+      "src": "/site-demo/?",
+      "dest": "/site-demo.html"
+    },
+    {
       "src": "/accessibility/?",
       "dest": "/accessibility.html"
     },

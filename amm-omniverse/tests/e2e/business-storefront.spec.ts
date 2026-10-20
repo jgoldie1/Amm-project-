@@ -6,7 +6,7 @@ test.beforeEach(async({page})=>{
 test('business home exposes all demos and never loads the game',async({page},info)=>{
  const requests:string[]=[];page.on('request',request=>requests.push(request.url()))
  await page.goto('/business-app.html')
- await expect(page.getByRole('heading',{name:'Choose a business. Try its demo.'})).toBeVisible()
+ await expect(page.getByRole('heading',{name:'Choose a business. Open its full website.'})).toBeVisible()
  await expect(page.locator('.catalog-card')).toHaveCount(54)
  for(const name of ids)await expect(page.getByRole('button',{name:'Try '+name+' demo',exact:true})).toBeAttached()
  await expect(page.getByRole('link',{name:'StreetVerse · optional game ↗'})).toHaveAttribute('href','/streetverse')
@@ -127,4 +127,41 @@ test('business groups help mobile visitors find family, creator and service temp
  await expect(gallery.locator('.catalog-card')).toHaveCount(1)
  await gallery.getByRole('button',{name:'Try Independent Record Label demo',exact:true}).click()
  await expect(gallery.getByRole('region',{name:'Sample Independent Record Label interactive demo'})).toBeVisible()
+})
+
+test('clicking a catalog link opens a complete separate website, not a card preview',async({page})=>{
+ await page.goto('/business-app.html')
+ await page.getByRole('link',{name:'Open full website · Independent Record Label ↗'}).click()
+ await expect(page).toHaveURL(/site-demo\.html\?template=23/)
+ await expect(page.getByRole('heading',{level:1})).toBeVisible()
+ await expect(page.getByRole('navigation',{name:'Website navigation'})).toBeVisible()
+ await expect(page.getByRole('heading',{name:'Our services and specialties'})).toBeVisible()
+ await page.getByRole('link',{name:'Contact',exact:true}).click()
+ await page.getByPlaceholder('Example visitor').fill('Example person')
+ await page.getByPlaceholder('Please use fictional information').fill('I want to ask a sample question.')
+ await page.getByRole('button',{name:'Try the inquiry form →'}).click()
+ await expect(page.getByRole('status')).toContainText('Nothing was sent')
+ await expect(page.locator('canvas')).toHaveCount(0)
+ await page.getByRole('link',{name:'Browse more websites ↗'}).click()
+ await expect(page.getByRole('heading',{name:'Choose a business. Open its full website.'})).toBeVisible()
+})
+test('all industry sectors have full-site links and no thumbnail panels',async({page})=>{
+ await page.goto('/business-app.html')
+ await expect(page.getByRole('link',{name:/Open full website · /})).toHaveCount(54)
+ await expect(page.locator('.mini-site')).toHaveCount(0)
+ const checks=[['01','Beautyverse'],['17','Nail Technician'],['22','Live Streamer'],['27','Cybersecurity'],['36','Meal Prep'],['45','Telehealth'],['54','Media & Music']]
+ for(const [id,term] of checks){
+   await page.goto('/site-demo.html?template='+id)
+   await expect(page.getByRole('heading',{level:1})).toBeVisible()
+   await expect(page.locator('.full-card')).toHaveCount(3)
+   await expect(page.getByText(term,{exact:false}).first()).toBeAttached()
+   await expect(page.getByRole('link',{name:'← All 54 websites'})).toBeVisible()
+ }
+})
+test('full sample shopping cart totals only local demo items',async({page})=>{
+ await page.goto('/site-demo.html?template=21')
+ await page.getByRole('button',{name:'Add to sample bag +'}).first().click()
+ await expect(page.locator('.full-bag')).toContainText('1 items')
+ await page.getByRole('button',{name:'Review sample checkout →'}).click()
+ await expect(page.getByRole('status')).toContainText('No order was created')
 })

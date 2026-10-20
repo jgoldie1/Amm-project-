@@ -5,8 +5,8 @@ import {WEBSITE_PACKAGES,AI_PACKAGES,generateWebsite,type WebsiteDetails} from '
 import {useTemplateCatalog} from './TemplateCatalogProvider'
 export default function TemplateStore(){
  const {templates:TEMPLATE_CATALOG}=useTemplateCatalog()
- const [template,setTemplate]=useState('01'),[tier,setTier]=useState('template'),[ai,setAi]=useState('none'),[notice,setNotice]=useState('')
- const [details,setDetails]=useState<WebsiteDetails>({name:'',headline:'Your next look starts here.',description:'',email:'',phone:'',location:'',services:'',color:'#174a39',photo:'',language:'en'})
+ const [template,setTemplate]=useState(()=>{const requested=new URLSearchParams(window.location.search).get('template');return TEMPLATE_CATALOG.some(t=>t.id===requested)?String(requested):'01'}),[tier,setTier]=useState('template'),[ai,setAi]=useState('none'),[notice,setNotice]=useState('')
+ const [details,setDetails]=useState<WebsiteDetails>({name:'',headline:TEMPLATE_CATALOG.find(t=>t.id===new URLSearchParams(window.location.search).get('template'))?.headline||'Your next look starts here.',description:'',email:'',phone:'',location:'',services:'',color:'#174a39',photo:'',language:'en'})
  const [preview,setPreview]=useState('')
  const contentVersion=useRef(0)
  const [translating,setTranslating]=useState(false),[translation,setTranslation]=useState<Pick<WebsiteDetails,'headline'|'description'|'services'>|null>(null)
