@@ -75,6 +75,16 @@ export const TEMPLATE_CATALOG=[
  {id:"73",name:"Senior Living & Assisted Living",audience:"Assisted-living communities and senior residence operators",headline:"Find a place that feels like home."},
  {id:"74",name:"Healthcare Training & Career Academy",audience:"CNA, medical assistant, dental assistant and allied-health educators",headline:"Explore your next healthcare skill."},
  {id:"75",name:"Accessible Transport & Non-Emergency Medical Rides",audience:"Mobility drivers, accessible van operators and NEMT coordinators",headline:"Transportation that considers every passenger."},
+ {id:"76",name:"Holo Local Courier & Same-Day Delivery",audience:"Local couriers, independent drivers, small retailers and delivery teams",headline:"Local deliveries, clearer connections."},
+ {id:"77",name:"Freight Broker & Shipper Network",audience:"Freight brokers, shippers, carriers and logistics coordinators",headline:"Make the next shipment easier to plan."},
+ {id:"78",name:"Warehousing & 3PL Fulfillment",audience:"Warehouse operators, fulfillment providers and online stores",headline:"From storage to the final doorstep."},
+ {id:"79",name:"Last-Mile Delivery & Route Operations",audience:"Parcel delivery businesses, route contractors and neighborhood delivery fleets",headline:"The last mile matters."},
+ {id:"80",name:"Moving & Relocation Services",audience:"Moving companies, relocation brokers and packing services",headline:"Moving plans start here."},
+ {id:"81",name:"International Freight & Import-Export Coordination",audience:"Global freight forwarders, export consultants and trade logistics coordinators",headline:"Prepare for business beyond borders."},
+ {id:"82",name:"Fleet Management & Dispatch Software",audience:"Fleet operators, dispatch teams and logistics software firms",headline:"Organize the fleet. Understand the workflow."},
+ {id:"83",name:"Holo Drone Parcel Delivery",audience:"Drone delivery startups, robotics operators and parcel service partners",headline:"Explore delivery beyond the road."},
+ {id:"84",name:"Supply Chain & Vendor Procurement Network",audience:"Local vendors, sourcing agents, wholesalers and supply-chain planners",headline:"Build a more connected supply chain."},
+ {id:"85",name:"Returns, Reverse Logistics & Parcel Recovery",audience:"E-commerce stores, returns processors and parcel recovery services",headline:"Returns deserve a clear process."},
 ] as const
 export const WEBSITE_PACKAGES=[
  {id:'template',name:'DIY template',price:49,description:'One business, responsive starter page and editable content. Hosting and domain separate.'},
