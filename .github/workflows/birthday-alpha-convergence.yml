@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - feature/streetverse-chicago-premium-world-20260919
+      - main
     paths:
       - 'amm-omniverse/**'
       - 'lib/**'
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 55
     env:
-      ALPHA_BRANCH: feature/streetverse-chicago-premium-world-20260919
+      ALPHA_BRANCH: main
       ALPHA_DEADLINE: '2026-10-02'
       TZ: America/Chicago
 
@@ -134,4 +134,4 @@ jobs:
         shell: bash
         run: |
           echo "### Hourly result: GREEN" >> "$GITHUB_STEP_SUMMARY"
-          echo "The birthday-alpha branch remains synchronized, buildable, contract-clean, and release-gate ready at this checkpoint." >> "$GITHUB_STEP_SUMMARY"
+          echo "Canonical main remains synchronized, buildable, contract-clean, and release-gate ready at this checkpoint." >> "$GITHUB_STEP_SUMMARY"
