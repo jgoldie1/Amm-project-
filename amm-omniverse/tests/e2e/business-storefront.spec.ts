@@ -175,7 +175,7 @@ test('all 54 websites link to a funding and compliance plan without requiring si
  await page.getByRole('link',{name:'Start funding plan ↗'}).click()
  await expect(page).toHaveURL(/fundingTemplate=34/)
  await expect(page.getByLabel('Funding business template')).toHaveValue('34')
- await expect(page.locator('#funding-hub')).toContainText('Security agency')
+ await expect(page.locator('#funding-hub')).toContainText('Security Agency')
  await expect(page.locator('#funding-hub')).toContainText('Verify security company')
 })
 test('owner checklist is self-reported and downloadable draft contains no promise or submission',async({page})=>{
@@ -191,7 +191,7 @@ test('owner checklist is self-reported and downloadable draft contains no promis
  await page.getByRole('button',{name:'Download my business funding packet ↓'}).click()
  const doc=await download
  expect(doc.suggestedFilename()).toBe('example-meal-prep-funding-readiness-draft.txt')
- await expect(page.getByRole('status',{name:''}).last()).toContainText('not sent or submitted')
+ await expect(page.locator('#funding-hub .funding-export [role="status"]')).toContainText('not sent or submitted')
  await expect(page.locator('canvas')).toHaveCount(0)
 })
 test('different industries show distinct non-certifying requirements',async({page})=>{
