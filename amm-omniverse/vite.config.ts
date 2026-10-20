@@ -16,6 +16,8 @@ export default defineConfig({
     ],
   },
   build: {
+    // Export an inspectable bundle graph for the independent business-app isolation gate.
+    manifest: true,
     // The founder and other mobile players still use iOS 15. Vite 7's default
     // Safari 16 target does not cover those devices.
     target: ['es2020', 'safari15'],
