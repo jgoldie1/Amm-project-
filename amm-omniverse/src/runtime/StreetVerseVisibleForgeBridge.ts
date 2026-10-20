@@ -97,12 +97,18 @@ export function installStreetVerseVisibleForgeBridge(opts:{
   save()
   broadcast({status:'undone',placed:0,removed:last.asset,count:instances.size,missing:[]})
  }
+ const report=()=>{
+  const layer=opts.getNativeLayer()
+  broadcast({status:layer?(layer.children.some(child=>allowed.has(child.userData.tryammNativeAsset))?'ready':'native-models-unavailable'):'native-layer-loading',requested:0,placed:0,count:instances.size,missing:[]})
+ }
+ window.addEventListener('tryamm:streetverse-forge-request-state',report)
  window.addEventListener('tryamm:streetverse-forge-placement-request',forge)
  window.addEventListener('tryamm:streetverse-forge-placement-undo',undo)
  return{
   hydrate,
   dispose:()=>{
    active=false
+   window.removeEventListener('tryamm:streetverse-forge-request-state',report)
    window.removeEventListener('tryamm:streetverse-forge-placement-request',forge)
    window.removeEventListener('tryamm:streetverse-forge-placement-undo',undo)
    for(const object of instances.values())object.removeFromParent()

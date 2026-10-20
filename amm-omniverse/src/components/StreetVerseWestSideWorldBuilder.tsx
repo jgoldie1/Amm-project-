@@ -183,6 +183,9 @@ export default function StreetVerseWestSideWorldBuilder(){
  const undoForge=()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-forge-placement-undo',{detail:{source:'west-side-world-builder'}}))
 
  useEffect(()=>{
+  if(open&&tab==='build')window.dispatchEvent(new Event('tryamm:streetverse-forge-request-state'))
+ },[open,tab])
+ useEffect(()=>{
   const show=()=>setOpen(true)
   window.addEventListener('tryamm:west-side-builder-open',show)
   return()=>window.removeEventListener('tryamm:west-side-builder-open',show)
