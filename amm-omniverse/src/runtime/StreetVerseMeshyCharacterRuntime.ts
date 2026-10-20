@@ -12,6 +12,24 @@ import {TRYAMM_NATIVE_RUNTIME_ASSETS} from '../data/TryammNativeRuntimeAssetCata
 
 const loader=new GLTFLoader()
 const availability=new Map<string,Promise<boolean>>()
+// Share only decoded animation clips, not scene objects, between residents.
+// Failed/402 URLs are cached for 15 minutes so hundreds of NPCs cannot
+// hammer an over-quota storage project every frame.
+const COMPANION_OK_TTL_MS=10*60_000
+const COMPANION_FAIL_TTL_MS=15*60_000
+type MotionEntry={expiresAt:number;promise:Promise<THREE.AnimationClip[]>}
+const companionCache=new Map<string,MotionEntry>()
+function loadSharedMotionClips(url:string):Promise<THREE.AnimationClip[]>{
+  const previous=companionCache.get(url)
+  if(previous&&previous.expiresAt>Date.now())return previous.promise
+  const entry:MotionEntry={expiresAt:Date.now()+COMPANION_OK_TTL_MS,promise:Promise.resolve([] as THREE.AnimationClip[])}
+  entry.promise=loader.loadAsync(url).then(gltf=>(gltf.animations||[]).map(clip=>clip.clone())).catch(()=>{
+    entry.expiresAt=Date.now()+COMPANION_FAIL_TTL_MS
+    return [] as THREE.AnimationClip[]
+  })
+  companionCache.set(url,entry)
+  return entry.promise
+}
 const NATIVE_RESIDENT_URLS=[TRYAMM_NATIVE_RUNTIME_ASSETS.residentA.url,TRYAMM_NATIVE_RUNTIME_ASSETS.residentB.url,TRYAMM_NATIVE_RUNTIME_ASSETS.residentC.url,TRYAMM_NATIVE_RUNTIME_ASSETS.residentD.url,TRYAMM_NATIVE_RUNTIME_ASSETS.residentE.url,TRYAMM_NATIVE_RUNTIME_ASSETS.residentF.url,TRYAMM_NATIVE_RUNTIME_ASSETS.residentG.url,TRYAMM_NATIVE_RUNTIME_ASSETS.residentH.url] as const
 
 async function assetExists(url:string){
@@ -116,8 +134,8 @@ export async function loadStreetVerseMeshyCharacter(slotId:string,options:{defer
       (companionSources as Array<[string|null|undefined,string]>).map(async ([url,name])=>{
         if(!url)return [] as THREE.AnimationClip[]
         try{
-          const companion=await loader.loadAsync(url)
-          return (companion.animations||[]).map(clip=>{
+          const fetched=await loadSharedMotionClips(url)
+          return fetched.map(clip=>{
             const cloned=clip.clone();cloned.name=name;return cloned
           })
         }catch{return [] as THREE.AnimationClip[]}
@@ -143,20 +161,18 @@ export async function loadStreetVerseMeshyCharacter(slotId:string,options:{defer
       const url=(companionSources as Array<[string|null|undefined,string]>).find(([,name])=>name===motion)?.[0]
       if(!url)return
       requestedCompanions.add(motion)
-      void loader.loadAsync(url).then(companion=>{
+      void loadSharedMotionClips(url).then(companionClips=>{
         if(disposed)return
-        const imported=(companion.animations||[]).map(clip=>{const copy=clip.clone();copy.name=motion;return copy})
+        const imported=companionClips.map(clip=>{const copy=clip.clone();copy.name=motion;return copy})
+        if(!imported.length){
+          window.dispatchEvent(new CustomEvent('tryamm:streetverse-motion-unavailable',{detail:{slotId:slot.id,motion,reason:'asset-load-failed-or-no-animation',cacheBackoff:true}}))
+          return
+        }
         clips.push(...imported)
-        if(imported[0]){animationMap[motion]=imported[0];active=''}
-        // Animation channels are independent of the companion mesh and textures.
-        companion.scene.traverse(node=>{
-          if(!(node instanceof THREE.Mesh))return
-          node.geometry?.dispose()
-          const mats=Array.isArray(node.material)?node.material:[node.material]
-          mats.forEach(material=>{if(!material)return;const map=(material as THREE.MeshStandardMaterial).map;map?.dispose();material.dispose()})
-        })
+        animationMap[motion]=imported[0]
+        active=''
         window.dispatchEvent(new CustomEvent('tryamm:circle-park-motion-ready',{detail:{slotId:slot.id,motion,clips:imported.length}}))
-      }).catch(()=>{requestedCompanions.delete(motion)})
+      }).catch(()=>{/* Do not spin a per-frame retry loop on HTTP 402 or offline. */})
     }
     const tick=(nowMs:number,state:{moving:boolean;running?:boolean})=>{
       if(state.running)requestMotionCompanion('run')
