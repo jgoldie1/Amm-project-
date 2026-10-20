@@ -7,7 +7,7 @@ test('business home exposes all demos and never loads the game',async({page},inf
  const requests:string[]=[];page.on('request',request=>requests.push(request.url()))
  await page.goto('/business-app.html')
  await expect(page.getByRole('heading',{name:'Choose a business. Open its full website.'})).toBeVisible()
- await expect(page.locator('.catalog-card')).toHaveCount(54)
+ await expect(page.locator('.catalog-card')).toHaveCount(60)
  for(const name of ids)await expect(page.getByRole('button',{name:'Try '+name+' demo',exact:true})).toBeAttached()
  await expect(page.getByRole('link',{name:'StreetVerse · optional game ↗'})).toHaveAttribute('href','/streetverse')
  expect(requests.filter(url=>/vendor-three|rapier|maplibre|StreetVerse.*\.js/i.test(url))).toEqual([])
@@ -107,7 +107,7 @@ test('a published owner template appears with its server price and customization
  await page.goto('/business-app.html?demo='+id)
  const demo=page.getByRole('region',{name:'Your Travel Studio interactive demo'})
  await expect(demo).toBeVisible()
- await expect(page.locator('.catalog-card')).toHaveCount(55)
+ await expect(page.locator('.catalog-card')).toHaveCount(61)
  await demo.getByRole('button',{name:'Customize template #'+id,exact:true}).click()
  await expect(page.locator('#template-store')).toContainText('Proposed price: $79 once + $0/month')
  await expect(page.locator('#template-store').getByLabel('Headline',{exact:true})).toHaveValue('Plan your next journey.')
@@ -147,15 +147,15 @@ test('clicking a catalog link opens a complete separate website, not a card prev
 })
 test('all industry sectors have full-site links and no thumbnail panels',async({page})=>{
  await page.goto('/business-app.html')
- await expect(page.getByRole('link',{name:/Open full website · /})).toHaveCount(54)
+ await expect(page.getByRole('link',{name:/Open full website · /})).toHaveCount(60)
  await expect(page.locator('.mini-site')).toHaveCount(0)
- const checks=[['01','Beautyverse'],['17','Nail Technician'],['22','Live Streamer'],['27','Cybersecurity'],['36','Meal Prep'],['45','Telehealth'],['54','Media & Music']]
+ const checks=[['01','Beautyverse'],['17','Nail Technician'],['22','Live Streamer'],['27','Cybersecurity'],['36','Meal Prep'],['45','Telehealth'],['54','Media & Music'],['55','Holo Ride'],['56','Holo Delivery'],['57','Holo FON'],['58','3D Game'],['59','Business Server'],['60','Import Export']]
  for(const [id,term] of checks){
    await page.goto('/site-demo.html?template='+id)
    await expect(page.getByRole('heading',{level:1})).toBeVisible()
    await expect(page.locator('.full-card')).toHaveCount(3)
    await expect(page.getByText(term,{exact:false}).first()).toBeAttached()
-   await expect(page.getByRole('link',{name:'← All 54 websites'})).toBeVisible()
+   await expect(page.getByRole('link',{name:'← All 60 websites'})).toBeVisible()
  }
 })
 test('full sample shopping cart totals only local demo items',async({page})=>{
