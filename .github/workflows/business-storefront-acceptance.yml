@@ -1,0 +1,36 @@
+name: Business Storefront Acceptance
+on:
+ push:
+  branches: ['fix/live-business-storefront-20261019']
+permissions:
+ contents: read
+jobs:
+ business-demo-mobile:
+  runs-on: ubuntu-latest
+  timeout-minutes: 18
+  defaults:
+   run:
+    working-directory: amm-omniverse
+  steps:
+   - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+     with:
+      fetch-depth: 0
+   - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+     with:
+      node-version: '24'
+      cache: npm
+      cache-dependency-path: amm-omniverse/package-lock.json
+   - run: npm ci --ignore-scripts --no-audit --no-fund
+   - run: node tests/live-business-preservation.mjs
+   - run: npm run typecheck
+   - run: node --test tests/support-tickets.test.mjs tests/support-authority.test.mjs tests/template-catalog.test.mjs tests/template-listings.test.mjs tests/public-env-guard.test.mjs
+   - run: npm run build
+   - run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund @playwright/test@1.57.0
+   - run: npx playwright install --with-deps chromium webkit
+   - run: npx playwright test --config=playwright.business.config.ts
+   - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+     if: always()
+     with:
+      name: business-storefront-browser-evidence
+      path: amm-omniverse/test-results
+      retention-days: 3

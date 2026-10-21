@@ -38,7 +38,7 @@ export default function HoloDeliveryCenter({ onClose }: { onClose?: () => void }
 
   const tab = (id:Mode,label:string) => <button onClick={()=>setMode(id)} aria-pressed={mode===id} style={{padding:'10px 12px',borderRadius:12,border:'1px solid #274053',background:mode===id?'#123449':'#09131f',color:mode===id?'#4fe3ff':'#cbd5e1',fontWeight:900,cursor:'pointer'}}>{label}</button>;
 
-  return <div role="dialog" aria-label="Holo Delivery Center" style={{position:'fixed',inset:0,zIndex:10100,background:'radial-gradient(circle at top,#0d2635,#030611 55%)',color:'#fff',overflowY:'auto',fontFamily:'system-ui,sans-serif'}}>
+  return <div role="dialog" aria-modal="true" aria-label="Holo Delivery Center" style={{position:'fixed',inset:0,zIndex:2147483500,background:'radial-gradient(circle at top,#0d2635,#030611 55%)',color:'#fff',overflowY:'auto',fontFamily:'system-ui,sans-serif'}}>
     <div style={{maxWidth:980,margin:'0 auto',padding:20}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12}}>
         <div><div style={{color:'#4fe3ff',fontSize:11,fontWeight:900,letterSpacing:3}}>TRYAMM</div><h1 style={{margin:'4px 0'}}>Holo Delivery</h1><div style={{color:'#94a3b8'}}>Food • packages • coupons • live arrival tracking</div></div>

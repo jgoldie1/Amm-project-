@@ -74,7 +74,7 @@ jobs:
       - name: Meshy and generated asset pipeline
         run: |
           set -euo pipefail
-          node tests/meshy-asset-pipeline-contract.mjs 2>/dev/null || true
+          node tests/meshy-rig-animation-pipeline-contract.mjs
           node tests/tryamm-native-pwa-asset-cache-contract.mjs
       - name: Typecheck and production build
         run: |
