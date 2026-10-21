@@ -1,5 +1,6 @@
 import {OMNIVAULT_100_ARCHITECTURE} from '../data/OmniVault100Architecture'
-import type {Session} from '@supabase/supabase-js'
+import {PrivateMemorySession} from './PrivateMemorySession'
+import {installCatalogMemory} from './GoogloplexCatalogMemory'
 import {getSupabaseClient} from '../services/supabaseClient'
 import type {LivingWorldSnapshot} from './StreetVerseLivingWorldRuntime'
 
@@ -22,34 +23,17 @@ export type SharedQuantumMemory={
  notes:Record<string,string|number|boolean|null>
 }
 
-const LOCAL_KEY='tryamm_quantum_memory_v1'
-const USER_META_KEY='tryamm_quantum_memory_v1'
 const MAX_NOTE_KEYS=24
 let installed=false
-
 function appIdentity():SharedQuantumMemory['sourceApp']{
  return typeof location!=='undefined'&&location.pathname.startsWith('/streetverse')?'streetverse':'tryamm'
-}
-function readLocal():SharedQuantumMemory|null{
- try{
-  const value=JSON.parse(localStorage.getItem(LOCAL_KEY)||'null')
-  return value?.schema==='tryamm.quantum-memory.v1'?value:null
- }catch{return null}
-}
-function writeLocal(memory:SharedQuantumMemory){
- try{localStorage.setItem(LOCAL_KEY,JSON.stringify(memory))}catch{}
-}
-function newer(a:SharedQuantumMemory|null,b:SharedQuantumMemory|null){
- if(!a)return b
- if(!b)return a
- return Number(a.savedAt||0)>=Number(b.savedAt||0)?a:b
 }
 function baseMemory():SharedQuantumMemory{
  return{
   schema:'tryamm.quantum-memory.v1',
-  savedAt:Date.now(),
+  savedAt:0,
   sourceApp:appIdentity(),
-  lastRoute:typeof location!=='undefined'?location.pathname+location.search:'',
+  lastRoute:typeof location!=='undefined'?location.pathname:'',
   world:{},
   notes:{},
  }
@@ -64,7 +48,6 @@ function sanitizeNotes(input:Record<string,unknown>|undefined){
  return out
 }
 function apply(memory:SharedQuantumMemory,source:'local'|'cloud'){
- writeLocal(memory)
  if(typeof window==='undefined')return
  if(memory.world.weather)window.dispatchEvent(new CustomEvent('tryamm:world-weather',{detail:{weather:memory.world.weather,source:'quantum-memory'}}))
  if(memory.world.quality)window.dispatchEvent(new CustomEvent('tryamm:quantum-lag-buster',{detail:{quality:memory.world.quality,metrics:{fps:60,rtt:0},source:'quantum-memory'}}))
@@ -75,46 +58,30 @@ function apply(memory:SharedQuantumMemory,source:'local'|'cloud'){
 export function installSharedQuantumMemoryRuntime(){
  if(installed||typeof window==='undefined')return
  installed=true
+ installCatalogMemory()
  const client=getSupabaseClient()
- let current=readLocal()||baseMemory()
- let activeSession:Session|null=null
+ const store=new PrivateMemorySession('world',client)
+ let current=baseMemory(),dirty=false,editVersion=0
+ let savingGeneration:number|null=null
  let saveTimer:number|undefined
- let lastCloudSavedAt=0
- apply(current,'local')
-
+ const signal=(name:string,detail:unknown)=>window.dispatchEvent(new CustomEvent(name,{detail}))
+ const reset=()=>{current=baseMemory();dirty=false;editVersion++;if(saveTimer)clearTimeout(saveTimer);saveTimer=undefined;signal('tryamm:quantum-memory-reset',{memory:current});apply(current,'local')}
  const persistCloud=async()=>{
-  if(!client||!activeSession?.user)return
-  const payload:SharedQuantumMemory={
-   ...current,
-   savedAt:Date.now(),
-   sourceApp:appIdentity(),
-   lastRoute:location.pathname+location.search,
-   notes:sanitizeNotes(current.notes),
-  }
-  if(payload.savedAt<=lastCloudSavedAt)return
-  current=payload
-  writeLocal(payload)
-  const {error}=await client.auth.updateUser({data:{[USER_META_KEY]:payload}})
-  if(error){
-   window.dispatchEvent(new CustomEvent('tryamm:quantum-memory-sync-error',{detail:{message:error.message}}))
-   return
-  }
-  lastCloudSavedAt=payload.savedAt
-  window.dispatchEvent(new CustomEvent('tryamm:quantum-memory-synced',{detail:{savedAt:payload.savedAt,sourceApp:payload.sourceApp,crossDevice:true,regionalCoreTarget:OMNIVAULT_100_ARCHITECTURE.id}}))
-  window.dispatchEvent(new CustomEvent('tryamm:omnivault-sync-intent',{detail:{
-    workload:'world-state',
-    source:'quantum-memory',
-    regionalCoreTarget:OMNIVAULT_100_ARCHITECTURE.id,
-    regionalCoreStatus:OMNIVAULT_100_ARCHITECTURE.status,
-    currentDurableProvider:'supabase-user-metadata',
-    physicalCapacityRequired:false,
-  }}))
+  if(!store.owner||!store.ready||!dirty||savingGeneration===store.generation)return
+  const generation=store.generation,version=editVersion
+  savingGeneration=generation
+  try{
+   const row=await store.save({...current,notes:sanitizeNotes(current.notes)})
+   if(!row||generation!==store.generation)return
+   if(version===editVersion)dirty=false
+   signal('tryamm:quantum-memory-synced',{savedAt:current.savedAt,crossDevice:true})
+  }catch(error){if(generation===store.generation)signal('tryamm:quantum-memory-sync-error',{message:(error as Error).message})}
+  finally{if(savingGeneration===generation)savingGeneration=null}
  }
  const scheduleCloud=()=>{
-  if(saveTimer)window.clearTimeout(saveTimer)
-  saveTimer=window.setTimeout(()=>{void persistCloud()},1200)
+  if(saveTimer||!store.ready)return
+  saveTimer=window.setTimeout(()=>{saveTimer=undefined;void persistCloud()},15000)
  }
-
  const update=(patch:Partial<SharedQuantumMemory>)=>{
   current={
    ...current,
@@ -122,13 +89,13 @@ export function installSharedQuantumMemoryRuntime(){
    schema:'tryamm.quantum-memory.v1',
    savedAt:Date.now(),
    sourceApp:appIdentity(),
-   lastRoute:location.pathname+location.search,
+   lastRoute:location.pathname,
    world:{...current.world,...(patch.world||{})},
-   notes:{...current.notes,...sanitizeNotes(patch.notes as Record<string,unknown>|undefined)},
+   notes:sanitizeNotes({...current.notes,...sanitizeNotes(patch.notes as Record<string,unknown>|undefined)}),
   }
-  writeLocal(current)
+  dirty=true;editVersion++
   scheduleCloud()
-  window.dispatchEvent(new CustomEvent('tryamm:quantum-memory-updated',{detail:{memory:current,crossDevice:Boolean(activeSession?.user)}}))
+  window.dispatchEvent(new CustomEvent('tryamm:quantum-memory-updated',{detail:{memory:current,crossDevice:Boolean(store.owner&&store.ready)}}))
  }
 
  window.addEventListener('tryamm:living-world-state',(event:Event)=>{
@@ -158,28 +125,43 @@ export function installSharedQuantumMemoryRuntime(){
   update({notes:sanitizeNotes({[d.key]:d.value})})
  })
  window.addEventListener('tryamm:quantum-memory-request-state',()=>{
-  window.dispatchEvent(new CustomEvent('tryamm:quantum-memory-state',{detail:{memory:current,crossDevice:Boolean(activeSession?.user)}}))
+  window.dispatchEvent(new CustomEvent('tryamm:quantum-memory-state',{detail:{memory:current,crossDevice:Boolean(store.owner&&store.ready)}}))
  })
 
  if(client){
   client.auth.onAuthStateChange((event,session)=>{
-   activeSession=session
-   if(!session?.user)return
-   if(!['INITIAL_SESSION','SIGNED_IN','USER_UPDATED','TOKEN_REFRESHED'].includes(event))return
-   const remote=(session.user.user_metadata?.[USER_META_KEY]||null) as SharedQuantumMemory|null
-   if(remote?.savedAt)lastCloudSavedAt=Math.max(lastCloudSavedAt,Number(remote.savedAt)||0)
-   const chosen=newer(current,remote)
-   if(chosen){
-    current=chosen
-    apply(chosen,remote&&chosen.savedAt===remote.savedAt?'cloud':'local')
-   }
-   if(event!=='USER_UPDATED'&&Number(current.savedAt||0)>lastCloudSavedAt)scheduleCloud()
+   const owner=session?.user.id||null
+   if(owner===store.owner&&event!=='INITIAL_SESSION')return
+   store.switchOwner(owner);reset()
+   if(!owner)return
+   const generation=store.generation
+   // Run outside the auth callback to avoid auth-lock deadlocks.
+   setTimeout(()=>{void (async()=>{
+    try{
+     const row=await store.load()
+     if(generation!==store.generation)return
+     const memory=row?.payload
+     if(memory?.schema==='tryamm.quantum-memory.v1'){
+      const loadedWorld:CompactWorldMemory={}
+      for(const key of ['hour','generatedAt','lastEnteredAt','lastLeftAt'] as const)if(Number.isFinite(memory.world?.[key]))loadedWorld[key]=memory.world[key]
+      for(const key of ['weather','quality'] as const)if(typeof memory.world?.[key]==='string')loadedWorld[key]=memory.world[key].slice(0,100)
+      const community=memory.world?.lastCommunity
+      if(community&&typeof community==='object')loadedWorld.lastCommunity={number:typeof community.number==='string'?community.number.slice(0,20):undefined,name:typeof community.name==='string'?community.name.slice(0,200):undefined,x:Number.isFinite(community.x)?community.x:undefined,z:Number.isFinite(community.z)?community.z:undefined}
+      const fresh=dirty?current:null
+      current={...baseMemory(),savedAt:Number(memory.savedAt)||0,world:{...loadedWorld,...(fresh?.world||{})},notes:sanitizeNotes({...sanitizeNotes(memory.notes),...(fresh?.notes||{})})}
+      apply(current,'cloud')
+     }
+     if(dirty)scheduleCloud()
+    }catch(error){if(generation===store.generation)signal('tryamm:quantum-memory-sync-error',{message:(error as Error).message})}
+   })()},0)
   })
  }
-
+ // Legacy unscoped local data and user_metadata are deliberately not imported:
+ // their ownership cannot be established safely on shared devices.
  window.dispatchEvent(new CustomEvent('tryamm:quantum-memory-ready',{detail:{
-  local:true,
-  crossDevice:Boolean(client),
+  local:false,
+  crossDevice:false,
+  cloudConfigured:Boolean(client),
   sharedBy:['tryamm','streetverse','hologpt','middleverse','holo-fon'],
   regionalCoreTarget:OMNIVAULT_100_ARCHITECTURE.id,
   regionalCoreStatus:OMNIVAULT_100_ARCHITECTURE.status,
