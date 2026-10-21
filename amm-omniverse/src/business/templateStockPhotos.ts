@@ -1,7 +1,8 @@
 // Curated free Unsplash photographs; source pages checked 2026-10-21.
 // Stock imagery illustrates a sample and does not represent the customer's premises or team.
-const photo=(id:string,title:string,author:string,sourceId:string)=>({src:`https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=80`,title,author,source:`https://unsplash.com/photos/${sourceId}`,license:'https://unsplash.com/license'})
+const photo=(id:string,title:string,author:string,sourceId:string)=>({src:`https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=80`,title,author,provider:'Unsplash',source:`https://unsplash.com/photos/${sourceId}`,license:'https://unsplash.com/license'})
 export const STOCK_PHOTOS={
+ team:photo('photo-1573167507387-6b4b98cb7c13','Women leading a business meeting','Christina @ wocintechchat.com','Q80LYxv_Tbs'),
  salon:photo('photo-1521590832167-7bcbfaa6381f','Salon interior','Guilherme Petri','PtOfbGkU3uI'),
  freight:photo('photo-1616432043562-3671ea2e5242','Freight truck on the road','Caleb Ruiter','EmEQ6kK_5P0'),
  equipment:photo('photo-1652303518314-e1196ef221f6','Excavator at a construction site','John Kakuk','GK3GYxaFc-8'),
@@ -14,5 +15,5 @@ export const STOCK_PHOTOS={
 }
 export type StockPhotoKey=keyof typeof STOCK_PHOTOS
 export const SECTOR_PHOTOS:Record<string,StockPhotoKey>={
- 'Beauty & Personal Care':'salon','Travel & Logistics':'freight','Heavy Equipment & Earthmoving':'equipment','Technology & Workforce':'technology','Professional & Finance':'technology','Security & Legal':'technology','Food & Retail':'food','Faith & Community':'books','Care & Mobility':'care','Creator & Entertainment':'music','Property & Trades':'property',
+ 'Beauty & Personal Care':'salon','Travel & Logistics':'freight','Heavy Equipment & Earthmoving':'equipment','Technology & Workforce':'team','Professional & Finance':'team','Security & Legal':'technology','Food & Retail':'food','Faith & Community':'books','Care & Mobility':'care','Creator & Entertainment':'music','Property & Trades':'property',
 }
