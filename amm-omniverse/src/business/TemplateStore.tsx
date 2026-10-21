@@ -1,4 +1,5 @@
 import {useEffect,useRef,useState} from 'react'
+import ExecutionJobs from './ExecutionJobs'
 import {getAccessToken} from '../services/supabaseClient'
 import {WEBSITE_LANGUAGES,type WebsiteLanguage} from './accessibleWebsite'
 import {WEBSITE_PACKAGES,AI_PACKAGES,generateWebsite,type WebsiteDetails} from './templateCatalog'
@@ -53,11 +54,12 @@ export default function TemplateStore(){
  <label>Services or products — one per line<textarea maxLength={2000} value={details.services} onChange={e=>update('services',e.target.value)}/></label>
  <label>Brand color<input type="color" value={details.color} onChange={e=>update('color',e.target.value)}/></label>
  <label>Your business photo<input type="file" accept="image/jpeg,image/png,image/webp" onChange={e=>void photo(e.target.files?.[0])}/></label>
- <p>Use photos you own or have permission to use. Only enter details intended for your public website. This form stays in this page until you download it; refreshing clears it.</p>
+ <p>Use photos you own or have permission to use. Only enter details intended for your public website. This form stays on this page unless you use Save & execute draft below. Refreshing clears unsaved form details.</p>
  {template==='03'&&<p>OmniCare template is an information/contact page. Do not enter patient information. Clinical services, prescriptions and insurance integrations are not included.</p>}
  <div className="quote"><strong>Proposed price: ${quote.oneTime} once + ${quote.monthly}/month</strong><p>Taxes, domain, hosting and payment-provider fees are additional where applicable. One business per template license. Existing promised free website gifts stay free; optional services are separate.</p></div>
  <button type="submit">Generate my free preview</button><button type="button" disabled>Paid checkout & launch — not activated</button>
  </form><p role="status">{notice}</p>
+ <ExecutionJobs details={details}/>
  {preview&&<div><h3>{details.name} · template #{selected.id}</h3><iframe title="Your website draft" sandbox="allow-scripts" srcDoc={preview} style={{width:'100%',height:550,border:'1px solid #ddd',borderRadius:12}}/>
  <div className="template-actions"><button onClick={()=>download(preview,'TRYAMM-website-draft.html','text/html;charset=utf-8')}>Download website draft</button><button onClick={()=>download(JSON.stringify({templateId:template,templateName:selected.name,package:tier,aiPackage:ai,securityConsultation:{provider:'Jacobie Vision',interested:securityInterest,status:securityInterest?'interest-only-not-submitted':'not-requested',price:null},quote,details,status:'draft-not-paid-not-launched'},null,2),'TRYAMM-website-brief.json','application/json')}>Download setup brief</button></div><p>The downloaded page includes your photo and contact links. It is not a live store. Domain, hosting, checkout and AI connection still require setup.</p></div>}
  </section>
