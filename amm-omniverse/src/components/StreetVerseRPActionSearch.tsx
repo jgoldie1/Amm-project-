@@ -7,6 +7,7 @@ export default function StreetVerseRPActionSearch({compact=false}:{compact?:bool
  const [query,setQuery]=useState('')
  const [purpose,setPurpose]=useState<RPActionPurpose|'all'>('all')
  const [open,setOpen]=useState(false)
+ const [previewAction,setPreviewAction]=useState<RPActionEntry|null>(null)
  const [favorites,setFavorites]=useState<string[]>(()=>{try{return JSON.parse(localStorage.getItem('tryamm.rp-action-favorites.v1')||'[]')}catch{return[]}})
  const results=useMemo(()=>searchStreetVerseRPActions(query,purpose).slice(0,compact?8:16),[query,purpose,compact])
  const send=(name:string,action:RPActionEntry,extra:Record<string,unknown>={})=>{
@@ -29,7 +30,7 @@ export default function StreetVerseRPActionSearch({compact=false}:{compact?:bool
       <div style={{fontSize:10,fontWeight:950}}>{action.label}</div>
       <div style={{fontSize:8,color:'#93a9b8',marginTop:3}}>{action.category.toUpperCase()} • {action.purposes.join(' • ')}</div>
       <div style={{display:'flex',gap:4,flexWrap:'wrap',marginTop:7}}>
-       <button onClick={()=>send('tryamm:streetverse-rp-action-preview',action,{previewKind:'gif-query'})} style={mini}>GIF PREVIEW</button>
+       <button onClick={()=>{setPreviewAction(action);send('tryamm:streetverse-rp-action-preview',action,{previewKind:'gif-query'})}} style={mini}>GIF PREVIEW</button>
        <button onClick={()=>send('tryamm:streetverse-rp-action-play',action,{loop:false})} style={mini}>PLAY</button>
        {action.loopable&&<button onClick={()=>send('tryamm:streetverse-rp-action-play',action,{loop:true})} style={mini}>LOOP</button>}
        <button onClick={()=>toggleFavorite(action)} style={mini}>{favorites.includes(action.id)?'★':'☆'} FAVORITE</button>
@@ -40,6 +41,12 @@ export default function StreetVerseRPActionSearch({compact=false}:{compact?:bool
       </div>
      </article>)}
    </div>
+   {previewAction&&<div role="status" aria-label="RP GIF preview source" style={{padding:9,marginTop:9,borderRadius:12,border:'1px solid #9d6bff77',background:'#160d23'}}>
+     <b style={{fontSize:11}}>🖼 GIF DISCOVERY • {previewAction.label}</b>
+     <div style={{fontSize:10,marginTop:5,color:'#c5b8dc'}}>The animation request is sent to StreetVerse. External GIF media remains provider-gated and is not yet an installed gameplay animation.</div>
+     <a href={'https://giphy.com/search/'+encodeURIComponent(previewAction.gifQuery.trim().replace(/\s+/g,'-'))} target="_blank" rel="noopener noreferrer" style={{display:'inline-block',marginTop:8,minHeight:44,padding:'12px',borderRadius:10,border:'1px solid #ccadff',background:'#301a4c',color:'#fff',fontSize:11,fontWeight:900,textDecoration:'none'}}>VIEW GIF SEARCH ↗</a>
+     <button onClick={()=>setPreviewAction(null)} aria-label="Close RP GIF search preview" style={{...mini,marginLeft:8,minHeight:44}}>CLOSE</button>
+   </div>}
    {!results.length&&<div style={{padding:14,textAlign:'center',fontSize:10,color:'#b8c3cf'}}>No RP action matches yet. The search term can be used as a future animation/GIF provider query without pretending an asset already exists.</div>}
   </div>}
  </section>

@@ -11,6 +11,8 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
   const modelRef=useRef<THREE.Object3D|null>(null)
   const cameraRef=useRef<THREE.PerspectiveCamera|null>(null)
   const controlsRef=useRef<OrbitControls|null>(null)
+  const rendererRef=useRef<THREE.WebGLRenderer|null>(null)
+  const sceneRef=useRef<THREE.Scene|null>(null)
   const likenessHandleRef=useRef<BJPhotoMatchedHeadHandle|null>(null)
   const modelHeightRef=useRef(1.88)
   const autoRotateRef=useRef(true)
@@ -19,6 +21,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
   const [likenessEnabled,setLikenessEnabled]=useState(true)
   const [cameraMode,setCameraMode]=useState<'full'|'face'>('full')
   const [referenceCompare,setReferenceCompare]=useState(false)
+  const [captureStatus,setCaptureStatus]=useState('')
 
   useEffect(()=>{autoRotateRef.current=autoRotate},[autoRotate])
 
@@ -26,6 +29,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
     const mount=mountRef.current
     if(!mount)return
     const scene=new THREE.Scene()
+    sceneRef.current=scene
     scene.background=new THREE.Color(0x05070b)
     const camera=new THREE.PerspectiveCamera(38,1,.01,100)
     camera.position.set(0,1.35,4.25)
@@ -37,6 +41,7 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
     renderer.toneMappingExposure=1.15
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2))
     renderer.shadowMap.enabled=true
+    rendererRef.current=renderer
     mount.appendChild(renderer.domElement)
 
     const controls=new OrbitControls(camera,renderer.domElement)
@@ -137,6 +142,8 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       modelRef.current=null
       cameraRef.current=null
       controlsRef.current=null
+      rendererRef.current=null
+      sceneRef.current=null
     }
   },[])
 
@@ -186,6 +193,54 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
     controls.update()
   }
 
+  const saveRenderedComparison=()=>{
+    const renderer=rendererRef.current,scene=sceneRef.current,camera=cameraRef.current
+    if(!renderer||!scene||!camera||!modelRef.current){setCaptureStatus('Load the real BJ 3D model before capturing.');return}
+    setAutoRotate(false)
+    renderer.render(scene,camera)
+    let actualUrl=''
+    try{actualUrl=renderer.domElement.toDataURL('image/png')}catch{
+      setCaptureStatus('Comparison capture blocked by image permissions.');return
+    }
+    const rendered=new Image(),reference=new Image()
+    let ready=0
+    const draw=()=>{
+      if(++ready!==2)return
+      try{
+        const canvas=document.createElement('canvas')
+        canvas.width=1440;canvas.height=860
+        const ctx=canvas.getContext('2d')
+        if(!ctx){setCaptureStatus('Canvas capture is unavailable.');return}
+        ctx.fillStyle='#080d16';ctx.fillRect(0,0,1440,860)
+        ctx.fillStyle='#eff7ff';ctx.font='bold 31px system-ui'
+        ctx.fillText('STREETVERSE • BJ STUBBS / MODEL LIKENESS REVIEW',34,52)
+        ctx.fillStyle='#9fb5ca';ctx.font='18px system-ui'
+        ctx.fillText('REFERENCE PHOTOGRAPH',34,100)
+        ctx.fillText('ACTUAL WEBGL RENDER — '+cameraMode.toUpperCase(),744,100)
+        const fit=(img:HTMLImageElement,x:number,y:number,w:number,h:number)=>{
+          const scale=Math.min(w/img.naturalWidth,h/img.naturalHeight)
+          const dw=img.naturalWidth*scale,dh=img.naturalHeight*scale
+          ctx.drawImage(img,x+(w-dw)/2,y+(h-dh)/2,dw,dh)
+        }
+        ctx.fillStyle='#18202c';ctx.fillRect(32,114,664,638);ctx.fillRect(744,114,664,638)
+        fit(reference,32,114,664,638)
+        fit(rendered,744,114,664,638)
+        ctx.fillStyle='#e5aa67';ctx.font='16px system-ui'
+        ctx.fillText('UNVERIFIED LIKENESS • VISUAL REVIEW ONLY • NOT A CERTIFIED 3D SCAN',32,812)
+        const anchor=document.createElement('a')
+        anchor.download='streetverse-bj-stubbs-reference-vs-render.png'
+        anchor.href=canvas.toDataURL('image/png')
+        document.body.appendChild(anchor);anchor.click();anchor.remove()
+        setCaptureStatus('Rendered reference comparison prepared. Save from the browser if prompted.')
+      }catch{setCaptureStatus('Unable to export rendered comparison on this device.')}
+    }
+    const fail=()=>setCaptureStatus('Could not load the reference image for comparison.')
+    rendered.onload=draw;reference.onload=draw
+    rendered.onerror=fail;reference.onerror=fail
+    rendered.src=actualUrl
+    reference.src=BJ_PHOTOMATCH_TEXTURE_DATA_URI
+  }
+
   return <main style={{position:'fixed',inset:0,zIndex:20000,background:'#05070b',color:'#fff',fontFamily:'system-ui,sans-serif',display:'grid',gridTemplateRows:'auto 1fr auto'}}>
     <header style={{padding:'max(12px,env(safe-area-inset-top)) 12px 10px',display:'flex',justifyContent:'space-between',gap:10,alignItems:'center',borderBottom:'1px solid #243042'}}>
       <div>
@@ -225,6 +280,10 @@ export default function BJStubbsV7Viewer({onClose}:{onClose:()=>void}){
       <button onClick={toggleLikeness} style={{width:'100%',minHeight:48,marginTop:8,border:'1px solid #9a7548',borderRadius:12,background:likenessEnabled?'#4a341b':'#10161f',color:'#fff',fontWeight:950}}>
         {likenessEnabled?'BJ LIKENESS: ON':'BJ LIKENESS: OFF (RAW V7)'}
       </button>
+      <button onClick={saveRenderedComparison} aria-label="Save BJ reference versus actual rendered model image" style={{width:'100%',minHeight:48,marginTop:8,border:'1px solid #8dbed8',borderRadius:12,background:'#17405a',color:'#fff',fontWeight:950}}>
+        📸 SAVE PHOTO vs ACTUAL 3D RENDER
+      </button>
+      {captureStatus&&<div role="status" style={{padding:'6px 3px',fontSize:11,color:'#b9dce8'}}>{captureStatus}</div>}
       <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7,marginTop:8}}>
         <button onClick={()=>setAutoRotate(v=>!v)} style={{minHeight:46,border:'1px solid #4c6d8d',borderRadius:12,background:autoRotate?'#14324c':'#10161f',color:'#fff',fontWeight:950}}>
           {autoRotate?'AUTO ROTATE: ON':'AUTO ROTATE: OFF'}

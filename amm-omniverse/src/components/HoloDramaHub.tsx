@@ -22,6 +22,21 @@ export default function HoloDramaHub(){
   const [audienceLane,setAudienceLane]=useState('all_ages')
   const [guardianRequired,setGuardianRequired]=useState(false)
   const [file,setFile]=useState<File|null>(null)
+  const [omniOutline,setOmniOutline]=useState<{title:string;series:string;scenes:{title:string;dialogue:string;shots:string;durationSeconds:number}[]}|null>(null)
+  function importOmniBox(){
+    try{
+      const raw=localStorage.getItem('tryamm.omni-box.holo-drama-handoff.v1')
+      if(!raw)throw new Error('No Omni Box outline found. Open Omni Box to plan your episode.')
+      const data=JSON.parse(raw)
+      if(!data?.title||!Array.isArray(data.scenes)||data.scenes.length<1)throw new Error('The outline is incomplete.')
+      setTitle(String(data.title).slice(0,150))
+      setCaption('Omni Box outline · '+String(data.series||'Holo Drama')+' · '+data.scenes.length+' acts. Script only. Attach a finished video to publish.')
+      setOmniOutline({title:String(data.title),series:String(data.series||''),scenes:data.scenes})
+      setTab('Create')
+      setStatus('Omni Box outline imported. This is not rendered footage or a published episode.')
+    }catch(error){setStatus(error instanceof Error?error.message:'No valid Omni Box outline was found.')}
+  }
+  useEffect(()=>{if(new URLSearchParams(window.location.search).get('from')==='omni-box')importOmniBox()},[])
 
   async function refresh(){
     if(!supabase){setStatus('Cloud is not configured on this build.');return}
@@ -42,6 +57,8 @@ export default function HoloDramaHub(){
   async function publishDraft(){
     if(!supabase||!userId){setStatus('Sign in before creating an episode.');return}
     if(!title.trim()){setStatus('Add an episode title first.');return}
+    if(!file){setStatus('Upload a completed, permission-cleared video. An outline alone cannot be published.');return}
+    if(mode!=='free'){setStatus('Paid unlocks, subscriptions and advertising need verified live payments and settlement. Use Free until these are available.');return}
     setStatus('Saving episode…')
     let mediaPath:string|null=null
     if(file){
@@ -67,7 +84,7 @@ export default function HoloDramaHub(){
     <div style={{maxWidth:1180,margin:'0 auto'}}>
       <header style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'center',flexWrap:'wrap'}}>
         <div><div style={{fontSize:12,fontWeight:950,letterSpacing:2,color:'#ff9df5'}}>TRYAMM ORIGINAL</div><h1 style={{fontSize:'clamp(34px,7vw,72px)',margin:'3px 0'}}>HOLO DRAMA</h1><p style={{margin:0,color:'#d6c8df'}}>Vertical stories • mini-series • creator earnings • OmniReel • StreetVerse</p></div>
-        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button onClick={share} style={button}>SHARE</button><a href='/omni-cash' style={{...button,textDecoration:'none'}}>OMNI CASH</a><a href='/' style={{...button,textDecoration:'none'}}>HOME</a></div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button onClick={share} style={button}>SHARE</button><a href='/omni-box' style={{...button,textDecoration:'none'}}>OMNI BOX · EPISODE STUDIO ↗</a><a href='/omni-cash' style={{...button,textDecoration:'none'}}>OMNI CASH</a><a href='/' style={{...button,textDecoration:'none'}}>HOME</a></div>
       </header>
 
       <div role='status' aria-live='polite' style={{margin:'16px 0',padding:'10px 13px',border:'1px solid #564066',borderRadius:12,background:'#120d18',color:'#e8dff0'}}>{status}</div>
@@ -84,7 +101,7 @@ export default function HoloDramaHub(){
       </section>}
 
       {tab==='Create'&&<section style={{...card,maxWidth:760}}>
-        <h2>Create a vertical episode</h2><p style={muted}>Upload to Omni Box storage, publish into the Holo Drama feed, and route earnings to the verified creator ledger. Youth/guardian-required content stays draft until approval.</p>
+        <h2>Create a vertical episode</h2><div style={{display:'flex',gap:10,flexWrap:'wrap',margin:'14px 0'}}><a style={{...button,textDecoration:'none'}} href='/omni-box'>PLAN A 30-MINUTE EPISODE ↗</a><button onClick={importOmniBox} style={button}>IMPORT OMNI BOX OUTLINE</button></div>{omniOutline&&<details open><summary>{omniOutline.scenes.length} ACTS · {omniOutline.title} · OUTLINE ONLY</summary><ol>{omniOutline.scenes.map((scene,index)=><li key={index} style={{margin:12}}><strong>{scene.title}</strong> · {Math.round(scene.durationSeconds/60)} min<p>{scene.dialogue}</p><small>{scene.shots}</small></li>)}</ol></details>}<p style={muted}>Upload to Omni Box storage, publish into the Holo Drama feed, and route earnings to the verified creator ledger. Youth/guardian-required content stays draft until approval.</p>
         <label style={label}>Episode title<input value={title} onChange={e=>setTitle(e.target.value)} style={input}/></label>
         <label style={label}>Caption / description<textarea value={caption} onChange={e=>setCaption(e.target.value)} style={{...input,minHeight:90}}/></label>
         <label style={label}>Video<input type='file' accept='video/*' onChange={e=>setFile(e.target.files?.[0]||null)} style={input}/></label>

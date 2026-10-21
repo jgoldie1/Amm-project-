@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import {assertSafePublicEnv} from './scripts/public-env-guard.mjs'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), {name:'safe-public-environment',configResolved(config){assertSafePublicEnv({...process.env,...config.env})}}],
   resolve: {
     alias: [
       {
@@ -15,6 +16,12 @@ export default defineConfig({
     ],
   },
   build: {
+    // Export an inspectable bundle graph for the independent business-app isolation gate.
+    manifest: true,
+    // The founder and other mobile players still use iOS 15. Vite 7's default
+    // Safari 16 target does not cover those devices.
+    target: ['es2020', 'safari15'],
+    cssTarget: 'safari15',
     chunkSizeWarningLimit: 600,
     modulePreload: {
       resolveDependencies(_filename, deps) {
@@ -36,6 +43,8 @@ export default defineConfig({
       // documents as Vite build inputs so the safe entry and its hashed module
       // graph are emitted into dist for the production deployment.
       input: {
+        businessApp: fileURLToPath(new URL('./business-app.html', import.meta.url)),
+        fullSite: fileURLToPath(new URL('./site-demo.html', import.meta.url)),
         main: fileURLToPath(new URL('./index.html', import.meta.url)),
         streetverseSafe: fileURLToPath(new URL('./streetverse-safe.html', import.meta.url)),
       },

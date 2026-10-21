@@ -190,7 +190,7 @@ async function persistOrder(user,priced,total,fulfillment,clientOrderId,idempote
  return validatePersistedOrder(order,priced,total,fulfillment,idempotencyKey);
 }
 
-async function inspectExistingCheckout(order,user){
+export async function inspectExistingCheckout(order,user){
  if(!order?.provider_session_id)return null;
  const stripe=stripeClient();
  let session;
@@ -205,7 +205,7 @@ async function inspectExistingCheckout(order,user){
  return {state:'CHECKOUT_STATUS_UNAVAILABLE',session};
 }
 
-async function createStripeCheckout({order,user,priced,clientOrderId,idempotencyKey}){
+export async function createStripeCheckout({order,user,priced,clientOrderId,idempotencyKey}){
  const stripe=stripeClient();
  const session=await stripe.checkout.sessions.create({
    mode:'payment',
