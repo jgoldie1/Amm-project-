@@ -79,6 +79,13 @@
       "country": "US",
       "status": "regional-planned",
       "manifest": null
+    },
+    {
+      "id": "us-pa-philadelphia",
+      "name": "Philadelphia",
+      "country": "US",
+      "status": "development",
+      "manifest": null
     }
   ],
   "runtime": {
