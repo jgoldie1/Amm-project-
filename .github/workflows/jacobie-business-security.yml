@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'sites/**'
+      - 'lib/business-tenant-boundaries.js'
+      - 'tests/business-tenant-boundaries.test.cjs'
       - 'scripts/jacobie-business-security-audit.cjs'
       - '.github/workflows/jacobie-business-security.yml'
   push:
@@ -25,3 +27,5 @@ jobs:
           node-version: '22'
       - name: Passive owned-site audit
         run: node scripts/jacobie-business-security-audit.cjs
+      - name: Business tenant isolation contracts
+        run: node tests/business-tenant-boundaries.test.cjs
