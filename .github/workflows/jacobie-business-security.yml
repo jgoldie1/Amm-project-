@@ -11,6 +11,8 @@ on:
     branches: [main]
     paths:
       - 'sites/**'
+      - 'lib/business-tenant-boundaries.js'
+      - 'tests/business-tenant-boundaries.test.cjs'
       - 'scripts/jacobie-business-security-audit.cjs'
       - '.github/workflows/jacobie-business-security.yml'
   workflow_dispatch:
