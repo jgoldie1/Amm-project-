@@ -23,10 +23,12 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
       }
     });
     page.on('requestfailed', request => console.error('[streetverse-requestfailed]', request.url(), request.failure()?.errorText || 'unknown'));
+    // Log only origin and path: query strings may contain credentials or signed asset URLs.
     page.on('response', response => {
       if (response.status() >= 400) {
         const request = response.request();
-        console.error('[streetverse-http-error]', response.status(), request.resourceType(), response.url());
+        const url = new URL(response.url());
+        console.error('[streetverse-http-error]', response.status(), request.resourceType(), url.origin + url.pathname);
       }
     });
     await page.addInitScript(() => {
