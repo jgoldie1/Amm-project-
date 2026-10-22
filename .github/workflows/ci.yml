@@ -95,6 +95,9 @@ jobs:
       - name: Omniverse security scan
         run: npm run security
 
+      - name: StreetVerse approved mod manifest security contract
+        run: node tests/streetverse-mod-manifest-validation.mjs
+
       - name: Omniverse readiness and provider gates
         run: npm run readiness
 
