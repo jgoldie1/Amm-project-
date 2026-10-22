@@ -1,12 +1,95 @@
 {
-  "schemaVersion":1,
-  "id":"streetverse-earth",
-  "status":"development_registry",
-  "regions":[
-    {"id":"us-il-chicago","name":"Chicago","country":"US","status":"existing_world_do_not_replace","manifest":null},
-    {"id":"us-ca-san-diego","name":"San Diego","country":"US","status":"development","manifest":"worlds/streetverse/san-diego/world.manifest.json"},
-    {"id":"ng-la-lagos","name":"Lagos","country":"NG","status":"future","manifest":null},
-    {"id":"ng-fc-abuja","name":"Abuja","country":"NG","status":"future","manifest":null}
+  "schemaVersion": 1,
+  "id": "streetverse-earth",
+  "status": "development_registry",
+  "regions": [
+    {
+      "id": "us-il-chicago",
+      "name": "Chicago",
+      "country": "US",
+      "status": "existing_world_do_not_replace",
+      "manifest": null
+    },
+    {
+      "id": "us-ca-san-diego",
+      "name": "San Diego",
+      "country": "US",
+      "status": "development",
+      "manifest": "worlds/streetverse/san-diego/world.manifest.json"
+    },
+    {
+      "id": "ng-la-lagos",
+      "name": "Lagos",
+      "country": "NG",
+      "status": "future",
+      "manifest": null
+    },
+    {
+      "id": "ng-fc-abuja",
+      "name": "Abuja",
+      "country": "NG",
+      "status": "future",
+      "manifest": null
+    },
+    {
+      "id": "us-mi-detroit",
+      "name": "Detroit",
+      "country": "US",
+      "status": "development",
+      "manifest": null
+    },
+    {
+      "id": "us-mi-michigan",
+      "name": "Michigan",
+      "country": "US",
+      "status": "regional-planned",
+      "manifest": null
+    },
+    {
+      "id": "us-ca-california",
+      "name": "California",
+      "country": "US",
+      "status": "regional-planned",
+      "manifest": null
+    },
+    {
+      "id": "us-nv-las-vegas",
+      "name": "Las Vegas",
+      "country": "US",
+      "status": "development",
+      "manifest": null
+    },
+    {
+      "id": "us-nv-nevada",
+      "name": "Nevada",
+      "country": "US",
+      "status": "regional-planned",
+      "manifest": null
+    },
+    {
+      "id": "us-ga-atlanta",
+      "name": "Atlanta",
+      "country": "US",
+      "status": "development",
+      "manifest": null
+    },
+    {
+      "id": "us-ga-georgia",
+      "name": "Georgia",
+      "country": "US",
+      "status": "regional-planned",
+      "manifest": null
+    }
   ],
-  "runtime":{"loadOnDemand":true,"perCityWorldManifests":true,"offlineFallback":true,"sharedPassportSchema":true,"doNotActivateUnverifiedWorlds":true}
+  "runtime": {
+    "loadOnDemand": true,
+    "perCityWorldManifests": true,
+    "offlineFallback": true,
+    "sharedPassportSchema": true,
+    "doNotActivateUnverifiedWorlds": true,
+    "travelModes": [
+      "city-select",
+      "future-flight-transition"
+    ]
+  }
 }
