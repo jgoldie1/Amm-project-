@@ -1,0 +1,37 @@
+name: AI Cafe Swarm Smoke
+on:
+  push:
+    paths:
+      - 'lib/ai-cafe-release-coordinator.js'
+      - 'lib/streetverse-poll-meter.js'
+      - 'lib/streetverse-global-expansion.js'
+      - 'lib/streetverse-us-city-preview-compiler.js'
+      - 'public/streetverse-rpg-engine.js'
+      - 'test/ai-cafe-poll-swarm-smoke.js'
+      - '.github/workflows/ai-cafe-swarm-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax checks
+        run: |
+          node --check lib/ai-cafe-release-coordinator.js
+          node --check lib/streetverse-poll-meter.js
+          node --check public/streetverse-rpg-engine.js
+          node --check test/ai-cafe-poll-swarm-smoke.js
+      - name: Run AI Cafe swarm smoke
+        run: node test/ai-cafe-poll-swarm-smoke.js
+      - name: Run world and RPG smoke
+        run: |
+          node test/streetverse-rpg-engine-smoke.js
+          node test/streetverse-us-city-preview-smoke.js
+          node test/san-diego-world-compiler-smoke.js
+          node test/san-diego-prototype-geometry-smoke.js
