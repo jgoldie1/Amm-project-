@@ -1,3 +1,0 @@
-{
- "id":"/app","name":"TRYAMM App — Business & Creators","short_name":"TRYAMM App","description":"Business demos, creator tools and AI planning. StreetVerse is optional.","start_url":"/app","scope":"/","display":"standalone","background_color":"#f4f5ef","theme_color":"#102b28","icons":[{"src":"/tryamm-lion-crown-america.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]
-}

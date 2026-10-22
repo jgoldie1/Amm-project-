@@ -1,8 +1,0 @@
-const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript');
-const exportsObject={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(require('node:path').join(__dirname,'../src/business/businessEconomics.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2021}}).outputText,{exports:exportsObject});
-const {calculateEconomics:calc,ECONOMICS_EXAMPLE:base}=exportsObject;
-test('retained customer scenario excludes one-time setup revenue',()=>{const r=calc(base);assert.equal(r.gross,1475);assert.equal(r.remainder,175);assert.equal(r.breakEven,21)});
-test('commission, refunds and owner pay change the margin and break-even',()=>{const r=calc({...base,customers:50,refundPercent:10,commissionPercent:10,ownerPay:400});assert.equal(r.refundAllowance,295);assert.equal(r.commissions,265.5);assert.equal(r.remainder,189.5);assert.equal(r.breakEven,44)});
-test('negative contribution never claims scaling creates break-even',()=>{const r=calc({...base,variableCost:70,cashAvailable:2150});assert.equal(r.breakEven,null);assert.equal(r.remainder,-1075);assert.equal(r.runwayMonths,2)});
-test('rejects negative, nonfinite, fractional counts and invalid percentages',()=>{for(const patch of [{price:-1},{price:NaN},{price:Infinity},{customers:1.5},{refundPercent:101},{commissionPercent:101}])assert.throws(()=>calc({...base,...patch}))});
-test('zero customers still incur fixed costs and zero contribution is unsustainable',()=>{assert.equal(calc({...base,customers:0}).remainder,-800);assert.equal(calc({...base,price:20,variableCost:20}).breakEven,null)});

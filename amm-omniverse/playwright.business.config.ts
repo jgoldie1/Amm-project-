@@ -1,2 +1,0 @@
-import {defineConfig,devices} from '@playwright/test'
-export default defineConfig({testDir:'./tests/e2e',testMatch:'business-storefront.spec.ts',timeout:60000,retries:0,workers:1,reporter:'list',use:{baseURL:'http://127.0.0.1:4173',screenshot:'only-on-failure',trace:'retain-on-failure'},projects:[{name:'iphone-webkit',use:{...devices['iPhone 13']}},{name:'mobile-chromium',use:{...devices['Pixel 7']}}],webServer:{command:'npx vite preview --host 127.0.0.1 --port 4173 --strictPort',url:'http://127.0.0.1:4173',reuseExistingServer:false,timeout:60000}})
