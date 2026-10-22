@@ -23,6 +23,12 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
       }
     });
     page.on('requestfailed', request => console.error('[streetverse-requestfailed]', request.url(), request.failure()?.errorText || 'unknown'));
+    page.on('response', response => {
+      if (response.status() >= 400) {
+        const request = response.request();
+        console.error('[streetverse-http-error]', response.status(), request.resourceType(), response.url());
+      }
+    });
     await page.addInitScript(() => {
       try {
         Object.defineProperty(navigator, 'hardwareConcurrency', { configurable: true, get: () => 8 });
@@ -61,6 +67,11 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
 
     type Rect={x:number;y:number;width:number;height:number};
     const travel=page.getByRole('button',{name:'Travel to Taylor Street UIC Medical District'});
+    // The travel launcher exists only in the full 3D world; distinguish safe-mode
+    // fallback from a missing control rather than masking a failed 3D boot.
+    if (await page.locator('[data-streetverse-render-mode="startup-fallback"]').count()) {
+      throw new Error('StreetVerse entered startup safe mode; inspect logged HTTP errors and WebGL initialization before testing Taylor Street travel');
+    }
     const stores=page.locator('#sv-retail-open');
     const enterStore=page.locator('#sv-store-open');
     await expect(travel).toBeVisible();
