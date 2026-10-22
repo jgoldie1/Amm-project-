@@ -69,10 +69,10 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
 
     type Rect={x:number;y:number;width:number;height:number};
     const travel=page.getByRole('button',{name:'Travel to Taylor Street UIC Medical District'});
-    // The travel launcher exists only in the full 3D world; distinguish safe-mode
-    // fallback from a missing control rather than masking a failed 3D boot.
+    // Safe Mode also exposes travel now, so button presence alone cannot prove 3D startup.
+    // Reject fallback explicitly before validating controls for the playable world.
     if (await page.locator('[data-streetverse-render-mode="startup-fallback"]').count()) {
-      throw new Error('StreetVerse entered startup safe mode; inspect logged HTTP errors and WebGL initialization before testing Taylor Street travel');
+      throw new Error('StreetVerse entered startup safe mode; inspect HTTP failures and WebGL initialization before accepting the 3D visual proof');
     }
     const stores=page.locator('#sv-retail-open');
     const enterStore=page.locator('#sv-store-open');
