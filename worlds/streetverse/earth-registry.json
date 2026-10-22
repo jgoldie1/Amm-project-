@@ -1,0 +1,12 @@
+{
+  "schemaVersion":1,
+  "id":"streetverse-earth",
+  "status":"development_registry",
+  "regions":[
+    {"id":"us-il-chicago","name":"Chicago","country":"US","status":"existing_world_do_not_replace","manifest":null},
+    {"id":"us-ca-san-diego","name":"San Diego","country":"US","status":"development","manifest":"worlds/streetverse/san-diego/world.manifest.json"},
+    {"id":"ng-la-lagos","name":"Lagos","country":"NG","status":"future","manifest":null},
+    {"id":"ng-fc-abuja","name":"Abuja","country":"NG","status":"future","manifest":null}
+  ],
+  "runtime":{"loadOnDemand":true,"perCityWorldManifests":true,"offlineFallback":true,"sharedPassportSchema":true,"doNotActivateUnverifiedWorlds":true}
+}
