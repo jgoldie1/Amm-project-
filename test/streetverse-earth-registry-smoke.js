@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {getEarthRegistry,getCityManifest,listAvailableCities}=require('../lib/streetverse-earth-registry');
+const registry=getEarthRegistry();
+assert.equal(registry.id,'streetverse-earth');
+assert(registry.regions.some(x=>x.id==='us-il-chicago'&&x.status==='existing_world_do_not_replace'));
+const sd=getCityManifest('us-ca-san-diego');
+assert.equal(sd.name,'StreetVerse San Diego');
+assert.equal(sd.status,'development_manifest_not_deployed');
+assert.equal(sd.landmarks.find(x=>x.id==='sculptify-ltd').enabled,false);
+assert(sd.districts.length>=5);
+assert.equal(getCityManifest('us-il-chicago'),null);
+assert.equal(getCityManifest('../secrets'),null);
+assert(listAvailableCities().every(x=>x.playable===false));
+console.log('StreetVerse global registry checks passed; no unverified city marked playable');
