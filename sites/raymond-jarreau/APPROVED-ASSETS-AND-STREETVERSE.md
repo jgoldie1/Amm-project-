@@ -20,3 +20,9 @@ Approved by user on 2026-10-22: Raymond texted his photographs and agreed to par
 - Keep educational content distinct from actual regulated financial advice. No implied investment returns or automatic enrollment.
 - Character artwork/rigging, in-game implementation, business website linkage, and runtime tests are still pending.
 - Preserve StreetVerse and TRYAMM production routing; do not inject unfinished assets into the live game.
+
+## October 22 update — Los Angeles placement and deferred setup
+- Raymond Jarreau is intended to appear in **StreetVerse Los Angeles** as part of **Meet the Stubbs**.
+- Planned educational location: financial literacy and legacy-planning business experience; actual 3D assets, missions, map placement, and playable character remain unimplemented.
+- User explicitly deferred Raymond's business email, phone, licensing details, and other onboarding fields. Do not block visual website design on these fields, but do not activate a form that promises delivery or publish unverified regulated-service claims.
+- Keep existing StreetVerse gameplay and production deployment untouched until implementation and testing.
