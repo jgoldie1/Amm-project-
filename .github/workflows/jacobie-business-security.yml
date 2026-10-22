@@ -5,6 +5,12 @@ on:
       - 'sites/**'
       - 'scripts/jacobie-business-security-audit.cjs'
       - '.github/workflows/jacobie-business-security.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sites/**'
+      - 'scripts/jacobie-business-security-audit.cjs'
+      - '.github/workflows/jacobie-business-security.yml'
   workflow_dispatch:
 permissions:
   contents: read
