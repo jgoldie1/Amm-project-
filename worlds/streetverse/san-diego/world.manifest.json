@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "worldId": "streetverse-us-ca-san-diego",
+  "name": "StreetVerse San Diego",
+  "status": "development_manifest_not_deployed",
+  "parentWorld": "streetverse-earth",
+  "geo": {"country": "US", "region": "CA", "city": "San Diego", "latitude": 32.7157, "longitude": -117.1611},
+  "worldBounds": {"radiusKm": 15, "coordinateSystem": "local-enu", "originLatitude": 32.7157, "originLongitude": -117.1611},
+  "districts": [
+    {"id":"gaslamp","name":"Gaslamp Quarter","theme":"nightlife-and-entertainment","status":"planned"},
+    {"id":"balboa","name":"Balboa Park","theme":"culture-and-parks","status":"planned"},
+    {"id":"downtown","name":"Downtown San Diego","theme":"business-and-commerce","status":"planned"},
+    {"id":"la-jolla","name":"La Jolla","theme":"coastal-and-wellness","status":"planned"},
+    {"id":"north-park","name":"North Park","theme":"creative-businesses","status":"planned"}
+  ],
+  "landmarks": [{"id":"sculptify-ltd","name":"SculptifyLTD","kind":"business-passport","districtId":"downtown","placement":"virtual_showcase_not_physical_address","website":"https://sculptify-ltd.vercel.app/","passportPath":"/business-passport.html","scoutPath":"/scout.html","ownerApproval":"pending","enabled":false,"commissionPolicy":"sculptify_owns_100_percent_own_sales_tryamm_scout_referrals_separate"}],
+  "generation": {"worldForger":{"requested":true,"adapter":"pending_inventory","tiles":"streamed-by-district","deterministicSeed":"streetverse-san-diego-v1"},"assetForger":{"requested":true,"adapter":"pending_inventory","assets":["roads","trees","buildings","pedestrians","vehicles","storefronts"],"licenseVerificationRequired":true},"quantumDataCenter":{"requested":true,"adapter":"pending_inventory","role":"asset-index-caching-world-state-and-backups","note":"No verified quantum computing backend or storage integration"}},
+  "performance":{"mobileFirst":true,"streamingChunks":true,"distanceLod":true,"instancing":true,"fallback2d":true},
+  "globalExpansion":{"worldIndex":"streetverse-earth","cityManifestFormat":"versioned","nextCandidates":["Chicago","Lagos","Abuja"],"activation":"requires_validation"},
+  "safety":{"noRegression":true,"doNotReplaceExistingCity":true,"productionEnabled":false,"requiresOwnerApproval":true}
+}
