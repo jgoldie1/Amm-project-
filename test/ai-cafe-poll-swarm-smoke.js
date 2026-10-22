@@ -1,0 +1,17 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {createPoll}=require('../lib/streetverse-poll-meter');
+const {releaseReadiness}=require('../lib/ai-cafe-release-coordinator');
+const {createSession}=require('../public/streetverse-rpg-engine');
+const poll=createPoll({id:'mission-1',question:'Which mission next?',choices:['Explore','Race','Build','Perform']});
+assert.equal(poll.result().total,0);
+assert.equal(poll.result().rating,null);
+poll.vote('player1','A');poll.vote('player2','D');poll.vote('player3','D');
+assert.equal(poll.result().total,3);
+assert.equal(poll.result().rating,3);
+poll.vote('player1','B');assert.equal(poll.result().total,3);assert.equal(poll.result().options[0].votes,0);
+assert.throws(()=>poll.vote('player4','E'));
+const events=[];const session=createSession({id:'test',nodes:[{id:'start',text:'Choose',options:[{label:'A',event:'poll.open'},{label:'B'}]}]},e=>events.push(e));
+session.choose(0);assert.equal(events[0].type,'poll.open');
+const report=releaseReadiness();assert.equal(report.productionApproved,false);assert.equal(report.testsExecuted,false);assert.equal(report.deployExecuted,false);assert(report.lanes.length>=6);assert(report.files.every(f=>f.present));
+console.log('AI Cafe coordinator, RPG event, ABCD poll and rating meter smoke passed');
