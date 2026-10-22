@@ -86,6 +86,20 @@
       "country": "US",
       "status": "development",
       "manifest": null
+    },
+    {
+      "id": "us-ny-new-york-city",
+      "name": "New York City",
+      "country": "US",
+      "status": "development",
+      "manifest": null
+    },
+    {
+      "id": "us-ny-new-york-state",
+      "name": "New York State",
+      "country": "US",
+      "status": "regional-planned",
+      "manifest": null
     }
   ],
   "runtime": {
@@ -98,5 +112,11 @@
       "city-select",
       "future-flight-transition"
     ]
+  },
+  "expansionStrategy": {
+    "goal": "all-50-us-states",
+    "approach": "city-first-then-regional-coverage",
+    "certificationRequired": true,
+    "doNotMarkUnbuiltCitiesPlayable": true
   }
 }
