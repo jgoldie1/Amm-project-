@@ -12,7 +12,7 @@ export function normalizeStreetVerseArAnchors(value:unknown):Anchor[]{
   if(!item||typeof item!=='object')continue
   const a=item as Record<string,unknown>
   if(a.verified!==true||typeof a.id!=='string'||typeof a.label!=='string'||typeof a.url!=='string')continue
-  if(!Number.isFinite(a.x)||!Number.isFinite(a.z)||a.id.length>80||a.label.length>90||ids.has(a.id))continue
+  if(typeof a.x!=='number'||typeof a.z!=='number'||!Number.isFinite(a.x)||!Number.isFinite(a.z)||a.id.length>80||a.label.length>90||ids.has(a.id))continue
   try{const u=new URL(a.url);if(u.protocol!=='https:'||u.username||u.password)continue}catch{continue}
   ids.add(a.id);result.push({id:a.id,label:a.label,x:a.x as number,z:a.z as number,url:a.url,verified:true})
  }
