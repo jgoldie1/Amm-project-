@@ -35,3 +35,32 @@ Status: PACKAGE SPECIFICATION / OFFER; NOT A CLAIM THAT ALL FEATURES ARE LIVE.
 - Original portraits preserved in ChatGPT Library /TRYAMM/Raymond Jarreau/assets.
 - Meet the Stubbs Los Angeles brief recorded.
 - Full Owner Studio, bookings, AI integration, checkout, public deployment, and 3D character remain to be implemented/tested.
+
+## Expansion — podcast, advertising funnel, multi-industry template revenue (2026-10-22)
+
+### Podcast Studio (planned)
+- Raymond-hosted audio/video episodes, guest interviews, episode landing pages, clips/reels, transcripts and captions, accessibility and podcast RSS distribution when an actual media backend exists.
+- Sponsorship inquiry, episode sponsor placement, clearly marked paid promotions, approved ad inventory, and verified payout ledger.
+- Educational topics: retirement questions, financial literacy, insurance concepts, legacy and business planning; never imply regulated personalized advice.
+
+### Advertising funnel (planned)
+- Landing pages per audience, UTM/referral attribution, lead magnets, opt-in forms, scheduling and human-reviewed follow-up sequences.
+- Lead capture and email/SMS outreach require working storage, consent, unsubscribe and appropriate privacy controls. No automatic messages until integrated and tested.
+- Dashboard measures visits, opt-ins, booked appointments, confirmed purchases and advertising costs; distinguish attribution estimates from actual transactions.
+
+### Multi-industry template marketplace (planned)
+- Raymond can earn from original or properly licensed template products for salons, barbershops, security, logistics, catering, staffing, real estate, nonprofits, entertainment, retail, trades, consulting, and education.
+- Master design system with configurable branding, imagery, business modules, lead forms and service categories. Avoid copying third-party sites, photos, trademarks or regulated claims.
+- Product options: downloadable starter templates, customization service, managed hosting, optional AI subscription and maintenance; ownership and license terms shown before checkout.
+- Only credit Raymond with template revenue or royalties under an explicit contract specifying creator/owner shares and platform fees. No automatic entitlement to templates created by other vendors.
+- Sales require published catalog, buyer terms, fulfillment/download permissions, payment processor webhooks, refunds, taxes and reconciliation; not yet implemented.
+
+### Implementation sequence
+1. Add visible podcast, funnel and template catalog sections to Raymond's independent website, clearly marked as previews.
+2. Produce one reusable, original cross-industry template with licensing terms; adapt per buyer.
+3. Add a real booking/CRM backend with consent and role-based access.
+4. Connect verified payments and customer delivery, then calculate royalties from settled transactions.
+5. Add podcast upload/hosting, RSS, transcripts and sponsor workflow, then test before promotion.
+6. Deploy and test independent public site without altering TRYAMM or StreetVerse routing.
+
+Status: scope approved for development; no media hosting, advertising automation, checkout or royalty payments claimed live.
