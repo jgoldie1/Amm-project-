@@ -5,8 +5,10 @@ on:
       - 'sites/**'
       - 'lib/business-tenant-boundaries.js'
       - 'lib/business-tenant-records.js'
+      - 'lib/business-network-registry.js'
       - 'tests/business-tenant-boundaries.test.cjs'
       - 'tests/business-tenant-records.test.cjs'
+      - 'tests/business-network-registry.test.cjs'
       - 'scripts/jacobie-business-security-audit.cjs'
       - '.github/workflows/jacobie-business-security.yml'
   push:
@@ -15,8 +17,10 @@ on:
       - 'sites/**'
       - 'lib/business-tenant-boundaries.js'
       - 'lib/business-tenant-records.js'
+      - 'lib/business-network-registry.js'
       - 'tests/business-tenant-boundaries.test.cjs'
       - 'tests/business-tenant-records.test.cjs'
+      - 'tests/business-network-registry.test.cjs'
       - 'scripts/jacobie-business-security-audit.cjs'
       - '.github/workflows/jacobie-business-security.yml'
   workflow_dispatch:
@@ -34,4 +38,4 @@ jobs:
       - name: Passive owned-site audit
         run: node scripts/jacobie-business-security-audit.cjs
       - name: Business tenant isolation contracts
-        run: node tests/business-tenant-boundaries.test.cjs && node tests/business-tenant-records.test.cjs
+        run: node tests/business-tenant-boundaries.test.cjs && node tests/business-tenant-records.test.cjs && node tests/business-network-registry.test.cjs
