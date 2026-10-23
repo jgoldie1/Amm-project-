@@ -16,6 +16,18 @@ export const INVESTIGATION_CHOICES:Record<InvestigationChoice,{label:string;outc
  'follow-lead':{label:'Follow the lead',outcome:'A new lead emerges while the witness waits for assistance.'},
  'request-backup':{label:'Request backup',outcome:'A support team arrives, delaying the investigation but reducing risk.'}
 }
+const CHOICE_KEY='tryamm.streetverse.investigation-choice.v1'
+export function saveInvestigationChoice(career:CareerId,choice:InvestigationChoice):void{
+ try{localStorage.setItem(CHOICE_KEY,JSON.stringify({career,choice,updatedAt:new Date().toISOString()}))}catch{}
+}
+export function loadInvestigationChoice(career:CareerId):InvestigationChoice|null{
+ try{
+  const raw=localStorage.getItem(CHOICE_KEY);if(!raw)return null
+  const saved=JSON.parse(raw)
+  if(saved?.career!==career||typeof saved.choice!=='string'||!Object.prototype.hasOwnProperty.call(INVESTIGATION_CHOICES,saved.choice))return null
+  return saved.choice as InvestigationChoice
+ }catch{return null}
+}
 export function resolveInvestigationChoice(choice:InvestigationChoice):string{
  return INVESTIGATION_CHOICES[choice].outcome
 }
@@ -26,7 +38,7 @@ export function advanceCareerMissionForEvent(mission:CareerMission,eventName:str
  if(mission.stage>=3||eventName!==CONFIRMATION_EVENTS[mission.stage])return mission
  return advanceCareerMission(mission)
 }
-export function resetCareerMission():void{try{localStorage.removeItem(KEY)}catch{}}
+export function resetCareerMission():void{try{localStorage.removeItem(KEY);localStorage.removeItem(CHOICE_KEY)}catch{}}
 export function startCareerMission(career:CareerId):CareerMission{
  const mission:CareerMission={career,stage:0,updatedAt:new Date().toISOString()}
  try{localStorage.setItem(KEY,JSON.stringify(mission))}catch{}
