@@ -4,6 +4,8 @@ import {
  finishHoloArenaBattle,loadHoloArenaSession,type HoloArenaSession,
 } from '../game/holographic/HoloArenaManager'
 
+import {HOLO_CREATURES,makeHoloEncounter,materializationCues,type HoloCreatureId} from '../game/holographic/HoloCreatureMusicEncounter'
+
 const buttonStyle={minHeight:48,border:'1px solid #35ffe1',borderRadius:12,background:'rgba(0,18,28,.88)',color:'#eaffff',fontWeight:800,padding:'10px 14px'} as const
 
 export default function HoloArenaWorld({onClose}:{onClose:()=>void}){
@@ -14,6 +16,12 @@ export default function HoloArenaWorld({onClose}:{onClose:()=>void}){
  const [stamina,setStamina]=useState(100)
  const [guard,setGuard]=useState(false)
  const [message,setMessage]=useState('HOLO ARENA LINK ESTABLISHED')
+ const [creature,setCreature]=useState<HoloCreatureId>('astral-lion')
+ const [materialized,setMaterialized]=useState(false)
+ const [rhythm,setRhythm]=useState(false)
+ const [reduceMotion,setReduceMotion]=useState(()=>typeof window!=='undefined'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+ const creatureInfo=HOLO_CREATURES[creature]
+ const summon=()=>{const cues=materializationCues(makeHoloEncounter(creature,rhythm?120:90));setMaterialized(true);setMessage(cues.map(x=>x.caption).join(' → '))}
 
  useEffect(()=>{
   if(!session)return
@@ -29,7 +37,7 @@ export default function HoloArenaWorld({onClose}:{onClose:()=>void}){
  }
 
  const attack=(power:number,cost:number,label:string)=>{
-  if(!session||session.phase!=='battle'||stamina<cost)return
+  if(!session||session.phase!=='battle'||stamina<cost||!materialized){setMessage('Materialize a creature before battle');return}
   const next=Math.max(0,opponentHP-power)
   setOpponentHP(next);setStamina(v=>Math.max(0,v-cost));setGuard(false);setMessage(label)
   if(next===0){finish('victory');return}
@@ -57,10 +65,13 @@ export default function HoloArenaWorld({onClose}:{onClose:()=>void}){
   </header>
   <main style={{position:'relative',height:'55%',display:'grid',gridTemplateColumns:'1fr 1fr',alignItems:'center',textAlign:'center',padding:16}}>
    <section><div style={{fontSize:44}}>◈</div><strong>PLAYER</strong><div>HP {playerHP}</div><div>STAMINA {stamina}</div></section>
-   <section><div style={{fontSize:44}}>⬡</div><strong>HOLO OPPONENT</strong><div>HP {opponentHP}</div></section>
+   <section><div aria-hidden style={{fontSize:68,color:creatureInfo.color,textShadow:materialized?'0 0 24px '+creatureInfo.color:'none',opacity:materialized?1:.3,transform:materialized&&!reduceMotion?'scale(1.12)':'none',transition:reduceMotion?'none':'opacity 1s,transform 1s'}}>⬡</div><strong>{materialized?creatureInfo.label:'HOLO OPPONENT'}</strong><div>HP {opponentHP}</div></section>
   </main>
   <div style={{position:'absolute',left:12,right:12,bottom:'max(14px,env(safe-area-inset-bottom))',display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
    {session.phase==='battle'?<>
+    <label style={{gridColumn:'1 / -1',textAlign:'left'}}>Holographic encounter <select aria-label="Select holographic creature" value={creature} onChange={e=>{setCreature(e.target.value as HoloCreatureId);setMaterialized(false)}} style={{minHeight:48,maxWidth:'100%'}}>{Object.entries(HOLO_CREATURES).map(([id,v])=><option key={id} value={id}>{v.label}</option>)}</select></label>
+    <button style={buttonStyle} onClick={summon}>MATERIALIZE CREATURE</button>
+    <button style={buttonStyle} onClick={()=>{setRhythm(v=>!v);setMessage('Beat cues only — licensed audio feed not connected')}} aria-pressed={rhythm}>{rhythm?'BEAT CUES ON':'BEAT CUES OFF'}</button>
     <button style={buttonStyle} onClick={()=>attack(12,10,'QUICK STRIKE')}>QUICK STRIKE</button>
     <button style={buttonStyle} onClick={()=>attack(22,24,'HOLO BURST')}>HOLO BURST</button>
     <button style={buttonStyle} onClick={()=>{setGuard(true);setStamina(v=>Math.min(100,v+8));setMessage('GUARD ACTIVE')}}>BLOCK / CHARGE</button>
