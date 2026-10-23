@@ -94,6 +94,10 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     },worldPng.toString('base64'));
     console.error('[streetverse-visible-city-pixels]',JSON.stringify(cityPixels));
     expect(cityPixels.strongEdges,'StreetVerse WebGL is present but appears to show a blank sky rather than visible city streets/buildings/trees').toBeGreaterThan(4);
+    // The simulated iOS 16 browser must exercise the reduced-memory path.
+    await expect(worldRoot).toHaveAttribute('data-streetverse-graphics-profile','legacy-iphone');
+    await expect.poll(async()=>Number(await worldRoot.getAttribute('data-streetverse-gpu-draw-calls')||0),{timeout:20_000})
+      .toBeGreaterThan(10);
 
     const joystick = page.getByLabel('StreetVerse analog joystick');
     await expect(joystick).toBeVisible({ timeout: 20_000 });
