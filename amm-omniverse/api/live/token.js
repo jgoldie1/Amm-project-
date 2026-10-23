@@ -44,6 +44,12 @@ export default async function handler(req,res){
   if(!ownedRoom||!['planned','live'].includes(ownedRoom.status))return res.status(409).json({error:'LIVE room is not open'});
   if(role==='viewer'&&ownedRoom.status!=='live')return res.status(409).json({error:'Host has not started the live broadcast yet'});
   if(role==='host'&&ownedRoom.host_user_id!==user.id)return res.status(403).json({error:'Only the verified room owner can publish LIVE'});
+  if(role==='host'){
+    let guardian;
+    try{guardian=await adminRest('guardian_controls',{query:{child_user_id:`eq.${user.id}`,limit:1}})}
+    catch{return res.status(503).json({error:'Cannot verify LIVE hosting restrictions'})}
+    if(guardian?.[0]?.live_hosting_allowed===false)return res.status(403).json({error:'Guardian settings prohibit LIVE hosting'});
+  }
   if(role==='guest'){
     if(ownedRoom.status!=='live')return res.status(409).json({error:'The host has not started LIVE'});
     let requests;
@@ -68,7 +74,8 @@ export default async function handler(req,res){
     room,
     canSubscribe:true,
     canPublish:role==='host'||role==='guest',
-    canPublishData:true
+    // No viewer data publishing until server-authorized chat moderation is wired.
+    canPublishData:role==='host'
   });
 
   const jwt=await token.toJwt();

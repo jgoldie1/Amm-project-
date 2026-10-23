@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8')
+const panel=read('api/live/panel.js'),token=read('api/live/token.js')
+const status=read('api/live/status.js'),pkg=JSON.parse(read('package.json'))
+assert(panel.includes("hostControls?.[0]?.live_hosting_allowed===false"),'guardian room create guard')
+assert(token.includes("guardian?.[0]?.live_hosting_allowed===false"),'guardian token guard')
+assert(panel.includes("if(existing?.status==='live')return res.status(200)"),'no live reset')
+assert(panel.includes("if(existing?.status==='ended')return res.status(409)"),'no ended reuse')
+assert(panel.includes("status:'eq.planned'"),'planned compare-and-swap')
+assert(panel.includes("status:'eq.'+current.status"),'live room compare-and-swap')
+assert(panel.includes("if(!rows?.length)return res.status(409)"),'no missing update success')
+assert(panel.includes("if(action==='end_room'&&current.status==='ended')"),'idempotent ended')
+assert(!panel.includes(".catch(()=>[])"),'guardian query failures must not grant access')
+assert(token.includes("canPublishData:role==='host'"),'viewer cannot send unmoderated raw data')
+assert(status.includes('guestPublishing:false'),'honest pre-guest capability')
+assert(pkg.scripts.build.includes('tryamm-livekit-room-integrity-contract.mjs'))
+console.log('TRYAMM LIVE ROOM INTEGRITY PASS: guardians, race-resistant lifecycle and viewer message restrictions')

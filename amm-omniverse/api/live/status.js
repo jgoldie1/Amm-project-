@@ -25,6 +25,8 @@ export default function handler(req,res){
       dynacast:true,
       pkMode:true,
       multiPanelMax:20,
+      guestPublishing:false,
+      guestStageApproval:'awaiting-authorized-publish-implementation',
       protectedPause:true,
       giftsHook:true,
       liveShoppingHook:true,

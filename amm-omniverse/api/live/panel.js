@@ -41,10 +41,18 @@ export default async function handler(req,res){
 
   if(action==='create_room'){
     const maxPanel=Math.max(3,Math.min(20,Number(body.maxPanel)||8));
+    // Server-side guardian controls take precedence over the client role selector.
+    let hostControls;
+    try{hostControls=await adminRest('guardian_controls',{query:{child_user_id:`eq.${user.id}`,limit:1}})}
+    catch{return res.status(503).json({error:'Cannot verify LIVE host permission'})}
+    if(hostControls?.[0]?.live_hosting_allowed===false)return res.status(403).json({error:'Guardian settings prohibit LIVE hosting'});
     const existing=await roomByName(room);
-    if(existing&&existing.host_user_id!==user.id) return res.status(409).json({error:'Room name is owned by another host'});
-    const payload={room_name:room,host_user_id:user.id,title:String(body.title||room).slice(0,120),status:'planned',max_panelists:maxPanel,started_at:null,ended_at:null,updated_at:new Date().toISOString()};
-    const rows=await adminRest('live_rooms',{method:existing?'PATCH':'POST',query:existing?{room_name:`eq.${room}`}:{},body:payload});
+    if(existing&&existing.host_user_id!==user.id)return res.status(409).json({error:'Room name is owned by another host'});
+    if(existing?.status==='live')return res.status(200).json({room:existing,alreadyLive:true});
+    if(existing?.status==='ended')return res.status(409).json({error:'This broadcast has ended. Use a new room ID.'});
+    const payload={room_name:room,host_user_id:user.id,title:String(body.title||room).slice(0,120),status:'planned',max_panelists:maxPanel,updated_at:new Date().toISOString()};
+    const rows=await adminRest('live_rooms',{method:existing?'PATCH':'POST',query:existing?{room_name:`eq.${room}`,status:'eq.planned'}:{},body:payload});
+    if(existing&&!rows?.length)return res.status(409).json({error:'Broadcast changed. Refresh the room.'});
     return res.status(200).json({room:rows?.[0]||payload});
   }
 
@@ -64,12 +72,15 @@ export default async function handler(req,res){
       catch{return res.status(503).json({error:'Unable to verify real LiveKit broadcaster. No LIVE status change was made.'})}
       if(!published)return res.status(409).json({error:'Host camera or microphone is not publishing in LiveKit yet'});
     }
+    if(action==='end_room'&&current.status==='ended')return res.status(200).json({room:current,alreadyEnded:true});
+    if(action==='end_room'&&current.status==='planned')return res.status(409).json({error:'Broadcast has not started'});
     const now=new Date().toISOString();
     const next=action==='start_room'
       ? {status:'live',started_at:now,ended_at:null,updated_at:now}
       : {status:'ended',ended_at:now,updated_at:now};
-    const rows=await adminRest('live_rooms',{method:'PATCH',query:{room_name:`eq.${room}`,host_user_id:`eq.${user.id}`},body:next});
-    return res.status(200).json({room:rows?.[0]||null});
+    const rows=await adminRest('live_rooms',{method:'PATCH',query:{room_name:`eq.${room}`,host_user_id:`eq.${user.id}`,status:'eq.'+current.status},body:next});
+    if(!rows?.length)return res.status(409).json({error:'Room state changed. Refresh and retry.'});
+    return res.status(200).json({room:rows[0]});
   }
 
   if(action==='request_panel'){
@@ -79,7 +90,9 @@ export default async function handler(req,res){
     if(existingRequest?.[0]&&['waiting','on_stage'].includes(existingRequest[0].status)){
       return res.status(200).json({request:existingRequest[0]});
     }
-    const controls=await adminRest('guardian_controls',{query:{child_user_id:`eq.${user.id}`,limit:1}}).catch(()=>[]);
+    let controls;
+    try{controls=await adminRest('guardian_controls',{query:{child_user_id:`eq.${user.id}`,limit:1}})}
+    catch{return res.status(503).json({error:'Cannot verify panel guardian controls'})}
     const control=controls?.[0]||null;
     if(control&&control.panel_join_allowed===false) return res.status(403).json({error:'Panel joining is disabled by guardian controls'});
     const guardianRequired=Boolean(control);
