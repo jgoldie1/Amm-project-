@@ -420,12 +420,25 @@ function addABLANewHomesVillage(root:THREE.Group,colliders:THREE.Box3[]){
   box(village,[31,.10,3.1],[66,.12,61],walk,0,'abla-village-step-free-promenade')
   box(village,[31,.08,2.5],[66,.10,76],walk,0,'abla-village-internal-path')
   box(village,[32,.08,4],[66,.08,65],green,0,'abla-village-lawn')
+  // Two accessible outer paths connect the promenade to the shared townhome court.
+  // They avoid cutting through any of the six collision-protected homes.
+  for(const x of [49,82]){
+    box(village,[2.3,.09,17],[x,.12,68],walk,0,'abla-village-accessible-side-connection')
+  }
+  const garden=material({color:0x735741,roughness:1})
+  const foliage=material({color:0x3b7e56,roughness:.95})
+  for(const x of [55,65.5,76]){
+    box(village,[2.4,.22,1.5],[x,.14,63.9],garden,0,'abla-village-planter-bed')
+    const bush=new THREE.Mesh(geometry(new THREE.DodecahedronGeometry(.62,0)),foliage)
+    bush.position.set(x,.73,63.9);bush.name='abla-village-landscape-shrub';village.add(bush)
+  }
   for(const [row,z] of [[0,70],[1,81]] as const){
     for(const [index,x] of [55,65.5,76].entries()){
       const home=new THREE.Group();home.position.set(x,0,z);home.name=`abla-new-homes-townhome-${row+1}-${index+1}`
       const body=box(home,[7.8,6.5,7.2],[0,3.25,0],index%2?brickB:brickA,0,'abla-village-brick-townhome-shell')
       box(home,[8.2,.34,7.55],[0,6.7,0],roofMat,0,'abla-village-roof')
-      const front=row===0?-3.66:3.66,sign=row===0?-1:1
+      // Both rows face the common pedestrian courtyard at z=76.
+      const front=row===0?3.66:-3.66,sign=row===0?1:-1
       for(const offset of [-2,2])for(const floor of [2,4.85]){
         box(home,[1.52,1.25,.10],[offset,floor,front+sign*.06],glass,0,'abla-village-framed-window')
         box(home,[1.78,.13,.21],[offset,floor-.72,front+sign*.10],limestone,0,'abla-village-window-sill')
@@ -433,12 +446,24 @@ function addABLANewHomesVillage(root:THREE.Group,colliders:THREE.Box3[]){
       box(home,[1.38,2.52,.14],[0,1.27,front+sign*.16],roofMat,0,'abla-village-front-door')
       box(home,[3.6,.23,1.45],[0,2.83,front+sign*.87],limestone,0,'abla-village-entry-canopy')
       box(home,[2.8,.12,2],[0,.09,front+sign*1.35],walk,0,'abla-village-entry-walk')
+      box(home,[1.8,.28,.14],[0,2.25,front+sign*.24],limestone,0,'abla-village-door-lintel')
+      box(home,[1.7,.09,.4],[0,.09,front+sign*.28],limestone,0,'abla-village-door-threshold')
+      // Original porch lantern is emissive rather than a per-house dynamic point light.
+      const porchGlow=material({color:0xffdea8,emissive:0xffbf6a,emissiveIntensity:.65,roughness:.8})
+      for(const side of [-1,1]){
+        box(home,[.20,.30,.15],[side*1.34,2.40,front+sign*.19],porchGlow,0,'abla-village-porch-light')
+      }
       const number=labelSprite('NEW HOMES '+(row*3+index+1))
       number.name='abla-village-new-homes-number';number.scale.set(3.5,.76,1)
       number.position.set(0,3.75,front+sign*.30);home.add(number)
       village.add(home)
       colliders.push(new THREE.Box3().setFromObject(body).expandByScalar(.15))
     }
+  }
+  const villageBenchMaterial=material({color:0x976e51,roughness:.88})
+  for(const x of [58.5,73]){
+    box(village,[2.8,.22,.75],[x,.66,59.2],villageBenchMaterial,0,'abla-village-public-bench-seat')
+    box(village,[2.8,.76,.16],[x,1.10,59.75],roofMat,0,'abla-village-public-bench-back')
   }
   const villageSign=labelSprite('ABLA VILLAGE • NEW HOMES')
   villageSign.name='abla-village-new-homes-wayfinding'
