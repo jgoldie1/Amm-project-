@@ -82,7 +82,7 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     console.error('[streetverse-entry-mode]', renderMode);
     console.error('[streetverse-travel-count]', await travel.count());
     console.error('[streetverse-travel-data-count]', await page.locator('[data-streetverse-travel]').count());
-    console.error('[streetverse-travel-dom]', await page.locator('[data-streetverse-travel]').evaluateAll(nodes => nodes.map(node => ({tag:node.tagName,html:node.outerHTML.slice(0,500),visible:!!(node as HTMLElement).getClientRects().length,ancestor: (()=>{let p=node.parentElement;const chain=[];while(p&&chain.length<8){chain.push({tag:p.tagName,ariaHidden:p.getAttribute('aria-hidden'),inert:p.hasAttribute('inert'),display:getComputedStyle(p).display,visibility:getComputedStyle(p).visibility});p=p.parentElement;}return chain;})()}))));
+    console.error('[streetverse-travel-dom]', JSON.stringify(await page.locator('[data-streetverse-travel]').evaluateAll(nodes => nodes.map(node => ({tag:node.tagName,html:node.outerHTML.slice(0,500),visible:!!(node as HTMLElement).getClientRects().length,ancestor: (()=>{let p=node.parentElement;const chain=[];while(p&&chain.length<8){chain.push({tag:p.tagName,ariaHidden:p.getAttribute('aria-hidden'),inert:p.hasAttribute('inert'),display:getComputedStyle(p).display,visibility:getComputedStyle(p).visibility});p=p.parentElement;}return chain;})()})))));
     // Fail with an actionable diagnosis instead of waiting for an inaccessible role.
     if (renderMode !== 'playable') {
       throw new Error('Expected playable 3D Chicago, received '+renderMode+'; verify WebGL and startup errors')
