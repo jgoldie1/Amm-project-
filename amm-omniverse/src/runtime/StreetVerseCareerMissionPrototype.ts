@@ -10,6 +10,15 @@ export const CAREER_MISSIONS:Record<CareerId,{title:string;steps:[string,string,
  'cia':{title:'Operation Lakefront Cipher',steps:['Receive a fictional intelligence briefing','Question the undercover contact','Analyze the encrypted dossier']},
  'fbi':{title:'Chicago Federal Case',steps:['Receive a fictional federal case assignment','Interview a cooperating witness','Catalog the case evidence']}
 }
+export type InvestigationChoice='protect-witness'|'follow-lead'|'request-backup'
+export const INVESTIGATION_CHOICES:Record<InvestigationChoice,{label:string;outcome:string}>={
+ 'protect-witness':{label:'Protect the witness',outcome:'The witness is safe, but the suspect has time to relocate.'},
+ 'follow-lead':{label:'Follow the lead',outcome:'A new lead emerges while the witness waits for assistance.'},
+ 'request-backup':{label:'Request backup',outcome:'A support team arrives, delaying the investigation but reducing risk.'}
+}
+export function resolveInvestigationChoice(choice:InvestigationChoice):string{
+ return INVESTIGATION_CHOICES[choice].outcome
+}
 export function loadCareerMission():CareerMission|null{
  try{const raw=localStorage.getItem(KEY);if(!raw)return null;const v=JSON.parse(raw);if(!v||typeof v!=='object'||typeof v.career!=='string'||!Object.prototype.hasOwnProperty.call(CAREER_MISSIONS,v.career)||![0,1,2,3].includes(v.stage)||typeof v.updatedAt!=='string')return null;return v}catch{return null}
 }
