@@ -20,7 +20,7 @@ export default function HoloLivePkLottieOverlay(){
     const onLive=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};show('HOLO LIVE',String(d.roomName||d.room||d.type||'LIVE session connected'),'live_pulse')}
     const onPkStart=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};show('PK BATTLE',String(d.mode||'1v1').toUpperCase()+' • HOLOGRAPHIC ARENA','fusion_burst')}
     const onPkEnd=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};const result=pkEndPresentation(d);show(result.title,result.detail,result.title==='PK RESULT'?'mission_complete':'live_pulse')}
-    const onGift=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};const kit=lottieForGift(String(d.giftType||''),String(d.tier||''));show('HOLO GIFT',String(d.label||d.giftType||d.collection||'GIFT EFFECT'),kit.lottieKey)}
+    const onGift=(event:Event)=>{const d=(event as CustomEvent<any>).detail||{};const kit=lottieForGift(String(d.giftType||''),String(d.tier||''));show(d.previewOnly?'GIFT PREVIEW':'HOLO GIFT',String(d.label||d.giftType||d.collection||'GIFT EFFECT'),kit.lottieKey)}
     window.addEventListener('tryamm:live-session',onLive)
     window.addEventListener('tryamm:pk-start',onPkStart)
     window.addEventListener('tryamm:pk-end',onPkEnd)
@@ -44,15 +44,15 @@ export default function HoloLivePkLottieOverlay(){
   },[state?.nonce,state?.lottieKey])
 
   if(!state)return null
-  return <div key={state.nonce} aria-live="polite" aria-label={state.title} style={{position:'fixed',inset:0,zIndex:22050,pointerEvents:'none',display:'grid',placeItems:'center',background:'radial-gradient(circle at 50% 50%,rgba(28,116,151,.18),transparent 58%)'}}>
+  return <div key={state.nonce} className="tryamm-lottie-overlay" aria-live="polite" aria-label={state.title} style={{position:'fixed',inset:0,zIndex:22050,pointerEvents:'none',display:'grid',placeItems:'center',background:'radial-gradient(circle at 50% 50%,rgba(28,116,151,.18),transparent 58%)'}}>
     <div style={{position:'relative',width:'min(72vw,360px)',height:'min(72vw,360px)',display:'grid',placeItems:'center',filter:'drop-shadow(0 0 28px #4fe3ff)'}}>
-      <div style={{position:'absolute',inset:0,borderRadius:'50%',border:'2px solid #4fe3ffaa',boxShadow:'0 0 40px #4fe3ff55,inset 0 0 45px #4fe3ff33',animation:'tryammHoloPulse 1.2s ease-out infinite'}}/>
+      <div style={{position:'absolute',inset:0,borderRadius:'50%',border:'2px solid #4fe3ffaa',boxShadow:'0 0 40px #4fe3ff55,inset 0 0 45px #4fe3ff33',animation:'tryammHoloPulse 1.2s ease-out 2'}}/>
       <div ref={animationHost} aria-hidden="true" style={{width:'78%',height:'78%'}}/>
       <div style={{position:'absolute',left:'50%',bottom:12,transform:'translateX(-50%)',minWidth:220,maxWidth:'90vw',padding:'10px 14px',borderRadius:14,border:'1px solid #4fe3ff99',background:'#020914e8',color:'#fff',textAlign:'center',fontFamily:'system-ui',boxShadow:'0 10px 35px #000a'}}>
         <div style={{fontSize:11,letterSpacing:2,color:'#4fe3ff',fontWeight:950}}>{state.title}</div>
         <div style={{fontSize:12,marginTop:4,fontWeight:800}}>{state.detail}</div>
       </div>
     </div>
-    <style>{`@keyframes tryammHoloPulse{0%{transform:scale(.72);opacity:.95}100%{transform:scale(1.18);opacity:0}}`}</style>
+    <style>{`@keyframes tryammHoloPulse{0%{transform:scale(.72);opacity:.95}100%{transform:scale(1.18);opacity:0}}@media (prefers-reduced-motion:reduce){.tryamm-lottie-overlay *{animation:none!important;transition:none!important}}`}</style>
   </div>
 }
