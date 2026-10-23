@@ -434,8 +434,7 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
   }
   /* These buttons are redundant in focus mode; the ⋯ menu keeps their actions. */
   [data-streetverse-world-root][data-streetverse-visual-pass="iphone-v13"][data-hud-focus="true"] [aria-label="BJ V15 loaded — toggle face close-up"],
-  [data-streetverse-world-root][data-streetverse-visual-pass="iphone-v13"][data-hud-focus="true"] [aria-label="Toggle BJ Stubbs V15 face portrait view"],
-  [data-streetverse-world-root][data-streetverse-visual-pass="iphone-v13"][data-hud-focus="true"] [aria-label="Open Holo FON"] {
+  [data-streetverse-world-root][data-streetverse-visual-pass="iphone-v13"][data-hud-focus="true"] [aria-label="Toggle BJ Stubbs V15 face portrait view"] {
     display: none !important;
   }
   [data-streetverse-world-root][data-streetverse-visual-pass="iphone-v13"][data-hud-focus="true"] [data-streetverse-clear-city="true"] {
