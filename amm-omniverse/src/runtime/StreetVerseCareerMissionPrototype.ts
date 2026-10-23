@@ -32,6 +32,15 @@ export const CAREER_EVIDENCE:Record<CareerId,CaseEvidence>={
  'fbi':{id:'custody-log',label:'Evidence custody log',description:'A fictional custody record tracks the package handoff.'}
 }
 export function getCareerEvidence(career:CareerId):CaseEvidence{return CAREER_EVIDENCE[career]}
+export type CaseJournalEntry={career:CareerId;stage:CareerMission['stage'];title:string;detail:string}
+export function getCaseJournal(mission:CareerMission):CaseJournalEntry[]{
+ const steps=CAREER_MISSIONS[mission.career].steps
+ const scenes=CAREER_SCENES[mission.career]
+ const details=[scenes.briefing,scenes.witness,CAREER_EVIDENCE[mission.career].description]
+ return steps.slice(0,mission.stage).map((title,index)=>({
+  career:mission.career,stage:(index+1) as CareerMission['stage'],title,detail:details[index]
+ }))
+}
 export type InvestigationChoice='protect-witness'|'follow-lead'|'request-backup'
 export const INVESTIGATION_CHOICES:Record<InvestigationChoice,{label:string;outcome:string}>={
  'protect-witness':{label:'Protect the witness',outcome:'The witness is safe, but the suspect has time to relocate.'},
