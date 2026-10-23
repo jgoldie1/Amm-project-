@@ -45,11 +45,21 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(page.locator('#root')).toBeAttached();
     await expect(page.locator('#root')).not.toBeEmpty();
 
-    const canvas = page.locator('canvas').first();
+    const worldRoot = page.locator('[data-streetverse-world-root]');
+    await expect(worldRoot).toBeVisible({timeout:25_000});
+    const canvas = page.locator('canvas[data-streetverse-world-canvas="true"]');
     await expect(canvas).toBeVisible({ timeout: 25_000 });
     const canvasBox = await canvas.boundingBox();
-    expect(canvasBox?.width || 0).toBeGreaterThan(250);
-    expect(canvasBox?.height || 0).toBeGreaterThan(250);
+    const worldBox = await worldRoot.boundingBox();
+    expect(canvasBox).not.toBeNull();
+    expect(worldBox).not.toBeNull();
+    // Regression: Safari rendered a visibly clipped city canvas on the right.
+    // A large (>250px) canvas alone was not enough to catch that failure.
+    expect(Math.abs(canvasBox!.x-worldBox!.x)).toBeLessThanOrEqual(2);
+    expect(Math.abs(canvasBox!.y-worldBox!.y)).toBeLessThanOrEqual(2);
+    expect(canvasBox!.width).toBeGreaterThanOrEqual(worldBox!.width-2);
+    expect(canvasBox!.height).toBeGreaterThanOrEqual(worldBox!.height-2);
+    await expect(worldRoot).toHaveAttribute('data-streetverse-canvas-width',/^[1-9][0-9]*$/);
 
     const joystick = page.getByLabel('StreetVerse analog joystick');
     await expect(joystick).toBeVisible({ timeout: 20_000 });
@@ -137,6 +147,15 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(bjView).toBeVisible();
     await bjView.click();
     await page.waitForTimeout(1400);
+    // When V15 has loaded, its top-bar control replaces the obstructive
+    // duplicate floating BJ FACE launcher and remains a tappable target.
+    const bjChip = page.getByRole('button',{name:'BJ V15 loaded — toggle face close-up'});
+    if(await bjChip.count()){
+      await expect(bjChip).toBeVisible();
+      await expect(page.getByRole('button',{name:'Toggle BJ Stubbs V15 face portrait view'})).toHaveCount(0);
+      const bjChipBox=await bjChip.boundingBox();
+      expect(bjChipBox?.height||0).toBeGreaterThanOrEqual(44);
+    }
     await page.screenshot({
       path:testInfo.outputPath('streetverse-bj-v12-character-view.png'),
       fullPage:false,
