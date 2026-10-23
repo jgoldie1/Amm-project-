@@ -42,3 +42,20 @@ export async function createSignedPlayback(req,path,expiresIn=3600){
   if(!relative)throw Object.assign(new Error('storage_playback_url_missing'),{status:502});
   return relative.startsWith('http')?relative:`${storageBase()}${relative}`;
 }
+
+
+// Only the verified-publication server route may use the service role to sign
+// approved playback. No secret or private storage path is sent to the client.
+export async function createSignedPlaybackApprovedMedia(path,expiresIn=600){
+ const serviceKey=process.env.SUPABASE_SERVICE_ROLE_KEY||'';
+ if(!SUPABASE_URL()||!serviceKey)throw Object.assign(new Error('approved_media_playback_not_configured'),{status:503});
+ if(!/^[a-f0-9-]{36}\/[a-f0-9-]{36}\/[a-zA-Z0-9._-]+$/.test(String(path)))
+  throw Object.assign(new Error('invalid_approved_media_path'),{status:400});
+ const response=await fetch(storageBase()+'/object/sign/'+MEDIA_BUCKET+'/'+encodePath(path),{
+  method:'POST',headers:{apikey:serviceKey,authorization:'Bearer '+serviceKey,'content-type':'application/json'},
+  body:JSON.stringify({expiresIn:Math.min(600,Math.max(60,Number(expiresIn)||600))})
+ });
+ const data=await parse(response),relative=String(data.signedURL||data.signedUrl||'');
+ if(!relative)throw Object.assign(new Error('approved_media_playback_missing'),{status:502});
+ return relative.startsWith('http')?relative:storageBase()+relative;
+}
