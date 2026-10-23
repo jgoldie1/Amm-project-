@@ -88,8 +88,8 @@ export async function loadStreetVerseMeshyCharacter(slotId:string,options:{defer
   const published=await resolvePublishedMeshyAsset(slot.id,cityScope)
   const staticMeshyUrl=streetVerseMeshyCharacterUrl(slot)
   const publishedReady=published?.url?await assetExists(published.url):false
-  // These twelve original Wave 1/2 objects are independently verified and preserved.
-  // A failed cross-origin HEAD on slow iPhones must not suppress their actual GLB GET.
+  // Prefer locally bundled residents whenever the remote model fails its availability check.
+  // This avoids repeated 402 GET requests while preserving the original remote asset paths.
   const staticMeshyReady=publishedReady?false:await assetExists(staticMeshyUrl)
   const nativeUrl=NATIVE_RESIDENT_URLS[slot.fallbackResidentIndex%NATIVE_RESIDENT_URLS.length]
   let sourceUrl=publishedReady?published!.url:(staticMeshyReady?staticMeshyUrl:nativeUrl)
