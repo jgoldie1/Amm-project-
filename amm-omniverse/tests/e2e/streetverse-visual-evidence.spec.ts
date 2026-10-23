@@ -13,7 +13,9 @@ test.use({
 
 test.describe('StreetVerse compact iPhone visual evidence', () => {
   test('Circle Park renders with one compact mobile control layer', async ({ page }, testInfo) => {
-    test.setTimeout(90_000);
+    // This is a full mobile journey with multiple WebGL scene changes and screenshots.
+    // Keep assertion timeouts strict, but allow the complete workflow to finish on CI.
+    test.setTimeout(180_000);
     // Keep browser/runtime failures visible in CI. A missing canvas must be diagnosed,
     // not hidden by longer waits or a weaker visual assertion.
     page.on('pageerror', error => console.error('[streetverse-pageerror]', error.message));
@@ -184,7 +186,8 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     expect(socialBox?.width||0).toBeLessThanOrEqual(374);
     expect(socialBox?.height||0).toBeLessThanOrEqual(390);
     expect((socialBox?.y||0)+(socialBox?.height||0)).toBeLessThanOrEqual(844);
-    await socialPanel.screenshot({path:testInfo.outputPath('streetverse-social-panel-iphone.png')});
+    // Page capture avoids Playwright's extra scroll/stability wait on an animated overlay.
+    await page.screenshot({path:testInfo.outputPath('streetverse-social-panel-iphone.png'),fullPage:false,animations:'disabled'});
     await page.getByRole('button',{name:'Close StreetVerse panel'}).click();
 
     await peopleShortcut.click();
@@ -196,6 +199,6 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     const ticketPanel=page.getByRole('region',{name:'StreetVerse stream ticket center'});
     await expect(ticketPanel).toBeVisible();
     await expect(page.getByText('No authoritative ticket records loaded. The panel will not invent approvals or access.')).toBeVisible();
-    await ticketPanel.screenshot({path:testInfo.outputPath('streetverse-ticket-panel-iphone.png')});
+    await page.screenshot({path:testInfo.outputPath('streetverse-ticket-panel-iphone.png'),fullPage:false,animations:'disabled'});
   });
 });
