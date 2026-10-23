@@ -292,6 +292,10 @@ export default function StreetVerseWestSideWorldBuilder({launcher=true}:{launche
  }
 
  const startMission=(zone:Zone)=>{
+  // School/campus map pins must not silently launch a business/turf mission.
+  const educationId=zone.id==='jefferson-school'?'thomas-jefferson-legacy':zone.id
+  const school=NEAR_WEST_EDUCATION_SITES.find(site=>site.id===educationId)
+  if(school){visitEducation(school);return}
   const missionId=zone.id==='circle-park'?'hold-the-block':zone.id==='taylor'?'first-ride-story':'business-on-the-block'
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId,source:'streetverse-world-builder',zoneId:zone.id}}))
   setOpen(false)
@@ -454,9 +458,9 @@ export default function StreetVerseWestSideWorldBuilder({launcher=true}:{launche
       <p style={{fontSize:11,lineHeight:1.5,color:'#a9bbc7'}}>{selected.detail}</p>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7}}>
        <button onClick={()=>focus(selected)} style={actionBtn}>VECTOR ROUTE</button>
-       <button onClick={()=>startMission(selected)} style={actionBtn}>START MISSION</button>
+       <button onClick={()=>startMission(selected)} style={actionBtn}>{selected.group==='school'?'VISIT SCHOOL':selected.campusId?'OPEN CAMPUS':'START MISSION'}</button>
        {selected.worldX!==undefined&&selected.worldZ!==undefined&&<button onClick={()=>visitPlayableBlock(selected)} style={{...actionBtn,gridColumn:'1 / -1',background:'#145742',borderColor:'#92ffd0'}}>🎮 GO TO THIS CHICAGO BLOCK</button>}
-       {selected.campusId&&<button onClick={()=>openCampus(selected.campusId!)} style={{...actionBtn,gridColumn:'1 / -1'}}>OPEN CAMPUSVERSE</button>}
+       {selected.campusId&&!NEAR_WEST_EDUCATION_SITES.some(site=>site.id===selected.id)&&<button onClick={()=>openCampus(selected.campusId!)} style={{...actionBtn,gridColumn:'1 / -1'}}>OPEN CAMPUSVERSE</button>}
       </div>
      </article>
     </>}
