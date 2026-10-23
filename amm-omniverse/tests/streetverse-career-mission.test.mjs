@@ -3,7 +3,7 @@ import {test,beforeEach} from 'node:test'
 import {
  CAREER_MISSIONS,INVESTIGATION_CHOICES,startCareerMission,loadCareerMission,
  advanceCareerMission,advanceCareerMissionForEvent,getCareerMissionProgress,
- saveInvestigationChoice,loadInvestigationChoice,resetCareerMission
+ saveInvestigationChoice,loadInvestigationChoice,resetCareerMission,getCaseJournal,getCareerEvidence,getCareerScene
 } from '../src/runtime/StreetVerseCareerMissionPrototype.ts'
 
 const store=new Map()
@@ -55,4 +55,25 @@ test('corrupt saved mission and choices fail closed',()=>{
  store.set('tryamm.streetverse.investigation-choice.v1','{"career":"cia","choice":"invalid"}')
  assert.equal(loadCareerMission(),null)
  assert.equal(loadInvestigationChoice('cia'),null)
+})
+
+test('case journal only contains completed objectives',()=>{
+ let mission=startCareerMission('cia')
+ assert.equal(getCaseJournal(mission).length,0)
+ mission=advanceCareerMission(mission)
+ assert.equal(getCaseJournal(mission).length,1)
+ assert.match(getCaseJournal(mission)[0].detail,/fictional analyst/i)
+ mission=advanceCareerMission(mission)
+ assert.equal(getCaseJournal(mission).length,2)
+ mission=advanceCareerMission(mission)
+ assert.equal(getCaseJournal(mission).length,3)
+ assert.equal(getCaseJournal(mission)[2].detail,getCareerEvidence('cia').description)
+})
+test('each career has a distinct briefing witness and evidence scene',()=>{
+ for(const career of Object.keys(CAREER_MISSIONS)){
+  const scenes=[0,1,2].map(stage=>getCareerScene(career,stage))
+  assert.ok(scenes.every(scene=>typeof scene==='string'&&scene.length>10))
+  assert.equal(getCareerScene(career,3),null)
+  assert.ok(getCareerEvidence(career).id)
+ }
 })
