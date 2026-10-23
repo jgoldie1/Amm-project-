@@ -38,6 +38,18 @@ export default function StreetVerseActionCarousel(){
  const [open,setOpen]=useState(()=>!mobile||startInRP)
  // On phones, gameplay keeps the carousel collapsed until the player asks for it.
  const [rpOpen,setRpOpen]=useState(startInRP)
+ // The mobile social shortcuts use this same bottom corner. Never let the
+ // collapsed action launcher cover the People Search or Ticket touch targets.
+ const [socialShortcutsOpen,setSocialShortcutsOpen]=useState(false)
+ useEffect(()=>{
+  const onSocialTools=(event:Event)=>{
+   const enabled=Boolean((event as CustomEvent<{open?:boolean}>).detail?.open)
+   setSocialShortcutsOpen(enabled)
+   if(enabled){setOpen(false);setRpOpen(false)}
+  }
+  window.addEventListener('tryamm:streetverse-social-tools-toggle',onSocialTools)
+  return()=>window.removeEventListener('tryamm:streetverse-social-tools-toggle',onSocialTools)
+ },[])
  const [gameplayPanel,setGameplayPanel]=useState<string|null>(null)
  const [livingWorldOpen,setLivingWorldOpen]=useState(false)
  const [careerPath,setCareerPath]=useState<string|null>(null)
@@ -132,6 +144,9 @@ export default function StreetVerseActionCarousel(){
   }
   dispatchEvent(new CustomEvent('tryamm:streetverse-context-action',{detail:{action:id,...ctx,sort}}))
  }
+ // Restore the launcher when social tools collapse; the quick-menu social toggle
+ // also provides a one-handed way to switch between these mutually exclusive docks.
+ if(mobile&&!open&&socialShortcutsOpen)return null
  if(mobile&&!open)return <div aria-label="StreetVerse in-game action carousel launcher" style={{position:'fixed',right:'max(10px,env(safe-area-inset-right))',bottom:'calc(env(safe-area-inset-bottom, 0px) + 18px)',zIndex:39950}}>
   <button aria-label="Open in-game action carousel" onClick={()=>{setOpen(true);setRpOpen(false)}} style={{minHeight:42,minWidth:92,padding:'0 12px',borderRadius:999,border:`2px solid ${ctx.broken?'#fb923c':'#67e8f9'}`,background:'#061727ed',color:'#fff',font:'900 11px system-ui',boxShadow:'0 5px 18px #0009',touchAction:'manipulation'}}>{ctx.broken?'🔧 REPAIR':'🎮 ACTIONS ›'}</button>
  </div>
