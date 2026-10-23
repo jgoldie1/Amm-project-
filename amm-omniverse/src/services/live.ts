@@ -12,6 +12,8 @@ export interface LiveTokenResponse {
   room: string
   role: LiveRole
   participant: string
+  videoProfile?: { label: string; width: number; height: number; frameRate: number; maxBitrate: number }
+  capacity?: { maxParticipants: number }
 }
 
 async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -102,7 +104,10 @@ export async function connectLiveRoom(opts: {
     updateCount()
     if (opts.role === 'host' || opts.role === 'guest') {
       await room.localParticipant.setMicrophoneEnabled(true)
-      await room.localParticipant.setCameraEnabled(true)
+      const v=session.videoProfile
+      await room.localParticipant.setCameraEnabled(true,v
+        ? {resolution:{width:v.width,height:v.height},frameRate:v.frameRate}
+        : {resolution:{width:640,height:360},frameRate:15})
 
       let restoreMic = true
       let restoreCamera = true

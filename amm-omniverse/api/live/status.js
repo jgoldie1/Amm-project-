@@ -1,3 +1,5 @@
+import {liveBudgetPolicy} from '../_lib/live-budget-policy.js';
+
 export default function handler(req,res){
   if(req.method!=='GET'){
     res.setHeader('Allow','GET')
@@ -18,6 +20,7 @@ export default function handler(req,res){
     supabaseAdminKey:Boolean(supabaseAdminKey),
   }
   const configured=Object.values(checks).every(Boolean)
+  const budget=liveBudgetPolicy()
   const missing=Object.entries(checks).filter(([,ok])=>!ok).map(([key])=>key)
   res.setHeader('Cache-Control','no-store')
   return res.status(200).json({
@@ -26,6 +29,15 @@ export default function handler(req,res){
     provider:'livekit',
     url:configured?url:undefined,
     tokenEndpoint:'/api/live/token',
+    capacity:{
+      newRoomsOpen:budget.allowNewRooms,
+      newViewersOpen:budget.allowNewViewers,
+      maxParticipantsPerRoom:budget.maxParticipants,
+      maxActiveRooms:budget.maxActiveRooms,
+      videoQuality:budget.quality,
+      videoProfile:budget.videoProfile,
+      limitType:'best-effort admission checks; provider budget/quota is separate',
+    },
     checks,
     missing,
     capabilities:{

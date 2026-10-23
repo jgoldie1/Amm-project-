@@ -1,6 +1,8 @@
 import { AccessToken } from 'livekit-server-sdk';
 import { requireUser } from '../_lib/security.js';
 import {adminReady,adminRest} from '../_lib/supabase-admin.js';
+import {liveKitRoomService} from '../_lib/livekit-room-guard.js';
+import {liveBudgetPolicy} from '../_lib/live-budget-policy.js';
 
 const LIVEKIT_URL=()=>String(process.env.LIVEKIT_URL||'').trim();
 const API_KEY=()=>String(process.env.LIVEKIT_API_KEY||'').trim();
@@ -62,6 +64,19 @@ export default async function handler(req,res){
     }
   }
   const identity=`${user.id}:${role}`;
+  const budget=liveBudgetPolicy();
+  // Query actual LiveKit room presence before issuing another viewer token.
+  // Reconnects for an already-connected identity do not consume a new slot.
+  if(role!=='host'){
+    let occupants;
+    try{occupants=await liveKitRoomService().listParticipants(room)}
+    catch{return res.status(503).json({error:'LIVE capacity cannot be confirmed; try again soon'})}
+    const reconnect=(occupants||[]).some(p=>p.identity===identity);
+    if(!reconnect&&!budget.allowNewViewers)
+      return res.status(503).json({error:'New LIVE viewer admission is temporarily paused'});
+    if(!reconnect&&(occupants||[]).length>=budget.maxParticipants)
+      return res.status(429).json({error:'This LIVE room is at the pilot viewer capacity'});
+  }
 
   const token=new AccessToken(API_KEY(),API_SECRET(),{
     identity,
@@ -79,5 +94,5 @@ export default async function handler(req,res){
   });
 
   const jwt=await token.toJwt();
-  return res.status(200).json({token:jwt,url:LIVEKIT_URL(),room,role,participant:identity});
+  return res.status(200).json({token:jwt,url:LIVEKIT_URL(),room,role,participant:identity,videoProfile:budget.videoProfile,capacity:{maxParticipants:budget.maxParticipants}});
 }

@@ -2,6 +2,7 @@ import { requireUser } from '../_lib/security.js';
 import { adminRest, adminReady } from '../_lib/supabase-admin.js';
 import {liveKitRoomService} from '../_lib/livekit-room-guard.js';
 import {isLiveKitHostPublishing} from '../_lib/livekit-room-guard.js';
+import {liveBudgetPolicy} from '../_lib/live-budget-policy.js';
 
 const cleanRoom=v=>String(v||'').toLowerCase().replace(/[^a-z0-9-_]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(0,80)||'tryamm-live';
 const cleanId=v=>String(v||'').replace(/[^a-zA-Z0-9-_]/g,'').slice(0,120);
@@ -40,6 +41,8 @@ export default async function handler(req,res){
   const room=cleanRoom(body.room);
 
   if(action==='create_room'){
+    const budget=liveBudgetPolicy();
+    if(!budget.allowNewRooms)return res.status(503).json({error:'New LIVE rooms are paused to control streaming costs'});
     const maxPanel=Math.max(3,Math.min(20,Number(body.maxPanel)||8));
     // Server-side guardian controls take precedence over the client role selector.
     let hostControls;
@@ -64,6 +67,16 @@ export default async function handler(req,res){
   if(action==='start_room'||action==='end_room'){
     if(current.host_user_id!==user.id)return res.status(403).json({error:'Host permission required'});
     if(action==='start_room'){
+      const budget=liveBudgetPolicy();
+      if(current.status!=='live'){
+        let active;
+        try{active=await adminRest('live_rooms',{query:{status:'eq.live',limit:budget.maxActiveRooms+1}})}
+        catch{return res.status(503).json({error:'Could not check LIVE room capacity'})}
+        if((active||[]).filter(r=>r.room_name!==room).length>=budget.maxActiveRooms)
+          return res.status(429).json({error:'LIVE room capacity reached. Finish an active show before starting another.'});
+      }
+      // This is a DB preflight, not an atomic cross-room counter. Retain
+      // provider-side concurrency quotas and usage alerts.
       if(current.status==='ended')return res.status(409).json({error:'This broadcast has ended. Create a new LIVE room.'});
       // Only the LiveKit server can confirm that this specific host actually
       // joined AND published a track. An authenticated button alone is not proof.
