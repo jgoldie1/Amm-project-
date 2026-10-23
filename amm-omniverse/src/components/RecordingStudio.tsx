@@ -514,26 +514,26 @@ GENERATED SCRIPT · AMM OMNIVERSE
           <div style={{ padding:14 }}>
             <div style={{ color:'#ffaa00',fontWeight:700,fontSize:13,marginBottom:12 }}>📡 REMOTE RECORD</div>
             <div style={{ background:'rgba(255,170,0,.06)',border:'1px solid #ffaa0033',borderRadius:10,padding:14,marginBottom:14,fontSize:11,color:'#888',lineHeight:1.7 }}>
-              Record remotely with other artists, producers, and session musicians over the internet. Feature uses LiveKit WebRTC for real-time audio collaboration. Victor adds LiveKit for $75 extra after the main $400 deployment.
+              Record remotely with other artists, producers, and session musicians over the internet. Feature uses LiveKit WebRTC for real-time audio collaboration. Remote collaborative recording is not yet connected to the authenticated LiveKit recording pipeline. No quoted deployment fee is implied.
             </div>
             <div style={{ marginBottom:14 }}>
               <div style={{ fontSize:11,color:'#555',marginBottom:8,letterSpacing:2 }}>YOUR SESSION CODE</div>
               <div style={{ background:'#09091c',border:'1px solid #ffaa0044',borderRadius:8,padding:12,display:'flex',gap:8,alignItems:'center' }}>
-                <span style={{ color:'#ffaa00',fontWeight:900,fontSize:16,letterSpacing:6,flex:1 }}>AMM-{Math.random().toString(36).slice(2,6).toUpperCase()}</span>
-                <button onClick={()=>store.setNotif('📋 Session code copied!')} style={{ background:'rgba(255,170,0,.1)',border:'1px solid #ffaa0033',color:'#ffaa00',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontFamily:'monospace',fontSize:10 }}>📋 COPY</button>
+                <span style={{ color:'#ffaa00',fontWeight:900,fontSize:12,flex:1 }}>NOT CONNECTED</span>
+                <button disabled title="Remote sessions require a verified LiveKit recording service" style={{ background:'rgba(255,170,0,.1)',border:'1px solid #ffaa0033',color:'#ffaa00',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontFamily:'monospace',fontSize:10 }}>📋 COPY</button>
               </div>
             </div>
             <div style={{ marginBottom:14 }}>
               <div style={{ fontSize:11,color:'#555',marginBottom:8,letterSpacing:2 }}>JOIN A SESSION</div>
               <input value={remoteCode} onChange={e=>setRemoteCode(e.target.value)} placeholder="Enter session code..."
                 style={{ width:'100%',background:'#09091c',border:'1px solid #ffaa0033',color:'#ccc',borderRadius:8,padding:'9px 12px',fontFamily:'monospace',fontSize:12,marginBottom:8,boxSizing:'border-box' as const }}/>
-              <button onClick={()=>store.setNotif('📡 Connecting to remote session... LiveKit required. Victor adds this for $75.')}
+              <button disabled title="Remote recording is unavailable until real LiveKit guest authentication is integrated"
                 style={{ width:'100%',background:'rgba(255,170,0,.15)',border:'1px solid #ffaa00',color:'#ffaa00',borderRadius:8,padding:'10px',cursor:'pointer',fontFamily:'monospace',fontWeight:700,fontSize:12 }}>
                 📡 JOIN REMOTE SESSION
               </button>
             </div>
             <div style={{ fontSize:11,color:'#555',lineHeight:1.8 }}>
-              Once LiveKit is connected ($75 add-on):<br/>
+              Planned features; not yet enabled:<br/>
               ✓ Real-time remote recording with any artist anywhere<br/>
               ✓ Each participant's audio recorded on separate tracks<br/>
               ✓ Low-latency audio, stems download after session<br/>
