@@ -11,12 +11,24 @@ export default function WebsiteLaunchTracker(){
  const [sites,setSites]=useState<Entry[]>(load),[notice,setNotice]=useState('Save and export a backup of your checklist. Local changes are only on this device.')
  const [selected,setSelected]=useState(1)
  const item=sites.find(s=>s.id===selected)!
+ const missingChecks=(entry:Entry)=>{
+  const missing:string[]=[]
+  if(!entry.name.trim())missing.push('Client name and ownership')
+  if(!safeUrl(entry.url))missing.push('Real public HTTPS address')
+  if(!entry.ownerApproval)missing.push('Client approval and image/content rights')
+  if(!entry.mobileTest)missing.push('Mobile layout and buttons test')
+  if(!entry.leadTest)missing.push('Real customer contact or booking received')
+  if(!entry.paymentTest&&!entry.notes.toLowerCase().includes('no payments'))missing.push('Verified payment/refund or explicit no-payment exception')
+  if(!entry.seniorApproval)missing.push('Independent senior review')
+  return missing
+ }
+ const selectedMissing=missingChecks(item)
  const verified=sites.filter(s=>Boolean(s.name.trim())&&safeUrl(s.url)&&s.ownerApproval&&s.mobileTest&&s.leadTest&&s.seniorApproval&&(s.paymentTest||s.notes.toLowerCase().includes('no payments'))).length
  useEffect(()=>{try{localStorage.setItem(KEY,JSON.stringify(sites))}catch{setNotice('This browser cannot save local drafts. Export a backup.') }},[sites])
  function edit<K extends keyof Entry>(k:K,v:Entry[K]){setSites(a=>a.map(s=>s.id===selected?{...s,[k]:v}:s))}
  function download(){
-  const rows=[['Slot','Client / website','Verified URL','Owner approved','Mobile verified','Lead delivered','Payment tested','Senior approved','Notes'],
-   ...sites.map(s=>[String(s.id),s.name,s.url,...([s.ownerApproval,s.mobileTest,s.leadTest,s.paymentTest,s.seniorApproval].map(String)),s.notes])]
+  const rows=[['Slot','Client / website','Production URL to verify','Owner approved','Mobile verified','Lead delivered','Payment tested','Senior approved','Notes','Outstanding launch requirements'],
+   ...sites.map(s=>[String(s.id),s.name,s.url,...([s.ownerApproval,s.mobileTest,s.leadTest,s.paymentTest,s.seniorApproval].map(String)),s.notes,missingChecks(s).join('; ')])]
   const csv=rows.map(values=>values.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n')
   const u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download='TRYAMM-20-client-website-release-tracker.csv';document.body.appendChild(a);a.click();a.remove();window.setTimeout(()=>URL.revokeObjectURL(u),1000)
   setNotice('CSV downloaded for your developer and Victor. No websites were published.')
@@ -33,10 +45,12 @@ export default function WebsiteLaunchTracker(){
    <div style={{display:'grid',gap:12}}>
     <label>Business name<input style={field} value={item.name} maxLength={110} onChange={e=>edit('name',e.target.value)} placeholder="Business / client name"/></label>
     <label>Verified production address (HTTPS)<input style={field} value={item.url} maxLength={300} onChange={e=>edit('url',e.target.value)} placeholder="https://..." inputMode="url"/></label>
-    {item.url&&!safeUrl(item.url)&&<p role="alert" style={{color:'#ffb4a7'}}>A verified public HTTPS address is required before readiness can be marked.</p>}
+    {item.url&&!safeUrl(item.url)&&<p role="alert" style={{color:'#ffb4a7'}}>A real public HTTPS address is required before readiness can be marked.</p>}
+    {item.url&&safeUrl(item.url)&&<a href={item.url} target="_blank" rel="noopener noreferrer" style={{color:'#91e7ff',display:'inline-block',padding:'10px 0'}}>↗ OPEN CLIENT SITE FOR MANUAL TEST</a>}
     {([['ownerApproval','Client approved content, permissions and branding'],['mobileTest','Website buttons and mobile layout tested'],['leadTest','Real email/booking/customer inquiry received'],['paymentTest','Verified checkout and refund test (only if site accepts payments)'],['seniorApproval','Independent reviewer signed off']] as const).map(([id,label])=><label key={id} style={{display:'flex',alignItems:'center',gap:10,minHeight:44}}><input type="checkbox" checked={item[id]} onChange={e=>edit(id,e.target.checked)}/>{label}</label>)}
     <label>Proof, issues or exceptions<textarea rows={3} style={{...field,minHeight:90}} value={item.notes} maxLength={1200} onChange={e=>edit('notes',e.target.value)} placeholder='For nonpayment sites, note "no payments" after verifying that no checkout is offered.' /></label>
     <strong style={{color:ready?'#a8ffd6':'#ffcc92'}}>{ready?'OWNER-MARKED READY FOR FINAL RELEASE VERIFICATION':'NOT YET RELEASE-VERIFIED'}</strong>
+    {selectedMissing.length>0&&<div aria-label="Outstanding website launch requirements" style={{background:'#182438',padding:12,borderRadius:12}}><strong>Still needed for this site</strong><ul>{selectedMissing.map(x=><li key={x}>{x}</li>)}</ul></div>}
    </div>
   </section>
   <button type="button" onClick={download} style={{minHeight:48,marginTop:16,padding:'12px 20px',background:'#115879',border:'1px solid #72ddfa',borderRadius:12,color:'#fff',fontWeight:900}}>DOWNLOAD 20-SITE QA CSV</button>
