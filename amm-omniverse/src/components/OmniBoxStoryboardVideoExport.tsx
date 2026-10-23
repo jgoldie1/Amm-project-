@@ -63,7 +63,7 @@ export default function OmniBoxStoryboardVideoExport({scenes,title,episode}:{sce
    const chunks:Blob[]=[]
    recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)}
    const duration=Math.min(6,scenes.length)*SECONDS_PER_SCENE
-   let timer:ReturnType<typeof setInterval>|null=null
+   let timer:number|null=null
    const output=new Promise<Blob>((resolve,reject)=>{
     recorder.onerror=()=>reject(new Error('Browser video encoder failed.'))
     recorder.onstop=()=>{
