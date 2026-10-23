@@ -574,6 +574,23 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   // The actual near-camera housing was still six blank boxes. Reuse the owned
   // 256px procedural brick, plus batched instanced facades, instead of spawning
   // high-resolution textures or dozens of individual window materials on iOS 16.
+  const brickCanvas=document.createElement('canvas');brickCanvas.width=256;brickCanvas.height=256
+  const brickCtx=brickCanvas.getContext('2d')
+  if(brickCtx){
+    brickCtx.fillStyle='#d7cfc2';brickCtx.fillRect(0,0,256,256)
+    const brickW=52,rowH=24,mortar=3
+    for(let row=0;row<12;row++){
+      const y=row*rowH,offset=row%2?-brickW/2:0
+      for(let x=offset;x<256;x+=brickW){
+        const shade=184+((row*19+Math.round(x))%22)
+        brickCtx.fillStyle=`rgb(${shade},${Math.max(120,shade-43)},${Math.max(92,shade-69)})`
+        brickCtx.fillRect(x+mortar,y+mortar,brickW-mortar*2,rowH-mortar*2)
+        brickCtx.fillStyle='rgba(255,255,255,.10)';brickCtx.fillRect(x+mortar,y+mortar,brickW-mortar*2,2)
+        brickCtx.fillStyle='rgba(48,28,18,.08)';brickCtx.fillRect(x+mortar,y+rowH-mortar-2,brickW-mortar*2,2)
+      }
+    }
+  }
+  const mobileBrickTexture=new THREE.CanvasTexture(brickCanvas);mobileBrickTexture.name='streetverse-mobile-brick-v5';mobileBrickTexture.wrapS=THREE.RepeatWrapping;mobileBrickTexture.wrapT=THREE.RepeatWrapping;mobileBrickTexture.repeat.set(3.2,4.6);mobileBrickTexture.colorSpace=THREE.SRGBColorSpace;mobileBrickTexture.anisotropy=4
   const townhomeRows:[number,number,number][]=[[-17,46,0],[-9,46,0],[-1,46,0],[-17,37,Math.PI],[-9,37,Math.PI],[-1,37,Math.PI]]
   const townhomeBrickLight=new THREE.MeshStandardMaterial({color:0xa77761,map:mobileBrickTexture,roughness:.91,metalness:.025})
   const townhomeBrickDark=new THREE.MeshStandardMaterial({color:0x876350,map:mobileBrickTexture,roughness:.92,metalness:.015})
@@ -709,23 +726,6 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const onCircleParkTimeEra=(event:Event)=>applyCircleParkEra(String((event as CustomEvent<{era?:string}>).detail?.era||'present'))
   addEventListener('tryamm:circle-park-time-era',onCircleParkTimeEra)
   try{const saved=JSON.parse(localStorage.getItem('tryamm.streetverse.chicago-time-machine.v1')||'{}');applyCircleParkEra(String(saved.worldEra||'present'))}catch{applyCircleParkEra('present')}
-  const brickCanvas=document.createElement('canvas');brickCanvas.width=256;brickCanvas.height=256
-  const brickCtx=brickCanvas.getContext('2d')
-  if(brickCtx){
-    brickCtx.fillStyle='#d7cfc2';brickCtx.fillRect(0,0,256,256)
-    const brickW=52,rowH=24,mortar=3
-    for(let row=0;row<12;row++){
-      const y=row*rowH,offset=row%2?-brickW/2:0
-      for(let x=offset;x<256;x+=brickW){
-        const shade=184+((row*19+Math.round(x))%22)
-        brickCtx.fillStyle=`rgb(${shade},${Math.max(120,shade-43)},${Math.max(92,shade-69)})`
-        brickCtx.fillRect(x+mortar,y+mortar,brickW-mortar*2,rowH-mortar*2)
-        brickCtx.fillStyle='rgba(255,255,255,.10)';brickCtx.fillRect(x+mortar,y+mortar,brickW-mortar*2,2)
-        brickCtx.fillStyle='rgba(48,28,18,.08)';brickCtx.fillRect(x+mortar,y+rowH-mortar-2,brickW-mortar*2,2)
-      }
-    }
-  }
-  const mobileBrickTexture=new THREE.CanvasTexture(brickCanvas);mobileBrickTexture.name='streetverse-mobile-brick-v5';mobileBrickTexture.wrapS=THREE.RepeatWrapping;mobileBrickTexture.wrapT=THREE.RepeatWrapping;mobileBrickTexture.repeat.set(3.2,4.6);mobileBrickTexture.colorSpace=THREE.SRGBColorSpace;mobileBrickTexture.anisotropy=4
   const colors=[0x9a6249,0x7e5949,0x86604c,0x96664e,0x765448,0x8c5b47]
   const blocks=NATIVE_CITY_BLOCKS
   const windowWarm=new THREE.MeshStandardMaterial({color:0xc79458,emissive:0x5a3212,emissiveIntensity:.30,roughness:.42,metalness:.08}),windowCool=new THREE.MeshStandardMaterial({color:0x31566d,emissive:0x0b1820,emissiveIntensity:.20,roughness:.32,metalness:.18})
