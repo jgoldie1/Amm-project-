@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import type { Room } from 'livekit-client'
-import { connectLiveRoom, getLiveStatus, registerLiveHostRoom, type LiveRole } from '../services/live'
+import { connectLiveRoom, getLiveStatus, registerLiveHostRoom, setLiveHostRoomState, type LiveRole } from '../services/live'
 import LiveGenerationIntelligence from './LiveGenerationIntelligence'
 import HoloGiftEngine from './HoloGiftEngine'
 import HoloCreditChannelShop from './HoloCreditChannelShop'
@@ -34,15 +34,28 @@ function slug(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'tryamm-live'
 }
 
+// Viewer links preselect a room but never authenticate or grant host privileges.
+function readLiveInvite(){
+  if(typeof window==='undefined')return null
+  const args=new URLSearchParams(window.location.search)
+  const room=String(args.get('room')||'').toLowerCase()
+  if(!/^[a-z0-9][a-z0-9_-]{2,79}$/.test(room))return null
+  return {room,viewer:args.get('role')==='viewer',mode:args.get('mode')==='pk'?'pk':'live'}
+}
+function newRoomName(){
+  const random=typeof window!=='undefined'&&window.crypto?.randomUUID?.()
+  return 'tryamm-'+(random?.slice(0,12)||Math.random().toString(36).slice(2,14))
+}
 export default function LiveCenter({ onClose, initialMode='live', initialRole='host', youthViewerOnly=false }: { onClose: () => void; initialMode?: 'live'|'pk'; initialRole?: LiveRole; youthViewerOnly?: boolean }) {
-  const pkMode=initialMode==='pk'
+  const invite=readLiveInvite()
+  const pkMode=initialMode==='pk'||invite?.mode==='pk'
   const [configured, setConfigured] = useState<boolean | null>(null)
   const [providerStatus,setProviderStatus]=useState<LiveProviderStatus|null>(null)
   const [format, setFormat] = useState<Format>('live')
   const [title, setTitle] = useState(pkMode?'Holographic PK Battle':'TryAMM LIVE')
-  const [role, setRole] = useState<LiveRole>(youthViewerOnly?'viewer':initialRole)
+  const [role, setRole] = useState<LiveRole>(youthViewerOnly||invite?.viewer?'viewer':initialRole)
   const [displayName, setDisplayName] = useState(youthViewerOnly?'Youth Viewer':'Creator')
-  const [roomName, setRoomName] = useState(pkMode?'tryamm-pk':'tryamm-live')
+  const [roomName, setRoomName] = useState(()=>invite?.room||newRoomName())
   const [connected, setConnected] = useState(false)
   const [participants, setParticipants] = useState(0)
   const [error, setError] = useState('')
@@ -50,6 +63,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
   const [visualFilter, setVisualFilter] = useState<VisualFilter>('clean')
   const [mirrorLocal, setMirrorLocal] = useState(true)
   const [effectsOpen, setEffectsOpen] = useState(false)
+  const [copiedInvite,setCopiedInvite]=useState(false)
   const roomRef = useRef<Room | null>(null)
   const stageRef = useRef<HTMLDivElement>(null)
 
@@ -70,7 +84,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
     const selected = FORMATS.find(x => x.id === next)
     if (selected) {
       setTitle(selected.label)
-      setRoomName(slug(selected.label))
+      // Preserve unique room ID across broadcast formats.
     }
   }
 
@@ -140,6 +154,16 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
           }
         }
       }
+      if(role==='host'){
+        try{await setLiveHostRoomState(session.room,'start_room')}
+        catch(reason){
+          await room.disconnect()
+          roomRef.current=null
+          stageRef.current?.replaceChildren()
+          setParticipants(0)
+          throw reason
+        }
+      }
       setConnected(true)
       window.dispatchEvent(new CustomEvent('tryamm:live-session',{detail:{type:pkMode?'pk':'live',roomName:session.room,role:session.role,participant:session.participant,connected:true}}))
       if(pkMode)window.dispatchEvent(new CustomEvent('tryamm:pk-start',{detail:{mode:'livekit',roomName:session.room,participant:session.participant,role:session.role}}))
@@ -150,14 +174,34 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
     }
   }
 
-  function leave() {
-    roomRef.current?.disconnect()
+  async function leave() {
+    const current=roomRef.current
+    if(current&&role==='host'){
+      try{await setLiveHostRoomState(roomName,'end_room')}
+      catch(e){setError((e as Error).message||'LIVE room could not be marked ended')}
+    }
+    current?.disconnect()
     roomRef.current = null
     stageRef.current?.replaceChildren()
     setConnected(false)
     setParticipants(0)
     window.dispatchEvent(new CustomEvent('tryamm:live-session-end',{detail:{roomName,role}}))
     if(pkMode)window.dispatchEvent(new CustomEvent('tryamm:pk-end',{detail:{roomName,role,reason:'leave'}}))
+  }
+
+  const inviteUrl=typeof window==='undefined'?'':(()=>{
+    const url=new URL('/live',window.location.origin)
+    url.searchParams.set('room',roomName)
+    url.searchParams.set('role','viewer')
+    url.searchParams.set('mode',pkMode?'pk':'live')
+    return url.toString()
+  })()
+  async function copyViewerInvite(){
+    try{
+      await navigator.clipboard.writeText(inviteUrl)
+      setCopiedInvite(true)
+      setError('')
+    }catch{setError('Clipboard restricted. Tap the link field below and select its text to copy.')}
   }
 
   async function toggleMic() {
@@ -181,7 +225,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
           <h1 style={styles.title}>{pkMode?'Holographic PK Arena':'LIVE Center'}</h1>
           <p style={styles.subtitle}>{pkMode?'Realtime camera/microphone PK battle stage with LiveKit, holographic effects and verified gift hooks.':'One streaming engine for LIVE, All American Showcase, Debate Arena, StarVerse, podcasts, shopping and GameVerse broadcasts.'}</p>
         </div>
-        <button aria-label="Close LIVE Center" onClick={onClose} style={styles.close}>×</button>
+        <button aria-label="Close LIVE Center" onClick={()=>{void leave().finally(onClose)}} style={styles.close}>×</button>
       </header>
 
       <main style={styles.grid}>
@@ -197,13 +241,13 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
             ))}
           </div>}
 
-          <label style={styles.label}>Show title<input value={title} onChange={e => { setTitle(e.target.value); setRoomName(slug(e.target.value)) }} style={styles.input} /></label>
-          <label style={styles.label}>Room ID<input value={roomName} onChange={e => setRoomName(slug(e.target.value))} style={styles.input} /></label>
+          <label style={styles.label}>Show title<input value={title} onChange={e => { setTitle(e.target.value) }} style={styles.input} /></label>
+          <label style={styles.label}>Room ID<input value={roomName} disabled={connected||busy} onChange={e => setRoomName(slug(e.target.value))} style={styles.input} /></label>
           <label style={styles.label}>Display name<input value={displayName} onChange={e => setDisplayName(e.target.value.slice(0,80))} style={styles.input} /></label>
 
           <div style={styles.row}>
-            {!youthViewerOnly&&<button onClick={() => setRole('host')} style={{ ...styles.role, ...(role === 'host' ? styles.roleActive : {}) }}>Host / Creator</button>}
-            <button onClick={() => setRole('viewer')} style={{ ...styles.role, ...(role === 'viewer' ? styles.roleActive : {}) }}>Viewer</button>
+            {!youthViewerOnly&&!invite?.viewer&&<button disabled={connected||busy} onClick={() => setRole('host')} style={{ ...styles.role, ...(role === 'host' ? styles.roleActive : {}) }}>Host / Creator</button>}
+            <button disabled={connected||busy||Boolean(invite?.viewer)} onClick={() => setRole('viewer')} style={{ ...styles.role, ...(role === 'viewer' ? styles.roleActive : {}) }}>Viewer</button>
           </div>
 
           <button type="button" onClick={() => setEffectsOpen(v => !v)} style={styles.effectsButton}>✨ HoloFilter {effectsOpen ? '▲' : '▼'}</button>
@@ -224,10 +268,18 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
             <div style={styles.row}>
               {role === 'host' && <button onClick={() => void toggleMic()} style={styles.secondary}>Mic</button>}
               {role === 'host' && <button onClick={() => void toggleCamera()} style={styles.secondary}>Camera</button>}
-              <button onClick={leave} style={styles.danger}>Leave</button>
+              <button onClick={()=>void leave()} style={styles.danger}>Leave</button>
             </div>
           )}
 
+          {role==='host'&&!youthViewerOnly&&<section aria-label="Share viewer link" style={{...styles.providerGate,marginTop:12}}>
+            <strong style={{fontSize:13}}>📱 SECOND DEVICE / VIEWER INVITE</strong>
+            <div style={styles.small}>Start the real camera broadcast first. Viewers sign in to join, and this link never allows camera publishing.</div>
+            <label style={styles.label}>Viewer link<input aria-label="Viewer invite URL" type="text" readOnly value={inviteUrl} onFocus={e=>e.currentTarget.select()} style={{...styles.input,fontSize:12}} /></label>
+            <button type="button" disabled={!inviteUrl} onClick={()=>void copyViewerInvite()} style={styles.secondary}>{copiedInvite?'✓ VIEWER LINK COPIED':'COPY VIEWER LINK'}</button>
+            <div style={styles.small}>Room: {connected?'LIVE — invite another signed-in device':'Not broadcasting yet'}</div>
+          </section>}
+          {invite?.viewer&&<p style={styles.status}>Viewer invitation loaded. This device watches only, without publishing its microphone or camera.</p>}
           <p style={styles.status}>{configured === null ? 'Checking LiveKit…' : configured ? `● ${pkMode?'PK / ':''}LIVE infrastructure configured • host camera/mic preflight on connect` : '○ LIVE engine is built; production LiveKit credentials are still required'}</p>
           {configured===false&&providerStatus&&<div style={styles.providerGate}>
             <b>LIVE ACTIVATION GATE</b>
