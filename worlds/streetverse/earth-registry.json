@@ -107,6 +107,111 @@
       "country": "US",
       "status": "planned",
       "manifest": null
+    },
+    {
+      "id": "us-tx-houston",
+      "name": "Houston",
+      "country": "US",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "us-tx-dallas",
+      "name": "Dallas",
+      "country": "US",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "us-tx-austin",
+      "name": "Austin",
+      "country": "US",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "us-tx-san-antonio",
+      "name": "San Antonio",
+      "country": "US",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "us-tx-fort-worth",
+      "name": "Fort Worth",
+      "country": "US",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "us-tx-el-paso",
+      "name": "El Paso",
+      "country": "US",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "us-ny-buffalo",
+      "name": "Buffalo",
+      "country": "US",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "us-ca-los-angeles",
+      "name": "Los Angeles",
+      "country": "US",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "us-fl-miami",
+      "name": "Miami",
+      "country": "US",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "gh-aa-accra",
+      "name": "Accra",
+      "country": "GH",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "ke-na-nairobi",
+      "name": "Nairobi",
+      "country": "KE",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "za-gp-johannesburg",
+      "name": "Johannesburg",
+      "country": "ZA",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "et-aa-addis-ababa",
+      "name": "Addis Ababa",
+      "country": "ET",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "gb-eng-london",
+      "name": "London",
+      "country": "GB",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "jp-13-tokyo",
+      "name": "Tokyo",
+      "country": "JP",
+      "status": "planned",
+      "manifest": null
     }
   ],
   "runtime": {
