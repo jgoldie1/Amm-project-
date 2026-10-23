@@ -2,6 +2,7 @@ import {useEffect,useMemo,useState} from 'react'
 import {CHICAGO_BUILD_GRID} from '../data/StreetVerseChicagoBuildGrid'
 import {TRYAMM_NATIVE_RUNTIME_ASSETS} from '../data/TryammNativeRuntimeAssetCatalog'
 import {UIC_ALL_CAMPUS_HUBS} from '../data/uicCampusVerseHubs'
+import {NEAR_WEST_EDUCATION_SITES,NEAR_WEST_EDUCATION_COUNTS,type NearWestEducationSite} from '../data/StreetVerseNearWestEducationRegistry'
 import {ILLINOIS_CAMPUSVERSE_NETWORK} from '../data/campusVerseIllinoisUniversityNetwork'
 import {CHICAGO_77_SLICES,streetVerseCommunitySpawn} from '../config/streetverseCommunitySlices'
 import {ILLINOIS_STREETVERSE_HUBS,US_STREETVERSE_STATES} from '../data/StreetVerseExpansionHierarchy'
@@ -288,6 +289,27 @@ export default function StreetVerseWestSideWorldBuilder({launcher=true}:{launche
   setOpen(false)
  }
 
+
+ const visitEducation=(site:NearWestEducationSite)=>{
+  const route=site.access
+  if(route.kind==='mobile-3d'){
+   const canvas=document.querySelector('[data-streetverse-world-root="true"] canvas[data-streetverse-world-canvas="true"]')
+   if(!canvas){setNotice(site.name+' • 3D not active. Restore 3D Chicago to visit the school; its historical work is preserved.');return}
+   if(route.travelEvent==='tryamm:school-route-request')window.dispatchEvent(new CustomEvent('tryamm:school-route-request',{detail:{campusId:'thomas-jefferson-legacy-campus',source:'west-side-education-directory'}}))
+   else window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:route.x,z:route.z,missionId:site.id,source:'west-side-education-directory'}}))
+   setOpen(false)
+   return
+  }
+  if(route.kind==='campusverse'){
+   // Keep East and West distinct: both are real UIC campus groups, not one generic portal.
+   window.dispatchEvent(new CustomEvent('tryamm:campusverse-destination',{detail:{campus:route.campusId,hubId:route.hubId,district:route.district,source:'west-side-education-directory'}}))
+   window.dispatchEvent(new CustomEvent('tryamm:campusverse-travel',{detail:{to:route.campusId,district:route.district,hubId:route.hubId,source:'west-side-education-directory'}}))
+   setNotice('CAMPUSVERSE ROUTE REQUESTED • '+site.name+'. Use the active CampusVerse portal to verify the destination opened.')
+   return
+  }
+  setNotice('DIRECTORY REFERENCE • '+site.name+' • '+site.address+'. A game 3D building or live enrollment connection is NOT installed for this campus yet.')
+ }
+
  const openCampus=(campusId:string)=>{
   window.dispatchEvent(new CustomEvent('tryamm:campusverse-travel',{detail:{to:campusId,source:'streetverse-world-builder'}}))
   setNotice(`CAMPUSVERSE • ${campusId.toUpperCase()}`)
@@ -494,6 +516,24 @@ export default function StreetVerseWestSideWorldBuilder({launcher=true}:{launche
     </div>}
 
     {tab==='campuses'&&<>
+     <article style={{...card,borderColor:'#72c3d180'}}>
+      <b>NEAR WEST • SCHOOLS + COLLEGES</b>
+      <p style={muted}>{NEAR_WEST_EDUCATION_COUNTS.sites} location records covering Circle Park, ABLA, Taylor/Laflin, UIC, Medical District, Near West and Pilsen. Historic Thomas Jefferson and its current STEM Magnet identity share one address, not two reconstructed buildings. Only {NEAR_WEST_EDUCATION_COUNTS.built3d} have existing navigable 3D routes and {NEAR_WEST_EDUCATION_COUNTS.existingCampusverse} link to previously built CampusVerse groups; remaining schools are directory references only.</p>
+      <div style={{display:'grid',gap:7}}>
+       {NEAR_WEST_EDUCATION_SITES.map(site=>{
+        const label=site.access.kind==='mobile-3d'?'VISIT 3D':site.access.kind==='campusverse'?'OPEN HUB':'REFERENCE'
+        return <button type="button" key={site.id} onClick={()=>visitEducation(site)} aria-label={label+' '+site.name} style={{...rowBtn,minHeight:68,textAlign:'left',alignItems:'center'}}>
+         <span><b>{site.name}</b><small style={{display:'block',opacity:.76,marginTop:3}}>{site.address}</small><small style={{display:'block',opacity:.65,marginTop:2}}>{site.note}</small></span>
+         <span style={{fontSize:9,color:site.access.kind==='directory-only'?'#ffd48f':'#9affdd',whiteSpace:'nowrap'}}>{label}</span>
+        </button>
+       })}
+      </div>
+      <p style={muted}>Addresses identify real-world references; none establish verified property geometry, admissions, ownership or permission to enter a school. Fictional gameplay does not represent real students.</p>
+     </article>
+     <article style={card}>
+      <b>UIC EAST CAMPUS • EXISTING HUBS</b>
+      <div style={{display:'grid',gap:6,marginTop:7}}>{UIC_ALL_CAMPUS_HUBS.filter(h=>h.district==='East Campus').map(h=><button key={h.id} onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:campusverse-destination',{detail:{campus:'uic',hubId:h.id,label:h.label,district:h.district,source:'streetverse-world-builder'}}));setNotice('UIC EAST HUB ROUTE REQUESTED • '+h.label)}} style={rowBtn}><span><b>{h.label}</b><small style={{display:'block',opacity:.7}}>{h.kind.replace('-',' ')}</small></span><span>ROUTE</span></button>)}</div>
+     </article>
      <article style={card}><b>UIC WEST CAMPUS • PHYSICAL HUBS</b><div style={{display:'grid',gap:6,marginTop:7}}>{UIC_ALL_CAMPUS_HUBS.filter(h=>h.district==='West Campus').map(h=><button key={h.id} onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:campusverse-destination',{detail:{campus:'uic',hubId:h.id,label:h.label,district:h.district,source:'streetverse-world-builder'}}));setNotice(`UIC ROUTE • ${h.label}`)}} style={rowBtn}><span><b>{h.label}</b><small style={{display:'block',opacity:.7}}>{h.kind.replace('-',' ')}</small></span><span>ROUTE</span></button>)}</div></article>
      <article style={card}><b>ILLINOIS CAMPUSVERSE NETWORK</b><div style={{display:'grid',gap:6,marginTop:7}}>{ILLINOIS_CAMPUSVERSE_NETWORK.map(c=><button key={c.id} onClick={()=>openCampus(c.id)} style={rowBtn}><span><b>{c.name}</b><small style={{display:'block',opacity:.7}}>{c.region} • {c.system||c.archetype}</small></span><span>OPEN</span></button>)}</div></article>
     </>}
