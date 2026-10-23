@@ -91,7 +91,7 @@ export async function loadStreetVerseMeshyCharacter(slotId:string,options:{defer
   const publishedReady=published?.url?await assetExists(published.url):false
   // These twelve original Wave 1/2 objects are independently verified and preserved.
   // A failed cross-origin HEAD on slow iPhones must not suppress their actual GLB GET.
-  const staticMeshyReady=publishedReady?false:(Boolean(STREETVERSE_MESHY_DURABLE_OVERRIDES[slot.id])||await assetExists(staticMeshyUrl))
+  const staticMeshyReady=publishedReady?false:await assetExists(staticMeshyUrl)
   const nativeUrl=NATIVE_RESIDENT_URLS[slot.fallbackResidentIndex%NATIVE_RESIDENT_URLS.length]
   let sourceUrl=publishedReady?published!.url:(staticMeshyReady?staticMeshyUrl:nativeUrl)
   let nativeFallback=!publishedReady&&!staticMeshyReady
