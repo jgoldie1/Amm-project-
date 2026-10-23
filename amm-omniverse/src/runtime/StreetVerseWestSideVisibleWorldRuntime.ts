@@ -526,7 +526,7 @@ function addResidentialCourtyard(root:THREE.Group){
   // character and Chicago native kit for scarce GPU memory. Keep the detailed
   // procedural West Side streets, buildings, trees and residents; skip only
   // this second simultaneous GLB batch on legacy devices.
-  const legacyIphoneGraphics=/iPhone/i.test(navigator.userAgent)&&/OS (?:1[0-6])_/.test(navigator.userAgent)
+  const legacyIphoneGraphics=typeof navigator!=='undefined'&&/iPhone/i.test(navigator.userAgent)&&/OS (?:1[0-6])_/.test(navigator.userAgent)
   if(legacyIphoneGraphics)window.dispatchEvent(new CustomEvent('tryamm:streetverse-west-side-native-assets',{detail:{loaded:0,failed:0,source:'west-side-visible-world-v5',mode:'procedural-low-memory',optionalGlbSkipped:true}}))
   if(!legacyIphoneGraphics)void loadTryammNativeCircleParkLayer({placements:nativePlacements}).then(result=>{
     if(nativeCancelled){disposeNativeAssetLayer(result.group);return}
