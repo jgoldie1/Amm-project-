@@ -51,7 +51,9 @@ export function getCareerMissionProgress(mission:CareerMission){
  return {title:CAREER_MISSIONS[mission.career].title,completed:mission.stage,total:3,finished:mission.stage===3,nextObjective:mission.stage===3?null:CAREER_MISSIONS[mission.career].steps[mission.stage]}
 }
 export function advanceCareerMission(mission:CareerMission):CareerMission{
- const next={...mission,stage:Math.min(3,mission.stage+1) as CareerMission['stage'],updatedAt:new Date().toISOString()}
+ const active=loadCareerMission()
+ if(!active||active.career!==mission.career||active.stage!==mission.stage||active.updatedAt!==mission.updatedAt||mission.stage>=3)return mission
+ const next={...mission,stage:(mission.stage+1) as CareerMission['stage'],updatedAt:new Date().toISOString()}
  try{localStorage.setItem(KEY,JSON.stringify(next))}catch{}
  return next
 }
