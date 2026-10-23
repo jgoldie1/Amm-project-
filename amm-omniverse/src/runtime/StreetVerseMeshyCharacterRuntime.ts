@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {
   STREETVERSE_MESHY_CHARACTER_SLOTS,
-  STREETVERSE_MESHY_DURABLE_OVERRIDES,
   streetVerseMeshyCharacterUrl,
   type StreetVerseMeshyCharacterSlot,
 } from '../data/streetVerseMeshyCharacterSlots'
