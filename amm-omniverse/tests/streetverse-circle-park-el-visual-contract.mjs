@@ -25,6 +25,19 @@ for(const token of [
   "west-side-el-station-platform",
   "streetverse-west-side-visible-world-v1",
 ])assert(west.includes(token),'Missing retained West Side graphics: '+token)
+const grid=read('src/data/StreetVerseChicagoGrid.ts')
+const builder=read('src/components/StreetVerseWestSideWorldBuilder.tsx')
+for(const id of ['circle-park-1111-laflin','taylor-laflin','abla-village','abla-new-homes']){
+  assert(grid.includes("id:'"+id+"'"),'Chicago grid lacks named block '+id)
+  assert(builder.includes("id:'"+id+"'"),'World Builder lacks named block '+id)
+}
+assert(mobile.includes('1111 S LAFLIN • CIRCLE PARK'),'3D Circle Park entrance lacks exact address')
+assert(mobile.includes('TAYLOR + LAFLIN • CHICAGO 60607'),'3D Taylor + Laflin wayfinding missing')
+assert(mobile.includes('circle-park-era-1996-abla'),'retain original historical ABLA Time Machine')
+assert(west.includes('abla-new-homes-townhome-'),'Village must have actual renderable townhome geometry')
+assert(west.includes('abla-village-step-free-promenade'),'Village pedestrian corridor must remain visible')
+assert(west.includes('sharedBoxGeometries.clear()'),'webgl recovery must clear freed geometry cache')
+assert(builder.includes('tryamm:west-side-route-request'),'World Builder block actions must request real 3D traversal')
 assert(geo.includes('StreetVerseDominionLauncher'),'Keep modded turf/city-building mode accessible')
 assert(geo.includes('showRestore3D={explicitSafe}'),'Recover without stacked retry buttons')
 assert(!geo.includes('{!nearWestOpen&&<StreetVerseAfterDarkAlpha/>}'),'Never overlay 3D After Dark controls on safe HTML city')

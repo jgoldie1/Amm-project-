@@ -28,10 +28,16 @@ type Zone={
  detail:string
  mission?:string
  campusId?:string
+ worldX?:number
+ worldZ?:number
 }
 
 const ZONES:readonly Zone[]=[
  {id:'circle-park',label:'Circle Park',group:'neighborhood',x:32,z:18,status:'live',detail:'West Side spawn, homes, park, streets, traffic, trees and neighborhood missions.',mission:'circle-park'},
+ {id:'circle-park-1111-laflin',label:'1111 S Laflin • Circle Park',group:'neighborhood',x:33,z:21,status:'playable',worldX:-38,worldZ:30,detail:'Original game reconstruction: 1111 entrance, guarded gate, apartments, courtyard and basketball. Current leasing also uses S Ashland.',mission:'circle-park'},
+ {id:'taylor-laflin',label:'Taylor + Laflin',group:'neighborhood',x:35,z:34,status:'playable',worldX:-24,worldZ:-8,detail:'Named Taylor/Laflin street connection between Circle Park, ABLA history and Little Italy.'},
+ {id:'abla-village',label:'ABLA Village',group:'neighborhood',x:40,z:23,status:'playable',worldX:54,worldZ:56,detail:'Original 3D village streetscape and ABLA heritage corridor; game-block positions are approximate.'},
+ {id:'abla-new-homes',label:'ABLA New Homes',group:'neighborhood',x:43,z:25,status:'playable',worldX:74,worldZ:60,detail:'Original multi-unit brick townhome visual block reflecting the mixed-income redevelopment era, not surveyed homes.'},
  {id:'jefferson-school',label:'Thomas Jefferson School',group:'school',x:43,z:28,status:'playable',detail:'Reconstructed school exterior with school-life and learning mission hooks.',mission:'jefferson-school'},
  {id:'roosevelt',label:'Roosevelt Road',group:'neighborhood',x:49,z:43,status:'live',detail:'Business, mobility, delivery and mission corridor.',mission:'roosevelt'},
  {id:'saint-ignatius',label:'St. Ignatius College Prep',group:'school',x:54,z:40,status:'playable',detail:'Roosevelt Road school landmark reconstructed as a gameplay campus anchor from the real-world address.',mission:'ignatius-campus-memory'},
@@ -261,6 +267,14 @@ export default function StreetVerseWestSideWorldBuilder({launcher=true}:{launche
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-builder-focus',{detail:zone}))
  }
 
+ const visitPlayableBlock=(zone:Zone)=>{
+  if(zone.worldX===undefined||zone.worldZ===undefined)return
+  const canvas=document.querySelector('[data-streetverse-world-root="true"] canvas[data-streetverse-world-canvas="true"]')
+  if(!canvas){setNotice('This route requires the active 3D Chicago city. Retry 3D first; your 2D recovery world stays available.');return}
+  window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:zone.worldX,z:zone.worldZ,missionId:zone.id,source:'streetverse-world-builder'}}))
+  setOpen(false)
+ }
+
  const startMission=(zone:Zone)=>{
   const missionId=zone.id==='circle-park'?'hold-the-block':zone.id==='taylor'?'first-ride-story':'business-on-the-block'
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId,source:'streetverse-world-builder',zoneId:zone.id}}))
@@ -401,6 +415,7 @@ export default function StreetVerseWestSideWorldBuilder({launcher=true}:{launche
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7}}>
        <button onClick={()=>focus(selected)} style={actionBtn}>VECTOR ROUTE</button>
        <button onClick={()=>startMission(selected)} style={actionBtn}>START MISSION</button>
+       {selected.worldX!==undefined&&selected.worldZ!==undefined&&<button onClick={()=>visitPlayableBlock(selected)} style={{...actionBtn,gridColumn:'1 / -1',background:'#145742',borderColor:'#92ffd0'}}>🎮 GO TO THIS CHICAGO BLOCK</button>}
        {selected.campusId&&<button onClick={()=>openCampus(selected.campusId!)} style={{...actionBtn,gridColumn:'1 / -1'}}>OPEN CAMPUSVERSE</button>}
       </div>
      </article>

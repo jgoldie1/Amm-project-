@@ -544,7 +544,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const lobbyGlass=addCircleBox('circle-park-1111-lobby-glass',[8.8,3.2,.18],[-38,1.85,49.28],new THREE.MeshStandardMaterial({color:0x31505e,roughness:.14,metalness:.08,transparent:true,opacity:.84}))
   const canopy=addCircleBox('circle-park-1111-entry-canopy',[9.8,.36,3.0],[-38,3.75,50.2],circleConcreteDark)
   for(const x of [-42.1,-33.9])addCircleBox('circle-park-entry-column',[.42,3.5,.42],[x,1.75,50.1],circleConcrete)
-  const addressLabel=makeLabel('1111 • CIRCLE PARK');addressLabel.position.set(-38,5.05,50.55);addressLabel.scale.set(6.4,1.15,1);circleParkReality.add(addressLabel);const mobileWorldLabels=[...placeLabels,seniorCommonsLabel,addressLabel]
+  const addressLabel=makeLabel('1111 S LAFLIN • CIRCLE PARK');addressLabel.position.set(-38,5.05,50.55);addressLabel.scale.set(11,1.45,1);circleParkReality.add(addressLabel);const mobileWorldLabels=[...placeLabels,seniorCommonsLabel,addressLabel]
   const entryDrive=addCircleBox('circle-park-entry-drive',[25,.12,12],[-38,.12,34],circleAsphalt)
   const entryWalk=addCircleBox('circle-park-entry-sidewalk',[25,.16,3.0],[-38,.18,40.8],circleCurb)
   const [guardX,,guardZ]=CIRCLE_PARK_RESIDENT_ENTRANCE.anchors.guardGate.position
@@ -611,6 +611,8 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const heritageSign=makeLabel('CIRCLE PARK • ABLA • ASHLAND / LAFLIN');heritageSign.position.set(-25,7.5,52);heritageSign.scale.set(18,3.1,1);circleParkReality.add(heritageSign)
   const driveSign=makeLabel('CIRCLE PARK DRIVE • S. LAFLIN');driveSign.position.set(-24,5.7,20);driveSign.scale.set(15,2.7,1);circleParkReality.add(driveSign)
   const historySign=makeLabel('JANE ADDAMS / ABLA HISTORY');historySign.position.set(24,5.5,42);historySign.scale.set(15,2.7,1);circleParkReality.add(historySign)
+  const taylorLaflinSign=makeLabel('TAYLOR + LAFLIN • CHICAGO 60607');taylorLaflinSign.position.set(-24,4.2,-8);taylorLaflinSign.scale.set(14,2,1);circleParkReality.add(taylorLaflinSign);mobileWorldLabels.push(taylorLaflinSign)
+  const villageLinkSign=makeLabel('ABLA VILLAGE • NEW HOMES →');villageLinkSign.position.set(54,4.3,57);villageLinkSign.scale.set(13,2,1);circleParkReality.add(villageLinkSign);mobileWorldLabels.push(villageLinkSign)
   // Original heritage marker inspired by the neighborhood's public-art history; not a reproduction of Edgar Miller's Animal Court.
   const heritageMarker=new THREE.Group();heritageMarker.name='abla-animal-court-heritage-marker-original'
   const pedestal=new THREE.Mesh(new THREE.CylinderGeometry(2.2,2.6,.65,12),stone);pedestal.position.y=.33;heritageMarker.add(pedestal)
@@ -621,7 +623,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   for(let i=0;i<12;i++){const post=new THREE.Mesh(fencePostGeometry,fencePostMaterial);post.name='circle-park-court-fence-post';post.position.set(-55+i*1.28,1.05,56.5);circleParkReality.add(post)}
   for(const y of [.55,1.6])addCircleBox('circle-park-court-fence-rail',[14.2,.08,.08],[-48, y,56.5],circleMetal)
   for(const [x,z] of [[-31,57],[-24,57],[-31,63],[-24,63]] as [number,number][]){const bench=addCircleBox('circle-park-bench-seat',[2.7,.20,.72],[x,.72,z],circleMetal);const back=addCircleBox('circle-park-bench-back',[2.7,.82,.14],[x,1.25,z-.32],circleMetal);void bench;void back}
-  circleParkReality.userData={source:'public-reference-reconstruction',version:'reality-max-v2',originalTryammGeometry:true,addressAnchor:'1111 S Ashland Ave',circleParkDriveHistoricalAnchor:true,architecturalReferences:['horizontal glazing','ribbed concrete','recessed entry','brick-and-stone townhomes'],amenities:['townhomes','playground','picnic','basketball','barbecue','swimming','tennis','courtyard','landscaping','parking','sidewalks'],heritage:['ABLA','Jane Addams public-housing history','original public-art marker']}
+  circleParkReality.userData={source:'public-reference-reconstruction',version:'reality-max-v2',originalTryammGeometry:true,addressAnchor:'1111 S Ashland Ave',residentNeighborhoodReference:'1111 S Laflin St, Chicago IL 60607',taylorLaflinCorridor:true,ablaVillageNewHomesVisualLink:true,circleParkDriveHistoricalAnchor:true,architecturalReferences:['horizontal glazing','ribbed concrete','recessed entry','brick-and-stone townhomes'],amenities:['townhomes','playground','picnic','basketball','barbecue','swimming','tennis','courtyard','landscaping','parking','sidewalks'],heritage:['ABLA','Jane Addams public-housing history','original public-art marker']}
   scene.add(circleParkReality)
   const circleParkTimeLayers=new THREE.Group();circleParkTimeLayers.name='circle-park-time-machine-world-layers'
   const historyBrick=new THREE.MeshLambertMaterial({color:0x7d4a38}),historyTan=new THREE.MeshLambertMaterial({color:0xa58a69}),historyConcrete=new THREE.MeshLambertMaterial({color:0x77736b}),historyWeathered=new THREE.MeshLambertMaterial({color:0x595b5c}),historyGrass=new THREE.MeshLambertMaterial({color:0x526f43})
