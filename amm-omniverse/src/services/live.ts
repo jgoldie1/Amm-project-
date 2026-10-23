@@ -30,6 +30,12 @@ export async function getLiveStatus() {
   return response.json() as Promise<{ configured: boolean; url?: string }>
 }
 
+export async function registerLiveHostRoom(room: string, title: string) {
+  return api<{room:{room_name:string;host_user_id:string}}>('/api/live/panel',{
+    method:'POST',
+    body:JSON.stringify({action:'create_room',room,title,maxPanel:8})
+  })
+}
 export async function createLiveToken(room: string, role: LiveRole, displayName?: string) {
   return api<LiveTokenResponse>('/api/live/token', {
     method: 'POST',

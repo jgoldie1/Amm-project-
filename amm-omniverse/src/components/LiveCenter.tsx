@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import type { Room } from 'livekit-client'
-import { connectLiveRoom, getLiveStatus, type LiveRole } from '../services/live'
+import { connectLiveRoom, getLiveStatus, registerLiveHostRoom, type LiveRole } from '../services/live'
 import LiveGenerationIntelligence from './LiveGenerationIntelligence'
 import HoloGiftEngine from './HoloGiftEngine'
 import HoloCreditChannelShop from './HoloCreditChannelShop'
@@ -115,6 +115,8 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
     try {
       if(youthViewerOnly&&role!=='viewer')throw new Error('Youth Viewer Mode keeps camera, microphone and hosting disabled in this release.')
       await preflightHostMedia()
+      // Claim/open this room while authenticated, before requesting a publish token.
+      if(role==='host')await registerLiveHostRoom(roomName,title)
       stageRef.current?.replaceChildren()
       const { room, session } = await connectLiveRoom({
         roomName,

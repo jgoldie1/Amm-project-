@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=x=>fs.readFileSync(new URL('../'+x,import.meta.url),'utf8')
+const token=read('api/live/token.js'),status=read('api/live/status.js')
+const api=read('src/services/live.ts'),ui=read('src/components/LiveCenter.tsx')
+const pkg=JSON.parse(read('package.json'))
+assert(token.includes('requireUser'))
+assert(token.includes("adminRest('live_rooms'"))
+assert(token.includes("if(!ownedRoom||ownedRoom.status!=='open')"))
+assert(token.includes("if(role==='host'&&ownedRoom.host_user_id!==user.id"))
+assert(token.includes("canPublish:role==='host'"))
+assert(status.includes("readyForPublic:configured&&process.env.LIVE_PUBLIC_VERIFIED==='true'"))
+assert(api.includes('registerLiveHostRoom'))
+assert(ui.includes("if(role==='host')await registerLiveHostRoom(roomName,title)"))
+assert(pkg.scripts.build.includes('tryamm-livekit-host-authorization-contract.mjs'))
+console.log('TRYAMM LIVE host permission contract PASS: publish tokens require verified room ownership and open status')

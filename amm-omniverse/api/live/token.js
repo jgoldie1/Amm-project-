@@ -1,5 +1,6 @@
 import { AccessToken } from 'livekit-server-sdk';
 import { requireUser } from '../_lib/security.js';
+import {adminReady,adminRest} from '../_lib/supabase-admin.js';
 
 const LIVEKIT_URL=()=>String(process.env.LIVEKIT_URL||'').trim();
 const API_KEY=()=>String(process.env.LIVEKIT_API_KEY||'').trim();
@@ -29,6 +30,16 @@ export default async function handler(req,res){
   const role=body.role==='viewer'?'viewer':'host';
   const room=cleanRoom(body.room);
   const displayName=cleanName(body.displayName,user.user_metadata?.display_name||user.email?.split('@')[0]);
+  // A browser must never be able to upgrade itself from viewer to room host.
+  // Host room ownership is persisted by the authenticated panel API.
+  if(!adminReady())return res.status(503).json({error:'LIVE room authorization unavailable'});
+  let ownedRoom;
+  try{
+    const rows=await adminRest('live_rooms',{query:{room_name:`eq.${room}`,limit:1}});
+    ownedRoom=rows?.[0]||null;
+  }catch{return res.status(503).json({error:'Could not verify LIVE room authorization'})}
+  if(!ownedRoom||ownedRoom.status!=='open')return res.status(409).json({error:'LIVE room is not open'});
+  if(role==='host'&&ownedRoom.host_user_id!==user.id)return res.status(403).json({error:'Only the verified room owner can publish LIVE'});
   const identity=`${user.id}:${role}`;
 
   const token=new AccessToken(API_KEY(),API_SECRET(),{
