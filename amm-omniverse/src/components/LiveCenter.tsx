@@ -9,7 +9,7 @@ import LivePanelControls from './LivePanelControls'
 
 type Format = 'live' | 'showcase' | 'debate' | 'starverse' | 'podcast' | 'shopping' | 'gamecast'
 type VisualFilter = 'clean' | 'bright' | 'warm' | 'cool' | 'mono' | 'contrast' | 'holo'
-type LiveProviderStatus={configured:boolean;readyForPublic?:boolean;provider?:string;checks?:Record<string,boolean>;missing?:string[];activation?:{state?:string;next?:string[]};capabilities?:Record<string,unknown>;moneyGate?:string;error?:string}
+type LiveProviderStatus={configured:boolean;readyForPublic?:boolean;provider?:string;checks?:Record<string,boolean>;missing?:string[];activation?:{state?:string;next?:string[]};capabilities?:Record<string,unknown>;moneyGate?:string;error?:string;capacity?:{maxParticipantsPerRoom:number;maxActiveRooms:number;videoQuality:string;newRoomsOpen:boolean;newViewersOpen:boolean;limitType?:string}}
 
 const FORMATS: Array<{ id: Format; label: string; description: string }> = [
   { id: 'live', label: 'TryAMM LIVE', description: 'General live broadcast and community room' },
@@ -338,6 +338,12 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
           </section>}
           {invite?.viewer&&<p style={styles.status}>Viewer invitation loaded. This device watches only, without publishing its microphone or camera.</p>}
           <p style={styles.status}>{configured === null ? 'Checking LiveKit…' : configured ? `● ${pkMode?'PK / ':''}LIVE credentials detected • real broadcast verification still required` : providerStatus?.error?'○ LIVE backend is not reachable yet':'○ LIVE credentials are not configured on the API project'}</p>
+          {providerStatus?.capacity&&<div style={styles.providerGate} aria-label="LIVE cost and capacity policy">
+            <b>LIVE PILOT BUDGET • ADMISSION</b>
+            <div style={styles.small}>Max {providerStatus.capacity.maxParticipantsPerRoom} participants per room • {providerStatus.capacity.maxActiveRooms} simultaneous live show(s) • {providerStatus.capacity.videoQuality.toUpperCase()} video</div>
+            <div style={styles.small}>New rooms: {providerStatus.capacity.newRoomsOpen?'allowed':'paused'} • New viewers: {providerStatus.capacity.newViewersOpen?'allowed':'paused'}</div>
+            <div style={styles.small}>These are application admission settings. Actual LiveKit quotas and billing limits remain separate.</div>
+          </div>}
           {configured===false&&providerStatus&&<div style={styles.providerGate}>
             <b>LIVE ACTIVATION GATE</b>
             {providerStatus.error?<div role="alert" style={{...styles.error,margin:0}}>{providerStatus.error}</div>:<div style={styles.small}>Missing provider settings: {(providerStatus.missing||[]).join(' • ')||'See your LIVE server configuration'}</div>}

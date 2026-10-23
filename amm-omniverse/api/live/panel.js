@@ -42,7 +42,6 @@ export default async function handler(req,res){
 
   if(action==='create_room'){
     const budget=liveBudgetPolicy();
-    if(!budget.allowNewRooms)return res.status(503).json({error:'New LIVE rooms are paused to control streaming costs'});
     const maxPanel=Math.max(3,Math.min(20,Number(body.maxPanel)||8));
     // Server-side guardian controls take precedence over the client role selector.
     let hostControls;
@@ -50,6 +49,9 @@ export default async function handler(req,res){
     catch{return res.status(503).json({error:'Cannot verify LIVE host permission'})}
     if(hostControls?.[0]?.live_hosting_allowed===false)return res.status(403).json({error:'Guardian settings prohibit LIVE hosting'});
     const existing=await roomByName(room);
+    // Pausing NEW shows must not break reconnecting to a room already owned.
+    if(!existing&&!budget.allowNewRooms)
+      return res.status(503).json({error:'New LIVE rooms are paused to control streaming costs'});
     if(existing&&existing.host_user_id!==user.id)return res.status(409).json({error:'Room name is owned by another host'});
     if(existing?.status==='live')return res.status(200).json({room:existing,alreadyLive:true});
     if(existing?.status==='ended')return res.status(409).json({error:'This broadcast has ended. Use a new room ID.'});
