@@ -253,8 +253,8 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   // retains its existing primitive residents, vehicles and mission colliders.
   const selectedNativePlacements=legacyIphoneGraphics?mobileNativePlacements.filter((placement,i)=>{
     const label=placement.label||''
-    if(label.startsWith('mobile-native-resident-'))return Number(label.split('-').at(-1))<=4
-    if(label.startsWith('mobile-native-traffic-car-'))return Number(label.split('-').at(-1))<=6
+    if(label.startsWith('mobile-native-resident-'))return Number(label.split('-').slice(-1)[0])<=4
+    if(label.startsWith('mobile-native-traffic-car-'))return Number(label.split('-').slice(-1)[0])<=6
     if(placement.asset==='building')return i%3===0
     if(placement.asset==='tree'||placement.asset==='streetLamp')return i%2===0
     if(placement.asset==='cityTransitTrain')return false
