@@ -26,7 +26,8 @@ export default async function handler(req,res){
   const user=await requireUser(req,res);
   if(!user)return;
 
-  const body=typeof req.body==='string'?JSON.parse(req.body||'{}'):req.body||{};
+  let body;
+  try{body=typeof req.body==='string'?JSON.parse(req.body||'{}'):req.body||{};}catch{return res.status(400).json({error:'Invalid JSON body'});}
   const role=body.role==='viewer'?'viewer':'host';
   const room=cleanRoom(body.room);
   const displayName=cleanName(body.displayName,user.user_metadata?.display_name||user.email?.split('@')[0]);
@@ -38,7 +39,8 @@ export default async function handler(req,res){
     const rows=await adminRest('live_rooms',{query:{room_name:`eq.${room}`,limit:1}});
     ownedRoom=rows?.[0]||null;
   }catch{return res.status(503).json({error:'Could not verify LIVE room authorization'})}
-  if(!ownedRoom||ownedRoom.status!=='live')return res.status(409).json({error:'LIVE room is not open'});
+  if(!ownedRoom||!['planned','live'].includes(ownedRoom.status))return res.status(409).json({error:'LIVE room is not open'});
+  if(role==='viewer'&&ownedRoom.status!=='live')return res.status(409).json({error:'Host has not started the live broadcast yet'});
   if(role==='host'&&ownedRoom.host_user_id!==user.id)return res.status(403).json({error:'Only the verified room owner can publish LIVE'});
   const identity=`${user.id}:${role}`;
 

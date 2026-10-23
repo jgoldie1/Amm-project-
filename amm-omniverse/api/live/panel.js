@@ -32,7 +32,8 @@ export default async function handler(req,res){
     return res.status(200).json({room:current,requests:requests||[],canManage});
   }
 
-  const body=typeof req.body==='string'?JSON.parse(req.body||'{}'):req.body||{};
+  let body;
+  try{body=typeof req.body==='string'?JSON.parse(req.body||'{}'):req.body||{};}catch{return res.status(400).json({error:'Invalid JSON body'});}
   const action=String(body.action||'');
   const room=cleanRoom(body.room);
 
@@ -40,13 +41,25 @@ export default async function handler(req,res){
     const maxPanel=Math.max(3,Math.min(20,Number(body.maxPanel)||8));
     const existing=await roomByName(room);
     if(existing&&existing.host_user_id!==user.id) return res.status(409).json({error:'Room name is owned by another host'});
-    const payload={room_name:room,host_user_id:user.id,title:String(body.title||room).slice(0,120),status:'live',max_panelists:maxPanel,stage_mode:'talk',updated_at:new Date().toISOString()};
+    const payload={room_name:room,host_user_id:user.id,title:String(body.title||room).slice(0,120),status:'planned',max_panelists:maxPanel,started_at:null,ended_at:null,updated_at:new Date().toISOString()};
     const rows=await adminRest('live_rooms',{method:existing?'PATCH':'POST',query:existing?{room_name:`eq.${room}`}:{},body:payload});
     return res.status(200).json({room:rows?.[0]||payload});
   }
 
   const current=await roomByName(room);
   if(!current) return res.status(404).json({error:'LIVE room not found'});
+
+  // The authenticated owner confirms the room state only after LiveKit has
+  // accepted real camera/microphone publishing. Do not represent drafts as LIVE.
+  if(action==='start_room'||action==='end_room'){
+    if(current.host_user_id!==user.id)return res.status(403).json({error:'Host permission required'});
+    const now=new Date().toISOString();
+    const next=action==='start_room'
+      ? {status:'live',started_at:now,ended_at:null,updated_at:now}
+      : {status:'ended',ended_at:now,updated_at:now};
+    const rows=await adminRest('live_rooms',{method:'PATCH',query:{room_name:`eq.${room}`,host_user_id:`eq.${user.id}`},body:next});
+    return res.status(200).json({room:rows?.[0]||null});
+  }
 
   if(action==='request_panel'){
     const controls=await adminRest('guardian_controls',{query:{child_user_id:`eq.${user.id}`,limit:1}}).catch(()=>[]);
@@ -63,8 +76,9 @@ export default async function handler(req,res){
     const allowed=new Set(['talk','video','movie','music','game','shop','gift_pk']);
     const mode=allowed.has(body.mode)?body.mode:'talk';
     const media={title:String(body.title||'').slice(0,160),source:String(body.source||'').slice(0,500),rightsStatus:String(body.rightsStatus||'unverified').slice(0,40),commerceRef:cleanId(body.commerceRef),gameRef:cleanId(body.gameRef)};
-    const rows=await adminRest('live_rooms',{method:'PATCH',query:{room_name:`eq.${room}`,host_user_id:`eq.${user.id}`},body:{stage_mode:mode,stage_payload:media,updated_at:new Date().toISOString()}});
-    return res.status(200).json({room:rows?.[0]||null,monetizationEligible:media.rightsStatus==='verified'});
+    // The deployed live_rooms schema has no stage_mode/stage_payload yet.
+    // Do not issue an invalid PATCH or claim media rights/monetization are set.
+    return res.status(501).json({error:'Live stage sharing requires a verified media-rights schema migration',requestedMode:mode,monetizationEligible:false});
   }
 
   if(['approve','reject','remove'].includes(action)){
@@ -74,7 +88,7 @@ export default async function handler(req,res){
       if(request.guardian_approval_required&&!request.guardian_approved_at) return res.status(409).json({error:'Guardian approval is still required'});
       const active=await adminRest('live_panel_requests',{query:{room_name:`eq.${room}`,status:'eq.on_stage',limit:25}});
       if((active?.length||0)>=current.max_panelists-1) return res.status(409).json({error:'Panel is full'});
-      const used=new Set((active||[]).map(x=>Number(x.stage_position)).filter(Boolean)); let pos=2; while(used.has(pos)&&pos<=current.max_panel)pos++;
+      const used=new Set((active||[]).map(x=>Number(x.stage_position)).filter(Boolean)); let pos=2; while(used.has(pos)&&pos<=current.max_panelists)pos++;
       const rows=await adminRest('live_panel_requests',{method:'PATCH',query:{id:`eq.${requestId}`},body:{status:'on_stage',stage_position:pos,approved_at:new Date().toISOString(),joined_at:new Date().toISOString(),updated_at:new Date().toISOString()}});
       return res.status(200).json({request:rows?.[0]||null});
     }

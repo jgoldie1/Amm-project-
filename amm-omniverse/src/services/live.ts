@@ -36,6 +36,11 @@ export async function registerLiveHostRoom(room: string, title: string) {
     body:JSON.stringify({action:'create_room',room,title,maxPanel:8})
   })
 }
+export async function setLiveHostRoomState(room:string,action:'start_room'|'end_room'){
+  return api<{room:{room_name:string;status:'planned'|'live'|'ended'}}>('/api/live/panel',{
+    method:'POST',body:JSON.stringify({action,room})
+  })
+}
 export async function createLiveToken(room: string, role: LiveRole, displayName?: string) {
   return api<LiveTokenResponse>('/api/live/token', {
     method: 'POST',
