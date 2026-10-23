@@ -13,6 +13,7 @@ export default function StreetVerseRPActionSearch({compact=false}:{compact?:bool
  const results=useMemo(()=>searchStreetVerseRPActions(query,purpose).slice(0,compact?8:16),[query,purpose,compact])
  const send=(name:string,action:RPActionEntry,extra:Record<string,unknown>={})=>{
   if(name==='tryamm:streetverse-rp-action-play'||name==='tryamm:streetverse-rp-sync-request')setLastAction(`${action.label} requested — awaiting in-world animation confirmation`)
+  if(name==='tryamm:streetverse-rp-action-play')window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-consequence-request',{detail:{kind:'rp-action',actionId:action.id,purpose:action.purposes,source:'rp-action-search',verified:false}}))
   window.dispatchEvent(new CustomEvent(name,{detail:{actionId:action.id,label:action.label,animationClip:action.animationClip,gifQuery:action.gifQuery,loopable:action.loopable,syncable:action.syncable,purpose:action.purposes,source:'rp-action-search',...extra}}))
  }
  const toggleFavorite=(action:RPActionEntry)=>{
