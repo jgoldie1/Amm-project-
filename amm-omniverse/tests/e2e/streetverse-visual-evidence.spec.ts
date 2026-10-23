@@ -116,7 +116,7 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
       Math.max(0,Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x))*
       Math.max(0,Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y));
     for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++){
-      expect(overlaps(boxes[i],boxes[j])).toBeLessThan(1);
+      expect(overlaps(boxes[i],boxes[j]),`Mobile HUD controls ${i} and ${j} overlap after SHOW FULL HUD`).toBeLessThan(1);
     }
 
     await page.waitForTimeout(2200);
