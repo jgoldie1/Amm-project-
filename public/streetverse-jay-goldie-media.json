@@ -1,0 +1,28 @@
+{
+  "schema": "streetverse.creator-media.v1",
+  "creatorName": "Jay Goldie",
+  "claim": "user-provided",
+  "profiles": [
+    {
+      "platform": "instagram",
+      "handle": "jaygoldie",
+      "verification": "unverified",
+      "profileUrl": null
+    },
+    {
+      "platform": "tiktok",
+      "handle": "jaygoldie",
+      "verification": "unverified",
+      "profileUrl": null
+    }
+  ],
+  "reels": [],
+  "existingRecoveredCatalog": "/streetverse-original-reels.catalog.json",
+  "status": "pending-exact-profile-links-and-approved-embed",
+  "rules": {
+    "neverScrapeOrRehostSocialMedia": true,
+    "ownerApprovalRequired": true,
+    "licensedAudioRequired": true,
+    "embedOnlyWhenPlatformPermits": true
+  }
+}
