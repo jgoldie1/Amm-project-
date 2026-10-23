@@ -1,6 +1,7 @@
 import {json,adminRest} from '../_lib/supabase-admin.js';
 import {requireUser} from '../_lib/security.js';
 import {createSignedPlaybackApprovedMedia} from '../_lib/media-storage.js';
+import {isProtectedPrivateMedia} from '../_lib/private-media-workflows.js';
 
 const RIGHTS=new Set(['original','licensed','public_domain','creator_authorized','cleared']);
 const APPROVED=new Set(['approved','restored']);
@@ -20,7 +21,7 @@ export default async function handler(req,res){
   if(!media||media.processing_status!=='ready'||!APPROVED.has(media.moderation_status)||!RIGHTS.has(media.rights_status))return json(res,404,{error:'public_reel_media_not_ready'});
   // Private auditions cannot become programs through ordinary media approval.
   // An authenticated casting decision system is still required.
-  if(media.manifest?.composition?.source==='isaiah-ai-tv-audition')return json(res,404,{error:'audition_cleared_distribution_not_configured'});
+  if(isProtectedPrivateMedia(media))return json(res,404,{error:'private_media_distribution_not_authorized'});
   const path=String(media.storage_path||media.manifest?.storage_path||'');
   const playbackUrl=await createSignedPlaybackApprovedMedia(path,600);
   return json(res,200,{ok:true,publication,media:{id:media.id,title:media.title,mediaType:media.media_type,playbackUrl},share:{slug:publication.public_slug,path:'/reels/'+encodeURIComponent(publication.public_slug)}});

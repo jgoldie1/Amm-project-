@@ -5,6 +5,7 @@ const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8')
 const upload=read('api/media/upload-intent.js')
 const publish=read('api/media/publish.js')
 const worker=read('api/media/process-publish.js')
+const playback=read('api/media/publication.js'),network=read('api/media/network-programs.js')
 const policy=await import('../api/_lib/private-media-workflows.js')
 const b=1024*1024
 for(const {id,mime,bytes,composition} of [
@@ -24,5 +25,7 @@ assert(upload.includes('verifyPrivateMediaIntent({composition,contentType,sizeBy
 assert(upload.includes('Number.isSafeInteger(sizeBytes)'))
 assert(publish.includes('if(isProtectedPrivateMedia(media))'))
 assert(worker.includes('if(isProtectedPrivateMedia(media))'),'pre-existing jobs must not bypass the guard')
+assert(playback.includes('if(isProtectedPrivateMedia(media))'),'older publication records must not expose private studio or auditions')
+assert(network.includes('if(isProtectedPrivateMedia(media))'),'network catalog must not list private studio or audition records')
 assert(JSON.parse(read('package.json')).scripts.build.includes('tryamm-private-media-production-guards-contract.mjs'))
 console.log('TRYAMM PRIVATE MEDIA GUARDS PASS: 3 server-enforced purpose limits and no automatic audition/studio/storyboard publishing')

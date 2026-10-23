@@ -1,4 +1,5 @@
 import {adminRest,json} from '../_lib/supabase-admin.js';
+import {isProtectedPrivateMedia} from '../_lib/private-media-workflows.js';
 const CHANNELS=new Set(['all-american-network','servants-of-christ-network']);
 const RIGHTS=new Set(['original','licensed','public_domain','creator_authorized','cleared']);
 // No private audition or unreleased source media metadata is exposed.
@@ -19,7 +20,7 @@ export default async function handler(req,res){
    }});
    const media=matches?.[0];
    if(!media||media.processing_status!=='ready'||!['approved','restored'].includes(media.moderation_status)||!RIGHTS.has(media.rights_status))continue;
-   if(media.manifest?.composition?.source==='isaiah-ai-tv-audition')continue;
+   if(isProtectedPrivateMedia(media))continue;
    if(!/^[a-z0-9-]{5,180}$/.test(String(pub.public_slug)))continue;
    items.push({id:pub.id,title:String(media.title||'TRYAMM approved program').slice(0,160),
     caption:String(pub.caption||'').slice(0,300),deliveredAt:pub.delivered_at,
