@@ -66,7 +66,8 @@ export function loadCareerMission():CareerMission|null{
  try{const raw=localStorage.getItem(KEY);if(!raw)return null;const v=JSON.parse(raw);if(!v||typeof v!=='object'||typeof v.career!=='string'||!Object.prototype.hasOwnProperty.call(CAREER_MISSIONS,v.career)||![0,1,2,3].includes(v.stage)||typeof v.updatedAt!=='string')return null;return v}catch{return null}
 }
 export function advanceCareerMissionForEvent(mission:CareerMission,eventName:string):CareerMission{
- if(mission.stage>=3||eventName!==CONFIRMATION_EVENTS[mission.stage])return mission
+ if(mission.stage===3)return mission
+ if(eventName!==CONFIRMATION_EVENTS[mission.stage])return mission
  // Ignore stale events from a previous mission or another browser tab.
  const active=loadCareerMission()
  if(!active||active.career!==mission.career||active.stage!==mission.stage||active.updatedAt!==mission.updatedAt)return mission
