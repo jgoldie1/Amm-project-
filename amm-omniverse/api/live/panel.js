@@ -40,7 +40,7 @@ export default async function handler(req,res){
     const maxPanel=Math.max(3,Math.min(20,Number(body.maxPanel)||8));
     const existing=await roomByName(room);
     if(existing&&existing.host_user_id!==user.id) return res.status(409).json({error:'Room name is owned by another host'});
-    const payload={room_name:room,host_user_id:user.id,title:String(body.title||room).slice(0,120),status:'open',max_panel:maxPanel,stage_mode:'talk',updated_at:new Date().toISOString()};
+    const payload={room_name:room,host_user_id:user.id,title:String(body.title||room).slice(0,120),status:'live',max_panelists:maxPanel,stage_mode:'talk',updated_at:new Date().toISOString()};
     const rows=await adminRest('live_rooms',{method:existing?'PATCH':'POST',query:existing?{room_name:`eq.${room}`}:{},body:payload});
     return res.status(200).json({room:rows?.[0]||payload});
   }
@@ -73,7 +73,7 @@ export default async function handler(req,res){
     if(action==='approve'){
       if(request.guardian_approval_required&&!request.guardian_approved_at) return res.status(409).json({error:'Guardian approval is still required'});
       const active=await adminRest('live_panel_requests',{query:{room_name:`eq.${room}`,status:'eq.on_stage',limit:25}});
-      if((active?.length||0)>=current.max_panel-1) return res.status(409).json({error:'Panel is full'});
+      if((active?.length||0)>=current.max_panelists-1) return res.status(409).json({error:'Panel is full'});
       const used=new Set((active||[]).map(x=>Number(x.stage_position)).filter(Boolean)); let pos=2; while(used.has(pos)&&pos<=current.max_panel)pos++;
       const rows=await adminRest('live_panel_requests',{method:'PATCH',query:{id:`eq.${requestId}`},body:{status:'on_stage',stage_position:pos,approved_at:new Date().toISOString(),joined_at:new Date().toISOString(),updated_at:new Date().toISOString()}});
       return res.status(200).json({request:rows?.[0]||null});

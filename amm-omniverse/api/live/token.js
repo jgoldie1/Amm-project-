@@ -38,7 +38,7 @@ export default async function handler(req,res){
     const rows=await adminRest('live_rooms',{query:{room_name:`eq.${room}`,limit:1}});
     ownedRoom=rows?.[0]||null;
   }catch{return res.status(503).json({error:'Could not verify LIVE room authorization'})}
-  if(!ownedRoom||ownedRoom.status!=='open')return res.status(409).json({error:'LIVE room is not open'});
+  if(!ownedRoom||ownedRoom.status!=='live')return res.status(409).json({error:'LIVE room is not open'});
   if(role==='host'&&ownedRoom.host_user_id!==user.id)return res.status(403).json({error:'Only the verified room owner can publish LIVE'});
   const identity=`${user.id}:${role}`;
 
