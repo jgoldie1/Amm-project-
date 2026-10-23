@@ -3,7 +3,7 @@ import { installCallSafeLive } from './protectedLive'
 
 const API_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || ''
 
-export type LiveRole = 'host' | 'viewer'
+export type LiveRole = 'host' | 'viewer' | 'guest'
 
 export interface LiveTokenResponse {
   token: string
@@ -30,6 +30,14 @@ export async function getLiveStatus() {
   return response.json() as Promise<{ configured: boolean; url?: string }>
 }
 
+export type LivePanelRequest={id:string;room_name:string;requester_user_id:string;display_name?:string|null;status:string;approved_at?:string|null;guardian_approval_required?:boolean;guardian_approved_at?:string|null;stage_position?:number|null}
+export type LivePanelSnapshot={room:{room_name:string;status:string;host_user_id:string;max_panelists:number}|null;requests:LivePanelRequest[];canManage:boolean}
+export async function getLivePanel(room:string){
+  return api<LivePanelSnapshot>('/api/live/panel?room='+encodeURIComponent(room),{method:'GET'})
+}
+export async function sendLivePanelAction(room:string,action:'request_panel'|'approve'|'reject'|'remove',requestId?:string){
+  return api<{request:LivePanelRequest}>('/api/live/panel',{method:'POST',body:JSON.stringify({room,action,requestId,micReady:true,cameraReady:true})})
+}
 export async function registerLiveHostRoom(room: string, title: string) {
   return api<{room:{room_name:string;host_user_id:string}}>('/api/live/panel',{
     method:'POST',
@@ -79,7 +87,7 @@ export async function connectLiveRoom(opts: {
   try {
     await room.connect(session.url, session.token)
     updateCount()
-    if (opts.role === 'host') {
+    if (opts.role === 'host' || opts.role === 'guest') {
       await room.localParticipant.setMicrophoneEnabled(true)
       await room.localParticipant.setCameraEnabled(true)
 

@@ -28,7 +28,9 @@ export default async function handler(req,res){
 
   let body;
   try{body=typeof req.body==='string'?JSON.parse(req.body||'{}'):req.body||{};}catch{return res.status(400).json({error:'Invalid JSON body'});}
-  const role=body.role==='viewer'?'viewer':'host';
+  const role=body.role;
+  if(!['viewer','host','guest'].includes(role))return res.status(400).json({error:'Unsupported LIVE role'});
+
   const room=cleanRoom(body.room);
   const displayName=cleanName(body.displayName,user.user_metadata?.display_name||user.email?.split('@')[0]);
   // A browser must never be able to upgrade itself from viewer to room host.
@@ -42,6 +44,17 @@ export default async function handler(req,res){
   if(!ownedRoom||!['planned','live'].includes(ownedRoom.status))return res.status(409).json({error:'LIVE room is not open'});
   if(role==='viewer'&&ownedRoom.status!=='live')return res.status(409).json({error:'Host has not started the live broadcast yet'});
   if(role==='host'&&ownedRoom.host_user_id!==user.id)return res.status(403).json({error:'Only the verified room owner can publish LIVE'});
+  if(role==='guest'){
+    if(ownedRoom.status!=='live')return res.status(409).json({error:'The host has not started LIVE'});
+    let requests;
+    try{requests=await adminRest('live_panel_requests',{query:{room_name:`eq.${room}`,requester_user_id:`eq.${user.id}`,status:'eq.on_stage',limit:1}})}
+    catch{return res.status(503).json({error:'Could not verify guest stage authorization'})}
+    const approved=requests?.[0];
+    if(!approved || approved.host_user_id!==ownedRoom.host_user_id || !approved.approved_at ||
+      (approved.guardian_approval_required&&!approved.guardian_approved_at)){
+      return res.status(403).json({error:'Host and guardian approval required before publishing as a guest'});
+    }
+  }
   const identity=`${user.id}:${role}`;
 
   const token=new AccessToken(API_KEY(),API_SECRET(),{
@@ -54,7 +67,7 @@ export default async function handler(req,res){
     roomJoin:true,
     room,
     canSubscribe:true,
-    canPublish:role==='host',
+    canPublish:role==='host'||role==='guest',
     canPublishData:true
   });
 

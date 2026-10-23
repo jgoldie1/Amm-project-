@@ -72,11 +72,17 @@ export default async function handler(req,res){
   }
 
   if(action==='request_panel'){
+    if(current.status!=='live')return res.status(409).json({error:'Host has not started LIVE'});
+    if(current.host_user_id===user.id)return res.status(400).json({error:'Host is already on stage'});
+    const existingRequest=await adminRest('live_panel_requests',{query:{room_name:`eq.${room}`,requester_user_id:`eq.${user.id}`,limit:1}});
+    if(existingRequest?.[0]&&['waiting','on_stage'].includes(existingRequest[0].status)){
+      return res.status(200).json({request:existingRequest[0]});
+    }
     const controls=await adminRest('guardian_controls',{query:{child_user_id:`eq.${user.id}`,limit:1}}).catch(()=>[]);
     const control=controls?.[0]||null;
     if(control&&control.panel_join_allowed===false) return res.status(403).json({error:'Panel joining is disabled by guardian controls'});
     const guardianRequired=Boolean(control);
-    const rows=await adminRest('live_panel_requests',{method:'POST',body:{room_name:room,requester_user_id:user.id,host_user_id:current.host_user_id,status:'waiting',camera_ready:Boolean(body.cameraReady),mic_ready:Boolean(body.micReady),requested_role:'guest',guardian_approval_required:guardianRequired}});
+    const rows=await adminRest('live_panel_requests',{method:'POST',body:{room_name:room,requester_user_id:user.id,host_user_id:current.host_user_id,status:'waiting',camera_ready:Boolean(body.cameraReady),mic_ready:Boolean(body.micReady),requested_role:'guest',guardian_approval_required:guardianRequired,display_name:String(user.user_metadata?.display_name||user.email?.split('@')[0]||'Guest').replace(/[<>\r\n]/g,'').slice(0,80)}});
     return res.status(201).json({request:rows?.[0]||null});
   }
 
@@ -95,6 +101,8 @@ export default async function handler(req,res){
     const requestId=cleanId(body.requestId); const request=await requestById(requestId);
     if(!request||request.room_name!==room||request.host_user_id!==user.id) return res.status(404).json({error:'Panel request not found'});
     if(action==='approve'){
+      if(current.status!=='live')return res.status(409).json({error:'Cannot approve guest unless LIVE is active'});
+      if(request.status!=='waiting')return res.status(409).json({error:'Only waiting requests can be approved'});
       if(request.guardian_approval_required&&!request.guardian_approved_at) return res.status(409).json({error:'Guardian approval is still required'});
       const active=await adminRest('live_panel_requests',{query:{room_name:`eq.${room}`,status:'eq.on_stage',limit:25}});
       if((active?.length||0)>=current.max_panelists-1) return res.status(409).json({error:'Panel is full'});
@@ -102,6 +110,7 @@ export default async function handler(req,res){
       const rows=await adminRest('live_panel_requests',{method:'PATCH',query:{id:`eq.${requestId}`},body:{status:'on_stage',stage_position:pos,approved_at:new Date().toISOString(),joined_at:new Date().toISOString(),updated_at:new Date().toISOString()}});
       return res.status(200).json({request:rows?.[0]||null});
     }
+    if(action==='remove'&&request.status!=='on_stage')return res.status(409).json({error:'Guest is not on stage'});
     const next=action==='reject'?{status:'rejected',rejected_at:new Date().toISOString()}:{status:'removed',removed_at:new Date().toISOString(),stage_position:null};
     const rows=await adminRest('live_panel_requests',{method:'PATCH',query:{id:`eq.${requestId}`},body:{...next,updated_at:new Date().toISOString()}});
     return res.status(200).json({request:rows?.[0]||null});
