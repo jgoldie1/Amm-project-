@@ -27,6 +27,10 @@ for(const token of [
 ])assert(west.includes(token),'Missing retained West Side graphics: '+token)
 const grid=read('src/data/StreetVerseChicagoGrid.ts')
 const builder=read('src/components/StreetVerseWestSideWorldBuilder.tsx')
+const safeCity=read('src/components/StreetVerseMobilePlayableWorld.tsx')
+assert(safeCity.includes('Safe city walking and driving controls'),'Safe HTML city must show visible fallback movement controls')
+for(const command of ["btn('▲','up')","btn('◀','left')","btn('▼','down')","btn('▶','right')"])
+  assert(safeCity.includes(command),'Safe HTML city missing movement button '+command)
 for(const id of ['circle-park-1111-laflin','taylor-laflin','abla-village','abla-new-homes']){
   assert(grid.includes("id:'"+id+"'"),'Chicago grid lacks named block '+id)
   assert(builder.includes("id:'"+id+"'"),'World Builder lacks named block '+id)
