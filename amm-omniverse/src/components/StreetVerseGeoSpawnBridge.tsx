@@ -66,7 +66,8 @@ function hasUsableWebGL(){
   return Boolean(gl)
  }catch{return false}
  finally{
-  try{gl?.getExtension('WEBGL_lose_context')?.loseContext()}catch{}
+  // Do not forcibly lose a WebGL context during a capability probe.
+  // Older iOS Safari can lose the live renderer when GPU contexts are stressed.
   canvas.width=0;canvas.height=0
  }
 }
