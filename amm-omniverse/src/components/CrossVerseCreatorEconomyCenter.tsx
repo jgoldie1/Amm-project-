@@ -1,3 +1,4 @@
+import {MY_TRIBE_FOUNDER_BUSINESSES, MY_TRIBE_CROSSVERSE_RULES} from '../data/MyTribeFounderBusinessCatalog'
 import HoloCreditChannelShop from './HoloCreditChannelShop'
 import CreatorCreditMarketplace from './CreatorCreditMarketplace'
 import {CROSSVERSE_LIVE_PK_RULES} from '../game/holographic/CrossVerseLivePK'
@@ -8,6 +9,7 @@ export default function CrossVerseCreatorEconomyCenter({onClose}:{onClose:()=>vo
   <div style={{maxWidth:1100,margin:'0 auto',padding:'18px 14px 90px'}}>
    <header style={{display:'flex',justifyContent:'space-between',gap:10,alignItems:'start'}}><div><div style={{fontSize:9,letterSpacing:2.4,color:'#79ecff',fontWeight:950}}>TRYAMM • CROSSVERSE</div><h1 style={{fontSize:'clamp(38px,7vw,72px)',lineHeight:.9,margin:'8px 0'}}>Creator Economy</h1><p style={{maxWidth:780,color:'#aebdca',lineHeight:1.55,fontSize:11}}>One place for cross-verse credit utilities, creator-made digital goods, PK/LIVE engagement and verified commercial earning paths.</p></div><button onClick={onClose} style={close}>×</button></header>
 
+   <section aria-label="My Tribe accessible founder businesses" style={{padding:16,marginTop:14,border:'1px solid #4d7d89',borderRadius:12,background:'#0d2637'}}><h2>My Tribe · Disability Founder Businesses</h2><p>Explore six accessible founder pathways. Cross-world shops and payments require owner approval and verified activation; no in-game income is promised.</p><ul>{MY_TRIBE_FOUNDER_BUSINESSES.map(b=><li key={b.id}><strong>{b.name}</strong> — {b.services.join(' · ')}</li>)}</ul><p>Worlds: {MY_TRIBE_CROSSVERSE_RULES.destinations.join(' · ')}</p><a href="/streetverse-business.html" style={{color:'#79ecff'}}>Explore StreetVerse Business District</a></section>
    <section style={{marginTop:14}}><HoloCreditChannelShop channel='CROSSVERSE' title='CrossVerse Credit Utilities'/></section>
    <section style={{marginTop:12}}><CreatorCreditMarketplace/></section>
 
