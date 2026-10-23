@@ -37,6 +37,7 @@ export default function StreetVerseActionCarousel(){
  const [open,setOpen]=useState(()=>!mobile||startInRP)
  // On phones, gameplay keeps the carousel collapsed until the player asks for it.
  const [rpOpen,setRpOpen]=useState(startInRP)
+ const [gameplayPanel,setGameplayPanel]=useState<string|null>(null)
  const [rpgState,setRpgState]=useState<{level?:number;xp?:number;activeQuestIds?:string[]}|null>(null)
  useEffect(()=>{
   const onRpg=(event:Event)=>setRpgState((event as CustomEvent<{level?:number;xp?:number;activeQuestIds?:string[]}>).detail||null)
@@ -53,7 +54,7 @@ export default function StreetVerseActionCarousel(){
   const onBreakdown=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx({...d,kind:'vehicle',broken:true,drivable:false});setPage(0);if(!mobile)setOpen(true)}
   const onRepaired=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx(current=>current.vehicleId===d.vehicleId?{...current,broken:false,drivable:true,repairKit:false}:current)}
   const onOpen=()=>{setOpen(true);setRpOpen(false)}
-  const onClose=()=>{setOpen(false);setRpOpen(false)}
+  const onClose=()=>{setOpen(false);setRpOpen(false);setGameplayPanel(null)}
   const onToggle=()=>{setOpen(v=>!v);setRpOpen(false)}
   const onMove=(event:Event)=>{
    if(!mobile)return
@@ -90,11 +91,13 @@ export default function StreetVerseActionCarousel(){
  const act=(id:ActionId)=>{
   const vehicleId=ctx.vehicleId
   if(id==='pocket'){
+   setGameplayPanel('pocket')
    dispatchEvent(new CustomEvent('tryamm:streetverse-pocket-dimension-open',{detail:{source:'action-carousel',context:ctx}}));
    dispatchEvent(new CustomEvent('tryamm:streetverse-quick-menu-request',{detail:{item:'POCKET DIMENSION',source:'action-carousel'}}));
    return
   }
   if(['equipment','health','armor','inventory','emergency'].includes(id)){
+   setGameplayPanel(id)
    dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-panel-request',{detail:{panel:id,source:'action-carousel',context:ctx}}));return
   }
   if(id==='quick'){
@@ -128,6 +131,7 @@ export default function StreetVerseActionCarousel(){
    {Array.from({length:Math.max(0,5-visible.length)}).map((_,i)=><span key={`blank-${i}`}/>)}
    <button aria-label="Next actions" onClick={()=>setPage(p=>(p+1)%pages)} style={nav}>›</button>
   </div>
+  {gameplayPanel&&<section role="region" aria-label={`${gameplayPanel} gameplay panel`} style={{marginTop:8,padding:10,border:'1px solid #67e8f955',borderRadius:12,background:'#091725',fontSize:12}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:8}}><strong style={{textTransform:'uppercase'}}>{gameplayPanel==='pocket'?'🌀 Pocket Dimension':gameplayPanel}</strong><button aria-label="Close gameplay panel" onClick={()=>setGameplayPanel(null)} style={closeBtn}>×</button></div><p style={{margin:'7px 0',color:'#b9d5e3'}}>{gameplayPanel==='pocket'?'Portal requested. Waiting for the existing Pocket Dimension to open; no inventory transfer has been confirmed.':'Gameplay system requested. Live player statistics and saved equipment are not verified here yet.'}</p></section>}
   {(!mobile||rpOpen)&&<><div aria-label="StreetVerse RPG progression" role="status" style={{marginTop:8,padding:8,border:"1px solid #7ce5ff44",borderRadius:10,color:"#b4efff",fontSize:10,fontWeight:900}}>{rpgState?`RPG LEVEL ${rpgState.level||1} • XP ${rpgState.xp||0} • ACTIVE QUESTS ${rpgState.activeQuestIds?.length||0}`:"RPG progression loading…"}</div><StreetVerseRPActionSearch compact/><StreetVerseRPOmnibar compact/></>}
   <div style={{marginTop:6,textAlign:'center',fontSize:8,color:'#94a3b8'}}>{mobile?'TAP PLAY TO CLEAR SCREEN • ':''}SWIPE/ARROWS • {page%pages+1}/{pages} • SORT changes what StreetVerse puts first, not what you own.</div>
  </div>
