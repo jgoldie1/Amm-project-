@@ -78,6 +78,10 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     }
     const stores=page.locator('#sv-retail-open');
     const enterStore=page.locator('#sv-store-open');
+    const renderMode=await page.locator('[data-streetverse-entry="geo-spawn-bridge"]').getAttribute('data-streetverse-mode');
+    console.error('[streetverse-entry-mode]', renderMode);
+    console.error('[streetverse-travel-count]', await travel.count());
+    console.error('[streetverse-travel-data-count]', await page.locator('[data-streetverse-travel]').count());
     await expect(travel).toBeVisible();
     await expect(stores).toBeVisible();
     await expect(enterStore).toBeVisible();
