@@ -1,3 +1,4 @@
+import {buildCityPlan} from './ai-cafe-city-plan.js';
 import {createHash} from 'node:crypto';
 import {adminRest} from './supabase-admin.js';
 export const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -31,8 +32,8 @@ export async function executeOne({userId=null,jobId=null,rpc=jobRpc,render=build
  const job=rows?.[0];
  if(!job)return {executed:false};
  let output;
- try{output=render(job.input)}catch{
-  const saved=await rpc('ai_cafe_finish',{p_id:job.id,p_token:job.lease_token,p_output:null,p_error:'draft_render_failed'});
+ try{output=job.kind==='city-build-plan'?buildCityPlan(job.input):job.kind==='website-draft'?render(job.input):(()=>{throw Error('unsupported_kind')})()}catch{
+  const saved=await rpc('ai_cafe_finish',{p_id:job.id,p_token:job.lease_token,p_output:null,p_error:'job_render_failed'});
   return {executed:true,id:job.id,completed:false,saved};
  }
  // A database/network failure leaves the lease to expire. It is never reported as completion.
