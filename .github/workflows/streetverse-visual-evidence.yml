@@ -20,7 +20,8 @@ permissions:
 
 concurrency:
   group: streetverse-visual-evidence-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # Preserve in-flight proof when follow-up repair commits arrive.
+  cancel-in-progress: false
 
 jobs:
   mobile-visual-proof:
@@ -65,7 +66,7 @@ jobs:
             amm-omniverse/test-results/
             amm-omniverse/playwright-report/
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 30
 
       - name: Summarize proof
         if: success()
