@@ -11,7 +11,7 @@ for(const token of [
   "const [rpOpen,setRpOpen]=useState(startInRP)",
   "if(mobile&&!open)return <div",
   "Open StreetVerse RP RPG emoji and GIF actions",
-  "ctx.broken?'🔧 REPAIR':'⚡ ACTIONS'",
+  "ctx.broken?'🔧 REPAIR':'🎮 ACTIONS ›'",
   "🎮 PLAY",
   "🎭 RP / GENII",
   "(!mobile||rpOpen)",
