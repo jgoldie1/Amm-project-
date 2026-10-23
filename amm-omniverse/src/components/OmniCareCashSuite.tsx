@@ -31,6 +31,7 @@ export default function OmniCareCashSuite(){
         {active.features.map(feature=><article key={feature} style={{padding:18,border:'1px solid #28394d',borderRadius:18,background:'#08111c'}}><strong>{feature}</strong><p style={{color:'#aebed2',fontSize:14}}>Product surface restored. Live provider-backed execution is enabled only after verification.</p></article>)}
       </section>
 
+      {active.path==='/aniyah-pay'&&<section aria-label="Aniyah Pay sandbox demonstration" style={{marginTop:20,padding:18,border:'1px solid #518975',borderRadius:18,background:'#0b1e1b'}}><h2 style={{margin:'0 0 8px'}}>Global transfer prototype • sandbox only</h2><p style={{color:'#c1dfd1',lineHeight:1.6}}>Preview local sample corridors, fees and available adapter names. This is not live foreign exchange pricing, transfer authorization or money movement.</p><a href="/aniyah-pay/demo" style={{display:'inline-flex',alignItems:'center',minHeight:48,padding:'8px 16px',border:'1px solid #83efd1',borderRadius:12,color:'#afffea',textDecoration:'none',fontWeight:900}}>OPEN ANIYAH PAY SANDBOX →</a></section>}
       {active.path==='/aniyah-pay'&&<section style={{marginTop:20,padding:22,border:'1px solid #315d4c',borderRadius:22,background:'#081813'}}>
         <div style={{fontSize:12,fontWeight:950,letterSpacing:1.6,color:'#7df0bb'}}>AFRICA PAYMENT RAILS</div>
         <h2 style={{margin:'8px 0'}}>Recovered rail registry</h2>
