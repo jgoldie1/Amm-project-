@@ -112,8 +112,16 @@ function MobileRuntimeGuard({onClose,children}:{onClose:()=>void;children:ReactN
    setRecovering(true)
    report('recovering','webgl-context-lost')
    restoreTimer=window.setTimeout(()=>{
+    restoreTimer=undefined
     if(!failed&&graphicsLost&&document.visibilityState==='visible')fail('webgl-context-not-restored')
    },12000)
+  }
+  const onVisibilityReturn=()=>{
+   // Safari can discard its GPU context while the app is backgrounded.
+   // Do not leave an indefinite recovering banner after returning to the tab.
+   if(!document.hidden&&graphicsLost&&!failed&&restoreTimer===undefined){
+    restoreTimer=window.setTimeout(()=>fail('webgl-context-not-restored'),12000)
+   }
   }
   const onContextRestored=(event:Event)=>{
    if(!isStreetVerseCanvas(event)||failed||!graphicsLost)return
@@ -129,6 +137,7 @@ function MobileRuntimeGuard({onClose,children}:{onClose:()=>void;children:ReactN
   window.addEventListener('tryamm:streetverse-player-position',onPosition)
   window.addEventListener('webglcontextlost',onContextLost,true)
   window.addEventListener('webglcontextrestored',onContextRestored,true)
+  document.addEventListener('visibilitychange',onVisibilityReturn)
   window.addEventListener('tryamm:streetverse-renderer-failed',onRendererFailed)
   const bootTimer=window.setTimeout(()=>{
    if(!healthy)console.warn('[StreetVerse] 3D startup remains unverified; waiting for real canvas readiness')
@@ -144,6 +153,7 @@ function MobileRuntimeGuard({onClose,children}:{onClose:()=>void;children:ReactN
    window.removeEventListener('tryamm:streetverse-player-position',onPosition)
    window.removeEventListener('webglcontextlost',onContextLost,true)
    window.removeEventListener('webglcontextrestored',onContextRestored,true)
+   document.removeEventListener('visibilitychange',onVisibilityReturn)
    window.removeEventListener('tryamm:streetverse-renderer-failed',onRendererFailed)
   }
  },[safeFallback])
