@@ -6,10 +6,10 @@ const builder=read('src/components/StreetVerseWestSideWorldBuilder.tsx')
 const west=read('src/runtime/StreetVerseWestSideVisibleWorldRuntime.ts')
 const jefferson=read('src/components/StreetVerseThomasJeffersonSchool.tsx')
 const hubs=read('src/data/uicCampusVerseHubs.ts')
-assert(NEAR_WEST_EDUCATION_COUNTS.sites>=16)
+assert(NEAR_WEST_EDUCATION_COUNTS.sites>=23)
 assert.equal(new Set(NEAR_WEST_EDUCATION_SITES.map(s=>s.id)).size,NEAR_WEST_EDUCATION_SITES.length)
 assert(NEAR_WEST_EDUCATION_SITES.every(s=>s.name&&s.address&&s.sourceUrl.startsWith('https://')&&s.district))
-const ids=['thomas-jefferson-legacy','stem-magnet','saint-ignatius','uic-east','uic-west','malcolm-x','rush-university','galileo','world-language','skinner-west','smyth','whitney-young','crane-medical']
+const ids=['thomas-jefferson-legacy','stem-magnet','saint-ignatius','uic-east','uic-west','malcolm-x','rush-university','galileo','world-language','skinner-west','smyth','whitney-young','crane-medical','dett','irving','suder-montessori','noble-bulls','noble-uic','chicago-hope']
 for(const id of ids)assert(NEAR_WEST_EDUCATION_SITES.some(s=>s.id===id),'school not in Near West registry: '+id)
 assert.equal(NEAR_WEST_EDUCATION_SITES.find(s=>s.id==='thomas-jefferson-legacy').address,NEAR_WEST_EDUCATION_SITES.find(s=>s.id==='stem-magnet').address,'historic and present-day school share physical site')
 const uicEast=NEAR_WEST_EDUCATION_SITES.find(s=>s.id==='uic-east')
@@ -30,4 +30,4 @@ assert(west.includes('west-side-building-thomas-jefferson-school-reconstruction'
 assert(west.includes('west-side-st-ignatius-game-reconstruction'))
 assert(jefferson.includes('streetverse-thomas-jefferson-school'))
 assert(hubs.includes('UIC_EAST_CAMPUS_HUBS')&&hubs.includes('UIC_WEST_CAMPUS_HUBS'))
-console.log('NEAR WEST EDUCATION CONTRACT PASS: historical school preserved, all 17 school/college references listed, UIC east/west distinct, no invented 3D campuses')
+console.log('NEAR WEST EDUCATION CONTRACT PASS: historical school preserved, all 23 school/college references listed, UIC east/west distinct, no invented 3D campuses')
