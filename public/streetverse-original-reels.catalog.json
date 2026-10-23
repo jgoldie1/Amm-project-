@@ -1,0 +1,52 @@
+{
+  "schema": "tryamm.streetverse.original-reels.v1",
+  "status": "media-recovered-not-hosted",
+  "publication": "review-required",
+  "storagePrefix": "/media/streetverse-original/",
+  "items": [
+    {
+      "id": "streetverse-launch-clips",
+      "title": "StreetVerse TikTok Launch 15s With Sound",
+      "file": "launch-clips.mp4",
+      "placement": [
+        "StreetVerse welcome",
+        "Creator reels"
+      ]
+    },
+    {
+      "id": "judah-jingle",
+      "title": "StreetVerse Judah Jingle 28s",
+      "file": "judah-jingle.mp4",
+      "placement": [
+        "StreetVerse theater",
+        "All American Network"
+      ]
+    },
+    {
+      "id": "city-remembers",
+      "title": "The City Remembers Story Cut",
+      "file": "city-remembers.mp4",
+      "placement": [
+        "StreetVerse story theater",
+        "Reels"
+      ]
+    },
+    {
+      "id": "holographic-launch",
+      "title": "Holographic Judah Launch Audio Fixed",
+      "file": "holographic-launch.mp4",
+      "placement": [
+        "StreetVerse holographic venue",
+        "Reels"
+      ]
+    }
+  ],
+  "safety": {
+    "requireMediaRightsReview": true,
+    "requireOwnerPublishApproval": true,
+    "noAutoplayWithSound": true,
+    "ageRatingReview": true,
+    "doNotClaimRemoteMediaAvailable": true
+  },
+  "note": "Catalog only. Actual MP4 media is in the ChatGPT artifact package and not yet uploaded to this repo or hosting. Source filenames retained in package metadata."
+}
