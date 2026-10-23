@@ -1,6 +1,7 @@
 export type CareerId='agent-007'|'mib'|'law-enforcement'|'government'
 export type CareerMission={career:CareerId;stage:0|1|2|3;updatedAt:string}
 const KEY='tryamm.streetverse.career-mission.v1'
+const CONFIRMATION_EVENTS=['tryamm:streetverse-career-briefing-confirmed','tryamm:streetverse-career-npc-interaction-confirmed','tryamm:streetverse-career-evidence-confirmed'] as const
 export const CAREER_MISSIONS:Record<CareerId,{title:string;steps:[string,string,string]}>={
  'agent-007':{title:'Chicago Undercover',steps:['Receive the briefing','Interview the contact','Review the evidence']},
  'mib':{title:'Anomaly Watch',steps:['Receive anomaly alert','Interview the witness','Log the anomaly']},
@@ -11,8 +12,7 @@ export function loadCareerMission():CareerMission|null{
  try{const raw=localStorage.getItem(KEY);if(!raw)return null;const v=JSON.parse(raw);if(!v||typeof v!=='object'||typeof v.career!=='string'||!Object.prototype.hasOwnProperty.call(CAREER_MISSIONS,v.career)||![0,1,2,3].includes(v.stage)||typeof v.updatedAt!=='string')return null;return v}catch{return null}
 }
 export function advanceCareerMissionForEvent(mission:CareerMission,eventName:string):CareerMission{
- const expected=['tryamm:streetverse-career-briefing-confirmed','tryamm:streetverse-career-npc-interaction-confirmed','tryamm:streetverse-career-evidence-confirmed'] as const
- if(mission.stage>=3||eventName!==expected[mission.stage])return mission
+ if(mission.stage>=3||eventName!==CONFIRMATION_EVENTS[mission.stage])return mission
  return advanceCareerMission(mission)
 }
 export function resetCareerMission():void{try{localStorage.removeItem(KEY)}catch{}}
@@ -20,6 +20,9 @@ export function startCareerMission(career:CareerId):CareerMission{
  const mission:CareerMission={career,stage:0,updatedAt:new Date().toISOString()}
  try{localStorage.setItem(KEY,JSON.stringify(mission))}catch{}
  return mission
+}
+export function getCareerMissionProgress(mission:CareerMission){
+ return {title:CAREER_MISSIONS[mission.career].title,completed:mission.stage,total:3,finished:mission.stage===3,nextObjective:mission.stage===3?null:CAREER_MISSIONS[mission.career].steps[mission.stage]}
 }
 export function advanceCareerMission(mission:CareerMission):CareerMission{
  const next={...mission,stage:Math.min(3,mission.stage+1) as CareerMission['stage'],updatedAt:new Date().toISOString()}
