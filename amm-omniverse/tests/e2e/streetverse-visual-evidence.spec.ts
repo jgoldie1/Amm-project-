@@ -83,7 +83,16 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     console.error('[streetverse-travel-count]', await travel.count());
     console.error('[streetverse-travel-data-count]', await page.locator('[data-streetverse-travel]').count());
     console.error('[streetverse-travel-dom]', await page.locator('[data-streetverse-travel]').evaluateAll(nodes => nodes.map(node => ({tag:node.tagName,html:node.outerHTML.slice(0,500),visible:!!(node as HTMLElement).getClientRects().length,ancestor: (()=>{let p=node.parentElement;const chain=[];while(p&&chain.length<8){chain.push({tag:p.tagName,ariaHidden:p.getAttribute('aria-hidden'),inert:p.hasAttribute('inert'),display:getComputedStyle(p).display,visibility:getComputedStyle(p).visibility});p=p.parentElement;}return chain;})()}))));
-    await expect(travel).toBeVisible();
+    // Fail with an actionable diagnosis instead of waiting for an inaccessible role.
+    if (renderMode !== 'playable') {
+      throw new Error('Expected playable 3D Chicago, received '+renderMode+'; verify WebGL and startup errors')
+    }
+    await expect(travel).toBeVisible({timeout:10_000});
+    await travel.click();
+    await expect(page.getByRole('button',{name:'Return to StreetVerse Chicago'})).toBeVisible({timeout:15_000});
+    await page.screenshot({path:testInfo.outputPath('streetverse-taylor-uic-travel.png'),fullPage:false});
+    await page.getByRole('button',{name:'Return to StreetVerse Chicago'}).click();
+    await expect(travel).toBeVisible({timeout:10_000});
     await expect(stores).toBeVisible();
     await expect(enterStore).toBeVisible();
     const visibleCore=[joystick,quickMenu,page.getByRole('button',{name:'Open Holo FON'}),mission,travel,stores,enterStore];
