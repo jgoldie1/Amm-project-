@@ -521,7 +521,14 @@ function addResidentialCourtyard(root:THREE.Group){
     {asset:'residentG',position:[48,0,-20],rotationY:-.15,label:'west-side-native-uic-student-b'},
     {asset:'residentH',position:[54,0,-18],rotationY:.18,label:'west-side-native-uic-student-c'},
   ]
-  void loadTryammNativeCircleParkLayer({placements:nativePlacements}).then(result=>{
+  // The entire West Side streetscape above is native Three.js geometry. On
+  // legacy iPhone Safari the *optional* GLB duplicates compete with the BJ
+  // character and Chicago native kit for scarce GPU memory. Keep the detailed
+  // procedural West Side streets, buildings, trees and residents; skip only
+  // this second simultaneous GLB batch on legacy devices.
+  const legacyIphoneGraphics=/iPhone/i.test(navigator.userAgent)&&/OS (?:1[0-6])_/.test(navigator.userAgent)
+  if(legacyIphoneGraphics)window.dispatchEvent(new CustomEvent('tryamm:streetverse-west-side-native-assets',{detail:{loaded:0,failed:0,source:'west-side-visible-world-v5',mode:'procedural-low-memory',optionalGlbSkipped:true}}))
+  if(!legacyIphoneGraphics)void loadTryammNativeCircleParkLayer({placements:nativePlacements}).then(result=>{
     if(nativeCancelled){disposeNativeAssetLayer(result.group);return}
     nativeLayer=result.group
     nativeLayer.name='TRYAMM-Native-WestSide-Visual-Layer-v5'
