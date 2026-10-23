@@ -36,6 +36,9 @@ export function loadCareerMission():CareerMission|null{
 }
 export function advanceCareerMissionForEvent(mission:CareerMission,eventName:string):CareerMission{
  if(mission.stage>=3||eventName!==CONFIRMATION_EVENTS[mission.stage])return mission
+ // Ignore stale events from a previous mission or another browser tab.
+ const active=loadCareerMission()
+ if(!active||active.career!==mission.career||active.stage!==mission.stage||active.updatedAt!==mission.updatedAt)return mission
  return advanceCareerMission(mission)
 }
 export function resetCareerMission():void{try{localStorage.removeItem(KEY);localStorage.removeItem(CHOICE_KEY)}catch{}}
