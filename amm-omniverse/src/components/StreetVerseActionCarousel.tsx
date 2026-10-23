@@ -3,7 +3,7 @@ import StreetVerseRPActionSearch from './StreetVerseRPActionSearch'
 import StreetVerseRPOmnibar from './StreetVerseRPOmnibar'
 
 type SortMode='smart'|'nearby'|'mission'|'price'|'owned'
-type ActionId='quick'|'use'|'give'|'buy'|'sell'|'trade'|'pickup'|'drop'|'inspect'|'diagnose'|'repair'|'verify'|'open'|'enter'|'fuel'|'upgrade'|'customize'|'work'|'mission'|'call'|'dance'|'wave'|'tip'|'live'|'reel'|'equipment'|'health'|'armor'|'inventory'|'emergency'
+type ActionId='quick'|'use'|'give'|'buy'|'sell'|'trade'|'pickup'|'drop'|'inspect'|'diagnose'|'repair'|'verify'|'open'|'enter'|'fuel'|'upgrade'|'customize'|'work'|'mission'|'call'|'dance'|'wave'|'tip'|'live'|'reel'|'equipment'|'health'|'armor'|'inventory'|'emergency'|'pocket'
 type Context={kind?:string;vehicleId?:string;npcId?:string;label?:string;broken?:boolean;repairKit?:boolean;drivable?:boolean;price?:number;owned?:boolean;missionId?:string}
 
 const ACTIONS:Array<{id:ActionId;icon:string;label:string;tone:string}>=[
@@ -13,6 +13,7 @@ const ACTIONS:Array<{id:ActionId;icon:string;label:string;tone:string}>=[
  {id:'diagnose',icon:'🧪',label:'DIAGNOSE',tone:'#f0abfc'},{id:'repair',icon:'🔧',label:'REPAIR',tone:'#fb923c'},{id:'verify',icon:'✅',label:'VERIFY',tone:'#86efac'},{id:'open',icon:'🚪',label:'OPEN',tone:'#fca5a5'},{id:'enter',icon:'🚗',label:'ENTER',tone:'#60a5fa'},
  {id:'fuel',icon:'⛽',label:'FUEL',tone:'#fcd34d'},{id:'upgrade',icon:'⬆️',label:'UPGRADE',tone:'#a7f3d0'},{id:'customize',icon:'🎨',label:'CUSTOMIZE',tone:'#f0abfc'},
  {id:'work',icon:'💼',label:'WORK',tone:'#bfdbfe'},{id:'mission',icon:'📍',label:'MISSION',tone:'#fda4af'},{id:'call',icon:'📱',label:'CALL',tone:'#ddd6fe'},{id:'dance',icon:'💃',label:'DANCE',tone:'#f9a8d4'},{id:'wave',icon:'👋',label:'WAVE',tone:'#a7f3d0'},{id:'tip',icon:'🪙',label:'TIP',tone:'#fde68a'},
+ {id:'pocket',icon:'🌀',label:'POCKET',tone:'#c4b5fd'},
  {id:'equipment',icon:'🎯',label:'GEAR',tone:'#fca5a5'},{id:'health',icon:'❤️',label:'HEALTH',tone:'#86efac'},{id:'armor',icon:'🛡️',label:'ARMOR',tone:'#93c5fd'},{id:'inventory',icon:'🎒',label:'BAG',tone:'#c4b5fd'},{id:'emergency',icon:'🚑',label:'HELP',tone:'#fda4af'},
  {id:'live',icon:'🔴',label:'LIVE',tone:'#f87171'},{id:'reel',icon:'🎥',label:'REEL',tone:'#e879f9'},
 ]
@@ -88,6 +89,11 @@ export default function StreetVerseActionCarousel(){
  const visible=items.slice((page%pages)*5,(page%pages)*5+5)
  const act=(id:ActionId)=>{
   const vehicleId=ctx.vehicleId
+  if(id==='pocket'){
+   dispatchEvent(new CustomEvent('tryamm:streetverse-pocket-dimension-open',{detail:{source:'action-carousel',context:ctx}}));
+   dispatchEvent(new CustomEvent('tryamm:streetverse-quick-menu-request',{detail:{item:'POCKET DIMENSION',source:'action-carousel'}}));
+   return
+  }
   if(['equipment','health','armor','inventory','emergency'].includes(id)){
    dispatchEvent(new CustomEvent('tryamm:streetverse-gameplay-panel-request',{detail:{panel:id,source:'action-carousel',context:ctx}}));return
   }
