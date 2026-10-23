@@ -470,3 +470,18 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
     top: calc(env(safe-area-inset-top) + 222px) !important;
   }
 }
+
+@media (max-width: 540px) and (orientation: portrait) {
+  body:has([data-streetverse-world-root][data-streetverse-visual-pass="iphone-v13"][data-hud-focus="true"]) [aria-label="Open Who is Online"] {
+    top: calc(env(safe-area-inset-top) + 82px) !important;
+    right: max(8px, env(safe-area-inset-right)) !important;
+    width: 55px !important;
+    min-width: 55px !important;
+    max-width: 55px !important;
+    min-height: 44px !important;
+    padding: 0 5px !important;
+    font-size: 10px !important;
+    border-radius: 11px !important;
+    box-shadow: 0 2px 8px #0008 !important;
+  }
+}
