@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
-import type { Room } from 'livekit-client'
+import { RoomEvent, type Room } from 'livekit-client'
 import { connectLiveRoom, getLiveStatus, registerLiveHostRoom, setLiveHostRoomState, type LiveRole } from '../services/live'
 import LiveGenerationIntelligence from './LiveGenerationIntelligence'
 import HoloGiftEngine from './HoloGiftEngine'
@@ -64,6 +64,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
   const [mirrorLocal, setMirrorLocal] = useState(true)
   const [effectsOpen, setEffectsOpen] = useState(false)
   const [copiedInvite,setCopiedInvite]=useState(false)
+  const [audioNeedsTap,setAudioNeedsTap]=useState(false)
   const roomRef = useRef<Room | null>(null)
   const stageRef = useRef<HTMLDivElement>(null)
 
@@ -101,6 +102,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
   }
 
   function prepareMediaElement(element: HTMLMediaElement, participantIdentity: string, local = false) {
+    if(element instanceof HTMLVideoElement){element.playsInline=true;element.autoplay=true}
     element.setAttribute('data-participant', participantIdentity)
     element.setAttribute('data-local', local ? 'true' : 'false')
     element.style.width = '100%'
@@ -143,6 +145,26 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
         },
       })
       roomRef.current = room
+      // A dropped mobile data connection cannot leave an inactive stream
+      // falsely marked CONNECTED. Distinguish this from intentional Leave.
+      room.on(RoomEvent.Disconnected,()=>{
+        if(roomRef.current!==room)return
+        roomRef.current=null
+        stageRef.current?.replaceChildren()
+        setConnected(false)
+        setParticipants(0)
+        setError('Broadcast connection ended. Check your signal and tap Join or Go LIVE again.')
+      })
+      if(role==='viewer'){
+        try{
+          await room.startAudio()
+          setAudioNeedsTap(false)
+        }catch{
+          // Safari may refuse remote audio autoplay after asynchronous auth.
+          // Provide a 44px user-initiated button instead of silent failure.
+          setAudioNeedsTap(true)
+        }
+      }
       if (role === 'host') {
         const pubs = Array.from(room.localParticipant.trackPublications.values())
         for (const pub of pubs) {
@@ -157,8 +179,8 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
       if(role==='host'){
         try{await setLiveHostRoomState(session.room,'start_room')}
         catch(reason){
-          await room.disconnect()
           roomRef.current=null
+          await room.disconnect()
           stageRef.current?.replaceChildren()
           setParticipants(0)
           throw reason
@@ -180,11 +202,12 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
       try{await setLiveHostRoomState(roomName,'end_room')}
       catch(e){setError((e as Error).message||'LIVE room could not be marked ended')}
     }
-    current?.disconnect()
     roomRef.current = null
+    current?.disconnect()
     stageRef.current?.replaceChildren()
     setConnected(false)
     setParticipants(0)
+    setAudioNeedsTap(false)
     window.dispatchEvent(new CustomEvent('tryamm:live-session-end',{detail:{roomName,role}}))
     if(pkMode)window.dispatchEvent(new CustomEvent('tryamm:pk-end',{detail:{roomName,role,reason:'leave'}}))
   }
@@ -204,6 +227,15 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
     }catch{setError('Clipboard restricted. Tap the link field below and select its text to copy.')}
   }
 
+  async function unlockViewerAudio(){
+    const room=roomRef.current
+    if(!room||role!=='viewer')return
+    try{
+      await room.startAudio()
+      setAudioNeedsTap(false)
+    }catch{setError('Audio playback is blocked by your browser settings. Tap again or check sound permissions.')}
+  }
+
   async function toggleMic() {
     if (!roomRef.current || role !== 'host') return
     const enabled = roomRef.current.localParticipant.isMicrophoneEnabled
@@ -218,8 +250,25 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
   }
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="TryAMM LIVE Center" style={styles.shell}>
-      <header style={styles.header}>
+    <div className="tryamm-live-shell" role="dialog" aria-modal="true" aria-label="TryAMM LIVE Center" style={styles.shell}>
+      <style>{`
+        .tryamm-live-shell input,.tryamm-live-shell select{box-sizing:border-box;max-width:100%}
+        .tryamm-live-shell button{min-height:44px;touch-action:manipulation}
+        .tryamm-live-stage video{max-width:100%;height:auto;object-fit:contain}
+        @media(max-width:700px){
+          .tryamm-live-shell{padding:calc(env(safe-area-inset-top) + 10px) max(10px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 18px) max(10px,env(safe-area-inset-left)) !important}
+          .tryamm-live-header{flex-direction:column;gap:8px!important}
+          .tryamm-live-header h1{font-size:clamp(24px,7vw,32px)!important}
+          .tryamm-live-header button{align-self:flex-end}
+          .tryamm-live-grid{grid-template-columns:minmax(0,1fr)!important;gap:10px!important}
+          .tryamm-live-grid>section{min-width:0!important;padding:12px!important;min-height:0}
+          .tryamm-live-stage{min-height:230px!important;padding:6px!important}
+          .tryamm-live-stage video{max-height:44dvh!important}
+          .tryamm-live-grid [aria-label="Viewer invite URL"]{font-size:12px!important;overflow:hidden}
+        }
+        @media(prefers-reduced-motion:reduce){.tryamm-live-shell *{animation:none!important;transition:none!important}}
+      `}</style>
+      <header className="tryamm-live-header" style={styles.header}>
         <div>
           <div style={styles.eyebrow}>TRYAMM MEDIA CORE</div>
           <h1 style={styles.title}>{pkMode?'Holographic PK Arena':'LIVE Center'}</h1>
@@ -228,7 +277,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
         <button aria-label="Close LIVE Center" onClick={()=>{void leave().finally(onClose)}} style={styles.close}>×</button>
       </header>
 
-      <main style={styles.grid}>
+      <main className="tryamm-live-grid" style={styles.grid}>
         <section style={styles.card}>
           <h2 style={styles.cardTitle}>{pkMode?'PK room setup':'Broadcast format'}</h2>
           {youthViewerOnly&&<div style={styles.youthNotice}><b>12-YEAR-OLD YOUTH VIEWER MODE</b><br/>Viewing is enabled. Camera, microphone, hosting, freeform personal-information exchange and paid gifts/tips remain disabled until adult-managed controls are verified.</div>}
@@ -280,7 +329,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
             <div style={styles.small}>Room: {connected?'LIVE — invite another signed-in device':'Not broadcasting yet'}</div>
           </section>}
           {invite?.viewer&&<p style={styles.status}>Viewer invitation loaded. This device watches only, without publishing its microphone or camera.</p>}
-          <p style={styles.status}>{configured === null ? 'Checking LiveKit…' : configured ? `● ${pkMode?'PK / ':''}LIVE infrastructure configured • host camera/mic preflight on connect` : '○ LIVE engine is built; production LiveKit credentials are still required'}</p>
+          <p style={styles.status}>{configured === null ? 'Checking LiveKit…' : configured ? `● ${pkMode?'PK / ':''}LIVE credentials detected • real broadcast verification still required` : '○ LIVE engine is built; production LiveKit credentials are still required'}</p>
           {configured===false&&providerStatus&&<div style={styles.providerGate}>
             <b>LIVE ACTIVATION GATE</b>
             <div style={styles.small}>Missing: {(providerStatus.missing||['url','apiKey','apiSecret']).join(' • ')}</div>
@@ -295,9 +344,10 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
             <div><strong>{title || 'TryAMM LIVE'}</strong><div style={styles.small}>{pkMode?'PK':format.toUpperCase()} · {role.toUpperCase()} · FILTER {visualFilter.toUpperCase()}</div></div>
             <div style={styles.viewerBadge}>👥 {participants}</div>
           </div>
-          <div ref={stageRef} style={styles.stage} aria-live="polite">
+          <div ref={stageRef} className="tryamm-live-stage" style={styles.stage} aria-live="polite">
             {!connected && <div style={styles.placeholder}>Camera/video stage appears here after joining.</div>}
           </div>
+          {connected&&role==='viewer'&&audioNeedsTap&&<button type="button" onClick={()=>void unlockViewerAudio()} style={{...styles.primary,marginTop:9}} aria-label="Enable live stream sound">🔊 TAP TO ENABLE LIVE AUDIO</button>}
           <div style={styles.features}>
             <span>HoloFilter</span><span>LiveKit camera/mic</span><span>Captions-ready</span><span>Translation-ready</span><span>Sign-language companion</span><span>Report/block safety</span><span>OTT replay hook</span>
           </div>
