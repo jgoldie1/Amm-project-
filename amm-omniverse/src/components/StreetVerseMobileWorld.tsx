@@ -782,11 +782,11 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   train.add(trainWindows,trainDoors)
   const routePlate=new THREE.Mesh(new THREE.BoxGeometry(.14,.56,1.84),new THREE.MeshBasicMaterial({color:0x0e273c}))
   routePlate.position.set(-5.99,.44,0);routePlate.name='streetverse-el-front-route-plate';train.add(routePlate)
-  const headlightMat=new THREE.MeshBasicMaterial({color:0xfff0c8}),tailLightMat=new THREE.MeshBasicMaterial({color:0xff4835})
+  const trainHeadlightMat=new THREE.MeshBasicMaterial({color:0xfff0c8}),trainTailLightMat=new THREE.MeshBasicMaterial({color:0xff4835})
   const markerGeometry=new THREE.BoxGeometry(.15,.22,.33)
   for(const side of [-1,1]){
-    const headlight=new THREE.Mesh(markerGeometry,headlightMat);headlight.position.set(-6.04,-.40,side*.91);headlight.name='streetverse-el-headlight';train.add(headlight)
-    const tail=new THREE.Mesh(markerGeometry,tailLightMat);tail.position.set(30.55,-.40,side*.91);tail.name='streetverse-el-tail-light';train.add(tail)
+    const headlight=new THREE.Mesh(markerGeometry,trainHeadlightMat);headlight.position.set(-6.04,-.40,side*.91);headlight.name='streetverse-el-headlight';train.add(headlight)
+    const tail=new THREE.Mesh(markerGeometry,trainTailLightMat);tail.position.set(30.55,-.40,side*.91);tail.name='streetverse-el-tail-light';train.add(tail)
   }
   train.userData={...train.userData,visualPass:'west-side-el-v2',fictionalCTAInspired:true,realBoarding:false,carCount:3,instancedWindowCount:30}
   train.position.set(-70,7.3,-35);scene.add(train)
