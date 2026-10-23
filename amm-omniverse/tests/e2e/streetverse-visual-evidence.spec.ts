@@ -131,7 +131,7 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await quickMenu.click();
     const menu=page.getByRole('menu',{name:'StreetVerse quick navigation'});
     await expect(menu).toBeVisible();
-    const bjView=page.getByRole('menuitem',{name:/BJ V12 VIEW/});
+    const bjView=page.getByRole('menuitem',{name:/BJ CLOSE-UP/});
     await expect(bjView).toBeVisible();
     await bjView.click();
     await page.waitForTimeout(1400);
