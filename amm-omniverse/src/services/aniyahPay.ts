@@ -73,13 +73,19 @@ export function buildAniyahQuote(input:{amount:number;sourceCurrency:string;dest
   const destinationCurrency = input.destinationCurrency.toUpperCase()
   const candidates = getAniyahProviderCandidates(sourceCurrency,destinationCurrency,input.method)
   const provider = candidates[0] ?? 'stripe'
-  const fxRate = Number.isFinite(input.fxRate) && Number(input.fxRate) > 0 ? Number(input.fxRate) : 1
+  // Never pretend two different currencies exchange 1:1. This sandbox
+  // cannot obtain provider-verified cross-border rates or initiate payouts.
+  const sameCurrency=sourceCurrency===destinationCurrency
+  const hasIllustrativeRate=Number.isFinite(input.fxRate)&&Number(input.fxRate)>0
+  const fxRate=sameCurrency?1:(hasIllustrativeRate?Number(input.fxRate):0)
   const platformFee = aniyahPlatformFee(amount)
   const providerFeeEstimate = Math.max(0, Number(input.providerFeeEstimate ?? 0))
   const net = Math.max(0, amount - platformFee - providerFeeEstimate)
   const recipientAmount = Number((net * fxRate).toFixed(2))
   const reasons:string[] = []
-  if(amount <= 0) reasons.push('Enter a transfer amount greater than zero.')
+  if(!Number.isFinite(amount)||amount<=0)reasons.push('Enter a valid transfer amount greater than zero.')
+  if(!sameCurrency)reasons.push('A cross-border payout needs a provider-verified quote, eligible corridor and compliance checks; this sandbox cannot send money.')
+  if(!sameCurrency&&!hasIllustrativeRate)reasons.push('Exchange rate not available; recipient amount is unknown (not 1:1).')
   if(!corridorMap[`${sourceCurrency}:${destinationCurrency}`]) reasons.push('Corridor needs provider verification before live transfer.')
   if(!candidates.length) reasons.push('No adapter-ready provider supports the selected payment method and destination currency.')
   return {
