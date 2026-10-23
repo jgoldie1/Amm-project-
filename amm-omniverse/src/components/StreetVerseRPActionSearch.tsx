@@ -8,9 +8,11 @@ export default function StreetVerseRPActionSearch({compact=false}:{compact?:bool
  const [purpose,setPurpose]=useState<RPActionPurpose|'all'>('all')
  const [open,setOpen]=useState(false)
  const [previewAction,setPreviewAction]=useState<RPActionEntry|null>(null)
+ const [lastAction,setLastAction]=useState<string|null>(null)
  const [favorites,setFavorites]=useState<string[]>(()=>{try{return JSON.parse(localStorage.getItem('tryamm.rp-action-favorites.v1')||'[]')}catch{return[]}})
  const results=useMemo(()=>searchStreetVerseRPActions(query,purpose).slice(0,compact?8:16),[query,purpose,compact])
  const send=(name:string,action:RPActionEntry,extra:Record<string,unknown>={})=>{
+  if(name==='tryamm:streetverse-rp-action-play'||name==='tryamm:streetverse-rp-sync-request')setLastAction(`${action.label} requested — awaiting in-world animation confirmation`)
   window.dispatchEvent(new CustomEvent(name,{detail:{actionId:action.id,label:action.label,animationClip:action.animationClip,gifQuery:action.gifQuery,loopable:action.loopable,syncable:action.syncable,purpose:action.purposes,source:'rp-action-search',...extra}}))
  }
  const toggleFavorite=(action:RPActionEntry)=>{
@@ -19,6 +21,7 @@ export default function StreetVerseRPActionSearch({compact=false}:{compact?:bool
  }
  return <section aria-label="StreetVerse RP action search" style={{marginTop:7}}>
   <button onClick={()=>setOpen(v=>!v)} style={{width:'100%',minHeight:38,borderRadius:11,border:'1px solid #f9a8d477',background:'#1a1021',color:'#fff',fontWeight:950,fontSize:10}}>🎭 RP SEARCH • ANIMATION / GIF / PURPOSE</button>
+  {lastAction&&<div role="status" aria-live="polite" style={{padding:7,marginTop:6,border:'1px solid #67e8f955',borderRadius:9,color:'#b8f4ff',fontSize:10}}>{lastAction}</div>}
   {open&&<div style={{marginTop:7,padding:8,borderRadius:14,background:'#070c16ee',border:'1px solid #f9a8d455'}}>
    <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:6}}>
     <input aria-label="Search RP actions" value={query} onChange={e=>setQuery(e.target.value)} placeholder="dance, wave, mechanic, prayer, victory…" style={input}/>
