@@ -39,7 +39,7 @@ export default function StreetVerseAfterDarkAlpha(){
       const detail=(event as CustomEvent<AfterDarkMissionState>).detail
       if(detail?.missionId==='after-dark-white-night-file')setState(detail)
     }
-    const openMission=()=>{if(audienceBand==='adult'||audienceBand===null)setOpen(true)}
+    const openMission=()=>{if(audienceBand==='adult')setOpen(true)}
     const onAudience=(event:Event)=>{const band=(event as CustomEvent<{band?:AudienceBand|null}>).detail?.band??null;setAudienceBand(band);if(band&&band!=='adult')setOpen(false)}
     window.addEventListener('tryamm:after-dark-state',sync)
     window.addEventListener('tryamm:open-after-dark-alpha',openMission)
@@ -65,7 +65,7 @@ export default function StreetVerseAfterDarkAlpha(){
       : 'Mission objectives incomplete. Collect at least 3 fictional evidence items, protect Maya Cross, and avoid unsupported accusations.')
   }
 
-  if(audienceBand&&audienceBand!=='adult')return null
+  if(audienceBand!=='adult')return null
 
   return <>
     {!phone&&<button type="button" aria-label="Open After Dark Alpha mission" onClick={()=>setOpen(true)} style={{position:'fixed',left:12,bottom:118,zIndex:9010,border:'1px solid #d58cff88',borderRadius:999,background:'linear-gradient(135deg,#24102d,#11101d)',color:'#f6d9ff',padding:'10px 14px',fontFamily:'monospace',fontSize:10,fontWeight:950,cursor:'pointer',boxShadow:'0 8px 28px #0009'}}>🌙 AFTER DARK α</button>}
