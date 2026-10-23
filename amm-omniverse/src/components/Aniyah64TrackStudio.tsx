@@ -9,7 +9,7 @@ type Mode='create'|'engineer'|'earn'|'global'
 
 export default function Aniyah64TrackStudio({onClose}:{onClose?:()=>void}){
  const [mode,setMode]=useState<Mode>('create')
- const [status,setStatus]=useState('Aniyah 64-Track Studio is ready.')
+ const [status,setStatus]=useState('Local audio recording is available in Engineer Mode. Live charging and delivery are separately gated.')
  const [readiness,setReadiness]=useState<{readyForCharges?:boolean;readyForPayout?:boolean;message?:string}|null>(null)
  const [busy,setBusy]=useState<string>('')
  const split=useMemo(()=>({aniyah:ANIYAH_64_TRACK_BUSINESS.sellerShareBasisPoints/100,tryamm:ANIYAH_64_TRACK_BUSINESS.tryammShareBasisPoints/100}),[])
@@ -30,7 +30,7 @@ export default function Aniyah64TrackStudio({onClose}:{onClose?:()=>void}){
    <div><div style={{fontSize:9,letterSpacing:2.4,color:'#ff91dc',fontWeight:950}}>ANIYAH • MUSIC BUSINESS</div><div style={{fontSize:20,fontWeight:950}}>64-Track Studio</div><div style={{fontSize:9,color:'#8fa2b8'}}>AI Create Mode + full 64-track Engineer Mode + verified commerce</div></div>
    <div style={{marginLeft:'auto',display:'flex',gap:6}}>{(['create','engineer','earn','global'] as Mode[]).map(m=><button key={m} onClick={()=>setMode(m)} style={{...tab,borderColor:mode===m?'#ffd75e':'#344156',color:mode===m?'#ffd75e':'#a6b2c0'}}>{m.toUpperCase()}</button>)}</div>
   </header>
-  {mode==='create'&&<MusicCreatorStudio/>}
+  {mode==='create'&&<MusicCreatorStudio onOpenEngineer={()=>setMode('engineer')}/>}
   {mode==='global'&&<Suspense fallback={<p role="status" style={{padding:18}}>Loading global payment sandbox…</p>}><AniyahPayCenter onClose={()=>setMode('earn')}/></Suspense>}
   {mode==='engineer'&&<div style={{height:'calc(100dvh - 78px)'}}><Suspense fallback={<div style={{padding:24}}>Loading 64-track Engineer Mode…</div>}><RecordingStudio onClose={()=>setMode('create')}/></Suspense></div>}
   {mode==='earn'&&<main style={{maxWidth:1080,margin:'0 auto',padding:'18px 14px 80px'}}>
