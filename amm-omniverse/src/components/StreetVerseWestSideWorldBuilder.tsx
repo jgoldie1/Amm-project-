@@ -275,6 +275,13 @@ export default function StreetVerseWestSideWorldBuilder({launcher=true}:{launche
   setOpen(false)
  }
 
+ const beginABLATrail=()=>{
+  const canvas=document.querySelector('[data-streetverse-world-root="true"] canvas[data-streetverse-world-canvas="true"]')
+  if(!canvas){setNotice('ABLA neighborhood trail needs the main 3D Chicago game. Restore 3D first; your HTML fallback remains available.');return}
+  window.dispatchEvent(new CustomEvent('tryamm:abla-neighborhood-tour-start',{detail:{source:'streetverse-world-builder'}}))
+  setOpen(false)
+ }
+
  const startMission=(zone:Zone)=>{
   const missionId=zone.id==='circle-park'?'hold-the-block':zone.id==='taylor'?'first-ride-story':'business-on-the-block'
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId,source:'streetverse-world-builder',zoneId:zone.id}}))
@@ -397,6 +404,7 @@ export default function StreetVerseWestSideWorldBuilder({launcher=true}:{launche
 
    <div style={{minHeight:0,overflow:'auto',padding:10}}>
     {tab==='map'&&scale==='west'&&<>
+     <button type="button" onClick={beginABLATrail} aria-label="Start Circle Park Taylor Laflin ABLA neighborhood trail" style={{...actionBtn,width:'100%',marginBottom:9,minHeight:48,background:'#115540',borderColor:'#8affd0'}}>🚶 EXPLORE CIRCLE PARK → TAYLOR/LAFLIN → ABLA VILLAGE → NEW HOMES</button>
      <div style={{display:'flex',gap:5,overflowX:'auto',paddingBottom:8}}>
       {(Object.keys(layers) as (keyof typeof layers)[]).map(k=><button key={k} onClick={()=>setLayers(v=>({...v,[k]:!v[k]}))} style={{...chip,opacity:layers[k]?1:.42}}>{k.toUpperCase()}</button>)}
      </div>
