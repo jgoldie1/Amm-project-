@@ -10,6 +10,18 @@ export const CAREER_MISSIONS:Record<CareerId,{title:string;steps:[string,string,
  'cia':{title:'Operation Lakefront Cipher',steps:['Receive a fictional intelligence briefing','Question the undercover contact','Analyze the encrypted dossier']},
  'fbi':{title:'Chicago Federal Case',steps:['Receive a fictional federal case assignment','Interview a cooperating witness','Catalog the case evidence']}
 }
+export const CAREER_SCENES:Record<CareerId,{briefing:string;witness:string;evidence:string}>={
+ 'agent-007':{briefing:'A fictional handler assigns you to a lakefront surveillance case.',witness:'A dock worker recalls a blue van arriving before dawn.',evidence:'A time-stamped dock receipt confirms a delivery window.'},
+ 'mib':{briefing:'An unusual light was reported above the Chicago lakefront.',witness:'A witness describes a silent object moving across the sky.',evidence:'A weather log and blurry photograph require comparison.'},
+ 'law-enforcement':{briefing:'A resident requests help locating a missing community item.',witness:'A neighbor remembers the last known location.',evidence:'A dated community-center sign-in sheet narrows the search.'},
+ 'government':{briefing:'A neighborhood service request needs investigation.',witness:'A local liaison explains the accessibility concern.',evidence:'A maintenance report records the original complaint.'},
+ 'cia':{briefing:'A fictional analyst assigns Operation Lakefront Cipher.',witness:'An undercover contact describes an unusual coded message.',evidence:'A redacted dossier includes a timestamped transmission.'},
+ 'fbi':{briefing:'A fictional federal case team requests a Chicago interview.',witness:'A cooperating witness describes a suspicious delivery.',evidence:'An evidence log identifies the chain of custody for a package.'}
+}
+export function getCareerScene(career:CareerId,stage:CareerMission['stage']):string|null{
+ const scene=CAREER_SCENES[career]
+ return stage===0?scene.briefing:stage===1?scene.witness:stage===2?scene.evidence:null
+}
 export type InvestigationChoice='protect-witness'|'follow-lead'|'request-backup'
 export const INVESTIGATION_CHOICES:Record<InvestigationChoice,{label:string;outcome:string}>={
  'protect-witness':{label:'Protect the witness',outcome:'The witness is safe, but the suspect has time to relocate.'},
