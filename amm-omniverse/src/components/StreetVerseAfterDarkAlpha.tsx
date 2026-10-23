@@ -39,7 +39,7 @@ export default function StreetVerseAfterDarkAlpha(){
       const detail=(event as CustomEvent<AfterDarkMissionState>).detail
       if(detail?.missionId==='after-dark-white-night-file')setState(detail)
     }
-    const openMission=()=>{if(audienceBand==='adult')setOpen(true)}
+    const openMission=()=>{if(readStoredAudienceBand()==='adult')setOpen(true);else setOpen(false)}
     const onAudience=(event:Event)=>{const band=(event as CustomEvent<{band?:AudienceBand|null}>).detail?.band??null;setAudienceBand(band);if(band!=='adult')setOpen(false)}
     window.addEventListener('tryamm:after-dark-state',sync)
     window.addEventListener('tryamm:open-after-dark-alpha',openMission)
