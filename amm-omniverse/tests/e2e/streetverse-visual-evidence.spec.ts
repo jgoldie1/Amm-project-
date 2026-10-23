@@ -256,5 +256,14 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(ticketPanel).toBeVisible();
     await expect(page.getByText('No authoritative ticket records loaded. The panel will not invent approvals or access.')).toBeVisible();
     await page.screenshot({path:testInfo.outputPath('streetverse-ticket-panel-iphone.png'),fullPage:false,animations:'disabled'});
+    await page.getByRole('button',{name:'Close StreetVerse panel'}).click();
+    // iPhone recovery: a saved school position or pinned face camera must not trap
+    // the player looking at the sky. Return to the known Circle Park spawn.
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/RESET CITY VIEW/}).click();
+    await expect(worldRoot).toHaveAttribute('data-streetverse-camera-reset','circle-park');
+    await expect(worldRoot).toHaveAttribute('data-hud-focus','true');
+    await expect(joystick).toBeVisible();
+    await page.screenshot({path:testInfo.outputPath('streetverse-circle-park-reset-view-iphone.png'),fullPage:false,animations:'disabled'});
   });
 });
