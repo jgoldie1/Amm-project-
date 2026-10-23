@@ -134,13 +134,17 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
  useEffect(()=>{const onVehicle=(e:Event)=>setVehicleOccupied(Boolean((e as CustomEvent<{entered?:boolean}>).detail?.entered));const onPlayerCamera=(e:Event)=>setCameraUiMode((e as CustomEvent<{mode?:'first-person'|'third-person'}>).detail?.mode==='first-person'?'first-person':'third-person');const onCarCamera=(e:Event)=>setVehicleCameraUiMode(String((e as CustomEvent<{mode?:string}>).detail?.mode||'chase'));addEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);addEventListener('tryamm:streetverse-player-camera-changed',onPlayerCamera);addEventListener('tryamm:streetverse-vehicle-camera-changed',onCarCamera);return()=>{removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-player-camera-changed',onPlayerCamera);removeEventListener('tryamm:streetverse-vehicle-camera-changed',onCarCamera)}},[])
  useEffect(()=>{
   const mount=mountRef.current;if(!mount)return
+  // Real iPhone Safari 16 and earlier has a much smaller practical graphics
+  // budget than desktop Chromium pretending to be a phone.
+  const legacyIphoneGraphics=/iPhone/i.test(navigator.userAgent)&&/OS (?:1[0-6])_/.test(navigator.userAgent)
+  mount.dataset.streetverseGraphicsProfile=legacyIphoneGraphics?'legacy-iphone':'standard'
   let renderer:THREE.WebGLRenderer
   try{renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'default',alpha:false})}catch(err){setStatus('WEBGL UNAVAILABLE');setMessage('This browser could not start the 3D renderer. Close other tabs and retry 3D.');window.setTimeout(()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-renderer-failed',{detail:{reason:'webgl-renderer-init-failed',source:'streetverse-mobile-world'}})),0);return}
   // setSize(..., false) does not set CSS dimensions. On iPhone Safari a WebGL
   // drawing buffer can otherwise occupy only part of the fixed game viewport.
   Object.assign(renderer.domElement.style,{position:'absolute',inset:'0',width:'100%',height:'100%',display:'block',touchAction:'none'})
   renderer.domElement.setAttribute('data-streetverse-world-canvas','true')
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.35));renderer.shadowMap.enabled=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;mount.appendChild(renderer.domElement)
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,legacyIphoneGraphics?1:1.35));renderer.shadowMap.enabled=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;mount.appendChild(renderer.domElement)
   const reelCapture=installStreetVerseReelCapture(renderer.domElement)
   const scene=new THREE.Scene();scene.background=new THREE.Color(0xa9c2d4);scene.fog=new THREE.Fog(0xa9c2d4,95,245)
   const externalCollisionBoxes:THREE.Box3[]=[]
@@ -175,7 +179,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const holoCityBridgeDispose=installStreetVerseHoloCityBridge()
   const rpgCoreDispose=installStreetVerseRpgCore()
   const neonFuture=createStreetVerseNeonFutureLayer(scene)
-   void createTryammCc0FreeAssetLayer(scene).then(layer=>{cc0FreeLayer=layer;window.dispatchEvent(new CustomEvent('tryamm:streetverse-free-assets-mounted',{detail:{loaded:layer.loaded,failed:layer.failed,creditsUsed:0,source:'github-cc0'}}))}).catch(error=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-free-assets-error',{detail:{message:String((error as Error)?.message||error)}})))
+   if(!legacyIphoneGraphics)void createTryammCc0FreeAssetLayer(scene).then(layer=>{cc0FreeLayer=layer;window.dispatchEvent(new CustomEvent('tryamm:streetverse-free-assets-mounted',{detail:{loaded:layer.loaded,failed:layer.failed,creditsUsed:0,source:'github-cc0'}}))}).catch(error=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-free-assets-error',{detail:{message:String((error as Error)?.message||error)}})))
   const chicagoWorldSeed=WORLD_REGISTRY.find(seed=>seed.id==='us-il-chicago')
   let worldBuild=chicagoWorldSeed?queueWorldBuild(chicagoWorldSeed):null
   const advanceLiveWorldBuild=(check:string,passed:boolean)=>{
@@ -244,7 +248,19 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const nativeResidentVisualScale=[.94,1.04,.98,1.09,.92,1.06,1.00,1.11] as const
   for(let i=0;i<12;i++)mobileNativePlacements.push({asset:nativeResidentCycle[i%nativeResidentCycle.length],position:[0,0,0],scale:nativeResidentVisualScale[i%nativeResidentVisualScale.length],label:`mobile-native-resident-${i+1}`})
   for(let i=0;i<14;i++)mobileNativePlacements.push({asset:'sportSedan2027',position:[0,0,0],label:`mobile-native-traffic-car-${i+1}`})
-  void loadTryammNativeCircleParkLayer({placements:mobileNativePlacements}).then(result=>{
+  // Keep the existing procedural streets, buildings and West Side world visible
+  // while limiting optional GLB duplicates on older Safari. Core gameplay
+  // retains its existing primitive residents, vehicles and mission colliders.
+  const selectedNativePlacements=legacyIphoneGraphics?mobileNativePlacements.filter((placement,i)=>{
+    const label=placement.label||''
+    if(label.startsWith('mobile-native-resident-'))return Number(label.split('-').at(-1))<=4
+    if(label.startsWith('mobile-native-traffic-car-'))return Number(label.split('-').at(-1))<=6
+    if(placement.asset==='building')return i%3===0
+    if(placement.asset==='tree'||placement.asset==='streetLamp')return i%2===0
+    if(placement.asset==='cityTransitTrain')return false
+    return true
+  }):mobileNativePlacements
+  void loadTryammNativeCircleParkLayer({placements:selectedNativePlacements,maxConcurrent:legacyIphoneGraphics?2:undefined}).then(result=>{
     if(nativeCancelled){disposeNativeAssetLayer(result.group);return}
     nativeLayer=result.group
     nativeHero=result.group.getObjectByName('mobile-native-hero')||null
@@ -463,9 +479,9 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     }
     advanceLiveWorldBuild('geography',result.loaded>0)
     advanceLiveWorldBuild('spawn',nativeCoverage.hero&&nativeCoverage.repairCar)
-    advanceLiveWorldBuild('traffic',nativeCoverage.trafficCars>=14&&nativeCoverage.train)
+    advanceLiveWorldBuild('traffic',legacyIphoneGraphics?nativeCoverage.trafficCars>=6:nativeCoverage.trafficCars>=14&&nativeCoverage.train)
     advanceLiveWorldBuild('accessibility',true)
-    window.dispatchEvent(new CustomEvent('tryamm:streetverse-native-mobile-ready',{detail:{loaded:result.loaded,failed:result.failed.length,previewVisualOnly:true,assetAuthority:'generated-glb-visuals-over-primitive-control-roots',worldBuilderActive:Boolean(worldBuild),assetGenerator:'tryamm-native-asset-foundry',quantumSpeedEngine:true,...nativeCoverage}}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-native-mobile-ready',{detail:{loaded:result.loaded,failed:result.failed.length,graphicsProfile:legacyIphoneGraphics?'legacy-iphone':'standard',previewVisualOnly:true,assetAuthority:'generated-glb-visuals-over-primitive-control-roots',worldBuilderActive:Boolean(worldBuild),assetGenerator:'tryamm-native-asset-foundry',quantumSpeedEngine:true,...nativeCoverage}}))
   }).catch(error=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-native-mobile-error',{detail:{message:String((error as Error)?.message||error)}})))
   let weatherDriveMultiplier=1
   const applyWeather=(state:StreetVerseWeatherState)=>{weatherRenderer.apply(state);weatherDriveMultiplier=weatherRenderer.getVisual().trafficSpeedMultiplier;setWeatherStatus('WEATHER • '+weatherBadge(state))}
@@ -1123,7 +1139,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   let movementCertified=false
   const movementEvidenceOrigin=avatar.position.clone()
   let qseTier:'full'|'balanced'|'lite'='full'
-  const applyQseTier=(tier:'full'|'balanced'|'lite')=>{if(tier===qseTier)return;qseTier=tier;const ratioCap=tier==='full'?1.35:tier==='balanced'?1.1:.9;renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,ratioCap));resize();window.dispatchEvent(new CustomEvent('tryamm:streetverse-qse-health',{detail:{tier:qseTier,frameBudgetMs:Number(frameBudgetEwma.toFixed(2)),pixelRatio:renderer.getPixelRatio(),adaptiveResolution:true,at:new Date().toISOString()}}))}
+  const applyQseTier=(tier:'full'|'balanced'|'lite')=>{if(tier===qseTier)return;qseTier=tier;const ratioCap=legacyIphoneGraphics?Math.min(1,tier==='lite'?.8:1):(tier==='full'?1.35:tier==='balanced'?1.1:.9);renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,ratioCap));resize();window.dispatchEvent(new CustomEvent('tryamm:streetverse-qse-health',{detail:{tier:qseTier,frameBudgetMs:Number(frameBudgetEwma.toFixed(2)),pixelRatio:renderer.getPixelRatio(),adaptiveResolution:true,at:new Date().toISOString()}}))}
   const animateEnvironmentalWind=(now:number)=>{
     const wind=THREE.MathUtils.clamp(environmentWindIntensity*.68+environmentGustIntensity*.52,0,1)
     const angle=THREE.MathUtils.degToRad(environmentWindDirection),wx=Math.sin(angle),wz=Math.cos(angle),pulse=.55+.45*Math.sin(now*.0027)
