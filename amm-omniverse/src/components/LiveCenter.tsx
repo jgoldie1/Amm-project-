@@ -43,7 +43,7 @@ function readLiveInvite(){
   return {room,viewer:args.get('role')==='viewer',mode:args.get('mode')==='pk'?'pk':'live'}
 }
 function newRoomName(){
-  const random=typeof window!=='undefined'&&window.crypto?.randomUUID?.()
+  const random=typeof window==='undefined'?undefined:window.crypto?.randomUUID?.()
   return 'tryamm-'+(random?.slice(0,12)||Math.random().toString(36).slice(2,14))
 }
 export default function LiveCenter({ onClose, initialMode='live', initialRole='host', youthViewerOnly=false }: { onClose: () => void; initialMode?: 'live'|'pk'; initialRole?: LiveRole; youthViewerOnly?: boolean }) {
