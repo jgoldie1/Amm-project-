@@ -100,13 +100,9 @@ export default function StreetVerseActionCarousel(){
   }
   dispatchEvent(new CustomEvent('tryamm:streetverse-context-action',{detail:{action:id,...ctx,sort}}))
  }
- if(mobile&&!open)return <div aria-label="StreetVerse compact action launchers" style={{position:'fixed',right:'max(8px,env(safe-area-inset-right))',bottom:'calc(env(safe-area-inset-bottom, 0px) + 150px)',zIndex:39950,display:'grid',gap:7}}>
-  <button aria-label="Open StreetVerse RP RPG emoji and GIF actions" onClick={()=>{setOpen(true);setRpOpen(true)}} style={{minHeight:46,borderRadius:12,border:'2px solid #c4a3ff',background:'#1a0a35ee',color:'#fff',font:'950 11px system-ui',padding:'0 12px'}}>🎭 RP / GIF</button>
-  <button
-  aria-label={ctx.broken?'Open repair actions':'Open StreetVerse actions'}
-  onClick={()=>setOpen(true)}
-  style={{minHeight:44,padding:'0 12px',borderRadius:12,border:`2px solid ${ctx.broken?'#fb923c':'#67e8f9'}`,background:'rgba(4,15,24,.92)',color:'#fff',font:'950 10px system-ui',boxShadow:`0 0 20px ${ctx.broken?'#fb923c55':'#67e8f944'}`,touchAction:'manipulation'}}
- >{ctx.broken?'🔧 REPAIR':'⚡ ACTIONS'}</button></div>
+ if(mobile&&!open)return <div aria-label="StreetVerse in-game action carousel launcher" style={{position:'fixed',right:'max(10px,env(safe-area-inset-right))',bottom:'calc(env(safe-area-inset-bottom, 0px) + 102px)',zIndex:39950}}>
+  <button aria-label="Open in-game action carousel" onClick={()=>{setOpen(true);setRpOpen(false)}} style={{minHeight:46,minWidth:108,padding:'0 12px',borderRadius:999,border:`2px solid ${ctx.broken?'#fb923c':'#67e8f9'}`,background:'#061727ed',color:'#fff',font:'900 11px system-ui',boxShadow:'0 5px 18px #0009',touchAction:'manipulation'}}>{ctx.broken?'🔧 REPAIR':'🎮 ACTIONS ›'}</button>
+ </div>
   return <div aria-label="StreetVerse action carousel" style={{position:'fixed',left:'50%',bottom:'calc(env(safe-area-inset-bottom, 0px) + 74px)',transform:'translateX(-50%)',zIndex:39950,width:'min(94vw,620px)',maxHeight:mobile?(rpOpen?'62dvh':'42dvh'):'78dvh',overflowY:'auto',padding:'10px',borderRadius:22,background:'linear-gradient(180deg,rgba(12,19,35,.92),rgba(3,7,18,.98))',backdropFilter:'blur(12px)',boxShadow:'0 18px 55px #000b, inset 0 1px #ffffff22',border:'1px solid #67e8f955',color:'#fff',fontFamily:'system-ui,sans-serif'}}>
   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,marginBottom:8}}>
    <div><div style={{fontSize:9,fontWeight:950,letterSpacing:1.4,color:'#67e8f9'}}>HOLO ACTIONS</div><div style={{fontSize:11,fontWeight:900}}>{ctx.label||'WORLD INTERACTION'}{ctx.broken?' • REPAIR REQUIRED':''}</div></div>
