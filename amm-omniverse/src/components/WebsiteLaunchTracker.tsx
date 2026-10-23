@@ -13,7 +13,7 @@ export default function WebsiteLaunchTracker(){
  const item=sites.find(s=>s.id===selected)!
  const verified=sites.filter(s=>Boolean(s.name.trim())&&safeUrl(s.url)&&s.ownerApproval&&s.mobileTest&&s.leadTest&&s.seniorApproval&&(s.paymentTest||s.notes.toLowerCase().includes('no payments'))).length
  useEffect(()=>{try{localStorage.setItem(KEY,JSON.stringify(sites))}catch{setNotice('This browser cannot save local drafts. Export a backup.') }},[sites])
- const edit=<K extends keyof Entry>(k:K,v:Entry[K])=>setSites(a=>a.map(s=>s.id===selected?{...s,[k]:v}:s))
+ function edit<K extends keyof Entry>(k:K,v:Entry[K]){setSites(a=>a.map(s=>s.id===selected?{...s,[k]:v}:s))}
  function download(){
   const rows=[['Slot','Client / website','Verified URL','Owner approved','Mobile verified','Lead delivered','Payment tested','Senior approved','Notes'],
    ...sites.map(s=>[String(s.id),s.name,s.url,...([s.ownerApproval,s.mobileTest,s.leadTest,s.paymentTest,s.seniorApproval].map(String)),s.notes])]
