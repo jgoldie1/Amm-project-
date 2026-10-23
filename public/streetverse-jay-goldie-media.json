@@ -4,25 +4,28 @@
   "claim": "user-provided",
   "profiles": [
     {
-      "platform": "instagram",
-      "handle": "jaygoldie",
-      "verification": "unverified",
-      "profileUrl": null
+      "platform": "tiktok",
+      "handle": "iamjaygoldie",
+      "verification": "user-supplied-link",
+      "profileUrl": "https://www.tiktok.com/@iamjaygoldie",
+      "reelsAccessible": false
     },
     {
-      "platform": "tiktok",
-      "handle": "jaygoldie",
-      "verification": "unverified",
-      "profileUrl": null
+      "platform": "instagram",
+      "handle": "iamjaygoldie_",
+      "verification": "user-supplied-link",
+      "profileUrl": "https://www.instagram.com/iamjaygoldie_/",
+      "reelsAccessible": false
     }
   ],
   "reels": [],
   "existingRecoveredCatalog": "/streetverse-original-reels.catalog.json",
-  "status": "pending-exact-profile-links-and-approved-embed",
+  "status": "exact-profiles-supplied-reels-not-fetched-or-embedded",
   "rules": {
     "neverScrapeOrRehostSocialMedia": true,
     "ownerApprovalRequired": true,
     "licensedAudioRequired": true,
     "embedOnlyWhenPlatformPermits": true
-  }
+  },
+  "nextStep": "Collect user-approved reel permalinks or original exports; review audio rights and embed permissions before in-game display"
 }
