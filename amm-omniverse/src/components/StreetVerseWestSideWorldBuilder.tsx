@@ -112,6 +112,7 @@ export default function StreetVerseWestSideWorldBuilder({launcher=true}:{launche
   return()=>window.removeEventListener('tryamm:streetverse-open-world-builder',openBoard)
  },[])
  const [tab,setTab]=useState<Tab>('map')
+ const [educationFilter,setEducationFilter]=useState<'all'|'elementary'|'high-school'|'postsecondary'|'existing'>('all')
  const [scale,setScale]=useState<Scale>('west')
  const [selected,setSelected]=useState<Zone>(ZONES[0])
  const [notice,setNotice]=useState('World Builder ready • West Side → Chicago 77 → Illinois → USA → World.')
@@ -126,6 +127,13 @@ export default function StreetVerseWestSideWorldBuilder({launcher=true}:{launche
  const [middleverseRepairs,setMiddleverseRepairs]=useState<MiddleverseRepairStateView>({items:[],activeTicketId:null})
  const [layers,setLayers]=useState({neighborhood:true,school:true,faith:true,campus:true,medical:true,transit:true})
  const visible=useMemo(()=>ZONES.filter(z=>layers[z.group]),[layers])
+ const educationSites=useMemo(()=>NEAR_WEST_EDUCATION_SITES.filter(site=>{
+  if(educationFilter==='all')return true
+  if(educationFilter==='existing')return site.access.kind!=='directory-only'
+  if(educationFilter==='postsecondary')return site.level==='university'||site.level==='community-college'
+  if(educationFilter==='elementary')return site.level==='elementary'||site.level==='legacy'
+  return site.level===educationFilter
+ }),[educationFilter])
 
  useEffect(()=>{
   // Report only models actually attached to a Three.js group. Asset recipes and
@@ -307,7 +315,8 @@ export default function StreetVerseWestSideWorldBuilder({launcher=true}:{launche
    setNotice('CAMPUSVERSE ROUTE REQUESTED • '+site.name+'. Use the active CampusVerse portal to verify the destination opened.')
    return
   }
-  setNotice('DIRECTORY REFERENCE • '+site.name+' • '+site.address+'. A game 3D building or live enrollment connection is NOT installed for this campus yet.')
+  setNotice('DIRECTORY REFERENCE • '+site.name+' • '+site.address+'. Opening its public source. No 3D building or live enrollment connection is installed.')
+  window.open(site.sourceUrl,'_blank','noopener,noreferrer')
  }
 
  const openCampus=(campusId:string)=>{
@@ -426,6 +435,7 @@ export default function StreetVerseWestSideWorldBuilder({launcher=true}:{launche
 
    <div style={{minHeight:0,overflow:'auto',padding:10}}>
     {tab==='map'&&scale==='west'&&<>
+     <button type="button" onClick={()=>{setTab('campuses');setEducationFilter('all')}} aria-label="Open nearby schools and colleges" style={{...actionBtn,width:'100%',marginBottom:8,minHeight:48,background:'#102e4b',borderColor:'#a0ccff'}}>🏫 NEAR WEST SCHOOLS + COLLEGES ({NEAR_WEST_EDUCATION_COUNTS.sites})</button>
      <button type="button" onClick={beginABLATrail} aria-label="Start Circle Park Taylor Laflin ABLA neighborhood trail" style={{...actionBtn,width:'100%',marginBottom:9,minHeight:48,background:'#115540',borderColor:'#8affd0'}}>🚶 EXPLORE CIRCLE PARK → TAYLOR/LAFLIN → ABLA VILLAGE → NEW HOMES</button>
      <div style={{display:'flex',gap:5,overflowX:'auto',paddingBottom:8}}>
       {(Object.keys(layers) as (keyof typeof layers)[]).map(k=><button key={k} onClick={()=>setLayers(v=>({...v,[k]:!v[k]}))} style={{...chip,opacity:layers[k]?1:.42}}>{k.toUpperCase()}</button>)}
@@ -519,9 +529,13 @@ export default function StreetVerseWestSideWorldBuilder({launcher=true}:{launche
      <article style={{...card,borderColor:'#72c3d180'}}>
       <b>NEAR WEST • SCHOOLS + COLLEGES</b>
       <p style={muted}>{NEAR_WEST_EDUCATION_COUNTS.sites} location records covering Circle Park, ABLA, Taylor/Laflin, UIC, Medical District, Near West and Pilsen. Historic Thomas Jefferson and its current STEM Magnet identity share one address, not two reconstructed buildings. Only {NEAR_WEST_EDUCATION_COUNTS.built3d} have existing navigable 3D routes and {NEAR_WEST_EDUCATION_COUNTS.existingCampusverse} link to previously built CampusVerse groups; remaining schools are directory references only.</p>
+      <div role="group" aria-label="Filter nearby schools and colleges" style={{display:'flex',flexWrap:'wrap',gap:5,margin:'10px 0'}}>
+       {([['all','ALL'],['elementary','ELEMENTARY'],['high-school','HIGH SCHOOL'],['postsecondary','COLLEGES'],['existing','EXISTING GAME']] as const).map(([key,label])=><button type="button" key={key} onClick={()=>setEducationFilter(key)} aria-pressed={educationFilter===key} style={{...chip,minHeight:43,background:educationFilter===key?'#215e61':'#112430',borderColor:educationFilter===key?'#9ff9da':'#4d7184'}}>{label}</button>)}
+      </div>
+      <p style={{...muted,marginBottom:7}}>{educationSites.length} of {NEAR_WEST_EDUCATION_COUNTS.sites} records. Tap a directory-only record to open its public source.</p>
       <div style={{display:'grid',gap:7}}>
-       {NEAR_WEST_EDUCATION_SITES.map(site=>{
-        const label=site.access.kind==='mobile-3d'?'VISIT 3D':site.access.kind==='campusverse'?'OPEN HUB':'REFERENCE'
+       {educationSites.map(site=>{
+        const label=site.access.kind==='mobile-3d'?'VISIT 3D':site.access.kind==='campusverse'?'OPEN HUB':'SOURCE ↗'
         return <button type="button" key={site.id} onClick={()=>visitEducation(site)} aria-label={label+' '+site.name} style={{...rowBtn,minHeight:68,textAlign:'left',alignItems:'center'}}>
          <span><b>{site.name}</b><small style={{display:'block',opacity:.76,marginTop:3}}>{site.address}</small><small style={{display:'block',opacity:.65,marginTop:2}}>{site.note}</small></span>
          <span style={{fontSize:9,color:site.access.kind==='directory-only'?'#ffd48f':'#9affdd',whiteSpace:'nowrap'}}>{label}</span>
