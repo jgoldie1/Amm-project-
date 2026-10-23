@@ -1,7 +1,7 @@
 import {useEffect,useMemo,useState} from 'react'
 import StreetVerseRPActionSearch from './StreetVerseRPActionSearch'
 import StreetVerseRPOmnibar from './StreetVerseRPOmnibar'
-import {CAREER_MISSIONS,loadCareerMission,startCareerMission,advanceCareerMission,type CareerMission,type CareerId} from '../runtime/StreetVerseCareerMissionPrototype'
+import {CAREER_MISSIONS,loadCareerMission,startCareerMission,advanceCareerMission,advanceCareerMissionForEvent,type CareerMission,type CareerId} from '../runtime/StreetVerseCareerMissionPrototype'
 
 type SortMode='smart'|'nearby'|'mission'|'price'|'owned'
 type ActionId='quick'|'use'|'give'|'buy'|'sell'|'trade'|'pickup'|'drop'|'inspect'|'diagnose'|'repair'|'verify'|'open'|'enter'|'fuel'|'upgrade'|'customize'|'work'|'mission'|'call'|'dance'|'wave'|'tip'|'live'|'reel'|'equipment'|'health'|'armor'|'inventory'|'emergency'|'pocket'
@@ -43,6 +43,16 @@ export default function StreetVerseActionCarousel(){
  const [careerPath,setCareerPath]=useState<string|null>(null)
  const [careerGuide,setCareerGuide]=useState(false)
  const [careerMission,setCareerMission]=useState<CareerMission|null>(()=>loadCareerMission())
+ useEffect(()=>{
+  const names=['tryamm:streetverse-career-briefing-confirmed','tryamm:streetverse-career-npc-interaction-confirmed','tryamm:streetverse-career-evidence-confirmed']
+  const onProgress=(event:Event)=>{
+   const detail=(event as CustomEvent<{career?:CareerId}>).detail
+   if(!detail?.career)return
+   setCareerMission(previous=>previous&&previous.career===detail.career?advanceCareerMissionForEvent(previous,event.type):previous)
+  }
+  names.forEach(name=>window.addEventListener(name,onProgress))
+  return()=>names.forEach(name=>window.removeEventListener(name,onProgress))
+ },[])
  const [rpgState,setRpgState]=useState<{level?:number;xp?:number;activeQuestIds?:string[]}|null>(null)
  useEffect(()=>{
   const onRpg=(event:Event)=>setRpgState((event as CustomEvent<{level?:number;xp?:number;activeQuestIds?:string[]}>).detail||null)
