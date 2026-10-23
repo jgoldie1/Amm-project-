@@ -68,6 +68,8 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(mission).toBeVisible({ timeout: 20_000 });
 
     type Rect={x:number;y:number;width:number;height:number};
+    // Distinguish the wrong entry route from a mounted world whose travel UI failed.
+    await expect(page.locator('[data-streetverse-entry="geo-spawn-bridge"]')).toBeAttached({ timeout: 20_000 });
     const travel=page.getByRole('button',{name:'Travel to Taylor Street UIC Medical District'});
     // Safe Mode also exposes travel now, so button presence alone cannot prove 3D startup.
     // Reject fallback explicitly before validating controls for the playable world.
