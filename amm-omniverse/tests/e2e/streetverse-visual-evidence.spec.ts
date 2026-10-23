@@ -94,6 +94,12 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await page.screenshot({path:testInfo.outputPath('streetverse-taylor-uic-travel.png'),fullPage:false});
     await page.getByRole('button',{name:'Return to StreetVerse Chicago'}).click();
     await expect(travel).toBeVisible({timeout:10_000});
+    // iPhone starts in intentional CLEAR VIEW mode, which hides the shop launchers.
+    // Exercise the user's actual quick-menu path to restore the complete HUD.
+    await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-hud-focus','true');
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/SHOW FULL HUD/}).click();
+    await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-hud-focus','false');
     await expect(stores).toBeVisible();
     await expect(enterStore).toBeVisible();
     const visibleCore=[joystick,quickMenu,page.getByRole('button',{name:'Open Holo FON'}),mission,travel,stores,enterStore];
