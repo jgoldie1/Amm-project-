@@ -367,11 +367,26 @@ function addPilsenMurals(root:THREE.Group){
   }
 }
 function addElevatedRail(root:THREE.Group){
-  const steel=material({color:0x495158,metalness:.78,roughness:.42}),rail=material({color:0x252a2e,metalness:.90,roughness:.28}),deck=material({color:0x5d6266,metalness:.42,roughness:.68})
-  for(let x=-80;x<=80;x+=12){box(root,[.50,6.4,.50],[x,3.2,-46],steel);box(root,[6.2,.30,.42],[x,6.15,-46],steel)}
-  box(root,[176,.34,5.4],[0,6.45,-46],deck)
-  box(root,[176,.12,.18],[0,6.72,-44.7],rail);box(root,[176,.12,.18],[0,6.72,-47.3],rail)
-}
+   // Match the moving Chicago mobile L train: its established track is at z=-35.
+   // This is an original visual streetscape, not a verified real CTA station layout.
+   const trackZ=-35
+   const steel=material({color:0x495158,metalness:.78,roughness:.42}),rail=material({color:0x252a2e,metalness:.90,roughness:.28}),deck=material({color:0x5d6266,metalness:.42,roughness:.68})
+   for(let x=-80;x<=80;x+=12){box(root,[.50,6.4,.50],[x,3.2,trackZ],steel);box(root,[6.2,.30,.42],[x,6.15,trackZ],steel)}
+   box(root,[176,.34,5.4],[0,6.45,trackZ],deck)
+   box(root,[176,.12,.18],[0,6.72,trackZ+1.3],rail);box(root,[176,.12,.18],[0,6.72,trackZ-1.3],rail)
+   // Fictional transit link platforms, visibly connected to the existing L track.
+   // No boarding or fare collection implied; train animation still comes from MobileWorld.
+   const platform=material({color:0x9b9b93,roughness:.92}),warning=material({color:0xe5b747,roughness:.92})
+   for(const [x,name] of [[-48,'CIRCLE PARK LINK'],[48,'TAYLOR / UIC LINK']] as const){
+     box(root,[19,.30,3.3],[x,6.52,trackZ+4.6],platform,0,'west-side-el-station-platform')
+     box(root,[19,.07,.28],[x,6.73,trackZ+2.96],warning,0,'west-side-el-platform-warning-strip')
+     for(const dx of [-8,8])box(root,[.24,2.8,.24],[x+dx,8.05,trackZ+5.9],steel)
+     box(root,[18,.22,4.7],[x,9.45,trackZ+4.7],deck,0,'west-side-el-station-canopy')
+     const sign=labelSprite(name+' • L TRAIN')
+     sign.position.set(x,9.12,trackZ+7.3);sign.scale.set(8.5,1.7,1)
+     root.add(sign)
+   }
+ }
 
 function addResidentialCourtyard(root:THREE.Group){
   const g=new THREE.Group();g.name='circle-park-residential-courtyard';g.position.set(-49,0,67)

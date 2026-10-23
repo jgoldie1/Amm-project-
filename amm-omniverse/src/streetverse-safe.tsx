@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import StreetVerseSafeWorld from './components/StreetVerseSafeWorld'
+import StreetVerseDominionLauncher from './components/StreetVerseDominionLauncher'
 import StreetVerseReelEventBridge from './components/StreetVerseReelEventBridge'
 import StreetVerseWeatherSync from './components/StreetVerseWeatherSync'
 import './accessibility/accessibility.css'
@@ -22,6 +23,7 @@ createRoot(rootElement).render(
       communityAreaNumber={communityAreaNumber}
       onClose={() => { window.location.href = '/' }}
     />
+    <StreetVerseDominionLauncher />
     <StreetVerseReelEventBridge />
   </StrictMode>,
 )
