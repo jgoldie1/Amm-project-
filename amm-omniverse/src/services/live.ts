@@ -1,7 +1,8 @@
 import { getAccessToken } from './supabaseClient'
 import { installCallSafeLive } from './protectedLive'
 
-const API_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || ''
+// LIVE routes deploy with amm-omniverse. Do not inherit legacy VITE_API_URL.
+const LIVE_API_URL = (import.meta.env.VITE_LIVE_API_URL as string | undefined)?.replace(/\/$/, '') || ''
 
 export type LiveRole = 'host' | 'viewer' | 'guest'
 
@@ -19,7 +20,7 @@ async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers || {})
   headers.set('Content-Type', 'application/json')
   headers.set('Authorization', `Bearer ${token}`)
-  const response = await fetch(`${API_URL}${path}`, { ...init, headers })
+  const response = await fetch(`${LIVE_API_URL}${path}`, { ...init, headers })
   const body = await response.json().catch(() => ({}))
   if (!response.ok) throw new Error(body?.error || `LIVE request failed (${response.status})`)
   return body as T
@@ -28,14 +29,14 @@ async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
 export async function getLiveStatus() {
   let response: Response
   try{
-    response=await fetch(`${API_URL}/api/live/status`,{cache:'no-store'})
+    response=await fetch(`${LIVE_API_URL}/api/live/status`,{cache:'no-store'})
   }catch{
-    throw new Error('LIVE API is unreachable. Verify website/API project routing, VITE_API_URL and HTTPS/CORS.')
+    throw new Error('LIVE API is unreachable. Verify website/API project routing, VITE_LIVE_API_URL (optional) and HTTPS/CORS.')
   }
   if(!response.ok)throw new Error(`LIVE API request failed (HTTP ${response.status}). Verify the backend deployment.`)
   const contentType=response.headers.get('content-type')||''
   if(!contentType.toLowerCase().includes('application/json'))
-    throw new Error('LIVE API returned a website page instead of JSON. Check Vercel /api routing and VITE_API_URL.')
+    throw new Error('LIVE API returned a website page instead of JSON. Check Vercel /api routing and VITE_LIVE_API_URL (optional).')
   const data:unknown=await response.json()
   if(!data||typeof data!=='object'||!('configured' in data)||typeof data.configured!=='boolean')
     throw new Error('LIVE API returned an invalid status. The correct server code may not be deployed.')
