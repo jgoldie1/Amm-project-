@@ -1,5 +1,6 @@
 import { requireUser } from '../_lib/security.js';
 import { adminRest, adminReady } from '../_lib/supabase-admin.js';
+import {liveKitRoomService} from '../_lib/livekit-room-guard.js';
 import {isLiveKitHostPublishing} from '../_lib/livekit-room-guard.js';
 
 const cleanRoom=v=>String(v||'').toLowerCase().replace(/[^a-z0-9-_]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(0,80)||'tryamm-live';
@@ -111,6 +112,17 @@ export default async function handler(req,res){
       return res.status(200).json({request:rows?.[0]||null});
     }
     if(action==='remove'&&request.status!=='on_stage')return res.status(409).json({error:'Guest is not on stage'});
+    if(action==='remove'){
+      // Revoking the database invitation is insufficient: a connected guest
+      // holds a short-lived token. Kick the published LiveKit participant first.
+      try{await liveKitRoomService().removeParticipant(room,String(request.requester_user_id)+':guest')}
+      catch(error){
+        const message=String(error?.message||'').toLowerCase();
+        if(!(error?.status===404||error?.code===404||/\bnot found\b|\bnot_found\b/.test(message))){
+          return res.status(503).json({error:'Could not remove guest from LIVE. Approval remains unchanged.'});
+        }
+      }
+    }
     const next=action==='reject'?{status:'rejected',rejected_at:new Date().toISOString()}:{status:'removed',removed_at:new Date().toISOString(),stage_position:null};
     const rows=await adminRest('live_panel_requests',{method:'PATCH',query:{id:`eq.${requestId}`},body:{...next,updated_at:new Date().toISOString()}});
     return res.status(200).json({request:rows?.[0]||null});
