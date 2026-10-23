@@ -22,6 +22,16 @@ export function getCareerScene(career:CareerId,stage:CareerMission['stage']):str
  const scene=CAREER_SCENES[career]
  return stage===0?scene.briefing:stage===1?scene.witness:stage===2?scene.evidence:null
 }
+export type CaseEvidence={id:string;label:string;description:string}
+export const CAREER_EVIDENCE:Record<CareerId,CaseEvidence>={
+ 'agent-007':{id:'dock-receipt',label:'Dock receipt',description:'A timestamped receipt shows a vehicle arrived before dawn.'},
+ 'mib':{id:'sky-photo',label:'Sky photograph',description:'A blurred photograph must be compared with the weather log.'},
+ 'law-enforcement':{id:'center-log',label:'Community center log',description:'A sign-in sheet records the last reported location.'},
+ 'government':{id:'maintenance-report',label:'Maintenance report',description:'A dated report documents the original accessibility complaint.'},
+ 'cia':{id:'coded-dossier',label:'Redacted dossier',description:'A fictional transmission timestamp appears in the case file.'},
+ 'fbi':{id:'custody-log',label:'Evidence custody log',description:'A fictional custody record tracks the package handoff.'}
+}
+export function getCareerEvidence(career:CareerId):CaseEvidence{return CAREER_EVIDENCE[career]}
 export type InvestigationChoice='protect-witness'|'follow-lead'|'request-backup'
 export const INVESTIGATION_CHOICES:Record<InvestigationChoice,{label:string;outcome:string}>={
  'protect-witness':{label:'Protect the witness',outcome:'The witness is safe, but the suspect has time to relocate.'},
