@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8')
+const token=read('api/live/token.js'),panel=read('api/live/panel.js'),service=read('src/services/live.ts'),ui=read('src/components/LiveCenter.tsx'),controls=read('src/components/LivePanelControls.tsx'),pkg=JSON.parse(read('package.json'))
+for(const f of ["['viewer','host','guest'].includes(role)","adminRest('live_panel_requests'","status:'eq.on_stage'","canPublish:role==='host'||role==='guest'"])assert(token.includes(f),f)
+assert(service.includes("'host' | 'viewer' | 'guest'"))
+assert(service.includes("opts.role === 'host' || opts.role === 'guest'"))
+assert(service.includes('getLivePanel(room:string)'))
+assert(service.includes('micReady:false,cameraReady:false'),'no fake media readiness')
+for(const label of ['REQUEST TO JOIN THE STAGE','APPROVE STAGE','REJECT','REMOVE GUEST','APPROVED — SWITCH TO GUEST CAMERA','window.clearInterval(interval)'])assert(controls.includes(label),label)
+assert(ui.includes('LivePanelControls'))
+assert(ui.includes("setRole('guest')"))
+assert(ui.includes("role==='guest'?'JOIN AS APPROVED GUEST'"))
+assert(panel.includes("liveKitRoomService().removeParticipant(room,String(request.requester_user_id)+':guest')"),'revoked guest must be disconnected')
+assert(pkg.scripts.build.includes('tryamm-livekit-multi-guest-pk-contract.mjs'))
+console.log('TRYAMM LIVE PK GUEST CONTRACT PASS: host permission, approved publishing, one-hand stage approval and revocation')

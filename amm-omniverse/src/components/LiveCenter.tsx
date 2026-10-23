@@ -5,6 +5,7 @@ import { connectLiveRoom, getLiveStatus, registerLiveHostRoom, setLiveHostRoomSt
 import LiveGenerationIntelligence from './LiveGenerationIntelligence'
 import HoloGiftEngine from './HoloGiftEngine'
 import HoloCreditChannelShop from './HoloCreditChannelShop'
+import LivePanelControls from './LivePanelControls'
 
 type Format = 'live' | 'showcase' | 'debate' | 'starverse' | 'podcast' | 'shopping' | 'gamecast'
 type VisualFilter = 'clean' | 'bright' | 'warm' | 'cool' | 'mono' | 'contrast' | 'holo'
@@ -119,7 +120,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
   }
 
   async function preflightHostMedia(){
-    if(role!=='host')return
+    if(role!=='host'&&role!=='guest')return
     if(!navigator.mediaDevices?.getUserMedia)throw new Error('Camera and microphone are not available on this device/browser.')
     const preview=await navigator.mediaDevices.getUserMedia({video:true,audio:true})
     preview.getTracks().forEach(track=>track.stop())
@@ -155,7 +156,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
         setParticipants(0)
         setError('Broadcast connection ended. Check your signal and tap Join or Go LIVE again.')
       })
-      if(role==='viewer'){
+      if(role==='viewer'||role==='guest'){
         try{
           await room.startAudio()
           setAudioNeedsTap(false)
@@ -165,7 +166,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
           setAudioNeedsTap(true)
         }
       }
-      if (role === 'host') {
+      if (role === 'host' || role === 'guest') {
         const pubs = Array.from(room.localParticipant.trackPublications.values())
         for (const pub of pubs) {
           const track = pub.track
@@ -212,6 +213,12 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
     if(pkMode)window.dispatchEvent(new CustomEvent('tryamm:pk-end',{detail:{roomName,role,reason:'leave'}}))
   }
 
+  async function switchToGuestCamera(){
+    if(youthViewerOnly)return
+    if(roomRef.current)await leave()
+    setRole('guest')
+    setError('')
+  }
   const inviteUrl=typeof window==='undefined'?'':(()=>{
     const url=new URL('/live',window.location.origin)
     url.searchParams.set('room',roomName)
@@ -237,13 +244,13 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
   }
 
   async function toggleMic() {
-    if (!roomRef.current || role !== 'host') return
+    if (!roomRef.current || (role !== 'host'&&role !== 'guest')) return
     const enabled = roomRef.current.localParticipant.isMicrophoneEnabled
     await roomRef.current.localParticipant.setMicrophoneEnabled(!enabled)
   }
 
   async function toggleCamera() {
-    if (!roomRef.current || role !== 'host') return
+    if (!roomRef.current || (role !== 'host'&&role !== 'guest')) return
     const enabled = roomRef.current.localParticipant.isCameraEnabled
     await roomRef.current.localParticipant.setCameraEnabled(!enabled)
     setTimeout(applyStageFilter, 150)
@@ -312,15 +319,16 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
           </div>}
 
           {!connected ? (
-            <button disabled={busy || configured === false} onClick={() => void connect()} style={styles.primary}>{busy ? 'Connecting…' : role === 'host' ? (pkMode?'START PK CAMERA':'Go LIVE') : (pkMode?'WATCH PK':'Join LIVE')}</button>
+            <button disabled={busy || configured === false} onClick={() => void connect()} style={styles.primary}>{busy ? 'Connecting…' : role === 'host' ? (pkMode?'START PK CAMERA':'Go LIVE') : role==='guest'?'JOIN AS APPROVED GUEST':(pkMode?'WATCH PK':'Join LIVE')}</button>
           ) : (
             <div style={styles.row}>
-              {role === 'host' && <button onClick={() => void toggleMic()} style={styles.secondary}>Mic</button>}
-              {role === 'host' && <button onClick={() => void toggleCamera()} style={styles.secondary}>Camera</button>}
+              {(role === 'host'||role === 'guest') && <button onClick={() => void toggleMic()} style={styles.secondary}>Mic</button>}
+              {(role === 'host'||role === 'guest') && <button onClick={() => void toggleCamera()} style={styles.secondary}>Camera</button>}
               <button onClick={()=>void leave()} style={styles.danger}>Leave</button>
             </div>
           )}
 
+          <LivePanelControls roomName={roomName} role={role} connected={connected} youthViewerOnly={youthViewerOnly} onJoinApproved={()=>void switchToGuestCamera()}/>
           {role==='host'&&!youthViewerOnly&&<section aria-label="Share viewer link" style={{...styles.providerGate,marginTop:12}}>
             <strong style={{fontSize:13}}>📱 SECOND DEVICE / VIEWER INVITE</strong>
             <div style={styles.small}>Start the real camera broadcast first. Viewers sign in to join, and this link never allows camera publishing.</div>

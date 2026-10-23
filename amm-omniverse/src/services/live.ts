@@ -36,7 +36,7 @@ export async function getLivePanel(room:string){
   return api<LivePanelSnapshot>('/api/live/panel?room='+encodeURIComponent(room),{method:'GET'})
 }
 export async function sendLivePanelAction(room:string,action:'request_panel'|'approve'|'reject'|'remove',requestId?:string){
-  return api<{request:LivePanelRequest}>('/api/live/panel',{method:'POST',body:JSON.stringify({room,action,requestId,micReady:true,cameraReady:true})})
+  return api<{request:LivePanelRequest}>('/api/live/panel',{method:'POST',body:JSON.stringify({room,action,requestId,micReady:false,cameraReady:false})})
 }
 export async function registerLiveHostRoom(room: string, title: string) {
   return api<{room:{room_name:string;host_user_id:string}}>('/api/live/panel',{
