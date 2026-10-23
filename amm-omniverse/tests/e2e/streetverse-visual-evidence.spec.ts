@@ -178,6 +178,9 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(socialShortcut).toBeVisible();
     await expect(peopleShortcut).toBeVisible();
     await expect(ticketShortcut).toBeVisible();
+    // The collapsed REPAIR/ACTIONS launcher previously covered People Search.
+    // It must yield the bottom corner to the three social shortcuts.
+    await expect(page.getByRole('button',{name:'Open in-game action carousel'})).toHaveCount(0);
 
     await socialShortcut.click();
     const socialPanel=page.getByRole('region',{name:'StreetVerse social panel'});
