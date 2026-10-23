@@ -19,7 +19,7 @@ for(const token of [
   "tryamm:streetverse-vehicle-input",
 ]) must(actions.includes(token),'actions missing '+token)
 
-must(/ctx\\.broken\\s*\\?\\s*'🔧 REPAIR'\\s*:\\s*'[^']*ACTIONS[^']*'/.test(actions),'launcher must show repair state and an actions label')
+must(actions.includes("ctx.broken?'🔧 REPAIR':'🎮 ACTIONS ›'"),'launcher must show repair state and an actions label')
 must(actions.includes('aria-label="Open in-game action carousel"'),'mobile launcher must have accessible name')
 must(actions.includes('aria-label="Open StreetVerse RP RPG emoji and GIF actions"'),'RP launcher must have accessible name')
 must(actions.includes('{(!mobile||rpOpen)&&<><div')&&actions.includes('<StreetVerseRPActionSearch compact/><StreetVerseRPOmnibar compact/></>}'),'RP stack is not conditionally hidden on mobile')
