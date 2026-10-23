@@ -10,6 +10,11 @@ export const CAREER_MISSIONS:Record<CareerId,{title:string;steps:[string,string,
 export function loadCareerMission():CareerMission|null{
  try{const raw=localStorage.getItem(KEY);if(!raw)return null;const v=JSON.parse(raw);if(!v||typeof v!=='object'||typeof v.career!=='string'||!Object.prototype.hasOwnProperty.call(CAREER_MISSIONS,v.career)||![0,1,2,3].includes(v.stage)||typeof v.updatedAt!=='string')return null;return v}catch{return null}
 }
+export function advanceCareerMissionForEvent(mission:CareerMission,eventName:string):CareerMission{
+ const expected=['tryamm:streetverse-career-briefing-confirmed','tryamm:streetverse-career-npc-interaction-confirmed','tryamm:streetverse-career-evidence-confirmed'] as const
+ if(mission.stage>=3||eventName!==expected[mission.stage])return mission
+ return advanceCareerMission(mission)
+}
 export function startCareerMission(career:CareerId):CareerMission{
  const mission:CareerMission={career,stage:0,updatedAt:new Date().toISOString()}
  try{localStorage.setItem(KEY,JSON.stringify(mission))}catch{}
