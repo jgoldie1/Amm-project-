@@ -206,10 +206,27 @@ function addThomasJeffersonSchool(root:THREE.Group,colliders:THREE.Box3[]){
 
 function addPark(root:THREE.Group){
   const park=new THREE.Group();park.position.set(0,0,49);park.name='circle-park-visible-forge'
-  const lawn=new THREE.Mesh(geometry(new THREE.CircleGeometry(12,36)),material({color:0x477f4a,roughness:1}));lawn.rotation.x=-Math.PI/2;lawn.position.y=.03;park.add(lawn)
-  const path=new THREE.Mesh(geometry(new THREE.RingGeometry(7.5,9,40)),material({color:0xc5b79d,roughness:1}));path.rotation.x=-Math.PI/2;path.position.y=.05;park.add(path)
+  const grass=material({color:0x477f4a,roughness:1}),walk=material({color:0xc5b79d,roughness:1})
+  const lawn=new THREE.Mesh(geometry(new THREE.CircleGeometry(12,36)),grass);lawn.rotation.x=-Math.PI/2;lawn.position.y=.03;park.add(lawn)
+  const path=new THREE.Mesh(geometry(new THREE.RingGeometry(7.5,9,40)),walk);path.rotation.x=-Math.PI/2;path.position.y=.05;park.add(path)
   const court=box(park,[13,.06,7],[0,.08,0],material({color:0xb96e43,roughness:.9}),0,'circle-park-court')
   court.position.z=-1
+  // Distinct neighborhood-scale details in the *playable 3D* Circle Park scene.
+  // Game-inspired reconstructions, not claims about exact historical site geometry.
+  const whiteLine=material({color:0xe9e5cc,roughness:.92}),steel=material({color:0x566c72,metalness:.5,roughness:.55})
+  for(const side of [-1,1]){
+    box(park,[.12,.075,6.4],[side*6.12,.15,-1],whiteLine,0,'circle-park-court-sideline')
+    box(park,[.17,2.8,.17],[side*6.9,1.42,-1],steel,0,'circle-park-hoop-post')
+    box(park,[.12,1.10,1.65],[side*6.95,2.75,-1],whiteLine,0,'circle-park-basketball-backboard')
+    const hoop=new THREE.Mesh(geometry(new THREE.TorusGeometry(.34,.045,6,12)),material({color:0xcc5b32,roughness:.8}))
+    hoop.position.set(side*6.62,2.44,-1);hoop.rotation.x=Math.PI/2;hoop.name='circle-park-basketball-hoop';park.add(hoop)
+    box(park,[2.8,.20,.84],[side*8.6,.54,5.3],material({color:0x9b7554,roughness:.92}),0,'circle-park-rest-bench')
+    box(park,[2.8,.76,.16],[side*8.6,1.08,5.7],steel,0,'circle-park-bench-back')
+  }
+  // The original court remains in place; the pedestrian plaza reads as a destination.
+  box(park,[5.5,.08,2.3],[0,.12,9.1],walk,0,'circle-park-entry-plaza')
+  const arrival=labelSprite('CIRCLE PARK • WEST SIDE')
+  arrival.position.set(0,3.0,10.6);arrival.scale.set(8.5,1.8,1);park.add(arrival)
   for(const [x,z] of [[-8,-7],[8,-7],[-9,6],[9,6],[-11,0],[11,0]] as const)addTree(park,x,z,.78)
   root.add(park)
 }

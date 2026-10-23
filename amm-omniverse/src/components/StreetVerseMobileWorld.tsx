@@ -748,7 +748,48 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const riverWalkMat=mat(0x8a8177);for(const z of [-8.9,-27.1]){const walk=new THREE.Mesh(new THREE.BoxGeometry(154,.18,3.1),riverWalkMat);walk.position.set(0,.13,z);scene.add(walk);for(let x=-70;x<=70;x+=7){const post=new THREE.Mesh(new THREE.BoxGeometry(.08,1.05,.08),mat(0x5e6870));post.position.set(x,.7,z+(z< -18?1.45:-1.45));scene.add(post)}const railTop=new THREE.Mesh(new THREE.BoxGeometry(145,.08,.08),mat(0x5e6870));railTop.position.set(0,1.15,z+(z< -18?1.45:-1.45));scene.add(railTop)}
   const bridge=new THREE.Mesh(new THREE.BoxGeometry(12,.48,25),mat(0x5a6168));bridge.position.set(0,.42,-18);scene.add(bridge);for(const sx of [-5.55,5.55]){const sideRail=new THREE.Mesh(new THREE.BoxGeometry(.14,1.05,25),mat(0x323941));sideRail.position.set(sx,1.05,-18);scene.add(sideRail)}
   const rail=new THREE.Mesh(new THREE.BoxGeometry(176,.45,2.2),mat(0x4a4e55));rail.position.set(0,6,-35);scene.add(rail);for(let x=-78;x<=78;x+=13){const p=new THREE.Mesh(new THREE.BoxGeometry(.55,6,.55),mat(0x34383d));p.position.set(x,3,-35);scene.add(p)}
-  const train=new THREE.Group();for(let i=0;i<3;i++){const car=new THREE.Mesh(new THREE.BoxGeometry(11.8,2.4,2.8),mat(0xd9dde0));car.position.x=i*12.3;train.add(car);const stripe=new THREE.Mesh(new THREE.BoxGeometry(10.8,.3,2.86),new THREE.MeshBasicMaterial({color:0x00a1de}));stripe.position.set(i*12.3,0,0);train.add(stripe)}train.position.set(-70,7.3,-35);scene.add(train)
+  // Original, lightweight Chicago L-inspired train: a single moving Three.js group.
+  // Shared meshes/instanced windows keep mobile draw calls bounded; no new GLB requests.
+  const train=new THREE.Group();train.name='streetverse-west-side-el-train-v2'
+  const trainBodyGeometry=new THREE.BoxGeometry(11.8,2.4,2.8),trainBodyMaterial=mat(0xd9dde0)
+  const trainStripeGeometry=new THREE.BoxGeometry(10.8,.30,2.88),trainStripeMaterial=new THREE.MeshBasicMaterial({color:0x008ecb})
+  const trainWindowGeometry=new THREE.BoxGeometry(1.18,.86,.065)
+  const trainWindowMaterial=new THREE.MeshStandardMaterial({color:0x173d54,roughness:.20,metalness:.26,emissive:0x102a39,emissiveIntensity:.18})
+  const trainWindows=new THREE.InstancedMesh(trainWindowGeometry,trainWindowMaterial,30)
+  trainWindows.name='streetverse-el-windows-v2'
+  const windowMatrix=new THREE.Object3D();let windowIndex=0
+  const trainDoorGeometry=new THREE.BoxGeometry(1.52,1.9,.078),trainDoorMaterial=mat(0xb9c2ca)
+  const trainDoors=new THREE.InstancedMesh(trainDoorGeometry,trainDoorMaterial,12);trainDoors.name='streetverse-el-doors-v2'
+  const doorMatrix=new THREE.Object3D();let doorIndex=0
+  const trimGeometry=new THREE.BoxGeometry(11.6,.09,2.92),trimMaterial=mat(0x353e48)
+  for(let i=0;i<3;i++){
+    const center=i*12.3
+    const car=new THREE.Mesh(trainBodyGeometry,trainBodyMaterial);car.position.x=center;car.name='streetverse-el-car-'+(i+1);train.add(car)
+    const stripe=new THREE.Mesh(trainStripeGeometry,trainStripeMaterial);stripe.position.set(center,-.52,0);train.add(stripe)
+    const roof=new THREE.Mesh(trimGeometry,trimMaterial);roof.position.set(center,1.19,0);train.add(roof)
+    for(const side of [-1,1]){
+      for(const offset of [-3.65,-1.85,0,1.85,3.65]){
+        windowMatrix.position.set(center+offset,.30,side*1.44);windowMatrix.rotation.set(0,0,0);windowMatrix.scale.set(1,1,1);windowMatrix.updateMatrix()
+        trainWindows.setMatrixAt(windowIndex++,windowMatrix.matrix)
+      }
+      for(const offset of [-4.85,4.85]){
+        doorMatrix.position.set(center+offset,-.15,side*1.48);doorMatrix.rotation.set(0,0,0);doorMatrix.scale.set(1,1,1);doorMatrix.updateMatrix()
+        trainDoors.setMatrixAt(doorIndex++,doorMatrix.matrix)
+      }
+    }
+  }
+  trainWindows.instanceMatrix.needsUpdate=true;trainDoors.instanceMatrix.needsUpdate=true
+  train.add(trainWindows,trainDoors)
+  const routePlate=new THREE.Mesh(new THREE.BoxGeometry(.14,.56,1.84),new THREE.MeshBasicMaterial({color:0x0e273c}))
+  routePlate.position.set(-5.99,.44,0);routePlate.name='streetverse-el-front-route-plate';train.add(routePlate)
+  const headlightMat=new THREE.MeshBasicMaterial({color:0xfff0c8}),tailLightMat=new THREE.MeshBasicMaterial({color:0xff4835})
+  const markerGeometry=new THREE.BoxGeometry(.15,.22,.33)
+  for(const side of [-1,1]){
+    const headlight=new THREE.Mesh(markerGeometry,headlightMat);headlight.position.set(-6.04,-.40,side*.91);headlight.name='streetverse-el-headlight';train.add(headlight)
+    const tail=new THREE.Mesh(markerGeometry,tailLightMat);tail.position.set(30.55,-.40,side*.91);tail.name='streetverse-el-tail-light';train.add(tail)
+  }
+  train.userData={...train.userData,visualPass:'west-side-el-v2',fictionalCTAInspired:true,realBoarding:false,carCount:3,instancedWindowCount:30}
+  train.position.set(-70,7.3,-35);scene.add(train)
   const blockedByExternal=(x:number,z:number)=>externalCollisionBoxes.some(box=>box.containsPoint(new THREE.Vector3(x,1,z)))
   const canTraverseStatic=(x:number,z:number)=>{const blockedByBuilding=buildingColliders.some(b=>x>=b.minX&&x<=b.maxX&&z>=b.minZ&&z<=b.maxZ);if(blockedByBuilding)return false;const inRiver=z>=-27.2&&z<=-8.8&&x>=-75&&x<=75;const onBridge=Math.abs(x)<=5.2;return !inRiver||onBridge}
   const canTraverse=(x:number,z:number)=>canTraverseStatic(x,z)&&!blockedByExternal(x,z)
