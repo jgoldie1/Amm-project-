@@ -78,9 +78,9 @@ jobs:
           {
             echo '## StreetVerse candidate identity'
             echo
-            echo "- Commit: \`\${GITHUB_SHA}\`"
-            echo "- Workflow run: \`\${GITHUB_RUN_ID}\`"
-            echo "- Ref: \`\${GITHUB_REF}\`"
+            echo "- Commit: ${GITHUB_SHA}"
+            echo "- Workflow run: ${GITHUB_RUN_ID}"
+            echo "- Ref: ${GITHUB_REF}"
             echo '- This run is test evidence, not proof of a production deployment.'
           } >> "$GITHUB_STEP_SUMMARY"
 
