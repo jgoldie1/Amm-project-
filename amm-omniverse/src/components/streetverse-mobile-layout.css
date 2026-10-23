@@ -384,3 +384,29 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
 
   /* Do not remove the exit, menu, HUD-unlock, accessibility or safety dialogs. */
 }
+
+
+/*
+ * Real iPhone Safari viewport repair (375x667 as well as taller mobile screens).
+ * Canvas backing-buffer pixels must not control its CSS layout or clip the city.
+ */
+[data-streetverse-world-root] > canvas[data-streetverse-world-canvas="true"] {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+@media (max-width: 540px) and (orientation: portrait) {
+  /* Keep the active mission below the top navigation and ONLINE launchers. */
+  [data-streetverse-world-root][data-hud-focus="true"] [data-streetverse-mission] {
+    top: calc(env(safe-area-inset-top) + 140px) !important;
+    width: min(76vw, 280px) !important;
+    max-width: min(76vw, 280px) !important;
+    min-height: 42px !important;
+    max-height: 44px !important;
+  }
+}
