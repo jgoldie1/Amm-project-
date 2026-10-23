@@ -484,3 +484,10 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
     box-shadow: 0 2px 8px #0008 !important;
   }
 }
+
+@media (max-width: 540px) and (orientation: portrait) {
+  /* The opt-in ABLA tour must not cover the one-tap city camera recovery. */
+  [data-streetverse-world-root][data-streetverse-visual-pass="iphone-v13"] [data-streetverse-abla-tour="true"] {
+    top: calc(env(safe-area-inset-top) + 206px) !important;
+  }
+}
