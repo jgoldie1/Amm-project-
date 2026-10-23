@@ -1,5 +1,6 @@
 import {useMemo,useState} from 'react'
-import {DotLottieReact} from '@lottiefiles/dotlottie-react'
+import {useLottie,type LottieAnimKey} from '../game/lottie/LottieAnimations'
+import {lottieForGift} from '../game/gifts/HolographicGiftKit'
 
 type Props={onClose:()=>void}
 type Effect={id:string;label:string;kind:'lottie'|'holo'|'gift'|'pk'|'portal';description:string}
@@ -26,7 +27,35 @@ const GIFTS:Gift[]=[
   {id:'galaxy',label:'Galaxy',icon:'✧',credits:1000,effect:'neon-trails'},
 ]
 
-const SAMPLE_LOTTIE='https://lottie.host/4db68bbd-31f6-4cd8-84eb-189de081159a/IGmMCqhzpt.lottie'
+const OWNED_CLIP_EFFECTS:Record<string,LottieAnimKey>={
+ 'holo-pulse':'hologram_flicker','lion-crown':'holo_crown','portal':'portal_swirl',
+ 'pk-win':'fusion_burst','gift-rain':'holo_roses','neon-trails':'holo_vehicle',
+ 'scanlines':'face_scan','depth-card':'realm_shift',
+ 'reaction-ring':'holo_galaxy','milestone':'mission_complete',
+}
+function OriginalLottiePreview({keyName}:{keyName:LottieAnimKey}){
+ const mount=useLottie(keyName,true,1)
+ return <div ref={mount} aria-hidden="true" style={{height:'100%',width:'100%'}}/>
+}
+const ZIP_STYLE_PREVIEW_IDS=[
+ {id:'mecha_dragon',label:'Cyber Dragon',emoji:'🐉'},
+ {id:'esports_trophy',label:'PK Trophy',emoji:'🏆'},
+ {id:'fortune_koi',label:'Fortune Koi',emoji:'🐟'},
+ {id:'cyber_kitsune',label:'Kitsune',emoji:'🦊'},
+ {id:'halloween_jack',label:'Holiday',emoji:'🎃'},
+ {id:'santa_sleigh',label:'Sleigh',emoji:'🎅'},
+ {id:'ar_neon_crown',label:'Neon Crown',emoji:'👑'},
+ {id:'menorah_holo',label:'Menorah',emoji:'🕎'},
+ {id:'cyber_dancers',label:'Dancers',emoji:'💃'},
+ {id:'dreidel_burst',label:'Dreidel',emoji:'✡️'},
+ {id:'shofar_holo',label:'Shofar',emoji:'📯'},
+ {id:'super_nova',label:'Galaxy',emoji:'🌌'},
+ {id:'cyber_car',label:'Cyber Car',emoji:'🏎️'},
+ {id:'gold_dragon',label:'Gold Dragon',emoji:'🐲'},
+ {id:'diamond_crown',label:'Diamond Crown',emoji:'💎'},
+ {id:'rose_rain',label:'Rose Rain',emoji:'🌹'},
+ {id:'treasure_chest',label:'Treasure',emoji:'💰'},
+] as const
 
 export default function HoloClipStudio({onClose}:Props){
   const [clipTitle,setClipTitle]=useState('StreetVerse Holo Clip')
@@ -34,10 +63,12 @@ export default function HoloClipStudio({onClose}:Props){
   const [effect,setEffect]=useState('holo-pulse')
   const [message,setMessage]=useState('HOLO CLIP → EFFECT → GIFT/TIP → SAVE/PUBLISH → TAP BACK INTO WORLD')
   const [gift,setGift]=useState<Gift|null>(null)
+  const [sampleId,setSampleId]=useState<string>('')
   const selected=useMemo(()=>EFFECTS.find(x=>x.id===effect)!,[effect])
 
+  const clipLottieKey:LottieAnimKey=sampleId?lottieForGift(sampleId).lottieKey:OWNED_CLIP_EFFECTS[effect]||'hologram_flicker'
   function sendGift(next:Gift){
-    setGift(next);setEffect(next.effect)
+    setGift(next);setEffect(next.effect);setSampleId('')
     window.dispatchEvent(new CustomEvent('tryamm:gift-tip-intent',{detail:{giftId:next.id,label:next.label,credits:next.credits,clipTitle,clipUrl,settlement:'requires-money-engine-approval'}}))
     setMessage(`${next.label} gift intent created for ${next.credits} credits. Visual effect is immediate; real settlement must pass TRYAMM Money Engine approval.`)
   }
@@ -50,8 +81,9 @@ export default function HoloClipStudio({onClose}:Props){
     <div style={{maxWidth:1150,margin:'0 auto',padding:'18px 14px 80px'}}>
       <header style={{display:'flex',justifyContent:'space-between',gap:10,alignItems:'center'}}><div><div style={{fontSize:10,letterSpacing:3,fontWeight:950,color:'#4fe3ff'}}>TRYAMM HOLOGRAPHIC SOCIAL FORMAT</div><h1 style={{margin:'4px 0',fontSize:'clamp(28px,5vw,46px)'}}>Holo Clip</h1><div style={{color:'#a6b7c3'}}>Short-form clip + holographic effects + gifting + world deep-link.</div></div><button aria-label="Close" onClick={onClose} style={{...btn(),fontSize:22}}>×</button></header>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(300px,1fr))',gap:14,marginTop:14}}>
-        <section style={card}><b>CLIP SOURCE</b><input value={clipTitle} onChange={e=>setClipTitle(e.target.value)} placeholder="Clip title" style={{width:'100%',boxSizing:'border-box',marginTop:10,padding:10,borderRadius:10,border:'1px solid #294151',background:'#03080e',color:'#fff'}}/><input value={clipUrl} onChange={e=>setClipUrl(e.target.value)} placeholder="Optional authorized clip URL" style={{width:'100%',boxSizing:'border-box',marginTop:8,padding:10,borderRadius:10,border:'1px solid #294151',background:'#03080e',color:'#fff'}}/><div style={{height:220,marginTop:10,borderRadius:16,overflow:'hidden',position:'relative',background:'radial-gradient(circle,#12394a,#02050b 65%)'}}><div style={{position:'absolute',inset:0,display:'grid',placeItems:'center'}}><div style={{width:160,height:160,filter:'drop-shadow(0 0 24px #4fe3ff)',opacity:.9}}><DotLottieReact src={SAMPLE_LOTTIE} autoplay loop/></div></div><div style={{position:'absolute',left:12,bottom:12,right:12,padding:10,border:'1px solid #4fe3ff55',borderRadius:12,background:'#021019cc'}}><b>{selected.label}</b><div style={{fontSize:10,color:'#a8bac6',marginTop:3}}>{selected.description}</div></div></div></section>
-        <section style={card}><b>LOTTIE + HOLOGRAPHIC EFFECT STACK</b><div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7,marginTop:10}}>{EFFECTS.map(x=><button key={x.id} onClick={()=>setEffect(x.id)} style={{...btn(effect===x.id),textAlign:'left'}}><div>{x.label}</div><div style={{fontSize:9,color:'#92a4af',marginTop:3}}>{x.kind.toUpperCase()}</div></button>)}</div><div style={{fontSize:10,color:'#869ba9',marginTop:10,lineHeight:1.5}}>Runtime supports classic Lottie JSON plus dotLottie `.lottie` packages. Effects stay modular so new gift animations, branded reactions and event packs can be added without rebuilding Holo Clip.</div></section>
+        <section style={card}><b>CLIP SOURCE</b><input value={clipTitle} onChange={e=>setClipTitle(e.target.value)} placeholder="Clip title" style={{width:'100%',boxSizing:'border-box',marginTop:10,padding:10,borderRadius:10,border:'1px solid #294151',background:'#03080e',color:'#fff'}}/><input value={clipUrl} onChange={e=>setClipUrl(e.target.value)} placeholder="Optional authorized clip URL" style={{width:'100%',boxSizing:'border-box',marginTop:8,padding:10,borderRadius:10,border:'1px solid #294151',background:'#03080e',color:'#fff'}}/><div style={{height:220,marginTop:10,borderRadius:16,overflow:'hidden',position:'relative',background:'radial-gradient(circle,#12394a,#02050b 65%)'}}><div style={{position:'absolute',inset:0,display:'grid',placeItems:'center'}}><div style={{width:160,height:160,filter:'drop-shadow(0 0 24px #4fe3ff)',opacity:.9}}><OriginalLottiePreview keyName={clipLottieKey}/></div></div><div style={{position:'absolute',left:12,bottom:12,right:12,padding:10,border:'1px solid #4fe3ff55',borderRadius:12,background:'#021019cc'}}><b>{selected.label}</b><div style={{fontSize:10,color:'#a8bac6',marginTop:3}}>{selected.description}</div></div></div></section>
+        <section style={card}><b>LOTTIE + HOLOGRAPHIC EFFECT STACK</b><div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7,marginTop:10}}>{EFFECTS.map(x=><button key={x.id} onClick={()=>{setEffect(x.id);setSampleId('')}} style={{...btn(effect===x.id),textAlign:'left'}}><div>{x.label}</div><div style={{fontSize:9,color:'#92a4af',marginTop:3}}>{x.kind.toUpperCase()}</div></button>)}</div><div style={{fontSize:10,color:'#869ba9',marginTop:10,lineHeight:1.5}}>Runtime supports classic Lottie JSON plus dotLottie `.lottie` packages. Effects stay modular so new gift animations, branded reactions and event packs can be added without rebuilding Holo Clip.</div></section>
+        <section style={card}><b>TRYAMM-OWNED LOTTIE GIFT LIBRARY</b><p style={{fontSize:11,color:'#9cafbb',lineHeight:1.5}}>17 free visual previews adapted from the three ZIP showcase catalogs. All animations here use our original vector graphics—no remote Lottie files, simulated tips or provider connection.</p><div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(106px,1fr))',gap:7,maxHeight:300,overflowY:'auto'}}>{ZIP_STYLE_PREVIEW_IDS.map(item=><button key={item.id} type="button" aria-pressed={sampleId===item.id} onClick={()=>setSampleId(item.id)} style={{...btn(sampleId===item.id),minHeight:54,textAlign:'center',fontSize:11}}>{item.emoji} {item.label}</button>)}</div><div style={{fontSize:11,color:'#8ce3cb',marginTop:10}}>FREE EFFECT PREVIEW · $0 charged · no gift or wallet transfer</div></section>
         <section style={card}><b>GIFT + TIP OVERLAY</b><div style={{display:'grid',gap:7,marginTop:10}}>{GIFTS.map(x=><button key={x.id} onClick={()=>sendGift(x)} style={{...btn(gift?.id===x.id),display:'flex',justifyContent:'space-between',alignItems:'center'}}><span>{x.icon} {x.label}</span><span style={{color:'#e8b944'}}>{x.credits} credits</span></button>)}</div><div style={{fontSize:10,color:'#9cafbb',marginTop:10,lineHeight:1.5}}>Gift animation can display instantly. Monetary settlement is deliberately separate and must pass the existing approval/step-up Money Engine path.</div></section>
       </div>
       <div style={{...card,marginTop:14,display:'flex',gap:8,flexWrap:'wrap'}}><button onClick={openMedia} style={btn(true)}>RENDER / SAVE / PUBLISH</button><button onClick={returnToWorld} style={btn()}>RETURN TO WORLD</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:holo-social-open'))} style={btn()}>OPEN HOLO SOCIAL</button><div style={{width:'100%',fontSize:11,color:'#9db0bd',lineHeight:1.5}}>{message}</div></div>
