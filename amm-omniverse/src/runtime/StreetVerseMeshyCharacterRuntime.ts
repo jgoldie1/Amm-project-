@@ -94,6 +94,7 @@ export async function loadStreetVerseMeshyCharacter(slotId:string,options:{defer
   const nativeUrl=NATIVE_RESIDENT_URLS[slot.fallbackResidentIndex%NATIVE_RESIDENT_URLS.length]
   let sourceUrl=publishedReady?published!.url:(staticMeshyReady?staticMeshyUrl:nativeUrl)
   let nativeFallback=!publishedReady&&!staticMeshyReady
+  if(!publishedReady&&!staticMeshyReady&&typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:meshy-character-origin-unavailable',{detail:{slotId:slot.id,unavailableUrl:staticMeshyUrl,fallbackUrl:nativeUrl,reason:'remote-asset-availability-check-failed',source:'StreetVerseMeshyCharacterRuntime'}}))
   if(published?.url&&!publishedReady&&typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:meshy-published-asset-unavailable',{detail:{slotId:slot.id,url:published.url,fallback:nativeUrl,source:'StreetVerseMeshyCharacterRuntime'}}))
   try{
     let gltf:Awaited<ReturnType<typeof loader.loadAsync>>
