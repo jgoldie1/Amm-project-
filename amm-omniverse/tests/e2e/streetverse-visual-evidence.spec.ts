@@ -265,5 +265,30 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(worldRoot).toHaveAttribute('data-hud-focus','true');
     await expect(joystick).toBeVisible();
     await page.screenshot({path:testInfo.outputPath('streetverse-circle-park-reset-view-iphone.png'),fullPage:false,animations:'disabled'});
+    // The existing West Side build board must be reachable without a giant
+    // overlay launcher permanently covering the mobile Chicago streets.
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/WEST SIDE BUILDER/}).click();
+    await expect(page.getByRole('dialog',{name:'StreetVerse World Builder'})).toBeVisible();
+    await page.getByRole('button',{name:'Close StreetVerse World Builder'}).click();
+  });
+
+  test('brief WebGL context loss can recover without discarding the Chicago world',async({page},testInfo)=>{
+    test.setTimeout(80_000);
+    await page.goto('/streetverse',{waitUntil:'domcontentloaded',timeout:45_000});
+    const world=page.locator('[data-streetverse-world-root]');
+    await expect(world).toBeVisible({timeout:25_000});
+    const canvas=page.locator('canvas[data-streetverse-world-canvas="true"]');
+    await expect(canvas).toBeVisible();
+    // Simulate a Safari loss notification without deliberately destroying the
+    // runner GPU. Confirm the guard keeps its 3D tree mounted during recovery.
+    await canvas.evaluate(element=>element.dispatchEvent(new Event('webglcontextlost',{bubbles:true,cancelable:true})));
+    await expect(page.locator('[data-streetverse-render-mode="graphics-restoring"]')).toBeVisible();
+    await expect(page.locator('[data-streetverse-render-mode="context-loss-fallback"]')).toHaveCount(0);
+    await expect(world).toBeVisible();
+    await canvas.evaluate(element=>element.dispatchEvent(new Event('webglcontextrestored',{bubbles:true})));
+    await expect(page.locator('[data-streetverse-render-mode="graphics-restoring"]')).toHaveCount(0);
+    await expect(world).toBeVisible();
+    await page.screenshot({path:testInfo.outputPath('streetverse-graphics-restored-iphone.png'),fullPage:false,animations:'disabled'});
   });
 });
