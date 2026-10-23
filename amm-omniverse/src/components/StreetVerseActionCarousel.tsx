@@ -33,6 +33,7 @@ export default function StreetVerseActionCarousel(){
  const [page,setPage]=useState(0)
  const startInRP=typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('open')==='rp'
  const [open,setOpen]=useState(()=>!mobile||startInRP)
+ // On phones, gameplay keeps the carousel collapsed until the player asks for it.
  const [rpOpen,setRpOpen]=useState(startInRP)
  const [rpgState,setRpgState]=useState<{level?:number;xp?:number;activeQuestIds?:string[]}|null>(null)
  useEffect(()=>{
@@ -49,8 +50,9 @@ export default function StreetVerseActionCarousel(){
   const onContext=(event:Event)=>{setCtx((event as CustomEvent<Context>).detail||{});setPage(0);if(!mobile)setOpen(true)}
   const onBreakdown=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx({...d,kind:'vehicle',broken:true,drivable:false});setPage(0);if(!mobile)setOpen(true)}
   const onRepaired=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx(current=>current.vehicleId===d.vehicleId?{...current,broken:false,drivable:true,repairKit:false}:current)}
-  const onOpen=()=>setOpen(true)
+  const onOpen=()=>{setOpen(true);setRpOpen(false)}
   const onClose=()=>{setOpen(false);setRpOpen(false)}
+  const onToggle=()=>{setOpen(v=>!v);setRpOpen(false)}
   const onMove=(event:Event)=>{
    if(!mobile)return
    const detail=(event as CustomEvent<Record<string,unknown>>).detail||{}
@@ -64,12 +66,13 @@ export default function StreetVerseActionCarousel(){
   addEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown)
   addEventListener('tryamm:streetverse-vehicle-repaired',onRepaired)
   addEventListener('tryamm:streetverse-actions-open',onOpen)
+  addEventListener('tryamm:streetverse-actions-toggle',onToggle)
   addEventListener('tryamm:streetverse-actions-close',onClose)
   addEventListener('tryamm:streetverse-play-focus',onClose)
   addEventListener('tryamm:streetverse-player-position',onMove)
   addEventListener('tryamm:streetverse-vehicle-input',onMove)
   addEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract)
-  return()=>{removeEventListener('tryamm:streetverse-interaction-context',onContext);removeEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown);removeEventListener('tryamm:streetverse-vehicle-repaired',onRepaired);removeEventListener('tryamm:streetverse-actions-open',onOpen);removeEventListener('tryamm:streetverse-actions-close',onClose);removeEventListener('tryamm:streetverse-play-focus',onClose);removeEventListener('tryamm:streetverse-player-position',onMove);removeEventListener('tryamm:streetverse-vehicle-input',onMove);removeEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract)}
+  return()=>{removeEventListener('tryamm:streetverse-interaction-context',onContext);removeEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown);removeEventListener('tryamm:streetverse-vehicle-repaired',onRepaired);removeEventListener('tryamm:streetverse-actions-open',onOpen);removeEventListener('tryamm:streetverse-actions-toggle',onToggle);removeEventListener('tryamm:streetverse-actions-close',onClose);removeEventListener('tryamm:streetverse-play-focus',onClose);removeEventListener('tryamm:streetverse-player-position',onMove);removeEventListener('tryamm:streetverse-vehicle-input',onMove);removeEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract)}
  },[mobile])
  const items=useMemo(()=>{
   const ids=relevant(ctx)
@@ -100,10 +103,10 @@ export default function StreetVerseActionCarousel(){
   }
   dispatchEvent(new CustomEvent('tryamm:streetverse-context-action',{detail:{action:id,...ctx,sort}}))
  }
- if(mobile&&!open)return <div aria-label="StreetVerse in-game action carousel launcher" style={{position:'fixed',right:'max(10px,env(safe-area-inset-right))',bottom:'calc(env(safe-area-inset-bottom, 0px) + 102px)',zIndex:39950}}>
-  <button aria-label="Open in-game action carousel" onClick={()=>{setOpen(true);setRpOpen(false)}} style={{minHeight:46,minWidth:108,padding:'0 12px',borderRadius:999,border:`2px solid ${ctx.broken?'#fb923c':'#67e8f9'}`,background:'#061727ed',color:'#fff',font:'900 11px system-ui',boxShadow:'0 5px 18px #0009',touchAction:'manipulation'}}>{ctx.broken?'🔧 REPAIR':'🎮 ACTIONS ›'}</button>
+ if(mobile&&!open)return <div aria-label="StreetVerse in-game action carousel launcher" style={{position:'fixed',right:'max(10px,env(safe-area-inset-right))',bottom:'calc(env(safe-area-inset-bottom, 0px) + 18px)',zIndex:39950}}>
+  <button aria-label="Open in-game action carousel" onClick={()=>{setOpen(true);setRpOpen(false)}} style={{minHeight:42,minWidth:92,padding:'0 12px',borderRadius:999,border:`2px solid ${ctx.broken?'#fb923c':'#67e8f9'}`,background:'#061727ed',color:'#fff',font:'900 11px system-ui',boxShadow:'0 5px 18px #0009',touchAction:'manipulation'}}>{ctx.broken?'🔧 REPAIR':'🎮 ACTIONS ›'}</button>
  </div>
-  return <div aria-label="StreetVerse action carousel" style={{position:'fixed',left:'50%',bottom:'calc(env(safe-area-inset-bottom, 0px) + 74px)',transform:'translateX(-50%)',zIndex:39950,width:'min(94vw,620px)',maxHeight:mobile?(rpOpen?'62dvh':'42dvh'):'78dvh',overflowY:'auto',padding:'10px',borderRadius:22,background:'linear-gradient(180deg,rgba(12,19,35,.92),rgba(3,7,18,.98))',backdropFilter:'blur(12px)',boxShadow:'0 18px 55px #000b, inset 0 1px #ffffff22',border:'1px solid #67e8f955',color:'#fff',fontFamily:'system-ui,sans-serif'}}>
+  return <div aria-label="StreetVerse action carousel" style={{position:'fixed',left:'50%',bottom:'calc(env(safe-area-inset-bottom, 0px) + 12px)',transform:'translateX(-50%)',zIndex:39950,width:'min(94vw,620px)',maxHeight:mobile?(rpOpen?'62dvh':'42dvh'):'78dvh',overflowY:'auto',padding:'10px',borderRadius:22,background:'linear-gradient(180deg,rgba(12,19,35,.92),rgba(3,7,18,.98))',backdropFilter:'blur(12px)',boxShadow:'0 18px 55px #000b, inset 0 1px #ffffff22',border:'1px solid #67e8f955',color:'#fff',fontFamily:'system-ui,sans-serif'}}>
   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,marginBottom:8}}>
    <div><div style={{fontSize:9,fontWeight:950,letterSpacing:1.4,color:'#67e8f9'}}>HOLO ACTIONS</div><div style={{fontSize:11,fontWeight:900}}>{ctx.label||'WORLD INTERACTION'}{ctx.broken?' • REPAIR REQUIRED':''}</div></div>
    {mobile?<div style={{display:'flex',gap:5}}><button aria-label="Return to gameplay" onClick={()=>{setOpen(false);setRpOpen(false)}} style={playBtn}>🎮 PLAY</button><button aria-label="Close actions" onClick={()=>{setOpen(false);setRpOpen(false)}} style={closeBtn}>×</button></div>:<label style={{fontSize:8,fontWeight:900,color:'#cbd5e1'}}>SORT <select aria-label="Sort actions" value={sort} onChange={e=>{setSort(e.target.value as SortMode);setPage(0)}} style={{marginLeft:5,borderRadius:999,padding:'5px 7px',background:'#101827',color:'#fff',border:'1px solid #ffffff33',fontSize:9,fontWeight:900}}><option value="smart">SMART</option><option value="nearby">NEARBY</option><option value="mission">MISSION</option><option value="price">PRICE</option><option value="owned">OWNED</option></select></label>}
