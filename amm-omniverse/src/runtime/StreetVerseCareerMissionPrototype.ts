@@ -41,7 +41,7 @@ export function advanceCareerMissionForEvent(mission:CareerMission,eventName:str
 export function resetCareerMission():void{try{localStorage.removeItem(KEY);localStorage.removeItem(CHOICE_KEY)}catch{}}
 export function startCareerMission(career:CareerId):CareerMission{
  const mission:CareerMission={career,stage:0,updatedAt:new Date().toISOString()}
- try{localStorage.setItem(KEY,JSON.stringify(mission))}catch{}
+ try{localStorage.setItem(KEY,JSON.stringify(mission));localStorage.removeItem(CHOICE_KEY)}catch{}
  return mission
 }
 export function getCareerMissionProgress(mission:CareerMission){
