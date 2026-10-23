@@ -1,0 +1,50 @@
+{
+  "schema": "streetverse.marcus-story-media.v1",
+  "approvedBy": "owner-confirmed-in-chat",
+  "source": "ChatGPT Library; video binaries not committed",
+  "status": "catalog-ready-hosting-pending",
+  "character": "Marcus Thorne",
+  "chapter": "The City Remembers",
+  "scenes": [
+    {
+      "id": "marcus-explores",
+      "title": "Marcus Explores StreetVerse",
+      "assetName": "Marcus_Thorne_explores_Streetver…_202608211718.mp4",
+      "mission": "Enter the district",
+      "action": "explore",
+      "url": null
+    },
+    {
+      "id": "stranger",
+      "title": "Marcus Meets the Stranger",
+      "assetName": "Marcus_Thorne_meets_The_Stranger_202608211718.mp4",
+      "mission": "Meet the Stranger",
+      "action": "dialogue",
+      "url": null
+    },
+    {
+      "id": "underground",
+      "title": "Hidden Underground Discovery",
+      "assetName": "Marcus_discovers_ancient_subterr…_202608211755.mp4",
+      "mission": "Discover the underground",
+      "action": "investigate",
+      "url": null
+    },
+    {
+      "id": "city-remembers",
+      "title": "The City Remembers — Story Cut",
+      "assetName": "StreetVerse_The_City_Remembers_Story_Cut.mp4",
+      "mission": "The City Remembers",
+      "action": "story-cinematic",
+      "url": null
+    }
+  ],
+  "integration": {
+    "playback": "needs approved video hosting and connection to game player",
+    "worldTrigger": "planned",
+    "reelsFeed": "planned",
+    "captionReview": "required",
+    "musicRightsReview": "required"
+  },
+  "notes": "Originals remain in owner library. Never imply these are already hosted or playable in live StreetVerse."
+}
