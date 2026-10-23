@@ -60,6 +60,40 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     expect(canvasBox!.width).toBeGreaterThanOrEqual(worldBox!.width-2);
     expect(canvasBox!.height).toBeGreaterThanOrEqual(worldBox!.height-2);
     await expect(worldRoot).toHaveAttribute('data-streetverse-canvas-width',/^[1-9][0-9]*$/);
+    // Prevent the exact real-phone regression where a WebGL canvas exists but
+    // shows only an almost uniform blue/gray sky instead of Chicago geometry.
+    // Decode an actual rendered canvas screenshot; DOM counts aren't visual proof.
+    await page.waitForTimeout(1800);
+    const worldPng=await canvas.screenshot({timeout:15_000,animations:'disabled'});
+    const cityPixels=await page.evaluate(async (base64:string)=>{
+      const image=new Image();
+      image.src='data:image/png;base64,'+base64;
+      await image.decode();
+      const scratch=document.createElement('canvas');
+      scratch.width=image.naturalWidth;scratch.height=image.naturalHeight;
+      const ctx=scratch.getContext('2d',{willReadFrequently:true});
+      if(!ctx)throw new Error('Cannot examine StreetVerse canvas screenshot pixels');
+      ctx.drawImage(image,0,0);
+      const pixels=ctx.getImageData(0,0,scratch.width,scratch.height).data;
+      const nx=24,ny=14;
+      const colors:number[][]=[];
+      for(let y=0;y<ny;y++)for(let x=0;x<nx;x++){
+        const px=Math.min(scratch.width-1,Math.floor(scratch.width*(.12+x*.76/(nx-1))));
+        const py=Math.min(scratch.height-1,Math.floor(scratch.height*(.23+y*.54/(ny-1))));
+        const i=(py*scratch.width+px)*4;
+        colors.push([pixels[i],pixels[i+1],pixels[i+2]]);
+      }
+      let strongEdges=0;
+      for(let y=0;y<ny;y++)for(let x=0;x<nx;x++){
+        if(x===0&&y===0)continue;
+        const i=y*nx+x,j=x>0?i-1:i-nx;
+        const delta=Math.abs(colors[i][0]-colors[j][0])+Math.abs(colors[i][1]-colors[j][1])+Math.abs(colors[i][2]-colors[j][2]);
+        if(delta>55)strongEdges++;
+      }
+      return {strongEdges,samples:colors.length,width:scratch.width,height:scratch.height};
+    },worldPng.toString('base64'));
+    console.error('[streetverse-visible-city-pixels]',JSON.stringify(cityPixels));
+    expect(cityPixels.strongEdges,'StreetVerse WebGL is present but appears to show a blank sky rather than visible city streets/buildings/trees').toBeGreaterThan(4);
 
     const joystick = page.getByLabel('StreetVerse analog joystick');
     await expect(joystick).toBeVisible({ timeout: 20_000 });
