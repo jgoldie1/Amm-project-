@@ -56,6 +56,9 @@ type Destination={id?:string;label?:string;name?:string;lon?:number;lat?:number;
 
 function hasUsableWebGL(){
  if(typeof document==='undefined')return false
+ // Apple Safari can lose the active scene when another WebGL context is probed.
+ // Give iPhones their existing full-renderer attempt and rely on its health gate.
+ if(typeof navigator!=='undefined'&&/iPhone|iPad|iPod/i.test(navigator.userAgent||''))return true
  const canvas=document.createElement('canvas')
  let gl:WebGLRenderingContext|WebGL2RenderingContext|null=null
  try{
@@ -295,6 +298,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  return <>
   <span data-streetverse-entry="geo-spawn-bridge" data-streetverse-mode="playable" hidden/>
   {!nearWestOpen&&<BuildSwarmControl/>}
+  {!nearWestOpen&&<StreetVerseWestSideWorldBuilder launcher={false}/>}
   {nearWestOpen&&<div style={{position:'fixed',inset:0,zIndex:14980,background:'#07101d'}}><Suspense fallback={null}><StreetVerseNearWest3D/></Suspense><button aria-label="Return to StreetVerse Chicago" onClick={()=>setNearWestOpen(false)} style={{position:'fixed',top:76,right:12,zIndex:14990,border:'1px solid #6ee7ff',borderRadius:12,background:'#07131f',color:'#fff',padding:'10px 12px',fontWeight:900}}>← CHICAGO</button></div>}
   {!nearWestOpen&&<button data-streetverse-travel="true" ref={element=>{if(element)element.style.setProperty("display","block","important")}} aria-label="Travel to Taylor Street UIC Medical District" onClick={()=>setNearWestOpen(true)} style={{display:'block',visibility:'visible',position:'fixed',top:118,right:12,zIndex:15010,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333e8',color:'#fff',padding:'10px 12px',fontWeight:900}}>TAYLOR / UIC</button>}
   {!nearWestOpen&&<Suspense fallback={<div aria-label="StreetVerse playable world loading" style={{position:'fixed',inset:0,zIndex:14990,display:'grid',placeItems:'center',background:'#07101d',color:'#fff',fontFamily:'system-ui',fontWeight:900}}>STREETVERSE • LOADING PLAYABLE WORLD…</div>}>
