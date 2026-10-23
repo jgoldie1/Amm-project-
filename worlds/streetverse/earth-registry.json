@@ -212,6 +212,41 @@
       "country": "JP",
       "status": "planned",
       "manifest": null
+    },
+    {
+      "id": "us-ga-savannah",
+      "name": "Savannah",
+      "country": "US",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "us-ga-augusta",
+      "name": "Augusta",
+      "country": "US",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "us-ga-macon",
+      "name": "Macon",
+      "country": "US",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "us-ga-athens",
+      "name": "Athens",
+      "country": "US",
+      "status": "planned",
+      "manifest": null
+    },
+    {
+      "id": "us-ga-columbus",
+      "name": "Columbus",
+      "country": "US",
+      "status": "planned",
+      "manifest": null
     }
   ],
   "runtime": {
