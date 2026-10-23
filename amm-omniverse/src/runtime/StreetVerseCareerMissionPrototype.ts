@@ -1,4 +1,4 @@
-export type CareerId='agent-007'|'mib'|'law-enforcement'|'government'
+export type CareerId='agent-007'|'mib'|'law-enforcement'|'government'|'cia'|'fbi'
 export type CareerMission={career:CareerId;stage:0|1|2|3;updatedAt:string}
 const KEY='tryamm.streetverse.career-mission.v1'
 const CONFIRMATION_EVENTS=['tryamm:streetverse-career-briefing-confirmed','tryamm:streetverse-career-npc-interaction-confirmed','tryamm:streetverse-career-evidence-confirmed'] as const
@@ -6,7 +6,9 @@ export const CAREER_MISSIONS:Record<CareerId,{title:string;steps:[string,string,
  'agent-007':{title:'Chicago Undercover',steps:['Receive the briefing','Interview the contact','Review the evidence']},
  'mib':{title:'Anomaly Watch',steps:['Receive anomaly alert','Interview the witness','Log the anomaly']},
  'law-enforcement':{title:'Community Response',steps:['Receive dispatch','Speak with the resident','Complete the incident report']},
- 'government':{title:'Neighborhood Services',steps:['Review a service request','Meet the community liaison','File the response']}
+ 'government':{title:'Neighborhood Services',steps:['Review a service request','Meet the community liaison','File the response']},
+ 'cia':{title:'Operation Lakefront Cipher',steps:['Receive a fictional intelligence briefing','Question the undercover contact','Analyze the encrypted dossier']},
+ 'fbi':{title:'Chicago Federal Case',steps:['Receive a fictional federal case assignment','Interview a cooperating witness','Catalog the case evidence']}
 }
 export function loadCareerMission():CareerMission|null{
  try{const raw=localStorage.getItem(KEY);if(!raw)return null;const v=JSON.parse(raw);if(!v||typeof v!=='object'||typeof v.career!=='string'||!Object.prototype.hasOwnProperty.call(CAREER_MISSIONS,v.career)||![0,1,2,3].includes(v.stage)||typeof v.updatedAt!=='string')return null;return v}catch{return null}
