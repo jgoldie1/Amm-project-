@@ -10,6 +10,7 @@ on:
       - 'amm-omniverse/src/data/TryammNative**'
       - 'amm-omniverse/src/runtime/StreetVerse**'
       - 'amm-omniverse/scripts/tryamm-native-asset-foundry.mjs'
+      - 'amm-omniverse/scripts/check-release-preservation.mjs'
       - 'amm-omniverse/tests/e2e/streetverse-visual-evidence.spec.ts'
       - 'amm-omniverse/tests/e2e/streetverse-real-resident-glb.spec.ts'
       - 'amm-omniverse/tests/e2e/streetverse-bj-owned-glb.spec.ts'
