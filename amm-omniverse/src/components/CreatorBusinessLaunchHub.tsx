@@ -18,7 +18,7 @@ const business:readonly LaunchItem[]=[
  {name:'Existing business directory',href:'/business',purpose:'Browse TRYAMM business microsites',gate:'Individual custom domains and payments need verification',icon:'🏬'},
  {name:'Independent-site release tracker',href:'/website-launch',purpose:'Track 20 client sites and export senior-engineer QA',gate:'No site is marked deployed without evidence',icon:'✅'},
  {name:'Aniyah Pay • Cross-Border Payments',href:'/aniyah-pay',purpose:'Global payment corridors for creator commerce and business sales',gate:'Real transfers disabled until approved partners, identity checks, live rates and settlements are verified',icon:'🌍'},
- {name:'Global Payments sandbox preview',href:'/aniyah-pay/demo',purpose:'Inspect Aniyah Pay's local transfer scenarios and provider catalog',gate:'Not a market FX quote or a real transfer; no money can move',icon:'💸'},
+ {name:'Global Payments sandbox preview',href:'/aniyah-pay/demo',purpose:'Inspect local Aniyah Pay transfer scenarios and provider catalog',gate:'Not a market FX quote or a real transfer; no money can move',icon:'💸'},
  {name:'Omni Cash',href:'/omni-cash',purpose:'Separate wallets, verified provider settlements and payment records',gate:'Real balances, transfers and payouts still require signed provider events',icon:'💳'},
 ]
 const linkStyle:React.CSSProperties={display:'block',minHeight:44,textDecoration:'none',color:'#fff',border:'1px solid #34506c',borderRadius:15,padding:14,background:'linear-gradient(140deg,#101f35,#090f1d)'}
