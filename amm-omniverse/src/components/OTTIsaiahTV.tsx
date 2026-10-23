@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import {lazy,Suspense,useMemo,useState} from 'react'
+const IsaiahAuditionIntake=lazy(()=>import('./IsaiahAuditionIntake'))
 
 type Props = { onClose: () => void }
 type Lane = 'All' | 'LIVE Replays' | 'Originals' | 'Showcase' | 'StarVerse' | 'Debate' | 'Games' | 'Podcasts' | 'Music' | 'News' | 'Sports' | 'Faith' | 'Marketplace' | 'Education'
@@ -41,6 +42,7 @@ export default function OTTIsaiahTV({ onClose }: Props) {
   const [lane, setLane] = useState<Lane>('All')
   const [network,setNetwork]=useState<Network>('All American Network TV')
   const [selected, setSelected] = useState<Program | null>(null)
+  const [auditionOpen,setAuditionOpen]=useState(false)
   const [captions, setCaptions] = useState(true)
   const [audioDescription, setAudioDescription] = useState(false)
   const [translation, setTranslation] = useState('Original')
@@ -57,6 +59,12 @@ export default function OTTIsaiahTV({ onClose }: Props) {
     </header>
 
     <main style={{maxWidth:1100,margin:'0 auto',padding:20,display:'grid',gap:18}}>
+      <section style={{padding:14,border:'1px solid #7eeaff55',borderRadius:16,background:'#0b1c2d'}}>
+        <strong style={{fontSize:17,color:'#a9e8ff'}}>ISAIAH AI TV • WHO WANTS TO BE A STAR?</strong>
+        <p style={{fontSize:12,lineHeight:1.6,color:'#c0d1de'}}>Submit an original audition video to a private review queue. Real uploads require a TRYAMM account, confirmed permission to use all media, and age-appropriate review. Uploading does not guarantee an audition placement or television appearance.</p>
+        <button type="button" onClick={()=>setAuditionOpen(true)} style={primary}>🎬 SUBMIT PRIVATE AUDITION</button>
+      </section>
+      {auditionOpen&&<Suspense fallback={<div role="status">Loading private audition intake…</div>}><IsaiahAuditionIntake onClose={()=>setAuditionOpen(false)}/></Suspense>}
       <section style={{display:'flex',gap:8,overflowX:'auto'}}>{NETWORKS.map(n=><button key={n} onClick={()=>{setNetwork(n);setLane('All')}} style={{...chip,borderColor:network===n?'#e8b944':'#34405b',color:network===n?'#ffe49b':'#d8dcea'}}>{n}</button>)}</section>
 
       <section style={{padding:18,border:'1px solid #26496a',borderRadius:20,background:'radial-gradient(circle at 80% 20%,#153b58,#08111f 55%)'}}>
