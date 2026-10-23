@@ -1,3 +1,4 @@
+import {normalizeCityBuild} from '../_lib/ai-cafe-city-plan.js';
 import {adminRest,json} from '../_lib/supabase-admin.js';
 import {requireUser} from '../_lib/security.js';
 import {hasTemplateAuthority} from '../_lib/template-listing.js';
@@ -18,9 +19,9 @@ export function createJobsHandler({userFor=requireUser,allowed=hasTemplateAuthor
    const body=typeof req.body==='string'?JSON.parse(req.body):req.body;
    if(!body||Buffer.byteLength(JSON.stringify(body))>12000)return json(res,400,{error:'Invalid or oversized request'});
    if(req.method==='POST'){
-    if(!UUID.test(body.requestKey||'')||body.kind!=='website-draft')return json(res,400,{error:'Invalid request key or job kind'});
-    const input=normalizeDraft(body.input);
-    const job=await rpc('ai_cafe_submit',{p_user:user.id,p_key:body.requestKey,p_input:input});
+    if(!UUID.test(body.requestKey||'')||!['website-draft','city-build-plan'].includes(body.kind))return json(res,400,{error:'Invalid request key or job kind'});
+    const input=body.kind==='city-build-plan'?{...normalizeCityBuild(body.input),assets:body.input.assets||[]}:normalizeDraft(body.input);
+    const job=await rpc(body.kind==='city-build-plan'?'ai_cafe_submit_city':'ai_cafe_submit',{p_user:user.id,p_key:body.requestKey,p_input:input});
     return json(res,200,{job:publicJob(job)});
    }
    if(!UUID.test(body.id||''))return json(res,400,{error:'Invalid job ID'});
