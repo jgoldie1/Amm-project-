@@ -37,8 +37,17 @@ function createWestSideBrickTexture(){
   const tex=new THREE.CanvasTexture(canvas);tex.name='west-side-procedural-brick-v4';tex.wrapS=THREE.RepeatWrapping;tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(3.2,4.6);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;ownedTextures.push(tex);return tex
 }
 
+// Shared box geometry keeps the detailed West Side facades, street furniture
+// and window grids visible without allocating a fresh GPU buffer per object.
+const sharedBoxGeometries=new Map<string,THREE.BoxGeometry>()
 function box(group:THREE.Group,size:[number,number,number],pos:[number,number,number],mat:THREE.Material,rotationY=0,name=''){
-  const mesh=new THREE.Mesh(geometry(new THREE.BoxGeometry(...size)),mat)
+  const key=size.join(',')
+  let boxGeometry=sharedBoxGeometries.get(key)
+  if(!boxGeometry){
+    boxGeometry=geometry(new THREE.BoxGeometry(...size))
+    sharedBoxGeometries.set(key,boxGeometry)
+  }
+  const mesh=new THREE.Mesh(boxGeometry,mat)
   mesh.position.set(...pos);mesh.rotation.y=rotationY;mesh.castShadow=false;mesh.receiveShadow=true;mesh.name=name;group.add(mesh);return mesh
 }
 function addGroundShadow(group:THREE.Group,w:number,d:number,y=.035,opacity=.18){
