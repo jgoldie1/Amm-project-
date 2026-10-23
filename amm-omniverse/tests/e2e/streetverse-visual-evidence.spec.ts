@@ -82,6 +82,7 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     console.error('[streetverse-entry-mode]', renderMode);
     console.error('[streetverse-travel-count]', await travel.count());
     console.error('[streetverse-travel-data-count]', await page.locator('[data-streetverse-travel]').count());
+    console.error('[streetverse-travel-dom]', await page.locator('[data-streetverse-travel]').evaluateAll(nodes => nodes.map(node => ({tag:node.tagName,html:node.outerHTML.slice(0,500),visible:!!(node as HTMLElement).getClientRects().length,ancestor: (()=>{let p=node.parentElement;const chain=[];while(p&&chain.length<8){chain.push({tag:p.tagName,ariaHidden:p.getAttribute('aria-hidden'),inert:p.hasAttribute('inert'),display:getComputedStyle(p).display,visibility:getComputedStyle(p).visibility});p=p.parentElement;}return chain;})()}))));
     await expect(travel).toBeVisible();
     await expect(stores).toBeVisible();
     await expect(enterStore).toBeVisible();
