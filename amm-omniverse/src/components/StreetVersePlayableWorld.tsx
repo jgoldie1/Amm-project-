@@ -49,7 +49,7 @@ class StreetVerseWorldBoundary extends Component<{onClose:()=>void;children:Reac
  render(){
   if(!this.state.failed)return this.props.children
   return <>
-   <StreetVerseSafeWorld onClose={this.props.onClose}/>
+   <StreetVerseSafeWorld onClose={this.props.onClose} showRestore3D={false}/>
    <div data-streetverse-render-mode="exception-fallback" role="status" style={{position:'fixed',top:75,left:12,zIndex:41000,maxWidth:'min(84vw,310px)',padding:12,borderRadius:14,background:'#101725f2',border:'1px solid #ff9f80',color:'#fff',fontFamily:'system-ui,sans-serif'}}>
     <div style={{fontWeight:900,fontSize:12,marginBottom:7}}>3D scene could not load. Your city is safe.</div>
     <button aria-label="Retry StreetVerse 3D scene" onClick={()=>this.setState({failed:false})} style={{minHeight:48,padding:'9px 15px',background:'#14545c',border:'1px solid #8fffe2',borderRadius:9,color:'#fff',fontWeight:900}}>RETRY 3D</button>
@@ -158,7 +158,7 @@ function MobileRuntimeGuard({onClose,children}:{onClose:()=>void;children:ReactN
   }
  },[safeFallback])
  if(safeFallback)return <>
-  <StreetVerseSafeWorld onClose={onClose}/>
+  <StreetVerseSafeWorld onClose={onClose} showRestore3D={false}/>
   <div data-streetverse-render-mode="context-loss-fallback" role="status" style={{position:'fixed',top:75,left:12,zIndex:41000,padding:'10px 12px',borderRadius:13,maxWidth:'min(84vw,300px)',background:'#33151bef',border:'1px solid #ffb58b',color:'#fff',fontFamily:'system-ui',fontSize:12}}>
    <div style={{fontWeight:900,marginBottom:6}}>3D unavailable • {failureReason}</div>
    <button aria-label="Retry StreetVerse 3D after graphics interruption" onClick={()=>setSafeFallback(false)} style={{minHeight:48,padding:'9px 15px',borderRadius:9,background:'#124f5b',border:'1px solid #90efea',color:'#fff',fontWeight:900}}>RETRY 3D</button>
