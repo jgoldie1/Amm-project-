@@ -5,6 +5,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useGameStore } from '../game/state/useGameStore'
+import {getAccessToken} from '../services/supabaseClient'
 
 // ── TYPES ─────────────────────────────────────────────────────────────────────
 interface Track {
@@ -144,6 +145,9 @@ export default function RecordingStudio({ onClose }: { onClose: () => void }) {
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null)
   const [takeName,setTakeName]=useState('aniyah-studio-take.webm')
   const [takeTrack,setTakeTrack]=useState('')
+  const [savingPrivateTake,setSavingPrivateTake]=useState(false)
+  const [privateTakeStatus,setPrivateTakeStatus]=useState('')
+  const lastTakeBlob=useRef<Blob|null>(null)
   const lastTakeUrl=useRef<string|null>(null)
   const [masterVol, setMasterVol] = useState(0.85)
   const [playing, setPlaying] = useState(false)
@@ -186,6 +190,8 @@ export default function RecordingStudio({ onClose }: { onClose: () => void }) {
 
   const startRecord = async (trackId: number) => {
     try {
+      lastTakeBlob.current=null
+      setPrivateTakeStatus('')
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       streamRef.current = stream
       const codec=['audio/webm;codecs=opus','audio/mp4','audio/webm']
@@ -201,6 +207,7 @@ export default function RecordingStudio({ onClose }: { onClose: () => void }) {
         const blob=new Blob(newChunks,{type:mime})
         if(!blob.size){store.setNotif('The audio take is empty. Please record it again.');return}
         if(lastTakeUrl.current)URL.revokeObjectURL(lastTakeUrl.current)
+        lastTakeBlob.current=blob
         const url=URL.createObjectURL(blob)
         lastTakeUrl.current=url
         setDownloadUrl(url)
@@ -226,6 +233,35 @@ export default function RecordingStudio({ onClose }: { onClose: () => void }) {
     streamRef.current?.getTracks().forEach(t => t.stop())
     setRecording(false)
     setRecordingTrackId(null)
+  }
+
+  const savePrivateTake=async()=>{
+    const blob=lastTakeBlob.current
+    if(!blob||savingPrivateTake)return
+    setSavingPrivateTake(true);setPrivateTakeStatus('Saving your private recording…')
+    try{
+      const mime=blob.type.split(';')[0].toLowerCase().trim()
+      if(!['audio/webm','audio/mp4'].includes(mime))throw new Error('Audio must be WebM or MP4 for private storage. Keep your local download.')
+      if(blob.size===0||blob.size>50*1024*1024)throw new Error('The private audio pilot accepts files up to 50 MB.')
+      const token=await getAccessToken()
+      if(!token)throw new Error('Sign in before saving to your private TRYAMM library.')
+      const headers={'content-type':'application/json',Authorization:'Bearer '+token}
+      const intentResponse=await fetch('/api/media/upload-intent',{method:'POST',headers,body:JSON.stringify({
+        fileName:'aniyah-take-'+Date.now()+(mime==='audio/mp4'?'.m4a':'.webm'),
+        contentType:mime,sizeBytes:blob.size,title:'Aniyah 64-Track Studio — private audio take',
+        caption:'Unreleased private recording. Not monetized or approved for distribution.',
+        composition:{source:'aniyah-64-track-studio',releaseApproved:false}
+      })})
+      const intent=await intentResponse.json().catch(()=>({}))
+      if(!intentResponse.ok||!intent?.upload?.url||!intent?.media?.id)throw new Error(intent.error||'Audio upload intent failed.')
+      const transferred=await fetch(intent.upload.url,{method:'PUT',headers:{'content-type':mime},body:blob})
+      if(!transferred.ok)throw new Error('Storage upload failed. Keep your local take.')
+      const check=await fetch('/api/media/upload-complete',{method:'POST',headers,body:JSON.stringify({mediaId:intent.media.id})})
+      const checked=await check.json().catch(()=>({}))
+      if(!check.ok)throw new Error(checked.error||'Storage did not verify the uploaded audio.')
+      setPrivateTakeStatus('Verified PRIVATE audio saved. Reference '+intent.media.id+'. Nothing published or charged.')
+    }catch(err){setPrivateTakeStatus(err instanceof Error?err.message:'Private save failed. Keep the local download.')}
+    finally{setSavingPrivateTake(false)}
   }
 
   const applyGuitarPreset = (preset: GuitarPreset) => {
@@ -415,6 +451,13 @@ GENERATED SCRIPT · AMM OMNIVERSE
                 </button>
               ))}
             </div>
+            {downloadUrl&&<div style={{display:'grid',gap:6,marginTop:10}}>
+              <button type="button" disabled={savingPrivateTake} onClick={()=>void savePrivateTake()} style={{padding:10,minHeight:48,background:'#153e31',color:'#afffe4',border:'1px solid #54dabb',borderRadius:10,fontWeight:850}}>
+                {savingPrivateTake?'SAVING PRIVATE AUDIO…':'SAVE TAKE TO PRIVATE TRYAMM LIBRARY'}
+              </button>
+              {privateTakeStatus&&<p role="status" style={{fontSize:11,overflowWrap:'anywhere',color:'#a6fbd8'}}>{privateTakeStatus}</p>}
+              <small style={{color:'#93aaa5'}}>Saving a private recording does not publish or sell music.</small>
+            </div>}
             {downloadUrl&&(
               <a href={downloadUrl} download={takeName} style={{ display:'block',width:'100%',background:'rgba(0,204,68,.15)',border:'1px solid #00cc44',color:'#00cc44',borderRadius:8,padding:'10px',textAlign:'center',fontFamily:'monospace',fontWeight:700,textDecoration:'none',fontSize:12 }}>
                 ⬇ DOWNLOAD VOCAL TAKE (.webm)
