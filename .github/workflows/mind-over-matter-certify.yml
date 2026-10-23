@@ -1,0 +1,32 @@
+name: Mind Over Matter GLB Certification
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'amm-omniverse/scripts/mind-over-matter-clean-room-foundry.mjs'
+      - 'amm-omniverse/scripts/genie-mind-over-matter-safe-publish.mjs'
+      - '.github/workflows/mind-over-matter-certify.yml'
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --ignore-scripts
+      - name: Generate and certify isolated assets
+        run: node scripts/genie-mind-over-matter-safe-publish.mjs --output=${{ runner.temp }}/streetverse-mom
+      - name: Verify GLBs read-only
+        run: node scripts/genie-mind-over-matter-safe-publish.mjs --verify-only --output=${{ runner.temp }}/streetverse-mom
+      - name: Preserve evidence without deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: mind-over-matter-certified-glbs
+          path: ${{ runner.temp }}/streetverse-mom/
+          retention-days: 7
