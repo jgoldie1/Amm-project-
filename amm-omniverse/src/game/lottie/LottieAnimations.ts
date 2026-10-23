@@ -4,6 +4,7 @@
 // Uses lottie-web for rendering
 
 import lottie, { type AnimationItem } from 'lottie-web'
+import {useCallback,useEffect,useState} from 'react'
 
 export type LottieAnimKey =
   | 'portal_swirl'       // Realm portal spinning holographic ring
@@ -24,7 +25,10 @@ export type LottieAnimKey =
   | 'crown_scroll' | 'moon_phases'
   | 'card_summon' | 'life_drain' | 'heal_burst' | 'realm_shift'
   | 'fusion_burst' | 'scroll_victory' | 'trap_activate' | 'crystal_gain'
-  | 'genii_orb' | 'wish_cast' | 'omnicare_pulse' | 'omnicash_flow'          // Face scanning animation for avatar
+  | 'genii_orb' | 'wish_cast' | 'omnicare_pulse' | 'omnicash_flow'
+  | 'holo_dragon' | 'holo_trophy' | 'holo_koi' | 'holo_kitsune'
+  | 'holo_holiday' | 'holo_crown' | 'holo_galaxy' | 'holo_vehicle'
+  | 'holo_dreidel' | 'holo_roses' | 'holo_treasure' | 'holo_dancers'          // Face scanning animation for avatar
 
 // All animations are generated procedurally as Lottie JSON
 // This avoids needing any external .json files
@@ -139,6 +143,34 @@ function makeScanner() {
   }
 }
 
+// Original TRYAMM in-house holographic gift animations. Three SVG vector layers,
+// no third-party assets or WebGL, suited to phones during LIVE/PK broadcasts.
+function makeHoloGiftV2(primary:string,secondary:string,points:number){
+ const hues=[primary,secondary,primary]
+ const layers=hues.map((hex,index)=>{
+  const core=index===2,size=core?58:118+index*42
+  const shape=core
+   ?{ty:'sr',sy:1,pt:{a:0,k:points},p:{a:0,k:[0,0]},r:{a:0,k:0},ir:{a:0,k:16},or:{a:0,k:30},is:{a:0,k:0},os:{a:0,k:0}}
+   :{ty:'el',s:{a:0,k:[size,size]},p:{a:0,k:[0,0]}}
+  const turn=index%2===0?360:-360
+  return{
+   ty:4,ind:index+1,nm:'TRYAMM original gift vector '+index,sr:1,
+   ks:{
+    a:{a:0,k:[0,0]},p:{a:0,k:[100,100]},
+    s:{a:1,k:[{t:0,s:[48,48],e:[108,108]},{t:40,s:[108,108],e:[100,100]},{t:72,s:[100,100]}]},
+    o:{a:1,k:[{t:0,s:[0],e:[90]},{t:18,s:[90],e:[77]},{t:60,s:[77],e:[0]},{t:72,s:[0]}]},
+    r:{a:1,k:[{t:0,s:[0],e:[turn]},{t:72,s:[turn]}]}
+   },
+   shapes:[{ty:'gr',it:[shape,
+    {ty:'st',c:{a:0,k:hexToLottieColor(hex)},o:{a:0,k:core?94:72},w:{a:0,k:core?5:4},lc:2,lj:2},
+    {ty:'tr',p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+   ]}],
+   ip:0,op:72,st:0
+  }
+ })
+ return {v:'5.7.4',fr:30,ip:0,op:72,w:200,h:200,nm:'TRYAMM original holo v2',layers,assets:[],markers:[]}
+}
+
 // Animation data map
 const ANIMATIONS: Record<LottieAnimKey, object> = {
   portal_swirl:      makeRotatingStar('#00ffcc', 8),
@@ -180,39 +212,53 @@ const ANIMATIONS: Record<LottieAnimKey, object> = {
   wish_cast:         makeCirclePulse('#f2b630'),
   omnicare_pulse:    makeCirclePulse('#78ffb4'),
   omnicash_flow:     makeWave('#e8b944'),
+  holo_dragon:       makeHoloGiftV2('#0df2fa','#ac7fff',9),
+  holo_trophy:       makeHoloGiftV2('#f5d15c','#fff0aa',8),
+  holo_koi:          makeHoloGiftV2('#ffa34e','#ff3679',7),
+  holo_kitsune:      makeHoloGiftV2('#fc3c86','#c18bff',9),
+  holo_holiday:      makeHoloGiftV2('#f88337','#4ce0f9',8),
+  holo_crown:        makeHoloGiftV2('#ffe28b','#a88bff',9),
+  holo_galaxy:       makeHoloGiftV2('#29f2ff','#684cff',11),
+  holo_vehicle:      makeHoloGiftV2('#fa4764','#32dfff',6),
+  holo_dreidel:      makeHoloGiftV2('#ffe272','#5deafc',4),
+  holo_roses:        makeHoloGiftV2('#fb5aa1','#ffc0c9',7),
+  holo_treasure:     makeHoloGiftV2('#ffe86f','#40f6c5',8),
+  holo_dancers:      makeHoloGiftV2('#df83ff','#5ce7fb',10),
 }
 
 // ── Public API ──────────────────────────────────────────────────────────────
 
-export function playLottie(
-  container: HTMLElement,
-  key: LottieAnimKey,
-  options: { loop?: boolean; autoplay?: boolean; speed?: number } = {}
-): AnimationItem {
-  const anim = lottie.loadAnimation({
-    container,
-    renderer: 'svg',
-    loop: options.loop ?? true,
-    autoplay: options.autoplay ?? true,
-    animationData: ANIMATIONS[key] as object,
-  })
-  if (options.speed) anim.setSpeed(options.speed)
-  return anim
+export function playLottie(container:HTMLElement,key:LottieAnimKey,options:{loop?:boolean;autoplay?:boolean;speed?:number}={}):AnimationItem{
+ const reduceMotion=typeof window!=='undefined'&&Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
+ // lottie-web can mutate its input data. Isolate simultaneous gift instances.
+ const anim=lottie.loadAnimation({
+  container,renderer:'svg',loop:!reduceMotion&&(options.loop??true),
+  autoplay:!reduceMotion&&(options.autoplay??true),
+  animationData:JSON.parse(JSON.stringify(ANIMATIONS[key])) as object
+ })
+ if(options.speed!==undefined)anim.setSpeed(Math.max(.25,Math.min(2,options.speed)))
+ if(reduceMotion)anim.addEventListener('DOMLoaded',()=>anim.goToAndStop(0,true))
+ return anim
 }
 
-export function stopLottie(anim: AnimationItem | null) {
-  if (anim) { anim.stop(); anim.destroy() }
+export function stopLottie(anim:AnimationItem|null){
+ if(anim){anim.stop();anim.destroy()}
 }
 
-// React hook for Lottie
-export function useLottie(key: LottieAnimKey, loop = true, speed = 1) {
-  const ref = (el: HTMLDivElement | null) => {
-    if (!el) return
-    // Clean up previous
-    while (el.firstChild) el.removeChild(el.firstChild)
-    playLottie(el, key, { loop, speed })
-  }
-  return ref
+// Proper hook lifecycle: avoids orphaned Lottie DOM/timers during phone routing.
+export function useLottie(key:LottieAnimKey,loop=true,speed=1){
+ const [host,setHost]=useState<HTMLDivElement|null>(null)
+ const ref=useCallback((node:HTMLDivElement|null)=>setHost(node),[])
+ useEffect(()=>{
+  if(!host)return
+  const animation=playLottie(host,key,{loop,speed})
+  return()=>stopLottie(animation)
+ },[host,key,loop,speed])
+ return ref
+}
+export const OWNED_LOTTIE_KEY_COUNT=Object.keys(ANIMATIONS).length
+export function hasOwnedLottie(key:string):key is LottieAnimKey{
+ return Object.prototype.hasOwnProperty.call(ANIMATIONS,key)
 }
 
 // Helper
