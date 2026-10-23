@@ -11,7 +11,6 @@ for(const token of [
   "const [rpOpen,setRpOpen]=useState(startInRP)",
   "if(mobile&&!open)return <div",
   "Open StreetVerse RP RPG emoji and GIF actions",
-  "ctx.broken?'🔧 REPAIR':'🎮 ACTIONS ›'",
   "🎮 PLAY",
   "🎭 RP / GENII",
   "(!mobile||rpOpen)",
@@ -20,6 +19,9 @@ for(const token of [
   "tryamm:streetverse-vehicle-input",
 ]) must(actions.includes(token),'actions missing '+token)
 
+must(/ctx\\.broken\\s*\\?\\s*'🔧 REPAIR'\\s*:\\s*'[^']*ACTIONS[^']*'/.test(actions),'launcher must show repair state and an actions label')
+must(actions.includes('aria-label="Open in-game action carousel"'),'mobile launcher must have accessible name')
+must(actions.includes('aria-label="Open StreetVerse RP RPG emoji and GIF actions"'),'RP launcher must have accessible name')
 must(actions.includes('{(!mobile||rpOpen)&&<><div')&&actions.includes('<StreetVerseRPActionSearch compact/><StreetVerseRPOmnibar compact/></>}'),'RP stack is not conditionally hidden on mobile')
 must(actions.includes("get('open')==='rp'"),'RP URL must be an explicit opt-in; normal mobile play starts compact')
 must(actions.includes("event.type==='tryamm:streetverse-player-position'&&Number(detail.speed||0)<0.1"),'idle world telemetry must not close RP/GIF browser')
