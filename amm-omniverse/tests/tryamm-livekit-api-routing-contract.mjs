@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=x=>fs.readFileSync(new URL('../'+x,import.meta.url),'utf8')
+const svc=read('src/services/live.ts'),ui=read('src/components/LiveCenter.tsx')
+const vercel=JSON.parse(read('vercel.json')),pkg=JSON.parse(read('package.json'))
+assert(svc.includes("contentType.toLowerCase().includes('application/json')"),'non-API SPA HTML must be rejected')
+assert(svc.includes('!response.ok'),'HTTP error cannot be configured')
+assert(svc.includes("'configured' in data"),'status schema checked')
+assert(svc.includes('LIVE API is unreachable'),'CORS/routing checked')
+assert(ui.includes('providerStatus?.error'),'UI must distinguish API blocked and no keys')
+assert(ui.includes('LIVE API could not be reached'),'UI must have safe fallback')
+assert(ui.includes('Confirm VITE_API_URL points to that API origin'))
+assert(vercel.routes.find(x=>x.handle==='filesystem'),'API needs filesystem routing before SPA fallback')
+assert(pkg.scripts.build.includes('tryamm-livekit-api-routing-contract.mjs'))
+console.log('TRYAMM LIVE API ROUTING PASS: JSON-only readiness, Vercel filesystem precedence and truthful client diagnostics')

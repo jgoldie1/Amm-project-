@@ -26,8 +26,20 @@ async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
 }
 
 export async function getLiveStatus() {
-  const response = await fetch(`${API_URL}/api/live/status`, { cache: 'no-store' })
-  return response.json() as Promise<{ configured: boolean; url?: string }>
+  let response: Response
+  try{
+    response=await fetch(`${API_URL}/api/live/status`,{cache:'no-store'})
+  }catch{
+    throw new Error('LIVE API is unreachable. Verify website/API project routing, VITE_API_URL and HTTPS/CORS.')
+  }
+  if(!response.ok)throw new Error(`LIVE API request failed (HTTP ${response.status}). Verify the backend deployment.`)
+  const contentType=response.headers.get('content-type')||''
+  if(!contentType.toLowerCase().includes('application/json'))
+    throw new Error('LIVE API returned a website page instead of JSON. Check Vercel /api routing and VITE_API_URL.')
+  const data:unknown=await response.json()
+  if(!data||typeof data!=='object'||!('configured' in data)||typeof data.configured!=='boolean')
+    throw new Error('LIVE API returned an invalid status. The correct server code may not be deployed.')
+  return data as {configured:boolean;readyForPublic?:boolean;url?:string}
 }
 
 export type LivePanelRequest={id:string;room_name:string;requester_user_id:string;display_name?:string|null;status:string;approved_at?:string|null;guardian_approval_required?:boolean;guardian_approved_at?:string|null;stage_position?:number|null}

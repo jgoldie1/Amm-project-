@@ -9,7 +9,7 @@ import LivePanelControls from './LivePanelControls'
 
 type Format = 'live' | 'showcase' | 'debate' | 'starverse' | 'podcast' | 'shopping' | 'gamecast'
 type VisualFilter = 'clean' | 'bright' | 'warm' | 'cool' | 'mono' | 'contrast' | 'holo'
-type LiveProviderStatus={configured:boolean;readyForPublic?:boolean;provider?:string;checks?:Record<string,boolean>;missing?:string[];activation?:{state?:string;next?:string[]};capabilities?:Record<string,unknown>;moneyGate?:string}
+type LiveProviderStatus={configured:boolean;readyForPublic?:boolean;provider?:string;checks?:Record<string,boolean>;missing?:string[];activation?:{state?:string;next?:string[]};capabilities?:Record<string,unknown>;moneyGate?:string;error?:string}
 
 const FORMATS: Array<{ id: Format; label: string; description: string }> = [
   { id: 'live', label: 'TryAMM LIVE', description: 'General live broadcast and community room' },
@@ -70,7 +70,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
   const stageRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    getLiveStatus().then(status => {setConfigured(Boolean(status.configured));setProviderStatus(status as LiveProviderStatus)}).catch(() => {setConfigured(false);setProviderStatus({configured:false,missing:['url','apiKey','apiSecret']})})
+    getLiveStatus().then(status => {setConfigured(Boolean(status.configured));setProviderStatus(status as LiveProviderStatus)}).catch((err:unknown) => {setConfigured(false);setProviderStatus({configured:false,missing:[],error:err instanceof Error?err.message:'LIVE API could not be reached'})})
     return () => {
       roomRef.current?.disconnect()
       roomRef.current = null
@@ -337,11 +337,11 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
             <div style={styles.small}>Room: {connected?'LIVE — invite another signed-in device':'Not broadcasting yet'}</div>
           </section>}
           {invite?.viewer&&<p style={styles.status}>Viewer invitation loaded. This device watches only, without publishing its microphone or camera.</p>}
-          <p style={styles.status}>{configured === null ? 'Checking LiveKit…' : configured ? `● ${pkMode?'PK / ':''}LIVE credentials detected • real broadcast verification still required` : '○ LIVE engine is built; production LiveKit credentials are still required'}</p>
+          <p style={styles.status}>{configured === null ? 'Checking LiveKit…' : configured ? `● ${pkMode?'PK / ':''}LIVE credentials detected • real broadcast verification still required` : providerStatus?.error?'○ LIVE backend is not reachable yet':'○ LIVE credentials are not configured on the API project'}</p>
           {configured===false&&providerStatus&&<div style={styles.providerGate}>
             <b>LIVE ACTIVATION GATE</b>
-            <div style={styles.small}>Missing: {(providerStatus.missing||['url','apiKey','apiSecret']).join(' • ')}</div>
-            <div style={styles.gateSteps}>{(providerStatus.activation?.next||['Add LIVEKIT_URL','Add LIVEKIT_API_KEY','Add LIVEKIT_API_SECRET','Redeploy and run two-device verification']).map((step,index)=><span key={step}>{index+1}. {step}</span>)}</div>
+            {providerStatus.error?<div role="alert" style={{...styles.error,margin:0}}>{providerStatus.error}</div>:<div style={styles.small}>Missing provider settings: {(providerStatus.missing||[]).join(' • ')||'See your LIVE server configuration'}</div>}
+            <div style={styles.gateSteps}>{(providerStatus.error?['Confirm the correct public Vercel project','Deploy its /api/live/status server function','Confirm VITE_API_URL points to that API origin','Only then configure LiveKit credentials']:providerStatus.activation?.next||['Add LIVEKIT_URL','Add LIVEKIT_API_KEY','Add LIVEKIT_API_SECRET','Redeploy and run two-device verification']).map((step,index)=><span key={step}>{index+1}. {step}</span>)}</div>
             <div style={styles.small}>{providerStatus.moneyGate||'Paid gifts remain separately gated until verified commerce is enabled.'}</div>
           </div>}
           {error && <div role="alert" style={styles.error}>{error}</div>}
