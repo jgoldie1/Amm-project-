@@ -15,6 +15,7 @@ export function advanceCareerMissionForEvent(mission:CareerMission,eventName:str
  if(mission.stage>=3||eventName!==expected[mission.stage])return mission
  return advanceCareerMission(mission)
 }
+export function resetCareerMission():void{try{localStorage.removeItem(KEY)}catch{}}
 export function startCareerMission(career:CareerId):CareerMission{
  const mission:CareerMission={career,stage:0,updatedAt:new Date().toISOString()}
  try{localStorage.setItem(KEY,JSON.stringify(mission))}catch{}
