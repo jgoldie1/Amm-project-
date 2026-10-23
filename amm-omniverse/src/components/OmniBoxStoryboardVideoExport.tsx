@@ -63,7 +63,7 @@ export default function OmniBoxStoryboardVideoExport({scenes,title,episode}:{sce
    const chunks:Blob[]=[]
    recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)}
    const duration=Math.min(6,scenes.length)*SECONDS_PER_SCENE
-   let timer:number|null=null
+   let timer:ReturnType<typeof setInterval>|null=null
    const output=new Promise<Blob>((resolve,reject)=>{
     recorder.onerror=()=>reject(new Error('Browser video encoder failed.'))
     recorder.onstop=()=>{
@@ -75,7 +75,7 @@ export default function OmniBoxStoryboardVideoExport({scenes,title,episode}:{sce
    drawFrame(ctx,scenes,title,0)
    recorder.start(1000)
    const started=performance.now()
-   timer=window.setInterval(()=>{
+   timer=setInterval(()=>{
     const elapsed=(performance.now()-started)/1000
     drawFrame(ctx,scenes,title,Math.min(duration,elapsed))
     const percent=Math.min(100,Math.round(elapsed/duration*100))
