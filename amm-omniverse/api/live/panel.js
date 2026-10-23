@@ -1,5 +1,6 @@
 import { requireUser } from '../_lib/security.js';
 import { adminRest, adminReady } from '../_lib/supabase-admin.js';
+import {isLiveKitHostPublishing} from '../_lib/livekit-room-guard.js';
 
 const cleanRoom=v=>String(v||'').toLowerCase().replace(/[^a-z0-9-_]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(0,80)||'tryamm-live';
 const cleanId=v=>String(v||'').replace(/[^a-zA-Z0-9-_]/g,'').slice(0,120);
@@ -53,6 +54,15 @@ export default async function handler(req,res){
   // accepted real camera/microphone publishing. Do not represent drafts as LIVE.
   if(action==='start_room'||action==='end_room'){
     if(current.host_user_id!==user.id)return res.status(403).json({error:'Host permission required'});
+    if(action==='start_room'){
+      if(current.status==='ended')return res.status(409).json({error:'This broadcast has ended. Create a new LIVE room.'});
+      // Only the LiveKit server can confirm that this specific host actually
+      // joined AND published a track. An authenticated button alone is not proof.
+      let published=false;
+      try{published=await isLiveKitHostPublishing(room,user.id)}
+      catch{return res.status(503).json({error:'Unable to verify real LiveKit broadcaster. No LIVE status change was made.'})}
+      if(!published)return res.status(409).json({error:'Host camera or microphone is not publishing in LiveKit yet'});
+    }
     const now=new Date().toISOString();
     const next=action==='start_room'
       ? {status:'live',started_at:now,ended_at:null,updated_at:now}
