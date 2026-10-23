@@ -22,9 +22,9 @@ function normalizeEntries(value:unknown):Entry[]|null{
   // Preserve legacy v1 checks but never silently accept a former notes-based
   // "no payments" exception. It now requires a separate explicit checkbox.
   clean.push({id:record.id,name:record.name,url:record.url,
-   ownerApproval:record.ownerApproval,mobileTest:record.mobileTest,leadTest:record.leadTest,
-   paymentTest:record.paymentTest,paymentNotApplicable:record.paymentNotApplicable===true,
-   paymentExceptionReason:reason,seniorApproval:record.seniorApproval,notes:record.notes})
+   ownerApproval:record.ownerApproval===true,mobileTest:record.mobileTest===true,leadTest:record.leadTest===true,
+   paymentTest:record.paymentTest===true,paymentNotApplicable:record.paymentNotApplicable===true,
+   paymentExceptionReason:reason,seniorApproval:record.seniorApproval===true,notes:record.notes})
  }
  return clean.sort((a,b)=>a.id-b.id)
 }
