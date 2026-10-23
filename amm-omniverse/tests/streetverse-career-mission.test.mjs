@@ -77,3 +77,16 @@ test('each career has a distinct briefing witness and evidence scene',()=>{
   assert.ok(getCareerEvidence(career).id)
  }
 })
+
+test('restart clears prior investigation choice and journal',()=>{
+ let mission=startCareerMission('fbi')
+ mission=advanceCareerMission(mission)
+ assert.equal(getCaseJournal(mission).length,1)
+ saveInvestigationChoice('fbi','request-backup')
+ const restarted=startCareerMission('fbi')
+ assert.equal(restarted.stage,0)
+ assert.equal(getCaseJournal(restarted).length,0)
+ assert.equal(loadInvestigationChoice('fbi'),null)
+ assert.equal(advanceCareerMission(mission).stage,1)
+ assert.equal(loadCareerMission()?.stage,0)
+})
