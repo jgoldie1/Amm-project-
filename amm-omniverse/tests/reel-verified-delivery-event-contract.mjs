@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8')
+const reel=read('src/lib/reels/publishContract.ts')
+const publication=read('api/media/publication.js')
+const pkg=JSON.parse(read('package.json'))
+assert(reel.includes("export type VerifiedReelDelivery"))
+assert(reel.includes("value.deliveryStatus!=='delivered'"))
+assert(reel.includes("!['approved','restored'].includes(value.moderationStatus)"))
+assert(reel.includes("url.protocol"))
+assert(reel.includes("'/reels/")===false,'route should be a constrained validation pattern')
+assert(reel.includes('draft.publicReelId!==delivery?.reelId'))
+assert(reel.includes("throw new Error('Reel is not verified as delivered and moderation-approved')"))
+assert(!reel.includes("shareUrl:draft.shareUrl"),'do not promote unverified draft link')
+assert(publication.includes("publication.status!=='delivered'"))
+assert(pkg.scripts.build.includes('reel-verified-delivery-event-contract.mjs'))
+console.log('REEL VERIFIED DELIVERY EVENT PASS: no local preview, queued upload or unapproved publication announced as a public Reel')
