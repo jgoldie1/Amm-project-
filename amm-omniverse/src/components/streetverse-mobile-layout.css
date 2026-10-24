@@ -410,3 +410,84 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
     max-height: 44px !important;
   }
 }
+
+
+/*
+ * StreetVerse iPhone V13 screenshot remediation (23 Oct 2026).
+ * Preserve the main MENU, EXIT, joystick, mission, active recording stop,
+ * accessibility and safety controls; shrink only redundant launcher surfaces.
+ * Place the optional face preview in the menu instead of atop interaction.
+ */
+@media (max-width: 540px) and (orientation: portrait) {
+  [data-streetverse-world-root][data-streetverse-visual-pass="iphone-v13"][data-hud-focus="true"] [data-streetverse-mission] {
+    top: calc(env(safe-area-inset-top) + 88px) !important;
+    left: 50% !important;
+    right: auto !important;
+    width: min(66vw, 230px) !important;
+    max-width: min(66vw, 230px) !important;
+    height: auto !important;
+    min-height: 36px !important;
+    max-height: 42px !important;
+    padding: 5px 7px !important;
+    font-size: 9px !important;
+    opacity: .91 !important;
+  }
+  /* These buttons are redundant in focus mode; the ⋯ menu keeps their actions. */
+  [data-streetverse-world-root][data-streetverse-visual-pass="iphone-v13"][data-hud-focus="true"] [aria-label="BJ V15 loaded — toggle face close-up"],
+  [data-streetverse-world-root][data-streetverse-visual-pass="iphone-v13"][data-hud-focus="true"] [aria-label="Toggle BJ Stubbs V15 face portrait view"] {
+    display: none !important;
+  }
+  [data-streetverse-world-root][data-streetverse-visual-pass="iphone-v13"][data-hud-focus="true"] [data-streetverse-clear-city="true"] {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    top: calc(env(safe-area-inset-top) + 142px) !important;
+    left: max(9px, env(safe-area-inset-left)) !important;
+    right: auto !important;
+    min-height: 44px !important;
+    max-width: 98px !important;
+    box-shadow: 0 2px 9px #0008 !important;
+  }
+  [data-streetverse-world-root][data-streetverse-visual-pass="iphone-v13"][data-hud-focus="true"] [data-streetverse-context] {
+    bottom: calc(env(safe-area-inset-bottom) + 108px) !important;
+    min-height: 48px !important;
+    right: max(9px, env(safe-area-inset-right)) !important;
+    left: auto !important;
+    box-shadow: 0 1px 9px #0009 !important;
+  }
+  [data-streetverse-world-root][data-streetverse-visual-pass="iphone-v13"][data-hud-focus="true"][data-control-side="right"] [data-streetverse-context] {
+    left: max(9px, env(safe-area-inset-left)) !important;
+    right: auto !important;
+  }
+  [data-streetverse-world-root][data-streetverse-visual-pass="iphone-v13"] [aria-label="StreetVerse analog joystick"] {
+    touch-action: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+  }
+  /* Recovery is available even when showing full HUD, but never blocks driving. */
+  [data-streetverse-world-root][data-streetverse-visual-pass="iphone-v13"][data-hud-focus="false"] [data-streetverse-clear-city="true"] {
+    top: calc(env(safe-area-inset-top) + 222px) !important;
+  }
+}
+
+@media (max-width: 540px) and (orientation: portrait) {
+  body:has([data-streetverse-world-root][data-streetverse-visual-pass="iphone-v13"][data-hud-focus="true"]) [aria-label="Open Who is Online"] {
+    top: calc(env(safe-area-inset-top) + 82px) !important;
+    right: max(8px, env(safe-area-inset-right)) !important;
+    width: 55px !important;
+    min-width: 55px !important;
+    max-width: 55px !important;
+    min-height: 44px !important;
+    padding: 0 5px !important;
+    font-size: 10px !important;
+    border-radius: 11px !important;
+    box-shadow: 0 2px 8px #0008 !important;
+  }
+}
+
+@media (max-width: 540px) and (orientation: portrait) {
+  /* The opt-in ABLA tour must not cover the one-tap city camera recovery. */
+  [data-streetverse-world-root][data-streetverse-visual-pass="iphone-v13"] [data-streetverse-abla-tour="true"] {
+    top: calc(env(safe-area-inset-top) + 206px) !important;
+  }
+}

@@ -1,6 +1,7 @@
 import {json} from '../_lib/supabase-admin.js';
 import {userRest} from '../_lib/supabase-user.js';
 import {requireUser} from '../_lib/security.js';
+import {isProtectedPrivateMedia} from '../_lib/private-media-workflows.js';
 
 const DESTINATIONS=new Set(['reel','omnibox','all-american-network','servants-of-christ-network','creator-profile']);
 const DESTINATION_LABELS={reel:'Reels',omnibox:'OmniBox','all-american-network':'All American Network','servants-of-christ-network':'Servants of Christ Network','creator-profile':'Creator Profile'};
@@ -11,6 +12,12 @@ export default async function handler(req,res){
     const user=await requireUser(req,res);if(!user)return;
     const mediaId=String(req.body?.mediaId||'').trim();if(!mediaId)return json(res,400,{error:'media_id_required'});
     const mediaRows=await userRest(req,'media_catalog',{query:{id:`eq.${mediaId}`,owner_id:`eq.${user.id}`,select:'*',limit:1}}),media=mediaRows?.[0];if(!media)return json(res,404,{error:'media_not_found'});
+    // Private recordings and audition intake are not distributable
+    // automatically, even when a generic moderation status is approved.
+    if(isProtectedPrivateMedia(media))return json(res,409,{
+      error:'private_media_requires_separate_release_clearance',
+      next:'Obtain an explicit reviewed production/casting release before creating public publication jobs.'
+    });
     const destinations=[...new Set((Array.isArray(req.body?.destinations)?req.body.destinations:[]).map(x=>String(x||'').trim()).filter(x=>DESTINATIONS.has(x)))];if(!destinations.length)return json(res,400,{error:'destination_required'});
     const ready=media.processing_status==='ready'&&Boolean(media.storage_path||media.manifest?.storage_path),status=ready?'queued':'blocked',errorCode=ready?null:'MEDIA_PROCESSING_NOT_READY';
     const existing=await userRest(req,'media_publish_jobs',{query:{media_id:`eq.${media.id}`,owner_id:`eq.${user.id}`,select:'*',order:'created_at.desc',limit:20}});

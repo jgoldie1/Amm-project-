@@ -36,6 +36,7 @@ import {chooseQuantumSpeedMode,QUANTUM_SPEED_BUDGETS,type QuantumSpeedMode} from
 import {CIRCLE_PARK_SPAWN} from '../data/StreetVerseChicagoGrid'
 
 const StreetVersePlayableWorld=lazy(()=>import('./StreetVersePlayableWorld'))
+const StreetVerseDominionLauncher=lazy(()=>import('./StreetVerseDominionLauncher'))
 const StreetVerseFullWorldOverlays=lazy(()=>import('./StreetVerseFullWorldOverlays'))
 const StreetVerseReelEventBridge=lazy(()=>import('./StreetVerseReelEventBridge'))
 const StreetVerseActionCarousel=lazy(()=>import('./StreetVerseActionCarousel'))
@@ -170,6 +171,9 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const mobile=useMemo(()=>typeof navigator!=='undefined'&&/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||''),[])
  const [enhancementsReady,setEnhancementsReady]=useState(false)
  const [nearWestOpen,setNearWestOpen]=useState(false)
+ // Preserve campus requests while the existing Near West 3D scene lazy-loads.
+ const [pendingCampusDestination,setPendingCampusDestination]=useState<{campus:'uic';hubId:string;label?:string;district?:string}|null>(null)
+ const [pendingCampusTravel,setPendingCampusTravel]=useState<string|null>(null)
  const [graphicsUnavailable,setGraphicsUnavailable]=useState(false)
  const [quantumMode,setQuantumMode]=useState<QuantumSpeedMode>('balanced')
  const setLocationContext=useGameStore(state=>state.setLocationContext)
@@ -242,6 +246,26 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
   return()=>window.removeEventListener('tryamm:streetverse-gameplay-action',onGameplayAction)
  },[applyCityConsequence])
  useEffect(()=>{
+  // World Builder dispatches before NearWest3D is mounted. Queue the exact
+  // destination; its own mounted listeners apply the request after load.
+  const onEducationDestination=(event:Event)=>{
+   const d=(event as CustomEvent<{campus?:string;hubId?:string;label?:string;district?:string;source?:string}>).detail||{}
+   if(d.campus!=='uic'||!d.hubId||!['west-side-education-directory','streetverse-world-builder'].includes(String(d.source||'')))return
+   if(safe){setGraphicsStatus('UIC 3D cannot open in HTML Safe Mode. Restore 3D Chicago first.');return}
+   setPendingCampusTravel(null)
+   setPendingCampusDestination({campus:'uic',hubId:String(d.hubId),label:d.label,district:d.district})
+   setNearWestOpen(true)
+  }
+  const onEducationTravel=(event:Event)=>{
+   const d=(event as CustomEvent<{to?:string;source?:string}>).detail||{}
+   if(!d.to||d.to==='uic'||!['west-side-education-directory','streetverse-world-builder'].includes(String(d.source||'')))return
+   if(safe){setGraphicsStatus('CampusVerse needs 3D. Restore 3D Chicago first.');return}
+   setPendingCampusDestination(null)
+   setPendingCampusTravel(String(d.to))
+   setNearWestOpen(true)
+  }
+  window.addEventListener('tryamm:campusverse-destination',onEducationDestination)
+  window.addEventListener('tryamm:campusverse-travel',onEducationTravel)
   const openExistingTaylorWorld=()=>{
     if(safe){
       setGraphicsStatus('3D graphics are unavailable in Safe Mode. Use Retry 3D Chicago before entering Taylor Street.')
@@ -251,7 +275,11 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
     setNearWestOpen(true)
   }
   window.addEventListener('tryamm:streetverse-open-near-west',openExistingTaylorWorld)
-  return()=>window.removeEventListener('tryamm:streetverse-open-near-west',openExistingTaylorWorld)
+  return()=>{
+   window.removeEventListener('tryamm:streetverse-open-near-west',openExistingTaylorWorld)
+   window.removeEventListener('tryamm:campusverse-destination',onEducationDestination)
+   window.removeEventListener('tryamm:campusverse-travel',onEducationTravel)
+  }
  },[safe])
  useEffect(()=>{
   const requestClose=()=>closeStreetVerse()
@@ -298,20 +326,19 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
     <button aria-label="Retry StreetVerse 3D" onClick={retry3D} style={{minHeight:48,border:'1px solid #8fffe2',borderRadius:9,padding:'8px 15px',background:'#073f38',color:'#fff',fontWeight:900}}>RETRY 3D CHICAGO</button>
     {graphicsStatus&&<div role="status" style={{fontSize:11,marginTop:7}}>{graphicsStatus}</div>}
   </div>}
+  {/* Only HTML-safe controls in recovery: no 3D action/creator/mission docks. */}
   <StreetVerseWestSideWorldBuilder/>
-  <BuildSwarmControl/>
   <StreetVerseWeatherSync/>
-  <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>
-  <button data-streetverse-travel="true" aria-label="Enable 3D to travel to Taylor Street UIC Medical District" onClick={retry3D} style={{position:'fixed',top:118,right:12,zIndex:14970,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333e8',color:'#fff',padding:'10px 12px',fontWeight:900}}>ENABLE 3D FOR TAYLOR / UIC</button>
-  {!nearWestOpen&&<StreetVerseAfterDarkAlpha/>}
-  {!nearWestOpen&&<Suspense fallback={null}><StreetVerseReelEventBridge/><StreetVerseCreatorEarnDock/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseMobileProofDock/></Suspense>}
+  <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber} showRestore3D={explicitSafe}/>
+  <Suspense fallback={null}><StreetVerseDominionLauncher/></Suspense>
  </>
 
  return <>
   <span data-streetverse-entry="geo-spawn-bridge" data-streetverse-mode="playable" hidden/>
   {!nearWestOpen&&!graphicsUnavailable&&<BuildSwarmControl/>}
+  {!nearWestOpen&&<Suspense fallback={null}><StreetVerseDominionLauncher/></Suspense>}
   {!nearWestOpen&&<StreetVerseWestSideWorldBuilder launcher={graphicsUnavailable}/>}
-  {nearWestOpen&&<div style={{position:'fixed',inset:0,zIndex:14980,background:'#07101d'}}><Suspense fallback={null}><StreetVerseNearWest3D/></Suspense><button aria-label="Return to StreetVerse Chicago" onClick={()=>setNearWestOpen(false)} style={{position:'fixed',top:76,right:12,zIndex:14990,border:'1px solid #6ee7ff',borderRadius:12,background:'#07131f',color:'#fff',padding:'10px 12px',fontWeight:900}}>← CHICAGO</button></div>}
+  {nearWestOpen&&<div style={{position:'fixed',inset:0,zIndex:14980,background:'#07101d'}}><Suspense fallback={null}><StreetVerseNearWest3D entryDestination={pendingCampusDestination} entryTravel={pendingCampusTravel}/></Suspense><button aria-label="Return to StreetVerse Chicago" onClick={()=>{setNearWestOpen(false);setPendingCampusDestination(null);setPendingCampusTravel(null)}} style={{position:'fixed',top:76,right:12,zIndex:14990,border:'1px solid #6ee7ff',borderRadius:12,background:'#07131f',color:'#fff',padding:'10px 12px',fontWeight:900}}>← CHICAGO</button></div>}
   {!nearWestOpen&&!graphicsUnavailable&&<button data-streetverse-travel="true" ref={element=>{if(element)element.style.setProperty("display","block","important")}} aria-label="Travel to Taylor Street UIC Medical District" onClick={()=>setNearWestOpen(true)} style={{display:'block',visibility:'visible',position:'fixed',top:118,right:12,zIndex:15010,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333e8',color:'#fff',padding:'10px 12px',fontWeight:900}}>TAYLOR / UIC</button>}
   {!nearWestOpen&&<Suspense fallback={<div aria-label="StreetVerse playable world loading" style={{position:'fixed',inset:0,zIndex:14990,display:'grid',placeItems:'center',background:'#07101d',color:'#fff',fontFamily:'system-ui',fontWeight:900}}>STREETVERSE • LOADING PLAYABLE WORLD…</div>}>
    <StreetVersePlayableWorld onClose={closeStreetVerse}/>

@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8')
+const api=read('api/media/upload-intent.js')
+const complete=read('api/media/upload-complete.js')
+const pkg=JSON.parse(read('package.json'))
+assert(api.includes("mediaType=contentType.startsWith('video/')?'clip':contentType.startsWith('audio/')?'song':'other'"),'media_catalog CHECK permits clip/other, not reel/image/gif')
+assert(!api.includes("?'gif'"),'gif enum not present')
+assert(!api.includes("?'image':'reel'"),'image and reel enum not present')
+assert(api.includes("moderation_status:'pending'"))
+assert(api.includes("visibility:'private'"))
+assert(api.includes("processing_status:'uploading'"))
+assert(complete.includes('inspectStoredObject(req,storagePath)'))
+assert(complete.includes('expectedBytes'))
+assert(complete.includes('observed.sizeBytes!==expectedBytes'))
+assert(pkg.scripts.build.includes('tryamm-media-schema-alignment-contract.mjs'))
+console.log('TRYAMM MEDIA DB SCHEMA PASS: videos -> clip, still images -> other; private/pending until verified')

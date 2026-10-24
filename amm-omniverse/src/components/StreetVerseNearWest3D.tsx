@@ -538,7 +538,7 @@ function PopulationMeshes({reaction,detailedIds}:{reaction:{id:string;reaction:'
   </group>
  })}
  </group>}
-export default function StreetVerseNearWest3D(){
+export default function StreetVerseNearWest3D({entryDestination=null,entryTravel=null}:{entryDestination?:{campus:'uic';hubId:string;label?:string;district?:string}|null;entryTravel?:string|null}={}){
  const [collegeBookOpen,setCollegeBookOpen]=useState(false)
  const [greenvilleOpen,setGreenvilleOpen]=useState(false)
  const [remoteCampusId,setRemoteCampusId]=useState<CampusNetworkId|null>(null)
@@ -665,6 +665,16 @@ export default function StreetVerseNearWest3D(){
   if(ILLINOIS_CAMPUSVERSE_NETWORK.some(c=>c.id===to)){setGreenvilleOpen(false);setRemoteCampusId(to)}
  };window.addEventListener('tryamm:campusverse-travel',open);return()=>window.removeEventListener('tryamm:campusverse-travel',open)},[])
  useEffect(()=>{const route=(e:Event)=>{const d=(e as CustomEvent<{campus?:string;hubId?:string;label?:string}>).detail||{};if(d.campus!=='uic')return;const hubs:Record<string,{x:number;z:number}>=Object.fromEntries(UIC_ALL_CAMPUS_HUBS.map(h=>[h.id,{x:h.x,z:h.z}]));const target=hubs[String(d.hubId||'')];if(!target)return;const mission:StreetVerseMission={id:`uic-route:${String(d.hubId||'campus')}`,title:`UIC • ${String(d.label||'Campus destination')}`,marker:{x:playerSpawn.x,z:playerSpawn.z},objective:{x:target.x,z:target.z,label:`Walk to ${String(d.label||'UIC campus destination')}`},xp:125,credits:600};setActiveMission(mission);setMissionStep('deliver');setCollegeBookOpen(false);window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:`UIC ROUTE ACTIVE • walk to ${String(d.label||'Campus destination')}`}}))};window.addEventListener('tryamm:campusverse-destination',route);return()=>window.removeEventListener('tryamm:campusverse-destination',route)},[playerSpawn.x,playerSpawn.z])
+ // Replay an entry request only after this scene's destination/travel listeners
+ // exist. Distinct hub ids preserve UIC East vs West instead of opening a generic portal.
+ useEffect(()=>{
+  if(!entryDestination?.hubId)return
+  window.dispatchEvent(new CustomEvent('tryamm:campusverse-destination',{detail:{...entryDestination,source:'near-west-entry-route'}}))
+ },[entryDestination?.hubId,entryDestination?.campus,entryDestination?.district,entryDestination?.label])
+ useEffect(()=>{
+  if(!entryTravel||entryTravel==='uic')return
+  window.dispatchEvent(new CustomEvent('tryamm:campusverse-travel',{detail:{to:entryTravel,source:'near-west-entry-route'}}))
+ },[entryTravel])
  if(greenvilleOpen)return <GreenvilleCampusVerseScene onReturn={()=>setGreenvilleOpen(false)}/>
  if(remoteCampusId){
   const campus=ILLINOIS_CAMPUSVERSE_NETWORK.find(c=>c.id===remoteCampusId)

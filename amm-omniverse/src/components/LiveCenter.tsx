@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
-import type { Room } from 'livekit-client'
-import { connectLiveRoom, getLiveStatus, type LiveRole } from '../services/live'
+import { RoomEvent, type Room } from 'livekit-client'
+import { connectLiveRoom, getLiveStatus, registerLiveHostRoom, setLiveHostRoomState, type LiveRole } from '../services/live'
 import LiveGenerationIntelligence from './LiveGenerationIntelligence'
 import HoloGiftEngine from './HoloGiftEngine'
 import HoloCreditChannelShop from './HoloCreditChannelShop'
+import LivePanelControls from './LivePanelControls'
 
 type Format = 'live' | 'showcase' | 'debate' | 'starverse' | 'podcast' | 'shopping' | 'gamecast'
 type VisualFilter = 'clean' | 'bright' | 'warm' | 'cool' | 'mono' | 'contrast' | 'holo'
-type LiveProviderStatus={configured:boolean;readyForPublic?:boolean;provider?:string;checks?:Record<string,boolean>;missing?:string[];activation?:{state?:string;next?:string[]};capabilities?:Record<string,unknown>;moneyGate?:string}
+type LiveProviderStatus={configured:boolean;readyForPublic?:boolean;provider?:string;checks?:Record<string,boolean>;missing?:string[];activation?:{state?:string;next?:string[]};capabilities?:Record<string,unknown>;moneyGate?:string;error?:string;capacity?:{maxParticipantsPerRoom:number;maxActiveRooms:number;videoQuality:string;newRoomsOpen:boolean;newViewersOpen:boolean;limitType?:string}}
 
 const FORMATS: Array<{ id: Format; label: string; description: string }> = [
   { id: 'live', label: 'TryAMM LIVE', description: 'General live broadcast and community room' },
@@ -34,15 +35,28 @@ function slug(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'tryamm-live'
 }
 
+// Viewer links preselect a room but never authenticate or grant host privileges.
+function readLiveInvite(){
+  if(typeof window==='undefined')return null
+  const args=new URLSearchParams(window.location.search)
+  const room=String(args.get('room')||'').toLowerCase()
+  if(!/^[a-z0-9][a-z0-9_-]{2,79}$/.test(room))return null
+  return {room,viewer:args.get('role')==='viewer',mode:args.get('mode')==='pk'?'pk':'live'}
+}
+function newRoomName(){
+  const random=typeof window==='undefined'?undefined:window.crypto?.randomUUID?.()
+  return 'tryamm-'+(random?.slice(0,12)||Math.random().toString(36).slice(2,14))
+}
 export default function LiveCenter({ onClose, initialMode='live', initialRole='host', youthViewerOnly=false }: { onClose: () => void; initialMode?: 'live'|'pk'; initialRole?: LiveRole; youthViewerOnly?: boolean }) {
-  const pkMode=initialMode==='pk'
+  const invite=readLiveInvite()
+  const pkMode=initialMode==='pk'||invite?.mode==='pk'
   const [configured, setConfigured] = useState<boolean | null>(null)
   const [providerStatus,setProviderStatus]=useState<LiveProviderStatus|null>(null)
   const [format, setFormat] = useState<Format>('live')
   const [title, setTitle] = useState(pkMode?'Holographic PK Battle':'TryAMM LIVE')
-  const [role, setRole] = useState<LiveRole>(youthViewerOnly?'viewer':initialRole)
+  const [role, setRole] = useState<LiveRole>(youthViewerOnly||invite?.viewer?'viewer':initialRole)
   const [displayName, setDisplayName] = useState(youthViewerOnly?'Youth Viewer':'Creator')
-  const [roomName, setRoomName] = useState(pkMode?'tryamm-pk':'tryamm-live')
+  const [roomName, setRoomName] = useState(()=>invite?.room||newRoomName())
   const [connected, setConnected] = useState(false)
   const [participants, setParticipants] = useState(0)
   const [error, setError] = useState('')
@@ -50,11 +64,13 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
   const [visualFilter, setVisualFilter] = useState<VisualFilter>('clean')
   const [mirrorLocal, setMirrorLocal] = useState(true)
   const [effectsOpen, setEffectsOpen] = useState(false)
+  const [copiedInvite,setCopiedInvite]=useState(false)
+  const [audioNeedsTap,setAudioNeedsTap]=useState(false)
   const roomRef = useRef<Room | null>(null)
   const stageRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    getLiveStatus().then(status => {setConfigured(Boolean(status.configured));setProviderStatus(status as LiveProviderStatus)}).catch(() => {setConfigured(false);setProviderStatus({configured:false,missing:['url','apiKey','apiSecret']})})
+    getLiveStatus().then(status => {setConfigured(Boolean(status.configured));setProviderStatus(status as LiveProviderStatus)}).catch((err:unknown) => {setConfigured(false);setProviderStatus({configured:false,missing:[],error:err instanceof Error?err.message:'LIVE API could not be reached'})})
     return () => {
       roomRef.current?.disconnect()
       roomRef.current = null
@@ -70,7 +86,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
     const selected = FORMATS.find(x => x.id === next)
     if (selected) {
       setTitle(selected.label)
-      setRoomName(slug(selected.label))
+      // Preserve unique room ID across broadcast formats.
     }
   }
 
@@ -87,6 +103,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
   }
 
   function prepareMediaElement(element: HTMLMediaElement, participantIdentity: string, local = false) {
+    if(element instanceof HTMLVideoElement){element.playsInline=true;element.autoplay=true}
     element.setAttribute('data-participant', participantIdentity)
     element.setAttribute('data-local', local ? 'true' : 'false')
     element.style.width = '100%'
@@ -103,7 +120,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
   }
 
   async function preflightHostMedia(){
-    if(role!=='host')return
+    if(role!=='host'&&role!=='guest')return
     if(!navigator.mediaDevices?.getUserMedia)throw new Error('Camera and microphone are not available on this device/browser.')
     const preview=await navigator.mediaDevices.getUserMedia({video:true,audio:true})
     preview.getTracks().forEach(track=>track.stop())
@@ -115,6 +132,8 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
     try {
       if(youthViewerOnly&&role!=='viewer')throw new Error('Youth Viewer Mode keeps camera, microphone and hosting disabled in this release.')
       await preflightHostMedia()
+      // Claim/open this room while authenticated, before requesting a publish token.
+      if(role==='host')await registerLiveHostRoom(roomName,title)
       stageRef.current?.replaceChildren()
       const { room, session } = await connectLiveRoom({
         roomName,
@@ -127,7 +146,27 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
         },
       })
       roomRef.current = room
-      if (role === 'host') {
+      // A dropped mobile data connection cannot leave an inactive stream
+      // falsely marked CONNECTED. Distinguish this from intentional Leave.
+      room.on(RoomEvent.Disconnected,()=>{
+        if(roomRef.current!==room)return
+        roomRef.current=null
+        stageRef.current?.replaceChildren()
+        setConnected(false)
+        setParticipants(0)
+        setError('Broadcast connection ended. Check your signal and tap Join or Go LIVE again.')
+      })
+      if(role==='viewer'||role==='guest'){
+        try{
+          await room.startAudio()
+          setAudioNeedsTap(false)
+        }catch{
+          // Safari may refuse remote audio autoplay after asynchronous auth.
+          // Provide a 44px user-initiated button instead of silent failure.
+          setAudioNeedsTap(true)
+        }
+      }
+      if (role === 'host' || role === 'guest') {
         const pubs = Array.from(room.localParticipant.trackPublications.values())
         for (const pub of pubs) {
           const track = pub.track
@@ -136,6 +175,16 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
             prepareMediaElement(element, room.localParticipant.identity || 'local', true)
             stageRef.current?.prepend(element)
           }
+        }
+      }
+      if(role==='host'){
+        try{await setLiveHostRoomState(session.room,'start_room')}
+        catch(reason){
+          roomRef.current=null
+          await room.disconnect()
+          stageRef.current?.replaceChildren()
+          setParticipants(0)
+          throw reason
         }
       }
       setConnected(true)
@@ -148,41 +197,94 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
     }
   }
 
-  function leave() {
-    roomRef.current?.disconnect()
+  async function leave() {
+    const current=roomRef.current
+    if(current&&role==='host'){
+      try{await setLiveHostRoomState(roomName,'end_room')}
+      catch(e){setError((e as Error).message||'LIVE room could not be marked ended')}
+    }
     roomRef.current = null
+    current?.disconnect()
     stageRef.current?.replaceChildren()
     setConnected(false)
     setParticipants(0)
+    setAudioNeedsTap(false)
     window.dispatchEvent(new CustomEvent('tryamm:live-session-end',{detail:{roomName,role}}))
     if(pkMode)window.dispatchEvent(new CustomEvent('tryamm:pk-end',{detail:{roomName,role,reason:'leave'}}))
   }
 
+  async function switchToGuestCamera(){
+    if(youthViewerOnly)return
+    if(roomRef.current)await leave()
+    setRole('guest')
+    setError('')
+  }
+  const inviteUrl=typeof window==='undefined'?'':(()=>{
+    const url=new URL('/live',window.location.origin)
+    url.searchParams.set('room',roomName)
+    url.searchParams.set('role','viewer')
+    url.searchParams.set('mode',pkMode?'pk':'live')
+    return url.toString()
+  })()
+  async function copyViewerInvite(){
+    try{
+      await navigator.clipboard.writeText(inviteUrl)
+      setCopiedInvite(true)
+      setError('')
+    }catch{setError('Clipboard restricted. Tap the link field below and select its text to copy.')}
+  }
+
+  async function unlockViewerAudio(){
+    const room=roomRef.current
+    if(!room||role!=='viewer')return
+    try{
+      await room.startAudio()
+      setAudioNeedsTap(false)
+    }catch{setError('Audio playback is blocked by your browser settings. Tap again or check sound permissions.')}
+  }
+
   async function toggleMic() {
-    if (!roomRef.current || role !== 'host') return
+    if (!roomRef.current || (role !== 'host'&&role !== 'guest')) return
     const enabled = roomRef.current.localParticipant.isMicrophoneEnabled
     await roomRef.current.localParticipant.setMicrophoneEnabled(!enabled)
   }
 
   async function toggleCamera() {
-    if (!roomRef.current || role !== 'host') return
+    if (!roomRef.current || (role !== 'host'&&role !== 'guest')) return
     const enabled = roomRef.current.localParticipant.isCameraEnabled
     await roomRef.current.localParticipant.setCameraEnabled(!enabled)
     setTimeout(applyStageFilter, 150)
   }
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="TryAMM LIVE Center" style={styles.shell}>
-      <header style={styles.header}>
+    <div className="tryamm-live-shell" role="dialog" aria-modal="true" aria-label="TryAMM LIVE Center" style={styles.shell}>
+      <style>{`
+        .tryamm-live-shell input,.tryamm-live-shell select{box-sizing:border-box;max-width:100%}
+        .tryamm-live-shell button{min-height:44px;touch-action:manipulation}
+        .tryamm-live-stage video{max-width:100%;height:auto;object-fit:contain}
+        @media(max-width:700px){
+          .tryamm-live-shell{padding:calc(env(safe-area-inset-top) + 10px) max(10px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 18px) max(10px,env(safe-area-inset-left)) !important}
+          .tryamm-live-header{flex-direction:column;gap:8px!important}
+          .tryamm-live-header h1{font-size:clamp(24px,7vw,32px)!important}
+          .tryamm-live-header button{align-self:flex-end}
+          .tryamm-live-grid{grid-template-columns:minmax(0,1fr)!important;gap:10px!important}
+          .tryamm-live-grid>section{min-width:0!important;padding:12px!important;min-height:0}
+          .tryamm-live-stage{min-height:230px!important;padding:6px!important}
+          .tryamm-live-stage video{max-height:44dvh!important}
+          .tryamm-live-grid [aria-label="Viewer invite URL"]{font-size:12px!important;overflow:hidden}
+        }
+        @media(prefers-reduced-motion:reduce){.tryamm-live-shell *{animation:none!important;transition:none!important}}
+      `}</style>
+      <header className="tryamm-live-header" style={styles.header}>
         <div>
           <div style={styles.eyebrow}>TRYAMM MEDIA CORE</div>
           <h1 style={styles.title}>{pkMode?'Holographic PK Arena':'LIVE Center'}</h1>
           <p style={styles.subtitle}>{pkMode?'Realtime camera/microphone PK battle stage with LiveKit, holographic effects and verified gift hooks.':'One streaming engine for LIVE, All American Showcase, Debate Arena, StarVerse, podcasts, shopping and GameVerse broadcasts.'}</p>
         </div>
-        <button aria-label="Close LIVE Center" onClick={onClose} style={styles.close}>×</button>
+        <button aria-label="Close LIVE Center" onClick={()=>{void leave().finally(onClose)}} style={styles.close}>×</button>
       </header>
 
-      <main style={styles.grid}>
+      <main className="tryamm-live-grid" style={styles.grid}>
         <section style={styles.card}>
           <h2 style={styles.cardTitle}>{pkMode?'PK room setup':'Broadcast format'}</h2>
           {youthViewerOnly&&<div style={styles.youthNotice}><b>12-YEAR-OLD YOUTH VIEWER MODE</b><br/>Viewing is enabled. Camera, microphone, hosting, freeform personal-information exchange and paid gifts/tips remain disabled until adult-managed controls are verified.</div>}
@@ -195,13 +297,13 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
             ))}
           </div>}
 
-          <label style={styles.label}>Show title<input value={title} onChange={e => { setTitle(e.target.value); setRoomName(slug(e.target.value)) }} style={styles.input} /></label>
-          <label style={styles.label}>Room ID<input value={roomName} onChange={e => setRoomName(slug(e.target.value))} style={styles.input} /></label>
+          <label style={styles.label}>Show title<input value={title} onChange={e => { setTitle(e.target.value) }} style={styles.input} /></label>
+          <label style={styles.label}>Room ID<input value={roomName} disabled={connected||busy} onChange={e => setRoomName(slug(e.target.value))} style={styles.input} /></label>
           <label style={styles.label}>Display name<input value={displayName} onChange={e => setDisplayName(e.target.value.slice(0,80))} style={styles.input} /></label>
 
           <div style={styles.row}>
-            {!youthViewerOnly&&<button onClick={() => setRole('host')} style={{ ...styles.role, ...(role === 'host' ? styles.roleActive : {}) }}>Host / Creator</button>}
-            <button onClick={() => setRole('viewer')} style={{ ...styles.role, ...(role === 'viewer' ? styles.roleActive : {}) }}>Viewer</button>
+            {!youthViewerOnly&&!invite?.viewer&&<button disabled={connected||busy} onClick={() => setRole('host')} style={{ ...styles.role, ...(role === 'host' ? styles.roleActive : {}) }}>Host / Creator</button>}
+            <button disabled={connected||busy||Boolean(invite?.viewer)} onClick={() => setRole('viewer')} style={{ ...styles.role, ...(role === 'viewer' ? styles.roleActive : {}) }}>Viewer</button>
           </div>
 
           <button type="button" onClick={() => setEffectsOpen(v => !v)} style={styles.effectsButton}>✨ HoloFilter {effectsOpen ? '▲' : '▼'}</button>
@@ -217,20 +319,35 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
           </div>}
 
           {!connected ? (
-            <button disabled={busy || configured === false} onClick={() => void connect()} style={styles.primary}>{busy ? 'Connecting…' : role === 'host' ? (pkMode?'START PK CAMERA':'Go LIVE') : (pkMode?'WATCH PK':'Join LIVE')}</button>
+            <button disabled={busy || configured === false} onClick={() => void connect()} style={styles.primary}>{busy ? 'Connecting…' : role === 'host' ? (pkMode?'START PK CAMERA':'Go LIVE') : role==='guest'?'JOIN AS APPROVED GUEST':(pkMode?'WATCH PK':'Join LIVE')}</button>
           ) : (
             <div style={styles.row}>
-              {role === 'host' && <button onClick={() => void toggleMic()} style={styles.secondary}>Mic</button>}
-              {role === 'host' && <button onClick={() => void toggleCamera()} style={styles.secondary}>Camera</button>}
-              <button onClick={leave} style={styles.danger}>Leave</button>
+              {(role === 'host'||role === 'guest') && <button onClick={() => void toggleMic()} style={styles.secondary}>Mic</button>}
+              {(role === 'host'||role === 'guest') && <button onClick={() => void toggleCamera()} style={styles.secondary}>Camera</button>}
+              <button onClick={()=>void leave()} style={styles.danger}>Leave</button>
             </div>
           )}
 
-          <p style={styles.status}>{configured === null ? 'Checking LiveKit…' : configured ? `● ${pkMode?'PK / ':''}LIVE infrastructure configured • host camera/mic preflight on connect` : '○ LIVE engine is built; production LiveKit credentials are still required'}</p>
+          <LivePanelControls roomName={roomName} role={role} connected={connected} youthViewerOnly={youthViewerOnly} onJoinApproved={()=>void switchToGuestCamera()}/>
+          {role==='host'&&!youthViewerOnly&&<section aria-label="Share viewer link" style={{...styles.providerGate,marginTop:12}}>
+            <strong style={{fontSize:13}}>📱 SECOND DEVICE / VIEWER INVITE</strong>
+            <div style={styles.small}>Start the real camera broadcast first. Viewers sign in to join, and this link never allows camera publishing.</div>
+            <label style={styles.label}>Viewer link<input aria-label="Viewer invite URL" type="text" readOnly value={inviteUrl} onFocus={e=>e.currentTarget.select()} style={{...styles.input,fontSize:12}} /></label>
+            <button type="button" disabled={!inviteUrl} onClick={()=>void copyViewerInvite()} style={styles.secondary}>{copiedInvite?'✓ VIEWER LINK COPIED':'COPY VIEWER LINK'}</button>
+            <div style={styles.small}>Room: {connected?'LIVE — invite another signed-in device':'Not broadcasting yet'}</div>
+          </section>}
+          {invite?.viewer&&<p style={styles.status}>Viewer invitation loaded. This device watches only, without publishing its microphone or camera.</p>}
+          <p style={styles.status}>{configured === null ? 'Checking LiveKit…' : configured ? `● ${pkMode?'PK / ':''}LIVE credentials detected • real broadcast verification still required` : providerStatus?.error?'○ LIVE backend is not reachable yet':'○ LIVE credentials are not configured on the API project'}</p>
+          {providerStatus?.capacity&&<div style={styles.providerGate} aria-label="LIVE cost and capacity policy">
+            <b>LIVE PILOT BUDGET • ADMISSION</b>
+            <div style={styles.small}>Max {providerStatus.capacity.maxParticipantsPerRoom} participants per room • {providerStatus.capacity.maxActiveRooms} simultaneous live show(s) • {providerStatus.capacity.videoQuality.toUpperCase()} video</div>
+            <div style={styles.small}>New rooms: {providerStatus.capacity.newRoomsOpen?'allowed':'paused'} • New viewers: {providerStatus.capacity.newViewersOpen?'allowed':'paused'}</div>
+            <div style={styles.small}>These are application admission settings. Actual LiveKit quotas and billing limits remain separate.</div>
+          </div>}
           {configured===false&&providerStatus&&<div style={styles.providerGate}>
             <b>LIVE ACTIVATION GATE</b>
-            <div style={styles.small}>Missing: {(providerStatus.missing||['url','apiKey','apiSecret']).join(' • ')}</div>
-            <div style={styles.gateSteps}>{(providerStatus.activation?.next||['Add LIVEKIT_URL','Add LIVEKIT_API_KEY','Add LIVEKIT_API_SECRET','Redeploy and run two-device verification']).map((step,index)=><span key={step}>{index+1}. {step}</span>)}</div>
+            {providerStatus.error?<div role="alert" style={{...styles.error,margin:0}}>{providerStatus.error}</div>:<div style={styles.small}>Missing provider settings: {(providerStatus.missing||[]).join(' • ')||'See your LIVE server configuration'}</div>}
+            <div style={styles.gateSteps}>{(providerStatus.error?['Confirm the correct public Vercel project','Deploy its /api/live/status server function','Confirm VITE_API_URL points to that API origin','Only then configure LiveKit credentials']:providerStatus.activation?.next||['Add LIVEKIT_URL','Add LIVEKIT_API_KEY','Add LIVEKIT_API_SECRET','Redeploy and run two-device verification']).map((step,index)=><span key={step}>{index+1}. {step}</span>)}</div>
             <div style={styles.small}>{providerStatus.moneyGate||'Paid gifts remain separately gated until verified commerce is enabled.'}</div>
           </div>}
           {error && <div role="alert" style={styles.error}>{error}</div>}
@@ -241,9 +358,10 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
             <div><strong>{title || 'TryAMM LIVE'}</strong><div style={styles.small}>{pkMode?'PK':format.toUpperCase()} · {role.toUpperCase()} · FILTER {visualFilter.toUpperCase()}</div></div>
             <div style={styles.viewerBadge}>👥 {participants}</div>
           </div>
-          <div ref={stageRef} style={styles.stage} aria-live="polite">
+          <div ref={stageRef} className="tryamm-live-stage" style={styles.stage} aria-live="polite">
             {!connected && <div style={styles.placeholder}>Camera/video stage appears here after joining.</div>}
           </div>
+          {connected&&role==='viewer'&&audioNeedsTap&&<button type="button" onClick={()=>void unlockViewerAudio()} style={{...styles.primary,marginTop:9}} aria-label="Enable live stream sound">🔊 TAP TO ENABLE LIVE AUDIO</button>}
           <div style={styles.features}>
             <span>HoloFilter</span><span>LiveKit camera/mic</span><span>Captions-ready</span><span>Translation-ready</span><span>Sign-language companion</span><span>Report/block safety</span><span>OTT replay hook</span>
           </div>

@@ -5,6 +5,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useGameStore } from '../game/state/useGameStore'
+import {getAccessToken} from '../services/supabaseClient'
 
 // ── TYPES ─────────────────────────────────────────────────────────────────────
 interface Track {
@@ -142,6 +143,13 @@ export default function RecordingStudio({ onClose }: { onClose: () => void }) {
   const [recordingTrackId, setRecordingTrackId] = useState<number | null>(null)
   const [chunks, setChunks] = useState<Blob[]>([])
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null)
+  const [takeName,setTakeName]=useState('aniyah-studio-take.webm')
+  const [takeTrack,setTakeTrack]=useState('')
+  const [savingPrivateTake,setSavingPrivateTake]=useState(false)
+  const [privateTakeStatus,setPrivateTakeStatus]=useState('')
+  const [privateTakePlayback,setPrivateTakePlayback]=useState('')
+  const lastTakeBlob=useRef<Blob|null>(null)
+  const lastTakeUrl=useRef<string|null>(null)
   const [masterVol, setMasterVol] = useState(0.85)
   const [playing, setPlaying] = useState(false)
   const [playhead, setPlayhead] = useState(0)
@@ -154,6 +162,11 @@ export default function RecordingStudio({ onClose }: { onClose: () => void }) {
   const streamRef = useRef<MediaStream | null>(null)
   const playheadRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const peakRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  useEffect(()=>()=> {
+    if(mediaRecorderRef.current?.state==='recording')mediaRecorderRef.current.stop()
+    streamRef.current?.getTracks().forEach(track=>track.stop())
+    if(lastTakeUrl.current)URL.revokeObjectURL(lastTakeUrl.current)
+  },[])
 
   // Animate peak meters
   useEffect(() => {
@@ -178,18 +191,33 @@ export default function RecordingStudio({ onClose }: { onClose: () => void }) {
 
   const startRecord = async (trackId: number) => {
     try {
+      lastTakeBlob.current=null
+      setPrivateTakeStatus('')
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       streamRef.current = stream
-      const recorder = new MediaRecorder(stream)
+      const codec=['audio/webm;codecs=opus','audio/mp4','audio/webm']
+        .find(m=>MediaRecorder.isTypeSupported(m))
+      const recorder=new MediaRecorder(stream,codec?{mimeType:codec}:undefined)
       const newChunks: Blob[] = []
-      recorder.ondataavailable = e => newChunks.push(e.data)
-      recorder.onstop = () => {
-        const blob = new Blob(newChunks, { type: 'audio/webm' })
-        const url = URL.createObjectURL(blob)
+      recorder.ondataavailable=e=>{if(e.data.size>0)newChunks.push(e.data)}
+      recorder.onstop=()=>{
+        stream.getTracks().forEach(t=>t.stop())
+        streamRef.current=null
+        const mime=recorder.mimeType||newChunks[0]?.type||'audio/webm'
+        if(!newChunks.length){store.setNotif('Recording returned no audio. Check your microphone and try again.');return}
+        const blob=new Blob(newChunks,{type:mime})
+        if(!blob.size){store.setNotif('The audio take is empty. Please record it again.');return}
+        if(lastTakeUrl.current)URL.revokeObjectURL(lastTakeUrl.current)
+        lastTakeBlob.current=blob
+        setPrivateTakePlayback('')
+        const url=URL.createObjectURL(blob)
+        lastTakeUrl.current=url
         setDownloadUrl(url)
-        setTracks(prev => prev.map(t => t.id === trackId ? { ...t, hasRecording: true } : t))
-        store.setNotif(`✅ Take recorded on "${tracks.find(t=>t.id===trackId)?.name}"! Download below.`)
-        store.earnXp(100)
+        const track=tracks.find(t=>t.id===trackId)?.name||'studio-take'
+        setTakeTrack(track)
+        setTakeName('aniyah-'+track.toLowerCase().replace(/[^a-z0-9]+/g,'-')+(mime.includes('mp4')?'.m4a':'.webm'))
+        setTracks(prev=>prev.map(t=>t.id===trackId?{...t,hasRecording:true}:t))
+        store.setNotif(`✅ Take recorded on "${track}". Listen and download below; it has not been uploaded.`)
       }
       recorder.start()
       mediaRecorderRef.current = recorder
@@ -207,6 +235,37 @@ export default function RecordingStudio({ onClose }: { onClose: () => void }) {
     streamRef.current?.getTracks().forEach(t => t.stop())
     setRecording(false)
     setRecordingTrackId(null)
+  }
+
+  const savePrivateTake=async()=>{
+    const blob=lastTakeBlob.current
+    if(!blob||savingPrivateTake)return
+    setSavingPrivateTake(true);setPrivateTakeStatus('Saving your private recording…')
+    try{
+      const mime=blob.type.split(';')[0].toLowerCase().trim()
+      if(!['audio/webm','audio/mp4'].includes(mime))throw new Error('Audio must be WebM or MP4 for private storage. Keep your local download.')
+      if(blob.size===0||blob.size>50*1024*1024)throw new Error('The private audio pilot accepts files up to 50 MB.')
+      const token=await getAccessToken()
+      if(!token)throw new Error('Sign in before saving to your private TRYAMM library.')
+      const headers={'content-type':'application/json',Authorization:'Bearer '+token}
+      const intentResponse=await fetch('/api/media/upload-intent',{method:'POST',headers,body:JSON.stringify({
+        fileName:'aniyah-take-'+Date.now()+(mime==='audio/mp4'?'.m4a':'.webm'),
+        contentType:mime,sizeBytes:blob.size,title:'Aniyah 64-Track Studio — private audio take',
+        caption:'Unreleased private recording. Not monetized or approved for distribution.',
+        composition:{source:'aniyah-64-track-studio',releaseApproved:false}
+      })})
+      const intent=await intentResponse.json().catch(()=>({}))
+      if(!intentResponse.ok||!intent?.upload?.url||!intent?.media?.id)throw new Error(intent.error||'Audio upload intent failed.')
+      const transferred=await fetch(intent.upload.url,{method:'PUT',headers:{'content-type':mime},body:blob})
+      if(!transferred.ok)throw new Error('Storage upload failed. Keep your local take.')
+      const check=await fetch('/api/media/upload-complete',{method:'POST',headers,body:JSON.stringify({mediaId:intent.media.id})})
+      const checked=await check.json().catch(()=>({}))
+      if(!check.ok)throw new Error(checked.error||'Storage did not verify the uploaded audio.')
+      const playback=typeof checked.playbackUrl==='string'&&checked.playbackUrl.startsWith('https://')?checked.playbackUrl:''
+      setPrivateTakePlayback(playback)
+      setPrivateTakeStatus('Verified PRIVATE audio saved. Reference '+intent.media.id+'. Nothing published or charged.'+(playback?' Review the stored file below.':' Stored-file playback is currently unavailable.'))
+    }catch(err){setPrivateTakeStatus(err instanceof Error?err.message:'Private save failed. Keep the local download.')}
+    finally{setSavingPrivateTake(false)}
   }
 
   const applyGuitarPreset = (preset: GuitarPreset) => {
@@ -396,8 +455,15 @@ GENERATED SCRIPT · AMM OMNIVERSE
                 </button>
               ))}
             </div>
+            {downloadUrl&&<div style={{display:'grid',gap:6,marginTop:10}}>
+              <button type="button" disabled={savingPrivateTake} onClick={()=>void savePrivateTake()} style={{padding:10,minHeight:48,background:'#153e31',color:'#afffe4',border:'1px solid #54dabb',borderRadius:10,fontWeight:850}}>
+                {savingPrivateTake?'SAVING PRIVATE AUDIO…':'SAVE TAKE TO PRIVATE TRYAMM LIBRARY'}
+              </button>
+              {privateTakeStatus&&<p role="status" style={{fontSize:11,overflowWrap:'anywhere',color:'#a6fbd8'}}>{privateTakeStatus}</p>}
+              <small style={{color:'#93aaa5'}}>Saving a private recording does not publish or sell music.</small>
+            </div>}
             {downloadUrl&&(
-              <a href={downloadUrl} download="amm-vocal-take.webm" style={{ display:'block',width:'100%',background:'rgba(0,204,68,.15)',border:'1px solid #00cc44',color:'#00cc44',borderRadius:8,padding:'10px',textAlign:'center',fontFamily:'monospace',fontWeight:700,textDecoration:'none',fontSize:12 }}>
+              <a href={downloadUrl} download={takeName} style={{ display:'block',width:'100%',background:'rgba(0,204,68,.15)',border:'1px solid #00cc44',color:'#00cc44',borderRadius:8,padding:'10px',textAlign:'center',fontFamily:'monospace',fontWeight:700,textDecoration:'none',fontSize:12 }}>
                 ⬇ DOWNLOAD VOCAL TAKE (.webm)
               </a>
             )}
@@ -438,7 +504,7 @@ GENERATED SCRIPT · AMM OMNIVERSE
               {recording?'⏹ STOP GUITAR RECORDING':'🎸 RECORD GUITAR'}
             </button>
             {downloadUrl&&!recording&&(
-              <a href={downloadUrl} download="amm-guitar-take.webm" style={{ display:'block',marginTop:8,width:'100%',background:'rgba(0,204,68,.1)',border:'1px solid #00cc44',color:'#00cc44',borderRadius:8,padding:'9px',textAlign:'center',fontFamily:'monospace',fontWeight:700,textDecoration:'none',fontSize:11 }}>⬇ DOWNLOAD GUITAR TAKE</a>
+              <a href={downloadUrl} download={takeName} style={{ display:'block',marginTop:8,width:'100%',background:'rgba(0,204,68,.1)',border:'1px solid #00cc44',color:'#00cc44',borderRadius:8,padding:'9px',textAlign:'center',fontFamily:'monospace',fontWeight:700,textDecoration:'none',fontSize:11 }}>⬇ DOWNLOAD GUITAR TAKE</a>
             )}
           </div>
         )}
@@ -485,7 +551,7 @@ GENERATED SCRIPT · AMM OMNIVERSE
               {recording?'⏹ STOP PODCAST RECORDING':'🎙 RECORD PODCAST EPISODE'}
             </button>
             {downloadUrl&&!recording&&(
-              <a href={downloadUrl} download="amm-podcast-episode.webm" style={{ display:'block',marginTop:8,background:'rgba(136,0,255,.1)',border:'1px solid #8800ff33',color:'#8800ff',borderRadius:8,padding:'9px',textAlign:'center',fontFamily:'monospace',fontWeight:700,textDecoration:'none',fontSize:11 }}>⬇ DOWNLOAD PODCAST EPISODE</a>
+              <a href={downloadUrl} download={takeName} style={{ display:'block',marginTop:8,background:'rgba(136,0,255,.1)',border:'1px solid #8800ff33',color:'#8800ff',borderRadius:8,padding:'9px',textAlign:'center',fontFamily:'monospace',fontWeight:700,textDecoration:'none',fontSize:11 }}>⬇ DOWNLOAD PODCAST EPISODE</a>
             )}
           </div>
         )}
@@ -495,26 +561,26 @@ GENERATED SCRIPT · AMM OMNIVERSE
           <div style={{ padding:14 }}>
             <div style={{ color:'#ffaa00',fontWeight:700,fontSize:13,marginBottom:12 }}>📡 REMOTE RECORD</div>
             <div style={{ background:'rgba(255,170,0,.06)',border:'1px solid #ffaa0033',borderRadius:10,padding:14,marginBottom:14,fontSize:11,color:'#888',lineHeight:1.7 }}>
-              Record remotely with other artists, producers, and session musicians over the internet. Feature uses LiveKit WebRTC for real-time audio collaboration. Victor adds LiveKit for $75 extra after the main $400 deployment.
+              Record remotely with other artists, producers, and session musicians over the internet. Feature uses LiveKit WebRTC for real-time audio collaboration. Remote collaborative recording is not yet connected to the authenticated LiveKit recording pipeline. No quoted deployment fee is implied.
             </div>
             <div style={{ marginBottom:14 }}>
               <div style={{ fontSize:11,color:'#555',marginBottom:8,letterSpacing:2 }}>YOUR SESSION CODE</div>
               <div style={{ background:'#09091c',border:'1px solid #ffaa0044',borderRadius:8,padding:12,display:'flex',gap:8,alignItems:'center' }}>
-                <span style={{ color:'#ffaa00',fontWeight:900,fontSize:16,letterSpacing:6,flex:1 }}>AMM-{Math.random().toString(36).slice(2,6).toUpperCase()}</span>
-                <button onClick={()=>store.setNotif('📋 Session code copied!')} style={{ background:'rgba(255,170,0,.1)',border:'1px solid #ffaa0033',color:'#ffaa00',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontFamily:'monospace',fontSize:10 }}>📋 COPY</button>
+                <span style={{ color:'#ffaa00',fontWeight:900,fontSize:12,flex:1 }}>NOT CONNECTED</span>
+                <button disabled title="Remote sessions require a verified LiveKit recording service" style={{ background:'rgba(255,170,0,.1)',border:'1px solid #ffaa0033',color:'#ffaa00',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontFamily:'monospace',fontSize:10 }}>📋 COPY</button>
               </div>
             </div>
             <div style={{ marginBottom:14 }}>
               <div style={{ fontSize:11,color:'#555',marginBottom:8,letterSpacing:2 }}>JOIN A SESSION</div>
               <input value={remoteCode} onChange={e=>setRemoteCode(e.target.value)} placeholder="Enter session code..."
                 style={{ width:'100%',background:'#09091c',border:'1px solid #ffaa0033',color:'#ccc',borderRadius:8,padding:'9px 12px',fontFamily:'monospace',fontSize:12,marginBottom:8,boxSizing:'border-box' as const }}/>
-              <button onClick={()=>store.setNotif('📡 Connecting to remote session... LiveKit required. Victor adds this for $75.')}
+              <button disabled title="Remote recording is unavailable until real LiveKit guest authentication is integrated"
                 style={{ width:'100%',background:'rgba(255,170,0,.15)',border:'1px solid #ffaa00',color:'#ffaa00',borderRadius:8,padding:'10px',cursor:'pointer',fontFamily:'monospace',fontWeight:700,fontSize:12 }}>
                 📡 JOIN REMOTE SESSION
               </button>
             </div>
             <div style={{ fontSize:11,color:'#555',lineHeight:1.8 }}>
-              Once LiveKit is connected ($75 add-on):<br/>
+              Planned features; not yet enabled:<br/>
               ✓ Real-time remote recording with any artist anywhere<br/>
               ✓ Each participant's audio recorded on separate tracks<br/>
               ✓ Low-latency audio, stems download after session<br/>
@@ -546,22 +612,33 @@ GENERATED SCRIPT · AMM OMNIVERSE
                 </div>
               ))}
             </div>
-            <button onClick={()=>store.setNotif('⚙️ Mastering chain applied! After upload, distribute to Spotify, Apple, Amazon, YouTube, Tidal, Deezer.')}
+            <button onClick={()=>store.setNotif('Mastering controls are a demonstration; no mastered file or distribution has been created.')}
               style={{ width:'100%',background:'rgba(255,215,0,.15)',border:'2px solid #ffd700',color:'#ffd700',borderRadius:10,padding:14,cursor:'pointer',fontFamily:'monospace',fontWeight:900,fontSize:14 }}>
               ⚙️ APPLY MASTER CHAIN
             </button>
             {downloadUrl&&(
-              <a href={downloadUrl} download="amm-master-final.webm" style={{ display:'block',marginTop:8,background:'rgba(255,215,0,.08)',border:'1px solid #ffd70033',color:'#ffd700',borderRadius:8,padding:'9px',textAlign:'center',fontFamily:'monospace',fontWeight:700,textDecoration:'none',fontSize:11 }}>⬇ DOWNLOAD MASTER (.webm)</a>
+              <a href={downloadUrl} download={takeName} style={{ display:'block',marginTop:8,background:'rgba(255,215,0,.08)',border:'1px solid #ffd70033',color:'#ffd700',borderRadius:8,padding:'9px',textAlign:'center',fontFamily:'monospace',fontWeight:700,textDecoration:'none',fontSize:11 }}>⬇ DOWNLOAD MASTER (.webm)</a>
             )}
             <div style={{ marginTop:14,fontSize:11,color:'#555',lineHeight:1.7 }}>
               After mastering → upload to Music Realm → distribute FREE to:<br/>
               Spotify · Apple Music · Amazon Music · YouTube Music · Tidal · Deezer<br/>
-              Earn $0.012–$0.018/stream · You keep 90% of all royalties
+              Streaming royalties and distribution are not activated; payment amounts depend on the distributor and actual statements.
             </div>
           </div>
         )}
 
       </div>
+      {privateTakePlayback&&<section aria-label="Aniyah private cloud playback" style={{background:'#06152a',padding:12,borderTop:'1px solid #4fcacb66',display:'grid',gap:7}}>
+        <strong>☁️ PRIVATE CLOUD PLAYBACK • UPLOADED AUDIO</strong>
+        <audio controls preload="metadata" src={privateTakePlayback} aria-label="Play the stored Aniyah private audio take" style={{width:'100%',minHeight:44}}/>
+        <small>Temporary signed playback (up to one hour), not a mastered recording or public release. Keep your source download.</small>
+      </section>}
+      {downloadUrl&&<section aria-label="Aniyah latest recorded take" style={{background:'#08191c',padding:12,borderTop:'1px solid #00cc4466'}}>
+        <div style={{fontSize:12,color:'#8affbb',marginBottom:8}}>RECORDED TAKE • {takeTrack} • LOCAL FILE ONLY</div>
+        <audio controls preload="metadata" src={downloadUrl} style={{width:'100%',minHeight:44}} aria-label="Listen to recorded audio take"/>
+        <a download={takeName} href={downloadUrl} style={{display:'inline-block',padding:'12px 14px',color:'#b7ffcf'}}>⬇ DOWNLOAD ACTUAL AUDIO FILE</a>
+        <div style={{fontSize:10,color:'#d1bd96'}}>Not automatically mixed, uploaded, mastered, published or delivered.</div>
+      </section>}
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style>
     </div>
   )

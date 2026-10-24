@@ -3,6 +3,7 @@ import {json} from '../_lib/supabase-admin.js';
 import {userRest} from '../_lib/supabase-user.js';
 import {requireUser} from '../_lib/security.js';
 import {verifyStoredObject} from '../_lib/media-storage.js';
+import {isProtectedPrivateMedia} from '../_lib/private-media-workflows.js';
 
 const ALLOWED_DESTINATIONS=new Set(['reel','omnibox','all-american-network','servants-of-christ-network','creator-profile']);
 const terminal=new Set(['delivered','failed']);
@@ -24,6 +25,13 @@ export default async function handler(req,res){
 
     const mediaRows=await userRest(req,'media_catalog',{query:{id:`eq.${job.media_id}`,owner_id:`eq.${user.id}`,select:'*',limit:1}}),media=mediaRows?.[0];
     if(!media)return json(res,404,{error:'media_not_found'});
+    // Reject pre-existing jobs as well as newly submitted ones. An approved
+    // media moderation flag alone does not clear private auditions or takes.
+    if(isProtectedPrivateMedia(media))return json(res,409,{
+      error:'private_media_requires_separate_release_clearance',
+      job,
+      next:'Casting/studio producer approval and media release must be verified independently.'
+    });
     const storagePath=String(media.storage_path||media.manifest?.storage_path||'').trim();
     if(media.processing_status!=='ready'||!storagePath||!await verifyStoredObject(req,storagePath)){
       const failed=await userRest(req,'media_publish_jobs',{method:'PATCH',query:{id:`eq.${job.id}`,owner_id:`eq.${user.id}`},body:{status:'failed',error_code:'MEDIA_NOT_READY_OR_MISSING'}});

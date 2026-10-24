@@ -206,10 +206,27 @@ function addThomasJeffersonSchool(root:THREE.Group,colliders:THREE.Box3[]){
 
 function addPark(root:THREE.Group){
   const park=new THREE.Group();park.position.set(0,0,49);park.name='circle-park-visible-forge'
-  const lawn=new THREE.Mesh(geometry(new THREE.CircleGeometry(12,36)),material({color:0x477f4a,roughness:1}));lawn.rotation.x=-Math.PI/2;lawn.position.y=.03;park.add(lawn)
-  const path=new THREE.Mesh(geometry(new THREE.RingGeometry(7.5,9,40)),material({color:0xc5b79d,roughness:1}));path.rotation.x=-Math.PI/2;path.position.y=.05;park.add(path)
+  const grass=material({color:0x477f4a,roughness:1}),walk=material({color:0xc5b79d,roughness:1})
+  const lawn=new THREE.Mesh(geometry(new THREE.CircleGeometry(12,36)),grass);lawn.rotation.x=-Math.PI/2;lawn.position.y=.03;park.add(lawn)
+  const path=new THREE.Mesh(geometry(new THREE.RingGeometry(7.5,9,40)),walk);path.rotation.x=-Math.PI/2;path.position.y=.05;park.add(path)
   const court=box(park,[13,.06,7],[0,.08,0],material({color:0xb96e43,roughness:.9}),0,'circle-park-court')
   court.position.z=-1
+  // Distinct neighborhood-scale details in the *playable 3D* Circle Park scene.
+  // Game-inspired reconstructions, not claims about exact historical site geometry.
+  const whiteLine=material({color:0xe9e5cc,roughness:.92}),steel=material({color:0x566c72,metalness:.5,roughness:.55})
+  for(const side of [-1,1]){
+    box(park,[.12,.075,6.4],[side*6.12,.15,-1],whiteLine,0,'circle-park-court-sideline')
+    box(park,[.17,2.8,.17],[side*6.9,1.42,-1],steel,0,'circle-park-hoop-post')
+    box(park,[.12,1.10,1.65],[side*6.95,2.75,-1],whiteLine,0,'circle-park-basketball-backboard')
+    const hoop=new THREE.Mesh(geometry(new THREE.TorusGeometry(.34,.045,6,12)),material({color:0xcc5b32,roughness:.8}))
+    hoop.position.set(side*6.62,2.44,-1);hoop.rotation.x=Math.PI/2;hoop.name='circle-park-basketball-hoop';park.add(hoop)
+    box(park,[2.8,.20,.84],[side*8.6,.54,5.3],material({color:0x9b7554,roughness:.92}),0,'circle-park-rest-bench')
+    box(park,[2.8,.76,.16],[side*8.6,1.08,5.7],steel,0,'circle-park-bench-back')
+  }
+  // The original court remains in place; the pedestrian plaza reads as a destination.
+  box(park,[5.5,.08,2.3],[0,.12,9.1],walk,0,'circle-park-entry-plaza')
+  const arrival=labelSprite('CIRCLE PARK • WEST SIDE')
+  arrival.position.set(0,3.0,10.6);arrival.scale.set(8.5,1.8,1);park.add(arrival)
   for(const [x,z] of [[-8,-7],[8,-7],[-9,6],[9,6],[-11,0],[11,0]] as const)addTree(park,x,z,.78)
   root.add(park)
 }
@@ -367,10 +384,92 @@ function addPilsenMurals(root:THREE.Group){
   }
 }
 function addElevatedRail(root:THREE.Group){
-  const steel=material({color:0x495158,metalness:.78,roughness:.42}),rail=material({color:0x252a2e,metalness:.90,roughness:.28}),deck=material({color:0x5d6266,metalness:.42,roughness:.68})
-  for(let x=-80;x<=80;x+=12){box(root,[.50,6.4,.50],[x,3.2,-46],steel);box(root,[6.2,.30,.42],[x,6.15,-46],steel)}
-  box(root,[176,.34,5.4],[0,6.45,-46],deck)
-  box(root,[176,.12,.18],[0,6.72,-44.7],rail);box(root,[176,.12,.18],[0,6.72,-47.3],rail)
+   // Match the moving Chicago mobile L train: its established track is at z=-35.
+   // This is an original visual streetscape, not a verified real CTA station layout.
+   const trackZ=-35
+   const steel=material({color:0x495158,metalness:.78,roughness:.42}),rail=material({color:0x252a2e,metalness:.90,roughness:.28}),deck=material({color:0x5d6266,metalness:.42,roughness:.68})
+   for(let x=-80;x<=80;x+=12){box(root,[.50,6.4,.50],[x,3.2,trackZ],steel);box(root,[6.2,.30,.42],[x,6.15,trackZ],steel)}
+   box(root,[176,.34,5.4],[0,6.45,trackZ],deck)
+   box(root,[176,.12,.18],[0,6.72,trackZ+1.3],rail);box(root,[176,.12,.18],[0,6.72,trackZ-1.3],rail)
+   // Fictional transit link platforms, visibly connected to the existing L track.
+   // No boarding or fare collection implied; train animation still comes from MobileWorld.
+   const platform=material({color:0x9b9b93,roughness:.92}),warning=material({color:0xe5b747,roughness:.92})
+   for(const [x,name] of [[-48,'CIRCLE PARK LINK'],[48,'TAYLOR / UIC LINK']] as const){
+     box(root,[19,.30,3.3],[x,6.52,trackZ+4.6],platform,0,'west-side-el-station-platform')
+     box(root,[19,.07,.28],[x,6.73,trackZ+2.96],warning,0,'west-side-el-platform-warning-strip')
+     for(const dx of [-8,8])box(root,[.24,2.8,.24],[x+dx,8.05,trackZ+5.9],steel)
+     box(root,[18,.22,4.7],[x,9.45,trackZ+4.7],deck,0,'west-side-el-station-canopy')
+     const sign=labelSprite(name+' • L TRAIN')
+     sign.position.set(x,9.12,trackZ+7.3);sign.scale.set(8.5,1.7,1)
+     root.add(sign)
+   }
+ }
+
+/**
+ * Original ABLA Village / New Homes game reconstruction on the east edge of the
+ * walkable West Side slice. Anchors are game coordinates, not surveyed parcels.
+ * Real 1111 S Laflin references remain in the existing Circle Park 3D layer.
+ */
+function addABLANewHomesVillage(root:THREE.Group,colliders:THREE.Box3[]){
+  const village=new THREE.Group();village.name='streetverse-abla-village-new-homes-v1'
+  village.userData={representation:'original-tryamm-game-reconstruction',historicalContext:'ABLA / Roosevelt Square redevelopment',surveyVerified:false,realResidencyOrOwnership:false}
+  const brickA=material({color:0x9d674d,roughness:.9}),brickB=material({color:0x815b4b,roughness:.91})
+  const limestone=material({color:0xd5c9b3,roughness:.95}),roofMat=material({color:0x3c4850,roughness:.83})
+  const glass=material({color:0x7facbd,metalness:.10,roughness:.24,emissive:0x18313d,emissiveIntensity:.14})
+  const green=material({color:0x4a7854,roughness:1}),walk=material({color:0xbcb5a6,roughness:.98})
+  box(village,[31,.10,3.1],[66,.12,61],walk,0,'abla-village-step-free-promenade')
+  box(village,[31,.08,2.5],[66,.10,76],walk,0,'abla-village-internal-path')
+  box(village,[32,.08,4],[66,.08,65],green,0,'abla-village-lawn')
+  // Two accessible outer paths connect the promenade to the shared townhome court.
+  // They avoid cutting through any of the six collision-protected homes.
+  for(const x of [49,82]){
+    box(village,[2.3,.09,17],[x,.12,68],walk,0,'abla-village-accessible-side-connection')
+  }
+  const garden=material({color:0x735741,roughness:1})
+  const foliage=material({color:0x3b7e56,roughness:.95})
+  for(const x of [55,65.5,76]){
+    box(village,[2.4,.22,1.5],[x,.14,63.9],garden,0,'abla-village-planter-bed')
+    const bush=new THREE.Mesh(geometry(new THREE.DodecahedronGeometry(.62,0)),foliage)
+    bush.position.set(x,.73,63.9);bush.name='abla-village-landscape-shrub';village.add(bush)
+  }
+  for(const [row,z] of [[0,70],[1,81]] as const){
+    for(const [index,x] of [55,65.5,76].entries()){
+      const home=new THREE.Group();home.position.set(x,0,z);home.name=`abla-new-homes-townhome-${row+1}-${index+1}`
+      const body=box(home,[7.8,6.5,7.2],[0,3.25,0],index%2?brickB:brickA,0,'abla-village-brick-townhome-shell')
+      box(home,[8.2,.34,7.55],[0,6.7,0],roofMat,0,'abla-village-roof')
+      // Both rows face the common pedestrian courtyard at z=76.
+      const front=row===0?3.66:-3.66,sign=row===0?1:-1
+      for(const offset of [-2,2])for(const floor of [2,4.85]){
+        box(home,[1.52,1.25,.10],[offset,floor,front+sign*.06],glass,0,'abla-village-framed-window')
+        box(home,[1.78,.13,.21],[offset,floor-.72,front+sign*.10],limestone,0,'abla-village-window-sill')
+      }
+      box(home,[1.38,2.52,.14],[0,1.27,front+sign*.16],roofMat,0,'abla-village-front-door')
+      box(home,[3.6,.23,1.45],[0,2.83,front+sign*.87],limestone,0,'abla-village-entry-canopy')
+      box(home,[2.8,.12,2],[0,.09,front+sign*1.35],walk,0,'abla-village-entry-walk')
+      box(home,[1.8,.28,.14],[0,2.25,front+sign*.24],limestone,0,'abla-village-door-lintel')
+      box(home,[1.7,.09,.4],[0,.09,front+sign*.28],limestone,0,'abla-village-door-threshold')
+      // Original porch lantern is emissive rather than a per-house dynamic point light.
+      const porchGlow=material({color:0xffdea8,emissive:0xffbf6a,emissiveIntensity:.65,roughness:.8})
+      for(const side of [-1,1]){
+        box(home,[.20,.30,.15],[side*1.34,2.40,front+sign*.19],porchGlow,0,'abla-village-porch-light')
+      }
+      const number=labelSprite('NEW HOMES '+(row*3+index+1))
+      number.name='abla-village-new-homes-number';number.scale.set(3.5,.76,1)
+      number.position.set(0,3.75,front+sign*.30);home.add(number)
+      village.add(home)
+      colliders.push(new THREE.Box3().setFromObject(body).expandByScalar(.15))
+    }
+  }
+  const villageBenchMaterial=material({color:0x976e51,roughness:.88})
+  for(const x of [58.5,73]){
+    box(village,[2.8,.22,.75],[x,.66,59.2],villageBenchMaterial,0,'abla-village-public-bench-seat')
+    box(village,[2.8,.76,.16],[x,1.10,59.75],roofMat,0,'abla-village-public-bench-back')
+  }
+  const villageSign=labelSprite('ABLA VILLAGE • NEW HOMES')
+  villageSign.name='abla-village-new-homes-wayfinding'
+  villageSign.position.set(65,5,59.5);villageSign.scale.set(11.5,1.85,1)
+  village.add(villageSign)
+  root.add(village)
 }
 
 function addResidentialCourtyard(root:THREE.Group){
@@ -403,7 +502,8 @@ function addResidentialCourtyard(root:THREE.Group){
   ;[-45,0,45].forEach(x=>{box(root,[.34,.10,176],[x-7.05,.13,3],curbMat);box(root,[.34,.10,176],[x+7.05,.13,3],curbMat)})
   ;[
     ['ROOSEVELT RD',-70,18],['TAYLOR ST',-70,-8],['PILSEN / 18TH',-70,-36],
-    ['WEST SIDE / CIRCLE PARK',-70,49],['UIC →',54,-18]
+    ['WEST SIDE / CIRCLE PARK',-70,49],['UIC →',54,-18],
+    ['TAYLOR + LAFLIN • 60607',-24,-8],['1111 S LAFLIN • CIRCLE PARK',-38,30]
   ].forEach(([label,x,z])=>{const sign=labelSprite(String(label));sign.scale.set(7.6,1.55,1);sign.position.set(Number(x),4.2,Number(z));root.add(sign)})
   // V9 proof-zone streetscape: add the small ground details that make the block read as a real city street.
   const patchMat=material({color:0x292e32,roughness:1}),manholeMat=material({color:0x4a5054,roughness:.72,metalness:.26}),treePitMat=material({color:0x4b4031,roughness:1}),parkingLineMat=material({color:0xe8e5dc,roughness:.92})
@@ -464,6 +564,7 @@ function addResidentialCourtyard(root:THREE.Group){
     {x:48,z:-54,w:15,d:14,h:22,color:0x5b6571,label:'Pilsen Creator Block'},
   ]
   buildings.forEach(b=>addBuilding(root,b,colliders,brickMap))
+  addABLANewHomesVillage(root,colliders)
   addThomasJeffersonSchool(root,colliders)
 
   const treeRows=[[-79,60],[-58,60],[-35,60],[-16,60],[16,60],[35,60],[58,60],[79,60],[-79,24],[-58,24],[-35,24],[35,24],[58,24],[79,24],[-79,-14],[-58,-14],[-35,-14],[35,-14],[58,-14],[79,-14],[-79,-44],[-58,-44],[-35,-44],[35,-44],[58,-44],[79,-44]] as const
@@ -572,5 +673,7 @@ function addResidentialCourtyard(root:THREE.Group){
     root.traverse(obj=>{if(obj instanceof THREE.Sprite){const t=obj.userData.disposeTexture as THREE.Texture|undefined;t?.dispose()}})
     root.removeFromParent()
     ownedGeometries.splice(0).forEach(g=>g.dispose());ownedMaterials.splice(0).forEach(m=>m.dispose());ownedTextures.splice(0).forEach(t=>t.dispose())
+    // The shared geometry cache is world-local. Never reuse buffers after fallback/dispose.
+    sharedBoxGeometries.clear()
   }}
 }

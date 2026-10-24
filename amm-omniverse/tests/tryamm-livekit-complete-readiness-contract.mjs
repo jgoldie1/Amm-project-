@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=x=>fs.readFileSync(new URL('../'+x,import.meta.url),'utf8')
+const status=read('api/live/status.js')
+const panel=read('api/live/panel.js')
+const admin=read('api/_lib/supabase-admin.js')
+const pkg=JSON.parse(read('package.json'))
+for(const id of ['LIVEKIT_URL','LIVEKIT_API_KEY','LIVEKIT_API_SECRET','SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY'])assert(status.includes(id),id)
+assert(status.includes('supabaseAdminKey:Boolean(supabaseAdminKey)'), 'LIVE must include authorized database')
+assert(status.includes("url:Boolean(url)&&/^wss:"),'LIVE must reject non-WSS production settings')
+assert(status.includes("readyForPublic:configured&&process.env.LIVE_PUBLIC_VERIFIED==='true'"),'public flag requires explicit operational review')
+assert(admin.includes("const key=()=>process.env.SUPABASE_SERVICE_ROLE_KEY"),'admin key never exposed to browser')
+assert(panel.includes('adminReady()'),'LIVE rooms cannot be created without admin backend')
+assert(pkg.scripts.build.includes('tryamm-livekit-complete-readiness-contract.mjs'))
+console.log('LIVEKIT FULL READINESS PASS: WSS and Supabase service role required, no false credential ready')

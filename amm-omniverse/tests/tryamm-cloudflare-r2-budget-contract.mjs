@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const s=read('api/media/cloudflare-r2.js');
+const pkg=JSON.parse(read('package.json'));
+for(const env of ['CLOUDFLARE_R2_ENABLED','CLOUDFLARE_R2_ACCOUNT_ID','CLOUDFLARE_R2_BUCKET','CLOUDFLARE_R2_ACCESS_KEY_ID','CLOUDFLARE_R2_SECRET_ACCESS_KEY','CLOUDFLARE_R2_PILOT_UPLOADS','CLOUDFLARE_R2_OPERATOR_USER_ID'])assert(s.includes(env),env);
+assert(s.includes('const MAX_PILOT_BYTES=50*1024*1024'));
+assert(s.includes('if(!ready(c)||!c.pilot||!c.operator)'));
+assert(s.includes('const user=await requireUser(req,res)'));
+assert(s.includes("if(user.id!==c.operator)"));
+assert(s.includes("['video/mp4','video/webm']"));
+assert(s.includes("'X-Amz-Expires':'60'"));
+assert(s.includes("'X-Amz-SignedHeaders':'content-type;host'"));
+assert(s.includes('Presigned PUT does not enforce declared upload size'));
+assert(read('docs/TRYAMM_CLOUDFLARE_LIVE_R2_STARTUP.md').includes('CORS'));
+assert(pkg.scripts.build.includes('tryamm-cloudflare-r2-budget-contract.mjs'));
+console.log('CLOUDFLARE R2 PRIVATE PILOT PASS: opt-in, operator-only, 60-second signed URLs, no browser secrets, size warning');

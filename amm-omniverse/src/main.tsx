@@ -34,6 +34,10 @@ const StreetVerseTwinWorld=lazy(()=>import('./components/StreetVerseTwinWorld'))
 const MeetTheStubbsWorldDistrict=lazy(()=>import('./components/MeetTheStubbsWorldDistrict'))
 const OmniWorkstation=lazy(()=>import('./components/OmniWorkstation'))
 const AllAmericanNetworkHub=lazy(()=>import('./components/AllAmericanNetworkHub'))
+const CreatorBusinessLaunchHub=lazy(()=>import('./components/CreatorBusinessLaunchHub'))
+const AniyahPayCenter=lazy(()=>import('./components/AniyahPayCenter'))
+const WebsiteLaunchTracker=lazy(()=>import('./components/WebsiteLaunchTracker'))
+const StarStudioCenter=lazy(()=>import('./components/StarStudioCenter'))
 const AllAmericanNetworkControlRoom=lazy(()=>import('./components/AllAmericanNetworkControlRoom'))
 const TryammBroadcastNetworkCenter=lazy(()=>import('./components/TryammBroadcastNetworkCenter'))
 const ServantsOfChristMinistry=lazy(()=>import('./components/ServantsOfChristMinistry'))
@@ -73,6 +77,10 @@ try {
   const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
   const isAssetFactory=['/asset-factory','/asset-factory/','/meshy-factory','/meshy-factory/'].includes(currentPath)
   const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
+  const isAniyahPayDemo=['/aniyah-pay/demo','/aniyah-pay/demo/'].includes(currentPath)
+  const isCreatorLaunch=['/create','/create/','/creator-launch','/creator-launch/'].includes(currentPath)
+  const isWebsiteLaunch=['/website-launch','/website-launch/'].includes(currentPath)
+  const isStarStudio=['/star-studio','/star-studio/'].includes(currentPath)
   const isLive=currentPath==='/live'||currentPath==='/live/'
   const isGuardian=currentPath==='/guardian'||currentPath==='/guardian/'
   const isAccountDeletion=currentPath==='/account-deletion'||currentPath==='/account-deletion/'
@@ -152,6 +160,10 @@ try {
   else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
+  else if(isAniyahPayDemo)routeContent=<Suspense fallback={routeFallback}><AniyahPayCenter onClose={()=>{window.location.href='/aniyah-pay'}} /></Suspense>
+  else if(isCreatorLaunch)routeContent=<Suspense fallback={routeFallback}><CreatorBusinessLaunchHub /></Suspense>
+  else if(isWebsiteLaunch)routeContent=<Suspense fallback={routeFallback}><WebsiteLaunchTracker /></Suspense>
+  else if(isStarStudio)routeContent=<Suspense fallback={routeFallback}><StarStudioCenter onClose={()=>{window.location.href='/creator-launch'}} /></Suspense>
   else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isGuardian)routeContent=<Suspense fallback={routeFallback}><GuardianCommandCenter /></Suspense>
   else if(isAccountDeletion)routeContent=<Suspense fallback={routeFallback}><AccountPrivacyCenter onClose={()=>{window.location.href='/'}} /></Suspense>

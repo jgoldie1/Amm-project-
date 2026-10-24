@@ -1,14 +1,10 @@
 // LiveKit Streaming Engine
 // Real WebRTC audio/video streaming via LiveKit Cloud
-// Falls back to mock mode when no LIVEKIT_URL is set — so it always runs
+// No production mock fallback. Failed streams report errors, never simulated viewers.
 //
-// To enable real streaming:
-//   1. Create free account at livekit.io
-//   2. Add to your .env:
-//      VITE_LIVEKIT_URL=wss://your-project.livekit.cloud
-//      VITE_LIVEKIT_API_KEY=your_api_key
-//      VITE_LIVEKIT_API_SECRET=your_api_secret
-//   3. Add a simple token endpoint to your Express backend (see TOKEN_ENDPOINT below)
+// Configure server-only LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET.
+
+import {createLiveToken} from '../../services/live'
 
 import {
   Room,
@@ -46,8 +42,7 @@ export interface StreamState {
 
 export type StreamEventCallback = (state: StreamState) => void
 
-const LIVEKIT_URL = import.meta.env.VITE_LIVEKIT_URL as string | undefined
-const TOKEN_ENDPOINT = '/api/livekit-token' // Your Express backend provides this
+// Token endpoint is POST /api/live/token using authenticated server LiveKit settings.
 
 export class StreamingEngine {
   private room: Room | null = null
@@ -59,10 +54,9 @@ export class StreamingEngine {
     isPublishing: false,
     roomName: '',
     viewerCount: 0,
-    mockMode: !LIVEKIT_URL,
+    mockMode: false,
   }
   private onChange: StreamEventCallback
-  private mockInterval: ReturnType<typeof setInterval> | null = null
   private audioContext: AudioContext | null = null
   private analyser: AnalyserNode | null = null
   private mediaStream: MediaStream | null = null
@@ -76,21 +70,14 @@ export class StreamingEngine {
   async join(roomName: string, userName: string, asHost: boolean): Promise<void> {
     this.emit({ connecting: true, error: null, roomName })
 
-    if (this.state.mockMode) {
-      await this.mockJoin(roomName, userName, asHost)
-      return
-    }
-
     try {
       // Get token from your backend
-      const res = await fetch(`${TOKEN_ENDPOINT}?room=${encodeURIComponent(roomName)}&user=${encodeURIComponent(userName)}&host=${asHost}`)
-      if (!res.ok) throw new Error('Could not get stream token')
-      const { token } = await res.json() as { token: string }
+      const session=await createLiveToken(roomName,asHost?'host':'viewer',userName)
 
       this.room = new Room({ adaptiveStream: true, dynacast: true })
       this.setupRoomEvents()
 
-      await this.room.connect(LIVEKIT_URL!, token)
+      await this.room.connect(session.url,session.token)
       this.emit({ connected: true, connecting: false, roomName })
 
       if (asHost) {
@@ -99,19 +86,17 @@ export class StreamingEngine {
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Connection failed'
       this.emit({ error: msg, connecting: false })
-      // Fall through to mock mode on error
-      await this.mockJoin(roomName, userName, asHost)
+      // Fail closed: a provider/auth error is not a real broadcast.
+      try{await this.room?.disconnect()}catch{}
+      this.room=null
+      this.emit({connected:false,isPublishing:false,viewerCount:0,participants:[],mockMode:false})
     }
   }
 
   // ── Publish audio (and optionally video) ───────────────────────────────
 
   async startPublishing(withVideo = false): Promise<void> {
-    if (this.state.mockMode) {
-      this.emit({ isPublishing: true })
-      return
-    }
-    if (!this.room) return
+    if (!this.room) throw new Error('Cannot publish before connecting to a real LIVE room')
 
     try {
       const tracks = await createLocalTracks({ audio: true, video: withVideo })
@@ -135,8 +120,7 @@ export class StreamingEngine {
     if (!this.room) return
     const lp = this.room.localParticipant as LocalParticipant
     for (const pub of lp.trackPublications.values()) {
-      await pub.unmute()
-      lp.unpublishTrack(pub.track!)
+      if(pub.track){await lp.unpublishTrack(pub.track);pub.track.stop()}
     }
     this.emit({ isPublishing: false })
   }
@@ -144,15 +128,16 @@ export class StreamingEngine {
   // ── Leave room ──────────────────────────────────────────────────────────
 
   async leave(): Promise<void> {
-    if (this.mockInterval) clearInterval(this.mockInterval)
     if (this.room) {
       await this.room.disconnect()
       this.room = null
     }
     if (this.audioContext) {
-      this.audioContext.close()
+      await this.audioContext.close()
       this.audioContext = null
     }
+    this.mediaStream?.getTracks().forEach(t=>t.stop())
+    this.mediaStream=null
     this.emit({
       connected: false,
       connecting: false,
@@ -244,37 +229,6 @@ export class StreamingEngine {
     this.emit({ participants: parts, viewerCount: parts.length + 1 })
   }
 
-  // ── Mock mode — full simulation of streaming UX ──────────────────────────
-
-  private async mockJoin(roomName: string, userName: string, asHost: boolean): Promise<void> {
-    await delay(800)
-    const mockParticipants = buildMockParticipants(roomName)
-    this.emit({
-      connected: true,
-      connecting: false,
-      mockMode: true,
-      roomName,
-      isPublishing: asHost,
-      participants: mockParticipants,
-      viewerCount: Math.floor(Math.random() * 200) + 10,
-    })
-
-    // Simulate dynamic stream activity
-    this.mockInterval = setInterval(() => {
-      const updated = this.state.participants.map(p => ({
-        ...p,
-        isSpeaking: Math.random() > 0.6,
-        audioLevel: Math.random(),
-      }))
-      // Random viewer count drift
-      const drift = Math.floor((Math.random() - 0.4) * 5)
-      this.emit({
-        participants: updated,
-        viewerCount: Math.max(1, this.state.viewerCount + drift),
-      })
-    }, 2000)
-  }
-
   // ── State helper ────────────────────────────────────────────────────────
 
   private emit(patch: Partial<StreamState>) {
@@ -285,35 +239,4 @@ export class StreamingEngine {
   getState(): StreamState { return { ...this.state } }
 }
 
-// ── Token generation (backend — Express) ────────────────────────────────────
-// Add this route to your backend/api/index.js:
-//
-// const { AccessToken } = require('livekit-server-sdk')
-// app.get('/api/livekit-token', (req, res) => {
-//   const { room, user, host } = req.query
-//   const at = new AccessToken(process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET, { identity: user })
-//   at.addGrant({ roomJoin: true, room, canPublish: host === 'true', canSubscribe: true })
-//   res.json({ token: at.toJwt() })
-// })
-
-// ── Helpers ─────────────────────────────────────────────────────────────────
-
-function delay(ms: number) { return new Promise(r => setTimeout(r, ms)) }
-
-function buildMockParticipants(room: string): StreamParticipant[] {
-  const pools: Record<string, { name: string; hasVideo: boolean }[]> = {
-    'music-stage':   [{ name: 'DJ_SetApart', hasVideo: true }, { name: 'Producer_Omni', hasVideo: false }],
-    'podcast-faith': [{ name: 'PastorEzra', hasVideo: true }, { name: 'SisRuth', hasVideo: true }, { name: 'BroSolomon', hasVideo: false }],
-    'debate-room':   [{ name: 'ScholarMoses', hasVideo: true }, { name: 'TeacherDeborah', hasVideo: true }],
-    'default':       [{ name: 'Creator_1', hasVideo: false }, { name: 'Creator_2', hasVideo: true }],
-  }
-  const pool = pools[room] ?? pools['default']
-  return pool.map(p => ({
-    identity: p.name,
-    name: p.name,
-    isSpeaking: Math.random() > 0.5,
-    audioLevel: Math.random(),
-    hasVideo: p.hasVideo,
-    hasAudio: true,
-  }))
-}
+// Tokens come from the authenticated TRYAMM /api/live/token route.

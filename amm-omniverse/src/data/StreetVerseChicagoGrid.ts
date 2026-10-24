@@ -7,6 +7,10 @@ export const CIRCLE_PARK_SPAWN:ChicagoStreetVersePlace={id:'circle-park-abla',la
 export const CHICAGO_STREETVERSE_PLACES:ChicagoStreetVersePlace[]=[
  CIRCLE_PARK_SPAWN,
  {id:'circle-park-apartments',label:'Circle Park Apartments',kind:'district',x:-48,z:40,radius:16},
+ {id:'circle-park-1111-laflin',label:'1111 S Laflin • Circle Park',kind:'gateway',x:-38,z:30,radius:10},
+ {id:'taylor-laflin',label:'Taylor + Laflin',kind:'street',x:-24,z:-8,radius:12},
+ {id:'abla-village',label:'ABLA Village',kind:'district',x:54,z:56,radius:10},
+ {id:'abla-new-homes',label:'ABLA New Homes',kind:'district',x:74,z:60,radius:10},
  {id:'circle-park-drive',label:'Circle Park Drive / Laflin',kind:'street',x:-24,z:16,radius:10},
  {id:'taylor-street',label:'Taylor Street',kind:'street',x:0,z:34,radius:10},
  {id:'fillmore-street',label:'Fillmore Street',kind:'street',x:0,z:23,radius:9},

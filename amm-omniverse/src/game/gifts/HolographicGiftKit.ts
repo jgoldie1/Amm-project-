@@ -57,6 +57,25 @@ const SPECIFIC:Record<string,LottieAnimKey>={
  portal:'portal_swirl',
  'omnibox-premiere':'mission_complete',
  'world-takeover':'realm_shift',
+ // In-house originals inspired by all 3 ZIP showcase catalogs.
+ // Visual-only ID mapping: no coins, balance mutations or external APIs.
+ mecha_dragon:'holo_dragon',
+ esports_trophy:'holo_trophy',
+ fortune_koi:'holo_koi',
+ cyber_kitsune:'holo_kitsune',
+ halloween_jack:'holo_holiday',
+ santa_sleigh:'holo_holiday',
+ ar_neon_crown:'holo_crown',
+ menorah_holo:'menorah_light',
+ cyber_dancers:'holo_dancers',
+ dreidel_burst:'holo_dreidel',
+ shofar_holo:'shofar_wave',
+ super_nova:'holo_galaxy',
+ cyber_car:'holo_vehicle',
+ gold_dragon:'holo_dragon',
+ diamond_crown:'holo_crown',
+ rose_rain:'holo_roses',
+ treasure_chest:'holo_treasure',
 }
 
 export function lottieForGift(giftId:string,tier?:string):HoloGiftKitEntry{
@@ -79,7 +98,10 @@ export function lottieForGift(giftId:string,tier?:string):HoloGiftKitEntry{
 }
 
 export const HOLOGRAPHIC_GIFT_KIT={
- schema:'tryamm.holographic-gift-kit.v1',
+ schema:'tryamm.holographic-gift-kit.v2',
+  originalVectorAnimations:true,
+  supportsReducedMotion:true,
+  providerLinked:false,
  renderer:'lottie-web-inline-json',
  externalAnimationDependency:false,
  fallbackGuaranteed:true,

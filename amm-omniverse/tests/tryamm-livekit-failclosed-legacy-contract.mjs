@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const s=read('src/game/streaming/StreamingEngine.ts'),p=JSON.parse(read('package.json'));
+assert(s.includes("createLiveToken(roomName,asHost?'host':'viewer',userName)"));
+assert(s.includes('this.room.connect(session.url,session.token)'));
+assert(s.includes('mockMode: false'));
+assert(s.includes('Cannot publish before connecting to a real LIVE room'));
+assert(!s.includes('mockJoin('));
+assert(!s.includes('buildMockParticipants('));
+assert(!s.includes('Math.random() * 200'));
+assert(!s.includes('VITE_LIVEKIT_API_SECRET'));
+assert(!s.includes('/api/livekit-token'));
+assert(s.includes('this.mediaStream?.getTracks().forEach(t=>t.stop())'));
+assert(p.scripts.build.includes('tryamm-livekit-failclosed-legacy-contract.mjs'));
+console.log('LIVEKIT FAIL-CLOSED LEGACY PASS: no fake viewers, auth token only, track cleanup');

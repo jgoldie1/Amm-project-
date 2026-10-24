@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=x=>fs.readFileSync(new URL('../'+x,import.meta.url),'utf8')
+const svc=read('src/services/aniyahPay.ts'),pay=read('src/components/AniyahPayCenter.tsx')
+const studio=read('src/components/Aniyah64TrackStudio.tsx'),pkg=JSON.parse(read('package.json'))
+assert(svc.includes('const sameCurrency=sourceCurrency===destinationCurrency'),'only same-currency conversion may default to 1')
+assert(svc.includes('fxRate=sameCurrency?1:(hasIllustrativeRate?Number(input.fxRate):0)'),'unknown FX must never pretend 1:1')
+assert(svc.includes('if(!sameCurrency)reasons.push('),'cross-border sandbox must be blocked pending provider quote')
+assert(svc.includes("Exchange rate not available; recipient amount is unknown"),'unknown payout must be explained')
+assert(pay.includes('NOT CONNECTED')&&pay.includes('VERIFIED QUOTE REQUIRED'),'UI cannot display fake international recipient amounts')
+assert(pay.includes('No real money moved'),'sandbox must not claim a transfer')
+assert(studio.includes("const AniyahPayCenter=lazy("),'64-track studio must link Aniyah Pay')
+assert(studio.includes("mode==='global'"),'cross-border entry point must be reachable from studio')
+assert(studio.includes('OPEN GLOBAL PAYMENT SANDBOX'),'creator knows this is not production payments')
+assert(pkg.scripts.build.includes('aniyah-crossborder-integrity-contract.mjs'))
+console.log('ANIYAH CROSS BORDER PAYMENTS PASS: source FX integrity, safe sandbox, studio integration and no paid transfer')

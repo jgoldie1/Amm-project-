@@ -3,14 +3,33 @@ import { GENRE_PROFILES, MUSIC_PROJECT_TYPES } from '../lib/music/universalImmer
 
 type Action = 'ai-producer' | 'preview' | 'keep' | 'undo' | 'redo' | 'rollback' | 'history' | 'immersive' | 'release';
 
-export default function MusicCreatorStudio() {
+export default function MusicCreatorStudio({onOpenEngineer}:{onOpenEngineer?:()=>void}={}) {
   const [prompt, setPrompt] = useState('');
   const [genre, setGenre] = useState<(typeof GENRE_PROFILES)[number]>('gospel');
   const [projectType, setProjectType] = useState<(typeof MUSIC_PROJECT_TYPES)[number]>('song');
-  const [status, setStatus] = useState('Ready — describe what you want to create.');
+  const [status, setStatus] = useState('Write a project brief or open Engineer Mode to record real audio. AI song rendering is not connected.');
   const [advanced, setAdvanced] = useState(false);
 
   const genreLabel = useMemo(() => genre.replaceAll('-', ' / '), [genre]);
+
+  const downloadProductionBrief=()=>{
+    if(!prompt.trim()){setStatus('Describe the project before downloading its brief.');return}
+    const brief={
+      schema:'tryamm.aniyah.studio.production-brief.v1',
+      state:'planning-not-recorded-or-paid',
+      projectType,genre,prompt:prompt.trim().slice(0,2000),
+      tracksRequested:64,musicRendered:false,
+      recording:'Record and download actual audio in Engineer Mode',
+      distribution:'not-submitted',payments:'not-charged',
+      createdAt:new Date().toISOString()
+    }
+    const file=new Blob([JSON.stringify(brief,null,2)],{type:'application/json'})
+    const url=URL.createObjectURL(file),a=document.createElement('a')
+    a.href=url;a.download='aniyah-64-track-production-brief.json'
+    document.body.appendChild(a);a.click();a.remove()
+    window.setTimeout(()=>URL.revokeObjectURL(url),1200)
+    setStatus('Production brief downloaded. It is not finished audio. Use Engineer Mode to record.')
+  }
 
   const run = (action: Action) => {
     const messages: Record<Action, string> = {
@@ -52,7 +71,10 @@ export default function MusicCreatorStudio() {
           What do you want to make?
           <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} rows={4} placeholder="Example: Make an uplifting gospel song with piano, choir and cinematic strings." style={{ display: 'block', width: '100%', marginTop: 8, fontSize: 18 }} />
         </label>
-        <button type="button" onClick={() => run('ai-producer')} style={{ minHeight: 52, width: '100%', marginTop: 12, fontSize: 18 }}>AI Producer — Create / Change</button>
+        <button type="button" onClick={() => run('ai-producer')} style={{ minHeight: 52, width: '100%', marginTop: 12, fontSize: 18 }}>PLAN MUSIC (BRIEF ONLY)</button>
+        <button type="button" onClick={downloadProductionBrief} style={{minHeight:52,width:'100%',marginTop:10}}>DOWNLOAD PROJECT BRIEF</button>
+        {onOpenEngineer&&<button type="button" onClick={onOpenEngineer} style={{minHeight:52,width:'100%',marginTop:10,background:'#254b60',color:'#fff'}}>🎙 OPEN ENGINEER MODE — RECORD REAL AUDIO</button>}
+        <p style={{fontSize:12}}>Recording/export are available in Engineer Mode. This planner does not create or distribute finished music.</p>
       </section>
 
       <section aria-label="Safe editing controls" style={{ marginTop: 24 }}>

@@ -1,5 +1,8 @@
 import { AccessToken } from 'livekit-server-sdk';
 import { requireUser } from '../_lib/security.js';
+import {adminReady,adminRest} from '../_lib/supabase-admin.js';
+import {liveKitRoomService} from '../_lib/livekit-room-guard.js';
+import {liveBudgetPolicy} from '../_lib/live-budget-policy.js';
 
 const LIVEKIT_URL=()=>String(process.env.LIVEKIT_URL||'').trim();
 const API_KEY=()=>String(process.env.LIVEKIT_API_KEY||'').trim();
@@ -25,11 +28,55 @@ export default async function handler(req,res){
   const user=await requireUser(req,res);
   if(!user)return;
 
-  const body=typeof req.body==='string'?JSON.parse(req.body||'{}'):req.body||{};
-  const role=body.role==='viewer'?'viewer':'host';
+  let body;
+  try{body=typeof req.body==='string'?JSON.parse(req.body||'{}'):req.body||{};}catch{return res.status(400).json({error:'Invalid JSON body'});}
+  const role=body.role;
+  if(!['viewer','host','guest'].includes(role))return res.status(400).json({error:'Unsupported LIVE role'});
+
   const room=cleanRoom(body.room);
   const displayName=cleanName(body.displayName,user.user_metadata?.display_name||user.email?.split('@')[0]);
+  // A browser must never be able to upgrade itself from viewer to room host.
+  // Host room ownership is persisted by the authenticated panel API.
+  if(!adminReady())return res.status(503).json({error:'LIVE room authorization unavailable'});
+  let ownedRoom;
+  try{
+    const rows=await adminRest('live_rooms',{query:{room_name:`eq.${room}`,limit:1}});
+    ownedRoom=rows?.[0]||null;
+  }catch{return res.status(503).json({error:'Could not verify LIVE room authorization'})}
+  if(!ownedRoom||!['planned','live'].includes(ownedRoom.status))return res.status(409).json({error:'LIVE room is not open'});
+  if(role==='viewer'&&ownedRoom.status!=='live')return res.status(409).json({error:'Host has not started the live broadcast yet'});
+  if(role==='host'&&ownedRoom.host_user_id!==user.id)return res.status(403).json({error:'Only the verified room owner can publish LIVE'});
+  if(role==='host'){
+    let guardian;
+    try{guardian=await adminRest('guardian_controls',{query:{child_user_id:`eq.${user.id}`,limit:1}})}
+    catch{return res.status(503).json({error:'Cannot verify LIVE hosting restrictions'})}
+    if(guardian?.[0]?.live_hosting_allowed===false)return res.status(403).json({error:'Guardian settings prohibit LIVE hosting'});
+  }
+  if(role==='guest'){
+    if(ownedRoom.status!=='live')return res.status(409).json({error:'The host has not started LIVE'});
+    let requests;
+    try{requests=await adminRest('live_panel_requests',{query:{room_name:`eq.${room}`,requester_user_id:`eq.${user.id}`,status:'eq.on_stage',limit:1}})}
+    catch{return res.status(503).json({error:'Could not verify guest stage authorization'})}
+    const approved=requests?.[0];
+    if(!approved || approved.host_user_id!==ownedRoom.host_user_id || !approved.approved_at ||
+      (approved.guardian_approval_required&&!approved.guardian_approved_at)){
+      return res.status(403).json({error:'Host and guardian approval required before publishing as a guest'});
+    }
+  }
   const identity=`${user.id}:${role}`;
+  const budget=liveBudgetPolicy();
+  // Query actual LiveKit room presence before issuing another viewer token.
+  // Reconnects for an already-connected identity do not consume a new slot.
+  if(role!=='host'){
+    let occupants;
+    try{occupants=await liveKitRoomService().listParticipants(room)}
+    catch{return res.status(503).json({error:'LIVE capacity cannot be confirmed; try again soon'})}
+    const reconnect=(occupants||[]).some(p=>p.identity===identity);
+    if(!reconnect&&!budget.allowNewViewers)
+      return res.status(503).json({error:'New LIVE viewer admission is temporarily paused'});
+    if(!reconnect&&(occupants||[]).length>=budget.maxParticipants)
+      return res.status(429).json({error:'This LIVE room is at the pilot viewer capacity'});
+  }
 
   const token=new AccessToken(API_KEY(),API_SECRET(),{
     identity,
@@ -41,10 +88,11 @@ export default async function handler(req,res){
     roomJoin:true,
     room,
     canSubscribe:true,
-    canPublish:role==='host',
-    canPublishData:true
+    canPublish:role==='host'||role==='guest',
+    // No viewer data publishing until server-authorized chat moderation is wired.
+    canPublishData:role==='host'
   });
 
   const jwt=await token.toJwt();
-  return res.status(200).json({token:jwt,url:LIVEKIT_URL(),room,role,participant:identity});
+  return res.status(200).json({token:jwt,url:LIVEKIT_URL(),room,role,participant:identity,videoProfile:budget.videoProfile,capacity:{maxParticipants:budget.maxParticipants}});
 }

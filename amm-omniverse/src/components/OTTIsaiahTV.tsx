@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import {lazy,Suspense,useEffect,useMemo,useState} from 'react'
+const IsaiahAuditionIntake=lazy(()=>import('./IsaiahAuditionIntake'))
 
 type Props = { onClose: () => void }
 type Lane = 'All' | 'LIVE Replays' | 'Originals' | 'Showcase' | 'StarVerse' | 'Debate' | 'Games' | 'Podcasts' | 'Music' | 'News' | 'Sports' | 'Faith' | 'Marketplace' | 'Education'
@@ -6,7 +7,8 @@ type Network='Isaiah AI TV'|'All American Network TV'|'Servants of Christ TV'
 type XRMode='Phone/TV'|'AR'|'Mixed Reality'|'VR'
 type Program = {id:string;title:string;lane:Exclude<Lane,'All'>;rating:string;access:'FREE'|'MEMBER'|'PPV';network:Network;description:string;provenance?:string}
 
-type GuideItem={time:string;title:string;network:Network;status:'LIVE'|'NEXT'|'REPLAY'}
+type GuideItem={time:string;title:string;network:Network;status:'PLANNED'|'CONCEPT'}
+type NetworkRelease={id:string;title:string;caption:string;watchPath:string;destination:string;status:'delivered'}
 
 const PROGRAMS: Program[] = [
   { id:'showcase', title:'All American Showcase', lane:'Showcase', rating:'TV-PG', access:'FREE', network:'All American Network TV', description:'Creator, music, business and talent showcase events.' },
@@ -27,10 +29,10 @@ const PROGRAMS: Program[] = [
 ]
 
 const GUIDE:GuideItem[]=[
-  {time:'NOW',title:'All American News Desk',network:'All American Network TV',status:'LIVE'},
-  {time:'+30m',title:'All American Marketplace LIVE',network:'All American Network TV',status:'NEXT'},
-  {time:'+60m',title:'Servants of Christ LIVE',network:'Servants of Christ TV',status:'NEXT'},
-  {time:'+90m',title:'StarVerse Showcase',network:'Isaiah AI TV',status:'NEXT'},
+  {time:'NOW',title:'All American News Desk',network:'All American Network TV',status:'CONCEPT'},
+  {time:'+30m',title:'All American Marketplace LIVE',network:'All American Network TV',status:'PLANNED'},
+  {time:'+60m',title:'Servants of Christ LIVE',network:'Servants of Christ TV',status:'PLANNED'},
+  {time:'+90m',title:'StarVerse Showcase',network:'Isaiah AI TV',status:'PLANNED'},
 ]
 
 const LANES: Lane[] = ['All','LIVE Replays','Originals','Showcase','StarVerse','Debate','Games','Podcasts','Music','News','Sports','Faith','Marketplace','Education']
@@ -41,6 +43,23 @@ export default function OTTIsaiahTV({ onClose }: Props) {
   const [lane, setLane] = useState<Lane>('All')
   const [network,setNetwork]=useState<Network>('All American Network TV')
   const [selected, setSelected] = useState<Program | null>(null)
+  const [auditionOpen,setAuditionOpen]=useState(false)
+  const [verifiedReleases,setVerifiedReleases]=useState<NetworkRelease[]>([])
+  const [releaseStatus,setReleaseStatus]=useState('Checking delivered network media…')
+  useEffect(()=>{
+    const controller=new AbortController()
+    const destination=network==='Servants of Christ TV'?'servants-of-christ-network':'all-american-network'
+    setVerifiedReleases([])
+    setReleaseStatus('Checking delivered network media…')
+    fetch('/api/media/network-programs?destination='+encodeURIComponent(destination),{signal:controller.signal,cache:'no-store'})
+      .then(async response=>{
+        const data=await response.json().catch(()=>({}))
+        if(!response.ok||data.ok!==true||!Array.isArray(data.items))throw new Error('Verified network media is not available yet.')
+        setVerifiedReleases(data.items)
+        setReleaseStatus(data.items.length?data.items.length+' verified program(s) available. Sign in to watch.':'No approved releases are available on this channel yet.')
+      }).catch(error=>{if(!controller.signal.aborted)setReleaseStatus(error instanceof Error?error.message:'Verified network media unavailable.')})
+    return()=>controller.abort()
+  },[network])
   const [captions, setCaptions] = useState(true)
   const [audioDescription, setAudioDescription] = useState(false)
   const [translation, setTranslation] = useState('Original')
@@ -57,6 +76,12 @@ export default function OTTIsaiahTV({ onClose }: Props) {
     </header>
 
     <main style={{maxWidth:1100,margin:'0 auto',padding:20,display:'grid',gap:18}}>
+      <section style={{padding:14,border:'1px solid #7eeaff55',borderRadius:16,background:'#0b1c2d'}}>
+        <strong style={{fontSize:17,color:'#a9e8ff'}}>ISAIAH AI TV • WHO WANTS TO BE A STAR?</strong>
+        <p style={{fontSize:12,lineHeight:1.6,color:'#c0d1de'}}>Submit an original audition video to a private review queue. Real uploads require a TRYAMM account, confirmed permission to use all media, and age-appropriate review. Uploading does not guarantee an audition placement or television appearance.</p>
+        <button type="button" onClick={()=>setAuditionOpen(true)} style={primary}>🎬 SUBMIT PRIVATE AUDITION</button>
+      </section>
+      {auditionOpen&&<Suspense fallback={<div role="status">Loading private audition intake…</div>}><IsaiahAuditionIntake onClose={()=>setAuditionOpen(false)}/></Suspense>}
       <section style={{display:'flex',gap:8,overflowX:'auto'}}>{NETWORKS.map(n=><button key={n} onClick={()=>{setNetwork(n);setLane('All')}} style={{...chip,borderColor:network===n?'#e8b944':'#34405b',color:network===n?'#ffe49b':'#d8dcea'}}>{n}</button>)}</section>
 
       <section style={{padding:18,border:'1px solid #26496a',borderRadius:20,background:'radial-gradient(circle at 80% 20%,#153b58,#08111f 55%)'}}>
@@ -65,7 +90,17 @@ export default function OTTIsaiahTV({ onClose }: Props) {
         <div style={{display:'flex',gap:10,flexWrap:'wrap'}}><button onClick={()=>{dispatch('open-live');(window as any).__showTryAMMLive?.()}} style={primary}>● OPEN LIVE STUDIO</button><button onClick={()=>dispatch('request-publish-workflow')} style={secondary}>CREATE TV RELEASE</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'network-tv',network}}))} style={secondary}>MAKE REEL</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-event-open',{detail:{source:'network-tv',network}}))} style={secondary}>SEND TO STREETVERSE</button></div>
       </section>
 
-      <section style={{padding:16,border:'1px solid #27344f',borderRadius:18,background:'#080d18'}}><div style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'center',flexWrap:'wrap'}}><div><div style={{fontSize:11,color:'#8cecff',fontWeight:900}}>CHANNEL GUIDE</div><h3 style={{margin:'4px 0'}}>Free network schedule</h3></div><span style={{fontSize:11,color:'#7effb5'}}>FREE VIEWING CORE</span></div><div style={{display:'grid',gap:8,marginTop:10}}>{GUIDE.map(g=><button key={`${g.time}-${g.title}`} onClick={()=>{setNetwork(g.network);setLane('All')}} style={{display:'grid',gridTemplateColumns:'70px 1fr auto',gap:10,alignItems:'center',padding:12,border:'1px solid #26354e',borderRadius:12,background:'#0c1322',color:'#fff',textAlign:'left'}}><b style={{color:'#8cecff'}}>{g.time}</b><span><strong>{g.title}</strong><small style={{display:'block',opacity:.6}}>{g.network}</small></span><span style={{fontSize:10,color:g.status==='LIVE'?'#7effb5':'#e8b944'}}>{g.status}</span></button>)}</div></section>
+      <section aria-label="Verified delivered network programming" style={{padding:16,border:'1px solid #28715b',borderRadius:18,background:'#081e1b'}}>
+        <h3>▶ Verified released programs</h3>
+        <p role="status" style={{fontSize:12,color:'#a7ead8'}}>{releaseStatus}</p>
+        <div style={{display:'grid',gap:8}}>
+          {verifiedReleases.map(item=><a key={item.id} href={item.watchPath} style={{...secondary,display:'block',height:'auto',padding:12,textDecoration:'none'}}>
+            <strong>{item.title}</strong><span style={{display:'block',opacity:.73,fontSize:12}}>{item.caption||'Approved network program'}</span>
+            <span style={{display:'block',color:'#85ffca',fontSize:11}}>APPROVED & DELIVERED · WATCH ↗</span>
+          </a>)}
+        </div>
+      </section>
+      <section style={{padding:16,border:'1px solid #27344f',borderRadius:18,background:'#080d18'}}><div style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'center',flexWrap:'wrap'}}><div><div style={{fontSize:11,color:'#8cecff',fontWeight:900}}>SAMPLE PROGRAM CONCEPTS • NOT LIVE</div><h3 style={{margin:'4px 0'}}>Proposed network schedule</h3></div><span style={{fontSize:11,color:'#7effb5'}}>FREE VIEWING CORE</span></div><div style={{display:'grid',gap:8,marginTop:10}}>{GUIDE.map(g=><button key={`${g.time}-${g.title}`} onClick={()=>{setNetwork(g.network);setLane('All')}} style={{display:'grid',gridTemplateColumns:'70px 1fr auto',gap:10,alignItems:'center',padding:12,border:'1px solid #26354e',borderRadius:12,background:'#0c1322',color:'#fff',textAlign:'left'}}><b style={{color:'#8cecff'}}>{g.time}</b><span><strong>{g.title}</strong><small style={{display:'block',opacity:.6}}>{g.network}</small></span><span style={{fontSize:10,color:g.status==='CONCEPT'?'#d5adff':'#e8b944'}}>{g.status}</span></button>)}</div></section>
 
       <section style={{padding:16,border:'1px solid #39426b',borderRadius:18,background:'#0a0d1b'}}><div style={{fontSize:11,color:'#c7a7ff',fontWeight:900}}>AR / VR / MIXED REALITY</div><h3 style={{margin:'5px 0 10px'}}>Same network event, progressive immersive clients</h3><div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{XR_MODES.map(m=><button key={m} onClick={()=>openXR(m)} style={{...chip,borderColor:xrMode===m?'#bd8cff':'#34405b',color:xrMode===m?'#e6d7ff':'#d8dcea'}}>{m}</button>)}</div><p style={{opacity:.68,lineHeight:1.55,fontSize:13}}>Phone/TV is the baseline. AR, MR and VR launch through the shared XR event contract and remain device-test/provider gated. StreetVerse, Quantum Tag, Holo Labs, StarVerse and Quantum Time can reuse this same event identity.</p></section>
 
@@ -77,7 +112,7 @@ export default function OTTIsaiahTV({ onClose }: Props) {
       <section style={{padding:14,border:'1px dashed #6a5d35',borderRadius:14,color:'#d9c995',fontSize:12,lineHeight:1.6}}><strong>$11.25/year founder pricing marker preserved.</strong> It is intentionally not assigned to a paid tier until the exact product mapping is confirmed. Free TV remains free where designated.</section>
     </main>
 
-    {selected && <div style={{position:'fixed',inset:0,zIndex:3,display:'grid',placeItems:'end center',background:'#0009'}} onClick={()=>setSelected(null)}><section onClick={e=>e.stopPropagation()} style={{width:'min(760px,100%)',padding:22,borderRadius:'22px 22px 0 0',background:'#0b1222',border:'1px solid #344866'}}><div style={{fontSize:12,color:'#7eeaff'}}>{selected.network} · {selected.lane} · {selected.access} · {selected.rating}</div><h2>{selected.title}</h2><p style={{opacity:.72,lineHeight:1.6}}>{selected.description}</p><div style={{display:'flex',gap:10,flexWrap:'wrap'}}><button onClick={()=>dispatch('play',{programId:selected.id,captions,audioDescription,translation})} style={primary}>▶ PLAY / PREVIEW</button><button onClick={()=>dispatch('add-watchlist',{programId:selected.id})} style={secondary}>＋ WATCHLIST</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'tv',programId:selected.id}}))} style={secondary}>MAKE HOLO CLIP</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:event-genesis-open',{detail:{source:'tv',programId:selected.id,network:selected.network}}))} style={secondary}>EVENT GENESIS</button><button onClick={()=>setSelected(null)} style={secondary}>CLOSE</button></div></section></div>}
+    {selected && <div style={{position:'fixed',inset:0,zIndex:3,display:'grid',placeItems:'end center',background:'#0009'}} onClick={()=>setSelected(null)}><section onClick={e=>e.stopPropagation()} style={{width:'min(760px,100%)',padding:22,borderRadius:'22px 22px 0 0',background:'#0b1222',border:'1px solid #344866'}}><div style={{fontSize:12,color:'#7eeaff'}}>{selected.network} · {selected.lane} · {selected.access} · {selected.rating}</div><h2>{selected.title}</h2><p style={{opacity:.72,lineHeight:1.6}}>{selected.description}</p><div style={{display:'flex',gap:10,flexWrap:'wrap'}}><button onClick={()=>dispatch('request-program-preview',{programId:selected.id,captions,audioDescription,translation,conceptOnly:true})} style={primary}>VIEW PROGRAM CONCEPT</button><button onClick={()=>dispatch('add-watchlist',{programId:selected.id})} style={secondary}>＋ WATCHLIST</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'tv',programId:selected.id}}))} style={secondary}>MAKE HOLO CLIP</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:event-genesis-open',{detail:{source:'tv',programId:selected.id,network:selected.network}}))} style={secondary}>EVENT GENESIS</button><button onClick={()=>setSelected(null)} style={secondary}>CLOSE</button></div></section></div>}
   </div>
 }
 const primary: React.CSSProperties = {minHeight:46,padding:'0 16px',borderRadius:12,border:'1px solid #4fe3ff',background:'#0c3a49',color:'#fff',fontWeight:900,cursor:'pointer'}
