@@ -26,6 +26,6 @@ export default async function handler(req,res){
     caption:String(pub.caption||'').slice(0,300),deliveredAt:pub.delivered_at,
     destination,watchPath:'/reels/'+encodeURIComponent(pub.public_slug),status:'delivered'});
   }
-  return json(res,200,{ok:true,items,kind:'verified-network-releases',playback:'sign-in-required'});
+  return json(res,200,{ok:true,items,kind:'verified-network-releases',playback:'public-moderated-releases'});
  }catch{return json(res,503,{ok:false,error:'verified_network_catalog_unavailable',items:[]})}
 }
