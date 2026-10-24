@@ -48,11 +48,12 @@ export default function OmniBoxStoryboardVideoExport({scenes,title,episode}:{sce
  const [progress,setProgress]=useState(0)
  const [videoUrl,setVideoUrl]=useState('')
  const [videoType,setVideoType]=useState('')
+ const [privatePlaybackUrl,setPrivatePlaybackUrl]=useState('')
  const recorded=useRef<Blob|null>(null)
  useEffect(()=>()=>{if(videoUrl)URL.revokeObjectURL(videoUrl)},[videoUrl])
  const render=async()=>{
   if(busy||!scenes.length)return
-  setBusy(true);setProgress(0);setStatus('Rendering your storyboard frames locally…')
+  setBusy(true);setProgress(0);setPrivatePlaybackUrl('');setStatus('Rendering your storyboard frames locally…')
   try{
    const canvas=document.createElement('canvas');canvas.width=WIDTH;canvas.height=HEIGHT
    const ctx=canvas.getContext('2d')
@@ -114,7 +115,11 @@ export default function OmniBoxStoryboardVideoExport({scenes,title,episode}:{sce
    const verified=await fetch('/api/media/upload-complete',{method:'POST',headers,body:JSON.stringify({mediaId:data.media.id})})
    const body=await verified.json().catch(()=>({}))
    if(!verified.ok)throw new Error(body.error||'Private upload could not be verified.')
-   setStatus('Storyboard preview saved privately in TRYAMM media. Reference: '+data.media.id+'. No public film distribution or paid release.')
+   // This short-lived signed URL tests the STORED file, separately from the
+   // local blob preview. It is private proof, never a public publication URL.
+   const signedPlayback=typeof body.playbackUrl==='string'&&body.playbackUrl.startsWith('https://')?body.playbackUrl:''
+   setPrivatePlaybackUrl(signedPlayback)
+   setStatus('Storyboard preview saved privately in TRYAMM media. Reference: '+data.media.id+'. No public film distribution or paid release.'+(signedPlayback?' Review the temporary stored-file playback below.':' Private stored-file playback could not be opened yet.'))
   }catch(e){setStatus(e instanceof Error?e.message:'Save failed. Keep the local download.')}
   finally{setSaving(false)}
  }
@@ -132,6 +137,11 @@ export default function OmniBoxStoryboardVideoExport({scenes,title,episode}:{sce
     <button type="button" style={{minHeight:48}} onClick={download}>DOWNLOAD REAL VIDEO FILE</button>
     <button type="button" style={{minHeight:48}} disabled={saving} onClick={()=>void savePrivate()}>{saving?'SAVING PRIVATE…':'SAVE VIDEO PRIVATELY TO TRYAMM'}</button>
   </div></>}
+  {privatePlaybackUrl&&<section aria-label="Private cloud storyboard playback" style={{display:'grid',gap:6}}>
+    <strong style={{fontSize:12}}>PRIVATE CLOUD PLAYBACK • VERIFIED UPLOAD</strong>
+    <video controls playsInline preload="metadata" src={privatePlaybackUrl} style={{width:'100%',maxWidth:480,borderRadius:8,background:'#000'}} aria-label="Play stored private Omni Box storyboard file"/>
+    <small>Temporary signed link (up to one hour). Keep your downloaded source; this is not a publicly published movie.</small>
+  </section>}
   <p role="status" style={{fontSize:12,color:'#b7f6d5',overflowWrap:'anywhere'}}>{status}</p>
  </section>
 }

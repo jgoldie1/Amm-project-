@@ -147,6 +147,7 @@ export default function RecordingStudio({ onClose }: { onClose: () => void }) {
   const [takeTrack,setTakeTrack]=useState('')
   const [savingPrivateTake,setSavingPrivateTake]=useState(false)
   const [privateTakeStatus,setPrivateTakeStatus]=useState('')
+  const [privateTakePlayback,setPrivateTakePlayback]=useState('')
   const lastTakeBlob=useRef<Blob|null>(null)
   const lastTakeUrl=useRef<string|null>(null)
   const [masterVol, setMasterVol] = useState(0.85)
@@ -208,6 +209,7 @@ export default function RecordingStudio({ onClose }: { onClose: () => void }) {
         if(!blob.size){store.setNotif('The audio take is empty. Please record it again.');return}
         if(lastTakeUrl.current)URL.revokeObjectURL(lastTakeUrl.current)
         lastTakeBlob.current=blob
+        setPrivateTakePlayback('')
         const url=URL.createObjectURL(blob)
         lastTakeUrl.current=url
         setDownloadUrl(url)
@@ -259,7 +261,9 @@ export default function RecordingStudio({ onClose }: { onClose: () => void }) {
       const check=await fetch('/api/media/upload-complete',{method:'POST',headers,body:JSON.stringify({mediaId:intent.media.id})})
       const checked=await check.json().catch(()=>({}))
       if(!check.ok)throw new Error(checked.error||'Storage did not verify the uploaded audio.')
-      setPrivateTakeStatus('Verified PRIVATE audio saved. Reference '+intent.media.id+'. Nothing published or charged.')
+      const playback=typeof checked.playbackUrl==='string'&&checked.playbackUrl.startsWith('https://')?checked.playbackUrl:''
+      setPrivateTakePlayback(playback)
+      setPrivateTakeStatus('Verified PRIVATE audio saved. Reference '+intent.media.id+'. Nothing published or charged.'+(playback?' Review the stored file below.':' Stored-file playback is currently unavailable.'))
     }catch(err){setPrivateTakeStatus(err instanceof Error?err.message:'Private save failed. Keep the local download.')}
     finally{setSavingPrivateTake(false)}
   }
@@ -624,6 +628,11 @@ GENERATED SCRIPT · AMM OMNIVERSE
         )}
 
       </div>
+      {privateTakePlayback&&<section aria-label="Aniyah private cloud playback" style={{background:'#06152a',padding:12,borderTop:'1px solid #4fcacb66',display:'grid',gap:7}}>
+        <strong>☁️ PRIVATE CLOUD PLAYBACK • UPLOADED AUDIO</strong>
+        <audio controls preload="metadata" src={privateTakePlayback} aria-label="Play the stored Aniyah private audio take" style={{width:'100%',minHeight:44}}/>
+        <small>Temporary signed playback (up to one hour), not a mastered recording or public release. Keep your source download.</small>
+      </section>}
       {downloadUrl&&<section aria-label="Aniyah latest recorded take" style={{background:'#08191c',padding:12,borderTop:'1px solid #00cc4466'}}>
         <div style={{fontSize:12,color:'#8affbb',marginBottom:8}}>RECORDED TAKE • {takeTrack} • LOCAL FILE ONLY</div>
         <audio controls preload="metadata" src={downloadUrl} style={{width:'100%',minHeight:44}} aria-label="Listen to recorded audio take"/>
