@@ -29,11 +29,20 @@ export async function createSignedUpload(req,path){
   return {signedUrl,token};
 }
 
+// Inspect the actual object metadata after the signed browser upload.
+// A successful HEAD alone does not establish the correct file's byte length.
+export async function inspectStoredObject(req,path){
+  const response=await fetch(`${storageBase()}/object/authenticated/${MEDIA_BUCKET}/${encodePath(path)}`,{method:'HEAD',headers:headers(req)});
+  if(response.status===404)return null;
+  if(!response.ok)throw Object.assign(new Error(`storage_verify_${response.status}`),{status:response.status});
+  const header=String(response.headers.get('content-length')||'');
+  const parsed=/^\d+$/.test(header)?Number(header):NaN;
+  const sizeBytes=Number.isSafeInteger(parsed)?parsed:null;
+  const contentType=String(response.headers.get('content-type')||'').split(';')[0].trim().toLowerCase();
+  return {sizeBytes,contentType};
+}
 export async function verifyStoredObject(req,path){
-  const res=await fetch(`${storageBase()}/object/authenticated/${MEDIA_BUCKET}/${encodePath(path)}`,{method:'HEAD',headers:headers(req)});
-  if(res.status===404)return false;
-  if(!res.ok)throw Object.assign(new Error(`storage_verify_${res.status}`),{status:res.status});
-  return true;
+  return Boolean(await inspectStoredObject(req,path));
 }
 
 export async function createSignedPlayback(req,path,expiresIn=3600){
