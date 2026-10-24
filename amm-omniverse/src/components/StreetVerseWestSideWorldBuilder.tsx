@@ -95,8 +95,15 @@ const MISSIONS=[
 const statusColor={live:'#72ffb0',playable:'#6de3ff',planned:'#ffd15c'} as const
 const scaleLabel:Record<Scale,string>={west:'WEST SIDE',chicago:'CHICAGO 77',illinois:'ILLINOIS',usa:'USA',world:'WORLD'}
 
-export default function StreetVerseWestSideWorldBuilder(){
+export default function StreetVerseWestSideWorldBuilder({launcher=true}:{launcher?:boolean}={}){
  const [open,setOpen]=useState(false)
+ // Playable Chicago exposes this board through the one-hand quick menu;
+ // SafeWorld can retain its familiar floating WORLD button.
+ useEffect(()=>{
+  const openBoard=()=>setOpen(true)
+  window.addEventListener('tryamm:streetverse-open-world-builder',openBoard)
+  return()=>window.removeEventListener('tryamm:streetverse-open-world-builder',openBoard)
+ },[])
  const [tab,setTab]=useState<Tab>('map')
  const [scale,setScale]=useState<Scale>('west')
  const [selected,setSelected]=useState<Zone>(ZONES[0])
@@ -358,7 +365,7 @@ export default function StreetVerseWestSideWorldBuilder(){
  }
 
  return <>
-  <button aria-label="Open StreetVerse World Builder" onClick={()=>setOpen(true)} style={{position:'fixed',left:12,top:'max(62px,calc(env(safe-area-inset-top) + 54px))',zIndex:42100,minHeight:42,padding:'7px 10px',borderRadius:12,border:'1px solid #6de3ff88',background:'#071923e8',color:'#e8fbff',font:'950 9px system-ui',boxShadow:'0 8px 24px #0008'}}>🛠 WORLD</button>
+  {launcher&&<button aria-label="Open StreetVerse World Builder" onClick={()=>setOpen(true)} style={{position:'fixed',left:12,top:'max(62px,calc(env(safe-area-inset-top) + 54px))',zIndex:42100,minHeight:42,padding:'7px 10px',borderRadius:12,border:'1px solid #6de3ff88',background:'#071923e8',color:'#e8fbff',font:'950 9px system-ui',boxShadow:'0 8px 24px #0008'}}>🛠 WORLD</button>}
 
   {open&&<section role="dialog" aria-modal="true" aria-label="StreetVerse World Builder" style={{position:'fixed',inset:0,zIndex:62000,display:'grid',gridTemplateRows:'auto auto auto 1fr',background:'#020810f8',color:'#fff',fontFamily:'system-ui',overflow:'hidden'}}>
    <header style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,padding:'calc(env(safe-area-inset-top) + 8px) 12px 8px',borderBottom:'1px solid #244254',background:'linear-gradient(90deg,#071722,#15102a)'}}>

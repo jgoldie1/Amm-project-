@@ -47,6 +47,8 @@ function applyPlacement(object:THREE.Object3D,placement:NativePlacement){
 export async function loadTryammNativeCircleParkLayer(options?:{
   placements?:NativePlacement[]
   load?:LoadFn
+  // Older phones cannot safely decode every optional city GLB at once.
+  maxConcurrent?:number
 }):Promise<NativeAssetLayerResult>{
   const placements=options?.placements??CIRCLE_PARK_NATIVE_PREVIEW_PLACEMENTS
   const loader=new GLTFLoader()
@@ -70,14 +72,22 @@ export async function loadTryammNativeCircleParkLayer(options?:{
   const usedUrls=new Set<string>()
 
   const uniqueKeys=[...new Set(placements.map(item=>item.asset))]
-  await Promise.all(uniqueKeys.map(async key=>{
-    const asset=TRYAMM_NATIVE_RUNTIME_ASSETS[key]
-    try{
-      const object=await load(asset.url)
-      byKey.set(key,object)
-      usedUrls.add(asset.url)
-    }catch(error){
-      failed.push({asset:key,url:asset.url,reason:String((error as Error)?.message||error)})
+  // Preserve existing all-at-once behavior unless the caller requests a
+  // constrained, serializable mobile profile. Decode priority goes to BJ.
+  uniqueKeys.sort((a,b)=>Number(b==='heroPlayer')-Number(a==='heroPlayer'))
+  const concurrency=Math.min(uniqueKeys.length,Math.max(1,Math.trunc(options?.maxConcurrent??uniqueKeys.length)))
+  let cursor=0
+  await Promise.all(Array.from({length:concurrency},async()=>{
+    while(cursor<uniqueKeys.length){
+      const key=uniqueKeys[cursor++]
+      const asset=TRYAMM_NATIVE_RUNTIME_ASSETS[key]
+      try{
+        const object=await load(asset.url)
+        byKey.set(key,object)
+        usedUrls.add(asset.url)
+      }catch(error){
+        failed.push({asset:key,url:asset.url,reason:String((error as Error)?.message||error)})
+      }
     }
   }))
 

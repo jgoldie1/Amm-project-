@@ -56,6 +56,9 @@ type Destination={id?:string;label?:string;name?:string;lon?:number;lat?:number;
 
 function hasUsableWebGL(){
  if(typeof document==='undefined')return false
+ // Apple Safari can lose the active scene when another WebGL context is probed.
+ // Give iPhones their existing full-renderer attempt and rely on its health gate.
+ if(typeof navigator!=='undefined'&&/iPhone|iPad|iPod/i.test(navigator.userAgent||''))return true
  const canvas=document.createElement('canvas')
  let gl:WebGLRenderingContext|WebGL2RenderingContext|null=null
  try{
@@ -66,7 +69,8 @@ function hasUsableWebGL(){
   return Boolean(gl)
  }catch{return false}
  finally{
-  try{gl?.getExtension('WEBGL_lose_context')?.loseContext()}catch{}
+  // Do not forcibly lose a WebGL context during a capability probe.
+  // Older iOS Safari can lose the live renderer when GPU contexts are stressed.
   canvas.width=0;canvas.height=0
  }
 }
@@ -166,6 +170,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const mobile=useMemo(()=>typeof navigator!=='undefined'&&/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||''),[])
  const [enhancementsReady,setEnhancementsReady]=useState(false)
  const [nearWestOpen,setNearWestOpen]=useState(false)
+ const [graphicsUnavailable,setGraphicsUnavailable]=useState(false)
  const [quantumMode,setQuantumMode]=useState<QuantumSpeedMode>('balanced')
  const setLocationContext=useGameStore(state=>state.setLocationContext)
  const applyCityConsequence=useGameStore(state=>state.applyCityConsequence)
@@ -201,6 +206,17 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>installAccessibilityControlIntentRuntime(),[])
  useLayoutEffect(()=>installOmniAccessibilityGlobalRuntime(),[])
  useLayoutEffect(()=>installPassportAccessibilityHydrationRuntime(),[])
+ // The 2D recovery city already owns its controls. Avoid stacking the 3D-only
+ // action, creator and mission docks over the lightweight world after a crash.
+ useEffect(()=>{
+  const onHealth=(event:Event)=>{
+   const state=(event as CustomEvent<{state?:string}>).detail?.state
+   if(state==='fallback'||state==='recovering')setGraphicsUnavailable(true)
+   else if(state==='healthy')setGraphicsUnavailable(false)
+  }
+  window.addEventListener('tryamm:streetverse-runtime-health',onHealth)
+  return()=>window.removeEventListener('tryamm:streetverse-runtime-health',onHealth)
+ },[])
  useEffect(()=>{
   const connection=(navigator as Navigator & {connection?:{downlink?:number}}).connection
   const mode=chooseAccessMode({webgl:hasUsableWebGL(),bandwidthMbps:connection?.downlink,ownedDevice:true})
@@ -276,6 +292,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  },[safe,quantumMode])
 
  if(safe)return <>
+  <span data-streetverse-entry="geo-spawn-bridge" data-streetverse-mode="safe" hidden/>
   {!explicitSafe&&<div data-streetverse-render-mode="startup-fallback" style={{position:'fixed',top:75,left:12,zIndex:41000,maxWidth:'min(84vw,300px)',padding:10,borderRadius:14,background:'#071725ef',color:'#eaffff',border:'1px solid #54dcff',boxShadow:'0 8px 22px #0008',fontFamily:'system-ui,sans-serif'}}>
     <div style={{fontWeight:900,fontSize:12,marginBottom:6}}>3D city did not start</div>
     <button aria-label="Retry StreetVerse 3D" onClick={retry3D} style={{minHeight:48,border:'1px solid #8fffe2',borderRadius:9,padding:'8px 15px',background:'#073f38',color:'#fff',fontWeight:900}}>RETRY 3D CHICAGO</button>
@@ -285,19 +302,22 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
   <BuildSwarmControl/>
   <StreetVerseWeatherSync/>
   <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>
-  <StreetVerseAfterDarkAlpha/>
-  <Suspense fallback={null}><StreetVerseReelEventBridge/><StreetVerseCreatorEarnDock/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseMobileProofDock/></Suspense>
+  <button data-streetverse-travel="true" aria-label="Enable 3D to travel to Taylor Street UIC Medical District" onClick={retry3D} style={{position:'fixed',top:118,right:12,zIndex:14970,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333e8',color:'#fff',padding:'10px 12px',fontWeight:900}}>ENABLE 3D FOR TAYLOR / UIC</button>
+  {!nearWestOpen&&<StreetVerseAfterDarkAlpha/>}
+  {!nearWestOpen&&<Suspense fallback={null}><StreetVerseReelEventBridge/><StreetVerseCreatorEarnDock/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseMobileProofDock/></Suspense>}
  </>
 
  return <>
-  <BuildSwarmControl/>
+  <span data-streetverse-entry="geo-spawn-bridge" data-streetverse-mode="playable" hidden/>
+  {!nearWestOpen&&!graphicsUnavailable&&<BuildSwarmControl/>}
+  {!nearWestOpen&&<StreetVerseWestSideWorldBuilder launcher={graphicsUnavailable}/>}
   {nearWestOpen&&<div style={{position:'fixed',inset:0,zIndex:14980,background:'#07101d'}}><Suspense fallback={null}><StreetVerseNearWest3D/></Suspense><button aria-label="Return to StreetVerse Chicago" onClick={()=>setNearWestOpen(false)} style={{position:'fixed',top:76,right:12,zIndex:14990,border:'1px solid #6ee7ff',borderRadius:12,background:'#07131f',color:'#fff',padding:'10px 12px',fontWeight:900}}>← CHICAGO</button></div>}
-  {!nearWestOpen&&<button data-streetverse-travel="true" aria-label="Travel to Taylor Street UIC Medical District" onClick={()=>{if(mobile){window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-main-travel-shortcut'}}))}else setNearWestOpen(true)}} style={{position:'fixed',top:118,right:12,zIndex:14970,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333e8',color:'#fff',padding:'10px 12px',fontWeight:900}}>TAYLOR / UIC</button>}
-  <Suspense fallback={<div aria-label="StreetVerse playable world loading" style={{position:'fixed',inset:0,zIndex:14990,display:'grid',placeItems:'center',background:'#07101d',color:'#fff',fontFamily:'system-ui',fontWeight:900}}>STREETVERSE • LOADING PLAYABLE WORLD…</div>}>
+  {!nearWestOpen&&!graphicsUnavailable&&<button data-streetverse-travel="true" ref={element=>{if(element)element.style.setProperty("display","block","important")}} aria-label="Travel to Taylor Street UIC Medical District" onClick={()=>setNearWestOpen(true)} style={{display:'block',visibility:'visible',position:'fixed',top:118,right:12,zIndex:15010,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333e8',color:'#fff',padding:'10px 12px',fontWeight:900}}>TAYLOR / UIC</button>}
+  {!nearWestOpen&&<Suspense fallback={<div aria-label="StreetVerse playable world loading" style={{position:'fixed',inset:0,zIndex:14990,display:'grid',placeItems:'center',background:'#07101d',color:'#fff',fontFamily:'system-ui',fontWeight:900}}>STREETVERSE • LOADING PLAYABLE WORLD…</div>}>
    <StreetVersePlayableWorld onClose={closeStreetVerse}/>
-  </Suspense>
-  <StreetVerseAfterDarkAlpha/>
-  <Suspense fallback={null}>{mobile?<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseCreatorEarnDock/></>:<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseCreatorEarnDock/></>}</Suspense>
-  {enhancementsReady&&<Suspense fallback={null}><StreetVerseFullWorldOverlays onClose={closeStreetVerse} mapped={prepared.mapped}/></Suspense>}
+  </Suspense>}
+  {!nearWestOpen&&!graphicsUnavailable&&<StreetVerseAfterDarkAlpha/>}
+  {!nearWestOpen&&!graphicsUnavailable&&<Suspense fallback={null}>{mobile?<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseCreatorEarnDock/></>:<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseCreatorEarnDock/></>}</Suspense>}
+  {!nearWestOpen&&!graphicsUnavailable&&enhancementsReady&&<Suspense fallback={null}><StreetVerseFullWorldOverlays onClose={closeStreetVerse} mapped={prepared.mapped}/></Suspense>}
  </>
 }

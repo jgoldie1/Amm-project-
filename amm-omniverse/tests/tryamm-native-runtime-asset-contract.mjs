@@ -22,7 +22,10 @@ must(catalog.includes("state:'PREVIEW'"),'new native assets must remain PREVIEW 
 must(catalog.includes("collisionAuthority:'visual-only'"),'preview assets must not silently become collision authority')
 must(catalog.includes('primitiveGameplayCollisionRemainsAuthoritative:true'),'gameplay primitives must remain authoritative during preview')
 must(runtime.includes("GLTFLoader"),'runtime must use GLTFLoader')
-must(runtime.includes("Promise.all(uniqueKeys.map"),'native runtime assets should load in parallel')
+must(runtime.includes('const concurrency=Math.min(uniqueKeys.length'),'native loader must enforce the requested GPU-safe concurrency limit')
+must(runtime.includes('await Promise.all(Array.from({length:concurrency}'),'native loader must retain bounded parallel loading')
+must(runtime.includes('while(cursor<uniqueKeys.length)'),'bounded workers must consume all unique assets')
+must(runtime.includes("uniqueKeys.sort((a,b)=>Number(b==='heroPlayer')"),'hero GLB must load before optional assets on constrained phones')
 must(runtime.includes("failed.push"),'runtime must record failed asset loads')
 must(runtime.includes("previewVisualOnly:true"),'loaded preview assets must be marked visual-only')
 must(runtime.includes("disposeNativeAssetLayer"),'runtime must dispose GPU resources on world exit')
@@ -37,4 +40,4 @@ must(world.includes("getObjectByName('hood-pivot')"),'native sedan hood repair a
 
 must(foundry.includes('addResidentArchetype'),'foundry must generate reusable humanoid GLB visuals')
 must(foundry.includes('addTransitTrain'),'foundry must generate a reusable non-box transit GLB visual')
-console.log('TRYAMM NATIVE RUNTIME ASSET CONTRACT PASS: foundry -> public build -> catalog -> parallel GLB load -> generated hero/resident/vehicle/train visual layer')
+console.log('TRYAMM NATIVE RUNTIME ASSET CONTRACT PASS: foundry -> public build -> catalog -> GPU-budgeted parallel GLB load -> generated hero/resident/vehicle/train visual layer')

@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {
   STREETVERSE_MESHY_CHARACTER_SLOTS,
-  STREETVERSE_MESHY_DURABLE_OVERRIDES,
   streetVerseMeshyCharacterUrl,
   type StreetVerseMeshyCharacterSlot,
 } from '../data/streetVerseMeshyCharacterSlots'
@@ -89,12 +88,13 @@ export async function loadStreetVerseMeshyCharacter(slotId:string,options:{defer
   const published=await resolvePublishedMeshyAsset(slot.id,cityScope)
   const staticMeshyUrl=streetVerseMeshyCharacterUrl(slot)
   const publishedReady=published?.url?await assetExists(published.url):false
-  // These twelve original Wave 1/2 objects are independently verified and preserved.
-  // A failed cross-origin HEAD on slow iPhones must not suppress their actual GLB GET.
-  const staticMeshyReady=publishedReady?false:(Boolean(STREETVERSE_MESHY_DURABLE_OVERRIDES[slot.id])||await assetExists(staticMeshyUrl))
+  // Prefer locally bundled residents whenever the remote model fails its availability check.
+  // This avoids repeated 402 GET requests while preserving the original remote asset paths.
+  const staticMeshyReady=publishedReady?false:await assetExists(staticMeshyUrl)
   const nativeUrl=NATIVE_RESIDENT_URLS[slot.fallbackResidentIndex%NATIVE_RESIDENT_URLS.length]
   let sourceUrl=publishedReady?published!.url:(staticMeshyReady?staticMeshyUrl:nativeUrl)
   let nativeFallback=!publishedReady&&!staticMeshyReady
+  if(!publishedReady&&!staticMeshyReady&&typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:meshy-character-origin-unavailable',{detail:{slotId:slot.id,unavailableUrl:staticMeshyUrl,fallbackUrl:nativeUrl,reason:'remote-asset-availability-check-failed',source:'StreetVerseMeshyCharacterRuntime'}}))
   if(published?.url&&!publishedReady&&typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:meshy-published-asset-unavailable',{detail:{slotId:slot.id,url:published.url,fallback:nativeUrl,source:'StreetVerseMeshyCharacterRuntime'}}))
   try{
     let gltf:Awaited<ReturnType<typeof loader.loadAsync>>

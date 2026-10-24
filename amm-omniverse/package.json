@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "test:streetverse-careers": "node --test tests/streetverse-career-mission.test.mjs && node tests/streetverse-career-mission-contract.mjs",
     "lint": "eslint .",
     "lint:strict": "eslint . --max-warnings=0",
     "sync:audit": "node scripts/main-sync-audit.mjs",

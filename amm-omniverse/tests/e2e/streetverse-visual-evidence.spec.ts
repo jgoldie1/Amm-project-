@@ -13,7 +13,9 @@ test.use({
 
 test.describe('StreetVerse compact iPhone visual evidence', () => {
   test('Circle Park renders with one compact mobile control layer', async ({ page }, testInfo) => {
-    test.setTimeout(90_000);
+    // This is a full mobile journey with multiple WebGL scene changes and screenshots.
+    // Keep assertion timeouts strict, but allow the complete workflow to finish on CI.
+    test.setTimeout(180_000);
     // Keep browser/runtime failures visible in CI. A missing canvas must be diagnosed,
     // not hidden by longer waits or a weaker visual assertion.
     page.on('pageerror', error => console.error('[streetverse-pageerror]', error.message));
@@ -23,6 +25,14 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
       }
     });
     page.on('requestfailed', request => console.error('[streetverse-requestfailed]', request.url(), request.failure()?.errorText || 'unknown'));
+    // Log only origin and path: query strings may contain credentials or signed asset URLs.
+    page.on('response', response => {
+      if (response.status() >= 400) {
+        const request = response.request();
+        const url = new URL(response.url());
+        console.error('[streetverse-http-error]', response.status(), request.resourceType(), url.origin + url.pathname);
+      }
+    });
     await page.addInitScript(() => {
       try {
         Object.defineProperty(navigator, 'hardwareConcurrency', { configurable: true, get: () => 8 });
@@ -35,11 +45,59 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(page.locator('#root')).toBeAttached();
     await expect(page.locator('#root')).not.toBeEmpty();
 
-    const canvas = page.locator('canvas').first();
+    const worldRoot = page.locator('[data-streetverse-world-root]');
+    await expect(worldRoot).toBeVisible({timeout:25_000});
+    const canvas = page.locator('canvas[data-streetverse-world-canvas="true"]');
     await expect(canvas).toBeVisible({ timeout: 25_000 });
     const canvasBox = await canvas.boundingBox();
-    expect(canvasBox?.width || 0).toBeGreaterThan(250);
-    expect(canvasBox?.height || 0).toBeGreaterThan(250);
+    const worldBox = await worldRoot.boundingBox();
+    expect(canvasBox).not.toBeNull();
+    expect(worldBox).not.toBeNull();
+    // Regression: Safari rendered a visibly clipped city canvas on the right.
+    // A large (>250px) canvas alone was not enough to catch that failure.
+    expect(Math.abs(canvasBox!.x-worldBox!.x)).toBeLessThanOrEqual(2);
+    expect(Math.abs(canvasBox!.y-worldBox!.y)).toBeLessThanOrEqual(2);
+    expect(canvasBox!.width).toBeGreaterThanOrEqual(worldBox!.width-2);
+    expect(canvasBox!.height).toBeGreaterThanOrEqual(worldBox!.height-2);
+    await expect(worldRoot).toHaveAttribute('data-streetverse-canvas-width',/^[1-9][0-9]*$/);
+    // Prevent the exact real-phone regression where a WebGL canvas exists but
+    // shows only an almost uniform blue/gray sky instead of Chicago geometry.
+    // Decode an actual rendered canvas screenshot; DOM counts aren't visual proof.
+    await page.waitForTimeout(1800);
+    const worldPng=await canvas.screenshot({timeout:15_000,animations:'disabled'});
+    const cityPixels=await page.evaluate(async (base64:string)=>{
+      const image=new Image();
+      image.src='data:image/png;base64,'+base64;
+      await image.decode();
+      const scratch=document.createElement('canvas');
+      scratch.width=image.naturalWidth;scratch.height=image.naturalHeight;
+      const ctx=scratch.getContext('2d',{willReadFrequently:true});
+      if(!ctx)throw new Error('Cannot examine StreetVerse canvas screenshot pixels');
+      ctx.drawImage(image,0,0);
+      const pixels=ctx.getImageData(0,0,scratch.width,scratch.height).data;
+      const nx=24,ny=14;
+      const colors:number[][]=[];
+      for(let y=0;y<ny;y++)for(let x=0;x<nx;x++){
+        const px=Math.min(scratch.width-1,Math.floor(scratch.width*(.12+x*.76/(nx-1))));
+        const py=Math.min(scratch.height-1,Math.floor(scratch.height*(.23+y*.54/(ny-1))));
+        const i=(py*scratch.width+px)*4;
+        colors.push([pixels[i],pixels[i+1],pixels[i+2]]);
+      }
+      let strongEdges=0;
+      for(let y=0;y<ny;y++)for(let x=0;x<nx;x++){
+        if(x===0&&y===0)continue;
+        const i=y*nx+x,j=x>0?i-1:i-nx;
+        const delta=Math.abs(colors[i][0]-colors[j][0])+Math.abs(colors[i][1]-colors[j][1])+Math.abs(colors[i][2]-colors[j][2]);
+        if(delta>55)strongEdges++;
+      }
+      return {strongEdges,samples:colors.length,width:scratch.width,height:scratch.height};
+    },worldPng.toString('base64'));
+    console.error('[streetverse-visible-city-pixels]',JSON.stringify(cityPixels));
+    expect(cityPixels.strongEdges,'StreetVerse WebGL is present but appears to show a blank sky rather than visible city streets/buildings/trees').toBeGreaterThan(4);
+    // The simulated iOS 16 browser must exercise the reduced-memory path.
+    await expect(worldRoot).toHaveAttribute('data-streetverse-graphics-profile','legacy-iphone');
+    await expect.poll(async()=>Number(await worldRoot.getAttribute('data-streetverse-gpu-draw-calls')||0),{timeout:20_000})
+      .toBeGreaterThan(10);
 
     const joystick = page.getByLabel('StreetVerse analog joystick');
     await expect(joystick).toBeVisible({ timeout: 20_000 });
@@ -60,10 +118,38 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(mission).toBeVisible({ timeout: 20_000 });
 
     type Rect={x:number;y:number;width:number;height:number};
+    // Distinguish the wrong entry route from a mounted world whose travel UI failed.
+    await expect(page.locator('[data-streetverse-entry="geo-spawn-bridge"]')).toBeAttached({ timeout: 20_000 });
     const travel=page.getByRole('button',{name:'Travel to Taylor Street UIC Medical District'});
+    // Safe Mode also exposes travel now, so button presence alone cannot prove 3D startup.
+    // Reject fallback explicitly before validating controls for the playable world.
+    if (await page.locator('[data-streetverse-render-mode="startup-fallback"]').count()) {
+      throw new Error('StreetVerse entered startup safe mode; inspect HTTP failures and WebGL initialization before accepting the 3D visual proof');
+    }
     const stores=page.locator('#sv-retail-open');
     const enterStore=page.locator('#sv-store-open');
-    await expect(travel).toBeVisible();
+    const renderMode=await page.locator('[data-streetverse-entry="geo-spawn-bridge"]').getAttribute('data-streetverse-mode');
+    console.error('[streetverse-entry-mode]', renderMode);
+    console.error('[streetverse-travel-count]', await travel.count());
+    console.error('[streetverse-travel-layout]', JSON.stringify(await page.locator('[data-streetverse-travel]').evaluateAll(nodes => nodes.map(node => {const el=node as HTMLElement;const css=getComputedStyle(el);const rect=el.getBoundingClientRect();return {rect:{x:rect.x,y:rect.y,width:rect.width,height:rect.height},display:css.display,visibility:css.visibility,opacity:css.opacity,contentVisibility:css.contentVisibility,transform:css.transform,offsetWidth:el.offsetWidth,offsetHeight:el.offsetHeight,clientRects:el.getClientRects().length,viewport:{width:innerWidth,height:innerHeight}}}))));
+    console.error('[streetverse-travel-data-count]', await page.locator('[data-streetverse-travel]').count());
+    console.error('[streetverse-travel-dom]', JSON.stringify(await page.locator('[data-streetverse-travel]').evaluateAll(nodes => nodes.map(node => ({tag:node.tagName,html:node.outerHTML.slice(0,500),visible:!!(node as HTMLElement).getClientRects().length,ancestor: (()=>{let p=node.parentElement;const chain=[];while(p&&chain.length<8){chain.push({tag:p.tagName,ariaHidden:p.getAttribute('aria-hidden'),inert:p.hasAttribute('inert'),display:getComputedStyle(p).display,visibility:getComputedStyle(p).visibility});p=p.parentElement;}return chain;})()})))));
+    // Fail with an actionable diagnosis instead of waiting for an inaccessible role.
+    if (renderMode !== 'playable') {
+      throw new Error('Expected playable 3D Chicago, received '+renderMode+'; verify WebGL and startup errors')
+    }
+    await expect(travel).toBeVisible({timeout:10_000});
+    await travel.click();
+    await expect(page.getByRole('button',{name:'Return to StreetVerse Chicago'})).toBeVisible({timeout:15_000});
+    await page.screenshot({path:testInfo.outputPath('streetverse-taylor-uic-travel.png'),fullPage:false});
+    await page.getByRole('button',{name:'Return to StreetVerse Chicago'}).click();
+    await expect(travel).toBeVisible({timeout:10_000});
+    // iPhone starts in intentional CLEAR VIEW mode, which hides the shop launchers.
+    // Exercise the user's actual quick-menu path to restore the complete HUD.
+    await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-hud-focus','true');
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/SHOW FULL HUD/}).click();
+    await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-hud-focus','false');
     await expect(stores).toBeVisible();
     await expect(enterStore).toBeVisible();
     const visibleCore=[joystick,quickMenu,page.getByRole('button',{name:'Open Holo FON'}),mission,travel,stores,enterStore];
@@ -80,7 +166,7 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
       Math.max(0,Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x))*
       Math.max(0,Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y));
     for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++){
-      expect(overlaps(boxes[i],boxes[j])).toBeLessThan(1);
+      expect(overlaps(boxes[i],boxes[j]),`Mobile HUD controls ${i} and ${j} overlap after SHOW FULL HUD`).toBeLessThan(1);
     }
 
     await page.waitForTimeout(2200);
@@ -95,10 +181,19 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await quickMenu.click();
     const menu=page.getByRole('menu',{name:'StreetVerse quick navigation'});
     await expect(menu).toBeVisible();
-    const bjView=page.getByRole('menuitem',{name:/BJ V12 VIEW/});
+    const bjView=page.getByRole('menuitem',{name:/BJ CLOSE-UP/});
     await expect(bjView).toBeVisible();
     await bjView.click();
     await page.waitForTimeout(1400);
+    // When V15 has loaded, its top-bar control replaces the obstructive
+    // duplicate floating BJ FACE launcher and remains a tappable target.
+    const bjChip = page.getByRole('button',{name:'BJ V15 loaded — toggle face close-up'});
+    if(await bjChip.count()){
+      await expect(bjChip).toBeVisible();
+      await expect(page.getByRole('button',{name:'Toggle BJ Stubbs V15 face portrait view'})).toHaveCount(0);
+      const bjChipBox=await bjChip.boundingBox();
+      expect(bjChipBox?.height||0).toBeGreaterThanOrEqual(44);
+    }
     await page.screenshot({
       path:testInfo.outputPath('streetverse-bj-v12-character-view.png'),
       fullPage:false,
@@ -140,6 +235,9 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(socialShortcut).toBeVisible();
     await expect(peopleShortcut).toBeVisible();
     await expect(ticketShortcut).toBeVisible();
+    // The collapsed REPAIR/ACTIONS launcher previously covered People Search.
+    // It must yield the bottom corner to the three social shortcuts.
+    await expect(page.getByRole('button',{name:'Open in-game action carousel'})).toHaveCount(0);
 
     await socialShortcut.click();
     const socialPanel=page.getByRole('region',{name:'StreetVerse social panel'});
@@ -148,7 +246,8 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     expect(socialBox?.width||0).toBeLessThanOrEqual(374);
     expect(socialBox?.height||0).toBeLessThanOrEqual(390);
     expect((socialBox?.y||0)+(socialBox?.height||0)).toBeLessThanOrEqual(844);
-    await socialPanel.screenshot({path:testInfo.outputPath('streetverse-social-panel-iphone.png')});
+    // Page capture avoids Playwright's extra scroll/stability wait on an animated overlay.
+    await page.screenshot({path:testInfo.outputPath('streetverse-social-panel-iphone.png'),fullPage:false,animations:'disabled'});
     await page.getByRole('button',{name:'Close StreetVerse panel'}).click();
 
     await peopleShortcut.click();
@@ -160,6 +259,40 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     const ticketPanel=page.getByRole('region',{name:'StreetVerse stream ticket center'});
     await expect(ticketPanel).toBeVisible();
     await expect(page.getByText('No authoritative ticket records loaded. The panel will not invent approvals or access.')).toBeVisible();
-    await ticketPanel.screenshot({path:testInfo.outputPath('streetverse-ticket-panel-iphone.png')});
+    await page.screenshot({path:testInfo.outputPath('streetverse-ticket-panel-iphone.png'),fullPage:false,animations:'disabled'});
+    await page.getByRole('button',{name:'Close StreetVerse panel'}).click();
+    // iPhone recovery: a saved school position or pinned face camera must not trap
+    // the player looking at the sky. Return to the known Circle Park spawn.
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/RESET CITY VIEW/}).click();
+    await expect(worldRoot).toHaveAttribute('data-streetverse-camera-reset','circle-park');
+    await expect(worldRoot).toHaveAttribute('data-hud-focus','true');
+    await expect(joystick).toBeVisible();
+    await page.screenshot({path:testInfo.outputPath('streetverse-circle-park-reset-view-iphone.png'),fullPage:false,animations:'disabled'});
+    // The existing West Side build board must be reachable without a giant
+    // overlay launcher permanently covering the mobile Chicago streets.
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/WEST SIDE BUILDER/}).click();
+    await expect(page.getByRole('dialog',{name:'StreetVerse World Builder'})).toBeVisible();
+    await page.getByRole('button',{name:'Close StreetVerse World Builder'}).click();
+  });
+
+  test('brief WebGL context loss can recover without discarding the Chicago world',async({page},testInfo)=>{
+    test.setTimeout(80_000);
+    await page.goto('/streetverse',{waitUntil:'domcontentloaded',timeout:45_000});
+    const world=page.locator('[data-streetverse-world-root]');
+    await expect(world).toBeVisible({timeout:25_000});
+    const canvas=page.locator('canvas[data-streetverse-world-canvas="true"]');
+    await expect(canvas).toBeVisible();
+    // Simulate a Safari loss notification without deliberately destroying the
+    // runner GPU. Confirm the guard keeps its 3D tree mounted during recovery.
+    await canvas.evaluate(element=>element.dispatchEvent(new Event('webglcontextlost',{bubbles:true,cancelable:true})));
+    await expect(page.locator('[data-streetverse-render-mode="graphics-restoring"]')).toBeVisible();
+    await expect(page.locator('[data-streetverse-render-mode="context-loss-fallback"]')).toHaveCount(0);
+    await expect(world).toBeVisible();
+    await canvas.evaluate(element=>element.dispatchEvent(new Event('webglcontextrestored',{bubbles:true})));
+    await expect(page.locator('[data-streetverse-render-mode="graphics-restoring"]')).toHaveCount(0);
+    await expect(world).toBeVisible();
+    await page.screenshot({path:testInfo.outputPath('streetverse-graphics-restored-iphone.png'),fullPage:false,animations:'disabled'});
   });
 });

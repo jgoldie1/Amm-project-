@@ -37,8 +37,17 @@ function createWestSideBrickTexture(){
   const tex=new THREE.CanvasTexture(canvas);tex.name='west-side-procedural-brick-v4';tex.wrapS=THREE.RepeatWrapping;tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(3.2,4.6);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;ownedTextures.push(tex);return tex
 }
 
+// Shared box geometry keeps the detailed West Side facades, street furniture
+// and window grids visible without allocating a fresh GPU buffer per object.
+const sharedBoxGeometries=new Map<string,THREE.BoxGeometry>()
 function box(group:THREE.Group,size:[number,number,number],pos:[number,number,number],mat:THREE.Material,rotationY=0,name=''){
-  const mesh=new THREE.Mesh(geometry(new THREE.BoxGeometry(...size)),mat)
+  const key=size.join(',')
+  let boxGeometry=sharedBoxGeometries.get(key)
+  if(!boxGeometry){
+    boxGeometry=geometry(new THREE.BoxGeometry(...size))
+    sharedBoxGeometries.set(key,boxGeometry)
+  }
+  const mesh=new THREE.Mesh(boxGeometry,mat)
   mesh.position.set(...pos);mesh.rotation.y=rotationY;mesh.castShadow=false;mesh.receiveShadow=true;mesh.name=name;group.add(mesh);return mesh
 }
 function addGroundShadow(group:THREE.Group,w:number,d:number,y=.035,opacity=.18){
@@ -512,7 +521,14 @@ function addResidentialCourtyard(root:THREE.Group){
     {asset:'residentG',position:[48,0,-20],rotationY:-.15,label:'west-side-native-uic-student-b'},
     {asset:'residentH',position:[54,0,-18],rotationY:.18,label:'west-side-native-uic-student-c'},
   ]
-  void loadTryammNativeCircleParkLayer({placements:nativePlacements}).then(result=>{
+  // The entire West Side streetscape above is native Three.js geometry. On
+  // legacy iPhone Safari the *optional* GLB duplicates compete with the BJ
+  // character and Chicago native kit for scarce GPU memory. Keep the detailed
+  // procedural West Side streets, buildings, trees and residents; skip only
+  // this second simultaneous GLB batch on legacy devices.
+  const legacyIphoneGraphics=typeof navigator!=='undefined'&&/iPhone/i.test(navigator.userAgent)&&/OS (?:1[0-6])_/.test(navigator.userAgent)
+  if(legacyIphoneGraphics)window.dispatchEvent(new CustomEvent('tryamm:streetverse-west-side-native-assets',{detail:{loaded:0,failed:0,source:'west-side-visible-world-v5',mode:'procedural-low-memory',optionalGlbSkipped:true}}))
+  if(!legacyIphoneGraphics)void loadTryammNativeCircleParkLayer({placements:nativePlacements}).then(result=>{
     if(nativeCancelled){disposeNativeAssetLayer(result.group);return}
     nativeLayer=result.group
     nativeLayer.name='TRYAMM-Native-WestSide-Visual-Layer-v5'
