@@ -1,5 +1,4 @@
 import {useEffect,useMemo,useRef,useState} from 'react'
-import {getAccessToken} from '../services/supabaseClient'
 
 type PublicReelPayload={publication:{public_slug:string;caption?:string;destination:string;delivered_at?:string};media:{id:string;title?:string;mediaType?:string;playbackUrl:string};share:{slug:string;path:string}}
 
@@ -15,8 +14,9 @@ export default function PublicReelPage({slug}:{slug:string}){
   const [lagMode,setLagMode]=useState('adaptive')
   const shareUrl=useMemo(()=>data?new URL(data.share.path,window.location.origin).toString():'',[data])
   useEffect(()=>{let alive=true;setData(null);setError('');setBusy(true);setPipStatus('');(async()=>{try{
-    const token=await getAccessToken();if(!token)throw new Error('Sign in to open this TRYAMM Reel.')
-    const response=await fetch(`/api/media/publication?slug=${encodeURIComponent(slug)}`,{headers:{Authorization:`Bearer ${token}`}})
+    // Shared approved Reels are public. Never require signup just to watch a
+    // delivered, moderation-approved clip. The server still enforces rights.
+    const response=await fetch(`/api/media/publication?slug=${encodeURIComponent(slug)}`,{cache:'no-store'})
     const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body?.error||'Reel unavailable')
     if(alive)setData(body)
   }catch(e){if(alive)setError(e instanceof Error?e.message:'Reel unavailable')}finally{if(alive)setBusy(false)}})();return()=>{alive=false}},[slug])
