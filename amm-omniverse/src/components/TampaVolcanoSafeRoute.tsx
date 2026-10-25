@@ -30,6 +30,16 @@ export default function TampaVolcanoSafeRoute({ mode = 'tampa' }: { mode?: 'tamp
   const [selected, setSelected] = useState(0)
   const [orbs, setOrbs] = useState(0)
   const [gamepad, setGamepad] = useState(false)
+  const [quality, setQuality] = useState<'low'|'balanced'|'high'>('low')
+  const [comfort, setComfort] = useState(true)
+  const [reverseAxis, setReverseAxis] = useState(false)
+  const [controllerAxis, setControllerAxis] = useState<'left'|'right'>('left')
+  const [caps, setCaps] = useState('Checking compatibility')
+  useEffect(() => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const small = window.matchMedia('(max-width: 720px)').matches
+    setCaps([small?'Small screen':'Large screen',reduced?'Reduced motion':'Standard motion',window.isSecureContext?'HTTPS ready':'HTTPS needed for XR',navigator.getGamepads?'Gamepad available':'No Gamepad API'].join(' · '))
+  }, [])
   const keys = useRef(new Set<string>())
   const renderer = useRef<WebGLRenderer | null>(null)
   const xrSession = useRef<{ end: () => Promise<void> } | null>(null)
@@ -69,12 +79,12 @@ export default function TampaVolcanoSafeRoute({ mode = 'tampa' }: { mode?: 'tamp
       setGamepad(old => old === Boolean(pad) ? old : Boolean(pad))
       let dx=(keys.current.has('arrowright')||keys.current.has('d')?1:0)-(keys.current.has('arrowleft')||keys.current.has('a')?1:0)
       let dz=(keys.current.has('arrowdown')||keys.current.has('s')?1:0)-(keys.current.has('arrowup')||keys.current.has('w')?1:0)
-      if(pad){dx+=Math.abs(pad.axes[0]||0)>.2?(pad.axes[0]||0):0;dz+=Math.abs(pad.axes[1]||0)>.2?(pad.axes[1]||0):0}
+      if(pad){const i=controllerAxis==='right'?2:0;dx+=(reverseAxis?-1:1)*(Math.abs(pad.axes[i]||0)>.2?(pad.axes[i]||0):0);dz+=Math.abs(pad.axes[i+1]||0)>.2?(pad.axes[i+1]||0):0}
       if(dx||dz)move(dx*.15,dz*.15)
     }
     frame=requestAnimationFrame(tick)
     return()=>{cancelAnimationFrame(frame);window.removeEventListener('keydown',down);window.removeEventListener('keyup',up)}
-  },[])
+  },[controllerAxis,reverseAxis])
   return <main style={{minHeight:'100vh',background:'#110d1c',color:'#fff',fontFamily:'system-ui',padding:'16px'}}>
     <nav style={{display:'flex',gap:12,flexWrap:'wrap',marginBottom:12}}>
       <a style={{color:'#ffd9ee'}} href="/streetverse">Back to StreetVerse</a>
@@ -83,8 +93,15 @@ export default function TampaVolcanoSafeRoute({ mode = 'tampa' }: { mode?: 'tamp
     </nav>
     <h1>{volcano?'VolcanoVerse Challenge':'La Taeasia · Tampa BeautyVerse Fly-In'}</h1>
     <p>{volcano?'Volcanic island training zone. Collect simulated energy with the mission action.':'A safe standalone StreetVerse district route for La Taeasia’s Tampa beauty business and streamer studio.'}</p>
+    <details><summary>Device and accessibility settings</summary>
+      <p>{caps}</p>
+      <label>Graphics <select value={quality} onChange={e=>setQuality(e.target.value as 'low'|'balanced'|'high')}><option value="low">Battery saver</option><option value="balanced">Balanced</option><option value="high">High</option></select></label>
+      <label><input type="checkbox" checked={comfort} onChange={e=>setComfort(e.target.checked)}/> VR comfort (fixed overview)</label>
+      <label>Controller stick <select value={controllerAxis} onChange={e=>setControllerAxis(e.target.value as 'left'|'right')}><option value="left">Left</option><option value="right">Right</option></select></label>
+      <label><input type="checkbox" checked={reverseAxis} onChange={e=>setReverseAxis(e.target.checked)}/> Reverse horizontal control</label>
+    </details>
     <div style={{height:'48vh',minHeight:260,borderRadius:16,overflow:'hidden',border:'2px solid #8c5778'}}>
-      <Canvas camera={{position:[0,17,23],fov:58}} gl={{antialias:false,alpha:true,powerPreference:'low-power'}} dpr={[1,1.5]} onCreated={({gl})=>{renderer.current=gl}}>
+      <Canvas camera={{position:[0,17,23],fov:comfort?50:58}} gl={{antialias:false,alpha:true,powerPreference:'low-power'}} dpr={quality==='low'?1:quality==='balanced'?[1,1.5]:[1,2]} onCreated={({gl})=>{renderer.current=gl}}>
         <Buildings volcano={volcano}/>
         <mesh position={[position.x,.6,position.z]}><capsuleGeometry args={[.45,1,4,8]}/><meshStandardMaterial color="#ffe68f"/></mesh>
       </Canvas>
