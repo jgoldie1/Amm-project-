@@ -19,4 +19,8 @@ assert.match(scene, /window\.removeEventListener\('keydown'/, 'Keyboard listener
 assert.match(scene, /appointments — pending credential verification/, 'Do not promise regulated booking')
 assert.match(scene, /No charges or reservations occur here/, 'Do not imply live checkout')
 assert.doesNotMatch(scene, /fetch\(|localStorage\.|sessionStorage\.|WebSocket\(/, 'Beta scene must not touch network or player saves')
+assert.match(scene, /isSessionSupported\(mode\)/, 'XR compatibility must be checked before launch')
+assert.match(scene, /window\.isSecureContext/, 'XR must require a secure context')
+assert.match(scene, /session\.addEventListener\('end'/, 'XR must handle session end')
+assert.match(scene, /Regular 3D is the fallback/, 'XR must have a standard-screen fallback')
 console.log('PASS Tampa and Volcano beta route preservation checks')
