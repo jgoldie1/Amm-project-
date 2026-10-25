@@ -149,8 +149,8 @@ try {
     <OmniCashLauncher />
   </>
   
-  if(currentPath==='/streetverse/tampa'||currentPath==='/streetverse/tampa/')routeContent=<Suspense fallback={routeFallback}><TampaVolcanoSafeRoute mode="tampa" /></Suspense>
-  else if(currentPath==='/streetverse/volcano'||currentPath==='/streetverse/volcano/')routeContent=<Suspense fallback={routeFallback}><TampaVolcanoSafeRoute mode="volcano" /></Suspense>
+  if(import.meta.env.VITE_ENABLE_TAMPA_VOLCANO_BETA==='true'&&(currentPath==='/streetverse/tampa'||currentPath==='/streetverse/tampa/'))routeContent=<Suspense fallback={routeFallback}><TampaVolcanoSafeRoute mode="tampa" /></Suspense>
+  else if(import.meta.env.VITE_ENABLE_TAMPA_VOLCANO_BETA==='true'&&(currentPath==='/streetverse/volcano'||currentPath==='/streetverse/volcano/'))routeContent=<Suspense fallback={routeFallback}><TampaVolcanoSafeRoute mode="volcano" /></Suspense>
   else if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
   else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
