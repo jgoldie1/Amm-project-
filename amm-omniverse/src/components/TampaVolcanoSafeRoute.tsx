@@ -8,7 +8,7 @@ const LINKS = [
   { name: 'Beauty Academy', detail: 'Course previews only; professional enrollment requires approvals' },
 ]
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v))
-function Buildings({ volcano }) {
+function Buildings({ volcano }: { volcano: boolean }) {
   return <group>
     <ambientLight intensity={1.5} />
     <directionalLight position={[3, 10, 5]} intensity={2.5} />
@@ -38,7 +38,7 @@ export default function TampaVolcanoSafeRoute({ mode = 'tampa' }: { mode?: 'tamp
     let frame=0,last=0
     const tick=(now:number)=>{frame=requestAnimationFrame(tick);if(now-last<55)return;last=now
       const pads=navigator.getGamepads?.()||[];const pad=Array.from(pads).find(Boolean)
-      setGamepad(Boolean(pad))
+      setGamepad(old => old === Boolean(pad) ? old : Boolean(pad))
       let dx=(keys.current.has('arrowright')||keys.current.has('d')?1:0)-(keys.current.has('arrowleft')||keys.current.has('a')?1:0)
       let dz=(keys.current.has('arrowdown')||keys.current.has('s')?1:0)-(keys.current.has('arrowup')||keys.current.has('w')?1:0)
       if(pad){dx+=Math.abs(pad.axes[0]||0)>.2?(pad.axes[0]||0):0;dz+=Math.abs(pad.axes[1]||0)>.2?(pad.axes[1]||0):0}
