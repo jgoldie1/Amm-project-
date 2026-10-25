@@ -29,6 +29,7 @@ import './accessibility/accessibility.css'
 // Entering StreetVerse must not download the entire homepage application first.
 const App=lazy(()=>import('./App'))
 const TampaVolcanoSafeRoute=lazy(()=>import('./components/TampaVolcanoSafeRoute'))
+const BeautyVerseOwnerBeta=lazy(()=>import('./components/BeautyVerseOwnerBeta'))
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 // Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
 const StreetVerseTwinWorld=lazy(()=>import('./components/StreetVerseTwinWorld'))
@@ -149,7 +150,8 @@ try {
     <OmniCashLauncher />
   </>
   
-  if(import.meta.env.VITE_ENABLE_TAMPA_VOLCANO_BETA==='true'&&(currentPath==='/streetverse/tampa'||currentPath==='/streetverse/tampa/'))routeContent=<Suspense fallback={routeFallback}><TampaVolcanoSafeRoute mode="tampa" /></Suspense>
+  if(import.meta.env.VITE_ENABLE_TAMPA_VOLCANO_BETA==='true'&&(currentPath==='/beautyverse/owner-preview'||currentPath==='/beautyverse/owner-preview/'))routeContent=<Suspense fallback={routeFallback}><BeautyVerseOwnerBeta /></Suspense>
+  else if(import.meta.env.VITE_ENABLE_TAMPA_VOLCANO_BETA==='true'&&(currentPath==='/streetverse/tampa'||currentPath==='/streetverse/tampa/'))routeContent=<Suspense fallback={routeFallback}><TampaVolcanoSafeRoute mode="tampa" /></Suspense>
   else if(import.meta.env.VITE_ENABLE_TAMPA_VOLCANO_BETA==='true'&&(currentPath==='/streetverse/volcano'||currentPath==='/streetverse/volcano/'))routeContent=<Suspense fallback={routeFallback}><TampaVolcanoSafeRoute mode="volcano" /></Suspense>
   else if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
   else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
