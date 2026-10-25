@@ -1,0 +1,35 @@
+{
+  "business_id": "nekira-frances-hr-logistics",
+  "business_name": "Nekira Frances HR Logistics",
+  "owner": "Nekira Frances",
+  "portfolio": "TRYAMM 30-business launch cohort",
+  "cohort_entry_status": "proposed — master 30-business roster not yet verified",
+  "template_path": "business-templates/nekira-frances-hr-logistics/index.html",
+  "stage": "standalone template created",
+  "business_verticals": [
+    "logistics",
+    "freight coordination",
+    "dispatch",
+    "human resources / onboarding"
+  ],
+  "planned_integrations": [
+    "MiddleVerse AI consent-based concierge",
+    "licensed load-board API",
+    "carrier qualification workflow",
+    "business inquiry CRM",
+    "secure owner dashboard",
+    "verified invoicing and payment processing"
+  ],
+  "separation_policy": "independent brand, permissions, customer records and payment account",
+  "launch_gates": [
+    "Confirm brand spelling, authorized service offerings and business contact",
+    "Verify MC/DOT/broker or dispatch scope before offering regulated services",
+    "Connect authorized live load-board data with permitted usage",
+    "Implement securely stored lead intake, consent and owner alerts",
+    "Connect approved AI knowledge and human handoff",
+    "Verify rates, billing, payout and user permissions",
+    "Mobile accessibility, security and end-to-end testing",
+    "Publish with owner approval"
+  ],
+  "notes": "Demo loads are fictional. No bookings or payments processed. Production TRYAMM app files unchanged."
+}
