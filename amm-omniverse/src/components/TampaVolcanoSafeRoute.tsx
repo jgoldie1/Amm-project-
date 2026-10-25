@@ -1,4 +1,5 @@
 import { Canvas } from '@react-three/fiber'
+import type { WebGLRenderer } from 'three'
 import { useEffect, useRef, useState } from 'react'
 
 const LINKS = [
@@ -30,6 +31,33 @@ export default function TampaVolcanoSafeRoute({ mode = 'tampa' }: { mode?: 'tamp
   const [orbs, setOrbs] = useState(0)
   const [gamepad, setGamepad] = useState(false)
   const keys = useRef(new Set<string>())
+  const renderer = useRef<WebGLRenderer | null>(null)
+  const xrSession = useRef<{ end: () => Promise<void> } | null>(null)
+  const [xrStatus, setXrStatus] = useState('Standard 3D mode')
+  const enterXR = async (mode: 'immersive-ar' | 'immersive-vr') => {
+    const xr = (navigator as Navigator & { xr?: {
+      isSessionSupported: (m: string) => Promise<boolean>
+      requestSession: (m: string, options?: object) => Promise<{ end: () => Promise<void>; addEventListener: (name: string, fn: () => void) => void }>
+    } }).xr
+    if (!window.isSecureContext || !xr || !renderer.current) {
+      setXrStatus('XR unavailable here. Standard 3D controls remain available.')
+      return
+    }
+    try {
+      if (!await xr.isSessionSupported(mode)) { setXrStatus(mode + ' unsupported on this device. Using standard 3D.'); return }
+      if (xrSession.current) await xrSession.current.end()
+      const session = await xr.requestSession(mode, { optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking'] })
+      xrSession.current = session
+      session.addEventListener('end', () => { xrSession.current = null; setXrStatus('Standard 3D mode') })
+      renderer.current.xr.enabled = true
+      await renderer.current.xr.setSession(session as Parameters<WebGLRenderer['xr']['setSession']>[0])
+      setXrStatus(mode === 'immersive-ar' ? 'AR session active' : 'VR session active')
+    } catch {
+      setXrStatus('XR could not start. Standard 3D controls remain available.')
+    }
+  }
+  useEffect(() => () => { void xrSession.current?.end().catch(() => undefined) }, [])
+
   const move = (dx:number,dz:number)=>setPosition(p=>({x:clamp(p.x+dx,-15,15),z:clamp(p.z+dz,-15,15)}))
   useEffect(()=>{
     const down=(e:KeyboardEvent)=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))e.preventDefault();keys.current.add(e.key.toLowerCase())}
@@ -56,11 +84,17 @@ export default function TampaVolcanoSafeRoute({ mode = 'tampa' }: { mode?: 'tamp
     <h1>{volcano?'VolcanoVerse Challenge':'La Taeasia · Tampa BeautyVerse Fly-In'}</h1>
     <p>{volcano?'Volcanic island training zone. Collect simulated energy with the mission action.':'A safe standalone StreetVerse district route for La Taeasia’s Tampa beauty business and streamer studio.'}</p>
     <div style={{height:'48vh',minHeight:260,borderRadius:16,overflow:'hidden',border:'2px solid #8c5778'}}>
-      <Canvas camera={{position:[0,17,23],fov:58}} gl={{antialias:false,powerPreference:'low-power'}} dpr={[1,1.5]}>
+      <Canvas camera={{position:[0,17,23],fov:58}} gl={{antialias:false,alpha:true,powerPreference:'low-power'}} dpr={[1,1.5]} onCreated={({gl})=>{renderer.current=gl}}>
         <Buildings volcano={volcano}/>
         <mesh position={[position.x,.6,position.z]}><capsuleGeometry args={[.45,1,4,8]}/><meshStandardMaterial color="#ffe68f"/></mesh>
       </Canvas>
     </div>
+    <div style={{display:'flex',gap:10,flexWrap:'wrap',marginTop:12}}>
+      <button type="button" onClick={()=>void enterXR('immersive-vr')} style={{padding:12}}>Enter VR (supported headsets)</button>
+      <button type="button" onClick={()=>void enterXR('immersive-ar')} style={{padding:12}}>Try AR (supported devices)</button>
+      <button type="button" onClick={()=>void xrSession.current?.end()} style={{padding:12}}>Exit XR</button>
+    </div>
+    <p role="status" aria-live="polite">{xrStatus}. XR requires HTTPS, compatible hardware, browser support and permission. Regular 3D is the fallback.</p>
     <p role="status">Position {position.x.toFixed(1)}, {position.z.toFixed(1)} · {gamepad?'Gamepad detected':'Touch buttons / keyboard available'} {volcano?' · Energy '+orbs+'/7':''}</p>
     <div style={{display:'flex',gap:12,flexWrap:'wrap',alignItems:'center',margin:'12px 0'}}>
       <button style={{fontSize:24,padding:16}} onClick={()=>move(0,-1)}>↑</button>
