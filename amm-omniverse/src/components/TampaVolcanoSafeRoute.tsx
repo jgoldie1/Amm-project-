@@ -132,6 +132,7 @@ export default function TampaVolcanoSafeRoute({ mode = 'tampa' }: { mode?: 'tamp
       <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
         <a href="/streetverse" style={{color:'#ffd9ee'}}>Return to StreetVerse worlds</a>
         <a href="/live" style={{color:'#ffd9ee'}}>TRYAMM Live hub</a>
+        <a href="/beautyverse/owner-preview" style={{color:'#ffd9ee'}}>BeautyVerse owner operations demo</a>
       </div>
       <p>Do not advertise real appointments, commissions, streaming channels or academy credentials until independently confirmed.</p>
     </section>}
