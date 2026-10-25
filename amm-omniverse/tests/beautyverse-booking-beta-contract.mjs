@@ -6,6 +6,7 @@ assert.ok(entry.includes("'/beautyverse/book-preview'"),'Booking demo route miss
 assert.ok(entry.includes('VITE_ENABLE_TAMPA_VOLCANO_BETA'), 'Feature gate missing')
 assert.match(booking,/No payment, customer information, or appointments are collected/, 'Demo limitations required')
 assert.doesNotMatch(booking,/fetch\(|WebSocket\(|localStorage\.|sessionStorage\./,'Booking demo cannot persist or transmit customer data')
-assert.match(booking, /America\\/New_York/, 'Business timezone must be Tampa local time')
+assert.ok(booking.includes('America/New_York'), 'Booking must use Tampa local timezone')
 assert.match(booking, /min=\{today\}/, 'Date picker must not allow past dates')
+assert.match(booking, /const today\s*=/, 'Date minimum must be defined')
 console.log('PASS BeautyVerse booking beta isolation contract')
