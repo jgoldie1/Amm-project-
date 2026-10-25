@@ -126,6 +126,15 @@ export default function TampaVolcanoSafeRoute({ mode = 'tampa' }: { mode?: 'tamp
       <p role="status">{LINKS[selected].detail}</p>
       <p>Appointment calendar, verified livestream URL and checkout are not connected. No charges or reservations occur here.</p>
     </section>}
+    {!volcano&&<section aria-label="CrossVerse creator bridge" style={{marginTop:18,padding:16,border:'1px solid #edb3c8',borderRadius:12}}>
+      <h2>CrossVerse · La Taeasia creator pathway</h2>
+      <p>Explore BeautyVerse salon, fashion, livestream creator studio and academy concepts from the Tampa StreetVerse district. CrossVerse creator payments and account synchronization require verified backend integration.</p>
+      <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+        <a href="/streetverse" style={{color:'#ffd9ee'}}>Return to StreetVerse worlds</a>
+        <a href="/live" style={{color:'#ffd9ee'}}>TRYAMM Live hub</a>
+      </div>
+      <p>Do not advertise real appointments, commissions, streaming channels or academy credentials until independently confirmed.</p>
+    </section>}
     <small>Isolated beta route. Does not alter the existing StreetVerse scene, map, player save, payments or multiplayer.</small>
   </main>
 }
