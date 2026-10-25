@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "status": "proposed-not-live",
+  "brand": "Nekira Frances HR Logistics",
+  "assistant_brand": "Frances AI",
+  "platform_technology_owner": "Stubbs AI",
+  "template_sales": {
+    "merchant_of_record": "Stubbs AI — subject to verified legal entity and processor account",
+    "checkout_destination": "stubbs_ai_checkout",
+    "beneficiary": "Stubbs AI",
+    "payment_status": "disabled_until_verified_webhook",
+    "frances_ai_role": "customer-facing support and referral source; not payment recipient",
+    "frances_referral": {
+      "enabled": false,
+      "rate_bps": null,
+      "requires": "written agreement and settled payment"
+    },
+    "scout_referral": {
+      "enabled": false,
+      "rate_bps": null,
+      "requires": "qualified consented referral and verified settlement"
+    },
+    "ledger_required_fields": [
+      "order_id",
+      "template_id",
+      "seller_business_id",
+      "buyer_business_id",
+      "currency",
+      "gross_amount_minor",
+      "processor_fee_minor",
+      "refund_amount_minor",
+      "tax_amount_minor",
+      "verified_settlement_id",
+      "creator_share_minor",
+      "referral_share_minor",
+      "platform_net_minor"
+    ],
+    "rules": [
+      "Never mark paid from client-side redirect",
+      "Never pay commissions on pending/refunded orders",
+      "All splits computed server-side after verified settlement",
+      "No cross-tenant payment credentials or client data"
+    ]
+  },
+  "note": "A policy configuration file does not change a live payment processor."
+}
