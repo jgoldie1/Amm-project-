@@ -1,0 +1,28 @@
+name: Stubbs Commerce v2 Tests
+on:
+  pull_request:
+    paths:
+      - 'business-templates/nekira-frances-hr-logistics/stubbs-commerce/v2/**'
+      - '.github/workflows/stubbs-commerce-v2.yml'
+  push:
+    branches: ['feature/stubbs-commerce-v2-review']
+    paths:
+      - 'business-templates/nekira-frances-hr-logistics/stubbs-commerce/v2/**'
+      - '.github/workflows/stubbs-commerce-v2.yml'
+permissions:
+  contents: read
+jobs:
+  commerce-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check syntax
+        run: |
+          node --check business-templates/nekira-frances-hr-logistics/stubbs-commerce/v2/core.cjs
+          node --check business-templates/nekira-frances-hr-logistics/stubbs-commerce/v2/core.test.cjs
+      - name: Test commerce domain
+        run: node --test business-templates/nekira-frances-hr-logistics/stubbs-commerce/v2/core.test.cjs
