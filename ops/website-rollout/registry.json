@@ -4,10 +4,10 @@
   "sites": [
     {
       "slot": 1,
-      "slug": "",
-      "business": "",
-      "path": "",
-      "status": "unassigned"
+      "slug": "stubbs-security-training",
+      "business": "Alton Stubbs — Stubbs Security & Training",
+      "path": "sites/stubbs-security",
+      "status": "testing"
     },
     {
       "slot": 2,
