@@ -11,17 +11,17 @@
     },
     {
       "slot": 2,
-      "slug": "",
-      "business": "",
-      "path": "",
-      "status": "unassigned"
+      "slug": "aniyah-64-track",
+      "business": "Aniyah 64-Track Studio",
+      "path": "sites/aniyah-64-track",
+      "status": "testing"
     },
     {
       "slot": 3,
-      "slug": "",
-      "business": "",
-      "path": "",
-      "status": "unassigned"
+      "slug": "isaiah-ai-tv",
+      "business": "Isaiah AI TV — Who Wants to Be a Star?",
+      "path": "sites/isaiah-ai-tv",
+      "status": "testing"
     },
     {
       "slot": 4,
