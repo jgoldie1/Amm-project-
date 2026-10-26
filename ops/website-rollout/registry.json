@@ -1,0 +1,216 @@
+{
+  "version": 1,
+  "description": "Owner-approved production site inventory. Unassigned slots are placeholders, not launched websites.",
+  "sites": [
+    {
+      "slot": 1,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 2,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 3,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 4,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 5,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 6,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 7,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 8,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 9,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 10,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 11,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 12,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 13,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 14,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 15,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 16,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 17,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 18,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 19,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 20,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 21,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 22,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 23,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 24,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 25,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 26,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 27,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 28,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 29,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    },
+    {
+      "slot": 30,
+      "slug": "",
+      "business": "",
+      "path": "",
+      "status": "unassigned"
+    }
+  ]
+}
