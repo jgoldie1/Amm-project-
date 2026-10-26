@@ -68,3 +68,17 @@ Mobility batch M1: 1,2,3,4,6,7,8,27,29.
 Mobility high-scrutiny quote-only M2: 9,10,11,12,13,14.
 Newumerica N1: 15,16,17,18,20,21,22,23,25,26,28,29,31.
 Prioritize five verified samples before expanding any batch.
+
+## F. Podcast / starter producer kit — supplier RFQ
+33. USB-C dynamic mic + one-hand-friendly boom arm, pop filter, windscreen and desk clamp.
+34. Closed-back monitor headphones and accessible volume controls.
+35. Compact USB audio interface/mixer, with verified Chromebook compatibility and powered-hub requirements.
+36. Optional two-mic interview bundle, XLR cables, spare cables and labeled adapters.
+37. Phone tripod/rig, hands-free remote, LED lighting with diffuser, adjustable camera mount.
+38. Portable acoustic treatment, desk isolation, quiet backdrop and cable management.
+39. Recording/review software compatibility and clear audio/video demo rights; no presumed free subscriptions.
+40. Short-form video producer pack: teleprompter stand, caption-ready tutorial clips, backdrop and creator lighting.
+41. Accessible large-button or voice recording controls, one-handed operation and documented setup.
+42. VIP branded creator unboxing kit, reusable cases and safe lithium-battery shipping where present.
+
+Request free/sponsored samples, terms, delivery fees, warranty, FCC/UL/ETL relevance, exact compatibility, raw demo footage licenses and realistic private-label MOQ. Avoid unrealistic 'studio in a box' performance promises. Pair free Chromebook recording and editing tools before buying equipment.
