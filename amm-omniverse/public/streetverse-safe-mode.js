@@ -3,6 +3,7 @@
   if(!isStreetVerse())return
   let safeActive=false
   let vehicleActive=false
+  let htmlCityReadyNotified=false
   const STYLE_ID='tryamm-streetverse-safe-life-v2'
   const findRecorderUi=()=>[...document.body.children].filter(el=>{
     const z=Number.parseInt(getComputedStyle(el).zIndex||'0',10)
@@ -78,7 +79,7 @@
     const cars=all.filter(el=>(el.style.width==='22px'&&el.style.height==='38px')||(el.style.width==='26px'&&el.style.height==='45px')||(el.style.width==='30px'&&el.style.height==='50px'))
     cars.forEach((el,i)=>el.classList.add(i===0?'tryamm-safe-car-a':i===1?'tryamm-safe-car-b':'tryamm-safe-car-c'))
     const headerStatus=[...city.querySelectorAll('header div')].find(el=>el.children.length===0&&/CITY ACTIVE/i.test(el.textContent||''))
-    if(headerStatus)headerStatus.textContent='CITY ACTIVE • PEOPLE + TRAFFIC • REEL READY'
+    if(headerStatus&&headerStatus.textContent!=='CITY ACTIVE • PEOPLE + TRAFFIC • REEL READY')headerStatus.textContent='CITY ACTIVE • PEOPLE + TRAFFIC • REEL READY'
     if(!city.dataset.visibleLifeReady){
       city.dataset.visibleLifeReady='true'
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-visible-life-ready',{detail:{htmlCity:true,people:people.length,traffic:cars.length,reelControlsVisible:true}}))
@@ -89,16 +90,19 @@
     ensureVehicleLauncher()
     const city=document.querySelector('[data-streetverse-html-city="true"]')
     safeActive=!!city
-    if(!safeActive)return
+    if(!safeActive){htmlCityReadyNotified=false;return}
     markVisibleLife(city)
     const ui=findRecorderUi()
     const badge=ui.find(el=>el.getAttribute('role')==='status'&&/STREETVERSE/i.test(el.textContent||''))
-    if(badge)badge.textContent='STREETVERSE LIVE • HTML CITY ACTIVE • MOBILE REEL READY'
+    if(badge&&badge.textContent!=='STREETVERSE LIVE • HTML CITY ACTIVE • MOBILE REEL READY')badge.textContent='STREETVERSE LIVE • HTML CITY ACTIVE • MOBILE REEL READY'
     ui.forEach(el=>{
       if(el.tagName==='BUTTON'&&/^\s*[●•]?\s*REEL\s*$/i.test(el.textContent||''))el.style.display='none'
       if(el.getAttribute('role')==='alert')el.style.display='none'
     })
-    window.dispatchEvent(new CustomEvent('tryamm:streetverse-html-city-ready',{detail:{htmlCity:true,webglRequired:false,mobileSafeMode:true}}))
+    if(!htmlCityReadyNotified){
+      htmlCityReadyNotified=true
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-html-city-ready',{detail:{htmlCity:true,webglRequired:false,mobileSafeMode:true}}))
+    }
   }
   const observer=new MutationObserver(sync)
   observer.observe(document.documentElement,{childList:true,subtree:true})
