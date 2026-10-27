@@ -23,6 +23,15 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
       }
     });
     page.on('requestfailed', request => console.error('[streetverse-requestfailed]', request.url(), request.failure()?.errorText || 'unknown'));
+    // HTTP errors do not emit requestfailed; log just the origin/path to identify
+    // blocked asset hosts without exposing signed URL parameters in CI logs.
+    page.on('response', response => {
+      if(response.status() !== 402) return;
+      try {
+        const url=new URL(response.url());
+        console.error('[streetverse-asset-http-402]', url.origin+url.pathname);
+      } catch { console.error('[streetverse-asset-http-402]', 'unparseable URL'); }
+    });
     await page.addInitScript(() => {
       try {
         Object.defineProperty(navigator, 'hardwareConcurrency', { configurable: true, get: () => 8 });
