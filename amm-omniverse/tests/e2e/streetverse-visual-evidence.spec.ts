@@ -197,7 +197,13 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     // The quick-launch button must be physically tappable after dismissing social.
     // Capture evidence of any intercepting overlay rather than force-clicking.
     await expect(peopleShortcut).toBeVisible();
-    await page.screenshot({path:testInfo.outputPath('streetverse-people-button-before-tap.png'),fullPage:false});
+    // A GPU-heavy canvas can stall a full-page screenshot on CI. Evidence is
+    // best-effort; the actual tap and panel assertions below must still pass.
+    try {
+      await peopleShortcut.screenshot({path:testInfo.outputPath('streetverse-people-button-before-tap.png'),animations:'disabled',timeout:3000});
+    } catch (error) {
+      console.warn('[streetverse-people-screenshot-unavailable]',error instanceof Error?error.message:String(error));
+    }
     console.info('[streetverse-people-button-geometry]',JSON.stringify(await peopleShortcut.boundingBox()));
     await peopleShortcut.click({timeout:10000});
     await expect(page.getByRole('region',{name:'StreetVerse people search panel'})).toBeVisible();
