@@ -171,7 +171,7 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
 
  useEffect(()=>{
   const map:Record<string,keyof typeof held.current>={arrowup:'up',w:'up',arrowdown:'down',s:'down',arrowleft:'left',a:'left',arrowright:'right',d:'right'}
-  const set=(e:KeyboardEvent,v:boolean)=>{const raw=e.key.toLowerCase();if(raw==='e'&&v&&!e.repeat){e.preventDefault();window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:!vehicleRef.current,source:'keyboard'}}));return}const k=map[raw];if(k){e.preventDefault();held.current[k]=v}}
+  const set=(e:KeyboardEvent,v:boolean)=>{const target=e.target as HTMLElement|null;if(target?.closest('input,textarea,select,[contenteditable="true"],[role="textbox"]')||e.altKey||e.ctrlKey||e.metaKey)return;const raw=e.key.toLowerCase();if(raw==='e'&&v&&!e.repeat){e.preventDefault();window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:!vehicleRef.current,source:'keyboard'}}));return}const k=map[raw];if(k){e.preventDefault();held.current[k]=v}}
   const kd=(e:KeyboardEvent)=>set(e,true),ku=(e:KeyboardEvent)=>set(e,false)
   window.addEventListener('keydown',kd);window.addEventListener('keyup',ku)
   return()=>{window.removeEventListener('keydown',kd);window.removeEventListener('keyup',ku)}
