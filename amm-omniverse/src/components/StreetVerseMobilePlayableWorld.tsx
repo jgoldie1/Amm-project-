@@ -51,6 +51,13 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
   return()=>window.removeEventListener('tryamm:googlex-request-mobile-diagnostic',snapshot)
  },[])
  const [showCityPreview,setShowCityPreview]=useState(false)
+ const [diagnostic,setDiagnostic]=useState<{visible:boolean;vehicle:boolean;visitedCount:number;storageAvailable:boolean;capturedAt:string}|null>(null)
+ useEffect(()=>{
+  const onReport=(event:Event)=>setDiagnostic((event as CustomEvent).detail)
+  window.addEventListener('tryamm:googlex-mobile-diagnostic-ready',onReport)
+  return()=>window.removeEventListener('tryamm:googlex-mobile-diagnostic-ready',onReport)
+ },[])
+ const requestDiagnostic=()=>window.dispatchEvent(new CustomEvent('tryamm:googlex-request-mobile-diagnostic'))
  const [previewDistrict,setPreviewDistrict]=useState<CityDistrict>('taylor')
  const previewPlan=useMemo(()=>planChicagoStream(previewDistrict,20261026,DEFAULT_MOBILE_BUDGET),[previewDistrict])
  const held=useRef({up:false,down:false,left:false,right:false})
@@ -185,6 +192,15 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
    <div><b style={{letterSpacing:.8}}>STREETVERSE • CHICAGO</b><div style={{fontSize:11,color:'#8effb7'}}>CITY ACTIVE • {vehicle?'MOBILE DRIVE MODE':'MOBILE WALK MODE'} • {visited.length}/{MISSIONS.length}</div></div>
    <div style={{display:'flex',gap:7,overflowX:'auto'}}><button onClick={openLogistics} aria-label="Open logistics jobs" style={{minHeight:44,borderRadius:12,border:'1px solid #78ffb4',background:'#082218',color:'#b9ffd2',fontWeight:900,padding:'0 11px',whiteSpace:'nowrap'}}>🚛 JOBS</button><button onClick={toggleVehicle} aria-label={vehicle?'Exit StreetVerse vehicle':`Enter StreetVerse vehicle ${Math.round(carDistance)} meters away`} style={{minHeight:44,borderRadius:12,border:`1px solid ${vehicle?'#ffd45e':'#59e7ff'}`,background:'#071b25',color:vehicle?'#ffe9a0':'#9af0ff',fontWeight:900,padding:'0 11px',whiteSpace:'nowrap'}}>{vehicle?'EXIT VEHICLE':'ENTER VEHICLE'}</button><button onClick={openReel} aria-label="Open Reel Creator" style={{minHeight:44,borderRadius:12,border:'1px solid #ff7ce8',background:'#251027',color:'#fff',fontWeight:900,padding:'0 13px'}}>● REEL</button><button onClick={onClose} aria-label="Close StreetVerse" style={{width:44,height:44,borderRadius:12,border:'1px solid #567',background:'#101923',color:'#fff',fontSize:22}}>×</button></div>
   </header>
+  <div style={{position:'absolute',top:68,left:12,zIndex:45,maxWidth:'min(76vw,300px)'}}>
+   <button type="button" aria-label="Diagnose StreetVerse locally" onClick={requestDiagnostic} style={{minHeight:48,padding:'8px 14px',borderRadius:12,border:'1px solid #a8f0bb',background:'#123d32',color:'#fff',fontSize:16,fontWeight:800}}>DIAGNOSE</button>
+   {diagnostic&&<section aria-label="GoogleX local diagnostic report" role="status" style={{marginTop:6,padding:12,borderRadius:12,background:'#061b27',border:'1px solid #a8f0bb',fontSize:13}}>
+    <b>LOCAL DIAGNOSTIC • NOT UPLOADED</b>
+    <p>View: {diagnostic.visible?'Visible':'Hidden'} • {diagnostic.vehicle?'Driving':'Walking'}</p>
+    <p>Mission checkpoints: {diagnostic.visitedCount} • Save readable: {diagnostic.storageAvailable?'Yes':'No'}</p>
+    <button type="button" onClick={()=>setDiagnostic(null)} style={{minHeight:44,minWidth:88,color:'#fff',background:'#264759',borderRadius:10}}>CLOSE</button>
+   </section>}
+  </div>
   <div style={{position:'absolute',top:68,right:12,zIndex:45}}>
    <button aria-label="Preview Chicago district streaming plan" aria-expanded={showCityPreview} onClick={()=>setShowCityPreview(v=>!v)} style={{minHeight:44,padding:'8px 12px',borderRadius:12,color:'#fff',background:'#174456',border:'1px solid #8be8ff'}}>CITY PLAN</button>
    {showCityPreview&&<section aria-label="Chicago district staging preview" style={{marginTop:6,background:'#071622',border:'1px solid #8be8ff',borderRadius:12,padding:12,maxWidth:290,maxHeight:'60vh',overflow:'auto',boxShadow:'0 10px 30px #000a'}}>
