@@ -11,3 +11,11 @@ test('explicit parking and exiting remains available',()=>{
  assert.match(shell,/const exitVehicle=\(\)=>/)
  assert.match(shell,/PARK \/ EXIT/)
 })
+
+test('mobile ACTION routes through world context rather than blindly toggling vehicle',()=>{
+ const actionBody=shell.slice(shell.indexOf('const action=()=>'),shell.indexOf('const toggleCruise=()=>'))
+ assert.match(actionBody,/tryamm:streetverse-world-input/)
+ assert.match(actionBody,/interact:true/)
+ assert.match(actionBody,/move:\{x:/)
+ assert.doesNotMatch(actionBody,/tryamm:streetverse-vehicle-interact/)
+})
