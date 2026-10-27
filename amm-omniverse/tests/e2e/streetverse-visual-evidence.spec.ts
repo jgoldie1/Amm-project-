@@ -157,10 +157,19 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-control-side','right');
     const rightJoystick=await joystick.boundingBox();
     for(const launcher of [stores,enterStore]){
+      // Compact iPhone mode may keep storefront launchers in the quick menu.
+      // A visible launcher must not overlap the right-hand joystick; a hidden
+      // launcher must remain reachable through its named menu item.
       const box=await launcher.boundingBox();
-      expect(box).not.toBeNull();
-      expect(rightJoystick).not.toBeNull();
-      expect(overlaps(box!,rightJoystick!)).toBe(0);
+      if(box){
+        expect(rightJoystick).not.toBeNull();
+        expect(overlaps(box,rightJoystick!)).toBe(0);
+      }else{
+        await quickMenu.click();
+        const label=launcher===stores?/STORES/:/ENTER STORE/;
+        await expect(page.getByRole('menuitem',{name:label})).toBeVisible();
+        await quickMenu.click();
+      }
     }
     await quickMenu.click();
     await page.getByRole('menuitem',{name:/LEFT HAND/}).click();
