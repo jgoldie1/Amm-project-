@@ -192,9 +192,14 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     expect(socialBox?.height||0).toBeLessThanOrEqual(390);
     expect((socialBox?.y||0)+(socialBox?.height||0)).toBeLessThanOrEqual(844);
     await socialPanel.screenshot({path:testInfo.outputPath('streetverse-social-panel-iphone.png')});
-    await page.getByRole('button',{name:'Close StreetVerse panel'}).click();
-
-    await peopleShortcut.click();
+    await socialPanel.getByRole('button',{name:'Close StreetVerse panel'}).click();
+    await expect(socialPanel).toBeHidden();
+    // The quick-launch button must be physically tappable after dismissing social.
+    // Capture evidence of any intercepting overlay rather than force-clicking.
+    await expect(peopleShortcut).toBeVisible();
+    await page.screenshot({path:testInfo.outputPath('streetverse-people-button-before-tap.png'),fullPage:false});
+    console.info('[streetverse-people-button-geometry]',JSON.stringify(await peopleShortcut.boundingBox()));
+    await peopleShortcut.click({timeout:10000});
     await expect(page.getByRole('region',{name:'StreetVerse people search panel'})).toBeVisible();
     await expect(page.getByRole('textbox',{name:'Search StreetVerse users and groups'})).toBeVisible();
     const peopleClose=page.getByRole('region',{name:'StreetVerse people search panel'}).getByRole('button',{name:'Close StreetVerse panel'});
