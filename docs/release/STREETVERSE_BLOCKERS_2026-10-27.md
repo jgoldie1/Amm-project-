@@ -13,7 +13,7 @@
 - Work: capture failing asset URL domains (redact signed query parameters); separate provider quota/billing issue from public native fallback; confirm fallback imagery loads without pretending vendor quota is repaired. Do not commit credentials or charge a provider without approval.
 
 ## P0: Production dependency security audit
-- `StreetVerse Chicago Morning Mega Convergence` run 40523195681: `Jacobie Quantum Shield + supply-chain gate` failed at `npm audit --omit=dev --audit-level=high` with **2 high severity vulnerabilities**.
+- `StreetVerse Chicago Morning Mega Convergence` run 40523195681: `Jacobie Quantum Shield + supply-chain gate` failed at `npm audit --omit=dev --audit-level=high` with **2 high severity vulnerabilities**: `undici` 7.0.0–7.30.0 (EventSource memory DoS, SRI token case bypass, excessive content-encoding failure: GHSA-4qv8-2p9j-2685, GHSA-f72v-6w45-q472, GHSA-xjj6-f33q-929c) and `zod` versions before 4.6.6 (oversized constrained collection memory exhaustion: GHSA-mrhx-c7xc-m3w5).
 - Work: capture full audit package/advisory output, update only affected dependency ranges/lockfiles, verify lockfile consistency, rerun install, audit, typecheck, unit and visual tests. Avoid broad unreviewed `npm audit fix` replacements.
 - Morning release gate failed as a downstream consequence.
 
