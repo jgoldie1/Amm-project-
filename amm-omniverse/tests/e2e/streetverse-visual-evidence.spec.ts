@@ -120,7 +120,9 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await quickMenu.click();
     const menu=page.getByRole('menu',{name:'StreetVerse quick navigation'});
     await expect(menu).toBeVisible();
-    const bjView=page.getByRole('menuitem',{name:/BJ V12 VIEW/});
+    // Current BJ contract exposes V15 loaded status and the actual close-up action.
+    await expect(menu.getByRole('menuitem',{name:/BJ V15 LOADED/})).toBeVisible();
+    const bjView=page.getByRole('menuitem',{name:/BJ CLOSE-UP/});
     // Retain the release-blocking expectation, but preserve the actual quick-menu
     // contents and screenshot for diagnosing missing BJ View on mobile.
     if(await bjView.count()===0){
@@ -132,7 +134,7 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await bjView.click();
     await page.waitForTimeout(1400);
     await page.screenshot({
-      path:testInfo.outputPath('streetverse-bj-v12-character-view.png'),
+      path:testInfo.outputPath('streetverse-bj-v15-character-view.png'),
       fullPage:false,
     });
     await quickMenu.click();
