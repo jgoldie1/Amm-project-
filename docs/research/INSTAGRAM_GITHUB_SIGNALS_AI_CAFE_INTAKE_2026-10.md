@@ -42,3 +42,24 @@ P4: evaluate verified creator-inspired projects one by one, never mass-install u
 
 ## Honesty guardrails
 An Instagram demo is not proof of an open-source product, successful deployment or license. A GitHub repository being public does not grant commercial reuse. No claim of a globally unique invention without competitive/IP review.
+
+
+## Evaluated lead: Charlie Automates (Charles J Dove)
+Official website: https://charlieautomates.com/ ; blog: https://www.charlieautomates.com/blog/ . Instagram account supplied as `charliesautomate`; exact handle/post permalink not independently established. Do not assume an Instagram demo is source code or a license.
+
+Documented public concepts from his site (October 2026):
+- Charlie OS: business workflows for proposals, leads, content and client operations; claimed commercial offering rather than a verified permissive OSS library.
+- Content-video editing workflow including multi-variant short edits; evaluate Remotion (code-driven video), existing Omni Box timeline and FFmpeg export. No third-party code copied.
+- AI bottleneck prioritization: identify one verified broken revenue or gameplay workflow before generating a new module.
+- GoHighLevel and Skool automations: integration concepts only, requiring customer-authorized connectors, provider terms and scopes. They are NOT needed to fix StreetVerse.
+- AI skills and repeatable instructions: candidate patterns for AI Café Repair Guardian and Content Factory, with immutable test evidence and execution budgets.
+
+Suggested Stubbs-original capabilities:
+1. **Bottleneck Radar:** score broken game features by reproducibility, affected users, safety, and likelihood of a low-risk repair; require red test evidence.
+2. **Video Variants:** from an approved reel, generate variant plans (3–5 hooks/crops/captions) in Omni Box. Actual rendering, rights, and publishing remain gated.
+3. **Creator-to-client handoff:** each business owns leads, messages, brand assets, customer consent, approvals and revenue records; no cross-business sharing.
+4. **Cost ceiling:** agent/worker token, compute and render caps with stop-on-budget and human escalation.
+5. **One-hand founder dashboard:** high-priority problem, verified fix status and next safe action without dense menus.
+6. **Release Guardian:** staging only until GitHub tests, mobile visual verification, security, and owner approval succeed.
+
+Implementation status: research/requirements only. No Charlie OS, paid membership, Claude plugin, Remotion extension, outreach bot or social API installed. Do not represent marketing ROI claims as audited results.
