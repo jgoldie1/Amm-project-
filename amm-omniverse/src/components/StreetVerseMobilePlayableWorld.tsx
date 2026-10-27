@@ -53,6 +53,7 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
   window.addEventListener('tryamm:googlex-request-mobile-diagnostic',snapshot)
   return()=>window.removeEventListener('tryamm:googlex-request-mobile-diagnostic',snapshot)
  },[])
+ const [lowEffects,setLowEffects]=useState(false)
  const [showCityPreview,setShowCityPreview]=useState(false)
  const [diagnostic,setDiagnostic]=useState<{visible:boolean;vehicle:boolean;visitedCount:number;storageAvailable:boolean;capturedAt:string;frame?:{status:string;fps:number|null;sampleCount:number}}|null>(null)
  useEffect(()=>{
@@ -190,7 +191,8 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
  const toggleVehicle=()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:!vehicle,source:'mobile-header'}}))
  const openLogistics=()=>{const show=(window as any).__showLogisticsFreight;if(typeof show==='function')show();else window.location.href='/logistics-freight';window.dispatchEvent(new CustomEvent('tryamm:streetverse-logistics-open',{detail:{source:'streetverse-mobile-safe',vehicle,missionProgress:`${visited.length}/${MISSIONS.length}`}}))}
 
- return <div data-streetverse-html-city="true" style={{position:'fixed',inset:0,zIndex:18000,background:'#07101b',color:'#fff',fontFamily:'system-ui',overflow:'hidden'}}>
+ return <div data-streetverse-html-city="true" data-streetverse-low-effects={lowEffects?"true":"false"} style={{position:'fixed',inset:0,zIndex:18000,background:'#07101b',color:'#fff',fontFamily:'system-ui',overflow:'hidden'}}>
+  <style>{`[data-streetverse-low-effects="true"] .tryamm-safe-person,[data-streetverse-low-effects="true"] .tryamm-safe-car-a,[data-streetverse-low-effects="true"] .tryamm-safe-car-b,[data-streetverse-low-effects="true"] .tryamm-safe-car-c{animation:none!important}`}</style>
   <header style={{height:64,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 12px',background:'#020712f5',borderBottom:'1px solid #274963',position:'relative',zIndex:40}}>
    <div><b style={{letterSpacing:.8}}>STREETVERSE • CHICAGO</b><div style={{fontSize:11,color:'#8effb7'}}>CITY ACTIVE • {vehicle?'MOBILE DRIVE MODE':'MOBILE WALK MODE'} • {visited.length}/{MISSIONS.length}</div></div>
    <div style={{display:'flex',gap:7,overflowX:'auto'}}><button onClick={openLogistics} aria-label="Open logistics jobs" style={{minHeight:44,borderRadius:12,border:'1px solid #78ffb4',background:'#082218',color:'#b9ffd2',fontWeight:900,padding:'0 11px',whiteSpace:'nowrap'}}>🚛 JOBS</button><button onClick={toggleVehicle} aria-label={vehicle?'Exit StreetVerse vehicle':`Enter StreetVerse vehicle ${Math.round(carDistance)} meters away`} style={{minHeight:44,borderRadius:12,border:`1px solid ${vehicle?'#ffd45e':'#59e7ff'}`,background:'#071b25',color:vehicle?'#ffe9a0':'#9af0ff',fontWeight:900,padding:'0 11px',whiteSpace:'nowrap'}}>{vehicle?'EXIT VEHICLE':'ENTER VEHICLE'}</button><button onClick={openReel} aria-label="Open Reel Creator" style={{minHeight:44,borderRadius:12,border:'1px solid #ff7ce8',background:'#251027',color:'#fff',fontWeight:900,padding:'0 13px'}}>● REEL</button><button onClick={onClose} aria-label="Close StreetVerse" style={{width:44,height:44,borderRadius:12,border:'1px solid #567',background:'#101923',color:'#fff',fontSize:22}}>×</button></div>
@@ -203,6 +205,7 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
     <p>Mission checkpoints: {diagnostic.visitedCount} • Save readable: {diagnostic.storageAvailable?'Yes':'No'}</p>
     <p>Quantum Speed frame sample: {diagnostic.frame?.fps==null?'Unavailable':diagnostic.frame.fps+' FPS'} (local only)</p>
     <p>Quantum Lag Buster: {adviseQuantumLagBuster(diagnostic.frame?.fps??null).recommendedMode} — {adviseQuantumLagBuster(diagnostic.frame?.fps??null).reason}</p>
+    <button type="button" aria-pressed={lowEffects} aria-label={lowEffects?'Restore normal visual effects':'Enable low visual effects'} onClick={()=>setLowEffects(value=>!value)} style={{minHeight:48,padding:'8px 12px',marginRight:8,color:'#fff',background:'#235747',borderRadius:10}}>{lowEffects?'RESTORE EFFECTS':'LOW EFFECTS'}</button>
     <button type="button" onClick={()=>setDiagnostic(null)} style={{minHeight:44,minWidth:88,color:'#fff',background:'#264759',borderRadius:10}}>CLOSE</button>
    </section>}
   </div>
