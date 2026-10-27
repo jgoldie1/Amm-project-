@@ -63,6 +63,34 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     const travel=page.getByRole('button',{name:'Travel to Taylor Street UIC Medical District'});
     const stores=page.locator('#sv-retail-open');
     const enterStore=page.locator('#sv-store-open');
+    // Diagnostic only: retain the visibility assertion, but make a missing travel
+    // control actionable by showing the actual route mode and mounted buttons.
+    if (await travel.count() === 0) {
+      const diagnostic=await page.evaluate(() => ({
+        path:location.pathname,
+        search:location.search,
+        mode:document.querySelector('[data-streetverse-render-mode]')?.getAttribute('data-streetverse-render-mode')||'none',
+        root:document.querySelector('[data-streetverse-world-root]')?.getAttribute('data-streetverse-world-root')||'none',
+        controls:Array.from(document.querySelectorAll('button')).map(b=>b.getAttribute('aria-label')||b.textContent?.trim()||'').filter(Boolean).slice(0,90),
+        travelCount:document.querySelectorAll('[data-streetverse-travel]').length,
+        travelDetails:Array.from(document.querySelectorAll<HTMLElement>('[data-streetverse-travel]')).map(el=>({
+          outerHTML:el.outerHTML.slice(0,850),
+          hidden:el.hidden,
+          rect:(()=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}})(),
+          style:(()=>{const s=getComputedStyle(el);return {display:s.display,visibility:s.visibility,opacity:s.opacity,pointerEvents:s.pointerEvents}})(),
+          ancestors:(()=>{const a:object[]=[];let p:HTMLElement|null=el;while(p&&a.length<9){a.push({tag:p.tagName,id:p.id,ariaHidden:p.getAttribute('aria-hidden'),inert:p.inert,display:getComputedStyle(p).display,visibility:getComputedStyle(p).visibility});p=p.parentElement}return a})(),
+        })),
+        travelDetails:Array.from(document.querySelectorAll('[data-streetverse-travel]')).map(button=>({
+          html:button.outerHTML.slice(0,500),
+          style:{display:getComputedStyle(button).display,visibility:getComputedStyle(button).visibility,opacity:getComputedStyle(button).opacity},
+          rect:button.getBoundingClientRect().toJSON(),
+          ancestors:Array.from((function*(){let node:Element|null=button;while(node){yield node;node=node.parentElement}})()).slice(0,9).map(node=>({
+            tag:node.tagName,id:node.id,ariaHidden:node.getAttribute('aria-hidden'),inert:node.hasAttribute('inert'),display:getComputedStyle(node).display,visibility:getComputedStyle(node).visibility
+          })),
+        })),
+      }))
+      console.error('[streetverse-missing-taylor-travel]',JSON.stringify(diagnostic))
+    }
     await expect(travel).toBeVisible();
     await expect(stores).toBeVisible();
     await expect(enterStore).toBeVisible();

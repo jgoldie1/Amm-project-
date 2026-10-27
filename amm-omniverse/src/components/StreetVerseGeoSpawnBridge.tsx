@@ -281,6 +281,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
     <button aria-label="Retry StreetVerse 3D" onClick={retry3D} style={{minHeight:48,border:'1px solid #8fffe2',borderRadius:9,padding:'8px 15px',background:'#073f38',color:'#fff',fontWeight:900}}>RETRY 3D CHICAGO</button>
     {graphicsStatus&&<div role="status" style={{fontSize:11,marginTop:7}}>{graphicsStatus}</div>}
   </div>}
+  <button data-streetverse-travel="true" aria-label="Travel to Taylor Street UIC Medical District" onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-safe-travel-shortcut'}}))} style={{position:'fixed',top:118,right:12,zIndex:14970,minHeight:48,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333e8',color:'#fff',padding:'10px 12px',fontWeight:900,touchAction:'manipulation'}}>TAYLOR / UIC</button>
   <StreetVerseWestSideWorldBuilder/>
   <BuildSwarmControl/>
   <StreetVerseWeatherSync/>
