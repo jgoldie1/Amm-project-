@@ -217,7 +217,7 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(peopleClose).toBeVisible();
     const closeBox=await peopleClose.boundingBox();
     console.info('[streetverse-people-close-geometry]',JSON.stringify(closeBox));
-    await page.screenshot({path:testInfo.outputPath('streetverse-people-close-before-tap.png'),fullPage:false});
+    // WebGL screenshots can stall in CI; close geometry is logged above and the actual tap remains mandatory.
     await peopleClose.click({timeout:10000});
     await expect(page.getByRole('region',{name:'StreetVerse people search panel'})).toBeHidden();
 
