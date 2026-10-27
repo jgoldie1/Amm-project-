@@ -19,7 +19,7 @@ export default function TryammPublicGateway(){
  <header style={{display:'flex',justifyContent:'space-between',gap:12,flexWrap:'wrap',alignItems:'center',marginBottom:24}}>
  <a href="/" style={{color:'#f2c674',fontSize:24,fontWeight:900,textDecoration:'none'}}>TRYAMM LLC</a>
  <nav aria-label="Main navigation" style={{display:'flex',gap:8,flexWrap:'wrap'}}>
- <a href="/templates#business-catalog" style={{...button,color:'#fff',border:'1px solid #70849d'}}>Templates</a><a href="/streetverse" style={{...button,color:'#fff',border:'1px solid #70849d'}}>StreetVerse</a>
+ <a href="/templates#business-catalog" style={{...button,color:'#fff',border:'1px solid #70849d'}}>Templates</a><a href="/streetverse" style={{...button,color:'#fff',border:'1px solid #70849d'}}>StreetVerse</a><a href="/sponsors" style={{...button,color:'#f2c674',border:'1px solid #a58547'}}>Sponsors & Funding</a>
  </nav></header>
  <section style={{borderRadius:26,padding:'clamp(20px,6vw,50px)',background:'radial-gradient(circle at 90% 15%,#50306f,#17172c 45%,#0b192d)',border:'1px solid #7d608e'}}>
  <p style={{color:'#f5c675',fontWeight:800,letterSpacing:2,fontSize:12}}>BUSINESS FIRST · YOUR WORLD NEXT</p>
@@ -30,6 +30,7 @@ export default function TryammPublicGateway(){
  <a href="/streetverse" style={{...button,border:'1px solid #c9b6eb',color:'#fff'}}>Explore StreetVerse</a>
  </div><p style={{fontSize:12,color:'#ecd8ed'}}>This gateway does not take payments. Any checkout must pass independent verification before sales.</p>
  </section>
+ <section style={{marginTop:22,padding:22,borderRadius:18,background:"#1f1b37",border:"1px solid #80669a"}}><h2>Become a founding sponsor</h2><p>Support accessible business tools, creator education and innovative immersive experiences. Partnership opportunities, grants and in-kind contributions welcomed. No payments are taken here.</p><a href="/sponsors" style={{...button,background:"#f2c674",color:"#1b1320"}}>Explore sponsor and funding opportunities</a></section>
  <section aria-labelledby="offers" style={{marginTop:30}}>
  <h2 id="offers">Services and worlds</h2>
  <label style={{display:'flex',alignItems:'center',gap:8,minHeight:48,marginBottom:8}}><input type="checkbox" checked={reduced} onChange={e=>setReduced(e.target.checked)}/> Reduced motion (default on)</label>
