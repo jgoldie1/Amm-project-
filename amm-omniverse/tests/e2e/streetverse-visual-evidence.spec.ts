@@ -81,9 +81,17 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
       await expect(page.getByRole('menuitem',{name:/TAYLOR \/ UIC/})).toBeVisible();
       await quickMenu.click();
     }
-    await expect(stores).toBeVisible();
-    await expect(enterStore).toBeVisible();
-    const visibleCore=[joystick,quickMenu,page.getByRole('button',{name:'Open Holo FON'}),mission,...(travelInline?[travel]:[]),stores,enterStore];
+    // Retail and store shortcuts are also available through the compact menu.
+    // Do not force duplicate always-visible controls on small phone screens.
+    const retailInline=await stores.isVisible();
+    const storeInline=await enterStore.isVisible();
+    if(!retailInline || !storeInline){
+      await quickMenu.click();
+      if(!retailInline)await expect(page.getByRole('menuitem',{name:/STORES/})).toBeVisible();
+      if(!storeInline)await expect(page.getByRole('menuitem',{name:/ENTER STORE/})).toBeVisible();
+      await quickMenu.click();
+    }
+    const visibleCore=[joystick,quickMenu,page.getByRole('button',{name:'Open Holo FON'}),mission,...(travelInline?[travel]:[]),...(retailInline?[stores]:[]),...(storeInline?[enterStore]:[])];
     const boxes:Rect[]=[];
     for(const locator of visibleCore){
       const box=await locator.boundingBox();
