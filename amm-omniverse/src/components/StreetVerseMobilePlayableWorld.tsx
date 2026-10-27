@@ -180,9 +180,11 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
  useEffect(()=>{
   const releaseControls=()=>{held.current={up:false,down:false,left:false,right:false}}
   const onVisibility=()=>{if(document.visibilityState==='hidden')releaseControls()}
+  const onFocusIn=(event:FocusEvent)=>{const target=event.target as HTMLElement|null;if(target?.closest('input,textarea,select,[contenteditable="true"],[role="textbox"]'))releaseControls()}
   window.addEventListener('blur',releaseControls)
+  document.addEventListener('focusin',onFocusIn)
   document.addEventListener('visibilitychange',onVisibility)
-  return()=>{window.removeEventListener('blur',releaseControls);document.removeEventListener('visibilitychange',onVisibility)}
+  return()=>{window.removeEventListener('blur',releaseControls);document.removeEventListener('visibilitychange',onVisibility);document.removeEventListener('focusin',onFocusIn)}
  },[])
 
  const press=(k:keyof typeof held.current,v:boolean)=>{held.current[k]=v}
