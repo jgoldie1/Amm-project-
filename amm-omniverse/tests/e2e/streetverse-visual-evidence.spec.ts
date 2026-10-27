@@ -121,6 +121,13 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     const menu=page.getByRole('menu',{name:'StreetVerse quick navigation'});
     await expect(menu).toBeVisible();
     const bjView=page.getByRole('menuitem',{name:/BJ V12 VIEW/});
+    // Retain the release-blocking expectation, but preserve the actual quick-menu
+    // contents and screenshot for diagnosing missing BJ View on mobile.
+    if(await bjView.count()===0){
+      const menuLabels=await menu.getByRole('menuitem').allTextContents();
+      console.error('[streetverse-bj-view-missing] quick-menu entries:',JSON.stringify(menuLabels));
+      await page.screenshot({path:testInfo.outputPath('streetverse-bj-missing-menu.png'),fullPage:false});
+    }
     await expect(bjView).toBeVisible();
     await bjView.click();
     await page.waitForTimeout(1400);
