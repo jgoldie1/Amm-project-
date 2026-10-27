@@ -19,6 +19,7 @@ on:
       - 'amm-omniverse/tests/quantum-speed-mobile-diagnostic-contract.mjs'
       - 'amm-omniverse/tests/googlex-diagnostic-mobile-button-contract.mjs'
       - 'amm-omniverse/tests/streetverse-logistics-handoff-order-contract.mjs'
+      - 'amm-omniverse/tests/mobile-safe-mode-keyboard-form-safety-contract.mjs'
       - '.github/workflows/googlex-memory-guardian.yml'
 jobs:
   memory-guardian:
@@ -30,7 +31,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test tests/googlex-memory-guardian.test.mjs tests/googlex-next-level-contract.test.mjs amm-omniverse/tests/mobile-safe-mode-storage-failure-contract.mjs amm-omniverse/tests/quantum-lag-buster-low-effects-toggle-contract.mjs amm-omniverse/tests/quantum-lag-buster-mobile-contract.mjs amm-omniverse/tests/quantum-speed-mobile-diagnostic-contract.mjs amm-omniverse/tests/googlex-diagnostic-mobile-button-contract.mjs amm-omniverse/tests/mobile-safe-mode-vehicle-resume-contract.mjs amm-omniverse/tests/mobile-safe-mode-focus-release-contract.mjs amm-omniverse/tests/googlex-mobile-diagnostic-contract.mjs amm-omniverse/tests/streetverse-logistics-handoff-order-contract.mjs
+      - run: node --test tests/googlex-memory-guardian.test.mjs tests/googlex-next-level-contract.test.mjs amm-omniverse/tests/mobile-safe-mode-storage-failure-contract.mjs amm-omniverse/tests/quantum-lag-buster-low-effects-toggle-contract.mjs amm-omniverse/tests/quantum-lag-buster-mobile-contract.mjs amm-omniverse/tests/quantum-speed-mobile-diagnostic-contract.mjs amm-omniverse/tests/googlex-diagnostic-mobile-button-contract.mjs amm-omniverse/tests/mobile-safe-mode-vehicle-resume-contract.mjs amm-omniverse/tests/mobile-safe-mode-focus-release-contract.mjs amm-omniverse/tests/googlex-mobile-diagnostic-contract.mjs amm-omniverse/tests/streetverse-logistics-handoff-order-contract.mjs amm-omniverse/tests/mobile-safe-mode-keyboard-form-safety-contract.mjs
       - run: node scripts/googlex-memory-guardian.mjs . googlex-checkpoint.json
         env:
           GOOGLEX_WORKER_AUTHORIZED: 'true'
