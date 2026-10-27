@@ -35,6 +35,9 @@ const MeetTheStubbsWorldDistrict=lazy(()=>import('./components/MeetTheStubbsWorl
 const OmniWorkstation=lazy(()=>import('./components/OmniWorkstation'))
 const AllAmericanNetworkHub=lazy(()=>import('./components/AllAmericanNetworkHub'))
 const CreatorBusinessLaunchHub=lazy(()=>import('./components/CreatorBusinessLaunchHub'))
+const TryammPublicGateway=lazy(()=>import('./components/TryammPublicGateway'))
+const TryammSponsorFunding=lazy(()=>import('./components/TryammSponsorFunding'))
+const TryammWhitePaper=lazy(()=>import('./components/TryammWhitePaper'))
 const AniyahPayCenter=lazy(()=>import('./components/AniyahPayCenter'))
 const WebsiteLaunchTracker=lazy(()=>import('./components/WebsiteLaunchTracker'))
 const StarStudioCenter=lazy(()=>import('./components/StarStudioCenter'))
@@ -78,6 +81,9 @@ try {
   const isAssetFactory=['/asset-factory','/asset-factory/','/meshy-factory','/meshy-factory/'].includes(currentPath)
   const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
   const isAniyahPayDemo=['/aniyah-pay/demo','/aniyah-pay/demo/'].includes(currentPath)
+  const isPublicGateway=['/discover','/discover/'].includes(currentPath)
+  const isWhitePaper=['/whitepaper','/whitepaper/','/white-paper','/white-paper/'].includes(currentPath)
+  const isSponsorFunding=['/sponsors','/sponsors/','/funding','/funding/'].includes(currentPath)
   const isCreatorLaunch=['/create','/create/','/creator-launch','/creator-launch/'].includes(currentPath)
   const isWebsiteLaunch=['/website-launch','/website-launch/'].includes(currentPath)
   const isStarStudio=['/star-studio','/star-studio/'].includes(currentPath)
@@ -161,6 +167,9 @@ try {
   else if(isAccessibility)routeContent=<AccessibilityStatement />
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
   else if(isAniyahPayDemo)routeContent=<Suspense fallback={routeFallback}><AniyahPayCenter onClose={()=>{window.location.href='/aniyah-pay'}} /></Suspense>
+  else if(isWhitePaper)routeContent=<Suspense fallback={routeFallback}><TryammWhitePaper /></Suspense>
+  else if(isSponsorFunding)routeContent=<Suspense fallback={routeFallback}><TryammSponsorFunding /></Suspense>
+  else if(isPublicGateway)routeContent=<Suspense fallback={routeFallback}><TryammPublicGateway /></Suspense>
   else if(isCreatorLaunch)routeContent=<Suspense fallback={routeFallback}><CreatorBusinessLaunchHub /></Suspense>
   else if(isWebsiteLaunch)routeContent=<Suspense fallback={routeFallback}><WebsiteLaunchTracker /></Suspense>
   else if(isStarStudio)routeContent=<Suspense fallback={routeFallback}><StarStudioCenter onClose={()=>{window.location.href='/creator-launch'}} /></Suspense>
