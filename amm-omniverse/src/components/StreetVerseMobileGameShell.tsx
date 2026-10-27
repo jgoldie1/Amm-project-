@@ -67,7 +67,7 @@ export default function StreetVerseMobileGameShell({onClose}:Props){
   }
   if(mode==='one-hand'){
    oneHandController.current.setProfile({...DEFAULT_ONE_HAND_PROFILE,mode:resolveOneHandMode(hand)})
-   void oneHandController.current.update({stick:{x:(active.current.right?1:0)-(active.current.left?1:0),y:(active.current.down?1:0)-(active.current.up?1:0)},context:'ON_FOOT'})
+   void oneHandController.current.update({stick:{x:(active.current.right?1:0)-(active.current.left?1:0),y:(active.current.down?1:0)-(active.current.up?1:0)},context:vehicleActiveRef.current?'VEHICLE':'ON_FOOT'})
   }
   const detail={throttle:(active.current.up||(vehicleActiveRef.current&&cruiseRef.current))?1:0,brake:active.current.down?1:0,steer:active.current.left?-1:active.current.right?1:0,horn:false,exit:false,source:'mobile-game-shell'}
   // Keep the vehicle-input contract for existing worlds and also publish the
