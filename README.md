@@ -1,6 +1,6 @@
 # TRYAMM / StreetVerse
 
-TRYAMM is an immersive social, streaming, commerce, creator, logistics, learning, and world-simulation platform. The active architecture is built around **real authoritative services underneath and immersive presentation above them**.
+> **Project continuity for AI agents and future development sessions:** Read [AGENTS.md](./AGENTS.md) before modifying this repository. It preserves the owner's StreetVerse / New America, HoloVerse, CrossVerse, All American App Store, AI Café, After Dark, SportVerse, LIVE, and 111-business-template requirements, existing code anchors, and release safeguards. Inspect and reuse existing systems; never replace them without proof. For gameplay preservation see [the legacy mechanics audit](./docs/gameplay/STREETVERSE_LEGACY_MECHANICS_PRESERVATION_AUDIT_2026-10.md). Work from actual GitHub status and passing gameplay evidence rather than historical completion estimates.\n\n> **ChatGPT continuity limitation:** A README or AGENTS.md file is not automatically loaded into every unrelated ChatGPT conversation. In future sessions, ask ChatGPT to read this repository's README and AGENTS.md using the GitHub connection; the reference is durable in GitHub, but not an automatic memory-sync feature.\n\nTRYAMM is an immersive social, streaming, commerce, creator, logistics, learning, and world-simulation platform. The active architecture is built around **real authoritative services underneath and immersive presentation above them**.
 
 ## Three-layer internal blockchain architecture
 
