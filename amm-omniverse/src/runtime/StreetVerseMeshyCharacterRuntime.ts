@@ -19,6 +19,12 @@ const COMPANION_OK_TTL_MS=10*60_000
 const COMPANION_FAIL_TTL_MS=15*60_000
 type MotionEntry={expiresAt:number;promise:Promise<THREE.AnimationClip[]>}
 const companionCache=new Map<string,MotionEntry>()
+// A 402 is an origin-wide service restriction, not a missing individual NPC.
+// Avoid repeated remote model requests after the first confirmed restriction.
+let blockedStorageUntil=0
+const STORAGE_BLOCK_TTL_MS=15*60_000
+const storageRestricted=()=>Date.now()<blockedStorageUntil
+const isStorageQuotaError=(error:unknown)=>/\\b402\\b/.test(String(error))
 function loadSharedMotionClips(url:string):Promise<THREE.AnimationClip[]>{
   const previous=companionCache.get(url)
   if(previous&&previous.expiresAt>Date.now())return previous.promise
@@ -88,10 +94,10 @@ export async function loadStreetVerseMeshyCharacter(slotId:string,options:{defer
   const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
   const published=await resolvePublishedMeshyAsset(slot.id,cityScope)
   const staticMeshyUrl=streetVerseMeshyCharacterUrl(slot)
-  const publishedReady=published?.url?await assetExists(published.url):false
+  const publishedReady=!storageRestricted()&&published?.url?await assetExists(published.url):false
   // These twelve original Wave 1/2 objects are independently verified and preserved.
   // A failed cross-origin HEAD on slow iPhones must not suppress their actual GLB GET.
-  const staticMeshyReady=publishedReady?false:(Boolean(STREETVERSE_MESHY_DURABLE_OVERRIDES[slot.id])||await assetExists(staticMeshyUrl))
+  const staticMeshyReady=storageRestricted()?false:(publishedReady?false:(Boolean(STREETVERSE_MESHY_DURABLE_OVERRIDES[slot.id])||await assetExists(staticMeshyUrl)))
   const nativeUrl=NATIVE_RESIDENT_URLS[slot.fallbackResidentIndex%NATIVE_RESIDENT_URLS.length]
   let sourceUrl=publishedReady?published!.url:(staticMeshyReady?staticMeshyUrl:nativeUrl)
   let nativeFallback=!publishedReady&&!staticMeshyReady
@@ -101,6 +107,7 @@ export async function loadStreetVerseMeshyCharacter(slotId:string,options:{defer
     try{
       gltf=await loader.loadAsync(sourceUrl)
     }catch(remoteError){
+      if(isStorageQuotaError(remoteError))blockedStorageUntil=Date.now()+STORAGE_BLOCK_TTL_MS
       // A 402 from Supabase Storage (or any unavailable published GLB) must not
       // erase a resident. The Native Runtime Catalog is hosted with this app,
       // requires no Supabase request and is a real GLB rather than a fake proof.

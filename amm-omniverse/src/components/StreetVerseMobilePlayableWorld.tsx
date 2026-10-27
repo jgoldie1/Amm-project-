@@ -1,4 +1,8 @@
 import {useEffect,useMemo,useRef,useState} from 'react'
+import {planChicagoStream,DEFAULT_MOBILE_BUDGET} from '../runtime/StreetVerseChicagoStreamingPlanner'
+import {sampleLocalFrameRate} from '../runtime/StreetVerseQuantumSpeedDiagnostics'
+import {adviseQuantumLagBuster} from '../runtime/StreetVerseQuantumLagBuster'
+import type {CityDistrict} from '../runtime/StreetVerseChicagoDistrictGenerator'
 
 const SAVE_KEY='tryamm.streetverse.mobile-playable.v2'
 const MISSIONS=[
@@ -28,13 +32,38 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
  const posRef=useRef(pos)
  const [carPos,setCarPos]=useState<Pos>(loadCar)
  const carPosRef=useRef(carPos)
- const [vehicle,setVehicle]=useState(false)
- const vehicleRef=useRef(false)
+ const [vehicle,setVehicle]=useState(()=>loadSaved().vehicle===true)
+ const vehicleRef=useRef(vehicle)
  const [heading,setHeading]=useState(loadHeading)
  const headingRef=useRef(heading)
  const [visited,setVisited]=useState<string[]>(loadVisited)
  const visitedRef=useRef(visited)
  const [message,setMessage]=useState('StreetVerse City is active • walk to a mission beacon or enter the blue car near your spawn.')
+ // Local, opt-in debug snapshot: no automatic upload, identity, location or saved mission contents.
+ useEffect(()=>{
+  const snapshot=async()=>{
+   const report={schema:'tryamm.streetverse.mobile-diagnostic.v1',mode:'html-city',view:'mobile-fallback',
+    visible:document.visibilityState==='visible',vehicle:vehicleRef.current,
+    visitedCount:visitedRef.current.length,storageAvailable:(()=>{
+     try{return typeof localStorage!=='undefined'&&localStorage.getItem(SAVE_KEY)!==null}catch{return false}
+    })(),capturedAt:new Date().toISOString()}
+   const frame=await sampleLocalFrameRate()
+   window.dispatchEvent(new CustomEvent('tryamm:googlex-mobile-diagnostic-ready',{detail:{...report,frame}}))
+  }
+  window.addEventListener('tryamm:googlex-request-mobile-diagnostic',snapshot)
+  return()=>window.removeEventListener('tryamm:googlex-request-mobile-diagnostic',snapshot)
+ },[])
+ const [lowEffects,setLowEffects]=useState(false)
+ const [showCityPreview,setShowCityPreview]=useState(false)
+ const [diagnostic,setDiagnostic]=useState<{visible:boolean;vehicle:boolean;visitedCount:number;storageAvailable:boolean;capturedAt:string;frame?:{status:string;fps:number|null;sampleCount:number}}|null>(null)
+ useEffect(()=>{
+  const onReport=(event:Event)=>setDiagnostic((event as CustomEvent).detail)
+  window.addEventListener('tryamm:googlex-mobile-diagnostic-ready',onReport)
+  return()=>window.removeEventListener('tryamm:googlex-mobile-diagnostic-ready',onReport)
+ },[])
+ const requestDiagnostic=()=>window.dispatchEvent(new CustomEvent('tryamm:googlex-request-mobile-diagnostic'))
+ const [previewDistrict,setPreviewDistrict]=useState<CityDistrict>('taylor')
+ const previewPlan=useMemo(()=>planChicagoStream(previewDistrict,20261026,DEFAULT_MOBILE_BUDGET),[previewDistrict])
  const held=useRef({up:false,down:false,left:false,right:false})
  const roadShift=useMemo(()=>clamp((pos.x-50)*.45,-22,22),[pos.x])
  const forwardShift=useMemo(()=>clamp((68-pos.y)*.3,-18,18),[pos.y])
@@ -67,7 +96,12 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
    if(now-lastSave>800){
     lastSave=now
     const p=posRef.current,c=carPosRef.current
-    localStorage.setItem(SAVE_KEY,JSON.stringify({...p,vehicle:vehicleRef.current,car:c,heading:headingRef.current,visited:visitedRef.current,updatedAt:new Date().toISOString()}))
+    // Safari private mode, disabled storage, and quota exhaustion must never stop movement/rendering.
+    try {
+     localStorage.setItem(SAVE_KEY,JSON.stringify({...p,vehicle:vehicleRef.current,car:c,heading:headingRef.current,visited:visitedRef.current,updatedAt:new Date().toISOString()}))
+    } catch {
+     // Continue playable session in memory; persistence can resume when storage becomes available.
+    }
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-player-position',{detail:{x:(p.x-50)*1.8,z:(p.y-50)*1.8,speed:(dx||dy)?(vehicleRef.current?12:6):0,mobileSafeMode:true,htmlCity:true,vehicle:vehicleRef.current,vehicleType:vehicleRef.current?'car':undefined,controlledVehicleId:vehicleRef.current?SAFE_CAR_ID:undefined,heading:headingRef.current}}))
     if(vehicleRef.current)window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-telemetry',{detail:{entered:true,mobileSafeMode:true,htmlCity:true,vehicleType:'car',controlledVehicleId:SAFE_CAR_ID,x:(p.x-50)*1.8,z:(p.y-50)*1.8,speed:(dx||dy)?12:0,heading:headingRef.current}}))
    }
@@ -137,23 +171,59 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
 
  useEffect(()=>{
   const map:Record<string,keyof typeof held.current>={arrowup:'up',w:'up',arrowdown:'down',s:'down',arrowleft:'left',a:'left',arrowright:'right',d:'right'}
-  const set=(e:KeyboardEvent,v:boolean)=>{const raw=e.key.toLowerCase();if(raw==='e'&&v&&!e.repeat){e.preventDefault();window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:!vehicleRef.current,source:'keyboard'}}));return}const k=map[raw];if(k){e.preventDefault();held.current[k]=v}}
+  const set=(e:KeyboardEvent,v:boolean)=>{const target=e.target as HTMLElement|null;if(target?.closest('input,textarea,select,[contenteditable="true"],[role="textbox"]')||e.altKey||e.ctrlKey||e.metaKey)return;const raw=e.key.toLowerCase();if(raw==='e'&&v&&!e.repeat){e.preventDefault();window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:!vehicleRef.current,source:'keyboard'}}));return}const k=map[raw];if(k){e.preventDefault();held.current[k]=v}}
   const kd=(e:KeyboardEvent)=>set(e,true),ku=(e:KeyboardEvent)=>set(e,false)
   window.addEventListener('keydown',kd);window.addEventListener('keyup',ku)
   return()=>{window.removeEventListener('keydown',kd);window.removeEventListener('keyup',ku)}
+ },[])
+
+ useEffect(()=>{
+  const releaseControls=()=>{held.current={up:false,down:false,left:false,right:false}}
+  const onVisibility=()=>{if(document.visibilityState==='hidden')releaseControls()}
+  const onFocusIn=(event:FocusEvent)=>{const target=event.target as HTMLElement|null;if(target?.closest('input,textarea,select,[contenteditable="true"],[role="textbox"]'))releaseControls()}
+  window.addEventListener('blur',releaseControls)
+  document.addEventListener('focusin',onFocusIn)
+  document.addEventListener('visibilitychange',onVisibility)
+  return()=>{window.removeEventListener('blur',releaseControls);document.removeEventListener('visibilitychange',onVisibility);document.removeEventListener('focusin',onFocusIn)}
  },[])
 
  const press=(k:keyof typeof held.current,v:boolean)=>{held.current[k]=v}
  const btn=(label:string,k:keyof typeof held.current)=> <button aria-label={label} onPointerDown={e=>{e.preventDefault();press(k,true)}} onPointerUp={()=>press(k,false)} onPointerCancel={()=>press(k,false)} onPointerLeave={()=>press(k,false)} style={{width:58,height:58,borderRadius:17,border:'1px solid #7be9ff99',background:'#07131ff2',color:'#fff',fontSize:24,fontWeight:900,touchAction:'none',boxShadow:'0 8px 25px #0008'}}>{label}</button>
  const openReel=()=>{window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'streetverse-mobile-safe',missionProgress:`${visited.length}/${MISSIONS.length}`,vehicle,mobileSafeMode:true,htmlCity:true}}));window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:`Opening Reel Creator • StreetVerse ${visited.length}/${MISSIONS.length} checkpoints`}}))}
  const toggleVehicle=()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:!vehicle,source:'mobile-header'}}))
- const openLogistics=()=>{const show=(window as any).__showLogisticsFreight;if(typeof show==='function')show();else window.location.href='/logistics-freight';window.dispatchEvent(new CustomEvent('tryamm:streetverse-logistics-open',{detail:{source:'streetverse-mobile-safe',vehicle,missionProgress:`${visited.length}/${MISSIONS.length}`}}))}
+ const openLogistics=()=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-logistics-open',{detail:{source:'streetverse-mobile-safe',vehicle,missionProgress:`${visited.length}/${MISSIONS.length}`}}));const show=(window as any).__showLogisticsFreight;if(typeof show==='function')show();else window.location.assign('/logistics-freight')}
 
- return <div data-streetverse-html-city="true" style={{position:'fixed',inset:0,zIndex:18000,background:'#07101b',color:'#fff',fontFamily:'system-ui',overflow:'hidden'}}>
+ return <div data-streetverse-html-city="true" data-streetverse-low-effects={lowEffects?"true":"false"} style={{position:'fixed',inset:0,zIndex:18000,background:'#07101b',color:'#fff',fontFamily:'system-ui',overflow:'hidden'}}>
+  <style>{`[data-streetverse-low-effects="true"] .tryamm-safe-person,[data-streetverse-low-effects="true"] .tryamm-safe-car-a,[data-streetverse-low-effects="true"] .tryamm-safe-car-b,[data-streetverse-low-effects="true"] .tryamm-safe-car-c{animation:none!important}`}</style>
   <header style={{height:64,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 12px',background:'#020712f5',borderBottom:'1px solid #274963',position:'relative',zIndex:40}}>
    <div><b style={{letterSpacing:.8}}>STREETVERSE • CHICAGO</b><div style={{fontSize:11,color:'#8effb7'}}>CITY ACTIVE • {vehicle?'MOBILE DRIVE MODE':'MOBILE WALK MODE'} • {visited.length}/{MISSIONS.length}</div></div>
    <div style={{display:'flex',gap:7,overflowX:'auto'}}><button onClick={openLogistics} aria-label="Open logistics jobs" style={{minHeight:44,borderRadius:12,border:'1px solid #78ffb4',background:'#082218',color:'#b9ffd2',fontWeight:900,padding:'0 11px',whiteSpace:'nowrap'}}>🚛 JOBS</button><button onClick={toggleVehicle} aria-label={vehicle?'Exit StreetVerse vehicle':`Enter StreetVerse vehicle ${Math.round(carDistance)} meters away`} style={{minHeight:44,borderRadius:12,border:`1px solid ${vehicle?'#ffd45e':'#59e7ff'}`,background:'#071b25',color:vehicle?'#ffe9a0':'#9af0ff',fontWeight:900,padding:'0 11px',whiteSpace:'nowrap'}}>{vehicle?'EXIT VEHICLE':'ENTER VEHICLE'}</button><button onClick={openReel} aria-label="Open Reel Creator" style={{minHeight:44,borderRadius:12,border:'1px solid #ff7ce8',background:'#251027',color:'#fff',fontWeight:900,padding:'0 13px'}}>● REEL</button><button onClick={onClose} aria-label="Close StreetVerse" style={{width:44,height:44,borderRadius:12,border:'1px solid #567',background:'#101923',color:'#fff',fontSize:22}}>×</button></div>
   </header>
+  <div style={{position:'absolute',top:68,left:12,zIndex:45,maxWidth:'min(76vw,300px)'}}>
+   <button type="button" aria-label="Diagnose StreetVerse locally" onClick={requestDiagnostic} style={{minHeight:48,padding:'8px 14px',borderRadius:12,border:'1px solid #a8f0bb',background:'#123d32',color:'#fff',fontSize:16,fontWeight:800}}>DIAGNOSE</button>
+   {diagnostic&&<section aria-label="GoogleX local diagnostic report" role="status" style={{marginTop:6,padding:12,borderRadius:12,background:'#061b27',border:'1px solid #a8f0bb',fontSize:13}}>
+    <b>LOCAL DIAGNOSTIC • NOT UPLOADED</b>
+    <p>View: {diagnostic.visible?'Visible':'Hidden'} • {diagnostic.vehicle?'Driving':'Walking'}</p>
+    <p>Mission checkpoints: {diagnostic.visitedCount} • Save readable: {diagnostic.storageAvailable?'Yes':'No'}</p>
+    <p>Quantum Speed frame sample: {diagnostic.frame?.fps==null?'Unavailable':diagnostic.frame.fps+' FPS'} (local only)</p>
+    <p>Quantum Lag Buster: {adviseQuantumLagBuster(diagnostic.frame?.fps??null).recommendedMode} — {adviseQuantumLagBuster(diagnostic.frame?.fps??null).reason}</p>
+    <button type="button" aria-pressed={lowEffects} aria-label={lowEffects?'Restore normal visual effects':'Enable low visual effects'} onClick={()=>setLowEffects(value=>!value)} style={{minHeight:48,padding:'8px 12px',marginRight:8,color:'#fff',background:'#235747',borderRadius:10}}>{lowEffects?'RESTORE EFFECTS':'LOW EFFECTS'}</button>
+    <button type="button" onClick={()=>setDiagnostic(null)} style={{minHeight:44,minWidth:88,color:'#fff',background:'#264759',borderRadius:10}}>CLOSE</button>
+   </section>}
+  </div>
+  <div style={{position:'absolute',top:68,right:12,zIndex:45}}>
+   <button aria-label="Preview Chicago district streaming plan" aria-expanded={showCityPreview} onClick={()=>setShowCityPreview(v=>!v)} style={{minHeight:44,padding:'8px 12px',borderRadius:12,color:'#fff',background:'#174456',border:'1px solid #8be8ff'}}>CITY PLAN</button>
+   {showCityPreview&&<section aria-label="Chicago district staging preview" style={{marginTop:6,background:'#071622',border:'1px solid #8be8ff',borderRadius:12,padding:12,maxWidth:290,maxHeight:'60vh',overflow:'auto',boxShadow:'0 10px 30px #000a'}}>
+    <b>STAGING PREVIEW — NOT LOADED</b>
+    <p style={{fontSize:12}}>Game remains in current playable scene. District plans do not replace your saved progress.</p>
+    <label htmlFor="sv-district-preview">District</label>
+    <select id="sv-district-preview" value={previewDistrict} onChange={e=>setPreviewDistrict(e.target.value as CityDistrict)} style={{display:'block',minHeight:44,width:'100%',margin:'6px 0',background:'#153045',color:'#fff'}}>
+     {(['circle-park','taylor','roosevelt','pilsen','west-side','downtown'] as CityDistrict[]).map(d=><option key={d} value={d}>{d}</option>)}
+    </select>
+    <p role="status" style={{fontSize:12}}>{previewPlan.rejected?'Unavailable':'Planned blocks: '+previewPlan.resident.reduce((n,p)=>n+p.blocks.length,0)+' • Buildings: '+previewPlan.totalBuildings+' • Deferred districts: '+previewPlan.deferred.length}</p>
+    <p style={{fontSize:11}}>These are fictionalized geometry instructions, not real streets, interactive travel, or deployed 3D assets.</p>
+   </section>}
+  </div>
   <main style={{position:'absolute',left:0,right:0,top:64,bottom:0,overflow:'hidden',background:'linear-gradient(#65a6c9 0%,#98cbe3 35%,#d9a979 36%,#19232b 67%,#070b10 100%)'}}>
    <div aria-hidden="true" style={{position:'absolute',left:0,right:0,top:0,height:'38%',background:'linear-gradient(#4a8eb9,#9cc8df 65%,#f3b172)',overflow:'hidden'}}><div style={{position:'absolute',right:'9%',top:'9%',width:52,height:52,borderRadius:'50%',background:'#ffe5a2',boxShadow:'0 0 55px #ffe5a2aa'}}/><div style={{position:'absolute',left:0,right:0,bottom:0,height:'82%',transform:`translateX(${roadShift*.18}px) translateY(${forwardShift*.14}px)`,transition:'transform 80ms linear'}}>{BUILDINGS.map((b,i)=><div key={b.label} style={{position:'absolute',left:`${b.left}%`,bottom:0,width:`${b.width}%`,height:`${b.height}%`,minHeight:90,border:'1px solid #111b25',background:i%3===0?'linear-gradient(90deg,#293b4a,#17232e)':i%3===1?'linear-gradient(90deg,#493d45,#26242c)':'linear-gradient(90deg,#304543,#182827)',boxShadow:'0 0 20px #0007'}}><div style={{position:'absolute',left:5,right:5,top:8,fontSize:7,fontWeight:900,textAlign:'center',color:'#d8f7ff',textShadow:'0 1px 3px #000'}}>{b.label}</div><div style={{position:'absolute',inset:'24px 8px 8px',background:'repeating-linear-gradient(90deg,#ffd978 0 4px,transparent 4px 12px),repeating-linear-gradient(0deg,#92dfff55 0 4px,transparent 4px 13px)',opacity:.8}}/></div>)}</div></div>
    <div aria-hidden="true" style={{position:'absolute',left:0,right:0,top:'34%',bottom:0,overflow:'hidden'}}>
