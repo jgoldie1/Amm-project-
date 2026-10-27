@@ -153,6 +153,14 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
   return()=>{window.removeEventListener('keydown',kd);window.removeEventListener('keyup',ku)}
  },[])
 
+ useEffect(()=>{
+  const releaseControls=()=>{held.current={up:false,down:false,left:false,right:false}}
+  const onVisibility=()=>{if(document.visibilityState==='hidden')releaseControls()}
+  window.addEventListener('blur',releaseControls)
+  document.addEventListener('visibilitychange',onVisibility)
+  return()=>{window.removeEventListener('blur',releaseControls);document.removeEventListener('visibilitychange',onVisibility)}
+ },[])
+
  const press=(k:keyof typeof held.current,v:boolean)=>{held.current[k]=v}
  const btn=(label:string,k:keyof typeof held.current)=> <button aria-label={label} onPointerDown={e=>{e.preventDefault();press(k,true)}} onPointerUp={()=>press(k,false)} onPointerCancel={()=>press(k,false)} onPointerLeave={()=>press(k,false)} style={{width:58,height:58,borderRadius:17,border:'1px solid #7be9ff99',background:'#07131ff2',color:'#fff',fontSize:24,fontWeight:900,touchAction:'none',boxShadow:'0 8px 25px #0008'}}>{label}</button>
  const openReel=()=>{window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'streetverse-mobile-safe',missionProgress:`${visited.length}/${MISSIONS.length}`,vehicle,mobileSafeMode:true,htmlCity:true}}));window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:`Opening Reel Creator • StreetVerse ${visited.length}/${MISSIONS.length} checkpoints`}}))}
