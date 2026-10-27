@@ -5,7 +5,7 @@ export type OneHandTouchFrame={stick?:Vec2;actionPressed?:boolean;combatPressed?
 const clamp=(n:number)=>Math.max(-1,Math.min(1,n))
 export function adaptOneHandInput(t:OneHandTouchFrame,p:OneHandProfile=DEFAULT_ONE_HAND_PROFILE):WorldInputFrame{
  const move={x:clamp(t.stick?.x??0),y:clamp(t.stick?.y??0)};const moving=Math.abs(move.x)+Math.abs(move.y)>.08
- return{move,look:{x:0,y:0},interact:!!t.actionPressed&&t.context==='ON_FOOT',primary:!!t.combatPressed&&t.context==='COMBAT',secondary:!!t.actionPressed&&t.context==='COMBAT',ability:!!t.abilityPressed,jump:!!t.actionPressed&&t.context==='ON_FOOT',sprint:p.autoSprint&&moving&&t.context==='ON_FOOT',brake:!!t.brakePressed&&t.context==='VEHICLE',pause:!!t.menuPressed}
+ return{move,look:{x:0,y:0},interact:!!t.actionPressed&&(t.context==='ON_FOOT'||t.context==='VEHICLE'||t.context==='DIALOGUE'),primary:!!t.combatPressed&&t.context==='COMBAT',secondary:!!t.actionPressed&&t.context==='COMBAT',ability:!!t.abilityPressed,jump:!!t.actionPressed&&t.context==='ON_FOOT',sprint:p.autoSprint&&moving&&t.context==='ON_FOOT',brake:!!t.brakePressed&&t.context==='VEHICLE',pause:!!t.menuPressed}
 }
 export const ONE_HAND_HUD={zones:{thumbStick:'lower-accessible-side',action:'lower-opposite',combat:'above-action',ability:'above-combat',menu:'top-reachable'},minimumTargetPx:48,dynamicLabels:true,hapticsOptional:true,simultaneousPressRequired:false,orientation:['PORTRAIT','LANDSCAPE']} as const
 export const WORLD_INPUT_BRIDGE={contract:'World controllers consume WorldInputFrame, not raw keyboard/gamepad/touch events.',benefit:'StreetVerse, Living World and GamesVerse can share the same one-hand, adaptive-controller and future voice input layer.'} as const
