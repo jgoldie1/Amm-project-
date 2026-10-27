@@ -204,7 +204,15 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     } catch (error) {
       console.warn('[streetverse-people-screenshot-unavailable]',error instanceof Error?error.message:String(error));
     }
-    console.info('[streetverse-people-button-geometry]',JSON.stringify(await peopleShortcut.boundingBox()));
+    const peopleBox=await peopleShortcut.boundingBox();
+    console.info('[streetverse-people-button-geometry]',JSON.stringify(peopleBox));
+    if(peopleBox){
+      const obstruction=await page.evaluate(({x,y,width,height})=>{
+        const element=document.elementFromPoint(x+width/2,y+height/2);
+        return {tag:element?.tagName||null,role:element?.getAttribute('role')||null,aria:element?.getAttribute('aria-label')||null};
+      },peopleBox);
+      console.info('[streetverse-people-tap-hit-target]',JSON.stringify(obstruction));
+    }
     await peopleShortcut.click({timeout:10000});
     await expect(page.getByRole('region',{name:'StreetVerse people search panel'})).toBeVisible();
     await expect(page.getByRole('textbox',{name:'Search StreetVerse users and groups'})).toBeVisible();
