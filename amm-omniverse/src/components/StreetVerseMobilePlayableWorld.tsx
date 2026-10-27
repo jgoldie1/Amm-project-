@@ -37,6 +37,19 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
  const [visited,setVisited]=useState<string[]>(loadVisited)
  const visitedRef=useRef(visited)
  const [message,setMessage]=useState('StreetVerse City is active • walk to a mission beacon or enter the blue car near your spawn.')
+ // Local, opt-in debug snapshot: no automatic upload, identity, location or saved mission contents.
+ useEffect(()=>{
+  const snapshot=()=>{
+   const report={schema:'tryamm.streetverse.mobile-diagnostic.v1',mode:'html-city',view:'mobile-fallback',
+    visible:document.visibilityState==='visible',vehicle:vehicleRef.current,
+    visitedCount:visitedRef.current.length,storageAvailable:(()=>{
+     try{return typeof localStorage!=='undefined'&&localStorage.getItem(SAVE_KEY)!==null}catch{return false}
+    })(),capturedAt:new Date().toISOString()}
+   window.dispatchEvent(new CustomEvent('tryamm:googlex-mobile-diagnostic-ready',{detail:report}))
+  }
+  window.addEventListener('tryamm:googlex-request-mobile-diagnostic',snapshot)
+  return()=>window.removeEventListener('tryamm:googlex-request-mobile-diagnostic',snapshot)
+ },[])
  const [showCityPreview,setShowCityPreview]=useState(false)
  const [previewDistrict,setPreviewDistrict]=useState<CityDistrict>('taylor')
  const previewPlan=useMemo(()=>planChicagoStream(previewDistrict,20261026,DEFAULT_MOBILE_BUDGET),[previewDistrict])
