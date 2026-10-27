@@ -1,4 +1,6 @@
 import {useEffect,useMemo,useRef,useState} from 'react'
+import {planChicagoStream,DEFAULT_MOBILE_BUDGET} from '../runtime/StreetVerseChicagoStreamingPlanner'
+import type {CityDistrict} from '../runtime/StreetVerseChicagoDistrictGenerator'
 
 const SAVE_KEY='tryamm.streetverse.mobile-playable.v2'
 const MISSIONS=[
@@ -35,6 +37,9 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
  const [visited,setVisited]=useState<string[]>(loadVisited)
  const visitedRef=useRef(visited)
  const [message,setMessage]=useState('StreetVerse City is active • walk to a mission beacon or enter the blue car near your spawn.')
+ const [showCityPreview,setShowCityPreview]=useState(false)
+ const [previewDistrict,setPreviewDistrict]=useState<CityDistrict>('taylor')
+ const previewPlan=useMemo(()=>planChicagoStream(previewDistrict,20261026,DEFAULT_MOBILE_BUDGET),[previewDistrict])
  const held=useRef({up:false,down:false,left:false,right:false})
  const roadShift=useMemo(()=>clamp((pos.x-50)*.45,-22,22),[pos.x])
  const forwardShift=useMemo(()=>clamp((68-pos.y)*.3,-18,18),[pos.y])
@@ -154,6 +159,19 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
    <div><b style={{letterSpacing:.8}}>STREETVERSE • CHICAGO</b><div style={{fontSize:11,color:'#8effb7'}}>CITY ACTIVE • {vehicle?'MOBILE DRIVE MODE':'MOBILE WALK MODE'} • {visited.length}/{MISSIONS.length}</div></div>
    <div style={{display:'flex',gap:7,overflowX:'auto'}}><button onClick={openLogistics} aria-label="Open logistics jobs" style={{minHeight:44,borderRadius:12,border:'1px solid #78ffb4',background:'#082218',color:'#b9ffd2',fontWeight:900,padding:'0 11px',whiteSpace:'nowrap'}}>🚛 JOBS</button><button onClick={toggleVehicle} aria-label={vehicle?'Exit StreetVerse vehicle':`Enter StreetVerse vehicle ${Math.round(carDistance)} meters away`} style={{minHeight:44,borderRadius:12,border:`1px solid ${vehicle?'#ffd45e':'#59e7ff'}`,background:'#071b25',color:vehicle?'#ffe9a0':'#9af0ff',fontWeight:900,padding:'0 11px',whiteSpace:'nowrap'}}>{vehicle?'EXIT VEHICLE':'ENTER VEHICLE'}</button><button onClick={openReel} aria-label="Open Reel Creator" style={{minHeight:44,borderRadius:12,border:'1px solid #ff7ce8',background:'#251027',color:'#fff',fontWeight:900,padding:'0 13px'}}>● REEL</button><button onClick={onClose} aria-label="Close StreetVerse" style={{width:44,height:44,borderRadius:12,border:'1px solid #567',background:'#101923',color:'#fff',fontSize:22}}>×</button></div>
   </header>
+  <div style={{position:'absolute',top:68,right:12,zIndex:45}}>
+   <button aria-label="Preview Chicago district streaming plan" aria-expanded={showCityPreview} onClick={()=>setShowCityPreview(v=>!v)} style={{minHeight:44,padding:'8px 12px',borderRadius:12,color:'#fff',background:'#174456',border:'1px solid #8be8ff'}}>CITY PLAN</button>
+   {showCityPreview&&<section aria-label="Chicago district staging preview" style={{marginTop:6,background:'#071622',border:'1px solid #8be8ff',borderRadius:12,padding:12,maxWidth:290,maxHeight:'60vh',overflow:'auto',boxShadow:'0 10px 30px #000a'}}>
+    <b>STAGING PREVIEW — NOT LOADED</b>
+    <p style={{fontSize:12}}>Game remains in current playable scene. District plans do not replace your saved progress.</p>
+    <label htmlFor="sv-district-preview">District</label>
+    <select id="sv-district-preview" value={previewDistrict} onChange={e=>setPreviewDistrict(e.target.value as CityDistrict)} style={{display:'block',minHeight:44,width:'100%',margin:'6px 0',background:'#153045',color:'#fff'}}>
+     {(['circle-park','taylor','roosevelt','pilsen','west-side','downtown'] as CityDistrict[]).map(d=><option key={d} value={d}>{d}</option>)}
+    </select>
+    <p role="status" style={{fontSize:12}}>{previewPlan.rejected?'Unavailable':'Planned blocks: '+previewPlan.resident.reduce((n,p)=>n+p.blocks.length,0)+' • Buildings: '+previewPlan.totalBuildings+' • Deferred districts: '+previewPlan.deferred.length}</p>
+    <p style={{fontSize:11}}>These are fictionalized geometry instructions, not real streets, interactive travel, or deployed 3D assets.</p>
+   </section>}
+  </div>
   <main style={{position:'absolute',left:0,right:0,top:64,bottom:0,overflow:'hidden',background:'linear-gradient(#65a6c9 0%,#98cbe3 35%,#d9a979 36%,#19232b 67%,#070b10 100%)'}}>
    <div aria-hidden="true" style={{position:'absolute',left:0,right:0,top:0,height:'38%',background:'linear-gradient(#4a8eb9,#9cc8df 65%,#f3b172)',overflow:'hidden'}}><div style={{position:'absolute',right:'9%',top:'9%',width:52,height:52,borderRadius:'50%',background:'#ffe5a2',boxShadow:'0 0 55px #ffe5a2aa'}}/><div style={{position:'absolute',left:0,right:0,bottom:0,height:'82%',transform:`translateX(${roadShift*.18}px) translateY(${forwardShift*.14}px)`,transition:'transform 80ms linear'}}>{BUILDINGS.map((b,i)=><div key={b.label} style={{position:'absolute',left:`${b.left}%`,bottom:0,width:`${b.width}%`,height:`${b.height}%`,minHeight:90,border:'1px solid #111b25',background:i%3===0?'linear-gradient(90deg,#293b4a,#17232e)':i%3===1?'linear-gradient(90deg,#493d45,#26242c)':'linear-gradient(90deg,#304543,#182827)',boxShadow:'0 0 20px #0007'}}><div style={{position:'absolute',left:5,right:5,top:8,fontSize:7,fontWeight:900,textAlign:'center',color:'#d8f7ff',textShadow:'0 1px 3px #000'}}>{b.label}</div><div style={{position:'absolute',inset:'24px 8px 8px',background:'repeating-linear-gradient(90deg,#ffd978 0 4px,transparent 4px 12px),repeating-linear-gradient(0deg,#92dfff55 0 4px,transparent 4px 13px)',opacity:.8}}/></div>)}</div></div>
    <div aria-hidden="true" style={{position:'absolute',left:0,right:0,top:'34%',bottom:0,overflow:'hidden'}}>
