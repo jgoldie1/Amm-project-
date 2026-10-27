@@ -72,7 +72,12 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
    if(now-lastSave>800){
     lastSave=now
     const p=posRef.current,c=carPosRef.current
-    localStorage.setItem(SAVE_KEY,JSON.stringify({...p,vehicle:vehicleRef.current,car:c,heading:headingRef.current,visited:visitedRef.current,updatedAt:new Date().toISOString()}))
+    // Safari private mode, disabled storage, and quota exhaustion must never stop movement/rendering.
+    try {
+     localStorage.setItem(SAVE_KEY,JSON.stringify({...p,vehicle:vehicleRef.current,car:c,heading:headingRef.current,visited:visitedRef.current,updatedAt:new Date().toISOString()}))
+    } catch {
+     // Continue playable session in memory; persistence can resume when storage becomes available.
+    }
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-player-position',{detail:{x:(p.x-50)*1.8,z:(p.y-50)*1.8,speed:(dx||dy)?(vehicleRef.current?12:6):0,mobileSafeMode:true,htmlCity:true,vehicle:vehicleRef.current,vehicleType:vehicleRef.current?'car':undefined,controlledVehicleId:vehicleRef.current?SAFE_CAR_ID:undefined,heading:headingRef.current}}))
     if(vehicleRef.current)window.dispatchEvent(new CustomEvent('tryamm:streetverse-drive-telemetry',{detail:{entered:true,mobileSafeMode:true,htmlCity:true,vehicleType:'car',controlledVehicleId:SAFE_CAR_ID,x:(p.x-50)*1.8,z:(p.y-50)*1.8,speed:(dx||dy)?12:0,heading:headingRef.current}}))
    }
