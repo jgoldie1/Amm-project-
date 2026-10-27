@@ -1,6 +1,7 @@
 import {useEffect,useMemo,useRef,useState} from 'react'
 import {planChicagoStream,DEFAULT_MOBILE_BUDGET} from '../runtime/StreetVerseChicagoStreamingPlanner'
 import {sampleLocalFrameRate} from '../runtime/StreetVerseQuantumSpeedDiagnostics'
+import {adviseQuantumLagBuster} from '../runtime/StreetVerseQuantumLagBuster'
 import type {CityDistrict} from '../runtime/StreetVerseChicagoDistrictGenerator'
 
 const SAVE_KEY='tryamm.streetverse.mobile-playable.v2'
@@ -201,6 +202,7 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
     <p>View: {diagnostic.visible?'Visible':'Hidden'} • {diagnostic.vehicle?'Driving':'Walking'}</p>
     <p>Mission checkpoints: {diagnostic.visitedCount} • Save readable: {diagnostic.storageAvailable?'Yes':'No'}</p>
     <p>Quantum Speed frame sample: {diagnostic.frame?.fps==null?'Unavailable':diagnostic.frame.fps+' FPS'} (local only)</p>
+    <p>Quantum Lag Buster: {adviseQuantumLagBuster(diagnostic.frame?.fps??null).recommendedMode} — {adviseQuantumLagBuster(diagnostic.frame?.fps??null).reason}</p>
     <button type="button" onClick={()=>setDiagnostic(null)} style={{minHeight:44,minWidth:88,color:'#fff',background:'#264759',borderRadius:10}}>CLOSE</button>
    </section>}
   </div>
