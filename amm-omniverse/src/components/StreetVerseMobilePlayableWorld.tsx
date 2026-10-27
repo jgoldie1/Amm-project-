@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useRef,useState} from 'react'
 import {planChicagoStream,DEFAULT_MOBILE_BUDGET} from '../runtime/StreetVerseChicagoStreamingPlanner'
+import {sampleLocalFrameRate} from '../runtime/StreetVerseQuantumSpeedDiagnostics'
 import type {CityDistrict} from '../runtime/StreetVerseChicagoDistrictGenerator'
 
 const SAVE_KEY='tryamm.streetverse.mobile-playable.v2'
@@ -39,19 +40,20 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
  const [message,setMessage]=useState('StreetVerse City is active • walk to a mission beacon or enter the blue car near your spawn.')
  // Local, opt-in debug snapshot: no automatic upload, identity, location or saved mission contents.
  useEffect(()=>{
-  const snapshot=()=>{
+  const snapshot=async()=>{
    const report={schema:'tryamm.streetverse.mobile-diagnostic.v1',mode:'html-city',view:'mobile-fallback',
     visible:document.visibilityState==='visible',vehicle:vehicleRef.current,
     visitedCount:visitedRef.current.length,storageAvailable:(()=>{
      try{return typeof localStorage!=='undefined'&&localStorage.getItem(SAVE_KEY)!==null}catch{return false}
     })(),capturedAt:new Date().toISOString()}
-   window.dispatchEvent(new CustomEvent('tryamm:googlex-mobile-diagnostic-ready',{detail:report}))
+   const frame=await sampleLocalFrameRate()
+   window.dispatchEvent(new CustomEvent('tryamm:googlex-mobile-diagnostic-ready',{detail:{...report,frame}}))
   }
   window.addEventListener('tryamm:googlex-request-mobile-diagnostic',snapshot)
   return()=>window.removeEventListener('tryamm:googlex-request-mobile-diagnostic',snapshot)
  },[])
  const [showCityPreview,setShowCityPreview]=useState(false)
- const [diagnostic,setDiagnostic]=useState<{visible:boolean;vehicle:boolean;visitedCount:number;storageAvailable:boolean;capturedAt:string}|null>(null)
+ const [diagnostic,setDiagnostic]=useState<{visible:boolean;vehicle:boolean;visitedCount:number;storageAvailable:boolean;capturedAt:string;frame?:{status:string;fps:number|null;sampleCount:number}}|null>(null)
  useEffect(()=>{
   const onReport=(event:Event)=>setDiagnostic((event as CustomEvent).detail)
   window.addEventListener('tryamm:googlex-mobile-diagnostic-ready',onReport)
@@ -198,6 +200,7 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
     <b>LOCAL DIAGNOSTIC • NOT UPLOADED</b>
     <p>View: {diagnostic.visible?'Visible':'Hidden'} • {diagnostic.vehicle?'Driving':'Walking'}</p>
     <p>Mission checkpoints: {diagnostic.visitedCount} • Save readable: {diagnostic.storageAvailable?'Yes':'No'}</p>
+    <p>Quantum Speed frame sample: {diagnostic.frame?.fps==null?'Unavailable':diagnostic.frame.fps+' FPS'} (local only)</p>
     <button type="button" onClick={()=>setDiagnostic(null)} style={{minHeight:44,minWidth:88,color:'#fff',background:'#264759',borderRadius:10}}>CLOSE</button>
    </section>}
   </div>
