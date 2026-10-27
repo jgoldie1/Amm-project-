@@ -1,0 +1,23 @@
+{
+  "name": "TRYAMM Safe Development (Node 24)",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-24",
+  "forwardPorts": [
+    5173
+  ],
+  "portsAttributes": {
+    "5173": {
+      "label": "TRYAMM local Vite preview",
+      "onAutoForward": "notify"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-python.python"
+      ]
+    }
+  },
+  "remoteUser": "node"
+}
