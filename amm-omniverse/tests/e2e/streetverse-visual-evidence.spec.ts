@@ -63,6 +63,19 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     const travel=page.getByRole('button',{name:'Travel to Taylor Street UIC Medical District'});
     const stores=page.locator('#sv-retail-open');
     const enterStore=page.locator('#sv-store-open');
+    // Diagnostic only: retain the visibility assertion, but make a missing travel
+    // control actionable by showing the actual route mode and mounted buttons.
+    if (await travel.count() === 0) {
+      const diagnostic=await page.evaluate(() => ({
+        path:location.pathname,
+        search:location.search,
+        mode:document.querySelector('[data-streetverse-render-mode]')?.getAttribute('data-streetverse-render-mode')||'none',
+        root:document.querySelector('[data-streetverse-world-root]')?.getAttribute('data-streetverse-world-root')||'none',
+        controls:Array.from(document.querySelectorAll('button')).map(b=>b.getAttribute('aria-label')||b.textContent?.trim()||'').filter(Boolean).slice(0,90),
+        travelCount:document.querySelectorAll('[data-streetverse-travel]').length,
+      }))
+      console.error('[streetverse-missing-taylor-travel]',JSON.stringify(diagnostic))
+    }
     await expect(travel).toBeVisible();
     await expect(stores).toBeVisible();
     await expect(enterStore).toBeVisible();
