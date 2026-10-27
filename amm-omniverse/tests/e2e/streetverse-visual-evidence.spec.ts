@@ -73,6 +73,14 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
         root:document.querySelector('[data-streetverse-world-root]')?.getAttribute('data-streetverse-world-root')||'none',
         controls:Array.from(document.querySelectorAll('button')).map(b=>b.getAttribute('aria-label')||b.textContent?.trim()||'').filter(Boolean).slice(0,90),
         travelCount:document.querySelectorAll('[data-streetverse-travel]').length,
+        travelDetails:Array.from(document.querySelectorAll('[data-streetverse-travel]')).map(button=>({
+          html:button.outerHTML.slice(0,500),
+          style:{display:getComputedStyle(button).display,visibility:getComputedStyle(button).visibility,opacity:getComputedStyle(button).opacity},
+          rect:button.getBoundingClientRect().toJSON(),
+          ancestors:Array.from((function*(){let node:Element|null=button;while(node){yield node;node=node.parentElement}})()).slice(0,9).map(node=>({
+            tag:node.tagName,id:node.id,ariaHidden:node.getAttribute('aria-hidden'),inert:node.hasAttribute('inert'),display:getComputedStyle(node).display,visibility:getComputedStyle(node).visibility
+          })),
+        })),
       }))
       console.error('[streetverse-missing-taylor-travel]',JSON.stringify(diagnostic))
     }
