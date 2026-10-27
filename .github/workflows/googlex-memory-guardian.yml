@@ -1,0 +1,33 @@
+name: GoogleX Guardian read-only CI
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/googlex-memory-guardian.mjs'
+      - 'tests/googlex-memory-guardian.test.mjs'
+      - 'amm-omniverse/src/runtime/GoogleXMemoryGraph.ts'
+      - 'amm-omniverse/src/runtime/GoogleXWorldCheckpoint.ts'
+      - 'amm-omniverse/src/runtime/HoloGPTWorldPublisherReview.ts'
+      - 'amm-omniverse/src/components/GoogleXOneHandCommandCenter.tsx'
+      - '.github/workflows/googlex-memory-guardian.yml'
+jobs:
+  memory-guardian:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/googlex-memory-guardian.test.mjs
+      - run: node scripts/googlex-memory-guardian.mjs . googlex-checkpoint.json
+        env:
+          GOOGLEX_WORKER_AUTHORIZED: 'true'
+          GOOGLEX_PROJECT_APPROVED: 'true'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: googlex-guardian-checkpoint
+          path: googlex-checkpoint.json
+          retention-days: 7
