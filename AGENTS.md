@@ -39,3 +39,6 @@ Repository: `jgoldie1/Amm-project-`. Preservation PR: #675. Experimental gamepla
 **Next:** Prove one Chicago playable end-to-end mission; concurrently verify a small SportVerse match and build a real standalone PC package before considering own-store delivery.
 
 This charter is durable within the Git repository after commit, not a guarantee that unrelated future chats automatically load it.
+
+## Repository skills
+For any task involving GoogleX/Googolplex memory, HoloGPT, Holo Ads, AI Café repair, CrossVerse, HoloVerse, game recovery or project continuity, **read [GoogleX Quantum Memory Skill](.agents/skills/googlex-quantum-memory/SKILL.md)** before making changes. The skill applies only to agents that actually read these repository files; it does not automatically load into unrelated ChatGPT conversations.
