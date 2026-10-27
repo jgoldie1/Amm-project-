@@ -9,6 +9,8 @@ on:
       - 'amm-omniverse/src/runtime/GoogleXWorldCheckpoint.ts'
       - 'amm-omniverse/src/runtime/HoloGPTWorldPublisherReview.ts'
       - 'amm-omniverse/src/components/GoogleXOneHandCommandCenter.tsx'
+      - 'amm-omniverse/src/components/StreetVerseMobilePlayableWorld.tsx'
+      - 'amm-omniverse/tests/mobile-safe-mode-storage-failure-contract.mjs'
       - '.github/workflows/googlex-memory-guardian.yml'
 jobs:
   memory-guardian:
@@ -20,7 +22,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test tests/googlex-memory-guardian.test.mjs tests/googlex-next-level-contract.test.mjs
+      - run: node --test tests/googlex-memory-guardian.test.mjs tests/googlex-next-level-contract.test.mjs amm-omniverse/tests/mobile-safe-mode-storage-failure-contract.mjs
       - run: node scripts/googlex-memory-guardian.mjs . googlex-checkpoint.json
         env:
           GOOGLEX_WORKER_AUTHORIZED: 'true'
