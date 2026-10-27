@@ -197,7 +197,15 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await peopleShortcut.click();
     await expect(page.getByRole('region',{name:'StreetVerse people search panel'})).toBeVisible();
     await expect(page.getByRole('textbox',{name:'Search StreetVerse users and groups'})).toBeVisible();
-    await page.getByRole('button',{name:'Close StreetVerse panel'}).click();
+    const peopleClose=page.getByRole('region',{name:'StreetVerse people search panel'}).getByRole('button',{name:'Close StreetVerse panel'});
+    // Confirm the real close button is inside the active panel, and capture
+    // its geometry if another layer obstructs the player's tap.
+    await expect(peopleClose).toBeVisible();
+    const closeBox=await peopleClose.boundingBox();
+    console.info('[streetverse-people-close-geometry]',JSON.stringify(closeBox));
+    await page.screenshot({path:testInfo.outputPath('streetverse-people-close-before-tap.png'),fullPage:false});
+    await peopleClose.click({timeout:10000});
+    await expect(page.getByRole('region',{name:'StreetVerse people search panel'})).toBeHidden();
 
     await ticketShortcut.click();
     const ticketPanel=page.getByRole('region',{name:'StreetVerse stream ticket center'});
