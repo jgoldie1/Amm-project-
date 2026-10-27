@@ -208,7 +208,9 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
       },peopleBox);
       console.info('[streetverse-people-tap-hit-target]',JSON.stringify(obstruction));
     }
-    await peopleShortcut.click({timeout:10000});
+    // Report an obstructed or perpetually moving control promptly rather than
+    // letting the full visual test hang. This is a real pointer click, not force.
+    await peopleShortcut.click({timeout:5000});
     await expect(page.getByRole('region',{name:'StreetVerse people search panel'})).toBeVisible();
     await expect(page.getByRole('textbox',{name:'Search StreetVerse users and groups'})).toBeVisible();
     const peopleClose=page.getByRole('region',{name:'StreetVerse people search panel'}).getByRole('button',{name:'Close StreetVerse panel'});
