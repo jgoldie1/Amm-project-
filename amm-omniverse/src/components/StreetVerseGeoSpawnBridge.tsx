@@ -18,6 +18,7 @@ import {installStreetVersePerformanceDirector} from '../runtime/StreetVersePerfo
 import {installHolographicInternetBridge} from '../runtime/HolographicInternetGoogloplexBridge'
 import {installStreetVerseAbracadabraGeniiRuntime} from '../runtime/StreetVerseAbracadabraGeniiRuntime'
 import {installStreetVerseSoundBankRuntime} from '../runtime/StreetVerseSoundBankRuntime'
+import {installStreetVerseOriginalTradeSounds} from '../runtime/StreetVerseOriginalTradeSounds'
 import {installHoloForgeRuntime} from '../runtime/HoloForgeAssetRuntime'
 import {installBennyCursorConstructBridge} from '../runtime/BennyCursorConstructBridge'
 import {installUniversalLanguageBridge} from '../runtime/UniversalLanguageSignBridge'
@@ -194,6 +195,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>installHolographicInternetBridge(),[])
  useLayoutEffect(()=>installStreetVerseAbracadabraGeniiRuntime(),[])
  useLayoutEffect(()=>installStreetVerseSoundBankRuntime(),[])
+ useLayoutEffect(()=>installStreetVerseOriginalTradeSounds(),[])
  useLayoutEffect(()=>{installHoloForgeRuntime()},[])
  useLayoutEffect(()=>installBennyCursorConstructBridge(),[])
  useLayoutEffect(()=>installUniversalLanguageBridge(),[])
