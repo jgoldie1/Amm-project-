@@ -1,3 +1,4 @@
+import TryAMMUniversityPartnerships from './TryAMMUniversityPartnerships'
 import OmniverseAppGateway from './OmniverseAppGateway'
 import TryAMMSponsorshipFunding from './TryAMMSponsorshipFunding'
 import TryAMMLeadFunnel from './TryAMMLeadFunnel'
@@ -55,6 +56,7 @@ export default function TryAMMHome(){
   <TryAMMAIRevenueHub/>
   <TryAMMRevenueMediaGateway/>
   <TryAMMHoloAdsPreview/>
+  <TryAMMUniversityPartnerships/>
   <TryAMMSponsorshipFunding/>
   <OmniverseAppGateway/>
   <LivingWorldsUniverse onSports={()=>enter('sports')} onCity={enterStreetVerse} onMusic={()=>enter('music')} />
