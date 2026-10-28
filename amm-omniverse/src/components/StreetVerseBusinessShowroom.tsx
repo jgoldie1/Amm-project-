@@ -1,3 +1,4 @@
+import StreetVerseStorefront3DShell from './StreetVerseStorefront3DShell'
 import {useState} from 'react'
 import {STREETVERSE_STOREFRONTS,storefrontById} from '../data/StreetVerseStorefrontCatalog'
 const btn:React.CSSProperties={minHeight:46,borderRadius:11,padding:'10px 13px',border:'1px solid #8ebad5',background:'#17465c',color:'white',fontWeight:800,cursor:'pointer'}
@@ -24,6 +25,7 @@ export default function StreetVerseBusinessShowroom(){
   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,190px),1fr))',gap:8}}>{STREETVERSE_STOREFRONTS.map(s=><button key={s.id} onClick={()=>{setSelected(s.id);setMessage('');setInterest('')}} aria-pressed={selected===s.id} style={{...btn,textAlign:'left',background:selected===s.id?'#225777':'#12283e',borderColor:s.accent}}>{s.name}<span style={{display:'block',fontSize:11,fontWeight:400,color:'#d0dce5',marginTop:5}}>{s.category}</span></button>)}</div>
   <article style={{marginTop:13,border:'1px solid '+store.accent,borderRadius:16,padding:16,background:'linear-gradient(135deg,#172d42,#0c1526)'}}>
    <div style={{color:store.accent,fontSize:11,fontWeight:900}}>SHOWROOM CONCEPT · INQUIRY ONLY</div><h3 style={{fontSize:23,margin:'8px 0'}}>{store.name}</h3><p style={{fontSize:13,color:'#d3dce6'}}>{store.summary}</p>
+   <StreetVerseStorefront3DShell businessId={store.id}/>
    <ul style={{lineHeight:1.7,fontSize:13}}>{store.services.map(x=><li key={x}>{x}</li>)}</ul>
    <form onSubmit={inquire} style={{display:'grid',gap:9,maxWidth:600}}>
     <label style={{fontSize:12}}>Name (optional)<input style={input} value={name} onChange={e=>setName(e.target.value.slice(0,90))}/></label>
