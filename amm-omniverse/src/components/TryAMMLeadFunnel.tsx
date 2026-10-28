@@ -1,10 +1,11 @@
 import {useState} from 'react'
-type Goal='website'|'studio'|'ai'|'media'|'sponsor'|'funding'
+type Goal='website'|'studio'|'ai'|'media'|'streetverse-support'|'sponsor'|'funding'
 const paths:{id:Goal;title:string;action:string;details:string}[]=[
  {id:'website',title:'Launch a business website',action:'Request a $499 preview',details:'Website Preview package: starter preview, QR code and one promotional reel. Scope confirmed before payment.'},
  {id:'studio',title:'Book Aniyah Studio vocal editing',action:'Request $35 vocal editing',details:'Starter rap-vocal editing service inquiry. Confirm file requirements, schedule and delivery before payment.'},
  {id:'ai',title:'Get Stubbs AI business support',action:'Request an AI business consultation',details:'Discuss customer inquiries, AI-assisted intake, and service support. Pricing and features confirmed before agreement.'},
  {id:'media',title:'Create Reels or short dramas',action:'Request a production quote',details:'Request approved promotional video, short drama or creative production services. Scope and licensing quoted individually.'},
+ {id:'streetverse-support',title:'StreetVerse maintenance & support',action:'Ask about maintenance plans',details:'Optional, separately disclosed game-world support and maintenance service. Proposed pricing only; not a government tax or active charge.'},
  {id:'sponsor',title:'Sponsor TRYAMM innovation',action:'Discuss sponsorship',details:'Proposed $250, $1,000 and $5,000 sponsorship levels and custom partnerships.'},
  {id:'funding',title:'Support a pilot project',action:'Request campaign details',details:'Ask about accessibility, creator training and small business launch funding needs.'},
 ]
