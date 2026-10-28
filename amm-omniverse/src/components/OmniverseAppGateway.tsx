@@ -5,6 +5,8 @@ import {useMemo,useState} from 'react'
  */
 const apps=[
  {id:'streetverse',name:'StreetVerse',group:'PLAY',description:'Enter the Chicago RP RPG world',url:'/streetverse',status:'entry'},
+ {id:'black-business-directory',name:'Black Business Directory',group:'SHOP',description:'Discover and support Black-owned businesses. Marketplace entry; dedicated verified listings pending.',url:'/marketplace',status:'entry'},
+ {id:'streetverse-radio',name:'StreetVerse Radio',group:'CREATE',description:'In-world radio genres and sound controls. Enter the game to explore; live stations unverified.',url:'/streetverse',status:'entry'},
  {id:'marketplace',name:'All American Marketplace',group:'SHOP',description:'Businesses, services and digital commerce',url:'/marketplace',status:'entry'},
  {id:'live',name:'Omni LIVE',group:'CREATE',description:'Broadcast, battle and creator experiences',event:'tryamm:home-open-live',status:'preview'},
  {id:'music',name:'MusicVerse',group:'CREATE',description:'Music and creator worlds',url:'/music',status:'entry'},
