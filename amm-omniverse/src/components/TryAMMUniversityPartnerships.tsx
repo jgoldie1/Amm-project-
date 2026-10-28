@@ -1,6 +1,7 @@
 /** Partnership discovery only. No affiliation or sponsorship is implied. */
 const tracks=[
  {name:'Accessible Technology & StreetVerse',desc:'One-handed mobile navigation, user testing, inclusive design and accessibility demonstrations.'},
+ {name:'Living Worlds Immersive Game Development',desc:'Student and faculty pilot for StreetVerse Chicago: accessible player movement, a complete mission, NPC interactions, world streaming, browser performance and safe release testing.'},
  {name:'AI Café & Workforce',desc:'Remote workshops, practical AI business skills, creator training and accessible work demonstrations.'},
  {name:'Stubbs AI & Business Automation',desc:'Customer inquiry workflows, small-business digital tools and student-led usability assessments.'},
  {name:'Advanced Fabrication Research',desc:'Feasibility research for the proposed 12D Printer / Nano Factory concept using established prototyping and additive manufacturing methods.'},
