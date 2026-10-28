@@ -55,6 +55,7 @@ export function useSwipe(config: SwipeConfig) {
   const handlers = {
     // Touch events
     onTouchStart: (e: React.TouchEvent) => {
+      if ((e.target as HTMLElement)?.closest('button,a,input,textarea,select,[role="slider"],[data-no-realm-swipe]')) return
       const t = e.touches[0]
       handleStart(t.clientX, t.clientY)
     },
@@ -67,7 +68,7 @@ export function useSwipe(config: SwipeConfig) {
     } : undefined,
 
     // Mouse events (desktop drag)
-    onMouseDown: (e: React.MouseEvent) => handleStart(e.clientX, e.clientY),
+    onMouseDown: (e: React.MouseEvent) => { if (!(e.target as HTMLElement)?.closest('button,a,input,textarea,select,[role="slider"],[data-no-realm-swipe]')) handleStart(e.clientX, e.clientY) },
     onMouseUp:   (e: React.MouseEvent) => handleEnd(e.clientX, e.clientY),
   }
 
@@ -154,7 +155,7 @@ export function SwipeTutorial({ onDismiss }: { onDismiss: () => void }) {
             </div>
           ))}
         </div>
-        <div style={{ color: '#333', fontSize: 11 }}>Tap anywhere to dismiss</div>
+        <button type="button" onClick={event=>{event.stopPropagation();onDismiss()}} style={{minHeight:44,minWidth:160,padding:'10px 16px',borderRadius:12,border:'1px solid #00ffcc',background:'#09282b',color:'#fff',fontWeight:800}}>Start exploring</button>
       </div>
     </div>
   )
