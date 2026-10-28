@@ -44,9 +44,22 @@ export function installStreetVersePreviewInventoryRuntime(){
   items=old?items.map(i=>i.id===item.id?{...i,quantity:Math.min(9999,i.quantity+item.quantity)}:i):[...items,item]
   save()
  }
+ const onVerifiedMission=(event:Event)=>{
+  // Cosmetic local preview trophy only, never a currency, real reward or transferable item.
+  if(new URLSearchParams(window.location.search).get('inventoryPreview')!=='1')return
+  const detail=(event as CustomEvent<{status?:string;missionRunId?:string;programId?:string;serverDetermined?:boolean}>).detail
+  if(!detail?.serverDetermined||detail.status!=='VERIFIED'||detail.programId!=='streetverse_first_drop'||!detail.missionRunId)return
+  const claimKey='tryamm:streetverse:preview-claim:'+detail.missionRunId
+  try{if(localStorage.getItem(claimKey)==='1')return}catch{return}
+  if(items.some(i=>i.id==='circle-park-first-drop-badge')){try{localStorage.setItem(claimKey,'1')}catch{}return}
+  items=[...items,{id:'circle-park-first-drop-badge',name:'Circle Park First Drop Badge',category:'collectible',quantity:1,description:'Cosmetic single-player preview collectible. No transferable value.'}]
+  try{localStorage.setItem(claimKey,'1')}catch{}
+  save()
+ }
+ window.addEventListener('tryamm:streetverse-authoritative-reward',onVerifiedMission)
  window.addEventListener('tryamm:streetverse-inventory-request',onRequest)
  window.addEventListener('tryamm:streetverse-inventory-equip-request',onEquip)
  window.addEventListener('tryamm:streetverse-preview-item-grant',onPreviewGrant)
  queueMicrotask(emit)
- return ()=>{window.removeEventListener('tryamm:streetverse-inventory-request',onRequest);window.removeEventListener('tryamm:streetverse-inventory-equip-request',onEquip);window.removeEventListener('tryamm:streetverse-preview-item-grant',onPreviewGrant)}
+ return ()=>{window.removeEventListener('tryamm:streetverse-authoritative-reward',onVerifiedMission);window.removeEventListener('tryamm:streetverse-inventory-request',onRequest);window.removeEventListener('tryamm:streetverse-inventory-equip-request',onEquip);window.removeEventListener('tryamm:streetverse-preview-item-grant',onPreviewGrant)}
 }
