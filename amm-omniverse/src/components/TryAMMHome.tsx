@@ -3,6 +3,7 @@ import TryAMMSponsorshipFunding from './TryAMMSponsorshipFunding'
 import TryAMMLeadFunnel from './TryAMMLeadFunnel'
 import TryAMMRevenueMediaGateway from './TryAMMRevenueMediaGateway'
 import TryAMMShowcaseCarousel from './TryAMMShowcaseCarousel'
+import TryAMMHoloAdsPreview from './TryAMMHoloAdsPreview'
 import { useGameStore } from '../game/state/useGameStore'
 import LivingWorldsUniverse from './LivingWorldsUniverse'
 
@@ -51,6 +52,7 @@ export default function TryAMMHome(){
   <TryAMMShowcaseCarousel/>
   <TryAMMLeadFunnel/>
   <TryAMMRevenueMediaGateway/>
+  <TryAMMHoloAdsPreview/>
   <TryAMMSponsorshipFunding/>
   <OmniverseAppGateway/>
   <LivingWorldsUniverse onSports={()=>enter('sports')} onCity={enterStreetVerse} onMusic={()=>enter('music')} />
