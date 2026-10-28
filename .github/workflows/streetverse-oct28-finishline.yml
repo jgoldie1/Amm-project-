@@ -1,0 +1,84 @@
+name: "One-day StreetVerse finish-line verification (Oct 28)"
+on:
+  workflow_dispatch:
+  schedule:
+    # Hourly from noon through 5 PM Chicago on Oct 28, 2026 (CDT = UTC-5).
+    # GitHub scheduled jobs can start late and only run from the default branch.
+    - cron: "0 17-22 * * *"
+permissions:
+  contents: write
+concurrency:
+  group: streetverse-oneday-finishline
+  cancel-in-progress: false
+jobs:
+  verify:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Restrict scheduled runs to October 28, 2026 UTC
+        id: day
+        shell: bash
+        run: |
+          if [[ "$(date -u +%F)" == "2026-10-28" ]]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Outside one-day window; no verification will run." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Check out development PR branch (never deploy)
+        if: steps.day.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: feature/streetverse-real-asset-pipeline-20261027
+          persist-credentials: false
+      - name: Set up Node 24
+        if: steps.day.outputs.run == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install locked dependencies
+        if: steps.day.outputs.run == 'true'
+        working-directory: amm-omniverse
+        run: npm ci --no-audit --no-fund
+      - name: Check TypeScript and gameplay release contracts
+        if: steps.day.outputs.run == 'true'
+        working-directory: amm-omniverse
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run typecheck
+          node tests/streetverse-core-gameplay-dock-contract.mjs
+          node tests/streetverse-mobile-control-reliability-contract.mjs
+          node tests/streetverse-unified-mobile-controls-contract.mjs
+          node tests/streetverse-vehicle-access-contract.mjs
+          node tests/streetverse-vehicle-control-contract.mjs
+          node tests/streetverse-mobile-mission-completion-bridge-contract.mjs
+          node tests/streetverse-authoritative-reward-contract.mjs
+          node tests/streetverse-mission-reel-handoff-contract.mjs
+          node tests/streetverse-reel-return-to-world-contract.mjs
+      - name: Report green checks, not production readiness
+        if: success() && steps.day.outputs.run == 'true'
+        run: |
+          echo "### Development checks passed" >> "$GITHUB_STEP_SUMMARY"
+          echo "This is NOT evidence of production deployment, iPhone visual success, connected payments, or completion of all 111 apps." >> "$GITHUB_STEP_SUMMARY"
+      - name: Remove this temporary workflow after verification passes
+        if: success() && steps.day.outputs.run == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Modify only this temporary workflow on the default branch.
+          # Do not edit deployment workflows or the development branch.
+          default_branch="$(gh api "repos/$GH_REPO" --jq .default_branch)"
+          encoded_branch="$(printf '%s' "$default_branch" | jq -sRr @uri)"
+          file=".github/workflows/streetverse-oct28-finishline.yml"
+          sha="$(gh api "repos/$GH_REPO/contents/$file?ref=$encoded_branch" --jq .sha)"
+          gh api --method DELETE "repos/$GH_REPO/contents/$file" \
+            -f message="chore(actions): remove completed Oct 28 one-day verification" \
+            -f sha="$sha" -f branch="$default_branch" >/dev/null
+          echo "Temporary verification workflow removed after all checks passed." >> "$GITHUB_STEP_SUMMARY"
