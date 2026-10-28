@@ -51,11 +51,22 @@ export function installStreetVerseWalkingWildlifeAudio(){
   if(typeof detail.enabled==='boolean')enabled=detail.enabled
   if(typeof detail.volume==='number'&&Number.isFinite(detail.volume))volume=Math.min(1,Math.max(0,detail.volume))
  }
+ let lastFootstep=0
+ const onPlayerMove=(event:Event)=>{
+  const detail=(event as CustomEvent<{speed?:number;inVehicle?:boolean;surface?:string}>).detail||{}
+  const speed=Number(detail.speed||0)
+  if(!Number.isFinite(speed)||speed<.2||detail.inVehicle===true||performance.now()-lastFootstep<420)return
+  lastFootstep=performance.now()
+  const surface=detail.surface==='grass'?'step-grass':detail.surface==='stairs'?'step-stairs':'step-concrete'
+  onRequest(new CustomEvent('tryamm:streetverse-nature-sound-request',{detail:{cue:surface}}))
+ }
+ window.addEventListener('tryamm:streetverse-player-position',onPlayerMove)
  window.addEventListener('pointerdown',onUserGesture,{once:true})
  window.addEventListener('keydown',onUserGesture,{once:true})
  window.addEventListener('tryamm:streetverse-nature-sound-request',onRequest)
  window.addEventListener('tryamm:streetverse-nature-audio-settings',onSettings)
  return ()=>{
+  window.removeEventListener('tryamm:streetverse-player-position',onPlayerMove)
   window.removeEventListener('pointerdown',onUserGesture)
   window.removeEventListener('keydown',onUserGesture)
   window.removeEventListener('tryamm:streetverse-nature-sound-request',onRequest)
