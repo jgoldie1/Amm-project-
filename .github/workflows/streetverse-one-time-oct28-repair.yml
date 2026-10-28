@@ -1,0 +1,79 @@
+name: StreetVerse One-Time Repair Gate — Oct 28
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 21 28 10 *' # 4 PM Chicago on 2026-10-28 (CDT); gives time before 5 PM
+permissions:
+  contents: write
+concurrency:
+  group: streetverse-oct28-repair-gate
+  cancel-in-progress: false
+jobs:
+  verify:
+    if: github.event_name == 'workflow_dispatch' || github.run_started_at == '' || true
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - name: One-day guard
+        id: window
+        run: |
+          if [ "$(date -u +%F)" != "2026-10-28" ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "One-time repair window expired; no changes made."
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.window.outputs.run == 'true'
+        with:
+          ref: feature/streetverse-real-asset-pipeline-20261027
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        if: steps.window.outputs.run == 'true'
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install
+        if: steps.window.outputs.run == 'true'
+        working-directory: amm-omniverse
+        run: npm ci --no-audit --no-fund
+      - name: Focused repair and release checks (no deploy)
+        if: steps.window.outputs.run == 'true'
+        working-directory: amm-omniverse
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run typecheck
+          node tests/streetverse-core-gameplay-dock-contract.mjs
+          node tests/streetverse-one-hand-integration-contract.mjs
+          node tests/streetverse-mobile-mission-completion-bridge-contract.mjs
+          node tests/streetverse-vehicle-control-contract.mjs
+          node tests/streetverse-mission-reel-handoff-contract.mjs
+          node tests/streetverse-authoritative-reward-contract.mjs
+          node tests/holo-live-pk-integration-contract.mjs
+      - name: Save verification evidence
+        if: always()
+        run: |
+          echo "One-time gate, UTC $(date -u)" > repair-evidence.txt
+          echo "Commit: feature/streetverse-real-asset-pipeline-20261027" >> repair-evidence.txt
+          echo "Job status: ${{ job.status }}" >> repair-evidence.txt
+          echo "No production deployment, merge, or payment operations." >> repair-evidence.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: streetverse-oct28-repair-verification
+          path: repair-evidence.txt
+          retention-days: 30
+      - name: Remove this one-time workflow only after all checks pass
+        if: success() && steps.window.outputs.run == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE=".github/workflows/streetverse-one-time-oct28-repair.yml"
+          sha="$(gh api "repos/${GITHUB_REPOSITORY}/contents/${FILE}?ref=main" --jq '.sha')"
+          gh api -X DELETE "repos/${GITHUB_REPOSITORY}/contents/${FILE}" \
+            -f message="chore(actions): remove completed one-time Oct 28 repair gate" \
+            -f sha="$sha" -f branch=main
