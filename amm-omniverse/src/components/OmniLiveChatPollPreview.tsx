@@ -9,6 +9,7 @@ export default function OmniLiveChatPollPreview(){
  const [votes,setVotes]=useState<Record<'1'|'2',number>>({'1':0,'2':0})
  const [chat,setChat]=useState('')
  const [history,setHistory]=useState<string[]>([])
+ const [hostDecision,setHostDecision]=useState<string|null>(null)
  const total=votes['1']+votes['2']
  const leader=useMemo(()=>votes['1']===votes['2']?'Tied':votes['1']>votes['2']?one:two,[votes,one,two])
  const submit=(entry:string)=>{
@@ -37,9 +38,14 @@ export default function OmniLiveChatPollPreview(){
   </div>
   <div style={{display:'flex',flexWrap:'wrap',gap:8,marginTop:10}}>
    <button style={button} onClick={()=>setOpen(v=>!v)}>{open?'Close poll':'Open poll'}</button>
-   <button style={button} onClick={()=>{setVotes({'1':0,'2':0});setHistory([]);setOpen(false)}}>New poll / reset</button>
+   <button style={button} onClick={()=>{setVotes({'1':0,'2':0});setHistory([]);setHostDecision(null);setOpen(false)}}>New poll / reset</button>
   </div>
   <div role="status" aria-live="polite" style={{marginTop:10,fontSize:13}}>{question||'Untitled poll'} · {open?'Voting open':'Voting closed'} · {total} demo votes · {leader}</div>
+  {!open&&total>0&&<div style={{marginTop:8,padding:9,border:'1px solid #88ddffaa',borderRadius:10}}>
+   <div style={{fontSize:12,marginBottom:6}}>Host review: {leader}. This preview never triggers an RPG action automatically.</div>
+   <button style={button} disabled={votes['1']===votes['2']||hostDecision!==null} onClick={()=>{const result=votes['1']>votes['2']?'YES':'NO';setHostDecision(result);setHistory(v=>[...v.slice(-7),'Host approved '+result+' (local preview only)'])}}>Approve winning choice</button>
+   {hostDecision&&<div role="status" style={{fontSize:12,marginTop:6}}>Approved locally: {hostDecision}. No game-world change or real rewards issued.</div>}
+  </div>}
   <div style={{display:'grid',gap:7,marginTop:8}}>
    {(['1','2'] as const).map(id=><div key={id}>
     <div style={{display:'flex',justifyContent:'space-between',gap:8,fontSize:12}}><span>{id}. {id==='1'?one:two}</span><strong>{votes[id]} ({total?Math.round(votes[id]/total*100):0}%)</strong></div>
