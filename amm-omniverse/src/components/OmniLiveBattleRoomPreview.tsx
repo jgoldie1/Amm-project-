@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState} from 'react'
 import {fairBattleScore,creatorLevel,creatorUnlocks,type BattleScore} from '../data/OmniLiveBattleLeagueDesign'
+import OmniLiveChatPollPreview from './OmniLiveChatPollPreview'
 
 const EMPTY=(id:string):BattleScore=>({creatorId:id,talentVotes:0,missionPoints:0,engagementPoints:0,paidGiftPoints:0})
 const button:React.CSSProperties={minHeight:44,padding:'9px 13px',borderRadius:12,border:'1px solid #76e3ff77',background:'#11243d',color:'#fff',fontWeight:800,touchAction:'manipulation'}
@@ -41,6 +42,7 @@ export default function OmniLiveBattleRoomPreview(){
   </div>
   <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:14}}><button style={button} onClick={()=>setRunning(v=>!v)} disabled={seconds===0}>{running?'Pause':'Start / resume'}</button><button style={button} onClick={reset}>Reset</button><button style={button} onClick={()=>setVolume(v=>!v)}>{volume?'🔊 Sounds on':'🔇 Sounds off'}</button></div>
   <div aria-label="Local soundboard" style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:12}}>{[{cue:'job-complete',label:'🎉 Victory'},{cue:'switch-click',label:'🎛 Click'},{cue:'bird-chirp',label:'🐦 Chirp'}].map(a=><button key={a.cue} style={button} onClick={()=>sound(a.cue)}>{a.label}</button>)}</div>
+  <OmniLiveChatPollPreview/>
   <div role="status" style={{fontSize:12,color:'#c8deec',marginTop:10}}>{status}</div>
   <p style={{fontSize:11,color:'#a4b8ca'}}>Score excludes gifts and payments. Audio preview needs an active gesture-unlocked StreetVerse sound runtime. No multiuser synchronization, stream recording, moderation or server-side award is connected.</p>
   <p style={{fontSize:11,color:'#a4b8ca'}}>Prototype progression: Level {creatorLevel(Math.max(totalLeft,totalRight))} · {creatorUnlocks(creatorLevel(Math.max(totalLeft,totalRight))).map(x=>x.name).join(' • ')}</p>
