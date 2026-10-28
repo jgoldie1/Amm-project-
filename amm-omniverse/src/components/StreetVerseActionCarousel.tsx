@@ -2,6 +2,7 @@ import {useEffect,useMemo,useState} from 'react'
 import StreetVerseRPActionSearch from './StreetVerseRPActionSearch'
 import StreetVerseRPOmnibar from './StreetVerseRPOmnibar'
 import StreetVerseInventoryPanel from './StreetVerseInventoryPanel'
+import OmniLiveBattleRoomPreview from './OmniLiveBattleRoomPreview'
 
 type SortMode='smart'|'nearby'|'mission'|'price'|'owned'
 type ActionId='quick'|'use'|'give'|'buy'|'sell'|'trade'|'pickup'|'drop'|'inspect'|'diagnose'|'repair'|'verify'|'open'|'enter'|'fuel'|'upgrade'|'customize'|'work'|'mission'|'call'|'dance'|'wave'|'tip'|'live'|'reel'
@@ -31,6 +32,7 @@ export default function StreetVerseActionCarousel(){
  const mobile=typeof window!=='undefined'&&window.matchMedia('(max-width: 700px)').matches
  const [ctx,setCtx]=useState<Context>({})
  const [sort,setSort]=useState<SortMode>('smart')
+ const [battlePreview,setBattlePreview]=useState(false)
  const [page,setPage]=useState(0)
  const startInRP=typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('open')==='rp'
  const [open,setOpen]=useState(()=>!mobile||startInRP)
@@ -121,6 +123,8 @@ export default function StreetVerseActionCarousel(){
    {Array.from({length:Math.max(0,pageSize-visible.length)}).map((_,i)=><span key={`blank-${i}`}/>)}
    <button aria-label="Next actions" onClick={()=>setPage(p=>(p+1)%pages)} style={nav}>›</button>
   </div>
+  <button type="button" aria-expanded={battlePreview} onClick={()=>setBattlePreview(v=>!v)} style={{...toolBtn,width:'100%',marginTop:8}}>⚔️ {battlePreview?'CLOSE AI LEAGUE DEMO':'AI LEAGUE BATTLE DEMO'}</button>
+  {battlePreview&&<OmniLiveBattleRoomPreview/>}
   <StreetVerseInventoryPanel/>
   {(!mobile||rpOpen)&&<><div aria-label="StreetVerse RPG progression" role="status" style={{marginTop:8,padding:8,border:"1px solid #7ce5ff44",borderRadius:10,color:"#b4efff",fontSize:10,fontWeight:900}}>{rpgState?`RPG LEVEL ${rpgState.level||1} • XP ${rpgState.xp||0} • ACTIVE QUESTS ${rpgState.activeQuestIds?.length||0}`:"RPG progression loading…"}</div><StreetVerseRPActionSearch compact/><StreetVerseRPOmnibar compact/></>}
   <div style={{marginTop:6,textAlign:'center',fontSize:8,color:'#94a3b8'}}>{mobile?'TAP PLAY TO CLEAR SCREEN • ':''}ACTIONS PAGE {page%pages+1} OF {pages} • SORT changes what StreetVerse puts first, not what you own.</div>
