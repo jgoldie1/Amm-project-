@@ -1,6 +1,7 @@
 import OmniverseAppGateway from './OmniverseAppGateway'
 import TryAMMSponsorshipFunding from './TryAMMSponsorshipFunding'
 import TryAMMLeadFunnel from './TryAMMLeadFunnel'
+import TryAMMRevenueMediaGateway from './TryAMMRevenueMediaGateway'
 import { useGameStore } from '../game/state/useGameStore'
 import LivingWorldsUniverse from './LivingWorldsUniverse'
 
@@ -49,6 +50,7 @@ export default function TryAMMHome(){
   <LivingWorldsUniverse onSports={()=>enter('sports')} onCity={enterStreetVerse} onMusic={()=>enter('music')} />
   <section style={{marginTop:18,border:'1px solid #213c51',borderRadius:18,padding:16,background:'#08121b'}}><div style={{display:'flex',gap:8,flexWrap:'wrap'}}><span style={badge('11 CORE WORLDS','gold')}>11 CORE WORLDS</span><span style={badge('MUSIC UNIVERSE','cyan')}>MUSIC UNIVERSE</span><span style={badge('TRUST + SAFETY','green')}>TRUST + SAFETY</span></div><div style={{fontSize:12,color:'#9fb0bf',lineHeight:1.6,marginTop:10}}>The canonical 11-world GameVerse remains part of the Living Worlds homepage, with the Music Universe and immersive lanes intact. Report, block, mute, appeals and protected LIVE controls stay part of the shared safety contract.</div></section>
   <TryAMMLeadFunnel/>
+  <TryAMMRevenueMediaGateway/>
   <TryAMMSponsorshipFunding/>
   <OmniverseAppGateway/>
   <section aria-labelledby="tryamm-platform" style={{marginTop:40}}><div style={{color:cyan,fontSize:10,fontWeight:950,letterSpacing:3}}>CONNECTED PLATFORM</div><h2 id="tryamm-platform" style={{fontSize:30,margin:'6px 0 15px'}}>Everything around the worlds</h2><div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:11}}>{ecosystem.map(item=><button key={item.title} onClick={item.action} style={{textAlign:'left',minHeight:175,padding:18,border:'1px solid #1a2b3e',borderRadius:19,background:'linear-gradient(155deg,#0b111d,#070910)',color:'#fff',cursor:'pointer'}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{fontSize:26}}>{item.icon}</span><span style={badge(item.label,item.label==='LIVE'?'red':item.label==='NEW'?'cyan':'gold')}>{item.label}</span></div><div style={{fontSize:18,fontWeight:950,marginTop:16}}>{item.title}</div><div style={{fontSize:11,color:'#9aaabd',lineHeight:1.5,marginTop:7}}>{item.copy}</div><div style={{color:cyan,fontSize:9,fontWeight:950,marginTop:13}}>OPEN →</div></button>)}</div></section>
