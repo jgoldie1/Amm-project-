@@ -288,6 +288,10 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
     {graphicsStatus&&<div role="status" style={{fontSize:11,marginTop:7}}>{graphicsStatus}</div>}
   </div>}
   <StreetVerseWestSideWorldBuilder/>
+  {/* Safe-mode travel uses the same existing West Side route event, not a second 3D renderer. */}
+  <button data-streetverse-travel="true" aria-label="Travel to Taylor Street UIC Medical District"
+   onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-safe-travel-shortcut'}}))}
+   style={{position:'fixed',top:118,right:12,zIndex:14970,minHeight:44,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333ee',color:'#fff',padding:'10px 12px',fontWeight:900,touchAction:'manipulation'}}>TAYLOR / UIC</button>
   <BuildSwarmControl/>
   <StreetVerseWeatherSync/>
   <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>
