@@ -8,22 +8,18 @@ const showcases:Showcase[]=[
  {id:'streetverse',name:'STREETVERSE CHICAGO',kind:'WORLD',headline:'Enter the living Chicago RP RPG',value:'Circle Park → Village → West Side',status:'GAME PREVIEW',href:'/streetverse',accent:'#73e2b1'},
  {id:'partners',name:'BUSINESS PARTNERS',kind:'SPONSORS',headline:'Help launch the next generation',value:'Sponsorship and partnership proposals',status:'INQUIRY',anchor:'sponsors-and-funding',accent:'#e8b944'},
 ]
-const codes=[
- {name:'01 · CONVERT',title:'One offer. One clear next step.',tip:'Give visitors one service, one visible price, and one reliable way to contact you.',anchor:'start-with-tryamm'},
- {name:'02 · PROVE',title:'Demonstrate before you promise.',tip:'Show a working preview, sample or verified result rather than an untested capability.',anchor:'tryamm-media-studios'},
- {name:'03 · FOLLOW UP',title:'A lead needs a next action.',tip:'Document the customer request, confirm consent, and follow up with a specific proposal.',anchor:'start-with-tryamm'},
- {name:'04 · CREATE',title:'One production can power many channels.',tip:'With permission, turn an approved recording into clips, an episode and a service showcase.',anchor:'tryamm-media-studios'},
- {name:'05 · PARTNER',title:'Offer sponsors measurable value.',tip:'Document benefits, campaign scope and expected reporting before collecting money.',anchor:'sponsors-and-funding'},
- {name:'06 · ACCESS',title:'Make buying easy with one hand.',tip:'Use clear buttons, readable labels and minimal steps throughout inquiry and checkout.',anchor:'start-with-tryamm'},
- {name:'07 · RETAIN',title:'A delivered service can lead to recurring value.',tip:'Offer optional maintenance only after the first service is actually delivered.',anchor:'start-with-tryamm'},
-]
+const featuredBusinesses=[
+ {name:'TRYAMM Website Studio',category:'Digital business services',description:'Starter websites, business pages, QR codes and creator promotions.',anchor:'start-with-tryamm',status:'Service inquiry'},
+ {name:'Aniyah 64-Track Studio',category:'Music and audio services',description:'Rap vocal editing and creator-studio inquiries.',anchor:'tryamm-media-studios',status:'Service inquiry'},
+ {name:'All American Network',category:'Media and creator network',description:'Explore programming and potential media partnerships.',anchor:'tryamm-media-studios',status:'Beta preview'},
+] as const
 const button:React.CSSProperties={minHeight:48,borderRadius:12,border:'1px solid #82a9c4',background:'#142b43',color:'#fff',padding:'9px 16px',fontWeight:800,cursor:'pointer'}
 export default function TryAMMShowcaseCarousel(){
  const [index,setIndex]=useState(0)
- const [showTip,setShowTip]=useState(true)
+ const [showBusiness,setShowBusiness]=useState(true)
  const item=showcases[index]
  const day=Math.floor(Date.UTC(new Date().getUTCFullYear(),new Date().getUTCMonth(),new Date().getUTCDate())/86400000)
- const code=codes[((day%codes.length)+codes.length)%codes.length]
+ const featured=featuredBusinesses[((day%featuredBusinesses.length)+featuredBusinesses.length)%featuredBusinesses.length]
  const go=(delta:number)=>setIndex(i=>(i+delta+showcases.length)%showcases.length)
  const visit=(target:Showcase)=>{if(target.href){window.location.assign(target.href)}else if(target.anchor){document.getElementById(target.anchor)?.scrollIntoView({behavior:'smooth',block:'start'})}}
  return <section id="tryamm-showcase" aria-label="TRYAMM business and omniverse showcase" data-no-realm-swipe="true" style={{marginTop:26,color:'#fff'}}>
@@ -34,8 +30,8 @@ export default function TryAMMShowcaseCarousel(){
   </div>
   <div aria-label="Choose a showcase slide" style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:12}}>{showcases.map((s,i)=><button key={s.id} onClick={()=>setIndex(i)} aria-label={'Show '+s.name} aria-current={index===i?'true':undefined} style={{width:Math.max(32,100/showcases.length)+'%',maxWidth:86,minHeight:30,borderRadius:9,background:index===i?s.accent:'#1a3044',border:'1px solid #60829a',cursor:'pointer'}}/>)}</div>
   <div style={{marginTop:17,border:'1px solid #98753d',borderRadius:19,background:'#17170e',padding:18}}>
-   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:10}}><div style={{fontSize:11,color:'#f6cf6f',fontWeight:900,letterSpacing:1.5}}>BUSINESS CODE OF THE DAY</div><button style={{...button,minHeight:40}} onClick={()=>setShowTip(v=>!v)} aria-expanded={showTip}>{showTip?'Hide':'Show'} code</button></div>
-   {showTip&&<div><h3 style={{fontSize:22,margin:'8px 0'}}>{code.title}</h3><p style={{fontSize:14,color:'#d5d1c0',lineHeight:1.6}}>{code.tip}</p><button style={{...button,borderColor:'#e8b944'}} onClick={()=>document.getElementById(code.anchor)?.scrollIntoView({behavior:'smooth',block:'start'})}>Apply today's code →</button><p style={{fontSize:11,color:'#a7a89d',marginBottom:0}}>Daily business principle, not a promotional code or financial guarantee. {code.name}</p></div>}
+   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:10}}><div style={{fontSize:11,color:'#f6cf6f',fontWeight:900,letterSpacing:1.5}}>BUSINESS OF THE DAY</div><button style={{...button,minHeight:40}} onClick={()=>setShowBusiness(v=>!v)} aria-expanded={showBusiness}>{showBusiness?'Hide':'Show'} business</button></div>
+   {showBusiness&&<div><h3 style={{fontSize:22,margin:'8px 0'}}>{featured.name}</h3><div style={{fontSize:12,color:'#f6cf6f'}}>{featured.category} · {featured.status}</div><p style={{fontSize:14,color:'#d5d1c0',lineHeight:1.6}}>{featured.description}</p><button style={{...button,borderColor:'#e8b944'}} onClick={()=>document.getElementById(featured.anchor)?.scrollIntoView({behavior:'smooth',block:'start'})}>Explore today's business →</button><p style={{fontSize:11,color:'#a7a89d',marginBottom:0}}>Daily featured TRYAMM business experience. Listings are not endorsements or proof of completed services.</p></div>}
   </div>
  </section>
 }
