@@ -1,3 +1,4 @@
+import CrossVerseFlyInDirectory from './CrossVerseFlyInDirectory'
 import StreetVerseBusinessShowroom from './StreetVerseBusinessShowroom'
 import StreetVersePilotDemo from './StreetVersePilotDemo'
 import TryAMMUniversityPartnerships from './TryAMMUniversityPartnerships'
@@ -58,6 +59,7 @@ export default function TryAMMHome(){
   <TryAMMAIRevenueHub/>
   <TryAMMRevenueMediaGateway/>
   <TryAMMHoloAdsPreview/>
+  <CrossVerseFlyInDirectory/>
   <StreetVerseBusinessShowroom/>
   <StreetVersePilotDemo/>
   <TryAMMUniversityPartnerships/>
