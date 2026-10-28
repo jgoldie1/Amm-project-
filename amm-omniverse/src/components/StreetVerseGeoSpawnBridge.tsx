@@ -2,6 +2,7 @@ import {lazy,Suspense,useCallback,useEffect,useLayoutEffect,useMemo,useRef,useSt
 import {announceStreetVerseProductionMode} from '../config/streetverseProductionMode'
 import {getStreetVerseCommunitySlice} from '../config/streetverseCommunitySlices'
 import {installStreetVerseJourneyQARuntime} from '../runtime/StreetVerseJourneyQARuntime'
+import {installStreetVersePreviewInventoryRuntime} from '../runtime/StreetVersePreviewInventoryRuntime'
 import {installStreetVerseHydeParkMissionRuntime} from '../runtime/StreetVerseHydeParkMissionRuntime'
 import {installStreetVerseAfterDarkAlphaRuntime} from '../runtime/StreetVerseAfterDarkAlphaRuntime'
 import {installStreetVerseMissionLedgerBridge} from '../runtime/StreetVerseMissionLedgerBridge'
@@ -17,6 +18,8 @@ import {installStreetVersePerformanceDirector} from '../runtime/StreetVersePerfo
 import {installHolographicInternetBridge} from '../runtime/HolographicInternetGoogloplexBridge'
 import {installStreetVerseAbracadabraGeniiRuntime} from '../runtime/StreetVerseAbracadabraGeniiRuntime'
 import {installStreetVerseSoundBankRuntime} from '../runtime/StreetVerseSoundBankRuntime'
+import {installStreetVerseOriginalTradeSounds} from '../runtime/StreetVerseOriginalTradeSounds'
+import {installStreetVerseWalkingWildlifeAudio} from '../runtime/StreetVerseWalkingWildlifeAudio'
 import {installHoloForgeRuntime} from '../runtime/HoloForgeAssetRuntime'
 import {installBennyCursorConstructBridge} from '../runtime/BennyCursorConstructBridge'
 import {installUniversalLanguageBridge} from '../runtime/UniversalLanguageSignBridge'
@@ -178,6 +181,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  },[onClose,safe])
 
  useLayoutEffect(()=>installStreetVerseJourneyQARuntime(),[])
+ useLayoutEffect(()=>installStreetVersePreviewInventoryRuntime(),[])
  useLayoutEffect(()=>installStreetVerseHydeParkMissionRuntime(),[])
  useLayoutEffect(()=>installStreetVerseAfterDarkAlphaRuntime(),[])
  useLayoutEffect(()=>{installStreetVerseMissionLedgerBridge()},[])
@@ -192,6 +196,8 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>installHolographicInternetBridge(),[])
  useLayoutEffect(()=>installStreetVerseAbracadabraGeniiRuntime(),[])
  useLayoutEffect(()=>installStreetVerseSoundBankRuntime(),[])
+ useLayoutEffect(()=>installStreetVerseOriginalTradeSounds(),[])
+ useLayoutEffect(()=>installStreetVerseWalkingWildlifeAudio(),[])
  useLayoutEffect(()=>{installHoloForgeRuntime()},[])
  useLayoutEffect(()=>installBennyCursorConstructBridge(),[])
  useLayoutEffect(()=>installUniversalLanguageBridge(),[])
@@ -282,6 +288,10 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
     {graphicsStatus&&<div role="status" style={{fontSize:11,marginTop:7}}>{graphicsStatus}</div>}
   </div>}
   <StreetVerseWestSideWorldBuilder/>
+  {/* Safe-mode travel uses the same existing West Side route event, not a second 3D renderer. */}
+  <button data-streetverse-travel="true" aria-label="Travel to Taylor Street UIC Medical District"
+   onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-safe-travel-shortcut'}}))}
+   style={{position:'fixed',top:118,right:12,zIndex:14970,minHeight:44,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333ee',color:'#fff',padding:'10px 12px',fontWeight:900,touchAction:'manipulation'}}>TAYLOR / UIC</button>
   <BuildSwarmControl/>
   <StreetVerseWeatherSync/>
   <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>
