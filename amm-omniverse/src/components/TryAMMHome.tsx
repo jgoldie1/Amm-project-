@@ -4,6 +4,7 @@ import TryAMMLeadFunnel from './TryAMMLeadFunnel'
 import TryAMMRevenueMediaGateway from './TryAMMRevenueMediaGateway'
 import TryAMMShowcaseCarousel from './TryAMMShowcaseCarousel'
 import TryAMMHoloAdsPreview from './TryAMMHoloAdsPreview'
+import TryAMMAIRevenueHub from './TryAMMAIRevenueHub'
 import { useGameStore } from '../game/state/useGameStore'
 import LivingWorldsUniverse from './LivingWorldsUniverse'
 
@@ -51,6 +52,7 @@ export default function TryAMMHome(){
 </div><div style={{display:'flex',gap:16,flexWrap:'wrap',marginTop:16,color:'#7f98a9',fontSize:10,fontWeight:800}}><button onClick={openInstall} style={{border:0,background:'none',color:'#8eb8c9',font: 'inherit',cursor:'pointer',padding:0}}>↓ INSTALL APP</button><button onClick={()=>openGlobal('__showTryAMMConnect')} style={{border:0,background:'none',color:'#8eb8c9',font:'inherit',cursor:'pointer',padding:0}}>HOLO FON + CONNECT</button><button onClick={openAAU} style={{border:0,background:'none',color:'#8eb8c9',font:'inherit',cursor:'pointer',padding:0}}>ALL AMERICAN UNIVERSITY</button></div></div><aside style={{border:`1px solid ${gold}55`,borderRadius:30,padding:24,background:'linear-gradient(180deg,#17120a,#080a12)',display:'flex',flexDirection:'column',justifyContent:'space-between'}}><div><div style={{fontSize:48}}>🦁</div><div style={{fontSize:10,color:gold,fontWeight:950,letterSpacing:3,marginTop:10}}>TRYAMM PASSPORT</div><h2 style={{fontSize:27,margin:'8px 0 10px'}}>One identity across every world.</h2><p style={{fontSize:13,color:'#a9b4c3',lineHeight:1.6}}>Carry your profile, progress, accessibility preferences, creator tools, commerce and learning across the ecosystem.</p></div><div style={{display:'grid',gap:9,borderTop:'1px solid #31291e',paddingTop:16,marginTop:18,fontSize:12,color:'#d5dbe4'}}><div>🎮 StreetVerse + Game Worlds</div><div>● LIVE + Creator Studio</div><div>🎓 Learn + Workforce</div><div>🛍️ Marketplace + Commerce</div><div>⌚ OmniWear + Accessibility</div><div>📡 Holo Fon + Connect</div><div>🌐 Holoverse + Middleverse</div></div></aside></section>
   <TryAMMShowcaseCarousel/>
   <TryAMMLeadFunnel/>
+  <TryAMMAIRevenueHub/>
   <TryAMMRevenueMediaGateway/>
   <TryAMMHoloAdsPreview/>
   <TryAMMSponsorshipFunding/>
