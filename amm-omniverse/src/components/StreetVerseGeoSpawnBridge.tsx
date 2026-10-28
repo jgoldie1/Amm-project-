@@ -2,6 +2,7 @@ import {lazy,Suspense,useCallback,useEffect,useLayoutEffect,useMemo,useRef,useSt
 import {announceStreetVerseProductionMode} from '../config/streetverseProductionMode'
 import {getStreetVerseCommunitySlice} from '../config/streetverseCommunitySlices'
 import {installStreetVerseJourneyQARuntime} from '../runtime/StreetVerseJourneyQARuntime'
+import {installStreetVersePreviewInventoryRuntime} from '../runtime/StreetVersePreviewInventoryRuntime'
 import {installStreetVerseHydeParkMissionRuntime} from '../runtime/StreetVerseHydeParkMissionRuntime'
 import {installStreetVerseAfterDarkAlphaRuntime} from '../runtime/StreetVerseAfterDarkAlphaRuntime'
 import {installStreetVerseMissionLedgerBridge} from '../runtime/StreetVerseMissionLedgerBridge'
@@ -178,6 +179,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  },[onClose,safe])
 
  useLayoutEffect(()=>installStreetVerseJourneyQARuntime(),[])
+ useLayoutEffect(()=>installStreetVersePreviewInventoryRuntime(),[])
  useLayoutEffect(()=>installStreetVerseHydeParkMissionRuntime(),[])
  useLayoutEffect(()=>installStreetVerseAfterDarkAlphaRuntime(),[])
  useLayoutEffect(()=>{installStreetVerseMissionLedgerBridge()},[])
