@@ -1,3 +1,4 @@
+import StreetVerseBusinessShowroom from './StreetVerseBusinessShowroom'
 import StreetVersePilotDemo from './StreetVersePilotDemo'
 import TryAMMUniversityPartnerships from './TryAMMUniversityPartnerships'
 import OmniverseAppGateway from './OmniverseAppGateway'
@@ -57,6 +58,7 @@ export default function TryAMMHome(){
   <TryAMMAIRevenueHub/>
   <TryAMMRevenueMediaGateway/>
   <TryAMMHoloAdsPreview/>
+  <StreetVerseBusinessShowroom/>
   <StreetVersePilotDemo/>
   <TryAMMUniversityPartnerships/>
   <TryAMMSponsorshipFunding/>
