@@ -1,3 +1,4 @@
+import {findRetailPlacement} from '../data/StreetVerseRetailDistricts'
 import StreetVerseStorefront3DShell from './StreetVerseStorefront3DShell'
 import {useState} from 'react'
 import {STREETVERSE_STOREFRONTS,storefrontById} from '../data/StreetVerseStorefrontCatalog'
@@ -10,6 +11,7 @@ export default function StreetVerseBusinessShowroom(){
  const [permission,setPermission]=useState(false)
  const [message,setMessage]=useState('')
  const store=storefrontById(selected)??STREETVERSE_STOREFRONTS[0]
+ const placement=findRetailPlacement(store.id)
  const inquire=(e:React.FormEvent)=>{
   e.preventDefault()
   if(!permission||!contact.trim()){setMessage('Provide a reply contact and consent before opening your inquiry email.');return}
@@ -25,6 +27,12 @@ export default function StreetVerseBusinessShowroom(){
   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,190px),1fr))',gap:8}}>{STREETVERSE_STOREFRONTS.map(s=><button key={s.id} onClick={()=>{setSelected(s.id);setMessage('');setInterest('')}} aria-pressed={selected===s.id} style={{...btn,textAlign:'left',background:selected===s.id?'#225777':'#12283e',borderColor:s.accent}}>{s.name}<span style={{display:'block',fontSize:11,fontWeight:400,color:'#d0dce5',marginTop:5}}>{s.category}</span></button>)}</div>
   <article style={{marginTop:13,border:'1px solid '+store.accent,borderRadius:16,padding:16,background:'linear-gradient(135deg,#172d42,#0c1526)'}}>
    <div style={{color:store.accent,fontSize:11,fontWeight:900}}>SHOWROOM CONCEPT · INQUIRY ONLY</div><h3 style={{fontSize:23,margin:'8px 0'}}>{store.name}</h3><p style={{fontSize:13,color:'#d3dce6'}}>{store.summary}</p>
+   {placement&&<div style={{padding:12,border:'1px solid #63899b',borderRadius:11,marginTop:10}}>
+    <strong style={{fontSize:13}}>Proposed virtual location: {placement.name}</strong>
+    <div style={{fontSize:12,color:'#bdcede',marginTop:5}}>{placement.district} · Near {placement.landmark}</div>
+    <p style={{fontSize:12,color:'#b2c9d7'}}>{placement.description}</p>
+    <small style={{color:'#f3ca8c'}}>Staged concept only. No physical storefront, land rights or game-world installation claimed.</small>
+   </div>}
    <StreetVerseStorefront3DShell businessId={store.id}/>
    <ul style={{lineHeight:1.7,fontSize:13}}>{store.services.map(x=><li key={x}>{x}</li>)}</ul>
    <form onSubmit={inquire} style={{display:'grid',gap:9,maxWidth:600}}>
