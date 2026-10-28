@@ -22,8 +22,8 @@ export default function StreetVerseBusinessShowroom(){
  }
  return <section id="streetverse-business-showrooms" aria-labelledby="showroom-title" data-no-realm-swipe="true" style={{marginTop:24,border:'1px solid #5a92a8',borderRadius:20,background:'#0a1727',color:'#fff',padding:18}}>
   <div style={{color:'#96e2fa',fontWeight:900,fontSize:11,letterSpacing:2}}>STREETVERSE · BUSINESS SHOWROOM PILOT</div>
-  <h2 id="showroom-title" style={{fontSize:'clamp(23px,4vw,32px)',margin:'8px 0'}}>Explore four business storefront previews</h2>
-  <p style={{fontSize:13,color:'#c2d2de'}}>These are accessible storefront cards, not installed 3D shops or live bookings. Choose a business to view its concept and prepare a real inquiry email.</p>
+  <h2 id="showroom-title" style={{fontSize:'clamp(23px,4vw,32px)',margin:'8px 0'}}>Explore six CrossVerse storefront previews</h2>
+  <p style={{fontSize:13,color:'#c2d2de'}}>These are accessible multi-city showroom concepts, not installed 3D shops, verified business locations or live bookings. Choose a business to view its concept and prepare a real inquiry email.</p>
   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,190px),1fr))',gap:8}}>{STREETVERSE_STOREFRONTS.map(s=><button key={s.id} onClick={()=>{setSelected(s.id);setMessage('');setInterest('')}} aria-pressed={selected===s.id} style={{...btn,textAlign:'left',background:selected===s.id?'#225777':'#12283e',borderColor:s.accent}}>{s.name}<span style={{display:'block',fontSize:11,fontWeight:400,color:'#d0dce5',marginTop:5}}>{s.category}</span></button>)}</div>
   <article style={{marginTop:13,border:'1px solid '+store.accent,borderRadius:16,padding:16,background:'linear-gradient(135deg,#172d42,#0c1526)'}}>
    <div style={{color:store.accent,fontSize:11,fontWeight:900}}>SHOWROOM CONCEPT · INQUIRY ONLY</div><h3 style={{fontSize:23,margin:'8px 0'}}>{store.name}</h3><p style={{fontSize:13,color:'#d3dce6'}}>{store.summary}</p>
