@@ -12,8 +12,8 @@ const apps=[
  {id:'sports',name:'SportsVerse',group:'PLAY',description:'Sports realm',url:'/sports',status:'entry'},
  {id:'education',name:'Education & Training',group:'LEARN',description:'School, career and training destinations',status:'catalog'},
  {id:'health',name:'Health & Wellness',group:'SERVICES',description:'Wellness and accessibility business categories',status:'catalog'},
- {id:'beauty',name:'Beauty & Personal Care',group:'SERVICES',description:'Salon, academy and beauty templates',status:'catalog'},
- {id:'logistics',name:'Logistics & Delivery',group:'SERVICES',description:'Freight, rideshare and delivery templates',status:'catalog'},
+ {id:'beauty',name:'Beauty & Personal Care',group:'SERVICES',description:'Salon, academy, massage and beauty templates',status:'catalog'},
+ {id:'logistics',name:'Logistics & Delivery',group:'SERVICES',description:'Freight, rideshare, trucking, plumbing, electrical and delivery templates',status:'catalog'},
  {id:'security',name:'Security & Safety',group:'SERVICES',description:'Security services and training categories',status:'catalog'},
  {id:'realestate',name:'Real Estate & Housing',group:'SERVICES',description:'Housing, property and accommodation templates',status:'catalog'},
 ] as const
