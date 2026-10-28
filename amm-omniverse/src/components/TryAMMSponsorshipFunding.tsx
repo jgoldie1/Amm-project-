@@ -17,7 +17,7 @@ export default function TryAMMSponsorshipFunding(){
   {sponsorTiers.map(t=><article key={t.amount} style={{background:'#071424',padding:16,borderRadius:15,border:'1px solid #b8984f66'}}>
    <div style={{fontSize:12,color:'#edcc78'}}>{t.name}</div><strong style={{fontSize:26}}>${t.amount.toLocaleString()}</strong>
    <p style={{fontSize:12,minHeight:54,color:'#bfccd9',lineHeight:1.5}}>{t.description}</p>
-   <button style={action} onClick={()=>inquiry('TRYAMM sponsorship inquiry: '+t.name,'Hello TRYAMM, I would like sponsorship details for the )}>Request sponsor details</button>
+   <button style={action} onClick={()=>inquiry('TRYAMM sponsorship inquiry: '+t.name,'Hello TRYAMM, I would like sponsorship details for the $'+t.amount+' proposed level. Please send the scope, benefits, deliverables, and written terms.')}>Request sponsor details</button>
   </article>)}
   <article style={{background:'#071424',padding:16,borderRadius:15,border:'1px solid #b8984f66'}}>
    <div style={{fontSize:12,color:'#edcc78'}}>Corporate / Custom / In-kind</div><strong style={{fontSize:23}}>Let's collaborate</strong>
@@ -41,8 +41,6 @@ export default function TryAMMSponsorshipFunding(){
 }
 const field:React.CSSProperties={display:'block',width:'100%',boxSizing:'border-box',marginTop:5,minHeight:44,padding:10,borderRadius:10,border:'1px solid #65788f',background:'#0b2135',color:'#fff'}
 const action:React.CSSProperties={width:'100%',minHeight:46,padding:'10px 12px',background:'#e6bd5c',border:0,borderRadius:11,fontWeight:800,color:'#132032',cursor:'pointer'}
-+t.amount+' proposed level. Please send the scope, benefits, deliverables, and written terms.')}>Request sponsor details</button>
-  </article>)}
   <article style={{background:'#071424',padding:16,borderRadius:15,border:'1px solid #b8984f66'}}>
    <div style={{fontSize:12,color:'#edcc78'}}>Corporate / Custom / In-kind</div><strong style={{fontSize:23}}>Let's collaborate</strong>
    <p style={{fontSize:12,color:'#bfccd9'}}>Cash sponsorship, equipment, donated services, grants and strategic partnerships are reviewed separately.</p>
