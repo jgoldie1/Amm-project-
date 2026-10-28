@@ -1,7 +1,8 @@
 import {useState} from 'react'
-type Goal='website'|'sponsor'|'funding'
+type Goal='website'|'studio'|'sponsor'|'funding'
 const paths:{id:Goal;title:string;action:string;details:string}[]=[
  {id:'website',title:'Launch a business website',action:'Request a $499 preview',details:'Website Preview package: starter preview, QR code and one promotional reel. Scope confirmed before payment.'},
+ {id:'studio',title:'Book Aniyah Studio vocal editing',action:'Request $35 vocal editing',details:'Starter rap-vocal editing service inquiry. Confirm file requirements, schedule and delivery before payment.'},
  {id:'sponsor',title:'Sponsor TRYAMM innovation',action:'Discuss sponsorship',details:'Proposed $250, $1,000 and $5,000 sponsorship levels and custom partnerships.'},
  {id:'funding',title:'Support a pilot project',action:'Request campaign details',details:'Ask about accessibility, creator training and small business launch funding needs.'},
 ]
@@ -29,7 +30,7 @@ export default function TryAMMLeadFunnel(){
  return <section id="start-with-tryamm" aria-labelledby="tryamm-funnel-heading" style={{marginTop:28,borderRadius:22,padding:'clamp(18px,4vw,30px)',border:'1px solid #4989a7',background:'linear-gradient(135deg,#102a3d,#09111f)',color:'#fff'}}>
   <div style={{color:'#f4cd74',letterSpacing:2,fontSize:11,fontWeight:900}}>START HERE · TRYAMM</div>
   <h2 id="tryamm-funnel-heading" style={{fontSize:'clamp(25px,4vw,38px)',margin:'9px 0'}}>Turn your idea into a business experience.</h2>
-  <p style={{maxWidth:680,color:'#c4d5df',lineHeight:1.6}}>Choose your goal, tell us what you're building, and prepare a direct inquiry. Website services, sponsorships and funding are kept separate so you know what you're requesting.</p>
+  <p style={{maxWidth:680,color:'#c4d5df',lineHeight:1.6}}>Choose your goal, tell us what you're building, and prepare a direct inquiry. Website and creator services, sponsorships and funding are kept separate so you know what you're requesting.</p>
   <div role="group" aria-label="Choose a TRYAMM service" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,200px),1fr))',gap:9,margin:'18px 0'}}>
    {paths.map(path=><button key={path.id} onClick={()=>{setGoal(path.id);setMessage('')}} aria-pressed={goal===path.id} style={{...button,color:'#fff',background:goal===path.id?'#176481':'#101e30',border:'1px solid '+(goal===path.id?'#9ce7ff':'#48617a'),textAlign:'left'}}>
     <strong style={{display:'block',fontSize:15}}>{path.title}</strong><span style={{display:'block',fontSize:11,fontWeight:400,marginTop:7,lineHeight:1.5}}>{path.details}</span>
