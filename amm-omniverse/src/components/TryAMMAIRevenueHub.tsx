@@ -7,6 +7,8 @@ const offers=[
  {name:"Holo Credits",kind:"DIGITAL CREDITS",desc:"Learn about proposed usage credits. No purchase, transfer or redemption is activated here.",target:"start-with-tryamm",state:"Not for sale"},
  {name:"WFH / Remote Work",kind:"WORKFORCE",desc:"Learn about AI-assisted work workflows; not a job guarantee or open-position listing.",url:"/middleverse",state:"Beta entry"},
  {name:"Reels & Short Drama",kind:"CREATOR MEDIA",desc:"Creative services, scripted shorts, creator promos and future show production.",target:"tryamm-media-studios",state:"Production inquiry"},
+ {name:"TRYAMM AI Café",kind:"EDUCATION + EVENTS",desc:"Plan workshops, creator training, desk sessions and community demos. Food service requires location, permits and operating budgets.",target:"start-with-tryamm",state:"Pilot inquiry"},
+ {name:"12D Printer / Nano Factory",kind:"R&D + FABRICATION",desc:"Proposed advanced fabrication lab. Validate hardware, materials, safety and costs before accepting fabrication orders.",target:"start-with-tryamm",state:"R&D concept"},
  {name:"All American Network",kind:"MEDIA",desc:"Explore planned distribution and creator programming partnerships.",target:"tryamm-media-studios",state:"Beta showcase"},
 ] as const
 export default function TryAMMAIRevenueHub(){
