@@ -12,6 +12,8 @@ const apps=[
  {id:'music',name:'MusicVerse',group:'CREATE',description:'Music and creator worlds',url:'/music',status:'entry'},
  {id:'faith',name:'FaithVerse',group:'EXPLORE',description:'Faith and learning experiences',url:'/faith',status:'entry'},
  {id:'sports',name:'SportsVerse',group:'PLAY',description:'Sports realm',url:'/sports',status:'entry'},
+ {id:'ai-cafe',name:'TRYAMM AI Café',group:'LEARN',description:'Existing AI Café beta experience for creator learning, community work and hospitality concepts.',status:'preview'},
+ {id:'12d-fabrication',name:'12D Printer / Nano Factory',group:'SERVICES',description:'Future fabrication and prototyping venture; no verified 12D machine or manufacturing service is operational.',status:'catalog'},
  {id:'education',name:'Education & Training',group:'LEARN',description:'School, career and training destinations',status:'catalog'},
  {id:'health',name:'Health & Wellness',group:'SERVICES',description:'Wellness and accessibility business categories',status:'catalog'},
  {id:'beauty',name:'Beauty & Personal Care',group:'SERVICES',description:'Salon, academy, massage and beauty templates',status:'catalog'},
@@ -27,6 +29,10 @@ export default function OmniverseAppGateway(){
  const shown=useMemo(()=>apps.filter(app=>(group==='ALL'||app.group===group)&&[app.name,app.description,app.group].join(' ').toLowerCase().includes(query.toLowerCase().trim())),[query,group])
  const enter=(app:typeof apps[number])=>{
   if('url'in app&&app.url){window.location.assign(app.url);return}
+  if(app.id==='ai-cafe'){
+   const open=(window as Window&{__showAICafe?:()=>void}).__showAICafe
+   if(open){open();return}
+  }
   if(app.id==='live'){
    const handler=(window as Window&{__showTryAMMLive?:()=>void}).__showTryAMMLive
    if(handler){handler();return}
