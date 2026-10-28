@@ -32,6 +32,11 @@ export default function TryAMMShowcaseCarousel(){
   <div style={{marginTop:17,border:'1px solid #98753d',borderRadius:19,background:'#17170e',padding:18}}>
    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:10}}><div style={{fontSize:11,color:'#f6cf6f',fontWeight:900,letterSpacing:1.5}}>BUSINESS OF THE DAY</div><button style={{...button,minHeight:40}} onClick={()=>setShowBusiness(v=>!v)} aria-expanded={showBusiness}>{showBusiness?'Hide':'Show'} business</button></div>
    {showBusiness&&<div><h3 style={{fontSize:22,margin:'8px 0'}}>{featured.name}</h3><div style={{fontSize:12,color:'#f6cf6f'}}>{featured.category} · {featured.status}</div><p style={{fontSize:14,color:'#d5d1c0',lineHeight:1.6}}>{featured.description}</p><button style={{...button,borderColor:'#e8b944'}} onClick={()=>document.getElementById(featured.anchor)?.scrollIntoView({behavior:'smooth',block:'start'})}>Explore today's business →</button><p style={{fontSize:11,color:'#a7a89d',marginBottom:0}}>Daily featured TRYAMM business experience. Listings are not endorsements or proof of completed services.</p></div>}
+   <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:14}}>
+    <a href={'mailto:info@tryamm.online?subject='+encodeURIComponent('Business of the Day feature request')+'&body='+encodeURIComponent('I would like my business considered for Business of the Day. Business name: ___\nWebsite: ___\nContact: ___\nI confirm I own or am authorized to submit this business.')} style={{...button,display:'inline-flex',alignItems:'center',textDecoration:'none'}}>Nominate a business →</a>
+    <a href="#omniverse-apps" style={{...button,display:'inline-flex',alignItems:'center',textDecoration:'none'}}>Explore business directory →</a>
+   </div>
+   <p style={{fontSize:11,color:'#b3bec9',marginTop:8}}>Nominations are reviewed before publication. A submitted inquiry is not an approved listing, and the email must be sent by the visitor.</p>
   </div>
  </section>
 }
