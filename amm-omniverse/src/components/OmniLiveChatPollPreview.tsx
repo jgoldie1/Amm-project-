@@ -2,9 +2,9 @@ import {useMemo,useState} from 'react'
 
 /** Host-only local chat poll preview. Do not treat it as a verified audience vote. */
 export default function OmniLiveChatPollPreview(){
- const [question,setQuestion]=useState('Where should BJ go next?')
- const [one,setOne]=useState('Circle Park')
- const [two,setTwo]=useState('Taylor Street')
+ const [question,setQuestion]=useState('Should BJ enter the Village?')
+ const [one,setOne]=useState('YES')
+ const [two,setTwo]=useState('NO')
  const [open,setOpen]=useState(false)
  const [votes,setVotes]=useState<Record<'1'|'2',number>>({'1':0,'2':0})
  const [chat,setChat]=useState('')
@@ -28,7 +28,7 @@ export default function OmniLiveChatPollPreview(){
  const field:React.CSSProperties={minHeight:44,background:'#08192c',color:'#fff',border:'1px solid #83dff488',borderRadius:10,padding:'8px',fontSize:14,width:'100%',boxSizing:'border-box'}
  const button:React.CSSProperties={minHeight:44,padding:'8px 12px',borderRadius:10,border:'1px solid #79e3fa88',background:'#12354a',color:'#fff',fontWeight:750,touchAction:'manipulation'}
  return <section aria-label="Creator chat poll preview" data-no-realm-swipe="true" style={{border:'1px solid #67e8f977',borderRadius:14,padding:12,marginTop:12}}>
-  <h3 style={{fontSize:16,margin:'0 0 8px'}}>📊 LIVE CHAT POLL · OPTIONS 1 / 2</h3>
+  <h3 style={{fontSize:16,margin:'0 0 8px'}}>📊 LIVE CHAT POLL · 1 YES / 2 NO</h3>
   <p style={{fontSize:11,color:'#bad2e4'}}>Local chat simulator. No real chat, audience identity, streaming API or persistent voting is connected.</p>
   <label style={{display:'block',fontSize:12}}>Question<input value={question} onChange={e=>setQuestion(e.target.value.slice(0,120))} disabled={open} style={field}/></label>
   <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8,marginTop:8}}>
@@ -47,7 +47,7 @@ export default function OmniLiveChatPollPreview(){
    </div>)}
   </div>
   <form onSubmit={e=>{e.preventDefault();submit(chat)}} style={{display:'flex',gap:6,marginTop:12}}>
-   <input aria-label="Test chat command" value={chat} onChange={e=>setChat(e.target.value)} placeholder="Type 1, 2, !vote 1, or chat" style={{...field,flex:1,minWidth:0}}/>
+   <input aria-label="Test chat command" value={chat} onChange={e=>setChat(e.target.value)} placeholder="1 = YES · 2 = NO · !vote 1" style={{...field,flex:1,minWidth:0}}/>
    <button type="submit" style={button}>Send</button>
   </form>
   <div aria-label="Local simulated chat" style={{fontSize:12,marginTop:6}}>{history.map((msg,i)=><div key={i}>{msg}</div>)}</div>
