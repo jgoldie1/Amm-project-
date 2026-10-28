@@ -80,8 +80,9 @@ export default function StreetVerseActionCarousel(){
   if(sort==='nearby')return [...list].sort((a,b)=>(['quick','pickup','open','enter','inspect'].includes(a.id)?0:1)-(['quick','pickup','open','enter','inspect'].includes(b.id)?0:1))
   return list
  },[ctx,sort])
- const pages=Math.max(1,Math.ceil(items.length/5))
- const visible=items.slice((page%pages)*5,(page%pages)*5+5)
+ const pageSize=mobile?3:5
+ const pages=Math.max(1,Math.ceil(items.length/pageSize))
+ const visible=items.slice((page%pages)*pageSize,(page%pages)*pageSize+pageSize)
  const act=(id:ActionId)=>{
   const vehicleId=ctx.vehicleId
   if(id==='quick'){
@@ -113,18 +114,18 @@ export default function StreetVerseActionCarousel(){
    {mobile?<div style={{display:'flex',gap:5}}><button aria-label="Return to gameplay" onClick={()=>{setOpen(false);setRpOpen(false)}} style={playBtn}>🎮 PLAY</button><button aria-label="Close actions" onClick={()=>{setOpen(false);setRpOpen(false)}} style={closeBtn}>×</button></div>:<label style={{fontSize:8,fontWeight:900,color:'#cbd5e1'}}>SORT <select aria-label="Sort actions" value={sort} onChange={e=>{setSort(e.target.value as SortMode);setPage(0)}} style={{marginLeft:5,borderRadius:999,padding:'5px 7px',background:'#101827',color:'#fff',border:'1px solid #ffffff33',fontSize:9,fontWeight:900}}><option value="smart">SMART</option><option value="nearby">NEARBY</option><option value="mission">MISSION</option><option value="price">PRICE</option><option value="owned">OWNED</option></select></label>}
   </div>
   {mobile&&<div style={{display:'flex',gap:5,marginBottom:7}}><select aria-label="Sort actions" value={sort} onChange={e=>{setSort(e.target.value as SortMode);setPage(0)}} style={{flex:1,borderRadius:10,padding:'7px 8px',background:'#101827',color:'#fff',border:'1px solid #ffffff33',fontSize:9,fontWeight:900}}><option value="smart">SMART</option><option value="nearby">NEARBY</option><option value="mission">MISSION</option><option value="price">PRICE</option><option value="owned">OWNED</option></select><button onClick={()=>setRpOpen(v=>!v)} style={toolBtn}>{rpOpen?'HIDE RP':'🎭 RP / GENII'}</button></div>}
-  <div style={{display:'grid',gridTemplateColumns:'28px repeat(5,minmax(0,1fr)) 28px',gap:5,alignItems:'stretch'}}>
+  <div style={{display:'grid',gridTemplateColumns:`44px repeat(${pageSize},minmax(0,1fr)) 44px`,gap:5,alignItems:'stretch'}}>
    <button aria-label="Previous actions" onClick={()=>setPage(p=>(p-1+pages)%pages)} style={nav}>‹</button>
    {visible.map((a,i)=><button key={a.id} onClick={()=>act(a.id)} style={{minHeight:i===2?62:56,borderRadius:14,border:`1px solid ${a.tone}88`,background:`linear-gradient(145deg,${a.tone}25,#0b1220dd)`,boxShadow:i===2?`0 0 20px ${a.tone}35`:'inset 0 1px #ffffff18',color:'#fff',fontSize:8,fontWeight:950,padding:'5px 2px'}}><span style={{display:'block',fontSize:i===2?20:17,filter:'drop-shadow(0 3px 5px #0008)'}}>{a.icon}</span>{a.label}</button>)}
-   {Array.from({length:Math.max(0,5-visible.length)}).map((_,i)=><span key={`blank-${i}`}/>)}
+   {Array.from({length:Math.max(0,pageSize-visible.length)}).map((_,i)=><span key={`blank-${i}`}/>)}
    <button aria-label="Next actions" onClick={()=>setPage(p=>(p+1)%pages)} style={nav}>›</button>
   </div>
   {(!mobile||rpOpen)&&<><div aria-label="StreetVerse RPG progression" role="status" style={{marginTop:8,padding:8,border:"1px solid #7ce5ff44",borderRadius:10,color:"#b4efff",fontSize:10,fontWeight:900}}>{rpgState?`RPG LEVEL ${rpgState.level||1} • XP ${rpgState.xp||0} • ACTIVE QUESTS ${rpgState.activeQuestIds?.length||0}`:"RPG progression loading…"}</div><StreetVerseRPActionSearch compact/><StreetVerseRPOmnibar compact/></>}
-  <div style={{marginTop:6,textAlign:'center',fontSize:8,color:'#94a3b8'}}>{mobile?'TAP PLAY TO CLEAR SCREEN • ':''}SWIPE/ARROWS • {page%pages+1}/{pages} • SORT changes what StreetVerse puts first, not what you own.</div>
+  <div style={{marginTop:6,textAlign:'center',fontSize:8,color:'#94a3b8'}}>{mobile?'TAP PLAY TO CLEAR SCREEN • ':''}ACTIONS PAGE {page%pages+1} OF {pages} • SORT changes what StreetVerse puts first, not what you own.</div>
  </div>
 }
-const nav:React.CSSProperties={border:'1px solid #67e8f944',borderRadius:12,background:'#0b1220dd',color:'#fff',fontSize:22,fontWeight:900}
+const nav:React.CSSProperties={minHeight:48,minWidth:44,touchAction:'manipulation',border:'1px solid #67e8f944',borderRadius:12,background:'#0b1220dd',color:'#fff',fontSize:22,fontWeight:900}
 
-const playBtn:React.CSSProperties={minHeight:34,padding:'0 9px',borderRadius:9,border:'1px solid #8effb777',background:'#0a2d20',color:'#fff',fontSize:9,fontWeight:950,touchAction:'manipulation'}
-const closeBtn:React.CSSProperties={width:34,height:34,borderRadius:9,border:'1px solid #ffffff44',background:'#141b25',color:'#fff',fontSize:20,fontWeight:950,touchAction:'manipulation'}
-const toolBtn:React.CSSProperties={minHeight:34,padding:'0 9px',borderRadius:9,border:'1px solid #9d6bff66',background:'#171027',color:'#fff',fontSize:9,fontWeight:950,touchAction:'manipulation'}
+const playBtn:React.CSSProperties={minHeight:44,padding:'0 9px',borderRadius:9,border:'1px solid #8effb777',background:'#0a2d20',color:'#fff',fontSize:9,fontWeight:950,touchAction:'manipulation'}
+const closeBtn:React.CSSProperties={width:44,height:44,borderRadius:9,border:'1px solid #ffffff44',background:'#141b25',color:'#fff',fontSize:20,fontWeight:950,touchAction:'manipulation'}
+const toolBtn:React.CSSProperties={minHeight:44,padding:'0 9px',borderRadius:9,border:'1px solid #9d6bff66',background:'#171027',color:'#fff',fontSize:9,fontWeight:950,touchAction:'manipulation'}
