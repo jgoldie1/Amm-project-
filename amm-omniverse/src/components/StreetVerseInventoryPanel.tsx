@@ -67,7 +67,7 @@ export default function StreetVerseInventoryPanel(){
    {!visible.length?<p style={{fontSize:12,color:'#ddd'}}>No owned items reported in this category.</p>:<div style={{display:'grid',gap:8,maxHeight:260,overflowY:'auto'}}>
     {visible.map(item=><div key={item.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,padding:9,borderRadius:10,background:'#0e2637'}}>
      <div><strong style={{fontSize:13}}>{item.name} ×{item.quantity}</strong><div style={{fontSize:11,color:'#abc0d0'}}>{item.category.toUpperCase()} {item.rarity?' • '+item.rarity.toUpperCase():''}{item.equipped?' • EQUIPPED':''}</div>{item.description&&<div style={{fontSize:11}}>{item.description}</div>}</div>
-     {['weapon','gear'].includes(item.category)&&<button type="button" disabled={item.equipped||pending===item.id} onClick={()=>requestEquip(item)} style={{...button,opacity:item.equipped?.5:1}}>{item.equipped?'Active':pending===item.id?'Requested':'Equip'}</button>}
+     {['weapon','gear'].includes(item.category)&&<button type="button" disabled={item.equipped||pending===item.id} onClick={()=>requestEquip(item)} style={{...button,opacity:item.equipped?0.5:1}}>{item.equipped?'Active':pending===item.id?'Requested':'Equip'}</button>}
     </div>)}
    </div>}
    <button type="button" onClick={()=>window.dispatchEvent(new Event('tryamm:streetverse-inventory-request'))} style={button}>Refresh inventory</button>
