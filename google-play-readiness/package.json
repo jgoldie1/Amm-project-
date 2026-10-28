@@ -1,0 +1,14 @@
+{
+  "name": "tryamm-google-play-readiness",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Portable age, safety, moderation, and Google Play readiness layer for TryAMM.",
+  "main": "age-policy.js",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "scripts": {
+    "check": "node -e \"require('./age-policy'); require('./onboarding-api'); require('./safety-api'); console.log('TryAMM safety layer modules load successfully')\""
+  }
+}
