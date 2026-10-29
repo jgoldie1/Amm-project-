@@ -1,0 +1,26 @@
+name: Static Website Preservation Pilot
+on:
+  push:
+    branches:
+      - feature/tryamm-website-os-revenue-20261029
+      - release/holofon-quantum-pages-20261029
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Restore and compare static pilot
+        run: |
+          if [ -f public/tryamm-website-os.html ]; then
+            node scripts/verify-website-os-restore.cjs public/tryamm-website-os.html
+          fi
+          if [ -f public/quantum-boost-remote-diagnostic.html ] && [ -f scripts/verify-quantum-boost-restore.cjs ]; then
+            node scripts/verify-quantum-boost-restore.cjs public/quantum-boost-remote-diagnostic.html
+          fi
