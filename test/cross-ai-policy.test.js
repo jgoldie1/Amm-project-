@@ -1,0 +1,14 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {routeRequest,providerStatus}=require('../lib/cross-ai-policy');
+const env={OPENAI_API_KEY:'test-key',HOLOGPT_OPENAI_MODEL:'test-model'};
+assert.equal(routeRequest({lane:'merchant',provider:'openai',prompt:'Write a product summary'},env).ok,true);
+assert.equal(routeRequest({lane:'merchant',provider:'openai',prompt:' '},env).error,'invalid_prompt');
+assert.equal(routeRequest({lane:'travel',provider:'anthropic',prompt:'hello'},env).error,'provider_not_configured');
+assert.equal(routeRequest({lane:'travel',provider:'openai',prompt:'hello',action:'payment'},env).error,'approval_required');
+assert.equal(routeRequest({lane:'travel',provider:'openai',prompt:'hello',action:'deploy'},env).error,'approval_required');
+assert.equal(routeRequest({lane:'travel',provider:'openai',prompt:'hello',action:'unknown'},env).error,'unsupported_action');
+assert.equal(routeRequest({lane:'none',provider:'openai',prompt:'hello'},env).error,'unsupported_lane');
+assert.equal(providerStatus({})[0].configured,false);
+assert.equal(routeRequest({lane:'accessibility',provider:'openai',prompt:'review',action:'translate'},env).needsHumanReview,true);
+console.log('Cross AI policy smoke tests passed');

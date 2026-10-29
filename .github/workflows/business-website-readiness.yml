@@ -1,0 +1,35 @@
+name: Business Website Readiness (30 slots)
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'ops/website-rollout/**'
+      - '.github/workflows/business-website-readiness.yml'
+  pull_request:
+    paths:
+      - 'ops/website-rollout/**'
+      - '.github/workflows/business-website-readiness.yml'
+permissions:
+  contents: read
+jobs:
+  validate-registry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate 30-site registry
+        run: node ops/website-rollout/check.cjs
+      - name: Inventory 111 existing catalog demos
+        run: node ops/website-rollout/inventory-catalog.cjs
+      - name: Archive website readiness report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: business-website-readiness
+          path: |
+            website-readiness-report.md
+            ops/website-rollout/reports/template-inventory.md
+          if-no-files-found: warn
