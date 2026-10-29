@@ -1,0 +1,30 @@
+name: TRYAMM Website OS Template Pilot
+on:
+  pull_request:
+    paths:
+      - 'scripts/tryamm-generate-starter-templates.mjs'
+      - 'scripts/tryamm-generate-starter-templates.test.mjs'
+      - '.github/workflows/website-os-template-pilot.yml'
+  workflow_dispatch:
+jobs:
+  verify-and-package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Run generated-template assertions
+        run: node scripts/tryamm-generate-starter-templates.test.mjs
+      - name: Generate 20 static previews
+        run: node scripts/tryamm-generate-starter-templates.mjs generated-template-previews
+      - name: Verify output quantity
+        run: test "$(find generated-template-previews -maxdepth 1 -name '*.html' | wc -l)" -eq 20
+      - name: Upload downloadable static previews (not deployed)
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-website-os-20-previews
+          path: generated-template-previews/
+          retention-days: 14
