@@ -1,5 +1,5 @@
 // StreetVerse building reconstruction: game-world configuration, not construction engineering.
-export type Level={id:string;label:string;elevationM:number;rooms:{id:string;label:string;doorIds:string[]}[]};
+export type Level={id:string;label:string;elevationM:number;heightM:number;rooms:{id:string;label:string;doorIds:string[]}[]};
 export type Connection={id:string;kind:'stairs'|'elevator'|'accessible-ramp';from:string;to:string;accessible:boolean};
 export type Shell={widthM:number;depthM:number;levels:Level[]};
 export type Source={id:string;kind:'floor-plan'|'blueprint'|'scan'|'photo'|'owner-model';rights:'owner-authorized'|'licensed'|'tryamm-created'|'reference-only'|'unknown';currentPrivateInterior?:boolean;sensitiveInfrastructure?:boolean};
