@@ -1,0 +1,56 @@
+name: StreetVerse Regression Evidence Lock
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/src/game/runtime/StreetVerseBuildingReconstructionCompiler.ts'
+      - 'amm-omniverse/tests/streetverse-building-level-height-regression.mjs'
+      - '.github/workflows/streetverse-regression-evidence.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regression-and-screenshots:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install dependencies
+        working-directory: amm-omniverse
+        run: npm ci --no-audit --no-fund
+      - name: Lock building geometry regression
+        working-directory: amm-omniverse
+        run: node tests/streetverse-building-level-height-regression.mjs
+      - name: Typecheck entire game
+        working-directory: amm-omniverse
+        run: npm run typecheck
+      - name: Build production preview
+        working-directory: amm-omniverse
+        run: npm run build
+      - name: Start local preview and take mobile / desktop evidence
+        working-directory: amm-omniverse
+        env:
+          TRYAMM_BASE_URL: http://127.0.0.1:4173
+        run: |
+          mkdir -p release-evidence/visual-qa
+          npm run preview -- --host 127.0.0.1 --port 4173 > release-evidence/visual-qa/preview.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl --fail --silent http://127.0.0.1:4173/streetverse -o /dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail http://127.0.0.1:4173/streetverse -o /dev/null
+          npm run visual:capture -- release-evidence/visual-qa
+          test -s release-evidence/visual-qa/streetverse-mobile-390x844.png
+          test -s release-evidence/visual-qa/streetverse-desktop-1440x900.png
+      - name: Preserve screenshots and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-regression-evidence
+          path: amm-omniverse/release-evidence/visual-qa/
+          if-no-files-found: warn
