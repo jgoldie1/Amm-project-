@@ -46,3 +46,13 @@ E. Scale to 30 client sites; template marketplace distribution; NuMerica and glo
 
 ## Current blockers to verify, not assume fixed
 Vercel billing pause, Stripe bank/payout setup, Supabase storage restrictions, LiveKit credentials, failing StreetVerse browser tests, and true customer-delivery trace. 
+
+## Proposed AI Website pricing (NOT approved or enabled)
+Existing approved one-time tiers: Preview $499; Experience $1,250; Digital Twin $2,500; Business Pass $149/month. Existing directory: Free/$29/$49 monthly.
+To test demand without silently changing existing prices:
+- AI Business Website **proposal**: $1,999 setup. Must include a verified customer lead and FAQ workflow; otherwise market only as AI-assisted setup, not autonomous functionality.
+- Basic website care **proposal**: $29/month.
+- Enhanced Website Shield **proposal**: $79/month, conditional on actual backup and restore testing.
+- AI lead assistant **proposal**: $99/month plus disclosed usage fees, subject to hosting and operational cost modeling.
+- AI Business Growth bundle **proposal**: $249/month, scope and support hours to be contractually defined.
+Offer no unverified Digital Twin/StreetVerse, AI calling, guaranteed uptime, SEO rankings, autonomous agent performance, or live streaming as complete. Monthly service needs separate opt-in, clear billing and cancellation.
