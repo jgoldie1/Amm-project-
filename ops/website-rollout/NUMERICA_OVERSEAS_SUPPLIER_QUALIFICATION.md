@@ -6,9 +6,9 @@ Updated: October 29, 2026. Status: sourcing, not approved inventory.
 | --- | --- | --- | --- |
 | GL.iNet | sales@gl-inet.com | Sent | No response verified |
 | Cudy | sales@cudy.com | Sent | No response verified |
-| TOTOLINK / Zioncom | salesteam@zioncom.net | Sent | No response verified |
+| TOTOLINK / Zioncom | salesteam@zioncom.net | Kevin replied; bilingual follow-up sent | No priced quote yet; OEM minimum stated as at least 1,000; trial orders negotiable |
 
-## Required qualification before listing hardware for checkout
+## TOTOLINK preliminary findings\n- Private-label/OEM available, but MOQ at least 1,000 depending on the request.\n- Standard-brand trial order quantities potentially negotiable.\n- Vietnam factory, approximately 8–10 weeks indicated delivery lead time to USA.\n- Current response reports CE only and **no FCC authorization** for discussed products; treat as **not approved for U.S. retail sale** until exact model-specific U.S. authorization is verified.\n- Three-year warranty reported; RMA terms unresolved. Samples may be available with TRYAMM paying shipping; do not authorize shipment without written approval.\n- Bilingual English/Traditional Chinese clarification sent regarding 1–10 unit sample, FCC IDs, co-branding and shipping.\n\n## Required qualification before listing hardware for checkout
 1. Manufacturer confirms reseller/private-label terms in writing. No rebranding of trademarks, firmware or regulatory IDs without permission.
 2. Exact model SKU, FCC identifier, US power/plug certification, firmware maintenance and vulnerability support.
 3. Sample-unit quote, lead time, shipping to Chicago, customs/duties, taxes and warranty.
