@@ -28,3 +28,11 @@ Site: voluntary owner or tenant with landlord permission where needed. Signed ac
 [ ] live support coverage/complaint escalation
 [ ] production release gates pass
 No claim that these boxes are completed.
+
+## Founder home pilot — selected first test site (planning only)
+- First pilot participant: TRYAMM founder, own home. Exact address, Wi-Fi SSID/password, router admin credentials, personal device identifiers and unredacted speed-test IPs stay OFF GitHub.
+- Testing is remote/self-guided initially; there is NO installer appointment, hardware installation or active network service yet.
+- One-handed baseline: (1) verify Wi-Fi on phone/Chromebook, (2) note ISP advertised tier and router model without credentials, (3) run 3 speed/latency tests near router and 3 in problem room, (4) optionally compare a wired test if safely available, (5) repeat during peak hours. Record date/time, location label only (e.g. living room), download/upload Mbps, idle/loaded ping, packet loss if measured, and device type.
+- No router configuration changes before baseline, consent and rollback plan; avoid logging into ISP account or sharing router passwords.
+- Next steps: compare measurements, isolate ISP vs Wi-Fi vs device/app rendering, prioritize free changes, then re-test and document evidence. Obtain explicit opt-in before publishing anonymized results for marketing.
+- Claimed outcome: none until real measured before/after results are recorded.
