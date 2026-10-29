@@ -5,6 +5,7 @@ on:
     paths:
       - 'amm-omniverse/src/game/runtime/StreetVerseBuildingReconstructionCompiler.ts'
       - 'amm-omniverse/tests/streetverse-building-level-height-regression.mjs'
+      - 'amm-omniverse/src/components/StreetVerseCoreGameplayDock.tsx'
       - '.github/workflows/streetverse-regression-evidence.yml'
   workflow_dispatch:
 permissions:
@@ -29,6 +30,11 @@ jobs:
       - name: Typecheck entire game
         working-directory: amm-omniverse
         run: npm run typecheck
+      - name: Lock mission quick-start and one-hand gameplay controls
+        working-directory: amm-omniverse
+        run: |
+          node tests/streetverse-core-gameplay-dock-contract.mjs
+          node tests/streetverse-one-hand-integration-contract.mjs
       - name: Build production preview
         working-directory: amm-omniverse
         run: npm run build
