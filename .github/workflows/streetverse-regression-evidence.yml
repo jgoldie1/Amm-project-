@@ -6,6 +6,7 @@ on:
       - 'amm-omniverse/src/game/runtime/StreetVerseBuildingReconstructionCompiler.ts'
       - 'amm-omniverse/tests/streetverse-building-level-height-regression.mjs'
       - 'amm-omniverse/src/components/StreetVerseCoreGameplayDock.tsx'
+      - 'amm-omniverse/scripts/capture-streetverse-release.mjs'
       - '.github/workflows/streetverse-regression-evidence.yml'
   workflow_dispatch:
 permissions:
@@ -38,6 +39,11 @@ jobs:
       - name: Build production preview
         working-directory: amm-omniverse
         run: npm run build
+      - name: Install screenshot browser tooling
+        working-directory: amm-omniverse
+        run: |
+          npm install --no-save --package-lock=false --ignore-scripts playwright@1.55.0
+          npx playwright install chromium
       - name: Start local preview and take mobile / desktop evidence
         working-directory: amm-omniverse
         env:
