@@ -107,5 +107,10 @@ if ((overlapGroups['release-critical'] || []).length > 0) {
   console.log('\nSYNC BLOCKER: unresolved release-critical paths changed on both sides. Reconcile those paths individually before any broad history synchronization.')
 }
 
+if (unresolvedOverlapRows.length === 0) {
+  console.log('\nNEXT SAFE ACTION: No same-path edits detected. Prepare a normal merge of origin/main into the foundation branch in an isolated checkout, review the full diff, and run all release tests. Do not merge automatically.')
+} else {
+  console.log('\nNEXT SAFE ACTION: Review and reconcile every unresolved overlap before attempting branch synchronization.')
+}
 console.log('\nSYNC STATUS: reconciliation still required. Review unresolved release-critical files first; do not use a blanket ours merge merely to make behind=0.')
 process.exitCode = 1
