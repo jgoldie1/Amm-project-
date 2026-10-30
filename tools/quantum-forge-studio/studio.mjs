@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {PARAMS,validateDesign,makeBuilding} from './quantum-forge-core.mjs';
-import {loadThreeMesh,decodeImageFile,checkXR,prepareSlicing} from './quantum-forge-bridge.mjs';
-import {toAsciiSTL} from './quantum-forge-core.mjs';
+import {PARAMS,validateDesign,makeBuilding} from '../quantum-forge-core.mjs';
+import {loadThreeMesh,decodeImageFile,checkXR,prepareSlicing} from '../quantum-forge-bridge.mjs';
+import {toAsciiSTL} from '../quantum-forge-core.mjs';
 const $=id=>document.getElementById(id),canvas=$('view'),renderer=new THREE.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 const scene=new THREE.Scene();scene.background=new THREE.Color('#242438');const camera=new THREE.PerspectiveCamera(50,1,.1,2000);camera.position.set(20,16,25);camera.lookAt(0,4,0);scene.add(new THREE.HemisphereLight(0xffffff,0x444466,2));const light=new THREE.DirectionalLight(0xffffff,2);light.position.set(12,20,10);scene.add(light);const grid=new THREE.GridHelper(100,50);scene.add(grid);let current=null,model=null,spin=0;
 function status(s){$('status').textContent=s}
