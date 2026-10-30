@@ -1,0 +1,3 @@
+import assert from 'node:assert/strict';import {textTo3D,prepareSlicing,checkXR,generateWithProvider,estimateWallThickness} from './quantum-forge-bridge.mjs';
+const mesh=textTo3D('mansion');assert.equal(prepareSlicing(mesh).readyForExternalSlicer,true);assert.equal(estimateWallThickness(mesh).verified,false);
+assert.deepEqual(await checkXR({}),{ar:false,vr:false});const job=await generateWithProvider('a castle',{endpoint:'https://example.org/jobs',fetchImpl:async()=>({ok:true,json:async()=>({jobId:'abc'})})});assert.equal(job.jobId,'abc');await assert.rejects(()=>generateWithProvider('castle',{endpoint:'http://example.org'}));console.log('Quantum Forge bridge tests passed');
