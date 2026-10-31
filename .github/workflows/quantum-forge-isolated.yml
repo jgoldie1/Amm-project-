@@ -20,7 +20,7 @@ jobs:
       - name: Run isolated module tests
         working-directory: tools
         run: |
-          node --test quantum-forge-core.test.mjs quantum-forge-pipeline.test.mjs quantum-forge-bridge.test.mjs quantum-forge-character.test.mjs quantum-forge-recovered-character.test.mjs quantum-forge-security.test.mjs
+          node --test quantum-forge-core.test.mjs quantum-forge-pipeline.test.mjs quantum-forge-bridge.test.mjs quantum-forge-character.test.mjs quantum-forge-recovered-character.test.mjs quantum-forge-security.test.mjs quantum-forge-studio/character-lab.contract.test.mjs
       - name: Install preview dependencies
         run: npm install --no-audit --no-fund
       - name: Build isolated preview
