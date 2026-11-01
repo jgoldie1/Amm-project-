@@ -10,7 +10,7 @@ export function canUseElevator(p:Position2D):boolean{return Math.abs(p.x)<=2&&p.
 export function moveWithWalls(from:Position2D,to:Position2D,inside:boolean):Position2D{
  const x=Math.max(CIRCLE_PARK_BOUNDS.minX,Math.min(CIRCLE_PARK_BOUNDS.maxX,to.x));
  const z=Math.max(CIRCLE_PARK_BOUNDS.minZ,Math.min(CIRCLE_PARK_BOUNDS.maxZ,to.z));
- if(inside)return {x,z};
+ if(inside)return {x:Math.max(-5.4,Math.min(5.4,x)),z:Math.max(-12.8,Math.min(-6.7,z))};
  // Exterior walls block entry except at the centered doorway. Door interaction
  // changes game state; physical interior remains a future milestone.
  const crossesFront=from.z>-6.5&&z<=-6.5&&Math.abs(x)<=6;
@@ -18,4 +18,16 @@ export function moveWithWalls(from:Position2D,to:Position2D,inside:boolean):Posi
  const hitsFacade=z<=-6.5&&z>=-13.5&&Math.abs(x)<=6;
  if(hitsFacade)return {x:from.x,z:from.z};
  return {x,z};
+}
+
+export type CircleParkZone='outside'|'lobby'|'upstairs';
+export function interactionAllowed(zone:CircleParkZone,action:'enter'|'elevator'|'repair',p:Position2D):boolean{
+ if(action==='enter')return zone==='outside'&&canEnterApartment(p);
+ if(action==='elevator')return zone==='lobby'&&canUseElevator(p);
+ return zone==='upstairs'&&canUseRepairStation(p);
+}
+export function transitionPosition(action:'enter'|'elevator'|'exit'):Position2D{
+ if(action==='exit')return {x:0,z:-4.5};
+ if(action==='enter')return {x:0,z:-7.2};
+ return {x:0,z:-7.2};
 }
