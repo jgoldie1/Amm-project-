@@ -1,4 +1,5 @@
-import {useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
+import {StreetVerseSpatialSfx} from '../game/audio/StreetVerseSpatialSfx';
 import CirclePark3DScene from './CirclePark3DScene';
 import type {CircleParkZone} from '../game/world/CircleParkMovement';
 import {getResidentReply} from '../game/rpg/StreetVerseTalkingResidents';
@@ -20,6 +21,9 @@ const memoryKey='streetverse:circle-park:memory-v1';
 function loadMemory():WorldMemoryEvent[]{try{const raw=window.localStorage.getItem(memoryKey);const data=raw?JSON.parse(raw):[];return Array.isArray(data)?data.filter((e:WorldMemoryEvent)=>e.ownerId==='bj-demo'&&e.worldId==='circle-park').slice(-100):[]}catch{return []}}
 function loadDemo():DirectorState{try{const raw=window.localStorage.getItem(saveKey);if(raw){const data=JSON.parse(raw) as DirectorState;if(data?.mission?.player?.id==='bj-demo'&&Array.isArray(data.events)&&data.events.length<=steps.length&&data.resident?.residentId==='ms-pearl')return data;}}catch{/* private browsing or invalid demo save */}return createDirectorState('bj-demo')}
 export default function StreetVerseCircleParkPrototype(){
+ const sfx=useRef<StreetVerseSpatialSfx|null>(null);
+ const [soundEnabled,setSoundEnabled]=useState(false);
+ useEffect(()=>()=>{void sfx.current?.dispose()},[]);
  const [state,setState]=useState(loadDemo);
  const [captions,setCaptions]=useState(true);
  const [voice,setVoice]=useState(false);
@@ -29,7 +33,7 @@ export default function StreetVerseCircleParkPrototype(){
  const zone:CircleParkZone=state.mission.step==='outside'?'outside':state.mission.step==='lobby'?'lobby':'upstairs';
  const returning=state.mission.step==='episode-ready';
  const rememberedGreeting=returning?getResidentReply(state.resident,{scene:'kitchen',plumbingFixed:true,playerName:'BJ'},'greet').text:null;
- function advance(action:DirectorAction){const updated=directScene(state,action);setState(updated);
+ function advance(action:DirectorAction){const sound:Record<string,'door'|'elevator'|'repair'|'mission'>={enter:'door',elevator:'elevator','finish-repair':'repair',story:'mission'};if(soundEnabled&&sound[action])sfx.current?.play(sound[action]);const updated=directScene(state,action);setState(updated);
  if(updated!==state){const kind=action==='finish-repair'?'repair':action==='story'?'mission-complete':'interaction';const impact=resolveImpact(kind as ImpactKind,{reducedMotion:true,reducedFlashing:true,muted:true,haptics:false});setFeedback(impact.caption);
  if(action==='meet'||action==='finish-repair'){const event=worldMemoryEvent({id:'circle-park-'+action,ownerId:'bj-demo',worldId:'circle-park',subjectId:'ms-pearl',kind:action==='finish-repair'?'repair':'npc-interaction',summary:action==='finish-repair'?'BJ completed Ms. Pearl plumbing repair':'BJ met Ms. Pearl in Circle Park',occurredAt:new Date().toISOString()});const next=addWorldMemory(memory,event);setMemory(next);try{window.localStorage.setItem(memoryKey,JSON.stringify(next))}catch{/* demo only */}}}
 try{window.localStorage.setItem(saveKey,JSON.stringify(updated))}catch{/* demo remains playable without storage */}
@@ -48,6 +52,7 @@ try{window.localStorage.setItem(saveKey,JSON.stringify(updated))}catch{/* demo r
   {state.lastReaction&&<p role="status">BJ reaction: {state.lastReaction.caption}</p>}
   {next?<button style={{padding:16,minHeight:48,width:'100%'}} onClick={()=>advance(next.action)}>{next.label}</button>
    :<p role="status">Mission completed! Story Time is a draft. Recording and publication remain disabled.</p>}
+  <button style={{marginTop:12,padding:12}} onClick={async()=>{if(soundEnabled){sfx.current?.setMuted(true);setSoundEnabled(false)}else{const bus=sfx.current??new StreetVerseSpatialSfx();sfx.current=bus;const ready=await bus.unlock();bus.setMuted(!ready);setSoundEnabled(ready);if(ready)bus.play('mission')}}} aria-pressed={soundEnabled}>Sound effects {soundEnabled?'on':'off'}</button>
   <button style={{marginTop:12,padding:12}} onClick={()=>{setVoice(v=>!v);if(voice&&'speechSynthesis' in window)window.speechSynthesis.cancel()}} aria-pressed={voice}>Resident voice {voice?'on':'off'}</button>
   <button style={{marginTop:12,padding:12}} onClick={()=>setCaptions(v=>!v)} aria-pressed={captions}>Captions {captions?'on':'off'}</button>
   <button style={{marginLeft:12,padding:12}} onClick={()=>{setState(createDirectorState('bj-demo'));try{window.localStorage.removeItem(saveKey)}catch{/* optional demo save */}if('speechSynthesis' in window)window.speechSynthesis.cancel()}}>Restart mission</button>
