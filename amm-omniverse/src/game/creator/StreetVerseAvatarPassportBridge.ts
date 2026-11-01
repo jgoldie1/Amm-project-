@@ -15,7 +15,8 @@ export function saveLocalPassportAvatar(passport:PassportAvatar){
 export function readLocalPassportAvatar():PassportAvatar|null{
  try{const raw=localStorage.getItem('streetverse:passport-avatar:v1');if(!raw)return null;
  const parsed=JSON.parse(raw);if(parsed.version!==1||typeof parsed.playerId!=='string')return null;
- return createPassportAvatar(parsed.playerId,parsed.profile);
+ const checked=createPassportAvatar(parsed.playerId,parsed.profile);
+ return {...checked,updatedAt:typeof parsed.updatedAt==='string'?parsed.updatedAt:checked.updatedAt};
  }catch{return null}
 }
 export function deleteLocalPassportAvatar(){
