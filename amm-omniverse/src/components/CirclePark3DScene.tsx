@@ -1,10 +1,13 @@
 import {getBJModelUrl,loadApprovedBJAvatar} from './StreetVerseBJAvatarLoader';
 import {useEffect,useRef,useState} from 'react';
 import * as THREE from 'three';
+import {canEnterApartment,canUseElevator,canUseRepairStation,moveWithWalls} from '../game/world/CircleParkMovement';
 type Props={floor:number;repairComplete:boolean;onEnter:()=>void;onElevator:()=>void;onRepair:()=>void};
 export default function CirclePark3DScene({floor,repairComplete,onEnter,onElevator,onRepair}:Props){
  const host=useRef<HTMLDivElement>(null);
  const controls=useRef({forward:false,back:false,left:false,right:false});
+ const position=useRef({x:0,z:0});
+ const [notice,setNotice]=useState('Move toward the building entrance to interact.');
  const [location,setLocation]=useState('Outside Circle Park');
  useEffect(()=>{
   const parent=host.current;if(!parent)return;
@@ -26,7 +29,7 @@ export default function CirclePark3DScene({floor,repairComplete,onEnter,onElevat
   if(modelUrl)loadApprovedBJAvatar(modelUrl).then(handle=>{if(!active){handle.dispose();return;}loadedAvatar=handle;avatar.remove(body,head);avatar.add(handle.root);}).catch(error=>{console.warn('BJ GLB unavailable; using placeholder',error)});
   const resize=()=>{const width=Math.max(1,parent.clientWidth),height=Math.max(200,parent.clientHeight);camera.aspect=width/height;camera.updateProjectionMatrix();renderer.setSize(width,height,false)};
   const observer=new ResizeObserver(resize);observer.observe(parent);resize();
-  const frame=()=>{const delta=Math.min(clock.getDelta(),.05);const v=controls.current;const move=new THREE.Vector3(Number(v.right)-Number(v.left),0,Number(v.back)-Number(v.forward));if(move.lengthSq()>0){move.normalize().multiplyScalar(delta*3);avatar.position.add(move);avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-20,20);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-20,5);avatar.rotation.y=Math.atan2(-move.x,-move.z)}loadedAvatar?.update(delta,move.lengthSq()>0);
+  const frame=()=>{const delta=Math.min(clock.getDelta(),.05);const v=controls.current;const move=new THREE.Vector3(Number(v.right)-Number(v.left),0,Number(v.back)-Number(v.forward));if(move.lengthSq()>0){move.normalize().multiplyScalar(delta*3);const next=moveWithWalls(position.current,{x:position.current.x+move.x,z:position.current.z+move.z},false);avatar.position.set(next.x,0,next.z);position.current=next;avatar.rotation.y=Math.atan2(-move.x,-move.z)}loadedAvatar?.update(delta,move.lengthSq()>0);
    const target=new THREE.Vector3(avatar.position.x,2.5+Math.max(0,floor-1)*.25,avatar.position.z+7);camera.position.lerp(target,.08);camera.lookAt(avatar.position.x,1.3,avatar.position.z);marker.position.y=2+Math.sin(last/300)*.1;last+=delta*1000;renderer.render(scene,camera);raf=requestAnimationFrame(frame)};
   frame();
   const key=(e:KeyboardEvent,down:boolean)=>{const map:Record<string,keyof typeof controls.current>={w:'forward',ArrowUp:'forward',s:'back',ArrowDown:'back',a:'left',ArrowLeft:'left',d:'right',ArrowRight:'right'};const action=map[e.key];if(action){controls.current[action]=down;e.preventDefault()}};
@@ -40,8 +43,8 @@ export default function CirclePark3DScene({floor,repairComplete,onEnter,onElevat
  <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8}}>
  {(['forward','left','back','right'] as const).map((key,i)=><button key={key} style={{minHeight:56,touchAction:'none'}} onPointerDown={press(key,true)} onPointerUp={press(key,false)} onPointerCancel={press(key,false)} onPointerLeave={press(key,false)}>{['↑','←','↓','→'][i]}</button>)}</div>
  <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:8}}>
- <button onClick={()=>{onEnter();setLocation('Apartment lobby')}}>Enter building</button>
- <button onClick={()=>{onElevator();setLocation('Elevator')}}>Elevator</button>
- <button onClick={()=>{onRepair();setLocation('Plumbing station')}}>Inspect repair</button>
- </div><p>WASD/arrow keys or one-hand touch controls. The building is a visual placeholder; doors and elevator geometry are not yet physically traversable.</p></section>;
+ <button onClick={()=>{if(!canEnterApartment(position.current)){setNotice('Walk closer to the centered entrance first.');return}onEnter();setLocation('Apartment lobby');setNotice('Building entry mission action accepted.')}}>Enter building</button>
+ <button onClick={()=>{if(!canUseElevator(position.current)){setNotice('Move to the entrance before calling the elevator.');return}onElevator();setLocation('Elevator');setNotice('Elevator mission action accepted.')}}>Elevator</button>
+ <button onClick={()=>{if(!canUseRepairStation(position.current)){setNotice('Move near the plumbing marker first.');return}onRepair();setLocation('Plumbing station');setNotice('Repair interaction requested.')}}>Inspect repair</button>
+ </div><p role="status">{notice}</p><p>WASD/arrow keys or one-hand touch controls. The building is a visual placeholder; doors and elevator geometry are not yet physically traversable.</p></section>;
 }
