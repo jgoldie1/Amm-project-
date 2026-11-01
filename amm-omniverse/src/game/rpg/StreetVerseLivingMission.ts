@@ -1,3 +1,4 @@
+import {chooseDialogue,getEasterEgg} from './CircleParkComedyEpisode';
 import {createPlayer,applyRPGEvent,type PlayerState} from './StreetVerseAdvancedRPG';
 import {createBuildingState,applyBuildingEvent,type BuildingState} from './StreetVerseBuildingLife';
 import {reactionFromEmoji,applyReactionFace,type AvatarReaction,type MorphTargetMesh} from './StreetVerseAvatarReactions';
@@ -49,3 +50,20 @@ export async function runAndSave(playerId:string,port:MissionSavePort,action:(s:
 }
 // MissionSavePort must be implemented by an authenticated, server-authoritative save service.
 // Client-side rewards are provisional until validated server-side.
+
+export function playMissionDialogue(s:LivingMission,sceneId:string,choiceId:string):LivingMission{
+ const selected=chooseDialogue(sceneId,choiceId);
+ if(!selected)return s;
+ const key='dialogue:'+sceneId+':'+choiceId;
+ if(s.notes.includes(key))return s;
+ const {choice}=selected;
+ const player=choice.relationshipDelta?applyRPGEvent(s.player,{id:key,kind:'scene',city:'Chicago',xp:0,credits:0,relationshipId:'resident-01',relationshipGain:choice.relationshipDelta}):s.player;
+ return {...s,player,notes:[...s.notes,key,choice.reply,...(choice.clue?['clue:'+choice.clue]:[])]};
+}
+export function discoverMissionEasterEgg(s:LivingMission,eggId:string):LivingMission{
+ const egg=getEasterEgg(eggId);
+ if(!egg)return s;
+ const eventId='easter-egg:'+egg.id;
+ if(s.player.completedEventIds.includes(eventId))return s;
+ return {...s,player:applyRPGEvent(s.player,{id:eventId,kind:'scene',city:'Chicago',xp:egg.rewardXp,credits:0}),notes:[...s.notes,egg.reveal]};
+}
