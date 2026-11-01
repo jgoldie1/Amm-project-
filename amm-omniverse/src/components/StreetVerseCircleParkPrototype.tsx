@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState} from 'react';
 import {StreetVerseSpatialSfx} from '../game/audio/StreetVerseSpatialSfx';
+import {StreetVerseQuantumBeat} from '../game/audio/StreetVerseQuantumBeat';
 import CirclePark3DScene from './CirclePark3DScene';
 import type {CircleParkZone} from '../game/world/CircleParkMovement';
 import {getResidentReply} from '../game/rpg/StreetVerseTalkingResidents';
@@ -22,8 +23,10 @@ function loadMemory():WorldMemoryEvent[]{try{const raw=window.localStorage.getIt
 function loadDemo():DirectorState{try{const raw=window.localStorage.getItem(saveKey);if(raw){const data=JSON.parse(raw) as DirectorState;if(data?.mission?.player?.id==='bj-demo'&&Array.isArray(data.events)&&data.events.length<=steps.length&&data.resident?.residentId==='ms-pearl')return data;}}catch{/* private browsing or invalid demo save */}return createDirectorState('bj-demo')}
 export default function StreetVerseCircleParkPrototype(){
  const sfx=useRef<StreetVerseSpatialSfx|null>(null);
+ const beat=useRef<StreetVerseQuantumBeat|null>(null);
+ const [beatOn,setBeatOn]=useState(false);
  const [soundEnabled,setSoundEnabled]=useState(false);
- useEffect(()=>()=>{void sfx.current?.dispose()},[]);
+ useEffect(()=>()=>{void sfx.current?.dispose();void beat.current?.dispose()},[]);
  const [state,setState]=useState(loadDemo);
  const [captions,setCaptions]=useState(true);
  const [voice,setVoice]=useState(false);
@@ -52,6 +55,7 @@ try{window.localStorage.setItem(saveKey,JSON.stringify(updated))}catch{/* demo r
   {state.lastReaction&&<p role="status">BJ reaction: {state.lastReaction.caption}</p>}
   {next?<button style={{padding:16,minHeight:48,width:'100%'}} onClick={()=>advance(next.action)}>{next.label}</button>
    :<p role="status">Mission completed! Story Time is a draft. Recording and publication remain disabled.</p>}
+  <button style={{marginTop:12,padding:12}} aria-pressed={beatOn} onClick={async()=>{if(beatOn){beat.current?.stop();setBeatOn(false)}else{const player=beat.current??new StreetVerseQuantumBeat();beat.current=player;setBeatOn(await player.start(state.events.length>=4?'mission':'explore'))}}}>Quantum Beat {beatOn?'on':'off'}</button>
   <button style={{marginTop:12,padding:12}} onClick={async()=>{if(soundEnabled){sfx.current?.setMuted(true);setSoundEnabled(false)}else{const bus=sfx.current??new StreetVerseSpatialSfx();sfx.current=bus;const ready=await bus.unlock();bus.setMuted(!ready);setSoundEnabled(ready);if(ready)bus.play('mission')}}} aria-pressed={soundEnabled}>Sound effects {soundEnabled?'on':'off'}</button>
   <button style={{marginTop:12,padding:12}} onClick={()=>{setVoice(v=>!v);if(voice&&'speechSynthesis' in window)window.speechSynthesis.cancel()}} aria-pressed={voice}>Resident voice {voice?'on':'off'}</button>
   <button style={{marginTop:12,padding:12}} onClick={()=>setCaptions(v=>!v)} aria-pressed={captions}>Captions {captions?'on':'off'}</button>
