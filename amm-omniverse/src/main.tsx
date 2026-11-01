@@ -32,6 +32,8 @@ const TryammPublicGateway=lazy(()=>import('./components/TryammPublicGateway'))
 const TryammSponsorFunding=lazy(()=>import('./components/TryammSponsorFunding'))
 const TryammWhitePaper=lazy(()=>import('./components/TryammWhitePaper'))
 const StreetVerseCreatorLab=lazy(()=>import('./components/StreetVerseCreatorLab'))
+const StreetVerseFaceScanCapture=lazy(()=>import('./components/StreetVerseFaceScanCapture'))
+const StreetVersePersonalAvatarCreator=lazy(()=>import('./components/StreetVersePersonalAvatarCreator'))
 const StreetVerseCircleParkPrototype=lazy(()=>import('./components/StreetVerseCircleParkPrototype'))
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 // Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
@@ -153,7 +155,9 @@ try {
     <OmniCashLauncher />
   </>
   
-  if(currentPath==='/streetverse/creator-lab'||currentPath==='/streetverse/creator-lab/')routeContent=<Suspense fallback={routeFallback}><StreetVerseCreatorLab /></Suspense>
+  if(currentPath==='/streetverse/face-scan'||currentPath==='/streetverse/face-scan/')routeContent=<Suspense fallback={routeFallback}><StreetVerseFaceScanCapture /></Suspense>
+  else if(currentPath==='/streetverse/character-creator'||currentPath==='/streetverse/character-creator/')routeContent=<Suspense fallback={routeFallback}><StreetVersePersonalAvatarCreator /></Suspense>
+  else if(currentPath==='/streetverse/creator-lab'||currentPath==='/streetverse/creator-lab/')routeContent=<Suspense fallback={routeFallback}><StreetVerseCreatorLab /></Suspense>
   else if(currentPath==='/streetverse/circle-park-prototype'||currentPath==='/streetverse/circle-park-prototype/')routeContent=<Suspense fallback={routeFallback}><StreetVerseCircleParkPrototype /></Suspense>
   else if(currentPath==='/discover'||currentPath==='/discover/')routeContent=<Suspense fallback={routeFallback}><TryammPublicGateway /></Suspense>
   else if(currentPath==='/sponsors'||currentPath==='/sponsors/')routeContent=<Suspense fallback={routeFallback}><TryammSponsorFunding /></Suspense>
