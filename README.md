@@ -28,3 +28,7 @@ Layer 3 is a faith/community and legacy record system. It does **not** by itself
 - StreetVerse/TRYAMM LIVE/PropertyVerse/Twin Earth/Holoverse: presentation, interaction, simulation, discovery, and collaboration layers.
 
 See `amm-omniverse/docs/THREE_LAYER_INTERNAL_BLOCKCHAIN.md` for the canonical chain model.
+
+## Regression-first development and release
+
+**Every future change must be checked before it can break the game again.** Follow [`amm-omniverse/docs/REGRESSION_RELEASE_POLICY.md`](amm-omniverse/docs/REGRESSION_RELEASE_POLICY.md) before merging or deploying. From `amm-omniverse/`, run `npm run test:app-game-regressions`, `npm run typecheck`, and `npm run build`; record actual results. Source contracts alone do not prove gameplay. Do not bypass failing CI or deploy while Vercel billing is paused.
