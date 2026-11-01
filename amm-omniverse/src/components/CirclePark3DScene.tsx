@@ -1,4 +1,5 @@
 import {getBJModelUrl,loadApprovedBJAvatar} from './StreetVerseBJAvatarLoader';
+import {readLocalPassportAvatar} from '../game/creator/StreetVerseAvatarPassportBridge';
 import {useEffect,useRef,useState} from 'react';
 import * as THREE from 'three';
 import {interactionAllowed,transitionPosition,moveWithWalls,type CircleParkZone} from '../game/world/CircleParkMovement';
@@ -28,7 +29,7 @@ export default function CirclePark3DScene({floor,zone,repairComplete,onEnter,onE
   const head=new THREE.Mesh(new THREE.SphereGeometry(.29,12,12),new THREE.MeshStandardMaterial({color:0x704b36}));head.position.y=2;avatar.add(head);scene.add(avatar);avatarRef.current=avatar;avatar.position.set(position.current.x,zoneRef.current==='upstairs'?6:0,position.current.z);
   let raf=0,last=performance.now();const clock=new THREE.Clock();
   let loadedAvatar:Awaited<ReturnType<typeof loadApprovedBJAvatar>>|null=null;let active=true;
-  const modelUrl=getBJModelUrl();
+  const modelUrl=readLocalPassportAvatar()?.modelPath||getBJModelUrl();
   if(modelUrl)loadApprovedBJAvatar(modelUrl).then(handle=>{if(!active){handle.dispose();return;}loadedAvatar=handle;avatar.remove(body,head);avatar.add(handle.root);}).catch(error=>{console.warn('BJ GLB unavailable; using placeholder',error)});
   const resize=()=>{const width=Math.max(1,parent.clientWidth),height=Math.max(200,parent.clientHeight);camera.aspect=width/height;camera.updateProjectionMatrix();renderer.setSize(width,height,false)};
   const observer=new ResizeObserver(resize);observer.observe(parent);resize();
