@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "streetverse.chicago.studio-demo",
+  "name": "Chicago Studio Tour",
+  "author": "TRYAMM example",
+  "version": "1.0.0",
+  "world": "chicago-commons",
+  "license": "CC0-1.0 (example metadata only)",
+  "objects": [
+    {
+      "id": "studio-building",
+      "type": "building",
+      "position": [
+        7,
+        0,
+        -42
+      ],
+      "size": [
+        12,
+        7,
+        8
+      ],
+      "color": "#643e96"
+    }
+  ],
+  "missions": [
+    {
+      "id": "studio-tour",
+      "title": "Visit the Chicago Studio",
+      "description": "Preview the studio location",
+      "xp": 0
+    }
+  ]
+}
