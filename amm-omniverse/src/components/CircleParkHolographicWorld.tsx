@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState} from 'react'
 import * as THREE from 'three'
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {createCircleParkHologram} from '../game/holographic/CircleParkHolographicPrototype'
 import {CIRCLE_PARK_TWIN,createTwinDebugOverlay} from '../game/holographic/DigitalTwinPipeline'
 import type {CompanionCommand} from '../data/StreetVerseCompanionEcologyEngine'
@@ -73,6 +74,28 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
   })
 
   const player=new THREE.Mesh(new THREE.CapsuleGeometry(.42,.92,4,8),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0x00ccff,emissiveIntensity:.45}));player.position.set(0,1.4,-46);scene.add(player);playerRef.current=player
+  // Keep the capsule as a playable fallback until the actual BJ GLB is ready.
+  // Attach the visual model to the existing player transform so controls,
+  // collisions and mission events continue using their original controller.
+  let bjVisualCancelled=false
+  const bjLoader=new GLTFLoader()
+  bjLoader.load('/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V12.glb',gltf=>{
+    if(bjVisualCancelled)return
+    const visual=gltf.scene
+    const bounds=new THREE.Box3().setFromObject(visual)
+    const size=bounds.getSize(new THREE.Vector3())
+    if(!Number.isFinite(size.y)||size.y<=0.01)return
+    visual.scale.multiplyScalar(1.82/size.y)
+    visual.updateMatrixWorld(true)
+    const scaledBounds=new THREE.Box3().setFromObject(visual)
+    const center=scaledBounds.getCenter(new THREE.Vector3())
+    visual.position.x-=center.x
+    visual.position.z-=center.z
+    visual.position.y-=scaledBounds.min.y+1.4
+    player.add(visual)
+    player.material.visible=false
+  },undefined,error=>console.warn('BJ model unavailable; using playable capsule fallback.',error))
+
   const dog=new THREE.Group();const body=new THREE.Mesh(new THREE.BoxGeometry(1.35,.75,2),new THREE.MeshStandardMaterial({color:0x8a5a34}));body.position.y=.65;dog.add(body);const head=new THREE.Mesh(new THREE.BoxGeometry(.85,.85,.85),new THREE.MeshStandardMaterial({color:0x9b6840}));head.position.set(0,1,-1.15);dog.add(head);dog.position.set(-2,0,-44);scene.add(dog);dogRef.current=dog
   const road=new THREE.Mesh(new THREE.PlaneGeometry(18,82),new THREE.MeshStandardMaterial({color:0x151b22,roughness:.95}));road.rotation.x=-Math.PI/2;road.position.set(0,.015,-7);scene.add(road)
   for(let z=-43;z<30;z+=8){const lane=new THREE.Mesh(new THREE.PlaneGeometry(.16,3.4),new THREE.MeshBasicMaterial({color:0xffdf70}));lane.rotation.x=-Math.PI/2;lane.position.set(0,.025,z);scene.add(lane)}
@@ -287,7 +310,7 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
    renderer.render(scene,camera)
    raf=requestAnimationFrame(tick)
   }
-  raf=requestAnimationFrame(tick);return()=>{nativeLayerCancelled=true;cancelAnimationFrame(raf);removeEventListener('resize',resize);if(nativeLayer){scene.remove(nativeLayer);disposeNativeAssetLayer(nativeLayer)}renderer.dispose();renderer.domElement.remove()}
+  raf=requestAnimationFrame(tick);return()=>{bjVisualCancelled=true;nativeLayerCancelled=true;cancelAnimationFrame(raf);removeEventListener('resize',resize);if(nativeLayer){scene.remove(nativeLayer);disposeNativeAssetLayer(nativeLayer)}renderer.dispose();renderer.domElement.remove()}
  },[])
  const stop=()=>{input.current={x:0,z:0};if(joystickKnob.current)joystickKnob.current.style.transform='translate(0px,0px)'}
  const move=(x:number,z:number)=>{input.current={x,z}}

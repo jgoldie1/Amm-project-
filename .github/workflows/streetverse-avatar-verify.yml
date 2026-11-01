@@ -1,0 +1,43 @@
+name: StreetVerse Avatar Verification
+on:
+  push:
+    branches: [audit/app-game-readiness-20261031]
+    paths:
+      - 'amm-omniverse/src/game/creator/**'
+      - 'amm-omniverse/src/components/StreetVersePersonalAvatar*'
+      - 'amm-omniverse/src/components/StreetVerseOriginalAvatarFactory.tsx'
+      - 'amm-omniverse/server/avatar/**'
+      - 'amm-omniverse/tests/streetverse-avatar-*.test.mjs'
+      - '.github/workflows/streetverse-avatar-verify.yml'
+  workflow_dispatch:
+jobs:
+  avatar-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Backend avatar API tests
+        run: node --test tests/streetverse-avatar-job-api.test.mjs tests/streetverse-avatar-http.test.mjs
+      - name: Existing biometric privacy contract
+        run: node tests/biometric-avatar-privacy-contract.mjs
+  avatar-typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run typecheck

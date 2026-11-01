@@ -28,6 +28,14 @@ import './accessibility/accessibility.css'
 
 // Entering StreetVerse must not download the entire homepage application first.
 const App=lazy(()=>import('./App'))
+const TryammPublicGateway=lazy(()=>import('./components/TryammPublicGateway'))
+const TryammSponsorFunding=lazy(()=>import('./components/TryammSponsorFunding'))
+const TryammWhitePaper=lazy(()=>import('./components/TryammWhitePaper'))
+const StreetVerseCreatorLab=lazy(()=>import('./components/StreetVerseCreatorLab'))
+const StreetVerseFaceScanCapture=lazy(()=>import('./components/StreetVerseFaceScanCapture'))
+const StreetVerseOriginalAvatarFactory=lazy(()=>import('./components/StreetVerseOriginalAvatarFactory'))
+const StreetVersePersonalAvatarCreator=lazy(()=>import('./components/StreetVersePersonalAvatarCreator'))
+const StreetVerseCircleParkPrototype=lazy(()=>import('./components/StreetVerseCircleParkPrototype'))
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 // Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
 const StreetVerseTwinWorld=lazy(()=>import('./components/StreetVerseTwinWorld'))
@@ -148,7 +156,15 @@ try {
     <OmniCashLauncher />
   </>
   
-  if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
+  if(currentPath==='/streetverse/character-factory'||currentPath==='/streetverse/character-factory/')routeContent=<Suspense fallback={routeFallback}><StreetVerseOriginalAvatarFactory /></Suspense>
+  else if(currentPath==='/streetverse/face-scan'||currentPath==='/streetverse/face-scan/')routeContent=<Suspense fallback={routeFallback}><StreetVerseFaceScanCapture /></Suspense>
+  else if(currentPath==='/streetverse/character-creator'||currentPath==='/streetverse/character-creator/')routeContent=<Suspense fallback={routeFallback}><StreetVersePersonalAvatarCreator /></Suspense>
+  else if(currentPath==='/streetverse/creator-lab'||currentPath==='/streetverse/creator-lab/')routeContent=<Suspense fallback={routeFallback}><StreetVerseCreatorLab /></Suspense>
+  else if(currentPath==='/streetverse/circle-park-prototype'||currentPath==='/streetverse/circle-park-prototype/')routeContent=<Suspense fallback={routeFallback}><StreetVerseCircleParkPrototype /></Suspense>
+  else if(currentPath==='/discover'||currentPath==='/discover/')routeContent=<Suspense fallback={routeFallback}><TryammPublicGateway /></Suspense>
+  else if(currentPath==='/sponsors'||currentPath==='/sponsors/')routeContent=<Suspense fallback={routeFallback}><TryammSponsorFunding /></Suspense>
+  else if(currentPath==='/whitepaper'||currentPath==='/whitepaper/')routeContent=<Suspense fallback={routeFallback}><TryammWhitePaper /></Suspense>
+  else if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
   else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
