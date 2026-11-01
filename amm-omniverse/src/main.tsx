@@ -33,6 +33,7 @@ const TryammSponsorFunding=lazy(()=>import('./components/TryammSponsorFunding'))
 const TryammWhitePaper=lazy(()=>import('./components/TryammWhitePaper'))
 const StreetVerseCreatorLab=lazy(()=>import('./components/StreetVerseCreatorLab'))
 const StreetVerseFaceScanCapture=lazy(()=>import('./components/StreetVerseFaceScanCapture'))
+const StreetVerseOriginalAvatarFactory=lazy(()=>import('./components/StreetVerseOriginalAvatarFactory'))
 const StreetVersePersonalAvatarCreator=lazy(()=>import('./components/StreetVersePersonalAvatarCreator'))
 const StreetVerseCircleParkPrototype=lazy(()=>import('./components/StreetVerseCircleParkPrototype'))
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
@@ -155,7 +156,8 @@ try {
     <OmniCashLauncher />
   </>
   
-  if(currentPath==='/streetverse/face-scan'||currentPath==='/streetverse/face-scan/')routeContent=<Suspense fallback={routeFallback}><StreetVerseFaceScanCapture /></Suspense>
+  if(currentPath==='/streetverse/character-factory'||currentPath==='/streetverse/character-factory/')routeContent=<Suspense fallback={routeFallback}><StreetVerseOriginalAvatarFactory /></Suspense>
+  else if(currentPath==='/streetverse/face-scan'||currentPath==='/streetverse/face-scan/')routeContent=<Suspense fallback={routeFallback}><StreetVerseFaceScanCapture /></Suspense>
   else if(currentPath==='/streetverse/character-creator'||currentPath==='/streetverse/character-creator/')routeContent=<Suspense fallback={routeFallback}><StreetVersePersonalAvatarCreator /></Suspense>
   else if(currentPath==='/streetverse/creator-lab'||currentPath==='/streetverse/creator-lab/')routeContent=<Suspense fallback={routeFallback}><StreetVerseCreatorLab /></Suspense>
   else if(currentPath==='/streetverse/circle-park-prototype'||currentPath==='/streetverse/circle-park-prototype/')routeContent=<Suspense fallback={routeFallback}><StreetVerseCircleParkPrototype /></Suspense>
