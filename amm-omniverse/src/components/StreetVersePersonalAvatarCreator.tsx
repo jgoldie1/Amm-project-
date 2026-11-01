@@ -1,6 +1,7 @@
 import {Suspense,lazy,useState} from 'react';
 const StreetVersePersonalAvatarPreview=lazy(()=>import('./StreetVersePersonalAvatarPreview'));
 import {createPersonalAvatar,validatePersonalAvatar,avatarDescription,type AvatarPresentation,type AvatarHair,type AvatarOutfit} from '../game/creator/StreetVersePersonalAvatar';
+import {createPassportAvatar,saveLocalPassportAvatar,deleteLocalPassportAvatar} from '../game/creator/StreetVerseAvatarPassportBridge';
 const key='streetverse:personal-avatar:demo-v1';
 function initial(){try{const raw=localStorage.getItem(key);if(raw)return validatePersonalAvatar(JSON.parse(raw))}catch{/* demo */}return createPersonalAvatar('local-player','My StreetVerse Character')}
 export default function StreetVersePersonalAvatarCreator(){
@@ -19,7 +20,8 @@ export default function StreetVersePersonalAvatarCreator(){
  {(['skinTone','hairColor','eyeColor','outfitPrimary','outfitAccent'] as const).map(k=><label key={k}>{k}<input type="color" value={avatar[k]} onChange={e=>update({[k]:e.target.value})}/></label>)}
  <label><input type="checkbox" checked={avatar.accessibility.oneHandControls} onChange={e=>update({accessibility:{...avatar.accessibility,oneHandControls:e.target.checked}})}/> One-hand controls</label>
  <label><input type="checkbox" checked={avatar.accessibility.captions} onChange={e=>update({accessibility:{...avatar.accessibility,captions:e.target.checked}})}/> Captions</label>
- <button style={{minHeight:52}} onClick={()=>{try{localStorage.setItem(key,JSON.stringify(avatar));setSaved(true)}catch{setSaved(false)}}}>Save character profile on this device</button>
+ <button style={{minHeight:52}} onClick={()=>{try{saveLocalPassportAvatar(createPassportAvatar(avatar.id,avatar));setSaved(true)}catch{setSaved(false)}}}>Save character profile on this device</button>
+ <button style={{minHeight:52}} onClick={()=>{deleteLocalPassportAvatar();setSaved(false)}}>Delete saved character and local Passport</button>
  <p role="status">{saved?'Saved locally. Not yet synchronized with your account.':avatarDescription(avatar)}</p>
  <Suspense fallback={<p>Loading 3D preview…</p>}><StreetVersePersonalAvatarPreview modelUrl={avatar.approvedModelPath}/></Suspense>
  </section>;
