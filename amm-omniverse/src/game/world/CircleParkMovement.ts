@@ -5,7 +5,7 @@ export const APARTMENT_BOUNDS:Bounds2D={minX:-6,maxX:6,minZ:-13.5,maxZ:-6.5};
 export const DOOR_HALF_WIDTH=1.2;
 export function insideBounds(p:Position2D,b:Bounds2D):boolean{return p.x>=b.minX&&p.x<=b.maxX&&p.z>=b.minZ&&p.z<=b.maxZ}
 export function canEnterApartment(p:Position2D):boolean{return Math.abs(p.x)<=DOOR_HALF_WIDTH&&p.z>=-7.8&&p.z<=-4.8}
-export function canUseRepairStation(p:Position2D):boolean{return Math.hypot(p.x-3,p.z+5.7)<=2}
+export function canUseRepairStation(p:Position2D):boolean{return Math.hypot(p.x-3,p.z+7.2)<=2}
 export function canUseElevator(p:Position2D):boolean{return Math.abs(p.x)<=2&&p.z>=-8&&p.z<=-4.5}
 export function moveWithWalls(from:Position2D,to:Position2D,inside:boolean):Position2D{
  const x=Math.max(CIRCLE_PARK_BOUNDS.minX,Math.min(CIRCLE_PARK_BOUNDS.maxX,to.x));
