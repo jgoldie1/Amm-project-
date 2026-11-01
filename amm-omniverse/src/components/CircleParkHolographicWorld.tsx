@@ -310,7 +310,7 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
    renderer.render(scene,camera)
    raf=requestAnimationFrame(tick)
   }
-  raf=requestAnimationFrame(tick);return()=>{nativeLayerCancelled=true;cancelAnimationFrame(raf);removeEventListener('resize',resize);if(nativeLayer){scene.remove(nativeLayer);disposeNativeAssetLayer(nativeLayer)}renderer.dispose();renderer.domElement.remove()}
+  raf=requestAnimationFrame(tick);return()=>{bjVisualCancelled=true;nativeLayerCancelled=true;cancelAnimationFrame(raf);removeEventListener('resize',resize);if(nativeLayer){scene.remove(nativeLayer);disposeNativeAssetLayer(nativeLayer)}renderer.dispose();renderer.domElement.remove()}
  },[])
  const stop=()=>{input.current={x:0,z:0};if(joystickKnob.current)joystickKnob.current.style.transform='translate(0px,0px)'}
  const move=(x:number,z:number)=>{input.current={x,z}}
