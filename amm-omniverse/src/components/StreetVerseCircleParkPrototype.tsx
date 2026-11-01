@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import CirclePark3DScene from './CirclePark3DScene';
 import {addWorldMemory,recallWorldMemory,worldMemoryEvent,type WorldMemoryEvent} from '../game/memory/StreetVerseGoogolplexMemory';
 import {resolveImpact,type ImpactKind} from '../game/feedback/StreetVerseHoloImpact';
 import type {DirectorState} from '../game/rpg/StreetVerseAIDirector';
@@ -30,7 +31,8 @@ try{window.localStorage.setItem(saveKey,JSON.stringify(updated))}catch{/* demo r
  if(voice&&updated.lastDialogue&&updated.lastDialogue!==state.lastDialogue&&'speechSynthesis' in window){window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(updated.lastDialogue);utterance.rate=0.95;window.speechSynthesis.speak(utterance)}}
  return <main aria-label="Circle Park playable mission prototype" style={{maxWidth:700,margin:'auto',padding:20}}>
   <h1>StreetVerse: Circle Park Resident Repair</h1>
-  <p>Interactive mission logic preview. 3D assets and server saves are not connected. Optional browser speech and local demo saving are available.</p>
+  <p>Interactive mission preview with a 3D placeholder character. Original BJ GLB and server saves are not connected. Optional browser speech and local demo saving are available.</p>
+  <CirclePark3DScene floor={state.mission.building.floor} repairComplete={state.events.includes('finish-repair')} onEnter={()=>{if(next?.action==='enter')advance('enter')}} onElevator={()=>{if(next?.action==='elevator')advance('elevator')}} onRepair={()=>{if(next?.action==='finish-repair')advance('finish-repair')}} />
   <section aria-label="Mission progress"><p>Location: {state.mission.step} · Floor {state.mission.building.floor}</p>
    <p>XP: {state.mission.player.xp} · Level: {state.mission.player.level} · Virtual credits: {state.mission.player.credits}</p>
    <p>Plumbing condition: {state.mission.building.utilityHealth.plumbing}% · Ms. Pearl relationship: {state.resident.relationship}</p></section>
