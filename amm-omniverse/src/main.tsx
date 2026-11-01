@@ -31,6 +31,7 @@ const App=lazy(()=>import('./App'))
 const TryammPublicGateway=lazy(()=>import('./components/TryammPublicGateway'))
 const TryammSponsorFunding=lazy(()=>import('./components/TryammSponsorFunding'))
 const TryammWhitePaper=lazy(()=>import('./components/TryammWhitePaper'))
+const StreetVerseCircleParkPrototype=lazy(()=>import('./components/StreetVerseCircleParkPrototype'))
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 // Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
 const StreetVerseTwinWorld=lazy(()=>import('./components/StreetVerseTwinWorld'))
@@ -151,7 +152,8 @@ try {
     <OmniCashLauncher />
   </>
   
-  if(currentPath==='/discover'||currentPath==='/discover/')routeContent=<Suspense fallback={routeFallback}><TryammPublicGateway /></Suspense>
+  if(currentPath==='/streetverse/circle-park-prototype'||currentPath==='/streetverse/circle-park-prototype/')routeContent=<Suspense fallback={routeFallback}><StreetVerseCircleParkPrototype /></Suspense>
+  else if(currentPath==='/discover'||currentPath==='/discover/')routeContent=<Suspense fallback={routeFallback}><TryammPublicGateway /></Suspense>
   else if(currentPath==='/sponsors'||currentPath==='/sponsors/')routeContent=<Suspense fallback={routeFallback}><TryammSponsorFunding /></Suspense>
   else if(currentPath==='/whitepaper'||currentPath==='/whitepaper/')routeContent=<Suspense fallback={routeFallback}><TryammWhitePaper /></Suspense>
   else if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
