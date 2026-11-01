@@ -5,6 +5,7 @@ export default function StreetVerseFaceScanCapture(){
  const [captures,setCaptures]=useState<CaptureRecord[]>([]);
  const [ownerConfirmed,setOwnerConfirmed]=useState(false);
  const [processingApproved,setProcessingApproved]=useState(false);
+ const [reviewReady,setReviewReady]=useState(false);
  const [status,setStatus]=useState('Choose photos or use your phone camera. Photos remain on this device.');
  const [previews,setPreviews]=useState<Record<string,string>>({});
  const urls=useRef<string[]>([]);
@@ -15,7 +16,7 @@ export default function StreetVerseFaceScanCapture(){
   const url=URL.createObjectURL(file);urls.current.push(url);
   setPreviews(old=>({...old,[view]:url}));
   setCaptures(old=>[...old.filter(c=>c.view!==view),{view,blob:file,capturedAt:new Date().toISOString()}]);
-  setStatus(labels[view]+' captured locally.');
+  setReviewReady(false);setStatus(labels[view]+' captured locally.');
  }
  return <section aria-label="StreetVerse personal likeness scan" style={{maxWidth:680,margin:'auto',padding:16}}>
  <h2>Scan yourself for your StreetVerse Digital Twin</h2>
@@ -29,7 +30,8 @@ export default function StreetVerseFaceScanCapture(){
  <p>Required views: {checklist.complete?'Complete':checklist.missing.map(v=>labels[v]).join(', ')}</p>
  <label style={{display:'block',margin:'12px 0'}}><input type="checkbox" checked={ownerConfirmed} onChange={e=>setOwnerConfirmed(e.target.checked)}/> These images are of me, or I have permission from the person pictured.</label>
  <label style={{display:'block',margin:'12px 0'}}><input type="checkbox" checked={processingApproved} onChange={e=>setProcessingApproved(e.target.checked)}/> I consent to using these images to create a personal 3D avatar.</label>
- <button style={{minHeight:52,padding:12}} onClick={()=>{try{authorizeCharacterReconstruction(captures,{ownerConfirmed,processingApproved,uploadApproved:false,voiceApproved:false});setStatus('Capture complete and consent recorded for this session. Secure reconstruction is not yet connected; no photos were uploaded.')}catch(error){setStatus(error instanceof Error?error.message:'Scan not ready')}}}>Review my scan</button>
+ <button style={{minHeight:52,padding:12}} onClick={()=>{try{authorizeCharacterReconstruction(captures,{ownerConfirmed,processingApproved,uploadApproved:false,voiceApproved:false});setReviewReady(true);setStatus('Capture complete and consent recorded for this session. Secure reconstruction is not yet connected; no photos were uploaded.')}catch(error){setStatus(error instanceof Error?error.message:'Scan not ready')}}}>Review my scan</button>
+ {reviewReady&&<div style={{padding:12,border:'1px solid #777',borderRadius:10}}><h3>Capture review complete</h3><p>Your photographs have not been uploaded or converted into a 3D model. You can continue to the separate character profile editor; your photos will not transfer to it.</p><a href="/streetverse/character-creator">Continue to character customization</a></div>}
  <p role="status">{status}</p>
  </section>;
 }
