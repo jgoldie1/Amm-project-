@@ -92,7 +92,7 @@
     "assets:prebuild": "npm run free:assets && npm run native:assets && npm run bj:v7:publish",
     "test:live-lifecycle": "node --test tests/live-connection-lifecycle.test.mjs tests/pk-end-presentation.test.mjs",
     "test:building-level-height": "node tests/building-level-height-regression.mjs",
-    "test:app-game-regressions": "node tests/building-level-height-regression.mjs && node tests/app-game-entry-check.mjs && node tests/app-game-readiness-smoke.mjs && node tests/circle-park-bj-model-contract.mjs && node tests/tryamm-home-carousel-contract.mjs && node tests/tryamm-business-gateway-contract.mjs"
+    "test:app-game-regressions": "node tests/building-level-height-regression.mjs && node tests/app-game-entry-check.mjs && node tests/app-game-readiness-smoke.mjs && node tests/circle-park-bj-model-contract.mjs && node tests/tryamm-home-carousel-contract.mjs && node tests/tryamm-business-gateway-contract.mjs && node tests/streetverse-advanced-rpg-contract.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.3",
