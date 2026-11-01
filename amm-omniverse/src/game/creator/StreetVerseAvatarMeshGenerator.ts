@@ -18,8 +18,8 @@ export async function generateRiggedProxyGLB(profile:AvatarProfile):Promise<Blob
  }
  root.updateMatrixWorld(true);
  const skeleton=new THREE.Skeleton(bones);
- const skin=new THREE.MeshStandardMaterial({color:profile.skinTone,roughness:.8,skinning:true} as THREE.MeshStandardMaterialParameters);
- const cloth=new THREE.MeshStandardMaterial({color:profile.outfitPrimary,roughness:.85,skinning:true} as THREE.MeshStandardMaterialParameters);
+ const skin=new THREE.MeshStandardMaterial({color:profile.skinTone,roughness:.8});
+ const cloth=new THREE.MeshStandardMaterial({color:profile.outfitPrimary,roughness:.85});
  function piece(name:string,geometry:THREE.BufferGeometry,material:THREE.Material,bone:THREE.Bone,offset:THREE.Vector3){
   const idx=bones.indexOf(bone);const count=geometry.getAttribute('position').count;
   const indices=new Uint16Array(count*4),weights=new Float32Array(count*4);
