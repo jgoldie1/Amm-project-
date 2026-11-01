@@ -1,0 +1,49 @@
+{
+  "schema": "streetverse.recovered-assets.v1",
+  "source": "Google Drive StreetVerse Character Recovery / GLB_Originals_Wave1, Wave2",
+  "verifiedAt": "2026-10-30",
+  "identityNote": "These are NPC assets, not verified BJ Stubbs likeness",
+  "characters": [
+    {
+      "id": "adult-man",
+      "prefix": "SV_NPC_BLACK_MAN_ADULT_01",
+      "folder": "GLB_Originals_Wave1",
+      "files": [
+        "SV_NPC_BLACK_MAN_ADULT_01.glb",
+        "SV_NPC_BLACK_MAN_ADULT_01.walk.glb",
+        "SV_NPC_BLACK_MAN_ADULT_01.run.glb"
+      ]
+    },
+    {
+      "id": "adult-woman",
+      "prefix": "SV_NPC_BLACK_WOMAN_ADULT_01",
+      "folder": "GLB_Originals_Wave1",
+      "files": [
+        "SV_NPC_BLACK_WOMAN_ADULT_01.glb",
+        "SV_NPC_BLACK_WOMAN_ADULT_01.walk.glb",
+        "SV_NPC_BLACK_WOMAN_ADULT_01.run.glb"
+      ]
+    },
+    {
+      "id": "young-adult-man",
+      "prefix": "SV_NPC_BLACK_MAN_YOUNGADULT_01",
+      "folder": "GLB_Originals_Wave2",
+      "files": [
+        "SV_NPC_BLACK_MAN_YOUNGADULT_01.glb",
+        "SV_NPC_BLACK_MAN_YOUNGADULT_01.walk.glb",
+        "SV_NPC_BLACK_MAN_YOUNGADULT_01.run.glb"
+      ]
+    },
+    {
+      "id": "young-adult-woman",
+      "prefix": "SV_NPC_BLACK_WOMAN_YOUNGADULT_01",
+      "folder": "GLB_Originals_Wave2",
+      "files": [
+        "SV_NPC_BLACK_WOMAN_YOUNGADULT_01.glb",
+        "SV_NPC_BLACK_WOMAN_YOUNGADULT_01.walk.glb",
+        "SV_NPC_BLACK_WOMAN_YOUNGADULT_01.run.glb"
+      ]
+    }
+  ],
+  "next": "Audit actual GLB bytes, verify skeleton and clips, and trace existing scene loader; do not swap production assets"
+}
