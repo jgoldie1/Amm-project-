@@ -1,5 +1,7 @@
 import {useState} from 'react';
 import CirclePark3DScene from './CirclePark3DScene';
+import type {CircleParkZone} from '../game/world/CircleParkMovement';
+import {getResidentReply} from '../game/rpg/StreetVerseTalkingResidents';
 import {addWorldMemory,recallWorldMemory,worldMemoryEvent,type WorldMemoryEvent} from '../game/memory/StreetVerseGoogolplexMemory';
 import {resolveImpact,type ImpactKind} from '../game/feedback/StreetVerseHoloImpact';
 import type {DirectorState} from '../game/rpg/StreetVerseAIDirector';
@@ -24,6 +26,9 @@ export default function StreetVerseCircleParkPrototype(){
  const [memory,setMemory]=useState(loadMemory);
  const [feedback,setFeedback]=useState('');
  const next=steps[state.events.length];
+ const zone:CircleParkZone=state.mission.step==='outside'?'outside':state.mission.step==='lobby'?'lobby':'upstairs';
+ const returning=state.mission.step==='episode-ready';
+ const rememberedGreeting=returning?getResidentReply(state.resident,{scene:'kitchen',plumbingFixed:true,playerName:'BJ'},'greet').text:null;
  function advance(action:DirectorAction){const updated=directScene(state,action);setState(updated);
  if(updated!==state){const kind=action==='finish-repair'?'repair':action==='story'?'mission-complete':'interaction';const impact=resolveImpact(kind as ImpactKind,{reducedMotion:true,reducedFlashing:true,muted:true,haptics:false});setFeedback(impact.caption);
  if(action==='meet'||action==='finish-repair'){const event=worldMemoryEvent({id:'circle-park-'+action,ownerId:'bj-demo',worldId:'circle-park',subjectId:'ms-pearl',kind:action==='finish-repair'?'repair':'npc-interaction',summary:action==='finish-repair'?'BJ completed Ms. Pearl plumbing repair':'BJ met Ms. Pearl in Circle Park',occurredAt:new Date().toISOString()});const next=addWorldMemory(memory,event);setMemory(next);try{window.localStorage.setItem(memoryKey,JSON.stringify(next))}catch{/* demo only */}}}
@@ -32,12 +37,13 @@ try{window.localStorage.setItem(saveKey,JSON.stringify(updated))}catch{/* demo r
  return <main aria-label="Circle Park playable mission prototype" style={{maxWidth:700,margin:'auto',padding:20}}>
   <h1>StreetVerse: Circle Park Resident Repair</h1>
   <p>Interactive mission preview with a 3D placeholder character. Original BJ GLB and server saves are not connected. Optional browser speech and local demo saving are available.</p>
-  <CirclePark3DScene floor={state.mission.building.floor} repairComplete={state.events.includes('finish-repair')} onEnter={()=>{if(next?.action==='enter')advance('enter')}} onElevator={()=>{if(next?.action==='elevator')advance('elevator')}} onRepair={()=>{if(next?.action==='finish-repair')advance('finish-repair')}} />
+  <CirclePark3DScene zone={zone} floor={state.mission.building.floor} repairComplete={state.events.includes('finish-repair')} onEnter={()=>{if(next?.action==='enter')advance('enter')}} onElevator={()=>{if(next?.action==='elevator')advance('elevator')}} onRepair={()=>{if(next?.action==='finish-repair')advance('finish-repair')}} />
   <section aria-label="Mission progress"><p>Location: {state.mission.step} · Floor {state.mission.building.floor}</p>
-   <p>XP: {state.mission.player.xp} · Level: {state.mission.player.level} · Virtual credits: {state.mission.player.credits}</p>
+   <p>Demo XP: {state.mission.player.xp} · Level: {state.mission.player.level} · Unverified demo credits: {state.mission.player.credits}</p>
    <p>Plumbing condition: {state.mission.building.utilityHealth.plumbing}% · Ms. Pearl relationship: {state.resident.relationship}</p></section>
   <p role="status">{feedback}</p>
   <section aria-label="Googolplex resident memory"><h2>Ms. Pearl remembers</h2><ul>{recallWorldMemory(memory,'bj-demo','circle-park','ms-pearl').map(e=><li key={e.id}>{e.summary}</li>)}</ul></section>
+  {returning&&<p role="status"><strong>Returning visit — Ms. Pearl:</strong> {rememberedGreeting}</p>}
   {captions&&state.lastDialogue&&<p role="status"><strong>Ms. Pearl:</strong> {state.lastDialogue}</p>}
   {state.lastReaction&&<p role="status">BJ reaction: {state.lastReaction.caption}</p>}
   {next?<button style={{padding:16,minHeight:48,width:'100%'}} onClick={()=>advance(next.action)}>{next.label}</button>
