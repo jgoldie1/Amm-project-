@@ -4,6 +4,8 @@ const dock=fs.readFileSync(new URL('../src/components/StreetVerseCoreGameplayDoc
 const overlays=fs.readFileSync(new URL('../src/components/StreetVerseFullWorldOverlays.tsx',import.meta.url),'utf8')
 const must=(ok,msg)=>{if(!ok)throw new Error('STREETVERSE CORE GAMEPLAY DOCK CONTRACT FAIL: '+msg)}
 for(const token of ['StreetVerseCoreGameplayDock','StreetVerseMissionWorldBridge','StreetVerseTouchDriveControls','HoloMobilityLauncher','StreetVerseFaithChronoPortal','StreetVerseReelEventBridge','StreetVerseActionCarousel'])must(geo.includes(token),'core route missing '+token)
+const safeWorldBlock=geo.split('if(safe)return <>')[1]?.split('return <>')[0]||''
+must(safeWorldBlock.includes('Travel to Taylor Street UIC Medical District'),'SafeWorld travel action missing')
 for(const label of ['MISSION','REPAIR','RIDE','REEL','FAITH','EXIT'])must(dock.includes(label),'dock missing '+label)
 must(dock.includes("tryamm:streetverse-first-journey-start"),'mission quick-start event missing')
 must(dock.includes("tryamm:holo-mobility-open"),'rideshare launcher event missing')

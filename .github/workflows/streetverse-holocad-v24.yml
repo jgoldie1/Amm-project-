@@ -1,0 +1,20 @@
+name: StreetVerse HoloCAD validation
+on:
+  push:
+    paths: ['streetverse/holocad/**', '.github/workflows/streetverse-holocad-v24.yml']
+  pull_request:
+    paths: ['streetverse/holocad/**', '.github/workflows/streetverse-holocad-v24.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  holocad:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check streetverse/holocad/validator.mjs
+      - run: node streetverse/holocad/tests.mjs

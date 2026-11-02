@@ -63,6 +63,16 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     const travel=page.getByRole('button',{name:'Travel to Taylor Street UIC Medical District'});
     const stores=page.locator('#sv-retail-open');
     const enterStore=page.locator('#sv-store-open');
+    if (await travel.count() === 0) {
+      const diagnostics = await page.evaluate(() => ({
+        href: location.href,
+        controls: [...document.querySelectorAll('button')].slice(0,100).map(b => ({ label:b.getAttribute('aria-label'), text:b.textContent?.trim().slice(0,70) })),
+        renderModes: [...document.querySelectorAll('[data-streetverse-render-mode]')].map(e => e.getAttribute('data-streetverse-render-mode')),
+        worldRoots: document.querySelectorAll('[data-streetverse-world-root]').length,
+        travelAttributes: [...document.querySelectorAll('[data-streetverse-travel]')].map(e => e.outerHTML.slice(0,220)),
+      }));
+      console.error('[streetverse-travel-diagnostic]', JSON.stringify(diagnostics));
+    }
     await expect(travel).toBeVisible();
     await expect(stores).toBeVisible();
     await expect(enterStore).toBeVisible();
