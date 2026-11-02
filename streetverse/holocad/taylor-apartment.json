@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "id": "streetverse.taylor.apartment",
+  "floors": 3,
+  "floorHeight": 3.2,
+  "rooms": [
+    {
+      "id": "lobby",
+      "floor": 1,
+      "rect": [
+        -5,
+        -5,
+        10,
+        10
+      ]
+    },
+    {
+      "id": "utility-room",
+      "floor": 3,
+      "rect": [
+        -3,
+        -3,
+        6,
+        6
+      ]
+    }
+  ],
+  "collision": {
+    "bounds": [
+      -12,
+      12,
+      -8,
+      8
+    ],
+    "playerRadius": 0.85
+  },
+  "doors": [
+    {
+      "floor": 1,
+      "destination": "lobby",
+      "position": [
+        0,
+        -5
+      ]
+    }
+  ],
+  "elevator": {
+    "id": "elevator-a",
+    "floors": [
+      1,
+      2,
+      3
+    ]
+  },
+  "stairs": {
+    "from": 1,
+    "to": 3
+  },
+  "systems": {
+    "water": {
+      "nodes": [
+        {
+          "id": "main",
+          "floor": 1
+        },
+        {
+          "id": "sink",
+          "floor": 3
+        }
+      ],
+      "edges": [
+        [
+          "main",
+          "sink"
+        ]
+      ]
+    },
+    "electrical": {
+      "nodes": [
+        {
+          "id": "panel",
+          "floor": 1
+        },
+        {
+          "id": "lights",
+          "floor": 3
+        }
+      ],
+      "edges": [
+        [
+          "panel",
+          "lights"
+        ]
+      ]
+    },
+    "hvac": {
+      "nodes": [],
+      "edges": []
+    },
+    "gas": {
+      "fictionalOnly": true,
+      "nodes": [],
+      "edges": []
+    }
+  },
+  "missions": [
+    {
+      "id": "inspect-utilities",
+      "floor": 3,
+      "room": "utility-room",
+      "rewardXP": 100
+    }
+  ]
+}
