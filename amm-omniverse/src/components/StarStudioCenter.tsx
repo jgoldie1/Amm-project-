@@ -5,9 +5,13 @@ const Aniyah64TrackStudio=lazy(()=>import('./Aniyah64TrackStudio'))
 const MovieStudioCenter=lazy(()=>import('./MovieStudioCenter'))
 const JacobieVisionCenter=lazy(()=>import('./JacobieVisionCenter'))
 const IllinoisCampusVerseNetwork=lazy(()=>import('./IllinoisCampusVerseNetwork'))
+const StarVerseAuditionDesk=lazy(()=>import('./StarVerseAuditionDesk'))
+const TVShowMaker=lazy(()=>import('./TVShowMaker'))
 
 export default function StarStudioCenter({onClose}:{onClose:()=>void}){
  const [active,setActive]=useState<StarStudioPillarId|null>(null)
+ const [auditionDesk,setAuditionDesk]=useState(false)
+ const [showMaker,setShowMaker]=useState(false)
  const launch=(id:StarStudioPillarId)=>{
   if(id==='starverse'){window.location.href='/starverse';return}
   if(id==='isaiah-tv'){window.location.href='/isaiah-ai-tv';return}
@@ -15,12 +19,20 @@ export default function StarStudioCenter({onClose}:{onClose:()=>void}){
   if(id==='jacobie-real-estate'){setActive('jacobie-real-estate');return}
   setActive(id)
  }
+ if(auditionDesk)return <Suspense fallback={<p role='status'>Opening audition desk…</p>}><StarVerseAuditionDesk onClose={()=>setAuditionDesk(false)} onOpenShowMaker={()=>{setAuditionDesk(false);setShowMaker(true)}}/></Suspense>
+ if(showMaker)return <div role='dialog' aria-label='Isaiah AI TV Show Maker' style={{position:'fixed',inset:0,zIndex:13950,overflowY:'auto',background:'#020212'}}><button onClick={()=>setShowMaker(false)} style={{margin:12,minHeight:44,padding:'8px 14px',color:'#fff',background:'#303452',border:'1px solid #95a5ba',borderRadius:9}}>← Back to Star Studio</button><Suspense fallback={<p role='status'>Opening TV Show Maker…</p>}><TVShowMaker/></Suspense></div>
  if(active==='movie-studio')return <Suspense fallback={null}><MovieStudioCenter onClose={()=>setActive(null)}/></Suspense>
  if(active==='jacobie-vision')return <Suspense fallback={null}><JacobieVisionCenter onClose={()=>setActive(null)} initialTrack='cyber-defense'/></Suspense>
  if(active==='jacobie-real-estate')return <Suspense fallback={null}><JacobieVisionCenter onClose={()=>setActive(null)} initialTrack='real-estate-analysis' initialFlip/></Suspense>
  return <div role='dialog' aria-modal='true' aria-label='STAR STUDIO' style={{position:'fixed',inset:0,zIndex:13000,background:'radial-gradient(circle at 50% 0,#28205c,#070914 58%)',color:'#fff',overflowY:'auto',fontFamily:'system-ui'}}>
   <div style={{maxWidth:1180,margin:'0 auto',padding:'20px 14px 90px'}}>
    <header style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'start'}}><div><div style={{fontSize:10,letterSpacing:3,color:'#ffd75e',fontWeight:950}}>ANYONE CAN BE A STAR</div><h1 style={{fontSize:'clamp(42px,8vw,82px)',lineHeight:.9,margin:'8px 0'}}>STAR STUDIO</h1><p style={{maxWidth:830,color:'#bcc6d6',lineHeight:1.6}}>One front door into the creator systems already built across TRYAMM: music, acting, talent discovery, movies, broadcasting, campus productions, cybersecurity and real-estate storytelling.</p></div><button onClick={onClose} style={close}>×</button></header>
+   <section style={{display:'flex',gap:9,flexWrap:'wrap',marginTop:14,padding:14,border:'1px solid #b48cff88',borderRadius:16,background:'#1c1734'}}>
+      <button onClick={()=>setAuditionDesk(true)} style={back}>⭐ WHO WANTS TO BE A STAR? • AUDITION DESK</button>
+      <button onClick={()=>setShowMaker(true)} style={back}>📺 ISAIAH AI TV SHOW MAKER</button>
+      <button onClick={()=>{window.location.href='/starverse'}} style={back}>OPEN STARVERSE WORLD</button>
+      <p style={{flexBasis:'100%',margin:0,fontSize:12,color:'#aeb9d5'}}>Auditions are saved locally until reviewed; show creation does not automatically publish, authorize performers, run votes or distribute video.</p>
+   </section>
    <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(245px,1fr))',gap:10,marginTop:18}}>{STAR_STUDIO_PILLARS.map(p=><button key={p.id} onClick={()=>launch(p.id)} style={card}><div style={{fontSize:9,color:'#83e8ff',fontWeight:950}}>{p.owner.toUpperCase()} • {p.kind.toUpperCase()}</div><h2 style={{margin:'7px 0',fontSize:18}}>{p.label}</h2><div style={{fontSize:10,color:'#a9b8c9',lineHeight:1.5}}>{p.outputs.join(' • ')}</div><div style={{marginTop:10,fontSize:9,color:'#8affb5',fontWeight:900}}>OPEN EXISTING SYSTEM →</div></button>)}</section>
    {active==='aniyah-64'&&<section style={section}><div style={sectionHead}>ANIYAH • 64-TRACK STUDIO</div><Suspense fallback={null}><Aniyah64TrackStudio onClose={()=>setActive(null)}/></Suspense></section>}
    {active==='campusverse'&&<section style={section}><div style={sectionHead}>CAMPUSVERSE • CREATOR / TALENT PIPELINE</div><Suspense fallback={null}><IllinoisCampusVerseNetwork/></Suspense><button onClick={()=>setActive(null)} style={back}>← STAR STUDIO</button></section>}
