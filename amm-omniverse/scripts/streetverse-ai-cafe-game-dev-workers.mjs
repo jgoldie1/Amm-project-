@@ -36,12 +36,14 @@ function checkTest(rel){
 }
 const workers={
  'bj-preview-regression'(){
-  let report=checkTest('amm-omniverse/tests/chromebook-streetverse-bj-v4-contract.cjs')
-  const content=read('amm-omniverse/public/chromebook-streetverse-3d-v4-bj.html')
+  const preview=checkTest('amm-omniverse/tests/chromebook-streetverse-bj-v5-contract.cjs')
+  const extracted=checkTest('amm-omniverse/tests/bj-owned-v3-extraction-integration.mjs')
+  const content=read('amm-omniverse/public/chromebook-streetverse-bj-v5-animated.html')
   const own=content.includes('BJ_ARTICULATED_V3_BASE64')&&content.includes('BJ_STUBBS_V15_')&&content.includes('SV_NPC_BLACK_MAN_ADULT_01.glb')===false
   if(!own)return result('failed',['BJ development mesh embedded: '+content.includes('BJ_ARTICULATED_V3_BASE64')],'Wrong or missing hero binding')
-  report.evidence.push('BJ development prototype embedded; V15 source only a reference, not verified likeness. No animation playback claimed.')
-  return report
+  return result(preview.status==='passed'&&extracted.status==='passed'?'passed':'failed',
+    [...preview.evidence,...extracted.evidence,'Owner-approved BJ V15 likeness remains prioritized; own articulated V3 is the verified offline fallback.'],
+    'Animated game: '+preview.status+'; extracted GLB + actual Three.js player binding: '+extracted.status)
  },
  'west-side-builder-regression'(){
   const a=checkTest('amm-omniverse/tests/streetverse-visible-forge-real-placement.test.mjs')
