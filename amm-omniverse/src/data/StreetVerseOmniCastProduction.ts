@@ -71,7 +71,7 @@ const GLOBAL=getAllFirstWaveGlobalCharacterCast().map(character=>({
  genreTags:[] as string[],
  rightsNote:'Original fictional city character; regional language and cultural details require production review.',
 }))
-export const STREETVERSE_MUSIC_GENRES=["Hip-Hop","Boom Bap","Drill","Trap","Chicago Rap","Conscious Rap","R&B","Neo-Soul","Soul","Funk","Jazz","Space Jazz","Gospel","Blues","House","Chicago House","Deep House","EDM","Techno","Disco","Amapiano","Afrobeats","Afrobeat","Highlife","Reggae","Dancehall","Soca","Calypso","Latin Pop","Reggaeton","Salsa","Bachata","Cumbia","Country","Country Rap","Rock","Pop","Classical","Orchestral","Ambient","Spoken Word","Experimental","Afrofuturist","Film Score","Worship","Lo-Fi"] as const
+export const STREETVERSE_MUSIC_GENRES=["Hip-Hop","Boom Bap","Drill","Trap","Chicago Rap","Conscious Rap","R&B","Neo-Soul","Soul","Funk","Jazz","Space Jazz","Gospel","Blues","House","Chicago House","Deep House","EDM","Techno","Disco","Amapiano","Afrobeats","Afrobeat","Highlife","Reggae","Dancehall","Soca","Calypso","Latin Pop","Reggaeton","Salsa","Bachata","Cumbia","Country","Country Rap","Rock","Pop","Classical","Orchestral","Ambient","Spoken Word","Experimental","Afrofuturist","Film Score","Worship","Lo-Fi","Trap Soul","Melodic Trap","Latin Trap","Chicago Footwork","Juke","Jersey Club","Baltimore Club","Tech House","Soulful House","Acid House","Gospel House","Afro House","UK Garage","Grime","Drum & Bass","Dubstep","Synthwave","Phonk","Punk","Metal","Indie","Folk","Bluegrass","Bossa Nova","Samba","Flamenco","Merengue","Zouk","K-Pop","J-Pop","Bhangra","Bollywood","Gqom","Cinematic Hip-Hop","Disco House","Electro Swing","Breakbeat","Hardstyle","Trap Gospel"] as const
 export const STREETVERSE_ORIGINAL_PERFORMERS=[
  {id:"chicago-cypher-mc",name:"Chicago Cypher MC",genre:"Hip-Hop"},
  {id:"south-side-rnb-vocalist",name:"South Side R&B Vocalist",genre:"R&B"},
@@ -95,9 +95,9 @@ const GENRE_ALIASES:Record<string,string>={
  'rnb':'R&B','neo-soul':'Neo-Soul','gospel':'Gospel','jazz':'Jazz',
  'blues':'Blues','house':'House','techno':'Techno','edm':'EDM','funk':'Funk',
  'afrobeats':'Afrobeats','amapiano':'Amapiano','reggae':'Reggae',
- 'latin':'Latin Pop','country':'Country','rock':'Rock','alternative':'Experimental',
+ 'latin':'Latin Pop','country':'Country','rock':'Rock','alternative':'Indie',
  'pop':'Pop','classical':'Classical','spoken-word':'Spoken Word',
- 'soul':'Soul','dancehall':'Dancehall','punk':'Rock',
+ 'soul':'Soul','dancehall':'Dancehall','punk':'Punk',
 }
 export const STREETVERSE_FEATURED_ORIGINAL_PERFORMERS=STREETVERSE_ORIGINAL_MUSIC_PERFORMERS.map(artist=>({
  id:artist.id,name:artist.displayName,
