@@ -13,8 +13,8 @@ export default function StarStudioCenter({onClose}:{onClose:()=>void}){
  const [auditionDesk,setAuditionDesk]=useState(false)
  const [showMaker,setShowMaker]=useState(false)
  const launch=(id:StarStudioPillarId)=>{
-  if(id==='starverse'){window.location.href='/starverse';return}
-  if(id==='isaiah-tv'){window.location.href='/isaiah-ai-tv';return}
+  if(id==='starverse'){window.dispatchEvent(new CustomEvent('tryamm:starverse-audition-open',{detail:{source:'star-studio'}}));return}
+  if(id==='isaiah-tv'){(window as any).__showIsaiahTV?.();return}
   if(id==='all-american-network'){window.location.href='/network';return}
   if(id==='jacobie-real-estate'){setActive('jacobie-real-estate');return}
   setActive(id)
