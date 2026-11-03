@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>StreetVerse Chicago | Chromebook Pilot</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#151d32;--edge:#34425d;--gold:#f1c766;--purple:#b498fe;--muted:#bbc8e2;--green:#8ce5b0}*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at top,#1c2348,#0b1020 65%);color:#f6f7ff;font:15px/1.4 system-ui,sans-serif}
+header,main,footer{max-width:1200px;margin:auto;padding:16px}header h1{font-size:clamp(23px,4vw,36px);margin:4px 0}header p{color:var(--muted);margin:5px 0}
+strong{font-weight:760}.tag{display:inline-block;padding:4px 10px;border-radius:20px;background:#312957;color:#e2d9ff;font-size:12px;letter-spacing:.02em}
+nav{display:flex;gap:8px;flex-wrap:wrap;padding:10px 16px;max-width:1200px;margin:auto}
+button,.linkbtn,input,select{font:inherit}button,.linkbtn{background:#283352;border:1px solid #56678b;color:white;border-radius:10px;cursor:pointer;padding:10px 12px;min-height:42px;font-weight:650}
+button:hover,.linkbtn:hover{background:#394d77}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #d0aaff;outline-offset:2px}
+button.active,.primary{background:#6547a6;border-color:#b8a4ef}button[disabled]{opacity:.55;cursor:not-allowed}
+a{color:#cbbcff}.linkbtn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 275px;gap:14px}.panel{background:#161e34f2;border:1px solid var(--edge);border-radius:16px;padding:16px;box-shadow:0 12px 28px #0003}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+h2{font-size:20px;margin:0 0 12px}h3{font-size:16px;margin:3px 0 8px}.muted,small{color:var(--muted)}.mini{font-size:12px;color:var(--muted)}p{margin:8px 0 12px}
+#map{width:100%;height:auto;display:block;background:#173827;border:1px solid #46526d;border-radius:10px;touch-action:none}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.row button{flex:1}
+#notice{min-height:58px;background:#10182d;border:1px solid #3c4864;padding:12px;border-radius:10px;margin:10px 0;line-height:1.4}
+.dpad{display:grid;grid-template-columns:repeat(3,58px);justify-content:center;gap:6px;margin:12px auto}
+.dpad button{height:56px;font-size:20px;touch-action:none;user-select:none}.dpad .action{grid-column:1/span 3;font-size:14px}
+.brushes{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}label{display:block;font-weight:650;color:#e3e9fc;margin:9px 0 3px}
+input[type=number],input[type=text],select{border:1px solid #697898;background:#10192e;color:#fff;border-radius:8px;padding:10px;width:100%;max-width:100%}
+.stat{border:1px solid #3b4968;border-radius:12px;padding:12px;background:#10182b}
+.stat b{font-size:22px;color:#f5d690;display:block}.hidden{display:none!important}
+.card{border:1px solid #415071;border-radius:12px;padding:16px;background:#111a2d}.price{font-size:23px;font-weight:800;color:var(--gold)}
+canvas:focus{outline:3px solid #a080e1}#state{font-size:14px}.success{color:var(--green)}.warn{color:#ffd39d}
+@media(max-width:840px){.grid{display:block}.grid>.panel{margin-bottom:12px}.grid2,.grid3{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){header,main,footer{padding:12px}.grid2,.grid3{grid-template-columns:1fr}.dpad{grid-template-columns:repeat(3,min(19vw,72px))}.panel{padding:12px}}
+</style></head>
+<body>
+<header><span class="tag">CHROMEBOOK • NO INSTALL • DEMO ONLY</span>
+<h1>STREETVERSE <span style="color:var(--purple)">CHICAGO</span></h1>
+<p>Circle Park → Taylor Street • one-hand controls • vehicle • NPC • game store • LIVE links • Cost Guardian</p></header>
+<nav aria-label="Studio navigation">
+<button class="active" data-tab="play" type="button">🎮 Play / Build</button>
+<button data-tab="store" type="button">🛍 Demo Store</button>
+<button data-tab="live" type="button">📡 LIVE</button>
+<button data-tab="cost" type="button">💰 Cost Guardian</button>
+<button data-tab="owner" type="button">🧰 Creator Tools</button>
+</nav>
+<main>
+<section id="play" class="tab"><div class="grid">
+<div class="panel"><h2>Circle Park pilot</h2><div class="row">
+<button class="active" id="playMode">▶ Play</button><button id="buildMode">✎ Edit Map</button><button id="resetWorld">↺ Reset World</button>
+</div>
+<canvas id="map" width="768" height="576" tabindex="0" role="img" aria-label="StreetVerse Chicago playable top-down neighborhood map"></canvas>
+<p class="mini">This prototype is top-down, not GTA-level 3D. It proves our gameplay loop without downloading a game engine. Keyboard: arrows/WASD, E to interact. Touch: on-screen buttons.</p>
+</div>
+<aside class="panel"><h3>Game mission</h3><div class="stat" id="state" aria-live="polite"></div>
+<div id="notice" role="status" aria-live="polite">Welcome to Circle Park.</div>
+<div id="playControls"><h3>One-hand movement</h3>
+<div class="dpad"><span></span><button data-step="0,-1" aria-label="Move north">▲</button><span></span>
+<button data-step="-1,0" aria-label="Move west">◀</button><button data-step="0,1" aria-label="Move south">▼</button>
+<button data-step="1,0" aria-label="Move east">▶</button><button class="action primary" id="interact">Interact · Enter / Exit car · Talk</button></div>
+<p class="mini">Blue C: vehicle • Pink N: NPC • Gold ★: Taylor Street destination. Movement and demo progress save on your Chromebook's browser.</p></div>
+<div id="editControls" class="hidden"><h3>Paint the Chicago neighborhood</h3><div class="brushes" id="brushes"></div>
+<p class="mini">Pick a tool and click or drag map tiles. Export a JSON layout for transferring into the real Three.js game.</p></div>
+</aside></div></section>
+<section id="store" class="tab hidden"><h2>StreetVerse cosmetic store — test mode</h2>
+<p class="warn"><strong>No real payments.</strong> Every purchase below is a LOCAL DEMO. No bank data, Stripe request, money, cryptocurrency or transferable value is involved.</p>
+<div id="catalog" class="grid3"></div><div class="panel" style="margin-top:14px"><h3>Demo inventory</h3><div id="inventory">No cosmetics yet.</div>
+<button id="clearDemo" type="button">Clear demo purchases</button></div>
+<p class="mini">Production checkout requires a verified Stripe merchant account, server-side webhook, signed player identity, entitlement ledger, idempotency, refund handling and compliance for each app store.</p></section>
+<section id="live" class="tab hidden"><h2>TRYAMM LIVE + music discovery</h2>
+<div class="grid2">
+<div class="card"><h3>Live streaming launch</h3><p>Start by linking to an eligible LIVE broadcast on the platform hosting it. This prototype does not rebroadcast, record, or charge viewers.</p>
+<p><a class="linkbtn" href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer">Open TikTok</a> <a class="linkbtn" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer">Open YouTube</a></p>
+<p class="mini">Connected Metricool brand found: TikTok @jamesstubbs007 / Instagram @theammonmiverse. Verify that this is your intended business identity before scheduling.</p></div>
+<div class="card"><h3>Music discovery: Looze Cannon</h3><p>Explore the creator of “Big Michael Micheal” through official channels. No copyrighted track or likeness has been imported into the game.</p><a class="linkbtn" href="https://loozecannon.com/" target="_blank" rel="noopener noreferrer">Official artist website</a>
+<p class="mini">Artist chart metrics belong to their providers. Obtain permission before sponsored claims, commercial music sync, game playback or using a person's likeness in advertisements.</p></div>
+</div></section>
+<section id="cost" class="tab hidden"><h2>Cost Guardian — estimated monthly cloud spending</h2>
+<p class="muted">Planning calculator only: values are not connected to actual cloud bills, payment provider balances, or streaming analytics.</p>
+<div class="grid"><div class="panel">
+<label for="storage">Cloudflare R2 standard storage used (GB)</label><input type="number" id="storage" min="0" max="100000" step=".5" value="5">
+<label for="viewerMinutes">Hosted video delivered (viewer-minutes/month)</label><input type="number" id="viewerMinutes" min="0" max="9999999" step="1000" value="0">
+<label for="recordingMinutes">Stored video recording minutes</label><input type="number" id="recordingMinutes" min="0" max="999999" step="100" value="0">
+<label for="otherCosts">Other monthly cloud subscriptions (USD)</label><input type="number" id="otherCosts" min="0" max="1000000" step=".01" value="0">
+<label for="revenue">Actual collected monthly revenue (USD, enter manually)</label><input type="number" id="revenue" min="0" max="1000000" step=".01" value="0">
+<label for="budget">Monthly cost ceiling (USD)</label><input type="number" id="budget" min="0" max="1000000" step=".01" value="10">
+</div><aside class="panel"><div class="stat"><span class="muted">Estimated services</span><b id="estimated">$0.00</b></div>
+<div class="stat" style="margin-top:8px"><span class="muted">Revenue minus modeled services</span><b id="margin">$0.00</b></div><div id="costAlert" role="status" aria-live="polite"></div>
+<p class="mini">Modeled: R2 beyond 10 GB at $0.015/GB-month, hosted video at $1/1,000 viewer-minutes, optional video storage at $5 per started 1,000-minute block. Request fees, server compute, tax, payment fees, CDN limits and free-tier eligibility are NOT included. Do not use these estimates as an invoice.</p>
+</aside></div></section>
+<section id="owner" class="tab hidden"><h2>Creator tools</h2><div class="grid2">
+<div class="panel"><h3>Save your city map</h3><p>Export or import a lightweight JSON layout. Your game state auto-saves only in this browser. Back up important layout files to Google Drive.</p>
+<button id="exportLayout">↓ Export city JSON</button><label for="importLayout" class="linkbtn">↑ Import city JSON</label><input type="file" accept=".json,application/json" id="importLayout" style="width:100%;margin-top:8px">
+<button id="resetProgress" style="margin-top:10px">Reset game progress</button>
+<p class="mini">No server account, multiplayer synchronizing, live purchases, GLB rendering, or production analytics yet.</p></div>
+<div class="panel"><h3>Build and revenue checklist</h3>
+<div id="ownerStats"></div><p class="mini">Next: recover BJ's verified GLB, connect the actual Three.js loader, verify animations and car physics, then test on Chromebook and phone. Connect payment processing only after Stripe onboarding and security checks.</p></div>
+</div></section>
+</main><footer class="mini">StreetVerse Chromebook pilot v0.2 — isolated prototype. © TRYAMM LLC project concept. No new subscription activated.</footer>
+<script>
+(()=>{"use strict";
+const W=24,H=18,T=32,TYPES=["park","road","building","water"],c=document.getElementById("map"),g=c.getContext("2d");
+const $=id=>document.getElementById(id);const model={grid:[],car:{x:5,y:5},npc:{x:11,y:9},target:{x:20,y:13},player:{x:3,y:5},driving:false,complete:false,xp:0,items:[],mode:"play"};
+const keys={};
+function seed(){model.grid=Array.from({length:H},(_,y)=>Array.from({length:W},(_,x)=>{if(y===5||y===12||x===3||x===9||x===18)return"road";if(x<5&&y<5||x>12&&y<5||x>12&&y>12||x>5&&x<9&&y>6&&y<12)return"building";return"park"}));model.grid[model.car.y][model.car.x]="road";model.grid[model.npc.y][model.npc.x]="park";model.grid[model.target.y][model.target.x]="park"}
+function valid(pos){return pos&&Number.isInteger(pos.x)&&Number.isInteger(pos.y)&&pos.x>=0&&pos.x<W&&pos.y>=0&&pos.y<H}
+function load(){seed();try{let o=JSON.parse(localStorage.getItem("streetverse-pilot-v2")||"null");if(o&&Array.isArray(o.grid)&&o.grid.length===H&&o.grid.every(r=>Array.isArray(r)&&r.length===W&&r.every(t=>TYPES.includes(t)))&&["player","car","npc","target"].every(k=>valid(o[k]))){Object.assign(model,{grid:o.grid,player:o.player,car:o.car,npc:o.npc,target:o.target,driving:!!o.driving,complete:!!o.complete,xp:Math.max(0,Math.min(1000000,Number(o.xp)||0)),items:Array.isArray(o.items)?o.items.filter(x=>typeof x==="string").slice(0,20):[]});} }catch(e){console.warn("Saved game unavailable",e)}}
+function save(){try{localStorage.setItem("streetverse-pilot-v2",JSON.stringify({grid:model.grid,player:model.player,car:model.car,npc:model.npc,target:model.target,driving:model.driving,complete:model.complete,xp:model.xp,items:model.items}))}catch(e){console.warn("Local save blocked",e)}}
+function notice(s){$("notice").textContent=s}
+function tile(x,y){return model.grid[y]&&model.grid[y][x]}
+function blocked(x,y){return !valid({x,y})||["building","water"].includes(tile(x,y))}
+function draw(){g.clearRect(0,0,768,576);for(let y=0;y<H;y++)for(let x=0;x<W;x++){let t=tile(x,y),a=x*T,b=y*T;g.fillStyle=t==="road"?"#41495f":t==="building"?"#4b5779":t==="water"?"#20658b":(x+y)%2?"#347150":"#386947";g.fillRect(a,b,T,T);if(t==="road"){g.fillStyle="#c7ab70";if(tile(Math.max(0,x-1),y)==="road"||tile(Math.min(W-1,x+1),y)==="road")g.fillRect(a+9,b+15,15,2);else g.fillRect(a+15,b+9,2,15)}if(t==="building"){g.fillStyle="#737e9b";g.fillRect(a+3,b+3,26,26);g.fillStyle="#262d45";for(let k=0;k<2;k++)for(let j=0;j<2;j++)g.fillRect(a+7+k*12,b+7+j*12,7,7)}if(t==="park"&&(x*3+y*7)%6===0){g.fillStyle="#224b33";g.beginPath();g.arc(a+16,b+16,8,0,Math.PI*2);g.fill()}g.strokeStyle="#ffffff09";g.strokeRect(a,b,T,T)}
+function icon(p,color,letter){let a=p.x*T+16,b=p.y*T+16;g.fillStyle="#0008";g.beginPath();g.ellipse(a,b+10,11,5,0,0,Math.PI*2);g.fill();g.fillStyle=color;g.beginPath();g.arc(a,b,11,0,Math.PI*2);g.fill();g.fillStyle="#fff";g.textAlign="center";g.textBaseline="middle";g.font="bold 14px system-ui";g.fillText(letter,a,b+1)}
+if(!model.driving)icon(model.car,"#318ccb","C");icon(model.npc,"#bc5db3","N");icon(model.target,model.complete?"#37b981":"#d8ad36",model.complete?"✓":"★");icon(model.player,model.driving?"#318ccb":"#925dc9",model.driving?"C":"B");g.textAlign="start";g.textBaseline="alphabetic";g.fillStyle="white";g.font="bold 13px system-ui";g.fillText("CIRCLE PARK",116,70);g.fillText("TAYLOR STREET →",532,470)}
+function render(){draw();$("state").textContent=(model.driving?"🚙 Driving":"🚶 On foot")+" • "+(model.complete?"Taylor mission complete":"Reach Taylor Street")+" • "+model.xp+" demo XP";$("ownerStats").textContent="Game XP: "+model.xp+" | Demo cosmetics: "+model.items.length+" | Real revenue: $0.00 | Original 3D files identified in Drive: 12 NPC variants (not yet rendered)";$("inventory").textContent=model.items.length?model.items.join(", "):"No cosmetics yet.";save()}
+function step(dx,dy){if(model.mode!=="play")return;let x=model.player.x+dx,y=model.player.y+dy;if(blocked(x,y)){notice("That route is blocked. Try a street or path.");return}model.player={x,y};if(model.driving)model.car={x,y};if(Math.abs(x-model.target.x)<=1&&Math.abs(y-model.target.y)<=1&&!model.complete){model.complete=true;model.xp+=100;notice("MISSION COMPLETE: Taylor Street! +100 demo XP. No real currency awarded.")}else notice((model.driving?"Driving":"Walking")+" through StreetVerse Chicago.");render()}
+function near(p,q){return Math.max(Math.abs(p.x-q.x),Math.abs(p.y-q.y))<=1}
+function interact(){if(model.driving){model.driving=false;notice("You exited the vehicle.");render();return}if(near(model.player,model.car)){model.driving=true;notice("Vehicle entered. Use arrows or one-hand controls to drive.");render();return}if(near(model.player,model.npc)){notice("NPC: Welcome to Circle Park. Take the road to Taylor Street!");return}notice("Move next to the blue C vehicle or the pink N resident.")}
+function setMode(edit){model.mode=edit?"edit":"play";$("playMode").classList.toggle("active",!edit);$("buildMode").classList.toggle("active",edit);$("playControls").classList.toggle("hidden",edit);$("editControls").classList.toggle("hidden",!edit);notice(edit?"Editor: choose a tile and touch the city.":"Play: complete the gold-star Taylor Street mission.");render()}
+let brush="road",painting=false;
+function paint(e){let r=c.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)*W/r.width),y=Math.floor((e.clientY-r.top)*H/r.height);if(!valid({x,y}))return;if(brush==="car")model.car={x,y};else if(brush==="npc")model.npc={x,y};else if(brush==="target"){model.target={x,y};model.complete=false}else model.grid[y][x]=brush; if(brush==="car")model.grid[y][x]="road";if(["npc","target"].includes(brush)&&blocked(x,y))model.grid[y][x]="park";render()}
+c.addEventListener("pointerdown",e=>{if(model.mode!=="edit")return;painting=true;c.setPointerCapture(e.pointerId);paint(e)});c.addEventListener("pointermove",e=>{if(painting&&model.mode==="edit")paint(e)});c.addEventListener("pointerup",()=>painting=false);c.addEventListener("pointercancel",()=>painting=false);
+const brushes=[["road","🛣 Roads"],["building","🏢 Buildings"],["park","🌳 Park"],["water","💧 Water"],["car","🚙 Car"],["npc","🧍 NPC"],["target","⭐ Mission"]];
+for(const [value,label] of brushes){const b=document.createElement("button");b.type="button";b.textContent=label;b.addEventListener("click",()=>{brush=value;for(const x of $("brushes").querySelectorAll("button"))x.classList.remove("active");b.classList.add("active");notice("Selected "+label+". Click or drag the map.");});if(value==="road")b.classList.add("active");$("brushes").appendChild(b)}
+for(const b of document.querySelectorAll("[data-step]")){const [dx,dy]=b.dataset.step.split(",").map(Number);b.addEventListener("pointerdown",e=>{e.preventDefault();step(dx,dy)});b.addEventListener("click",e=>{if(e.detail===0)step(dx,dy)})}
+document.addEventListener("keydown",e=>{if(model.mode!=="play"||!$("play").classList.contains("tab")||$("play").classList.contains("hidden")||["INPUT","SELECT","TEXTAREA"].includes(document.activeElement.tagName))return;const k=e.key.toLowerCase(),m={arrowup:[0,-1],w:[0,-1],arrowdown:[0,1],s:[0,1],arrowleft:[-1,0],a:[-1,0],arrowright:[1,0],d:[1,0]};if(m[k]){e.preventDefault();step(...m[k])}else if(k==="e"||k===" "){e.preventDefault();interact()}});
+$("interact").addEventListener("click",interact);$("playMode").addEventListener("click",()=>setMode(false));$("buildMode").addEventListener("click",()=>setMode(true));$("resetWorld").addEventListener("click",()=>{seed();model.player={x:3,y:5};model.driving=false;model.complete=false;model.xp=0;setMode(false);notice("Neighborhood reset; demo cosmetics preserved.");render()});
+for(const b of document.querySelectorAll("[data-tab]"))b.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(p=>p.classList.toggle("hidden",p.id!==b.dataset.tab));document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));if(b.dataset.tab==="cost")calc();if(b.dataset.tab==="owner")render()});
+const products=[["Chicago Outfit","$4.99","Cosmetic clothing and avatar identity"],["Vehicle Style Pack","$9.99","Car paint and interior styling"],["Supporter Pass","$9.99/mo","Proposed cosmetics and community perks"],["Business Listing","$29/mo","Proposed virtual storefront placement"]];
+for(const [name,price,desc] of products){let d=document.createElement("article");d.className="card";let h=document.createElement("h3");h.textContent=name;let p=document.createElement("div");p.className="price";p.textContent=price;let detail=document.createElement("p");detail.textContent=desc;let btn=document.createElement("button");btn.type="button";btn.textContent="Claim DEMO (no payment)";btn.addEventListener("click",()=>{if(!model.items.includes(name))model.items.push(name);notice("Added a DEMO item — no money charged.");render();btn.textContent="Added to demo inventory"});d.append(h,p,detail,btn);$("catalog").appendChild(d)}
+$("clearDemo").addEventListener("click",()=>{model.items=[];$("catalog").querySelectorAll("button").forEach(b=>b.textContent="Claim DEMO (no payment)");render()});
+function val(id){let x=Number($(id).value);return Number.isFinite(x)?Math.max(0,x):0}
+function money(n){return "$"+n.toFixed(2)}
+function calc(){const storage=val("storage"),minutes=val("viewerMinutes"),recordings=val("recordingMinutes");const r2=Math.max(0,storage-10)*.015;const delivery=minutes/1000;const recorded=recordings>0?Math.ceil(recordings/1000)*5:0;const total=r2+delivery+recorded+val("otherCosts"),margin=val("revenue")-total;$("estimated").textContent=money(total);$("margin").textContent=money(margin);$("costAlert").textContent=(total>val("budget")?"⚠️ Estimated costs exceed your chosen ceiling.":"✓ Modeled costs are within your chosen ceiling.")+" (Estimates only; no hard budget enforcement.)"}
+for(const id of ["storage","viewerMinutes","recordingMinutes","otherCosts","revenue","budget"])$(id).addEventListener("input",calc);
+$("exportLayout").addEventListener("click",()=>{const o={format:"streetverse-chromebook-city-v1",width:W,height:H,cells:model.grid,car:model.car,npc:model.npc,mission:model.target,notes:"Prototype map only; not authoritative production game state."};const blob=new Blob([JSON.stringify(o,null,2)],{type:"application/json"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="streetverse-circle-park-layout.json";a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)});
+$("importLayout").addEventListener("change",e=>{let f=e.target.files&&e.target.files[0];if(!f)return;if(f.size>150000){notice("Layout JSON must be under 150 KB.");return}let fr=new FileReader();fr.onload=()=>{try{let o=JSON.parse(fr.result);if(o.format!=="streetverse-chromebook-city-v1"||o.width!==W||o.height!==H||!Array.isArray(o.cells)||o.cells.length!==H||!o.cells.every(r=>Array.isArray(r)&&r.length===W&&r.every(t=>TYPES.includes(t)))||!["car","npc","mission"].every(k=>valid(o[k])))throw Error("Invalid map");model.grid=o.cells;model.car=o.car;model.npc=o.npc;model.target=o.mission;model.player={x:3,y:5};model.complete=false;model.driving=false;notice("Map loaded. Switch to Play to try it.");render()}catch(err){notice("Invalid StreetVerse layout JSON.")}};fr.readAsText(f);e.target.value=""});
+$("resetProgress").addEventListener("click",()=>{model.xp=0;model.complete=false;model.player={x:3,y:5};model.driving=false;render();notice("Demo player progress reset.")});
+load();setMode(false);calc();
+})();
+</script></body></html>
