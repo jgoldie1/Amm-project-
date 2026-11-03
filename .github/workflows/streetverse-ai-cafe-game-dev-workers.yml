@@ -16,6 +16,10 @@ on:
       - 'amm-omniverse/tests/streetverse-omni-cast-glb-forge-contract.mjs'
       - 'amm-omniverse/tests/streetverse-original-music-stage-contract.mjs'
       - 'amm-omniverse/src/components/StreetVerseOriginalMusicStage.tsx'
+      - 'amm-omniverse/src/components/StarVerseAuditionPilot.tsx'
+      - 'amm-omniverse/src/components/OTTIsaiahTV.tsx'
+      - 'amm-omniverse/src/components/StarStudioCenter.tsx'
+      - 'amm-omniverse/tests/starverse-isaiah-tv-audition-bridge-contract.mjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -45,6 +49,7 @@ jobs:
           node --check amm-omniverse/scripts/forge-streetverse-ensemble.mjs
           node --check amm-omniverse/tests/streetverse-omni-cast-glb-forge-contract.mjs
           node --check amm-omniverse/tests/streetverse-original-music-stage-contract.mjs
+          node --check amm-omniverse/tests/starverse-isaiah-tv-audition-bridge-contract.mjs
       - name: Dispatch allow-listed AI Cafe development workers
         run: node amm-omniverse/scripts/streetverse-ai-cafe-game-dev-workers.mjs
       - name: Keep review-only evidence
