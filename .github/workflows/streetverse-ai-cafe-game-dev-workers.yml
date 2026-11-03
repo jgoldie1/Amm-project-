@@ -6,6 +6,10 @@ on:
     paths:
       - 'docs/STREETVERSE_AI_CAFE_GAME_DEV_QUEUE.json'
       - '.github/workflows/streetverse-ai-cafe-game-dev-workers.yml'
+      - 'amm-omniverse/scripts/streetverse-ai-cafe-game-dev-workers.mjs'
+      - 'amm-omniverse/scripts/extract-bj-owned-v3-glb.mjs'
+      - 'amm-omniverse/tests/bj-owned-v3-extraction-integration.mjs'
+      - 'amm-omniverse/src/runtime/StreetVerseMeshyBJHeroRuntime.ts'
   workflow_dispatch:
 permissions:
   contents: read
@@ -28,6 +32,9 @@ jobs:
         run: |
           node --check amm-omniverse/scripts/streetverse-ai-cafe-game-dev-workers.mjs
           node --check amm-omniverse/tests/chromebook-streetverse-bj-v4-contract.cjs
+          node --check amm-omniverse/scripts/extract-bj-owned-v3-glb.mjs
+          node --check amm-omniverse/tests/bj-owned-v3-extraction-integration.mjs
+          node --check amm-omniverse/tests/chromebook-streetverse-bj-v5-contract.cjs
       - name: Dispatch allow-listed AI Cafe development workers
         run: node amm-omniverse/scripts/streetverse-ai-cafe-game-dev-workers.mjs
       - name: Keep review-only evidence
