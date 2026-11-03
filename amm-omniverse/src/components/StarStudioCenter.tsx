@@ -30,7 +30,7 @@ export default function StarStudioCenter({onClose}:{onClose:()=>void}){
    <section style={{display:'flex',gap:9,flexWrap:'wrap',marginTop:14,padding:14,border:'1px solid #b48cff88',borderRadius:16,background:'#1c1734'}}>
       <button onClick={()=>setAuditionDesk(true)} style={back}>⭐ WHO WANTS TO BE A STAR? • AUDITION DESK</button>
       <button onClick={()=>setShowMaker(true)} style={back}>📺 ISAIAH AI TV SHOW MAKER</button>
-      <button onClick={()=>{window.location.href='/starverse'}} style={back}>OPEN STARVERSE WORLD</button>
+      <button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:starverse-audition-open',{detail:{source:'star-studio-world'}}))} style={back}>ENTER STARVERSE AUDITION HALL</button>
       <p style={{flexBasis:'100%',margin:0,fontSize:12,color:'#aeb9d5'}}>Auditions are saved locally until reviewed; show creation does not automatically publish, authorize performers, run votes or distribute video.</p>
    </section>
    <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(245px,1fr))',gap:10,marginTop:18}}>{STAR_STUDIO_PILLARS.map(p=><button key={p.id} onClick={()=>launch(p.id)} style={card}><div style={{fontSize:9,color:'#83e8ff',fontWeight:950}}>{p.owner.toUpperCase()} • {p.kind.toUpperCase()}</div><h2 style={{margin:'7px 0',fontSize:18}}>{p.label}</h2><div style={{fontSize:10,color:'#a9b8c9',lineHeight:1.5}}>{p.outputs.join(' • ')}</div><div style={{marginTop:10,fontSize:9,color:'#8affb5',fontWeight:900}}>OPEN EXISTING SYSTEM →</div></button>)}</section>
