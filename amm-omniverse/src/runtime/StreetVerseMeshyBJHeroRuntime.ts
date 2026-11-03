@@ -23,7 +23,14 @@ export const BJ_MESHY_V6_ASSET={
   certifiedLikeness:false,
 } as const
 
-type Motion='idle'|'walk'|'run'
+export const BJ_OWNED_ARTICULATED_V3_ASSET={
+  url:'/tryamm-assets/meshy/characters/BJ_Articulated_Animated_v3_PROTOTYPE.glb',
+  filename:'BJ_Articulated_Animated_v3_PROTOTYPE.glb',
+  version:'V3-OWNED',
+  certifiedLikeness:false,
+} as const
+
+type Motion='idle'|'walk'|'run'|'drive'
 export type BJGesture='nod'|'look-around'|'acknowledge'|'converse'|'greet'
 
 type BJFacePose={
@@ -93,6 +100,7 @@ function materializeAnimationMap(clips:readonly THREE.AnimationClip[]){
     idle:find([/idle/i,/stand/i,/breath/i]),
     walk:find([/walk/i,/locomotion/i]),
     run:find([/run/i,/jog/i,/sprint/i]),
+    drive:find([/seated.?driv/i,/driver.?pose/i]),
   }
 }
 
@@ -230,11 +238,21 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   // Never load a MetaHuman candidate by default; preview is explicitly opted-in.
   const metaHumanPreviewUrl=getPreviewBJMetaHumanUrl()
   // Default to the actual V15 hero; ?bj=legacy preserves a manual fallback.
-  const candidates=[v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
+  const bjMode=new URLSearchParams(window.location.search).get('bj')
+  // Owner approved their V15 photo likeness; V15 remains the default candidate.
+  // The locally extracted animated BJ V3 is a real first-party fallback, not a generic NPC.
+  // ?bj=articulated opts into the local model first; ?bj=legacy uses older published variants.
+  const candidates=[
+    ...(bjMode==='articulated'?[BJ_OWNED_ARTICULATED_V3_ASSET.url]:[]),
+    ...(bjMode==='articulated'||bjMode==='legacy'?[]:[v15PreviewUrl]),
+    ...(bjMode==='legacy'?[]:[BJ_OWNED_ARTICULATED_V3_ASSET.url]),
+    metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url,
+  ].filter((url):url is string=>Boolean(url))
   let sourceUrl=''
   let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
   let usingMetaHumanPreview=false
   let usingV15Preview=false
+  let usingOwnedArticulatedV3=false
   // Generated V12/V7/V6 GLBs are first-party build outputs. A slow Safari HEAD
   // response must not block the real hero; attempt the actual GLB GET instead.
   // Keep the published/external Meshy override protected by its availability probe.
@@ -282,6 +300,15 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         if(!audit.ok){disposeObject(candidateGlb.scene);continue}
         usingMetaHumanPreview=true
       }
+      if(candidate===BJ_OWNED_ARTICULATED_V3_ASSET.url){
+        // Only accept the original extracted, self-contained BJ prototype.
+        const names=(candidateGlb.animations||[]).map(a=>a.name)
+        if(!names.includes('BJ_Idle_Breathing')||!names.includes('BJ_Walk_Cycle')||!names.includes('BJ_Seated_Driving_Pose')){
+          disposeObject(candidateGlb.scene)
+          continue
+        }
+        usingOwnedArticulatedV3=true
+      }
       if(candidate===v15PreviewUrl){
         const faceNames=new Set<string>()
         candidateGlb.scene.traverse(n=>{
@@ -317,7 +344,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   try{
     const gltf=publishedGlb
     const object=gltf.scene
-    object.name=usingV15Preview?'bj-stubbs-v15-actual-glb':usingMetaHumanPreview?'bj-stubbs-metahuman-web-preview':'bj-stubbs-production-v12'
+    object.name=usingV15Preview?'bj-stubbs-v15-actual-glb':usingOwnedArticulatedV3?'bj-stubbs-owned-articulated-v3':usingMetaHumanPreview?'bj-stubbs-metahuman-web-preview':'bj-stubbs-production-v12'
     // V15 includes 50 zero-scaled legacy SkinnedMeshes that are invisible but
     // cause Three.Box3 to produce NaN bounds and an invalid contact shadow.
     // Detach only genuinely invisible zero-scale mesh nodes; do not touch
@@ -330,6 +357,8 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       })
       for(const node of hidden){node.removeFromParent();prunedInvisibleV15Meshes++}
     }
+    // The recovered BJ V3 prototype is Z-up; rotate its root to Three.js Y-up.
+    if(usingOwnedArticulatedV3)object.rotation.x=-Math.PI/2
     normalizeStreetVerseHumanHeight(object,BJ_MESHY_V6_ASSET.targetHeightMeters)
     object.traverse(node=>{
       if(node instanceof THREE.Mesh){
@@ -360,6 +389,8 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       identityContinuityKey:BJ_MESHY_V6_ASSET.characterId,
       visualAuthority:usingV15Preview?'bj-actual-v15-remote-preview':usingMetaHumanPreview?'metahuman-web-opt-in-unapproved':BJ_MESHY_V6_ASSET.authority,
       bjV15RealGlbPreview:usingV15Preview,
+      bjOwnedArticulatedV3:usingOwnedArticulatedV3,
+      ownerApprovedBJPhotoSource:usingV15Preview,
       prunedInvisibleV15Meshes,
       metahumanWebPreview:usingMetaHumanPreview,
       metaHumanLikenessApproved:false,
@@ -479,10 +510,10 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     let gestureUntil=0
     let previousNow=performance.now()
     const gesturePatterns:Record<BJGesture,RegExp>={
-      'nod':/BJ_V15_ListenAndNod/i,
+      'nod':/BJ_V15_ListenAndNod|BJ_Nod_Yes/i,
       'look-around':/BJ_V15_LookAround/i,
       'acknowledge':/BJ_V15_AcknowledgeAndSmile/i,
-      'converse':/BJ_V14_Speaking_Visemes/i,
+      'converse':/BJ_V14_Speaking_Visemes|BJ_Talking_Gesture/i,
       'greet':/BJ_Greeting_Wave/i,
     }
     const playGesture=(gesture:BJGesture):boolean=>{
@@ -514,7 +545,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
 
     const setMotion=(motion:Motion)=>{
       if(!mixer||activeMotion===motion)return
-      const clip=animations[motion]||animations.walk||animations.idle||clips[0]
+      const clip=animations[motion]||(motion==='drive'?animations.idle:animations.walk)||animations.idle||clips[0]
       if(!clip)return
       const next=mixer.clipAction(clip)
       next.enabled=true
@@ -535,7 +566,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         activeAction=null
         activeMotion=null
       }
-      if(!gestureAction)setMotion(state.running?'run':state.moving?'walk':'idle')
+      if(!gestureAction)setMotion(state.seated?'drive':state.running?'run':state.moving?'walk':'idle')
       mixer?.update(dt)
 
       const t=nowMs*.001
