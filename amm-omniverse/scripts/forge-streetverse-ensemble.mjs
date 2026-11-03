@@ -15,22 +15,36 @@ const read=p=>fs.readFileSync(path.join(app,p),'utf8')
 const family=read('src/game/characters/meetTheStubbsFamilyFriends.ts')
 const global=read('src/data/StreetVerseGlobalCharacterRegistry.ts')
 const original=read('src/data/StreetVerseOmniCastProduction.ts')
+const namedPerformers=read('src/data/StreetVerseOriginalMusicCast.ts')
+const setApartPerformers=read('src/data/StreetVerseSetApartMusicNetwork.ts')
 const legacy=read('src/data/ChicagoMusicLegacyMissionRegistry.ts')
 const matches=(text,re)=>[...text.matchAll(re)].map(m=>({id:m[1],name:m[2]}))
 const familyPeople=matches(family,/id:'([^']+)',displayName:'([^']+)'/g)
 const globalPeople=matches(global,/id:'([^']+)',displayName:'([^']+)'/g)
 const artists=matches(legacy,/id:'([^']+)',displayName:'([^']+)'/g)
-const seededPerformers=[...original.matchAll(/\{id:"([^"]+)",name:"([^"]+)",genre:"([^"]+)"\}/g)].map(m=>({id:m[1],name:m[2],genre:m[3]}))
+const legacyOriginalPerformers=[...original.matchAll(/\{id:"([^"]+)",name:"([^"]+)",genre:"([^"]+)"\}/g)].map(m=>({id:m[1],name:m[2],genre:m[3]}))
+const aliases=original.match(/const GENRE_ALIASES:Record<string,string>=\{([\s\S]*?)\n\}/)
+if(!aliases)throw Error('Missing original-performer genre aliases')
+const genreAliases=Object.fromEntries([...aliases[1].matchAll(/'([^']+)':'([^']+)'/g)].map(m=>[m[1],m[2]]))
+const namedOriginalPerformers=[...namedPerformers.matchAll(/\{id:"([^"]+)",displayName:"([^"]+)",genre:"([^"]+)"/g)]
+ .map(m=>({id:m[1],name:m[2],genre:genreAliases[m[3]]||m[3]}))
+const setApartOriginalPerformers=[...setApartPerformers.matchAll(/\{id:"([^"]+)",name:"([^"]+)",genre:"([^"]+)"/g)]
+ .map(m=>({id:m[1],name:m[2],genre:m[3]}))
+const seededPerformers=[...legacyOriginalPerformers,...namedOriginalPerformers,...setApartOriginalPerformers]
 const genreMatch=original.match(/export const STREETVERSE_MUSIC_GENRES=\[(.*?)\] as const/)
 if(!genreMatch)throw Error('Missing genre production lanes')
 const genres=JSON.parse('['+genreMatch[1]+']')
+if(new Set(genres).size!==genres.length)throw Error('Duplicate genre lanes')
+if(new Set(seededPerformers.map(a=>a.id)).size!==seededPerformers.length)throw Error('Duplicate original musician IDs')
 const seededGenreNames=new Set(seededPerformers.map(person=>person.genre))
+for(const person of seededPerformers)if(!genres.includes(person.genre))throw Error('Unregistered music genre '+person.genre)
 const extraStagePerformers=genres.filter(genre=>!seededGenreNames.has(genre)).map((genre,index)=>({
  id:'original-genre-'+genre.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
  name:'Fictional '+genre+' Stage Creator '+String(index+1).padStart(2,'0'),
  genre,
 }))
 const performerPeople=[...seededPerformers,...extraStagePerformers]
+if(new Set(performerPeople.map(person=>person.id)).size!==performerPeople.length)throw Error('Duplicate output performer IDs')
 if(new Set(performerPeople.map(person=>person.genre)).size!==genres.length)throw Error('Not one original musician per genre')
 if(familyPeople.length<29||globalPeople.length<23||artists.length<33||performerPeople.length<12||genres.length<40)throw Error('Source registry incomplete')
 const characters=[
@@ -112,6 +126,16 @@ function forge(entry){
    [leftArm,[0,.4,0,-.4,0],'X'],[rightArm,[0,-.4,0,.4,0],'X'],
    [leftLeg,[0,-.3,0,.3,0],'X'],[rightLeg,[0,.3,0,-.3,0],'X']
   ]),
+  animation('SV_Run',[
+   [leftArm,[0,.78,0,-.78,0],'X'],[rightArm,[0,-.78,0,.78,0],'X'],
+   [leftLeg,[0,-.62,0,.62,0],'X'],[rightLeg,[0,.62,0,-.62,0],'X']
+  ]),
+  animation('SV_Driving_Arms',[
+   [leftArm,[-.65,-.72,-.68,-.63,-.65],'X'],
+   [rightArm,[-.65,-.63,-.68,-.72,-.65],'X']
+  ]),
+  animation('SV_Talk',[[head,[0,.035,0,-.035,0],'Y']]),
+  animation('SV_Nod',[[head,[0,.15,0,-.12,0],'X']]),
   animation('SV_Dance',[
    [leftArm,[0,-.9,.2,-.9,0],'X'],[rightArm,[0,.9,-.2,.9,0],'X'],
    [head,[0,.18,0,-.18,0],'Y']
@@ -120,7 +144,7 @@ function forge(entry){
  const binary=Buffer.concat(chunks)
  const gltf={asset:{version:'2.0',generator:'TRYAMM StreetVerse free offline stylized ensemble forge'},scene:0,
   scenes:[{nodes:[0]}],nodes,meshes,materials:mats,bufferViews:views,accessors,buffers:[{byteLength:binary.length}],
-  animations,extras:{characterId:entry.id,displayName:entry.name,lane:entry.lane,rights:entry.rights,likenessCertified:false,prototype:true}}
+  animations,extras:{characterId:entry.id,displayName:entry.name,lane:entry.lane,rights:entry.rights,sourceGenerator:'TRYAMM-Original-Character-Studio',originalGeometry:true,noExternalCharacterAssets:true,likenessCertified:false,prototype:true}}
  let json=Buffer.from(JSON.stringify(gltf)),jsonPad=(4-json.length%4)%4
  json=Buffer.concat([json,Buffer.alloc(jsonPad,0x20)])
  const binPad=(4-binary.length%4)%4,fullBin=Buffer.concat([binary,Buffer.alloc(binPad)])
@@ -136,15 +160,15 @@ const entries=[]
 for(const character of characters){
  const b=forge(character),hashSum=crypto.createHash('sha256').update(b).digest('hex')
  fs.writeFileSync(path.join(output,character.file),b)
- entries.push({...character,bytes:b.length,sha256:hashSum,meshCount:6,animations:['SV_Idle','SV_Walk','SV_Dance'],visualVerified:false,identityMatched:false})
+ entries.push({...character,bytes:b.length,sha256:hashSum,meshCount:6,animations:['SV_Idle','SV_Walk','SV_Run','SV_Driving_Arms','SV_Talk','SV_Nod','SV_Dance'],visualVerified:false,identityMatched:false,sourceLicense:'TRYAMM original procedural geometry (verify any later imported inputs)'})
 }
 const manifest={schema:'tryamm.streetverse.original-ensemble-stubs.v1',createdAt:new Date().toISOString(),
   program:'Meet the Stubbs / Global Cast / Original Music Stars',
   policy:'Original, neutral, genre-inspired fictional geometry. Not a clone of any artist or other real person.',
   playablePrototypeModels:entries.length,registeredFamily:familyPeople.length+10,globalFictional:globalPeople.length,
-  originalPerformers:performerPeople.length,artistHistoryNames:artists.map(x=>x.name),
+  originalPerformers:performerPeople.length,originalNamedMusicians:namedOriginalPerformers.length,setApartNamedMusicians:setApartOriginalPerformers.length,artistHistoryNames:artists.map(x=>x.name),
   artistHistoryModelsGenerated:0,musicGenreLanes:genres,musicRecordingsGenerated:0,
-  likenessCertification:'none',ownerApprovedBJSeparate:true,entries}
+  likenessCertification:'none',ownerApprovedBJSeparate:true,originalOutputOwnership:'TRYAMM original generated source and geometry; imported model, photo or music rights require separate proof',entries}
 fs.writeFileSync(path.join(output,'ensemble-manifest.json'),JSON.stringify(manifest,null,2))
 fs.writeFileSync(path.join(output,'START_HERE.txt'),'StreetVerse original stylized cast stand-ins. BJ V15 is separate. No artist clone/voice/recording included. Not device certified. Use GLTFLoader; queue review before publishing. \n')
 console.log(JSON.stringify({generated:entries.length,bytes:entries.reduce((s,e)=>s+e.bytes,0),family:manifest.registeredFamily,global:manifest.globalFictional,fictionalMusicians:manifest.originalPerformers,genreLanes:genres.length,artistLikenessModels:0,artifactPath:output}))
