@@ -1,0 +1,27 @@
+STREETVERSE CHICAGO — BJ ANIMATED CHROMEBOOK v5
+2026-11-03 | TRYAMM development branch only
+
+WHAT IS NEW
+- Your recovered BJ Articulated v3 PROTOTYPE is embedded, with 126 original geometry parts and six genuine glTF animation clips.
+- BJ idles, walks while moving, uses a driving pose, and talks after NPC interaction. In TOOLS use BJ DANCE and BJ NOD to try the extra clips.
+- The original asset's geometry is Z-up; the game rotates it into the browser's Y-up environment, applies part colors, and keeps BJ grounded.
+- Repair kit → enter car → drive to Taylor Street → NPC → enter building → stairs/elevator → complete mission, plus one-hand arrows, persists in localStorage (when available).
+- No external JS libraries or installer, no online payments, no extra subscriptions.
+
+HOW TO OPEN FROM GOOGLE DRIVE ON CHROMEBOOK
+1. Open the StreetVerse Chromebook Studio folder in Google Drive.
+2. Find StreetVerse_Chicago_BJ_Animated_v5_Chromebook.html.
+3. If Drive only shows a source-code/text preview, choose Download, then in ChromeOS Files > Downloads use Open with Chrome. This tiny HTML is approximately 330 KB; the ZIP is optional.
+4. Use arrow keys/WASD, E/INTERACT, or the one-hand directional buttons. Click TOOLS for graphics LOW and the extra BJ animations.
+5. If download is blocked, tell ChatGPT the precise on-screen error. Google Drive cannot execute arbitrary HTML directly in its preview.
+
+HONEST LIMITS / QA
+- Offline Node tests passed mission stages, 126 BJ parts, all six animation clips, and verified that 113 part GPU matrices change over two animation times.
+- Actual ChromeOS GPU rendering was NOT certified. This testing container's Chromium was blocked by administrator policy for file, loopback and data URL previews. Test on the Chromebook is needed.
+- This is the *development* BJ Articulated v3 model. It is NOT the verified true-to-photo V15 BJ likeness. Source code references V15, but availability has not been confirmed; do not mislabel v3 as V15.
+- Model uses node animation; NOT skinned mesh animation or full Three.js GLTFLoader. Body animation and geometry are present but high-resolution textures/lip-sync/GTA visual quality are not yet completed.
+- Real multiplayer, Stripe purchase fulfillment, and cloud live-stream playback are not connected in this local pilot.
+- Keep the old 3D v4 / native original GLB archives in Google Drive as rollback options.
+
+BUDGET
+The standalone page needs no new monthly subscription. Don't sign up for paid streaming, storage, or hosting until we have a verified playable pilot and first customer.
