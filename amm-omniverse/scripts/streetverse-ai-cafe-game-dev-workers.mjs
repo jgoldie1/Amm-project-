@@ -49,9 +49,10 @@ const workers={
    const report=checkTest('amm-omniverse/tests/streetverse-omni-cast-production-contract.mjs')
    const models=checkTest('amm-omniverse/tests/streetverse-omni-cast-glb-forge-contract.mjs')
    const stage=checkTest('amm-omniverse/tests/streetverse-original-music-stage-contract.mjs')
-   return result(report.status==='passed'&&models.status==='passed'&&stage.status==='passed'?'passed':'failed',
-     [...report.evidence,...models.evidence,...stage.evidence],
-     'Unified cast: '+report.status+'; 107 original GLBs: '+models.status+'; playable 46-genre stage: '+stage.status)
+   const star=checkTest('amm-omniverse/tests/starverse-isaiah-tv-audition-bridge-contract.mjs')
+   return result(report.status==='passed'&&models.status==='passed'&&stage.status==='passed'&&star.status==='passed'?'passed':'failed',
+     [...report.evidence,...models.evidence,...stage.evidence,...star.evidence],
+     'Unified cast: '+report.status+'; expanded original GLBs: '+models.status+'; 106-genre stage: '+stage.status+'; Isaiah AI TV / StarVerse auditions: '+star.status)
  },
  'west-side-builder-regression'(){
   const a=checkTest('amm-omniverse/tests/streetverse-visible-forge-real-placement.test.mjs')
