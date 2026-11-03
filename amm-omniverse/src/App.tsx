@@ -51,6 +51,7 @@ const QuantumLagBuster = lazy(() => import('./components/QuantumLagBuster'))
 const QuantumBeatCenter = lazy(() => import('./components/QuantumBeatCenter'))
 const OTTIsaiahTV = lazy(() => import('./components/OTTIsaiahTV'))
 const StarVerseAuditionPilot = lazy(() => import('./components/StarVerseAuditionPilot'))
+const AvatarCreator = lazy(() => import('./components/AvatarCreator'))
 const StarStudioCenter = lazy(() => import('./components/StarStudioCenter'))
 const Aniyah64TrackStudio = lazy(() => import('./components/Aniyah64TrackStudio'))
 const HoloPlayCard = lazy(() => import('./components/HoloPlayCard'))
@@ -89,6 +90,7 @@ export default function App() {
   const [showQuantumBeat, setShowQuantumBeat] = useState(false)
   const [showOTT, setShowOTT] = useState(false)
   const [showStarAudition,setShowStarAudition] = useState(false)
+  const [showCreatorFaceScan,setShowCreatorFaceScan]=useState(false)
   const [starAuditionContext,setStarAuditionContext] = useState<{source?:string;genre?:string;performerId?:string}>({})
   const [showStarStudio, setShowStarStudio] = useState(false)
   const [showAniyahStudio, setShowAniyahStudio] = useState(false)
@@ -232,6 +234,7 @@ export default function App() {
   ;(window as any).__showQuantumBeat = () => setShowQuantumBeat(true)
   ;(window as any).__showIsaiahTV = () => setShowOTT(true)
   ;(window as any).__showStarVerseAudition = (detail?:{source?:string;genre?:string;performerId?:string}) => {setStarAuditionContext(detail||{});setShowStarAudition(true)}
+  ;(window as any).__showAvatarCreator = () => setShowCreatorFaceScan(true)
   useEffect(()=>{
    const onAuditionOpen=(event:Event)=>{
     const detail=(event as CustomEvent<{source?:string;genre?:string;performerId?:string}>).detail||{}
@@ -396,6 +399,7 @@ export default function App() {
         {showQuantumBeat && <QuantumBeatCenter onClose={() => setShowQuantumBeat(false)} />}
         {showOTT && <OTTIsaiahTV onClose={() => setShowOTT(false)} />}
         {showStarAudition && <StarVerseAuditionPilot onClose={() => setShowStarAudition(false)} context={starAuditionContext}/>}
+        {showCreatorFaceScan && <div style={{position:'fixed',inset:0,zIndex:19045,background:'#020212'}}><AvatarCreator onDone={()=>setShowCreatorFaceScan(false)} /></div>}
         {showStarStudio && <StarStudioCenter onClose={() => setShowStarStudio(false)} />}
         {showAniyahStudio && <div style={{position:'fixed',inset:0,zIndex:12050,background:'#05060d'}}><Aniyah64TrackStudio onClose={() => setShowAniyahStudio(false)} /></div>}
         {showHoloPlayCard && <HoloPlayCard onClose={() => setShowHoloPlayCard(false)} />}
