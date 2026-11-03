@@ -1,64 +1,31 @@
-# StreetVerse: Chromebook cloud workbench
+# StreetVerse Chromebook — zero-install development workflow
 
-This guide applies to the **streetverse-chromebook-workbench** branch of `jgoldie1/Amm-project-`.
-The existing production branch `main` is left untouched.
+**Device constraint:** 32 GB total storage; Linux/Crostini and local Visual Studio Code cannot be installed. This workflow does NOT require either one. It also does NOT require opening github.dev or GitHub Codespaces.
 
-## Why this setup
-- The Chromebook needs only Chrome, an internet connection, and a GitHub sign-in. Do not install Unreal, Unity, Blender, or Crostini/Linux just to start.
-- `github.dev` provides fast editing but **no built-in runtime/terminal**.
-- GitHub Codespaces provides a cloud-hosted VS Code editor, Node.js 24, terminal, and preview. This branch includes a Node 24 development container, Vite port 5173, and ESLint/Prettier/glTF Tools extensions.
-- GitHub Codespaces can incur usage charges after included personal-account quotas. Stop the codespace when not working, and delete unused codespaces after committing work. Verify account billing settings first.
-- Large original GLB files remain in Google Drive; do not download all assets onto the Chromebook.
+## Use what is already connected
 
-## 1. Check Chromebook storage (without installing)
-On the Chromebook, select the clock > Settings > System preferences > Storage management.
-Open `chrome://system` for device diagnostics including `meminfo` where available.
-Record the model, total RAM, and free local storage.
+1. **ChatGPT + GitHub connector:** Ask ChatGPT to inspect or edit `jgoldie1/Amm-project-` on branch `streetverse-chromebook-workbench`. ChatGPT can read, create, and change individual repository files through the connected GitHub tools. Keep production `main` untouched until tests pass and changes are reviewed.
+2. **ChatGPT + Google Drive connector:** Recover models, animations, sound files, and SHA-256 manifests from the folder `StreetVerse_Original_Character_Recovery_2026-10-08`:
+   https://drive.google.com/drive/folders/1QZHgdav1g0v22raXRDyGBx9hFBAZ_7JP
+3. **Browser-only layout planner:** Use the small standalone HTML game-planning file from the ChatGPT conversation. No libraries, VS Code, Linux, or Node installations. Export layouts as small JSON files when done. Only download individual small working files—not the game repository or model library.
+4. **Cloud tests:** Use GitHub Actions when available/configured, or test the small edited files in ChatGPT's sandbox. For this large Vite repository, verify the actual game build separately; a successful syntax check is not a gameplay certification.
+5. **Browser preview:** A reviewed static preview may be published through GitHub Pages later, but do not publish proprietary/nonpublic assets or expose secrets. Publishing requires separately confirming Pages settings; no live preview has yet been deployed.
 
-## 2. Open the editing workspace
-Open:
-https://github.com/jgoldie1/Amm-project-/tree/streetverse-chromebook-workbench
-Choose **Code > Codespaces > Create codespace on streetverse-chromebook-workbench**.
-Select a small 2-core machine if offered. Cloud configuration uses Node 24.
-For **editing without running**, use https://github.dev/jgoldie1/Amm-project- and select the branch.
+## Working loop
 
-## 3. Run the existing game in cloud VS Code
-In the Codespaces terminal:
+Ask for ONE feature (for example `Circle Park one-hand controls`).
+ChatGPT reads relevant existing code → prepares patch → commits to workbench branch → runs available scoped tests → reports exact results and remaining blockers → user tests any preview in Chrome.
 
-```bash
-cd amm-omniverse
-node --version
-npm ci
-npm run dev -- --host 0.0.0.0 --port 5173
-```
+## Existing game
 
-Use the **Ports** tab to open port 5173 as a private forwarded preview.
-`npm ci` may take time/space **in Codespaces**, not on the Chromebook. It can fail due to repository size or dependency/environment constraints; examine errors rather than claiming success.
-**Do not run the full `npm run build` first**. Its script performs multiple tests, regenerates assets and executes recovery tasks before Vite build. Use the smallest verifiable playable loop first.
+- Core Vite game: `amm-omniverse/` in `jgoldie1/Amm-project-`.
+- Engine: Three.js / TypeScript / Vite, Node.js 24 required for the full repo.
+- Existing assets are in Drive, including Wave 1/Wave 2 NPC GLB variants. These are NOT proof that the BJ Stubbs player model is present or animated in the running game.
+- First gameplay milestone: Circle Park, player avatar, one-hand mobile controls, car enter/drive/exit, one talking/walking NPC, Taylor Street mission and reward.
 
-## 4. Scope of the first playable game milestone
-1. Circle Park start location: visible textured street, sidewalks, and camera.
-2. BJ playable avatar: verify original model ownership and actual GLB loader; use a clearly labeled placeholder until validated.
-3. One-hand mobile joystick with camera and camera collision.
-4. One driveable car: enter, accelerate, brake, reverse, exit.
-5. One NPC that walks and responds to an interaction.
-6. Taylor Street destination mission: marker, completion message, reward.
-7. Test in Chromebook Chrome and an iPhone browser before merging.
+## Costs and limitations
 
-Do not promise a GTA VI-equivalent game or enable VR until the basic loop works. VR is a later feature gate after performance and safety checks.
-
-## 5. Asset workflow
-- Recovery folder: https://drive.google.com/drive/folders/1QZHgdav1g0v22raXRDyGBx9hFBAZ_7JP
-- Wave 1 and Wave 2 contain twelve original GLB file variants around 11–13 MB each. They are NPC files, **not verified as the BJ Stubbs player model**.
-- Inventory files, license/rights, check SHA-256 manifests, and test skeleton/animations in a cloud environment before wiring in. Use optimized working copies and retain originals.
-- Keep big models/textures online (cloud Drive / authorized asset storage) and load on demand. Do not commit private credentials or raw large asset packs to Git.
-- Browser asset tools: https://threejs.org/editor/ , https://www.blockbench.net/ .
-
-## 6. Save and avoid bills
-- Review changed files > commit and push to the workbench branch.
-- Never merge into `main` without an explicit review and real gameplay tests.
-- Go to https://github.com/codespaces > ... > **Stop codespace** when finished. Closing the browser tab alone does not immediately stop compute use.
-- Free GitHub personal accounts have an included quota, not unlimited cloud compute. Check the current quotas and spending settings at https://docs.github.com/en/billing/concepts/product-billing/github-codespaces.
-
-## Existing checks still required
-This configuration has been added to a branch, **but a new Codespace has not been launched**, packages have not been installed, and build/playback testing has **not** been performed.
+- GitHub Actions public-repo minutes have an included allowance; check account usage before enabling frequent builds.
+- The full 3D game still needs a server/preview host and rendering hardware. ChatGPT connectors edit cloud files; they do not remotely control the Chromebook or guarantee gameplay works.
+- If browser-based development accounts are failing, avoid them for now. GitHub Codespaces configuration is retained as **optional** only; it is NOT required for this Chromebook workflow.
+- Do not add sensitive credentials or private assets to this public repository.
