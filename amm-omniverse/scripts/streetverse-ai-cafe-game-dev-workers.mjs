@@ -17,7 +17,7 @@ const output=path.join(repo,'artifacts','streetverse-ai-cafe')
 fs.mkdirSync(output,{recursive:true})
 const queueFile=path.join(repo,'docs','STREETVERSE_AI_CAFE_GAME_DEV_QUEUE.json')
 const queue=JSON.parse(fs.readFileSync(queueFile,'utf8'))
-if(queue.schema!=='tryamm.streetverse.ai-cafe.game-dev-queue.v1'||!Array.isArray(queue.orders)||queue.orders.length>6||queue.orders.length<1){
+if(queue.schema!=='tryamm.streetverse.ai-cafe.game-dev-queue.v1'||!Array.isArray(queue.orders)||queue.orders.length>7||queue.orders.length<1||queue.maxWorkers!==7){
  throw new Error('Rejected invalid or over-capacity AI Café work order queue')
 }
 const allowed=new Set(['bj-preview-regression','west-side-builder-regression','free-asset-readiness','circle-park-preview-pack','ai-cafe-capability-audit','release-blocker-audit','omni-cast-regression'])
