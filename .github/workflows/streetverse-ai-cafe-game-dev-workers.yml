@@ -12,6 +12,8 @@ on:
       - 'amm-omniverse/src/runtime/StreetVerseMeshyBJHeroRuntime.ts'
       - 'amm-omniverse/src/data/StreetVerseOmniCastProduction.ts'
       - 'amm-omniverse/src/components/MeetTheStubbsWorldDistrict.tsx'
+      - 'amm-omniverse/scripts/forge-streetverse-ensemble.mjs'
+      - 'amm-omniverse/tests/streetverse-omni-cast-glb-forge-contract.mjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -38,6 +40,8 @@ jobs:
           node --check amm-omniverse/tests/bj-owned-v3-extraction-integration.mjs
           node --check amm-omniverse/tests/chromebook-streetverse-bj-v5-contract.cjs
           node --check amm-omniverse/tests/streetverse-omni-cast-production-contract.mjs
+          node --check amm-omniverse/scripts/forge-streetverse-ensemble.mjs
+          node --check amm-omniverse/tests/streetverse-omni-cast-glb-forge-contract.mjs
       - name: Dispatch allow-listed AI Cafe development workers
         run: node amm-omniverse/scripts/streetverse-ai-cafe-game-dev-workers.mjs
       - name: Keep review-only evidence
@@ -45,6 +49,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: streetverse-ai-cafe-worker-evidence
-          path: artifacts/streetverse-ai-cafe/
+          path: |
+            artifacts/streetverse-ai-cafe/
+            artifacts/streetverse-omni-cast/
           retention-days: 5
           if-no-files-found: warn
