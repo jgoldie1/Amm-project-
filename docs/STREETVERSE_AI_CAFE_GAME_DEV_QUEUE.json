@@ -2,13 +2,49 @@
   "schema": "tryamm.streetverse.ai-cafe.game-dev-queue.v1",
   "batchId": "streetverse-chromebook-bj-2026-11-03",
   "scope": "development-review-only",
-  "maxWorkers": 6,
+  "maxWorkers": 7,
   "orders": [
-    {"id": "bj-preview-regression", "agent": "distinguished-asset-engineer", "priority": "critical", "status": "queued"},
-    {"id": "west-side-builder-regression", "agent": "world-builder", "priority": "high", "status": "queued"},
-    {"id": "free-asset-readiness", "agent": "distinguished-asset-engineer", "priority": "high", "status": "queued"},
-    {"id": "circle-park-preview-pack", "agent": "world-builder", "priority": "high", "status": "queued"},
-    {"id": "ai-cafe-capability-audit", "agent": "ai-ceo-readiness", "priority": "high", "status": "queued"},
-    {"id": "release-blocker-audit", "agent": "release-guardian", "priority": "high", "status": "queued"}
+    {
+      "id": "bj-preview-regression",
+      "agent": "distinguished-asset-engineer",
+      "priority": "critical",
+      "status": "queued"
+    },
+    {
+      "id": "west-side-builder-regression",
+      "agent": "world-builder",
+      "priority": "high",
+      "status": "queued"
+    },
+    {
+      "id": "free-asset-readiness",
+      "agent": "distinguished-asset-engineer",
+      "priority": "high",
+      "status": "queued"
+    },
+    {
+      "id": "circle-park-preview-pack",
+      "agent": "world-builder",
+      "priority": "high",
+      "status": "queued"
+    },
+    {
+      "id": "ai-cafe-capability-audit",
+      "agent": "ai-ceo-readiness",
+      "priority": "high",
+      "status": "queued"
+    },
+    {
+      "id": "release-blocker-audit",
+      "agent": "release-guardian",
+      "priority": "high",
+      "status": "queued"
+    },
+    {
+      "id": "omni-cast-regression",
+      "agent": "world-builder",
+      "priority": "high",
+      "status": "queued"
+    }
   ]
 }

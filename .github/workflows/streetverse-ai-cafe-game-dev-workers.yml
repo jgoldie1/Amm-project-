@@ -10,6 +10,8 @@ on:
       - 'amm-omniverse/scripts/extract-bj-owned-v3-glb.mjs'
       - 'amm-omniverse/tests/bj-owned-v3-extraction-integration.mjs'
       - 'amm-omniverse/src/runtime/StreetVerseMeshyBJHeroRuntime.ts'
+      - 'amm-omniverse/src/data/StreetVerseOmniCastProduction.ts'
+      - 'amm-omniverse/src/components/MeetTheStubbsWorldDistrict.tsx'
   workflow_dispatch:
 permissions:
   contents: read
@@ -35,6 +37,7 @@ jobs:
           node --check amm-omniverse/scripts/extract-bj-owned-v3-glb.mjs
           node --check amm-omniverse/tests/bj-owned-v3-extraction-integration.mjs
           node --check amm-omniverse/tests/chromebook-streetverse-bj-v5-contract.cjs
+          node --check amm-omniverse/tests/streetverse-omni-cast-production-contract.mjs
       - name: Dispatch allow-listed AI Cafe development workers
         run: node amm-omniverse/scripts/streetverse-ai-cafe-game-dev-workers.mjs
       - name: Keep review-only evidence

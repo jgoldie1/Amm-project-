@@ -20,7 +20,7 @@ const queue=JSON.parse(fs.readFileSync(queueFile,'utf8'))
 if(queue.schema!=='tryamm.streetverse.ai-cafe.game-dev-queue.v1'||!Array.isArray(queue.orders)||queue.orders.length>6||queue.orders.length<1){
  throw new Error('Rejected invalid or over-capacity AI Café work order queue')
 }
-const allowed=new Set(['bj-preview-regression','west-side-builder-regression','free-asset-readiness','circle-park-preview-pack','ai-cafe-capability-audit','release-blocker-audit'])
+const allowed=new Set(['bj-preview-regression','west-side-builder-regression','free-asset-readiness','circle-park-preview-pack','ai-cafe-capability-audit','release-blocker-audit','omni-cast-regression'])
 const ids=new Set()
 for(const order of queue.orders){
  if(!allowed.has(order.id)||ids.has(order.id)||order.status!=='queued'||typeof order.agent!=='string')throw new Error('Unknown, duplicate, or unqueued task was rejected')
@@ -44,6 +44,10 @@ const workers={
   return result(preview.status==='passed'&&extracted.status==='passed'?'passed':'failed',
     [...preview.evidence,...extracted.evidence,'Owner-approved BJ V15 likeness remains prioritized; own articulated V3 is the verified offline fallback.'],
     'Animated game: '+preview.status+'; extracted GLB + actual Three.js player binding: '+extracted.status)
+ },
+ 'omni-cast-regression'(){
+   const report=checkTest('amm-omniverse/tests/streetverse-omni-cast-production-contract.mjs')
+   return result(report.status,report.evidence,'Unified family, original performer, music history, and global batch production: '+report.status)
  },
  'west-side-builder-regression'(){
   const a=checkTest('amm-omniverse/tests/streetverse-visible-forge-real-placement.test.mjs')

@@ -93,3 +93,6 @@ export const STREETVERSE_GLOBAL_CHARACTER_POLICY={
  childAndTeenAfterDarkBlocked:true,
  oneSharedRigPackWithCitySpecificCasting:true,
 } as const
+
+/** First-wave fictional global actors: one source of truth for batch production. */
+export function getAllFirstWaveGlobalCharacterCast():GlobalCharacterProfile[]{return Object.values(FIRST_WAVE_CAST).flat()}
