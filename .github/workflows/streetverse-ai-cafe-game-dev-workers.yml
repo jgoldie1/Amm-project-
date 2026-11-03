@@ -1,0 +1,40 @@
+name: StreetVerse AI Cafe Game Dev Workers
+on:
+  push:
+    branches:
+      - streetverse-chromebook-workbench
+    paths:
+      - 'docs/STREETVERSE_AI_CAFE_GAME_DEV_QUEUE.json'
+      - '.github/workflows/streetverse-ai-cafe-game-dev-workers.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: streetverse-dev-workers-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  run-queued-dev-workers:
+    name: Bounded StreetVerse game dev workers (no subscriptions)
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check game-dev worker syntax
+        run: |
+          node --check amm-omniverse/scripts/streetverse-ai-cafe-game-dev-workers.mjs
+          node --check amm-omniverse/tests/chromebook-streetverse-bj-v4-contract.cjs
+      - name: Dispatch allow-listed AI Cafe development workers
+        run: node amm-omniverse/scripts/streetverse-ai-cafe-game-dev-workers.mjs
+      - name: Keep review-only evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-ai-cafe-worker-evidence
+          path: artifacts/streetverse-ai-cafe/
+          retention-days: 5
+          if-no-files-found: warn
