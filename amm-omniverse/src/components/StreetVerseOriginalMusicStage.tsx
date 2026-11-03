@@ -1,7 +1,8 @@
-import {useEffect,useRef,useState} from 'react'
+import {useEffect,useMemo,useRef,useState} from 'react'
 import * as THREE from 'three'
 import {STREETVERSE_ORIGINAL_GENRE_LINEUP,STREETVERSE_MUSIC_GENRES} from '../data/StreetVerseOmniCastProduction'
 import {loadStreetVerseMeshyBJHero,type StreetVerseMeshyBJHeroHandle} from '../runtime/StreetVerseMeshyBJHeroRuntime'
+import {isSetApartGenre,SET_APART_MUSIC_GENRES,MYTHOS_SIGNATURE_BLENDS,MYTHOS_BLENDER_GENRE_PROFILES,SET_APART_64_TRACK_WORKFLOW,YAHUEAH_HA_MASCHIAH_ALBUM_BRIEF} from '../data/StreetVerseSetApartMusicNetwork'
 
 const PER_PAGE=8
 type Performer={id:string;name:string;genre:string;object:THREE.Group}
@@ -33,8 +34,11 @@ export default function StreetVerseOriginalMusicStage({onClose}:{onClose:()=>voi
  const [notice,setNotice]=useState('Visit an original performer, then choose an original or cleared music project.')
  const [bjStatus,setBJStatus]=useState('Loading owner-approved BJ V15, with the existing owned-model fallback.')
  const [activeGenre,setActiveGenre]=useState<string|null>(null)
+ const [setApartOnly,setSetApartOnly]=useState(false)
+ const [mythosBlend,setMythosBlend]=useState<string>(MYTHOS_SIGNATURE_BLENDS[0])
+ const visibleLineup=useMemo(()=>setApartOnly?STREETVERSE_ORIGINAL_GENRE_LINEUP.filter(artist=>isSetApartGenre(artist.genre)):STREETVERSE_ORIGINAL_GENRE_LINEUP,[setApartOnly])
  const [renderStatus,setRenderStatus]=useState('Initializing WebGL stage')
- const maxPage=Math.ceil(STREETVERSE_ORIGINAL_GENRE_LINEUP.length/PER_PAGE)-1
+ const maxPage=Math.max(0,Math.ceil(visibleLineup.length/PER_PAGE)-1)
  useEffect(()=>{
   const root=mount.current;if(!root)return
   let renderer:THREE.WebGLRenderer
@@ -101,13 +105,13 @@ export default function StreetVerseOriginalMusicStage({onClose}:{onClose:()=>voi
   const group=stageGroup.current;if(!group)return
   for(const actor of [...group.children]){group.remove(actor);disposeMeshes(actor)}
   stagePerformers.current=[]
-  STREETVERSE_ORIGINAL_GENRE_LINEUP.slice(page*PER_PAGE,(page+1)*PER_PAGE).forEach((artist,index)=>{
+  visibleLineup.slice(page*PER_PAGE,(page+1)*PER_PAGE).forEach((artist,index)=>{
    const object=makeFictionalPerformer(artist.name,artist.genre,artist.id,index+page*PER_PAGE)
    object.position.set(-21+(index%PER_PAGE)*6,0,-6)
    group.add(object)
    stagePerformers.current.push({id:artist.id,name:artist.name,genre:artist.genre,object})
   })
- },[page])
+ },[page,visibleLineup])
  const interact=()=>{
   const root=player.current
   if(!root){setNotice('3D scene is not ready. Choose an artist card instead.');return}
@@ -121,7 +125,7 @@ export default function StreetVerseOriginalMusicStage({onClose}:{onClose:()=>voi
   }}))
  }
  const selectArtist=(index:number)=>{
-  const artist=STREETVERSE_ORIGINAL_GENRE_LINEUP[index]
+  const artist=visibleLineup[index]
   if(!artist)return
   setPage(Math.floor(index/PER_PAGE));setActiveGenre(artist.genre)
   player.current?.position.set(-21+(index%PER_PAGE)*6,0,0)
@@ -151,10 +155,19 @@ export default function StreetVerseOriginalMusicStage({onClose}:{onClose:()=>voi
      <button disabled={page===0} onClick={()=>setPage(p=>Math.max(0,p-1))} style={buttonStyle}>Previous performers</button>
      <strong>Stage {page+1} of {maxPage+1}</strong>
      <button disabled={page>=maxPage} onClick={()=>setPage(p=>Math.min(maxPage,p+1))} style={buttonStyle}>Next performers</button>
-     <button style={buttonStyle} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'streetverse-original-music-stage',genre:activeGenre||'hip-hop',title:'Original StreetVerse Studio Project',originalMusicOnly:true}}))}>Open Creator / 64-Track Studio</button>
+     <button style={buttonStyle} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:setApartOnly?'streetverse-set-apart-network':'streetverse-original-music-stage',genre:activeGenre||(setApartOnly?'Christian Rap':'Hip-Hop'),title:setApartOnly?'Set Apart 64-Track Session':'Original StreetVerse Studio Project',originalMusicOnly:true,setApart:setApartOnly,faithVerseOptional:setApartOnly,mythosBlend:mythosBlend,trackCapacity:SET_APART_64_TRACK_WORKFLOW.trackCapacity,studioChecklist:SET_APART_64_TRACK_WORKFLOW.arrangementFields}}))}>Open Creator / 64-Track Studio</button>
     </div>
+    <div style={{display:'flex',gap:7,alignItems:'center',flexWrap:'wrap'}}>
+      <button aria-pressed={setApartOnly} onClick={()=>{setSetApartOnly(v=>!v);setPage(0);setActiveGenre(null)}} style={{...buttonStyle,background:setApartOnly?'#4a2b71':'#213251'}}>Set Apart Music • {SET_APART_MUSIC_GENRES.length} Genres</button>
+      <span style={{fontSize:11,color:'#cdd7ee'}}>Mythos Blender: {MYTHOS_BLENDER_GENRE_PROFILES.join(' / ')}</span>
+    </div>
+    {setApartOnly&&<div style={{border:'1px solid #52476c',borderRadius:12,padding:10,background:'#17142c'}}>
+      <strong>Set Apart Music Network • House of HaMashiach / FaithVerse</strong>
+      <div style={{fontSize:11,color:'#c4c4e2',marginTop:5}}>Original faith-inspired music only. {YAHUEAH_HA_MASCHIAH_ALBUM_BRIEF.title} • {YAHUEAH_HA_MASCHIAH_ALBUM_BRIEF.plannedSongs}-song project (audio completion not verified).</div>
+      <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:8}}>{MYTHOS_SIGNATURE_BLENDS.map(blend=><button key={blend} aria-pressed={mythosBlend===blend} onClick={()=>setMythosBlend(blend)} style={{...buttonStyle,minHeight:34,fontSize:10,background:mythosBlend===blend?'#674393':'#253052'}}>{blend}</button>)}</div>
+    </div>}
     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(145px,1fr))',gap:7,maxHeight:275,overflowY:'auto'}}>
-     {STREETVERSE_ORIGINAL_GENRE_LINEUP.map((artist,i)=><button key={artist.id} onClick={()=>selectArtist(i)} style={{...buttonStyle,textAlign:'left',fontSize:11,background:activeGenre===artist.genre?'#44336c':'#15243a'}}><strong>{artist.name}</strong><div style={{marginTop:4,color:'#cbd5ee'}}>{artist.genre}</div></button>)}
+     {visibleLineup.map((artist,i)=><button key={artist.id} onClick={()=>selectArtist(i)} style={{...buttonStyle,textAlign:'left',fontSize:11,background:activeGenre===artist.genre?'#44336c':'#15243a'}}><strong>{artist.name}</strong><div style={{marginTop:4,color:'#cbd5ee'}}>{artist.genre}</div></button>)}
     </div>
     <p style={{fontSize:11,color:'#acb9d5'}}>All these performers are fictionalized original characters. This is a working prototype stage, not 46 verified photorealistic GLBs, licensed songs, celebrity voice clones, artist endorsements or a public deployment. Family and real-artist history remain in the existing roster and mission systems.</p>
    </div>
