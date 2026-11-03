@@ -302,8 +302,10 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
           nativeHero.position.copy(avatar.position)
           nativeHero.rotation.y=avatar.rotation.y
           const isV15=handle.object.userData.bjV15RealGlbPreview===true
+          const isOwnedArticulatedV3=handle.object.userData.bjOwnedArticulatedV3===true
           // GLTF animation bones must not be overwritten by procedural limb swing.
           nativeHeroRig=isV15?null:nativeHumanoidRig(nativeHero)
+          if(isOwnedArticulatedV3)nativeHeroRig=null // Original BJ clips drive the prototype transforms
           nativeWindLocs=[]
           nativeHero.traverse(object=>{
             if(/loc|braid|dread|hair/i.test(object.name)){
@@ -312,7 +314,9 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
             }
           })
           setBJRenderedVersion(isV15?'V15':null)
+          if(isOwnedArticulatedV3)setBJRenderedVersion('V3')
           setBJLoadStatus(isV15?'ready':'fallback')
+          if(isOwnedArticulatedV3)setBJLoadStatus('ready')
           const detail={
             characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',
             version:isV15?'V15':'V12 fallback',
@@ -322,12 +326,20 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
             authoritative3DMesh:true,actual3DModelMounted:true,facialMorphNames:handle.morphTargetNames,
             skeletonAnimationCount:handle.clips.length,proceduralFallbackSuppressed:true,modelPreview:isV15,
           }
+          if(isOwnedArticulatedV3){
+            detail.version='V3 articulated'
+            detail.assetId='streetverse-bj-stubbs-owned-v3'
+            detail.source='streetverse-owner-approved-bj-articulated-v3'
+            detail.skeletonAnimationCount=handle.clips.length
+          }
           announceStreetVerseCharacterReady({id:STREETVERSE_HERO_CHARACTER_ID,assetId:detail.assetId,era:'current',photoMatched:false,source:detail.source})
           window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail}))
           window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-hero-mounted',{detail}))
           if(isV15){
             setMessage('BJ V15 LOADED • animated 3D model active')
             window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-showcase',{detail:{source:'bj-v15-mounted'}}))
+          }else if(isOwnedArticulatedV3){
+            setMessage('BJ V3 ANIMATED • original BJ model active')
           }else if(new URLSearchParams(window.location.search).get('bj')==='v15'){
             setMessage('BJ V15 DID NOT LOAD • previous model restored')
           }
