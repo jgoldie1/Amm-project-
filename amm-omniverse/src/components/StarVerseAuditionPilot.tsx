@@ -106,6 +106,7 @@ export default function StarVerseAuditionPilot({onClose,context}:{onClose:()=>vo
     <p style={{opacity:.75,fontSize:13}}>Existing systems: Aniyah's 64-Track Studio → StarVerse Audition Hall → original showcase → Isaiah AI TV review → eligible LIVE/Reel distribution. No channel time, award, payment, or public vote is promised.</p>
     <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
      <button type="button" onClick={openStudio} style={styles.button}>OPEN 64-TRACK STUDIO</button>
+     <button type="button" onClick={()=>{(window as any).__showAvatarCreator?.();onClose()}} style={styles.button}>CREATE MY 3D CHARACTER — CAMERA / 3 PHOTOS</button>
      <button type="button" onClick={()=>{(window as any).__showStarStudio?.();onClose()}} style={styles.button}>OPEN STAR STUDIO</button>
      <button type="button" onClick={()=>{(window as any).__showIsaiahTV?.();onClose()}} style={styles.button}>ISAIAH AI TV</button>
     </div>
