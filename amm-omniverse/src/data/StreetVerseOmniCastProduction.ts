@@ -2,6 +2,7 @@ import {MEET_THE_STUBBS_FAMILY_FRIENDS} from '../game/characters/meetTheStubbsFa
 import {CHICAGO_MUSIC_LEGACY_ARTISTS,chicagoMusicLegacyMissionId} from './ChicagoMusicLegacyMissionRegistry'
 import {getAllFirstWaveGlobalCharacterCast} from './StreetVerseGlobalCharacterRegistry'
 import {genericVisualSlotForCharacter} from './StreetVerseFamilyCharacterProduction'
+import {STREETVERSE_ORIGINAL_MUSIC_PERFORMERS} from './StreetVerseOriginalMusicCast'
 
 export type OmniCastLane='family'|'music-legacy'|'guest-reference'|'original-performer'|'global'
 export type OmniCastVisualState='owner-v15-priority'|'generic-stand-in'|'original-fictional'|'historical-reference-only'
@@ -86,10 +87,27 @@ export const STREETVERSE_ORIGINAL_PERFORMERS=[
  {id:"country-soul-vocalist",name:"Country Soul Vocalist",genre:"Country"},
 ] as const
 export const STREETVERSE_GUEST_REFERENCES=["Looze Cannon","Sun Ra","Marshall Allen","Tems","Mello Buckzz","Dream Doll","Alton Abraham","Michael Jackson"] as const
-// Every genre gets one distinct ORIGINAL fictional artist slot immediately.
-// The 12 established prototype performers retain their IDs and names.
-// This is a cast-production slot, not a finished likeness, playable song or GLB.
-const representedGenres=new Set<string>(STREETVERSE_ORIGINAL_PERFORMERS.map(artist=>artist.genre))
+// All 46 genre lanes are available now, while 26 new, distinct, fictional
+// performer concepts join the 12 established in-world prototype performers.
+// Names are original creative-expression identities, not real-artist replicas.
+const GENRE_ALIASES:Record<string,string>={
+ 'hip-hop':'Hip-Hop','drill':'Drill','trap':'Trap','conscious-rap':'Conscious Rap',
+ 'rnb':'R&B','neo-soul':'Neo-Soul','gospel':'Gospel','jazz':'Jazz',
+ 'blues':'Blues','house':'House','techno':'Techno','edm':'EDM','funk':'Funk',
+ 'afrobeats':'Afrobeats','amapiano':'Amapiano','reggae':'Reggae',
+ 'latin':'Latin Pop','country':'Country','rock':'Rock','alternative':'Experimental',
+ 'pop':'Pop','classical':'Classical','spoken-word':'Spoken Word',
+ 'soul':'Soul','dancehall':'Dancehall','punk':'Rock',
+}
+export const STREETVERSE_FEATURED_ORIGINAL_PERFORMERS=STREETVERSE_ORIGINAL_MUSIC_PERFORMERS.map(artist=>({
+ id:artist.id,name:artist.displayName,
+ genre:GENRE_ALIASES[artist.genre]||artist.genre,
+ creativeBrief:artist.creativeBrief,visualSlot:artist.visualSlot,
+}))
+const representedGenres=new Set<string>([
+ ...STREETVERSE_ORIGINAL_PERFORMERS.map(artist=>artist.genre),
+ ...STREETVERSE_FEATURED_ORIGINAL_PERFORMERS.map(artist=>artist.genre),
+])
 const extraOriginalGenres=STREETVERSE_MUSIC_GENRES
  .filter(genre=>!representedGenres.has(genre))
  .map((genre,index)=>({
@@ -99,6 +117,7 @@ const extraOriginalGenres=STREETVERSE_MUSIC_GENRES
  }))
 export const STREETVERSE_ORIGINAL_GENRE_LINEUP=[
  ...STREETVERSE_ORIGINAL_PERFORMERS,
+ ...STREETVERSE_FEATURED_ORIGINAL_PERFORMERS,
  ...extraOriginalGenres,
 ]
 const ORIGINAL=STREETVERSE_ORIGINAL_GENRE_LINEUP.map(character=>({
