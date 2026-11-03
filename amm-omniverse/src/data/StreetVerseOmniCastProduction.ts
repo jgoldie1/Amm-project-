@@ -3,6 +3,7 @@ import {CHICAGO_MUSIC_LEGACY_ARTISTS,chicagoMusicLegacyMissionId} from './Chicag
 import {getAllFirstWaveGlobalCharacterCast} from './StreetVerseGlobalCharacterRegistry'
 import {genericVisualSlotForCharacter} from './StreetVerseFamilyCharacterProduction'
 import {STREETVERSE_ORIGINAL_MUSIC_PERFORMERS} from './StreetVerseOriginalMusicCast'
+import {SET_APART_MUSIC_GENRES,SET_APART_ORIGINAL_PERFORMERS} from './StreetVerseSetApartMusicNetwork'
 
 export type OmniCastLane='family'|'music-legacy'|'guest-reference'|'original-performer'|'global'
 export type OmniCastVisualState='owner-v15-priority'|'generic-stand-in'|'original-fictional'|'historical-reference-only'
@@ -71,7 +72,7 @@ const GLOBAL=getAllFirstWaveGlobalCharacterCast().map(character=>({
  genreTags:[] as string[],
  rightsNote:'Original fictional city character; regional language and cultural details require production review.',
 }))
-export const STREETVERSE_MUSIC_GENRES=["Hip-Hop","Boom Bap","Drill","Trap","Chicago Rap","Conscious Rap","R&B","Neo-Soul","Soul","Funk","Jazz","Space Jazz","Gospel","Blues","House","Chicago House","Deep House","EDM","Techno","Disco","Amapiano","Afrobeats","Afrobeat","Highlife","Reggae","Dancehall","Soca","Calypso","Latin Pop","Reggaeton","Salsa","Bachata","Cumbia","Country","Country Rap","Rock","Pop","Classical","Orchestral","Ambient","Spoken Word","Experimental","Afrofuturist","Film Score","Worship","Lo-Fi","Trap Soul","Melodic Trap","Latin Trap","Chicago Footwork","Juke","Jersey Club","Baltimore Club","Tech House","Soulful House","Acid House","Gospel House","Afro House","UK Garage","Grime","Drum & Bass","Dubstep","Synthwave","Phonk","Punk","Metal","Indie","Folk","Bluegrass","Bossa Nova","Samba","Flamenco","Merengue","Zouk","K-Pop","J-Pop","Bhangra","Bollywood","Gqom","Cinematic Hip-Hop","Disco House","Electro Swing","Breakbeat","Hardstyle","Trap Gospel"] as const
+export const STREETVERSE_MUSIC_GENRES=["Hip-Hop","Boom Bap","Drill","Trap","Chicago Rap","Conscious Rap","R&B","Neo-Soul","Soul","Funk","Jazz","Space Jazz","Gospel","Blues","House","Chicago House","Deep House","EDM","Techno","Disco","Amapiano","Afrobeats","Afrobeat","Highlife","Reggae","Dancehall","Soca","Calypso","Latin Pop","Reggaeton","Salsa","Bachata","Cumbia","Country","Country Rap","Rock","Pop","Classical","Orchestral","Ambient","Spoken Word","Experimental","Afrofuturist","Film Score","Worship","Lo-Fi","Trap Soul","Melodic Trap","Latin Trap","Chicago Footwork","Juke","Jersey Club","Baltimore Club","Tech House","Soulful House","Acid House","Gospel House","Afro House","UK Garage","Grime","Drum & Bass","Dubstep","Synthwave","Phonk","Punk","Metal","Indie","Folk","Bluegrass","Bossa Nova","Samba","Flamenco","Merengue","Zouk","K-Pop","J-Pop","Bhangra","Bollywood","Gqom","Cinematic Hip-Hop","Disco House","Electro Swing","Breakbeat","Hardstyle","Trap Gospel","Christian Rap","Gospel Rap","Set Apart Hip-Hop","Christian Boom Bap","Christian Drill","Kingdom Trap","Worship Trap","Testimony Trap","Worship House","Kingdom House","Praise Dance","Hebrew Worship","Messianic Worship","Psalms & Spoken Word","Set Apart Soul","Gospel R&B","Scripture Lo-Fi","Set Apart Jazz","Set Apart Reggae","Worship Choir","Cinematic Worship"] as const
 export const STREETVERSE_ORIGINAL_PERFORMERS=[
  {id:"chicago-cypher-mc",name:"Chicago Cypher MC",genre:"Hip-Hop"},
  {id:"south-side-rnb-vocalist",name:"South Side R&B Vocalist",genre:"R&B"},
@@ -104,9 +105,16 @@ export const STREETVERSE_FEATURED_ORIGINAL_PERFORMERS=STREETVERSE_ORIGINAL_MUSIC
  genre:GENRE_ALIASES[artist.genre]||artist.genre,
  creativeBrief:artist.creativeBrief,visualSlot:artist.visualSlot,
 }))
+export const STREETVERSE_SET_APART_STAGE_PERFORMERS=SET_APART_ORIGINAL_PERFORMERS.map(artist=>({
+ id:artist.id,name:artist.name,genre:artist.genre,creativeBrief:'Original set-apart '+artist.genre+' through Mythos Blender / 64-Track Studio',
+ visualSlot:'stylized-creator-neutral',
+}))
+// Compile-time cross-check that dedicated Set Apart genres stay part of MusicVerse.
+export const STREETVERSE_SET_APART_GENRE_TAGS=SET_APART_MUSIC_GENRES
 const representedGenres=new Set<string>([
  ...STREETVERSE_ORIGINAL_PERFORMERS.map(artist=>artist.genre),
  ...STREETVERSE_FEATURED_ORIGINAL_PERFORMERS.map(artist=>artist.genre),
+ ...STREETVERSE_SET_APART_STAGE_PERFORMERS.map(artist=>artist.genre),
 ])
 const extraOriginalGenres=STREETVERSE_MUSIC_GENRES
  .filter(genre=>!representedGenres.has(genre))
@@ -118,6 +126,7 @@ const extraOriginalGenres=STREETVERSE_MUSIC_GENRES
 export const STREETVERSE_ORIGINAL_GENRE_LINEUP=[
  ...STREETVERSE_ORIGINAL_PERFORMERS,
  ...STREETVERSE_FEATURED_ORIGINAL_PERFORMERS,
+ ...STREETVERSE_SET_APART_STAGE_PERFORMERS,
  ...extraOriginalGenres,
 ]
 const ORIGINAL=STREETVERSE_ORIGINAL_GENRE_LINEUP.map(character=>({
