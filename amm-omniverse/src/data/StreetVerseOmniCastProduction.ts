@@ -86,7 +86,22 @@ export const STREETVERSE_ORIGINAL_PERFORMERS=[
  {id:"country-soul-vocalist",name:"Country Soul Vocalist",genre:"Country"},
 ] as const
 export const STREETVERSE_GUEST_REFERENCES=["Looze Cannon","Sun Ra","Marshall Allen","Tems","Mello Buckzz","Dream Doll","Alton Abraham","Michael Jackson"] as const
-const ORIGINAL=STREETVERSE_ORIGINAL_PERFORMERS.map(character=>({
+// Every genre gets one distinct ORIGINAL fictional artist slot immediately.
+// The 12 established prototype performers retain their IDs and names.
+// This is a cast-production slot, not a finished likeness, playable song or GLB.
+const representedGenres=new Set<string>(STREETVERSE_ORIGINAL_PERFORMERS.map(artist=>artist.genre))
+const extraOriginalGenres=STREETVERSE_MUSIC_GENRES
+ .filter(genre=>!representedGenres.has(genre))
+ .map((genre,index)=>({
+   id:'original-genre-'+genre.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
+   name:'Fictional '+genre+' Stage Creator '+String(index+1).padStart(2,'0'),
+   genre,
+ }))
+export const STREETVERSE_ORIGINAL_GENRE_LINEUP=[
+ ...STREETVERSE_ORIGINAL_PERFORMERS,
+ ...extraOriginalGenres,
+]
+const ORIGINAL=STREETVERSE_ORIGINAL_GENRE_LINEUP.map(character=>({
  id:'original:'+character.id,
  displayName:character.name,
  lane:'original-performer' as const,
@@ -130,6 +145,9 @@ export const STREETVERSE_OMNI_CAST_POLICY={
  childAndTeenRolesFamilySafe:true,
  noGenericCharacterMayClaimPhotoMatch:true,
 } as const
+export function getStreetVerseOriginalGenrePerformer(genre:string){
+ return STREETVERSE_ORIGINAL_GENRE_LINEUP.find(artist=>artist.genre===genre)
+}
 export function getStreetVerseOmniCastSummary(){
  const counts={family:0,'music-legacy':0,'guest-reference':0,'original-performer':0,global:0}
  for(const actor of STREETVERSE_OMNI_CAST)counts[actor.lane]++
