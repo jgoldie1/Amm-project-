@@ -156,6 +156,7 @@ export default function StreetVerseOriginalMusicStage({onClose}:{onClose:()=>voi
      <strong>Stage {page+1} of {maxPage+1}</strong>
      <button disabled={page>=maxPage} onClick={()=>setPage(p=>Math.min(maxPage,p+1))} style={buttonStyle}>Next performers</button>
      <button style={buttonStyle} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:setApartOnly?'streetverse-set-apart-network':'streetverse-original-music-stage',genre:activeGenre||(setApartOnly?'Christian Rap':'Hip-Hop'),title:setApartOnly?'Set Apart 64-Track Session':'Original StreetVerse Studio Project',originalMusicOnly:true,setApart:setApartOnly,faithVerseOptional:setApartOnly,mythosBlend:mythosBlend,trackCapacity:SET_APART_64_TRACK_WORKFLOW.trackCapacity,studioChecklist:SET_APART_64_TRACK_WORKFLOW.arrangementFields}}))}>Open Creator / 64-Track Studio</button>
+     <button style={buttonStyle} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:starverse-audition-open',{detail:{source:'musicverse-original-stage',genre:activeGenre||(setApartOnly?'Christian Rap':'Hip-Hop')}}))}>★ Who Wants to Be a Star? — Audition Practice</button>
     </div>
     <div style={{display:'flex',gap:7,alignItems:'center',flexWrap:'wrap'}}>
       <button aria-pressed={setApartOnly} onClick={()=>{setSetApartOnly(v=>!v);setPage(0);setActiveGenre(null)}} style={{...buttonStyle,background:setApartOnly?'#4a2b71':'#213251'}}>Set Apart Music • {SET_APART_MUSIC_GENRES.length} Genres</button>
