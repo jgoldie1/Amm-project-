@@ -20,10 +20,18 @@ const matches=(text,re)=>[...text.matchAll(re)].map(m=>({id:m[1],name:m[2]}))
 const familyPeople=matches(family,/id:'([^']+)',displayName:'([^']+)'/g)
 const globalPeople=matches(global,/id:'([^']+)',displayName:'([^']+)'/g)
 const artists=matches(legacy,/id:'([^']+)',displayName:'([^']+)'/g)
-const performerPeople=[...original.matchAll(/\{id:"([^"]+)",name:"([^"]+)",genre:"([^"]+)"\}/g)].map(m=>({id:m[1],name:m[2],genre:m[3]}))
+const seededPerformers=[...original.matchAll(/\{id:"([^"]+)",name:"([^"]+)",genre:"([^"]+)"\}/g)].map(m=>({id:m[1],name:m[2],genre:m[3]}))
 const genreMatch=original.match(/export const STREETVERSE_MUSIC_GENRES=\[(.*?)\] as const/)
 if(!genreMatch)throw Error('Missing genre production lanes')
 const genres=JSON.parse('['+genreMatch[1]+']')
+const seededGenreNames=new Set(seededPerformers.map(person=>person.genre))
+const extraStagePerformers=genres.filter(genre=>!seededGenreNames.has(genre)).map((genre,index)=>({
+ id:'original-genre-'+genre.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
+ name:'Fictional '+genre+' Stage Creator '+String(index+1).padStart(2,'0'),
+ genre,
+}))
+const performerPeople=[...seededPerformers,...extraStagePerformers]
+if(new Set(performerPeople.map(person=>person.genre)).size!==genres.length)throw Error('Not one original musician per genre')
 if(familyPeople.length<29||globalPeople.length<23||artists.length<33||performerPeople.length<12||genres.length<40)throw Error('Source registry incomplete')
 const characters=[
  ...familyPeople.filter(x=>x.id!=='bj-stubbs').map(x=>({...x,lane:'family',rights:'neutral-stand-in-only'})),

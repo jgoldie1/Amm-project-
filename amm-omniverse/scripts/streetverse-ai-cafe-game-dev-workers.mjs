@@ -48,8 +48,10 @@ const workers={
  'omni-cast-regression'(){
    const report=checkTest('amm-omniverse/tests/streetverse-omni-cast-production-contract.mjs')
    const models=checkTest('amm-omniverse/tests/streetverse-omni-cast-glb-forge-contract.mjs')
-   return result(report.status==='passed'&&models.status==='passed'?'passed':'failed',[...report.evidence,...models.evidence],
-     'Unified cast registry: '+report.status+'; actual GLB model forging: '+models.status)
+   const stage=checkTest('amm-omniverse/tests/streetverse-original-music-stage-contract.mjs')
+   return result(report.status==='passed'&&models.status==='passed'&&stage.status==='passed'?'passed':'failed',
+     [...report.evidence,...models.evidence,...stage.evidence],
+     'Unified cast: '+report.status+'; 107 original GLBs: '+models.status+'; playable 46-genre stage: '+stage.status)
  },
  'west-side-builder-regression'(){
   const a=checkTest('amm-omniverse/tests/streetverse-visible-forge-real-placement.test.mjs')
