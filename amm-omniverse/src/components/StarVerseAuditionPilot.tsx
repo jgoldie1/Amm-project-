@@ -67,7 +67,7 @@ export default function StarVerseAuditionPilot({onClose,context}:{onClose:()=>vo
  const openStudio=()=>{
   (window as any).__showAniyah64TrackStudio?.()
   window.dispatchEvent(new CustomEvent('tryamm:starverse-studio-rehearsal',{detail:{path,genre,source:'starverse-audition-pilot',originalOrClearedOnly:true}}))
-  setNotice('64-Track Studio requested. No performance recording was uploaded.')
+  onClose()
  }
  return <div role="dialog" aria-modal="true" aria-label="Who Wants to Be a Star audition practice" style={{position:'fixed',inset:0,zIndex:19040,overflowY:'auto',background:'radial-gradient(circle at top,#29204d,#070b17 57%)',fontFamily:'system-ui,sans-serif',color:'#fff'}}>
   <div style={{maxWidth:980,margin:'0 auto',padding:'20px 14px 75px'}}>
@@ -106,8 +106,8 @@ export default function StarVerseAuditionPilot({onClose,context}:{onClose:()=>vo
     <p style={{opacity:.75,fontSize:13}}>Existing systems: Aniyah's 64-Track Studio → StarVerse Audition Hall → original showcase → Isaiah AI TV review → eligible LIVE/Reel distribution. No channel time, award, payment, or public vote is promised.</p>
     <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
      <button type="button" onClick={openStudio} style={styles.button}>OPEN 64-TRACK STUDIO</button>
-     <button type="button" onClick={()=>{(window as any).__showStarStudio?.();setNotice('Star Studio requested; choose your creator tools there.')}} style={styles.button}>OPEN STAR STUDIO</button>
-     <button type="button" onClick={()=>{(window as any).__showIsaiahTV?.();setNotice('Isaiah AI TV requested.')}} style={styles.button}>ISAIAH AI TV</button>
+     <button type="button" onClick={()=>{(window as any).__showStarStudio?.();onClose()}} style={styles.button}>OPEN STAR STUDIO</button>
+     <button type="button" onClick={()=>{(window as any).__showIsaiahTV?.();onClose()}} style={styles.button}>ISAIAH AI TV</button>
     </div>
     <div style={{display:'flex',flexWrap:'wrap',gap:7,marginTop:16}}>{STARVERSE_ZONES.slice(0,9).map(z=><span key={z} style={{border:'1px solid #444d69',borderRadius:99,padding:'6px 9px',fontSize:10}}>{z}</span>)}</div>
     <details style={{marginTop:15}}><summary style={{cursor:'pointer'}}>Show the full StarVerse creator pathway</summary><ol style={{fontSize:12,opacity:.82,lineHeight:1.8}}>{STARVERSE_PIPELINE.map(x=><li key={x}>{x}</li>)}</ol></details>
