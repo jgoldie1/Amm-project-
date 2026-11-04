@@ -44,14 +44,22 @@ export default function TryammConnectedGrowthLanding(){
  const openStudio=()=>window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'tryamm-growth',title:'TRYAMM Holo Reel Business Showcase',caption:'TRYAMM • StreetVerse • Creator Spotlight'}}))
  const openHoloGPT=()=>setAssistantOpen(true)
  const openJarvis=()=>{setAssistantOpen(true);window.dispatchEvent(new CustomEvent('tryamm:jarvis-command',{detail:{action:'open-hologpt'}}))}
- const createAdDraft=()=>{
-  setAdDraftStatus('Requesting an Holo Ads draft. This is not an approved campaign.')
-  const onDraft=(event:Event)=>{
-   const d=(event as CustomEvent<{status?:string;product?:{name?:string}}>)?.detail
-   setAdDraftStatus(d?.status==='draft'?'Draft acknowledged by Holo Ads: '+(d.product?.name||'campaign')+'. Advertiser approval and payment still required.':'Draft service returned no verified confirmation.')
+ const createAdDraft=async()=>{
+  setAdDraftStatus('Preparing a Holo Ads preview. Nothing will be saved, published or billed.')
+  try{
+   // The global installer loads asynchronously; ensure the existing runtime
+   // is active before sending an event from a first-time website visitor.
+   const {installHoloAdsRevenueRuntime}=await import('../runtime/HoloAdsRevenueRuntime')
+   installHoloAdsRevenueRuntime()
+   const onDraft=(event:Event)=>{
+    const d=(event as CustomEvent<{status?:string;persisted?:boolean;product?:{name?:string}}>)?.detail
+    setAdDraftStatus(d?.status==='draft'&&d.persisted===false?'Temporary ad proposal prepared: '+(d.product?.name||'campaign')+'. Request a quote below to continue; no campaign was saved or billed.':'The ad proposal could not be verified.')
+   }
+   window.addEventListener('tryamm:holo-ads-campaign-draft',onDraft,{once:true})
+   window.dispatchEvent(new CustomEvent('tryamm:holo-ads-create-campaign',{detail:{productId:offerId==='product-placement'?'xr':'boost',market:'Chicago',objective:'approved-product-discovery'}}))
+  }catch{
+   setAdDraftStatus('Holo Ads draft tools are unavailable. You can still submit a service inquiry; nothing was charged.')
   }
-  window.addEventListener('tryamm:holo-ads-campaign-draft',onDraft,{once:true})
-  window.dispatchEvent(new CustomEvent('tryamm:holo-ads-create-campaign',{detail:{productId:offerId==='product-placement'?'xr':'boost',market:'Chicago',objective:'approved-product-discovery'}}))
  }
  const submit=async(e:FormEvent<HTMLFormElement>)=>{
   e.preventDefault();if(submitting)return
