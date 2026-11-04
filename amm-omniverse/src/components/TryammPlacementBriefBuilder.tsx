@@ -38,13 +38,27 @@ export default function TryammPlacementBriefBuilder({onQuote}:Props){
   catch{setStatus('This browser cannot save the proposal handoff; use Request a Quote instead.');return}
   window.location.href='/omni-box?from=tryamm-placement'
  }
- const sendAdDraft=()=>{
+ const sendAdDraft=async()=>{
   if(!brief)return
-  setStatus('Holo Ads draft requested; this proposal does not reserve inventory, charge or publish.')
-  window.dispatchEvent(new CustomEvent('tryamm:holo-ads-create-campaign',{detail:{
-   productId:brief.surfaces.includes('streetverse-world')?'xr':'boost',
-   market:'Chicago',objective:'review-product-placement',concept:brief.product
-  }}))
+  setStatus('Preparing a Holo Ads concept preview. This does not reserve inventory, charge or publish.')
+  try{
+   // The installer is optional and might not yet be ready on the initial visit.
+   const {installHoloAdsRevenueRuntime}=await import('../runtime/HoloAdsRevenueRuntime')
+   installHoloAdsRevenueRuntime()
+   const onDraft=(event:Event)=>{
+    const proposal=(event as CustomEvent<{status?:string;persisted?:boolean}>)?.detail
+    setStatus(proposal?.status==='draft'&&proposal.persisted===false
+     ?'Temporary Holo Ads concept prepared. No campaign was saved or billed; submit your quote request for review.'
+     :'The Holo Ads preview could not be confirmed. You can still request a quote.')
+   }
+   window.addEventListener('tryamm:holo-ads-campaign-draft',onDraft,{once:true})
+   window.dispatchEvent(new CustomEvent('tryamm:holo-ads-create-campaign',{detail:{
+    productId:brief.surfaces.includes('streetverse-world')?'xr':'boost',
+    market:'Chicago',objective:'review-product-placement',concept:brief.product
+   }}))
+  }catch{
+   setStatus('The Holo Ads preview tool is unavailable. You can still request a quote. No campaign was saved or billed.')
+  }
  }
  const quote=()=>{if(brief){onQuote(brief);setStatus('Placement proposal added to the inquiry form. Submit the request to contact TRYAMM; no placement is ordered yet.')}}
  const download=()=>{
