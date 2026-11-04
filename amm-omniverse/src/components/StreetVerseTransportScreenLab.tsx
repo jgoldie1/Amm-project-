@@ -1,4 +1,7 @@
 import {useMemo,useState} from 'react'
+import StreetVerseTransitMotionPreview from './StreetVerseTransitMotionPreview'
+import {TRANSIT_MEDIA_DEFAULTS,makeTransitMedia} from '../runtime/StreetVerseTransitMotionAndMedia'
+import {TRYAMM_NETWORK_CHANNELS,type TryammNetworkChannelId} from '../runtime/TryammBroadcastOSRuntime'
 import {createTransitDisplay,transitDisplayText,updateTransitDisplay,type StreetVerseTransitMode,type TransitDisplayPage} from '../runtime/StreetVerseTransitDisplayRuntime'
 import {createStreetVerseCabinDirector} from '../runtime/StreetVerseCabinCameraDirector'
 import {boardWalkway,createAirportWalkway,emergencyStopWalkway,leaveWalkway,resetWalkway,setWalkwayRunning,tickAirportWalkway,type WalkwayState} from '../runtime/StreetVerseAirportWalkwayRuntime'
@@ -10,10 +13,13 @@ export default function StreetVerseTransportScreenLab({onClose}:{onClose:()=>voi
  const [display,setDisplay]=useState(()=>createTransitDisplay('car'))
  const [seated,setSeated]=useState<string[]>([])
  const [camera,setCamera]=useState('exterior')
+ const [channelId,setChannelId]=useState<TryammNetworkChannelId>('streetverse-local-tv')
+ const [mediaMode,setMediaMode]=useState<'tv'|'radio'>('tv')
  const [walkway,setWalkway]=useState<WalkwayState>(()=>createAirportWalkway('airport-demo'))
  const director=useMemo(()=>createStreetVerseCabinDirector('streetverse-transit-lab'),[mode])
  const text=transitDisplayText(display)
- const select=(next:StreetVerseTransitMode)=>{setMode(next);setDisplay(createTransitDisplay(next));setSeated([]);setCamera('exterior');setWalkway(createAirportWalkway('airport-demo'))}
+ const media=makeTransitMedia(mediaMode==='radio'?'cabin-radio':TRANSIT_MEDIA_DEFAULTS[mode].slot,channelId)
+ const select=(next:StreetVerseTransitMode)=>{setMode(next);setDisplay(createTransitDisplay(next));setSeated([]);setCamera('exterior');setWalkway(createAirportWalkway('airport-demo'));setChannelId(TRANSIT_MEDIA_DEFAULTS[next].channelId)}
  const action=(next:Parameters<typeof updateTransitDisplay>[1])=>setDisplay(s=>updateTransitDisplay(s,next))
  const board=()=>{
    if(mode!=='car'){action({type:'board'});return}
@@ -45,6 +51,19 @@ export default function StreetVerseTransportScreenLab({onClose}:{onClose:()=>voi
       <div style={{marginTop:10,fontSize:12}}>NEXT: {text.next}</div>
       <small style={{display:'block',marginTop:12,color:'#aabac8'}}>{text.simulation}</small>
     </div>
+    <StreetVerseTransitMotionPreview mode={mode} speedMps={mode==='airport-walkway'?(walkway.enabled?walkway.speedMps:0):display.speedMps} occupancy={mode==='car'?seated.length:display.occupancy}/>
+    <section style={{marginTop:12,padding:12,border:'1px solid #47758c',borderRadius:12,background:'#102633'}} aria-label="TRYAMM onboard television and radio">
+     <b>📺 TRYAMM IN-VEHICLE TV / RADIO</b>
+     <div style={{fontSize:12,margin:'7px 0'}}>Display: {media.slot} • {media.title}</div>
+     <label style={{display:'block',fontSize:11,marginBottom:5}}>Network channel</label>
+     <select value={channelId} onChange={e=>setChannelId(e.target.value as TryammNetworkChannelId)} style={{width:'100%',padding:10,borderRadius:8,background:'#1c3645',color:'#fff',border:'1px solid #52718d'}}>{TRYAMM_NETWORK_CHANNELS.filter(x=>x.familySafe).map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select>
+     <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:8}}>
+      <button style={btn} onClick={()=>setMediaMode('tv')}>TV CHANNEL</button>
+      <button style={btn} onClick={()=>{setMediaMode('radio');window.dispatchEvent(new Event('tryamm:verse-radio-open'))}}>OPEN VERSE RADIO</button>
+      <button style={btn} onClick={()=>window.dispatchEvent(new Event('tryamm:broadcast-os-request'))}>REFRESH BROADCAST OS</button>
+     </div>
+     <p style={{fontSize:11,color:'#b5ccd7'}}>Source: existing TRYAMM Broadcast OS / Verse Radio. Channel selection alone does not start live video or licensed audio. Advertising slots require paid approval, rights clearance and clear ADVERTISEMENT labels; no ad is served automatically.</p>
+    </section>
     <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7,marginTop:12}}>
       <button style={btn} onClick={()=>action({type:'move',speedMps:display.moving?0:8})}>{display.moving?'STOP':'START TRAVEL'}</button>
       <button style={btn} onClick={()=>action({type:'doors',open:!display.doorsOpen})}>{display.doorsOpen?'CLOSE DOORS':'OPEN DOORS'}</button>
