@@ -69,8 +69,14 @@ assert.match(carousel,/entered:true,vehicleId,source:'action-carousel'/,
   'car entry must identify the nearby car and its source')
 assert.match(carousel,/tryamm:streetverse-nearby-vehicle-request/,
   'carousel must recover proximity state after asynchronous mount')
-assert.match(carousel,/zIndex:46050/,
+assert.match(carousel,/zIndex:51000/,
   'expanded action carousel must be visible above fixed world controls')
+assert.match(mobile,/<StreetVerseActionCarousel\/>/,
+  'mobile actions and quick menu must render inside the same 3D world stacking context')
+assert.match(mobile,/zIndex:49000,width:184/,
+  'the scrolling quick menu must stay above the BJ portrait action')
+assert.match(mobile,/tryamm:streetverse-actions-close/,
+  'opening the quick menu must dismiss the expanded action carousel')
 assert.match(mobile,/const publishNearbyVehicle=/,
   'the playable 3D world must publish drivable nearby-car state')
 assert.match(mobile,/tryamm:streetverse-nearby-vehicle-request/,
