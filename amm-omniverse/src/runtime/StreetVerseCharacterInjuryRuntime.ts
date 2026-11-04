@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import {applyStreetVerseOrganImpact,createStreetVerseOrganState,type StreetVerseBodyZone} from './StreetVerseAnatomySimulation'
 
 export type StreetVerseInjuryPhase='healthy'|'wounded'|'defeated'
+export type StreetVerseRigReaction='idle'|'hit-react'|'hurt'|'downed'|'seated'
 export type StreetVerseInjuryView='off'|'minimal'|'standard'
 export type StreetVerseInjuryState={health:number;phase:StreetVerseInjuryPhase;visuals:StreetVerseInjuryView;demoOnly:true}
 export type StreetVerseDamageRequest={amount:number;characterId?:string;source?:string;zone?:StreetVerseBodyZone}
@@ -12,12 +13,15 @@ export function applyStreetVerseDemoDamage(state:StreetVerseInjuryState,request:
  const health=clamp(state.health-clamp(request.amount,0,100),0,START_HEALTH)
  return {...state,health,phase:health===0?'defeated':health<START_HEALTH?'wounded':'healthy'}
 }
-export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THREE.Object3D|null,characterId='bj-stubbs'){
+export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THREE.Object3D|null,characterId='bj-stubbs',isSeated:()=>boolean=()=>false){
  let currentCharacterId=characterId
  let organs=createStreetVerseOrganState(characterId)
  let state:StreetVerseInjuryState={health:START_HEALTH,phase:'healthy',visuals:'minimal',demoOnly:true}
  let lastHit=-Infinity
  let lean=0
+ let animatedHero:THREE.Object3D|null=null
+ let baselineRoll=0
+ let lastReaction:StreetVerseRigReaction='idle'
  const effectRoot=new THREE.Group()
  effectRoot.name='streetverse-demo-injury-fx'
  scene.add(effectRoot)
@@ -36,7 +40,15 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
   if(!req||req.characterId&&req.characterId!==currentCharacterId)return
   const previous=state
   state=applyStreetVerseDemoDamage(state,req)
-  if(previous!==state)organs=applyStreetVerseOrganImpact(organs,{amount:req.amount,zone:req.zone})
+  if(previous!==state){
+   organs=applyStreetVerseOrganImpact(organs,{amount:req.amount,zone:req.zone})
+   // Health defeat and body-system incapacitation must not disagree.
+   if(state.phase==='defeated'||organs.consciousness==='downed'){
+    state={...state,phase:'defeated',health:0}
+    organs={...organs,consciousness:'downed',needsRescue:true}
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-local-rescue-needed',{detail:{characterId:currentCharacterId,source:'fictional-anatomy-demo',authoritative:false}}))
+   }
+  }
   if(previous===state)return
   const now=performance.now()
   lastHit=now
@@ -81,11 +93,25 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
   getOrgans:()=>({...organs,integrity:{...organs.integrity}}),
   tick:(now:number)=>{
    const hero=getHero()
+   if(animatedHero!==hero){
+    if(animatedHero)animatedHero.rotation.z=baselineRoll
+    animatedHero=hero
+    baselineRoll=hero?.rotation.z??0
+    lean=0
+   }
    if(hero){
+    const seated=isSeated()
     const hitPulse=clamp(1-(now-lastHit)/480,0,1)
-    const target=state.phase==='defeated'?.40:hitPulse*Math.sin((now-lastHit)*.05)*.14
-    lean=THREE.MathUtils.lerp(lean,target,.18)
-    hero.rotation.z=lean
+    const target=seated?0:state.phase==='defeated'?.48:hitPulse*Math.sin((now-lastHit)*.05)*.18
+    lean=THREE.MathUtils.lerp(lean,target,.16)
+    hero.rotation.z=baselineRoll+lean
+    const reaction:StreetVerseRigReaction=seated?'seated':state.phase==='defeated'?'downed':hitPulse>0?'hit-react':state.phase==='wounded'?'hurt':'idle'
+    // The animation director can use this label to blend GLB hit / collapse clips.
+    // Existing skeleton mixers continue running; never tear bones from the model.
+    if(reaction!==lastReaction){
+     lastReaction=reaction
+     window.dispatchEvent(new CustomEvent('tryamm:streetverse-rig-reaction',{detail:{characterId:currentCharacterId,reaction,authoritative:false,source:'local-injury-demo'}}))
+    }
    }
    for(let i=drops.length-1;i>=0;i--){
     const p=drops[i],age=now-p.started
@@ -100,6 +126,7 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
    window.removeEventListener('tryamm:streetverse-local-damage-demo',onDamage)
    window.removeEventListener('tryamm:streetverse-local-respawn-demo',onRecover)
    window.removeEventListener('tryamm:streetverse-injury-visual-mode',onVisual)
+   if(animatedHero)animatedHero.rotation.z=baselineRoll
    removeDrops();scene.remove(effectRoot);geometry.dispose();material.dispose()
   }
  }
