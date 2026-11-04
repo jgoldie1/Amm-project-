@@ -6,12 +6,14 @@ on:
       - 'amm-omniverse/src/components/StreetVerseHoloCADLivingSystemsLab.tsx'
       - 'amm-omniverse/src/game/holocad/**'
       - 'amm-omniverse/tests/streetverse-holocad-living-xr-contract.mjs'
+      - 'amm-omniverse/tests/streetverse-holocad-aerospace-robotics-contract.mjs'
       - '.github/workflows/streetverse-holocad-living-xr.yml'
   pull_request:
     paths:
       - 'amm-omniverse/src/components/StreetVerseHoloCADLivingSystemsLab.tsx'
       - 'amm-omniverse/src/game/holocad/**'
       - 'amm-omniverse/tests/streetverse-holocad-living-xr-contract.mjs'
+      - 'amm-omniverse/tests/streetverse-holocad-aerospace-robotics-contract.mjs'
       - '.github/workflows/streetverse-holocad-living-xr.yml'
 permissions:
   contents: read
@@ -31,6 +33,7 @@ jobs:
         run: |
           node streetverse/holocad/tests.mjs
           node amm-omniverse/tests/streetverse-holocad-living-xr-contract.mjs
+          node amm-omniverse/tests/streetverse-holocad-aerospace-robotics-contract.mjs
       - name: Install dependencies
         working-directory: amm-omniverse
         run: npm ci --no-audit --no-fund
