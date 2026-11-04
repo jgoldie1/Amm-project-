@@ -51,7 +51,7 @@ export default function StreetVerseCityAccessDock(){
    right:'max(12px,env(safe-area-inset-right))',zIndex:41020,display:'grid',gap:5,
    width:108,pointerEvents:'auto'
   }}>
-   <button data-streetverse-travel="true" type="button" aria-label="Travel to Taylor Street UIC Medical District" onClick={travel} style={style}>🏙 TAYLOR / UIC</button>
+   <button id="sv-city-travel-button" type="button" aria-label="Travel to Taylor Street UIC Medical District" onClick={travel} style={style}>🏙 TAYLOR / UIC</button>
    <button id="sv-city-retail-open" type="button" aria-label="Open StreetVerse neighborhood stores" aria-expanded={panel==='retail'} onClick={()=>{setPanel(p=>p==='retail'?null:'retail');window.dispatchEvent(new Event('tryamm:streetverse-commerce-request'))}} style={style}>🏬 STORES</button>
    <button id="sv-city-store-open" type="button" aria-label="Open StreetVerse local store preview" aria-expanded={panel==='store'} onClick={()=>setPanel(p=>p==='store'?null:'store')} style={style}>🛍 STORE</button>
   </nav>
