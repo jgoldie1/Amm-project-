@@ -98,8 +98,17 @@ jobs:
       - name: Omniverse readiness and provider gates
         run: npm run readiness
 
+      - name: TRYAMM first-customer website and placement contract tests
+        run: |
+          node tests/tryamm-connected-growth-workflow.test.mjs
+          node tests/tryamm-product-placement-handoff.test.mjs
+          node tests/tryamm-holo-ads-draft-handoff.test.mjs
+
       - name: Omniverse typecheck
         run: npm run typecheck
+
+      - name: React customer journey render smoke
+        run: node scripts/tryamm-customer-journey-react-render.mjs
 
       - name: Vercel parity build from pristine checkout
         run: npm run build
@@ -183,6 +192,9 @@ jobs:
 
       - name: Omniverse Vite production build
         run: npx vite build
+
+      - name: Customer journey compiled HTTP smoke
+        run: node scripts/customer-journey-preview-smoke.mjs
 
       - name: Main synchronization audit
         run: node scripts/main-sync-audit.mjs
