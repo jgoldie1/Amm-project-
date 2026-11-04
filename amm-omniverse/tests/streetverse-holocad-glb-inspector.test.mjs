@@ -91,7 +91,7 @@ test('asset inspector is no-network and has clear staging-only boundaries',()=>{
  assert.equal(HOLOCAD_GLB_MAX_BYTES,24*1024*1024)
  for(const token of [
   "lazy(()=>import('./HoloCADGLBAssetInspector'))",
-  '📦 INSPECT GLB ASSET','showGLB&&<Suspense','<HoloCADGLBAssetInspector onClose'
+  '📦 INSPECT GLB ASSET','showGLB&&<Suspense','<HoloCADGLBAssetInspector subject={subject} onClose'
  ]){
   assert.ok(viewer.includes(token),'GLB staging not mounted '+token)
  }
