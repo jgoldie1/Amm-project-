@@ -118,6 +118,9 @@ jobs:
       - name: Omniverse typecheck
         run: npm run typecheck
 
+      - name: React customer journey render smoke
+        run: node scripts/tryamm-customer-journey-react-render.mjs
+
       - name: Vercel parity build from pristine checkout
         run: npm run build
 
