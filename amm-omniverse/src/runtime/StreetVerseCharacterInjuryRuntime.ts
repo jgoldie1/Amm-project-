@@ -1,9 +1,10 @@
 import * as THREE from 'three'
+import {applyStreetVerseOrganImpact,createStreetVerseOrganState,type StreetVerseBodyZone} from './StreetVerseAnatomySimulation'
 
 export type StreetVerseInjuryPhase='healthy'|'wounded'|'defeated'
 export type StreetVerseInjuryView='off'|'minimal'|'standard'
 export type StreetVerseInjuryState={health:number;phase:StreetVerseInjuryPhase;visuals:StreetVerseInjuryView;demoOnly:true}
-export type StreetVerseDamageRequest={amount:number;characterId?:string;source?:string}
+export type StreetVerseDamageRequest={amount:number;characterId?:string;source?:string;zone?:StreetVerseBodyZone}
 const START_HEALTH=100
 const clamp=(v:number,min:number,max:number)=>Math.max(min,Math.min(max,v))
 export function applyStreetVerseDemoDamage(state:StreetVerseInjuryState,request:StreetVerseDamageRequest):StreetVerseInjuryState{
@@ -13,6 +14,7 @@ export function applyStreetVerseDemoDamage(state:StreetVerseInjuryState,request:
 }
 export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THREE.Object3D|null,characterId='bj-stubbs'){
  let currentCharacterId=characterId
+ let organs=createStreetVerseOrganState(characterId)
  let state:StreetVerseInjuryState={health:START_HEALTH,phase:'healthy',visuals:'minimal',demoOnly:true}
  let lastHit=-Infinity
  let lean=0
@@ -23,7 +25,10 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
  const geometry=new THREE.SphereGeometry(.035,5,4)
  const material=new THREE.MeshBasicMaterial({color:0x9d121f,transparent:true,opacity:.8,depthWrite:false})
  const publish=()=>{
-  if(typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:streetverse-injury-state',{detail:{...state,characterId:currentCharacterId,authoritative:false,source:'local-cosmetic-demo'}}))
+  if(typeof window!=='undefined'){
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-injury-state',{detail:{...state,characterId:currentCharacterId,authoritative:false,source:'local-cosmetic-demo'}}))
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-organ-state',{detail:{...organs,authoritative:false,source:'fictional-anatomy-demo'}}))
+  }
  }
  const removeDrops=()=>{for(const item of drops)effectRoot.remove(item.mesh);drops.length=0}
  const onDamage=(event:Event)=>{
@@ -31,6 +36,7 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
   if(!req||req.characterId&&req.characterId!==currentCharacterId)return
   const previous=state
   state=applyStreetVerseDemoDamage(state,req)
+  if(previous!==state)organs=applyStreetVerseOrganImpact(organs,{amount:req.amount,zone:req.zone})
   if(previous===state)return
   const now=performance.now()
   lastHit=now
@@ -52,11 +58,12 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
  }
  const onRecover=()=>{
   state={...state,health:START_HEALTH,phase:'healthy'}
+  organs=createStreetVerseOrganState(currentCharacterId)
   removeDrops()
   lastHit=-Infinity
   publish()
  }
- const onCharacterSelect=(event:Event)=>{const id=(event as CustomEvent<{id?:string}>).detail?.id;if(!id||!/^[a-z0-9._-]{2,80}$/i.test(id))return;currentCharacterId=id;state={...state,health:START_HEALTH,phase:'healthy'};removeDrops();lastHit=-Infinity;publish()}
+ const onCharacterSelect=(event:Event)=>{const id=(event as CustomEvent<{id?:string}>).detail?.id;if(!id||!/^[a-z0-9._-]{2,80}$/i.test(id))return;currentCharacterId=id;state={...state,health:START_HEALTH,phase:'healthy'};organs=createStreetVerseOrganState(id);removeDrops();lastHit=-Infinity;publish()}
  const onVisual=(event:Event)=>{
   const value=(event as CustomEvent<{mode?:StreetVerseInjuryView}>).detail?.mode
   if(value!=='off'&&value!=='minimal'&&value!=='standard')return
@@ -71,6 +78,7 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
  publish()
  return{
   getState:()=>({...state}),
+  getOrgans:()=>({...organs,integrity:{...organs.integrity}}),
   tick:(now:number)=>{
    const hero=getHero()
    if(hero){
