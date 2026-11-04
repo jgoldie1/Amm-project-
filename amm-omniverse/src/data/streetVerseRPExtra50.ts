@@ -66,7 +66,7 @@ export const STREETVERSE_RP_50_RECIPES:readonly RPExtraRecipe[]=[
 
 export const STREETVERSE_RP_EXTRA50:readonly RPActionEntry[]=STREETVERSE_RP_50_RECIPES.map(row=>({
  id:row.id,label:row.label,category:row.category,purposes:[row.purpose],
- tags:[...row.label.toLowerCase().split(/\\s+/),row.pose,row.category,row.purpose,'streetverse','original'],
+ tags:[...row.label.toLowerCase().split(/\s+/),row.pose,row.category,row.purpose,'streetverse','original'],
  animationClip:row.id,
  gifQuery:row.label+' gesture animation',
  loopable:row.loopable,syncable:true,npcCompatible:true,playerCompatible:true,
