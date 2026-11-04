@@ -36,6 +36,13 @@ It does **not** diagnose real engines, aircraft, spacecraft, robots, medical pat
 6. **Collaborative HoloCAD classroom:** consent-driven instructor sessions, guided AR/VR lessons, private room access, accessible one-hand/keyboard operations and secure records of completed *simulation* exercises.
 7. **Simulation-to-manufacturing gateway:** read-only 3D export, material/bill-of-materials drafts, BOM estimates and professional design review. Do not auto-generate G-code, operate manufacturing hardware or claim structural/material tolerance certification.
 
+## Verified external building blocks (future integrations, not installed)
+- **NASA 3D Resources** (https://science.nasa.gov/3d-resources/) offers free mission model downloads and a GitHub mirror; review NASA media usage guidelines and each asset's licensing/attribution constraints before using models commercially.
+- **Gazebo Sim** (https://gazebosim.org/libs/sim/) is an open-source Apache-2.0 robotics simulator supporting physics engines, sensors and vehicle/robot model simulations. A separate developer workstation/server is likely required for full physics scenarios.
+- **NVIDIA Isaac Sim** (https://github.com/isaac-sim/IsaacSim) can import CAD/URDF models and simulate robots with RTX/GPU physics, synthetic sensors and ROS 2 bridges. It is heavier than the Chromebook browser lab; additional licensing applies to certain commercial redistribution/service use of Omniverse components.
+- **ROS 2** (https://docs.ros.org/) can provide a future authenticated robotics simulation telemetry bridge. It is not installed and HoloCAD does not command physical motors.
+- Keep source rights evidence, asset checksum and permission receipts in the future asset registry before importing third-party models.
+
 ## Cost and safety
 - Use existing Three.js and WebXR stack; no new paid runtime service is needed for the browser-lab prototype.
 - Source-level tests, TypeScript and Vite build must pass before a playable preview is called ready.
