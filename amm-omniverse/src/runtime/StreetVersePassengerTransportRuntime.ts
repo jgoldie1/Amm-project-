@@ -37,8 +37,8 @@ export const MOBILE_TRANSPORT_VISUAL_POLICY: TransportVisualPolicy = {
 };
 
 export const TRANSPORT_CAPACITIES: Record<TransportKind, { passengers: number; standing: number }> = {
-  car: { passengers: 4, standing: 0 },
-  rideshare: { passengers: 4, standing: 0 },
+  car: { passengers: 5, standing: 0 },
+  rideshare: { passengers: 5, standing: 0 },
   suv: { passengers: 6, standing: 0 },
   van: { passengers: 7, standing: 0 },
   bus: { passengers: 40, standing: 20 },
@@ -53,6 +53,12 @@ export const FIVE_SEAT_CAR: TransportSeat[] = [
   { id: 'rear-left', role: 'passenger', row: 1, side: 'left' },
   { id: 'rear-center', role: 'passenger', row: 1, side: 'center' },
   { id: 'rear-right', role: 'passenger', row: 1, side: 'right' },
+];
+
+/** Six total occupants: one driver and five passengers. Use only with a six-seat model. */
+export const SIX_SEAT_CAR: TransportSeat[] = [
+  ...FIVE_SEAT_CAR,
+  { id: 'third-row-passenger', role: 'passenger', row: 2, side: 'center', accessible: true },
 ];
 
 export function createPassengerSeats(count: number, firstRow = 0): TransportSeat[] {
@@ -72,7 +78,7 @@ export function createTransportManifest(
 ): TransportManifest {
   const seats =
     kind === 'car' || kind === 'rideshare'
-      ? FIVE_SEAT_CAR
+      ? (passengerCapacity === 5 ? SIX_SEAT_CAR : FIVE_SEAT_CAR)
       : [
           { id: 'operator', role: 'driver' as const, row: 0, side: 'left' as const },
           ...createPassengerSeats(passengerCapacity ?? defaultPassengerCapacity(kind), 1),
@@ -206,7 +212,7 @@ export function planTransportSwarm(
   kind: TransportKind = 'car',
 ): TransportSwarmPlan {
   const perVehicle = kind === 'car' || kind === 'rideshare'
-    ? FIVE_SEAT_CAR.length
+    ? SIX_SEAT_CAR.length
     : defaultPassengerCapacity(kind) + 1;
   const assignments: TransportSwarmPlan['assignments'] = [];
   members.forEach((member, index) => {
