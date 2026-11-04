@@ -35,6 +35,7 @@ export default function StreetVerseActionCarousel(){
  const [open,setOpen]=useState(()=>!mobile||startInRP)
  const [rpOpen,setRpOpen]=useState(startInRP)
  const [rpgState,setRpgState]=useState<{level?:number;xp?:number;activeQuestIds?:string[]}|null>(null)
+ const [entryStatus,setEntryStatus]=useState<'idle'|'requesting'|'entered'|'denied'>('idle')
  useEffect(()=>{
   const onRpg=(event:Event)=>setRpgState((event as CustomEvent<{level?:number;xp?:number;activeQuestIds?:string[]}>).detail||null)
   const onRpOpen=()=>{setOpen(true);setRpOpen(true)}
@@ -54,7 +55,9 @@ export default function StreetVerseActionCarousel(){
   // Movement telemetry must never dismiss an open panel. Players using one-hand
   // controls must be able to read/select an action while moving or driving.
   // Only explicit PLAY, CLOSE or play-focus dismisses the panel.
-  const onVehicleInteract=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx(current=>({...current,...d,kind:'vehicle'}));setPage(0);setOpen(true)}
+  const onVehicleInteract=(event:Event)=>{const d=(event as CustomEvent<Context & {entered?:boolean}>).detail||{};if(typeof d.entered==='boolean')return;setCtx(current=>({...current,...d,kind:'vehicle'}));setPage(0);setOpen(true)}
+  const onVehicleControlled=(event:Event)=>{const d=(event as CustomEvent<{entered?:boolean}>).detail||{};setEntryStatus(d.entered?'entered':'idle');if(d.entered){setOpen(false);setRpOpen(false)}}
+  const onVehicleDenied=()=>{setEntryStatus('denied');setOpen(true)}
   addEventListener('tryamm:streetverse-interaction-context',onContext)
   addEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown)
   addEventListener('tryamm:streetverse-vehicle-repaired',onRepaired)
@@ -62,7 +65,9 @@ export default function StreetVerseActionCarousel(){
   addEventListener('tryamm:streetverse-actions-close',onClose)
   addEventListener('tryamm:streetverse-play-focus',onClose)
   addEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract)
-  return()=>{removeEventListener('tryamm:streetverse-interaction-context',onContext);removeEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown);removeEventListener('tryamm:streetverse-vehicle-repaired',onRepaired);removeEventListener('tryamm:streetverse-actions-open',onOpen);removeEventListener('tryamm:streetverse-actions-close',onClose);removeEventListener('tryamm:streetverse-play-focus',onClose);removeEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract)}
+  addEventListener('tryamm:streetverse-vehicle-controlled',onVehicleControlled)
+  addEventListener('tryamm:streetverse-vehicle-denied',onVehicleDenied)
+  return()=>{removeEventListener('tryamm:streetverse-interaction-context',onContext);removeEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown);removeEventListener('tryamm:streetverse-vehicle-repaired',onRepaired);removeEventListener('tryamm:streetverse-actions-open',onOpen);removeEventListener('tryamm:streetverse-actions-close',onClose);removeEventListener('tryamm:streetverse-play-focus',onClose);removeEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicleControlled);removeEventListener('tryamm:streetverse-vehicle-denied',onVehicleDenied)}
  },[mobile])
  const items=useMemo(()=>{
   const ids=relevant(ctx)
@@ -86,7 +91,14 @@ export default function StreetVerseActionCarousel(){
    if(id==='reel'){dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{...ctx,source:'action-carousel',missionId:ctx.missionId||''}}));return}
   if(id==='tip'&&ctx.npcId){dispatchEvent(new CustomEvent('tryamm:streetverse-npc-tip-request',{detail:{npcId:ctx.npcId,label:ctx.label,source:'action-carousel',serverAuthoritative:true}}));return}
   if((id==='dance'||id==='wave')&&ctx.npcId){dispatchEvent(new CustomEvent('tryamm:streetverse-context-action',{detail:{action:id,...ctx,source:'action-carousel'}}));return}
-  if(id==='enter'&&ctx.broken){dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-denied',{detail:{vehicleId,reason:'repair-required'}}));return}
+  if(id==='enter'){
+   if(ctx.broken){dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-denied',{detail:{vehicleId,reason:'repair-required'}}));return}
+   setEntryStatus('requesting')
+   dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:true,vehicleId,source:'action-carousel'}}))
+   // Only the playable world's vehicle-controlled confirmation marks entry successful.
+   // Never fake occupancy or mission progression from a button tap.
+   return
+  }
   if(['inspect','open','diagnose','use','repair','verify'].includes(id)&&vehicleId){
    const action=id==='open'?'open-hood':id==='use'?'use-repair-kit':id
    dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-repair-action',{detail:{vehicleId,action,repairKitId:id==='use'&&ctx.repairKit?'repair-kit':''}}))
@@ -105,7 +117,7 @@ export default function StreetVerseActionCarousel(){
    <div><div style={{fontSize:9,fontWeight:950,letterSpacing:1.4,color:'#67e8f9'}}>HOLO ACTIONS</div><div style={{fontSize:11,fontWeight:900}}>{ctx.label||'WORLD INTERACTION'}{ctx.broken?' • REPAIR REQUIRED':''}</div></div>
    {mobile?<div style={{display:'flex',gap:5}}><button aria-label="Return to gameplay" onClick={()=>{setOpen(false);setRpOpen(false)}} style={playBtn}>🎮 PLAY</button><button aria-label="Close actions" onClick={()=>{setOpen(false);setRpOpen(false)}} style={closeBtn}>×</button></div>:<label style={{fontSize:8,fontWeight:900,color:'#cbd5e1'}}>SORT <select aria-label="Sort actions" value={sort} onChange={e=>{setSort(e.target.value as SortMode);setPage(0)}} style={{marginLeft:5,borderRadius:999,padding:'5px 7px',background:'#101827',color:'#fff',border:'1px solid #ffffff33',fontSize:9,fontWeight:900}}><option value="smart">SMART</option><option value="nearby">NEARBY</option><option value="mission">MISSION</option><option value="price">PRICE</option><option value="owned">OWNED</option></select></label>}
   </div>
-  {(ctx.kind==='vehicle'||ctx.vehicleId)&&<button aria-label={ctx.broken?'Repair car before entering':'Get in the car'} disabled={Boolean(ctx.broken)} onClick={()=>act('enter')} style={{width:'100%',minHeight:48,marginBottom:7,borderRadius:12,border:'2px solid #60a5fa',background:ctx.broken?'#374151':'#153c73',color:'#fff',fontWeight:950,touchAction:'manipulation'}}>{ctx.broken?'🔧 REPAIR REQUIRED BEFORE ENTRY':'🚗 GET IN CAR'}</button>}
+  {(ctx.kind==='vehicle'||ctx.vehicleId)&&<button aria-label={ctx.broken?'Repair car before entering':'Get in the car'} disabled={Boolean(ctx.broken)} onClick={()=>act('enter')} style={{width:'100%',minHeight:48,marginBottom:7,borderRadius:12,border:'2px solid #60a5fa',background:ctx.broken?'#374151':'#153c73',color:'#fff',fontWeight:950,touchAction:'manipulation'}}>{ctx.broken?'🔧 REPAIR REQUIRED BEFORE ENTRY':entryStatus==='requesting'?'🚗 ENTER REQUEST SENT • CHECK GAME':entryStatus==='denied'?'🚫 ENTRY DENIED • MOVE CLOSER':'🚗 GET IN CAR'}</button>}
   {mobile&&<div style={{display:'flex',gap:5,marginBottom:7}}><select aria-label="Sort actions" value={sort} onChange={e=>{setSort(e.target.value as SortMode);setPage(0)}} style={{flex:1,borderRadius:10,padding:'7px 8px',background:'#101827',color:'#fff',border:'1px solid #ffffff33',fontSize:9,fontWeight:900}}><option value="smart">SMART</option><option value="nearby">NEARBY</option><option value="mission">MISSION</option><option value="price">PRICE</option><option value="owned">OWNED</option></select><button onClick={()=>setRpOpen(v=>!v)} style={toolBtn}>{rpOpen?'HIDE RP':'🎭 RP / GENII'}</button></div>}
   <div style={{display:'grid',gridTemplateColumns:'28px repeat(5,minmax(0,1fr)) 28px',gap:5,alignItems:'stretch'}}>
    <button aria-label="Previous actions" onClick={()=>setPage(p=>(p-1+pages)%pages)} style={nav}>‹</button>
