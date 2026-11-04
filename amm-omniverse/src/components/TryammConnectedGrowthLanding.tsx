@@ -1,5 +1,7 @@
 import {lazy,Suspense,useState,type FormEvent} from 'react'
 import {submitBusinessOSLead} from '../services/businessOSLeads'
+import TryammPlacementBriefBuilder from './TryammPlacementBriefBuilder'
+import {placementToInquiryNotes,type PlacementBrief} from '../runtime/TryammPlacementBriefRuntime'
 import {TRYAMM_AI_CONNECTIONS,TRYAMM_GROWTH_OFFERS,TRYAMM_GROWTH_STAGES,prepareTryammGrowthInquiry,type TryammGrowthOfferId} from '../runtime/TryammConnectedGrowthWorkflow'
 
 const HoloGPT=lazy(()=>import('./HoloGPTAssistant'))
@@ -31,6 +33,14 @@ export default function TryammConnectedGrowthLanding(){
  const [adDraftStatus,setAdDraftStatus]=useState('')
  const chosen=TRYAMM_GROWTH_OFFERS.find(o=>o.id===offerId)??TRYAMM_GROWTH_OFFERS[0]
  const begin=(id:TryammGrowthOfferId)=>{setOfferId(id);setStatus('');document.getElementById('tryamm-connected-inquiry')?.scrollIntoView({behavior:'smooth',block:'start'})}
+ const acceptPlacementQuote=(brief:PlacementBrief)=>{
+  setOfferId('product-placement')
+  setNotes(placementToInquiryNotes(brief))
+  setBusinessName(previous=>previous.trim()?previous:brief.brand)
+  setStatus('Product-placement proposal added below. Complete your contact details and submit; no order or advertisement is active.')
+  setSuccessRef('')
+  document.getElementById('tryamm-connected-inquiry')?.scrollIntoView({behavior:'smooth',block:'start'})
+ }
  const openStudio=()=>window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'tryamm-growth',title:'TRYAMM Holo Reel Business Showcase',caption:'TRYAMM • StreetVerse • Creator Spotlight'}}))
  const openHoloGPT=()=>setAssistantOpen(true)
  const openJarvis=()=>{setAssistantOpen(true);window.dispatchEvent(new CustomEvent('tryamm:jarvis-command',{detail:{action:'open-hologpt'}}))}
@@ -95,6 +105,7 @@ export default function TryammConnectedGrowthLanding(){
      </article>)}
     </div>
    </section>
+   <TryammPlacementBriefBuilder onQuote={acceptPlacementQuote}/>
    <section aria-label="Studio, Holo Ads and intelligent assistants" style={{...card,marginTop:30}}>
     <h2 style={{fontSize:23,margin:'0 0 9px'}}>Creator and business control desk</h2>
     <p style={subtitle}>Each button opens or requests an existing TRYAMM capability. It does not bypass consent, creator rights, provider activation or verified settlement.</p>
