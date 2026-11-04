@@ -39,6 +39,8 @@ const StreetVersePlayableWorld=lazy(()=>import('./StreetVersePlayableWorld'))
 const StreetVerseFullWorldOverlays=lazy(()=>import('./StreetVerseFullWorldOverlays'))
 const StreetVerseReelEventBridge=lazy(()=>import('./StreetVerseReelEventBridge'))
 const StreetVerseActionCarousel=lazy(()=>import('./StreetVerseActionCarousel'))
+const StreetVerseRealtimePresence=lazy(()=>import('./StreetVerseRealtimePresence'))
+const StreetVerseSharedWorldAvatars=lazy(()=>import('./StreetVerseSharedWorldAvatars'))
 const StreetVerseMobileProofDock=lazy(()=>import('./StreetVerseMobileProofDock'))
 const StreetVerseCoreGameplayDock=lazy(()=>import('./StreetVerseCoreGameplayDock'))
 const StreetVerseCreatorEarnDock=lazy(()=>import('./StreetVerseCreatorEarnDock'))
@@ -298,6 +300,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
   <StreetVerseAfterDarkAlpha/>
   {liveStudioOpen&&<div role="dialog" aria-label="StreetVerse LIVE Studio" style={{position:'fixed',inset:0,zIndex:60000,background:'#030611',overflow:'auto'}}><Suspense fallback={<div role="status" style={{padding:30,color:'#fff'}}>Opening StreetVerse LIVE Studio…</div>}><LiveCenter initialFormat="gamecast" onClose={()=>setLiveStudioOpen(false)}/></Suspense></div>}
   <Suspense fallback={null}><StreetVerseTowerConnections/></Suspense>
+  <Suspense fallback={null}><StreetVerseRealtimePresence/><StreetVerseSharedWorldAvatars/></Suspense>
   <Suspense fallback={null}><StreetVerseReelEventBridge/><StreetVerseCreatorEarnDock/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseMobileProofDock/></Suspense>
  </>
 
@@ -311,6 +314,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
   <StreetVerseAfterDarkAlpha/>
   {liveStudioOpen&&<div role="dialog" aria-label="StreetVerse LIVE Studio" style={{position:'fixed',inset:0,zIndex:60000,background:'#030611',overflow:'auto'}}><Suspense fallback={<div role="status" style={{padding:30,color:'#fff'}}>Opening StreetVerse LIVE Studio…</div>}><LiveCenter initialFormat="gamecast" onClose={()=>setLiveStudioOpen(false)}/></Suspense></div>}
   <Suspense fallback={null}><StreetVerseTowerConnections/></Suspense>
+  <Suspense fallback={null}><StreetVerseRealtimePresence/><StreetVerseSharedWorldAvatars/></Suspense>
   <Suspense fallback={null}>{mobile?<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseCreatorEarnDock/></>:<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseCreatorEarnDock/></>}</Suspense>
   {enhancementsReady&&<Suspense fallback={null}><StreetVerseFullWorldOverlays onClose={closeStreetVerse} mapped={prepared.mapped}/></Suspense>}
  </>
