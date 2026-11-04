@@ -1,4 +1,4 @@
-import {useMemo,useState} from 'react'
+import {useEffect,useMemo,useState} from 'react'
 import {searchStreetVerseRPActions,type RPActionPurpose,type RPActionEntry} from '../data/streetVerseRPActionCatalog'
 
 const PURPOSES:Array<RPActionPurpose|'all'>=['all','greet','celebrate','perform','react','comfort','romance','argue','work','train','serve','pray','pose','record']
@@ -8,9 +8,22 @@ export default function StreetVerseRPActionSearch({compact=false}:{compact?:bool
  const [purpose,setPurpose]=useState<RPActionPurpose|'all'>('all')
  const [open,setOpen]=useState(false)
  const [previewAction,setPreviewAction]=useState<RPActionEntry|null>(null)
+ const [playbackStatus,setPlaybackStatus]=useState('Select PLAY to animate BJ in 3D; missing clips will be reported.')
  const [favorites,setFavorites]=useState<string[]>(()=>{try{return JSON.parse(localStorage.getItem('tryamm.rp-action-favorites.v1')||'[]')}catch{return[]}})
+ useEffect(()=>{
+  const onResult=(event:Event)=>{
+   const d=(event as CustomEvent<{actionId?:string;played?:boolean;mode?:string;clipName?:string;reason?:string}>).detail||{}
+   if(!d.actionId)return
+   setPlaybackStatus(d.played
+    ?`BJ PLAYED • ${d.actionId.replaceAll('-',' ').toUpperCase()} • ${d.mode==='clip'?'GLB '+(d.clipName||'CLIP'):'BONE-DRIVEN GESTURE'}`
+    :`BJ ACTION UNAVAILABLE • ${d.actionId.replaceAll('-',' ').toUpperCase()} • ${d.reason||'no compatible animation'}`)
+  }
+  window.addEventListener('tryamm:streetverse-rp-action-result',onResult)
+  return()=>window.removeEventListener('tryamm:streetverse-rp-action-result',onResult)
+ },[])
  const results=useMemo(()=>searchStreetVerseRPActions(query,purpose).slice(0,compact?8:16),[query,purpose,compact])
  const send=(name:string,action:RPActionEntry,extra:Record<string,unknown>={})=>{
+  if(name==='tryamm:streetverse-rp-action-play')setPlaybackStatus(`REQUESTED • ${action.label} • checking BJ's active 3D rig…`)
   window.dispatchEvent(new CustomEvent(name,{detail:{actionId:action.id,label:action.label,animationClip:action.animationClip,gifQuery:action.gifQuery,loopable:action.loopable,syncable:action.syncable,purpose:action.purposes,source:'rp-action-search',...extra}}))
  }
  const toggleFavorite=(action:RPActionEntry)=>{
@@ -24,7 +37,8 @@ export default function StreetVerseRPActionSearch({compact=false}:{compact?:bool
     <input aria-label="Search RP actions" value={query} onChange={e=>setQuery(e.target.value)} placeholder="dance, wave, mechanic, prayer, victory…" style={input}/>
     <select aria-label="Filter RP actions by purpose" value={purpose} onChange={e=>setPurpose(e.target.value as RPActionPurpose|'all')} style={input}>{PURPOSES.map(p=><option key={p} value={p}>{p.toUpperCase()}</option>)}</select>
    </div>
-   <div style={{marginTop:6,fontSize:8,color:'#9fb1c0'}}>Searches the animation name, tags and the PURPOSE of the RP action. GIF is a preview/discovery lane; the game animation remains the authoritative action.</div>
+   <div style={{marginTop:6,fontSize:8,color:'#9fb1c0'}}>Searches the animation name, tags and PURPOSE. GIF is discovery; only verified GLB or bone-driven motion counts as PLAYED.</div>
+   <div role="status" aria-label="BJ RP playback result" style={{marginTop:6,fontSize:10,color:'#c4f7ff',padding:8,border:'1px solid #93c5fd55',borderRadius:9}}>{playbackStatus}</div>
    <div style={{display:'grid',gridTemplateColumns:compact?'repeat(2,minmax(0,1fr))':'repeat(auto-fit,minmax(185px,1fr))',gap:6,marginTop:8,maxHeight:compact?250:360,overflowY:'auto'}}>
     {results.map(action=><article key={action.id} style={{padding:8,borderRadius:11,border:'1px solid #334155',background:'#0c1420'}}>
       <div style={{fontSize:10,fontWeight:950}}>{action.label}</div>
