@@ -63,7 +63,7 @@ assert.match(carousel,/aria-label="Get in nearby car"/,
   'mobile car entry must be a named, touch-friendly action')
 assert.match(carousel,/nearbyVehicle&&!inVehicle/,
   'car entry action must only be advertised when a nearby car is available on foot')
-assert.match(carousel,/id==='enter'[\\s\\S]*?tryamm:streetverse-vehicle-interact/,
+assert.match(carousel,/id==='enter'[\s\S]*?tryamm:streetverse-vehicle-interact/,
   'carousel ENTER must send a real vehicle-interact command')
 assert.match(carousel,/entered:true,vehicleId,source:'action-carousel'/,
   'car entry must identify the nearby car and its source')
