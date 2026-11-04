@@ -1,0 +1,64 @@
+name: StreetVerse AI Cafe Game Dev Workers
+on:
+  push:
+    branches:
+      - streetverse-chromebook-workbench
+    paths:
+      - 'docs/STREETVERSE_AI_CAFE_GAME_DEV_QUEUE.json'
+      - '.github/workflows/streetverse-ai-cafe-game-dev-workers.yml'
+      - 'amm-omniverse/scripts/streetverse-ai-cafe-game-dev-workers.mjs'
+      - 'amm-omniverse/scripts/extract-bj-owned-v3-glb.mjs'
+      - 'amm-omniverse/tests/bj-owned-v3-extraction-integration.mjs'
+      - 'amm-omniverse/src/runtime/StreetVerseMeshyBJHeroRuntime.ts'
+      - 'amm-omniverse/src/data/StreetVerseOmniCastProduction.ts'
+      - 'amm-omniverse/src/components/MeetTheStubbsWorldDistrict.tsx'
+      - 'amm-omniverse/scripts/forge-streetverse-ensemble.mjs'
+      - 'amm-omniverse/tests/streetverse-omni-cast-glb-forge-contract.mjs'
+      - 'amm-omniverse/tests/streetverse-original-music-stage-contract.mjs'
+      - 'amm-omniverse/src/components/StreetVerseOriginalMusicStage.tsx'
+      - 'amm-omniverse/src/components/StarVerseAuditionPilot.tsx'
+      - 'amm-omniverse/src/components/OTTIsaiahTV.tsx'
+      - 'amm-omniverse/src/components/StarStudioCenter.tsx'
+      - 'amm-omniverse/tests/starverse-isaiah-tv-audition-bridge-contract.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: streetverse-dev-workers-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  run-queued-dev-workers:
+    name: Bounded StreetVerse game dev workers (no subscriptions)
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check game-dev worker syntax
+        run: |
+          node --check amm-omniverse/scripts/streetverse-ai-cafe-game-dev-workers.mjs
+          node --check amm-omniverse/tests/chromebook-streetverse-bj-v4-contract.cjs
+          node --check amm-omniverse/scripts/extract-bj-owned-v3-glb.mjs
+          node --check amm-omniverse/tests/bj-owned-v3-extraction-integration.mjs
+          node --check amm-omniverse/tests/chromebook-streetverse-bj-v5-contract.cjs
+          node --check amm-omniverse/tests/streetverse-omni-cast-production-contract.mjs
+          node --check amm-omniverse/scripts/forge-streetverse-ensemble.mjs
+          node --check amm-omniverse/tests/streetverse-omni-cast-glb-forge-contract.mjs
+          node --check amm-omniverse/tests/streetverse-original-music-stage-contract.mjs
+          node --check amm-omniverse/tests/starverse-isaiah-tv-audition-bridge-contract.mjs
+      - name: Dispatch allow-listed AI Cafe development workers
+        run: node amm-omniverse/scripts/streetverse-ai-cafe-game-dev-workers.mjs
+      - name: Keep review-only evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-ai-cafe-worker-evidence
+          path: |
+            artifacts/streetverse-ai-cafe/
+            artifacts/streetverse-omni-cast/
+          retention-days: 5
+          if-no-files-found: warn

@@ -89,8 +89,9 @@
     "meshy:recover-existing": "node scripts/recover-existing-meshy-assets.mjs public/tryamm-assets/meshy/recovered-existing",
     "meshy:forge:wave1": "node scripts/forge-streetverse-residents-wave1.mjs",
     "meshy:forge:wave2": "node scripts/forge-streetverse-residents-wave2.mjs",
-    "assets:prebuild": "npm run free:assets && npm run native:assets && npm run bj:v7:publish",
-    "test:live-lifecycle": "node --test tests/live-connection-lifecycle.test.mjs tests/pk-end-presentation.test.mjs"
+    "assets:prebuild": "npm run free:assets && npm run native:assets && npm run bj:owned:extract && npm run bj:v7:publish",
+    "test:live-lifecycle": "node --test tests/live-connection-lifecycle.test.mjs tests/pk-end-presentation.test.mjs",
+    "bj:owned:extract": "node scripts/extract-bj-owned-v3-glb.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.3",

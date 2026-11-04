@@ -61,8 +61,8 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
 
     type Rect={x:number;y:number;width:number;height:number};
     const travel=page.getByRole('button',{name:'Travel to Taylor Street UIC Medical District'});
-    const stores=page.locator('#sv-retail-open');
-    const enterStore=page.locator('#sv-store-open');
+    const stores=page.locator('#sv-city-retail-open');
+    const enterStore=page.locator('#sv-city-store-open');
     await expect(travel).toBeVisible();
     await expect(stores).toBeVisible();
     await expect(enterStore).toBeVisible();
@@ -83,6 +83,16 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
       expect(overlaps(boxes[i],boxes[j])).toBeLessThan(1);
     }
 
+    // Verify both storefront controls open usable in-world panels rather than
+    // counting missing outer-shell buttons as functional features.
+    await stores.click();
+    await expect(page.getByRole('dialog', { name: 'StreetVerse commerce missions' })).toBeVisible();
+    await page.getByRole('button', { name: 'Close StreetVerse store panel' }).click();
+    await enterStore.click();
+    await expect(page.getByRole('dialog', { name: 'StreetVerse local store preview' })).toBeVisible();
+    await expect(page.getByText('This is an in-game storefront gateway, not a finished 3D shop or active payment checkout.')).toBeVisible();
+    await page.getByRole('button', { name: 'Close StreetVerse store panel' }).click();
+
     await page.waitForTimeout(2200);
     await page.screenshot({
       path:testInfo.outputPath('streetverse-circle-park-compact-iphone.png'),
@@ -95,12 +105,12 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await quickMenu.click();
     const menu=page.getByRole('menu',{name:'StreetVerse quick navigation'});
     await expect(menu).toBeVisible();
-    const bjView=page.getByRole('menuitem',{name:/BJ V12 VIEW/});
+    const bjView=page.getByRole('menuitem',{name:/BJ CLOSE-UP/});
     await expect(bjView).toBeVisible();
     await bjView.click();
     await page.waitForTimeout(1400);
     await page.screenshot({
-      path:testInfo.outputPath('streetverse-bj-v12-character-view.png'),
+      path:testInfo.outputPath('streetverse-bj-character-view.png'),
       fullPage:false,
     });
     await quickMenu.click();

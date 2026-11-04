@@ -1,0 +1,23 @@
+{
+  "name": "StreetVerse Chromebook (Cloud Node 24)",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:24-bookworm",
+  "forwardPorts": [
+    5173
+  ],
+  "portsAttributes": {
+    "5173": {
+      "label": "StreetVerse Vite preview",
+      "onAutoForward": "notify"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "cesium.gltf-vscode"
+      ]
+    }
+  },
+  "postCreateCommand": "node --version && npm --version"
+}

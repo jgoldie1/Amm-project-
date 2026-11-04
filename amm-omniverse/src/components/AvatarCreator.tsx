@@ -13,6 +13,7 @@ import {
   type AvatarCaptureView,
   type BiometricAvatarConsent,
 } from '../runtime/BiometricAvatarPrivacyRuntime'
+import {createHeroAvatarMorphProfile,saveHeroAvatarMorphProfile,deleteHeroAvatarMorphProfile} from '../runtime/StreetVerseHeroAvatarMorphRuntime'
 
 type Step='species'|'face'|'preview'
 type FaceMode='skip'|'camera'|'video'|'upload'
@@ -34,6 +35,7 @@ export default function AvatarCreator({onDone}:{onDone:()=>void}){
   const [privacyAccepted,setPrivacyAccepted]=useState(false)
   const [adultOrGuardianAuthorized,setAdultOrGuardianAuthorized]=useState(false)
   const [saveRawPhotos,setSaveRawPhotos]=useState(false)
+  const [saveDerivedShape,setSaveDerivedShape]=useState(false)
   const [consent,setConsent]=useState<BiometricAvatarConsent|null>(null)
   const [measuredViews,setMeasuredViews]=useState<MeasuredView[]>([])
   const videoRef=useRef<HTMLVideoElement>(null)
@@ -201,7 +203,7 @@ export default function AvatarCreator({onDone}:{onDone:()=>void}){
   }
 
   const discardCaptures=()=>{
-    stopCamera();revokeSessionUrls();setPhotos([]);setFaceData(null);setMeasuredViews([]);setPreviewCanvas(null);setConsent(null)
+    stopCamera();revokeSessionUrls();setPhotos([]);setFaceData(null);setMeasuredViews([]);setPreviewCanvas(null);setConsent(null);setSaveDerivedShape(false)
     requestAvatarBiometricDeletion('raw-captures');store.setNotif('🗑️ Raw avatar captures discarded.')
   }
 
@@ -214,9 +216,36 @@ export default function AvatarCreator({onDone}:{onDone:()=>void}){
   useEffect(()=>()=>{stopCamera();revokeSessionUrls()},[])
 
   const confirm=()=>{
+    // Uploads and face scans are NOT character meshes. Store only optional,
+    // coarse, non-identifying local morph proportions with separate opt-in.
+    let profileSaved=false
+    if(saveDerivedShape){
+      const human=selectedSpecies==='human_male'||selectedSpecies==='human_female'
+      const gate=canProcessAvatarBiometrics(consent||undefined)
+      const front=measuredViews[0]?.landmarks||faceData?.landmarks
+      if(!human||!privacyAccepted||!adultOrGuardianAuthorized||!gate.ok||!front){
+        store.setNotif('🔒 To save a personal 3D face fit, choose a human and capture a detected front face with consent.')
+        return
+      }
+      const source=measuredViews[0]?.source==='video'?'video':measuredViews[0]?.source==='camera'?'video':'photo'
+      const profile=createHeroAvatarMorphProfile({
+        source,faceBox:front.faceBox,leftEye:front.leftEye,rightEye:front.rightEye,
+        nose:front.nose,mouth:front.mouth,jawLeft:front.jawLeft,jawRight:front.jawRight,
+        confidence:.7,
+      })
+      saveHeroAvatarMorphProfile(profile)
+      profileSaved=true
+      window.dispatchEvent(new CustomEvent('tryamm:avatar-custom-face-profile-ready',{detail:{
+        assetId:'player-hero-v1',sourceViews:measuredViews.length,
+        validLandmarkViews:measuredViews.filter(v=>Boolean(v.landmarks)).length,
+        output:'local-custom-human-morph-profile',rawPhotoSaved:false,
+        notPhotogrammetry:true,notBJPhotoReplacement:true,consentGranted:true,
+      }}))
+    }
     store.setPlayer({avatar:selectedSpecies as any});store.earnXp(100)
     if(consent?.rawPhotoRetention==='session-only'){revokeSessionUrls();requestAvatarBiometricDeletion('raw-captures')}
-    store.setNotif(`✅ ${species.label} avatar ready for StreetVerse!`);onDone()
+    store.setNotif(profileSaved?'✅ Original custom avatar proportions saved on this device. Preview in a compatible character model.':`✅ ${species.label} avatar selection saved for StreetVerse!`)
+    onDone()
   }
 
   return <div style={{width:'100%',height:'100%',background:'#020212',color:'#fff',fontFamily:'monospace',display:'flex',flexDirection:'column',overflow:'hidden'}}>
@@ -277,7 +306,12 @@ export default function AvatarCreator({onDone}:{onDone:()=>void}){
         <p style={muted}>This derived avatar preview can remain while raw video/camera frames are deleted.</p>
         {previewCanvas&&<div style={{display:'flex',justifyContent:'center',margin:'18px 0'}}><canvas ref={el=>{if(el){el.width=220;el.height=220;el.getContext('2d')!.drawImage(previewCanvas,0,0,previewCanvas.width,previewCanvas.height,0,0,220,220)}}} style={{width:220,height:220,borderRadius:'50%',border:`3px solid ${CATEGORY_COLORS[species.category]}`,boxShadow:`0 0 25px ${CATEGORY_COLORS[species.category]}55`}}/></div>}
         <h2 style={{marginBottom:4}}>{store.player.name}</h2><div style={{color:CATEGORY_COLORS[species.category]}}>{species.emoji} {species.label}</div>
-        <div style={{color:'#5fe5b0',fontSize:11,margin:'8px 0 18px'}}>RAW VIDEO/FRAME RETENTION: NONE AFTER FIT • DERIVED AVATAR USER-DELETABLE</div>
+        <div style={{color:'#5fe5b0',fontSize:11,margin:'8px 0 12px'}}>RAW VIDEO/FRAME RETENTION: NONE AFTER FIT • DERIVED AVATAR USER-DELETABLE</div>
+        {measuredViews.length>0&&(selectedSpecies==='human_male'||selectedSpecies==='human_female')&&<label style={{...check,textAlign:'left',background:'#0c1d23',padding:10,borderRadius:8,border:'1px solid #00ccff55'}}>
+          <input type="checkbox" checked={saveDerivedShape} onChange={e=>setSaveDerivedShape(e.target.checked)}/>
+          Save my detected front-face proportions as an optional local custom-player 3D morph profile. This is not a high-detail 3D reconstruction; side photos remain capture references. It will not replace BJ V15.
+        </label>}
+        <button onClick={()=>{deleteHeroAvatarMorphProfile();requestAvatarBiometricDeletion('derived-avatar');setSaveDerivedShape(false);store.setNotif('Local saved character morph deleted.')}} style={{...btn('#ff7788'),marginBottom:12}}>DELETE SAVED CUSTOM FACE FIT</button>
         <div style={{display:'flex',gap:9}}><button onClick={()=>setStep('face')} style={btn('#666')}>← BACK</button><button onClick={confirm} style={{...btn(CATEGORY_COLORS[species.category]),flex:1,fontWeight:900}}>✅ CONFIRM AVATAR</button></div>
       </div>}
     </div>

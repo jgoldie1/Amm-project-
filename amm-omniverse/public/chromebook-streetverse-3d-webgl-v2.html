@@ -1,0 +1,135 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>StreetVerse Chicago — 3D Chromebook Prototype v2</title><style>
+*{box-sizing:border-box}html,body{height:100%;margin:0;background:#0a1123;color:#f8faff;font:15px/1.4 system-ui;overflow:hidden}#view{width:100%;height:100%;display:block;touch-action:none}#top{position:absolute;top:8px;left:8px;right:8px;display:flex;gap:8px;align-items:flex-start;pointer-events:none}.panel{background:#0b1431df;border:1px solid #6879a8;border-radius:11px;padding:10px;box-shadow:0 8px 24px #0006;max-width:400px}.panel strong{color:#eac67b}#status{margin-top:5px;font-size:13px}#right{margin-left:auto;pointer-events:auto;max-width:180px;text-align:right}#bottom{position:absolute;bottom:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:flex-end;gap:14px;pointer-events:none}.pad{display:grid;grid-template-columns:repeat(3,55px);gap:6px;pointer-events:auto}.pad button{height:55px}.buttons{pointer-events:auto;display:flex;flex-direction:column;gap:7px}button{font:700 14px system-ui;color:white;background:#433176;border:1px solid #b7a5ea;border-radius:10px;min-height:45px;min-width:56px;cursor:pointer;touch-action:none;user-select:none}button:focus-visible{outline:3px solid white}button:active{background:#684eaf}#warning{position:absolute;left:5%;top:35%;max-width:90%;padding:20px;background:#311d45;border:1px solid #d9aaff;border-radius:14px;display:none}#message{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:10px;text-align:center;color:#ecf0fcaa;pointer-events:none;white-space:nowrap}@media(max-width:600px){#top .panel{font-size:12px;max-width:65vw}#right{max-width:33vw}.pad{grid-template-columns:repeat(3,44px)}.pad button{height:44px;min-width:42px}.buttons button{min-height:42px}}
+#tools{position:absolute;top:8%;right:3%;left:3%;z-index:5;max-width:520px;max-height:84%;overflow:auto;background:#111a33f2;border:1px solid #ad96ee;border-radius:16px;padding:16px;box-shadow:0 22px 50px #0009;display:none}
+#tools.open{display:block}#tools h2{margin:0 0 8px;font-size:21px}#tools p{color:#d8dff7;line-height:1.5}#tools input[type=file]{width:100%;background:#212846;padding:9px;border-radius:8px;border:1px solid #7685b1}
+#tools button{margin:4px}#tools label{font-size:14px;display:block;margin:8px 0 5px}#tools button.selected{background:#7259aa}
+#assetMessage{font-size:13px;color:#f1cf97;min-height:30px}#perf{position:absolute;top:119px;left:10px;pointer-events:none;font:12px system-ui;color:#fdf3d4;background:#151c34a8;padding:3px 6px;border-radius:6px}
+@media(max-width:620px){#right #studioToggle{font-size:12px}#perf{top:135px}.buttons button{padding:3px 6px;font-size:12px}#tools{top:7%;left:2%;right:2%}}
+</style></head><body><canvas id="view" aria-label="3D Chicago streets playable test"></canvas><div id="top"><div class="panel"><strong>STREETVERSE CHICAGO — 3D</strong><div id="objective">Mission: Collect the repair kit near Circle Park</div><div id="status">Loading WebGL…</div></div><div class="panel" id="right"><div id="mode">BJ placeholder • ON FOOT</div><div id="xp">0 XP</div><button id="reset" type="button">RESET</button><button id="studioToggle" type="button">TOOLS</button></div></div><div id="bottom"><div class="pad" aria-label="One-hand directional controls"><span></span><button data-move="0,-1" aria-label="Forward">▲</button><span></span><button data-move="-1,0" aria-label="Left">◀</button><button data-move="0,1" aria-label="Backward">▼</button><button data-move="1,0" aria-label="Right">▶</button></div><div class="buttons"><button id="interact">INTERACT (E)</button><button id="camera">CAMERA</button><button id="enterBuilding" type="button" style="display:none">ENTER BUILDING</button><button id="stairs" type="button" style="display:none">STAIRS</button><button id="elevator" type="button" style="display:none">ELEVATOR</button><button id="exitBuilding" type="button" style="display:none">EXIT BUILDING</button></div></div><div id="perf" aria-live="off">Low-memory 3D mode</div>
+<section id="tools" role="dialog" aria-modal="true" aria-label="StreetVerse 3D tools" aria-hidden="true">
+<h2>StreetVerse Chicago — 3D tools</h2>
+<p><strong>Play first:</strong> walk to the yellow repair kit, enter the blue car, drive to Taylor Street, talk to the resident, and enter the building. Go upstairs by stairs or elevator.</p>
+<p><strong>Graphics:</strong> No downloads or subscriptions. Switch resolution to protect older Chromebooks.</p>
+<button id="qualityLow" class="selected" type="button">LOW graphics</button><button id="qualityNormal" type="button">STANDARD graphics</button>
+<p><strong>Original character preview:</strong> choose one .glb file from your Chromebook's Files app. The model is read privately in browser memory and never uploaded. This experimental renderer supports basic uncompressed triangle meshes only; imported skins, textures, facial expressions and animation clips are not yet supported.</p>
+<label for="glbInput">Choose original GLB (up to 24 MB)</label><input id="glbInput" type="file" accept=".glb,model/gltf-binary">
+<p id="assetMessage" role="status">Using built-in BJ placeholder until a compatible GLB is selected.</p>
+<button id="usePlaceholder" type="button">Use built-in placeholder</button><button id="closeTools" type="button">Close tools</button>
+<p style="font-size:12px">This is a standalone WebGL proof, not the production Three.js game. No live payment, multiplayer, or online asset hosting is connected.</p>
+</section><div id="warning" role="alert"></div><div id="message">No installation • Built-in WebGL • Local GLB preview is untextured & unanimated • No payments</div>
+<script>
+(()=>{'use strict';
+const canvas=document.getElementById('view'),gl=canvas.getContext('webgl',{antialias:false,alpha:false,powerPreference:'low-power'}),status=document.getElementById('status'),objective=document.getElementById('objective'),mode=document.getElementById('mode'),xpLabel=document.getElementById('xp');
+if(!gl){document.getElementById('warning').style.display='block';document.getElementById('warning').textContent='WebGL is unavailable in this Chrome browser. Please try Chrome Settings > System and check hardware acceleration; the 2D StreetVerse v5 kit can still run.';status.textContent='WebGL not available';return;}
+const vert=`attribute vec3 aPosition; attribute vec3 aNormal; uniform mat4 uMvp; varying vec3 vNormal; void main(){gl_Position=uMvp*vec4(aPosition,1.0);vNormal=aNormal;}`;
+const frag=`precision mediump float; varying vec3 vNormal; uniform vec3 uColor;void main(){float shade=0.70+0.28*max(0.0,dot(normalize(vNormal),normalize(vec3(0.3,0.9,0.5))));gl_FragColor=vec4(uColor*shade,1.0);}`;
+function compile(t,s){const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(sh));return sh;}
+const program=gl.createProgram();gl.attachShader(program,compile(gl.VERTEX_SHADER,vert));gl.attachShader(program,compile(gl.FRAGMENT_SHADER,frag));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
+const loc=gl.getAttribLocation(program,'aPosition'),nl=gl.getAttribLocation(program,'aNormal'),uniform=gl.getUniformLocation(program,'uMvp'),color=gl.getUniformLocation(program,'uColor');
+const face=[
+ [[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1],[0,0,1]],
+ [[1,-1,-1],[-1,-1,-1],[-1,1,-1],[1,1,-1],[0,0,-1]],
+ [[1,-1,1],[1,-1,-1],[1,1,-1],[1,1,1],[1,0,0]],
+ [[-1,-1,-1],[-1,-1,1],[-1,1,1],[-1,1,-1],[-1,0,0]],
+ [[-1,1,1],[1,1,1],[1,1,-1],[-1,1,-1],[0,1,0]],
+ [[-1,-1,-1],[1,-1,-1],[1,-1,1],[-1,-1,1],[0,-1,0]] ];
+let cube=[];for(const f of face){for(const k of [0,1,2,0,2,3])cube.push(...f[k],...f[4]);}
+const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(cube),gl.STATIC_DRAW);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,3,gl.FLOAT,false,24,0);gl.enableVertexAttribArray(nl);gl.vertexAttribPointer(nl,3,gl.FLOAT,false,24,12);gl.enable(gl.DEPTH_TEST);gl.clearColor(.53,.72,.88,1);
+function mult(a,b){const r=new Float32Array(16);for(let c=0;c<4;c++)for(let i=0;i<4;i++)for(let k=0;k<4;k++)r[c*4+i]+=a[k*4+i]*b[c*4+k];return r;}
+function perspective(f,aspect,near,far){const t=1/Math.tan(f/2),d=near-far;return new Float32Array([t/aspect,0,0,0,0,t,0,0,0,0,(near+far)/d,-1,0,0,2*near*far/d,0]);}
+function lookAt(eye,target){let z=eye.map((v,i)=>v-target[i]),n=Math.hypot(...z);z=z.map(v=>v/n);let x=[z[2],0,-z[0]];n=Math.hypot(...x);x=x.map(v=>v/n);const y=[z[1]*x[2]-z[2]*x[1],z[2]*x[0]-z[0]*x[2],z[0]*x[1]-z[1]*x[0]];return new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-x.reduce((s,v,i)=>s+v*eye[i],0),-y.reduce((s,v,i)=>s+v*eye[i],0),-z.reduce((s,v,i)=>s+v*eye[i],0),1]);}
+function modelMatrix(x,y,z,w,h,d){return new Float32Array([w/2,0,0,0,0,h/2,0,0,0,0,d/2,0,x,y,z,1]);}
+let pv;function box(x,y,z,w,h,d,r,g,b){gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.vertexAttribPointer(loc,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(nl,3,gl.FLOAT,false,24,12);gl.uniformMatrix4fv(uniform,false,mult(pv,modelMatrix(x,y,z,w,h,d)));gl.uniform3f(color,r,g,b);gl.drawArrays(gl.TRIANGLES,0,36);}
+
+let uploadedMesh=null,quality=0.8,drawCalls=0;
+function parseLocalGLB(arrayBuffer){
+  if(arrayBuffer.byteLength<20||arrayBuffer.byteLength>24*1024*1024)throw Error('GLB should be between 20 bytes and 24 MB.');
+  const dv=new DataView(arrayBuffer);
+  if(dv.getUint32(0,true)!==0x46546c67||dv.getUint32(4,true)!==2||dv.getUint32(8,true)!==arrayBuffer.byteLength)throw Error('Not a valid GLB version 2.');
+  let ptr=12,json=null,bin=null;
+  while(ptr+8<=arrayBuffer.byteLength){let size=dv.getUint32(ptr,true),kind=dv.getUint32(ptr+4,true);ptr+=8;if(ptr+size>arrayBuffer.byteLength)throw Error('Damaged GLB chunk length.');if(kind===0x4e4f534a)json=JSON.parse(new TextDecoder().decode(new Uint8Array(arrayBuffer,ptr,size)).replace(/\u0000+$/,''));if(kind===0x004e4942)bin=new DataView(arrayBuffer,ptr,size);ptr+=size;}
+  if(!json||!bin)throw Error('GLB requires embedded JSON and binary chunks.');
+  if((json.extensionsRequired||[]).some(k=>/draco|meshopt/i.test(k)))throw Error('Compressed mesh extensions need the full Three.js loader.');
+  const components={5120:1,5121:1,5122:2,5123:2,5125:4,5126:4};
+  function element(i){let a=json.accessors?.[i];if(!a||a.sparse||a.bufferView==null||!components[a.componentType])throw Error('Unsupported accessor');let b=json.bufferViews?.[a.bufferView];if(!b||b.buffer!==0)throw Error('Only one binary buffer is supported.');const count={SCALAR:1,VEC2:2,VEC3:3,VEC4:4}[a.type];if(!count)throw Error('Unsupported attribute type');const bytes=components[a.componentType],stride=b.byteStride||bytes*count,base=(b.byteOffset||0)+(a.byteOffset||0);if(stride<bytes*count||base+(a.count-1)*stride+bytes*count>bin.byteLength)throw Error('GLB data out of range');return{a,count,stride,base,bytes};}
+  function read(e,i,c){let offset=e.base+i*e.stride+c*e.bytes;if(offset<0||offset+e.bytes>bin.byteLength)throw Error('Invalid attribute location');switch(e.a.componentType){case 5126:return bin.getFloat32(offset,true);case 5125:return bin.getUint32(offset,true);case 5123:return bin.getUint16(offset,true);case 5122:return bin.getInt16(offset,true);case 5121:return bin.getUint8(offset);case 5120:return bin.getInt8(offset);default:throw Error('Unsupported component');}}
+  const ident=new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
+  function transform(node){if(node.matrix)return new Float32Array(node.matrix);let [x,y,z,w]=node.rotation||[0,0,0,1], [sx,sy,sz]=node.scale||[1,1,1], [tx,ty,tz]=node.translation||[0,0,0];return new Float32Array([(1-2*y*y-2*z*z)*sx,(2*x*y+2*w*z)*sx,(2*x*z-2*w*y)*sx,0,(2*x*y-2*w*z)*sy,(1-2*x*x-2*z*z)*sy,(2*y*z+2*w*x)*sy,0,(2*x*z+2*w*y)*sz,(2*y*z-2*w*x)*sz,(1-2*x*x-2*y*y)*sz,0,tx,ty,tz,1]);}
+  function position(m,v){return[m[0]*v[0]+m[4]*v[1]+m[8]*v[2]+m[12],m[1]*v[0]+m[5]*v[1]+m[9]*v[2]+m[13],m[2]*v[0]+m[6]*v[1]+m[10]*v[2]+m[14]];}
+  let vertices=[],triangles=0,visited=0;
+  function meshToTriangles(meshIndex,mat){let mesh=json.meshes?.[meshIndex];if(!mesh)return;for(const prim of mesh.primitives||[]){if((prim.mode??4)!==4)continue;let positions=prim.attributes?.POSITION;if(positions==null)continue;const pe=element(positions),ne=prim.attributes.NORMAL==null?null:element(prim.attributes.NORMAL),ie=prim.indices==null?null:element(prim.indices);if(pe.a.componentType!==5126||pe.count!==3)throw Error('POSITION must be 3D floats');const total=ie?ie.a.count:pe.a.count;if(total%3)continue;if(triangles+total/3>80000)throw Error('Model is too detailed for the Chromebook sample (80,000 triangle maximum).');for(let i=0;i<total;i+=3){let pts=[],norm=[];for(let k=0;k<3;k++){let ix=ie?read(ie,i+k,0):i+k;if(ix>=pe.a.count)throw Error('Out-of-range vertex index');let pos=position(mat,[read(pe,ix,0),read(pe,ix,1),read(pe,ix,2)]);if(pos.some(v=>!Number.isFinite(v)))throw Error('Invalid mesh position');pts.push(pos);if(ne){let v=[read(ne,ix,0),read(ne,ix,1),read(ne,ix,2)],n=[mat[0]*v[0]+mat[4]*v[1]+mat[8]*v[2],mat[1]*v[0]+mat[5]*v[1]+mat[9]*v[2],mat[2]*v[0]+mat[6]*v[1]+mat[10]*v[2]],d=Math.hypot(...n)||1;norm.push(n.map(v=>v/d));}}
+    if(!ne){let a=pts[0],b=pts[1],c=pts[2],u=b.map((v,j)=>v-a[j]),v=c.map((val,j)=>val-a[j]),n=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]],d=Math.hypot(...n)||1;norm=[n.map(val=>val/d),n.map(val=>val/d),n.map(val=>val/d)];}
+    for(let k=0;k<3;k++)vertices.push(...pts[k],...norm[k]);triangles++;
+  }}}
+  function visit(index,parent){if(++visited>2000)throw Error('Model has too many nodes');const node=json.nodes?.[index];if(!node)return;const matrix=mult(parent,transform(node));if(node.mesh!=null)meshToTriangles(node.mesh,matrix);for(const child of node.children||[])visit(child,matrix);}
+  const roots=json.scenes?.[json.scene||0]?.nodes||json.nodes?.map((_,i)=>i)||[];
+  for(const index of roots)visit(index,ident);
+  if(!vertices.length)throw Error('GLB had no compatible triangles. A skin may require the full Three.js loader.');
+  let min=[Infinity,Infinity,Infinity],max=[-Infinity,-Infinity,-Infinity];for(let i=0;i<vertices.length;i+=6)for(let j=0;j<3;j++){min[j]=Math.min(min[j],vertices[i+j]);max[j]=Math.max(max[j],vertices[i+j]);}
+  const height=Math.max(.001,max[1]-min[1]),span=Math.max(height,max[0]-min[0],max[2]-min[2]);let sc=1.8/span;const cx=(min[0]+max[0])/2,cz=(min[2]+max[2])/2;
+  for(let i=0;i<vertices.length;i+=6){vertices[i]=(vertices[i]-cx)*sc;vertices[i+1]=(vertices[i+1]-min[1])*sc;vertices[i+2]=(vertices[i+2]-cz)*sc;}
+  return{data:new Float32Array(vertices),triangles,nodes:visited};
+}
+function renderUploadedPlayer(){if(!uploadedMesh)return false;gl.bindBuffer(gl.ARRAY_BUFFER,uploadedMesh.buffer);gl.vertexAttribPointer(loc,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(nl,3,gl.FLOAT,false,24,12);gl.uniformMatrix4fv(uniform,false,mult(pv,modelMatrix(p.x,0,p.z,2,2,2)));gl.uniform3f(color,.72,.57,.86);gl.drawArrays(gl.TRIANGLES,0,uploadedMesh.triangles*3);drawCalls++;return true;}
+const assetInput=document.getElementById('glbInput');assetInput.addEventListener('change',async()=>{let f=assetInput.files?.[0];if(!f)return;let msg=document.getElementById('assetMessage');try{if(!/\.glb$/i.test(f.name))throw Error('Please select a .glb file.');let mesh=parseLocalGLB(await f.arrayBuffer());let gpuBuffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,gpuBuffer);gl.bufferData(gl.ARRAY_BUFFER,mesh.data,gl.STATIC_DRAW);if(uploadedMesh)gl.deleteBuffer(uploadedMesh.buffer);uploadedMesh={buffer:gpuBuffer,triangles:mesh.triangles};msg.textContent=`LOCAL GLB loaded: ${f.name} — ${mesh.triangles.toLocaleString()} triangles. Textures, skin animation and likeness NOT verified.`;say('GLB geometry loaded in browser memory. Continue the mission.');}catch(e){msg.textContent='GLB preview unavailable: '+e.message;}finally{assetInput.value='';}});
+function tools(show){let t=document.getElementById('tools');t.classList.toggle('open',show);t.setAttribute('aria-hidden',String(!show));if(!show)document.getElementById('studioToggle').focus();}
+document.getElementById('studioToggle').addEventListener('click',()=>tools(true));document.getElementById('closeTools').addEventListener('click',()=>tools(false));
+document.getElementById('qualityLow').addEventListener('click',()=>{quality=.75;document.getElementById('qualityLow').classList.add('selected');document.getElementById('qualityNormal').classList.remove('selected');});
+document.getElementById('qualityNormal').addEventListener('click',()=>{quality=1.3;document.getElementById('qualityNormal').classList.add('selected');document.getElementById('qualityLow').classList.remove('selected');});
+document.getElementById('usePlaceholder').addEventListener('click',()=>{if(uploadedMesh){gl.deleteBuffer(uploadedMesh.buffer);uploadedMesh=null;}document.getElementById('assetMessage').textContent='Using lightweight BJ placeholder again.';});
+
+const buildings=[];for(const x of [-17,-12,-6,6,17])for(const z of [-16,-8,7,17])if(Math.abs(x)<4||Math.abs(z)<4)continue;else buildings.push({x,z,w:4,h:3+((x*x+z*z)%7),d:4});
+const trees=[];for(let i=0;i<22;i++){const x=-22+(i*13)%45,z=-20+(i*17)%43;if(Math.abs(x)<3||Math.abs(z)<3||buildings.some(b=>Math.abs(x-b.x)<3&&Math.abs(z-b.z)<3))continue;trees.push({x,z})}
+
+const kit={x:-14,z:-4},car={x:-7,z:0},npc={x:13,z:12},target={x:12,z:12},entrance={x:14,z:17},elevatorSpot={x:-5,z:0},stairsSpot={x:5,z:0},p={x:-17,z:-5};
+let stage=0,driving=false,xp=0,cameraMode=0,inside=false,floor=1;let keys=new Set(),touch=null,last=0;
+try{let o=JSON.parse(localStorage.getItem('streetverse-chrome-3d-v2')||localStorage.getItem('streetverse-chrome-3d-v1')||'null');if(o&&Number.isFinite(o.x)&&Number.isFinite(o.z)&&Math.abs(o.x)<24&&Math.abs(o.z)<24){p.x=o.x;p.z=o.z;stage=Math.min(7,Math.max(0,Number(o.stage)||0));xp=Math.min(10000,Math.max(0,Number(o.xp)||0));driving=!!o.driving;inside=!!o.inside;floor=o.floor===2?2:1;if(inside&&(Math.abs(p.x)>8||Math.abs(p.z)>6)){p.x=0;p.z=4;}}}catch(e){}
+function save(){try{localStorage.setItem('streetverse-chrome-3d-v2',JSON.stringify({x:p.x,z:p.z,stage,driving,xp,inside,floor}))}catch(e){}}
+function say(s){status.textContent=s}
+function progress(){const missions=['Collect the gold repair kit near Circle Park','Approach the blue car, press INTERACT','Drive to the glowing Taylor Street marker','Talk to the purple NPC at Taylor Street','Walk to the teal building entrance (east), press ENTER','Inside: walk toward STAIRS or ELEVATOR, then press a button','Walk to the gold finish marker on Floor 2','Mission complete! Explore or press RESET'];
+objective.textContent='Mission: '+missions[Math.min(stage,7)];mode.textContent=(inside?'BJ • FLOOR '+floor:driving?'BJ • DRIVING':'BJ • ON FOOT')+' (prototype)';xpLabel.textContent=xp+' DEMO XP';
+document.getElementById('enterBuilding').style.display=!inside&&stage>=4&&stage<7?'':'none';document.getElementById('exitBuilding').style.display=inside?'':'none';document.getElementById('stairs').style.display=inside&&floor===1?'':'none';document.getElementById('elevator').style.display=inside&&floor===1?'':'none';save()}
+function near(a,b,d=2.3){return Math.hypot(a.x-b.x,a.z-b.z)<d;}
+function enterBuilding(){if(inside||stage<4||!near(p,entrance,3)){say('Approach the teal entrance near the east-side building.');return}inside=true;driving=false;floor=1;stage=5;p.x=0;p.z=4;say('Inside building level 1. Walk toward the stairs or elevator.');progress()}
+function exitBuilding(){if(!inside)return;inside=false;floor=1;p.x=entrance.x;p.z=entrance.z;if(stage===5||stage===6)stage=4;say('You returned to Taylor Street. Re-enter to complete the indoor mission.');progress()}
+function goUp(method){const spot=method==='ELEVATOR'?elevatorSpot:stairsSpot;if(!inside||floor!==1){say('You must be inside on Floor 1.');return}if(!near(p,spot,3.8)){say('Walk near the '+method.toLowerCase()+' first.');return}floor=2;stage=6;p.x=0;p.z=4;xp+=25;say('Floor 2 reached by '+method.toLowerCase()+'! +25 demo XP. Reach the gold marker.');progress()}
+function interact(){if(inside){if(floor===1&&near(p,elevatorSpot,3))return goUp('ELEVATOR');if(floor===1&&near(p,stairsSpot,3))return goUp('STAIRS');if(floor===2&&near(p,{x:0,z:-4},2.8)&&stage===6){stage=7;xp+=100;say('FULL MISSION COMPLETE: Circle Park to Taylor Street building! +100 demo XP.');progress();return}if(near(p,{x:0,z:5},2))return exitBuilding();say('Walk toward a floor marker or the door.');return}
+if(driving){driving=false;car.x=p.x;car.z=p.z;say('Exited vehicle.');progress();return}
+if(stage===1&&near(p,car,3)){driving=true;p.x=car.x;p.z=car.z;stage=2;say('Entered the blue car. Drive toward the gold marker.');progress();return}
+if(stage===3&&near(p,npc,3)){stage=4;xp+=30;say('NPC: Welcome to Taylor Street. Head east to the teal building entrance. +30 XP.');progress();return}
+if(stage===4&&near(p,entrance,3))return enterBuilding();
+say(stage===1?'Approach the blue car first.':stage===3?'Approach the purple NPC and INTERACT.':'Follow your mission marker.');}
+function move(dx,dz,dt){let len=Math.hypot(dx,dz);if(len<.01)return;dx/=len;dz/=len;
+const s=(inside?4.7:driving?11:5)*dt;
+if(inside){p.x=Math.max(-7.5,Math.min(7.5,p.x+dx*s));p.z=Math.max(-5.0,Math.min(5.0,p.z+dz*s));if(stage===6&&near(p,{x:0,z:-4},2.4)){stage=7;xp+=100;say('FULL MISSION COMPLETE: Taylor Street upstairs! +100 demo XP.');progress()}return}
+const nx=Math.max(-23,Math.min(23,p.x+dx*s)),nz=Math.max(-23,Math.min(23,p.z+dz*s));if(buildings.some(b=>Math.abs(nx-b.x)<b.w/2+.5&&Math.abs(nz-b.z)<b.d/2+.5))return;p.x=nx;p.z=nz;if(driving){car.x=p.x;car.z=p.z}
+if(stage===0&&near(p,kit,2)){stage=1;xp+=10;say('Repair kit collected! +10 XP. Find the blue car.');progress()}
+if(stage===2&&near(p,target,3.2)){stage=3;driving=false;car.x=p.x;car.z=p.z;say('Arrived at Taylor Street. Meet the resident!');progress()}}
+window.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys.add(k);if(k==='e'||k===' ')interact();if(k==='1'&&inside)goUp('STAIRS');if(k==='2'&&inside)goUp('ELEVATOR')});window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));window.addEventListener('blur',()=>{keys.clear();touch=null});
+for(const btn of document.querySelectorAll('[data-move]')){const [x,z]=btn.dataset.move.split(',').map(Number);btn.addEventListener('pointerdown',e=>{e.preventDefault();touch=[x,z];btn.setPointerCapture(e.pointerId)});for(const k of ['pointerup','pointercancel','lostpointercapture'])btn.addEventListener(k,()=>touch=null)}
+document.getElementById('interact').addEventListener('click',interact);document.getElementById('enterBuilding').addEventListener('click',enterBuilding);document.getElementById('stairs').addEventListener('click',()=>goUp('STAIRS'));document.getElementById('elevator').addEventListener('click',()=>goUp('ELEVATOR'));document.getElementById('exitBuilding').addEventListener('click',exitBuilding);document.getElementById('camera').addEventListener('click',()=>{cameraMode=(cameraMode+1)%2;say(cameraMode?'Wide camera':'Follow camera')});document.getElementById('reset').addEventListener('click',()=>{p.x=-17;p.z=-5;stage=0;driving=false;xp=0;car.x=-7;car.z=0;inside=false;floor=1;progress();say('Game reset.')});
+function frame(ms){const dt=Math.min(.05,(ms-last)/1000||0);last=ms;let dx=0,dz=0;if(keys.has('arrowleft')||keys.has('a'))dx--;if(keys.has('arrowright')||keys.has('d'))dx++;if(keys.has('arrowup')||keys.has('w'))dz--;if(keys.has('arrowdown')||keys.has('s'))dz++;if(touch){dx+=touch[0];dz+=touch[1]}move(dx,dz,dt);
+const dpr=Math.min(quality,window.devicePixelRatio||1.5);const w=Math.max(1,Math.round(canvas.clientWidth*dpr)),h=Math.max(1,Math.round(canvas.clientHeight*dpr));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h)}gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+const eye=cameraMode?[p.x+15,22,p.z+19]:[p.x+8,10,p.z+12],tar=[p.x,1,p.z];pv=mult(perspective(Math.PI/3,w/h,.2,140),lookAt(eye,tar));
+
+if(inside){
+  box(0,-.24,0,17,.45,13,.43,.42,.39);box(-8,1.5,0,.3,3,13,.39,.48,.63);box(8,1.5,0,.3,3,13,.39,.48,.63);box(0,1.5,-6,.3,3,.3,.39,.48,.63);box(-5,1.2,0,2.4,2.4,2.4,.14,.56,.75);box(-5,2.5,0,2.5,.13,2.5,.58,.68,.81);box(5,.4,0,3.0,.5,4,.5,.33,.24);
+  for(let i=0;i<7;i++)box(3.8+i*.3,.12+i*.22,2-i*.55,2.5,.23,.55,.59,.38,.27);
+  box(0,.15,-4,2.0,.25,2.0,floor===2?.95:.25,floor===2?.77:.45,.19);
+  box(0,1.2,5.8,2.7,2.3,.12,.19,.50,.55);
+  if(!renderUploadedPlayer()){box(p.x,.96,p.z,.82,1.6,.55,.38,.24,.64);box(p.x,1.93,p.z,.64,.68,.65,.67,.45,.31)}
+  document.getElementById('perf').textContent='INDOOR FLOOR '+floor+' • '+(quality<1?'LOW':'STANDARD')+' mode • placeholder geometry';
+  requestAnimationFrame(frame);return;
+}
+box(0,-.28,0,49,.5,49,.17,.36,.24);box(0,.03,0,49,.08,6,.20,.23,.30);box(0,.04,0,6,.08,49,.20,.23,.30);box(0,.04,12,49,.08,5,.22,.25,.32);box(12,.04,0,5,.08,49,.22,.25,.32);
+for(const b of buildings){box(b.x,b.h/2,b.z,b.w,b.h,b.d,.29,.36,.52);box(b.x,b.h+.12,b.z,b.w+.2,.25,b.d+.2,.40,.36,.42);for(let y=1.6;y<b.h;y+=1.6)for(let xx=-1.2;xx<=1.2;xx+=2.4)box(b.x+xx,y,b.z+b.d/2+.02,.8,.7,.06,.22,.67,.82)}
+for(const t of trees){box(t.x,.8,t.z,.35,1.6,.35,.38,.25,.15);box(t.x,2,t.z,2.3,1.8,2.3,.12,.43,.19)}
+for(let x=-22;x<23;x+=4){box(x,.11,.1,1.8,.035,.08,.9,.75,.32);box(x,.12,12,1.8,.04,.08,.9,.75,.32)}
+if(stage===0){box(kit.x,.3,kit.z,1,.6,1,.98,.76,.18)}
+if(!driving||stage===3||stage===4){box(car.x,.62,car.z,2.4,1.1,3.9,.15,.46,.92);box(car.x,1.3,car.z-.1,1.7,.55,2.3,.09,.21,.35);for(const ix of [-1,1])for(const iz of [-1,1])box(car.x+ix*1.0,.38,car.z+iz*1.25,.32,.7,.66,.08,.08,.10)}
+box(npc.x,1.12,npc.z,.85,1.8,.55,.78,.31,.70);box(npc.x,2.25,npc.z,.68,.65,.68,.65,.42,.35);
+if(stage>=4){box(entrance.x,.25,entrance.z,1.9,.35,1.9,.12,.75,.69);box(entrance.x,1.5+Math.sin(ms/320)*.2,entrance.z,.32,1.7,.32,.12,.73,.65)}if(stage<4){box(target.x,.18,target.z,2,.28,2,.94,.73,.21);box(target.x,1.5+Math.sin(ms/250)*.28,target.z,.24,2,.24,1.0,.78,.21)}
+if(driving){box(p.x,.8,p.z,2.4,1.2,3.8,.18,.50,.98);box(p.x,1.6,p.z,1.6,.58,2.3,.09,.21,.35)}else if(!renderUploadedPlayer()){box(p.x,.98,p.z,.82,1.6,.50,.37,.23,.64);box(p.x,1.96,p.z,.64,.68,.65,.67,.44,.31)}
+document.getElementById('perf').textContent='CHICAGO STREETS • '+(quality<1?'LOW':'STANDARD')+' WebGL • '+(uploadedMesh?'LOCAL GLB':'BJ placeholder');requestAnimationFrame(frame)}progress();say('Walk to the yellow repair kit, then enter the car with E / INTERACT.');requestAnimationFrame(frame);
+})();
+</script></body></html>

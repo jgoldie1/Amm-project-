@@ -3,6 +3,7 @@
 // Complete production system: concept → script → host → run → broadcast
 
 import { useState } from 'react'
+import {readStarVerseAuditionDraft} from './StarVerseAuditionDesk'
 
 // ── SHOW HOSTS ────────────────────────────────────────────────────────
 // Built-in AI hosts for showcases and game shows
@@ -431,7 +432,10 @@ export default function TVShowMaker() {
   const [selectedFormat, setSelectedFormat] = useState<TVShowFormat | null>(null)
   const [selectedHost, setSelectedHost] = useState<ShowHost | null>(null)
   const [selectedCoHost, setSelectedCoHost] = useState<ShowHost | null>(null)
-  const [performers, setPerformers] = useState([{ name: '', talent: '', city: '' }])
+  const [performers, setPerformers] = useState(()=>{
+    const audition=readStarVerseAuditionDraft()
+    return audition?[{name:audition.stageName,talent:audition.talent,city:audition.city}]:[{name:'',talent:'',city:''}]
+  })
   const [prizes, setPrizes] = useState('')
   const [date, setDate] = useState('')
   const [venue, setVenue] = useState('')
@@ -445,7 +449,7 @@ export default function TVShowMaker() {
       host: selectedHost,
       showTitle: showTitle || 'Isaiah AI Starverse Show',
       performers: performers.filter(p => p.name),
-      prizes: prizes || '$500 grand prize',
+      prizes: prizes || 'Prize not confirmed; no cash award promised',
       date: date || 'TBD',
       venue: venue || 'AMM Omniverse Live',
     })
@@ -460,6 +464,7 @@ export default function TVShowMaker() {
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={{ color: '#ffd700', fontSize: 24, fontWeight: 900 }}>📺 ISAIAH AI TV SHOW MAKER</div>
           <p style={{ color: '#888', fontSize: 13, marginTop: 6 }}>Build · Script · Host · Broadcast — your own original AI TV show</p>
+          <p style={{color:'#9fd8ff',fontSize:11}}>LOCAL PRODUCTION DRAFT • No audition was submitted, no show was broadcast, no vote was collected, and no prize is guaranteed by this script generator.</p>
         </div>
 
         {/* Tabs */}

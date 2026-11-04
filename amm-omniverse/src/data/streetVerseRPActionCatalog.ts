@@ -1,3 +1,5 @@
+import {STREETVERSE_RP_EXTRA50} from './streetVerseRPExtra50'
+
 export type RPActionCategory='social'|'dance'|'emotion'|'relationship'|'work'|'sport'|'faith'|'public-safety'|'medical'|'creator'
 export type RPActionPurpose='greet'|'celebrate'|'perform'|'react'|'comfort'|'romance'|'argue'|'work'|'train'|'serve'|'pray'|'pose'|'record'
 export type RPActionEntry=Readonly<{
@@ -35,6 +37,7 @@ export const STREETVERSE_RP_ACTIONS:readonly RPActionEntry[]=[
  {id:'basketball-dribble',label:'Basketball Dribble',category:'sport',purposes:['train','perform'],tags:['basketball','dribble','sport','court','training'],animationClip:'basketball-dribble',gifQuery:'basketball dribble animation',loopable:true,syncable:false,npcCompatible:true,playerCompatible:true,reelFriendly:true,liveFriendly:true,durationMs:7000},
  {id:'creator-pose',label:'Creator Pose',category:'creator',purposes:['pose','record'],tags:['creator','camera','pose','reel','photo'],animationClip:'creator-pose',gifQuery:'creator posing animation',loopable:false,syncable:false,npcCompatible:true,playerCompatible:true,reelFriendly:true,liveFriendly:true,durationMs:3000},
  {id:'mic-performance',label:'Mic Performance',category:'creator',purposes:['perform','record'],tags:['mic','rap','sing','perform','music','stage'],animationClip:'mic-performance',gifQuery:'microphone performance animation',loopable:true,syncable:true,npcCompatible:true,playerCompatible:true,reelFriendly:true,liveFriendly:true,durationMs:9000},
+ ...STREETVERSE_RP_EXTRA50,
 ]
 
 const norm=(s:string)=>s.toLowerCase().trim().replace(/\s+/g,' ')

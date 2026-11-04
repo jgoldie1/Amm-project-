@@ -5,6 +5,7 @@ import StreetVerseRPOmnibar from './StreetVerseRPOmnibar'
 type SortMode='smart'|'nearby'|'mission'|'price'|'owned'
 type ActionId='quick'|'use'|'give'|'buy'|'sell'|'trade'|'pickup'|'drop'|'inspect'|'diagnose'|'repair'|'verify'|'open'|'enter'|'fuel'|'upgrade'|'customize'|'work'|'mission'|'call'|'dance'|'wave'|'tip'|'live'|'reel'
 type Context={kind?:string;vehicleId?:string;npcId?:string;label?:string;broken?:boolean;repairKit?:boolean;drivable?:boolean;price?:number;owned?:boolean;missionId?:string}
+type NearbyVehicle={nearby:boolean;vehicleId:string;label:string;distance:number|null}
 
 const ACTIONS:Array<{id:ActionId;icon:string;label:string;tone:string}>=[
  {id:'quick',icon:'⚡',label:'QUICK',tone:'#ffe66d'},{id:'use',icon:'🧰',label:'USE',tone:'#67e8f9'},{id:'give',icon:'🤝',label:'GIVE',tone:'#c4b5fd'},
@@ -29,6 +30,8 @@ function relevant(ctx:Context){
 export default function StreetVerseActionCarousel(){
  const mobile=typeof window!=='undefined'&&window.matchMedia('(max-width: 700px)').matches
  const [ctx,setCtx]=useState<Context>({})
+ const [nearbyVehicle,setNearbyVehicle]=useState<NearbyVehicle|null>(null)
+ const [inVehicle,setInVehicle]=useState(false)
  const [sort,setSort]=useState<SortMode>('smart')
  const [page,setPage]=useState(0)
  const startInRP=typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('open')==='rp'
@@ -60,6 +63,18 @@ export default function StreetVerseActionCarousel(){
    setOpen(false);setRpOpen(false)
   }
   const onVehicleInteract=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx(current=>({...current,...d,kind:'vehicle'}));setPage(0);if(!mobile)setOpen(true)}
+  const onNearVehicle=(event:Event)=>{
+   const d=(event as CustomEvent<NearbyVehicle>).detail
+   if(!d?.nearby||!d.vehicleId){setNearbyVehicle(null);return}
+   setNearbyVehicle(d)
+   setCtx(current=>({...current,kind:'vehicle',vehicleId:d.vehicleId,label:d.label,broken:false,drivable:true}))
+   setPage(0)
+  }
+  const onVehicleControlled=(event:Event)=>{
+   const d=(event as CustomEvent<{entered?:boolean}>).detail||{}
+   if(typeof d.entered==='boolean')setInVehicle(d.entered)
+   if(d.entered)setNearbyVehicle(null)
+  }
   addEventListener('tryamm:streetverse-interaction-context',onContext)
   addEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown)
   addEventListener('tryamm:streetverse-vehicle-repaired',onRepaired)
@@ -69,7 +84,10 @@ export default function StreetVerseActionCarousel(){
   addEventListener('tryamm:streetverse-player-position',onMove)
   addEventListener('tryamm:streetverse-vehicle-input',onMove)
   addEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract)
-  return()=>{removeEventListener('tryamm:streetverse-interaction-context',onContext);removeEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown);removeEventListener('tryamm:streetverse-vehicle-repaired',onRepaired);removeEventListener('tryamm:streetverse-actions-open',onOpen);removeEventListener('tryamm:streetverse-actions-close',onClose);removeEventListener('tryamm:streetverse-play-focus',onClose);removeEventListener('tryamm:streetverse-player-position',onMove);removeEventListener('tryamm:streetverse-vehicle-input',onMove);removeEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract)}
+  addEventListener('tryamm:streetverse-nearby-vehicle',onNearVehicle)
+  addEventListener('tryamm:streetverse-vehicle-controlled',onVehicleControlled)
+  dispatchEvent(new Event('tryamm:streetverse-nearby-vehicle-request'))
+  return()=>{removeEventListener('tryamm:streetverse-interaction-context',onContext);removeEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown);removeEventListener('tryamm:streetverse-vehicle-repaired',onRepaired);removeEventListener('tryamm:streetverse-actions-open',onOpen);removeEventListener('tryamm:streetverse-actions-close',onClose);removeEventListener('tryamm:streetverse-play-focus',onClose);removeEventListener('tryamm:streetverse-player-position',onMove);removeEventListener('tryamm:streetverse-vehicle-input',onMove);removeEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract);removeEventListener('tryamm:streetverse-nearby-vehicle',onNearVehicle);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicleControlled)}
  },[mobile])
  const items=useMemo(()=>{
   const ids=relevant(ctx)
@@ -93,25 +111,35 @@ export default function StreetVerseActionCarousel(){
    if(id==='reel'){dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{...ctx,source:'action-carousel',missionId:ctx.missionId||''}}));return}
   if(id==='tip'&&ctx.npcId){dispatchEvent(new CustomEvent('tryamm:streetverse-npc-tip-request',{detail:{npcId:ctx.npcId,label:ctx.label,source:'action-carousel',serverAuthoritative:true}}));return}
   if((id==='dance'||id==='wave')&&ctx.npcId){dispatchEvent(new CustomEvent('tryamm:streetverse-context-action',{detail:{action:id,...ctx,source:'action-carousel'}}));return}
-  if(id==='enter'&&ctx.broken){dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-denied',{detail:{vehicleId,reason:'repair-required'}}));return}
+  if(id==='enter'){
+   if(ctx.broken){dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-denied',{detail:{vehicleId,reason:'repair-required'}}));return}
+   // Enter via the actual mounted 3D vehicle controller, not just the context-action bus.
+   // The controller alone decides whether the car is close enough, repaired, and drivable.
+   dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:true,vehicleId,source:'action-carousel'}}))
+   setOpen(false);setRpOpen(false)
+   return
+  }
   if(['inspect','open','diagnose','use','repair','verify'].includes(id)&&vehicleId){
    const action=id==='open'?'open-hood':id==='use'?'use-repair-kit':id
    dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-repair-action',{detail:{vehicleId,action,repairKitId:id==='use'&&ctx.repairKit?'repair-kit':''}}))
   }
   dispatchEvent(new CustomEvent('tryamm:streetverse-context-action',{detail:{action:id,...ctx,sort}}))
  }
- if(mobile&&!open)return <div aria-label="StreetVerse compact action launchers" style={{position:'fixed',right:'max(8px,env(safe-area-inset-right))',bottom:'calc(env(safe-area-inset-bottom, 0px) + 150px)',zIndex:39950,display:'grid',gap:7}}>
+ if(mobile&&!open)return <div aria-label="StreetVerse compact action launchers" style={{position:'fixed',right:'max(8px,env(safe-area-inset-right))',bottom:'calc(env(safe-area-inset-bottom, 0px) + 265px)',zIndex:39950,display:'grid',gap:7}}>
+  {nearbyVehicle&&!inVehicle&&<button type="button" aria-label="Get in nearby car" onClick={()=>act('enter')} style={{minHeight:48,borderRadius:12,border:'2px solid #80ffc4',background:'#0b3027f5',color:'#fff',font:'950 11px system-ui',padding:'0 10px',touchAction:'manipulation'}}>🚗 GET IN CAR</button>}
   <button aria-label="Open StreetVerse RP RPG emoji and GIF actions" onClick={()=>{setOpen(true);setRpOpen(true)}} style={{minHeight:46,borderRadius:12,border:'2px solid #c4a3ff',background:'#1a0a35ee',color:'#fff',font:'950 11px system-ui',padding:'0 12px'}}>🎭 RP / GIF</button>
   <button
   aria-label={ctx.broken?'Open repair actions':'Open StreetVerse actions'}
   onClick={()=>setOpen(true)}
   style={{minHeight:44,padding:'0 12px',borderRadius:12,border:`2px solid ${ctx.broken?'#fb923c':'#67e8f9'}`,background:'rgba(4,15,24,.92)',color:'#fff',font:'950 10px system-ui',boxShadow:`0 0 20px ${ctx.broken?'#fb923c55':'#67e8f944'}`,touchAction:'manipulation'}}
  >{ctx.broken?'🔧 REPAIR':'⚡ ACTIONS'}</button></div>
-  return <div aria-label="StreetVerse action carousel" style={{position:'fixed',left:'50%',bottom:'calc(env(safe-area-inset-bottom, 0px) + 74px)',transform:'translateX(-50%)',zIndex:39950,width:'min(94vw,620px)',maxHeight:mobile?(rpOpen?'62dvh':'42dvh'):'78dvh',overflowY:'auto',padding:'10px',borderRadius:22,background:'linear-gradient(180deg,rgba(12,19,35,.92),rgba(3,7,18,.98))',backdropFilter:'blur(12px)',boxShadow:'0 18px 55px #000b, inset 0 1px #ffffff22',border:'1px solid #67e8f955',color:'#fff',fontFamily:'system-ui,sans-serif'}}>
+  return <div aria-label="StreetVerse action carousel" style={{position:'fixed',left:'50%',bottom:'calc(env(safe-area-inset-bottom, 0px) + 74px)',transform:'translateX(-50%)',zIndex:51000,width:'min(94vw,620px)',maxHeight:mobile?(rpOpen?'62dvh':'42dvh'):'78dvh',overflowY:'auto',padding:'10px',borderRadius:22,background:'linear-gradient(180deg,rgba(12,19,35,.92),rgba(3,7,18,.98))',backdropFilter:'blur(12px)',boxShadow:'0 18px 55px #000b, inset 0 1px #ffffff22',border:'1px solid #67e8f955',color:'#fff',fontFamily:'system-ui,sans-serif'}}>
   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,marginBottom:8}}>
    <div><div style={{fontSize:9,fontWeight:950,letterSpacing:1.4,color:'#67e8f9'}}>HOLO ACTIONS</div><div style={{fontSize:11,fontWeight:900}}>{ctx.label||'WORLD INTERACTION'}{ctx.broken?' • REPAIR REQUIRED':''}</div></div>
    {mobile?<div style={{display:'flex',gap:5}}><button aria-label="Return to gameplay" onClick={()=>{setOpen(false);setRpOpen(false)}} style={playBtn}>🎮 PLAY</button><button aria-label="Close actions" onClick={()=>{setOpen(false);setRpOpen(false)}} style={closeBtn}>×</button></div>:<label style={{fontSize:8,fontWeight:900,color:'#cbd5e1'}}>SORT <select aria-label="Sort actions" value={sort} onChange={e=>{setSort(e.target.value as SortMode);setPage(0)}} style={{marginLeft:5,borderRadius:999,padding:'5px 7px',background:'#101827',color:'#fff',border:'1px solid #ffffff33',fontSize:9,fontWeight:900}}><option value="smart">SMART</option><option value="nearby">NEARBY</option><option value="mission">MISSION</option><option value="price">PRICE</option><option value="owned">OWNED</option></select></label>}
   </div>
+  {mobile&&nearbyVehicle&&!inVehicle&&<button type="button" aria-label="Get in nearby car" onClick={()=>act('enter')} style={{width:'100%',minHeight:48,marginBottom:8,borderRadius:12,border:'2px solid #80ffc4',background:'#0b3027f5',color:'#fff',font:'950 12px system-ui',touchAction:'manipulation'}}>🚗 GET IN CAR • {nearbyVehicle.label}</button>}
+  {mobile&&<button type="button" aria-label="Open StreetVerse Quantum Storage Pocket Dimension" onClick={()=>{setOpen(false);setRpOpen(false);window.dispatchEvent(new Event('tryamm:streetverse-pocket-open'))}} style={{minHeight:44,width:'100%',border:'1px solid #8aeaff88',borderRadius:11,marginBottom:8,background:'#102b3cee',color:'#e8faff',font:'950 11px system-ui',touchAction:'manipulation'}}>♾️ QUANTUM STORAGE • INVENTORY</button>}
   {mobile&&<div style={{display:'flex',gap:5,marginBottom:7}}><select aria-label="Sort actions" value={sort} onChange={e=>{setSort(e.target.value as SortMode);setPage(0)}} style={{flex:1,borderRadius:10,padding:'7px 8px',background:'#101827',color:'#fff',border:'1px solid #ffffff33',fontSize:9,fontWeight:900}}><option value="smart">SMART</option><option value="nearby">NEARBY</option><option value="mission">MISSION</option><option value="price">PRICE</option><option value="owned">OWNED</option></select><button onClick={()=>setRpOpen(v=>!v)} style={toolBtn}>{rpOpen?'HIDE RP':'🎭 RP / GENII'}</button></div>}
   <div style={{display:'grid',gridTemplateColumns:'28px repeat(5,minmax(0,1fr)) 28px',gap:5,alignItems:'stretch'}}>
    <button aria-label="Previous actions" onClick={()=>setPage(p=>(p-1+pages)%pages)} style={nav}>‹</button>
