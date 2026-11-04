@@ -51,25 +51,18 @@ export default function StreetVerseActionCarousel(){
   const onRepaired=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx(current=>current.vehicleId===d.vehicleId?{...current,broken:false,drivable:true,repairKit:false}:current)}
   const onOpen=()=>setOpen(true)
   const onClose=()=>{setOpen(false);setRpOpen(false)}
-  const onMove=(event:Event)=>{
-   if(!mobile)return
-   const detail=(event as CustomEvent<Record<string,unknown>>).detail||{}
-   // Idle player-position telemetry must not close the RP menu while reading.
-   if(event.type==='tryamm:streetverse-player-position'&&Number(detail.speed||0)<0.1)return
-   if(event.type==='tryamm:streetverse-vehicle-input'&&Number(detail.throttle||0)===0&&Number(detail.steer||0)===0)return
-   setOpen(false);setRpOpen(false)
-  }
-  const onVehicleInteract=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx(current=>({...current,...d,kind:'vehicle'}));setPage(0);if(!mobile)setOpen(true)}
+  // Movement telemetry must never dismiss an open panel. Players using one-hand
+  // controls must be able to read/select an action while moving or driving.
+  // Only explicit PLAY, CLOSE or play-focus dismisses the panel.
+  const onVehicleInteract=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx(current=>({...current,...d,kind:'vehicle'}));setPage(0);setOpen(true)}
   addEventListener('tryamm:streetverse-interaction-context',onContext)
   addEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown)
   addEventListener('tryamm:streetverse-vehicle-repaired',onRepaired)
   addEventListener('tryamm:streetverse-actions-open',onOpen)
   addEventListener('tryamm:streetverse-actions-close',onClose)
   addEventListener('tryamm:streetverse-play-focus',onClose)
-  addEventListener('tryamm:streetverse-player-position',onMove)
-  addEventListener('tryamm:streetverse-vehicle-input',onMove)
   addEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract)
-  return()=>{removeEventListener('tryamm:streetverse-interaction-context',onContext);removeEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown);removeEventListener('tryamm:streetverse-vehicle-repaired',onRepaired);removeEventListener('tryamm:streetverse-actions-open',onOpen);removeEventListener('tryamm:streetverse-actions-close',onClose);removeEventListener('tryamm:streetverse-play-focus',onClose);removeEventListener('tryamm:streetverse-player-position',onMove);removeEventListener('tryamm:streetverse-vehicle-input',onMove);removeEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract)}
+  return()=>{removeEventListener('tryamm:streetverse-interaction-context',onContext);removeEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown);removeEventListener('tryamm:streetverse-vehicle-repaired',onRepaired);removeEventListener('tryamm:streetverse-actions-open',onOpen);removeEventListener('tryamm:streetverse-actions-close',onClose);removeEventListener('tryamm:streetverse-play-focus',onClose);removeEventListener('tryamm:streetverse-vehicle-interact',onVehicleInteract)}
  },[mobile])
  const items=useMemo(()=>{
   const ids=relevant(ctx)
@@ -112,6 +105,7 @@ export default function StreetVerseActionCarousel(){
    <div><div style={{fontSize:9,fontWeight:950,letterSpacing:1.4,color:'#67e8f9'}}>HOLO ACTIONS</div><div style={{fontSize:11,fontWeight:900}}>{ctx.label||'WORLD INTERACTION'}{ctx.broken?' • REPAIR REQUIRED':''}</div></div>
    {mobile?<div style={{display:'flex',gap:5}}><button aria-label="Return to gameplay" onClick={()=>{setOpen(false);setRpOpen(false)}} style={playBtn}>🎮 PLAY</button><button aria-label="Close actions" onClick={()=>{setOpen(false);setRpOpen(false)}} style={closeBtn}>×</button></div>:<label style={{fontSize:8,fontWeight:900,color:'#cbd5e1'}}>SORT <select aria-label="Sort actions" value={sort} onChange={e=>{setSort(e.target.value as SortMode);setPage(0)}} style={{marginLeft:5,borderRadius:999,padding:'5px 7px',background:'#101827',color:'#fff',border:'1px solid #ffffff33',fontSize:9,fontWeight:900}}><option value="smart">SMART</option><option value="nearby">NEARBY</option><option value="mission">MISSION</option><option value="price">PRICE</option><option value="owned">OWNED</option></select></label>}
   </div>
+  {(ctx.kind==='vehicle'||ctx.vehicleId)&&<button aria-label={ctx.broken?'Repair car before entering':'Get in the car'} disabled={Boolean(ctx.broken)} onClick={()=>act('enter')} style={{width:'100%',minHeight:48,marginBottom:7,borderRadius:12,border:'2px solid #60a5fa',background:ctx.broken?'#374151':'#153c73',color:'#fff',fontWeight:950,touchAction:'manipulation'}}>{ctx.broken?'🔧 REPAIR REQUIRED BEFORE ENTRY':'🚗 GET IN CAR'}</button>}
   {mobile&&<div style={{display:'flex',gap:5,marginBottom:7}}><select aria-label="Sort actions" value={sort} onChange={e=>{setSort(e.target.value as SortMode);setPage(0)}} style={{flex:1,borderRadius:10,padding:'7px 8px',background:'#101827',color:'#fff',border:'1px solid #ffffff33',fontSize:9,fontWeight:900}}><option value="smart">SMART</option><option value="nearby">NEARBY</option><option value="mission">MISSION</option><option value="price">PRICE</option><option value="owned">OWNED</option></select><button onClick={()=>setRpOpen(v=>!v)} style={toolBtn}>{rpOpen?'HIDE RP':'🎭 RP / GENII'}</button></div>}
   <div style={{display:'grid',gridTemplateColumns:'28px repeat(5,minmax(0,1fr)) 28px',gap:5,alignItems:'stretch'}}>
    <button aria-label="Previous actions" onClick={()=>setPage(p=>(p-1+pages)%pages)} style={nav}>‹</button>
