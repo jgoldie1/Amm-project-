@@ -36,4 +36,13 @@ if(!boneGestures.includes('STREETVERSE_RP_EXTRA_POSE_MAP'))throw new Error('New 
 for(const token of ['Next RP gesture page','Previous RP gesture page','RP ACTIONS • PAGE','allResults.slice('])if(!search.includes(token))throw new Error('RP search cannot page through 67 gestures: '+token)
 if(boneGestures.includes("'shadow-box':")||newIds.some(id=>id.includes('shadow-box')))throw new Error('boxing-only Shadow Box cannot be an open-world gesture')
 
+const soulArchive=fs.readFileSync(new URL('../src/data/SoulAscensionDanceArchive.ts',import.meta.url),'utf8')
+const soulUI=fs.readFileSync(new URL('../src/components/SoulAscensionDanceLine.tsx',import.meta.url),'utf8')
+const soulEntries=soulArchive.split('\n').filter(line=>line.trim().startsWith('{id:"soul-'))
+if(soulEntries.length!==120||new Set(soulEntries.map(line=>line.split('"')[1])).size!==120)throw new Error('Soul Ascension must include 120 distinct reference moves')
+for(const decade of ['1980s','1990s','2000s','2010s','2020s'])if(soulEntries.filter(line=>line.includes(`featuredEra:"${decade}"`)).length!==24)throw new Error('Soul Ascension decade reference count incorrect: '+decade)
+for(const tag of ['Open Soul Ascension 1980s to present dance line','<SoulAscensionDanceLine onClose='])if(!search.includes(tag))throw new Error('Soul Ascension missing from RP carousel: '+tag)
+for(const tag of ['virtual-dance-line','tryamm:soul-ascension-dance-cue','tryamm:streetverse-rp-action-play','exactChoreographyVerified:false','PREVIEW BJ GROOVE'])if(!soulUI.includes(tag))throw new Error('Soul Ascension action/rights safeguard missing: '+tag)
+if(!soulArchive.includes("motionStatus:'reference-only'"))throw new Error('Soul Ascension may not pretend to ship 120 licensed dance clips')
+
 console.log('RP animation search + BJ identity regression contract: PASS')
