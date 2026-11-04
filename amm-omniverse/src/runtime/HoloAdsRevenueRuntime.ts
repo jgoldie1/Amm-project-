@@ -9,7 +9,7 @@ export const HOLO_AD_PRODUCTS:HoloAdProduct[]=[
 {id:'business-os',name:'Business OS Growth Suite',billing:'subscription',audience:'SMBs and organizations',includes:['Holo Ads','AI call center','marketplace','broadcasting','CRM/lead intents','analytics']},
 ]
 
-import {TRYAMM_PLACEMENT_SURFACES,type PlacementSurface} from './TryammPlacementBriefRuntime'
+import {TRYAMM_PLACEMENT_SURFACES,type PlacementSurface} from './TryammPlacementBriefRuntime.ts'
 export type HoloAdDraftInput={productId?:string;market?:string;objective?:string;advertiserName?:string;productName?:string;concept?:string;surfaces?:string[]}
 const sanitized=(v:unknown,max:number)=>String(v??'').replace(/[<>\u0000-\u001f]/g,'').trim().slice(0,max)
 /** Client preview only; no inventory reservation, payment or automatic publication. */
