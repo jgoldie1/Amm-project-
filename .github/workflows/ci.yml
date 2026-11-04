@@ -109,6 +109,7 @@ jobs:
           node tests/streetverse-transit-motion-broadcast-contract.mjs
           node tests/streetverse-radio-transport-bridge-contract.mjs
           node tests/streetverse-tv-free-channels-contract.mjs
+          node tests/tryamm-connected-growth-workflow.test.mjs
           node tests/streetverse-radio-station-tuner.test.mjs
           node tests/streetverse-height-and-first-journey-regression.mjs
 
