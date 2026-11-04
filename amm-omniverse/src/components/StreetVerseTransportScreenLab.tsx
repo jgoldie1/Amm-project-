@@ -1,6 +1,6 @@
 import {useMemo,useState} from 'react'
 import {createTransitDisplay,transitDisplayText,updateTransitDisplay,type StreetVerseTransitMode,type TransitDisplayPage} from '../runtime/StreetVerseTransitDisplayRuntime'
-import {CABIN_PROFILES,createStreetVerseCabinDirector} from '../runtime/StreetVerseCabinCameraDirector'
+import {createStreetVerseCabinDirector} from '../runtime/StreetVerseCabinCameraDirector'
 const MODES:readonly StreetVerseTransitMode[]=['car','bus','el-train','plane','airport-walkway']
 const PAGES:readonly TransitDisplayPage[]=['route','next-stop','accessibility','cabin','safety']
 const btn:React.CSSProperties={minHeight:44,padding:'8px 10px',borderRadius:10,border:'1px solid #486982',background:'#112a39',color:'#effcff',fontSize:12,touchAction:'manipulation'}
