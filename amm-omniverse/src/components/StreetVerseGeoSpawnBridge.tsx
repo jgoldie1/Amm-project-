@@ -47,6 +47,8 @@ const StreetVerseTouchDriveControls=lazy(()=>import('./StreetVerseTouchDriveCont
 const HoloMobilityLauncher=lazy(()=>import('./HoloMobilityLauncher'))
 const StreetVerseFaithChronoPortal=lazy(()=>import('./StreetVerseFaithChronoPortal'))
 const StreetVerseNearWest3D=lazy(()=>import('./StreetVerseNearWest3D'))
+const LiveCenter=lazy(()=>import('./LiveCenter'))
+const StreetVerseTowerConnections=lazy(()=>import('./StreetVerseTowerConnections'))
 
 const DESTINATION_KEY_V2='tryamm.streetverse.chicago-destination.v2'
 const DESTINATION_KEY_V1='tryamm.streetverse.chicago-destination.v1'
@@ -166,6 +168,14 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const mobile=useMemo(()=>typeof navigator!=='undefined'&&/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||''),[])
  const [enhancementsReady,setEnhancementsReady]=useState(false)
  const [nearWestOpen,setNearWestOpen]=useState(false)
+ const [liveStudioOpen,setLiveStudioOpen]=useState(false)
+ useEffect(()=>{
+  const openLive=()=>setLiveStudioOpen(true)
+  addEventListener('tryamm:live-center-open',openLive)
+  addEventListener('tryamm:streetverse-live-cast-open',openLive)
+  addEventListener('tryamm:streetverse-live-mission-request',openLive)
+  return()=>{removeEventListener('tryamm:live-center-open',openLive);removeEventListener('tryamm:streetverse-live-cast-open',openLive);removeEventListener('tryamm:streetverse-live-mission-request',openLive)}
+ },[])
  const [quantumMode,setQuantumMode]=useState<QuantumSpeedMode>('balanced')
  const setLocationContext=useGameStore(state=>state.setLocationContext)
  const applyCityConsequence=useGameStore(state=>state.applyCityConsequence)
@@ -286,6 +296,8 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
   <StreetVerseWeatherSync/>
   <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>
   <StreetVerseAfterDarkAlpha/>
+  {liveStudioOpen&&<div role="dialog" aria-label="StreetVerse LIVE Studio" style={{position:'fixed',inset:0,zIndex:60000,background:'#030611',overflow:'auto'}}><Suspense fallback={<div role="status" style={{padding:30,color:'#fff'}}>Opening StreetVerse LIVE Studio…</div>}><LiveCenter initialFormat="gamecast" onClose={()=>setLiveStudioOpen(false)}/></Suspense></div>}
+  <Suspense fallback={null}><StreetVerseTowerConnections/></Suspense>
   <Suspense fallback={null}><StreetVerseReelEventBridge/><StreetVerseCreatorEarnDock/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseMobileProofDock/></Suspense>
  </>
 
@@ -297,6 +309,8 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
    <StreetVersePlayableWorld onClose={closeStreetVerse}/>
   </Suspense>
   <StreetVerseAfterDarkAlpha/>
+  {liveStudioOpen&&<div role="dialog" aria-label="StreetVerse LIVE Studio" style={{position:'fixed',inset:0,zIndex:60000,background:'#030611',overflow:'auto'}}><Suspense fallback={<div role="status" style={{padding:30,color:'#fff'}}>Opening StreetVerse LIVE Studio…</div>}><LiveCenter initialFormat="gamecast" onClose={()=>setLiveStudioOpen(false)}/></Suspense></div>}
+  <Suspense fallback={null}><StreetVerseTowerConnections/></Suspense>
   <Suspense fallback={null}>{mobile?<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseCreatorEarnDock/></>:<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseCreatorEarnDock/></>}</Suspense>
   {enhancementsReady&&<Suspense fallback={null}><StreetVerseFullWorldOverlays onClose={closeStreetVerse} mapped={prepared.mapped}/></Suspense>}
  </>
