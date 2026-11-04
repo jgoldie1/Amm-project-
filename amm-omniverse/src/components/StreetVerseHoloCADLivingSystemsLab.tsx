@@ -9,6 +9,7 @@ import {
 } from '../game/holocad/livingSystemsPresets'
 
 const HoloCADQuantumSandboxPanel=lazy(()=>import('./HoloCADQuantumSandboxPanel'))
+const HoloCADPhysicsSandboxPanel=lazy(()=>import('./HoloCADPhysicsSandboxPanel'))
 
 const control:CSSProperties={
  minHeight:44,border:'1px solid #68d8fb77',borderRadius:11,
@@ -39,6 +40,7 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
  const [revealOnly,setRevealOnly]=useState(false)
  const [showDiagnostics,setShowDiagnostics]=useState(false)
  const [showQuantum,setShowQuantum]=useState(false)
+ const [showPhysics,setShowPhysics]=useState(false)
  const host=useRef<HTMLDivElement|null>(null)
  const runtime=useRef<{
   draw:()=>void
@@ -428,10 +430,16 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
       <button type="button" aria-label="Open HoloCAD Quantum Sandbox" aria-pressed={showQuantum}
         style={{...control,background:showQuantum?'#51468b':'#192345'}}
         onClick={()=>setShowQuantum(v=>!v)}>⚛️ QUANTUM SANDBOX</button>
+      <button type="button" aria-label="Open HoloCAD Physics and Engineering Sandbox" aria-pressed={showPhysics}
+        style={{...control,background:showPhysics?'#15586a':'#192d3c'}}
+        onClick={()=>setShowPhysics(v=>!v)}>⚙️ PHYSICS LAB</button>
      </div>
      <p style={{fontSize:10,color:'#9bc9dd',lineHeight:1.5}}>{data.subtitle}. Shapes are illustrative, not measured medical anatomy or certified engineering drawings.</p>
      {showQuantum&&<Suspense fallback={<div role="status" style={{minHeight:44,padding:11,color:'#ded4ff'}}>Loading CPU quantum circuit sandbox…</div>}>
       <HoloCADQuantumSandboxPanel subject={subject} affectedParts={diagnostic.affectedParts} onClose={()=>setShowQuantum(false)}/>
+     </Suspense>}
+     {showPhysics&&<Suspense fallback={<div role="status" style={{minHeight:44,padding:11,color:'#d2f6ff'}}>Loading classical engineering sandbox…</div>}>
+      <HoloCADPhysicsSandboxPanel subject={subject} selectedPart={part.label} onClose={()=>setShowPhysics(false)}/>
      </Suspense>}
     </div>
     <section style={{minWidth:0,background:'#0c1d2c',border:'1px solid #2b5879',padding:12,borderRadius:16}}>
@@ -489,6 +497,7 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
     building-code or vehicle-service decisions use verified professional sources and supervision.
     Aerospace and robotics models include no propulsion calculations, autonomous-control code,
     flightworthiness, medical-device certification, executable manufacturing toolpaths or real sensor data.
+    The Physics Sandbox uses approximate classical formulas, not a flight or robotics engineering solver.
     The Quantum Sandbox performs small local CPU circuit simulations, not physical quantum computing,
     real component diagnosis, antigravity or energy amplification. No server credentials are sent to browsers.
     Jetson/ROS connections, physics, full-body rig bindings and mission rewards require future validation.
