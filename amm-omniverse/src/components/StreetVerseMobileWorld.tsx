@@ -826,7 +826,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     'rear-left':new THREE.Vector3(-1.30,.94,.47),
     'rear-center':new THREE.Vector3(-1.30,.94,0),
     'rear-right':new THREE.Vector3(-1.30,.94,-.47),
-    'third-row-passenger':new THREE.Vector3(-1.88,.94,0),
+    'third-row-passenger':new THREE.Vector3(-1.90,.94,0),
   }
   const makeSeatedRider=(seatId:string,index:number)=>{
     const rider=new THREE.Group();rider.name=`vehicle-rider-${seatId}`;rider.visible=false;rider.scale.setScalar(.82)
