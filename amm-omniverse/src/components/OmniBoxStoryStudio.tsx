@@ -1,4 +1,5 @@
 import {useState} from 'react'
+import {isPlacementBrief,TRYAMM_PLACEMENT_STUDIO_HANDOFF_KEY} from '../runtime/TryammPlacementBriefRuntime'
 import OmniBoxStoryboardPreview from './OmniBoxStoryboardPreview'
 import './OmniBoxStoryStudio.css'
 export type EpisodeBeat={id:string;title:string;purpose:string;dialogue:string;shots:string;audio:string;durationSeconds:number}
@@ -19,6 +20,7 @@ export default function OmniBoxStoryStudio(){
  const [draft,setDraft]=useState<EpisodeDraft>(readDraft)
  const [selected,setSelected]=useState(0)
  const [status,setStatus]=useState('Six five-minute story blocks prepared. This is a script and shot list, not a rendered movie.')
+ const [placementAvailable,setPlacementAvailable]=useState(()=>{try{return Boolean(localStorage.getItem(TRYAMM_PLACEMENT_STUDIO_HANDOFF_KEY))}catch{return false}})
  const scene=draft.scenes[selected]
  const total=draft.scenes.reduce((n,s)=>n+Number(s.durationSeconds||0),0)
  function change<K extends keyof EpisodeDraft>(key:K,value:EpisodeDraft[K]){setDraft(x=>({...x,[key]:value}));setStatus('Unsaved editing changes.')}
@@ -36,9 +38,28 @@ export default function OmniBoxStoryStudio(){
   const a=document.createElement('a');a.href=url;a.download='streetverse-episode-'+draft.episodeNumber+'-production-packet.'+format;document.body.appendChild(a);a.click();a.remove();window.setTimeout(()=>URL.revokeObjectURL(url),1200)
   setStatus('Draft production packet downloaded. Footage still needs to be made and edited.')
  }
+ function importTryammPlacement(){
+  try{
+   const raw=localStorage.getItem(TRYAMM_PLACEMENT_STUDIO_HANDOFF_KEY)
+   if(!raw)throw Error('No saved product proposal available.')
+   const brief:unknown=JSON.parse(raw)
+   if(!isPlacementBrief(brief))throw Error('Product proposal is invalid or unapproved. Prepare a new brief from TRYAMM Discover.')
+   setDraft(current=>({...current,
+    rightsNote:(current.rightsNote+'\nSponsored placement proposal: '+brief.brand+' / '+brief.product+'. Brand/product rights, creator likeness and music licenses NOT VERIFIED; disclosure required.').slice(0,1500),
+    scenes:current.scenes.map((scene,index)=>index===2?{...scene,
+     purpose:(scene.purpose+'\nProposed sponsored product: '+brief.brand+' / '+brief.product+'. '+brief.description).slice(0,1600),
+     shots:(scene.shots+'\nUnapproved brand-placement shot: '+brief.product+'. Proposed CTA: '+brief.ctaText+'. Do not film/render brand assets without clearance.').slice(0,2000)
+    }:scene)}))
+   setSelected(2)
+   setStatus('Imported proposal into Act 3 as UNSAVED, UNAPPROVED story notes. Review all rights and save when ready; no video has been rendered.')
+   localStorage.removeItem(TRYAMM_PLACEMENT_STUDIO_HANDOFF_KEY)
+   setPlacementAvailable(false)
+  }catch(error){setStatus(error instanceof Error?error.message:'Could not import placement proposal.')}
+ }
  function handoff(){try{localStorage.setItem(OMNI_BOX_HANDOFF_KEY,JSON.stringify({...draft,updatedAt:new Date().toISOString()}));save();window.location.href='/holo-drama?from=omni-box'}catch{setStatus('Could not hand off. Download your JSON packet as a backup.')}}
  return <main className="omni-story">
   <header className="omni-story-header"><div><p>TRYAMM · OMNI BOX</p><h1>Make a 30-minute Holo Drama episode</h1><p>Plan six five-minute acts and prepare the script, shots, dialogue and audio for production.</p></div><nav><a href="/holo-drama">HOLO DRAMA ↗</a><a href="/business-app.html">BUSINESS APP ↗</a><a href="/streetverse">STREETVERSE ↗</a></nav></header>
+  {placementAvailable&&<section aria-label="TRYAMM product placement proposal" style={{border:'1px solid #48a59a',padding:14,borderRadius:12,margin:'10px 0',background:'#102535',color:'#fff'}}><strong>TRYAMM product placement proposal available</strong><p style={{fontSize:12,margin:'7px 0'}}>Import the proposed product into Act 3 as editable story notes. This will not publish, render, or approve the placement.</p><button type="button" onClick={importTryammPlacement} style={{minHeight:44,padding:'9px 13px',border:'1px solid #8af0de',borderRadius:9,background:'#19484b',color:'#fff'}}>IMPORT PLACEMENT INTO ACT 3</button></section>}
   <section className="omni-story-facts" aria-label="Episode plan progress"><div><strong>6</strong><span>planned acts</span></div><div><strong>{Math.floor(total/60)}:{String(total%60).padStart(2,'0')}</strong><span>target duration</span></div><div><strong>0</strong><span>minutes rendered</span></div></section>
   <OmniBoxStoryboardPreview scenes={draft.scenes} selected={selected} onSelect={setSelected}/>
   <section className="omni-story-work"><div className="omni-story-setup"><h2>Episode identity</h2>
