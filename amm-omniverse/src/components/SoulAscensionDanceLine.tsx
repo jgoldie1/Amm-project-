@@ -1,4 +1,5 @@
-import {useEffect,useMemo,useState,type CSSProperties} from 'react'
+import {lazy,Suspense,useEffect,useMemo,useState,type CSSProperties} from 'react'
+const StreetVerseCC0MotionGallery=lazy(()=>import('./StreetVerseCC0MotionGallery'))
 import {createPortal} from 'react-dom'
 import {SOUL_ASCENSION_DANCES,SOUL_ASCENSION_ERAS,SOUL_ASCENSION_RULES,type SoulAscensionEra,type SoulAscensionDanceMove} from '../data/SoulAscensionDanceArchive'
 
@@ -8,6 +9,7 @@ const ERA_OPTIONS=['all',...SOUL_ASCENSION_ERAS] as const
 export default function SoulAscensionDanceLine({onClose}:{onClose:()=>void}){
  const [era,setEra]=useState<'all'|SoulAscensionEra>('all')
  const [query,setQuery]=useState('')
+ const [sourceDancePreviewOpen,setSourceDancePreviewOpen]=useState(false)
  const [selectedId,setSelectedId]=useState(SOUL_ASCENSION_DANCES[0].id)
  const [page,setPage]=useState(0)
  const [status,setStatus]=useState('Select a move to study. Grooves use stand-in BJ motions until the correct animation is licensed and retargeted.')
@@ -66,7 +68,9 @@ export default function SoulAscensionDanceLine({onClose}:{onClose:()=>void}){
    <div style={{display:'flex',flexWrap:'wrap',gap:7}}>
     <button onClick={()=>cue(selected)} style={{...button,background:'#482b71'}}>🎭 PREVIEW BJ GROOVE</button>
     <button onClick={openReel} style={button}>🎥 OPEN REEL CREATOR</button>
+    <button onClick={()=>setSourceDancePreviewOpen(true)} style={button}>🎞 REAL CC0 DANCE CLIP • MANNEQUIN</button>
    </div>
+   {sourceDancePreviewOpen&&<Suspense fallback={<div role="status">Loading CC0 GLB dance model…</div>}><StreetVerseCC0MotionGallery initialSelected="cc0-dance-loop" onClose={()=>setSourceDancePreviewOpen(false)}/></Suspense>}
    <div role="status" aria-label="Soul Ascension animation result" style={{marginTop:10,padding:9,borderRadius:10,background:'#120e23',border:'1px solid #ac8eff77',fontSize:11}}>{status}</div>
   </div>
   <div style={{display:'flex',overflowX:'auto',gap:6,paddingBottom:8}} aria-label="Dance decade filters">
