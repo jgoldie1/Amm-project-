@@ -1,5 +1,8 @@
 name: Soul Ascension CC0 Free Animation Pack Acquisition
 on:
+  pull_request:
+    paths:
+      - '.github/workflows/soul-ascension-free-packs.yml'
   push:
     branches: [streetverse-chromebook-workbench]
     paths:
