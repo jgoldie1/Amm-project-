@@ -47,7 +47,7 @@ export default function StreetVerseCityAccessDock(){
  }
  return <>
   <nav aria-label="StreetVerse city access" style={{
-   position:'fixed',top:'max(155px,calc(env(safe-area-inset-top) + 155px))',
+   position:'fixed',top:'max(210px,calc(env(safe-area-inset-top) + 210px))',
    right:'max(12px,env(safe-area-inset-right))',zIndex:41020,display:'grid',gap:5,
    width:108,pointerEvents:'auto'
   }}>
@@ -55,7 +55,7 @@ export default function StreetVerseCityAccessDock(){
    <button id="sv-city-retail-open" type="button" aria-label="Open StreetVerse neighborhood stores" aria-expanded={panel==='retail'} onClick={()=>{setPanel(p=>p==='retail'?null:'retail');window.dispatchEvent(new Event('tryamm:streetverse-commerce-request'))}} style={style}>🏬 STORES</button>
    <button id="sv-city-store-open" type="button" aria-label="Open StreetVerse local store preview" aria-expanded={panel==='store'} onClick={()=>setPanel(p=>p==='store'?null:'store')} style={style}>🛍 STORE</button>
   </nav>
-  {notice&&<div role="status" style={{position:'fixed',top:'max(310px,calc(env(safe-area-inset-top) + 310px))',right:12,zIndex:41018,maxWidth:150,color:'#c7f8ff',font:'750 10px system-ui',background:'#031421ec',padding:7,borderRadius:9,pointerEvents:'none'}}>{notice}</div>}
+  {notice&&<div role="status" style={{position:'fixed',top:'max(380px,calc(env(safe-area-inset-top) + 380px))',right:12,zIndex:41018,maxWidth:150,color:'#c7f8ff',font:'750 10px system-ui',background:'#031421ec',padding:7,borderRadius:9,pointerEvents:'none'}}>{notice}</div>}
   {panel&&<section role="dialog" aria-label={panel==='retail'?'StreetVerse commerce missions':'StreetVerse local store preview'} style={{
    position:'fixed',zIndex:45000,left:10,right:10,top:'max(85px,calc(env(safe-area-inset-top) + 85px))',
    maxWidth:370,margin:'0 auto',maxHeight:'min(60dvh,475px)',overflowY:'auto',
