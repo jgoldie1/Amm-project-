@@ -152,7 +152,7 @@ try {
   else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
-  else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter onClose={()=>{window.location.href='/'}} /></Suspense>
+  else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter initialFormat={new URLSearchParams(window.location.search).get('format')==='gamecast'?'gamecast':'live'} initialRole={new URLSearchParams(window.location.search).get('role')==='viewer'?'viewer':'host'} onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isGuardian)routeContent=<Suspense fallback={routeFallback}><GuardianCommandCenter /></Suspense>
   else if(isAccountDeletion)routeContent=<Suspense fallback={routeFallback}><AccountPrivacyCenter onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isHoloDrama)routeContent=<Suspense fallback={routeFallback}><HoloDramaHub /></Suspense>
