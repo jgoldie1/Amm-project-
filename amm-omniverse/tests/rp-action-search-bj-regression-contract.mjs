@@ -2,6 +2,9 @@ import fs from 'node:fs'
 const catalog=fs.readFileSync(new URL('../src/data/streetVerseRPActionCatalog.ts',import.meta.url),'utf8')
 const search=fs.readFileSync(new URL('../src/components/StreetVerseRPActionSearch.tsx',import.meta.url),'utf8')
 const carousel=fs.readFileSync(new URL('../src/components/StreetVerseActionCarousel.tsx',import.meta.url),'utf8')
+const hero=fs.readFileSync(new URL('../src/runtime/StreetVerseMeshyBJHeroRuntime.ts',import.meta.url),'utf8')
+const mobile=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
+const boneGestures=fs.readFileSync(new URL('../src/runtime/StreetVerseBJRPProceduralAnimator.ts',import.meta.url),'utf8')
 const geo=fs.readFileSync(new URL('../src/components/StreetVerseGeoSpawnBridge.tsx',import.meta.url),'utf8')
 const route=fs.readFileSync(new URL('../src/components/KingdomDistrictRoute.tsx',import.meta.url),'utf8')
 const people=fs.readFileSync(new URL('../public/streetverse-kingdom/02-physics-traffic.js',import.meta.url),'utf8')
@@ -17,4 +20,14 @@ for(const x of ['makeBJStubbsFallback','attachBJProductionHuman','ONLY YAHAVAH',
 if(spawn.includes('attachProductionHuman(player,2)'))throw new Error('BJ reverted to generic NPC slot')
 if(!spawn.includes('makeBJStubbsFallback')||!spawn.includes('attachBJProductionHuman'))throw new Error('BJ dedicated spawn missing')
 if(!bridge.includes("channel!=='tryamm:kingdom-control'")||!bridge.includes("type==='RP_ACTION'"))throw new Error('Kingdom RP action message bridge missing')
+
+// Guard the actual 3D playback bridge, not only a carousel button that fires an event.
+for(const actionId of ['wave-friendly','handshake','hug','laugh','argue','sit-relaxed','street-dance','two-step','victory','pray-standing','mechanic-work','security-scan','police-radio','medical-assist','basketball-dribble','creator-pose','mic-performance']){
+  if(!boneGestures.includes(`'${actionId}':`)&&!boneGestures.includes(`${actionId}:`))throw new Error('BJ procedural catalogue action missing '+actionId)
+}
+for(const token of ['createStreetVerseBJRPProceduralAnimator','const playRPAction:',"mode:'clip'",'proceduralRP.tick(nowMs)'])if(!hero.includes(token))throw new Error('3D BJ GLB/procedural playback bridge missing '+token)
+for(const token of ["addEventListener('tryamm:streetverse-rp-action-play',onRPActionPlay)","removeEventListener('tryamm:streetverse-rp-action-play',onRPActionPlay)",'nativeRPAnimator?.tick(now)',"tryamm:streetverse-rp-action-result"])if(!mobile.includes(token))throw new Error('mobile 3D RP playback missing '+token)
+for(const token of ["BJ RP playback result","tryamm:streetverse-rp-action-result","BJ ACTION UNAVAILABLE"])if(!search.includes(token))throw new Error('user playback proof missing '+token)
+if(boneGestures.toLowerCase().includes('shadow box'))throw new Error('boxing-only Shadow Box must not enter the open-world gestures runtime')
+
 console.log('RP animation search + BJ identity regression contract: PASS')
