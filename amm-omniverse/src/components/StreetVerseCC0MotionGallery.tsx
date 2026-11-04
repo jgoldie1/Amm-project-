@@ -82,13 +82,14 @@ export default function StreetVerseCC0MotionGallery({onClose}:{onClose:()=>void}
    if(!active||selectedId!==requestId.current||!scene.current)return
    mixer.current?.stopAllAction();mixer.current=null
    if(model.current)scene.current.remove(model.current)
-   if(model.current!==gltf.scene){
+   if(!gltf.scene.userData.streetverseCC0PreviewNormalized){
     const box=new THREE.Box3().setFromObject(gltf.scene)
     const dimensions=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3())
     const maxDim=Math.max(dimensions.x,dimensions.y,dimensions.z,.01)
     const scale=2.8/maxDim
     gltf.scene.scale.setScalar(scale)
     gltf.scene.position.set(-center.x*scale,.15-(center.y-dimensions.y*.5)*scale,-center.z*scale)
+    gltf.scene.userData.streetverseCC0PreviewNormalized=true
    }
    model.current=gltf.scene
    scene.current.add(gltf.scene)
