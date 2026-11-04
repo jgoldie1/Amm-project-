@@ -1,6 +1,8 @@
+import {HOLOCAD_AEROSPACE_ROBOTICS_PRESETS,HOLOCAD_AEROSPACE_ROBOTICS_KEYS,type HoloCADEngineeringSubject} from './aerospaceRoboticsPresets'
+
 /** Original educational schematic HoloCAD presets. Not clinical, veterinary, vehicle-OEM, or architectural CAD. */
-export type HoloCADSubject='human'|'canine'|'automobile'|'building'
-export type HoloCADLayer='shell'|'muscle'|'skeleton'|'organs'|'circulation'|'structure'|'mechanical'|'electrical'|'interior'|'plumbing'|'hvac'
+export type HoloCADSubject='human'|'canine'|'automobile'|'building'|HoloCADEngineeringSubject
+export type HoloCADLayer='shell'|'muscle'|'skeleton'|'organs'|'circulation'|'structure'|'mechanical'|'electrical'|'interior'|'plumbing'|'hvac'|'power'|'propulsion'|'avionics'|'sensors'|'actuation'|'payload'|'thermal'|'comms'|'landing-gear'|'life-support'|'compute'|'controls'|'mobility'
 export type HoloCADShape='sphere'|'box'|'cylinder'|'capsule'
 export type HoloCADPart={id:string;label:string;layer:HoloCADLayer;shape:HoloCADShape;position:[number,number,number];size:[number,number,number];explode:[number,number,number];color:number;opacity:number;description:string}
 export type HoloCADPreset={title:string;subtitle:string;parts:readonly HoloCADPart[]}
@@ -1972,8 +1974,9 @@ export const HOLOCAD_LIVING_PRESETS:Record<HoloCADSubject,HoloCADPreset>={
         "description": "Schematic teaching part; not certified technical geometry."
       }
     ]
-  }
+  },
+  ...HOLOCAD_AEROSPACE_ROBOTICS_PRESETS
 }
-export const HOLOCAD_SUBJECT_ORDER:readonly HoloCADSubject[]=['human','canine','automobile','building']
+export const HOLOCAD_SUBJECT_ORDER:readonly HoloCADSubject[]=['human','canine','automobile','building',...HOLOCAD_AEROSPACE_ROBOTICS_KEYS]
 export function validateHoloCADPresets(){for(const key of HOLOCAD_SUBJECT_ORDER){const p=HOLOCAD_LIVING_PRESETS[key];if(!p?.parts.length)throw Error('Missing subject '+key);const seen=new Set<string>();for(const part of p.parts){if(seen.has(part.id)||!part.label)throw Error('Duplicate/empty part');seen.add(part.id);if(![...part.position,...part.size,...part.explode].every(Number.isFinite))throw Error('Invalid coordinates');if(part.size.some(n=>n<=0||n>10))throw Error('Invalid size')}}return true}
 export function layoutHoloCAD(subject:HoloCADSubject,explosion:number,detached:ReadonlySet<string>){const d=HOLOCAD_LIVING_PRESETS[subject];if(!d||!Number.isFinite(explosion)||explosion<0||explosion>1.7)throw Error('Invalid teardown state');return d.parts.map(part=>({...part,detached:detached.has(part.id),positionNow:part.position.map((v,i)=>v+part.explode[i]*(explosion+(detached.has(part.id)?2.0:0))) as [number,number,number]}))}
