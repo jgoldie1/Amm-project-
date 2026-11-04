@@ -34,12 +34,12 @@ function slug(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'tryamm-live'
 }
 
-export default function LiveCenter({ onClose, initialMode='live', initialRole='host', youthViewerOnly=false }: { onClose: () => void; initialMode?: 'live'|'pk'; initialRole?: LiveRole; youthViewerOnly?: boolean }) {
+export default function LiveCenter({ onClose, initialMode='live', initialRole='host', initialFormat='live', youthViewerOnly=false }: { onClose: () => void; initialMode?: 'live'|'pk'; initialRole?: LiveRole; initialFormat?: Format; youthViewerOnly?: boolean }) {
   const pkMode=initialMode==='pk'
   const [configured, setConfigured] = useState<boolean | null>(null)
   const [providerStatus,setProviderStatus]=useState<LiveProviderStatus|null>(null)
-  const [format, setFormat] = useState<Format>('live')
-  const [title, setTitle] = useState(pkMode?'Holographic PK Battle':'TryAMM LIVE')
+  const [format, setFormat] = useState<Format>(initialFormat)
+  const [title, setTitle] = useState(pkMode?'Holographic PK Battle':initialFormat==='gamecast'?'StreetVerse Chicago Gamecast':'TryAMM LIVE')
   const [role, setRole] = useState<LiveRole>(youthViewerOnly?'viewer':initialRole)
   const [displayName, setDisplayName] = useState(youthViewerOnly?'Youth Viewer':'Creator')
   const [roomName, setRoomName] = useState(pkMode?'tryamm-pk':'tryamm-live')
