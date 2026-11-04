@@ -18,12 +18,20 @@ This GLB is a small, lawful *test asset for clip discovery, imported 3D playback
 - Mixamo or any other content provider's asset license must be reviewed separately; a MIT/Apache-licensed converter does not make the imported motion CC0.
 
 ## 3. StreetVerse current integration status
-- 17 named RP actions in `streetVerseRPActionCatalog.ts`.
+- **67 RP actions** in `streetVerseRPActionCatalog.ts`: 17 original actions and **50 new original gesture recipes** from `streetVerseRPExtra50.ts` (not 50 imported GLBs).
+- The new recipes are mapped to real BJ rig bone rotations with distinct tempo, amplitude and phase; they only execute when the appropriate bones exist.
+- `StreetVerseRPActionSearch` provides pagination through the catalog in addition to search/filter. Runtime results distinguish GLB clips, procedural gestures, and unavailable actions.
 - `StreetVerseMeshyBJHeroRuntime.playRPAction()` first searches the *mounted BJ GLB* for a true matching clip.
 - Where compatible rig bones exist, `createStreetVerseBJRPProceduralAnimator()` offers bounded, locally computed **3D gestures** rather than pretending to have a missing animation file.
 - `StreetVerseMobileWorld` subscribes to the RP PLAY/LOOP event; results are reported as `clip`, `procedural` or `unavailable`.
 - `StreetVerseRPActionSearch` shows the result, rather than claiming an uninstalled GIF or GLB played.
 - No raw third-party animation was copied into production; no claim of automated cross-skeleton retargeting is made.
+
+## 3A. What fifty new gesture recipes do — and do not do
+- They offer original short BJ gestures for social interaction, dancing, construction, maintenance, public safety, sports, creator and faith scenes.
+- They **do not** create props, interaction physics, real repairs, weapons, boxing, or completion of mission objectives.
+- The CC0 RobotExpressive GLB still has its original 14 animations. It has a robot skeleton, and no unretargeted robot clips have been published as BJ's.
+- Release-quality gestures can later be replaced by separately licensed and tested retargeted GLB motion clips.
 
 ## 4. Rules before importing into production
 1. Save the source URL, pinned commit, model attribution, and per-asset license.
