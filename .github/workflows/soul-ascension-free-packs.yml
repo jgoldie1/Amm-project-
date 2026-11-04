@@ -1,12 +1,7 @@
 name: Soul Ascension CC0 Free Animation Pack Acquisition
+# Archives acquired and verified in run 41879917623; do not redownload on every PR.
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/soul-ascension-free-packs.yml'
-  push:
-    branches: [streetverse-chromebook-workbench]
-    paths:
-      - '.github/workflows/soul-ascension-free-packs.yml'
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
