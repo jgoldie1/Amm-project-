@@ -36,7 +36,7 @@ export function applyStreetVerseOrganImpact(state:StreetVerseOrganState,request:
  const stamina=clamp(state.stamina-amount*.6)
  const breathing=clamp(state.breathing-(zone==='chest'?amount*.7:amount*.12))
  const mobility=clamp(state.mobility-(zone==='legs'?amount*.7:amount*.16))
- const downed=integrity.brain<25||integrity.heart<25||breathing<18
+ const downed=integrity.brain<=25||integrity.heart<=25||breathing<=18
  const stunned=!downed&&(amount>=30||integrity.brain<60)
  return {...state,integrity,stamina,breathing,mobility,consciousness:downed?'downed':stunned?'stunned':'alert',needsRescue:downed||breathing<40||integrity.heart<40}
 }
