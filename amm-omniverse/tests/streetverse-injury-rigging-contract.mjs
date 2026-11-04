@@ -17,13 +17,17 @@ const checks=[
  ['mobile effect cap',injury.includes('drops.length>24')],
  ['character swap resets injury',injury.includes('onCharacterSelect')&&injury.includes('currentCharacterId=id')],
  ['local demo only no authoritative damage',injury.includes('authoritative:false')],
- ['scene integration',world.includes('createStreetVerseInjuryRuntime(scene,()=>nativeHero||avatar)')],
+ ['scene integration',world.includes("createStreetVerseInjuryRuntime(scene,()=>nativeHero||avatar,'bj-stubbs',()=>Boolean(activeCar))")],
  ['frame tick',world.includes('injuryFx.tick(now)')],
  ['world cleanup',world.includes('injuryFx.dispose()')],
  ['panel hit test',panel.includes('TEST HIT −25 HP')],
  ['panel defeat test',panel.includes('TEST DEFEAT')],
  ['panel recovery',panel.includes('RESPAWN')],
- ['selected avatar roster remains',roster.includes("id:'bj-stubbs'")]
+ ['reactions emitted for animation director',injury.includes('tryamm:streetverse-rig-reaction')],
+ ['seated driver does not tilt',injury.includes('const target=seated?0')],
+ ['preserve original GLB rotation on cleanup',injury.includes('animatedHero.rotation.z=baselineRoll')],
+ ['local rescue event is nonauthoritative',injury.includes('tryamm:streetverse-local-rescue-needed')&&injury.includes('authoritative:false')],
+  ['selected avatar roster remains',roster.includes("id:'bj-stubbs'")]
 ]
 for(const [name,passed] of checks)assert.ok(passed,name)
 console.log('StreetVerse injury rigging source contract: '+checks.length+' PASS (local cosmetic effects, not server-authoritative multiplayer)')
