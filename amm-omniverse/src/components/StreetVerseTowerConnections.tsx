@@ -21,6 +21,7 @@ export default function StreetVerseTowerConnections(){
  const [aiFabricDetected,setAiFabricDetected]=useState(false)
  const [jarvisDetected,setJarvisDetected]=useState(false)
  const [travelStateObserved,setTravelStateObserved]=useState(false)
+ const [injury,setInjury]=useState<{health:number;phase:string;visuals:string;characterId:string}|null>(null)
  useEffect(()=>{
   const onGame=()=>setGameReady(true)
   const onBroadcast=()=>setBroadcastObserved(true)
@@ -28,13 +29,15 @@ export default function StreetVerseTowerConnections(){
   const onAi=()=>setAiFabricDetected(true)
   const onVehicle=(e:Event)=>{if((e as CustomEvent<{entered?:boolean}>).detail?.entered)setVehicleConfirmed(true)}
   const onMission=(e:Event)=>setLastMission(String((e as CustomEvent<{id?:string;label?:string}>).detail?.label||(e as CustomEvent<{id?:string}>).detail?.id||'Completed mission'))
+  const onInjury=(event:Event)=>{const next=(event as CustomEvent<{health:number;phase:string;visuals:string;characterId:string}>).detail;if(next)setInjury(next)}
+  addEventListener('tryamm:streetverse-injury-state',onInjury)
   addEventListener('tryamm:broadcast-os-state',onBroadcast)
   addEventListener('tryamm:global-travel-state',onTravel)
   addEventListener('tryamm:stubbs-lyons-middleverse-ready',onAi)
   addEventListener('tryamm:streetverse-world-ready',onGame)
   addEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
   addEventListener('tryamm:streetverse-mission-complete',onMission)
-  return()=>{removeEventListener('tryamm:broadcast-os-state',onBroadcast);removeEventListener('tryamm:global-travel-state',onTravel);removeEventListener('tryamm:stubbs-lyons-middleverse-ready',onAi);removeEventListener('tryamm:streetverse-world-ready',onGame);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-mission-complete',onMission)}
+  return()=>{removeEventListener('tryamm:streetverse-injury-state',onInjury);removeEventListener('tryamm:broadcast-os-state',onBroadcast);removeEventListener('tryamm:global-travel-state',onTravel);removeEventListener('tryamm:stubbs-lyons-middleverse-ready',onAi);removeEventListener('tryamm:streetverse-world-ready',onGame);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-mission-complete',onMission)}
  },[])
  useEffect(()=>{
   if(!open)return
@@ -76,6 +79,17 @@ export default function StreetVerseTowerConnections(){
     <div>Creator earnings: <b>PAYMENT & PAYOUTS NOT VERIFIED</b></div>
     <div>World compilation: <b>SOURCE PRESENT • BUILD NOT VERIFIED</b></div>
    </div>
+   <section aria-label="StreetVerse character injury test" style={{border:'1px solid #5d3a46',borderRadius:10,padding:8,marginTop:10,display:'grid',gap:6}}>
+    <b style={{fontSize:11}}>CHARACTER INJURY • LOCAL TEST</b>
+    <div style={{fontSize:10}}>HP {injury?.health??'—'} • {injury?.phase||'waiting for game'} • {injury?.characterId||'selected player'}</div>
+    <div style={{fontSize:10}}>Effects: {injury?.visuals||'minimal'}. These buttons are cosmetic test events only, not multiplayer damage or real XP.</div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+     <button style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-local-damage-demo',{detail:{amount:25,source:'tower-injury-test'}}))}>TEST HIT −25 HP</button>
+     <button style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-local-damage-demo',{detail:{amount:100,source:'tower-defeat-test'}}))}>TEST DEFEAT</button>
+     <button style={btn} onClick={()=>window.dispatchEvent(new Event('tryamm:streetverse-local-respawn-demo'))}>RESPAWN</button>
+     <button style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-injury-visual-mode',{detail:{mode:injury?.visuals==='standard'?'off':injury?.visuals==='off'?'minimal':'standard'}}))}>FX: {injury?.visuals||'minimal'} • CHANGE</button>
+    </div>
+   </section>
    {error&&<p role="alert" style={{fontSize:10,color:'#ffb69d'}}>Status error: {error}</p>}
    <div style={{display:'grid',gap:6,marginTop:10}}>
     <button style={btn} onClick={()=>{setOpen(false);const host=window.open('/live?format=gamecast&role=host&from=quantum-tower','_blank');if(host)try{host.opener=null}catch{};if(!host)window.dispatchEvent(new CustomEvent('tryamm:live-center-open',{detail:{source:'quantum-tower',format:'gamecast'}}))}}>📡 OPEN GAMECAST HOST TAB</button>
