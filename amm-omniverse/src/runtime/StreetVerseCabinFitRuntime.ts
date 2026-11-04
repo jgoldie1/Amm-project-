@@ -8,7 +8,7 @@ export type CabinSeatAnchor={x:number;y:number;z:number}
 export type CabinFit={fits:boolean;scale:number;reason:'ok'|'invalid-dimensions'|'too-large'|'roof-overlap'|'wall-overlap'|'passenger-overlap';size:CabinAvatarSize}
 export const SIX_SEAT_SUV_SHELL={
  minX:-2.58,maxX:.1,minZ:-.94,maxZ:.94,roofY:1.86,
- maxScaleReduction:.08,clearanceM:.012
+ maxScaleReduction:.08,maxSeatShoulderWidthM:.7,clearanceM:.012
 } as const
 export const DEFAULT_SEATED_AVATAR:CabinAvatarSize={shoulderWidthM:.42,seatedHeightM:.98,seatedDepthM:.57}
 const valid=(n:number)=>Number.isFinite(n)&&n>0&&n<10
@@ -27,6 +27,9 @@ export function checkSixSeatCabinFit(
  for(let scale=1;scale>=minimum-.00001;scale-=.01){
   const size=scaled(body,scale)
   const halfWidth=size.shoulderWidthM/2,halfDepth=size.seatedDepthM/2
+  // Shoulder clearance is limited by the individual seat/door opening,
+  // not only by the overall vehicle width.
+  if(size.shoulderWidthM>shell.maxSeatShoulderWidthM){reason='too-large';continue}
   if(anchor.y+size.seatedHeightM+shell.clearanceM>shell.roofY){reason='roof-overlap';continue}
   if(anchor.z-halfWidth-shell.clearanceM<shell.minZ||anchor.z+halfWidth+shell.clearanceM>shell.maxZ||
      anchor.x-halfDepth-shell.clearanceM<shell.minX||anchor.x+halfDepth+shell.clearanceM>shell.maxX){reason='wall-overlap';continue}
