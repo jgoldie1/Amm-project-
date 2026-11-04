@@ -10,7 +10,7 @@ export const CABIN_PROFILES:Record<'six-seat-suv'|'cta-bus'|'el-train'|'airliner
  'six-seat-suv':{kind:'suv',seats:6,standing:0,positions:[
   {x:-.43,y:.77,z:.48,yaw:0},{x:-.43,y:.77,z:-.48,yaw:0},
   {x:-1.30,y:.79,z:.47,yaw:0},{x:-1.30,y:.79,z:0,yaw:0},
-  {x:-1.30,y:.79,z:-.47,yaw:0},{x:-1.88,y:.81,z:0,yaw:0}]},
+  {x:-1.30,y:.79,z:-.47,yaw:0},{x:-1.90,y:.81,z:0,yaw:0}]},
  'cta-bus':{kind:'bus',seats:40,standing:20,positions:[]},
  'el-train':{kind:'train',seats:120,standing:80,positions:[]},
  'airliner':{kind:'plane',seats:180,standing:0,positions:[]}
