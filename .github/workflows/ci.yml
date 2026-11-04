@@ -104,6 +104,7 @@ jobs:
           node tests/streetverse-injury-rigging-contract.mjs
           node tests/streetverse-anatomy-simulation.test.mjs
           node tests/streetverse-cabin-fit.test.mjs
+          node tests/streetverse-transit-displays.test.mjs
           node tests/streetverse-height-and-first-journey-regression.mjs
 
       - name: Omniverse typecheck
