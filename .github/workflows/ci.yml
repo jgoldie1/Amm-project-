@@ -98,6 +98,12 @@ jobs:
       - name: Omniverse readiness and provider gates
         run: npm run readiness
 
+      - name: StreetVerse character and injury regressions
+        run: |
+          node tests/streetverse-playable-roster-multiplayer-contract.mjs
+          node tests/streetverse-injury-rigging-contract.mjs
+          node tests/streetverse-height-and-first-journey-regression.mjs
+
       - name: Omniverse typecheck
         run: npm run typecheck
 
