@@ -31,6 +31,7 @@ export default function TryammConnectedGrowthLanding(){
  const [successRef,setSuccessRef]=useState('')
  const [assistantOpen,setAssistantOpen]=useState(false)
  const [adDraftStatus,setAdDraftStatus]=useState('')
+ const [receiptNotice,setReceiptNotice]=useState('')
  const chosen=TRYAMM_GROWTH_OFFERS.find(o=>o.id===offerId)??TRYAMM_GROWTH_OFFERS[0]
  const begin=(id:TryammGrowthOfferId)=>{setOfferId(id);setStatus('');document.getElementById('tryamm-connected-inquiry')?.scrollIntoView({behavior:'smooth',block:'start'})}
  const acceptPlacementQuote=(brief:PlacementBrief)=>{
@@ -61,9 +62,40 @@ export default function TryammConnectedGrowthLanding(){
    setAdDraftStatus('Holo Ads draft tools are unavailable. You can still submit a service inquiry; nothing was charged.')
   }
  }
+ const saveInquiryReceipt=()=>{
+  if(!successRef)return
+  const summary=[
+   'TRYAMM LLC — CUSTOMER SERVICE INQUIRY RECEIPT',
+   'Reference: '+successRef,
+   'Service: '+chosen.title,
+   'Name: '+name.trim(),
+   'Business or creator: '+businessName.trim(),
+   'Contact email: '+email.trim(),
+   'Saved: '+new Date().toISOString(),
+   'Status: INQUIRY RECEIVED — scope, rights, approval and payment remain pending.',
+   '',
+   'Your request is not a purchase, paid advertising contract or authorization to publish.',
+   'Keep this receipt for your follow-up with TRYAMM.'
+  ].join(String.fromCharCode(10))
+  const blob=new Blob([summary],{type:'text/plain;charset=utf-8'})
+  const url=URL.createObjectURL(blob)
+  const link=document.createElement('a')
+  link.href=url;link.download='tryamm-inquiry-'+successRef.replace(/[^a-z0-9-]/gi,'').slice(0,60)+'.txt'
+  document.body.appendChild(link);link.click();link.remove()
+  window.setTimeout(()=>URL.revokeObjectURL(url),1000)
+  setReceiptNotice('A local text receipt was prepared. Check your browser downloads.')
+ }
+ const copyInquiryReference=async()=>{
+  if(!successRef)return
+  try{
+   if(!navigator.clipboard?.writeText)throw new Error('clipboard unavailable')
+   await navigator.clipboard.writeText(successRef)
+   setReceiptNotice('The inquiry reference was copied.')
+  }catch{setReceiptNotice('Clipboard access is unavailable. Use SAVE REQUEST RECEIPT instead.')}
+ }
  const submit=async(e:FormEvent<HTMLFormElement>)=>{
   e.preventDefault();if(submitting)return
-  setSubmitting(true);setStatus('');setSuccessRef('')
+  setSubmitting(true);setStatus('');setSuccessRef('');setReceiptNotice('')
   try{
    const payload=prepareTryammGrowthInquiry({name,email,businessName,offerId,notes,consent})
    const reference=await submitBusinessOSLead(payload)
@@ -151,6 +183,16 @@ export default function TryammConnectedGrowthLanding(){
      <label style={{fontSize:12,display:'flex',gap:9,alignItems:'start',lineHeight:1.5}}><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)} style={{width:20,height:20,flexShrink:0}}/> I authorize TRYAMM to contact me about this specific request. This does not authorize payment or marketing subscriptions.</label>
      <button type="submit" disabled={submitting||!consent} style={{...button,background:'#34d5d7',color:'#04141c',opacity:submitting||!consent?.5:1}}>{submitting?'SUBMITTING…':'SEND SERVICE INQUIRY'}</button>
      {status&&<p role="status" style={{fontSize:13,color:successRef?'#91f5bb':'#ffd39a',margin:0}}>{status}{successRef?' Reference: '+successRef:''}</p>}
+     {successRef&&<section aria-label="Verified customer inquiry receipt" style={{border:'1px solid #407b70',borderRadius:12,padding:12,background:'#0a2824'}}>
+      <strong>REQUEST RECEIVED — NOT A PURCHASE</strong>
+      <div style={{fontSize:12,margin:'7px 0',overflowWrap:'anywhere'}}>Reference: {successRef}</div>
+      <div style={{display:'flex',gap:9,flexWrap:'wrap'}}>
+       <button type="button" style={button} onClick={copyInquiryReference}>COPY REQUEST REFERENCE</button>
+       <button type="button" style={button} onClick={saveInquiryReceipt}>SAVE REQUEST RECEIPT</button>
+      </div>
+      <p style={{fontSize:11,color:'#b8c9d8',lineHeight:1.5}}>Save your reference. TRYAMM must review scope, artwork, rights and pricing before discussing a payment or publication. No automatic email reply is promised.</p>
+      {receiptNotice&&<p role="status" style={{fontSize:12,color:'#91dfc3'}}>{receiptNotice}</p>}
+     </section>
      <p style={{fontSize:11,color:'#a8b6c8',margin:0}}>If the lead service is not configured, the form will report the error and no order will be claimed. Do not enter payment details or private identity documents.</p>
     </form>
    </section>
