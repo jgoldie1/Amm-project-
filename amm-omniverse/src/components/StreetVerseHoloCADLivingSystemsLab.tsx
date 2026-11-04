@@ -176,9 +176,13 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
   // Real WebXR sessions are opt-in and only requested from user clicks.
   // No desktop-camera imitation is presented as augmented reality.
   type Session=EventTarget&{end:()=>Promise<void>}
+  type XRControllerGroup=THREE.Group&{
+    addEventListener:(type:'select'|'squeeze',listener:()=>void)=>void
+    removeEventListener:(type:'select'|'squeeze',listener:()=>void)=>void
+  }
   let activeSession:Session|null=null
   let controllers:Array<{
-   controller:THREE.Group
+   controller:XRControllerGroup
    onSelect:()=>void
    onSqueeze:()=>void
    beam:THREE.Line
@@ -242,7 +246,7 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
     scene.background=ar?null:new THREE.Color('#071321')
     renderer.setClearAlpha(ar?0:1)
     controllers=[0,1].map(index=>{
-     const controller=renderer.xr.getController(index)
+     const controller=renderer.xr.getController(index) as XRControllerGroup
      scene.add(controller)
      const beam=new THREE.Line(
       new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(0,0,-4)]),
