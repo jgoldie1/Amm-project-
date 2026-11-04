@@ -5,7 +5,7 @@ import {TRYAMM_NETWORK_CHANNELS,type BroadcastFeed,type TryammNetworkChannelId} 
  * These are program selections, not separate streams or a duplicate media player.
  */
 export type VehicleTvPresetId =
- |'all-american-network'|'holoverse-tv'|'faithverse-tv'
+ |'all-american-network'|'free-tv'|'holoverse-tv'|'faithverse-tv'
  |'isaiah-ai-tv'|'starverse-live'|'who-wants-to-be-a-star'
  |'servants-of-christ-network'|'streetverse-local-tv'
 export type VehicleTvPreset={
@@ -16,13 +16,14 @@ export type VehicleTvPreset={
 }
 export const STREETVERSE_VEHICLE_TV_PRESETS:readonly VehicleTvPreset[]=[
  {id:'all-american-network',dial:1,label:'All American Network',channelId:'all-american-network',route:'/network',kind:'network',note:'Original entertainment, creator, community and business programming'},
- {id:'holoverse-tv',dial:2,label:'HoloVerse TV',channelId:null,route:null,kind:'programming-slot',note:'HoloVerse video channel slot; dedicated verified feed not yet wired'},
- {id:'faithverse-tv',dial:3,label:'FaithVerse Broadcasting',channelId:null,route:'/faithverse',kind:'programming-slot',note:'FaithVerse video channel slot; select Servants of Christ for its registered ministry network'},
- {id:'isaiah-ai-tv',dial:4,label:'Isaiah AI TV',channelId:'isaiah-ai-tv',route:'/isaiah-ai-tv',kind:'network',note:'Talent discovery, shows and original AI-assisted productions'},
- {id:'starverse-live',dial:5,label:'StarVerse',channelId:'starverse-live',route:'/starverse',kind:'network',note:'Talent showcases, auditions and competitions'},
- {id:'who-wants-to-be-a-star',dial:6,label:'Who Wants to Be a Star',channelId:'isaiah-ai-tv',route:'/isaiah-ai-tv',kind:'show',note:'Show entry under Isaiah AI TV; show-specific playback needs an authorized published program'},
- {id:'servants-of-christ-network',dial:7,label:'Servants of Christ Ministry',channelId:'servants-of-christ-network',route:'/servants-of-christ',kind:'network',note:'Ministry broadcasting, teaching, worship and testimony'},
- {id:'streetverse-local-tv',dial:8,label:'StreetVerse Local TV',channelId:'streetverse-local-tv',route:'/streetverse',kind:'network',note:'Local news, community and StreetVerse field reports'}
+ {id:'free-tv',dial:2,label:'TRYAMM Free TV',channelId:'all-american-network',route:'/free-tv',kind:'network',note:'Existing free ad-supported TV and commercial-break model; published media and playback must be verified'},
+ {id:'holoverse-tv',dial:3,label:'HoloVerse TV',channelId:null,route:null,kind:'programming-slot',note:'HoloVerse video channel slot; dedicated verified feed not yet wired'},
+ {id:'faithverse-tv',dial:4,label:'FaithVerse Broadcasting',channelId:null,route:'/faithverse',kind:'programming-slot',note:'FaithVerse video channel slot; select Servants of Christ for its registered ministry network'},
+ {id:'isaiah-ai-tv',dial:5,label:'Isaiah AI TV',channelId:'isaiah-ai-tv',route:'/isaiah-ai-tv',kind:'network',note:'Talent discovery, shows and original AI-assisted productions'},
+ {id:'starverse-live',dial:6,label:'StarVerse',channelId:'starverse-live',route:'/starverse',kind:'network',note:'Talent showcases, auditions and competitions'},
+ {id:'who-wants-to-be-a-star',dial:7,label:'Who Wants to Be a Star',channelId:'isaiah-ai-tv',route:'/isaiah-ai-tv',kind:'show',note:'Show entry under Isaiah AI TV; show-specific playback needs an authorized published program'},
+ {id:'servants-of-christ-network',dial:8,label:'Servants of Christ Ministry',channelId:'servants-of-christ-network',route:'/servants-of-christ',kind:'network',note:'Ministry broadcasting, teaching, worship and testimony'},
+ {id:'streetverse-local-tv',dial:9,label:'StreetVerse Local TV',channelId:'streetverse-local-tv',route:'/streetverse',kind:'network',note:'Local news, community and StreetVerse field reports'}
 ] as const
 
 export function stepVehicleTvPreset(current:VehicleTvPresetId,direction:-1|1):VehicleTvPreset{
