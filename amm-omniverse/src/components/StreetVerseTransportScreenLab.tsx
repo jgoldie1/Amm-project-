@@ -26,6 +26,7 @@ export default function StreetVerseTransportScreenLab({onClose}:{onClose:()=>voi
   return()=>removeEventListener('tryamm:verse-radio-state',onRadioState)
  },[])
  const openStation=(id:string)=>{setMediaMode('radio');setStation(id);window.dispatchEvent(new CustomEvent('tryamm:verse-radio-station',{detail:{station:id}}));window.dispatchEvent(new Event('tryamm:verse-radio-open'))}
+ const stepStation=(direction:-1|1)=>{setMediaMode('radio');window.dispatchEvent(new CustomEvent('tryamm:verse-radio-step-station',{detail:{direction}}))}
  const [walkway,setWalkway]=useState<WalkwayState>(()=>createAirportWalkway('airport-demo'))
  const director=useMemo(()=>createStreetVerseCabinDirector('streetverse-transit-lab'),[mode])
  const text=transitDisplayText(display)
@@ -76,7 +77,12 @@ export default function StreetVerseTransportScreenLab({onClose}:{onClose:()=>voi
      </div>
      {mediaMode==='radio'&&<div aria-live="polite" style={{border:'1px solid #557a8b',borderRadius:9,padding:9,marginTop:8,fontSize:12}}>
        <b>STREETVERSE INTERNET RADIO • {radio?.playing?'ON AIR / PLAYING':radio?.needsTap?'TAP PLAY':'NOT PLAYING'}</b>
-       <div style={{margin:'5px 0'}}>Station: {radio?.station||station} • {radio?.track?.title||'No authorized track selected'} {radio?.track?.artist?'— '+radio.track.artist:''}</div>
+       <div style={{margin:'5px 0'}}>Station: {VERSE_RADIO_STATIONS.find(s=>s.id===(radio?.station||station))?.label||station} • {radio?.track?.title||'No authorized track selected'} {radio?.track?.artist?'— '+radio.track.artist:''}</div>
+       <div role="group" aria-label="Car radio station tuner" style={{display:'flex',gap:6,alignItems:'center',marginBottom:8}}>
+         <button style={btn} aria-label="Previous radio channel" onClick={()=>stepStation(-1)}>◀ PREV</button>
+         <strong style={{flex:1,fontSize:11,textAlign:'center'}}>{VERSE_RADIO_STATIONS.find(s=>s.id===(radio?.station||station))?.label||'StreetVerse Radio'}</strong>
+         <button style={btn} aria-label="Next radio channel" onClick={()=>stepStation(1)}>NEXT ▶</button>
+       </div>
        <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
          <select aria-label="Radio station" value={station} onChange={e=>openStation(e.target.value)} style={{...btn,flex:'1 1 160px'}}>{VERSE_RADIO_STATIONS.map(s=><option key={s.id} value={s.id}>{s.label}</option>)}</select>
          <button style={btn} onClick={()=>window.dispatchEvent(new Event('tryamm:verse-radio-resume'))}>▶ PLAY / RESUME</button>
