@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import {
- createPlacementBrief,placementToInquiryNotes,placementToStudioHandoff,TRYAMM_PLACEMENT_STUDIO_HANDOFF_KEY,
+ createPlacementBrief,placementToStudioHandoff,TRYAMM_PLACEMENT_STUDIO_HANDOFF_KEY,
  TRYAMM_PLACEMENT_SURFACES,type PlacementBrief,type PlacementSurface
 } from '../runtime/TryammPlacementBriefRuntime'
 
