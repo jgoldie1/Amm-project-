@@ -84,4 +84,13 @@ assert.match(mobile,/tryamm:streetverse-nearby-vehicle-request/,
 assert.match(mobile,/const nearestCar=/,
   'the world must verify actual scene-car proximity before entry')
 
+assert.match(carousel,/Open StreetVerse Quantum Storage Pocket Dimension/,
+  'the RPG carousel must provide a direct Quantum Storage entrypoint')
+assert.match(carousel,/tryamm:streetverse-pocket-open/,
+  'the carousel must request the mounted Pocket Dimension inventory')
+assert.match(mobile,/addEventListener\('tryamm:streetverse-pocket-open',openPocket\)/,
+  'the playable 3D world must handle the Quantum Storage action')
+assert.match(mobile,/<StreetVersePocketDimension onClose=/,
+  'Quantum Storage must open the existing ownership-aware Pocket Dimension')
+
 console.log(`StreetVerse vehicle control-loop contract: PASS (${worlds.length} playable worlds + iPhone-safe mission parity)`)
