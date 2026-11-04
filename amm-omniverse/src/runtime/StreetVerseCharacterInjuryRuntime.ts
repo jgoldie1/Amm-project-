@@ -12,6 +12,7 @@ export function applyStreetVerseDemoDamage(state:StreetVerseInjuryState,request:
  return {...state,health,phase:health===0?'defeated':health<START_HEALTH?'wounded':'healthy'}
 }
 export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THREE.Object3D|null,characterId='bj-stubbs'){
+ let currentCharacterId=characterId
  let state:StreetVerseInjuryState={health:START_HEALTH,phase:'healthy',visuals:'minimal',demoOnly:true}
  let lastHit=-Infinity
  let lean=0
@@ -22,12 +23,12 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
  const geometry=new THREE.SphereGeometry(.035,5,4)
  const material=new THREE.MeshBasicMaterial({color:0x9d121f,transparent:true,opacity:.8,depthWrite:false})
  const publish=()=>{
-  if(typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:streetverse-injury-state',{detail:{...state,characterId,authoritative:false,source:'local-cosmetic-demo'}}))
+  if(typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:streetverse-injury-state',{detail:{...state,characterId:currentCharacterId,authoritative:false,source:'local-cosmetic-demo'}}))
  }
  const removeDrops=()=>{for(const item of drops)effectRoot.remove(item.mesh);drops.length=0}
  const onDamage=(event:Event)=>{
   const req=(event as CustomEvent<StreetVerseDamageRequest>).detail
-  if(!req||req.characterId&&req.characterId!==characterId)return
+  if(!req||req.characterId&&req.characterId!==currentCharacterId)return
   const previous=state
   state=applyStreetVerseDemoDamage(state,req)
   if(previous===state)return
@@ -53,6 +54,7 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
   lastHit=-Infinity
   publish()
  }
+ const onCharacterSelect=(event:Event)=>{const id=(event as CustomEvent<{id?:string}>).detail?.id;if(!id||!/^[a-z0-9._-]{2,80}$/i.test(id))return;currentCharacterId=id;state={...state,health:START_HEALTH,phase:'healthy'};removeDrops();lastHit=-Infinity;publish()}
  const onVisual=(event:Event)=>{
   const value=(event as CustomEvent<{mode?:StreetVerseInjuryView}>).detail?.mode
   if(value!=='off'&&value!=='minimal'&&value!=='standard')return
@@ -60,6 +62,7 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
   if(value==='off')removeDrops()
   publish()
  }
+ window.addEventListener('tryamm:streetverse-character-select',onCharacterSelect)
  window.addEventListener('tryamm:streetverse-local-damage-demo',onDamage)
  window.addEventListener('tryamm:streetverse-local-respawn-demo',onRecover)
  window.addEventListener('tryamm:streetverse-injury-visual-mode',onVisual)
@@ -83,6 +86,7 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
    }
   },
   dispose:()=>{
+   window.removeEventListener('tryamm:streetverse-character-select',onCharacterSelect)
    window.removeEventListener('tryamm:streetverse-local-damage-demo',onDamage)
    window.removeEventListener('tryamm:streetverse-local-respawn-demo',onRecover)
    window.removeEventListener('tryamm:streetverse-injury-visual-mode',onVisual)
