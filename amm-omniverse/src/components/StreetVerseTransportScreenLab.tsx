@@ -1,7 +1,8 @@
-import {useMemo,useState} from 'react'
+import {useEffect,useMemo,useState} from 'react'
 import StreetVerseTransitMotionPreview from './StreetVerseTransitMotionPreview'
 import {TRANSIT_MEDIA_DEFAULTS,makeTransitMedia} from '../runtime/StreetVerseTransitMotionAndMedia'
 import {TRYAMM_NETWORK_CHANNELS,type TryammNetworkChannelId} from '../runtime/TryammBroadcastOSRuntime'
+import {VERSE_RADIO_STATIONS,type VerseRadioState} from '../runtime/VerseRadioRuntime'
 import {createTransitDisplay,transitDisplayText,updateTransitDisplay,type StreetVerseTransitMode,type TransitDisplayPage} from '../runtime/StreetVerseTransitDisplayRuntime'
 import {createStreetVerseCabinDirector} from '../runtime/StreetVerseCabinCameraDirector'
 import {boardWalkway,createAirportWalkway,emergencyStopWalkway,leaveWalkway,resetWalkway,setWalkwayRunning,tickAirportWalkway,type WalkwayState} from '../runtime/StreetVerseAirportWalkwayRuntime'
@@ -15,6 +16,16 @@ export default function StreetVerseTransportScreenLab({onClose}:{onClose:()=>voi
  const [camera,setCamera]=useState('exterior')
  const [channelId,setChannelId]=useState<TryammNetworkChannelId>('streetverse-local-tv')
  const [mediaMode,setMediaMode]=useState<'tv'|'radio'>('tv')
+ const [radio,setRadio]=useState<VerseRadioState|null>(null)
+ const [station,setStation]=useState('streetverse-radio')
+ useEffect(()=>{
+  const onRadioState=(event:Event)=>{const next=(event as CustomEvent<VerseRadioState>).detail;if(next){setRadio(next);setStation(next.station)}}
+  addEventListener('tryamm:verse-radio-state',onRadioState)
+  const existing=(window as typeof window&{__TRYAMM_VERSE_RADIO__?:{getState:()=>VerseRadioState}}).__TRYAMM_VERSE_RADIO__
+  if(existing){const current=existing.getState();setRadio(current);setStation(current.station)}
+  return()=>removeEventListener('tryamm:verse-radio-state',onRadioState)
+ },[])
+ const openStation=(id:string)=>{setMediaMode('radio');setStation(id);window.dispatchEvent(new CustomEvent('tryamm:verse-radio-station',{detail:{station:id}}));window.dispatchEvent(new Event('tryamm:verse-radio-open'))}
  const [walkway,setWalkway]=useState<WalkwayState>(()=>createAirportWalkway('airport-demo'))
  const director=useMemo(()=>createStreetVerseCabinDirector('streetverse-transit-lab'),[mode])
  const text=transitDisplayText(display)
@@ -60,9 +71,21 @@ export default function StreetVerseTransportScreenLab({onClose}:{onClose:()=>voi
      <select value={channelId} onChange={e=>setChannelId(e.target.value as TryammNetworkChannelId)} style={{width:'100%',padding:10,borderRadius:8,background:'#1c3645',color:'#fff',border:'1px solid #52718d'}}>{TRYAMM_NETWORK_CHANNELS.filter(x=>x.familySafe).map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select>
      <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:8}}>
       <button style={btn} onClick={()=>setMediaMode('tv')}>TV CHANNEL</button>
-      <button style={btn} onClick={()=>{setMediaMode('radio');window.dispatchEvent(new Event('tryamm:verse-radio-open'))}}>OPEN VERSE RADIO</button>
+      <button style={btn} onClick={()=>openStation('streetverse-radio')}>TUNE STREETVERSE RADIO</button>
       <button style={btn} onClick={()=>window.dispatchEvent(new Event('tryamm:broadcast-os-request'))}>REFRESH BROADCAST OS</button>
      </div>
+     {mediaMode==='radio'&&<div aria-live="polite" style={{border:'1px solid #557a8b',borderRadius:9,padding:9,marginTop:8,fontSize:12}}>
+       <b>STREETVERSE INTERNET RADIO • {radio?.playing?'ON AIR / PLAYING':radio?.needsTap?'TAP PLAY':'NOT PLAYING'}</b>
+       <div style={{margin:'5px 0'}}>Station: {radio?.station||station} • {radio?.track?.title||'No authorized track selected'} {radio?.track?.artist?'— '+radio.track.artist:''}</div>
+       <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+         <select aria-label="Radio station" value={station} onChange={e=>openStation(e.target.value)} style={{...btn,flex:'1 1 160px'}}>{VERSE_RADIO_STATIONS.map(s=><option key={s.id} value={s.id}>{s.label}</option>)}</select>
+         <button style={btn} onClick={()=>window.dispatchEvent(new Event('tryamm:verse-radio-resume'))}>▶ PLAY / RESUME</button>
+         <button style={btn} onClick={()=>window.dispatchEvent(new Event('tryamm:verse-radio-pause'))}>Ⅱ PAUSE</button>
+       </div>
+       <label style={{fontSize:11,display:'block',marginTop:8}}>Radio volume: {Math.round((radio?.volume??.82)*100)}%</label>
+       <input aria-label="Radio volume" type="range" min="0" max="100" value={Math.round((radio?.volume??.82)*100)} onChange={e=>window.dispatchEvent(new CustomEvent('tryamm:verse-radio-volume',{detail:{volume:Number(e.target.value)/100}}))} style={{width:'100%'}}/>
+       <small style={{display:'block',color:'#a9bfd2'}}>The existing Verse Radio player handles internet audio. Select an authorized track through MusicVerse before playback; station selection does not fabricate a live stream.</small>
+     </div>}
      <p style={{fontSize:11,color:'#b5ccd7'}}>Source: existing TRYAMM Broadcast OS / Verse Radio. Channel selection alone does not start live video or licensed audio. Advertising slots require paid approval, rights clearance and clear ADVERTISEMENT labels; no ad is served automatically.</p>
     </section>
     <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7,marginTop:12}}>
