@@ -2,6 +2,7 @@ import {useEffect,useMemo,useRef,useState,type CSSProperties} from 'react'
 import {createPortal} from 'react-dom'
 import * as THREE from 'three'
 import {checkHoloCADXRSupport,getXRAPI,type HoloCADXRMode,type HoloCADXRSupport} from '../game/holocad/holocadXRSupport'
+import {diagnoseHoloCADTraining} from '../game/holocad/holocadTrainingDiagnostics'
 import {
  HOLOCAD_LIVING_PRESETS,HOLOCAD_SUBJECT_ORDER,layoutHoloCAD,
  type HoloCADSubject,type HoloCADPart,type HoloCADLayer
@@ -15,6 +16,11 @@ const control:CSSProperties={
 const clamp=(n:number,a:number,b:number)=>Math.min(b,Math.max(a,n))
 const displayLayer=(s:string)=>s.replaceAll('-',' ').toUpperCase()
 const safeLabel=(id:string)=>id.replaceAll('-',' ')
+const HOLOCAD_SUBJECT_ICONS:Record<HoloCADSubject,string>={
+ human:'🧍',canine:'🐕',automobile:'🚗',building:'🏠',aircraft:'✈️',
+ spacecraft:'🚀',satellite:'🛰️',drone:'🛸','humanoid-robot':'🤖',
+ 'robot-dog':'🐕‍🦺',rover:'🪐',exoskeleton:'🦾','robotic-arm':'🦾'
+}
 
 export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()=>void}){
  const [subject,setSubject]=useState<HoloCADSubject>('human')
@@ -29,6 +35,7 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
  const [xrMode,setXRMode]=useState<HoloCADXRMode|null>(null)
  const [xrStatus,setXRStatus]=useState('AR and VR require a supported device and a secure HTTPS page.')
  const [revealOnly,setRevealOnly]=useState(false)
+ const [showDiagnostics,setShowDiagnostics]=useState(false)
  const host=useRef<HTMLDivElement|null>(null)
  const runtime=useRef<{
   draw:()=>void
@@ -42,6 +49,8 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
  const layerOptions=useMemo(()=>[...new Set(data.parts.map(p=>p.layer))],[data])
  const hiddenCount=data.parts.filter(p=>!layers.includes(p.layer)).length
  const damagedCount=damaged.filter(id=>data.parts.some(p=>p.id===id)).length
+ const diagnostic=useMemo(()=>diagnoseHoloCADTraining(subject,new Set(detached),new Set(damaged)),[subject,detached,damaged])
+ const catalogPartCount=HOLOCAD_SUBJECT_ORDER.reduce((n,id)=>n+HOLOCAD_LIVING_PRESETS[id].parts.length,0)
 
  useEffect(()=>{
   let alive=true
@@ -58,6 +67,7 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
   setExplode(0)
   setDetached([])
   setDamaged([])
+  setShowDiagnostics(false)
   setLayers([...new Set(HOLOCAD_LIVING_PRESETS[subject].parts.map(p=>p.layer))])
   setStatus('Loaded '+HOLOCAD_LIVING_PRESETS[subject].title+'. Schematic training environment only.')
  },[subject])
@@ -78,7 +88,9 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
   const scene=new THREE.Scene()
   scene.background=new THREE.Color('#071321')
   const camera=new THREE.PerspectiveCamera(43,1,.1,120)
-  const sceneCenter=subject==='building'?1.5:subject==='human'?1.3:subject==='canine'?.9:1.0
+  const sceneCenter=subject==='building'?1.5:
+    ['human','humanoid-robot','exoskeleton','robotic-arm'].includes(subject)?1.3:
+    ['canine','robot-dog','drone'].includes(subject)?0.9:1.1
   camera.position.set(5,3.3,7)
   camera.lookAt(0,sceneCenter,0)
   const root=new THREE.Group()
@@ -107,20 +119,20 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
       color:part.color,
       transparent:part.opacity<1,
       opacity:part.opacity,
-      roughness:.55,metalness:subject==='automobile'?.28:.04,
+      roughness:.55,metalness:subject==='human'||subject==='canine'?.04:.22,
       depthWrite:part.opacity>=.8,side:THREE.DoubleSide
     })
     const mesh=new THREE.Mesh(getGeometry(part.shape),material)
     mesh.name=part.id
     mesh.scale.set(...part.size)
-    if(subject==='automobile'&&part.id.includes('wheel'))mesh.rotation.x=Math.PI/2
+    if((subject==='automobile'||subject==='rover')&&part.id.includes('wheel'))mesh.rotation.x=Math.PI/2
     mesh.userData.part=part
     root.add(mesh);meshById.set(part.id,mesh)
   }
   const selectRay=new THREE.Raycaster(),mouse=new THREE.Vector2()
   let dragX=0,dragY=0,moved=false,down=false
   let yaw=subject==='canine'?.12:.28,pitch=0
-  let distance=subject==='building'?9.6:subject==='automobile'?8.2:7.1
+  let distance=subject==='building'?9.6:subject==='automobile'||subject==='aircraft'||subject==='spacecraft'?8.2:7.1
   let animationFrame=0
   let disposed=false
   const draw=()=>{
@@ -338,7 +350,7 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
   setStatus(damaged.includes(part.id)?'Simulated repair complete: '+part.label:'Simulated damage flagged: '+part.label+'. No real object affected.')
  }
  const reset=()=>{
-  setExplode(0);setDetached([]);setDamaged([]);setRevealOnly(false)
+  setExplode(0);setDetached([]);setDamaged([]);setRevealOnly(false);setShowDiagnostics(false)
   setLayers([...new Set(data.parts.map(p=>p.layer))])
   setStatus('Reassembled the digital teaching model. No save or gameplay mutation.')
  }
@@ -349,6 +361,7 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
     certifiableMedicalDevice:false,certifiedVehicleRepair:false,engineeredConstructionDrawing:false,
     generatedAt:new Date().toISOString(),explosion:explode,
     detachedIds:detached,trainingDamageIds:damaged,visibleLayers:layers,
+    trainingDiagnostic:{status:diagnostic.status,affectedParts:diagnostic.affectedParts,exerciseIntegrityPercent:diagnostic.exerciseIntegrityPercent},
     parts:data.parts.map(({id,label,layer,shape,position,size,explode,description})=>({
       id,label,layer,shape,position,size,explode,description
     }))
@@ -370,14 +383,14 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
    <header style={{display:'flex',alignItems:'start',justifyContent:'space-between',gap:10}}>
     <div><div style={{fontWeight:900,fontSize:10,color:'#7de4ff',letterSpacing:2}}>STREETVERSE ENGINEERING / HOLOGRAPHIC CAD</div>
      <h2 style={{fontSize:24,margin:'4px 0'}}>🧬 LIVING SYSTEMS LAB</h2>
-     <p style={{fontSize:11,color:'#b4d7ed',margin:'5px 0'}}>81 selectable parts across four original 3D schematic subjects • Chromebook/one-hand friendly</p>
+     <p style={{fontSize:11,color:'#b4d7ed',margin:'5px 0'}}>{catalogPartCount} selectable schematic parts • {HOLOCAD_SUBJECT_ORDER.length} subjects • aerospace, robotics, anatomy, vehicles and buildings</p>
     </div>
     <button aria-label="Close HoloCAD Lab" onClick={onClose} style={control}>CLOSE ×</button>
    </header>
    <div style={{display:'flex',gap:7,overflowX:'auto',padding:'12px 0'}}>
     {HOLOCAD_SUBJECT_ORDER.map(key=><button key={key} aria-pressed={subject===key} onClick={()=>setSubject(key)}
       style={{...control,minWidth:100,background:subject===key?'#14567c':'#13263b'}}>{
-      key==='human'?'🧍 HUMAN':key==='canine'?'🐕 ANIMAL':key==='automobile'?'🚘 VEHICLE':'🏠 BUILDING'
+      HOLOCAD_SUBJECT_ICONS[key]+' '+HOLOCAD_LIVING_PRESETS[key].title
     }</button>)}
    </div>
    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,360px),1fr))',gap:12}}>
@@ -408,6 +421,7 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
       <button style={control} onClick={()=>setExplode(1.7)}>EXPLODE ALL</button>
       <button style={control} onClick={reset}>REASSEMBLE / RESET</button>
       <button style={control} onClick={exportManifest}>EXPORT PARTS MANIFEST</button>
+      <button style={control} aria-pressed={showDiagnostics} onClick={()=>{setShowDiagnostics(value=>!value);setStatus('Subsystem integrity is calculated from training markers only, not actual sensor telemetry.')}}>🔎 RUN SANDBOX DIAGNOSTICS</button>
      </div>
      <p style={{fontSize:10,color:'#9bc9dd',lineHeight:1.5}}>{data.subtitle}. Shapes are illustrative, not measured medical anatomy or certified engineering drawings.</p>
     </div>
@@ -431,6 +445,18 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
         {p.label}{detached.includes(p.id)?' • OUT':''}{damaged.includes(p.id)?' • FAULT':''}
        </button>)}
       </div>
+      {showDiagnostics&&<section aria-label="HoloCAD training diagnostics" style={{border:'1px solid #5ab7d677',borderRadius:12,padding:10,marginTop:12,background:'#071723'}}>
+       <div style={{fontSize:13,fontWeight:900}}>ILLUSTRATIVE SUBSYSTEM CHECK</div>
+       <div role="status" aria-label="Simulated model integrity" style={{fontSize:11,marginTop:7}}>
+        TRAINING COMPLETENESS {diagnostic.exerciseIntegrityPercent}% • {diagnostic.affectedParts} marked or detached part(s) of {diagnostic.totalParts}. This is not physical system health.
+       </div>
+       <div style={{display:'flex',flexWrap:'wrap',gap:6,marginTop:9}}>
+        {diagnostic.subsystemGroups.map(g=><span key={g.layer} style={{padding:'5px 7px',borderRadius:8,background:g.affectedCount?'#71323b':'#145248',fontSize:10}}>{displayLayer(g.layer)} {g.partCount-g.affectedCount}/{g.partCount}</span>)}
+       </div>
+       <div style={{fontSize:10,color:'#d5e8f1',lineHeight:1.6,marginTop:9}}>
+        {diagnostic.steps.map(step=><div key={step}>{step}</div>)}
+       </div>
+      </section>}
       <div style={{borderTop:'1px solid #36738a',marginTop:12,paddingTop:12}}>
        <div style={{fontSize:16,fontWeight:900}}>{part.label}</div>
        <div style={{fontSize:10,color:'#8ceaff',padding:'4px 0'}}>PART ID {part.id} • {displayLayer(part.layer)}</div>
@@ -452,8 +478,9 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
     diagnosed, physically altered or harmed. Damage and repair are reversible simulations;
     parts are not purchasable or owned inventory. For anatomical, veterinary, electrical,
     building-code or vehicle-service decisions use verified professional sources and supervision.
-    VR/AR, physics, full-body rig bindings, accurate tissue simulation, manufacturing toolpaths
-    and mission rewards require future validation.
+    Aerospace and robotics models include no propulsion calculations, autonomous-control code,
+    flightworthiness, medical-device certification, executable manufacturing toolpaths or real sensor data.
+    Jetson/ROS connections, physics, full-body rig bindings and mission rewards require future validation.
    </p>
   </div>
  </div>,document.body)
