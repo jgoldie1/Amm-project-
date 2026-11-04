@@ -1,6 +1,7 @@
 import {useEffect,useMemo,useRef,useState,type CSSProperties} from 'react'
 import {createPortal} from 'react-dom'
 import * as THREE from 'three'
+import {checkHoloCADXRSupport,getXRAPI,type HoloCADXRMode,type HoloCADXRSupport} from '../game/holocad/holocadXRSupport'
 import {
  HOLOCAD_LIVING_PRESETS,HOLOCAD_SUBJECT_ORDER,layoutHoloCAD,
  type HoloCADSubject,type HoloCADPart,type HoloCADLayer
@@ -24,14 +25,31 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
  const [layers,setLayers]=useState<HoloCADLayer[]>(['shell','muscle','skeleton','organs','circulation'])
  const [status,setStatus]=useState('Choose a part, inspect it, separate it, or practice a simulated repair.')
  const [renderStatus,setRenderStatus]=useState('Starting HoloCAD 3D…')
+ const [xrSupport,setXRSupport]=useState<HoloCADXRSupport>({ar:false,vr:false,reason:'Checking device WebXR support…'})
+ const [xrMode,setXRMode]=useState<HoloCADXRMode|null>(null)
+ const [xrStatus,setXRStatus]=useState('AR and VR require a supported device and a secure HTTPS page.')
  const [revealOnly,setRevealOnly]=useState(false)
  const host=useRef<HTMLDivElement|null>(null)
- const runtime=useRef<{draw:()=>void;meshById:Map<string,THREE.Mesh>;dispose:()=>void}|null>(null)
+ const runtime=useRef<{
+  draw:()=>void
+  meshById:Map<string,THREE.Mesh>
+  dispose:()=>void
+  enterXR:(mode:HoloCADXRMode)=>Promise<void>
+  exitXR:()=>Promise<void>
+ }|null>(null)
  const data=HOLOCAD_LIVING_PRESETS[subject]
  const part=useMemo(()=>data.parts.find(p=>p.id===selected)||data.parts[0],[data,selected])
  const layerOptions=useMemo(()=>[...new Set(data.parts.map(p=>p.layer))],[data])
  const hiddenCount=data.parts.filter(p=>!layers.includes(p.layer)).length
  const damagedCount=damaged.filter(id=>data.parts.some(p=>p.id===id)).length
+
+ useEffect(()=>{
+  let alive=true
+  void checkHoloCADXRSupport(navigator,window.isSecureContext).then(support=>{
+   if(alive)setXRSupport(support)
+  })
+  return()=>{alive=false}
+ },[])
 
  useEffect(()=>{
   setSelected(HOLOCAD_LIVING_PRESETS[subject].parts.find(p=>p.layer==='organs')?.id||
@@ -49,13 +67,14 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
   if(!element)return
   let renderer:THREE.WebGLRenderer
   try{
-   renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'low-power'})
+   renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'low-power',alpha:true})
   }catch{
    setRenderStatus('3D graphics unavailable on this device. Use the accessible parts list below.')
    return
   }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.25))
   renderer.outputColorSpace=THREE.SRGBColorSpace
+  renderer.setClearAlpha(1)
   const scene=new THREE.Scene()
   scene.background=new THREE.Color('#071321')
   const camera=new THREE.PerspectiveCamera(43,1,.1,120)
@@ -114,7 +133,7 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
     const z=Math.cos(yaw)*Math.cos(pitch)*distance
     camera.position.set(x,sceneCenter+Math.sin(pitch)*distance,z)
     camera.lookAt(0,sceneCenter,0)
-    renderer.render(scene,camera)
+    if(!renderer.xr.isPresenting)renderer.render(scene,camera)
   }
   const updatePointer=(event:PointerEvent)=>{
     const rect=element.getBoundingClientRect()
@@ -154,8 +173,121 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
   element.addEventListener('pointercancel',onUp)
   element.addEventListener('wheel',onWheel,{passive:false})
   window.addEventListener('resize',onResize)
+  // Real WebXR sessions are opt-in and only requested from user clicks.
+  // No desktop-camera imitation is presented as augmented reality.
+  type Session=EventTarget&{end:()=>Promise<void>}
+  let activeSession:Session|null=null
+  let controllers:Array<{
+   controller:THREE.Group
+   onSelect:()=>void
+   onSqueeze:()=>void
+   beam:THREE.Line
+  }>=[]
+  const releaseControllers=()=>{
+   for(const item of controllers){
+    item.controller.removeEventListener('select',item.onSelect)
+    item.controller.removeEventListener('squeeze',item.onSqueeze)
+    item.controller.remove(item.beam)
+    item.beam.geometry.dispose()
+    ;(item.beam.material as THREE.Material).dispose()
+    scene.remove(item.controller)
+   }
+   controllers=[]
+  }
+  const resetXR=()=>{
+   activeSession?.removeEventListener('end',onSessionEnd)
+   activeSession=null
+   renderer.setAnimationLoop(null)
+   renderer.xr.enabled=false
+   releaseControllers()
+   root.scale.setScalar(1)
+   root.position.set(0,0,0)
+   scene.background=new THREE.Color('#071321')
+   floor.visible=true
+   renderer.setClearAlpha(1)
+   if(!disposed){
+    setXRMode(null)
+    setXRStatus('Immersive session ended. 3D teardown and all part controls are preserved.')
+    draw()
+   }
+  }
+  const onSessionEnd=()=>resetXR()
+  const enterXR=async(mode:HoloCADXRMode)=>{
+   if(disposed||activeSession)return
+   if(!window.isSecureContext){
+    setXRStatus('WebXR requires HTTPS or localhost. Standard 3D is still available.')
+    return
+   }
+   const api=getXRAPI(navigator)
+   if(!api){
+    setXRStatus('WebXR unsupported here. Rotate and inspect the 3D parts on this device instead.')
+    return
+   }
+   const features=mode==='immersive-ar'
+    ?{optionalFeatures:['local-floor','dom-overlay'],domOverlay:{root:document.body}}
+    :{optionalFeatures:['local-floor','bounded-floor']}
+   let requested:Session|null=null
+   try{
+    // This call happens synchronously from the real user click before the first await.
+    requested=await api.requestSession(mode,features) as Session
+    if(disposed){void requested.end();return}
+    renderer.xr.enabled=true
+    await renderer.xr.setSession(requested as Parameters<typeof renderer.xr.setSession>[0])
+    activeSession=requested
+    activeSession.addEventListener('end',onSessionEnd)
+    const ar=mode==='immersive-ar'
+    root.scale.setScalar(ar?.29:.46)
+    root.position.set(0,ar?-.48:-.45,ar?-1.45:-2.2)
+    floor.visible=!ar
+    scene.background=ar?null:new THREE.Color('#071321')
+    renderer.setClearAlpha(ar?0:1)
+    controllers=[0,1].map(index=>{
+     const controller=renderer.xr.getController(index)
+     scene.add(controller)
+     const beam=new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(0,0,-4)]),
+      new THREE.LineBasicMaterial({color:0x6ee7ff,transparent:true,opacity:.78})
+     )
+     controller.add(beam)
+     const onSelect=()=>{
+      controller.updateMatrixWorld(true)
+      const ray=new THREE.Raycaster()
+      ray.ray.origin.setFromMatrixPosition(controller.matrixWorld)
+      ray.ray.direction.set(0,0,-1).transformDirection(controller.matrixWorld)
+      const hit=ray.intersectObjects([...meshById.values()].filter(mesh=>mesh.visible),false)[0]
+      if(hit?.object.name){
+       setSelected(hit.object.name)
+       setXRStatus('Selected '+safeLabel(hit.object.name)+'. Use normal controls after exiting XR.')
+      }
+     }
+     const onSqueeze=()=>{
+      setExplode(previous=>previous>=1.65?0:Math.min(1.7,Math.round((previous+.25)*100)/100))
+     }
+     controller.addEventListener('select',onSelect)
+     controller.addEventListener('squeeze',onSqueeze)
+     return{controller,onSelect,onSqueeze,beam}
+    })
+    renderer.setAnimationLoop(()=>renderer.render(scene,camera))
+    setXRMode(mode)
+    setXRStatus(ar
+     ?'AR active: a small illustrative model appears in front of you, not a world-anchored medical hologram. Use controller/select to inspect.'
+     :'VR active: look around the schematic model. Trigger selects a component; squeeze cycles teardown separation.')
+   }catch(err){
+    if(requested&&!activeSession){try{await requested.end()}catch{}}
+    resetXR()
+    const name=err instanceof Error?err.name:'WebXR error'
+    setXRStatus('Could not start '+(mode==='immersive-ar'?'AR':'VR')+' ('+name+'). Use regular 3D or another compatible browser/headset.')
+   }
+  }
+  const exitXR=async()=>{
+   if(!activeSession)return
+   try{await activeSession.end()}catch{resetXR()}
+  }
   const dispose=()=>{
     disposed=true
+    if(activeSession){const oldSession=activeSession;activeSession.removeEventListener('end',onSessionEnd);activeSession=null;void oldSession.end().catch(()=>{})}
+    renderer.setAnimationLoop(null)
+    releaseControllers()
     cancelAnimationFrame(animationFrame)
     element.removeEventListener('pointerdown',onDown)
     element.removeEventListener('pointermove',onMove)
@@ -170,7 +302,7 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
     renderer.dispose()
     if(renderer.domElement.parentElement===element)element.removeChild(renderer.domElement)
   }
-  runtime.current={draw,meshById,dispose}
+  runtime.current={draw,meshById,dispose,enterXR,exitXR}
   animationFrame=requestAnimationFrame(()=>{draw();setRenderStatus('3D scene ready • drag to orbit • tap to inspect • scroll to zoom')})
   return()=>{dispose();runtime.current=null}
  },[data,subject])
@@ -250,6 +382,20 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
       <div ref={host} role="img" aria-label={'Interactive rotatable 3D '+data.title+' exploded diagram'} style={{height:'min(45dvh,390px)',minHeight:235,touchAction:'none',cursor:'grab'}}/>
       <div style={{fontSize:10,color:'#a6dff0',padding:9}}>{renderStatus}</div>
      </div>
+     <section aria-label="HoloCAD augmented and virtual reality" style={{marginTop:10,padding:10,borderRadius:12,border:'1px solid #4fc8ed77',background:'#071b2b'}}>
+      <div style={{fontWeight:900,fontSize:12,marginBottom:7}}>🥽 IMMERSIVE HOLOGRAPHIC CAD • AR / VR</div>
+      <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+       <button type="button" aria-label="Enter HoloCAD augmented reality" disabled={!xrSupport.ar||Boolean(xrMode)}
+        onClick={()=>{void runtime.current?.enterXR('immersive-ar')}} style={{...control,opacity:xrSupport.ar&&!xrMode?1:.5}}>📱 ENTER AR</button>
+       <button type="button" aria-label="Enter HoloCAD virtual reality" disabled={!xrSupport.vr||Boolean(xrMode)}
+        onClick={()=>{void runtime.current?.enterXR('immersive-vr')}} style={{...control,opacity:xrSupport.vr&&!xrMode?1:.5}}>🥽 ENTER VR</button>
+       <button type="button" aria-label="Exit HoloCAD immersive session" disabled={!xrMode}
+        onClick={()=>{void runtime.current?.exitXR()}} style={{...control,opacity:xrMode?1:.5}}>EXIT XR</button>
+      </div>
+      <div role="status" aria-label="WebXR compatibility" style={{fontSize:10,lineHeight:1.5,color:'#add8e5',marginTop:7}}>{xrSupport.reason}</div>
+      <div role="status" aria-label="HoloCAD immersive session status" style={{fontSize:11,lineHeight:1.5,color:'#e5f9ff',marginTop:5}}>{xrStatus}</div>
+      <div style={{fontSize:10,color:'#a3c5d2',marginTop:5}}>AR is an illustrative floating object, not depth-aware placement. In supported headsets, select a part with a trigger and change teardown distance with squeeze. Chromebook mouse/touch 3D works without XR.</div>
+     </section>
      <label style={{fontWeight:900,fontSize:12,display:'block',marginTop:13}} htmlFor="holocad-teardown">EXPLODE / TEAR APART • {Math.round(explode/1.7*100)}%</label>
      <input id="holocad-teardown" type="range" min="0" max="1.7" step=".05" value={explode}
       onChange={event=>setExplode(Number(event.target.value))}
