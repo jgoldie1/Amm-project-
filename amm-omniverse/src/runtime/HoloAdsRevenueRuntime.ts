@@ -11,7 +11,7 @@ export const HOLO_AD_PRODUCTS:HoloAdProduct[]=[
 
 import {TRYAMM_PLACEMENT_SURFACES,type PlacementSurface} from './TryammPlacementBriefRuntime'
 export type HoloAdDraftInput={productId?:string;market?:string;objective?:string;advertiserName?:string;productName?:string;concept?:string;surfaces?:string[]}
-const sanitized=(v:unknown,max:number)=>String(v??'').replace(/[<>\\u0000-\\u001f]/g,'').trim().slice(0,max)
+const sanitized=(v:unknown,max:number)=>String(v??'').replace(/[<>\u0000-\u001f]/g,'').trim().slice(0,max)
 /** Client preview only; no inventory reservation, payment or automatic publication. */
 export function prepareHoloAdDraft(input:HoloAdDraftInput){
  const product=HOLO_AD_PRODUCTS.find(p=>p.id===input.productId)
