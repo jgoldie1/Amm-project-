@@ -78,7 +78,7 @@ export default function StreetVerseTowerConnections(){
    </div>
    {error&&<p role="alert" style={{fontSize:10,color:'#ffb69d'}}>Status error: {error}</p>}
    <div style={{display:'grid',gap:6,marginTop:10}}>
-    <button style={btn} onClick={()=>{setOpen(false);const host=window.open('/live?format=gamecast&role=host&from=quantum-tower','_blank','noopener,noreferrer');if(!host)window.dispatchEvent(new CustomEvent('tryamm:live-center-open',{detail:{source:'quantum-tower',format:'gamecast'}}))}}>📡 OPEN GAMECAST HOST TAB</button>
+    <button style={btn} onClick={()=>{setOpen(false);const host=window.open('/live?format=gamecast&role=host&from=quantum-tower','_blank');if(host)try{host.opener=null}catch{};if(!host)window.dispatchEvent(new CustomEvent('tryamm:live-center-open',{detail:{source:'quantum-tower',format:'gamecast'}}))}}>📡 OPEN GAMECAST HOST TAB</button>
     <button style={btn} onClick={()=>window.dispatchEvent(new Event('tryamm:mod-pass-open'))}>🧩 OPEN MOD PASS</button>
     <button style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'quantum-tower'}}))}>🎥 OPEN REEL CREATOR</button>
     <button style={btn} onClick={()=>window.location.assign('/network/broadcast-os')}>📺 BROADCAST NETWORK</button>
