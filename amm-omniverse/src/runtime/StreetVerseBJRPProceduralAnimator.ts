@@ -46,7 +46,7 @@ export function createStreetVerseBJRPProceduralAnimator(root:THREE.Object3D){
   const spine=findNode(root,[/rig[-_ ]?spine/i,/spine2?/i,/upperchest/i,/chest/i,/torso/i])
   const relevant=[right,left,rightLeg,leftLeg,head,spine].filter((node):node is THREE.Object3D=>Boolean(node))
   const rest=new Map<THREE.Object3D,THREE.Euler>()
-  let active:{pose:GesturePose;start:number;until:number;strength:number;speed:number;phase:number}|null=null
+  let active:{pose:GesturePose;start:number;until:number;strength:number;speed:number;phase:number;variant:boolean}|null=null
 
   const stop=()=>{
     for(const [node,rotation] of rest)node.rotation.copy(rotation)
@@ -64,7 +64,7 @@ export function createStreetVerseBJRPProceduralAnimator(root:THREE.Object3D){
     if((pose==='laugh'||pose==='bow')&&!spine&&!head)return false
     for(const node of relevant)rest.set(node,node.rotation.clone())
     const start=performance.now()
-    active={pose,start,until:start+Math.min(9000,Math.max(600,loop?6500:durationMs)),strength:recipe?.strength||1,speed:recipe?.speed||1,phase:recipe?.phase||0}
+    active={pose,start,until:start+Math.min(9000,Math.max(600,loop?6500:durationMs)),strength:recipe?.strength||1,speed:recipe?.speed||1,phase:recipe?.phase||0,variant:Boolean(recipe)}
     return true
   }
   const tick=(nowMs:number)=>{
@@ -78,7 +78,8 @@ export function createStreetVerseBJRPProceduralAnimator(root:THREE.Object3D){
       if(!node)return
       const base=rest.get(node)
       if(!base)return
-      node.rotation.set(base.x+x,base.y+y,base.z+z,base.order)
+      const weight=active.variant?active.strength*(1+Math.sin(elapsed*1.5*active.speed+active.phase)*.045):1
+      node.rotation.set(base.x+x*weight,base.y+y*weight,base.z+z*weight,base.order)
     }
     switch(pose){
       case 'wave':set(right,-.65+phase*.28,-.86);break
