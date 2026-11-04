@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import {STREETVERSE_RP_EXTRA_POSE_MAP,type RPExtraPose} from '../data/streetVerseRPExtra50'
 
 /**
  * Visible, temporary gestures on the actual rendered BJ rig.
@@ -6,9 +7,7 @@ import * as THREE from 'three'
  * A gesture only returns true when the bones it needs are present.
  * Combat/boxing and Shadow Box are intentionally out of scope.
  */
-type GesturePose =
-  'wave'|'handshake'|'hug'|'laugh'|'argue'|'sit'|'dance'|'victory'|
-  'pray'|'mechanic'|'scan'|'radio'|'medical'|'basketball'|'pose'|'perform'
+type GesturePose=RPExtraPose
 
 export const BJ_RP_PROCEDURAL_POSES:Readonly<Record<string,GesturePose>>={
   'wave-friendly':'wave',
@@ -47,7 +46,7 @@ export function createStreetVerseBJRPProceduralAnimator(root:THREE.Object3D){
   const spine=findNode(root,[/rig[-_ ]?spine/i,/spine2?/i,/upperchest/i,/chest/i,/torso/i])
   const relevant=[right,left,rightLeg,leftLeg,head,spine].filter((node):node is THREE.Object3D=>Boolean(node))
   const rest=new Map<THREE.Object3D,THREE.Euler>()
-  let active:{pose:GesturePose;start:number;until:number}|null=null
+  let active:{pose:GesturePose;start:number;until:number;strength:number;speed:number;phase:number}|null=null
 
   const stop=()=>{
     for(const [node,rotation] of rest)node.rotation.copy(rotation)
@@ -56,23 +55,24 @@ export function createStreetVerseBJRPProceduralAnimator(root:THREE.Object3D){
   }
   const play=(actionId:string,loop=false,durationMs=2600):boolean=>{
     stop()
-    if(!Object.prototype.hasOwnProperty.call(BJ_RP_PROCEDURAL_POSES,actionId))return false
-    const pose=BJ_RP_PROCEDURAL_POSES[actionId]
+    const recipe=STREETVERSE_RP_EXTRA_POSE_MAP[actionId]
+    if(!recipe&&!Object.prototype.hasOwnProperty.call(BJ_RP_PROCEDURAL_POSES,actionId))return false
+    const pose=recipe?.pose||BJ_RP_PROCEDURAL_POSES[actionId]
     if(['wave','handshake','scan','radio','perform'].includes(pose)&&!right)return false
-    if(['hug','argue','dance','victory','pray','mechanic','medical','basketball','pose'].includes(pose)&&(!left||!right))return false
+    if(['hug','argue','dance','victory','pray','mechanic','medical','basketball','pose','clap'].includes(pose)&&(!left||!right))return false
     if(pose==='sit'&&(!leftLeg||!rightLeg||!spine))return false
-    if(pose==='laugh'&&!spine&&!head)return false
+    if((pose==='laugh'||pose==='bow')&&!spine&&!head)return false
     for(const node of relevant)rest.set(node,node.rotation.clone())
     const start=performance.now()
-    active={pose,start,until:start+Math.min(9000,Math.max(600,loop?6500:durationMs))}
+    active={pose,start,until:start+Math.min(9000,Math.max(600,loop?6500:durationMs)),strength:recipe?.strength||1,speed:recipe?.speed||1,phase:recipe?.phase||0}
     return true
   }
   const tick=(nowMs:number)=>{
     if(!active)return
     if(nowMs>=active.until){stop();return}
     const elapsed=(nowMs-active.start)/1000
-    const phase=Math.sin(elapsed*8.4)
-    const sway=Math.sin(elapsed*4)
+    const phase=Math.sin(elapsed*8.4*active.speed+active.phase)*active.strength
+    const sway=Math.sin(elapsed*4*active.speed+active.phase)*active.strength
     const {pose}=active
     const set=(node:THREE.Object3D|null,x:number,z:number,y=0)=>{
       if(!node)return
@@ -96,6 +96,8 @@ export function createStreetVerseBJRPProceduralAnimator(root:THREE.Object3D){
       case 'basketball':set(right,-.55+phase*.25,-.15);set(left,-.36,.14);break
       case 'perform':set(right,-.84,-.17);set(spine,0,sway*.06);break
       case 'pose':set(right,-.34,-.25);set(left,-.32,.25);break
+      case 'clap':set(right,-.58+phase*.13,-.44+phase*.12);set(left,-.58-phase*.13,.44-phase*.12);break
+      case 'bow':set(spine,.36+Math.abs(sway)*.08,0);set(head,.10,0);break
       case 'dance':set(right,-.42+phase*.23,-.36);set(left,-.42-phase*.23,.36);set(spine,0,sway*.08);break
     }
   }
