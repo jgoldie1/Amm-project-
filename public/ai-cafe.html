@@ -42,7 +42,7 @@ document.getElementById('leadForm').addEventListener('submit',async event=>{
     email:document.getElementById('email').value,interest:document.getElementById('interest').value,locale:locale.value,country:document.getElementById('country').value,consent:document.getElementById('consent').checked,marketingOptIn:document.getElementById('marketing').checked,campaignId:(params.get('campaign')||'').slice(0,100)
   })});
   if(!response.ok)throw Error('Submission failed');
-  out.textContent=phrases[locale.value][11];document.getElementById('leadForm').reset();locale.value=document.documentElement.lang;
+  out.textContent=phrases[locale.value][11];const chosen=locale.value;document.getElementById('leadForm').reset();locale.value=chosen;
  }catch{out.textContent=phrases[locale.value][12]}finally{button.disabled=false}
 });
 </script></body></html>
