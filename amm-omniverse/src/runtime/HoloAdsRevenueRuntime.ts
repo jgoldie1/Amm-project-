@@ -18,7 +18,12 @@ export function installHoloAdsRevenueRuntime(){
  window.addEventListener('tryamm:holo-ads-create-campaign',(e:Event)=>{
    const d=(e as CustomEvent<any>).detail||{}
    const product=HOLO_AD_PRODUCTS.find(p=>p.id===String(d.productId||''))
-   window.dispatchEvent(new CustomEvent('tryamm:holo-ads-campaign-draft',{detail:{id:`ad-${Date.now()}`,product,market:d.market||'global',objective:d.objective||'awareness',status:'draft',billingStatus:'provider-gated'}}))
+   if(!product){
+     window.dispatchEvent(new CustomEvent('tryamm:holo-ads-campaign-rejected',{detail:{reason:'unsupported_holo_ads_product'}}))
+     return
+   }
+   // Preview-only draft data is neither stored in a campaign service nor billed.
+   window.dispatchEvent(new CustomEvent('tryamm:holo-ads-campaign-draft',{detail:{id:`ad-${Date.now()}`,product,market:String(d.market||'global').slice(0,90),objective:String(d.objective||'awareness').slice(0,100),status:'draft',persisted:false,published:false,billingStatus:'provider-gated',serverVerified:false}}))
  })
  ;(window as any).__showHoloAds=()=>publish()
 }
