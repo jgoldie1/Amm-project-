@@ -1,4 +1,4 @@
-import {createTransportManifest,boardTransportParty,passengerCount,type TransportKind,type TransportPartyMember} from './StreetVersePassengerTransportRuntime'
+import {createTransportManifest,boardTransport,boardTransportParty,type TransportKind,type TransportPartyMember} from './StreetVersePassengerTransportRuntime'
 
 /** Local game-world itinerary and group boarding. Not a real-world ticket or booking. */
 export type StreetVerseTripMode='rideshare'|'car'|'bus'|'train'|'plane'
@@ -28,9 +28,13 @@ export function planOpenWorldTrip(input:{mode:StreetVerseTripMode;from:StreetVer
   // A car or ride share requires a real driver seat plus five passenger seats.
   // Buses, trains and planes reserve the operator seat and board passengers only.
   const manifest=createTransportManifest('travel:'+tripId,mode as TransportKind,passengers)
-  const passengersOnly=members.map(member=>({...member,leader:false,preferredSeatId:undefined}))
-  const result=boardTransportParty(manifest,passengersOnly)
-  return{id:tripId,mode,from,to,partySize:members.length,boarded:result.boarded.length,waiting:result.waiting.length,seatCapacity:passengers,status:'boarding-planned',transportId:manifest.transportId,virtualOnly:true}
+  // Personally driven car: party leader takes the driver's seat, allowing six
+  // total travelers. Ride share reserves its driver's seat for the operator.
+  const driverSeat=mode==='car'?boardTransport(manifest,members[0].actorId,'front-driver'):null
+  const riders=mode==='car'&&driverSeat?members.slice(1):members
+  const result=boardTransportParty(manifest,riders.map(member=>({...member,leader:false,preferredSeatId:undefined})))
+  const boarded=result.boarded.length+(driverSeat?1:0)
+  return{id:tripId,mode,from,to,partySize:members.length,boarded,waiting:members.length-boarded,seatCapacity:passengers+(mode==='car'?1:0),status:'boarding-planned',transportId:manifest.transportId,virtualOnly:true}
 }
 export function requestOpenWorldTrip(input:{mode:StreetVerseTripMode;from:StreetVerseDestination;to:StreetVerseDestination;partySize:number}){
   const size=Number.isInteger(input.partySize)?Math.max(1,Math.min(200,input.partySize)):1
