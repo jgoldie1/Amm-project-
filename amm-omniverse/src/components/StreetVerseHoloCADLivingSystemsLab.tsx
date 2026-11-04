@@ -3,6 +3,7 @@ import {createPortal} from 'react-dom'
 import * as THREE from 'three'
 import {checkHoloCADXRSupport,getXRAPI,type HoloCADXRMode,type HoloCADXRSupport} from '../game/holocad/holocadXRSupport'
 import {diagnoseHoloCADTraining} from '../game/holocad/holocadTrainingDiagnostics'
+import {appendHoloCADResearchHistory,HOLOCAD_RESEARCH_EVENT,type HoloCADResearchResult} from '../game/holocad/holocadResearchBridge'
 import {
  HOLOCAD_LIVING_PRESETS,HOLOCAD_SUBJECT_ORDER,layoutHoloCAD,
  type HoloCADSubject,type HoloCADPart,type HoloCADLayer
@@ -11,6 +12,7 @@ import {
 const HoloCADQuantumSandboxPanel=lazy(()=>import('./HoloCADQuantumSandboxPanel'))
 const HoloCADPhysicsSandboxPanel=lazy(()=>import('./HoloCADPhysicsSandboxPanel'))
 const HoloCADGLBAssetInspector=lazy(()=>import('./HoloCADGLBAssetInspector'))
+const HoloCADEcosystemIntegrationHub=lazy(()=>import('./HoloCADEcosystemIntegrationHub'))
 
 const control:CSSProperties={
  minHeight:44,border:'1px solid #68d8fb77',borderRadius:11,
@@ -43,6 +45,8 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
  const [showQuantum,setShowQuantum]=useState(false)
  const [showPhysics,setShowPhysics]=useState(false)
  const [showGLB,setShowGLB]=useState(false)
+ const [showIntegration,setShowIntegration]=useState(false)
+ const [researchRuns,setResearchRuns]=useState<HoloCADResearchResult[]>([])
  const host=useRef<HTMLDivElement|null>(null)
  const runtime=useRef<{
   draw:()=>void
@@ -65,6 +69,15 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
    if(alive)setXRSupport(support)
   })
   return()=>{alive=false}
+ },[])
+
+ useEffect(()=>{
+  const onResult=(event:Event)=>{
+   const detail=(event as CustomEvent<unknown>).detail
+   setResearchRuns(history=>appendHoloCADResearchHistory(history,detail))
+  }
+  window.addEventListener(HOLOCAD_RESEARCH_EVENT,onResult)
+  return()=>window.removeEventListener(HOLOCAD_RESEARCH_EVENT,onResult)
  },[])
 
  useEffect(()=>{
@@ -368,6 +381,7 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
     certifiableMedicalDevice:false,certifiedVehicleRepair:false,engineeredConstructionDrawing:false,
     generatedAt:new Date().toISOString(),explosion:explode,
     detachedIds:detached,trainingDamageIds:damaged,visibleLayers:layers,
+    educationalResearchEvents:researchRuns,
     trainingDiagnostic:{status:diagnostic.status,affectedParts:diagnostic.affectedParts,exerciseIntegrityPercent:diagnostic.exerciseIntegrityPercent},
     parts:data.parts.map(({id,label,layer,shape,position,size,explode,description})=>({
       id,label,layer,shape,position,size,explode,description
@@ -438,6 +452,9 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
       <button type="button" aria-label="Open HoloCAD GLB Asset Inspector" aria-pressed={showGLB}
         style={{...control,background:showGLB?'#25477b':'#182d47'}}
         onClick={()=>setShowGLB(v=>!v)}>📦 INSPECT GLB ASSET</button>
+      <button type="button" aria-label="Open TRYAMM Integration Hub" aria-pressed={showIntegration}
+       style={{...control,background:showIntegration?'#234e71':'#182d47'}}
+       onClick={()=>setShowIntegration(v=>!v)}>🧩 INTEGRATION HUB • {researchRuns.length}</button>
      </div>
      <p style={{fontSize:10,color:'#9bc9dd',lineHeight:1.5}}>{data.subtitle}. Shapes are illustrative, not measured medical anatomy or certified engineering drawings.</p>
      {showQuantum&&<Suspense fallback={<div role="status" style={{minHeight:44,padding:11,color:'#ded4ff'}}>Loading CPU quantum circuit sandbox…</div>}>
@@ -447,7 +464,10 @@ export default function StreetVerseHoloCADLivingSystemsLab({onClose}:{onClose:()
       <HoloCADPhysicsSandboxPanel subject={subject} selectedPart={part.label} onClose={()=>setShowPhysics(false)}/>
      </Suspense>}
      {showGLB&&<Suspense fallback={<div role="status" style={{padding:11,color:'#d7e5ff'}}>Loading local GLB inspector…</div>}>
-      <HoloCADGLBAssetInspector onClose={()=>setShowGLB(false)}/>
+      <HoloCADGLBAssetInspector subject={subject} onClose={()=>setShowGLB(false)}/>
+     </Suspense>}
+     {showIntegration&&<Suspense fallback={<div role="status" style={{padding:11,color:'#d8e9ff'}}>Loading development integration inventory…</div>}>
+      <HoloCADEcosystemIntegrationHub records={researchRuns} onClear={()=>setResearchRuns([])} onClose={()=>setShowIntegration(false)}/>
      </Suspense>}
     </div>
     <section style={{minWidth:0,background:'#0c1d2c',border:'1px solid #2b5879',padding:12,borderRadius:16}}>
