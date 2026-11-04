@@ -50,6 +50,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
   const [visualFilter, setVisualFilter] = useState<VisualFilter>('clean')
   const [mirrorLocal, setMirrorLocal] = useState(true)
   const [effectsOpen, setEffectsOpen] = useState(false)
+  const [gameSharing,setGameSharing]=useState(false)
   const roomRef = useRef<Room | null>(null)
   const stageRef = useRef<HTMLDivElement>(null)
 
@@ -105,7 +106,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
   async function preflightHostMedia(){
     if(role!=='host')return
     if(!navigator.mediaDevices?.getUserMedia)throw new Error('Camera and microphone are not available on this device/browser.')
-    const preview=await navigator.mediaDevices.getUserMedia({video:true,audio:true})
+    const preview=await navigator.mediaDevices.getUserMedia({video:format!=='gamecast',audio:true})
     preview.getTracks().forEach(track=>track.stop())
   }
 
@@ -120,6 +121,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
         roomName,
         role,
         displayName,
+        cameraEnabled:format!=='gamecast',
         onParticipants: setParticipants,
         onTrack: (element, participantIdentity) => {
           prepareMediaElement(element, participantIdentity, false)
@@ -153,9 +155,24 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
     roomRef.current = null
     stageRef.current?.replaceChildren()
     setConnected(false)
+    setGameSharing(false)
     setParticipants(0)
     window.dispatchEvent(new CustomEvent('tryamm:live-session-end',{detail:{roomName,role}}))
     if(pkMode)window.dispatchEvent(new CustomEvent('tryamm:pk-end',{detail:{roomName,role,reason:'leave'}}))
+  }
+
+  async function toggleGameShare() {
+    if(!roomRef.current||role!=='host'||format!=='gamecast')return
+    try{
+      // This must run from the user's direct click to allow the Chrome screen picker.
+      const enable=!gameSharing
+      await roomRef.current.localParticipant.setScreenShareEnabled(enable)
+      setGameSharing(enable)
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-gamecast-capture',{detail:{enabled:enable,source:'live-center',destination:'tryamm-livekit'}}))
+    }catch(e){
+      setGameSharing(false)
+      setError(e instanceof Error?e.message:'Screen capture was not permitted on this device.')
+    }
   }
 
   async function toggleMic() {
@@ -220,12 +237,14 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
             <button disabled={busy || configured === false} onClick={() => void connect()} style={styles.primary}>{busy ? 'Connecting…' : role === 'host' ? (pkMode?'START PK CAMERA':'Go LIVE') : (pkMode?'WATCH PK':'Join LIVE')}</button>
           ) : (
             <div style={styles.row}>
+              {role === 'host' && format==='gamecast' && <button aria-label={gameSharing?'Stop StreetVerse screen sharing':'Share StreetVerse game screen'} onClick={() => void toggleGameShare()} style={styles.primary}>{gameSharing?'STOP GAME SHARE':'🎮 SHARE STREETVERSE GAME'}</button>}
               {role === 'host' && <button onClick={() => void toggleMic()} style={styles.secondary}>Mic</button>}
               {role === 'host' && <button onClick={() => void toggleCamera()} style={styles.secondary}>Camera</button>}
               <button onClick={leave} style={styles.danger}>Leave</button>
             </div>
           )}
 
+          {format==='gamecast'&&role==='host'&&<p role="status" aria-live="polite" style={styles.small}>{gameSharing?'Game screen share requested and active in local LiveKit room. Verify from a second device.':'Gamecast uses microphone and a separate screen-share permission. After joining, select SHARE STREETVERSE GAME and choose the Chromebook tab or window running StreetVerse. TikTok is not connected automatically.'}</p>}
           <p style={styles.status}>{configured === null ? 'Checking LiveKit…' : configured ? `● ${pkMode?'PK / ':''}LIVE infrastructure configured • host camera/mic preflight on connect` : '○ LIVE engine is built; production LiveKit credentials are still required'}</p>
           {configured===false&&providerStatus&&<div style={styles.providerGate}>
             <b>LIVE ACTIVATION GATE</b>
