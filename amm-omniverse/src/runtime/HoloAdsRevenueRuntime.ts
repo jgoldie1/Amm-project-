@@ -9,6 +9,27 @@ export const HOLO_AD_PRODUCTS:HoloAdProduct[]=[
 {id:'business-os',name:'Business OS Growth Suite',billing:'subscription',audience:'SMBs and organizations',includes:['Holo Ads','AI call center','marketplace','broadcasting','CRM/lead intents','analytics']},
 ]
 
+import {TRYAMM_PLACEMENT_SURFACES,type PlacementSurface} from './TryammPlacementBriefRuntime'
+export type HoloAdDraftInput={productId?:string;market?:string;objective?:string;advertiserName?:string;productName?:string;concept?:string;surfaces?:string[]}
+const sanitized=(v:unknown,max:number)=>String(v??'').replace(/[<>\\u0000-\\u001f]/g,'').trim().slice(0,max)
+/** Client preview only; no inventory reservation, payment or automatic publication. */
+export function prepareHoloAdDraft(input:HoloAdDraftInput){
+ const product=HOLO_AD_PRODUCTS.find(p=>p.id===input.productId)
+ if(!product)return null
+ const allowed=new Set<string>(TRYAMM_PLACEMENT_SURFACES.map(s=>s.id))
+ const surfaces:PlacementSurface[]=Array.isArray(input.surfaces)
+  ?Array.from(new Set(input.surfaces.filter((s):s is PlacementSurface=>typeof s==='string'&&allowed.has(s)))).slice(0,5):[]
+ return{
+  id:'ad-draft-'+Date.now(),product,
+  market:sanitized(input.market||'global',90),objective:sanitized(input.objective||'awareness',100),
+  advertiserName:sanitized(input.advertiserName,90),
+  productName:sanitized(input.productName||input.concept,100),
+  surfaces,status:'draft' as const,persisted:false as const,published:false as const,
+  billingStatus:'provider-gated' as const,serverVerified:false as const,billable:false as const,
+  rightsStatus:'review-required' as const,disclosure:'ADVERTISEMENT (draft only)' as const
+ }
+}
+
 let installed=false
 export function installHoloAdsRevenueRuntime(){
  if(installed||typeof window==='undefined')return;installed=true
@@ -16,14 +37,14 @@ export function installHoloAdsRevenueRuntime(){
  queueMicrotask(publish)
  window.addEventListener('tryamm:holo-ads-request',publish)
  window.addEventListener('tryamm:holo-ads-create-campaign',(e:Event)=>{
-   const d=(e as CustomEvent<any>).detail||{}
-   const product=HOLO_AD_PRODUCTS.find(p=>p.id===String(d.productId||''))
-   if(!product){
+   const d=(e as CustomEvent<HoloAdDraftInput>).detail||{}
+   const draft=prepareHoloAdDraft(d)
+   if(!draft){
      window.dispatchEvent(new CustomEvent('tryamm:holo-ads-campaign-rejected',{detail:{reason:'unsupported_holo_ads_product'}}))
      return
    }
    // Preview-only draft data is neither stored in a campaign service nor billed.
-   window.dispatchEvent(new CustomEvent('tryamm:holo-ads-campaign-draft',{detail:{id:`ad-${Date.now()}`,product,market:String(d.market||'global').slice(0,90),objective:String(d.objective||'awareness').slice(0,100),status:'draft',persisted:false,published:false,billingStatus:'provider-gated',serverVerified:false}}))
+   window.dispatchEvent(new CustomEvent('tryamm:holo-ads-campaign-draft',{detail:draft}))
  })
  ;(window as any).__showHoloAds=()=>publish()
 }
