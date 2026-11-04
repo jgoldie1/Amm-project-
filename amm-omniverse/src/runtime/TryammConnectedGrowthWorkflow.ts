@@ -31,8 +31,9 @@ export const TRYAMM_GROWTH_STAGES:readonly {id:TryammGrowthStage;label:string;ga
 export const TRYAMM_AI_CONNECTIONS=[
  {id:'hologpt',name:'HoloGPT',status:'interface-present',role:'Guidance and creator navigation; external provider readiness must be checked'},
  {id:'jarvis',name:'Jarvis',status:'bounded-routing',role:'Open approved TRYAMM tools; not autonomous payment or ad publishing'},
- {id:'science-agi5',name:'Science AGI 5',status:'research-unverified',role:'Research proposal only; no authenticated autonomous agent verified'},
- {id:'science-agic',name:'Science AGI-C',status:'research-unverified',role:'Research proposal only; no authenticated autonomous agent verified'},
+ {id:'science-agi5',name:'Five-Sense AGI / AGI 5',status:'research-unverified',role:'Historical five-sense and symbiotic AI architecture; no verified perception model or autonomous runtime'},
+ {id:'science-agi',name:'Science AGI',status:'research-unverified',role:'Research-oriented module proposal; no independently verified scientific agent available to customers'},
+ {id:'science-agic',name:'AGI-C / Science AGI-C',status:'research-unverified',role:'Proposed coordination architecture; not a deployed AGI or approved decision authority'},
  {id:'omnibox',name:'OmniBox',status:'limited-workflow',role:'Story drafts and rights-gated creator destinations; publishing requires secure backend'},
  {id:'reels',name:'Holo Reels',status:'creator-studio',role:'Capture, compose, render and prepare authorized releases'},
  {id:'holo-ads',name:'Holo Ads',status:'draft-only',role:'Campaign setup; advertiser billing and qualified delivery are server-gated'}
