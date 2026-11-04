@@ -93,4 +93,22 @@ assert.match(mobile,/addEventListener\('tryamm:streetverse-pocket-open',openPock
 assert.match(mobile,/<StreetVersePocketDimension onClose=/,
   'Quantum Storage must open the existing ownership-aware Pocket Dimension')
 
+
+const cc0Manifest=read('../src/data/StreetVerseCC0GestureClips50.ts')
+const cc0Gallery=read('../src/components/StreetVerseCC0MotionGallery.tsx')
+const rpSearch=read('../src/components/StreetVerseRPActionSearch.tsx')
+const fiftyMotions=[...cc0Manifest.matchAll(/\{id:'cc0-[^']+',pack:'UAL[12]',clip:'[^']+',label:'[^']+',category:'[^']+'\}/g)]
+assert.equal(fiftyMotions.length,50,'50 extra source GLB motions must be individually named')
+assert.equal(new Set(fiftyMotions.map(m=>m[0])).size,50,'source motion rows must not repeat')
+assert.match(cc0Manifest,/license:'CC0-1.0'/,'import source must remain CC0')
+assert.match(cc0Manifest,/bb2ce469f0ab2ccfc487faef55550ba07fae2483/,'pin source commit to prevent quiet asset changes')
+assert.match(cc0Gallery,/new GLTFLoader\(\)\.loadAsync\(pack\.url\)/,
+ 'source preview must load real GLB on demand')
+assert.match(cc0Gallery,/gltf\.animations\.find/,'source clip name must be verified from actual GLB')
+assert.match(cc0Gallery,/source mannequin|preview mannequin/i,'source player must be explicitly not BJ')
+assert.match(cc0Gallery,/renderer\.dispose\(\)/,'temporary WebGL viewer must release renderer')
+assert.match(rpSearch,/Open 50 CC0 GLB gesture motion previews/,'RP action carousel needs 50-motion entrypoint')
+assert.match(rpSearch,/StreetVerseCC0MotionGallery/,'gallery must load from the RP action search')
+assert.doesNotMatch(cc0Manifest,/id:'cc0-[^']*shadow[-_ ]?box/,'Shadow Box stays reserved for boxing game')
+
 console.log(`StreetVerse vehicle control-loop contract: PASS (${worlds.length} playable worlds + iPhone-safe mission parity)`)
