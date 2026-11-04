@@ -12,6 +12,14 @@ Research date: 2026-11-04. Scope: **BJ animation clips** for the open-world HOLO
 
 This GLB is a small, lawful *test asset for clip discovery, imported 3D playback and retargeting*. It is a distinct robot rig. **Never copy its AnimationClip directly onto BJ without verified bone mapping and a visible movement test.** Punch is an animation in that asset, **not** permission to add combat or boxing to the StreetVerse carousel.
 
+## 1A. Better CC0 source for fifty *real* humanoid motions
+- **Quaternius Universal Animation Library** — 120+ humanoid animations, CC0: https://quaternius.itch.io/universal-animation-library
+- **Quaternius Universal Animation Library 2** — 130+ more humanoid animations, CC0: https://quaternius.itch.io/universal-animation-library-2
+- These are commercially usable free Standard editions, with a common retarget-friendly humanoid rig. Their downloaded assets must still be mapped and tested on BJ before being marked "PLAYED".
+- The **robot model's fourteen clips** and **our fifty original procedural recipes** are separate from these source packs.
+- The browser import is intentionally not automatic: no source ZIP has been downloaded, no fifty retargeted motion clips are stored in the game, and no unpaid/private-source conversion should be presumed.
+- Required integration after authorized asset download: inventory GLB clips, choose fifty non-boxing actions, pin per-file CC0 license evidence, retarget to BJ, verify in Three.js, retain current player walking/driving rig, and publish only tested assets.
+
 ## 2. GitHub transformation tools (tool licenses do not license the source motions)
 - https://github.com/matthewjberger/mixamo-to-gltf — Apache-2.0 code. Combine supplied character and motion files into a GLB, with a preview.
 - https://github.com/enomie/Mixamo2GLBAnimationMerger — MIT code. Pipeline for combining FBX/Mixamo animations into GLB.
