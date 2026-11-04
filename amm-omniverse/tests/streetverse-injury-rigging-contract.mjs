@@ -20,7 +20,7 @@ const checks=[
  ['scene integration',world.includes("createStreetVerseInjuryRuntime(scene,()=>nativeHero||avatar,'bj-stubbs',()=>Boolean(activeCar))")],
  ['frame tick',world.includes('injuryFx.tick(now)')],
  ['world cleanup',world.includes('injuryFx.dispose()')],
- ['panel hit test',panel.includes('TEST HIT −25 HP')],
+ ['panel chest hit test',panel.includes('TEST CHEST HIT −25 HP')],
  ['panel defeat test',panel.includes('TEST DEFEAT')],
  ['panel recovery',panel.includes('RESPAWN')],
  ['reactions emitted for animation director',injury.includes('tryamm:streetverse-rig-reaction')],
