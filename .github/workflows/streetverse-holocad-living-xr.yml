@@ -11,6 +11,7 @@ on:
       - 'amm-omniverse/tests/streetverse-holocad-physics-sandbox.test.mjs'
       - 'amm-omniverse/tests/streetverse-holocad-glb-inspector.test.mjs'
       - 'amm-omniverse/tests/streetverse-holocad-ecosystem-bridge.test.mjs'
+      - 'amm-omniverse/tests/streetverse-holocad-original-glb-archive.test.mjs'
       - '.github/workflows/streetverse-holocad-living-xr.yml'
   pull_request:
     paths:
@@ -22,6 +23,7 @@ on:
       - 'amm-omniverse/tests/streetverse-holocad-physics-sandbox.test.mjs'
       - 'amm-omniverse/tests/streetverse-holocad-glb-inspector.test.mjs'
       - 'amm-omniverse/tests/streetverse-holocad-ecosystem-bridge.test.mjs'
+      - 'amm-omniverse/tests/streetverse-holocad-original-glb-archive.test.mjs'
       - '.github/workflows/streetverse-holocad-living-xr.yml'
 permissions:
   contents: read
@@ -46,6 +48,7 @@ jobs:
           node --test amm-omniverse/tests/streetverse-holocad-physics-sandbox.test.mjs
           node --test amm-omniverse/tests/streetverse-holocad-glb-inspector.test.mjs
           node --test amm-omniverse/tests/streetverse-holocad-ecosystem-bridge.test.mjs
+          node --test amm-omniverse/tests/streetverse-holocad-original-glb-archive.test.mjs
       - name: Install dependencies
         working-directory: amm-omniverse
         run: npm ci --no-audit --no-fund
